@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	[ExecuteAlways]
 	public class UiUvModifier : BaseMeshEffect
 	{
 		public Vector2 m_min = Vector2.zero;

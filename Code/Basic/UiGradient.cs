@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	[ExecuteInEditMode]
+	[ExecuteAlways]
 	public class UiGradient : BaseMeshEffect
 	{
 		public Color m_colorLeftOrBottom;
