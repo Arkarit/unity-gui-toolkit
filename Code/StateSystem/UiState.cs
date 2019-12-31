@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 namespace GuiToolkit.UiStateSystem
 {
-	[AddComponentMenu("")]
-	public class UiState : MonoBehaviour
+	[Serializable]
+	public class UiState
 	{
 		[SerializeField]
 		private string m_name;

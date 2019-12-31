@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace GuiToolkit.UiStateSystem
 {
-	[AddComponentMenu("")]
-	public class UiTransition : MonoBehaviour
+	[Serializable]
+	public class UiTransition
 	{
 		[SerializeField]
 		private UiStateMachine m_stateMachine;
