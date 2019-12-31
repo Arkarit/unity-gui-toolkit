@@ -5,8 +5,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit.UiStateSystem
 {
-	[Serializable]
-	public class UiState
+	public class UiState : OdinSerializer.SerializedScriptableObject
 	{
 		[SerializeField]
 		private string m_name;

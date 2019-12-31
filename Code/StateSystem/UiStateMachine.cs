@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GuiToolkit.UiStateSystem
 {
 	[DisallowMultipleComponent]
-	public class UiStateMachine : MonoBehaviour, IEditorUpdateable
+	public class UiStateMachine : OdinSerializer.SerializedMonoBehaviour, IEditorUpdateable
 	{
 #if UNITY_EDITOR
 		private const bool FORCE_DICT_REBUILD_IN_EDITOR = true;

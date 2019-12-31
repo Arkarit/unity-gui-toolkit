@@ -3,8 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit.UiStateSystem
 {
-	[Serializable]
-	public class UiTransition
+	public class UiTransition : OdinSerializer.SerializedScriptableObject
 	{
 		[SerializeField]
 		private UiStateMachine m_stateMachine;
