@@ -22,7 +22,9 @@ namespace GuiToolkit.UiStateSystem
 			{
 				SerializedProperty transitionProp = _list.GetArrayElementAtIndex(i);
 
+Debug.Log("Before");
 				EditorGUILayout.PropertyField(transitionProp, true);
+Debug.Log("After");
 				/*
 								if (transitionProp.objectReferenceValue == null)
 									transitionProp.objectReferenceValue = OdinSerializer.SerializedScriptableObject.CreateInstance<UiTransition>();
@@ -97,39 +99,16 @@ namespace GuiToolkit.UiStateSystem
 			return result;
 		}
 
-		private static void DisplayStateNamePopup( string _prefixLabel, SerializedProperty _prop, ref List<string> _stateNames, bool _allowAny )
-		{
-			int numStates = _stateNames.Count;
-			int anyOffset = _allowAny ? 1 : 0;
-			string[] options = new string[numStates + anyOffset];
-			if (_allowAny)
-				options[0] = "(Any)";
-
-			int selected = 0;
-
-			for (int i = 0; i < numStates; i++)
-			{
-				options[i + anyOffset] = _stateNames[i];
-				if (_stateNames[i] == _prop.stringValue)
-					selected = i + anyOffset;
-			}
-
-			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label(_prefixLabel, GUILayout.Width(UiEditorUtility.PREFIX_WIDTH));
-			selected = EditorGUILayout.Popup(selected, options, GUILayout.Height(EditorStyles.popup.fixedHeight - 5));
-			if (_allowAny && selected == 0)
-				_prop.stringValue = "";
-			else
-				_prop.stringValue = _stateNames[selected - anyOffset];
-			EditorGUILayout.EndHorizontal();
-		}
-
 	}
 
 	// IngredientDrawer
 	[CustomPropertyDrawer(typeof(UiTransition))]
 	public class UiTransitionDrawer : PropertyDrawer
 	{
+		static private float LABEL_WIDTH = 96;
+		static private float LINE_HEIGHT = 22;
+		static private float SPACING = 10;
+
 		// Draw the property inside the given rect
 		public override void OnGUI( Rect _position, SerializedProperty _property, GUIContent _label )
 		{
@@ -145,40 +124,24 @@ namespace GuiToolkit.UiStateSystem
 			// prefab override logic works on the entire property.
 			EditorGUI.BeginProperty(_position, _label, _property);
 
-			// Draw label
-//			_position = EditorGUI.PrefixLabel(_position, GUIUtility.GetControlID(FocusType.Passive), _label);
-
-			// Don't make child fields be indented
-			var indent = EditorGUI.indentLevel;
-			EditorGUI.indentLevel = 0;
-
 			// UiTransition serialized properties
 			SerializedProperty stateMachineProp = _property.FindPropertyRelative("m_stateMachine");
 			SerializedProperty fromProp = _property.FindPropertyRelative("m_from");
 			SerializedProperty toProp = _property.FindPropertyRelative("m_to");
 			SerializedProperty durationProp = _property.FindPropertyRelative("m_duration");
-			SerializedProperty easeProp = _property.FindPropertyRelative("m_ease");
+			SerializedProperty animationCurveProp = _property.FindPropertyRelative("m_animationCurve");
 
 			stateMachineProp.objectReferenceValue = UiTransitionSubEditor.StateMachineCurrentlyEdited;
 
-			Rect fromRect = new Rect(_position.x, _position.y, _position.width, _position.height);
-			Rect toRect = new Rect(_position.x, _position.y + EditorGUIUtility.singleLineHeight, _position.width, _position.height);
+			Rect fromRect = new Rect(_position.x, _position.y, _position.width, LINE_HEIGHT);
+			Rect toRect = new Rect(_position.x, _position.y + LINE_HEIGHT, _position.width, LINE_HEIGHT);
+			Rect durationRect = new Rect(_position.x, _position.y + LINE_HEIGHT * 2, _position.width, LINE_HEIGHT);
+			Rect animationCurveRect = new Rect(_position.x, _position.y + LINE_HEIGHT * 3, _position.width, LINE_HEIGHT);
 
 			DisplayStateNamePopup(fromRect, "From:", fromProp, thisStateMachine.StateNames, true);
 			DisplayStateNamePopup(toRect, "To:", toProp, thisStateMachine.StateNames, false);
-/*
-			// Calculate rects
-			var amountRect = new Rect(_position.x, _position.y, 30, _position.height);
-			var unitRect = new Rect(_position.x + 35, _position.y, 50, _position.height);
-			var nameRect = new Rect(_position.x + 90, _position.y, _position.width - 90, _position.height);
-
-			// Draw fields - passs GUIContent.none to each so they are drawn without labels
-			EditorGUI.PropertyField(amountRect, _property.FindPropertyRelative("amount"), GUIContent.none);
-			EditorGUI.PropertyField(unitRect, _property.FindPropertyRelative("unit"), GUIContent.none);
-			EditorGUI.PropertyField(nameRect, _property.FindPropertyRelative("name"), GUIContent.none);
-*/
-			// Set indent back to what it was
-			EditorGUI.indentLevel = indent;
+			DisplayProp(durationRect, "Duration:", durationProp);
+			DisplayProp(animationCurveRect, "Curve (time 0..1):", animationCurveProp);
 
 			EditorGUI.EndProperty();
 		}
@@ -199,31 +162,34 @@ namespace GuiToolkit.UiStateSystem
 				if (_stateNames[i] == _prop.stringValue)
 					selected = i + anyOffset;
 			}
-			_rect.height = EditorGUIUtility.singleLineHeight;
 			EditorGUI.PrefixLabel(_rect, new GUIContent( _prefixLabel ));
-			_rect.x += EditorGUIUtility.labelWidth;
-			_rect.width -= EditorGUIUtility.labelWidth;
+			_rect.x += LABEL_WIDTH;
+			_rect.width -= LABEL_WIDTH;
 			
 			selected = EditorGUI.Popup( _rect, selected, options );
-
-Debug.Log(_rect);
-/*
-			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label(_prefixLabel, GUILayout.Width(UiEditorUtility.PREFIX_WIDTH));
-			selected = EditorGUILayout.Popup(selected, options, GUILayout.Height(EditorStyles.popup.fixedHeight - 5));
 			if (_allowAny && selected == 0)
 				_prop.stringValue = "";
 			else
 				_prop.stringValue = _stateNames[selected - anyOffset];
-			EditorGUILayout.EndHorizontal();
-*/
+		}
+
+		private static void DisplayProp(Rect _rect, string _prefixLabel, SerializedProperty _prop)
+		{
+#if false
+			EditorGUI.PropertyField(_rect, _prop, new GUIContent(" "));
+#else
+			EditorGUI.PrefixLabel(_rect, GUIUtility.GetControlID(FocusType.Passive), new GUIContent( _prefixLabel ));
+			_rect.x += LABEL_WIDTH;
+			_rect.width -= LABEL_WIDTH;
+			EditorGUI.PropertyField(_rect, _prop, GUIContent.none);
+#endif
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
 			if( UiTransitionSubEditor.StateMachineCurrentlyEdited == null)
 				return EditorGUI.GetPropertyHeight(property);
-			return EditorGUIUtility.singleLineHeight * 10;
+			return LINE_HEIGHT * 4 + SPACING;
 		}
 
 	}

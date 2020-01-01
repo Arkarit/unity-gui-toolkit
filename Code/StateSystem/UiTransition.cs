@@ -13,7 +13,7 @@ namespace GuiToolkit.UiStateSystem
 		[SerializeField]
 		private string m_from;
 		[SerializeField]
-		private float m_duration = 1.0f;
+		private float m_duration;
 		[SerializeField]
 		private AnimationCurve m_animationCurve;
 
