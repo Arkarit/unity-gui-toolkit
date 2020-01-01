@@ -47,11 +47,11 @@ namespace GuiToolkit.UiStateSystem
 			if (normalizedTime < 1)
 			{
 				_val = m_animationCurve.Evaluate(normalizedTime);
-				return true;
+				return false;
 			}
 
 			_val = m_animationCurve.Evaluate(1);
-			return false;
+			return true;
 		}
 	}
 

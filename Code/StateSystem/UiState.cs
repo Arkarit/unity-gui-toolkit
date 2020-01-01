@@ -167,8 +167,8 @@ namespace GuiToolkit.UiStateSystem
 		{
 			if ((_support & EStatePropertySupport.SizePosition) != 0)
 			{
-				m_rectTransform.sizeDelta = Vector2.Lerp(_from.m_sizeDelta, m_sizeDelta, _normalizedValue);
-				m_rectTransform.anchoredPosition = Vector2.Lerp(_from.m_position, m_position, _normalizedValue);
+				m_rectTransform.sizeDelta = Vector2.LerpUnclamped(_from.m_sizeDelta, m_sizeDelta, _normalizedValue);
+				m_rectTransform.anchoredPosition = Vector2.LerpUnclamped(_from.m_position, m_position, _normalizedValue);
 			}
 			if ((_support & EStatePropertySupport.Active) != 0)
 			{
@@ -176,21 +176,21 @@ namespace GuiToolkit.UiStateSystem
 			}
 			if ((_support & EStatePropertySupport.Rotation) != 0)
 			{
-				float rot = Mathf.Lerp(_from.m_rotation, m_rotation, _normalizedValue);
+				float rot = Mathf.LerpUnclamped(_from.m_rotation, m_rotation, _normalizedValue);
 				RotateRectTransform(rot);
 			}
 			if ((_support & EStatePropertySupport.Scale) != 0)
 			{
-				m_rectTransform.localScale = Vector3.Lerp(_from.m_scale, m_scale, _normalizedValue);
+				m_rectTransform.localScale = Vector3.LerpUnclamped(_from.m_scale, m_scale, _normalizedValue);
 			}
 			if ((_support & EStatePropertySupport.PreferredWidth) != 0 && m_layoutElement != null)
 			{
-				float val = Mathf.Lerp(_from.m_preferredWidth, m_preferredWidth, _normalizedValue);
+				float val = Mathf.LerpUnclamped(_from.m_preferredWidth, m_preferredWidth, _normalizedValue);
 				m_layoutElement.preferredWidth = val;
 			}
 			if ((_support & EStatePropertySupport.PreferredHeight) != 0 && m_layoutElement != null)
 			{
-				float val = Mathf.Lerp(_from.m_preferredHeight, m_preferredHeight, _normalizedValue);
+				float val = Mathf.LerpUnclamped(_from.m_preferredHeight, m_preferredHeight, _normalizedValue);
 				m_layoutElement.preferredHeight = val;
 			}
 			if ((_support & EStatePropertySupport.Alpha) != 0 && m_canvasGroup != null)
