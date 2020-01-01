@@ -22,7 +22,6 @@ namespace GuiToolkit
 		public const int NORMAL_POPUP_HEIGHT = 20;
 		public const int LARGE_POPUP_HEIGHT = LARGE_BUTTON_HEIGHT;
 
-		public const int PREFIX_WIDTH = 90;
 		public const int LABEL_WIDTH = 120;
 
 		public static GUIStyle Italic
@@ -40,16 +39,25 @@ namespace GuiToolkit
 		public static void Button( string _labelText, string _buttonText, DelegateButtonAction _delegate, int _height = NORMAL_POPUP_HEIGHT )
 		{
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label(_labelText, GUILayout.Width(PREFIX_WIDTH));
+			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
 			if (GUILayout.Button(_buttonText, GUILayout.Height(_height)))
 				_delegate();
 			EditorGUILayout.EndHorizontal();
 		}
 
+		public static void Button( Rect _rect, string _labelText, string _buttonText, DelegateButtonAction _delegate, int _height = NORMAL_POPUP_HEIGHT )
+		{
+			EditorGUI.PrefixLabel(_rect, GUIUtility.GetControlID(FocusType.Passive), new GUIContent( _labelText ));
+			_rect.x += EditorGUIUtility.labelWidth;
+			_rect.width -= EditorGUIUtility.labelWidth;
+			if (GUI.Button(_rect, _buttonText))
+				_delegate();
+		}
+
 		public static void PropertyField( string _labelText, SerializedProperty _prop, bool _noPropertyLabel = false )
 		{
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label(_labelText, GUILayout.Width(PREFIX_WIDTH));
+			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
 			EditorGUIUtility.labelWidth = LABEL_WIDTH;
 			if (_noPropertyLabel)
 				EditorGUILayout.PropertyField(_prop, new GUIContent(""), true);
@@ -61,7 +69,7 @@ namespace GuiToolkit
 		public static void PropertyField( string _labelText, string _propertyLabelText, SerializedProperty _prop )
 		{
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label(_labelText, GUILayout.Width(PREFIX_WIDTH));
+			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
 			GUILayout.Label(_propertyLabelText, GUILayout.Width(LABEL_WIDTH));
 			EditorGUILayout.PropertyField(_prop, new GUIContent(""), true);
 			EditorGUILayout.EndHorizontal();
@@ -70,8 +78,8 @@ namespace GuiToolkit
 		public static bool Toggle( string _labelText, string _buttonText, ref bool _bool )
 		{
 			EditorGUILayout.BeginHorizontal();
-			EditorGUIUtility.labelWidth = PREFIX_WIDTH;
-			GUILayout.Label(_labelText, GUILayout.Width(PREFIX_WIDTH));
+			EditorGUIUtility.labelWidth = EditorGUIUtility.labelWidth;
+			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
 			EditorGUIUtility.labelWidth = LABEL_WIDTH;
 			bool current = _bool;
 			_bool = GUILayout.Toggle(_bool, _buttonText);
@@ -82,8 +90,8 @@ namespace GuiToolkit
 		public static void Label( string _labelText, string _labelText2 )
 		{
 			EditorGUILayout.BeginHorizontal();
-			EditorGUIUtility.labelWidth = PREFIX_WIDTH;
-			GUILayout.Label(_labelText, GUILayout.Width(PREFIX_WIDTH));
+			EditorGUIUtility.labelWidth = EditorGUIUtility.labelWidth;
+			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
 			EditorGUIUtility.labelWidth = LABEL_WIDTH;
 			GUILayout.Label(_labelText2);
 			EditorGUILayout.EndHorizontal();
@@ -92,8 +100,8 @@ namespace GuiToolkit
 		public static void LabelItalic( string _labelText, string _labelText2 )
 		{
 			EditorGUILayout.BeginHorizontal();
-			EditorGUIUtility.labelWidth = PREFIX_WIDTH;
-			GUILayout.Label(_labelText, Italic, GUILayout.Width(PREFIX_WIDTH));
+			EditorGUIUtility.labelWidth = EditorGUIUtility.labelWidth;
+			GUILayout.Label(_labelText, Italic, GUILayout.Width(EditorGUIUtility.labelWidth));
 			EditorGUIUtility.labelWidth = LABEL_WIDTH;
 			GUILayout.Label(_labelText2, Italic);
 			EditorGUILayout.EndHorizontal();
@@ -107,7 +115,7 @@ namespace GuiToolkit
 			int currentIdx = Array.FindIndex<T>(tvalues, v => (int)(object)v == (int)(object)currentVal);
 
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label(_labelText, GUILayout.Width(PREFIX_WIDTH));
+			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
 			if (!string.IsNullOrEmpty(_labelText2))
 				GUILayout.Label(_labelText2, GUILayout.Width(LABEL_WIDTH));
 			int newIdx = EditorGUILayout.Popup(currentIdx, types);
@@ -144,7 +152,7 @@ namespace GuiToolkit
 			}
 
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label(_labelText, GUILayout.Width(PREFIX_WIDTH));
+			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
 			if (!string.IsNullOrEmpty(_labelText2))
 				GUILayout.Label(_labelText2, GUILayout.Width(LABEL_WIDTH));
 			int newInt = EditorGUILayout.Popup(currentInt, _strings);

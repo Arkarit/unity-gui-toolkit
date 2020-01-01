@@ -7,9 +7,10 @@ namespace GuiToolkit.UiStateSystem
 {
 	public static class UiTransitionSubEditor
 	{
-		// A static transfer variable is disgusting - but we are forced to use it since Unity provides no way
+		// Static transfer variables are disgusting - but we are forced to use it since Unity provides no way
 		// to transfer additional data from an editor to a drawer
 		public static UiStateMachine StateMachineCurrentlyEdited { get; set; }
+		public static bool DestroyCurrentElement { get; set; }
 
 		public static bool DisplayTransitionList( UiStateMachine _stateMachine, SerializedProperty _list, bool _showComponents )
 		{
@@ -22,9 +23,14 @@ namespace GuiToolkit.UiStateSystem
 			{
 				SerializedProperty transitionProp = _list.GetArrayElementAtIndex(i);
 
-Debug.Log("Before");
+				DestroyCurrentElement = false;
 				EditorGUILayout.PropertyField(transitionProp, true);
-Debug.Log("After");
+				if (DestroyCurrentElement)
+				{
+					UiEditorUtility.RemoveArrayElementAtIndex(_list, i);
+					return true;
+				}
+
 				/*
 								if (transitionProp.objectReferenceValue == null)
 									transitionProp.objectReferenceValue = OdinSerializer.SerializedScriptableObject.CreateInstance<UiTransition>();
@@ -105,16 +111,15 @@ Debug.Log("After");
 	[CustomPropertyDrawer(typeof(UiTransition))]
 	public class UiTransitionDrawer : PropertyDrawer
 	{
-		static private float LABEL_WIDTH = 96;
 		static private float LINE_HEIGHT = 22;
-		static private float SPACING = 10;
+		static private float SPACING = 15;
 
 		// Draw the property inside the given rect
 		public override void OnGUI( Rect _position, SerializedProperty _property, GUIContent _label )
 		{
 			// If we are drawn by the default inspector, we display the default drawer.
 			UiStateMachine thisStateMachine = UiTransitionSubEditor.StateMachineCurrentlyEdited;
-			if( thisStateMachine == null)
+			if (thisStateMachine == null)
 			{
 				EditorGUI.PropertyField(_position, _property, _label, true);
 				return;
@@ -137,11 +142,25 @@ Debug.Log("After");
 			Rect toRect = new Rect(_position.x, _position.y + LINE_HEIGHT, _position.width, LINE_HEIGHT);
 			Rect durationRect = new Rect(_position.x, _position.y + LINE_HEIGHT * 2, _position.width, LINE_HEIGHT);
 			Rect animationCurveRect = new Rect(_position.x, _position.y + LINE_HEIGHT * 3, _position.width, LINE_HEIGHT);
+			float buttonWidth = (_position.width - EditorGUIUtility.labelWidth) / 2;
+			Rect deleteButtonRect = new Rect(_position.x + EditorGUIUtility.labelWidth, _position.y + LINE_HEIGHT * 4, buttonWidth, LINE_HEIGHT);
+			Rect testButtonRect = new Rect(_position.x + EditorGUIUtility.labelWidth + buttonWidth, _position.y + LINE_HEIGHT * 4, buttonWidth, LINE_HEIGHT);
 
 			DisplayStateNamePopup(fromRect, "From:", fromProp, thisStateMachine.StateNames, true);
 			DisplayStateNamePopup(toRect, "To:", toProp, thisStateMachine.StateNames, false);
-			DisplayProp(durationRect, "Duration:", durationProp);
-			DisplayProp(animationCurveRect, "Curve (time 0..1):", animationCurveProp);
+			EditorGUI.PropertyField(durationRect, durationProp, new GUIContent("Duration:"));
+			EditorGUI.PropertyField(animationCurveRect, animationCurveProp, new GUIContent("Curve (norm.):"));
+			if (GUI.Button(deleteButtonRect, "Delete"))
+			{
+				UiTransitionSubEditor.DestroyCurrentElement = true;
+			}
+			if (GUI.Button(testButtonRect, "Test"))
+			{
+				if (!string.IsNullOrEmpty(fromProp.stringValue))
+					thisStateMachine.ApplyInstant(fromProp.stringValue);
+				thisStateMachine.State = toProp.stringValue;
+				EditorUpdater.StartUpdating(thisStateMachine);
+			}
 
 			EditorGUI.EndProperty();
 		}
@@ -162,34 +181,18 @@ Debug.Log("After");
 				if (_stateNames[i] == _prop.stringValue)
 					selected = i + anyOffset;
 			}
-			EditorGUI.PrefixLabel(_rect, new GUIContent( _prefixLabel ));
-			_rect.x += LABEL_WIDTH;
-			_rect.width -= LABEL_WIDTH;
-			
-			selected = EditorGUI.Popup( _rect, selected, options );
+			selected = EditorGUI.Popup(_rect, _prefixLabel, selected, options);
 			if (_allowAny && selected == 0)
 				_prop.stringValue = "";
 			else
 				_prop.stringValue = _stateNames[selected - anyOffset];
 		}
 
-		private static void DisplayProp(Rect _rect, string _prefixLabel, SerializedProperty _prop)
+		public override float GetPropertyHeight( SerializedProperty property, GUIContent label )
 		{
-#if false
-			EditorGUI.PropertyField(_rect, _prop, new GUIContent(" "));
-#else
-			EditorGUI.PrefixLabel(_rect, GUIUtility.GetControlID(FocusType.Passive), new GUIContent( _prefixLabel ));
-			_rect.x += LABEL_WIDTH;
-			_rect.width -= LABEL_WIDTH;
-			EditorGUI.PropertyField(_rect, _prop, GUIContent.none);
-#endif
-		}
-
-		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-		{
-			if( UiTransitionSubEditor.StateMachineCurrentlyEdited == null)
+			if (UiTransitionSubEditor.StateMachineCurrentlyEdited == null)
 				return EditorGUI.GetPropertyHeight(property);
-			return LINE_HEIGHT * 4 + SPACING;
+			return LINE_HEIGHT * 5 + SPACING;
 		}
 
 	}

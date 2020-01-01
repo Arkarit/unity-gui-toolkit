@@ -112,7 +112,7 @@ namespace GuiToolkit.UiStateSystem
 			bool fillWithSelf = false;
 
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label("Fill", GUILayout.Width(UiEditorUtility.PREFIX_WIDTH));
+			GUILayout.Label("Fill", GUILayout.Width(EditorGUIUtility.labelWidth));
 			if (GUILayout.Button("Self"))
 				fillWithSelf = true;
 			if (GUILayout.Button("Children"))
@@ -181,7 +181,7 @@ namespace GuiToolkit.UiStateSystem
 				selected = 0;
 
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label("Current State", GUILayout.Width(UiEditorUtility.PREFIX_WIDTH));
+			GUILayout.Label("Current State", GUILayout.Width(EditorGUIUtility.labelWidth));
 			if (selected >= 0)
 			{
 				int numCurrentStates = m_stateNamesProp.arraySize;
@@ -215,7 +215,7 @@ namespace GuiToolkit.UiStateSystem
 				return;
 
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label(" ", GUILayout.Width(UiEditorUtility.PREFIX_WIDTH));
+			GUILayout.Label(" ", GUILayout.Width(EditorGUIUtility.labelWidth));
 			if (GUILayout.Button("Record", GUILayout.Height(UiEditorUtility.LARGE_BUTTON_HEIGHT)))
 			{
 				_stateMachine.Record();
@@ -226,7 +226,7 @@ namespace GuiToolkit.UiStateSystem
 		private void DisplayNewStateField()
 		{
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label("New State", GUILayout.Width(UiEditorUtility.PREFIX_WIDTH));
+			GUILayout.Label("New State", GUILayout.Width(EditorGUIUtility.labelWidth));
 			m_newStateName = GUILayout.TextField(m_newStateName);
 			EditorGUILayout.EndHorizontal();
 
