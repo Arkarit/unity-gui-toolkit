@@ -44,7 +44,7 @@ namespace GuiToolkit
 					moribund.Add(i);
 			}
 			for (int i = moribund.Count - 1; i >= 0; i--)
-				m_updateables.RemoveAt(i);
+				m_updateables.RemoveAt(moribund[i]);
 			if (m_updateables.Count == 0)
 				EditorApplication.update -= Update;
 #endif
