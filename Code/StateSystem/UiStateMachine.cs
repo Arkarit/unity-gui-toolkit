@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit.UiStateSystem
 {
 	[DisallowMultipleComponent]
@@ -20,7 +24,7 @@ namespace GuiToolkit.UiStateSystem
 #pragma warning restore 0649
 
 		[SerializeField]
-		private GameObject[] m_gameObjects;
+		private List<GameObject> m_gameObjects;
 
 		[SerializeField]
 		private List<string> m_stateNames;
@@ -114,8 +118,34 @@ namespace GuiToolkit.UiStateSystem
 		}
 #endif
 
+		public void UpdateHierarchy()
+		{
+			for (int i=0; i<m_gameObjects.Count; i++)
+			{
+				if (m_gameObjects[i] == null)
+				{
+					m_gameObjects.RemoveAt(i);
+					i--;
+				}
+			}
+			for (int i=0; i<m_states.Count; i++)
+			{
+				if (m_states[i].GameObject == null)
+				{
+					m_states.RemoveAt(i);
+					i--;
+				}
+			}
+		}
+
+		public void OnTransformChildrenChanged()
+		{
+			UpdateHierarchy();
+		}
+
 		public void Start()
 		{
+			UpdateHierarchy();
 			FillStateDictionary();
 		}
 
@@ -301,7 +331,7 @@ namespace GuiToolkit.UiStateSystem
 
 		private void FillStateDictionary( bool _force = false )
 		{
-			Debug.Assert(m_states.Count == m_stateNames.Count * m_gameObjects.Length);
+			Debug.Assert(m_states.Count == m_stateNames.Count * m_gameObjects.Count);
 
 			if (!_force && m_statesMap != null)
 				return;
