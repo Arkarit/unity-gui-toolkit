@@ -167,7 +167,6 @@ namespace GuiToolkit.UiStateSystem
 				if (m_currentTransition.Eval(m_currentTime, out val))
 				{
 					ApplyInstant(m_currentTransition.To, false);
-Debug.Log($"STOPPING GO:{gameObject}");
 					m_currentTransition = null;
 					m_from = new UiState[0];
 					m_to = new UiState[0];
@@ -341,8 +340,6 @@ Debug.Log($"STOPPING GO:{gameObject}");
 			Debug.Assert(!string.IsNullOrEmpty(_newStateName));
 			if (string.IsNullOrEmpty(_newStateName) || (m_currentStateName == _newStateName && !IsTransitionRunning()))
 				return;
-
-Debug.Log($"STOPPING GO:{gameObject}");
 
 			m_currentTransition = null;
 			m_currentStateName = _newStateName;
