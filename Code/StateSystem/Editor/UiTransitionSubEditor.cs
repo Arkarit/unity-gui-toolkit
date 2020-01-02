@@ -51,7 +51,6 @@ namespace GuiToolkit.UiStateSystem
 					if (!string.IsNullOrEmpty(fromProp.stringValue))
 						_stateMachine.ApplyInstant(fromProp.stringValue);
 					_stateMachine.State = toProp.stringValue;
-					EditorUpdater.StartUpdating(_stateMachine);
 				}, UiEditorUtility.MEDIUM_POPUP_HEIGHT);
 
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
@@ -101,6 +100,7 @@ namespace GuiToolkit.UiStateSystem
 
 		// Unity has a redraw? cache? problem regarding deleted list elements which contain an animation curve.
 		// For unknown reasons, the wrong (deleted) curve is displayed.
+		// The usual countermeasures (setting objects dirty etc) didn't help.
 		// Cloning the moved curves helps.
 		private static void WorkaroundAnimationCurveRedrawProblem( int _idx, SerializedProperty _list )
 		{

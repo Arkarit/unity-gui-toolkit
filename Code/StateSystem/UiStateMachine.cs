@@ -166,7 +166,8 @@ namespace GuiToolkit.UiStateSystem
 				float val;
 				if (m_currentTransition.Eval(m_currentTime, out val))
 				{
-					ApplyInstant(m_currentTransition.To);
+					ApplyInstant(m_currentTransition.To, false);
+Debug.Log($"STOPPING GO:{gameObject}");
 					m_currentTransition = null;
 					m_from = new UiState[0];
 					m_to = new UiState[0];
@@ -264,6 +265,10 @@ namespace GuiToolkit.UiStateSystem
 
 			m_currentTime = 0;
 			m_currentTransition = transition;
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				EditorUpdater.StartUpdating(this);
+#endif
 		}
 
 
@@ -302,7 +307,7 @@ namespace GuiToolkit.UiStateSystem
 
 #endif
 
-		public void ApplyInstant()
+		public void ApplyInstant( bool _alsoSubStateMachines = true )
 		{
 			if (string.IsNullOrEmpty(m_currentStateName))
 				return;
@@ -320,6 +325,9 @@ namespace GuiToolkit.UiStateSystem
 			foreach (var state in states)
 				state.ApplyInstant();
 
+			if (!_alsoSubStateMachines)
+				return;
+
 			List<UiStateMachine> subStateMachines;
 			if (m_subStateMachinesMap.TryGetValue(m_currentStateName, out subStateMachines))
 			{
@@ -328,14 +336,17 @@ namespace GuiToolkit.UiStateSystem
 			}
 		}
 
-		public void ApplyInstant( string _newStateName )
+		public void ApplyInstant( string _newStateName, bool _alsoSubStateMachines = true )
 		{
 			Debug.Assert(!string.IsNullOrEmpty(_newStateName));
 			if (string.IsNullOrEmpty(_newStateName) || (m_currentStateName == _newStateName && !IsTransitionRunning()))
 				return;
+
+Debug.Log($"STOPPING GO:{gameObject}");
+
 			m_currentTransition = null;
 			m_currentStateName = _newStateName;
-			ApplyInstant();
+			ApplyInstant( _alsoSubStateMachines );
 		}
 
 		private UiTransition FindTransition( string _stateName )

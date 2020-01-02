@@ -47,18 +47,24 @@ namespace GuiToolkit.UiStateSystem
 		{
 			float normalizedTime = (_currentTime-m_delay) / m_duration;
 
+if (m_stateMachine != null)
+Debug.Log($"GO:{m_stateMachine.gameObject} normalizedTime:{normalizedTime}");
+
 			if (normalizedTime < 0)
 			{
 				_val = m_animationCurve.Evaluate(0);
+Debug.Log("In Delay");
 				return false;
 			}
 
 			if (normalizedTime < 1)
 			{
 				_val = m_animationCurve.Evaluate(normalizedTime);
+Debug.Log("In Transition");
 				return false;
 			}
 
+Debug.Log("End");
 			_val = m_animationCurve.Evaluate(1);
 			return true;
 		}
