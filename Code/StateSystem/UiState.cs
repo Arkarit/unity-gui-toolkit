@@ -5,8 +5,11 @@ using UnityEngine.UI;
 
 namespace GuiToolkit.UiStateSystem
 {
-	public class UiState : OdinSerializer.SerializedScriptableObject
+	[Serializable]
+	public class UiState
 	{
+		//CAUTION!
+		// Be sure to add editor clone function
 		[SerializeField]
 		private string m_name;
 		[SerializeField]
@@ -30,11 +33,51 @@ namespace GuiToolkit.UiStateSystem
 		[SerializeField]
 		private bool m_active = true;
 		[SerializeField]
-		private float m_rotation;
+		private Vector3 m_rotation;
 		[SerializeField]
 		private Vector3 m_scale;
 		[SerializeField]
 		private float m_alpha;
+
+
+#if UNITY_EDITOR
+		public UiState() { }
+		public UiState( SerializedProperty _prop)
+		{
+			m_name				= (string) _prop.FindPropertyRelative("m_name").stringValue;
+			m_stateMachine		= (UiStateMachine) _prop.FindPropertyRelative("m_stateMachine").objectReferenceValue;
+			m_gameObject		= (GameObject) _prop.FindPropertyRelative("m_gameObject").objectReferenceValue;
+			m_rectTransform		= (RectTransform) _prop.FindPropertyRelative("m_rectTransform").objectReferenceValue;
+			m_layoutElement		= (LayoutElement) _prop.FindPropertyRelative("m_layoutElement").objectReferenceValue;
+			m_canvasGroup		= (CanvasGroup) _prop.FindPropertyRelative("m_canvasGroup").objectReferenceValue;
+			m_preferredWidth	= (float) _prop.FindPropertyRelative("m_preferredWidth").floatValue;
+			m_preferredHeight	= (float) _prop.FindPropertyRelative("m_preferredHeight").floatValue;
+			m_sizeDelta			= (Vector2) _prop.FindPropertyRelative("m_sizeDelta").vector2Value;
+			m_position			= (Vector2) _prop.FindPropertyRelative("m_position").vector2Value;
+			m_active			= (bool) _prop.FindPropertyRelative("m_active").boolValue;
+			m_rotation			= (Vector3) _prop.FindPropertyRelative("m_rotation").vector3Value;
+			m_scale				= (Vector3) _prop.FindPropertyRelative("m_scale").vector3Value;
+			m_alpha				= (float) _prop.FindPropertyRelative("m_alpha").floatValue;
+		}
+
+		public void SetSerializedProperty( SerializedProperty _prop)
+		{
+			_prop.FindPropertyRelative("m_name").stringValue = m_name;
+			_prop.FindPropertyRelative("m_stateMachine").objectReferenceValue = m_stateMachine;
+			_prop.FindPropertyRelative("m_gameObject").objectReferenceValue = m_gameObject;
+			_prop.FindPropertyRelative("m_rectTransform").objectReferenceValue = m_rectTransform;
+			_prop.FindPropertyRelative("m_layoutElement").objectReferenceValue = m_layoutElement;
+			_prop.FindPropertyRelative("m_canvasGroup").objectReferenceValue = m_canvasGroup;
+			_prop.FindPropertyRelative("m_preferredWidth").floatValue = m_preferredWidth;
+			_prop.FindPropertyRelative("m_preferredHeight").floatValue = m_preferredHeight;
+			_prop.FindPropertyRelative("m_sizeDelta").vector2Value = m_sizeDelta;
+			_prop.FindPropertyRelative("m_position").vector2Value = m_position;
+			_prop.FindPropertyRelative("m_active").boolValue = m_active;
+			_prop.FindPropertyRelative("m_rotation").vector3Value = m_rotation;
+			_prop.FindPropertyRelative("m_scale").vector3Value = m_scale;
+			_prop.FindPropertyRelative("m_alpha").floatValue = m_alpha;
+		}
+#endif
 
 
 		public string Name
@@ -110,7 +153,7 @@ namespace GuiToolkit.UiStateSystem
 				// values the user entered. Of course, this is not available during runtime.
 				SerializedObject serializedTransform = new SerializedObject(m_rectTransform);
 				SerializedProperty localEulerAnglesHint = serializedTransform.FindProperty("m_LocalEulerAnglesHint");
-				m_rotation = localEulerAnglesHint.vector3Value[2];
+				m_rotation = localEulerAnglesHint.vector3Value;
 			}
 			if ((_support & EStatePropertySupport.Scale) != 0)
 			{
@@ -176,7 +219,7 @@ namespace GuiToolkit.UiStateSystem
 			}
 			if ((_support & EStatePropertySupport.Rotation) != 0)
 			{
-				float rot = Mathf.LerpUnclamped(_from.m_rotation, m_rotation, _normalizedValue);
+				Vector3 rot = Vector3.LerpUnclamped(_from.m_rotation, m_rotation, _normalizedValue);
 				RotateRectTransform(rot);
 			}
 			if ((_support & EStatePropertySupport.Scale) != 0)
@@ -207,18 +250,18 @@ namespace GuiToolkit.UiStateSystem
 			_newState.Apply(_oldState, easedValue);
 		}
 
-		private void RotateRectTransform( float _rotation )
+		private void RotateRectTransform( Vector3 _rotation )
 		{
 #if UNITY_EDITOR
 			SerializedObject serializedTransform = new SerializedObject(m_rectTransform);
 			SerializedProperty localEulerAnglesHint = serializedTransform.FindProperty("m_LocalEulerAnglesHint");
 			Vector3 rotSerialized = localEulerAnglesHint.vector3Value;
-			rotSerialized.z = _rotation;
+			rotSerialized = _rotation;
 			localEulerAnglesHint.vector3Value = rotSerialized;
 			serializedTransform.ApplyModifiedProperties();
 #endif
 			Vector3 rot = m_rectTransform.eulerAngles;
-			rot.z = _rotation;
+			rot = _rotation;
 			m_rectTransform.localRotation = Quaternion.Euler(rot);
 		}
 

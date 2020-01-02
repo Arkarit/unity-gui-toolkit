@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GuiToolkit.UiStateSystem
 {
@@ -345,15 +346,12 @@ namespace GuiToolkit.UiStateSystem
 
 			for (int i = 0; i < m_statesProp.arraySize; i++)
 			{
-				UiState state = m_statesProp.GetArrayElementAtIndex(i).objectReferenceValue as UiState;
-				if (state == null)
+				SerializedProperty stateProp = m_statesProp.GetArrayElementAtIndex(i);
+				SerializedProperty goProp = stateProp.FindPropertyRelative("m_gameObject");
+				SerializedProperty nameProp = stateProp.FindPropertyRelative("m_name");
+
+				if (goProp.objectReferenceValue == null || !existingStates.Contains(nameProp.stringValue))
 				{
-					UiEditorUtility.RemoveArrayElementAtIndex(m_statesProp, i);
-					result = true;
-				}
-				else if (state.GameObject == null || !existingStates.Contains(state.Name))
-				{
-					Undo.DestroyObjectImmediate(state);
 					UiEditorUtility.RemoveArrayElementAtIndex(m_statesProp, i);
 					result = true;
 				}
@@ -365,13 +363,22 @@ namespace GuiToolkit.UiStateSystem
 		{
 			for (int i = 0; i < m_statesProp.arraySize; i++)
 			{
-				UiState state = m_statesProp.GetArrayElementAtIndex(i).objectReferenceValue as UiState;
-				if (state == null)
+				SerializedProperty stateProp = m_statesProp.GetArrayElementAtIndex(i);
+				SerializedProperty goProp = stateProp.FindPropertyRelative("m_gameObject");
+				SerializedProperty rectTransformProp = stateProp.FindPropertyRelative("m_rectTransform");
+				SerializedProperty layoutElementProp = stateProp.FindPropertyRelative("m_layoutElement");
+				SerializedProperty canvasGroupProp = stateProp.FindPropertyRelative("m_canvasGroup");
+
+				GameObject go = (GameObject) goProp.objectReferenceValue;
+				if (go == null)
 					continue;
-				state.hideFlags = s_drawDefaultInspector ? HideFlags.None : HideFlags.HideInInspector;
-				state.FindNecessaryComponents();
+
+				rectTransformProp.objectReferenceValue = go.transform as RectTransform;
+				layoutElementProp.objectReferenceValue = go.GetComponent<LayoutElement>();
+				canvasGroupProp.objectReferenceValue = go.GetComponent<CanvasGroup>();
 			}
 		}
+
 
 		private void CreateMissingStates()
 		{
@@ -380,9 +387,10 @@ namespace GuiToolkit.UiStateSystem
 
 			UiStateMachine thisStateMachine = (UiStateMachine)target;
 
+
 			UiState[] states = new UiState[m_statesProp.arraySize];
 			for (int i = 0; i < states.Length; i++)
-				states[i] = m_statesProp.GetArrayElementAtIndex(i).objectReferenceValue as UiState;
+				states[i] = new UiState( m_statesProp.GetArrayElementAtIndex(i));
 
 			GameObject[] gameObjects = new GameObject[m_gameObjectsProp.arraySize];
 			for (int i = 0; i < gameObjects.Length; i++)
@@ -407,11 +415,11 @@ namespace GuiToolkit.UiStateSystem
 					if (!found)
 					{
 						int newElemIdx = m_statesProp.arraySize++;
-						UiState newState = OdinSerializer.SerializedScriptableObject.CreateInstance<UiState>();
+						UiState newState = new UiState();
 						newState.SetBasicValues(stateName, thisStateMachine, gameObject);
 						serializedObject.ApplyModifiedProperties();
 						newState.Record();
-						m_statesProp.GetArrayElementAtIndex(newElemIdx).objectReferenceValue = newState;
+						newState.SetSerializedProperty(m_statesProp.GetArrayElementAtIndex(newElemIdx));
 					}
 				}
 			}
