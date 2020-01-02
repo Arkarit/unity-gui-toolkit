@@ -58,9 +58,8 @@ namespace GuiToolkit
 		{
 			EditorGUILayout.BeginHorizontal();
 			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
-			EditorGUIUtility.labelWidth = LABEL_WIDTH;
 			if (_noPropertyLabel)
-				EditorGUILayout.PropertyField(_prop, new GUIContent(""), true);
+				EditorGUILayout.PropertyField(_prop, GUIContent.none, true);
 			else
 				EditorGUILayout.PropertyField(_prop, true);
 			EditorGUILayout.EndHorizontal();
@@ -78,9 +77,7 @@ namespace GuiToolkit
 		public static bool Toggle( string _labelText, string _buttonText, ref bool _bool )
 		{
 			EditorGUILayout.BeginHorizontal();
-			EditorGUIUtility.labelWidth = EditorGUIUtility.labelWidth;
 			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
-			EditorGUIUtility.labelWidth = LABEL_WIDTH;
 			bool current = _bool;
 			_bool = GUILayout.Toggle(_bool, _buttonText);
 			EditorGUILayout.EndHorizontal();
@@ -90,9 +87,7 @@ namespace GuiToolkit
 		public static void Label( string _labelText, string _labelText2 )
 		{
 			EditorGUILayout.BeginHorizontal();
-			EditorGUIUtility.labelWidth = EditorGUIUtility.labelWidth;
 			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
-			EditorGUIUtility.labelWidth = LABEL_WIDTH;
 			GUILayout.Label(_labelText2);
 			EditorGUILayout.EndHorizontal();
 		}
@@ -100,9 +95,7 @@ namespace GuiToolkit
 		public static void LabelItalic( string _labelText, string _labelText2 )
 		{
 			EditorGUILayout.BeginHorizontal();
-			EditorGUIUtility.labelWidth = EditorGUIUtility.labelWidth;
 			GUILayout.Label(_labelText, Italic, GUILayout.Width(EditorGUIUtility.labelWidth));
-			EditorGUIUtility.labelWidth = LABEL_WIDTH;
 			GUILayout.Label(_labelText2, Italic);
 			EditorGUILayout.EndHorizontal();
 		}
