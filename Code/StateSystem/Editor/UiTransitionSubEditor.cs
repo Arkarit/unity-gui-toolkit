@@ -23,6 +23,7 @@ namespace GuiToolkit.UiStateSystem
 				SerializedProperty fromProp = transitionProp.FindPropertyRelative("m_from");
 				SerializedProperty toProp = transitionProp.FindPropertyRelative("m_to");
 				SerializedProperty durationProp = transitionProp.FindPropertyRelative("m_duration");
+				SerializedProperty delayProp = transitionProp.FindPropertyRelative("m_delay");
 				SerializedProperty curveProp = transitionProp.FindPropertyRelative("m_animationCurve");
 
 				// enter the matching state machine
@@ -34,6 +35,7 @@ namespace GuiToolkit.UiStateSystem
 				DisplayStateNamePopup("To:", toProp, ref stateNames, false);
 				EditorStyles.popup.fixedHeight = UiEditorUtility.NORMAL_POPUP_HEIGHT;
 				UiEditorUtility.PropertyField("Duration", durationProp, true);
+				UiEditorUtility.PropertyField("Delay", delayProp, true);
 				UiEditorUtility.PropertyField("Curve", curveProp, true);
 
 				UiEditorUtility.Button(" ", "Delete", delegate

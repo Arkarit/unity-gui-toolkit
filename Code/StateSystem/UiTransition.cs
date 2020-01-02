@@ -15,6 +15,8 @@ namespace GuiToolkit.UiStateSystem
 		[SerializeField]
 		private float m_duration;
 		[SerializeField]
+		private float m_delay;
+		[SerializeField]
 		private AnimationCurve m_animationCurve;
 
 		public string To
@@ -43,7 +45,14 @@ namespace GuiToolkit.UiStateSystem
 
 		public bool Eval( float _currentTime, out float _val )
 		{
-			float normalizedTime = _currentTime / m_duration;
+			float normalizedTime = (_currentTime-m_delay) / m_duration;
+
+			if (normalizedTime < 0)
+			{
+				_val = m_animationCurve.Evaluate(0);
+				return false;
+			}
+
 			if (normalizedTime < 1)
 			{
 				_val = m_animationCurve.Evaluate(normalizedTime);
