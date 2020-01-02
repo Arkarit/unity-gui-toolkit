@@ -19,6 +19,7 @@ namespace GuiToolkit.UiStateSystem
 		public SerializedProperty m_currentStateNameProp;
 		public SerializedProperty m_transitionsProp;
 		public SerializedProperty m_pristineProp;
+		public SerializedProperty m_subStateMachinesProp;
 		private static bool s_drawDefaultInspector = false;
 		private string m_newStateName;
 
@@ -31,6 +32,7 @@ namespace GuiToolkit.UiStateSystem
 			m_currentStateNameProp = serializedObject.FindProperty("m_currentStateName");
 			m_transitionsProp = serializedObject.FindProperty("m_transitions");
 			m_pristineProp = serializedObject.FindProperty("m_pristine");
+			m_subStateMachinesProp = serializedObject.FindProperty("m_subStateMachines");
 		}
 
 		public override void OnInspectorGUI()
@@ -123,6 +125,10 @@ namespace GuiToolkit.UiStateSystem
 			EditorGUILayout.EndHorizontal();
 
 			EditorGUILayout.PropertyField(m_gameObjectsProp, new GUIContent("Game Objects"), true);
+
+			GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+
+			EditorGUILayout.PropertyField(m_subStateMachinesProp, new GUIContent("SubStateMachines"), true);
 
 			if (fillWithChildren || fillWithSelf)
 			{

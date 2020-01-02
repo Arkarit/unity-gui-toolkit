@@ -33,10 +33,14 @@ namespace GuiToolkit.UiStateSystem
 		private List<UiState> m_states;
 
 		[SerializeField]
+		private List<UiStateMachine> m_subStateMachines;
+
+		[SerializeField]
 		private string m_currentStateName;
 
 		[SerializeField]
 		private UiTransition[] m_transitions;
+
 
 #if UNITY_EDITOR
 		[SerializeField]
@@ -45,6 +49,7 @@ namespace GuiToolkit.UiStateSystem
 
 		// Unfortunately the states dictionary has to be built on runtime - Unity does not support dictionary persistence
 		private Dictionary<string, List<UiState>> m_statesMap;
+		private Dictionary<string, List<UiStateMachine>> m_subStateMachinesMap;
 
 		// Animation related, runtime
 		private float m_currentTime;
@@ -197,6 +202,14 @@ namespace GuiToolkit.UiStateSystem
 		public void SetState( string _newStateName, bool _useTransition = true )
 		{
 			Debug.Assert(!string.IsNullOrEmpty(_newStateName));
+
+			List<UiStateMachine> subStateMachines;
+			if (m_subStateMachinesMap.TryGetValue(m_currentStateName, out subStateMachines))
+			{
+				foreach(var subStateMachine in subStateMachines)
+					subStateMachine.SetState(_newStateName, _useTransition);
+			}
+
 			if (_newStateName == m_currentStateName && !IsTransitionRunning())
 				return;
 
@@ -275,6 +288,16 @@ namespace GuiToolkit.UiStateSystem
 
 			foreach (var state in states)
 				state.Record();
+
+			List<UiStateMachine> subStateMachines;
+			if (m_subStateMachinesMap.TryGetValue(m_currentStateName, out subStateMachines))
+			{
+				foreach(var subStateMachine in subStateMachines)
+				{
+					subStateMachine.m_currentStateName = m_currentStateName;
+					subStateMachine.Record();
+				}
+			}
 		}
 
 #endif
@@ -296,6 +319,13 @@ namespace GuiToolkit.UiStateSystem
 
 			foreach (var state in states)
 				state.ApplyInstant();
+
+			List<UiStateMachine> subStateMachines;
+			if (m_subStateMachinesMap.TryGetValue(m_currentStateName, out subStateMachines))
+			{
+				foreach(var subStateMachine in subStateMachines)
+					subStateMachine.ApplyInstant(m_currentStateName);
+			}
 		}
 
 		public void ApplyInstant( string _newStateName )
@@ -337,23 +367,34 @@ namespace GuiToolkit.UiStateSystem
 				return;
 
 			m_statesMap = new Dictionary<string, List<UiState>>();
+			m_subStateMachinesMap = new Dictionary<string, List<UiStateMachine>>();
+
+			foreach(UiStateMachine subStateMachine in m_subStateMachines)
+			{
+				subStateMachine.FillStateDictionary(_force);
+			}
+
 			foreach (string stateName in m_stateNames)
 			{
 				List<UiState> states = new List<UiState>();
 				foreach (UiState state in m_states)
 				{
-					//Hotfix/workaround: ScriptableObject's are not inline serialized in Unity and make them null.
-					// Silently. Without any error message.
-					if (state == null) 
-						continue;
-					//
-
 					if (state.Name == stateName)
 						states.Add(state);
 				}
 
 				if (states.Count != 0)
 					m_statesMap[stateName] = states;
+
+				List<UiStateMachine> subStateMachines = new List<UiStateMachine>();
+				foreach(UiStateMachine subStateMachine in m_subStateMachines)
+				{
+					if (subStateMachine.m_statesMap.ContainsKey(stateName))
+						subStateMachines.Add(subStateMachine);
+				}
+
+				if (subStateMachines.Count != 0)
+					m_subStateMachinesMap[stateName] = subStateMachines;
 			}
 		}
 
