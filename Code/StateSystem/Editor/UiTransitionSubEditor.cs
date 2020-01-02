@@ -40,7 +40,9 @@ namespace GuiToolkit.UiStateSystem
 				{
 					result = true;
 					UiEditorUtility.RemoveArrayElementAtIndex(_list, i);
+					WorkaroundAnimationCurveRedrawProblem(i, _list);
 				});
+
 				GUILayout.Space(-3);
 				UiEditorUtility.Button(" ", "Test", delegate
 				{
@@ -93,6 +95,26 @@ namespace GuiToolkit.UiStateSystem
 			else
 				_prop.stringValue = _stateNames[selected - anyOffset];
 			EditorGUILayout.EndHorizontal();
+		}
+
+		// Unity has a redraw? cache? problem regarding deleted list elements which contain an animation curve.
+		// For unknown reasons, the wrong (deleted) curve is displayed.
+		// Cloning the moved curves helps.
+		private static void WorkaroundAnimationCurveRedrawProblem( int _idx, SerializedProperty _list )
+		{
+			for (int i = _idx; i < _list.arraySize; i++)
+			{
+				SerializedProperty transitionProp = _list.GetArrayElementAtIndex(i);
+				SerializedProperty curveProp = transitionProp.FindPropertyRelative("m_animationCurve");
+
+				AnimationCurve curve = curveProp.animationCurveValue;
+				if (curve != null)
+				{
+					AnimationCurve cloned = new AnimationCurve();
+					cloned.keys = curve.keys;
+					curveProp.animationCurveValue = cloned;
+				}
+			}
 		}
 
 	}
