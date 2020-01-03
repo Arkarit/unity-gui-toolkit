@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -30,6 +31,14 @@ namespace GuiToolkit
 		{
 			foreach (Transform child in _this)
 				child.Destroy();
+			return _this;
+		}
+
+		public static BaseMeshEffect SetDirty( this BaseMeshEffect _this)
+		{
+			Graphic graphic = _this.GetComponent<Graphic>();
+			if (graphic)
+				graphic.SetVerticesDirty();
 			return _this;
 		}
 	}
