@@ -93,6 +93,22 @@ namespace GuiToolkit.UiStateSystem
 			}
 		}
 
+		public List<UiStateMachine> SubStateMachines
+		{
+			get
+			{
+				return m_subStateMachines;
+			}
+		}
+
+		public List<GameObject> GameObjects
+		{
+			get
+			{
+				return m_gameObjects;
+			}
+		}
+
 		public UiTransition[] Transitions
 		{
 			get
@@ -345,6 +361,25 @@ namespace GuiToolkit.UiStateSystem
 			m_currentStateName = _newStateName;
 			ApplyInstant( _alsoSubStateMachines );
 		}
+
+#if UNITY_EDITOR
+		private static void GetSubStateMachineExclusionSet( UiStateMachine _stateMachine, HashSet<Transform> _exclusionSet )
+		{
+			foreach(UiStateMachine subStateMachine in _stateMachine.m_subStateMachines)
+			{
+				foreach(GameObject gameObject in subStateMachine.m_gameObjects)
+					_exclusionSet.Add(gameObject.transform);
+				GetSubStateMachineExclusionSet( subStateMachine, _exclusionSet );
+			}
+		}
+
+		public HashSet<Transform> GetSubStateMachineExclusionSet()
+		{
+			HashSet<Transform> result = new HashSet<Transform>();
+			GetSubStateMachineExclusionSet(this, result);
+			return result;
+		}
+#endif
 
 		private UiTransition FindTransition( string _stateName )
 		{

@@ -65,7 +65,7 @@ namespace GuiToolkit.UiStateSystem
 				if (m_gameObjectsProp.arraySize == 0)
 				{
 					m_supportProp.longValue = (long)EStatePropertySupport.All;
-					FillWithChildren(_stateMachine.gameObject, true, false);
+					FillWithChildren(_stateMachine, _stateMachine.gameObject, true, false);
 					CreateState("Default");
 				}
 			}
@@ -132,7 +132,7 @@ namespace GuiToolkit.UiStateSystem
 
 			if (fillWithChildren || fillWithSelf)
 			{
-				FillWithChildren(_stateMachine.gameObject, fillWithSelf, fillWithChildren);
+				FillWithChildren(_stateMachine, _stateMachine.gameObject, fillWithSelf, fillWithChildren);
 			}
 		}
 
@@ -247,7 +247,7 @@ namespace GuiToolkit.UiStateSystem
 			return UiTransitionSubEditor.DisplayTransitionList(_stateMachine, m_transitionsProp, s_drawDefaultInspector);
 		}
 
-		private void FillWithChildren( GameObject _gameObject, bool _includeSelf, bool _includeChildren )
+		private void FillWithChildren( UiStateMachine _stateMachine, GameObject _gameObject, bool _includeSelf, bool _includeChildren )
 		{
 			Debug.Assert(_includeSelf || _includeChildren);
 			if (!_includeChildren)
@@ -257,28 +257,28 @@ namespace GuiToolkit.UiStateSystem
 				return;
 			}
 
+			HashSet<Transform> exclusionSet = _stateMachine.GetSubStateMachineExclusionSet();
+
 			List<GameObject> children = new List<GameObject>();
-			FillWithChildrenRecursive(ref children, _gameObject, _includeSelf);
+			FillWithChildrenRecursive(children, exclusionSet, _gameObject.transform, _includeSelf);
+
 			int numChildren = children.Count;
 			m_gameObjectsProp.arraySize = numChildren;
 			for (int i = 0; i < numChildren; i++)
 				m_gameObjectsProp.GetArrayElementAtIndex(i).objectReferenceValue = children[i];
 		}
 
-		private void FillWithChildrenRecursive( ref List<GameObject> _children, GameObject _gameObject, bool _include )
+		private void FillWithChildrenRecursive( List<GameObject> _children, HashSet<Transform> _exclusionList, Transform _transform, bool _include )
 		{
-			if (_include)
-				_children.Add(_gameObject);
-			Transform tr = _gameObject.transform;
-			for (int i = 0; i < tr.childCount; i++)
-			{
-				// We don't want multiple state machines to interfere, so we skip all found state machines on children
-				GameObject child = tr.GetChild(i).gameObject;
-				if (child.GetComponent<UiStateMachine>() != null)
-					continue;
 
-				FillWithChildrenRecursive(ref _children, child, true);
+			if (_include)
+			{
+				if (!_exclusionList.Contains( _transform ))
+					_children.Add(_transform.gameObject);
 			}
+
+			foreach( Transform child in _transform)
+				FillWithChildrenRecursive(_children, _exclusionList, child, true );
 		}
 
 		private void CreateState()

@@ -7,30 +7,30 @@ namespace GuiToolkit
 {
 	public static class Extensions
 	{
-		public static IList<T> Clone<T>( this IList<T> listToClone ) where T : ICloneable
+		public static IList<T> Clone<T>( this IList<T> _listToClone ) where T : ICloneable
 		{
-			return listToClone.Select(item => (T)item.Clone()).ToList();
+			return _listToClone.Select(item => (T)item.Clone()).ToList();
 		}
 
-		public static Transform Destroy( this Transform transform )
+		public static Transform Destroy( this Transform _this )
 		{
 #if UNITY_EDITOR
 			UnityEditor.EditorApplication.delayCall += () =>
 			{
-				if (transform && transform.gameObject)
-					GameObject.DestroyImmediate(transform.gameObject);
+				if (_this && _this.gameObject)
+					GameObject.DestroyImmediate(_this.gameObject);
 			};
 #else
 			GameObject.Destroy(transform.gameObject);
 #endif
-			return transform;
+			return _this;
 		}
 
-		public static Transform Clear( this Transform transform )
+		public static Transform Clear( this Transform _this )
 		{
-			foreach (Transform child in transform)
+			foreach (Transform child in _this)
 				child.Destroy();
-			return transform;
+			return _this;
 		}
 	}
 }
