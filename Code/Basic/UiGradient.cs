@@ -23,6 +23,10 @@ namespace GuiToolkit
 				CalcMinMax( _vh );
 
 			float dist = m_max - m_min;
+			_vh.PopulateUIVertex(ref s_vertex, 0);
+			Color colorRightOrTop = m_colorRightOrTop * s_vertex.color;
+			Color colorLeftOrBottom = m_colorLeftOrBottom * s_vertex.color;
+
 
 			for (int i = 0; i < _vh.currentVertCount; ++i)
 			{
@@ -40,7 +44,7 @@ namespace GuiToolkit
 						(s_vertex.position.x-m_min) / dist:
 						(s_vertex.position.y-m_min) / dist;
 				}
-				Color color = Color.Lerp(m_colorLeftOrBottom, m_colorRightOrTop, lerpVal);
+				Color color = Color.Lerp(colorLeftOrBottom, colorRightOrTop, lerpVal);
 				s_vertex.color = color;
 
 				_vh.SetUIVertex(s_vertex, i);
