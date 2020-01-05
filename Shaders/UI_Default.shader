@@ -1,10 +1,8 @@
-Shader "UIToolkit/UI_RGBSeparateColor"
+Shader "UIToolkit/UI_Default"
 {
     Properties
     {
         _MainTex ("Base (RGB), Alpha (A)", 2D) = "white" {}
-        _ColorG ("ColorG", Color) = (1,1,1,1)
-		_ColorB ("ColorB", Color) = (1,1,1,1)
 
         _StencilComp ("Stencil Comparison", Float) = 8
         _Stencil ("Stencil ID", Float) = 0
@@ -75,8 +73,6 @@ Shader "UIToolkit/UI_RGBSeparateColor"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-			fixed4 _ColorG;
-			fixed4 _ColorB;
 
             fixed4 _TextureSampleAdd;
 
@@ -101,14 +97,7 @@ Shader "UIToolkit/UI_RGBSeparateColor"
 
             fixed4 frag (v2f i) : COLOR
             {
-                fixed4 rawColor = (tex2D(_MainTex, i.texcoord) + _TextureSampleAdd);
-				fixed4 color;
-
-				color.a = rawColor.a * i.color.a;
-				color.rgb = i.color.rgb * rawColor.r;
-
-				color.rgb = lerp(color.rgb, _ColorG.rgb, rawColor.g * _ColorG.a);
-				color.rgb = lerp(color.rgb, _ColorB.rgb, rawColor.b * _ColorG.a);
+                fixed4 color = (tex2D(_MainTex, i.texcoord) + _TextureSampleAdd) * i.color;
 
                 #ifdef UNITY_UI_CLIP_RECT
                 color.a *= UnityGet2DClipping(i.worldPosition.xy, _ClipRect);
