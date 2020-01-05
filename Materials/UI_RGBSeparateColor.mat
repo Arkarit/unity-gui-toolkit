@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: UI_Default
+  m_Name: UI_RGBSeparateColor
   m_Shader: {fileID: 4800000, guid: 61f4aa6d188e00d4ab930d58e58414c0, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -81,5 +81,6 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorB: {r: 1, g: 1, b: 1, a: 1}
     - _ColorG: {r: 0, g: 1, b: 0.55931616, a: 0.8039216}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

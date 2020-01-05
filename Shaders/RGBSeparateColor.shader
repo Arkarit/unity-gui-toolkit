@@ -1,4 +1,4 @@
-Shader "UIToolkit/Default"
+Shader "UIToolkit/RGBSeparateColor"
 {
     Properties
     {
