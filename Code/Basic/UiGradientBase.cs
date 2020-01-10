@@ -15,17 +15,21 @@ namespace GuiToolkit
 
 		[Tooltip("Switch on for sliced bitmaps, off for standard bitmaps.")]
 		[SerializeField]
-		private bool m_sliced = false;
+		protected bool m_sliced = false;
 
 		[SerializeField]
-		private Mode m_mode = Mode.Multiply;
+		protected Mode m_mode = Mode.Multiply;
 
 		[SerializeField]
-		private bool m_useTesselation;
+		protected bool m_useTesselation;
 
 		[SerializeField]
-		[Range(10,1000)]
-		private float m_tesselationSize = 20.0f;
+		[Range(15,1000)]
+		protected float m_tesselationSizeHorizontal = 50.0f;
+
+		[SerializeField]
+		[Range(15,1000)]
+		protected float m_tesselationSizeVertical = 50.0f;
 
 		// This is filled with the current vertex while calling GetColor()
 		protected static UIVertex s_vertex;
@@ -40,9 +44,9 @@ namespace GuiToolkit
 			if (m_sliced)
 				CalcMinMax( _vh );
 
-			if (m_useTesselation && m_tesselationSize >= 10.0f)
+			if (m_useTesselation && m_tesselationSizeHorizontal >= 10.0f)
 			{
-				UiTesselationUtil.Tesselate(_vh, m_tesselationSize);
+				UiTesselationUtil.Tesselate(_vh, m_tesselationSizeHorizontal, m_tesselationSizeVertical);
 			}
 
 			Vector2 dist = m_max - m_min;
