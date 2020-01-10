@@ -7,16 +7,31 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public abstract class UiGradientBase : BaseMeshEffect
 	{
+		public enum Mode {
+			Replace,
+			Multiply,
+			Add,
+		}
+
 		[Tooltip("Switch on for sliced bitmaps, off for standard bitmaps.")]
 		[SerializeField]
 		private bool m_sliced = false;
 
+		[SerializeField]
+		private Mode m_mode = Mode.Multiply;
+
+		[SerializeField]
+		private bool m_useTesselation;
+
+		[SerializeField]
+		[Range(10,1000)]
+		private float m_tesselationSize = 20.0f;
+
+		// This is filled with the current vertex while calling GetColor()
 		protected static UIVertex s_vertex;
 
-		protected Vector2 m_min;
-		protected Vector2 m_max;
-
-		protected virtual void Prepare( VertexHelper _vh ) {}
+		private Vector2 m_min;
+		private Vector2 m_max;
 
 		protected abstract Color GetColor( Vector2 _normVal );
 
@@ -25,11 +40,12 @@ namespace GuiToolkit
 			if (m_sliced)
 				CalcMinMax( _vh );
 
+			if (m_useTesselation && m_tesselationSize >= 10.0f)
+			{
+				UiTesselationUtil.Tesselate(_vh, m_tesselationSize);
+			}
+
 			Vector2 dist = m_max - m_min;
-			_vh.PopulateUIVertex(ref s_vertex, 0);
-
-			Prepare( _vh );
-
 
 			for (int i = 0; i < _vh.currentVertCount; ++i)
 			{
@@ -46,7 +62,22 @@ namespace GuiToolkit
 					lerpVal	= s_vertex.uv0;
 				}
 
-				s_vertex.color = GetColor(lerpVal);
+				Color c = GetColor(lerpVal);
+
+				switch( m_mode )
+				{
+					case Mode.Replace:
+					default:
+						break;
+					case Mode.Multiply:
+						c *= s_vertex.color;
+						break;
+					case Mode.Add:
+						c += s_vertex.color;
+						break;
+				}
+
+				s_vertex.color = c;
 
 				_vh.SetUIVertex(s_vertex, i);
 			}
