@@ -7,7 +7,9 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public abstract class UiGradientBase : BaseMeshEffect
 	{
-		public bool m_byUV = true;
+		[Tooltip("Switch on for sliced bitmaps, off for standard bitmaps.")]
+		[SerializeField]
+		private bool m_sliced = false;
 
 		protected static UIVertex s_vertex;
 
@@ -20,7 +22,7 @@ namespace GuiToolkit
 
 		public override void ModifyMesh( VertexHelper _vh )
 		{
-			if (!m_byUV)
+			if (m_sliced)
 				CalcMinMax( _vh );
 
 			Vector2 dist = m_max - m_min;
@@ -34,15 +36,14 @@ namespace GuiToolkit
 				_vh.PopulateUIVertex(ref s_vertex, i);
 
 				Vector2 lerpVal;
-				if (m_byUV)
-				{
-					Vector2 uv = s_vertex.uv0;
-					lerpVal	= uv;
-				}
-				else
+				if (m_sliced)
 				{
 					Vector2 pos = new Vector2( s_vertex.position.x, s_vertex.position.y );
 					lerpVal = ( pos-m_min) / dist;
+				}
+				else
+				{
+					lerpVal	= s_vertex.uv0;
 				}
 
 				s_vertex.color = GetColor(lerpVal);
