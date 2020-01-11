@@ -24,11 +24,11 @@ namespace GuiToolkit
 		protected bool m_useTesselation;
 
 		[SerializeField]
-		[Range(15,1000)]
+		[Range(5,2000)]
 		protected float m_tesselationSizeHorizontal = 50.0f;
 
 		[SerializeField]
-		[Range(15,1000)]
+		[Range(5,2000)]
 		protected float m_tesselationSizeVertical = 50.0f;
 
 		// This is filled with the current vertex while calling GetColor()
@@ -44,7 +44,7 @@ namespace GuiToolkit
 			if (m_sliced)
 				CalcMinMax( _vh );
 
-			if (m_useTesselation && m_tesselationSizeHorizontal >= 10.0f)
+			if (m_useTesselation)
 			{
 				UiTesselationUtil.Tesselate(_vh, m_tesselationSizeHorizontal, m_tesselationSizeVertical);
 			}

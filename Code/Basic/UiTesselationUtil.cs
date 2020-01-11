@@ -6,7 +6,7 @@ namespace GuiToolkit
 {
 	public static class UiTesselationUtil
 	{
-		private const float MIN_TESSELATE_SIZE = 15.0f;
+		private const float MIN_TESSELATE_SIZE = 1.0f;
 
 		private static UIVertex s_vertex;
 
@@ -23,11 +23,12 @@ namespace GuiToolkit
 				oldVerts.Add(s_vertex);
 			}
 
-			Tesselate(oldVerts, newVerts, newIndices, _sizeH, _sizeV);
+			bool result = Tesselate(oldVerts, newVerts, newIndices, _sizeH, _sizeV);
 
 			_vertexHelper.Clear();
 			_vertexHelper.AddUIVertexStream(newVerts, newIndices);
-			return true;
+
+			return result;
 		}
 
 		public static bool Tesselate( List<UIVertex> _inQuadVertices, List<UIVertex> _outQuadVertices, List<int> _outIndices, float _sizeH, float _sizeV )
@@ -35,12 +36,13 @@ namespace GuiToolkit
 			int startingVertexCount = _inQuadVertices.Count;
 			for (int i = 0; i < startingVertexCount; i += 4)
 			{
-				TessellateQuad(_inQuadVertices, _outQuadVertices, _outIndices, i, _sizeH, _sizeV);
+				if (!TessellateQuad(_inQuadVertices, _outQuadVertices, _outIndices, i, _sizeH, _sizeV))
+					return false;
 			}
 			return true;
 		}
 
-		public static void TessellateQuad( List<UIVertex> _inQuadVertices, List<UIVertex> _outVertices, List<int> _outIndices, int _startIdx, float _sizeH, float _sizeV )
+		public static bool TessellateQuad( List<UIVertex> _inQuadVertices, List<UIVertex> _outVertices, List<int> _outIndices, int _startIdx, float _sizeH, float _sizeV )
 		{
 			// Read the existing quad vertices
 			UIVertex bl = _inQuadVertices[_startIdx];
@@ -82,6 +84,9 @@ namespace GuiToolkit
 				for (int iX = 0; iX < numH; ++iX)
 				{
 					float endAProp = (float)(iX + 1) * quadWidth;
+
+					if (currentOutIndex >= 64996)
+						return false;
 
 					if (iY==0 )
 					{
@@ -161,7 +166,8 @@ namespace GuiToolkit
 				}
 				startBProp = endBProp;
 			}
-		}
 
+			return true;
+		}
 	}
 }
