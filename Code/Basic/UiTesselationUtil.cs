@@ -46,6 +46,9 @@ namespace GuiToolkit
 			UIVertex tr = _inTriangleList[_startIdx + 2];
 			UIVertex br = _inTriangleList[_startIdx + 4];
 
+			if (!IsQuadValid(ref bl, ref tl, ref tr, ref br))
+				return false;
+
 			// Position deltas, A and B are the local quad up and right axes
 			Vector3 right = tr.position - tl.position;
 			Vector3 up = tl.position - bl.position;
@@ -143,6 +146,9 @@ namespace GuiToolkit
 			UIVertex tl = _inTriangleList[_startIdx + 1];
 			UIVertex tr = _inTriangleList[_startIdx + 2];
 			UIVertex br = _inTriangleList[_startIdx + 4];
+
+			if (!IsQuadValid(ref bl, ref tl, ref tr, ref br))
+				return false;
 
 			Rect normalizedRect = GetNormalizedRect( _inTriangleList, _startIdx, _minMaxRect );
 			List<float> splitsH = new List<float>();
@@ -391,6 +397,16 @@ namespace GuiToolkit
 			_lastTr[_iX] = itr;
 			_lastBr[_iX] = ibr;
 		}
+
+		private static bool IsQuadValid(ref UIVertex _bl, ref UIVertex _tl, ref UIVertex _tr, ref UIVertex _br)
+		{
+			return 
+				   _bl.position.x < _br.position.x 
+				&& _tl.position.x < _tr.position.x
+				&& _bl.position.y < _tl.position.y
+				&& _br.position.y < _tr.position.y;
+		}
+
 
 	}
 }
