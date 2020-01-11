@@ -7,20 +7,10 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public abstract class UiGradientBase : BaseMeshEffect
 	{
-		private const float LARGE_TESSELATION = 1000000;
-
 		public enum VertexColorMode {
 			Replace,
 			Multiply,
 			Add,
-		}
-
-		public enum TesselationMode
-		{
-			None,
-			Horizontal,
-			Vertical,
-			Both,
 		}
 
 		[Tooltip("Switch on for sliced bitmaps, off for standard bitmaps.")]
@@ -29,17 +19,6 @@ namespace GuiToolkit
 
 		[SerializeField]
 		protected VertexColorMode m_vertexColorMode = VertexColorMode.Multiply;
-
-		[SerializeField]
-		protected TesselationMode m_tesselationMode = TesselationMode.None;
-
-		[SerializeField]
-		[Range(5,2000)]
-		protected float m_tesselationSizeHorizontal = 50.0f;
-
-		[SerializeField]
-		[Range(5,2000)]
-		protected float m_tesselationSizeVertical = 50.0f;
 
 		// This is filled with the current vertex while calling GetColor()
 		protected static UIVertex s_vertex;
@@ -53,22 +32,6 @@ namespace GuiToolkit
 		{
 			if (m_sliced)
 				CalcMinMax( _vh );
-
-			switch( m_tesselationMode )
-			{
-				default:
-				case TesselationMode.None:
-					break;
-				case TesselationMode.Horizontal:
-					UiTesselationUtil.Tesselate(_vh, m_tesselationSizeHorizontal, LARGE_TESSELATION);
-					break;
-				case TesselationMode.Vertical:
-					UiTesselationUtil.Tesselate(_vh, LARGE_TESSELATION, m_tesselationSizeVertical);
-					break;
-				case TesselationMode.Both:
-					UiTesselationUtil.Tesselate(_vh, m_tesselationSizeHorizontal, m_tesselationSizeVertical);
-					break;
-			}
 
 			Vector2 dist = m_max - m_min;
 
