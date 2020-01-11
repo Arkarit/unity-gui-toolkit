@@ -9,9 +9,9 @@ namespace GuiToolkit
 	{
 		private const float MIN_TESSELATE_SIZE = 1.0f;
 
-		private static readonly List<float> s_zeroOne = new List<float>() {0.0f, 1,0f};
+		private static readonly List<float> s_zeroOneList = new List<float>() {0.0f, 1.0f};
 
-		public static bool Tesselate( VertexHelper _vertexHelper, float _sizeH, float _sizeV )
+		public static bool Tessellate( VertexHelper _vertexHelper, float _sizeH, float _sizeV )
 		{
 			List<UIVertex> oldVerts = new List<UIVertex>();
 			List<UIVertex> newVerts = new List<UIVertex>();
@@ -19,7 +19,7 @@ namespace GuiToolkit
 
 			_vertexHelper.GetUIVertexStream(oldVerts);
 
-			bool result = Tesselate(oldVerts, newVerts, newIndices, _sizeH, _sizeV);
+			bool result = Tessellate(oldVerts, newVerts, newIndices, _sizeH, _sizeV);
 
 			_vertexHelper.Clear();
 			_vertexHelper.AddUIVertexStream(newVerts, newIndices);
@@ -27,7 +27,7 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static bool Tesselate( List<UIVertex> _inTriangleList, List<UIVertex> _outVertices, List<int> _outIndices, float _sizeH, float _sizeV )
+		public static bool Tessellate( List<UIVertex> _inTriangleList, List<UIVertex> _outVertices, List<int> _outIndices, float _sizeH, float _sizeV )
 		{
 			int startingVertexCount = _inTriangleList.Count;
 			for (int i = 0; i < startingVertexCount; i += 6)
@@ -57,7 +57,7 @@ namespace GuiToolkit
 
 			float quadWidth = 1.0f / (float)numH;
 			float quadHeight = 1.0f / (float)numV;
-			float leftSplit = 0.0f;
+			float bottomSplit = 0.0f;
 
 			int currentOutIndex = _outVertices.Count;
 
@@ -72,12 +72,12 @@ namespace GuiToolkit
 
 			for (int iY = 0; iY < numV; ++iY)
 			{
-				float rightSplit = (float)(iY + 1) * quadHeight;
-				float bottomSplit = 0.0f;
+				float topSplit = (float)(iY + 1) * quadHeight;
+				float leftSplit = 0.0f;
 
 				for (int iX = 0; iX < numH; ++iX)
 				{
-					float topSplit = (float)(iX + 1) * quadWidth;
+					float rightSplit = (float)(iX + 1) * quadWidth;
 
 					if (currentOutIndex >= 64996)
 						return false;
@@ -86,10 +86,10 @@ namespace GuiToolkit
 					{
 						if (iX == 0) // x=0,y=0
 						{
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, bottomSplit, leftSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, bottomSplit, rightSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, topSplit, rightSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, topSplit, leftSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, leftSplit, bottomSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, leftSplit, topSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, topSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, bottomSplit));
 
 							ibl = currentOutIndex;
 							itl = currentOutIndex + 1;
@@ -100,8 +100,8 @@ namespace GuiToolkit
 						}
 						else // x>0,y=0
 						{
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, topSplit, rightSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, topSplit, leftSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, topSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, bottomSplit));
 
 							int lastIX = iX-1;
 
@@ -117,8 +117,8 @@ namespace GuiToolkit
 					{
 						if (iX == 0) // x=0,y>0
 						{
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, bottomSplit, rightSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, topSplit, rightSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, leftSplit, topSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, topSplit));
 
 							ibl = lastTl[iX];
 							itl = currentOutIndex;
@@ -129,7 +129,7 @@ namespace GuiToolkit
 						}
 						else // x>0,y>0
 						{
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, topSplit, rightSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, topSplit));
 
 							int lastIX = iX-1;
 
@@ -156,9 +156,9 @@ namespace GuiToolkit
 					lastTr[iX] = itr;
 					lastBr[iX] = ibr;
 
-					bottomSplit = topSplit;
+					leftSplit = rightSplit;
 				}
-				leftSplit = rightSplit;
+				bottomSplit = topSplit;
 			}
 
 			return true;
@@ -177,9 +177,9 @@ namespace GuiToolkit
 				_vertexHelper.GetUIVertexStream(oldVerts);
 
 				if (_normalizedSplitsH == null || _normalizedSplitsH.Count < 2)
-					_normalizedSplitsH = s_zeroOne;
+					_normalizedSplitsH = s_zeroOneList;
 				if (_normalizedSplitsV == null || _normalizedSplitsV.Count < 2)
-					_normalizedSplitsV = s_zeroOne;
+					_normalizedSplitsV = s_zeroOneList;
 
 				result = Subdivide(oldVerts, newVerts, newIndices, _normalizedSplitsH, _normalizedSplitsV);
 
@@ -246,10 +246,10 @@ namespace GuiToolkit
 					{
 						if (true || iX == 0)
 						{
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, bottomSplit, leftSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, bottomSplit, rightSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, topSplit, rightSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, topSplit, leftSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, leftSplit, bottomSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, leftSplit, topSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, topSplit));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, bottomSplit));
 
 							ibl = currentOutIndex;
 							itl = currentOutIndex + 1;

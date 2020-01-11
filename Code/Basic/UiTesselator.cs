@@ -41,13 +41,13 @@ namespace GuiToolkit
 				case EMode.None:
 					break;
 				case EMode.Horizontal:
-					UiTesselationUtil.Tesselate(_vh, m_sizeHorizontal, LARGE_SIZE);
+					UiTesselationUtil.Tessellate(_vh, m_sizeHorizontal, LARGE_SIZE);
 					break;
 				case EMode.Vertical:
-					UiTesselationUtil.Tesselate(_vh, LARGE_SIZE, m_sizeVertical);
+					UiTesselationUtil.Tessellate(_vh, LARGE_SIZE, m_sizeVertical);
 					break;
 				case EMode.Both:
-					UiTesselationUtil.Tesselate(_vh, m_sizeHorizontal, m_sizeVertical);
+					UiTesselationUtil.Tessellate(_vh, m_sizeHorizontal, m_sizeVertical);
 					break;
 			}
 		}
