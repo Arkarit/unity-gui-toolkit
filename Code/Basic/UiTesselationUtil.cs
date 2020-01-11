@@ -10,19 +10,24 @@ namespace GuiToolkit
 		private const float MIN_TESSELATE_SIZE = 1.0f;
 
 		private static readonly List<float> s_zeroOneList = new List<float>() {0.0f, 1.0f};
+		private static readonly List<UIVertex> s_oldVerts = new List<UIVertex>();
+		private static readonly List<UIVertex> s_newVerts = new List<UIVertex>();
+		private static readonly List<int> s_newIndices = new List<int>();
+		private static readonly List<float> s_splitsH = new List<float>();
+		private static readonly List<float> s_splitsV = new List<float>();
 
 		public static bool Tessellate( VertexHelper _vertexHelper, float _sizeH, float _sizeV )
 		{
-			List<UIVertex> oldVerts = new List<UIVertex>();
-			List<UIVertex> newVerts = new List<UIVertex>();
-			List<int> newIndices = new List<int>();
+			s_oldVerts.Clear();
+			s_newVerts.Clear();
+			s_newIndices.Clear();
 
-			_vertexHelper.GetUIVertexStream(oldVerts);
+			_vertexHelper.GetUIVertexStream(s_oldVerts);
 
-			bool result = Tessellate(oldVerts, newVerts, newIndices, _sizeH, _sizeV);
+			bool result = Tessellate(s_oldVerts, s_newVerts, s_newIndices, _sizeH, _sizeV);
 
 			_vertexHelper.Clear();
-			_vertexHelper.AddUIVertexStream(newVerts, newIndices);
+			_vertexHelper.AddUIVertexStream(s_newVerts, s_newIndices);
 
 			return result;
 		}
@@ -103,25 +108,25 @@ namespace GuiToolkit
 		// split lists left to right, bottom to top
 		public static bool Subdivide( VertexHelper _vertexHelper, List<float> _normalizedSplitsH, List<float> _normalizedSplitsV )
 		{
-			List<UIVertex> oldVerts = new List<UIVertex>();
-			List<UIVertex> newVerts = new List<UIVertex>();
-			List<int> newIndices = new List<int>();
+			s_oldVerts.Clear();
+			s_newVerts.Clear();
+			s_newIndices.Clear();
 
 			bool result = true;
 				
 			if (_normalizedSplitsH != null && _normalizedSplitsH.Count > 0 || _normalizedSplitsV != null && _normalizedSplitsV.Count > 0)
 			{
-				_vertexHelper.GetUIVertexStream(oldVerts);
+				_vertexHelper.GetUIVertexStream(s_oldVerts);
 
 				if (_normalizedSplitsH == null || _normalizedSplitsH.Count < 2)
 					_normalizedSplitsH = s_zeroOneList;
 				if (_normalizedSplitsV == null || _normalizedSplitsV.Count < 2)
 					_normalizedSplitsV = s_zeroOneList;
 
-				result = Subdivide(oldVerts, newVerts, newIndices, _normalizedSplitsH, _normalizedSplitsV);
+				result = Subdivide(s_oldVerts, s_newVerts, s_newIndices, _normalizedSplitsH, _normalizedSplitsV);
 
 				_vertexHelper.Clear();
-				_vertexHelper.AddUIVertexStream(newVerts, newIndices);
+				_vertexHelper.AddUIVertexStream(s_newVerts, s_newIndices);
 			}
 
 			return result;
@@ -151,14 +156,14 @@ namespace GuiToolkit
 				return false;
 
 			Rect normalizedRect = GetNormalizedRect( _inTriangleList, _startIdx, _minMaxRect );
-			List<float> splitsH = new List<float>();
-			List<float> splitsV = new List<float>();
-			GetNormalizedSplits(normalizedRect, _normalizedSplitsH, _normalizedSplitsV, splitsH, splitsV);
+			s_splitsH.Clear();
+			s_splitsV.Clear();
+			GetNormalizedSplits(normalizedRect, _normalizedSplitsH, _normalizedSplitsV, s_splitsH, s_splitsV);
 
 			int currentOutIndex = _outVertices.Count;
 
-			int numH = splitsH.Count;
-			int numV = splitsV.Count;
+			int numH = s_splitsH.Count;
+			int numV = s_splitsV.Count;
 
 			int[] lastBl = new int[numH];
 			int[] lastTl = new int[numH];
