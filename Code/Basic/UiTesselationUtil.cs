@@ -83,7 +83,7 @@ namespace GuiToolkit
 				{
 					float endAProp = (float)(iX + 1) * quadWidth;
 
-					if (true || iY==0 )
+					if (iY==0 )
 					{
 						if (iX == 0) // x=0,y=0
 						{
@@ -116,6 +116,31 @@ namespace GuiToolkit
 					}
 					else
 					{
+						if (iX == 0) // x=0,y>0
+						{
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, startAProp, endBProp));
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, endAProp, endBProp));
+
+							ibl = lastTl[iX];
+							itl = currentOutIndex;
+							itr = currentOutIndex + 1;
+							ibr = lastTr[iX];
+
+							currentOutIndex += 2;
+						}
+						else // x>0,y>0
+						{
+							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, endAProp, endBProp));
+
+							int lastIX = iX-1;
+
+							ibl = lastTl[iX];
+							itl = lastTr[lastIX];
+							itr = currentOutIndex;
+							ibr = lastTr[iX];
+
+							currentOutIndex += 1;
+						}
 
 					}
 
