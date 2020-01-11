@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -15,5 +16,26 @@ namespace GuiToolkit
 		{
 			return m_gradient.Evaluate( m_isHorizontal ? _normVal.x : 1.0f - _normVal.y );
 		}
+
+		protected override void Prepare( VertexHelper _vh )
+		{
+			GradientColorKey[] colorKeys = m_gradient.colorKeys;
+			GradientAlphaKey[] alphaKeys = m_gradient.alphaKeys;
+
+			SortedSet<float> keyTimes = new SortedSet<float>();
+			foreach( var key in colorKeys )
+				keyTimes.Add( key.time );
+			foreach( var key in alphaKeys )
+				keyTimes.Add( key.time );
+
+			if (keyTimes.Count <= 2)
+				return;
+
+			if (m_isHorizontal)
+				UiTesselationUtil.Subdivide( _vh, keyTimes.ToList(), null);
+			else
+				UiTesselationUtil.Subdivide( _vh, null, keyTimes.ToList());
+		}
+
 	}
 }

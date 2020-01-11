@@ -23,10 +23,11 @@ namespace GuiToolkit
 		// This is filled with the current vertex while calling GetColor()
 		protected static UIVertex s_vertex;
 
-		private Vector2 m_min;
-		private Vector2 m_max;
+		protected Vector2 m_min;
+		protected Vector2 m_max;
 
 		protected abstract Color GetColor( Vector2 _normVal );
+		protected virtual void Prepare( VertexHelper _vh ) {}
 
 		public override void ModifyMesh( VertexHelper _vh )
 		{
@@ -35,6 +36,8 @@ namespace GuiToolkit
 
 			if (m_sliced)
 				CalcMinMax( _vh );
+
+			Prepare( _vh );
 
 			Vector2 dist = m_max - m_min;
 
