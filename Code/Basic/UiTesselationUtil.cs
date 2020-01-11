@@ -58,7 +58,6 @@ namespace GuiToolkit
 			int numH = Mathf.CeilToInt(right.magnitude * sizeH);
 			int numV = Mathf.CeilToInt(up.magnitude * sizeV);
 
-			// Build the sub quads
 			float quadWidth = 1.0f / (float)numH;
 			float quadHeight = 1.0f / (float)numV;
 			float startBProp = 0.0f;
@@ -66,59 +65,72 @@ namespace GuiToolkit
 			_outVertices.Capacity = numH * numV * 4;
 			int currentOutIndex = 0;
 
+			int[] lastBl = new int[numH];
+			int[] lastTl = new int[numH];
+			int[] lastTr = new int[numH];
+			int[] lastBr = new int[numH];
+			int ibl;
+			int itl;
+			int itr;
+			int ibr;
+
 			for (int iY = 0; iY < numV; ++iY)
 			{
 				float endBProp = (float)(iY + 1) * quadHeight;
 				float startAProp = 0.0f;
 
-				int lastTr = 0;
-				int lastBr = 0;
-
 				for (int iX = 0; iX < numH; ++iX)
 				{
 					float endAProp = (float)(iX + 1) * quadWidth;
 
-					if (true || iX==0 )
+					if (true || iY==0 )
 					{
-						if (iX == 0)
+						if (iX == 0) // x=0,y=0
 						{
 							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, startAProp, startBProp));
 							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, startAProp, endBProp));
 							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, endAProp, endBProp));
 							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, endAProp, startBProp));
 
-							lastTr = currentOutIndex + 2;
-							lastBr = currentOutIndex + 3;
-
-							_outIndices.Add(currentOutIndex);
-							_outIndices.Add(currentOutIndex+1);
-							_outIndices.Add(currentOutIndex+2);
-
-							_outIndices.Add(currentOutIndex+2);
-							_outIndices.Add(currentOutIndex+3);
-							_outIndices.Add(currentOutIndex);
+							ibl = currentOutIndex;
+							itl = currentOutIndex + 1;
+							itr = currentOutIndex + 2;
+							ibr = currentOutIndex + 3;
 
 							currentOutIndex += 4;
 						}
-						else
+						else // x>0,y=0
 						{
 							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, endAProp, endBProp));
 							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, endAProp, startBProp));
 
-							_outIndices.Add(lastBr);
-							_outIndices.Add(lastTr);
-							_outIndices.Add(currentOutIndex);
+							int lastIX = iX-1;
 
-							_outIndices.Add(currentOutIndex);
-							_outIndices.Add(currentOutIndex+1);
-							_outIndices.Add(lastBr);
-
-							lastTr = currentOutIndex;
-							lastBr = currentOutIndex + 1;
+							ibl = lastBr[lastIX];
+							itl = lastTr[lastIX];
+							itr = currentOutIndex;
+							ibr = currentOutIndex + 1;
 
 							currentOutIndex += 2;
 						}
 					}
+					else
+					{
+
+					}
+
+					_outIndices.Add(ibl);
+					_outIndices.Add(itl);
+					_outIndices.Add(itr);
+
+					_outIndices.Add(itr);
+					_outIndices.Add(ibr);
+					_outIndices.Add(ibl);
+
+					lastBl[iX] = ibl;
+					lastTl[iX] = itl;
+					lastTr[iX] = itr;
+					lastBr[iX] = ibr;
 
 					startAProp = endAProp;
 				}
