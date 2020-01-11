@@ -24,9 +24,9 @@ namespace GuiToolkit
 
 			SortedSet<float> keyTimes = new SortedSet<float>();
 			foreach( var key in colorKeys )
-				keyTimes.Add( key.time );
+				keyTimes.Add( m_isHorizontal ? key.time : 1.0f - key.time );
 			foreach( var key in alphaKeys )
-				keyTimes.Add( key.time );
+				keyTimes.Add( m_isHorizontal ? key.time : 1.0f - key.time );
 
 			if (keyTimes.Count <= 2)
 				return;

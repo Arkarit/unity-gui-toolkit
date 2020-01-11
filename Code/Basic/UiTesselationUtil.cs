@@ -164,6 +164,7 @@ namespace GuiToolkit
 			return true;
 		}
 
+		// split lists left to right, bottom to top
 		public static bool Subdivide( VertexHelper _vertexHelper, List<float> _normalizedSplitsH, List<float> _normalizedSplitsV )
 		{
 			List<UIVertex> oldVerts = new List<UIVertex>();
