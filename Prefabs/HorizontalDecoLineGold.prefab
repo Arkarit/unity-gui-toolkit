@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4583134825363416120}
   - component: {fileID: 2052723679175457978}
   - component: {fileID: 2035071418946503415}
-  - component: {fileID: 2572710040283008518}
   - component: {fileID: 8196886024078297181}
   m_Layer: 5
   m_Name: HorizontalDecoLineGold
@@ -36,7 +35,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -0.88, y: -16.05}
+  m_AnchoredPosition: {x: -0.8800049, y: -16.049988}
   m_SizeDelta: {x: 19, y: 29.4}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &2052723679175457978
@@ -76,21 +75,6 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
---- !u!114 &2572710040283008518
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5386356426383551654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44ca50b9b62ad824d874fbbb0dcf04ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_mode: 1
-  m_sizeHorizontal: 50
-  m_sizeVertical: 50
 --- !u!114 &8196886024078297181
 MonoBehaviour:
   m_ObjectHideFlags: 0
