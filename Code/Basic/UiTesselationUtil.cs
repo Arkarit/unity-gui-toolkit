@@ -38,6 +38,7 @@ namespace GuiToolkit
 			return true;
 		}
 
+
 		public static bool TessellateQuad( List<UIVertex> _inTriangleList, List<UIVertex> _outVertices, List<int> _outIndices, int _startIdx, float _sizeH, float _sizeV )
 		{
 			UIVertex bl = _inTriangleList[_startIdx];
@@ -65,10 +66,6 @@ namespace GuiToolkit
 			int[] lastTl = new int[numH];
 			int[] lastTr = new int[numH];
 			int[] lastBr = new int[numH];
-			int ibl;
-			int itl;
-			int itr;
-			int ibr;
 
 			for (int iY = 0; iY < numV; ++iY)
 			{
@@ -82,79 +79,15 @@ namespace GuiToolkit
 					if (currentOutIndex >= 64996)
 						return false;
 
-					if (iY==0 )
-					{
-						if (iX == 0) // x=0,y=0
-						{
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, leftSplit, bottomSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, leftSplit, topSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, topSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, bottomSplit));
-
-							ibl = currentOutIndex;
-							itl = currentOutIndex + 1;
-							itr = currentOutIndex + 2;
-							ibr = currentOutIndex + 3;
-
-							currentOutIndex += 4;
-						}
-						else // x>0,y=0
-						{
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, topSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, bottomSplit));
-
-							int lastIX = iX-1;
-
-							ibl = lastBr[lastIX];
-							itl = lastTr[lastIX];
-							itr = currentOutIndex;
-							ibr = currentOutIndex + 1;
-
-							currentOutIndex += 2;
-						}
-					}
-					else
-					{
-						if (iX == 0) // x=0,y>0
-						{
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, leftSplit, topSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, topSplit));
-
-							ibl = lastTl[iX];
-							itl = currentOutIndex;
-							itr = currentOutIndex + 1;
-							ibr = lastTr[iX];
-
-							currentOutIndex += 2;
-						}
-						else // x>0,y>0
-						{
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, topSplit));
-
-							int lastIX = iX-1;
-
-							ibl = lastTl[iX];
-							itl = lastTr[lastIX];
-							itr = currentOutIndex;
-							ibr = lastTr[iX];
-
-							currentOutIndex += 1;
-						}
-
-					}
-
-					_outIndices.Add(ibl);
-					_outIndices.Add(itl);
-					_outIndices.Add(itr);
-
-					_outIndices.Add(itr);
-					_outIndices.Add(ibr);
-					_outIndices.Add(ibl);
-
-					lastBl[iX] = ibl;
-					lastTl[iX] = itl;
-					lastTr[iX] = itr;
-					lastBr[iX] = ibr;
+					Split( 
+						iX, iY, 
+						ref bl, ref tl, ref tr, ref br,
+						leftSplit, rightSplit, bottomSplit, topSplit,
+						ref lastBl, ref lastTl, ref lastTr, ref lastBr,
+						ref currentOutIndex,
+						ref _outVertices,
+						ref _outIndices
+					);
 
 					leftSplit = rightSplit;
 				}
@@ -243,40 +176,15 @@ namespace GuiToolkit
 					float leftSplit = _normalizedSplitsH[iX] / normalizedRect.width - normalizedRect.x; 
 					float rightSplit = _normalizedSplitsH[iX+1] / normalizedRect.width - normalizedRect.x;
 
-					if (true || iY==0)
-					{
-						if (true || iX == 0)
-						{
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, leftSplit, bottomSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, leftSplit, topSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, topSplit));
-							_outVertices.Add( UiMath.Bilerp(bl, tl, tr, br, rightSplit, bottomSplit));
-
-							ibl = currentOutIndex;
-							itl = currentOutIndex + 1;
-							itr = currentOutIndex + 2;
-							ibr = currentOutIndex + 3;
-
-							currentOutIndex += 4;
-						}
-					}
-					else
-					{
-
-					}
-
-					_outIndices.Add(ibl);
-					_outIndices.Add(itl);
-					_outIndices.Add(itr);
-
-					_outIndices.Add(itr);
-					_outIndices.Add(ibr);
-					_outIndices.Add(ibl);
-
-					lastBl[iX] = ibl;
-					lastTl[iX] = itl;
-					lastTr[iX] = itr;
-					lastBr[iX] = ibr;
+					Split( 
+						iX, iY, 
+						ref bl, ref tl, ref tr, ref br,
+						leftSplit, rightSplit, bottomSplit, topSplit,
+						ref lastBl, ref lastTl, ref lastTr, ref lastBr,
+						ref currentOutIndex,
+						ref _outVertices,
+						ref _outIndices
+					);
 				}
 			}
 
@@ -383,5 +291,106 @@ namespace GuiToolkit
 		{
 			return new Rect(_a.x / _b.x, _a.y / _b.y, _a.width / _b.width, _a.height / _b.height);
 		}
+
+		private static void Split
+		( 
+			  int _iX
+			, int _iY
+			, ref UIVertex _bl
+			, ref UIVertex _tl
+			, ref UIVertex _tr
+			, ref UIVertex _br
+			, float _leftSplit
+			, float _rightSplit
+			, float _bottomSplit
+			, float _topSplit
+			, ref int[] _lastBl
+			, ref int[] _lastTl
+			, ref int[] _lastTr
+			, ref int[] _lastBr
+			, ref int _currentOutIndex
+			, ref List<UIVertex> _outVertices
+			, ref List<int> _outIndices )
+		{
+			int ibl;
+			int itl;
+			int itr;
+			int ibr;
+
+			if (_iY == 0)
+			{
+				if (_iX == 0) // x=0,y=0
+				{
+					_outVertices.Add(UiMath.Bilerp(_bl, _tl, _tr, _br, _leftSplit, _bottomSplit));
+					_outVertices.Add(UiMath.Bilerp(_bl, _tl, _tr, _br, _leftSplit, _topSplit));
+					_outVertices.Add(UiMath.Bilerp(_bl, _tl, _tr, _br, _rightSplit, _topSplit));
+					_outVertices.Add(UiMath.Bilerp(_bl, _tl, _tr, _br, _rightSplit, _bottomSplit));
+
+					ibl = _currentOutIndex;
+					itl = _currentOutIndex + 1;
+					itr = _currentOutIndex + 2;
+					ibr = _currentOutIndex + 3;
+
+					_currentOutIndex += 4;
+				}
+				else // x>0,y=0
+				{
+					_outVertices.Add(UiMath.Bilerp(_bl, _tl, _tr, _br, _rightSplit, _topSplit));
+					_outVertices.Add(UiMath.Bilerp(_bl, _tl, _tr, _br, _rightSplit, _bottomSplit));
+
+					int lastIX = _iX - 1;
+
+					ibl = _lastBr[lastIX];
+					itl = _lastTr[lastIX];
+					itr = _currentOutIndex;
+					ibr = _currentOutIndex + 1;
+
+					_currentOutIndex += 2;
+				}
+			}
+			else
+			{
+				if (_iX == 0) // x=0,y>0
+				{
+					_outVertices.Add(UiMath.Bilerp(_bl, _tl, _tr, _br, _leftSplit, _topSplit));
+					_outVertices.Add(UiMath.Bilerp(_bl, _tl, _tr, _br, _rightSplit, _topSplit));
+
+					ibl = _lastTl[_iX];
+					itl = _currentOutIndex;
+					itr = _currentOutIndex + 1;
+					ibr = _lastTr[_iX];
+
+					_currentOutIndex += 2;
+				}
+				else // x>0,y>0
+				{
+					_outVertices.Add(UiMath.Bilerp(_bl, _tl, _tr, _br, _rightSplit, _topSplit));
+
+					int lastIX = _iX - 1;
+
+					ibl = _lastTl[_iX];
+					itl = _lastTr[lastIX];
+					itr = _currentOutIndex;
+					ibr = _lastTr[_iX];
+
+					_currentOutIndex += 1;
+				}
+
+			}
+
+			_outIndices.Add(ibl);
+			_outIndices.Add(itl);
+			_outIndices.Add(itr);
+
+			_outIndices.Add(itr);
+			_outIndices.Add(ibr);
+			_outIndices.Add(ibl);
+
+			_lastBl[_iX] = ibl;
+			_lastTl[_iX] = itl;
+			_lastTr[_iX] = itr;
+			_lastBr[_iX] = ibr;
+		}
+
 	}
 }
