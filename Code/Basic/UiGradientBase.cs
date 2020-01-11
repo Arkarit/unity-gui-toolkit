@@ -30,6 +30,9 @@ namespace GuiToolkit
 
 		public override void ModifyMesh( VertexHelper _vh )
 		{
+			if (!IsActive())
+				return;
+
 			if (m_sliced)
 				CalcMinMax( _vh );
 

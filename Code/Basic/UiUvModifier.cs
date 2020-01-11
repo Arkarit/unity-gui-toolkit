@@ -24,6 +24,9 @@ namespace GuiToolkit
 
 		public override void ModifyMesh( VertexHelper _vh )
 		{
+			if (!IsActive())
+				return;
+
 			if (_vh.currentVertCount < 1)
 				return;
 

@@ -4,11 +4,12 @@ namespace GuiToolkit
 {
 	public static class UiMath
 	{
-		// Note: In this implementation, only the absolute necessary values position and uv0 are lerped due to performance reasons,
+		// Note: In this implementation, only the absolute necessary values position, color and uv0 are lerped due to performance reasons,
 		public static UIVertex Bilerp( UIVertex _bl, UIVertex _tl, UIVertex _tr, UIVertex _br, float _h, float _v )
 		{
 			UIVertex result = _bl;
 			result.position = Bilerp(_bl.position, _tl.position, _tr.position, _br.position, _h, _v);
+			result.color = Bilerp(_bl.color, _tl.color, _tr.color, _br.color, _h, _v);
 			result.uv0 = Bilerp(_bl.uv0, _tl.uv0, _tr.uv0, _br.uv0, _h, _v);
 			return result;
 		}

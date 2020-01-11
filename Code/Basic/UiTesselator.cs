@@ -32,6 +32,9 @@ namespace GuiToolkit
 
 		public override void ModifyMesh( VertexHelper _vh )
 		{
+			if (!IsActive())
+				return;
+
 			switch( m_mode )
 			{
 				default:
