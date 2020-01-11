@@ -32,9 +32,9 @@ namespace GuiToolkit
 				return;
 
 			if (m_isHorizontal)
-				UiTesselationUtil.Subdivide( _vh, keyTimes.ToList(), null);
+				UiTessellationUtil.Subdivide( _vh, keyTimes.ToList(), null);
 			else
-				UiTesselationUtil.Subdivide( _vh, null, keyTimes.ToList());
+				UiTessellationUtil.Subdivide( _vh, null, keyTimes.ToList());
 		}
 
 	}

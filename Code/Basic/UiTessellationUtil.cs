@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public static class UiTesselationUtil
+	public static class UiTessellationUtil
 	{
 		private const float MIN_TESSELATE_SIZE = 1.0f;
 

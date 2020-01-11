@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace GuiToolkit
 {
 	[ExecuteAlways]
-	public class UiTesselator : BaseMeshEffect
+	public class UiTessellator : BaseMeshEffect
 	{
 		private const float LARGE_SIZE = 1000000;
 
@@ -41,40 +41,40 @@ namespace GuiToolkit
 				case EMode.None:
 					break;
 				case EMode.Horizontal:
-					UiTesselationUtil.Tessellate(_vh, m_sizeHorizontal, LARGE_SIZE);
+					UiTessellationUtil.Tessellate(_vh, m_sizeHorizontal, LARGE_SIZE);
 					break;
 				case EMode.Vertical:
-					UiTesselationUtil.Tessellate(_vh, LARGE_SIZE, m_sizeVertical);
+					UiTessellationUtil.Tessellate(_vh, LARGE_SIZE, m_sizeVertical);
 					break;
 				case EMode.Both:
-					UiTesselationUtil.Tessellate(_vh, m_sizeHorizontal, m_sizeVertical);
+					UiTessellationUtil.Tessellate(_vh, m_sizeHorizontal, m_sizeVertical);
 					break;
 			}
 		}
 	}
 
 #if UNITY_EDITOR
-	[CustomEditor(typeof(UiTesselator))]
+	[CustomEditor(typeof(UiTessellator))]
 	public class UiStateMachineEditor : Editor
 	{
 		public override void OnInspectorGUI()
 		{
-			UiTesselator thisUiTesselator = (UiTesselator)target;
+			UiTessellator thisUiTesselator = (UiTessellator)target;
 
 			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_mode"));
 			serializedObject.ApplyModifiedProperties();
 
 			switch(thisUiTesselator.Mode)
 			{
-				case UiTesselator.EMode.None:
+				case UiTessellator.EMode.None:
 					break;
-				case UiTesselator.EMode.Horizontal:
+				case UiTessellator.EMode.Horizontal:
 					EditorGUILayout.PropertyField(serializedObject.FindProperty("m_sizeHorizontal"), new GUIContent("Size"));
 					break;
-				case UiTesselator.EMode.Vertical:
+				case UiTessellator.EMode.Vertical:
 					EditorGUILayout.PropertyField(serializedObject.FindProperty("m_sizeVertical"), new GUIContent("Size"));
 					break;
-				case UiTesselator.EMode.Both:
+				case UiTessellator.EMode.Both:
 					EditorGUILayout.PropertyField(serializedObject.FindProperty("m_sizeHorizontal"));
 					EditorGUILayout.PropertyField(serializedObject.FindProperty("m_sizeVertical"));
 					break;
