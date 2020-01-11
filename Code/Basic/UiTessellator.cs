@@ -1,6 +1,9 @@
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace GuiToolkit
 {
@@ -55,7 +58,7 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 	[CustomEditor(typeof(UiTessellator))]
-	public class UiStateMachineEditor : Editor
+	public class UiTessellatorEditor : Editor
 	{
 		public override void OnInspectorGUI()
 		{

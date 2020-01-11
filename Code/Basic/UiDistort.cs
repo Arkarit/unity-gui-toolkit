@@ -1,6 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit
 {
 	[ExecuteAlways]
@@ -25,4 +29,34 @@ namespace GuiToolkit
 		}
 #endif
 	}
+
+#if UNITY_EDITOR
+	[CustomEditor(typeof(UiDistort))]
+	public class UiDistortEditor : Editor
+	{
+		public override void OnInspectorGUI()
+		{
+			UiDistort thisUiDistort = (UiDistort)target;
+			
+			float oldLabelWidth = EditorGUIUtility.labelWidth;
+			EditorGUIUtility.labelWidth = 80;
+
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_topLeft"));
+			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_topRight"));
+			EditorGUILayout.EndHorizontal();
+
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_bottomLeft"));
+			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_bottomRight"));
+			EditorGUILayout.EndHorizontal();
+
+			EditorGUIUtility.labelWidth = oldLabelWidth;
+
+			serializedObject.ApplyModifiedProperties();
+		}
+	}
+#endif
+
+
 }
