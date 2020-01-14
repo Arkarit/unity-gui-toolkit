@@ -136,8 +136,10 @@ namespace GuiToolkit
 		{
 			Rect minMaxRect = GetMinMaxRect( _inTriangleList );
 
-int bla = 3*6;
-for(int i = bla; i < bla+6; i += 6)
+int start = 0;
+int end = 3;
+
+for(int i = start*6; i <= end*6; i += 6)
 //			int startingVertexCount = _inTriangleList.Count;
 //			for (int i = 0; i < startingVertexCount; i += 6)
 			{
@@ -286,7 +288,7 @@ Debug.Log($"bottomSplit:{bottomSplit} topSplit:{topSplit} leftSplit:{leftSplit} 
 					float split = _inAllNrmSplitsV[i];
 					if (split > _nrmRect.yMin && split < _nrmRect.yMax)
 					{
-						split = 1.0f - (1.0f-split) / _nrmRect.height;
+						split = 1.0f - (1.0f - split - (1.0f - _nrmRect.yMax)) / _nrmRect.height;
 						_outNrmSplitsV.Add( split );
 					}
 				}
