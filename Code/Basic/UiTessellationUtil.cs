@@ -136,8 +136,10 @@ namespace GuiToolkit
 		{
 			Rect minMaxRect = GetMinMaxRect( _inTriangleList );
 
-			int startingVertexCount = _inTriangleList.Count;
-			for (int i = 0; i < startingVertexCount; i += 6)
+int bla = 3*6;
+for(int i = bla; i < bla+6; i += 6)
+//			int startingVertexCount = _inTriangleList.Count;
+//			for (int i = 0; i < startingVertexCount; i += 6)
 			{
 				if (!SubdivideQuad(_inTriangleList, _outVertices, _outIndices, i, minMaxRect, _normalizedSplitsH, _normalizedSplitsV))
 					return false;
@@ -156,6 +158,8 @@ namespace GuiToolkit
 				return false;
 
 			Rect normalizedRect = GetNormalizedRect( _inTriangleList, _startIdx, _minMaxRect );
+Debug.Log($"normalizedRect:{normalizedRect}");
+
 			s_splitsH.Clear();
 			s_splitsV.Clear();
 			GetNormalizedSplits(normalizedRect, _normalizedSplitsH, _normalizedSplitsV, s_splitsH, s_splitsV);
@@ -176,17 +180,17 @@ namespace GuiToolkit
 
 			for (int iY = 0; iY < numV-1; iY++)
 			{
-				float bottomSplit = _normalizedSplitsV[iY] / normalizedRect.height - normalizedRect.y; 
-				float topSplit = _normalizedSplitsV[iY+1] / normalizedRect.height - normalizedRect.y;
+				float bottomSplit = s_splitsV[iY]; 
+				float topSplit = s_splitsV[iY+1];
 
 				for (int iX = 0; iX < numH-1; iX++)
 				{
 					if (currentOutIndex >= 64996)
 						return false;
 
-					float leftSplit = _normalizedSplitsH[iX] / normalizedRect.width - normalizedRect.x; 
-					float rightSplit = _normalizedSplitsH[iX+1] / normalizedRect.width - normalizedRect.x;
-
+					float leftSplit = s_splitsH[iX]; 
+					float rightSplit = s_splitsH[iX+1];
+Debug.Log($"bottomSplit:{bottomSplit} topSplit:{topSplit} leftSplit:{leftSplit} rightSplit:{rightSplit}");
 					Split( 
 						iX, iY, 
 						ref bl, ref tl, ref tr, ref br,
@@ -255,12 +259,12 @@ namespace GuiToolkit
 			float xMax = (tr.position.x - _minMaxRect.xMin) / _minMaxRect.width;
 			float yMax = (tr.position.y - _minMaxRect.yMin) / _minMaxRect.height;
 
-			return new Rect(xMin, yMin, xMax-xMin, yMax - yMin);
+			return new Rect(xMin, yMin, xMax-xMin, yMax-yMin);
 		}
 
 		private static void GetNormalizedSplits( Rect _nrmRect, List<float> _inAllNrmSplitsH, List<float> _inAllNrmSplitsV, List<float> _outNrmSplitsH, List<float> _outNrmSplitsV )
 		{
-			_outNrmSplitsH.Add(_nrmRect.xMin);
+			_outNrmSplitsH.Add(0);
 			if (_inAllNrmSplitsH != null)
 			{
 				int count = _inAllNrmSplitsH.Count;
@@ -271,9 +275,9 @@ namespace GuiToolkit
 						_outNrmSplitsH.Add(split);
 				}
 			}
-			_outNrmSplitsH.Add(_nrmRect.xMax);
+			_outNrmSplitsH.Add(1);
 
-			_outNrmSplitsV.Add(_nrmRect.yMin);
+			_outNrmSplitsV.Add(0);
 			if (_inAllNrmSplitsV != null)
 			{
 				int count = _inAllNrmSplitsV.Count;
@@ -281,10 +285,13 @@ namespace GuiToolkit
 				{
 					float split = _inAllNrmSplitsV[i];
 					if (split > _nrmRect.yMin && split < _nrmRect.yMax)
-						_outNrmSplitsV.Add(split);
+					{
+						split = 1.0f - (1.0f-split) / _nrmRect.height;
+						_outNrmSplitsV.Add( split );
+					}
 				}
 			}
-			_outNrmSplitsV.Add(_nrmRect.yMax);
+			_outNrmSplitsV.Add(1);
 
 		}
 
