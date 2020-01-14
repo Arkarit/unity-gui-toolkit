@@ -136,16 +136,13 @@ namespace GuiToolkit
 		{
 			Rect minMaxRect = GetMinMaxRect( _inTriangleList );
 
-// int start = 1;
-// int end = 1;
-// 
-// for(int i = start*6; i <= end*6; i += 6)
 			int startingVertexCount = _inTriangleList.Count;
 			for (int i = 0; i < startingVertexCount; i += 6)
 			{
 				if (!SubdivideQuad(_inTriangleList, _outVertices, _outIndices, i, minMaxRect, _normalizedSplitsH, _normalizedSplitsV))
 					return false;
 			}
+
 			return true;
 		}
 
@@ -160,7 +157,6 @@ namespace GuiToolkit
 				return false;
 
 			Rect normalizedRect = GetNormalizedRect( _inTriangleList, _startIdx, _minMaxRect );
-Debug.Log($"normalizedRect:{normalizedRect}");
 
 			s_splitsH.Clear();
 			s_splitsV.Clear();
@@ -192,7 +188,7 @@ Debug.Log($"normalizedRect:{normalizedRect}");
 
 					float leftSplit = s_splitsH[iX]; 
 					float rightSplit = s_splitsH[iX+1];
-Debug.Log($"bottomSplit:{bottomSplit} topSplit:{topSplit} leftSplit:{leftSplit} rightSplit:{rightSplit}");
+
 					Split( 
 						iX, iY, 
 						ref bl, ref tl, ref tr, ref br,
