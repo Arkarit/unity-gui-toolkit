@@ -7,18 +7,24 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public abstract class UiGradientBase : BaseMeshEffect
 	{
-		public enum VertexColorMode {
-			Replace,
+		public enum EEvaluateMode
+		{
+			ByUV,
+			ByPosition,
+		}
+
+		public enum EVertexColorMode {
 			Multiply,
+			Replace,
 			Add,
 		}
 
-		[Tooltip("Switch on for sliced bitmaps, off for standard bitmaps.")]
+		[Tooltip("Switch to UV for standard bitmaps, position for sliced bitmaps")]
 		[SerializeField]
-		protected bool m_sliced = false;
+		protected EEvaluateMode m_evaluateMode = EEvaluateMode.ByUV;
 
 		[SerializeField]
-		protected VertexColorMode m_vertexColorMode = VertexColorMode.Multiply;
+		protected EVertexColorMode m_vertexColorMode = EVertexColorMode.Multiply;
 
 		// This is filled with the current vertex while calling GetColor()
 		protected static UIVertex s_vertex;
@@ -34,7 +40,7 @@ namespace GuiToolkit
 			if (!IsActive())
 				return;
 
-			if (m_sliced)
+			if (m_evaluateMode == EEvaluateMode.ByPosition)
 				CalcMinMax( _vh );
 
 			Prepare( _vh );
@@ -46,7 +52,7 @@ namespace GuiToolkit
 				_vh.PopulateUIVertex(ref s_vertex, i);
 
 				Vector2 lerpVal;
-				if (m_sliced)
+				if (m_evaluateMode == EEvaluateMode.ByPosition)
 				{
 					Vector2 pos = new Vector2( s_vertex.position.x, s_vertex.position.y );
 					lerpVal = ( pos-m_min) / dist;
@@ -60,13 +66,13 @@ namespace GuiToolkit
 
 				switch( m_vertexColorMode )
 				{
-					case VertexColorMode.Replace:
+					case EVertexColorMode.Replace:
 					default:
 						break;
-					case VertexColorMode.Multiply:
+					case EVertexColorMode.Multiply:
 						c *= s_vertex.color;
 						break;
-					case VertexColorMode.Add:
+					case EVertexColorMode.Add:
 						c += s_vertex.color;
 						break;
 				}

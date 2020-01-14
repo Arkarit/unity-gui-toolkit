@@ -87,8 +87,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd2ccc9659ef7a4bb93ab6ce92ba6e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_sliced: 1
-  m_vertexColorMode: 1
+  m_evaluateMode: 1
+  m_vertexColorMode: 0
   m_gradient:
     serializedVersion: 2
     key0: {r: 1, g: 0.69640857, b: 0, a: 0}
