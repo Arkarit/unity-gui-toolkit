@@ -11,18 +11,29 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public class UiDistort : BaseMeshEffect
 	{
+		[SerializeField]
 		[VectorRange (-1, 1, -1, 1, true)]
-		public Vector2 m_topLeft = Vector2.zero;
+		private Vector2 m_topLeft = Vector2.zero;
+
+		[SerializeField]
 		[VectorRange (-1, 1, -1, 1, true)]
-		public Vector2 m_topRight = Vector2.zero;
+		private Vector2 m_topRight = Vector2.zero;
+
+		[SerializeField]
 		[VectorRange (-1, 1, -1, 1, true)]
-		public Vector2 m_bottomLeft = Vector2.zero;
+		private Vector2 m_bottomLeft = Vector2.zero;
+
+		[SerializeField]
 		[VectorRange (-1, 1, -1, 1, true)]
-		public Vector2 m_bottomRight = Vector2.zero;
+		private Vector2 m_bottomRight = Vector2.zero;
+
+		[SerializeField]
+		private bool m_mirrorHorizontal;
+		[SerializeField]
+		private bool m_mirrorVertical;
 
 		private static readonly List<UIVertex> s_verts = new List<UIVertex>();
 		private static UIVertex s_vertex;
-
 
 		public override void ModifyMesh( VertexHelper _vertexHelper )
 		{
@@ -33,10 +44,25 @@ namespace GuiToolkit
 
 			Rect bounding = UiModifierUtil.GetMinMaxRect(s_verts);
 			Vector2 size = bounding.size;
+
 			Vector2 tl = m_topLeft * size;
 			Vector2 bl = m_bottomLeft * size;
 			Vector2 tr = m_topRight * size;
 			Vector2 br = m_bottomRight * size;
+
+			Vector2 mirrorVec = new Vector2(m_mirrorHorizontal ? -1 : 1, m_mirrorVertical ? -1 : 1);
+
+			if (m_mirrorHorizontal)
+			{
+				Swap( ref tl, ref tr );
+				Swap( ref bl, ref br );
+			}
+
+			if (m_mirrorVertical)
+			{
+				Swap( ref tl, ref bl );
+				Swap( ref tr, ref br );
+			}
 
 
 			for (int i = 0; i < _vertexHelper.currentVertCount; ++i)
@@ -57,15 +83,22 @@ namespace GuiToolkit
 
 				Vector2 point = s_vertex.position.Xy();
 				point += 
-					  tl * influenceTL
-					+ tr * influenceTR
-					+ bl * influenceBL
-					+ br * influenceBR;
+					  tl * influenceTL * mirrorVec
+					+ tr * influenceTR * mirrorVec
+					+ bl * influenceBL * mirrorVec
+					+ br * influenceBR * mirrorVec;
 
 				s_vertex.position = new Vector3(point.x, point.y, s_vertex.position.z);
 
 				_vertexHelper.SetUIVertex(s_vertex, i);
 			}
+		}
+
+		private void Swap(ref Vector2 a, ref Vector2 b)
+		{
+			Vector2 t = b;
+			b = a;
+			a = t;
 		}
 
 #if UNITY_EDITOR
@@ -98,6 +131,9 @@ namespace GuiToolkit
 			EditorGUILayout.EndHorizontal();
 
 			EditorGUIUtility.labelWidth = oldLabelWidth;
+
+			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_mirrorHorizontal"));
+			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_mirrorVertical"));
 
 			serializedObject.ApplyModifiedProperties();
 		}
