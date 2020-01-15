@@ -59,5 +59,43 @@ namespace GuiToolkit
 
 			return result;
 		}
+
+		public static Vector2 TopLeft( this Rect _this )
+		{
+			return new Vector2(_this.xMin, _this.yMax );
+		}
+		public static Vector2 BottomLeft( this Rect _this )
+		{
+			return new Vector2(_this.xMin, _this.yMin );
+		}
+		public static Vector2 TopRight( this Rect _this )
+		{
+			return new Vector2(_this.xMax, _this.yMax );
+		}
+		public static Vector2 BottomRight( this Rect _this )
+		{
+			return new Vector2(_this.xMax, _this.yMin );
+		}
+
+		public static Vector2 Xy( this Vector3 _this )
+		{
+			return new Vector2(_this.x, _this.y);
+		}
+		public static Vector2 Xz( this Vector3 _this )
+		{
+			return new Vector2(_this.x, _this.z);
+		}
+		public static Vector2 Yz( this Vector3 _this )
+		{
+			return new Vector2(_this.y, _this.z);
+		}
+		public static Vector2 Swap( this Vector2 _this )
+		{
+			float t = _this.x;
+			_this.x = _this.y;
+			_this.y = t;
+			return _this;
+		}
+
 	}
 }

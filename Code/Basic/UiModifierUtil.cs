@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public static class UiTessellationUtil
+	public static class UiModifierUtil
 	{
 		private const float MIN_TESSELATE_SIZE = 1.0f;
 
@@ -260,6 +260,18 @@ namespace GuiToolkit
 			return new Rect(xMin, yMin, xMax-xMin, yMax-yMin);
 		}
 
+		public static Vector2 GetNormalizedPointInRect( this Vector2 _this, Rect _rt)
+		{
+			return new Vector2(_this.x / _rt.width, _this.y / _rt.height);
+		}
+
+		public static Vector2 GetNormalizedPointInRect( this Vector3 _this, Rect _rt)
+		{
+			return new Vector2((_this.x - _rt.x) / _rt.width, (_this.y-_rt.y) / _rt.height);
+		}
+
+
+
 		private static void GetNormalizedSplits( Rect _nrmRect, List<float> _inAllNrmSplitsH, List<float> _inAllNrmSplitsV, List<float> _outNrmSplitsH, List<float> _outNrmSplitsV )
 		{
 			_outNrmSplitsH.Add(0);
@@ -301,11 +313,6 @@ namespace GuiToolkit
 			int numV = _splitsV.Count;
 			for (int i=0; i<numV; i++)
 				_splitsV[i] = _splitsV[i] * _rect.height + _rect.y;
-		}
-
-		private static Rect GetRelativeRect(Rect _a, Rect _b)
-		{
-			return new Rect(_a.x / _b.x, _a.y / _b.y, _a.width / _b.width, _a.height / _b.height);
 		}
 
 		private static void Split
