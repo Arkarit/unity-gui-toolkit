@@ -9,12 +9,6 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public class UiGradient : UiGradientBase
 	{
-		public enum EDirection
-		{
-			Horizontal,
-			Vertical,
-		}
-
 		[SerializeField]
 		protected Gradient m_gradient = new Gradient();
 		[SerializeField]

@@ -97,5 +97,10 @@ namespace GuiToolkit
 			return _this;
 		}
 
+		public static bool IsFlagSet<T>( this T _this, T _flag ) where T : Enum
+		{
+			return ((int) (object) _this & (int) (object) _flag) != 0;
+		}
+
 	}
 }

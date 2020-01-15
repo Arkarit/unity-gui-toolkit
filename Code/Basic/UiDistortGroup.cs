@@ -1,23 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace GuiToolkit
 {
 	[ExecuteAlways]
 	public class UiDistortGroup : MonoBehaviour
 	{
-
-		public enum EDirection
-		{
-			Horizontal,
-			Vertical,
-		}
-
 		[SerializeField]
 		protected EDirection m_direction;
 
 		private List<UiDistort> m_elements;
+		private List<UiDistort> m_secondaryElements;
 
 		private void OnTransformChildrenChanged()
 		{
@@ -41,36 +38,20 @@ namespace GuiToolkit
 
 		private void PositionElements()
 		{
-			for (int i=0; i<m_elements.Count; i++)
+			int numElements = m_elements.Count;
+
+			if (numElements == 0)
+				return;
+
+			for (int i=0; i<numElements; i++)
 			{
-				if (i == 0)
-				{
-					m_elements[i].enabled = true;
-					if (m_direction == EDirection.Horizontal)
-					{
-						m_elements[i].MirrorHorizontal = false;
-					}
-					else
-					{
-						m_elements[i].MirrorVertical = false;
-					}
-				}
-				else if (i == m_elements.Count-1)
-				{
-					m_elements[i].enabled = true;
-					if (m_direction == EDirection.Horizontal)
-					{
-						m_elements[i].MirrorHorizontal = true;
-					}
-					else
-					{
-						m_elements[i].MirrorVertical = true;
-					}
-				}
-				else
-				{
+				m_elements[i].SetMirror( 0 );
+				m_elements[i].enabled = true;
+
+				if (i > 0 && i < numElements-1)
 					m_elements[i].enabled = false;
-				}
+				else if (i == numElements-1 && numElements > 1)
+					m_elements[i].SetMirror(m_direction);
 			}
 		}
 
@@ -79,6 +60,5 @@ namespace GuiToolkit
 			CollectElements();
 			PositionElements();
 		}
-
 	}
 }

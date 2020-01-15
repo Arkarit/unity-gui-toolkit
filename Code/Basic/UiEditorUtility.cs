@@ -156,7 +156,19 @@ namespace GuiToolkit
 			return currentInt != newInt;
 		}
 
-		public static bool BoolBar<T>( ref T _filters ) where T : System.Enum
+		public static void FlagEnumPopup<T>(SerializedProperty _prop, string _labelText) where T : Enum
+		{
+			EditorGUILayout.BeginHorizontal();
+			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
+			T direction = (T) (object) _prop.intValue;
+			direction = (T) EditorGUILayout.EnumFlagsField(direction);
+			_prop.intValue = (int) (object) direction;
+			EditorGUILayout.EndHorizontal();
+
+			_prop.serializedObject.ApplyModifiedProperties();
+		}
+
+		public static bool BoolBar<T>( ref T _filters, string _labelText = null ) where T : System.Enum
 		{
 			int filters = (int)(object)_filters;
 			bool result = false;
@@ -165,6 +177,9 @@ namespace GuiToolkit
 
 			using (new EditorGUILayout.HorizontalScope())
 			{
+				if (!string.IsNullOrEmpty(_labelText))
+					GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
+
 				for (int i = 0; i < types.Length; i++)
 				{
 					if (types[i].StartsWith("All") || types[i].StartsWith("None"))
@@ -185,6 +200,16 @@ namespace GuiToolkit
 				}
 			}
 
+			return result;
+		}
+
+		public static bool BoolBar<T>( SerializedProperty _prop, string _labelText = null ) where T : System.Enum
+		{
+			EditorGUILayout.BeginHorizontal();
+			T t = (T) (object) _prop.intValue;
+			bool result = BoolBar<T>(ref t, _labelText);
+			_prop.intValue = (int) (object) t;
+			EditorGUILayout.EndHorizontal();
 			return result;
 		}
 

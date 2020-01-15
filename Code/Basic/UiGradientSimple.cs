@@ -8,12 +8,6 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public class UiGradientSimple : UiGradientBase
 	{
-		public enum EDirection
-		{
-			Horizontal,
-			Vertical,
-		}
-
 		[SerializeField]
 		protected Color m_colorLeftOrTop;
 		[SerializeField]

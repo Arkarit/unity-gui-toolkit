@@ -28,23 +28,15 @@ namespace GuiToolkit
 		private Vector2 m_bottomRight = Vector2.zero;
 
 		[SerializeField]
-		private bool m_mirrorHorizontal;
-		[SerializeField]
-		private bool m_mirrorVertical;
+		private EDirection m_mirrorDirection;
 
 		private static readonly List<UIVertex> s_verts = new List<UIVertex>();
 		private static UIVertex s_vertex;
 
-		public bool MirrorHorizontal
+		public void SetMirror( EDirection _direction )
 		{
-			get { return m_mirrorHorizontal; }
-			set { m_mirrorHorizontal = value; this.SetDirty(); }
-		}
-
-		public bool MirrorVertical
-		{
-			get { return m_mirrorVertical; }
-			set { m_mirrorVertical = value; this.SetDirty(); }
+			m_mirrorDirection = _direction;
+			this.SetDirty();
 		}
 
 		public override void ModifyMesh( VertexHelper _vertexHelper )
@@ -62,15 +54,18 @@ namespace GuiToolkit
 			Vector2 tr = m_topRight * size;
 			Vector2 br = m_bottomRight * size;
 
-			Vector2 mirrorVec = new Vector2(m_mirrorHorizontal ? -1 : 1, m_mirrorVertical ? -1 : 1);
+			bool mirrorHorizontal = m_mirrorDirection.IsFlagSet(EDirection.Horizontal);
+			bool mirrorVertical = m_mirrorDirection.IsFlagSet(EDirection.Vertical);
 
-			if (m_mirrorHorizontal)
+			Vector2 mirrorVec = new Vector2(mirrorHorizontal ? -1 : 1, mirrorVertical ? -1 : 1);
+
+			if (mirrorHorizontal)
 			{
 				Swap( ref tl, ref tr );
 				Swap( ref bl, ref br );
 			}
 
-			if (m_mirrorVertical)
+			if (mirrorVertical)
 			{
 				Swap( ref tl, ref bl );
 				Swap( ref tr, ref br );
@@ -144,8 +139,8 @@ namespace GuiToolkit
 
 			EditorGUIUtility.labelWidth = oldLabelWidth;
 
-			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_mirrorHorizontal"));
-			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_mirrorVertical"));
+			if (UiEditorUtility.BoolBar<EDirection>(serializedObject.FindProperty("m_mirrorDirection"), "Mirror"))
+				thisUiDistort.SetDirty();
 
 			serializedObject.ApplyModifiedProperties();
 		}
