@@ -9,12 +9,20 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public class UiGradient : UiGradientBase
 	{
-		public Gradient m_gradient = new Gradient();
-		public bool m_isHorizontal;
+		public enum EDirection
+		{
+			Horizontal,
+			Vertical,
+		}
+
+		[SerializeField]
+		protected Gradient m_gradient = new Gradient();
+		[SerializeField]
+		protected EDirection m_direction;
 
 		protected override Color GetColor( Vector2 _normVal )
 		{
-			return m_gradient.Evaluate( m_isHorizontal ? _normVal.x : 1.0f - _normVal.y );
+			return m_gradient.Evaluate( m_direction == EDirection.Horizontal ? _normVal.x : 1.0f - _normVal.y );
 		}
 
 		protected override void Prepare( VertexHelper _vh )
@@ -24,14 +32,14 @@ namespace GuiToolkit
 
 			SortedSet<float> keyTimes = new SortedSet<float>();
 			foreach( var key in colorKeys )
-				keyTimes.Add( m_isHorizontal ? key.time : 1.0f - key.time );
+				keyTimes.Add( m_direction == EDirection.Horizontal ? key.time : 1.0f - key.time );
 			foreach( var key in alphaKeys )
-				keyTimes.Add( m_isHorizontal ? key.time : 1.0f - key.time );
+				keyTimes.Add( m_direction == EDirection.Horizontal ? key.time : 1.0f - key.time );
 
 			if (keyTimes.Count <= 2)
 				return;
 
-			if (m_isHorizontal)
+			if (m_direction == EDirection.Horizontal)
 				UiModifierUtil.Subdivide( _vh, keyTimes.ToList(), null);
 			else
 				UiModifierUtil.Subdivide( _vh, null, keyTimes.ToList());

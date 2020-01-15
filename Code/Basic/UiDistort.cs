@@ -35,6 +35,18 @@ namespace GuiToolkit
 		private static readonly List<UIVertex> s_verts = new List<UIVertex>();
 		private static UIVertex s_vertex;
 
+		public bool MirrorHorizontal
+		{
+			get { return m_mirrorHorizontal; }
+			set { m_mirrorHorizontal = value; this.SetDirty(); }
+		}
+
+		public bool MirrorVertical
+		{
+			get { return m_mirrorVertical; }
+			set { m_mirrorVertical = value; this.SetDirty(); }
+		}
+
 		public override void ModifyMesh( VertexHelper _vertexHelper )
 		{
 			if (!IsActive())
