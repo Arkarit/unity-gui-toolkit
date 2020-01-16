@@ -11,6 +11,16 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public class UiDistort : BaseMeshEffect
 	{
+#if UNITY_EDITOR
+		public enum EMode
+		{
+			Distort,
+			Skew,
+		}
+		[SerializeField]
+		private EMode m_mode;
+#endif
+
 		[SerializeField]
 		[VectorRange (-1, 1, -1, 1, true)]
 		private Vector2 m_topLeft = Vector2.zero;
@@ -120,30 +130,88 @@ namespace GuiToolkit
 	[CustomEditor(typeof(UiDistort))]
 	public class UiDistortEditor : Editor
 	{
+		private SerializedProperty m_topLeftProp;
+		private SerializedProperty m_topRightProp;
+		private SerializedProperty m_bottomLeftProp;
+		private SerializedProperty m_bottomRightProp;
+		private SerializedProperty m_mirrorDirectionProp;
+
+		public void OnEnable()
+		{
+			m_topLeftProp = serializedObject.FindProperty("m_topLeft");
+			m_topRightProp = serializedObject.FindProperty("m_topRight");
+			m_bottomLeftProp = serializedObject.FindProperty("m_bottomLeft");
+			m_bottomRightProp = serializedObject.FindProperty("m_bottomRight");
+			m_mirrorDirectionProp = serializedObject.FindProperty("m_mirrorDirection");
+		}
+
 		public override void OnInspectorGUI()
 		{
 			UiDistort thisUiDistort = (UiDistort)target;
-			
+
+			SerializedProperty modeProp = serializedObject.FindProperty("m_mode");
+			EditorGUILayout.PropertyField(modeProp);
+			UiDistort.EMode mode = (UiDistort.EMode) modeProp.intValue;
+
+			switch (mode)
+			{
+				case UiDistort.EMode.Distort:
+					EditDistort(thisUiDistort);
+					break;
+				case UiDistort.EMode.Skew:
+					EditSkew(thisUiDistort);
+					break;
+				default:
+					break;
+
+			}
+
+			serializedObject.ApplyModifiedProperties();
+		}
+
+		private void EditDistort( UiDistort thisUiDistort )
+		{
 			float oldLabelWidth = EditorGUIUtility.labelWidth;
-			EditorGUIUtility.labelWidth = 80;
+			EditorGUIUtility.labelWidth = 100;
 
 			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_topLeft"));
-			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_topRight"));
+			EditorGUILayout.PropertyField(m_topLeftProp);
+			EditorGUILayout.PropertyField(m_topRightProp);
 			EditorGUILayout.EndHorizontal();
 
 			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_bottomLeft"));
-			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_bottomRight"));
+			EditorGUILayout.PropertyField(m_bottomLeftProp);
+			EditorGUILayout.PropertyField(m_bottomRightProp);
 			EditorGUILayout.EndHorizontal();
 
 			EditorGUIUtility.labelWidth = oldLabelWidth;
 
+			if (UiEditorUtility.BoolBar<EDirection>(m_mirrorDirectionProp, "Mirror"))
+				thisUiDistort.SetDirty();
+		}
+
+		private void EditSkew( UiDistort thisUiDistort )
+		{
+			float skewHorizontal = m_topLeftProp.vector2Value.x;
+			float skewVertical = m_topLeftProp.vector2Value.y;
+			skewHorizontal = EditorGUILayout.FloatField("Horizontal", skewHorizontal);
+			skewVertical = EditorGUILayout.FloatField("Vertical", skewVertical);
+
+			SetSkewValue(m_topLeftProp, skewHorizontal, skewVertical);
+			SetSkewValue(m_topRightProp, skewHorizontal, -skewVertical);
+			SetSkewValue(m_bottomLeftProp, -skewHorizontal, skewVertical);
+			SetSkewValue(m_bottomRightProp, -skewHorizontal, -skewVertical);
+
 			if (UiEditorUtility.BoolBar<EDirection>(serializedObject.FindProperty("m_mirrorDirection"), "Mirror"))
 				thisUiDistort.SetDirty();
-
-			serializedObject.ApplyModifiedProperties();
 		}
+
+		private void SetSkewValue(SerializedProperty _prop, float _x, float _y)
+		{
+			Vector2 vec = new Vector2(_x, _y);
+			_prop.vector2Value = vec;
+		}
+
 	}
 #endif
 
