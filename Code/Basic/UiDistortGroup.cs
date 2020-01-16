@@ -13,8 +13,10 @@ namespace GuiToolkit
 		[SerializeField]
 		protected EDirection m_direction;
 
-		private List<UiDistort> m_elements;
-		private List<UiDistort> m_secondaryElements;
+		private readonly List<UiDistort> m_elements = new List<UiDistort>();
+		private readonly List<UiDistort> m_secondaryElements = new List<UiDistort>();
+		private readonly Dictionary<GameObject,int> m_done = new Dictionary<GameObject, int>();
+		private bool m_hasSecondary;
 
 		private void OnTransformChildrenChanged()
 		{
@@ -31,9 +33,30 @@ namespace GuiToolkit
 		private void CollectElements()
 		{
 			m_elements.Clear();
-			UiDistort[] elements = GetComponentsInChildren<UiDistort>();
+			m_secondaryElements.Clear();
+			m_done.Clear();
+
+			UiDistort[] elements = GetComponentsInChildren<UiDistort>(true);
 			foreach (var element in elements)
-				m_elements.Add(element);
+			{
+				GameObject go = element.gameObject;
+
+				if (!m_done.ContainsKey(go))
+					m_done.Add(go, 0);
+
+				int prevElementsOnGo = m_done[element.gameObject];
+				if (prevElementsOnGo <= 1)
+				{
+					if (prevElementsOnGo == 0)
+						m_elements.Add(element);
+					else
+						m_secondaryElements.Add(element);
+				}
+
+				m_done[go]++;
+			}
+
+			m_hasSecondary = m_elements.Count != 0 && m_elements.Count == m_secondaryElements.Count;
 		}
 
 		private void PositionElements()
@@ -47,9 +70,15 @@ namespace GuiToolkit
 			{
 				m_elements[i].SetMirror( 0 );
 				m_elements[i].enabled = true;
+				if (m_hasSecondary)
+					m_secondaryElements[i].enabled = false;
 
 				if (i > 0 && i < numElements-1)
+				{
 					m_elements[i].enabled = false;
+					if (m_hasSecondary)
+						m_secondaryElements[i].enabled = true;
+				}
 				else if (i == numElements-1 && numElements > 1)
 					m_elements[i].SetMirror(m_direction);
 			}
