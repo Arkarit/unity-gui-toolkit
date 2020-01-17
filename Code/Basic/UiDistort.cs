@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -11,15 +12,14 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public class UiDistort : BaseMeshEffect
 	{
-#if UNITY_EDITOR
 		public enum EMode
 		{
 			Distort,
 			Skew,
+			Perspective,
 		}
 		[SerializeField]
 		private EMode m_mode;
-#endif
 
 		[SerializeField]
 		[VectorRange (-1, 1, -1, 1, true)]
@@ -40,6 +40,12 @@ namespace GuiToolkit
 		[SerializeField]
 		private EDirection m_mirrorDirection;
 
+		[SerializeField]
+		private RectTransform m_vanishingPoint;
+
+		[SerializeField]
+		private ESide m_lockedVertexSide;
+
 		private static readonly List<UIVertex> s_verts = new List<UIVertex>();
 		private static UIVertex s_vertex;
 
@@ -57,6 +63,10 @@ namespace GuiToolkit
 			_vertexHelper.GetUIVertexStream(s_verts);
 
 			Rect bounding = UiModifierUtil.GetMinMaxRect(s_verts);
+
+			if (m_mode == EMode.Perspective)
+				CalculatePerspectiveValues( bounding );
+
 			Vector2 size = bounding.size;
 
 			Vector2 tl = m_topLeft * size;
@@ -80,7 +90,6 @@ namespace GuiToolkit
 				Swap( ref tl, ref bl );
 				Swap( ref tr, ref br );
 			}
-
 
 			for (int i = 0; i < _vertexHelper.currentVertCount; ++i)
 			{
@@ -111,6 +120,79 @@ namespace GuiToolkit
 			}
 		}
 
+		private void CalculatePerspectiveValues( Rect _bounding )
+		{
+			if (m_vanishingPoint == null)
+				return;
+
+			switch( m_lockedVertexSide )
+			{
+				case ESide.Top:
+					CalculatePerspectiveValues( _bounding, ref m_topLeft, ref m_topRight, ref m_bottomLeft, ref m_bottomRight, EDirection.Vertical );
+					break;
+				case ESide.Bottom:
+					CalculatePerspectiveValues( _bounding, ref m_bottomLeft, ref m_bottomRight, ref m_topLeft, ref m_topRight, EDirection.Vertical );
+					break;
+				case ESide.Left:
+					CalculatePerspectiveValues( _bounding, ref m_topLeft, ref m_bottomLeft, ref m_topRight, ref m_bottomRight, EDirection.Horizontal );
+					break;
+				case ESide.Right:
+					CalculatePerspectiveValues( _bounding, ref m_topRight, ref m_bottomRight, ref m_topLeft, ref m_bottomLeft, EDirection.Horizontal );
+					break;
+				default:
+					Debug.LogError("None or multiple flags not allowed here");
+					break;
+			}
+		}
+
+		private void CalculatePerspectiveValues( Rect _bounding, ref Vector2 _fixedPointA, ref Vector2 _fixedPointB, ref Vector2 _movingPointA, ref Vector2 _movingPointB, EDirection _direction )
+		{
+			_fixedPointA = _fixedPointB = Vector2.zero;
+
+			Vector2 vanishingPoint = m_vanishingPoint.anchoredPosition;
+
+			switch( _direction )
+			{
+				case EDirection.Horizontal:
+					_movingPointA = CalculatePerspectiveValueV( _bounding, vanishingPoint, _fixedPointA);
+					_movingPointB = CalculatePerspectiveValueV( _bounding, vanishingPoint, _fixedPointB);
+					break;
+				case EDirection.Vertical:
+					_movingPointA = CalculatePerspectiveValueV( _bounding, vanishingPoint, _fixedPointA);
+					_movingPointB = CalculatePerspectiveValueV( _bounding, vanishingPoint, _fixedPointB);
+					break;
+				default:
+					Debug.LogError("None or multiple flags not allowed here");
+					break;
+			}
+		}
+
+		private Vector2 CalculatePerspectiveValueV(  Rect _bounding, Vector2 _vanishingPoint, Vector2 _fixedPoint )
+		{
+			Vector2 result = new Vector2();
+			result.y = 0;
+// 			float a = _vanishingPoint.y - _bounding.height;
+// 			float c = (_vanishingPoint - )
+
+			float gamma = (90.0f * Mathf.Deg2Rad);
+			float a0 = _vanishingPoint.x - _fixedPoint.x;
+			float b0 = _vanishingPoint.y - _fixedPoint.y;
+			float c0 = (_vanishingPoint - _fixedPoint).magnitude;
+			float alpha = Mathf.Acos(b0/c0);
+			float beta = (180.0f-gamma-alpha);
+			float b1 = _vanishingPoint.y - _bounding.yMax;
+			float a1 = b1 / Mathf.Tan(beta);
+			result.x = a1 - _fixedPoint.x;
+
+			// cos (alpha) = b / c;
+			// alpha = acos(b/c);
+			// sin(alpha) = a / c;
+			// tan(beta) = b / a
+			// tan(beta) * a = b;
+			// a = b / tan(beta);
+			return result;
+		}
+
 		private void Swap(ref Vector2 a, ref Vector2 b)
 		{
 			Vector2 t = b;
@@ -135,6 +217,8 @@ namespace GuiToolkit
 		private SerializedProperty m_bottomLeftProp;
 		private SerializedProperty m_bottomRightProp;
 		private SerializedProperty m_mirrorDirectionProp;
+		private SerializedProperty m_vanishingPointProp;
+		private SerializedProperty m_lockedVertexSideProp;
 
 		public void OnEnable()
 		{
@@ -143,6 +227,8 @@ namespace GuiToolkit
 			m_bottomLeftProp = serializedObject.FindProperty("m_bottomLeft");
 			m_bottomRightProp = serializedObject.FindProperty("m_bottomRight");
 			m_mirrorDirectionProp = serializedObject.FindProperty("m_mirrorDirection");
+			m_vanishingPointProp = serializedObject.FindProperty("m_vanishingPoint");
+			m_lockedVertexSideProp = serializedObject.FindProperty("m_lockedVertexSide");
 		}
 
 		public override void OnInspectorGUI()
@@ -161,9 +247,11 @@ namespace GuiToolkit
 				case UiDistort.EMode.Skew:
 					EditSkew(thisUiDistort);
 					break;
+				case UiDistort.EMode.Perspective:
+					EditPerspective(thisUiDistort);
+					break;
 				default:
 					break;
-
 			}
 
 			serializedObject.ApplyModifiedProperties();
@@ -204,6 +292,12 @@ namespace GuiToolkit
 
 			if (UiEditorUtility.BoolBar<EDirection>(serializedObject.FindProperty("m_mirrorDirection"), "Mirror"))
 				thisUiDistort.SetDirty();
+		}
+
+		private void EditPerspective( UiDistort thisUiDistort )
+		{
+			EditorGUILayout.PropertyField(m_vanishingPointProp);
+			EditorGUILayout.PropertyField(m_lockedVertexSideProp);
 		}
 
 		private void SetSkewValue(SerializedProperty _prop, float _x, float _y)

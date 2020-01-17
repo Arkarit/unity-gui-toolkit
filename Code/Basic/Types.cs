@@ -9,4 +9,12 @@ namespace GuiToolkit
 		Vertical	= 02,
 	}
 
+	[Flags]
+	public enum ESide
+	{
+		Top,
+		Bottom,
+		Left,
+		Right
+	}
 }
