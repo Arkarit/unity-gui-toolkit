@@ -57,13 +57,13 @@ namespace GuiToolkit
 		{
 			_fixedPointA = _fixedPointB = Vector2.zero;
 
-			Vector2 vanishingPoint = m_vanishingPoint.anchoredPosition;
+			Vector2 vanishingPoint = m_vanishingPoint.position;
 
 			switch( _direction )
 			{
 				case EDirection.Vertical:
 				case EDirection.Horizontal:
-					_movingPointA = CalculatePerspectiveValueV( _bounding, vanishingPoint, _bounding.TopLeft());
+					_movingPointA = Vector2.zero;
 					_movingPointB = CalculatePerspectiveValueV( _bounding, vanishingPoint, _bounding.TopRight());
 					break;
 				default:
@@ -76,26 +76,15 @@ namespace GuiToolkit
 		{
 			Vector2 result = new Vector2();
 			result.y = 0;
-// 			float a = _vanishingPoint.y - _bounding.height;
-// 			float c = (_vanishingPoint - )
 
-			float gamma = (90.0f * Mathf.Deg2Rad);
-			float a0 = _vanishingPoint.x - _fixedPoint.x;
-			float b0 = _vanishingPoint.y - _fixedPoint.y;
-			float c0 = (_vanishingPoint - _fixedPoint).magnitude;
-			float alpha = Mathf.Acos(b0/c0);
-			float beta = (180.0f * Mathf.Deg2Rad - gamma - alpha);
-			float b1 = _vanishingPoint.y - _bounding.yMax;
-			float a1 = b1 / Mathf.Tan(beta);
-			result.x = a1 - _fixedPoint.x;
+			float b0 = _bounding.yMin - _vanishingPoint.y;
+			float b1 = _bounding.yMax - _vanishingPoint.y;
+			float ratio = b0 / b1;
+			float a0 = _bounding.xMax - _vanishingPoint.x;
+			float a1 = a0 * ratio;
+			result.x = a0 - a1;
 
-			// cos (alpha) = b / c;
-			// alpha = acos(b/c);
-			// sin(alpha) = a / c;
-			// tan(beta) = b / a
-			// tan(beta) * a = b;
-			// a = b / tan(beta);
-			return result / 10.0f;
+			return result;
 		}
 	}
 
