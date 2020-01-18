@@ -36,9 +36,7 @@ namespace GuiToolkit
 
 		public static BaseMeshEffect SetDirty( this BaseMeshEffect _this)
 		{
-			Graphic graphic = _this.GetComponent<Graphic>();
-			if (graphic)
-				graphic.SetVerticesDirty();
+			_this.GetComponent<Graphic>()?.SetVerticesDirty();
 			return _this;
 		}
 

@@ -15,6 +15,17 @@ namespace GuiToolkit
 		[SerializeField]
 		protected ESide m_lockedVertexSide;
 
+		private Vector2 m_lastPosition;
+
+		protected void Update()
+		{
+			if (m_vanishingPoint == null)
+				return;
+			if (m_lastPosition != m_vanishingPoint.anchoredPosition)
+				SetDirty();
+			m_lastPosition = m_vanishingPoint.anchoredPosition;
+		}
+
 		protected override void Prepare( Rect _bounding )
 		{
 			if (m_vanishingPoint == null)
@@ -39,6 +50,8 @@ namespace GuiToolkit
 					break;
 			}
 		}
+
+		protected override bool IsAbsolute() { return true; }
 
 		private void CalculatePerspectiveValues( Rect _bounding, ref Vector2 _fixedPointA, ref Vector2 _fixedPointB, ref Vector2 _movingPointA, ref Vector2 _movingPointB, EDirection _direction )
 		{

@@ -34,12 +34,6 @@ namespace GuiToolkit
 		protected static readonly List<UIVertex> s_verts = new List<UIVertex>();
 		protected static UIVertex s_vertex;
 
-		public void SetMirror( EDirection _direction )
-		{
-			m_mirrorDirection = _direction;
-			this.SetDirty();
-		}
-
 		public override void ModifyMesh( VertexHelper _vertexHelper )
 		{
 			if (!IsActive())
@@ -51,7 +45,7 @@ namespace GuiToolkit
 
 			Prepare( bounding );
 
-			Vector2 size = bounding.size;
+			Vector2 size = IsAbsolute() ? Vector2.one : bounding.size;
 
 			Vector2 tl = m_topLeft * size;
 			Vector2 bl = m_bottomLeft * size;
@@ -104,7 +98,19 @@ namespace GuiToolkit
 			}
 		}
 
+		public void SetMirror( EDirection _direction )
+		{
+			m_mirrorDirection = _direction;
+			SetDirty();
+		}
+
+		public void SetDirty()
+		{
+			GetComponent<Graphic>()?.SetVerticesDirty();
+		}
+
 		protected virtual void Prepare( Rect _bounding ) {}
+		protected virtual bool IsAbsolute() { return false; }
 
 		protected void Swap(ref Vector2 a, ref Vector2 b)
 		{
@@ -116,7 +122,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		protected override void OnValidate()
 		{
-			this.SetDirty();
+			SetDirty();
 		}
 #endif
 	}
