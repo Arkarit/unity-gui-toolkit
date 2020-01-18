@@ -1,0 +1,165 @@
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
+using System;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
+namespace GuiToolkit
+{
+	[ExecuteAlways]
+	public abstract class UiDistortBase : BaseMeshEffect
+	{
+		[SerializeField]
+		[VectorRange (-1, 1, -1, 1, true)]
+		protected Vector2 m_topLeft = Vector2.zero;
+
+		[SerializeField]
+		[VectorRange (-1, 1, -1, 1, true)]
+		protected Vector2 m_topRight = Vector2.zero;
+
+		[SerializeField]
+		[VectorRange (-1, 1, -1, 1, true)]
+		protected Vector2 m_bottomLeft = Vector2.zero;
+
+		[SerializeField]
+		[VectorRange (-1, 1, -1, 1, true)]
+		protected Vector2 m_bottomRight = Vector2.zero;
+
+		[SerializeField]
+		protected EDirection m_mirrorDirection;
+
+		protected static readonly List<UIVertex> s_verts = new List<UIVertex>();
+		protected static UIVertex s_vertex;
+
+		public void SetMirror( EDirection _direction )
+		{
+			m_mirrorDirection = _direction;
+			this.SetDirty();
+		}
+
+		public override void ModifyMesh( VertexHelper _vertexHelper )
+		{
+			if (!IsActive())
+				return;
+
+			_vertexHelper.GetUIVertexStream(s_verts);
+
+			Rect bounding = UiModifierUtil.GetMinMaxRect(s_verts);
+
+			Prepare( bounding );
+
+			Vector2 size = bounding.size;
+
+			Vector2 tl = m_topLeft * size;
+			Vector2 bl = m_bottomLeft * size;
+			Vector2 tr = m_topRight * size;
+			Vector2 br = m_bottomRight * size;
+
+			bool mirrorHorizontal = m_mirrorDirection.IsFlagSet(EDirection.Horizontal);
+			bool mirrorVertical = m_mirrorDirection.IsFlagSet(EDirection.Vertical);
+
+			Vector2 mirrorVec = new Vector2(mirrorHorizontal ? -1 : 1, mirrorVertical ? -1 : 1);
+
+			if (mirrorHorizontal)
+			{
+				Swap( ref tl, ref tr );
+				Swap( ref bl, ref br );
+			}
+
+			if (mirrorVertical)
+			{
+				Swap( ref tl, ref bl );
+				Swap( ref tr, ref br );
+			}
+
+			for (int i = 0; i < _vertexHelper.currentVertCount; ++i)
+			{
+				_vertexHelper.PopulateUIVertex(ref s_vertex, i);
+
+				Vector2 pointNormalized = s_vertex.position.GetNormalizedPointInRect(bounding);
+
+				Vector2 pInfluenceTL = new Vector2(1.0f - pointNormalized.x, pointNormalized.y);
+				Vector2 pInfluenceTR = pointNormalized;
+				Vector2 pInfluenceBL = new Vector2(1.0f - pointNormalized.x, 1.0f - pointNormalized.y);
+				Vector2 pInfluenceBR = new Vector2(pointNormalized.x, 1.0f - pointNormalized.y);
+
+				float influenceTL = pInfluenceTL.x * pInfluenceTL.y;
+				float influenceTR = pInfluenceTR.x * pInfluenceTR.y;
+				float influenceBL = pInfluenceBL.x * pInfluenceBL.y;
+				float influenceBR = pInfluenceBR.x * pInfluenceBR.y;
+
+				Vector2 point = s_vertex.position.Xy();
+				point += 
+					  tl * influenceTL * mirrorVec
+					+ tr * influenceTR * mirrorVec
+					+ bl * influenceBL * mirrorVec
+					+ br * influenceBR * mirrorVec;
+
+				s_vertex.position = new Vector3(point.x, point.y, s_vertex.position.z);
+
+				_vertexHelper.SetUIVertex(s_vertex, i);
+			}
+		}
+
+		protected virtual void Prepare( Rect _bounding ) {}
+
+		protected void Swap(ref Vector2 a, ref Vector2 b)
+		{
+			Vector2 t = b;
+			b = a;
+			a = t;
+		}
+
+#if UNITY_EDITOR
+		protected override void OnValidate()
+		{
+			this.SetDirty();
+		}
+#endif
+	}
+
+#if UNITY_EDITOR
+	public abstract class UiDistortEditorBase : Editor
+	{
+		protected SerializedProperty m_topLeftProp;
+		protected SerializedProperty m_topRightProp;
+		protected SerializedProperty m_bottomLeftProp;
+		protected SerializedProperty m_bottomRightProp;
+		protected SerializedProperty m_mirrorDirectionProp;
+
+		public virtual void OnEnable()
+		{
+			m_topLeftProp = serializedObject.FindProperty("m_topLeft");
+			m_topRightProp = serializedObject.FindProperty("m_topRight");
+			m_bottomLeftProp = serializedObject.FindProperty("m_bottomLeft");
+			m_bottomRightProp = serializedObject.FindProperty("m_bottomRight");
+			m_mirrorDirectionProp = serializedObject.FindProperty("m_mirrorDirection");
+		}
+
+		protected virtual bool HasMirror() { return false; }
+
+		public override void OnInspectorGUI()
+		{
+			UiDistortBase thisUiDistort = (UiDistortBase)target;
+
+			Edit(thisUiDistort);
+
+			if (HasMirror())
+			{
+				if (UiEditorUtility.BoolBar<EDirection>(m_mirrorDirectionProp, "Mirror"))
+					thisUiDistort.SetDirty();
+			}
+
+			serializedObject.ApplyModifiedProperties();
+		}
+
+		protected abstract void Edit( UiDistortBase _thisUiDistortBase );
+
+	}
+#endif
+
+
+}

@@ -13,8 +13,8 @@ namespace GuiToolkit
 		[SerializeField]
 		protected EDirection m_direction;
 
-		private readonly List<UiDistort> m_elements = new List<UiDistort>();
-		private readonly List<UiDistort> m_secondaryElements = new List<UiDistort>();
+		private readonly List<UiDistortBase> m_elements = new List<UiDistortBase>();
+		private readonly List<UiDistortBase> m_secondaryElements = new List<UiDistortBase>();
 		private readonly Dictionary<GameObject,int> m_done = new Dictionary<GameObject, int>();
 		private bool m_hasSecondary;
 
@@ -36,7 +36,7 @@ namespace GuiToolkit
 			m_secondaryElements.Clear();
 			m_done.Clear();
 
-			UiDistort[] elements = GetComponentsInChildren<UiDistort>(true);
+			UiDistortBase[] elements = GetComponentsInChildren<UiDistortBase>(true);
 			foreach (var element in elements)
 			{
 				GameObject go = element.gameObject;
