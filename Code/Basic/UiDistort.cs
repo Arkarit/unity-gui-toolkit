@@ -153,13 +153,10 @@ namespace GuiToolkit
 
 			switch( _direction )
 			{
-				case EDirection.Horizontal:
-					_movingPointA = CalculatePerspectiveValueV( _bounding, vanishingPoint, _fixedPointA);
-					_movingPointB = CalculatePerspectiveValueV( _bounding, vanishingPoint, _fixedPointB);
-					break;
 				case EDirection.Vertical:
-					_movingPointA = CalculatePerspectiveValueV( _bounding, vanishingPoint, _fixedPointA);
-					_movingPointB = CalculatePerspectiveValueV( _bounding, vanishingPoint, _fixedPointB);
+				case EDirection.Horizontal:
+					_movingPointA = CalculatePerspectiveValueV( _bounding, vanishingPoint, _bounding.TopLeft());
+					_movingPointB = CalculatePerspectiveValueV( _bounding, vanishingPoint, _bounding.TopRight());
 					break;
 				default:
 					Debug.LogError("None or multiple flags not allowed here");
@@ -179,7 +176,7 @@ namespace GuiToolkit
 			float b0 = _vanishingPoint.y - _fixedPoint.y;
 			float c0 = (_vanishingPoint - _fixedPoint).magnitude;
 			float alpha = Mathf.Acos(b0/c0);
-			float beta = (180.0f-gamma-alpha);
+			float beta = (180.0f * Mathf.Deg2Rad - gamma - alpha);
 			float b1 = _vanishingPoint.y - _bounding.yMax;
 			float a1 = b1 / Mathf.Tan(beta);
 			result.x = a1 - _fixedPoint.x;
@@ -190,7 +187,7 @@ namespace GuiToolkit
 			// tan(beta) = b / a
 			// tan(beta) * a = b;
 			// a = b / tan(beta);
-			return result;
+			return result / 10.0f;
 		}
 
 		private void Swap(ref Vector2 a, ref Vector2 b)
