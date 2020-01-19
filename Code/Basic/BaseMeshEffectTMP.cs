@@ -8,7 +8,7 @@ using TMPro;
 
 namespace GuiToolkit
 {
-	public abstract class TMPAwareMeshEffectBase : BaseMeshEffect
+	public abstract class BaseMeshEffectTMP : BaseMeshEffect
 	{
 #if !NOT_USE_TMPRO
 		static readonly List<Vector2> s_Uv0 = new List<Vector2>();

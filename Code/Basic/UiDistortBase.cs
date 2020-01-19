@@ -10,7 +10,7 @@ using UnityEditor;
 namespace GuiToolkit
 {
 	[ExecuteAlways]
-	public abstract class UiDistortBase : TMPAwareMeshEffectBase
+	public abstract class UiDistortBase : BaseMeshEffectTMP
 	{
 		[SerializeField]
 		[VectorRange (-1, 1, -1, 1, true)]
