@@ -10,7 +10,7 @@ using UnityEditor;
 namespace GuiToolkit
 {
 	[ExecuteAlways]
-	public abstract class UiDistortBase : BaseMeshEffect
+	public abstract class UiDistortBase : TMPAwareMeshEffectBase
 	{
 		[SerializeField]
 		[VectorRange (-1, 1, -1, 1, true)]
@@ -114,11 +114,6 @@ namespace GuiToolkit
 		{
 			m_mirrorDirection = _direction;
 			SetDirty();
-		}
-
-		public void SetDirty()
-		{
-			GetComponent<Graphic>()?.SetVerticesDirty();
 		}
 
 		protected virtual void Prepare( Rect _bounding ) {}
