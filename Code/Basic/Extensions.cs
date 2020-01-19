@@ -8,6 +8,8 @@ namespace GuiToolkit
 {
 	public static class Extensions
 	{
+		private static readonly Vector3[] s_worldCorners = new Vector3[4];
+
 		public static IList<T> Clone<T>( this IList<T> _listToClone ) where T : ICloneable
 		{
 			return _listToClone.Select(item => (T)item.Clone()).ToList();
@@ -56,6 +58,30 @@ namespace GuiToolkit
 				result.Add(elem);
 
 			return result;
+		}
+
+		public static Rect GetWorldRect2D( this RectTransform _this )
+		{
+			_this.GetWorldCorners( s_worldCorners );
+			float x = s_worldCorners[1].x;
+			float y = s_worldCorners[1].y;
+			float w = s_worldCorners[2].x - x;
+			float h = s_worldCorners[3].y - y;
+			return new Rect( x,y,w,h );
+		}
+
+		public static Vector2 GetWorldPosition2D( this RectTransform _this )
+		{
+			_this.GetWorldCorners( s_worldCorners );
+			float x = s_worldCorners[1].x;
+			float y = s_worldCorners[1].y;
+			return new Vector2( x,y );
+		}
+
+		public static Vector2 GetWorldCenter2D( this RectTransform _this )
+		{
+			Rect rt = GetWorldRect2D( _this );
+			return rt.center;
 		}
 
 		public static Vector2 TopLeft( this Rect _this )

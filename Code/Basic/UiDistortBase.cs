@@ -43,11 +43,10 @@ namespace GuiToolkit
 
 			Rect bounding = UiModifierUtil.GetMinMaxRect(s_verts);
 
-			if (NeedsAbsoluteBoundingBox())
+			if (NeedsWorldBoundingBox())
 			{
-				Rect absRect = bounding;
-				absRect.position += transform.position.Xy();
-				Prepare( absRect );
+				Rect worldRect2D = ((RectTransform)transform).GetWorldRect2D();
+				Prepare( worldRect2D );
 			}
 			else
 			{
@@ -120,7 +119,7 @@ namespace GuiToolkit
 
 		protected virtual void Prepare( Rect _bounding ) {}
 		protected virtual bool IsAbsolute() { return false; }
-		protected virtual bool NeedsAbsoluteBoundingBox() { return false; }
+		protected virtual bool NeedsWorldBoundingBox() { return false; }
 
 		protected void Swap(ref Vector2 a, ref Vector2 b)
 		{
