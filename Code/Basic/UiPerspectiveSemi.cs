@@ -58,7 +58,7 @@ namespace GuiToolkit
 		{
 			_fixedPointA = _fixedPointB = Vector2.zero;
 
-			Vector2 vanishingPoint = m_vanishingPoint.GetWorldCenter2D();
+			Vector2 vanishingPoint = m_vanishingPoint.GetWorldCenter2D( m_canvas );
 
 			switch( _direction )
 			{
