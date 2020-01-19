@@ -13,7 +13,7 @@ namespace GuiToolkit
 		protected RectTransform m_vanishingPoint;
 
 		[SerializeField]
-		protected ESide m_lockedVertexSide;
+		protected ESide m_lockedSide;
 
 		private Vector2 m_lastPosition;
 
@@ -31,19 +31,19 @@ namespace GuiToolkit
 			if (m_vanishingPoint == null)
 				return;
 
-			switch( m_lockedVertexSide )
+			switch( m_lockedSide )
 			{
 				case ESide.Top:
-					CalculatePerspectiveValues( _bounding, ref m_topLeft, ref m_topRight, ref m_bottomLeft, ref m_bottomRight, EDirection.Vertical );
+					CalculatePerspectiveValues( _bounding, ref m_topLeft, ref m_topRight, ref m_bottomLeft, ref m_bottomRight, m_lockedSide );
 					break;
 				case ESide.Bottom:
-					CalculatePerspectiveValues( _bounding, ref m_bottomLeft, ref m_bottomRight, ref m_topLeft, ref m_topRight, EDirection.Vertical );
+					CalculatePerspectiveValues( _bounding, ref m_bottomLeft, ref m_bottomRight, ref m_topLeft, ref m_topRight, m_lockedSide );
 					break;
 				case ESide.Left:
-					CalculatePerspectiveValues( _bounding, ref m_topLeft, ref m_bottomLeft, ref m_topRight, ref m_bottomRight, EDirection.Horizontal );
+					CalculatePerspectiveValues( _bounding, ref m_topLeft, ref m_bottomLeft, ref m_topRight, ref m_bottomRight, m_lockedSide );
 					break;
 				case ESide.Right:
-					CalculatePerspectiveValues( _bounding, ref m_topRight, ref m_bottomRight, ref m_topLeft, ref m_bottomLeft, EDirection.Horizontal );
+					CalculatePerspectiveValues( _bounding, ref m_topRight, ref m_bottomRight, ref m_topLeft, ref m_bottomLeft, m_lockedSide );
 					break;
 				default:
 					Debug.LogError("None or multiple flags not allowed here");
@@ -54,18 +54,21 @@ namespace GuiToolkit
 		protected override bool IsAbsolute() { return true; }
 		protected override bool NeedsWorldBoundingBox() { return true; }
 
-		private void CalculatePerspectiveValues( Rect _bounding, ref Vector2 _fixedPointA, ref Vector2 _fixedPointB, ref Vector2 _movingPointA, ref Vector2 _movingPointB, EDirection _direction )
+		private void CalculatePerspectiveValues( Rect _bounding, ref Vector2 _fixedPointA, ref Vector2 _fixedPointB, ref Vector2 _movingPointA, ref Vector2 _movingPointB, ESide _side )
 		{
 			_fixedPointA = _fixedPointB = Vector2.zero;
 
 			Vector2 vanishingPoint = m_vanishingPoint.GetWorldCenter2D( m_canvas );
 
-			switch( _direction )
+			switch( _side )
 			{
-				case EDirection.Vertical:
-				case EDirection.Horizontal:
-					_movingPointA = Vector2.zero;
-					_movingPointB = CalculatePerspectiveValueV( _bounding, vanishingPoint, _bounding.TopRight());
+				case ESide.Top:
+					_movingPointA = CalculatePerspectiveValueV( _bounding.yMin, _bounding.yMax, _bounding.xMin, vanishingPoint);
+					_movingPointB = CalculatePerspectiveValueV( _bounding.yMin, _bounding.yMax, _bounding.xMax, vanishingPoint);
+					break;
+				case ESide.Bottom:
+					_movingPointA = CalculatePerspectiveValueV( _bounding.yMax, _bounding.yMin, _bounding.xMin, vanishingPoint);
+					_movingPointB = CalculatePerspectiveValueV( _bounding.yMax, _bounding.yMin, _bounding.xMax, vanishingPoint);
 					break;
 				default:
 					Debug.LogError("None or multiple flags not allowed here");
@@ -73,15 +76,15 @@ namespace GuiToolkit
 			}
 		}
 
-		private Vector2 CalculatePerspectiveValueV(  Rect _bounding, Vector2 _vanishingPoint, Vector2 _fixedPoint )
+		private Vector2 CalculatePerspectiveValueV( float _byMin, float _byMax, float _bxMax, Vector2 _vanishingPoint )
 		{
 			Vector2 result = new Vector2();
 			result.y = 0;
 
-			float b0 = _bounding.yMin - _vanishingPoint.y;
-			float b1 = _bounding.yMax - _vanishingPoint.y;
+			float b0 = _byMin - _vanishingPoint.y;
+			float b1 = _byMax - _vanishingPoint.y;
 			float ratio = b1 / b0;
-			float a0 = _bounding.xMax - _vanishingPoint.x;
+			float a0 = _bxMax - _vanishingPoint.x;
 			float a1 = a0 * ratio;
 			result.x = a1 - a0;
 
@@ -94,19 +97,19 @@ namespace GuiToolkit
 	public class UiSemiPerspectiveEditor : UiDistortEditorBase
 	{
 		protected SerializedProperty m_vanishingPointProp;
-		protected SerializedProperty m_lockedVertexSideProp;
+		protected SerializedProperty m_lockedSideProp;
 
 		public override void OnEnable()
 		{
 			base.OnEnable();
 			m_vanishingPointProp = serializedObject.FindProperty("m_vanishingPoint");
-			m_lockedVertexSideProp = serializedObject.FindProperty("m_lockedVertexSide");
+			m_lockedSideProp = serializedObject.FindProperty("m_lockedSide");
 		}
 
 		protected override void Edit( UiDistortBase thisUiDistort )
 		{
 			EditorGUILayout.PropertyField(m_vanishingPointProp);
-			EditorGUILayout.PropertyField(m_lockedVertexSideProp);
+			EditorGUILayout.PropertyField(m_lockedSideProp);
 		}
 
 	}
