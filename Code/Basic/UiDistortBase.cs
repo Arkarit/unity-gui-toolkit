@@ -43,7 +43,16 @@ namespace GuiToolkit
 
 			Rect bounding = UiModifierUtil.GetMinMaxRect(s_verts);
 
-			Prepare( bounding );
+			if (NeedsAbsoluteBoundingBox())
+			{
+				Rect absRect = bounding;
+				absRect.position += transform.position.Xy();
+				Prepare( absRect );
+			}
+			else
+			{
+				Prepare( bounding );
+			}
 
 			Vector2 size = IsAbsolute() ? Vector2.one : bounding.size;
 
@@ -111,6 +120,7 @@ namespace GuiToolkit
 
 		protected virtual void Prepare( Rect _bounding ) {}
 		protected virtual bool IsAbsolute() { return false; }
+		protected virtual bool NeedsAbsoluteBoundingBox() { return false; }
 
 		protected void Swap(ref Vector2 a, ref Vector2 b)
 		{

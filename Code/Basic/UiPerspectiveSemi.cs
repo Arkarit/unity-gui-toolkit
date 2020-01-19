@@ -52,6 +52,7 @@ namespace GuiToolkit
 		}
 
 		protected override bool IsAbsolute() { return true; }
+		protected override bool NeedsAbsoluteBoundingBox() { return true; }
 
 		private void CalculatePerspectiveValues( Rect _bounding, ref Vector2 _fixedPointA, ref Vector2 _fixedPointB, ref Vector2 _movingPointA, ref Vector2 _movingPointB, EDirection _direction )
 		{
@@ -82,7 +83,7 @@ namespace GuiToolkit
 			float ratio = b0 / b1;
 			float a0 = _bounding.xMax - _vanishingPoint.x;
 			float a1 = a0 * ratio;
-			result.x = a0 - a1;
+			result.x = a1 - a0;
 
 			return result;
 		}
