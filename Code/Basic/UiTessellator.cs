@@ -8,7 +8,7 @@ using UnityEditor;
 namespace GuiToolkit
 {
 	[ExecuteAlways]
-	public class UiTessellator : BaseMeshEffect
+	public class UiTessellator : BaseMeshEffectTMP
 	{
 		private const float LARGE_SIZE = 1000000;
 

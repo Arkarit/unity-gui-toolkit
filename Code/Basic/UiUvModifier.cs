@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace GuiToolkit
 {
 	[ExecuteAlways]
-	public class UiUvModifier : BaseMeshEffect
+	public class UiUvModifier : BaseMeshEffectTMP
 	{
 		public Vector2 m_min = Vector2.zero;
 		public Vector2 m_max = Vector2.one;
@@ -78,12 +78,6 @@ namespace GuiToolkit
 
 				_vh.SetUIVertex(s_vertex, i);
 			}
-		}
-
-		public void SetDirty()
-		{
-			if (graphic != null)
-				graphic.SetVerticesDirty();
 		}
 	}
 }

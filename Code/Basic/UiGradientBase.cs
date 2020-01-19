@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace GuiToolkit
 {
 	[ExecuteAlways]
-	public abstract class UiGradientBase : BaseMeshEffect
+	public abstract class UiGradientBase : BaseMeshEffectTMP
 	{
 		public enum EEvaluateMode
 		{
@@ -102,7 +102,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		protected override void OnValidate()
 		{
-			this.SetDirty();
+			SetDirty();
 		}
 #endif
 	}

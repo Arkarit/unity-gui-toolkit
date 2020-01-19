@@ -34,12 +34,6 @@ namespace GuiToolkit
 			return _this;
 		}
 
-		public static BaseMeshEffect SetDirty( this BaseMeshEffect _this)
-		{
-			_this.GetComponent<Graphic>()?.SetVerticesDirty();
-			return _this;
-		}
-
 		public static List<T> ToList<T>( this HashSet<T> _this )
 		{
 			List<T> result = new List<T>(_this.Count);

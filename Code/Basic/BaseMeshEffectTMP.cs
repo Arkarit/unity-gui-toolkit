@@ -169,8 +169,7 @@ namespace GuiToolkit
 				}
 				TextMeshPro.havePropertiesChanged = true;
 			}
-			else
-			if (graphic)
+			else if (graphic)
 			{
 				graphic.SetVerticesDirty ();
 			}
