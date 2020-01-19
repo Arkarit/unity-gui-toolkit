@@ -174,5 +174,13 @@ namespace GuiToolkit
 				graphic.SetVerticesDirty ();
 			}
 		}
+
+#if UNITY_EDITOR
+		protected override void OnValidate()
+		{
+			SetDirty();
+		}
+#endif
+
 	}
 }

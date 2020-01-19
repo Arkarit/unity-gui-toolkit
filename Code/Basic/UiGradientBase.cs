@@ -98,12 +98,5 @@ namespace GuiToolkit
 				m_max.y = Mathf.Max(m_max.y, s_vertex.position.y);
 			}
 		}
-
-#if UNITY_EDITOR
-		protected override void OnValidate()
-		{
-			SetDirty();
-		}
-#endif
 	}
 }

@@ -126,13 +126,6 @@ namespace GuiToolkit
 			b = a;
 			a = t;
 		}
-
-#if UNITY_EDITOR
-		protected override void OnValidate()
-		{
-			SetDirty();
-		}
-#endif
 	}
 
 #if UNITY_EDITOR
