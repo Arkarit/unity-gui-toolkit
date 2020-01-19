@@ -1,130 +1,117 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
-#if !NOT_USE_TMPRO
 using TMPro;
-#endif
 
 namespace GuiToolkit
 {
 	public abstract class BaseMeshEffectTMP : BaseMeshEffect
 	{
-#if !NOT_USE_TMPRO
-		static readonly List<Vector2> s_Uv0 = new List<Vector2>();
-		static readonly List<Vector2> s_Uv1 = new List<Vector2>();
-		static readonly List<Vector3> s_Vertices = new List<Vector3>();
-		static readonly List<int> s_Indices = new List<int>();
-		static readonly List<Vector3> s_Normals = new List<Vector3>();
-		static readonly List<Vector4> s_Tangents = new List<Vector4>();
-		static readonly List<Color32> s_Colors = new List<Color32>();
-		static readonly VertexHelper s_VertexHelper = new VertexHelper();
-		static readonly List<TMP_SubMeshUI> s_SubMeshUIs = new List<TMP_SubMeshUI>();
-		static readonly List<Mesh> s_Meshes = new List<Mesh>();
+		static private readonly List<Vector2> s_uv0 = new List<Vector2>();
+		static private readonly List<Vector2> s_uv1 = new List<Vector2>();
+		static private readonly List<Vector3> s_vertices = new List<Vector3>();
+		static private readonly List<int> s_indices = new List<int>();
+		static private readonly List<Vector3> s_normals = new List<Vector3>();
+		static private readonly List<Vector4> s_tangents = new List<Vector4>();
+		static private readonly List<Color32> s_colors = new List<Color32>();
+		static private readonly VertexHelper s_vertexHelper = new VertexHelper();
+		static private readonly List<TMP_SubMeshUI> s_subMeshUIs = new List<TMP_SubMeshUI>();
+		static private readonly List<Mesh> s_meshes = new List<Mesh>();
 
-		public TMP_Text textMeshPro { get { Initialize(); return _textMeshPro; } }
-		public CanvasRenderer canvasRenderer { get { Initialize (); return _canvasRenderer; } }
+		protected TMP_Text TextMeshPro { get { Init(); return m_textMeshPro; } }
+		protected CanvasRenderer CanvasRenderer { get { Init (); return m_canvasRenderer; } }
 
-		bool _isTextMeshProActive;
-		TMP_Text _textMeshPro;
-		bool _initialized;
-		CanvasRenderer _canvasRenderer;
-		RectTransform _rectTransform;
-		Graphic _graphic;
+		protected bool m_isTextMeshProActive;
+		protected TMP_Text m_textMeshPro;
+		protected bool m_initialized;
+		protected CanvasRenderer m_canvasRenderer;
+		protected RectTransform m_rectTransform;
+		protected Graphic m_graphic;
 
-		/// <summary>
-		/// Called when any TextMeshPro generated the mesh.
-		/// </summary>
-		/// <param name="obj">TextMeshPro object.</param>
-		void OnTextChanged( Object obj )
+		private void OnTMProTextChanged( Object _obj )
 		{
-			// Skip if the object is different from the current object or the text is empty.
-			var textInfo = textMeshPro.textInfo;
-			if (textMeshPro != obj || textInfo.characterCount - textInfo.spaceCount <= 0)
+			var textInfo = TextMeshPro.textInfo;
+			if (TextMeshPro != _obj || textInfo.characterCount - textInfo.spaceCount <= 0)
 			{
 				return;
 			}
 
-			// Collect the meshes.
-			s_Meshes.Clear();
+			s_meshes.Clear();
 			foreach (var info in textInfo.meshInfo)
 			{
-				s_Meshes.Add(info.mesh);
+				s_meshes.Add(info.mesh);
 			}
 
-			// Convert meshes to VertexHelpers and modify them.
-			foreach (var m in s_Meshes)
+			foreach (var m in s_meshes)
 			{
-				FillVertexHelper(s_VertexHelper, m);
-				ModifyMesh(s_VertexHelper);
-				s_VertexHelper.FillMesh(m);
+				FillVertexHelper(s_vertexHelper, m);
+				ModifyMesh(s_vertexHelper);
+				s_vertexHelper.FillMesh(m);
 			}
 
-			// Set the modified meshes to the CanvasRenderers (for UI only).
-			if (canvasRenderer)
+			if (CanvasRenderer)
 			{
-				canvasRenderer.SetMesh(textMeshPro.mesh);
-				GetComponentsInChildren(false, s_SubMeshUIs);
-				foreach (var sm in s_SubMeshUIs)
+				CanvasRenderer.SetMesh(TextMeshPro.mesh);
+				GetComponentsInChildren(false, s_subMeshUIs);
+				foreach (var sm in s_subMeshUIs)
 				{
 					sm.canvasRenderer.SetMesh(sm.mesh);
 				}
-				s_SubMeshUIs.Clear();
+				s_subMeshUIs.Clear();
 			}
 
-			// Clear.
-			s_Meshes.Clear();
+			s_meshes.Clear();
 		}
 
-		void FillVertexHelper( VertexHelper vh, Mesh mesh )
+		void FillVertexHelper( VertexHelper _vh, Mesh _mesh )
 		{
-			vh.Clear();
+			_vh.Clear();
 
-			mesh.GetVertices(s_Vertices);
-			mesh.GetColors(s_Colors);
-			mesh.GetUVs(0, s_Uv0);
-			mesh.GetUVs(1, s_Uv1);
-			mesh.GetNormals(s_Normals);
-			mesh.GetTangents(s_Tangents);
-			mesh.GetIndices(s_Indices, 0);
+			_mesh.GetVertices(s_vertices);
+			_mesh.GetColors(s_colors);
+			_mesh.GetUVs(0, s_uv0);
+			_mesh.GetUVs(1, s_uv1);
+			_mesh.GetNormals(s_normals);
+			_mesh.GetTangents(s_tangents);
+			_mesh.GetIndices(s_indices, 0);
 
-			for (int i = 0; i < s_Vertices.Count; i++)
+			for (int i = 0; i < s_vertices.Count; i++)
 			{
-				s_VertexHelper.AddVert(s_Vertices[i], s_Colors[i], s_Uv0[i], s_Uv1[i], s_Normals[i], s_Tangents[i]);
+				s_vertexHelper.AddVert(s_vertices[i], s_colors[i], s_uv0[i], s_uv1[i], s_normals[i], s_tangents[i]);
 			}
 
-			for (int i = 0; i < s_Indices.Count; i += 3)
+			for (int i = 0; i < s_indices.Count; i += 3)
 			{
-				vh.AddTriangle(s_Indices[i], s_Indices[i + 1], s_Indices[i + 2]);
+				_vh.AddTriangle(s_indices[i], s_indices[i + 1], s_indices[i + 2]);
 			}
 		}
 
-		protected virtual void Initialize()
+		protected virtual void Init()
 		{
-			if (!_initialized)
+			if (!m_initialized)
 			{
-				_initialized = true;
-				_graphic = _graphic ?? GetComponent<Graphic>();
-				_canvasRenderer = _canvasRenderer ?? GetComponent<CanvasRenderer>();
-				_rectTransform = _rectTransform ?? GetComponent<RectTransform>();
-				_textMeshPro = _textMeshPro ?? GetComponent<TMP_Text>();
+				m_initialized = true;
+				m_graphic = m_graphic ?? GetComponent<Graphic>();
+				m_canvasRenderer = m_canvasRenderer ?? GetComponent<CanvasRenderer>();
+				m_rectTransform = m_rectTransform ?? GetComponent<RectTransform>();
+				m_textMeshPro = m_textMeshPro ?? GetComponent<TMP_Text>();
 			}
 		}
 
 		/// <summary>
 		/// This function is called when the object becomes enabled and active.
 		/// </summary>
-		protected override void OnEnable ()
+		protected override void OnEnable()
 		{
-			_initialized = false;
+			m_initialized = false;
 			SetDirty ();
-			if (textMeshPro)
+			if (TextMeshPro)
 			{
-				TMPro_EventManager.TEXT_CHANGED_EVENT.Add (OnTextChanged);
+				TMPro_EventManager.TEXT_CHANGED_EVENT.Add(OnTMProTextChanged);
 			}
 
 #if UNITY_EDITOR
-			if (graphic && textMeshPro)
+			if (graphic && TextMeshPro)
 			{
 				GraphicRebuildTracker.TrackGraphic (graphic);
 			}
@@ -134,26 +121,26 @@ namespace GuiToolkit
 		/// <summary>
 		/// This function is called when the behaviour becomes disabled () or inactive.
 		/// </summary>
-		protected override void OnDisable ()
+		protected override void OnDisable()
 		{
-			TMPro_EventManager.TEXT_CHANGED_EVENT.Remove (OnTextChanged);
+			TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(OnTMProTextChanged);
 			SetDirty ();
 
 #if UNITY_EDITOR
-			if (graphic && textMeshPro)
+			if (graphic && TextMeshPro)
 			{
-				GraphicRebuildTracker.UnTrackGraphic (graphic);
+				GraphicRebuildTracker.UnTrackGraphic(graphic);
 			}
 #endif
 		}
 		/// <summary>
 		/// Mark the vertices as dirty.
 		/// </summary>
-		public virtual void SetDirty ()
+		public virtual void SetDirty()
 		{
-			if (textMeshPro)
+			if (TextMeshPro)
 			{
-				foreach (var info in textMeshPro.textInfo.meshInfo)
+				foreach (var info in TextMeshPro.textInfo.meshInfo)
 				{
 					var mesh = info.mesh;
 					if (mesh)
@@ -169,18 +156,18 @@ namespace GuiToolkit
 					}
 				}
 
-				if (canvasRenderer)
+				if (CanvasRenderer)
 				{
-					canvasRenderer.SetMesh (textMeshPro.mesh);
+					CanvasRenderer.SetMesh (TextMeshPro.mesh);
 
-					GetComponentsInChildren (false, s_SubMeshUIs);
-					foreach (var sm in s_SubMeshUIs)
+					GetComponentsInChildren (false, s_subMeshUIs);
+					foreach (var sm in s_subMeshUIs)
 					{
 						sm.canvasRenderer.SetMesh (sm.mesh);
 					}
-					s_SubMeshUIs.Clear ();
+					s_subMeshUIs.Clear ();
 				}
-				textMeshPro.havePropertiesChanged = true;
+				TextMeshPro.havePropertiesChanged = true;
 			}
 			else
 			if (graphic)
@@ -188,8 +175,5 @@ namespace GuiToolkit
 				graphic.SetVerticesDirty ();
 			}
 		}
-
-#endif
-
 	}
 }
