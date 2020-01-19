@@ -80,10 +80,10 @@ namespace GuiToolkit
 
 			float b0 = _bounding.yMin - _vanishingPoint.y;
 			float b1 = _bounding.yMax - _vanishingPoint.y;
-			float ratio = b0 / b1;
+			float ratio = b1 / b0;
 			float a0 = _bounding.xMax - _vanishingPoint.x;
 			float a1 = a0 * ratio;
-			result.x = a0 - a1;
+			result.x = a1 - a0;
 
 			return result;
 		}

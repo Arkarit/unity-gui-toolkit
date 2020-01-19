@@ -8,8 +8,6 @@ namespace GuiToolkit
 {
 	public static class Extensions
 	{
-		private static readonly Vector3[] s_worldCorners = new Vector3[4];
-
 		public static IList<T> Clone<T>( this IList<T> _listToClone ) where T : ICloneable
 		{
 			return _listToClone.Select(item => (T)item.Clone()).ToList();
@@ -62,20 +60,26 @@ namespace GuiToolkit
 
 		public static Rect GetWorldRect2D( this RectTransform _this )
 		{
-			_this.GetWorldCorners( s_worldCorners );
-			float x = s_worldCorners[1].x;
-			float y = s_worldCorners[1].y;
-			float w = s_worldCorners[2].x - x;
-			float h = s_worldCorners[3].y - y;
-			return new Rect( x,y,w,h );
+			Vector2 tl = _this.TransformPoint( _this.rect.TopLeft() );
+			Vector2 br = _this.TransformPoint( _this.rect.BottomRight() );
+			float x = tl.x;
+			float y = tl.y;
+			float w = br.x - x;
+			float h = br.y - y;
+			
+			Rect result = new Rect( x,y,w,h );
+
+			Canvas c = _this.GetComponentInParent<Canvas>();
+			if (c != null)
+			{
+				result = result.ScaleBy( 1.0f / c.scaleFactor );
+			}
+			return result;
 		}
 
 		public static Vector2 GetWorldPosition2D( this RectTransform _this )
 		{
-			_this.GetWorldCorners( s_worldCorners );
-			float x = s_worldCorners[1].x;
-			float y = s_worldCorners[1].y;
-			return new Vector2( x,y );
+			return _this.TransformPoint( _this.rect.TopLeft() );
 		}
 
 		public static Vector2 GetWorldCenter2D( this RectTransform _this )
@@ -101,6 +105,15 @@ namespace GuiToolkit
 			return new Vector2(_this.xMax, _this.yMin );
 		}
 
+		public static Rect ScaleBy( this Rect _this, float _val )
+		{
+			_this.x *= _val;
+			_this.y *= _val;
+			_this.width *= _val;
+			_this.height *= _val;
+			return _this;
+		}
+
 		public static Vector2 Xy( this Vector3 _this )
 		{
 			return new Vector2(_this.x, _this.y);
@@ -113,6 +126,7 @@ namespace GuiToolkit
 		{
 			return new Vector2(_this.y, _this.z);
 		}
+
 		public static Vector2 Swap( this Vector2 _this )
 		{
 			float t = _this.x;
