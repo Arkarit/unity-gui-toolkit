@@ -54,6 +54,9 @@ namespace GuiToolkit
 					break;
 			}
 		}
+
+		protected override bool ChangesTopology { get {return true;} }
+
 	}
 
 #if UNITY_EDITOR

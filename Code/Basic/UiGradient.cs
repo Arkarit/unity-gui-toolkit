@@ -14,6 +14,8 @@ namespace GuiToolkit
 		[SerializeField]
 		protected EDirection m_direction;
 
+		protected override bool ChangesTopology { get {return true;} }
+
 		protected override Color GetColor( Vector2 _normVal )
 		{
 			return m_gradient.Evaluate( m_direction == EDirection.Horizontal ? _normVal.x : 1.0f - _normVal.y );

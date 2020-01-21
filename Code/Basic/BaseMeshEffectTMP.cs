@@ -28,6 +28,9 @@ namespace GuiToolkit
 		protected RectTransform m_rectTransform;
 		protected Graphic m_graphic;
 
+
+		protected virtual bool ChangesTopology { get {return false;} }
+
 		private void OnTMProTextChanged( Object _obj )
 		{
 			var textInfo = TextMeshPro.textInfo;
@@ -39,7 +42,8 @@ namespace GuiToolkit
 			s_meshes.Clear();
 			foreach (var info in textInfo.meshInfo)
 			{
-				s_meshes.Add(info.mesh);
+				Mesh mesh = ChangesTopology ? Mesh.Instantiate(info.mesh) : info.mesh;
+				s_meshes.Add(mesh);
 			}
 
 			foreach (var m in s_meshes)
@@ -51,11 +55,18 @@ namespace GuiToolkit
 
 			if (CanvasRenderer)
 			{
-				CanvasRenderer.SetMesh(TextMeshPro.mesh);
+				CanvasRenderer.SetMesh(s_meshes[0]);
 				GetComponentsInChildren(false, s_subMeshUIs);
-				foreach (var sm in s_subMeshUIs)
+				int numModifiedMeshes = s_meshes.Count;
+				int numSubMeshes = s_subMeshUIs.Count;
+				Debug.Assert(numModifiedMeshes == numSubMeshes+1);
+				if (numModifiedMeshes == numSubMeshes+1)
 				{
-					sm.canvasRenderer.SetMesh(sm.mesh);
+					for (int i=0; i<numSubMeshes; i++)
+					{
+						TMP_SubMeshUI subMeshUI = s_subMeshUIs[i];
+						subMeshUI.canvasRenderer.SetMesh(s_meshes[i+1]);
+					}
 				}
 				s_subMeshUIs.Clear();
 			}
@@ -133,6 +144,26 @@ namespace GuiToolkit
 			}
 #endif
 		}
+
+		private void UpdateTMPMeshes()
+		{
+			foreach (var info in TextMeshPro.textInfo.meshInfo)
+			{
+				var mesh = info.mesh;
+				if (mesh)
+				{
+					mesh.Clear();
+					mesh.vertices = info.vertices;
+					mesh.uv = info.uvs0;
+					mesh.uv2 = info.uvs2;
+					mesh.colors32 = info.colors32;
+					mesh.normals = info.normals;
+					mesh.tangents = info.tangents;
+					mesh.triangles = info.triangles;
+				}
+			}
+		}
+
 		/// <summary>
 		/// Mark the vertices as dirty.
 		/// </summary>
@@ -140,21 +171,7 @@ namespace GuiToolkit
 		{
 			if (TextMeshPro)
 			{
-				foreach (var info in TextMeshPro.textInfo.meshInfo)
-				{
-					var mesh = info.mesh;
-					if (mesh)
-					{
-						mesh.Clear ();
-						mesh.vertices = info.vertices;
-						mesh.uv = info.uvs0;
-						mesh.uv2 = info.uvs2;
-						mesh.colors32 = info.colors32;
-						mesh.normals = info.normals;
-						mesh.tangents = info.tangents;
-						mesh.triangles = info.triangles;
-					}
-				}
+				UpdateTMPMeshes();
 
 				if (CanvasRenderer)
 				{
