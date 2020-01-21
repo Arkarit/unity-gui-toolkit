@@ -28,11 +28,16 @@ namespace GuiToolkit
 		protected RectTransform m_rectTransform;
 		protected Graphic m_graphic;
 
+		private bool m_amIFirstModifier;
+		private BaseMeshEffectTMP[] m_mods;
 
 		protected virtual bool ChangesTopology { get {return false;} }
 
 		private void OnTMProTextChanged( Object _obj )
 		{
+			if (!m_amIFirstModifier)
+				return;
+
 			var textInfo = TextMeshPro.textInfo;
 			if (TextMeshPro != _obj || textInfo.characterCount - textInfo.spaceCount <= 0)
 			{
@@ -48,9 +53,12 @@ namespace GuiToolkit
 
 			foreach (var m in s_meshes)
 			{
-				FillVertexHelper(s_vertexHelper, m);
-				ModifyMesh(s_vertexHelper);
-				s_vertexHelper.FillMesh(m);
+				foreach (var mod in m_mods)
+				{
+					FillVertexHelper(s_vertexHelper, m);
+					mod.ModifyMesh(s_vertexHelper);
+					s_vertexHelper.FillMesh(m);
+				}
 			}
 
 			if (CanvasRenderer)
@@ -106,6 +114,9 @@ namespace GuiToolkit
 				m_canvasRenderer = m_canvasRenderer ?? GetComponent<CanvasRenderer>();
 				m_rectTransform = m_rectTransform ?? GetComponent<RectTransform>();
 				m_textMeshPro = m_textMeshPro ?? GetComponent<TMP_Text>();
+
+				m_mods = GetComponents<BaseMeshEffectTMP>();
+				m_amIFirstModifier = m_mods[0] == this;
 			}
 		}
 
