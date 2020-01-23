@@ -33,8 +33,6 @@ namespace GuiToolkit
 		private RectTransform m_rectTransform;
 		private Graphic m_graphic;
 
-		private bool m_amIFirstModifier;
-		private readonly List<BaseMeshEffectTMP> m_mods = new List<BaseMeshEffectTMP>();
 		private bool m_anyTopologyChangingMod;
 		private bool m_aboutToBeDisabled;
 
@@ -42,22 +40,32 @@ namespace GuiToolkit
 
 		private void OnTMProTextChanged( Object _obj )
 		{
+			if ( m_textMeshPro != _obj || this == null || !IsActive() )
+				return;
+
 			Debugprint("OnTMProTextChanged() a");
 
-			if (this == null || !enabled)
-				return;
-
 			Init();
-			if (!m_amIFirstModifier)
-				return;
 
 			var textInfo = m_textMeshPro.textInfo;
-			if (m_textMeshPro != _obj || textInfo.characterCount - textInfo.spaceCount <= 0)
+			if (textInfo.characterCount - textInfo.spaceCount <= 0)
 			{
 				return;
 			}
 
 			Debugprint("OnTMProTextChanged() b");
+
+			BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
+			bool anyTopologyChangingMod = false;
+
+			foreach(var mod in mods)
+			{
+				if (mod.IsActive() && mod.ChangesTopology)
+				{
+					anyTopologyChangingMod = true;
+					break;
+				}
+			}
 
 			s_meshes.Clear();
 			foreach (var info in textInfo.meshInfo)
@@ -65,7 +73,7 @@ namespace GuiToolkit
 				if (info.mesh == null)
 					return;
 
-				Mesh mesh = m_anyTopologyChangingMod ? Mesh.Instantiate(info.mesh) : info.mesh;
+				Mesh mesh = anyTopologyChangingMod ? Mesh.Instantiate(info.mesh) : info.mesh;
 				s_meshes.Add(mesh);
 			}
 
@@ -73,7 +81,9 @@ namespace GuiToolkit
 			{
 				FillVertexHelper(s_vertexHelper, m);
 
-				foreach (var mod in m_mods)
+				// We don't check 'enabled' for the mods here - BaseMeshEffect itself also doesn't.
+				// Modifiers itself are responsible to return when inactive
+				foreach (var mod in mods)
 					mod.ModifyMesh(s_vertexHelper);
 
 				s_vertexHelper.FillMesh(m);
@@ -137,34 +147,6 @@ namespace GuiToolkit
 				m_canvasRenderer = m_canvasRenderer ?? GetComponent<CanvasRenderer>();
 				m_rectTransform = m_rectTransform ?? GetComponent<RectTransform>();
 				m_textMeshPro = m_textMeshPro ?? GetComponent<TMP_Text>();
-
-				m_mods.Clear();
-				var mods = GetComponents<BaseMeshEffectTMP>();
-				foreach (var mod in mods)
-				{
-					if (mod.enabled && !mod.m_aboutToBeDisabled)
-						m_mods.Add(mod);
-				}
-
-				if (m_mods.Count == 0)
-				{
-					m_initialized = false;
-					return;
-				}
-
-				m_amIFirstModifier = m_mods[0] == this;
-
-				Debugprint($"m_amIFirstModifier: {m_amIFirstModifier}");
-
-				m_anyTopologyChangingMod = false;
-				foreach (var mod in m_mods)
-				{
-					if (mod.ChangesTopology)
-					{
-						m_anyTopologyChangingMod = true;
-						break;
-					}
-				}
 			}
 		}
 
@@ -208,19 +190,35 @@ namespace GuiToolkit
 				return;
 
 			BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
+
+			foreach (BaseMeshEffectTMP mod in mods)
+				mod.RemoveTMPCallback();
+
 			for (int i=0; i<mods.Length; i++)
 			{
 				BaseMeshEffectTMP mod = mods[i];
 				if (mod.enabled)
 				{
-					foreach(var modToRemoveHandler in mods)
-						TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(modToRemoveHandler.OnTMProTextChanged);
-
-					TMPro_EventManager.TEXT_CHANGED_EVENT.Add(mod.OnTMProTextChanged);
-
+					Debugprint($"Installing Handler for modifier {i}");
+					mod.InstallTMPCallback();
 					return;
 				}
 			}
+		}
+
+		private bool m_TMPCallbackInstalled;
+		private void InstallTMPCallback()
+		{
+			TMPro_EventManager.TEXT_CHANGED_EVENT.Add(OnTMProTextChanged);
+			m_TMPCallbackInstalled = true;
+		}
+
+		private void RemoveTMPCallback()
+		{
+			if (!m_TMPCallbackInstalled)
+				return;
+			TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(OnTMProTextChanged);
+			m_TMPCallbackInstalled = false;
 		}
 
 		private void UpdateTMPMeshes()
