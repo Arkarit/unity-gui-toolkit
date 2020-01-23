@@ -176,10 +176,7 @@ namespace GuiToolkit
 
 			Init();
 
-			if (m_textMeshPro && m_amIFirstModifier)
-			{
-				TMPro_EventManager.TEXT_CHANGED_EVENT.Add(OnTMProTextChanged);
-			}
+			UpdateTMPCallback();
 
 #if UNITY_EDITOR
 			if (graphic && m_textMeshPro)
@@ -193,11 +190,7 @@ namespace GuiToolkit
 		{
 			Debugprint("OnDisable()");
 			m_aboutToBeDisabled = true;
-			TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(OnTMProTextChanged);
-			if (m_textMeshPro != null && m_amIFirstModifier && m_mods.Count > 1)
-			{
-				TMPro_EventManager.TEXT_CHANGED_EVENT.Add(m_mods[1].OnTMProTextChanged);
-			}
+			UpdateTMPCallback();
 			MakeAllModsDirty();
 
 
@@ -207,6 +200,27 @@ namespace GuiToolkit
 				GraphicRebuildTracker.UnTrackGraphic(graphic);
 			}
 #endif
+		}
+
+		private void UpdateTMPCallback()
+		{
+			if (!m_textMeshPro)
+				return;
+
+			BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
+			for (int i=0; i<mods.Length; i++)
+			{
+				BaseMeshEffectTMP mod = mods[i];
+				if (mod.enabled)
+				{
+					foreach(var modToRemoveHandler in mods)
+						TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(modToRemoveHandler.OnTMProTextChanged);
+
+					TMPro_EventManager.TEXT_CHANGED_EVENT.Add(mod.OnTMProTextChanged);
+
+					return;
+				}
+			}
 		}
 
 		private void UpdateTMPMeshes()
