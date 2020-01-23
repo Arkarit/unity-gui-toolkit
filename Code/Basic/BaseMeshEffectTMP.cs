@@ -5,6 +5,15 @@ using TMPro;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// BaseMeshEffectTMP is a BaseMeshEffect with support for m_textMeshPro.
+	/// 
+	/// m_textMeshPro has a huge flaw: It does not support mesh modifiers at all, ModifyMesh() is simply not called :(
+	/// BaseMeshEffectTMP provides a workaround for this by calling ModifyMesh() each time a m_textMeshPro text changes.
+	/// The technique/idea for this is taken from https://unitylist.com/p/i24/Mesh-Effect-For-Text-Mesh-Pro (MIT license)
+	/// The beforementioned project however is improved by allowing modifiers to also change the mesh topology, which requires some
+	/// additional tricks.
+	/// </summary>
 	public abstract class BaseMeshEffectTMP : BaseMeshEffect
 	{
 		static private readonly List<Vector2> s_uv0 = new List<Vector2>();
@@ -18,15 +27,11 @@ namespace GuiToolkit
 		static private readonly List<TMP_SubMeshUI> s_subMeshUIs = new List<TMP_SubMeshUI>();
 		static private readonly List<Mesh> s_meshes = new List<Mesh>();
 
-		protected TMP_Text TextMeshPro { get { Init(); return m_textMeshPro; } }
-		protected CanvasRenderer CanvasRenderer { get { Init(); return m_canvasRenderer; } }
-
-		protected bool m_isTextMeshProActive;
-		protected TMP_Text m_textMeshPro;
-		protected bool m_initialized;
-		protected CanvasRenderer m_canvasRenderer;
-		protected RectTransform m_rectTransform;
-		protected Graphic m_graphic;
+		private TMP_Text m_textMeshPro;
+		private bool m_initialized;
+		private CanvasRenderer m_canvasRenderer;
+		private RectTransform m_rectTransform;
+		private Graphic m_graphic;
 
 		private bool m_amIFirstModifier;
 		private readonly List<BaseMeshEffectTMP> m_mods = new List<BaseMeshEffectTMP>();
@@ -37,6 +42,8 @@ namespace GuiToolkit
 
 		private void OnTMProTextChanged( Object _obj )
 		{
+			Debugprint("OnTMProTextChanged() a");
+
 			if (this == null || !enabled)
 				return;
 
@@ -44,11 +51,13 @@ namespace GuiToolkit
 			if (!m_amIFirstModifier)
 				return;
 
-			var textInfo = TextMeshPro.textInfo;
-			if (TextMeshPro != _obj || textInfo.characterCount - textInfo.spaceCount <= 0)
+			var textInfo = m_textMeshPro.textInfo;
+			if (m_textMeshPro != _obj || textInfo.characterCount - textInfo.spaceCount <= 0)
 			{
 				return;
 			}
+
+			Debugprint("OnTMProTextChanged() b");
 
 			s_meshes.Clear();
 			foreach (var info in textInfo.meshInfo)
@@ -62,17 +71,17 @@ namespace GuiToolkit
 
 			foreach (var m in s_meshes)
 			{
+				FillVertexHelper(s_vertexHelper, m);
+
 				foreach (var mod in m_mods)
-				{
-					FillVertexHelper(s_vertexHelper, m);
 					mod.ModifyMesh(s_vertexHelper);
-					s_vertexHelper.FillMesh(m);
-				}
+
+				s_vertexHelper.FillMesh(m);
 			}
 
-			if (CanvasRenderer)
+			if (m_canvasRenderer)
 			{
-				CanvasRenderer.SetMesh(s_meshes[0]);
+				m_canvasRenderer.SetMesh(s_meshes[0]);
 				GetComponentsInChildren(false, s_subMeshUIs);
 				int numModifiedMeshes = s_meshes.Count;
 				int numSubMeshes = s_subMeshUIs.Count;
@@ -121,6 +130,8 @@ namespace GuiToolkit
 				if (!enabled)
 					return;
 
+				Debugprint("Init()");
+
 				m_initialized = true;
 				m_graphic = m_graphic ?? GetComponent<Graphic>();
 				m_canvasRenderer = m_canvasRenderer ?? GetComponent<CanvasRenderer>();
@@ -142,6 +153,9 @@ namespace GuiToolkit
 				}
 
 				m_amIFirstModifier = m_mods[0] == this;
+
+				Debugprint($"m_amIFirstModifier: {m_amIFirstModifier}");
+
 				m_anyTopologyChangingMod = false;
 				foreach (var mod in m_mods)
 				{
@@ -151,22 +165,24 @@ namespace GuiToolkit
 						break;
 					}
 				}
-				if (TextMeshPro && m_amIFirstModifier)
-				{
-					TMPro_EventManager.TEXT_CHANGED_EVENT.Add(OnTMProTextChanged);
-				}
 			}
 		}
 
 		protected override void OnEnable()
 		{
+			Debugprint("OnEnable()");
 			m_aboutToBeDisabled = false;
 			MakeAllModsDirty();
 
 			Init();
 
+			if (m_textMeshPro && m_amIFirstModifier)
+			{
+				TMPro_EventManager.TEXT_CHANGED_EVENT.Add(OnTMProTextChanged);
+			}
+
 #if UNITY_EDITOR
-			if (graphic && TextMeshPro)
+			if (graphic && m_textMeshPro)
 			{
 				GraphicRebuildTracker.TrackGraphic (graphic);
 			}
@@ -175,32 +191,27 @@ namespace GuiToolkit
 
 		protected override void OnDisable()
 		{
+			Debugprint("OnDisable()");
 			m_aboutToBeDisabled = true;
 			TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(OnTMProTextChanged);
+			if (m_textMeshPro != null && m_amIFirstModifier && m_mods.Count > 1)
+			{
+				TMPro_EventManager.TEXT_CHANGED_EVENT.Add(m_mods[1].OnTMProTextChanged);
+			}
 			MakeAllModsDirty();
 
+
 #if UNITY_EDITOR
-			if (graphic && TextMeshPro)
+			if (graphic && m_textMeshPro)
 			{
 				GraphicRebuildTracker.UnTrackGraphic(graphic);
 			}
 #endif
 		}
 
-		private void MakeAllModsDirty()
-		{
-			BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
-			foreach (var mod in mods)
-			{
-				mod.m_initialized = false;
-				mod.SetDirty();
-			}
-		}
-
-
 		private void UpdateTMPMeshes()
 		{
-			foreach (var info in TextMeshPro.textInfo.meshInfo)
+			foreach (var info in m_textMeshPro.textInfo.meshInfo)
 			{
 				var mesh = info.mesh;
 				if (mesh)
@@ -222,13 +233,13 @@ namespace GuiToolkit
 		/// </summary>
 		public virtual void SetDirty()
 		{
-			if (TextMeshPro)
+			if (m_textMeshPro)
 			{
 				UpdateTMPMeshes();
 
-				if (CanvasRenderer)
+				if (m_canvasRenderer)
 				{
-					CanvasRenderer.SetMesh (TextMeshPro.mesh);
+					m_canvasRenderer.SetMesh (m_textMeshPro.mesh);
 
 					GetComponentsInChildren (false, s_subMeshUIs);
 					foreach (var sm in s_subMeshUIs)
@@ -237,11 +248,33 @@ namespace GuiToolkit
 					}
 					s_subMeshUIs.Clear ();
 				}
-				TextMeshPro.havePropertiesChanged = true;
+				m_textMeshPro.havePropertiesChanged = true;
 			}
 			else if (graphic)
 			{
 				graphic.SetVerticesDirty ();
+			}
+		}
+
+		private void MakeAllModsDirty()
+		{
+			BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
+			foreach (var mod in mods)
+			{
+				mod.m_initialized = false;
+				mod.SetDirty();
+			}
+		}
+
+		private void Debugprint(string _s)
+		{
+			BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
+			for (int i=0; i<mods.Length; i++)
+			{
+				if (mods[i] == this)
+				{
+					Debug.Log($"{this} Mod {i} {_s} enabled: {enabled} m_initialized: {m_initialized}");
+				}
 			}
 		}
 
