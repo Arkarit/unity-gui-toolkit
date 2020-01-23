@@ -12,7 +12,13 @@ namespace GuiToolkit
 	/// BaseMeshEffectTMP provides a workaround for this by calling ModifyMesh() each time a m_textMeshPro text changes.
 	/// The technique/idea for this is taken from https://unitylist.com/p/i24/Mesh-Effect-For-Text-Mesh-Pro (MIT license)
 	/// The beforementioned project however is improved by allowing modifiers to also change the mesh topology, which requires some
-	/// additional tricks.
+	/// additional tricks. The whole thing is quite a hack, but otherwise mesh modifiers weren't possible with text mesh pro at all.
+	/// 
+	/// How it works: The first active BaseMeshEffectTMP on a game object listens in a callback for TMP text changes.
+	/// It then gets the mesh from TMP, calls ModifyMesh() for all modifiers for this mesh, and eventually sets the canvasrenderer to this mesh.
+	/// If any of the modifiers changes the mesh topology (adds or removes vertices or triangles), the mesh has to be cloned to avoid an error in
+	/// TextMeshProUGUI.GenerateTextMesh(), which tries to set the vertices without previously adjusting the triangles, which fails if the topology
+	/// has changed.
 	/// </summary>
 	public abstract class BaseMeshEffectTMP : BaseMeshEffect
 	{
@@ -28,7 +34,6 @@ namespace GuiToolkit
 		static private readonly List<Mesh> s_meshes = new List<Mesh>();
 
 		private TMP_Text m_textMeshPro;
-		private bool m_initialized;
 		private CanvasRenderer m_canvasRenderer;
 		private RectTransform m_rectTransform;
 		private Graphic m_graphic;
@@ -45,24 +50,20 @@ namespace GuiToolkit
 		/// <param name="_obj">We have to check if this parameter means the actual TMPro on our game object</param>
 		private void OnTMProTextChanged( Object _obj )
 		{
+			// return if the call does not apply to our TextMeshPro instance (or null or inactive)
 			if ( m_textMeshPro != _obj || this == null || !IsActive() )
 				return;
 
-			Debugprint("OnTMProTextChanged() a");
-
-			Init();
-
+			// If no text at all, return
 			var textInfo = m_textMeshPro.textInfo;
 			if (textInfo.characterCount - textInfo.spaceCount <= 0)
 			{
 				return;
 			}
 
-			Debugprint("OnTMProTextChanged() b");
-
+			// Determine, if any modifier changes the mesh topology
 			BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
 			bool anyTopologyChangingMod = false;
-
 			foreach(var mod in mods)
 			{
 				if (mod.IsActive() && mod.ChangesTopology)
@@ -72,16 +73,19 @@ namespace GuiToolkit
 				}
 			}
 
+			// Get meshes from GenerateTextMesh()
 			s_meshes.Clear();
 			foreach (var info in textInfo.meshInfo)
 			{
 				if (info.mesh == null)
 					return;
 
+				// clone mesh if any modifier changes the topology
 				Mesh mesh = anyTopologyChangingMod ? Mesh.Instantiate(info.mesh) : info.mesh;
 				s_meshes.Add(mesh);
 			}
 
+			// Fill the vertex helper, then call ModifyMesh() for all modifiers
 			foreach (var m in s_meshes)
 			{
 				FillVertexHelper(s_vertexHelper, m);
@@ -94,6 +98,7 @@ namespace GuiToolkit
 				s_vertexHelper.FillMesh(m);
 			}
 
+			// Assign the mesh to the canvas renderer
 			if (m_canvasRenderer)
 			{
 				m_canvasRenderer.SetMesh(s_meshes[0]);
@@ -119,6 +124,10 @@ namespace GuiToolkit
 		{
 			_vh.Clear();
 
+			// Inefficiency, your name is Unity.
+			// This whole VertexHelper rubbish is complete crap.
+			// Giant amount of completely unnecessary copying.
+			// And even the crap is crappy: Why is there a VertexHelper.FillMesh(), but not a method, which fills the vertex helper BY a mesh (except the ctor)?
 			_mesh.GetVertices(s_vertices);
 			_mesh.GetColors(s_colors);
 			_mesh.GetUVs(0, s_uv0);
@@ -138,31 +147,20 @@ namespace GuiToolkit
 			}
 		}
 
-		protected virtual void Init()
+		protected override void Start()
 		{
-			if (!m_initialized)
-			{
-				if (!enabled)
-					return;
+			base.Start();
 
-				Debugprint("Init()");
-
-				m_initialized = true;
-				m_graphic = m_graphic ?? GetComponent<Graphic>();
-				m_canvasRenderer = m_canvasRenderer ?? GetComponent<CanvasRenderer>();
-				m_rectTransform = m_rectTransform ?? GetComponent<RectTransform>();
-				m_textMeshPro = m_textMeshPro ?? GetComponent<TMP_Text>();
-			}
+			m_graphic = GetComponent<Graphic>();
+			m_canvasRenderer = GetComponent<CanvasRenderer>();
+			m_rectTransform = GetComponent<RectTransform>();
+			m_textMeshPro = GetComponent<TMP_Text>();
 		}
 
 		protected override void OnEnable()
 		{
-			Debugprint("OnEnable()");
-			MakeAllModsDirty();
-
-			Init();
-
 			UpdateTMPCallback();
+			MakeAllModsDirty();
 
 #if UNITY_EDITOR
 			if (graphic && m_textMeshPro)
@@ -174,7 +172,6 @@ namespace GuiToolkit
 
 		protected override void OnDisable()
 		{
-			Debugprint("OnDisable()");
 			UpdateTMPCallback();
 			MakeAllModsDirty();
 
@@ -202,7 +199,6 @@ namespace GuiToolkit
 				BaseMeshEffectTMP mod = mods[i];
 				if (mod.enabled)
 				{
-					Debugprint($"Installing Handler for modifier {i}");
 					mod.InstallTMPCallback();
 					return;
 				}
@@ -275,23 +271,19 @@ namespace GuiToolkit
 		{
 			BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
 			foreach (var mod in mods)
-			{
-				mod.m_initialized = false;
 				mod.SetDirty();
-			}
 		}
 
-		private void Debugprint(string _s)
-		{
-			BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
-			for (int i=0; i<mods.Length; i++)
-			{
-				if (mods[i] == this)
-				{
-					Debug.Log($"{this} Mod {i} {_s} enabled: {enabled} m_initialized: {m_initialized}");
-				}
-			}
-		}
+// 		private void Debugprint(string _s)
+// 		{
+// 			BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
+//			for (int i=0; i<mods.Length; i++)
+// 			{
+// 				if (mods[i] == this)
+// 				{
+// 					Debug.Log($"{this} Mod {i} {_s} enabled: {enabled} m_initialized: {m_initialized}");
+// 				}
+// 			}
 
 #if UNITY_EDITOR
 		protected override void OnValidate()
