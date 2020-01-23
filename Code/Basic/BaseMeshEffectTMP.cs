@@ -34,10 +34,15 @@ namespace GuiToolkit
 		private Graphic m_graphic;
 
 		private bool m_anyTopologyChangingMod;
-		private bool m_aboutToBeDisabled;
 
 		protected virtual bool ChangesTopology { get {return false;} }
 
+		/// <summary>
+		/// Callback when any TextMeshPro changes.
+		/// Only installed/called when we actually reside on a TMP game object, and only for the first active BaseMeshEffectTMP on this game object,
+		/// The first active BaseMeshEffectTMP does the mesh handling and subsequent ModifyMesh() for all modifiers.
+		/// </summary>
+		/// <param name="_obj">We have to check if this parameter means the actual TMPro on our game object</param>
 		private void OnTMProTextChanged( Object _obj )
 		{
 			if ( m_textMeshPro != _obj || this == null || !IsActive() )
@@ -153,7 +158,6 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			Debugprint("OnEnable()");
-			m_aboutToBeDisabled = false;
 			MakeAllModsDirty();
 
 			Init();
@@ -171,7 +175,6 @@ namespace GuiToolkit
 		protected override void OnDisable()
 		{
 			Debugprint("OnDisable()");
-			m_aboutToBeDisabled = true;
 			UpdateTMPCallback();
 			MakeAllModsDirty();
 
