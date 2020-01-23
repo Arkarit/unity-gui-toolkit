@@ -22,14 +22,6 @@ namespace GuiToolkit
 	/// </summary>
 	public abstract class BaseMeshEffectTMP : BaseMeshEffect
 	{
-		static private readonly List<Vector2> s_uv0 = new List<Vector2>();
-		static private readonly List<Vector2> s_uv1 = new List<Vector2>();
-		static private readonly List<Vector3> s_vertices = new List<Vector3>();
-		static private readonly List<int> s_indices = new List<int>();
-		static private readonly List<Vector3> s_normals = new List<Vector3>();
-		static private readonly List<Vector4> s_tangents = new List<Vector4>();
-		static private readonly List<Color32> s_colors = new List<Color32>();
-		static private readonly VertexHelper s_vertexHelper = new VertexHelper();
 		static private readonly List<TMP_SubMeshUI> s_subMeshUIs = new List<TMP_SubMeshUI>();
 		static private readonly List<Mesh> s_meshes = new List<Mesh>();
 
@@ -88,14 +80,15 @@ namespace GuiToolkit
 			// Fill the vertex helper, then call ModifyMesh() for all modifiers
 			foreach (var m in s_meshes)
 			{
-				FillVertexHelper(s_vertexHelper, m);
+				VertexHelper vertexHelper = new VertexHelper(m);
 
 				// We don't check 'enabled' for the mods here - BaseMeshEffect itself also doesn't.
 				// Modifiers itself are responsible to return when inactive
 				foreach (var mod in mods)
-					mod.ModifyMesh(s_vertexHelper);
+					mod.ModifyMesh(vertexHelper);
 
-				s_vertexHelper.FillMesh(m);
+				vertexHelper.FillMesh(m);
+				vertexHelper.Dispose();
 			}
 
 			// Assign the mesh to the canvas renderer
@@ -118,33 +111,6 @@ namespace GuiToolkit
 			}
 
 			s_meshes.Clear();
-		}
-
-		void FillVertexHelper( VertexHelper _vh, Mesh _mesh )
-		{
-			_vh.Clear();
-
-			// Inefficiency, your name is Unity.
-			// This whole VertexHelper rubbish is complete crap.
-			// Giant amount of completely unnecessary copying.
-			// And even the crap is crappy: Why is there a VertexHelper.FillMesh(), but not a method, which fills the vertex helper BY a mesh (except the ctor)?
-			_mesh.GetVertices(s_vertices);
-			_mesh.GetColors(s_colors);
-			_mesh.GetUVs(0, s_uv0);
-			_mesh.GetUVs(1, s_uv1);
-			_mesh.GetNormals(s_normals);
-			_mesh.GetTangents(s_tangents);
-			_mesh.GetIndices(s_indices, 0);
-
-			for (int i = 0; i < s_vertices.Count; i++)
-			{
-				s_vertexHelper.AddVert(s_vertices[i], s_colors[i], s_uv0[i], s_uv1[i], s_normals[i], s_tangents[i]);
-			}
-
-			for (int i = 0; i < s_indices.Count; i += 3)
-			{
-				_vh.AddTriangle(s_indices[i], s_indices[i + 1], s_indices[i + 2]);
-			}
 		}
 
 		protected override void Start()
