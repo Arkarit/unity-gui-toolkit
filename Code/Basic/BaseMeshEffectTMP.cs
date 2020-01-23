@@ -113,9 +113,9 @@ namespace GuiToolkit
 			s_meshes.Clear();
 		}
 
-		protected override void Start()
+		protected override void Awake()
 		{
-			base.Start();
+			base.Awake();
 
 			m_graphic = GetComponent<Graphic>();
 			m_canvasRenderer = GetComponent<CanvasRenderer>();
