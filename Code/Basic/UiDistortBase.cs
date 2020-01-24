@@ -34,6 +34,7 @@ namespace GuiToolkit
 		protected static readonly List<UIVertex> s_verts = new List<UIVertex>();
 		protected static UIVertex s_vertex;
 		protected Canvas m_canvas;
+		protected RectTransform m_rectTransform;
 
 		public override void ModifyMesh( VertexHelper _vertexHelper )
 		{
@@ -42,14 +43,17 @@ namespace GuiToolkit
 
 			_vertexHelper.GetUIVertexStream(s_verts);
 
-			Rect bounding = UiModifierUtil.GetMinMaxRect(s_verts);
+			Rect bounding = UiModifierUtil.GetBounds(s_verts);
 
 			if (NeedsWorldBoundingBox())
 			{
 				if (m_canvas == null)
+				{
 					m_canvas = GetComponentInParent<Canvas>();
+					m_rectTransform = (RectTransform) transform;
+				}
 
-				Rect worldRect2D = ((RectTransform)transform).GetWorldRect2D( m_canvas );
+				Rect worldRect2D = bounding.GetWorldRect2D( m_rectTransform, m_canvas );
 				Prepare( worldRect2D );
 			}
 			else

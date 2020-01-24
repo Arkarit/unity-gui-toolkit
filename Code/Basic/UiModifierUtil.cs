@@ -134,7 +134,7 @@ namespace GuiToolkit
 
 		public static bool Subdivide( List<UIVertex> _inTriangleList, List<UIVertex> _outVertices, List<int> _outIndices, List<float> _normalizedSplitsH, List<float> _normalizedSplitsV )
 		{
-			Rect minMaxRect = GetMinMaxRect( _inTriangleList );
+			Rect minMaxRect = GetBounds( _inTriangleList );
 
 			int startingVertexCount = _inTriangleList.Count;
 			for (int i = 0; i < startingVertexCount; i += 6)
@@ -204,7 +204,7 @@ namespace GuiToolkit
 			return true;
 		}
 
-		public static Rect GetMinMaxRect( List<UIVertex> _inTriangleList )
+		public static Rect GetBounds( List<UIVertex> _inTriangleList )
 		{
 			float maxValue = float.MaxValue / 2.0f;
 			float xMin = maxValue;

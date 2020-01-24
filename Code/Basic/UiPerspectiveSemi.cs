@@ -111,7 +111,6 @@ namespace GuiToolkit
 			EditorGUILayout.PropertyField(m_vanishingPointProp);
 			EditorGUILayout.PropertyField(m_lockedSideProp);
 		}
-
 	}
 #endif
 

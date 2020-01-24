@@ -52,10 +52,10 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static Rect GetWorldRect2D( this RectTransform _this )
+		public static Rect GetWorldRect2D( this Rect _this, RectTransform _rt)
 		{
-			Vector2 tl = _this.TransformPoint( _this.rect.TopLeft() );
-			Vector2 br = _this.TransformPoint( _this.rect.BottomRight() );
+			Vector2 tl = _rt.TransformPoint( _this.TopLeft() );
+			Vector2 br = _rt.TransformPoint( _this.BottomRight() );
 			float x = tl.x;
 			float y = tl.y;
 			float w = br.x - x;
@@ -64,9 +64,21 @@ namespace GuiToolkit
 			return new Rect( x,y,w,h );
 		}
 
+		public static Rect GetWorldRect2D( this RectTransform _this )
+		{
+			return _this.rect.GetWorldRect2D(_this);
+		}
+
 		public static Rect GetWorldRect2D( this RectTransform _this, Canvas _canvas )
 		{
 			Rect result = GetWorldRect2D( _this );
+			result = result.ScaleBy( 1.0f / _canvas.scaleFactor );
+			return result;
+		}
+
+		public static Rect GetWorldRect2D( this Rect _this, RectTransform _rt, Canvas _canvas)
+		{
+			Rect result = GetWorldRect2D( _this, _rt );
 			result = result.ScaleBy( 1.0f / _canvas.scaleFactor );
 			return result;
 		}
