@@ -75,12 +75,20 @@ namespace GuiToolkit
 			switch( _side )
 			{
 				case ESide.Top:
-					_movingPointA = CalculatePerspectiveValueV( _bounding.yMin, _bounding.yMax, _bounding.xMin, vanishingPoint);
-					_movingPointB = CalculatePerspectiveValueV( _bounding.yMin, _bounding.yMax, _bounding.xMax, vanishingPoint);
+					_movingPointA = CalculatePerspectiveValue( _bounding.yMin, _bounding.yMax, _bounding.xMin, vanishingPoint, false);
+					_movingPointB = CalculatePerspectiveValue( _bounding.yMin, _bounding.yMax, _bounding.xMax, vanishingPoint, false);
 					break;
 				case ESide.Bottom:
-					_movingPointA = CalculatePerspectiveValueV( _bounding.yMax, _bounding.yMin, _bounding.xMin, vanishingPoint);
-					_movingPointB = CalculatePerspectiveValueV( _bounding.yMax, _bounding.yMin, _bounding.xMax, vanishingPoint);
+					_movingPointA = CalculatePerspectiveValue( _bounding.yMax, _bounding.yMin, _bounding.xMin, vanishingPoint, false);
+					_movingPointB = CalculatePerspectiveValue( _bounding.yMax, _bounding.yMin, _bounding.xMax, vanishingPoint, false);
+					break;
+				case ESide.Left:
+					_movingPointA = CalculatePerspectiveValue( _bounding.xMin, _bounding.xMax, _bounding.yMin, vanishingPoint, true);
+					_movingPointB = CalculatePerspectiveValue( _bounding.xMin, _bounding.xMax, _bounding.yMax, vanishingPoint, true);
+					break;
+				case ESide.Right:
+					_movingPointA = CalculatePerspectiveValue( _bounding.xMax, _bounding.xMin, _bounding.yMin, vanishingPoint, true);
+					_movingPointB = CalculatePerspectiveValue( _bounding.xMax, _bounding.xMin, _bounding.yMax, vanishingPoint, true);
 					break;
 				default:
 					Debug.LogError("None or multiple flags not allowed here");
@@ -88,10 +96,13 @@ namespace GuiToolkit
 			}
 		}
 
-		private Vector2 CalculatePerspectiveValueV( float _byMin, float _byMax, float _bxMax, Vector2 _vanishingPoint )
+		private Vector2 CalculatePerspectiveValue( float _byMin, float _byMax, float _bxMax, Vector2 _vanishingPoint, bool _horizontal )
 		{
 			Vector2 result = new Vector2();
 			result.y = 0;
+
+			if (_horizontal)
+				_vanishingPoint = _vanishingPoint.Swap();
 
 			float b0 = _byMin - _vanishingPoint.y;
 			float b1 = _byMax - _vanishingPoint.y;
@@ -99,6 +110,9 @@ namespace GuiToolkit
 			float a0 = _bxMax - _vanishingPoint.x;
 			float a1 = a0 * ratio;
 			result.x = a1 - a0;
+
+			if (_horizontal)
+				result = result.Swap();
 
 			return result;
 		}
