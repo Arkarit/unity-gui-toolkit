@@ -159,6 +159,9 @@ namespace GuiToolkit
 		/// </summary>
 		protected override void OnDisable()
 		{
+			// Stupid Unity sometimes calls OnDisable() with enabled == true, sometimes false.
+			// Ensure that we are really disabled.
+			enabled = false;
 			UpdateTMPCallback();
 			SetDirty(true);
 
