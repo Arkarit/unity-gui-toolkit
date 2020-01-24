@@ -7,6 +7,8 @@ namespace GuiToolkit
 {
 	/// <summary>
 	/// BaseMeshEffectTMP is a BaseMeshEffect with support for TextMeshPro.
+	/// It's completely transparent for the sub class inheriting this, if it inherits BaseMeshEffect or BaseMeshEffectTMP;
+	/// both behave exactly the same.
 	/// 
 	/// TextMeshPro has a huge flaw: It does not support mesh modifiers at all, ModifyMesh() is simply not called :(
 	/// BaseMeshEffectTMP provides a workaround for this by calling ModifyMesh() each time a m_textMeshPro text changes.
@@ -33,6 +35,9 @@ namespace GuiToolkit
 		private bool m_anyTopologyChangingMod;
 		private bool m_TMPCallbackInstalled;
 
+		/// <summary>
+		/// Return true if your modifier adds or removes any elements to/from the mesh
+		/// </summary>
 		protected virtual bool ChangesTopology { get {return false;} }
 
 		/// <summary>
@@ -66,7 +71,7 @@ namespace GuiToolkit
 				}
 			}
 
-			// Get meshes from GenerateTextMesh()
+			// Get meshes from TextMeshPro
 			s_meshes.Clear();
 			foreach (var info in textInfo.meshInfo)
 			{
