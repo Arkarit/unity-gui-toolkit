@@ -16,14 +16,26 @@ namespace GuiToolkit
 		protected ESide m_lockedSide;
 
 		private Vector2 m_lastPosition;
+		private Vector2 m_lastPositionVanishingPoint;
+		private RectTransform m_rectTransform;
+
+		protected override void Awake()
+		{
+			base.Awake();
+			m_rectTransform = (RectTransform) transform;
+		}
 
 		protected void Update()
 		{
 			if (m_vanishingPoint == null)
 				return;
-			if (m_lastPosition != m_vanishingPoint.anchoredPosition)
+
+			if (m_lastPositionVanishingPoint != m_vanishingPoint.anchoredPosition
+			||  m_lastPosition != m_rectTransform.anchoredPosition)
 				SetDirty();
-			m_lastPosition = m_vanishingPoint.anchoredPosition;
+
+			m_lastPosition = m_rectTransform.anchoredPosition;
+			m_lastPositionVanishingPoint = m_vanishingPoint.anchoredPosition;
 		}
 
 		protected override void Prepare( Rect _bounding )
