@@ -17,17 +17,10 @@ namespace GuiToolkit
 
 		private Vector2 m_lastPosition;
 		private Vector2 m_lastPositionVanishingPoint;
-		private RectTransform m_rectTransform;
-
-		protected override void Awake()
-		{
-			base.Awake();
-			m_rectTransform = (RectTransform) transform;
-		}
 
 		protected void Update()
 		{
-			if (m_vanishingPoint == null)
+			if (m_vanishingPoint == null || m_rectTransform == null)
 				return;
 
 			if (m_lastPositionVanishingPoint != m_vanishingPoint.anchoredPosition

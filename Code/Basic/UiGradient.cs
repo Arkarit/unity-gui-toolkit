@@ -12,7 +12,7 @@ namespace GuiToolkit
 		[SerializeField]
 		protected Gradient m_gradient = new Gradient();
 		[SerializeField]
-		protected EDirection m_direction;
+		protected EDirection m_direction = EDirection.Vertical;
 
 		protected override bool ChangesTopology { get {return true;} }
 

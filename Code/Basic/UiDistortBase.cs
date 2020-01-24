@@ -36,6 +36,13 @@ namespace GuiToolkit
 		protected Canvas m_canvas;
 		protected RectTransform m_rectTransform;
 
+		protected override void Awake()
+		{
+			base.Awake();
+			m_canvas = GetComponentInParent<Canvas>();
+			m_rectTransform = (RectTransform) transform;
+		}
+
 		public override void ModifyMesh( VertexHelper _vertexHelper )
 		{
 			if (!IsActive())
@@ -47,12 +54,6 @@ namespace GuiToolkit
 
 			if (NeedsWorldBoundingBox())
 			{
-				if (m_canvas == null)
-				{
-					m_canvas = GetComponentInParent<Canvas>();
-					m_rectTransform = (RectTransform) transform;
-				}
-
 				Rect worldRect2D = bounding.GetWorldRect2D( m_rectTransform, m_canvas );
 				Prepare( worldRect2D );
 			}
