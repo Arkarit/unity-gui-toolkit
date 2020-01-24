@@ -6,12 +6,12 @@ using TMPro;
 namespace GuiToolkit
 {
 	/// <summary>
-	/// BaseMeshEffectTMP is a BaseMeshEffect with support for m_textMeshPro.
+	/// BaseMeshEffectTMP is a BaseMeshEffect with support for TextMeshPro.
 	/// 
-	/// m_textMeshPro has a huge flaw: It does not support mesh modifiers at all, ModifyMesh() is simply not called :(
+	/// TextMeshPro has a huge flaw: It does not support mesh modifiers at all, ModifyMesh() is simply not called :(
 	/// BaseMeshEffectTMP provides a workaround for this by calling ModifyMesh() each time a m_textMeshPro text changes.
 	/// The technique/idea for this is taken from https://unitylist.com/p/i24/Mesh-Effect-For-Text-Mesh-Pro (MIT license)
-	/// The beforementioned project however is improved by allowing modifiers to also change the mesh topology, which requires some
+	/// The beforementioned project however is improved here by allowing modifiers to also change the mesh topology, which requires some
 	/// additional tricks. The whole thing is quite a hack, but otherwise mesh modifiers weren't possible with text mesh pro at all.
 	/// 
 	/// How it works: The first active BaseMeshEffectTMP on a game object listens in a callback for TMP text changes.
@@ -31,6 +31,7 @@ namespace GuiToolkit
 		private Graphic m_graphic;
 
 		private bool m_anyTopologyChangingMod;
+		private bool m_TMPCallbackInstalled;
 
 		protected virtual bool ChangesTopology { get {return false;} }
 
@@ -72,7 +73,7 @@ namespace GuiToolkit
 				if (info.mesh == null)
 					return;
 
-				// clone mesh if any modifier changes the topology
+				// clone mesh if any modifier changes the topology (see "How it works")
 				Mesh mesh = anyTopologyChangingMod ? Mesh.Instantiate(info.mesh) : info.mesh;
 				s_meshes.Add(mesh);
 			}
@@ -83,7 +84,7 @@ namespace GuiToolkit
 				VertexHelper vertexHelper = new VertexHelper(m);
 
 				// We don't check 'enabled' for the mods here - BaseMeshEffect itself also doesn't.
-				// Modifiers itself are responsible to return when inactive
+				// Modifiers itself are responsible to return when inactive.
 				foreach (var mod in mods)
 					mod.ModifyMesh(vertexHelper);
 
@@ -113,6 +114,9 @@ namespace GuiToolkit
 			s_meshes.Clear();
 		}
 
+		/// <summary>
+		/// Set the cached components.
+		/// </summary>
 		protected override void Awake()
 		{
 			base.Awake();
@@ -123,10 +127,14 @@ namespace GuiToolkit
 			m_textMeshPro = GetComponent<TMP_Text>();
 		}
 
+		/// <summary>
+		/// Every time the activeness of a modifier changes,
+		/// the callback needs to re-evaluated, and all mods have to be set dirty
+		/// </summary>
 		protected override void OnEnable()
 		{
 			UpdateTMPCallback();
-			MakeAllModsDirty();
+			SetDirty(true);
 
 #if UNITY_EDITOR
 			if (graphic && m_textMeshPro)
@@ -136,10 +144,14 @@ namespace GuiToolkit
 #endif
 		}
 
+		/// <summary>
+		/// Every time the activeness of a modifier changes,
+		/// the callback needs to re-evaluated, and all mods have to be set dirty
+		/// </summary>
 		protected override void OnDisable()
 		{
 			UpdateTMPCallback();
-			MakeAllModsDirty();
+			SetDirty(true);
 
 
 #if UNITY_EDITOR
@@ -150,6 +162,9 @@ namespace GuiToolkit
 #endif
 		}
 
+		/// <summary>
+		/// Remove current callback, and then set callback to first active mod on game object
+		/// </summary>
 		private void UpdateTMPCallback()
 		{
 			if (!m_textMeshPro)
@@ -171,13 +186,18 @@ namespace GuiToolkit
 			}
 		}
 
-		private bool m_TMPCallbackInstalled;
+		/// <summary>
+		/// Install callback for this mod (doesn't check if mod is first active mod)
+		/// </summary>
 		private void InstallTMPCallback()
 		{
 			TMPro_EventManager.TEXT_CHANGED_EVENT.Add(OnTMProTextChanged);
 			m_TMPCallbackInstalled = true;
 		}
 
+		/// <summary>
+		/// Remove callback, if it was set to this mod
+		/// </summary>
 		private void RemoveTMPCallback()
 		{
 			if (!m_TMPCallbackInstalled)
@@ -186,34 +206,15 @@ namespace GuiToolkit
 			m_TMPCallbackInstalled = false;
 		}
 
-		private void UpdateTMPMeshes()
-		{
-			foreach (var info in m_textMeshPro.textInfo.meshInfo)
-			{
-				var mesh = info.mesh;
-				if (mesh)
-				{
-					mesh.Clear();
-					mesh.vertices = info.vertices;
-					mesh.uv = info.uvs0;
-					mesh.uv2 = info.uvs2;
-					mesh.colors32 = info.colors32;
-					mesh.normals = info.normals;
-					mesh.tangents = info.tangents;
-					mesh.triangles = info.triangles;
-				}
-			}
-		}
-
 		/// <summary>
-		/// Mark the vertices as dirty.
+		/// Set dirty
 		/// </summary>
 		public virtual void SetDirty()
 		{
+			// TextMeshPro requires a special way.
 			if (m_textMeshPro)
 			{
-				UpdateTMPMeshes();
-
+				// Restore canvas renderer meshes
 				if (m_canvasRenderer)
 				{
 					m_canvasRenderer.SetMesh (m_textMeshPro.mesh);
@@ -225,6 +226,7 @@ namespace GuiToolkit
 					}
 					s_subMeshUIs.Clear ();
 				}
+				// mark TextMeshPro dirty by telling that the properties have changed
 				m_textMeshPro.havePropertiesChanged = true;
 			}
 			else if (graphic)
@@ -233,11 +235,21 @@ namespace GuiToolkit
 			}
 		}
 
-		private void MakeAllModsDirty()
+		/// <summary>
+		/// Set dirty for all mods on this game object
+		/// </summary>
+		/// <param name="_allMods">true for all mods, false for only this mod</param>
+		public void SetDirty( bool _allMods )
 		{
-			BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
-			foreach (var mod in mods)
-				mod.SetDirty();
+			if (_allMods)
+			{
+				BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
+				foreach (var mod in mods)
+					mod.SetDirty(false);
+				return;
+			}
+
+			SetDirty();
 		}
 
 // 		private void Debugprint(string _s)
@@ -254,6 +266,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		protected override void OnValidate()
 		{
+			base.OnValidate();
 			SetDirty();
 		}
 #endif
