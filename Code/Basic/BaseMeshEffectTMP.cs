@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 namespace GuiToolkit
 {
@@ -46,7 +47,7 @@ namespace GuiToolkit
 		/// The first active BaseMeshEffectTMP does the mesh handling and subsequent ModifyMesh() for all modifiers.
 		/// </summary>
 		/// <param name="_obj">We have to check if this parameter means the actual TMPro on our game object</param>
-		private void OnTMProTextChanged( Object _obj )
+		private void OnTMProTextChanged( UnityEngine.Object _obj )
 		{
 			// return if the call does not apply to our TextMeshPro instance (or null or inactive)
 			if ( m_textMeshPro != _obj || this == null || !IsActive() )
@@ -84,8 +85,11 @@ namespace GuiToolkit
 			}
 
 			// Fill the vertex helper, then call ModifyMesh() for all modifiers
-			foreach (var m in s_meshes)
+			int numMeshes = s_meshes.Count;
+			for(int i=0; i<numMeshes; i++)
 			{
+				Mesh m = s_meshes[i];
+				FixMissingChannelsIfNecessary(ref m);
 				VertexHelper vertexHelper = new VertexHelper(m);
 
 				// We don't check 'enabled' for the mods here - BaseMeshEffect itself also doesn't.
@@ -165,6 +169,23 @@ namespace GuiToolkit
 				GraphicRebuildTracker.UnTrackGraphic(graphic);
 			}
 #endif
+		}
+
+		/// <summary>
+		/// TMP does not use uv channels 2 and 3 (_mesh.uv3 and .uv4 - stupid 1-based names)
+		/// VertexHelper however forces us to use it, so we need to add it if its missing
+		/// </summary>
+		/// <param name="_mesh"></param>
+		private void FixMissingChannelsIfNecessary( ref Mesh _mesh )
+		{
+			int numVerts = _mesh.vertices.Length;
+			if ( numVerts == 0)
+				return;
+
+			if (_mesh.uv3 == null || _mesh.uv3.Length != numVerts)
+				_mesh.uv3 = new Vector2[numVerts];
+			if (_mesh.uv4 == null || _mesh.uv4.Length != numVerts)
+				_mesh.uv4 = new Vector2[numVerts];
 		}
 
 		/// <summary>
