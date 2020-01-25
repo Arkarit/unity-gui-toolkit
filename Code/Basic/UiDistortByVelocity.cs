@@ -37,7 +37,8 @@ namespace GuiToolkit
 
 		protected virtual void Update()
 		{
-			Update(Time.deltaTime);
+			if (Application.isPlaying)
+				Update(Time.deltaTime);
 		}
 
 		protected override void OnEnable()
