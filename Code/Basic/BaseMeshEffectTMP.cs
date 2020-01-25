@@ -35,6 +35,7 @@ namespace GuiToolkit
 
 		private bool m_anyTopologyChangingMod;
 		private bool m_TMPCallbackInstalled;
+		private bool m_aboutToBeDisabled;
 
 		/// <summary>
 		/// Return true if your modifier adds or removes any elements to/from the mesh
@@ -142,6 +143,7 @@ namespace GuiToolkit
 		/// </summary>
 		protected override void OnEnable()
 		{
+			m_aboutToBeDisabled = false;
 			UpdateTMPCallback();
 			SetDirty(true);
 
@@ -160,11 +162,12 @@ namespace GuiToolkit
 		protected override void OnDisable()
 		{
 			// Stupid Unity sometimes calls OnDisable() with enabled == true, sometimes false.
-			// Ensure that we are really disabled.
-			enabled = false;
+			// Simply setting enabled = false here leads to all BaseMeshEffectTMP's disabled when script reloading.
+			// So mark that we are about to be disabled.
+			m_aboutToBeDisabled = true;
+
 			UpdateTMPCallback();
 			SetDirty(true);
-
 
 #if UNITY_EDITOR
 			if (graphic && m_textMeshPro)
@@ -207,7 +210,7 @@ namespace GuiToolkit
 			for (int i=0; i<mods.Length; i++)
 			{
 				BaseMeshEffectTMP mod = mods[i];
-				if (mod.enabled)
+				if (mod.enabled && !mod.m_aboutToBeDisabled)
 				{
 					mod.InstallTMPCallback();
 					return;
