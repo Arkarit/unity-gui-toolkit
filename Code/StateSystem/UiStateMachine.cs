@@ -53,7 +53,7 @@ namespace GuiToolkit.UiStateSystem
 
 		// Animation related, runtime
 		private float m_currentTime;
-		public UiTransition m_currentTransition;
+		private UiTransition m_currentTransition;
 		private UiState[] m_from;
 		private UiState[] m_to;
 
@@ -281,8 +281,7 @@ namespace GuiToolkit.UiStateSystem
 			m_currentTime = 0;
 			m_currentTransition = transition;
 #if UNITY_EDITOR
-			if (!Application.isPlaying)
-				EditorUpdater.StartUpdating(this);
+			EditorUpdater.StartUpdating(this);
 #endif
 		}
 
