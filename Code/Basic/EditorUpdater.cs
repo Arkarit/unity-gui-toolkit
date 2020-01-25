@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 #endif
 
 // Update() method of Unity MonoBehaviour's works unreliably when the app is not running, 
@@ -50,9 +51,13 @@ namespace GuiToolkit
 #endif
 		}
 
-		static public void StartUpdating( IEditorUpdateable _updateable )
+		static public void StartUpdating( IEditorUpdateable _updateable, bool _notWhenPlaying = true )
 		{
 #if UNITY_EDITOR
+			// We don't need a separate update mechanism when in playmode
+			if (_notWhenPlaying && Application.isPlaying)
+				return;
+
 			if (m_updateables.Count == 0)
 			{
 				m_stopwatch.Restart();
