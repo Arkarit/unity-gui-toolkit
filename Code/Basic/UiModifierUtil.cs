@@ -52,7 +52,31 @@ namespace GuiToolkit
 			UIVertex br = _inTriangleList[_startIdx + 4];
 
 			if (!IsQuadValid(ref bl, ref tl, ref tr, ref br))
-				return false;
+			{
+				if (!IsZeroQuad(ref bl, ref tl, ref tr, ref br))
+					return false;
+
+				// Workaround: Text mesh pro sometimes has zero (every position 0,0,0) quads, which change the bounding box.
+				// As a consistent bounding box is much more important than a perfectly correct bounding box, we simply also add a zero quad.
+				int ibl = _outVertices.Count;
+				_outVertices.Add(bl);
+				int itl = _outVertices.Count;
+				_outVertices.Add(tl);
+				int itr = _outVertices.Count;
+				_outVertices.Add(tr);
+				int ibr = _outVertices.Count;
+				_outVertices.Add(br);
+
+				_outIndices.Add(ibl);
+				_outIndices.Add(itl);
+				_outIndices.Add(itr);
+
+				_outIndices.Add(itr);
+				_outIndices.Add(ibr);
+				_outIndices.Add(ibl);
+
+				return true;
+			}
 
 			// Position deltas, A and B are the local quad up and right axes
 			Vector3 right = tr.position - tl.position;
@@ -422,6 +446,15 @@ namespace GuiToolkit
 				&& _tl.position.x < _tr.position.x
 				&& _bl.position.y < _tl.position.y
 				&& _br.position.y < _tr.position.y;
+		}
+
+		private static bool IsZeroQuad( ref UIVertex _bl, ref UIVertex _tl, ref UIVertex _tr, ref UIVertex _br )
+		{
+			return
+				_bl.position == Vector3.zero
+				&& _tl.position == Vector3.zero
+				&& _bl.position == Vector3.zero
+				&& _br.position == Vector3.zero;
 		}
 
 
