@@ -16,6 +16,62 @@ namespace GuiToolkit
 		private static readonly List<float> s_splitsH = new List<float>();
 		private static readonly List<float> s_splitsV = new List<float>();
 
+		public static void RemoveZeroQuads( VertexHelper _vertexHelper )
+		{
+			s_newVerts.Clear();
+			s_newIndices.Clear();
+
+			_vertexHelper.GetUIVertexStream(s_oldVerts);
+			int count = s_oldVerts.Count;
+
+			bool hasZeroQuad = false;
+			for (int i=0; i<count; i += 6)
+			{
+				UIVertex bl = s_oldVerts[i];
+				UIVertex tl = s_oldVerts[i + 1];
+				UIVertex tr = s_oldVerts[i + 2];
+				UIVertex br = s_oldVerts[i + 4];
+				if (IsZeroQuad(ref bl, ref tl, ref tr, ref br))
+				{
+					hasZeroQuad = true;
+					break;
+				}
+			}
+
+			if (!hasZeroQuad)
+				return;
+
+			for (int i=0; i<count; i += 6)
+			{
+				UIVertex bl = s_oldVerts[i];
+				UIVertex tl = s_oldVerts[i + 1];
+				UIVertex tr = s_oldVerts[i + 2];
+				UIVertex br = s_oldVerts[i + 4];
+
+				if (!IsZeroQuad(ref bl, ref tl, ref tr, ref br))
+				{
+					int ibl = s_newVerts.Count;
+					s_newVerts.Add(bl);
+					int itl = s_newVerts.Count;
+					s_newVerts.Add(tl);
+					int itr = s_newVerts.Count;
+					s_newVerts.Add(tr);
+					int ibr = s_newVerts.Count;
+					s_newVerts.Add(br);
+
+					s_newIndices.Add(ibl);
+					s_newIndices.Add(itl);
+					s_newIndices.Add(itr);
+					s_newIndices.Add(itr);
+					s_newIndices.Add(ibr);
+					s_newIndices.Add(ibl);
+				}
+			}
+
+			_vertexHelper.Clear();
+			_vertexHelper.AddUIVertexStream(s_newVerts, s_newIndices);
+		}
+
 		public static bool Tessellate( VertexHelper _vertexHelper, float _sizeH, float _sizeV )
 		{
 			s_oldVerts.Clear();
