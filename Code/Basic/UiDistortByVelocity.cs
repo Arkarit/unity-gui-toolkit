@@ -15,6 +15,21 @@ namespace GuiToolkit
 		[Range(0,1)]
 		private float m_velocityDampen = 0.9f;
 
+		[SerializeField]
+		private AnimationCurve m_frontX;
+
+		[SerializeField]
+		private AnimationCurve m_frontY;
+
+		[SerializeField]
+		private AnimationCurve m_backX;
+
+		[SerializeField]
+		private AnimationCurve m_backY;
+
+		[SerializeField]
+		private float  m_maxVelocity = 500	;
+
 		private float m_velocityChange;
 
 		private float m_lastVelocity;
@@ -34,6 +49,32 @@ namespace GuiToolkit
 			Update(_deltaTime);
 		}
 #endif
+
+		protected override void Prepare( Rect _bounding )
+		{
+			if (m_frontX == null || m_frontY == null || m_backX == null || m_backY == null || m_maxVelocity == 0)
+				return;
+
+			float normVelocity = m_velocityChange / m_maxVelocity;
+			float normVelocitySgn = Mathf.Sign(normVelocity);
+			normVelocity = Mathf.Min(1, Mathf.Abs(normVelocity));
+			m_topLeft = m_topRight = m_bottomLeft = m_bottomRight = Vector2.zero;
+			float velFrontX = m_frontX.Evaluate(normVelocity);
+			float velFrontY = m_frontY.Evaluate(normVelocity);
+			float velBackX = m_backX.Evaluate(normVelocity);
+			float velBackY = m_backY.Evaluate(normVelocity);
+
+			if (m_direction == EDirection.Horizontal)
+			{
+				if (normVelocitySgn > 0)
+				{
+					m_topRight.x = -velFrontX;
+					m_bottomRight.x = -velFrontX;
+					m_topRight.y = velFrontY;
+					m_bottomRight.y = -velFrontY;
+				}
+			}
+		}
 
 		protected virtual void Update()
 		{
@@ -67,6 +108,7 @@ namespace GuiToolkit
 			float velocity = movement / _deltaTime;
 			m_velocityChange -= velocity - m_lastVelocity;
 			m_lastVelocity = velocity;
+			SetDirty();
 
 if (Mathf.Abs(m_velocityChange) > 0.0001)
 Debug.Log($"m_lastVelocity: {m_lastVelocity} m_velocityChange: {m_velocityChange}");
@@ -91,6 +133,11 @@ Debug.Log($"m_lastVelocity: {m_lastVelocity} m_velocityChange: {m_velocityChange
 	{
 		protected SerializedProperty m_directionProp;
 		protected SerializedProperty m_velocityDampenProp;
+		protected SerializedProperty m_frontXProp;
+		protected SerializedProperty m_frontYProp;
+		protected SerializedProperty m_backXProp;
+		protected SerializedProperty m_backYProp;
+		protected SerializedProperty m_maxVelocityProp;
 
 		private static bool s_updateInEditor = false;
 
@@ -99,6 +146,11 @@ Debug.Log($"m_lastVelocity: {m_lastVelocity} m_velocityChange: {m_velocityChange
 		{
 			m_directionProp = serializedObject.FindProperty("m_direction");
 			m_velocityDampenProp = serializedObject.FindProperty("m_velocityDampen");
+			m_frontXProp = serializedObject.FindProperty("m_frontX");
+			m_frontYProp = serializedObject.FindProperty("m_frontY");
+			m_backXProp = serializedObject.FindProperty("m_backX");
+			m_backYProp = serializedObject.FindProperty("m_backY");
+			m_maxVelocityProp = serializedObject.FindProperty("m_maxVelocity");
 		}
 
 		protected override void Edit( UiDistortBase _thisUiDistort )
@@ -125,6 +177,11 @@ Debug.Log($"m_lastVelocity: {m_lastVelocity} m_velocityChange: {m_velocityChange
 
  			EditorGUILayout.PropertyField(m_directionProp);
  			EditorGUILayout.PropertyField(m_velocityDampenProp);
+ 			EditorGUILayout.PropertyField(m_frontXProp);
+ 			EditorGUILayout.PropertyField(m_frontYProp);
+ 			EditorGUILayout.PropertyField(m_backXProp);
+ 			EditorGUILayout.PropertyField(m_backYProp);
+ 			EditorGUILayout.PropertyField(m_maxVelocityProp);
 
 			EditorGUIUtility.labelWidth = oldLabelWidth;
 		}
