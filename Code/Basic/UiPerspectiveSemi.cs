@@ -56,8 +56,8 @@ namespace GuiToolkit
 			}
 		}
 
-		protected override bool IsAbsolute() { return true; }
-		protected override bool NeedsWorldBoundingBox() { return true; }
+		protected override bool IsAbsolute { get { return true; } }
+		protected override bool NeedsWorldBoundingBox { get { return true; } }
 
 		private void CalculatePerspectiveValues( Rect _bounding, ref Vector2 _fixedPointA, ref Vector2 _fixedPointB, ref Vector2 _movingPointA, ref Vector2 _movingPointB, ESide _side )
 		{

@@ -83,6 +83,43 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public static Rect Absolute( this Rect _this)
+		{
+			Rect result = _this;
+			if (_this.height < 0 || _this.width < 0)
+			{
+				Vector2 min = result.min;
+				Vector2 max = result.max;
+				float t;
+
+				if (_this.width < 0)
+				{
+					t = min.x;
+					min.x = max.x;
+					max.x = t;
+				}
+				if (_this.height < 0)
+				{
+					t = min.y;
+					min.y = max.y;
+					max.y = t;
+				}
+
+				result.min = min;
+				result.max = max;
+			}
+			return result;
+		}
+
+		public static Rect GetWorldRect2D( this RectTransform _this, Vector3[] _worldRectPositions)
+		{
+			Debug.Assert( _worldRectPositions != null && _worldRectPositions.Length == 4, "Needs to be world corners array as provided by RectTransform..GetWorldCorners()");
+			if (_worldRectPositions == null || _worldRectPositions.Length != 4)
+				return new Rect();
+
+			return new Rect(_worldRectPositions[1].x, _worldRectPositions[1].y, _worldRectPositions[3].x - _worldRectPositions[0].x, _worldRectPositions[1].y - _worldRectPositions[0].y);
+		}
+
 		public static Vector2 GetWorldPosition2D( this RectTransform _this )
 		{
 			return _this.TransformPoint( _this.rect.TopLeft() );
@@ -122,6 +159,23 @@ namespace GuiToolkit
 		public static Vector2 BottomRight( this Rect _this )
 		{
 			return new Vector2(_this.xMax, _this.yMin );
+		}
+
+		public static Vector3 TopLeft3( this Rect _this )
+		{
+			return new Vector3(_this.xMin, _this.yMax );
+		}
+		public static Vector3 BottomLeft3( this Rect _this )
+		{
+			return new Vector3(_this.xMin, _this.yMin );
+		}
+		public static Vector3 TopRight3( this Rect _this )
+		{
+			return new Vector3(_this.xMax, _this.yMax );
+		}
+		public static Vector3 BottomRight3( this Rect _this )
+		{
+			return new Vector3(_this.xMax, _this.yMin );
 		}
 
 		public static Rect ScaleBy( this Rect _this, float _val )

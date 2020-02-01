@@ -15,7 +15,7 @@ namespace GuiToolkit
 	[CustomEditor(typeof(UiSkew))]
 	public class UiSkewEditor : UiDistortEditorBase
 	{
-		protected override bool HasMirror() { return true; }
+		protected override bool HasMirror { get { return true; } }
 
 		protected override void Edit( UiDistortBase thisUiDistort )
 		{

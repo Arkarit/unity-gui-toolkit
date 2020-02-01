@@ -36,6 +36,10 @@ namespace GuiToolkit
 		protected Canvas m_canvas;
 		protected RectTransform m_rectTransform;
 
+		protected virtual bool IsAbsolute { get { return false; } }
+		protected virtual bool NeedsWorldBoundingBox { get { return false; } }
+		protected virtual void Prepare( Rect _bounding ) {}
+
 		protected override void Awake()
 		{
 			base.Awake();
@@ -52,7 +56,7 @@ namespace GuiToolkit
 
 			Rect bounding = UiModifierUtil.GetBounds(s_verts);
 
-			if (NeedsWorldBoundingBox())
+			if (NeedsWorldBoundingBox)
 			{
 				Rect worldRect2D = bounding.GetWorldRect2D( m_rectTransform, m_canvas );
 				Prepare( worldRect2D );
@@ -62,7 +66,7 @@ namespace GuiToolkit
 				Prepare( bounding );
 			}
 
-			Vector2 size = IsAbsolute() ? Vector2.one : bounding.size;
+			Vector2 size = IsAbsolute ? Vector2.one : bounding.size;
 
 			Vector2 tl = m_topLeft * size;
 			Vector2 bl = m_bottomLeft * size;
@@ -121,10 +125,6 @@ namespace GuiToolkit
 			SetDirty();
 		}
 
-		protected virtual void Prepare( Rect _bounding ) {}
-		protected virtual bool IsAbsolute() { return false; }
-		protected virtual bool NeedsWorldBoundingBox() { return false; }
-
 		protected void Swap(ref Vector2 a, ref Vector2 b)
 		{
 			Vector2 t = b;
@@ -142,6 +142,8 @@ namespace GuiToolkit
 		protected SerializedProperty m_bottomRightProp;
 		protected SerializedProperty m_mirrorDirectionProp;
 
+		protected virtual bool HasMirror { get { return false; } }
+
 		public virtual void OnEnable()
 		{
 			m_topLeftProp = serializedObject.FindProperty("m_topLeft");
@@ -151,15 +153,13 @@ namespace GuiToolkit
 			m_mirrorDirectionProp = serializedObject.FindProperty("m_mirrorDirection");
 		}
 
-		protected virtual bool HasMirror() { return false; }
-
 		public override void OnInspectorGUI()
 		{
 			UiDistortBase thisUiDistort = (UiDistortBase)target;
 
 			Edit(thisUiDistort);
 
-			if (HasMirror())
+			if (HasMirror)
 			{
 				if (UiEditorUtility.BoolBar<EDirection>(m_mirrorDirectionProp, "Mirror"))
 					thisUiDistort.SetDirty();
