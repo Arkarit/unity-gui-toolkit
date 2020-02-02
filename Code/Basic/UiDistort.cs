@@ -9,6 +9,9 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public class UiDistort : UiDistortBase
 	{
+		[SerializeField]
+		protected bool m_absoluteValues;
+		protected override bool IsAbsolute { get { return m_absoluteValues; } }
 	}
 
 #if UNITY_EDITOR
@@ -16,11 +19,20 @@ namespace GuiToolkit
 	public class UiDistortEditor : UiDistortEditorBase
 	{
 		private const float HANDLE_SIZE = 0.08f;
+		protected SerializedProperty m_absoluteValuesProp;
 
 		protected override bool HasMirror { get { return true; } }
 
+		public override void OnEnable()
+		{
+			base.OnEnable();
+			m_absoluteValuesProp = serializedObject.FindProperty("m_absoluteValues");
+		}
+
 		protected override void Edit( UiDistortBase thisUiDistort )
 		{
+			EditorGUILayout.PropertyField(m_absoluteValuesProp);
+
 			float oldLabelWidth = EditorGUIUtility.labelWidth;
 			EditorGUIUtility.labelWidth = 100;
 
@@ -44,6 +56,7 @@ namespace GuiToolkit
 			normPoint.y *= _mirrorVertical ? -1 : 1;
 
 			Vector3 point = _rectPoint + Vector3.Scale(normPoint, _rectSize);
+
 			float handleSize = HANDLE_SIZE * HandleUtility.GetHandleSize(Vector3.zero);
 			Handles.DotHandleCap(0, point, Quaternion.identity, handleSize, EventType.Repaint);
 			Vector3 oldLeft = point;
@@ -63,6 +76,10 @@ namespace GuiToolkit
 		{
 			UiDistortBase thisUiDistort = (UiDistortBase)target;
 			RectTransform rt = (RectTransform) thisUiDistort.transform;
+
+			// Avoid div/0
+			if (rt.rect.size.x == 0 || rt.rect.size.y == 0)
+				return;
 
 			Rect rect = rt.GetWorldRect2D();
 			rect = rect.Absolute();
@@ -89,10 +106,13 @@ namespace GuiToolkit
 				UiMath.Swap(ref trprop, ref brprop);
 			}
 
-			bool hasChanged = DoHandle( blprop, rect.BottomLeft3(), rect.size, mirrorHorizontal, mirrorVertical);
-			hasChanged |= DoHandle( tlprop, rect.TopLeft3(), rect.size, mirrorHorizontal, mirrorVertical );
-			hasChanged |= DoHandle( trprop, rect.TopRight3(), rect.size, mirrorHorizontal, mirrorVertical );
-			hasChanged |= DoHandle( brprop, rect.BottomRight3(), rect.size, mirrorHorizontal, mirrorVertical );
+			bool isAbsolute = m_absoluteValuesProp.boolValue;
+			Vector2 size = isAbsolute ? rect.size / rt.rect.size : rect.size;
+
+			bool hasChanged = DoHandle( blprop, rect.BottomLeft3(), size, mirrorHorizontal, mirrorVertical);
+			hasChanged |= DoHandle( tlprop, rect.TopLeft3(), size, mirrorHorizontal, mirrorVertical );
+			hasChanged |= DoHandle( trprop, rect.TopRight3(), size, mirrorHorizontal, mirrorVertical );
+			hasChanged |= DoHandle( brprop, rect.BottomRight3(), size, mirrorHorizontal, mirrorVertical );
 
 			if (hasChanged)
 			{
