@@ -15,7 +15,7 @@ namespace GuiToolkit
 	[CustomEditor(typeof(UiDistort))]
 	public class UiDistortEditor : UiDistortEditorBase
 	{
-		private const float HANDLE_SIZE = 4;
+		private const float HANDLE_SIZE = 0.08f;
 
 		protected override bool HasMirror { get { return true; } }
 
@@ -44,9 +44,10 @@ namespace GuiToolkit
 			normPoint.y *= _mirrorVertical ? -1 : 1;
 
 			Vector3 point = _rectPoint + Vector3.Scale(normPoint, _rectSize);
-			Handles.DotHandleCap(0, point, Quaternion.identity, HANDLE_SIZE, EventType.Repaint);
+			float handleSize = HANDLE_SIZE * HandleUtility.GetHandleSize(Vector3.zero);
+			Handles.DotHandleCap(0, point, Quaternion.identity, handleSize, EventType.Repaint);
 			Vector3 oldLeft = point;
-			Vector3 newLeft = Handles.FreeMoveHandle(oldLeft, Quaternion.identity, HANDLE_SIZE, Vector3.zero, Handles.DotHandleCap);
+			Vector3 newLeft = Handles.FreeMoveHandle(oldLeft, Quaternion.identity, handleSize, Vector3.zero, Handles.DotHandleCap);
 			if (oldLeft != newLeft)
 			{
 				Vector2 val = (newLeft - _rectPoint) / _rectSize;
