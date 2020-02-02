@@ -13,20 +13,16 @@ namespace GuiToolkit
 	public abstract class UiDistortBase : BaseMeshEffectTMP
 	{
 		[SerializeField]
-		[VectorRange (-1, 1, -1, 1, true)]
-		protected Vector2 m_topLeft = Vector2.zero;
+		public Vector2 m_topLeft = Vector2.zero;
 
 		[SerializeField]
-		[VectorRange (-1, 1, -1, 1, true)]
-		protected Vector2 m_topRight = Vector2.zero;
+		public Vector2 m_topRight = Vector2.zero;
 
 		[SerializeField]
-		[VectorRange (-1, 1, -1, 1, true)]
-		protected Vector2 m_bottomLeft = Vector2.zero;
+		public Vector2 m_bottomLeft = Vector2.zero;
 
 		[SerializeField]
-		[VectorRange (-1, 1, -1, 1, true)]
-		protected Vector2 m_bottomRight = Vector2.zero;
+		public Vector2 m_bottomRight = Vector2.zero;
 
 		[SerializeField]
 		protected EDirection m_mirrorDirection;

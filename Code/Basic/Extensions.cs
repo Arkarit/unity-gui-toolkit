@@ -111,6 +111,11 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public static Vector3 Size3( this Rect _this)
+		{
+			return _this.size;
+		}
+
 		public static Rect GetWorldRect2D( this RectTransform _this, Vector3[] _worldRectPositions)
 		{
 			Debug.Assert( _worldRectPositions != null && _worldRectPositions.Length == 4, "Needs to be world corners array as provided by RectTransform..GetWorldCorners()");
