@@ -48,5 +48,13 @@ namespace GuiToolkit
 			Color bottom = Color.Lerp(_bl, _br, _h);
 			return Color.Lerp(bottom, top, _v);
 		}
+
+		public static void Swap<T>(ref T _lhs, ref T _rhs)
+		{
+			T temp = _lhs;
+			_lhs = _rhs;
+			_rhs = temp;
+		}
+
 	}
 }

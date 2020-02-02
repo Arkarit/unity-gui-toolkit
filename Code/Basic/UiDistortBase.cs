@@ -76,14 +76,14 @@ namespace GuiToolkit
 
 			if (mirrorHorizontal)
 			{
-				Swap( ref tl, ref tr );
-				Swap( ref bl, ref br );
+				UiMath.Swap( ref tl, ref tr );
+				UiMath.Swap( ref bl, ref br );
 			}
 
 			if (mirrorVertical)
 			{
-				Swap( ref tl, ref bl );
-				Swap( ref tr, ref br );
+				UiMath.Swap( ref tl, ref bl );
+				UiMath.Swap( ref tr, ref br );
 			}
 
 			for (int i = 0; i < _vertexHelper.currentVertCount; ++i)
@@ -119,13 +119,6 @@ namespace GuiToolkit
 		{
 			m_mirrorDirection = _direction;
 			SetDirty();
-		}
-
-		protected void Swap(ref Vector2 a, ref Vector2 b)
-		{
-			Vector2 t = b;
-			b = a;
-			a = t;
 		}
 	}
 
