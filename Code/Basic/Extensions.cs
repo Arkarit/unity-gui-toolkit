@@ -64,6 +64,16 @@ namespace GuiToolkit
 			return new Rect( x,y,w,h );
 		}
 
+		public static Vector2[] GetWorldCorners2D( this Rect _this, RectTransform _rt)
+		{
+			return new Vector2[] {
+				_rt.TransformPoint(_this.BottomLeft()),
+				_rt.TransformPoint(_this.TopLeft()),
+				_rt.TransformPoint(_this.TopRight()),
+				_rt.TransformPoint(_this.BottomRight()),
+			};
+		}
+
 		public static Rect GetWorldRect2D( this RectTransform _this )
 		{
 			return _this.rect.GetWorldRect2D(_this);

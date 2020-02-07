@@ -36,6 +36,8 @@ namespace GuiToolkit
 		protected virtual bool NeedsWorldBoundingBox { get { return false; } }
 		protected virtual void Prepare( Rect _bounding ) {}
 
+		public Rect Bounding {get; protected set;}
+
 		protected override void Awake()
 		{
 			base.Awake();
@@ -50,19 +52,19 @@ namespace GuiToolkit
 
 			_vertexHelper.GetUIVertexStream(s_verts);
 
-			Rect bounding = UiModifierUtil.GetBounds(s_verts);
+			Bounding = UiModifierUtil.GetBounds(s_verts);
 
 			if (NeedsWorldBoundingBox)
 			{
-				Rect worldRect2D = bounding.GetWorldRect2D( m_rectTransform, m_canvas );
+				Rect worldRect2D = Bounding.GetWorldRect2D( m_rectTransform, m_canvas );
 				Prepare( worldRect2D );
 			}
 			else
 			{
-				Prepare( bounding );
+				Prepare( Bounding );
 			}
 
-			Vector2 size = IsAbsolute ? Vector2.one : bounding.size;
+			Vector2 size = IsAbsolute ? Vector2.one : Bounding.size;
 
 			Vector2 tl = m_topLeft * size;
 			Vector2 bl = m_bottomLeft * size;
@@ -90,7 +92,7 @@ namespace GuiToolkit
 			{
 				_vertexHelper.PopulateUIVertex(ref s_vertex, i);
 
-				Vector2 pointNormalized = s_vertex.position.GetNormalizedPointInRect(bounding);
+				Vector2 pointNormalized = s_vertex.position.GetNormalizedPointInRect(Bounding);
 
 				Vector2 pInfluenceTL = new Vector2(1.0f - pointNormalized.x, pointNormalized.y);
 				Vector2 pInfluenceTR = pointNormalized;
@@ -154,10 +156,13 @@ namespace GuiToolkit
 					thisUiDistort.SetDirty();
 			}
 
+			Edit2(thisUiDistort);
+
 			serializedObject.ApplyModifiedProperties();
 		}
 
 		protected abstract void Edit( UiDistortBase _thisUiDistortBase );
+		protected virtual void Edit2( UiDistortBase _thisUiDistortBase ) { }
 
 	}
 #endif
