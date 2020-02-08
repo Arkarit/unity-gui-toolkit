@@ -96,6 +96,9 @@ namespace GuiToolkit
 		public void OnSceneGUI()
 		{
 			UiDistortBase thisUiDistort = (UiDistortBase)target;
+			if (!thisUiDistort.IsActive())
+				return;
+
 			RectTransform rt = (RectTransform) thisUiDistort.transform;
 
 			// Avoid div/0
