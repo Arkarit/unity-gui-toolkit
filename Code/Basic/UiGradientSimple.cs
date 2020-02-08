@@ -8,16 +8,22 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public class UiGradientSimple : UiGradientBase
 	{
+		protected enum Type
+		{
+			Horizontal,
+			Vertical,
+		}
+
 		[SerializeField]
 		protected Color m_colorLeftOrTop;
 		[SerializeField]
 		protected Color m_colorRightOrBottom;
 		[SerializeField]
-		protected EDirection m_direction;
+		protected Type m_type;
 
 		protected override Color GetColor( Vector2 _normVal )
 		{
-			return Color.Lerp( m_colorLeftOrTop, m_colorRightOrBottom, m_direction == EDirection.Horizontal ? _normVal.x : 1.0f - _normVal.y );
+			return Color.Lerp( m_colorLeftOrTop, m_colorRightOrBottom, m_type == Type.Horizontal ? _normVal.x : 1.0f - _normVal.y );
 		}
 	}
 }

@@ -9,6 +9,15 @@ namespace GuiToolkit
 	{
 		private const float MIN_TESSELATE_SIZE = 1.0f;
 
+		public const int QUAD_BL_IDX_OFFSET = 0;
+		public const int QUAD_TL_IDX_OFFSET = 1;
+		public const int QUAD_TR_IDX_OFFSET = 2;
+		public const int QUAD_BR_IDX_OFFSET = 4;
+		public const int CORNERS_BL_IDX = 0;
+		public const int CORNERS_TL_IDX = 1;
+		public const int CORNERS_TR_IDX = 2;
+		public const int CORNERS_BR_IDX = 3;
+
 		private static readonly List<float> s_zeroOneList = new List<float>() {0.0f, 1.0f};
 		private static readonly List<UIVertex> s_oldVerts = new List<UIVertex>();
 		private static readonly List<UIVertex> s_newVerts = new List<UIVertex>();
@@ -27,10 +36,10 @@ namespace GuiToolkit
 			bool hasZeroQuad = false;
 			for (int i=0; i<count; i += 6)
 			{
-				UIVertex bl = s_oldVerts[i];
-				UIVertex tl = s_oldVerts[i + 1];
-				UIVertex tr = s_oldVerts[i + 2];
-				UIVertex br = s_oldVerts[i + 4];
+				UIVertex bl = s_oldVerts[i + QUAD_BL_IDX_OFFSET];
+				UIVertex tl = s_oldVerts[i + QUAD_TL_IDX_OFFSET];
+				UIVertex tr = s_oldVerts[i + QUAD_TR_IDX_OFFSET];
+				UIVertex br = s_oldVerts[i + QUAD_BR_IDX_OFFSET];
 				if (IsZeroQuad(ref bl, ref tl, ref tr, ref br))
 				{
 					hasZeroQuad = true;
@@ -43,10 +52,10 @@ namespace GuiToolkit
 
 			for (int i=0; i<count; i += 6)
 			{
-				UIVertex bl = s_oldVerts[i];
-				UIVertex tl = s_oldVerts[i + 1];
-				UIVertex tr = s_oldVerts[i + 2];
-				UIVertex br = s_oldVerts[i + 4];
+				UIVertex bl = s_oldVerts[i + QUAD_BL_IDX_OFFSET];
+				UIVertex tl = s_oldVerts[i + QUAD_TL_IDX_OFFSET];
+				UIVertex tr = s_oldVerts[i + QUAD_TR_IDX_OFFSET];
+				UIVertex br = s_oldVerts[i + QUAD_BR_IDX_OFFSET];
 
 				if (!IsZeroQuad(ref bl, ref tl, ref tr, ref br))
 				{
@@ -71,6 +80,9 @@ namespace GuiToolkit
 			_vertexHelper.Clear();
 			_vertexHelper.AddUIVertexStream(s_newVerts, s_newIndices);
 		}
+
+		// Note that the Tessellate() and Subdivide() functions for now only support regular rectangles.
+		// Any kind of irregular shaped forms give wrong results.
 
 		public static bool Tessellate( VertexHelper _vertexHelper, float _sizeH, float _sizeV )
 		{
@@ -99,13 +111,12 @@ namespace GuiToolkit
 			return true;
 		}
 
-
 		public static bool TessellateQuad( List<UIVertex> _inTriangleList, List<UIVertex> _outVertices, List<int> _outIndices, int _startIdx, float _sizeH, float _sizeV )
 		{
-			UIVertex bl = _inTriangleList[_startIdx];
-			UIVertex tl = _inTriangleList[_startIdx + 1];
-			UIVertex tr = _inTriangleList[_startIdx + 2];
-			UIVertex br = _inTriangleList[_startIdx + 4];
+			UIVertex bl = _inTriangleList[_startIdx + QUAD_BL_IDX_OFFSET];
+			UIVertex tl = _inTriangleList[_startIdx + QUAD_TL_IDX_OFFSET];
+			UIVertex tr = _inTriangleList[_startIdx + QUAD_TR_IDX_OFFSET];
+			UIVertex br = _inTriangleList[_startIdx + QUAD_BR_IDX_OFFSET];
 
 			if (!IsQuadValid(ref bl, ref tl, ref tr, ref br))
 			{
@@ -228,10 +239,10 @@ namespace GuiToolkit
 
 		public static bool SubdivideQuad( List<UIVertex> _inTriangleList, List<UIVertex> _outVertices, List<int> _outIndices, int _startIdx, Rect _minMaxRect, List<float> _normalizedSplitsH, List<float> _normalizedSplitsV )
 		{
-			UIVertex bl = _inTriangleList[_startIdx];
-			UIVertex tl = _inTriangleList[_startIdx + 1];
-			UIVertex tr = _inTriangleList[_startIdx + 2];
-			UIVertex br = _inTriangleList[_startIdx + 4];
+			UIVertex bl = _inTriangleList[_startIdx + QUAD_BL_IDX_OFFSET];
+			UIVertex tl = _inTriangleList[_startIdx + QUAD_TL_IDX_OFFSET];
+			UIVertex tr = _inTriangleList[_startIdx + QUAD_TR_IDX_OFFSET];
+			UIVertex br = _inTriangleList[_startIdx + QUAD_BR_IDX_OFFSET];
 
 			if (!IsQuadValid(ref bl, ref tl, ref tr, ref br))
 				return false;
@@ -295,8 +306,8 @@ namespace GuiToolkit
 			int numVertices = _inTriangleList.Count;
 			for (int i=0; i<numVertices; i+= 6)
 			{
-				UIVertex bl = _inTriangleList[i];
-				UIVertex tr = _inTriangleList[i + 2];
+				UIVertex bl = _inTriangleList[i + QUAD_BL_IDX_OFFSET];
+				UIVertex tr = _inTriangleList[i + QUAD_TR_IDX_OFFSET];
 				if (bl.position.x < xMin)
 					xMin = bl.position.x;
 				if (bl.position.y < yMin)
@@ -317,8 +328,8 @@ namespace GuiToolkit
 
 		public static Rect GetRect( List<UIVertex> _inTriangleList, int _startIdx )
 		{
-			UIVertex bl = _inTriangleList[_startIdx];
-			UIVertex tr = _inTriangleList[_startIdx + 2];
+			UIVertex bl = _inTriangleList[_startIdx + QUAD_BL_IDX_OFFSET];
+			UIVertex tr = _inTriangleList[_startIdx + QUAD_TR_IDX_OFFSET];
 			Rect result = new Rect();
 			result.xMin = bl.position.x;
 			result.yMin = bl.position.y;
@@ -329,8 +340,8 @@ namespace GuiToolkit
 
 		public static Rect GetNormalizedRect( List<UIVertex> _inTriangleList, int _startIdx, Rect _minMaxRect )
 		{
-			UIVertex bl = _inTriangleList[_startIdx];
-			UIVertex tr = _inTriangleList[_startIdx + 2];
+			UIVertex bl = _inTriangleList[_startIdx + QUAD_BL_IDX_OFFSET];
+			UIVertex tr = _inTriangleList[_startIdx + QUAD_TR_IDX_OFFSET];
 
 			float xMin = (bl.position.x - _minMaxRect.xMin) / _minMaxRect.width;
 			float yMin = (bl.position.y - _minMaxRect.yMin) / _minMaxRect.height;
@@ -349,8 +360,6 @@ namespace GuiToolkit
 		{
 			return new Vector2((_this.x - _rt.x) / _rt.width, (_this.y-_rt.y) / _rt.height);
 		}
-
-
 
 		private static void GetNormalizedSplits( Rect _nrmRect, List<float> _inAllNrmSplitsH, List<float> _inAllNrmSplitsV, List<float> _outNrmSplitsH, List<float> _outNrmSplitsV )
 		{
