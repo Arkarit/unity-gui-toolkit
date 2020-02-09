@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -31,7 +32,10 @@ namespace GuiToolkit
 
 		protected override void Edit( UiDistortBase thisUiDistort )
 		{
+			bool isAbsolute = m_absoluteValuesProp.boolValue;
 			EditorGUILayout.PropertyField(m_absoluteValuesProp);
+			if (isAbsolute != m_absoluteValuesProp.boolValue)
+				ChangeAbsRel(thisUiDistort, m_absoluteValuesProp.boolValue);
 
 			float oldLabelWidth = EditorGUIUtility.labelWidth;
 			EditorGUIUtility.labelWidth = 100;
@@ -47,6 +51,16 @@ namespace GuiToolkit
 			EditorGUILayout.EndHorizontal();
 
 			EditorGUIUtility.labelWidth = oldLabelWidth;
+		}
+
+		private void ChangeAbsRel( UiDistortBase _uiDistort, bool _isAbsolute )
+		{
+			Rect bounds = _uiDistort.Bounding;
+			Vector2 fac = new Vector2( _isAbsolute ? bounds.width : 1.0f / bounds.width, _isAbsolute ? bounds.height : 1.0f / bounds.height);
+			m_bottomLeftProp.vector2Value *= fac;
+			m_topLeftProp.vector2Value *= fac;
+			m_topRightProp.vector2Value *= fac;
+			m_bottomRightProp.vector2Value *= fac;
 		}
 
 		protected override void Edit2( UiDistortBase thisUiDistort )

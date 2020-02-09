@@ -262,10 +262,6 @@ namespace GuiToolkit
 			int[] lastTl = new int[numH];
 			int[] lastTr = new int[numH];
 			int[] lastBr = new int[numH];
-			int ibl;
-			int itl;
-			int itr;
-			int ibr;
 
 			for (int iY = 0; iY < numV-1; iY++)
 			{
