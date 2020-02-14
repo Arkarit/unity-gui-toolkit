@@ -23,15 +23,17 @@ namespace GuiToolkit
 	/// TextMeshProUGUI.GenerateTextMesh(), which tries to set the vertices without previously adjusting the triangles, which fails if the topology
 	/// has changed.
 	/// </summary>
+
+	[RequireComponent(typeof(RectTransform))]
 	public abstract class BaseMeshEffectTMP : BaseMeshEffect
 	{
 		static private readonly List<TMP_SubMeshUI> s_subMeshUIs = new List<TMP_SubMeshUI>();
 		static private readonly List<Mesh> s_meshes = new List<Mesh>();
 
-		private TMP_Text m_textMeshPro;
-		private CanvasRenderer m_canvasRenderer;
-		private RectTransform m_rectTransform;
-		private Graphic m_graphic;
+		protected RectTransform m_rectTransform;
+		protected TMP_Text m_textMeshPro;
+		protected CanvasRenderer m_canvasRenderer;
+		protected Graphic m_graphic;
 
 		private bool m_anyTopologyChangingMod;
 		private bool m_TMPCallbackInstalled;
@@ -131,9 +133,9 @@ namespace GuiToolkit
 		{
 			base.Awake();
 
+			m_rectTransform = GetComponent<RectTransform>();
 			m_graphic = GetComponent<Graphic>();
 			m_canvasRenderer = GetComponent<CanvasRenderer>();
-			m_rectTransform = GetComponent<RectTransform>();
 			m_textMeshPro = GetComponent<TMP_Text>();
 		}
 

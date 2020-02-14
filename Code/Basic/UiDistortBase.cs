@@ -30,7 +30,6 @@ namespace GuiToolkit
 		protected static readonly List<UIVertex> s_verts = new List<UIVertex>();
 		protected static UIVertex s_vertex;
 		protected Canvas m_canvas;
-		protected RectTransform m_rectTransform;
 
 		protected virtual bool IsAbsolute { get { return false; } }
 		protected virtual bool NeedsWorldBoundingBox { get { return false; } }
@@ -42,7 +41,6 @@ namespace GuiToolkit
 		{
 			base.Awake();
 			m_canvas = GetComponentInParent<Canvas>();
-			m_rectTransform = (RectTransform) transform;
 		}
 
 		public override void ModifyMesh( VertexHelper _vertexHelper )
