@@ -472,6 +472,47 @@ namespace GuiToolkit
 			return (_n & (_n - 1)) != 0;
 		}
 
+		public static bool DoHandle( SerializedProperty _serProp, Vector3 _rectPoint, Vector2 _rectSize, RectTransform _rt, bool _mirrorHorizontal = false, bool _mirrorVertical = false, float _handleSize = 0.08f )
+		{
+			Vector2 v = _serProp.vector2Value;
+			bool result = DoHandle(ref v, _rectPoint, _rectSize, _rt, _mirrorHorizontal, _mirrorVertical, _handleSize);
+			_serProp.vector2Value = v;
+			return result;
+		}
+
+		public static bool DoHandle( ref Vector2 _point, Vector3 _rectPoint, Vector2 _rectSize, RectTransform _rt, bool _mirrorHorizontal = false, bool _mirrorVertical = false, float _handleSize = 0.08f )
+		{
+			Vector3 normPoint = _point;
+			normPoint.x *= _mirrorHorizontal ? -1 : 1;
+			normPoint.y *= _mirrorVertical ? -1 : 1;
+
+			Vector3 offset = _rt.TransformVector(Vector3.Scale(normPoint, _rectSize));
+			Vector3 point = _rectPoint + offset;
+
+			float handleSize = _handleSize * HandleUtility.GetHandleSize(Vector3.zero);
+
+			Handles.DotHandleCap(0, point, Quaternion.identity, handleSize, EventType.Repaint);
+			Vector3 oldLeft = point;
+			Vector3 newLeft = Handles.FreeMoveHandle(oldLeft, Quaternion.identity, handleSize, Vector3.zero, Handles.DotHandleCap);
+			if (oldLeft != newLeft)
+			{
+				// Move offset in screen space
+				Vector3 moveOffset = _rt.TransformVector(newLeft-oldLeft);
+
+				// Bring it to the space of the rect transform
+				moveOffset = _rt.InverseTransformVector(moveOffset);
+
+				// apply mirror
+				moveOffset.x *= _mirrorHorizontal ? -1 : 1;
+				moveOffset.y *= _mirrorVertical ? -1 : 1;
+
+				_point += moveOffset.Xy() / _rectSize;
+
+				return true;
+			}
+			return false;
+		}
+
 		private static bool ValidateListAndIndex( SerializedProperty _list, int _idx )
 		{
 			if (!ValidateList(_list))

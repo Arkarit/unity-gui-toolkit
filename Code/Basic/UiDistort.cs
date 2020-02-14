@@ -74,39 +74,6 @@ namespace GuiToolkit
 			}
 		}
 
-		private bool DoHandle( SerializedProperty _serProp, Vector3 _rectPoint, Vector2 _rectSize, bool _mirrorHorizontal, bool _mirrorVertical, RectTransform _rt )
-		{
-			Vector3 normPoint = _serProp.vector2Value;
-			normPoint.x *= _mirrorHorizontal ? -1 : 1;
-			normPoint.y *= _mirrorVertical ? -1 : 1;
-
-			Vector3 offset = _rt.TransformVector(Vector3.Scale(normPoint, _rectSize));
-			Vector3 point = _rectPoint + offset;
-
-			float handleSize = HANDLE_SIZE * HandleUtility.GetHandleSize(Vector3.zero);
-
-			Handles.DotHandleCap(0, point, Quaternion.identity, handleSize, EventType.Repaint);
-			Vector3 oldLeft = point;
-			Vector3 newLeft = Handles.FreeMoveHandle(oldLeft, Quaternion.identity, handleSize, Vector3.zero, Handles.DotHandleCap);
-			if (oldLeft != newLeft)
-			{
-				// Move offset in screen space
-				Vector3 moveOffset = _rt.TransformVector(newLeft-oldLeft);
-
-				// Bring it to the space of the rect transform
-				moveOffset = _rt.InverseTransformVector(moveOffset);
-
-				// apply mirror
-				moveOffset.x *= _mirrorHorizontal ? -1 : 1;
-				moveOffset.y *= _mirrorVertical ? -1 : 1;
-
-				_serProp.vector2Value += moveOffset.Xy() / _rectSize;
-
-				return true;
-			}
-			return false;
-		}
-
 		public void OnSceneGUI()
 		{
 			UiDistortBase thisUiDistort = (UiDistortBase)target;
@@ -148,10 +115,10 @@ namespace GuiToolkit
 			Vector2 size = isAbsolute ? bounding.size / rt.rect.size : bounding.size;
 
 			bool hasChanged = false;
-			hasChanged |= DoHandle( blprop, corners[0], size, mirrorHorizontal, mirrorVertical, rt );
-			hasChanged |= DoHandle( tlprop, corners[1], size, mirrorHorizontal, mirrorVertical, rt );
-			hasChanged |= DoHandle( trprop, corners[2], size, mirrorHorizontal, mirrorVertical, rt );
-			hasChanged |= DoHandle( brprop, corners[3], size, mirrorHorizontal, mirrorVertical, rt );
+			hasChanged |= UiEditorUtility.DoHandle( blprop, corners[0], size, rt, mirrorHorizontal, mirrorVertical, HANDLE_SIZE );
+			hasChanged |= UiEditorUtility.DoHandle( tlprop, corners[1], size, rt, mirrorHorizontal, mirrorVertical, HANDLE_SIZE );
+			hasChanged |= UiEditorUtility.DoHandle( trprop, corners[2], size, rt, mirrorHorizontal, mirrorVertical, HANDLE_SIZE );
+			hasChanged |= UiEditorUtility.DoHandle( brprop, corners[3], size, rt, mirrorHorizontal, mirrorVertical, HANDLE_SIZE );
 
 			if (hasChanged)
 			{
