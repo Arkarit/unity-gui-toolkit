@@ -74,7 +74,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public void OnSceneGUI()
+		protected virtual void OnSceneGUI()
 		{
 			UiDistortBase thisUiDistort = (UiDistortBase)target;
 			if (!thisUiDistort.IsActive())
