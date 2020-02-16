@@ -108,64 +108,38 @@ namespace GuiToolkit
 			if (_oneMinusY)
 				_normP.y = 1.0f - _normP.y;
 
-			if (_numY == 2)
+			Vector2[] xPoints = Interpolate(_points, _numX, _numY, _normP.x);
+			Vector2[] tResult = Interpolate(xPoints, _numY, 1, _normP.y);
+			return tResult[0];
+		}
+
+		private static Vector2[] Interpolate(Vector2[] _points, int _numX, int _numY, float _norm)
+		{
+			Vector2[] result = new Vector2[_numY];
+
+			for (int iY=0; iY<_numY; iY++)
 			{
-				if (_numX == 2)
-				{
-					return Lerp4P(_points[0], _points[1], _points[2], _points[3], _normP);
-				}
+				int xkOffset = GetKernelOffset(_numX, _norm);
+				int ip = iY * _numX + xkOffset;
 
-				if (_numX == 3)
+				switch( _numX)
 				{
-					Vector2[] pts = new Vector2[2];
-					for (int i=0; i<2; i++)
-						pts[i] = Bezier(_points[i*3], _points[i*3+1], _points[i*3+2], _normP.x);
-					return Vector2.Lerp(pts[0], pts[1], _normP.y);
-				}
-
-				{
-					int xkOffset = GetKernelOffset(_numX, _normP.x);
-					Vector2[] pts = new Vector2[2];
-					for (int i=0; i<2; i++)
-					{
-						int ip = i * _numX + xkOffset;
-						pts[i] = Bezier(_points[ip], _points[ip+1], _points[ip+2], _points[ip+3], _normP.x);
-					}
-					return Vector2.Lerp(pts[0], pts[1], _normP.y);
+					case 1:
+						result[iY] = _points[ip];
+						break;
+					case 2:
+						result[iY] = Vector2.Lerp(_points[ip], _points[ip+1], _norm);
+						break;
+					case 3:
+						result[iY] = Bezier(_points[ip], _points[ip+1], _points[ip+2], _norm);
+						break;
+					default:
+						result[iY] = Bezier(_points[ip], _points[ip+1], _points[ip+2], _points[ip+3], _norm);
+						break;
 				}
 			}
 
-			if (_numY == 3)
-			{
-				if (_numX == 2)
-				{
-					Vector2[] pts = new Vector2[2];
-					for (int i=0; i<2; i++)
-						pts[i] = Bezier(_points[i], _points[i+2], _points[i+4], _normP.y);
-					return Vector2.Lerp(pts[0], pts[1], _normP.x);
-				}
-
-				if (_numX == 3)
-				{
-					Vector2[] pts = new Vector2[3];
-					for (int i=0; i<3; i++)
-						pts[i] = Bezier(_points[i*3], _points[i*3+1], _points[i*3+2], _normP.x);
-					return Bezier(pts[0], pts[1], pts[2], _normP.y);
-				}
-
-				{
-					int xkOffset = GetKernelOffset(_numX, _normP.x);
-					Vector2[] pts = new Vector2[3];
-					for (int i=0; i<3; i++)
-					{
-						int ip = i * _numX + xkOffset;
-						pts[i] = Bezier(_points[ip], _points[ip+1], _points[ip+2], _points[ip+3], _normP.x);
-					}
-					return Bezier(pts[0], pts[1], pts[2], _normP.y);
-				}
-			}
-
-			return Vector2.zero;
+			return result;
 		}
 
 		private static int GetKernelOffset(int _size, float _normValue)
