@@ -88,6 +88,8 @@ namespace GuiToolkit
 		protected SerializedProperty m_pointsProp;
 		protected SerializedProperty m_absoluteValuesProp;
 
+		static private bool m_toolsVisible;
+
 		public virtual void OnEnable()
 		{
 			m_pointsHorizontalProp = serializedObject.FindProperty("m_pointsHorizontal");
@@ -110,10 +112,51 @@ namespace GuiToolkit
 			int arrayLength = numHorizontal * numVertical;
 			m_pointsProp.arraySize = arrayLength;
 
-			if (GUILayout.Button("Reset"))
+			m_toolsVisible = EditorGUILayout.Foldout(m_toolsVisible, "Tools");
+
+			if (m_toolsVisible)
 			{
-				for (int i=0; i<arrayLength; i++)
-					m_pointsProp.GetArrayElementAtIndex(i).vector2Value = Vector2.zero;
+				EditorGUILayout.BeginHorizontal();
+				GUILayout.Label("Copy");
+				if (GUILayout.Button("Top > Bot"))
+				{
+				}
+				if (GUILayout.Button("Bot > Top"))
+				{
+				}
+				if (GUILayout.Button("L > R"))
+				{
+				}
+				if (GUILayout.Button("R > L"))
+				{
+				}
+				EditorGUILayout.EndHorizontal();
+
+				EditorGUILayout.BeginHorizontal();
+				GUILayout.Label("Mirror");
+				if (GUILayout.Button("Top > Bot"))
+				{
+				}
+				if (GUILayout.Button("Bot > Top"))
+				{
+				}
+				if (GUILayout.Button("L > R"))
+				{
+				}
+				if (GUILayout.Button("R > L"))
+				{
+				}
+				EditorGUILayout.EndHorizontal();
+
+				EditorGUILayout.BeginHorizontal();
+				GUILayout.Label("Reset");
+				if (GUILayout.Button("Reset"))
+				{
+					for (int i=0; i<arrayLength; i++)
+						m_pointsProp.GetArrayElementAtIndex(i).vector2Value = Vector2.zero;
+				}
+				EditorGUILayout.EndHorizontal();
+
 			}
 
 			serializedObject.ApplyModifiedProperties();
