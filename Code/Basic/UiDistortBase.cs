@@ -91,7 +91,7 @@ namespace GuiToolkit
 				_vertexHelper.PopulateUIVertex(ref s_vertex, i);
 
 				Vector2 pointNormalized = s_vertex.position.GetNormalizedPointInRect(Bounding);
-				Vector2 point = s_vertex.position.Xy() + UiMath.Lerp4P(tl, tr, bl, br, pointNormalized) * mirrorVec;
+				Vector2 point = s_vertex.position.Xy() + UiMath.Lerp4P(tl, tr, bl, br, pointNormalized, false, true) * mirrorVec;
 				s_vertex.position = new Vector3(point.x, point.y, s_vertex.position.z);
 
 				_vertexHelper.SetUIVertex(s_vertex, i);

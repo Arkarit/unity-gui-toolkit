@@ -59,7 +59,19 @@ namespace GuiToolkit
 		public static Vector2 Lerp4P( Vector2 _tl, Vector2 _tr, Vector2 _bl, Vector2 _br, Vector2 _normP)
 		{
 			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
-			return Vector2.Lerp(Vector2.Lerp(_tl, _tr, _normP.x), Vector2.Lerp(_bl, _br, _normP.x), 1.0f - _normP.y );
+			return Vector2.Lerp(Vector2.Lerp(_tl, _tr, _normP.x), Vector2.Lerp(_bl, _br, _normP.x), _normP.y );
+		}
+
+		public static Vector2 Lerp4P( Vector2 _tl, Vector2 _tr, Vector2 _bl, Vector2 _br, Vector2 _normP, bool _oneMinusX, bool _oneMinusY)
+		{
+			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
+
+			if (_oneMinusX)
+				_normP.x = 1.0f - _normP.x;
+			if (_oneMinusY)
+				_normP.y = 1.0f - _normP.y;
+
+			return Vector2.Lerp(Vector2.Lerp(_tl, _tr, _normP.x), Vector2.Lerp(_bl, _br, _normP.x), _normP.y );
 		}
 
 		public static Vector2 Lerp4P( Vector2[] _points, Vector2 _normP)
@@ -79,8 +91,13 @@ namespace GuiToolkit
 				_normP * _normP * _p2;
 		}
 
-		public static Vector2 InterpPoint( Vector2[] _points, int _numX, int _numY, Vector2 _normP)
+		public static Vector2 InterpPoint( Vector2[] _points, int _numX, int _numY, Vector2 _normP, bool _oneMinusX, bool _oneMinusY)
 		{
+			if (_oneMinusX)
+				_normP.x = 1.0f - _normP.x;
+			if (_oneMinusY)
+				_normP.y = 1.0f - _normP.y;
+
 			if (_numY == 2)
 			{
 				if (_numX == 2)

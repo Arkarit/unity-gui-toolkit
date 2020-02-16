@@ -54,7 +54,7 @@ namespace GuiToolkit
 				_vertexHelper.PopulateUIVertex(ref s_vertex, i);
 
 				Vector2 pointNormalized = s_vertex.position.GetNormalizedPointInRect(Bounding);
-				Vector2 point = s_vertex.position.Xy() + UiMath.InterpPoint(m_points, m_pointsHorizontal, m_pointsVertical, pointNormalized) * Bounding.size;
+				Vector2 point = s_vertex.position.Xy() + UiMath.InterpPoint(m_points, m_pointsHorizontal, m_pointsVertical, pointNormalized, false, true) * Bounding.size;
 				s_vertex.position = new Vector3(point.x, point.y, s_vertex.position.z);
 
 				_vertexHelper.SetUIVertex(s_vertex, i);
