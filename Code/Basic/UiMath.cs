@@ -62,6 +62,13 @@ namespace GuiToolkit
 			return Vector2.Lerp(Vector2.Lerp(_tl, _tr, _normP.x), Vector2.Lerp(_bl, _br, _normP.x), 1.0f - _normP.y );
 		}
 
+		public static Vector2 Lerp4P( Vector2[] _points, Vector2 _normP)
+		{
+			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
+			Debug.Assert(_points.Length == 4, "Lerp4P needs 4 points bl, tl, tr, br");
+			return Lerp4P(_points[1], _points[2], _points[0], _points[3], _normP);
+		}
+
 		public static Vector2 Bezier( Vector2 _p0, Vector2 _p1, Vector2 _p2, float _normP )
 		{
 			Debug.Assert(_normP >= 0 && _normP <= 1, "_normP needs to be normalized");
@@ -70,6 +77,27 @@ namespace GuiToolkit
 				oneMinusNormP * oneMinusNormP * _p0 +
 				2f * oneMinusNormP * _normP * _p1 +
 				_normP * _normP * _p2;
+		}
+
+		public static Vector2 InterpPoint( Vector2[] _points, int _numX, int _numY, Vector2 _normP)
+		{
+			if (_numY == 2)
+			{
+				if (_numX == 2)
+				{
+					return Lerp4P(_points[0], _points[1], _points[2], _points[3], _normP);
+				}
+
+				if (_numX == 3)
+				{
+					Vector2[] pts = new Vector2[2];
+					for (int i=0; i<2; i++)
+						pts[i] = Bezier(_points[i*3], _points[i*3+1], _points[i*3+2], _normP.x);
+					return Vector2.Lerp(pts[0], pts[1], _normP.y);
+				}
+			}
+
+			return Vector2.zero;
 		}
 
 	}
