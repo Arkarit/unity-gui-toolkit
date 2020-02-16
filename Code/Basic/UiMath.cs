@@ -56,5 +56,21 @@ namespace GuiToolkit
 			_rhs = temp;
 		}
 
+		public static Vector2 Lerp4P( Vector2 _tl, Vector2 _tr, Vector2 _bl, Vector2 _br, Vector2 _normP)
+		{
+			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
+			return Vector2.Lerp(Vector2.Lerp(_tl, _tr, _normP.x), Vector2.Lerp(_bl, _br, _normP.x), 1.0f - _normP.y );
+		}
+
+		public static Vector2 Bezier( Vector2 _p0, Vector2 _p1, Vector2 _p2, float _normP )
+		{
+			Debug.Assert(_normP >= 0 && _normP <= 1, "_normP needs to be normalized");
+			float oneMinusNormP = 1f - _normP;
+			return
+				oneMinusNormP * oneMinusNormP * _p0 +
+				2f * oneMinusNormP * _normP * _p1 +
+				_normP * _normP * _p2;
+		}
+
 	}
 }

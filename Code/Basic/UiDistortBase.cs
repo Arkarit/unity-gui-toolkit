@@ -91,24 +91,7 @@ namespace GuiToolkit
 				_vertexHelper.PopulateUIVertex(ref s_vertex, i);
 
 				Vector2 pointNormalized = s_vertex.position.GetNormalizedPointInRect(Bounding);
-
-				Vector2 pInfluenceTL = new Vector2(1.0f - pointNormalized.x, pointNormalized.y);
-				Vector2 pInfluenceTR = pointNormalized;
-				Vector2 pInfluenceBL = new Vector2(1.0f - pointNormalized.x, 1.0f - pointNormalized.y);
-				Vector2 pInfluenceBR = new Vector2(pointNormalized.x, 1.0f - pointNormalized.y);
-
-				float influenceTL = pInfluenceTL.x * pInfluenceTL.y;
-				float influenceTR = pInfluenceTR.x * pInfluenceTR.y;
-				float influenceBL = pInfluenceBL.x * pInfluenceBL.y;
-				float influenceBR = pInfluenceBR.x * pInfluenceBR.y;
-
-				Vector2 point = s_vertex.position.Xy();
-				point += 
-					  tl * influenceTL * mirrorVec
-					+ tr * influenceTR * mirrorVec
-					+ bl * influenceBL * mirrorVec
-					+ br * influenceBR * mirrorVec;
-
+				Vector2 point = s_vertex.position.Xy() + UiMath.Lerp4P(tl, tr, bl, br, pointNormalized) * mirrorVec;
 				s_vertex.position = new Vector3(point.x, point.y, s_vertex.position.z);
 
 				_vertexHelper.SetUIVertex(s_vertex, i);

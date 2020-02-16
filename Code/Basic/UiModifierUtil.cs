@@ -357,6 +357,27 @@ namespace GuiToolkit
 			return new Vector2((_this.x - _rt.x) / _rt.width, (_this.y-_rt.y) / _rt.height);
 		}
 
+		public static Vector2 GetNormalizedPointInRect( this Vector2 _this, Rect _rt, bool _oneMinusX, bool _oneMinusY)
+		{
+			Vector2 result = new Vector2(_this.x / _rt.width, _this.y / _rt.height);
+			if (_oneMinusX)
+				result.x = 1.0f - result.x;
+			if (_oneMinusY)
+				result.y = 1.0f - result.y;
+			return result;
+		}
+
+		public static Vector2 GetNormalizedPointInRect( this Vector3 _this, Rect _rt, bool _oneMinusX, bool _oneMinusY)
+		{
+			Vector2 result = new Vector2((_this.x - _rt.x) / _rt.width, (_this.y-_rt.y) / _rt.height);
+			if (_oneMinusX)
+				result.x = 1.0f - result.x;
+			if (_oneMinusY)
+				result.y = 1.0f - result.y;
+			return result;
+		}
+
+
 		private static void GetNormalizedSplits( Rect _nrmRect, List<float> _inAllNrmSplitsH, List<float> _inAllNrmSplitsV, List<float> _outNrmSplitsH, List<float> _outNrmSplitsV )
 		{
 			_outNrmSplitsH.Add(0);
