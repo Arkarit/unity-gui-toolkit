@@ -119,8 +119,7 @@ namespace GuiToolkit
 
 			for (int iY=0; iY<_numY; iY++)
 			{
-				int xkOffset = GetKernelOffset(_numX, _norm);
-				int ip = iY * _numX + xkOffset;
+				int ip = iY * _numX;
 
 				switch( _numX)
 				{
@@ -133,8 +132,12 @@ namespace GuiToolkit
 					case 3:
 						result[iY] = Bezier(_points[ip], _points[ip+1], _points[ip+2], _norm);
 						break;
-					default:
+					case 4:
 						result[iY] = Bezier(_points[ip], _points[ip+1], _points[ip+2], _points[ip+3], _norm);
+						break;
+					default:
+						Debug.Assert(false, "Not implemented");
+						result[iY] = Vector2.zero;
 						break;
 				}
 			}
@@ -142,10 +145,6 @@ namespace GuiToolkit
 			return result;
 		}
 
-		private static int GetKernelOffset(int _size, float _normValue)
-		{
-			return 0;
-		}
 
 	}
 }
