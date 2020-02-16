@@ -91,6 +91,16 @@ namespace GuiToolkit
 				_normP * _normP * _p2;
 		}
 
+		public static Vector2 Bezier (Vector2 _p0, Vector2 _p1, Vector2 _p2, Vector2 _p3, float _normP) {
+			Debug.Assert(_normP >= 0 && _normP <= 1, "_normP needs to be normalized");
+			float OneMinusT = 1f - _normP;
+			return
+				OneMinusT * OneMinusT * OneMinusT * _p0 +
+				3f * OneMinusT * OneMinusT * _normP * _p1 +
+				3f * OneMinusT * _normP * _normP * _p2 +
+				_normP * _normP * _normP * _p3;
+		}
+
 		public static Vector2 InterpPoint( Vector2[] _points, int _numX, int _numY, Vector2 _normP, bool _oneMinusX, bool _oneMinusY)
 		{
 			if (_oneMinusX)
@@ -110,6 +120,17 @@ namespace GuiToolkit
 					Vector2[] pts = new Vector2[2];
 					for (int i=0; i<2; i++)
 						pts[i] = Bezier(_points[i*3], _points[i*3+1], _points[i*3+2], _normP.x);
+					return Vector2.Lerp(pts[0], pts[1], _normP.y);
+				}
+
+				{
+					int xkOffset = GetKernelOffset(_numX, _normP.x);
+					Vector2[] pts = new Vector2[2];
+					for (int i=0; i<2; i++)
+					{
+						int ip = i * _numX + xkOffset;
+						pts[i] = Bezier(_points[ip], _points[ip+1], _points[ip+2], _points[ip+3], _normP.x);
+					}
 					return Vector2.Lerp(pts[0], pts[1], _normP.y);
 				}
 			}
@@ -134,6 +155,11 @@ namespace GuiToolkit
 			}
 
 			return Vector2.zero;
+		}
+
+		private static int GetKernelOffset(int _size, float _normValue)
+		{
+			return 0;
 		}
 
 	}
