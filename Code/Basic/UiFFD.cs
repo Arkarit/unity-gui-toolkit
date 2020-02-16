@@ -24,12 +24,6 @@ namespace GuiToolkit
 		[SerializeField]
 		protected bool m_absoluteValues;
 
-		[SerializeField]
-		protected float m_tension = 25;
-
-		[SerializeField]
-		protected float m_continuity = 25;
-
 		private float m1;
 		private float m2;
 
@@ -52,8 +46,6 @@ namespace GuiToolkit
 			if (!IsActive())
 				return;
 
-//			ComputeTension(m_tension, m_continuity, ref m1, ref m2);
-
 			_vertexHelper.GetUIVertexStream(s_verts);
 
 			Bounding = UiModifierUtil.GetBounds(s_verts);
@@ -62,7 +54,7 @@ namespace GuiToolkit
 				_vertexHelper.PopulateUIVertex(ref s_vertex, i);
 
 				Vector2 pointNormalized = s_vertex.position.GetNormalizedPointInRect(Bounding);
-				Vector2 point = s_vertex.position.Xy() + UiMath.InterpPoint(m_points, m_pointsHorizontal, m_pointsVertical, pointNormalized);
+				Vector2 point = s_vertex.position.Xy() + UiMath.InterpPoint(m_points, m_pointsHorizontal, m_pointsVertical, pointNormalized) * Bounding.size;
 				s_vertex.position = new Vector3(point.x, point.y, s_vertex.position.z);
 
 				_vertexHelper.SetUIVertex(s_vertex, i);
@@ -118,6 +110,12 @@ namespace GuiToolkit
 			int arrayLength = numHorizontal * numVertical;
 			m_pointsProp.arraySize = arrayLength;
 
+			if (GUILayout.Button("Reset"))
+			{
+				for (int i=0; i<arrayLength; i++)
+					m_pointsProp.GetArrayElementAtIndex(i).vector2Value = Vector2.zero;
+			}
+
 			serializedObject.ApplyModifiedProperties();
 		}
 
@@ -150,7 +148,7 @@ namespace GuiToolkit
 					int arrayIdx = iy * thisUiFFD.PointsHorizontal + ix;
 					Vector2 normCorners = new Vector2(ix * xStep, iy * yStep);
 					Vector2 tp = UiMath.Lerp4P(corners, normCorners);
-					hasChanged |= UiEditorUtility.DoHandle( m_pointsProp.GetArrayElementAtIndex(arrayIdx), tp, thisUiFFD.Bounding.size, rt ); 
+					hasChanged |= UiEditorUtility.DoHandle( m_pointsProp.GetArrayElementAtIndex(arrayIdx), tp, size, rt ); 
 				}
 			}
 
