@@ -143,8 +143,13 @@ namespace GuiToolkit
 			float yStep = 1.0f / (thisUiFFD.PointsVertical - 1);
 			for (int iy=0; iy<thisUiFFD.PointsVertical; iy++)
 			{
+				bool isYCorner = iy == 0 || iy == thisUiFFD.PointsVertical-1;
+
 				for (int ix=0; ix<thisUiFFD.PointsHorizontal; ix++)
 				{
+					bool isCorner = (ix == 0 || ix == thisUiFFD.PointsHorizontal-1) && isYCorner;
+					Handles.color = isCorner ? Constants.HANDLE_COLOR : Constants.HANDLE_SUPPORTING_COLOR;
+
 					int arrayIdx = iy * thisUiFFD.PointsHorizontal + ix;
 					Vector2 normCorners = new Vector2(ix * xStep, iy * yStep);
 					Vector2 tp = UiMath.Lerp4P(corners, normCorners);

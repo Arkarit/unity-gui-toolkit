@@ -19,7 +19,6 @@ namespace GuiToolkit
 	[CustomEditor(typeof(UiDistort))]
 	public class UiDistortEditor : UiDistortEditorBase
 	{
-		private const float HANDLE_SIZE = 0.08f;
 		protected SerializedProperty m_absoluteValuesProp;
 
 		protected override bool HasMirror { get { return true; } }
@@ -88,7 +87,7 @@ namespace GuiToolkit
 
 			Rect bounding = thisUiDistort.Bounding;
 			Vector2[] corners = thisUiDistort.Bounding.GetWorldCorners2D(rt);
-            Handles.color = Color.yellow;
+            Handles.color = Constants.HANDLE_COLOR;
 
 			SerializedProperty blprop = m_bottomLeftProp;
 			SerializedProperty tlprop = m_topLeftProp;
@@ -115,10 +114,10 @@ namespace GuiToolkit
 			Vector2 size = isAbsolute ? bounding.size / rt.rect.size : bounding.size;
 
 			bool hasChanged = false;
-			hasChanged |= UiEditorUtility.DoHandle( blprop, corners[0], size, rt, mirrorHorizontal, mirrorVertical, HANDLE_SIZE );
-			hasChanged |= UiEditorUtility.DoHandle( tlprop, corners[1], size, rt, mirrorHorizontal, mirrorVertical, HANDLE_SIZE );
-			hasChanged |= UiEditorUtility.DoHandle( trprop, corners[2], size, rt, mirrorHorizontal, mirrorVertical, HANDLE_SIZE );
-			hasChanged |= UiEditorUtility.DoHandle( brprop, corners[3], size, rt, mirrorHorizontal, mirrorVertical, HANDLE_SIZE );
+			hasChanged |= UiEditorUtility.DoHandle( blprop, corners[0], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
+			hasChanged |= UiEditorUtility.DoHandle( tlprop, corners[1], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
+			hasChanged |= UiEditorUtility.DoHandle( trprop, corners[2], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
+			hasChanged |= UiEditorUtility.DoHandle( brprop, corners[3], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
 
 			if (hasChanged)
 			{
