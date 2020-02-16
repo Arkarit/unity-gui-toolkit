@@ -114,6 +114,17 @@ namespace GuiToolkit
 				}
 			}
 
+			if (_numY == 3)
+			{
+				if (_numX == 2)
+				{
+					Vector2[] pts = new Vector2[2];
+					for (int i=0; i<2; i++)
+						pts[i] = Bezier(_points[i], _points[i+2], _points[i+4], _normP.y);
+					return Vector2.Lerp(pts[0], pts[1], _normP.x);
+				}
+			}
+
 			return Vector2.zero;
 		}
 
