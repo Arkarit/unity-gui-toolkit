@@ -152,6 +152,17 @@ namespace GuiToolkit
 						pts[i] = Bezier(_points[i*3], _points[i*3+1], _points[i*3+2], _normP.x);
 					return Bezier(pts[0], pts[1], pts[2], _normP.y);
 				}
+
+				{
+					int xkOffset = GetKernelOffset(_numX, _normP.x);
+					Vector2[] pts = new Vector2[3];
+					for (int i=0; i<3; i++)
+					{
+						int ip = i * _numX + xkOffset;
+						pts[i] = Bezier(_points[ip], _points[ip+1], _points[ip+2], _points[ip+3], _normP.x);
+					}
+					return Bezier(pts[0], pts[1], pts[2], _normP.y);
+				}
 			}
 
 			return Vector2.zero;
