@@ -150,7 +150,13 @@ namespace GuiToolkit
 
 				EditorGUILayout.BeginHorizontal();
 				GUILayout.Label("Reset");
-				if (GUILayout.Button("Reset"))
+				if (GUILayout.Button("Center Points Y"))
+				{
+				}
+				if (GUILayout.Button("Center Points X"))
+				{
+				}
+				if (GUILayout.Button("All"))
 				{
 					for (int i=0; i<arrayLength; i++)
 						m_pointsProp.GetArrayElementAtIndex(i).vector2Value = Vector2.zero;
