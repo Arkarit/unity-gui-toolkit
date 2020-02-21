@@ -472,6 +472,21 @@ namespace GuiToolkit
 			return (_n & (_n - 1)) != 0;
 		}
 
+		public static void DrawLine( SerializedProperty _point0Prop, SerializedProperty _point1Prop, Vector3 _rectPoint0, Vector3 _rectPoint1, Vector2 _rectSize, RectTransform _rt )
+		{
+			DrawLine(_point0Prop.vector2Value, _point1Prop.vector2Value, _rectPoint0, _rectPoint1, _rectSize, _rt);
+		}
+
+		public static void DrawLine( Vector2 _point0, Vector2 _point1, Vector3 _rectPoint0, Vector3 _rectPoint1, Vector2 _rectSize, RectTransform _rt )
+		{
+			Vector3 offset0 = _rt.TransformVector(Vector3.Scale(_point0, _rectSize));
+			Vector3 point0 = _rectPoint0 + offset0;
+			Vector3 offset1 = _rt.TransformVector(Vector3.Scale(_point1, _rectSize));
+			Vector3 point1 = _rectPoint1 + offset1;
+
+			Handles.DrawLine(point0, point1);
+		}
+
 		public static bool DoHandle( SerializedProperty _serProp, Vector3 _rectPoint, Vector2 _rectSize, RectTransform _rt, bool _mirrorHorizontal = false, bool _mirrorVertical = false, float _handleSize = 0.08f )
 		{
 			Vector2 v = _serProp.vector2Value;

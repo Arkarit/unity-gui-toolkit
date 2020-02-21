@@ -212,6 +212,37 @@ namespace GuiToolkit
 				EditorUtility.SetDirty(target);
 			}
 
+			Handles.color = Constants.HANDLE_CAGE_LINE_COLOR;
+
+			for (int iy=0; iy<thisUiFFD.PointsVertical; iy++)
+			{
+				for (int ix=0; ix<thisUiFFD.PointsHorizontal; ix++)
+				{
+					int arrayIdx0 = iy * thisUiFFD.PointsHorizontal + ix;
+					SerializedProperty p0Prop = m_pointsProp.GetArrayElementAtIndex(arrayIdx0);
+					Vector2 normCorners0 = new Vector2(ix * xStep, iy * yStep);
+					Vector2 tp0 = UiMath.Lerp4P(corners, normCorners0);
+
+					if (ix<thisUiFFD.PointsHorizontal-1)
+					{
+						SerializedProperty p1Prop = m_pointsProp.GetArrayElementAtIndex(arrayIdx0+1);
+						Vector2 normCorners1 = new Vector2((ix+1) * xStep, iy * yStep);
+						Vector2 tp1 = UiMath.Lerp4P(corners, normCorners1);
+						UiEditorUtility.DrawLine(p0Prop, p1Prop, tp0, tp1, size, rt);
+					}
+
+					if (iy<thisUiFFD.PointsVertical-1)
+					{
+						int arrayIdx1 = (iy+1) * thisUiFFD.PointsHorizontal + ix;
+						SerializedProperty p1Prop = m_pointsProp.GetArrayElementAtIndex(arrayIdx1);
+						Vector2 normCorners1 = new Vector2(ix * xStep, (iy+1) * yStep);
+						Vector2 tp1 = UiMath.Lerp4P(corners, normCorners1);
+						UiEditorUtility.DrawLine(p0Prop, p1Prop, tp0, tp1, size, rt);
+					}
+
+				}
+			}
+
 		}
 
 	}
