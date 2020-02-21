@@ -11,7 +11,7 @@ namespace GuiToolkit
 	public class UiDistortGroup : MonoBehaviour
 	{
 		[SerializeField]
-		protected EDirection m_direction;
+		protected EDirectionFlags m_direction;
 
 		private readonly List<UiDistortBase> m_elements = new List<UiDistortBase>();
 		private readonly List<UiDistortBase> m_secondaryElements = new List<UiDistortBase>();

@@ -25,7 +25,7 @@ namespace GuiToolkit
 		public Vector2 m_bottomRight = Vector2.zero;
 
 		[SerializeField]
-		protected EDirection m_mirrorDirection;
+		protected EDirectionFlags m_mirrorDirection;
 
 		protected static readonly List<UIVertex> s_verts = new List<UIVertex>();
 		protected static UIVertex s_vertex;
@@ -69,8 +69,8 @@ namespace GuiToolkit
 			Vector2 tr = m_topRight * size;
 			Vector2 br = m_bottomRight * size;
 
-			bool mirrorHorizontal = m_mirrorDirection.IsFlagSet(EDirection.Horizontal);
-			bool mirrorVertical = m_mirrorDirection.IsFlagSet(EDirection.Vertical);
+			bool mirrorHorizontal = m_mirrorDirection.IsFlagSet(EDirectionFlags.Horizontal);
+			bool mirrorVertical = m_mirrorDirection.IsFlagSet(EDirectionFlags.Vertical);
 
 			Vector2 mirrorVec = new Vector2(mirrorHorizontal ? -1 : 1, mirrorVertical ? -1 : 1);
 
@@ -98,7 +98,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public void SetMirror( EDirection _direction )
+		public void SetMirror( EDirectionFlags _direction )
 		{
 			m_mirrorDirection = _direction;
 			SetDirty();
@@ -133,7 +133,7 @@ namespace GuiToolkit
 
 			if (HasMirror)
 			{
-				if (UiEditorUtility.BoolBar<EDirection>(m_mirrorDirectionProp, "Mirror"))
+				if (UiEditorUtility.BoolBar<EDirectionFlags>(m_mirrorDirectionProp, "Mirror"))
 					thisUiDistort.SetDirty();
 			}
 
