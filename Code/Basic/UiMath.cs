@@ -1,9 +1,12 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace GuiToolkit
 {
 	public static class UiMath
 	{
+		private static readonly List<int[]> s_binomialLUT = new List<int[]>();
+
 		// Note: In this implementation, only the absolute necessary values position, color and uv0 are lerped due to performance reasons,
 		public static UIVertex Bilerp( UIVertex _bl, UIVertex _tl, UIVertex _tr, UIVertex _br, float _h, float _v )
 		{
@@ -93,12 +96,62 @@ namespace GuiToolkit
 
 		public static Vector2 Bezier (Vector2 _p0, Vector2 _p1, Vector2 _p2, Vector2 _p3, float _normP) {
 			Debug.Assert(_normP >= 0 && _normP <= 1, "_normP needs to be normalized");
-			float OneMinusT = 1f - _normP;
+			float oneMinusNormP = 1f - _normP;
 			return
-				OneMinusT * OneMinusT * OneMinusT * _p0 +
-				3f * OneMinusT * OneMinusT * _normP * _p1 +
-				3f * OneMinusT * _normP * _normP * _p2 +
+				oneMinusNormP * oneMinusNormP * oneMinusNormP * _p0 +
+				3f * oneMinusNormP * oneMinusNormP * _normP * _p1 +
+				3f * oneMinusNormP * _normP * _normP * _p2 +
 				_normP * _normP * _normP * _p3;
+		}
+
+		private static float Binomial(int _order, int _point)
+		{
+			while( s_binomialLUT.Count <= _order)
+			{
+				int lutCount = s_binomialLUT.Count;
+
+				if (lutCount == 0)
+				{
+					int[] startRow = {1};
+					s_binomialLUT.Add(startRow);
+					continue;
+				}
+
+
+				int[] nextRow = new int[lutCount + 1];
+
+				nextRow[0] = 1;
+
+				for( int i = 1, prev = lutCount-1; i < lutCount; i++ )
+					nextRow[i] = s_binomialLUT[prev][i-1] + s_binomialLUT[prev][i];
+
+				nextRow[lutCount] = 1;
+
+				s_binomialLUT.Add(nextRow);
+			}
+
+			return s_binomialLUT[_order][_point];
+		}
+
+		public static Vector2 Bezier (Vector2[] _points, int _startIdx, int _numPoints, float _normP) {
+			Debug.Assert(_normP >= 0 && _normP <= 1, "_normP needs to be normalized");
+			float oneMinusNormP = 1f - _normP;
+			int npMinusOne = _numPoints - 1;
+
+			Vector2 result = Vector2.zero;
+
+			for (int i=0; i<_numPoints; i++)
+			{
+				float f = Mathf.Pow(oneMinusNormP, npMinusOne-i) * Mathf.Pow(_normP, i) * Binomial(npMinusOne, i);
+				result += _points[_startIdx + i] * f;
+			}
+
+			return result;
+		}
+
+		public static Vector2 Bezier(Vector2[] _points, float _normP)
+		{
+			return Bezier(_points, 0, _points.Length, _normP);
 		}
 
 		public static Vector2 InterpPoint( Vector2[] _points, int _numX, int _numY, Vector2 _normP, bool _oneMinusX, bool _oneMinusY)
@@ -136,8 +189,7 @@ namespace GuiToolkit
 						result[iY] = Bezier(_points[ip], _points[ip+1], _points[ip+2], _points[ip+3], _norm);
 						break;
 					default:
-						Debug.Assert(false, "Not implemented");
-						result[iY] = Vector2.zero;
+						result[iY] = Bezier(_points, ip, _numX, _norm);
 						break;
 				}
 			}

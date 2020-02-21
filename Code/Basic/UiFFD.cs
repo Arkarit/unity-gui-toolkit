@@ -11,11 +11,11 @@ namespace GuiToolkit
 	public class UiFFD : BaseMeshEffectTMP
 	{
 		[SerializeField]
-		[Range(2, 4)]
+		[Range(2, 10)]
 		protected int m_pointsHorizontal = 3;
 
 		[SerializeField]
-		[Range(2, 4)]
+		[Range(2, 10)]
 		protected int m_pointsVertical = 2;
 
 		[SerializeField]
