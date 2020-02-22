@@ -39,8 +39,6 @@ namespace GuiToolkit
 		{
 			UiSimpleAnimationBase thisUiSimpleAnimationBase = (UiSimpleAnimationBase)target;
 
-			EditSubClass();
-
 			GUILayout.Label("Timing:", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(m_durationProp);
 			EditorGUILayout.PropertyField(m_delayProp);
@@ -53,6 +51,10 @@ namespace GuiToolkit
 
 			GUILayout.Label("Slave animations:", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(m_slaveAnimationsProp, true);
+			EditorGUILayout.Space();
+
+			EditSubClass();
+
 			EditorGUILayout.Space();
 
 			DisplayTestFields();

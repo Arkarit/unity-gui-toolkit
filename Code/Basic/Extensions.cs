@@ -8,6 +8,11 @@ namespace GuiToolkit
 {
 	public static class Extensions
 	{
+		public static bool HasFlags<T>( this T _this, T _flags) where T : Enum
+		{
+			return ((int)(object)_this & (int)(object)_flags) != 0;
+		}
+
 		public static IList<T> Clone<T>( this IList<T> _listToClone ) where T : ICloneable
 		{
 			return _listToClone.Select(item => (T)item.Clone()).ToList();
