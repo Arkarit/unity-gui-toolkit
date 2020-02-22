@@ -8,13 +8,30 @@ namespace GuiToolkit
 		protected const int INFINITE_LOOPS = -1;
 
 		// Timing values
+		[Tooltip("Duration of this animation, excluding delay.")]
+		[SerializeField]
 		protected float m_duration = 1;
+
+		[Tooltip("Delay for the beginning of the animation (when played forwards)")]
+		[SerializeField]
 		protected float m_delay = 0;
+
+		[Tooltip("Automatically start the animation as soon as it becomes visible")]
+		[SerializeField]
 		protected bool m_autoStart = false;
+
+		[Tooltip("Set the animation beginning values as it becomes visible, but don't start it")]
+		[SerializeField]
 		protected bool m_setOnStart = true;
+
+		[Tooltip("Number of loops. -1: infinite loops 0: no loops, >0: Arbitrary number of loops")]
+		[SerializeField]
 		protected int m_numberOfLoops = 0;
 
 		// Slave animations
+
+		[Tooltip("Slave animations which are automatically started when this animation is started.")]
+		[SerializeField]
 		protected UiSimpleAnimationBase[] m_slaveAnimations;
 		
 		protected virtual void OnInitAnimate(){}
@@ -24,21 +41,96 @@ namespace GuiToolkit
 		protected virtual void OnLoop(){}
 		protected virtual void OnAnimate(float _normalizedTime){}
 
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private float m_forwardsDelay;
+
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private float m_backwardsDelay;
+
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private float m_completeTime;
+
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private float m_currentTime;
 
+
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_running = false;
+
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_pause = false;
+
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_backwards = false;
+
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_beginAnimateCalled;
+
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_endAnimateCalled;
+
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private int m_currentNumberOfLoops;
 
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_master;
+
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_slave;
 
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_initAnimateDone = false;
 
 		public void Play(bool _backwards = false)
@@ -52,17 +144,20 @@ namespace GuiToolkit
 
 		public void Pause()
 		{
-
+			if (m_running)
+				m_pause = true;
 		}
 
 		public void Resume()
 		{
-
+			m_pause = false;
 		}
 
 		public void Stop()
 		{
-
+			if (!m_running)
+				return;
+			FinishAnimation();
 		}
 
 
@@ -73,7 +168,20 @@ namespace GuiToolkit
 
 		protected virtual void Start()
 		{
-			
+			if (m_slave)
+				return;
+
+			if (m_autoStart)
+			{
+				Play(m_backwards);
+				return;
+			}
+
+			if (m_setOnStart)
+			{
+				InitAnimateIfNecessary();
+				OnAnimate(m_backwards ? 1 : 0);
+			}
 		}
 
 		protected virtual void Update()

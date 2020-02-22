@@ -3,9 +3,8 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-
-
-public class UiSimpleAnimationEditor : UiSimpleAnimationBaseEditor
-{
-}
+	[CustomEditor(typeof(UiSimpleAnimation))]
+	public class UiSimpleAnimationEditor : UiSimpleAnimationBaseEditor
+	{
+	}
 }
