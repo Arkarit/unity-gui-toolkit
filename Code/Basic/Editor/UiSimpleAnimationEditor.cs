@@ -36,6 +36,10 @@ namespace GuiToolkit
 
 			GUILayout.Label("UiSimpleAnimation Target:", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(m_targetProp);
+			if (m_targetProp.objectReferenceValue == null)
+			{
+				m_targetProp.objectReferenceValue = (RectTransform) thisUiSimpleAnimation.transform;
+			}
 			EditorGUILayout.Space();
 
 			GUILayout.Label("Properties support:", EditorStyles.boldLabel);

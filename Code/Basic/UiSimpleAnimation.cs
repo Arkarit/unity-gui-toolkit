@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	[RequireComponent(typeof(RectTransform))]
 	public class UiSimpleAnimation : UiSimpleAnimationBase
 	{
 		[Flags]
