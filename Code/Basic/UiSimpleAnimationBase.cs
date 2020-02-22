@@ -33,7 +33,10 @@ namespace GuiToolkit
 		[Tooltip("Slave animations which are automatically started when this animation is started.")]
 		[SerializeField]
 		protected UiSimpleAnimationBase[] m_slaveAnimations;
-		
+
+		public UiSimpleAnimationBase[] SlaveAnimations { get {return m_slaveAnimations; }}
+		public bool Running { get { return m_running; }}
+
 		protected virtual void OnInitAnimate(){}
 		protected virtual void OnBeginAnimate(){}
 		protected virtual void OnEndAnimate(){}
@@ -293,5 +296,12 @@ namespace GuiToolkit
 			OnInitAnimate();
 			m_initAnimateDone = true;
 		}
+
+#if UNITY_EDITOR
+		public void UpdateInEditor(float _deltaTime)
+		{
+			Update(_deltaTime);
+		}
+#endif
 	}
 }

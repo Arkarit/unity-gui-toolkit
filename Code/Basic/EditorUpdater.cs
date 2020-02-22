@@ -58,12 +58,27 @@ namespace GuiToolkit
 			if (_notWhenPlaying && Application.isPlaying)
 				return;
 
+			if (m_updateables.Contains(_updateable))
+				return;
+
 			if (m_updateables.Count == 0)
 			{
 				m_stopwatch.Restart();
 				EditorApplication.update += Update;
 			}
 			m_updateables.Add(_updateable);
+#endif
+		}
+
+		static public void StopUpdating( IEditorUpdateable _updateable )
+		{
+#if UNITY_EDITOR
+			if (!m_updateables.Contains(_updateable))
+				return;
+
+			m_updateables.Remove(_updateable);
+			if (m_updateables.Count == 0)
+				EditorApplication.update -= Update;
 #endif
 		}
 	}
