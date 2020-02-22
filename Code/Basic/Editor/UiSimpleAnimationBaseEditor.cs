@@ -5,7 +5,7 @@ namespace GuiToolkit
 {
 
 	[CustomEditor(typeof(UiSimpleAnimationBase))]
-	public class UiSimpleAnimationBaseEditor : Editor
+	public class UiSimpleAnimationBaseEditor : Editor, IEditorUpdateable
 	{
 		public virtual void OnEnable()
 		{
@@ -24,5 +24,13 @@ namespace GuiToolkit
 			serializedObject.ApplyModifiedProperties();
 		}
 
+		public void UpdateInEditor( float _deltaTime )
+		{
+		}
+
+		public bool RemoveFromEditorUpdate()
+		{
+			return true;
+		}
 	}
 }
