@@ -168,37 +168,44 @@ namespace GuiToolkit
 			_prop.serializedObject.ApplyModifiedProperties();
 		}
 
-		public static bool BoolBar<T>( ref T _filters, string _labelText = null ) where T : System.Enum
+		public static bool BoolBar<T>( ref T _filters, string _labelText = null, int _perRow = 0 ) where T : System.Enum
 		{
 			int filters = (int)(object)_filters;
 			bool result = false;
 			string[] types = Enum.GetNames(typeof(T));
 			T[] tvalues = (T[])Enum.GetValues(typeof(T));
 
-			using (new EditorGUILayout.HorizontalScope())
-			{
+			EditorGUILayout.BeginHorizontal();
+
 				if (!string.IsNullOrEmpty(_labelText))
 					GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
 
-				for (int i = 0; i < types.Length; i++)
-				{
-					if (types[i].StartsWith("All") || types[i].StartsWith("None"))
-						continue;
+			for (int i = 0; i < types.Length; i++)
+			{
+				if (types[i].StartsWith("All") || types[i].StartsWith("None"))
+					continue;
 
-					int currentEnumVal = (int)(object)tvalues[i];
-					bool currentVal = (filters & currentEnumVal) != 0;
-					bool newVal = GUILayout.Toggle(currentVal, types[i]);
-					if (currentVal != newVal)
-					{
-						result = true;
-						if (newVal)
-							filters |= currentEnumVal;
-						else
-							filters &= ~currentEnumVal;
-						_filters = (T)(object)filters;
-					}
+				if (_perRow > 0 && i > 0 && i % _perRow == 0)
+				{
+					EditorGUILayout.EndHorizontal();
+					EditorGUILayout.BeginHorizontal();
+				}
+
+				int currentEnumVal = (int)(object)tvalues[i];
+				bool currentVal = (filters & currentEnumVal) != 0;
+				bool newVal = GUILayout.Toggle(currentVal, types[i]);
+				if (currentVal != newVal)
+				{
+					result = true;
+					if (newVal)
+						filters |= currentEnumVal;
+					else
+						filters &= ~currentEnumVal;
+					_filters = (T)(object)filters;
 				}
 			}
+
+			EditorGUILayout.EndHorizontal();
 
 			return result;
 		}

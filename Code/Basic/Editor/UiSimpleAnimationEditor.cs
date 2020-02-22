@@ -15,6 +15,19 @@ namespace GuiToolkit
 		protected SerializedProperty m_posYStartProp;
 		protected SerializedProperty m_posYEndProp;
 		protected SerializedProperty m_posYCurveProp;
+		protected SerializedProperty m_rotZStartProp;
+		protected SerializedProperty m_rotZEndProp;
+		protected SerializedProperty m_rotZCurveProp;
+		protected SerializedProperty m_scaleXStartProp;
+		protected SerializedProperty m_scaleXEndProp;
+		protected SerializedProperty m_scaleXCurveProp;
+		protected SerializedProperty m_scaleYStartProp;
+		protected SerializedProperty m_scaleYEndProp;
+		protected SerializedProperty m_scaleYCurveProp;
+		protected SerializedProperty m_scaleLockedProp;
+		protected SerializedProperty m_alphaCurveProp;
+		protected SerializedProperty m_alphaImageProp;
+		protected SerializedProperty m_alphaCanvasGroupProp;
 
 		public override void OnEnable()
 		{
@@ -28,6 +41,19 @@ namespace GuiToolkit
 			m_posYStartProp = serializedObject.FindProperty("m_posYStart");
 			m_posYEndProp = serializedObject.FindProperty("m_posYEnd");
 			m_posYCurveProp = serializedObject.FindProperty("m_posYCurve");
+			m_rotZStartProp = serializedObject.FindProperty("m_rotZStart");
+			m_rotZEndProp = serializedObject.FindProperty("m_rotZEnd");
+			m_rotZCurveProp = serializedObject.FindProperty("m_rotZCurve");
+			m_scaleXStartProp = serializedObject.FindProperty("m_scaleXStart");
+			m_scaleXEndProp = serializedObject.FindProperty("m_scaleXEnd");
+			m_scaleXCurveProp = serializedObject.FindProperty("m_scaleXCurve");
+			m_scaleYStartProp = serializedObject.FindProperty("m_scaleYStart");
+			m_scaleYEndProp = serializedObject.FindProperty("m_scaleYEnd");
+			m_scaleYCurveProp = serializedObject.FindProperty("m_scaleYCurve");
+			m_scaleLockedProp = serializedObject.FindProperty("m_scaleLocked");
+			m_alphaCurveProp = serializedObject.FindProperty("m_alphaCurve");
+			m_alphaImageProp = serializedObject.FindProperty("m_alphaImage");
+			m_alphaCanvasGroupProp = serializedObject.FindProperty("m_alphaCanvasGroup");
 		}
 
 		public override void EditSubClass()
@@ -44,7 +70,7 @@ namespace GuiToolkit
 
 			GUILayout.Label("Properties support:", EditorStyles.boldLabel);
 			UiSimpleAnimation.ESupport support = thisUiSimpleAnimation.Support;
-			UiEditorUtility.BoolBar(ref support);
+			UiEditorUtility.BoolBar(ref support, null, 3);
 			m_supportProp.intValue = (int)(object)support;
 			EditorGUILayout.Space();
 
@@ -65,6 +91,55 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_posYCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
 			}
+
+			if( support.HasFlags(UiSimpleAnimation.ESupport.RotationZ))
+			{
+				GUILayout.Label("Rotation Z:", EditorStyles.boldLabel);
+				EditorGUILayout.PropertyField(m_rotZStartProp, new GUIContent("Start"));
+				EditorGUILayout.PropertyField(m_rotZEndProp, new GUIContent("End"));
+				EditorGUILayout.PropertyField(m_rotZCurveProp, new GUIContent("Norm. Curve"));
+				EditorGUILayout.Space();
+			}
+
+			if( support.HasFlags(UiSimpleAnimation.ESupport.ScaleX | UiSimpleAnimation.ESupport.ScaleY))
+			{
+				GUILayout.Label("Scale locked:", EditorStyles.boldLabel);
+				EditorGUILayout.PropertyField(m_scaleLockedProp);
+				EditorGUILayout.Space();
+			}
+
+			if( support.HasFlags(UiSimpleAnimation.ESupport.ScaleX) || (support.HasFlags(UiSimpleAnimation.ESupport.ScaleY) && m_scaleLockedProp.boolValue))
+			{
+				if (m_scaleLockedProp.boolValue)
+					GUILayout.Label("Scale:", EditorStyles.boldLabel);
+				else
+					GUILayout.Label("Scale X:", EditorStyles.boldLabel);
+
+				EditorGUILayout.PropertyField(m_scaleXStartProp, new GUIContent("Start"));
+				EditorGUILayout.PropertyField(m_scaleXEndProp, new GUIContent("End"));
+				EditorGUILayout.PropertyField(m_scaleXCurveProp, new GUIContent("Norm. Curve"));
+				EditorGUILayout.Space();
+			}
+
+			if( support.HasFlags(UiSimpleAnimation.ESupport.ScaleY) && !m_scaleLockedProp.boolValue)
+			{
+				GUILayout.Label("Scale Y:", EditorStyles.boldLabel);
+
+				EditorGUILayout.PropertyField(m_scaleYStartProp, new GUIContent("Start"));
+				EditorGUILayout.PropertyField(m_scaleYEndProp, new GUIContent("End"));
+				EditorGUILayout.PropertyField(m_scaleYCurveProp, new GUIContent("Norm. Curve"));
+				EditorGUILayout.Space();
+			}
+
+			if( support.HasFlags(UiSimpleAnimation.ESupport.Alpha))
+			{
+				GUILayout.Label("Alpha:", EditorStyles.boldLabel);
+				EditorGUILayout.PropertyField(m_alphaImageProp);
+				EditorGUILayout.PropertyField(m_alphaCanvasGroupProp);
+				EditorGUILayout.PropertyField(m_alphaCurveProp, new GUIContent("Norm. Curve"));
+				EditorGUILayout.Space();
+			}
+
 		}
 	}
 }
