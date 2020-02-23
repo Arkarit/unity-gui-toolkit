@@ -15,6 +15,7 @@ namespace GuiToolkit
 		protected SerializedProperty m_setOnStartProp;
 		protected SerializedProperty m_numberOfLoopsProp;
 		protected SerializedProperty m_slaveAnimationsProp;
+		protected SerializedProperty m_setLoopsForSlavesProp;
 
 		private readonly List<UiSimpleAnimationBase> m_animationsToUpdate = new List<UiSimpleAnimationBase>();
 
@@ -26,6 +27,7 @@ namespace GuiToolkit
 			m_setOnStartProp = serializedObject.FindProperty("m_setOnStart");
 			m_numberOfLoopsProp = serializedObject.FindProperty("m_numberOfLoops");
 			m_slaveAnimationsProp = serializedObject.FindProperty("m_slaveAnimations");
+			m_setLoopsForSlavesProp = serializedObject.FindProperty("m_setLoopsForSlaves");
 		}
 
 		public virtual void OnDisable()
@@ -51,6 +53,7 @@ namespace GuiToolkit
 
 			GUILayout.Label("Slave animations:", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(m_slaveAnimationsProp, true);
+			EditorGUILayout.PropertyField(m_setLoopsForSlavesProp);
 			EditorGUILayout.Space();
 
 			EditSubClass();

@@ -6,6 +6,7 @@ namespace GuiToolkit
 	public class UiSimpleAnimationBase : MonoBehaviour
 	{
 		protected const int INFINITE_LOOPS = -1;
+		private const int DONT_SET_LOOPS = -2;
 
 		// Timing values
 		[Tooltip("Duration of this animation, excluding delay.")]
@@ -33,6 +34,9 @@ namespace GuiToolkit
 		[Tooltip("Slave animations which are automatically started when this animation is started.")]
 		[SerializeField]
 		protected UiSimpleAnimationBase[] m_slaveAnimations;
+
+		[SerializeField]
+		protected bool m_setLoopsForSlaves = true;
 
 		public UiSimpleAnimationBase[] SlaveAnimations { get {return m_slaveAnimations; }}
 		public bool Running { get { return m_running; }}
@@ -142,7 +146,7 @@ namespace GuiToolkit
 			InitAnimateIfNecessary();
 			m_completeTime = 0;
 			CalculateCompleteTimeRecursive(ref m_completeTime);
-			PlayRecursive(m_completeTime, 0, true, m_backwards);
+			PlayRecursive(m_completeTime, 0, true, m_backwards, m_setLoopsForSlaves ? m_numberOfLoops : DONT_SET_LOOPS);
 		}
 
 		public void Pause()
@@ -262,7 +266,7 @@ namespace GuiToolkit
 			OnStopAnimate();
 		}
 
-		private void PlayRecursive( float _completeTime, float _completeForwardsDelay, bool _master, bool _backwards )
+		private void PlayRecursive( float _completeTime, float _completeForwardsDelay, bool _master, bool _backwards, int _loops )
 		{
 			m_completeTime = _completeTime;
 			m_master = _master;
@@ -271,6 +275,8 @@ namespace GuiToolkit
 			m_currentTime = 0;
 			m_beginAnimateCalled = false;
 			m_endAnimateCalled = false;
+			if (_loops != DONT_SET_LOOPS)
+				m_numberOfLoops = _loops;
 			m_currentNumberOfLoops = m_numberOfLoops;
 
 			m_forwardsDelay = _completeForwardsDelay + m_delay;
@@ -278,7 +284,7 @@ namespace GuiToolkit
 			m_running = true;
 
 			foreach( var slave in m_slaveAnimations)
-				slave.PlayRecursive(_completeTime, m_forwardsDelay, false, _backwards);
+				slave.PlayRecursive(_completeTime, m_forwardsDelay, false, _backwards, _loops);
 		}
 
 		private void CalculateCompleteTimeRecursive( ref float _completeTime )
