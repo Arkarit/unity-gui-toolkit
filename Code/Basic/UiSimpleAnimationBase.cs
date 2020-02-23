@@ -17,6 +17,14 @@ namespace GuiToolkit
 		[SerializeField]
 		protected float m_delay = 0;
 
+		[Tooltip("If set to false, this animation is skipped when playing backwards")]
+		[SerializeField]
+		protected bool m_backwardsPlayable = true;
+
+		[Tooltip("If set to true, the animation instantly goes to start when played backwards")]
+		[SerializeField]
+		protected bool m_gotoStartOnBackwards = false;
+
 		[Tooltip("Automatically start the animation as soon as it becomes visible")]
 		[SerializeField]
 		protected bool m_autoStart = false;
@@ -74,8 +82,14 @@ namespace GuiToolkit
 			[SerializeField]
 		#endif
 		#endregion
-		private float m_currentTime;
+		private float m_completeBackwardsTime;
 
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
+		private float m_currentTime;
 
 		#region debug serialize member
 		#if DEBUG_SIMPLE_ANIMATION
@@ -144,9 +158,9 @@ namespace GuiToolkit
 		{
 			m_backwards = _backwards;
 			InitAnimateIfNecessary();
-			m_completeTime = 0;
-			CalculateCompleteTimeRecursive(ref m_completeTime, 0);
-			PlayRecursive(m_completeTime, 0, true, m_backwards, m_setLoopsForSlaves ? m_numberOfLoops : DONT_SET_LOOPS);
+			m_completeTime = m_completeBackwardsTime = 0;
+			CalculateCompleteTimeRecursive(ref m_completeTime, ref m_completeBackwardsTime, 0);
+			PlayRecursive(m_completeTime, m_completeBackwardsTime, 0, true, m_backwards, m_setLoopsForSlaves ? m_numberOfLoops : DONT_SET_LOOPS);
 		}
 
 		public void Pause()
@@ -208,6 +222,14 @@ namespace GuiToolkit
 			if (!m_running || m_pause)
 				return;
 
+			if (m_backwards && !m_backwardsPlayable)
+			{
+				if (m_gotoStartOnBackwards)
+					OnAnimate(0);
+				m_running = false;
+				return;
+			}
+
 			// calculate current time and wait for delay finished
 			m_currentTime += _timeDelta;
 			float delay = m_backwards ? m_backwardsDelay : m_forwardsDelay;
@@ -243,8 +265,10 @@ namespace GuiToolkit
 				m_endAnimateCalled = true;
 			}
 
+			float completeTime = m_backwards ? m_completeBackwardsTime : m_completeTime;
+
 			// wait for the complete end
-			if (m_currentTime < m_completeTime)
+			if (m_currentTime < completeTime)
 				return;
 
 			// handle looping
@@ -255,7 +279,7 @@ namespace GuiToolkit
 			if (loop || infiniteLoops)
 			{
 				OnLoop();
-				m_currentTime %= m_completeTime;
+				m_currentTime %= completeTime;
 				OnAnimate(m_backwards ? 1 : 0);
 				m_beginAnimateCalled = false;
 				m_endAnimateCalled = false;
@@ -273,12 +297,13 @@ namespace GuiToolkit
 			OnStopAnimate();
 		}
 
-		private void PlayRecursive( float _completeTime, float _completeForwardsDelay, bool _master, bool _backwards, int _loops )
+		private void PlayRecursive( float _completeTime, float _completeBackwardsTime, float _completeForwardsDelay, bool _master, bool _backwards, int _loops )
 		{
 			InitAnimateIfNecessary();
 			OnAnimate(_backwards ? 1:0);
 
 			m_completeTime = _completeTime;
+			m_completeBackwardsTime = _completeBackwardsTime;
 			m_master = _master;
 			m_slave = !_master;
 			m_backwards = _backwards;
@@ -290,18 +315,19 @@ namespace GuiToolkit
 			m_currentNumberOfLoops = m_numberOfLoops;
 
 			m_forwardsDelay = _completeForwardsDelay + m_delay;
-			m_backwardsDelay = m_completeTime - m_forwardsDelay - m_duration;
+			m_backwardsDelay = m_completeBackwardsTime - m_forwardsDelay - m_duration;
 			m_running = true;
 
 			foreach( var slave in m_slaveAnimations)
-				slave.PlayRecursive(_completeTime, m_forwardsDelay, false, _backwards, _loops);
+				slave.PlayRecursive(_completeTime, _completeBackwardsTime, m_forwardsDelay, false, _backwards, _loops);
 		}
 
-		private void CalculateCompleteTimeRecursive( ref float _completeTime, float _completeDelay )
+		private void CalculateCompleteTimeRecursive( ref float _completeTime, ref float _completeBackwardsTime, float _completeDelay )
 		{
 			_completeTime = Mathf.Max(_completeTime, _completeDelay + m_delay + m_duration);
+			_completeBackwardsTime = Mathf.Max(_completeBackwardsTime, _completeDelay + m_delay + (m_backwardsPlayable ? m_duration : 0));
 			foreach( var slave in m_slaveAnimations )
-				slave.CalculateCompleteTimeRecursive( ref _completeTime, _completeDelay + m_delay );
+				slave.CalculateCompleteTimeRecursive( ref _completeTime, ref _completeBackwardsTime, _completeDelay + m_delay );
 		}
 
 		private void ResetRecursive(bool _toEnd)
