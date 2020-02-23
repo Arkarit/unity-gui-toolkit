@@ -167,6 +167,12 @@ namespace GuiToolkit
 			FinishAnimation();
 		}
 
+		public void Reset(bool _toEnd = false)
+		{
+			Stop();
+			InitAnimateIfNecessary();
+			ResetRecursive(_toEnd);
+		}
 
 		protected virtual void Awake()
 		{
@@ -268,6 +274,9 @@ namespace GuiToolkit
 
 		private void PlayRecursive( float _completeTime, float _completeForwardsDelay, bool _master, bool _backwards, int _loops )
 		{
+			InitAnimateIfNecessary();
+			OnAnimate(_backwards ? 1:0);
+
 			m_completeTime = _completeTime;
 			m_master = _master;
 			m_slave = !_master;
@@ -292,6 +301,13 @@ namespace GuiToolkit
 			_completeTime = Mathf.Max(_completeTime, m_delay + m_duration);
 			foreach( var slave in m_slaveAnimations )
 				slave.CalculateCompleteTimeRecursive( ref _completeTime );
+		}
+
+		private void ResetRecursive(bool _toEnd)
+		{
+			OnAnimate(_toEnd ? 1:0);
+			foreach( var slave in m_slaveAnimations )
+				slave.ResetRecursive(_toEnd);
 		}
 
 		private void InitAnimateIfNecessary()

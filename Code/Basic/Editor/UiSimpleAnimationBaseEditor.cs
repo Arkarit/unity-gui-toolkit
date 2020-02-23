@@ -90,9 +90,13 @@ namespace GuiToolkit
 			{
 				Stop();
 			}
-			if (GUILayout.Button("Reset"))
+			if (GUILayout.Button("To Begin"))
 			{
-
+				Reset(false);
+			}
+			if (GUILayout.Button("To End"))
+			{
+				Reset(true);
 			}
 
 			GUILayout.EndHorizontal();
@@ -113,6 +117,13 @@ namespace GuiToolkit
 				animation.Stop();
 			m_animationsToUpdate.Clear();
 			EditorUpdater.StopUpdating(this);
+		}
+
+		private void Reset(bool _toEnd)
+		{
+			Stop();
+			UiSimpleAnimationBase thisUiSimpleAnimationBase = (UiSimpleAnimationBase)target;
+			thisUiSimpleAnimationBase.Reset(_toEnd);
 		}
 
 		private void CollectAnimations()

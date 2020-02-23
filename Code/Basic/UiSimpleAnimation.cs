@@ -86,6 +86,12 @@ namespace GuiToolkit
 		[SerializeField]
 		protected CanvasGroup m_alphaCanvasGroup;
 
+		// sound
+
+		// animator
+
+		// particles
+
 		public ESupport Support { get {return m_support;}}
 
 		private float xRatio
