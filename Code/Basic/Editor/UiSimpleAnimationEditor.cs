@@ -1,6 +1,7 @@
 ﻿using Unity;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -9,6 +10,9 @@ namespace GuiToolkit
 	{
 		protected SerializedProperty m_supportProp;
 		protected SerializedProperty m_targetProp;
+		protected SerializedProperty m_canvasScalerProp;
+		protected SerializedProperty m_canvasRectTransformProp;
+		protected SerializedProperty m_scaleByCanvasScalerProp;
 		protected SerializedProperty m_posXStartProp;
 		protected SerializedProperty m_posXEndProp;
 		protected SerializedProperty m_posXCurveProp;
@@ -35,6 +39,9 @@ namespace GuiToolkit
 
 			m_supportProp = serializedObject.FindProperty("m_support");
 			m_targetProp = serializedObject.FindProperty("m_target");
+			m_canvasScalerProp = serializedObject.FindProperty("m_canvasScaler");
+			m_canvasRectTransformProp = serializedObject.FindProperty("m_canvasRectTransform");
+			m_scaleByCanvasScalerProp = serializedObject.FindProperty("m_scaleByCanvasScaler");
 			m_posXStartProp = serializedObject.FindProperty("m_posXStart");
 			m_posXEndProp = serializedObject.FindProperty("m_posXEnd");
 			m_posXCurveProp = serializedObject.FindProperty("m_posXCurve");
@@ -60,11 +67,23 @@ namespace GuiToolkit
 		{
 			UiSimpleAnimation thisUiSimpleAnimation = (UiSimpleAnimation)target;
 
-			GUILayout.Label("UiSimpleAnimation Target:", EditorStyles.boldLabel);
+			GUILayout.Label("UiSimpleAnimation Basic settings:", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(m_targetProp);
 			if (m_targetProp.objectReferenceValue == null)
 			{
 				m_targetProp.objectReferenceValue = (RectTransform) thisUiSimpleAnimation.transform;
+			}
+			EditorGUILayout.PropertyField(m_scaleByCanvasScalerProp);
+			if (m_scaleByCanvasScalerProp.boolValue)
+			{
+				EditorGUILayout.PropertyField(m_canvasScalerProp);
+				if (m_canvasScalerProp.objectReferenceValue == null)
+					m_canvasScalerProp.objectReferenceValue = thisUiSimpleAnimation.GetComponentInParent<CanvasScaler>();
+
+				CanvasScaler scaler = m_canvasScalerProp.objectReferenceValue as CanvasScaler;
+	
+				if (scaler != null)
+					m_canvasRectTransformProp.objectReferenceValue = scaler.transform as RectTransform;
 			}
 			EditorGUILayout.Space();
 

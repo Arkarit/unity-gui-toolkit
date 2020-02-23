@@ -24,6 +24,15 @@ namespace GuiToolkit
 		[SerializeField]
 		protected RectTransform m_target;
 
+		[SerializeField]
+		protected CanvasScaler m_canvasScaler;
+
+		[SerializeField]
+		protected RectTransform m_canvasRectTransform;
+
+		[SerializeField]
+		protected bool m_scaleByCanvasScaler = true;
+
 		// position
 
 		[SerializeField]
@@ -79,6 +88,35 @@ namespace GuiToolkit
 
 		public ESupport Support { get {return m_support;}}
 
+		private float xRatio
+		{
+			get
+			{
+				if (!m_scaleByCanvasScaler)
+					return 1;
+
+				return m_canvasRectTransform.sizeDelta.x / m_canvasScaler.referenceResolution.x;
+			}
+		}
+
+		private float yRatio
+		{
+			get
+			{
+				if (!m_scaleByCanvasScaler)
+					return 1;
+
+				return m_canvasRectTransform.sizeDelta.y / m_canvasScaler.referenceResolution.y;
+			}
+		}
+
+		protected override void Awake()
+		{
+			base.Awake();
+			if (m_canvasScaler == null && m_scaleByCanvasScaler)
+				m_canvasScaler = GetComponentInParent<CanvasScaler>();
+		}
+
 		protected override void OnAnimate(float _normalizedTime)
 		{
 			if( m_support.HasFlags(ESupport.PositionX | ESupport.PositionY))
@@ -99,10 +137,10 @@ namespace GuiToolkit
 			Vector2 pos = m_target.anchoredPosition;
 
 			if (m_support.HasFlags(ESupport.PositionX))
-				pos.x = Mathf.Lerp(m_posXStart, m_posXEnd, m_posXCurve.Evaluate(_normalizedTime));
+				pos.x = Mathf.Lerp(m_posXStart, m_posXEnd, m_posXCurve.Evaluate(_normalizedTime)) * xRatio;
 
 			if (m_support.HasFlags(ESupport.PositionY))
-				pos.y = Mathf.Lerp(m_posYStart, m_posYEnd, m_posYCurve.Evaluate(_normalizedTime));
+				pos.y = Mathf.Lerp(m_posYStart, m_posYEnd, m_posYCurve.Evaluate(_normalizedTime)) * yRatio;
 
 			m_target.anchoredPosition = pos;
 		}
