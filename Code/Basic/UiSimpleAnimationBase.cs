@@ -256,6 +256,7 @@ namespace GuiToolkit
 			{
 				OnLoop();
 				m_currentTime %= m_completeTime;
+				OnAnimate(m_backwards ? 1 : 0);
 				m_beginAnimateCalled = false;
 				m_endAnimateCalled = false;
 				return;
