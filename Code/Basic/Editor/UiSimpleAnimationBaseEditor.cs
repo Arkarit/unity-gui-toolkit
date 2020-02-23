@@ -106,8 +106,8 @@ namespace GuiToolkit
 		{
 			Stop();
 			CollectAnimations();
-			foreach( var animation in m_animationsToUpdate)
-				animation.Play(_backwards);
+			UiSimpleAnimationBase thisUiSimpleAnimationBase = (UiSimpleAnimationBase)target;
+			thisUiSimpleAnimationBase.Play(_backwards);
 			EditorUpdater.StartUpdating(this);
 		}
 

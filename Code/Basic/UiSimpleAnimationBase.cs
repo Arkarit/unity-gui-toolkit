@@ -145,7 +145,7 @@ namespace GuiToolkit
 			m_backwards = _backwards;
 			InitAnimateIfNecessary();
 			m_completeTime = 0;
-			CalculateCompleteTimeRecursive(ref m_completeTime);
+			CalculateCompleteTimeRecursive(ref m_completeTime, 0);
 			PlayRecursive(m_completeTime, 0, true, m_backwards, m_setLoopsForSlaves ? m_numberOfLoops : DONT_SET_LOOPS);
 		}
 
@@ -297,11 +297,11 @@ namespace GuiToolkit
 				slave.PlayRecursive(_completeTime, m_forwardsDelay, false, _backwards, _loops);
 		}
 
-		private void CalculateCompleteTimeRecursive( ref float _completeTime )
+		private void CalculateCompleteTimeRecursive( ref float _completeTime, float _completeDelay )
 		{
-			_completeTime = Mathf.Max(_completeTime, m_delay + m_duration);
+			_completeTime = Mathf.Max(_completeTime, _completeDelay + m_delay + m_duration);
 			foreach( var slave in m_slaveAnimations )
-				slave.CalculateCompleteTimeRecursive( ref _completeTime );
+				slave.CalculateCompleteTimeRecursive( ref _completeTime, _completeDelay + m_delay );
 		}
 
 		private void ResetRecursive(bool _toEnd)
