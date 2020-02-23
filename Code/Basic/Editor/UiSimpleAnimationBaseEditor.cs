@@ -109,6 +109,20 @@ namespace GuiToolkit
 			}
 
 			GUILayout.EndHorizontal();
+			EditorGUILayout.Space();
+			GUILayout.BeginHorizontal();
+
+			GUILayout.Label("Test Speed");
+
+			EditorUpdater.TimeScale = EditorGUILayout.Slider(EditorUpdater.TimeScale, 0.01f, 5);
+			if (GUILayout.Button("Apply"))
+			{
+				if (EditorUtility.DisplayDialog("Apply time", "Really apply time?", "OK", "Cancel") )
+					ApplyTimeScale();
+			}
+
+
+			GUILayout.EndHorizontal();
 		}
 
 		private void Play(bool _backwards = false)
@@ -133,6 +147,22 @@ namespace GuiToolkit
 			Stop();
 			UiSimpleAnimationBase thisUiSimpleAnimationBase = (UiSimpleAnimationBase)target;
 			thisUiSimpleAnimationBase.Reset(_toEnd);
+		}
+
+		private void ApplyTimeScale()
+		{
+			UiSimpleAnimationBase thisUiSimpleAnimationBase = (UiSimpleAnimationBase)target;
+			ApplyTimeScaleRecursive(thisUiSimpleAnimationBase);
+			EditorUpdater.TimeScale = 1;
+		}
+
+		private void ApplyTimeScaleRecursive( UiSimpleAnimationBase _uiSimpleAnimationBase )
+		{
+			Undo.RecordObject(_uiSimpleAnimationBase, "Apply time");
+			_uiSimpleAnimationBase.m_delay *= 1.0f / EditorUpdater.TimeScale;
+			_uiSimpleAnimationBase.m_duration *= 1.0f / EditorUpdater.TimeScale;
+			foreach( var animation in _uiSimpleAnimationBase.m_slaveAnimations )
+				ApplyTimeScaleRecursive(animation);
 		}
 
 		private void CollectAnimations()

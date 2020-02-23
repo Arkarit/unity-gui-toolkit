@@ -10,41 +10,32 @@ namespace GuiToolkit
 
 		// Timing values
 		[Tooltip("Duration of this animation, excluding delay.")]
-		[SerializeField]
-		protected float m_duration = 1;
+		public float m_duration = 1;
 
 		[Tooltip("Delay for the beginning of the animation (when played forwards)")]
-		[SerializeField]
-		protected float m_delay = 0;
+		public float m_delay = 0;
 
 		[Tooltip("If set to false, this animation is skipped when playing backwards")]
-		[SerializeField]
-		protected bool m_backwardsPlayable = true;
+		public bool m_backwardsPlayable = true;
 
 		[Tooltip("If set to true, the animation instantly goes to start when played backwards")]
-		[SerializeField]
-		protected bool m_gotoStartOnBackwards = false;
+		public bool m_gotoStartOnBackwards = false;
 
 		[Tooltip("Automatically start the animation as soon as it becomes visible")]
-		[SerializeField]
-		protected bool m_autoStart = false;
+		public bool m_autoStart = false;
 
 		[Tooltip("Set the animation beginning values as it becomes visible, but don't start it")]
-		[SerializeField]
-		protected bool m_setOnStart = true;
+		public bool m_setOnStart = true;
 
 		[Tooltip("Number of loops. -1: infinite loops 0: no loops, >0: Arbitrary number of loops")]
-		[SerializeField]
-		protected int m_numberOfLoops = 0;
+		public int m_numberOfLoops = 0;
 
 		// Slave animations
 
 		[Tooltip("Slave animations which are automatically started when this animation is started.")]
-		[SerializeField]
-		protected UiSimpleAnimationBase[] m_slaveAnimations;
+		public UiSimpleAnimationBase[] m_slaveAnimations;
 
-		[SerializeField]
-		protected bool m_setLoopsForSlaves = true;
+		public bool m_setLoopsForSlaves = true;
 
 		public UiSimpleAnimationBase[] SlaveAnimations { get {return m_slaveAnimations; }}
 		public bool Running { get { return m_running; }}
