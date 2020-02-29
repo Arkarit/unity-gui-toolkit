@@ -98,6 +98,8 @@ namespace GuiToolkit
 
 			if (_horizontal)
 				_vanishingPoint = _vanishingPoint.Swap();
+			else
+				_vanishingPoint.x = -_vanishingPoint.x;
 
 			float b0 = _byMin - _vanishingPoint.y;
 			float b1 = _byMax - _vanishingPoint.y;
@@ -112,8 +114,8 @@ namespace GuiToolkit
 
 			if (_horizontal)
 				result = result.Swap();
-// 			else
-// 				result = -result;
+			else
+				result = -result;
 
 			//Debug.Log($"_byMin:{_byMin} _byMax:{_byMax} _bxMax:{_bxMax} _vanishingPoint:{_vanishingPoint} b0:{b0} b1:{b1} ratio:{ratio} a0:{a0} a1:{a1} result:{result}");
 
