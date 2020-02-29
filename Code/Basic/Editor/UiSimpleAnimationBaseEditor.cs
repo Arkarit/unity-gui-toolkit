@@ -109,7 +109,37 @@ namespace GuiToolkit
 			}
 
 			GUILayout.EndHorizontal();
+
+
+			GUILayout.BeginHorizontal();
+
+			EditorUpdater.TimeScale = EditorGUILayout.Slider("Test Speed", EditorUpdater.TimeScale, 0.001f, 5);
+			EditorGUI.BeginDisabledGroup(EditorUpdater.TimeScale == 1);
+			if (GUILayout.Button("Apply"))
+			{
+				ApplyTimeScale();
+			}
+			EditorGUI.EndDisabledGroup();
+
+			GUILayout.EndHorizontal();
+
 		}
+
+		private void ApplyTimeScale()
+		{
+			Stop();
+			CollectAnimations();
+			float scale = 1.0f / EditorUpdater.TimeScale;
+			foreach (var animation in m_animationsToUpdate)
+			{
+				Undo.RecordObject(animation, "Apply Time Scale");
+				animation.Duration *= scale;
+				animation.Delay *= scale;
+			}
+			m_animationsToUpdate.Clear();
+			EditorUpdater.TimeScale = 1;
+		}
+
 
 		private void Play(bool _backwards = false)
 		{

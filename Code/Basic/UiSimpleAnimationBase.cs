@@ -41,13 +41,15 @@ namespace GuiToolkit
 
 		[Tooltip("Slave animations which are automatically started when this animation is started.")]
 		[SerializeField]
-		protected UiSimpleAnimationBase[] m_slaveAnimations;
+		protected UiSimpleAnimationBase[] m_slaveAnimations = new UiSimpleAnimationBase[0];
 
 		[SerializeField]
 		protected bool m_setLoopsForSlaves = true;
 
 		public UiSimpleAnimationBase[] SlaveAnimations { get {return m_slaveAnimations; }}
 		public bool Running { get { return m_running; }}
+		public float Duration { get { return m_duration; } set { Reset(); m_duration = value; }}
+		public float Delay { get { return m_delay; } set { Reset(); m_delay = value; } }
 
 		protected virtual void OnInitAnimate(){}
 		protected virtual void OnBeginAnimate(){}
