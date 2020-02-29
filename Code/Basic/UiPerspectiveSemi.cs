@@ -65,23 +65,26 @@ namespace GuiToolkit
 
 			Vector2 vanishingPoint = m_vanishingPoint.GetWorldCenter2D( m_canvas );
 
+			(Rect bounding, Vector2 offset) = _bounding.BringToCenter();
+			vanishingPoint += offset;
+
 			switch( _side )
 			{
 				case ESide.Top:
-					_movingPointA = CalculatePerspectiveValue( _bounding.yMin, _bounding.yMax, _bounding.xMin, vanishingPoint, false);
-					_movingPointB = CalculatePerspectiveValue( _bounding.yMin, _bounding.yMax, _bounding.xMax, vanishingPoint, false);
+					_movingPointA = CalculatePerspectiveValue( bounding.yMin, bounding.yMax, bounding.xMax, vanishingPoint, false);
+					_movingPointB = CalculatePerspectiveValue( bounding.yMin, bounding.yMax, bounding.xMin, vanishingPoint, false);
 					break;
 				case ESide.Bottom:
-					_movingPointA = CalculatePerspectiveValue( _bounding.yMax, _bounding.yMin, _bounding.xMin, vanishingPoint, false);
-					_movingPointB = CalculatePerspectiveValue( _bounding.yMax, _bounding.yMin, _bounding.xMax, vanishingPoint, false);
+					_movingPointA = CalculatePerspectiveValue( bounding.yMax, bounding.yMin, bounding.xMax, vanishingPoint, false);
+					_movingPointB = CalculatePerspectiveValue( bounding.yMax, bounding.yMin, bounding.xMin, vanishingPoint, false);
 					break;
 				case ESide.Left:
-					_movingPointA = CalculatePerspectiveValue( _bounding.xMin, _bounding.xMax, _bounding.yMin, vanishingPoint, true);
-					_movingPointB = CalculatePerspectiveValue( _bounding.xMin, _bounding.xMax, _bounding.yMax, vanishingPoint, true);
+					_movingPointA = CalculatePerspectiveValue( bounding.xMin, bounding.xMax, bounding.xMax, vanishingPoint, true);
+					_movingPointB = CalculatePerspectiveValue( bounding.xMin, bounding.xMax, bounding.xMin, vanishingPoint, true);
 					break;
 				case ESide.Right:
-					_movingPointA = CalculatePerspectiveValue( _bounding.xMax, _bounding.xMin, _bounding.yMin, vanishingPoint, true);
-					_movingPointB = CalculatePerspectiveValue( _bounding.xMax, _bounding.xMin, _bounding.yMax, vanishingPoint, true);
+					_movingPointA = CalculatePerspectiveValue( bounding.xMax, bounding.xMin, bounding.xMax, vanishingPoint, true);
+					_movingPointB = CalculatePerspectiveValue( bounding.xMax, bounding.xMin, bounding.xMin, vanishingPoint, true);
 					break;
 				default:
 					Debug.LogError("None or multiple flags not allowed here");
@@ -92,7 +95,6 @@ namespace GuiToolkit
 		private Vector2 CalculatePerspectiveValue( float _byMin, float _byMax, float _bxMax, Vector2 _vanishingPoint, bool _horizontal )
 		{
 			Vector2 result = new Vector2();
-			result.y = 0;
 
 			if (_horizontal)
 				_vanishingPoint = _vanishingPoint.Swap();
@@ -104,8 +106,16 @@ namespace GuiToolkit
 			float a1 = a0 * ratio;
 			result.x = a1 - a0;
 
+			result.x *= m_canvas.scaleFactor;
+			result = m_rectTransform.InverseTransformVector(result);
+			result.y = 0;
+
 			if (_horizontal)
 				result = result.Swap();
+// 			else
+// 				result = -result;
+
+			//Debug.Log($"_byMin:{_byMin} _byMax:{_byMax} _bxMax:{_bxMax} _vanishingPoint:{_vanishingPoint} b0:{b0} b1:{b1} ratio:{ratio} a0:{a0} a1:{a1} result:{result}");
 
 			return result;
 		}

@@ -98,6 +98,14 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public static (Rect rect, Vector2 offset) BringToCenter( this Rect _this )
+		{
+			Vector2 offset = -_this.center;
+			Rect rect = _this;
+			rect.center = Vector2.zero;
+			return (rect, offset);
+		}
+
 		public static Rect Absolute( this Rect _this)
 		{
 			Rect result = _this;
