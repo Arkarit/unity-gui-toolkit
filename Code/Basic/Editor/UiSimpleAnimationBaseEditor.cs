@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -117,7 +118,8 @@ namespace GuiToolkit
 			EditorGUI.BeginDisabledGroup(EditorUpdater.TimeScale == 1);
 			if (GUILayout.Button("Apply"))
 			{
-				ApplyTimeScale();
+				if (EditorUtility.DisplayDialog("Apply?", "Apply time scale to whole animation?", "OK", "Cancel" ))
+					ApplyTimeScale();
 			}
 			EditorGUI.EndDisabledGroup();
 
@@ -138,6 +140,8 @@ namespace GuiToolkit
 			}
 			m_animationsToUpdate.Clear();
 			EditorUpdater.TimeScale = 1;
+			UiSimpleAnimationBase thisUiSimpleAnimationBase = (UiSimpleAnimationBase)target;
+			EditorSceneManager.MarkSceneDirty(thisUiSimpleAnimationBase.gameObject.scene);
 		}
 
 
