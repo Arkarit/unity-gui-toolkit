@@ -29,7 +29,6 @@ namespace GuiToolkit
 
 		protected static readonly List<UIVertex> s_verts = new List<UIVertex>();
 		protected static UIVertex s_vertex;
-		protected Canvas m_canvas;
 
 		protected virtual bool IsAbsolute { get { return false; } }
 		protected virtual bool NeedsWorldBoundingBox { get { return false; } }

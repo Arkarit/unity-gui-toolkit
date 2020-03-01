@@ -25,7 +25,7 @@ namespace GuiToolkit
 	/// </summary>
 
 	[RequireComponent(typeof(RectTransform))]
-	public abstract class BaseMeshEffectTMP : BaseMeshEffect
+	public abstract class BaseMeshEffectTMP : BaseMeshEffect, ICanvasListener
 	{
 		static private readonly List<TMP_SubMeshUI> s_subMeshUIs = new List<TMP_SubMeshUI>();
 		static private readonly List<Mesh> s_meshes = new List<Mesh>();
@@ -34,6 +34,7 @@ namespace GuiToolkit
 		protected TMP_Text m_textMeshPro;
 		protected CanvasRenderer m_canvasRenderer;
 		protected Graphic m_graphic;
+		protected Canvas m_canvas;
 
 		private bool m_anyTopologyChangingMod;
 		private bool m_TMPCallbackInstalled;
@@ -126,6 +127,15 @@ namespace GuiToolkit
 			s_meshes.Clear();
 		}
 
+		private void InitCanvas()
+		{
+			if (m_canvas != null)
+				return;
+
+			m_canvas = GetComponentInParent<Canvas>();
+			m_canvas = m_canvas.rootCanvas;
+		}
+
 		/// <summary>
 		/// Set the cached components.
 		/// </summary>
@@ -145,9 +155,13 @@ namespace GuiToolkit
 		/// </summary>
 		protected override void OnEnable()
 		{
+			InitCanvas();
 			m_aboutToBeDisabled = false;
 			UpdateTMPCallback();
 			SetDirty(true);
+
+			if (m_textMeshPro != null)
+				CanvasTracker.Instance.AddListener(m_canvas, this);
 
 #if UNITY_EDITOR
 			if (graphic && m_textMeshPro)
@@ -170,6 +184,12 @@ namespace GuiToolkit
 
 			UpdateTMPCallback();
 			SetDirty(true);
+
+			if (m_textMeshPro != null)
+			{
+				CanvasTracker.Instance.RemoveListener(m_canvas, this);
+			}
+
 
 #if UNITY_EDITOR
 			if (graphic && m_textMeshPro)
@@ -286,6 +306,11 @@ namespace GuiToolkit
 			SetDirty();
 		}
 
+		public void OnCanvasChanged()
+		{
+			SetDirty();
+		}
+
 // 		private void Debugprint(string _s)
 // 		{
 // 			BaseMeshEffectTMP[] mods = GetComponents<BaseMeshEffectTMP>();
@@ -303,6 +328,7 @@ namespace GuiToolkit
 			base.OnValidate();
 			SetDirty();
 		}
+
 #endif
 
 	}
