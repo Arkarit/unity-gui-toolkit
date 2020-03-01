@@ -86,7 +86,8 @@ namespace GuiToolkit
 				return;
 
 			Rect bounding = thisUiDistort.Bounding;
-			Vector2[] corners = thisUiDistort.Bounding.GetWorldCorners2D(rt);
+			Vector2[] corners = bounding.GetWorldCorners2D(rt);
+
             Handles.color = Constants.HANDLE_COLOR;
 
 			SerializedProperty blprop = m_bottomLeftProp;
@@ -111,7 +112,7 @@ namespace GuiToolkit
 			}
 
 			bool isAbsolute = m_absoluteValuesProp.boolValue;
-			Vector2 size = isAbsolute ? bounding.size / rt.rect.size : bounding.size;
+			Vector2 size = isAbsolute ? Vector2.one : bounding.size;
 
 			bool hasChanged = false;
 			hasChanged |= UiEditorUtility.DoHandle( blprop, corners[0], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
