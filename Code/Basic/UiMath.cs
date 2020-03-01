@@ -65,6 +65,12 @@ namespace GuiToolkit
 			return Vector2.Lerp(Vector2.Lerp(_tl, _tr, _normP.x), Vector2.Lerp(_bl, _br, _normP.x), _normP.y );
 		}
 
+		public static Vector3 Lerp4P( Vector3 _tl, Vector3 _tr, Vector3 _bl, Vector3 _br, Vector2 _normP)
+		{
+			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
+			return Vector3.Lerp(Vector3.Lerp(_tl, _tr, _normP.x), Vector3.Lerp(_bl, _br, _normP.x), _normP.y );
+		}
+
 		public static Vector2 Lerp4P( Vector2 _tl, Vector2 _tr, Vector2 _bl, Vector2 _br, Vector2 _normP, bool _oneMinusX, bool _oneMinusY)
 		{
 			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
@@ -78,6 +84,13 @@ namespace GuiToolkit
 		}
 
 		public static Vector2 Lerp4P( Vector2[] _points, Vector2 _normP)
+		{
+			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
+			Debug.Assert(_points.Length == 4, "Lerp4P needs 4 points bl, tl, tr, br");
+			return Lerp4P(_points[1], _points[2], _points[0], _points[3], _normP);
+		}
+
+		public static Vector3 Lerp4P( Vector3[] _points, Vector2 _normP)
 		{
 			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
 			Debug.Assert(_points.Length == 4, "Lerp4P needs 4 points bl, tl, tr, br");

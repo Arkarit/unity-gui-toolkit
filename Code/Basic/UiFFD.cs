@@ -181,7 +181,7 @@ namespace GuiToolkit
 				return;
 
 			Rect bounding = thisUiFFD.Bounding;
-			Vector2[] corners = thisUiFFD.Bounding.GetWorldCorners2D(rt);
+			Vector3[] corners = thisUiFFD.Bounding.GetWorldCorners(rt);
             Handles.color = Color.yellow;
 
 			bool isAbsolute = m_absoluteValuesProp.boolValue;
@@ -201,8 +201,8 @@ namespace GuiToolkit
 
 					int arrayIdx = iy * thisUiFFD.PointsHorizontal + ix;
 					Vector2 normCorners = new Vector2(ix * xStep, iy * yStep);
-					Vector2 tp = UiMath.Lerp4P(corners, normCorners);
-					hasChanged |= UiEditorUtility.DoHandle( m_pointsProp.GetArrayElementAtIndex(arrayIdx), tp, size, rt ); 
+					Vector3 tp = UiMath.Lerp4P(corners, normCorners);
+					hasChanged |= UiEditorUtility.DoHandle( m_pointsProp.GetArrayElementAtIndex(arrayIdx), tp, size, rt, false, false, Constants.HANDLE_SIZE ); 
 				}
 			}
 
@@ -242,7 +242,6 @@ namespace GuiToolkit
 
 				}
 			}
-
 		}
 
 	}

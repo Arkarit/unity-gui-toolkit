@@ -511,18 +511,14 @@ namespace GuiToolkit
 			Vector3 offset = _rt.TransformVector(Vector3.Scale(normPoint, _rectSize));
 			Vector3 point = _rectPoint + offset;
 
-			float handleSize = _handleSize * HandleUtility.GetHandleSize(Vector3.zero);
+			float handleSize = _handleSize * HandleUtility.GetHandleSize(_rectPoint);
 
-			Handles.DotHandleCap(0, point, Quaternion.identity, handleSize, EventType.Repaint);
 			Vector3 oldLeft = point;
+			EditorGUI.BeginChangeCheck();
 			Vector3 newLeft = Handles.FreeMoveHandle(oldLeft, Quaternion.identity, handleSize, Vector3.zero, Handles.DotHandleCap);
-			if (oldLeft != newLeft)
+			if (EditorGUI.EndChangeCheck())
 			{
-				// Move offset in screen space
-				Vector3 moveOffset = _rt.TransformVector(newLeft-oldLeft);
-
-				// Bring it to the space of the rect transform
-				moveOffset = _rt.InverseTransformVector(moveOffset);
+				Vector3 moveOffset = newLeft-oldLeft;
 
 				// apply mirror
 				moveOffset.x *= _mirrorHorizontal ? -1 : 1;

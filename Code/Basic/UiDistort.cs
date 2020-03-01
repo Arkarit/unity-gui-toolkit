@@ -76,7 +76,7 @@ namespace GuiToolkit
 		protected virtual void OnSceneGUI()
 		{
 			UiDistortBase thisUiDistort = (UiDistortBase)target;
-			if (!thisUiDistort.IsActive())
+			if (thisUiDistort == null || !thisUiDistort.IsActive())
 				return;
 
 			RectTransform rt = (RectTransform) thisUiDistort.transform;
@@ -86,7 +86,7 @@ namespace GuiToolkit
 				return;
 
 			Rect bounding = thisUiDistort.Bounding;
-			Vector2[] corners = bounding.GetWorldCorners2D(rt);
+			Vector3[] corners = bounding.GetWorldCorners(rt);
 
             Handles.color = Constants.HANDLE_COLOR;
 
@@ -125,9 +125,7 @@ namespace GuiToolkit
 				serializedObject.ApplyModifiedProperties();
 				EditorUtility.SetDirty(target);
 			}
-
 		}
-
 	}
 #endif
 
