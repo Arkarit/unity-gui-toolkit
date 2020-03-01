@@ -129,7 +129,7 @@ namespace GuiToolkit
 
 		private void InitCanvas()
 		{
-			if (m_canvas != null)
+			if (m_canvas != null || m_canvas.isRootCanvas)
 				return;
 
 			m_canvas = GetComponentInParent<Canvas>();
@@ -147,6 +147,7 @@ namespace GuiToolkit
 			m_graphic = GetComponent<Graphic>();
 			m_canvasRenderer = GetComponent<CanvasRenderer>();
 			m_textMeshPro = GetComponent<TMP_Text>();
+			InitCanvas();
 		}
 
 		/// <summary>

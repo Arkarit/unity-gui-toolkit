@@ -36,12 +36,6 @@ namespace GuiToolkit
 
 		public Rect Bounding {get; protected set;}
 
-		protected override void Awake()
-		{
-			base.Awake();
-			m_canvas = GetComponentInParent<Canvas>();
-		}
-
 		public override void ModifyMesh( VertexHelper _vertexHelper )
 		{
 			if (!IsActive())
