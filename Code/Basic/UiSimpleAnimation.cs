@@ -143,10 +143,10 @@ namespace GuiToolkit
 			Vector2 pos = m_target.anchoredPosition;
 
 			if (m_support.HasFlags(ESupport.PositionX))
-				pos.x = Mathf.Lerp(m_posXStart, m_posXEnd, m_posXCurve.Evaluate(_normalizedTime)) * xRatio;
+				pos.x = Mathf.LerpUnclamped(m_posXStart, m_posXEnd, m_posXCurve.Evaluate(_normalizedTime)) * xRatio;
 
 			if (m_support.HasFlags(ESupport.PositionY))
-				pos.y = Mathf.Lerp(m_posYStart, m_posYEnd, m_posYCurve.Evaluate(_normalizedTime)) * yRatio;
+				pos.y = Mathf.LerpUnclamped(m_posYStart, m_posYEnd, m_posYCurve.Evaluate(_normalizedTime)) * yRatio;
 
 			m_target.anchoredPosition = pos;
 		}
@@ -155,7 +155,7 @@ namespace GuiToolkit
 		{
 			Quaternion rot = m_target.localRotation;
 			Vector3 angles = rot.eulerAngles;
-			angles.z = Mathf.Lerp(m_rotZStart, m_rotZEnd, m_rotZCurve.Evaluate(_normalizedTime));
+			angles.z = Mathf.LerpUnclamped(m_rotZStart, m_rotZEnd, m_rotZCurve.Evaluate(_normalizedTime));
 			rot.eulerAngles = angles;
 			m_target.localRotation = rot;
 		}
@@ -165,12 +165,12 @@ namespace GuiToolkit
 			Vector3 scale = m_target.localScale;
 
 			if (m_scaleLocked || m_support.HasFlags(ESupport.ScaleX))
-				scale.x = Mathf.Lerp(m_scaleXStart, m_scaleXEnd, m_scaleXCurve.Evaluate(_normalizedTime));
+				scale.x = Mathf.LerpUnclamped(m_scaleXStart, m_scaleXEnd, m_scaleXCurve.Evaluate(_normalizedTime));
 
 			if (m_scaleLocked)
 				scale.y = scale.x;
 			else if (m_support.HasFlags(ESupport.ScaleY))
-				scale.y = Mathf.Lerp(m_scaleYStart, m_scaleYEnd, m_scaleYCurve.Evaluate(_normalizedTime));
+				scale.y = Mathf.LerpUnclamped(m_scaleYStart, m_scaleYEnd, m_scaleYCurve.Evaluate(_normalizedTime));
 
 			m_target.localScale = scale;
 		}
