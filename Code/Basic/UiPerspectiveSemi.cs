@@ -15,8 +15,8 @@ namespace GuiToolkit
 		[SerializeField]
 		protected ESide m_lockedSide;
 
-		private Vector2 m_lastPosition;
-		private Vector2 m_lastPositionVanishingPoint;
+		private Vector3 m_lastPosition;
+		private Vector3 m_lastPositionVanishingPoint;
 
 		protected override void Update()
 		{
@@ -25,12 +25,12 @@ namespace GuiToolkit
 			if (m_vanishingPoint == null || m_rectTransform == null)
 				return;
 
-			if (m_lastPositionVanishingPoint != m_vanishingPoint.anchoredPosition
-			||  m_lastPosition != m_rectTransform.anchoredPosition)
+			if (m_lastPositionVanishingPoint != m_vanishingPoint.position
+			||  m_lastPosition != m_rectTransform.position)
 				SetDirty();
 
-			m_lastPosition = m_rectTransform.anchoredPosition;
-			m_lastPositionVanishingPoint = m_vanishingPoint.anchoredPosition;
+			m_lastPosition = m_rectTransform.position;
+			m_lastPositionVanishingPoint = m_vanishingPoint.position;
 		}
 
 		protected override void Prepare()
