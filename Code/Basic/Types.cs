@@ -18,7 +18,16 @@ namespace GuiToolkit
 		Right
 	}
 
-//	public static class CSharpNeedsAClassForEveryFuckingBullshit
+	public enum EUiLayerDefinition
+	{
+		Top = 20,
+		Tooltip = 50,
+		Popup = 80,
+		Dialog = 130,
+		Background = 180,
+		Back = 200,
+	}
+
 	public static class Constants
 	{
 		public const float HANDLE_SIZE = 0.06f;
