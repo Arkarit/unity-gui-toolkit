@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class UiSimpleAnimationBase : MonoBehaviour
+	public class UiSimpleAnimationBase : MonoBehaviour, IShowHideViewAnimation
 	{
 		protected const int INFINITE_LOOPS = -1;
 		private const int DONT_SET_LOOPS = -2;
@@ -46,10 +46,17 @@ namespace GuiToolkit
 		[SerializeField]
 		protected bool m_setLoopsForSlaves = true;
 
+		[SerializeField]
+		protected bool m_supportViewAnimations = false;
+
 		public UiSimpleAnimationBase[] SlaveAnimations { get {return m_slaveAnimations; }}
 		public bool Running { get { return m_running; }}
 		public float Duration { get { return m_duration; } set { Reset(); m_duration = value; }}
 		public float Delay { get { return m_delay; } set { Reset(); m_delay = value; } }
+
+		// delegates
+		public Action m_onFinish;
+		public Action m_onFinishOnce;
 
 		protected virtual void OnInitAnimate(){}
 		protected virtual void OnBeginAnimate(){}
@@ -297,6 +304,10 @@ namespace GuiToolkit
 			m_running = false;
 			m_pause = false;
 			OnStopAnimate();
+
+			m_onFinish?.Invoke();
+			m_onFinishOnce?.Invoke();
+			m_onFinishOnce = null;
 		}
 
 		private void PlayRecursive( float _completeTime, float _completeBackwardsTime, float _completeForwardsDelay, bool _master, bool _backwards, int _loops )
@@ -348,11 +359,45 @@ namespace GuiToolkit
 			m_initAnimateDone = true;
 		}
 
+		public void ShowViewAnimation( Action _onFinish = null )
+		{
+			if (!m_supportViewAnimations)
+			{
+				_onFinish?.Invoke();
+				return;
+			}
+
+			m_onFinishOnce = _onFinish;
+			Play();
+		}
+
+		public void HideViewAnimation( Action _onFinish = null )
+		{
+			if (!m_supportViewAnimations)
+			{
+				_onFinish?.Invoke();
+				return;
+			}
+
+			m_onFinishOnce = _onFinish;
+			Play(true);
+		}
+
+		public void StopViewAnimation()
+		{
+			if (!m_supportViewAnimations)
+				return;
+
+			m_onFinishOnce = null;
+			Stop();
+		}
+
 #if UNITY_EDITOR
 		public void UpdateInEditor(float _deltaTime)
 		{
 			Update(_deltaTime);
 		}
+
 #endif
 	}
 }

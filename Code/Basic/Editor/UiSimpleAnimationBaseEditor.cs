@@ -19,6 +19,7 @@ namespace GuiToolkit
 		protected SerializedProperty m_numberOfLoopsProp;
 		protected SerializedProperty m_slaveAnimationsProp;
 		protected SerializedProperty m_setLoopsForSlavesProp;
+		protected SerializedProperty m_supportViewAnimationsProp;
 
 		private readonly List<UiSimpleAnimationBase> m_animationsToUpdate = new List<UiSimpleAnimationBase>();
 
@@ -33,6 +34,7 @@ namespace GuiToolkit
 			m_numberOfLoopsProp = serializedObject.FindProperty("m_numberOfLoops");
 			m_slaveAnimationsProp = serializedObject.FindProperty("m_slaveAnimations");
 			m_setLoopsForSlavesProp = serializedObject.FindProperty("m_setLoopsForSlaves");
+			m_supportViewAnimationsProp = serializedObject.FindProperty("m_supportViewAnimations");
 		}
 
 		public virtual void OnDisable()
@@ -45,6 +47,8 @@ namespace GuiToolkit
 		public override void OnInspectorGUI()
 		{
 			UiSimpleAnimationBase thisUiSimpleAnimationBase = (UiSimpleAnimationBase)target;
+
+			DisplayViewConnection(thisUiSimpleAnimationBase);
 
 			GUILayout.Label("Timing:", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(m_durationProp);
@@ -81,6 +85,16 @@ namespace GuiToolkit
 				serializedObject.ApplyModifiedProperties();
 			#endif
 
+		}
+
+		private void DisplayViewConnection( UiSimpleAnimationBase uiSimpleAnimationBase )
+		{
+			if (uiSimpleAnimationBase.GetComponent<UiView>() != null)
+			{
+				GUILayout.Label("UI View connection:", EditorStyles.boldLabel);
+				EditorGUILayout.PropertyField(m_supportViewAnimationsProp);
+				EditorGUILayout.Space();
+			}
 		}
 
 		private void DisplayTestFields()

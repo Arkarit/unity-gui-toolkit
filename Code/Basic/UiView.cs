@@ -3,6 +3,13 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	public interface IShowHideViewAnimation
+	{
+		void ShowViewAnimation(Action _onFinish = null);
+		void HideViewAnimation(Action _onFinish = null);
+		void StopViewAnimation();
+	}
+
 	[RequireComponent(typeof(Canvas))]
 	public class UiView : UiThing
 	{
@@ -11,6 +18,8 @@ namespace GuiToolkit
 		[SerializeField]
 		EUiLayerDefinition m_layer;
 
+		[SerializeField]
+		private IShowHideViewAnimation m_showHideAnimation;
 
 		private Canvas m_canvas;
 		private UiMain m_main;
@@ -23,12 +32,34 @@ namespace GuiToolkit
 
 		public virtual void Show(bool _instant = false)
 		{
+			if (m_showHideAnimation == null)
+				_instant = true;
+
 			gameObject.SetActive(true);
+
+			if (_instant)
+			{
+				m_showHideAnimation?.StopViewAnimation();
+				return;
+			}
+
+			m_showHideAnimation.ShowViewAnimation(null);
 		}
 
 		public virtual void Hide(bool _instant = false)
 		{
-			gameObject.SetActive(false);
+			if (m_showHideAnimation == null)
+				_instant = true;
+
+
+			if (_instant)
+			{
+				gameObject.SetActive(false);
+				m_showHideAnimation?.StopViewAnimation();
+				return;
+			}
+
+			m_showHideAnimation.ShowViewAnimation( () => gameObject.SetActive(false) );
 		}
 
 		public void SetRenderMode( RenderMode _renderMode, Camera _camera )
@@ -47,6 +78,16 @@ namespace GuiToolkit
 		{
 			m_main = GetComponentInParent<UiMain>();
 			m_canvas = GetComponent<Canvas>();
+
+			var components = GetComponents<MonoBehaviour>();
+			foreach (var component in components)
+			{
+				if (component is IShowHideViewAnimation)
+				{
+					m_showHideAnimation = (IShowHideViewAnimation) component;
+					break;
+				}
+			}
 
 			if (m_main)
 				m_canvas.planeDistance = m_main.LayerDistance * (float) m_layer;
