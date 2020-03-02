@@ -11,32 +11,50 @@ namespace GuiToolkit
 		[SerializeField]
 		EUiLayerDefinition m_layer;
 
+
 		private Canvas m_canvas;
+		private UiMain m_main;
 
 		public override void Awake()
 		{
 			base.Awake();
-			m_canvas = GetComponent<Canvas>();
+			Init();
 		}
 
-		public virtual void Show()
+		public virtual void Show(bool _instant = false)
 		{
 			gameObject.SetActive(true);
 		}
 
-		public virtual void Hide()
+		public virtual void Hide(bool _instant = false)
 		{
 			gameObject.SetActive(false);
 		}
 
-		public void SetRenderMode( RenderMode _renderMode, Camera _camera, int _layerDistance )
+		public void SetRenderMode( RenderMode _renderMode, Camera _camera )
 		{
 #if UNITY_EDITOR
-			m_canvas = GetComponent<Canvas>();
+			Init();
 #endif
 			m_canvas.renderMode = _renderMode;
 			m_canvas.worldCamera = _camera;
-			m_canvas.planeDistance = (float) _layerDistance * (float) m_layer;
+
+			if (m_main)
+				m_canvas.planeDistance = m_main.LayerDistance * (float) m_layer;
+		}
+
+		private void Init()
+		{
+			m_main = GetComponentInParent<UiMain>();
+			m_canvas = GetComponent<Canvas>();
+
+			if (m_main)
+				m_canvas.planeDistance = m_main.LayerDistance * (float) m_layer;
+		}
+
+		public void OnValidate()
+		{
+			Init();
 		}
 	}
 }
