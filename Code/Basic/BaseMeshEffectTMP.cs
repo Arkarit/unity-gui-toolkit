@@ -25,7 +25,7 @@ namespace GuiToolkit
 	/// </summary>
 
 	[RequireComponent(typeof(RectTransform))]
-	public abstract class BaseMeshEffectTMP : BaseMeshEffect, ICanvasListener
+	public abstract class BaseMeshEffectTMP : BaseMeshEffect
 	{
 		static private readonly List<TMP_SubMeshUI> s_subMeshUIs = new List<TMP_SubMeshUI>();
 		static private readonly List<Mesh> s_meshes = new List<Mesh>();
@@ -39,6 +39,8 @@ namespace GuiToolkit
 		private bool m_anyTopologyChangingMod;
 		private bool m_TMPCallbackInstalled;
 		private bool m_aboutToBeDisabled;
+
+		private float m_lossyScaleY;
 
 		/// <summary>
 		/// Return true if your modifier adds or removes any elements to/from the mesh
@@ -148,6 +150,8 @@ namespace GuiToolkit
 			m_canvasRenderer = GetComponent<CanvasRenderer>();
 			m_textMeshPro = GetComponent<TMP_Text>();
 			InitCanvas();
+
+			m_lossyScaleY = m_rectTransform.lossyScale.y;
 		}
 
 		/// <summary>
@@ -160,9 +164,6 @@ namespace GuiToolkit
 			m_aboutToBeDisabled = false;
 			UpdateTMPCallback();
 			SetDirty(true);
-
-			if (m_textMeshPro != null)
-				CanvasTracker.Instance.AddListener(m_canvas, this);
 
 #if UNITY_EDITOR
 			if (graphic && m_textMeshPro)
@@ -186,18 +187,32 @@ namespace GuiToolkit
 			UpdateTMPCallback();
 			SetDirty(true);
 
-			if (m_textMeshPro != null)
-			{
-				CanvasTracker.Instance.RemoveListener(m_canvas, this);
-			}
-
-
 #if UNITY_EDITOR
 			if (graphic && m_textMeshPro)
 			{
 				GraphicRebuildTracker.UnTrackGraphic(graphic);
 			}
 #endif
+		}
+
+		/// <summary>
+		/// TextMeshPro refreshes its mesh if the lossy scale y changes.
+		/// And doesn't inform anyone about it. No message. No nothing.
+		/// We can not check the mesh, since canvas renderer has got no GetMesh(). Not to mention a mesh changed event or the like.
+		/// We can not even inherit canvas renderer, since it is "sealed".
+		/// Unity SUCKS.
+		/// The only way to deal with this is to also check for lossyScale.y and SetDirty if necessary.
+		/// </summary>
+		protected virtual void Update()
+		{
+			if (m_textMeshPro == null)
+				return;
+
+			if (m_lossyScaleY != m_rectTransform.lossyScale.y)
+			{
+				SetDirty();
+				m_lossyScaleY = m_rectTransform.lossyScale.y;
+			}
 		}
 
 		/// <summary>
@@ -304,11 +319,6 @@ namespace GuiToolkit
 				return;
 			}
 
-			SetDirty();
-		}
-
-		public void OnCanvasChanged()
-		{
 			SetDirty();
 		}
 
