@@ -131,10 +131,14 @@ namespace GuiToolkit
 
 		private void InitCanvas()
 		{
-			if (m_canvas != null || m_canvas.isRootCanvas)
+			if (m_canvas != null && m_canvas.isRootCanvas)
 				return;
 
 			m_canvas = GetComponentInParent<Canvas>();
+
+			if (m_canvas == null)
+				return;
+
 			m_canvas = m_canvas.rootCanvas;
 		}
 
