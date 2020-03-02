@@ -18,8 +18,10 @@ namespace GuiToolkit
 		private Vector2 m_lastPosition;
 		private Vector2 m_lastPositionVanishingPoint;
 
-		protected void Update()
+		protected override void Update()
 		{
+			base.Update();
+
 			if (m_vanishingPoint == null || m_rectTransform == null)
 				return;
 
@@ -31,7 +33,7 @@ namespace GuiToolkit
 			m_lastPositionVanishingPoint = m_vanishingPoint.anchoredPosition;
 		}
 
-		protected override void Prepare( Rect _bounding )
+		protected override void Prepare()
 		{
 			if (m_vanishingPoint == null)
 				return;
@@ -39,16 +41,16 @@ namespace GuiToolkit
 			switch( m_lockedSide )
 			{
 				case ESide.Top:
-					CalculatePerspectiveValues( _bounding, ref m_topLeft, ref m_topRight, ref m_bottomLeft, ref m_bottomRight, m_lockedSide );
+					CalculatePerspectiveValues( ref m_topLeft, ref m_topRight, ref m_bottomLeft, ref m_bottomRight, m_lockedSide );
 					break;
 				case ESide.Bottom:
-					CalculatePerspectiveValues( _bounding, ref m_bottomLeft, ref m_bottomRight, ref m_topLeft, ref m_topRight, m_lockedSide );
+					CalculatePerspectiveValues( ref m_bottomLeft, ref m_bottomRight, ref m_topLeft, ref m_topRight, m_lockedSide );
 					break;
 				case ESide.Left:
-					CalculatePerspectiveValues( _bounding, ref m_topLeft, ref m_bottomLeft, ref m_topRight, ref m_bottomRight, m_lockedSide );
+					CalculatePerspectiveValues( ref m_topLeft, ref m_bottomLeft, ref m_topRight, ref m_bottomRight, m_lockedSide );
 					break;
 				case ESide.Right:
-					CalculatePerspectiveValues( _bounding, ref m_topRight, ref m_bottomRight, ref m_topLeft, ref m_bottomLeft, m_lockedSide );
+					CalculatePerspectiveValues( ref m_topRight, ref m_bottomRight, ref m_topLeft, ref m_bottomLeft, m_lockedSide );
 					break;
 				default:
 					Debug.LogError("None or multiple flags not allowed here");
@@ -57,34 +59,31 @@ namespace GuiToolkit
 		}
 
 		protected override bool IsAbsolute { get { return true; } }
-		protected override bool NeedsWorldBoundingBox { get { return true; } }
 
-		private void CalculatePerspectiveValues( Rect _bounding, ref Vector2 _fixedPointA, ref Vector2 _fixedPointB, ref Vector2 _movingPointA, ref Vector2 _movingPointB, ESide _side )
+		private void CalculatePerspectiveValues( ref Vector2 _fixedPointA, ref Vector2 _fixedPointB, ref Vector2 _movingPointA, ref Vector2 _movingPointB, ESide _side )
 		{
 			_fixedPointA = _fixedPointB = Vector2.zero;
 
-			Vector2 vanishingPoint = m_vanishingPoint.GetWorldCenter2D( m_canvas );
-
-			(Rect bounding, Vector2 offset) = _bounding.BringToCenter();
-			vanishingPoint += offset;
+			Vector3 vanishingPoint = m_vanishingPoint.position;
+			vanishingPoint = m_rectTransform.InverseTransformPoint(vanishingPoint);
 
 			switch( _side )
 			{
 				case ESide.Top:
-					_movingPointA = CalculatePerspectiveValue( bounding.yMin, bounding.yMax, bounding.xMax, vanishingPoint, false);
-					_movingPointB = CalculatePerspectiveValue( bounding.yMin, bounding.yMax, bounding.xMin, vanishingPoint, false);
+					_movingPointA = CalculatePerspectiveValue( Bounding.yMin, Bounding.yMax, Bounding.xMax, vanishingPoint, false);
+					_movingPointB = CalculatePerspectiveValue( Bounding.yMin, Bounding.yMax, Bounding.xMin, vanishingPoint, false);
 					break;
 				case ESide.Bottom:
-					_movingPointA = CalculatePerspectiveValue( bounding.yMax, bounding.yMin, bounding.xMax, vanishingPoint, false);
-					_movingPointB = CalculatePerspectiveValue( bounding.yMax, bounding.yMin, bounding.xMin, vanishingPoint, false);
+					_movingPointA = CalculatePerspectiveValue( Bounding.yMax, Bounding.yMin, Bounding.xMax, vanishingPoint, false);
+					_movingPointB = CalculatePerspectiveValue( Bounding.yMax, Bounding.yMin, Bounding.xMin, vanishingPoint, false);
 					break;
 				case ESide.Left:
-					_movingPointA = CalculatePerspectiveValue( bounding.xMin, bounding.xMax, bounding.xMax, vanishingPoint, true);
-					_movingPointB = CalculatePerspectiveValue( bounding.xMin, bounding.xMax, bounding.xMin, vanishingPoint, true);
+					_movingPointA = CalculatePerspectiveValue( Bounding.xMin, Bounding.xMax, Bounding.xMax, vanishingPoint, true);
+					_movingPointB = CalculatePerspectiveValue( Bounding.xMin, Bounding.xMax, Bounding.xMin, vanishingPoint, true);
 					break;
 				case ESide.Right:
-					_movingPointA = CalculatePerspectiveValue( bounding.xMax, bounding.xMin, bounding.xMax, vanishingPoint, true);
-					_movingPointB = CalculatePerspectiveValue( bounding.xMax, bounding.xMin, bounding.xMin, vanishingPoint, true);
+					_movingPointA = CalculatePerspectiveValue( Bounding.xMax, Bounding.xMin, Bounding.xMax, vanishingPoint, true);
+					_movingPointB = CalculatePerspectiveValue( Bounding.xMax, Bounding.xMin, Bounding.xMin, vanishingPoint, true);
 					break;
 				default:
 					Debug.LogError("None or multiple flags not allowed here");
@@ -99,7 +98,10 @@ namespace GuiToolkit
 			if (_horizontal)
 				_vanishingPoint = _vanishingPoint.Swap();
 			else
+			{
 				_vanishingPoint.x = -_vanishingPoint.x;
+				_vanishingPoint.y = _vanishingPoint.y - (_byMax - _byMin);
+			}
 
 			float b0 = _byMin - _vanishingPoint.y;
 			float b1 = _byMax - _vanishingPoint.y;
@@ -109,13 +111,10 @@ namespace GuiToolkit
 			result.x = a1 - a0;
 
 			result.x *= m_canvas.scaleFactor;
-			result = m_rectTransform.InverseTransformVector(result);
 			result.y = 0;
 
 			if (_horizontal)
 				result = result.Swap();
-			else
-				result = -result;
 
 			//Debug.Log($"_byMin:{_byMin} _byMax:{_byMax} _bxMax:{_bxMax} _vanishingPoint:{_vanishingPoint} b0:{b0} b1:{b1} ratio:{ratio} a0:{a0} a1:{a1} result:{result}");
 

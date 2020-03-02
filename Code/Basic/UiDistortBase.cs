@@ -31,8 +31,7 @@ namespace GuiToolkit
 		protected static UIVertex s_vertex;
 
 		protected virtual bool IsAbsolute { get { return false; } }
-		protected virtual bool NeedsWorldBoundingBox { get { return false; } }
-		protected virtual void Prepare( Rect _bounding ) {}
+		protected virtual void Prepare() {}
 
 		public Rect Bounding {get; protected set;}
 
@@ -45,15 +44,7 @@ namespace GuiToolkit
 
 			Bounding = UiModifierUtil.GetBounds(s_verts);
 
-			if (NeedsWorldBoundingBox)
-			{
-				Rect worldRect2D = Bounding.GetWorldRect2D( m_rectTransform, m_canvas );
-				Prepare( worldRect2D );
-			}
-			else
-			{
-				Prepare( Bounding );
-			}
+			Prepare();
 
 			Vector2 size = IsAbsolute ? Vector2.one : Bounding.size;
 
