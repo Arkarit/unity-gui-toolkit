@@ -46,8 +46,11 @@ private float count;
 				DontDestroyOnLoad(gameObject);
 
 			SetViews();
+
+#if UNITY_EDITOR
 			OnlyActiveScene.s_scenesPath = m_scenesPath;
 			OnlyActiveScene.s_unloadAdditionalScenesOnPlay = m_unloadAdditionalScenesOnPlay;
+#endif
 		}
 
 protected override void Update()

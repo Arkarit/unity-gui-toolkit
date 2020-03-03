@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 /*
@@ -91,3 +92,4 @@ public class VectorRangeAttributeDrawer : PropertyDrawer
         return vector.x >= rangeAttribute.fMinX && vector.x <= rangeAttribute.fMaxX && vector.y >= rangeAttribute.fMinY && vector.y <= rangeAttribute.fMaxY;
     }
 }
+#endif

@@ -27,7 +27,7 @@ namespace GuiToolkit
 					GameObject.DestroyImmediate(_this.gameObject);
 			};
 #else
-			GameObject.Destroy(transform.gameObject);
+			GameObject.Destroy(_this.gameObject);
 #endif
 			return _this;
 		}
