@@ -16,6 +16,10 @@ namespace GuiToolkit
 
 			UiSettings settings = UiSettings.EditorLoad();
 
+			bool playing = Application.isPlaying;
+
+			EditorGUI.BeginDisabledGroup(playing);
+
 			EditorGUILayout.Space();
 			GUILayout.Label("General Settings", EditorStyles.boldLabel);
 			GUILayout.Label($"Stored in '{UiSettings.SETTINGS_EDITOR_PATH}'", EditorStyles.miniLabel);
@@ -23,8 +27,10 @@ namespace GuiToolkit
 			settings.m_scenesPath = EditorGUILayout.TextField("Scenes Path:", settings.m_scenesPath);
 			settings.m_unloadAdditionalScenesOnPlay = EditorGUILayout.Toggle("Unload additional scenes on editor play:", settings.m_unloadAdditionalScenesOnPlay);
 
-			UiSettings.EditorSave(settings);
+			if (!playing)
+				UiSettings.EditorSave(settings);
 
+			EditorGUI.EndDisabledGroup();
 		}
 	}
 }
