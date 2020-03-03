@@ -42,10 +42,16 @@ namespace GuiToolkit
 			if (settings == null)
 			{
 				settings = CreateInstance<UiSettings>();
-				AssetDatabase.CreateAsset(settings, SETTINGS_EDITOR_PATH);
-				AssetDatabase.SaveAssets();
+				EditorSave(settings);
 			}
 			return settings;
+		}
+
+		public static void EditorSave(UiSettings _settings)
+		{
+			if (!AssetDatabase.Contains(_settings))
+				AssetDatabase.CreateAsset(_settings, SETTINGS_EDITOR_PATH);
+			AssetDatabase.SaveAssets();
 		}
 
 		private static bool EnsureFolderExists( string _unityPath )
