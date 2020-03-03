@@ -18,19 +18,22 @@ namespace GuiToolkit
 	[InitializeOnLoad]
 	public static class OnlyActiveScene
 	{
-		public static bool s_unloadAdditionalScenesOnPlay = false;
-		public static string s_scenesPath = "Scenes/";
 
 		static OnlyActiveScene()
 		{
 			EditorApplication.playModeStateChanged += HandleScenes;
 		}
 
-		private static string TempFileName { get { return Application.temporaryCachePath + "/openScenes.txt"; }}
+		private static string TempFileName { get { return Application.temporaryCachePath + "/openScenes.txt"; } }
 
 		private static void HandleScenes( PlayModeStateChange _state )
 		{
-			if (!s_unloadAdditionalScenesOnPlay)
+			if (_state == PlayModeStateChange.EnteredPlayMode || _state == PlayModeStateChange.ExitingPlayMode)
+				return;
+
+			UiSettings settings = UiSettings.EditorLoad();
+
+			if (!settings.m_unloadAdditionalScenesOnPlay)
 				return;
 
 			try
@@ -58,13 +61,14 @@ namespace GuiToolkit
 					string s = File.ReadAllText(TempFileName);
 					EditorScenes editorScenes = JsonUtility.FromJson<EditorScenes>(s);
 					foreach (string sceneName in editorScenes.Scenes)
-						EditorSceneManager.OpenScene("Assets/" + s_scenesPath + sceneName + ".unity", OpenSceneMode.Additive);
+						EditorSceneManager.OpenScene("Assets/" + settings.m_scenesPath + sceneName + ".unity", OpenSceneMode.Additive);
 					File.Delete(TempFileName);
 				}
 			}
 			catch { }
 
 		}
+
 	}
 }
 #endif

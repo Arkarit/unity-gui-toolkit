@@ -17,14 +17,6 @@ namespace GuiToolkit
 		private readonly static Dictionary<string, UiView> s_views = new Dictionary<string, UiView>();
 private float count;
 
-		[Header("File Settings")]
-
-		[SerializeField]
-		private string m_scenesPath = "Scenes/";
-
-		[SerializeField]
-		private bool m_unloadAdditionalScenesOnPlay = false;
-
 		[Header("Canvas Settings")]
 
 		[SerializeField]
@@ -46,11 +38,6 @@ private float count;
 				DontDestroyOnLoad(gameObject);
 
 			SetViews();
-
-#if UNITY_EDITOR
-			OnlyActiveScene.s_scenesPath = m_scenesPath;
-			OnlyActiveScene.s_unloadAdditionalScenesOnPlay = m_unloadAdditionalScenesOnPlay;
-#endif
 		}
 
 protected override void Update()
@@ -73,8 +60,6 @@ count = -1;
 			SetViews();
 			foreach (var kv in s_views)
 				kv.Value.SetRenderMode(m_renderMode, GetComponent<Camera>());
-			OnlyActiveScene.s_scenesPath = m_scenesPath;
-			OnlyActiveScene.s_unloadAdditionalScenesOnPlay = m_unloadAdditionalScenesOnPlay;
 		}
 #endif
 
@@ -100,7 +85,7 @@ count = -1;
 			// You could also load the Scene by using sceneBuildIndex. In this case Scene2 has
 			// a sceneBuildIndex of 1 as shown in Build Settings.
 
-			AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(m_scenesPath + _name, LoadSceneMode.Additive);
+			AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(UiSettings.Instance.m_scenesPath + _name, LoadSceneMode.Additive);
 
 			// Wait until the asynchronous scene fully loads
 			while (!asyncLoad.isDone)
