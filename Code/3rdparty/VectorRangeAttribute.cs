@@ -1,6 +1,7 @@
-#if UNITY_EDITOR
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 /*
 Vector Range Attribute by Just a Pixel (Danny Goodayle @DGoodayle) - http://www.justapixel.co.uk
 Copyright (c) 2015
@@ -40,6 +41,7 @@ public class VectorRangeAttribute : PropertyAttribute {
     }
 }
 
+#if UNITY_EDITOR
 [CustomPropertyDrawer(typeof(VectorRangeAttribute))]
 public class VectorRangeAttributeDrawer : PropertyDrawer
 {
