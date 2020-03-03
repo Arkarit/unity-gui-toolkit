@@ -4,7 +4,9 @@ namespace GuiToolkit
 {
 	public class UiThing : MonoBehaviour
 	{
-		public virtual void Awake() { }
-		public virtual void Update() { }
+		protected virtual void Awake() { }
+		protected virtual void Update() { }
+		protected virtual void OnEnable() { }
+		protected virtual void OnDisable() { }
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace GuiToolkit
 {
@@ -16,7 +17,7 @@ namespace GuiToolkit
 		public string m_name;
 
 		[SerializeField]
-		EUiLayerDefinition m_layer;
+		private EUiLayerDefinition m_layer;
 
 		[SerializeField]
 		private IShowHideViewAnimation m_showHideAnimation;
@@ -24,7 +25,7 @@ namespace GuiToolkit
 		private Canvas m_canvas;
 		private UiMain m_main;
 
-		public override void Awake()
+		protected override void Awake()
 		{
 			base.Awake();
 			Init();

@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+#if UNITY_EDITOR
+using UnityEditor.SceneManagement;
+#endif
+
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(Camera))]
@@ -13,8 +17,15 @@ namespace GuiToolkit
 		private readonly static Dictionary<string, UiView> s_views = new Dictionary<string, UiView>();
 private float count;
 
+		[Header("File Settings")]
+
 		[SerializeField]
 		private string m_scenesPath = "Scenes/";
+
+		[SerializeField]
+		private bool m_unloadAdditionalScenesOnPlay = false;
+
+		[Header("Canvas Settings")]
 
 		[SerializeField]
 		private RenderMode m_renderMode = RenderMode.ScreenSpaceCamera;
@@ -26,7 +37,7 @@ private float count;
 
 		public float LayerDistance {get { return m_layerDistance; }}
 
-		public override void Awake()
+		protected override void Awake()
 		{
 			base.Awake();
 			m_camera = GetComponent<Camera>();
@@ -35,10 +46,13 @@ private float count;
 				DontDestroyOnLoad(gameObject);
 
 			SetViews();
+			OnlyActiveScene.s_scenesPath = m_scenesPath;
+			OnlyActiveScene.s_unloadAdditionalScenesOnPlay = m_unloadAdditionalScenesOnPlay;
 		}
 
-public override void Update()
+protected override void Update()
 {
+base.Update();
 if (Application.isPlaying && count >= 0)
 {
 count += Time.deltaTime;
@@ -50,12 +64,16 @@ count = -1;
 }
 }
 
+#if UNITY_EDITOR
 		public void OnValidate()
 		{
 			SetViews();
 			foreach (var kv in s_views)
 				kv.Value.SetRenderMode(m_renderMode, GetComponent<Camera>());
+			OnlyActiveScene.s_scenesPath = m_scenesPath;
+			OnlyActiveScene.s_unloadAdditionalScenesOnPlay = m_unloadAdditionalScenesOnPlay;
 		}
+#endif
 
 		public void Show(string _path)
 		{
