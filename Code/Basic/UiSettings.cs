@@ -17,8 +17,13 @@ namespace GuiToolkit
 		public static readonly string SETTINGS_EDITOR_DIR = "Assets/Resources" + SETTINGS_RUNTIME_DIR;
 		public static readonly string SETTINGS_EDITOR_PATH = SETTINGS_EDITOR_DIR + "/" + SETTINGS_FILE + ".asset";
 
+		[Tooltip("When enabled, the main scene (first scene in build list) is loaded, and all other scenes are unloaded. After play, the loaded scenes are restored.")]
 		public bool m_loadMainSceneOnPlay = false;
+
+		[Tooltip("Additional scene path for scenes, which are not in the scene references list")]
 		public string m_additionalScenesPath = "Scenes/";
+
+		[Tooltip("Add all scenes here which should be in the build.")]
 		public SceneReference[] m_sceneReferences;
 
 

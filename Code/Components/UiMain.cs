@@ -87,6 +87,9 @@ count = -1;
 
 			AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(UiSettings.Instance.GetScenePath(_name), LoadSceneMode.Additive);
 
+			if (asyncLoad == null)
+				yield break;
+
 			// Wait until the asynchronous scene fully loads
 			while (!asyncLoad.isDone)
 			{
