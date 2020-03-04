@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -296,13 +298,20 @@ namespace GuiToolkit
 				}
 			}
 
-			buttonRect.x += buttonRect.width;
-
-// 			tooltipMsg = "Open the 'Build Settings' Window for managing scenes." + readOnlyWarning;
-// 			if (DrawUtils.ButtonHelper(buttonRect, "Settings", "Build Settings", EditorStyles.miniButtonRight, tooltipMsg))
-// 			{
-// 				BuildUtils.OpenBuildSettings();
-// 			}
+			buttonRect.x += buttonRect.width + 10;
+			bool newSceneLoaded = DrawUtils.ToggleHelper(buttonRect, buildScene.loadedInEditor, "Loaded", "Loaded in Editor", EditorStyles.toggle);
+			if (newSceneLoaded != buildScene.loadedInEditor)
+			{
+				if (newSceneLoaded)
+				{
+					EditorSceneManager.OpenScene(buildScene.assetPath, OpenSceneMode.Additive);
+				}
+				else
+				{
+					Scene scene = EditorSceneManager.GetSceneByPath(buildScene.assetPath);
+					EditorSceneManager.CloseScene(scene, true);
+				}
+			}
 
 		}
 
@@ -331,6 +340,21 @@ namespace GuiToolkit
 					content.text = msgShort;
 
 				return GUI.Button(position, content, style);
+			}
+
+			/// <summary>
+			/// Draw a GUI button, choosing between a short and a long button text based on if it fits
+			/// </summary>
+			static public bool ToggleHelper( Rect position, bool toggle, string msgShort, string msgLong, GUIStyle style, string tooltip = null )
+			{
+				GUIContent content = new GUIContent(msgLong);
+				content.tooltip = tooltip;
+
+				float longWidth = style.CalcSize(content).x;
+				if (longWidth > position.width)
+					content.text = msgShort;
+
+				return GUI.Toggle(position, toggle, content, style);
 			}
 
 			/// <summary>
@@ -372,6 +396,7 @@ namespace GuiToolkit
 				public GUID assetGUID;
 				public string assetPath;
 				public EditorBuildSettingsScene scene;
+				public bool loadedInEditor;
 			}
 
 			/// <summary>
@@ -441,6 +466,8 @@ namespace GuiToolkit
 
 				entry.assetPath = AssetDatabase.GetAssetPath(sceneObject);
 				entry.assetGUID = new GUID(AssetDatabase.AssetPathToGUID(entry.assetPath));
+				Scene scene = EditorSceneManager.GetSceneByPath(entry.assetPath);
+				entry.loadedInEditor = scene != null && scene.isLoaded;
 
 				for (int index = 0; index < EditorBuildSettings.scenes.Length; ++index)
 				{
@@ -451,7 +478,6 @@ namespace GuiToolkit
 						return entry;
 					}
 				}
-
 				return entry;
 			}
 
