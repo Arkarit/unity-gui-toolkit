@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.SceneManagement;
 #endif
 
 // Based on SceneReference JohannesMP (2018-08-12)
@@ -24,7 +25,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		// What we use in editor to select the scene
 		[SerializeField]
-		private Object m_sceneAsset = null;
+		private UnityEngine.Object m_sceneAsset = null;
 
 		bool IsValidSceneAsset
 		{
@@ -52,7 +53,7 @@ namespace GuiToolkit
 #else
             // At runtime we rely on the stored path value which we assume was serialized correctly at build time.
             // See OnBeforeSerialize and OnAfterDeserialize
-            return scenePath;
+            return m_scenePath;
 #endif
 			}
 			set
@@ -162,18 +163,34 @@ namespace GuiToolkit
 		static readonly float lineHeight = EditorGUIUtility.singleLineHeight;
 		static readonly float paddedLine = lineHeight + padSize;
 		static readonly float footerHeight = 10f;
+		static readonly float numberIndent = 12f;
 
 		/// <summary>
 		/// Drawing the 'SceneReference' property
 		/// </summary>
 		public override void OnGUI( Rect position, SerializedProperty property, GUIContent label )
 		{
+			bool numberFound;
+			GUIContent numberGUIContent = DrawUtils.GetNumberGUIContentFromLabel(label, out numberFound);
+
 			var sceneAssetProperty = GetSceneAssetProperty(property);
 
 			// Draw the Box Background
 			position.height -= footerHeight;
+
+			if (numberFound)
+			{
+				DrawUtils.DisplayVerticallyCenteredNumber(position, numberGUIContent);
+				float numberIndentPer = numberGUIContent.text.Length * numberIndent;
+
+				position.x += numberIndentPer;
+				position.width -= numberIndentPer;
+				label = new GUIContent("");
+			}
+
 			GUI.Box(EditorGUI.IndentedRect(position), GUIContent.none, EditorStyles.helpBox);
 			position = boxPadding.Remove(position);
+
 			position.height = lineHeight;
 
 			// Draw the main Object field
@@ -182,7 +199,7 @@ namespace GuiToolkit
 			EditorGUI.BeginProperty(position, GUIContent.none, property);
 			EditorGUI.BeginChangeCheck();
 			int sceneControlID = GUIUtility.GetControlID(FocusType.Passive);
-			var selectedObject = EditorGUI.ObjectField(position, label, sceneAssetProperty.objectReferenceValue, typeof(SceneAsset), false);
+			UnityEngine.Object selectedObject = EditorGUI.ObjectField(position, label, sceneAssetProperty.objectReferenceValue, typeof(SceneAsset), false);
 			BuildUtils.BuildScene buildScene = BuildUtils.GetBuildScene(selectedObject);
 
 			if (EditorGUI.EndChangeCheck())
@@ -211,8 +228,8 @@ namespace GuiToolkit
 		{
 			int lines = 2;
 			SerializedProperty sceneAssetProperty = GetSceneAssetProperty(property);
-			if (sceneAssetProperty.objectReferenceValue == null)
-				lines = 1;
+// 			if (sceneAssetProperty.objectReferenceValue == null)
+// 				lines = 1;
 
 			return boxPadding.vertical + lineHeight * lines + padSize * (lines - 1) + footerHeight;
 		}
@@ -374,6 +391,26 @@ namespace GuiToolkit
 				position.width = EditorGUIUtility.labelWidth - padSize;
 				return position;
 			}
+
+			static public string GetNumberStringFromLabel( string label, out bool numberFound )
+			{
+				string s = label;
+				s = string.Concat(s.ToArray().Reverse().TakeWhile(char.IsNumber).Reverse());
+				numberFound = !string.IsNullOrEmpty(s);
+				return numberFound ? s : label;
+			}
+
+			static public GUIContent GetNumberGUIContentFromLabel( GUIContent label, out bool numberFound )
+			{
+				return new GUIContent(GetNumberStringFromLabel(label.text, out numberFound));
+			}
+
+			static public void DisplayVerticallyCenteredNumber( Rect position, GUIContent numberGUIContent )
+			{
+				var centeredStyle = GUI.skin.GetStyle("Label");
+				centeredStyle.alignment = TextAnchor.MiddleLeft;
+				EditorGUI.LabelField(position, numberGUIContent, centeredStyle);
+			}
 		}
 
 		/// <summary>
@@ -453,7 +490,7 @@ namespace GuiToolkit
 			/// <summary>
 			/// For a given Scene Asset object reference, extract its build settings data, including buildIndex.
 			/// </summary>
-			static public BuildScene GetBuildScene( Object sceneObject )
+			static public BuildScene GetBuildScene( UnityEngine.Object sceneObject )
 			{
 				BuildScene entry = new BuildScene()
 				{

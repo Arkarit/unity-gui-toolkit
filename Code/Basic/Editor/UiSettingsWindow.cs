@@ -10,7 +10,10 @@ namespace GuiToolkit
 		[SerializeField]
 		private UiSettings m_settings;
 
-		private void OnGUI()
+		private SerializedObject m_serializedSettingsObject;
+		private Vector2 scrollPos;
+
+		private void OnEnable()
 		{
 			SerializedObject serializedObject = new SerializedObject(this);
 			SerializedProperty settingsProp = serializedObject.FindProperty("m_settings");
@@ -24,9 +27,20 @@ namespace GuiToolkit
 
 			serializedObject.ApplyModifiedProperties();
 
-			serializedObject = new SerializedObject(settings);
-			serializedObject.DisplayProperties();
-			serializedObject.ApplyModifiedProperties();
+			m_serializedSettingsObject = new SerializedObject(settings);
+			
+		}
+
+		private void OnGUI()
+		{
+			GUILayout.BeginVertical();
+			scrollPos = GUILayout.BeginScrollView(scrollPos);
+
+			m_serializedSettingsObject.DisplayProperties();
+			m_serializedSettingsObject.ApplyModifiedProperties();
+
+			GUILayout.EndScrollView ();
+			GUILayout.EndVertical();
 		}
 
 		[MenuItem("UI Toolkit/Settings")]
