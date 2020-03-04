@@ -47,9 +47,9 @@ namespace GuiToolkit
 				return;
 
 			if (m_type == Type.Horizontal)
-				UiModifierUtil.Subdivide( _vh, keyTimes.ToList(), null);
+				UiModifierUtility.Subdivide( _vh, keyTimes.ToList(), null);
 			else
-				UiModifierUtil.Subdivide( _vh, null, keyTimes.ToList());
+				UiModifierUtility.Subdivide( _vh, null, keyTimes.ToList());
 		}
 
 	}

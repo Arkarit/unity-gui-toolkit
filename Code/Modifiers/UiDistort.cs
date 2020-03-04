@@ -101,14 +101,14 @@ namespace GuiToolkit
 
 			if (mirrorHorizontal)
 			{
-				UiMath.Swap(ref tlprop, ref trprop);
-				UiMath.Swap(ref blprop, ref brprop);
+				UiMathUtility.Swap(ref tlprop, ref trprop);
+				UiMathUtility.Swap(ref blprop, ref brprop);
 			}
 
 			if (mirrorVertical)
 			{
-				UiMath.Swap(ref tlprop, ref blprop);
-				UiMath.Swap(ref trprop, ref brprop);
+				UiMathUtility.Swap(ref tlprop, ref blprop);
+				UiMathUtility.Swap(ref trprop, ref brprop);
 			}
 
 			bool isAbsolute = m_absoluteValuesProp.boolValue;

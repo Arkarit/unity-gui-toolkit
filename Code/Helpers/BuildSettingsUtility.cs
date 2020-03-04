@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 /// </summary>
 namespace GuiToolkit
 {
-	static public class BuildUtils
+	static public class BuildSettingsUtility
 	{
 		public const int SCENE_NOT_IN_BUILD = -1;
 		public const int SCENE_DISABLED = -2;

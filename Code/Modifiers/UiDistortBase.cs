@@ -42,7 +42,7 @@ namespace GuiToolkit
 
 			_vertexHelper.GetUIVertexStream(s_verts);
 
-			Bounding = UiModifierUtil.GetBounds(s_verts);
+			Bounding = UiModifierUtility.GetBounds(s_verts);
 
 			Prepare();
 
@@ -60,14 +60,14 @@ namespace GuiToolkit
 
 			if (mirrorHorizontal)
 			{
-				UiMath.Swap( ref tl, ref tr );
-				UiMath.Swap( ref bl, ref br );
+				UiMathUtility.Swap( ref tl, ref tr );
+				UiMathUtility.Swap( ref bl, ref br );
 			}
 
 			if (mirrorVertical)
 			{
-				UiMath.Swap( ref tl, ref bl );
-				UiMath.Swap( ref tr, ref br );
+				UiMathUtility.Swap( ref tl, ref bl );
+				UiMathUtility.Swap( ref tr, ref br );
 			}
 
 			for (int i = 0; i < _vertexHelper.currentVertCount; ++i)
@@ -75,7 +75,7 @@ namespace GuiToolkit
 				_vertexHelper.PopulateUIVertex(ref s_vertex, i);
 
 				Vector2 pointNormalized = s_vertex.position.GetNormalizedPointInRect(Bounding);
-				Vector2 point = s_vertex.position.Xy() + UiMath.Lerp4P(tl, tr, bl, br, pointNormalized, false, true) * mirrorVec;
+				Vector2 point = s_vertex.position.Xy() + UiMathUtility.Lerp4P(tl, tr, bl, br, pointNormalized, false, true) * mirrorVec;
 				s_vertex.position = new Vector3(point.x, point.y, s_vertex.position.z);
 
 				_vertexHelper.SetUIVertex(s_vertex, i);

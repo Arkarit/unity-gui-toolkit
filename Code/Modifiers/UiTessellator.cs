@@ -44,13 +44,13 @@ namespace GuiToolkit
 				case EMode.None:
 					break;
 				case EMode.Horizontal:
-					UiModifierUtil.Tessellate(_vh, m_sizeHorizontal, LARGE_SIZE);
+					UiModifierUtility.Tessellate(_vh, m_sizeHorizontal, LARGE_SIZE);
 					break;
 				case EMode.Vertical:
-					UiModifierUtil.Tessellate(_vh, LARGE_SIZE, m_sizeVertical);
+					UiModifierUtility.Tessellate(_vh, LARGE_SIZE, m_sizeVertical);
 					break;
 				case EMode.Both:
-					UiModifierUtil.Tessellate(_vh, m_sizeHorizontal, m_sizeVertical);
+					UiModifierUtility.Tessellate(_vh, m_sizeHorizontal, m_sizeVertical);
 					break;
 			}
 		}

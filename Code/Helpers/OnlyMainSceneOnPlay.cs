@@ -32,7 +32,7 @@ namespace GuiToolkit
 			if (_state == PlayModeStateChange.EnteredPlayMode || _state == PlayModeStateChange.ExitingPlayMode)
 				return;
 
-			if (!BuildUtils.HasMainScene())
+			if (!BuildSettingsUtility.HasMainScene())
 			{
 				Debug.LogError("Automatic scene loading/unloading does not work when no main scene is defined. Please add at least one enabled scene to your build settings");
 				return;
@@ -49,7 +49,7 @@ namespace GuiToolkit
 				{
 					EditorScenes editorScenes = new EditorScenes();
 					editorScenes.MainSceneWasLoaded = LoadMainSceneIfNecessary();
-					Scene mainScene = BuildUtils.GetMainScene();
+					Scene mainScene = BuildSettingsUtility.GetMainScene();
 
 					for (int i = 0; i < EditorSceneManager.loadedSceneCount; i++)
 					{
@@ -67,7 +67,7 @@ namespace GuiToolkit
 
 				if (_state == PlayModeStateChange.EnteredEditMode)
 				{
-					Scene mainScene = BuildUtils.GetMainScene();
+					Scene mainScene = BuildSettingsUtility.GetMainScene();
 
 					string s = File.ReadAllText(TempFileName);
 					EditorScenes editorScenes = JsonUtility.FromJson<EditorScenes>(s);
@@ -84,11 +84,11 @@ namespace GuiToolkit
 
 		private static bool LoadMainSceneIfNecessary()
 		{
-			Scene mainScene = BuildUtils.GetMainScene();
+			Scene mainScene = BuildSettingsUtility.GetMainScene();
 			if (mainScene.isLoaded)
 				return true;
 
-			string mainScenePath = BuildUtils.GetMainScenePath();
+			string mainScenePath = BuildSettingsUtility.GetMainScenePath();
 			EditorSceneManager.OpenScene(mainScenePath, OpenSceneMode.Additive);
 			return false;
 		}

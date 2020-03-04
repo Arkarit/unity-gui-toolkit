@@ -48,13 +48,13 @@ namespace GuiToolkit
 
 			_vertexHelper.GetUIVertexStream(s_verts);
 
-			Bounding = UiModifierUtil.GetBounds(s_verts);
+			Bounding = UiModifierUtility.GetBounds(s_verts);
 			for (int i = 0; i < _vertexHelper.currentVertCount; ++i)
 			{
 				_vertexHelper.PopulateUIVertex(ref s_vertex, i);
 
 				Vector2 pointNormalized = s_vertex.position.GetNormalizedPointInRect(Bounding);
-				Vector2 point = s_vertex.position.Xy() + UiMath.InterpPoint(m_points, m_pointsHorizontal, m_pointsVertical, pointNormalized, false, true) * Bounding.size;
+				Vector2 point = s_vertex.position.Xy() + UiMathUtility.InterpPoint(m_points, m_pointsHorizontal, m_pointsVertical, pointNormalized, false, true) * Bounding.size;
 				s_vertex.position = new Vector3(point.x, point.y, s_vertex.position.z);
 
 				_vertexHelper.SetUIVertex(s_vertex, i);
@@ -201,7 +201,7 @@ namespace GuiToolkit
 
 					int arrayIdx = iy * thisUiFFD.PointsHorizontal + ix;
 					Vector2 normCorners = new Vector2(ix * xStep, iy * yStep);
-					Vector3 tp = UiMath.Lerp4P(corners, normCorners);
+					Vector3 tp = UiMathUtility.Lerp4P(corners, normCorners);
 					hasChanged |= UiEditorUtility.DoHandle( m_pointsProp.GetArrayElementAtIndex(arrayIdx), tp, size, rt, false, false, Constants.HANDLE_SIZE ); 
 				}
 			}
@@ -221,13 +221,13 @@ namespace GuiToolkit
 					int arrayIdx0 = iy * thisUiFFD.PointsHorizontal + ix;
 					SerializedProperty p0Prop = m_pointsProp.GetArrayElementAtIndex(arrayIdx0);
 					Vector2 normCorners0 = new Vector2(ix * xStep, iy * yStep);
-					Vector2 tp0 = UiMath.Lerp4P(corners, normCorners0);
+					Vector2 tp0 = UiMathUtility.Lerp4P(corners, normCorners0);
 
 					if (ix<thisUiFFD.PointsHorizontal-1)
 					{
 						SerializedProperty p1Prop = m_pointsProp.GetArrayElementAtIndex(arrayIdx0+1);
 						Vector2 normCorners1 = new Vector2((ix+1) * xStep, iy * yStep);
-						Vector2 tp1 = UiMath.Lerp4P(corners, normCorners1);
+						Vector2 tp1 = UiMathUtility.Lerp4P(corners, normCorners1);
 						UiEditorUtility.DrawLine(p0Prop, p1Prop, tp0, tp1, size, rt);
 					}
 
@@ -236,7 +236,7 @@ namespace GuiToolkit
 						int arrayIdx1 = (iy+1) * thisUiFFD.PointsHorizontal + ix;
 						SerializedProperty p1Prop = m_pointsProp.GetArrayElementAtIndex(arrayIdx1);
 						Vector2 normCorners1 = new Vector2(ix * xStep, (iy+1) * yStep);
-						Vector2 tp1 = UiMath.Lerp4P(corners, normCorners1);
+						Vector2 tp1 = UiMathUtility.Lerp4P(corners, normCorners1);
 						UiEditorUtility.DrawLine(p0Prop, p1Prop, tp0, tp1, size, rt);
 					}
 

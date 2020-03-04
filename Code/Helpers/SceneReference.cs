@@ -200,7 +200,7 @@ namespace GuiToolkit
 			EditorGUI.BeginChangeCheck();
 			int sceneControlID = GUIUtility.GetControlID(FocusType.Passive);
 			UnityEngine.Object selectedObject = EditorGUI.ObjectField(position, label, sceneAssetProperty.objectReferenceValue, typeof(SceneAsset), false);
-			BuildUtils.BuildScene buildScene = BuildUtils.GetBuildScene(selectedObject);
+			BuildSettingsUtility.BuildScene buildScene = BuildSettingsUtility.GetBuildScene(selectedObject);
 
 			if (EditorGUI.EndChangeCheck())
 			{
@@ -237,9 +237,9 @@ namespace GuiToolkit
 		/// <summary>
 		/// Draws info box of the provided scene
 		/// </summary>
-		private void DrawSceneInfoGUI( Rect position, BuildUtils.BuildScene buildScene, int sceneControlID )
+		private void DrawSceneInfoGUI( Rect position, BuildSettingsUtility.BuildScene buildScene, int sceneControlID )
 		{
-			bool readOnly = BuildUtils.IsReadOnly();
+			bool readOnly = BuildSettingsUtility.IsReadOnly();
 			string readOnlyWarning = readOnly ? "\n\nWARNING: Build Settings is not checked out and so cannot be modified." : "";
 
 			// Label Prefix
@@ -249,7 +249,7 @@ namespace GuiToolkit
 			bool mainScene = false;
 
 			// Missing from build scenes
-			if (buildScene.buildIndex == BuildUtils.SCENE_NOT_IN_BUILD)
+			if (buildScene.buildIndex == BuildSettingsUtility.SCENE_NOT_IN_BUILD)
 			{
 				iconContent = EditorGUIUtility.IconContent("d_winbtn_mac_close");
 				labelContent.text = "NOT In Build";
@@ -294,13 +294,13 @@ namespace GuiToolkit
 			using (new EditorGUI.DisabledScope(readOnly))
 			{
 				// NOT in build settings
-				if (buildScene.buildIndex == BuildUtils.SCENE_NOT_IN_BUILD)
+				if (buildScene.buildIndex == BuildSettingsUtility.SCENE_NOT_IN_BUILD)
 				{
 					buttonRect.width *= 2;
 					int addIndex = EditorBuildSettings.scenes.Length;
 					tooltipMsg = "Add this scene to build settings. It will be appended to the end of the build scenes as buildIndex: " + addIndex + "." + readOnlyWarning;
 					if (DrawUtils.ButtonHelper(buttonRect, "Add...", "Add (buildIndex " + addIndex + ")", EditorStyles.miniButtonLeft, tooltipMsg))
-						BuildUtils.AddBuildScene(buildScene);
+						BuildSettingsUtility.AddBuildScene(buildScene);
 					buttonRect.width /= 2;
 					buttonRect.x += buttonRect.width;
 				}
@@ -312,12 +312,12 @@ namespace GuiToolkit
 					tooltipMsg = stateString + " this scene in build settings.\n" + (isEnabled ? "It will no longer be included in builds" : "It will be included in builds") + "." + readOnlyWarning;
 
 					if (DrawUtils.ButtonHelper(buttonRect, stateString, stateString + " In Build", EditorStyles.miniButtonLeft, tooltipMsg))
-						BuildUtils.SetBuildSceneState(buildScene, !isEnabled);
+						BuildSettingsUtility.SetBuildSceneState(buildScene, !isEnabled);
 					buttonRect.x += buttonRect.width;
 
 					tooltipMsg = "Completely remove this scene from build settings.\nYou will need to add it again for it to be included in builds!" + readOnlyWarning;
 					if (DrawUtils.ButtonHelper(buttonRect, "Remove...", "Remove from Build", EditorStyles.miniButtonMid, tooltipMsg))
-						BuildUtils.RemoveBuildScene(buildScene);
+						BuildSettingsUtility.RemoveBuildScene(buildScene);
 				}
 			}
 

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public static class UiMath
+	public static class UiMathUtility
 	{
 		private static readonly List<int[]> s_binomialLUT = new List<int[]>();
 
