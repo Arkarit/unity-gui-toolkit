@@ -17,10 +17,10 @@ namespace GuiToolkit
 	}
 
 	[InitializeOnLoad]
-	public static class OnlyActiveScene
+	public static class OnlyMainSceneOnPlay
 	{
 
-		static OnlyActiveScene()
+		static OnlyMainSceneOnPlay()
 		{
 			EditorApplication.playModeStateChanged += HandleScenes;
 		}
