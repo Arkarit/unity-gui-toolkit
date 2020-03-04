@@ -17,6 +17,7 @@ namespace GuiToolkit
 
 		public bool m_unloadAdditionalScenesOnPlay = false;
 		public string m_scenesPath = "Scenes/";
+		public SceneReference[] m_sceneReferences;
 
 		private static UiSettings s_instance;
 
@@ -89,4 +90,46 @@ namespace GuiToolkit
 		}
 #endif
 	}
+
+
+#if UNITY_EDITOR
+
+	public class UiSettingsWindow : EditorWindow
+	{
+		[SerializeField]
+		private UiSettings m_settings;
+
+		private void OnGUI()
+		{
+			titleContent.text = "Ui Settings";
+			SerializedObject serializedObject = new SerializedObject(this);
+			SerializedProperty settingsProp = serializedObject.FindProperty("m_settings");
+
+			UiSettings settings = settingsProp.objectReferenceValue as UiSettings;
+			if (settings == null)
+			{
+				settings = UiSettings.EditorLoad();
+				settingsProp.objectReferenceValue = settings;
+			}
+
+			serializedObject.ApplyModifiedProperties();
+
+			serializedObject = new SerializedObject(settings);
+			serializedObject.DisplayProperties();
+			serializedObject.ApplyModifiedProperties();
+		}
+
+	}
+
+	public static class CreateUiSettingsWindow
+	{
+		public static UiSettingsWindow m_window;
+		[MenuItem("UI Toolkit/Settings")]
+		public static void CreateWizard()
+		{
+			m_window = ScriptableObject.CreateInstance<UiSettingsWindow>();
+			m_window.Show();
+		}
+	}
+#endif
 }
