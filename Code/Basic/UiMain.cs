@@ -85,7 +85,7 @@ count = -1;
 			// You could also load the Scene by using sceneBuildIndex. In this case Scene2 has
 			// a sceneBuildIndex of 1 as shown in Build Settings.
 
-			AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(UiSettings.Instance.m_scenesPath + _name, LoadSceneMode.Additive);
+			AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(UiSettings.Instance.GetScenePath(_name), LoadSceneMode.Additive);
 
 			// Wait until the asynchronous scene fully loads
 			while (!asyncLoad.isDone)

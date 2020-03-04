@@ -13,6 +13,7 @@ namespace GuiToolkit
 	public class EditorScenes
 	{
 		public List<string> Scenes = new List<string>();
+		public bool MainSceneWasLoaded;
 	}
 
 	[InitializeOnLoad]
@@ -31,9 +32,15 @@ namespace GuiToolkit
 			if (_state == PlayModeStateChange.EnteredPlayMode || _state == PlayModeStateChange.ExitingPlayMode)
 				return;
 
+			if (!BuildUtils.HasMainScene())
+			{
+				Debug.LogError("Automatic scene loading/unloading does not work when no main scene is defined. Please add at least one enabled scene to your build settings");
+				return;
+			}
+
 			UiSettings settings = UiSettings.EditorLoad();
 
-			if (!settings.m_unloadAdditionalScenesOnPlay)
+			if (!settings.m_loadMainSceneOnPlay)
 				return;
 
 			try
@@ -41,11 +48,13 @@ namespace GuiToolkit
 				if (_state == PlayModeStateChange.ExitingEditMode)
 				{
 					EditorScenes editorScenes = new EditorScenes();
+					editorScenes.MainSceneWasLoaded = LoadMainSceneIfNecessary();
+					Scene mainScene = BuildUtils.GetMainScene();
 
 					for (int i = 0; i < EditorSceneManager.loadedSceneCount; i++)
 					{
 						Scene scene = EditorSceneManager.GetSceneAt(i);
-						if (scene != EditorSceneManager.GetActiveScene())
+						if (scene != mainScene)
 							editorScenes.Scenes.Add(scene.name);
 					}
 
@@ -58,15 +67,30 @@ namespace GuiToolkit
 
 				if (_state == PlayModeStateChange.EnteredEditMode)
 				{
+					Scene mainScene = BuildUtils.GetMainScene();
+
 					string s = File.ReadAllText(TempFileName);
 					EditorScenes editorScenes = JsonUtility.FromJson<EditorScenes>(s);
 					foreach (string sceneName in editorScenes.Scenes)
-						EditorSceneManager.OpenScene("Assets/" + settings.m_scenesPath + sceneName + ".unity", OpenSceneMode.Additive);
+						EditorSceneManager.OpenScene(UiSettings.GetEditorScenePath(sceneName), OpenSceneMode.Additive);
 					File.Delete(TempFileName);
+					if (!editorScenes.MainSceneWasLoaded)
+						EditorSceneManager.CloseScene(EditorSceneManager.GetSceneByName(mainScene.name), true);
 				}
 			}
 			catch { }
 
+		}
+
+		private static bool LoadMainSceneIfNecessary()
+		{
+			Scene mainScene = BuildUtils.GetMainScene();
+			if (mainScene.isLoaded)
+				return true;
+
+			string mainScenePath = BuildUtils.GetMainScenePath();
+			EditorSceneManager.OpenScene(mainScenePath, OpenSceneMode.Additive);
+			return false;
 		}
 
 	}
