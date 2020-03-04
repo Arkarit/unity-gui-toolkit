@@ -158,6 +158,9 @@ namespace GuiToolkit
 		// The exact name of  the scene Path variable in the SceneReference object
 		const string ScenePathPropertyString = "m_scenePath";
 
+		const int SCENE_NOT_IN_BUILD = -1;
+		const int SCENE_DISABLED = -2;
+
 		static readonly RectOffset boxPadding = EditorStyles.helpBox.padding;
 		static readonly float padSize = 2f;
 		static readonly float lineHeight = EditorGUIUtility.singleLineHeight;
@@ -246,8 +249,10 @@ namespace GuiToolkit
 			GUIContent iconContent = new GUIContent();
 			GUIContent labelContent = new GUIContent();
 
+			bool mainScene = false;
+
 			// Missing from build scenes
-			if (buildScene.buildIndex == -1)
+			if (buildScene.buildIndex == SCENE_NOT_IN_BUILD)
 			{
 				iconContent = EditorGUIUtility.IconContent("d_winbtn_mac_close");
 				labelContent.text = "NOT In Build";
@@ -257,14 +262,18 @@ namespace GuiToolkit
 			else if (buildScene.scene.enabled)
 			{
 				iconContent = EditorGUIUtility.IconContent("d_winbtn_mac_max");
-				labelContent.text = "BuildIndex: " + buildScene.buildIndex;
+				mainScene = buildScene.buildIndex == 0;
+				if (mainScene)
+					labelContent.text = "Main Scene: 0";
+				else
+					labelContent.text = "BuildIndex: " + buildScene.buildIndex;
 				labelContent.tooltip = "This scene is in build settings and ENABLED.\nIt will be included in builds." + readOnlyWarning;
 			}
 			// In build scenes and disabled
 			else
 			{
 				iconContent = EditorGUIUtility.IconContent("d_winbtn_mac_min");
-				labelContent.text = "BuildIndex: " + buildScene.buildIndex;
+				labelContent.text = "Disabled";
 				labelContent.tooltip = "This scene is in build settings and DISABLED.\nIt will be NOT included in builds.";
 			}
 
@@ -277,7 +286,7 @@ namespace GuiToolkit
 				labelRect.width -= iconRect.width;
 				labelRect.x += iconRect.width;
 				EditorGUI.PrefixLabel(iconRect, sceneControlID, iconContent);
-				EditorGUI.PrefixLabel(labelRect, sceneControlID, labelContent);
+				EditorGUI.PrefixLabel(labelRect, sceneControlID, labelContent, mainScene ? EditorStyles.boldLabel : EditorStyles.label);
 			}
 
 			// Right context buttons
@@ -288,7 +297,7 @@ namespace GuiToolkit
 			using (new EditorGUI.DisabledScope(readOnly))
 			{
 				// NOT in build settings
-				if (buildScene.buildIndex == -1)
+				if (buildScene.buildIndex == SCENE_NOT_IN_BUILD)
 				{
 					buttonRect.width *= 2;
 					int addIndex = EditorBuildSettings.scenes.Length;
@@ -316,6 +325,7 @@ namespace GuiToolkit
 			}
 
 			buttonRect.x += buttonRect.width + 10;
+			EditorGUI.BeginDisabledGroup(!buildScene.enabled);
 			bool newSceneLoaded = DrawUtils.ToggleHelper(buttonRect, buildScene.loadedInEditor, "Loaded", "Loaded in Editor", EditorStyles.toggle);
 			if (newSceneLoaded != buildScene.loadedInEditor)
 			{
@@ -329,6 +339,7 @@ namespace GuiToolkit
 					EditorSceneManager.CloseScene(scene, true);
 				}
 			}
+			EditorGUI.EndDisabledGroup();
 
 		}
 
@@ -434,6 +445,7 @@ namespace GuiToolkit
 				public string assetPath;
 				public EditorBuildSettingsScene scene;
 				public bool loadedInEditor;
+				public bool enabled;
 			}
 
 			/// <summary>
@@ -494,7 +506,7 @@ namespace GuiToolkit
 			{
 				BuildScene entry = new BuildScene()
 				{
-					buildIndex = -1,
+					buildIndex = SCENE_NOT_IN_BUILD,
 					assetGUID = new GUID(string.Empty)
 				};
 
@@ -505,15 +517,20 @@ namespace GuiToolkit
 				entry.assetGUID = new GUID(AssetDatabase.AssetPathToGUID(entry.assetPath));
 				Scene scene = EditorSceneManager.GetSceneByPath(entry.assetPath);
 				entry.loadedInEditor = scene != null && scene.isLoaded;
+				entry.enabled = !entry.loadedInEditor || EditorSceneManager.sceneCount > 1;
 
-				for (int index = 0; index < EditorBuildSettings.scenes.Length; ++index)
+				for (int index = 0, sceneIndex = 0; index < EditorBuildSettings.scenes.Length; ++index)
 				{
 					if (entry.assetGUID.Equals(EditorBuildSettings.scenes[index].guid))
 					{
 						entry.scene = EditorBuildSettings.scenes[index];
-						entry.buildIndex = index;
+						entry.buildIndex = entry.scene.enabled ? sceneIndex : SCENE_DISABLED;
 						return entry;
 					}
+
+					EditorBuildSettingsScene sc = EditorBuildSettings.scenes[index];
+					if (sc.enabled)
+						sceneIndex++;
 				}
 				return entry;
 			}
