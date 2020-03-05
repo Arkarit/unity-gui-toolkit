@@ -170,6 +170,8 @@ namespace GuiToolkit
 		/// </summary>
 		public override void OnGUI( Rect position, SerializedProperty property, GUIContent label )
 		{
+			EditorGUI.BeginProperty(position, GUIContent.none, property);
+
 			bool numberFound;
 			GUIContent numberGUIContent = DrawUtils.GetNumberGUIContentFromLabel(label, out numberFound);
 
@@ -196,7 +198,6 @@ namespace GuiToolkit
 			// Draw the main Object field
 			label.tooltip = "The actual Scene Asset reference.\nOn serialize this is also stored as the asset's path.";
 
-			EditorGUI.BeginProperty(position, GUIContent.none, property);
 			EditorGUI.BeginChangeCheck();
 			int sceneControlID = GUIUtility.GetControlID(FocusType.Passive);
 			UnityEngine.Object selectedObject = EditorGUI.ObjectField(position, label, sceneAssetProperty.objectReferenceValue, typeof(SceneAsset), false);
