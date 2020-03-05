@@ -169,6 +169,8 @@ namespace GuiToolkit
 				if (string.IsNullOrEmpty(uiView.m_name))
 					uiView.m_name = uiView.gameObject.name;
 
+				uiView.InitEvents();
+
 				bool keyFound = s_views.ContainsKey(uiView.m_name);
 
 				Debug.Assert(!keyFound, $"Duplicate UiView name '{uiView.m_name}' found. (Check also game object name if UiView Name is not set)");
