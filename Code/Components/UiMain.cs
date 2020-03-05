@@ -16,7 +16,6 @@ namespace GuiToolkit
 	public class UiMain : UiThing
 	{
 		private readonly static Dictionary<string, UiView> s_views = new Dictionary<string, UiView>();
-private float count;
 
 		[Header("Canvas Settings")]
 
@@ -73,20 +72,6 @@ private float count;
 		{
 			EvLoad.Invoke(_sceneName, _whenLoaded, false);
 		}
-
-protected override void Update()
-{
-base.Update();
-if (Application.isPlaying && count >= 0)
-{
-count += Time.deltaTime;
-if (count > 3)
-{
-UiMain.InvokeLoad("UiScene1", (dummy)=> UiSplashMessage.InvokeShow("Hello World"));
-count = -1;
-}
-}
-}
 
 #if UNITY_EDITOR
 		public void OnValidate()
