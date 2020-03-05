@@ -60,7 +60,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			m_showHideAnimation.ShowViewAnimation( () => gameObject.SetActive(false) );
+			m_showHideAnimation.HideViewAnimation( () => gameObject.SetActive(false) );
 		}
 
 		public void SetRenderMode( RenderMode _renderMode, Camera _camera )

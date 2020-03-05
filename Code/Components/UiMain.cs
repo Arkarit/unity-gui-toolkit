@@ -70,7 +70,14 @@ count = -1;
 				s_views[_path].Show();
 				return;
 			}
-			StartCoroutine(LoadAsyncScene(_path));
+			StartCoroutine(LoadAsyncScene(_path, true));
+		}
+
+		public void Load(string _path)
+		{
+			if (s_views.ContainsKey(_path))
+				return;
+			StartCoroutine(LoadAsyncScene(_path, false));
 		}
 
 		public void Hide(string _name)
@@ -78,7 +85,7 @@ count = -1;
 
 		}
 
-		IEnumerator LoadAsyncScene(string _name)
+		IEnumerator LoadAsyncScene(string _name, bool _show)
 		{
 			// The Application loads the Scene in the background as the current Scene runs.
 			// This is particularly good for creating loading screens.
@@ -112,7 +119,8 @@ count = -1;
 					view.SetRenderMode(m_renderMode, m_camera);
 					SetViews();
 					view.Hide(true);
-					view.Show();
+					if (_show)
+						view.Show();
 					break;
 				}
 			}

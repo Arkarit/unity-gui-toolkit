@@ -242,6 +242,7 @@ namespace GuiToolkit
 					if (m_gotoStartOnBackwards)
 						OnAnimate(0);
 					m_running = false;
+					FinishAnimation();
 					return;
 				}
 
@@ -249,6 +250,8 @@ namespace GuiToolkit
 				{
 					m_backwardsAnimation.Update(_timeDelta);
 					m_running = m_backwardsAnimation.m_running;
+					if (!m_running)
+						FinishAnimation();
 					return;
 				}
 			}
