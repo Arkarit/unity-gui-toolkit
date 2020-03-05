@@ -30,5 +30,5 @@ namespace GuiToolkit
 			return window;
 		}
 	}
-#endif
 }
+#endif

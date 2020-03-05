@@ -25,7 +25,6 @@ namespace GuiToolkit
 		[SerializeField]
 		private float m_layerDistance = 1;
 
-
 		[System.Serializable]
 		private class CEvLoad : UnityEvent<string,Action<UiView>, bool> {}
 		private static CEvLoad EvLoad = new CEvLoad();
