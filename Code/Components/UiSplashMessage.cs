@@ -18,6 +18,7 @@ namespace GuiToolkit
 
 		protected override void Awake()
 		{
+			base.Awake();
 			EvShow.AddListener(Show);
 		}
 

@@ -40,21 +40,15 @@ private float count;
 			SetViews();
 		}
 
-private bool sceneLoaded;
 protected override void Update()
 {
 base.Update();
 if (Application.isPlaying && count >= 0)
 {
 count += Time.deltaTime;
-if (count > 3 && !sceneLoaded)
+if (count > 3)
 {
-Load("UiScene1");
-sceneLoaded = true;
-}
-if (count > 4)
-{
-UiSplashMessage.EvShow.Invoke("Hello World", 3);
+Load("UiScene1", (dummy)=> UiSplashMessage.EvShow.Invoke("Hello World", 3));
 count = -1;
 }
 }
@@ -69,21 +63,21 @@ count = -1;
 		}
 #endif
 
-		public void Show(string _path)
+		public void Show(string _path, Action<UiView> _whenLoaded = null)
 		{
 			if (s_views.ContainsKey(_path))
 			{
 				s_views[_path].Show();
 				return;
 			}
-			StartCoroutine(LoadAsyncScene(_path, true));
+			StartCoroutine(LoadAsyncScene(_path, true, _whenLoaded));
 		}
 
-		public void Load(string _path)
+		public void Load(string _path, Action<UiView> _whenLoaded = null)
 		{
 			if (s_views.ContainsKey(_path))
 				return;
-			StartCoroutine(LoadAsyncScene(_path, false));
+			StartCoroutine(LoadAsyncScene(_path, false, _whenLoaded));
 		}
 
 		public void Hide(string _name)
@@ -91,7 +85,7 @@ count = -1;
 
 		}
 
-		IEnumerator LoadAsyncScene(string _name, bool _show)
+		IEnumerator LoadAsyncScene(string _name, bool _show, Action<UiView> _whenLoaded)
 		{
 			// The Application loads the Scene in the background as the current Scene runs.
 			// This is particularly good for creating loading screens.
@@ -127,6 +121,9 @@ count = -1;
 					view.Hide(true);
 					if (_show)
 						view.Show();
+
+					_whenLoaded?.Invoke(view);
+
 					break;
 				}
 			}
