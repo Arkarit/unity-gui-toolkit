@@ -345,9 +345,12 @@ namespace GuiToolkit
 
 		private void ResetRecursive(bool _toEnd)
 		{
-			OnAnimate(_toEnd ? 1:0);
+			if (_toEnd)
+				OnAnimate(_toEnd ? 1:0);
 			foreach( var slave in m_slaveAnimations )
 				slave.ResetRecursive(_toEnd);
+			if (!_toEnd)
+				OnAnimate(_toEnd ? 1:0);
 		}
 
 		private void InitAnimateIfNecessary()
