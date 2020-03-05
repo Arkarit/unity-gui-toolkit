@@ -21,6 +21,10 @@ namespace GuiToolkit
 		[SerializeField]
 		protected bool m_backwardsPlayable = true;
 
+		[Tooltip("If set, this animation is played instead when playing backwards")]
+		[SerializeField]
+		protected UiSimpleAnimationBase m_backwardsAnimation;
+
 		[Tooltip("If set to true, the animation instantly goes to start when played backwards")]
 		[SerializeField]
 		protected bool m_gotoStartOnBackwards = false;
@@ -231,12 +235,22 @@ namespace GuiToolkit
 			if (!m_running || m_pause)
 				return;
 
-			if (m_backwards && !m_backwardsPlayable)
+			if (m_backwards)
 			{
-				if (m_gotoStartOnBackwards)
-					OnAnimate(0);
-				m_running = false;
-				return;
+				if (!m_backwardsPlayable)
+				{
+					if (m_gotoStartOnBackwards)
+						OnAnimate(0);
+					m_running = false;
+					return;
+				}
+
+				if (m_backwardsAnimation)
+				{
+					m_backwardsAnimation.Update(_timeDelta);
+					m_running = m_backwardsAnimation.m_running;
+					return;
+				}
 			}
 
 			// calculate current time and wait for delay finished
@@ -331,6 +345,18 @@ namespace GuiToolkit
 			m_backwardsDelay = m_completeBackwardsTime - m_forwardsDelay - m_duration;
 			m_running = true;
 
+			if (m_backwards)
+			{
+				if (!m_backwardsPlayable)
+					return;
+
+				if (m_backwardsAnimation)
+				{
+					m_backwardsAnimation.Play();
+					return;
+				}
+			}
+
 			foreach( var slave in m_slaveAnimations)
 				slave.PlayRecursive(_completeTime, _completeBackwardsTime, m_forwardsDelay, false, _backwards, _loops);
 		}
@@ -338,7 +364,30 @@ namespace GuiToolkit
 		private void CalculateCompleteTimeRecursive( ref float _completeTime, ref float _completeBackwardsTime, float _completeDelay )
 		{
 			_completeTime = Mathf.Max(_completeTime, _completeDelay + m_delay + m_duration);
-			_completeBackwardsTime = Mathf.Max(_completeBackwardsTime, _completeDelay + m_delay + (m_backwardsPlayable ? m_duration : 0));
+
+			float dummy = 0;
+			float backwardsDuration = m_delay;
+			if (m_backwardsPlayable)
+			{
+				if (m_backwardsAnimation)
+				{
+					m_backwardsAnimation.CalculateCompleteTimeRecursive(ref dummy, ref backwardsDuration, 0);
+				}
+				else
+				{
+					backwardsDuration += m_duration;
+				}
+			}
+
+			_completeBackwardsTime = Mathf.Max(_completeBackwardsTime, _completeDelay + backwardsDuration );
+
+			if (m_backwardsPlayable && m_backwardsAnimation)
+			{
+				foreach( var slave in m_slaveAnimations )
+					slave.CalculateCompleteTimeRecursive( ref _completeTime, ref dummy, _completeDelay + m_delay );
+				return;
+			}
+
 			foreach( var slave in m_slaveAnimations )
 				slave.CalculateCompleteTimeRecursive( ref _completeTime, ref _completeBackwardsTime, _completeDelay + m_delay );
 		}

@@ -13,6 +13,7 @@ namespace GuiToolkit
 		protected SerializedProperty m_durationProp;
 		protected SerializedProperty m_delayProp;
 		protected SerializedProperty m_backwardsPlayableProp;
+		protected SerializedProperty m_backwardsAnimationProp;
 		protected SerializedProperty m_gotoStartOnBackwardsProp;
 		protected SerializedProperty m_autoStartProp;
 		protected SerializedProperty m_setOnStartProp;
@@ -28,6 +29,7 @@ namespace GuiToolkit
 			m_durationProp = serializedObject.FindProperty("m_duration");
 			m_delayProp = serializedObject.FindProperty("m_delay");
 			m_backwardsPlayableProp = serializedObject.FindProperty("m_backwardsPlayable");
+			m_backwardsAnimationProp = serializedObject.FindProperty("m_backwardsAnimation");
 			m_gotoStartOnBackwardsProp = serializedObject.FindProperty("m_gotoStartOnBackwards");
 			m_autoStartProp = serializedObject.FindProperty("m_autoStart");
 			m_setOnStartProp = serializedObject.FindProperty("m_setOnStart");
@@ -57,6 +59,9 @@ namespace GuiToolkit
 			EditorGUILayout.PropertyField(m_backwardsPlayableProp);
 			EditorGUI.BeginDisabledGroup(m_backwardsPlayableProp.boolValue);
 			EditorGUILayout.PropertyField(m_gotoStartOnBackwardsProp);
+			EditorGUI.EndDisabledGroup();
+			EditorGUI.BeginDisabledGroup(!m_backwardsPlayableProp.boolValue);
+			EditorGUILayout.PropertyField(m_backwardsAnimationProp);
 			EditorGUI.EndDisabledGroup();
 			EditorGUILayout.PropertyField(m_numberOfLoopsProp);
 			EditorGUILayout.PropertyField(m_autoStartProp);
