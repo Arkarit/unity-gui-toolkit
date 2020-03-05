@@ -40,15 +40,21 @@ private float count;
 			SetViews();
 		}
 
+private bool sceneLoaded;
 protected override void Update()
 {
 base.Update();
 if (Application.isPlaying && count >= 0)
 {
 count += Time.deltaTime;
-if (count > 3)
+if (count > 3 && !sceneLoaded)
 {
-Show("UiScene1");
+Load("UiScene1");
+sceneLoaded = true;
+}
+if (count > 4)
+{
+UiSplashMessage.EvShow.Invoke("Hello World", 3);
 count = -1;
 }
 }
