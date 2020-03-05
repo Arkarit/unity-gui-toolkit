@@ -6,9 +6,38 @@ namespace GuiToolkit
 {
 	public class UiThing : MonoBehaviour, IEventSystemHandler
 	{
-		protected virtual void Awake() { }
+		protected virtual bool ReceiveEventsWhenDisabled => true;
+
+		protected virtual void Awake()
+		{
+			if (ReceiveEventsWhenDisabled)
+				AddEventListeners();
+		}
+
+		protected virtual void OnDestroy()
+		{
+			if (ReceiveEventsWhenDisabled)
+				RemoveEventListeners();
+		}
+
+		protected virtual void OnEnable()
+		{
+			if (!ReceiveEventsWhenDisabled)
+				AddEventListeners();
+		}
+
+		protected virtual void OnDisable()
+		{
+			if (!ReceiveEventsWhenDisabled)
+				RemoveEventListeners();
+		}
+
+		// Reserved
 		protected virtual void Update() { }
-		protected virtual void OnEnable() { }
-		protected virtual void OnDisable() { }
+
+		// Custom virtuals
+		protected virtual void AddEventListeners() { }
+		protected virtual void RemoveEventListeners() { }
+
 	}
 }

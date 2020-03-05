@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 
 #if UNITY_EDITOR
 using UnityEditor.SceneManagement;
@@ -24,6 +25,11 @@ private float count;
 
 		[SerializeField]
 		private float m_layerDistance = 1;
+
+
+		[System.Serializable]
+		private class CEvLoad : UnityEvent<string,Action<UiView>, bool> {}
+		private static CEvLoad EvLoad = new CEvLoad();
 		
 		private Camera m_camera;
 
@@ -40,6 +46,34 @@ private float count;
 			SetViews();
 		}
 
+		protected override void AddEventListeners()
+		{
+			EvLoad.AddListener(OnEvLoad);
+		}
+
+		protected override void RemoveEventListeners()
+		{
+			EvLoad.RemoveListener(OnEvLoad);
+		}
+
+		private void OnEvLoad( string _sceneName, Action<UiView> _whenLoaded, bool _show )
+		{
+			if (_show)
+				Show(_sceneName, _whenLoaded);
+			else
+				Load(_sceneName, _whenLoaded);
+		}
+
+		public static void InvokeShow(string _sceneName, Action<UiView> _whenLoaded = null)
+		{
+			EvLoad.Invoke(_sceneName, _whenLoaded, true);
+		}
+
+		public static void InvokeLoad(string _sceneName, Action<UiView> _whenLoaded = null)
+		{
+			EvLoad.Invoke(_sceneName, _whenLoaded, false);
+		}
+
 protected override void Update()
 {
 base.Update();
@@ -48,7 +82,7 @@ if (Application.isPlaying && count >= 0)
 count += Time.deltaTime;
 if (count > 3)
 {
-Load("UiScene1", (dummy)=> UiSplashMessage.EvShow.Invoke("Hello World", 3));
+UiMain.InvokeLoad("UiScene1", (dummy)=> UiSplashMessage.InvokeShow("Hello World"));
 count = -1;
 }
 }
@@ -63,21 +97,25 @@ count = -1;
 		}
 #endif
 
-		public void Show(string _path, Action<UiView> _whenLoaded = null)
+		public void Show(string _sceneName, Action<UiView> _whenLoaded = null)
 		{
-			if (s_views.ContainsKey(_path))
+			if (s_views.ContainsKey(_sceneName))
 			{
-				s_views[_path].Show();
+				s_views[_sceneName].Show();
+				_whenLoaded?.Invoke(s_views[_sceneName]);
 				return;
 			}
-			StartCoroutine(LoadAsyncScene(_path, true, _whenLoaded));
+			StartCoroutine(LoadAsyncScene(_sceneName, true, _whenLoaded));
 		}
 
-		public void Load(string _path, Action<UiView> _whenLoaded = null)
+		public void Load(string _sceneName, Action<UiView> _whenLoaded = null)
 		{
-			if (s_views.ContainsKey(_path))
+			if (s_views.ContainsKey(_sceneName))
+			{
+				_whenLoaded?.Invoke(s_views[_sceneName]);
 				return;
-			StartCoroutine(LoadAsyncScene(_path, false, _whenLoaded));
+			}
+			StartCoroutine(LoadAsyncScene(_sceneName, false, _whenLoaded));
 		}
 
 		public void Hide(string _name)
