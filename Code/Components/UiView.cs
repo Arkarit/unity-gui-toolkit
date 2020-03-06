@@ -17,13 +17,14 @@ namespace GuiToolkit
 		public string m_name;
 
 		[SerializeField]
-		private EUiLayerDefinition m_layer;
+		private EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
 
 		[SerializeField]
 		private IShowHideViewAnimation m_showHideAnimation;
 
-		private Canvas m_canvas;
-		private UiMain m_main;
+		public virtual bool AutoDestroyOnHide => false;
+
+		public Canvas Canvas {get; private set;}
 
 		protected override void Awake()
 		{
@@ -31,7 +32,7 @@ namespace GuiToolkit
 			Init();
 		}
 
-		public virtual void Show(bool _instant = false)
+		public virtual void Show(bool _instant = false, Action _onFinish = null)
 		{
 			if (m_showHideAnimation == null)
 				_instant = true;
@@ -44,23 +45,30 @@ namespace GuiToolkit
 				return;
 			}
 
-			m_showHideAnimation.ShowViewAnimation(null);
+			m_showHideAnimation.ShowViewAnimation(_onFinish);
 		}
 
-		public virtual void Hide(bool _instant = false)
+		public virtual void Hide(bool _instant = false, Action _onFinish = null)
 		{
 			if (m_showHideAnimation == null)
 				_instant = true;
-
 
 			if (_instant)
 			{
 				gameObject.SetActive(false);
 				m_showHideAnimation?.StopViewAnimation();
+				if (AutoDestroyOnHide)
+					Destroy(gameObject);
 				return;
 			}
 
-			m_showHideAnimation.HideViewAnimation( () => gameObject.SetActive(false) );
+			m_showHideAnimation.HideViewAnimation( () =>
+			{
+				gameObject.SetActive(false);
+				_onFinish?.Invoke(); 
+				if (AutoDestroyOnHide)
+					Destroy(gameObject);
+			});
 		}
 
 		public void SetRenderMode( RenderMode _renderMode, Camera _camera )
@@ -68,17 +76,14 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 			Init();
 #endif
-			m_canvas.renderMode = _renderMode;
-			m_canvas.worldCamera = _camera;
-
-			if (m_main)
-				m_canvas.planeDistance = m_main.LayerDistance * (float) m_layer;
+			Canvas.renderMode = _renderMode;
+			Canvas.worldCamera = _camera;
+			Canvas.planeDistance = UiMain.Instance.LayerDistance * (float) m_layer;
 		}
 
 		private void Init()
 		{
-			m_main = GetComponentInParent<UiMain>();
-			m_canvas = GetComponent<Canvas>();
+			Canvas = GetComponent<Canvas>();
 
 			var components = GetComponents<MonoBehaviour>();
 			foreach (var component in components)
@@ -89,9 +94,6 @@ namespace GuiToolkit
 					break;
 				}
 			}
-
-			if (m_main)
-				m_canvas.planeDistance = m_main.LayerDistance * (float) m_layer;
 		}
 
 		public void OnValidate()

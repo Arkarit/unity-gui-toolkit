@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 #if UNITY_EDITOR
 using UnityEditor.SceneManagement;
@@ -15,99 +16,112 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public class UiMain : UiThing
 	{
-		private readonly static Dictionary<string, UiView> s_views = new Dictionary<string, UiView>();
-
 		[Header("Canvas Settings")]
 
 		[SerializeField]
 		private RenderMode m_renderMode = RenderMode.ScreenSpaceCamera;
 
 		[SerializeField]
-		private float m_layerDistance = 1;
+		private float m_layerDistance = 0.02f;
 
-		[System.Serializable]
-		private class CEvLoad : UnityEvent<string,Action<UiView>, bool> {}
-		private static CEvLoad EvLoad = new CEvLoad();
-		
+		[SerializeField]
+		private Transform m_requesterContainer;
+
 		private Camera m_camera;
+		private readonly Dictionary<string, UiView> m_views = new Dictionary<string, UiView>();
+		private UiRequester m_requester;
 
 		public float LayerDistance {get { return m_layerDistance; }}
 
-		protected override void Awake()
+		public static UiMain Instance { get; private set; }
+
+		public void LoadScene(string _sceneName, bool _show = true, Action<UiView> _whenLoaded = null)
 		{
-			base.Awake();
-			m_camera = GetComponent<Camera>();
-
-			if (Application.isPlaying)
-				DontDestroyOnLoad(gameObject);
-
-			SetViews();
-		}
-
-		protected override void AddEventListeners()
-		{
-			EvLoad.AddListener(OnEvLoad);
-		}
-
-		protected override void RemoveEventListeners()
-		{
-			EvLoad.RemoveListener(OnEvLoad);
-		}
-
-		private void OnEvLoad( string _sceneName, Action<UiView> _whenLoaded, bool _show )
-		{
-			if (_show)
-				Show(_sceneName, _whenLoaded);
-			else
-				Load(_sceneName, _whenLoaded);
-		}
-
-		public static void InvokeShow(string _sceneName, Action<UiView> _whenLoaded = null)
-		{
-			EvLoad.Invoke(_sceneName, _whenLoaded, true);
-		}
-
-		public static void InvokeLoad(string _sceneName, Action<UiView> _whenLoaded = null)
-		{
-			EvLoad.Invoke(_sceneName, _whenLoaded, false);
-		}
-
-#if UNITY_EDITOR
-		public void OnValidate()
-		{
-			SetViews();
-			foreach (var kv in s_views)
-				kv.Value.SetRenderMode(m_renderMode, GetComponent<Camera>());
-		}
-#endif
-
-		public void Show(string _sceneName, Action<UiView> _whenLoaded = null)
-		{
-			if (s_views.ContainsKey(_sceneName))
+			if (m_views.ContainsKey(_sceneName))
 			{
-				s_views[_sceneName].Show();
-				_whenLoaded?.Invoke(s_views[_sceneName]);
+				if (_show)
+					m_views[_sceneName].Show();
+
+				_whenLoaded?.Invoke(m_views[_sceneName]);
 				return;
 			}
 			StartCoroutine(LoadAsyncScene(_sceneName, true, _whenLoaded));
 		}
 
-		public void Load(string _sceneName, Action<UiView> _whenLoaded = null)
+		public void HideScene(string _sceneName)
 		{
-			if (s_views.ContainsKey(_sceneName))
+			if (m_views.ContainsKey(_sceneName))
+				m_views[_sceneName].Hide();
+		}
+
+		public void OkRequester(string _title, string _text, Action _onClosed = null, UiRequester.Options _options = null)
+		{
+			if (m_requester == null)
 			{
-				_whenLoaded?.Invoke(s_views[_sceneName]);
+				Debug.LogError("Attempt to create requester, but template in UiMain m_requester is null");
 				return;
 			}
-			StartCoroutine(LoadAsyncScene(_sceneName, false, _whenLoaded));
+
+			UiRequester requester = (UiRequester)CreateModalDialog(m_requester);
+			Debug.Assert(requester);
+			requester.OkRequester(_title, _text, _onClosed, _options);
 		}
 
-		public void Hide(string _name)
+		protected override void Awake()
 		{
+			base.Awake();
 
+			m_camera = GetComponent<Camera>();
+
+			if (Application.isPlaying)
+				DontDestroyOnLoad(gameObject);
+
+			ReInit();
 		}
 
-		IEnumerator LoadAsyncScene(string _name, bool _show, Action<UiView> _whenLoaded)
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			Instance = null;
+		}
+
+		protected void OnTransformChildrenChanged()
+		{
+			ReInit();
+		}
+
+#if UNITY_EDITOR
+		private void OnValidate()
+		{
+			ReInit();
+			foreach (var kv in m_views)
+				kv.Value.SetRenderMode(m_renderMode, GetComponent<Camera>());
+		}
+#endif
+
+		private UiViewModal CreateModalDialog(UiViewModal _template)
+		{
+			float lowestLayer = 100000f;
+			foreach (var kv in m_views)
+			{
+				UiView view = kv.Value;
+				if (!(view is UiViewModal) )
+					continue;
+
+				if (view.Canvas.planeDistance < lowestLayer)
+					lowestLayer = view.Canvas.planeDistance;
+			}
+			float newLayer = lowestLayer - LayerDistance;
+
+			UiViewModal result = Instantiate(_template);
+			result.transform.SetParent(m_requesterContainer);
+			result.SetRenderMode(m_renderMode, m_camera);
+			result.Canvas.planeDistance = newLayer;
+
+			return result;
+		}
+
+		private IEnumerator LoadAsyncScene(string _name, bool _show, Action<UiView> _whenLoaded)
 		{
 			// The Application loads the Scene in the background as the current Scene runs.
 			// This is particularly good for creating loading screens.
@@ -139,8 +153,10 @@ namespace GuiToolkit
 					view.gameObject.name = _name;
 					view.transform.SetParent(transform);
 					view.SetRenderMode(m_renderMode, m_camera);
-					SetViews();
-					view.Hide(true);
+					ReInit();
+
+					//Don't call Hide() here, since the view may auto destroy on hide...
+					view.gameObject.SetActive(false);
 					if (_show)
 						view.Show();
 
@@ -157,9 +173,12 @@ namespace GuiToolkit
 			SceneManager.UnloadSceneAsync(scene);
 		}
 
-		private void SetViews()
+		private void ReInit()
 		{
-			s_views.Clear();
+			Instance = this;
+
+			m_views.Clear();
+			m_requester = null;
 
 			foreach (Transform child in transform)
 			{
@@ -171,16 +190,34 @@ namespace GuiToolkit
 
 				uiView.InitEvents();
 
-				bool keyFound = s_views.ContainsKey(uiView.m_name);
+				if (uiView is UiRequester)
+				{
+					ReInitRequester(uiView);
+				}
+
+				bool keyFound = m_views.ContainsKey(uiView.m_name);
 
 				Debug.Assert(!keyFound, $"Duplicate UiView name '{uiView.m_name}' found. (Check also game object name if UiView Name is not set)");
 				if (keyFound)
 					continue;
 
-				s_views.Add(uiView.m_name, uiView);
+				m_views.Add(uiView.m_name, uiView);
 			}
 
 			SetSortOrder();
+		}
+
+		private void ReInitRequester( UiView uiView )
+		{
+			if (m_requester != null)
+			{
+				Debug.LogError("Multiple UiRequester detected. There can be only one currently.");
+				return;
+			}
+
+			m_requester = (UiRequester)uiView;
+			if (Application.isPlaying)
+				m_requester.gameObject.SetActive(false);
 		}
 
 		private void SetSortOrder()

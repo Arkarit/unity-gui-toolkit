@@ -18,14 +18,18 @@ namespace GuiToolkit
 		Right
 	}
 
+	// Note: the lower the layer definition number, the higher (more occluding)
+	// it is regarding the visibility
 	public enum EUiLayerDefinition
 	{
-		Top = 20,
-		Tooltip = 50,
-		Popup = 80,
-		Dialog = 130,
-		Background = 180,
-		Back = 200,
+		Top = 200,
+		Tooltip = 400,
+		ModalStack = 600,
+		Popup = 800,
+		Dialog = 1000,
+		Hud = 1200,
+		Background = 1400,
+		Back = 1600,
 	}
 
 	public static class Constants
