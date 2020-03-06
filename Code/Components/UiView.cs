@@ -24,7 +24,16 @@ namespace GuiToolkit
 
 		public virtual bool AutoDestroyOnHide => false;
 
-		public Canvas Canvas {get; private set;}
+		private Canvas m_canvas;
+
+		public Canvas Canvas {
+			get
+			{
+				if (m_canvas == null)
+					m_canvas = GetComponent<Canvas>();
+				return m_canvas;
+			}
+		}
 
 		protected override void Awake()
 		{
@@ -83,8 +92,6 @@ namespace GuiToolkit
 
 		private void Init()
 		{
-			Canvas = GetComponent<Canvas>();
-
 			var components = GetComponents<MonoBehaviour>();
 			foreach (var component in components)
 			{
