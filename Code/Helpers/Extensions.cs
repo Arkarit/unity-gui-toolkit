@@ -8,6 +8,8 @@ namespace GuiToolkit
 {
 	public static class Extensions
 	{
+		// Note: This is not super performant and - worse - creates GC allocations
+		// Better cache the values in simple bools after evaluating at least in runtime code. 
 		public static bool HasFlags<T>( this T _this, T _flags) where T : Enum
 		{
 			return ((int)(object)_this & (int)(object)_flags) != 0;

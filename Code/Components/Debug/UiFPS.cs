@@ -11,6 +11,7 @@ namespace GuiToolkit
 		public Text m_text;
 		private float[] m_samples;
 		private int m_idx;
+		private float m_lastSum = -1;
 
 		private void Start()
 		{
@@ -29,7 +30,14 @@ namespace GuiToolkit
 				sum += m_samples[i];
 			sum /= NumSamples;
 			sum = 1.0f / sum;
-			m_text.text = ((int)sum).ToString();
+
+			// int/string conversion creates GC alloc. Avoid as much as possible by change check.
+			// In a real programming language such crappy workarounds wouldn't be necessary.
+			if (m_lastSum != sum)
+			{
+				m_text.text = ((int)sum).ToString();
+				m_lastSum = sum;
+			}
 		}
 	}
 }

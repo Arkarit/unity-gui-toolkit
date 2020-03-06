@@ -94,6 +94,15 @@ namespace GuiToolkit
 
 		public ESupport Support { get {return m_support;}}
 
+		private bool m_animatePositionX;
+		private bool m_animatePositionY;
+		private bool m_animatePosition;
+		private bool m_animateRotationZ;
+		private bool m_animateScaleX;
+		private bool m_animateScaleY;
+		private bool m_animateScale;
+		private bool m_animateAlpha;
+
 		private float xRatio
 		{
 			get
@@ -121,20 +130,30 @@ namespace GuiToolkit
 			base.Awake();
 			if (m_canvasScaler == null && m_scaleByCanvasScaler)
 				m_canvasScaler = GetComponentInParent<CanvasScaler>();
+
+			// HasFlags() creates GC allocs, so we cache it here (OnAnimate(), where it is used, is called quite often)
+			m_animatePositionX = m_support.HasFlags(ESupport.PositionX);
+			m_animatePositionY = m_support.HasFlags(ESupport.PositionY);
+			m_animatePosition = m_animatePositionX || m_animatePositionY;
+			m_animateRotationZ = m_support.HasFlags(ESupport.RotationZ);
+			m_animateScaleX = m_support.HasFlags(ESupport.ScaleX);
+			m_animateScaleY = m_support.HasFlags(ESupport.ScaleY);
+			m_animateScale = m_animateScaleX || m_animateScaleY;
+			m_animateAlpha = m_support.HasFlags(ESupport.Alpha);
 		}
 
 		protected override void OnAnimate(float _normalizedTime)
 		{
-			if( m_support.HasFlags(ESupport.PositionX | ESupport.PositionY))
+			if( m_animatePosition )
 				AnimatePosition(_normalizedTime);
 
-			if (m_support.HasFlags(ESupport.RotationZ))
+			if ( m_animateRotationZ )
 				AnimateRotation(_normalizedTime);
 
-			if (m_support.HasFlags(ESupport.ScaleX | ESupport.ScaleY))
+			if ( m_animateScale )
 				AnimateScale(_normalizedTime);
 
-			if (m_support.HasFlags(ESupport.Alpha))
+			if ( m_animateAlpha )
 				AnimateAlpha(_normalizedTime);
 		}
 
@@ -142,10 +161,10 @@ namespace GuiToolkit
 		{
 			Vector2 pos = m_target.anchoredPosition;
 
-			if (m_support.HasFlags(ESupport.PositionX))
+			if (m_animatePositionX)
 				pos.x = Mathf.LerpUnclamped(m_posXStart, m_posXEnd, m_posXCurve.Evaluate(_normalizedTime)) * xRatio;
 
-			if (m_support.HasFlags(ESupport.PositionY))
+			if (m_animatePositionY)
 				pos.y = Mathf.LerpUnclamped(m_posYStart, m_posYEnd, m_posYCurve.Evaluate(_normalizedTime)) * yRatio;
 
 			m_target.anchoredPosition = pos;
@@ -164,12 +183,12 @@ namespace GuiToolkit
 		{
 			Vector3 scale = m_target.localScale;
 
-			if (m_scaleLocked || m_support.HasFlags(ESupport.ScaleX))
+			if (m_scaleLocked || m_animateScaleX)
 				scale.x = Mathf.LerpUnclamped(m_scaleXStart, m_scaleXEnd, m_scaleXCurve.Evaluate(_normalizedTime));
 
 			if (m_scaleLocked)
 				scale.y = scale.x;
-			else if (m_support.HasFlags(ESupport.ScaleY))
+			else if (m_animateScaleY)
 				scale.y = Mathf.LerpUnclamped(m_scaleYStart, m_scaleYEnd, m_scaleYCurve.Evaluate(_normalizedTime));
 
 			m_target.localScale = scale;

@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 5270523796987331458}
   - component: {fileID: 5270523796987331457}
   - component: {fileID: 5270523796987331456}
-  - component: {fileID: 5270523796987331487}
   - component: {fileID: 436729874853095950}
+  - component: {fileID: 5270523796987331487}
   m_Layer: 5
   m_Name: StandardButton
   m_TagString: Untagged
@@ -120,23 +120,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &5270523796987331487
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5270523796987331484}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_evaluateMode: 0
-  m_vertexColorMode: 1
-  m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
-  m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
-  m_type: 1
 --- !u!114 &436729874853095950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -155,6 +138,23 @@ MonoBehaviour:
   m_bottomRight: {x: 0, y: 0}
   m_mirrorDirection: 0
   m_absoluteValues: 0
+--- !u!114 &5270523796987331487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5270523796987331484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_evaluateMode: 0
+  m_vertexColorMode: 1
+  m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
+  m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
+  m_type: 1
 --- !u!1 &5270523797533349592
 GameObject:
   m_ObjectHideFlags: 0
