@@ -125,12 +125,8 @@ namespace GuiToolkit
 			}
 		}
 
-		protected override void Awake()
+		private void InitFlags()
 		{
-			base.Awake();
-			if (m_canvasScaler == null && m_scaleByCanvasScaler)
-				m_canvasScaler = GetComponentInParent<CanvasScaler>();
-
 			// HasFlags() creates GC allocs, so we cache it here (OnAnimate(), where it is used, is called quite often)
 			m_animatePositionX = m_support.HasFlags(ESupport.PositionX);
 			m_animatePositionY = m_support.HasFlags(ESupport.PositionY);
@@ -141,6 +137,24 @@ namespace GuiToolkit
 			m_animateScale = m_animateScaleX || m_animateScaleY;
 			m_animateAlpha = m_support.HasFlags(ESupport.Alpha);
 		}
+
+		protected override void Awake()
+		{
+			base.Awake();
+			if (m_canvasScaler == null && m_scaleByCanvasScaler)
+				m_canvasScaler = GetComponentInParent<CanvasScaler>();
+
+			InitFlags();
+		}
+
+#if UNITY_EDITOR
+		// In editor, while not play mode, we have no Awake, so we set the flags when initializing the animation
+		protected override void OnInitAnimate()
+		{
+			if (!Application.isPlaying)
+				InitFlags();
+		}
+#endif
 
 		protected override void OnAnimate(float _normalizedTime)
 		{
