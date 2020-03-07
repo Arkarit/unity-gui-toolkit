@@ -50,6 +50,25 @@ namespace GuiToolkit
 			Show();
 		}
 
+		public void YesNoRequester(string _title, string _text, Action _onOk, Action _onCancel = null, Options _options = null)
+		{
+			m_title.text = _title;
+			m_text.text = _text;
+			m_onOk = _onOk;
+			m_onCancel = _onCancel;
+			if (m_okButton != null)
+				m_okButton.onClick.AddListener(OnOk);
+			if (m_cancelButton != null)
+				m_cancelButton.onClick.AddListener(OnCancel);
+			if (m_retryButton != null)
+				m_retryButton.gameObject.SetActive(false);
+			if (m_closeButton != null)
+				m_closeButton.onClick.AddListener(OnCancel);
+			OnClickCatcher = OnOk;
+			gameObject.SetActive(true);
+			Show();
+		}
+
 		protected override void OnDisable()
 		{
 			base.OnDisable();
