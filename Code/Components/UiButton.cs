@@ -83,8 +83,6 @@ namespace GuiToolkit
 			m_button = GetComponent<Button>();
 			m_tmpText = m_button.GetComponentInChildren<TextMeshProUGUI>();
 			m_text = m_button.GetComponentInChildren<Text>();
-			if (m_tmpText == null && m_text == null)
-				Debug.LogError($"No button text found for Button '{gameObject.name}'");
 		}
 
 	}
