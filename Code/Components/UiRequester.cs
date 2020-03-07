@@ -41,9 +41,23 @@ namespace GuiToolkit
 
 		private void ShowButtons( int _numberOfButtons )
 		{
+			UiButton foundButton = null;
+
 			for (int i=0; i<m_buttons.Length; i++)
+			{
 				if(m_buttons[i] != null)
+				{
 					m_buttons[i].gameObject.SetActive(i < _numberOfButtons);
+					foundButton = m_buttons[i];
+				}
+			}
+
+			if (foundButton)
+			{
+				UiDistortGroup distortGroup = foundButton.transform.parent.GetComponent<UiDistortGroup>();
+				if (distortGroup)
+					distortGroup.Refresh();
+			}
 		}
 
 		private void SetClickCatcher( Action _action )

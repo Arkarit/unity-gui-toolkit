@@ -18,13 +18,22 @@ namespace GuiToolkit
 		private readonly Dictionary<GameObject,int> m_done = new Dictionary<GameObject, int>();
 		private bool m_hasSecondary;
 
+		public void Refresh()
+		{
+			ReInit();
+		}
+
 		private void OnTransformChildrenChanged()
 		{
-			CollectElements();
-			PositionElements();
+			ReInit();
 		}
 
 		private void OnEnable()
+		{
+			ReInit();
+		}
+
+		private void ReInit()
 		{
 			CollectElements();
 			PositionElements();
@@ -40,6 +49,8 @@ namespace GuiToolkit
 			foreach (var element in elements)
 			{
 				GameObject go = element.gameObject;
+				if (!go.activeInHierarchy)
+					continue;
 
 				if (!m_done.ContainsKey(go))
 					m_done.Add(go, 0);
