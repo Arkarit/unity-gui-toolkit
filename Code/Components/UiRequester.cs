@@ -10,10 +10,10 @@ namespace GuiToolkit
 
 	public class UiRequester : UiViewModal
 	{
-		public Button m_okButton;
-		public Button m_cancelButton;
-		public Button m_retryButton;
-		public Button m_closeButton;
+		public UiButton m_okButton;
+		public UiButton m_cancelButton;
+		public UiButton m_retryButton;
+		public UiButton m_closeButton;
 
 		public TextMeshProUGUI m_title;
 		public TextMeshProUGUI m_text;
@@ -38,13 +38,17 @@ namespace GuiToolkit
 			m_text.text = _text;
 			m_onOk = _onClosed;
 			if (m_okButton != null)
-				m_okButton.onClick.AddListener(OnOk);
+			{
+				m_okButton.OnClick.AddListener(OnOk);
+				m_okButton.Text = "OK";
+			}
+
 			if (m_cancelButton != null)
 				m_cancelButton.gameObject.SetActive(false);
 			if (m_retryButton != null)
 				m_retryButton.gameObject.SetActive(false);
 			if (m_closeButton != null)
-				m_closeButton.onClick.AddListener(OnOk);
+				m_closeButton.OnClick.AddListener(OnOk);
 			OnClickCatcher = OnOk;
 			gameObject.SetActive(true);
 			Show();
@@ -56,14 +60,21 @@ namespace GuiToolkit
 			m_text.text = _text;
 			m_onOk = _onOk;
 			m_onCancel = _onCancel;
+
 			if (m_okButton != null)
-				m_okButton.onClick.AddListener(OnOk);
+			{
+				m_okButton.OnClick.AddListener(OnOk);
+				m_okButton.Text = "Yes";
+			}
 			if (m_cancelButton != null)
-				m_cancelButton.onClick.AddListener(OnCancel);
+			{
+				m_cancelButton.OnClick.AddListener(OnCancel);
+				m_cancelButton.Text = "No";
+			}
 			if (m_retryButton != null)
 				m_retryButton.gameObject.SetActive(false);
 			if (m_closeButton != null)
-				m_closeButton.onClick.AddListener(OnCancel);
+				m_closeButton.OnClick.AddListener(OnCancel);
 			OnClickCatcher = OnOk;
 			gameObject.SetActive(true);
 			Show();
@@ -87,11 +98,11 @@ namespace GuiToolkit
 				RemoveButtonListeners(m_closeButton);
 		}
 
-		private void RemoveButtonListeners( Button _button )
+		private void RemoveButtonListeners( UiButton _button )
 		{
-			_button.onClick.RemoveListener(OnOk);
-			_button.onClick.RemoveListener(OnCancel);
-			_button.onClick.RemoveListener(OnRetry);
+			_button.OnClick.RemoveListener(OnOk);
+			_button.OnClick.RemoveListener(OnCancel);
+			_button.OnClick.RemoveListener(OnRetry);
 		}
 
 		private void OnOk()
