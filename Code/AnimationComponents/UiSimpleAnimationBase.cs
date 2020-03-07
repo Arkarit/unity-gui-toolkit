@@ -322,8 +322,10 @@ namespace GuiToolkit
 			m_pause = false;
 			OnStopAnimate();
 
-			m_onFinish?.Invoke();
-			m_onFinishOnce?.Invoke();
+			if (m_onFinish != null)
+				m_onFinish.Invoke();
+			if (m_onFinishOnce != null)
+				m_onFinishOnce.Invoke();
 			m_onFinishOnce = null;
 		}
 
@@ -418,7 +420,8 @@ namespace GuiToolkit
 		{
 			if (!m_supportViewAnimations)
 			{
-				_onFinish?.Invoke();
+				if (_onFinish != null)
+					_onFinish.Invoke();
 				return;
 			}
 
@@ -430,7 +433,8 @@ namespace GuiToolkit
 		{
 			if (!m_supportViewAnimations)
 			{
-				_onFinish?.Invoke();
+				if (_onFinish != null)
+					_onFinish.Invoke();
 				return;
 			}
 

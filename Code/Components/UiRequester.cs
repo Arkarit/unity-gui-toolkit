@@ -37,10 +37,14 @@ namespace GuiToolkit
 			m_title.text = _title;
 			m_text.text = _text;
 			m_onOk = _onClosed;
-			m_okButton?.onClick.AddListener(OnOk);
-			m_cancelButton?.gameObject.SetActive(false);
-			m_retryButton?.gameObject.SetActive(false);
-			m_closeButton?.onClick.AddListener(OnOk);
+			if (m_okButton != null)
+				m_okButton.onClick.AddListener(OnOk);
+			if (m_cancelButton != null)
+				m_cancelButton.gameObject.SetActive(false);
+			if (m_retryButton != null)
+				m_retryButton.gameObject.SetActive(false);
+			if (m_closeButton != null)
+				m_closeButton.onClick.AddListener(OnOk);
 			OnClickCatcher = OnOk;
 			gameObject.SetActive(true);
 			Show();
@@ -71,9 +75,25 @@ namespace GuiToolkit
 			_button.onClick.RemoveListener(OnRetry);
 		}
 
-		private void OnOk() { m_onOk?.Invoke(); Hide(); }
-		private void OnCancel() { m_onCancel?.Invoke(); Hide(); }
-		private void OnRetry() { m_onRetry?.Invoke(); }
+		private void OnOk()
+		{
+			if (m_onOk != null)
+				m_onOk.Invoke();
+			Hide();
+		}
+
+		private void OnCancel()
+		{
+			if (m_onCancel != null)
+				m_onCancel.Invoke();
+			Hide();
+		}
+
+		private void OnRetry()
+		{
+			if (m_onRetry != null)
+				m_onRetry.Invoke();
+		}
 
 	}
 }

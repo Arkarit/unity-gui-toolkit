@@ -15,22 +15,18 @@ namespace GuiToolkit
 		[Tooltip("Audio source (optional)")]
 		public AudioSource m_audioSource;
 
-		private Button m_button;
-
-		private void Awake()
-		{
-			m_button = GetComponent<Button>();
-		}
-
 		public void OnPointerDown( PointerEventData eventData )
 		{
-			m_simpleAnimation?.Play();
-			m_audioSource?.Play();
+			if (m_simpleAnimation != null)
+				m_simpleAnimation.Play();
+			if (m_audioSource != null)
+				m_audioSource.Play();
 		}
 
 		public void OnPointerUp( PointerEventData eventData )
 		{
-			m_simpleAnimation?.Play(true);
+			if (m_simpleAnimation != null)
+				m_simpleAnimation.Play(true);
 		}
 	}
 }

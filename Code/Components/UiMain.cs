@@ -42,7 +42,8 @@ namespace GuiToolkit
 				if (_show)
 					m_views[_sceneName].Show();
 
-				_whenLoaded?.Invoke(m_views[_sceneName]);
+				if (_whenLoaded != null)
+					_whenLoaded.Invoke(m_views[_sceneName]);
 				return;
 			}
 			StartCoroutine(LoadAsyncScene(_sceneName, true, _whenLoaded));
@@ -160,7 +161,8 @@ namespace GuiToolkit
 					if (_show)
 						view.Show();
 
-					_whenLoaded?.Invoke(view);
+					if (_whenLoaded != null)
+						_whenLoaded.Invoke(view);
 
 					break;
 				}

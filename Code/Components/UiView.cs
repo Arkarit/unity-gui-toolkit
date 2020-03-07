@@ -50,7 +50,8 @@ namespace GuiToolkit
 
 			if (_instant)
 			{
-				m_showHideAnimation?.StopViewAnimation();
+				if (m_showHideAnimation != null)
+					m_showHideAnimation.StopViewAnimation();
 				return;
 			}
 
@@ -65,7 +66,8 @@ namespace GuiToolkit
 			if (_instant)
 			{
 				gameObject.SetActive(false);
-				m_showHideAnimation?.StopViewAnimation();
+				if (m_showHideAnimation != null)
+					m_showHideAnimation.StopViewAnimation();
 				if (AutoDestroyOnHide)
 					Destroy(gameObject);
 				return;
@@ -74,7 +76,8 @@ namespace GuiToolkit
 			m_showHideAnimation.HideViewAnimation( () =>
 			{
 				gameObject.SetActive(false);
-				_onFinish?.Invoke(); 
+				if (_onFinish != null)
+					_onFinish.Invoke(); 
 				if (AutoDestroyOnHide)
 					Destroy(gameObject);
 			});

@@ -16,18 +16,21 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			m_clickCatcher?.onClick.AddListener(ClickCatcherClicked);
+			if (m_clickCatcher != null)
+				m_clickCatcher.onClick.AddListener(ClickCatcherClicked);
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			m_clickCatcher?.onClick.RemoveListener(ClickCatcherClicked);
+			if (m_clickCatcher != null)
+				m_clickCatcher.onClick.RemoveListener(ClickCatcherClicked);
 		}
 
 		private void ClickCatcherClicked()
 		{
-			OnClickCatcher?.Invoke();
+			if (OnClickCatcher != null)
+				OnClickCatcher.Invoke();
 		}
 	}
 }
