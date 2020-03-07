@@ -25,10 +25,10 @@ namespace GuiToolkit
 		protected RectTransform m_target;
 
 		[SerializeField]
-		protected CanvasScaler m_canvasScaler;
+		private CanvasScaler m_canvasScaler;
 
 		[SerializeField]
-		protected RectTransform m_canvasRectTransform;
+		private RectTransform m_canvasRectTransform;
 
 		[SerializeField]
 		protected bool m_scaleByCanvasScaler = true;
@@ -93,6 +93,32 @@ namespace GuiToolkit
 		// particles
 
 		public ESupport Support { get {return m_support;}}
+		protected CanvasScaler CanvasScaler
+		{
+			get
+			{
+				if (m_canvasScaler == null)
+					m_canvasScaler = GetComponentInParent<CanvasScaler>();
+				return m_canvasScaler;
+			}
+
+			set
+			{
+				m_canvasScaler = value;
+			}
+		}
+
+		protected RectTransform CanvasRectTransform
+		{
+			get
+			{
+				if (m_canvasScaler == null)
+					m_canvasScaler = GetComponentInParent<CanvasScaler>();
+				if (m_canvasRectTransform == null)
+					m_canvasRectTransform = (RectTransform) m_canvasScaler.transform;
+				return m_canvasRectTransform;
+			}
+		}
 
 		private bool m_animatePositionX;
 		private bool m_animatePositionY;
@@ -110,7 +136,7 @@ namespace GuiToolkit
 				if (!m_scaleByCanvasScaler)
 					return 1;
 
-				return m_canvasRectTransform.sizeDelta.x / m_canvasScaler.referenceResolution.x;
+				return CanvasRectTransform.sizeDelta.x / CanvasScaler.referenceResolution.x;
 			}
 		}
 
@@ -121,7 +147,7 @@ namespace GuiToolkit
 				if (!m_scaleByCanvasScaler)
 					return 1;
 
-				return m_canvasRectTransform.sizeDelta.y / m_canvasScaler.referenceResolution.y;
+				return CanvasRectTransform.sizeDelta.y / CanvasScaler.referenceResolution.y;
 			}
 		}
 

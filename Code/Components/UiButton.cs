@@ -13,6 +13,8 @@ namespace GuiToolkit
 	{
 		[Tooltip("Simple animation (optional)")]
 		public UiSimpleAnimation m_simpleAnimation;
+		[Tooltip("Simple wiggle animation (optional)")]
+		public UiSimpleAnimation m_simpleWiggleAnimation;
 		[Tooltip("Audio source (optional)")]
 		public AudioSource m_audioSource;
 		
@@ -46,6 +48,9 @@ namespace GuiToolkit
 
 			set
 			{
+				if (value == null)
+					return;
+
 				InitIfNecessary();
 				if (m_tmpText)
 					m_tmpText.text = value;
@@ -54,6 +59,12 @@ namespace GuiToolkit
 				else
 					Debug.LogError($"No button text found for Button '{gameObject.name}', can not set string '{value}'");
 			}
+		}
+
+		public void Wiggle()
+		{
+			if (m_simpleWiggleAnimation)
+				m_simpleWiggleAnimation.Play();
 		}
 
 		protected virtual void Awake()
