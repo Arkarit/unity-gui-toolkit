@@ -22,11 +22,13 @@ namespace GuiToolkit
 		private Action m_onRetry;
 
 		private bool m_allowOutsideTap;
+		private bool m_showCloseButton;
 
 		public class Options
 		{
 			public string[] ButtonText = new string[0];
 			public bool AllowOutsideTap = true;
+			public bool ShowCloseButton = true;
 		}
 
 		public override bool AutoDestroyOnHide => true;
@@ -60,14 +62,6 @@ namespace GuiToolkit
 			}
 		}
 
-		private void SetClickCatcher( Action _action )
-		{
-			if (m_allowOutsideTap)
-				OnClickCatcher = _action;
-			else
-				OnClickCatcher = Wiggle;
-		}
-
 		public void OkRequester(string _title, string _text, Action _onClosed = null, Options _options = null)
 		{
 			m_title.text = _title;
@@ -79,20 +73,11 @@ namespace GuiToolkit
 
 			EvaluateOptions(_options);
 
-			if (m_closeButton != null)
-				m_closeButton.OnClick.AddListener(OnOk);
-
+			SetOrHideCloseButton(OnOk);
 			SetClickCatcher(OnOk);
 
 			gameObject.SetActive(true);
 			Show();
-		}
-
-		private void Wiggle()
-		{
-			foreach(var button in m_buttons)
-				if (button != null && button.gameObject.activeInHierarchy)
-					button.Wiggle();
 		}
 
 		public void YesNoRequester(string _title, string _text, Action _onOk, Action _onCancel = null, Options _options = null)
@@ -108,13 +93,35 @@ namespace GuiToolkit
 
 			EvaluateOptions(_options);
 
-			if (m_closeButton != null)
-				m_closeButton.OnClick.AddListener(OnCancel);
-
+			SetOrHideCloseButton( OnCancel );
 			SetClickCatcher( OnCancel );
 
 			gameObject.SetActive(true);
 			Show();
+		}
+
+		private void SetClickCatcher( Action _action )
+		{
+			if (m_allowOutsideTap)
+				OnClickCatcher = _action;
+			else
+				OnClickCatcher = Wiggle;
+		}
+
+		private void Wiggle()
+		{
+			foreach(var button in m_buttons)
+				if (button != null && button.gameObject.activeInHierarchy)
+					button.Wiggle();
+		}
+
+		private void SetOrHideCloseButton( UnityEngine.Events.UnityAction _action )
+		{
+			if (!m_closeButton)
+				return;
+
+			m_closeButton.gameObject.SetActive(m_showCloseButton);
+			m_closeButton.OnClick.AddListener(_action);
 		}
 
 		private void EvaluateOptions( Options _options )
@@ -122,6 +129,7 @@ namespace GuiToolkit
 			if ( _options == null )
 			{
 				m_allowOutsideTap = true;
+				m_showCloseButton = true;
 				return;
 			}
 
@@ -130,6 +138,7 @@ namespace GuiToolkit
 					m_buttons[i].Text = _options.ButtonText[i];
 
 			m_allowOutsideTap = _options.AllowOutsideTap;
+			m_showCloseButton = _options.ShowCloseButton;
 		}
 
 		protected override void OnDisable()
