@@ -327,18 +327,41 @@ namespace GuiToolkit
 			bool newSceneLoaded = DrawUtils.ToggleHelper(buttonRect, buildScene.loadedInEditor, "Loaded", "Loaded in Editor", EditorStyles.toggle);
 			if (newSceneLoaded != buildScene.loadedInEditor)
 			{
-				if (newSceneLoaded)
+				if (Event.current.shift)
+				{
+					if (CheckForChangedScenes())
+						EditorSceneManager.OpenScene(buildScene.assetPath, OpenSceneMode.Single);
+				}
+				else if (newSceneLoaded)
 				{
 					EditorSceneManager.OpenScene(buildScene.assetPath, OpenSceneMode.Additive);
 				}
 				else
 				{
 					Scene scene = EditorSceneManager.GetSceneByPath(buildScene.assetPath);
-					EditorSceneManager.CloseScene(scene, true);
+					if (CheckForChangedScene(scene))
+						EditorSceneManager.CloseScene(scene, true);
 				}
 			}
 			EditorGUI.EndDisabledGroup();
+		}
 
+		private bool CheckForChangedScene( Scene scene )
+		{
+			if (scene.isDirty)
+				return EditorUtility.DisplayDialog("Scene(s) not saved", $"The scene '{scene.name}' has been changed but it is not saved yet. Are you sure to close the scene without saving?", "OK", "Cancel");
+			return true;
+		}
+
+		private bool CheckForChangedScenes()
+		{
+			for (int i=0; i<EditorSceneManager.loadedSceneCount; i++)
+			{
+				Scene scene = EditorSceneManager.GetSceneAt(i);
+				if (scene.isDirty)
+					return EditorUtility.DisplayDialog("Scene(s) not saved", "Some scenes have been changed. Are you sure to close the scenes without saving?", "OK", "Cancel");
+			}
+			return true;
 		}
 
 		static SerializedProperty GetSceneAssetProperty( SerializedProperty property )
