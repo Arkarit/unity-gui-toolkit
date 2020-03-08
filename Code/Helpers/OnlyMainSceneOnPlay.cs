@@ -47,6 +47,7 @@ namespace GuiToolkit
 			{
 				if (_state == PlayModeStateChange.ExitingEditMode)
 				{
+
 					EditorScenes editorScenes = new EditorScenes();
 					editorScenes.MainSceneWasLoaded = LoadMainSceneIfNecessary();
 					Scene mainScene = BuildSettingsUtility.GetMainScene();
@@ -56,6 +57,19 @@ namespace GuiToolkit
 						Scene scene = EditorSceneManager.GetSceneAt(i);
 						if (scene != mainScene)
 							editorScenes.Scenes.Add(scene.name);
+					}
+
+					foreach (string sceneName in editorScenes.Scenes)
+					{
+						Scene scene = EditorSceneManager.GetSceneByName(sceneName);
+						if (scene != mainScene && scene.isDirty)
+						{
+							if (!EditorUtility.DisplayDialog("Scene(s) not saved", "Some scenes have been changed. Are you sure to close the scenes without saving?", "OK", "Cancel"))
+							{
+								EditorApplication.isPlaying = false;
+								return;
+							}
+						}
 					}
 
 					foreach (string sceneName in editorScenes.Scenes)
@@ -70,6 +84,9 @@ namespace GuiToolkit
 					Scene mainScene = BuildSettingsUtility.GetMainScene();
 
 					string s = File.ReadAllText(TempFileName);
+					if (string.IsNullOrEmpty(s))
+						return;
+
 					EditorScenes editorScenes = JsonUtility.FromJson<EditorScenes>(s);
 					foreach (string sceneName in editorScenes.Scenes)
 						EditorSceneManager.OpenScene(UiSettings.GetEditorScenePath(sceneName), OpenSceneMode.Additive);
