@@ -329,8 +329,19 @@ namespace GuiToolkit
 			{
 				if (Event.current.shift)
 				{
-					if (CheckForChangedScenes())
-						EditorSceneManager.OpenScene(buildScene.assetPath, OpenSceneMode.Single);
+					Scene scene = EditorSceneManager.GetSceneByPath(buildScene.assetPath);
+					bool sceneWasLoaded = scene.isLoaded;
+
+					if (!sceneWasLoaded)
+					{
+						scene = EditorSceneManager.OpenScene(buildScene.assetPath, OpenSceneMode.Single);
+					}
+
+					if (!UiEditorUtility.UnloadAllScenesExcept(scene))
+					{
+						if (!sceneWasLoaded)
+							EditorSceneManager.CloseScene(scene, true);
+					}
 				}
 				else if (newSceneLoaded)
 				{
@@ -339,18 +350,10 @@ namespace GuiToolkit
 				else
 				{
 					Scene scene = EditorSceneManager.GetSceneByPath(buildScene.assetPath);
-					if (CheckForChangedScene(scene))
-						EditorSceneManager.CloseScene(scene, true);
+					UiEditorUtility.UnloadScene(scene);
 				}
 			}
 			EditorGUI.EndDisabledGroup();
-		}
-
-		private bool CheckForChangedScene( Scene scene )
-		{
-			if (scene.isDirty)
-				return EditorUtility.DisplayDialog("Scene(s) not saved", $"The scene '{scene.name}' has been changed but it is not saved yet. Are you sure to close the scene without saving?", "OK", "Cancel");
-			return true;
 		}
 
 		private bool CheckForChangedScenes()

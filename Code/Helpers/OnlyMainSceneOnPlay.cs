@@ -27,6 +27,7 @@ namespace GuiToolkit
 
 		private static string TempFileName { get { return Application.temporaryCachePath + "/openScenes.txt"; } }
 
+
 		private static void HandleScenes( PlayModeStateChange _state )
 		{
 			if (_state == PlayModeStateChange.EnteredPlayMode || _state == PlayModeStateChange.ExitingPlayMode)
@@ -50,30 +51,12 @@ namespace GuiToolkit
 
 					EditorScenes editorScenes = new EditorScenes();
 					editorScenes.MainSceneWasLoaded = LoadMainSceneIfNecessary();
-					Scene mainScene = BuildSettingsUtility.GetMainScene();
 
-					for (int i = 0; i < EditorSceneManager.loadedSceneCount; i++)
+					if (!UiEditorUtility.UnloadAllScenesExceptMain(out editorScenes.Scenes))
 					{
-						Scene scene = EditorSceneManager.GetSceneAt(i);
-						if (scene != mainScene)
-							editorScenes.Scenes.Add(scene.name);
+						EditorApplication.isPlaying = false;
+						return;
 					}
-
-					foreach (string sceneName in editorScenes.Scenes)
-					{
-						Scene scene = EditorSceneManager.GetSceneByName(sceneName);
-						if (scene != mainScene && scene.isDirty)
-						{
-							if (!EditorUtility.DisplayDialog("Scene(s) not saved", "Some scenes have been changed. Are you sure to close the scenes without saving?", "OK", "Cancel"))
-							{
-								EditorApplication.isPlaying = false;
-								return;
-							}
-						}
-					}
-
-					foreach (string sceneName in editorScenes.Scenes)
-						EditorSceneManager.CloseScene(EditorSceneManager.GetSceneByName(sceneName), true);
 
 					string s = JsonUtility.ToJson(editorScenes);
 					File.WriteAllText(TempFileName, s);
@@ -109,6 +92,7 @@ namespace GuiToolkit
 			EditorSceneManager.OpenScene(mainScenePath, OpenSceneMode.Additive);
 			return false;
 		}
+
 
 	}
 }

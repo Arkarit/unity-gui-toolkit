@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Experimental.SceneManagement;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace GuiToolkit
 {
@@ -529,6 +531,125 @@ namespace GuiToolkit
 				return true;
 			}
 			return false;
+		}
+
+		public enum ESceneUnloadChoice
+		{
+			Ignore,
+			Cancel,
+			Save,
+		}
+
+		public static ESceneUnloadChoice DoScenesChangedDialog()
+		{
+			return (ESceneUnloadChoice) EditorUtility.DisplayDialogComplex("Pending Scene changes", "Some scenes have been changed. How should we continue?", "Ignore", "Cancel", "Save");
+		}
+
+		public static ESceneUnloadChoice DoSceneChangedDialog(string _sceneName)
+		{
+			return (ESceneUnloadChoice) EditorUtility.DisplayDialogComplex("Pending Scene changes", $"Scene '{_sceneName}' has been changed. How should we continue?", "Ignore", "Cancel", "Save");
+		}
+
+		public static bool CheckBeforeUnloadScenes()
+		{
+			Scene mainScene = BuildSettingsUtility.GetMainScene();
+			int numScenes = EditorSceneManager.loadedSceneCount;
+			bool saveScene = false;
+
+			for (int i=0; i<numScenes; i++)
+			{
+				Scene scene = EditorSceneManager.GetSceneAt(i);
+				if (scene != mainScene && scene.isDirty)
+				{
+
+					if (!saveScene)
+					{
+						UiEditorUtility.ESceneUnloadChoice choice = UiEditorUtility.DoScenesChangedDialog();
+						switch (choice)
+						{
+							case UiEditorUtility.ESceneUnloadChoice.Ignore:
+								return true;
+							case UiEditorUtility.ESceneUnloadChoice.Cancel:
+								return false;
+							case UiEditorUtility.ESceneUnloadChoice.Save:
+								saveScene = true;
+								break;
+							default:
+								Debug.Assert(false);
+								return false;
+						}
+
+						EditorSceneManager.SaveScene(scene);
+					}
+				}
+			}
+			return true;
+		}
+
+		public static bool UnloadAllScenesExcept( Scene _scene, out List<string> _sceneNames )
+		{
+
+			_sceneNames = new List<string>();
+
+			int numScenes = EditorSceneManager.loadedSceneCount;
+			for (int i = 0; i < numScenes; i++)
+			{
+				Scene scene = EditorSceneManager.GetSceneAt(i);
+				if (scene != _scene)
+					_sceneNames.Add(scene.name);
+			}
+
+			if (!CheckBeforeUnloadScenes())
+				return false;
+
+			foreach (var sceneName in _sceneNames)
+				EditorSceneManager.CloseScene(EditorSceneManager.GetSceneByName(sceneName), true);
+
+			return true;
+		}
+
+		public static bool UnloadAllScenesExcept( Scene _scene )
+		{
+			List<string> dummy = new List<string>();
+			return UnloadAllScenesExcept(_scene, out dummy);
+		}
+
+		public static bool UnloadAllScenesExceptMain( out List<string> _sceneNames )
+		{
+			Scene mainScene = BuildSettingsUtility.GetMainScene();
+			return UnloadAllScenesExcept(mainScene, out _sceneNames);
+		}
+
+		public static void UnloadScene( Scene _scene )
+		{
+			if (!_scene.isLoaded)
+				return;
+
+			if (EditorSceneManager.loadedSceneCount == 1)
+			{
+				Debug.LogWarning("Failed attempt to unload scene, but it was the only scene loaded");
+				return;
+			}
+
+			if (_scene.isDirty)
+			{
+				ESceneUnloadChoice choice = DoSceneChangedDialog( _scene.name );
+				switch( choice )
+				{
+					case ESceneUnloadChoice.Ignore:
+						break;
+					case ESceneUnloadChoice.Cancel:
+						return;
+					case ESceneUnloadChoice.Save:
+						EditorSceneManager.SaveScene(_scene);
+						break;
+					default:
+						Debug.Assert(false);
+						break;
+				}
+			}
+
+			EditorSceneManager.CloseScene(_scene, true);
 		}
 
 		private static bool ValidateListAndIndex( SerializedProperty _list, int _idx )
