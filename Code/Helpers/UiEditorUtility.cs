@@ -535,22 +535,22 @@ namespace GuiToolkit
 
 		public enum ESceneUnloadChoice
 		{
+			Save,
 			Ignore,
 			Cancel,
-			Save,
 		}
 
-		public static ESceneUnloadChoice DoScenesChangedDialog()
+		public static ESceneUnloadChoice DoDirtyEditorScenesCloseDialog()
 		{
-			return (ESceneUnloadChoice) EditorUtility.DisplayDialogComplex("Pending Scene changes", "Some scenes have been changed. How should we continue?", "Ignore", "Cancel", "Save");
+			return (ESceneUnloadChoice) EditorUtility.DisplayDialogComplex("Pending Scene changes", "Some scenes have been changed. How should we continue?", "Save", "Ignore", "Cancel" );
 		}
 
-		public static ESceneUnloadChoice DoSceneChangedDialog(string _sceneName)
+		public static ESceneUnloadChoice DoDirtyEditorSceneCloseDialog(string _sceneName)
 		{
-			return (ESceneUnloadChoice) EditorUtility.DisplayDialogComplex("Pending Scene changes", $"Scene '{_sceneName}' has been changed. How should we continue?", "Ignore", "Cancel", "Save");
+			return (ESceneUnloadChoice) EditorUtility.DisplayDialogComplex("Pending Scene changes", $"Scene '{_sceneName}' has been changed. How should we continue?", "Save", "Ignore", "Cancel");
 		}
 
-		public static bool CheckBeforeUnloadScenes()
+		public static bool CheckBeforeCloseEditorScenes()
 		{
 			Scene mainScene = BuildSettingsUtility.GetMainScene();
 			int numScenes = EditorSceneManager.loadedSceneCount;
@@ -564,7 +564,7 @@ namespace GuiToolkit
 
 					if (!saveScene)
 					{
-						UiEditorUtility.ESceneUnloadChoice choice = UiEditorUtility.DoScenesChangedDialog();
+						UiEditorUtility.ESceneUnloadChoice choice = UiEditorUtility.DoDirtyEditorScenesCloseDialog();
 						switch (choice)
 						{
 							case UiEditorUtility.ESceneUnloadChoice.Ignore:
@@ -586,7 +586,7 @@ namespace GuiToolkit
 			return true;
 		}
 
-		public static bool UnloadAllScenesExcept( Scene _scene, out List<string> _sceneNames )
+		public static bool CloseAllEditorScenesExcept( Scene _scene, out List<string> _sceneNames )
 		{
 
 			_sceneNames = new List<string>();
@@ -599,7 +599,7 @@ namespace GuiToolkit
 					_sceneNames.Add(scene.name);
 			}
 
-			if (!CheckBeforeUnloadScenes())
+			if (!CheckBeforeCloseEditorScenes())
 				return false;
 
 			foreach (var sceneName in _sceneNames)
@@ -608,19 +608,19 @@ namespace GuiToolkit
 			return true;
 		}
 
-		public static bool UnloadAllScenesExcept( Scene _scene )
+		public static bool CloseAllEditorScenesExcept( Scene _scene )
 		{
 			List<string> dummy = new List<string>();
-			return UnloadAllScenesExcept(_scene, out dummy);
+			return CloseAllEditorScenesExcept(_scene, out dummy);
 		}
 
-		public static bool UnloadAllScenesExceptMain( out List<string> _sceneNames )
+		public static bool CloseAllEditorScenesExceptMain( out List<string> _sceneNames )
 		{
 			Scene mainScene = BuildSettingsUtility.GetMainScene();
-			return UnloadAllScenesExcept(mainScene, out _sceneNames);
+			return CloseAllEditorScenesExcept(mainScene, out _sceneNames);
 		}
 
-		public static void UnloadScene( Scene _scene )
+		public static void CloseEditorScene( Scene _scene )
 		{
 			if (!_scene.isLoaded)
 				return;
@@ -633,7 +633,7 @@ namespace GuiToolkit
 
 			if (_scene.isDirty)
 			{
-				ESceneUnloadChoice choice = DoSceneChangedDialog( _scene.name );
+				ESceneUnloadChoice choice = DoDirtyEditorSceneCloseDialog( _scene.name );
 				switch( choice )
 				{
 					case ESceneUnloadChoice.Ignore:
