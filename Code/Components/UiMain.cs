@@ -68,18 +68,6 @@ namespace GuiToolkit
 			requester.OkRequester(_title, _text, _onClosed, _options);
 		}
 
-		public void Quit()
-		{
-#if UNITY_EDITOR
-			if (Application.isPlaying)
-				Debug.Log("Application can not quit in Editor play mode. In the real application it will quit here.");
-			else
-				Debug.LogError("Application is not running. Nothing to quit.");
-#else
-			Application.Quit();
-#endif
-		}
-
 		public void YesNoRequester(string _title, string _text, Action _onOk, Action _onCancel = null, UiRequester.Options _options = null)
 		{
 			if (m_requester == null)
@@ -91,6 +79,18 @@ namespace GuiToolkit
 			UiRequester requester = (UiRequester)CreateModalDialog(m_requester);
 			Debug.Assert(requester);
 			requester.YesNoRequester(_title, _text, _onOk, _onCancel, _options);
+		}
+
+		public void Quit()
+		{
+#if UNITY_EDITOR
+			if (Application.isPlaying)
+				Debug.Log("Application can not quit in Editor play mode. In the real application it will quit here.");
+			else
+				Debug.LogError("Application is not running. Nothing to quit.");
+#else
+			Application.Quit();
+#endif
 		}
 
 		protected override void Awake()
@@ -191,8 +191,6 @@ namespace GuiToolkit
 					SetDefaultSceneVisibilities(root);
 					ReInit();
 
-					//Don't call Hide() here, since the view may auto destroy on hide...
-					view.gameObject.SetActive(false);
 					if (_show)
 						view.Show();
 
@@ -253,8 +251,6 @@ namespace GuiToolkit
 			}
 
 			m_requester = (UiRequester)uiView;
-			if (Application.isPlaying)
-				m_requester.gameObject.SetActive(false);
 		}
 
 		private void SetSortOrder()

@@ -27,7 +27,7 @@ namespace GuiToolkit
 			EvShow.RemoveListener(OnEvShow);
 		}
 
-		public void Show(string _message, float _duration = 3)
+		public void Show(string _message, float _duration = 2)
 		{
 			StopAllCoroutines();
 			gameObject.SetActive(true);
@@ -37,7 +37,7 @@ namespace GuiToolkit
 			StartCoroutine(DelayedClose());
 		}
 
-		public static void InvokeShow(string _message, int _id = 0, float _duration = 3 )
+		public static void InvokeShow(string _message, int _id = 0, float _duration = 2 )
 		{
 			EvShow.Invoke(_id, _message, _duration);
 		}

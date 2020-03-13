@@ -296,7 +296,7 @@ GameObject:
   - component: {fileID: 4628251921322500096}
   - component: {fileID: 4628251921322500097}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: SplashMessageLeftToRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -397,6 +397,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: 
   m_layer: 50
+  m_defaultSceneVisibility: 2
   m_duration: 3
   m_textComponent: {fileID: 4628251921973401371}
   m_id: 0
