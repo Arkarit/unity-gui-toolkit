@@ -103,6 +103,15 @@ namespace GuiToolkit
 				DontDestroyOnLoad(gameObject);
 
 			ReInit();
+			SetDefaultSceneVisibilities(gameObject);
+		}
+
+		private static void SetDefaultSceneVisibilities(GameObject _gameObject)
+		{
+			MonoBehaviour[] monoBehaviours = _gameObject.GetComponentsInChildren<MonoBehaviour>(true);
+			foreach( MonoBehaviour monoBehaviour in monoBehaviours )
+				if (monoBehaviour is ISetDefaultSceneVisibility)
+					((ISetDefaultSceneVisibility)monoBehaviour).SetDefaultSceneVisibility();
 		}
 
 		protected override void OnDestroy()
@@ -172,13 +181,14 @@ namespace GuiToolkit
 			var roots = scene.GetRootGameObjects();
 			foreach (var root in roots)
 			{
-				UiView view = root.GetComponentInChildren<UiView>();
+				UiView view = root.GetComponentInChildren<UiView>(true);
 				if (view)
 				{
 					view.m_name = _name;
 					view.gameObject.name = _name;
 					view.transform.SetParent(transform);
 					view.SetRenderMode(m_renderMode, m_camera);
+					SetDefaultSceneVisibilities(root);
 					ReInit();
 
 					//Don't call Hide() here, since the view may auto destroy on hide...

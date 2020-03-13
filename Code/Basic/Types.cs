@@ -32,6 +32,20 @@ namespace GuiToolkit
 		Back = 1600,
 	}
 
+	public enum DefaultSceneVisibility
+	{
+		DontCare,
+		Visible,
+		Invisible,
+		VisibleInDevBuild,
+		VisibleWhen_DEFAULT_SCENE_VISIBLE_defined,
+	}
+
+	public interface ISetDefaultSceneVisibility
+	{
+		void SetDefaultSceneVisibility();
+	}
+
 	public static class Constants
 	{
 		public const float HANDLE_SIZE = 0.06f;

@@ -12,7 +12,7 @@ namespace GuiToolkit
 	}
 
 	[RequireComponent(typeof(Canvas))]
-	public class UiView : UiThing
+	public class UiView : UiThing, ISetDefaultSceneVisibility
 	{
 		public string m_name;
 
@@ -21,6 +21,9 @@ namespace GuiToolkit
 
 		[SerializeField]
 		private IShowHideViewAnimation m_showHideAnimation;
+
+		[SerializeField]
+		private DefaultSceneVisibility m_defaultSceneVisibility = DefaultSceneVisibility.DontCare;
 
 		public virtual bool AutoDestroyOnHide => false;
 
@@ -91,6 +94,39 @@ namespace GuiToolkit
 			Canvas.renderMode = _renderMode;
 			Canvas.worldCamera = _camera;
 			Canvas.planeDistance = UiMain.Instance.LayerDistance * (float) m_layer;
+		}
+
+		public void SetDefaultSceneVisibility()
+		{
+			if (Application.isPlaying)
+			{
+				switch (m_defaultSceneVisibility)
+				{
+					default:
+					case DefaultSceneVisibility.DontCare:
+						break;
+					case DefaultSceneVisibility.Visible:
+						gameObject.SetActive(true);
+						break;
+					case DefaultSceneVisibility.Invisible:
+						gameObject.SetActive(false);
+						break;
+					case DefaultSceneVisibility.VisibleInDevBuild:
+						#if UNITY_EDITOR || DEVELOPMENT_BUILD
+							gameObject.SetActive(true);
+						#else
+							gameObject.SetActive(false);
+						#endif
+						break;
+					case DefaultSceneVisibility.VisibleWhen_DEFAULT_SCENE_VISIBLE_defined:
+						#if DEFAULT_SCENE_VISIBLE
+							gameObject.SetActive(true);
+						#else
+							gameObject.SetActive(false);
+						#endif
+						break;
+				}
+			}
 		}
 
 		private void Init()
