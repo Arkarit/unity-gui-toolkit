@@ -73,12 +73,25 @@ namespace GuiToolkit
 			{
 				Type type = memberInfoToApply.Key;
 				UiStyle.MemberInfoBools mib = memberInfoToApply.Value;
+				StyleInfo styleInfo = m_styleInfoDict[type];
 
-				mib.Used = GUILayout.Toggle(mib.Used, new GUIContent(mib.Type.Name));
+				mib.Used = GUILayout.Toggle(mib.Used, new GUIContent(ObjectNames.NicifyVariableName(mib.Type.Name)));
 				
 				if (mib.Used)
 				{
-					GUILayout.Label("Lorem");
+					int len = mib.ToApply.Length;
+					Debug.Assert( len == styleInfo.MemberInfos.Count);
+					if (len != styleInfo.MemberInfos.Count)
+						continue;
+
+					for (int i=0; i<len; i++)
+					{
+						GUILayout.BeginHorizontal();
+						GUILayout.Space(20);
+						mib.ToApply[i] = GUILayout.Toggle(mib.ToApply[i], ObjectNames.NicifyVariableName(styleInfo.MemberInfos[i].Name));
+						GUILayout.EndHorizontal();
+					}
+
 				}
 			}
 
