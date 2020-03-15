@@ -41,13 +41,15 @@ namespace GuiToolkit
 			return _this as T;
 		}
 
-		public static StyleInfo GetStyleInfo<T>( this T _this, BindingFlags _bindingFlags = DEFAULT_COPY_FLAGS ) where T : Component
+#if UNITY_EDITOR
+		public static EditorComponentMemberInfo GetEditorComponentMemberInfo<T>( this T _this, BindingFlags _bindingFlags = DEFAULT_COPY_FLAGS ) where T : Component
 		{
 			Type type = _this.GetType();
 			PropertyInfo[] propertyInfos = type.GetProperties(_bindingFlags);
 			FieldInfo[] fieldInfos = type.GetFields(_bindingFlags);
-			return new StyleInfo(type, propertyInfos, fieldInfos);
+			return new EditorComponentMemberInfo(_this, propertyInfos, fieldInfos);
 		}
+#endif
 
 		// Note: This is not performing very good and - worse - creates GC allocations.
 		// Better cache the values in simple bools after using this to evaluate at least in runtime code. 

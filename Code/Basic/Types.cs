@@ -57,13 +57,40 @@ namespace GuiToolkit
 	}
 
 	[Serializable]
-	public class StyleInfo
+	public class ComponentMemberInfo
 	{
+		public Component m_component;
+		public readonly List<string> m_names = new List<string>();
+		public readonly List<bool> m_isProperty = new List<bool>();
+
+		public int Count => m_names.Count;
+
+		public ComponentMemberInfo(Component _component)
+		{
+			m_component = _component;
+		}
+
+#if UNITY_EDITOR
+		public void Add(MemberInfo _memberInfo)
+		{
+			m_names.Add(_memberInfo.Name);
+			m_isProperty.Add(_memberInfo is PropertyInfo);
+		}
+#endif
+
+	}
+
+#if UNITY_EDITOR
+	[Serializable]
+	public class EditorComponentMemberInfo
+	{
+		public Component Component;
 		public Type ComponentType;
 		public List<MemberInfo> MemberInfos;
-		public StyleInfo( Type _componentType, PropertyInfo[] _propertyInfos = null, FieldInfo[] _fieldInfos = null )
+		public EditorComponentMemberInfo( Component _component, PropertyInfo[] _propertyInfos = null, FieldInfo[] _fieldInfos = null )
 		{
-			ComponentType = _componentType;
+			Component = _component;
+			ComponentType = _component.GetType();
 			MemberInfos = new List<MemberInfo>();
 
 			if (_propertyInfos != null)
@@ -73,5 +100,6 @@ namespace GuiToolkit
 				MemberInfos.AddRange(_fieldInfos);
 		}
 	}
+#endif
 
 }

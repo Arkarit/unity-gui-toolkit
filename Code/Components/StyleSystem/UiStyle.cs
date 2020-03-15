@@ -22,7 +22,7 @@ namespace GuiToolkit
 		}
 #endif
 
-		public readonly List<StyleInfo> m_styles = new List<StyleInfo>();
+		public readonly List<ComponentMemberInfo> m_styles = new List<ComponentMemberInfo>();
 
 #if UNITY_EDITOR
 		public readonly List<MemberInfoBools> m_memberInfosToApply = new List<MemberInfoBools>();
@@ -36,7 +36,7 @@ namespace GuiToolkit
 		private static bool s_drawDefaultInspector = false;
 
 		private readonly Dictionary<Type, UiStyle.MemberInfoBools> m_memberInfosToApplyDict = new Dictionary<Type, UiStyle.MemberInfoBools>();
-		private readonly Dictionary<Type, StyleInfo> m_styleInfoDict = new Dictionary<Type, StyleInfo>();
+		private readonly Dictionary<Type, EditorComponentMemberInfo> m_styleInfoDict = new Dictionary<Type, EditorComponentMemberInfo>();
 
 		public override void OnInspectorGUI()
 		{
@@ -53,7 +53,7 @@ namespace GuiToolkit
 				if (monoBehaviour == thisUiStyle)
 					continue;
 
-				StyleInfo styleInfo = monoBehaviour.GetStyleInfo();
+				EditorComponentMemberInfo styleInfo = monoBehaviour.GetEditorComponentMemberInfo();
 				m_styleInfoDict.Add(styleInfo.ComponentType, styleInfo);
 
 				if (!m_memberInfosToApplyDict.ContainsKey(styleInfo.ComponentType))
@@ -75,7 +75,7 @@ namespace GuiToolkit
 			{
 				Type type = memberInfoToApply.Key;
 				UiStyle.MemberInfoBools mib = memberInfoToApply.Value;
-				StyleInfo styleInfo = m_styleInfoDict[type];
+				EditorComponentMemberInfo styleInfo = m_styleInfoDict[type];
 
 				mib.Used = GUILayout.Toggle(mib.Used, new GUIContent(ObjectNames.NicifyVariableName(mib.Type.Name)));
 				
@@ -101,14 +101,16 @@ namespace GuiToolkit
 			foreach( var memberInfoToApply in m_memberInfosToApplyDict)
 				thisUiStyle.m_memberInfosToApply.Add(memberInfoToApply.Value);
 
+			int oldCount = thisUiStyle.m_styles.Count;
+
 			thisUiStyle.m_styles.Clear();
 			foreach( var memberInfoToApply in m_memberInfosToApplyDict)
 			{
 				Type type = memberInfoToApply.Key;
 				UiStyle.MemberInfoBools mib = memberInfoToApply.Value;
-				StyleInfo styleInfo = m_styleInfoDict[type];
+				EditorComponentMemberInfo styleInfo = m_styleInfoDict[type];
 
-				StyleInfo finalStyleInfo = new StyleInfo(type);
+				ComponentMemberInfo finalStyleInfo = new ComponentMemberInfo(styleInfo.Component);
 
 				if (mib.Used)
 				{
@@ -120,15 +122,20 @@ namespace GuiToolkit
 					for (int i=0; i<len; i++)
 					{
 						if (mib.ToApply[i])
-							finalStyleInfo.MemberInfos.Add(styleInfo.MemberInfos[i]);
+						{
+							finalStyleInfo.Add(styleInfo.MemberInfos[i]);
+						}
 					}
 
-					if (finalStyleInfo.MemberInfos.Count > 0)
+					if (finalStyleInfo.Count > 0)
 					{
 						thisUiStyle.m_styles.Add(finalStyleInfo);
 					}
 				}
 			}
+
+			if (thisUiStyle.m_styles.Count != oldCount)
+				EditorUtility.SetDirty(target);
 		}
 	}
 #endif
