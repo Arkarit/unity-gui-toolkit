@@ -34,13 +34,23 @@ namespace GuiToolkit
 		Back = 1600,
 	}
 
-	public enum DefaultSceneVisibility
+	public enum EDefaultSceneVisibility
 	{
 		DontCare,
 		Visible,
 		Invisible,
 		VisibleInDevBuild,
 		VisibleWhen_DEFAULT_SCENE_VISIBLE_defined,
+	}
+
+	public enum EButtonStyle
+	{
+		Default,
+		Disabled,
+		Ok,
+		Cancel,
+		SpecialColor0,
+		SpecialColor1,
 	}
 
 	public interface ISetDefaultSceneVisibility

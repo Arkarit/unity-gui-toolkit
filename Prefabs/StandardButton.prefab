@@ -188,6 +188,7 @@ GameObject:
   - component: {fileID: 5270523796987331485}
   - component: {fileID: 5270523796987331456}
   - component: {fileID: 6944983982311379129}
+  - component: {fileID: 3839766911664637115}
   m_Layer: 5
   m_Name: StandardButton
   m_TagString: Untagged
@@ -273,6 +274,22 @@ MonoBehaviour:
   m_simpleAnimation: {fileID: 8591811800190961484}
   m_audioSource: {fileID: 0}
   m_simpleWiggleAnimation: {fileID: 4223115294998507080}
+--- !u!114 &3839766911664637115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5270523796987331484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e1b4bc7968ba6b4d9f8ff69475b18bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_styleAppliers:
+  - {fileID: 3469100591729432891}
+  m_currentStyleIndex: 0
+  m_buttonStyle: 0
 --- !u!1 &5270523797533349592
 GameObject:
   m_ObjectHideFlags: 0
@@ -444,6 +461,7 @@ GameObject:
   - component: {fileID: 7490390892350505658}
   - component: {fileID: 8591811800190961484}
   - component: {fileID: 3469100591729432891}
+  - component: {fileID: 3755501990462046207}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -651,6 +669,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_styles:
   - {fileID: 6574806831424374000, guid: fbf5118a578087a4d921b82453cf9208, type: 3}
+  - {fileID: 6574806831424374000, guid: a439972c8f060cb44a5a295492109345, type: 3}
   - {fileID: 6574806831424374000, guid: e6ef5e2d44e8a034db7632382b1f1f85, type: 3}
   - {fileID: 6574806831424374000, guid: 4d52553c1bdc92b4bb6d85c828a8d558, type: 3}
+  - {fileID: 6574806831424374000, guid: 6f65881a941d73742bdf69476214c49f, type: 3}
+  - {fileID: 6574806831424374000, guid: 8ad0255ee1f9b05409c0af9f23a8f9d3, type: 3}
   m_currentStyleIndex: 0
+--- !u!225 &3755501990462046207
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5284302703580940865}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

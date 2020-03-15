@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 4522720274731229507}
   - component: {fileID: 3799774804533832654}
   - component: {fileID: 6603605633235132312}
+  - component: {fileID: -2069183521752708024}
   - component: {fileID: 6574806831424374000}
   m_Layer: 5
-  m_Name: OkButtonColor
+  m_Name: CancelButtonColor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -90,8 +91,20 @@ MonoBehaviour:
   m_evaluateMode: 0
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
-  m_colorRightOrBottom: {r: 0.53579056, g: 0.8490566, b: 0, a: 1}
+  m_colorRightOrBottom: {r: 1, g: 0.4172136, b: 0, a: 1}
   m_type: 1
+--- !u!225 &-2069183521752708024
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4954926453470694320}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!114 &6574806831424374000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -110,6 +123,10 @@ MonoBehaviour:
     - m_colorLeftOrTop
     - m_colorRightOrBottom
     m_isProperty: 0000
+  - m_component: {fileID: -2069183521752708024}
+    m_names:
+    - alpha
+    m_isProperty: 01
   m_memberInfosToApply:
   - Component: {fileID: 5033361238401613032}
     ToApply: 0000000000000000000000
@@ -122,4 +139,7 @@ MonoBehaviour:
     Used: 0
   - Component: {fileID: 6603605633235132312}
     ToApply: 010100
+    Used: 1
+  - Component: {fileID: -2069183521752708024}
+    ToApply: 01000000
     Used: 1

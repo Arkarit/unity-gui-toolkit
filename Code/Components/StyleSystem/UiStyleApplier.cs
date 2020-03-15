@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	[ExecuteAlways]
-	public class UiStyleApply : MonoBehaviour
+	public class UiStyleApplier : MonoBehaviour
 	{
 		[SerializeField]
 		private UiStyle[] m_styles;
@@ -14,6 +14,21 @@ namespace GuiToolkit
 		private int m_currentStyleIndex;
 
 		private int m_oldStyleIndex = -1;
+
+		public int CurrentStyleIndex
+		{
+			get
+			{
+				return m_currentStyleIndex;
+			}
+			set
+			{
+				m_currentStyleIndex = value;
+				if (m_currentStyleIndex < 0)
+					m_currentStyleIndex = 0;
+				SetCurrentStyle();
+			}
+		}
 
 		void Start()
 		{
@@ -40,6 +55,14 @@ namespace GuiToolkit
 				if (m_styles[m_currentStyleIndex] != null)
 					m_styles[m_currentStyleIndex].Apply(gameObject);
 			}
+		}
+
+		// C# programmers don't have friends
+		// In a real programming language I'd just make UiStyleSwitcher a friend of UiStyleApplier.
+		// With C# we have to use this ugly workaround
+		internal void SetCurrentStyleIndexWithoutApply(int _index)
+		{
+			m_currentStyleIndex = _index;
 		}
 
 
