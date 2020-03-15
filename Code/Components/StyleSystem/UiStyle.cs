@@ -16,16 +16,16 @@ namespace GuiToolkit
 		[Serializable]
 		public class MemberInfoBools
 		{
-			public Type Type;
+			public Component Component;
 			public bool[] ToApply;
 			public bool Used;
 		}
 #endif
 
-		public readonly List<ComponentMemberInfo> m_styles = new List<ComponentMemberInfo>();
+		public List<ComponentMemberInfo> m_styles = new List<ComponentMemberInfo>();
 
 #if UNITY_EDITOR
-		public readonly List<MemberInfoBools> m_memberInfosToApply = new List<MemberInfoBools>();
+		public List<MemberInfoBools> m_memberInfosToApply = new List<MemberInfoBools>();
 #endif
 	}
 
@@ -33,8 +33,6 @@ namespace GuiToolkit
 	[CustomEditor(typeof(UiStyle))]
 	public class UiStyleEditor : Editor
 	{
-		private static bool s_drawDefaultInspector = false;
-
 		private readonly Dictionary<Type, UiStyle.MemberInfoBools> m_memberInfosToApplyDict = new Dictionary<Type, UiStyle.MemberInfoBools>();
 		private readonly Dictionary<Type, EditorComponentMemberInfo> m_styleInfoDict = new Dictionary<Type, EditorComponentMemberInfo>();
 
@@ -44,7 +42,7 @@ namespace GuiToolkit
 
 			m_memberInfosToApplyDict.Clear();
 			foreach( var mib in thisUiStyle.m_memberInfosToApply)
-				m_memberInfosToApplyDict.Add(mib.Type, mib);
+				m_memberInfosToApplyDict.Add(mib.Component.GetType(), mib);
 
 			m_styleInfoDict.Clear();
 			Component[] components = thisUiStyle.GetComponents<Component>();
@@ -58,7 +56,7 @@ namespace GuiToolkit
 
 				if (!m_memberInfosToApplyDict.ContainsKey(styleInfo.ComponentType))
 				{
-					UiStyle.MemberInfoBools mib = new UiStyle.MemberInfoBools { Type = styleInfo.ComponentType, ToApply = new bool[styleInfo.MemberInfos.Count]};
+					UiStyle.MemberInfoBools mib = new UiStyle.MemberInfoBools { Component = styleInfo.Component, ToApply = new bool[styleInfo.MemberInfos.Count]};
 					m_memberInfosToApplyDict.Add(styleInfo.ComponentType, mib);
 				}
 			}
@@ -77,7 +75,7 @@ namespace GuiToolkit
 				UiStyle.MemberInfoBools mib = memberInfoToApply.Value;
 				EditorComponentMemberInfo styleInfo = m_styleInfoDict[type];
 
-				mib.Used = GUILayout.Toggle(mib.Used, new GUIContent(ObjectNames.NicifyVariableName(mib.Type.Name)));
+				mib.Used = GUILayout.Toggle(mib.Used, new GUIContent(ObjectNames.NicifyVariableName(mib.Component.GetType().Name)));
 				
 				if (mib.Used)
 				{
