@@ -38,6 +38,9 @@ namespace GuiToolkit
 				fieldInfo.SetValue(_this, fieldInfo.GetValue(_other));
 			}
 
+			if (_this is MonoBehaviour thisMonoBehaviour)
+				thisMonoBehaviour.SetDirty();
+
 			return _this as T;
 		}
 
@@ -68,6 +71,9 @@ namespace GuiToolkit
 					fieldInfo.SetValue(_this, obj);
 				}
 			}
+
+			if (_this is MonoBehaviour thisMonoBehaviour)
+				thisMonoBehaviour.SetDirty();
 
 			return _this as T;
 		}
@@ -123,6 +129,13 @@ namespace GuiToolkit
 				result.Add(elem);
 
 			return result;
+		}
+
+		public static void SetDirty( this MonoBehaviour _this )
+		{
+			// enabling and disabling the MonoBehaviour makes it dirty.
+			_this.enabled = !_this.enabled;
+			_this.enabled = !_this.enabled;
 		}
 
 		public static List<T> ToList<T>( this SortedSet<T> _this )

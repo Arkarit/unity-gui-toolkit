@@ -42,8 +42,8 @@ namespace GuiToolkit
 
 		private void InitDictIfNecessary()
 		{
-// 			if (m_componentDict != null)
-// 				return;
+			if (m_componentDict != null)
+				return;
 			m_componentDict = new Dictionary<Type, ComponentMemberInfo>();
 			foreach (var componentInfo in m_componentInfos)
 			{
