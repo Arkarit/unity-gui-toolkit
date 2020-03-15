@@ -42,7 +42,10 @@ namespace GuiToolkit
 
 			m_memberInfosToApplyDict.Clear();
 			foreach( var mib in thisUiStyle.m_memberInfosToApply)
-				m_memberInfosToApplyDict.Add(mib.Component.GetType(), mib);
+			{
+				if (mib != null && mib.Component != null)
+					m_memberInfosToApplyDict.Add(mib.Component.GetType(), mib);
+			}
 
 			m_styleInfoDict.Clear();
 			Component[] components = thisUiStyle.GetComponents<Component>();
