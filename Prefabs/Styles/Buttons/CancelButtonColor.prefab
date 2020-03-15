@@ -126,7 +126,8 @@ MonoBehaviour:
   - m_component: {fileID: -2069183521752708024}
     m_names:
     - alpha
-    m_isProperty: 01
+    - blocksRaycasts
+    m_isProperty: 0101
   m_memberInfosToApply:
   - Component: {fileID: 5033361238401613032}
     ToApply: 0000000000000000000000
@@ -141,5 +142,5 @@ MonoBehaviour:
     ToApply: 010100
     Used: 1
   - Component: {fileID: -2069183521752708024}
-    ToApply: 01000000
+    ToApply: 01000100
     Used: 1
