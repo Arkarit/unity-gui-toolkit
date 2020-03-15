@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6603605633235132312}
   - component: {fileID: 6574806831424374000}
   m_Layer: 5
-  m_Name: StandardButtonColor
+  m_Name: OkButtonColor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -89,8 +89,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_evaluateMode: 0
   m_vertexColorMode: 1
-  m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
-  m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
+  m_colorLeftOrTop: {r: 0.54901963, g: 0.9647059, b: 0, a: 1}
+  m_colorRightOrBottom: {r: 0.78431374, g: 1, b: 0, a: 1}
   m_type: 1
 --- !u!114 &6574806831424374000
 MonoBehaviour:
@@ -106,10 +106,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_componentInfos:
   - m_component: {fileID: 6603605633235132312}
-    m_names:
-    - m_colorLeftOrTop
-    - m_colorRightOrBottom
-    m_isProperty: 0000
   m_memberInfosToApply:
   - Component: {fileID: 5033361238401613032}
     ToApply: 0000000000000000000000

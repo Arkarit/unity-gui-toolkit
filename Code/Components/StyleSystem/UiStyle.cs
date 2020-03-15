@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Reflection;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -22,7 +23,34 @@ namespace GuiToolkit
 		}
 #endif
 
-		public List<ComponentMemberInfo> m_styles = new List<ComponentMemberInfo>();
+		public List<ComponentMemberInfo> m_componentInfos = new List<ComponentMemberInfo>();
+
+		private Dictionary<Type, ComponentMemberInfo> m_componentDict = null;
+
+		public void Apply()
+		{
+			InitDictIfNecessary();
+			Component[] components = GetComponents<Component>();
+			foreach (var component in components)
+			{
+				if (m_componentDict.ContainsKey(component.GetType()))
+				{
+					component.CopyValuesFrom(m_componentDict[component.GetType()]);
+				}
+			}
+		}
+
+		private void InitDictIfNecessary()
+		{
+// 			if (m_componentDict != null)
+// 				return;
+			m_componentDict = new Dictionary<Type, ComponentMemberInfo>();
+			foreach (var componentInfo in m_componentInfos)
+			{
+				if (componentInfo != null && componentInfo.m_component != null)
+					m_componentDict.Add(componentInfo.m_component.GetType(), componentInfo);
+			}
+		}
 
 #if UNITY_EDITOR
 		public List<MemberInfoBools> m_memberInfosToApply = new List<MemberInfoBools>();
@@ -59,7 +87,7 @@ namespace GuiToolkit
 
 				if (!m_memberInfosToApplyDict.ContainsKey(styleInfo.ComponentType))
 				{
-					UiStyle.MemberInfoBools mib = new UiStyle.MemberInfoBools { Component = styleInfo.Component, ToApply = new bool[styleInfo.MemberInfos.Count]};
+					UiStyle.MemberInfoBools mib = new UiStyle.MemberInfoBools { Component = styleInfo.Component, ToApply = new bool[styleInfo.CompleteCount]};
 					m_memberInfosToApplyDict.Add(styleInfo.ComponentType, mib);
 				}
 			}
@@ -83,15 +111,24 @@ namespace GuiToolkit
 				if (mib.Used)
 				{
 					int len = mib.ToApply.Length;
-					Debug.Assert( len == styleInfo.MemberInfos.Count);
-					if (len != styleInfo.MemberInfos.Count)
+
+					Debug.Assert( len == styleInfo.CompleteCount);
+					if (len != styleInfo.CompleteCount)
 						continue;
 
-					for (int i=0; i<len; i++)
+					for (int i=0; i<styleInfo.FieldInfoCount; i++)
 					{
 						GUILayout.BeginHorizontal();
 						GUILayout.Space(20);
-						mib.ToApply[i] = GUILayout.Toggle(mib.ToApply[i], ObjectNames.NicifyVariableName(styleInfo.MemberInfos[i].Name));
+						mib.ToApply[i] = GUILayout.Toggle(mib.ToApply[i], ObjectNames.NicifyVariableName(styleInfo.FieldInfos[i].Name));
+						GUILayout.EndHorizontal();
+					}
+
+					for (int i=0; i<styleInfo.PropertyInfoCount; i++)
+					{
+						GUILayout.BeginHorizontal();
+						GUILayout.Space(20);
+						mib.ToApply[i] = GUILayout.Toggle(mib.ToApply[i], ObjectNames.NicifyVariableName(styleInfo.PropertyInfos[i].Name));
 						GUILayout.EndHorizontal();
 					}
 
@@ -102,9 +139,9 @@ namespace GuiToolkit
 			foreach( var memberInfoToApply in m_memberInfosToApplyDict)
 				thisUiStyle.m_memberInfosToApply.Add(memberInfoToApply.Value);
 
-			int oldCount = thisUiStyle.m_styles.Count;
+			int oldCount = thisUiStyle.m_componentInfos.Count;
 
-			thisUiStyle.m_styles.Clear();
+			thisUiStyle.m_componentInfos.Clear();
 			foreach( var memberInfoToApply in m_memberInfosToApplyDict)
 			{
 				Type type = memberInfoToApply.Key;
@@ -116,26 +153,34 @@ namespace GuiToolkit
 				if (mib.Used)
 				{
 					int len = mib.ToApply.Length;
-					Debug.Assert( len == styleInfo.MemberInfos.Count);
-					if (len != styleInfo.MemberInfos.Count)
+					Debug.Assert( len == styleInfo.CompleteCount);
+					if (len != styleInfo.CompleteCount)
 						continue;
 
-					for (int i=0; i<len; i++)
+					for (int i=0; i<styleInfo.FieldInfoCount; i++)
 					{
 						if (mib.ToApply[i])
 						{
-							finalStyleInfo.Add(styleInfo.MemberInfos[i]);
+							finalStyleInfo.Add(styleInfo.FieldInfos[i]);
+						}
+					}
+
+					for (int i=0; i<styleInfo.PropertyInfoCount; i++)
+					{
+						if (mib.ToApply[i])
+						{
+							finalStyleInfo.Add(styleInfo.PropertyInfos[i]);
 						}
 					}
 
 					if (finalStyleInfo.Count > 0)
 					{
-						thisUiStyle.m_styles.Add(finalStyleInfo);
+						thisUiStyle.m_componentInfos.Add(finalStyleInfo);
 					}
 				}
 			}
 
-			if (thisUiStyle.m_styles.Count != oldCount)
+			if (thisUiStyle.m_componentInfos.Count != oldCount)
 				EditorUtility.SetDirty(target);
 		}
 	}

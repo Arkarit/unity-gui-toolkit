@@ -271,8 +271,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_simpleAnimation: {fileID: 8591811800190961484}
-  m_simpleWiggleAnimation: {fileID: 4223115294998507080}
   m_audioSource: {fileID: 0}
+  m_simpleWiggleAnimation: {fileID: 4223115294998507080}
 --- !u!1 &5270523797533349592
 GameObject:
   m_ObjectHideFlags: 0
@@ -443,6 +443,7 @@ GameObject:
   - component: {fileID: 6556752118519758830}
   - component: {fileID: 7490390892350505658}
   - component: {fileID: 8591811800190961484}
+  - component: {fileID: 3469100591729432891}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -636,3 +637,20 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaImage: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+--- !u!114 &3469100591729432891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5284302703580940865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4af8f184e6323074494a4ce6720f956b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_styles:
+  - {fileID: 6574806831424374000, guid: fbf5118a578087a4d921b82453cf9208, type: 3}
+  - {fileID: 6574806831424374000, guid: e6ef5e2d44e8a034db7632382b1f1f85, type: 3}
+  - {fileID: 6574806831424374000, guid: 4d52553c1bdc92b4bb6d85c828a8d558, type: 3}
+  m_currentStyleIndex: 0

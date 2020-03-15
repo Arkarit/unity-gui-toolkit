@@ -41,6 +41,36 @@ namespace GuiToolkit
 			return _this as T;
 		}
 
+		public static T CopyValuesFrom<T>( this T _this, ComponentMemberInfo _memberInfo, BindingFlags _bindingFlags = DEFAULT_COPY_FLAGS ) where T : Component
+		{
+			Type type = _this.GetType();
+			if (_memberInfo.m_component == null || type != _memberInfo.m_component.GetType())
+				return null;
+
+			Component other = _memberInfo.m_component;
+
+			for (int i=0; i<_memberInfo.Count; i++)
+			{
+				if (_memberInfo.m_isProperty[i])
+				{
+					PropertyInfo propertyInfo = type.GetProperty(_memberInfo.m_names[i], _bindingFlags);
+					if (propertyInfo == null)
+						continue;
+					propertyInfo.SetValue(_this, propertyInfo.GetValue(other, null), null);
+				}
+				else
+				{
+					FieldInfo fieldInfo = type.GetField(_memberInfo.m_names[i], _bindingFlags);
+					if (fieldInfo == null)
+						continue;
+					fieldInfo.SetValue(_this, fieldInfo.GetValue(other));
+				}
+			}
+
+			return _this as T;
+		}
+
+
 #if UNITY_EDITOR
 		public static EditorComponentMemberInfo GetEditorComponentMemberInfo<T>( this T _this, BindingFlags _bindingFlags = DEFAULT_COPY_FLAGS ) where T : Component
 		{
