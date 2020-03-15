@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -52,6 +54,19 @@ namespace GuiToolkit
 		public static Color HANDLE_COLOR = Color.yellow;
 		public static Color HANDLE_SUPPORTING_COLOR = Color.yellow * 0.5f;
 		public static Color HANDLE_CAGE_LINE_COLOR = Color.yellow * 0.5f;
+	}
+
+	[Serializable]
+	public class StyleInfo
+	{
+		public Type ComponentType;
+		public List<MemberInfo> MemberInfos;
+		public StyleInfo( Type _componentType, PropertyInfo[] _propertyInfos, FieldInfo[] _fieldInfos )
+		{
+			ComponentType = _componentType;
+			MemberInfos = new List<MemberInfo>(_propertyInfos);
+			MemberInfos.AddRange(_fieldInfos);
+		}
 	}
 
 }

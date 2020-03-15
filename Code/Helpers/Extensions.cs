@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,8 +9,48 @@ namespace GuiToolkit
 {
 	public static class Extensions
 	{
-		// Note: This is not super performant and - worse - creates GC allocations
-		// Better cache the values in simple bools after evaluating at least in runtime code. 
+		public const BindingFlags DEFAULT_COPY_FLAGS = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default | BindingFlags.DeclaredOnly;
+
+		// From http://answers.unity.com/answers/641022/view.html
+		public static T CopyValuesFrom<T>( this T _this, T _other, BindingFlags _bindingFlags = DEFAULT_COPY_FLAGS ) where T : Component
+		{
+			Type type = _this.GetType();
+			if (type != _other.GetType())
+				return null; // type mis-match
+
+			PropertyInfo[] propertyInfos = type.GetProperties(_bindingFlags);
+
+			foreach (var propertyInfo in propertyInfos)
+			{
+				if (propertyInfo.CanWrite)
+				{
+					try
+					{
+						propertyInfo.SetValue(_this, propertyInfo.GetValue(_other, null), null);
+					}
+					catch { } // In case of NotImplementedException being thrown. For some reason specifying that exception didn't seem to catch it, so I didn't catch anything specific.
+				}
+			}
+
+			FieldInfo[] fieldInfos = type.GetFields(_bindingFlags);
+			foreach (var fieldInfo in fieldInfos)
+			{
+				fieldInfo.SetValue(_this, fieldInfo.GetValue(_other));
+			}
+
+			return _this as T;
+		}
+
+		public static StyleInfo GetStyleInfo<T>( this T _this, BindingFlags _bindingFlags = DEFAULT_COPY_FLAGS ) where T : Component
+		{
+			Type type = _this.GetType();
+			PropertyInfo[] propertyInfos = type.GetProperties(_bindingFlags);
+			FieldInfo[] fieldInfos = type.GetFields(_bindingFlags);
+			return new StyleInfo(type, propertyInfos, fieldInfos);
+		}
+
+		// Note: This is not performing very good and - worse - creates GC allocations.
+		// Better cache the values in simple bools after using this to evaluate at least in runtime code. 
 		public static bool HasFlags<T>( this T _this, T _flags) where T : Enum
 		{
 			return ((int)(object)_this & (int)(object)_flags) != 0;
