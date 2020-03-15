@@ -27,10 +27,10 @@ namespace GuiToolkit
 
 		private Dictionary<Type, ComponentMemberInfo> m_componentDict = null;
 
-		public void Apply()
+		public void Apply(GameObject _gameObject)
 		{
 			InitDictIfNecessary();
-			Component[] components = GetComponents<Component>();
+			Component[] components = _gameObject.GetComponents<Component>();
 			foreach (var component in components)
 			{
 				if (m_componentDict.ContainsKey(component.GetType()))

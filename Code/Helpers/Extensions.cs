@@ -63,7 +63,9 @@ namespace GuiToolkit
 					FieldInfo fieldInfo = type.GetField(_memberInfo.m_names[i], _bindingFlags);
 					if (fieldInfo == null)
 						continue;
-					fieldInfo.SetValue(_this, fieldInfo.GetValue(other));
+
+					System.Object obj = fieldInfo.GetValue(other);
+					fieldInfo.SetValue(_this, obj);
 				}
 			}
 

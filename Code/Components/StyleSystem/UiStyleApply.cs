@@ -39,7 +39,7 @@ namespace GuiToolkit
 					m_currentStyleIndex = 0;
 
 				if (m_styles[m_currentStyleIndex] != null)
-					m_styles[m_currentStyleIndex].Apply();
+					m_styles[m_currentStyleIndex].Apply(gameObject);
 			}
 		}
 
