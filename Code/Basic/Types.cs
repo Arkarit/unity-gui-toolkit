@@ -61,11 +61,16 @@ namespace GuiToolkit
 	{
 		public Type ComponentType;
 		public List<MemberInfo> MemberInfos;
-		public StyleInfo( Type _componentType, PropertyInfo[] _propertyInfos, FieldInfo[] _fieldInfos )
+		public StyleInfo( Type _componentType, PropertyInfo[] _propertyInfos = null, FieldInfo[] _fieldInfos = null )
 		{
 			ComponentType = _componentType;
-			MemberInfos = new List<MemberInfo>(_propertyInfos);
-			MemberInfos.AddRange(_fieldInfos);
+			MemberInfos = new List<MemberInfo>();
+
+			if (_propertyInfos != null)
+				MemberInfos.AddRange(_propertyInfos);
+
+			if (_fieldInfos != null)
+				MemberInfos.AddRange(_fieldInfos);
 		}
 	}
 
