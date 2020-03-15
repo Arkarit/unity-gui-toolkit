@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 #if UNITY_EDITOR
 using UnityEditor.SceneManagement;
+using UnityEditor;
 #endif
 
 namespace GuiToolkit
@@ -84,8 +85,8 @@ namespace GuiToolkit
 		public void Quit()
 		{
 #if UNITY_EDITOR
-			if (Application.isPlaying)
-				Debug.Log("Application can not quit in Editor play mode. In the real application it will quit here.");
+			if (EditorApplication.isPlaying)
+				EditorApplication.isPlaying = false;
 			else
 				Debug.LogError("Application is not running. Nothing to quit.");
 #else

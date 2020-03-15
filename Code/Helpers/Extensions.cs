@@ -67,8 +67,7 @@ namespace GuiToolkit
 					if (fieldInfo == null)
 						continue;
 
-					System.Object obj = fieldInfo.GetValue(other);
-					fieldInfo.SetValue(_this, obj);
+					fieldInfo.SetValue(_this, fieldInfo.GetValue(other));
 				}
 			}
 
