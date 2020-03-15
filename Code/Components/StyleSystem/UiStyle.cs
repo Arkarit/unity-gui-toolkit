@@ -87,7 +87,7 @@ namespace GuiToolkit
 
 				if (!m_memberInfosToApplyDict.ContainsKey(styleInfo.ComponentType))
 				{
-					UiStyle.MemberInfoBools mib = new UiStyle.MemberInfoBools { Component = styleInfo.Component, ToApply = new bool[styleInfo.CompleteCount]};
+					UiStyle.MemberInfoBools mib = new UiStyle.MemberInfoBools { Component = styleInfo.Component, ToApply = new bool[styleInfo.Count]};
 					m_memberInfosToApplyDict.Add(styleInfo.ComponentType, mib);
 				}
 			}
@@ -112,26 +112,17 @@ namespace GuiToolkit
 				{
 					int len = mib.ToApply.Length;
 
-					Debug.Assert( len == styleInfo.CompleteCount);
-					if (len != styleInfo.CompleteCount)
+					Debug.Assert( len == styleInfo.Count);
+					if (len != styleInfo.Count)
 						continue;
 
-					for (int i=0; i<styleInfo.FieldInfoCount; i++)
+					for (int i=0; i<styleInfo.Count; i++)
 					{
 						GUILayout.BeginHorizontal();
 						GUILayout.Space(20);
-						mib.ToApply[i] = GUILayout.Toggle(mib.ToApply[i], ObjectNames.NicifyVariableName(styleInfo.FieldInfos[i].Name));
+						mib.ToApply[i] = GUILayout.Toggle(mib.ToApply[i], ObjectNames.NicifyVariableName(styleInfo.MemberInfos[i].Name));
 						GUILayout.EndHorizontal();
 					}
-
-					for (int i=0; i<styleInfo.PropertyInfoCount; i++)
-					{
-						GUILayout.BeginHorizontal();
-						GUILayout.Space(20);
-						mib.ToApply[i] = GUILayout.Toggle(mib.ToApply[i], ObjectNames.NicifyVariableName(styleInfo.PropertyInfos[i].Name));
-						GUILayout.EndHorizontal();
-					}
-
 				}
 			}
 
@@ -153,23 +144,15 @@ namespace GuiToolkit
 				if (mib.Used)
 				{
 					int len = mib.ToApply.Length;
-					Debug.Assert( len == styleInfo.CompleteCount);
-					if (len != styleInfo.CompleteCount)
+					Debug.Assert( len == styleInfo.Count);
+					if (len != styleInfo.Count)
 						continue;
 
-					for (int i=0; i<styleInfo.FieldInfoCount; i++)
+					for (int i=0; i<len; i++)
 					{
 						if (mib.ToApply[i])
 						{
-							finalStyleInfo.Add(styleInfo.FieldInfos[i]);
-						}
-					}
-
-					for (int i=0; i<styleInfo.PropertyInfoCount; i++)
-					{
-						if (mib.ToApply[i])
-						{
-							finalStyleInfo.Add(styleInfo.PropertyInfos[i]);
+							finalStyleInfo.Add(styleInfo.MemberInfos[i]);
 						}
 					}
 

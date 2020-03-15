@@ -71,16 +71,10 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		public void Add(PropertyInfo _propertyInfo)
+		public void Add(MemberInfo _memberInfo)
 		{
-			m_names.Add(_propertyInfo.Name);
-			m_isProperty.Add(true);
-		}
-
-		public void Add(FieldInfo _fieldInfo)
-		{
-			m_names.Add(_fieldInfo.Name);
-			m_isProperty.Add(false);
+			m_names.Add(_memberInfo.Name);
+			m_isProperty.Add(_memberInfo is PropertyInfo);
 		}
 #endif
 	}
@@ -91,25 +85,21 @@ namespace GuiToolkit
 	{
 		public Component Component;
 		public Type ComponentType;
-		public List<PropertyInfo> PropertyInfos;
-		public List<FieldInfo> FieldInfos;
+		public List<MemberInfo> MemberInfos;
 
-		public int PropertyInfoCount => PropertyInfos != null ? PropertyInfos.Count : 0;
-		public int FieldInfoCount => FieldInfos != null ? FieldInfos.Count : 0;
-		public int CompleteCount => PropertyInfoCount + FieldInfoCount;
+		public int Count => MemberInfos.Count;
 
 		public EditorComponentMemberInfo( Component _component, PropertyInfo[] _propertyInfos = null, FieldInfo[] _fieldInfos = null )
 		{
 			Component = _component;
 			ComponentType = _component.GetType();
-			PropertyInfos = new List<PropertyInfo>();
-			FieldInfos = new List<FieldInfo>();
+			MemberInfos = new List<MemberInfo>();
 
 			if (_propertyInfos != null)
-				PropertyInfos.AddRange(_propertyInfos);
+				MemberInfos.AddRange(_propertyInfos);
 
 			if (_fieldInfos != null)
-				FieldInfos.AddRange(_fieldInfos);
+				MemberInfos.AddRange(_fieldInfos);
 		}
 	}
 #endif
