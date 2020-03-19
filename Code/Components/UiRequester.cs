@@ -3,185 +3,176 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace GuiToolkit
 {
 
+
 	public class UiRequester : UiViewModal
 	{
-		public UiButton[] m_buttons = new UiButton[3];
+		public const int INVALID = -1;
 
 		public UiButton m_closeButton;
+
+		public GameObject m_buttonContainer;
+		public UiButton m_standardButtonPrefab;
+		public UiButton m_okButtonPrefab;
+		public UiButton m_cancelButtonPrefab;
+
 
 		public TextMeshProUGUI m_title;
 		public TextMeshProUGUI m_text;
 
-		private Action m_onOk;
-		private Action m_onCancel;
-		private Action m_onRetry;
-
 		private bool m_allowOutsideTap;
-		private bool m_showCloseButton;
+		private int m_closeButtonIdx = INVALID;
+
+		private readonly List<UiButton> m_createdButtons = new List<UiButton>();
+		private readonly List<UnityEngine.Events.UnityAction> m_listeners = new List<UnityEngine.Events.UnityAction>();
+
+		public class ButtonInfo
+		{
+			public string Text;
+			public UiButton Prefab;
+			public UnityEngine.Events.UnityAction OnClick;
+		}
 
 		public class Options
 		{
-			public string[] ButtonText = new string[0];
+			public ButtonInfo[] ButtonInfos;
 			public bool AllowOutsideTap = true;
-			public bool ShowCloseButton = true;
+			public int CloseButtonIdx = INVALID;
 		}
 
 		public override bool AutoDestroyOnHide => true;
 
-		private void SetButton( int _idx, UnityEngine.Events.UnityAction _onClick, string _text )
+		public void Requester( string _title, string _text, Options _options )
 		{
-			if (_idx >= m_buttons.Length || m_buttons[_idx] == null)
-				return;
-			m_buttons[_idx].OnClick.AddListener( _onClick );
-			m_buttons[_idx].Text = _text;
+			m_title.text = _title;
+			m_text.text = _text;
+			Clear();
+			EvaluateOptions(_options);
+			gameObject.SetActive(true);
+			Show();
 		}
 
-		private void ShowButtons( int _numberOfButtons )
+		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null )
 		{
-			UiButton foundButton = null;
-
-			for (int i=0; i<m_buttons.Length; i++)
+			Options options = new Options
 			{
-				if(m_buttons[i] != null)
+				ButtonInfos = new ButtonInfo[] 
 				{
-					m_buttons[i].gameObject.SetActive(i < _numberOfButtons);
-					foundButton = m_buttons[i];
-				}
-			}
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_okText) ? "Ok" : _okText,
+						Prefab = m_standardButtonPrefab,
+						OnClick = _onOk
+					}
+				},
+				AllowOutsideTap = true,
+				CloseButtonIdx = 0
+			};
+			Requester( _title, _text, options );
+		}
 
-			if (foundButton)
+		public void YesNoRequester( string _title, string _text, bool _allowOutsideTap, UnityAction _onOk,
+			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
+		{
+			Options options = new Options
 			{
-				UiDistortGroup distortGroup = foundButton.transform.parent.GetComponent<UiDistortGroup>();
-				if (distortGroup)
-					distortGroup.Refresh();
+				ButtonInfos = new ButtonInfo[] 
+				{
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_yesText) ? "Yes" : _yesText,
+						Prefab = m_okButtonPrefab,
+						OnClick = _onOk
+					},
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_noText) ? "No" : _noText,
+						Prefab = m_cancelButtonPrefab,
+						OnClick = _onCancel
+					}
+				},
+				AllowOutsideTap = _allowOutsideTap,
+				CloseButtonIdx = _allowOutsideTap ? 1 : INVALID
+			};
+			Requester( _title, _text, options );
+		}
+
+		private void Clear()
+		{
+			Debug.Assert(m_createdButtons.Count == m_listeners.Count);
+
+			for (int i=0; i<m_createdButtons.Count; i++)
+			{
+				m_createdButtons[i].OnClick.RemoveAllListeners();
+				//TODO ui cache destroy
+				m_createdButtons[i].transform.Destroy();
 			}
-		}
 
-		public void OkRequester(string _title, string _text, Action _onClosed = null, Options _options = null)
-		{
-			m_title.text = _title;
-			m_text.text = _text;
-			m_onOk = _onClosed;
-
-			ShowButtons(1);
-			SetButton(0, OnOk, "OK");
-
-			EvaluateOptions(_options);
-
-			SetOrHideCloseButton(OnOk);
-			SetClickCatcher(OnOk);
-
-			gameObject.SetActive(true);
-			Show();
-		}
-
-		public void YesNoRequester(string _title, string _text, Action _onOk, Action _onCancel = null, Options _options = null)
-		{
-			m_title.text = _title;
-			m_text.text = _text;
-			m_onOk = _onOk;
-			m_onCancel = _onCancel;
-
-			ShowButtons(2);
-			SetButton(0, OnOk, "Yes");
-			SetButton(1, OnCancel, "No");
-
-			EvaluateOptions(_options);
-
-			SetOrHideCloseButton( OnCancel );
-			SetClickCatcher( OnCancel );
-
-			gameObject.SetActive(true);
-			Show();
-		}
-
-		private void SetClickCatcher( Action _action )
-		{
-			if (m_allowOutsideTap)
-				OnClickCatcher = _action;
-			else
-				OnClickCatcher = Wiggle;
-		}
-
-		private void Wiggle()
-		{
-			foreach(var button in m_buttons)
-				if (button != null && button.gameObject.activeInHierarchy)
-					button.Wiggle();
-		}
-
-		private void SetOrHideCloseButton( UnityEngine.Events.UnityAction _action )
-		{
-			if (!m_closeButton)
-				return;
-
-			m_closeButton.gameObject.SetActive(m_showCloseButton);
-			m_closeButton.OnClick.AddListener(_action);
+			m_closeButton.OnClick.RemoveListener(OnCloseButton);
+			
+			m_createdButtons.Clear();
+			m_listeners.Clear();
+			m_closeButtonIdx = INVALID;
+			OnClickCatcher = null;
 		}
 
 		private void EvaluateOptions( Options _options )
 		{
-			if ( _options == null )
+			m_allowOutsideTap = _options.AllowOutsideTap;
+			m_closeButtonIdx = _options.CloseButtonIdx;
+
+			for (int i=0; i<_options.ButtonInfos.Length; i++)
 			{
-				m_allowOutsideTap = true;
-				m_showCloseButton = true;
-				return;
+				ButtonInfo bi = _options.ButtonInfos[i];
+				Debug.Assert(!string.IsNullOrEmpty(bi.Text) && bi.Prefab != null, $"Wrong button info number {i} - either text or prefab not set");
+				if ( string.IsNullOrEmpty(bi.Text) || bi.Prefab == null )
+					continue;
+
+				//TODO ui cache instantiate
+				UiButton button = Instantiate(bi.Prefab);
+				button.transform.SetParent(m_buttonContainer.transform);
+
+				m_createdButtons.Add(button);
+				m_listeners.Add(bi.OnClick);
+
+				if (bi.OnClick != null)
+					button.OnClick.AddListener( () => OnClick(i) );
+
+				button.Text = bi.Text;
 			}
 
-			for (int i=0; i<m_buttons.Length && i<_options.ButtonText.Length; i++)
-				if (m_buttons[i] != null)
-					m_buttons[i].Text = _options.ButtonText[i];
+			m_closeButton.gameObject.SetActive(m_closeButtonIdx > 0);
+			m_closeButton.OnClick.AddListener(OnCloseButton);
 
-			m_allowOutsideTap = _options.AllowOutsideTap;
-			m_showCloseButton = _options.ShowCloseButton;
+			if (_options.AllowOutsideTap)
+				OnClickCatcher = OnCloseButton;
+			else
+				OnClickCatcher = Wiggle;
 		}
 
-		protected override void OnDisable()
+		private void OnClick( int _idx )
 		{
-			base.OnDisable();
-			RemoveAllButtonListeners();
-		}
-
-		private void RemoveAllButtonListeners()
-		{
-			foreach(var button in m_buttons)
-				RemoveButtonListeners(button);
-		}
-
-		private void RemoveButtonListeners( UiButton _button )
-		{
-			if (_button == null)
-				return;
-
-			_button.OnClick.RemoveListener(OnOk);
-			_button.OnClick.RemoveListener(OnCancel);
-			_button.OnClick.RemoveListener(OnRetry);
-		}
-
-		private void OnOk()
-		{
-			if (m_onOk != null)
-				m_onOk.Invoke();
+			Debug.Assert(_idx < m_listeners.Count);
+			if (_idx < m_listeners.Count && m_listeners[_idx] != null)
+				m_listeners[_idx]();
 			Hide();
 		}
 
-		private void OnCancel()
+		private void OnCloseButton()
 		{
-			if (m_onCancel != null)
-				m_onCancel.Invoke();
-			Hide();
+			if (m_closeButtonIdx >= 0)
+				OnClick(m_closeButtonIdx);
 		}
 
-		private void OnRetry()
+		private void Wiggle()
 		{
-			if (m_onRetry != null)
-				m_onRetry.Invoke();
+			foreach(var button in m_createdButtons)
+				if (button != null && button.gameObject.activeInHierarchy)
+					button.Wiggle();
 		}
+
 
 	}
 }

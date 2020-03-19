@@ -56,7 +56,7 @@ namespace GuiToolkit
 				m_views[_sceneName].Hide();
 		}
 
-		public void OkRequester(string _title, string _text, Action _onClosed = null, UiRequester.Options _options = null)
+		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null )
 		{
 			if (m_requester == null)
 			{
@@ -66,10 +66,11 @@ namespace GuiToolkit
 
 			UiRequester requester = (UiRequester)CreateModalDialog(m_requester);
 			Debug.Assert(requester);
-			requester.OkRequester(_title, _text, _onClosed, _options);
+			requester.OkRequester(_title, _text, _onOk, _okText);
 		}
 
-		public void YesNoRequester(string _title, string _text, Action _onOk, Action _onCancel = null, UiRequester.Options _options = null)
+		public void YesNoRequester( string _title, string _text, bool _allowOutsideTap, UnityAction _onOk,
+			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
 		{
 			if (m_requester == null)
 			{
@@ -79,7 +80,7 @@ namespace GuiToolkit
 
 			UiRequester requester = (UiRequester)CreateModalDialog(m_requester);
 			Debug.Assert(requester);
-			requester.YesNoRequester(_title, _text, _onOk, _onCancel, _options);
+			requester.YesNoRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
 		}
 
 		public void Quit()

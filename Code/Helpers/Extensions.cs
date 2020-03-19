@@ -20,7 +20,7 @@ namespace GuiToolkit
 			return _listToClone.Select(item => (T)item.Clone()).ToList();
 		}
 
-		public static Transform Destroy( this Transform _this )
+		public static void Destroy( this Transform _this )
 		{
 #if UNITY_EDITOR
 			UnityEditor.EditorApplication.delayCall += () =>
@@ -31,7 +31,17 @@ namespace GuiToolkit
 #else
 			GameObject.Destroy(_this.gameObject);
 #endif
-			return _this;
+		}
+
+		public static void DestroyAllChildren( this Transform _this )
+		{
+			foreach( Transform child in _this )
+				Extensions.Destroy(child);
+		}
+
+		public static void DestroyAllChildren( this GameObject _this )
+		{
+			Extensions.DestroyAllChildren( _this.transform );
 		}
 
 		public static Transform Clear( this Transform _this )
