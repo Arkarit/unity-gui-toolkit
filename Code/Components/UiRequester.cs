@@ -12,8 +12,6 @@ namespace GuiToolkit
 
 	public class UiRequester : UiViewModal
 	{
-		public const int INVALID = -1;
-
 		public UiButton m_closeButton;
 
 		public GameObject m_buttonContainer;
@@ -25,8 +23,11 @@ namespace GuiToolkit
 		public TextMeshProUGUI m_title;
 		public TextMeshProUGUI m_text;
 
+		public float m_buttonScale = 1.0f;
+		public int m_maxButtons = 3;
+
 		private bool m_allowOutsideTap;
-		private int m_closeButtonIdx = INVALID;
+		private int m_closeButtonIdx = Constants.INVALID;
 
 		private readonly List<UiButton> m_createdButtons = new List<UiButton>();
 		private readonly List<UnityEngine.Events.UnityAction> m_listeners = new List<UnityEngine.Events.UnityAction>();
@@ -42,7 +43,7 @@ namespace GuiToolkit
 		{
 			public ButtonInfo[] ButtonInfos;
 			public bool AllowOutsideTap = true;
-			public int CloseButtonIdx = INVALID;
+			public int CloseButtonIdx = Constants.INVALID;
 		}
 
 		public override bool AutoDestroyOnHide => true;
@@ -94,7 +95,7 @@ namespace GuiToolkit
 					}
 				},
 				AllowOutsideTap = _allowOutsideTap,
-				CloseButtonIdx = _allowOutsideTap ? 1 : INVALID
+				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID
 			};
 			Requester( _title, _text, options );
 		}
@@ -114,7 +115,7 @@ namespace GuiToolkit
 			
 			m_createdButtons.Clear();
 			m_listeners.Clear();
-			m_closeButtonIdx = INVALID;
+			m_closeButtonIdx = Constants.INVALID;
 			OnClickCatcher = null;
 		}
 
@@ -122,6 +123,9 @@ namespace GuiToolkit
 		{
 			m_allowOutsideTap = _options.AllowOutsideTap;
 			m_closeButtonIdx = _options.CloseButtonIdx;
+
+			if (m_maxButtons != Constants.INVALID && _options.ButtonInfos.Length > m_maxButtons)
+				Debug.LogWarning($"Dialog '{this.gameObject}' contains {_options.ButtonInfos.Length} buttons; maximum supported are {m_maxButtons}. Visual problems may appear.");
 
 			for (int i=0; i<_options.ButtonInfos.Length; i++)
 			{
@@ -133,17 +137,19 @@ namespace GuiToolkit
 				//TODO ui cache instantiate
 				UiButton button = Instantiate(bi.Prefab);
 				button.transform.SetParent(m_buttonContainer.transform);
+				button.transform.localScale = Vector3.one * m_buttonScale;
 
 				m_createdButtons.Add(button);
 				m_listeners.Add(bi.OnClick);
 
-				if (bi.OnClick != null)
-					button.OnClick.AddListener( () => OnClick(i) );
+				// in a real programming language you would be able to declare the lambda capture mode (ref or copy)
+				int fuckYouCSharp = i;
+				button.OnClick.AddListener( () => OnClick(fuckYouCSharp) );
 
 				button.Text = bi.Text;
 			}
 
-			m_closeButton.gameObject.SetActive(m_closeButtonIdx > 0);
+			m_closeButton.gameObject.SetActive(m_closeButtonIdx >= 0);
 			m_closeButton.OnClick.AddListener(OnCloseButton);
 
 			if (_options.AllowOutsideTap)

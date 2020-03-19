@@ -48,6 +48,8 @@ namespace GuiToolkit
 
 	public static class Constants
 	{
+		public const int INVALID = -1;
+
 		public const float HANDLE_SIZE = 0.06f;
 		public static Color HANDLE_COLOR = Color.yellow;
 		public static Color HANDLE_SUPPORTING_COLOR = Color.yellow * 0.5f;
