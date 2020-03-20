@@ -18,6 +18,9 @@ namespace GuiToolkit
 		private class CEvShowSplashMessage : UnityEvent<int,string,float> {}
 		private static CEvShowSplashMessage EvShow = new CEvShowSplashMessage();
 
+		public override bool AutoDestroyOnHide => true;
+		public override bool Poolable => true;
+
 		protected override void AddEventListeners()
 		{
 			EvShow.AddListener(OnEvShow);
@@ -40,7 +43,7 @@ namespace GuiToolkit
 				m_animationWhileVisible.Stop(false);
 
 				m_animationWhileVisible.Duration = _duration;
-				m_animationWhileVisible.m_onFinishOnce = () => SimpleShowHideAnimation.Play(true);
+				m_animationWhileVisible.m_onFinishOnce = () => Hide();
 				Show(false, () => m_animationWhileVisible.Play());
 			}
 			else

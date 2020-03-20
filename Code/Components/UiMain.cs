@@ -31,6 +31,9 @@ namespace GuiToolkit
 		[SerializeField]
 		private UiRequester m_requesterPrefab;
 
+		[SerializeField]
+		private UiSplashMessage m_splashMessagePrefab;
+
 		private Camera m_camera;
 		private readonly Dictionary<string, UiView> m_views = new Dictionary<string, UiView>();
 
@@ -56,6 +59,14 @@ namespace GuiToolkit
 		{
 			if (m_views.ContainsKey(_sceneName))
 				m_views[_sceneName].Hide();
+		}
+
+		public void SplashMessage(string _message, float _duration = 2)
+		{
+			UiSplashMessage message = m_splashMessagePrefab.PoolInstantiate();
+			message.transform.SetParent(transform, false);
+			message.SetRenderMode(m_renderMode, m_camera);
+			message.Show(_message, _duration);
 		}
 
 		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null )
