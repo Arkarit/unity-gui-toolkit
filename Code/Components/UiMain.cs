@@ -28,9 +28,11 @@ namespace GuiToolkit
 		[SerializeField]
 		private Transform m_requesterContainer;
 
+		[SerializeField]
+		private UiRequester m_requesterPrefab;
+
 		private Camera m_camera;
 		private readonly Dictionary<string, UiView> m_views = new Dictionary<string, UiView>();
-		private UiRequester m_requester;
 
 		public float LayerDistance {get { return m_layerDistance; }}
 
@@ -58,13 +60,7 @@ namespace GuiToolkit
 
 		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null )
 		{
-			if (m_requester == null)
-			{
-				Debug.LogError("Attempt to create requester, but template in UiMain m_requester is null");
-				return;
-			}
-
-			UiRequester requester = (UiRequester)CreateModalDialog(m_requester);
+			UiRequester requester = CreateModalDialog(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.OkRequester(_title, _text, _onOk, _okText);
 		}
@@ -72,13 +68,7 @@ namespace GuiToolkit
 		public void YesNoRequester( string _title, string _text, bool _allowOutsideTap, UnityAction _onOk,
 			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
 		{
-			if (m_requester == null)
-			{
-				Debug.LogError("Attempt to create requester, but template in UiMain m_requester is null");
-				return;
-			}
-
-			UiRequester requester = (UiRequester)CreateModalDialog(m_requester);
+			UiRequester requester = CreateModalDialog(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.YesNoRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
 		}
@@ -133,24 +123,32 @@ namespace GuiToolkit
 		}
 #endif
 
-		private UiViewModal CreateModalDialog(UiViewModal _template)
+		private T CreateModalDialog<T>( T _template) where T : UiViewModal
 		{
+			bool foundOtherModalDialog = false;
 			float lowestLayer = 100000f;
+
 			foreach (var kv in m_views)
 			{
 				UiView view = kv.Value;
 				if (!(view is UiViewModal) )
 					continue;
 
+				foundOtherModalDialog = true;
 				if (view.Canvas.planeDistance < lowestLayer)
 					lowestLayer = view.Canvas.planeDistance;
 			}
-			float newLayer = lowestLayer - LayerDistance;
 
-			UiViewModal result = UiPool.Instance.DoInstantiate(_template);
+			T result = _template.PoolInstantiate();
 			result.transform.SetParent(m_requesterContainer, false);
 			result.SetRenderMode(m_renderMode, m_camera);
-			result.Canvas.planeDistance = newLayer;
+
+			// If another dialog was found, we place the new modal dialog above the highest dialog
+			if (foundOtherModalDialog)
+			{
+				float newLayer = lowestLayer - LayerDistance;
+				result.Canvas.planeDistance = newLayer;
+			}
 
 			return result;
 		}
@@ -212,7 +210,6 @@ namespace GuiToolkit
 			Instance = this;
 
 			m_views.Clear();
-			m_requester = null;
 
 			foreach (Transform child in transform)
 			{
@@ -224,11 +221,6 @@ namespace GuiToolkit
 
 				uiView.InitEvents();
 
-				if (uiView is UiRequester)
-				{
-					ReInitRequester(uiView);
-				}
-
 				bool keyFound = m_views.ContainsKey(uiView.m_name);
 
 				Debug.Assert(!keyFound, $"Duplicate UiView name '{uiView.m_name}' found. (Check also game object name if UiView Name is not set)");
@@ -239,17 +231,6 @@ namespace GuiToolkit
 			}
 
 			SetSortOrder();
-		}
-
-		private void ReInitRequester( UiView uiView )
-		{
-			if (m_requester != null)
-			{
-				Debug.LogError("Multiple UiRequester detected. There can be only one currently.");
-				return;
-			}
-
-			m_requester = (UiRequester)uiView;
 		}
 
 		private void SetSortOrder()
