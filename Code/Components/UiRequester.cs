@@ -120,7 +120,7 @@ namespace GuiToolkit
 			for (int i=0; i<m_buttons.Count; i++)
 			{
 				m_buttons[i].OnClick.RemoveAllListeners();
-				UiPool.Instance.DoDestroy(m_buttons[i]);
+				m_buttons[i].PoolDestroy();
 			}
 
 			m_closeButton.OnClick.RemoveListener(OnCloseButton);
@@ -146,7 +146,7 @@ namespace GuiToolkit
 				if ( string.IsNullOrEmpty(bi.Text) || bi.Prefab == null )
 					continue;
 
-				UiButton button = UiPool.Instance.DoInstantiate(bi.Prefab);
+				UiButton button = bi.Prefab.PoolInstantiate();
 				button.transform.SetParent(m_buttonContainer.transform, false);
 				button.transform.localScale = Vector3.one * m_buttonScale;
 
