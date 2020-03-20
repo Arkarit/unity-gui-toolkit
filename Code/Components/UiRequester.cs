@@ -12,26 +12,6 @@ namespace GuiToolkit
 
 	public class UiRequester : UiViewModal
 	{
-		public UiButton m_closeButton;
-
-		public GameObject m_buttonContainer;
-		public UiButton m_standardButtonPrefab;
-		public UiButton m_okButtonPrefab;
-		public UiButton m_cancelButtonPrefab;
-
-
-		public TextMeshProUGUI m_title;
-		public TextMeshProUGUI m_text;
-
-		public float m_buttonScale = 1.0f;
-		public int m_maxButtons = 3;
-
-		private bool m_allowOutsideTap;
-		private int m_closeButtonIdx = Constants.INVALID;
-
-		private readonly List<UiButton> m_createdButtons = new List<UiButton>();
-		private readonly List<UnityEngine.Events.UnityAction> m_listeners = new List<UnityEngine.Events.UnityAction>();
-
 		public class ButtonInfo
 		{
 			public string Text;
@@ -46,7 +26,28 @@ namespace GuiToolkit
 			public int CloseButtonIdx = Constants.INVALID;
 		}
 
+		public UiButton m_closeButton;
+
+		public GameObject m_buttonContainer;
+		public UiButton m_standardButtonPrefab;
+		public UiButton m_okButtonPrefab;
+		public UiButton m_cancelButtonPrefab;
+
+		public TextMeshProUGUI m_title;
+		public TextMeshProUGUI m_text;
+
+		public float m_buttonScale = 1.0f;
+		public int m_maxButtons = 3;
+
+
+		private bool m_allowOutsideTap;
+		private int m_closeButtonIdx = Constants.INVALID;
+
+		private readonly List<UiButton> m_buttons = new List<UiButton>();
+		private readonly List<UnityEngine.Events.UnityAction> m_listeners = new List<UnityEngine.Events.UnityAction>();
+
 		public override bool AutoDestroyOnHide => true;
+		public override bool Poolable => true;
 
 		public void Requester( string _title, string _text, Options _options )
 		{
@@ -100,20 +101,31 @@ namespace GuiToolkit
 			Requester( _title, _text, options );
 		}
 
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			Clear();
+		}
+
+		public override void OnPooled()
+		{
+			base.OnPooled();
+			Clear();
+		}
+
 		private void Clear()
 		{
-			Debug.Assert(m_createdButtons.Count == m_listeners.Count);
+			Debug.Assert(m_buttons.Count == m_listeners.Count);
 
-			for (int i=0; i<m_createdButtons.Count; i++)
+			for (int i=0; i<m_buttons.Count; i++)
 			{
-				m_createdButtons[i].OnClick.RemoveAllListeners();
-				//TODO ui cache destroy
-				m_createdButtons[i].transform.Destroy();
+				m_buttons[i].OnClick.RemoveAllListeners();
+				UiPool.Instance.DoDestroy(m_buttons[i]);
 			}
 
 			m_closeButton.OnClick.RemoveListener(OnCloseButton);
 			
-			m_createdButtons.Clear();
+			m_buttons.Clear();
 			m_listeners.Clear();
 			m_closeButtonIdx = Constants.INVALID;
 			OnClickCatcher = null;
@@ -134,12 +146,11 @@ namespace GuiToolkit
 				if ( string.IsNullOrEmpty(bi.Text) || bi.Prefab == null )
 					continue;
 
-				//TODO ui cache instantiate
-				UiButton button = Instantiate(bi.Prefab);
+				UiButton button = UiPool.Instance.DoInstantiate(bi.Prefab);
 				button.transform.SetParent(m_buttonContainer.transform);
 				button.transform.localScale = Vector3.one * m_buttonScale;
 
-				m_createdButtons.Add(button);
+				m_buttons.Add(button);
 				m_listeners.Add(bi.OnClick);
 
 				// in a real programming language you would be able to declare the lambda capture mode (ref or copy)
@@ -174,7 +185,7 @@ namespace GuiToolkit
 
 		private void Wiggle()
 		{
-			foreach(var button in m_createdButtons)
+			foreach(var button in m_buttons)
 				if (button != null && button.gameObject.activeInHierarchy)
 					button.Wiggle();
 		}

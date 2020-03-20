@@ -60,10 +60,12 @@ namespace GuiToolkit
 			}
 		}
 
+
 		// Reserved
 		protected virtual void Update() { }
 
 		// Custom virtuals
+
 		protected virtual void AddEventListeners() { }
 		protected virtual void RemoveEventListeners() { }
 

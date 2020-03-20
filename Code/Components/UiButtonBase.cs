@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public class UiButtonBase : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+	public class UiButtonBase : UiThing, IPointerDownHandler, IPointerUpHandler
 	{
 		[Tooltip("Simple animation (optional)")]
 		public UiSimpleAnimation m_simpleAnimation;

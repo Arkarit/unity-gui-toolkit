@@ -26,8 +26,13 @@ namespace GuiToolkit
 		private DefaultSceneVisibility m_defaultSceneVisibility = DefaultSceneVisibility.DontCare;
 
 		public virtual bool AutoDestroyOnHide => false;
+		public virtual bool Poolable => false;
 
 		private Canvas m_canvas;
+
+		
+		// Have to make this public because c# programmers don't have friends. Shitty language. 
+		public virtual void OnPooled() { }
 
 		public Canvas Canvas {
 			get
@@ -71,8 +76,7 @@ namespace GuiToolkit
 				gameObject.SetActive(false);
 				if (m_showHideAnimation != null)
 					m_showHideAnimation.StopViewAnimation();
-				if (AutoDestroyOnHide)
-					Destroy(gameObject);
+				DestroyIfNecessary();
 				return;
 			}
 
@@ -81,9 +85,19 @@ namespace GuiToolkit
 				gameObject.SetActive(false);
 				if (_onFinish != null)
 					_onFinish.Invoke(); 
-				if (AutoDestroyOnHide)
-					Destroy(gameObject);
+				DestroyIfNecessary();
 			});
+		}
+
+		private void DestroyIfNecessary()
+		{
+			if (!AutoDestroyOnHide)
+				return;
+
+			if (Poolable)
+				UiPool.Instance.DoDestroy(this);
+			else
+				gameObject.Destroy();
 		}
 
 		public void SetRenderMode( RenderMode _renderMode, Camera _camera )

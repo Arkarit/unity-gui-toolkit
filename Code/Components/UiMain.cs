@@ -147,7 +147,7 @@ namespace GuiToolkit
 			}
 			float newLayer = lowestLayer - LayerDistance;
 
-			UiViewModal result = Instantiate(_template);
+			UiViewModal result = UiPool.Instance.DoInstantiate(_template);
 			result.transform.SetParent(m_requesterContainer);
 			result.SetRenderMode(m_renderMode, m_camera);
 			result.Canvas.planeDistance = newLayer;
