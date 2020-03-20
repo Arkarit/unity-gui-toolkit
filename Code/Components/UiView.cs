@@ -17,19 +17,28 @@ namespace GuiToolkit
 		public string m_name;
 
 		[SerializeField]
-		private EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
+		protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
 
 		[SerializeField]
-		private IShowHideViewAnimation m_showHideAnimation;
+		protected IShowHideViewAnimation m_showHideAnimation;
 
 		[SerializeField]
-		private DefaultSceneVisibility m_defaultSceneVisibility = DefaultSceneVisibility.DontCare;
+		protected DefaultSceneVisibility m_defaultSceneVisibility = DefaultSceneVisibility.DontCare;
 
 		public virtual bool AutoDestroyOnHide => false;
 		public virtual bool Poolable => false;
 
-		private Canvas m_canvas;
+		protected UiSimpleAnimationBase SimpleShowHideAnimation
+		{
+			get
+			{
+				if (m_showHideAnimation is UiSimpleAnimation)
+					return (UiSimpleAnimation) m_showHideAnimation;
+				return null;
+			}
+		}
 
+		private Canvas m_canvas;
 		
 		// Have to make this public because c# programmers don't have friends. Shitty language. 
 		public virtual void OnPooled() { }

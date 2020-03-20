@@ -187,11 +187,11 @@ namespace GuiToolkit
 			m_pause = false;
 		}
 
-		public void Stop()
+		public void Stop( bool _invokeOnStopDelegates = true )
 		{
 			if (!m_running)
 				return;
-			FinishAnimation();
+			FinishAnimation( _invokeOnStopDelegates );
 		}
 
 		public void Reset(bool _toEnd = false)
@@ -242,7 +242,7 @@ namespace GuiToolkit
 					if (m_gotoStartOnBackwards)
 						OnAnimate(0);
 					m_running = false;
-					FinishAnimation();
+					FinishAnimation( true );
 					return;
 				}
 
@@ -251,7 +251,7 @@ namespace GuiToolkit
 					m_backwardsAnimation.Update(_timeDelta);
 					m_running = m_backwardsAnimation.m_running;
 					if (!m_running)
-						FinishAnimation();
+						FinishAnimation( true );
 					return;
 				}
 			}
@@ -312,20 +312,22 @@ namespace GuiToolkit
 				return;
 			}
 
-			FinishAnimation();
+			FinishAnimation( true );
 		}
 
-		private void FinishAnimation()
+		private void FinishAnimation( bool _invokeOnStopDelegates )
 		{
-			//TODO call delegates etc.
 			m_running = false;
 			m_pause = false;
 			OnStopAnimate();
 
-			if (m_onFinish != null)
-				m_onFinish.Invoke();
-			if (m_onFinishOnce != null)
-				m_onFinishOnce.Invoke();
+			if (_invokeOnStopDelegates)
+			{
+				if (m_onFinish != null)
+					m_onFinish.Invoke();
+				if (m_onFinishOnce != null)
+					m_onFinishOnce.Invoke();
+			}
 			m_onFinishOnce = null;
 		}
 

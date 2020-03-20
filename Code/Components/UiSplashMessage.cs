@@ -12,6 +12,7 @@ namespace GuiToolkit
 		public float m_duration;
 		public TextMeshProUGUI m_textComponent;
 		public int m_id;
+		public UiSimpleAnimation m_animationWhileVisible;
 
 		[System.Serializable]
 		private class CEvShowSplashMessage : UnityEvent<int,string,float> {}
@@ -33,8 +34,20 @@ namespace GuiToolkit
 			gameObject.SetActive(true);
 			m_duration = _duration;
 			m_textComponent.text = _message;
-			Show();
-			StartCoroutine(DelayedClose());
+			if (m_animationWhileVisible != null && SimpleShowHideAnimation != null)
+			{
+				SimpleShowHideAnimation.Stop(false);
+				m_animationWhileVisible.Stop(false);
+
+				m_animationWhileVisible.Duration = _duration;
+				m_animationWhileVisible.m_onFinishOnce = () => SimpleShowHideAnimation.Play(true);
+				Show(false, () => m_animationWhileVisible.Play());
+			}
+			else
+			{
+				Show();
+				StartCoroutine(DelayedClose());
+			}
 		}
 
 		public static void InvokeShow(string _message, int _id = 0, float _duration = 2 )
