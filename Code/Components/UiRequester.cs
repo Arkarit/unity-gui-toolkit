@@ -147,7 +147,7 @@ namespace GuiToolkit
 					continue;
 
 				UiButton button = UiPool.Instance.DoInstantiate(bi.Prefab);
-				button.transform.SetParent(m_buttonContainer.transform);
+				button.transform.SetParent(m_buttonContainer.transform, false);
 				button.transform.localScale = Vector3.one * m_buttonScale;
 
 				m_buttons.Add(button);

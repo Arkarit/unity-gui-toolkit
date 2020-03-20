@@ -148,7 +148,7 @@ namespace GuiToolkit
 			float newLayer = lowestLayer - LayerDistance;
 
 			UiViewModal result = UiPool.Instance.DoInstantiate(_template);
-			result.transform.SetParent(m_requesterContainer);
+			result.transform.SetParent(m_requesterContainer, false);
 			result.SetRenderMode(m_renderMode, m_camera);
 			result.Canvas.planeDistance = newLayer;
 
@@ -185,7 +185,7 @@ namespace GuiToolkit
 				{
 					view.m_name = _name;
 					view.gameObject.name = _name;
-					view.transform.SetParent(transform);
+					view.transform.SetParent(transform, false);
 					view.SetRenderMode(m_renderMode, m_camera);
 					SetDefaultSceneVisibilities(root);
 					ReInit();
