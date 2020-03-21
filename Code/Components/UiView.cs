@@ -113,6 +113,8 @@ namespace GuiToolkit
 				gameObject.SetActive(false);
 				if (m_showHideAnimation != null)
 					m_showHideAnimation.StopViewAnimation();
+				if (_onFinish != null)
+					_onFinish.Invoke(); 
 				DestroyIfNecessary();
 				return;
 			}

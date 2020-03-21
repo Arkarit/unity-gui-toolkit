@@ -41,7 +41,8 @@ namespace GuiToolkit
 					poolEntry.m_instances.RemoveAt(lastIdx);
 					result.transform.parent = null;
 					result.SetActive(true);
-					m_poolEntryByGameObject.Add(result, poolEntry);
+					if (!m_poolEntryByGameObject.ContainsKey(result))
+						m_poolEntryByGameObject.Add(result, poolEntry);
 					return result;
 				}
 
@@ -72,10 +73,13 @@ namespace GuiToolkit
 			}
 
 			PoolEntry poolEntry = m_poolEntryByGameObject[_gameObject];
-			m_poolEntryByGameObject.Remove(_gameObject);
 			_gameObject.transform.parent = m_container;
 			_gameObject.SetActive(false);
-			poolEntry.m_instances.Add(_gameObject);
+
+			// We must check if the game object is already in the pool - it is not
+			// forbidden to pool an object which is already in the pool (e.g. induced by events, which are also fired to inactive components)
+			if (!poolEntry.m_instances.Contains(_gameObject))
+				poolEntry.m_instances.Add(_gameObject);
 		}
 
 		public void DoDestroy<T>( T _component ) where T : Component

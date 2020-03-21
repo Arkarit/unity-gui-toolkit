@@ -317,6 +317,9 @@ namespace GuiToolkit
 
 		private void FinishAnimation( bool _invokeOnStopDelegates )
 		{
+			if (m_backwardsAnimation != null)
+				m_backwardsAnimation.Stop(false);
+
 			m_running = false;
 			m_pause = false;
 			OnStopAnimate();
@@ -450,7 +453,7 @@ namespace GuiToolkit
 				return;
 
 			m_onFinishOnce = null;
-			Stop();
+			Stop(false);
 		}
 
 #if UNITY_EDITOR
