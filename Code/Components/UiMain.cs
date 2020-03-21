@@ -35,30 +35,52 @@ namespace GuiToolkit
 		private UiSplashMessage m_splashMessagePrefab;
 
 		private Camera m_camera;
-		private readonly Dictionary<string, UiView> m_views = new Dictionary<string, UiView>();
+		private readonly Dictionary<string, UiView> m_scenes = new Dictionary<string, UiView>();
 
 		public float LayerDistance {get { return m_layerDistance; }}
 
 		public static UiMain Instance { get; private set; }
 
-		public void LoadScene(string _sceneName, bool _show = true, Action<UiView> _whenLoaded = null)
+		public void LoadScene(string _sceneName, bool _show = true, bool _instant = false, Action<UiView> _whenLoaded = null)
 		{
-			if (m_views.ContainsKey(_sceneName))
+			if (CheckSceneValid(_sceneName))
 			{
 				if (_show)
-					m_views[_sceneName].Show();
+					m_scenes[_sceneName].Show();
 
 				if (_whenLoaded != null)
-					_whenLoaded.Invoke(m_views[_sceneName]);
+					_whenLoaded.Invoke(m_scenes[_sceneName]);
 				return;
 			}
-			StartCoroutine(LoadAsyncScene(_sceneName, true, _whenLoaded));
+			StartCoroutine(LoadAsyncScene(_sceneName, _show, _instant, _whenLoaded));
 		}
 
-		public void HideScene(string _sceneName)
+		public void HideScene(string _sceneName, bool _instant = false)
 		{
-			if (m_views.ContainsKey(_sceneName))
-				m_views[_sceneName].Hide();
+			if (CheckSceneValid(_sceneName))
+				m_scenes[_sceneName].Hide( _instant );
+		}
+
+		public void ShowScene(string _sceneName, bool _instant = false)
+		{
+			LoadScene(_sceneName, true, _instant);
+		}
+
+		public void UnloadScene(string _sceneName, bool _instant = false)
+		{
+			if (CheckSceneValid(_sceneName))
+			{
+				m_scenes[_sceneName].Hide( _instant, () => DestroyScene(_sceneName) );
+			}
+		}
+
+		private void DestroyScene( string _sceneName )
+		{
+			if (CheckSceneValid(_sceneName))
+			{
+				m_scenes[_sceneName].gameObject.Destroy();
+				m_scenes.Remove(_sceneName);
+			}
 		}
 
 		public void SplashMessage(string _message, float _duration = 2)
@@ -102,7 +124,12 @@ namespace GuiToolkit
 			if (Application.isPlaying)
 				DontDestroyOnLoad(gameObject);
 
-			ReInit();
+			Instance = this;
+		}
+
+		protected virtual void Start()
+		{
+			SetOrder(); 
 			SetDefaultSceneVisibilities(gameObject);
 		}
 
@@ -122,24 +149,45 @@ namespace GuiToolkit
 
 		protected void OnTransformChildrenChanged()
 		{
-			ReInit();
+			SetOrder();
 		}
 
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
-			ReInit();
-			foreach (var kv in m_views)
-				kv.Value.SetRenderMode(m_renderMode, GetComponent<Camera>());
+			Instance = this;
+			SetOrder();
 		}
+
 #endif
+
+		private void SetOrder()
+		{
+			UiView[] views = GetComponentsInChildren<UiView>(true);
+			foreach (var view in views)
+				view.SetRenderMode(m_renderMode, GetComponent<Camera>());
+		}
+
+		private bool CheckSceneValid(string _sceneName)
+		{
+			if (!m_scenes.ContainsKey(_sceneName))
+				return false;
+
+			if (m_scenes[_sceneName] == null)
+			{
+				m_scenes.Remove(_sceneName);
+				return false;
+			}
+
+			return true;
+		}
 
 		private T CreateModalDialog<T>( T _template) where T : UiViewModal
 		{
 			bool foundOtherModalDialog = false;
 			float lowestLayer = 100000f;
 
-			foreach (var kv in m_views)
+			foreach (var kv in m_scenes)
 			{
 				UiView view = kv.Value;
 				if (!(view is UiViewModal) )
@@ -164,7 +212,7 @@ namespace GuiToolkit
 			return result;
 		}
 
-		private IEnumerator LoadAsyncScene(string _name, bool _show, Action<UiView> _whenLoaded)
+		private IEnumerator LoadAsyncScene(string _name, bool _show, bool _instant, Action<UiView> _whenLoaded)
 		{
 			// The Application loads the Scene in the background as the current Scene runs.
 			// This is particularly good for creating loading screens.
@@ -192,15 +240,14 @@ namespace GuiToolkit
 				UiView view = root.GetComponentInChildren<UiView>(true);
 				if (view)
 				{
-					view.m_name = _name;
 					view.gameObject.name = _name;
 					view.transform.SetParent(transform, false);
 					view.SetRenderMode(m_renderMode, m_camera);
 					SetDefaultSceneVisibilities(root);
-					ReInit();
+					m_scenes[_name] = view;
 
 					if (_show)
-						view.Show();
+						view.Show(_instant);
 
 					if (_whenLoaded != null)
 						_whenLoaded.Invoke(view);
@@ -214,38 +261,6 @@ namespace GuiToolkit
 				Destroy(root);
 
 			SceneManager.UnloadSceneAsync(scene);
-		}
-
-		private void ReInit()
-		{
-			Instance = this;
-
-			m_views.Clear();
-
-			foreach (Transform child in transform)
-			{
-				UiView uiView = child.GetComponent<UiView>();
-				if (uiView == null)
-					continue;
-				if (string.IsNullOrEmpty(uiView.m_name))
-					uiView.m_name = uiView.gameObject.name;
-
-				uiView.InitEvents();
-
-				bool keyFound = m_views.ContainsKey(uiView.m_name);
-
-				Debug.Assert(!keyFound, $"Duplicate UiView name '{uiView.m_name}' found. (Check also game object name if UiView Name is not set)");
-				if (keyFound)
-					continue;
-
-				m_views.Add(uiView.m_name, uiView);
-			}
-
-			SetSortOrder();
-		}
-
-		private void SetSortOrder()
-		{
 		}
 
 	}

@@ -14,8 +14,6 @@ namespace GuiToolkit
 	[RequireComponent(typeof(Canvas))]
 	public class UiView : UiThing, ISetDefaultSceneVisibility
 	{
-		public string m_name;
-
 		[SerializeField]
 		protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
 
@@ -116,6 +114,11 @@ namespace GuiToolkit
 #endif
 			Canvas.renderMode = _renderMode;
 			Canvas.worldCamera = _camera;
+
+			Debug.Assert(UiMain.Instance != null);
+			if (UiMain.Instance == null)
+				return;
+
 			Canvas.planeDistance = UiMain.Instance.LayerDistance * (float) m_layer;
 		}
 
