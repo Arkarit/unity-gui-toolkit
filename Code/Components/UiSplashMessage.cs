@@ -23,11 +23,13 @@ namespace GuiToolkit
 
 		protected override void AddEventListeners()
 		{
+			base.AddEventListeners();
 			EvShow.AddListener(OnEvShow);
 		}
 
 		protected override void RemoveEventListeners()
 		{
+			base.RemoveEventListeners();
 			EvShow.RemoveListener(OnEvShow);
 		}
 

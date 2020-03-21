@@ -85,6 +85,7 @@ namespace GuiToolkit
 
 		public void SplashMessage(string _message, float _duration = 2)
 		{
+			UiView.InvokeHideInstant<UiSplashMessage>();
 			UiSplashMessage message = m_splashMessagePrefab.PoolInstantiate();
 			message.transform.SetParent(transform, false);
 			message.SetRenderMode(m_renderMode, m_camera);

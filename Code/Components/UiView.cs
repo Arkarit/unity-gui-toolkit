@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 namespace GuiToolkit
@@ -25,6 +26,35 @@ namespace GuiToolkit
 
 		public virtual bool AutoDestroyOnHide => false;
 		public virtual bool Poolable => false;
+
+		[System.Serializable]
+		private class CEvHideInstant : UnityEvent<Type> {}
+		private static CEvHideInstant EvHideInstant = new CEvHideInstant();
+
+		protected override void AddEventListeners()
+		{
+			base.AddEventListeners();
+			EvHideInstant.AddListener(OnEvHideInstant);
+		}
+
+		protected override void RemoveEventListeners()
+		{
+			base.RemoveEventListeners();
+			EvHideInstant.RemoveListener(OnEvHideInstant);
+		}
+
+		private void OnEvHideInstant( Type _type )
+		{
+			if (GetType() == _type)
+			{
+				Hide(true);
+			}
+		}
+
+		public static void InvokeHideInstant<T>()
+		{
+			EvHideInstant.Invoke(typeof(T));
+		}
 
 		protected UiSimpleAnimationBase SimpleShowHideAnimation
 		{
