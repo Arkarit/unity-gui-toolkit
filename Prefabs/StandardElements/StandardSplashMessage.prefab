@@ -65,7 +65,7 @@ MonoBehaviour:
   m_canvasRectTransform: {fileID: 4628251921322500159}
   m_scaleByCanvasScaler: 1
   m_posXStart: 0
-  m_posXEnd: 1200
+  m_posXEnd: 600
   m_posXCurve:
     serializedVersion: 2
     m_Curve:
@@ -137,21 +137,21 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.7
-      inSlope: -0.011792481
-      outSlope: -0.011792481
+      value: 0.5
+      inSlope: -0.50337774
+      outSlope: -0.50337774
       tangentMode: 0
       weightedMode: 3
       inWeight: 0
-      outWeight: 0.2
+      outWeight: 0.16164383
     - serializedVersion: 3
       time: 1
       value: 0
-      inSlope: -1.903489
-      outSlope: -1.903489
+      inSlope: -0.20611873
+      outSlope: -0.20611873
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.05360216
+      inWeight: 0.0972603
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -364,7 +364,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 016d2eef0b3468c45a21137fa41b2c5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_name: 
   m_layer: 200
   m_defaultSceneVisibility: 2
   m_duration: 2
@@ -666,9 +665,9 @@ MonoBehaviour:
       outWeight: 0.8461735
     - serializedVersion: 3
       time: 1
-      value: 0.7
-      inSlope: -1.5000001
-      outSlope: -1.5000001
+      value: 0.5
+      inSlope: -2.5000002
+      outSlope: -2.5000002
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
