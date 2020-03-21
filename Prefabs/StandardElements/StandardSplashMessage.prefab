@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 066656420ec6b814fa9c3b3f4a229db2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_duration: 0.4
+  m_duration: 0.5
   m_delay: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
@@ -137,7 +137,7 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0.7
       inSlope: -0.011792481
       outSlope: -0.011792481
       tangentMode: 0
@@ -561,7 +561,7 @@ MonoBehaviour:
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
-  m_support: 12288
+  m_support: 77824
   m_target: {fileID: 4628251920861205031}
   m_canvasScaler: {fileID: 4628251921322500157}
   m_canvasRectTransform: {fileID: 4628251921322500159}
@@ -645,12 +645,39 @@ MonoBehaviour:
   m_scaleLocked: 1
   m_alphaCurve:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.8
+      value: 1
+      inSlope: 0.0012777856
+      outSlope: 0.0012777856
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.8461735
+    - serializedVersion: 3
+      time: 1
+      value: 0.7
+      inSlope: -1.5000001
+      outSlope: -1.5000001
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
   m_alphaImage: {fileID: 0}
-  m_alphaCanvasGroup: {fileID: 0}
+  m_alphaCanvasGroup: {fileID: 4628251920861205033}
 --- !u!1 &8838896555662505840
 GameObject:
   m_ObjectHideFlags: 0
