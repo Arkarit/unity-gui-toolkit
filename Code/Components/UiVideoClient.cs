@@ -8,16 +8,16 @@ namespace GuiToolkit
 {
 	public class UiVideoClient : MonoBehaviour
 	{
-		public RawImage image;
-		public bool enableLog = false;
-
-		const int port = 8010;
 		public string IP = "192.168.1.165";
-		TcpClient client;
+		public RawImage m_image;
+		public bool m_enableLog = false;
 
-		Texture2D tex;
+		private const int PORT = 8010;
+		TcpClient m_client;
 
-		private bool stop = false;
+		Texture2D m_texture;
+
+		private bool m_stop = false;
 
 		//This must be the-same with SEND_COUNT on the server
 		const int SEND_RECEIVE_COUNT = 15;
@@ -27,42 +27,40 @@ namespace GuiToolkit
 		{
 			Application.runInBackground = true;
 
-			tex = new Texture2D(0, 0);
-			client = new TcpClient();
+			m_texture = new Texture2D(0, 0);
+			m_client = new TcpClient();
 
 			//Connect to server from another Thread
 			Loom.RunAsync(() =>
 			{
 				LOGWARNING("Connecting to server...");
-			// if on desktop
-			client.Connect(IPAddress.Loopback, port);
+				// if on desktop
+				m_client.Connect(IPAddress.Loopback, PORT);
 
-			// if using the IPAD
-			//client.Connect(IPAddress.Parse(IP), port);
-			LOGWARNING("Connected!");
+				// if using the IPAD
+				//client.Connect(IPAddress.Parse(IP), port);
+				LOGWARNING("Connected to server!");
 
 				imageReceiver();
 			});
 		}
-
 
 		void imageReceiver()
 		{
 			//While loop in another Thread is fine so we don't block main Unity Thread
 			Loom.RunAsync(() =>
 			{
-				while (!stop)
+				while (!m_stop)
 				{
-				//Read Image Count
-				int imageSize = readImageByteSize(SEND_RECEIVE_COUNT);
-					LOGWARNING("Received Image byte Length: " + imageSize);
+					//Read Image Count
+					int imageSize = readImageByteSize(SEND_RECEIVE_COUNT);
+						LOGWARNING("Received Image byte Length: " + imageSize);
 
-				//Read Image Bytes and Display it
-				readFrameByteArray(imageSize);
+					//Read Image Bytes and Display it
+					readFrameByteArray(imageSize);
 				}
 			});
 		}
-
 
 		//Converts the data size to byte array and put result to the fullBytes array
 		void byteLengthToFrameByteArray( int byteLength, byte[] fullBytes )
@@ -82,13 +80,12 @@ namespace GuiToolkit
 			return byteLength;
 		}
 
-
 		/////////////////////////////////////////////////////Read Image SIZE from Server///////////////////////////////////////////////////
 		private int readImageByteSize( int size )
 		{
 			bool disconnected = false;
 
-			NetworkStream serverStream = client.GetStream();
+			NetworkStream serverStream = m_client.GetStream();
 			byte[] imageBytesCount = new byte[size];
 			var total = 0;
 			do
@@ -121,7 +118,7 @@ namespace GuiToolkit
 		{
 			bool disconnected = false;
 
-			NetworkStream serverStream = client.GetStream();
+			NetworkStream serverStream = m_client.GetStream();
 			byte[] imageBytes = new byte[size];
 			var total = 0;
 			do
@@ -159,8 +156,8 @@ namespace GuiToolkit
 
 		void displayReceivedImage( byte[] receivedImageBytes )
 		{
-			tex.LoadImage(receivedImageBytes);
-			image.texture = tex;
+			m_texture.LoadImage(receivedImageBytes);
+			m_image.texture = m_texture;
 		}
 
 
@@ -174,24 +171,24 @@ namespace GuiToolkit
 
 		void LOG( string messsage )
 		{
-			if (enableLog)
+			if (m_enableLog)
 				Debug.Log(messsage);
 		}
 
 		void LOGWARNING( string messsage )
 		{
-			if (enableLog)
+			if (m_enableLog)
 				Debug.LogWarning(messsage);
 		}
 
 		void OnApplicationQuit()
 		{
 			LOGWARNING("OnApplicationQuit");
-			stop = true;
+			m_stop = true;
 
-			if (client != null)
+			if (m_client != null)
 			{
-				client.Close();
+				m_client.Close();
 			}
 		}
 	}
