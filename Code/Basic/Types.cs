@@ -10,6 +10,12 @@ namespace GuiToolkit
 		Vertical	= 02,
 	}
 
+	public enum EDirection
+	{
+		Horizontal,
+		Vertical,
+	}
+
 	public enum ESide
 	{
 		Top,
@@ -32,7 +38,7 @@ namespace GuiToolkit
 		Back = 1600,
 	}
 
-	public enum DefaultSceneVisibility
+	public enum EDefaultSceneVisibility
 	{
 		DontCare,
 		Visible,

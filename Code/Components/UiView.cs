@@ -22,7 +22,7 @@ namespace GuiToolkit
 		protected IShowHideViewAnimation m_showHideAnimation;
 
 		[SerializeField]
-		protected DefaultSceneVisibility m_defaultSceneVisibility = DefaultSceneVisibility.DontCare;
+		protected EDefaultSceneVisibility m_defaultSceneVisibility = EDefaultSceneVisibility.DontCare;
 
 		public virtual bool AutoDestroyOnHide => false;
 		public virtual bool Poolable => false;
@@ -161,22 +161,22 @@ namespace GuiToolkit
 				switch (m_defaultSceneVisibility)
 				{
 					default:
-					case DefaultSceneVisibility.DontCare:
+					case EDefaultSceneVisibility.DontCare:
 						break;
-					case DefaultSceneVisibility.Visible:
+					case EDefaultSceneVisibility.Visible:
 						gameObject.SetActive(true);
 						break;
-					case DefaultSceneVisibility.Invisible:
+					case EDefaultSceneVisibility.Invisible:
 						gameObject.SetActive(false);
 						break;
-					case DefaultSceneVisibility.VisibleInDevBuild:
+					case EDefaultSceneVisibility.VisibleInDevBuild:
 						#if UNITY_EDITOR || DEVELOPMENT_BUILD
 							gameObject.SetActive(true);
 						#else
 							gameObject.SetActive(false);
 						#endif
 						break;
-					case DefaultSceneVisibility.VisibleWhen_DEFAULT_SCENE_VISIBLE_defined:
+					case EDefaultSceneVisibility.VisibleWhen_DEFAULT_SCENE_VISIBLE_defined:
 						#if DEFAULT_SCENE_VISIBLE
 							gameObject.SetActive(true);
 						#else

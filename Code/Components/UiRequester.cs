@@ -8,8 +8,6 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-
-
 	public class UiRequester : UiViewModal
 	{
 		public class ButtonInfo
