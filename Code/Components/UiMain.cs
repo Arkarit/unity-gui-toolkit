@@ -225,43 +225,45 @@ namespace GuiToolkit
 			if (asyncLoad == null)
 				yield break;
 
-			// Wait until the asynchronous scene fully loads
-			while (!asyncLoad.isDone)
+			asyncLoad.completed += (AsyncOperation operation) => 
 			{
-				yield return null;
-			}
+				Scene scene = SceneManager.GetSceneByName(_name);
+				if (scene == null)
+					return;
 
-			Scene scene = SceneManager.GetSceneByName(_name);
-			if (scene == null)
-				yield break;
-
-			var roots = scene.GetRootGameObjects();
-			foreach (var root in roots)
-			{
-				UiView view = root.GetComponentInChildren<UiView>(true);
-				if (view)
+				var roots = scene.GetRootGameObjects();
+				foreach (var root in roots)
 				{
-					view.gameObject.name = _name;
-					view.transform.SetParent(transform, false);
-					view.SetRenderMode(m_renderMode, m_camera);
-					SetDefaultSceneVisibilities(root);
-					m_scenes[_name] = view;
+					UiView view = root.GetComponentInChildren<UiView>(true);
+					if (view)
+					{
+						SceneManager.MoveGameObjectToScene(view.gameObject, SceneManager.GetSceneAt(0));
 
-					if (_show)
-						view.Show(_instant);
+						view.gameObject.name = _name;
+						view.transform.SetParent(transform, false);
+						view.SetRenderMode(m_renderMode, m_camera);
+						SetDefaultSceneVisibilities(root);
+						m_scenes[_name] = view;
 
-					if (_whenLoaded != null)
-						_whenLoaded.Invoke(view);
+						if (_show)
+							view.Show(_instant);
 
-					break;
+						if (_whenLoaded != null)
+							_whenLoaded.Invoke(view);
+
+						break;
+					}
 				}
-			}
 
-			roots = scene.GetRootGameObjects();
-			foreach (var root in roots)
-				Destroy(root);
+				roots = scene.GetRootGameObjects();
+				foreach (var root in roots)
+					Destroy(root);
 
-			SceneManager.UnloadSceneAsync(scene);
+				SceneManager.UnloadSceneAsync(scene);
+			};
+
+			yield return asyncLoad;
+
 		}
 
 	}
