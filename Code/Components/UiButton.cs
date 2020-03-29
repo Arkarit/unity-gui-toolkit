@@ -6,6 +6,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(Button))]
@@ -41,4 +45,30 @@ namespace GuiToolkit
 		}
 
 	}
+
+	#if UNITY_EDITOR
+	[CustomEditor(typeof(UiButton))]
+	public class UiButtonEditor : UiButtonBaseEditor
+	{
+		protected SerializedProperty m_simpleWiggleAnimationProp;
+
+		public override void OnEnable()
+		{
+			base.OnEnable();
+			m_simpleWiggleAnimationProp = serializedObject.FindProperty("m_simpleWiggleAnimation");
+		}
+
+		public override void OnInspectorGUI()
+		{
+			base.OnInspectorGUI();
+			UiButton thisButton = (UiButton)target;
+
+			EditorGUILayout.PropertyField(m_simpleWiggleAnimationProp);
+
+			serializedObject.ApplyModifiedProperties();
+		}
+
+	}
+#endif
+
 }

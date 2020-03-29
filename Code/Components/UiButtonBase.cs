@@ -6,6 +6,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit
 {
 	public class UiButtonBase : UiThing, IPointerDownHandler, IPointerUpHandler
@@ -18,13 +22,6 @@ namespace GuiToolkit
 		private TextMeshProUGUI m_tmpText;
 		private Text m_text;
 		private bool m_initialized = false;
-
-#if UNITY_EDITOR
-		[SerializeField]
-		private string m_textContent;
-
-		private bool m_firstValidate = true;
-#endif
 
 		public string Text
 		{
@@ -53,18 +50,27 @@ namespace GuiToolkit
 			}
 		}
 
+#if UNITY_EDITOR
+		public UnityEngine.Object TextComponent
+		{
+			get
+			{
+				InitIfNecessary();
+				if (m_tmpText)
+					return m_tmpText;
+				if (m_text)
+					return m_text;
+				return null;
+			}
+		}
+#endif
+
 		protected virtual void Init() { }
 
 		protected override void Awake()
 		{
 			base.Awake();
 			InitIfNecessary();
-#if UNITY_EDITOR
-			if (m_tmpText)
-				m_textContent = m_tmpText.text;
-			if (m_text)
-				m_textContent = m_text.text;
-#endif
 		}
 
 		public virtual void OnPointerDown( PointerEventData eventData )
@@ -91,17 +97,48 @@ namespace GuiToolkit
 
 			Init();
 		}
+	}
+
 
 #if UNITY_EDITOR
-		private void OnValidate()
-		{
-			if (m_firstValidate)
-				m_textContent = Text;
-			else
-				Text = m_textContent;
+	[CustomEditor(typeof(UiButtonBase))]
+	public class UiButtonBaseEditor : Editor
+	{
+		protected SerializedProperty m_simpleAnimationProp;
+		protected SerializedProperty m_audioSourceProp;
 
-			m_firstValidate = false;
+		static private bool m_toolsVisible;
+
+		public virtual void OnEnable()
+		{
+			m_simpleAnimationProp = serializedObject.FindProperty("m_simpleAnimation");
+			m_audioSourceProp = serializedObject.FindProperty("m_audioSource");
 		}
-#endif
+
+		public override void OnInspectorGUI()
+		{
+			UiButtonBase thisButtonBase = (UiButtonBase)target;
+
+			string text = thisButtonBase.Text;
+
+			UnityEngine.Object textComponent = thisButtonBase.TextComponent;
+			if (textComponent != null)
+			{
+				string newText = EditorGUILayout.TextField("Text:", text);
+				if (newText != text)
+				{
+					Undo.RecordObject(textComponent, "Text change");
+					thisButtonBase.Text = newText;
+				}
+			}
+
+			EditorGUILayout.PropertyField(m_simpleAnimationProp);
+			EditorGUILayout.PropertyField(m_audioSourceProp);
+
+			serializedObject.ApplyModifiedProperties();
+		}
+
 	}
+#endif
+
 }
