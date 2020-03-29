@@ -130,6 +130,9 @@ namespace GuiToolkit
 
 		protected virtual void Start()
 		{
+#if UNITY_EDITOR
+			CheckSceneSetup();
+#endif
 			SetOrder(); 
 			SetDefaultSceneVisibilities(gameObject);
 		}
@@ -154,6 +157,37 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
+		// Catch the most common errors in scene setup
+		private void CheckSceneSetup()
+		{
+			if (m_renderMode == RenderMode.ScreenSpaceCamera || m_renderMode == RenderMode.WorldSpace)
+			{
+				Camera[] cameras = Camera.allCameras;
+				Camera uiCamera = GetComponent<Camera>();
+				if (uiCamera == null)
+					throw new Exception($"UiMain GameObject '{gameObject.name}' needs an attached camera!");
+
+				int uiLayer = 1 << LayerMask.NameToLayer("UI");
+				if ((uiCamera.cullingMask & uiLayer) == 0)
+				{
+					Debug.LogError($"UiMain camera on GameObject '{gameObject.name}' needs the culling mask 'UI' flag set!");
+				}
+
+				float uiCameraDepth = uiCamera.depth;
+
+				foreach (var camera in cameras)
+				{
+					if (camera == uiCamera || camera.targetTexture != null)
+						continue;
+
+					if (camera.depth >= uiCameraDepth)
+					{
+						Debug.LogError($"UI Camera needs highest depth. Camera depth {camera.depth} detected on camera '{camera.gameObject.name}', which is >= Ui camera depth ({uiCameraDepth})" );
+					}
+				}
+			}
+		}
+
 		private void OnValidate()
 		{
 			Instance = this;

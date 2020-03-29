@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -13,6 +13,7 @@ namespace GuiToolkit
 	}
 
 	[RequireComponent(typeof(Canvas))]
+	[RequireComponent(typeof(GraphicRaycaster))]
 	public class UiView : UiThing, ISetDefaultSceneVisibility
 	{
 		[SerializeField]
