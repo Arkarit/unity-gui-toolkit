@@ -37,6 +37,7 @@ namespace GuiToolkit
 		private Camera m_camera;
 		private readonly Dictionary<string, UiView> m_scenes = new Dictionary<string, UiView>();
 
+
 		public float LayerDistance {get { return m_layerDistance; }}
 
 		public static UiMain Instance { get; private set; }
@@ -135,6 +136,13 @@ namespace GuiToolkit
 
 			yield return asyncLoad;
 
+		}
+		#endregion
+
+		#region "Global Events"
+		public void SetTag(string _tag, bool _instant = false)
+		{
+			UiView.EvSetTag.Invoke(_tag, _instant);
 		}
 		#endregion
 
