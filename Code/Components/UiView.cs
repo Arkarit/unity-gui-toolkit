@@ -13,6 +13,7 @@ namespace GuiToolkit
 	}
 
 	[RequireComponent(typeof(Canvas))]
+	[RequireComponent(typeof(CanvasScaler))]
 	[RequireComponent(typeof(GraphicRaycaster))]
 	public class UiView : UiThing, ISetDefaultSceneVisibility
 	{
@@ -37,6 +38,8 @@ namespace GuiToolkit
 		public static CEvSetTag EvSetTag = new CEvSetTag();
 
 		private bool m_isVisible = false;
+
+		private bool m_defaultSceneVisibilityApplied;
 
 		protected override void AddEventListeners()
 		{
@@ -189,6 +192,8 @@ namespace GuiToolkit
 		{
 			if (Application.isPlaying)
 			{
+				m_defaultSceneVisibilityApplied = true;
+
 				switch (m_defaultSceneVisibility)
 				{
 					default:
