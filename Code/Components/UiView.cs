@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -13,6 +13,8 @@ namespace GuiToolkit
 	}
 
 	[RequireComponent(typeof(Canvas))]
+	[RequireComponent(typeof(CanvasScaler))]
+	[RequireComponent(typeof(GraphicRaycaster))]
 	public class UiView : UiThing, ISetDefaultSceneVisibility
 	{
 		[SerializeField]
@@ -28,19 +30,29 @@ namespace GuiToolkit
 		public virtual bool Poolable => false;
 
 		[System.Serializable]
-		private class CEvHideInstant : UnityEvent<Type> {}
-		private static CEvHideInstant EvHideInstant = new CEvHideInstant();
+		public class CEvHideInstant : UnityEvent<Type> {}
+		public static CEvHideInstant EvHideInstant = new CEvHideInstant();
+
+		[System.Serializable]
+		public class CEvSetTag : UnityEvent<string, bool> {}
+		public static CEvSetTag EvSetTag = new CEvSetTag();
+
+		private bool m_isVisible = false;
+
+		private bool m_defaultSceneVisibilityApplied;
 
 		protected override void AddEventListeners()
 		{
 			base.AddEventListeners();
 			EvHideInstant.AddListener(OnEvHideInstant);
+			EvSetTag.AddListener(OnEvSetTag);
 		}
 
 		protected override void RemoveEventListeners()
 		{
 			base.RemoveEventListeners();
 			EvHideInstant.RemoveListener(OnEvHideInstant);
+			EvSetTag.RemoveListener(OnEvSetTag);
 		}
 
 		private void OnEvHideInstant( Type _type )
@@ -48,6 +60,28 @@ namespace GuiToolkit
 			if (GetType() == _type)
 			{
 				Hide(true);
+			}
+		}
+
+		private void OnEvSetTag( string _tag, bool _instant )
+		{
+			string tag = gameObject.tag;
+			if (string.IsNullOrEmpty(tag))
+				return;
+
+			if (tag == _tag)
+			{
+				if (!isActiveAndEnabled)
+				{
+					if (m_isVisible)
+						Show(_instant);
+				}
+			}
+			else
+			{
+				m_isVisible = isActiveAndEnabled;
+				if (isActiveAndEnabled)
+					Hide(_instant);
 			}
 		}
 
@@ -158,6 +192,8 @@ namespace GuiToolkit
 		{
 			if (Application.isPlaying)
 			{
+				m_defaultSceneVisibilityApplied = true;
+
 				switch (m_defaultSceneVisibility)
 				{
 					default:

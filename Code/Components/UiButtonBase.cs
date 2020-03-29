@@ -19,6 +19,11 @@ namespace GuiToolkit
 		private Text m_text;
 		private bool m_initialized = false;
 
+#if UNITY_EDITOR
+		[SerializeField]
+		private string m_textContent;
+#endif
+
 		public string Text
 		{
 			get
@@ -48,9 +53,16 @@ namespace GuiToolkit
 
 		protected virtual void Init() { }
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
 			InitIfNecessary();
+#if UNITY_EDITOR
+			if (m_tmpText)
+				m_textContent = m_tmpText.text;
+			if (m_text)
+				m_textContent = m_text.text;
+#endif
 		}
 
 		public virtual void OnPointerDown( PointerEventData eventData )
@@ -78,5 +90,11 @@ namespace GuiToolkit
 			Init();
 		}
 
+#if UNITY_EDITOR
+		private void OnValidate()
+		{
+			Text = m_textContent;
+		}
+#endif
 	}
 }
