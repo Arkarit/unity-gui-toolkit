@@ -22,6 +22,8 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		[SerializeField]
 		private string m_textContent;
+
+		private bool m_firstValidate = true;
 #endif
 
 		public string Text
@@ -93,7 +95,12 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
-			Text = m_textContent;
+			if (m_firstValidate)
+				m_textContent = Text;
+			else
+				Text = m_textContent;
+
+			m_firstValidate = false;
 		}
 #endif
 	}
