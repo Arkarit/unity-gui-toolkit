@@ -22,16 +22,43 @@ namespace GuiToolkit
 		[SerializeField]
 		protected GameObject m_selectionFrame;
 
+		public Action<UiColorPatch> OnSelected;
+		public Action<UiColorPatch> OnDeselected;
+
+		public Color Color
+		{
+			get { return m_color; }
+			set
+			{
+				m_color = value;
+				SetValues();
+			}
+		}
+
+		public Toggle Toggle
+		{
+			get { return m_toggle; }
+		}
+
+		public bool Selected
+		{
+			get { return m_toggle.isOn; }
+			set { m_toggle.isOn = value; }
+		}
+
 		protected virtual void Start()
 		{
-			if (m_toggle != null)
-				m_toggle.onValueChanged.AddListener(OnToggleChanged);
+			m_toggle.onValueChanged.AddListener(OnToggleChanged);
 			SetValues();
 		}
 
 		protected virtual void OnToggleChanged( bool _selected )
 		{
 			m_selectionFrame.SetActive(_selected);
+			if (_selected)
+				OnSelected?.Invoke(this);
+			else
+				OnDeselected?.Invoke(this);
 		}
 
 		private void SetValues()
