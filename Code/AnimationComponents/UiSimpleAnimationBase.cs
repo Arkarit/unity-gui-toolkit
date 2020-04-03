@@ -366,6 +366,11 @@ namespace GuiToolkit
 					return;
 				}
 			}
+			else
+			{
+				if (m_backwardsAnimation)
+					m_backwardsAnimation.Stop(false);
+			}
 
 			foreach( var slave in m_slaveAnimations)
 				slave.PlayRecursive(_completeTime, _completeBackwardsTime, m_forwardsDelay, false, _backwards, _loops);
