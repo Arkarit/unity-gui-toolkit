@@ -20,10 +20,10 @@ namespace GuiToolkit
 		[SerializeField]
 		protected int m_numVertical;
 		[SerializeField]
-		[Range(0, 0.4f)]
+		[Range(0f, 1f)]
 		protected float m_minBrightness = 0.2f;
 		[SerializeField]
-		[Range(0.6f, 1.0f)]
+		[Range(0f, 1f)]
 		protected float m_maxBrightness = 0.8f;
 
 		public Action<Color> OnColorChanged;
