@@ -411,11 +411,11 @@ namespace GuiToolkit
 		private void ResetRecursive(bool _toEnd)
 		{
 			if (_toEnd)
-				OnAnimate(_toEnd ? 1:0);
+				OnAnimate(1);
 			foreach( var slave in m_slaveAnimations )
 				slave.ResetRecursive(_toEnd);
 			if (!_toEnd)
-				OnAnimate(_toEnd ? 1:0);
+				OnAnimate(0);
 		}
 
 		private void InitAnimateIfNecessary()
@@ -453,13 +453,13 @@ namespace GuiToolkit
 			Play(true);
 		}
 
-		public void StopViewAnimation()
+		public void StopViewAnimation(bool _visible)
 		{
 			if (!m_supportViewAnimations)
 				return;
 
 			m_onFinishOnce = null;
-			Stop(false);
+			Reset(_visible);
 		}
 
 #if UNITY_EDITOR

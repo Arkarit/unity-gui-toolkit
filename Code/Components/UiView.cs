@@ -9,7 +9,7 @@ namespace GuiToolkit
 	{
 		void ShowViewAnimation(Action _onFinish = null);
 		void HideViewAnimation(Action _onFinish = null);
-		void StopViewAnimation();
+		void StopViewAnimation(bool _visible);
 	}
 
 	[RequireComponent(typeof(Canvas))]
@@ -130,7 +130,9 @@ namespace GuiToolkit
 			if (_instant)
 			{
 				if (m_showHideAnimation != null)
-					m_showHideAnimation.StopViewAnimation();
+				{
+					m_showHideAnimation.StopViewAnimation(true);
+				}
 				return;
 			}
 
@@ -146,7 +148,7 @@ namespace GuiToolkit
 			{
 				gameObject.SetActive(false);
 				if (m_showHideAnimation != null)
-					m_showHideAnimation.StopViewAnimation();
+					m_showHideAnimation.StopViewAnimation(false);
 				if (_onFinish != null)
 					_onFinish.Invoke(); 
 				DestroyIfNecessary();
