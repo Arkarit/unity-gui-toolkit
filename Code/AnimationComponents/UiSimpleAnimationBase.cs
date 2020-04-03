@@ -57,6 +57,7 @@ namespace GuiToolkit
 		public bool Running { get { return m_running; }}
 		public float Duration { get { return m_duration; } set { Reset(); m_duration = value; }}
 		public float Delay { get { return m_delay; } set { Reset(); m_delay = value; } }
+		public UiSimpleAnimationBase BackwardsAnimation { get { return m_backwardsAnimation; } set { Reset(); m_backwardsAnimation = value; }}
 
 		// delegates
 		public Action m_onFinish;

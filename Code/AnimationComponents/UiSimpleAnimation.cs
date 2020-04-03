@@ -93,6 +93,7 @@ namespace GuiToolkit
 		// particles
 
 		public ESupport Support { get {return m_support;}}
+
 		protected CanvasScaler CanvasScaler
 		{
 			get
