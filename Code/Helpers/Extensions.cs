@@ -270,5 +270,14 @@ namespace GuiToolkit
 			return ((int) (object) _this & (int) (object) _flag) != 0;
 		}
 
+		public static bool IsSimilar( this Color _this, Color _other )
+		{
+			return
+				   Mathf.Approximately(_this.r, _other.r)
+				&& Mathf.Approximately(_this.g, _other.g)
+				&& Mathf.Approximately(_this.b, _other.b)
+				&& Mathf.Approximately(_this.a, _other.a);
+		}
+
 	}
 }
