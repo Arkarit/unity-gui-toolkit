@@ -114,12 +114,6 @@ namespace GuiToolkit
 			}
 		}
 
-		protected override void Awake()
-		{
-			base.Awake();
-			Init();
-		}
-
 		public virtual void Show(bool _instant = false, Action _onFinish = null)
 		{
 			if (m_showHideAnimation == null)
@@ -175,11 +169,10 @@ namespace GuiToolkit
 				gameObject.Destroy();
 		}
 
-		public void SetRenderMode( RenderMode _renderMode, Camera _camera )
+		public void Init( RenderMode _renderMode, Camera _camera )
 		{
-#if UNITY_EDITOR
-			Init();
-#endif
+			InitAnimation();
+
 			Canvas.renderMode = _renderMode;
 			Canvas.worldCamera = _camera;
 
@@ -225,7 +218,7 @@ namespace GuiToolkit
 			}
 		}
 
-		private void Init()
+		private void InitAnimation()
 		{
 			var components = GetComponents<MonoBehaviour>();
 			foreach (var component in components)
@@ -240,7 +233,7 @@ namespace GuiToolkit
 
 		public void OnValidate()
 		{
-			Init();
+			InitAnimation();
 		}
 	}
 }

@@ -113,7 +113,7 @@ namespace GuiToolkit
 
 						view.gameObject.name = _name;
 						view.transform.SetParent(transform, false);
-						view.SetRenderMode(m_renderMode, m_camera);
+						view.Init(m_renderMode, m_camera);
 						SetDefaultSceneVisibilities(root);
 						m_scenes[_name] = view;
 
@@ -152,7 +152,7 @@ namespace GuiToolkit
 			UiView.InvokeHideInstant<UiSplashMessage>();
 			UiSplashMessage message = m_splashMessagePrefab.PoolInstantiate();
 			message.transform.SetParent(transform, false);
-			message.SetRenderMode(m_renderMode, m_camera);
+			message.Init(m_renderMode, m_camera);
 			message.Show(_message, _duration);
 		}
 
@@ -189,7 +189,7 @@ namespace GuiToolkit
 
 			T result = _template.PoolInstantiate();
 			result.transform.SetParent(m_requesterContainer, false);
-			result.SetRenderMode(m_renderMode, m_camera);
+			result.Init(m_renderMode, m_camera);
 
 			// If another dialog was found, we place the new modal dialog above the highest dialog
 			if (foundOtherModalDialog)
@@ -259,7 +259,7 @@ namespace GuiToolkit
 		{
 			UiView[] views = GetComponentsInChildren<UiView>(true);
 			foreach (var view in views)
-				view.SetRenderMode(m_renderMode, GetComponent<Camera>());
+				view.Init(m_renderMode, GetComponent<Camera>());
 		}
 
 		private bool CheckSceneValid(string _sceneName)
