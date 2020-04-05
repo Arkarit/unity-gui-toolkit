@@ -211,6 +211,14 @@ namespace GuiToolkit
 			requester.YesNoRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
 		}
 
+		public void OkCancelInputRequester( string _title, string _text, bool _allowOutsideTap, UnityAction<string> _onOk,
+			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
+		{
+			UiRequester requester = CreateModalDialog(m_requesterPrefab);
+			Debug.Assert(requester);
+			requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
+		}
+
 		private T CreateModalDialog<T>( T _template) where T : UiViewModal
 		{
 			bool foundOtherModalDialog = false;
