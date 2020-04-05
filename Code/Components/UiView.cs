@@ -34,7 +34,7 @@ namespace GuiToolkit
 		public static CEvHideInstant EvHideInstant = new CEvHideInstant();
 
 		[System.Serializable]
-		public class CEvSetTag : UnityEvent<string, bool> {}
+		public class CEvSetTag : UnityEvent<string> {}
 		public static CEvSetTag EvSetTag = new CEvSetTag();
 
 		private bool m_isVisible = false;
@@ -55,6 +55,14 @@ namespace GuiToolkit
 			EvSetTag.RemoveListener(OnEvSetTag);
 		}
 
+		protected virtual void OnEnableTag()
+		{
+		}
+
+		protected virtual void OnDisableTag()
+		{
+		}
+
 		private void OnEvHideInstant( Type _type )
 		{
 			if (GetType() == _type)
@@ -63,7 +71,7 @@ namespace GuiToolkit
 			}
 		}
 
-		private void OnEvSetTag( string _tag, bool _instant )
+		private void OnEvSetTag( string _tag )
 		{
 			string tag = gameObject.tag;
 			if (string.IsNullOrEmpty(tag))
@@ -71,17 +79,11 @@ namespace GuiToolkit
 
 			if (tag == _tag)
 			{
-				if (!isActiveAndEnabled)
-				{
-					if (m_isVisible)
-						Show(_instant);
-				}
+				OnEnableTag();
 			}
 			else
 			{
-				m_isVisible = isActiveAndEnabled;
-				if (isActiveAndEnabled)
-					Hide(_instant);
+				OnDisableTag();
 			}
 		}
 
@@ -156,6 +158,17 @@ namespace GuiToolkit
 					_onFinish.Invoke(); 
 				DestroyIfNecessary();
 			});
+		}
+
+		public virtual void Push(bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null)
+		{
+			UiMain.Instance.Push(this, _instant, _onFinishHide, _onFinishShow);
+		}
+
+		public virtual void Pop(bool _instant = false, int _skip = 0, Action _onFinishHide = null, Action _onFinishShow = null)
+		{
+			Debug.Assert(UiMain.Instance.Peek() == this, "Attempting to pop wrong dialog");
+			UiMain.Instance.Pop(_skip, _instant, _onFinishHide, _onFinishShow);
 		}
 
 		private void DestroyIfNecessary()

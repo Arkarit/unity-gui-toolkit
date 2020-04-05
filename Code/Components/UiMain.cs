@@ -140,10 +140,50 @@ namespace GuiToolkit
 		#endregion
 
 		#region "Global Events"
-		public void SetTag(string _tag, bool _instant = false)
+		public void SetTag(string _tag)
 		{
-			UiView.EvSetTag.Invoke(_tag, _instant);
+			UiView.EvSetTag.Invoke(_tag);
 		}
+		#endregion
+
+		#region "Stack"
+
+		private readonly Stack<UiView> m_stack = new Stack<UiView>();
+
+		public void Push( UiView _uiView, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
+		{
+			if (m_stack.Count > 0)
+			{
+				m_stack.Peek().Hide(_instant, _onFinishHide);
+			}
+			_uiView.Show(_instant, _onFinishShow);
+			m_stack.Push(_uiView);
+		}
+
+		public void Pop( int _skip = 0, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
+		{
+			bool stackValid = m_stack.Count >= 1 + _skip;
+			if (!stackValid)
+			{
+				Debug.LogError($"Attempting to pop {1 + _skip} from UiView stack, but stack contains only {m_stack.Count}");
+				return;
+			}
+			m_stack.Pop().Hide(_instant, _onFinishHide);
+
+			for (int i=0; i<_skip; i++)
+				m_stack.Pop();
+
+			if (m_stack.Count > 0)
+				m_stack.Peek().Show(_instant, _onFinishShow);
+		}
+
+		public UiView Peek()
+		{
+			if (m_stack.Count == 0)
+				return null;
+			return m_stack.Peek();
+		}
+
 		#endregion
 
 		#region "Builtin Dialogs"
