@@ -2016,7 +2016,18 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 7249587948882191147, guid: 2829a0567e1343941861bb61e7fd3afe,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7249587948882191148, guid: 2829a0567e1343941861bb61e7fd3afe,
+        type: 3}
+      propertyPath: m_TargetGraphic
+      value: 
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 7249587948882191149, guid: 2829a0567e1343941861bb61e7fd3afe, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 2829a0567e1343941861bb61e7fd3afe, type: 3}
 --- !u!224 &6621722925866764214 stripped
 RectTransform:
