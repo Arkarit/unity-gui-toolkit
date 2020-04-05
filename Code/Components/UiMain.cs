@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using TMPro;
+using UnityEngine.EventSystems;
 
 #if UNITY_EDITOR
 using UnityEditor.SceneManagement;
@@ -211,12 +213,12 @@ namespace GuiToolkit
 			requester.YesNoRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
 		}
 
-		public void OkCancelInputRequester( string _title, string _text, bool _allowOutsideTap, UnityAction<string> _onOk,
-			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
+		public void OkCancelInputRequester( string _title, string _text, bool _allowOutsideTap,UnityAction<string> _onOk, UnityAction _onCancel = null, 
+			 string _placeholderText = null, string _inputText = null, string _yesText = null, string _noText = null )
 		{
 			UiRequester requester = CreateModalDialog(m_requesterPrefab);
 			Debug.Assert(requester);
-			requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
+			requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _placeholderText, _inputText, _yesText, _noText);
 		}
 
 		private T CreateModalDialog<T>( T _template) where T : UiViewModal
@@ -259,6 +261,19 @@ namespace GuiToolkit
 			Application.Quit();
 #endif
 		}
+
+		public void SetFocus( TMP_InputField _inputField )
+		{
+			//FIXME: This properly displays the blinking cursor at the first call,
+			// but displays the whole text selected at subsequent calls
+			// Perhaps interesting: https://forum.unity.com/threads/tmp-1-4-input-field-resetondeactivate-issue.654544/
+			_inputField.ReleaseSelection();
+			_inputField.DeactivateInputField();
+			_inputField.ActivateInputField();
+			_inputField.MoveToEndOfLine( false, true );
+			_inputField.caretPosition = string.IsNullOrEmpty(_inputField.text) ? 0 : _inputField.text.Length;
+		}
+
 		#endregion
 
 		#region "Internal"

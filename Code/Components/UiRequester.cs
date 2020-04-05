@@ -24,6 +24,8 @@ namespace GuiToolkit
 			public int CloseButtonIdx = Constants.INVALID;
 			public bool ShowText = true;
 			public bool ShowInputField = false;
+			public string PlaceholderText;
+			public string InputText;
 		}
 
 		public UiButton m_closeButton;
@@ -109,8 +111,8 @@ namespace GuiToolkit
 			Requester( _title, _text, options );
 		}
 
-		public void OkCancelInputRequester( string _title, string _text, bool _allowOutsideTap, UnityAction<string> _onOk,
-			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
+		public void OkCancelInputRequester( string _title, string _text, bool _allowOutsideTap,UnityAction<string> _onOk, UnityAction _onCancel = null, 
+			 string _placeholderText = null, string _inputText = null, string _yesText = null, string _noText = null )
 		{
 			Options options = new Options
 			{
@@ -131,6 +133,8 @@ namespace GuiToolkit
 				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
 				ShowText = !string.IsNullOrEmpty(_text),
 				ShowInputField = true,
+				PlaceholderText = _placeholderText,
+				InputText = _inputText,
 			};
 			Requester( _title, _text, options );
 		}
@@ -176,6 +180,20 @@ namespace GuiToolkit
 			m_closeButtonIdx = _options.CloseButtonIdx;
 			m_textContainer.gameObject.SetActive(_options.ShowText);
 			m_inputFieldContainer.gameObject.SetActive(_options.ShowInputField);
+			if (_options.ShowInputField)
+			{
+				if (_options.InputText != null)
+				{
+					m_inputField.text = _options.InputText;
+				}
+				if (_options.PlaceholderText != null)
+				{
+					TMP_Text placeholderText = m_inputField.placeholder.GetComponent<TMP_Text>();
+					if (placeholderText != null)
+						placeholderText.text = _options.PlaceholderText;
+				}
+				UiMain.Instance.SetFocus(m_inputField);
+			}
 
 			if (m_maxButtons != Constants.INVALID && _options.ButtonInfos.Length > m_maxButtons)
 				Debug.LogWarning($"Dialog '{this.gameObject}' contains {_options.ButtonInfos.Length} buttons; maximum supported are {m_maxButtons}. Visual problems may appear.");
