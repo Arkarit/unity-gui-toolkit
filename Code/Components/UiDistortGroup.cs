@@ -13,6 +13,9 @@ namespace GuiToolkit
 		[SerializeField]
 		protected EDirectionFlags m_direction;
 
+		[SerializeField]
+		protected bool m_inverse;
+
 		private readonly List<UiDistortBase> m_elements = new List<UiDistortBase>();
 		private readonly List<UiDistortBase> m_secondaryElements = new List<UiDistortBase>();
 		private readonly Dictionary<GameObject,int> m_done = new Dictionary<GameObject, int>();
@@ -90,8 +93,16 @@ namespace GuiToolkit
 					if (m_hasSecondary)
 						m_secondaryElements[i].enabled = true;
 				}
-				else if (i == numElements-1 && numElements > 1)
-					m_elements[i].SetMirror(m_direction);
+				else if (m_inverse)
+				{
+					if (i == 0)
+						m_elements[i].SetMirror(m_direction);
+				}
+				else
+				{
+					if (i == numElements-1 && numElements > 1)
+						m_elements[i].SetMirror(m_direction);
+				}
 			}
 		}
 
