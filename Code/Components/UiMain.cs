@@ -153,25 +153,28 @@ namespace GuiToolkit
 		private readonly Stack<UiView> m_stack = new Stack<UiView>();
 
 		[SerializeField]
+		private EStackAnimationType m_stackAnimationType = EStackAnimationType.None;
+
+		[SerializeField]
 		private AnimationCurve m_stackMovedInCurve;
 
 		[SerializeField]
 		private AnimationCurve m_stackPushedOutCurve;
 
-		public void Push( UiView _uiView, bool _instant = false, EStackAnimationType _stackAnimationType = EStackAnimationType.DontTouch, Action _onFinishHide = null, Action _onFinishShow = null )
+		public void Push( UiView _uiView, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
 		{
 			if (m_stack.Count > 0)
 			{
 				UiView currentShown = m_stack.Peek();
-				currentShown.SetStackAnimationType(_stackAnimationType, false, m_stackPushedOutCurve);
+				currentShown.SetStackAnimationType(m_stackAnimationType, false, m_stackPushedOutCurve);
 				currentShown.Hide(_instant, _onFinishHide);
 			}
-			_uiView.SetStackAnimationType(_stackAnimationType, true, m_stackMovedInCurve);
+			_uiView.SetStackAnimationType(m_stackAnimationType, true, m_stackMovedInCurve);
 			_uiView.Show(_instant, _onFinishShow);
 			m_stack.Push(_uiView);
 		}
 
-		public void Pop( int _skip = 0, bool _instant = false, EStackAnimationType _stackAnimationType = EStackAnimationType.DontTouch, Action _onFinishHide = null, Action _onFinishShow = null )
+		public void Pop( int _skip = 0, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
 		{
 			bool stackValid = m_stack.Count >= 1 + _skip;
 			if (!stackValid)
@@ -180,7 +183,7 @@ namespace GuiToolkit
 				return;
 			}
 			UiView currentShown = m_stack.Pop();
-			currentShown.SetStackAnimationType(_stackAnimationType, true, m_stackPushedOutCurve);
+			currentShown.SetStackAnimationType(m_stackAnimationType, true, m_stackPushedOutCurve);
 			currentShown.Hide(_instant, _onFinishHide);
 
 			for (int i=0; i<_skip; i++)
@@ -189,7 +192,7 @@ namespace GuiToolkit
 			if (m_stack.Count > 0)
 			{
 				UiView nextShown = m_stack.Peek();
-				nextShown.SetStackAnimationType(_stackAnimationType, false, m_stackMovedInCurve);
+				nextShown.SetStackAnimationType(m_stackAnimationType, false, m_stackMovedInCurve);
 				nextShown.Show(_instant, _onFinishShow);
 			}
 		}

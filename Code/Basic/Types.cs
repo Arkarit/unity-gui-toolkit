@@ -49,7 +49,7 @@ namespace GuiToolkit
 
 	public enum EStackAnimationType
 	{
-		DontTouch,
+		None,
 		LeftToRight,
 		RightToLeft,
 		TopToBottom,

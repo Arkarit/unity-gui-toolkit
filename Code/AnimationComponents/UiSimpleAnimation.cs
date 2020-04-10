@@ -190,7 +190,7 @@ namespace GuiToolkit
 
 		public void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards, AnimationCurve _animationCurve )
 		{
-			if (_stackAnimationType == EStackAnimationType.DontTouch)
+			if (_stackAnimationType == EStackAnimationType.None)
 				return;
 
 			if (CanvasScaler == null)
@@ -204,7 +204,7 @@ namespace GuiToolkit
 				switch(_stackAnimationType)
 				{
 					default:
-					case EStackAnimationType.DontTouch:
+					case EStackAnimationType.None:
 						Debug.Assert(false);
 						break;
 					case EStackAnimationType.LeftToRight:
@@ -230,21 +230,21 @@ namespace GuiToolkit
 			switch (_stackAnimationType)
 			{
 				default:
-				case EStackAnimationType.DontTouch:
+				case EStackAnimationType.None:
 					Debug.Assert(false);
 					break;
 				case EStackAnimationType.LeftToRight:
 					CheckCurve(false, _animationCurve);
 					m_support = ESupport.PositionX;
 					m_animatePositionX = true;
-					m_posXStart = -res.x;
+					m_posXStart = res.x;
 					m_posXEnd = 0;
 					break;
 				case EStackAnimationType.RightToLeft:
 					CheckCurve(false, _animationCurve);
 					m_support = ESupport.PositionX;
 					m_animatePositionX = true;
-					m_posXStart = res.x;
+					m_posXStart = -res.x;
 					m_posXEnd = 0;
 					break;
 				case EStackAnimationType.TopToBottom:

@@ -45,6 +45,8 @@ namespace GuiToolkit
 		public float m_buttonScale = 1.0f;
 		public int m_maxButtons = 3;
 
+		public bool m_cancelButtonsLeftSide = false;
+
 
 		private bool m_allowOutsideTap;
 		private int m_closeButtonIdx = Constants.INVALID;
@@ -217,6 +219,12 @@ namespace GuiToolkit
 				button.OnClick.AddListener( () => OnClick(fuckYouCSharp) );
 
 				button.Text = bi.Text;
+			}
+
+			if (m_cancelButtonsLeftSide && _options.ButtonInfos.Length > 1)
+			{
+				m_buttons[0].transform.SetAsLastSibling();
+				m_buttons[m_buttons.Count -1].transform.SetAsFirstSibling();
 			}
 
 			m_closeButton.gameObject.SetActive(m_closeButtonIdx >= 0);
