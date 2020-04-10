@@ -6,14 +6,20 @@ using UnityEngine.Events;
 
 namespace GuiToolkit
 {
+	public interface IShowHidePanelAnimation
+	{
+		void ShowViewAnimation(Action _onFinish = null);
+		void HideViewAnimation(Action _onFinish = null);
+		void StopViewAnimation(bool _visible);
+	}
+
 	public class UiPanel : UiThing, ISetDefaultSceneVisibility
 	{
 		[SerializeField]
 		protected EDefaultSceneVisibility m_defaultSceneVisibility = EDefaultSceneVisibility.DontCare;
 
-		private bool m_defaultSceneVisibilityApplied;
 		[SerializeField]
-		protected IShowHideViewAnimation m_showHideAnimation;
+		protected IShowHidePanelAnimation m_showHideAnimation;
 
 		public virtual bool AutoDestroyOnHide => false;
 		public virtual bool Poolable => false;
@@ -26,6 +32,7 @@ namespace GuiToolkit
 		public class CEvSetTag : UnityEvent<string> {}
 		public static CEvSetTag EvSetTag = new CEvSetTag();
 
+		private bool m_defaultSceneVisibilityApplied;
 
 		protected override void AddEventListeners()
 		{
@@ -148,7 +155,7 @@ namespace GuiToolkit
 
 		public void SetDefaultSceneVisibility()
 		{
-			if (Application.isPlaying)
+			if (Application.isPlaying && !m_defaultSceneVisibilityApplied)
 			{
 				m_defaultSceneVisibilityApplied = true;
 
@@ -191,9 +198,9 @@ namespace GuiToolkit
 			var components = GetComponents<MonoBehaviour>();
 			foreach (var component in components)
 			{
-				if (component is IShowHideViewAnimation)
+				if (component is IShowHidePanelAnimation)
 				{
-					m_showHideAnimation = (IShowHideViewAnimation) component;
+					m_showHideAnimation = (IShowHidePanelAnimation) component;
 					break;
 				}
 			}

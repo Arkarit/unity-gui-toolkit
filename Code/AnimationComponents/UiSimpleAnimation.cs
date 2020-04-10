@@ -5,11 +5,12 @@ using UnityEngine.UI;
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(RectTransform))]
-	public class UiSimpleAnimation : UiSimpleAnimationBase
+	public class UiSimpleAnimation : UiSimpleAnimationBase, IShowHideViewAnimation
 	{
 		[Flags]
 		public enum ESupport
 		{
+			None			= 0,
 			PositionX		= 0x00000001,
 			PositionY		= 0x00000002,
 			RotationZ		= 0x00000100,
@@ -165,6 +166,19 @@ namespace GuiToolkit
 			m_animateAlpha = m_support.HasFlags(ESupport.Alpha);
 		}
 
+		private void ClearFlags()
+		{
+			m_support = ESupport.None;
+			m_animatePositionX = false;
+			m_animatePositionY = false;
+			m_animatePosition = false;
+			m_animateRotationZ = false;
+			m_animateScaleX = false;
+			m_animateScaleY = false;
+			m_animateScale = false;
+			m_animateAlpha = false;
+		}
+
 		protected override void Awake()
 		{
 			base.Awake();
@@ -172,6 +186,94 @@ namespace GuiToolkit
 				m_canvasScaler = GetComponentInParent<CanvasScaler>();
 
 			InitFlags();
+		}
+
+		public void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards )
+		{
+			if (_stackAnimationType == EStackAnimationType.DontTouch)
+				return;
+
+			if (CanvasScaler == null)
+			{
+				Debug.LogError("Can not perform stack animation without canvas scaler!");
+				return;
+			}
+
+			if (_backwards)
+			{
+				switch(_stackAnimationType)
+				{
+					default:
+					case EStackAnimationType.DontTouch:
+						Debug.Assert(false);
+						break;
+					case EStackAnimationType.LeftToRight:
+						_stackAnimationType = EStackAnimationType.RightToLeft;
+						break;
+					case EStackAnimationType.RightToLeft:
+						_stackAnimationType = EStackAnimationType.LeftToRight;
+						break;
+					case EStackAnimationType.TopToBottom:
+						_stackAnimationType = EStackAnimationType.BottomToTop;
+						break;
+					case EStackAnimationType.BottomToTop:
+						_stackAnimationType = EStackAnimationType.TopToBottom;
+						break;
+				}
+			}
+
+			ClearFlags();
+			m_scaleByCanvasScaler = true;
+			m_animatePosition = true;
+
+			Vector2 res = CanvasScaler.referenceResolution;
+			switch (_stackAnimationType)
+			{
+				default:
+				case EStackAnimationType.DontTouch:
+					Debug.Assert(false);
+					break;
+				case EStackAnimationType.LeftToRight:
+					CheckCurve(false);
+					m_support = ESupport.PositionX;
+					m_animatePositionX = true;
+					m_posXStart = -res.x;
+					m_posXEnd = 0;
+					break;
+				case EStackAnimationType.RightToLeft:
+					CheckCurve(false);
+					m_support = ESupport.PositionX;
+					m_animatePositionX = true;
+					m_posXStart = res.x;
+					m_posXEnd = 0;
+					break;
+				case EStackAnimationType.TopToBottom:
+					CheckCurve(true);
+					m_support = ESupport.PositionY;
+					m_animatePositionY = true;
+					m_posYStart = -res.y;
+					m_posYEnd = 0;
+					break;
+				case EStackAnimationType.BottomToTop:
+					CheckCurve(true);
+					m_support = ESupport.PositionY;
+					m_animatePositionY = true;
+					m_posYStart = res.y;
+					m_posYEnd = 0;
+					break;
+			}
+		}
+
+		private void CheckCurve( bool _isY )
+		{
+			bool curveMissing = _isY ? m_posYCurve == null || m_posYCurve.length == 0 : m_posXCurve == null || m_posXCurve.length == 0;
+			if (!curveMissing)
+				return;
+			AnimationCurve curve = new AnimationCurve(new Keyframe(0,0,0,0), new Keyframe(1,1,0,0));
+			if (_isY)
+				m_posYCurve = curve;
+			else
+				m_posXCurve = curve;
 		}
 
 #if UNITY_EDITOR

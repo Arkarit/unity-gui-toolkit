@@ -5,11 +5,9 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public interface IShowHideViewAnimation
+	public interface IShowHideViewAnimation : IShowHidePanelAnimation
 	{
-		void ShowViewAnimation(Action _onFinish = null);
-		void HideViewAnimation(Action _onFinish = null);
-		void StopViewAnimation(bool _visible);
+		void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards );
 	}
 
 	[RequireComponent(typeof(Canvas))]
@@ -31,15 +29,24 @@ namespace GuiToolkit
 			}
 		}
 
-		public virtual void Push(bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null)
+		public virtual void Push(bool _instant = false, EStackAnimationType _stackAnimationType = EStackAnimationType.DontTouch, Action _onFinishHide = null, Action _onFinishShow = null)
 		{
-			UiMain.Instance.Push(this, _instant, _onFinishHide, _onFinishShow);
+			UiMain.Instance.Push(this, _instant, _stackAnimationType, _onFinishHide, _onFinishShow);
 		}
 
-		public virtual void Pop(bool _instant = false, int _skip = 0, Action _onFinishHide = null, Action _onFinishShow = null)
+		public virtual void Pop(bool _instant = false, EStackAnimationType _stackAnimationType = EStackAnimationType.DontTouch, int _skip = 0, Action _onFinishHide = null, Action _onFinishShow = null)
 		{
 			Debug.Assert(UiMain.Instance.Peek() == this, "Attempting to pop wrong dialog");
-			UiMain.Instance.Pop(_skip, _instant, _onFinishHide, _onFinishShow);
+			UiMain.Instance.Pop(_skip, _instant, _stackAnimationType, _onFinishHide, _onFinishShow);
+		}
+
+		public void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards )
+		{
+			InitAnimation();
+			if (m_showHideAnimation == null || !(m_showHideAnimation is IShowHideViewAnimation))
+				return;
+
+			((IShowHideViewAnimation)m_showHideAnimation).SetStackAnimationType(_stackAnimationType, _backwards);
 		}
 
 		public void Init( RenderMode _renderMode, Camera _camera )
@@ -64,5 +71,6 @@ namespace GuiToolkit
 		{
 			InitAnimation();
 		}
+
 	}
 }

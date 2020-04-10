@@ -47,6 +47,15 @@ namespace GuiToolkit
 		VisibleWhen_DEFAULT_SCENE_VISIBLE_defined,
 	}
 
+	public enum EStackAnimationType
+	{
+		DontTouch,
+		LeftToRight,
+		RightToLeft,
+		TopToBottom,
+		BottomToTop,
+	}
+
 	public interface ISetDefaultSceneVisibility
 	{
 		void SetDefaultSceneVisibility();
@@ -61,5 +70,7 @@ namespace GuiToolkit
 		public static Color HANDLE_SUPPORTING_COLOR = Color.yellow * 0.5f;
 		public static Color HANDLE_CAGE_LINE_COLOR = Color.yellow * 0.5f;
 	}
+
+
 
 }

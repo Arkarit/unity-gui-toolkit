@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class UiSimpleAnimationBase : MonoBehaviour, IShowHideViewAnimation
+	public class UiSimpleAnimationBase : MonoBehaviour, IShowHidePanelAnimation
 	{
 		protected const int INFINITE_LOOPS = -1;
 		private const int DONT_SET_LOOPS = -2;
@@ -467,6 +467,7 @@ namespace GuiToolkit
 		{
 			Update(_deltaTime);
 		}
+
 
 #endif
 	}

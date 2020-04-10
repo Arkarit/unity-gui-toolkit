@@ -152,17 +152,20 @@ namespace GuiToolkit
 
 		private readonly Stack<UiView> m_stack = new Stack<UiView>();
 
-		public void Push( UiView _uiView, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
+		public void Push( UiView _uiView, bool _instant = false, EStackAnimationType _stackAnimationType = EStackAnimationType.DontTouch, Action _onFinishHide = null, Action _onFinishShow = null )
 		{
 			if (m_stack.Count > 0)
 			{
-				m_stack.Peek().Hide(_instant, _onFinishHide);
+				UiView currentShown = m_stack.Peek();
+				currentShown.SetStackAnimationType(_stackAnimationType, false);
+				currentShown.Hide(_instant, _onFinishHide);
 			}
+			_uiView.SetStackAnimationType(_stackAnimationType, true);
 			_uiView.Show(_instant, _onFinishShow);
 			m_stack.Push(_uiView);
 		}
 
-		public void Pop( int _skip = 0, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
+		public void Pop( int _skip = 0, bool _instant = false, EStackAnimationType _stackAnimationType = EStackAnimationType.DontTouch, Action _onFinishHide = null, Action _onFinishShow = null )
 		{
 			bool stackValid = m_stack.Count >= 1 + _skip;
 			if (!stackValid)
@@ -170,13 +173,19 @@ namespace GuiToolkit
 				Debug.LogError($"Attempting to pop {1 + _skip} from UiView stack, but stack contains only {m_stack.Count}");
 				return;
 			}
-			m_stack.Pop().Hide(_instant, _onFinishHide);
+			UiView currentShown = m_stack.Pop();
+			currentShown.SetStackAnimationType(_stackAnimationType, true);
+			currentShown.Hide(_instant, _onFinishHide);
 
 			for (int i=0; i<_skip; i++)
 				m_stack.Pop();
 
 			if (m_stack.Count > 0)
-				m_stack.Peek().Show(_instant, _onFinishShow);
+			{
+				UiView nextShown = m_stack.Peek();
+				nextShown.SetStackAnimationType(_stackAnimationType, false);
+				nextShown.Show(_instant, _onFinishShow);
+			}
 		}
 
 		public UiView Peek()
