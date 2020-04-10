@@ -188,7 +188,7 @@ namespace GuiToolkit
 			InitFlags();
 		}
 
-		public void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards )
+		public void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards, AnimationCurve _animationCurve )
 		{
 			if (_stackAnimationType == EStackAnimationType.DontTouch)
 				return;
@@ -234,28 +234,28 @@ namespace GuiToolkit
 					Debug.Assert(false);
 					break;
 				case EStackAnimationType.LeftToRight:
-					CheckCurve(false);
+					CheckCurve(false, _animationCurve);
 					m_support = ESupport.PositionX;
 					m_animatePositionX = true;
 					m_posXStart = -res.x;
 					m_posXEnd = 0;
 					break;
 				case EStackAnimationType.RightToLeft:
-					CheckCurve(false);
+					CheckCurve(false, _animationCurve);
 					m_support = ESupport.PositionX;
 					m_animatePositionX = true;
 					m_posXStart = res.x;
 					m_posXEnd = 0;
 					break;
 				case EStackAnimationType.TopToBottom:
-					CheckCurve(true);
+					CheckCurve(true, _animationCurve);
 					m_support = ESupport.PositionY;
 					m_animatePositionY = true;
 					m_posYStart = -res.y;
 					m_posYEnd = 0;
 					break;
 				case EStackAnimationType.BottomToTop:
-					CheckCurve(true);
+					CheckCurve(true, _animationCurve);
 					m_support = ESupport.PositionY;
 					m_animatePositionY = true;
 					m_posYStart = res.y;
@@ -264,16 +264,15 @@ namespace GuiToolkit
 			}
 		}
 
-		private void CheckCurve( bool _isY )
+		private void CheckCurve( bool _isY, AnimationCurve _animationCurve )
 		{
-			bool curveMissing = _isY ? m_posYCurve == null || m_posYCurve.length == 0 : m_posXCurve == null || m_posXCurve.length == 0;
-			if (!curveMissing)
-				return;
-			AnimationCurve curve = new AnimationCurve(new Keyframe(0,0,0,0), new Keyframe(1,1,0,0));
+			if (_animationCurve == null)
+				_animationCurve = new AnimationCurve(new Keyframe(0,0,0,0), new Keyframe(1,1,0,0));
+
 			if (_isY)
-				m_posYCurve = curve;
+				m_posYCurve = _animationCurve;
 			else
-				m_posXCurve = curve;
+				m_posXCurve = _animationCurve;
 		}
 
 #if UNITY_EDITOR

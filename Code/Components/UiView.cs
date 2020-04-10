@@ -7,7 +7,7 @@ namespace GuiToolkit
 {
 	public interface IShowHideViewAnimation : IShowHidePanelAnimation
 	{
-		void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards );
+		void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards, AnimationCurve _animationCurve );
 	}
 
 	[RequireComponent(typeof(Canvas))]
@@ -40,13 +40,13 @@ namespace GuiToolkit
 			UiMain.Instance.Pop(_skip, _instant, _stackAnimationType, _onFinishHide, _onFinishShow);
 		}
 
-		public void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards )
+		public void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards, AnimationCurve _animationCurve )
 		{
 			InitAnimation();
 			if (m_showHideAnimation == null || !(m_showHideAnimation is IShowHideViewAnimation))
 				return;
 
-			((IShowHideViewAnimation)m_showHideAnimation).SetStackAnimationType(_stackAnimationType, _backwards);
+			((IShowHideViewAnimation)m_showHideAnimation).SetStackAnimationType(_stackAnimationType, _backwards, _animationCurve);
 		}
 
 		public void Init( RenderMode _renderMode, Camera _camera )

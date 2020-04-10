@@ -152,15 +152,21 @@ namespace GuiToolkit
 
 		private readonly Stack<UiView> m_stack = new Stack<UiView>();
 
+		[SerializeField]
+		private AnimationCurve m_stackMovedInCurve;
+
+		[SerializeField]
+		private AnimationCurve m_stackPushedOutCurve;
+
 		public void Push( UiView _uiView, bool _instant = false, EStackAnimationType _stackAnimationType = EStackAnimationType.DontTouch, Action _onFinishHide = null, Action _onFinishShow = null )
 		{
 			if (m_stack.Count > 0)
 			{
 				UiView currentShown = m_stack.Peek();
-				currentShown.SetStackAnimationType(_stackAnimationType, false);
+				currentShown.SetStackAnimationType(_stackAnimationType, false, m_stackPushedOutCurve);
 				currentShown.Hide(_instant, _onFinishHide);
 			}
-			_uiView.SetStackAnimationType(_stackAnimationType, true);
+			_uiView.SetStackAnimationType(_stackAnimationType, true, m_stackMovedInCurve);
 			_uiView.Show(_instant, _onFinishShow);
 			m_stack.Push(_uiView);
 		}
@@ -174,7 +180,7 @@ namespace GuiToolkit
 				return;
 			}
 			UiView currentShown = m_stack.Pop();
-			currentShown.SetStackAnimationType(_stackAnimationType, true);
+			currentShown.SetStackAnimationType(_stackAnimationType, true, m_stackPushedOutCurve);
 			currentShown.Hide(_instant, _onFinishHide);
 
 			for (int i=0; i<_skip; i++)
@@ -183,7 +189,7 @@ namespace GuiToolkit
 			if (m_stack.Count > 0)
 			{
 				UiView nextShown = m_stack.Peek();
-				nextShown.SetStackAnimationType(_stackAnimationType, false);
+				nextShown.SetStackAnimationType(_stackAnimationType, false, m_stackMovedInCurve);
 				nextShown.Show(_instant, _onFinishShow);
 			}
 		}
