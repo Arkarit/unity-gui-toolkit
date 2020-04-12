@@ -101,6 +101,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_posXCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
 			}
+			else
+			{
+				m_posXCurveProp.animationCurveValue.keys = new Keyframe[0];
+			}
 
 			if( support.HasFlags(UiSimpleAnimation.ESupport.PositionY))
 			{
@@ -110,6 +114,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_posYCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
 			}
+			else
+			{
+				m_posYCurveProp.animationCurveValue = new AnimationCurve();
+			}
 
 			if( support.HasFlags(UiSimpleAnimation.ESupport.RotationZ))
 			{
@@ -118,6 +126,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_rotZEndProp, new GUIContent("End"));
 				EditorGUILayout.PropertyField(m_rotZCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
+			}
+			else
+			{
+				m_rotZCurveProp.animationCurveValue = new AnimationCurve();
 			}
 
 			if( support.HasFlags(UiSimpleAnimation.ESupport.ScaleX | UiSimpleAnimation.ESupport.ScaleY))
@@ -139,6 +151,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_scaleXCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
 			}
+			else
+			{
+				m_scaleXCurveProp.animationCurveValue = new AnimationCurve();
+			}
 
 			if( support.HasFlags(UiSimpleAnimation.ESupport.ScaleY) && !m_scaleLockedProp.boolValue)
 			{
@@ -149,6 +165,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_scaleYCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
 			}
+			else
+			{
+				m_scaleYCurveProp.animationCurveValue = new AnimationCurve();
+			}
 
 			if( support.HasFlags(UiSimpleAnimation.ESupport.Alpha))
 			{
@@ -157,6 +177,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_alphaCanvasGroupProp);
 				EditorGUILayout.PropertyField(m_alphaCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
+			}
+			else
+			{
+				m_alphaCurveProp.animationCurveValue = new AnimationCurve();
 			}
 
 		}

@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Icons
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 21b88ebcff162d042800521d84a822dd, type: 3}
+    totalSpriteSurfaceArea: 147456
+    bindAsDefault: 1
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 4fac99d6a844e944990690d8af6b9170, type: 3}
+  - {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+  - {fileID: 21300000, guid: 620883c8a91ac9e499d41721e7fc4bb6, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - UITK_Send
+  - UITK_Checkmark
+  - UITK_RandomDice
+  m_Tag: Icons
+  m_IsVariant: 0

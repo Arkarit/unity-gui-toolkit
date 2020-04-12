@@ -22,20 +22,30 @@ namespace GuiToolkit
 			public ButtonInfo[] ButtonInfos;
 			public bool AllowOutsideTap = true;
 			public int CloseButtonIdx = Constants.INVALID;
+			public bool ShowText = true;
+			public bool ShowInputField = false;
+			public string PlaceholderText;
+			public string InputText;
 		}
 
 		public UiButton m_closeButton;
 
 		public GameObject m_buttonContainer;
+		public GameObject m_inputFieldContainer;
+		public GameObject m_textContainer;
+
 		public UiButton m_standardButtonPrefab;
 		public UiButton m_okButtonPrefab;
 		public UiButton m_cancelButtonPrefab;
 
 		public TextMeshProUGUI m_title;
 		public TextMeshProUGUI m_text;
+		public TMP_InputField m_inputField;
 
 		public float m_buttonScale = 1.0f;
 		public int m_maxButtons = 3;
+
+		public bool m_cancelButtonsLeftSide = false;
 
 
 		private bool m_allowOutsideTap;
@@ -70,7 +80,9 @@ namespace GuiToolkit
 					}
 				},
 				AllowOutsideTap = true,
-				CloseButtonIdx = 0
+				CloseButtonIdx = 0,
+				ShowText = true,
+				ShowInputField = false,
 			};
 			Requester( _title, _text, options );
 		}
@@ -94,9 +106,44 @@ namespace GuiToolkit
 					}
 				},
 				AllowOutsideTap = _allowOutsideTap,
-				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID
+				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
+				ShowText = true,
+				ShowInputField = false,
 			};
 			Requester( _title, _text, options );
+		}
+
+		public void OkCancelInputRequester( string _title, string _text, bool _allowOutsideTap,UnityAction<string> _onOk, UnityAction _onCancel = null, 
+			 string _placeholderText = null, string _inputText = null, string _yesText = null, string _noText = null )
+		{
+			Options options = new Options
+			{
+				ButtonInfos = new ButtonInfo[] 
+				{
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_yesText) ? "Ok" : _yesText,
+						Prefab = m_okButtonPrefab,
+						OnClick = () => _onOk(GetInputText())
+					},
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_noText) ? "Cancel" : _noText,
+						Prefab = m_cancelButtonPrefab,
+						OnClick = _onCancel
+					}
+				},
+				AllowOutsideTap = _allowOutsideTap,
+				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
+				ShowText = !string.IsNullOrEmpty(_text),
+				ShowInputField = true,
+				PlaceholderText = _placeholderText,
+				InputText = _inputText,
+			};
+			Requester( _title, _text, options );
+		}
+
+		public string GetInputText()
+		{
+			return m_inputField.text;
 		}
 
 		protected override void OnDestroy()
@@ -133,6 +180,22 @@ namespace GuiToolkit
 		{
 			m_allowOutsideTap = _options.AllowOutsideTap;
 			m_closeButtonIdx = _options.CloseButtonIdx;
+			m_textContainer.gameObject.SetActive(_options.ShowText);
+			m_inputFieldContainer.gameObject.SetActive(_options.ShowInputField);
+			if (_options.ShowInputField)
+			{
+				if (_options.InputText != null)
+				{
+					m_inputField.text = _options.InputText;
+				}
+				if (_options.PlaceholderText != null)
+				{
+					TMP_Text placeholderText = m_inputField.placeholder.GetComponent<TMP_Text>();
+					if (placeholderText != null)
+						placeholderText.text = _options.PlaceholderText;
+				}
+				UiMain.Instance.SetFocus(m_inputField);
+			}
 
 			if (m_maxButtons != Constants.INVALID && _options.ButtonInfos.Length > m_maxButtons)
 				Debug.LogWarning($"Dialog '{this.gameObject}' contains {_options.ButtonInfos.Length} buttons; maximum supported are {m_maxButtons}. Visual problems may appear.");
@@ -156,6 +219,12 @@ namespace GuiToolkit
 				button.OnClick.AddListener( () => OnClick(fuckYouCSharp) );
 
 				button.Text = bi.Text;
+			}
+
+			if (m_cancelButtonsLeftSide && _options.ButtonInfos.Length > 1)
+			{
+				m_buttons[0].transform.SetAsLastSibling();
+				m_buttons[m_buttons.Count -1].transform.SetAsFirstSibling();
 			}
 
 			m_closeButton.gameObject.SetActive(m_closeButtonIdx >= 0);

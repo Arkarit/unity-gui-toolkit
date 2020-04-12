@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class UiSimpleAnimationBase : MonoBehaviour, IShowHideViewAnimation
+	public class UiSimpleAnimationBase : MonoBehaviour, IShowHidePanelAnimation
 	{
 		protected const int INFINITE_LOOPS = -1;
 		private const int DONT_SET_LOOPS = -2;
@@ -57,6 +57,7 @@ namespace GuiToolkit
 		public bool Running { get { return m_running; }}
 		public float Duration { get { return m_duration; } set { Reset(); m_duration = value; }}
 		public float Delay { get { return m_delay; } set { Reset(); m_delay = value; } }
+		public UiSimpleAnimationBase BackwardsAnimation { get { return m_backwardsAnimation; } set { Reset(); m_backwardsAnimation = value; }}
 
 		// delegates
 		public Action m_onFinish;
@@ -366,6 +367,11 @@ namespace GuiToolkit
 					return;
 				}
 			}
+			else
+			{
+				if (m_backwardsAnimation)
+					m_backwardsAnimation.Stop(false);
+			}
 
 			foreach( var slave in m_slaveAnimations)
 				slave.PlayRecursive(_completeTime, _completeBackwardsTime, m_forwardsDelay, false, _backwards, _loops);
@@ -405,11 +411,11 @@ namespace GuiToolkit
 		private void ResetRecursive(bool _toEnd)
 		{
 			if (_toEnd)
-				OnAnimate(_toEnd ? 1:0);
+				OnAnimate(1);
 			foreach( var slave in m_slaveAnimations )
 				slave.ResetRecursive(_toEnd);
 			if (!_toEnd)
-				OnAnimate(_toEnd ? 1:0);
+				OnAnimate(0);
 		}
 
 		private void InitAnimateIfNecessary()
@@ -447,13 +453,13 @@ namespace GuiToolkit
 			Play(true);
 		}
 
-		public void StopViewAnimation()
+		public void StopViewAnimation(bool _visible)
 		{
 			if (!m_supportViewAnimations)
 				return;
 
 			m_onFinishOnce = null;
-			Stop(false);
+			Reset(_visible);
 		}
 
 #if UNITY_EDITOR
@@ -461,6 +467,7 @@ namespace GuiToolkit
 		{
 			Update(_deltaTime);
 		}
+
 
 #endif
 	}
