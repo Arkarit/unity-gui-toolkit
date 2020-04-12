@@ -282,14 +282,16 @@ namespace GuiToolkit
 
 		public void SetFocus( TMP_InputField _inputField )
 		{
-			//FIXME: This properly displays the blinking cursor at the first call,
-			// but displays the whole text selected at subsequent calls
-			// Perhaps interesting: https://forum.unity.com/threads/tmp-1-4-input-field-resetondeactivate-issue.654544/
-			_inputField.ReleaseSelection();
-			_inputField.DeactivateInputField();
+			if (!_inputField.gameObject.activeInHierarchy)
+				return;
+
 			_inputField.ActivateInputField();
+			_inputField.StartCoroutine(SetCaretPositionDelayed(_inputField));
+		}
+		private IEnumerator SetCaretPositionDelayed(TMP_InputField _inputField)
+		{
+			yield return new WaitForEndOfFrame();
 			_inputField.MoveToEndOfLine( false, true );
-			_inputField.caretPosition = string.IsNullOrEmpty(_inputField.text) ? 0 : _inputField.text.Length;
 		}
 
 		#endregion
