@@ -17,7 +17,7 @@ namespace GuiToolkit
 	{
 		[Tooltip("Simple wiggle animation (optional)")]
 		public UiSimpleAnimation m_simpleWiggleAnimation;
-		
+
 		private Button m_button;
 
 		public Button Button

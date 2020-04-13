@@ -18,6 +18,10 @@ namespace GuiToolkit
 		public UiSimpleAnimation m_simpleAnimation;
 		[Tooltip("Audio source (optional)")]
 		public AudioSource m_audioSource;
+		[Tooltip("Background Image. Mandatory if you want to use the 'Color' property.")]
+		public Image m_backgroundImage;
+		[Tooltip("Simple Gradient. Mandatory if you want to use the 'SimpleGradientColors' getters+setters.")]
+		public UiGradientSimple m_backgroundGradientSimple;
 		
 		private TextMeshProUGUI m_tmpText;
 		private Text m_text;
@@ -49,6 +53,51 @@ namespace GuiToolkit
 					Debug.LogError($"No button text found for Button '{gameObject.name}', can not set string '{value}'");
 			}
 		}
+
+		public Color Color
+		{
+			get
+			{
+				if (m_backgroundImage == null)
+				{
+					Debug.LogError("Attempt to get button color, but background image was not set");
+					return Color.magenta;
+				}
+
+				return m_backgroundImage.color;
+			}
+			set
+			{
+				if (m_backgroundImage == null)
+				{
+					Debug.LogError("Attempt to set button color, but background image was not set");
+					return;
+				}
+
+				m_backgroundImage.color = value;
+			}
+		}
+
+		public void SetSimpleGradientColors(Color _leftOrTop, Color _rightOrBottom)
+		{
+			if (m_backgroundGradientSimple == null)
+			{
+				Debug.LogError("Attempt to set simple gradient colors, but simple gradient was not set");
+				return;
+			}
+			m_backgroundGradientSimple.SetColors(_leftOrTop, _rightOrBottom);
+		}
+
+		public (Color leftOrTop, Color rightOrBottom) GetSimpleGradientColors()
+		{
+			if (m_backgroundGradientSimple == null)
+			{
+				Debug.LogError("Attempt to set simple gradient colors, but simple gradient was not set");
+				return (leftOrTop:Color.cyan, rightOrBottom:Color.magenta);
+			}
+			return m_backgroundGradientSimple.GetColors();
+		}
+
 
 #if UNITY_EDITOR
 		public UnityEngine.Object TextComponent
@@ -106,6 +155,8 @@ namespace GuiToolkit
 	{
 		protected SerializedProperty m_simpleAnimationProp;
 		protected SerializedProperty m_audioSourceProp;
+		protected SerializedProperty m_backgroundImageProp;
+		protected SerializedProperty m_backgroundGradientSimpleProp;
 
 		static private bool m_toolsVisible;
 
@@ -113,6 +164,8 @@ namespace GuiToolkit
 		{
 			m_simpleAnimationProp = serializedObject.FindProperty("m_simpleAnimation");
 			m_audioSourceProp = serializedObject.FindProperty("m_audioSource");
+			m_backgroundImageProp = serializedObject.FindProperty("m_backgroundImage");
+			m_backgroundGradientSimpleProp = serializedObject.FindProperty("m_backgroundGradientSimple");
 		}
 
 		public override void OnInspectorGUI()
@@ -129,6 +182,39 @@ namespace GuiToolkit
 				{
 					Undo.RecordObject(textComponent, "Text change");
 					thisButtonBase.Text = newText;
+				}
+			}
+
+
+			EditorGUILayout.PropertyField(m_backgroundImageProp);
+			serializedObject.ApplyModifiedProperties();
+
+			if (m_backgroundImageProp.objectReferenceValue != null)
+			{
+				Image backgroundImage = (Image) m_backgroundImageProp.objectReferenceValue;
+				Color color = backgroundImage.color;
+				Color newColor = EditorGUILayout.ColorField("Color:", color);
+				if (newColor != color)
+				{
+					Undo.RecordObject(backgroundImage, "Background color change");
+					thisButtonBase.Color = newColor;
+				}
+			}
+
+
+			EditorGUILayout.PropertyField(m_backgroundGradientSimpleProp);
+			serializedObject.ApplyModifiedProperties();
+
+			if (m_backgroundGradientSimpleProp.objectReferenceValue != null)
+			{
+				UiGradientSimple gradientSimple = (UiGradientSimple) m_backgroundGradientSimpleProp.objectReferenceValue;
+				var colors = gradientSimple.GetColors();
+				Color newColorLeftOrTop = EditorGUILayout.ColorField("Color left or top:", colors.leftOrTop);
+				Color newColorRightOrBottom = EditorGUILayout.ColorField("Color right or bottom:", colors.rightOrBottom);
+				if (newColorLeftOrTop != colors.leftOrTop || newColorRightOrBottom != colors.rightOrBottom)
+				{
+					Undo.RecordObject(gradientSimple, "Simple gradient colors change");
+					thisButtonBase.SetSimpleGradientColors(newColorLeftOrTop, newColorRightOrBottom);
 				}
 			}
 
