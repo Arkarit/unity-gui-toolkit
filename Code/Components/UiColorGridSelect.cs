@@ -12,52 +12,74 @@ namespace GuiToolkit
 	{
 		public enum Mode
 		{
-			XHueYBright,
-			XBrightYHue,
+			Hue,
+			Saturation,
+			Value,
 		}
+
+		[Serializable]
+		public class Channel
+		{
+			public Mode Mode;
+
+			[Range(1, 50)]
+			public int Count = 1;
+
+			[Range(0f, 1f)]
+			public float Min = 1f;
+
+			[Range(0f, 1f)]
+			public float Max = 1f;
+
+			public Channel(Mode _mode)
+			{
+				Mode = _mode;
+			}
+
+			public void SetHSVValue(ref Vector3 _hsv, int _idx)
+			{
+				if (_idx >= Count)
+					throw new IndexOutOfRangeException();
+
+				float step = (Max - Min) / (float) Count;
+				_hsv[(int) Mode] = step * _idx + Min;
+			}
+		}
+
 
 		[SerializeField]
 		protected RectTransform m_colorPatchContainer;
+
 		[SerializeField]
 		protected UiColorPatch m_colorPatchPrefab;
+
 		[SerializeField]
 		protected ToggleGroup m_toggleGroup;
+
 		[SerializeField]
-		protected Mode m_mode;
+		protected Channel m_channelA = new Channel(Mode.Hue);
+
 		[SerializeField]
-		[FormerlySerializedAs("m_numHorizontal")]
-		protected int m_numX;
+		protected Channel m_channelB = new Channel(Mode.Saturation);
+
 		[SerializeField]
-		[FormerlySerializedAs("m_numVertical")]
-		protected int m_numY;
-		[SerializeField]
-		[Range(0f, 1f)]
-		protected float m_minX = 0f;
-		[SerializeField]
-		[Range(0f, 1f)]
-		protected float m_maxX = 1f;
-		[SerializeField]
-		[Range(0f, 1f)]
-		protected float m_minY = 0f;
-		[SerializeField]
-		[Range(0f, 1f)]
-		protected float m_maxY = 1f;
-		[SerializeField]
-		[Range(0f, 1f)]
-		protected float m_fixedValue0 = 1f;
-		[SerializeField]
-		[Range(0f, 1f)]
-		protected float m_fixedValue1 = 1f;
+		protected Channel m_channelC = new Channel(Mode.Value);
+
 		[SerializeField]
 		protected bool m_disallowRed = false;
+
 		[SerializeField]
 		protected bool m_disallowGreen = false;
+
 		[SerializeField]
 		protected bool m_disallowBlue = false;
+
 		[SerializeField]
 		protected bool m_disallowCyan = false;
+
 		[SerializeField]
 		protected bool m_disallowYellow = false;
+
 		[SerializeField]
 		protected bool m_disallowMagenta = false;
 
@@ -66,6 +88,9 @@ namespace GuiToolkit
 		private readonly List<UiColorPatch> m_patches = new List<UiColorPatch>();
 		private Color m_currentColor;
 		private bool m_currentColorSet;
+
+		private int m_numACalculated;
+		private int m_numBCalculated;
 
 		public Color Color
 		{
@@ -76,31 +101,73 @@ namespace GuiToolkit
 			}
 		}
 
+		private readonly HashSet<Color> m_disallowedInterpolateColors = new HashSet<Color>();
+
 		protected override void Awake()
 		{
 			base.Awake();
-
-			float stepX = ((m_maxX - m_minX) / (float) m_numX);
-			float stepY = ((m_maxY - m_minY) / (float) m_numY);
-
-			for (int y = 0; y < m_numY; y++ )
+			int count = 0;
+			for (int c = 0; c < m_channelC.Count; c++)
 			{
-				for (int x = 0; x < m_numX; x++ )
+				for (int b = 0; b < m_channelB.Count; b++)
 				{
-					(float h, float s, float v) = GetColor(x, y, stepX, stepY);
-					Color color = Color.HSVToRGB(h, s, v);
-					if (!IsColorAllowed(color))
-						continue;
-
-					UiColorPatch newPatch = Instantiate(m_colorPatchPrefab);
-					newPatch.Toggle.group  = m_toggleGroup;
-					m_toggleGroup.RegisterToggle(newPatch.Toggle);
-					newPatch.Color = Color.HSVToRGB(h, s, v);
-					newPatch.transform.SetParent( m_colorPatchContainer, false );
-					newPatch.name = "ColorPatch" + (y*m_numX + x);
-					newPatch.OnSelected = OnPatchSelected;
-					m_patches.Add(newPatch);
+					for (int a = 0; a < m_channelA.Count; a++)
+					{
+						Vector3 hsv = new Vector3();
+						m_channelA.SetHSVValue(ref hsv, a);
+						m_channelB.SetHSVValue(ref hsv, b);
+						m_channelC.SetHSVValue(ref hsv, c);
+						Color color = Color.HSVToRGB(hsv.x, hsv.y, hsv.z);
+						if (IsColorAllowed(color))
+						{
+							UiColorPatch newPatch = Instantiate(m_colorPatchPrefab);
+							newPatch.Color = color;
+							m_patches.Add(newPatch);
+						}
+						else
+						{
+							int cnt = m_patches.Count;
+							if (cnt > 0)
+								if (!m_disallowedInterpolateColors.Contains(m_patches[cnt-1].Color))
+									m_disallowedInterpolateColors.Add(m_patches[cnt-1].Color);
+						}
+					}
 				}
+			}
+
+			int isCount = m_patches.Count;
+			if (isCount < 2)
+				return;
+
+			int shouldCount = m_channelA.Count * m_channelB.Count * m_channelC.Count;
+
+			int idx = 0;
+			while(isCount < shouldCount)
+			{
+				Color a = m_patches[idx].Color;
+				if (!m_disallowedInterpolateColors.Contains(a))
+				{
+					Color b = m_patches[idx+1].Color;
+					Color mix = Color.Lerp(a,b,0.5f);
+					UiColorPatch newPatch = Instantiate(m_colorPatchPrefab);
+					newPatch.Color = mix;
+					m_patches.Insert(idx+1, newPatch);
+					isCount++;
+					idx++;
+				}
+				idx++;
+				if (idx >= m_patches.Count-1)
+					idx = 0;
+			}
+
+			for(int i=0; i<m_patches.Count; i++)
+			{
+				UiColorPatch patch = m_patches[i];
+				patch.Toggle.group  = m_toggleGroup;
+				m_toggleGroup.RegisterToggle(patch.Toggle);
+				patch.OnSelected = OnPatchSelected;
+				patch.transform.SetParent( m_colorPatchContainer, false );
+				patch.name = "ColorPatch" + i;
 			}
 		}
 
@@ -146,31 +213,6 @@ namespace GuiToolkit
 			return _otherChannel / channelsToCheck >= 0.5f;
 		}
 
-		private (float h, float s, float v) GetColor( int _x, int _y, float _stepX, float _stepY )
-		{
-			float h,s,v;
-
-			switch (m_mode)
-			{
-				case Mode.XHueYBright:
-					h = m_minX + _x * _stepX;
-					s = m_fixedValue0;
-					v = m_minY + _y * _stepY;
-					break;
-				case Mode.XBrightYHue:
-					h = m_minY + _y * _stepY;
-					s = m_fixedValue0;
-					v = m_minX + _x * _stepX;
-					break;
-				default:
-					Debug.Assert(false);
-					h = s = v = 0;
-					break;
-			}
-
-			return (h,s,v);
-		}
-
 		private void OnPatchSelected( UiColorPatch _patch )
 		{
 			m_currentColor = _patch.Color;
@@ -202,9 +244,9 @@ namespace GuiToolkit
 			return false;
 		}
 
-		public void Select( int _x, int _y )
+		public void Select( int _a, int _b, int _c )
 		{
-			StartCoroutine(SelectDelayed(_y * m_numY + _x));
+			StartCoroutine(SelectDelayed(_a * m_channelB.Count * m_channelC.Count + _b * m_channelC.Count + _c));
 		}
 
 		// Shitty Unity Toggles unregister themselves from the group in OnDisable().
