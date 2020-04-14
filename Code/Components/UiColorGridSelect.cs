@@ -74,6 +74,19 @@ namespace GuiToolkit
 		[SerializeField]
 		protected List<int> m_forbiddenIndices;
 
+		[SerializeField]
+		protected int m_blackAndWhiteCount = 0;
+
+		[SerializeField]
+		protected float m_darkestBlackAndWhite = 0;
+
+		[SerializeField]
+		protected float m_brightestBlackAndWhite = 1;
+
+
+
+
+
 		public Action<Color> OnColorChanged;
 
 		private readonly List<UiColorPatch> m_patches = new List<UiColorPatch>();
@@ -92,6 +105,18 @@ namespace GuiToolkit
 			}
 		}
 
+		private UiColorPatch CreatePatch( Color color )
+		{
+			UiColorPatch result = Instantiate(m_colorPatchPrefab);
+			result.Color = color;
+			m_patches.Add(result);
+			result.Toggle.group = m_toggleGroup;
+			m_toggleGroup.RegisterToggle(result.Toggle);
+			result.OnSelected = OnPatchSelected;
+			result.transform.SetParent(m_colorPatchContainer, false);
+			return result;
+		}
+
 		protected override void Awake()
 		{
 			base.Awake();
@@ -107,17 +132,25 @@ namespace GuiToolkit
 						m_channelB.SetHSVValue(ref hsv, b);
 						m_channelC.SetHSVValue(ref hsv, c);
 						Color color = Color.HSVToRGB(hsv.x, hsv.y, hsv.z);
-						UiColorPatch newPatch = Instantiate(m_colorPatchPrefab);
-						newPatch.Color = color;
-						m_patches.Add(newPatch);
-						newPatch.Toggle.group  = m_toggleGroup;
-						m_toggleGroup.RegisterToggle(newPatch.Toggle);
-						newPatch.OnSelected = OnPatchSelected;
-						newPatch.transform.SetParent( m_colorPatchContainer, false );
+						UiColorPatch newPatch = CreatePatch(color);
 						newPatch.name = "ColorPatch" + count++;
 					}
 				}
 			}
+
+			for (int i = 0; i<m_blackAndWhiteCount; i++)
+			{
+				float bw = m_darkestBlackAndWhite;
+				if (m_blackAndWhiteCount > 1)
+				{
+					float t = (float) i / (m_blackAndWhiteCount-1);
+					bw = Mathf.Lerp(m_darkestBlackAndWhite, m_brightestBlackAndWhite, t);
+				}
+				UiColorPatch newPatch = CreatePatch(new Color(bw, bw, bw));
+				newPatch.name = "ColorPatchBW" + count++;
+			}
+
+			//TODO: edge cases: first index forbidden, last index forbidden
 			int lastGoodIndex = -1;
 			for (int i=0; i<m_patches.Count; i++)
 			{
@@ -145,7 +178,6 @@ namespace GuiToolkit
 					Color b = m_patches[nextGoodIndex].Color;
 					float f = (float) k / l;
 					Color mixed = Color.Lerp(a,b,f);
-Debug.Log($"lastGoodIndex:{lastGoodIndex} nextGoodIndex:{nextGoodIndex} f:{f}");
 					m_patches[i].Color = mixed;
 				}
 				else
