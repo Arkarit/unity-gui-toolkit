@@ -65,24 +65,6 @@ namespace GuiToolkit
 		[SerializeField]
 		protected Channel m_channelC = new Channel(Mode.Value);
 
-		[SerializeField]
-		protected bool m_disallowRed = false;
-
-		[SerializeField]
-		protected bool m_disallowGreen = false;
-
-		[SerializeField]
-		protected bool m_disallowBlue = false;
-
-		[SerializeField]
-		protected bool m_disallowCyan = false;
-
-		[SerializeField]
-		protected bool m_disallowYellow = false;
-
-		[SerializeField]
-		protected bool m_disallowMagenta = false;
-
 		public Action<Color> OnColorChanged;
 
 		private readonly List<UiColorPatch> m_patches = new List<UiColorPatch>();
@@ -101,8 +83,6 @@ namespace GuiToolkit
 			}
 		}
 
-		private readonly HashSet<Color> m_disallowedInterpolateColors = new HashSet<Color>();
-
 		protected override void Awake()
 		{
 			base.Awake();
@@ -118,99 +98,17 @@ namespace GuiToolkit
 						m_channelB.SetHSVValue(ref hsv, b);
 						m_channelC.SetHSVValue(ref hsv, c);
 						Color color = Color.HSVToRGB(hsv.x, hsv.y, hsv.z);
-						if (IsColorAllowed(color))
-						{
-							UiColorPatch newPatch = Instantiate(m_colorPatchPrefab);
-							newPatch.Color = color;
-							m_patches.Add(newPatch);
-						}
-						else
-						{
-							int cnt = m_patches.Count;
-							if (cnt > 0)
-								if (!m_disallowedInterpolateColors.Contains(m_patches[cnt-1].Color))
-									m_disallowedInterpolateColors.Add(m_patches[cnt-1].Color);
-						}
+						UiColorPatch newPatch = Instantiate(m_colorPatchPrefab);
+						newPatch.Color = color;
+						m_patches.Add(newPatch);
+						newPatch.Toggle.group  = m_toggleGroup;
+						m_toggleGroup.RegisterToggle(newPatch.Toggle);
+						newPatch.OnSelected = OnPatchSelected;
+						newPatch.transform.SetParent( m_colorPatchContainer, false );
+						newPatch.name = "ColorPatch" + count++;
 					}
 				}
 			}
-
-			int isCount = m_patches.Count;
-			if (isCount < 2)
-				return;
-
-			int shouldCount = m_channelA.Count * m_channelB.Count * m_channelC.Count;
-
-			int idx = 0;
-			while(isCount < shouldCount)
-			{
-				Color a = m_patches[idx].Color;
-				if (!m_disallowedInterpolateColors.Contains(a))
-				{
-					Color b = m_patches[idx+1].Color;
-					Color mix = Color.Lerp(a,b,0.5f);
-					UiColorPatch newPatch = Instantiate(m_colorPatchPrefab);
-					newPatch.Color = mix;
-					m_patches.Insert(idx+1, newPatch);
-					isCount++;
-					idx++;
-				}
-				idx++;
-				if (idx >= m_patches.Count-1)
-					idx = 0;
-			}
-
-			for(int i=0; i<m_patches.Count; i++)
-			{
-				UiColorPatch patch = m_patches[i];
-				patch.Toggle.group  = m_toggleGroup;
-				m_toggleGroup.RegisterToggle(patch.Toggle);
-				patch.OnSelected = OnPatchSelected;
-				patch.transform.SetParent( m_colorPatchContainer, false );
-				patch.name = "ColorPatch" + i;
-			}
-		}
-
-		private bool IsColorAllowed( Color _color )
-		{
-			if (m_disallowRed &&  !IsColorAllowed( _color.r, _color.g, _color.b))
-				return false;
-			if (m_disallowGreen &&  !IsColorAllowed( _color.g, _color.r, _color.b))
-				return false;
-			if (m_disallowBlue &&  !IsColorAllowed( _color.b, _color.r, _color.g))
-				return false;
-			if (m_disallowCyan &&  !IsMixColorAllowed( _color.b, _color.g, _color.r))
-				return false;
-			if (m_disallowYellow &&  !IsMixColorAllowed( _color.r, _color.g, _color.b))
-				return false;
-			if (m_disallowMagenta &&  !IsMixColorAllowed( _color.r, _color.b, _color.g))
-				return false;
-			return true;
-		}
-
-		private bool IsColorAllowed( float _channelToCheck, float _otherChannel0, float _otherChannel1 )
-		{
-			if (_channelToCheck < Mathf.Epsilon)
-				return true;
-			float otherAverage = (_otherChannel0 +_otherChannel1) *.5f;
-			return otherAverage / _channelToCheck >= 0.3333f;
-		}
-
-		private bool IsMixColorAllowed( float _channelToCheck0, float _channelToCheck1, float _otherChannel )
-		{
-			if (_channelToCheck0 == 0 || _channelToCheck1 == 0)
-				return true;
-
-			if (_channelToCheck0 > _channelToCheck1)
-				UiMathUtility.Swap( ref _channelToCheck0, ref _channelToCheck1);
-
-			if (_channelToCheck0 / _channelToCheck1 < 0.5f)
-				return true;
-
-			float channelsToCheck = (_channelToCheck0 + _channelToCheck1) *.5f;
-			if (channelsToCheck < Mathf.Epsilon)
-				return true;
-			return _otherChannel / channelsToCheck >= 0.5f;
 		}
 
 		private void OnPatchSelected( UiColorPatch _patch )
