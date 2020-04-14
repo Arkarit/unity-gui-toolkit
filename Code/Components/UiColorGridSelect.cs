@@ -41,7 +41,13 @@ namespace GuiToolkit
 				if (_idx >= Count)
 					throw new IndexOutOfRangeException();
 
-				float step = (Max - Min) / (float) Count;
+				if (Count <= 1)
+				{
+					_hsv[(int) Mode] = Max;
+					return;
+				}
+
+				float step = (Max - Min) / (float) (Count-1);
 				_hsv[(int) Mode] = step * _idx + Min;
 			}
 		}
