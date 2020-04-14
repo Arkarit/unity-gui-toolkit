@@ -48,6 +48,18 @@ namespace GuiToolkit
 		[SerializeField]
 		[Range(0f, 1f)]
 		protected float m_fixedValue1 = 1f;
+		[SerializeField]
+		protected bool m_disallowRed = false;
+		[SerializeField]
+		protected bool m_disallowGreen = false;
+		[SerializeField]
+		protected bool m_disallowBlue = false;
+		[SerializeField]
+		protected bool m_disallowCyan = false;
+		[SerializeField]
+		protected bool m_disallowYellow = false;
+		[SerializeField]
+		protected bool m_disallowMagenta = false;
 
 		public Action<Color> OnColorChanged;
 
@@ -76,6 +88,10 @@ namespace GuiToolkit
 				for (int x = 0; x < m_numX; x++ )
 				{
 					(float h, float s, float v) = GetColor(x, y, stepX, stepY);
+					Color color = Color.HSVToRGB(h, s, v);
+					if (!IsColorAllowed(color))
+						continue;
+
 					UiColorPatch newPatch = Instantiate(m_colorPatchPrefab);
 					newPatch.Toggle.group  = m_toggleGroup;
 					m_toggleGroup.RegisterToggle(newPatch.Toggle);
@@ -86,6 +102,48 @@ namespace GuiToolkit
 					m_patches.Add(newPatch);
 				}
 			}
+		}
+
+		private bool IsColorAllowed( Color _color )
+		{
+			if (m_disallowRed &&  !IsColorAllowed( _color.r, _color.g, _color.b))
+				return false;
+			if (m_disallowGreen &&  !IsColorAllowed( _color.g, _color.r, _color.b))
+				return false;
+			if (m_disallowBlue &&  !IsColorAllowed( _color.b, _color.r, _color.g))
+				return false;
+			if (m_disallowCyan &&  !IsMixColorAllowed( _color.b, _color.g, _color.r))
+				return false;
+			if (m_disallowYellow &&  !IsMixColorAllowed( _color.r, _color.g, _color.b))
+				return false;
+			if (m_disallowMagenta &&  !IsMixColorAllowed( _color.r, _color.b, _color.g))
+				return false;
+			return true;
+		}
+
+		private bool IsColorAllowed( float _channelToCheck, float _otherChannel0, float _otherChannel1 )
+		{
+			if (_channelToCheck < Mathf.Epsilon)
+				return true;
+			float otherAverage = (_otherChannel0 +_otherChannel1) *.5f;
+			return otherAverage / _channelToCheck >= 0.3333f;
+		}
+
+		private bool IsMixColorAllowed( float _channelToCheck0, float _channelToCheck1, float _otherChannel )
+		{
+			if (_channelToCheck0 == 0 || _channelToCheck1 == 0)
+				return true;
+
+			if (_channelToCheck0 > _channelToCheck1)
+				UiMathUtility.Swap( ref _channelToCheck0, ref _channelToCheck1);
+
+			if (_channelToCheck0 / _channelToCheck1 < 0.5f)
+				return true;
+
+			float channelsToCheck = (_channelToCheck0 + _channelToCheck1) *.5f;
+			if (channelsToCheck < Mathf.Epsilon)
+				return true;
+			return _otherChannel / channelsToCheck >= 0.5f;
 		}
 
 		private (float h, float s, float v) GetColor( int _x, int _y, float _stepX, float _stepY )
