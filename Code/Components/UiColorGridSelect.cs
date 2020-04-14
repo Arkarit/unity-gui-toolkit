@@ -71,6 +71,9 @@ namespace GuiToolkit
 		[SerializeField]
 		protected Channel m_channelC = new Channel(Mode.Value);
 
+		[SerializeField]
+		protected List<int> m_forbiddenIndices;
+
 		public Action<Color> OnColorChanged;
 
 		private readonly List<UiColorPatch> m_patches = new List<UiColorPatch>();
@@ -113,6 +116,41 @@ namespace GuiToolkit
 						newPatch.transform.SetParent( m_colorPatchContainer, false );
 						newPatch.name = "ColorPatch" + count++;
 					}
+				}
+			}
+			int lastGoodIndex = -1;
+			for (int i=0; i<m_patches.Count; i++)
+			{
+				if (m_forbiddenIndices.Contains(i))
+				{
+					if (lastGoodIndex == -1)
+						continue;
+
+					int nextGoodIndex = -1;
+					for (int j=i+1; j<m_patches.Count; j++)
+					{
+						if (!m_forbiddenIndices.Contains(j))
+						{
+							nextGoodIndex = j;
+							break;
+						}
+					}
+
+					if (nextGoodIndex == -1)
+						continue;
+
+					int k = i-lastGoodIndex;
+					int l = nextGoodIndex - lastGoodIndex;
+					Color a = m_patches[lastGoodIndex].Color;
+					Color b = m_patches[nextGoodIndex].Color;
+					float f = (float) k / l;
+					Color mixed = Color.Lerp(a,b,f);
+Debug.Log($"lastGoodIndex:{lastGoodIndex} nextGoodIndex:{nextGoodIndex} f:{f}");
+					m_patches[i].Color = mixed;
+				}
+				else
+				{
+					lastGoodIndex = i;
 				}
 			}
 		}
