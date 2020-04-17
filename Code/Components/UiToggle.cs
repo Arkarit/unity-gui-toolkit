@@ -30,5 +30,10 @@ namespace GuiToolkit
 
 			m_toggle = GetComponent<Toggle>();
 		}
+
+		private void OnValidate()
+		{
+			m_toggle = GetComponent<Toggle>();
+		}
 	}
 }
