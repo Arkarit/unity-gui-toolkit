@@ -59,10 +59,7 @@ namespace GuiToolkit
 			get
 			{
 				if (m_backgroundImage == null)
-				{
-					Debug.LogError("Attempt to get button color, but background image was not set");
-					return Color.magenta;
-				}
+					return Color.white;
 
 				return m_backgroundImage.color;
 			}
@@ -75,6 +72,33 @@ namespace GuiToolkit
 				}
 
 				m_backgroundImage.color = value;
+			}
+		}
+
+		public Color TextColor
+		{
+			get
+			{
+				InitIfNecessary();
+				if (m_tmpText)
+					return m_tmpText.color;
+				if (m_text)
+					return m_text.color;
+				return Color.black;
+			}
+
+			set
+			{
+				if (value == null)
+					return;
+
+				InitIfNecessary();
+				if (m_tmpText)
+					m_tmpText.color = value;
+				else if (m_text)
+					m_text.color = value;
+				else
+					Debug.LogError($"No button text found for Button '{gameObject.name}', can not set color '{value}'");
 			}
 		}
 
@@ -91,10 +115,7 @@ namespace GuiToolkit
 		public (Color leftOrTop, Color rightOrBottom) GetSimpleGradientColors()
 		{
 			if (m_backgroundGradientSimple == null)
-			{
-				Debug.LogError("Attempt to set simple gradient colors, but simple gradient was not set");
-				return (leftOrTop:Color.cyan, rightOrBottom:Color.magenta);
-			}
+				return (leftOrTop:Color.white, rightOrBottom:Color.white);
 			return m_backgroundGradientSimple.GetColors();
 		}
 
@@ -172,11 +193,11 @@ namespace GuiToolkit
 		{
 			UiButtonBase thisButtonBase = (UiButtonBase)target;
 
-			string text = thisButtonBase.Text;
 
 			UnityEngine.Object textComponent = thisButtonBase.TextComponent;
 			if (textComponent != null)
 			{
+				string text = thisButtonBase.Text;
 				string newText = EditorGUILayout.TextField("Text:", text);
 				if (newText != text)
 				{
@@ -186,7 +207,9 @@ namespace GuiToolkit
 			}
 
 
+			EditorGUILayout.PropertyField(m_backgroundGradientSimpleProp);
 			EditorGUILayout.PropertyField(m_backgroundImageProp);
+
 			serializedObject.ApplyModifiedProperties();
 
 			if (m_backgroundImageProp.objectReferenceValue != null)
@@ -201,10 +224,6 @@ namespace GuiToolkit
 				}
 			}
 
-
-			EditorGUILayout.PropertyField(m_backgroundGradientSimpleProp);
-			serializedObject.ApplyModifiedProperties();
-
 			if (m_backgroundGradientSimpleProp.objectReferenceValue != null)
 			{
 				UiGradientSimple gradientSimple = (UiGradientSimple) m_backgroundGradientSimpleProp.objectReferenceValue;
@@ -215,6 +234,17 @@ namespace GuiToolkit
 				{
 					Undo.RecordObject(gradientSimple, "Simple gradient colors change");
 					thisButtonBase.SetSimpleGradientColors(newColorLeftOrTop, newColorRightOrBottom);
+				}
+			}
+
+			if (textComponent != null)
+			{
+				Color color = thisButtonBase.TextColor;
+				Color newColor = EditorGUILayout.ColorField("Text Color:", color);
+				if (newColor != color)
+				{
+					Undo.RecordObject(textComponent, "Text color change");
+					thisButtonBase.TextColor = newColor;
 				}
 			}
 
