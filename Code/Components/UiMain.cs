@@ -36,6 +36,9 @@ namespace GuiToolkit
 		[SerializeField]
 		private UiSplashMessage m_splashMessagePrefab;
 
+		[SerializeField]
+		private KeyBindings m_keyBindings = new KeyBindings();
+
 		private Camera m_camera;
 		private readonly Dictionary<string, UiView> m_scenes = new Dictionary<string, UiView>();
 
@@ -204,6 +207,10 @@ namespace GuiToolkit
 			return m_stack.Peek();
 		}
 
+		#endregion
+
+		#region "Key Bindings"
+		public KeyBindings KeyBindings { get => m_keyBindings; }
 		#endregion
 
 		#region "Builtin Dialogs"

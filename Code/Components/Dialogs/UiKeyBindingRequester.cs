@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public class UiKeyBindings : UiRequesterBase
+	public class UiKeyBindingRequester : UiRequesterBase
 	{
 	}
 }
