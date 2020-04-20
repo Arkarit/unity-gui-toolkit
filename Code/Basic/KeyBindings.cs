@@ -6,7 +6,7 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	[Serializable]
-	public class KeyBindings
+	public class KeyBindings : System.Collections.Generic.IEnumerable<KeyValuePair<string,KeyCode>>
 	{
 		private Dictionary<string, KeyCode> m_keyCodeByString = new Dictionary<string, KeyCode>();
 		private Dictionary<KeyCode, string> m_stringByKeyCode = new Dictionary<KeyCode,string>();
@@ -142,6 +142,20 @@ namespace GuiToolkit
 			return ChangeBinding(_keyName, _newKeyCode, (string _, KeyCode __) => { return true; } );
 		}
 
+
+
+		public IEnumerator<KeyValuePair<string, KeyCode>> GetEnumerator()
+		{
+			foreach (var kv in m_keyCodeByString)
+				yield return kv;
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			foreach (var kv in m_keyCodeByString)
+				yield return kv;
+		}
+
 		private void CheckInitialized()
 		{
 #if UNITY_EDITOR
@@ -151,8 +165,5 @@ namespace GuiToolkit
 			}
 #endif
 		}
-
-
-
 	}
 }

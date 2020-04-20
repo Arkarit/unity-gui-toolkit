@@ -66,7 +66,7 @@ namespace GuiToolkit
 
 		public void DoDestroy( GameObject _gameObject )
 		{
-			if (! m_poolEntryByGameObject.ContainsKey(_gameObject))
+			if (!m_poolEntryByGameObject.ContainsKey(_gameObject))
 			{
 				_gameObject.Destroy();
 				return;
@@ -84,9 +84,9 @@ namespace GuiToolkit
 
 		public void DoDestroy<T>( T _component ) where T : Component
 		{
-			if (_component is UiView)
+			if (_component is UiPanel)
 			{
-				UiView view = _component as UiView;
+				UiPanel view = _component as UiPanel;
 				view.OnPooled();
 			}
 			DoDestroy(_component.gameObject);

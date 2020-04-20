@@ -43,5 +43,19 @@ namespace GuiToolkit
 			UiPool.Instance.DoDestroy(_prefabComponent);
 		}
 
+		public static void PoolDestroyChildren<T>( this Transform _transform) where T : Component
+		{
+			T[] children = _transform.GetComponentsInChildren<T>();
+			foreach (var child in children)
+				child.PoolDestroy();
+		}
+
+		public static void PoolDestroyChildren<T>( this GameObject _gameObject) where T : Component
+		{
+			T[] children = _gameObject.GetComponentsInChildren<T>();
+			foreach (var child in children)
+				child.PoolDestroy();
+		}
+
 	}
 }
