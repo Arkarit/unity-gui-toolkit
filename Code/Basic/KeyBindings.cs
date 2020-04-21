@@ -70,6 +70,11 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public string GetKeyName(Event _event)
+		{
+			return GetKeyName(EventToKeyCode(_event));
+		}
+
 		public KeyCode this[string _key]
 		{
 			get => GetKeyCode(_key);
@@ -78,6 +83,11 @@ namespace GuiToolkit
 		public string this[KeyCode _keyCode]
 		{
 			get => GetKeyName(_keyCode);
+		}
+
+		public string this[Event _event]
+		{
+			get => GetKeyName(_event);
 		}
 
 		public void BeginChangeBindings()
@@ -142,6 +152,24 @@ namespace GuiToolkit
 			return ChangeBinding(_keyName, _newKeyCode, (string _, KeyCode __) => { return true; } );
 		}
 
+		// Dear Unity, you have KeyCodes for everything.
+		// Why please don't you simply give it to me in an event?
+		public static KeyCode EventToKeyCode(Event _event)
+		{
+			if (_event == null)
+				return KeyCode.None;
+
+			if (_event.isKey)
+				return _event.keyCode;
+
+			if (_event.isMouse)
+			{
+				int mouseButtonCode = ((int)(object) KeyCode.Mouse0 + _event.button);
+				return (KeyCode)(object) mouseButtonCode;
+			}
+
+			return KeyCode.None;
+		}
 
 
 		public IEnumerator<KeyValuePair<string, KeyCode>> GetEnumerator()

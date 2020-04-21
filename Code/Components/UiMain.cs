@@ -218,6 +218,9 @@ namespace GuiToolkit
 		[SerializeField]
 		private UiKeyBindingRequester m_keyBindingsRequesterPrefab;
 
+		[SerializeField]
+		private UiKeyPressRequester m_keyPressRequester;
+
 		public void SplashMessage(string _message, float _duration = 2)
 		{
 			UiView.InvokeHideInstant<UiSplashMessage>();
@@ -256,6 +259,13 @@ namespace GuiToolkit
 			UiKeyBindingRequester requester = CreateModalDialog(m_keyBindingsRequesterPrefab);
 			Debug.Assert(requester);
 			requester.Requester(_title, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
+		}
+
+		public void KeyPressRequester( UnityAction<KeyCode> _onEvent, string _title = null )
+		{
+			UiKeyPressRequester requester = CreateModalDialog(m_keyPressRequester);
+			Debug.Assert(requester);
+			requester.Requester(_onEvent, _title);
 		}
 
 		private T CreateModalDialog<T>( T _template) where T : UiViewModal
