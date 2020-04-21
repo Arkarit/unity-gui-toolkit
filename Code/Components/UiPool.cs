@@ -73,7 +73,7 @@ namespace GuiToolkit
 			}
 
 			PoolEntry poolEntry = m_poolEntryByGameObject[_gameObject];
-			_gameObject.transform.parent = m_container;
+			_gameObject.transform.SetParent( m_container, false );
 			_gameObject.SetActive(false);
 
 			// We must check if the game object is already in the pool - it is not
