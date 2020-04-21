@@ -109,7 +109,7 @@ GameObject:
   - component: {fileID: 3201244151496174236}
   - component: {fileID: 2126843345544139562}
   m_Layer: 5
-  m_Name: KeyBindings
+  m_Name: KeyBindingsRequester
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1351,7 +1351,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 5207623684863679780}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
