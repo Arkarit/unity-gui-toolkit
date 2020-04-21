@@ -106,7 +106,6 @@ GameObject:
   - component: {fileID: 2126843345544139563}
   - component: {fileID: 2126843345544139564}
   - component: {fileID: 2126843345544139565}
-  - component: {fileID: 2126843345544139566}
   - component: {fileID: 3201244151496174236}
   - component: {fileID: 2126843345544139562}
   m_Layer: 5
@@ -197,37 +196,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &2126843345544139566
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2126843345544139552}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c377de3709698741b17942f9f8df229, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_defaultSceneVisibility: 2
-  m_layer: 600
-  m_clickCatcher: {fileID: 2126843345760536211}
-  m_title: {fileID: 2126843346133770540}
-  m_closeButton: {fileID: 6780300717453316315}
-  m_buttonContainer: {fileID: 2126843346294841186}
-  m_standardButtonPrefab: {fileID: 6944983982311379129, guid: 21a8687b0161cb048a99736c000f6da3,
-    type: 3}
-  m_okButtonPrefab: {fileID: 6699359830296575514, guid: ffe5dd8cf41b8e140b7de326263eedd8,
-    type: 3}
-  m_cancelButtonPrefab: {fileID: 1623664846775371399, guid: e1923f16e8be62c4aaba24e33fec90d9,
-    type: 3}
-  m_buttonScale: 0.8
-  m_maxButtons: 3
-  m_cancelButtonsLeftSide: 0
-  m_inputFieldContainer: {fileID: 8578273731924085954}
-  m_textContainer: {fileID: 2126843345784116848}
-  m_text: {fileID: 0}
-  m_inputField: {fileID: 6621722925866764208}
 --- !u!114 &3201244151496174236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243,14 +211,17 @@ MonoBehaviour:
   m_defaultSceneVisibility: 2
   m_layer: 600
   m_clickCatcher: {fileID: 2126843345760536211}
-  m_title: {fileID: 0}
+  m_title: {fileID: 2126843346133770540}
   m_closeButton: {fileID: 6780300717453316315}
   m_buttonContainer: {fileID: 2126843346294841186}
-  m_standardButtonPrefab: {fileID: 0}
-  m_okButtonPrefab: {fileID: 0}
-  m_cancelButtonPrefab: {fileID: 0}
-  m_buttonScale: 1
-  m_maxButtons: 3
+  m_standardButtonPrefab: {fileID: 6944983982311379129, guid: 21a8687b0161cb048a99736c000f6da3,
+    type: 3}
+  m_okButtonPrefab: {fileID: 6699359830296575514, guid: ffe5dd8cf41b8e140b7de326263eedd8,
+    type: 3}
+  m_cancelButtonPrefab: {fileID: 1623664846775371399, guid: e1923f16e8be62c4aaba24e33fec90d9,
+    type: 3}
+  m_buttonScale: 0.8
+  m_maxButtons: 2
   m_cancelButtonsLeftSide: 0
 --- !u!114 &2126843345544139562
 MonoBehaviour:
@@ -2337,18 +2308,6 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 4575270462561068188}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &6621722925866764208 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7249587948882191148, guid: 2829a0567e1343941861bb61e7fd3afe,
-    type: 3}
-  m_PrefabInstance: {fileID: 4575270462561068188}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &6172234345006771791
 PrefabInstance:
   m_ObjectHideFlags: 0

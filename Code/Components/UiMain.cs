@@ -28,15 +28,6 @@ namespace GuiToolkit
 		private float m_layerDistance = 0.02f;
 
 		[SerializeField]
-		private Transform m_requesterContainer;
-
-		[SerializeField]
-		private UiRequester m_requesterPrefab;
-
-		[SerializeField]
-		private UiSplashMessage m_splashMessagePrefab;
-
-		[SerializeField]
 		private KeyBindings m_keyBindings = new KeyBindings();
 
 		private Camera m_camera;
@@ -214,6 +205,19 @@ namespace GuiToolkit
 		#endregion
 
 		#region "Builtin Dialogs"
+
+		[SerializeField]
+		private Transform m_requesterContainer;
+
+		[SerializeField]
+		private UiRequester m_requesterPrefab;
+
+		[SerializeField]
+		private UiSplashMessage m_splashMessagePrefab;
+
+		[SerializeField]
+		private UiKeyBindingRequester m_keyBindingsRequesterPrefab;
+
 		public void SplashMessage(string _message, float _duration = 2)
 		{
 			UiView.InvokeHideInstant<UiSplashMessage>();
@@ -244,6 +248,14 @@ namespace GuiToolkit
 			UiRequester requester = CreateModalDialog(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _placeholderText, _inputText, _yesText, _noText);
+		}
+
+		public void KeyBindingsRequester( string _title = "Key Bindings", bool _allowOutsideTap = false, UnityAction _onOk = null,
+			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
+		{
+			UiKeyBindingRequester requester = CreateModalDialog(m_keyBindingsRequesterPrefab);
+			Debug.Assert(requester);
+			requester.Requester(_title, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
 		}
 
 		private T CreateModalDialog<T>( T _template) where T : UiViewModal

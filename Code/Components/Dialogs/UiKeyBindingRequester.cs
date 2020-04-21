@@ -10,5 +10,41 @@ namespace GuiToolkit
 {
 	public class UiKeyBindingRequester : UiRequesterBase
 	{
+		public void Requester( string _title = "Key Bindings", bool _allowOutsideTap = false, UnityAction _onOk = null, UnityAction _onCancel = null, string _okText = null, string _cancelText = null )
+		{
+			UiMain.Instance.KeyBindings.BeginChangeBindings();
+
+			Options options = new Options
+			{
+				ButtonInfos = new ButtonInfo[] 
+				{
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_okText) ? "OK" : _okText,
+						Prefab = m_okButtonPrefab,
+						OnClick = () => { OnOk( _onOk ); }
+					},
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_cancelText) ? "Cancel" : _cancelText,
+						Prefab = m_cancelButtonPrefab,
+						OnClick = () => { OnCancel( _onCancel ); }
+					}
+				},
+				AllowOutsideTap = _allowOutsideTap,
+				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
+			};
+			DoDialog(_title, options);
+		}
+
+		private void OnOk(UnityAction _onOk)
+		{
+			UiMain.Instance.KeyBindings.EndChangeBindings(true);
+			_onOk?.Invoke();
+		}
+
+		private void OnCancel(UnityAction _onCancel)
+		{
+			UiMain.Instance.KeyBindings.EndChangeBindings(false);
+			_onCancel?.Invoke();
+		}
 	}
 }
