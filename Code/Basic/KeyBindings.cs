@@ -171,6 +171,11 @@ namespace GuiToolkit
 			return KeyCode.None;
 		}
 
+		public static bool IsMouse(KeyCode _keyCode)
+		{
+			return _keyCode >= KeyCode.Mouse0 && _keyCode <= KeyCode.Mouse6;
+		}
+
 
 		public IEnumerator<KeyValuePair<string, KeyCode>> GetEnumerator()
 		{

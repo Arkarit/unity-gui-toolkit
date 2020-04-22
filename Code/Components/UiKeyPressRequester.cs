@@ -1,6 +1,8 @@
-﻿using TMPro;
+﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 namespace GuiToolkit
 {
@@ -9,7 +11,21 @@ namespace GuiToolkit
 		[SerializeField]
 		private TMP_Text m_title;
 
+		[SerializeField]
+		private UiPointerDownUpHelper m_pointerDownUpHelper;
+
 		private UnityAction<KeyCode> m_onEvent;
+
+		protected override void Awake()
+		{
+			base.Awake();
+			m_pointerDownUpHelper.OnPointerUpAction = OnPointerUp;
+		}
+
+		private void OnPointerUp()
+		{
+			Hide();
+		}
 
 		public void Requester( UnityAction<KeyCode> _onEvent, string _title = null )
 		{
@@ -24,12 +40,15 @@ namespace GuiToolkit
 			Event e = Event.current;
 
 			KeyCode k = KeyBindings.EventToKeyCode(e);
-			if (k == KeyCode.None)
+			if (m_onEvent == null || k == KeyCode.None)
 				return;
 
-			m_onEvent?.Invoke(k);
+			if (k != KeyCode.Escape)
+				m_onEvent.Invoke(k);
+
 			m_onEvent = null;
-			Hide();
+			if (!KeyBindings.IsMouse(k))
+				Hide();
 		}
 
 	}
