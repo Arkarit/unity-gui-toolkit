@@ -1384,6 +1384,7 @@ MonoBehaviour:
   m_entryPrefab: {fileID: 8830567358207246951, guid: c5485f0162df0844eb43c21e5bd5f8db,
     type: 3}
   m_entriesParent: {fileID: 5207623684863679780}
+  m_scrollRect: {fileID: 6085775796555212135}
 --- !u!1 &5762605361154868555
 GameObject:
   m_ObjectHideFlags: 0

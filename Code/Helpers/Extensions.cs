@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -277,6 +278,26 @@ namespace GuiToolkit
 				&& Mathf.Approximately(_this.g, _other.g)
 				&& Mathf.Approximately(_this.b, _other.b)
 				&& Mathf.Approximately(_this.a, _other.a);
+		}
+
+		public static void ScrollToTop(this ScrollRect _this, MonoBehaviour _coroutineHolder = null)
+		{
+			if (_coroutineHolder)
+			{
+				_coroutineHolder.StartCoroutine(ScrollToTopDelayed(_this));
+				return;
+			}
+
+			if (_this.vertical)
+				_this.verticalNormalizedPosition = 1;
+			else if (_this.horizontal)
+				_this.horizontalNormalizedPosition = 1;
+		}
+
+		private static IEnumerator ScrollToTopDelayed(ScrollRect _scrollRect)
+		{
+			yield return 0;
+			_scrollRect.ScrollToTop();
 		}
 
 	}

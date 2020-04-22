@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -12,17 +13,23 @@ namespace GuiToolkit
 		protected UiKeyBindingsEntry m_entryPrefab;
 
 		[SerializeField]
-		protected Transform m_entriesParent;
+		protected RectTransform m_entriesParent;
+
+		[SerializeField]
+		protected ScrollRect m_scrollRect;
 
 		[System.Serializable]
 		public class CEvRefreshList : UnityEvent {}
 		public static CEvRefreshList  EvRefreshList = new CEvRefreshList();
+
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
 
 			FillList();
+			if (m_scrollRect)
+				m_scrollRect.ScrollToTop(this);
 		}
 
 		protected override void OnDisable()
