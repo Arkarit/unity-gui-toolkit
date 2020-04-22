@@ -8,8 +8,15 @@ namespace GuiToolkit
 	[Serializable]
 	public class KeyBindings : System.Collections.Generic.IEnumerable<KeyValuePair<string,KeyCode>>
 	{
+		readonly int FIRST_MOUSE_KEY = (int)(object)KeyCode.Mouse0;
+
 		private Dictionary<string, KeyCode> m_keyCodeByString = new Dictionary<string, KeyCode>();
 		private Dictionary<KeyCode, string> m_stringByKeyCode = new Dictionary<KeyCode,string>();
+
+		private readonly Dictionary<KeyCode, KeyCode> m_originalKeyCodeByKeyCode = new Dictionary<KeyCode, KeyCode>();
+		private readonly Dictionary<KeyCode, KeyCode> m_keyCodeByOriginalKeyCode = new Dictionary<KeyCode, KeyCode>();
+
+		private List<KeyValuePair<string,KeyCode>> m_originalBindings;
 
 		private Dictionary<string, KeyCode> m_savedKeyCodeByString;
 		private Dictionary<KeyCode, string> m_savedStringByKeyCode;
@@ -21,14 +28,11 @@ namespace GuiToolkit
 #endif
 		public void Initialize(List<KeyValuePair<string,KeyCode>> _bindings)
 		{
-#if UNITY_EDITOR
-			if (m_initialized)
-			{
-				Debug.LogWarning("KeyBindings are initialized multiple times. That does no harm, but is it intentional?");
-			}
-#endif
+			m_originalBindings = _bindings;
 			m_keyCodeByString.Clear();
 			m_stringByKeyCode.Clear();
+			m_keyCodeByOriginalKeyCode.Clear();
+			m_originalKeyCodeByKeyCode.Clear();
 
 			foreach(var kv in _bindings)
 			{
@@ -37,8 +41,12 @@ namespace GuiToolkit
 				Debug.Assert(!m_keyCodeByString.ContainsKey(kv.Key), "Double key code entry not allowed");
 				KeyCode userBinding = (KeyCode)(object) userBindingInt;
 				m_keyCodeByString.Add(kv.Key, userBinding);
+				m_keyCodeByOriginalKeyCode.Add(kv.Value, userBinding);
 				if (kv.Value != KeyCode.None)
+				{
 					m_stringByKeyCode.Add(userBinding, kv.Key);
+					m_originalKeyCodeByKeyCode.Add(userBinding, kv.Value);
+				}
 			}
 #if UNITY_EDITOR
 			m_initialized = true;
@@ -90,6 +98,38 @@ namespace GuiToolkit
 			get => GetKeyName(_event);
 		}
 
+		public bool GetKeyDown(KeyCode _originalKeyCode)
+		{
+			KeyCode boundKeyCode = m_keyCodeByOriginalKeyCode[_originalKeyCode];
+			if (boundKeyCode == KeyCode.None)
+				return false;
+
+			if (IsMouse(boundKeyCode))
+			{
+				int keyCodeInt = (int)(object)boundKeyCode;
+				int mouseNumber = keyCodeInt - FIRST_MOUSE_KEY;
+				return Input.GetMouseButton(mouseNumber);
+			}
+
+			return Input.GetKeyDown(boundKeyCode);
+		}
+
+		public bool GetKey(KeyCode _originalKeyCode)
+		{
+			KeyCode boundKeyCode = m_keyCodeByOriginalKeyCode[_originalKeyCode];
+			if (boundKeyCode == KeyCode.None)
+				return false;
+
+			if (IsMouse(boundKeyCode))
+			{
+				int keyCodeInt = (int)(object)boundKeyCode;
+				int mouseNumber = keyCodeInt - FIRST_MOUSE_KEY;
+				return Input.GetMouseButton(mouseNumber);
+			}
+
+			return Input.GetKey(boundKeyCode);
+		}
+
 		public void BeginChangeBindings()
 		{
 			m_savedKeyCodeByString = new Dictionary<string, KeyCode>(m_keyCodeByString);
@@ -113,6 +153,16 @@ namespace GuiToolkit
 			foreach( var kv in m_keyCodeByString )
 			{
 				PlayerPrefs.SetInt(kv.Key, (int)(object)kv.Value );
+			}
+
+			m_keyCodeByOriginalKeyCode.Clear();
+			m_originalKeyCodeByKeyCode.Clear();
+			foreach( var kv in m_originalBindings)
+			{
+				KeyCode boundCode = m_keyCodeByString[kv.Key];
+				m_keyCodeByOriginalKeyCode.Add(kv.Value, boundCode);
+				if( boundCode != KeyCode.None)
+					m_originalKeyCodeByKeyCode.Add(boundCode, kv.Value);
 			}
 		}
 

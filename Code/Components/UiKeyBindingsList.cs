@@ -22,14 +22,6 @@ namespace GuiToolkit
 		{
 			base.OnEnable();
 
-UiMain.Instance.KeyBindings.Initialize(new List<KeyValuePair<string, KeyCode>>()
-{
-new KeyValuePair<string, KeyCode>("Forwards", KeyCode.W),
-new KeyValuePair<string, KeyCode>("Left", KeyCode.A),
-new KeyValuePair<string, KeyCode>("Right", KeyCode.S),
-new KeyValuePair<string, KeyCode>("Backwards", KeyCode.D)
-});
-
 			FillList();
 		}
 
