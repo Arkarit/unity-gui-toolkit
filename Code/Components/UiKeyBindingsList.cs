@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace GuiToolkit
 {
@@ -12,6 +13,10 @@ namespace GuiToolkit
 
 		[SerializeField]
 		protected Transform m_entriesParent;
+
+		[System.Serializable]
+		public class CEvRefreshList : UnityEvent {}
+		public static CEvRefreshList  EvRefreshList = new CEvRefreshList();
 
 		protected override void OnEnable()
 		{
@@ -32,6 +37,18 @@ new KeyValuePair<string, KeyCode>("Backwards", KeyCode.D)
 		{
 			ClearList();
 			base.OnDisable();
+		}
+
+		protected override void AddEventListeners()
+		{
+			base.AddEventListeners();
+			EvRefreshList.AddListener(FillList);
+		}
+
+		protected override void RemoveEventListeners()
+		{
+			EvRefreshList.RemoveListener(FillList);
+			base.RemoveEventListeners();
 		}
 
 		private void ClearList()

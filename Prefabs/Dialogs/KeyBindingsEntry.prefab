@@ -81,8 +81,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ae2807b638009a4582c40d35b912b25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_keyName: {fileID: 4910772249359152876}
-  m_keyCode: {fileID: 4528938657326049243}
+  m_txtKeyName: {fileID: 4910772249359152876}
+  m_txtKeyCode: {fileID: 4528938657326049243}
   m_button: {fileID: 9219026571677275794}
 --- !u!114 &5628473251268648546
 MonoBehaviour:

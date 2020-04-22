@@ -8,10 +8,10 @@ namespace GuiToolkit
 	public class UiKeyBindingsEntry : UiThing
 	{
 		[SerializeField]
-		protected TMP_Text m_keyName;
+		protected TMP_Text m_txtKeyName;
 
 		[SerializeField]
-		protected TMP_Text m_keyCode;
+		protected TMP_Text m_txtKeyCode;
 
 		[SerializeField]
 		protected UiButton m_button;
@@ -36,13 +36,18 @@ namespace GuiToolkit
 		private void OnKeyPressed( KeyCode _keyCode )
 		{
 			if (_keyCode != KeyCode.None)
-				m_keyCode.text = _keyCode.ToString();
+			{
+				m_txtKeyCode.text = _keyCode.ToString();
+				UiMain.Instance.KeyBindings.ChangeBinding(m_txtKeyName.text, _keyCode);
+				UiKeyBindingsList.EvRefreshList.Invoke();
+			}
 		}
 
-		public void Initialize( string _keyName, KeyCode _keyCode)
+		public void Initialize( string _keyName, KeyCode _keyCode )
 		{
-			m_keyName.text = _keyName;
-			m_keyCode.text = _keyCode.ToString();
+			m_txtKeyName.text = _keyName;
+			m_txtKeyCode.text = _keyCode.ToString();
+			m_txtKeyCode.alpha = _keyCode == KeyCode.None ? 0.4f : 1.0f;
 		}
 
 		public void Initialize( KeyValuePair<string, KeyCode> _kv)
