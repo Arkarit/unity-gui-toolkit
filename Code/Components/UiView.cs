@@ -29,6 +29,14 @@ namespace GuiToolkit
 			}
 		}
 
+		public EUiLayerDefinition Layer => m_layer;
+
+		public override void Show( bool _instant = false, Action _onFinish = null )
+		{
+			Init();
+			base.Show(_instant, _onFinish);
+		}
+
 		public virtual void NavigationPush(bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null)
 		{
 			UiMain.Instance.NavigationPush(this, _instant, _onFinishHide, _onFinishShow);
@@ -49,22 +57,23 @@ namespace GuiToolkit
 			((IShowHideViewAnimation)m_showHideAnimation).SetStackAnimationType(_stackAnimationType, _backwards, _animationCurve);
 		}
 
-		public void Init( RenderMode _renderMode, Camera _camera )
+		public override void Init()
 		{
-			Init();
+			base.Init();
+
 			UiPanel[] panels = GetComponentsInChildren<UiPanel>();
 			foreach (var panel in panels)
-				panel.Init();
+				if (panel != this)
+					panel.Init();
 
-			Canvas.renderMode = _renderMode;
-			Canvas.worldCamera = _camera;
+			Canvas.renderMode = UiMain.Instance.RenderMode;
+			Canvas.worldCamera = UiMain.Instance.Camera;
 
 			Debug.Assert(UiMain.Instance != null);
 			if (UiMain.Instance == null)
 				return;
 
-			Canvas.planeDistance = UiMain.Instance.LayerDistance * (float) m_layer;
-
+			Canvas.planeDistance = UiMain.Instance.GetTopmostPlaneDistance(this);
 		}
 
 		public void OnValidate()

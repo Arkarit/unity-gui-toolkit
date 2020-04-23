@@ -34,9 +34,12 @@ namespace GuiToolkit
 		private readonly Dictionary<string, UiView> m_scenes = new Dictionary<string, UiView>();
 
 
-		public float LayerDistance {get { return m_layerDistance; }}
+		public float LayerDistance => m_layerDistance;
+		public RenderMode RenderMode => m_renderMode;
+		public Camera Camera => m_camera;
 
 		public static UiMain Instance { get; private set; }
+
 
 		#region "Scene Loading"
 		public void LoadScene(string _sceneName, bool _show = true, bool _instant = false, Action<UiView> _whenLoaded = null)
@@ -109,7 +112,6 @@ namespace GuiToolkit
 
 						view.gameObject.name = _name;
 						view.transform.SetParent(transform, false);
-						view.Init(m_renderMode, m_camera);
 						SetDefaultSceneVisibilities(root);
 						m_scenes[_name] = view;
 
@@ -226,7 +228,6 @@ namespace GuiToolkit
 			UiView.InvokeHideInstant<UiSplashMessage>();
 			UiSplashMessage message = m_splashMessagePrefab.PoolInstantiate();
 			message.transform.SetParent(transform, false);
-			message.Init(m_renderMode, m_camera);
 			message.Show(_message, _duration);
 		}
 
@@ -286,7 +287,6 @@ namespace GuiToolkit
 
 			T result = _template.PoolInstantiate();
 			result.transform.SetParent(m_requesterContainer, false);
-			result.Init(m_renderMode, m_camera);
 
 			// If another dialog was found, we place the new modal dialog above the highest dialog
 			if (foundOtherModalDialog)
@@ -300,6 +300,30 @@ namespace GuiToolkit
 		#endregion
 
 		#region "General"
+
+		public float GetTopmostPlaneDistance( UiView _view)
+		{
+			bool foundOtherDialog = false;
+			float lowestLayer = 100000f;
+
+			UiView[] views = GetComponentsInChildren<UiView>();
+			foreach (var view in views)
+			{
+				if (view == _view || view.Layer != _view.Layer)
+					continue;
+
+				foundOtherDialog = true;
+				if (view.Canvas.planeDistance < lowestLayer)
+					lowestLayer = view.Canvas.planeDistance;
+			}
+
+			// If another dialog was found, we place the new modal dialog above the highest dialog
+			if (foundOtherDialog)
+				return lowestLayer - LayerDistance;
+
+			return LayerDistance * (float) _view.Layer;
+		}
+
 		public void Quit()
 		{
 #if UNITY_EDITOR
@@ -361,19 +385,6 @@ namespace GuiToolkit
 			Instance = null;
 		}
 
-		protected void OnTransformChildrenChanged()
-		{
-			SetOrder();
-		}
-
-
-		private void SetOrder()
-		{
-			UiView[] views = GetComponentsInChildren<UiView>(true);
-			foreach (var view in views)
-				view.Init(m_renderMode, GetComponent<Camera>());
-		}
-
 		private bool CheckSceneValid(string _sceneName)
 		{
 			if (!m_scenes.ContainsKey(_sceneName))
@@ -420,6 +431,13 @@ namespace GuiToolkit
 					}
 				}
 			}
+		}
+
+		private void SetOrder()
+		{
+			UiView[] views = GetComponentsInChildren<UiView>(true);
+			foreach (var view in views)
+				view.Init();
 		}
 
 		private void OnValidate()
