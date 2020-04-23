@@ -39,7 +39,7 @@ namespace GuiToolkit
 					int lastIdx = poolEntry.m_instances.Count-1;
 					result = poolEntry.m_instances[lastIdx];
 					poolEntry.m_instances.RemoveAt(lastIdx);
-					result.transform.parent = null;
+					result.transform.SetParent(null, false);
 					result.SetActive(true);
 					if (!m_poolEntryByGameObject.ContainsKey(result))
 						m_poolEntryByGameObject.Add(result, poolEntry);
