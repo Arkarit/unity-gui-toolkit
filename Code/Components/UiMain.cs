@@ -233,7 +233,7 @@ namespace GuiToolkit
 
 		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null )
 		{
-			UiRequester requester = CreateModalDialog(m_requesterPrefab);
+			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.OkRequester(_title, _text, _onOk, _okText);
 		}
@@ -241,7 +241,7 @@ namespace GuiToolkit
 		public void YesNoRequester( string _title, string _text, bool _allowOutsideTap, UnityAction _onOk,
 			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
 		{
-			UiRequester requester = CreateModalDialog(m_requesterPrefab);
+			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.YesNoRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
 		}
@@ -249,7 +249,7 @@ namespace GuiToolkit
 		public void OkCancelInputRequester( string _title, string _text, bool _allowOutsideTap,UnityAction<string> _onOk, UnityAction _onCancel = null, 
 			 string _placeholderText = null, string _inputText = null, string _yesText = null, string _noText = null )
 		{
-			UiRequester requester = CreateModalDialog(m_requesterPrefab);
+			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _placeholderText, _inputText, _yesText, _noText);
 		}
@@ -257,44 +257,22 @@ namespace GuiToolkit
 		public void KeyBindingsRequester( string _title = "Key Bindings", bool _allowOutsideTap = false, UnityAction _onOk = null,
 			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
 		{
-			UiKeyBindingRequester requester = CreateModalDialog(m_keyBindingsRequesterPrefab);
+			UiKeyBindingRequester requester = CreateView(m_keyBindingsRequesterPrefab);
 			Debug.Assert(requester);
 			requester.Requester(_title, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
 		}
 
 		public void KeyPressRequester( UnityAction<KeyCode> _onEvent, string _title = null )
 		{
-			UiKeyPressRequester requester = CreateModalDialog(m_keyPressRequester);
+			UiKeyPressRequester requester = CreateView(m_keyPressRequester);
 			Debug.Assert(requester);
 			requester.Requester(_onEvent, _title);
 		}
 
-		private T CreateModalDialog<T>( T _template) where T : UiViewModal
+		private T CreateView<T>(T _template) where T : UiView
 		{
-			bool foundOtherModalDialog = false;
-			float lowestLayer = 100000f;
-
-			foreach (var kv in m_scenes)
-			{
-				UiView view = kv.Value;
-				if (!(view is UiViewModal) )
-					continue;
-
-				foundOtherModalDialog = true;
-				if (view.Canvas.planeDistance < lowestLayer)
-					lowestLayer = view.Canvas.planeDistance;
-			}
-
 			T result = _template.PoolInstantiate();
 			result.transform.SetParent(m_requesterContainer, false);
-
-			// If another dialog was found, we place the new modal dialog above the highest dialog
-			if (foundOtherModalDialog)
-			{
-				float newLayer = lowestLayer - LayerDistance;
-				result.Canvas.planeDistance = newLayer;
-			}
-
 			return result;
 		}
 		#endregion
