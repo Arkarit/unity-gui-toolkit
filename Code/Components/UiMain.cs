@@ -155,7 +155,7 @@ namespace GuiToolkit
 		[SerializeField]
 		private AnimationCurve m_stackPushedOutCurve;
 
-		public void Push( UiView _uiView, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
+		public void NavigationPush( UiView _uiView, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
 		{
 			if (m_stack.Count > 0)
 			{
@@ -168,7 +168,7 @@ namespace GuiToolkit
 			m_stack.Push(_uiView);
 		}
 
-		public void Pop( int _skip = 0, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
+		public void NavigationPop( int _skip = 0, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
 		{
 			bool stackValid = m_stack.Count >= 1 + _skip;
 			if (!stackValid)

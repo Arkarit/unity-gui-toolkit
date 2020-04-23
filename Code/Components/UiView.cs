@@ -29,15 +29,15 @@ namespace GuiToolkit
 			}
 		}
 
-		public virtual void Push(bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null)
+		public virtual void NavigationPush(bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null)
 		{
-			UiMain.Instance.Push(this, _instant, _onFinishHide, _onFinishShow);
+			UiMain.Instance.NavigationPush(this, _instant, _onFinishHide, _onFinishShow);
 		}
 
-		public virtual void Pop(bool _instant = false, int _skip = 0, Action _onFinishHide = null, Action _onFinishShow = null)
+		public virtual void NavigationPop(bool _instant = false, int _skip = 0, Action _onFinishHide = null, Action _onFinishShow = null)
 		{
 			Debug.Assert(UiMain.Instance.Peek() == this, "Attempting to pop wrong dialog");
-			UiMain.Instance.Pop(_skip, _instant, _onFinishHide, _onFinishShow);
+			UiMain.Instance.NavigationPop(_skip, _instant, _onFinishHide, _onFinishShow);
 		}
 
 		public void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards, AnimationCurve _animationCurve )

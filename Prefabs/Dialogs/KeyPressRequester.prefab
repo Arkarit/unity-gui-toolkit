@@ -55,7 +55,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_defaultSceneVisibility: 1
-  m_layer: 400
+  m_layer: 600
   m_clickCatcher: {fileID: 0}
   m_title: {fileID: 7910926440600946618}
   m_pointerDownUpHelper: {fileID: 1549132000382412211}
