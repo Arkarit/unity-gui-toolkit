@@ -10,6 +10,15 @@ namespace GuiToolkit
 {
 	public class UiKeyBindingRequester : UiRequesterBase
 	{
+		[SerializeField]
+		protected UiButton m_restoreDefaultsButton;
+
+		protected override void Awake()
+		{
+			base.Awake();
+			m_restoreDefaultsButton.OnClick.AddListener(OnRestoreDefaultButton);
+		}
+
 		public void Requester( string _title = "Key Bindings", bool _allowOutsideTap = false, UnityAction _onOk = null, UnityAction _onCancel = null, string _okText = null, string _cancelText = null )
 		{
 			UiMain.Instance.KeyBindings.BeginChangeBindings();
@@ -46,5 +55,12 @@ namespace GuiToolkit
 			UiMain.Instance.KeyBindings.EndChangeBindings(false);
 			_onCancel?.Invoke();
 		}
+
+		private void OnRestoreDefaultButton()
+		{
+			UiMain.Instance.KeyBindings.RestoreDefaults();
+			UiKeyBindingsList.EvRefreshList.Invoke();
+		}
+
 	}
 }

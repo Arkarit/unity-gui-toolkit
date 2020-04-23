@@ -53,6 +53,14 @@ namespace GuiToolkit
 #endif
 		}
 
+		public void RestoreDefaults()
+		{
+			CheckInitialized();
+
+			foreach (var kv in m_originalBindings)
+				ChangeBinding(kv.Key, kv.Value);
+		}
+
 		public KeyCode GetKeyCode(string _key)
 		{
 			CheckInitialized();
