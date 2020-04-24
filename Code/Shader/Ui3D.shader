@@ -3,6 +3,7 @@
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
+        _ColorSelfIllumination ("Color Self illumination", Color) = (0,0,0,0)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
@@ -16,7 +17,7 @@
 
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard vertex:vert
+        #pragma surface surf Standard vertex:vert alpha:blend
 
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
@@ -31,6 +32,7 @@
         half _Glossiness;
         half _Metallic;
         fixed4 _Color;
+		fixed4 _ColorSelfIllumination;
 		float4 _Scale;
 		float4 _Offset;
 
@@ -54,6 +56,7 @@
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
             o.Alpha = c.a;
+			o.Emission = _ColorSelfIllumination.rgb * _ColorSelfIllumination.a;
         }
         ENDCG
     }
