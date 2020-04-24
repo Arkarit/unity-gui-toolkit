@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -13,17 +14,12 @@ namespace GuiToolkit
 	/// It is done via a cheap vertex shader.
 	/// In that shader, the mesh is transformed in a way that it matches the RectTransform bounds perfectly.
 	/// 
-	/// Caveat: This does NOT affect camera frustum culling, leading to the object to disappear "randomly" at screen borders.
-	/// The mesh may appear big on the screen, but logically it can be still very small to the camera, and also has
-	/// a different offset. So it disappears when its original borders are not visible to the camera anymore - although
-	/// the mesh itself may be still visible on the screen.
-	/// 
 	/// </summary>
 	[RequireComponent(typeof(MeshRenderer))]
 	[RequireComponent(typeof(MeshFilter))]
 	[RequireComponent(typeof(RectTransform))]
 	[ExecuteAlways]
-	public class Ui3DObject : UiThing, IExcludeFromFrustumCulling
+	public class Ui3DObject : UiThing
 	{
 		public enum EZSize
 		{
@@ -35,6 +31,8 @@ namespace GuiToolkit
 
 		[SerializeField]
 		private EZSize m_zSize;
+		[SerializeField]
+		private Bounds m_originalBounds;
 
 		private static readonly int s_propOffset = Shader.PropertyToID("_Offset");
 		private static readonly int s_propScale = Shader.PropertyToID("_Scale");
@@ -51,19 +49,19 @@ namespace GuiToolkit
 			m_rectTransform = GetComponent<RectTransform>();
 			m_material = new Material(m_meshRenderer.sharedMaterial);
 			m_meshRenderer.sharedMaterial = m_material;
+			m_originalBounds = m_meshFilter.mesh.bounds;
 
 			base.Awake();
 		}
 
 		protected override void OnEnable()
 		{
-			UiMain.Instance.RegisterExcludeFromFrustumCulling(this);
 			SetShaderProperties();
 		}
 
 		protected override void OnDisable()
 		{
-			UiMain.Instance.UnregisterExcludeFromFrustumCulling(this);
+			m_meshFilter.mesh.bounds = m_originalBounds;
 			base.OnDisable();
 		}
 
@@ -75,11 +73,10 @@ namespace GuiToolkit
 
 		private void SetShaderProperties()
 		{
-			Bounds bounds = m_meshFilter.sharedMesh.bounds;
 			Rect rect = m_rectTransform.rect;
-			Vector4 scale = Vector4.one;
-			scale.x = rect.width / bounds.size.x;
-			scale.y = rect.height / bounds.size.y;
+			Vector3 scale = Vector4.one;
+			scale.x = rect.width / m_originalBounds.size.x;
+			scale.y = rect.height / m_originalBounds.size.y;
 			switch (m_zSize)
 			{
 				case EZSize.Untouched:
@@ -98,17 +95,37 @@ namespace GuiToolkit
 					break;
 			}
 			m_material.SetVector( s_propScale, scale );
-			Vector4 offset = -bounds.min;
+			Vector3 offset = -m_originalBounds.min;
 			offset.Scale( scale );
 			offset.x += rect.min.x;
 			offset.y += rect.min.y;
 			offset.z = 0;
 			m_material.SetVector( s_propOffset, offset);
+
+			Bounds bounds = m_originalBounds;
+			if (bounds.extents == Vector3.zero)
+				return;
+
+			Vector3 extents = bounds.extents;
+			extents.Scale(scale);
+			bounds.extents = extents;
+			bounds.center += offset;
+			m_meshFilter.mesh.bounds = bounds;
+			//Debug.Log($"Scale:{scale} Offset:{offset} m_originalBounds:{m_originalBounds} Bounds:{bounds}");
 		}
 
-		public Mesh GetMesh()
+		private void OnValidate()
 		{
-			return m_meshFilter.sharedMesh;
+			m_originalBounds = RecalculateBounds();
+		}
+
+		private Bounds RecalculateBounds()
+		{
+			Bounds result = new Bounds();
+			var vertices = m_meshFilter.sharedMesh.vertices;
+			for (int i=0; i<vertices.Length; i++)
+				result.Encapsulate(vertices[i]);
+			return result;
 		}
 	}
 }
