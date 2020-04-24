@@ -61,6 +61,11 @@ namespace GuiToolkit
 		void SetDefaultSceneVisibility();
 	}
 
+	public interface IExcludeFromFrustumCulling
+	{
+		Mesh GetMesh();
+	}
+
 	public static class Constants
 	{
 		public const int INVALID = -1;

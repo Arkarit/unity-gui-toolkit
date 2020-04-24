@@ -69,10 +69,6 @@ namespace GuiToolkit
 			Canvas.renderMode = UiMain.Instance.RenderMode;
 			Canvas.worldCamera = UiMain.Instance.Camera;
 
-			Debug.Assert(UiMain.Instance != null);
-			if (UiMain.Instance == null)
-				return;
-
 			Canvas.planeDistance = UiMain.Instance.GetTopmostPlaneDistance(this);
 		}
 

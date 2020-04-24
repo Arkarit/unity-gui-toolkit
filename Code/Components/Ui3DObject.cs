@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace GuiToolkit
 {
@@ -22,7 +23,7 @@ namespace GuiToolkit
 	[RequireComponent(typeof(MeshFilter))]
 	[RequireComponent(typeof(RectTransform))]
 	[ExecuteAlways]
-	public class Ui3DObject : UiThing
+	public class Ui3DObject : UiThing, IExcludeFromFrustumCulling
 	{
 		public enum EZSize
 		{
@@ -56,8 +57,14 @@ namespace GuiToolkit
 
 		protected override void OnEnable()
 		{
-			base.OnEnable();
+			UiMain.Instance.RegisterExcludeFromFrustumCulling(this);
 			SetShaderProperties();
+		}
+
+		protected override void OnDisable()
+		{
+			UiMain.Instance.UnregisterExcludeFromFrustumCulling(this);
+			base.OnDisable();
 		}
 
 		protected override void Update()
@@ -99,5 +106,9 @@ namespace GuiToolkit
 			m_material.SetVector( s_propOffset, offset);
 		}
 
+		public Mesh GetMesh()
+		{
+			return m_meshFilter.sharedMesh;
+		}
 	}
 }
