@@ -9,6 +9,7 @@
         _Metallic ("Metallic", Range(0,1)) = 0.0
 		_Offset ("Offset", Vector) = (0,0,0,0)
 		_Scale ("Scale", Vector) = (1,1,1,1)
+		[Toggle(FlipNormals)] _FlipNormals("Flip Normals", Float) = 0
     }
     SubShader
     {
@@ -21,6 +22,8 @@
 
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
+
+		#pragma multi_compile __ FlipNormals
 
         sampler2D _MainTex;
 
@@ -46,6 +49,9 @@
 		void vert (inout appdata_full v) {
 			v.vertex *= _Scale;
 			v.vertex += _Offset;
+			#ifdef FlipNormals
+				v.normal = -v.normal;
+			#endif
 		}
 		void surf (Input IN, inout SurfaceOutputStandard o)
         {
