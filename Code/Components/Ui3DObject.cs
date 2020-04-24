@@ -31,9 +31,6 @@ namespace GuiToolkit
 
 		[SerializeField]
 		private EZSize m_zSize;
-		[SerializeField]
-		private Bounds m_originalBounds;
-
 		private static readonly int s_propOffset = Shader.PropertyToID("_Offset");
 		private static readonly int s_propScale = Shader.PropertyToID("_Scale");
 
@@ -42,14 +39,12 @@ namespace GuiToolkit
 		private RectTransform m_rectTransform;
 		private Material m_material;
 
+		private Bounds m_originalBounds;
+
+
 		protected override void Awake()
 		{
-			m_meshFilter = GetComponent<MeshFilter>();
-			m_meshRenderer = GetComponent<MeshRenderer>();
-			m_rectTransform = GetComponent<RectTransform>();
-			m_material = new Material(m_meshRenderer.sharedMaterial);
-			m_meshRenderer.sharedMaterial = m_material;
-			m_originalBounds = m_meshFilter.mesh.bounds;
+			Init();
 
 			base.Awake();
 		}
@@ -61,7 +56,7 @@ namespace GuiToolkit
 
 		protected override void OnDisable()
 		{
-			m_meshFilter.mesh.bounds = m_originalBounds;
+			m_meshFilter.sharedMesh.bounds = m_originalBounds;
 			base.OnDisable();
 		}
 
@@ -69,6 +64,16 @@ namespace GuiToolkit
 		{
 			base.Update();
 			SetShaderProperties();
+		}
+
+		private void Init()
+		{
+			m_meshFilter = GetComponent<MeshFilter>();
+			m_meshRenderer = GetComponent<MeshRenderer>();
+			m_rectTransform = GetComponent<RectTransform>();
+			m_material = new Material(m_meshRenderer.sharedMaterial);
+			m_meshRenderer.sharedMaterial = m_material;
+			m_originalBounds = RecalculateBounds();
 		}
 
 		private void SetShaderProperties()
@@ -110,13 +115,14 @@ namespace GuiToolkit
 			extents.Scale(scale);
 			bounds.extents = extents;
 			bounds.center += offset;
-			m_meshFilter.mesh.bounds = bounds;
+			if (m_meshFilter.sharedMesh)
+				m_meshFilter.sharedMesh.bounds = bounds;
 			//Debug.Log($"Scale:{scale} Offset:{offset} m_originalBounds:{m_originalBounds} Bounds:{bounds}");
 		}
 
 		private void OnValidate()
 		{
-			m_originalBounds = RecalculateBounds();
+			Init();
 		}
 
 		private Bounds RecalculateBounds()
