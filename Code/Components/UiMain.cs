@@ -38,7 +38,20 @@ namespace GuiToolkit
 		public RenderMode RenderMode => m_renderMode;
 		public Camera Camera => m_camera;
 
-		public static UiMain Instance { get; private set; }
+		private static UiMain m_instance;
+		public static UiMain Instance
+		{
+			get
+			{
+				if (m_instance == null)
+					m_instance = UnityEngine.Object.FindObjectOfType<UiMain>();
+				return m_instance;
+			}
+			private set
+			{
+				m_instance = value;
+			}
+		}
 
 
 		#region "Scene Loading"
@@ -336,8 +349,6 @@ namespace GuiToolkit
 
 			if (Application.isPlaying)
 				DontDestroyOnLoad(gameObject);
-
-			Instance = this;
 		}
 
 		protected virtual void Start()
@@ -427,6 +438,45 @@ namespace GuiToolkit
 #endif
 		#endregion
 
+		#region "Exclude from frustum culling"
+		private readonly List<IExcludeFromFrustumCulling> m_excludedFromFrustumCulling = new List<IExcludeFromFrustumCulling>();
+		private readonly List<Bounds> m_excludedBounds = new List<Bounds>();
+		private const float LARGE_NUMBER = 999999999.0f;
+		private static readonly Bounds LARGE_BOUNDS = new Bounds(Vector3.zero, new Vector3(LARGE_NUMBER, LARGE_NUMBER, LARGE_NUMBER) );
+
+		public void RegisterExcludeFrustumCulling(IExcludeFromFrustumCulling _toRegister)
+		{
+			m_excludedFromFrustumCulling.Add(_toRegister);
+			m_excludedBounds.Add(new Bounds());
+		}
+
+		public void UnregisterExcludeFrustumCulling(IExcludeFromFrustumCulling _toRemove)
+		{
+			int idx = m_excludedFromFrustumCulling.IndexOf(_toRemove);
+			if (idx == -1)
+			{
+				Debug.LogError($"Could not find {_toRemove} in list of frustum culling exclusion list");
+				return;
+			}
+			m_excludedFromFrustumCulling.RemoveAt(idx);
+			m_excludedBounds.RemoveAt(idx);
+		}
+
+		private void OnPreCull()
+		{
+			for (int i=0; i<m_excludedFromFrustumCulling.Count; i++)
+			{
+				m_excludedBounds[i] = m_excludedFromFrustumCulling[i].GetMesh().bounds;
+				m_excludedFromFrustumCulling[i].GetMesh().bounds = LARGE_BOUNDS;
+			}
+		}
+
+		private void OnPostRender()
+		{
+			for (int i=0; i<m_excludedFromFrustumCulling.Count; i++)
+				m_excludedFromFrustumCulling[i].GetMesh().bounds = m_excludedBounds[i];
+		}
+		#endregion
 	}
 
 }
