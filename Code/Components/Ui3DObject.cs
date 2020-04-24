@@ -50,14 +50,16 @@ namespace GuiToolkit
 
 		private void SetShader()
 		{
-			Mesh mesh = m_meshFilter.sharedMesh;
-			Bounds bounds = mesh.bounds;
+			Bounds bounds = m_meshFilter.sharedMesh.bounds;
+			Rect rect = m_rectTransform.rect;
 			Vector4 scale = Vector4.one;
-			scale.x = m_rectTransform.sizeDelta.x / bounds.size.x;
-			scale.y = m_rectTransform.sizeDelta.y / bounds.size.y;
+			scale.x = rect.width / bounds.size.x;
+			scale.y = rect.height / bounds.size.y;
 			m_material.SetVector( s_propScale, scale );
 			Vector4 offset = -bounds.min;
 			offset.Scale( scale );
+			offset.x += rect.min.x;
+			offset.y += rect.min.y;
 			m_material.SetVector( s_propOffset, offset);
 		}
 
