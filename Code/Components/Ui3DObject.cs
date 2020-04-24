@@ -11,71 +11,54 @@ namespace GuiToolkit
 	/// The support for 3D in the UI however is very bad.
 	/// 
 	/// </summary>
+	[RequireComponent(typeof(MeshRenderer))]
 	[RequireComponent(typeof(MeshFilter))]
 	[RequireComponent(typeof(RectTransform))]
 	[ExecuteAlways]
 	public class Ui3DObject : UiThing
 	{
+		private static readonly int s_propOffset = Shader.PropertyToID("_Offset");
+		private static readonly int s_propScale = Shader.PropertyToID("_Scale");
+
 		private MeshFilter m_meshFilter;
 		private MeshRenderer m_meshRenderer;
 		private RectTransform m_rectTransform;
-		private Mesh m_originalMesh;
-		private Mesh m_clonedMesh;
+		private Material m_material;
 
 		protected override void Awake()
 		{
 			m_meshFilter = GetComponent<MeshFilter>();
 			m_meshRenderer = GetComponent<MeshRenderer>();
 			m_rectTransform = GetComponent<RectTransform>();
-			m_originalMesh = m_meshFilter.sharedMesh;
-			m_clonedMesh = Instantiate(m_originalMesh);
-//			m_meshRenderer.Me
+			m_material = new Material(m_meshRenderer.sharedMaterial);
+			m_meshRenderer.sharedMaterial = m_material;
 
 			base.Awake();
 		}
 
 		protected override void OnEnable()
 		{
-			ModifyMesh();
 			base.OnEnable();
+			SetShader();
 		}
 
 		protected override void Update()
 		{
 			base.Update();
-			ModifyMesh();
+			SetShader();
 		}
 
-		private void ModifyMesh()
+		private void SetShader()
 		{
-			Bounds originalBounds = m_originalMesh.bounds;
-			var vertices = m_originalMesh.vertices;
-			for( int i=0; i<vertices.Length; i++ )
-			{
-				Vector3 vertex = vertices[i];
-				vertex -= originalBounds.min;
-				Vector3 vertexNormalized = Normalize(vertex, originalBounds.extents);
-				vertexNormalized.x *= m_rectTransform.sizeDelta.x;
-				vertexNormalized.y *= m_rectTransform.sizeDelta.y;
-				vertex = Denormalize(vertexNormalized, originalBounds.extents);
-				vertex += originalBounds.min;
-				vertices[i] = vertex;
-			}
-			m_meshFilter.mesh.vertices = vertices;
-		}
-
-		private Vector3 Normalize(Vector3 _vec, Vector3 _extents)
-		{
-			Vector3 result;
-			result.x = _vec.x / _extents.x;
-			result.y = _vec.y / _extents.y;
-			result.z = _vec.z / _extents.z;
-			return result;
-		}
-
-		private Vector3 Denormalize(Vector3 _normalized, Vector3 _extents)
-		{
-			return Vector3.Scale(_normalized, _extents);
+			Mesh mesh = m_meshFilter.sharedMesh;
+			Bounds bounds = mesh.bounds;
+			Vector4 scale = Vector4.one;
+			scale.x = m_rectTransform.sizeDelta.x / bounds.size.x;
+			scale.y = m_rectTransform.sizeDelta.y / bounds.size.y;
+			m_material.SetVector( s_propScale, scale );
+			Vector4 offset = -bounds.min;
+			offset.Scale( scale );
+			m_material.SetVector( s_propOffset, offset);
 		}
 
 	}
