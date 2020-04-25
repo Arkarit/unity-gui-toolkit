@@ -356,7 +356,6 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 			CheckSceneSetup();
 #endif
-			SetOrder(); 
 			SetDefaultSceneVisibilities(gameObject);
 		}
 
