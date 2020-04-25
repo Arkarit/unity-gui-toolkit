@@ -17,13 +17,14 @@ namespace GuiToolkit
 		public UiSimpleAnimation m_animationOnReachMax;
 		public UiSimpleAnimation m_animationOnReachMin;
 
+		private static readonly string s_formatString = "{0} / {1}";
 		private static StringBuilder s_stringBuilder = new StringBuilder(80);
 
 		protected abstract void DisplayProgress(float _progressNormalized);
 
 		private float m_lastNorm = 0;
 
-		public void SetProgress(float _current, float _max, float _duration = 0, string _textPrefix = null)
+		public void SetProgress(float _current, float _max, string _formatString = null, float _duration = 0, string _textPrefix = null)
 		{
 			float norm = Mathf.Clamp01( _current / _max);
 
@@ -34,7 +35,11 @@ namespace GuiToolkit
 				if (!string.IsNullOrEmpty(_textPrefix))
 					s_stringBuilder.Append(_textPrefix);
 
-				s_stringBuilder.AppendFormat("{0} / {1}", _current, _max);
+				if (string.IsNullOrEmpty(_formatString))
+					s_stringBuilder.AppendFormat(s_formatString, _current, _max);
+				else
+					s_stringBuilder.AppendFormat(_formatString, _current, _max);
+
 				//TODO: Number counter tween
 				m_text.text = s_stringBuilder.ToString();
 			}
