@@ -34,6 +34,12 @@ namespace GuiToolkit
 
 		private bool m_defaultSceneVisibilityApplied;
 
+		protected override void Awake()
+		{
+			base.Awake();
+			InitAnimation();
+		}
+
 		protected override void AddEventListeners()
 		{
 			base.AddEventListeners();
@@ -188,12 +194,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public virtual void Init()
-		{
-			InitAnimation();
-		}
-
-		protected void InitAnimation()
+		private void InitAnimation()
 		{
 			var components = GetComponents<MonoBehaviour>();
 			foreach (var component in components)
@@ -205,8 +206,6 @@ namespace GuiToolkit
 				}
 			}
 		}
-
-
 
 	}
 }

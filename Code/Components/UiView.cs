@@ -31,6 +31,12 @@ namespace GuiToolkit
 
 		public EUiLayerDefinition Layer => m_layer;
 
+		protected override void Awake()
+		{
+			base.Awake();
+			Init();
+		}
+
 		public override void Show( bool _instant = false, Action _onFinish = null )
 		{
 			Init();
@@ -50,31 +56,17 @@ namespace GuiToolkit
 
 		public void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards, AnimationCurve _animationCurve )
 		{
-			InitAnimation();
 			if (m_showHideAnimation == null || !(m_showHideAnimation is IShowHideViewAnimation))
 				return;
 
 			((IShowHideViewAnimation)m_showHideAnimation).SetStackAnimationType(_stackAnimationType, _backwards, _animationCurve);
 		}
 
-		public override void Init()
+		private void Init()
 		{
-			base.Init();
-
-			UiPanel[] panels = GetComponentsInChildren<UiPanel>();
-			foreach (var panel in panels)
-				if (panel != this)
-					panel.Init();
-
 			Canvas.renderMode = UiMain.Instance.RenderMode;
 			Canvas.worldCamera = UiMain.Instance.Camera;
-
 			Canvas.planeDistance = UiMain.Instance.GetTopmostPlaneDistance(this);
-		}
-
-		public void OnValidate()
-		{
-			InitAnimation();
 		}
 
 	}

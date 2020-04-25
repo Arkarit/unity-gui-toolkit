@@ -421,17 +421,9 @@ namespace GuiToolkit
 			}
 		}
 
-		private void SetOrder()
-		{
-			UiView[] views = GetComponentsInChildren<UiView>(true);
-			foreach (var view in views)
-				view.Init();
-		}
-
 		private void OnValidate()
 		{
 			Instance = this;
-			SetOrder();
 		}
 
 #endif
