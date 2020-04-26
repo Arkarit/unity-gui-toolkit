@@ -35,6 +35,8 @@ namespace GuiToolkit
 		private bool m_defaultSceneVisibilityApplied;
 		private bool m_animationInitialized;
 
+		public bool Visible { get; private set; }
+
 		protected override void Awake()
 		{
 			base.Awake();
@@ -113,6 +115,10 @@ namespace GuiToolkit
 
 			gameObject.SetActive(true);
 
+			if (Visible)
+				return;
+			Visible = true;
+
 			if (_instant)
 			{
 				if (SimpleShowHideAnimation != null)
@@ -129,6 +135,10 @@ namespace GuiToolkit
 		{
 			if (SimpleShowHideAnimation == null)
 				_instant = true;
+
+			if (!Visible)
+				return;
+			Visible = false;
 
 			if (_instant)
 			{
@@ -148,6 +158,14 @@ namespace GuiToolkit
 					_onFinish.Invoke(); 
 				DestroyIfNecessary();
 			});
+		}
+
+		public void SetVisible(bool _visible, bool _instant = false, Action _onFinish = null)
+		{
+			if (_visible)
+				Show(_instant, _onFinish);
+			else
+				Hide(_instant, _onFinish);
 		}
 
 		private void DestroyIfNecessary()
