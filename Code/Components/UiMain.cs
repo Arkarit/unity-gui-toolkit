@@ -421,9 +421,17 @@ namespace GuiToolkit
 			}
 		}
 
+		private void EditorInit()
+		{
+			UiView[] views = GetComponentsInChildren<UiView>(true);
+			foreach (var view in views)
+				view.EditorInit();
+		}
+
 		private void OnValidate()
 		{
 			Instance = this;
+			EditorInit();
 		}
 
 #endif

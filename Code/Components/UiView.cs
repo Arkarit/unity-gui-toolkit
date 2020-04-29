@@ -69,5 +69,18 @@ namespace GuiToolkit
 			Canvas.planeDistance = UiMain.Instance.GetTopmostPlaneDistance(this);
 		}
 
+#if UNITY_EDITOR
+		public void EditorInit()
+		{
+			Init();
+		}
+
+		private void OnValidate()
+		{
+			EditorInit();
+		}
+#endif
+
+
 	}
 }
