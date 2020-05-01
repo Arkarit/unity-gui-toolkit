@@ -13,10 +13,14 @@ namespace GuiToolkit
 	[RequireComponent(typeof(Canvas))]
 	[RequireComponent(typeof(CanvasScaler))]
 	[RequireComponent(typeof(GraphicRaycaster))]
+
 	public class UiView : UiPanel
 	{
 		[SerializeField]
 		protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
+		[HideInInspector]
+		[SerializeField]
+		private int m_lastSiblingIndex = -1;
 
 		private Canvas m_canvas;
 		
@@ -34,12 +38,18 @@ namespace GuiToolkit
 		protected override void Awake()
 		{
 			base.Awake();
-			Init();
+			Init(false);
 		}
 
 		public override void Show( bool _instant = false, Action _onFinish = null )
 		{
-			Init();
+			Init(false);
+			base.Show(_instant, _onFinish);
+		}
+
+		public void ShowTopmost( bool _instant = false, Action _onFinish = null )
+		{
+			Init(true);
 			base.Show(_instant, _onFinish);
 		}
 
@@ -62,17 +72,18 @@ namespace GuiToolkit
 			((IShowHideViewAnimation)SimpleShowHideAnimation).SetStackAnimationType(_stackAnimationType, _backwards, _animationCurve);
 		}
 
-		private void Init()
+		private void Init(bool _topmost)
 		{
 			Canvas.renderMode = UiMain.Instance.RenderMode;
 			Canvas.worldCamera = UiMain.Instance.Camera;
-			Canvas.planeDistance = UiMain.Instance.GetTopmostPlaneDistance(this);
+			Canvas.planeDistance = UiMain.Instance.GetPlaneDistance(this, _topmost);
+Debug.Log($"gameObject.name:{gameObject.name} Canvas.planeDistance:{Canvas.planeDistance}");
 		}
 
 #if UNITY_EDITOR
 		public void EditorInit()
 		{
-			Init();
+			Init(false);
 		}
 
 		private void OnValidate()

@@ -129,7 +129,7 @@ namespace GuiToolkit
 						m_scenes[_name] = view;
 
 						if (_show)
-							view.Show(_instant);
+							view.ShowTopmost(_instant);
 
 						if (_whenLoaded != null)
 							_whenLoaded.Invoke(view);
@@ -179,7 +179,7 @@ namespace GuiToolkit
 				currentShown.Hide(_instant, _onFinishHide);
 			}
 			_uiView.SetStackAnimationType(m_stackAnimationType, true, m_stackMovedInCurve);
-			_uiView.Show(_instant, _onFinishShow);
+			_uiView.ShowTopmost(_instant, _onFinishShow);
 			m_stack.Push(_uiView);
 		}
 
@@ -202,7 +202,7 @@ namespace GuiToolkit
 			{
 				UiView nextShown = m_stack.Peek();
 				nextShown.SetStackAnimationType(m_stackAnimationType, false, m_stackMovedInCurve);
-				nextShown.Show(_instant, _onFinishShow);
+				nextShown.ShowTopmost(_instant, _onFinishShow);
 			}
 		}
 
@@ -292,27 +292,21 @@ namespace GuiToolkit
 
 		#region "General"
 
-		public float GetTopmostPlaneDistance( UiView _view)
+		public float GetPlaneDistance( UiView _view, bool _topmost = false )
 		{
-			bool foundOtherDialog = false;
-			float lowestLayer = 100000f;
-
 			UiView[] views = GetComponentsInChildren<UiView>();
-			foreach (var view in views)
-			{
-				if (view == _view || view.Layer != _view.Layer)
-					continue;
 
-				foundOtherDialog = true;
-				if (view.Canvas.planeDistance < lowestLayer)
-					lowestLayer = view.Canvas.planeDistance;
+			int subLayersBelow = 0;
+			for (int i=0; i<views.Length; i++)
+			{
+				UiView view = views[i];
+				if (view == _view && !_topmost)
+					break;
+				if (view.Layer == _view.Layer)
+					subLayersBelow++;
 			}
 
-			// If another dialog was found, we place the new modal dialog above the highest dialog
-			if (foundOtherDialog)
-				return lowestLayer - LayerDistance;
-
-			return LayerDistance * (float) _view.Layer;
+			return LayerDistance * ((float) _view.Layer + subLayersBelow);
 		}
 
 		public void Quit()
@@ -431,6 +425,11 @@ namespace GuiToolkit
 		private void OnValidate()
 		{
 			Instance = this;
+			EditorInit();
+		}
+
+		protected override void Update()
+		{
 			EditorInit();
 		}
 

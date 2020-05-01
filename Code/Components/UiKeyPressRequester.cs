@@ -32,7 +32,7 @@ namespace GuiToolkit
 			m_onEvent = _onEvent;
 			if (m_title != null && _title != null)
 				m_title.text = _title;
-			Show();
+			ShowTopmost();
 		}
 
 		private void OnGUI()

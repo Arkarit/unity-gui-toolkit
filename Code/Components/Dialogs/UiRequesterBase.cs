@@ -53,7 +53,7 @@ namespace GuiToolkit
 			Clear();
 			EvaluateOptions(_options);
 			gameObject.SetActive(true);
-			Show();
+			ShowTopmost();
 		}
 
 		protected override void OnDestroy()

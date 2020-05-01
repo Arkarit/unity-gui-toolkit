@@ -210,6 +210,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_defaultSceneVisibility: 2
   m_layer: 600
+  m_lastSiblingIndex: -1
   m_clickCatcher: {fileID: 2126843345760536211}
   m_title: {fileID: 2126843346133770540}
   m_closeButton: {fileID: 6780300717453316315}
