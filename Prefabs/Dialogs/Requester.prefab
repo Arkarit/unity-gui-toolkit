@@ -236,22 +236,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_defaultSceneVisibility: 2
   m_layer: 600
+  m_lastSiblingIndex: -1
   m_clickCatcher: {fileID: 2126843345760536211}
+  m_title: {fileID: 2126843346133770540}
   m_closeButton: {fileID: 6780300717453316315}
   m_buttonContainer: {fileID: 2126843346294841186}
-  m_inputFieldContainer: {fileID: 8578273731924085954}
-  m_textContainer: {fileID: 2126843345784116848}
   m_standardButtonPrefab: {fileID: 6944983982311379129, guid: 21a8687b0161cb048a99736c000f6da3,
     type: 3}
   m_okButtonPrefab: {fileID: 6699359830296575514, guid: ffe5dd8cf41b8e140b7de326263eedd8,
     type: 3}
   m_cancelButtonPrefab: {fileID: 1623664846775371399, guid: e1923f16e8be62c4aaba24e33fec90d9,
     type: 3}
-  m_title: {fileID: 2126843346133770540}
-  m_text: {fileID: 2126843346123710391}
-  m_inputField: {fileID: 6621722925866764208}
   m_buttonScale: 0.8
   m_maxButtons: 3
+  m_cancelButtonsLeftSide: 0
+  m_inputFieldContainer: {fileID: 8578273731924085954}
+  m_textContainer: {fileID: 2126843345784116848}
+  m_text: {fileID: 2126843346123710391}
+  m_inputField: {fileID: 6621722925866764208}
 --- !u!114 &2126843345544139562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -741,6 +743,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_direction: 1
+  m_inverse: 0
 --- !u!114 &2126843346294841184
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -7,9 +7,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: UI_Default
+  m_Name: UI_Disabled
   m_Shader: {fileID: 4800000, guid: b074fa270a8eb594ea703c0d1a9c7dbf, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: Disabled
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -60,9 +60,9 @@ Material:
     - _ColorMask: 15
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _Disabled: 0
-    - _DisabledAlpha: 0.7
-    - _DisabledBrightness: 0.7
+    - _Disabled: 1
+    - _DisabledAlpha: 0.9
+    - _DisabledBrightness: 0.9
     - _DisabledDesaturateStrength: 0.8
     - _DstBlend: 0
     - _GlossMapScale: 1

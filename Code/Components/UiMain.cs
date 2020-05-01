@@ -129,7 +129,7 @@ namespace GuiToolkit
 						m_scenes[_name] = view;
 
 						if (_show)
-							view.Show(_instant);
+							view.ShowTopmost(_instant);
 
 						if (_whenLoaded != null)
 							_whenLoaded.Invoke(view);
@@ -179,7 +179,7 @@ namespace GuiToolkit
 				currentShown.Hide(_instant, _onFinishHide);
 			}
 			_uiView.SetStackAnimationType(m_stackAnimationType, true, m_stackMovedInCurve);
-			_uiView.Show(_instant, _onFinishShow);
+			_uiView.ShowTopmost(_instant, _onFinishShow);
 			m_stack.Push(_uiView);
 		}
 
@@ -202,7 +202,7 @@ namespace GuiToolkit
 			{
 				UiView nextShown = m_stack.Peek();
 				nextShown.SetStackAnimationType(m_stackAnimationType, false, m_stackMovedInCurve);
-				nextShown.Show(_instant, _onFinishShow);
+				nextShown.ShowTopmost(_instant, _onFinishShow);
 			}
 		}
 
@@ -292,27 +292,60 @@ namespace GuiToolkit
 
 		#region "General"
 
-		public float GetTopmostPlaneDistance( UiView _view)
+		public void SortViews()
 		{
-			bool foundOtherDialog = false;
-			float lowestLayer = 100000f;
+			SetPlaneDistancesBySiblingIndex();
+			SetSiblingIndicesByPlaneDistances();
+		}
 
-			UiView[] views = GetComponentsInChildren<UiView>();
-			foreach (var view in views)
+		public void SetAsLastSiblingOfLayer(UiView _view)
+		{
+			_view.transform.SetAsLastSibling();
+			SortViews();
+		}
+
+		private void SetPlaneDistancesBySiblingIndex()
+		{
+			var layers = EnumHelper.GetValues<EUiLayerDefinition>();
+			foreach(var layer in layers)
 			{
-				if (view == _view || view.Layer != _view.Layer)
-					continue;
-
-				foundOtherDialog = true;
-				if (view.Canvas.planeDistance < lowestLayer)
-					lowestLayer = view.Canvas.planeDistance;
+				int layercount = 0;
+				foreach (Transform childTransform in transform)
+				{
+					UiView view = childTransform.GetComponent<UiView>();
+					if (!view || view.Layer != layer)
+						continue;
+					float planeDistance = LayerDistance * ((float) layer - layercount);
+					view.InitView(RenderMode, Camera, planeDistance);
+					layercount++;
+				}
 			}
+		}
 
-			// If another dialog was found, we place the new modal dialog above the highest dialog
-			if (foundOtherDialog)
-				return lowestLayer - LayerDistance;
+		private class PlaneDistanceComparer : IComparer<Transform>
+		{
+			// Call CaseInsensitiveComparer.Compare with the parameters reversed.
+			public int Compare(Transform a, Transform b)
+			{
+				Canvas canvasA = a.GetComponent<Canvas>();
+				Canvas canvasB = b.GetComponent<Canvas>();
+				if (canvasA == null)
+					return canvasB != null ? -1 : 0;
+				if (canvasB == null)
+					return 1;
+				if (canvasA.planeDistance == canvasB.planeDistance)
+					return 0;
+				return canvasA.planeDistance < canvasB.planeDistance ? 1 : -1;
+			}
+		}
 
-			return LayerDistance * (float) _view.Layer;
+		private void SetSiblingIndicesByPlaneDistances()
+		{
+			Transform[] children = transform.GetChildrenArray();
+			PlaneDistanceComparer comparer = new PlaneDistanceComparer();
+			Array.Sort(children, comparer);
+			for (int i=0; i<children.Length; i++)
+				children[i].SetSiblingIndex(i);
 		}
 
 		public void Quit()
@@ -356,7 +389,6 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 			CheckSceneSetup();
 #endif
-			SetOrder(); 
 			SetDefaultSceneVisibilities(gameObject);
 		}
 
@@ -422,17 +454,15 @@ namespace GuiToolkit
 			}
 		}
 
-		private void SetOrder()
-		{
-			UiView[] views = GetComponentsInChildren<UiView>(true);
-			foreach (var view in views)
-				view.Init();
-		}
-
 		private void OnValidate()
 		{
 			Instance = this;
-			SetOrder();
+			SortViews();
+		}
+
+		protected override void Update()
+		{
+			SortViews();
 		}
 
 #endif

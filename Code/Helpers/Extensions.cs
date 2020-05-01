@@ -9,6 +9,8 @@ namespace GuiToolkit
 {
 	public static class Extensions
 	{
+		private static readonly List<Transform> s_tempTransformList = new List<Transform>();
+
 		// Note: This is not super performant and - worse - creates GC allocations
 		// Better cache the values in simple bools after evaluating at least in runtime code. 
 		public static bool HasFlags<T>( this T _this, T _flags) where T : Enum
@@ -300,5 +302,32 @@ namespace GuiToolkit
 			_scrollRect.ScrollToTop();
 		}
 
+		public static void GetChildren(this Transform _this, ICollection<Transform> _list)
+		{
+			_list.Clear();
+			foreach (Transform child in _this)
+				_list.Add(child);
+		}
+
+		public static List<Transform> GetChildrenList(this Transform _this)
+		{
+			List<Transform> result = new List<Transform>();
+			GetChildren(_this, result);
+			return result;
+		}
+
+		public static Transform[] GetChildrenArray(this Transform _this)
+		{
+			GetChildren(_this, s_tempTransformList);
+			return s_tempTransformList.ToArray();
+		}
+	}
+
+	public static class EnumHelper
+	{
+		public static IEnumerable<T> GetValues<T>()
+		{
+			return Enum.GetValues(typeof(T)).Cast<T>();
+		}
 	}
 }

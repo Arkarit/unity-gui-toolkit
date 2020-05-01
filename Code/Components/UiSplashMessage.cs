@@ -46,11 +46,11 @@ namespace GuiToolkit
 
 				m_animationWhileVisible.Duration = _duration;
 				m_animationWhileVisible.m_onFinishOnce = () => Hide();
-				Show(false, () => m_animationWhileVisible.Play());
+				ShowTopmost(false, () => m_animationWhileVisible.Play());
 			}
 			else
 			{
-				Show();
+				ShowTopmost();
 				StartCoroutine(DelayedClose());
 			}
 		}
