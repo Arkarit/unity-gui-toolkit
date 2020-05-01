@@ -292,21 +292,60 @@ namespace GuiToolkit
 
 		#region "General"
 
-		public float GetPlaneDistance( UiView _view, bool _topmost = false )
+		public void SortViews()
 		{
-			UiView[] views = GetComponentsInChildren<UiView>();
+			SetPlaneDistancesBySiblingIndex();
+			SetSiblingIndicesByPlaneDistances();
+		}
 
-			int subLayersBelow = 0;
-			for (int i=0; i<views.Length; i++)
+		public void SetAsLastSiblingOfLayer(UiView _view)
+		{
+			_view.transform.SetAsLastSibling();
+			SortViews();
+		}
+
+		private void SetPlaneDistancesBySiblingIndex()
+		{
+			var layers = EnumHelper.GetValues<EUiLayerDefinition>();
+			foreach(var layer in layers)
 			{
-				UiView view = views[i];
-				if (view == _view && !_topmost)
-					break;
-				if (view.Layer == _view.Layer)
-					subLayersBelow++;
+				int layercount = 0;
+				foreach (Transform childTransform in transform)
+				{
+					UiView view = childTransform.GetComponent<UiView>();
+					if (!view || view.Layer != layer)
+						continue;
+					float planeDistance = LayerDistance * ((float) layer - layercount);
+					view.InitView(RenderMode, Camera, planeDistance);
+					layercount++;
+				}
 			}
+		}
 
-			return LayerDistance * ((float) _view.Layer + subLayersBelow);
+		private class PlaneDistanceComparer : IComparer<Transform>
+		{
+			// Call CaseInsensitiveComparer.Compare with the parameters reversed.
+			public int Compare(Transform a, Transform b)
+			{
+				Canvas canvasA = a.GetComponent<Canvas>();
+				Canvas canvasB = b.GetComponent<Canvas>();
+				if (canvasA == null)
+					return canvasB != null ? -1 : 0;
+				if (canvasB == null)
+					return 1;
+				if (canvasA.planeDistance == canvasB.planeDistance)
+					return 0;
+				return canvasA.planeDistance < canvasB.planeDistance ? 1 : -1;
+			}
+		}
+
+		private void SetSiblingIndicesByPlaneDistances()
+		{
+			Transform[] children = transform.GetChildrenArray();
+			PlaneDistanceComparer comparer = new PlaneDistanceComparer();
+			Array.Sort(children, comparer);
+			for (int i=0; i<children.Length; i++)
+				children[i].SetSiblingIndex(i);
 		}
 
 		public void Quit()
@@ -415,22 +454,15 @@ namespace GuiToolkit
 			}
 		}
 
-		private void EditorInit()
-		{
-			UiView[] views = GetComponentsInChildren<UiView>(true);
-			foreach (var view in views)
-				view.EditorInit();
-		}
-
 		private void OnValidate()
 		{
 			Instance = this;
-			EditorInit();
+			SortViews();
 		}
 
 		protected override void Update()
 		{
-			EditorInit();
+			SortViews();
 		}
 
 #endif

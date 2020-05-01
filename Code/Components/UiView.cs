@@ -13,7 +13,6 @@ namespace GuiToolkit
 	[RequireComponent(typeof(Canvas))]
 	[RequireComponent(typeof(CanvasScaler))]
 	[RequireComponent(typeof(GraphicRaycaster))]
-
 	public class UiView : UiPanel
 	{
 		[SerializeField]
@@ -35,22 +34,22 @@ namespace GuiToolkit
 
 		public EUiLayerDefinition Layer => m_layer;
 
-		protected override void Awake()
+		public void InitView(RenderMode _renderMode, Camera _camera, float _planeDistance)
 		{
-			base.Awake();
-			Init(false);
+			Canvas.renderMode = _renderMode;
+			Canvas.worldCamera = _camera;
+			Canvas.planeDistance = _planeDistance;
 		}
 
 		public override void Show( bool _instant = false, Action _onFinish = null )
 		{
-			Init(false);
 			base.Show(_instant, _onFinish);
 		}
 
 		public void ShowTopmost( bool _instant = false, Action _onFinish = null )
 		{
-			Init(true);
 			base.Show(_instant, _onFinish);
+			UiMain.Instance.SetAsLastSiblingOfLayer(this);
 		}
 
 		public virtual void NavigationPush(bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null)
@@ -71,27 +70,6 @@ namespace GuiToolkit
 
 			((IShowHideViewAnimation)SimpleShowHideAnimation).SetStackAnimationType(_stackAnimationType, _backwards, _animationCurve);
 		}
-
-		private void Init(bool _topmost)
-		{
-			Canvas.renderMode = UiMain.Instance.RenderMode;
-			Canvas.worldCamera = UiMain.Instance.Camera;
-			Canvas.planeDistance = UiMain.Instance.GetPlaneDistance(this, _topmost);
-Debug.Log($"gameObject.name:{gameObject.name} Canvas.planeDistance:{Canvas.planeDistance}");
-		}
-
-#if UNITY_EDITOR
-		public void EditorInit()
-		{
-			Init(false);
-		}
-
-		private void OnValidate()
-		{
-			EditorInit();
-		}
-#endif
-
 
 	}
 }
