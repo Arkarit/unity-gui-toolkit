@@ -91,6 +91,14 @@ namespace GuiToolkit
 			return GetKeyName(EventToKeyCode(_event));
 		}
 
+		public KeyCode GetBoundKeyCode(KeyCode _originalKeyCode)
+		{
+			KeyCode result;
+			if (m_keyCodeByOriginalKeyCode.TryGetValue(_originalKeyCode, out result))
+				return result;
+			return KeyCode.None;
+		}
+
 		public KeyCode this[string _key]
 		{
 			get => GetKeyCode(_key);
