@@ -41,6 +41,15 @@ namespace GuiToolkit
 
 		private Bounds m_originalBounds;
 
+		public Material Material
+		{
+			get
+			{
+				if (m_material == null)
+					Init();
+				return m_material;
+			}
+		}
 
 		protected override void Awake()
 		{
@@ -68,6 +77,9 @@ namespace GuiToolkit
 
 		private void Init()
 		{
+			if (m_material != null)
+				return;
+
 			m_meshFilter = GetComponent<MeshFilter>();
 			m_meshRenderer = GetComponent<MeshRenderer>();
 			m_rectTransform = GetComponent<RectTransform>();
