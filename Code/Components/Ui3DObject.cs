@@ -31,6 +31,7 @@ namespace GuiToolkit
 	[RequireComponent(typeof(MeshRenderer))]
 	[RequireComponent(typeof(MeshFilter))]
 	[RequireComponent(typeof(RectTransform))]
+	[RequireComponent(typeof(UiMaterialCloner))]
 	[ExecuteAlways]
 	public class Ui3DObject : UiThing
 	{
@@ -57,9 +58,8 @@ namespace GuiToolkit
 		private static readonly int s_propScale = Shader.PropertyToID("_Scale");
 
 		private MeshFilter m_meshFilter;
-		private MeshRenderer m_meshRenderer;
 		private RectTransform m_rectTransform;
-		private Material m_material;
+		private UiMaterialCloner m_materialCloner;
 
 #if UNITY_EDITOR
 		//Workaround: m_meshRenderer.sharedMaterial is null after an undo
@@ -74,28 +74,15 @@ namespace GuiToolkit
 		{
 			get
 			{
-				if (m_material == null || m_material != m_meshRenderer.sharedMaterial)
+				if (m_materialCloner == null)
 					Init();
-				return m_material;
+				return m_materialCloner.Material;
 			}
-		}
-
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-			Init();
-			SetShaderProperties();
 		}
 
 		protected override void OnDisable()
 		{
 			m_meshFilter.sharedMesh.bounds = m_originalBounds;
-			m_meshRenderer.sharedMaterial = UiMaterialCache.Instance.ReleaseClonedMaterial(m_material);
-#if UNITY_EDITOR
-			//Workaround: m_meshRenderer.sharedMaterial is null after an undo
-			m_originalMaterial = m_meshRenderer.sharedMaterial;
-#endif
-			m_material = null;
 			base.OnDisable();
 		}
 
@@ -109,31 +96,16 @@ namespace GuiToolkit
 
 		private void Init()
 		{
-			m_meshFilter = GetComponent<MeshFilter>();
-			m_meshRenderer = GetComponent<MeshRenderer>();
-			m_rectTransform = GetComponent<RectTransform>();
-
-#if UNITY_EDITOR
-			//Workaround: m_meshRenderer.sharedMaterial is null after an undo
-			if (m_meshRenderer.sharedMaterial == null)
-				m_meshRenderer.sharedMaterial = m_originalMaterial;
-#endif
-
-			if (m_material == null || m_material != m_meshRenderer.sharedMaterial)
-			{
-				if (m_material != null)
-					UiMaterialCache.Instance.ReleaseClonedMaterial(m_material);
-
-				m_material = UiMaterialCache.Instance.AcquireClonedMaterial(m_meshRenderer.sharedMaterial);
-				m_meshRenderer.sharedMaterial = m_material;
-			}
+			m_meshFilter = this.GetOrCreateComponent<MeshFilter>();
+			m_rectTransform =this.GetOrCreateComponent<RectTransform>();
+			m_materialCloner =this.GetOrCreateComponent<UiMaterialCloner>();
 
 			m_originalBounds = RecalculateBounds();
 		}
 
 		private void SetShaderProperties()
 		{
-			if (m_material == null)
+			if (m_materialCloner == null || !m_materialCloner.Valid)
 				return;
 
 			Rect rect = m_rectTransform.rect;
@@ -157,13 +129,13 @@ namespace GuiToolkit
 					Debug.Assert(false);
 					break;
 			}
-			m_material.SetVector( s_propScale, scale );
+			m_materialCloner.Material.SetVector( s_propScale, scale );
 			Vector3 offset = -m_originalBounds.min;
 			offset.Scale( scale );
 			offset.x += rect.min.x;
 			offset.y += rect.min.y;
 			offset.z = 0;
-			m_material.SetVector( s_propOffset, offset);
+			m_materialCloner.Material.SetVector( s_propOffset, offset);
 
 			Bounds bounds = m_originalBounds;
 			if (bounds.extents == Vector3.zero)
