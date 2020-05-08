@@ -321,6 +321,16 @@ namespace GuiToolkit
 			GetChildren(_this, s_tempTransformList);
 			return s_tempTransformList.ToArray();
 		}
+
+		public static T GetOrCreateComponent<T>(this Component _this) where T : Component
+		{
+			T result = _this.GetComponent<T>();
+
+			if (result)
+				return result;
+
+			return _this.gameObject.AddComponent<T>();
+		}
 	}
 
 	public static class EnumHelper

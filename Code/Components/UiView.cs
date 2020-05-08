@@ -34,11 +34,12 @@ namespace GuiToolkit
 
 		public EUiLayerDefinition Layer => m_layer;
 
-		public void InitView(RenderMode _renderMode, Camera _camera, float _planeDistance)
+		public void InitView(RenderMode _renderMode, Camera _camera, float _planeDistance, int _orderInLayer)
 		{
 			Canvas.renderMode = _renderMode;
 			Canvas.worldCamera = _camera;
 			Canvas.planeDistance = _planeDistance;
+			Canvas.sortingOrder = _orderInLayer;
 		}
 
 		public override void Show( bool _instant = false, Action _onFinish = null )

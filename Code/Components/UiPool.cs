@@ -15,17 +15,7 @@ namespace GuiToolkit
 		private readonly Dictionary<GameObject,PoolEntry> m_poolEntryByPrefab = new Dictionary<GameObject, PoolEntry>();
 		private readonly Dictionary<GameObject,PoolEntry> m_poolEntryByGameObject = new Dictionary<GameObject, PoolEntry>();
 
-		public static UiPool Instance { get; private set; }
-
-		protected void Awake()
-		{
-			Instance = this;
-		}
-
-		protected void OnDestroy()
-		{
-			Instance = null;
-		}
+		public static UiPool Instance => UiMain.Instance.UiPool;
 
 		public GameObject DoInstantiate( GameObject _prefab )
 		{

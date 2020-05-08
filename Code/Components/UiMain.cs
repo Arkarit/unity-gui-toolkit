@@ -16,6 +16,7 @@ using UnityEditor;
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(Camera))]
+	[RequireComponent(typeof(UiPool))]
 	[ExecuteAlways]
 	public class UiMain : UiThing
 	{
@@ -30,13 +31,13 @@ namespace GuiToolkit
 		[SerializeField]
 		private KeyBindings m_keyBindings = new KeyBindings();
 
-		private Camera m_camera;
 		private readonly Dictionary<string, UiView> m_scenes = new Dictionary<string, UiView>();
 
 
 		public float LayerDistance => m_layerDistance;
 		public RenderMode RenderMode => m_renderMode;
-		public Camera Camera => m_camera;
+		public Camera Camera { get; private set; }
+		public UiPool UiPool { get; private set; }
 
 		private static UiMain m_instance;
 		public static UiMain Instance
@@ -315,8 +316,10 @@ namespace GuiToolkit
 					UiView view = childTransform.GetComponent<UiView>();
 					if (!view || view.Layer != layer)
 						continue;
-					float planeDistance = LayerDistance * ((float) layer - layercount);
-					view.InitView(RenderMode, Camera, planeDistance);
+
+					int planeIndex = (int)layer - layercount;
+					float planeDistance = LayerDistance * (float) planeIndex;
+					view.InitView(RenderMode, Camera, planeDistance, (int) EUiLayerDefinition.Back - planeIndex);
 					layercount++;
 				}
 			}
@@ -374,11 +377,12 @@ namespace GuiToolkit
 		#endregion
 
 		#region "Internal"
+
 		protected override void Awake()
 		{
 			base.Awake();
 
-			m_camera = GetComponent<Camera>();
+			InitGetters();
 
 			if (Application.isPlaying)
 				DontDestroyOnLoad(gameObject);
@@ -390,6 +394,14 @@ namespace GuiToolkit
 			CheckSceneSetup();
 #endif
 			SetDefaultSceneVisibilities(gameObject);
+		}
+
+		//FIXME: performance. Need some "dirty" stuff.
+		protected virtual void Update()
+		{
+			Instance = this;
+			InitGetters();
+			SortViews();
 		}
 
 		private static void SetDefaultSceneVisibilities(GameObject _gameObject)
@@ -419,6 +431,14 @@ namespace GuiToolkit
 
 			return true;
 		}
+
+		private void InitGetters()
+		{
+			Camera = this.GetOrCreateComponent<Camera>();
+			UiPool = this.GetOrCreateComponent<UiPool>();
+		}
+
+
 		#endregion
 
 		#region "Editor"
@@ -457,11 +477,7 @@ namespace GuiToolkit
 		private void OnValidate()
 		{
 			Instance = this;
-			SortViews();
-		}
-
-		protected virtual void Update()
-		{
+			InitGetters();
 			SortViews();
 		}
 
