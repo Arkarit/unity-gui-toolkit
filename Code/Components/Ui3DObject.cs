@@ -2,6 +2,10 @@
 using System.Collections;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit
 {
 	/// \brief Integrate 3D objects into GUI
@@ -57,6 +61,13 @@ namespace GuiToolkit
 		private RectTransform m_rectTransform;
 		private Material m_material;
 
+#if UNITY_EDITOR
+		//Workaround: m_meshRenderer.sharedMaterial is null after an undo
+		[SerializeField]
+		[HideInInspector]
+		private Material m_originalMaterial;
+#endif
+
 		private Bounds m_originalBounds;
 
 		public Material Material
@@ -69,27 +80,30 @@ namespace GuiToolkit
 			}
 		}
 
-		protected override void Awake()
-		{
-			Init();
-
-			base.Awake();
-		}
-
 		protected override void OnEnable()
 		{
 			base.OnEnable();
+			Init();
 			SetShaderProperties();
 		}
 
 		protected override void OnDisable()
 		{
 			m_meshFilter.sharedMesh.bounds = m_originalBounds;
+			m_meshRenderer.sharedMaterial = UiMaterialCache.Instance.ReleaseClonedMaterial(m_material);
+#if UNITY_EDITOR
+			//Workaround: m_meshRenderer.sharedMaterial is null after an undo
+			m_originalMaterial = m_meshRenderer.sharedMaterial;
+#endif
+			m_material = null;
 			base.OnDisable();
 		}
 
 		protected virtual void Update()
 		{
+#if UNITY_EDITOR
+			Init();
+#endif
 			SetShaderProperties();
 		}
 
@@ -99,11 +113,18 @@ namespace GuiToolkit
 			m_meshRenderer = GetComponent<MeshRenderer>();
 			m_rectTransform = GetComponent<RectTransform>();
 
+#if UNITY_EDITOR
+			//Workaround: m_meshRenderer.sharedMaterial is null after an undo
+			if (m_meshRenderer.sharedMaterial == null)
+				m_meshRenderer.sharedMaterial = m_originalMaterial;
+#endif
+
 			if (m_material == null || m_material != m_meshRenderer.sharedMaterial)
 			{
 				if (m_material != null)
-					m_material.Destroy();
-				m_material = new Material(m_meshRenderer.sharedMaterial);
+					UiMaterialCache.Instance.ReleaseClonedMaterial(m_material);
+
+				m_material = UiMaterialCache.Instance.AcquireClonedMaterial(m_meshRenderer.sharedMaterial);
 				m_meshRenderer.sharedMaterial = m_material;
 			}
 
@@ -112,6 +133,9 @@ namespace GuiToolkit
 
 		private void SetShaderProperties()
 		{
+			if (m_material == null)
+				return;
+
 			Rect rect = m_rectTransform.rect;
 			Vector3 scale = Vector4.one;
 			scale.x = rect.width / m_originalBounds.size.x;
@@ -152,13 +176,6 @@ namespace GuiToolkit
 			if (m_meshFilter.sharedMesh)
 				m_meshFilter.sharedMesh.bounds = bounds;
 		}
-
-#if UNITY_EDITOR
-		private void OnValidate()
-		{
-			Init();
-		}
-#endif
 
 		private Bounds RecalculateBounds()
 		{

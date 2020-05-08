@@ -38,6 +38,7 @@ namespace GuiToolkit
 		public RenderMode RenderMode => m_renderMode;
 		public Camera Camera { get; private set; }
 		public UiPool UiPool { get; private set; }
+		public UiMaterialCache UiMaterialCache { get; private set; }
 
 		private static UiMain m_instance;
 		public static UiMain Instance
@@ -435,7 +436,16 @@ namespace GuiToolkit
 		private void InitGetters()
 		{
 			Camera = this.GetOrCreateComponent<Camera>();
+
 			UiPool = this.GetOrCreateComponent<UiPool>();
+			if (UiPool.m_container == null)
+			{
+				GameObject poolContainer = new GameObject("Pool");
+				poolContainer.transform.SetParent(transform);
+				UiPool.m_container = poolContainer.transform;
+			}
+
+			UiMaterialCache = this.GetOrCreateComponent<UiMaterialCache>();
 		}
 
 
