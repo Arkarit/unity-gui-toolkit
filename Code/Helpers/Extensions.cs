@@ -23,7 +23,7 @@ namespace GuiToolkit
 			return _listToClone.Select(item => (T)item.Clone()).ToList();
 		}
 
-		public static void Destroy( this GameObject _this )
+		public static void Destroy( this UnityEngine.Object _this )
 		{
 			if (_this == null)
 				return;
@@ -31,10 +31,10 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 			UnityEditor.EditorApplication.delayCall += () =>
 			{
-				GameObject.DestroyImmediate(_this);
+				UnityEngine.Object.DestroyImmediate(_this);
 			};
 #else
-			GameObject.Destroy(_this);
+			UnityEngine.Object.Destroy(_this);
 #endif
 		}
 

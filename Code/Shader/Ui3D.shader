@@ -7,10 +7,11 @@
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
+		[Toggle(FlipNormals)] _FlipNormals("Flip Normals", Float) = 0
+ 		[Toggle(USE_UI3D)] _UseUi3D ("Use UI3D", Float) = 0
 		_Offset ("Offset", Vector) = (0,0,0,0)
 		_Scale ("Scale", Vector) = (1,1,1,1)
-		[Toggle(FlipNormals)] _FlipNormals("Flip Normals", Float) = 0
-    }
+   }
     SubShader
     {
         Tags { "RenderType"="Transparent" "Queue"="Transparent" }
@@ -24,6 +25,7 @@
         #pragma target 3.0
 
 		#pragma multi_compile __ FlipNormals
+		#pragma multi_compile __ USE_UI3D
 
         sampler2D _MainTex;
 
@@ -36,8 +38,10 @@
         half _Metallic;
         fixed4 _Color;
 		fixed4 _ColorSelfIllumination;
-		float4 _Scale;
-		float4 _Offset;
+		#ifdef USE_UI3D
+			float4 _Offset;
+			float4 _Scale;
+		#endif
 
         // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
         // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
@@ -47,8 +51,10 @@
         UNITY_INSTANCING_BUFFER_END(Props)
 
 		void vert (inout appdata_full v) {
-			v.vertex *= _Scale;
-			v.vertex += _Offset;
+			#ifdef USE_UI3D
+				v.vertex *= _Scale;
+				v.vertex += _Offset;
+			#endif
 			#ifdef FlipNormals
 				v.normal = -v.normal;
 			#endif
