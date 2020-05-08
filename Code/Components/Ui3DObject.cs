@@ -99,7 +99,7 @@ namespace GuiToolkit
 			m_meshRenderer = GetComponent<MeshRenderer>();
 			m_rectTransform = GetComponent<RectTransform>();
 
-			if (m_material == null || m_material == m_meshRenderer.sharedMaterial)
+			if (m_material == null || m_material != m_meshRenderer.sharedMaterial)
 			{
 				if (m_material != null)
 					m_material.Destroy();
