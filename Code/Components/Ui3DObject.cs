@@ -13,7 +13,6 @@ namespace GuiToolkit
 	/// Here's a simple and fast solution to overcome this.
 	/// It is done via a cheap vertex shader.
 	/// In that shader, the mesh is transformed in a way that it matches the RectTransform bounds perfectly.
-	/// 
 	/// </summary>
 	[RequireComponent(typeof(MeshRenderer))]
 	[RequireComponent(typeof(MeshFilter))]
@@ -69,9 +68,8 @@ namespace GuiToolkit
 			base.OnDisable();
 		}
 
-		protected override void Update()
+		protected virtual void Update()
 		{
-			base.Update();
 			SetShaderProperties();
 		}
 
@@ -129,7 +127,6 @@ namespace GuiToolkit
 			bounds.center += offset;
 			if (m_meshFilter.sharedMesh)
 				m_meshFilter.sharedMesh.bounds = bounds;
-			//Debug.Log($"Scale:{scale} Offset:{offset} m_originalBounds:{m_originalBounds} Bounds:{bounds}");
 		}
 
 		private void OnValidate()

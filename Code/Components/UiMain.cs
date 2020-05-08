@@ -460,7 +460,7 @@ namespace GuiToolkit
 			SortViews();
 		}
 
-		protected override void Update()
+		protected virtual void Update()
 		{
 			SortViews();
 		}
