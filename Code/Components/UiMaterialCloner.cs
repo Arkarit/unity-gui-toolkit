@@ -39,10 +39,9 @@ namespace GuiToolkit
 		[SerializeField]
 		private int m_instanceId;
 
-		private Graphic m_graphics;
-		private Renderer m_renderer;
 		private bool m_insertedIntoCache;
 
+		/// Get cloned material
 		public Material Material
 		{
 			get
@@ -52,6 +51,48 @@ namespace GuiToolkit
 			}
 		}
 
+		/// Get original material
+		public Material OriginalMaterial
+		{
+			get
+			{
+				InitIfNecessary();
+				return m_originalMaterial;
+			}
+		}
+
+		/// Get Graphic on same game object (may be null)
+		public Graphic Graphic { get; private set; }
+
+		/// Get Renderer on same game object (may be null)
+		public Renderer Renderer { get; private set; }
+
+		/// true: UiMaterialCloner uses UiMaterialCache. This means the material will be shared between multiple UiMaterialCloner's using the same MaterialCacheKey.<BR>
+		/// false: Each UiMaterialCloner maintains its own cloned material.
+		public bool UseMaterialCache
+		{
+			get => m_useMaterialCache;
+			set
+			{
+				bool oldUseMaterialCache = m_useMaterialCache;
+				m_useMaterialCache = value;
+				PostChange(m_useMaterialCache, oldUseMaterialCache, m_materialCacheKey, m_materialCacheKey);
+			}
+		}
+
+		/// Key for UiMaterialCache. Use it to separate between groups of shared materials.
+		public string MaterialCacheKey
+		{
+			get => m_materialCacheKey;
+			set
+			{
+				string oldMaterialCacheKey = m_materialCacheKey;
+				m_materialCacheKey = value;
+				PostChange(UseMaterialCache, UseMaterialCache, m_materialCacheKey, MaterialCacheKey);
+			}
+		}
+
+		/// Is this material cloner currently valid?
 		public bool Valid => m_clonedMaterial != null;
 
 		private void OnEnable()
@@ -77,25 +118,25 @@ namespace GuiToolkit
 
 		private void SetMaterial(Material _material)
 		{
-			if (m_renderer)
-				m_renderer.sharedMaterial = _material;
-			if (m_graphics)
-				m_graphics.material = _material;
+			if (Renderer)
+				Renderer.sharedMaterial = _material;
+			if (Graphic)
+				Graphic.material = _material;
 		}
 
 		private Material GetMaterial()
 		{
-			if (m_renderer)
-				return m_renderer.sharedMaterial;
-			if (m_graphics)
-				return m_graphics.material;
+			if (Renderer)
+				return Renderer.sharedMaterial;
+			if (Graphic)
+				return Graphic.material;
 			return null;
 		}
 
 		private void Init()
 		{
-			m_graphics = GetComponent<Graphic>();
-			m_renderer = GetComponent<Renderer>();
+			Graphic = GetComponent<Graphic>();
+			Renderer = GetComponent<Renderer>();
 
 			bool gameObjectWasCloned = m_instanceId != 0 && m_instanceId != gameObject.GetInstanceID() && !m_useMaterialCache;
 			m_instanceId = gameObject.GetInstanceID();
@@ -193,24 +234,23 @@ namespace GuiToolkit
 				return;
 			}
 
-			if (m_renderer)
+			if (Renderer)
 			{
-				if (m_renderer.sharedMaterial == m_clonedMaterial)
+				if (Renderer.sharedMaterial == m_clonedMaterial)
 					return;
 			}
 
-			if (m_graphics)
+			if (Graphic)
 			{
-				if (m_graphics.material == m_clonedMaterial)
+				if (Graphic.material == m_clonedMaterial)
 					return;
 			}
 
 			Init();
 		}
 
-#if UNITY_EDITOR
-
 		/// \addtogroup Editor Code
+		/// Note: this is only public because C# programmers dont have friends. UiMaterialClonerEditor needs access.
 		public void PostChange(bool _currentUseMaterialCache, bool _previousUseMaterialCache, string _currentKey, string _previousKey)
 		{
 			if (!m_clonedMaterial || !m_originalMaterial)
@@ -241,6 +281,8 @@ namespace GuiToolkit
 			}
 		}
 
+#if UNITY_EDITOR
+		/// \addtogroup Editor Code
 		public string GetDebugInfoStr()
 		{
 			return $"Original Material:{m_originalMaterial.name}    Cloned Material:{m_clonedMaterial.name}";
@@ -270,8 +312,9 @@ namespace GuiToolkit
 			bool previousUseMaterialCache = m_useMaterialCacheProp.boolValue;
 			string previousMaterialCacheKey = m_materialCacheKeyProp.stringValue;
 
-			EditorGUILayout.PropertyField(m_useMaterialCacheProp);
-			EditorGUILayout.PropertyField(m_materialCacheKeyProp);
+			EditorGUILayout.PropertyField(m_useMaterialCacheProp, new GUIContent("Share Material between instances"));
+			if (m_useMaterialCacheProp.boolValue)
+				EditorGUILayout.PropertyField(m_materialCacheKeyProp, new GUIContent("Sharing Key"));
 
 			EditorGUILayout.LabelField(thisMaterialCloner.GetDebugInfoStr());
 
