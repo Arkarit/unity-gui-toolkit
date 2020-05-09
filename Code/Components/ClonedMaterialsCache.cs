@@ -4,7 +4,18 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class UiMaterialCache : MonoBehaviour
+	/// \brief maintain cloned materials for sharing them between multiple graphic's / renderer's
+	/// 
+	/// Very often, it is necessary to clone a material.
+	/// The naive approach to just clone and store a material leads to
+	/// broken batching. <BR>
+	/// ClonedMaterialsCache maintains a cache of cloned materials, indexed by a) original material and b) a string key.
+	/// Since its main purpose is to be globally shared, it is implemented as a singleton.
+	/// It is implemented as a non-serialized class; thus components using it need to update it manually on load
+	/// via HingeClonedMaterial(). See MaterialCloner for usage.
+	/// \attention If you are actively working on a class that uses ClonedMaterialsCache, be aware that a recompile invalidates the cache, which might lead to unpredictable results. To overcome this, reload the scene.
+
+	public class ClonedMaterialsCache : MonoBehaviour
 	{
 		private class ClonedMaterialRecord
 		{
@@ -21,23 +32,50 @@ namespace GuiToolkit
 
 		private readonly Dictionary<string, CacheGroup> m_cacheGroups = new Dictionary<string, CacheGroup>();
 
-		public static UiMaterialCache Instance => UiMain.Instance.UiMaterialCache;
+		/// Instance getter
+		public static ClonedMaterialsCache Instance => UiMain.Instance.ClonedMaterialsCache;
 
+		/// \brief Get a cloned material from an original material.
+		/// Either a new cloned material is created, or an already previously cloned material is returned.
+		/// Note that it's mandatory to call ReleaseClonedMaterial(), if you want to get rid of the cloned material.
+		/// \param[in] _originalMaterial The original material
+		/// \param[in] _key optional key to separate material sharing ("" is global)
+		/// \return Cloned Material
 		public Material AcquireClonedMaterial( Material _originalMaterial, string _key = "" )
 		{
 			return InsertMaterial(_originalMaterial, null, _key);
 		}
 
+		/// \brief Release a cloned material
+		/// Releases a cloned material. ClonedMaterialsCache holds an usage counter; if the cloned material is not used<BR>
+		/// by any instance anymore, it is destroyed.
+		/// \param[in] _clonedMaterial The cloned material
+		/// \param[in] _key optional key to separate material sharing ("" is global)
+		/// \return Original Material
 		public Material ReleaseClonedMaterial( Material _clonedMaterial, string _key = "" )
 		{
 			return ReleaseMaterial(_clonedMaterial, _key, true);
 		}
 
+		/// \brief Insert an already existing cloned material.
+		/// The provided cloned material is inserted into the cache. <BR> 
+		/// Note that it has to be the same cloned material instance,
+		/// if multiple callers use the same _originalMaterial and _key!
+		/// \param[in] _originalMaterial The original material
+		/// \param[in] _clonedMaterial The cloned material
+		/// \param[in] _key optional key to separate material sharing ("" is global)
+		/// \return Cloned Material
 		public Material HingeClonedMaterial( Material _originalMaterial, Material _clonedMaterial, string _key = null )
 		{
 			return InsertMaterial(_originalMaterial, _clonedMaterial, _key);
 		}
 
+		/// \brief Unhinges a cloned material
+		/// Releases a cloned material. This is quite similar to ReleaseClonedMaterial();<BR>
+		/// the difference is, that the material is not destroyed if the usage counter goes to zero.
+		/// \param[in] _clonedMaterial The cloned material
+		/// \param[in] _key optional key to separate material sharing ("" is global)
+		/// \return Original Material
 		public Material UnhingeClonedMaterial( Material _clonedMaterial, string _key = "" )
 		{
 			return ReleaseMaterial(_clonedMaterial, _key, false);

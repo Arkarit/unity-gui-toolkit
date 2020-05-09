@@ -31,7 +31,7 @@ namespace GuiToolkit
 	[RequireComponent(typeof(MeshRenderer))]
 	[RequireComponent(typeof(MeshFilter))]
 	[RequireComponent(typeof(RectTransform))]
-	[RequireComponent(typeof(UiMaterialCloner))]
+	[RequireComponent(typeof(MaterialCloner))]
 	[ExecuteAlways]
 	public class Ui3DObject : UiThing
 	{
@@ -59,7 +59,7 @@ namespace GuiToolkit
 
 		private MeshFilter m_meshFilter;
 		private RectTransform m_rectTransform;
-		private UiMaterialCloner m_materialCloner;
+		private MaterialCloner m_materialCloner;
 
 #if UNITY_EDITOR
 		//Workaround: m_meshRenderer.sharedMaterial is null after an undo
@@ -98,7 +98,7 @@ namespace GuiToolkit
 		{
 			m_meshFilter = this.GetOrCreateComponent<MeshFilter>();
 			m_rectTransform =this.GetOrCreateComponent<RectTransform>();
-			m_materialCloner =this.GetOrCreateComponent<UiMaterialCloner>();
+			m_materialCloner =this.GetOrCreateComponent<MaterialCloner>();
 
 			m_originalBounds = RecalculateBounds();
 		}

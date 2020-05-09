@@ -7,7 +7,7 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	/// /brief Clone and cache materials
+	/// \brief Clone and cache materials
 	/// 
 	/// Very often, it is necessary to clone a material.
 	/// The naive approach to just clone and store a material leads to
@@ -18,11 +18,13 @@ namespace GuiToolkit
 	/// If now the first component does something with the material, this won't become visible, because the mesh renderer already has the cloned material from the second component.
 	/// 
 	/// These problems can be avoided by applying an UiMaterialCloner.
-	/// It uses UiMaterialCache to share the same material between multiple clones and thus protects batching.
+	/// It uses ClonedMaterialsCache to share the same material between multiple clones and thus protects batching.
 	/// Also, if both example components rely on the same UiMaterialCloner instead of cloning it themselves, they will always use the same cloned material.
+	/// 
+	/// MaterialCloner needs either a Graphic or a Renderer on the same object. This however can not be enforced by [RequireComponent] by MaterialCloner, since it is either-or.
 
 	[ExecuteAlways]
-	public sealed class UiMaterialCloner : MonoBehaviour
+	public sealed class MaterialCloner : MonoBehaviour
 	{
 		[SerializeField]
 		private bool m_useMaterialCache;
@@ -67,9 +69,11 @@ namespace GuiToolkit
 		/// Get Renderer on same game object (may be null)
 		public Renderer Renderer { get; private set; }
 
-		/// true: UiMaterialCloner uses UiMaterialCache. This means the material will be shared between multiple UiMaterialCloner's using the same MaterialCacheKey.<BR>
-		/// false: Each UiMaterialCloner maintains its own cloned material.
-		public bool UseMaterialCache
+		/// Switch between shared usage of UiMaterialCloner and unique cloned instance
+		/// true: UiMaterialCloner uses ClonedMaterialsCache. This means the material will be shared between multiple UiMaterialCloner's using the same MaterialCacheKey.<BR>
+		/// false: Each UiMaterialCloner maintains its own cloned material.<BR>
+		/// Note that switching from non-use cache to use cache will most likely destroy the current material (also visible, if it differs in visual outcome)
+		public bool UseClonedMaterialsCache
 		{
 			get => m_useMaterialCache;
 			set
@@ -80,7 +84,8 @@ namespace GuiToolkit
 			}
 		}
 
-		/// Key for UiMaterialCache. Use it to separate between groups of shared materials.
+		/// Key for ClonedMaterialsCache. Use it to separate between groups of shared materials.
+		/// Only valid if UseClonedMaterialsCache == true
 		public string MaterialCacheKey
 		{
 			get => m_materialCacheKey;
@@ -88,7 +93,7 @@ namespace GuiToolkit
 			{
 				string oldMaterialCacheKey = m_materialCacheKey;
 				m_materialCacheKey = value;
-				PostChange(UseMaterialCache, UseMaterialCache, m_materialCacheKey, MaterialCacheKey);
+				PostChange(UseClonedMaterialsCache, UseClonedMaterialsCache, m_materialCacheKey, MaterialCacheKey);
 			}
 		}
 
@@ -169,7 +174,7 @@ namespace GuiToolkit
 				SetMaterial(m_clonedMaterial);
 				if (m_useMaterialCache && !m_insertedIntoCache)
 				{
-					UiMaterialCache.Instance.HingeClonedMaterial(m_originalMaterial, m_clonedMaterial, m_materialCacheKey);
+					ClonedMaterialsCache.Instance.HingeClonedMaterial(m_originalMaterial, m_clonedMaterial, m_materialCacheKey);
 					m_insertedIntoCache = true;
 				}
 				return;
@@ -196,7 +201,7 @@ namespace GuiToolkit
 			ReleaseClonedMaterial(m_clonedMaterial);
 			m_clonedMaterial = null;
 
-			Material result = m_useMaterialCache ? UiMaterialCache.Instance.AcquireClonedMaterial(_material, m_materialCacheKey) : Instantiate(_material);
+			Material result = m_useMaterialCache ? ClonedMaterialsCache.Instance.AcquireClonedMaterial(_material, m_materialCacheKey) : Instantiate(_material);
 
 			if (previousCloned)
 			{
@@ -213,7 +218,7 @@ namespace GuiToolkit
 				return;
 
 			if (m_useMaterialCache)
-				UiMaterialCache.Instance.ReleaseClonedMaterial(_material, m_materialCacheKey);
+				ClonedMaterialsCache.Instance.ReleaseClonedMaterial(_material, m_materialCacheKey);
 
 			_material.Destroy();
 		}
@@ -263,12 +268,12 @@ namespace GuiToolkit
 				if (_currentUseMaterialCache)
 				{
 					Undo.DestroyObjectImmediate(m_clonedMaterial);
-					m_clonedMaterial = UiMaterialCache.Instance.AcquireClonedMaterial(m_originalMaterial, _currentKey);
+					m_clonedMaterial = ClonedMaterialsCache.Instance.AcquireClonedMaterial(m_originalMaterial, _currentKey);
 				}
 				else
 				{
 					Material freshlyClonedMaterial = Instantiate(m_clonedMaterial);
-					UiMaterialCache.Instance.ReleaseClonedMaterial(m_clonedMaterial, _currentKey);
+					ClonedMaterialsCache.Instance.ReleaseClonedMaterial(m_clonedMaterial, _currentKey);
 					m_clonedMaterial = freshlyClonedMaterial;
 				}
 				SetMaterial(m_clonedMaterial);
@@ -276,8 +281,8 @@ namespace GuiToolkit
 
 			if (_currentUseMaterialCache && _currentKey != _previousKey)
 			{
-				UiMaterialCache.Instance.UnhingeClonedMaterial(m_clonedMaterial, _previousKey);
-				UiMaterialCache.Instance.HingeClonedMaterial(m_originalMaterial, m_clonedMaterial, _currentKey);
+				ClonedMaterialsCache.Instance.UnhingeClonedMaterial(m_clonedMaterial, _previousKey);
+				ClonedMaterialsCache.Instance.HingeClonedMaterial(m_originalMaterial, m_clonedMaterial, _currentKey);
 			}
 		}
 
@@ -294,7 +299,7 @@ namespace GuiToolkit
 	/// \addtogroup Editor Code
 	/// UiMaterialCloner is quite fragile regarding its options and thus needs a special
 	/// treatment in the editor
-	[CustomEditor(typeof(UiMaterialCloner))]
+	[CustomEditor(typeof(MaterialCloner))]
 	public class UiMaterialClonerEditor : Editor
 	{
 		protected SerializedProperty m_useMaterialCacheProp;
@@ -308,7 +313,7 @@ namespace GuiToolkit
 
 		public override void OnInspectorGUI()
 		{
-			UiMaterialCloner thisMaterialCloner = (UiMaterialCloner)target;
+			MaterialCloner thisMaterialCloner = (MaterialCloner)target;
 			bool previousUseMaterialCache = m_useMaterialCacheProp.boolValue;
 			string previousMaterialCacheKey = m_materialCacheKeyProp.stringValue;
 
