@@ -80,6 +80,12 @@ namespace GuiToolkit
 			}
 		}
 
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			Init();
+		}
+
 		protected override void OnDisable()
 		{
 			m_meshFilter.sharedMesh.bounds = m_originalBounds;

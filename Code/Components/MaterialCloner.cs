@@ -254,7 +254,6 @@ namespace GuiToolkit
 			Init();
 		}
 
-		/// \addtogroup Editor Code
 		/// Note: this is only public because C# programmers dont have friends. UiMaterialClonerEditor needs access.
 		public void PostChange(bool _currentUseMaterialCache, bool _previousUseMaterialCache, string _currentKey, string _previousKey)
 		{
@@ -267,7 +266,9 @@ namespace GuiToolkit
 			{
 				if (_currentUseMaterialCache)
 				{
+#if UNITY_EDITOR
 					Undo.DestroyObjectImmediate(m_clonedMaterial);
+#endif
 					m_clonedMaterial = ClonedMaterialsCache.Instance.AcquireClonedMaterial(m_originalMaterial, _currentKey);
 				}
 				else
