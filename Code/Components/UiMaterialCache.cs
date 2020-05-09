@@ -6,13 +6,6 @@ namespace GuiToolkit
 {
 	public class UiMaterialCache : MonoBehaviour
 	{
-		public enum EMaterialCacheType
-		{
-			NoCache,
-			ByString,
-			Global,
-		}
-
 		private class ClonedMaterialRecord
 		{
 			public Material m_originalMaterial;
@@ -30,18 +23,10 @@ namespace GuiToolkit
 
 		public static UiMaterialCache Instance => UiMain.Instance.UiMaterialCache;
 
-		public Material AcquireClonedMaterial( Material _originalMaterial, EMaterialCacheType _cacheType = EMaterialCacheType.Global, string _key = "" )
+		public Material AcquireClonedMaterial( Material _originalMaterial, string _key = "" )
 		{
 			if (_originalMaterial == null)
 				return null;
-
-			if (_cacheType == EMaterialCacheType.NoCache)
-				return _originalMaterial;
-
-			if (_cacheType == EMaterialCacheType.Global)
-				_key = "";
-			else
-				Debug.Assert( !string.IsNullOrEmpty(_key), "'ByString' cached material needs a string key" );
 
 			if (!m_cacheGroups.TryGetValue(_key, out CacheGroup cacheGroup))
 			{
@@ -72,18 +57,10 @@ namespace GuiToolkit
 			return clonedMaterialRecord.m_clonedMaterial;
 		}
 
-		public Material ReleaseClonedMaterial( Material _clonedMaterial, EMaterialCacheType _cacheType = EMaterialCacheType.Global, string _key = "" )
+		public Material ReleaseClonedMaterial( Material _clonedMaterial, string _key = "" )
 		{
 			if (_clonedMaterial == null)
 				return null;
-
-			if (_cacheType == EMaterialCacheType.NoCache)
-				return _clonedMaterial;
-
-			if (_cacheType == EMaterialCacheType.Global)
-				_key = "";
-			else
-				Debug.Assert( !string.IsNullOrEmpty(_key), "'ByString' cached material needs a string key" );
 
 			if (!m_cacheGroups.TryGetValue(_key, out CacheGroup cacheGroup))
 			{

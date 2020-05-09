@@ -2,6 +2,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit
 {
 	/// /brief Clone and cache materials
@@ -26,14 +30,11 @@ namespace GuiToolkit
 
 		[SerializeField]
 		private string m_materialCacheKey;
+
+		private Material m_originalMaterial;
 		private Material m_material;
 		private Graphic m_graphics;
 		private Renderer m_renderer;
-
-#if UNITY_EDITOR
-		//Workaround: sharedMaterial is null after an undo
-		private Material m_originalMaterial;
-#endif
 
 		public Material Material
 		{
@@ -54,15 +55,18 @@ namespace GuiToolkit
 
 		private void OnDisable()
 		{
+			ReleaseCurrentClonedMaterial();
+			return;
+		}
+
+		private void ReleaseCurrentClonedMaterial()
+		{
 			if (!m_material)
 				return;
 
-			SetMaterial( UiMaterialCache.Instance.ReleaseClonedMaterial(m_material) );
-
-#if UNITY_EDITOR
-			//Workaround: m_meshRenderer.sharedMaterial is null after an undo
+			SetMaterial(ReleaseClonedMaterial(m_material));
 			m_originalMaterial = GetMaterial();
-#endif
+
 			m_material = null;
 		}
 
@@ -94,35 +98,60 @@ namespace GuiToolkit
 			m_graphics = GetComponent<Graphic>();
 			m_renderer = GetComponent<Renderer>();
 
-#if UNITY_EDITOR
 			if (GetMaterial() == null)
-			{
 				SetMaterial(m_originalMaterial);
-			}
-#endif
 
-			Material originalMaterial = GetMaterial();
-
-			if (originalMaterial == null)
-				return;
-
-			m_material = UiMaterialCache.Instance.AcquireClonedMaterial(originalMaterial);
+			m_material = AcquireClonedMaterial(GetMaterial());
 			SetMaterial(m_material);
 		}
-/*
+
 		private Material AcquireClonedMaterial(Material _material)
 		{
-			if (m_useMaterialCache)
-				return UiMaterialCache.Instance.AcquireClonedMaterial(_material);
+			if (IsOriginal(_material))
+			{
+				m_originalMaterial = _material;
+			}
+			else
+			{
+				return m_material;
+			}
 
-			Material clonedMaterial = Instantiate(_material);
+			// We need to make a temporary copy since the cloned material must be released before acquiring a new one
+			Material previousCloned = m_material != null ? Instantiate(m_material) : null; 
 
+			ReleaseClonedMaterial(m_material);
+			m_material = null;
+
+			Material result = m_useMaterialCache ? UiMaterialCache.Instance.AcquireClonedMaterial(_material, m_materialCacheKey) : Instantiate(_material);
+
+			if (previousCloned)
+			{
+				result.CopyPropertiesFromMaterial(previousCloned);
+				previousCloned.Destroy();
+			}
+
+			return result;
 		}
 
 		private Material ReleaseClonedMaterial(Material _material)
 		{
+			if (_material == null)
+				return null;
+
+			if (m_useMaterialCache)
+				return UiMaterialCache.Instance.ReleaseClonedMaterial(_material, m_materialCacheKey);
+
+			_material.Destroy();
+			return m_originalMaterial;
 		}
-*/
+
+		private bool IsOriginal(Material _material)
+		{
+			if (_material == null || m_material == null)
+				return true;
+
+			return m_material != GetMaterial();
+		}
 
 		private void InitIfNecessary()
 		{
@@ -147,5 +176,76 @@ namespace GuiToolkit
 			Init();
 		}
 
+#if UNITY_EDITOR
+
+		private Material m_previousMat;
+
+		/// \addtogroup Editor Code
+		public void PreChange()
+		{
+			if (!m_material)
+				return;
+
+			m_previousMat = Instantiate(m_material);
+			ReleaseCurrentClonedMaterial();
+			m_material = null;
+		}
+
+		/// \addtogroup Editor Code
+		public void PostChange()
+		{
+			if (!m_previousMat)
+				return;
+			Init();
+			if (m_material)
+				m_material.CopyPropertiesFromMaterial(m_previousMat);
+			m_previousMat.Destroy();
+			m_previousMat = null;
+		}
+#endif
 	}
+
+#if UNITY_EDITOR
+	/// \addtogroup Editor Code
+	/// UiMaterialCloner is quite fragile regarding its options and thus needs a special
+	/// treatment in the editor
+	[CustomEditor(typeof(UiMaterialCloner))]
+	public class UiMaterialClonerEditor : Editor
+	{
+		protected SerializedProperty m_useMaterialCacheProp;
+		protected SerializedProperty m_materialCacheKeyProp;
+
+		public virtual void OnEnable()
+		{
+			m_useMaterialCacheProp = serializedObject.FindProperty("m_useMaterialCache");
+			m_materialCacheKeyProp = serializedObject.FindProperty("m_materialCacheKey");
+		}
+
+		public override void OnInspectorGUI()
+		{
+			UiMaterialCloner thisMaterialCloner = (UiMaterialCloner)target;
+			bool previousUseMaterialCache = m_useMaterialCacheProp.boolValue;
+			string previousMaterialCacheKey = m_materialCacheKeyProp.stringValue;
+
+			EditorGUILayout.PropertyField(m_useMaterialCacheProp);
+			EditorGUILayout.PropertyField(m_materialCacheKeyProp);
+
+			bool changed = previousUseMaterialCache != m_useMaterialCacheProp.boolValue || previousMaterialCacheKey != m_materialCacheKeyProp.stringValue;
+
+			if (changed)
+			{
+				Undo.RecordObject(thisMaterialCloner, "Value change");
+				thisMaterialCloner.PreChange();
+			}
+
+			serializedObject.ApplyModifiedProperties();
+
+			if (changed)
+				thisMaterialCloner.PostChange();
+		}
+
+	}
+#endif
+
+
 }
