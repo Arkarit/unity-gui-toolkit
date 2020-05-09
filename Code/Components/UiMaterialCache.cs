@@ -25,36 +25,13 @@ namespace GuiToolkit
 
 		public Material AcquireClonedMaterial( Material _originalMaterial, string _key = "" )
 		{
-			if (_originalMaterial == null)
-				return null;
+			return InsertMaterial(_originalMaterial, null, _key);
+		}
 
-			if (!m_cacheGroups.TryGetValue(_key, out CacheGroup cacheGroup))
-			{
-				cacheGroup = new CacheGroup();
-				m_cacheGroups.Add(_key, cacheGroup);
-			}
 
-			ClonedMaterialRecord clonedMaterialRecord;
-
-			if (cacheGroup.m_clonedMaterialRecordByClonedMaterial.TryGetValue(_originalMaterial, out clonedMaterialRecord))
-			{
-				clonedMaterialRecord.m_usageCount++;
-				return clonedMaterialRecord.m_clonedMaterial;
-			}
-
-			if (cacheGroup.m_clonedMaterialRecordByOriginalMaterial.TryGetValue(_originalMaterial, out clonedMaterialRecord))
-			{
-				clonedMaterialRecord.m_usageCount++;
-				return clonedMaterialRecord.m_clonedMaterial;
-			}
-
-			clonedMaterialRecord = new ClonedMaterialRecord();
-			clonedMaterialRecord.m_originalMaterial = _originalMaterial;
-			clonedMaterialRecord.m_clonedMaterial = Instantiate(_originalMaterial);
-			clonedMaterialRecord.m_usageCount = 1;
-			cacheGroup.m_clonedMaterialRecordByOriginalMaterial.Add(_originalMaterial, clonedMaterialRecord);
-			cacheGroup.m_clonedMaterialRecordByClonedMaterial.Add(clonedMaterialRecord.m_clonedMaterial, clonedMaterialRecord);
-			return clonedMaterialRecord.m_clonedMaterial;
+		public Material InsertClonedMaterial( Material _originalMaterial, Material _clonedMaterial, string _key = null )
+		{
+			return InsertMaterial(_originalMaterial, _clonedMaterial, _key);
 		}
 
 		public Material ReleaseClonedMaterial( Material _clonedMaterial, string _key = "" )
@@ -83,5 +60,42 @@ namespace GuiToolkit
 
 			return _clonedMaterial;
 		}
+
+		private Material InsertMaterial( Material _originalMaterial, Material _clonedMaterial, string _key )
+		{
+			if (_originalMaterial == null)
+				return null;
+
+			if (!m_cacheGroups.TryGetValue(_key, out CacheGroup cacheGroup))
+			{
+				cacheGroup = new CacheGroup();
+				m_cacheGroups.Add(_key, cacheGroup);
+			}
+
+			ClonedMaterialRecord clonedMaterialRecord;
+
+			if (cacheGroup.m_clonedMaterialRecordByClonedMaterial.TryGetValue(_originalMaterial, out clonedMaterialRecord))
+			{
+				clonedMaterialRecord.m_usageCount++;
+				Debug.Assert(_clonedMaterial == null || _clonedMaterial == clonedMaterialRecord.m_clonedMaterial);
+				return clonedMaterialRecord.m_clonedMaterial;
+			}
+
+			if (cacheGroup.m_clonedMaterialRecordByOriginalMaterial.TryGetValue(_originalMaterial, out clonedMaterialRecord))
+			{
+				clonedMaterialRecord.m_usageCount++;
+				Debug.Assert(_clonedMaterial == null || _clonedMaterial == clonedMaterialRecord.m_clonedMaterial);
+				return clonedMaterialRecord.m_clonedMaterial;
+			}
+
+			clonedMaterialRecord = new ClonedMaterialRecord();
+			clonedMaterialRecord.m_originalMaterial = _originalMaterial;
+			clonedMaterialRecord.m_clonedMaterial = _clonedMaterial != null ? _clonedMaterial : Instantiate(_originalMaterial);
+			clonedMaterialRecord.m_usageCount = 1;
+			cacheGroup.m_clonedMaterialRecordByOriginalMaterial.Add(_originalMaterial, clonedMaterialRecord);
+			cacheGroup.m_clonedMaterialRecordByClonedMaterial.Add(clonedMaterialRecord.m_clonedMaterial, clonedMaterialRecord);
+			return clonedMaterialRecord.m_clonedMaterial;
+		}
+
 	}
 }

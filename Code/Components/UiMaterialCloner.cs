@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 #if UNITY_EDITOR
@@ -31,43 +30,41 @@ namespace GuiToolkit
 		[SerializeField]
 		private string m_materialCacheKey;
 
+		[SerializeField]
 		private Material m_originalMaterial;
-		private Material m_material;
+
+		[SerializeField]
+		private Material m_clonedMaterial;
+
 		private Graphic m_graphics;
 		private Renderer m_renderer;
+		private bool m_insertedIntoCache;
 
 		public Material Material
 		{
 			get
 			{
 				InitIfNecessary();
-				return m_material;
+				return m_clonedMaterial;
 			}
 		}
 
-		public bool Valid => m_material != null;
+		public bool Valid => m_clonedMaterial != null;
 
 		private void OnEnable()
 		{
-			if (m_material == null)
-				Init();
-		}
-
-		private void OnDisable()
-		{
-			ReleaseCurrentClonedMaterial();
-			return;
+			InitIfNecessary();
 		}
 
 		private void ReleaseCurrentClonedMaterial()
 		{
-			if (!m_material)
+			if (!m_clonedMaterial)
 				return;
 
-			SetMaterial(ReleaseClonedMaterial(m_material));
-			m_originalMaterial = GetMaterial();
+			ReleaseClonedMaterial(m_clonedMaterial);
+			m_clonedMaterial = null;
 
-			m_material = null;
+			SetMaterial(m_originalMaterial);
 		}
 
 		private void SetMaterial(Material _material)
@@ -89,20 +86,44 @@ namespace GuiToolkit
 
 		private void Init()
 		{
-			if (m_material)
-			{
-				UiMaterialCache.Instance.ReleaseClonedMaterial(m_material);
-				m_material = null;
-			}
-
 			m_graphics = GetComponent<Graphic>();
 			m_renderer = GetComponent<Renderer>();
 
+			// This happens on Undo. Workaround.
 			if (GetMaterial() == null)
-				SetMaterial(m_originalMaterial);
+			{
+				if (m_clonedMaterial != null)
+					SetMaterial(m_clonedMaterial);
+				else
+					SetMaterial(m_originalMaterial);
+			}
 
-			m_material = AcquireClonedMaterial(GetMaterial());
-			SetMaterial(m_material);
+			Material currentRendererMaterial = GetMaterial();
+			bool materialHasChangedExternally = currentRendererMaterial != m_originalMaterial && currentRendererMaterial != m_clonedMaterial;
+
+			if (materialHasChangedExternally)
+			{
+				ReleaseClonedMaterial(m_clonedMaterial);
+				m_clonedMaterial = null;
+				m_originalMaterial = GetMaterial();
+			}
+
+			if (m_clonedMaterial != null)
+			{
+				SetMaterial(m_clonedMaterial);
+				if (m_useMaterialCache && !m_insertedIntoCache)
+				{
+					UiMaterialCache.Instance.InsertClonedMaterial(m_originalMaterial, m_clonedMaterial, m_materialCacheKey);
+					m_insertedIntoCache = true;
+				}
+				return;
+			}
+
+			if (!m_originalMaterial)
+				m_originalMaterial = GetMaterial();
+
+			m_clonedMaterial = AcquireClonedMaterial(m_originalMaterial);
+			SetMaterial(m_clonedMaterial);
 		}
 
 		private Material AcquireClonedMaterial(Material _material)
@@ -113,14 +134,14 @@ namespace GuiToolkit
 			}
 			else
 			{
-				return m_material;
+				return m_clonedMaterial;
 			}
 
 			// We need to make a temporary copy since the cloned material must be released before acquiring a new one
-			Material previousCloned = m_material != null ? Instantiate(m_material) : null; 
+			Material previousCloned = m_clonedMaterial != null ? Instantiate(m_clonedMaterial) : null; 
 
-			ReleaseClonedMaterial(m_material);
-			m_material = null;
+			ReleaseClonedMaterial(m_clonedMaterial);
+			m_clonedMaterial = null;
 
 			Material result = m_useMaterialCache ? UiMaterialCache.Instance.AcquireClonedMaterial(_material, m_materialCacheKey) : Instantiate(_material);
 
@@ -133,29 +154,28 @@ namespace GuiToolkit
 			return result;
 		}
 
-		private Material ReleaseClonedMaterial(Material _material)
+		private void ReleaseClonedMaterial(Material _material)
 		{
 			if (_material == null)
-				return null;
+				return;
 
 			if (m_useMaterialCache)
-				return UiMaterialCache.Instance.ReleaseClonedMaterial(_material, m_materialCacheKey);
+				UiMaterialCache.Instance.ReleaseClonedMaterial(_material, m_materialCacheKey);
 
 			_material.Destroy();
-			return m_originalMaterial;
 		}
 
 		private bool IsOriginal(Material _material)
 		{
-			if (_material == null || m_material == null)
+			if (_material == null || m_clonedMaterial == null)
 				return true;
 
-			return m_material != GetMaterial();
+			return m_clonedMaterial != GetMaterial();
 		}
 
 		private void InitIfNecessary()
 		{
-			if (m_material == null)
+			if (m_clonedMaterial == null)
 			{
 				Init();
 				return;
@@ -163,13 +183,13 @@ namespace GuiToolkit
 
 			if (m_renderer)
 			{
-				if (m_renderer.sharedMaterial == m_material)
+				if (m_renderer.sharedMaterial == m_clonedMaterial)
 					return;
 			}
 
 			if (m_graphics)
 			{
-				if (m_graphics.material == m_material)
+				if (m_graphics.material == m_clonedMaterial)
 					return;
 			}
 
@@ -183,12 +203,12 @@ namespace GuiToolkit
 		/// \addtogroup Editor Code
 		public void PreChange()
 		{
-			if (!m_material)
+			if (!m_clonedMaterial)
 				return;
 
-			m_previousMat = Instantiate(m_material);
+			m_previousMat = Instantiate(m_clonedMaterial);
 			ReleaseCurrentClonedMaterial();
-			m_material = null;
+			m_clonedMaterial = null;
 		}
 
 		/// \addtogroup Editor Code
@@ -197,8 +217,8 @@ namespace GuiToolkit
 			if (!m_previousMat)
 				return;
 			Init();
-			if (m_material)
-				m_material.CopyPropertiesFromMaterial(m_previousMat);
+			if (m_clonedMaterial)
+				m_clonedMaterial.CopyPropertiesFromMaterial(m_previousMat);
 			m_previousMat.Destroy();
 			m_previousMat = null;
 		}
