@@ -36,6 +36,9 @@ namespace GuiToolkit
 		[SerializeField]
 		private Material m_clonedMaterial;
 
+		[SerializeField]
+		private int m_instanceId;
+
 		private Graphic m_graphics;
 		private Renderer m_renderer;
 		private bool m_insertedIntoCache;
@@ -54,6 +57,11 @@ namespace GuiToolkit
 		private void OnEnable()
 		{
 			InitIfNecessary();
+		}
+
+		private void OnDestroy()
+		{
+			m_instanceId = 0;
 		}
 
 		private void ReleaseCurrentClonedMaterial()
@@ -89,6 +97,9 @@ namespace GuiToolkit
 			m_graphics = GetComponent<Graphic>();
 			m_renderer = GetComponent<Renderer>();
 
+			bool gameObjectWasCloned = m_instanceId != 0 && m_instanceId != gameObject.GetInstanceID() && !m_useMaterialCache;
+			m_instanceId = gameObject.GetInstanceID();
+
 			// This happens on Undo. Workaround.
 			if (GetMaterial() == null)
 			{
@@ -108,8 +119,12 @@ namespace GuiToolkit
 				m_originalMaterial = GetMaterial();
 			}
 
+
 			if (m_clonedMaterial != null)
 			{
+				if (gameObjectWasCloned)
+					m_clonedMaterial = Instantiate(m_clonedMaterial);
+
 				SetMaterial(m_clonedMaterial);
 				if (m_useMaterialCache && !m_insertedIntoCache)
 				{
@@ -201,7 +216,7 @@ namespace GuiToolkit
 			if (!m_clonedMaterial || !m_originalMaterial)
 				return;
 
-			Debug.Assert (!_currentUseMaterialCache != _previousUseMaterialCache && _currentKey != _previousKey);
+			Debug.Assert (!(_currentUseMaterialCache != _previousUseMaterialCache && _currentKey != _previousKey));
 
 			if (_currentUseMaterialCache != _previousUseMaterialCache)
 			{
