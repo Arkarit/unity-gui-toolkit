@@ -54,19 +54,12 @@ namespace GuiToolkit
 		[SerializeField]
 		private EZSize m_zSize;
 
-		private static readonly int s_propOffset = Shader.PropertyToID("_Offset");
-		private static readonly int s_propScale = Shader.PropertyToID("_Scale");
+		public static readonly int s_propOffset = Shader.PropertyToID("_Offset");
+		public static readonly int s_propScale = Shader.PropertyToID("_Scale");
 
 		private MeshFilter m_meshFilter;
 		private RectTransform m_rectTransform;
 		private MaterialCloner m_materialCloner;
-
-#if UNITY_EDITOR
-		//Workaround: m_meshRenderer.sharedMaterial is null after an undo
-		[SerializeField]
-		[HideInInspector]
-		private Material m_originalMaterial;
-#endif
 
 		private Bounds m_originalBounds;
 
@@ -112,6 +105,8 @@ namespace GuiToolkit
 		private void SetShaderProperties()
 		{
 			if (m_materialCloner == null || !m_materialCloner.Valid)
+				return;
+			if (!m_materialCloner.Material.HasProperty(s_propOffset) || !m_materialCloner.Material.HasProperty(s_propScale))
 				return;
 
 			Rect rect = m_rectTransform.rect;
@@ -164,4 +159,60 @@ namespace GuiToolkit
 			return result;
 		}
 	}
+
+#if UNITY_EDITOR
+	/// \addtogroup Editor Code
+	/// Ui3DObjectEditor can have several circumstances, under which it is technically impossible
+	/// to work. This editor's purpose is to show some warning if these issues occur.
+	[CustomEditor(typeof(Ui3DObject))]
+	public class Ui3DObjectEditor : Editor
+	{
+		protected SerializedProperty m_zSizeProp;
+
+		public virtual void OnEnable()
+		{
+			m_zSizeProp = serializedObject.FindProperty("m_zSize");
+		}
+
+		public override void OnInspectorGUI()
+		{
+			Ui3DObject thisUi3DObject = (Ui3DObject)target;
+			GameObject go = thisUi3DObject.gameObject;
+			MaterialCloner materialCloner = go.GetComponent<MaterialCloner>();
+
+			if (materialCloner == null)
+				return;
+
+			bool error = false;
+			Material material = materialCloner.Material;
+
+			if (!material.HasProperty(Ui3DObject.s_propOffset) || !material.HasProperty(Ui3DObject.s_propScale))
+			{
+				error = true;
+				EditorGUILayout.HelpBox("Ui3DObject needs a material with _Offset and _Scale property support to work. You can assign UI_3D.mat to the Mesh Renderer, which supports this.\n" + 
+					"Or you can examine Ui3D.shader how it's done. ", MessageType.Warning);
+			}
+
+			if (materialCloner.UseClonedMaterialsCache)
+			{
+				if (!material.enableInstancing)
+				{
+					error = true;
+					EditorGUILayout.HelpBox("If 'Share Material between instances' is selected in the adjacent MaterialCloner script, " + 
+						"Ui3DObject needs a material, which has 'GPU Instancing' enabled. Otherwise scaling will not work properly.", MessageType.Warning);
+				}
+			}
+
+			if (error)
+				return;
+
+			EditorGUILayout.PropertyField(m_zSizeProp);
+
+			serializedObject.ApplyModifiedProperties();
+
+			
+		}
+	}
+#endif
+
 }
