@@ -64,6 +64,8 @@ namespace GuiToolkit
 
 		private Bounds m_originalBounds;
 
+		private Rect m_previousRect = new Rect();
+
 		private MaterialPropertyBlock m_materialPropertyBlock;
 
 		public Material Material
@@ -74,6 +76,11 @@ namespace GuiToolkit
 					Init();
 				return m_materialCloner.Material;
 			}
+		}
+
+		public void SetDirty()
+		{
+			m_previousRect = new Rect();
 		}
 
 		protected override void OnEnable()
@@ -93,7 +100,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 			Init();
 #endif
-			SetShaderProperties();
+			AlignMaterialToRectTransformSize();
 		}
 
 		private void Init()
@@ -107,7 +114,7 @@ namespace GuiToolkit
 			m_originalBounds = RecalculateBounds();
 		}
 
-		private void SetProps( Vector3 scale, Vector3 offset )
+		private void SetMaterialProperties( Vector3 scale, Vector3 offset )
 		{
 			if (m_meshRenderer && m_materialCloner.Material.enableInstancing)
 			{
@@ -121,14 +128,19 @@ namespace GuiToolkit
 			m_materialCloner.Material.SetVector(s_propOffset, offset);
 		}
 
-		private void SetShaderProperties()
+		private void AlignMaterialToRectTransformSize()
 		{
-			if (m_materialCloner == null || !m_materialCloner.Valid)
+			if (m_rectTransform == null || m_materialCloner == null || !m_materialCloner.Valid)
 				return;
+
 			if (!m_materialCloner.Material.HasProperty(s_propOffset) || !m_materialCloner.Material.HasProperty(s_propScale))
 				return;
 
 			Rect rect = m_rectTransform.rect;
+			if (rect == m_previousRect)
+				return;
+			m_previousRect = rect;
+
 			Vector3 scale = Vector4.one;
 			scale.x = rect.width / m_originalBounds.size.x;
 			scale.y = rect.height / m_originalBounds.size.y;
@@ -154,7 +166,7 @@ namespace GuiToolkit
 			offset.x += rect.min.x;
 			offset.y += rect.min.y;
 			offset.z = 0;
-			SetProps(scale, offset);
+			SetMaterialProperties(scale, offset);
 
 			Bounds bounds = m_originalBounds;
 			if (bounds.extents == Vector3.zero)
@@ -224,7 +236,10 @@ namespace GuiToolkit
 			if (error)
 				return;
 
+			int previousZSizeProp = m_zSizeProp.intValue;
 			EditorGUILayout.PropertyField(m_zSizeProp);
+			if (previousZSizeProp != m_zSizeProp.intValue)
+				thisUi3DObject.SetDirty();
 
 			serializedObject.ApplyModifiedProperties();
 
