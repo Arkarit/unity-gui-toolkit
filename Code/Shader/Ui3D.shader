@@ -29,6 +29,8 @@
 
 		#pragma multi_compile __ FlipNormals
 		#pragma multi_compile __ USE_UI3D
+		#pragma multi_compile_instancing
+
 
         sampler2D _MainTex;
 
@@ -41,27 +43,27 @@
         half _Metallic;
         fixed4 _Color;
 		fixed4 _ColorSelfIllumination;
-		#ifdef USE_UI3D
-			float4 _Offset;
-			float4 _Scale;
-		#endif
 
         // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
         // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
         // #pragma instancing_options assumeuniformscaling
         UNITY_INSTANCING_BUFFER_START(Props)
-            // put more per-instance properties here
+			#ifdef USE_UI3D
+				float4 _Offset;
+				float4 _Scale;
+			#endif
         UNITY_INSTANCING_BUFFER_END(Props)
 
 		void vert (inout appdata_full v) {
 			#ifdef USE_UI3D
-				v.vertex *= _Scale;
-				v.vertex += _Offset;
+				v.vertex *= UNITY_ACCESS_INSTANCED_PROP(Props, _Scale);
+				v.vertex += UNITY_ACCESS_INSTANCED_PROP(Props, _Offset);
 			#endif
 			#ifdef FlipNormals
 				v.normal = -v.normal;
 			#endif
 		}
+
 		void surf (Input IN, inout SurfaceOutputStandard o)
         {
             // Albedo comes from a texture tinted by color

@@ -58,10 +58,13 @@ namespace GuiToolkit
 		public static readonly int s_propScale = Shader.PropertyToID("_Scale");
 
 		private MeshFilter m_meshFilter;
+		private MeshRenderer m_meshRenderer;
 		private RectTransform m_rectTransform;
 		private MaterialCloner m_materialCloner;
 
 		private Bounds m_originalBounds;
+
+		private MaterialPropertyBlock m_materialPropertyBlock;
 
 		public Material Material
 		{
@@ -96,10 +99,26 @@ namespace GuiToolkit
 		private void Init()
 		{
 			m_meshFilter = this.GetOrCreateComponent<MeshFilter>();
+			m_meshRenderer = this.GetOrCreateComponent<MeshRenderer>();
 			m_rectTransform =this.GetOrCreateComponent<RectTransform>();
 			m_materialCloner =this.GetOrCreateComponent<MaterialCloner>();
+			m_materialPropertyBlock = new MaterialPropertyBlock();
 
 			m_originalBounds = RecalculateBounds();
+		}
+
+		private void SetProps( Vector3 scale, Vector3 offset )
+		{
+			if (m_meshRenderer && m_materialCloner.Material.enableInstancing)
+			{
+				m_materialPropertyBlock.SetVector(s_propScale, scale);
+				m_materialPropertyBlock.SetVector(s_propOffset, offset);
+				m_meshRenderer.SetPropertyBlock(m_materialPropertyBlock);
+				return;
+			}
+
+			m_materialCloner.Material.SetVector(s_propScale, scale);
+			m_materialCloner.Material.SetVector(s_propOffset, offset);
 		}
 
 		private void SetShaderProperties()
@@ -130,13 +149,12 @@ namespace GuiToolkit
 					Debug.Assert(false);
 					break;
 			}
-			m_materialCloner.Material.SetVector( s_propScale, scale );
 			Vector3 offset = -m_originalBounds.min;
 			offset.Scale( scale );
 			offset.x += rect.min.x;
 			offset.y += rect.min.y;
 			offset.z = 0;
-			m_materialCloner.Material.SetVector( s_propOffset, offset);
+			SetProps(scale, offset);
 
 			Bounds bounds = m_originalBounds;
 			if (bounds.extents == Vector3.zero)
