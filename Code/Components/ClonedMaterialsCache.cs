@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace GuiToolkit
 {
@@ -17,6 +18,15 @@ namespace GuiToolkit
 
 	public class ClonedMaterialsCache : MonoBehaviour
 	{
+		[System.Serializable]
+		/// Event when cloned material is about to be replaced:
+		/// 1. replaced original material, about to be removed
+		/// 2. replacement original material
+		/// 3. replaced material, about to be destroyed
+		/// 4. replacement material
+		public class CEvMaterialReplaced : UnityEvent<Material,Material,Material, Material> {}
+		public CEvMaterialReplaced EvMaterialReplaced = new CEvMaterialReplaced();
+
 		private class ClonedMaterialRecord
 		{
 			public Material m_originalMaterial;
@@ -65,7 +75,7 @@ namespace GuiToolkit
 		/// \param[in] _clonedMaterial The cloned material
 		/// \param[in] _key optional key to separate material sharing ("" is global)
 		/// \return Cloned Material
-		public Material HingeClonedMaterial( Material _originalMaterial, Material _clonedMaterial, string _key = null )
+		public Material HingeClonedMaterial( Material _originalMaterial, Material _clonedMaterial, string _key = "" )
 		{
 			return InsertMaterial(_originalMaterial, _clonedMaterial, _key);
 		}
@@ -79,6 +89,38 @@ namespace GuiToolkit
 		public Material UnhingeClonedMaterial( Material _clonedMaterial, string _key = "" )
 		{
 			return ReleaseMaterial(_clonedMaterial, _key, false);
+		}
+
+		public bool ReplaceMaterial( Material _oldOriginalMaterial, Material _newOriginalMaterial, string _key = "" )
+		{
+			if (_oldOriginalMaterial == null || _newOriginalMaterial == null)
+				return false;
+
+			if (!m_cacheGroups.TryGetValue(_key, out CacheGroup cacheGroup))
+				return false;
+
+			if (!cacheGroup.m_clonedMaterialRecordByOriginalMaterial.TryGetValue(_oldOriginalMaterial, out ClonedMaterialRecord clonedMaterialRecord))
+				return false;
+
+			Material newClonedMaterial = Instantiate(_newOriginalMaterial);
+			EvMaterialReplaced.Invoke( _oldOriginalMaterial, _newOriginalMaterial, clonedMaterialRecord.m_clonedMaterial, newClonedMaterial);
+
+			Debug.Assert(cacheGroup.m_clonedMaterialRecordByClonedMaterial.ContainsKey(clonedMaterialRecord.m_clonedMaterial));
+			Debug.Assert(cacheGroup.m_clonedMaterialRecordByOriginalMaterial.ContainsKey(clonedMaterialRecord.m_originalMaterial));
+
+
+			cacheGroup.m_clonedMaterialRecordByOriginalMaterial.Remove(clonedMaterialRecord.m_originalMaterial);
+			cacheGroup.m_clonedMaterialRecordByClonedMaterial.Remove(clonedMaterialRecord.m_clonedMaterial);
+
+
+			clonedMaterialRecord.m_clonedMaterial.Destroy();
+			clonedMaterialRecord.m_clonedMaterial = newClonedMaterial;
+			clonedMaterialRecord.m_originalMaterial = _newOriginalMaterial;
+
+			cacheGroup.m_clonedMaterialRecordByOriginalMaterial.Add(_newOriginalMaterial, clonedMaterialRecord);
+			cacheGroup.m_clonedMaterialRecordByClonedMaterial.Add(newClonedMaterial, clonedMaterialRecord);
+
+			return true;
 		}
 
 		private Material InsertMaterial( Material _originalMaterial, Material _clonedMaterial, string _key )
