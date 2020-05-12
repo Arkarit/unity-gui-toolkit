@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System;
+using UnityEngine.Events;
+using UnityEngine.Serialization;
+using System.Collections.Generic;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -28,7 +31,8 @@ namespace GuiToolkit
 	public sealed class MaterialCloner : MonoBehaviour
 	{
 		[SerializeField]
-		private bool m_useMaterialCache;
+		[FormerlySerializedAs("m_useMaterialCache")]
+		private bool m_isSharedMaterial;
 
 		[SerializeField]
 		private string m_materialCacheKey;
@@ -42,7 +46,7 @@ namespace GuiToolkit
 		[SerializeField]
 		private int m_instanceId;
 
-		private bool m_insertedIntoCache;
+		private readonly HashSet<MaterialCloner> s_instances = new HashSet<MaterialCloner>();
 
 		/// Get cloned material
 		public Material Material
@@ -76,12 +80,12 @@ namespace GuiToolkit
 		/// Note that switching from non-use cache to use cache will most likely destroy the current material (also visible, if it differs in visual outcome)
 		public bool UseClonedMaterialsCache
 		{
-			get => m_useMaterialCache;
+			get => m_isSharedMaterial;
 			set
 			{
-				bool oldUseMaterialCache = m_useMaterialCache;
-				m_useMaterialCache = value;
-				PostChange(m_useMaterialCache, oldUseMaterialCache, m_materialCacheKey, m_materialCacheKey);
+				bool oldUseMaterialCache = m_isSharedMaterial;
+				m_isSharedMaterial = value;
+				PostChange(m_isSharedMaterial, oldUseMaterialCache, m_materialCacheKey, m_materialCacheKey, s_instances);
 			}
 		}
 
@@ -94,50 +98,27 @@ namespace GuiToolkit
 			{
 				string oldMaterialCacheKey = m_materialCacheKey;
 				m_materialCacheKey = value;
-				PostChange(UseClonedMaterialsCache, UseClonedMaterialsCache, m_materialCacheKey, MaterialCacheKey);
+				PostChange(UseClonedMaterialsCache, UseClonedMaterialsCache, m_materialCacheKey, MaterialCacheKey, s_instances);
 			}
 		}
 
 		/// Is this material cloner currently valid?
 		public bool Valid => m_clonedMaterial != null;
 
+		private void Awake()
+		{
+			s_instances.Add(this);
+		}
+
 		private void OnEnable()
 		{
 			InitIfNecessary();
-			ClonedMaterialsCache.Instance.EvMaterialReplaced.AddListener(OnMaterialReplaced);
-		}
-
-		private void OnDisable()
-		{
-			ClonedMaterialsCache.Instance.EvMaterialReplaced.RemoveListener(OnMaterialReplaced);
 		}
 
 		private void OnDestroy()
 		{
 			m_instanceId = 0;
-		}
-
-		private void OnMaterialReplaced( Material _oldOriginalMaterial, Material _newOriginalMaterial, Material _oldClonedMaterial, Material _newClonedMaterial )
-		{
-//Debug.Log($"m_useMaterialCache: {m_useMaterialCache} _oldOriginalMaterial: {_oldOriginalMaterial.name} m_originalMaterial:{m_originalMaterial.name} _oldClonedMaterial:{_oldClonedMaterial.name} m_clonedMaterial: {m_clonedMaterial.name}");
-			if (!m_useMaterialCache || _oldOriginalMaterial != m_originalMaterial || _oldClonedMaterial != m_clonedMaterial)
-				return;
-
-			m_originalMaterial = _newOriginalMaterial;
-			m_clonedMaterial = _newClonedMaterial;
-
-			SetMaterial(_newClonedMaterial);
-		}
-
-		private void ReleaseCurrentClonedMaterial()
-		{
-			if (!m_clonedMaterial)
-				return;
-
-			ReleaseClonedMaterial(m_clonedMaterial);
-			m_clonedMaterial = null;
-
-			SetMaterial(m_originalMaterial);
+			s_instances.Remove(this);
 		}
 
 		private void SetMaterial(Material _material)
@@ -162,7 +143,7 @@ namespace GuiToolkit
 			Graphic = GetComponent<Graphic>();
 			Renderer = GetComponent<Renderer>();
 
-			bool gameObjectWasCloned = m_instanceId != 0 && m_instanceId != gameObject.GetInstanceID() && !m_useMaterialCache;
+			bool gameObjectWasCloned = m_instanceId != 0 && m_instanceId != gameObject.GetInstanceID() && !m_isSharedMaterial;
 			m_instanceId = gameObject.GetInstanceID();
 
 			// This happens on Undo. Workaround.
@@ -174,79 +155,17 @@ namespace GuiToolkit
 					SetMaterial(m_originalMaterial);
 			}
 
-			Material currentRendererMaterial = GetMaterial();
-			bool materialHasChangedExternally = currentRendererMaterial != m_originalMaterial && currentRendererMaterial != m_clonedMaterial;
-
-			if (materialHasChangedExternally || !m_originalMaterial)
-			{
-				ReleaseClonedMaterial(m_clonedMaterial);
-				m_clonedMaterial = null;
-				m_originalMaterial = GetMaterial();
-			}
-
 			if (m_clonedMaterial != null)
 			{
-				if (gameObjectWasCloned)
+				if (gameObjectWasCloned && !m_isSharedMaterial)
 					m_clonedMaterial = Instantiate(m_clonedMaterial);
 
 				SetMaterial(m_clonedMaterial);
-				if (m_useMaterialCache && !m_insertedIntoCache)
-				{
-					ClonedMaterialsCache.Instance.HingeClonedMaterial(m_originalMaterial, m_clonedMaterial, m_materialCacheKey);
-					m_insertedIntoCache = true;
-				}
 				return;
 			}
 
-			m_clonedMaterial = AcquireClonedMaterial(m_originalMaterial);
+			m_clonedMaterial = Instantiate(m_originalMaterial);
 			SetMaterial(m_clonedMaterial);
-		}
-
-		private Material AcquireClonedMaterial(Material _material)
-		{
-			if (IsOriginal(_material))
-			{
-				m_originalMaterial = _material;
-			}
-			else
-			{
-				return m_clonedMaterial;
-			}
-
-			// We need to make a temporary copy since the cloned material must be released before acquiring a new one
-			Material previousCloned = m_clonedMaterial != null ? Instantiate(m_clonedMaterial) : null; 
-
-			ReleaseClonedMaterial(m_clonedMaterial);
-			m_clonedMaterial = null;
-
-			Material result = m_useMaterialCache ? ClonedMaterialsCache.Instance.AcquireClonedMaterial(_material, m_materialCacheKey) : Instantiate(_material);
-
-			if (previousCloned)
-			{
-				result.CopyPropertiesFromMaterial(previousCloned);
-				previousCloned.Destroy();
-			}
-
-			return result;
-		}
-
-		private void ReleaseClonedMaterial(Material _material)
-		{
-			if (_material == null)
-				return;
-
-			if (m_useMaterialCache)
-				ClonedMaterialsCache.Instance.ReleaseClonedMaterial(_material, m_materialCacheKey);
-
-			_material.Destroy();
-		}
-
-		private bool IsOriginal(Material _material)
-		{
-			if (_material == null || m_clonedMaterial == null)
-				return true;
-
-			return m_clonedMaterial != GetMaterial();
 		}
 
 		private void InitIfNecessary()
@@ -272,35 +191,114 @@ namespace GuiToolkit
 			Init();
 		}
 
-		/// Note: this is only public because C# programmers dont have friends. UiMaterialClonerEditor needs access.
-		public void PostChange(bool _currentUseMaterialCache, bool _previousUseMaterialCache, string _currentKey, string _previousKey)
+		/// Note: this is only public because C# programmers don't have friends. UiMaterialClonerEditor needs access.
+		public void OnMaterialReplaced( string _key, Material _oldOriginalMaterial, Material _newOriginalMaterial, Material _newClonedMaterial )
+		{
+			if (!m_isSharedMaterial || _key != m_materialCacheKey || _oldOriginalMaterial != m_originalMaterial)
+				return;
+
+			m_originalMaterial = _newOriginalMaterial;
+			m_clonedMaterial = _newClonedMaterial;
+
+			SetMaterial(_newClonedMaterial);
+		}
+
+		/// Note: this is only public because C# programmers don't have friends. UiMaterialClonerEditor needs access.
+		public void PostChange(bool _currentShareMaterial, bool _previousShareMaterial, string _currentKey, string _previousKey, IEnumerable<MaterialCloner> _instances)
 		{
 			if (!m_clonedMaterial || !m_originalMaterial)
 				return;
 
-			Debug.Assert (!(_currentUseMaterialCache != _previousUseMaterialCache && _currentKey != _previousKey));
+			Debug.Assert (!(_currentShareMaterial != _previousShareMaterial && _currentKey != _previousKey));
 
-			if (_currentUseMaterialCache != _previousUseMaterialCache)
+			if (_currentShareMaterial != _previousShareMaterial)
 			{
-				if (_currentUseMaterialCache)
+				if (_currentShareMaterial)
 				{
-					m_clonedMaterial.Destroy();
-					m_clonedMaterial = ClonedMaterialsCache.Instance.AcquireClonedMaterial(m_originalMaterial, _currentKey);
+					Material clonedMaterial = FindClonedMaterialInOtherInstances(_instances);
+					if (clonedMaterial)
+					{
+						m_clonedMaterial.Destroy();
+						m_clonedMaterial = clonedMaterial;
+						SetMaterial(clonedMaterial);
+					}
+					return;
 				}
 				else
 				{
-					Material freshlyClonedMaterial = Instantiate(m_clonedMaterial);
-					ClonedMaterialsCache.Instance.ReleaseClonedMaterial(m_clonedMaterial, _currentKey);
-					m_clonedMaterial = freshlyClonedMaterial;
+					// we have to ensure that we are not the last instance holding this material, otherwise leak
+					Material clonedMaterial = FindClonedMaterialInOtherInstances(_instances);
+
+					// there's another instance holding the same material, we can safely clone
+					if (clonedMaterial)
+					{
+						m_clonedMaterial = Instantiate(clonedMaterial);
+						SetMaterial(m_clonedMaterial);
+						return;
+					}
+
+					// nothing to do, we're the only instance holding this material
 				}
 				SetMaterial(m_clonedMaterial);
 			}
 
-			if (_currentUseMaterialCache && _currentKey != _previousKey)
+			if (_currentShareMaterial && _currentKey != _previousKey)
 			{
-				ClonedMaterialsCache.Instance.UnhingeClonedMaterial(m_clonedMaterial, _previousKey);
-				ClonedMaterialsCache.Instance.HingeClonedMaterial(m_originalMaterial, m_clonedMaterial, _currentKey);
+				m_materialCacheKey = _previousKey;
+				Material oldSharedMaterial = FindClonedMaterialInOtherInstances(_instances);
+				m_materialCacheKey = _currentKey;
+				Material newSharedMaterial = FindClonedMaterialInOtherInstances(_instances);
+
+				if (oldSharedMaterial == null)
+				{
+					if (newSharedMaterial == null)
+					{
+						// we have sharing enabled, but no one else has this material. Nothing to do.
+						return;
+					}
+					else
+					{
+						// we previously were holding the material solitary, but for the new material, there's already an instance using it.
+						// we have to destroy the old material and use the new one.
+						m_clonedMaterial.Destroy();
+						m_clonedMaterial = newSharedMaterial;
+					}
+				}
+				else
+				{
+					if (newSharedMaterial == null)
+					{
+						// we previously were sharing the material, but now holding solitary.
+						// we mustn't destroy the old material, since it is still in use, we need to clone the previous material instead.
+						m_clonedMaterial = Instantiate(m_clonedMaterial);
+					}
+					else
+					{
+						// we shared before and after. We just need to switch to the new material. No cloning, no destroy.
+						m_clonedMaterial = newSharedMaterial;
+					}
+				}
+
+				SetMaterial(m_clonedMaterial);
 			}
+		}
+
+		private Material FindClonedMaterialInOtherInstances(IEnumerable<MaterialCloner> _instances)
+		{
+			foreach (var instance in _instances)
+			{
+				if (instance == this)
+					continue;
+
+				if (instance.m_isSharedMaterial
+					&& instance.m_originalMaterial == m_originalMaterial
+					&& instance.m_materialCacheKey == m_materialCacheKey)
+				{
+					return instance.m_clonedMaterial;
+				}
+			}
+
+			return null;
 		}
 
 #if UNITY_EDITOR
@@ -317,15 +315,15 @@ namespace GuiToolkit
 	/// UiMaterialCloner is quite fragile regarding its options and thus needs a special
 	/// treatment in the editor
 	[CustomEditor(typeof(MaterialCloner))]
-	public class UiMaterialClonerEditor : Editor
+	public class MaterialClonerEditor : Editor
 	{
-		protected SerializedProperty m_useMaterialCacheProp;
+		protected SerializedProperty m_isSharedMaterialProp;
 		protected SerializedProperty m_materialCacheKeyProp;
 		protected SerializedProperty m_originalMaterialProp;
 
 		public virtual void OnEnable()
 		{
-			m_useMaterialCacheProp = serializedObject.FindProperty("m_useMaterialCache");
+			m_isSharedMaterialProp = serializedObject.FindProperty("m_isSharedMaterial");
 			m_materialCacheKeyProp = serializedObject.FindProperty("m_materialCacheKey");
 			m_originalMaterialProp = serializedObject.FindProperty("m_originalMaterial");
 		}
@@ -333,29 +331,38 @@ namespace GuiToolkit
 		public override void OnInspectorGUI()
 		{
 			MaterialCloner thisMaterialCloner = (MaterialCloner)target;
-			bool previousUseMaterialCache = m_useMaterialCacheProp.boolValue;
+			bool previousSharedMaterial = m_isSharedMaterialProp.boolValue;
 			string previousMaterialCacheKey = m_materialCacheKeyProp.stringValue;
 
-			EditorGUILayout.PropertyField(m_useMaterialCacheProp, new GUIContent("Share Material between instances"));
-			if (m_useMaterialCacheProp.boolValue)
+			EditorGUILayout.PropertyField(m_isSharedMaterialProp, new GUIContent("Share Material between instances"));
+			if (m_isSharedMaterialProp.boolValue)
 				EditorGUILayout.PropertyField(m_materialCacheKeyProp, new GUIContent("Sharing Key"));
 
 			EditorGUILayout.PropertyField(m_originalMaterialProp, new GUIContent("Original Material"));
 
 			Material prevOriginalMaterial = thisMaterialCloner.OriginalMaterial;
-			bool cachedMaterialHasChanged = m_useMaterialCacheProp.boolValue && (Material) m_originalMaterialProp.objectReferenceValue != thisMaterialCloner.OriginalMaterial;
+			bool cachedMaterialHasChanged = m_isSharedMaterialProp.boolValue && (Material) m_originalMaterialProp.objectReferenceValue != thisMaterialCloner.OriginalMaterial;
 
 			EditorGUILayout.LabelField(thisMaterialCloner.GetDebugInfoStr());
 
 			serializedObject.ApplyModifiedProperties();
 
-			thisMaterialCloner.PostChange( m_useMaterialCacheProp.boolValue, previousUseMaterialCache, m_materialCacheKeyProp.stringValue, previousMaterialCacheKey );
+			if (m_isSharedMaterialProp.boolValue != previousSharedMaterial || m_materialCacheKeyProp.stringValue != previousMaterialCacheKey)
+			{
+
+				MaterialCloner[] instances = FindObjectsOfType<MaterialCloner>();
+				thisMaterialCloner.PostChange( m_isSharedMaterialProp.boolValue, previousSharedMaterial, m_materialCacheKeyProp.stringValue, previousMaterialCacheKey, instances );
+			}
 
 			if (GUILayout.Button("Force reset material") || cachedMaterialHasChanged)
 			{
-				ClonedMaterialsCache.Instance.ReplaceMaterial(prevOriginalMaterial, (Material) m_originalMaterialProp.objectReferenceValue, m_materialCacheKeyProp.stringValue);
+				Material oldClonedMaterial = thisMaterialCloner.Material;
+				Material clonedMaterial = Instantiate(thisMaterialCloner.OriginalMaterial);
+				MaterialCloner[] instances = FindObjectsOfType<MaterialCloner>();
+				foreach (var instance in instances)
+					instance.OnMaterialReplaced(m_materialCacheKeyProp.stringValue, prevOriginalMaterial, thisMaterialCloner.OriginalMaterial, clonedMaterial);
+				oldClonedMaterial.Destroy();
 			}
-
 		}
 
 	}

@@ -38,7 +38,6 @@ namespace GuiToolkit
 		public RenderMode RenderMode => m_renderMode;
 		public Camera Camera { get; private set; }
 		public UiPool UiPool { get; private set; }
-		public ClonedMaterialsCache ClonedMaterialsCache { get; private set; }
 
 		private static UiMain m_instance;
 		public static UiMain Instance
@@ -444,8 +443,6 @@ namespace GuiToolkit
 				poolContainer.transform.SetParent(transform);
 				UiPool.m_container = poolContainer.transform;
 			}
-
-			ClonedMaterialsCache = this.GetOrCreateComponent<ClonedMaterialsCache>();
 		}
 
 
