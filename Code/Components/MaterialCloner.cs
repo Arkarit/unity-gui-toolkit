@@ -35,7 +35,8 @@ namespace GuiToolkit
 		private bool m_isSharedMaterial;
 
 		[SerializeField]
-		private string m_materialCacheKey;
+		[FormerlySerializedAs("m_materialCacheKey")]
+		private string m_materialInstanceKey;
 
 		[SerializeField]
 		private Material m_originalMaterial;
@@ -49,7 +50,7 @@ namespace GuiToolkit
 		private readonly HashSet<MaterialCloner> s_instances = new HashSet<MaterialCloner>();
 
 		/// Get cloned material
-		public Material Material
+		public Material ClonedMaterial
 		{
 			get
 			{
@@ -75,30 +76,28 @@ namespace GuiToolkit
 		public Renderer Renderer { get; private set; }
 
 		/// Switch between shared usage of UiMaterialCloner and unique cloned instance
-		/// true: UiMaterialCloner uses ClonedMaterialsCache. This means the material will be shared between multiple UiMaterialCloner's using the same MaterialCacheKey.<BR>
-		/// false: Each UiMaterialCloner maintains its own cloned material.<BR>
 		/// Note that switching from non-use cache to use cache will most likely destroy the current material (also visible, if it differs in visual outcome)
-		public bool UseClonedMaterialsCache
+		public bool IsSharedMaterial
 		{
 			get => m_isSharedMaterial;
 			set
 			{
-				bool oldUseMaterialCache = m_isSharedMaterial;
+				bool oldIsSharedMaterial = m_isSharedMaterial;
 				m_isSharedMaterial = value;
-				PostChange(m_isSharedMaterial, oldUseMaterialCache, m_materialCacheKey, m_materialCacheKey, s_instances);
+				PostChange(m_isSharedMaterial, oldIsSharedMaterial, m_materialInstanceKey, m_materialInstanceKey, s_instances);
 			}
 		}
 
-		/// Key for ClonedMaterialsCache. Use it to separate between groups of shared materials.
-		/// Only valid if UseClonedMaterialsCache == true
-		public string MaterialCacheKey
+		/// Key for shared material instances. Use it to separate between groups of shared materials.
+		/// Only valid if IsSharedMaterial == true
+		public string MaterialInstanceKey
 		{
-			get => m_materialCacheKey;
+			get => m_materialInstanceKey;
 			set
 			{
-				string oldMaterialCacheKey = m_materialCacheKey;
-				m_materialCacheKey = value;
-				PostChange(UseClonedMaterialsCache, UseClonedMaterialsCache, m_materialCacheKey, MaterialCacheKey, s_instances);
+				string oldMaterialInstanceKey = m_materialInstanceKey;
+				m_materialInstanceKey = value;
+				PostChange(IsSharedMaterial, IsSharedMaterial, m_materialInstanceKey, oldMaterialInstanceKey, s_instances);
 			}
 		}
 
@@ -192,24 +191,6 @@ namespace GuiToolkit
 		}
 
 		/// Note: this is only public because C# programmers don't have friends. UiMaterialClonerEditor needs access.
-		public bool WillMaterialBeReplaced( string _key, Material _oldOriginalMaterial )
-		{
-			 return m_isSharedMaterial && _key == m_materialCacheKey && _oldOriginalMaterial == m_originalMaterial;
-		}
-
-		/// Note: this is only public because C# programmers don't have friends. UiMaterialClonerEditor needs access.
-		public void OnMaterialReplaced( string _key, Material _oldOriginalMaterial, Material _newOriginalMaterial, Material _newClonedMaterial )
-		{
-			if (!WillMaterialBeReplaced(_key, _oldOriginalMaterial))
-				return;
-
-			m_originalMaterial = _newOriginalMaterial;
-			m_clonedMaterial = _newClonedMaterial;
-
-			SetMaterial(_newClonedMaterial);
-		}
-
-		/// Note: this is only public because C# programmers don't have friends. UiMaterialClonerEditor needs access.
 		public void PostChange(bool _currentShareMaterial, bool _previousShareMaterial, string _currentKey, string _previousKey, IEnumerable<MaterialCloner> _instances)
 		{
 			if (!m_clonedMaterial || !m_originalMaterial)
@@ -250,9 +231,9 @@ namespace GuiToolkit
 
 			if (_currentShareMaterial && _currentKey != _previousKey)
 			{
-				m_materialCacheKey = _previousKey;
+				m_materialInstanceKey = _previousKey;
 				Material oldSharedMaterial = FindClonedMaterialInOtherInstances(_instances);
-				m_materialCacheKey = _currentKey;
+				m_materialInstanceKey = _currentKey;
 				Material newSharedMaterial = FindClonedMaterialInOtherInstances(_instances);
 
 				if (oldSharedMaterial == null)
@@ -298,7 +279,7 @@ namespace GuiToolkit
 
 				if (instance.m_isSharedMaterial
 					&& instance.m_originalMaterial == m_originalMaterial
-					&& instance.m_materialCacheKey == m_materialCacheKey)
+					&& instance.m_materialInstanceKey == m_materialInstanceKey)
 				{
 					return instance.m_clonedMaterial;
 				}
@@ -324,13 +305,13 @@ namespace GuiToolkit
 	public class MaterialClonerEditor : Editor
 	{
 		protected SerializedProperty m_isSharedMaterialProp;
-		protected SerializedProperty m_materialCacheKeyProp;
+		protected SerializedProperty m_materialInstanceKeyProp;
 		protected SerializedProperty m_originalMaterialProp;
 
 		public virtual void OnEnable()
 		{
 			m_isSharedMaterialProp = serializedObject.FindProperty("m_isSharedMaterial");
-			m_materialCacheKeyProp = serializedObject.FindProperty("m_materialCacheKey");
+			m_materialInstanceKeyProp = serializedObject.FindProperty("m_materialInstanceKey");
 			m_originalMaterialProp = serializedObject.FindProperty("m_originalMaterial");
 		}
 
@@ -338,11 +319,11 @@ namespace GuiToolkit
 		{
 			MaterialCloner thisMaterialCloner = (MaterialCloner)target;
 			bool previousSharedMaterial = m_isSharedMaterialProp.boolValue;
-			string previousMaterialCacheKey = m_materialCacheKeyProp.stringValue;
+			string previousMaterialCacheKey = m_materialInstanceKeyProp.stringValue;
 
 			EditorGUILayout.PropertyField(m_isSharedMaterialProp, new GUIContent("Share Material between instances"));
 			if (m_isSharedMaterialProp.boolValue)
-				EditorGUILayout.PropertyField(m_materialCacheKeyProp, new GUIContent("Sharing Key"));
+				EditorGUILayout.PropertyField(m_materialInstanceKeyProp, new GUIContent("Sharing Key"));
 
 			EditorGUILayout.PropertyField(m_originalMaterialProp, new GUIContent("Original Material"));
 
@@ -353,18 +334,18 @@ namespace GuiToolkit
 
 			serializedObject.ApplyModifiedProperties();
 
-			if (m_isSharedMaterialProp.boolValue != previousSharedMaterial || m_materialCacheKeyProp.stringValue != previousMaterialCacheKey)
+			if (m_isSharedMaterialProp.boolValue != previousSharedMaterial || m_materialInstanceKeyProp.stringValue != previousMaterialCacheKey)
 			{
 
 				MaterialCloner[] instances = FindObjectsOfType<MaterialCloner>();
-				thisMaterialCloner.PostChange( m_isSharedMaterialProp.boolValue, previousSharedMaterial, m_materialCacheKeyProp.stringValue, previousMaterialCacheKey, instances );
+				thisMaterialCloner.PostChange( m_isSharedMaterialProp.boolValue, previousSharedMaterial, m_materialInstanceKeyProp.stringValue, previousMaterialCacheKey, instances );
 			}
 
 			if (GUILayout.Button("Force reset material") || cachedMaterialHasChanged)
 			{
 				Undo.SetCurrentGroupName(cachedMaterialHasChanged ? "Change Material" : "Force reset material");
 
-				Material oldClonedMaterial = thisMaterialCloner.Material;
+				Material oldClonedMaterial = thisMaterialCloner.ClonedMaterial;
 				Material clonedMaterial = Instantiate(thisMaterialCloner.OriginalMaterial);
 				Undo.RegisterCreatedObjectUndo(clonedMaterial, "");
 				MaterialCloner[] instances = FindObjectsOfType<MaterialCloner>();
@@ -377,7 +358,7 @@ namespace GuiToolkit
 
 				foreach (var instance in instances)
 				{
-					if (instance.WillMaterialBeReplaced(m_materialCacheKeyProp.stringValue, prevOriginalMaterial))
+					if (WouldMaterialBeReplaced(instance, m_materialInstanceKeyProp.stringValue, prevOriginalMaterial))
 					{
 						SerializedObject serObj = new SerializedObject(instance);
 						serObj.FindProperty("m_originalMaterial").objectReferenceValue = newOriginalMaterial;
@@ -400,6 +381,13 @@ namespace GuiToolkit
 
 				Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
 			}
+			/// Note: this is only public because C# programmers don't have friends. UiMaterialClonerEditor needs access.
+
+		}
+
+		private static bool WouldMaterialBeReplaced( MaterialCloner _materialCloner, string _key, Material _oldOriginalMaterial )
+		{
+			return _materialCloner.IsSharedMaterial && _key == _materialCloner.MaterialInstanceKey && _oldOriginalMaterial == _materialCloner.OriginalMaterial;
 		}
 
 	}

@@ -74,7 +74,7 @@ namespace GuiToolkit
 			{
 				if (m_materialCloner == null)
 					Init();
-				return m_materialCloner.Material;
+				return m_materialCloner.ClonedMaterial;
 			}
 		}
 
@@ -116,7 +116,7 @@ namespace GuiToolkit
 
 		private void SetMaterialProperties( Vector3 scale, Vector3 offset )
 		{
-			if (m_meshRenderer && m_materialCloner.Material.enableInstancing)
+			if (m_meshRenderer && m_materialCloner.ClonedMaterial.enableInstancing)
 			{
 				m_materialPropertyBlock.SetVector(s_propScale, scale);
 				m_materialPropertyBlock.SetVector(s_propOffset, offset);
@@ -124,8 +124,8 @@ namespace GuiToolkit
 				return;
 			}
 
-			m_materialCloner.Material.SetVector(s_propScale, scale);
-			m_materialCloner.Material.SetVector(s_propOffset, offset);
+			m_materialCloner.ClonedMaterial.SetVector(s_propScale, scale);
+			m_materialCloner.ClonedMaterial.SetVector(s_propOffset, offset);
 		}
 
 		private void AlignMaterialToRectTransformSize()
@@ -141,7 +141,7 @@ namespace GuiToolkit
 			if (m_materialCloner == null || !m_materialCloner.Valid)
 				return;
 
-			if (!m_materialCloner.Material.HasProperty(s_propOffset) || !m_materialCloner.Material.HasProperty(s_propScale))
+			if (!m_materialCloner.ClonedMaterial.HasProperty(s_propOffset) || !m_materialCloner.ClonedMaterial.HasProperty(s_propScale))
 				return;
 
 			Vector3 scale = Vector4.one;
@@ -217,7 +217,7 @@ namespace GuiToolkit
 				return;
 
 			bool error = false;
-			Material material = materialCloner.Material;
+			Material material = materialCloner.ClonedMaterial;
 
 			if (!material.HasProperty(Ui3DObject.s_propOffset) || !material.HasProperty(Ui3DObject.s_propScale))
 			{
@@ -227,7 +227,7 @@ namespace GuiToolkit
 					"Or, you can examine Ui3D.shader how it's done. ", MessageType.Warning);
 			}
 
-			if (materialCloner.UseClonedMaterialsCache)
+			if (materialCloner.IsSharedMaterial)
 			{
 				if (!material.enableInstancing)
 				{
