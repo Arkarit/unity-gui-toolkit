@@ -192,9 +192,15 @@ namespace GuiToolkit
 		}
 
 		/// Note: this is only public because C# programmers don't have friends. UiMaterialClonerEditor needs access.
+		public bool WillMaterialBeReplaced( string _key, Material _oldOriginalMaterial )
+		{
+			 return m_isSharedMaterial && _key == m_materialCacheKey && _oldOriginalMaterial == m_originalMaterial;
+		}
+
+		/// Note: this is only public because C# programmers don't have friends. UiMaterialClonerEditor needs access.
 		public void OnMaterialReplaced( string _key, Material _oldOriginalMaterial, Material _newOriginalMaterial, Material _newClonedMaterial )
 		{
-			if (!m_isSharedMaterial || _key != m_materialCacheKey || _oldOriginalMaterial != m_originalMaterial)
+			if (!WillMaterialBeReplaced(_key, _oldOriginalMaterial))
 				return;
 
 			m_originalMaterial = _newOriginalMaterial;
@@ -356,12 +362,43 @@ namespace GuiToolkit
 
 			if (GUILayout.Button("Force reset material") || cachedMaterialHasChanged)
 			{
+				Undo.SetCurrentGroupName(cachedMaterialHasChanged ? "Change Material" : "Force reset material");
+
 				Material oldClonedMaterial = thisMaterialCloner.Material;
 				Material clonedMaterial = Instantiate(thisMaterialCloner.OriginalMaterial);
+				Undo.RegisterCreatedObjectUndo(clonedMaterial, "");
 				MaterialCloner[] instances = FindObjectsOfType<MaterialCloner>();
+				Material newOriginalMaterial = thisMaterialCloner.OriginalMaterial;
+				
+				// we have to reset the original material of the current MaterialCloner;
+				// otherwise it will return false in WillMaterialBeReplaced() in the replacement loop below.
+				m_originalMaterialProp.objectReferenceValue = prevOriginalMaterial;
+				serializedObject.ApplyModifiedProperties();
+
 				foreach (var instance in instances)
-					instance.OnMaterialReplaced(m_materialCacheKeyProp.stringValue, prevOriginalMaterial, thisMaterialCloner.OriginalMaterial, clonedMaterial);
+				{
+					if (instance.WillMaterialBeReplaced(m_materialCacheKeyProp.stringValue, prevOriginalMaterial))
+					{
+						SerializedObject serObj = new SerializedObject(instance);
+						serObj.FindProperty("m_originalMaterial").objectReferenceValue = newOriginalMaterial;
+						serObj.FindProperty("m_clonedMaterial").objectReferenceValue = clonedMaterial;
+						serObj.ApplyModifiedProperties();
+						if (instance.Renderer)
+						{
+							Undo.RegisterCompleteObjectUndo(instance.Renderer, "");
+							instance.Renderer.material = clonedMaterial;
+						}
+						else if (instance.Graphic)
+						{
+							Undo.RegisterCompleteObjectUndo(instance.Graphic, "");
+							instance.Graphic.material = clonedMaterial;
+						}
+					}
+				}
+
 				oldClonedMaterial.Destroy();
+
+				Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
 			}
 		}
 

@@ -5,6 +5,10 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit
 {
 	public static class Extensions
@@ -23,12 +27,18 @@ namespace GuiToolkit
 			return _listToClone.Select(item => (T)item.Clone()).ToList();
 		}
 
-		public static void Destroy( this UnityEngine.Object _this )
+		public static void Destroy( this UnityEngine.Object _this, bool _supportUndoIfPossible = true )
 		{
 			if (_this == null)
 				return;
 
 #if UNITY_EDITOR
+			if (_supportUndoIfPossible && !Application.isPlaying)
+			{
+				Undo.DestroyObjectImmediate(_this);
+				return;
+			}
+
 			UnityEditor.EditorApplication.delayCall += () =>
 			{
 				UnityEngine.Object.DestroyImmediate(_this);
