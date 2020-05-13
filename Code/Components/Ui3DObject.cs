@@ -130,16 +130,19 @@ namespace GuiToolkit
 
 		private void AlignMaterialToRectTransformSize()
 		{
-			if (m_rectTransform == null || m_materialCloner == null || !m_materialCloner.Valid)
-				return;
-
-			if (!m_materialCloner.Material.HasProperty(s_propOffset) || !m_materialCloner.Material.HasProperty(s_propScale))
+			if (m_rectTransform == null)
 				return;
 
 			Rect rect = m_rectTransform.rect;
 			if (rect == m_previousRect)
 				return;
 			m_previousRect = rect;
+
+			if (m_materialCloner == null || !m_materialCloner.Valid)
+				return;
+
+			if (!m_materialCloner.Material.HasProperty(s_propOffset) || !m_materialCloner.Material.HasProperty(s_propScale))
+				return;
 
 			Vector3 scale = Vector4.one;
 			scale.x = rect.width / m_originalBounds.size.x;
@@ -219,8 +222,9 @@ namespace GuiToolkit
 			if (!material.HasProperty(Ui3DObject.s_propOffset) || !material.HasProperty(Ui3DObject.s_propScale))
 			{
 				error = true;
-				EditorGUILayout.HelpBox("Ui3DObject needs a material with _Offset and _Scale property support to work. You can assign UI_3D.mat to the Mesh Renderer, which supports this.\n" + 
-					"Or you can examine Ui3D.shader how it's done. ", MessageType.Warning);
+				EditorGUILayout.HelpBox("Ui3DObject needs a material with _Offset and _Scale property (for scaling the mesh) support to work.\n" + 
+					"You can assign UI_3D.mat (which supports this feature) to the MaterialCloner on this game object.\n" + 
+					"Or, you can examine Ui3D.shader how it's done. ", MessageType.Warning);
 			}
 
 			if (materialCloner.UseClonedMaterialsCache)
@@ -228,7 +232,7 @@ namespace GuiToolkit
 				if (!material.enableInstancing)
 				{
 					error = true;
-					EditorGUILayout.HelpBox("If 'Share Material between instances' is selected in the adjacent MaterialCloner script, " + 
+					EditorGUILayout.HelpBox("If 'Share Material between instances' is selected in the MaterialCloner script on this game object," + 
 						"Ui3DObject needs a material, which has 'GPU Instancing' enabled. Otherwise scaling will not work properly.", MessageType.Warning);
 				}
 			}
