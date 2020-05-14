@@ -307,12 +307,14 @@ namespace GuiToolkit
 		protected SerializedProperty m_isSharedMaterialProp;
 		protected SerializedProperty m_materialInstanceKeyProp;
 		protected SerializedProperty m_originalMaterialProp;
+		protected SerializedProperty m_clonedMaterialProp;
 
 		public virtual void OnEnable()
 		{
 			m_isSharedMaterialProp = serializedObject.FindProperty("m_isSharedMaterial");
 			m_materialInstanceKeyProp = serializedObject.FindProperty("m_materialInstanceKey");
 			m_originalMaterialProp = serializedObject.FindProperty("m_originalMaterial");
+			m_clonedMaterialProp = serializedObject.FindProperty("m_clonedMaterial");
 		}
 
 		public override void OnInspectorGUI()
@@ -348,33 +350,42 @@ namespace GuiToolkit
 				Material oldClonedMaterial = thisMaterialCloner.ClonedMaterial;
 				Material clonedMaterial = Instantiate(thisMaterialCloner.OriginalMaterial);
 				Undo.RegisterCreatedObjectUndo(clonedMaterial, "");
-				MaterialCloner[] instances = FindObjectsOfType<MaterialCloner>();
-				Material newOriginalMaterial = thisMaterialCloner.OriginalMaterial;
-				
-				// we have to reset the original material of the current MaterialCloner;
-				// otherwise it will return false in WillMaterialBeReplaced() in the replacement loop below.
-				m_originalMaterialProp.objectReferenceValue = prevOriginalMaterial;
-				serializedObject.ApplyModifiedProperties();
 
-				foreach (var instance in instances)
+				if (thisMaterialCloner.IsSharedMaterial)
 				{
-					if (WouldMaterialBeReplaced(instance, m_materialInstanceKeyProp.stringValue, prevOriginalMaterial))
+					MaterialCloner[] instances = FindObjectsOfType<MaterialCloner>();
+					Material newOriginalMaterial = thisMaterialCloner.OriginalMaterial;
+				
+					// we have to reset the original material of the current MaterialCloner;
+					// otherwise it will return false in WillMaterialBeReplaced() in the replacement loop below.
+					m_originalMaterialProp.objectReferenceValue = prevOriginalMaterial;
+					serializedObject.ApplyModifiedProperties();
+
+					foreach (var instance in instances)
 					{
-						SerializedObject serObj = new SerializedObject(instance);
-						serObj.FindProperty("m_originalMaterial").objectReferenceValue = newOriginalMaterial;
-						serObj.FindProperty("m_clonedMaterial").objectReferenceValue = clonedMaterial;
-						serObj.ApplyModifiedProperties();
-						if (instance.Renderer)
+						if (WouldMaterialBeReplaced(instance, m_materialInstanceKeyProp.stringValue, prevOriginalMaterial))
 						{
-							Undo.RegisterCompleteObjectUndo(instance.Renderer, "");
-							instance.Renderer.material = clonedMaterial;
-						}
-						else if (instance.Graphic)
-						{
-							Undo.RegisterCompleteObjectUndo(instance.Graphic, "");
-							instance.Graphic.material = clonedMaterial;
+							SerializedObject serObj = new SerializedObject(instance);
+							serObj.FindProperty("m_originalMaterial").objectReferenceValue = newOriginalMaterial;
+							serObj.FindProperty("m_clonedMaterial").objectReferenceValue = clonedMaterial;
+							serObj.ApplyModifiedProperties();
+							if (instance.Renderer)
+							{
+								Undo.RegisterCompleteObjectUndo(instance.Renderer, "");
+								instance.Renderer.material = clonedMaterial;
+							}
+							else if (instance.Graphic)
+							{
+								Undo.RegisterCompleteObjectUndo(instance.Graphic, "");
+								instance.Graphic.material = clonedMaterial;
+							}
 						}
 					}
+				}
+				else
+				{
+					m_clonedMaterialProp.objectReferenceValue = clonedMaterial;
+					serializedObject.ApplyModifiedProperties();
 				}
 
 				oldClonedMaterial.Destroy();
