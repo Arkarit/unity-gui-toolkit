@@ -1,4 +1,4 @@
-﻿Shader "UIToolkit/Ui3D"
+﻿Shader "UIToolkit/Ui3DTransparent"
 {
     Properties
     {
@@ -14,16 +14,16 @@
    }
     SubShader
     {
-        Tags { "RenderType"="Opaque" "Queue"="Geometry" }
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" }
         LOD 200
 
-		ZWrite On
+		ZWrite Off
 		ZTest LEqual
 
         CGPROGRAM
 
 		// Physically based Standard lighting model, and enable shadows on all light types
-		#pragma surface surf Standard vertex:vert
+		#pragma surface surf Standard vertex:vert alpha:blend
 
 		// Use shader model 3.0 target, to get nicer looking lighting
 		#pragma target 3.0
