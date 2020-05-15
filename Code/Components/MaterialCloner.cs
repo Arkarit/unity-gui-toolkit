@@ -271,6 +271,7 @@ namespace GuiToolkit
 			}
 		}
 
+		/// Only public because C# programmers don't have friends - MaterialClonerEditor needs access
 		public Material FindClonedMaterialInOtherInstances(IEnumerable<MaterialCloner> _instances, string _key = null)
 		{
 			if (string.IsNullOrEmpty(_key))
@@ -291,14 +292,6 @@ namespace GuiToolkit
 
 			return null;
 		}
-
-#if UNITY_EDITOR
-		/// \addtogroup Editor Code
-		public string GetDebugInfoStr()
-		{
-			return $"Original Material:{m_originalMaterial.name}    Cloned Material:{m_clonedMaterial.name}";
-		}
-#endif
 	}
 
 #if UNITY_EDITOR
@@ -335,8 +328,6 @@ namespace GuiToolkit
 
 			Material prevOriginalMaterial = thisMaterialCloner.OriginalMaterial;
 			bool materialHasChanged = (Material) m_originalMaterialProp.objectReferenceValue != thisMaterialCloner.OriginalMaterial;
-
-			EditorGUILayout.LabelField(thisMaterialCloner.GetDebugInfoStr());
 
 			serializedObject.ApplyModifiedProperties();
 
@@ -389,6 +380,7 @@ namespace GuiToolkit
 				Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
 			}
 
+			EditorGUILayout.LabelField(GetDebugInfoStr(thisMaterialCloner));
 		}
 
 		private static bool WouldMaterialBeReplaced( MaterialCloner _materialCloner, string _key, Material _oldOriginalMaterial )
@@ -507,6 +499,20 @@ namespace GuiToolkit
 
 				SetMaterial(_materialCloner, _materialCloner.OriginalMaterial, clonedMaterial);
 			}
+		}
+
+		private string GetDebugInfoStr(MaterialCloner _materialCloner)
+		{
+			MaterialCloner[] instances = FindObjectsOfType<MaterialCloner>();
+
+			int numInstances = 0;
+			foreach (var instance in instances)
+			{
+				if (instance.ClonedMaterial == _materialCloner.ClonedMaterial)
+					numInstances++;
+			}
+
+			return $"Original Material:{_materialCloner.OriginalMaterial.name}    Cloned Material:{_materialCloner.ClonedMaterial.name} ClonedMaterialInstances: {numInstances}";
 		}
 
 	}
