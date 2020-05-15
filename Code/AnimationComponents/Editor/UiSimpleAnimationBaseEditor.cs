@@ -169,7 +169,7 @@ namespace GuiToolkit
 			Stop();
 			CollectAnimations();
 			UiSimpleAnimationBase thisUiSimpleAnimationBase = (UiSimpleAnimationBase)target;
-			thisUiSimpleAnimationBase.Play(_backwards);
+			thisUiSimpleAnimationBase.EditorPlay(_backwards);
 			EditorUpdater.StartUpdating(this);
 		}
 

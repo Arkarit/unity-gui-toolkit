@@ -176,7 +176,13 @@ namespace GuiToolkit
 			CalculateCompleteTimeRecursive(ref m_completeTime, ref m_completeBackwardsTime, 0);
 			PlayRecursive(m_completeTime, m_completeBackwardsTime, 0, true, m_backwards, m_setLoopsForSlaves ? m_numberOfLoops : DONT_SET_LOOPS);
 		}
-
+#if UNITY_EDITOR
+		public void EditorPlay( bool _backwards )
+		{
+			m_initAnimateDone = false;
+			Play(_backwards);
+		}
+#endif
 		public void Pause()
 		{
 			if (m_running)
