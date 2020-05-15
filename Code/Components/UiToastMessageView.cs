@@ -7,6 +7,13 @@ using UnityEngine.Events;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A standalone toast message.
+	/// It is created within the "View" system. Once fired, requires no further action.
+	/// UiToastMessageView's can however overlap, if multiple at the same time are visible, since
+	/// they are hierarchically independent.
+	/// If you need multiple toast messages at the same time, consider setting up/using UiToastMessageContainer.
+	/// </summary>
 	public class UiToastMessageView : UiView
 	{
 		public float m_duration;

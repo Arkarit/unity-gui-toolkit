@@ -37,6 +37,7 @@ namespace GuiToolkit
 		public void InitView(RenderMode _renderMode, Camera _camera, float _planeDistance, int _orderInLayer)
 		{
 			Canvas.renderMode = _renderMode;
+
 			Canvas.worldCamera = _camera;
 			Canvas.planeDistance = _planeDistance;
 			Canvas.sortingOrder = _orderInLayer;

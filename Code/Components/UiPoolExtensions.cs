@@ -15,6 +15,13 @@ namespace GuiToolkit
 			return UiPool.Instance.DoInstantiate(_prefabComponent);
 		}
 
+		public static T PoolInstantiate<T>( this T _prefabComponent, Transform _parent ) where T : Component
+		{
+			T result = UiPool.Instance.DoInstantiate(_prefabComponent);
+			result.transform.SetParent(_parent, false);
+			return result;
+		}
+
 		public static void PoolDestroy( this GameObject _gameObject )
 		{
 			UiPool.Instance.DoDestroy(_gameObject);
