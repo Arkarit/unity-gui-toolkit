@@ -145,6 +145,11 @@ namespace GuiToolkit
 			bool gameObjectWasCloned = m_instanceId != 0 && m_instanceId != gameObject.GetInstanceID() && !m_isSharedMaterial;
 			m_instanceId = gameObject.GetInstanceID();
 
+			if (m_originalMaterial == null)
+			{
+				m_originalMaterial = GetMaterial();
+			}
+
 			// This happens on Undo. Workaround.
 			if (GetMaterial() == null)
 			{
