@@ -65,6 +65,7 @@ namespace GuiToolkit
 		private Bounds m_originalBounds;
 
 		private Rect m_previousRect = new Rect();
+		private Material m_previousMaterial;
 
 		private MaterialPropertyBlock m_materialPropertyBlock;
 
@@ -134,9 +135,11 @@ namespace GuiToolkit
 				return;
 
 			Rect rect = m_rectTransform.rect;
-			if (rect == m_previousRect)
+			if (rect == m_previousRect && m_previousMaterial == Material)
 				return;
+
 			m_previousRect = rect;
+			m_previousMaterial = Material;
 
 			if (m_materialCloner == null || !m_materialCloner.Valid)
 				return;
