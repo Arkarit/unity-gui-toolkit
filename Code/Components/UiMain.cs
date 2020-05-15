@@ -7,6 +7,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
 using UnityEditor.SceneManagement;
@@ -229,7 +230,8 @@ namespace GuiToolkit
 		private UiRequester m_requesterPrefab;
 
 		[SerializeField]
-		private UiSplashMessage m_splashMessagePrefab;
+		[FormerlySerializedAs("m_splashMessagePrefab")]
+		private UiToastMessageView m_toastMessageViewPrefab;
 
 		[SerializeField]
 		private UiKeyBindingRequester m_keyBindingsRequesterPrefab;
@@ -237,10 +239,10 @@ namespace GuiToolkit
 		[SerializeField]
 		private UiKeyPressRequester m_keyPressRequester;
 
-		public void SplashMessage(string _message, float _duration = 2)
+		public void ShowToastMessageView(string _message, float _duration = 2)
 		{
-			UiView.InvokeHideInstant<UiSplashMessage>();
-			UiSplashMessage message = m_splashMessagePrefab.PoolInstantiate();
+			UiView.InvokeHideInstant<UiToastMessageView>();
+			UiToastMessageView message = m_toastMessageViewPrefab.PoolInstantiate();
 			message.transform.SetParent(transform, false);
 			message.Show(_message, _duration);
 		}

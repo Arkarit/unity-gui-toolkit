@@ -7,7 +7,7 @@ using UnityEngine.Events;
 
 namespace GuiToolkit
 {
-	public class UiSplashMessage : UiView
+	public class UiToastMessageView : UiView
 	{
 		public float m_duration;
 		public TextMeshProUGUI m_textComponent;
@@ -15,8 +15,8 @@ namespace GuiToolkit
 		public UiSimpleAnimation m_animationWhileVisible;
 
 		[System.Serializable]
-		private class CEvShowSplashMessage : UnityEvent<int,string,float> {}
-		private static CEvShowSplashMessage EvShow = new CEvShowSplashMessage();
+		private class CEvShowToastMessageView : UnityEvent<int,string,float> {}
+		private static CEvShowToastMessageView EvShow = new CEvShowToastMessageView();
 
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
