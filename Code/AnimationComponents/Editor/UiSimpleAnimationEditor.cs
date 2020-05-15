@@ -10,6 +10,7 @@ namespace GuiToolkit
 	{
 		protected SerializedProperty m_supportProp;
 		protected SerializedProperty m_targetProp;
+		protected SerializedProperty m_markTargetForLayoutRebuildProp;
 		protected SerializedProperty m_canvasScalerProp;
 		protected SerializedProperty m_canvasRectTransformProp;
 		protected SerializedProperty m_scaleByCanvasScalerProp;
@@ -39,6 +40,7 @@ namespace GuiToolkit
 
 			m_supportProp = serializedObject.FindProperty("m_support");
 			m_targetProp = serializedObject.FindProperty("m_target");
+			m_markTargetForLayoutRebuildProp = serializedObject.FindProperty("m_markTargetForLayoutRebuild");
 			m_canvasScalerProp = serializedObject.FindProperty("m_canvasScaler");
 			m_canvasRectTransformProp = serializedObject.FindProperty("m_canvasRectTransform");
 			m_scaleByCanvasScalerProp = serializedObject.FindProperty("m_scaleByCanvasScaler");
@@ -73,6 +75,9 @@ namespace GuiToolkit
 			{
 				m_targetProp.objectReferenceValue = (RectTransform) thisUiSimpleAnimation.transform;
 			}
+
+			EditorGUILayout.PropertyField(m_markTargetForLayoutRebuildProp);
+
 			EditorGUILayout.PropertyField(m_scaleByCanvasScalerProp);
 			if (m_scaleByCanvasScalerProp.boolValue)
 			{

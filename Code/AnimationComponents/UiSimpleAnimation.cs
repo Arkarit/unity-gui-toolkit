@@ -26,6 +26,9 @@ namespace GuiToolkit
 		protected RectTransform m_target;
 
 		[SerializeField]
+		protected bool m_markTargetForLayoutRebuild;
+
+		[SerializeField]
 		private CanvasScaler m_canvasScaler;
 
 		[SerializeField]
@@ -297,6 +300,9 @@ namespace GuiToolkit
 
 			if ( m_animateAlpha )
 				AnimateAlpha(_normalizedTime);
+
+			if (m_markTargetForLayoutRebuild)
+				LayoutRebuilder.MarkLayoutForRebuild(m_target);
 		}
 
 		private void AnimatePosition( float _normalizedTime )
