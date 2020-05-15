@@ -24,6 +24,7 @@ namespace GuiToolkit
 		public UiGradientSimple m_backgroundGradientSimple;
 		public bool m_enabled = true;
 
+		public bool m_supportDisabledMaterial = true;
 		public Material m_normalMaterial;
 		public Material m_disabledMaterial;
 		
@@ -205,6 +206,9 @@ namespace GuiToolkit
 
 		private void SetMaterialByEnabled()
 		{
+			if (!m_supportDisabledMaterial)
+				return;
+
 			if (m_backgroundImage && m_normalMaterial && m_disabledMaterial)
 			{
 				m_backgroundImage.material = m_enabled ? m_normalMaterial : m_disabledMaterial;
@@ -222,6 +226,7 @@ namespace GuiToolkit
 		protected SerializedProperty m_audioSourceProp;
 		protected SerializedProperty m_backgroundImageProp;
 		protected SerializedProperty m_backgroundGradientSimpleProp;
+		protected SerializedProperty m_supportDisabledMaterialProp;
 		protected SerializedProperty m_normalMaterialProp;
 		protected SerializedProperty m_disabledMaterialProp;
 		protected SerializedProperty m_enabledProp;
@@ -234,6 +239,7 @@ namespace GuiToolkit
 			m_audioSourceProp = serializedObject.FindProperty("m_audioSource");
 			m_backgroundImageProp = serializedObject.FindProperty("m_backgroundImage");
 			m_backgroundGradientSimpleProp = serializedObject.FindProperty("m_backgroundGradientSimple");
+			m_supportDisabledMaterialProp = serializedObject.FindProperty("m_supportDisabledMaterial");
 			m_normalMaterialProp = serializedObject.FindProperty("m_normalMaterial");
 			m_disabledMaterialProp = serializedObject.FindProperty("m_disabledMaterial");
 			m_enabledProp = serializedObject.FindProperty("m_enabled");
@@ -262,8 +268,12 @@ namespace GuiToolkit
 
 			if (m_backgroundImageProp.objectReferenceValue != null)
 			{
-				EditorGUILayout.PropertyField(m_normalMaterialProp);
-				EditorGUILayout.PropertyField(m_disabledMaterialProp);
+				EditorGUILayout.PropertyField(m_supportDisabledMaterialProp);
+				if (m_supportDisabledMaterialProp.boolValue)
+				{
+					EditorGUILayout.PropertyField(m_normalMaterialProp);
+					EditorGUILayout.PropertyField(m_disabledMaterialProp);
+				}
 				EditorGUILayout.PropertyField(m_enabledProp);
 
 				Image backgroundImage = (Image) m_backgroundImageProp.objectReferenceValue;
