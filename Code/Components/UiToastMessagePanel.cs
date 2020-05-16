@@ -28,7 +28,10 @@ namespace GuiToolkit
 				SimpleShowHideAnimation.Stop(false);
 				m_animationWhileVisible.Stop(false);
 
-				m_animationWhileVisible.Duration = _duration;
+				m_animationWhileVisible.Reset();
+				if (_duration >= 0)
+					m_animationWhileVisible.Duration = _duration;
+
 				m_animationWhileVisible.m_onFinishOnce = () => Hide();
 				Show(false, () => m_animationWhileVisible.Play());
 			}
