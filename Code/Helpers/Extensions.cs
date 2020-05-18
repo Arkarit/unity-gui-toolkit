@@ -341,6 +341,11 @@ namespace GuiToolkit
 
 			return _this.gameObject.AddComponent<T>();
 		}
+
+		public static bool Empty<T>(this IEnumerable<T> _this)
+		{
+			return _this.Count() == 0;
+		}
 	}
 
 	public static class EnumHelper

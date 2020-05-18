@@ -81,7 +81,7 @@ namespace GuiToolkit
 					maxY = Mathf.Max(maxY, height);
 				}
 
-				y += maxY;
+				y -= maxY;
 
 			}
 			LoopExit:
@@ -93,12 +93,34 @@ namespace GuiToolkit
 			// m_dirty = false;
 		}
 
+		private void OnValidate()
+		{
+			if (m_numColumns == 0)
+				m_numColumns = 1;
+			if (m_numRows == 0)
+				m_numRows = 1;
+		}
+
 		private void SetActualColumnsAndRows()
 		{
+			m_actualColumns = 0;
+			m_actualRows = 0;
+			if (s_layoutElements.Empty())
+				return;
+
 			if (m_numColumns < 0)
 			{
-				m_actualColumns = s_layoutElements.Count;
-				m_actualRows = 1;
+				if (m_numRows < 0)
+				{
+					m_actualColumns = s_layoutElements.Count;
+					m_actualRows = 1;
+					return;
+				}
+
+				m_actualRows = m_numRows;
+				m_actualColumns = s_layoutElements.Count / m_actualRows;
+				if (s_layoutElements.Count % m_actualRows > 0)
+					m_actualColumns++;
 				return;
 			}
 
