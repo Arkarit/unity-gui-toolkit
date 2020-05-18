@@ -94,10 +94,10 @@ namespace GuiToolkit
 
 		private void DisplayViewConnection( UiSimpleAnimationBase uiSimpleAnimationBase )
 		{
-			if (uiSimpleAnimationBase.GetComponent<UiView>() != null)
+			if (uiSimpleAnimationBase.GetComponent<UiPanel>() != null)
 			{
-				GUILayout.Label("UI View connection:", EditorStyles.boldLabel);
-				EditorGUILayout.PropertyField(m_supportViewAnimationsProp);
+				GUILayout.Label("UIView / UiPanel connection:", EditorStyles.boldLabel);
+				EditorGUILayout.PropertyField(m_supportViewAnimationsProp, new GUIContent("Support UIView and UIPanel"));
 				EditorGUILayout.Space();
 			}
 		}
@@ -169,7 +169,7 @@ namespace GuiToolkit
 			Stop();
 			CollectAnimations();
 			UiSimpleAnimationBase thisUiSimpleAnimationBase = (UiSimpleAnimationBase)target;
-			thisUiSimpleAnimationBase.Play(_backwards);
+			thisUiSimpleAnimationBase.EditorPlay(_backwards);
 			EditorUpdater.StartUpdating(this);
 		}
 

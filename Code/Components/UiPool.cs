@@ -15,17 +15,7 @@ namespace GuiToolkit
 		private readonly Dictionary<GameObject,PoolEntry> m_poolEntryByPrefab = new Dictionary<GameObject, PoolEntry>();
 		private readonly Dictionary<GameObject,PoolEntry> m_poolEntryByGameObject = new Dictionary<GameObject, PoolEntry>();
 
-		public static UiPool Instance { get; private set; }
-
-		protected void Awake()
-		{
-			Instance = this;
-		}
-
-		protected void OnDestroy()
-		{
-			Instance = null;
-		}
+		public static UiPool Instance => UiMain.Instance.UiPool;
 
 		public GameObject DoInstantiate( GameObject _prefab )
 		{
@@ -39,7 +29,7 @@ namespace GuiToolkit
 					int lastIdx = poolEntry.m_instances.Count-1;
 					result = poolEntry.m_instances[lastIdx];
 					poolEntry.m_instances.RemoveAt(lastIdx);
-					result.transform.parent = null;
+					result.transform.SetParent(null, false);
 					result.SetActive(true);
 					if (!m_poolEntryByGameObject.ContainsKey(result))
 						m_poolEntryByGameObject.Add(result, poolEntry);
@@ -66,14 +56,14 @@ namespace GuiToolkit
 
 		public void DoDestroy( GameObject _gameObject )
 		{
-			if (! m_poolEntryByGameObject.ContainsKey(_gameObject))
+			if (!m_poolEntryByGameObject.ContainsKey(_gameObject))
 			{
 				_gameObject.Destroy();
 				return;
 			}
 
 			PoolEntry poolEntry = m_poolEntryByGameObject[_gameObject];
-			_gameObject.transform.parent = m_container;
+			_gameObject.transform.SetParent( m_container, false );
 			_gameObject.SetActive(false);
 
 			// We must check if the game object is already in the pool - it is not
@@ -84,9 +74,9 @@ namespace GuiToolkit
 
 		public void DoDestroy<T>( T _component ) where T : Component
 		{
-			if (_component is UiView)
+			if (_component is UiPanel)
 			{
-				UiView view = _component as UiView;
+				UiPanel view = _component as UiPanel;
 				view.OnPooled();
 			}
 			DoDestroy(_component.gameObject);

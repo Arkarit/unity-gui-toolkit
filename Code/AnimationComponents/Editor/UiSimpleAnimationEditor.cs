@@ -10,6 +10,7 @@ namespace GuiToolkit
 	{
 		protected SerializedProperty m_supportProp;
 		protected SerializedProperty m_targetProp;
+		protected SerializedProperty m_markTargetForLayoutRebuildProp;
 		protected SerializedProperty m_canvasScalerProp;
 		protected SerializedProperty m_canvasRectTransformProp;
 		protected SerializedProperty m_scaleByCanvasScalerProp;
@@ -39,6 +40,7 @@ namespace GuiToolkit
 
 			m_supportProp = serializedObject.FindProperty("m_support");
 			m_targetProp = serializedObject.FindProperty("m_target");
+			m_markTargetForLayoutRebuildProp = serializedObject.FindProperty("m_markTargetForLayoutRebuild");
 			m_canvasScalerProp = serializedObject.FindProperty("m_canvasScaler");
 			m_canvasRectTransformProp = serializedObject.FindProperty("m_canvasRectTransform");
 			m_scaleByCanvasScalerProp = serializedObject.FindProperty("m_scaleByCanvasScaler");
@@ -73,6 +75,9 @@ namespace GuiToolkit
 			{
 				m_targetProp.objectReferenceValue = (RectTransform) thisUiSimpleAnimation.transform;
 			}
+
+			EditorGUILayout.PropertyField(m_markTargetForLayoutRebuildProp);
+
 			EditorGUILayout.PropertyField(m_scaleByCanvasScalerProp);
 			if (m_scaleByCanvasScalerProp.boolValue)
 			{
@@ -101,6 +106,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_posXCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
 			}
+			else
+			{
+				m_posXCurveProp.animationCurveValue.keys = new Keyframe[0];
+			}
 
 			if( support.HasFlags(UiSimpleAnimation.ESupport.PositionY))
 			{
@@ -110,6 +119,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_posYCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
 			}
+			else
+			{
+				m_posYCurveProp.animationCurveValue = new AnimationCurve();
+			}
 
 			if( support.HasFlags(UiSimpleAnimation.ESupport.RotationZ))
 			{
@@ -118,6 +131,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_rotZEndProp, new GUIContent("End"));
 				EditorGUILayout.PropertyField(m_rotZCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
+			}
+			else
+			{
+				m_rotZCurveProp.animationCurveValue = new AnimationCurve();
 			}
 
 			if( support.HasFlags(UiSimpleAnimation.ESupport.ScaleX | UiSimpleAnimation.ESupport.ScaleY))
@@ -139,6 +156,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_scaleXCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
 			}
+			else
+			{
+				m_scaleXCurveProp.animationCurveValue = new AnimationCurve();
+			}
 
 			if( support.HasFlags(UiSimpleAnimation.ESupport.ScaleY) && !m_scaleLockedProp.boolValue)
 			{
@@ -149,6 +170,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_scaleYCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
 			}
+			else
+			{
+				m_scaleYCurveProp.animationCurveValue = new AnimationCurve();
+			}
 
 			if( support.HasFlags(UiSimpleAnimation.ESupport.Alpha))
 			{
@@ -157,6 +182,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(m_alphaCanvasGroupProp);
 				EditorGUILayout.PropertyField(m_alphaCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
+			}
+			else
+			{
+				m_alphaCurveProp.animationCurveValue = new AnimationCurve();
 			}
 
 		}

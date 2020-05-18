@@ -6,6 +6,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(Button))]
@@ -13,7 +17,7 @@ namespace GuiToolkit
 	{
 		[Tooltip("Simple wiggle animation (optional)")]
 		public UiSimpleAnimation m_simpleWiggleAnimation;
-		
+
 		private Button m_button;
 
 		public Button Button
@@ -33,6 +37,13 @@ namespace GuiToolkit
 				m_simpleWiggleAnimation.Play();
 		}
 
+		protected override void OnEnabledChanged(bool _enabled)
+		{
+			base.OnEnabledChanged(_enabled);
+			InitIfNecessary();
+			m_button.interactable = _enabled;
+		}
+
 		protected override void Init()
 		{
 			base.Init();
@@ -41,4 +52,30 @@ namespace GuiToolkit
 		}
 
 	}
+
+	#if UNITY_EDITOR
+	[CustomEditor(typeof(UiButton))]
+	public class UiButtonEditor : UiButtonBaseEditor
+	{
+		protected SerializedProperty m_simpleWiggleAnimationProp;
+
+		public override void OnEnable()
+		{
+			base.OnEnable();
+			m_simpleWiggleAnimationProp = serializedObject.FindProperty("m_simpleWiggleAnimation");
+		}
+
+		public override void OnInspectorGUI()
+		{
+			base.OnInspectorGUI();
+			UiButton thisButton = (UiButton)target;
+
+			EditorGUILayout.PropertyField(m_simpleWiggleAnimationProp);
+
+			serializedObject.ApplyModifiedProperties();
+		}
+
+	}
+#endif
+
 }

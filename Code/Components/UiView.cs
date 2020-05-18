@@ -1,76 +1,28 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public interface IShowHideViewAnimation
+	public interface IShowHideViewAnimation : IShowHidePanelAnimation
 	{
-		void ShowViewAnimation(Action _onFinish = null);
-		void HideViewAnimation(Action _onFinish = null);
-		void StopViewAnimation();
+		void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards, AnimationCurve _animationCurve );
 	}
 
 	[RequireComponent(typeof(Canvas))]
-	public class UiView : UiThing, ISetDefaultSceneVisibility
+	[RequireComponent(typeof(CanvasScaler))]
+	[RequireComponent(typeof(GraphicRaycaster))]
+	public class UiView : UiPanel
 	{
 		[SerializeField]
 		protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
-
+		[HideInInspector]
 		[SerializeField]
-		protected IShowHideViewAnimation m_showHideAnimation;
-
-		[SerializeField]
-		protected EDefaultSceneVisibility m_defaultSceneVisibility = EDefaultSceneVisibility.DontCare;
-
-		public virtual bool AutoDestroyOnHide => false;
-		public virtual bool Poolable => false;
-
-		[System.Serializable]
-		private class CEvHideInstant : UnityEvent<Type> {}
-		private static CEvHideInstant EvHideInstant = new CEvHideInstant();
-
-		protected override void AddEventListeners()
-		{
-			base.AddEventListeners();
-			EvHideInstant.AddListener(OnEvHideInstant);
-		}
-
-		protected override void RemoveEventListeners()
-		{
-			base.RemoveEventListeners();
-			EvHideInstant.RemoveListener(OnEvHideInstant);
-		}
-
-		private void OnEvHideInstant( Type _type )
-		{
-			if (GetType() == _type)
-			{
-				Hide(true);
-			}
-		}
-
-		public static void InvokeHideInstant<T>()
-		{
-			EvHideInstant.Invoke(typeof(T));
-		}
-
-		protected UiSimpleAnimationBase SimpleShowHideAnimation
-		{
-			get
-			{
-				if (m_showHideAnimation is UiSimpleAnimation)
-					return (UiSimpleAnimation) m_showHideAnimation;
-				return null;
-			}
-		}
+		private int m_lastSiblingIndex = -1;
 
 		private Canvas m_canvas;
 		
-		// Have to make this public because c# programmers don't have friends. Shitty language. 
-		public virtual void OnPooled() { }
-
 		public Canvas Canvas {
 			get
 			{
@@ -80,129 +32,46 @@ namespace GuiToolkit
 			}
 		}
 
-		protected override void Awake()
+		public EUiLayerDefinition Layer => m_layer;
+
+		public void InitView(RenderMode _renderMode, Camera _camera, float _planeDistance, int _orderInLayer)
 		{
-			base.Awake();
-			Init();
-		}
-
-		public virtual void Show(bool _instant = false, Action _onFinish = null)
-		{
-			if (m_showHideAnimation == null)
-				_instant = true;
-
-			gameObject.SetActive(true);
-
-			if (_instant)
-			{
-				if (m_showHideAnimation != null)
-					m_showHideAnimation.StopViewAnimation();
-				return;
-			}
-
-			m_showHideAnimation.ShowViewAnimation(_onFinish);
-		}
-
-		public virtual void Hide(bool _instant = false, Action _onFinish = null)
-		{
-			if (m_showHideAnimation == null)
-				_instant = true;
-
-			if (_instant)
-			{
-				gameObject.SetActive(false);
-				if (m_showHideAnimation != null)
-					m_showHideAnimation.StopViewAnimation();
-				if (_onFinish != null)
-					_onFinish.Invoke(); 
-				DestroyIfNecessary();
-				return;
-			}
-
-			m_showHideAnimation.HideViewAnimation( () =>
-			{
-				gameObject.SetActive(false);
-				if (_onFinish != null)
-					_onFinish.Invoke(); 
-				DestroyIfNecessary();
-			});
-		}
-
-		private void DestroyIfNecessary()
-		{
-			if (!AutoDestroyOnHide)
-				return;
-
-			if (Poolable)
-				UiPool.Instance.DoDestroy(this);
-			else
-				gameObject.Destroy();
-		}
-
-		public void SetRenderMode( RenderMode _renderMode, Camera _camera )
-		{
-#if UNITY_EDITOR
-			Init();
-#endif
 			Canvas.renderMode = _renderMode;
-			Canvas.worldCamera = _camera;
 
-			Debug.Assert(UiMain.Instance != null);
-			if (UiMain.Instance == null)
+			Canvas.worldCamera = _camera;
+			Canvas.planeDistance = _planeDistance;
+			Canvas.sortingOrder = _orderInLayer;
+		}
+
+		public override void Show( bool _instant = false, Action _onFinish = null )
+		{
+			base.Show(_instant, _onFinish);
+		}
+
+		public void ShowTopmost( bool _instant = false, Action _onFinish = null )
+		{
+			base.Show(_instant, _onFinish);
+			UiMain.Instance.SetAsLastSiblingOfLayer(this);
+		}
+
+		public virtual void NavigationPush(bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null)
+		{
+			UiMain.Instance.NavigationPush(this, _instant, _onFinishHide, _onFinishShow);
+		}
+
+		public virtual void NavigationPop(bool _instant = false, int _skip = 0, Action _onFinishHide = null, Action _onFinishShow = null)
+		{
+			Debug.Assert(UiMain.Instance.Peek() == this, "Attempting to pop wrong dialog");
+			UiMain.Instance.NavigationPop(_skip, _instant, _onFinishHide, _onFinishShow);
+		}
+
+		public void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards, AnimationCurve _animationCurve )
+		{
+			if (SimpleShowHideAnimation == null || !(SimpleShowHideAnimation is IShowHideViewAnimation))
 				return;
 
-			Canvas.planeDistance = UiMain.Instance.LayerDistance * (float) m_layer;
+			((IShowHideViewAnimation)SimpleShowHideAnimation).SetStackAnimationType(_stackAnimationType, _backwards, _animationCurve);
 		}
 
-		public void SetDefaultSceneVisibility()
-		{
-			if (Application.isPlaying)
-			{
-				switch (m_defaultSceneVisibility)
-				{
-					default:
-					case EDefaultSceneVisibility.DontCare:
-						break;
-					case EDefaultSceneVisibility.Visible:
-						gameObject.SetActive(true);
-						break;
-					case EDefaultSceneVisibility.Invisible:
-						gameObject.SetActive(false);
-						break;
-					case EDefaultSceneVisibility.VisibleInDevBuild:
-						#if UNITY_EDITOR || DEVELOPMENT_BUILD
-							gameObject.SetActive(true);
-						#else
-							gameObject.SetActive(false);
-						#endif
-						break;
-					case EDefaultSceneVisibility.VisibleWhen_DEFAULT_SCENE_VISIBLE_defined:
-						#if DEFAULT_SCENE_VISIBLE
-							gameObject.SetActive(true);
-						#else
-							gameObject.SetActive(false);
-						#endif
-						break;
-				}
-			}
-		}
-
-		private void Init()
-		{
-			var components = GetComponents<MonoBehaviour>();
-			foreach (var component in components)
-			{
-				if (component is IShowHideViewAnimation)
-				{
-					m_showHideAnimation = (IShowHideViewAnimation) component;
-					break;
-				}
-			}
-		}
-
-		public void OnValidate()
-		{
-			Init();
-		}
 	}
 }

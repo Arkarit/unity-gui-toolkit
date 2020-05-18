@@ -179,19 +179,20 @@ namespace GuiToolkit
 
 			EditorGUILayout.BeginHorizontal();
 
-				if (!string.IsNullOrEmpty(_labelText))
-					GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
+			if (!string.IsNullOrEmpty(_labelText))
+				GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
 
-			for (int i = 0; i < types.Length; i++)
+			for (int i = 0, visible = 0; i < types.Length; i++)
 			{
 				if (types[i].StartsWith("All") || types[i].StartsWith("None"))
 					continue;
 
-				if (_perRow > 0 && i > 0 && i % _perRow == 0)
+				if (_perRow > 0 && visible > 0 && visible % _perRow == 0)
 				{
 					EditorGUILayout.EndHorizontal();
 					EditorGUILayout.BeginHorizontal();
 				}
+				visible++;
 
 				int currentEnumVal = (int)(object)tvalues[i];
 				bool currentVal = (filters & currentEnumVal) != 0;

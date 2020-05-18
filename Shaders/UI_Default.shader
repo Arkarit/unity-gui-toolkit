@@ -13,6 +13,11 @@ Shader "UIToolkit/UI_Default"
         _ColorMask ("Color Mask", Float) = 15
 
         [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
+		[Toggle(Disabled)] _Disabled("Disabled", Float) = 0
+		_DisabledAlpha("Disabled Alpha", Range(0,1)) = 0.7
+		_DisabledDesaturateStrength("Disabled Desaturate Strength", Range(0,1)) = 0.8
+		_DisabledBrightness("Disabled Brightness", Range(0,1)) = 0.7
+
     }
     SubShader
     {
@@ -53,6 +58,7 @@ Shader "UIToolkit/UI_Default"
 
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
+            #pragma multi_compile_local __ Disabled
 
             struct appdata_t
             {
@@ -80,6 +86,9 @@ Shader "UIToolkit/UI_Default"
             float4 _ClipRect;
 
             bool _UseAlphaClip;
+			float _DisabledAlpha;
+			float _DisabledDesaturateStrength;
+			float _DisabledBrightness;
 
             v2f vert (appdata_t v)
             {
@@ -90,7 +99,14 @@ Shader "UIToolkit/UI_Default"
                 o.vertex = UnityObjectToClipPos(o.worldPosition);
 
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
-                o.color = v.color;
+
+				#ifdef Disabled
+					float3 luminance = (0.22 * v.color.r) + (0.72 * v.color.g) + (0.06 * v.color.b) ;
+					o.color.rgb = lerp(v.color.rgb, luminance * _DisabledBrightness, _DisabledDesaturateStrength);
+					o.color.a = v.color.a * _DisabledAlpha; 
+				#else
+					o.color = v.color;
+				#endif
 
                 return o;
             }
