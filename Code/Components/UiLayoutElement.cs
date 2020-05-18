@@ -1,46 +1,70 @@
-﻿using UnityEngine.EventSystems;
+﻿using System;
+using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public class UiLayoutElement : UIBehaviour, ILayoutElement, ILayoutIgnorer
+	[Serializable]
+	public class SizeProperty
 	{
-		public float minWidth => throw new System.NotImplementedException();
-
-		public float preferredWidth => throw new System.NotImplementedException();
-
-		public float flexibleWidth => throw new System.NotImplementedException();
-
-		public float minHeight => throw new System.NotImplementedException();
-
-		public float preferredHeight => throw new System.NotImplementedException();
-
-		public float flexibleHeight => throw new System.NotImplementedException();
-
-		public int layoutPriority => throw new System.NotImplementedException();
-
-		public bool ignoreLayout => throw new System.NotImplementedException();
-
-		public void CalculateLayoutInputHorizontal()
+		public enum ExpansionPolicy
 		{
-			throw new System.NotImplementedException();
+			Fixed,
 		}
 
-		public void CalculateLayoutInputVertical()
+		[SerializeField]
+		private float m_sizeA;
+
+		public float GetSize()
 		{
-			throw new System.NotImplementedException();
+			return m_sizeA;
+		}
+	}
+
+	[RequireComponent(typeof(RectTransform))]
+	public class UiLayoutElement : MonoBehaviour
+	{
+		[SerializeField]
+		private SizeProperty m_width;
+		[SerializeField]
+		private SizeProperty m_height;
+
+		private UiLayout m_parentLayout;
+
+		public RectTransform RectTransform => transform as RectTransform;
+
+		public float GetWidth()
+		{
+			return m_width.GetSize();
 		}
 
-		// Start is called before the first frame update
-		void Start()
+		public float GetHeight()
 		{
-
+			return m_height.GetSize();
 		}
 
-		// Update is called once per frame
-		void Update()
+		private void MakeParentDirty()
 		{
+			if (m_parentLayout == null)
+				return;
 
+			m_parentLayout.SetDirty();
 		}
+
+		private void OnEnable()
+		{
+			if (m_parentLayout == null)
+				m_parentLayout = GetComponentInParent<UiLayout>();
+
+			MakeParentDirty();
+			return;
+		}
+
+		protected void OnDisable()
+		{
+			MakeParentDirty();
+		}
+
 	}
 }
