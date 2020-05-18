@@ -29,6 +29,9 @@ namespace GuiToolkit
 		private int m_actualColumns;
 		private int m_actualRows;
 
+		private float[] m_columnWidths;
+		private float[] m_rowHeights;
+
 		public void SetDirty()
 		{
 			m_dirty = true;
@@ -53,23 +56,27 @@ namespace GuiToolkit
 			GetComponentsInChildren(false, s_layoutElements);
 
 			SetActualColumnsAndRows();
+			CalcColumnWidthsAndRowHeights();
 
 			float y=0;
-			for (int yIdx=0; yIdx<m_actualRows; yIdx++)
+			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
 			{
 				float x = 0;
 				float maxY = 0;
-				for (int xIdx = 0; xIdx<m_actualColumns; xIdx++)
+				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
 				{
-					int elemIdx = xIdx +  yIdx * m_actualColumns;
+					int elemIdx = columnIdx +  rowIdx * m_actualColumns;
 					if (elemIdx >= s_layoutElements.Count)
 						goto LoopExit;
 
 					UiLayoutElement elem = s_layoutElements[elemIdx];
 					RectTransform rt = elem.RectTransform;
 					
-					float width = elem.GetWidth();
-					float height = elem.GetHeight();
+					//float width = elem.GetWidth();
+					//float height = elem.GetHeight();
+
+					float width = m_columnWidths[columnIdx];
+					float height = m_rowHeights[rowIdx];
 
 					Vector2 size = new Vector2(width, height);
 					rt.sizeDelta = size;
@@ -101,12 +108,15 @@ namespace GuiToolkit
 				m_numRows = 1;
 		}
 
-		private void SetActualColumnsAndRows()
+		private bool SetActualColumnsAndRows()
 		{
 			m_actualColumns = 0;
 			m_actualRows = 0;
 			if (s_layoutElements.Empty())
-				return;
+				return false;
+
+			if (m_numRows == 0 || m_numColumns == 0)
+				return false;
 
 			if (m_numColumns < 0)
 			{
@@ -114,14 +124,14 @@ namespace GuiToolkit
 				{
 					m_actualColumns = s_layoutElements.Count;
 					m_actualRows = 1;
-					return;
+					return true;
 				}
 
 				m_actualRows = m_numRows;
 				m_actualColumns = s_layoutElements.Count / m_actualRows;
 				if (s_layoutElements.Count % m_actualRows > 0)
 					m_actualColumns++;
-				return;
+				return true;
 			}
 
 			m_actualColumns = m_numColumns;
@@ -129,10 +139,36 @@ namespace GuiToolkit
 			if (m_numRows < 0)
 			{
 				m_actualRows = 1 + s_layoutElements.Count / m_actualColumns;
-				return;
+				return true;
 			}
 
 			m_actualRows = m_numRows;
+			return true;
 		}
+
+		private void CalcColumnWidthsAndRowHeights()
+		{
+			m_columnWidths = new float[m_actualColumns];
+			m_rowHeights = new float[m_actualRows];
+
+			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
+			{
+				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
+				{
+					int elemIdx = columnIdx + rowIdx * m_actualColumns;
+					if (elemIdx >= s_layoutElements.Count)
+						break;
+
+					UiLayoutElement elem = s_layoutElements[elemIdx];
+					
+					float width = elem.GetWidth();
+					float height = elem.GetHeight();
+
+					m_columnWidths[columnIdx] = Mathf.Max(m_columnWidths[columnIdx], width);
+					m_rowHeights[rowIdx] = Mathf.Max(m_rowHeights[rowIdx], height);
+				}
+			}
+		}
+
 	}
 }

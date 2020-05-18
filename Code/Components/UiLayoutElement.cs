@@ -11,6 +11,7 @@ namespace GuiToolkit
 		public enum ExpansionPolicy
 		{
 			Fixed,
+			Flexible,
 		}
 
 		[SerializeField]
