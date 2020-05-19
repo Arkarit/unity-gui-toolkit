@@ -2,13 +2,16 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace GuiToolkit
+namespace GuiToolkit.Layout
 {
 	[RequireComponent(typeof(RectTransform))]
 	public class UiLayoutElement : MonoBehaviour
 	{
+//		[Header("Horizontal")]
 		[SerializeField]
 		protected UiLayoutElementTransformPolicy m_width;
+
+//		[Header("Vertical")]
 		[SerializeField]
 		protected UiLayoutElementTransformPolicy m_height;
 
@@ -17,8 +20,8 @@ namespace GuiToolkit
 		public RectTransform RectTransform => transform as RectTransform;
 
 
-		public virtual float Width => m_width.GetPreferredSize();
-		public virtual float Height => m_height.GetPreferredSize();
+		public virtual float PreferredWidth => m_width.GetPreferredSize();
+		public virtual float PreferredHeight => m_height.GetPreferredSize();
 		public virtual bool VisibleInLayout {get; set;}
 
 		private void MakeParentDirty()

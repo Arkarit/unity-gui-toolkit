@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 
 public static class EditorExtensions
 {
@@ -27,6 +28,5 @@ public static class EditorExtensions
 		foreach (var prop in props)
 			EditorGUILayout.PropertyField(prop, true);
 	}
-
 }
 #endif

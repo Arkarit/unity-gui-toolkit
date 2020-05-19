@@ -8,7 +8,7 @@ using UnityEngine.UI;
 using UnityEditor;
 #endif
 
-namespace GuiToolkit
+namespace GuiToolkit.Layout
 {
 	/// <summary>
 	/// Complete replacement for the shitty Unity layout "system".
@@ -51,8 +51,8 @@ namespace GuiToolkit
 		public int ActualRows => m_actualRows;
 #endif
 
-		public override float Width => m_width.GetPreferredSize();
-		public override float Height => m_height.GetPreferredSize();
+		public override float PreferredWidth => m_width.GetPreferredSize();
+		public override float PreferredHeight => m_height.GetPreferredSize();
 
 		public void SetDirty()
 		{
@@ -193,8 +193,8 @@ namespace GuiToolkit
 
 					UiLayoutElement elem = s_layoutElements[elemIdx];
 					
-					float width = elem.Width;
-					float height = elem.Height;
+					float width = elem.PreferredWidth;
+					float height = elem.PreferredHeight;
 
 					m_columnWidths[columnIdx] = Mathf.Max(m_columnWidths[columnIdx], width);
 					m_rowHeights[rowIdx] = Mathf.Max(m_rowHeights[rowIdx], height);

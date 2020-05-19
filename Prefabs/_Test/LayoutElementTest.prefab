@@ -37,7 +37,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &4606638009671195081
 CanvasRenderer:
@@ -88,9 +88,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_width:
-    m_sizeA: 100
+    m_minimumSize: 100
+    m_preferredSize: 100
+    m_maximumSize: 0
+    m_sizePolicy: 0
+    m_alignmentPolicy: 0
   m_height:
-    m_sizeA: 100
+    m_minimumSize: 100
+    m_preferredSize: 100
+    m_maximumSize: 0
+    m_sizePolicy: 0
+    m_alignmentPolicy: 2
 --- !u!1 &9211137647252595746
 GameObject:
   m_ObjectHideFlags: 0
@@ -182,7 +190,7 @@ MonoBehaviour:
   m_outlineColor:
     serializedVersion: 2
     rgba: 4278190080
-  m_fontSize: 32
+  m_fontSize: 59.2
   m_fontSizeBase: 73.09
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -199,7 +207,7 @@ MonoBehaviour:
   m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
-  m_firstOverflowCharacterIndex: 0
+  m_firstOverflowCharacterIndex: -1
   m_linkedTextComponent: {fileID: 0}
   m_isLinkedTextComponent: 0
   m_isTextTruncated: 0
