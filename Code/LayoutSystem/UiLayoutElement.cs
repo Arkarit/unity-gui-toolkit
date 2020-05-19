@@ -4,45 +4,21 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
-	[Serializable]
-	public class LayoutElementSizeProperty
-	{
-		public enum SizePolicy
-		{
-			Fixed,
-			Flexible,
-			Master,
-		}
-
-		[SerializeField]
-		private float m_minimumSize;
-		[SerializeField]
-		[FormerlySerializedAs("m_sizeA")]
-		private float m_preferredSize;
-		[SerializeField]
-		private float m_maximumSize;
-
-		public float GetSize()
-		{
-			return m_preferredSize;
-		}
-	}
-
 	[RequireComponent(typeof(RectTransform))]
 	public class UiLayoutElement : MonoBehaviour
 	{
 		[SerializeField]
-		protected LayoutElementSizeProperty m_width;
+		protected UiLayoutElementTransformPolicy m_width;
 		[SerializeField]
-		protected LayoutElementSizeProperty m_height;
+		protected UiLayoutElementTransformPolicy m_height;
 
 		private UiLayout m_parentLayout;
 
 		public RectTransform RectTransform => transform as RectTransform;
 
 
-		public virtual float Width => m_width.GetSize();
-		public virtual float Height => m_height.GetSize();
+		public virtual float Width => m_width.GetPreferredSize();
+		public virtual float Height => m_height.GetPreferredSize();
 		public virtual bool VisibleInLayout {get; set;}
 
 		private void MakeParentDirty()

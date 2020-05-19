@@ -51,8 +51,8 @@ namespace GuiToolkit
 		public int ActualRows => m_actualRows;
 #endif
 
-		public override float Width => m_width.GetSize();
-		public override float Height => m_height.GetSize();
+		public override float Width => m_width.GetPreferredSize();
+		public override float Height => m_height.GetPreferredSize();
 
 		public void SetDirty()
 		{
