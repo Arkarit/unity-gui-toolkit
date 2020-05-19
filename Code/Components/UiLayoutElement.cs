@@ -8,7 +8,7 @@ namespace GuiToolkit
 	[Serializable]
 	public class SizeProperty
 	{
-		public enum ExpansionPolicy
+		public enum SizePolicy
 		{
 			Fixed,
 			Flexible,
@@ -27,23 +27,18 @@ namespace GuiToolkit
 	public class UiLayoutElement : MonoBehaviour
 	{
 		[SerializeField]
-		private SizeProperty m_width;
+		protected SizeProperty m_width;
 		[SerializeField]
-		private SizeProperty m_height;
+		protected SizeProperty m_height;
 
 		private UiLayout m_parentLayout;
 
 		public RectTransform RectTransform => transform as RectTransform;
 
-		public float GetWidth()
-		{
-			return m_width.GetSize();
-		}
 
-		public float GetHeight()
-		{
-			return m_height.GetSize();
-		}
+		public virtual float Width => m_width.GetSize();
+		public virtual float Height => m_height.GetSize();
+		public virtual bool VisibleInLayout {get; set;}
 
 		private void MakeParentDirty()
 		{

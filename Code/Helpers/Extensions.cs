@@ -312,24 +312,50 @@ namespace GuiToolkit
 			_scrollRect.ScrollToTop();
 		}
 
-		public static void GetChildren(this Transform _this, ICollection<Transform> _list)
+		public static void GetChildren(this Transform _this, ICollection<Transform> _list, bool _includeInactive = true)
 		{
 			_list.Clear();
 			foreach (Transform child in _this)
-				_list.Add(child);
+				if (_includeInactive || child.gameObject.activeSelf)
+					_list.Add(child);
 		}
 
-		public static List<Transform> GetChildrenList(this Transform _this)
+		public static List<Transform> GetChildrenList(this Transform _this, bool _includeInactive = true)
 		{
 			List<Transform> result = new List<Transform>();
-			GetChildren(_this, result);
+			GetChildren(_this, result, _includeInactive);
 			return result;
 		}
 
-		public static Transform[] GetChildrenArray(this Transform _this)
+		public static Transform[] GetChildrenArray(this Transform _this, bool _includeInactive = true)
 		{
-			GetChildren(_this, s_tempTransformList);
+			GetChildren(_this, s_tempTransformList, _includeInactive);
 			return s_tempTransformList.ToArray();
+		}
+
+		public static void GetComponentsInChildren<T>(this Transform _this, ICollection<T> _list, bool _includeSelf, bool _includeInactive)
+		{
+			_list.Clear();
+
+			if (!_includeInactive && !_this.gameObject.activeInHierarchy)
+				return;
+
+			if (_includeSelf)
+			{
+				T t = _this.GetComponent<T>();
+				if (t != null)
+					_list.Add(t);
+			}
+
+			foreach (Transform child in _this)
+			{
+				if (_includeInactive || child.gameObject.activeSelf)
+				{
+					T t = child.GetComponent<T>();
+					if (t != null)
+						_list.Add(t);
+				}
+			}
 		}
 
 		public static T GetOrCreateComponent<T>(this Component _this) where T : Component

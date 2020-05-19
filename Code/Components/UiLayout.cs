@@ -12,7 +12,7 @@ namespace GuiToolkit
 	/// 
 
 	[ExecuteAlways]
-	public class UiLayout : MonoBehaviour
+	public class UiLayout : UiLayoutElement
 	{
 		private DrivenRectTransformTracker m_tracker;
 		private bool m_dirty = true;
@@ -31,6 +31,9 @@ namespace GuiToolkit
 
 		private float[] m_columnWidths;
 		private float[] m_rowHeights;
+
+		public override float Width => m_width.GetSize();
+		public override float Height => m_height.GetSize();
 
 		public void SetDirty()
 		{
@@ -53,7 +56,8 @@ namespace GuiToolkit
 
 		private void UpdateLayout()
 		{
-			GetComponentsInChildren(false, s_layoutElements);
+			transform.GetComponentsInChildren(s_layoutElements, false, false);
+			int numElements = s_layoutElements.Count;
 
 			SetActualColumnsAndRows();
 			CalcColumnWidthsAndRowHeights();
@@ -72,8 +76,8 @@ namespace GuiToolkit
 					UiLayoutElement elem = s_layoutElements[elemIdx];
 					RectTransform rt = elem.RectTransform;
 					
-					//float width = elem.GetWidth();
-					//float height = elem.GetHeight();
+					//float width = elem.Width;
+					//float height = elem.Height;
 
 					float width = m_columnWidths[columnIdx];
 					float height = m_rowHeights[rowIdx];
@@ -92,6 +96,13 @@ namespace GuiToolkit
 
 			}
 			LoopExit:
+
+			// Place supernatant elements off-screen. We neither want to mess with game object activeness nor
+			// with scale, to not hinder the user to use these important properties.
+			for (int i = m_actualRows * m_actualColumns; i < numElements; i++)
+			{
+				s_layoutElements[i].RectTransform.anchoredPosition = new Vector2(-100000, 100000);
+			}
 
 			m_tracker.Clear();
 			foreach (var child in s_layoutElements)
@@ -161,8 +172,8 @@ namespace GuiToolkit
 
 					UiLayoutElement elem = s_layoutElements[elemIdx];
 					
-					float width = elem.GetWidth();
-					float height = elem.GetHeight();
+					float width = elem.Width;
+					float height = elem.Height;
 
 					m_columnWidths[columnIdx] = Mathf.Max(m_columnWidths[columnIdx], width);
 					m_rowHeights[rowIdx] = Mathf.Max(m_rowHeights[rowIdx], height);
