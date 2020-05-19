@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit
 {
 	/// <summary>
@@ -36,6 +40,12 @@ namespace GuiToolkit
 
 		private float[] m_columnWidths;
 		private float[] m_rowHeights;
+
+		// Debug getters
+#if UNITY_EDITOR
+		public int ActualColumns => m_actualColumns;
+		public int ActualRows => m_actualRows;
+#endif
 
 		public override float Width => m_width.GetSize();
 		public override float Height => m_height.GetSize();
@@ -75,23 +85,24 @@ namespace GuiToolkit
 				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
 				{
 					int elemIdx = GetElemIdx(columnIdx, rowIdx);
-					if (elemIdx == -1)
-						goto LoopExit;
-
-					UiLayoutElement elem = s_layoutElements[elemIdx];
-					RectTransform rt = elem.RectTransform;
-					
-					//float width = elem.Width;
-					//float height = elem.Height;
 
 					float width = m_columnWidths[columnIdx];
 					float height = m_rowHeights[rowIdx];
 
-					Vector2 size = new Vector2(width, height);
-					rt.sizeDelta = size;
+					if (elemIdx >= 0)
+					{
+						UiLayoutElement elem = s_layoutElements[elemIdx];
+						RectTransform rt = elem.RectTransform;
 					
-					Vector2 position = new Vector2(x, y);
-					rt.anchoredPosition = position;
+						//float width = elem.Width;
+						//float height = elem.Height;
+
+						Vector2 size = new Vector2(width, height);
+						rt.sizeDelta = size;
+					
+						Vector2 position = new Vector2(x, y);
+						rt.anchoredPosition = position;
+					}
 
 					x += width;
 					maxY = Mathf.Max(maxY, height);
@@ -100,7 +111,6 @@ namespace GuiToolkit
 				y -= maxY;
 
 			}
-			LoopExit:
 
 			// Place supernatant elements off-screen. We neither want to mess with game object activeness nor
 			// with scale, to not hinder the user to use these important properties.
@@ -154,7 +164,9 @@ namespace GuiToolkit
 
 			if (m_numRows == 0)
 			{
-				m_actualRows = 1 + s_layoutElements.Count / m_actualColumns;
+				m_actualRows = s_layoutElements.Count / m_actualColumns;
+				if (s_layoutElements.Count % m_actualColumns > 0)
+					m_actualRows++;
 				return true;
 			}
 
@@ -173,7 +185,7 @@ namespace GuiToolkit
 				{
 					int elemIdx = GetElemIdx(columnIdx, rowIdx);
 					if (elemIdx == -1)
-						return;
+						continue;
 
 					UiLayoutElement elem = s_layoutElements[elemIdx];
 					
@@ -199,6 +211,21 @@ namespace GuiToolkit
 
 			return result;
 		}
-
 	}
+
+#if UNITY_EDITOR
+	[CustomEditor(typeof(UiLayout))]
+	public class UiLayoutEditor : Editor
+	{
+		public override void OnInspectorGUI()
+		{
+			DrawDefaultInspector();
+			UiLayout thisUiLayout = target as UiLayout;
+
+			EditorGUILayout.Space();
+			EditorGUILayout.LabelField($"m_actualRows:" + thisUiLayout.ActualRows );
+			EditorGUILayout.LabelField($"m_actualColumns:" + thisUiLayout.ActualColumns );
+		}
+	}
+#endif
 }
