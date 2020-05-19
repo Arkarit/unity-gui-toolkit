@@ -34,6 +34,10 @@ namespace GuiToolkit
 		int m_numRows = 0;
 		[SerializeField]
 		bool m_columnsFirst;
+		[SerializeField]
+		bool m_rightToLeft;
+		[SerializeField]
+		bool m_bottomToTop;
 
 		private int m_actualColumns;
 		private int m_actualRows;
@@ -201,6 +205,12 @@ namespace GuiToolkit
 		private int GetElemIdx(int _columnIdx, int _rowIdx)
 		{
 			int result;
+
+			if (m_rightToLeft)
+				_columnIdx = m_actualColumns - _columnIdx - 1;
+			if (m_bottomToTop)
+				_rowIdx = m_actualRows - _rowIdx - 1;
+
 			if (m_columnsFirst)
 				result = _rowIdx + _columnIdx * m_actualRows;
 			else
