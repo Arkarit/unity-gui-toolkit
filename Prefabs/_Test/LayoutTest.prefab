@@ -156,8 +156,9 @@ MonoBehaviour:
     m_sizeA: 0
   m_height:
     m_sizeA: 0
-  m_numColumns: 10
-  m_numRows: 2
+  m_numColumns: 5
+  m_numRows: 0
+  m_columnsFirst: 0
 --- !u!1001 &814879456954171692
 PrefabInstance:
   m_ObjectHideFlags: 0

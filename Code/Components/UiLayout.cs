@@ -21,10 +21,15 @@ namespace GuiToolkit
 			  DrivenTransformProperties.AnchoredPosition
 			| DrivenTransformProperties.SizeDelta;
 
+
+		[Tooltip("Number of Columns. '0' means 'unlimited'. For a horizontal only layout, enter '0' here. For a vertical only layout, enter '1' here.")]
 		[SerializeField]
-		int m_numColumns = -1;
+		int m_numColumns = 0;
+		[Tooltip("Number of Rows. '0' means 'unlimited'. For a horizontal only layout, enter '1' here. For a vertical only layout, enter '0' here.")]
 		[SerializeField]
-		int m_numRows = -1;
+		int m_numRows = 0;
+		[SerializeField]
+		bool m_columnsFirst;
 
 		private int m_actualColumns;
 		private int m_actualRows;
@@ -69,8 +74,8 @@ namespace GuiToolkit
 				float maxY = 0;
 				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
 				{
-					int elemIdx = columnIdx +  rowIdx * m_actualColumns;
-					if (elemIdx >= s_layoutElements.Count)
+					int elemIdx = GetElemIdx(columnIdx, rowIdx);
+					if (elemIdx == -1)
 						goto LoopExit;
 
 					UiLayoutElement elem = s_layoutElements[elemIdx];
@@ -113,10 +118,10 @@ namespace GuiToolkit
 
 		private void OnValidate()
 		{
-			if (m_numColumns == 0)
-				m_numColumns = 1;
-			if (m_numRows == 0)
-				m_numRows = 1;
+			if (m_numColumns < 0)
+				m_numColumns = 0;
+			if (m_numRows < 0)
+				m_numRows = 0;
 		}
 
 		private bool SetActualColumnsAndRows()
@@ -126,12 +131,12 @@ namespace GuiToolkit
 			if (s_layoutElements.Empty())
 				return false;
 
-			if (m_numRows == 0 || m_numColumns == 0)
+			if (m_numRows < 0 || m_numColumns < 0)
 				return false;
 
-			if (m_numColumns < 0)
+			if (m_numColumns == 0)
 			{
-				if (m_numRows < 0)
+				if (m_numRows == 0)
 				{
 					m_actualColumns = s_layoutElements.Count;
 					m_actualRows = 1;
@@ -147,7 +152,7 @@ namespace GuiToolkit
 
 			m_actualColumns = m_numColumns;
 
-			if (m_numRows < 0)
+			if (m_numRows == 0)
 			{
 				m_actualRows = 1 + s_layoutElements.Count / m_actualColumns;
 				return true;
@@ -166,9 +171,9 @@ namespace GuiToolkit
 			{
 				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
 				{
-					int elemIdx = columnIdx + rowIdx * m_actualColumns;
-					if (elemIdx >= s_layoutElements.Count)
-						break;
+					int elemIdx = GetElemIdx(columnIdx, rowIdx);
+					if (elemIdx == -1)
+						return;
 
 					UiLayoutElement elem = s_layoutElements[elemIdx];
 					
@@ -179,6 +184,20 @@ namespace GuiToolkit
 					m_rowHeights[rowIdx] = Mathf.Max(m_rowHeights[rowIdx], height);
 				}
 			}
+		}
+
+		private int GetElemIdx(int _columnIdx, int _rowIdx)
+		{
+			int result;
+			if (m_columnsFirst)
+				result = _rowIdx + _columnIdx * m_actualRows;
+			else
+				result = _columnIdx + _rowIdx * m_actualColumns;
+
+			if (result >= s_layoutElements.Count)
+				return -1;
+
+			return result;
 		}
 
 	}
