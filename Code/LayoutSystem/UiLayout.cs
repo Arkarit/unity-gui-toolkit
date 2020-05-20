@@ -41,8 +41,7 @@ namespace GuiToolkit.Layout
 		private int m_actualColumns;
 		private int m_actualRows;
 
-		private float[] m_columnWidths;
-		private float[] m_rowHeights;
+		private Vector2[,] m_cellSizes;
 
 		private bool m_fixedColumns;
 
@@ -80,21 +79,19 @@ namespace GuiToolkit.Layout
 			int numElements = s_layoutElements.Count;
 
 			SetActualColumnsAndRows();
-			CalcColumnWidthsAndRowHeights();
+			CalcCellSizes();
 
 			Log.Layout("UpdateLayout()");
 
-			float y=0;
+			float[] columnY = new float[m_actualColumns];
 			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
 			{
 				float x = 0;
-				float maxY = 0;
 				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
 				{
 					int elemIdx = GetElemIdx(columnIdx, rowIdx);
 
-					float width = m_columnWidths[columnIdx];
-					float height = m_rowHeights[rowIdx];
+					Vector2 extents = m_cellSizes[columnIdx, rowIdx];
 
 					if (elemIdx >= 0)
 					{
@@ -104,22 +101,18 @@ namespace GuiToolkit.Layout
 						//float width = elem.Width;
 						//float height = elem.Height;
 
-						Vector2 size = new Vector2(width, height);
-						rt.sizeDelta = size;
+						rt.sizeDelta = extents;
 					
-						Vector2 position = new Vector2(x, y);
+						Vector2 position = new Vector2(x, columnY[columnIdx]);
 
 						Log.Layout($"Setting Anchored Position for {elem.gameObject.name}: {position}");
 
 						rt.anchoredPosition = position;
 					}
 
-					x += width;
-					maxY = Mathf.Max(maxY, height);
+					x += extents.x;
+					columnY[columnIdx] -= extents.y;
 				}
-
-				y -= maxY;
-
 			}
 
 			// Place supernatant elements off-screen. We neither want to mess with game object activeness nor
@@ -187,12 +180,11 @@ namespace GuiToolkit.Layout
 			return true;
 		}
 
-		private void CalcColumnWidthsAndRowHeights()
+		private void CalcCellSizes()
 		{
 			Log.Layout("CalcColumnWidthsAndRowHeights()");
 
-			m_columnWidths = new float[m_actualColumns];
-			m_rowHeights = new float[m_actualRows];
+			m_cellSizes = new Vector2[m_actualColumns, m_actualRows];
 
 			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
 			{
@@ -207,8 +199,7 @@ namespace GuiToolkit.Layout
 					float width = elem.PreferredWidth;
 					float height = elem.PreferredHeight;
 
-					m_columnWidths[columnIdx] = Mathf.Max(m_columnWidths[columnIdx], width);
-					m_rowHeights[rowIdx] = Mathf.Max(m_rowHeights[rowIdx], height);
+					m_cellSizes[columnIdx, rowIdx] = new Vector2(width, height);
 				}
 			}
 		}
