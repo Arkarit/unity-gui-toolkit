@@ -26,18 +26,17 @@ namespace GuiToolkit.Layout
 			| DrivenTransformProperties.SizeDelta;
 
 
-		[Tooltip("Number of Columns. '0' means 'unlimited'. For a horizontal only layout, enter '0' here. For a vertical only layout, enter '1' here.")]
 		[SerializeField]
-		int m_numColumns = 0;
-		[Tooltip("Number of Rows. '0' means 'unlimited'. For a horizontal only layout, enter '1' here. For a vertical only layout, enter '0' here.")]
+		protected int m_numColumns = 0;
+
 		[SerializeField]
-		int m_numRows = 0;
+		protected int m_numRows = 0;
+
 		[SerializeField]
-		bool m_columnsFirst;
+		protected GridLayoutGroup.Corner m_startCorner = GridLayoutGroup.Corner.UpperLeft;
+
 		[SerializeField]
-		bool m_rightToLeft;
-		[SerializeField]
-		bool m_bottomToTop;
+		protected GridLayoutGroup.Axis m_startAxis = GridLayoutGroup.Axis.Horizontal;
 
 		private int m_actualColumns;
 		private int m_actualRows;
@@ -221,13 +220,16 @@ namespace GuiToolkit.Layout
 			int columnIdx = _columnIdx;
 			int rowIdx = _rowIdx;
 
-			if (m_rightToLeft)
+			// For right to left/bottom to top we simply invert column/row
+			if (m_startCorner == GridLayoutGroup.Corner.LowerRight || m_startCorner == GridLayoutGroup.Corner.UpperRight)
 				columnIdx = m_actualColumns - columnIdx - 1;
-			if (m_bottomToTop)
+			if (m_startCorner == GridLayoutGroup.Corner.LowerLeft || m_startCorner == GridLayoutGroup.Corner.LowerRight)
 				rowIdx = m_actualRows - rowIdx - 1;
 
-			if (m_columnsFirst)
+			// Add elements to columns first requires a special handling.
+			if (m_startAxis == GridLayoutGroup.Axis.Vertical)
 			{
+				// Fixed columns even more.
 				if (m_fixedColumns)
 				{
 					if (columnIdx + rowIdx * m_actualColumns >= s_layoutElements.Count )
