@@ -45,6 +45,8 @@ namespace GuiToolkit.Layout
 		private float[] m_columnWidths;
 		private float[] m_rowHeights;
 
+		private bool m_fixedColumns;
+
 		// Debug getters
 #if UNITY_EDITOR
 		public int ActualColumns => m_actualColumns;
@@ -81,6 +83,8 @@ namespace GuiToolkit.Layout
 			SetActualColumnsAndRows();
 			CalcColumnWidthsAndRowHeights();
 
+Debug.Log("UpdateLayout()");
+
 			float y=0;
 			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
 			{
@@ -105,6 +109,7 @@ namespace GuiToolkit.Layout
 						rt.sizeDelta = size;
 					
 						Vector2 position = new Vector2(x, y);
+Debug.Log($"Setting Anchored Position for {elem.gameObject.name}: {position}");
 						rt.anchoredPosition = position;
 					}
 
@@ -140,6 +145,8 @@ namespace GuiToolkit.Layout
 
 		private bool SetActualColumnsAndRows()
 		{
+			m_fixedColumns = true;
+
 			m_actualColumns = 0;
 			m_actualRows = 0;
 			if (s_layoutElements.Empty())
@@ -157,6 +164,7 @@ namespace GuiToolkit.Layout
 					return true;
 				}
 
+				m_fixedColumns = false;
 				m_actualRows = m_numRows;
 				m_actualColumns = s_layoutElements.Count / m_actualRows;
 				if (s_layoutElements.Count % m_actualRows > 0)
@@ -180,6 +188,7 @@ namespace GuiToolkit.Layout
 
 		private void CalcColumnWidthsAndRowHeights()
 		{
+Debug.Log("CalcColumnWidthsAndRowHeights()");
 			m_columnWidths = new float[m_actualColumns];
 			m_rowHeights = new float[m_actualRows];
 
@@ -206,18 +215,46 @@ namespace GuiToolkit.Layout
 		{
 			int result;
 
+int columnIdx = _columnIdx;
+int rowIdx = _rowIdx;
+
 			if (m_rightToLeft)
 				_columnIdx = m_actualColumns - _columnIdx - 1;
 			if (m_bottomToTop)
 				_rowIdx = m_actualRows - _rowIdx - 1;
 
 			if (m_columnsFirst)
-				result = _rowIdx + _columnIdx * m_actualRows;
+			{
+				if (m_fixedColumns)
+				{
+					if (_columnIdx + _rowIdx * m_actualColumns >= s_layoutElements.Count )
+						return -1;
+
+					int fullColumns = m_actualColumns - (m_actualColumns * m_actualRows - s_layoutElements.Count);
+					Debug.Log(fullColumns);
+					if (_columnIdx > fullColumns)
+					{
+						result = _rowIdx + _columnIdx * m_actualRows - (_columnIdx - fullColumns);
+					}
+					else
+					{
+						result = _rowIdx + _columnIdx * m_actualRows;
+					}
+				}
+				else
+				{
+					result = _rowIdx + _columnIdx * m_actualRows;
+				}
+			}
 			else
+			{
 				result = _columnIdx + _rowIdx * m_actualColumns;
+			}
 
 			if (result >= s_layoutElements.Count)
 				return -1;
+
+Debug.Log($"columnIdx:{columnIdx} rowIdx:{rowIdx} result:{result} gameObject:{s_layoutElements[result].name}");
 
 			return result;
 		}
