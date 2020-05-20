@@ -30,13 +30,17 @@ namespace GuiToolkit.Layout
 
 		[SerializeField]
 		private float m_minimumSize;
+
 		[SerializeField]
 		[FormerlySerializedAs("m_sizeA")]
 		private float m_preferredSize;
+
 		[SerializeField]
 		private float m_maximumSize;
+
 		[SerializeField]
 		private SizePolicy m_sizePolicy;
+
 		[SerializeField]
 		private AlignmentPolicy m_alignmentPolicy = AlignmentPolicy.Center;
 
@@ -130,9 +134,9 @@ namespace GuiToolkit.Layout
 
 			_position.y += s_lineHeight;
 			if (ShowAlignmentPolicy)
-				EditorGUI.PropertyField(_position, m_minimumSizeProp, new GUIContent( m_isHorizontal ? "Width" : "Height"));
+				EditorGUI.PropertyField(_position, m_preferredSizeProp, new GUIContent( m_isHorizontal ? "Width" : "Height"));
 			else
-				EditorGUI.PropertyField(_position, m_minimumSizeProp, new GUIContent( m_isHorizontal ? "Preferred Width" : "Preferred Height"));
+				EditorGUI.PropertyField(_position, m_preferredSizeProp, new GUIContent( m_isHorizontal ? "Preferred Width" : "Preferred Height"));
 
 			if (ShowMinAndMax)
 			{
