@@ -10,17 +10,35 @@ using UnityEditor;
 
 namespace GuiToolkit.Layout
 {
-	/// <summary>
-	/// Complete replacement for the shitty Unity layout "system".
-	/// </summary>
+	/// \brief Complete replacement for the shitty Unity layout system.
+	/// 
+	/// Benefits:
+	/// <UL>
+	/// <LI>Super-flexible. There's only one layout class, which can fulfill the roles of horizontal, vertical and grid layout</LI>
+	/// <LI>Flexible grid layout cell sizes</LI>
+	/// <LI>If a grid layout row/column is not completely filled, it can be centered (eventually!)</LI>
+	/// <LI>Elements can determine the width/height of a complete table column/row</LI>
+	/// <LI>Much more understandable UI terminology</LI>
+	/// <LI>Because of the points above, much less nested layouts necessary</LI>
+	/// </UL>
 	/// 
 
 	[ExecuteAlways]
 	public class UiLayout : UiLayoutElement
 	{
-		private DrivenRectTransformTracker m_tracker;
-		private bool m_dirty = true;
-		private static readonly List<UiLayoutElement> s_layoutElements = new List<UiLayoutElement>();
+		public enum PlaceChildrenPolicy
+		{
+			None,					// Children are placed on the axis according their sizes.
+			SpaceChildrenEvenly,	// Children are spaced evenly on the axis.
+			StretchChildren,		// Children are stretched to match the extents of the layout (if they are marked as 'Master' or 'Flexible'
+		}
+
+		public enum HullPolicy
+		{
+			None,					// Layout extents don't change
+			FitContentSize,			// Layout fits the children content size (plus padding/spacing) on the axis
+		}
+
 		private const DrivenTransformProperties DRIVEN_TRANSFORM_PROPERTIES =
 			  DrivenTransformProperties.AnchoredPosition
 			| DrivenTransformProperties.SizeDelta;
@@ -37,6 +55,11 @@ namespace GuiToolkit.Layout
 
 		[SerializeField]
 		protected GridLayoutGroup.Axis m_startAxis = GridLayoutGroup.Axis.Horizontal;
+
+		private static readonly List<UiLayoutElement> s_layoutElements = new List<UiLayoutElement>();
+
+		private DrivenRectTransformTracker m_tracker;
+		private bool m_dirty = true;
 
 		private int m_actualColumns;
 		private int m_actualRows;
@@ -80,6 +103,7 @@ namespace GuiToolkit.Layout
 
 			SetActualColumnsAndRows();
 			CalcCellSizes();
+			AlignCellSizes();
 
 			Log.Layout("UpdateLayout()");
 
@@ -97,9 +121,6 @@ namespace GuiToolkit.Layout
 					{
 						UiLayoutElement elem = s_layoutElements[elemIdx];
 						RectTransform rt = elem.RectTransform;
-					
-						//float width = elem.Width;
-						//float height = elem.Height;
 
 						rt.sizeDelta = extents;
 					
@@ -202,6 +223,10 @@ namespace GuiToolkit.Layout
 					m_cellSizes[columnIdx, rowIdx] = new Vector2(width, height);
 				}
 			}
+		}
+
+		private void AlignCellSizes()
+		{
 		}
 
 		private int GetElemIdx(int _columnIdx, int _rowIdx)
