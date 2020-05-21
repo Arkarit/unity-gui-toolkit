@@ -359,30 +359,21 @@ namespace GuiToolkit.Layout
 		{
 			int result;
 
-			// Add elements to columns first requires a special handling.
 			if (m_startAxis == GridLayoutGroup.Axis.Vertical)
 			{
-				// Fixed columns even more.
+				int rest = 0;
+
 				if (!m_errorCompatibility && m_fixedColumns)
 				{
 					if (_columnIdx + _rowIdx * m_actualColumns >= s_layoutElements.Count )
 						return -1;
 
 					int fullColumns = m_actualColumns - (m_actualColumns * m_actualRows - s_layoutElements.Count);
-					Log.Layout(fullColumns.ToString());
 					if (_columnIdx > fullColumns)
-					{
-						result = _rowIdx + _columnIdx * m_actualRows - (_columnIdx - fullColumns);
-					}
-					else
-					{
-						result = _rowIdx + _columnIdx * m_actualRows;
-					}
+						rest = _columnIdx - fullColumns;
 				}
-				else
-				{
-					result = _rowIdx + _columnIdx * m_actualRows;
-				}
+
+				result = _rowIdx + _columnIdx * m_actualRows - rest;
 			}
 			else
 			{
