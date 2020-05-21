@@ -15,7 +15,7 @@ namespace GuiToolkit.Layout
 	/// Benefits:
 	/// <UL>
 	/// <LI>Super-flexible. There's only one layout class, which can fulfill the roles of horizontal, vertical and grid layout</LI>
-	/// <LI>Unity layouts are not only shitty by design, they even are buggy. UiLayout fixes this. (disableable)
+	/// <LI>Unity layouts are not only shitty by design, they even are buggy in terms of ordering their children under some circumstances. UiLayout fixes this. (disableable)
 	/// <LI>Flexible grid layout cell sizes</LI>
 	/// <LI>If a grid layout row/column is not completely filled, it can be centered (eventually!)</LI>
 	/// <LI>Elements can determine the width/height of a complete table column/row</LI>
@@ -288,6 +288,8 @@ namespace GuiToolkit.Layout
 
 		private void SetCellInfoPositions()
 		{
+			Vector2 overallSize = new Vector2(-1,-1);
+
 			float[] yPos = new float[m_actualColumns];
 
 			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
@@ -306,8 +308,35 @@ namespace GuiToolkit.Layout
 
 					xPos += cellInfo.Rect.width;
 					yPos[columnIdx] += cellInfo.Rect.height;
+
+					overallSize.x = Mathf.Max(overallSize.x, xPos);
+					overallSize.y = Mathf.Max(overallSize.y, yPos[columnIdx]);
 				}
 			}
+
+			if (m_startCorner == GridLayoutGroup.Corner.UpperLeft)
+				return;
+
+			bool swapHorizontal = m_startCorner == GridLayoutGroup.Corner.UpperRight || m_startCorner == GridLayoutGroup.Corner.LowerRight;
+			bool swapVertical = m_startCorner == GridLayoutGroup.Corner.LowerLeft || m_startCorner == GridLayoutGroup.Corner.LowerRight;
+
+			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
+			{
+				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
+				{
+					CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
+					if (cellInfo.Invalid)
+						continue;
+
+					if (swapHorizontal)
+						cellInfo.Rect.x = overallSize.x - cellInfo.Rect.x - cellInfo.Rect.width;
+					if (swapVertical)
+						cellInfo.Rect.y = -(overallSize.y + cellInfo.Rect.y - cellInfo.Rect.height);
+
+					m_cellInfos[columnIdx, rowIdx] = cellInfo;
+				}
+			}
+
 		}
 
 		private void AlignAndApplyCellInfos()
@@ -330,44 +359,34 @@ namespace GuiToolkit.Layout
 		{
 			int result;
 
-			int columnIdx = _columnIdx;
-			int rowIdx = _rowIdx;
-
-			// For right to left/bottom to top we simply invert column/row
-			if (m_startCorner == GridLayoutGroup.Corner.LowerRight || m_startCorner == GridLayoutGroup.Corner.UpperRight)
-				columnIdx = m_actualColumns - columnIdx - 1;
-			if (m_startCorner == GridLayoutGroup.Corner.LowerLeft || m_startCorner == GridLayoutGroup.Corner.LowerRight)
-				rowIdx = m_actualRows - rowIdx - 1;
-
 			// Add elements to columns first requires a special handling.
 			if (m_startAxis == GridLayoutGroup.Axis.Vertical)
 			{
 				// Fixed columns even more.
 				if (!m_errorCompatibility && m_fixedColumns)
 				{
-					if (columnIdx + rowIdx * m_actualColumns >= s_layoutElements.Count )
+					if (_columnIdx + _rowIdx * m_actualColumns >= s_layoutElements.Count )
 						return -1;
-
 
 					int fullColumns = m_actualColumns - (m_actualColumns * m_actualRows - s_layoutElements.Count);
 					Log.Layout(fullColumns.ToString());
-					if (columnIdx > fullColumns)
+					if (_columnIdx > fullColumns)
 					{
-						result = rowIdx + columnIdx * m_actualRows - (columnIdx - fullColumns);
+						result = _rowIdx + _columnIdx * m_actualRows - (_columnIdx - fullColumns);
 					}
 					else
 					{
-						result = rowIdx + columnIdx * m_actualRows;
+						result = _rowIdx + _columnIdx * m_actualRows;
 					}
 				}
 				else
 				{
-					result = rowIdx + columnIdx * m_actualRows;
+					result = _rowIdx + _columnIdx * m_actualRows;
 				}
 			}
 			else
 			{
-				result = columnIdx + rowIdx * m_actualColumns;
+				result = _columnIdx + _rowIdx * m_actualColumns;
 			}
 
 			if (result >= s_layoutElements.Count)

@@ -15,7 +15,6 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 #if TEST_UI
-
 		public void Spawn()
 		{
 			for (int i=0; i<m_numInstances; i++)
@@ -23,6 +22,7 @@ namespace GuiToolkit
 				GameObject go = PrefabUtility.InstantiatePrefab(m_prefab.gameObject) as GameObject;
 				TestUiObject obj = go.GetComponent<TestUiObject>();
 				obj.transform.SetParent(transform, false);
+				go.name = go.name + "_" + i.ToString("D2");
 				obj.Init(i, m_numInstances);
 			}
 		}
