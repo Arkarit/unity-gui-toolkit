@@ -314,11 +314,11 @@ namespace GuiToolkit.Layout
 				}
 			}
 
-			if (m_startCorner == GridLayoutGroup.Corner.UpperLeft)
-				return;
+			bool swapHorizontal = m_actualColumns > 1 && m_startCorner == GridLayoutGroup.Corner.UpperRight || m_startCorner == GridLayoutGroup.Corner.LowerRight;
+			bool swapVertical = m_actualRows > 1 && m_startCorner == GridLayoutGroup.Corner.LowerLeft || m_startCorner == GridLayoutGroup.Corner.LowerRight;
 
-			bool swapHorizontal = m_startCorner == GridLayoutGroup.Corner.UpperRight || m_startCorner == GridLayoutGroup.Corner.LowerRight;
-			bool swapVertical = m_startCorner == GridLayoutGroup.Corner.LowerLeft || m_startCorner == GridLayoutGroup.Corner.LowerRight;
+			if (!swapHorizontal && !swapVertical)
+				return;
 
 			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
 			{
