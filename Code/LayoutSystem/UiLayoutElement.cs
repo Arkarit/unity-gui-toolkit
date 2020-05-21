@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace GuiToolkit.Layout
 {
@@ -9,20 +10,33 @@ namespace GuiToolkit.Layout
 	{
 //		[Header("Horizontal")]
 		[SerializeField]
-		protected UiLayoutElementTransformPolicy m_width;
+		protected TransformPolicy m_width;
 
 //		[Header("Vertical")]
 		[SerializeField]
-		protected UiLayoutElementTransformPolicy m_height;
+		protected TransformPolicy m_height;
 
 		private UiLayout m_parentLayout;
 
 		public RectTransform RectTransform => transform as RectTransform;
 
 
-		public virtual float PreferredWidth => m_width.GetPreferredSize();
-		public virtual float PreferredHeight => m_height.GetPreferredSize();
+		public virtual float PreferredWidth => m_width.PreferredSize;
+		public virtual float PreferredHeight => m_height.PreferredSize;
+		public virtual TransformPolicy WidthPolicy => m_width;
+		public virtual TransformPolicy HeightPolicy => m_height;
+
 		public virtual bool VisibleInLayout {get; set;}
+
+		public TransformPolicy GetTransformPolicy(GridLayoutGroup.Axis _axis)
+		{
+			return _axis == GridLayoutGroup.Axis.Horizontal ? m_width : m_height;
+		}
+
+		public TransformPolicy GetTransformPolicy(bool _isHorizontal)
+		{
+			return _isHorizontal ? m_width : m_height;
+		}
 
 		private void MakeParentDirty()
 		{

@@ -24,7 +24,7 @@ namespace GuiToolkit.Layout
 	}
 
 	[Serializable]
-	public class UiLayoutElementTransformPolicy
+	public class TransformPolicy
 	{
 		public const int Unlimited = -1;
 
@@ -44,14 +44,18 @@ namespace GuiToolkit.Layout
 		[SerializeField]
 		private AlignmentPolicy m_alignmentPolicy = AlignmentPolicy.Center;
 
-		public float GetPreferredSize()
-		{
-			return m_preferredSize;
-		}
+		public float PreferredSize => m_preferredSize;
+
+		public SizePolicy SizePolicy => m_sizePolicy;
+		public bool IsMaster => m_sizePolicy == SizePolicy.Master;
+		public bool IsFlexible => IsMaster || m_sizePolicy == SizePolicy.Flexible;
+		public bool IsFixed => m_sizePolicy == SizePolicy.Fixed;
+
+		public AlignmentPolicy AlignmentPolicy => m_alignmentPolicy;
 	}
 
-	[CustomPropertyDrawer(typeof(UiLayoutElementTransformPolicy))]
-	public class UiLayoutElementTransformPolicyDrawer : PropertyDrawer
+	[CustomPropertyDrawer(typeof(TransformPolicy))]
+	public class TransformPolicyDrawer : PropertyDrawer
 	{
 		static readonly float s_lineHeight = EditorGUIUtility.singleLineHeight;
 
