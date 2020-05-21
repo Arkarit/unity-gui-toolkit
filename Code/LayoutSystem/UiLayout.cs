@@ -137,9 +137,9 @@ namespace GuiToolkit.Layout
 
 			SetActualColumnsAndRows();
 			FillCellInfos();
-			AlignCellInfos();
+			AdjustCellInfoSizes();
 			SetCellInfoPositions();
-			ApplyCellInfos();
+			AlignAndApplyCellInfos();
 
 			// Place supernatant elements off-screen. We neither want to mess with game object activeness nor
 			// with scale, to not hinder the user to use these important properties.
@@ -233,112 +233,51 @@ namespace GuiToolkit.Layout
 			}
 		}
 
-		private void AlignCellInfos()
+		private void AdjustCellInfoSizes()
 		{
-			AlignCellInfos(true);
-			AlignCellInfos(false);
-// 			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
-// 			{
-// 				float rowMasterHeight = -1;
-// 				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
-// 				{
-// 					CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
-// 					if (cellInfo.Invalid || !cellInfo.LayoutElement.HeightPolicy.IsMaster)
-// 						continue;
-// 					rowMasterHeight = Mathf.Max(rowMasterHeight, cellInfo.Rect.height);
-// 				}
-// 
-// 				if (rowMasterHeight == -1)
-// 					continue;
-// 
-// 				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
-// 				{
-// 					CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
-// 					if (cellInfo.Invalid)
-// 						continue;
-// 
-// 					var transformPolicy = cellInfo.LayoutElement.HeightPolicy;
-// 					if (transformPolicy.IsFlexible)
-// 					{
-// 						cellInfo.Rect.height = rowMasterHeight;
-// 					}
-// 					else
-// 					{
-// 						var alignmentPolicy = transformPolicy.AlignmentPolicy;
-// 						switch(alignmentPolicy)
-// 						{
-// 							case AlignmentPolicy.Minimum:
-// 								break;
-// 							case AlignmentPolicy.Center:
-// 								cellInfo.Rect.y = 0.5f * (rowMasterHeight - cellInfo.Rect.height);
-// 								break;
-// 							case AlignmentPolicy.Maximum:
-// 								cellInfo.Rect.y = rowMasterHeight - cellInfo.Rect.height;
-// 								break;
-// 							default:
-// 								Debug.Assert(false);
-// 								break;
-// 						}
-// 					}
-// 				}
-// 			}
-		}
+			float[] columnMasterWidth = new float[m_actualColumns];
+			for (int i=0; i<m_actualColumns; i++)
+				columnMasterWidth[i] = -1;
 
-		private void AlignCellInfos(bool _isHorizontal)
-		{
-			int lengthA = _isHorizontal ? m_actualRows : m_actualColumns;
-			int lengthB = _isHorizontal ? m_actualColumns : m_actualRows;
+			float[] rowMasterHeight = new float[m_actualRows];
+			for (int i=0; i<m_actualRows; i++)
+				rowMasterHeight[i] = -1;
 
-			for (int idxA=0; idxA<lengthA; idxA++)
+			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
 			{
-				float masterVal = -1;
-
-				for (int idxB = 0; idxB<lengthB; idxB++)
+				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
 				{
-					CellInfo cellInfo = _isHorizontal ? m_cellInfos[idxB, idxA] : m_cellInfos[idxA, idxB];
-					if (cellInfo.Invalid || !cellInfo.LayoutElement.GetTransformPolicy(!_isHorizontal).IsMaster)
-						continue;
-
-					masterVal = Mathf.Max(masterVal, cellInfo.GetSize(!_isHorizontal));
-				}
-
-				if (masterVal == -1)
-					continue;
-
-				for (int idxB = 0; idxB<lengthB; idxB++)
-				{
-					CellInfo cellInfo = _isHorizontal ? m_cellInfos[idxB, idxA] : m_cellInfos[idxA, idxB];
+					CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
 					if (cellInfo.Invalid)
 						continue;
 
-					var transformPolicy = cellInfo.LayoutElement.GetTransformPolicy(!_isHorizontal);
-					if (transformPolicy.IsFlexible)
-					{
-						cellInfo.SetSize(!_isHorizontal, masterVal);
-					}
-					else
-					{
-						var alignmentPolicy = transformPolicy.AlignmentPolicy;
-						switch(alignmentPolicy)
-						{
-							case AlignmentPolicy.Minimum:
-								break;
-							case AlignmentPolicy.Center:
-								cellInfo.SetPosition( !_isHorizontal, 0.5f * (masterVal - cellInfo.Rect.height));
-								break;
-							case AlignmentPolicy.Maximum:
-								cellInfo.SetPosition( !_isHorizontal, masterVal - cellInfo.Rect.height);
-								break;
-							default:
-								Debug.Assert(false);
-								break;
-						}
-					}
+					if (cellInfo.LayoutElement.HeightPolicy.IsMaster)
+						rowMasterHeight[rowIdx] = Mathf.Max(rowMasterHeight[rowIdx], cellInfo.Rect.height);
 
-					if (_isHorizontal)
-						m_cellInfos[idxB, idxA] = cellInfo;
-					else
-						m_cellInfos[idxA, idxB] = cellInfo;
+					if (cellInfo.LayoutElement.WidthPolicy.IsMaster)
+						columnMasterWidth[columnIdx] = Mathf.Max(columnMasterWidth[columnIdx], cellInfo.Rect.width);
+				}
+			}
+
+			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
+			{
+				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
+				{
+					CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
+					if (cellInfo.Invalid)
+						continue;
+
+					Vector2 size = cellInfo.Rect.size;
+
+					if (rowMasterHeight[rowIdx] >= 0)
+						size.y = rowMasterHeight[rowIdx];
+
+					if (columnMasterWidth[columnIdx] >= 0)
+						size.x = columnMasterWidth[columnIdx];
+
+					cellInfo.Rect.size = size;
+
+					m_cellInfos[columnIdx, rowIdx] = cellInfo;
 				}
 			}
 		}
@@ -367,7 +306,7 @@ namespace GuiToolkit.Layout
 			}
 		}
 
-		private void ApplyCellInfos()
+		private void AlignAndApplyCellInfos()
 		{
 			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
 			{
