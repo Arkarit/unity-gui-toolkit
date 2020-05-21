@@ -15,6 +15,7 @@ namespace GuiToolkit.Layout
 	/// Benefits:
 	/// <UL>
 	/// <LI>Super-flexible. There's only one layout class, which can fulfill the roles of horizontal, vertical and grid layout</LI>
+	/// <LI>Unity layouts are not only shitty by design, they even are buggy. UiLayout fixes this. (disableable)
 	/// <LI>Flexible grid layout cell sizes</LI>
 	/// <LI>If a grid layout row/column is not completely filled, it can be centered (eventually!)</LI>
 	/// <LI>Elements can determine the width/height of a complete table column/row</LI>
@@ -49,6 +50,9 @@ namespace GuiToolkit.Layout
 
 		[SerializeField]
 		protected int m_numRows = 0;
+
+		[SerializeField]
+		protected bool m_errorCompatibility;
 
 		[SerializeField]
 		protected GridLayoutGroup.Corner m_startCorner = GridLayoutGroup.Corner.UpperLeft;
@@ -339,10 +343,11 @@ namespace GuiToolkit.Layout
 			if (m_startAxis == GridLayoutGroup.Axis.Vertical)
 			{
 				// Fixed columns even more.
-				if (m_fixedColumns)
+				if (!m_errorCompatibility && m_fixedColumns)
 				{
 					if (columnIdx + rowIdx * m_actualColumns >= s_layoutElements.Count )
 						return -1;
+
 
 					int fullColumns = m_actualColumns - (m_actualColumns * m_actualRows - s_layoutElements.Count);
 					Log.Layout(fullColumns.ToString());
