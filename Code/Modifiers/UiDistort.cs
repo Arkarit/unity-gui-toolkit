@@ -95,9 +95,9 @@ namespace GuiToolkit
 			SerializedProperty trprop = m_topRightProp;
 			SerializedProperty brprop = m_bottomRightProp;
 
-			EDirectionFlags mirrorDirection = (EDirectionFlags) m_mirrorDirectionProp.intValue;
-			bool mirrorHorizontal = mirrorDirection.IsFlagSet(EDirectionFlags.Horizontal);
-			bool mirrorVertical = mirrorDirection.IsFlagSet(EDirectionFlags.Vertical);
+			EAxis2DFlags mirrorAxes = (EAxis2DFlags) m_mirrorAxisFlagsProp.intValue;
+			bool mirrorHorizontal = mirrorAxes.IsFlagSet(EAxis2DFlags.Horizontal);
+			bool mirrorVertical = mirrorAxes.IsFlagSet(EAxis2DFlags.Vertical);
 
 			if (mirrorHorizontal)
 			{

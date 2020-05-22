@@ -176,14 +176,14 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static bool IsHorizontal( this EDirection _direction )
+		public static bool IsHorizontal( this EAxis2D _this )
 		{
-			return _direction == EDirection.Horizontal;
+			return _this == EAxis2D.Horizontal;
 		}
 
-		public static bool IsVertical( this EDirection _direction )
+		public static bool IsVertical( this EAxis2D _this)
 		{
-			return _direction == EDirection.Vertical;
+			return _this == EAxis2D.Vertical;
 		}
 
 		public static float GetAxisPosition( ref this Rect _this, bool _horizontal )
@@ -191,9 +191,9 @@ namespace GuiToolkit
 			return _horizontal ? _this.x : _this.y;
 		}
 
-		public static float GetAxisPosition( ref this Rect _this, EDirection _direction )
+		public static float GetAxisPosition( ref this Rect _this, EAxis2D _axis )
 		{
-			return GetAxisPosition(ref _this, _direction.IsHorizontal());
+			return GetAxisPosition(ref _this, _axis.IsHorizontal());
 		}
 
 		public static void SetAxisPosition( ref this Rect _this, bool _horizontal, float _val )
@@ -204,9 +204,9 @@ namespace GuiToolkit
 				_this.y = _val;
 		}
 
-		public static void SetAxisPosition( ref this Rect _this, EDirection _direction, float _val )
+		public static void SetAxisPosition( ref this Rect _this, EAxis2D _axis, float _val )
 		{
-			SetAxisPosition(ref _this, _direction.IsHorizontal(), _val);
+			SetAxisPosition(ref _this, _axis.IsHorizontal(), _val);
 		}
 
 		public static float GetAxisSize( ref this Rect _this, bool _horizontal )
@@ -214,9 +214,9 @@ namespace GuiToolkit
 			return _horizontal ? _this.width : _this.height;
 		}
 
-		public static float GetAxisSize( ref this Rect _this, EDirection _direction )
+		public static float GetAxisSize( ref this Rect _this, EAxis2D _axis )
 		{
-			return GetAxisSize(ref _this, _direction.IsHorizontal());
+			return GetAxisSize(ref _this, _axis.IsHorizontal());
 		}
 
 		public static void SetAxisSize( ref this Rect _this, bool _horizontal, float _val )
@@ -227,9 +227,9 @@ namespace GuiToolkit
 				_this.height = _val;
 		}
 
-		public static void SetAxisSize( ref this Rect _this, EDirection _direction, float _val )
+		public static void SetAxisSize( ref this Rect _this, EAxis2D _axis, float _val )
 		{
-			SetAxisSize(ref _this, _direction.IsHorizontal(), _val);
+			SetAxisSize(ref _this, _axis.IsHorizontal(), _val);
 		}
 
 		public static Vector3 Size3( this Rect _this)

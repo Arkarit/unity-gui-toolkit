@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System;
+using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -25,7 +26,8 @@ namespace GuiToolkit
 		public Vector2 m_bottomRight = Vector2.zero;
 
 		[SerializeField]
-		protected EDirectionFlags m_mirrorDirection;
+		[FormerlySerializedAs("m_mirrorDirection")]
+		protected EAxis2DFlags m_mirrorAxisFlags;
 
 		protected static readonly List<UIVertex> s_verts = new List<UIVertex>();
 		protected static UIVertex s_vertex;
@@ -53,8 +55,8 @@ namespace GuiToolkit
 			Vector2 tr = m_topRight * size;
 			Vector2 br = m_bottomRight * size;
 
-			bool mirrorHorizontal = m_mirrorDirection.IsFlagSet(EDirectionFlags.Horizontal);
-			bool mirrorVertical = m_mirrorDirection.IsFlagSet(EDirectionFlags.Vertical);
+			bool mirrorHorizontal = m_mirrorAxisFlags.IsFlagSet(EAxis2DFlags.Horizontal);
+			bool mirrorVertical = m_mirrorAxisFlags.IsFlagSet(EAxis2DFlags.Vertical);
 
 			Vector2 mirrorVec = new Vector2(mirrorHorizontal ? -1 : 1, mirrorVertical ? -1 : 1);
 
@@ -82,9 +84,9 @@ namespace GuiToolkit
 			}
 		}
 
-		public void SetMirror( EDirectionFlags _direction )
+		public void SetMirror( EAxis2DFlags _axes )
 		{
-			m_mirrorDirection = _direction;
+			m_mirrorAxisFlags = _axes;
 			SetDirty();
 		}
 	}
@@ -96,7 +98,7 @@ namespace GuiToolkit
 		protected SerializedProperty m_topRightProp;
 		protected SerializedProperty m_bottomLeftProp;
 		protected SerializedProperty m_bottomRightProp;
-		protected SerializedProperty m_mirrorDirectionProp;
+		protected SerializedProperty m_mirrorAxisFlagsProp;
 
 		protected virtual bool HasMirror { get { return false; } }
 
@@ -106,7 +108,7 @@ namespace GuiToolkit
 			m_topRightProp = serializedObject.FindProperty("m_topRight");
 			m_bottomLeftProp = serializedObject.FindProperty("m_bottomLeft");
 			m_bottomRightProp = serializedObject.FindProperty("m_bottomRight");
-			m_mirrorDirectionProp = serializedObject.FindProperty("m_mirrorDirection");
+			m_mirrorAxisFlagsProp = serializedObject.FindProperty("m_mirrorAxisFlags");
 		}
 
 		public override void OnInspectorGUI()
@@ -117,7 +119,7 @@ namespace GuiToolkit
 
 			if (HasMirror)
 			{
-				if (UiEditorUtility.BoolBar<EDirectionFlags>(m_mirrorDirectionProp, "Mirror"))
+				if (UiEditorUtility.BoolBar<EAxis2DFlags>(m_mirrorAxisFlagsProp, "Mirror"))
 					thisUiDistort.SetDirty();
 			}
 
