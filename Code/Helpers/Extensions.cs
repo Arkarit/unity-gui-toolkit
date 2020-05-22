@@ -176,6 +176,62 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public static bool IsHorizontal( this EDirection _direction )
+		{
+			return _direction == EDirection.Horizontal;
+		}
+
+		public static bool IsVertical( this EDirection _direction )
+		{
+			return _direction == EDirection.Vertical;
+		}
+
+		public static float GetAxisPosition( ref this Rect _this, bool _horizontal )
+		{
+			return _horizontal ? _this.x : _this.y;
+		}
+
+		public static float GetAxisPosition( ref this Rect _this, EDirection _direction )
+		{
+			return GetAxisPosition(ref _this, _direction.IsHorizontal());
+		}
+
+		public static void SetAxisPosition( ref this Rect _this, bool _horizontal, float _val )
+		{
+			if (_horizontal)
+				_this.x = _val;
+			else
+				_this.y = _val;
+		}
+
+		public static void SetAxisPosition( ref this Rect _this, EDirection _direction, float _val )
+		{
+			SetAxisPosition(ref _this, _direction.IsHorizontal(), _val);
+		}
+
+		public static float GetAxisSize( ref this Rect _this, bool _horizontal )
+		{
+			return _horizontal ? _this.width : _this.height;
+		}
+
+		public static float GetAxisSize( ref this Rect _this, EDirection _direction )
+		{
+			return GetAxisSize(ref _this, _direction.IsHorizontal());
+		}
+
+		public static void SetAxisSize( ref this Rect _this, bool _horizontal, float _val )
+		{
+			if (_horizontal)
+				_this.width = _val;
+			else
+				_this.height = _val;
+		}
+
+		public static void SetAxisSize( ref this Rect _this, EDirection _direction, float _val )
+		{
+			SetAxisSize(ref _this, _direction.IsHorizontal(), _val);
+		}
+
 		public static Vector3 Size3( this Rect _this)
 		{
 			return _this.size;
