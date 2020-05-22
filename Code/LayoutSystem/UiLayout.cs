@@ -322,9 +322,11 @@ namespace GuiToolkit.Layout
 
 		private void AlignCellInfos()
 		{
-			if (m_childrenAlignmentHorizontal <= ChildrenAlignmentPolicy.FitToChildrenContent && m_childrenAlignmentVertical <= ChildrenAlignmentPolicy.FitToChildrenContent)
+			if (m_childrenAlignmentHorizontal == ChildrenAlignmentPolicy.Minimum && m_childrenAlignmentVertical == ChildrenAlignmentPolicy.Minimum)
 				return;
 
+			Rect thisRect = RectTransform.rect;
+			Vector2 ratio = m_overallSize / thisRect.width;
 
 			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
 			{
@@ -333,7 +335,59 @@ namespace GuiToolkit.Layout
 					CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
 					if (cellInfo.Invalid)
 						continue;
+
+					float x = cellInfo.CellRect.x;
+					float w = cellInfo.CellRect.width;
+					AlignAxis(m_childrenAlignmentHorizontal, 1, m_overallSize.x, thisRect.width, ref x, ref w);
+					cellInfo.CellRect.x = x;
+					cellInfo.CellRect.width = w;
+
+					float y = cellInfo.CellRect.y;
+					float h = cellInfo.CellRect.height;
+					AlignAxis(m_childrenAlignmentVertical, -1, m_overallSize.y, thisRect.height, ref y, ref h);
+					cellInfo.CellRect.y = y;
+					cellInfo.CellRect.height = h;
+
+
+					m_cellInfos[columnIdx, rowIdx] = cellInfo;
 				}
+			}
+		}
+
+		private void AlignAxis(ChildrenAlignmentPolicy _policy, float _sgn, float _innerSize, float _outerSize, ref float _x, ref float _w )
+		{
+			switch( _policy )
+			{
+				case ChildrenAlignmentPolicy.FitToChildrenContent:
+				case ChildrenAlignmentPolicy.Minimum:
+					return;
+				case ChildrenAlignmentPolicy.Center:
+					{
+						float offset = _outerSize - _innerSize;
+						_x += offset / 2 * _sgn;
+					}
+					break;
+				case ChildrenAlignmentPolicy.Maximum:
+					{
+						float offset = _outerSize - _innerSize;
+						_x += offset * _sgn;
+					}
+					break;
+				case ChildrenAlignmentPolicy.SpaceEvenly:
+					{
+						float normX = _x / _innerSize;
+						_x = normX * _outerSize;
+					}
+					break;
+				case ChildrenAlignmentPolicy.StretchChildren:
+					{
+						float ratio = _outerSize / _innerSize;
+						_x *= ratio;
+						_w *= ratio;
+					}
+					break;
+				default:
+					break;
 			}
 		}
 
