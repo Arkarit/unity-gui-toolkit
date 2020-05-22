@@ -13,7 +13,7 @@ namespace GuiToolkit
 		protected RectTransform m_vanishingPoint;
 
 		[SerializeField]
-		protected ESide m_lockedSide;
+		protected ESide2D m_lockedSide;
 
 		private Vector3 m_lastPosition;
 		private Vector3 m_lastPositionVanishingPoint;
@@ -40,16 +40,16 @@ namespace GuiToolkit
 
 			switch( m_lockedSide )
 			{
-				case ESide.Top:
+				case ESide2D.Top:
 					CalculatePerspectiveValues( ref m_topLeft, ref m_topRight, ref m_bottomLeft, ref m_bottomRight, m_lockedSide );
 					break;
-				case ESide.Bottom:
+				case ESide2D.Bottom:
 					CalculatePerspectiveValues( ref m_bottomLeft, ref m_bottomRight, ref m_topLeft, ref m_topRight, m_lockedSide );
 					break;
-				case ESide.Left:
+				case ESide2D.Left:
 					CalculatePerspectiveValues( ref m_topLeft, ref m_bottomLeft, ref m_topRight, ref m_bottomRight, m_lockedSide );
 					break;
-				case ESide.Right:
+				case ESide2D.Right:
 					CalculatePerspectiveValues( ref m_topRight, ref m_bottomRight, ref m_topLeft, ref m_bottomLeft, m_lockedSide );
 					break;
 				default:
@@ -60,7 +60,7 @@ namespace GuiToolkit
 
 		protected override bool IsAbsolute { get { return true; } }
 
-		private void CalculatePerspectiveValues( ref Vector2 _fixedPointA, ref Vector2 _fixedPointB, ref Vector2 _movingPointA, ref Vector2 _movingPointB, ESide _side )
+		private void CalculatePerspectiveValues( ref Vector2 _fixedPointA, ref Vector2 _fixedPointB, ref Vector2 _movingPointA, ref Vector2 _movingPointB, ESide2D _side )
 		{
 			_fixedPointA = _fixedPointB = Vector2.zero;
 
@@ -69,19 +69,19 @@ namespace GuiToolkit
 
 			switch( _side )
 			{
-				case ESide.Top:
+				case ESide2D.Top:
 					_movingPointA = CalculatePerspectiveValue( Bounding.yMin, Bounding.yMax, Bounding.xMax, vanishingPoint, false);
 					_movingPointB = CalculatePerspectiveValue( Bounding.yMin, Bounding.yMax, Bounding.xMin, vanishingPoint, false);
 					break;
-				case ESide.Bottom:
+				case ESide2D.Bottom:
 					_movingPointA = CalculatePerspectiveValue( Bounding.yMax, Bounding.yMin, Bounding.xMax, vanishingPoint, false);
 					_movingPointB = CalculatePerspectiveValue( Bounding.yMax, Bounding.yMin, Bounding.xMin, vanishingPoint, false);
 					break;
-				case ESide.Left:
+				case ESide2D.Left:
 					_movingPointA = CalculatePerspectiveValue( Bounding.xMin, Bounding.xMax, Bounding.xMax, vanishingPoint, true);
 					_movingPointB = CalculatePerspectiveValue( Bounding.xMin, Bounding.xMax, Bounding.xMin, vanishingPoint, true);
 					break;
-				case ESide.Right:
+				case ESide2D.Right:
 					_movingPointA = CalculatePerspectiveValue( Bounding.xMax, Bounding.xMin, Bounding.xMax, vanishingPoint, true);
 					_movingPointB = CalculatePerspectiveValue( Bounding.xMax, Bounding.xMin, Bounding.xMin, vanishingPoint, true);
 					break;
