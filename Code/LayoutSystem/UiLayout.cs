@@ -33,7 +33,6 @@ namespace GuiToolkit.Layout
 			Center,			
 			Maximum,		
 			FitToChildrenContent,
-			SpaceEvenly,	
 			StretchChildren,
 		}
 
@@ -74,13 +73,11 @@ namespace GuiToolkit.Layout
 		private int m_actualColumns;
 		private int m_actualRows;
 
-		private struct CellInfo
+		private class CellInfo
 		{
 			public UiLayoutElement LayoutElement;
 			public Rect CellRect;
 			public Rect ElementRect;
-
-			public bool Invalid => LayoutElement == null;
 		}
 
 		private CellInfo[,] m_cellInfos;
@@ -126,7 +123,8 @@ namespace GuiToolkit.Layout
 			FillCellInfos();
 			AdjustCellInfoSizes();
 			SetCellInfoPositionsAndOverallSize();
-			AlignCellInfos();
+			AlignCellInfosIfNecessary();
+			StretchCellInfosIfNecessary();
 			ApplyCellInfos();
 
 			// Place supernatant elements off-screen. We neither want to mess with game object activeness nor
@@ -236,7 +234,7 @@ namespace GuiToolkit.Layout
 				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
 				{
 					CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
-					if (cellInfo.Invalid)
+					if (cellInfo == null)
 						continue;
 
 					if (cellInfo.LayoutElement.HeightPolicy.IsMaster)
@@ -252,7 +250,7 @@ namespace GuiToolkit.Layout
 				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
 				{
 					CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
-					if (cellInfo.Invalid)
+					if (cellInfo == null)
 						continue;
 
 					Vector2 size = cellInfo.CellRect.size;
@@ -264,8 +262,6 @@ namespace GuiToolkit.Layout
 						size.x = columnMasterWidth[columnIdx];
 
 					cellInfo.CellRect.size = size;
-
-					m_cellInfos[columnIdx, rowIdx] = cellInfo;
 				}
 			}
 		}
@@ -282,13 +278,11 @@ namespace GuiToolkit.Layout
 				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
 				{
 					CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
-					if (cellInfo.Invalid)
+					if (cellInfo == null)
 						continue;
 
 					cellInfo.CellRect.x += xPos;
 					cellInfo.CellRect.y -= yPos[columnIdx];
-
-					m_cellInfos[columnIdx, rowIdx] = cellInfo;
 
 					xPos += cellInfo.CellRect.width;
 					yPos[columnIdx] += cellInfo.CellRect.height;
@@ -306,23 +300,23 @@ namespace GuiToolkit.Layout
 				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
 				{
 					CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
-					if (cellInfo.Invalid)
+					if (cellInfo == null)
 						continue;
 
 					if (m_rightToLeft)
 						cellInfo.CellRect.x = m_overallSize.x - cellInfo.CellRect.x - cellInfo.CellRect.width;
 					if (m_bottomToTop)
 						cellInfo.CellRect.y = -(m_overallSize.y + cellInfo.CellRect.y - cellInfo.CellRect.height);
-
-					m_cellInfos[columnIdx, rowIdx] = cellInfo;
 				}
 			}
 
 		}
 
-		private void AlignCellInfos()
+		private void AlignCellInfosIfNecessary()
 		{
-			if (m_childrenAlignmentHorizontal == ChildrenAlignmentPolicy.Minimum && m_childrenAlignmentVertical == ChildrenAlignmentPolicy.Minimum)
+			bool alignHorizontal = m_childrenAlignmentHorizontal == ChildrenAlignmentPolicy.Center || m_childrenAlignmentHorizontal == ChildrenAlignmentPolicy.Maximum;
+			bool alignVertical = m_childrenAlignmentVertical == ChildrenAlignmentPolicy.Center || m_childrenAlignmentVertical == ChildrenAlignmentPolicy.Maximum;
+			if (!alignHorizontal && !alignVertical)
 				return;
 
 			Rect thisRect = RectTransform.rect;
@@ -333,23 +327,26 @@ namespace GuiToolkit.Layout
 				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
 				{
 					CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
-					if (cellInfo.Invalid)
+					if (cellInfo == null)
 						continue;
 
-					float x = cellInfo.CellRect.x;
-					float w = cellInfo.CellRect.width;
-					AlignAxis(m_childrenAlignmentHorizontal, 1, m_overallSize.x, thisRect.width, ref x, ref w);
-					cellInfo.CellRect.x = x;
-					cellInfo.CellRect.width = w;
+					if (alignHorizontal)
+					{
+						float x = cellInfo.CellRect.x;
+						float w = cellInfo.CellRect.width;
+						AlignAxis(m_childrenAlignmentHorizontal, 1, m_overallSize.x, thisRect.width, ref x, ref w);
+						cellInfo.CellRect.x = x;
+						cellInfo.CellRect.width = w;
+					}
 
-					float y = cellInfo.CellRect.y;
-					float h = cellInfo.CellRect.height;
-					AlignAxis(m_childrenAlignmentVertical, -1, m_overallSize.y, thisRect.height, ref y, ref h);
-					cellInfo.CellRect.y = y;
-					cellInfo.CellRect.height = h;
-
-
-					m_cellInfos[columnIdx, rowIdx] = cellInfo;
+					if (alignVertical)
+					{
+						float y = cellInfo.CellRect.y;
+						float h = cellInfo.CellRect.height;
+						AlignAxis(m_childrenAlignmentVertical, -1, m_overallSize.y, thisRect.height, ref y, ref h);
+						cellInfo.CellRect.y = y;
+						cellInfo.CellRect.height = h;
+					}
 				}
 			}
 		}
@@ -358,9 +355,6 @@ namespace GuiToolkit.Layout
 		{
 			switch( _policy )
 			{
-				case ChildrenAlignmentPolicy.FitToChildrenContent:
-				case ChildrenAlignmentPolicy.Minimum:
-					return;
 				case ChildrenAlignmentPolicy.Center:
 					{
 						float offset = _outerSize - _innerSize;
@@ -373,21 +367,64 @@ namespace GuiToolkit.Layout
 						_x += offset * _sgn;
 					}
 					break;
-				case ChildrenAlignmentPolicy.SpaceEvenly:
-					{
-						float normX = _x / _innerSize;
-						_x = normX * _outerSize;
-					}
-					break;
-				case ChildrenAlignmentPolicy.StretchChildren:
-					{
-						float ratio = _outerSize / _innerSize;
-						_x *= ratio;
-						_w *= ratio;
-					}
-					break;
 				default:
-					break;
+					Debug.Assert(false);
+					return;
+			}
+		}
+
+		private void StretchCellInfosIfNecessary()
+		{
+			bool stretchHorizontal = m_childrenAlignmentHorizontal == ChildrenAlignmentPolicy.StretchChildren;
+			bool stretchVertical = m_childrenAlignmentVertical == ChildrenAlignmentPolicy.StretchChildren;
+			if (!stretchHorizontal && !stretchVertical)
+				return;
+
+			Rect thisRect = RectTransform.rect;
+
+			if (stretchHorizontal)
+			{
+				for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
+				{
+					float stretchableSpaceIs = 0;
+					float fullSpaceIs = 0;
+					for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
+					{
+						CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
+						if (cellInfo == null)
+							continue;
+						float space = cellInfo.CellRect.width;
+						fullSpaceIs += space;
+						if (cellInfo.LayoutElement.WidthPolicy.IsFlexible)
+							stretchableSpaceIs += space;
+					}
+
+					float fixedSpaceIs = fullSpaceIs - stretchableSpaceIs;
+					float fullSpaceShould = thisRect.width;
+					float factor = (fullSpaceShould - fixedSpaceIs) / (fullSpaceIs - fixedSpaceIs);
+
+					// 0.5st 0.5fi 0.5fr
+					// 1.5 / 1
+
+
+					float x = 0;
+					if (stretchableSpaceIs > 0)
+					{
+						for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
+						{
+							CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
+							if (cellInfo == null)
+								continue;
+
+							if (cellInfo.LayoutElement.WidthPolicy.IsFlexible)
+								cellInfo.CellRect.width *= factor;
+
+							cellInfo.CellRect.x = x;
+							x += cellInfo.CellRect.width;
+						}
+					}
+				}
+
 			}
 		}
 
@@ -399,7 +436,7 @@ namespace GuiToolkit.Layout
 				for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
 				{
 					CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
-					if (cellInfo.Invalid)
+					if (cellInfo == null)
 						continue;
 					var rt = cellInfo.LayoutElement.RectTransform;
 					rt.anchoredPosition = cellInfo.CellRect.position;
