@@ -28,9 +28,9 @@ namespace GuiToolkit.Layout
 
 		public virtual bool VisibleInLayout {get; set;}
 
-		public TransformPolicy GetTransformPolicy(GridLayoutGroup.Axis _axis)
+		public TransformPolicy GetTransformPolicy(EAxis2D _axis)
 		{
-			return _axis == GridLayoutGroup.Axis.Horizontal ? m_width : m_height;
+			return _axis == EAxis2D.Horizontal ? m_width : m_height;
 		}
 
 		public TransformPolicy GetTransformPolicy(bool _isHorizontal)

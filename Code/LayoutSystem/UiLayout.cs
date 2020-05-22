@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -373,6 +370,81 @@ namespace GuiToolkit.Layout
 			}
 		}
 
+		private void AddFullAndStretchableSpace( int _columnIdx, int _rowIdx, EAxis2D _axis, ref float _fullSpaceIs, ref float _stretchableSpaceIs )
+		{
+			CellInfo cellInfo = m_cellInfos[_columnIdx, _rowIdx];
+			if (cellInfo == null)
+				return;
+			float space = cellInfo.CellRect.GetAxisSize(_axis);
+			_fullSpaceIs += space;
+			if (cellInfo.LayoutElement.GetTransformPolicy(_axis).IsFlexible)
+				_stretchableSpaceIs += space;
+		}
+
+		private void SetStretch( int _columnIdx, int _rowIdx, EAxis2D _axis, float _factor, ref float _axisPos )
+		{
+			CellInfo cellInfo = m_cellInfos[_columnIdx, _rowIdx];
+			if (cellInfo == null)
+				return;
+
+			if (cellInfo.LayoutElement.GetTransformPolicy(_axis).IsFlexible)
+				cellInfo.CellRect.SetAxisSize(_axis, cellInfo.CellRect.GetAxisSize(_axis) * _factor);
+
+			float sgn = _axis == EAxis2D.Horizontal ? 1 : -1;
+			cellInfo.CellRect.SetAxisPosition(_axis, _axisPos * sgn);
+			_axisPos += cellInfo.CellRect.GetAxisSize(_axis);
+		}
+
+		private void SetStretchForAxis( EAxis2D _axis )
+		{
+			Rect thisRect = RectTransform.rect;
+
+			if (_axis == EAxis2D.Horizontal)
+			{
+				for (int rowIdx = 0; rowIdx < m_actualRows; rowIdx++)
+				{
+					float stretchableSpaceIs = 0;
+					float fullSpaceIs = 0;
+
+					for (int columnIdx = 0; columnIdx < m_actualColumns; columnIdx++)
+						AddFullAndStretchableSpace(columnIdx, rowIdx, _axis, ref fullSpaceIs, ref stretchableSpaceIs);
+
+					float fixedSpaceIs = fullSpaceIs - stretchableSpaceIs;
+					float fullSpaceShould = thisRect.GetAxisSize(_axis);
+					float factor = (fullSpaceShould - fixedSpaceIs) / (fullSpaceIs - fixedSpaceIs);
+
+					float axisPos = 0;
+					if (stretchableSpaceIs > 0)
+					{
+						for (int columnIdx = 0; columnIdx < m_actualColumns; columnIdx++)
+							SetStretch(columnIdx, rowIdx, _axis, factor, ref axisPos);
+					}
+				}
+			}
+			else
+			{
+				for (int columnIdx = 0; columnIdx < m_actualColumns; columnIdx++)
+				{
+					float stretchableSpaceIs = 0;
+					float fullSpaceIs = 0;
+
+					for (int rowIdx = 0; rowIdx < m_actualRows; rowIdx++)
+						AddFullAndStretchableSpace(columnIdx, rowIdx, _axis, ref fullSpaceIs, ref stretchableSpaceIs);
+
+					float fixedSpaceIs = fullSpaceIs - stretchableSpaceIs;
+					float fullSpaceShould = thisRect.GetAxisSize(_axis);
+					float factor = (fullSpaceShould - fixedSpaceIs) / (fullSpaceIs - fixedSpaceIs);
+
+					float axisPos = 0;
+					if (stretchableSpaceIs > 0)
+					{
+						for (int rowIdx = 0; rowIdx < m_actualRows; rowIdx++)
+							SetStretch(columnIdx, rowIdx, _axis, factor, ref axisPos);
+					}
+				}
+			}
+		}
+
 		private void StretchCellInfosIfNecessary()
 		{
 			bool stretchHorizontal = m_childrenAlignmentHorizontal == ChildrenAlignmentPolicy.StretchChildren;
@@ -380,52 +452,10 @@ namespace GuiToolkit.Layout
 			if (!stretchHorizontal && !stretchVertical)
 				return;
 
-			Rect thisRect = RectTransform.rect;
-
 			if (stretchHorizontal)
-			{
-				for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
-				{
-					float stretchableSpaceIs = 0;
-					float fullSpaceIs = 0;
-					for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
-					{
-						CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
-						if (cellInfo == null)
-							continue;
-						float space = cellInfo.CellRect.width;
-						fullSpaceIs += space;
-						if (cellInfo.LayoutElement.WidthPolicy.IsFlexible)
-							stretchableSpaceIs += space;
-					}
-
-					float fixedSpaceIs = fullSpaceIs - stretchableSpaceIs;
-					float fullSpaceShould = thisRect.width;
-					float factor = (fullSpaceShould - fixedSpaceIs) / (fullSpaceIs - fixedSpaceIs);
-
-					// 0.5st 0.5fi 0.5fr
-					// 1.5 / 1
-
-
-					float x = 0;
-					if (stretchableSpaceIs > 0)
-					{
-						for (int columnIdx = 0; columnIdx<m_actualColumns; columnIdx++)
-						{
-							CellInfo cellInfo = m_cellInfos[columnIdx, rowIdx];
-							if (cellInfo == null)
-								continue;
-
-							if (cellInfo.LayoutElement.WidthPolicy.IsFlexible)
-								cellInfo.CellRect.width *= factor;
-
-							cellInfo.CellRect.x = x;
-							x += cellInfo.CellRect.width;
-						}
-					}
-				}
-
-			}
+				SetStretchForAxis(EAxis2D.Horizontal);
+			if (stretchVertical)
+				SetStretchForAxis(EAxis2D.Vertical);
 		}
 
 
