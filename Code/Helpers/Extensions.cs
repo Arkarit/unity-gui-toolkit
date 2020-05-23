@@ -207,6 +207,11 @@ namespace GuiToolkit
 			return _axis == EAxis2D.Horizontal ? (_this.left, _this.right) : (_this.top, _this.bottom);
 		}
 
+		public static float GetExtentsByAxis( this RectOffset _this, EAxis2D _axis)
+		{
+			return _axis == EAxis2D.Horizontal ? _this.horizontal : _this.vertical;
+		}
+
 		public static float GetByAxisLeftOrTop( this RectOffset _this, EAxis2D _axis)
 		{
 			return _axis == EAxis2D.Horizontal ? _this.left : _this.top;
@@ -215,6 +220,11 @@ namespace GuiToolkit
 		public static float GetByAxisRightOrBottom( this RectOffset _this, EAxis2D _axis)
 		{
 			return _axis == EAxis2D.Horizontal ? _this.right : _this.bottom;
+		}
+
+		public static bool Empty( this RectOffset _this )
+		{
+			return _this.horizontal == 0 && _this.vertical == 0;
 		}
 
 		public static Vector3 Size3( this Rect _this)

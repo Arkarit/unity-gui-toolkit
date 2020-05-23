@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -37,6 +38,8 @@ namespace GuiToolkit.Layout
 			  DrivenTransformProperties.AnchoredPosition
 			| DrivenTransformProperties.SizeDelta;
 
+		[SerializeField]
+		protected RectOffset m_padding = new RectOffset();
 
 		[SerializeField]
 		protected int m_numColumns = 0;
@@ -311,12 +314,14 @@ namespace GuiToolkit.Layout
 
 		private void AlignCellInfosIfNecessary()
 		{
-			bool alignHorizontal = m_childrenAlignmentHorizontal == ChildrenAlignmentPolicy.Center || m_childrenAlignmentHorizontal == ChildrenAlignmentPolicy.Maximum;
-			bool alignVertical = m_childrenAlignmentVertical == ChildrenAlignmentPolicy.Center || m_childrenAlignmentVertical == ChildrenAlignmentPolicy.Maximum;
+			bool alignHorizontal = m_childrenAlignmentHorizontal <= ChildrenAlignmentPolicy.Maximum;
+			bool alignVertical = m_childrenAlignmentVertical <= ChildrenAlignmentPolicy.Maximum;
 			if (!alignHorizontal && !alignVertical)
 				return;
 
 			Rect thisRect = RectTransform.rect;
+			thisRect = m_padding.Remove(thisRect);
+
 			Vector2 ratio = m_overallSize / thisRect.width;
 
 			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
@@ -332,7 +337,7 @@ namespace GuiToolkit.Layout
 						float x = cellInfo.CellRect.x;
 						float w = cellInfo.CellRect.width;
 						AlignAxis(m_childrenAlignmentHorizontal, 1, m_overallSize.x, thisRect.width, ref x, ref w);
-						cellInfo.CellRect.x = x;
+						cellInfo.CellRect.x = x + m_padding.left;
 						cellInfo.CellRect.width = w;
 					}
 
@@ -341,31 +346,30 @@ namespace GuiToolkit.Layout
 						float y = cellInfo.CellRect.y;
 						float h = cellInfo.CellRect.height;
 						AlignAxis(m_childrenAlignmentVertical, -1, m_overallSize.y, thisRect.height, ref y, ref h);
-						cellInfo.CellRect.y = y;
+						cellInfo.CellRect.y = y - m_padding.top;
 						cellInfo.CellRect.height = h;
 					}
 				}
 			}
 		}
 
-		private void AlignAxis(ChildrenAlignmentPolicy _policy, float _sgn, float _innerSize, float _outerSize, ref float _x, ref float _w )
+		private void AlignAxis(ChildrenAlignmentPolicy _policy, float _sgn, float _innerSize, float _outerSize, ref float _pos, ref float _size )
 		{
 			switch( _policy )
 			{
 				case ChildrenAlignmentPolicy.Center:
 					{
 						float offset = _outerSize - _innerSize;
-						_x += offset / 2 * _sgn;
+						_pos += offset / 2 * _sgn;
 					}
 					break;
 				case ChildrenAlignmentPolicy.Maximum:
 					{
 						float offset = _outerSize - _innerSize;
-						_x += offset * _sgn;
+						_pos += offset * _sgn;
 					}
 					break;
 				default:
-					Debug.Assert(false);
 					return;
 			}
 		}
@@ -398,6 +402,7 @@ namespace GuiToolkit.Layout
 		private void SetStretchForAxis( EAxis2D _axis )
 		{
 			Rect thisRect = RectTransform.rect;
+			thisRect = m_padding.Remove(thisRect);
 
 			if (_axis == EAxis2D.Horizontal)
 			{
@@ -458,7 +463,6 @@ namespace GuiToolkit.Layout
 				SetStretchForAxis(EAxis2D.Vertical);
 		}
 
-
 		private void ApplyCellInfos()
 		{
 			for (int rowIdx=0; rowIdx<m_actualRows; rowIdx++)
@@ -469,6 +473,7 @@ namespace GuiToolkit.Layout
 					if (cellInfo == null)
 						continue;
 					var rt = cellInfo.LayoutElement.RectTransform;
+Log.Layout($"y on apply:{cellInfo.CellRect.position.y}");
 					rt.anchoredPosition = cellInfo.CellRect.position;
 					rt.sizeDelta = cellInfo.CellRect.size;
 				}
