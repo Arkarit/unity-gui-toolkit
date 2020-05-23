@@ -418,7 +418,7 @@ namespace GuiToolkit.Layout
 					float fullSpaceShould = thisRect.GetAxisSize(_axis);
 					float factor = (fullSpaceShould - fixedSpaceIs) / (fullSpaceIs - fixedSpaceIs);
 
-					float axisPos = 0;
+					float axisPos = m_padding.left;
 					if (stretchableSpaceIs > 0)
 					{
 						for (int columnIdx = 0; columnIdx < m_actualColumns; columnIdx++)
@@ -440,7 +440,7 @@ namespace GuiToolkit.Layout
 					float fullSpaceShould = thisRect.GetAxisSize(_axis);
 					float factor = (fullSpaceShould - fixedSpaceIs) / (fullSpaceIs - fixedSpaceIs);
 
-					float axisPos = 0;
+					float axisPos = m_padding.top;
 					if (stretchableSpaceIs > 0)
 					{
 						for (int rowIdx = 0; rowIdx < m_actualRows; rowIdx++)
