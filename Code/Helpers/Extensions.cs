@@ -176,60 +176,45 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static bool IsHorizontal( this EAxis2D _this )
-		{
-			return _this == EAxis2D.Horizontal;
-		}
-
-		public static bool IsVertical( this EAxis2D _this)
-		{
-			return _this == EAxis2D.Vertical;
-		}
-
-		public static float GetAxisPosition( ref this Rect _this, bool _horizontal )
-		{
-			return _horizontal ? _this.x : _this.y;
-		}
-
 		public static float GetAxisPosition( ref this Rect _this, EAxis2D _axis )
 		{
-			return GetAxisPosition(ref _this, _axis.IsHorizontal());
+			return _axis == EAxis2D.Horizontal ? _this.x : _this.y;
 		}
 
-		public static void SetAxisPosition( ref this Rect _this, bool _horizontal, float _val )
+		public static void SetAxisPosition( ref this Rect _this, EAxis2D _axis, float _val )
 		{
-			if (_horizontal)
+			if (_axis == EAxis2D.Horizontal)
 				_this.x = _val;
 			else
 				_this.y = _val;
 		}
 
-		public static void SetAxisPosition( ref this Rect _this, EAxis2D _axis, float _val )
-		{
-			SetAxisPosition(ref _this, _axis.IsHorizontal(), _val);
-		}
-
-		public static float GetAxisSize( ref this Rect _this, bool _horizontal )
-		{
-			return _horizontal ? _this.width : _this.height;
-		}
-
 		public static float GetAxisSize( ref this Rect _this, EAxis2D _axis )
 		{
-			return GetAxisSize(ref _this, _axis.IsHorizontal());
+			return _axis == EAxis2D.Horizontal ? _this.width : _this.height;
 		}
 
-		public static void SetAxisSize( ref this Rect _this, bool _horizontal, float _val )
+		public static void SetAxisSize( ref this Rect _this, EAxis2D _axis, float _val )
 		{
-			if (_horizontal)
+			if (_axis == EAxis2D.Horizontal)
 				_this.width = _val;
 			else
 				_this.height = _val;
 		}
 
-		public static void SetAxisSize( ref this Rect _this, EAxis2D _axis, float _val )
+		public static (float leftOrTop, float rightOrBottom) GetByAxis( this RectOffset _this, EAxis2D _axis)
 		{
-			SetAxisSize(ref _this, _axis.IsHorizontal(), _val);
+			return _axis == EAxis2D.Horizontal ? (_this.left, _this.right) : (_this.top, _this.bottom);
+		}
+
+		public static float GetByAxisLeftOrTop( this RectOffset _this, EAxis2D _axis)
+		{
+			return _axis == EAxis2D.Horizontal ? _this.left : _this.top;
+		}
+
+		public static float GetByAxisRightOrBottom( this RectOffset _this, EAxis2D _axis)
+		{
+			return _axis == EAxis2D.Horizontal ? _this.right : _this.bottom;
 		}
 
 		public static Vector3 Size3( this Rect _this)
