@@ -374,78 +374,61 @@ namespace GuiToolkit.Layout
 			}
 		}
 
-		private void AddFullAndStretchableSpace( int _columnIdx, int _rowIdx, EAxis2D _axis, ref float _fullSpaceIs, ref float _stretchableSpaceIs )
-		{
-			CellInfo cellInfo = m_cellInfos[_columnIdx, _rowIdx];
-			if (cellInfo == null)
-				return;
-			float space = cellInfo.CellRect.GetAxisSize(_axis);
-			_fullSpaceIs += space;
-			if (cellInfo.LayoutElement.GetTransformPolicy(_axis).IsFlexible)
-				_stretchableSpaceIs += space;
-		}
-
-		private void SetStretch( int _columnIdx, int _rowIdx, EAxis2D _axis, float _factor, ref float _axisPos )
-		{
-			CellInfo cellInfo = m_cellInfos[_columnIdx, _rowIdx];
-			if (cellInfo == null)
-				return;
-
-			if (cellInfo.LayoutElement.GetTransformPolicy(_axis).IsFlexible)
-				cellInfo.CellRect.SetAxisSize(_axis, cellInfo.CellRect.GetAxisSize(_axis) * _factor);
-
-			float sgn = _axis == EAxis2D.Horizontal ? 1 : -1;
-			cellInfo.CellRect.SetAxisPosition(_axis, _axisPos * sgn);
-			_axisPos += cellInfo.CellRect.GetAxisSize(_axis);
-		}
-
 		private void SetStretchForAxis( EAxis2D _axis )
 		{
+			void AddFullAndStretchableSpace( int _idxA, int _idxB, ref float _fullSpaceIs, ref float _stretchableSpaceIs )
+			{
+				if (_axis == EAxis2D.Horizontal)
+					UiMathUtility.Swap(ref _idxA, ref _idxB);
+
+				CellInfo cellInfo = m_cellInfos[_idxA, _idxB];
+				if (cellInfo == null)
+					return;
+				float space = cellInfo.CellRect.GetAxisSize(_axis);
+				_fullSpaceIs += space;
+				if (cellInfo.LayoutElement.GetTransformPolicy(_axis).IsFlexible)
+					_stretchableSpaceIs += space;
+			}
+			void SetStretch( int _idxA, int _idxB, float _factor, ref float _axisPos )
+			{
+				if (_axis == EAxis2D.Horizontal)
+					UiMathUtility.Swap(ref _idxA, ref _idxB);
+
+				CellInfo cellInfo = m_cellInfos[_idxA, _idxB];
+				if (cellInfo == null)
+					return;
+
+				if (cellInfo.LayoutElement.GetTransformPolicy(_axis).IsFlexible)
+					cellInfo.CellRect.SetAxisSize(_axis, cellInfo.CellRect.GetAxisSize(_axis) * _factor);
+
+				float sgn = _axis == EAxis2D.Horizontal ? 1 : -1;
+				cellInfo.CellRect.SetAxisPosition(_axis, _axisPos * sgn);
+				_axisPos += cellInfo.CellRect.GetAxisSize(_axis);
+			}
+
 			Rect thisRect = RectTransform.rect;
 			thisRect = m_padding.Remove(thisRect);
 
-			if (_axis == EAxis2D.Horizontal)
+			int sizeA = _axis == EAxis2D.Horizontal ? m_actualRows : m_actualColumns;
+			int sizeB = _axis == EAxis2D.Horizontal ? m_actualColumns : m_actualRows;
+
+			for (int idxA = 0; idxA < sizeA; idxA++)
 			{
-				for (int rowIdx = 0; rowIdx < m_actualRows; rowIdx++)
+				float stretchableSpaceIs = 0;
+				float fullSpaceIs = 0;
+
+				for (int idxB = 0; idxB < sizeB; idxB++)
+					AddFullAndStretchableSpace(idxA, idxB, ref fullSpaceIs, ref stretchableSpaceIs);
+
+				float fixedSpaceIs = fullSpaceIs - stretchableSpaceIs;
+				float fullSpaceShould = thisRect.GetAxisSize(_axis);
+				float factor = (fullSpaceShould - fixedSpaceIs) / (fullSpaceIs - fixedSpaceIs);
+
+				float axisPos = m_padding.left;
+				if (stretchableSpaceIs > 0)
 				{
-					float stretchableSpaceIs = 0;
-					float fullSpaceIs = 0;
-
-					for (int columnIdx = 0; columnIdx < m_actualColumns; columnIdx++)
-						AddFullAndStretchableSpace(columnIdx, rowIdx, _axis, ref fullSpaceIs, ref stretchableSpaceIs);
-
-					float fixedSpaceIs = fullSpaceIs - stretchableSpaceIs;
-					float fullSpaceShould = thisRect.GetAxisSize(_axis);
-					float factor = (fullSpaceShould - fixedSpaceIs) / (fullSpaceIs - fixedSpaceIs);
-
-					float axisPos = m_padding.left;
-					if (stretchableSpaceIs > 0)
-					{
-						for (int columnIdx = 0; columnIdx < m_actualColumns; columnIdx++)
-							SetStretch(columnIdx, rowIdx, _axis, factor, ref axisPos);
-					}
-				}
-			}
-			else
-			{
-				for (int columnIdx = 0; columnIdx < m_actualColumns; columnIdx++)
-				{
-					float stretchableSpaceIs = 0;
-					float fullSpaceIs = 0;
-
-					for (int rowIdx = 0; rowIdx < m_actualRows; rowIdx++)
-						AddFullAndStretchableSpace(columnIdx, rowIdx, _axis, ref fullSpaceIs, ref stretchableSpaceIs);
-
-					float fixedSpaceIs = fullSpaceIs - stretchableSpaceIs;
-					float fullSpaceShould = thisRect.GetAxisSize(_axis);
-					float factor = (fullSpaceShould - fixedSpaceIs) / (fullSpaceIs - fixedSpaceIs);
-
-					float axisPos = m_padding.top;
-					if (stretchableSpaceIs > 0)
-					{
-						for (int rowIdx = 0; rowIdx < m_actualRows; rowIdx++)
-							SetStretch(columnIdx, rowIdx, _axis, factor, ref axisPos);
-					}
+					for (int idxB = 0; idxB < m_actualColumns; idxB++)
+						SetStretch(idxA, idxB, factor, ref axisPos);
 				}
 			}
 		}
