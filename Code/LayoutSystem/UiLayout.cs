@@ -405,6 +405,20 @@ namespace GuiToolkit.Layout
 				cellInfo.CellRect.SetAxisPosition(_axis, _axisPos * sgn);
 				_axisPos += cellInfo.CellRect.GetAxisSize(_axis);
 			}
+			void AddPadding( int _idxA, int _idxB, ref float _axisPos )
+			{
+				if (_axis == EAxis2D.Horizontal)
+					UiMathUtility.Swap(ref _idxA, ref _idxB);
+
+				CellInfo cellInfo = m_cellInfos[_idxA, _idxB];
+				if (cellInfo == null)
+					return;
+
+				float sgn = _axis == EAxis2D.Horizontal ? 1 : -1;
+				cellInfo.CellRect.SetAxisPosition(_axis, _axisPos * sgn);
+				_axisPos += cellInfo.CellRect.GetAxisSize(_axis);
+			}
+
 
 			Rect thisRect = RectTransform.rect;
 			thisRect = m_padding.Remove(thisRect);
@@ -424,11 +438,16 @@ namespace GuiToolkit.Layout
 				float fullSpaceShould = thisRect.GetAxisSize(_axis);
 				float factor = (fullSpaceShould - fixedSpaceIs) / (fullSpaceIs - fixedSpaceIs);
 
-				float axisPos = m_padding.left;
+				float axisPos = m_padding.GetByAxisLeftOrTop(_axis);
 				if (stretchableSpaceIs > 0)
 				{
-					for (int idxB = 0; idxB < m_actualColumns; idxB++)
+					for (int idxB = 0; idxB < sizeB; idxB++)
 						SetStretch(idxA, idxB, factor, ref axisPos);
+				}
+				else
+				{
+					for (int idxB = 0; idxB < sizeB; idxB++)
+						AddPadding(idxA, idxB, ref axisPos);
 				}
 			}
 		}
