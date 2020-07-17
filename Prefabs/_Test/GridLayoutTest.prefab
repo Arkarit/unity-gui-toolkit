@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 1080361213048111770}
   - component: {fileID: 1080361213048111769}
   - component: {fileID: 1080361213048111768}
-  - component: {fileID: 8958346332042111196}
   - component: {fileID: 486889119549262186}
   m_Layer: 5
   m_Name: GridLayoutTest
@@ -151,21 +150,6 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   m_type: 1
   m_splitAtKeys: 1
---- !u!114 &8958346332042111196
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1080361213048111774}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9bb059992754d5d49a7efb2de2b9bf9e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_prefab: {fileID: 2551164260014611570, guid: 9171159c7b6305c4ebb62e8567ecdde3,
-    type: 3}
-  m_numInstances: 30
 --- !u!114 &486889119549262186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,12 +168,13 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 2
-  m_StartCorner: 1
-  m_StartAxis: 0
-  m_CellSize: {x: 100, y: 100}
-  m_Spacing: {x: 0, y: 0}
-  m_Constraint: 1
-  m_ConstraintCount: 9
+  m_startCorner: 0
+  m_startAxis: 0
+  m_cellSize: {x: 100, y: 100}
+  m_spacing: {x: 0, y: 0}
+  m_constraint: 0
+  m_constraintCount: 2
+  m_centerPartialFilled: 1
 --- !u!1001 &201589356631103808
 PrefabInstance:
   m_ObjectHideFlags: 0

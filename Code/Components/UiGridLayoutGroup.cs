@@ -6,7 +6,7 @@ namespace GuiToolkit
 	// Improved version of builtin GridLayoutGroup
 	public class UiGridLayoutGroup : LayoutGroup
 	{
-		public enum Corner
+		public enum ECorner
 		{
 			UpperLeft,
 			UpperRight,
@@ -14,13 +14,13 @@ namespace GuiToolkit
 			LowerRight,
 		}
 
-		public enum Axis
+		public enum EAxis
 		{
 			Horizontal = 0,
 			Vertical = 1
 		}
 
-		public enum Constraint
+		public enum EGridConstraint
 		{
 			Flexible = 0,
 			FixedColumnCount = 1,
@@ -28,27 +28,27 @@ namespace GuiToolkit
 		}
 
 		[SerializeField]
-		protected Corner m_startCorner = Corner.UpperLeft;
+		protected ECorner m_startCorner = ECorner.UpperLeft;
 		[SerializeField]
-		protected Axis m_startAxis = Axis.Horizontal;
+		protected EAxis m_startAxis = EAxis.Horizontal;
 		[SerializeField]
 		protected Vector2 m_cellSize = new Vector2(100, 100);
 		[SerializeField]
 		protected Vector2 m_spacing = Vector2.zero;
 		[SerializeField]
-		protected Constraint m_constraint = Constraint.Flexible;
+		protected EGridConstraint m_constraint = EGridConstraint.Flexible;
 		[SerializeField]
 		protected int m_constraintCount = 2;
 		[SerializeField]
 		protected bool m_centerPartialFilled = true;
 
-		public Corner startCorner
+		public ECorner startCorner
 		{
 			get { return m_startCorner; }
 			set { SetProperty(ref m_startCorner, value); }
 		}
 
-		public Axis startAxis
+		public EAxis startAxis
 		{
 			get { return m_startAxis; }
 			set { SetProperty(ref m_startAxis, value); }
@@ -66,7 +66,7 @@ namespace GuiToolkit
 			set { SetProperty(ref m_spacing, value); }
 		}
 
-		public Constraint constraint
+		public EGridConstraint constraint
 		{
 			get { return m_constraint; }
 			set { SetProperty(ref m_constraint, value); }
@@ -102,11 +102,11 @@ namespace GuiToolkit
 
 			int minColumns = 0;
 			int preferredColumns = 0;
-			if (m_constraint == Constraint.FixedColumnCount)
+			if (m_constraint == EGridConstraint.FixedColumnCount)
 			{
 				minColumns = preferredColumns = m_constraintCount;
 			}
-			else if (m_constraint == Constraint.FixedRowCount)
+			else if (m_constraint == EGridConstraint.FixedRowCount)
 			{
 				minColumns = preferredColumns = Mathf.CeilToInt(rectChildren.Count / (float)m_constraintCount - 0.001f);
 			}
@@ -125,11 +125,11 @@ namespace GuiToolkit
 		public override void CalculateLayoutInputVertical()
 		{
 			int minRows = 0;
-			if (m_constraint == Constraint.FixedColumnCount)
+			if (m_constraint == EGridConstraint.FixedColumnCount)
 			{
 				minRows = Mathf.CeilToInt(rectChildren.Count / (float)m_constraintCount - 0.001f);
 			}
-			else if (m_constraint == Constraint.FixedRowCount)
+			else if (m_constraint == EGridConstraint.FixedRowCount)
 			{
 				minRows = m_constraintCount;
 			}
@@ -186,14 +186,14 @@ namespace GuiToolkit
 
 			int cellCountX = 1;
 			int cellCountY = 1;
-			if (m_constraint == Constraint.FixedColumnCount)
+			if (m_constraint == EGridConstraint.FixedColumnCount)
 			{
 				cellCountX = m_constraintCount;
 
 				if (rectChildren.Count > cellCountX)
 					cellCountY = rectChildren.Count / cellCountX + (rectChildren.Count % cellCountX > 0 ? 1 : 0);
 			}
-			else if (m_constraint == Constraint.FixedRowCount)
+			else if (m_constraint == EGridConstraint.FixedRowCount)
 			{
 				cellCountY = m_constraintCount;
 
@@ -217,7 +217,7 @@ namespace GuiToolkit
 			int cornerY = (int)startCorner / 2;
 
 			int cellsPerMainAxis, actualCellCountX, actualCellCountY;
-			if (startAxis == Axis.Horizontal)
+			if (startAxis == EAxis.Horizontal)
 			{
 				cellsPerMainAxis = cellCountX;
 				actualCellCountX = Mathf.Clamp(cellCountX, 1, rectChildren.Count);
@@ -251,10 +251,17 @@ namespace GuiToolkit
 				if (numElemsToBeCentered > 0)
 				{
 					centerIdx = numChildren - numElemsToBeCentered;
-					if (m_startAxis == Axis.Horizontal)
+
+					if (m_startAxis == EAxis.Horizontal)
 						centerOffset = (cellsPerMainAxis - numElemsToBeCentered) * (cellSize[0] + spacing[0]) / 2;
 					else
 						centerOffset = (cellsPerMainAxis - numElemsToBeCentered) * (cellSize[1] + spacing[1]) / 2;
+
+					if (m_startAxis == EAxis.Horizontal && m_startCorner != ECorner.UpperLeft && m_startCorner != ECorner.LowerLeft)
+						centerOffset = -centerOffset;
+
+					if (m_startAxis == EAxis.Vertical && m_startCorner != ECorner.UpperLeft && m_startCorner != ECorner.UpperRight)
+						centerOffset = -centerOffset;
 				}
 			}
 
@@ -262,7 +269,7 @@ namespace GuiToolkit
 			{
 				int positionX;
 				int positionY;
-				if (m_startAxis == Axis.Horizontal)
+				if (m_startAxis == EAxis.Horizontal)
 				{
 					positionX = i % cellsPerMainAxis;
 					positionY = i / cellsPerMainAxis;
@@ -283,7 +290,7 @@ namespace GuiToolkit
 
 				if (i >= centerIdx)
 				{
-					if (startAxis == Axis.Horizontal)
+					if (startAxis == EAxis.Horizontal)
 						posX += centerOffset;
 					else
 						posY += centerOffset;

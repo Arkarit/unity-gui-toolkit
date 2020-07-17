@@ -11,8 +11,6 @@ GameObject:
   - component: {fileID: 4606638009671195084}
   - component: {fileID: 4606638009671195081}
   - component: {fileID: 4606638009671195086}
-  - component: {fileID: 4606638009671195087}
-  - component: {fileID: 2551164260014611570}
   - component: {fileID: 2351549235271445205}
   m_Layer: 5
   m_Name: LayoutElementTest
@@ -77,44 +75,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4606638009671195087
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4606638009671195085}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 327aad3ee2c332446b01a878b9441b73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_width:
-    m_minimumSize: 100
-    m_preferredSize: 100
-    m_maximumSize: 0
-    m_sizePolicy: 0
-    m_alignmentPolicy: 0
-  m_height:
-    m_minimumSize: 100
-    m_preferredSize: 100
-    m_maximumSize: 0
-    m_sizePolicy: 0
-    m_alignmentPolicy: 2
---- !u!114 &2551164260014611570
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4606638009671195085}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50979d90def0c5548819de092673a494, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_text: {fileID: 1077852030608969887}
-  m_image: {fileID: 4606638009671195086}
 --- !u!114 &2351549235271445205
 MonoBehaviour:
   m_ObjectHideFlags: 0
