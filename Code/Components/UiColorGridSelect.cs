@@ -12,48 +12,89 @@ namespace GuiToolkit
 	{
 		public enum Mode
 		{
-			XHueYBright,
-			XBrightYHue,
+			Hue,
+			Saturation,
+			Value,
 		}
+
+		[Serializable]
+		public class Channel
+		{
+			public Mode Mode;
+
+			[Range(1, 50)]
+			public int Count = 1;
+
+			[Range(0f, 1f)]
+			public float Min = 1f;
+
+			[Range(0f, 1f)]
+			public float Max = 1f;
+
+			public Channel(Mode _mode)
+			{
+				Mode = _mode;
+			}
+
+			public void SetHSVValue(ref Vector3 _hsv, int _idx)
+			{
+				if (_idx >= Count)
+					throw new IndexOutOfRangeException();
+
+				if (Count <= 1)
+				{
+					_hsv[(int) Mode] = Max;
+					return;
+				}
+
+				float step = (Max - Min) / (float) (Count-1);
+				_hsv[(int) Mode] = step * _idx + Min;
+			}
+		}
+
 
 		[SerializeField]
 		protected RectTransform m_colorPatchContainer;
+
 		[SerializeField]
 		protected UiColorPatch m_colorPatchPrefab;
+
 		[SerializeField]
 		protected ToggleGroup m_toggleGroup;
+
 		[SerializeField]
-		protected Mode m_mode;
+		protected Channel m_channelA = new Channel(Mode.Hue);
+
 		[SerializeField]
-		[FormerlySerializedAs("m_numHorizontal")]
-		protected int m_numX;
+		protected Channel m_channelB = new Channel(Mode.Saturation);
+
 		[SerializeField]
-		[FormerlySerializedAs("m_numVertical")]
-		protected int m_numY;
+		protected Channel m_channelC = new Channel(Mode.Value);
+
 		[SerializeField]
-		[Range(0f, 1f)]
-		protected float m_minX = 0f;
+		protected List<int> m_forbiddenIndices;
+
 		[SerializeField]
-		[Range(0f, 1f)]
-		protected float m_maxX = 1f;
+		protected int m_blackAndWhiteCount = 0;
+
 		[SerializeField]
-		[Range(0f, 1f)]
-		protected float m_minY = 0f;
+		protected float m_darkestBlackAndWhite = 0;
+
 		[SerializeField]
-		[Range(0f, 1f)]
-		protected float m_maxY = 1f;
-		[SerializeField]
-		[Range(0f, 1f)]
-		protected float m_fixedValue0 = 1f;
-		[SerializeField]
-		[Range(0f, 1f)]
-		protected float m_fixedValue1 = 1f;
+		protected float m_brightestBlackAndWhite = 1;
+
+
+
+
 
 		public Action<Color> OnColorChanged;
 
 		private readonly List<UiColorPatch> m_patches = new List<UiColorPatch>();
 		private Color m_currentColor;
 		private bool m_currentColorSet;
+
+		private int m_numACalculated;
+		private int m_numBCalculated;
 
 		public Color Color
 		{
@@ -64,53 +105,86 @@ namespace GuiToolkit
 			}
 		}
 
+		private UiColorPatch CreatePatch( Color color )
+		{
+			UiColorPatch result = Instantiate(m_colorPatchPrefab);
+			result.Color = color;
+			m_patches.Add(result);
+			result.Toggle.group = m_toggleGroup;
+			m_toggleGroup.RegisterToggle(result.Toggle);
+			result.OnSelected = OnPatchSelected;
+			result.transform.SetParent(m_colorPatchContainer, false);
+			return result;
+		}
+
 		protected override void Awake()
 		{
 			base.Awake();
-
-			float stepX = ((m_maxX - m_minX) / (float) m_numX);
-			float stepY = ((m_maxY - m_minY) / (float) m_numY);
-
-			for (int y = 0; y < m_numY; y++ )
+			int count = 0;
+			for (int c = 0; c < m_channelC.Count; c++)
 			{
-				for (int x = 0; x < m_numX; x++ )
+				for (int b = 0; b < m_channelB.Count; b++)
 				{
-					(float h, float s, float v) = GetColor(x, y, stepX, stepY);
-					UiColorPatch newPatch = Instantiate(m_colorPatchPrefab);
-					newPatch.Toggle.group  = m_toggleGroup;
-					m_toggleGroup.RegisterToggle(newPatch.Toggle);
-					newPatch.Color = Color.HSVToRGB(h, s, v);
-					newPatch.transform.SetParent( m_colorPatchContainer, false );
-					newPatch.name = "ColorPatch" + (y*m_numX + x);
-					newPatch.OnSelected = OnPatchSelected;
-					m_patches.Add(newPatch);
+					for (int a = 0; a < m_channelA.Count; a++)
+					{
+						Vector3 hsv = new Vector3();
+						m_channelA.SetHSVValue(ref hsv, a);
+						m_channelB.SetHSVValue(ref hsv, b);
+						m_channelC.SetHSVValue(ref hsv, c);
+						Color color = Color.HSVToRGB(hsv.x, hsv.y, hsv.z);
+						UiColorPatch newPatch = CreatePatch(color);
+						newPatch.name = "ColorPatch" + count++;
+					}
 				}
 			}
-		}
 
-		private (float h, float s, float v) GetColor( int _x, int _y, float _stepX, float _stepY )
-		{
-			float h,s,v;
-
-			switch (m_mode)
+			for (int i = 0; i<m_blackAndWhiteCount; i++)
 			{
-				case Mode.XHueYBright:
-					h = m_minX + _x * _stepX;
-					s = m_fixedValue0;
-					v = m_minY + _y * _stepY;
-					break;
-				case Mode.XBrightYHue:
-					h = m_minY + _y * _stepY;
-					s = m_fixedValue0;
-					v = m_minX + _x * _stepX;
-					break;
-				default:
-					Debug.Assert(false);
-					h = s = v = 0;
-					break;
+				float bw = m_darkestBlackAndWhite;
+				if (m_blackAndWhiteCount > 1)
+				{
+					float t = (float) i / (m_blackAndWhiteCount-1);
+					bw = Mathf.Lerp(m_darkestBlackAndWhite, m_brightestBlackAndWhite, t);
+				}
+				UiColorPatch newPatch = CreatePatch(new Color(bw, bw, bw));
+				newPatch.name = "ColorPatchBW" + count++;
 			}
 
-			return (h,s,v);
+			//TODO: edge cases: first index forbidden, last index forbidden
+			int lastGoodIndex = -1;
+			for (int i=0; i<m_patches.Count; i++)
+			{
+				if (m_forbiddenIndices.Contains(i))
+				{
+					if (lastGoodIndex == -1)
+						continue;
+
+					int nextGoodIndex = -1;
+					for (int j=i+1; j<m_patches.Count; j++)
+					{
+						if (!m_forbiddenIndices.Contains(j))
+						{
+							nextGoodIndex = j;
+							break;
+						}
+					}
+
+					if (nextGoodIndex == -1)
+						continue;
+
+					int k = i-lastGoodIndex;
+					int l = nextGoodIndex - lastGoodIndex;
+					Color a = m_patches[lastGoodIndex].Color;
+					Color b = m_patches[nextGoodIndex].Color;
+					float f = (float) k / l;
+					Color mixed = Color.Lerp(a,b,f);
+					m_patches[i].Color = mixed;
+				}
+				else
+				{
+					lastGoodIndex = i;
+				}
+			}
 		}
 
 		private void OnPatchSelected( UiColorPatch _patch )
@@ -144,9 +218,9 @@ namespace GuiToolkit
 			return false;
 		}
 
-		public void Select( int _x, int _y )
+		public void Select( int _a, int _b, int _c )
 		{
-			StartCoroutine(SelectDelayed(_y * m_numY + _x));
+			StartCoroutine(SelectDelayed(_a * m_channelB.Count * m_channelC.Count + _b * m_channelC.Count + _c));
 		}
 
 		// Shitty Unity Toggles unregister themselves from the group in OnDisable().

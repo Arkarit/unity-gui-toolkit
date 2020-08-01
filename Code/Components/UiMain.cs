@@ -7,6 +7,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
 using UnityEditor.SceneManagement;
@@ -16,6 +17,7 @@ using UnityEditor;
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(Camera))]
+	[RequireComponent(typeof(UiPool))]
 	[ExecuteAlways]
 	public class UiMain : UiThing
 	{
@@ -28,21 +30,31 @@ namespace GuiToolkit
 		private float m_layerDistance = 0.02f;
 
 		[SerializeField]
-		private Transform m_requesterContainer;
+		private KeyBindings m_keyBindings = new KeyBindings();
 
-		[SerializeField]
-		private UiRequester m_requesterPrefab;
-
-		[SerializeField]
-		private UiSplashMessage m_splashMessagePrefab;
-
-		private Camera m_camera;
 		private readonly Dictionary<string, UiView> m_scenes = new Dictionary<string, UiView>();
 
 
-		public float LayerDistance {get { return m_layerDistance; }}
+		public float LayerDistance => m_layerDistance;
+		public RenderMode RenderMode => m_renderMode;
+		public Camera Camera { get; private set; }
+		public UiPool UiPool { get; private set; }
 
-		public static UiMain Instance { get; private set; }
+		private static UiMain m_instance;
+		public static UiMain Instance
+		{
+			get
+			{
+				if (m_instance == null)
+					m_instance = UnityEngine.Object.FindObjectOfType<UiMain>();
+				return m_instance;
+			}
+			private set
+			{
+				m_instance = value;
+			}
+		}
+
 
 		#region "Scene Loading"
 		public void LoadScene(string _sceneName, bool _show = true, bool _instant = false, Action<UiView> _whenLoaded = null)
@@ -115,12 +127,11 @@ namespace GuiToolkit
 
 						view.gameObject.name = _name;
 						view.transform.SetParent(transform, false);
-						view.Init(m_renderMode, m_camera);
 						SetDefaultSceneVisibilities(root);
 						m_scenes[_name] = view;
 
 						if (_show)
-							view.Show(_instant);
+							view.ShowTopmost(_instant);
 
 						if (_whenLoaded != null)
 							_whenLoaded.Invoke(view);
@@ -161,7 +172,7 @@ namespace GuiToolkit
 		[SerializeField]
 		private AnimationCurve m_stackPushedOutCurve;
 
-		public void Push( UiView _uiView, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
+		public void NavigationPush( UiView _uiView, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
 		{
 			if (m_stack.Count > 0)
 			{
@@ -170,11 +181,11 @@ namespace GuiToolkit
 				currentShown.Hide(_instant, _onFinishHide);
 			}
 			_uiView.SetStackAnimationType(m_stackAnimationType, true, m_stackMovedInCurve);
-			_uiView.Show(_instant, _onFinishShow);
+			_uiView.ShowTopmost(_instant, _onFinishShow);
 			m_stack.Push(_uiView);
 		}
 
-		public void Pop( int _skip = 0, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
+		public void NavigationPop( int _skip = 0, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
 		{
 			bool stackValid = m_stack.Count >= 1 + _skip;
 			if (!stackValid)
@@ -193,7 +204,7 @@ namespace GuiToolkit
 			{
 				UiView nextShown = m_stack.Peek();
 				nextShown.SetStackAnimationType(m_stackAnimationType, false, m_stackMovedInCurve);
-				nextShown.Show(_instant, _onFinishShow);
+				nextShown.ShowTopmost(_instant, _onFinishShow);
 			}
 		}
 
@@ -206,19 +217,39 @@ namespace GuiToolkit
 
 		#endregion
 
+		#region "Key Bindings"
+		public KeyBindings KeyBindings { get => m_keyBindings; }
+		#endregion
+
 		#region "Builtin Dialogs"
-		public void SplashMessage(string _message, float _duration = 2)
+
+		[SerializeField]
+		private Transform m_requesterContainer;
+
+		[SerializeField]
+		private UiRequester m_requesterPrefab;
+
+		[SerializeField]
+		[FormerlySerializedAs("m_splashMessagePrefab")]
+		private UiToastMessageView m_toastMessageViewPrefab;
+
+		[SerializeField]
+		private UiKeyBindingRequester m_keyBindingsRequesterPrefab;
+
+		[SerializeField]
+		private UiKeyPressRequester m_keyPressRequester;
+
+		public void ShowToastMessageView(string _message, float _duration = 2)
 		{
-			UiView.InvokeHideInstant<UiSplashMessage>();
-			UiSplashMessage message = m_splashMessagePrefab.PoolInstantiate();
+			UiView.InvokeHideInstant<UiToastMessageView>();
+			UiToastMessageView message = m_toastMessageViewPrefab.PoolInstantiate();
 			message.transform.SetParent(transform, false);
-			message.Init(m_renderMode, m_camera);
 			message.Show(_message, _duration);
 		}
 
 		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null )
 		{
-			UiRequester requester = CreateModalDialog(m_requesterPrefab);
+			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.OkRequester(_title, _text, _onOk, _okText);
 		}
@@ -226,7 +257,7 @@ namespace GuiToolkit
 		public void YesNoRequester( string _title, string _text, bool _allowOutsideTap, UnityAction _onOk,
 			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
 		{
-			UiRequester requester = CreateModalDialog(m_requesterPrefab);
+			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.YesNoRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
 		}
@@ -234,43 +265,94 @@ namespace GuiToolkit
 		public void OkCancelInputRequester( string _title, string _text, bool _allowOutsideTap,UnityAction<string> _onOk, UnityAction _onCancel = null, 
 			 string _placeholderText = null, string _inputText = null, string _yesText = null, string _noText = null )
 		{
-			UiRequester requester = CreateModalDialog(m_requesterPrefab);
+			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _placeholderText, _inputText, _yesText, _noText);
 		}
 
-		private T CreateModalDialog<T>( T _template) where T : UiViewModal
+		public void KeyBindingsRequester( string _title = "Key Bindings", bool _allowOutsideTap = false, UnityAction _onOk = null,
+			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
 		{
-			bool foundOtherModalDialog = false;
-			float lowestLayer = 100000f;
+			UiKeyBindingRequester requester = CreateView(m_keyBindingsRequesterPrefab);
+			Debug.Assert(requester);
+			requester.Requester(_title, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
+		}
 
-			foreach (var kv in m_scenes)
-			{
-				UiView view = kv.Value;
-				if (!(view is UiViewModal) )
-					continue;
+		public void KeyPressRequester( UnityAction<KeyCode> _onEvent, string _title = null )
+		{
+			UiKeyPressRequester requester = CreateView(m_keyPressRequester);
+			Debug.Assert(requester);
+			requester.Requester(_onEvent, _title);
+		}
 
-				foundOtherModalDialog = true;
-				if (view.Canvas.planeDistance < lowestLayer)
-					lowestLayer = view.Canvas.planeDistance;
-			}
-
+		private T CreateView<T>(T _template) where T : UiView
+		{
 			T result = _template.PoolInstantiate();
 			result.transform.SetParent(m_requesterContainer, false);
-			result.Init(m_renderMode, m_camera);
-
-			// If another dialog was found, we place the new modal dialog above the highest dialog
-			if (foundOtherModalDialog)
-			{
-				float newLayer = lowestLayer - LayerDistance;
-				result.Canvas.planeDistance = newLayer;
-			}
-
 			return result;
 		}
 		#endregion
 
 		#region "General"
+
+		public void SortViews()
+		{
+			SetPlaneDistancesBySiblingIndex();
+			SetSiblingIndicesByPlaneDistances();
+		}
+
+		public void SetAsLastSiblingOfLayer(UiView _view)
+		{
+			_view.transform.SetAsLastSibling();
+			SortViews();
+		}
+
+		private void SetPlaneDistancesBySiblingIndex()
+		{
+			var layers = EnumHelper.GetValues<EUiLayerDefinition>();
+			foreach(var layer in layers)
+			{
+				int layercount = 0;
+				foreach (Transform childTransform in transform)
+				{
+					UiView view = childTransform.GetComponent<UiView>();
+					if (!view || view.Layer != layer)
+						continue;
+
+					int planeIndex = (int)layer - layercount;
+					float planeDistance = LayerDistance * (float) planeIndex;
+					view.InitView(RenderMode, Camera, planeDistance, (int) EUiLayerDefinition.Back - planeIndex);
+					layercount++;
+				}
+			}
+		}
+
+		private class PlaneDistanceComparer : IComparer<Transform>
+		{
+			// Call CaseInsensitiveComparer.Compare with the parameters reversed.
+			public int Compare(Transform a, Transform b)
+			{
+				Canvas canvasA = a.GetComponent<Canvas>();
+				Canvas canvasB = b.GetComponent<Canvas>();
+				if (canvasA == null)
+					return canvasB != null ? -1 : 0;
+				if (canvasB == null)
+					return 1;
+				if (canvasA.planeDistance == canvasB.planeDistance)
+					return 0;
+				return canvasA.planeDistance < canvasB.planeDistance ? 1 : -1;
+			}
+		}
+
+		private void SetSiblingIndicesByPlaneDistances()
+		{
+			Transform[] children = transform.GetChildrenArray();
+			PlaneDistanceComparer comparer = new PlaneDistanceComparer();
+			Array.Sort(children, comparer);
+			for (int i=0; i<children.Length; i++)
+				children[i].SetSiblingIndex(i);
+		}
+
 		public void Quit()
 		{
 #if UNITY_EDITOR
@@ -282,29 +364,30 @@ namespace GuiToolkit
 
 		public void SetFocus( TMP_InputField _inputField )
 		{
-			//FIXME: This properly displays the blinking cursor at the first call,
-			// but displays the whole text selected at subsequent calls
-			// Perhaps interesting: https://forum.unity.com/threads/tmp-1-4-input-field-resetondeactivate-issue.654544/
-			_inputField.ReleaseSelection();
-			_inputField.DeactivateInputField();
+			if (!_inputField.gameObject.activeInHierarchy)
+				return;
+
 			_inputField.ActivateInputField();
+			_inputField.StartCoroutine(SetCaretPositionDelayed(_inputField));
+		}
+		private IEnumerator SetCaretPositionDelayed(TMP_InputField _inputField)
+		{
+			yield return new WaitForEndOfFrame();
 			_inputField.MoveToEndOfLine( false, true );
-			_inputField.caretPosition = string.IsNullOrEmpty(_inputField.text) ? 0 : _inputField.text.Length;
 		}
 
 		#endregion
 
 		#region "Internal"
+
 		protected override void Awake()
 		{
 			base.Awake();
 
-			m_camera = GetComponent<Camera>();
+			InitGetters();
 
 			if (Application.isPlaying)
 				DontDestroyOnLoad(gameObject);
-
-			Instance = this;
 		}
 
 		protected virtual void Start()
@@ -312,8 +395,15 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 			CheckSceneSetup();
 #endif
-			SetOrder(); 
 			SetDefaultSceneVisibilities(gameObject);
+		}
+
+		//FIXME: performance. Need some "dirty" stuff.
+		protected virtual void Update()
+		{
+			Instance = this;
+			InitGetters();
+			SortViews();
 		}
 
 		private static void SetDefaultSceneVisibilities(GameObject _gameObject)
@@ -330,19 +420,6 @@ namespace GuiToolkit
 			Instance = null;
 		}
 
-		protected void OnTransformChildrenChanged()
-		{
-			SetOrder();
-		}
-
-
-		private void SetOrder()
-		{
-			UiView[] views = GetComponentsInChildren<UiView>(true);
-			foreach (var view in views)
-				view.Init(m_renderMode, GetComponent<Camera>());
-		}
-
 		private bool CheckSceneValid(string _sceneName)
 		{
 			if (!m_scenes.ContainsKey(_sceneName))
@@ -356,6 +433,21 @@ namespace GuiToolkit
 
 			return true;
 		}
+
+		private void InitGetters()
+		{
+			Camera = this.GetOrCreateComponent<Camera>();
+
+			UiPool = this.GetOrCreateComponent<UiPool>();
+			if (UiPool.m_container == null)
+			{
+				GameObject poolContainer = new GameObject("Pool");
+				poolContainer.transform.SetParent(transform);
+				UiPool.m_container = poolContainer.transform;
+			}
+		}
+
+
 		#endregion
 
 		#region "Editor"
@@ -394,12 +486,52 @@ namespace GuiToolkit
 		private void OnValidate()
 		{
 			Instance = this;
-			SetOrder();
+			InitGetters();
+			SortViews();
 		}
 
 #endif
 		#endregion
 
+		#region "Exclude from frustum culling"
+		private readonly List<IExcludeFromFrustumCulling> m_excludedFromFrustumCulling = new List<IExcludeFromFrustumCulling>();
+		private readonly List<Bounds> m_excludedBounds = new List<Bounds>();
+		private const float LARGE_NUMBER = 999999999.0f;
+		private static readonly Bounds LARGE_BOUNDS = new Bounds(Vector3.zero, new Vector3(LARGE_NUMBER, LARGE_NUMBER, LARGE_NUMBER) );
+
+		public void RegisterExcludeFrustumCulling(IExcludeFromFrustumCulling _toRegister)
+		{
+			m_excludedFromFrustumCulling.Add(_toRegister);
+			m_excludedBounds.Add(new Bounds());
+		}
+
+		public void UnregisterExcludeFrustumCulling(IExcludeFromFrustumCulling _toRemove)
+		{
+			int idx = m_excludedFromFrustumCulling.IndexOf(_toRemove);
+			if (idx == -1)
+			{
+				Debug.LogError($"Could not find {_toRemove} in list of frustum culling exclusion list");
+				return;
+			}
+			m_excludedFromFrustumCulling.RemoveAt(idx);
+			m_excludedBounds.RemoveAt(idx);
+		}
+
+		private void OnPreCull()
+		{
+			for (int i=0; i<m_excludedFromFrustumCulling.Count; i++)
+			{
+				m_excludedBounds[i] = m_excludedFromFrustumCulling[i].GetMesh().bounds;
+				m_excludedFromFrustumCulling[i].GetMesh().bounds = LARGE_BOUNDS;
+			}
+		}
+
+		private void OnPostRender()
+		{
+			for (int i=0; i<m_excludedFromFrustumCulling.Count; i++)
+				m_excludedFromFrustumCulling[i].GetMesh().bounds = m_excludedBounds[i];
+		}
+		#endregion
 	}
 
 }

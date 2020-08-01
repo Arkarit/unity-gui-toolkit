@@ -1,13 +1,20 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit
 {
 	public static class Extensions
 	{
+		private static readonly List<Transform> s_tempTransformList = new List<Transform>();
+
 		// Note: This is not super performant and - worse - creates GC allocations
 		// Better cache the values in simple bools after evaluating at least in runtime code. 
 		public static bool HasFlags<T>( this T _this, T _flags) where T : Enum
@@ -20,18 +27,24 @@ namespace GuiToolkit
 			return _listToClone.Select(item => (T)item.Clone()).ToList();
 		}
 
-		public static void Destroy( this GameObject _this )
+		public static void Destroy( this UnityEngine.Object _this, bool _supportUndoIfPossible = true )
 		{
 			if (_this == null)
 				return;
 
 #if UNITY_EDITOR
+			if (_supportUndoIfPossible && !Application.isPlaying)
+			{
+				Undo.DestroyObjectImmediate(_this);
+				return;
+			}
+
 			UnityEditor.EditorApplication.delayCall += () =>
 			{
-				GameObject.DestroyImmediate(_this);
+				UnityEngine.Object.DestroyImmediate(_this);
 			};
 #else
-			GameObject.Destroy(_this);
+			UnityEngine.Object.Destroy(_this);
 #endif
 		}
 
@@ -163,6 +176,47 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public static float GetAxisPosition( ref this Rect _this, EAxis2D _axis )
+		{
+			return _axis == EAxis2D.Horizontal ? _this.x : _this.y;
+		}
+
+		public static void SetAxisPosition( ref this Rect _this, EAxis2D _axis, float _val )
+		{
+			if (_axis == EAxis2D.Horizontal)
+				_this.x = _val;
+			else
+				_this.y = _val;
+		}
+
+		public static float GetAxisSize( ref this Rect _this, EAxis2D _axis )
+		{
+			return _axis == EAxis2D.Horizontal ? _this.width : _this.height;
+		}
+
+		public static void SetAxisSize( ref this Rect _this, EAxis2D _axis, float _val )
+		{
+			if (_axis == EAxis2D.Horizontal)
+				_this.width = _val;
+			else
+				_this.height = _val;
+		}
+
+		public static (float leftOrTop, float rightOrBottom) GetByAxis( this RectOffset _this, EAxis2D _axis)
+		{
+			return _axis == EAxis2D.Horizontal ? (_this.left, _this.right) : (_this.top, _this.bottom);
+		}
+
+		public static float GetByAxisLeftOrTop( this RectOffset _this, EAxis2D _axis)
+		{
+			return _axis == EAxis2D.Horizontal ? _this.left : _this.top;
+		}
+
+		public static float GetByAxisRightOrBottom( this RectOffset _this, EAxis2D _axis)
+		{
+			return _axis == EAxis2D.Horizontal ? _this.right : _this.bottom;
+		}
+
 		public static Vector3 Size3( this Rect _this)
 		{
 			return _this.size;
@@ -279,5 +333,62 @@ namespace GuiToolkit
 				&& Mathf.Approximately(_this.a, _other.a);
 		}
 
+		public static void ScrollToTop(this ScrollRect _this, MonoBehaviour _coroutineHolder = null)
+		{
+			if (_coroutineHolder)
+			{
+				_coroutineHolder.StartCoroutine(ScrollToTopDelayed(_this));
+				return;
+			}
+
+			if (_this.vertical)
+				_this.verticalNormalizedPosition = 1;
+			else if (_this.horizontal)
+				_this.horizontalNormalizedPosition = 1;
+		}
+
+		private static IEnumerator ScrollToTopDelayed(ScrollRect _scrollRect)
+		{
+			yield return 0;
+			_scrollRect.ScrollToTop();
+		}
+
+		public static void GetChildren(this Transform _this, ICollection<Transform> _list)
+		{
+			_list.Clear();
+			foreach (Transform child in _this)
+				_list.Add(child);
+		}
+
+		public static List<Transform> GetChildrenList(this Transform _this)
+		{
+			List<Transform> result = new List<Transform>();
+			GetChildren(_this, result);
+			return result;
+		}
+
+		public static Transform[] GetChildrenArray(this Transform _this)
+		{
+			GetChildren(_this, s_tempTransformList);
+			return s_tempTransformList.ToArray();
+		}
+
+		public static T GetOrCreateComponent<T>(this Component _this) where T : Component
+		{
+			T result = _this.GetComponent<T>();
+
+			if (result)
+				return result;
+
+			return _this.gameObject.AddComponent<T>();
+		}
+	}
+
+	public static class EnumHelper
+	{
+		public static IEnumerable<T> GetValues<T>()
+		{
+			return Enum.GetValues(typeof(T)).Cast<T>();
+		}
 	}
 }

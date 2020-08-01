@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -11,7 +12,8 @@ namespace GuiToolkit
 	public class UiDistortGroup : MonoBehaviour
 	{
 		[SerializeField]
-		protected EDirectionFlags m_direction;
+		[FormerlySerializedAs("m_direction")]
+		protected EAxis2DFlags m_axisFlags;
 
 		[SerializeField]
 		protected bool m_inverse;
@@ -96,12 +98,12 @@ namespace GuiToolkit
 				else if (m_inverse)
 				{
 					if (i == 0)
-						m_elements[i].SetMirror(m_direction);
+						m_elements[i].SetMirror(m_axisFlags);
 				}
 				else
 				{
 					if (i == numElements-1 && numElements > 1)
-						m_elements[i].SetMirror(m_direction);
+						m_elements[i].SetMirror(m_axisFlags);
 				}
 			}
 		}

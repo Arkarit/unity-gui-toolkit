@@ -17,6 +17,9 @@ namespace GuiToolkit
 	{
 		[SerializeField]
 		protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
+		[HideInInspector]
+		[SerializeField]
+		private int m_lastSiblingIndex = -1;
 
 		private Canvas m_canvas;
 		
@@ -29,47 +32,45 @@ namespace GuiToolkit
 			}
 		}
 
-		public virtual void Push(bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null)
+		public EUiLayerDefinition Layer => m_layer;
+
+		public void InitView(RenderMode _renderMode, Camera _camera, float _planeDistance, int _orderInLayer)
 		{
-			UiMain.Instance.Push(this, _instant, _onFinishHide, _onFinishShow);
+			Canvas.renderMode = _renderMode;
+
+			Canvas.worldCamera = _camera;
+			Canvas.planeDistance = _planeDistance;
+			Canvas.sortingOrder = _orderInLayer;
 		}
 
-		public virtual void Pop(bool _instant = false, int _skip = 0, Action _onFinishHide = null, Action _onFinishShow = null)
+		public override void Show( bool _instant = false, Action _onFinish = null )
+		{
+			base.Show(_instant, _onFinish);
+		}
+
+		public void ShowTopmost( bool _instant = false, Action _onFinish = null )
+		{
+			base.Show(_instant, _onFinish);
+			UiMain.Instance.SetAsLastSiblingOfLayer(this);
+		}
+
+		public virtual void NavigationPush(bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null)
+		{
+			UiMain.Instance.NavigationPush(this, _instant, _onFinishHide, _onFinishShow);
+		}
+
+		public virtual void NavigationPop(bool _instant = false, int _skip = 0, Action _onFinishHide = null, Action _onFinishShow = null)
 		{
 			Debug.Assert(UiMain.Instance.Peek() == this, "Attempting to pop wrong dialog");
-			UiMain.Instance.Pop(_skip, _instant, _onFinishHide, _onFinishShow);
+			UiMain.Instance.NavigationPop(_skip, _instant, _onFinishHide, _onFinishShow);
 		}
 
 		public void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards, AnimationCurve _animationCurve )
 		{
-			InitAnimation();
-			if (m_showHideAnimation == null || !(m_showHideAnimation is IShowHideViewAnimation))
+			if (SimpleShowHideAnimation == null || !(SimpleShowHideAnimation is IShowHideViewAnimation))
 				return;
 
-			((IShowHideViewAnimation)m_showHideAnimation).SetStackAnimationType(_stackAnimationType, _backwards, _animationCurve);
-		}
-
-		public void Init( RenderMode _renderMode, Camera _camera )
-		{
-			Init();
-			UiPanel[] panels = GetComponentsInChildren<UiPanel>();
-			foreach (var panel in panels)
-				panel.Init();
-
-			Canvas.renderMode = _renderMode;
-			Canvas.worldCamera = _camera;
-
-			Debug.Assert(UiMain.Instance != null);
-			if (UiMain.Instance == null)
-				return;
-
-			Canvas.planeDistance = UiMain.Instance.LayerDistance * (float) m_layer;
-
-		}
-
-		public void OnValidate()
-		{
-			InitAnimation();
+			((IShowHideViewAnimation)SimpleShowHideAnimation).SetStackAnimationType(_stackAnimationType, _backwards, _animationCurve);
 		}
 
 	}

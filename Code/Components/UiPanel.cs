@@ -19,7 +19,7 @@ namespace GuiToolkit
 		protected EDefaultSceneVisibility m_defaultSceneVisibility = EDefaultSceneVisibility.DontCare;
 
 		[SerializeField]
-		protected IShowHidePanelAnimation m_showHideAnimation;
+		private IShowHidePanelAnimation m_showHideAnimation;
 
 		public virtual bool AutoDestroyOnHide => false;
 		public virtual bool Poolable => false;
@@ -33,6 +33,15 @@ namespace GuiToolkit
 		public static CEvSetTag EvSetTag = new CEvSetTag();
 
 		private bool m_defaultSceneVisibilityApplied;
+		private bool m_animationInitialized;
+
+		public bool Visible { get; private set; }
+
+		protected override void Awake()
+		{
+			base.Awake();
+			InitAnimationIfNecessary();
+		}
 
 		protected override void AddEventListeners()
 		{
@@ -89,6 +98,7 @@ namespace GuiToolkit
 		{
 			get
 			{
+				InitAnimationIfNecessary();
 				if (m_showHideAnimation is UiSimpleAnimation)
 					return (UiSimpleAnimation) m_showHideAnimation;
 				return null;
@@ -100,46 +110,62 @@ namespace GuiToolkit
 
 		public virtual void Show(bool _instant = false, Action _onFinish = null)
 		{
-			if (m_showHideAnimation == null)
+			if (SimpleShowHideAnimation == null)
 				_instant = true;
 
 			gameObject.SetActive(true);
 
+			if (Visible)
+				return;
+			Visible = true;
+
 			if (_instant)
 			{
-				if (m_showHideAnimation != null)
+				if (SimpleShowHideAnimation != null)
 				{
-					m_showHideAnimation.StopViewAnimation(true);
+					SimpleShowHideAnimation.StopViewAnimation(true);
 				}
 				return;
 			}
 
-			m_showHideAnimation.ShowViewAnimation(_onFinish);
+			SimpleShowHideAnimation.ShowViewAnimation(_onFinish);
 		}
 
 		public virtual void Hide(bool _instant = false, Action _onFinish = null)
 		{
-			if (m_showHideAnimation == null)
+			if (SimpleShowHideAnimation == null)
 				_instant = true;
+
+			if (!Visible)
+				return;
+			Visible = false;
 
 			if (_instant)
 			{
 				gameObject.SetActive(false);
-				if (m_showHideAnimation != null)
-					m_showHideAnimation.StopViewAnimation(false);
+				if (SimpleShowHideAnimation != null)
+					SimpleShowHideAnimation.StopViewAnimation(false);
 				if (_onFinish != null)
 					_onFinish.Invoke(); 
 				DestroyIfNecessary();
 				return;
 			}
 
-			m_showHideAnimation.HideViewAnimation( () =>
+			SimpleShowHideAnimation.HideViewAnimation( () =>
 			{
 				gameObject.SetActive(false);
 				if (_onFinish != null)
 					_onFinish.Invoke(); 
 				DestroyIfNecessary();
 			});
+		}
+
+		public void SetVisible(bool _visible, bool _instant = false, Action _onFinish = null)
+		{
+			if (_visible)
+				Show(_instant, _onFinish);
+			else
+				Hide(_instant, _onFinish);
 		}
 
 		private void DestroyIfNecessary()
@@ -188,13 +214,13 @@ namespace GuiToolkit
 			}
 		}
 
-		public virtual void Init()
+		private void InitAnimationIfNecessary()
 		{
-			InitAnimation();
-		}
+			if (m_animationInitialized)
+				return;
 
-		protected void InitAnimation()
-		{
+			m_animationInitialized = true;
+
 			var components = GetComponents<MonoBehaviour>();
 			foreach (var component in components)
 			{
@@ -205,8 +231,6 @@ namespace GuiToolkit
 				}
 			}
 		}
-
-
 
 	}
 }

@@ -60,6 +60,10 @@ Material:
     - _ColorMask: 15
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
+    - _Disabled: 0
+    - _DisabledAlpha: 0.7
+    - _DisabledBrightness: 0.7
+    - _DisabledDesaturateStrength: 0.8
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5

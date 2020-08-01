@@ -1,0 +1,137 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
+
+namespace GuiToolkit
+{
+	public class UiRequester : UiRequesterBase
+	{
+		public new class Options : UiRequesterBase.Options
+		{
+			public bool ShowText = true;
+			public bool ShowInputField = false;
+			public string PlaceholderText;
+			public string InputText;
+		}
+
+		public GameObject m_inputFieldContainer;
+		public GameObject m_textContainer;
+
+		public TextMeshProUGUI m_text;
+		public TMP_InputField m_inputField;
+
+		public void Requester( string _title, string _text, Options _options )
+		{
+			m_text.text = _text;
+			DoDialog(_title, _options);
+		}
+
+		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null )
+		{
+			Options options = new Options
+			{
+				ButtonInfos = new ButtonInfo[] 
+				{
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_okText) ? "Ok" : _okText,
+						Prefab = m_standardButtonPrefab,
+						OnClick = _onOk
+					}
+				},
+				AllowOutsideTap = true,
+				CloseButtonIdx = 0,
+				ShowText = true,
+				ShowInputField = false,
+			};
+			Requester( _title, _text, options );
+		}
+
+		public void YesNoRequester( string _title, string _text, bool _allowOutsideTap, UnityAction _onOk,
+			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
+		{
+			Options options = new Options
+			{
+				ButtonInfos = new ButtonInfo[] 
+				{
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_yesText) ? "Yes" : _yesText,
+						Prefab = m_okButtonPrefab,
+						OnClick = _onOk
+					},
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_noText) ? "No" : _noText,
+						Prefab = m_cancelButtonPrefab,
+						OnClick = _onCancel
+					}
+				},
+				AllowOutsideTap = _allowOutsideTap,
+				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
+				ShowText = true,
+				ShowInputField = false,
+			};
+			Requester( _title, _text, options );
+		}
+
+		public void OkCancelInputRequester( string _title, string _text, bool _allowOutsideTap,UnityAction<string> _onOk, UnityAction _onCancel = null, 
+			 string _placeholderText = null, string _inputText = null, string _yesText = null, string _noText = null )
+		{
+			Options options = new Options
+			{
+				ButtonInfos = new ButtonInfo[] 
+				{
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_yesText) ? "Ok" : _yesText,
+						Prefab = m_okButtonPrefab,
+						OnClick = () => _onOk(GetInputText())
+					},
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_noText) ? "Cancel" : _noText,
+						Prefab = m_cancelButtonPrefab,
+						OnClick = _onCancel
+					}
+				},
+				AllowOutsideTap = _allowOutsideTap,
+				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
+				ShowText = !string.IsNullOrEmpty(_text),
+				ShowInputField = true,
+				PlaceholderText = _placeholderText,
+				InputText = _inputText,
+			};
+			Requester( _title, _text, options );
+		}
+
+		public string GetInputText()
+		{
+			return m_inputField.text;
+		}
+
+		protected override void EvaluateOptions( UiRequesterBase.Options _options )
+		{
+			base.EvaluateOptions(_options);
+
+			Options options = (Options)_options;
+
+			m_textContainer.gameObject.SetActive(options.ShowText);
+			m_inputFieldContainer.gameObject.SetActive(options.ShowInputField);
+
+			if (options.ShowInputField)
+			{
+				if (options.InputText != null)
+				{
+					m_inputField.text = options.InputText;
+				}
+				if (options.PlaceholderText != null)
+				{
+					TMP_Text placeholderText = m_inputField.placeholder.GetComponent<TMP_Text>();
+					if (placeholderText != null)
+						placeholderText.text = options.PlaceholderText;
+				}
+				UiMain.Instance.SetFocus(m_inputField);
+			}
+		}
+	}
+}

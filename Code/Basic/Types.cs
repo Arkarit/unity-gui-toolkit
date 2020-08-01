@@ -4,19 +4,19 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	[Flags]
-	public enum EDirectionFlags
+	public enum EAxis2DFlags
 	{
 		Horizontal	= 01,
 		Vertical	= 02,
 	}
 
-	public enum EDirection
+	public enum EAxis2D
 	{
 		Horizontal,
 		Vertical,
 	}
 
-	public enum ESide
+	public enum ESide2D
 	{
 		Top,
 		Bottom,
@@ -59,6 +59,11 @@ namespace GuiToolkit
 	public interface ISetDefaultSceneVisibility
 	{
 		void SetDefaultSceneVisibility();
+	}
+
+	public interface IExcludeFromFrustumCulling
+	{
+		Mesh GetMesh();
 	}
 
 	public static class Constants

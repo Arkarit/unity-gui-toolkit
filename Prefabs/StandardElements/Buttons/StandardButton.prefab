@@ -273,6 +273,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_simpleAnimation: {fileID: 8591811800190961484}
   m_audioSource: {fileID: 0}
+  m_backgroundImage: {fileID: 7990162219028390017}
+  m_backgroundGradientSimple: {fileID: 7490390892350505658}
+  m_enabled: 1
+  m_normalMaterial: {fileID: 2100000, guid: 628125a3ddd15eb4b8feca43ca29f673, type: 2}
+  m_disabledMaterial: {fileID: 2100000, guid: bbb4d48742f261844b844be821a291cc, type: 2}
   m_simpleWiggleAnimation: {fileID: 4223115294998507080}
 --- !u!114 &3594388165116690286
 MonoBehaviour:
@@ -511,7 +516,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 628125a3ddd15eb4b8feca43ca29f673, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 0.92156863}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
@@ -557,7 +562,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_evaluateMode: 0
+  m_evaluateMode: 1
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
   m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
