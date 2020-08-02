@@ -15,19 +15,7 @@ namespace GuiToolkit
 		{
 			get
 			{
-				if (_current == null && Application.isPlaying)
-				{
-
-					var g = GameObject.Find("Loom");
-					if (g == null)
-					{
-						g = new GameObject("Loom");
-						g.hideFlags = HideFlags.HideAndDontSave;
-					}
-
-					_current = g.GetComponent<Loom>() ?? g.AddComponent<Loom>();
-				}
-
+				InitIfNecessary();
 				return _current;
 			}
 		}
@@ -94,8 +82,25 @@ namespace GuiToolkit
 			}
 		}
 
+		private static void InitIfNecessary()
+		{
+			if (_current == null && Application.isPlaying)
+			{
+
+				var g = GameObject.Find("Loom");
+				if (g == null)
+				{
+					g = new GameObject("Loom");
+					g.hideFlags = HideFlags.HideAndDontSave;
+				}
+
+				_current = g.GetComponent<Loom>() ?? g.AddComponent<Loom>();
+			}
+		}
+
 		public static void RunAsync( Action a )
 		{
+			InitIfNecessary();
 			var t = new Thread(RunAction);
 			t.Priority = System.Threading.ThreadPriority.Normal;
 			t.Start(a);

@@ -31,35 +31,33 @@ namespace GuiToolkit
 			m_client = new TcpClient();
 
 			//Connect to server from another Thread
-			Loom.RunAsync(() =>
-			{
-				LOGWARNING("Connecting to server...");
-				// if on desktop
-				m_client.Connect(IPAddress.Loopback, PORT);
-
-				// if using the IPAD
-				//client.Connect(IPAddress.Parse(IP), port);
-				LOGWARNING("Connected to server!");
-
-				imageReceiver();
-			});
+			Loom.RunAsync(ThreadStart);
 		}
 
-		void imageReceiver()
+		private void ThreadStart()
 		{
-			//While loop in another Thread is fine so we don't block main Unity Thread
-			Loom.RunAsync(() =>
-			{
-				while (!m_stop)
-				{
-					//Read Image Count
-					int imageSize = readImageByteSize(SEND_RECEIVE_COUNT);
-						LOGWARNING("Received Image byte Length: " + imageSize);
+			LOGWARNING("Connecting to server...");
+			// if on desktop
+			m_client.Connect(IPAddress.Loopback, PORT);
 
-					//Read Image Bytes and Display it
-					readFrameByteArray(imageSize);
-				}
-			});
+			// if using the IPAD
+			//client.Connect(IPAddress.Parse(IP), port);
+			LOGWARNING("Connected to server!");
+
+			ThreadLoop();
+		}
+
+		private void ThreadLoop()
+		{
+			while (!m_stop)
+			{
+				//Read Image Count
+				int imageSize = readImageByteSize(SEND_RECEIVE_COUNT);
+					LOGWARNING("Received Image byte Length: " + imageSize);
+
+				//Read Image Bytes and Display it
+				readFrameByteArray(imageSize);
+			}
 		}
 
 		//Converts the data size to byte array and put result to the fullBytes array
