@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using GuiToolkit.Base;
 using NUnit.Framework;
 using UnityEngine;
@@ -9,9 +11,25 @@ namespace Tests
 {
     public class TestLockedQueue
     {
-		private const int SimpleTestElementCount = 5;
+		private class ThreadData
+		{
+			public LockedQueue<int> Queue;
+			public LockedQueue<int> ReferenceQueue;
+			public int Id;
+		}
 
-        // A Test behaves as an ordinary method
+		private const int SimpleTestElementCount = 50;
+		private const int ProducerThreadCount = 50;
+		private const int ThreadedTestElementCount = 100;
+		private const int ThreadFinishTimeout = 10000;
+		private const float ProducerRandomSleepChance = 0.05f;
+		private const int ProducerMinSleepMilliseconds = 1;
+		private const int ProducerMaxSleepMilliseconds = 100;
+
+		private Thread m_consumer;
+		private readonly List<Thread> m_producers = new List<Thread>();
+
+
         [Test]
         public void TestLockedQueueSimple()
         {
@@ -28,19 +46,59 @@ namespace Tests
 			Assert.AreEqual(queue.Count, SimpleTestElementCount + 1);
 			queue.PushSingle(0, false);
 			Assert.AreEqual(queue.Count, SimpleTestElementCount + 1);
+
+			var copy = new LockedQueueWithSingle<int>(queue);
+
+			queue.PushSingle(0,true);
 		}
 
-		/*
-				// A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
-				// `yield return null;` to skip a frame.
-				[UnityTest]
-				public IEnumerator TestLockedQueueWithEnumeratorPasses()
-				{
-					// Use the Assert class to test conditions.
-					// Use yield to skip a frame.
-					yield return null;
-				}
-		*/
+		[Test]
+		public void TestLockedQueueThreaded()
+		{
+			var queue = new LockedQueue<int>();
+			var referenceQueue = new LockedQueue<int>();
+
+			ExecuteProducerThreads(queue, referenceQueue);
+			Assert.AreEqual(queue.Count, ProducerThreadCount * ThreadedTestElementCount);
+
+			queue.Clear();
+		}
+
+		private void ExecuteProducerThreads( LockedQueue<int> _queue, LockedQueue<int> _referenceQueue )
+		{
+			for (int i = 0; i < ProducerThreadCount; i++)
+				StartProducerThread(_queue, _referenceQueue, i);
+
+			for (int i = 0; i < ProducerThreadCount; i++)
+				Assert.That(m_producers[i].Join(ThreadFinishTimeout));
+
+			m_producers.Clear();
+		}
+
+		private void StartProducerThread( LockedQueue<int> _queue, LockedQueue<int> _referenceQueue, int _i )
+		{
+			m_producers.Add(new Thread(ProducerStart));
+			m_producers.Back().Start(new ThreadData {Queue = _queue, ReferenceQueue = _referenceQueue, Id = _i });
+		}
+
+		private void ProducerStart( object _obj )
+		{
+			ThreadData td = _obj as ThreadData;
+			var queue = td.Queue;
+			var referenceQueue = td.ReferenceQueue;
+			var id = td.Id;
+
+			for (int i=0; i<ThreadedTestElementCount; i++)
+			{
+//Debug.Log($"Push {id}");
+				queue.Push(id);
+				referenceQueue.Push(id);
+
+				if (TSRandom.RandomFloat < ProducerRandomSleepChance)
+					Thread.Sleep(TSRandom.Range(ProducerMinSleepMilliseconds, ProducerMaxSleepMilliseconds));
+			}
+		}
+
 		private void SimpleTest(LockedQueue<int> _queue)
 		{
 			Assert.That(_queue.Empty);

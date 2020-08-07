@@ -13,7 +13,7 @@ namespace GuiToolkit.Base
 		protected IEqualityComparer<T> m_compEqual;
 		protected Lock m_lock;
 
-		private Lock m_defaultLock = new Lock();
+		protected readonly Lock m_defaultLock = new Lock();
 		private static readonly LinkedList<T> s_emptyList = new LinkedList<T>();
 
 
@@ -158,6 +158,18 @@ namespace GuiToolkit.Base
 		public LockedQueueWithSingle( IEqualityComparer<T> _comparer = null, Lock _mutex = null ) : base (_comparer, _mutex)
 		{
 			m_singleEntries = new Dictionary<T, LinkedListNode<T>>( _comparer ?? EqualityComparer<T>.Default );
+		}
+
+		public LockedQueueWithSingle( LockedQueueWithSingle<T> _other)
+		{
+			m_lock = _other.LockedExternally ? _other.m_lock : m_defaultLock;
+
+			// we only need to lock _other's mutex, since we are just constructed.
+			lock( _other.m_lock )
+			{
+				m_queue = new LinkedList<T>( _other.m_queue );
+				m_compEqual = _other.m_compEqual;
+			}
 		}
 
 		public void PushSingle( T _t, bool _addAtEndIfExists = true )
