@@ -76,6 +76,9 @@ namespace GuiToolkit
 		public static Color HANDLE_CAGE_LINE_COLOR = Color.yellow * 0.5f;
 	}
 
+	// Lock class (reentrant local mutex)
+	// Having the lock object as a class ensures its always handed over as reference.
+	// Only way to ensure this in shitty C#
 	public class Lock { }
 
 

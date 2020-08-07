@@ -3,8 +3,7 @@ using System.Collections.Generic;
 
 namespace GuiToolkit.Base
 {
-	// A locked queue for thread usage.
-	// Only safe for one or multiple producing threads (threads which only push) and a single consuming thread (thread which only pops). The producers may not remove any elements.
+	/// \brief A locked queue for thread usage.
 	public class LockedQueue<T>
 	{
 		public delegate void QueueElementCombiner<T>(ref T _combinedTo, ref T _combined2);
@@ -18,17 +17,28 @@ namespace GuiToolkit.Base
 		private static readonly LinkedList<T> s_emptyList = new LinkedList<T>();
 
 
-		// not locked - if your code depends on the thread safe return value, please lock from outside.
+		/// Is Queue empty? 
+		/// \attention Not locked - if your code depends on the thread safe return value, please lock from outside.
 		public bool Empty => m_queue.Empty();
 
-		// not locked - if your code depends on the thread safe return value, please lock from outside.
+		/// Queue count
+		/// \attention Not locked - if your code depends on the thread safe return value, please lock from outside.
 		public int Count => m_queue.Count;
+
+		/// Lock object. Can be set external or internal. If you hand over null in setter, internal is used.
+		public Lock Lock
+		{
+			get { return m_lock; }
+			set { m_lock = value ?? m_defaultLock; }
+		}
+
+		public bool LockedExternally => m_lock != m_defaultLock;
 
 		// ctor
 		public LockedQueue( IEqualityComparer<T> _comparer = null, Lock _lock = null )
 		{
 			m_compEqual = _comparer ?? EqualityComparer<T>.Default;
-			SetMutex(_lock);
+			Lock = _lock;
 		}
 
 		// copy ctor.
@@ -63,7 +73,7 @@ namespace GuiToolkit.Base
 		{
 			lock( m_lock )
 			{
-				if( m_queue.Empty() )
+				if( !m_queue.Empty() )
 				{
 					if( m_compEqual.Equals( m_queue.Last.Value, _t ))
 						return;
@@ -121,16 +131,6 @@ namespace GuiToolkit.Base
 			}
 		}
 
-		public void SetMutex( Lock _lock = null )
-		{
-			m_lock = _lock ?? m_defaultLock;
-		}
-
-		public Lock GetLock()
-		{
-			return m_lock;
-		}
-
 		public virtual void Clear()
 		{
 			lock( m_lock )
@@ -143,10 +143,11 @@ namespace GuiToolkit.Base
 		public void AccessQueue( QueueAccessor<T> _fn )
 		{
 			lock( m_lock )
-			_fn( ref m_queue );
+			{
+				_fn( ref m_queue );
+			}
 		}
 
-		private bool LockedExternally => m_lock != m_defaultLock;
 	};
 
 	public class LockedQueueWithSingle<T> : LockedQueue<T>
@@ -159,13 +160,17 @@ namespace GuiToolkit.Base
 			m_singleEntries = new Dictionary<T, LinkedListNode<T>>( _comparer ?? EqualityComparer<T>.Default );
 		}
 
-		// push an element, which shall be singular in the queue
-		public void PushSingle( T _t )
+		public void PushSingle( T _t, bool _addAtEndIfExists = true )
 		{
 			lock (m_lock)
 			{
 				if (m_singleEntries.TryGetValue(_t, out LinkedListNode<T> _node))
 				{
+					if (!_addAtEndIfExists)
+					{
+						_node.Value = _t;
+						return;
+					}
 					m_queue.Remove(_node);
 					m_singleEntries.Remove(_t);
 				}

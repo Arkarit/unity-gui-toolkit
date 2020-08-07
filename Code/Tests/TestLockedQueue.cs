@@ -23,12 +23,11 @@ namespace Tests
 		{
 			SimpleTest(new LockedQueueWithSingle<int>());
 			LockedQueueWithSingle<int> queue = new LockedQueueWithSingle<int>();
-			PushInts(queue, SimpleTestElementCount);
-			queue.Push(SimpleTestElementCount);
+			PushIntsSingle(queue, SimpleTestElementCount);
+			queue.PushSingle(SimpleTestElementCount);
 			Assert.AreEqual(queue.Count, SimpleTestElementCount + 1);
-			queue.PushSingle(0);
+			queue.PushSingle(0, false);
 			Assert.AreEqual(queue.Count, SimpleTestElementCount + 1);
-
 		}
 
 		/*
@@ -73,6 +72,22 @@ namespace Tests
 			for (int i=0; i<_count; i++)
 			{
 				_queue.Push(i);
+				Assert.That(!_queue.Empty);
+			}
+			Assert.AreEqual(_queue.Count, _count);
+
+			_queue.PushSingleLast(_count-1);
+			Assert.AreEqual(_queue.Count, _count);
+		}
+
+		private void PushIntsSingle( LockedQueueWithSingle<int> _queue, int _count )
+		{
+			_queue.Clear();
+			Assert.That(_queue.Empty);
+
+			for (int i=0; i<_count; i++)
+			{
+				_queue.PushSingle(i);
 				Assert.That(!_queue.Empty);
 			}
 			Assert.AreEqual(_queue.Count, _count);
