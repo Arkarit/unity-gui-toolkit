@@ -1,3 +1,5 @@
+/*
+
 #include "pch.h"
 #include "ThreadedClass.h"
 #include "baseassert.h"
@@ -726,3 +728,4 @@ namespace Base
 	}
 
 }
+*/

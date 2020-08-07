@@ -76,6 +76,8 @@ namespace GuiToolkit
 		public static Color HANDLE_CAGE_LINE_COLOR = Color.yellow * 0.5f;
 	}
 
+	public class Lock { }
+
 
 
 }

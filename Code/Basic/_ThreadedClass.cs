@@ -1,8 +1,11 @@
 using System;
+using System.Threading;
+using UnityEngine;
 
 namespace GuiToolkit.Base
 {
-	using FunctionQueue = CLockedQueueWithSingle<Action>;
+	using FunctionQueue = LockedQueueWithSingle<Action>;
+#if false
 
 	public enum ThreadPriority {
 		Idle,
@@ -31,7 +34,7 @@ namespace GuiToolkit.Base
 	// So for debugging purposes of such cases it's sometimes very useful to switch threading off during the debug session with setThreaded(false);
 	// This means, that the debugger now will instantly break _when the exception is thrown_.
 
-	public class CThreadedClass
+	public class CThreadedClass : MonoBehaviour
 	{
 		private enum ThreadType
 		{
@@ -43,67 +46,126 @@ namespace GuiToolkit.Base
 		// members
 		//
 
-		std::string										m_workerName;
-		std::thread										m_thread;
-		mutable std::recursive_mutex					m_mutex0;
-		mutable std::recursive_mutex					m_mutex1;
-		mutable std::recursive_mutex*					m_toMainMutex						= &m_mutex0;
-		mutable std::recursive_mutex*					m_toWorkerMutex						= &m_mutex0;
-		std::thread::id									m_mainId							= std::this_thread::get_id();
-		std::thread::id									m_workerId							= std::this_thread::get_id();
-		std::mutex										m_triggerMutex;
-		std::condition_variable							m_trigger;
+		string											m_workerName;
+		Thread											m_thread;
+		int												m_mainId							= Thread.CurrentThread.ManagedThreadId;
+		int												m_workerId							= Thread.CurrentThread.ManagedThreadId;
+		ManualResetEventSlim							m_trigger;
 		bool											m_inIdle							= false;
 
 		bool											m_stop								= false;
 		bool											m_stopInstant						= false;
-		ThreadState										m_threadState						= ThreadState::Stopped;
 		bool											m_pause								= false;
 
-		static const size_t								MAX_USER_FUNC_ID					= 10000;
-		size_t											m_functionIdCounterWorker			= MAX_USER_FUNC_ID+1;
-		size_t											m_functionIdCounterMain				= MAX_USER_FUNC_ID+1;
-		std::recursive_mutex							m_functionIdCounterWorkerMutex;
-		std::recursive_mutex							m_functionIdCounterMainMutex;
+		const int										MAX_USER_FUNC_ID					= 10000;
+		int												m_functionIdCounterWorker			= MAX_USER_FUNC_ID+1;
+		int												m_functionIdCounterMain				= MAX_USER_FUNC_ID+1;
+		object											m_functionIdCounterWorkerMutex;
+		object											m_functionIdCounterMainMutex;
+		object											m_mutex0;
 
-		FunctionQueue									m_toWorkerQueue						= FunctionQueue(&m_mutex0);
-		FunctionQueue									m_toMainQueue						= FunctionQueue(&m_mutex0);
+		FunctionQueue									m_toWorkerQueue;
+		FunctionQueue									m_toMainQueue;	
 
 		bool											m_threaded							= true;
 		bool											m_nonThrdDirectExec					= false;
 
 		bool											m_trackTime							= false;
-		std::chrono::high_resolution_clock::time_point	m_lastTime;
+//		std::chrono::high_resolution_clock::time_point	m_lastTime;
 
-		std::function<void()>							m_onThreadStartup;
+		Action											m_onThreadStartup;
 
 		bool											m_throwWorkerInMain					= false;
 
-		ThreadPriority									m_priority							= ThreadPriority::Normal;
-		std::atomic_int									m_wakeUp							= 0;
+		ThreadPriority									m_priority							= ThreadPriority.Normal;
 
 		bool											m_workerInProgress					= false;
 		bool											m_mainInProgress					= false;
 
 		bool											m_reEnqueue							= false;
 
-		size_t											m_currentWorkerFnId					= (size_t) -1;
-		size_t											m_currentMainFnId					= (size_t) -1;
+		int												m_currentWorkerFnId					= -1;
+		int												m_currentMainFnId					= -1;
 
 		// _____________________________________________________________________________
 		// implementation
 		//
-	public:
 
-							CThreadedClass				( const std::string& _name, Base::ThreadPriority _priority = ThreadPriority::Normal );
-		virtual				~CThreadedClass				();
-
-		// Copy explicitly forbidden (would be forbidden anyway due to mutexes)
-							CThreadedClass				( const CThreadedClass& ) = delete;
-		CThreadedClass&		operator =					( const CThreadedClass& ) = delete;
+		public CThreadedClass( string _name, ThreadPriority _priority = ThreadPriority.Normal )
+		{
+			m_workerName = _name;
+			m_priority = _priority;
+			m_mutex0 = this;
+			m_toWorkerQueue = new FunctionQueue(null, m_mutex0);
+			m_toMainQueue = new FunctionQueue(null, m_mutex0);
+		}
 
 		// this has to be called periodically by the main thread to process all function calls to main.
-		virtual void		processMainThread			();
+		protected virtual void Update()
+		{
+			processQueueInMainThread( m_toMainQueue, ref m_mainInProgress );
+
+			// in multi mode, the worker thread does the rest.
+			if( m_threaded )
+				return;
+
+			// we call the worker onProcessCallback() in main context
+			float deltaSeconds = trackTime();
+			onProcessWorker(deltaSeconds);
+
+			processQueueInMainThread( m_toWorkerQueue, ref m_workerInProgress );
+
+			// and run the main queue again, to process stuff, which has been enqueued by worker queue
+			processQueueInMainThread( m_toMainQueue,ref m_mainInProgress );
+		}
+
+		private void processQueueInMainThread( FunctionQueue _queue, ref bool _progressFlag )
+		{
+			bool isWorkerQueue = _queue == m_toWorkerQueue;
+
+			if( !_queue.Empty() )
+			{
+				// no try/catch and rethrow in main required here, since we are in main anyway
+
+				while( ( !m_pause || !isWorkerQueue ) && !_queue.Empty() )
+				{
+					_progressFlag = true;
+					Action fn = null;
+
+					lock (_queue.GetMutex())
+					{
+						// we have to check a second time for queue not empty - first check
+						// was not locked, and queue may be emptied in the meantime
+						// BUT the function mustn't be executed yet, because it may also lock -> deadlocks
+						if( !_queue.Empty() )
+							fn = _queue.Pop();
+					}
+
+					if( fn != null ) {
+
+						if( isWorkerQueue )
+							m_currentWorkerFnId = fn.getId();
+						else
+							m_currentMainFnId = fn.getId();
+
+						fn();
+
+						if( isWorkerQueue )
+							m_currentMainFnId = (size_t) -1;
+						else
+							m_currentMainFnId = (size_t) -1;
+					}
+
+					if( isWorkerQueue && evalReEnqueue() ) {
+						std::lock_guard<std::recursive_mutex> l(m_toWorkerQueue);
+						m_toWorkerQueue.push( fn );
+					}
+
+					_progressFlag = false;
+				}
+			}
+
+		}
 
 		virtual void		start						( bool _wait = true, const std::function<void()>& _onThreadStartup = nullptr );
 		virtual void		stop						( bool _instant = false );
@@ -254,12 +316,11 @@ namespace GuiToolkit.Base
 
 	private:
 		void				_execute					();
-		void				processQueueInMainThread	( FunctionQueue& _queue, bool& _progressFlag );
 		bool				urgentOrRemove				( size_t _id, bool _urgent );
 		float				trackTime					();
 		bool				evalReEnqueue				();
 
-
 	};
+#endif
 
 }
