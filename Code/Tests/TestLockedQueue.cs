@@ -26,8 +26,8 @@ namespace Tests
 		}
 
 		private const int SimpleTestElementCount = 50;
-		private const int ProducerThreadCount = 50;
-		private const int ThreadedTestElementCount = 100;
+		private const int ProducerThreadCount = 25;
+		private const int ThreadedTestElementCount = 50;
 		private const int ThreadFinishTimeout = 10000;
 		private const float ProducerRandomSleepChance = 0.05f;
 		private const int ProducerMinSleepMilliseconds = 1;
