@@ -30,13 +30,13 @@ namespace GuiToolkit.Base
 		public Lock Lock
 		{
 			get { return m_lock; }
-			set { m_lock = value ?? m_defaultLock; }
+			private set { m_lock = value ?? m_defaultLock; }
 		}
 
-		public bool LockedExternally => m_lock != m_defaultLock;
+		public bool IsLockedExternally => m_lock != m_defaultLock;
 
 		// ctor
-		public LockedQueue( IEqualityComparer<T> _comparer = null, Lock _lock = null )
+		public LockedQueue( Lock _lock = null, IEqualityComparer<T> _comparer = null )
 		{
 			m_compEqual = _comparer ?? EqualityComparer<T>.Default;
 			Lock = _lock;
@@ -46,7 +46,7 @@ namespace GuiToolkit.Base
 		// Note that in case of an external mutex only a shallow copy is made!
 		public LockedQueue( LockedQueue<T> _other )
 		{
-			m_lock = _other.LockedExternally ? _other.m_lock : m_defaultLock;
+			m_lock = _other.IsLockedExternally ? _other.m_lock : m_defaultLock;
 
 			// we only need to lock _other's mutex, since we are just constructed.
 			lock( _other.m_lock )
@@ -177,14 +177,14 @@ namespace GuiToolkit.Base
 		private Dictionary<T, LinkedListNode<T>> m_singleEntries;
 
 		// ctor
-		public LockedQueueWithSingle( IEqualityComparer<T> _comparer = null, Lock _mutex = null ) : base (_comparer, _mutex)
+		public LockedQueueWithSingle( Lock _lock = null, IEqualityComparer<T> _comparer = null ) : base (_lock, _comparer)
 		{
 			m_singleEntries = new Dictionary<T, LinkedListNode<T>>( _comparer ?? EqualityComparer<T>.Default );
 		}
 
 		public LockedQueueWithSingle( LockedQueueWithSingle<T> _other)
 		{
-			m_lock = _other.LockedExternally ? _other.m_lock : m_defaultLock;
+			m_lock = _other.IsLockedExternally ? _other.m_lock : m_defaultLock;
 
 			// we only need to lock _other's mutex, since we are just constructed.
 			lock( _other.m_lock )

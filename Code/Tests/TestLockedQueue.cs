@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using GuiToolkit;
 using GuiToolkit.Base;
 using NUnit.Framework;
 using UnityEngine;
@@ -35,7 +36,7 @@ namespace Tests
 		private Thread m_consumer;
 		private readonly List<Thread> m_producers = new List<Thread>();
 		private bool m_stopConsumer;
-
+		private readonly Lock m_lock = new Lock();
 
         [Test]
         public void TestLockedQueueSimple()
@@ -48,6 +49,8 @@ namespace Tests
 		{
 			SimpleTest(new LockedQueueWithSingle<int>());
 			LockedQueueWithSingle<int> queue = new LockedQueueWithSingle<int>();
+			Assert.That(!queue.IsLockedExternally);
+
 			PushIntsSingle(queue, SimpleTestElementCount);
 			queue.PushSingle(SimpleTestElementCount);
 			Assert.AreEqual(queue.Count, SimpleTestElementCount + 1);
@@ -62,8 +65,12 @@ namespace Tests
 		[Test]
 		public void TestLockedQueueThreaded()
 		{
-			var queue = new LockedQueue<int>();
-			var referenceQueue = new LockedQueue<int>();
+			var queue = new LockedQueue<int>(m_lock);
+			var referenceQueue = new LockedQueue<int>(m_lock);
+			Assert.That(queue.IsLockedExternally);
+			Assert.That(referenceQueue.IsLockedExternally);
+			Assert.AreEqual(queue.Lock, referenceQueue.Lock);
+
 			var resultsList = new List<int>();
 
 			ExecuteProducerThreads(queue, referenceQueue);
@@ -147,8 +154,12 @@ namespace Tests
 
 			for (int i=0; i<ThreadedTestElementCount; i++)
 			{
-				queue.Push(id);
-				referenceQueue.Push(id);
+				// We need to lock both queues, otherwise they go out of sync
+				lock (queue.Lock)
+				{
+					queue.Push(id);
+					referenceQueue.Push(id);
+				}
 				// Debug.Log($"Push '{id}'");
 
 				if (TSRandom.RandomFloat < ProducerRandomSleepChance)
