@@ -14,7 +14,8 @@ namespace GuiToolkit.Base
 		protected Lock m_lock;
 
 		protected readonly Lock m_defaultLock = new Lock();
-		private static readonly LinkedList<T> s_emptyList = new LinkedList<T>();
+		private static readonly LinkedList<T> s_emptyLinkedList = new LinkedList<T>();
+		private static readonly List<T> s_emptyList = new List<T>();
 
 
 		/// Is Queue empty? 
@@ -116,19 +117,40 @@ namespace GuiToolkit.Base
 		}
 
 		// fetch complete queue as linked list
-		public bool PopList( ref LinkedList<T> list )
+		public bool PopLinkedList( ref LinkedList<T> _list )
 		{
-			list = s_emptyList;
+			_list = s_emptyLinkedList;
 
 			lock ( m_lock )
 			{
 				if (m_queue.Empty())
 					return false;
 
-				list = m_queue;
+				_list = m_queue;
 				Clear();
 				return true;
 			}
+		}
+
+		// fetch complete queue as list
+		public bool PopList( ref List<T> _list )
+		{
+			LinkedList<T> ll = null;
+
+			bool result = PopLinkedList(ref ll);
+
+			if (result)
+			{
+				if (_list != null)
+					_list.Clear();
+				else
+					_list = new List<T>();
+
+				foreach( var elem in ll )
+					_list.Add(elem);
+			}
+
+			return result;
 		}
 
 		public virtual void Clear()

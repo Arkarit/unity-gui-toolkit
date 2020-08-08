@@ -25,6 +25,16 @@ public static class SystemExtensions
 		return true;
 	}
 
+	public static List<T> ToList<T>( this LinkedList<T> _this )
+	{
+		List<T> result = new List<T>();
+		foreach( var elem in _this)
+		{
+			result.Add(elem);
+		}
+		return result;
+	}
+
 
 	public static bool Empty<T>(this List<T> _this)
 	{
@@ -38,6 +48,7 @@ public static class SystemExtensions
 
 		return _this[_this.Count-1];
 	}
+
 
 
 }

@@ -11,11 +11,17 @@ namespace Tests
 {
     public class TestLockedQueue
     {
-		private class ThreadData
+		private class ProducerData
 		{
 			public LockedQueue<int> Queue;
 			public LockedQueue<int> ReferenceQueue;
 			public int Id;
+		}
+
+		private class ConsumerData
+		{
+			public LockedQueue<int> Queue;
+			public List<int> ResultsList;
 		}
 
 		private const int SimpleTestElementCount = 50;
@@ -28,6 +34,7 @@ namespace Tests
 
 		private Thread m_consumer;
 		private readonly List<Thread> m_producers = new List<Thread>();
+		private bool m_stopConsumer;
 
 
         [Test]
@@ -57,11 +64,43 @@ namespace Tests
 		{
 			var queue = new LockedQueue<int>();
 			var referenceQueue = new LockedQueue<int>();
+			var resultsList = new List<int>();
 
 			ExecuteProducerThreads(queue, referenceQueue);
 			Assert.AreEqual(queue.Count, ProducerThreadCount * ThreadedTestElementCount);
 
 			queue.Clear();
+			referenceQueue.Clear();
+
+			m_stopConsumer = false;
+			m_consumer = new Thread(ConsumerStart);
+			m_consumer.Start( new ConsumerData {Queue = queue, ResultsList = resultsList});
+
+			ExecuteProducerThreads(queue, referenceQueue);
+			Thread.Sleep(200);
+			m_stopConsumer = true;
+			m_consumer.Join();
+
+			List<int> referenceList = null;
+			referenceQueue.PopList(ref referenceList);
+
+			Assert.AreEqual(resultsList.Count, referenceList.Count);
+
+			if (resultsList.Count == referenceList.Count)
+			{
+				for (int i=0; i<resultsList.Count; i++)
+				{
+					if (resultsList[i] != referenceList[i])
+					{
+						Debug.Log($"*** Fail, List Mismatch: resultsList[{i}]:{resultsList[i]} referenceList[{i}]: {referenceList[i]}");
+					}
+				}
+				for (int i=0; i<resultsList.Count; i++)
+				{
+					Assert.AreEqual(resultsList[i], referenceList[i]);
+				}
+			}
+
 		}
 
 		private void ExecuteProducerThreads( LockedQueue<int> _queue, LockedQueue<int> _referenceQueue )
@@ -78,21 +117,39 @@ namespace Tests
 		private void StartProducerThread( LockedQueue<int> _queue, LockedQueue<int> _referenceQueue, int _i )
 		{
 			m_producers.Add(new Thread(ProducerStart));
-			m_producers.Back().Start(new ThreadData {Queue = _queue, ReferenceQueue = _referenceQueue, Id = _i });
+			m_producers.Back().Start(new ProducerData {Queue = _queue, ReferenceQueue = _referenceQueue, Id = _i });
+		}
+
+		private void ConsumerStart( object _obj )
+		{
+			ConsumerData data = _obj as ConsumerData;
+			var queue = data.Queue;
+			var resultsList = data.ResultsList;
+			List<int> list = null;
+
+			while( !m_stopConsumer )
+			{
+				if (queue.PopList(ref list))
+				{
+					// Debug.Log($"Popped {list.Count} elements");
+					resultsList.AddRange(list);
+				}
+				Thread.Sleep(10);
+			}
 		}
 
 		private void ProducerStart( object _obj )
 		{
-			ThreadData td = _obj as ThreadData;
-			var queue = td.Queue;
-			var referenceQueue = td.ReferenceQueue;
-			var id = td.Id;
+			ProducerData data = _obj as ProducerData;
+			var queue = data.Queue;
+			var referenceQueue = data.ReferenceQueue;
+			var id = data.Id;
 
 			for (int i=0; i<ThreadedTestElementCount; i++)
 			{
-//Debug.Log($"Push {id}");
 				queue.Push(id);
 				referenceQueue.Push(id);
+				// Debug.Log($"Push '{id}'");
 
 				if (TSRandom.RandomFloat < ProducerRandomSleepChance)
 					Thread.Sleep(TSRandom.Range(ProducerMinSleepMilliseconds, ProducerMaxSleepMilliseconds));
@@ -115,7 +172,7 @@ namespace Tests
 
 			LinkedList<int> poppedVals = null;
 
-			bool popped = _queue.PopList(ref poppedVals);
+			bool popped = _queue.PopLinkedList(ref poppedVals);
 			Assert.That(popped);
 			Assert.That(_queue.Empty);
 
