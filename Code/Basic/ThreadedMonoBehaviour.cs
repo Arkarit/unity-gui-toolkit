@@ -14,10 +14,10 @@ namespace GuiToolkit.Base
 		// The "Running" here means fully operational.
 		public enum ThreadState
 		{
+			Stopping,
 			Stopped,
 			Starting,
 			Running,
-			ShuttingDown,
 		};
 
 		protected const int PeriodicWakeUpPeriodMs = 100;
@@ -28,6 +28,8 @@ namespace GuiToolkit.Base
 		protected bool m_threaded = true;
 		[SerializeField]
 		protected bool m_autoStartThread = true;
+		[SerializeField]
+		protected bool m_waitForThreadStart = false;
 
 		protected FunctionQueue m_toWorkerQueue;
 		protected FunctionQueue m_toMainQueue;
@@ -48,17 +50,30 @@ namespace GuiToolkit.Base
 		private int m_mainThreadId;
 		private int m_workerThreadId;
 
+		public bool Running => m_threadState == ThreadState.Running;
+		public bool Starting => m_threadState == ThreadState.Starting;
+		public bool StartingOrRunning => Starting || Running;
+		public bool Stopped => m_threadState == ThreadState.Stopped;
+		public bool Stopping => m_threadState == ThreadState.Stopping;
+		public bool StoppingOrStopped => Stopping || Stopped;
+
 		protected virtual void Start()
 		{
 			m_toMainQueue = new FunctionQueue(ToMainLock);
 			m_toWorkerQueue = new FunctionQueue(ToWorkerLock);
 			m_mainThreadId = Thread.CurrentThread.ManagedThreadId;
 			if (m_threaded && m_autoStartThread)
-				StartThread(false);
+				StartThread(m_waitForThreadStart);
 		}
 
 		protected virtual void Update()
 		{
+			Debug.Assert(m_toMainQueue != null, "Main queue is null. Did you forget to call base.Start() in override?");
+			#if UNITY_EDITOR
+				if (m_toMainQueue == null)
+					return;
+			#endif
+
 			ProcessQueueInMainThread( m_toMainQueue );
 
 			if (!m_threaded)
@@ -76,7 +91,7 @@ namespace GuiToolkit.Base
 				return;
 
 			// if the thread is about to shut down, we have to wait until it has settled
-			while( m_threadState == ThreadState.ShuttingDown )
+			while( m_threadState == ThreadState.Stopping )
 				Thread.Sleep(1);
 
 			m_stop = m_stopInstant = false;
@@ -110,15 +125,15 @@ namespace GuiToolkit.Base
 			}
 		}
 
-		public virtual void OnThreadStarting()
+		protected virtual void OnThreadStarting()
 		{
 		}
 
-		public virtual void OnThreadStopping()
+		protected virtual void OnThreadStopping()
 		{
 		}
 
-		public virtual void ThreadMainLoop()
+		protected virtual void ThreadMainLoop()
 		{
 			CheckInWorker();
 			LinkedList<Action> actionList = null;
@@ -191,10 +206,11 @@ namespace GuiToolkit.Base
 
 			ThreadMainLoop();
 
-			m_threadState = ThreadState.ShuttingDown;
+			m_threadState = ThreadState.Stopping;
 
 			OnThreadStopping();
 
+			m_threadState = ThreadState.Stopped;
 		}
 
 		protected virtual void OnProcessWorker() {}

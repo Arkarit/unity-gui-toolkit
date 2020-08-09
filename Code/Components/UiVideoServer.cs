@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GuiToolkit.Base;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -8,7 +9,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public class UiVideoServer : MonoBehaviour
+	public class UiVideoServer : ThreadedMonoBehaviour
 	{
 		//This must be the-same with SEND_COUNT on the client
 		private const int SEND_RECEIVE_COUNT = 15;
@@ -20,11 +21,11 @@ namespace GuiToolkit
 		private WebCamTexture m_webCam;
 		private Texture2D m_currentTexture;
 		private TcpListener m_listener;
-		private bool m_stop = false;
 		private List<TcpClient> m_clients = new List<TcpClient>();
 
-		private void Start()
+		protected override void Start()
 		{
+			base.Start();
 			Application.runInBackground = true;
 
 			//Start WebCam coroutine
@@ -90,10 +91,9 @@ namespace GuiToolkit
 			TcpClient client = null;
 			NetworkStream stream = null;
 
-			// Wait for client to connect in another Thread 
-			Loom.RunAsync(() =>
+			CallWorker(() =>
 			{
-				while (!m_stop)
+				try
 				{
 					// Wait for client connection
 					client = m_listener.AcceptTcpClient();
@@ -102,6 +102,10 @@ namespace GuiToolkit
 
 					isConnected = true;
 					stream = client.GetStream();
+				}
+				catch(System.Net.Sockets.SocketException ex)
+				{
+					Debug.Log($"Socket error {ex.SocketErrorCode}");
 				}
 			});
 
@@ -117,7 +121,7 @@ namespace GuiToolkit
 
 			byte[] frameBytesLength = new byte[SEND_RECEIVE_COUNT];
 
-			while (!m_stop)
+			while (Running)
 			{
 				//Wait for End of frame
 				yield return endOfFrame;
@@ -130,7 +134,7 @@ namespace GuiToolkit
 				//Set readyToGetFrame false
 				readyToGetFrame = false;
 
-				Loom.RunAsync(() =>
+				CallWorkerSingleLast(() =>
 				{
 					//Send total byte count first
 					stream.Write(frameBytesLength, 0, frameBytesLength.Length);
@@ -168,15 +172,15 @@ namespace GuiToolkit
 		// stop everything
 		private void OnApplicationQuit()
 		{
-			if (m_webCam != null && m_webCam.isPlaying)
-			{
-				m_webCam.Stop();
-				m_stop = true;
-			}
-
 			if (m_listener != null)
 			{
 				m_listener.Stop();
+			}
+
+			if (m_webCam != null && m_webCam.isPlaying)
+			{
+				m_webCam.Stop();
+				StopThread(true, true);
 			}
 
 			foreach (TcpClient c in m_clients)
