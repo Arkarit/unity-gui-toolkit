@@ -32,6 +32,26 @@ namespace GuiToolkit
 			StartCoroutine(initAndWaitForWebCamTexture());
 		}
 
+		// stop everything
+		protected override void OnApplicationQuit()
+		{
+			base.OnApplicationQuit();
+
+			if (m_listener != null)
+			{
+				m_listener.Stop();
+			}
+
+			if (m_webCam != null && m_webCam.isPlaying)
+			{
+				m_webCam.Stop();
+				StopThread(true, true);
+			}
+
+			foreach (TcpClient c in m_clients)
+				c.Close();
+		}
+
 		//Converts the data size to byte array and put result to the fullBytes array
 		void byteLengthToFrameByteArray( int byteLength, byte[] fullBytes )
 		{
@@ -169,22 +189,5 @@ namespace GuiToolkit
 			m_image.texture = m_webCam;
 		}
 
-		// stop everything
-		private void OnApplicationQuit()
-		{
-			if (m_listener != null)
-			{
-				m_listener.Stop();
-			}
-
-			if (m_webCam != null && m_webCam.isPlaying)
-			{
-				m_webCam.Stop();
-				StopThread(true, true);
-			}
-
-			foreach (TcpClient c in m_clients)
-				c.Close();
-		}
 	}
 }

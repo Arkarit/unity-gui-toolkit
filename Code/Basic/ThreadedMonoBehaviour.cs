@@ -47,6 +47,8 @@ namespace GuiToolkit.Base
 		private bool m_stop;
 		private bool m_stopInstant;
 
+		private bool m_applicationRunning = true;
+
 		private int m_mainThreadId;
 		private int m_workerThreadId;
 
@@ -83,6 +85,12 @@ namespace GuiToolkit.Base
 			ProcessQueueInMainThread(m_toWorkerQueue);
 		}
 
+		// stop everything
+		protected virtual void OnApplicationQuit()
+		{
+			m_applicationRunning = false;
+		}
+
 		public virtual void StartThread( bool _wait = true )
 		{
 			CheckInMain();
@@ -101,10 +109,14 @@ namespace GuiToolkit.Base
 			m_thread.Start(this);
 
 			if (_wait)
-			{
-				while(m_threadState != ThreadState.Running)
-					Thread.Sleep(1);
-			}
+				WaitForThreadState(ThreadState.Running);
+		}
+
+		protected bool WaitForThreadState(ThreadState _threadState)
+		{
+			while(m_applicationRunning && m_threadState != ThreadState.Running)
+				Thread.Sleep(1);
+			return m_applicationRunning;
 		}
 
 		public virtual void	StopThread( bool _wait = true, bool _instant = false )
@@ -119,10 +131,7 @@ namespace GuiToolkit.Base
 			m_waitHandle.Set();
 
 			if (_wait)
-			{
-				while (m_threadState != ThreadState.Stopped)
-					Thread.Sleep(1);
-			}
+				WaitForThreadState(ThreadState.Stopped);
 		}
 
 		protected virtual void OnThreadStarting()
@@ -194,7 +203,7 @@ namespace GuiToolkit.Base
 			m_toMainQueue.PushSingleLast(_action);
 		}
 
-		public virtual void Execute()
+		protected virtual void Execute()
 		{
 			CheckInWorker();
 

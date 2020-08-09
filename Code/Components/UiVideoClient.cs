@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GuiToolkit.Base;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
@@ -6,7 +7,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public class UiVideoClient : MonoBehaviour
+	public class UiVideoClient : ThreadedMonoBehaviour
 	{
 		public string IP = "192.168.1.165";
 		public RawImage m_image;
@@ -17,24 +18,20 @@ namespace GuiToolkit
 
 		Texture2D m_texture;
 
-		private bool m_stop = false;
-
 		//This must be the-same with SEND_COUNT on the server
 		const int SEND_RECEIVE_COUNT = 15;
 
 		// Use this for initialization
-		void Start()
+		protected override void Start()
 		{
+			base.Start();
 			Application.runInBackground = true;
 
 			m_texture = new Texture2D(0, 0);
 			m_client = new TcpClient();
-
-			//Connect to server from another Thread
-			Loom.RunAsync(ThreadStart);
 		}
 
-		private void ThreadStart()
+		protected override void OnThreadStarting()
 		{
 			LOGWARNING("Connecting to server...");
 			// if on desktop
@@ -44,20 +41,18 @@ namespace GuiToolkit
 			//client.Connect(IPAddress.Parse(IP), port);
 			LOGWARNING("Connected to server!");
 
-			ThreadLoop();
+			CallWorker(ReadImage);
 		}
 
-		private void ThreadLoop()
+		private void ReadImage()
 		{
-			while (!m_stop)
-			{
-				//Read Image Count
-				int imageSize = readImageByteSize(SEND_RECEIVE_COUNT);
-					LOGWARNING("Received Image byte Length: " + imageSize);
+			//Read Image Count
+			int imageSize = readImageByteSize(SEND_RECEIVE_COUNT);
+				LOGWARNING("Received Image byte Length: " + imageSize);
 
-				//Read Image Bytes and Display it
-				readFrameByteArray(imageSize);
-			}
+			//Read Image Bytes and Display it
+			readFrameByteArray(imageSize);
+			CallWorker(ReadImage);
 		}
 
 		//Converts the data size to byte array and put result to the fullBytes array
@@ -137,7 +132,7 @@ namespace GuiToolkit
 			if (!disconnected)
 			{
 				//Display Image on the main Thread
-				Loom.QueueOnMainThread(() =>
+				CallMain(() =>
 				{
 					displayReceivedImage(imageBytes);
 					readyToReadAgain = true;
@@ -159,14 +154,6 @@ namespace GuiToolkit
 		}
 
 
-		// Update is called once per frame
-		void Update()
-		{
-
-
-		}
-
-
 		void LOG( string messsage )
 		{
 			if (m_enableLog)
@@ -179,15 +166,19 @@ namespace GuiToolkit
 				Debug.LogWarning(messsage);
 		}
 
-		void OnApplicationQuit()
+		protected override void OnApplicationQuit()
 		{
 			LOGWARNING("OnApplicationQuit");
-			m_stop = true;
+
+			base.OnApplicationQuit();
 
 			if (m_client != null)
 			{
 				m_client.Close();
 			}
+
+			StopThread(true, true);
+
 		}
 	}
 }
