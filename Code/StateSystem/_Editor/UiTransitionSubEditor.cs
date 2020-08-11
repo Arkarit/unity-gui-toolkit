@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -123,5 +124,4 @@ namespace GuiToolkit.UiStateSystem
 
 }
 
-#endif
-
+#endif //UNITY_EDITOR

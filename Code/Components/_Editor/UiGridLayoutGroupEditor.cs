@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEditor;
 
 namespace GuiToolkit
@@ -54,3 +56,5 @@ namespace GuiToolkit
         }
     }
 }
+
+#endif //UNITY_EDITOR

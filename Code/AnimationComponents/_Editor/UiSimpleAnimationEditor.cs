@@ -1,4 +1,6 @@
-﻿using Unity;
+﻿#if UNITY_EDITOR
+
+using Unity;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -191,3 +193,5 @@ namespace GuiToolkit
 		}
 	}
 }
+
+#endif //UNITY_EDITOR
