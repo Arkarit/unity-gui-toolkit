@@ -183,30 +183,14 @@ namespace GuiToolkit
 			}
 		}
 
-private int bla;
 		void displayReceivedImage( Color[] imageColors )
 		{
 
 			m_texture.SetPixels(imageColors);
 			m_texture.Apply();
-//m_texture.SaveAsPNG($"C:/temp/bla_{bla}.png");
-//m_texture = LoadPNG($"C:/temp/bla_{bla++}.png");
 			m_image.texture = m_texture;
 
 		}
-
-public static Texture2D LoadPNG(string filePath) {
-     
-Texture2D tex = null;
-byte[] fileData;
-     
-if (File.Exists(filePath))     {
-fileData = File.ReadAllBytes(filePath);
-tex = new Texture2D(2, 2);
-tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
-}
-return tex;
-}
 
 		void LOG( string messsage )
 		{

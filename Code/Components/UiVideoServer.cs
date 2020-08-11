@@ -77,10 +77,10 @@ namespace GuiToolkit
 			m_webCam.deviceName = WebCamTexture.devices[WebCamTexture.devices.Length - 1].name;
 
 			// request the lowest width and heigh possible
-// 			m_webCam.requestedHeight = 10;
-// 			m_webCam.requestedWidth = 10;
-			m_webCam.requestedHeight = 1920;
-			m_webCam.requestedWidth = 1080;
+			m_webCam.requestedHeight = 10;
+			m_webCam.requestedWidth = 10;
+// 			m_webCam.requestedHeight = 1920;
+// 			m_webCam.requestedWidth = 1080;
 
 			m_image.texture = m_webCam;
 
