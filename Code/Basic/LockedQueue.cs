@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GuiToolkit.Base
+namespace GuiToolkit
 {
 	/// \brief A locked queue for thread usage.
 	public class LockedQueue<T>

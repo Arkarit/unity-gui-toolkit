@@ -1,5 +1,4 @@
-﻿using GuiToolkit.Base;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -12,7 +11,7 @@ namespace GuiToolkit
 	public class UiVideoServer : ThreadedMonoBehaviour
 	{
 		//This must be the-same with SEND_COUNT on the client
-		private const int SEND_RECEIVE_COUNT = 15;
+		private const int SEND_RECEIVE_COUNT = 255;
 		private const int PORT = 8010;
 
 		public RawImage m_image;
@@ -146,23 +145,38 @@ namespace GuiToolkit
 				//Wait for End of frame
 				yield return endOfFrame;
 
-				m_currentTexture.SetPixels(m_webCam.GetPixels());
-				byte[] pngBytes = m_currentTexture.EncodeToPNG();
-				//Fill total byte length to send. Result is stored in frameBytesLength
-				byteLengthToFrameByteArray(pngBytes.Length, frameBytesLength);
+				Color[] pixels = m_webCam.GetPixels();
+				int width = m_webCam.width;
+				int height = m_webCam.height;
+
+				m_currentTexture.SetPixels(pixels);
 
 				//Set readyToGetFrame false
 				readyToGetFrame = false;
 
+
 				CallWorkerSingleLast(() =>
 				{
+					//This is ridiculously prehistoric coding style. There HAS to be something better???
+					byte[] proportions = new byte[4];
+					proportions[0] = (byte) (width / 256);
+					proportions[1] = (byte) (width % 256);
+					proportions[2] = (byte) (height / 256);
+					proportions[3] = (byte) (height % 256);
+					stream.Write(proportions, 0, 4);
+						LOG("Sent Proportions: " + proportions.Length);
+
+					byte[] bytes = pixels.ToBytes();
+					//Fill total byte length to send. Result is stored in frameBytesLength
+					byteLengthToFrameByteArray(bytes.Length, frameBytesLength);
+
 					//Send total byte count first
 					stream.Write(frameBytesLength, 0, frameBytesLength.Length);
 						LOG("Sent Image byte Length: " + frameBytesLength.Length);
 
 					//Send the image bytes
-					stream.Write(pngBytes, 0, pngBytes.Length);
-						LOG("Sending Image byte array data : " + pngBytes.Length);
+					stream.Write(bytes, 0, bytes.Length);
+						LOG("Sending Image byte array data : " + bytes.Length);
 
 					//Sent. Set readyToGetFrame true
 					readyToGetFrame = true;

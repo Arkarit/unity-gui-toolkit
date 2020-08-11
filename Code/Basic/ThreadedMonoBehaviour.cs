@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-namespace GuiToolkit.Base
+namespace GuiToolkit
 {
 	using FunctionQueue = LockedQueueWithSingle<Action>;
 	using ThreadPriority = System.Threading.ThreadPriority;
