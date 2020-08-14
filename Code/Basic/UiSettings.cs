@@ -69,6 +69,9 @@ namespace GuiToolkit
 		{
 			m_scenesByName.Clear();
 
+			if (m_sceneReferences == null)
+				return;
+
 			foreach (var sceneReference in m_sceneReferences)
 			{
 				string name = Path.GetFileNameWithoutExtension(sceneReference.ScenePath);
