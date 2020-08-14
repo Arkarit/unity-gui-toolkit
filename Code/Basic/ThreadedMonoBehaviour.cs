@@ -34,15 +34,16 @@ namespace GuiToolkit
 		protected FunctionQueue m_toWorkerQueue;
 		protected FunctionQueue m_toMainQueue;
 
-		protected Lock m_lock = new Lock();
+		protected Lock m_toWorkerLock = new Lock();
+		protected Lock m_toMainLock = new Lock();
 
 		protected Thread m_thread;
 		protected ThreadState m_threadState = ThreadState.Stopped;
 		protected EventWaitHandle m_waitHandle = new ManualResetEvent(true); 
 
 
-		protected virtual Lock ToWorkerLock => m_lock;
-		protected virtual Lock ToMainLock => m_lock;
+		protected virtual Lock ToWorkerLock => m_toWorkerLock;
+		protected virtual Lock ToMainLock => m_toMainLock;
 
 		private bool m_stop;
 		private bool m_stopInstant;

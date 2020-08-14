@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace GuiToolkit
 {
@@ -108,12 +109,19 @@ namespace GuiToolkit
 		}
 
 		// remove oldest element and return it.
-		public virtual bool Pop( ref T elem )
+		public virtual bool Pop( ref T _elem )
 		{
-			lock( m_lock )
+			bool locked = false;
+			bool result = false;
+
+			Monitor.TryEnter(m_lock, 0, ref locked);
+			if (locked)
 			{
-				return m_queue.PopFront(ref elem);
+				result = m_queue.PopFront(ref _elem);
+				Monitor.Exit(m_lock);
 			}
+
+			return result;
 		}
 
 		// fetch complete queue as linked list
@@ -121,15 +129,23 @@ namespace GuiToolkit
 		{
 			_list = s_emptyLinkedList;
 
-			lock ( m_lock )
-			{
-				if (m_queue.Empty())
-					return false;
+			bool locked = false;
+			bool result = false;
 
-				_list = m_queue;
-				Clear();
-				return true;
+			Monitor.TryEnter(m_lock, 0, ref locked);
+			if (locked)
+			{
+				if (!m_queue.Empty())
+				{
+					_list = m_queue;
+					Clear();
+					result = true;
+				}
+
+				Monitor.Exit(m_lock);
 			}
+
+			return result;
 		}
 
 		// fetch complete queue as list
@@ -217,16 +233,24 @@ namespace GuiToolkit
 		// remove oldest element and return it.
 		public override bool Pop( ref T elem )
 		{
-			lock( m_lock )
-			{
-				if (m_queue.Empty())
-					return false;
+			bool locked = false;
+			bool result = false;
 
-				elem = m_queue.First.Value;
-				m_queue.RemoveFirst();
-				m_singleEntries.Remove(elem);
-				return true;
+			Monitor.TryEnter(m_lock, 0, ref locked);
+			if (locked)
+			{
+				if (!m_queue.Empty())
+				{
+					elem = m_queue.First.Value;
+					m_queue.RemoveFirst();
+					m_singleEntries.Remove(elem);
+					result = true;
+				}
+
+				Monitor.Exit(m_lock);
 			}
+
+			return result;
 		}
 
 		public override void Clear()
