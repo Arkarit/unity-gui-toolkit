@@ -76,6 +76,23 @@ namespace GuiToolkit
 		public static Color HANDLE_CAGE_LINE_COLOR = Color.yellow * 0.5f;
 	}
 
+	public static class StringConstants
+	{
+		public const string TOOLKIT_NAME = "UI Toolkit";
+		public const string MENU_HEADER = TOOLKIT_NAME + "/";
+
+		public static readonly string SETTINGS_HELP_FIRST_TIME =
+				$"It appears that you are using the {TOOLKIT_NAME} for the first time\n"
+			+ $"The scriptable object '{UiSettings.SETTINGS_EDITOR_PATH}' has been created to store your {TOOLKIT_NAME} settings.\n"
+			+ $"Please be sure to check it in to your code versioning system!\n\n"
+			+ $"You can always access this window by {SETTINGS_MENU_NAME}\n"
+			+ $"Please check the settings below to create the initial setup for {TOOLKIT_NAME}:";
+
+
+		public const string SETTINGS_MENU_NAME = MENU_HEADER + "Settings";
+		public const string GAME_SPEED_MENU_NAME = MENU_HEADER + "Game speed";
+	}
+
 
 
 }

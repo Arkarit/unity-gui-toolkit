@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -11,11 +12,11 @@ namespace GuiToolkit
 	//[CreateAssetMenu]
 	public class UiSettings : ScriptableObject
 	{
-		public static readonly string SETTINGS_FILE = "UiSettings";
-		public static readonly string SETTINGS_RUNTIME_DIR = "";
-		public static readonly string SETTINGS_RUNTIME_PATH = SETTINGS_FILE;
-		public static readonly string SETTINGS_EDITOR_DIR = "Assets/Resources" + SETTINGS_RUNTIME_DIR;
-		public static readonly string SETTINGS_EDITOR_PATH = SETTINGS_EDITOR_DIR + "/" + SETTINGS_FILE + ".asset";
+		public const string SETTINGS_FILE = "UiSettings";
+		public const string SETTINGS_RUNTIME_DIR = "";
+		public const string SETTINGS_RUNTIME_PATH = SETTINGS_FILE;
+		public const string SETTINGS_EDITOR_DIR = "Assets/Resources" + SETTINGS_RUNTIME_DIR;
+		public const string SETTINGS_EDITOR_PATH = SETTINGS_EDITOR_DIR + "/" + SETTINGS_FILE + ".asset";
 
 		[Tooltip("When enabled, the main scene (first scene in build list) is loaded, and all other scenes are unloaded. After play, the loaded scenes are restored.")]
 		public bool m_loadMainSceneOnPlay = false;
@@ -26,10 +27,13 @@ namespace GuiToolkit
 		[Tooltip("Add all scenes here which should be in the build.")]
 		public SceneReference[] m_sceneReferences;
 
-
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 
 		private static UiSettings s_instance;
+
+		public static void Initialize()
+		{
+		}
 
 		public static UiSettings Instance
 		{
@@ -86,6 +90,8 @@ namespace GuiToolkit
 
 
 #if UNITY_EDITOR
+
+		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiSettings>(UiSettings.SETTINGS_EDITOR_PATH) != null;
 
 		public static string GetEditorScenePath(string _sceneName)
 		{
