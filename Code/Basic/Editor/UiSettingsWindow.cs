@@ -26,7 +26,7 @@ namespace GuiToolkit
 
 			if (m_firstTimeInit)
 			{
-				EditorGUILayout.HelpBox(UiSettings.SETTINGS_HELP_FIRST_TIME, MessageType.Info);
+				EditorGUILayout.HelpBox(UiSettings.HELP_FIRST_TIME, MessageType.Info);
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
 			}
 
@@ -49,25 +49,49 @@ namespace GuiToolkit
 
 			if (m_firstTimeInit)
 			{
-				EditorGUILayout.HelpBox(UiSettings.SETTINGS_HELP_SCENES, MessageType.Info);
+				EditorGUILayout.HelpBox(UiSettings.HELP_SCENES, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_sceneReferences"), true);
 
 			if (m_firstTimeInit)
 			{
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
-				EditorGUILayout.HelpBox(UiSettings.SETTINGS_HELP_LOAD_MAIN_SCENE_ON_PLAY, MessageType.Info);
+				EditorGUILayout.HelpBox(UiSettings.HELP_LOAD_MAIN_SCENE_ON_PLAY, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_loadMainSceneOnPlay"), true);
 
 			if (m_firstTimeInit)
 			{
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
-				EditorGUILayout.HelpBox(UiSettings.SETTINGS_HELP_ADDITIONAL_SCENES_PATH, MessageType.Info);
+				EditorGUILayout.HelpBox(UiSettings.HELP_ADDITIONAL_SCENES_PATH, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_additionalScenesPath"), true);
 
 			m_serializedSettingsObject.ApplyModifiedProperties();
+
+			if (FindObjectOfType<UiMain>() == null)
+			{
+				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+				if (m_firstTimeInit)
+					EditorGUILayout.HelpBox(UiSettings.HELP_UI_MAIN, MessageType.Info);
+
+				if (GUILayout.Button(new GUIContent("Create UiMain in active scene", UiSettings.HELP_UI_MAIN)))
+				{
+					string[] guids = AssetDatabase.FindAssets("UiMain t:prefab");
+					foreach (string guid in guids)
+					{
+						GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
+						if (go == null)
+							continue;
+
+						if (go.GetComponent<UiMain>() == null)
+							continue;
+
+						PrefabUtility.InstantiatePrefab(go);
+						break;
+					}
+				}
+			}
 
 			GUILayout.EndScrollView ();
 			GUILayout.EndVertical();

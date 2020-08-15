@@ -12,21 +12,21 @@ namespace GuiToolkit
 	//[CreateAssetMenu]
 	public class UiSettings : ScriptableObject
 	{
-		public const string SETTINGS_FILE = "UiSettings";
-		public const string SETTINGS_RUNTIME_DIR = "";
-		public const string SETTINGS_RUNTIME_PATH = SETTINGS_FILE;
-		public const string SETTINGS_EDITOR_DIR = "Assets/Resources" + SETTINGS_RUNTIME_DIR;
-		public const string SETTINGS_EDITOR_PATH = SETTINGS_EDITOR_DIR + "/" + SETTINGS_FILE + ".asset";
+		public const string FILENAME = "UiSettings";
+		public const string RUNTIME_DIR = "";
+		public const string RUNTIME_PATH = FILENAME;
+		public const string EDITOR_DIR = "Assets/Resources" + RUNTIME_DIR;
+		public const string EDITOR_PATH = EDITOR_DIR + "/" + FILENAME + ".asset";
 
-		public static readonly string SETTINGS_HELP_FIRST_TIME =
+		public static readonly string HELP_FIRST_TIME =
 			  $"It appears that you are using the {StringConstants.TOOLKIT_NAME} for the first time\n"
-			+ $"The scriptable object '{SETTINGS_EDITOR_PATH}' has been created to store your {StringConstants.TOOLKIT_NAME} settings.\n"
+			+ $"The scriptable object '{EDITOR_PATH}' has been created to store your {StringConstants.TOOLKIT_NAME} settings.\n"
 			+ $"Please be sure to check it in to your code versioning system!\n\n"
 			+ $"You can always access this window from the menu: '{StringConstants.SETTINGS_MENU_NAME}'\n\n"
 			+ $"Please check the settings below to create the initial setup for {StringConstants.TOOLKIT_NAME}:"
 			;
 
-		public const string SETTINGS_HELP_SCENES =
+		public const string HELP_SCENES =
 			  "A shortcut to the Unity 'File/Build Settings/Scenes in Build' field\n"
 			+ "You can add scenes to the build, enable or disable them or remove from build.\n"
 			+ "However, the main purpose of this field is to be a convenient scene loader.\n"
@@ -34,21 +34,26 @@ namespace GuiToolkit
 			+ "By setting the checkmark together with the shift key, cou can load a scene exclusively."
 			;
 
-		public const string SETTINGS_HELP_LOAD_MAIN_SCENE_ON_PLAY =
+		public const string HELP_LOAD_MAIN_SCENE_ON_PLAY =
 			  "When enabled, the main scene is loaded when you press play in the editor, and all other scenes are unloaded.\n" 
 			+ "After play, the scenes, which were previously loaded, are restored."
 			;
 
-		public const string SETTINGS_HELP_ADDITIONAL_SCENES_PATH =
+		public const string HELP_ADDITIONAL_SCENES_PATH =
 			"Additional scene path for scenes, which are not in the scene references list";
 
-		[Tooltip(SETTINGS_HELP_SCENES)]
+		public static readonly string HELP_UI_MAIN =
+			  $"Each {StringConstants.TOOLKIT_NAME} needs a UiMain object, which coordinates all Ui tasks.\n"
+			+ "With this button you can create it in the active scene."
+			;
+
+		[Tooltip(HELP_SCENES)]
 		public SceneReference[] m_sceneReferences;
 
-		[Tooltip(SETTINGS_HELP_LOAD_MAIN_SCENE_ON_PLAY)]
+		[Tooltip(HELP_LOAD_MAIN_SCENE_ON_PLAY)]
 		public bool m_loadMainSceneOnPlay = false;
 
-		[Tooltip(SETTINGS_HELP_ADDITIONAL_SCENES_PATH)]
+		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
 		public string m_additionalScenesPath = "Scenes/";
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
@@ -61,10 +66,10 @@ namespace GuiToolkit
 			{
 				if (s_instance == null)
 				{
-					s_instance = Resources.Load<UiSettings>(SETTINGS_RUNTIME_PATH);
+					s_instance = Resources.Load<UiSettings>(RUNTIME_PATH);
 					if (s_instance == null)
 					{
-						Debug.LogError($"UiSettings could not be loaded from path '{SETTINGS_RUNTIME_PATH}'");
+						Debug.LogError($"UiSettings could not be loaded from path '{RUNTIME_PATH}'");
 						s_instance = CreateInstance<UiSettings>();
 					}
 				}
@@ -108,10 +113,9 @@ namespace GuiToolkit
 			}
 		}
 
-
 #if UNITY_EDITOR
 
-		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiSettings>(UiSettings.SETTINGS_EDITOR_PATH) != null;
+		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiSettings>(UiSettings.EDITOR_PATH) != null;
 
 		public static void Initialize()
 		{
@@ -135,8 +139,8 @@ namespace GuiToolkit
 
 		public static UiSettings EditorLoad()
 		{
-			EnsureFolderExists(SETTINGS_EDITOR_DIR);
-			UiSettings settings = AssetDatabase.LoadAssetAtPath<UiSettings>(UiSettings.SETTINGS_EDITOR_PATH);
+			EnsureFolderExists(EDITOR_DIR);
+			UiSettings settings = AssetDatabase.LoadAssetAtPath<UiSettings>(UiSettings.EDITOR_PATH);
 			if (settings == null)
 			{
 				settings = CreateInstance<UiSettings>();
@@ -148,7 +152,7 @@ namespace GuiToolkit
 		public static void EditorSave(UiSettings _settings)
 		{
 			if (!AssetDatabase.Contains(_settings))
-				AssetDatabase.CreateAsset(_settings, SETTINGS_EDITOR_PATH);
+				AssetDatabase.CreateAsset(_settings, EDITOR_PATH);
 			AssetDatabase.SaveAssets();
 		}
 
