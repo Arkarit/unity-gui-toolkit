@@ -26,7 +26,7 @@ namespace GuiToolkit
 
 			if (m_firstTimeInit)
 			{
-				EditorGUILayout.HelpBox(StringConstants.SETTINGS_HELP_FIRST_TIME, MessageType.Info);
+				EditorGUILayout.HelpBox(UiSettings.SETTINGS_HELP_FIRST_TIME, MessageType.Info);
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
 			}
 
@@ -47,7 +47,26 @@ namespace GuiToolkit
 			GUILayout.BeginVertical();
 			scrollPos = GUILayout.BeginScrollView(scrollPos);
 
-			m_serializedSettingsObject.DisplayProperties();
+			if (m_firstTimeInit)
+			{
+				EditorGUILayout.HelpBox(UiSettings.SETTINGS_HELP_SCENES, MessageType.Info);
+			}
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_sceneReferences"), true);
+
+			if (m_firstTimeInit)
+			{
+				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+				EditorGUILayout.HelpBox(UiSettings.SETTINGS_HELP_LOAD_MAIN_SCENE_ON_PLAY, MessageType.Info);
+			}
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_loadMainSceneOnPlay"), true);
+
+			if (m_firstTimeInit)
+			{
+				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+				EditorGUILayout.HelpBox(UiSettings.SETTINGS_HELP_ADDITIONAL_SCENES_PATH, MessageType.Info);
+			}
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_additionalScenesPath"), true);
+
 			m_serializedSettingsObject.ApplyModifiedProperties();
 
 			GUILayout.EndScrollView ();

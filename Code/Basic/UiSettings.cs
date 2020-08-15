@@ -18,22 +18,42 @@ namespace GuiToolkit
 		public const string SETTINGS_EDITOR_DIR = "Assets/Resources" + SETTINGS_RUNTIME_DIR;
 		public const string SETTINGS_EDITOR_PATH = SETTINGS_EDITOR_DIR + "/" + SETTINGS_FILE + ".asset";
 
-		[Tooltip("When enabled, the main scene (first scene in build list) is loaded, and all other scenes are unloaded. After play, the loaded scenes are restored.")]
+		public static readonly string SETTINGS_HELP_FIRST_TIME =
+			  $"It appears that you are using the {StringConstants.TOOLKIT_NAME} for the first time\n"
+			+ $"The scriptable object '{SETTINGS_EDITOR_PATH}' has been created to store your {StringConstants.TOOLKIT_NAME} settings.\n"
+			+ $"Please be sure to check it in to your code versioning system!\n\n"
+			+ $"You can always access this window from the menu: '{StringConstants.SETTINGS_MENU_NAME}'\n\n"
+			+ $"Please check the settings below to create the initial setup for {StringConstants.TOOLKIT_NAME}:"
+			;
+
+		public const string SETTINGS_HELP_SCENES =
+			  "A shortcut to the Unity 'File/Build Settings/Scenes in Build' field\n"
+			+ "You can add scenes to the build, enable or disable them or remove from build.\n"
+			+ "However, the main purpose of this field is to be a convenient scene loader.\n"
+			+ "By setting/clearing the checkmark on 'Loaded in Editor' you can very simply load/unload scenes in the editor additively.\n"
+			+ "By setting the checkmark together with the shift key, cou can load a scene exclusively."
+			;
+
+		public const string SETTINGS_HELP_LOAD_MAIN_SCENE_ON_PLAY =
+			  "When enabled, the main scene is loaded when you press play in the editor, and all other scenes are unloaded.\n" 
+			+ "After play, the scenes, which were previously loaded, are restored."
+			;
+
+		public const string SETTINGS_HELP_ADDITIONAL_SCENES_PATH =
+			"Additional scene path for scenes, which are not in the scene references list";
+
+		[Tooltip(SETTINGS_HELP_SCENES)]
+		public SceneReference[] m_sceneReferences;
+
+		[Tooltip(SETTINGS_HELP_LOAD_MAIN_SCENE_ON_PLAY)]
 		public bool m_loadMainSceneOnPlay = false;
 
-		[Tooltip("Additional scene path for scenes, which are not in the scene references list")]
+		[Tooltip(SETTINGS_HELP_ADDITIONAL_SCENES_PATH)]
 		public string m_additionalScenesPath = "Scenes/";
-
-		[Tooltip("Add all scenes here which should be in the build.")]
-		public SceneReference[] m_sceneReferences;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 
 		private static UiSettings s_instance;
-
-		public static void Initialize()
-		{
-		}
 
 		public static UiSettings Instance
 		{
@@ -92,6 +112,19 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 
 		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiSettings>(UiSettings.SETTINGS_EDITOR_PATH) != null;
+
+		public static void Initialize()
+		{
+			if (Initialized)
+				return;
+
+			UiSettings settings = CreateInstance<UiSettings>();
+
+			settings.m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
+			settings.m_loadMainSceneOnPlay = settings.m_sceneReferences.Length > 0;
+
+			EditorSave(settings);
+		}
 
 		public static string GetEditorScenePath(string _sceneName)
 		{

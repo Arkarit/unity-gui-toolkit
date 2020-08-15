@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -83,6 +84,40 @@ namespace GuiToolkit
 				return false;
 
 			return true;
+		}
+
+		static public BuildScene[] GetBuildScenes()
+		{
+			BuildScene[] result = new BuildScene[EditorBuildSettings.scenes.Length];
+
+			for (int i = 0; i < EditorBuildSettings.scenes.Length; ++i)
+			{
+				BuildScene entry = new BuildScene();
+				entry.buildIndex = i;
+				entry.assetGUID = EditorBuildSettings.scenes[i].guid;
+				entry.assetPath = AssetDatabase.GUIDToAssetPath(entry.assetGUID.ToString());
+				Scene scene = EditorSceneManager.GetSceneByPath(entry.assetPath);
+				entry.loadedInEditor = scene != null && scene.isLoaded;
+				entry.enabled = !Application.isPlaying && (!entry.loadedInEditor || EditorSceneManager.sceneCount > 1);
+				result[i] = entry;
+			}
+
+			return result;
+		}
+
+		static public SceneReference[] GetBuildSceneReferences()
+		{
+			BuildScene[] buildScenes = GetBuildScenes();
+			SceneReference[] result = new SceneReference[buildScenes.Length];
+
+			for (int i=0; i<buildScenes.Length; i++)
+			{
+				SceneReference entry = new SceneReference();
+				entry.ScenePath = buildScenes[i].assetPath;
+				result[i] = entry;
+			}
+
+			return result;
 		}
 
 		/// <summary>
