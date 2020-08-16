@@ -382,6 +382,27 @@ namespace GuiToolkit
 
 			return _this.gameObject.AddComponent<T>();
 		}
+
+	}
+
+	public static class ArrayHelper
+	{
+		public static void Append<T>(ref T[] _array, T[] _toAppend)
+		{
+			int len = _array.Length;
+
+			Array.Resize(ref _array, _array.Length + _toAppend.Length);
+
+			for (int i=len; i<_array.Length; i++)
+			{
+				_array[i] = _toAppend[i-len];
+			}
+		}
+
+		public static void Append<T>(ref T[] _array, T _toAppend)
+		{
+			Append<T>(ref _array, new T[] {_toAppend});
+		}
 	}
 
 	public static class EnumHelper
