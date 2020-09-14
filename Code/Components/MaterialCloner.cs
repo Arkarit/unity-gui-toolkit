@@ -47,7 +47,7 @@ namespace GuiToolkit
 		[SerializeField]
 		private int m_instanceId;
 
-		private readonly HashSet<MaterialCloner> s_instances = new HashSet<MaterialCloner>();
+		private static readonly HashSet<MaterialCloner> s_instances = new HashSet<MaterialCloner>();
 
 		/// Get cloned material
 		public Material ClonedMaterial
