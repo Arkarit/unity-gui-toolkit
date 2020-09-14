@@ -108,8 +108,8 @@ namespace GuiToolkit
 		{
 			m_meshFilter = this.GetOrCreateComponent<MeshFilter>();
 			m_meshRenderer = this.GetOrCreateComponent<MeshRenderer>();
-			m_rectTransform =this.GetOrCreateComponent<RectTransform>();
-			m_materialCloner =this.GetOrCreateComponent<MaterialCloner>();
+			m_rectTransform = this.GetOrCreateComponent<RectTransform>();
+			m_materialCloner = this.GetOrCreateComponent<MaterialCloner>();
 			m_materialPropertyBlock = new MaterialPropertyBlock();
 
 			m_originalBounds = RecalculateBounds();
