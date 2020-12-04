@@ -25,7 +25,7 @@ namespace GuiToolkit
 	/// Note that the scale of the RectTransform is unimpaired; the whole scaling and transforming is done in the shader.
 	/// 
 	/// The downside of this approach is obviously, that you need a special shader for this.
-	/// The provided UI_3D.mat provides this functionality; if you want to use it in your own shader it's quite simple to implement.
+	/// The provided UI3D.mat provides this functionality; if you want to use it in your own shader it's quite simple to implement.
 	/// See the provided Ui3D.shader for an example; examine USE_UI3D, _Offset and _Scale.
 
 	[RequireComponent(typeof(MeshRenderer))]
@@ -226,7 +226,7 @@ namespace GuiToolkit
 			{
 				error = true;
 				EditorGUILayout.HelpBox("Ui3DObject needs a material with _Offset and _Scale property (for scaling the mesh) support to work.\n" + 
-					"You can assign UI_3D.mat (which supports this feature) to the MaterialCloner on this game object.\n" + 
+					"You can assign UI3D.mat (which supports this feature) to the MaterialCloner on this game object.\n" + 
 					"Or, you can examine Ui3D.shader how it's done. ", MessageType.Warning);
 			}
 
