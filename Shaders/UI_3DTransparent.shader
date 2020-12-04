@@ -32,7 +32,7 @@
 		#pragma multi_compile __ USE_UI3D
 		#pragma multi_compile_instancing
 		
-		#include "Ui3D.cginc"
+		#include "UI_3D.cginc"
 
         ENDCG
     }
