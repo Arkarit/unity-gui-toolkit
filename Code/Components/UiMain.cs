@@ -40,18 +40,23 @@ namespace GuiToolkit
 		public Camera Camera { get; private set; }
 		public UiPool UiPool { get; private set; }
 
-		private static UiMain m_instance;
+		private static UiMain s_instance;
 		public static UiMain Instance
 		{
 			get
 			{
-				if (m_instance == null)
-					m_instance = UnityEngine.Object.FindObjectOfType<UiMain>();
-				return m_instance;
+				if (s_instance == null)
+					s_instance = UnityEngine.Object.FindObjectOfType<UiMain>();
+#if UNITY_EDITOR
+				if (s_instance == null)
+					Debug.LogError("Attempt to access UiMain.Instance, but game object containing the instance not found." +
+						" Please set up a game object with an attached UiMain component!");
+#endif
+				return s_instance;
 			}
 			private set
 			{
-				m_instance = value;
+				s_instance = value;
 			}
 		}
 
