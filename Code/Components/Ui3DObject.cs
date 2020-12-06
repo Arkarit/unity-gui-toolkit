@@ -57,6 +57,19 @@ namespace GuiToolkit
 		public static readonly int s_propOffset = Shader.PropertyToID("_Offset");
 		public static readonly int s_propScale = Shader.PropertyToID("_Scale");
 
+		public EZSize ZSizePolicy
+		{
+			get => m_zSize;
+			set
+			{
+				if (m_zSize == value)
+					return;
+
+				m_zSize = value;
+				SetDirty();
+			}
+		}
+
 		private MeshFilter m_meshFilter;
 		private MeshRenderer m_meshRenderer;
 		private RectTransform m_rectTransform;
@@ -119,8 +132,11 @@ namespace GuiToolkit
 		{
 			if (m_meshRenderer && m_materialCloner.ClonedMaterial.enableInstancing)
 			{
+				m_meshRenderer.GetPropertyBlock(m_materialPropertyBlock);
+
 				m_materialPropertyBlock.SetVector(s_propScale, scale);
 				m_materialPropertyBlock.SetVector(s_propOffset, offset);
+
 				m_meshRenderer.SetPropertyBlock(m_materialPropertyBlock);
 				return;
 			}
