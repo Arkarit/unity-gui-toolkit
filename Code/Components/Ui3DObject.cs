@@ -235,6 +235,9 @@ namespace GuiToolkit
 			if (materialCloner == null)
 				return;
 
+			if (UiEditorUtility.InfoBoxIfPrefab(go))
+				return;
+
 			bool error = false;
 			Material material = materialCloner.ClonedMaterial;
 

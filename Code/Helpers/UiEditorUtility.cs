@@ -378,6 +378,14 @@ namespace GuiToolkit
 			return _go.scene.name == null;
 		}
 
+		public static bool InfoBoxIfPrefab( GameObject _go )
+		{
+			if (!IsPrefab(_go))
+				return false;
+			EditorGUILayout.HelpBox("Please enter Prefab mode to edit", MessageType.Info);
+			return true;
+		}
+
 		public static bool IsSceneObject( GameObject _go )
 		{
 			if (_go == null)

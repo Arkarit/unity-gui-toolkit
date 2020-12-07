@@ -174,6 +174,12 @@ namespace GuiToolkit
 
 		private void InitIfNecessary()
 		{
+#if UNITY_EDITOR
+			// never init if we're a prefab
+			if (UiEditorUtility.IsPrefab(gameObject))
+				return;
+#endif
+
 			if (m_clonedMaterial == null)
 			{
 				Init();
@@ -322,6 +328,19 @@ namespace GuiToolkit
 		public override void OnInspectorGUI()
 		{
 			MaterialCloner thisMaterialCloner = (MaterialCloner)target;
+			if (UiEditorUtility.InfoBoxIfPrefab(thisMaterialCloner.gameObject))
+			{
+				Renderer renderer = thisMaterialCloner.GetComponent<Renderer>();
+				if ( renderer != null && renderer.sharedMaterial == null && thisMaterialCloner.OriginalMaterial != null )
+					renderer.sharedMaterial = thisMaterialCloner.OriginalMaterial;
+
+				Graphic graphic = thisMaterialCloner.GetComponent<Graphic>();
+				if ( graphic != null && graphic.material == null && thisMaterialCloner.OriginalMaterial != null )
+					graphic.material = thisMaterialCloner.OriginalMaterial;
+
+				return;
+			}
+
 			bool previousSharedMaterial = m_isSharedMaterialProp.boolValue;
 			string previousMaterialCacheKey = m_materialInstanceKeyProp.stringValue;
 
