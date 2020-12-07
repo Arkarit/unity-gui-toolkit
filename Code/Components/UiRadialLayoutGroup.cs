@@ -9,6 +9,27 @@ namespace GuiToolkit
 {
 	public class UiRadialLayoutGroup : LayoutGroup
 	{
+		public enum Mode
+		{
+			FixedOverallAngle,
+			FixedElementAngle,
+		}
+
+		[SerializeField]
+		private Mode m_mode;
+
+		[SerializeField]
+		[Range(-360f, 360f)]
+		private float m_angle0;
+
+		[SerializeField]
+		[Range(-360f, 360f)]
+		private float m_angle1;
+
+		[SerializeField]
+		[Range(-360f, 360f)]
+		private float m_angleOffset;
+
 		[SerializeField]
 		private float m_radius;
 
@@ -20,23 +41,15 @@ namespace GuiToolkit
 
 		[SerializeField]
 		[Range(-360f, 360f)]
-		private float m_rotationAngleOffset;
-
-		[SerializeField]
-		[Range(0f, 360f)]
-		private float m_minAngle;
-
-		[SerializeField]
-		[Range(0f, 360f)]
-		private float m_maxAngle;
-
-		[SerializeField]
-		[Range(0f, 360f)]
-		private float m_startAngle;
+		private float m_elementAngleOffset;
 
 		[SerializeField]
 		[HideInInspector]
 		private bool m_useZIncrement;
+
+		[SerializeField]
+		[HideInInspector]
+		private bool m_childRotationChanged;
 
 		protected override void OnEnable()
 		{
@@ -69,13 +82,29 @@ namespace GuiToolkit
 		private void CalculateRadial()
 		{
 			m_Tracker.Clear();
-			if (transform.childCount == 0)
-				return;
-
-			float offsetAngle = ((m_maxAngle - m_minAngle)) / (transform.childCount - 1);
-			float angle = m_startAngle;
 
 			int childCount = transform.childCount;
+			if (childCount == 0)
+				return;
+
+			float topAngleOffset, angleIncrement;
+			switch(m_mode)
+			{
+				case Mode.FixedOverallAngle:
+					topAngleOffset = -m_angle0 - 90;
+					angleIncrement = ((m_angle1 - m_angle0)) / (childCount - 1);
+					break;
+
+				default:
+				case Mode.FixedElementAngle:
+					topAngleOffset = m_angle0 * (childCount - 1) * 0.5f - 90.0f;
+					angleIncrement = m_angle0;
+					break;
+			}
+			float angle = m_angleOffset - topAngleOffset;
+
+
+
 			float z = 0;
 			if (m_useZIncrement && childCount > 1)
 			{
@@ -99,11 +128,17 @@ namespace GuiToolkit
 
 					if (m_rotateElements)
 					{
-						child.localRotation = Quaternion.AngleAxis(angle + m_rotationAngleOffset, Vector3.forward);
+						child.localRotation = Quaternion.AngleAxis(angle + m_elementAngleOffset, Vector3.forward);
 					}
-					angle += offsetAngle;
+					else if (m_childRotationChanged)
+					{
+						child.localRotation = Quaternion.identity;
+					}
+					angle += angleIncrement;
 				}
 			}
+
+			m_childRotationChanged = false;
 		}
 
 		private DrivenTransformProperties GetDrivenTransformProperties()
@@ -127,29 +162,57 @@ namespace GuiToolkit
 	[CustomEditor(typeof(UiRadialLayoutGroup))]
 	public class UiRadialLayoutGroupEditor : Editor
 	{
+		protected SerializedProperty m_modeProp;
+		protected SerializedProperty m_angle0Prop;
+		protected SerializedProperty m_angle1Prop;
+		protected SerializedProperty m_angleOffsetProp;
 		protected SerializedProperty m_radiusProp;
 		protected SerializedProperty m_zIncrementProp;
 		protected SerializedProperty m_rotateElementsProp;
-		protected SerializedProperty m_rotationAngleOffsetProp;
+		protected SerializedProperty m_elementAngleOffsetProp;
+		protected SerializedProperty m_childRotationChangedProp;
 
 		static private bool m_toolsVisible;
 
 		public virtual void OnEnable()
 		{
+			m_modeProp = serializedObject.FindProperty("m_mode");
+			m_angle0Prop = serializedObject.FindProperty("m_angle0");
+			m_angle1Prop = serializedObject.FindProperty("m_angle1");
+			m_angleOffsetProp = serializedObject.FindProperty("m_angleOffset");
 			m_radiusProp = serializedObject.FindProperty("m_radius");
 			m_zIncrementProp = serializedObject.FindProperty("m_zIncrement");
 			m_rotateElementsProp = serializedObject.FindProperty("m_rotateElements");
-			m_rotationAngleOffsetProp = serializedObject.FindProperty("m_rotationAngleOffset");
+			m_elementAngleOffsetProp = serializedObject.FindProperty("m_elementAngleOffset");
+			m_childRotationChangedProp = serializedObject.FindProperty("m_childRotationChanged");
 		}
 
 		public override void OnInspectorGUI()
 		{
 			UiRadialLayoutGroup thisUiRadialLayoutGroup = (UiRadialLayoutGroup)target;
 
+			EditorGUILayout.PropertyField(m_modeProp);
+			UiRadialLayoutGroup.Mode mode = (UiRadialLayoutGroup.Mode) m_modeProp.intValue;
+			switch( mode )
+			{
+				case UiRadialLayoutGroup.Mode.FixedOverallAngle:
+					EditorGUILayout.PropertyField(m_angle0Prop, new GUIContent("Angle left"));
+					EditorGUILayout.PropertyField(m_angle1Prop, new GUIContent("Angle right"));
+					break;
+				case UiRadialLayoutGroup.Mode.FixedElementAngle:
+					EditorGUILayout.PropertyField(m_angle0Prop, new GUIContent("Angle between elements"));
+					break;
+			}
+
+			EditorGUILayout.PropertyField(m_angleOffsetProp);
 			EditorGUILayout.PropertyField(m_radiusProp);
 			EditorGUILayout.PropertyField(m_zIncrementProp);
+			bool rotateElementsBefore = m_rotateElementsProp.boolValue;
 			EditorGUILayout.PropertyField(m_rotateElementsProp);
-			EditorGUILayout.PropertyField(m_rotationAngleOffsetProp);
+			bool rotateElementsAfter = m_rotateElementsProp.boolValue;
+			m_childRotationChangedProp.boolValue = rotateElementsBefore != rotateElementsAfter;
+
+			EditorGUILayout.PropertyField(m_elementAngleOffsetProp);
 
 			serializedObject.ApplyModifiedProperties();
 		}
