@@ -382,7 +382,7 @@ namespace GuiToolkit
 		{
 			if (!IsPrefab(_go))
 				return false;
-			EditorGUILayout.HelpBox("Please enter Prefab mode to edit", MessageType.Info);
+			EditorGUILayout.HelpBox("Please open Prefab Asset to edit", MessageType.Info);
 			return true;
 		}
 
