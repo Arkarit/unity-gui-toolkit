@@ -158,10 +158,7 @@ namespace GuiToolkit
 
 		private DrivenTransformProperties GetDrivenTransformProperties()
 		{
-			DrivenTransformProperties result =
-				  DrivenTransformProperties.Anchors
-				| DrivenTransformProperties.AnchoredPosition
-				| DrivenTransformProperties.Pivot;
+			DrivenTransformProperties result = DrivenTransformProperties.AnchoredPosition;
 
 			if (m_useZIncrement)
 				result |= DrivenTransformProperties.AnchoredPositionZ;
