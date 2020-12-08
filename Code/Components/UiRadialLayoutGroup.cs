@@ -79,11 +79,25 @@ namespace GuiToolkit
 		}
 #endif
 
+		private int ChildCount
+		{
+			get
+			{
+				int result = 0;
+				foreach (Transform child in transform)
+				{
+					if (child.gameObject.activeSelf)
+						result++;
+				}
+				return result;
+			}
+		}
+
 		private void CalculateRadial()
 		{
 			m_Tracker.Clear();
 
-			int childCount = transform.childCount;
+			int childCount = ChildCount;
 			if (childCount == 0)
 				return;
 
@@ -103,8 +117,6 @@ namespace GuiToolkit
 			}
 			float angle = m_angleOffset - topAngleOffset;
 
-
-
 			float z = 0;
 			if (m_useZIncrement && childCount > 1)
 			{
@@ -114,6 +126,9 @@ namespace GuiToolkit
 			for (int i = 0; i < transform.childCount; i++)
 			{
 				RectTransform child = (RectTransform)transform.GetChild(i);
+				if (!child.gameObject.activeSelf)
+					continue;
+
 				if (child != null)
 				{
 					m_Tracker.Add( this, child, GetDrivenTransformProperties() );

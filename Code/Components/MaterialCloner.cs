@@ -300,6 +300,8 @@ namespace GuiToolkit
 			}
 		}
 
+		/// Note: This is quite inefficient. A dictionary to track cloned materials by int key made out of original material and explicit key would be better.
+		/// This is however quite some change, so I leave it as it is, until it becomes a real issue (hundreds of material cloners)
 		/// Only public because C# programmers don't have friends - MaterialClonerEditor needs access
 		public Material FindClonedMaterialInOtherInstances(IEnumerable<MaterialCloner> _instances, string _key = null)
 		{
