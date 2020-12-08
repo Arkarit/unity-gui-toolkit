@@ -28,6 +28,8 @@ namespace GuiToolkit
 
 		private bool m_eventListenersAdded = false;
 
+		public RectTransform RectTransform => transform as RectTransform;
+
 		/// \brief Install Event handlers on disabled objects
 		/// 
 		/// Unity unfortunately has NO reliable "OnCreate" callback:<BR>
