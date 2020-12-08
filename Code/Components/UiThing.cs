@@ -15,6 +15,8 @@ namespace GuiToolkit
 
 	public class UiThing : MonoBehaviour, IEventSystemHandler
 	{
+		private static int s_layer = -1;
+
 		/// Override and return false here if you don't want to receive events when currently not active.
 		protected virtual bool ReceiveEventsWhenDisabled => true;
 
@@ -48,8 +50,14 @@ namespace GuiToolkit
 		}
 
 		/// Installs event listeners, if ReceiveEventsWhenDisabled
+		/// Also ensure that the game object is always in UI layer
 		protected virtual void Awake()
 		{
+			if (s_layer == -1)
+				s_layer = LayerMask.NameToLayer("UI");
+
+			gameObject.layer = s_layer;
+
 			if (ReceiveEventsWhenDisabled && !m_eventListenersAdded)
 			{
 				AddEventListeners();
