@@ -109,6 +109,15 @@ namespace GuiToolkit
 			s_instances.Add(this);
 		}
 
+#if UNITY_EDITOR
+		/// Workaround against Unity forgetting the static hash set on every recompile
+		private void Update()
+		{
+			if (!s_instances.Contains(this))
+				s_instances.Add(this);
+		}
+#endif
+
 		private void OnEnable()
 		{
 			InitIfNecessary();
@@ -150,7 +159,7 @@ namespace GuiToolkit
 				m_originalMaterial = GetMaterial();
 			}
 
-			// This happens on Undo. Workaround.
+			// Material in renderer/graphic was forgotten. This happens on Undo. Workaround.
 			if (GetMaterial() == null)
 			{
 				if (m_clonedMaterial != null)
@@ -159,8 +168,10 @@ namespace GuiToolkit
 					SetMaterial(m_originalMaterial);
 			}
 
+			// We already have a cloned material.
 			if (m_clonedMaterial != null)
 			{
+				// Duplicate material on game object clone for non-shared materials.
 				if (gameObjectWasCloned && !m_isSharedMaterial)
 					m_clonedMaterial = Instantiate(m_clonedMaterial);
 
@@ -168,7 +179,14 @@ namespace GuiToolkit
 				return;
 			}
 
-			m_clonedMaterial = Instantiate(m_originalMaterial);
+			// First, try to find already existing shared material
+			if (m_isSharedMaterial)
+				m_clonedMaterial = FindClonedMaterialInOtherInstances(s_instances, m_materialInstanceKey);
+
+			// If not found, create a new one.
+			if (m_clonedMaterial == null)
+				m_clonedMaterial = Instantiate(m_originalMaterial);
+
 			SetMaterial(m_clonedMaterial);
 		}
 
