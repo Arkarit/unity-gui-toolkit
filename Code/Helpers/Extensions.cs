@@ -383,6 +383,15 @@ namespace GuiToolkit
 			return _this.gameObject.AddComponent<T>();
 		}
 
+		public static T GetOrCreateComponent<T>(this GameObject _this) where T : Component
+		{
+			T result = _this.GetComponent<T>();
+
+			if (result)
+				return result;
+
+			return _this.AddComponent<T>();
+		}
 	}
 
 	public static class ArrayHelper
