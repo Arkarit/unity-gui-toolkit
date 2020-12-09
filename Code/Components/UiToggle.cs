@@ -18,7 +18,7 @@ namespace GuiToolkit
 			get
 			{
 				InitIfNecessary();
-				return Toggle;
+				return m_toggle;
 			}
 		}
 
