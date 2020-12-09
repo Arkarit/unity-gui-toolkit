@@ -21,6 +21,8 @@ namespace GuiToolkit
 		[SerializeField]
 		private int m_lastSiblingIndex = -1;
 
+		private UiModal m_uiModal;
+		private bool m_uiModalChecked;
 		private Canvas m_canvas;
 		
 		public Canvas Canvas {
@@ -33,6 +35,25 @@ namespace GuiToolkit
 		}
 
 		public EUiLayerDefinition Layer => m_layer;
+
+		protected UiModal UiModal
+		{
+			get
+			{
+				if (!m_uiModalChecked)
+				{
+					m_uiModalChecked = true;
+					m_uiModal = GetComponent<UiModal>();
+				}
+				return m_uiModal;
+			}
+		}
+
+		protected Action OnClickCatcher
+		{
+			get => UiModal == null ? null : UiModal.OnClickCatcher;
+			set { if (UiModal == null) return; UiModal.OnClickCatcher = value; }
+		}
 
 		public void InitView(RenderMode _renderMode, Camera _camera, float _planeDistance, int _orderInLayer)
 		{

@@ -43,8 +43,6 @@ namespace GuiToolkit
 		private readonly List<UiButton> m_buttons = new List<UiButton>();
 		private readonly List<UnityEngine.Events.UnityAction> m_listeners = new List<UnityEngine.Events.UnityAction>();
 
-		private UiModal m_uiModal;
-
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
 
@@ -67,22 +65,6 @@ namespace GuiToolkit
 		{
 			base.OnPooled();
 			Clear();
-		}
-
-		protected UiModal UiModal
-		{
-			get
-			{
-				if (m_uiModal == null)
-					m_uiModal = GetComponent<UiModal>();
-				return m_uiModal;
-			}
-		}
-
-		protected Action OnClickCatcher
-		{
-			get => UiModal == null ? null : UiModal.OnClickCatcher;
-			set { if (UiModal == null) return; UiModal.OnClickCatcher = value; }
 		}
 
 		protected virtual void Clear()
