@@ -10,18 +10,20 @@ namespace GuiToolkit
 	// Can be used for an overlay or full screen dialog.
 	public class UiModal : MonoBehaviour
 	{
-		public Button m_clickCatcher;
+		[SerializeField]
+		private Button m_clickCatcher;
+
 		public Action OnClickCatcher;
 
 		protected void OnEnable()
 		{
-			if (m_clickCatcher != null && OnClickCatcher != null)
+			if (m_clickCatcher != null)
 				m_clickCatcher.onClick.AddListener(ClickCatcherClicked);
 		}
 
 		protected void OnDisable()
 		{
-			if (m_clickCatcher != null && OnClickCatcher != null)
+			if (m_clickCatcher != null)
 				m_clickCatcher.onClick.RemoveListener(ClickCatcherClicked);
 		}
 

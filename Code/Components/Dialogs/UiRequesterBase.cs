@@ -8,7 +8,6 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	[RequireComponent(typeof(UiModal))]
 	public abstract class UiRequesterBase : UiView
 	{
 		public class ButtonInfo
@@ -76,15 +75,14 @@ namespace GuiToolkit
 			{
 				if (m_uiModal == null)
 					m_uiModal = GetComponent<UiModal>();
-				Debug.Assert(m_uiModal != null, "Required component UiModal missing");
 				return m_uiModal;
 			}
 		}
 
 		protected Action OnClickCatcher
 		{
-			get => UiModal.OnClickCatcher;
-			set => UiModal.OnClickCatcher = value;
+			get => UiModal == null ? null : UiModal.OnClickCatcher;
+			set { if (UiModal == null) return; UiModal.OnClickCatcher = value; }
 		}
 
 		protected virtual void Clear()
