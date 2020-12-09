@@ -71,7 +71,7 @@ namespace GuiToolkit
 
 		public void ShowTopmost( bool _instant = false, Action _onFinish = null )
 		{
-			base.Show(_instant, _onFinish);
+			Show(_instant, _onFinish);
 			UiMain.Instance.SetAsLastSiblingOfLayer(this);
 		}
 
