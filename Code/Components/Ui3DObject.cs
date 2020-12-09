@@ -54,6 +54,9 @@ namespace GuiToolkit
 		[SerializeField]
 		private EZSize m_zSize;
 
+		[SerializeField]
+		private float m_zSizeFactor = 1;
+
 		public static readonly int s_propOffset = Shader.PropertyToID("_Offset");
 		public static readonly int s_propScale = Shader.PropertyToID("_Scale");
 
@@ -66,6 +69,19 @@ namespace GuiToolkit
 					return;
 
 				m_zSize = value;
+				SetDirty();
+			}
+		}
+
+		public float ZSizeFactor
+		{
+			get => m_zSizeFactor;
+			set
+			{
+				if (m_zSizeFactor == value)
+					return;
+
+				m_zSizeFactor = value;
 				SetDirty();
 			}
 		}
@@ -183,6 +199,9 @@ namespace GuiToolkit
 					Debug.Assert(false);
 					break;
 			}
+
+			scale.z *= m_zSizeFactor;
+
 			Vector3 offset = -m_originalBounds.min;
 			offset.Scale( scale );
 			offset.x += rect.min.x;
@@ -220,10 +239,12 @@ namespace GuiToolkit
 	public class Ui3DObjectEditor : Editor
 	{
 		protected SerializedProperty m_zSizeProp;
+		protected SerializedProperty m_zSizeFactorProp;
 
 		public virtual void OnEnable()
 		{
 			m_zSizeProp = serializedObject.FindProperty("m_zSize");
+			m_zSizeFactorProp = serializedObject.FindProperty("m_zSizeFactor");
 		}
 
 		public override void OnInspectorGUI()
@@ -262,14 +283,16 @@ namespace GuiToolkit
 			if (error)
 				return;
 
-			int previousZSizeProp = m_zSizeProp.intValue;
+			EditorGUI.BeginChangeCheck();
+
 			EditorGUILayout.PropertyField(m_zSizeProp);
-			if (previousZSizeProp != m_zSizeProp.intValue)
+			EditorGUILayout.PropertyField(m_zSizeFactorProp);
+
+			if (EditorGUI.EndChangeCheck())
+			{
 				thisUi3DObject.SetDirty();
-
-			serializedObject.ApplyModifiedProperties();
-
-			
+				serializedObject.ApplyModifiedProperties();
+			}
 		}
 	}
 #endif
