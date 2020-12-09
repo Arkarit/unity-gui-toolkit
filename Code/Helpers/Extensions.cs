@@ -394,6 +394,25 @@ namespace GuiToolkit
 		}
 	}
 
+	public static class GameObjectHelper
+	{
+		// Caution! Guaranteed to be extremely slow when include inactive.
+		// Use only if unavoidable and use only once and cache!
+		public static GameObject Find(string _name, bool _includeInactive = false)
+		{
+			GameObject go = GameObject.Find(_name);
+			if (go != null || !_includeInactive)
+				return go;
+
+			var transforms = Resources.FindObjectsOfTypeAll<Transform>();
+			foreach (var t in transforms)
+				if (t.gameObject.name == _name)
+					return t.gameObject;
+
+			return null;
+		}
+	}
+
 	public static class ArrayHelper
 	{
 		public static void Append<T>(ref T[] _array, T[] _toAppend)
