@@ -6,31 +6,29 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-
-	public class UiViewModal : UiView
+	// A modal component
+	// Can be used for an overlay or full screen dialog.
+	public class UiModal : MonoBehaviour
 	{
 		public Button m_clickCatcher;
+		public Action OnClickCatcher;
 
-		protected Action OnClickCatcher;
-
-		protected override void OnEnable()
+		protected void OnEnable()
 		{
-			base.OnEnable();
-			if (m_clickCatcher != null)
+			if (m_clickCatcher != null && OnClickCatcher != null)
 				m_clickCatcher.onClick.AddListener(ClickCatcherClicked);
 		}
 
-		protected override void OnDisable()
+		protected void OnDisable()
 		{
-			base.OnDisable();
-			if (m_clickCatcher != null)
+			if (m_clickCatcher != null && OnClickCatcher != null)
 				m_clickCatcher.onClick.RemoveListener(ClickCatcherClicked);
 		}
 
 		private void ClickCatcherClicked()
 		{
 			if (OnClickCatcher != null)
-				OnClickCatcher.Invoke();
+				OnClickCatcher?.Invoke();
 		}
 	}
 }

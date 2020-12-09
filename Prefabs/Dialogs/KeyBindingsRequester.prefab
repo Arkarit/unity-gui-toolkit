@@ -106,6 +106,7 @@ GameObject:
   - component: {fileID: 2126843345544139563}
   - component: {fileID: 2126843345544139564}
   - component: {fileID: 2126843345544139565}
+  - component: {fileID: 4736090010766053974}
   - component: {fileID: 3201244151496174236}
   - component: {fileID: 2126843345544139562}
   m_Layer: 5
@@ -196,6 +197,19 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &4736090010766053974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126843345544139552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3504727b20b16c34bbb3af8b931d46b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_clickCatcher: {fileID: 2126843345760536211}
 --- !u!114 &3201244151496174236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211,7 +225,6 @@ MonoBehaviour:
   m_defaultSceneVisibility: 2
   m_layer: 600
   m_lastSiblingIndex: -1
-  m_clickCatcher: {fileID: 2126843345760536211}
   m_title: {fileID: 2126843346133770540}
   m_closeButton: {fileID: 6780300717453316315}
   m_buttonContainer: {fileID: 2126843346294841186}
@@ -252,6 +265,7 @@ MonoBehaviour:
   m_supportViewAnimations: 1
   m_support: 69632
   m_target: {fileID: 2126843346901311898}
+  m_markTargetForLayoutRebuild: 0
   m_canvasScaler: {fileID: 2126843345544139564}
   m_canvasRectTransform: {fileID: 2126843345544139567}
   m_scaleByCanvasScaler: 1
@@ -493,6 +507,7 @@ MonoBehaviour:
   m_supportViewAnimations: 0
   m_support: 65536
   m_target: {fileID: 2126843345760536214}
+  m_markTargetForLayoutRebuild: 0
   m_canvasScaler: {fileID: 2126843345544139564}
   m_canvasRectTransform: {fileID: 2126843345544139567}
   m_scaleByCanvasScaler: 1
@@ -709,7 +724,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03c43b2037f47a447b0bc1b7b4016dc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_direction: 1
+  m_axisFlags: 1
   m_inverse: 0
 --- !u!114 &2126843346294841184
 MonoBehaviour:
@@ -835,6 +850,7 @@ MonoBehaviour:
   m_supportViewAnimations: 0
   m_support: 4096
   m_target: {fileID: 2126843346874919863}
+  m_markTargetForLayoutRebuild: 0
   m_canvasScaler: {fileID: 2126843345544139564}
   m_canvasRectTransform: {fileID: 2126843345544139567}
   m_scaleByCanvasScaler: 1

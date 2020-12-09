@@ -8,7 +8,8 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public abstract class UiRequesterBase : UiViewModal
+	[RequireComponent(typeof(UiModal))]
+	public abstract class UiRequesterBase : UiView
 	{
 		public class ButtonInfo
 		{
@@ -37,12 +38,13 @@ namespace GuiToolkit
 
 		public bool m_cancelButtonsLeftSide = false;
 
-
 		private bool m_allowOutsideTap;
 		private int m_closeButtonIdx = Constants.INVALID;
 
 		private readonly List<UiButton> m_buttons = new List<UiButton>();
 		private readonly List<UnityEngine.Events.UnityAction> m_listeners = new List<UnityEngine.Events.UnityAction>();
+
+		private UiModal m_uiModal;
 
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
@@ -66,6 +68,23 @@ namespace GuiToolkit
 		{
 			base.OnPooled();
 			Clear();
+		}
+
+		protected UiModal UiModal
+		{
+			get
+			{
+				if (m_uiModal == null)
+					m_uiModal = GetComponent<UiModal>();
+				Debug.Assert(m_uiModal != null, "Required component UiModal missing");
+				return m_uiModal;
+			}
+		}
+
+		protected Action OnClickCatcher
+		{
+			get => UiModal.OnClickCatcher;
+			set => UiModal.OnClickCatcher = value;
 		}
 
 		protected virtual void Clear()

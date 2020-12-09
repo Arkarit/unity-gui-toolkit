@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 namespace GuiToolkit
 {
-	public class UiKeyPressRequester : UiViewModal
+	public class UiKeyPressRequester : UiView
 	{
 		[SerializeField]
 		private TMP_Text m_title;
