@@ -12,6 +12,10 @@ namespace GuiToolkit
 		public UiPanel Page;
 	}
 
+	/// <summary>
+	/// A dialog with tabs.
+	/// Note: Regarding animation, currently only vertical tabs is supported.
+	/// </summary>
 	public class UiTabDialog : UiView
 	{
 		public UiButton m_closeButton;
