@@ -37,6 +37,17 @@ namespace GuiToolkit
 
 		public bool Visible { get; private set; }
 
+		public UiSimpleAnimationBase SimpleShowHideAnimation
+		{
+			get
+			{
+				InitAnimationIfNecessary();
+				if (m_showHideAnimation is UiSimpleAnimation)
+					return (UiSimpleAnimation) m_showHideAnimation;
+				return null;
+			}
+		}
+
 		protected override void Awake()
 		{
 			base.Awake();
@@ -92,17 +103,6 @@ namespace GuiToolkit
 		public static void InvokeHideInstant<T>()
 		{
 			EvHideInstant.Invoke(typeof(T));
-		}
-
-		protected UiSimpleAnimationBase SimpleShowHideAnimation
-		{
-			get
-			{
-				InitAnimationIfNecessary();
-				if (m_showHideAnimation is UiSimpleAnimation)
-					return (UiSimpleAnimation) m_showHideAnimation;
-				return null;
-			}
 		}
 
 		// Have to make this public because c# programmers don't have friends. Shitty language. 

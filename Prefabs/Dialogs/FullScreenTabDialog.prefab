@@ -1153,8 +1153,8 @@ MonoBehaviour:
   m_layer: 600
   m_lastSiblingIndex: -1
   m_closeButton: {fileID: 6957560595721433611}
-  m_tabs: []
-  m_pages: []
+  m_pageContentContainer: {fileID: 5968183750671245532}
+  m_tabInfos: []
 --- !u!114 &2527186978879140337
 MonoBehaviour:
   m_ObjectHideFlags: 0

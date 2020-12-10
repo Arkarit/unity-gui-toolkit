@@ -7,6 +7,10 @@ namespace GuiToolkit
 	[RequireComponent(typeof(RectTransform))]
 	public class UiSimpleAnimation : UiSimpleAnimationBase, IShowHideViewAnimation
 	{
+		// Its so UTTERLY IDIOTIC that C# hasn't got a usable preprocessor.
+		// This class would be the classic use case for a member definition macro.
+
+		#region General Members
 		[Flags]
 		public enum ESupport
 		{
@@ -37,8 +41,57 @@ namespace GuiToolkit
 		[SerializeField]
 		protected bool m_scaleByCanvasScaler = true;
 
-		// position
+		public ESupport Support
+		{
+			get => m_support;
+			set { Stop(); m_support = value; }
+		}
 
+		public RectTransform Target
+		{
+			get => m_target;
+			set { Stop(); m_target = value; }
+		}
+
+		public bool MarkTargetForLayoutRebuild
+		{
+			get => m_markTargetForLayoutRebuild;
+			set { Stop(); m_markTargetForLayoutRebuild = value; }
+		}
+
+		public CanvasScaler CanvasScaler
+		{
+			get
+			{
+				if (m_canvasScaler == null)
+					m_canvasScaler = GetComponentInParent<CanvasScaler>();
+				return m_canvasScaler;
+			}
+
+			set { Stop(); m_canvasScaler = value; }
+		}
+
+		public RectTransform CanvasRectTransform
+		{
+			get
+			{
+				if (m_canvasScaler == null)
+					m_canvasScaler = GetComponentInParent<CanvasScaler>();
+				if (m_canvasRectTransform == null)
+					m_canvasRectTransform = (RectTransform) m_canvasScaler.transform;
+				return m_canvasRectTransform;
+			}
+			set { Stop(); m_canvasRectTransform = value; }
+		}
+
+		public bool ScaleByCanvasScaler
+		{
+			get => m_scaleByCanvasScaler;
+			set { Stop(); m_scaleByCanvasScaler = value; }
+		}
+		#endregion
+
+		#region Position
 		[SerializeField]
 		protected float m_posXStart;
 		[SerializeField]
@@ -53,8 +106,44 @@ namespace GuiToolkit
 		[SerializeField]
 		protected AnimationCurve m_posYCurve;
 
-		// rotation
+		public float PosXStart
+		{
+			get => m_posXStart;
+			set { Stop(); m_posXStart = value; }
+		}
 
+		public float PosXEnd
+		{
+			get => m_posXEnd;
+			set { Stop(); m_posXEnd = value; }
+		}
+
+		public AnimationCurve PosXCurve
+		{
+			get => m_posXCurve;
+			set { Stop(); m_posXCurve = value; }
+		}
+
+		public float PosYStart
+		{
+			get => m_posYStart;
+			set { Stop(); m_posYStart = value; }
+		}
+
+		public float PosYEnd
+		{
+			get => m_posYEnd;
+			set { Stop(); m_posYEnd = value; }
+		}
+
+		public AnimationCurve PosYCurve
+		{
+			get => m_posYCurve;
+			set { Stop(); m_posYCurve = value; }
+		}
+		#endregion
+
+		#region Rotation
 		[SerializeField]
 		protected float m_rotZStart;
 		[SerializeField]
@@ -62,7 +151,26 @@ namespace GuiToolkit
 		[SerializeField]
 		protected AnimationCurve m_rotZCurve;
 
-		// scale
+		public float RotZStart
+		{
+			get => m_rotZStart;
+			set { Stop(); m_rotZStart = value; }
+		}
+
+		public float RotZEnd
+		{
+			get => m_rotZEnd;
+			set { Stop(); m_rotZEnd = value; }
+		}
+
+		public AnimationCurve RotZCurve
+		{
+			get => m_rotZCurve;
+			set { Stop(); m_rotZCurve = value; }
+		}
+		#endregion
+
+		#region Scale
 
 		[SerializeField]
 		protected float m_scaleXStart;
@@ -81,8 +189,50 @@ namespace GuiToolkit
 		[SerializeField]
 		protected bool m_scaleLocked;
 
-		// alpha
+		public float ScaleXStart
+		{
+			get => m_scaleXStart;
+			set { Stop(); m_scaleXStart = value; }
+		}
 
+		public float ScaleXEnd
+		{
+			get => m_scaleXEnd;
+			set { Stop(); m_scaleXEnd = value; }
+		}
+
+		public AnimationCurve ScaleXCurve
+		{
+			get => m_scaleXCurve;
+			set { Stop(); m_scaleXCurve = value; }
+		}
+
+		public float ScaleYStart
+		{
+			get => m_scaleYStart;
+			set { Stop(); m_scaleYStart = value; }
+		}
+
+		public float ScaleYEnd
+		{
+			get => m_scaleYEnd;
+			set { Stop(); m_scaleYEnd = value; }
+		}
+
+		public AnimationCurve ScaleYCurve
+		{
+			get => m_scaleYCurve;
+			set { Stop(); m_scaleYCurve = value; }
+		}
+
+		public bool ScaleLocked
+		{
+			get => m_scaleLocked;
+			set { Stop(); m_scaleLocked = value; }
+		}
+		#endregion
+
+		#region Alpha
 		[SerializeField]
 		protected AnimationCurve m_alphaCurve;
 		[SerializeField]
@@ -90,40 +240,30 @@ namespace GuiToolkit
 		[SerializeField]
 		protected CanvasGroup m_alphaCanvasGroup;
 
-		// sound
-
-		// animator
-
-		// particles
-
-		public ESupport Support { get {return m_support;}}
-
-		protected CanvasScaler CanvasScaler
+		public AnimationCurve AlphaCurve
 		{
-			get
-			{
-				if (m_canvasScaler == null)
-					m_canvasScaler = GetComponentInParent<CanvasScaler>();
-				return m_canvasScaler;
-			}
-
-			set
-			{
-				m_canvasScaler = value;
-			}
+			get => m_alphaCurve;
+			set { Stop(); m_alphaCurve = value; }
 		}
 
-		protected RectTransform CanvasRectTransform
+		public Image AlphaImage
 		{
-			get
-			{
-				if (m_canvasScaler == null)
-					m_canvasScaler = GetComponentInParent<CanvasScaler>();
-				if (m_canvasRectTransform == null)
-					m_canvasRectTransform = (RectTransform) m_canvasScaler.transform;
-				return m_canvasRectTransform;
-			}
+			get => m_alphaImage;
+			set { Stop(); m_alphaImage = value; }
 		}
+
+		public CanvasGroup AlphaCanvasGroup
+		{
+			get => m_alphaCanvasGroup;
+			set { Stop(); m_alphaCanvasGroup = value; }
+		}
+		#endregion
+
+		// TODO: sound
+
+		// TODO: animator
+
+		// TODO: particles
 
 		private bool m_animatePositionX;
 		private bool m_animatePositionY;
@@ -133,6 +273,38 @@ namespace GuiToolkit
 		private bool m_animateScaleY;
 		private bool m_animateScale;
 		private bool m_animateAlpha;
+
+		public void SetSlideX( RectTransform _rectTransform, bool _in, bool _left)
+		{
+			Stop();
+			float width = _rectTransform.rect.width;
+			if (_in)
+			{
+				m_posXEnd = 0;
+				m_posXStart = _left ? -width : width;
+			}
+			else
+			{
+				m_posXStart = 0;
+				m_posXEnd = _left ? -width : width;
+			}
+		}
+
+		public void SetSlideY( RectTransform _rectTransform, bool _in, bool _up)
+		{
+			Stop();
+			float height = _rectTransform.rect.height;
+			if (_in)
+			{
+				m_posYEnd = 0;
+				m_posYStart = _up ? -height : height;
+			}
+			else
+			{
+				m_posYStart = 0;
+				m_posYEnd = _up ? -height : height;
+			}
+		}
 
 		private float xRatio
 		{

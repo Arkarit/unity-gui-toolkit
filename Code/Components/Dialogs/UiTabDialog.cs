@@ -5,12 +5,22 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	[Serializable]
+	public struct TabInfo
+	{
+		public UiToggle Tab;
+		public UiPanel Page;
+	}
+
 	public class UiTabDialog : UiView
 	{
 		public UiButton m_closeButton;
 
-		public List<UiToggle> m_tabs;
-		public List<UiPanel> m_pages;
+		public RectTransform m_pageContentContainer;
+
+		public List<TabInfo> m_tabInfos;
+
+		private int m_currentTabIdx;
 
 		public override void Show( bool _instant = false, Action _onFinish = null )
 		{
@@ -44,17 +54,50 @@ namespace GuiToolkit
 
 		private void InitPages()
 		{
-			Debug.Assert(m_tabs.Count == m_pages.Count);
-			for (int i=0; i<m_tabs.Count; i++)
+			m_currentTabIdx = -1;
+			for (int i=0; i<m_tabInfos.Count; i++)
 			{
-				UiToggle tab = m_tabs[i];
-				UiPanel page = m_pages[i];
+				TabInfo tabInfo = m_tabInfos[i];
 
-				tab.OnValueChanged.RemoveAllListeners();
+				tabInfo.Tab.OnValueChanged.RemoveAllListeners();
 
 				int toggleIndex = i;
-				tab.OnValueChanged.AddListener( (isOn) => m_pages[toggleIndex].SetVisible(isOn) );
+				tabInfo.Tab.OnValueChanged.AddListener( (isOn) => OnToggleChanged(toggleIndex, isOn) );
+				
+				tabInfo.Page.SetVisible(tabInfo.Tab.Toggle.isOn, true);
+				if (tabInfo.Tab.Toggle.isOn)
+				{
+					Debug.Assert(m_currentTabIdx == -1, "Multiple active tabs in tab dialog! Please use ToggleGroup and set only one to is on!");
+					m_currentTabIdx = i;
+				}
 			}
+
+			Debug.Assert(m_currentTabIdx != -1, "No active tabs in tab dialog! Please use ToggleGroup and set only one to is on!");
+		}
+
+		private void OnToggleChanged(int _idx, bool _isOn)
+		{
+			if (!_isOn || _idx == m_currentTabIdx)
+				return;
+
+			bool up = _idx < m_currentTabIdx;
+
+			UiPanel oldPanel = m_tabInfos[m_currentTabIdx].Page;
+			UiPanel newPanel = m_tabInfos[_idx].Page;
+
+			UiSimpleAnimation oldAnim = oldPanel.SimpleShowHideAnimation as UiSimpleAnimation;
+			UiSimpleAnimation newAnim = newPanel.SimpleShowHideAnimation as UiSimpleAnimation;
+
+			if (oldAnim != null)
+				oldAnim.SetSlideY(m_pageContentContainer, true, up);
+
+			if (newAnim != null)
+				newAnim.SetSlideY(m_pageContentContainer, true, !up);
+
+			oldPanel.Hide();
+			newPanel.Show();
+
+			m_currentTabIdx = _idx;
 		}
 	}
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Reflection;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -391,6 +392,36 @@ namespace GuiToolkit
 				return result;
 
 			return _this.AddComponent<T>();
+		}
+
+		public static T CopyFrom<T>( this Component _this, T _other ) where T : Component
+		{
+			Type type = _this.GetType();
+
+			if (type != _other.GetType())
+				return null;
+
+			BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default | BindingFlags.DeclaredOnly;
+			PropertyInfo[] pinfos = type.GetProperties(flags);
+			foreach (var pinfo in pinfos)
+			{
+				if (pinfo.CanWrite)
+				{
+					try
+					{
+						pinfo.SetValue(_this, pinfo.GetValue(_other, null), null);
+					}
+					catch { } // In case of NotImplementedException being thrown. For some reason specifying that exception didn't seem to catch it, so I didn't catch anything specific.
+				}
+			}
+
+			FieldInfo[] finfos = type.GetFields(flags);
+			foreach (var finfo in finfos)
+			{
+				finfo.SetValue(_this, finfo.GetValue(_other));
+			}
+
+			return _this as T;
 		}
 	}
 
