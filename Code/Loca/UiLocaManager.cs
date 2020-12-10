@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -15,6 +16,10 @@ namespace GuiToolkit
 		public abstract string Translate(string _key);
 		public abstract bool ChangeLanguageImpl(string _languageId);
 
+#if UNITY_EDITOR
+		public abstract void ChangeKey( string _oldKey, string _newKey );
+#endif
+
 		public bool ChangeLanguage(string _languageId)
 		{
 			if (!ChangeLanguageImpl(_languageId))
@@ -28,6 +33,7 @@ namespace GuiToolkit
 
 			return true;
 		}
+
 		public void AddListener(ILocaListener _listener)
 		{
 			m_locaListeners.Add(_listener);
