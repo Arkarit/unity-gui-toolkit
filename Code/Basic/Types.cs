@@ -83,6 +83,7 @@ namespace GuiToolkit
 
 		public const string SETTINGS_MENU_NAME = MENU_HEADER + "Settings";
 		public const string GAME_SPEED_MENU_NAME = MENU_HEADER + "Game speed";
+		public const string LOCA_CLEANER_MENU_NAME = MENU_HEADER + "Clean up Loca";
 	}
 
 

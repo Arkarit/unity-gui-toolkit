@@ -597,7 +597,6 @@ namespace GuiToolkit
 
 		public static bool CloseAllEditorScenesExcept( Scene _scene, out List<string> _sceneNames )
 		{
-
 			_sceneNames = new List<string>();
 
 			int numScenes = EditorSceneManager.loadedSceneCount;
@@ -619,8 +618,7 @@ namespace GuiToolkit
 
 		public static bool CloseAllEditorScenesExcept( Scene _scene )
 		{
-			List<string> dummy = new List<string>();
-			return CloseAllEditorScenesExcept(_scene, out dummy);
+			return CloseAllEditorScenesExcept(_scene, out List<string> _);
 		}
 
 		public static bool CloseAllEditorScenesExceptMain( out List<string> _sceneNames )
@@ -659,6 +657,59 @@ namespace GuiToolkit
 			}
 
 			EditorSceneManager.CloseScene(_scene, true);
+		}
+
+		public delegate void AssetFoundDelegate<T>(T _component);
+
+		public static void FindAllComponentsInAllPrefabs<T>(AssetFoundDelegate<T> _foundFn, bool _includeInactive = true) where T : Component
+		{
+			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:GameObject");
+
+			foreach (string guid in allAssetPathGuids)
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+				T[] components = go.GetComponentsInChildren<T>(_includeInactive);
+				if (components == null || components.Length == 0)
+					continue;
+
+				foreach (T component in components)
+					_foundFn(component);
+			}
+		}
+
+		public static void FindAllComponentsInAllScenes<T>(AssetFoundDelegate<T> _foundFn, bool _includeInactive = true) where T : Component
+		{
+			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:Scene");
+
+			foreach (string guid in allAssetPathGuids)
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				Scene scene = EditorSceneManager.GetSceneByPath(assetPath);
+				bool wasLoaded = scene.isLoaded;
+				if (!wasLoaded)
+					EditorSceneManager.OpenScene(assetPath, OpenSceneMode.Additive);
+
+				GameObject[] roots = scene.GetRootGameObjects();
+				foreach(GameObject root in roots)
+				{
+					T[] components = root.GetComponentsInChildren<T>(_includeInactive);
+					if (components == null || components.Length == 0)
+						continue;
+
+					foreach (T component in components)
+						_foundFn(component);
+				}
+
+				if (!wasLoaded)
+					EditorSceneManager.CloseScene(scene, false);
+			}
+		}
+
+		public static void FindAllComponentsInAllScenesAndPrefabs<T>(AssetFoundDelegate<T> _foundFn, bool _includeInactive = true) where T : Component
+		{
+			FindAllComponentsInAllScenes(_foundFn, _includeInactive);
+			FindAllComponentsInAllPrefabs(_foundFn, _includeInactive);
 		}
 
 		private static bool ValidateListAndIndex( SerializedProperty _list, int _idx )
