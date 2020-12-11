@@ -9,7 +9,7 @@ namespace GuiToolkit
 		void OnLanguageChanged(string _languageId);
 	}
 
-	public abstract class UiLocaManager : MonoBehaviour
+	public abstract class UiLocaManager
 	{
 		private readonly HashSet<ILocaListener> m_locaListeners = new HashSet<ILocaListener>();
 
@@ -44,24 +44,6 @@ namespace GuiToolkit
 			m_locaListeners.Remove(_listener);
 		}
 
-		private static UiLocaManager s_instance;
-		public static UiLocaManager Instance
-		{
-			get
-			{
-				if (s_instance == null)
-					s_instance = UnityEngine.Object.FindObjectOfType<UiLocaManager>();
-#if UNITY_EDITOR
-				if (s_instance == null)
-					Debug.LogError("Attempt to access UiAbstractLocaManager.Instance, but game object containing the instance not found." +
-						" Please set up a game object with an attached UiAbstractLocaManager component!");
-#endif
-				return s_instance;
-			}
-			private set
-			{
-				s_instance = value;
-			}
-		}
+		public static UiLocaManager Instance {get; set;}
 	}
 }

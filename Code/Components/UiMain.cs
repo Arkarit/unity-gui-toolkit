@@ -34,11 +34,24 @@ namespace GuiToolkit
 
 		private readonly Dictionary<string, UiView> m_scenes = new Dictionary<string, UiView>();
 
-
 		public float LayerDistance => m_layerDistance;
 		public RenderMode RenderMode => m_renderMode;
 		public Camera Camera { get; private set; }
 		public UiPool UiPool { get; private set; }
+
+		public static UiLocaManager LocaManager
+		{
+			get
+			{
+				if (UiLocaManager.Instance == null)
+					UiLocaManager.Instance = new UiLocaManagerImpl();
+				return UiLocaManager.Instance;
+			}
+			set
+			{
+				UiLocaManager.Instance = value;
+			}
+		}
 
 		private static UiMain s_instance;
 		public static UiMain Instance
@@ -59,7 +72,6 @@ namespace GuiToolkit
 				s_instance = value;
 			}
 		}
-
 
 		#region "Scene Loading"
 		public void LoadScene(string _sceneName, bool _show = true, bool _instant = false, Action<UiView> _whenLoaded = null)

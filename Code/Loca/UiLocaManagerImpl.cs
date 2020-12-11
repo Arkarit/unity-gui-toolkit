@@ -47,7 +47,7 @@ namespace GuiToolkit
 				m_potRead = true;
 			}
 
-			if (_oldKey.Equals(_newKey) && m_keys.Contains(_newKey))
+			if ((string.IsNullOrEmpty(_oldKey) || _oldKey.Equals(_newKey)) && m_keys.Contains(_newKey))
 				return;
 
 			Log($"Changing key from '{_oldKey}' to '{_newKey}'");

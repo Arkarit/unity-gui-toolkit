@@ -13,10 +13,21 @@ namespace GuiToolkit
 		private TMP_Text m_text;
 		private string m_key;
 
+		private UiLocaManager m_locaManager;
+		private UiLocaManager LocaManager
+		{
+			get
+			{
+				if (m_locaManager == null)
+					m_locaManager = UiMain.LocaManager;
+				return m_locaManager;
+			}
+		}
+
 		public void OnLanguageChanged(string _languageId)
 		{
 			if (m_autoTranslate)
-				Text.text = UiLocaManager.Instance.Translate(m_key);
+				Text.text = LocaManager.Translate(m_key);
 		}
 
 		private TMP_Text Text
@@ -37,16 +48,16 @@ namespace GuiToolkit
 		{
 #if UNITY_EDITOR
 			if (!Application.isPlaying)
-				UiLocaManager.Instance.ChangeKey(m_key, Text.text);
+				LocaManager.ChangeKey(m_key, Text.text);
 #endif
 
 			m_key = Text.text;
 
 			if (Application.isPlaying)
 			{
-				UiLocaManager.Instance.AddListener(this);
+				LocaManager.AddListener(this);
 				if (m_autoTranslate)
-					Text.text = UiLocaManager.Instance.Translate(m_key);
+					Text.text = LocaManager.Translate(m_key);
 				return;
 			}
 
@@ -59,7 +70,7 @@ namespace GuiToolkit
 		{
 			if (Application.isPlaying)
 			{
-				UiLocaManager.Instance.RemoveListener(this);
+				LocaManager.RemoveListener(this);
 				Text.text = m_key;
 				return;
 			}
@@ -75,7 +86,7 @@ namespace GuiToolkit
 			if ((TMP_Text) _obj != m_text || m_text.text == m_key)
 				return;
 
-			UiLocaManager.Instance.ChangeKey(m_key, m_text.text);
+			LocaManager.ChangeKey(m_key, m_text.text);
 		}
 #endif
 
