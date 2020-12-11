@@ -688,7 +688,7 @@ namespace GuiToolkit
 				Scene scene = EditorSceneManager.GetSceneByPath(assetPath);
 				bool wasLoaded = scene.isLoaded;
 				if (!wasLoaded)
-					EditorSceneManager.OpenScene(assetPath, OpenSceneMode.Additive);
+					scene = EditorSceneManager.OpenScene(assetPath, OpenSceneMode.Additive);
 
 				GameObject[] roots = scene.GetRootGameObjects();
 				foreach(GameObject root in roots)
@@ -702,7 +702,7 @@ namespace GuiToolkit
 				}
 
 				if (!wasLoaded)
-					EditorSceneManager.CloseScene(scene, false);
+					EditorSceneManager.CloseScene(scene, true);
 			}
 		}
 

@@ -34,6 +34,11 @@ namespace GuiToolkit
 		private readonly SortedSet<string> m_keys = new SortedSet<string>();
 		private string PotPath => Application.dataPath + POT_PATH;
 
+		public override void Clear()
+		{
+			m_keys.Clear();
+		}
+
 		public override void AddKey( string _newKey )
 		{
 			if (string.IsNullOrEmpty(_newKey))

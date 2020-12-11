@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -11,7 +12,17 @@ namespace GuiToolkit
 		[MenuItem(StringConstants.LOCA_CLEANER_MENU_NAME)]
 		public static void Clean()
 		{
-			UiEditorUtility.FindAllComponentsInAllScenes<UiLocaClientBase>((client) => Debug.Log(client.gameObject.name) );
+			UiMain.LocaManager.Clear();
+
+			UiEditorUtility.FindAllComponentsInAllScenesAndPrefabs<UiLocaClientBase>(FoundComponent);
+
+			UiMain.LocaManager.WriteKeyData();
+		}
+
+		private static void FoundComponent( UiLocaClientBase _component )
+		{
+			Debug.Log($"{_component.gameObject.scene.name}:{_component.gameObject.name}");
+			UiMain.LocaManager.AddKey(_component.Key);
 		}
 	}
 }
