@@ -6,7 +6,7 @@ SpriteAtlas:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: BasicSprites
+  m_Name: BasicSpritesAndFlags
   m_EditorData:
     serializedVersion: 2
     textureSettings:
@@ -31,16 +31,19 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 20484d81f54b862498b38dbbffcfe7d1, type: 3}
-    totalSpriteSurfaceArea: 130632
+    - {fileID: 102900000, guid: ed473baeedeb8e64d973cbb0c526bfbf, type: 3}
+    totalSpriteSurfaceArea: 273992
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
   - {fileID: 21300000, guid: 55485470caed2b64d80fddbd44f03e74, type: 3}
+  - {fileID: 21300000, guid: da53dd620fd299344845401301190ff9, type: 3}
   - {fileID: 21300000, guid: 78941cf264923c9488229fa3b6e029b2, type: 3}
   - {fileID: 21300000, guid: f4a6c635596536c4ebdca0c03698945d, type: 3}
   - {fileID: 21300000, guid: 489c5ac57c2a3f649a0ffa61289ce5a1, type: 3}
   - {fileID: 21300000, guid: 4bafba0620e03dd409f9f7b3b9efff92, type: 3}
+  - {fileID: 21300000, guid: 77e633c6704b5a941a4453840b0aff60, type: 3}
   - {fileID: 21300000, guid: 2d423647549aaa241b88679d1e8e4fae, type: 3}
   - {fileID: 21300000, guid: ebfad9e774536ea4ba52588acabc7669, type: 3}
   - {fileID: 21300000, guid: 9b1a8cd866007234286acbe7799d7c69, type: 3}
@@ -50,13 +53,17 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 7c4548cbeba5b43429c65aa68390a318, type: 3}
   - {fileID: 21300000, guid: cbc5250c4c52bbb48974d4adf45eefc8, type: 3}
   - {fileID: 21300000, guid: f01f116e4e6c3a943b43c4fc06c9abd9, type: 3}
+  - {fileID: 21300000, guid: a36afbce993aae5499d2ee825b906b06, type: 3}
+  - {fileID: 21300000, guid: 2a67d82f37fd88a45b7617ad7b8e3ea2, type: 3}
   m_PackedSpriteNamesToIndex:
   - UITK_RGB_Panel_r50_f07
   - UITK_RGB_Panel_r25_f07
+  - de
   - UITK_Frame_r00_f07
   - UITK_Frame_r50_f07
   - UITK_Panel_r25
   - UITK_Sunken_r25
+  - en
   - UITK_Simple_Circle
   - UITK_Panel_Circle
   - UITK_Sunken_Circle
@@ -66,5 +73,7 @@ SpriteAtlas:
   - UITK_Panel_r50
   - UITK_Frame_r25_f07
   - UITK_Sunken_r00
-  m_Tag: BasicSprites
+  - us
+  - en_us
+  m_Tag: BasicSpritesAndFlags
   m_IsVariant: 0
