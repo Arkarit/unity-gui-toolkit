@@ -21,8 +21,16 @@ namespace GuiToolkit
 
 		private static void FoundComponent( ILocaClient _component )
 		{
-//			Debug.Log($"{_component.gameObject.scene.name}:{_component.gameObject.name}");
-			UiMain.LocaManager.AddKey(_component.Key);
+			if (_component.UsesMultipleLocaKeys)
+			{
+				var keys = _component.LocaKeys;
+				foreach (var key in keys)
+					UiMain.LocaManager.AddKey(key);
+
+				return;
+			}
+
+			UiMain.LocaManager.AddKey(_component.LocaKey);
 		}
 	}
 }

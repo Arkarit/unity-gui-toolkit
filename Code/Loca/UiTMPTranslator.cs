@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -44,7 +45,9 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		public string Key => Text.text;
+		public bool UsesMultipleLocaKeys => false;
+		public string LocaKey => Text.text;
+		public List<string> LocaKeys => null;
 #endif
 
 		private void OnEnable()

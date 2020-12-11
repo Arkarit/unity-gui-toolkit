@@ -66,6 +66,7 @@ namespace GuiToolkit
 
 					line = line.Substring(7, line.Length - 8);
 					line = line.Replace("\\\"", "\"");
+					line = line.Replace("\\n", "\n");
 
 					Log($"Adding POT key '{line}'");
 					m_keys.Add(line);
@@ -93,6 +94,8 @@ namespace GuiToolkit
 				foreach (string key in m_keys)
 				{
 					string cleanKey = key.Replace("\"", "\\\"");
+					cleanKey = cleanKey.Replace("\n", "\\n");
+
 					s += $"msgid \"{cleanKey}\"\nmsgstr \"\"\n\n";
 				}
 
