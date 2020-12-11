@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(TMP_Text))]
-	public class UiTMPTranslator : UiLocaClientBase, ILocaListener
+	public class UiTMPTranslator : MonoBehaviour, ILocaClient, ILocaListener
 	{
 		public bool m_autoTranslate = true;
 
@@ -44,7 +44,7 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		public override string Key => Text.text;
+		public string Key => Text.text;
 #endif
 
 		private void OnEnable()

@@ -14,14 +14,14 @@ namespace GuiToolkit
 		{
 			UiMain.LocaManager.Clear();
 
-			UiEditorUtility.FindAllComponentsInAllScenesAndPrefabs<UiLocaClientBase>(FoundComponent);
+			UiEditorUtility.FindAllComponentsInAllScenesAndPrefabs<ILocaClient>(FoundComponent);
 
 			UiMain.LocaManager.WriteKeyData();
 		}
 
-		private static void FoundComponent( UiLocaClientBase _component )
+		private static void FoundComponent( ILocaClient _component )
 		{
-			Debug.Log($"{_component.gameObject.scene.name}:{_component.gameObject.name}");
+//			Debug.Log($"{_component.gameObject.scene.name}:{_component.gameObject.name}");
 			UiMain.LocaManager.AddKey(_component.Key);
 		}
 	}
