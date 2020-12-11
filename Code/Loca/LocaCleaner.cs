@@ -14,7 +14,7 @@ namespace GuiToolkit
 		{
 			UiMain.LocaManager.Clear();
 
-			UiEditorUtility.FindAllComponentsInAllScenesAndPrefabs<ILocaClient>(FoundComponent);
+			UiEditorUtility.FindAllComponentsInAllAssets<ILocaClient>(FoundComponent);
 
 			UiMain.LocaManager.WriteKeyData();
 		}

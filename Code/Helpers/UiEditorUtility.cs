@@ -678,6 +678,21 @@ namespace GuiToolkit
 			}
 		}
 
+		public static void FindAllComponentsInAllScriptableObjects<T>(AssetFoundDelegate<T> _foundFn)
+		{
+			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:ScriptableObject");
+
+			foreach (string guid in allAssetPathGuids)
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				ScriptableObject scriptableObject = AssetDatabase.LoadAssetAtPath<ScriptableObject>(assetPath);
+				if (scriptableObject == null || !(scriptableObject is T))
+					continue;
+
+				_foundFn( (T)(object) scriptableObject);
+			}
+		}
+
 		public static void FindAllComponentsInAllScenes<T>(AssetFoundDelegate<T> _foundFn, bool _includeInactive = true)
 		{
 			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:Scene");
@@ -706,10 +721,11 @@ namespace GuiToolkit
 			}
 		}
 
-		public static void FindAllComponentsInAllScenesAndPrefabs<T>(AssetFoundDelegate<T> _foundFn, bool _includeInactive = true)
+		public static void FindAllComponentsInAllAssets<T>(AssetFoundDelegate<T> _foundFn, bool _includeInactive = true)
 		{
 			FindAllComponentsInAllScenes(_foundFn, _includeInactive);
 			FindAllComponentsInAllPrefabs(_foundFn, _includeInactive);
+			FindAllComponentsInAllScriptableObjects(_foundFn);
 		}
 
 		// Supports interfaces
