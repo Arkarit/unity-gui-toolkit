@@ -5,8 +5,7 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(TMP_Text))]
-	[ExecuteAlways]
-	public class UiTMPTranslator : MonoBehaviour, ILocaListener
+	public class UiTMPTranslator : UiLocaClientBase, ILocaListener
 	{
 		public bool m_autoTranslate = true;
 
@@ -44,51 +43,28 @@ namespace GuiToolkit
 			}
 		}
 
+#if UNITY_EDITOR
+		public override string Key => Text.text;
+#endif
+
 		private void OnEnable()
 		{
-#if UNITY_EDITOR
 			if (!Application.isPlaying)
-				LocaManager.ChangeKey(m_key, Text.text);
-#endif
+				return;
 
 			m_key = Text.text;
-
-			if (Application.isPlaying)
-			{
-				LocaManager.AddListener(this);
-				if (m_autoTranslate)
-					Text.text = LocaManager.Translate(m_key);
-				return;
-			}
-
-#if UNITY_EDITOR
-			TMPro_EventManager.TEXT_CHANGED_EVENT.Add(OnTMProTextChanged);
-#endif
+			LocaManager.AddListener(this);
+			if (m_autoTranslate)
+				Text.text = LocaManager.Translate(m_key);
 		}
 
 		private void OnDisable()
 		{
-			if (Application.isPlaying)
-			{
-				LocaManager.RemoveListener(this);
-				Text.text = m_key;
-				return;
-			}
-
-#if UNITY_EDITOR
-			TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(OnTMProTextChanged);
-#endif
-		}
-
-#if UNITY_EDITOR
-		private void OnTMProTextChanged( UnityEngine.Object _obj )
-		{
-			if ((TMP_Text) _obj != m_text || m_text.text == m_key)
+			if (!Application.isPlaying)
 				return;
 
-			LocaManager.ChangeKey(m_key, m_text.text);
+			LocaManager.RemoveListener(this);
+			Text.text = m_key;
 		}
-#endif
-
 	}
 }

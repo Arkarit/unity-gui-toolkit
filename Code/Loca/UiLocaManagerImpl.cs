@@ -34,42 +34,18 @@ namespace GuiToolkit
 		private readonly SortedSet<string> m_keys = new SortedSet<string>();
 		private string PotPath => Application.dataPath + POT_PATH;
 
-		private bool m_potRead;
-		private bool m_keysDirty;
-
-		public override void ChangeKey( string _oldKey, string _newKey )
+		public override void AddKey( string _newKey )
 		{
-			Debug.Assert(!Application.isPlaying);
-
-			if (!m_potRead)
-			{
-				ReadPot();
-				m_potRead = true;
-			}
-
-			if ((string.IsNullOrEmpty(_oldKey) || _oldKey.Equals(_newKey)) && m_keys.Contains(_newKey))
+			if (string.IsNullOrEmpty(_newKey))
 				return;
 
-			Log($"Changing key from '{_oldKey}' to '{_newKey}'");
+			Log($"Adding key '{_newKey}'");
 
-			if (!string.IsNullOrEmpty(_oldKey))
-				m_keys.Remove(_oldKey);
-
-			if (!string.IsNullOrEmpty(_newKey))
-			{
-				if (m_keys.Contains(_newKey))
-					return;
-
-				m_keys.Add(_newKey);
-			}
-
-			if (!m_keysDirty)
-				EditorApplication.delayCall += WritePot;
-
-			m_keysDirty = true;
+			Debug.Assert(!Application.isPlaying);
+			m_keys.Add(_newKey);
 		}
 
-		public void ReadPot()
+		public override void ReadKeyData()
 		{
 			Log($"Read POT file at '{PotPath}'");
 			m_keys.Clear();
@@ -99,7 +75,7 @@ namespace GuiToolkit
 			Log("Success");
 		}
 
-		private void WritePot()
+		public override void WriteKeyData()
 		{
 			Log($"Write POT file at '{PotPath}'");
 
@@ -120,12 +96,10 @@ namespace GuiToolkit
 			catch( Exception e )
 			{
 				Debug.LogError($"Write Fail for POT file at '{PotPath}':'{e.Message}'");
-				m_keysDirty = false;
 				return;
 			}
 
 			Log("Success");
-			m_keysDirty = false;
 		}
 #endif
 	}

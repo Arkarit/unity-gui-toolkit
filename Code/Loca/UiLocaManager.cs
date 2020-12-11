@@ -17,7 +17,9 @@ namespace GuiToolkit
 		public abstract bool ChangeLanguageImpl(string _languageId);
 
 #if UNITY_EDITOR
-		public abstract void ChangeKey( string _oldKey, string _newKey );
+		public abstract void AddKey( string _newKey );
+		public abstract void ReadKeyData();
+		public abstract void WriteKeyData();
 #endif
 
 		public bool ChangeLanguage(string _languageId)
