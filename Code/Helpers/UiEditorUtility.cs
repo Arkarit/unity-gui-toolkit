@@ -661,7 +661,7 @@ namespace GuiToolkit
 
 		public delegate void AssetFoundDelegate<T>(T _component);
 
-		public static void FindAllComponentsInAllPrefabs<T>(AssetFoundDelegate<T> _foundFn, bool _includeInactive = true) where T : Component
+		public static void FindAllComponentsInAllPrefabs<T>(AssetFoundDelegate<T> _foundFn, bool _includeInactive = true)
 		{
 			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:GameObject");
 
@@ -678,7 +678,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public static void FindAllComponentsInAllScenes<T>(AssetFoundDelegate<T> _foundFn, bool _includeInactive = true) where T : Component
+		public static void FindAllComponentsInAllScenes<T>(AssetFoundDelegate<T> _foundFn, bool _includeInactive = true)
 		{
 			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:Scene");
 
@@ -706,10 +706,50 @@ namespace GuiToolkit
 			}
 		}
 
-		public static void FindAllComponentsInAllScenesAndPrefabs<T>(AssetFoundDelegate<T> _foundFn, bool _includeInactive = true) where T : Component
+		public static void FindAllComponentsInAllScenesAndPrefabs<T>(AssetFoundDelegate<T> _foundFn, bool _includeInactive = true)
 		{
 			FindAllComponentsInAllScenes(_foundFn, _includeInactive);
 			FindAllComponentsInAllPrefabs(_foundFn, _includeInactive);
+		}
+
+		// Supports interfaces
+		// Caution! Clear _result before usage!
+		public static void FindObjectsOfType<T>( List<T> _result, Scene _scene, bool _includeInactive = true)
+		{
+			GameObject[] roots = _scene.GetRootGameObjects();
+			foreach(GameObject root in roots)
+			{
+				T[] components = root.GetComponentsInChildren<T>(_includeInactive);
+				if (components == null || components.Length == 0)
+					continue;
+
+				foreach (T component in components)
+					_result.Add(component);
+			}
+		}
+
+		public static List<T> FindObjectsOfType<T>(Scene _scene, bool _includeInactive = true)
+		{
+			List<T> result = new List<T>();
+			FindObjectsOfType<T>(result, _scene, _includeInactive);
+			return result;
+		}
+
+		public static void FindObjectsOfType<T>( List<T> _result, bool _includeInactive = true)
+		{
+			_result.Clear();
+			for (int i=0; i<EditorSceneManager.loadedSceneCount; i++)
+			{
+				Scene scene = EditorSceneManager.GetSceneAt(i);
+				FindObjectsOfType<T>(_result, scene, _includeInactive);
+			}
+		}
+
+		public static List<T> FindObjectsOfType<T>(bool _includeInactive = true)
+		{
+			List<T> result = new List<T>();
+			FindObjectsOfType<T>(result, _includeInactive);
+			return result;
 		}
 
 		private static bool ValidateListAndIndex( SerializedProperty _list, int _idx )
