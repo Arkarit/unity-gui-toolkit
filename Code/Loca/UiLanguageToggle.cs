@@ -10,7 +10,7 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	public class UiLanguageButton : UiToggle
+	public class UiLanguageToggle : UiToggle
 	{
 		[SerializeField]
 		private Image m_image;
