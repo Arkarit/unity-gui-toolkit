@@ -14,15 +14,65 @@ namespace GuiToolkit
 	{
 		private bool m_isDev;
 
+		private string m_languageId = "";
+
+		private readonly Dictionary<string, string> m_translationDict = new Dictionary<string, string>();
+
 		public override bool ChangeLanguageImpl( string _languageId )
 		{
+			if (string.IsNullOrEmpty(_languageId))
+			{
+				Debug.LogError("null/Empty language Id");
+				return false;
+			}
+
+			if (_languageId.Equals(m_languageId))
+				return true;
+
 			Log($"Language changed: '{_languageId}'");
+
+			m_isDev = _languageId.Equals("dev");
+			if (m_isDev)
+			{
+				m_translationDict.Clear();
+				return true;
+			}
+
+			return ReadTranslation(_languageId);
+		}
+
+		private bool ReadTranslation( string _languageId )
+		{
+			m_translationDict.Clear();
+			TextAsset text = Resources.Load<TextAsset>(_languageId + ".po");
+			if (text == null)
+				return false;
+
+			string currentKey = "";
+			string[] lines = text.text.Split(new [] { '\r', '\n' });
+			foreach (string line in lines)
+			{
+				if (line.StartsWith("msgid"))
+				{
+					currentKey = Unescape(line.Substring(7, line.Length - 8));
+					continue;
+				}
+
+				if (line.StartsWith("msgstr") && !string.IsNullOrEmpty(currentKey))
+					m_translationDict.Add(currentKey, Unescape(line.Substring(8, line.Length - 9)));
+			}
 
 			return true;
 		}
 
 		public override string Translate( string _s )
 		{
+			if (m_isDev)
+				return _s;
+
+			if (m_translationDict.TryGetValue(_s, out string result))
+				return result;
+
 			return _s;
 		}
 
@@ -30,6 +80,22 @@ namespace GuiToolkit
 		private void Log(string _s)
 		{
 			Debug.Log(_s);
+		}
+
+		private string Escape(string _s)
+		{
+			_s = _s.Replace("\"", "\\\"");
+			_s = _s.Replace("\n", "\\n");
+			_s = _s.Replace("\r", "\\r");
+			return _s;
+		}
+
+		private string Unescape(string _s)
+		{
+			_s = _s.Replace("\\\"", "\"");
+			_s = _s.Replace("\\n", "\n");
+			_s = _s.Replace("\\r", "\r");
+			return _s;
 		}
 
 #if UNITY_EDITOR
@@ -68,8 +134,7 @@ namespace GuiToolkit
 						continue;
 
 					line = line.Substring(7, line.Length - 8);
-					line = line.Replace("\\\"", "\"");
-					line = line.Replace("\\n", "\n");
+					line = Unescape(line);
 
 					Log($"Adding POT key '{line}'");
 					m_keys.Add(line);
@@ -96,8 +161,7 @@ namespace GuiToolkit
 				string s = "";
 				foreach (string key in m_keys)
 				{
-					string cleanKey = key.Replace("\"", "\\\"");
-					cleanKey = cleanKey.Replace("\n", "\\n");
+					string cleanKey = Escape(key);
 
 					s += $"msgid \"{cleanKey}\"\nmsgstr \"\"\n\n";
 				}

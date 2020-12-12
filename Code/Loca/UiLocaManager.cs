@@ -27,12 +27,34 @@ namespace GuiToolkit
 		public abstract bool ChangeLanguageImpl(string _languageId);
 
 		private static string[] s_languageNames;
-		public static string LanguageString(Language _language)
+		private static readonly Dictionary<string, Language> s_languageByString = new Dictionary<string, Language>();
+
+		public static string StringByLanguage(Language _language)
+		{
+			InitEnumConversionIfNecessary();
+			return s_languageNames[(int) _language];
+		}
+
+		public static Language LanguageByString(string _language)
+		{
+			if (s_languageByString.TryGetValue(_language, out Language result))
+				return result;
+
+			Debug.LogWarning($"Language '{_language}' not supported");
+			return Language.dev;
+		}
+
+		private static void InitEnumConversionIfNecessary()
 		{
 			if (s_languageNames == null)
+			{
 				s_languageNames = System.Enum.GetNames(typeof(Language));
-
-			return s_languageNames[(int) _language];
+				Language[] languages = (Language[]) System.Enum.GetValues(typeof(Language));
+				for (int i=0; i<languages.Length; i++ )
+				{
+					s_languageByString.Add(s_languageNames[i], (Language) i);
+				}
+			}
 		}
 
 
@@ -60,7 +82,7 @@ namespace GuiToolkit
 
 		public bool ChangeLanguage(Language _language)
 		{
-			return ChangeLanguage(LanguageString(_language));
+			return ChangeLanguage(StringByLanguage(_language));
 		}
 
 		public void AddListener(ILocaListener _listener)
