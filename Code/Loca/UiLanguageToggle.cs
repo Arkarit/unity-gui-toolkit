@@ -16,18 +16,7 @@ namespace GuiToolkit
 		private Image m_image;
 
 		[SerializeField]
-		private Language m_language;
-
-		private static string[] s_languageNames;
-
-		private string LanguageString
-		{
-			get
-			{
-				InitIfNecessary();
-				return s_languageNames[(int) m_language];
-			}
-		}
+		private UiLocaManager.Language m_language;
 
 		protected override void OnEnable()
 		{
@@ -45,16 +34,8 @@ namespace GuiToolkit
 		{
 			if (_active)
 			{
-				UiMain.LocaManager.ChangeLanguage(LanguageString);
+				UiMain.LocaManager.ChangeLanguage(m_language);
 			}
-		}
-
-		protected override void Init()
-		{
-			base.Init();
-
-			if (s_languageNames == null)
-				s_languageNames = System.Enum.GetNames(typeof(Language));
 		}
 
 #if UNITY_EDITOR
@@ -67,7 +48,7 @@ namespace GuiToolkit
 			}
 
 			string currentAssetPath = AssetDatabase.GetAssetPath(m_image.sprite);
-			string assetPath = UiEditorUtility.GetAssetDir(currentAssetPath) + LanguageString + ".png";
+			string assetPath = UiEditorUtility.GetAssetDir(currentAssetPath) + UiLocaManager.LanguageString(m_language) + ".png";
 			Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
 
 			if (m_image.sprite == null)

@@ -44,12 +44,6 @@ namespace GuiToolkit
 			}
 		}
 
-#if UNITY_EDITOR
-		public bool UsesMultipleLocaKeys => false;
-		public string LocaKey => Text.text;
-		public List<string> LocaKeys => null;
-#endif
-
 		private void OnEnable()
 		{
 			if (!Application.isPlaying)
@@ -69,5 +63,11 @@ namespace GuiToolkit
 			LocaManager.RemoveListener(this);
 			Text.text = m_key;
 		}
+
+#if UNITY_EDITOR
+		public bool UsesMultipleLocaKeys => false;
+		public string LocaKey => Text.text;
+		public List<string> LocaKeys => null;
+#endif
 	}
 }

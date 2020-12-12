@@ -12,9 +12,12 @@ namespace GuiToolkit
 {
 	public class UiLocaManagerImpl : UiLocaManager
 	{
+		private bool m_isDev;
+
 		public override bool ChangeLanguageImpl( string _languageId )
 		{
 			Log($"Language changed: '{_languageId}'");
+
 			return true;
 		}
 

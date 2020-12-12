@@ -11,10 +11,30 @@ namespace GuiToolkit
 
 	public abstract class UiLocaManager
 	{
+		// Builtin languages
+		public enum Language
+		{
+			dev,
+			en,
+			us,
+			en_us,
+			de,
+		}
+
 		private readonly HashSet<ILocaListener> m_locaListeners = new HashSet<ILocaListener>();
 
 		public abstract string Translate(string _key);
 		public abstract bool ChangeLanguageImpl(string _languageId);
+
+		private static string[] s_languageNames;
+		public static string LanguageString(Language _language)
+		{
+			if (s_languageNames == null)
+				s_languageNames = System.Enum.GetNames(typeof(Language));
+
+			return s_languageNames[(int) _language];
+		}
+
 
 #if UNITY_EDITOR
 		public abstract void Clear();
@@ -27,14 +47,20 @@ namespace GuiToolkit
 		{
 			if (!ChangeLanguageImpl(_languageId))
 			{
-				Debug.LogError($"Language '{_languageId}' not found");
-				return false;
+				Debug.LogWarning($"Language '{_languageId}' not found");
+				_languageId = "dev";
+				ChangeLanguageImpl(_languageId);
 			}
 
 			foreach (ILocaListener listener in m_locaListeners)
 				listener.OnLanguageChanged(_languageId);
 
 			return true;
+		}
+
+		public bool ChangeLanguage(Language _language)
+		{
+			return ChangeLanguage(LanguageString(_language));
 		}
 
 		public void AddListener(ILocaListener _listener)
