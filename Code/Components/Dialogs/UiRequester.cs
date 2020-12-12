@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public class UiRequester : UiRequesterBase
+	public class UiRequester : UiRequesterBase, ILocaClient
 	{
 		public new class Options : UiRequesterBase.Options
 		{
@@ -24,6 +24,12 @@ namespace GuiToolkit
 		public TextMeshProUGUI m_text;
 		public TMP_InputField m_inputField;
 
+#if UNITY_EDITOR
+		public bool UsesMultipleLocaKeys => true;
+		public string LocaKey => null;
+		public List<string> LocaKeys => new List<string>() {"Ok", "Cancel", "Yes", "No"};
+#endif
+
 		public void Requester( string _title, string _text, Options _options )
 		{
 			m_text.text = _text;
@@ -37,7 +43,7 @@ namespace GuiToolkit
 				ButtonInfos = new ButtonInfo[] 
 				{
 					new ButtonInfo {
-						Text = string.IsNullOrEmpty(_okText) ? "Ok" : _okText,
+						Text = string.IsNullOrEmpty(_okText) ? _tr("Ok") : _okText,
 						Prefab = m_standardButtonPrefab,
 						OnClick = _onOk
 					}
@@ -58,12 +64,12 @@ namespace GuiToolkit
 				ButtonInfos = new ButtonInfo[] 
 				{
 					new ButtonInfo {
-						Text = string.IsNullOrEmpty(_yesText) ? "Yes" : _yesText,
+						Text = string.IsNullOrEmpty(_yesText) ? _tr("Yes") : _yesText,
 						Prefab = m_okButtonPrefab,
 						OnClick = _onOk
 					},
 					new ButtonInfo {
-						Text = string.IsNullOrEmpty(_noText) ? "No" : _noText,
+						Text = string.IsNullOrEmpty(_noText) ? _tr("No") : _noText,
 						Prefab = m_cancelButtonPrefab,
 						OnClick = _onCancel
 					}
@@ -84,12 +90,12 @@ namespace GuiToolkit
 				ButtonInfos = new ButtonInfo[] 
 				{
 					new ButtonInfo {
-						Text = string.IsNullOrEmpty(_yesText) ? "Ok" : _yesText,
+						Text = string.IsNullOrEmpty(_yesText) ? _tr("Ok") : _yesText,
 						Prefab = m_okButtonPrefab,
 						OnClick = () => _onOk(GetInputText())
 					},
 					new ButtonInfo {
-						Text = string.IsNullOrEmpty(_noText) ? "Cancel" : _noText,
+						Text = string.IsNullOrEmpty(_noText) ? _tr("Cancel") : _noText,
 						Prefab = m_cancelButtonPrefab,
 						OnClick = _onCancel
 					}

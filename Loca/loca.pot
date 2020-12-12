@@ -10,6 +10,9 @@ msgstr ""
 msgid "Key Bindings"
 msgstr ""
 
+msgid "No"
+msgstr ""
+
 msgid "Ok"
 msgstr ""
 
@@ -59,5 +62,8 @@ msgid "Text...\n"
 msgstr ""
 
 msgid "Title..."
+msgstr ""
+
+msgid "Yes"
 msgstr ""
 

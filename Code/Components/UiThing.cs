@@ -11,7 +11,7 @@ namespace GuiToolkit
 	/// Unity functions Awake(), OnEnable(), OnDisable() and OnDestroy().
 	/// \attention Be sure to always call the base class methods if you inherit from UiThing
 	/// 
-	/// Additionally, it offers event handling.
+	/// Additionally, it offers event handling plus some convenience functions.
 
 	public class UiThing : MonoBehaviour, IEventSystemHandler
 	{
@@ -49,6 +49,11 @@ namespace GuiToolkit
 				AddEventListeners();
 				m_eventListenersAdded = true;
 			}
+		}
+
+		public static string _tr(string _s)
+		{
+			return UiMain.LocaManager.Translate(_s);
 		}
 
 		/// Installs event listeners, if ReceiveEventsWhenDisabled
