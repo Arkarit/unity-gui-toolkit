@@ -48,7 +48,7 @@ namespace GuiToolkit
 			}
 
 			string currentAssetPath = AssetDatabase.GetAssetPath(m_image.sprite);
-			string assetPath = UiEditorUtility.GetAssetDir(currentAssetPath) + UiLocaManager.StringByLanguage(m_language) + ".png";
+			string assetPath = UiEditorUtility.GetAssetProjectDir(currentAssetPath) + UiLocaManager.StringByLanguage(m_language) + ".png";
 			Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
 
 			if (m_image.sprite == null)

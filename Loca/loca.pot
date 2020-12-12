@@ -1,0 +1,63 @@
+msgid "Cancel"
+msgstr ""
+
+msgid "Enter text..."
+msgstr ""
+
+msgid "Here you can test some of the capabilities of the GUI Toolkit"
+msgstr ""
+
+msgid "Key Bindings"
+msgstr ""
+
+msgid "Ok"
+msgstr ""
+
+msgid "Or 'Esc' to cancel"
+msgstr ""
+
+msgid "Page 1"
+msgstr ""
+
+msgid "Page 2"
+msgstr ""
+
+msgid "Page 3"
+msgstr ""
+
+msgid "Press a key\nOr Mouse button!"
+msgstr ""
+
+msgid "Quit"
+msgstr ""
+
+msgid "Restore Defaults"
+msgstr ""
+
+msgid "Show Full screen tabs dialog"
+msgstr ""
+
+msgid "Show Requester"
+msgstr ""
+
+msgid "Show Splash Message"
+msgstr ""
+
+msgid "Tab Dialog Demo"
+msgstr ""
+
+msgid "Test Loca Key 1"
+msgstr ""
+
+msgid "Test Loca Key 2"
+msgstr ""
+
+msgid "Test Scene"
+msgstr ""
+
+msgid "Text...\n"
+msgstr ""
+
+msgid "Title..."
+msgstr ""
+

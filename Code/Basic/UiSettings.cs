@@ -47,6 +47,9 @@ namespace GuiToolkit
 			+ "With this button you can create it in the active scene."
 			;
 
+		public const string HELP_POT_PATH =
+			"Project location of the POT file (translation template containing keys, editor only)";
+
 		[Tooltip(HELP_SCENES)]
 		public SceneReference[] m_sceneReferences;
 
@@ -55,6 +58,9 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
 		public string m_additionalScenesPath = "Scenes/";
+
+		[Tooltip(HELP_POT_PATH)]
+		public string m_potPath;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 
@@ -115,6 +121,38 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 
+		public string PotProjectPath
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(m_potPath))
+					m_potPath = UiToolkitRootProjectDir + "Loca/loca.pot";
+				return m_potPath;
+			}
+		}
+
+		private static string s_rootDir;
+		public static string UiToolkitRootProjectDir
+		{
+			get
+			{
+				if (s_rootDir == null)
+				{
+					string[] guids = AssetDatabase.FindAssets("unity-gui-toolkit t:folder");
+					Debug.Assert(guids != null && guids.Length == 1, "None or multiple root folders detected");
+					if (guids.Length >= 1)
+					{
+						s_rootDir = AssetDatabase.GUIDToAssetPath(guids[0]) + "/";
+					}
+					else
+					{
+						s_rootDir = "Assets/";
+					}
+				}
+				return s_rootDir;
+			}
+		}
+
 		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiSettings>(UiSettings.EDITOR_PATH) != null;
 
 		public static void Initialize()
@@ -130,7 +168,7 @@ namespace GuiToolkit
 			EditorSave(settings);
 		}
 
-		public static string GetEditorScenePath(string _sceneName)
+		public static string GetProjectScenePath(string _sceneName)
 		{
 			UiSettings settings = EditorLoad();
 			settings.InitScenesByName();

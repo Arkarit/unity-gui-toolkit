@@ -99,9 +99,8 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		private const string POT_PATH = "/../Loca/dev.pot";
 		private readonly SortedSet<string> m_keys = new SortedSet<string>();
-		private string PotPath => Application.dataPath + POT_PATH;
+		private string PotPath => UiEditorUtility.GetApplicationDataDir() + UiSettings.EditorLoad().PotProjectPath;
 
 		public override void Clear()
 		{
@@ -139,20 +138,19 @@ namespace GuiToolkit
 					Log($"Adding POT key '{line}'");
 					m_keys.Add(line);
 				}
+
+				Log("Success");
 			}
 			catch( Exception e )
 			{
 				// This is not necessarily an error, since it may just not exist yet.
 				Debug.LogWarning($"Could not read POT file at '{PotPath}':'{e.Message}'");
-				return;
 			}
-			Log("Success");
 		}
 
 		public override void WriteKeyData()
 		{
 			Log($"Write POT file at '{PotPath}'");
-
 			try
 			{
 				string dir = Path.GetDirectoryName(PotPath);
@@ -167,14 +165,14 @@ namespace GuiToolkit
 				}
 
 				File.WriteAllText(PotPath, s);
+
+				AssetDatabase.Refresh();
+				Log("Success");
 			}
 			catch( Exception e )
 			{
 				Debug.LogError($"Write Fail for POT file at '{PotPath}':'{e.Message}'");
-				return;
 			}
-
-			Log("Success");
 		}
 #endif
 	}

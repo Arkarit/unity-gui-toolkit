@@ -33,16 +33,15 @@ namespace GuiToolkit
 			SerializedObject serializedObject = new SerializedObject(this);
 			SerializedProperty settingsProp = serializedObject.FindProperty("m_settings");
 
-			UiSettings settings = settingsProp.objectReferenceValue as UiSettings;
-			if (settings == null)
+			UiSettings thisSettings = settingsProp.objectReferenceValue as UiSettings;
+			if (thisSettings == null)
 			{
-				settings = UiSettings.EditorLoad();
-				settingsProp.objectReferenceValue = settings;
+				thisSettings = UiSettings.EditorLoad();
+				settingsProp.objectReferenceValue = thisSettings;
 			}
 
 			serializedObject.ApplyModifiedProperties();
-			m_serializedSettingsObject = new SerializedObject(settings);
-
+			m_serializedSettingsObject = new SerializedObject(thisSettings);
 
 			GUILayout.BeginVertical();
 			scrollPos = GUILayout.BeginScrollView(scrollPos);
@@ -66,6 +65,16 @@ namespace GuiToolkit
 				EditorGUILayout.HelpBox(UiSettings.HELP_ADDITIONAL_SCENES_PATH, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_additionalScenesPath"), true);
+
+			if (m_firstTimeInit)
+			{
+				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+				EditorGUILayout.HelpBox(UiSettings.HELP_POT_PATH, MessageType.Info);
+			}
+			SerializedProperty potPath = m_serializedSettingsObject.FindProperty("m_potPath");
+			if (string.IsNullOrEmpty(potPath.stringValue))
+				potPath.stringValue = thisSettings.PotProjectPath;
+			EditorGUILayout.PropertyField(potPath, true);
 
 			m_serializedSettingsObject.ApplyModifiedProperties();
 

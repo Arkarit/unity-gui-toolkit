@@ -767,7 +767,15 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static string GetAssetDir( string _assetPath )
+		public static string GetApplicationDataDir(bool _withAssetsFolder = false)
+		{
+			string result = Application.dataPath;
+			if (_withAssetsFolder)
+				return result;
+
+			return result.Replace("Assets", "");
+		}
+		public static string GetAssetProjectDir( string _assetPath )
 		{
 			int idx = _assetPath.LastIndexOf("/");
 			if (idx == -1)
