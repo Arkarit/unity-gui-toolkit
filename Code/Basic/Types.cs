@@ -86,6 +86,13 @@ namespace GuiToolkit
 		public const string LOCA_CLEANER_MENU_NAME = MENU_HEADER + "Clean up Loca";
 	}
 
-
+	public enum Language
+	{
+		dev,
+		en,
+		us,
+		en_us,
+		de,
+	}
 
 }

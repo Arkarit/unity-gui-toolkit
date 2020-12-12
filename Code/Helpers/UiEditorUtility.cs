@@ -420,7 +420,6 @@ namespace GuiToolkit
 			return false;
 		}
 
-
 		public static void RemoveLabels<T>( GameObject _go, T _labelsToRemove ) where T : ICollection<string>
 		{
 			string[] currentLabels = AssetDatabase.GetLabels(_go);
@@ -766,6 +765,15 @@ namespace GuiToolkit
 			List<T> result = new List<T>();
 			FindObjectsOfType<T>(result, _includeInactive);
 			return result;
+		}
+
+		public static string GetAssetDir( string _assetPath )
+		{
+			int idx = _assetPath.LastIndexOf("/");
+			if (idx == -1)
+				return "";
+
+			return _assetPath.Substring(0, idx + 1);
 		}
 
 		private static bool ValidateListAndIndex( SerializedProperty _list, int _idx )

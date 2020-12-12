@@ -1,0 +1,84 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using System;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
+namespace GuiToolkit
+{
+	public class UiLanguageButton : UiToggle
+	{
+		[SerializeField]
+		private Image m_image;
+
+		[SerializeField]
+		private Language m_language;
+
+		private static string[] s_languageNames;
+
+		private string LanguageString
+		{
+			get
+			{
+				InitIfNecessary();
+				return s_languageNames[(int) m_language];
+			}
+		}
+
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			OnValueChanged.AddListener(OnValueChangedListener);
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			OnValueChanged.RemoveListener(OnValueChangedListener);
+		}
+
+		private void OnValueChangedListener( bool _active )
+		{
+			if (_active)
+			{
+				UiMain.LocaManager.ChangeLanguage(LanguageString);
+			}
+		}
+
+		protected override void Init()
+		{
+			base.Init();
+
+			if (s_languageNames == null)
+				s_languageNames = System.Enum.GetNames(typeof(Language));
+		}
+
+#if UNITY_EDITOR
+		private void OnValidate()
+		{
+			if (m_image.sprite == null)
+			{
+				Debug.LogError("Image path not found!");
+				return;
+			}
+
+			string currentAssetPath = AssetDatabase.GetAssetPath(m_image.sprite);
+			string assetPath = UiEditorUtility.GetAssetDir(currentAssetPath) + LanguageString + ".png";
+			Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+
+			if (m_image.sprite == null)
+			{
+				Debug.LogError("Sprite not found!");
+				return;
+			}
+
+			m_image.sprite = sprite;
+		}
+#endif
+
+	}
+}

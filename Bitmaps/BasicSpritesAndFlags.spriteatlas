@@ -32,7 +32,7 @@ SpriteAtlas:
     packables:
     - {fileID: 102900000, guid: 20484d81f54b862498b38dbbffcfe7d1, type: 3}
     - {fileID: 102900000, guid: ed473baeedeb8e64d973cbb0c526bfbf, type: 3}
-    totalSpriteSurfaceArea: 273992
+    totalSpriteSurfaceArea: 338532
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
@@ -52,6 +52,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 12a73a0b8b1f97d4cb1fd226f806f989, type: 3}
   - {fileID: 21300000, guid: 7c4548cbeba5b43429c65aa68390a318, type: 3}
   - {fileID: 21300000, guid: cbc5250c4c52bbb48974d4adf45eefc8, type: 3}
+  - {fileID: 21300000, guid: 35a8375cef72a06439139e0571d60e29, type: 3}
   - {fileID: 21300000, guid: f01f116e4e6c3a943b43c4fc06c9abd9, type: 3}
   - {fileID: 21300000, guid: a36afbce993aae5499d2ee825b906b06, type: 3}
   - {fileID: 21300000, guid: 2a67d82f37fd88a45b7617ad7b8e3ea2, type: 3}
@@ -72,6 +73,7 @@ SpriteAtlas:
   - UITK_Sunken_r50
   - UITK_Panel_r50
   - UITK_Frame_r25_f07
+  - dev
   - UITK_Sunken_r00
   - us
   - en_us
