@@ -8,15 +8,29 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public static class LocaCleaner
+	public static class LocaProcessor
 	{
-		[MenuItem(StringConstants.LOCA_CLEANER_MENU_NAME)]
+		private static int m_numScripts;
+		private static int m_currentScriptIdx;
+
+		[MenuItem(StringConstants.LOCA_PROCESSOR_MENU_NAME)]
 		public static void Clean()
 		{
 			UiMain.LocaManager.Clear();
 
-			UiEditorUtility.FindAllComponentsInAllAssets<ILocaClient>(FoundComponent);
+			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
+			UiEditorUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent);
+			EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
+			UiEditorUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent);
+			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scriptable objects", 0.2f);
+			UiEditorUtility.FindAllComponentsInAllScriptableObjects<ILocaClient>(FoundComponent);
+
+			m_numScripts = UiEditorUtility.FindAllScriptsCount();
+			m_currentScriptIdx = 0;
+
 			UiEditorUtility.FindAllScripts(FoundScript);
+
+			EditorUtility.ClearProgressBar();
 
 			UiMain.LocaManager.WriteKeyData();
 		}
@@ -37,6 +51,10 @@ namespace GuiToolkit
 
 		private static void FoundScript( string _path, string _content )
 		{
+			float progress = ((float)m_currentScriptIdx / (float)m_numScripts) * .8f + .2f;
+			EditorUtility.DisplayProgressBar("Processing Loca", $"Processing script '{Path.GetFileName(_path)}'", progress);
+			m_currentScriptIdx++;
+
 			List<string> strings = ExtractAllStrings(_content);
 
 			for (int i=0; i<strings.Count; i += 2)
@@ -64,8 +82,7 @@ namespace GuiToolkit
 					}
 				}
 			}
-
-			//DebugDump(_path, strings);
+ 			//DebugDump(_path, strings);
 		}
 
 		// First part: Separate all strings from other program code, remove all quotation marks and comments

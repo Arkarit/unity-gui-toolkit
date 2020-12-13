@@ -748,6 +748,23 @@ namespace GuiToolkit
 			}
 		}
 
+		public static int FindAllScriptsCount(bool _excludePackages = true)
+		{
+			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:Script");
+
+			int result = 0;
+			foreach (string guid in allAssetPathGuids)
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+
+				if (_excludePackages && assetPath.StartsWith("Packages/", StringComparison.OrdinalIgnoreCase))
+					continue;
+
+				result++;
+			}
+			return result;
+		}
+
 		// Supports interfaces
 		// Caution! Clear _result before usage!
 		public static void FindObjectsOfType<T>( List<T> _result, Scene _scene, bool _includeInactive = true)
