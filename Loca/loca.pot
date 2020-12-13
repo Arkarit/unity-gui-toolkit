@@ -1,7 +1,13 @@
+msgid "Are you really really sure you want to quit?"
+msgstr ""
+
 msgid "Cancel"
 msgstr ""
 
 msgid "Enter text..."
+msgstr ""
+
+msgid "Hello World"
 msgstr ""
 
 msgid "Here you can test some of the capabilities of the GUI Toolkit"
@@ -34,6 +40,9 @@ msgstr ""
 msgid "Quit"
 msgstr ""
 
+msgid "Really Quit?"
+msgstr ""
+
 msgid "Restore Defaults"
 msgstr ""
 
@@ -53,6 +62,9 @@ msgid "Test Loca Key 1"
 msgstr ""
 
 msgid "Test Loca Key 2"
+msgstr ""
+
+msgid "Test Requester"
 msgstr ""
 
 msgid "Test Scene"

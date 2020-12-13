@@ -51,7 +51,13 @@ namespace GuiToolkit
 			}
 		}
 
-		public static string _(string _s)
+		/// Translation functions.
+		/// Note that the convenient but weird "_" name is standard in gettext/po/pot environment, so don't blame me :-P
+		protected string _(string _s)
+		{
+			return gettext(_s);
+		}
+		protected string gettext(string _s)
 		{
 			return UiMain.LocaManager.Translate(_s);
 		}

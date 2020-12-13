@@ -64,28 +64,45 @@ namespace GuiToolkit
 
 				string code = strings[i];
 				string str = strings[i+1];
-				if (code.Length < 2)
+
+				if (Evaluate(code, str, "_("))
 					continue;
 
-				if (code == "_(")
-				{
-					UiMain.LocaManager.AddKey(str);
+				if (Evaluate(code, str, "gettext("))
 					continue;
-				}
-
-				if (code.EndsWith("_("))
-				{
-					char c = code[code.Length - 3];
-					if ((char.IsWhiteSpace(c) || !char.IsLetterOrDigit(c)) && c != '_')
-					{
-						UiMain.LocaManager.AddKey(str);
-					}
-				}
 			}
+
  			//DebugDump(_path, strings);
 		}
 
-		// First part: Separate all strings from other program code, remove all quotation marks and comments
+		private static bool Evaluate(string _code, string _string, string _word)
+		{
+			int codeLength = _code.Length;
+			int wordLength = _word.Length;
+			if (codeLength < wordLength)
+				return false;
+
+			if (_code.EndsWith(_word))
+			{
+				if (codeLength == wordLength)
+				{
+					UiMain.LocaManager.AddKey(_string);
+					return true;
+				}
+
+				char c = _code[codeLength - wordLength - 1];
+
+				if ((char.IsWhiteSpace(c) || !char.IsLetterOrDigit(c)) && c != '_')
+				{
+					UiMain.LocaManager.AddKey(_string);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		// Separate all strings from other program code, remove all quotation marks and comments
 		private static List<string> ExtractAllStrings( string _content )
 		{
 			List<string> result = new List<string>();
@@ -218,7 +235,7 @@ namespace GuiToolkit
 
 		private static void DebugDump(string _path, List <string> _strings)
 		{
-			string outPath = "C:\\temp\\LocaCleanerTest\\";
+			string outPath = "C:\\temp\\LocaProcessorTest\\";
 			try {
 				Directory.CreateDirectory(outPath);
 			} catch
