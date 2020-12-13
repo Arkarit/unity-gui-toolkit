@@ -12,6 +12,13 @@ namespace GuiToolkit
 {
 	public class UiLocaManagerImpl : UiLocaManager
 	{
+		private enum PoKeywordState
+		{
+			None,
+			MsgId,
+			MsgStr,
+		}
+
 		private bool m_isDev;
 
 		private string m_languageId = "";
@@ -31,6 +38,8 @@ namespace GuiToolkit
 
 			Log($"Language changed: '{_languageId}'");
 
+			m_languageId = _languageId;
+
 			m_isDev = _languageId == "dev";
 			if (m_isDev)
 			{
@@ -48,19 +57,45 @@ namespace GuiToolkit
 			if (text == null)
 				return false;
 
-			string currentKey = "";
+			string currentId = "";
+			string currentStr = "";
+			PoKeywordState keywordState = PoKeywordState.None;
+
 			string[] lines = text.text.Split(new [] { '\r', '\n' });
 			foreach (string line in lines)
 			{
 				if (line.StartsWith("msgid"))
 				{
-					currentKey = Unescape(line.Substring(7, line.Length - 8));
+					if (keywordState == PoKeywordState.MsgStr)
+						m_translationDict.Add(currentId, currentStr);
+
+					keywordState = PoKeywordState.MsgId;
+					currentId = Unescape(line.Substring(7, line.Length - 8));
 					continue;
 				}
 
-				if (line.StartsWith("msgstr") && !string.IsNullOrEmpty(currentKey))
-					m_translationDict.Add(currentKey, Unescape(line.Substring(8, line.Length - 9)));
+				if (line.StartsWith("msgstr"))
+				{
+					currentStr = Unescape(line.Substring(8, line.Length - 9));
+					keywordState = PoKeywordState.MsgStr;
+					continue;
+				}
+
+				if (line.StartsWith("\""))
+				{
+					string s = Unescape(line.Substring(1, line.Length-2));
+					switch (keywordState)
+					{
+						case PoKeywordState.MsgId: currentId += s; break;
+						case PoKeywordState.MsgStr: currentStr += s; break;
+					}
+				}
 			}
+
+			if (keywordState == PoKeywordState.MsgStr)
+				m_translationDict.Add(currentId, currentStr);
+			
+			//DebugDump();
 
 			return true;
 		}
@@ -174,6 +209,30 @@ namespace GuiToolkit
 				Debug.LogError($"Write Fail for POT file at '{PotPath}':'{e.Message}'");
 			}
 		}
+
+		private void DebugDump()
+		{
+			string s = $"Language:'{m_languageId}'\n";
+
+			foreach (var kv in m_translationDict)
+			{
+				s += "*************************************************\n";
+				s += "key:" + kv.Key + "\n";
+				s += "-------------------------------------------------\n";
+				s += "val:" + kv.Value + "\n\n";
+			}
+
+			try
+			{
+				File.WriteAllText($"C:\\temp\\{m_languageId}_dump.txt", s);
+			}
+			catch
+			{
+				Debug.LogError("Could not write dump file");
+			}
+		}
+
+
 #endif
 	}
 }
