@@ -106,7 +106,7 @@ namespace GuiToolkit
 			GUILayout.EndVertical();
 		}
 
-		[MenuItem(StringConstants.SETTINGS_MENU_NAME)]
+		[MenuItem(StringConstants.SETTINGS_MENU_NAME, priority = Constants.SETTINGS_MENU_PRIORITY)]
 		public static UiSettingsWindow GetWindow()
 		{
 			var window = GetWindow<UiSettingsWindow>();

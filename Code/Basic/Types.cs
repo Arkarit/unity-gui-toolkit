@@ -74,6 +74,11 @@ namespace GuiToolkit
 		public static Color HANDLE_COLOR = Color.yellow;
 		public static Color HANDLE_SUPPORTING_COLOR = Color.yellow * 0.5f;
 		public static Color HANDLE_CAGE_LINE_COLOR = Color.yellow * 0.5f;
+
+		public const int SETTINGS_MENU_PRIORITY = -1;
+		public const int GAME_SPEED_MENU_PRIORITY = 500;
+		public const int LOCA_PROCESSOR_MENU_PRIORITY = 100;
+		public const int LOCA_PLURAL_PROCESSOR_MENU_PRIORITY = 110;
 	}
 
 	public static class StringConstants
@@ -83,6 +88,7 @@ namespace GuiToolkit
 
 		public const string SETTINGS_MENU_NAME = MENU_HEADER + "Settings";
 		public const string GAME_SPEED_MENU_NAME = MENU_HEADER + "Game speed";
-		public const string LOCA_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update POT file)";
+		public const string LOCA_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update pot file)";
+		public const string LOCA_PLURAL_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update plurals when added a new language)";
 	}
 }

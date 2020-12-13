@@ -13,8 +13,8 @@ namespace GuiToolkit
 		private static int m_numScripts;
 		private static int m_currentScriptIdx;
 
-		[MenuItem(StringConstants.LOCA_PROCESSOR_MENU_NAME)]
-		public static void Clean()
+		[MenuItem(StringConstants.LOCA_PROCESSOR_MENU_NAME, priority = Constants.LOCA_PROCESSOR_MENU_PRIORITY)]
+		public static void Process()
 		{
 			UiMain.LocaManager.Clear();
 

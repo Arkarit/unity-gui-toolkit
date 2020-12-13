@@ -20,7 +20,7 @@ namespace GuiToolkit
 			EditorUpdater.TimeScale = m_speed;
 		}
 
-		[MenuItem(StringConstants.GAME_SPEED_MENU_NAME)]
+		[MenuItem(StringConstants.GAME_SPEED_MENU_NAME, priority = Constants.GAME_SPEED_MENU_PRIORITY)]
 		public static GameSpeed GetWindow()
 		{
 			var window = GetWindow<GameSpeed>();
