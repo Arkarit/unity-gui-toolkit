@@ -18,16 +18,16 @@ namespace GuiToolkit
 		+ "// Use menu '" + StringConstants.LOCA_PLURAL_PROCESSOR_MENU_NAME + "' to add new language plurals!\n"
 		+ "namespace GuiToolkit\n"
 		+ "{\n"
-		+ "	public static class Plurals\n"
+		+ "	public static class LocaPlurals\n"
 		+ "	{\n"
 		+ "		// Mimicking C bool handling\n"
 		+ "		public struct CBool\n"
 		+ "		{\n"
 		+ "			private int m_value;\n"
-		+ "			public static implicit operator bool(CBool d) => d.m_value != 0;\n"
-		+ "			public static implicit operator int(CBool d) => d.m_value;\n"
-		+ "			public static implicit operator CBool(int d) => new CBool(d);\n"
-		+ "			public static implicit operator CBool(bool d) => new CBool(d);\n"
+		+ "			public static implicit operator bool(CBool _val) => _val.m_value != 0;\n"
+		+ "			public static implicit operator int(CBool _val) => _val.m_value;\n"
+		+ "			public static implicit operator CBool(int _val) => new CBool(_val);\n"
+		+ "			public static implicit operator CBool(bool _val) => new CBool(_val);\n"
 		+ "			public CBool(int _val = 0) { m_value = _val; }\n"
 		+ "			public CBool(bool _val) { m_value = _val ? 1 : 0; }\n"
 		+ "		}\n"
@@ -66,7 +66,7 @@ namespace GuiToolkit
 				StringReader reader = new StringReader(textAsset.text);
 
 				string language = Path.GetFileName(assetPath);
-				language = language.Substring(0, language.Length-3).Trim();
+				language = language.Substring(0, language.Length-7).Trim();
 
 				bool inPlural = false;
 				string pluralFn = "";
@@ -96,13 +96,30 @@ namespace GuiToolkit
 
 				if (pluralFn != "")
 				{
+					while (pluralFn.EndsWith("\\n"))
+						pluralFn = pluralFn.Substring(0, pluralFn.Length-2);
+
 					fileContent += 
-						  "case \"" + language + "\":\n"
-						+ pluralFn + "\n"
-						+ "break;\n";
+						  "				case \"" + language + "\":\n"
+						+ "					" + pluralFn + "\n"
+						+ "					break;\n";
 				}
 			}
 
+			fileContent += FILE_FOOTER;
+
+			string filePath = UiEditorUtility.GetApplicationDataDir() + UiSettings.UiToolkitRootProjectDir + "/Code/Loca/LocaPlurals.cs";
+			try
+			{
+				File.WriteAllText(filePath, fileContent);
+			}
+			catch
+			{
+				Debug.LogError($"Failed to write Plurals.cs at '{filePath}'");
+				return;
+			}
+
+			AssetDatabase.Refresh();
 		}
 	}
 }
