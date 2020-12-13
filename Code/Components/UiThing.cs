@@ -51,7 +51,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public static string _tr(string _s)
+		public static string _(string _s)
 		{
 			return UiMain.LocaManager.Translate(_s);
 		}

@@ -727,6 +727,27 @@ namespace GuiToolkit
 			FindAllComponentsInAllScriptableObjects(_foundFn);
 		}
 
+		public delegate void ScriptFoundDelegate(string path, string _content);
+
+		public static void FindAllScripts(ScriptFoundDelegate _foundFn, bool _excludePackages = true)
+		{
+			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:Script");
+
+			foreach (string guid in allAssetPathGuids)
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+
+				if (_excludePackages && assetPath.StartsWith("Packages/", StringComparison.OrdinalIgnoreCase))
+					continue;
+
+				TextAsset textAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
+				if (textAsset == null)
+					continue;
+
+				_foundFn( assetPath, textAsset.text );
+			}
+		}
+
 		// Supports interfaces
 		// Caution! Clear _result before usage!
 		public static void FindObjectsOfType<T>( List<T> _result, Scene _scene, bool _includeInactive = true)

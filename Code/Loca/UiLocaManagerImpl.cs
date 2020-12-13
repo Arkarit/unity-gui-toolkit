@@ -26,12 +26,12 @@ namespace GuiToolkit
 				return false;
 			}
 
-			if (_languageId.Equals(m_languageId))
+			if (_languageId == m_languageId)
 				return true;
 
 			Log($"Language changed: '{_languageId}'");
 
-			m_isDev = _languageId.Equals("dev");
+			m_isDev = _languageId == "dev";
 			if (m_isDev)
 			{
 				m_translationDict.Clear();
