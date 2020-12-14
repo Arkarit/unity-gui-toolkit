@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e619d85a77f08243a85bd93cda23a19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_defaultSceneVisibility: 0
+  m_defaultSceneVisibility: 2
 --- !u!114 &7106353789417720844
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71,7 +71,7 @@ MonoBehaviour:
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
   m_autoStart: 0
-  m_setOnStart: 1
+  m_setOnStart: 0
   m_numberOfLoops: 0
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
@@ -149,13 +149,13 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaImage: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
---- !u!114 &7424028244501878194
+--- !u!114 &3789238200171850484
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4393230917738290328}
+  m_GameObject: {fileID: 2062107936342809774}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 674c9e59151164345b581302232e337c, type: 3}
@@ -175,13 +175,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_autoTranslate: 1
---- !u!114 &3789238200171850484
+--- !u!114 &7424028244501878194
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2062107936342809774}
+  m_GameObject: {fileID: 4393230917738290328}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 674c9e59151164345b581302232e337c, type: 3}
@@ -253,7 +253,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e619d85a77f08243a85bd93cda23a19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_defaultSceneVisibility: 0
+  m_defaultSceneVisibility: 2
 --- !u!114 &4436671679536795600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272,7 +272,7 @@ MonoBehaviour:
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
   m_autoStart: 0
-  m_setOnStart: 1
+  m_setOnStart: 0
   m_numberOfLoops: 0
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
@@ -402,7 +402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e619d85a77f08243a85bd93cda23a19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_defaultSceneVisibility: 0
+  m_defaultSceneVisibility: 2
 --- !u!114 &2454426548597611469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -421,7 +421,7 @@ MonoBehaviour:
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
   m_autoStart: 0
-  m_setOnStart: 1
+  m_setOnStart: 0
   m_numberOfLoops: 0
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
