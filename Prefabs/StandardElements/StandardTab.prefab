@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 6428330951011662478}
   - component: {fileID: 6428330951011662473}
   m_Layer: 5
-  m_Name: Tab
+  m_Name: StandardTab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -129,7 +129,7 @@ MonoBehaviour:
   m_MinWidth: -1
   m_MinHeight: -1
   m_PreferredWidth: -1
-  m_PreferredHeight: 122
+  m_PreferredHeight: 140
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
