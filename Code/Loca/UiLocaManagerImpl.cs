@@ -1,4 +1,4 @@
-﻿#define DEBUG_LOCA
+﻿//#define DEBUG_LOCA
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -107,7 +107,7 @@ namespace GuiToolkit
 				}
 			}
 
-			DebugDump();
+			//DebugDump();
 
 
 			return true;
