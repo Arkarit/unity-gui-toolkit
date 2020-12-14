@@ -11,6 +11,9 @@ namespace GuiToolkit
 			
 			switch (_languageId)
 			{
+				case "dev":
+					nplurals=2; plural=(n != 1);
+					break;
 				case "de":
 					nplurals=2; plural=(n != 1);
 					break;

@@ -24,6 +24,8 @@ namespace GuiToolkit
 		private readonly HashSet<ILocaListener> m_locaListeners = new HashSet<ILocaListener>();
 
 		public abstract string Translate(string _key);
+		public abstract string Translate(string _singularKey, string _pluralKey, int _n );
+
 		public abstract bool ChangeLanguageImpl(string _languageId);
 
 		private static string[] s_languageNames;
@@ -60,7 +62,7 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 		public abstract void Clear();
-		public abstract void AddKey( string _newKey );
+		public abstract void AddKey( string _singularKey, string _pluralKey = null );
 		public abstract void ReadKeyData();
 		public abstract void WriteKeyData();
 #endif
@@ -96,5 +98,6 @@ namespace GuiToolkit
 		}
 
 		public static UiLocaManager Instance {get; set;}
+
 	}
 }

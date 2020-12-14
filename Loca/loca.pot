@@ -79,3 +79,9 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
+msgid "{0} Tree, "
+msgid_plural "{0} Trees, "
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+

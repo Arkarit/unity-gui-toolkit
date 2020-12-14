@@ -61,6 +61,14 @@ namespace GuiToolkit
 		{
 			return UiMain.LocaManager.Translate(_s);
 		}
+		protected string _n(string _singular, string _plural, int _n)
+		{
+			return ngettext(_singular, _plural, _n);
+		}
+		protected string ngettext(string _singular, string _plural, int _n)
+		{
+			return UiMain.LocaManager.Translate(_singular, _plural, _n);
+		}
 
 		/// Installs event listeners, if ReceiveEventsWhenDisabled
 		/// Also ensure that the game object is always in UI layer

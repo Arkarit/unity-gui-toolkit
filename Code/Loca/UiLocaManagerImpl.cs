@@ -12,18 +12,10 @@ namespace GuiToolkit
 {
 	public class UiLocaManagerImpl : UiLocaManager
 	{
-		private enum PoKeywordState
-		{
-			None,
-			MsgId,
-			MsgStr,
-		}
-
-		private bool m_isDev;
-
-		private string m_languageId = "";
-
+		private bool m_isDev = true;
+		private string m_languageId = "dev";
 		private readonly Dictionary<string, string> m_translationDict = new Dictionary<string, string>();
+		private readonly Dictionary<string, List<string>> m_translationDictPlural = new Dictionary<string, List<string>>();
 
 		public override bool ChangeLanguageImpl( string _languageId )
 		{
@@ -44,6 +36,7 @@ namespace GuiToolkit
 			if (m_isDev)
 			{
 				m_translationDict.Clear();
+				m_translationDictPlural.Clear();
 				return true;
 			}
 
@@ -57,47 +50,107 @@ namespace GuiToolkit
 			if (text == null)
 				return false;
 
-			string currentId = "";
-			string currentStr = "";
-			PoKeywordState keywordState = PoKeywordState.None;
-
 			string[] lines = text.text.Split(new [] { '\r', '\n' });
-			foreach (string line in lines)
+			lines = CleanUpLines(lines);
+
+			for (int i=0; i<lines.Length; i++)
 			{
-				if (line.StartsWith("msgid"))
-				{
-					if (keywordState == PoKeywordState.MsgStr)
-						m_translationDict.Add(currentId, currentStr);
+				string line1 = lines[i];
 
-					keywordState = PoKeywordState.MsgId;
-					currentId = Unescape(line.Substring(7, line.Length - 8));
-					continue;
-				}
-
-				if (line.StartsWith("msgstr"))
+				if (line1.StartsWith("msgid"))
 				{
-					currentStr = Unescape(line.Substring(8, line.Length - 9));
-					keywordState = PoKeywordState.MsgStr;
-					continue;
-				}
-
-				if (line.StartsWith("\""))
-				{
-					string s = Unescape(line.Substring(1, line.Length-2));
-					switch (keywordState)
+					if (i >= lines.Length-1)
 					{
-						case PoKeywordState.MsgId: currentId += s; break;
-						case PoKeywordState.MsgStr: currentStr += s; break;
+						Debug.LogError("Malformed PO file");
+						break;
 					}
+
+					string line2 = lines[i+1];
+					if (line2.StartsWith("msgstr"))
+					{
+						string cleanKey = Unescape(line1.Substring(7, line1.Length - 8));
+						string cleanValue = Unescape(line2.Substring(8, line2.Length - 9));
+						m_translationDict.Add(cleanKey, cleanValue);
+						i++;
+						continue;
+					}
+
+					Debug.Assert(line2.StartsWith("msgid_plural"));
+					if (!line2.StartsWith("msgid_plural"))
+						continue;
+
+					string cleanKeySingular = Unescape(line1.Substring(7, line1.Length - 8));
+					string cleanKeyPlural = Unescape(line2.Substring(14, line2.Length - 15));
+
+					i += 1;
+					if (i >= lines.Length-1)
+					{
+						Debug.LogError("Malformed PO file");
+						break;
+					}
+
+					List<string> currentPlurals = new List<string>();
+					while (i+1 < lines.Length && lines[i+1].StartsWith("msgstr["))
+					{
+						currentPlurals.Add(Unescape(lines[i+1].Substring(11, lines[i+1].Length - 12)));
+						i++;
+					}
+
+					if (currentPlurals.Count < 2)
+					{
+						Debug.LogError("Malformed PO file");
+						continue;
+					}
+
+					m_translationDict.Add(cleanKeySingular, currentPlurals[0]);
+					m_translationDictPlural.Add(cleanKeyPlural, currentPlurals);
 				}
 			}
 
-			if (keywordState == PoKeywordState.MsgStr)
-				m_translationDict.Add(currentId, currentStr);
-			
-			//DebugDump();
+			DebugDump();
+
 
 			return true;
+		}
+
+		// removes empty lines, concatenates strings
+		private string[] CleanUpLines( string[] _lines )
+		{
+			List <string> result = new List<string>();
+
+			int lastKeyword = -1;
+			for (int i=0; i<_lines.Length; i++)
+			{
+				string line = _lines[i].Trim();
+				if (   line.StartsWith("#")
+					|| line.Length <= 2)
+				{
+					_lines[i] = null;
+					continue;
+				}
+				if (line.StartsWith("\""))
+				{
+					if (lastKeyword == -1)
+					{
+						Debug.LogError("Malformed PO file");
+						continue;
+					}
+
+					_lines[lastKeyword] = _lines[lastKeyword].Substring(0, _lines[lastKeyword].Length-1) + line.Substring(1, line.Length-1);
+					_lines[i] = null;
+					continue;
+				}
+
+				lastKeyword = i;
+			}
+
+			foreach (var str in _lines)
+			{
+				if (str != null)
+					result.Add(str);
+			}
+
+			return result.ToArray();
 		}
 
 		public override string Translate( string _s )
@@ -110,6 +163,27 @@ namespace GuiToolkit
 
 			return _s;
 		}
+
+		public override string Translate(string _singularKey, string _pluralKey, int _n )
+		{
+			(int numPluralForms, int pluralIdx) = LocaPlurals.GetPluralIdx(m_languageId, _n);
+			if (pluralIdx == 0)
+				return Translate(_singularKey);
+
+			if (m_isDev)
+				return _pluralKey;
+
+			if (m_translationDictPlural.TryGetValue(_pluralKey, out List<string> plurals))
+			{
+				if (pluralIdx < plurals.Count)
+				{
+					return plurals[pluralIdx];
+				}
+			}
+
+			return _pluralKey;
+		}
+
 
 		[System.Diagnostics.Conditional("DEBUG_LOCA")]
 		private void Log(string _s)
@@ -135,22 +209,31 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 		private readonly SortedSet<string> m_keys = new SortedSet<string>();
+		private readonly SortedDictionary<string, string> m_pluralKeys = new SortedDictionary<string, string>();
 		private string PotPath => UiEditorUtility.GetApplicationDataDir() + UiSettings.EditorLoad().PotProjectPath;
 
 		public override void Clear()
 		{
 			m_keys.Clear();
+			m_pluralKeys.Clear();
 		}
 
-		public override void AddKey( string _newKey )
+		public override void AddKey( string _singularKey, string _pluralKey = null )
 		{
-			if (string.IsNullOrEmpty(_newKey))
+			if (string.IsNullOrEmpty(_singularKey))
 				return;
 
-			Log($"Adding key '{_newKey}'");
+			if (_pluralKey != null)
+			{
+				Log($"Adding plural key '{_singularKey}', '{_pluralKey}'");
+				Debug.Assert(!Application.isPlaying);
+				m_pluralKeys.Add(_singularKey, _pluralKey);
+				return;
+			}
 
+			Log($"Adding key '{_singularKey}'");
 			Debug.Assert(!Application.isPlaying);
-			m_keys.Add(_newKey);
+			m_keys.Add(_singularKey);
 		}
 
 		public override void ReadKeyData()
@@ -169,6 +252,20 @@ namespace GuiToolkit
 
 					line = line.Substring(7, line.Length - 8);
 					line = Unescape(line);
+
+					if (i<lines.Length-1)
+					{
+						string line2 = lines[i+1];
+						if (line2.StartsWith("msgid_plural"))
+						{
+							line2 = line2.Substring(14, line.Length - 15);
+							line2 = Unescape(line);
+							Log($"Adding POT plural key '{line}', '{line2}'");
+							m_pluralKeys.Add(line, line2);
+							i += 1;
+							continue;
+						}
+					}
 
 					Log($"Adding POT key '{line}'");
 					m_keys.Add(line);
@@ -195,8 +292,23 @@ namespace GuiToolkit
 				foreach (string key in m_keys)
 				{
 					string cleanKey = Escape(key);
+					s += 
+						  $"msgid \"{cleanKey}\"\n"
+						+ $"msgstr \"\"\n\n";
+				}
 
-					s += $"msgid \"{cleanKey}\"\nmsgstr \"\"\n\n";
+				foreach (var kv in m_pluralKeys)
+				{
+					string cleanSingular = Escape(kv.Key);
+					string cleanPlural = Escape(kv.Value);
+					s += 
+						  $"msgid \"{cleanSingular}\"\n" 
+						+ $"msgid_plural \"{cleanPlural}\"\n";
+
+					for (int i=0; i<3; i++)
+						s += $"msgstr[{i}] \"\"\n";
+
+					s += "\n";
 				}
 
 				File.WriteAllText(PotPath, s);
@@ -220,6 +332,16 @@ namespace GuiToolkit
 				s += "key:" + kv.Key + "\n";
 				s += "-------------------------------------------------\n";
 				s += "val:" + kv.Value + "\n\n";
+			}
+
+			foreach (var kv in m_translationDictPlural)
+			{
+				s += "*************************************************\n";
+				s += "pluralkey:" + kv.Key + "\n";
+				s += "-------------------------------------------------\n";
+				for (int i=0; i<kv.Value.Count; i++)
+					s += $"val[{i}]:{kv.Value[i]}\n";
+				s += "\n";
 			}
 
 			try

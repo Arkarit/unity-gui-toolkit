@@ -26,7 +26,10 @@ namespace GuiToolkit
 		+ "			CBool plural = 0;\n"
 		+ "			\n"
 		+ "			switch (_languageId)\n"
-		+ "			{\n";
+		+ "			{\n"
+		+ "				case \"dev\":\n"
+		+ "					nplurals=2; plural=(n != 1);\n"
+		+ "					break;\n";
 
 		private const string FILE_FOOTER =
 		  "			}\n"

@@ -56,45 +56,56 @@ namespace GuiToolkit
 			m_currentScriptIdx++;
 
 			List<string> strings = ExtractAllStrings(_content);
+			//DebugDump(_path, strings);
 
-			for (int i=0; i<strings.Count; i += 2)
+			int numStrings = strings.Count;
+
+			for (int i=0; i<numStrings; i += 2)
 			{
-				if ( i >= strings.Count -1 )
+				if ( i > numStrings - 2 )
 					break;
 
 				string code = strings[i];
 				string str = strings[i+1];
 
-				if (Evaluate(code, str, "_("))
+				if (Evaluate(code, "_(", str) || Evaluate(code, "gettext(", str))
 					continue;
 
-				if (Evaluate(code, str, "gettext("))
+				if ( i > numStrings - 4)
 					continue;
+
+				string code2 = strings[i+2];
+				string str2 = strings[i+3];
+
+				if (code2.Trim() != ",")
+					continue;
+
+				if (Evaluate(code, "_n(", str, str2) || Evaluate(code, "ngettext(", str, str2))
+					i += 2;
 			}
 
- 			//DebugDump(_path, strings);
-		}
+ 		}
 
-		private static bool Evaluate(string _code, string _string, string _word)
+		private static bool Evaluate(string _code, string _keyword, string _singular, string _plural = null)
 		{
 			int codeLength = _code.Length;
-			int wordLength = _word.Length;
-			if (codeLength < wordLength)
+			int keywordLength = _keyword.Length;
+			if (codeLength < keywordLength)
 				return false;
 
-			if (_code.EndsWith(_word))
+			if (_code.EndsWith(_keyword))
 			{
-				if (codeLength == wordLength)
+				if (codeLength == keywordLength)
 				{
-					UiMain.LocaManager.AddKey(_string);
+					UiMain.LocaManager.AddKey(_singular, _plural);
 					return true;
 				}
 
-				char c = _code[codeLength - wordLength - 1];
+				char c = _code[codeLength - keywordLength - 1];
 
 				if ((char.IsWhiteSpace(c) || !char.IsLetterOrDigit(c)) && c != '_')
 				{
-					UiMain.LocaManager.AddKey(_string);
+					UiMain.LocaManager.AddKey(_singular, _plural);
 					return true;
 				}
 			}
@@ -102,7 +113,8 @@ namespace GuiToolkit
 			return false;
 		}
 
-		// Separate all strings from other program code, remove all quotation marks and comments
+		// Separate all strings from other program code, remove all quotation marks and comments.
+		// Program code and string is always alternating.
 		private static List<string> ExtractAllStrings( string _content )
 		{
 			List<string> result = new List<string>();
