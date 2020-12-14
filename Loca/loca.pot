@@ -84,4 +84,5 @@ msgid_plural "{0} Trees, "
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 

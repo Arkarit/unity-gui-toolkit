@@ -32,6 +32,7 @@ namespace GuiToolkit
 
 			m_languageId = _languageId;
 
+
 			m_isDev = _languageId == "dev";
 			if (m_isDev)
 			{
@@ -46,6 +47,8 @@ namespace GuiToolkit
 		private bool ReadTranslation( string _languageId )
 		{
 			m_translationDict.Clear();
+			m_translationDictPlural.Clear();
+
 			TextAsset text = Resources.Load<TextAsset>(_languageId + ".po");
 			if (text == null)
 				return false;
@@ -96,7 +99,7 @@ namespace GuiToolkit
 						i++;
 					}
 
-					if (currentPlurals.Count < 2)
+					if (currentPlurals.Count < 1)
 					{
 						Debug.LogError("Malformed PO file");
 						continue;
@@ -305,7 +308,7 @@ namespace GuiToolkit
 						  $"msgid \"{cleanSingular}\"\n" 
 						+ $"msgid_plural \"{cleanPlural}\"\n";
 
-					for (int i=0; i<3; i++)
+					for (int i=0; i<4; i++)
 						s += $"msgstr[{i}] \"\"\n";
 
 					s += "\n";

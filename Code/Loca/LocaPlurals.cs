@@ -17,6 +17,9 @@ namespace GuiToolkit
 				case "de":
 					nplurals=2; plural=(n != 1);
 					break;
+				case "lol":
+					nplurals=1; plural=0;
+					break;
 			}
 			
 			int numPluralForms = nplurals;

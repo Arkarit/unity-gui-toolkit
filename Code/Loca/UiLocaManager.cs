@@ -15,6 +15,7 @@ namespace GuiToolkit
 		public enum Language
 		{
 			dev,
+			lol,
 			en,
 			us,
 			en_us,
