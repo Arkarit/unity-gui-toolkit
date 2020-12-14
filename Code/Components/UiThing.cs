@@ -13,12 +13,15 @@ namespace GuiToolkit
 	/// 
 	/// Additionally, it offers event handling plus some convenience functions.
 
-	public class UiThing : MonoBehaviour, IEventSystemHandler
+	public class UiThing : MonoBehaviour, IEventSystemHandler, ILocaListener
 	{
 		private static int s_layer = -1;
 
 		/// Override and return false here if you don't want to receive events when currently not active.
 		protected virtual bool ReceiveEventsWhenDisabled => true;
+
+		/// Override and return true here if you need the OnLanguageChanged() callback
+		protected virtual bool NeedsLanguageChangeCallback => false;
 
 		/// Override to add your event listeners.
 		protected virtual void AddEventListeners() {}
@@ -29,6 +32,9 @@ namespace GuiToolkit
 		private bool m_eventListenersAdded = false;
 
 		public RectTransform RectTransform => transform as RectTransform;
+
+		public virtual void OnLanguageChanged( string _languageId ){}
+
 
 		/// \brief Install Event handlers on disabled objects
 		/// 
@@ -89,6 +95,9 @@ namespace GuiToolkit
 		/// Installs event listeners, if not ReceiveEventsWhenDisabled
 		protected virtual void OnEnable()
 		{
+			if (NeedsLanguageChangeCallback)
+				UiMain.LocaManager.AddListener(this);
+
 			if (!ReceiveEventsWhenDisabled && !m_eventListenersAdded)
 			{
 				AddEventListeners();
@@ -99,6 +108,9 @@ namespace GuiToolkit
 		/// Removes event listeners, if not ReceiveEventsWhenDisabled
 		protected virtual void OnDisable()
 		{
+			if (NeedsLanguageChangeCallback)
+				UiMain.LocaManager.RemoveListener(this);
+
 			if (!ReceiveEventsWhenDisabled && m_eventListenersAdded)
 			{
 				RemoveEventListeners();
@@ -115,5 +127,6 @@ namespace GuiToolkit
 				m_eventListenersAdded = false;
 			}
 		}
+
 	}
 }
