@@ -47,8 +47,8 @@ namespace GuiToolkit
 			+ "With this button you can create it in the active scene."
 			;
 
-		public const string HELP_POT_PATH =
-			"Project location of the POT file (translation template containing keys, editor only)";
+		public const string HELP_LOCA_GROUP_DEFINITIONS =
+			"Loca Group definitions. Each loca group can have its own location for its PO and POT files.";
 
 		[Tooltip(HELP_SCENES)]
 		public SceneReference[] m_sceneReferences;
@@ -59,8 +59,8 @@ namespace GuiToolkit
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
 		public string m_additionalScenesPath = "Scenes/";
 
-		[Tooltip(HELP_POT_PATH)]
-		public string m_potPath;
+		[Tooltip(HELP_LOCA_GROUP_DEFINITIONS)]
+		public LocaGroupDefinition[] m_locaGroupDefinitions;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 
@@ -120,16 +120,6 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-
-		public string PotProjectPath
-		{
-			get
-			{
-				if (string.IsNullOrEmpty(m_potPath))
-					m_potPath = UiToolkitRootProjectDir + "Loca/loca.pot";
-				return m_potPath;
-			}
-		}
 
 		private static string s_rootDir;
 		public static string UiToolkitRootProjectDir

@@ -1,4 +1,4 @@
-﻿//#define DEBUG_LOCA
+﻿#define DEBUG_LOCA
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,8 +14,14 @@ namespace GuiToolkit
 	{
 		private bool m_isDev = true;
 		private string m_languageId = "dev";
-		private readonly Dictionary<string, string> m_translationDict = new Dictionary<string, string>();
-		private readonly Dictionary<string, List<string>> m_translationDictPlural = new Dictionary<string, List<string>>();
+
+		private class TranslationDictGroup
+		{
+			public readonly Dictionary<string, string> TranslationDict = new Dictionary<string, string>();
+			public readonly Dictionary<string, List<string>> TranslationDictPlural = new Dictionary<string, List<string>>();
+		}
+
+		private readonly Dictionary<string, TranslationDictGroup> m_groupDict = new Dictionary<string, TranslationDictGroup>();
 
 		public override bool ChangeLanguageImpl( string _languageId )
 		{
@@ -32,67 +38,82 @@ namespace GuiToolkit
 
 			m_languageId = _languageId;
 
-
 			m_isDev = _languageId == "dev";
 			if (m_isDev)
 			{
-				m_translationDict.Clear();
-				m_translationDictPlural.Clear();
+				m_groupDict.Clear();
 				return true;
 			}
 
 			return ReadTranslation(_languageId);
 		}
 
-		public override string TranslateGroup( string _group, string _s )
+		public override string Translate( string _s, string _group = "", bool _fallbackToDefaultGroup = true )
 		{
 			if (m_isDev)
 				return _s;
 
-			if (m_translationDict.TryGetValue(_s, out string result))
-				return result;
+			if (m_groupDict.TryGetValue(_group, out TranslationDictGroup group))
+			{
+				if (group.TranslationDict.TryGetValue(_s, out string result))
+					return result;
+			}
+
+			if (_group != "" && _fallbackToDefaultGroup)
+				return Translate(_s, "", false);
 
 			return _s;
 		}
 
-		public override string TranslateGroup(string _group, string _singularKey, string _pluralKey, int _n )
+		public override string Translate(string _singularKey, string _pluralKey, int _n, string _group = "", bool _fallbackToDefaultGroup = true )
 		{
 			(int numPluralForms, int pluralIdx) = LocaPlurals.GetPluralIdx(m_languageId, _n);
 			if (pluralIdx == 0)
-				return TranslateGroup(_group, _singularKey);
+				return Translate(_singularKey, _group);
 
 			if (m_isDev)
 				return _pluralKey;
 
-			if (m_translationDictPlural.TryGetValue(_pluralKey, out List<string> plurals))
+			if (m_groupDict.TryGetValue(_group, out TranslationDictGroup group))
 			{
-				if (pluralIdx < plurals.Count)
+				if (group.TranslationDictPlural.TryGetValue(_pluralKey, out List<string> plurals))
 				{
-					return plurals[pluralIdx];
+					if (pluralIdx < plurals.Count)
+					{
+						return plurals[pluralIdx];
+					}
 				}
 			}
+
+			if (_group != "" && _fallbackToDefaultGroup)
+				return Translate(_singularKey, _pluralKey, _n, "", false);
 
 			return _pluralKey;
 		}
 
-		public override string Translate( string _key )
-		{
-			return TranslateGroup("", _key);
-		}
-
-		public override string Translate( string _singularKey, string _pluralKey, int _n )
-		{
-			return TranslateGroup("", _singularKey, _pluralKey, _n);
-		}
-
 		private bool ReadTranslation( string _languageId )
 		{
-			m_translationDict.Clear();
-			m_translationDictPlural.Clear();
+			m_groupDict.Clear();
+			
+			LocaGroupDefinition[] groupDefinitions = UiSettings.Instance.m_locaGroupDefinitions;
 
-			TextAsset text = Resources.Load<TextAsset>(_languageId + ".po");
+			foreach (var groupDefinition in groupDefinitions)
+			{
+				ReadTranslation( _languageId, groupDefinition.GroupToken);
+			}
+
+			return true;
+		}
+
+		private void ReadTranslation( string _languageId, string _groupToken )
+		{
+			string assetName = _languageId + (_groupToken == "" ? "" : _groupToken + "_") + ".po";
+			TextAsset text = Resources.Load<TextAsset>(assetName);
 			if (text == null)
-				return false;
+				return;
+
+			TranslationDictGroup group = new TranslationDictGroup();
+			m_groupDict.Add(_groupToken, group);
 
 			string[] lines = text.text.Split(new [] { '\r', '\n' });
 			lines = CleanUpLines(lines);
@@ -114,7 +135,7 @@ namespace GuiToolkit
 					{
 						string cleanKey = Unescape(line1.Substring(7, line1.Length - 8));
 						string cleanValue = Unescape(line2.Substring(8, line2.Length - 9));
-						m_translationDict.Add(cleanKey, cleanValue);
+						group.TranslationDict.Add(cleanKey, cleanValue);
 						i++;
 						continue;
 					}
@@ -146,15 +167,13 @@ namespace GuiToolkit
 						continue;
 					}
 
-					m_translationDict.Add(cleanKeySingular, currentPlurals[0]);
-					m_translationDictPlural.Add(cleanKeyPlural, currentPlurals);
+					group.TranslationDict.Add(cleanKeySingular, currentPlurals[0]);
+					group.TranslationDictPlural.Add(cleanKeyPlural, currentPlurals);
 				}
 			}
 
 			//DebugDump();
 
-
-			return true;
 		}
 
 		// removes empty lines, concatenates strings
@@ -220,41 +239,56 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		private readonly SortedSet<string> m_keys = new SortedSet<string>();
-		private readonly SortedDictionary<string, string> m_pluralKeys = new SortedDictionary<string, string>();
-		private string PotPath => UiEditorUtility.GetApplicationDataDir() + UiSettings.EditorLoad().PotProjectPath;
+
+		private class TranslationSetGroup
+		{
+			public readonly SortedSet<string> Keys = new SortedSet<string>();
+			public readonly SortedDictionary<string, string> PluralKeys = new SortedDictionary<string, string>();
+		}
+
+		private readonly Dictionary<string, TranslationSetGroup> m_groupSetDict = new Dictionary<string, TranslationSetGroup>();
 
 		public override void Clear()
 		{
-			m_keys.Clear();
-			m_pluralKeys.Clear();
+			m_groupSetDict.Clear();
 		}
 
-		public override void AddKey( string _singularKey, string _pluralKey = null )
+		public override void AddKey( string _group, string _singularKey, string _pluralKey = null )
 		{
 			if (string.IsNullOrEmpty(_singularKey))
 				return;
+
+			TranslationSetGroup group;
+			if (!m_groupSetDict.TryGetValue(_group, out group))
+			{
+				group = new TranslationSetGroup();
+				m_groupSetDict.Add(_group, group);
+			}
 
 			if (_pluralKey != null)
 			{
 				Log($"Adding plural key '{_singularKey}', '{_pluralKey}'");
 				Debug.Assert(!Application.isPlaying);
-				m_pluralKeys.Add(_singularKey, _pluralKey);
+				group.PluralKeys.Add(_singularKey, _pluralKey);
 				return;
 			}
 
 			Log($"Adding key '{_singularKey}'");
 			Debug.Assert(!Application.isPlaying);
-			m_keys.Add(_singularKey);
+			group.Keys.Add(_singularKey);
 		}
 
-		public override void ReadKeyData()
+		public override void ReadKeyData(LocaGroupDefinition _lgd)
 		{
-			Log($"Read POT file at '{PotPath}'");
-			m_keys.Clear();
+			string potPath = _lgd.PotPath;
+			TranslationSetGroup group = new TranslationSetGroup();
+			m_groupSetDict.Add(_lgd.GroupToken, group);
+
+			Log($"Read POT file at '{potPath}'");
+
 			try
 			{
-				string[] lines = File.ReadAllLines(PotPath);
+				string[] lines = File.ReadAllLines(potPath);
 				for (int i=0; i<lines.Length; i++)
 				{
 					string line = lines[i];
@@ -273,14 +307,14 @@ namespace GuiToolkit
 							line2 = line2.Substring(14, line.Length - 15);
 							line2 = Unescape(line);
 							Log($"Adding POT plural key '{line}', '{line2}'");
-							m_pluralKeys.Add(line, line2);
+							group.PluralKeys.Add(line, line2);
 							i += 1;
 							continue;
 						}
 					}
 
 					Log($"Adding POT key '{line}'");
-					m_keys.Add(line);
+					group.Keys.Add(line);
 				}
 
 				Log("Success");
@@ -288,20 +322,26 @@ namespace GuiToolkit
 			catch( Exception e )
 			{
 				// This is not necessarily an error, since it may just not exist yet.
-				Debug.LogWarning($"Could not read POT file at '{PotPath}':'{e.Message}'");
+				Debug.LogWarning($"Could not read POT file at '{potPath}':'{e.Message}'");
 			}
 		}
 
-		public override void WriteKeyData()
+		public override void WriteKeyData(LocaGroupDefinition _lgd)
 		{
-			Log($"Write POT file at '{PotPath}'");
+			TranslationSetGroup group;
+			if (!m_groupSetDict.TryGetValue(_lgd.GroupToken, out group))
+				return;
+
+			string potPath = _lgd.PotPath;
+
+			Log($"Write POT file at '{potPath}'");
 			try
 			{
-				string dir = Path.GetDirectoryName(PotPath);
+				string dir = Path.GetDirectoryName(potPath);
 				Directory.CreateDirectory(dir);
 
 				string s = "";
-				foreach (string key in m_keys)
+				foreach (string key in group.Keys)
 				{
 					string cleanKey = Escape(key);
 					s += 
@@ -309,7 +349,7 @@ namespace GuiToolkit
 						+ $"msgstr \"\"\n\n";
 				}
 
-				foreach (var kv in m_pluralKeys)
+				foreach (var kv in group.PluralKeys)
 				{
 					string cleanSingular = Escape(kv.Key);
 					string cleanPlural = Escape(kv.Value);
@@ -323,17 +363,17 @@ namespace GuiToolkit
 					s += "\n";
 				}
 
-				File.WriteAllText(PotPath, s);
+				File.WriteAllText(potPath, s);
 
 				AssetDatabase.Refresh();
 				Log("Success");
 			}
 			catch( Exception e )
 			{
-				Debug.LogError($"Write Fail for POT file at '{PotPath}':'{e.Message}'");
+				Debug.LogError($"Write Fail for POT file at '{potPath}':'{e.Message}'");
 			}
 		}
-
+/*
 		private void DebugDump()
 		{
 			string s = $"Language:'{m_languageId}'\n";
@@ -365,7 +405,7 @@ namespace GuiToolkit
 				Debug.LogError("Could not write dump file");
 			}
 		}
-
+*/
 
 #endif
 	}

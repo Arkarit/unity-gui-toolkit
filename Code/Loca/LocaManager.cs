@@ -9,6 +9,13 @@ namespace GuiToolkit
 		void OnLanguageChanged(string _languageId);
 	}
 
+	[Serializable]
+	public struct LocaGroupDefinition
+	{
+		public string GroupToken;
+		public string PotPath;
+	}
+
 	public abstract class LocaManager
 	{
 		// Builtin languages
@@ -24,11 +31,8 @@ namespace GuiToolkit
 
 		private readonly HashSet<ILocaListener> m_locaListeners = new HashSet<ILocaListener>();
 
-		public abstract string Translate(string _key);
-		public abstract string Translate(string _singularKey, string _pluralKey, int _n );
-
-		public abstract string TranslateGroup(string _group, string _key);
-		public abstract string TranslateGroup(string _group, string _singularKey, string _pluralKey, int _n );
+		public abstract string Translate(string _key, string _group = "", bool _fallbackToDefaultGroup = true);
+		public abstract string Translate(string _singularKey, string _pluralKey, int _n, string _group = "", bool _fallbackToDefaultGroup = true);
 
 		public abstract bool ChangeLanguageImpl(string _languageId);
 
@@ -66,9 +70,28 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 		public abstract void Clear();
-		public abstract void AddKey( string _singularKey, string _pluralKey = null );
-		public abstract void ReadKeyData();
-		public abstract void WriteKeyData();
+		public abstract void AddKey( string _group, string _singularKey, string _pluralKey = null );
+		public abstract void ReadKeyData(LocaGroupDefinition _lgd);
+		public abstract void WriteKeyData(LocaGroupDefinition _lgd);
+
+		public void ReadKeyData()
+		{
+			UiSettings settings = UiSettings.EditorLoad();
+			LocaGroupDefinition[] definitions = settings.m_locaGroupDefinitions;
+			if (definitions == null)
+				return;
+			foreach (var definition in definitions)
+				ReadKeyData(definition);
+		}
+		public void WriteKeyData()
+		{
+			UiSettings settings = UiSettings.EditorLoad();
+			LocaGroupDefinition[] definitions = settings.m_locaGroupDefinitions;
+			if (definitions == null)
+				return;
+			foreach (var definition in definitions)
+				WriteKeyData(definition);
+		}
 #endif
 
 		public bool ChangeLanguage(string _languageId)
