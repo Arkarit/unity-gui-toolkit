@@ -16,7 +16,7 @@ namespace GuiToolkit
 		private Image m_image;
 
 		[SerializeField]
-		private UiLocaManager.Language m_language;
+		private LocaManager.Language m_language;
 
 		protected override void OnEnable()
 		{
@@ -48,7 +48,7 @@ namespace GuiToolkit
 			}
 
 			string currentAssetPath = AssetDatabase.GetAssetPath(m_image.sprite);
-			string assetPath = UiEditorUtility.GetAssetProjectDir(currentAssetPath) + UiLocaManager.StringByLanguage(m_language) + ".png";
+			string assetPath = UiEditorUtility.GetAssetProjectDir(currentAssetPath) + LocaManager.StringByLanguage(m_language) + ".png";
 			Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
 
 			if (m_image.sprite == null)

@@ -13,8 +13,8 @@ namespace GuiToolkit
 		private TMP_Text m_text;
 		private string m_key;
 
-		private UiLocaManager m_locaManager;
-		private UiLocaManager LocaManager
+		private LocaManager m_locaManager;
+		private LocaManager LocaManager
 		{
 			get
 			{

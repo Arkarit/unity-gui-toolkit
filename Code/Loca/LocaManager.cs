@@ -9,7 +9,7 @@ namespace GuiToolkit
 		void OnLanguageChanged(string _languageId);
 	}
 
-	public abstract class UiLocaManager
+	public abstract class LocaManager
 	{
 		// Builtin languages
 		public enum Language
@@ -26,6 +26,9 @@ namespace GuiToolkit
 
 		public abstract string Translate(string _key);
 		public abstract string Translate(string _singularKey, string _pluralKey, int _n );
+
+		public abstract string TranslateGroup(string _group, string _key);
+		public abstract string TranslateGroup(string _group, string _singularKey, string _pluralKey, int _n );
 
 		public abstract bool ChangeLanguageImpl(string _languageId);
 
@@ -98,7 +101,7 @@ namespace GuiToolkit
 			m_locaListeners.Remove(_listener);
 		}
 
-		public static UiLocaManager Instance {get; set;}
+		public static LocaManager Instance {get; set;}
 
 	}
 }

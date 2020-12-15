@@ -57,20 +57,26 @@ namespace GuiToolkit
 			}
 		}
 
-		/// Translation functions.
+		/// Translation gettext style
 		/// Note that the convenient but weird "_" name is standard in gettext/po/pot environment, so don't blame me :-P
 		protected string _(string _s)
 		{
 			return gettext(_s);
 		}
+
+		/// Translation gettext style
 		protected string gettext(string _s)
 		{
 			return UiMain.LocaManager.Translate(_s);
 		}
+
+		/// Translation gettext style
 		protected string _n(string _singular, string _plural, int _n)
 		{
 			return ngettext(_singular, _plural, _n);
 		}
+
+		/// Translation gettext style
 		protected string ngettext(string _singular, string _plural, int _n)
 		{
 			return UiMain.LocaManager.Translate(_singular, _plural, _n);

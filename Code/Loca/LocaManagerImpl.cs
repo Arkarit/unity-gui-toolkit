@@ -10,7 +10,7 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	public class UiLocaManagerImpl : UiLocaManager
+	public class LocaManagerImpl : LocaManager
 	{
 		private bool m_isDev = true;
 		private string m_languageId = "dev";
@@ -42,6 +42,47 @@ namespace GuiToolkit
 			}
 
 			return ReadTranslation(_languageId);
+		}
+
+		public override string TranslateGroup( string _group, string _s )
+		{
+			if (m_isDev)
+				return _s;
+
+			if (m_translationDict.TryGetValue(_s, out string result))
+				return result;
+
+			return _s;
+		}
+
+		public override string TranslateGroup(string _group, string _singularKey, string _pluralKey, int _n )
+		{
+			(int numPluralForms, int pluralIdx) = LocaPlurals.GetPluralIdx(m_languageId, _n);
+			if (pluralIdx == 0)
+				return TranslateGroup(_group, _singularKey);
+
+			if (m_isDev)
+				return _pluralKey;
+
+			if (m_translationDictPlural.TryGetValue(_pluralKey, out List<string> plurals))
+			{
+				if (pluralIdx < plurals.Count)
+				{
+					return plurals[pluralIdx];
+				}
+			}
+
+			return _pluralKey;
+		}
+
+		public override string Translate( string _key )
+		{
+			return TranslateGroup("", _key);
+		}
+
+		public override string Translate( string _singularKey, string _pluralKey, int _n )
+		{
+			return TranslateGroup("", _singularKey, _pluralKey, _n);
 		}
 
 		private bool ReadTranslation( string _languageId )
@@ -155,38 +196,6 @@ namespace GuiToolkit
 
 			return result.ToArray();
 		}
-
-		public override string Translate( string _s )
-		{
-			if (m_isDev)
-				return _s;
-
-			if (m_translationDict.TryGetValue(_s, out string result))
-				return result;
-
-			return _s;
-		}
-
-		public override string Translate(string _singularKey, string _pluralKey, int _n )
-		{
-			(int numPluralForms, int pluralIdx) = LocaPlurals.GetPluralIdx(m_languageId, _n);
-			if (pluralIdx == 0)
-				return Translate(_singularKey);
-
-			if (m_isDev)
-				return _pluralKey;
-
-			if (m_translationDictPlural.TryGetValue(_pluralKey, out List<string> plurals))
-			{
-				if (pluralIdx < plurals.Count)
-				{
-					return plurals[pluralIdx];
-				}
-			}
-
-			return _pluralKey;
-		}
-
 
 		[System.Diagnostics.Conditional("DEBUG_LOCA")]
 		private void Log(string _s)
