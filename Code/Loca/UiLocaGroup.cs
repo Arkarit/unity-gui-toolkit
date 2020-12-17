@@ -4,6 +4,6 @@ namespace GuiToolkit
 {
 	public class UiLocaGroup : MonoBehaviour
 	{
-		public string m_locaGroup;
+		public LocaGroup m_locaGroup;
 	}
 }

@@ -9,10 +9,10 @@ namespace GuiToolkit
 	[CreateAssetMenu()]
 	public class AdditionalLocaKeys : ScriptableObject, ILocaClient
 	{
-		public string m_locaGroup = "";
+		public LocaGroup m_locaGroup;
 		public List<string> Keys;
 
-		public string LocaGroup => m_locaGroup;
+		public LocaGroup LocaGroup => m_locaGroup;
 		public bool UsesMultipleLocaKeys => true;
 		public string LocaKey => null;
 		public List<string> LocaKeys => Keys;

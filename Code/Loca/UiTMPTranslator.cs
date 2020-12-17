@@ -8,12 +8,13 @@ namespace GuiToolkit
 	[RequireComponent(typeof(TMP_Text))]
 	public class UiTMPTranslator : MonoBehaviour, ILocaClient, ILocaListener
 	{
-		public bool m_useExplicitLocaGroup = false;
-		public string m_locaGroup = "";
+		public LocaGroup m_locaGroup;
 
 		private TMP_Text m_text;
+		private string m_groupToken = "";
 		private string m_key;
-		private UiLocaGroup m_locaGroupComponent;
+
+		private bool m_isInitialized;
 
 		private LocaManager m_locaManager;
 		private LocaManager LocaManager
@@ -28,7 +29,7 @@ namespace GuiToolkit
 
 		public void OnLanguageChanged(string _languageId)
 		{
-			Text.text = LocaManager.Translate(m_key);
+			Text.text = LocaManager.Translate(m_key, m_groupToken);
 		}
 
 		private TMP_Text Text
@@ -50,18 +51,25 @@ namespace GuiToolkit
 			if (!Application.isPlaying)
 				return;
 
-			if (!m_useExplicitLocaGroup)
+			if (!m_isInitialized)
 			{
-				if (m_locaGroupComponent == null)
-					m_locaGroupComponent = GetComponentInParent<UiLocaGroup>();
+				if (m_locaGroup == null)
+				{
+					UiLocaGroup uiLocaGroup = GetComponentInParent<UiLocaGroup>();
+					if (uiLocaGroup != null)
+						m_locaGroup = uiLocaGroup.m_locaGroup;
+				}
 
-				if (m_locaGroupComponent != null)
-					m_locaGroup = m_locaGroupComponent.m_locaGroup;
+				if (m_locaGroup != null)
+					m_groupToken = m_locaGroup.Token;
+
+
+				m_isInitialized = true;
 			}
 
 			m_key = Text.text;
 			LocaManager.AddListener(this);
-			Text.text = LocaManager.Translate(m_key);
+			Text.text = LocaManager.Translate(m_key, m_groupToken);
 		}
 
 		private void OnDisable()
@@ -74,7 +82,7 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		public string LocaGroup => m_locaGroup;
+		public LocaGroup LocaGroup => m_locaGroup;
 		public bool UsesMultipleLocaKeys => false;
 		public string LocaKey => Text.text;
 		public List<string> LocaKeys => null;

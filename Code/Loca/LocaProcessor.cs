@@ -19,11 +19,11 @@ namespace GuiToolkit
 			UiMain.LocaManager.Clear();
 
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
-			UiEditorUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent);
+			UiEditorUtility.FindAllComponentsInAllScenes<ILocaClient>(LocaHelper.AddKeyFromClient);
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
-			UiEditorUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent);
+			UiEditorUtility.FindAllComponentsInAllPrefabs<ILocaClient>(LocaHelper.AddKeyFromClient);
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scriptable objects", 0.2f);
-			UiEditorUtility.FindAllComponentsInAllScriptableObjects<ILocaClient>(FoundComponent);
+			UiEditorUtility.FindAllComponentsInAllScriptableObjects<ILocaClient>(LocaHelper.AddKeyFromClient);
 
 			m_numScripts = UiEditorUtility.FindAllScriptsCount();
 			m_currentScriptIdx = 0;
@@ -33,20 +33,6 @@ namespace GuiToolkit
 			EditorUtility.ClearProgressBar();
 
 			UiMain.LocaManager.WriteKeyData();
-		}
-
-		private static void FoundComponent( ILocaClient _component )
-		{
-			if (_component.UsesMultipleLocaKeys)
-			{
-				var keys = _component.LocaKeys;
-				foreach (var key in keys)
-					UiMain.LocaManager.AddKey(_component.LocaGroup, key);
-
-				return;
-			}
-
-			UiMain.LocaManager.AddKey(_component.LocaGroup, _component.LocaKey);
 		}
 
 		private static void FoundScript( string _path, string _content )

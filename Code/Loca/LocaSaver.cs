@@ -25,18 +25,7 @@ namespace GuiToolkit
 			UiMain.LocaManager.ReadKeyData();
 
 			foreach (var client in clients)
-			{
-				if (client.UsesMultipleLocaKeys)
-				{
-					var keys = client.LocaKeys;
-					foreach (var key in keys)
-						UiMain.LocaManager.AddKey(client.LocaGroup, key);
-				}
-				else
-				{
-					UiMain.LocaManager.AddKey(client.LocaGroup, client.LocaKey);
-				}
-			}
+				LocaHelper.AddKeyFromClient(client);
 
 			UiMain.LocaManager.WriteKeyData();
 		}
