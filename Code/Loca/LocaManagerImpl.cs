@@ -95,11 +95,11 @@ namespace GuiToolkit
 		{
 			m_groupDict.Clear();
 			
-			LocaGroupDefinition[] groupDefinitions = UiSettings.Instance.m_locaGroupDefinitions;
+			LocaGroup[] locaGroups = UiSettings.Instance.m_locaGroups;
 
-			foreach (var groupDefinition in groupDefinitions)
+			foreach (var locaGroup in locaGroups)
 			{
-				ReadTranslation( _languageId, groupDefinition.GroupToken);
+				ReadTranslation( _languageId, locaGroup.Token);
 			}
 
 			return true;
@@ -278,11 +278,11 @@ namespace GuiToolkit
 			group.Keys.Add(_singularKey);
 		}
 
-		public override void ReadKeyData(LocaGroupDefinition _lgd)
+		public override void ReadKeyData(LocaGroup _locaGroup)
 		{
-			string potPath = _lgd.PotPath;
+			string potPath = _locaGroup.PotPath;
 			TranslationSetGroup group = new TranslationSetGroup();
-			m_groupSetDict.Add(_lgd.GroupToken, group);
+			m_groupSetDict.Add(_locaGroup.Token, group);
 
 			Log($"Read POT file at '{potPath}'");
 
@@ -326,13 +326,13 @@ namespace GuiToolkit
 			}
 		}
 
-		public override void WriteKeyData(LocaGroupDefinition _lgd)
+		public override void WriteKeyData(LocaGroup _locaGroup)
 		{
 			TranslationSetGroup group;
-			if (!m_groupSetDict.TryGetValue(_lgd.GroupToken, out group))
+			if (!m_groupSetDict.TryGetValue(_locaGroup.Token, out group))
 				return;
 
-			string potPath = _lgd.PotPath;
+			string potPath = _locaGroup.PotPath;
 
 			Log($"Write POT file at '{potPath}'");
 			try

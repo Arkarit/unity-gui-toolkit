@@ -59,27 +59,27 @@ namespace GuiToolkit
 
 		/// Translation gettext style
 		/// Note that the convenient but weird "_" name is standard in gettext/po/pot environment, so don't blame me :-P
-		protected string _(string _s)
+		protected string _(string _s, string _group = "")
 		{
-			return gettext(_s);
+			return gettext(_s, _group);
 		}
 
 		/// Translation gettext style
-		protected string gettext(string _s)
+		protected string gettext(string _s, string _group = "")
 		{
-			return UiMain.LocaManager.Translate(_s);
+			return UiMain.LocaManager.Translate(_s, _group);
 		}
 
 		/// Translation gettext style
-		protected string _n(string _singular, string _plural, int _n)
+		protected string _n(string _singular, string _plural, int _n, string _group = "")
 		{
-			return ngettext(_singular, _plural, _n);
+			return ngettext(_singular, _plural, _n, _group);
 		}
 
 		/// Translation gettext style
-		protected string ngettext(string _singular, string _plural, int _n)
+		protected string ngettext(string _singular, string _plural, int _n, string _group = "")
 		{
-			return UiMain.LocaManager.Translate(_singular, _plural, _n);
+			return UiMain.LocaManager.Translate(_singular, _plural, _n, _group);
 		}
 
 		/// Installs event listeners, if ReceiveEventsWhenDisabled

@@ -47,7 +47,7 @@ namespace GuiToolkit
 			+ "With this button you can create it in the active scene."
 			;
 
-		public const string HELP_LOCA_GROUP_DEFINITIONS =
+		public const string HELP_LOCA_GROUPS =
 			"Loca Group definitions. Each loca group can have its own location for its PO and POT files.";
 
 		[Tooltip(HELP_SCENES)]
@@ -59,8 +59,8 @@ namespace GuiToolkit
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
 		public string m_additionalScenesPath = "Scenes/";
 
-		[Tooltip(HELP_LOCA_GROUP_DEFINITIONS)]
-		public LocaGroupDefinition[] m_locaGroupDefinitions;
+		[Tooltip(HELP_LOCA_GROUPS)]
+		public LocaGroup[] m_locaGroups;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 

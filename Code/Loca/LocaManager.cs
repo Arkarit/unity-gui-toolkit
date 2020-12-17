@@ -9,14 +9,6 @@ namespace GuiToolkit
 		void OnLanguageChanged(string _languageId);
 	}
 
-	[Serializable]
-	public struct LocaGroupDefinition
-	{
-		public string GroupToken;
-		public string PotPath;
-		public string PoFolder;
-	}
-
 	public abstract class LocaManager
 	{
 		// Builtin languages
@@ -72,27 +64,27 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		public abstract void Clear();
 		public abstract void AddKey( string _group, string _singularKey, string _pluralKey = null );
-		public abstract void ReadKeyData(LocaGroupDefinition _lgd);
-		public abstract void WriteKeyData(LocaGroupDefinition _lgd);
+		public abstract void ReadKeyData(LocaGroup _lgd);
+		public abstract void WriteKeyData(LocaGroup _lgd);
 
 		public void ReadKeyData()
 		{
 			Clear();
 			UiSettings settings = UiSettings.EditorLoad();
-			LocaGroupDefinition[] definitions = settings.m_locaGroupDefinitions;
-			if (definitions == null)
+			LocaGroup[] locaGroups = settings.m_locaGroups;
+			if (locaGroups == null)
 				return;
-			foreach (var definition in definitions)
-				ReadKeyData(definition);
+			foreach (var locaGroup in locaGroups)
+				ReadKeyData(locaGroup);
 		}
 		public void WriteKeyData()
 		{
 			UiSettings settings = UiSettings.EditorLoad();
-			LocaGroupDefinition[] definitions = settings.m_locaGroupDefinitions;
-			if (definitions == null)
+			LocaGroup[] locaGroups = settings.m_locaGroups;
+			if (locaGroups == null)
 				return;
-			foreach (var definition in definitions)
-				WriteKeyData(definition);
+			foreach (var locaGroup in locaGroups)
+				WriteKeyData(locaGroup);
 		}
 #endif
 

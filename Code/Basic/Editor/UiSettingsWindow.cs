@@ -69,9 +69,9 @@ namespace GuiToolkit
 			if (m_firstTimeInit)
 			{
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
-				EditorGUILayout.HelpBox(UiSettings.HELP_LOCA_GROUP_DEFINITIONS, MessageType.Info);
+				EditorGUILayout.HelpBox(UiSettings.HELP_LOCA_GROUPS, MessageType.Info);
 			}
-			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_locaGroupDefinitions"), true);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_locaGroups"), true);
 
 			m_serializedSettingsObject.ApplyModifiedProperties();
 

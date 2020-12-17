@@ -10,7 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5d4e81a454863534b86b02b9f04f9943, type: 3}
-  m_Name: unity-gui-toolkit
+  m_Name: unity-gui-toolkit-internal
   m_EditorClassIdentifier: 
-  Token: unity-gui-toolkit
+  Token: unity-gui-toolkit-internal
   PotPath: Assets/External/unity-gui-toolkit/Loca/loca.pot
+  PoDir: 
