@@ -30,11 +30,11 @@ namespace GuiToolkit
 				{
 					var keys = client.LocaKeys;
 					foreach (var key in keys)
-						UiMain.LocaManager.AddKey("todo", key);
+						UiMain.LocaManager.AddKey(client.LocaGroup, key);
 				}
 				else
 				{
-					UiMain.LocaManager.AddKey("todo", client.LocaKey);
+					UiMain.LocaManager.AddKey(client.LocaGroup, client.LocaKey);
 				}
 			}
 

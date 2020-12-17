@@ -14,6 +14,7 @@ namespace GuiToolkit
 	{
 		public string GroupToken;
 		public string PotPath;
+		public string PoFolder;
 	}
 
 	public abstract class LocaManager
@@ -76,6 +77,7 @@ namespace GuiToolkit
 
 		public void ReadKeyData()
 		{
+			Clear();
 			UiSettings settings = UiSettings.EditorLoad();
 			LocaGroupDefinition[] definitions = settings.m_locaGroupDefinitions;
 			if (definitions == null)

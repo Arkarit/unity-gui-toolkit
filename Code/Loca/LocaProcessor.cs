@@ -41,12 +41,12 @@ namespace GuiToolkit
 			{
 				var keys = _component.LocaKeys;
 				foreach (var key in keys)
-					UiMain.LocaManager.AddKey("todo", key);
+					UiMain.LocaManager.AddKey(_component.LocaGroup, key);
 
 				return;
 			}
 
-			UiMain.LocaManager.AddKey("todo", _component.LocaKey);
+			UiMain.LocaManager.AddKey(_component.LocaGroup, _component.LocaKey);
 		}
 
 		private static void FoundScript( string _path, string _content )
