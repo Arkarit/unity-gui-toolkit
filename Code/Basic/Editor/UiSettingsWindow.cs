@@ -73,6 +73,13 @@ namespace GuiToolkit
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_potPath"), true);
 
+			if (m_firstTimeInit)
+			{
+				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+				EditorGUILayout.HelpBox(UiSettings.HELP_LOCA_PLURALS_DIR, MessageType.Info);
+			}
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_locaPluralsDir"), true);
+
 			m_serializedSettingsObject.ApplyModifiedProperties();
 
 			if (FindObjectOfType<UiMain>() == null)
