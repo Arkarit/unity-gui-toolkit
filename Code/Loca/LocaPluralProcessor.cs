@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+
 	public static class LocaPluralProcessor
 	{
 		private static int m_numScripts;
@@ -44,29 +45,10 @@ namespace GuiToolkit
 		public static void Process()
 		{
 			string internalClassProjectPath = UiSettings.UiToolkitRootProjectDir + "/Code/Loca/LocaPlurals.cs";
-
-			string[] allScriptAssetPathGuids = AssetDatabase.FindAssets("LocaPlurals t:Script");
-
-			foreach (string guid in allScriptAssetPathGuids)
-			{
-				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-
-				if (assetPath.StartsWith("Packages/", StringComparison.OrdinalIgnoreCase))
-					continue;
-
-				if (assetPath.ToLower() == internalClassProjectPath.ToLower())
-					continue;
-
-				TextAsset textAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
-				if (textAsset == null)
-					continue;
-
-				UnityEngine.Object.DestroyImmediate(textAsset, true);
-			}
-
 			string internalClassFilePath = UiEditorUtility.GetApplicationDataDir() + internalClassProjectPath;
+			string newClassProjectPath = UiSettings.EditorLoad().m_locaPluralsDir + "/LocaPlurals.cs";
 
-			string filePath = UiEditorUtility.GetApplicationDataDir() + UiSettings.EditorLoad().m_locaPluralsDir + "/LocaPlurals.cs";
+			string filePath = UiEditorUtility.GetApplicationDataDir() + newClassProjectPath;
 			if (internalClassFilePath == filePath)
 			{
 				Debug.LogError("Overwrite of internal class not allowed");
@@ -138,7 +120,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			AssetDatabase.Refresh();
+			UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
 		}
 	}
 }
