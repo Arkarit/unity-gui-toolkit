@@ -121,16 +121,6 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 
-		public string PotProjectPath
-		{
-			get
-			{
-				if (string.IsNullOrEmpty(m_potPath))
-					m_potPath = UiToolkitRootProjectDir + "Loca/loca.pot";
-				return m_potPath;
-			}
-		}
-
 		private static string s_rootDir;
 		public static string UiToolkitRootProjectDir
 		{

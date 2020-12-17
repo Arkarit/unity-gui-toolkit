@@ -71,10 +71,7 @@ namespace GuiToolkit
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
 				EditorGUILayout.HelpBox(UiSettings.HELP_POT_PATH, MessageType.Info);
 			}
-			SerializedProperty potPath = m_serializedSettingsObject.FindProperty("m_potPath");
-			if (string.IsNullOrEmpty(potPath.stringValue))
-				potPath.stringValue = thisSettings.PotProjectPath;
-			EditorGUILayout.PropertyField(potPath, true);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_potPath"), true);
 
 			m_serializedSettingsObject.ApplyModifiedProperties();
 
