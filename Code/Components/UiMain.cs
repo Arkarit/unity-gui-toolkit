@@ -247,6 +247,9 @@ namespace GuiToolkit
 		private UiRequester m_requesterPrefab;
 
 		[SerializeField]
+		private UiSettingsDialog m_settingsDialogPrefab;
+
+		[SerializeField]
 		[FormerlySerializedAs("m_splashMessagePrefab")]
 		private UiToastMessageView m_toastMessageViewPrefab;
 
@@ -255,6 +258,12 @@ namespace GuiToolkit
 
 		[SerializeField]
 		private UiKeyPressRequester m_keyPressRequester;
+
+		public void ShowSettingsDialog()
+		{
+			UiSettingsDialog settingsDialog = CreateView(m_settingsDialogPrefab);
+			settingsDialog.Show();
+		}
 
 		public void ShowToastMessageView(string _message, float _duration = 2)
 		{
