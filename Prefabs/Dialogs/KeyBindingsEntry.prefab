@@ -63,9 +63,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: 100
+  m_MinHeight: 120
   m_PreferredWidth: -1
-  m_PreferredHeight: 100
+  m_PreferredHeight: 120
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -143,6 +143,10 @@ MonoBehaviour:
   m_audioSource: {fileID: 0}
   m_backgroundImage: {fileID: 3120667086693883568}
   m_backgroundGradientSimple: {fileID: 9012574396201138039}
+  m_enabled: 1
+  m_supportDisabledMaterial: 1
+  m_normalMaterial: {fileID: 0}
+  m_disabledMaterial: {fileID: 0}
   m_simpleWiggleAnimation: {fileID: 0}
 --- !u!1 &2833430398675571625
 GameObject:
@@ -210,6 +214,7 @@ MonoBehaviour:
   m_supportViewAnimations: 0
   m_support: 4096
   m_target: {fileID: 228642889886189838}
+  m_markTargetForLayoutRebuild: 0
   m_canvasScaler: {fileID: 0}
   m_canvasRectTransform: {fileID: 0}
   m_scaleByCanvasScaler: 1
