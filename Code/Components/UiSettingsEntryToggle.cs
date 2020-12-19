@@ -5,10 +5,8 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class UiSettingsEntry : UiThing
+	public class UiSettingsEntryToggle : UiSettingsEntryBase
 	{
-		[SerializeField]
-		protected TMP_Text m_text;
 
 		[SerializeField]
 		protected UiToggle m_toggle;
