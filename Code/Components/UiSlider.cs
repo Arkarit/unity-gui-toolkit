@@ -48,9 +48,15 @@ namespace GuiToolkit
 			if (_value)
 			{
 				m_slider.value = m_savedSliderVal;
+				m_slider.interactable = true;
+				if (m_optionalFullVolumeButton != null)
+					m_optionalFullVolumeButton.Button.interactable = true;
 				return;
 			}
 
+			m_slider.interactable = false;
+			if (m_optionalFullVolumeButton != null)
+				m_optionalFullVolumeButton.Button.interactable = false;
 			m_savedSliderVal = m_slider.value;
 			m_slider.value = 0;
 		}

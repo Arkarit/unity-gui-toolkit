@@ -567,8 +567,8 @@ MonoBehaviour:
   m_backgroundGradientSimple: {fileID: 0}
   m_enabled: 1
   m_supportDisabledMaterial: 1
-  m_normalMaterial: {fileID: 0}
-  m_disabledMaterial: {fileID: 0}
+  m_normalMaterial: {fileID: 2100000, guid: 628125a3ddd15eb4b8feca43ca29f673, type: 2}
+  m_disabledMaterial: {fileID: 2100000, guid: bbb4d48742f261844b844be821a291cc, type: 2}
 --- !u!1 &4959388444737241535
 GameObject:
   m_ObjectHideFlags: 0
@@ -1567,6 +1567,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 6166806974813182686}
     m_Modifications:
+    - target: {fileID: 2741956698068755487, guid: dffc64cfb8c59a8459afe98bfcb33b78,
+        type: 3}
+      propertyPath: m_canvasScaler
+      value: 
+      objectReference: {fileID: 2181491293581203446}
+    - target: {fileID: 2741956698068755487, guid: dffc64cfb8c59a8459afe98bfcb33b78,
+        type: 3}
+      propertyPath: m_canvasRectTransform
+      value: 
+      objectReference: {fileID: 2181491293581203445}
     - target: {fileID: 4490300588400499165, guid: dffc64cfb8c59a8459afe98bfcb33b78,
         type: 3}
       propertyPath: m_Name
