@@ -24,6 +24,8 @@ namespace GuiToolkit
 		
 		private bool m_initialized = false;
 
+		public Image Image => m_image;
+
 		public bool Enabled
 		{
 			get

@@ -7,9 +7,10 @@ namespace GuiToolkit
 {
 	public class UiSlider : UiThing
 	{
-		public UiToggle m_optionalOnOffToggle;
-		public UiButton m_optionalFullVolumeButton;
-		public Slider m_slider;
+		[SerializeField] protected UiToggle m_optionalOnOffToggle;
+		[SerializeField] protected UiButton m_optionalFullVolumeButton;
+		[SerializeField] protected Slider m_slider;
+		[SerializeField] protected UiImage[] m_uiImagesToDisable;
 
 		private float m_savedSliderVal;
 
@@ -45,18 +46,22 @@ namespace GuiToolkit
 			// The on/off toggle is inverted - when it's on, the slider is off and vice versa
 			_value = !_value;
 
+			m_slider.interactable = _value;
+			if (m_optionalFullVolumeButton != null)
+				m_optionalFullVolumeButton.Enabled = _value;
+
+			if (m_uiImagesToDisable != null)
+			{
+				foreach (var uiImage in m_uiImagesToDisable)
+					uiImage.Enabled = _value;
+			}
+
 			if (_value)
 			{
 				m_slider.value = m_savedSliderVal;
-				m_slider.interactable = true;
-				if (m_optionalFullVolumeButton != null)
-					m_optionalFullVolumeButton.Button.interactable = true;
 				return;
 			}
 
-			m_slider.interactable = false;
-			if (m_optionalFullVolumeButton != null)
-				m_optionalFullVolumeButton.Button.interactable = false;
 			m_savedSliderVal = m_slider.value;
 			m_slider.value = 0;
 		}

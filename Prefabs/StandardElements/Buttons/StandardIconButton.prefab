@@ -96,6 +96,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_simpleAnimation: {fileID: 8591811800190961484}
   m_audioSource: {fileID: 0}
+  m_uiImage: {fileID: 7758758935192399221}
+  m_enabled: 1
   m_simpleWiggleAnimation: {fileID: 0}
 --- !u!114 &3594388165116690286
 MonoBehaviour:
@@ -130,6 +132,7 @@ GameObject:
   - component: {fileID: 7990162219028390017}
   - component: {fileID: 7490390892350505658}
   - component: {fileID: 8591811800190961484}
+  - component: {fileID: 7758758935192399221}
   m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
@@ -176,7 +179,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 628125a3ddd15eb4b8feca43ca29f673, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 0.92156863}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
@@ -234,6 +237,7 @@ MonoBehaviour:
   m_supportViewAnimations: 0
   m_support: 4096
   m_target: {fileID: 8841427501349092911}
+  m_markTargetForLayoutRebuild: 0
   m_canvasScaler: {fileID: 0}
   m_canvasRectTransform: {fileID: 0}
   m_scaleByCanvasScaler: 1
@@ -304,3 +308,21 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaImage: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+--- !u!114 &7758758935192399221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5284302703580940865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fb6e203a65f01240bd01ffaaa8b6658, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_image: {fileID: 7990162219028390017}
+  m_gradientSimple: {fileID: 7490390892350505658}
+  m_enabled: 1
+  m_supportDisabledMaterial: 1
+  m_normalMaterial: {fileID: 2100000, guid: 628125a3ddd15eb4b8feca43ca29f673, type: 2}
+  m_disabledMaterial: {fileID: 2100000, guid: bbb4d48742f261844b844be821a291cc, type: 2}

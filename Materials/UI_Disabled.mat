@@ -62,7 +62,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _Disabled: 1
     - _DisabledAlpha: 0.9
-    - _DisabledBrightness: 0.9
+    - _DisabledBrightness: 0.6
     - _DisabledDesaturateStrength: 0.8
     - _DstBlend: 0
     - _GlossMapScale: 1
