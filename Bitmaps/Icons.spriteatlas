@@ -31,22 +31,26 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 21b88ebcff162d042800521d84a822dd, type: 3}
-    totalSpriteSurfaceArea: 344064
+    totalSpriteSurfaceArea: 475136
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 29fe33a231551814280f193feee2012d, type: 3}
   - {fileID: 21300000, guid: 067049d2849a45247b0c22eae0f271b7, type: 3}
+  - {fileID: 21300000, guid: 79c98d05f3f7d754db6c517d7b4facd2, type: 3}
   - {fileID: 21300000, guid: 4fac99d6a844e944990690d8af6b9170, type: 3}
   - {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
   - {fileID: 21300000, guid: 620883c8a91ac9e499d41721e7fc4bb6, type: 3}
   - {fileID: 21300000, guid: eed81c992bc13fa4aa59ba7da4d01e01, type: 3}
+  - {fileID: 21300000, guid: 303e3d7a3a12ad24da3313c74136c5dd, type: 3}
   m_PackedSpriteNamesToIndex:
   - UITK_Gear
   - UITK_Target
+  - UITK_X
   - UITK_Send
   - UITK_Checkmark
   - UITK_RandomDice
   - UITK_Forbidden
+  - UITK_Note
   m_Tag: Icons
   m_IsVariant: 0
