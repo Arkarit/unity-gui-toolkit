@@ -115,7 +115,7 @@ namespace GuiToolkit
 
 			gameObject.SetActive(true);
 
-			if (Visible)
+			if (Visible && !_instant)
 				return;
 			Visible = true;
 
@@ -136,7 +136,7 @@ namespace GuiToolkit
 			if (SimpleShowHideAnimation == null)
 				_instant = true;
 
-			if (!Visible)
+			if (!Visible && !_instant)
 				return;
 			Visible = false;
 
@@ -181,7 +181,7 @@ namespace GuiToolkit
 
 		public void SetDefaultSceneVisibility()
 		{
-			if (Application.isPlaying && !m_defaultSceneVisibilityApplied)
+			if (Application.isPlaying && (!m_defaultSceneVisibilityApplied))
 			{
 				m_defaultSceneVisibilityApplied = true;
 
