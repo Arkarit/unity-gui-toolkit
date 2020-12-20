@@ -17,31 +17,58 @@ namespace GuiToolkit
 
 		private PointerEventData m_eventData;
 		private ETriState m_isHorizontal;
+		private IBeginDragHandler m_beginDragHandler;
+		private IDragHandler m_dragHandler;
+		private IEndDragHandler m_endDragHandler;
+		private bool m_handlersDetermined;
 
 		public void OnBeginDrag( PointerEventData _eventData )
 		{
 			Debug.Log("OnBeginDrag");
 			m_eventData = _eventData.Clone();
+			m_handlersDetermined = false;
 		}
 
 		public void OnDrag( PointerEventData _eventData )
 		{
-			if (!InitHorizontal(_eventData))
+			InitHorizontal(_eventData);
+			if (m_isHorizontal == ETriState.Indeterminate)
 				return;
 
+			if (!m_handlersDetermined)
+			{
+				m_handlersDetermined = true;
+				MonoBehaviour mb = (m_isHorizontal == ETriState.True) ? (MonoBehaviour) m_slider : (MonoBehaviour) m_scrollRect;
+
+				if (mb is IBeginDragHandler)
+					m_beginDragHandler = (IBeginDragHandler) mb;
+
+				if (mb is IDragHandler)
+					m_dragHandler = (IDragHandler) mb;
+
+				if (mb is IEndDragHandler)
+					m_endDragHandler = (IEndDragHandler) mb;
+			}
+
 			Debug.Log("OnDrag");
-			if (m_isHorizontal == ETriState.True && m_slider is IDragHandler)
-				((IDragHandler) m_slider).OnDrag(_eventData);
+
+			if (m_beginDragHandler != null)
+			{
+				m_beginDragHandler.OnBeginDrag(m_eventData);
+				m_beginDragHandler = null;
+			}
+
+			m_eventData = null;
+
+			if (m_dragHandler != null)
+				m_dragHandler.OnDrag(_eventData);
 		}
 
 		public void OnEndDrag( PointerEventData _eventData )
 		{
-			if (!InitHorizontal(_eventData))
-				return;
-
 			Debug.Log("OnEndDrag");
-			if (m_slider is IEndDragHandler)
-				((IEndDragHandler) m_slider).OnEndDrag(_eventData);
+			if (m_endDragHandler != null)
+				m_endDragHandler.OnEndDrag(_eventData);
 		}
 
 		public void OnPointerClick( PointerEventData _eventData )
@@ -59,7 +86,7 @@ namespace GuiToolkit
 			Debug.Log("OnPointerUp");
 		}
 
-		private bool InitHorizontal( PointerEventData _eventData )
+		private void InitHorizontal( PointerEventData _eventData )
 		{
 			if (m_eventData != null)
 			{
@@ -67,14 +94,7 @@ namespace GuiToolkit
 
 				if (m_isHorizontal == ETriState.True && m_slider is IBeginDragHandler)
 					((IBeginDragHandler)m_slider).OnBeginDrag(m_eventData);
-
-				if (m_isHorizontal != ETriState.Indeterminate)
-					m_eventData = null;
-
-				if (m_isHorizontal != ETriState.True)
-					return false;
 			}
-			return true;
 		}
 
 		private static ETriState EvalHorizontal( PointerEventData _before, PointerEventData _after )
