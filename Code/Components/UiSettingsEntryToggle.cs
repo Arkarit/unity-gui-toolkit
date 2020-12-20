@@ -17,15 +17,16 @@ namespace GuiToolkit
 			m_toggle.OnValueChanged.AddListener(OnValueChanged);
 		}
 
-		private void OnValueChanged( bool _val )
-		{
-			Debug.Log($"TODO: Evaluate toggle '{gameObject.name}': {_val}");
-		}
-
 		protected override void OnDisable()
 		{
 			m_toggle.OnValueChanged.RemoveListener(OnValueChanged);
 			base.OnDisable();
 		}
+
+		protected virtual void OnValueChanged( bool _val )
+		{
+			Debug.Log($"TODO: Evaluate toggle '{gameObject.name}': {_val}");
+		}
+
 	}
 }

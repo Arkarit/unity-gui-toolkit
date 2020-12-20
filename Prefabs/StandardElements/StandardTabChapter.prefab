@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8582027323916524251}
   - component: {fileID: 9695896172179671}
   - component: {fileID: 277438814512779459}
+  - component: {fileID: 1708390906487755322}
   m_Layer: 5
   m_Name: StandardTabChapter
   m_TagString: Untagged
@@ -100,6 +101,19 @@ MonoBehaviour:
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
+--- !u!114 &1708390906487755322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1237240718751688028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AllowSwitchOff: 0
 --- !u!114 &5932263506661124399
 MonoBehaviour:
   m_ObjectHideFlags: 0

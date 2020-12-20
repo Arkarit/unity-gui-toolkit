@@ -51,7 +51,7 @@ namespace GuiToolkit
 				m_closeButton.OnClick.RemoveListener(OnCloseButton);
 		}
 
-		private void OnCloseButton()
+		protected virtual void OnCloseButton()
 		{
 			Hide();
 		}
@@ -67,7 +67,6 @@ namespace GuiToolkit
 
 				int toggleIndex = i;
 				tabInfo.Tab.OnValueChanged.AddListener( (isOn) => OnToggleChanged(toggleIndex, isOn) );
-				
 				tabInfo.Page.SetVisible(tabInfo.Tab.Toggle.isOn, true);
 				if (tabInfo.Tab.Toggle.isOn)
 				{
