@@ -11,7 +11,17 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	public class UiHorizontalVerticalSplitter : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler //, IPointerClickHandler //, IPointerUpHandler
+	/// \brief Helper component for horizontal sliders in vertical scroll rects and vice versa
+	/// 
+	/// Usually, horizontal sliders in vertical layouts (and vice versa) cause a lot of issues UX-wise.
+	/// If you want to scroll the scroll rect up or down, but happen to tap on a slider, you move the slider instead, which is super annoying.
+	/// UiSliderInScrollRect helps against this. It should reside on a Graphic covering the whole slider.
+	/// It catches all necessary mouse/drag events, evaluates if the drag operation is horizontal or vertical, and forwards the
+	/// events to the matching component - either a slider or a scroll rect.
+	/// 
+	/// Note that this component destroys its own game object if the Slider and ScrollRect member vars haven't been set.
+	/// This makes it easy to make it a part of a slider prefab, since otherwise it would always block all mouse/drag actions regarding that slider.
+	public class UiSliderInScrollRect : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler
 	{
 		private const float DRAG_DETECTION_TIME = 0.2f;
 
@@ -27,9 +37,14 @@ namespace GuiToolkit
 		private bool m_handlersDetermined;
 		private bool m_wasDragged;
 
+		public void Start()
+		{
+			if (m_slider == null || m_scrollRect == null)
+				Destroy(gameObject);
+		}
+
 		public void OnBeginDrag( PointerEventData _eventData )
 		{
-			Debug.Log("OnBeginDrag");
 			m_eventData = _eventData.Clone();
 			m_handlersDetermined = false;
 			m_wasDragged = true;
@@ -46,11 +61,12 @@ namespace GuiToolkit
 			if (!m_handlersDetermined)
 			{
 				m_handlersDetermined = true;
-				MonoBehaviour mb = (m_isHorizontal == ETriState.True) ? (MonoBehaviour) m_slider : (MonoBehaviour) m_scrollRect;
+				bool isDragHorizontal = m_isHorizontal == ETriState.True;
+				bool isSliderHorizontal = m_slider.direction == Slider.Direction.LeftToRight || m_slider.direction == Slider.Direction.RightToLeft;
+				bool isSliderUsed = isDragHorizontal == isSliderHorizontal;
+				MonoBehaviour mb = isSliderUsed ? (MonoBehaviour) m_slider : (MonoBehaviour) m_scrollRect;
 				SetHandlers(mb);
 			}
-
-			Debug.Log("OnDrag");
 
 			if (m_beginDragHandler != null)
 			{
@@ -66,25 +82,13 @@ namespace GuiToolkit
 
 		public void OnEndDrag( PointerEventData _eventData )
 		{
-			Debug.Log("OnEndDrag");
 			if (m_endDragHandler != null)
 				m_endDragHandler.OnEndDrag(_eventData);
 		}
 
-		public void OnPointerClick( PointerEventData _eventData )
-		{
-			Debug.Log("OnPointerClick");
-		}
-
 		public void OnPointerDown( PointerEventData _eventData )
 		{
-			Debug.Log("OnPointerDown");
 			StartCoroutine(DelayedOnPointerDown(_eventData.Clone()));
-		}
-
-		public void OnPointerUp( PointerEventData _eventData )
-		{
-			Debug.Log("OnPointerUp");
 		}
 
 		private void SetHandlers( MonoBehaviour _monoBehaviour )
@@ -102,7 +106,6 @@ namespace GuiToolkit
 			if (deltaAbs.magnitude < 1)
 				return ETriState.Indeterminate;
 
-			Debug.Log($"delta: {delta}");
 			return deltaAbs.x > deltaAbs.y ? ETriState.True : ETriState.False;
 		}
 
@@ -114,8 +117,6 @@ namespace GuiToolkit
 				m_slider.OnPointerDown(_eventData);
 			m_wasDragged = false;
 		}
-
-
 	}
 
 }
