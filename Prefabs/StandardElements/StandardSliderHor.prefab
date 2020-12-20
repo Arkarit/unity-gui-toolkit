@@ -660,8 +660,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b283d1344052447429f65017bcf99458, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_passThrough:
-  - {fileID: 1001418695914027092}
+  m_slider: {fileID: 1001418695914027092}
 --- !u!114 &5175312854643567845
 MonoBehaviour:
   m_ObjectHideFlags: 0

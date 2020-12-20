@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -11,48 +12,36 @@ namespace GuiToolkit
 {
 	public class UiHorizontalVerticalSplitter : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
 	{
-		public List<Slider> m_passThrough;
+		public Slider m_slider;
+		public ScrollRect m_scrollRect;
+
+		private PointerEventData m_eventData;
+		private ETriState m_isHorizontal;
 
 		public void OnBeginDrag( PointerEventData _eventData )
 		{
 			Debug.Log("OnBeginDrag");
-			foreach (var mb in m_passThrough)
-			{
-				if (!(mb is IBeginDragHandler))
-					continue;
-
-				IBeginDragHandler handler = (IBeginDragHandler) mb;
-				if (handler != null)
-					handler.OnBeginDrag(_eventData);
-			}
+			m_eventData = _eventData.Clone();
 		}
 
 		public void OnDrag( PointerEventData _eventData )
 		{
-			Debug.Log("OnDrag");
-			foreach (var mb in m_passThrough)
-			{
-				if (!(mb is IDragHandler))
-					continue;
+			if (!InitHorizontal(_eventData))
+				return;
 
-				IDragHandler handler = (IDragHandler) mb;
-				if (handler != null)
-					handler.OnDrag(_eventData);
-			}
+			Debug.Log("OnDrag");
+			if (m_isHorizontal == ETriState.True && m_slider is IDragHandler)
+				((IDragHandler) m_slider).OnDrag(_eventData);
 		}
 
 		public void OnEndDrag( PointerEventData _eventData )
 		{
-			Debug.Log("OnEndDrag");
-			foreach (var mb in m_passThrough)
-			{
-				if (!(mb is IEndDragHandler))
-					continue;
+			if (!InitHorizontal(_eventData))
+				return;
 
-				IEndDragHandler handler = (IEndDragHandler) mb;
-				if (handler != null)
-					handler.OnEndDrag(_eventData);
-			}
+			Debug.Log("OnEndDrag");
+			if (m_slider is IEndDragHandler)
+				((IEndDragHandler) m_slider).OnEndDrag(_eventData);
 		}
 
 		public void OnPointerClick( PointerEventData _eventData )
@@ -69,6 +58,37 @@ namespace GuiToolkit
 		{
 			Debug.Log("OnPointerUp");
 		}
+
+		private bool InitHorizontal( PointerEventData _eventData )
+		{
+			if (m_eventData != null)
+			{
+				m_isHorizontal = EvalHorizontal(m_eventData, _eventData);
+
+				if (m_isHorizontal == ETriState.True && m_slider is IBeginDragHandler)
+					((IBeginDragHandler)m_slider).OnBeginDrag(m_eventData);
+
+				if (m_isHorizontal != ETriState.Indeterminate)
+					m_eventData = null;
+
+				if (m_isHorizontal != ETriState.True)
+					return false;
+			}
+			return true;
+		}
+
+		private static ETriState EvalHorizontal( PointerEventData _before, PointerEventData _after )
+		{
+			Vector2 delta = _after.position - _before.position;
+			Vector2 deltaAbs = new Vector2(Mathf.Abs(delta.x), Mathf.Abs(delta.y));
+Debug.Log($"_before.position:{_before.position} _after.position:{_after.position} deltaAbs:{deltaAbs}");
+			if (deltaAbs.magnitude < 1)
+				return ETriState.Indeterminate;
+
+			Debug.Log($"delta: {delta}");
+			return deltaAbs.x > deltaAbs.y ? ETriState.True : ETriState.False;
+		}
+
 
 	}
 

@@ -423,7 +423,16 @@ namespace GuiToolkit
 
 			return _this as T;
 		}
+
+		public static T Clone<T>(this T _this)
+		{
+			var inst = _this.GetType().GetMethod("MemberwiseClone", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+			return (T)inst?.Invoke(_this, null);
+		}
+
 	}
+
+
 
 	public static class GameObjectHelper
 	{

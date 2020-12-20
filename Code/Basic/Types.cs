@@ -56,6 +56,13 @@ namespace GuiToolkit
 		BottomToTop,
 	}
 
+	public enum ETriState
+	{
+		False,
+		True,
+		Indeterminate,
+	}
+
 	public interface ISetDefaultSceneVisibility
 	{
 		void SetDefaultSceneVisibility();
