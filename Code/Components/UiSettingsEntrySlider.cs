@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class UiSettingsEntrySlider : UiSettingsEntryBase
+	public class UiSettingsEntrySlider : UiSettingsEntryBase<float>
 	{
 	}
 }

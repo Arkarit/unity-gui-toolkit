@@ -12,7 +12,7 @@ namespace GuiToolkit
 	public abstract class UiLocaManager
 	{
 		// Builtin languages
-		public enum Language
+		public enum ELanguage
 		{
 			dev,
 			lol,
@@ -22,6 +22,8 @@ namespace GuiToolkit
 			de,
 		}
 
+		protected ELanguage m_language = ELanguage.dev;
+
 		private readonly HashSet<ILocaListener> m_locaListeners = new HashSet<ILocaListener>();
 
 		public abstract string Translate(string _key);
@@ -30,32 +32,34 @@ namespace GuiToolkit
 		public abstract bool ChangeLanguageImpl(string _languageId);
 
 		private static string[] s_languageNames;
-		private static readonly Dictionary<string, Language> s_languageByString = new Dictionary<string, Language>();
+		private static readonly Dictionary<string, ELanguage> s_languageByString = new Dictionary<string, ELanguage>();
 
-		public static string StringByLanguage(Language _language)
+		public ELanguage Language => m_language;
+
+		public static string StringByLanguage(ELanguage _language)
 		{
 			InitEnumConversionIfNecessary();
 			return s_languageNames[(int) _language];
 		}
 
-		public static Language LanguageByString(string _language)
+		public static ELanguage LanguageByString(string _language)
 		{
-			if (s_languageByString.TryGetValue(_language, out Language result))
+			if (s_languageByString.TryGetValue(_language, out ELanguage result))
 				return result;
 
 			Debug.LogWarning($"Language '{_language}' not supported");
-			return Language.dev;
+			return ELanguage.dev;
 		}
 
 		private static void InitEnumConversionIfNecessary()
 		{
 			if (s_languageNames == null)
 			{
-				s_languageNames = System.Enum.GetNames(typeof(Language));
-				Language[] languages = (Language[]) System.Enum.GetValues(typeof(Language));
+				s_languageNames = System.Enum.GetNames(typeof(ELanguage));
+				ELanguage[] languages = (ELanguage[]) System.Enum.GetValues(typeof(ELanguage));
 				for (int i=0; i<languages.Length; i++ )
 				{
-					s_languageByString.Add(s_languageNames[i], (Language) i);
+					s_languageByString.Add(s_languageNames[i], (ELanguage) i);
 				}
 			}
 		}
@@ -70,6 +74,8 @@ namespace GuiToolkit
 
 		public bool ChangeLanguage(string _languageId)
 		{
+			m_language = s_languageByString[_languageId];
+
 			if (!ChangeLanguageImpl(_languageId))
 			{
 				Debug.LogWarning($"Language '{_languageId}' not found");
@@ -83,7 +89,7 @@ namespace GuiToolkit
 			return true;
 		}
 
-		public bool ChangeLanguage(Language _language)
+		public bool ChangeLanguage(ELanguage _language)
 		{
 			return ChangeLanguage(StringByLanguage(_language));
 		}

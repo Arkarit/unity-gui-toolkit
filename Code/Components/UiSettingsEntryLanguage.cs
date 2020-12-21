@@ -16,19 +16,30 @@ namespace GuiToolkit
 		private Image m_image;
 
 		[SerializeField]
-		private UiLocaManager.Language m_language;
+		private UiLocaManager.ELanguage m_language;
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-//			m_toggle.Toggle.isOn =  
+
+			bool isActive = UiMain.LocaManager.Language == m_language;
+
+			StoredValue = isActive;
+
+			if (isActive)
+				StartCoroutine(SetToggleDelayed(true));
 		}
+
 		protected override void OnValueChanged( bool _active )
 		{
 			if (_active)
 			{
 				UiMain.LocaManager.ChangeLanguage(m_language);
+				StoredValue = true;
+				return;
 			}
+
+			StoredValue = false;
 		}
 
 #if UNITY_EDITOR

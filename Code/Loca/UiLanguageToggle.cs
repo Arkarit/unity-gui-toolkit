@@ -16,7 +16,7 @@ namespace GuiToolkit
 		private Image m_image;
 
 		[SerializeField]
-		private UiLocaManager.Language m_language;
+		private UiLocaManager.ELanguage m_language;
 
 		protected override void OnEnable()
 		{

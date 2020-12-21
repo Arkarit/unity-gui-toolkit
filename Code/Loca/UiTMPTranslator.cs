@@ -8,10 +8,18 @@ namespace GuiToolkit
 	[RequireComponent(typeof(TMP_Text))]
 	public class UiTMPTranslator : MonoBehaviour, ILocaClient, ILocaListener
 	{
-		public bool m_autoTranslate = true;
-
 		private TMP_Text m_text;
-		private string m_key;
+		private string m_locaKey;
+
+		public string LocaKey
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(m_locaKey))
+					m_locaKey = m_text.text;
+				return m_locaKey;
+			}
+		}
 
 		private UiLocaManager m_locaManager;
 		private UiLocaManager LocaManager
@@ -26,8 +34,7 @@ namespace GuiToolkit
 
 		public void OnLanguageChanged(string _languageId)
 		{
-			if (m_autoTranslate)
-				Text.text = LocaManager.Translate(m_key);
+			Text.text = LocaManager.Translate(m_locaKey);
 		}
 
 		private TMP_Text Text
@@ -49,10 +56,8 @@ namespace GuiToolkit
 			if (!Application.isPlaying)
 				return;
 
-			m_key = Text.text;
 			LocaManager.AddListener(this);
-			if (m_autoTranslate)
-				Text.text = LocaManager.Translate(m_key);
+			Text.text = LocaManager.Translate(LocaKey);
 		}
 
 		private void OnDisable()
@@ -61,12 +66,11 @@ namespace GuiToolkit
 				return;
 
 			LocaManager.RemoveListener(this);
-			Text.text = m_key;
+			Text.text = LocaKey;
 		}
 
 #if UNITY_EDITOR
 		public bool UsesMultipleLocaKeys => false;
-		public string LocaKey => Text.text;
 		public List<string> LocaKeys => null;
 #endif
 	}
