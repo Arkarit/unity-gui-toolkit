@@ -33,6 +33,10 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			base.OnEnable();
+			bool isActive = UiMain.LocaManager.Language == Language;
+			if (isActive)
+				SetDelayed(true);
+
 			OnValueChanged.AddListener(OnValueChangedListener);
 		}
 

@@ -36,22 +36,16 @@ namespace GuiToolkit
 
 			bool isActive = UiMain.LocaManager.Language == m_language;
 
-			StoredValue = isActive;
+			// We don't need a stored value, since LocaManager does the storage for us.
 
 			if (isActive)
-				StartCoroutine(SetToggleDelayed(true));
+				m_toggle.SetDelayed(true);
 		}
 
 		protected override void OnValueChanged( bool _active )
 		{
 			if (_active)
-			{
 				UiMain.LocaManager.ChangeLanguage(m_language);
-				StoredValue = true;
-				return;
-			}
-
-			StoredValue = false;
 		}
 
 #if UNITY_EDITOR

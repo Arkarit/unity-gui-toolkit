@@ -24,6 +24,14 @@ namespace GuiToolkit
 
 		public Toggle.ToggleEvent OnValueChanged => Toggle.onValueChanged;
 
+		public void SetDelayed(bool _value) => StartCoroutine(SetDelayedCoroutine(_value));
+
+		protected IEnumerator SetDelayedCoroutine(bool _value)
+		{
+			yield return 0;
+			Toggle.isOn = _value;
+		}
+
 		protected override void Init()
 		{
 			base.Init();

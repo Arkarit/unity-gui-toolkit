@@ -66,6 +66,7 @@ namespace GuiToolkit
 				{
 					UiTMPTranslator translator = m_text.GetComponent<UiTMPTranslator>();
 					m_uniqueKey = translator != null ? translator.LocaKey : m_text.text;
+					m_uniqueKey = StringConstants.PLAYER_PREFS_PREFIX + m_uniqueKey;
 				}
 				return m_uniqueKey;
 			}

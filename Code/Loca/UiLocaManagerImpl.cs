@@ -180,7 +180,6 @@ namespace GuiToolkit
 			return _pluralKey;
 		}
 
-
 		[System.Diagnostics.Conditional("DEBUG_LOCA")]
 		private void Log(string _s)
 		{
