@@ -170,6 +170,7 @@ MonoBehaviour:
     type: 3}
   m_keyPressRequester: {fileID: 9179443079266827376, guid: 637592a4cbdecd047a54ddf9d2be9da9,
     type: 3}
+  m_camerasToDisableWhenFullScreenView: []
 --- !u!114 &7267538138393596992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257,6 +258,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_defaultSceneVisibility: 4
   m_layer: 200
+  m_isFullScreen: 0
   m_lastSiblingIndex: -1
 --- !u!114 &7267538138489494619
 MonoBehaviour:

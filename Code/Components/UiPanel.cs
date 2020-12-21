@@ -125,6 +125,7 @@ namespace GuiToolkit
 				{
 					SimpleShowHideAnimation.StopViewAnimation(true);
 				}
+				_onFinish?.Invoke();
 				return;
 			}
 

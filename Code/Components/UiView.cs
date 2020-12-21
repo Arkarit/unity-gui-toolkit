@@ -17,6 +17,10 @@ namespace GuiToolkit
 	{
 		[SerializeField]
 		protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
+
+		[SerializeField]
+		protected bool m_isFullScreen;
+
 		[HideInInspector]
 		[SerializeField]
 		private int m_lastSiblingIndex = -1;
@@ -64,9 +68,20 @@ namespace GuiToolkit
 			Canvas.sortingOrder = _orderInLayer;
 		}
 
-		public override void Show( bool _instant = false, Action _onFinish = null )
+		public override void Show(bool _instant = false, Action _onFinish = null)
 		{
-			base.Show(_instant, _onFinish);
+			base.Show(_instant, ()=>
+			{
+				if (m_isFullScreen)
+					UiMain.Instance.SetFullScreenView(this);
+				_onFinish?.Invoke();
+			});
+		}
+
+		public override void Hide(bool _instant = false, Action _onFinish = null)
+		{
+			UiMain.Instance.SetFullScreenView(null);
+			base.Hide(_instant, _onFinish);
 		}
 
 		public void ShowTopmost( bool _instant = false, Action _onFinish = null )

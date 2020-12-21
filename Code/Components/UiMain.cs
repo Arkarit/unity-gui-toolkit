@@ -321,6 +321,63 @@ namespace GuiToolkit
 
 		#region "General"
 
+		[SerializeField]
+		protected Camera[] m_camerasToDisableWhenFullScreenView;
+
+		private readonly Dictionary<UiView,bool> m_savedVisibilities = new Dictionary<UiView,bool>();
+		private readonly Dictionary<Camera,bool> m_savedCameraActivenesses = new Dictionary<Camera,bool>();
+
+		/// Caution! This currently can be called for only ONE dialog at a time!
+		public void SetFullScreenView( UiView _uiView )
+		{
+			bool set = _uiView != null;
+			if (set)
+			{
+				m_savedVisibilities.Clear();
+				m_savedCameraActivenesses.Clear();
+			}
+			else if (m_savedVisibilities.Count == 0)
+				return;
+
+			for (int i=0; i<m_camerasToDisableWhenFullScreenView.Length; i++)
+			{
+				Camera camera = m_camerasToDisableWhenFullScreenView[i];
+
+				if (set)
+				{
+					m_savedCameraActivenesses.Add(camera, camera.enabled);
+					camera.enabled = false;
+					continue;
+				}
+
+				if (m_savedCameraActivenesses.TryGetValue(camera, out bool isActive))
+					camera.enabled = isActive;
+			}
+
+			for (int i = 0; i < transform.childCount; i++)
+			{
+				Transform t = transform.GetChild(i);
+				UiView view = t.GetComponent<UiView>();
+
+				if (view == null)
+					continue;
+
+				// Views which are in front of the full screen view are not hidden
+				if (view == _uiView)
+					break;
+
+				if (set)
+				{
+					m_savedVisibilities.Add(view, view.gameObject.activeSelf);
+					view.gameObject.SetActive(false);
+					continue;
+				}
+
+				if (m_savedVisibilities.TryGetValue(view, out bool isActive))
+					view.gameObject.SetActive(isActive);
+			}
+		}
+
 		public void SortViews()
 		{
 			SetPlaneDistancesBySiblingIndex();

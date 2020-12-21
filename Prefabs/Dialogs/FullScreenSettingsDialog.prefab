@@ -27,6 +27,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_defaultSceneVisibility: 0
   m_layer: 600
+  m_isFullScreen: 1
   m_lastSiblingIndex: -1
   m_closeButton: {fileID: 6762807483001836545}
   m_pageContentContainer: {fileID: 8036487085992052438}
@@ -1056,6 +1057,11 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7062195357269638244, guid: 2b5fe23326d242a45b3a8b472f23df9c,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 13.250977
+      objectReference: {fileID: 0}
     - target: {fileID: 7857037479197090394, guid: 2b5fe23326d242a45b3a8b472f23df9c,
         type: 3}
       propertyPath: m_AnchorMin.x
@@ -1390,7 +1396,7 @@ PrefabInstance:
     - target: {fileID: 942669264183326094, guid: 723bc1e72c0b35f499f0f9b47558783e,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 638.92
+      value: 238.63559
       objectReference: {fileID: 0}
     - target: {fileID: 2235584828507560301, guid: 723bc1e72c0b35f499f0f9b47558783e,
         type: 3}
