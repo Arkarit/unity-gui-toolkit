@@ -16,7 +16,7 @@ namespace GuiToolkit
 		private Image m_image;
 
 		[SerializeField]
-		private UiLocaManager.ELanguage m_language;
+		private string m_language;
 
 		protected override void OnEnable()
 		{
@@ -45,23 +45,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
-			if (m_image.sprite == null)
-			{
-				Debug.LogError("Image path not found!");
-				return;
-			}
-
-			string currentAssetPath = AssetDatabase.GetAssetPath(m_image.sprite);
-			string assetPath = UiEditorUtility.GetAssetProjectDir(currentAssetPath) + UiLocaManager.StringByLanguage(m_language) + ".png";
-			Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
-
-			if (m_image.sprite == null)
-			{
-				Debug.LogError("Sprite not found!");
-				return;
-			}
-
-			m_image.sprite = sprite;
+			UiEditorUtility.SetNationalFlagByLanguage(m_image, m_language);
 		}
 #endif
 	}

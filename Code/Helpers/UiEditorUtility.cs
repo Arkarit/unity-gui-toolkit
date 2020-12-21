@@ -8,6 +8,7 @@ using UnityEditor.Experimental.SceneManagement;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -16,6 +17,8 @@ namespace GuiToolkit
 	// See https://answers.unity.com/questions/426184/acces-script-in-the-editor-folder.html for reasons.
 	public static class UiEditorUtility
 	{
+		public const string FLAGS_SUBDIR = "/Bitmaps/Flags/";
+
 		public const int SKIP_LINE_SPACE = -20;
 		public const int LARGE_SPACE_HEIGHT = 20;
 		public const int SMALL_SPACE_HEIGHT = 10;
@@ -813,6 +816,7 @@ namespace GuiToolkit
 
 			return result.Replace("Assets", "");
 		}
+
 		public static string GetAssetProjectDir( string _assetPath )
 		{
 			int idx = _assetPath.LastIndexOf("/");
@@ -821,6 +825,49 @@ namespace GuiToolkit
 
 			return _assetPath.Substring(0, idx + 1);
 		}
+
+		private static string s_rootDir;
+		public static string GetUiToolkitRootProjectDir()
+		{
+			if (s_rootDir == null)
+			{
+				string[] guids = AssetDatabase.FindAssets("unity-gui-toolkit t:folder");
+				Debug.Assert(guids != null && guids.Length == 1, "None or multiple root folders detected");
+				if (guids.Length >= 1)
+				{
+					s_rootDir = AssetDatabase.GUIDToAssetPath(guids[0]) + "/";
+				}
+				else
+				{
+					s_rootDir = "Assets/";
+				}
+			}
+			return s_rootDir;
+		}
+
+		public static bool SetNationalFlagByLanguage(Image _image, string _language)
+		{
+			if (string.IsNullOrEmpty(_language))
+				return false;
+
+			string assetPath;
+			if (_image.sprite != null)
+			{
+				string currentAssetPath = AssetDatabase.GetAssetPath(_image.sprite);
+				assetPath = UiEditorUtility.GetAssetProjectDir(currentAssetPath) + _language + ".png";
+			}
+			else
+			{
+				assetPath = UiEditorUtility.GetUiToolkitRootProjectDir() + FLAGS_SUBDIR + _language + ".png";
+			}
+
+			Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+			bool result = sprite != null;
+			if (sprite != null)
+				_image.sprite = sprite;
+			return result;
+		}
+
 
 		private static bool ValidateListAndIndex( SerializedProperty _list, int _idx )
 		{

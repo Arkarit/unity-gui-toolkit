@@ -44,7 +44,7 @@ namespace GuiToolkit
 		[MenuItem(StringConstants.LOCA_PLURAL_PROCESSOR_MENU_NAME, priority = Constants.LOCA_PLURAL_PROCESSOR_MENU_PRIORITY)]
 		public static void Process()
 		{
-			string internalClassProjectPath = UiSettings.UiToolkitRootProjectDir + "/Code/Loca/LocaPlurals.cs";
+			string internalClassProjectPath = UiEditorUtility.GetUiToolkitRootProjectDir() + "/Code/Loca/LocaPlurals.cs";
 			string internalClassFilePath = UiEditorUtility.GetApplicationDataDir() + internalClassProjectPath;
 			string newClassProjectPath = UiSettings.EditorLoad().m_locaPluralsDir + "/LocaPlurals.cs";
 

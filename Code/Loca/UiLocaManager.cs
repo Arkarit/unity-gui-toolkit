@@ -11,18 +11,8 @@ namespace GuiToolkit
 
 	public abstract class UiLocaManager
 	{
-		// Builtin languages
-		public enum ELanguage
-		{
-			dev,
-			lol,
-			en,
-			us,
-			en_us,
-			de,
-		}
-
-		protected ELanguage m_language = ELanguage.dev;
+		protected string m_language = "dev";
+		protected readonly HashSet<string> m_availableLanguages = new HashSet<string>();
 
 		private readonly HashSet<ILocaListener> m_locaListeners = new HashSet<ILocaListener>();
 
@@ -31,39 +21,7 @@ namespace GuiToolkit
 
 		public abstract bool ChangeLanguageImpl(string _languageId);
 
-		private static string[] s_languageNames;
-		private static readonly Dictionary<string, ELanguage> s_languageByString = new Dictionary<string, ELanguage>();
-
-		public ELanguage Language => m_language;
-
-		public static string StringByLanguage(ELanguage _language)
-		{
-			InitEnumConversionIfNecessary();
-			return s_languageNames[(int) _language];
-		}
-
-		public static ELanguage LanguageByString(string _language)
-		{
-			if (s_languageByString.TryGetValue(_language, out ELanguage result))
-				return result;
-
-			Debug.LogWarning($"Language '{_language}' not supported");
-			return ELanguage.dev;
-		}
-
-		private static void InitEnumConversionIfNecessary()
-		{
-			if (s_languageNames == null)
-			{
-				s_languageNames = System.Enum.GetNames(typeof(ELanguage));
-				ELanguage[] languages = (ELanguage[]) System.Enum.GetValues(typeof(ELanguage));
-				for (int i=0; i<languages.Length; i++ )
-				{
-					s_languageByString.Add(s_languageNames[i], (ELanguage) i);
-				}
-			}
-		}
-
+		public string Language => m_language;
 
 #if UNITY_EDITOR
 		public abstract void Clear();
@@ -74,7 +32,7 @@ namespace GuiToolkit
 
 		public bool ChangeLanguage(string _languageId)
 		{
-			m_language = s_languageByString[_languageId];
+			m_language = _languageId;
 
 			if (!ChangeLanguageImpl(_languageId))
 			{
@@ -87,11 +45,6 @@ namespace GuiToolkit
 				listener.OnLanguageChanged(_languageId);
 
 			return true;
-		}
-
-		public bool ChangeLanguage(ELanguage _language)
-		{
-			return ChangeLanguage(StringByLanguage(_language));
 		}
 
 		public void AddListener(ILocaListener _listener)

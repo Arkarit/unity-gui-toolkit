@@ -130,28 +130,6 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 
-		private static string s_rootDir;
-		public static string UiToolkitRootProjectDir
-		{
-			get
-			{
-				if (s_rootDir == null)
-				{
-					string[] guids = AssetDatabase.FindAssets("unity-gui-toolkit t:folder");
-					Debug.Assert(guids != null && guids.Length == 1, "None or multiple root folders detected");
-					if (guids.Length >= 1)
-					{
-						s_rootDir = AssetDatabase.GUIDToAssetPath(guids[0]) + "/";
-					}
-					else
-					{
-						s_rootDir = "Assets/";
-					}
-				}
-				return s_rootDir;
-			}
-		}
-
 		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiSettings>(UiSettings.EDITOR_PATH) != null;
 
 		public static void Initialize()
