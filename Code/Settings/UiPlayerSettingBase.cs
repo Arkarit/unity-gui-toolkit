@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public abstract class UiSettingsEntryBase<T> : UiThing where T:IConvertible
+	public abstract class UiPlayerSettingBase<T> : UiThing where T:IConvertible
 	{
 		[SerializeField]
 		protected TMP_Text m_text;

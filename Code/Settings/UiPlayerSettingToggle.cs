@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class UiSettingsEntryToggle : UiSettingsEntryBase<bool>
+	public class UiPlayerSettingToggle : UiPlayerSettingBase<bool>
 	{
 
 		[SerializeField]

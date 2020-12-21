@@ -10,7 +10,7 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	public class UiSettingsEntryLanguage : UiSettingsEntryToggle
+	public class UiPlayerSettingLanguageToggle : UiPlayerSettingToggle
 	{
 		[SerializeField]
 		private Image m_image;
@@ -57,12 +57,12 @@ namespace GuiToolkit
 	}
 
 #if UNITY_EDITOR
-	[CustomEditor(typeof(UiSettingsEntryLanguage))]
+	[CustomEditor(typeof(UiPlayerSettingLanguageToggle))]
 	public class UiSettingsEntryLanguageEditor : Editor
 	{
 		public override void OnInspectorGUI()
 		{
-			UiSettingsEntryLanguage thisUiSettingsEntry = (UiSettingsEntryLanguage)target;
+			UiPlayerSettingLanguageToggle thisUiSettingsEntry = (UiPlayerSettingLanguageToggle)target;
 			DrawDefaultInspector();
 			if ( UiEditorUtility.LanguagePopup("Select available language:", thisUiSettingsEntry.Language, out string newLanguage ))
 				thisUiSettingsEntry.Language = newLanguage;
