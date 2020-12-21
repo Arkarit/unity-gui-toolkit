@@ -39,7 +39,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			UiSettings settings = UiSettings.EditorLoad();
+			UiToolkitMainSettings settings = UiToolkitMainSettings.EditorLoad();
 
 			if (!settings.m_loadMainSceneOnPlay)
 				return;
@@ -72,7 +72,7 @@ namespace GuiToolkit
 
 					EditorScenes editorScenes = JsonUtility.FromJson<EditorScenes>(s);
 					foreach (string sceneName in editorScenes.Scenes)
-						EditorSceneManager.OpenScene(UiSettings.GetProjectScenePath(sceneName), OpenSceneMode.Additive);
+						EditorSceneManager.OpenScene(UiToolkitMainSettings.GetProjectScenePath(sceneName), OpenSceneMode.Additive);
 					File.Delete(TempFileName);
 					if (!editorScenes.MainSceneWasLoaded)
 						EditorSceneManager.CloseScene(EditorSceneManager.GetSceneByName(mainScene.name), true);

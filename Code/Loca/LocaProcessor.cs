@@ -16,7 +16,7 @@ namespace GuiToolkit
 		[MenuItem(StringConstants.LOCA_PROCESSOR_MENU_NAME, priority = Constants.LOCA_PROCESSOR_MENU_PRIORITY)]
 		public static void Process()
 		{
-			string potPath = UiSettings.EditorLoad().m_potPath;
+			string potPath = UiToolkitMainSettings.EditorLoad().m_potPath;
 			if (string.IsNullOrEmpty(potPath))
 			{
 				Debug.LogError("No POT path in settings");

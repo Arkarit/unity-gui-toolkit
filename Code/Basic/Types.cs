@@ -93,7 +93,7 @@ namespace GuiToolkit
 		public const string TOOLKIT_NAME = "UI Toolkit";
 		public const string MENU_HEADER = TOOLKIT_NAME + "/";
 
-		public const string SETTINGS_MENU_NAME = MENU_HEADER + "Settings";
+		public const string SETTINGS_MENU_NAME = MENU_HEADER + "Main Settings";
 		public const string GAME_SPEED_MENU_NAME = MENU_HEADER + "Game speed";
 		public const string LOCA_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update pot file)";
 		public const string LOCA_PLURAL_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update plurals when added a new language)";

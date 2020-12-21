@@ -205,7 +205,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		private readonly SortedSet<string> m_keys = new SortedSet<string>();
 		private readonly SortedDictionary<string, string> m_pluralKeys = new SortedDictionary<string, string>();
-		private string PotPath => UiEditorUtility.GetApplicationDataDir() + UiSettings.EditorLoad().m_potPath;
+		private string PotPath => UiEditorUtility.GetApplicationDataDir() + UiToolkitMainSettings.EditorLoad().m_potPath;
 
 		private string[] m_availableLanguages = null;
 		public override string[] AvailableLanguages

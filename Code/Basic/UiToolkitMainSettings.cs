@@ -9,10 +9,9 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	//[CreateAssetMenu]
-	public class UiSettings : ScriptableObject
+	public class UiToolkitMainSettings : ScriptableObject
 	{
-		public const string FILENAME = "UiSettings";
+		public const string FILENAME = "UiToolkitMainSettings";
 		public const string RUNTIME_DIR = "";
 		public const string RUNTIME_PATH = FILENAME;
 		public const string EDITOR_DIR = "Assets/Resources" + RUNTIME_DIR;
@@ -73,19 +72,19 @@ namespace GuiToolkit
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 
-		private static UiSettings s_instance;
+		private static UiToolkitMainSettings s_instance;
 
-		public static UiSettings Instance
+		public static UiToolkitMainSettings Instance
 		{
 			get
 			{
 				if (s_instance == null)
 				{
-					s_instance = Resources.Load<UiSettings>(RUNTIME_PATH);
+					s_instance = Resources.Load<UiToolkitMainSettings>(RUNTIME_PATH);
 					if (s_instance == null)
 					{
-						Debug.LogError($"UiSettings could not be loaded from path '{RUNTIME_PATH}'");
-						s_instance = CreateInstance<UiSettings>();
+						Debug.LogError($"UiToolkitMainSettings could not be loaded from path '{RUNTIME_PATH}'");
+						s_instance = CreateInstance<UiToolkitMainSettings>();
 					}
 				}
 				return s_instance;
@@ -130,14 +129,14 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 
-		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiSettings>(UiSettings.EDITOR_PATH) != null;
+		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiToolkitMainSettings>(UiToolkitMainSettings.EDITOR_PATH) != null;
 
 		public static void Initialize()
 		{
 			if (Initialized)
 				return;
 
-			UiSettings settings = CreateInstance<UiSettings>();
+			UiToolkitMainSettings settings = CreateInstance<UiToolkitMainSettings>();
 
 			settings.m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
 			settings.m_loadMainSceneOnPlay = settings.m_sceneReferences.Length > 0;
@@ -147,24 +146,24 @@ namespace GuiToolkit
 
 		public static string GetProjectScenePath(string _sceneName)
 		{
-			UiSettings settings = EditorLoad();
+			UiToolkitMainSettings settings = EditorLoad();
 			settings.InitScenesByName();
 			return "Assets/" + settings.GetScenePath(_sceneName) + ".unity";
 		}
 
-		public static UiSettings EditorLoad()
+		public static UiToolkitMainSettings EditorLoad()
 		{
 			EnsureFolderExists(EDITOR_DIR);
-			UiSettings settings = AssetDatabase.LoadAssetAtPath<UiSettings>(UiSettings.EDITOR_PATH);
+			UiToolkitMainSettings settings = AssetDatabase.LoadAssetAtPath<UiToolkitMainSettings>(UiToolkitMainSettings.EDITOR_PATH);
 			if (settings == null)
 			{
-				settings = CreateInstance<UiSettings>();
+				settings = CreateInstance<UiToolkitMainSettings>();
 				EditorSave(settings);
 			}
 			return settings;
 		}
 
-		public static void EditorSave(UiSettings _settings)
+		public static void EditorSave(UiToolkitMainSettings _settings)
 		{
 			if (!AssetDatabase.Contains(_settings))
 				AssetDatabase.CreateAsset(_settings, EDITOR_PATH);

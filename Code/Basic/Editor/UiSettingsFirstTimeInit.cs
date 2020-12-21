@@ -6,11 +6,11 @@ namespace GuiToolkit
 	[InitializeOnLoad]
 	public static class UiSettingsFirstTimeInit
 	{
-		private static UiSettingsWindow s_window;
+		private static UiToolkitMainSettingsWindow s_window;
 
 		static UiSettingsFirstTimeInit()
 		{
-			if (UiSettings.Initialized)
+			if (UiToolkitMainSettings.Initialized)
 				return;
 
 			EditorApplication.update += CreateWindow;
@@ -20,7 +20,7 @@ namespace GuiToolkit
 		{
 			EditorApplication.update -= CreateWindow;
 
-			s_window = UiSettingsWindow.GetWindow();
+			s_window = UiToolkitMainSettingsWindow.GetWindow();
 			s_window.Show();
 		}
 	}

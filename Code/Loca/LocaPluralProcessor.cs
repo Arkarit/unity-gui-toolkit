@@ -46,7 +46,7 @@ namespace GuiToolkit
 		{
 			string internalClassProjectPath = UiEditorUtility.GetUiToolkitRootProjectDir() + "/Code/Loca/LocaPlurals.cs";
 			string internalClassFilePath = UiEditorUtility.GetApplicationDataDir() + internalClassProjectPath;
-			string newClassProjectPath = UiSettings.EditorLoad().m_locaPluralsDir + "/LocaPlurals.cs";
+			string newClassProjectPath = UiToolkitMainSettings.EditorLoad().m_locaPluralsDir + "/LocaPlurals.cs";
 
 			string filePath = UiEditorUtility.GetApplicationDataDir() + newClassProjectPath;
 			if (internalClassFilePath == filePath)
