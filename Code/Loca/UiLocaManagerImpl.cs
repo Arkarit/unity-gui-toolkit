@@ -13,27 +13,20 @@ namespace GuiToolkit
 	public class UiLocaManagerImpl : UiLocaManager
 	{
 		private bool m_isDev = true;
-		private string m_languageId = "dev";
 		private readonly Dictionary<string, string> m_translationDict = new Dictionary<string, string>();
 		private readonly Dictionary<string, List<string>> m_translationDictPlural = new Dictionary<string, List<string>>();
 
-		public override bool ChangeLanguageImpl( string _languageId )
+		public override bool ChangeLanguageImpl( string _language )
 		{
-			if (string.IsNullOrEmpty(_languageId))
+			if (string.IsNullOrEmpty(_language))
 			{
 				Debug.LogError("null/Empty language Id");
 				return false;
 			}
 
-			if (_languageId == m_languageId)
-				return true;
+			Log($"Language changed: '{_language}'");
 
-			Log($"Language changed: '{_languageId}'");
-
-			m_languageId = _languageId;
-
-
-			m_isDev = _languageId == "dev";
+			m_isDev = _language == "dev";
 			if (m_isDev)
 			{
 				m_translationDict.Clear();
@@ -41,7 +34,7 @@ namespace GuiToolkit
 				return true;
 			}
 
-			return ReadTranslation(_languageId);
+			return ReadTranslation(_language);
 		}
 
 		private bool ReadTranslation( string _languageId )
@@ -169,7 +162,7 @@ namespace GuiToolkit
 
 		public override string Translate(string _singularKey, string _pluralKey, int _n )
 		{
-			(int numPluralForms, int pluralIdx) = LocaPlurals.GetPluralIdx(m_languageId, _n);
+			(int numPluralForms, int pluralIdx) = LocaPlurals.GetPluralIdx(Language, _n);
 			if (pluralIdx == 0)
 				return Translate(_singularKey);
 
@@ -353,7 +346,7 @@ namespace GuiToolkit
 
 		private void DebugDump()
 		{
-			string s = $"Language:'{m_languageId}'\n";
+			string s = $"Language:'{Language}'\n";
 
 			foreach (var kv in m_translationDict)
 			{
@@ -375,7 +368,7 @@ namespace GuiToolkit
 
 			try
 			{
-				File.WriteAllText($"C:\\temp\\{m_languageId}_dump.txt", s);
+				File.WriteAllText($"C:\\temp\\{Language}_dump.txt", s);
 			}
 			catch
 			{

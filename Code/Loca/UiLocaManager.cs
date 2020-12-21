@@ -11,7 +11,8 @@ namespace GuiToolkit
 
 	public abstract class UiLocaManager
 	{
-		protected string m_language = "dev";
+		private const string PLAYER_PREFS_KEY = "uiToolkitLanguage";
+		private string m_language = null;
 		private readonly HashSet<ILocaListener> m_locaListeners = new HashSet<ILocaListener>();
 
 		public abstract string Translate(string _key);
@@ -29,9 +30,19 @@ namespace GuiToolkit
 		public abstract void WriteKeyData();
 #endif
 
+		public UiLocaManager()
+		{
+			string language = PlayerPrefs.GetString(PLAYER_PREFS_KEY, "dev");
+			ChangeLanguage(language);
+		}
+
 		public bool ChangeLanguage(string _languageId)
 		{
+			if (m_language == _languageId)
+				return true;
+
 			m_language = _languageId;
+			PlayerPrefs.SetString(PLAYER_PREFS_KEY, m_language);
 
 			if (!ChangeLanguageImpl(_languageId))
 			{
