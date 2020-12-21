@@ -13,12 +13,16 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	//Note: This file must reside outside of an "Editor" folder, since it must be accessible
-	// from mixed game/editor classes (even though all accesses are in #if UNITY_EDITOR clauses)
-	// See https://answers.unity.com/questions/426184/acces-script-in-the-editor-folder.html for reasons.
+	/// \brief General Editor Utility
+	/// 
+	/// This is a collection of common editor helper functions.
+	/// 
+	/// Note: This file must reside outside of an "Editor" folder, since it must be accessible
+	/// from mixed game/editor classes (even though all accesses are in #if UNITY_EDITOR clauses)
+	/// See https://answers.unity.com/questions/426184/acces-script-in-the-editor-folder.html for reasons.
 	public static class UiEditorUtility
 	{
-		public const string FLAGS_SUBDIR = "/Bitmaps/Flags/";
+		public const string FLAGS_SUBDIR = "Bitmaps/Flags/";
 
 		public const int SKIP_LINE_SPACE = -20;
 		public const int LARGE_SPACE_HEIGHT = 20;
@@ -160,6 +164,12 @@ namespace GuiToolkit
 			_new = _strings[newInt];
 
 			return currentInt != newInt;
+		}
+
+		public static bool LanguagePopup( string _labelText, string _current, out string _new, string _labelText2 = " ")
+		{
+			string[] languages = UiMain.LocaManager.AvailableLanguages;
+			return StringPopup(_labelText, languages, _current, out _new, _labelText2);
 		}
 
 		public static void FlagEnumPopup<T>(SerializedProperty _prop, string _labelText) where T : Enum
@@ -771,6 +781,7 @@ namespace GuiToolkit
 
 		// Supports interfaces
 		// Caution! Clear _result before usage!
+		// (It is not cleared here on purpose, to be able to do multiple FindObjectsOfType() after another)
 		public static void FindObjectsOfType<T>( List<T> _result, Scene _scene, bool _includeInactive = true)
 		{
 			GameObject[] roots = _scene.GetRootGameObjects();
@@ -851,34 +862,15 @@ namespace GuiToolkit
 			if (string.IsNullOrEmpty(_language))
 				return false;
 
-			string assetPath;
-			if (_image.sprite != null)
-			{
-				string currentAssetPath = AssetDatabase.GetAssetPath(_image.sprite);
-				assetPath = UiEditorUtility.GetAssetProjectDir(currentAssetPath) + _language + ".png";
-			}
-			else
-			{
-				assetPath = UiEditorUtility.GetUiToolkitRootProjectDir() + FLAGS_SUBDIR + _language + ".png";
-			}
+			string builtinFlagsDir = GetUiToolkitRootProjectDir() + FLAGS_SUBDIR;
 
-			Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+			// First, try to find a national flag, which is not in the builtin flags directory
+			// (User may want to have his own flag gfx)
+			Sprite sprite = FindNationalFlag(_language, builtinFlagsDir);
 
+			// only if that fails, use the builtin flags
 			if (sprite == null)
-			{
-				string[] guids = AssetDatabase.FindAssets(_language + " t:sprite");
-				for (int i=0; i<guids.Length; i++)
-				{
-					string guid = guids[i];
-					assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
-					string name = Path.GetFileNameWithoutExtension(assetPath);
-					if (name == _language)
-					{
-						sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
-						break;
-					}
-				}
-			}
+				sprite = FindNationalFlag(_language);
 
 			bool result = sprite != null;
 			if (sprite != null)
@@ -886,6 +878,29 @@ namespace GuiToolkit
 			return result;
 		}
 
+		private static Sprite FindNationalFlag(string _language, string _excludePath = null)
+		{
+			Sprite result = null;
+			string[] guids = AssetDatabase.FindAssets(_language + " t:sprite");
+			for (int i=0; i<guids.Length; i++)
+			{
+				string guid = guids[i];
+				string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
+				string name = Path.GetFileNameWithoutExtension(assetPath);
+				if (name == _language)
+				{
+					if (!string.IsNullOrEmpty(_excludePath))
+					{
+						if (assetPath.StartsWith(_excludePath))
+							continue;
+					}
+					result = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+					break;
+				}
+			}
+
+			return result;
+		}
 
 		private static bool ValidateListAndIndex( SerializedProperty _list, int _idx )
 		{

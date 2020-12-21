@@ -18,6 +18,18 @@ namespace GuiToolkit
 		[SerializeField]
 		private string m_language;
 
+		public string Language
+		{
+			get => m_language;
+#if UNITY_EDITOR
+			set
+			{
+				m_language = value;
+				OnValidate();
+			}
+#endif
+		}
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();
@@ -43,10 +55,24 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		private void OnValidate()
+		public void OnValidate()
 		{
 			UiEditorUtility.SetNationalFlagByLanguage(m_image, m_language);
 		}
 #endif
 	}
+
+#if UNITY_EDITOR
+	[CustomEditor(typeof(UiSettingsEntryLanguage))]
+	public class UiSettingsEntryLanguageEditor : Editor
+	{
+		public override void OnInspectorGUI()
+		{
+			UiSettingsEntryLanguage thisUiSettingsEntry = (UiSettingsEntryLanguage)target;
+			DrawDefaultInspector();
+			if ( UiEditorUtility.LanguagePopup("Select available language:", thisUiSettingsEntry.Language, out string newLanguage ))
+				thisUiSettingsEntry.Language = newLanguage;
+		}
+	}
+#endif
 }

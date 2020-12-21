@@ -215,6 +215,32 @@ namespace GuiToolkit
 		private readonly SortedDictionary<string, string> m_pluralKeys = new SortedDictionary<string, string>();
 		private string PotPath => UiEditorUtility.GetApplicationDataDir() + UiSettings.EditorLoad().m_potPath;
 
+		private string[] m_availableLanguages = null;
+		public override string[] AvailableLanguages
+		{
+			get
+			{
+				if (m_availableLanguages == null)
+				{
+					List<string> availableLanguages = new List<string>();
+					availableLanguages.Add("dev");
+
+					string[] guids = AssetDatabase.FindAssets(".po t:textasset");
+					for (int i=0; i<guids.Length; i++)
+					{
+						string guid = guids[i];
+						string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
+						string language = Path.GetFileNameWithoutExtension(assetPath);
+						availableLanguages.Add(language.Substring(0, language.Length - 3));
+					}
+
+					m_availableLanguages = availableLanguages.ToArray();
+				}
+
+				return m_availableLanguages;
+			}
+		}
+
 		public override void Clear()
 		{
 			m_keys.Clear();
