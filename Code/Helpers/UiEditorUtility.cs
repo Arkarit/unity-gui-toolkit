@@ -3,6 +3,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEditor.Experimental.SceneManagement;
 using UnityEditor.SceneManagement;
@@ -862,6 +863,23 @@ namespace GuiToolkit
 			}
 
 			Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+
+			if (sprite == null)
+			{
+				string[] guids = AssetDatabase.FindAssets(_language + " t:sprite");
+				for (int i=0; i<guids.Length; i++)
+				{
+					string guid = guids[i];
+					assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
+					string name = Path.GetFileNameWithoutExtension(assetPath);
+					if (name == _language)
+					{
+						sprite = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+						break;
+					}
+				}
+			}
+
 			bool result = sprite != null;
 			if (sprite != null)
 				_image.sprite = sprite;
