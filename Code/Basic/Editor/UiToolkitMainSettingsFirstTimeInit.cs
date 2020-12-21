@@ -4,11 +4,11 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	[InitializeOnLoad]
-	public static class UiSettingsFirstTimeInit
+	public static class UiToolkitMainSettingsFirstTimeInit
 	{
 		private static UiToolkitMainSettingsWindow s_window;
 
-		static UiSettingsFirstTimeInit()
+		static UiToolkitMainSettingsFirstTimeInit()
 		{
 			if (UiToolkitMainSettings.Initialized)
 				return;
