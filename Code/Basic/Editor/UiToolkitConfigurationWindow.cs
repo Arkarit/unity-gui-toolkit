@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class UiToolkitMainSettingsWindow : EditorWindow
+	public class UiToolkitConfigurationWindow : EditorWindow
 	{
 		[SerializeField]
-		private UiToolkitMainSettings m_settings;
+		private UiToolkitConfiguration m_settings;
 
 		private SerializedObject m_serializedSettingsObject;
 		private Vector2 scrollPos;
@@ -18,25 +18,25 @@ namespace GuiToolkit
 		private void OnGUI()
 		{
 
-			if (!UiToolkitMainSettings.Initialized)
+			if (!UiToolkitConfiguration.Initialized)
 			{
 				m_firstTimeInit = true;
-				UiToolkitMainSettings.Initialize();
+				UiToolkitConfiguration.Initialize();
 			}
 
 			if (m_firstTimeInit)
 			{
-				EditorGUILayout.HelpBox(UiToolkitMainSettings.HELP_FIRST_TIME, MessageType.Info);
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_FIRST_TIME, MessageType.Info);
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
 			}
 
 			SerializedObject serializedObject = new SerializedObject(this);
 			SerializedProperty settingsProp = serializedObject.FindProperty("m_settings");
 
-			UiToolkitMainSettings thisSettings = settingsProp.objectReferenceValue as UiToolkitMainSettings;
+			UiToolkitConfiguration thisSettings = settingsProp.objectReferenceValue as UiToolkitConfiguration;
 			if (thisSettings == null)
 			{
-				thisSettings = UiToolkitMainSettings.EditorLoad();
+				thisSettings = UiToolkitConfiguration.EditorLoad();
 				settingsProp.objectReferenceValue = thisSettings;
 			}
 
@@ -48,37 +48,37 @@ namespace GuiToolkit
 
 			if (m_firstTimeInit)
 			{
-				EditorGUILayout.HelpBox(UiToolkitMainSettings.HELP_SCENES, MessageType.Info);
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_SCENES, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_sceneReferences"), true);
 
 			if (m_firstTimeInit)
 			{
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
-				EditorGUILayout.HelpBox(UiToolkitMainSettings.HELP_LOAD_MAIN_SCENE_ON_PLAY, MessageType.Info);
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_LOAD_MAIN_SCENE_ON_PLAY, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_loadMainSceneOnPlay"), true);
 
 			if (m_firstTimeInit)
 			{
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
-				EditorGUILayout.HelpBox(UiToolkitMainSettings.HELP_ADDITIONAL_SCENES_PATH, MessageType.Info);
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_ADDITIONAL_SCENES_PATH, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_additionalScenesPath"), true);
 
 			if (m_firstTimeInit)
 			{
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
-				EditorGUILayout.HelpBox(UiToolkitMainSettings.HELP_POT_PATH, MessageType.Info);
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_POT_PATH, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_potPath"), true);
 
 			if (m_firstTimeInit)
 			{
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
-				EditorGUILayout.HelpBox(UiToolkitMainSettings.HELP_LOCA_PLURALS_DIR, MessageType.Info);
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_GENERATED_ASSETS_DIR, MessageType.Info);
 			}
-			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_locaPluralsDir"), true);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_generatedAssetsDir"), true);
 
 			m_serializedSettingsObject.ApplyModifiedProperties();
 
@@ -86,9 +86,9 @@ namespace GuiToolkit
 			{
 				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
 				if (m_firstTimeInit)
-					EditorGUILayout.HelpBox(UiToolkitMainSettings.HELP_UI_MAIN, MessageType.Info);
+					EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_UI_MAIN, MessageType.Info);
 
-				if (GUILayout.Button(new GUIContent("Create UiMain in active scene", UiToolkitMainSettings.HELP_UI_MAIN)))
+				if (GUILayout.Button(new GUIContent("Create UiMain in active scene", UiToolkitConfiguration.HELP_UI_MAIN)))
 				{
 					string[] guids = AssetDatabase.FindAssets("UiMain t:prefab");
 					foreach (string guid in guids)
@@ -110,11 +110,11 @@ namespace GuiToolkit
 			GUILayout.EndVertical();
 		}
 
-		[MenuItem(StringConstants.SETTINGS_MENU_NAME, priority = Constants.SETTINGS_MENU_PRIORITY)]
-		public static UiToolkitMainSettingsWindow GetWindow()
+		[MenuItem(StringConstants.CONFIGURATION_MENU_NAME, priority = Constants.SETTINGS_MENU_PRIORITY)]
+		public static UiToolkitConfigurationWindow GetWindow()
 		{
-			var window = GetWindow<UiToolkitMainSettingsWindow>();
-			window.titleContent = new GUIContent("Ui Toolkit Main Settings");
+			var window = GetWindow<UiToolkitConfigurationWindow>();
+			window.titleContent = new GUIContent(StringConstants.CONFIGURATION_NAME);
 			window.Focus();
 			window.Repaint();
 			return window;

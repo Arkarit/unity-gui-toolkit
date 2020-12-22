@@ -46,9 +46,10 @@ namespace GuiToolkit
 		{
 			string internalClassProjectPath = UiEditorUtility.GetUiToolkitRootProjectDir() + "/Code/Loca/LocaPlurals.cs";
 			string internalClassFilePath = UiEditorUtility.GetApplicationDataDir() + internalClassProjectPath;
-			string newClassProjectPath = UiToolkitMainSettings.EditorLoad().m_locaPluralsDir + "/LocaPlurals.cs";
+			string userClassProjectPath = UiToolkitConfiguration.EditorLoad().GeneratedAssetsDir + "/LocaPlurals.cs";
 
-			string filePath = UiEditorUtility.GetApplicationDataDir() + newClassProjectPath;
+			string filePath = UiEditorUtility.GetApplicationDataDir() + userClassProjectPath;
+
 			if (internalClassFilePath == filePath)
 			{
 				Debug.LogError("Overwrite of internal class not allowed");
@@ -114,9 +115,9 @@ namespace GuiToolkit
 			{
 				File.WriteAllText(filePath, fileContent);
 			}
-			catch
+			catch( Exception e)
 			{
-				Debug.LogError($"Failed to write Plurals.cs at '{filePath}'");
+				Debug.LogError($"Failed to write Plurals.cs at '{filePath}': {e.Message}");
 				return;
 			}
 

@@ -29,9 +29,6 @@ namespace GuiToolkit
 		[SerializeField]
 		private float m_layerDistance = 0.02f;
 
-		[SerializeField]
-		private KeyBindings m_keyBindings = new KeyBindings();
-
 		private readonly Dictionary<string, UiView> m_scenes = new Dictionary<string, UiView>();
 
 		public float LayerDistance => m_layerDistance;
@@ -124,7 +121,7 @@ namespace GuiToolkit
 			// You could also load the Scene by using sceneBuildIndex. In this case Scene2 has
 			// a sceneBuildIndex of 1 as shown in Build Settings.
 
-			AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(UiToolkitMainSettings.Instance.GetScenePath(_name), LoadSceneMode.Additive);
+			AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(UiToolkitConfiguration.Instance.GetScenePath(_name), LoadSceneMode.Additive);
 
 			if (asyncLoad == null)
 				yield break;
@@ -236,7 +233,10 @@ namespace GuiToolkit
 		#endregion
 
 		#region "Key Bindings"
-		public KeyBindings KeyBindings { get => m_keyBindings; }
+		[SerializeField]
+		private KeyBindings m_keyBindings = new KeyBindings();
+
+		public KeyBindings KeyBindings => m_keyBindings;
 		#endregion
 
 		#region "Builtin Dialogs"

@@ -4,13 +4,13 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	[InitializeOnLoad]
-	public static class UiToolkitMainSettingsFirstTimeInit
+	public static class UiToolkitConfigurationFirstTimeInit
 	{
-		private static UiToolkitMainSettingsWindow s_window;
+		private static UiToolkitConfigurationWindow s_window;
 
-		static UiToolkitMainSettingsFirstTimeInit()
+		static UiToolkitConfigurationFirstTimeInit()
 		{
-			if (UiToolkitMainSettings.Initialized)
+			if (UiToolkitConfiguration.Initialized)
 				return;
 
 			EditorApplication.update += CreateWindow;
@@ -20,7 +20,7 @@ namespace GuiToolkit
 		{
 			EditorApplication.update -= CreateWindow;
 
-			s_window = UiToolkitMainSettingsWindow.GetWindow();
+			s_window = UiToolkitConfigurationWindow.GetWindow();
 			s_window.Show();
 		}
 	}
