@@ -10,7 +10,7 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	public class UiLocaManagerImpl : UiLocaManager
+	public class UiLocaManagerDefaultImpl : UiLocaManager
 	{
 		private bool m_isDev = true;
 		private readonly Dictionary<string, string> m_translationDict = new Dictionary<string, string>();

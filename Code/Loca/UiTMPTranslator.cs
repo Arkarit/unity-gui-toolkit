@@ -27,7 +27,7 @@ namespace GuiToolkit
 			get
 			{
 				if (m_locaManager == null)
-					m_locaManager = UiMain.LocaManager;
+					m_locaManager = UiMain.Instance.LocaManager;
 				return m_locaManager;
 			}
 		}

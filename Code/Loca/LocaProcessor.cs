@@ -24,7 +24,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			UiMain.LocaManager.Clear();
+			UiMain.Instance.LocaManager.Clear();
 
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
 			UiEditorUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent);
@@ -40,7 +40,7 @@ namespace GuiToolkit
 
 			EditorUtility.ClearProgressBar();
 
-			UiMain.LocaManager.WriteKeyData();
+			UiMain.Instance.LocaManager.WriteKeyData();
 		}
 
 		private static void FoundComponent( ILocaClient _component )
@@ -49,12 +49,12 @@ namespace GuiToolkit
 			{
 				var keys = _component.LocaKeys;
 				foreach (var key in keys)
-					UiMain.LocaManager.AddKey(key);
+					UiMain.Instance.LocaManager.AddKey(key);
 
 				return;
 			}
 
-			UiMain.LocaManager.AddKey(_component.LocaKey);
+			UiMain.Instance.LocaManager.AddKey(_component.LocaKey);
 		}
 
 		private static void FoundScript( string _path, string _content )
@@ -105,7 +105,7 @@ namespace GuiToolkit
 			{
 				if (codeLength == keywordLength)
 				{
-					UiMain.LocaManager.AddKey(_singular, _plural);
+					UiMain.Instance.LocaManager.AddKey(_singular, _plural);
 					return true;
 				}
 
@@ -113,7 +113,7 @@ namespace GuiToolkit
 
 				if ((char.IsWhiteSpace(c) || !char.IsLetterOrDigit(c)) && c != '_')
 				{
-					UiMain.LocaManager.AddKey(_singular, _plural);
+					UiMain.Instance.LocaManager.AddKey(_singular, _plural);
 					return true;
 				}
 			}

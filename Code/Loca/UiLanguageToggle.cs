@@ -33,7 +33,7 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			bool isActive = UiMain.LocaManager.Language == Language;
+			bool isActive = UiMain.Instance.LocaManager.Language == Language;
 			if (isActive)
 				SetDelayed(true);
 
@@ -50,7 +50,7 @@ namespace GuiToolkit
 		{
 			if (_active)
 			{
-				UiMain.LocaManager.ChangeLanguage(m_language);
+				UiMain.Instance.LocaManager.ChangeLanguage(m_language);
 			}
 		}
 

@@ -65,7 +65,5 @@ namespace GuiToolkit
 		{
 			m_locaListeners.Remove(_listener);
 		}
-
-		public static UiLocaManager Instance {get; set;}
 	}
 }

@@ -168,7 +168,7 @@ namespace GuiToolkit
 
 		public static bool LanguagePopup( string _labelText, string _current, out string _new, string _labelText2 = " ")
 		{
-			string[] languages = UiMain.LocaManager.AvailableLanguages;
+			string[] languages = UiMain.Instance.LocaManager.AvailableLanguages;
 			return StringPopup(_labelText, languages, _current, out _new, _labelText2);
 		}
 

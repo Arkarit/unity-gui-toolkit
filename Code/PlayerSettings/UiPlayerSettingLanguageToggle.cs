@@ -34,7 +34,7 @@ namespace GuiToolkit
 		{
 			base.OnEnable();
 
-			bool isActive = UiMain.LocaManager.Language == m_language;
+			bool isActive = UiMain.Instance.LocaManager.Language == m_language;
 
 			// We don't need a stored value, since LocaManager does the storage for us.
 
@@ -45,7 +45,7 @@ namespace GuiToolkit
 		protected override void OnValueChanged( bool _active )
 		{
 			if (_active)
-				UiMain.LocaManager.ChangeLanguage(m_language);
+				UiMain.Instance.LocaManager.ChangeLanguage(m_language);
 		}
 
 #if UNITY_EDITOR

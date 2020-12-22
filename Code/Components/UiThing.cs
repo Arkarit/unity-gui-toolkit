@@ -65,7 +65,7 @@ namespace GuiToolkit
 		}
 		protected string gettext(string _s)
 		{
-			return UiMain.LocaManager.Translate(_s);
+			return UiMain.Instance.LocaManager.Translate(_s);
 		}
 		protected string _n(string _singular, string _plural, int _n)
 		{
@@ -73,7 +73,7 @@ namespace GuiToolkit
 		}
 		protected string ngettext(string _singular, string _plural, int _n)
 		{
-			return UiMain.LocaManager.Translate(_singular, _plural, _n);
+			return UiMain.Instance.LocaManager.Translate(_singular, _plural, _n);
 		}
 
 		/// Installs event listeners, if ReceiveEventsWhenDisabled
@@ -96,7 +96,7 @@ namespace GuiToolkit
 		protected virtual void OnEnable()
 		{
 			if (NeedsLanguageChangeCallback)
-				UiMain.LocaManager.AddListener(this);
+				UiMain.Instance.LocaManager.AddListener(this);
 
 			if (!ReceiveEventsWhenDisabled && !m_eventListenersAdded)
 			{
@@ -109,7 +109,7 @@ namespace GuiToolkit
 		protected virtual void OnDisable()
 		{
 			if (NeedsLanguageChangeCallback)
-				UiMain.LocaManager.RemoveListener(this);
+				UiMain.Instance.LocaManager.RemoveListener(this);
 
 			if (!ReceiveEventsWhenDisabled && m_eventListenersAdded)
 			{
