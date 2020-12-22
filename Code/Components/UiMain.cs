@@ -247,7 +247,7 @@ namespace GuiToolkit
 		private UiRequester m_requesterPrefab;
 
 		[SerializeField]
-		private UiSettingsDialog m_settingsDialogPrefab;
+		private UiPlayerSettingsDialog m_settingsDialogPrefab;
 
 		[SerializeField]
 		[FormerlySerializedAs("m_splashMessagePrefab")]
@@ -261,7 +261,7 @@ namespace GuiToolkit
 
 		public void ShowSettingsDialog()
 		{
-			UiSettingsDialog settingsDialog = CreateView(m_settingsDialogPrefab);
+			UiPlayerSettingsDialog settingsDialog = CreateView(m_settingsDialogPrefab);
 			settingsDialog.Show();
 		}
 

@@ -21,7 +21,21 @@ namespace GuiToolkit
 
 		public static event Action<string, T> SettingChanged;
 
-		public virtual T StoredValue
+		public string Key
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(m_uniqueKey))
+				{
+					UiTMPTranslator translator = m_text.GetComponent<UiTMPTranslator>();
+					m_uniqueKey = translator != null ? translator.LocaKey : m_text.text;
+					m_uniqueKey = StringConstants.PLAYER_PREFS_PREFIX + m_uniqueKey;
+				}
+				return m_uniqueKey;
+			}
+		}
+
+		public virtual T Value
 		{
 			get
 			{
@@ -49,27 +63,14 @@ namespace GuiToolkit
 			}
 		}
 
-		public void RestoreDefault() => StoredValue = m_defaultValue;
-		public void SaveTemp() => m_tempSavedValue = StoredValue;
-		public void RestoreTemp() => StoredValue = m_tempSavedValue;
+		public void RestoreDefault() => Value = m_defaultValue;
+		public void SaveTemp() => m_tempSavedValue = Value;
+		public void RestoreTemp() => Value = m_tempSavedValue;
 
 		public virtual void Apply()
 		{
-			SettingChanged.Invoke(Key, StoredValue);
+			SettingChanged.Invoke(Key, Value);
 		}
 
-		public string Key
-		{
-			get
-			{
-				if (string.IsNullOrEmpty(m_uniqueKey))
-				{
-					UiTMPTranslator translator = m_text.GetComponent<UiTMPTranslator>();
-					m_uniqueKey = translator != null ? translator.LocaKey : m_text.text;
-					m_uniqueKey = StringConstants.PLAYER_PREFS_PREFIX + m_uniqueKey;
-				}
-				return m_uniqueKey;
-			}
-		}
 	}
 }

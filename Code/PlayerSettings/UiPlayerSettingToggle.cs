@@ -12,6 +12,8 @@ namespace GuiToolkit
 		[SerializeField]
 		protected UiToggle m_toggle;
 
+		public bool IsRadio => m_toggle.Toggle.group != null;
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();

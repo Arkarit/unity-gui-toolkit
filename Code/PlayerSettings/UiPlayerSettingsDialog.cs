@@ -2,7 +2,7 @@
 
 namespace GuiToolkit
 {
-	public class UiSettingsDialog : UiTabDialog
+	public class UiPlayerSettingsDialog : UiTabDialog
 	{
 		public override bool AutoDestroyOnHide => true;
 
