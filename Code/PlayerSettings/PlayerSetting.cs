@@ -31,9 +31,12 @@ namespace GuiToolkit
 		public bool IsKeyCode => m_type == typeof(KeyCode);
 		public bool IsRadio => m_isRadio;
 
-		public PlayerSetting( string _key, object _defaultValue )
+		public PlayerSetting( string _key, object _defaultValue, string _category = null, string _group = null, bool _isRadio = false )
 		{
 			System.Type type = _defaultValue.GetType();
+			m_category = _category;
+			m_group = _group;
+			m_isRadio = _isRadio;
 			m_key = _key;
 			m_defaultValue = _defaultValue;
 			m_type = type;
@@ -50,12 +53,11 @@ namespace GuiToolkit
 
 		public T GetValue<T>()
 		{
-			CheckType(typeof(T));
-
-			if (m_type == typeof(bool))
-				return (T)(object)((int)Value != 0);
-
-			return (T)Value;
+			return GetValue<T>(ref m_value);
+		}
+		public T GetDefaultValue<T>()
+		{
+			return GetValue<T>(ref m_defaultValue);
 		}
 
 		public void TempSaveValue() => m_savedValue = m_value;
@@ -63,6 +65,16 @@ namespace GuiToolkit
 		{
 			m_value = m_savedValue;
 			Apply();
+		}
+
+		private T GetValue<T>(ref object _v)
+		{
+			CheckType(typeof(T));
+
+			if (m_type == typeof(bool))
+				return (T)(object)((int)_v != 0);
+
+			return (T)_v;
 		}
 
 		private void Apply()

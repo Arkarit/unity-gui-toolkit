@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class UiPlayerSettingSlider : UiPlayerSettingBase<float>
+	public class UiPlayerSettingSlider : UiPlayerSettingBase
 	{
 	}
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace GuiToolkit
 {
-	public class PlayerSettings : ScriptableObject
+	public class PlayerSettings
 	{
 		private readonly Dictionary<string,PlayerSetting> m_playerSettings = new Dictionary<string,PlayerSetting>();
 		private Dictionary<KeyCode, KeyCode> m_keyCodes = new Dictionary<KeyCode, KeyCode>();
@@ -12,8 +12,9 @@ namespace GuiToolkit
 		{
 			foreach (PlayerSetting playerSetting in _playerSettings )
 			{
-				if (!m_playerSettings.ContainsKey(playerSetting.Key))
-					m_playerSettings.Add(playerSetting.Key, playerSetting);
+				m_playerSettings.Add(playerSetting.Key, playerSetting);
+				if (playerSetting.IsKeyCode)
+					m_keyCodes.Add(playerSetting.GetDefaultValue<KeyCode>(), playerSetting.GetValue<KeyCode>());
 			}
 		}
 
@@ -34,7 +35,6 @@ namespace GuiToolkit
 			foreach (var kv in m_playerSettings)
 				kv.Value.TempRestoreValue();
 		}
-
 
 	}
 }

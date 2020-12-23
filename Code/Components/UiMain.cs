@@ -232,11 +232,16 @@ namespace GuiToolkit
 
 		#endregion
 
-		#region "Key Bindings"
+		#region "Player Settings"
+		[Obsolete]
 		[SerializeField]
 		private KeyBindings m_keyBindings = new KeyBindings();
-
+		[Obsolete]
 		public KeyBindings KeyBindings => m_keyBindings;
+
+		[SerializeField]
+		private PlayerSettings m_playerSettings = new PlayerSettings();
+		public PlayerSettings PlayerSettings => m_playerSettings;
 		#endregion
 
 		#region "Builtin Dialogs"
