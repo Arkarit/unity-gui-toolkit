@@ -31,27 +31,22 @@ namespace GuiToolkit
 		public bool IsKeyCode => m_type == typeof(KeyCode);
 		public bool IsRadio => m_isRadio;
 
-		public PlayerSetting( string _key, object _defaultValue, System.Type _type )
+		public PlayerSetting( string _key, object _defaultValue )
 		{
+			System.Type type = _defaultValue.GetType();
 			m_key = _key;
 			m_defaultValue = _defaultValue;
-			m_type = _type;
+			m_type = type;
 
-			if (_type == typeof(int) || _type == typeof(bool) || _type.IsEnum)
+			if (type == typeof(int) || type == typeof(bool) || type.IsEnum)
 				m_value = PlayerPrefs.GetInt(Key, Convert.ToInt32(DefaultValue));
-			else if (_type == typeof(float))
+			else if (type == typeof(float))
 				m_value = PlayerPrefs.GetFloat(Key, Convert.ToSingle(DefaultValue));
-			else if (_type == typeof(string))
+			else if (type == typeof(string))
 				m_value = PlayerPrefs.GetString(Key, Convert.ToString(DefaultValue));
 			else
-				Debug.LogError($"Unknown type for player setting '{Key}': {_type.Name}");
+				Debug.LogError($"Unknown type for player setting '{Key}': {type.Name}");
 		}
-
-		public PlayerSetting(string _key, bool _value) : this(_key, _value, typeof(bool)) {}
-		public PlayerSetting(string _key, int _value) : this(_key, _value, typeof(int)) {}
-		public PlayerSetting(string _key, float _value) : this(_key, _value, typeof(float)) {}
-		public PlayerSetting(string _key, string _value) : this(_key, _value, typeof(string)) {}
-		public PlayerSetting(string _key, KeyCode _value) : this(_key, _value, typeof(KeyCode)) {}
 
 		public T GetValue<T>()
 		{
@@ -86,11 +81,6 @@ namespace GuiToolkit
 		{
 			if (_t != m_type)
 				throw new ArgumentException($"Wrong value type in Player Setting '{m_key}': Should be '{m_type.Name}', is '{_t.Name}'");
-		}
-
-		public static PlayerSetting CreateInstance<T>(string _key, T _value)
-		{
-			return new PlayerSetting(_key, _value, typeof(T));
 		}
 	}
 }
