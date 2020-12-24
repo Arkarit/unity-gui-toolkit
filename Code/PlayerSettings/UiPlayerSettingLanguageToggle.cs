@@ -29,6 +29,16 @@ namespace GuiToolkit
 			}
 		}
 
+		public override string Icon
+		{
+			get => base.Icon;
+			set
+			{
+				base.Icon = value;
+				SetNationalFlag();
+			}
+		}
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();
@@ -56,6 +66,14 @@ namespace GuiToolkit
 
 		private void SetNationalFlag()
 		{
+			if (!string.IsNullOrEmpty(Icon))
+			{
+				m_image.sprite = Resources.Load<Sprite>(Icon);
+				if (m_image.sprite != null)
+					return;
+
+				Debug.LogError($"Sprite '{Icon}' not found!");
+			}
 			m_image.sprite = Resources.Load<Sprite>("Flags/" + m_language );
 		}
 	}
