@@ -28,5 +28,7 @@ namespace GuiToolkit
 					m_text.text = value;
 			}
 		}
+
+		public virtual string Icon {get; set;}
 	}
 }

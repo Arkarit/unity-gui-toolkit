@@ -15,5 +15,15 @@ namespace GuiToolkit
 			get => m_slider.Value;
 			set => m_slider.Value = value;
 		}
+
+		public override string Icon
+		{
+			get => base.Icon;
+			set
+			{
+				base.Icon = value;
+				m_slider.Icon = value;
+			}
+		}
 	}
 }

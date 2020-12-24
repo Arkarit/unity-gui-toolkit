@@ -101,4 +101,17 @@ namespace GuiToolkit
 
 		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";
 	}
+
+	public static class BuiltinIcons
+	{
+		public const string CHECKMARK		= "Icons/UITK_Checkmark";
+		public const string FORBIDDEN		= "Icons/UITK_Forbidden";
+		public const string GEAR			= "Icons/UITK_Gear";
+		public const string LOUDSPEAKER		= "Icons/UITK_Loudspeaker";
+		public const string NOTE			= "Icons/UITK_Note";
+		public const string RANDOM_DICE		= "Icons/UITK_RandomDice";
+		public const string SEND			= "Icons/UITK_Send";
+		public const string TARGET			= "Icons/UITK_Target";
+		public const string X				= "Icons/UITK_X";
+	}
 }

@@ -52,7 +52,10 @@ namespace GuiToolkit
 
 					ToggleGroup toggleGroup = null;
 					if (group.Value.Count > 0 && group.Value[0].IsRadio)
+					{
 						toggleGroup = textContainer.GetOrCreateComponent<ToggleGroup>();
+						toggleGroup.allowSwitchOff = false;
+					}
 
 					foreach (var entry in group.Value)
 					{
@@ -71,6 +74,8 @@ namespace GuiToolkit
 				languageToggle.Title = _playerSetting.Key;
 				languageToggle.Language = languageToken;
 				languageToggle.Toggle.group = _toggleGroup;
+				if (_playerSetting.HasIcon)
+					languageToggle.Icon = _playerSetting.Icon;
 				return;
 			}
 
@@ -79,6 +84,8 @@ namespace GuiToolkit
 				UiPlayerSettingSlider slider = Instantiate(m_sliderPrefab, _transform);
 				slider.Title = _playerSetting.Key;
 				slider.Value = _playerSetting.GetValue<float>();
+				if (_playerSetting.HasIcon)
+					slider.Icon = _playerSetting.Icon;
 				return;
 			}
 		}

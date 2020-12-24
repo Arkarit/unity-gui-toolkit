@@ -11,8 +11,10 @@ namespace GuiToolkit
 		[SerializeField] protected UiButton m_optionalFullVolumeButton;
 		[SerializeField] protected Slider m_slider;
 		[SerializeField] protected UiImage[] m_uiImagesToDisable;
+		[SerializeField] protected Image[] m_iconImages;
 
 		private float m_savedSliderVal;
+		private string m_icon;
 
 		public SliderEvent OnValueChanged
 		{
@@ -24,6 +26,23 @@ namespace GuiToolkit
 		{
 			get => m_slider.value;
 			set => m_slider.value = value;
+		}
+
+		public string Icon
+		{
+			get => m_icon;
+			set
+			{
+				m_icon = value;
+				Sprite sprite = Resources.Load<Sprite>(m_icon);
+				if (sprite == null)
+				{
+					Debug.LogError($"Sprite '{m_icon}' not found!");
+					return;
+				}
+				foreach (var image in m_iconImages)
+					image.sprite = sprite;
+			}
 		}
 
 		protected override void OnEnable()
