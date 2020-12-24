@@ -20,6 +20,7 @@ namespace GuiToolkit
 	/// events to the matching component - either a slider or a scroll rect.
 	/// 
 	/// Note that this component destroys its own game object if the Slider and ScrollRect member vars haven't been set.
+	/// For the ScrollRect member, it tries to find a scroll rect in parent first.
 	/// This makes it easy to make it a part of a slider prefab, since otherwise it would always block all mouse/drag actions regarding that slider.
 	public class UiSliderInScrollRect : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler
 	{
@@ -39,7 +40,16 @@ namespace GuiToolkit
 
 		public void Start()
 		{
-			if (m_slider == null || m_scrollRect == null)
+			if (m_slider == null)
+			{
+				Destroy(gameObject);
+				return;
+			}
+
+			if (m_scrollRect == null)
+				m_scrollRect = GetComponentInParent<ScrollRect>();
+
+			if (m_scrollRect == null)
 				Destroy(gameObject);
 		}
 

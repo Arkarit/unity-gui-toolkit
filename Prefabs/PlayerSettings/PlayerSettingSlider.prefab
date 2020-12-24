@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5300456549591044956}
   - component: {fileID: 5452179425472489196}
   m_Layer: 5
-  m_Name: SettingsEntrySlider
+  m_Name: PlayerSettingSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -80,6 +80,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_text: {fileID: 6605526824050803601}
+  m_playerSetting:
+    m_category: 
+    m_group: 
+    m_key: 
+    m_isRadio: 0
+    m_isLanguage: 0
+  m_slider: {fileID: 6676996271120638987}
 --- !u!1 &4098072383374550740
 GameObject:
   m_ObjectHideFlags: 0
@@ -647,6 +654,11 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5949908069941084032, guid: 53f923c19928fa04dbd39d8a4a6a510c,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 13.250977
+      objectReference: {fileID: 0}
     - target: {fileID: 6744819297019781566, guid: 53f923c19928fa04dbd39d8a4a6a510c,
         type: 3}
       propertyPath: m_AnchorMin.x
@@ -670,3 +682,15 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 3500322339267625956}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6676996271120638987 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7798774558951581679, guid: 53f923c19928fa04dbd39d8a4a6a510c,
+    type: 3}
+  m_PrefabInstance: {fileID: 3500322339267625956}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1033e85c40a07924cb9110ce680be317, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

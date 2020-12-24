@@ -22,8 +22,6 @@ namespace GuiToolkit
 	/// See https://answers.unity.com/questions/426184/acces-script-in-the-editor-folder.html for reasons.
 	public static class UiEditorUtility
 	{
-		public const string FLAGS_SUBDIR = "Resources/Flags/";
-
 		public const int SKIP_LINE_SPACE = -20;
 		public const int LARGE_SPACE_HEIGHT = 20;
 		public const int SMALL_SPACE_HEIGHT = 10;
@@ -855,51 +853,6 @@ namespace GuiToolkit
 				}
 			}
 			return s_rootDir;
-		}
-
-		public static bool SetNationalFlagByLanguage(Image _image, string _language)
-		{
-			if (string.IsNullOrEmpty(_language))
-				return false;
-
-			string builtinFlagsDir = GetUiToolkitRootProjectDir() + FLAGS_SUBDIR;
-
-			// First, try to find a national flag, which is not in the builtin flags directory
-			// (User may want to have his own flag gfx)
-			Sprite sprite = FindNationalFlag(_language, builtinFlagsDir);
-
-			// only if that fails, use the builtin flags
-			if (sprite == null)
-				sprite = FindNationalFlag(_language);
-
-			bool result = sprite != null;
-			if (sprite != null)
-				_image.sprite = sprite;
-			return result;
-		}
-
-		private static Sprite FindNationalFlag(string _language, string _excludePath = null)
-		{
-			Sprite result = null;
-			string[] guids = AssetDatabase.FindAssets(_language + " t:sprite");
-			for (int i=0; i<guids.Length; i++)
-			{
-				string guid = guids[i];
-				string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
-				string name = Path.GetFileNameWithoutExtension(assetPath);
-				if (name == _language)
-				{
-					if (!string.IsNullOrEmpty(_excludePath))
-					{
-						if (assetPath.StartsWith(_excludePath))
-							continue;
-					}
-					result = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
-					break;
-				}
-			}
-
-			return result;
 		}
 
 		private static bool ValidateListAndIndex( SerializedProperty _list, int _idx )

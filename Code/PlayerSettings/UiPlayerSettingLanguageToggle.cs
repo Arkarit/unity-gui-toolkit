@@ -44,7 +44,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		public void OnValidate()
 		{
-			UiEditorUtility.SetNationalFlagByLanguage(m_image, m_language);
+			SetNationalFlag();
 		}
 #endif
 
@@ -56,12 +56,7 @@ namespace GuiToolkit
 
 		private void SetNationalFlag()
 		{
-#if UNITY_EDITOR
-			if (!Application.isPlaying)
-				UiEditorUtility.SetNationalFlagByLanguage(m_image, m_language);
-			else
-#endif
-				m_image.sprite = Resources.Load<Sprite>("Flags/" + m_language );
+			m_image.sprite = Resources.Load<Sprite>("Flags/" + m_language );
 		}
 	}
 

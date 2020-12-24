@@ -42,6 +42,7 @@ namespace GuiToolkit
 		public bool IsKeyCode => m_type == typeof(KeyCode);
 		public bool IsRadio => m_isRadio;
 		public bool IsLanguage => m_isLanguage;
+		public bool IsFloat => m_type == typeof(float);
 
 		public PlayerSetting( string _category, string _group, string _key, object _defaultValue, EPlayerSettingType _playerSettingType = EPlayerSettingType.Auto )
 		{

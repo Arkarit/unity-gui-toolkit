@@ -73,6 +73,14 @@ namespace GuiToolkit
 				languageToggle.Toggle.group = _toggleGroup;
 				return;
 			}
+
+			if (_playerSetting.IsFloat)
+			{
+				UiPlayerSettingSlider slider = Instantiate(m_sliderPrefab, _transform);
+				slider.Title = _playerSetting.Key;
+				slider.Value = _playerSetting.GetValue<float>();
+				return;
+			}
 		}
 
 		private void ClearDialogEntries()

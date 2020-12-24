@@ -20,6 +20,12 @@ namespace GuiToolkit
 			set => m_slider.onValueChanged = value;
 		}
 
+		public float Value
+		{
+			get => m_slider.value;
+			set => m_slider.value = value;
+		}
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();
