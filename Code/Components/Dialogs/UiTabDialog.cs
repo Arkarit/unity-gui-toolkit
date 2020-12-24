@@ -31,6 +31,22 @@ namespace GuiToolkit
 			base.Show(_instant, _onFinish);
 		}
 
+		public void GotoPage(int _idx)
+		{
+			if (_idx >= m_tabInfos.Count)
+			{
+				Debug.LogError("Page out of bounds");
+				return;
+			}
+
+			if (_idx == m_currentTabIdx)
+				return;
+
+			m_tabInfos[m_currentTabIdx].Page.Hide(true);
+			m_tabInfos[_idx].Page.Show(true);
+			m_tabInfos[_idx].Tab.Toggle.isOn = true;
+		}
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();

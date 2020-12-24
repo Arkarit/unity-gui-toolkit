@@ -17,6 +17,12 @@ namespace GuiToolkit
 		public Toggle Toggle => m_toggle.Toggle; 
 		public bool IsRadio => m_toggle.Toggle.group != null;
 
+		public bool Value
+		{
+			get => m_toggle.Toggle.isOn;
+			set => m_toggle.Toggle.isOn = value;
+		}
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();

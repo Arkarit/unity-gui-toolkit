@@ -49,7 +49,7 @@ namespace GuiToolkit
 		public string Icon => m_icon;
 
 
-		public PlayerSetting( string _category, string _group, string _key, object _defaultValue, string _icon = null, EPlayerSettingType _playerSettingType = EPlayerSettingType.Auto )
+		public PlayerSetting( string _category, string _group, string _key, object _defaultValue, EPlayerSettingType _playerSettingType = EPlayerSettingType.Auto, string _icon = null )
 		{
 			System.Type type = _defaultValue.GetType();
 			m_category = _category;

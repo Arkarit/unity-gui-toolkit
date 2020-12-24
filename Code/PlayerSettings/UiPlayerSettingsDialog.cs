@@ -21,6 +21,8 @@ namespace GuiToolkit
 		{
 			Build();
 			base.Show(_instant, _onFinish);
+			if (m_tabInfos.Count > 0)
+				GotoPage(0);
 		}
 
 		private void Build()
@@ -29,11 +31,14 @@ namespace GuiToolkit
 
 			PlayerSettings playerSettings = UiMain.Instance.PlayerSettings;
 			var categorized = playerSettings.GetCategorized();
+			ToggleGroup tabToggleGroup = m_tabContentContainer.GetOrCreateComponent<ToggleGroup>();
+			tabToggleGroup.allowSwitchOff = false;
 
 			foreach (var category in categorized)
 			{
 				UiToggle tab = Instantiate(m_tabPrefab, m_tabContentContainer);
 				tab.Text = category.Key;
+				tab.Toggle.group = tabToggleGroup;
 				// TODO translate
 
 				UiPanel page = Instantiate(m_tabPagePrefab, m_pageContentContainer);
@@ -86,6 +91,15 @@ namespace GuiToolkit
 				slider.Value = _playerSetting.GetValue<float>();
 				if (_playerSetting.HasIcon)
 					slider.Icon = _playerSetting.Icon;
+				return;
+			}
+
+			if (_playerSetting.IsRadio)
+			{
+				UiPlayerSettingToggle toggle = Instantiate(m_radioPrefab, _transform);
+				toggle.Title = _playerSetting.Key;
+				toggle.Value = _playerSetting.GetValue<bool>();
+				toggle.Toggle.group = _toggleGroup;
 				return;
 			}
 		}
