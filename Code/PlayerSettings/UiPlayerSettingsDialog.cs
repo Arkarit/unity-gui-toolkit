@@ -110,6 +110,13 @@ namespace GuiToolkit
 				toggle.Value = _playerSetting.GetValue<bool>();
 				return;
 			}
+
+			if (_playerSetting.IsKeyCode)
+			{
+				UiPlayerSettingKeyBinding keyBinding = Instantiate(m_keyBindingsPrefab, _transform);
+				keyBinding.Title = _playerSetting.Key;
+				keyBinding.Value = _playerSetting.GetValue<KeyCode>();
+			}
 		}
 
 		private void ClearDialogEntries()
