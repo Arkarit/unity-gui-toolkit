@@ -102,6 +102,14 @@ namespace GuiToolkit
 				toggle.Toggle.group = _toggleGroup;
 				return;
 			}
+
+			if (_playerSetting.IsBool)
+			{
+				UiPlayerSettingToggle toggle = Instantiate(m_togglePrefab, _transform);
+				toggle.Title = _playerSetting.Key;
+				toggle.Value = _playerSetting.GetValue<bool>();
+				return;
+			}
 		}
 
 		private void ClearDialogEntries()

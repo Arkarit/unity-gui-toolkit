@@ -44,6 +44,7 @@ namespace GuiToolkit
 		public bool IsRadio => m_isRadio;
 		public bool IsLanguage => m_isLanguage;
 		public bool IsFloat => m_type == typeof(float);
+		public bool IsBool => m_type == typeof(bool);
 
 		public bool HasIcon => !string.IsNullOrEmpty(m_icon);
 		public string Icon => m_icon;
