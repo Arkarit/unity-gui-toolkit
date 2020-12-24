@@ -2,6 +2,13 @@
 using UnityEngine;
 namespace GuiToolkit
 {
+	public enum EPlayerSettingType
+	{
+		Auto,
+		Language,
+		Radio,
+	}
+
 	[Serializable]
 	public partial class PlayerSetting
 	{
@@ -11,10 +18,13 @@ namespace GuiToolkit
 		[SerializeField] protected object m_defaultValue;
 		[SerializeField] protected System.Type m_type;
 		[SerializeField] protected bool m_isRadio;
+		[SerializeField] protected bool m_isLanguage;
 
 		protected object m_value;
 		protected object m_savedValue;
 
+		public string Category => m_category;
+		public string Group => m_group;
 		public string Key => m_key;
 		public object Value
 		{
@@ -27,16 +37,19 @@ namespace GuiToolkit
 			}
 		}
 		public object DefaultValue => m_defaultValue;
+
 		public System.Type Type => m_type;
 		public bool IsKeyCode => m_type == typeof(KeyCode);
 		public bool IsRadio => m_isRadio;
+		public bool IsLanguage => m_isLanguage;
 
-		public PlayerSetting( string _key, object _defaultValue, string _category = null, string _group = null, bool _isRadio = false )
+		public PlayerSetting( string _category, string _group, string _key, object _defaultValue, EPlayerSettingType _playerSettingType = EPlayerSettingType.Auto )
 		{
 			System.Type type = _defaultValue.GetType();
 			m_category = _category;
 			m_group = _group;
-			m_isRadio = _isRadio;
+			m_isRadio = _playerSettingType == EPlayerSettingType.Radio || _playerSettingType == EPlayerSettingType.Language;
+			m_isLanguage = _playerSettingType == EPlayerSettingType.Language;
 			m_key = _key;
 			m_defaultValue = _defaultValue;
 			m_type = type;

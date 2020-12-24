@@ -18,11 +18,10 @@ namespace GuiToolkit
 	/// </summary>
 	public class UiTabDialog : UiView
 	{
-		public UiButton m_closeButton;
-
-		public RectTransform m_pageContentContainer;
-
-		public List<TabInfo> m_tabInfos;
+		[SerializeField] protected UiButton m_closeButton;
+		[SerializeField] protected RectTransform m_tabContentContainer;
+		[SerializeField] protected RectTransform m_pageContentContainer;
+		[SerializeField] protected List<TabInfo> m_tabInfos;
 
 		private int m_currentTabIdx;
 

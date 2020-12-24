@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+
 namespace GuiToolkit
 {
 	public class PlayerSettings
@@ -34,6 +35,23 @@ namespace GuiToolkit
 		{
 			foreach (var kv in m_playerSettings)
 				kv.Value.TempRestoreValue();
+		}
+
+		public Dictionary<string, Dictionary<string, List<PlayerSetting>>> GetCategorized()
+		{
+			Dictionary<string, Dictionary<string, List<PlayerSetting>>> result = new Dictionary<string, Dictionary<string, List<PlayerSetting>>>();
+
+			foreach (var kv in m_playerSettings)
+			{
+				PlayerSetting playerSetting = kv.Value;
+				if (!result.ContainsKey(playerSetting.Category))
+					result.Add(playerSetting.Category, new Dictionary<string, List<PlayerSetting>>());
+				Dictionary<string, List<PlayerSetting>> groupDict = result[playerSetting.Category];
+				if (!groupDict.ContainsKey(playerSetting.Group))
+					groupDict.Add(playerSetting.Group, new List<PlayerSetting>());
+				groupDict[playerSetting.Group].Add(playerSetting);
+			}
+			return result;
 		}
 
 	}

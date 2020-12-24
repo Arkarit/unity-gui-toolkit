@@ -21,25 +21,18 @@ namespace GuiToolkit
 		public string Language
 		{
 			get => m_language;
-#if UNITY_EDITOR
 			set
 			{
 				m_language = value;
-				OnValidate();
+				SetToggleByLanguage();
+				SetNationalFlag();
 			}
-#endif
 		}
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-
-			bool isActive = UiMain.Instance.LocaManager.Language == m_language;
-
-			// We don't need a stored value, since LocaManager does the storage for us.
-
-			if (isActive)
-				m_toggle.SetDelayed(true);
+			SetToggleByLanguage();
 		}
 
 		protected override void OnValueChanged( bool _active )
@@ -54,6 +47,22 @@ namespace GuiToolkit
 			UiEditorUtility.SetNationalFlagByLanguage(m_image, m_language);
 		}
 #endif
+
+		private void SetToggleByLanguage()
+		{
+			bool isActive = UiMain.Instance.LocaManager.Language == m_language;
+			m_toggle.SetDelayed(isActive);
+		}
+
+		private void SetNationalFlag()
+		{
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				UiEditorUtility.SetNationalFlagByLanguage(m_image, m_language);
+			else
+#endif
+				m_image.sprite = Resources.Load<Sprite>("Flags/" + m_language );
+		}
 	}
 
 #if UNITY_EDITOR

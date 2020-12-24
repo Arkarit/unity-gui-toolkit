@@ -514,8 +514,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_defaultSceneVisibility: 0
   m_layer: 600
+  m_isFullScreen: 0
   m_lastSiblingIndex: -1
   m_closeButton: {fileID: 6957560595721433611}
+  m_tabContentContainer: {fileID: 7953324690129522827}
   m_pageContentContainer: {fileID: 5968183750671245532}
   m_tabInfos: []
 --- !u!114 &2527186978879140337
@@ -648,7 +650,7 @@ GameObject:
   - component: {fileID: 5968183750924817587}
   - component: {fileID: 5968183750924817588}
   m_Layer: 5
-  m_Name: TabsContent
+  m_Name: Tabs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1145,7 +1147,7 @@ GameObject:
   - component: {fileID: 4879301592926944607}
   - component: {fileID: 7629717377438157029}
   m_Layer: 5
-  m_Name: Content
+  m_Name: TabContent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

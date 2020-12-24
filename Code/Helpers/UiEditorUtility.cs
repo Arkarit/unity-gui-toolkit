@@ -22,7 +22,7 @@ namespace GuiToolkit
 	/// See https://answers.unity.com/questions/426184/acces-script-in-the-editor-folder.html for reasons.
 	public static class UiEditorUtility
 	{
-		public const string FLAGS_SUBDIR = "Bitmaps/Flags/";
+		public const string FLAGS_SUBDIR = "Resources/Flags/";
 
 		public const int SKIP_LINE_SPACE = -20;
 		public const int LARGE_SPACE_HEIGHT = 20;

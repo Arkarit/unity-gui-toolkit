@@ -13,5 +13,20 @@ namespace GuiToolkit
 
 		[SerializeField]
 		protected PlayerSetting m_playerSetting;
+
+		public string Title
+		{
+			get
+			{
+				if (m_text != null)
+					return m_text.text;
+				return "";
+			}
+			set
+			{
+				if (m_text != null)
+					m_text.text = value;
+			}
+		}
 	}
 }

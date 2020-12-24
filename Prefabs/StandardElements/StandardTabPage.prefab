@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 7514274282858316888}
   - component: {fileID: 2231293489104102753}
   - component: {fileID: 5260212448376645014}
+  - component: {fileID: 8019620588614702477}
   m_Layer: 5
-  m_Name: Page1
+  m_Name: StandardTabPage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -146,3 +147,16 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaImage: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+--- !u!114 &8019620588614702477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036399696315602249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f7079cffefa7fa42a4e89e1ae34572b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_contentContainer: {fileID: 7514274282858316888}

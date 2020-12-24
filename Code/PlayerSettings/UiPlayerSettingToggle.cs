@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -12,6 +13,8 @@ namespace GuiToolkit
 		[SerializeField]
 		protected UiToggle m_toggle;
 
+		public UiToggle UiToggle => m_toggle;
+		public Toggle Toggle => m_toggle.Toggle; 
 		public bool IsRadio => m_toggle.Toggle.group != null;
 
 		protected override void OnEnable()

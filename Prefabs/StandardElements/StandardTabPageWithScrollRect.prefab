@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5727068079565426331}
   - component: {fileID: 4990648617175221996}
-  - component: {fileID: 6014082268954615318}
   - component: {fileID: 8959307412391395999}
   - component: {fileID: 3232369125065073318}
   m_Layer: 5
@@ -48,34 +47,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 923221318805821107}
   m_CullTransparentMesh: 0
---- !u!114 &6014082268954615318
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 923221318805821107}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.03529412}
-  m_RaycastTarget: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!114 &8959307412391395999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -371,6 +342,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 8019620588614702477, guid: a0a87ab866650e740bfa98880579d91b,
+        type: 3}
+      propertyPath: m_contentContainer
+      value: 
+      objectReference: {fileID: 942669264183326094}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a0a87ab866650e740bfa98880579d91b, type: 3}
 --- !u!224 &2235584828507560301 stripped
