@@ -162,7 +162,7 @@ PrefabInstance:
     - target: {fileID: 7429671929018545851, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
       propertyPath: m_Name
-      value: SettingsEntryRadiobutton
+      value: PlayerSettingRadiobutton
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2a99be027eca11f428bec269d3de1bf3, type: 3}

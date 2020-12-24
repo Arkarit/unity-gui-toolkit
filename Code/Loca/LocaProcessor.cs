@@ -76,7 +76,7 @@ namespace GuiToolkit
 				string code = strings[i];
 				string str = strings[i+1];
 
-				if (Evaluate(code, "_(", str) || Evaluate(code, "gettext(", str))
+				if (Evaluate(code, "_(", str) || Evaluate(code, "__(", str) || Evaluate(code, "gettext(", str))
 					continue;
 
 				if ( i > numStrings - 4)

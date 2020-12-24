@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -10,18 +11,26 @@ namespace GuiToolkit
 	{
 		private TMP_Text m_text;
 		private string m_locaKey;
+		private string m_translatedText;
+
+		private UiLocaManager m_locaManager;
+		private bool m_textChangeGuard;
 
 		public string LocaKey
 		{
 			get
 			{
 				if (string.IsNullOrEmpty(m_locaKey))
-					m_locaKey = m_text.text;
+					m_locaKey = Text.text;
 				return m_locaKey;
 			}
 		}
 
-		private UiLocaManager m_locaManager;
+		public void OnLanguageChanged(string _languageId)
+		{
+			Translate();
+		}
+
 		private UiLocaManager LocaManager
 		{
 			get
@@ -30,11 +39,6 @@ namespace GuiToolkit
 					m_locaManager = UiMain.Instance.LocaManager;
 				return m_locaManager;
 			}
-		}
-
-		public void OnLanguageChanged(string _languageId)
-		{
-			Text.text = LocaManager.Translate(m_locaKey);
 		}
 
 		private TMP_Text Text
@@ -57,7 +61,9 @@ namespace GuiToolkit
 				return;
 
 			LocaManager.AddListener(this);
-			Text.text = LocaManager.Translate(LocaKey);
+			m_locaKey = Text.text;
+			Translate();
+			TMPro_EventManager.TEXT_CHANGED_EVENT.Add(OnTMProTextChanged);
 		}
 
 		private void OnDisable()
@@ -66,7 +72,42 @@ namespace GuiToolkit
 				return;
 
 			LocaManager.RemoveListener(this);
-			Text.text = LocaKey;
+			TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(OnTMProTextChanged);
+			Text.text = m_locaKey;
+		}
+
+		private void OnTMProTextChanged( UnityEngine.Object _obj )
+		{
+			if (_obj != Text || this == null || !enabled || m_textChangeGuard)
+				return;
+
+			if (Text.text == m_translatedText)
+				return;
+
+			m_locaKey = Text.text;
+
+			// TMP doesn't like it at all, if the text is changed in the on text changed callback, even when using guard.
+			// Gives completely blurry text. So lets do it delayed. 
+			TranslateDelayed();
+		}
+
+		private void TranslateDelayed()
+		{
+			StartCoroutine(TranslateCoroutine());
+		}
+
+		private IEnumerator TranslateCoroutine()
+		{
+			yield return 0;
+			Translate();
+		}
+
+		private void Translate()
+		{
+			m_textChangeGuard = true;
+			m_translatedText = LocaManager.Translate(m_locaKey);
+			Text.text = m_translatedText;
+			m_textChangeGuard = false;
 		}
 
 #if UNITY_EDITOR

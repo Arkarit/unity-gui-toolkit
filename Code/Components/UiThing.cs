@@ -75,6 +75,11 @@ namespace GuiToolkit
 		{
 			return UiMain.Instance.LocaManager.Translate(_singular, _plural, _n);
 		}
+		/// Not translated, only for POT creation
+		protected string __(string _s)
+		{
+			return _s;
+		}
 
 		/// Installs event listeners, if ReceiveEventsWhenDisabled
 		/// Also ensure that the game object is always in UI layer

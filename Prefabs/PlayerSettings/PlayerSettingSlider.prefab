@@ -86,6 +86,7 @@ MonoBehaviour:
     m_key: 
     m_isRadio: 0
     m_isLanguage: 0
+    m_icon: 
   m_slider: {fileID: 6676996271120638987}
 --- !u!1 &4098072383374550740
 GameObject:
@@ -288,6 +289,7 @@ GameObject:
   - component: {fileID: 1111595868346696116}
   - component: {fileID: 5155595426462257936}
   - component: {fileID: 6605526824050803601}
+  - component: {fileID: 1007828402736669280}
   m_Layer: 5
   m_Name: Name
   m_TagString: Untagged
@@ -432,6 +434,18 @@ MonoBehaviour:
   - {fileID: 0}
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1007828402736669280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5081796637315444704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 674c9e59151164345b581302232e337c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &3500322339267625956
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -658,6 +672,31 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 13.250977
+      objectReference: {fileID: 0}
+    - target: {fileID: 6434284177648011877, guid: 53f923c19928fa04dbd39d8a4a6a510c,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6434284177648011877, guid: 53f923c19928fa04dbd39d8a4a6a510c,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6434284177648011877, guid: 53f923c19928fa04dbd39d8a4a6a510c,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6434284177648011877, guid: 53f923c19928fa04dbd39d8a4a6a510c,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6434284177648011877, guid: 53f923c19928fa04dbd39d8a4a6a510c,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6744819297019781566, guid: 53f923c19928fa04dbd39d8a4a6a510c,
         type: 3}
