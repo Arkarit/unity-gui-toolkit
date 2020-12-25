@@ -12,7 +12,7 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	public abstract class UiButtonBase : UiThing, IPointerDownHandler, IPointerUpHandler
+	public abstract class UiButtonBase : UiTextContainer, IPointerDownHandler, IPointerUpHandler
 	{
 		[Tooltip("Simple animation (optional)")]
 		[SerializeField] protected UiSimpleAnimation m_simpleAnimation;
@@ -21,10 +21,6 @@ namespace GuiToolkit
 		[Tooltip("Button Image. Mandatory if you want to use the 'Color' property or the 'Enabled' property.")]
 		public UiImage m_uiImage;
 		public bool m_enabled = true;
-
-		private TextMeshProUGUI m_tmpText;
-		private Text m_text;
-		private bool m_initialized = false;
 
 		public bool Enabled
 		{
@@ -42,33 +38,6 @@ namespace GuiToolkit
 					m_simpleAnimation.Stop(false);
 				if (m_uiImage != null)
 					m_uiImage.Enabled = value;
-			}
-		}
-
-		public string Text
-		{
-			get
-			{
-				InitIfNecessary();
-				if (m_tmpText)
-					return m_tmpText.text;
-				if (m_text)
-					return m_text.text;
-				return "";
-			}
-
-			set
-			{
-				if (value == null)
-					return;
-
-				InitIfNecessary();
-				if (m_tmpText)
-					m_tmpText.text = value;
-				else if (m_text)
-					m_text.text = value;
-				else
-					Debug.LogError($"No button text found for Button '{gameObject.name}', can not set string '{value}'");
 			}
 		}
 
@@ -93,33 +62,6 @@ namespace GuiToolkit
 			}
 		}
 
-		public Color TextColor
-		{
-			get
-			{
-				InitIfNecessary();
-				if (m_tmpText)
-					return m_tmpText.color;
-				if (m_text)
-					return m_text.color;
-				return Color.black;
-			}
-
-			set
-			{
-				if (value == null)
-					return;
-
-				InitIfNecessary();
-				if (m_tmpText)
-					m_tmpText.color = value;
-				else if (m_text)
-					m_text.color = value;
-				else
-					Debug.LogError($"No button text found for Button '{gameObject.name}', can not set color '{value}'");
-			}
-		}
-
 		public void SetSimpleGradientColors(Color _leftOrTop, Color _rightOrBottom)
 		{
 			if (m_uiImage == null)
@@ -137,27 +79,7 @@ namespace GuiToolkit
 			return m_uiImage.GetSimpleGradientColors();
 		}
 
-		public UnityEngine.Object TextComponent
-		{
-			get
-			{
-				InitIfNecessary();
-				if (m_tmpText)
-					return m_tmpText;
-				if (m_text)
-					return m_text;
-				return null;
-			}
-		}
-
-		protected virtual void Init() { }
 		protected virtual void OnEnabledChanged(bool _enabled) {}
-
-		protected override void Awake()
-		{
-			base.Awake();
-			InitIfNecessary();
-		}
 
 		public virtual void OnPointerDown( PointerEventData eventData )
 		{
@@ -179,17 +101,6 @@ namespace GuiToolkit
 				m_simpleAnimation.Play(true);
 		}
 
-		protected void InitIfNecessary()
-		{
-			if (m_initialized)
-				return;
-
-			m_tmpText = GetComponentInChildren<TextMeshProUGUI>();
-			m_text = GetComponentInChildren<Text>();
-
-			Init();
-		}
-
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
@@ -202,7 +113,7 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 	[CustomEditor(typeof(UiButtonBase))]
-	public class UiButtonBaseEditor : Editor
+	public class UiButtonBaseEditor : UiTextContainerEditor
 	{
 		protected SerializedProperty m_simpleAnimationProp;
 		protected SerializedProperty m_audioSourceProp;
@@ -221,35 +132,10 @@ namespace GuiToolkit
 
 		public override void OnInspectorGUI()
 		{
+			base.OnInspectorGUI();
 			UiButtonBase thisButtonBase = (UiButtonBase)target;
 
-			UnityEngine.Object textComponent = thisButtonBase.TextComponent;
-			if (textComponent != null)
-			{
-				string text = thisButtonBase.Text;
-				string newText = EditorGUILayout.TextField("Text:", text);
-				if (newText != text)
-				{
-					Undo.RecordObject(textComponent, "Text change");
-					thisButtonBase.Text = newText;
-				}
-			}
-
 			EditorGUILayout.PropertyField(m_uiImageProp);
-
-			serializedObject.ApplyModifiedProperties();
-
-			if (textComponent != null)
-			{
-				Color color = thisButtonBase.TextColor;
-				Color newColor = EditorGUILayout.ColorField("Text Color:", color);
-				if (newColor != color)
-				{
-					Undo.RecordObject(textComponent, "Text color change");
-					thisButtonBase.TextColor = newColor;
-				}
-			}
-
 			EditorGUILayout.PropertyField(m_simpleAnimationProp);
 			EditorGUILayout.PropertyField(m_audioSourceProp);
 

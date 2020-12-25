@@ -276,9 +276,6 @@ MonoBehaviour:
   m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 8824944210132026731}
   m_enabled: 1
-  m_supportDisabledMaterial: 1
-  m_normalMaterial: {fileID: 2100000, guid: 628125a3ddd15eb4b8feca43ca29f673, type: 2}
-  m_disabledMaterial: {fileID: 2100000, guid: bbb4d48742f261844b844be821a291cc, type: 2}
   m_simpleWiggleAnimation: {fileID: 4223115294998507080}
 --- !u!114 &3594388165116690286
 MonoBehaviour:
@@ -311,6 +308,7 @@ GameObject:
   - component: {fileID: 5270523797533349593}
   - component: {fileID: 5270523797533349595}
   - component: {fileID: 5270523797533349594}
+  - component: {fileID: 8599313073050117019}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -456,6 +454,19 @@ MonoBehaviour:
   - {fileID: 0}
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &8599313073050117019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5270523797533349592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 674c9e59151164345b581302232e337c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_autoTranslate: 0
 --- !u!1 &5284302703580940865
 GameObject:
   m_ObjectHideFlags: 0

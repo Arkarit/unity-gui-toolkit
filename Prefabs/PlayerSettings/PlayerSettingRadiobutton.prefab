@@ -126,12 +126,12 @@ PrefabInstance:
     - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
       propertyPath: m_text
-      value: Ultra
+      value: Radiobutton
       objectReference: {fileID: 0}
     - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
       propertyPath: m_textInfo.characterCount
-      value: 5
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
@@ -141,6 +141,16 @@ PrefabInstance:
     - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
       propertyPath: m_textInfo.wordCount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_textInfo.lineCount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_textInfo.pageCount
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3994980590713455092, guid: 2a99be027eca11f428bec269d3de1bf3,

@@ -36,9 +36,11 @@ namespace GuiToolkit
 
 			foreach (var category in categorized)
 			{
+Debug.Log($"Create Tab '{category.Key}'");
 				UiToggle tab = Instantiate(m_tabPrefab, m_tabContentContainer);
 				tab.Text = category.Key;
 				tab.Toggle.group = tabToggleGroup;
+				tab.gameObject.name = "Tab_" + category.Key;
 				// TODO translate
 
 				UiPanel page = Instantiate(m_tabPagePrefab, m_pageContentContainer);
@@ -46,14 +48,16 @@ namespace GuiToolkit
 				UiContentContainer contentContainer = pageContainer.GetComponent<UiContentContainer>();
 				if (contentContainer != null)
 					pageContainer = contentContainer.ContentContainer;
+				page.gameObject.name = "Page_" + category.Key;
 
 				m_tabInfos.Add(new TabInfo { Tab = tab, Page = page });
 
 				foreach (var group in category.Value)
 				{
+Debug.Log($"Create Group '{group.Key}'");
 					UiTextContainer textContainer = Instantiate(m_groupPrefab, pageContainer);
 					textContainer.Text = group.Key;
-					//TODO translate
+					textContainer.gameObject.name = "TextContainer_" + group.Key;
 
 					ToggleGroup toggleGroup = null;
 					if (group.Value.Count > 0 && group.Value[0].IsRadio)
@@ -64,6 +68,7 @@ namespace GuiToolkit
 
 					foreach (var entry in group.Value)
 					{
+Debug.Log($"Create Entry '{entry.Key}'");
 						InstantiateMatchingEntry(entry, textContainer.RectTransform, toggleGroup);
 					}
 				}
@@ -77,6 +82,7 @@ namespace GuiToolkit
 				UiPlayerSettingLanguageToggle languageToggle = Instantiate(m_languagePrefab, _transform);
 				string languageToken = _playerSetting.GetValue<string>();
 				languageToggle.Title = _playerSetting.Key;
+				languageToggle.gameObject.name = "PlayerSettingLanguage_" + _playerSetting.Key;
 				languageToggle.Language = languageToken;
 				languageToggle.Toggle.group = _toggleGroup;
 				if (_playerSetting.HasIcon)
@@ -88,6 +94,7 @@ namespace GuiToolkit
 			{
 				UiPlayerSettingSlider slider = Instantiate(m_sliderPrefab, _transform);
 				slider.Title = _playerSetting.Key;
+				slider.gameObject.name = "PlayerSettingSlider_" + _playerSetting.Key;
 				slider.Value = _playerSetting.GetValue<float>();
 				if (_playerSetting.HasIcon)
 					slider.Icon = _playerSetting.Icon;
@@ -98,6 +105,7 @@ namespace GuiToolkit
 			{
 				UiPlayerSettingToggle toggle = Instantiate(m_radioPrefab, _transform);
 				toggle.Title = _playerSetting.Key;
+				toggle.gameObject.name = "PlayerSettingRadio_" + _playerSetting.Key;
 				toggle.Value = _playerSetting.GetValue<bool>();
 				toggle.Toggle.group = _toggleGroup;
 				return;
@@ -107,6 +115,7 @@ namespace GuiToolkit
 			{
 				UiPlayerSettingToggle toggle = Instantiate(m_togglePrefab, _transform);
 				toggle.Title = _playerSetting.Key;
+				toggle.gameObject.name = "PlayerSettingCheck_" + _playerSetting.Key;
 				toggle.Value = _playerSetting.GetValue<bool>();
 				return;
 			}
@@ -115,6 +124,7 @@ namespace GuiToolkit
 			{
 				UiPlayerSettingKeyBinding keyBinding = Instantiate(m_keyBindingsPrefab, _transform);
 				keyBinding.Title = _playerSetting.Key;
+				keyBinding.gameObject.name = "PlayerSettingKeyBinding_" + _playerSetting.Key;
 				keyBinding.Value = _playerSetting.GetValue<KeyCode>();
 			}
 		}

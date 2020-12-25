@@ -12,17 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e72868a62b83f2e47909e4ad80b24a88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_text: {fileID: 3334138465322678360}
+  m_titleTranslator: {fileID: 4586315474807833319}
   m_playerSetting:
     m_category: 
     m_group: 
     m_key: 
     m_isRadio: 0
-    m_isLanguage: 0
+    m_isLanguage: 1
     m_icon: 
   m_toggle: {fileID: 2567634577800260833}
-  m_image: {fileID: 116768819028621784}
-  m_language: 0
+  m_flagImage: {fileID: 116768819028621784}
+  m_language: dev
 --- !u!1001 &2863737002469109234
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -150,6 +150,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: LanguageToggle
       objectReference: {fileID: 0}
+    - target: {fileID: 2747425840158135338, guid: 93821341ca46b35428a5456e78afe467,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 35a8375cef72a06439139e0571d60e29,
+        type: 3}
     - target: {fileID: 3634717699323316868, guid: 93821341ca46b35428a5456e78afe467,
         type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -308,21 +314,40 @@ PrefabInstance:
     - target: {fileID: 8049802287950748340, guid: dffc64cfb8c59a8459afe98bfcb33b78,
         type: 3}
       propertyPath: m_text
-      value: Dev
+      value: Language
       objectReference: {fileID: 0}
     - target: {fileID: 8049802287950748340, guid: dffc64cfb8c59a8459afe98bfcb33b78,
         type: 3}
       propertyPath: m_textInfo.characterCount
-      value: 3
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8049802287950748340, guid: dffc64cfb8c59a8459afe98bfcb33b78,
+        type: 3}
+      propertyPath: m_textInfo.lineCount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8049802287950748340, guid: dffc64cfb8c59a8459afe98bfcb33b78,
+        type: 3}
+      propertyPath: m_textInfo.pageCount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8049802287950748340, guid: dffc64cfb8c59a8459afe98bfcb33b78,
+        type: 3}
+      propertyPath: m_textInfo.wordCount
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8653874446856843295, guid: dffc64cfb8c59a8459afe98bfcb33b78,
         type: 3}
       propertyPath: graphic
       value: 
       objectReference: {fileID: 8033325158025953634}
+    - target: {fileID: 8653874446856843295, guid: dffc64cfb8c59a8459afe98bfcb33b78,
+        type: 3}
+      propertyPath: m_IsOn
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4606715671786783818, guid: dffc64cfb8c59a8459afe98bfcb33b78, type: 3}
-    - {fileID: 9103538862648729611, guid: dffc64cfb8c59a8459afe98bfcb33b78, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: dffc64cfb8c59a8459afe98bfcb33b78, type: 3}
 --- !u!1 &9197293112047614769 stripped
 GameObject:
@@ -348,15 +373,15 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 4752311094954451692}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3334138465322678360 stripped
+--- !u!114 &4586315474807833319 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8049802287950748340, guid: dffc64cfb8c59a8459afe98bfcb33b78,
+  m_CorrespondingSourceObject: {fileID: 9103538862648729611, guid: dffc64cfb8c59a8459afe98bfcb33b78,
     type: 3}
   m_PrefabInstance: {fileID: 4752311094954451692}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Script: {fileID: 11500000, guid: 674c9e59151164345b581302232e337c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

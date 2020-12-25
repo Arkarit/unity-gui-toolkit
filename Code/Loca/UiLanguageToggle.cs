@@ -13,18 +13,18 @@ namespace GuiToolkit
 	public class UiLanguageToggle : UiToggle
 	{
 		[SerializeField]
-		private Image m_image;
+		private Image m_flagImage;
 
 		[SerializeField]
-		private string m_language;
+		private string m_languageToken;
 
 		public string Language
 		{
-			get => m_language;
+			get => m_languageToken;
 #if UNITY_EDITOR
 			set
 			{
-				m_language = value;
+				m_languageToken = value;
 				OnValidate();
 			}
 #endif
@@ -50,7 +50,7 @@ namespace GuiToolkit
 		{
 			if (_active)
 			{
-				UiMain.Instance.LocaManager.ChangeLanguage(m_language);
+				UiMain.Instance.LocaManager.ChangeLanguage(m_languageToken);
 			}
 		}
 
@@ -62,20 +62,34 @@ namespace GuiToolkit
 #endif
 		private void SetNationalFlag()
 		{
-			m_image.sprite = Resources.Load<Sprite>("Flags/" + m_language );
+			m_flagImage.sprite = Resources.Load<Sprite>("Flags/" + m_languageToken );
 		}
 
 	}
 	#if UNITY_EDITOR
 	[CustomEditor(typeof(UiLanguageToggle))]
-	public class UiLanguageToggleEditor : Editor
+	public class UiLanguageToggleEditor : UiToggleEditor
 	{
+		protected SerializedProperty m_flagImageProp;
+		protected SerializedProperty m_languageTokenProp;
+
+		public override void OnEnable()
+		{
+			base.OnEnable();
+			m_flagImageProp = serializedObject.FindProperty("m_flagImage");
+			m_languageTokenProp = serializedObject.FindProperty("m_languageToken");
+		}
 		public override void OnInspectorGUI()
 		{
 			UiLanguageToggle thisUiLanguageToggle = (UiLanguageToggle)target;
-			DrawDefaultInspector();
+			base.OnInspectorGUI();
+			EditorGUILayout.PropertyField(m_flagImageProp);
+			EditorGUILayout.PropertyField(m_languageTokenProp);
+			serializedObject.ApplyModifiedProperties();
+/*
 			if ( UiEditorUtility.LanguagePopup("Select available language:", thisUiLanguageToggle.Language, out string newLanguage ))
 				thisUiLanguageToggle.Language = newLanguage;
+*/
 		}
 	}
 #endif

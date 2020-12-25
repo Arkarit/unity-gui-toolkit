@@ -184,7 +184,7 @@ GameObject:
   - component: {fileID: 137001839888021301}
   - component: {fileID: 137001839888021300}
   m_Layer: 5
-  m_Name: LanguageButton
+  m_Name: LanguageToggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -300,14 +300,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_simpleAnimation: {fileID: 4611171743553401831}
   m_audioSource: {fileID: 0}
-  m_backgroundImage: {fileID: 0}
-  m_backgroundGradientSimple: {fileID: 0}
+  m_uiImage: {fileID: 0}
   m_enabled: 1
-  m_supportDisabledMaterial: 0
-  m_normalMaterial: {fileID: 0}
-  m_disabledMaterial: {fileID: 0}
-  m_language: 0
-  m_image: {fileID: 2747425840158135338}
+  m_flagImage: {fileID: 2747425840158135338}
+  m_languageToken: dev
 --- !u!1 &5242773852886969493
 GameObject:
   m_ObjectHideFlags: 0

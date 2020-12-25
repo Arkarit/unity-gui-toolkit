@@ -151,7 +151,7 @@ namespace GuiToolkit
 
 		public override string Translate( string _s )
 		{
-			if (m_isDev)
+			if (m_isDev || string.IsNullOrEmpty(_s))
 				return _s;
 
 			if (m_translationDict.TryGetValue(_s, out string result))

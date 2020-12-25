@@ -79,7 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bf2b49f997003d4eb22290b1b409e91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_text: {fileID: 6605526824050803601}
+  m_titleTranslator: {fileID: 1007828402736669280}
   m_playerSetting:
     m_category: 
     m_group: 
@@ -342,7 +342,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Effect volume
+  m_text: Slider
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: ef3e0ac67c9c98e43b1ab1b7cab4c9eb, type: 2}
@@ -411,10 +411,10 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 6605526824050803601}
-    characterCount: 13
+    characterCount: 6
     spriteCount: 0
-    spaceCount: 1
-    wordCount: 2
+    spaceCount: 0
+    wordCount: 1
     linkCount: 0
     lineCount: 1
     pageCount: 1
@@ -446,6 +446,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 674c9e59151164345b581302232e337c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_autoTranslate: 0
 --- !u!1001 &3500322339267625956
 PrefabInstance:
   m_ObjectHideFlags: 0

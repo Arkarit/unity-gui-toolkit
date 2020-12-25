@@ -13,6 +13,9 @@ namespace GuiToolkit
 		{
 			foreach (PlayerSetting playerSetting in _playerSettings )
 			{
+				if (playerSetting == null)
+					continue;
+
 				m_playerSettings.Add(playerSetting.Key, playerSetting);
 				if (playerSetting.IsKeyCode)
 					m_keyCodes.Add(playerSetting.GetDefaultValue<KeyCode>(), playerSetting.GetValue<KeyCode>());

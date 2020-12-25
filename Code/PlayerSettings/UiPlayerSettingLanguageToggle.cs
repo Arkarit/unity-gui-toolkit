@@ -13,7 +13,7 @@ namespace GuiToolkit
 	public class UiPlayerSettingLanguageToggle : UiPlayerSettingToggle
 	{
 		[SerializeField]
-		private Image m_image;
+		private Image m_flagImage;
 
 		[SerializeField]
 		private string m_language;
@@ -68,13 +68,13 @@ namespace GuiToolkit
 		{
 			if (!string.IsNullOrEmpty(Icon))
 			{
-				m_image.sprite = Resources.Load<Sprite>(Icon);
-				if (m_image.sprite != null)
+				m_flagImage.sprite = Resources.Load<Sprite>(Icon);
+				if (m_flagImage.sprite != null)
 					return;
 
 				Debug.LogError($"Sprite '{Icon}' not found!");
 			}
-			m_image.sprite = Resources.Load<Sprite>("Flags/" + m_language );
+			m_flagImage.sprite = Resources.Load<Sprite>("Flags/" + m_language );
 		}
 	}
 

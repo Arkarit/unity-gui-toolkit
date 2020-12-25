@@ -9,24 +9,15 @@ namespace GuiToolkit
 	public abstract class UiPlayerSettingBase : UiThing
 	{
 		[SerializeField]
-		protected TMP_Text m_text;
+		protected UiTMPTranslator m_titleTranslator;
 
 		[SerializeField]
 		protected PlayerSetting m_playerSetting;
 
 		public string Title
 		{
-			get
-			{
-				if (m_text != null)
-					return m_text.text;
-				return "";
-			}
-			set
-			{
-				if (m_text != null)
-					m_text.text = value;
-			}
+			get => m_titleTranslator.LocaKey;
+			set => m_titleTranslator.Text = value;
 		}
 
 		public virtual string Icon {get; set;}
