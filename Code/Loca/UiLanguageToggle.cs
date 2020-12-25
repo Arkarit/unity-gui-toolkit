@@ -33,7 +33,7 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			bool isActive = UiMain.Instance.LocaManager.Language == Language;
+			bool isActive = LocaManager.Instance.Language == Language;
 			if (isActive)
 				SetDelayed(true);
 
@@ -50,7 +50,7 @@ namespace GuiToolkit
 		{
 			if (_active)
 			{
-				UiMain.Instance.LocaManager.ChangeLanguage(m_languageToken);
+				LocaManager.Instance.ChangeLanguage(m_languageToken);
 			}
 		}
 
@@ -86,10 +86,9 @@ namespace GuiToolkit
 			EditorGUILayout.PropertyField(m_flagImageProp);
 			EditorGUILayout.PropertyField(m_languageTokenProp);
 			serializedObject.ApplyModifiedProperties();
-/*
+
 			if ( UiEditorUtility.LanguagePopup("Select available language:", thisUiLanguageToggle.Language, out string newLanguage ))
 				thisUiLanguageToggle.Language = newLanguage;
-*/
 		}
 	}
 #endif

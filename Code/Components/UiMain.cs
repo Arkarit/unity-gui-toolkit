@@ -36,21 +36,6 @@ namespace GuiToolkit
 		public Camera Camera { get; private set; }
 		public UiPool UiPool { get; private set; }
 
-		private UiLocaManager m_locaManager = null;
-		public UiLocaManager LocaManager
-		{
-			get
-			{
-				if (m_locaManager == null)
-					m_locaManager = new UiLocaManagerDefaultImpl();
-				return m_locaManager;
-			}
-			set
-			{
-				m_locaManager = value;
-			}
-		}
-
 		private static UiMain s_instance;
 		public static UiMain Instance
 		{

@@ -48,7 +48,7 @@ namespace GuiToolkit
 		protected override void OnValueChanged( bool _active )
 		{
 			if (_active)
-				UiMain.Instance.LocaManager.ChangeLanguage(m_language);
+				LocaManager.Instance.ChangeLanguage(m_language);
 		}
 
 #if UNITY_EDITOR
@@ -60,7 +60,7 @@ namespace GuiToolkit
 
 		private void SetToggleByLanguage()
 		{
-			bool isActive = UiMain.Instance.LocaManager.Language == m_language;
+			bool isActive = LocaManager.Instance.Language == m_language;
 			m_toggle.SetDelayed(isActive);
 		}
 

@@ -9,7 +9,7 @@ namespace GuiToolkit
 		void OnLanguageChanged(string _languageId);
 	}
 
-	public abstract class UiLocaManager
+	public abstract class LocaManager
 	{
 		private const string PLAYER_PREFS_KEY = StringConstants.PLAYER_PREFS_PREFIX + "Language";
 		private readonly HashSet<ILocaListener> m_locaListeners = new HashSet<ILocaListener>();
@@ -28,8 +28,22 @@ namespace GuiToolkit
 		public abstract void ReadKeyData();
 		public abstract void WriteKeyData();
 #endif
+		private static LocaManager s_locaManager = null;
+		public static LocaManager Instance
+		{
+			get
+			{
+				if (s_locaManager == null)
+					s_locaManager = new LocaManagerDefaultImpl();
+				return s_locaManager;
+			}
+			set
+			{
+				s_locaManager = value;
+			}
+		}
 
-		public UiLocaManager()
+		public LocaManager()
 		{
 			string language = PlayerPrefs.GetString(PLAYER_PREFS_KEY, "dev");
 			ChangeLanguage(language);

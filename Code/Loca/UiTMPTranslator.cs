@@ -14,15 +14,16 @@ namespace GuiToolkit
 		private TMP_Text m_text;
 		private string m_locaKey;
 		private string m_translatedText;
-		private bool m_firstEnabled = true;
+		private bool m_keyHasBeenSet;
 
-		private UiLocaManager m_locaManager;
+		private LocaManager m_locaManager;
 
 		public bool AutoTranslate => m_autoTranslate;
 
 		public void OnLanguageChanged(string _languageId)
 		{
-			Translate();
+			if (m_autoTranslate || m_keyHasBeenSet)
+				Translate();
 		}
 
 		public string Text
@@ -30,6 +31,7 @@ namespace GuiToolkit
 			get => TextComponent.text;
 			set
 			{
+				m_keyHasBeenSet = true;
 				m_locaKey = value;
 				Translate();
 			}
@@ -39,18 +41,21 @@ namespace GuiToolkit
 		{
 			get
 			{
+				if (!m_autoTranslate)
+					return null;
+
 				if (string.IsNullOrEmpty(m_locaKey))
 					m_locaKey = TextComponent.text;
 				return m_locaKey;
 			}
 		}
 
-		private UiLocaManager LocaManager
+		private LocaManager LocaManager
 		{
 			get
 			{
 				if (m_locaManager == null)
-					m_locaManager = UiMain.Instance.LocaManager;
+					m_locaManager = LocaManager.Instance;
 				return m_locaManager;
 			}
 		}
@@ -81,15 +86,16 @@ namespace GuiToolkit
 				return;
 
 			LocaManager.AddListener(this);
+
+			if (!m_autoTranslate && !m_keyHasBeenSet)
+				return;
+
 			if (string.IsNullOrEmpty(m_locaKey))
 				m_locaKey = TextComponent.text;
 			if (string.IsNullOrEmpty(m_locaKey))
 				return;
 
-			if (m_autoTranslate || !m_firstEnabled)
-				Translate();
-
-			m_firstEnabled = false;
+			Translate();
 		}
 
 		private void OnDisable()

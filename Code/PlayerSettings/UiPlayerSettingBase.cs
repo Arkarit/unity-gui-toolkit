@@ -16,7 +16,6 @@ namespace GuiToolkit
 
 		public string Title
 		{
-			get => m_titleTranslator.LocaKey;
 			set => m_titleTranslator.Text = value;
 		}
 
