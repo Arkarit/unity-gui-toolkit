@@ -14,7 +14,7 @@ namespace GuiToolkit
 		protected UiToggle m_toggle;
 
 		public UiToggle UiToggle => m_toggle;
-		public Toggle Toggle => m_toggle.Toggle; 
+		public override Toggle Toggle => m_toggle.Toggle; 
 		public bool IsRadio => m_toggle.Toggle.group != null;
 
 		public bool Value

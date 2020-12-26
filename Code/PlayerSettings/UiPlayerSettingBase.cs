@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -56,6 +57,8 @@ namespace GuiToolkit
 				m_playerSetting.Value = value;
 			}
 		}
+
+		public virtual Toggle Toggle => null;
 
 		public virtual void ApplyIcon(string _assetPath, bool _isPlayerSettingIcon) {}
 
