@@ -78,8 +78,7 @@ namespace GuiToolkit
 			{
 				UiPlayerSettingLanguageToggle languageToggle = Instantiate(m_languagePrefab, _transform);
 				string languageToken = _playerSetting.GetValue<string>();
-				languageToggle.Title = _playerSetting.Key;
-				languageToggle.gameObject.name = "PlayerSettingLanguage_" + _playerSetting.Key;
+				languageToggle.SetData("PlayerSettingLanguage_", _playerSetting.Key, _playerSetting);
 				languageToggle.Language = languageToken;
 				languageToggle.Toggle.group = _toggleGroup;
 				if (_playerSetting.HasIcon)
@@ -90,8 +89,7 @@ namespace GuiToolkit
 			if (_playerSetting.IsFloat)
 			{
 				UiPlayerSettingSlider slider = Instantiate(m_sliderPrefab, _transform);
-				slider.Title = _playerSetting.Key;
-				slider.gameObject.name = "PlayerSettingSlider_" + _playerSetting.Key;
+				slider.SetData("PlayerSettingSlider_", _playerSetting.Key, _playerSetting);
 				slider.Value = _playerSetting.GetValue<float>();
 				if (_playerSetting.HasIcon)
 					slider.Icon = _playerSetting.Icon;
@@ -101,8 +99,7 @@ namespace GuiToolkit
 			if (_playerSetting.IsRadio)
 			{
 				UiPlayerSettingToggle toggle = Instantiate(m_radioPrefab, _transform);
-				toggle.Title = _playerSetting.Key;
-				toggle.gameObject.name = "PlayerSettingRadio_" + _playerSetting.Key;
+				toggle.SetData("PlayerSettingRadio_", _playerSetting.Key, _playerSetting);
 				toggle.Value = _playerSetting.GetValue<bool>();
 				toggle.Toggle.group = _toggleGroup;
 				return;
@@ -111,8 +108,7 @@ namespace GuiToolkit
 			if (_playerSetting.IsBool)
 			{
 				UiPlayerSettingToggle toggle = Instantiate(m_togglePrefab, _transform);
-				toggle.Title = _playerSetting.Key;
-				toggle.gameObject.name = "PlayerSettingCheck_" + _playerSetting.Key;
+				toggle.SetData("PlayerSettingCheck_", _playerSetting.Key, _playerSetting);
 				toggle.Value = _playerSetting.GetValue<bool>();
 				return;
 			}
@@ -120,8 +116,7 @@ namespace GuiToolkit
 			if (_playerSetting.IsKeyCode)
 			{
 				UiPlayerSettingKeyBinding keyBinding = Instantiate(m_keyBindingsPrefab, _transform);
-				keyBinding.Title = _playerSetting.Key;
-				keyBinding.gameObject.name = "PlayerSettingKeyBinding_" + _playerSetting.Key;
+				keyBinding.SetData("PlayerSettingKeyBinding_", _playerSetting.Key, _playerSetting);
 				keyBinding.Value = _playerSetting.GetValue<KeyCode>();
 			}
 		}
