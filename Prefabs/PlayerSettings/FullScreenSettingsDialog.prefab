@@ -26,7 +26,7 @@ MonoBehaviour:
     type: 3}
   m_tabPagePrefab: {fileID: 7618210062931900500, guid: 723bc1e72c0b35f499f0f9b47558783e,
     type: 3}
-  m_groupPrefab: {fileID: 419050046441782990, guid: 464f0989723c94047b2c82ba05fef61f,
+  m_groupPrefab: {fileID: 1928753828855696232, guid: 464f0989723c94047b2c82ba05fef61f,
     type: 3}
   m_keyBindingsPrefab: {fileID: 5785729664842419850, guid: 50c1ef1f073be8948b834c7f7a796dcf,
     type: 3}

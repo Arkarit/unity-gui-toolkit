@@ -14,7 +14,7 @@ namespace GuiToolkit
 		protected TextMeshProUGUI m_tmpText;
 		protected Text m_text;
 		protected bool m_initialized = false;
-		public string Text
+		public virtual string Text
 		{
 			get
 			{

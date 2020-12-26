@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 9695896172179671}
   - component: {fileID: 277438814512779459}
   - component: {fileID: 1708390906487755322}
-  - component: {fileID: 419050046441782990}
+  - component: {fileID: 1928753828855696232}
   m_Layer: 5
   m_Name: StandardTabChapter
   m_TagString: Untagged
@@ -115,7 +115,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AllowSwitchOff: 0
---- !u!114 &419050046441782990
+--- !u!114 &1928753828855696232
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -124,10 +124,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1237240718751688028}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf286620431ede448b94b131a08f8d8d, type: 3}
+  m_Script: {fileID: 11500000, guid: e4b2b0259cde8c54b8fee34a52b3020b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_text: {fileID: 2959172729829777444}
+  m_verticalLayoutGroup: {fileID: 277438814512779459}
+  m_topPaddingWithText: 91
+  m_topPaddingWithoutText: 30
 --- !u!114 &1258947616121806436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,15 +369,3 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 5157983756560651277}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2959172729829777444 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7963983784658777129, guid: b3eb336f7588eed45887ef023e26a39d,
-    type: 3}
-  m_PrefabInstance: {fileID: 5157983756560651277}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2959172729829777446}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
