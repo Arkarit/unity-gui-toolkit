@@ -61,13 +61,16 @@ namespace GuiToolkit
 					if (group.Value.Count > 0 && group.Value[0].IsRadio)
 					{
 						toggleGroup = textContainer.GetOrCreateComponent<ToggleGroup>();
-						toggleGroup.allowSwitchOff = false;
+						toggleGroup.allowSwitchOff = true;
 					}
 
 					foreach (var entry in group.Value)
 					{
 						InstantiateMatchingEntry(entry, textContainer.RectTransform, toggleGroup);
 					}
+
+					if (toggleGroup != null)
+						toggleGroup.allowSwitchOff = false;
 				}
 			}
 		}
@@ -79,10 +82,7 @@ namespace GuiToolkit
 				UiPlayerSettingLanguageToggle languageToggle = Instantiate(m_languagePrefab, _transform);
 				string languageToken = _playerSetting.GetValue<string>();
 				languageToggle.SetData("PlayerSettingLanguage_", _playerSetting.Key, _playerSetting);
-				languageToggle.Language = languageToken;
 				languageToggle.Toggle.group = _toggleGroup;
-				if (_playerSetting.HasIcon)
-					languageToggle.Icon = _playerSetting.Icon;
 				return;
 			}
 
@@ -90,9 +90,6 @@ namespace GuiToolkit
 			{
 				UiPlayerSettingSlider slider = Instantiate(m_sliderPrefab, _transform);
 				slider.SetData("PlayerSettingSlider_", _playerSetting.Key, _playerSetting);
-				slider.Value = _playerSetting.GetValue<float>();
-				if (_playerSetting.HasIcon)
-					slider.Icon = _playerSetting.Icon;
 				return;
 			}
 
@@ -100,7 +97,6 @@ namespace GuiToolkit
 			{
 				UiPlayerSettingToggle toggle = Instantiate(m_radioPrefab, _transform);
 				toggle.SetData("PlayerSettingRadio_", _playerSetting.Key, _playerSetting);
-				toggle.Value = _playerSetting.GetValue<bool>();
 				toggle.Toggle.group = _toggleGroup;
 				return;
 			}
@@ -109,7 +105,6 @@ namespace GuiToolkit
 			{
 				UiPlayerSettingToggle toggle = Instantiate(m_togglePrefab, _transform);
 				toggle.SetData("PlayerSettingCheck_", _playerSetting.Key, _playerSetting);
-				toggle.Value = _playerSetting.GetValue<bool>();
 				return;
 			}
 
@@ -117,7 +112,6 @@ namespace GuiToolkit
 			{
 				UiPlayerSettingKeyBinding keyBinding = Instantiate(m_keyBindingsPrefab, _transform);
 				keyBinding.SetData("PlayerSettingKeyBinding_", _playerSetting.Key, _playerSetting);
-				keyBinding.Value = _playerSetting.GetValue<KeyCode>();
 			}
 		}
 

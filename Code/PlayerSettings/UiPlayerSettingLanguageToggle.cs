@@ -15,80 +15,30 @@ namespace GuiToolkit
 		[SerializeField]
 		private Image m_flagImage;
 
-		[SerializeField]
-		private string m_language;
-
-		public string Language
+		public override void ApplyIcon(string _assetPath, bool _isPlayerSettingIcon)
 		{
-			get => m_language;
-			set
-			{
-				m_language = value;
-				SetToggleByLanguage();
-				SetNationalFlag();
-			}
-		}
-
-		public override string Icon
-		{
-			get => base.Icon;
-			set
-			{
-				base.Icon = value;
-				SetNationalFlag();
-			}
-		}
-
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-			SetToggleByLanguage();
+			if (!_isPlayerSettingIcon)
+				_assetPath = "Flags/" + _assetPath;
+			m_flagImage.sprite = Resources.Load<Sprite>(_assetPath);
+			if (m_flagImage.sprite == null)
+				Debug.LogError($"Sprite '{_assetPath}' not found!");
 		}
 
 		protected override void OnValueChanged( bool _active )
 		{
-			if (_active)
-				LocaManager.Instance.ChangeLanguage(m_language);
+			if (_active && Initialized)
+				LocaManager.Instance.ChangeLanguage(GetValue<string>());
 		}
 
-#if UNITY_EDITOR
-		public void OnValidate()
+		public override void SetData(string _gameObjectNamePrefix, string _title, PlayerSetting _playerSetting)
 		{
-			SetNationalFlag();
+			base.SetData(_gameObjectNamePrefix, _title, _playerSetting);
+			SetToggleByLanguage();
 		}
-#endif
 
 		private void SetToggleByLanguage()
 		{
-			bool isActive = LocaManager.Instance.Language == m_language;
-			m_toggle.SetDelayed(isActive);
-		}
-
-		private void SetNationalFlag()
-		{
-			if (!string.IsNullOrEmpty(Icon))
-			{
-				m_flagImage.sprite = Resources.Load<Sprite>(Icon);
-				if (m_flagImage.sprite != null)
-					return;
-
-				Debug.LogError($"Sprite '{Icon}' not found!");
-			}
-			m_flagImage.sprite = Resources.Load<Sprite>("Flags/" + m_language );
+			m_toggle.IsOn = LocaManager.Instance.Language == GetValue<string>();
 		}
 	}
-
-#if UNITY_EDITOR
-	[CustomEditor(typeof(UiPlayerSettingLanguageToggle))]
-	public class UiSettingsEntryLanguageEditor : Editor
-	{
-		public override void OnInspectorGUI()
-		{
-			UiPlayerSettingLanguageToggle thisUiSettingsEntry = (UiPlayerSettingLanguageToggle)target;
-			DrawDefaultInspector();
-			if ( UiEditorUtility.LanguagePopup("Select available language:", thisUiSettingsEntry.Language, out string newLanguage ))
-				thisUiSettingsEntry.Language = newLanguage;
-		}
-	}
-#endif
 }

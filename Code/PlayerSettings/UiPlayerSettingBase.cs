@@ -11,11 +11,31 @@ namespace GuiToolkit
 		[SerializeField]
 		protected UiTMPTranslator m_titleTranslator;
 
-		[HideInInspector]
-		[SerializeField]
 		protected PlayerSetting m_playerSetting;
 
-		public object Value
+		public bool Initialized => m_playerSetting != null;
+
+		public T GetValue<T>()
+		{
+			if (m_playerSetting == null)
+			{
+				Debug.LogError($"GetValue() is only available after GetData() for '{GetType().ToString()}' on '{gameObject.name}'");
+				return default;
+			}
+			return m_playerSetting.GetValue<T>();
+		}
+
+		public T GetDefaultValue<T>()
+		{
+			if (m_playerSetting == null)
+			{
+				Debug.LogError($"GetDefaultValue() is only available after GetData() for '{GetType().ToString()}' on '{gameObject.name}'");
+				return default;
+			}
+			return m_playerSetting.GetDefaultValue<T>();
+		}
+
+		public virtual object Value
 		{
 			get
 			{
@@ -37,13 +57,21 @@ namespace GuiToolkit
 			}
 		}
 
-		public void SetData(string _gameObjectNamePrefix, string _title, PlayerSetting _playerSetting)
+		public virtual void ApplyIcon(string _assetPath, bool _isPlayerSettingIcon) {}
+
+		public virtual void SetData(string _gameObjectNamePrefix, string _title, PlayerSetting _playerSetting)
 		{
 			gameObject.name = _gameObjectNamePrefix + _title;
 			m_titleTranslator.Text = _title;
 			m_playerSetting = _playerSetting;
+
+			if (_playerSetting.HasIcon)
+				ApplyIcon(_playerSetting.Icon, true);
+			else if (_playerSetting.IsString)
+				ApplyIcon(_playerSetting.GetValue<string>(), false);
+
+			Value = _playerSetting.Value;
 		}
 
-		public virtual string Icon {get; set;}
 	}
 }

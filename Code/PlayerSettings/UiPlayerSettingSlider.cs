@@ -10,20 +10,22 @@ namespace GuiToolkit
 	{
 		[SerializeField] protected UiSlider m_slider;
 
-		public float Value
+		public override object Value
 		{
-			get => m_slider.Value;
-			set => m_slider.Value = value;
-		}
-
-		public override string Icon
-		{
-			get => base.Icon;
+			get => base.Value;
 			set
 			{
-				base.Icon = value;
-				m_slider.Icon = value;
+				base.Value = value;
+				float f = GetValue<float>();
+				m_slider.Value = f;
 			}
+		}
+
+		public override void ApplyIcon(string _assetPath, bool _isPlayerSettingIcon)
+		{
+			if (!_isPlayerSettingIcon)
+				return;
+			m_slider.Icon = _assetPath;
 		}
 	}
 }

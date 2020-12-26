@@ -29,7 +29,7 @@ namespace GuiToolkit
 		public string Key => m_key;
 		public object Value
 		{
-			get => m_value;
+			get => GetValue(ref m_value);
 			set
 			{
 				CheckType(value.GetType());
@@ -37,7 +37,7 @@ namespace GuiToolkit
 				Apply();
 			}
 		}
-		public object DefaultValue => m_defaultValue;
+		public object DefaultValue => GetValue(ref m_defaultValue);
 
 		public System.Type Type => m_type;
 		public bool IsKeyCode => m_type == typeof(KeyCode);
@@ -45,6 +45,7 @@ namespace GuiToolkit
 		public bool IsLanguage => m_isLanguage;
 		public bool IsFloat => m_type == typeof(float);
 		public bool IsBool => m_type == typeof(bool);
+		public bool IsString => m_type == typeof(string);
 
 		public bool HasIcon => !string.IsNullOrEmpty(m_icon);
 		public string Icon => m_icon;
@@ -96,6 +97,15 @@ namespace GuiToolkit
 				return (T)(object)((int)_v != 0);
 
 			return (T)_v;
+		}
+
+		private object GetValue(ref object _v)
+		{
+			if (m_type == typeof(bool))
+				return Convert.ToBoolean(_v);
+			if (m_type.IsEnum)
+				return System.Enum.ToObject(m_type, _v);
+			return _v;
 		}
 
 		private void Apply()
