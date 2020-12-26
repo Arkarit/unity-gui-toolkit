@@ -32,7 +32,6 @@ namespace GuiToolkit
 			{
 				if (value == null)
 					return;
-Debug.Log($"Setting text to '{value}'" );
 				InitIfNecessary();
 				if (m_translator && Application.isPlaying)
 					m_translator.Text = value;

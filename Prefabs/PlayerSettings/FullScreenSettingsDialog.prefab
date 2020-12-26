@@ -17,13 +17,11 @@ MonoBehaviour:
   m_isFullScreen: 1
   m_lastSiblingIndex: -1
   m_closeButton: {fileID: 6762807483001836545}
+  m_tabsColumn: {fileID: 8036487084792173267}
   m_tabContentContainer: {fileID: 5984029663277954689}
   m_pageContentContainer: {fileID: 8036487085992052438}
-  m_tabInfos:
-  - Tab: {fileID: 0}
-    Page: {fileID: 0}
-  - Tab: {fileID: 0}
-    Page: {fileID: 0}
+  m_tabInfos: []
+  m_autoHideTabIfOnlyOne: 1
   m_tabPrefab: {fileID: 6428330951011662473, guid: a6fb32f71c0641f489a7bf2a64e8f9a9,
     type: 3}
   m_tabPagePrefab: {fileID: 7618210062931900500, guid: 723bc1e72c0b35f499f0f9b47558783e,
@@ -223,8 +221,14 @@ PrefabInstance:
     - target: {fileID: 5968183750924817586, guid: 0f6119b246c780b4195ff06650f0d15e,
         type: 3}
       propertyPath: m_Name
-      value: Tabs
+      value: MiddleContent
       objectReference: {fileID: 0}
+    - target: {fileID: 5968183750924817586, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_Icon
+      value: 
+      objectReference: {fileID: 8418204508859773708, guid: 0000000000000000d000000000000000,
+        type: 0}
     - target: {fileID: 5968183750924817587, guid: 0f6119b246c780b4195ff06650f0d15e,
         type: 3}
       propertyPath: m_AnchorMin.y
@@ -281,6 +285,66 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5968183751041874534, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968183751335474394, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968183751335474394, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968183751335474394, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968183751335474394, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968183751335474394, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968183751335474394, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968183751340798084, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968183751340798084, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968183751340798084, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968183751340798084, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968183751340798084, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5968183751340798084, guid: 0f6119b246c780b4195ff06650f0d15e,
         type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
@@ -301,6 +365,12 @@ PrefabInstance:
 --- !u!1 &2181491293581203450 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2527186978879140336, guid: 0f6119b246c780b4195ff06650f0d15e,
+    type: 3}
+  m_PrefabInstance: {fileID: 4419273600710125066}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8036487084792173267 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5968183751335474393, guid: 0f6119b246c780b4195ff06650f0d15e,
     type: 3}
   m_PrefabInstance: {fileID: 4419273600710125066}
   m_PrefabAsset: {fileID: 0}

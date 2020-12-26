@@ -36,7 +36,6 @@ namespace GuiToolkit
 
 			foreach (var category in categorized)
 			{
-Debug.Log($"Create Tab '{category.Key}'");
 				UiToggle tab = Instantiate(m_tabPrefab, m_tabContentContainer);
 				tab.Text = category.Key;
 				tab.Toggle.group = tabToggleGroup;
@@ -54,7 +53,6 @@ Debug.Log($"Create Tab '{category.Key}'");
 
 				foreach (var group in category.Value)
 				{
-Debug.Log($"Create Group '{group.Key}'");
 					UiTextContainer textContainer = Instantiate(m_groupPrefab, pageContainer);
 					textContainer.Text = group.Key;
 					textContainer.gameObject.name = "TextContainer_" + group.Key;
@@ -68,7 +66,6 @@ Debug.Log($"Create Group '{group.Key}'");
 
 					foreach (var entry in group.Value)
 					{
-Debug.Log($"Create Entry '{entry.Key}'");
 						InstantiateMatchingEntry(entry, textContainer.RectTransform, toggleGroup);
 					}
 				}

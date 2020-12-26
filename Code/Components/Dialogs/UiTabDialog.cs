@@ -19,9 +19,11 @@ namespace GuiToolkit
 	public class UiTabDialog : UiView
 	{
 		[SerializeField] protected UiButton m_closeButton;
+		[SerializeField] protected GameObject m_tabsColumn;
 		[SerializeField] protected RectTransform m_tabContentContainer;
 		[SerializeField] protected RectTransform m_pageContentContainer;
 		[SerializeField] protected List<TabInfo> m_tabInfos;
+		[SerializeField] protected bool m_autoHideTabIfOnlyOne = true;
 
 		private int m_currentTabIdx;
 
@@ -89,6 +91,8 @@ namespace GuiToolkit
 					m_currentTabIdx = i;
 				}
 			}
+
+			m_tabsColumn.gameObject.SetActive(!m_autoHideTabIfOnlyOne || m_tabInfos.Count > 1);
 
 			Debug.Assert(m_currentTabIdx != -1, "No active tabs in tab dialog! Please use ToggleGroup and set only one to is on!");
 		}
