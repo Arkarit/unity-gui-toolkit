@@ -7,23 +7,21 @@ namespace GuiToolkit
 	{
 		[SerializeField] protected TMP_Text m_keyDisplay;
 
-		private KeyCode m_keyCode;
-
-		public KeyCode Value
+		public override object Value
 		{
-			get => m_keyCode;
+			get => base.Value;
 			set
 			{
-				m_keyCode = value;
+				base.Value = value;
 				m_keyDisplay.text = value.ToString();
 			}
 		}
 
 		protected override void OnValueChanged()
 		{
-			UiMain.Instance.KeyPressRequester((KeyCode keyCode) =>
+			UiMain.Instance.KeyPressRequester((KeyCode _keyCode) =>
 			{
-				m_keyDisplay.text = keyCode.ToString();
+				Value = _keyCode;
 			});
 		}
 	}

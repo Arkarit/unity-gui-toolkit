@@ -23,9 +23,6 @@ namespace GuiToolkit
 			base.OnDisable();
 		}
 
-		protected virtual void OnValueChanged()
-		{
-			Debug.Log($"TODO: Evaluate OnClick '{gameObject.name}'");
-		}
+		protected virtual void OnValueChanged() {}
 	}
 }

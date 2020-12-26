@@ -48,6 +48,7 @@ namespace GuiToolkit
 
 		private void OnValueChangedListener( bool _active )
 		{
+			PlayerPrefs.SetInt(m_languageToken, _active ? 1 : 0);
 			if (_active)
 			{
 				LocaManager.Instance.ChangeLanguage(m_languageToken);

@@ -20,6 +20,7 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_isRadio;
 		[SerializeField] protected bool m_isLanguage;
 		[SerializeField] protected string m_icon;
+		[SerializeField] protected object m_additionalData;
 
 		protected object m_value;
 		protected object m_savedValue;
@@ -46,12 +47,13 @@ namespace GuiToolkit
 		public bool IsFloat => m_type == typeof(float);
 		public bool IsBool => m_type == typeof(bool);
 		public bool IsString => m_type == typeof(string);
-
 		public bool HasIcon => !string.IsNullOrEmpty(m_icon);
 		public string Icon => m_icon;
+		public bool HasAdditionalData => m_additionalData != null;
+		public object AdditionalData => m_additionalData;
 
 
-		public PlayerSetting( string _category, string _group, string _key, object _defaultValue, EPlayerSettingType _playerSettingType = EPlayerSettingType.Auto, string _icon = null )
+		public PlayerSetting( string _category, string _group, string _key, object _defaultValue, EPlayerSettingType _playerSettingType = EPlayerSettingType.Auto, string _icon = null, object _additionalData = null )
 		{
 			System.Type type = _defaultValue.GetType();
 			m_category = _category;
@@ -62,6 +64,7 @@ namespace GuiToolkit
 			m_defaultValue = _defaultValue;
 			m_icon = _icon;
 			m_type = type;
+			m_additionalData = _additionalData;
 
 			if (type == typeof(int) || type == typeof(bool) || type.IsEnum)
 				m_value = PlayerPrefs.GetInt(Key, Convert.ToInt32(DefaultValue));
@@ -94,7 +97,7 @@ namespace GuiToolkit
 			CheckType(typeof(T));
 
 			if (m_type == typeof(bool))
-				return (T)(object)((int)_v != 0);
+				return (T)(object)(Convert.ToBoolean(_v));
 
 			return (T)_v;
 		}
@@ -111,11 +114,11 @@ namespace GuiToolkit
 		private void Apply()
 		{
 			if (m_type == typeof(int) || m_type == typeof(bool) || m_type.IsEnum)
-				m_value = PlayerPrefs.GetInt(Key, Convert.ToInt32(DefaultValue));
+				PlayerPrefs.SetInt(Key, Convert.ToInt32(m_value));
 			else if (m_type == typeof(float))
-				m_value = PlayerPrefs.GetFloat(Key, Convert.ToSingle(DefaultValue));
+				PlayerPrefs.SetFloat(Key, Convert.ToSingle(m_value));
 			else if (m_type == typeof(string))
-				m_value = PlayerPrefs.GetString(Key, Convert.ToString(DefaultValue));
+				PlayerPrefs.SetString(Key, Convert.ToString(m_value));
 			else
 				Debug.LogError($"Unknown type for player setting '{Key}': {m_type.Name}");
 		}

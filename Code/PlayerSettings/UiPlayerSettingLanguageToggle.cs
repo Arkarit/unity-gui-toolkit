@@ -15,19 +15,31 @@ namespace GuiToolkit
 		[SerializeField]
 		private Image m_flagImage;
 
-		public override void ApplyIcon(string _assetPath, bool _isPlayerSettingIcon)
+		private string Language => (string) m_playerSetting.AdditionalData;
+
+		public override void ApplyIcon(string _assetPath)
 		{
-			if (!_isPlayerSettingIcon)
-				_assetPath = "Flags/" + _assetPath;
 			m_flagImage.sprite = Resources.Load<Sprite>(_assetPath);
 			if (m_flagImage.sprite == null)
 				Debug.LogError($"Sprite '{_assetPath}' not found!");
 		}
 
+		public override void ApplyAdditionalData(object _additionalData)
+		{
+			if (m_playerSetting.HasIcon)
+				return;
+
+			string assetPath = "Flags/" + (string) _additionalData;
+			m_flagImage.sprite = Resources.Load<Sprite>(assetPath);
+			if (m_flagImage.sprite == null)
+				Debug.LogError($"Sprite '{assetPath}' not found!");
+		}
+
 		protected override void OnValueChanged( bool _active )
 		{
+			base.OnValueChanged(_active);
 			if (_active && Initialized)
-				LocaManager.Instance.ChangeLanguage(GetValue<string>());
+				LocaManager.Instance.ChangeLanguage(Language);
 		}
 
 		public override void SetData(string _gameObjectNamePrefix, string _title, PlayerSetting _playerSetting)
@@ -38,7 +50,7 @@ namespace GuiToolkit
 
 		private void SetToggleByLanguage()
 		{
-			m_toggle.IsOn = LocaManager.Instance.Language == GetValue<string>();
+			m_toggle.IsOn = LocaManager.Instance.Language == Language;
 		}
 	}
 }

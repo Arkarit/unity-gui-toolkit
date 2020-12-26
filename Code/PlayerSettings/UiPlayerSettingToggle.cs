@@ -15,12 +15,15 @@ namespace GuiToolkit
 
 		public UiToggle UiToggle => m_toggle;
 		public override Toggle Toggle => m_toggle.Toggle; 
-		public bool IsRadio => m_toggle.Toggle.group != null;
 
-		public bool Value
+		public override object Value
 		{
-			get => m_toggle.Toggle.isOn;
-			set => m_toggle.Toggle.isOn = value;
+			get => base.Value;
+			set
+			{
+				base.Value = value;
+				m_toggle.IsOn = GetValue<bool>();
+			}
 		}
 
 		protected override void OnEnable()
@@ -35,9 +38,9 @@ namespace GuiToolkit
 			base.OnDisable();
 		}
 
-		protected virtual void OnValueChanged( bool _val )
+		protected virtual void OnValueChanged( bool _value )
 		{
-			Debug.Log($"TODO: Evaluate toggle '{gameObject.name}': {_val}");
+			base.Value = _value;
 		}
 
 	}
