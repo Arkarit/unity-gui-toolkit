@@ -82,28 +82,28 @@ namespace GuiToolkit
 		private UiPlayerSettingBase InstantiateMatchingEntry( PlayerSetting _playerSetting, RectTransform _parent, ToggleGroup _toggleGroup )
 		{
 			if (_playerSetting.IsLanguage)
-				return InstantiateMatchingEntry(_playerSetting, m_languagePrefab, _parent, _toggleGroup, "PlayerSettingLanguage_", _playerSetting.Key);
+				return InstantiateMatchingEntry(_playerSetting, m_languagePrefab, _parent, _toggleGroup, "PlayerSettingLanguage_");
 
 			if (_playerSetting.IsFloat)
-				return InstantiateMatchingEntry(_playerSetting, m_sliderPrefab, _parent, _toggleGroup, "PlayerSettingSlider_", _playerSetting.Key);
+				return InstantiateMatchingEntry(_playerSetting, m_sliderPrefab, _parent, _toggleGroup, "PlayerSettingSlider_");
 
 			if (_playerSetting.IsRadio)
-				return InstantiateMatchingEntry(_playerSetting, m_radioPrefab, _parent, _toggleGroup, "PlayerSettingRadio_", _playerSetting.Key);
+				return InstantiateMatchingEntry(_playerSetting, m_radioPrefab, _parent, _toggleGroup, "PlayerSettingRadio_");
 
 			if (_playerSetting.IsBool)
-				return InstantiateMatchingEntry(_playerSetting, m_togglePrefab, _parent, _toggleGroup, "PlayerSettingCheck_", _playerSetting.Key);
+				return InstantiateMatchingEntry(_playerSetting, m_togglePrefab, _parent, _toggleGroup, "PlayerSettingCheck_");
 
 			if (_playerSetting.IsKeyCode)
-				return InstantiateMatchingEntry(_playerSetting, m_keyBindingsPrefab, _parent, _toggleGroup, "PlayerSettingKeyBinding_", _playerSetting.Key);
+				return InstantiateMatchingEntry(_playerSetting, m_keyBindingsPrefab, _parent, _toggleGroup, "PlayerSettingKeyBinding_");
 
 			Debug.LogError("Unknown player setting type");
 			return null;
 		}
 
-		private UiPlayerSettingBase InstantiateMatchingEntry(PlayerSetting _playerSetting, UiPlayerSettingBase _prefab, RectTransform _parent, ToggleGroup _toggleGroup, string _gameObjectNamePrefix, string _title )
+		private UiPlayerSettingBase InstantiateMatchingEntry(PlayerSetting _playerSetting, UiPlayerSettingBase _prefab, RectTransform _parent, ToggleGroup _toggleGroup, string _gameObjectNamePrefix )
 		{
 			UiPlayerSettingBase result = Instantiate(_prefab, _parent);
-			result.SetData(_gameObjectNamePrefix, _playerSetting.Key, _playerSetting );
+			result.SetData(_gameObjectNamePrefix, _playerSetting );
 			if (_toggleGroup && result.Toggle != null)
 				result.Toggle.group = _toggleGroup;
 			return result;

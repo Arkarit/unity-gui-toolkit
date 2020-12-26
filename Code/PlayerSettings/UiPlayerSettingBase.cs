@@ -62,19 +62,14 @@ namespace GuiToolkit
 
 		public virtual void ApplyIcon(string _assetPath) {}
 
-		public virtual void ApplyAdditionalData(object _additionalData) { }
-
-		public virtual void SetData(string _gameObjectNamePrefix, string _title, PlayerSetting _playerSetting)
+		public virtual void SetData(string _gameObjectNamePrefix, PlayerSetting _playerSetting)
 		{
-			gameObject.name = _gameObjectNamePrefix + _title;
-			m_titleTranslator.Text = _title;
+			gameObject.name = _gameObjectNamePrefix + _playerSetting.Title;
+			m_titleTranslator.Text = _playerSetting.Title;
 			m_playerSetting = _playerSetting;
 
 			if (_playerSetting.HasIcon)
 				ApplyIcon(_playerSetting.Icon);
-
-			if (_playerSetting.HasAdditionalData)
-				ApplyAdditionalData(_playerSetting.AdditionalData);
 
 			Value = _playerSetting.Value;
 		}

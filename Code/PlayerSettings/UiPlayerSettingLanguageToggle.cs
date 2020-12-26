@@ -15,24 +15,13 @@ namespace GuiToolkit
 		[SerializeField]
 		private Image m_flagImage;
 
-		private string Language => (string) m_playerSetting.AdditionalData;
+		private string Language => m_playerSetting.Key;
 
 		public override void ApplyIcon(string _assetPath)
 		{
 			m_flagImage.sprite = Resources.Load<Sprite>(_assetPath);
 			if (m_flagImage.sprite == null)
 				Debug.LogError($"Sprite '{_assetPath}' not found!");
-		}
-
-		public override void ApplyAdditionalData(object _additionalData)
-		{
-			if (m_playerSetting.HasIcon)
-				return;
-
-			string assetPath = "Flags/" + (string) _additionalData;
-			m_flagImage.sprite = Resources.Load<Sprite>(assetPath);
-			if (m_flagImage.sprite == null)
-				Debug.LogError($"Sprite '{assetPath}' not found!");
 		}
 
 		protected override void OnValueChanged( bool _active )
@@ -42,9 +31,11 @@ namespace GuiToolkit
 				LocaManager.Instance.ChangeLanguage(Language);
 		}
 
-		public override void SetData(string _gameObjectNamePrefix, string _title, PlayerSetting _playerSetting)
+		public override void SetData(string _gameObjectNamePrefix, PlayerSetting _playerSetting)
 		{
-			base.SetData(_gameObjectNamePrefix, _title, _playerSetting);
+			base.SetData(_gameObjectNamePrefix, _playerSetting);
+			if (!_playerSetting.HasIcon)
+				SetBuiltinFlagIfNecessary();
 			SetToggleByLanguage();
 		}
 
@@ -52,5 +43,16 @@ namespace GuiToolkit
 		{
 			m_toggle.IsOn = LocaManager.Instance.Language == Language;
 		}
+		private void SetBuiltinFlagIfNecessary()
+		{
+			if (m_playerSetting.HasIcon)
+				return;
+
+			string assetPath = "Flags/" + Language;
+			m_flagImage.sprite = Resources.Load<Sprite>(assetPath);
+			if (m_flagImage.sprite == null)
+				Debug.LogError($"Sprite '{assetPath}' not found!");
+		}
+
 	}
 }

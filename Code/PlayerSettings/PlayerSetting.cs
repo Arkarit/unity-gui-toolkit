@@ -14,19 +14,20 @@ namespace GuiToolkit
 	{
 		[SerializeField] protected string m_category;
 		[SerializeField] protected string m_group;
+		[SerializeField] protected string m_title;
 		[SerializeField] protected string m_key;
 		[SerializeField] protected object m_defaultValue;
 		[SerializeField] protected System.Type m_type;
 		[SerializeField] protected bool m_isRadio;
 		[SerializeField] protected bool m_isLanguage;
 		[SerializeField] protected string m_icon;
-		[SerializeField] protected object m_additionalData;
 
 		protected object m_value;
 		protected object m_savedValue;
 
 		public string Category => m_category;
 		public string Group => m_group;
+		public string Title => m_title;
 		public string Key => m_key;
 		public object Value
 		{
@@ -49,22 +50,19 @@ namespace GuiToolkit
 		public bool IsString => m_type == typeof(string);
 		public bool HasIcon => !string.IsNullOrEmpty(m_icon);
 		public string Icon => m_icon;
-		public bool HasAdditionalData => m_additionalData != null;
-		public object AdditionalData => m_additionalData;
 
-
-		public PlayerSetting( string _category, string _group, string _key, object _defaultValue, EPlayerSettingType _playerSettingType = EPlayerSettingType.Auto, string _icon = null, object _additionalData = null )
+		public PlayerSetting( string _category, string _group, string _title, object _defaultValue, string _key = null, EPlayerSettingType _playerSettingType = EPlayerSettingType.Auto, string _icon = null )
 		{
 			System.Type type = _defaultValue.GetType();
 			m_category = _category;
 			m_group = _group;
 			m_isRadio = _playerSettingType == EPlayerSettingType.Radio || _playerSettingType == EPlayerSettingType.Language;
 			m_isLanguage = _playerSettingType == EPlayerSettingType.Language;
-			m_key = _key;
+			m_title = _title;
+			m_key = string.IsNullOrEmpty(_key) ? _title : _key;
 			m_defaultValue = _defaultValue;
 			m_icon = _icon;
 			m_type = type;
-			m_additionalData = _additionalData;
 
 			if (type == typeof(int) || type == typeof(bool) || type.IsEnum)
 				m_value = PlayerPrefs.GetInt(Key, Convert.ToInt32(DefaultValue));
