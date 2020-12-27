@@ -13,22 +13,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_titleTranslator: {fileID: 4586315474807833319}
-  m_playerSetting:
-    m_category: 
-    m_group: 
-    m_key: 
-    m_isRadio: 0
-    m_isLanguage: 1
-    m_icon: 
   m_toggle: {fileID: 2567634577800260833}
   m_flagImage: {fileID: 116768819028621784}
-  m_language: dev
 --- !u!1001 &2863737002469109234
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 7588531753102739386}
+    m_TransformParent: {fileID: 7208931425179069509}
     m_Modifications:
     - target: {fileID: 137001839888021302, guid: 93821341ca46b35428a5456e78afe467,
         type: 3}
@@ -88,7 +80,7 @@ PrefabInstance:
     - target: {fileID: 137001839888021302, guid: 93821341ca46b35428a5456e78afe467,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -35.84
+      value: -35.840363
       objectReference: {fileID: 0}
     - target: {fileID: 137001839888021302, guid: 93821341ca46b35428a5456e78afe467,
         type: 3}
@@ -367,9 +359,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d21d44b6de9cf8d41a4a78f467a9e7e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &7588531753102739386 stripped
+--- !u!224 &7208931425179069509 stripped
 RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2935353751807878486, guid: dffc64cfb8c59a8459afe98bfcb33b78,
+  m_CorrespondingSourceObject: {fileID: 2736179958217608873, guid: dffc64cfb8c59a8459afe98bfcb33b78,
     type: 3}
   m_PrefabInstance: {fileID: 4752311094954451692}
   m_PrefabAsset: {fileID: 0}
