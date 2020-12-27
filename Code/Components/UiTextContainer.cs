@@ -76,7 +76,7 @@ namespace GuiToolkit
 			get
 			{
 				InitIfNecessary();
-				if (m_translator)
+				if (m_translator && Application.isPlaying)
 					return m_translator;
 				if (m_tmpText)
 					return m_tmpText;
