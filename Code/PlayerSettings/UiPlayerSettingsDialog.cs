@@ -6,6 +6,9 @@ namespace GuiToolkit
 {
 	public class UiPlayerSettingsDialog : UiTabDialog
 	{
+		[SerializeField] protected UiButton m_okButton;
+		[SerializeField] protected UiButton m_cancelButton;
+		[SerializeField] protected UiButton m_restoreDefaultsButton;
 		[SerializeField] protected UiToggle m_tabPrefab;
 		[SerializeField] protected UiPanel m_tabPagePrefab;
 		[SerializeField] protected UiTextContainer m_groupPrefab;
@@ -15,10 +18,30 @@ namespace GuiToolkit
 		[SerializeField] protected UiPlayerSettingToggle m_togglePrefab;
 		[SerializeField] protected UiPlayerSettingToggle m_radioPrefab;
 
+		protected PlayerSettings m_playerSettings;
+
 		public override bool AutoDestroyOnHide => true;
+
+		protected override void OnEnable()
+		{
+			m_okButton.OnClick.AddListener(OnOkButton);
+			m_cancelButton.OnClick.AddListener(OnCloseButton);
+			m_restoreDefaultsButton.OnClick.AddListener(OnRestoreDefaultsButton);
+			base.OnEnable();
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			m_okButton.OnClick.RemoveListener(OnOkButton);
+			m_cancelButton.OnClick.RemoveListener(OnCloseButton);
+			m_restoreDefaultsButton.OnClick.RemoveListener(OnRestoreDefaultsButton);
+		}
 
 		public override void Show( bool _instant = false, Action _onFinish = null )
 		{
+			m_playerSettings = UiMain.Instance.PlayerSettings;
+			m_playerSettings.TempSaveValues();
 			Build();
 			base.Show(_instant, _onFinish);
 			if (m_tabInfos.Count > 0)
@@ -29,8 +52,7 @@ namespace GuiToolkit
 		{
 			ClearDialogEntries();
 
-			PlayerSettings playerSettings = UiMain.Instance.PlayerSettings;
-			var categorized = playerSettings.GetCategorized();
+			var categorized = m_playerSettings.GetCategorized();
 			ToggleGroup tabToggleGroup = m_tabContentContainer.GetOrCreateComponent<ToggleGroup>();
 			tabToggleGroup.allowSwitchOff = false;
 
@@ -114,6 +136,22 @@ namespace GuiToolkit
 			m_tabContentContainer.DestroyAllChildren();
 			m_pageContentContainer.DestroyAllChildren();
 			m_tabInfos.Clear();
+		}
+
+		protected virtual void OnRestoreDefaultsButton()
+		{
+			m_playerSettings.RestoreDefaults();
+		}
+
+		protected virtual void OnOkButton()
+		{
+			Hide();
+		}
+
+		protected override void OnCloseButton()
+		{
+			m_playerSettings.TempRestoreValues();
+			base.OnCloseButton();
 		}
 
 	}

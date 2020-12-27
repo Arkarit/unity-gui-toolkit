@@ -57,5 +57,10 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public void RestoreDefaults()
+		{
+			foreach (var kv in m_playerSettings)
+				kv.Value.Value = kv.Value.DefaultValue;
+		}
 	}
 }
