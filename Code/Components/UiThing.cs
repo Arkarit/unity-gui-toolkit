@@ -13,7 +13,7 @@ namespace GuiToolkit
 	/// 
 	/// Additionally, it offers event handling plus some convenience functions.
 
-	public class UiThing : MonoBehaviour, IEventSystemHandler, ILocaListener
+	public class UiThing : MonoBehaviour, IEventSystemHandler
 	{
 		private static int s_layer = -1;
 
@@ -33,7 +33,7 @@ namespace GuiToolkit
 
 		public RectTransform RectTransform => transform as RectTransform;
 
-		public virtual void OnLanguageChanged( string _languageId ){}
+		protected virtual void OnLanguageChanged( string _languageId ){}
 
 
 		/// \brief Install Event handlers on disabled objects
@@ -101,7 +101,7 @@ namespace GuiToolkit
 		protected virtual void OnEnable()
 		{
 			if (NeedsLanguageChangeCallback)
-				LocaManager.Instance.AddListener(this);
+				UiEvents.OnLanguageChanged.AddListener(OnLanguageChanged);
 
 			if (!ReceiveEventsWhenDisabled && !m_eventListenersAdded)
 			{
@@ -114,7 +114,7 @@ namespace GuiToolkit
 		protected virtual void OnDisable()
 		{
 			if (NeedsLanguageChangeCallback)
-				LocaManager.Instance.RemoveListener(this);
+				UiEvents.OnLanguageChanged.RemoveListener(OnLanguageChanged);
 
 			if (!ReceiveEventsWhenDisabled && m_eventListenersAdded)
 			{

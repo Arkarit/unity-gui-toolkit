@@ -7,7 +7,7 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(TMP_Text))]
-	public class UiTMPTranslator : MonoBehaviour, ILocaClient, ILocaListener
+	public class UiTMPTranslator : UiThing, ILocaClient
 	{
 		[SerializeField] bool m_autoTranslate = true;
 
@@ -20,8 +20,10 @@ namespace GuiToolkit
 
 		public bool AutoTranslate => m_autoTranslate;
 
-		public void OnLanguageChanged(string _languageId)
+		protected override bool NeedsLanguageChangeCallback => true;
+		protected override void OnLanguageChanged(string _languageId)
 		{
+			base.OnLanguageChanged(_languageId);
 			if (m_autoTranslate || m_keyHasBeenSet)
 				Translate();
 		}
@@ -80,12 +82,12 @@ namespace GuiToolkit
 			TextComponent.text = m_translatedText;
 		}
 
-		private void OnEnable()
+		protected override void OnEnable()
 		{
+			base.OnEnable();
+
 			if (!Application.isPlaying)
 				return;
-
-			LocaManager.AddListener(this);
 
 			if (!m_autoTranslate && !m_keyHasBeenSet)
 				return;
@@ -96,14 +98,6 @@ namespace GuiToolkit
 				return;
 
 			Translate();
-		}
-
-		private void OnDisable()
-		{
-			if (!Application.isPlaying)
-				return;
-
-			LocaManager.RemoveListener(this);
 		}
 
 #if UNITY_EDITOR

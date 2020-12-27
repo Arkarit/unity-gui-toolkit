@@ -152,13 +152,6 @@ namespace GuiToolkit
 		}
 		#endregion
 
-		#region "Global Events"
-		public void SetTag(string _tag)
-		{
-			UiView.EvSetTag.Invoke(_tag);
-		}
-		#endregion
-
 		#region "Stack"
 
 		private readonly Stack<UiView> m_stack = new Stack<UiView>();
@@ -258,7 +251,7 @@ namespace GuiToolkit
 
 		public void ShowToastMessageView(string _message, float _duration = 2)
 		{
-			UiView.InvokeHideInstant<UiToastMessageView>();
+			UiToastMessageView.HideAll(true);
 			UiToastMessageView message = m_toastMessageViewPrefab.PoolInstantiate();
 			message.transform.SetParent(transform, false);
 			message.Show(_message, _duration);

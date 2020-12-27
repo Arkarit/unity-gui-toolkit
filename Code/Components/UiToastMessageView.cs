@@ -21,9 +21,8 @@ namespace GuiToolkit
 		public int m_id;
 		public UiSimpleAnimation m_animationWhileVisible;
 
-		[System.Serializable]
-		private class CEvShowToastMessageView : UnityEvent<int,string,float> {}
-		private static CEvShowToastMessageView EvShow = new CEvShowToastMessageView();
+		private class CEvHideAll : UnityEvent<bool> {}
+		private static CEvHideAll EvHide = new CEvHideAll();
 
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
@@ -31,13 +30,13 @@ namespace GuiToolkit
 		protected override void AddEventListeners()
 		{
 			base.AddEventListeners();
-			EvShow.AddListener(OnEvShow);
+			EvHide.AddListener(OnEvHide);
 		}
 
 		protected override void RemoveEventListeners()
 		{
 			base.RemoveEventListeners();
-			EvShow.RemoveListener(OnEvShow);
+			EvHide.RemoveListener(OnEvHide);
 		}
 
 		public void Show(string _message, float _duration = 2)
@@ -65,16 +64,14 @@ namespace GuiToolkit
 			}
 		}
 
-		public static void InvokeShow(string _message, int _id = 0, float _duration = 2 )
+		public static void HideAll(bool _instant = false)
 		{
-			EvShow.Invoke(_id, _message, _duration);
+			EvHide.Invoke(_instant);
 		}
 
-		private void OnEvShow( int _id, string _message, float _duration )
+		private void OnEvHide(bool _instant)
 		{
-			if (_id != m_id)
-				return;
-			Show(_message, _duration);
+			Hide(_instant);
 		}
 
 		private IEnumerator DelayedClose()

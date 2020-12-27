@@ -24,14 +24,6 @@ namespace GuiToolkit
 		public virtual bool AutoDestroyOnHide => false;
 		public virtual bool Poolable => false;
 
-		[System.Serializable]
-		public class CEvHideInstant : UnityEvent<Type> {}
-		public static CEvHideInstant EvHideInstant = new CEvHideInstant();
-
-		[System.Serializable]
-		public class CEvSetTag : UnityEvent<string> {}
-		public static CEvSetTag EvSetTag = new CEvSetTag();
-
 		private bool m_defaultSceneVisibilityApplied;
 		private bool m_animationInitialized;
 
@@ -54,55 +46,12 @@ namespace GuiToolkit
 			InitAnimationIfNecessary();
 		}
 
-		protected override void AddEventListeners()
-		{
-			base.AddEventListeners();
-			EvHideInstant.AddListener(OnEvHideInstant);
-			EvSetTag.AddListener(OnEvSetTag);
-		}
-
-		protected override void RemoveEventListeners()
-		{
-			base.RemoveEventListeners();
-			EvHideInstant.RemoveListener(OnEvHideInstant);
-			EvSetTag.RemoveListener(OnEvSetTag);
-		}
-
-		protected virtual void OnEnableTag()
-		{
-		}
-
-		protected virtual void OnDisableTag()
-		{
-		}
-
 		private void OnEvHideInstant( Type _type )
 		{
 			if (GetType() == _type)
 			{
 				Hide(true);
 			}
-		}
-
-		private void OnEvSetTag( string _tag )
-		{
-			string tag = gameObject.tag;
-			if (string.IsNullOrEmpty(tag))
-				return;
-
-			if (tag == _tag)
-			{
-				OnEnableTag();
-			}
-			else
-			{
-				OnDisableTag();
-			}
-		}
-
-		public static void InvokeHideInstant<T>()
-		{
-			EvHideInstant.Invoke(typeof(T));
 		}
 
 		// Have to make this public because c# programmers don't have friends. Shitty language. 

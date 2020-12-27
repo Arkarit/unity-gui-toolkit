@@ -4,15 +4,9 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public interface ILocaListener
-	{
-		void OnLanguageChanged(string _languageId);
-	}
-
 	public abstract class LocaManager
 	{
 		private const string PLAYER_PREFS_KEY = StringConstants.PLAYER_PREFS_PREFIX + "Language";
-		private readonly HashSet<ILocaListener> m_locaListeners = new HashSet<ILocaListener>();
 
 		public abstract string Translate(string _key);
 		public abstract string Translate(string _singularKey, string _pluralKey, int _n );
@@ -64,20 +58,9 @@ namespace GuiToolkit
 				ChangeLanguageImpl(_languageId);
 			}
 
-			foreach (ILocaListener listener in m_locaListeners)
-				listener.OnLanguageChanged(_languageId);
+			UiEvents.OnLanguageChanged.Invoke(_languageId);
 
 			return true;
-		}
-
-		public void AddListener(ILocaListener _listener)
-		{
-			m_locaListeners.Add(_listener);
-		}
-
-		public void RemoveListener(ILocaListener _listener)
-		{
-			m_locaListeners.Remove(_listener);
 		}
 	}
 }
