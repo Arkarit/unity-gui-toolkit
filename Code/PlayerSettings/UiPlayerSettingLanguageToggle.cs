@@ -10,12 +10,19 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	public class UiPlayerSettingLanguageToggle : UiPlayerSettingToggle
+	public class UiPlayerSettingLanguageToggle : UiPlayerSettingBase
 	{
+		[SerializeField]
+		protected UiToggle m_toggle;
+
 		[SerializeField]
 		private Image m_flagImage;
 
-		private string Language => m_playerSetting.Key;
+		public UiToggle UiToggle => m_toggle;
+		public override Toggle Toggle => m_toggle.Toggle;
+		protected override bool NeedsLanguageChangeCallback => true;
+
+		private string Language => m_subKey;
 
 		public override object Value
 		{
@@ -27,10 +34,23 @@ namespace GuiToolkit
 			}
 			set
 			{
-				if ((bool) value)
+				base.Value = value;
+				if ((string) value == Language)
 					LocaManager.Instance.ChangeLanguage(Language);
 				SetToggleByLanguage();
 			}
+		}
+
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			m_toggle.OnValueChanged.AddListener(OnValueChanged);
+		}
+
+		protected override void OnDisable()
+		{
+			m_toggle.OnValueChanged.RemoveListener(OnValueChanged);
+			base.OnDisable();
 		}
 
 		public override void ApplyIcon(string _assetPath)
@@ -40,16 +60,20 @@ namespace GuiToolkit
 				Debug.LogError($"Sprite '{_assetPath}' not found!");
 		}
 
-		protected override void OnValueChanged( bool _active )
+		protected void OnValueChanged( bool _active )
 		{
-			base.OnValueChanged(_active);
 			if (_active && Initialized)
-				LocaManager.Instance.ChangeLanguage(Language);
+				Value = Language;
 		}
 
-		public override void SetData(string _gameObjectNamePrefix, PlayerSetting _playerSetting)
+		protected override void OnLanguageChanged( string _languageId )
 		{
-			base.SetData(_gameObjectNamePrefix, _playerSetting);
+			m_playerSetting.Value = _languageId;
+		}
+
+		public override void SetData(string _gameObjectNamePrefix, PlayerSetting _playerSetting, string _subKey)
+		{
+			base.SetData(_gameObjectNamePrefix, _playerSetting, _subKey);
 			if (!_playerSetting.HasIcon)
 				SetBuiltinFlagIfNecessary();
 			SetToggleByLanguage();

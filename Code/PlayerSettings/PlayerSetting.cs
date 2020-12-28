@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 namespace GuiToolkit
 {
@@ -7,6 +8,16 @@ namespace GuiToolkit
 		Auto,
 		Language,
 		Radio,
+	}
+
+	[Serializable]
+	public partial class PlayerSettingOptions
+	{
+		public EPlayerSettingType Type = EPlayerSettingType.Auto;
+		public string Key = null;
+		public string Icon = null;
+		public List<string> Titles;
+		public List<string> StringValues;
 	}
 
 	[Serializable]
@@ -25,7 +36,9 @@ namespace GuiToolkit
 		protected object m_value;
 		protected object m_savedValue;
 		protected bool m_invokeEvents = true;
+		protected PlayerSettingOptions m_options;
 
+		public PlayerSettingOptions Options => m_options;
 		public string Category => m_category;
 		public string Group => m_group;
 		public string Title => m_title;
@@ -60,17 +73,19 @@ namespace GuiToolkit
 		public bool HasIcon => !string.IsNullOrEmpty(m_icon);
 		public string Icon => m_icon;
 
-		public PlayerSetting( string _category, string _group, string _title, object _defaultValue, string _key = null, EPlayerSettingType _playerSettingType = EPlayerSettingType.Auto, string _icon = null )
+		public PlayerSetting( string _category, string _group, string _title, object _defaultValue, PlayerSettingOptions _options = null )
 		{
+			m_options = _options != null ? _options : new PlayerSettingOptions();
+
 			System.Type type = _defaultValue.GetType();
 			m_category = _category;
 			m_group = _group;
-			m_isRadio = _playerSettingType == EPlayerSettingType.Radio || _playerSettingType == EPlayerSettingType.Language;
-			m_isLanguage = _playerSettingType == EPlayerSettingType.Language;
+			m_isRadio = m_options.Type == EPlayerSettingType.Radio;
+			m_isLanguage = m_options.Type == EPlayerSettingType.Language;
 			m_title = _title;
-			m_key = string.IsNullOrEmpty(_key) ? _title : _key;
+			m_key = string.IsNullOrEmpty(m_options.Key) ? _title : m_options.Key;
 			m_defaultValue = _defaultValue;
-			m_icon = _icon;
+			m_icon = m_options.Icon;
 			m_type = type;
 
 			if (type == typeof(int) || type == typeof(bool) || type.IsEnum)
@@ -97,6 +112,8 @@ namespace GuiToolkit
 		{
 			m_value = m_savedValue;
 			Apply();
+			if (m_options.Type == EPlayerSettingType.Language)
+				LocaManager.Instance.ChangeLanguage((string) m_value);
 		}
 
 		private T GetValue<T>(ref object _v)

@@ -6,7 +6,7 @@ namespace GuiToolkit
 {
 	public abstract class LocaManager
 	{
-		private const string PLAYER_PREFS_KEY = StringConstants.PLAYER_PREFS_PREFIX + "Language";
+		public const string PLAYER_PREFS_KEY = StringConstants.PLAYER_PREFS_PREFIX + "Language";
 
 		public abstract string Translate(string _key);
 		public abstract string Translate(string _singularKey, string _pluralKey, int _n );

@@ -101,34 +101,31 @@ namespace GuiToolkit
 			}
 		}
 
-		private UiPlayerSettingBase InstantiateMatchingEntry( PlayerSetting _playerSetting, RectTransform _parent, ToggleGroup _toggleGroup )
+		private void InstantiateMatchingEntry( PlayerSetting _playerSetting, RectTransform _parent, ToggleGroup _toggleGroup )
 		{
 			if (_playerSetting.IsLanguage)
-				return InstantiateMatchingEntry(_playerSetting, m_languagePrefab, _parent, _toggleGroup, "PlayerSettingLanguage_");
-
-			if (_playerSetting.IsFloat)
-				return InstantiateMatchingEntry(_playerSetting, m_sliderPrefab, _parent, _toggleGroup, "PlayerSettingSlider_");
-
-			if (_playerSetting.IsRadio)
-				return InstantiateMatchingEntry(_playerSetting, m_radioPrefab, _parent, _toggleGroup, "PlayerSettingRadio_");
-
-			if (_playerSetting.IsBool)
-				return InstantiateMatchingEntry(_playerSetting, m_togglePrefab, _parent, _toggleGroup, "PlayerSettingCheck_");
-
-			if (_playerSetting.IsKeyCode)
-				return InstantiateMatchingEntry(_playerSetting, m_keyBindingsPrefab, _parent, _toggleGroup, "PlayerSettingKeyBinding_");
-
-			Debug.LogError("Unknown player setting type");
-			return null;
+			{
+				foreach (string s in _playerSetting.Options.StringValues)
+					InstantiateMatchingEntry(_playerSetting, m_languagePrefab, _parent, _toggleGroup, "PlayerSettingLanguage_", s);
+			}
+			else if (_playerSetting.IsFloat)
+				InstantiateMatchingEntry(_playerSetting, m_sliderPrefab, _parent, _toggleGroup, "PlayerSettingSlider_");
+			else if (_playerSetting.IsRadio)
+				InstantiateMatchingEntry(_playerSetting, m_radioPrefab, _parent, _toggleGroup, "PlayerSettingRadio_");
+			else if (_playerSetting.IsBool)
+				InstantiateMatchingEntry(_playerSetting, m_togglePrefab, _parent, _toggleGroup, "PlayerSettingCheck_");
+			else if (_playerSetting.IsKeyCode)
+				InstantiateMatchingEntry(_playerSetting, m_keyBindingsPrefab, _parent, _toggleGroup, "PlayerSettingKeyBinding_");
+			else
+				Debug.LogError("Unknown player setting type");
 		}
 
-		private UiPlayerSettingBase InstantiateMatchingEntry(PlayerSetting _playerSetting, UiPlayerSettingBase _prefab, RectTransform _parent, ToggleGroup _toggleGroup, string _gameObjectNamePrefix )
+		private void InstantiateMatchingEntry(PlayerSetting _playerSetting, UiPlayerSettingBase _prefab, RectTransform _parent, ToggleGroup _toggleGroup, string _gameObjectNamePrefix, string _subKey = null )
 		{
 			UiPlayerSettingBase result = Instantiate(_prefab, _parent);
-			result.SetData(_gameObjectNamePrefix, _playerSetting );
+			result.SetData(_gameObjectNamePrefix, _playerSetting, _subKey );
 			if (_toggleGroup && result.Toggle != null)
 				result.Toggle.group = _toggleGroup;
-			return result;
 		}
 
 		private void ClearDialogEntries()

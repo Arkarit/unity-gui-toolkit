@@ -13,6 +13,7 @@ namespace GuiToolkit
 		protected UiTMPTranslator m_titleTranslator;
 
 		protected PlayerSetting m_playerSetting;
+		protected string m_subKey;
 
 		public bool Initialized => m_playerSetting != null;
 
@@ -74,11 +75,27 @@ namespace GuiToolkit
 
 		public virtual void ApplyIcon(string _assetPath) {}
 
-		public virtual void SetData(string _gameObjectNamePrefix, PlayerSetting _playerSetting)
+		public virtual void SetData(string _gameObjectNamePrefix, PlayerSetting _playerSetting, string _subKey)
 		{
-			gameObject.name = _gameObjectNamePrefix + _playerSetting.Title;
-			m_titleTranslator.Text = _playerSetting.Title;
+			m_subKey = _subKey;
 			m_playerSetting = _playerSetting;
+			gameObject.name = _gameObjectNamePrefix + _playerSetting.Title;
+
+			if (string.IsNullOrEmpty(_subKey))
+				m_titleTranslator.Text = _playerSetting.Title;
+			else if (_playerSetting.Options.Titles == null)
+				m_titleTranslator.Text = _subKey;
+			else
+			{
+				for (int i=0; i<_playerSetting.Options.StringValues.Count; i++)
+				{
+					if (_playerSetting.Options.StringValues[i] == _subKey)
+					{
+						m_titleTranslator.Text = _playerSetting.Options.Titles[i];
+						break;
+					}
+				}
+			}
 
 			if (_playerSetting.HasIcon)
 				ApplyIcon(_playerSetting.Icon);
