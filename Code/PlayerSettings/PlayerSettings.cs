@@ -19,6 +19,8 @@ namespace GuiToolkit
 				m_playerSettings.Add(playerSetting.Key, playerSetting);
 				if (playerSetting.IsKeyCode)
 					m_keyCodes.Add(playerSetting.GetDefaultValue<KeyCode>(), playerSetting.GetValue<KeyCode>());
+
+				UiEvents.OnPlayerSettingChanged.Invoke(playerSetting);
 			}
 		}
 

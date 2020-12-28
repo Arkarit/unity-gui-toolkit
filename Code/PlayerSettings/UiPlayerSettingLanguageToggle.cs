@@ -17,6 +17,22 @@ namespace GuiToolkit
 
 		private string Language => m_playerSetting.Key;
 
+		public override object Value
+		{
+			get
+			{
+				if (m_playerSetting == null)
+					return false;
+				return LocaManager.Instance.Language == Language;
+			}
+			set
+			{
+				if ((bool) value)
+					LocaManager.Instance.ChangeLanguage(Language);
+				SetToggleByLanguage();
+			}
+		}
+
 		public override void ApplyIcon(string _assetPath)
 		{
 			m_flagImage.sprite = Resources.Load<Sprite>(_assetPath);
@@ -41,8 +57,9 @@ namespace GuiToolkit
 
 		private void SetToggleByLanguage()
 		{
-			m_toggle.IsOn = LocaManager.Instance.Language == Language;
+			m_toggle.IsOn = (bool) Value;
 		}
+
 		private void SetBuiltinFlagIfNecessary()
 		{
 			if (m_playerSetting.HasIcon)

@@ -16,6 +16,18 @@ namespace GuiToolkit
 
 		public bool Initialized => m_playerSetting != null;
 
+		protected override void AddEventListeners()
+		{
+			base.AddEventListeners();
+			UiEvents.OnPlayerSettingChanged.AddListener(OnPlayerSettingChanged);
+		}
+
+		protected override void RemoveEventListeners()
+		{
+			UiEvents.OnPlayerSettingChanged.RemoveListener(OnPlayerSettingChanged);
+			base.RemoveEventListeners();
+		}
+
 		public T GetValue<T>()
 		{
 			if (m_playerSetting == null)
@@ -72,6 +84,16 @@ namespace GuiToolkit
 				ApplyIcon(_playerSetting.Icon);
 
 			Value = _playerSetting.Value;
+		}
+
+		private void OnPlayerSettingChanged( PlayerSetting _playerSetting )
+		{
+			if (_playerSetting.Key == m_playerSetting.Key)
+			{
+				m_playerSetting.InvokeEvents = false;
+				Value = _playerSetting.Value;
+				m_playerSetting.InvokeEvents = true;
+			}
 		}
 
 	}

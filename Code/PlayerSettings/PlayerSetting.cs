@@ -24,11 +24,18 @@ namespace GuiToolkit
 
 		protected object m_value;
 		protected object m_savedValue;
+		protected bool m_invokeEvents = true;
 
 		public string Category => m_category;
 		public string Group => m_group;
 		public string Title => m_title;
 		public string Key => m_key;
+		public bool InvokeEvents
+		{
+			get => m_invokeEvents;
+			set => m_invokeEvents = value;
+		}
+
 		public object Value
 		{
 			get => GetValue(ref m_value);
@@ -37,6 +44,8 @@ namespace GuiToolkit
 				CheckType(value.GetType());
 				m_value = value;
 				Apply();
+				if (InvokeEvents)
+					UiEvents.OnPlayerSettingChanged.Invoke(this);
 			}
 		}
 		public object DefaultValue => GetValue(ref m_defaultValue);

@@ -9,5 +9,7 @@ namespace GuiToolkit
 		public class EventLanguageChanged : UnityEvent<string> {}
 		public static EventLanguageChanged OnLanguageChanged = new EventLanguageChanged();
 
+		public class EventPlayerSettingChanged : UnityEvent<PlayerSetting> {}
+		public static EventPlayerSettingChanged OnPlayerSettingChanged = new EventPlayerSettingChanged();
 	}
 }
