@@ -6,6 +6,7 @@ namespace GuiToolkit
 {
 	public class PlayerSettings
 	{
+		private readonly int FIRST_MOUSE_KEY = (int)(object)KeyCode.Mouse0;
 		private readonly Dictionary<string,PlayerSetting> m_playerSettings = new Dictionary<string,PlayerSetting>();
 		private Dictionary<KeyCode, KeyCode> m_keyCodes = new Dictionary<KeyCode, KeyCode>();
 
@@ -75,6 +76,54 @@ namespace GuiToolkit
 			foreach (var kv in m_playerSettings)
 				kv.Value.Value = kv.Value.DefaultValue;
 		}
+
+		public bool GetKey(KeyCode _originalKeyCode)
+		{
+			if (m_keyCodes.TryGetValue(_originalKeyCode, out KeyCode boundKeyCode))
+			{
+				if (boundKeyCode == KeyCode.None)
+					return false;
+
+				if (IsMouse(boundKeyCode))
+				{
+					int keyCodeInt = (int)(object)boundKeyCode;
+					int mouseNumber = keyCodeInt - FIRST_MOUSE_KEY;
+					return Input.GetMouseButton(mouseNumber);
+				}
+
+				return Input.GetKey(boundKeyCode);
+			}
+
+			return false;
+		}
+
+		public bool GetKeyDown(KeyCode _originalKeyCode)
+		{
+			if (m_keyCodes.TryGetValue(_originalKeyCode, out KeyCode boundKeyCode))
+			{
+				if (boundKeyCode == KeyCode.None)
+					return false;
+
+				if (IsMouse(boundKeyCode))
+				{
+					int keyCodeInt = (int)(object)boundKeyCode;
+					int mouseNumber = keyCodeInt - FIRST_MOUSE_KEY;
+					return Input.GetMouseButton(mouseNumber);
+				}
+
+				return Input.GetKeyDown(boundKeyCode);
+			}
+
+			return false;
+		}
+
+		public static bool IsMouse(KeyCode _keyCode)
+		{
+			return _keyCode >= KeyCode.Mouse0 && _keyCode <= KeyCode.Mouse6;
+		}
+
+
+
 
 
 	}
