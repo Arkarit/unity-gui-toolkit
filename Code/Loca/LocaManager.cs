@@ -28,7 +28,10 @@ namespace GuiToolkit
 			get
 			{
 				if (s_locaManager == null)
+				{
 					s_locaManager = new LocaManagerDefaultImpl();
+					UiEvents.OnLanguageChanged.Invoke(s_locaManager.Language);
+				}
 				return s_locaManager;
 			}
 			set
@@ -37,13 +40,18 @@ namespace GuiToolkit
 			}
 		}
 
-		public LocaManager()
+		protected LocaManager()
 		{
 			string language = PlayerPrefs.GetString(PLAYER_PREFS_KEY, "dev");
-			ChangeLanguage(language);
+			ChangeLanguage(language, false);
 		}
 
 		public bool ChangeLanguage(string _languageId)
+		{
+			return ChangeLanguage(_languageId, true);
+		}
+
+		private bool ChangeLanguage(string _languageId, bool _invokeEvent)
 		{
 			if (Language == _languageId)
 				return true;
@@ -58,7 +66,8 @@ namespace GuiToolkit
 				ChangeLanguageImpl(_languageId);
 			}
 
-			UiEvents.OnLanguageChanged.Invoke(_languageId);
+			if (_invokeEvent)
+				UiEvents.OnLanguageChanged.Invoke(_languageId);
 
 			return true;
 		}
