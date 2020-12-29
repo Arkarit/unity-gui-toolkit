@@ -16,7 +16,7 @@ namespace GuiToolkit
 		[SerializeField] protected UiPlayerSettingLanguageToggle m_languagePrefab;
 		[SerializeField] protected UiPlayerSettingSlider m_sliderPrefab;
 		[SerializeField] protected UiPlayerSettingToggle m_togglePrefab;
-		[SerializeField] protected UiPlayerSettingToggle m_radioPrefab;
+		[SerializeField] protected UiPlayerSettingRadio m_radioPrefab;
 
 		protected PlayerSettings m_playerSettings;
 

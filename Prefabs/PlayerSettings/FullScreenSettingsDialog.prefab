@@ -75,7 +75,7 @@ MonoBehaviour:
     type: 3}
   m_togglePrefab: {fileID: 7396573769442143020, guid: 2a99be027eca11f428bec269d3de1bf3,
     type: 3}
-  m_radioPrefab: {fileID: 4606715671786783818, guid: dffc64cfb8c59a8459afe98bfcb33b78,
+  m_radioPrefab: {fileID: 2345699468765808628, guid: dffc64cfb8c59a8459afe98bfcb33b78,
     type: 3}
 --- !u!114 &1836853308286857877
 MonoBehaviour:
