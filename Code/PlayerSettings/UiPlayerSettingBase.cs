@@ -109,7 +109,7 @@ namespace GuiToolkit
 			Value = _playerSetting.Value;
 		}
 
-		private void OnPlayerSettingChanged( PlayerSetting _playerSetting )
+		protected virtual void OnPlayerSettingChanged( PlayerSetting _playerSetting )
 		{
 			if (!Initialized)
 				return;

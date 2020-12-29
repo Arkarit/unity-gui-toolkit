@@ -14,15 +14,15 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			m_button.OnClick.AddListener(OnValueChanged);
+			m_button.OnClick.AddListener(OnClick);
 		}
 
 		protected override void OnDisable()
 		{
-			m_button.OnClick.RemoveListener(OnValueChanged);
+			m_button.OnClick.RemoveListener(OnClick);
 			base.OnDisable();
 		}
 
-		protected virtual void OnValueChanged() {}
+		protected virtual void OnClick(){}
 	}
 }
