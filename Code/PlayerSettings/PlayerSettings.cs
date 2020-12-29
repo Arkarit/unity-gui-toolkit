@@ -9,6 +9,17 @@ namespace GuiToolkit
 		private readonly Dictionary<string,PlayerSetting> m_playerSettings = new Dictionary<string,PlayerSetting>();
 		private Dictionary<KeyCode, KeyCode> m_keyCodes = new Dictionary<KeyCode, KeyCode>();
 
+		private static PlayerSettings s_instance;
+		public static PlayerSettings Instance
+		{
+			get
+			{
+				if (s_instance == null)
+					s_instance = new PlayerSettings();
+				return s_instance;
+			}
+		}
+
 		public void Add(List<PlayerSetting> _playerSettings)
 		{
 			foreach (PlayerSetting playerSetting in _playerSettings )
@@ -64,5 +75,7 @@ namespace GuiToolkit
 			foreach (var kv in m_playerSettings)
 				kv.Value.Value = kv.Value.DefaultValue;
 		}
+
+
 	}
 }

@@ -37,18 +37,17 @@ namespace GuiToolkit
 			if (isActive)
 				SetDelayed(true);
 
-			OnValueChanged.AddListener(OnValueChangedListener);
+			base.OnValueChanged.AddListener(this.OnValueChanged);
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			OnValueChanged.RemoveListener(OnValueChangedListener);
+			base.OnValueChanged.RemoveListener(this.OnValueChanged);
 		}
 
-		private void OnValueChangedListener( bool _active )
+		private void OnValueChanged( bool _active )
 		{
-			PlayerPrefs.SetInt(m_languageToken, _active ? 1 : 0);
 			if (_active)
 			{
 				LocaManager.Instance.ChangeLanguage(m_languageToken);

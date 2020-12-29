@@ -10,47 +10,25 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	public class UiPlayerSettingLanguageToggle : UiPlayerSettingBase
+	public class UiPlayerSettingLanguageToggle : UiPlayerSettingRadio
 	{
-		[SerializeField]
-		protected UiToggle m_toggle;
-
 		[SerializeField]
 		private Image m_flagImage;
 
-		public UiToggle UiToggle => m_toggle;
-		public override Toggle Toggle => m_toggle.Toggle;
 		protected override bool NeedsLanguageChangeCallback => true;
-
-		private string Language => m_subKey;
 
 		public override object Value
 		{
 			get
 			{
-				if (m_playerSetting == null)
-					return false;
-				return LocaManager.Instance.Language == Language;
+				return LocaManager.Instance.Language == SubKey;
 			}
 			set
 			{
+				if ((string) value == SubKey)
+					LocaManager.Instance.ChangeLanguage(SubKey);
 				base.Value = value;
-				if ((string) value == Language)
-					LocaManager.Instance.ChangeLanguage(Language);
-				SetToggleByLanguage();
 			}
-		}
-
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-			m_toggle.OnValueChanged.AddListener(OnValueChanged);
-		}
-
-		protected override void OnDisable()
-		{
-			m_toggle.OnValueChanged.RemoveListener(OnValueChanged);
-			base.OnDisable();
 		}
 
 		public override void ApplyIcon(string _assetPath)
@@ -58,12 +36,6 @@ namespace GuiToolkit
 			m_flagImage.sprite = Resources.Load<Sprite>(_assetPath);
 			if (m_flagImage.sprite == null)
 				Debug.LogError($"Sprite '{_assetPath}' not found!");
-		}
-
-		protected void OnValueChanged( bool _active )
-		{
-			if (_active && Initialized)
-				Value = Language;
 		}
 
 		protected override void OnLanguageChanged( string _languageId )
@@ -76,12 +48,7 @@ namespace GuiToolkit
 			base.SetData(_gameObjectNamePrefix, _playerSetting, _subKey);
 			if (!_playerSetting.HasIcon)
 				SetBuiltinFlagIfNecessary();
-			SetToggleByLanguage();
-		}
-
-		private void SetToggleByLanguage()
-		{
-			m_toggle.IsOn = (bool) Value;
+			SetToggleByMatchingSubkey();
 		}
 
 		private void SetBuiltinFlagIfNecessary()
@@ -89,7 +56,7 @@ namespace GuiToolkit
 			if (m_playerSetting.HasIcon)
 				return;
 
-			string assetPath = "Flags/" + Language;
+			string assetPath = "Flags/" + SubKey;
 			m_flagImage.sprite = Resources.Load<Sprite>(assetPath);
 			if (m_flagImage.sprite == null)
 				Debug.LogError($"Sprite '{assetPath}' not found!");

@@ -40,7 +40,7 @@ namespace GuiToolkit
 
 		public override void Show( bool _instant = false, Action _onFinish = null )
 		{
-			m_playerSettings = UiMain.Instance.PlayerSettings;
+			m_playerSettings = PlayerSettings.Instance;
 			m_playerSettings.TempSaveValues();
 			Build();
 			base.Show(_instant, _onFinish);
@@ -103,15 +103,18 @@ namespace GuiToolkit
 
 		private void InstantiateMatchingEntry( PlayerSetting _playerSetting, RectTransform _parent, ToggleGroup _toggleGroup )
 		{
-			if (_playerSetting.IsLanguage)
+			if (_playerSetting.IsRadio)
 			{
 				foreach (string s in _playerSetting.Options.StringValues)
-					InstantiateMatchingEntry(_playerSetting, m_languagePrefab, _parent, _toggleGroup, "PlayerSettingLanguage_", s);
+				{
+					if (_playerSetting.IsLanguage)
+						InstantiateMatchingEntry(_playerSetting, m_languagePrefab, _parent, _toggleGroup, "PlayerSettingLanguage_", s);
+					else
+						InstantiateMatchingEntry(_playerSetting, m_radioPrefab, _parent, _toggleGroup, "PlayerSettingRadio_", s);
+				}
 			}
 			else if (_playerSetting.IsFloat)
 				InstantiateMatchingEntry(_playerSetting, m_sliderPrefab, _parent, _toggleGroup, "PlayerSettingSlider_");
-			else if (_playerSetting.IsRadio)
-				InstantiateMatchingEntry(_playerSetting, m_radioPrefab, _parent, _toggleGroup, "PlayerSettingRadio_");
 			else if (_playerSetting.IsBool)
 				InstantiateMatchingEntry(_playerSetting, m_togglePrefab, _parent, _toggleGroup, "PlayerSettingCheck_");
 			else if (_playerSetting.IsKeyCode)

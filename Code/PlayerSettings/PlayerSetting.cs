@@ -80,7 +80,7 @@ namespace GuiToolkit
 			System.Type type = _defaultValue.GetType();
 			m_category = _category;
 			m_group = _group;
-			m_isRadio = m_options.Type == EPlayerSettingType.Radio;
+			m_isRadio = m_options.Type == EPlayerSettingType.Radio || m_options.Type == EPlayerSettingType.Language;
 			m_isLanguage = m_options.Type == EPlayerSettingType.Language;
 			m_title = _title;
 			m_key = string.IsNullOrEmpty(m_options.Key) ? _title : m_options.Key;
@@ -96,6 +96,15 @@ namespace GuiToolkit
 				m_value = PlayerPrefs.GetString(Key, Convert.ToString(DefaultValue));
 			else
 				Debug.LogError($"Unknown type for player setting '{Key}': {type.Name}");
+
+			if (IsLanguage)
+				UiEvents.OnLanguageChanged.AddListener(OnLanguageChanged);
+		}
+
+		~PlayerSetting()
+		{
+			if (IsLanguage)
+				UiEvents.OnLanguageChanged.RemoveListener(OnLanguageChanged);
 		}
 
 		public T GetValue<T>()
@@ -152,5 +161,12 @@ namespace GuiToolkit
 			if (_t != m_type)
 				throw new ArgumentException($"Wrong value type in Player Setting '{m_key}': Should be '{m_type.Name}', is '{_t.Name}'");
 		}
+
+		private void OnLanguageChanged( string _language )
+		{
+			Value = _language;
+		}
+
+
 	}
 }

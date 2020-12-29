@@ -14,6 +14,7 @@ namespace GuiToolkit
 
 		protected PlayerSetting m_playerSetting;
 		protected string m_subKey;
+		protected string m_title;
 
 		public bool Initialized => m_playerSetting != null;
 
@@ -79,23 +80,28 @@ namespace GuiToolkit
 		{
 			m_subKey = _subKey;
 			m_playerSetting = _playerSetting;
-			gameObject.name = _gameObjectNamePrefix + _playerSetting.Title;
 
 			if (string.IsNullOrEmpty(_subKey))
-				m_titleTranslator.Text = _playerSetting.Title;
+			{
+				m_title = m_titleTranslator.Text = _playerSetting.Title;
+			}
 			else if (_playerSetting.Options.Titles == null)
-				m_titleTranslator.Text = _subKey;
+			{
+				m_title = m_titleTranslator.Text = _subKey;
+			}
 			else
 			{
 				for (int i=0; i<_playerSetting.Options.StringValues.Count; i++)
 				{
 					if (_playerSetting.Options.StringValues[i] == _subKey)
 					{
-						m_titleTranslator.Text = _playerSetting.Options.Titles[i];
+						m_title = m_titleTranslator.Text = _playerSetting.Options.Titles[i];
 						break;
 					}
 				}
 			}
+
+			gameObject.name = _gameObjectNamePrefix + m_title;
 
 			if (_playerSetting.HasIcon)
 				ApplyIcon(_playerSetting.Icon);
@@ -105,6 +111,9 @@ namespace GuiToolkit
 
 		private void OnPlayerSettingChanged( PlayerSetting _playerSetting )
 		{
+			if (!Initialized)
+				return;
+
 			if (_playerSetting.Key == m_playerSetting.Key)
 			{
 				m_playerSetting.InvokeEvents = false;
