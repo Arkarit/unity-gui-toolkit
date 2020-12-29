@@ -210,14 +210,6 @@ namespace GuiToolkit
 
 		#endregion
 
-		#region "Player Settings"
-		[Obsolete]
-		[SerializeField]
-		private KeyBindings m_keyBindings = new KeyBindings();
-		[Obsolete]
-		public KeyBindings KeyBindings => m_keyBindings;
-		#endregion
-
 		#region "Builtin Dialogs"
 
 		[SerializeField]
@@ -232,9 +224,6 @@ namespace GuiToolkit
 		[SerializeField]
 		[FormerlySerializedAs("m_splashMessagePrefab")]
 		private UiToastMessageView m_toastMessageViewPrefab;
-
-		[SerializeField]
-		private UiKeyBindingRequester m_keyBindingsRequesterPrefab;
 
 		[SerializeField]
 		private UiKeyPressRequester m_keyPressRequester;
@@ -274,14 +263,6 @@ namespace GuiToolkit
 			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _placeholderText, _inputText, _yesText, _noText);
-		}
-
-		public void KeyBindingsRequester( string _title = "Key Bindings", bool _allowOutsideTap = false, UnityAction _onOk = null,
-			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
-		{
-			UiKeyBindingRequester requester = CreateView(m_keyBindingsRequesterPrefab);
-			Debug.Assert(requester);
-			requester.Requester(_title, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
 		}
 
 		public void KeyPressRequester( UnityAction<KeyCode> _onEvent, string _title = null )

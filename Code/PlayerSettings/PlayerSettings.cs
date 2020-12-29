@@ -84,7 +84,7 @@ namespace GuiToolkit
 				if (boundKeyCode == KeyCode.None)
 					return false;
 
-				if (IsMouse(boundKeyCode))
+				if (UiUtility.IsMouse(boundKeyCode))
 				{
 					int keyCodeInt = (int)(object)boundKeyCode;
 					int mouseNumber = keyCodeInt - FIRST_MOUSE_KEY;
@@ -104,7 +104,7 @@ namespace GuiToolkit
 				if (boundKeyCode == KeyCode.None)
 					return false;
 
-				if (IsMouse(boundKeyCode))
+				if (UiUtility.IsMouse(boundKeyCode))
 				{
 					int keyCodeInt = (int)(object)boundKeyCode;
 					int mouseNumber = keyCodeInt - FIRST_MOUSE_KEY;
@@ -116,15 +116,6 @@ namespace GuiToolkit
 
 			return false;
 		}
-
-		public static bool IsMouse(KeyCode _keyCode)
-		{
-			return _keyCode >= KeyCode.Mouse0 && _keyCode <= KeyCode.Mouse6;
-		}
-
-
-
-
 
 	}
 }

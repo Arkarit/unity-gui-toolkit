@@ -39,7 +39,7 @@ namespace GuiToolkit
 		{
 			Event e = Event.current;
 
-			KeyCode k = KeyBindings.EventToKeyCode(e);
+			KeyCode k = UiUtility.EventToKeyCode(e);
 			if (m_onEvent == null || k == KeyCode.None)
 				return;
 
@@ -47,7 +47,7 @@ namespace GuiToolkit
 				m_onEvent.Invoke(k);
 
 			m_onEvent = null;
-			if (!KeyBindings.IsMouse(k))
+			if (!UiUtility.IsMouse(k))
 				Hide();
 		}
 
