@@ -126,6 +126,14 @@ namespace GuiToolkit
 			return false;
 		}
 
+		public bool HasUnboundKeys()
+		{
+			foreach (var kv in m_keyCodes)
+				if (kv.Value == KeyCode.None)
+					return true;
+			return false;
+		}
+
 		// We need to update our key code dict, when a key binding was changed
 		private void OnPlayerSettingChanged( PlayerSetting _playerSetting )
 		{
