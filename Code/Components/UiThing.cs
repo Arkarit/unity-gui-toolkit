@@ -76,7 +76,7 @@ namespace GuiToolkit
 			return LocaManager.Instance.Translate(_singular, _plural, _n);
 		}
 		/// Not translated, only for POT creation
-		protected string __(string _s)
+		protected static string __(string _s)
 		{
 			return _s;
 		}
