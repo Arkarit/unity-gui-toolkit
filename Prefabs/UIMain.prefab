@@ -166,8 +166,6 @@ MonoBehaviour:
     type: 3}
   m_toastMessageViewPrefab: {fileID: 4628251921322500096, guid: f2f503a7e51d1b04b97312941698d8e1,
     type: 3}
-  m_keyBindingsRequesterPrefab: {fileID: 3201244151496174236, guid: a122f4085200ec143bcc2211164f6430,
-    type: 3}
   m_keyPressRequester: {fileID: 9179443079266827376, guid: 637592a4cbdecd047a54ddf9d2be9da9,
     type: 3}
   m_camerasToDisableWhenFullScreenView: []
