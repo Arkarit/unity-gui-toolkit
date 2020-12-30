@@ -30,6 +30,23 @@ namespace GuiToolkit
 			}
 		}
 
+		public PlayerSetting GetPlayerSetting(string _key)
+		{
+			if (m_playerSettings.TryGetValue(_key, out PlayerSetting result))
+				return result;
+
+			return null;
+		}
+
+		public T GetValue<T>(string _key)
+		{
+			if (m_playerSettings.TryGetValue(_key, out PlayerSetting ps))
+				return ps.GetValue<T>();
+
+			Debug.LogError($"Player setting with key '{_key}' not found");
+			return default;
+		}
+
 		public void Add(List<PlayerSetting> _playerSettings)
 		{
 			foreach (PlayerSetting playerSetting in _playerSettings )
