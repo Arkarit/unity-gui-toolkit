@@ -81,6 +81,8 @@ namespace GuiToolkit
 			return _s;
 		}
 
+		protected virtual void Start() {}
+
 		/// Installs event listeners, if ReceiveEventsWhenDisabled
 		/// Also ensure that the game object is always in UI layer
 		protected virtual void Awake()
