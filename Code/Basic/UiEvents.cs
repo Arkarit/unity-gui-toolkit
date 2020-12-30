@@ -6,10 +6,7 @@ namespace GuiToolkit
 {
 	public static class UiEvents
 	{
-		public class EventLanguageChanged : UnityEvent<string> {}
-		public static EventLanguageChanged OnLanguageChanged = new EventLanguageChanged();
-
-		public class EventPlayerSettingChanged : UnityEvent<PlayerSetting> {}
-		public static EventPlayerSettingChanged OnPlayerSettingChanged = new EventPlayerSettingChanged();
+		public static CEvent<string>			OnLanguageChanged = new CEvent<string>();
+		public static CEvent<PlayerSetting>		OnPlayerSettingChanged = new CEvent<PlayerSetting>();
 	}
 }
