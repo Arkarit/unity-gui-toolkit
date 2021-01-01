@@ -38,9 +38,18 @@ namespace GuiToolkit
 			base.Value = _value;
 		}
 
-		public override void ApplyIcon(string _assetPath)
+		public override void ApplyIcons(List<string> _assetPaths)
 		{
-			m_slider.Icon = _assetPath;
+			if (_assetPaths.Count == 1)
+			{
+				_assetPaths = _assetPaths.Clone();
+				_assetPaths.Add(_assetPaths[0]);
+				m_slider.FirstIconSmall = true;
+			}
+			else
+				m_slider.FirstIconSmall = false;
+
+			m_slider.Icons = _assetPaths;
 		}
 	}
 }

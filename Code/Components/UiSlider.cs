@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.UI.Slider;
@@ -7,14 +8,45 @@ namespace GuiToolkit
 {
 	public class UiSlider : UiThing
 	{
-		[SerializeField] protected UiToggle m_optionalOnOffToggle;
-		[SerializeField] protected UiButton m_optionalFullVolumeButton;
+		private const string LAYOUT_TOOLTIP = "The first icon can be set small with FirstIconSmall setter (Useful e.g. for volume sliders.) Set these fields if you want to use this.";
+		[Header("Mandatory members")]
+		[Tooltip("Unity slider component (mandatory)")]
 		[SerializeField] protected Slider m_slider;
-		[SerializeField] protected UiImage[] m_uiImagesToDisable;
-		[SerializeField] protected Image[] m_iconImages;
+
+		[Header("Buttons/toggles to set the slider to 0/1 on click")]
+		[Tooltip("This toggle can set the slider to 0 and disable slider elements")]
+		[SerializeField] protected UiToggle m_optionalOnOffToggle;
+		[Tooltip("Slider elements to disable when toggled off")]
+		[SerializeField] protected UiImage[] m_optionalUiImagesToDisableWhenOff;
+
+		[Tooltip("Button to set the slider to 0")]
+		[SerializeField] protected UiButton m_optionalNoVolumeButton;
+		[Tooltip("Button to set the slider to 1")]
+		[SerializeField] protected UiButton m_optionalFullVolumeButton;
+
+		[Header("Icons")]
+		[Tooltip("Icon images. Needs to be set if 'Icons' getter/setter is used.")]
+		[SerializeField] protected Image[] m_optionalIconImages;
+
+		[Space]
+		[Tooltip(LAYOUT_TOOLTIP)]
+		[SerializeField] protected LayoutElement m_optionalFirstIconLayoutElement;
+		[Tooltip(LAYOUT_TOOLTIP)]
+		[SerializeField] protected LayoutElement m_optionalFirstSpacerLayoutElement;
+		[Tooltip(LAYOUT_TOOLTIP)]
+		[SerializeField] protected float m_optionalFirstIconSizeWhenSmall = 35;
+		[Tooltip(LAYOUT_TOOLTIP)]
+		[SerializeField] protected float m_optionalFirstIconSizeWhenBig = 80;
+		[Tooltip(LAYOUT_TOOLTIP)]
+		[SerializeField] protected float m_optionalFirstSpacerSizeWhenSmall = 40;
+		[Tooltip(LAYOUT_TOOLTIP)]
+		[SerializeField] protected float m_optionalFirstSpacerSizeWhenBig = 30;
+		[Tooltip(LAYOUT_TOOLTIP)]
+		[SerializeField] protected bool m_firstIconSmall;
+
 
 		private float m_savedSliderVal;
-		private string m_icon;
+		private List<string> m_icons;
 
 		public SliderEvent OnValueChanged
 		{
@@ -28,26 +60,85 @@ namespace GuiToolkit
 			set => m_slider.value = value;
 		}
 
-		public string Icon
+		public bool FirstIconSmall
 		{
-			get => m_icon;
+			get => m_firstIconSmall;
 			set
 			{
-				m_icon = value;
-				Sprite sprite = Resources.Load<Sprite>(m_icon);
-				if (sprite == null)
+				m_firstIconSmall = value;
+				if (m_optionalFirstIconLayoutElement == null || m_optionalFirstSpacerLayoutElement == null)
 				{
-					Debug.LogError($"Sprite '{m_icon}' not found!");
+					Debug.LogError("Attempt to set first icon big/small, but necessary members were not set");
 					return;
 				}
-				foreach (var image in m_iconImages)
-					image.sprite = sprite;
+				if (m_slider.direction == Direction.LeftToRight || m_slider.direction == Direction.RightToLeft)
+				{
+					m_optionalFirstIconLayoutElement.minWidth = m_firstIconSmall ? m_optionalFirstIconSizeWhenSmall : m_optionalFirstIconSizeWhenBig;
+					m_optionalFirstSpacerLayoutElement.minWidth = m_firstIconSmall ? m_optionalFirstSpacerSizeWhenSmall : m_optionalFirstSpacerSizeWhenBig;
+				}
+				else
+				{
+					m_optionalFirstIconLayoutElement.minHeight = m_firstIconSmall ? m_optionalFirstIconSizeWhenSmall : m_optionalFirstIconSizeWhenBig;
+					m_optionalFirstSpacerLayoutElement.minHeight = m_firstIconSmall ? m_optionalFirstSpacerSizeWhenSmall : m_optionalFirstSpacerSizeWhenBig;
+				}
 			}
+		}
+
+		public List<string> Icons
+		{
+			get => m_icons;
+			set
+			{
+				if (m_optionalIconImages == null)
+					m_optionalIconImages = new Image[0];
+
+				foreach (var image in m_optionalIconImages)
+					image.gameObject.SetActive(false);
+
+				m_icons = value;
+				if (m_icons == null)
+					return;
+
+				for (int i=0; i<m_icons.Count; i++)
+				{
+					if (i >= m_optionalIconImages.Length)
+					{
+						Debug.LogWarning($"Attempting to set icon '{m_icons[i]}', but only {m_optionalIconImages.Length} icon images have been set");
+						return;
+					}
+					if (m_icons[i] == null)
+						continue;
+
+					Sprite sprite = LoadIcon(m_icons[i]);
+					if (sprite != null)
+					{
+						m_optionalIconImages[i].sprite = sprite;
+						m_optionalIconImages[i].gameObject.SetActive(true);
+					}
+				}
+			}
+		}
+
+		private Sprite LoadIcon(string _assetPath)
+		{
+			if (string.IsNullOrEmpty(_assetPath))
+				return null;
+
+			Sprite result = Resources.Load<Sprite>(_assetPath);
+			if (result == null)
+			{
+				Debug.LogError($"Sprite '{_assetPath}' not found!");
+				return null;
+			}
+			return result;
 		}
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
+#if (UNITY_EDITOR)
+			Validate();
+#endif
 
 			m_savedSliderVal = m_slider.value;
 
@@ -75,9 +166,9 @@ namespace GuiToolkit
 			if (m_optionalFullVolumeButton != null)
 				m_optionalFullVolumeButton.Enabled = _value;
 
-			if (m_uiImagesToDisable != null)
+			if (m_optionalUiImagesToDisableWhenOff != null)
 			{
-				foreach (var uiImage in m_uiImagesToDisable)
+				foreach (var uiImage in m_optionalUiImagesToDisableWhenOff)
 					uiImage.Enabled = _value;
 			}
 
@@ -94,6 +185,12 @@ namespace GuiToolkit
 		protected virtual void OnFullVolumeClick()
 		{
 			m_slider.value = 1;
+		}
+
+		private void Validate()
+		{
+			if (m_optionalNoVolumeButton != null && m_optionalOnOffToggle != null)
+				throw new Exception("Only one of optional full volume button or optional on off toggle may be set (or none at all)");
 		}
 
 	}

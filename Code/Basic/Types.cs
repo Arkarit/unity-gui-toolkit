@@ -113,5 +113,7 @@ namespace GuiToolkit
 		public const string SEND			= "Icons/UITK_Send";
 		public const string TARGET			= "Icons/UITK_Target";
 		public const string X				= "Icons/UITK_X";
+		public const string FAST			= "Icons/UITK_Fast";
+		public const string SLOW			= "Icons/UITK_Slow";
 	}
 }

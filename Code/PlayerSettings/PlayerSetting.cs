@@ -15,7 +15,7 @@ namespace GuiToolkit
 	{
 		public EPlayerSettingType Type = EPlayerSettingType.Auto;
 		public string Key = null;
-		public string Icon = null;
+		public List<string> Icons;
 		public List<string> Titles;
 		public List<string> StringValues;
 	}
@@ -31,7 +31,7 @@ namespace GuiToolkit
 		[SerializeField] protected System.Type m_type;
 		[SerializeField] protected bool m_isRadio;
 		[SerializeField] protected bool m_isLanguage;
-		[SerializeField] protected string m_icon;
+		[SerializeField] protected List<string> m_icons;
 
 		protected object m_value;
 		protected object m_savedValue;
@@ -70,8 +70,8 @@ namespace GuiToolkit
 		public bool IsFloat => m_type == typeof(float);
 		public bool IsBool => m_type == typeof(bool);
 		public bool IsString => m_type == typeof(string);
-		public bool HasIcon => !string.IsNullOrEmpty(m_icon);
-		public string Icon => m_icon;
+		public bool HasIcons => m_icons != null;
+		public List<string> Icons => m_icons;
 
 		public PlayerSetting( string _category, string _group, string _title, object _defaultValue, PlayerSettingOptions _options = null )
 		{
@@ -85,7 +85,7 @@ namespace GuiToolkit
 			m_title = _title;
 			m_key = string.IsNullOrEmpty(m_options.Key) ? _title : m_options.Key;
 			m_defaultValue = _defaultValue;
-			m_icon = m_options.Icon;
+			m_icons = m_options.Icons;
 			m_type = type;
 
 			if (type == typeof(int) || type == typeof(bool) || type.IsEnum)

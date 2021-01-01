@@ -74,7 +74,7 @@ namespace GuiToolkit
 
 		public virtual Toggle Toggle => null;
 
-		public virtual void ApplyIcon(string _assetPath) {}
+		public virtual void ApplyIcons(List<string> _assetPaths) {}
 
 		public virtual void SetData(string _gameObjectNamePrefix, PlayerSetting _playerSetting, string _subKey)
 		{
@@ -103,8 +103,8 @@ namespace GuiToolkit
 
 			gameObject.name = _gameObjectNamePrefix + m_title;
 
-			if (_playerSetting.HasIcon)
-				ApplyIcon(_playerSetting.Icon);
+			if (_playerSetting.HasIcons)
+				ApplyIcons(_playerSetting.Icons);
 
 			Value = _playerSetting.Value;
 		}

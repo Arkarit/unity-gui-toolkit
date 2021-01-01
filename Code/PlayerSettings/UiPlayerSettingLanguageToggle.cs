@@ -31,11 +31,16 @@ namespace GuiToolkit
 			}
 		}
 
-		public override void ApplyIcon(string _assetPath)
+		public override void ApplyIcons(List<string> _assetPaths)
 		{
-			m_flagImage.sprite = Resources.Load<Sprite>(_assetPath);
+			if (_assetPaths.Count != 1)
+			{
+				Debug.LogError($"{GetType().Name} can only have one icon!");
+				return;
+			}
+			m_flagImage.sprite = Resources.Load<Sprite>(_assetPaths[0]);
 			if (m_flagImage.sprite == null)
-				Debug.LogError($"Sprite '{_assetPath}' not found!");
+				Debug.LogError($"Sprite '{_assetPaths[0]}' not found!");
 		}
 
 		protected override void OnLanguageChanged( string _languageId )
@@ -46,14 +51,14 @@ namespace GuiToolkit
 		public override void SetData(string _gameObjectNamePrefix, PlayerSetting _playerSetting, string _subKey)
 		{
 			base.SetData(_gameObjectNamePrefix, _playerSetting, _subKey);
-			if (!_playerSetting.HasIcon)
+			if (!_playerSetting.HasIcons)
 				SetBuiltinFlagIfNecessary();
 			SetToggleByMatchingSubkey();
 		}
 
 		private void SetBuiltinFlagIfNecessary()
 		{
-			if (m_playerSetting.HasIcon)
+			if (m_playerSetting.HasIcons)
 				return;
 
 			string assetPath = "Flags/" + SubKey;
