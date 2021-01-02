@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +20,15 @@ namespace GuiToolkit
 		[SerializeField] protected UiPlayerSettingRadio m_radioPrefab;
 
 		protected PlayerSettings m_playerSettings;
+		protected readonly Dictionary<string,List<UiPlayerSettingBase>> m_uiPlayerSettings = new Dictionary<string, List<UiPlayerSettingBase>>();
+
+		public Dictionary<string,List<UiPlayerSettingBase>> Entries => m_uiPlayerSettings;
+		public List<UiPlayerSettingBase> GetEntries(string _key)
+		{
+			List<UiPlayerSettingBase> result = null;
+			m_uiPlayerSettings.TryGetValue(_key, out result);
+			return result;
+		}
 
 		public override bool AutoDestroyOnHide => true;
 
@@ -43,7 +53,11 @@ namespace GuiToolkit
 			m_playerSettings = PlayerSettings.Instance;
 			m_playerSettings.TempSaveValues();
 			Build();
-			base.Show(_instant, _onFinish);
+			base.Show(_instant, () => 
+			{
+				m_uiPlayerSettings.Clear();
+				_onFinish?.Invoke();
+			});
 			if (m_tabInfos.Count > 0)
 				GotoPage(0);
 		}
@@ -125,10 +139,19 @@ namespace GuiToolkit
 
 		private void InstantiateMatchingEntry(PlayerSetting _playerSetting, UiPlayerSettingBase _prefab, RectTransform _parent, ToggleGroup _toggleGroup, string _gameObjectNamePrefix, string _subKey = null )
 		{
-			UiPlayerSettingBase result = Instantiate(_prefab, _parent);
-			result.SetData(_gameObjectNamePrefix, _playerSetting, _subKey );
-			if (_toggleGroup && result.Toggle != null)
-				result.Toggle.group = _toggleGroup;
+			UiPlayerSettingBase entry = Instantiate(_prefab, _parent);
+			entry.SetData(_gameObjectNamePrefix, _playerSetting, _subKey );
+			if (_toggleGroup && entry.Toggle != null)
+				entry.Toggle.group = _toggleGroup;
+
+			if (m_uiPlayerSettings.TryGetValue(_playerSetting.Key, out List<UiPlayerSettingBase> _list))
+			{
+				_list.Add(entry);
+				return;
+			}
+			List<UiPlayerSettingBase> list = new List<UiPlayerSettingBase>();
+			list.Add(entry);
+			m_uiPlayerSettings.Add(_playerSetting.Key, list);
 		}
 
 		private void ClearDialogEntries()
@@ -136,6 +159,7 @@ namespace GuiToolkit
 			m_tabContentContainer.DestroyAllChildren();
 			m_pageContentContainer.DestroyAllChildren();
 			m_tabInfos.Clear();
+			m_uiPlayerSettings.Clear();
 		}
 
 		protected virtual void OnRestoreDefaultsButton()

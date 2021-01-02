@@ -9,14 +9,29 @@ namespace GuiToolkit
 {
 	public abstract class UiPlayerSettingBase : UiThing
 	{
-		[SerializeField]
-		protected UiTMPTranslator m_titleTranslator;
+		[SerializeField] protected UiTMPTranslator m_titleTranslator;
+		[SerializeField] protected UiImage[] m_imagesToDisable;
+		[SerializeField] protected UiButton[] m_buttonsToMakeNonInteractive;
 
 		protected PlayerSetting m_playerSetting;
 		protected string m_subKey;
 		protected string m_title;
+		protected bool m_enabled = true;
 
 		public bool Initialized => m_playerSetting != null;
+
+		public bool Enabled
+		{
+			get => m_enabled;
+			set
+			{
+				if (m_enabled == value)
+					return;
+				m_enabled = value;
+				foreach (var image in m_imagesToDisable)
+					image.Enabled = m_enabled;
+			}
+		}
 
 		protected override void AddEventListeners()
 		{

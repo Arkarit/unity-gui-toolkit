@@ -228,10 +228,13 @@ namespace GuiToolkit
 		[SerializeField]
 		private UiKeyPressRequester m_keyPressRequester;
 
+		private UiPlayerSettingsDialog m_playerSettingsDialog;
+		public UiPlayerSettingsDialog PlayerSettingsDialog => m_playerSettingsDialog;
+
 		public void ShowSettingsDialog()
 		{
-			UiPlayerSettingsDialog settingsDialog = CreateView(m_settingsDialogPrefab);
-			settingsDialog.Show();
+			UiPlayerSettingsDialog m_playerSettingsDialog = CreateView(m_settingsDialogPrefab);
+			m_playerSettingsDialog.Show(false, () => m_playerSettingsDialog = null);
 		}
 
 		public void ShowToastMessageView(string _message, float _duration = 2)
