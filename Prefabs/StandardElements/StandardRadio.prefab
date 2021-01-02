@@ -128,7 +128,7 @@ MonoBehaviour:
   m_topRight: {x: 0.0802633, y: 0.00000043509522}
   m_bottomLeft: {x: -0.044474497, y: -0.0039375504}
   m_bottomRight: {x: 0, y: 0}
-  m_mirrorDirection: 0
+  m_mirrorAxisFlags: 0
   m_absoluteValues: 0
 --- !u!114 &848949050022681212
 MonoBehaviour:
@@ -233,7 +233,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_evaluateMode: 0
+  m_evaluateMode: 1
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
   m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
@@ -340,6 +340,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_simpleAnimation: {fileID: 848949050906171036}
   m_audioSource: {fileID: 0}
+  m_uiImage: {fileID: 0}
+  m_enabled: 1
 --- !u!114 &848949050906171036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -365,6 +367,7 @@ MonoBehaviour:
   m_supportViewAnimations: 0
   m_support: 4096
   m_target: {fileID: 848949050906171038}
+  m_markTargetForLayoutRebuild: 0
   m_canvasScaler: {fileID: 0}
   m_canvasRectTransform: {fileID: 0}
   m_scaleByCanvasScaler: 0

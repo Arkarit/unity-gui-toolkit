@@ -394,6 +394,21 @@ namespace GuiToolkit
 			return _this.AddComponent<T>();
 		}
 
+		public static T GetOrCreateComponentOnChild<T>(this Component _this, GameObject _parent, string _childName ) where T : Component
+		{
+			Transform child = _this.transform.Find(_childName);
+			if (child == null)
+			{
+				GameObject go = new GameObject(_childName);
+				go.transform.SetParent(_parent.transform);
+				LayoutElement le = go.AddComponent<LayoutElement>();
+				le.ignoreLayout = true;
+				child = go.transform;
+			}
+
+			return child.GetOrCreateComponent<T>();
+		}
+			 
 		public static T CopyFrom<T>( this Component _this, T _other ) where T : Component
 		{
 			Type type = _this.GetType();

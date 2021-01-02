@@ -144,6 +144,9 @@ namespace GuiToolkit
 
 			if (m_optionalOnOffToggle != null)
 				m_optionalOnOffToggle.OnValueChanged.AddListener(OnOnOffValueChanged);
+			else if (m_optionalNoVolumeButton != null)
+				m_optionalNoVolumeButton.OnClick.AddListener(OnNoVolumeButton);
+
 			if (m_optionalFullVolumeButton != null)
 				m_optionalFullVolumeButton.OnClick.AddListener(OnFullVolumeClick);
 		}
@@ -152,6 +155,9 @@ namespace GuiToolkit
 		{
 			if (m_optionalOnOffToggle != null)
 				m_optionalOnOffToggle.OnValueChanged.RemoveListener(OnOnOffValueChanged);
+			else if (m_optionalNoVolumeButton != null)
+				m_optionalNoVolumeButton.OnClick.RemoveListener(OnNoVolumeButton);
+
 			if (m_optionalFullVolumeButton != null)
 				m_optionalFullVolumeButton.OnClick.RemoveListener(OnFullVolumeClick);
 			base.OnDisable();
@@ -179,6 +185,11 @@ namespace GuiToolkit
 			}
 
 			m_savedSliderVal = m_slider.value;
+			m_slider.value = 0;
+		}
+
+		private void OnNoVolumeButton()
+		{
 			m_slider.value = 0;
 		}
 
