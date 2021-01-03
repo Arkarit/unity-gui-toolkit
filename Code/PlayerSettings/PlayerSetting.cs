@@ -35,7 +35,7 @@ namespace GuiToolkit
 
 		protected object m_value;
 		protected object m_savedValue;
-		protected bool m_invokeEvents = true;
+		protected bool m_invokeEvents = false;
 		protected PlayerSettingOptions m_options;
 
 		public PlayerSettingOptions Options => m_options;

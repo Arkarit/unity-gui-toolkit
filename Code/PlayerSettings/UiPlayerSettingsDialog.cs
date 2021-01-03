@@ -109,6 +109,16 @@ namespace GuiToolkit
 						toggleGroup.allowSwitchOff = false;
 				}
 			}
+
+			// After all player setting elements have been added, invoke a OnPlayerSettingChanged for each element
+			// to have a defined state.
+			foreach (var kv in m_uiPlayerSettings)
+			{
+				foreach (UiPlayerSettingBase uiPlayerSetting in kv.Value)
+				{
+					UiEvents.OnPlayerSettingChanged.Invoke( uiPlayerSetting.PlayerSetting );
+				}
+			}
 		}
 
 		private void InstantiateMatchingEntry( PlayerSetting _playerSetting, RectTransform _parent, ToggleGroup _toggleGroup )

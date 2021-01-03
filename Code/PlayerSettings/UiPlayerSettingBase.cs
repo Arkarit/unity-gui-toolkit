@@ -17,6 +17,8 @@ namespace GuiToolkit
 
 		public bool Initialized => m_playerSetting != null;
 
+		public PlayerSetting PlayerSetting => m_playerSetting;
+
 		protected override void AddEventListeners()
 		{
 			base.AddEventListeners();
@@ -104,8 +106,6 @@ namespace GuiToolkit
 
 			if (_playerSetting.HasIcons)
 				ApplyIcons(_playerSetting.Icons);
-
-			Value = _playerSetting.Value;
 		}
 
 		protected virtual void OnPlayerSettingChanged( PlayerSetting _playerSetting )

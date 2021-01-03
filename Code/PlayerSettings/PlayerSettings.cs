@@ -57,7 +57,14 @@ namespace GuiToolkit
 				m_playerSettings.Add(playerSetting.Key, playerSetting);
 				if (playerSetting.IsKeyCode)
 					m_keyCodes.Add(playerSetting.GetDefaultValue<KeyCode>(), playerSetting.GetValue<KeyCode>());
+			}
 
+			// We want to only invoke the player settings changed event once all player settings have been added.
+			// Thus second iteration.
+			foreach (PlayerSetting playerSetting in _playerSettings )
+			{
+Debug.Log($"-- Invoking {playerSetting.Key}");
+				playerSetting.InvokeEvents = true;
 				UiEvents.OnPlayerSettingChanged.Invoke(playerSetting);
 			}
 		}
