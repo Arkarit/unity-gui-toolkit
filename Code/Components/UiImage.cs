@@ -21,7 +21,7 @@ namespace GuiToolkit
 		[SerializeField] protected Material m_normalMaterial;
 		[SerializeField] protected Material m_disabledMaterial;
 		
-		protected override bool IsEnableable => true;
+		public override bool IsEnableableInHierarchy => m_supportDisabledMaterial;
 
 		public Image Image => m_image;
 
@@ -70,7 +70,7 @@ namespace GuiToolkit
 		}
 
 		protected virtual void Init() { }
-		protected override void OnEnabledChanged(bool _enabled)
+		protected override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
 			SetMaterialByEnabled();
 		}
@@ -79,7 +79,7 @@ namespace GuiToolkit
 		private void OnValidate()
 		{
 			SetMaterialByEnabled();
-			OnEnabledChanged(Enabled);
+			OnEnabledInHierarchyChanged(EnabledInHierarchy);
 		}
 #endif
 
@@ -90,7 +90,7 @@ namespace GuiToolkit
 
 			if (m_image && m_normalMaterial && m_disabledMaterial)
 			{
-				m_image.material = Enabled ? m_normalMaterial : m_disabledMaterial;
+				m_image.material = EnabledInHierarchy ? m_normalMaterial : m_disabledMaterial;
 			}
 		}
 	}
@@ -98,29 +98,30 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 	[CustomEditor(typeof(UiImage))]
-	public class UiImageEditor : Editor
+	public class UiImageEditor : UiThingEditor
 	{
 		protected SerializedProperty m_imageProp;
 		protected SerializedProperty m_gradientSimpleProp;
 		protected SerializedProperty m_supportDisabledMaterialProp;
 		protected SerializedProperty m_normalMaterialProp;
 		protected SerializedProperty m_disabledMaterialProp;
-		protected SerializedProperty m_enabledProp;
 
 		static private bool m_toolsVisible;
 
-		public virtual void OnEnable()
+		public override void OnEnable()
 		{
+			base.OnEnable();
 			m_imageProp = serializedObject.FindProperty("m_image");
 			m_gradientSimpleProp = serializedObject.FindProperty("m_gradientSimple");
 			m_supportDisabledMaterialProp = serializedObject.FindProperty("m_supportDisabledMaterial");
 			m_normalMaterialProp = serializedObject.FindProperty("m_normalMaterial");
 			m_disabledMaterialProp = serializedObject.FindProperty("m_disabledMaterial");
-			m_enabledProp = serializedObject.FindProperty("m_enabled");
 		}
 
 		public override void OnInspectorGUI()
 		{
+			base.OnInspectorGUI();
+
 			UiImage thisImage = (UiImage)target;
 
 			EditorGUILayout.PropertyField(m_gradientSimpleProp);
@@ -135,7 +136,6 @@ namespace GuiToolkit
 				{
 					EditorGUILayout.PropertyField(m_normalMaterialProp);
 					EditorGUILayout.PropertyField(m_disabledMaterialProp);
-					EditorGUILayout.PropertyField(m_enabledProp);
 				}
 
 				Image backgroundImage = (Image) m_imageProp.objectReferenceValue;

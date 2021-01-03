@@ -59,7 +59,6 @@ namespace GuiToolkit
 				Apply();
 				if (InvokeEvents)
 				{
-Debug.Log($"Invoking '{Key}'");
 					UiEvents.OnPlayerSettingChanged.Invoke(this);
 				}
 			}

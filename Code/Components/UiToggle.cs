@@ -48,9 +48,9 @@ namespace GuiToolkit
 			m_toggle = GetComponent<Toggle>();
 		}
 
-		protected override void OnEnabledChanged(bool _enabled)
+		protected override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
-			base.OnEnabledChanged(_enabled);
+			base.OnEnabledInHierarchyChanged(_enabled);
 			InitIfNecessary();
 			m_toggle.interactable = _enabled;
 		}

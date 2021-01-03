@@ -236,19 +236,21 @@ namespace GuiToolkit
 	/// Ui3DObjectEditor can have several circumstances, under which it is technically impossible
 	/// to work. This editor's purpose is to show some warning if these issues occur.
 	[CustomEditor(typeof(Ui3DObject))]
-	public class Ui3DObjectEditor : Editor
+	public class Ui3DObjectEditor : UiThingEditor
 	{
 		protected SerializedProperty m_zSizeProp;
 		protected SerializedProperty m_zSizeFactorProp;
 
-		public virtual void OnEnable()
+		public override void OnEnable()
 		{
+			base.OnEnable();
 			m_zSizeProp = serializedObject.FindProperty("m_zSize");
 			m_zSizeFactorProp = serializedObject.FindProperty("m_zSizeFactor");
 		}
 
 		public override void OnInspectorGUI()
 		{
+			base.OnInspectorGUI();
 			Ui3DObject thisUi3DObject = (Ui3DObject)target;
 			GameObject go = thisUi3DObject.gameObject;
 			MaterialCloner materialCloner = go.GetComponent<MaterialCloner>();

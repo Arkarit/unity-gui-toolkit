@@ -53,39 +53,16 @@ namespace GuiToolkit
 		}
 
 
-		[SerializeField]
-		protected RectTransform m_colorPatchContainer;
-
-		[SerializeField]
-		protected UiColorPatch m_colorPatchPrefab;
-
-		[SerializeField]
-		protected ToggleGroup m_toggleGroup;
-
-		[SerializeField]
-		protected Channel m_channelA = new Channel(Mode.Hue);
-
-		[SerializeField]
-		protected Channel m_channelB = new Channel(Mode.Saturation);
-
-		[SerializeField]
-		protected Channel m_channelC = new Channel(Mode.Value);
-
-		[SerializeField]
-		protected List<int> m_forbiddenIndices;
-
-		[SerializeField]
-		protected int m_blackAndWhiteCount = 0;
-
-		[SerializeField]
-		protected float m_darkestBlackAndWhite = 0;
-
-		[SerializeField]
-		protected float m_brightestBlackAndWhite = 1;
-
-
-
-
+		[SerializeField] protected RectTransform m_colorPatchContainer;
+		[SerializeField] protected UiColorPatch m_colorPatchPrefab;
+		[SerializeField] protected ToggleGroup m_toggleGroup;
+		[SerializeField] protected Channel m_channelA = new Channel(Mode.Hue);
+		[SerializeField] protected Channel m_channelB = new Channel(Mode.Saturation);
+		[SerializeField] protected Channel m_channelC = new Channel(Mode.Value);
+		[SerializeField] protected List<int> m_forbiddenIndices;
+		[SerializeField] protected int m_blackAndWhiteCount = 0;
+		[SerializeField] protected float m_darkestBlackAndWhite = 0;
+		[SerializeField] protected float m_brightestBlackAndWhite = 1;
 
 		public Action<Color> OnColorChanged;
 

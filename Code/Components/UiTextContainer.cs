@@ -109,10 +109,12 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 	[CustomEditor(typeof(UiTextContainer))]
-	public class UiTextContainerEditor : Editor
+	public class UiTextContainerEditor : UiThingEditor
 	{
 		public override void OnInspectorGUI()
 		{
+			base.OnInspectorGUI();
+
 			UiTextContainer thisUiTextContainer = (UiTextContainer)target;
 
 			UnityEngine.Object textComponent = thisUiTextContainer.TextComponent;

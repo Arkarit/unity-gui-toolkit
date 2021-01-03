@@ -3,6 +3,10 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit
 {
 	/// \brief Basic UI class
@@ -17,7 +21,8 @@ namespace GuiToolkit
 	public class UiThing : MonoBehaviour, IEventSystemHandler
 	{
 		private static int s_layer = -1;
-		[SerializeField] private bool m_enabled = true;
+		[HideInInspector] // Only editable in custom editors
+		[SerializeField] private bool m_enabledInHierarchy = true;
 
 		/// Override and return false here if you don't want to receive events when currently not active.
 		protected virtual bool ReceiveEventsWhenDisabled => true;
@@ -25,7 +30,8 @@ namespace GuiToolkit
 		/// Override and return true here if you need the OnLanguageChanged() callback
 		protected virtual bool NeedsLanguageChangeCallback => false;
 
-		protected virtual bool IsEnableable => false;
+		/// Override and return true here if the component is hierarchically enableable
+		public virtual bool IsEnableableInHierarchy => false;
 
 		/// Override to add your event listeners.
 		protected virtual void AddEventListeners() {}
@@ -37,36 +43,39 @@ namespace GuiToolkit
 
 		public RectTransform RectTransform => transform as RectTransform;
 
-		public bool Enabled
+		/// \brief Set this UiThing and all children enabled/disabled
+		/// 
+		/// A very simple way to enable/disable whole game object trees.
+		public bool EnabledInHierarchy
 		{
 			get
 			{
-				return m_enabled;
+				return m_enabledInHierarchy;
 			}
 			set
 			{
-				if (m_enabled == value)
+				if (m_enabledInHierarchy == value)
 					return;
-				m_enabled = value;
-				OnEnabledChanged(m_enabled);
+				m_enabledInHierarchy = value;
+				OnEnabledInHierarchyChanged(m_enabledInHierarchy);
 
 				UiThing[] childComponents = GetComponentsInChildren<UiThing>();
 
 				// We can no call 'Enabled' recursively - otherwise every called child would call recursively too
 				foreach (var childComponent in childComponents)
 				{
-					if (!childComponent.IsEnableable)
+					if (!childComponent.IsEnableableInHierarchy)
 						continue;
-					if (childComponent.m_enabled != value)
+					if (childComponent.m_enabledInHierarchy != value)
 					{
-						childComponent.m_enabled = value;
-						childComponent.OnEnabledChanged(m_enabled);
+						childComponent.m_enabledInHierarchy = value;
+						childComponent.OnEnabledInHierarchyChanged(m_enabledInHierarchy);
 					}
 				}
 			}
 		}
 
-		protected virtual void OnEnabledChanged(bool _enabled) {}
+		protected virtual void OnEnabledInHierarchyChanged(bool _enabled) {}
 
 		protected virtual void OnLanguageChanged( string _languageId ){}
 
@@ -169,6 +178,35 @@ namespace GuiToolkit
 				m_eventListenersAdded = false;
 			}
 		}
+	}
+
+#if UNITY_EDITOR
+	[CustomEditor(typeof(UiThing))]
+	public class UiThingEditor : Editor
+	{
+		protected SerializedProperty m_enabledInHierarchyProp;
+
+		public virtual void OnEnable()
+		{
+			m_enabledInHierarchyProp = serializedObject.FindProperty("m_enabledInHierarchy");
+		}
+
+		public override void OnInspectorGUI()
+		{
+			UiThing thisUiThing = (UiThing)target;
+
+			if (thisUiThing.IsEnableableInHierarchy)
+			{
+				EditorGUILayout.PropertyField(m_enabledInHierarchyProp);
+				thisUiThing.EnabledInHierarchy = m_enabledInHierarchyProp.boolValue;
+			}
+
+			serializedObject.ApplyModifiedProperties();
+		}
 
 	}
+#endif
+
+
+
 }

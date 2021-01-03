@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 086a4c0f489a8674a9c387c1df6022f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_enabled: 1
+  m_enabledInHierarchy: 1
   m_renderMode: 1
   m_layerDistance: 0.02
   m_stackAnimationType: 2
@@ -255,7 +255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f99b26e0463b33e41ac12df23070f5a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_enabled: 1
+  m_enabledInHierarchy: 1
   m_defaultSceneVisibility: 4
   m_layer: 200
   m_isFullScreen: 0

@@ -110,7 +110,6 @@ namespace GuiToolkit
 
 		protected virtual void OnPlayerSettingChanged( PlayerSetting _playerSetting )
 		{
-Debug.Log($"UiPlayerSettingBase.OnPlayerSettingChanged() for '{_playerSetting.Key}'");
 			if (!Initialized)
 				return;
 

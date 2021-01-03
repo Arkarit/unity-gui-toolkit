@@ -37,9 +37,9 @@ namespace GuiToolkit
 				m_simpleWiggleAnimation.Play();
 		}
 
-		protected override void OnEnabledChanged(bool _enabled)
+		protected override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
-			base.OnEnabledChanged(_enabled);
+			base.OnEnabledInHierarchyChanged(_enabled);
 			InitIfNecessary();
 			m_button.interactable = _enabled;
 		}

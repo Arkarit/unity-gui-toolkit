@@ -45,7 +45,7 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_firstIconSmall;
 
 
-		protected override bool IsEnableable => true;
+		public override bool IsEnableableInHierarchy => true;
 
 		private float m_savedSliderVal;
 		private List<string> m_icons;
@@ -135,7 +135,7 @@ namespace GuiToolkit
 			return result;
 		}
 
-		protected override void OnEnabledChanged(bool _enabled)
+		protected override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
 			m_slider.interactable = _enabled;
 		}
@@ -177,12 +177,12 @@ namespace GuiToolkit
 
 			m_slider.interactable = _value;
 			if (m_optionalFullVolumeButton != null)
-				m_optionalFullVolumeButton.Enabled = _value;
+				m_optionalFullVolumeButton.EnabledInHierarchy = _value;
 
 			if (m_optionalUiImagesToDisableWhenOff != null)
 			{
 				foreach (var uiImage in m_optionalUiImagesToDisableWhenOff)
-					uiImage.Enabled = _value;
+					uiImage.EnabledInHierarchy = _value;
 			}
 
 			if (_value)

@@ -63,7 +63,6 @@ namespace GuiToolkit
 			// Thus second iteration.
 			foreach (PlayerSetting playerSetting in _playerSettings )
 			{
-Debug.Log($"-- Invoking {playerSetting.Key}");
 				playerSetting.InvokeEvents = true;
 				UiEvents.OnPlayerSettingChanged.Invoke(playerSetting);
 			}
@@ -161,7 +160,6 @@ Debug.Log($"-- Invoking {playerSetting.Key}");
 		// We need to update our key code dict, when a key binding was changed
 		private void OnPlayerSettingChanged( PlayerSetting _playerSetting )
 		{
-Debug.Log($"PlayerSettings.OnPlayerSettingChanged() for '{_playerSetting.Key}'");
 			if (!_playerSetting.IsKeyCode)
 				return;
 

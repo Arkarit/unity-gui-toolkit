@@ -21,7 +21,7 @@ namespace GuiToolkit
 		[Tooltip("Button Image. Mandatory if you want to use the 'Color' property or the 'Enabled' property.")]
 		public UiImage m_uiImage;
 
-		protected override bool IsEnableable => true;
+		public override bool IsEnableableInHierarchy => true;
 
 		public Color Color
 		{
@@ -61,7 +61,7 @@ namespace GuiToolkit
 			return m_uiImage.GetSimpleGradientColors();
 		}
 
-		protected override void OnEnabledChanged(bool _enabled)
+		protected override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
 			if (!_enabled && m_simpleAnimation)
 				m_simpleAnimation.Stop(false);
@@ -73,7 +73,7 @@ namespace GuiToolkit
 
 		public virtual void OnPointerDown( PointerEventData eventData )
 		{
-			if (!Enabled)
+			if (!EnabledInHierarchy)
 				return;
 
 			if (m_simpleAnimation != null)
@@ -84,7 +84,7 @@ namespace GuiToolkit
 
 		public virtual void OnPointerUp( PointerEventData eventData )
 		{
-			if (!Enabled)
+			if (!EnabledInHierarchy)
 				return;
 
 			if (m_simpleAnimation != null)
@@ -94,7 +94,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
-			OnEnabledChanged(Enabled);
+			OnEnabledInHierarchyChanged(EnabledInHierarchy);
 		}
 #endif
 
@@ -111,8 +111,9 @@ namespace GuiToolkit
 
 		static private bool m_toolsVisible;
 
-		public virtual void OnEnable()
+		public override void OnEnable()
 		{
+			base.OnEnable();
 			m_simpleAnimationProp = serializedObject.FindProperty("m_simpleAnimation");
 			m_audioSourceProp = serializedObject.FindProperty("m_audioSource");
 			m_uiImageProp = serializedObject.FindProperty("m_uiImage");
