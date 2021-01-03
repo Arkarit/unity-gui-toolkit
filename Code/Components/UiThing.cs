@@ -13,15 +13,19 @@ namespace GuiToolkit
 	/// 
 	/// Additionally, it offers event handling plus some convenience functions.
 
+	[RequireComponent(typeof(RectTransform))]
 	public class UiThing : MonoBehaviour, IEventSystemHandler
 	{
 		private static int s_layer = -1;
+		[SerializeField] private bool m_enabled = true;
 
 		/// Override and return false here if you don't want to receive events when currently not active.
 		protected virtual bool ReceiveEventsWhenDisabled => true;
 
 		/// Override and return true here if you need the OnLanguageChanged() callback
 		protected virtual bool NeedsLanguageChangeCallback => false;
+
+		protected virtual bool IsEnableable => false;
 
 		/// Override to add your event listeners.
 		protected virtual void AddEventListeners() {}
@@ -32,6 +36,37 @@ namespace GuiToolkit
 		private bool m_eventListenersAdded = false;
 
 		public RectTransform RectTransform => transform as RectTransform;
+
+		public bool Enabled
+		{
+			get
+			{
+				return m_enabled;
+			}
+			set
+			{
+				if (m_enabled == value)
+					return;
+				m_enabled = value;
+				OnEnabledChanged(m_enabled);
+
+				UiThing[] childComponents = GetComponentsInChildren<UiThing>();
+
+				// We can no call 'Enabled' recursively - otherwise every called child would call recursively too
+				foreach (var childComponent in childComponents)
+				{
+					if (!childComponent.IsEnableable)
+						continue;
+					if (childComponent.m_enabled != value)
+					{
+						childComponent.m_enabled = value;
+						childComponent.OnEnabledChanged(m_enabled);
+					}
+				}
+			}
+		}
+
+		protected virtual void OnEnabledChanged(bool _enabled) {}
 
 		protected virtual void OnLanguageChanged( string _languageId ){}
 

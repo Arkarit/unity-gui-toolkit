@@ -53,11 +53,7 @@ namespace GuiToolkit
 			m_playerSettings = PlayerSettings.Instance;
 			m_playerSettings.TempSaveValues();
 			Build();
-			base.Show(_instant, () => 
-			{
-				m_uiPlayerSettings.Clear();
-				_onFinish?.Invoke();
-			});
+			base.Show(_instant, _onFinish);
 			if (m_tabInfos.Count > 0)
 				GotoPage(0);
 		}
@@ -144,12 +140,13 @@ namespace GuiToolkit
 			if (_toggleGroup && entry.Toggle != null)
 				entry.Toggle.group = _toggleGroup;
 
-			if (m_uiPlayerSettings.TryGetValue(_playerSetting.Key, out List<UiPlayerSettingBase> _list))
+			List<UiPlayerSettingBase> list;
+			if (m_uiPlayerSettings.TryGetValue(_playerSetting.Key, out list))
 			{
-				_list.Add(entry);
+				list.Add(entry);
 				return;
 			}
-			List<UiPlayerSettingBase> list = new List<UiPlayerSettingBase>();
+			list = new List<UiPlayerSettingBase>();
 			list.Add(entry);
 			m_uiPlayerSettings.Add(_playerSetting.Key, list);
 		}

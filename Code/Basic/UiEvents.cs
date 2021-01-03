@@ -1,12 +1,8 @@
-﻿using System;
-using UnityEngine;
-using UnityEngine.Events;
-
-namespace GuiToolkit
+﻿namespace GuiToolkit
 {
 	public static class UiEvents
 	{
-		public static CEvent<string>			OnLanguageChanged = new CEvent<string>();
-		public static CEvent<PlayerSetting>		OnPlayerSettingChanged = new CEvent<PlayerSetting>();
+		public static CEvent<string>			OnLanguageChanged			= new CEvent<string>();
+		public static CEvent<PlayerSetting>		OnPlayerSettingChanged		= new CEvent<PlayerSetting>();
 	}
 }

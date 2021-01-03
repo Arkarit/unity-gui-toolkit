@@ -20,26 +20,8 @@ namespace GuiToolkit
 		[SerializeField] protected AudioSource m_audioSource;
 		[Tooltip("Button Image. Mandatory if you want to use the 'Color' property or the 'Enabled' property.")]
 		public UiImage m_uiImage;
-		public bool m_enabled = true;
 
-		public bool Enabled
-		{
-			get
-			{
-				return m_enabled;
-			}
-			set
-			{
-				if (m_enabled == value)
-					return;
-				m_enabled = value;
-				OnEnabledChanged(m_enabled);
-				if (!m_enabled && m_simpleAnimation)
-					m_simpleAnimation.Stop(false);
-				if (m_uiImage != null)
-					m_uiImage.Enabled = value;
-			}
-		}
+		protected override bool IsEnableable => true;
 
 		public Color Color
 		{
@@ -79,11 +61,19 @@ namespace GuiToolkit
 			return m_uiImage.GetSimpleGradientColors();
 		}
 
-		protected virtual void OnEnabledChanged(bool _enabled) {}
+		protected override void OnEnabledChanged(bool _enabled)
+		{
+			if (!_enabled && m_simpleAnimation)
+				m_simpleAnimation.Stop(false);
+
+			// Is this really still necessary?
+// 			if (m_uiImage != null)
+// 				m_uiImage.Enabled = _enabled;
+		}
 
 		public virtual void OnPointerDown( PointerEventData eventData )
 		{
-			if (!m_enabled)
+			if (!Enabled)
 				return;
 
 			if (m_simpleAnimation != null)
@@ -94,7 +84,7 @@ namespace GuiToolkit
 
 		public virtual void OnPointerUp( PointerEventData eventData )
 		{
-			if (!m_enabled)
+			if (!Enabled)
 				return;
 
 			if (m_simpleAnimation != null)
@@ -104,7 +94,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
-			OnEnabledChanged(m_enabled);
+			OnEnabledChanged(Enabled);
 		}
 #endif
 
@@ -118,7 +108,6 @@ namespace GuiToolkit
 		protected SerializedProperty m_simpleAnimationProp;
 		protected SerializedProperty m_audioSourceProp;
 		protected SerializedProperty m_uiImageProp;
-		protected SerializedProperty m_enabledProp;
 
 		static private bool m_toolsVisible;
 
@@ -127,7 +116,6 @@ namespace GuiToolkit
 			m_simpleAnimationProp = serializedObject.FindProperty("m_simpleAnimation");
 			m_audioSourceProp = serializedObject.FindProperty("m_audioSource");
 			m_uiImageProp = serializedObject.FindProperty("m_uiImage");
-			m_enabledProp = serializedObject.FindProperty("m_enabled");
 		}
 
 		public override void OnInspectorGUI()

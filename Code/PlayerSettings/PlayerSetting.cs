@@ -58,7 +58,10 @@ namespace GuiToolkit
 				m_value = value;
 				Apply();
 				if (InvokeEvents)
+				{
+Debug.Log($"Invoking '{Key}'");
 					UiEvents.OnPlayerSettingChanged.Invoke(this);
+				}
 			}
 		}
 		public object DefaultValue => GetValue(ref m_defaultValue);

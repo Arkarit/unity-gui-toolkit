@@ -154,6 +154,7 @@ namespace GuiToolkit
 		// We need to update our key code dict, when a key binding was changed
 		private void OnPlayerSettingChanged( PlayerSetting _playerSetting )
 		{
+Debug.Log($"PlayerSettings.OnPlayerSettingChanged() for '{_playerSetting.Key}'");
 			if (!_playerSetting.IsKeyCode)
 				return;
 

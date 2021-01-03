@@ -17,30 +17,13 @@ namespace GuiToolkit
 		[SerializeField] protected Image m_image;
 		[Tooltip("Simple Gradient. Mandatory if you want to use the 'SimpleGradientColors' getters+setters.")]
 		[SerializeField] protected UiGradientSimple m_gradientSimple;
-		[SerializeField] protected bool m_enabled = true;
 		[SerializeField] protected bool m_supportDisabledMaterial = true;
 		[SerializeField] protected Material m_normalMaterial;
 		[SerializeField] protected Material m_disabledMaterial;
 		
-		private bool m_initialized = false;
+		protected override bool IsEnableable => true;
 
 		public Image Image => m_image;
-
-		public bool Enabled
-		{
-			get
-			{
-				return m_enabled;
-			}
-			set
-			{
-				if (m_enabled == value)
-					return;
-				m_enabled = value;
-				SetMaterialByEnabled();
-				OnEnabledChanged(m_enabled);
-			}
-		}
 
 		public Color Color
 		{
@@ -87,13 +70,16 @@ namespace GuiToolkit
 		}
 
 		protected virtual void Init() { }
-		protected virtual void OnEnabledChanged(bool _enabled) {}
+		protected override void OnEnabledChanged(bool _enabled)
+		{
+			SetMaterialByEnabled();
+		}
 
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
 			SetMaterialByEnabled();
-			OnEnabledChanged(m_enabled);
+			OnEnabledChanged(Enabled);
 		}
 #endif
 
@@ -104,7 +90,7 @@ namespace GuiToolkit
 
 			if (m_image && m_normalMaterial && m_disabledMaterial)
 			{
-				m_image.material = m_enabled ? m_normalMaterial : m_disabledMaterial;
+				m_image.material = Enabled ? m_normalMaterial : m_disabledMaterial;
 			}
 		}
 	}

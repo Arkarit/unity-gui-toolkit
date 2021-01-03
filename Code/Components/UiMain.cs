@@ -233,8 +233,9 @@ namespace GuiToolkit
 
 		public void ShowSettingsDialog()
 		{
-			UiPlayerSettingsDialog m_playerSettingsDialog = CreateView(m_settingsDialogPrefab);
-			m_playerSettingsDialog.Show(false, () => m_playerSettingsDialog = null);
+			m_playerSettingsDialog = CreateView(m_settingsDialogPrefab);
+			m_playerSettingsDialog.OnDestroyed.AddListener((UiPanel _) => m_playerSettingsDialog = null);
+			m_playerSettingsDialog.Show();
 		}
 
 		public void ShowToastMessageView(string _message, float _duration = 2)

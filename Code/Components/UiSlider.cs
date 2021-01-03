@@ -45,6 +45,8 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_firstIconSmall;
 
 
+		protected override bool IsEnableable => true;
+
 		private float m_savedSliderVal;
 		private List<string> m_icons;
 
@@ -131,6 +133,11 @@ namespace GuiToolkit
 				return null;
 			}
 			return result;
+		}
+
+		protected override void OnEnabledChanged(bool _enabled)
+		{
+			m_slider.interactable = _enabled;
 		}
 
 		protected override void OnEnable()

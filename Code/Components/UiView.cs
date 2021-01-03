@@ -21,10 +21,6 @@ namespace GuiToolkit
 		[SerializeField]
 		protected bool m_isFullScreen;
 
-		[HideInInspector]
-		[SerializeField]
-		private int m_lastSiblingIndex = -1;
-
 		private UiModal m_uiModal;
 		private bool m_uiModalChecked;
 		private Canvas m_canvas;

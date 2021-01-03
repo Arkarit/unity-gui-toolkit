@@ -15,11 +15,13 @@ namespace GuiToolkit
 
 	public class UiPanel : UiThing, ISetDefaultSceneVisibility
 	{
-		[SerializeField]
-		protected EDefaultSceneVisibility m_defaultSceneVisibility = EDefaultSceneVisibility.DontCare;
+		[SerializeField] protected EDefaultSceneVisibility m_defaultSceneVisibility = EDefaultSceneVisibility.DontCare;
+		[SerializeField] protected IShowHidePanelAnimation m_showHideAnimation;
 
-		[SerializeField]
-		private IShowHidePanelAnimation m_showHideAnimation;
+		// Additional events independent of the Show/Hide actions
+		public CEvent<UiPanel> OnShow = new CEvent<UiPanel>();
+		public CEvent<UiPanel> OnHide = new CEvent<UiPanel>();
+		public CEvent<UiPanel> OnDestroyed = new CEvent<UiPanel>();
 
 		public virtual bool AutoDestroyOnHide => false;
 		public virtual bool Poolable => false;
@@ -74,11 +76,16 @@ namespace GuiToolkit
 				{
 					SimpleShowHideAnimation.StopViewAnimation(true);
 				}
+				OnShow.Invoke(this);
 				_onFinish?.Invoke();
 				return;
 			}
 
-			SimpleShowHideAnimation.ShowViewAnimation(_onFinish);
+			SimpleShowHideAnimation.ShowViewAnimation(() =>
+			{
+				OnShow.Invoke(this);
+				_onFinish?.Invoke();
+			});
 		}
 
 		public virtual void Hide(bool _instant = false, Action _onFinish = null)
@@ -95,8 +102,10 @@ namespace GuiToolkit
 				gameObject.SetActive(false);
 				if (SimpleShowHideAnimation != null)
 					SimpleShowHideAnimation.StopViewAnimation(false);
-				if (_onFinish != null)
-					_onFinish.Invoke(); 
+
+				OnHide.Invoke(this);
+				_onFinish?.Invoke();
+
 				DestroyIfNecessary();
 				return;
 			}
@@ -104,8 +113,10 @@ namespace GuiToolkit
 			SimpleShowHideAnimation.HideViewAnimation( () =>
 			{
 				gameObject.SetActive(false);
-				if (_onFinish != null)
-					_onFinish.Invoke(); 
+
+				OnHide.Invoke(this);
+				_onFinish?.Invoke(); 
+
 				DestroyIfNecessary();
 			});
 		}
@@ -124,9 +135,20 @@ namespace GuiToolkit
 				return;
 
 			if (Poolable)
+			{
+				OnDestroyed.Invoke(this);
+				OnDestroyed.RemoveAllListeners();
 				UiPool.Instance.DoDestroy(this);
+			}
 			else
 				gameObject.Destroy();
+		}
+
+		protected override void OnDestroy()
+		{
+Debug.Log("OnDestroy");
+			OnDestroyed.Invoke(this);
+			base.OnDestroy();
 		}
 
 		public void SetDefaultSceneVisibility()

@@ -46,6 +46,7 @@ namespace GuiToolkit
 
 		protected override void OnPlayerSettingChanged( PlayerSetting _playerSetting )
 		{
+Debug.Log($"UiPlayerSettingKeyBinding.OnPlayerSettingChanged() for '{_playerSetting.Key}'");
 			base.OnPlayerSettingChanged(_playerSetting);
 			if (!Initialized || !m_markIfNone || !_playerSetting.IsKeyCode)
 				return;
