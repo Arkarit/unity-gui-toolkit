@@ -170,5 +170,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_disabledBrightness: 0.6
-  m_disabledDesaturationStrength: 0.8
+  m_disabledDesaturationStrength: 0.63
   m_disabledAlpha: 0.9
+  m_colorsInitialized: 1
+  m_tmpGradient:
+    topLeft: {r: 1, g: 0.6426992, b: 0, a: 1}
+    topRight: {r: 1, g: 0.6426992, b: 0, a: 1}
+    bottomLeft: {r: 1, g: 0.8598435, b: 0, a: 1}
+    bottomRight: {r: 1, g: 0.8598435, b: 0, a: 1}
+  m_color: {r: 1, g: 1, b: 1, a: 1}
+  m_disabledTmpGradient:
+    topLeft: {r: 0.6, g: 0.52067924, b: 0.37800002, a: 0.9}
+    topRight: {r: 0.6, g: 0.52067924, b: 0.37800002, a: 0.9}
+    bottomLeft: {r: 0.6, g: 0.56888527, b: 0.37800002, a: 0.9}
+    bottomRight: {r: 0.6, g: 0.56888527, b: 0.37800002, a: 0.9}
+  m_disabledColor: {r: 0.6, g: 0.6, b: 0.6, a: 0.9}

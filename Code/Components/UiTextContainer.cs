@@ -19,10 +19,13 @@ namespace GuiToolkit
 		protected Text m_text;
 		protected bool m_initialized = false;
 
-		VertexGradient m_tmpGradient;
-		Color m_color;
-		VertexGradient m_disabledTmpGradient;
-		Color m_disabledColor;
+#if UNITY_EDITOR
+		[SerializeField] protected bool m_colorsInitialized = false;
+#endif
+		[SerializeField] protected VertexGradient m_tmpGradient;
+		[SerializeField] protected Color m_color;
+		[SerializeField] protected VertexGradient m_disabledTmpGradient;
+		[SerializeField] protected Color m_disabledColor;
 
 		public override bool IsEnableableInHierarchy => true;
 
@@ -115,22 +118,6 @@ namespace GuiToolkit
 			m_tmpText = GetComponentInChildren<TextMeshProUGUI>();
 			m_text = GetComponentInChildren<Text>();
 
-			if (m_tmpText != null)
-			{
-				m_tmpGradient = m_tmpText.colorGradient;
-				m_color = m_tmpText.color;
-			}
-			else if (m_text)
-			{
-				m_color = m_text.color;
-			}
-
-			m_disabledColor = GetDisabledColor(m_color);
-			m_disabledTmpGradient.bottomLeft = GetDisabledColor(m_tmpGradient.bottomLeft);
-			m_disabledTmpGradient.bottomRight = GetDisabledColor(m_tmpGradient.bottomRight);
-			m_disabledTmpGradient.topLeft = GetDisabledColor(m_tmpGradient.topLeft);
-			m_disabledTmpGradient.topRight = GetDisabledColor(m_tmpGradient.topRight);
-
 			Init();
 
 			m_initialized = true;
@@ -142,6 +129,11 @@ namespace GuiToolkit
 
 			InitIfNecessary();
 
+			ApplyEnabledDisabledColors(_enabled);
+		}
+
+		private void ApplyEnabledDisabledColors( bool _enabled )
+		{
 			if (m_tmpText != null)
 			{
 				if (m_tmpText.enableVertexGradient)
@@ -155,7 +147,7 @@ namespace GuiToolkit
 			}
 		}
 
-		private Color GetDisabledColor( Color _color )
+		private Color CreateDisabledColor( Color _color )
 		{
 			float h,s,v;
 			Color.RGBToHSV(_color, out h, out s, out v);
@@ -166,6 +158,90 @@ namespace GuiToolkit
 			result.a = _color.a * m_disabledAlpha;
 			return result;
 		}
+
+#if UNITY_EDITOR
+
+		public void SetColorMembersIfNecessary(bool _force)
+		{
+			if (!m_colorsInitialized)
+			{
+				if (!EnabledInHierarchy)
+				{
+					Debug.LogError("Can not set enabled color - please temporarily switch to Enabled");
+					return;
+				}
+
+				InitColors();
+
+				m_colorsInitialized = true;
+
+				return;
+			}
+
+			bool changed = _force;
+
+			if (!changed)
+			{
+				if (m_tmpText != null)
+				{
+					changed = !VertexGradientApproximately(m_tmpText.colorGradient, EnabledInHierarchy ? m_tmpGradient : m_disabledTmpGradient);
+					if (!changed)
+						changed = ColorApproximately(m_tmpText.color, EnabledInHierarchy ? m_color : m_disabledColor);
+				}
+				else if (m_text != null)
+					changed = ColorApproximately(m_text.color, EnabledInHierarchy ? m_color : m_disabledColor);
+			}
+
+			if (changed)
+			{
+				if (EnabledInHierarchy)
+				{
+					InitColors();
+				}
+				else
+				{
+					Debug.LogError("Please don't change text colors when disabled!");
+				}
+			}
+		}
+
+		private void InitColors()
+		{
+			if (m_tmpText != null)
+			{
+				m_tmpGradient = m_tmpText.colorGradient;
+				m_color = m_tmpText.color;
+			}
+			else if (m_text)
+			{
+				m_color = m_text.color;
+			}
+
+			m_disabledColor = CreateDisabledColor(m_color);
+			m_disabledTmpGradient.bottomLeft = CreateDisabledColor(m_tmpGradient.bottomLeft);
+			m_disabledTmpGradient.bottomRight = CreateDisabledColor(m_tmpGradient.bottomRight);
+			m_disabledTmpGradient.topLeft = CreateDisabledColor(m_tmpGradient.topLeft);
+			m_disabledTmpGradient.topRight = CreateDisabledColor(m_tmpGradient.topRight);
+		}
+
+		public static bool ColorApproximately( Color _a, Color _b )
+		{
+			return
+				   Mathf.Approximately(_a.r, _b.r)
+				&& Mathf.Approximately(_a.g, _b.g)
+				&& Mathf.Approximately(_a.b, _b.b)
+				&& Mathf.Approximately(_a.a, _b.a);
+		}
+
+		public static bool VertexGradientApproximately( VertexGradient _a, VertexGradient _b)
+		{
+			return 
+				   ColorApproximately(_a.bottomLeft, _b.bottomLeft)
+				&& ColorApproximately(_a.bottomRight, _b.bottomRight)
+				&& ColorApproximately(_a.topLeft, _b.topLeft)
+				&& ColorApproximately(_a.topRight, _b.topRight);
+		}
+#endif
 	}
 
 #if UNITY_EDITOR
@@ -212,9 +288,13 @@ namespace GuiToolkit
 				}
 			}
 
+			EditorGUI.BeginChangeCheck();
+
 			EditorGUILayout.PropertyField(m_disabledAlphaProp);
 			EditorGUILayout.PropertyField(m_disabledDesaturationStrengthProp);
 			EditorGUILayout.PropertyField(m_disabledBrightnessProp);
+
+			thisUiTextContainer.SetColorMembersIfNecessary(EditorGUI.EndChangeCheck());
 
 			serializedObject.ApplyModifiedProperties();
 		}
