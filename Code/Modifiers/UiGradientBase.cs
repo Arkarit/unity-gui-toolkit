@@ -7,21 +7,11 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public abstract class UiGradientBase : BaseMeshEffectTMP
 	{
-		public enum EEvaluateMode
-		{
-			ByUV,
-			ByPosition,
-		}
-
 		public enum EVertexColorMode {
 			Multiply,
 			Replace,
 			Add,
 		}
-
-		[Tooltip("Switch to UV for standard bitmaps, position for sliced bitmaps")]
-		[SerializeField]
-		protected EEvaluateMode m_evaluateMode = EEvaluateMode.ByUV;
 
 		[SerializeField]
 		protected EVertexColorMode m_vertexColorMode = EVertexColorMode.Multiply;
@@ -40,8 +30,7 @@ namespace GuiToolkit
 			if (!IsActive())
 				return;
 
-			if (m_evaluateMode == EEvaluateMode.ByPosition)
-				CalcMinMax( _vh );
+			CalcMinMax( _vh );
 
 			Prepare( _vh );
 
@@ -52,15 +41,8 @@ namespace GuiToolkit
 				_vh.PopulateUIVertex(ref s_vertex, i);
 
 				Vector2 lerpVal;
-				if (m_evaluateMode == EEvaluateMode.ByPosition)
-				{
-					Vector2 pos = new Vector2( s_vertex.position.x, s_vertex.position.y );
-					lerpVal = ( pos-m_min) / dist;
-				}
-				else
-				{
-					lerpVal	= s_vertex.uv0;
-				}
+				Vector2 pos = new Vector2( s_vertex.position.x, s_vertex.position.y );
+				lerpVal = ( pos-m_min) / dist;
 
 				Color c = GetColor(lerpVal);
 
