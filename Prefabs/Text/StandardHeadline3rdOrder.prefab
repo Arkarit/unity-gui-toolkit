@@ -127,10 +127,15 @@ PrefabInstance:
       propertyPath: m_firstOverflowCharacterIndex
       value: -1
       objectReference: {fileID: 0}
+    - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
+        type: 3}
+      propertyPath: m_lineSpacing
+      value: -25
+      objectReference: {fileID: 0}
     - target: {fileID: 1697113851281272727, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
       propertyPath: m_Name
-      value: StandardHeadline2ndOrder
+      value: StandardHeadline3rdOrder
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f68e9574a6a461e4abc6267904590380, type: 3}

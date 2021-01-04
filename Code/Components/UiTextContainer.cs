@@ -10,10 +10,22 @@ namespace GuiToolkit
 {
 	public class UiTextContainer : UiThing
 	{
+		[Range(0f, 1f)][SerializeField] protected float m_disabledBrightness = 0.6f;
+		[Range(0f, 1f)][SerializeField] protected float m_disabledDesaturationStrength = 0.8f;
+		[Range(0f, 1f)][SerializeField] protected float m_disabledAlpha = 0.9f;
+
 		protected UiTMPTranslator m_translator;
 		protected TextMeshProUGUI m_tmpText;
 		protected Text m_text;
 		protected bool m_initialized = false;
+
+		VertexGradient m_tmpGradient;
+		Color m_color;
+		VertexGradient m_disabledTmpGradient;
+		Color m_disabledColor;
+
+		public override bool IsEnableableInHierarchy => true;
+
 		public virtual string Text
 		{
 			get
@@ -40,7 +52,7 @@ namespace GuiToolkit
 				else if (m_text)
 					m_text.text = value;
 				else
-					Debug.LogError($"No button text found for Button '{gameObject.name}', can not set string '{value}'");
+					Debug.LogError($"No text found for '{gameObject.name}', can not set string '{value}'");
 			}
 		}
 
@@ -67,7 +79,7 @@ namespace GuiToolkit
 				else if (m_text)
 					m_text.color = value;
 				else
-					Debug.LogError($"No button text found for Button '{gameObject.name}', can not set color '{value}'");
+					Debug.LogError($"No text found for '{gameObject.name}', can not set color '{value}'");
 			}
 		}
 
@@ -103,7 +115,56 @@ namespace GuiToolkit
 			m_tmpText = GetComponentInChildren<TextMeshProUGUI>();
 			m_text = GetComponentInChildren<Text>();
 
+			if (m_tmpText != null)
+			{
+				m_tmpGradient = m_tmpText.colorGradient;
+				m_color = m_tmpText.color;
+			}
+			else if (m_text)
+			{
+				m_color = m_text.color;
+			}
+
+			m_disabledColor = GetDisabledColor(m_color);
+			m_disabledTmpGradient.bottomLeft = GetDisabledColor(m_tmpGradient.bottomLeft);
+			m_disabledTmpGradient.bottomRight = GetDisabledColor(m_tmpGradient.bottomRight);
+			m_disabledTmpGradient.topLeft = GetDisabledColor(m_tmpGradient.topLeft);
+			m_disabledTmpGradient.topRight = GetDisabledColor(m_tmpGradient.topRight);
+
 			Init();
+
+			m_initialized = true;
+		}
+
+		protected override void OnEnabledInHierarchyChanged( bool _enabled )
+		{
+			base.OnEnabledInHierarchyChanged(_enabled);
+
+			InitIfNecessary();
+
+			if (m_tmpText != null)
+			{
+				if (m_tmpText.enableVertexGradient)
+					m_tmpText.colorGradient = _enabled ? m_tmpGradient : m_disabledTmpGradient;
+				else
+					m_tmpText.color = _enabled ? m_color : m_disabledColor;
+			}
+			else
+			{
+				m_text.color = _enabled ? m_color : m_disabledColor;
+			}
+		}
+
+		private Color GetDisabledColor( Color _color )
+		{
+			float h,s,v;
+			Color.RGBToHSV(_color, out h, out s, out v);
+
+			s *= 1.0f - m_disabledDesaturationStrength;
+			v *= m_disabledBrightness;
+			Color result = Color.HSVToRGB(h, s, v);
+			result.a = _color.a * m_disabledAlpha;
+			return result;
 		}
 	}
 
@@ -111,6 +172,18 @@ namespace GuiToolkit
 	[CustomEditor(typeof(UiTextContainer))]
 	public class UiTextContainerEditor : UiThingEditor
 	{
+		protected SerializedProperty m_disabledBrightnessProp;
+		protected SerializedProperty m_disabledDesaturationStrengthProp;
+		protected SerializedProperty m_disabledAlphaProp;
+
+		public override void OnEnable()
+		{
+			base.OnEnable();
+			m_disabledBrightnessProp = serializedObject.FindProperty("m_disabledBrightness");
+			m_disabledDesaturationStrengthProp = serializedObject.FindProperty("m_disabledDesaturationStrength");
+			m_disabledAlphaProp = serializedObject.FindProperty("m_disabledAlpha");
+		}
+
 		public override void OnInspectorGUI()
 		{
 			base.OnInspectorGUI();
@@ -138,6 +211,12 @@ namespace GuiToolkit
 					thisUiTextContainer.TextColor = newColor;
 				}
 			}
+
+			EditorGUILayout.PropertyField(m_disabledAlphaProp);
+			EditorGUILayout.PropertyField(m_disabledDesaturationStrengthProp);
+			EditorGUILayout.PropertyField(m_disabledBrightnessProp);
+
+			serializedObject.ApplyModifiedProperties();
 		}
 
 	}

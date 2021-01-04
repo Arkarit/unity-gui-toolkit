@@ -16,7 +16,6 @@ namespace GuiToolkit
 		[SerializeField]
 		protected EVertexColorMode m_vertexColorMode = EVertexColorMode.Multiply;
 
-		// This is filled with the current vertex while calling GetColor()
 		protected static UIVertex s_vertex;
 
 		protected Vector2 m_min;
@@ -30,7 +29,7 @@ namespace GuiToolkit
 			if (!IsActive())
 				return;
 
-			CalcMinMax( _vh );
+			CalcMeshBounds( _vh );
 
 			Prepare( _vh );
 
@@ -40,10 +39,8 @@ namespace GuiToolkit
 			{
 				_vh.PopulateUIVertex(ref s_vertex, i);
 
-				Vector2 lerpVal;
 				Vector2 pos = new Vector2( s_vertex.position.x, s_vertex.position.y );
-				lerpVal = ( pos-m_min) / dist;
-
+				Vector2 lerpVal = (pos-m_min) / dist;
 				Color c = GetColor(lerpVal);
 
 				switch( m_vertexColorMode )
@@ -65,10 +62,14 @@ namespace GuiToolkit
 			}
 		}
 
-		private void CalcMinMax( VertexHelper _vh )
+		// Well mesh bounds could be simply done by getting the mesh bounds. 
+		// If there only would be a mesh in the Vertex"Helper".
+		// So we have to iterate it manually. And let "PopulateUIVertex" fill each UiVertex with uv0, uv1, tangents and whatnot shit we don't need. Extremely inefficient.
+		// Well done as usual, Unity.
+		private void CalcMeshBounds( VertexHelper _vh )
 		{
 			m_min = new Vector2( float.MaxValue, float.MaxValue );
-			m_max = new Vector2( -float.MaxValue, -float.MaxValue );
+			m_max = new Vector2( float.MinValue, float.MinValue );
 
 			for (int i = 0; i < _vh.currentVertCount; ++i)
 			{

@@ -146,7 +146,6 @@ namespace GuiToolkit
 
 		protected override void OnDestroy()
 		{
-Debug.Log("OnDestroy");
 			OnDestroyed.Invoke(this);
 			base.OnDestroy();
 		}
