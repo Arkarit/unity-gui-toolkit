@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 674c9e59151164345b581302232e337c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_enabledInHierarchy: 1
   m_autoTranslate: 1
 --- !u!1001 &8568626819516290622
 PrefabInstance:
@@ -20,6 +21,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5270523796987331456, guid: 21a8687b0161cb048a99736c000f6da3,
+        type: 3}
+      propertyPath: m_Interactable
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5270523796987331484, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_Name
@@ -130,6 +136,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6944983982311379129, guid: 21a8687b0161cb048a99736c000f6da3,
+        type: 3}
+      propertyPath: m_enabledInHierarchy
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7490390892350505658, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_colorRightOrBottom.g
@@ -139,6 +150,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_colorRightOrBottom.b
       value: 0.018630981
+      objectReference: {fileID: 0}
+    - target: {fileID: 7990162219028390017, guid: 21a8687b0161cb048a99736c000f6da3,
+        type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 2100000, guid: bbb4d48742f261844b844be821a291cc, type: 2}
+    - target: {fileID: 8824944210132026731, guid: 21a8687b0161cb048a99736c000f6da3,
+        type: 3}
+      propertyPath: m_enabledInHierarchy
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21a8687b0161cb048a99736c000f6da3, type: 3}

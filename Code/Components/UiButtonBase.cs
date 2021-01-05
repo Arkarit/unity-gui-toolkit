@@ -63,12 +63,9 @@ namespace GuiToolkit
 
 		protected override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
+			base.OnEnabledInHierarchyChanged(_enabled);
 			if (!_enabled && m_simpleAnimation)
 				m_simpleAnimation.Stop(false);
-
-			// Is this really still necessary?
-// 			if (m_uiImage != null)
-// 				m_uiImage.Enabled = _enabled;
 		}
 
 		public virtual void OnPointerDown( PointerEventData eventData )
