@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1697113851281272724}
   - component: {fileID: 1697113851281272722}
   - component: {fileID: 1697113851281272725}
-  - component: {fileID: 3773611226266022573}
+  - component: {fileID: 3152982904580889787}
   m_Layer: 5
   m_Name: StandardHeadline
   m_TagString: Untagged
@@ -156,7 +156,7 @@ MonoBehaviour:
   - {fileID: 0}
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &3773611226266022573
+--- !u!114 &3152982904580889787
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -165,13 +165,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1697113851281272727}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf286620431ede448b94b131a08f8d8d, type: 3}
+  m_Script: {fileID: 11500000, guid: 90db440ff57728f4098a7182a4af37be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
-  m_disabledBrightness: 0.6
-  m_disabledDesaturationStrength: 0.63
-  m_disabledAlpha: 0.9
+  m_disabledBrightness: 0.745
+  m_disabledDesaturationStrength: 0.637
+  m_disabledAlpha: 0.882
   m_colorsInitialized: 1
   m_tmpGradient:
     topLeft: {r: 1, g: 0.6426992, b: 0, a: 1}
@@ -180,8 +180,8 @@ MonoBehaviour:
     bottomRight: {r: 1, g: 0.8598435, b: 0, a: 1}
   m_color: {r: 1, g: 1, b: 1, a: 1}
   m_disabledTmpGradient:
-    topLeft: {r: 0.6, g: 0.52067924, b: 0.37800002, a: 0.9}
-    topRight: {r: 0.6, g: 0.52067924, b: 0.37800002, a: 0.9}
-    bottomLeft: {r: 0.6, g: 0.56888527, b: 0.37800002, a: 0.9}
-    bottomRight: {r: 0.6, g: 0.56888527, b: 0.37800002, a: 0.9}
-  m_disabledColor: {r: 0.6, g: 0.6, b: 0.6, a: 0.9}
+    topLeft: {r: 0.745, g: 0.64837337, b: 0.47456503, a: 0.882}
+    topRight: {r: 0.745, g: 0.64837337, b: 0.47456503, a: 0.882}
+    bottomLeft: {r: 0.745, g: 0.70709676, b: 0.47456503, a: 0.882}
+    bottomRight: {r: 0.745, g: 0.70709676, b: 0.47456503, a: 0.882}
+  m_disabledColor: {r: 0.745, g: 0.745, b: 0.745, a: 0.882}

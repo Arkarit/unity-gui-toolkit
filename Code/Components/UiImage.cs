@@ -90,6 +90,7 @@ namespace GuiToolkit
 
 			if (m_image && m_normalMaterial && m_disabledMaterial)
 			{
+				// Note: Image.material matches Renderer.sharedMaterial: setting Image.material does NOT create a material clone
 				m_image.material = EnabledInHierarchy ? m_normalMaterial : m_disabledMaterial;
 			}
 		}
