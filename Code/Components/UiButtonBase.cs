@@ -19,7 +19,7 @@ namespace GuiToolkit
 		[Tooltip("Audio source (optional)")]
 		[SerializeField] protected AudioSource m_audioSource;
 		[Tooltip("Button Image. Mandatory if you want to use the 'Color' property or the 'Enabled' property.")]
-		public UiImage m_uiImage;
+		[SerializeField] protected UiImage m_uiImage;
 
 		public override bool IsEnableableInHierarchy => true;
 
