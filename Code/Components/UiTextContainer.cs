@@ -45,6 +45,32 @@ namespace GuiToolkit
 			}
 		}
 
+		public virtual Color TextColor
+		{
+			get
+			{
+				InitIfNecessary();
+				if (m_tmpText)
+					return m_tmpText.color;
+				if (m_text)
+					return m_text.color;
+				return Color.white;
+			}
+
+			set
+			{
+				if (value == null)
+					return;
+				InitIfNecessary();
+				if (m_tmpText)
+					m_tmpText.color = value;
+				else if (m_text)
+					m_text.color = value;
+				else
+					Debug.LogError($"No text found for '{gameObject.name}', can not set color '{value}'");
+			}
+		}
+
 		public UnityEngine.Object TextComponent
 		{
 			get
