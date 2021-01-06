@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using System.Linq;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,6 +15,7 @@ namespace GuiToolkit
 		{
 			FixedOverallAngle,
 			FixedElementAngle,
+			PerElementAngle,
 		}
 
 		[SerializeField]
@@ -70,6 +73,11 @@ namespace GuiToolkit
 			CalculateRadial();
 		}
 
+		public new void SetDirty()
+		{
+			base.SetDirty();
+		}
+
 #if UNITY_EDITOR
 		protected override void OnValidate()
 		{
@@ -93,6 +101,23 @@ namespace GuiToolkit
 			}
 		}
 
+		private List<float> ElementAngles
+		{
+			get
+			{
+				List <float> result = new List<float>();
+				foreach (Transform child in transform)
+				{
+					if (child.gameObject.activeSelf)
+					{
+						UiRadialLayoutElement layoutElement = child.GetComponent<UiRadialLayoutElement>();
+						result.Add(layoutElement != null ? layoutElement.Angle : 0);
+					}
+				}
+				return result;
+			}
+		}
+
 		private void CalculateRadial()
 		{
 			m_Tracker.Clear();
@@ -101,21 +126,32 @@ namespace GuiToolkit
 			if (childCount == 0)
 				return;
 
-			float topAngleOffset, angleIncrement;
+			float topAngleOffset = 0, angleIncrement = 0;
+			List<float> angleIncrements = null;
+
 			switch(m_mode)
 			{
 				case Mode.FixedOverallAngle:
 					topAngleOffset = -m_angle0 - 90;
 					angleIncrement = ((m_angle1 - m_angle0)) / (childCount - 1);
 					break;
-
+				case Mode.PerElementAngle:
+					angleIncrements = ElementAngles;
+					float sum = 0;
+					for (int i = 0; i<angleIncrements.Count; i++)
+						sum += angleIncrements[i];
+					topAngleOffset = sum * 0.5f - 90.0f;
+// 					if (angleIncrements.Count > 0)
+// 						topAngleOffset -= angleIncrements[0] * .5f;
+					break;
 				default:
 				case Mode.FixedElementAngle:
 					topAngleOffset = m_angle0 * (childCount - 1) * 0.5f - 90.0f;
 					angleIncrement = m_angle0;
 					break;
 			}
-			float angle = m_angleOffset - topAngleOffset;
+
+			float runningAngle = m_angleOffset - topAngleOffset;
 
 			float z = 0;
 			if (m_useZIncrement && childCount > 1)
@@ -123,6 +159,7 @@ namespace GuiToolkit
 				z = - m_zIncrement * childCount / 2;
 			}
 
+			int angleIncrementsIdx = 0;
 			for (int i = 0; i < transform.childCount; i++)
 			{
 				RectTransform child = (RectTransform)transform.GetChild(i);
@@ -132,6 +169,11 @@ namespace GuiToolkit
 				if (child != null)
 				{
 					m_Tracker.Add( this, child, GetDrivenTransformProperties() );
+
+					float angle = runningAngle;
+					if (m_mode == Mode.PerElementAngle)
+						angle += angleIncrements[angleIncrementsIdx] * 0.5f;
+
 					Vector3 vPos = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad), 0);
 					child.localPosition = vPos * m_radius;
 
@@ -149,7 +191,11 @@ namespace GuiToolkit
 					{
 						child.localRotation = Quaternion.identity;
 					}
-					angle += angleIncrement;
+
+					if (m_mode == Mode.PerElementAngle)
+						runningAngle += angleIncrements[angleIncrementsIdx++];
+					else
+						runningAngle += angleIncrement;
 				}
 			}
 
