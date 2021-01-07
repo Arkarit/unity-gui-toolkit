@@ -141,8 +141,6 @@ namespace GuiToolkit
 					for (int i = 0; i<angleIncrements.Count; i++)
 						sum += angleIncrements[i];
 					topAngleOffset = sum * 0.5f - 90.0f;
-// 					if (angleIncrements.Count > 0)
-// 						topAngleOffset -= angleIncrements[0] * .5f;
 					break;
 				default:
 				case Mode.FixedElementAngle:
