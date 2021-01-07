@@ -67,6 +67,16 @@ namespace GuiToolkit
 				InitIfNecessary();
 				return m_originalMaterial;
 			}
+			set
+			{
+				InitIfNecessary();
+				if (m_originalMaterial == value)
+					return;
+
+				Clear();
+				SetMaterialToRenderer(value);
+				Init();
+			}
 		}
 
 		/// Get Graphic on same game object (may be null)
@@ -129,21 +139,38 @@ namespace GuiToolkit
 			s_instances.Remove(this);
 		}
 
-		private void SetMaterial(Material _clonedMaterial)
+		private void SetMaterialToRenderer(Material _material)
 		{
 			if (Renderer)
-				Renderer.sharedMaterial = _clonedMaterial;
+				Renderer.sharedMaterial = _material;
 			if (Graphic)
-				Graphic.material = _clonedMaterial;
+				Graphic.material = _material;
 		}
 
-		private Material GetMaterial()
+		private Material GetMaterialFromRenderer()
 		{
 			if (Renderer)
 				return Renderer.sharedMaterial;
 			if (Graphic)
 				return Graphic.material;
 			return null;
+		}
+
+		private void Clear()
+		{
+			SetMaterialToRenderer(m_originalMaterial);
+			m_originalMaterial = null;
+			if (m_isSharedMaterial)
+			{
+				Material foundMaterial = FindClonedMaterialInOtherInstances(s_instances, m_materialInstanceKey);
+				if (foundMaterial == null)
+					m_clonedMaterial.Destroy();
+			}
+			else
+			{
+				m_clonedMaterial.Destroy();
+			}
+			m_clonedMaterial = null;
 		}
 
 		private void Init()
@@ -156,16 +183,16 @@ namespace GuiToolkit
 
 			if (m_originalMaterial == null)
 			{
-				m_originalMaterial = GetMaterial();
+				m_originalMaterial = GetMaterialFromRenderer();
 			}
 
 			// Material in renderer/graphic was forgotten. This happens on Undo. Workaround.
-			if (GetMaterial() == null)
+			if (GetMaterialFromRenderer() == null)
 			{
 				if (m_clonedMaterial != null)
-					SetMaterial(m_clonedMaterial);
+					SetMaterialToRenderer(m_clonedMaterial);
 				else
-					SetMaterial(m_originalMaterial);
+					SetMaterialToRenderer(m_originalMaterial);
 			}
 
 			// We already have a cloned material.
@@ -175,7 +202,7 @@ namespace GuiToolkit
 				if (gameObjectWasCloned && !m_isSharedMaterial)
 					m_clonedMaterial = Instantiate(m_clonedMaterial);
 
-				SetMaterial(m_clonedMaterial);
+				SetMaterialToRenderer(m_clonedMaterial);
 				return;
 			}
 
@@ -187,7 +214,7 @@ namespace GuiToolkit
 			if (m_clonedMaterial == null)
 				m_clonedMaterial = Instantiate(m_originalMaterial);
 
-			SetMaterial(m_clonedMaterial);
+			SetMaterialToRenderer(m_clonedMaterial);
 		}
 
 		private void InitIfNecessary()
@@ -233,7 +260,7 @@ namespace GuiToolkit
 					{
 						m_clonedMaterial.Destroy();
 						m_clonedMaterial = clonedMaterial;
-						SetMaterial(clonedMaterial);
+						SetMaterialToRenderer(clonedMaterial);
 					}
 					return;
 				}
@@ -246,13 +273,13 @@ namespace GuiToolkit
 					if (clonedMaterial)
 					{
 						m_clonedMaterial = Instantiate(clonedMaterial);
-						SetMaterial(m_clonedMaterial);
+						SetMaterialToRenderer(m_clonedMaterial);
 						return;
 					}
 
 					// nothing to do, we're the only instance holding this material
 				}
-				SetMaterial(m_clonedMaterial);
+				SetMaterialToRenderer(m_clonedMaterial);
 			}
 		}
 
@@ -296,7 +323,7 @@ namespace GuiToolkit
 					}
 				}
 
-				SetMaterial(m_clonedMaterial);
+				SetMaterialToRenderer(m_clonedMaterial);
 			}
 		}
 
