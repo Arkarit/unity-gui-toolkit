@@ -18,41 +18,17 @@ namespace GuiToolkit
 			PerElementAngle,
 		}
 
-		[SerializeField]
-		private Mode m_mode;
-
-		[SerializeField]
-		[Range(-360f, 360f)]
-		private float m_angle0;
-
-		[SerializeField]
-		[Range(-360f, 360f)]
-		private float m_angle1;
-
-		[SerializeField]
-		[Range(-360f, 360f)]
-		private float m_angleOffset;
-
-		[SerializeField]
-		private float m_radius;
-
-		[SerializeField]
-		private float m_zIncrement = 0;
-
-		[SerializeField]
-		private bool m_rotateElements = false;
-
-		[SerializeField]
-		[Range(-360f, 360f)]
-		private float m_elementAngleOffset;
-
-		[SerializeField]
-		[HideInInspector]
-		private bool m_useZIncrement;
-
-		[SerializeField]
-		[HideInInspector]
-		private bool m_childRotationChanged;
+		[SerializeField]							protected Mode m_mode;
+		[SerializeField][Range(-360f, 360f)]		protected float m_angle0;
+		[SerializeField][Range(-360f, 360f)]		protected float m_angle1;
+		[SerializeField][Range(-360f, 360f)]		protected float m_angleOffset;
+		[SerializeField]							protected float m_radius;
+		[SerializeField]							protected float m_zIncrement = 0;
+		[SerializeField]							protected float m_xFactor = 1;
+		[SerializeField]							protected bool m_rotateElements = false;
+		[SerializeField][Range(-360f, 360f)]		protected float m_elementAngleOffset;
+		[SerializeField][HideInInspector]			protected bool m_useZIncrement;
+		[SerializeField][HideInInspector]			protected bool m_childRotationChanged;
 
 		protected override void OnEnable()
 		{
@@ -172,7 +148,7 @@ namespace GuiToolkit
 					if (m_mode == Mode.PerElementAngle)
 						angle += angleIncrements[angleIncrementsIdx] * 0.5f;
 
-					Vector3 vPos = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad), 0);
+					Vector3 vPos = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad) * m_xFactor, Mathf.Sin(angle * Mathf.Deg2Rad), 0);
 					child.localPosition = vPos * m_radius;
 
 					if (m_useZIncrement)
@@ -224,6 +200,7 @@ namespace GuiToolkit
 		protected SerializedProperty m_angleOffsetProp;
 		protected SerializedProperty m_radiusProp;
 		protected SerializedProperty m_zIncrementProp;
+		protected SerializedProperty m_xFactorProp;
 		protected SerializedProperty m_rotateElementsProp;
 		protected SerializedProperty m_elementAngleOffsetProp;
 		protected SerializedProperty m_childRotationChangedProp;
@@ -238,6 +215,7 @@ namespace GuiToolkit
 			m_angleOffsetProp = serializedObject.FindProperty("m_angleOffset");
 			m_radiusProp = serializedObject.FindProperty("m_radius");
 			m_zIncrementProp = serializedObject.FindProperty("m_zIncrement");
+			m_xFactorProp = serializedObject.FindProperty("m_xFactor");
 			m_rotateElementsProp = serializedObject.FindProperty("m_rotateElements");
 			m_elementAngleOffsetProp = serializedObject.FindProperty("m_elementAngleOffset");
 			m_childRotationChangedProp = serializedObject.FindProperty("m_childRotationChanged");
@@ -263,6 +241,7 @@ namespace GuiToolkit
 			EditorGUILayout.PropertyField(m_angleOffsetProp);
 			EditorGUILayout.PropertyField(m_radiusProp);
 			EditorGUILayout.PropertyField(m_zIncrementProp);
+			EditorGUILayout.PropertyField(m_xFactorProp);
 			bool rotateElementsBefore = m_rotateElementsProp.boolValue;
 			EditorGUILayout.PropertyField(m_rotateElementsProp);
 			bool rotateElementsAfter = m_rotateElementsProp.boolValue;
