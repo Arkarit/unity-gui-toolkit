@@ -51,11 +51,8 @@ namespace GuiToolkit
 			ByXYAverage,
 		}
 
-		[SerializeField]
-		private EZSize m_zSize;
-
-		[SerializeField]
-		private float m_zSizeFactor = 1;
+		[SerializeField] protected EZSize m_zSize;
+		[SerializeField] protected float m_zSizeFactor = 1;
 
 		public static readonly int s_propOffset = Shader.PropertyToID("_Offset");
 		public static readonly int s_propScale = Shader.PropertyToID("_Scale");
@@ -90,6 +87,7 @@ namespace GuiToolkit
 		private MeshRenderer m_meshRenderer;
 		private RectTransform m_rectTransform;
 		private MaterialCloner m_materialCloner;
+		private BoxCollider m_boxCollider;
 
 		private Bounds m_originalBounds;
 
@@ -140,6 +138,8 @@ namespace GuiToolkit
 			m_rectTransform = this.GetOrCreateComponent<RectTransform>();
 			m_materialCloner = this.GetOrCreateComponent<MaterialCloner>();
 			m_materialPropertyBlock = new MaterialPropertyBlock();
+
+			m_boxCollider = GetComponent<BoxCollider>();
 
 			m_originalBounds = RecalculateBounds();
 		}
@@ -219,6 +219,12 @@ namespace GuiToolkit
 			bounds.center += offset;
 			if (m_meshFilter.sharedMesh)
 				m_meshFilter.sharedMesh.bounds = bounds;
+
+			if (m_boxCollider != null)
+			{
+				m_boxCollider.center = bounds.center;
+				m_boxCollider.extents = bounds.extents;
+			}
 		}
 
 		private Bounds RecalculateBounds()
