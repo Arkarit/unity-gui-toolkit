@@ -144,21 +144,20 @@ namespace GuiToolkit
 			m_originalBounds = RecalculateBounds();
 		}
 
-		private void SetMaterialProperties( Vector3 scale, Vector3 offset )
+		private void SetMaterialProperties( Vector3 _scale, Vector3 _offset )
 		{
 			if (m_meshRenderer && m_materialCloner.ClonedMaterial.enableInstancing)
 			{
 				m_meshRenderer.GetPropertyBlock(m_materialPropertyBlock);
 
-				m_materialPropertyBlock.SetVector(s_propScale, scale);
-				m_materialPropertyBlock.SetVector(s_propOffset, offset);
+				m_materialPropertyBlock.SetVector(s_propScale, _scale);
+				m_materialPropertyBlock.SetVector(s_propOffset, _offset);
 
 				m_meshRenderer.SetPropertyBlock(m_materialPropertyBlock);
 				return;
 			}
-
-			m_materialCloner.ClonedMaterial.SetVector(s_propScale, scale);
-			m_materialCloner.ClonedMaterial.SetVector(s_propOffset, offset);
+			m_materialCloner.ClonedMaterial.SetVector(s_propScale, _scale);
+			m_materialCloner.ClonedMaterial.SetVector(s_propOffset, _offset);
 		}
 
 		private void AlignMaterialToRectTransformSize()
@@ -170,11 +169,16 @@ namespace GuiToolkit
 			if (rect == m_previousRect && m_previousMaterial == Material)
 				return;
 
-			m_previousRect = rect;
-			m_previousMaterial = Material;
-
 			if (m_materialCloner == null || !m_materialCloner.Valid)
 				return;
+
+			// If the material has changed, we need to reset the renderer property block in case instancing is off
+			// If it's on, the property block will be set in the SetMaterialProperties() fn
+			if (m_previousMaterial != m_materialCloner.ClonedMaterial && m_meshRenderer != null)
+				m_meshRenderer.SetPropertyBlock(null);
+
+			m_previousRect = rect;
+			m_previousMaterial = m_materialCloner.ClonedMaterial;
 
 			if (!m_materialCloner.ClonedMaterial.HasProperty(s_propOffset) || !m_materialCloner.ClonedMaterial.HasProperty(s_propScale))
 				return;
