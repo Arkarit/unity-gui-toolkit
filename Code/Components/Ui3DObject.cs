@@ -131,6 +131,15 @@ namespace GuiToolkit
 			AlignMaterialToRectTransformSize();
 		}
 
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			if (m_meshRenderer)
+				m_meshRenderer.SetPropertyBlock(null);
+			if (m_meshFilter && m_meshFilter.sharedMesh)
+				m_meshFilter.sharedMesh.bounds = RecalculateBounds();
+		}
+
 		private void Init()
 		{
 			m_meshFilter = this.GetOrCreateComponent<MeshFilter>();
@@ -156,6 +165,8 @@ namespace GuiToolkit
 				m_meshRenderer.SetPropertyBlock(m_materialPropertyBlock);
 				return;
 			}
+
+			m_meshRenderer.SetPropertyBlock(null);
 			m_materialCloner.ClonedMaterial.SetVector(s_propScale, _scale);
 			m_materialCloner.ClonedMaterial.SetVector(s_propOffset, _offset);
 		}
@@ -171,11 +182,6 @@ namespace GuiToolkit
 
 			if (m_materialCloner == null || !m_materialCloner.Valid)
 				return;
-
-			// If the material has changed, we need to reset the renderer property block in case instancing is off
-			// If it's on, the property block will be set in the SetMaterialProperties() fn
-			if (m_previousMaterial != m_materialCloner.ClonedMaterial && m_meshRenderer != null)
-				m_meshRenderer.SetPropertyBlock(null);
 
 			m_previousRect = rect;
 			m_previousMaterial = m_materialCloner.ClonedMaterial;
