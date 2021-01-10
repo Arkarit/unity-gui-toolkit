@@ -72,7 +72,6 @@ namespace GuiToolkit
 				InitIfNecessary();
 				if (m_originalMaterial == value)
 					return;
-
 				Clear();
 				SetMaterialToRenderer(value);
 				Init();
@@ -159,7 +158,6 @@ namespace GuiToolkit
 		private void Clear()
 		{
 			SetMaterialToRenderer(m_originalMaterial);
-			m_originalMaterial = null;
 			if (m_isSharedMaterial)
 			{
 				Material foundMaterial = FindClonedMaterialInOtherInstances(s_instances, m_materialInstanceKey);
@@ -171,6 +169,7 @@ namespace GuiToolkit
 				m_clonedMaterial.Destroy();
 			}
 			m_clonedMaterial = null;
+			m_originalMaterial = null;
 		}
 
 		private void Init()
