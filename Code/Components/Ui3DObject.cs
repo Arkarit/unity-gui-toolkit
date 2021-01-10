@@ -153,7 +153,7 @@ namespace GuiToolkit
 			m_originalBounds = RecalculateBounds();
 		}
 
-		private void SetMaterialProperties( Vector3 _scale, Vector3 _offset )
+		private void SetMaterialProperties( Vector4 _scale, Vector4 _offset )
 		{
 			if (m_meshRenderer && m_materialCloner.ClonedMaterial.enableInstancing)
 			{
@@ -189,7 +189,7 @@ namespace GuiToolkit
 			if (!m_materialCloner.ClonedMaterial.HasProperty(s_propOffset) || !m_materialCloner.ClonedMaterial.HasProperty(s_propScale))
 				return;
 
-			Vector3 scale = Vector4.one;
+			Vector4 scale = Vector4.one;
 			scale.x = rect.width / m_originalBounds.size.x;
 			scale.y = rect.height / m_originalBounds.size.y;
 			switch (m_zSize)
@@ -209,14 +209,14 @@ namespace GuiToolkit
 					Debug.Assert(false);
 					break;
 			}
-
 			scale.z *= m_zSizeFactor;
+			scale.w = 1;
 
-			Vector3 offset = -m_originalBounds.min;
+			Vector4 offset = -m_originalBounds.min;
 			offset.Scale( scale );
 			offset.x += rect.min.x;
 			offset.y += rect.min.y;
-			offset.z = 0;
+			offset.z = offset.w = 0;
 			SetMaterialProperties(scale, offset);
 
 			Bounds bounds = m_originalBounds;
@@ -226,7 +226,7 @@ namespace GuiToolkit
 			Vector3 extents = bounds.extents;
 			extents.Scale(scale);
 			bounds.extents = extents;
-			bounds.center += offset;
+			bounds.center += offset.Xyz();
 			if (m_meshFilter.sharedMesh)
 				m_meshFilter.sharedMesh.bounds = bounds;
 
