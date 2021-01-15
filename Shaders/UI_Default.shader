@@ -18,6 +18,11 @@ Shader "UIToolkit/UI_Default"
 		_DisabledDesaturateStrength("Disabled Desaturate Strength", Range(0,1)) = 0.8
 		_DisabledBrightness("Disabled Brightness", Range(0,1)) = 0.7
 
+		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("BlendSource", Float) = 5
+		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("BlendDestination", Float) = 10
+		[Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 0
+		[Toggle] _ZWrite ("ZWrite", Float) = 0
+//		_ZTest("ZTest", Float) = 4 // less or equal -> default
     }
     SubShader
     {
@@ -40,11 +45,11 @@ Shader "UIToolkit/UI_Default"
             WriteMask [_StencilWriteMask]
         }
 
-        Cull Off
+        Cull [_Cull]
         Lighting Off
-        ZWrite Off
+        ZWrite [_ZWrite]
         ZTest [unity_GUIZTestMode]
-        Blend SrcAlpha OneMinusSrcAlpha
+        Blend [_SrcBlend] [_DstBlend]
         ColorMask [_ColorMask]
 
         Pass
