@@ -312,6 +312,11 @@ namespace GuiToolkit
 			return new Vector2(_this.y, _this.z);
 		}
 
+		public static Vector3 Xyz( this Vector4 _this )
+		{
+			return new Vector3(_this.x, _this.y, _this.z);
+		}
+
 		public static Vector2 Swap( this Vector2 _this )
 		{
 			float t = _this.x;
