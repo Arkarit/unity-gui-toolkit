@@ -240,7 +240,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd2ccc9659ef7a4bb93ab6ce92ba6e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_evaluateMode: 0
   m_vertexColorMode: 0
   m_gradient:
     serializedVersion: 2
@@ -512,10 +511,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c31774288aecfde479e59654dd60a2f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_enabledInHierarchy: 1
   m_defaultSceneVisibility: 0
   m_layer: 600
   m_isFullScreen: 0
-  m_lastSiblingIndex: -1
   m_closeButton: {fileID: 6957560595721433611}
   m_tabsColumn: {fileID: 5968183750924817586}
   m_tabContentContainer: {fileID: 7953324690129522827}
@@ -694,7 +693,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_evaluateMode: 0
   m_vertexColorMode: 0
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.25490198}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0}
@@ -1168,7 +1166,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_evaluateMode: 0
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}
@@ -1246,7 +1243,7 @@ MonoBehaviour:
   m_MinWidth: -1
   m_MinHeight: -1
   m_PreferredWidth: 30000
-  m_PreferredHeight: 1000
+  m_PreferredHeight: 30000
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -1337,7 +1334,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd2ccc9659ef7a4bb93ab6ce92ba6e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_evaluateMode: 0
   m_vertexColorMode: 0
   m_gradient:
     serializedVersion: 2
