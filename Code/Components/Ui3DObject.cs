@@ -51,11 +51,8 @@ namespace GuiToolkit
 			ByXYAverage,
 		}
 
-		[SerializeField]
-		private EZSize m_zSize;
-
-		[SerializeField]
-		private float m_zSizeFactor = 1;
+		[SerializeField] protected EZSize m_zSize;
+		[SerializeField] protected float m_zSizeFactor = 1;
 
 		public static readonly int s_propOffset = Shader.PropertyToID("_Offset");
 		public static readonly int s_propScale = Shader.PropertyToID("_Scale");
@@ -90,6 +87,7 @@ namespace GuiToolkit
 		private MeshRenderer m_meshRenderer;
 		private RectTransform m_rectTransform;
 		private MaterialCloner m_materialCloner;
+		private BoxCollider m_boxCollider;
 
 		private Bounds m_originalBounds;
 
@@ -133,6 +131,15 @@ namespace GuiToolkit
 			AlignMaterialToRectTransformSize();
 		}
 
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			if (m_meshRenderer)
+				m_meshRenderer.SetPropertyBlock(null);
+			if (m_meshFilter && m_meshFilter.sharedMesh)
+				m_meshFilter.sharedMesh.bounds = RecalculateBounds();
+		}
+
 		private void Init()
 		{
 			m_meshFilter = this.GetOrCreateComponent<MeshFilter>();
@@ -141,24 +148,27 @@ namespace GuiToolkit
 			m_materialCloner = this.GetOrCreateComponent<MaterialCloner>();
 			m_materialPropertyBlock = new MaterialPropertyBlock();
 
+			m_boxCollider = GetComponent<BoxCollider>();
+
 			m_originalBounds = RecalculateBounds();
 		}
 
-		private void SetMaterialProperties( Vector3 scale, Vector3 offset )
+		private void SetMaterialProperties( Vector4 _scale, Vector4 _offset )
 		{
 			if (m_meshRenderer && m_materialCloner.ClonedMaterial.enableInstancing)
 			{
 				m_meshRenderer.GetPropertyBlock(m_materialPropertyBlock);
 
-				m_materialPropertyBlock.SetVector(s_propScale, scale);
-				m_materialPropertyBlock.SetVector(s_propOffset, offset);
+				m_materialPropertyBlock.SetVector(s_propScale, _scale);
+				m_materialPropertyBlock.SetVector(s_propOffset, _offset);
 
 				m_meshRenderer.SetPropertyBlock(m_materialPropertyBlock);
 				return;
 			}
 
-			m_materialCloner.ClonedMaterial.SetVector(s_propScale, scale);
-			m_materialCloner.ClonedMaterial.SetVector(s_propOffset, offset);
+			m_meshRenderer.SetPropertyBlock(null);
+			m_materialCloner.ClonedMaterial.SetVector(s_propScale, _scale);
+			m_materialCloner.ClonedMaterial.SetVector(s_propOffset, _offset);
 		}
 
 		private void AlignMaterialToRectTransformSize()
@@ -170,16 +180,16 @@ namespace GuiToolkit
 			if (rect == m_previousRect && m_previousMaterial == Material)
 				return;
 
-			m_previousRect = rect;
-			m_previousMaterial = Material;
-
 			if (m_materialCloner == null || !m_materialCloner.Valid)
 				return;
+
+			m_previousRect = rect;
+			m_previousMaterial = m_materialCloner.ClonedMaterial;
 
 			if (!m_materialCloner.ClonedMaterial.HasProperty(s_propOffset) || !m_materialCloner.ClonedMaterial.HasProperty(s_propScale))
 				return;
 
-			Vector3 scale = Vector4.one;
+			Vector4 scale = Vector4.one;
 			scale.x = rect.width / m_originalBounds.size.x;
 			scale.y = rect.height / m_originalBounds.size.y;
 			switch (m_zSize)
@@ -199,14 +209,14 @@ namespace GuiToolkit
 					Debug.Assert(false);
 					break;
 			}
-
 			scale.z *= m_zSizeFactor;
+			scale.w = 1;
 
-			Vector3 offset = -m_originalBounds.min;
+			Vector4 offset = -m_originalBounds.min;
 			offset.Scale( scale );
 			offset.x += rect.min.x;
 			offset.y += rect.min.y;
-			offset.z = 0;
+			offset.z = offset.w = 0;
 			SetMaterialProperties(scale, offset);
 
 			Bounds bounds = m_originalBounds;
@@ -216,9 +226,15 @@ namespace GuiToolkit
 			Vector3 extents = bounds.extents;
 			extents.Scale(scale);
 			bounds.extents = extents;
-			bounds.center += offset;
+			bounds.center += offset.Xyz();
 			if (m_meshFilter.sharedMesh)
 				m_meshFilter.sharedMesh.bounds = bounds;
+
+			if (m_boxCollider != null)
+			{
+				m_boxCollider.center = bounds.center;
+				m_boxCollider.extents = bounds.extents;
+			}
 		}
 
 		private Bounds RecalculateBounds()

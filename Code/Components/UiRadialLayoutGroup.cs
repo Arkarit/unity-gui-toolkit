@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using System.Linq;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,43 +15,20 @@ namespace GuiToolkit
 		{
 			FixedOverallAngle,
 			FixedElementAngle,
+			PerElementAngle,
 		}
 
-		[SerializeField]
-		private Mode m_mode;
-
-		[SerializeField]
-		[Range(-360f, 360f)]
-		private float m_angle0;
-
-		[SerializeField]
-		[Range(-360f, 360f)]
-		private float m_angle1;
-
-		[SerializeField]
-		[Range(-360f, 360f)]
-		private float m_angleOffset;
-
-		[SerializeField]
-		private float m_radius;
-
-		[SerializeField]
-		private float m_zIncrement = 0;
-
-		[SerializeField]
-		private bool m_rotateElements = false;
-
-		[SerializeField]
-		[Range(-360f, 360f)]
-		private float m_elementAngleOffset;
-
-		[SerializeField]
-		[HideInInspector]
-		private bool m_useZIncrement;
-
-		[SerializeField]
-		[HideInInspector]
-		private bool m_childRotationChanged;
+		[SerializeField]							protected Mode m_mode;
+		[SerializeField][Range(-360f, 360f)]		protected float m_angle0;
+		[SerializeField][Range(-360f, 360f)]		protected float m_angle1;
+		[SerializeField][Range(-360f, 360f)]		protected float m_angleOffset;
+		[SerializeField]							protected float m_radius;
+		[SerializeField]							protected float m_zIncrement = 0;
+		[SerializeField]							protected float m_xFactor = 1;
+		[SerializeField]							protected bool m_rotateElements = false;
+		[SerializeField][Range(-360f, 360f)]		protected float m_elementAngleOffset;
+		[SerializeField][HideInInspector]			protected bool m_useZIncrement;
+		[SerializeField][HideInInspector]			protected bool m_childRotationChanged;
 
 		protected override void OnEnable()
 		{
@@ -68,6 +47,11 @@ namespace GuiToolkit
 		public override void CalculateLayoutInputHorizontal()
 		{
 			CalculateRadial();
+		}
+
+		public new void SetDirty()
+		{
+			base.SetDirty();
 		}
 
 #if UNITY_EDITOR
@@ -93,6 +77,23 @@ namespace GuiToolkit
 			}
 		}
 
+		private List<float> ElementAngles
+		{
+			get
+			{
+				List <float> result = new List<float>();
+				foreach (Transform child in transform)
+				{
+					if (child.gameObject.activeSelf)
+					{
+						UiRadialLayoutElement layoutElement = child.GetComponent<UiRadialLayoutElement>();
+						result.Add(layoutElement != null ? layoutElement.Angle : 0);
+					}
+				}
+				return result;
+			}
+		}
+
 		private void CalculateRadial()
 		{
 			m_Tracker.Clear();
@@ -101,21 +102,30 @@ namespace GuiToolkit
 			if (childCount == 0)
 				return;
 
-			float topAngleOffset, angleIncrement;
+			float topAngleOffset = 0, angleIncrement = 0;
+			List<float> angleIncrements = null;
+
 			switch(m_mode)
 			{
 				case Mode.FixedOverallAngle:
 					topAngleOffset = -m_angle0 - 90;
 					angleIncrement = ((m_angle1 - m_angle0)) / (childCount - 1);
 					break;
-
+				case Mode.PerElementAngle:
+					angleIncrements = ElementAngles;
+					float sum = 0;
+					for (int i = 0; i<angleIncrements.Count; i++)
+						sum += angleIncrements[i];
+					topAngleOffset = sum * 0.5f - 90.0f;
+					break;
 				default:
 				case Mode.FixedElementAngle:
 					topAngleOffset = m_angle0 * (childCount - 1) * 0.5f - 90.0f;
 					angleIncrement = m_angle0;
 					break;
 			}
-			float angle = m_angleOffset - topAngleOffset;
+
+			float runningAngle = m_angleOffset - topAngleOffset;
 
 			float z = 0;
 			if (m_useZIncrement && childCount > 1)
@@ -123,6 +133,7 @@ namespace GuiToolkit
 				z = - m_zIncrement * childCount / 2;
 			}
 
+			int angleIncrementsIdx = 0;
 			for (int i = 0; i < transform.childCount; i++)
 			{
 				RectTransform child = (RectTransform)transform.GetChild(i);
@@ -132,7 +143,12 @@ namespace GuiToolkit
 				if (child != null)
 				{
 					m_Tracker.Add( this, child, GetDrivenTransformProperties() );
-					Vector3 vPos = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad), 0);
+
+					float angle = runningAngle;
+					if (m_mode == Mode.PerElementAngle)
+						angle += angleIncrements[angleIncrementsIdx] * 0.5f;
+
+					Vector3 vPos = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad) * m_xFactor, Mathf.Sin(angle * Mathf.Deg2Rad), 0);
 					child.localPosition = vPos * m_radius;
 
 					if (m_useZIncrement)
@@ -149,7 +165,11 @@ namespace GuiToolkit
 					{
 						child.localRotation = Quaternion.identity;
 					}
-					angle += angleIncrement;
+
+					if (m_mode == Mode.PerElementAngle)
+						runningAngle += angleIncrements[angleIncrementsIdx++];
+					else
+						runningAngle += angleIncrement;
 				}
 			}
 
@@ -180,6 +200,7 @@ namespace GuiToolkit
 		protected SerializedProperty m_angleOffsetProp;
 		protected SerializedProperty m_radiusProp;
 		protected SerializedProperty m_zIncrementProp;
+		protected SerializedProperty m_xFactorProp;
 		protected SerializedProperty m_rotateElementsProp;
 		protected SerializedProperty m_elementAngleOffsetProp;
 		protected SerializedProperty m_childRotationChangedProp;
@@ -194,6 +215,7 @@ namespace GuiToolkit
 			m_angleOffsetProp = serializedObject.FindProperty("m_angleOffset");
 			m_radiusProp = serializedObject.FindProperty("m_radius");
 			m_zIncrementProp = serializedObject.FindProperty("m_zIncrement");
+			m_xFactorProp = serializedObject.FindProperty("m_xFactor");
 			m_rotateElementsProp = serializedObject.FindProperty("m_rotateElements");
 			m_elementAngleOffsetProp = serializedObject.FindProperty("m_elementAngleOffset");
 			m_childRotationChangedProp = serializedObject.FindProperty("m_childRotationChanged");
@@ -219,6 +241,7 @@ namespace GuiToolkit
 			EditorGUILayout.PropertyField(m_angleOffsetProp);
 			EditorGUILayout.PropertyField(m_radiusProp);
 			EditorGUILayout.PropertyField(m_zIncrementProp);
+			EditorGUILayout.PropertyField(m_xFactorProp);
 			bool rotateElementsBefore = m_rotateElementsProp.boolValue;
 			EditorGUILayout.PropertyField(m_rotateElementsProp);
 			bool rotateElementsAfter = m_rotateElementsProp.boolValue;

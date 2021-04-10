@@ -168,7 +168,6 @@ namespace GuiToolkit
 
 		public static UiToolkitConfiguration EditorLoad()
 		{
-			EnsureFolderExists(EDITOR_DIR);
 			UiToolkitConfiguration settings = AssetDatabase.LoadAssetAtPath<UiToolkitConfiguration>(UiToolkitConfiguration.EDITOR_PATH);
 			if (settings == null)
 			{
@@ -181,42 +180,10 @@ namespace GuiToolkit
 		public static void EditorSave(UiToolkitConfiguration _settings)
 		{
 			if (!AssetDatabase.Contains(_settings))
-				AssetDatabase.CreateAsset(_settings, EDITOR_PATH);
+			{
+				UiEditorUtility.CreateAsset(_settings, EDITOR_PATH);
+			}
 			AssetDatabase.SaveAssets();
-		}
-
-		private static bool EnsureFolderExists( string _unityPath )
-		{
-			try
-			{
-				if (!AssetDatabase.IsValidFolder(_unityPath))
-				{
-					string[] names = _unityPath.Split('/');
-					string parentPath = "";
-					string folderToCreate;
-					if (names.Length == 0)
-						return false;
-					else
-					{
-						folderToCreate = names[names.Length - 1];
-						if (names.Length > 1)
-						{
-							parentPath = _unityPath.Substring(0, _unityPath.Length - folderToCreate.Length - 1);
-							if (!AssetDatabase.IsValidFolder(parentPath))
-								if (!EnsureFolderExists(parentPath))
-									return false;
-						}
-					}
-
-					if (!string.IsNullOrEmpty(folderToCreate))
-						AssetDatabase.CreateFolder(parentPath, folderToCreate);
-				}
-				return true;
-			}
-			catch
-			{
-				return false;
-			}
 		}
 #endif
 	}

@@ -836,6 +836,60 @@ namespace GuiToolkit
 			return _assetPath.Substring(0, idx + 1);
 		}
 
+		public static string GetNativePath( string _assetPath )
+		{
+			return GetApplicationDataDir() + "/" + _assetPath;
+		}
+
+		public static string GetDirectoryName(string _path)
+		{
+			return Path.GetDirectoryName(_path).Replace('\\', '/');
+		}
+
+		// creates an asset and ensures that the parent directory exists
+		// (Which in a sane engine obviously would be automatically done by the engine, but this is Unity)
+		public static void CreateAsset( UnityEngine.Object _object, string _path )
+		{
+			string directory = GetDirectoryName(_path);
+			EnsureFolderExists(directory);
+			AssetDatabase.CreateAsset(_object, _path);
+		}
+
+		public static bool EnsureFolderExists( string _unityPath )
+		{
+			try
+			{
+				if (!AssetDatabase.IsValidFolder(_unityPath))
+				{
+					string[] names = _unityPath.Split('/');
+					string parentPath = "";
+					string folderToCreate;
+					if (names.Length == 0)
+						return false;
+					else
+					{
+						folderToCreate = names[names.Length - 1];
+						if (names.Length > 1)
+						{
+							parentPath = _unityPath.Substring(0, _unityPath.Length - folderToCreate.Length - 1);
+							if (!AssetDatabase.IsValidFolder(parentPath))
+								if (!EnsureFolderExists(parentPath))
+									return false;
+						}
+					}
+
+					if (!string.IsNullOrEmpty(folderToCreate))
+						AssetDatabase.CreateFolder(parentPath, folderToCreate);
+				}
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+
 		private static string s_rootDir;
 		public static string GetUiToolkitRootProjectDir()
 		{
