@@ -668,7 +668,7 @@ PrefabInstance:
     - target: {fileID: 2527186978879140336, guid: 0f6119b246c780b4195ff06650f0d15e,
         type: 3}
       propertyPath: m_Name
-      value: FullScreenSettingsDialog
+      value: FullScreenSettingsDialogHorizontal
       objectReference: {fileID: 0}
     - target: {fileID: 2527186978879140338, guid: 0f6119b246c780b4195ff06650f0d15e,
         type: 3}
@@ -809,11 +809,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -46.799805
-      objectReference: {fileID: 0}
-    - target: {fileID: 5890765324333056212, guid: 0f6119b246c780b4195ff06650f0d15e,
-        type: 3}
-      propertyPath: m_IgnoreLayout
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5890765324333056213, guid: 0f6119b246c780b4195ff06650f0d15e,
         type: 3}
