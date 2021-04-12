@@ -25,7 +25,7 @@ namespace GuiToolkit
 
 		public ResolutionDependentDefinition[] Definitions => m_definitions;
 
-		protected virtual void Start()
+		protected virtual void OnEnable()
 		{
 			UpdateElements();
 		}
@@ -38,12 +38,16 @@ namespace GuiToolkit
 		protected virtual void UpdateElements()
 		{
 			bool isLandscape = Screen.width >= Screen.height;
+Debug.Log($"isLandscape: {isLandscape}");
 
 			foreach( var definition in m_definitions )
 			{
-				definition.Target.CopyFrom(isLandscape ? definition.TemplateLandscape : definition.TemplatePortrait);
+				Component source = isLandscape ? definition.TemplateLandscape : definition.TemplatePortrait;
+Debug.Log($"Copy {source} to {definition.Target}");
+				definition.Target.CopyFrom(source);
 			}
 		}
+
 	}
 
 #if UNITY_EDITOR
@@ -73,8 +77,8 @@ namespace GuiToolkit
 			if (GUILayout.Button("Apply"))
 			{
 				bool isLandscape = Screen.width >= Screen.height;
+Debug.Log($"isLandscape: {isLandscape}");
 
-				Undo.SetCurrentGroupName("Apply Resolution dependent components");
 				foreach (var definition in thisUiResolutionDependentSwitcher.Definitions)
 				{
 					Component target = isLandscape ? definition.TemplateLandscape : definition.TemplatePortrait;
@@ -82,10 +86,11 @@ namespace GuiToolkit
 					if (source == null || target == null)
 						continue;
 
-					Undo.RegisterCompleteObjectUndo(target, "");
+Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
+
+					Undo.RegisterCompleteObjectUndo(target, "Apply Resolution dependent components");
 					target.CopyFrom(source);
 				}
-				Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
 			}
 		}
 	}

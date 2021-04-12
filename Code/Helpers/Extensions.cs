@@ -54,22 +54,16 @@ namespace GuiToolkit
 			Extensions.Destroy(_this.gameObject);
 		}
 
-		public static void DestroyAllChildren( this Transform _this )
+		public static void DestroyAllChildren( this Transform _this, bool _includeHidden = true )
 		{
 			foreach( Transform child in _this )
-				Extensions.Destroy(child);
+				if (_includeHidden || child.gameObject.activeSelf)
+					Extensions.Destroy(child);
 		}
 
-		public static void DestroyAllChildren( this GameObject _this )
+		public static void DestroyAllChildren( this GameObject _this, bool _includeHidden = true )
 		{
-			Extensions.DestroyAllChildren( _this.transform );
-		}
-
-		public static Transform Clear( this Transform _this )
-		{
-			foreach (Transform child in _this)
-				child.Destroy();
-			return _this;
+			Extensions.DestroyAllChildren( _this.transform, _includeHidden );
 		}
 
 		public static List<T> ToList<T>( this HashSet<T> _this )
@@ -413,7 +407,10 @@ namespace GuiToolkit
 
 			return child.GetOrCreateComponent<T>();
 		}
-			 
+		
+		private static readonly HashSet<string> s_copyExcluded = new HashSet<string> {"name", "parent", "parentInternal"};
+		private static readonly HashSet<Type> s_stopOnTypes = new HashSet<Type> {typeof(Component), typeof(Transform), typeof(MonoBehaviour)};
+
 		public static T CopyFrom<T>( this Component _this, T _other ) where T : Component
 		{
 			Type type = _this.GetType();
@@ -421,24 +418,34 @@ namespace GuiToolkit
 			if (type != _other.GetType())
 				return null;
 
-			BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default | BindingFlags.DeclaredOnly;
-			PropertyInfo[] pinfos = type.GetProperties(flags);
-			foreach (var pinfo in pinfos)
+			while (!s_stopOnTypes.Contains(type))
 			{
-				if (pinfo.CanWrite)
+				//Debug.Log($"type: {type}");
+				_this.GetInstanceID();
+				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default | BindingFlags.DeclaredOnly;
+				PropertyInfo[] pinfos = type.GetProperties(flags);
+				foreach (var pinfo in pinfos)
 				{
-					try
+					if (!s_copyExcluded.Contains(pinfo.Name) && pinfo.CanWrite)
 					{
-						pinfo.SetValue(_this, pinfo.GetValue(_other, null), null);
+						try
+						{
+							//Debug.Log($"pinfo {pinfo.Name}");
+							pinfo.SetValue(_this, pinfo.GetValue(_other, null), null);
+						}
+						catch { } // In case of NotImplementedException being thrown. For some reason specifying that exception didn't seem to catch it, so I didn't catch anything specific.
 					}
-					catch { } // In case of NotImplementedException being thrown. For some reason specifying that exception didn't seem to catch it, so I didn't catch anything specific.
 				}
-			}
 
-			FieldInfo[] finfos = type.GetFields(flags);
-			foreach (var finfo in finfos)
-			{
-				finfo.SetValue(_this, finfo.GetValue(_other));
+				FieldInfo[] finfos = type.GetFields(flags);
+				foreach (var finfo in finfos)
+				{
+					//Debug.Log($"finfo {finfo.Name}");
+					if (!s_copyExcluded.Contains(finfo.Name))
+						finfo.SetValue(_this, finfo.GetValue(_other));
+				}
+
+				type = type.BaseType;
 			}
 
 			return _this as T;
@@ -450,6 +457,22 @@ namespace GuiToolkit
 			return (T)inst?.Invoke(_this, null);
 		}
 
+		public static string GetPath(this Transform _this)
+		{
+			string result = _this.name;
+			while (_this.parent != null)
+			{
+				_this = _this.parent;
+				result = _this.name + "/" + result;
+			}
+			return result;
+		}
+
+		public static string GetPath(this GameObject _this)
+		{
+			return GetPath(_this.transform);
+		}
+		
 	}
 
 

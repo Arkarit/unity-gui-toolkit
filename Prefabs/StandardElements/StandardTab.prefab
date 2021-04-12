@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 674c9e59151164345b581302232e337c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_enabledInHierarchy: 1
   m_autoTranslate: 0
 --- !u!1 &6428330950989794200
 GameObject:
@@ -141,7 +142,7 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: -1
+  m_PreferredWidth: 350
   m_PreferredHeight: 140
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
@@ -205,10 +206,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d21d44b6de9cf8d41a4a78f467a9e7e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_enabledInHierarchy: 1
   m_simpleAnimation: {fileID: 0}
   m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 0}
-  m_enabled: 1
 --- !u!1001 &6428330949595553073
 PrefabInstance:
   m_ObjectHideFlags: 0

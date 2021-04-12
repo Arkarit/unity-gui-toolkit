@@ -163,8 +163,8 @@ namespace GuiToolkit
 
 		private void ClearDialogEntries()
 		{
-			m_tabContentContainer.DestroyAllChildren();
-			m_pageContentContainer.DestroyAllChildren();
+			m_tabContentContainer.DestroyAllChildren(false);
+			m_pageContentContainer.DestroyAllChildren(false);
 			m_tabInfos.Clear();
 			m_uiPlayerSettings.Clear();
 		}
