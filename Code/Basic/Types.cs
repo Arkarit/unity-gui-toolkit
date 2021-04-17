@@ -24,6 +24,13 @@ namespace GuiToolkit
 		Right
 	}
 
+	public enum EScreenOrientation
+	{
+		Invalid = -1,
+		Landscape,
+		Portrait,
+	}
+
 	// Note: the lower the layer definition number, the higher (more occluding)
 	// it is regarding the visibility
 	public enum EUiLayerDefinition

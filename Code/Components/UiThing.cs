@@ -30,6 +30,9 @@ namespace GuiToolkit
 		/// Override and return true here if you need the OnLanguageChanged() callback
 		protected virtual bool NeedsLanguageChangeCallback => false;
 
+		/// Override and return true here if you need the OnScreenOrientation() callback
+		protected virtual bool NeedsOnScreenOrientationCallback => false;
+
 		/// Override and return true here if the component is hierarchically enableable
 		public virtual bool IsEnableableInHierarchy => false;
 
@@ -78,6 +81,7 @@ namespace GuiToolkit
 		protected virtual void OnEnabledInHierarchyChanged(bool _enabled) {}
 
 		protected virtual void OnLanguageChanged( string _languageId ){}
+		protected virtual void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation ){}
 
 
 		/// \brief Install Event handlers on disabled objects
@@ -149,6 +153,9 @@ namespace GuiToolkit
 			if (NeedsLanguageChangeCallback)
 				UiEvents.OnLanguageChanged.AddListener(OnLanguageChanged);
 
+			if (NeedsOnScreenOrientationCallback)
+				UiEvents.OnScreenOrientationChange.AddListener(OnScreenOrientationChanged);
+
 			if (!ReceiveEventsWhenDisabled && !m_eventListenersAdded)
 			{
 				AddEventListeners();
@@ -161,6 +168,9 @@ namespace GuiToolkit
 		{
 			if (NeedsLanguageChangeCallback)
 				UiEvents.OnLanguageChanged.RemoveListener(OnLanguageChanged);
+
+			if (NeedsOnScreenOrientationCallback)
+				UiEvents.OnScreenOrientationChange.RemoveListener(OnScreenOrientationChanged);
 
 			if (!ReceiveEventsWhenDisabled && m_eventListenersAdded)
 			{

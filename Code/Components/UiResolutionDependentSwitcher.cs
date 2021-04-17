@@ -19,37 +19,19 @@ namespace GuiToolkit
 
 	[RequireComponent(typeof(RectTransform))]
 	[ExecuteAlways]
-	public class UiResolutionDependentSwitcher : MonoBehaviour
+	public class UiResolutionDependentSwitcher : UiThing
 	{
 		[SerializeField] protected ResolutionDependentDefinition[] m_definitions = new ResolutionDependentDefinition[0];
 		[SerializeField] protected bool m_autoUpdateOnEnable = true;
 
-		#region debug serialize member
-		#if DEBUG_SIMPLE_ANIMATION
-			[SerializeField]
-		#endif
-		#endregion
-		int m_lastScreenWidth = -1;
-
-		#region debug serialize member
-		#if DEBUG_SIMPLE_ANIMATION
-			[SerializeField]
-		#endif
-		#endregion
-		int m_lastScreenHeight = -1;
-
 		public ResolutionDependentDefinition[] Definitions => m_definitions;
+
+		protected override bool NeedsOnScreenOrientationCallback => true;
 
 		public virtual void UpdateElements()
 		{
 			if (!enabled)
 				return;
-
-			if (m_lastScreenWidth == Screen.width && m_lastScreenHeight == Screen.height)
-				return;
-
-			m_lastScreenWidth = Screen.width;
-			m_lastScreenHeight = Screen.height;
 
 			bool isLandscape = Screen.width >= Screen.height;
 Debug.Log($"isLandscape: {isLandscape}");
@@ -72,24 +54,26 @@ Debug.Log($"Copy {source} to {definition.Target}");
 			}
 		}
 
-		protected virtual void OnEnable()
+		protected override void OnEnable()
 		{
+			base.OnEnable();
+
 			if (m_autoUpdateOnEnable)
 				UpdateElements();
 		}
 
-		protected virtual void OnRectTransformDimensionsChange()
+		protected override void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation )
 		{
 			UpdateElements();
 		}
 
-//		private IEnumerator UpdateElementDelayed( UiSimpleAnimationBase _target, UiSimpleAnimationBase _source, bool _backwards )
-//		{
-//			while (_target.Running)
-//				yield return 0;
-//			_target.CopyFrom(_source);
-//			_target.Reset(!_backwards);
-//		}
+		//		private IEnumerator UpdateElementDelayed( UiSimpleAnimationBase _target, UiSimpleAnimationBase _source, bool _backwards )
+		//		{
+		//			while (_target.Running)
+		//				yield return 0;
+		//			_target.CopyFrom(_source);
+		//			_target.Reset(!_backwards);
+		//		}
 	}
 
 #if UNITY_EDITOR

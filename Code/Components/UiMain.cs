@@ -426,7 +426,9 @@ namespace GuiToolkit
 
 		#endregion
 
-		#region "Internal"
+		#region "Internal and Unity callbacks"
+
+		static EScreenOrientation s_screenOrientation = EScreenOrientation.Invalid;
 
 		protected override void Awake()
 		{
@@ -438,18 +440,22 @@ namespace GuiToolkit
 				DontDestroyOnLoad(gameObject);
 		}
 
-		protected virtual void Start()
+		protected override void Start()
 		{
+			base.Start();
+
 #if UNITY_EDITOR
 			CheckSceneSetup();
 #endif
 			SetDefaultSceneVisibilities(gameObject);
+			FireOnScreenOrientationChangedEventIfNecessary();
 		}
 
 		//FIXME: performance. Need some "dirty" stuff.
 		protected virtual void Update()
 		{
 			Instance = this;
+			FireOnScreenOrientationChangedEventIfNecessary();
 			InitGetters();
 			SortViews();
 		}
@@ -466,6 +472,15 @@ namespace GuiToolkit
 		{
 			base.OnDestroy();
 			Instance = null;
+		}
+
+		private void FireOnScreenOrientationChangedEventIfNecessary()
+		{
+			EScreenOrientation orientation = Screen.width > Screen.height ? EScreenOrientation.Landscape : EScreenOrientation.Portrait;
+			if (orientation == s_screenOrientation)
+				return;
+			UiEvents.OnScreenOrientationChange.Invoke(s_screenOrientation, orientation);
+			s_screenOrientation = orientation;
 		}
 
 		private bool CheckSceneValid(string _sceneName)
