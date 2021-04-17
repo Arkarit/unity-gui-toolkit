@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2231293489104102753}
   - component: {fileID: 5260212448376645014}
   - component: {fileID: 8019620588614702477}
+  - component: {fileID: 8160523681826420027}
   m_Layer: 5
   m_Name: StandardTabPage
   m_TagString: Untagged
@@ -29,14 +30,16 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 2602637275977695621}
+  - {fileID: 5850832110440059892}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 960, y: 540}
+  m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2231293489104102753
 MonoBehaviour:
@@ -50,6 +53,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e619d85a77f08243a85bd93cda23a19, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_enabledInHierarchy: 1
   m_defaultSceneVisibility: 2
 --- !u!114 &5260212448376645014
 MonoBehaviour:
@@ -74,6 +78,21 @@ MonoBehaviour:
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 1
+  m_forwardsDelay: 0
+  m_backwardsDelay: 0
+  m_completeTime: 0
+  m_completeBackwardsTime: 0
+  m_currentTime: 0
+  m_running: 0
+  m_pause: 0
+  m_backwards: 0
+  m_beginAnimateCalled: 0
+  m_endAnimateCalled: 0
+  m_currentNumberOfLoops: 0
+  m_master: 0
+  m_slave: 0
+  m_initAnimateDone: 0
+  m_debug: 1
   m_support: 2
   m_target: {fileID: 7514274282858316888}
   m_markTargetForLayoutRebuild: 0
@@ -147,6 +166,15 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaImage: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_animatePositionX: 0
+  m_animatePositionY: 1
+  m_animatePosition: 1
+  m_animateRotationZ: 0
+  m_animateScaleX: 0
+  m_animateScaleY: 0
+  m_animateScale: 0
+  m_animateAlpha: 0
+  m_flagsSet: 1
 --- !u!114 &8019620588614702477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,3 +188,331 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_contentContainer: {fileID: 7514274282858316888}
+--- !u!114 &8160523681826420027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036399696315602249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6733c5ee474b1694295891198e3799a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_definitions:
+  - Target: {fileID: 5260212448376645014}
+    TemplateLandscape: {fileID: 7863098322363323191}
+    TemplatePortrait: {fileID: 8797161141809056541}
+--- !u!1 &2052250420451428112
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2602637275977695621}
+  - component: {fileID: 7863098322363323191}
+  m_Layer: 5
+  m_Name: templateLandscape
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &2602637275977695621
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2052250420451428112}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 7514274282858316888}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &7863098322363323191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2052250420451428112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 066656420ec6b814fa9c3b3f4a229db2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_duration: 0.3
+  m_delay: 0
+  m_backwardsPlayable: 1
+  m_backwardsAnimation: {fileID: 0}
+  m_gotoStartOnBackwards: 0
+  m_autoStart: 0
+  m_setOnStart: 0
+  m_numberOfLoops: 0
+  m_slaveAnimations: []
+  m_setLoopsForSlaves: 1
+  m_supportViewAnimations: 1
+  m_forwardsDelay: 0
+  m_backwardsDelay: 0
+  m_completeTime: 0
+  m_completeBackwardsTime: 0
+  m_currentTime: 0
+  m_running: 0
+  m_pause: 0
+  m_backwards: 0
+  m_beginAnimateCalled: 0
+  m_endAnimateCalled: 0
+  m_currentNumberOfLoops: 0
+  m_master: 0
+  m_slave: 0
+  m_initAnimateDone: 0
+  m_debug: 1
+  m_support: 2
+  m_target: {fileID: 7514274282858316888}
+  m_markTargetForLayoutRebuild: 0
+  m_canvasScaler: {fileID: 0}
+  m_canvasRectTransform: {fileID: 0}
+  m_scaleByCanvasScaler: 1
+  m_posXStart: 0
+  m_posXEnd: 0
+  m_posXCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_posYStart: 1200
+  m_posYEnd: 0
+  m_posYCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_rotZStart: 0
+  m_rotZEnd: 0
+  m_rotZCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_scaleXStart: 0
+  m_scaleXEnd: 0
+  m_scaleXCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_scaleYStart: 0
+  m_scaleYEnd: 0
+  m_scaleYCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_scaleLocked: 0
+  m_alphaCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_alphaImage: {fileID: 0}
+  m_alphaCanvasGroup: {fileID: 0}
+  m_animatePositionX: 0
+  m_animatePositionY: 0
+  m_animatePosition: 0
+  m_animateRotationZ: 0
+  m_animateScaleX: 0
+  m_animateScaleY: 0
+  m_animateScale: 0
+  m_animateAlpha: 0
+  m_flagsSet: 0
+--- !u!1 &6178964281498316562
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5850832110440059892}
+  - component: {fileID: 8797161141809056541}
+  m_Layer: 5
+  m_Name: templatePortrait
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &5850832110440059892
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6178964281498316562}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 7514274282858316888}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &8797161141809056541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6178964281498316562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 066656420ec6b814fa9c3b3f4a229db2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_duration: 0.3
+  m_delay: 0
+  m_backwardsPlayable: 1
+  m_backwardsAnimation: {fileID: 0}
+  m_gotoStartOnBackwards: 0
+  m_autoStart: 0
+  m_setOnStart: 0
+  m_numberOfLoops: 0
+  m_slaveAnimations: []
+  m_setLoopsForSlaves: 1
+  m_supportViewAnimations: 1
+  m_forwardsDelay: 0
+  m_backwardsDelay: 0
+  m_completeTime: 0
+  m_completeBackwardsTime: 0
+  m_currentTime: 0
+  m_running: 0
+  m_pause: 0
+  m_backwards: 0
+  m_beginAnimateCalled: 0
+  m_endAnimateCalled: 0
+  m_currentNumberOfLoops: 0
+  m_master: 0
+  m_slave: 0
+  m_initAnimateDone: 0
+  m_debug: 1
+  m_support: 1
+  m_target: {fileID: 7514274282858316888}
+  m_markTargetForLayoutRebuild: 0
+  m_canvasScaler: {fileID: 0}
+  m_canvasRectTransform: {fileID: 0}
+  m_scaleByCanvasScaler: 1
+  m_posXStart: 1200
+  m_posXEnd: 0
+  m_posXCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_posYStart: 1200
+  m_posYEnd: 0
+  m_posYCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_rotZStart: 0
+  m_rotZEnd: 0
+  m_rotZCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_scaleXStart: 0
+  m_scaleXEnd: 0
+  m_scaleXCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_scaleYStart: 0
+  m_scaleYEnd: 0
+  m_scaleYCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_scaleLocked: 0
+  m_alphaCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_alphaImage: {fileID: 0}
+  m_alphaCanvasGroup: {fileID: 0}
+  m_animatePositionX: 0
+  m_animatePositionY: 0
+  m_animatePosition: 0
+  m_animateRotationZ: 0
+  m_animateScaleX: 0
+  m_animateScaleY: 0
+  m_animateScale: 0
+  m_animateAlpha: 0
+  m_flagsSet: 0

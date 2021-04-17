@@ -408,25 +408,36 @@ namespace GuiToolkit
 			return child.GetOrCreateComponent<T>();
 		}
 		
-		private static readonly HashSet<string> s_copyExcluded = new HashSet<string> {"name", "parent", "parentInternal"};
-		private static readonly HashSet<Type> s_stopOnTypes = new HashSet<Type> {typeof(Component), typeof(Transform), typeof(MonoBehaviour)};
+		private static readonly HashSet<string> s_excludedMembers = new HashSet<string> {"name", "parent", "parentInternal"};
+		private static readonly HashSet<Type> s_excludedTypes = new HashSet<Type> {typeof(Component), typeof(Transform), typeof(MonoBehaviour)};
 
-		public static T CopyFrom<T>( this Component _this, T _other ) where T : Component
+
+		public static T CopyFrom<T>( this Component _this, T _other, HashSet<string> _excludedMembers = null, HashSet<Type> _excludedTypes = null ) where T : Component
 		{
+			if (_excludedMembers == null)
+				_excludedMembers = s_excludedMembers;
+			else
+				_excludedMembers.UnionWith(s_excludedMembers);
+
+			if (_excludedTypes == null)
+				_excludedTypes = s_excludedTypes;
+			else
+				_excludedTypes.UnionWith(s_excludedTypes);
+
 			Type type = _this.GetType();
 
 			if (type != _other.GetType())
 				return null;
 
-			while (!s_stopOnTypes.Contains(type))
+			while (!_excludedTypes.Contains(type))
 			{
 				//Debug.Log($"type: {type}");
 				_this.GetInstanceID();
-				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default | BindingFlags.DeclaredOnly;
+				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 				PropertyInfo[] pinfos = type.GetProperties(flags);
 				foreach (var pinfo in pinfos)
 				{
-					if (!s_copyExcluded.Contains(pinfo.Name) && pinfo.CanWrite)
+					if (!_excludedMembers.Contains(pinfo.Name) && pinfo.CanWrite)
 					{
 						try
 						{
@@ -441,7 +452,7 @@ namespace GuiToolkit
 				foreach (var finfo in finfos)
 				{
 					//Debug.Log($"finfo {finfo.Name}");
-					if (!s_copyExcluded.Contains(finfo.Name))
+					if (!_excludedMembers.Contains(finfo.Name))
 						finfo.SetValue(_this, finfo.GetValue(_other));
 				}
 

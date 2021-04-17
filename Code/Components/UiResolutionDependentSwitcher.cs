@@ -22,21 +22,35 @@ namespace GuiToolkit
 	public class UiResolutionDependentSwitcher : MonoBehaviour
 	{
 		[SerializeField] protected ResolutionDependentDefinition[] m_definitions = new ResolutionDependentDefinition[0];
+		[SerializeField] protected bool m_autoUpdateOnEnable = true;
+
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
+		int m_lastScreenWidth = -1;
+
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
+		int m_lastScreenHeight = -1;
 
 		public ResolutionDependentDefinition[] Definitions => m_definitions;
 
-		protected virtual void OnEnable()
+		public virtual void UpdateElements()
 		{
-			UpdateElements();
-		}
+			if (!enabled)
+				return;
 
-		protected virtual void OnRectTransformDimensionsChange()
-		{
-			UpdateElements();
-		}
+			if (m_lastScreenWidth == Screen.width && m_lastScreenHeight == Screen.height)
+				return;
 
-		protected virtual void UpdateElements()
-		{
+			m_lastScreenWidth = Screen.width;
+			m_lastScreenHeight = Screen.height;
+
 			bool isLandscape = Screen.width >= Screen.height;
 Debug.Log($"isLandscape: {isLandscape}");
 
@@ -44,10 +58,38 @@ Debug.Log($"isLandscape: {isLandscape}");
 			{
 				Component source = isLandscape ? definition.TemplateLandscape : definition.TemplatePortrait;
 Debug.Log($"Copy {source} to {definition.Target}");
+
+//				// updating a running animation is a difficult special case
+//				UiSimpleAnimationBase animation = definition.Target as UiSimpleAnimationBase;
+//				if (animation != null && animation.Running)
+//				{
+//Debug.Log("Copy running animation, start coroutine");
+//					UiMain.Instance.StartCoroutine(UpdateElementDelayed(animation, source as UiSimpleAnimation, animation.Backwards));
+//					continue;
+//				}
+
 				definition.Target.CopyFrom(source);
 			}
 		}
 
+		protected virtual void OnEnable()
+		{
+			if (m_autoUpdateOnEnable)
+				UpdateElements();
+		}
+
+		protected virtual void OnRectTransformDimensionsChange()
+		{
+			UpdateElements();
+		}
+
+//		private IEnumerator UpdateElementDelayed( UiSimpleAnimationBase _target, UiSimpleAnimationBase _source, bool _backwards )
+//		{
+//			while (_target.Running)
+//				yield return 0;
+//			_target.CopyFrom(_source);
+//			_target.Reset(!_backwards);
+//		}
 	}
 
 #if UNITY_EDITOR
@@ -58,16 +100,19 @@ Debug.Log($"Copy {source} to {definition.Target}");
 	public class UiResolutionDependentSwitcherEditor : Editor
 	{
 		protected SerializedProperty m_definitionsProperty;
+		protected SerializedProperty m_autoUpdateOnEnableProperty;
 
 		private void OnEnable()
 		{
 			m_definitionsProperty = serializedObject.FindProperty("m_definitions");
+			m_autoUpdateOnEnableProperty = serializedObject.FindProperty("m_autoUpdateOnEnable");
 		}
 
 		public override void OnInspectorGUI()
 		{
 			var thisUiResolutionDependentSwitcher = (UiResolutionDependentSwitcher) target;
 
+			EditorGUILayout.PropertyField(m_autoUpdateOnEnableProperty);
 			EditorGUILayout.PropertyField(m_definitionsProperty, true);
 
 			serializedObject.ApplyModifiedProperties();
@@ -91,6 +136,7 @@ Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target
 					Undo.RegisterCompleteObjectUndo(target, "Apply Resolution dependent components");
 					target.CopyFrom(source);
 				}
+				Canvas.ForceUpdateCanvases();
 			}
 		}
 	}

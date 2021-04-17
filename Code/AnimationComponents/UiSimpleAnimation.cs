@@ -76,9 +76,10 @@ namespace GuiToolkit
 			get
 			{
 				if (m_canvasScaler == null)
-					m_canvasScaler = GetComponentInParent<CanvasScaler>();
+					m_canvasRectTransform = null;
+
 				if (m_canvasRectTransform == null)
-					m_canvasRectTransform = (RectTransform) m_canvasScaler.transform;
+					m_canvasRectTransform = (RectTransform) CanvasScaler.transform;
 				return m_canvasRectTransform;
 			}
 			set { Stop(); m_canvasRectTransform = value; }
@@ -265,17 +266,65 @@ namespace GuiToolkit
 
 		// TODO: particles
 
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_animatePositionX;
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_animatePositionY;
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_animatePosition;
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_animateRotationZ;
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_animateScaleX;
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_animateScaleY;
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_animateScale;
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
 		private bool m_animateAlpha;
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
+		private bool m_flagsSet;
+
 
 		public void SetSlideX( RectTransform _rectTransform, bool _in, bool _left)
 		{
+			Log($"SetSlideX({_rectTransform.gameObject.name}, {_in}, {_left})");
 			Stop();
 			float width = _rectTransform.rect.width;
 			if (_in)
@@ -292,6 +341,7 @@ namespace GuiToolkit
 
 		public void SetSlideY( RectTransform _rectTransform, bool _in, bool _up)
 		{
+			Log($"SetSlideY({_rectTransform.gameObject.name}, {_in}, {_up})");
 			Stop();
 			float height = _rectTransform.rect.height;
 			if (_in)
@@ -339,10 +389,23 @@ namespace GuiToolkit
 			m_animateScaleY = m_support.HasFlags(ESupport.ScaleY);
 			m_animateScale = m_animateScaleX || m_animateScaleY;
 			m_animateAlpha = m_support.HasFlags(ESupport.Alpha);
+			m_flagsSet = true;
+			Log( "InitFlags() done: "
+				+ $"m_animatePositionX: {m_animatePositionX}, "
+				+ $"m_animatePositionY: {m_animatePositionY}, "
+				+ $"m_animatePosition: {m_animatePosition}, "
+				+ $"m_animateRotationZ: {m_animateRotationZ}, "
+				+ $"m_animateScaleX: {m_animateScaleX}, "
+				+ $"m_animateScaleY: {m_animateScaleY}, "
+				+ $"m_animateScale: {m_animateScale}, "
+				+ $"m_animateAlpha: {m_animateAlpha}, "
+				+ $"m_flagsSet: {m_flagsSet}"
+			);
 		}
 
 		private void ClearFlags()
 		{
+			Log("ClearFlags()");
 			m_support = ESupport.None;
 			m_animatePositionX = false;
 			m_animatePositionY = false;
@@ -352,6 +415,7 @@ namespace GuiToolkit
 			m_animateScaleY = false;
 			m_animateScale = false;
 			m_animateAlpha = false;
+			m_flagsSet = false;
 		}
 
 		protected override void Awake()
@@ -373,6 +437,8 @@ namespace GuiToolkit
 				Debug.LogError("Can not perform stack animation without canvas scaler!");
 				return;
 			}
+
+			Log($"SetStackAnimationType({_stackAnimationType}, {_backwards}, {_animationCurve} )");
 
 			if (_backwards)
 			{
@@ -437,6 +503,7 @@ namespace GuiToolkit
 					m_posYEnd = 0;
 					break;
 			}
+			m_flagsSet = true;
 		}
 
 		private void CheckCurve( bool _isY, AnimationCurve _animationCurve )
@@ -461,6 +528,11 @@ namespace GuiToolkit
 
 		protected override void OnAnimate(float _normalizedTime)
 		{
+			Log($"OnAnimate({_normalizedTime}) m_support:{m_support} m_flagsSet: {m_flagsSet} m_target.gameObject:{(m_target == null ? "null" : m_target.gameObject.name) }");
+
+			if (!m_flagsSet)
+				InitFlags();
+
 			if( m_animatePosition )
 				AnimatePosition(_normalizedTime);
 
@@ -486,7 +558,8 @@ namespace GuiToolkit
 
 			if (m_animatePositionY)
 				pos.y = Mathf.LerpUnclamped(m_posYStart, m_posYEnd, m_posYCurve.Evaluate(_normalizedTime)) * yRatio;
-
+Log($"m_posYStart: {m_posYStart} m_posYEnd: {m_posYEnd} m_posYCurve:{m_posYCurve} m_posYCurve.Evaluate(_normalizedTime):{m_posYCurve.Evaluate(_normalizedTime)} yRatio:{yRatio} CanvasRectTransform.sizeDelta:{CanvasRectTransform.sizeDelta} CanvasScaler.referenceResolution:{CanvasScaler.referenceResolution} ");
+			Log($"AnimatePosition({_normalizedTime}), pos:{pos}");
 			m_target.anchoredPosition = pos;
 		}
 
@@ -495,6 +568,7 @@ namespace GuiToolkit
 			Quaternion rot = m_target.localRotation;
 			Vector3 angles = rot.eulerAngles;
 			angles.z = Mathf.LerpUnclamped(m_rotZStart, m_rotZEnd, m_rotZCurve.Evaluate(_normalizedTime));
+			Log($"AnimateRotation({_normalizedTime}), angles.z:{angles.z}");
 			rot.eulerAngles = angles;
 			m_target.localRotation = rot;
 		}
@@ -511,12 +585,17 @@ namespace GuiToolkit
 			else if (m_animateScaleY)
 				scale.y = Mathf.LerpUnclamped(m_scaleYStart, m_scaleYEnd, m_scaleYCurve.Evaluate(_normalizedTime));
 
+			Log($"AnimateScale({_normalizedTime}), scale:{scale}");
+
 			m_target.localScale = scale;
 		}
 
 		private void AnimateAlpha( float _normalizedTime )
 		{
 			float alpha = m_alphaCurve.Evaluate(_normalizedTime);
+
+			Log($"AnimateAlpha({_normalizedTime}), alpha:{alpha}");
+
 			if (m_alphaImage != null)
 			{
 				Color c = m_alphaImage.color;

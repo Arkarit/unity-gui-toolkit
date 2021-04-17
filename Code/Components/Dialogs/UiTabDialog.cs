@@ -83,6 +83,7 @@ namespace GuiToolkit
 				tabInfo.Tab.OnValueChanged.RemoveAllListeners();
 
 				int toggleIndex = i;
+
 				tabInfo.Tab.OnValueChanged.AddListener( (isOn) => OnToggleChanged(toggleIndex, isOn) );
 				tabInfo.Page.SetVisible(tabInfo.Tab.Toggle.isOn, true);
 				if (tabInfo.Tab.Toggle.isOn)
@@ -110,11 +111,28 @@ namespace GuiToolkit
 			UiSimpleAnimation oldAnim = oldPanel.SimpleShowHideAnimation as UiSimpleAnimation;
 			UiSimpleAnimation newAnim = newPanel.SimpleShowHideAnimation as UiSimpleAnimation;
 
-			if (oldAnim != null)
-				oldAnim.SetSlideY(m_pageContentContainer, true, up);
+			// We need to set the game object active to allow UiResolutionDependentSwitcher to copy its values 
+			// prior to actually setting the values
+			newPanel.gameObject.SetActive(true);
 
-			if (newAnim != null)
-				newAnim.SetSlideY(m_pageContentContainer, true, !up);
+			bool isY = (oldAnim.Support & UiSimpleAnimation.ESupport.PositionY) != 0;
+
+			if (isY)
+			{
+				if (oldAnim != null)
+					oldAnim.SetSlideY(m_pageContentContainer, true, up);
+
+				if (newAnim != null)
+					newAnim.SetSlideY(m_pageContentContainer, true, !up);
+			}
+			else
+			{
+				if (oldAnim != null)
+					oldAnim.SetSlideX(m_pageContentContainer, true, up);
+
+				if (newAnim != null)
+					newAnim.SetSlideX(m_pageContentContainer, true, !up);
+			}
 
 			oldPanel.Hide();
 			newPanel.Show();

@@ -21,6 +21,9 @@ namespace GuiToolkit
 		protected SerializedProperty m_slaveAnimationsProp;
 		protected SerializedProperty m_setLoopsForSlavesProp;
 		protected SerializedProperty m_supportViewAnimationsProp;
+#if DEBUG_SIMPLE_ANIMATION && !DEBUG_SIMPLE_ANIMATION_ALL
+		protected SerializedProperty m_debugProp;
+#endif
 
 		private readonly List<UiSimpleAnimationBase> m_animationsToUpdate = new List<UiSimpleAnimationBase>();
 
@@ -37,6 +40,9 @@ namespace GuiToolkit
 			m_slaveAnimationsProp = serializedObject.FindProperty("m_slaveAnimations");
 			m_setLoopsForSlavesProp = serializedObject.FindProperty("m_setLoopsForSlaves");
 			m_supportViewAnimationsProp = serializedObject.FindProperty("m_supportViewAnimations");
+#if DEBUG_SIMPLE_ANIMATION && !DEBUG_SIMPLE_ANIMATION_ALL
+			m_debugProp = serializedObject.FindProperty("m_debug");
+#endif
 		}
 
 		public virtual void OnDisable()
@@ -77,18 +83,23 @@ namespace GuiToolkit
 
 			EditSubClass();
 
+#if DEBUG_SIMPLE_ANIMATION && !DEBUG_SIMPLE_ANIMATION_ALL
+			EditorGUILayout.Space();
+			EditorGUILayout.PropertyField(m_debugProp);
+#endif
+
 			EditorGUILayout.Space();
 
 			DisplayTestFields();
 
 			serializedObject.ApplyModifiedProperties();
 
-			#if DEBUG_SIMPLE_ANIMATION
+#if DEBUG_SIMPLE_ANIMATION
 				EditorGUILayout.Space(50);
 				GUILayout.Label("Default Inspector:", EditorStyles.boldLabel);
 				DrawDefaultInspector();
 				serializedObject.ApplyModifiedProperties();
-			#endif
+#endif
 
 		}
 

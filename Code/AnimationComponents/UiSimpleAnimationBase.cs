@@ -10,51 +10,40 @@ namespace GuiToolkit
 
 		// Timing values
 		[Tooltip("Duration of this animation, excluding delay.")]
-		[SerializeField]
-		protected float m_duration = 1;
+		[SerializeField] protected float m_duration = 1;
 
 		[Tooltip("Delay for the beginning of the animation (when played forwards)")]
-		[SerializeField]
-		protected float m_delay = 0;
+		[SerializeField] protected float m_delay = 0;
 
 		[Tooltip("If set to false, this animation is skipped when playing backwards")]
-		[SerializeField]
-		protected bool m_backwardsPlayable = true;
+		[SerializeField] protected bool m_backwardsPlayable = true;
 
 		[Tooltip("If set, this animation is played instead when playing backwards")]
-		[SerializeField]
-		protected UiSimpleAnimationBase m_backwardsAnimation;
+		[SerializeField] protected UiSimpleAnimationBase m_backwardsAnimation;
 
 		[Tooltip("If set to true, the animation instantly goes to start when played backwards")]
-		[SerializeField]
-		protected bool m_gotoStartOnBackwards = false;
+		[SerializeField] protected bool m_gotoStartOnBackwards = false;
 
 		[Tooltip("Automatically start the animation as soon as it becomes visible")]
-		[SerializeField]
-		protected bool m_autoStart = false;
+		[SerializeField] protected bool m_autoStart = false;
 
 		[Tooltip("Set the animation beginning values as it becomes visible, but don't start it")]
-		[SerializeField]
-		protected bool m_setOnStart = true;
+		[SerializeField] protected bool m_setOnStart = true;
 
 		[Tooltip("Number of loops. -1: infinite loops 0: no loops, >0: Arbitrary number of loops")]
-		[SerializeField]
-		protected int m_numberOfLoops = 0;
+		[SerializeField] protected int m_numberOfLoops = 0;
 
 		// Slave animations
 
 		[Tooltip("Slave animations which are automatically started when this animation is started.")]
-		[SerializeField]
-		protected UiSimpleAnimationBase[] m_slaveAnimations = new UiSimpleAnimationBase[0];
+		[SerializeField] protected UiSimpleAnimationBase[] m_slaveAnimations = new UiSimpleAnimationBase[0];
 
-		[SerializeField]
-		protected bool m_setLoopsForSlaves = true;
+		[SerializeField] protected bool m_setLoopsForSlaves = true;
+		[SerializeField] protected bool m_supportViewAnimations = false;
 
-		[SerializeField]
-		protected bool m_supportViewAnimations = false;
-
-		public UiSimpleAnimationBase[] SlaveAnimations { get {return m_slaveAnimations; }}
-		public bool Running { get { return m_running; }}
+		public UiSimpleAnimationBase[] SlaveAnimations => m_slaveAnimations;
+		public bool Running => m_running;
+		public bool Backwards => m_backwards;
 		public float Duration { get { return m_duration; } set { Reset(); m_duration = value; }}
 		public float Delay { get { return m_delay; } set { Reset(); m_delay = value; } }
 		public UiSimpleAnimationBase BackwardsAnimation { get { return m_backwardsAnimation; } set { Reset(); m_backwardsAnimation = value; }}
@@ -168,41 +157,56 @@ namespace GuiToolkit
 		#endregion
 		private bool m_initAnimateDone = false;
 
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField] protected bool m_debug;
+		#endif
+
+
 		public void Play(bool _backwards = false)
 		{
+			Log($"Play({_backwards})");
 			m_backwards = _backwards;
 			InitAnimateIfNecessary();
 			m_completeTime = m_completeBackwardsTime = 0;
 			CalculateCompleteTimeRecursive(ref m_completeTime, ref m_completeBackwardsTime, 0);
 			PlayRecursive(m_completeTime, m_completeBackwardsTime, 0, true, m_backwards, m_setLoopsForSlaves ? m_numberOfLoops : DONT_SET_LOOPS);
 		}
+
 #if UNITY_EDITOR
 		public void EditorPlay( bool _backwards )
 		{
+			Log($"EditorPlay({_backwards})");
 			m_initAnimateDone = false;
 			Play(_backwards);
 		}
 #endif
 		public void Pause()
 		{
+			Log("Pause()");
 			if (m_running)
 				m_pause = true;
 		}
 
 		public void Resume()
 		{
+			Log("Resume()");
 			m_pause = false;
 		}
 
 		public void Stop( bool _invokeOnStopDelegates = true )
 		{
+			Log($"Stop({_invokeOnStopDelegates})");
 			if (!m_running)
+			{
+				Log("Not running, returning");
 				return;
+			}
 			FinishAnimation( _invokeOnStopDelegates );
 		}
 
 		public void Reset(bool _toEnd = false)
 		{
+			Log($"Reset({_toEnd})");
 			Stop();
 			InitAnimateIfNecessary();
 			ResetRecursive(_toEnd);
@@ -210,22 +214,28 @@ namespace GuiToolkit
 
 		protected virtual void Awake()
 		{
-			
+			Log("Awake()");
 		}
 
 		protected virtual void Start()
 		{
+			Log("Start()");
 			if (m_slave)
+			{
+				Log("is slave, returning");
 				return;
+			}
 
 			if (m_autoStart)
 			{
+				Log("auto start");
 				Play(m_backwards);
 				return;
 			}
 
 			if (m_setOnStart)
 			{
+				Log("set on start");
 				InitAnimateIfNecessary();
 				OnAnimate(m_backwards ? 1 : 0);
 			}
@@ -242,10 +252,15 @@ namespace GuiToolkit
 			if (!m_running || m_pause)
 				return;
 
+			Log($"Update({_timeDelta})");
+
 			if (m_backwards)
 			{
+				Log("Backwards playing");
+
 				if (!m_backwardsPlayable)
 				{
+					Log("Not backwards playable -> stopping");
 					if (m_gotoStartOnBackwards)
 						OnAnimate(0);
 					m_running = false;
@@ -255,6 +270,7 @@ namespace GuiToolkit
 
 				if (m_backwardsAnimation)
 				{
+					Log("Update backwards animation and return");
 					m_backwardsAnimation.Update(_timeDelta);
 					m_running = m_backwardsAnimation.m_running;
 					if (!m_running)
@@ -272,6 +288,7 @@ namespace GuiToolkit
 			// tell the subclass, that now the real animation will begin.
 			if (!m_beginAnimateCalled)
 			{
+				Log("Call OnBeginAnimate()");
 				OnBeginAnimate();
 				m_beginAnimateCalled = true;
 			}
@@ -285,15 +302,24 @@ namespace GuiToolkit
 				float normalizedTime = (m_currentTime-delay) / m_duration;
 
 				if (normalizedTime <= 1)
-					OnAnimate(m_backwards ? 1.0f - normalizedTime : normalizedTime);
+				{
+					float time = m_backwards ? 1.0f - normalizedTime : normalizedTime;
+					Log($"Call OnAnimate({time})");
+					OnAnimate(time);
+				}
 				else
+				{
 					durationExceeded = true;
+				}
 			}
 
 			// tell the subclass, that now the real animation ends
 			if (durationExceeded && !m_endAnimateCalled)
 			{
-				OnAnimate(m_backwards ? 0 : 1);
+				float time = m_backwards ? 0 : 1;
+				Log($"Duration exceeded, call OnAnimate({time})");
+				OnAnimate(time);
+				Log("Call OnEndAnimate()");
 				OnEndAnimate();
 				m_endAnimateCalled = true;
 			}
@@ -307,10 +333,14 @@ namespace GuiToolkit
 			// handle looping
 			bool infiniteLoops = m_currentNumberOfLoops == INFINITE_LOOPS;
 			bool loop = m_currentNumberOfLoops > 0;
+
 			if (loop)
 				m_currentNumberOfLoops--;
+
 			if (loop || infiniteLoops)
 			{
+				Log($"Call OnLoop(), loop:{loop}, infiniteLoops:{infiniteLoops} m_currentNumberOfLoops: {m_currentNumberOfLoops}");
+
 				OnLoop();
 				m_currentTime %= completeTime;
 				OnAnimate(m_backwards ? 1 : 0);
@@ -324,6 +354,8 @@ namespace GuiToolkit
 
 		private void FinishAnimation( bool _invokeOnStopDelegates )
 		{
+			Log($"FinishAnimation({_invokeOnStopDelegates})");
+
 			if (m_backwardsAnimation != null)
 				m_backwardsAnimation.Stop(false);
 
@@ -416,6 +448,8 @@ namespace GuiToolkit
 
 		private void ResetRecursive(bool _toEnd)
 		{
+			Log($"ResetRecursive({_toEnd})");
+
 			if (_toEnd)
 				OnAnimate(1);
 			foreach( var slave in m_slaveAnimations )
@@ -428,6 +462,8 @@ namespace GuiToolkit
 		{
 			if (m_initAnimateDone)
 				return;
+
+			Log("Call OnInitAnimate()");
 
 			OnInitAnimate();
 			m_initAnimateDone = true;
@@ -468,13 +504,21 @@ namespace GuiToolkit
 			Reset(_visible);
 		}
 
+		[System.Diagnostics.Conditional("DEBUG_SIMPLE_ANIMATION")]
+		protected void Log(string _s)
+		{
+			#if !DEBUG_SIMPLE_ANIMATION_ALL
+				if (!m_debug)
+					return;
+			#endif
+			Debug.Log($"{GetType().Name} {gameObject.name}:{_s}");
+		}
+
 #if UNITY_EDITOR
 		public void UpdateInEditor(float _deltaTime)
 		{
 			Update(_deltaTime);
 		}
-
-
 #endif
 	}
 }
