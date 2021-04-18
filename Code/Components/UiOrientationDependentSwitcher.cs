@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -10,7 +11,7 @@ using UnityEditor;
 namespace GuiToolkit
 {
 	[Serializable]
-	public struct ResolutionDependentDefinition
+	public struct OrientationDependentDefinition
 	{
 		public Component Target;
 		public Component TemplateLandscape;
@@ -19,12 +20,12 @@ namespace GuiToolkit
 
 	[RequireComponent(typeof(RectTransform))]
 	[ExecuteAlways]
-	public class UiResolutionDependentSwitcher : UiThing
+	public class UiOrientationDependentSwitcher : UiThing
 	{
-		[SerializeField] protected ResolutionDependentDefinition[] m_definitions = new ResolutionDependentDefinition[0];
+		[SerializeField] protected OrientationDependentDefinition[] m_definitions = new OrientationDependentDefinition[0];
 		[SerializeField] protected bool m_autoUpdateOnEnable = true;
 
-		public ResolutionDependentDefinition[] Definitions => m_definitions;
+		public OrientationDependentDefinition[] Definitions => m_definitions;
 
 		protected override bool NeedsOnScreenOrientationCallback => true;
 
@@ -34,12 +35,12 @@ namespace GuiToolkit
 				return;
 
 			bool isLandscape = Screen.width >= Screen.height;
-Debug.Log($"isLandscape: {isLandscape}");
+//Debug.Log($"isLandscape: {isLandscape}");
 
 			foreach( var definition in m_definitions )
 			{
 				Component source = isLandscape ? definition.TemplateLandscape : definition.TemplatePortrait;
-Debug.Log($"Copy {source} to {definition.Target}");
+//Debug.Log($"Copy {source} to {definition.Target}");
 
 				definition.Target.CopyFrom(source);
 			}
@@ -64,8 +65,8 @@ Debug.Log($"Copy {source} to {definition.Target}");
 	/// \addtogroup Editor Code
 	/// UiMaterialCloner is quite fragile regarding its options and thus needs a special
 	/// treatment in the editor
-	[CustomEditor(typeof(UiResolutionDependentSwitcher))]
-	public class UiResolutionDependentSwitcherEditor : Editor
+	[CustomEditor(typeof(UiOrientationDependentSwitcher))]
+	public class UiUiOrientationDependentSwitcherEditor : Editor
 	{
 		protected SerializedProperty m_definitionsProperty;
 		protected SerializedProperty m_autoUpdateOnEnableProperty;
@@ -78,7 +79,7 @@ Debug.Log($"Copy {source} to {definition.Target}");
 
 		public override void OnInspectorGUI()
 		{
-			var thisUiResolutionDependentSwitcher = (UiResolutionDependentSwitcher) target;
+			var thisUiResolutionDependentSwitcher = (UiOrientationDependentSwitcher) target;
 
 			EditorGUILayout.PropertyField(m_autoUpdateOnEnableProperty);
 			EditorGUILayout.PropertyField(m_definitionsProperty, true);
@@ -90,7 +91,7 @@ Debug.Log($"Copy {source} to {definition.Target}");
 			if (GUILayout.Button("Apply"))
 			{
 				bool isLandscape = Screen.width >= Screen.height;
-Debug.Log($"isLandscape: {isLandscape}");
+//Debug.Log($"isLandscape: {isLandscape}");
 
 				foreach (var definition in thisUiResolutionDependentSwitcher.Definitions)
 				{
@@ -99,7 +100,7 @@ Debug.Log($"isLandscape: {isLandscape}");
 					if (source == null || target == null)
 						continue;
 
-Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
+//Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
 
 					Undo.RegisterCompleteObjectUndo(target, "Apply Resolution dependent components");
 					target.CopyFrom(source);
