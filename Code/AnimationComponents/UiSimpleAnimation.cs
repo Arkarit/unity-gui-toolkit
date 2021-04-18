@@ -326,7 +326,8 @@ namespace GuiToolkit
 		{
 			Log($"SetSlideX({_rectTransform.gameObject.name}, {_in}, {_left})");
 			Stop();
-			float width = _rectTransform.rect.width;
+			float width = _rectTransform.rect.width / xRatio;
+
 			if (_in)
 			{
 				m_posXEnd = 0;
@@ -343,7 +344,8 @@ namespace GuiToolkit
 		{
 			Log($"SetSlideY({_rectTransform.gameObject.name}, {_in}, {_up})");
 			Stop();
-			float height = _rectTransform.rect.height;
+			float height = _rectTransform.rect.height / yRatio;
+
 			if (_in)
 			{
 				m_posYEnd = 0;
@@ -558,7 +560,9 @@ namespace GuiToolkit
 
 			if (m_animatePositionY)
 				pos.y = Mathf.LerpUnclamped(m_posYStart, m_posYEnd, m_posYCurve.Evaluate(_normalizedTime)) * yRatio;
+
 Log($"m_posYStart: {m_posYStart} m_posYEnd: {m_posYEnd} m_posYCurve:{m_posYCurve} m_posYCurve.Evaluate(_normalizedTime):{m_posYCurve.Evaluate(_normalizedTime)} yRatio:{yRatio} CanvasRectTransform.sizeDelta:{CanvasRectTransform.sizeDelta} CanvasScaler.referenceResolution:{CanvasScaler.referenceResolution} ");
+
 			Log($"AnimatePosition({_normalizedTime}), pos:{pos}");
 			m_target.anchoredPosition = pos;
 		}

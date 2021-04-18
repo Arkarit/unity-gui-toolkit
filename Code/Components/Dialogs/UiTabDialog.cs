@@ -103,7 +103,7 @@ namespace GuiToolkit
 			if (!_isOn || _idx == m_currentTabIdx)
 				return;
 
-			bool up = _idx < m_currentTabIdx;
+			bool upOrLeft = _idx < m_currentTabIdx;
 
 			UiPanel oldPanel = m_tabInfos[m_currentTabIdx].Page;
 			UiPanel newPanel = m_tabInfos[_idx].Page;
@@ -120,18 +120,18 @@ namespace GuiToolkit
 			if (isY)
 			{
 				if (oldAnim != null)
-					oldAnim.SetSlideY(m_pageContentContainer, true, up);
+					oldAnim.SetSlideY(m_pageContentContainer, true, upOrLeft);
 
 				if (newAnim != null)
-					newAnim.SetSlideY(m_pageContentContainer, true, !up);
+					newAnim.SetSlideY(m_pageContentContainer, true, !upOrLeft);
 			}
 			else
 			{
 				if (oldAnim != null)
-					oldAnim.SetSlideX(m_pageContentContainer, true, up);
+					oldAnim.SetSlideX(m_pageContentContainer, true, !upOrLeft);
 
 				if (newAnim != null)
-					newAnim.SetSlideX(m_pageContentContainer, true, !up);
+					newAnim.SetSlideX(m_pageContentContainer, true, upOrLeft);
 			}
 
 			oldPanel.Hide();

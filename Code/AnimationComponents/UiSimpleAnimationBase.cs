@@ -507,7 +507,7 @@ namespace GuiToolkit
 		[System.Diagnostics.Conditional("DEBUG_SIMPLE_ANIMATION")]
 		protected void Log(string _s)
 		{
-			#if !DEBUG_SIMPLE_ANIMATION_ALL
+			#if DEBUG_SIMPLE_ANIMATION
 				if (!m_debug)
 					return;
 			#endif
