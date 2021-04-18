@@ -41,15 +41,6 @@ Debug.Log($"isLandscape: {isLandscape}");
 				Component source = isLandscape ? definition.TemplateLandscape : definition.TemplatePortrait;
 Debug.Log($"Copy {source} to {definition.Target}");
 
-//				// updating a running animation is a difficult special case
-//				UiSimpleAnimationBase animation = definition.Target as UiSimpleAnimationBase;
-//				if (animation != null && animation.Running)
-//				{
-//Debug.Log("Copy running animation, start coroutine");
-//					UiMain.Instance.StartCoroutine(UpdateElementDelayed(animation, source as UiSimpleAnimation, animation.Backwards));
-//					continue;
-//				}
-
 				definition.Target.CopyFrom(source);
 			}
 		}
@@ -67,13 +58,6 @@ Debug.Log($"Copy {source} to {definition.Target}");
 			UpdateElements();
 		}
 
-		//		private IEnumerator UpdateElementDelayed( UiSimpleAnimationBase _target, UiSimpleAnimationBase _source, bool _backwards )
-		//		{
-		//			while (_target.Running)
-		//				yield return 0;
-		//			_target.CopyFrom(_source);
-		//			_target.Reset(!_backwards);
-		//		}
 	}
 
 #if UNITY_EDITOR

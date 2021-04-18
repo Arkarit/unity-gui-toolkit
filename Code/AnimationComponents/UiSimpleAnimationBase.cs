@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class UiSimpleAnimationBase : MonoBehaviour, IShowHidePanelAnimation
+	public class UiSimpleAnimationBase : UiThing, IShowHidePanelAnimation
 	{
 		protected const int INFINITE_LOOPS = -1;
 		private const int DONT_SET_LOOPS = -2;
@@ -40,6 +40,8 @@ namespace GuiToolkit
 
 		[SerializeField] protected bool m_setLoopsForSlaves = true;
 		[SerializeField] protected bool m_supportViewAnimations = false;
+
+		protected override bool NeedsOnScreenOrientationCallback => true;
 
 		public UiSimpleAnimationBase[] SlaveAnimations => m_slaveAnimations;
 		public bool Running => m_running;
@@ -212,13 +214,16 @@ namespace GuiToolkit
 			ResetRecursive(_toEnd);
 		}
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
 			Log("Awake()");
 		}
 
-		protected virtual void Start()
+		protected override void Start()
 		{
+			base.Start();
+
 			Log("Start()");
 			if (m_slave)
 			{
@@ -350,6 +355,15 @@ namespace GuiToolkit
 			}
 
 			FinishAnimation( true );
+		}
+
+		protected override void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation )
+		{
+			if (_oldScreenOrientation != EScreenOrientation.Invalid)
+			{
+				Log($"Screen orientation changed to {_newScreenOrientation}, stopping (finishing) animation");
+				Stop();
+			}
 		}
 
 		private void FinishAnimation( bool _invokeOnStopDelegates )
