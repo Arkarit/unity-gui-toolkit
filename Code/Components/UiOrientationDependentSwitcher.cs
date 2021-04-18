@@ -24,6 +24,9 @@ namespace GuiToolkit
 	{
 		[SerializeField] protected OrientationDependentDefinition[] m_definitions = new OrientationDependentDefinition[0];
 		[SerializeField] protected bool m_autoUpdateOnEnable = true;
+#if UNITY_EDITOR
+		[SerializeField] private EScreenOrientation m_lastScreenOrientation = EScreenOrientation.Invalid;
+#endif
 
 		public OrientationDependentDefinition[] Definitions => m_definitions;
 
@@ -35,20 +38,37 @@ namespace GuiToolkit
 				return;
 
 			bool isLandscape = Screen.width >= Screen.height;
-//Debug.Log($"isLandscape: {isLandscape}");
+Debug.Log($"isLandscape: {isLandscape} Screen.width:{Screen.width} Screen.height:{Screen.height}");
 
 			foreach( var definition in m_definitions )
 			{
 				Component source = isLandscape ? definition.TemplateLandscape : definition.TemplatePortrait;
-//Debug.Log($"Copy {source} to {definition.Target}");
+Debug.Log($"Copy {source} to {definition.Target}");
 
 				definition.Target.CopyFrom(source);
 			}
 		}
 
+#if UNITY_EDITOR
+		private void Update()
+		{
+			if (Application.isPlaying)
+				return;
+Debug.Log("Update()");
+
+			EScreenOrientation screenOrientation = Screen.width >= Screen.height ? EScreenOrientation.Landscape : EScreenOrientation.Portrait;
+			if (screenOrientation == m_lastScreenOrientation)
+				return;
+
+			m_lastScreenOrientation = screenOrientation;
+			UpdateElements();
+		}
+#endif
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();
+Debug.Log($"ONENABLE {m_autoUpdateOnEnable}");
 
 			if (m_autoUpdateOnEnable)
 				UpdateElements();

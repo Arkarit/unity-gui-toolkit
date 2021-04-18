@@ -479,7 +479,7 @@ namespace GuiToolkit
 			EScreenOrientation orientation = Screen.width > Screen.height ? EScreenOrientation.Landscape : EScreenOrientation.Portrait;
 			if (orientation == s_screenOrientation)
 				return;
-			UiEvents.OnScreenOrientationChange.Invoke(s_screenOrientation, orientation);
+			UiEvents.OnScreenOrientationChange.InvokeAlways(s_screenOrientation, orientation);
 			s_screenOrientation = orientation;
 		}
 
