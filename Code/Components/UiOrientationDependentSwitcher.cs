@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Serialization;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace GuiToolkit
 {
@@ -23,6 +16,8 @@ namespace GuiToolkit
 	public class UiOrientationDependentSwitcher : UiThing
 	{
 		[SerializeField] protected OrientationDependentDefinition[] m_definitions = new OrientationDependentDefinition[0];
+		[SerializeField] protected GameObject[] m_visibleInLandscape = new GameObject[0];
+		[SerializeField] protected GameObject[] m_visibleInPortrait = new GameObject[0];
 		[SerializeField] protected bool m_autoUpdateOnEnable = true;
 #if UNITY_EDITOR
 		[SerializeField] private EScreenOrientation m_lastScreenOrientation = EScreenOrientation.Invalid;
@@ -46,11 +41,26 @@ namespace GuiToolkit
 				//Debug.Log($"Copy {source} to {definition.Target}");
 
 				definition.Target.CopyFrom(source);
+
+				// Special treatments after copy
+				// -----------------------------
+
+				// BaseMeshEffectTmp needs a SetDirty() after values have been changed to actually display the changes
+				var baseMeshEffectTmp = definition.Target as BaseMeshEffectTMP;
+				if (baseMeshEffectTmp)
+					baseMeshEffectTmp.SetDirty();
 			}
+
+			foreach (var go in m_visibleInLandscape)
+				go.SetActive(isLandscape);
+
+			foreach (var go in m_visibleInPortrait)
+				go.SetActive(!isLandscape);
+
 		}
 
 		// Shitty Unity has wrong Screen.width and Screen.height during OnEnable() :-O~
-		// Thus, we need to define Update() in Editor - in Update() the values are right.
+		// Thus, we need to define Update() in Editor - in Update() the values are correct.
 #if UNITY_EDITOR
 		private void Update()
 		{
@@ -82,52 +92,4 @@ namespace GuiToolkit
 		}
 
 	}
-
-#if UNITY_EDITOR
-	[CustomEditor(typeof(UiOrientationDependentSwitcher))]
-	public class UiUiOrientationDependentSwitcherEditor : Editor
-	{
-		protected SerializedProperty m_definitionsProperty;
-		protected SerializedProperty m_autoUpdateOnEnableProperty;
-
-		private void OnEnable()
-		{
-			m_definitionsProperty = serializedObject.FindProperty("m_definitions");
-			m_autoUpdateOnEnableProperty = serializedObject.FindProperty("m_autoUpdateOnEnable");
-		}
-
-		public override void OnInspectorGUI()
-		{
-			var thisUiResolutionDependentSwitcher = (UiOrientationDependentSwitcher) target;
-
-			EditorGUILayout.PropertyField(m_autoUpdateOnEnableProperty);
-			EditorGUILayout.PropertyField(m_definitionsProperty, true);
-
-			serializedObject.ApplyModifiedProperties();
-
-			GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
-
-			if (GUILayout.Button("Apply"))
-			{
-				bool isLandscape = Screen.width >= Screen.height;
-				//Debug.Log($"isLandscape: {isLandscape}");
-
-				foreach (var definition in thisUiResolutionDependentSwitcher.Definitions)
-				{
-					Component target = isLandscape ? definition.TemplateLandscape : definition.TemplatePortrait;
-					Component source = definition.Target;
-					if (source == null || target == null)
-						continue;
-
-					//Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
-
-					Undo.RegisterCompleteObjectUndo(target, "Apply Resolution dependent components");
-					target.CopyFrom(source);
-				}
-				Canvas.ForceUpdateCanvases();
-			}
-		}
-	}
-#endif
-
 }
