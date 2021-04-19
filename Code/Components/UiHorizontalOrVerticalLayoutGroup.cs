@@ -10,6 +10,7 @@ namespace GuiToolkit
 	public class UiHorizontalOrVerticalLayoutGroup : HorizontalOrVerticalLayoutGroup
 	{
 		[SerializeField] protected bool m_vertical;
+		[SerializeField] protected bool m_reverseOrder;
 
 		public bool Vertical
 		{
@@ -17,7 +18,7 @@ namespace GuiToolkit
 			set => m_vertical = value;
 		}
 
-		protected UiHorizontalOrVerticalLayoutGroup() {}
+		protected UiHorizontalOrVerticalLayoutGroup() { }
 
 		/// <summary>
 		/// Called by the layout system. Also see ILayoutElement
@@ -42,6 +43,7 @@ namespace GuiToolkit
 		public override void SetLayoutHorizontal()
 		{
 			SetChildrenAlongAxis(0, m_vertical);
+			RevertIfNecessary(false);
 		}
 
 		/// <summary>
@@ -50,11 +52,35 @@ namespace GuiToolkit
 		public override void SetLayoutVertical()
 		{
 			SetChildrenAlongAxis(1, m_vertical);
+			RevertIfNecessary(true);
+		}
+
+		private void RevertIfNecessary(bool _vertical)
+		{
+			if (!m_reverseOrder || _vertical != m_vertical)
+				return;
+
+			float parentWidth = rectTransform.rect.width;
+			float parentHeight = rectTransform.rect.height;
+
+			for (int i = 0; i < rectChildren.Count; i++)
+			{
+				RectTransform child = rectChildren[i];
+				Vector2 pos = child.anchoredPosition;
+				Vector2 size = child.rect.size;
+
+				if (m_vertical)
+					pos.y = -parentHeight - pos.y - m_Padding.top + m_Padding.bottom;
+				else
+					pos.x = parentWidth - pos.x + m_Padding.left - m_Padding.right;
+
+				child.anchoredPosition = pos;
+			}
 		}
 
 		private void OnValidate()
 		{
-			LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform) transform);
+			LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
 		}
 	}
 }

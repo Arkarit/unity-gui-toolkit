@@ -1,32 +1,28 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditor.UI;
-using UnityEngine;
 
 namespace GuiToolkit
 {
-    [CustomEditor(typeof(UiHorizontalOrVerticalLayoutGroup), true)]
-    [CanEditMultipleObjects]
-    /// <summary>
-    ///   Custom Editor for the HorizontalOrVerticalLayoutGroupEditor Component.
-    ///   Extend this class to write a custom editor for an HorizontalOrVerticalLayoutGroupEditor-derived component.
-    /// </summary>
-    public class UiHorizontalOrVerticalLayoutGroupEditor : HorizontalOrVerticalLayoutGroupEditor
-    {
-        SerializedProperty m_vertical;
+	[CustomEditor(typeof(UiHorizontalOrVerticalLayoutGroup), true)]
+	[CanEditMultipleObjects]
+	public class UiHorizontalOrVerticalLayoutGroupEditor : HorizontalOrVerticalLayoutGroupEditor
+	{
+		SerializedProperty m_verticalProp;
+		SerializedProperty m_reverseOrderProp;
 
-        protected override void OnEnable()
-        {
+		protected override void OnEnable()
+		{
 			base.OnEnable();
-            m_vertical = serializedObject.FindProperty("m_vertical");
-        }
+			m_verticalProp = serializedObject.FindProperty("m_vertical");
+			m_reverseOrderProp = serializedObject.FindProperty("m_reverseOrder");
+		}
 
-        public override void OnInspectorGUI()
-        {
+		public override void OnInspectorGUI()
+		{
 			base.OnInspectorGUI();
 			serializedObject.Update();
-			EditorGUILayout.PropertyField(m_vertical);
+			EditorGUILayout.PropertyField(m_verticalProp);
+			EditorGUILayout.PropertyField(m_reverseOrderProp);
 			serializedObject.ApplyModifiedProperties();
 		}
 	}
