@@ -38,23 +38,26 @@ namespace GuiToolkit
 				return;
 
 			bool isLandscape = Screen.width >= Screen.height;
-Debug.Log($"isLandscape: {isLandscape} Screen.width:{Screen.width} Screen.height:{Screen.height}");
+			//Debug.Log($"isLandscape: {isLandscape} Screen.width:{Screen.width} Screen.height:{Screen.height}");
 
 			foreach( var definition in m_definitions )
 			{
 				Component source = isLandscape ? definition.TemplateLandscape : definition.TemplatePortrait;
-Debug.Log($"Copy {source} to {definition.Target}");
+				//Debug.Log($"Copy {source} to {definition.Target}");
 
 				definition.Target.CopyFrom(source);
 			}
 		}
 
+		// Shitty Unity has wrong Screen.width and Screen.height during OnEnable() :-O~
+		// Thus, we need to define Update() in Editor - in Update() the values are right.
 #if UNITY_EDITOR
 		private void Update()
 		{
 			if (Application.isPlaying)
 				return;
-Debug.Log("Update()");
+
+			//Debug.Log("Update()");
 
 			EScreenOrientation screenOrientation = Screen.width >= Screen.height ? EScreenOrientation.Landscape : EScreenOrientation.Portrait;
 			if (screenOrientation == m_lastScreenOrientation)
@@ -68,7 +71,6 @@ Debug.Log("Update()");
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-Debug.Log($"ONENABLE {m_autoUpdateOnEnable}");
 
 			if (m_autoUpdateOnEnable)
 				UpdateElements();
@@ -82,9 +84,6 @@ Debug.Log($"ONENABLE {m_autoUpdateOnEnable}");
 	}
 
 #if UNITY_EDITOR
-	/// \addtogroup Editor Code
-	/// UiMaterialCloner is quite fragile regarding its options and thus needs a special
-	/// treatment in the editor
 	[CustomEditor(typeof(UiOrientationDependentSwitcher))]
 	public class UiUiOrientationDependentSwitcherEditor : Editor
 	{
@@ -111,7 +110,7 @@ Debug.Log($"ONENABLE {m_autoUpdateOnEnable}");
 			if (GUILayout.Button("Apply"))
 			{
 				bool isLandscape = Screen.width >= Screen.height;
-//Debug.Log($"isLandscape: {isLandscape}");
+				//Debug.Log($"isLandscape: {isLandscape}");
 
 				foreach (var definition in thisUiResolutionDependentSwitcher.Definitions)
 				{
@@ -120,7 +119,7 @@ Debug.Log($"ONENABLE {m_autoUpdateOnEnable}");
 					if (source == null || target == null)
 						continue;
 
-//Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
+					//Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
 
 					Undo.RegisterCompleteObjectUndo(target, "Apply Resolution dependent components");
 					target.CopyFrom(source);
