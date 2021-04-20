@@ -1,14 +1,26 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
 	[Serializable]
-	public struct OrientationDependentDefinition
+	public class OrientationDependentDefinition
 	{
 		public Component Target;
-		public Component TemplateLandscape;
-		public Component TemplatePortrait;
+		[FormerlySerializedAs("TemplateLandscape")]
+		public Component DeprecatedTemplateLandscape;
+		[FormerlySerializedAs("TemplatePortrait")]
+		public Component DeprecatedTemplatePortrait;
+
+		// Template types:
+		// 0: mobile landscape
+		// 1: mobile portrait
+		// 2: pc landscape
+		// 3: pc portrait
+		// mobile is all tablets and phones,
+		// pc is all pc, mac, webplayer and console
+		public Component[] Templates = new Component[4];
 	}
 
 	[RequireComponent(typeof(RectTransform))]
@@ -16,6 +28,7 @@ namespace GuiToolkit
 	public class UiOrientationDependentSwitcher : UiThing
 	{
 		[SerializeField] protected OrientationDependentDefinition[] m_definitions = new OrientationDependentDefinition[0];
+		[SerializeField] protected Component[] m_components = new Component[0];
 		[SerializeField] protected GameObject[] m_visibleInLandscape = new GameObject[0];
 		[SerializeField] protected GameObject[] m_visibleInPortrait = new GameObject[0];
 		[SerializeField] protected bool m_autoUpdateOnEnable = true;
@@ -37,7 +50,7 @@ namespace GuiToolkit
 
 			foreach( var definition in m_definitions )
 			{
-				Component source = isLandscape ? definition.TemplateLandscape : definition.TemplatePortrait;
+				Component source = isLandscape ? definition.DeprecatedTemplateLandscape : definition.DeprecatedTemplatePortrait;
 				//Debug.Log($"Copy {source} to {definition.Target}");
 
 				definition.Target.CopyFrom(source);
@@ -69,11 +82,17 @@ namespace GuiToolkit
 
 			//Debug.Log("Update()");
 
-			EScreenOrientation screenOrientation = Screen.width >= Screen.height ? EScreenOrientation.Landscape : EScreenOrientation.Portrait;
-			if (screenOrientation == m_lastScreenOrientation)
+			EScreenOrientation orientation;
+
+			if (SystemInfo.deviceType == DeviceType.Handheld)
+				orientation = Screen.width >= Screen.height ? EScreenOrientation.MobileLandscape : EScreenOrientation.MobilePortrait;
+			else
+				orientation = Screen.width >= Screen.height ? EScreenOrientation.PcLandscape : EScreenOrientation.PcPortrait;
+
+			if (orientation == m_lastScreenOrientation)
 				return;
 
-			m_lastScreenOrientation = screenOrientation;
+			m_lastScreenOrientation = orientation;
 			UpdateElements();
 		}
 #endif

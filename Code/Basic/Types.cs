@@ -27,8 +27,10 @@ namespace GuiToolkit
 	public enum EScreenOrientation
 	{
 		Invalid = -1,
-		Landscape,
-		Portrait,
+		MobileLandscape,
+		MobilePortrait,
+		PcLandscape,
+		PcPortrait,
 	}
 
 	// Note: the lower the layer definition number, the higher (more occluding)

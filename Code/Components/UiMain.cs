@@ -476,7 +476,13 @@ namespace GuiToolkit
 
 		private void FireOnScreenOrientationChangedEventIfNecessary()
 		{
-			EScreenOrientation orientation = Screen.width > Screen.height ? EScreenOrientation.Landscape : EScreenOrientation.Portrait;
+			EScreenOrientation orientation;
+
+			if (SystemInfo.deviceType == DeviceType.Handheld)
+				orientation = Screen.width >= Screen.height ? EScreenOrientation.MobileLandscape : EScreenOrientation.MobilePortrait;
+			else
+				orientation = Screen.width >= Screen.height ? EScreenOrientation.PcLandscape : EScreenOrientation.PcPortrait;
+
 			if (orientation == s_screenOrientation)
 				return;
 			UiEvents.OnScreenOrientationChange.InvokeAlways(s_screenOrientation, orientation);
