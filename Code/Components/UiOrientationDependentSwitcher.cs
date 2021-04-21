@@ -20,7 +20,7 @@ namespace GuiToolkit
 		// 3: pc portrait
 		// mobile is all tablets and phones,
 		// pc is all pc, mac, webplayer and console
-		public Component[] Templates = new Component[4];
+		public Component[] OrientationTemplates = new Component[(int) EScreenOrientation.Count];
 	}
 
 	[RequireComponent(typeof(RectTransform))]
@@ -28,7 +28,6 @@ namespace GuiToolkit
 	public class UiOrientationDependentSwitcher : UiThing
 	{
 		[SerializeField] protected OrientationDependentDefinition[] m_definitions = new OrientationDependentDefinition[0];
-		[SerializeField] protected Component[] m_components = new Component[0];
 		[SerializeField] protected GameObject[] m_visibleInLandscape = new GameObject[0];
 		[SerializeField] protected GameObject[] m_visibleInPortrait = new GameObject[0];
 		[SerializeField] protected bool m_autoUpdateOnEnable = true;

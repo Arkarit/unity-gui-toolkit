@@ -383,6 +383,16 @@ namespace GuiToolkit
 			return _this.gameObject.AddComponent<T>();
 		}
 
+		public static Component GetOrCreateComponent(this Component _this, Type _t)
+		{
+			Component result = _this.GetComponent(_t);
+
+			if (result)
+				return result;
+
+			return _this.gameObject.AddComponent(_t);
+		}
+
 		public static T GetOrCreateComponent<T>(this GameObject _this) where T : Component
 		{
 			T result = _this.GetComponent<T>();
@@ -391,6 +401,16 @@ namespace GuiToolkit
 				return result;
 
 			return _this.AddComponent<T>();
+		}
+
+		public static Component GetOrCreateComponent(this GameObject _this, Type _t)
+		{
+			Component result = _this.GetComponent(_t);
+
+			if (result)
+				return result;
+
+			return _this.AddComponent(_t);
 		}
 
 		public static T GetOrCreateComponentOnChild<T>(this Component _this, GameObject _parent, string _childName ) where T : Component

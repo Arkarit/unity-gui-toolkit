@@ -24,6 +24,9 @@ namespace GuiToolkit
 		Right
 	}
 
+	// Screen orientation.
+	// The separation between mobile and pc enables you to use different templates for different
+	// device types; e.g. on mobile, you might want to have tabs on the bottom, where in pc you want them at the top (because more common)
 	public enum EScreenOrientation
 	{
 		Invalid = -1,
@@ -31,6 +34,8 @@ namespace GuiToolkit
 		MobilePortrait,
 		PcLandscape,
 		PcPortrait,
+
+		Count
 	}
 
 	// Note: the lower the layer definition number, the higher (more occluding)
