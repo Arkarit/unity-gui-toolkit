@@ -32,5 +32,14 @@ namespace GuiToolkit
 		{
 			return _keyCode >= KeyCode.Mouse0 && _keyCode <= KeyCode.Mouse6;
 		}
+
+		public static EScreenOrientation GetCurrentScreenOrientation()
+		{
+#if UNITY_IOS || UNITY_ANDROID
+				return Screen.width >= Screen.height ? EScreenOrientation.MobileLandscape : EScreenOrientation.MobilePortrait;
+#else
+				return Screen.width >= Screen.height ? EScreenOrientation.PcLandscape : EScreenOrientation.PcPortrait;
+#endif
+		}
 	}
 }

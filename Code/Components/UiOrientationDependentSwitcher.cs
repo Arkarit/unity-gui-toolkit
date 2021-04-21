@@ -8,10 +8,6 @@ namespace GuiToolkit
 	public class OrientationDependentDefinition
 	{
 		public Component Target;
-		[FormerlySerializedAs("TemplateLandscape")]
-		public Component DeprecatedTemplateLandscape;
-		[FormerlySerializedAs("TemplatePortrait")]
-		public Component DeprecatedTemplatePortrait;
 
 		// Template types:
 		// 0: mobile landscape
@@ -44,13 +40,13 @@ namespace GuiToolkit
 			if (!enabled)
 				return;
 
-			bool isLandscape = Screen.width >= Screen.height;
-			//Debug.Log($"isLandscape: {isLandscape} Screen.width:{Screen.width} Screen.height:{Screen.height}");
+			EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
+			int orientationIdx = (int) orientation;
+			Debug.Log($"orientation: {orientation} Screen.width:{Screen.width} Screen.height:{Screen.height}");
 
 			foreach( var definition in m_definitions )
 			{
-				Component source = isLandscape ? definition.DeprecatedTemplateLandscape : definition.DeprecatedTemplatePortrait;
-				//Debug.Log($"Copy {source} to {definition.Target}");
+				Component source = definition.OrientationTemplates[orientationIdx];
 
 				definition.Target.CopyFrom(source);
 
@@ -62,13 +58,13 @@ namespace GuiToolkit
 				if (baseMeshEffectTmp)
 					baseMeshEffectTmp.SetDirty();
 			}
-
+/*
 			foreach (var go in m_visibleInLandscape)
 				go.SetActive(isLandscape);
 
 			foreach (var go in m_visibleInPortrait)
 				go.SetActive(!isLandscape);
-
+*/
 		}
 
 		// Shitty Unity has wrong Screen.width and Screen.height during OnEnable() :-O~
@@ -81,12 +77,7 @@ namespace GuiToolkit
 
 			//Debug.Log("Update()");
 
-			EScreenOrientation orientation;
-
-			if (SystemInfo.deviceType == DeviceType.Handheld)
-				orientation = Screen.width >= Screen.height ? EScreenOrientation.MobileLandscape : EScreenOrientation.MobilePortrait;
-			else
-				orientation = Screen.width >= Screen.height ? EScreenOrientation.PcLandscape : EScreenOrientation.PcPortrait;
+			EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 
 			if (orientation == m_lastScreenOrientation)
 				return;

@@ -39,17 +39,18 @@ namespace GuiToolkit
 
 			if (GUILayout.Button("Apply"))
 			{
-				bool isLandscape = Screen.width >= Screen.height;
-				//Debug.Log($"isLandscape: {isLandscape}");
+				EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
+				int orientationIdx = (int) orientation;
+				Debug.Log($"orientation: {orientation} Screen.width:{Screen.width} Screen.height:{Screen.height}");
 
 				foreach (var definition in thisUiResolutionDependentSwitcher.Definitions)
 				{
-					Component target = isLandscape ? definition.DeprecatedTemplateLandscape : definition.DeprecatedTemplatePortrait;
+					Component target = definition.OrientationTemplates[orientationIdx];
 					Component source = definition.Target;
 					if (source == null || target == null)
 						continue;
 
-					//Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
+					Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
 
 					Undo.RegisterCompleteObjectUndo(target, "Apply Resolution dependent components");
 					target.CopyFrom(source);
