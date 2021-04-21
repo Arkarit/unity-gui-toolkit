@@ -2,7 +2,7 @@
 using UnityEngine;
 namespace GuiToolkit
 {
-#if false
+#if true
 	[CustomPropertyDrawer(typeof(OrientationDependentDefinition))]
 	public class OrientationDependentDefinitionDrawer : PropertyDrawer
 	{

@@ -42,7 +42,7 @@ namespace GuiToolkit
 
 			EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 			int orientationIdx = (int) orientation;
-			Debug.Log($"orientation: {orientation} Screen.width:{Screen.width} Screen.height:{Screen.height}");
+			Debug.Log($"orientation: {orientation} UiUtility.ScreenWidth():{UiUtility.ScreenWidth()} UiUtility.ScreenHeight():{UiUtility.ScreenHeight()}");
 
 			foreach( var definition in m_definitions )
 			{
@@ -75,7 +75,7 @@ namespace GuiToolkit
 			if (Application.isPlaying)
 				return;
 
-			//Debug.Log("Update()");
+			Debug.Log($"Update() UiUtility.GetCurrentScreenOrientation():{UiUtility.GetCurrentScreenOrientation()}");
 
 			EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 

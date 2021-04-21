@@ -41,7 +41,7 @@ namespace GuiToolkit
 			{
 				EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 				int orientationIdx = (int) orientation;
-				Debug.Log($"orientation: {orientation} Screen.width:{Screen.width} Screen.height:{Screen.height}");
+				Debug.Log($"orientation: {orientation} UiUtility.ScreenWidth():{UiUtility.ScreenWidth()} UiUtility.ScreenHeight():{UiUtility.ScreenHeight()}");
 
 				foreach (var definition in thisUiResolutionDependentSwitcher.Definitions)
 				{
@@ -88,7 +88,7 @@ namespace GuiToolkit
 
 				for (int i=0; i<definition.OrientationTemplates.Length; i++)
 				{
-					if (definition.OrientationTemplates[i] == null)
+					if (definition.OrientationTemplates[i] == null || definition.OrientationTemplates[i].GetType() != definition.Target.GetType())
 						definition.OrientationTemplates[i] = CreateOrientationTemplate(subParents[i], definition.Target);
 				}
 			}

@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace GuiToolkit
@@ -36,9 +36,38 @@ namespace GuiToolkit
 		public static EScreenOrientation GetCurrentScreenOrientation()
 		{
 #if UNITY_IOS || UNITY_ANDROID
-				return Screen.width >= Screen.height ? EScreenOrientation.MobileLandscape : EScreenOrientation.MobilePortrait;
+				return ScreenWidth() >= ScreenHeight() ? EScreenOrientation.MobileLandscape : EScreenOrientation.MobilePortrait;
 #else
-				return Screen.width >= Screen.height ? EScreenOrientation.PcLandscape : EScreenOrientation.PcPortrait;
+				return ScreenWidth() >= ScreenHeight() ? EScreenOrientation.PcLandscape : EScreenOrientation.PcPortrait;
+#endif
+		}
+
+		// Unity is so incredibly shitty... they don't even get returning the screen resolution right :-o~
+		// https://forum.unity.com/threads/screen-width-is-wrong-in-editor-mode.94572/
+		// http://muzykov.com/unity-get-game-view-resolution/
+		public static int ScreenWidth()
+		{
+#if UNITY_EDITOR
+			if (Application.isPlaying)
+				return Screen.width;
+
+			Vector2 v = Handles.GetMainGameViewSize();
+			return (int) v.x;
+#else
+			return Screen.width;
+#endif
+		}
+
+		public static int ScreenHeight()
+		{
+#if UNITY_EDITOR
+			if (Application.isPlaying)
+				return Screen.width;
+
+			Vector2 v = Handles.GetMainGameViewSize();
+			return (int) v.y;
+#else
+			return Screen.width;
 #endif
 		}
 	}
