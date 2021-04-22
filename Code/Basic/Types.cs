@@ -30,10 +30,8 @@ namespace GuiToolkit
 	public enum EScreenOrientation
 	{
 		Invalid = -1,
-		MobileLandscape,
-		MobilePortrait,
-		PcLandscape,
-		PcPortrait,
+		Landscape,
+		Portrait,
 
 		Count
 	}

@@ -35,11 +35,7 @@ namespace GuiToolkit
 
 		public static EScreenOrientation GetCurrentScreenOrientation()
 		{
-#if UNITY_IOS || UNITY_ANDROID
-				return ScreenWidth() >= ScreenHeight() ? EScreenOrientation.MobileLandscape : EScreenOrientation.MobilePortrait;
-#else
-				return ScreenWidth() >= ScreenHeight() ? EScreenOrientation.PcLandscape : EScreenOrientation.PcPortrait;
-#endif
+			return ScreenWidth() >= ScreenHeight() ? EScreenOrientation.Landscape : EScreenOrientation.Portrait;
 		}
 
 		// Unity is so incredibly shitty... they don't even get returning the screen resolution right :-o~
@@ -62,12 +58,12 @@ namespace GuiToolkit
 		{
 #if UNITY_EDITOR
 			if (Application.isPlaying)
-				return Screen.width;
+				return Screen.height;
 
 			Vector2 v = Handles.GetMainGameViewSize();
 			return (int) v.y;
 #else
-			return Screen.width;
+			return Screen.height;
 #endif
 		}
 	}

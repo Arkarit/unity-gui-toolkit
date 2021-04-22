@@ -42,7 +42,7 @@ namespace GuiToolkit
 
 			EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 			int orientationIdx = (int) orientation;
-			Debug.Log($"orientation: {orientation} UiUtility.ScreenWidth():{UiUtility.ScreenWidth()} UiUtility.ScreenHeight():{UiUtility.ScreenHeight()}");
+			//Debug.Log($"orientation: {orientation} UiUtility.ScreenWidth():{UiUtility.ScreenWidth()} UiUtility.ScreenHeight():{UiUtility.ScreenHeight()}");
 
 			foreach( var definition in m_definitions )
 			{
@@ -58,13 +58,13 @@ namespace GuiToolkit
 				if (baseMeshEffectTmp)
 					baseMeshEffectTmp.SetDirty();
 			}
-/*
+
 			foreach (var go in m_visibleInLandscape)
-				go.SetActive(isLandscape);
+				go.SetActive(orientation == EScreenOrientation.Landscape);
 
 			foreach (var go in m_visibleInPortrait)
-				go.SetActive(!isLandscape);
-*/
+				go.SetActive(orientation == EScreenOrientation.Portrait);
+
 		}
 
 		// Shitty Unity has wrong Screen.width and Screen.height during OnEnable() :-O~
@@ -75,7 +75,7 @@ namespace GuiToolkit
 			if (Application.isPlaying)
 				return;
 
-			Debug.Log($"Update() UiUtility.GetCurrentScreenOrientation():{UiUtility.GetCurrentScreenOrientation()}");
+			//Debug.Log($"Update() UiUtility.GetCurrentScreenOrientation():{UiUtility.GetCurrentScreenOrientation()}");
 
 			EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 

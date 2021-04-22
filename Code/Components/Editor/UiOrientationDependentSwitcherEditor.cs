@@ -41,7 +41,7 @@ namespace GuiToolkit
 			{
 				EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 				int orientationIdx = (int) orientation;
-				Debug.Log($"orientation: {orientation} UiUtility.ScreenWidth():{UiUtility.ScreenWidth()} UiUtility.ScreenHeight():{UiUtility.ScreenHeight()}");
+				//Debug.Log($"orientation: {orientation} UiUtility.ScreenWidth():{UiUtility.ScreenWidth()} UiUtility.ScreenHeight():{UiUtility.ScreenHeight()}");
 
 				foreach (var definition in thisUiResolutionDependentSwitcher.Definitions)
 				{
@@ -50,7 +50,7 @@ namespace GuiToolkit
 					if (source == null || target == null)
 						continue;
 
-					Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
+					//Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
 
 					Undo.RegisterCompleteObjectUndo(target, "Apply Resolution dependent components");
 					target.CopyFrom(source);
@@ -66,7 +66,7 @@ namespace GuiToolkit
 
 			int orientationCount = (int)EScreenOrientation.Count;
 			Transform[] subParents = new Transform[orientationCount];
-			for (EScreenOrientation screenOrientation = EScreenOrientation.MobileLandscape; screenOrientation < EScreenOrientation.Count; screenOrientation++)
+			for (EScreenOrientation screenOrientation = EScreenOrientation.Landscape; screenOrientation < EScreenOrientation.Count; screenOrientation++)
 			{
 				int idx = (int) screenOrientation;
 				string name = idx.ToString();
