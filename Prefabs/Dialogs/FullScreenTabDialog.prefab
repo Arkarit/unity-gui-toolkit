@@ -386,14 +386,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd2ccc9659ef7a4bb93ab6ce92ba6e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_vertexColorMode: 0
+  m_vertexColorMode: 1
   m_gradient:
     serializedVersion: 2
-    key0: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 1}
-    key1: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 1}
+    key0: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 0.6627451}
+    key1: {r: 0.003921569, g: 0.44705886, b: 0.6117647, a: 0.1882353}
     key2: {r: 0, g: 0, b: 0, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 1}
+    key4: {r: 0, g: 0, b: 0, a: 1}
     key5: {r: 0, g: 0, b: 0, a: 0}
     key6: {r: 0, g: 0, b: 0, a: 0}
     key7: {r: 0, g: 0, b: 0, a: 0}
@@ -406,16 +406,16 @@ MonoBehaviour:
     ctime6: 0
     ctime7: 0
     atime0: 0
-    atime1: 2510
-    atime2: 16349
-    atime3: 65535
-    atime4: 0
+    atime1: 13177
+    atime2: 50685
+    atime3: 63513
+    atime4: 65535
     atime5: 0
     atime6: 0
     atime7: 0
     m_Mode: 0
     m_NumColorKeys: 2
-    m_NumAlphaKeys: 4
+    m_NumAlphaKeys: 5
   m_type: 1
   m_splitAtKeys: 1
 --- !u!1 &1947624600521463532
@@ -2223,14 +2223,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd2ccc9659ef7a4bb93ab6ce92ba6e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_vertexColorMode: 0
+  m_vertexColorMode: 1
   m_gradient:
     serializedVersion: 2
-    key0: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 1}
-    key1: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 1}
+    key0: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 0.6627451}
+    key1: {r: 0.003921569, g: 0.44705886, b: 0.6117647, a: 0.1882353}
     key2: {r: 0, g: 0, b: 0, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 1}
+    key4: {r: 0, g: 0, b: 0, a: 1}
     key5: {r: 0, g: 0, b: 0, a: 0}
     key6: {r: 0, g: 0, b: 0, a: 0}
     key7: {r: 0, g: 0, b: 0, a: 0}
@@ -2243,16 +2243,16 @@ MonoBehaviour:
     ctime6: 0
     ctime7: 0
     atime0: 0
-    atime1: 2510
-    atime2: 16349
-    atime3: 65535
-    atime4: 0
+    atime1: 13177
+    atime2: 50685
+    atime3: 63513
+    atime4: 65535
     atime5: 0
     atime6: 0
     atime7: 0
     m_Mode: 0
     m_NumColorKeys: 2
-    m_NumAlphaKeys: 4
+    m_NumAlphaKeys: 5
   m_type: 1
   m_splitAtKeys: 1
 --- !u!1 &5968183751846801624
