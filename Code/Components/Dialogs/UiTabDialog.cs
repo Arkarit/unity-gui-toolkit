@@ -91,13 +91,18 @@ namespace GuiToolkit
 
 		private void InitPages()
 		{
+			ToggleGroup tabToggleGroup = m_tabContentContainer.GetOrCreateComponent<ToggleGroup>();
+			tabToggleGroup.allowSwitchOff = false;
+
 			if (m_instantiateTabInfosOnStart)
 			{
 				for (int i=0; i<m_tabInfos.Count; i++)
 				{
 					TabInfo tabInfo = m_tabInfos[i];
 					tabInfo.Tab = Instantiate(tabInfo.Tab, m_tabContentContainer);
+					tabInfo.Tab.IsOn = i == 0;
 					tabInfo.Page = Instantiate(tabInfo.Page, m_pageContentContainer);
+					m_tabInfos[i] = tabInfo; // I hate C#
 				}
 			}
 
@@ -111,6 +116,8 @@ namespace GuiToolkit
 				int toggleIndex = i;
 
 				tabInfo.Tab.OnValueChanged.AddListener( (isOn) => OnToggleChanged(toggleIndex, isOn) );
+				tabInfo.Tab.Toggle.group = tabToggleGroup;
+
 				tabInfo.Page.SetVisible(tabInfo.Tab.Toggle.isOn, true);
 				if (tabInfo.Tab.Toggle.isOn)
 				{
