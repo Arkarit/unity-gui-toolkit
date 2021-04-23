@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -18,11 +19,26 @@ namespace GuiToolkit
 	/// </summary>
 	public class UiTabDialog : UiView
 	{
+		[Tooltip("Close button. Optional.")]
 		[SerializeField] protected UiButton m_closeButton;
-		[SerializeField] protected GameObject m_tabsColumn;
+
+		[Tooltip("All Tabs are placed in this container. The container should contain a matching layout group to organize the tabs.")]
 		[SerializeField] protected RectTransform m_tabContentContainer;
+
+		[Tooltip("All Pages are placed in this container. Pages should be set to match this container (e.g. stretching)")]
 		[SerializeField] protected RectTransform m_pageContentContainer;
+
+		[Tooltip("Tab Infos. Note that if you enter prefabs here and don't instantiate them yourself by code, you need to check 'Instantiate Tab Infos On Start'")]
 		[SerializeField] protected List<TabInfo> m_tabInfos;
+
+		[Tooltip("Check this if you are using prefabs in your 'Tab Infos' and don't instantiate them yourself by code.")]
+		[SerializeField] protected bool m_instantiateTabInfosOnStart = false;
+
+		[Tooltip("Tabs parent object. Used to switch tab display on and off (a tab dialog with only one page doesn't make sense)")]
+		[FormerlySerializedAs("m_tabsColumn")]
+		[SerializeField] protected GameObject m_tabsParent;
+
+		[Tooltip("If this is checked, the 'Tabs Parent' object is hidden, if there is only one tab")]
 		[SerializeField] protected bool m_autoHideTabIfOnlyOne = true;
 
 		private int m_currentTabIdx;
@@ -75,6 +91,16 @@ namespace GuiToolkit
 
 		private void InitPages()
 		{
+			if (m_instantiateTabInfosOnStart)
+			{
+				for (int i=0; i<m_tabInfos.Count; i++)
+				{
+					TabInfo tabInfo = m_tabInfos[i];
+					tabInfo.Tab = Instantiate(tabInfo.Tab, m_tabContentContainer);
+					tabInfo.Page = Instantiate(tabInfo.Page, m_pageContentContainer);
+				}
+			}
+
 			m_currentTabIdx = -1;
 			for (int i=0; i<m_tabInfos.Count; i++)
 			{
@@ -93,7 +119,7 @@ namespace GuiToolkit
 				}
 			}
 
-			m_tabsColumn.gameObject.SetActive(!m_autoHideTabIfOnlyOne || m_tabInfos.Count > 1);
+			m_tabsParent.gameObject.SetActive(!m_autoHideTabIfOnlyOne || m_tabInfos.Count > 1);
 
 			Debug.Assert(m_currentTabIdx != -1, "No active tabs in tab dialog! Please use ToggleGroup and set only one to is on!");
 		}

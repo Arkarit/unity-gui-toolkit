@@ -237,6 +237,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: StandardTabPageWithScrollRect
       objectReference: {fileID: 0}
+    - target: {fileID: 4153578759961784198, guid: a0a87ab866650e740bfa98880579d91b,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7514274282858316888, guid: a0a87ab866650e740bfa98880579d91b,
         type: 3}
       propertyPath: m_LocalPosition.x
