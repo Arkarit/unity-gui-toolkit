@@ -79,7 +79,14 @@ namespace GuiToolkit
 					m_canvasRectTransform = null;
 
 				if (m_canvasRectTransform == null)
-					m_canvasRectTransform = (RectTransform) CanvasScaler.transform;
+				{
+					CanvasScaler canvasScaler = CanvasScaler;
+					if (canvasScaler == null)
+						return null;
+
+					m_canvasRectTransform = (RectTransform) canvasScaler.transform;
+				}
+
 				return m_canvasRectTransform;
 			}
 			set { Stop(); m_canvasRectTransform = value; }
@@ -362,7 +369,7 @@ namespace GuiToolkit
 		{
 			get
 			{
-				if (!m_scaleByCanvasScaler)
+				if (!m_scaleByCanvasScaler || CanvasRectTransform == null)
 					return 1;
 
 				return CanvasRectTransform.sizeDelta.x / CanvasScaler.referenceResolution.x;
@@ -373,7 +380,7 @@ namespace GuiToolkit
 		{
 			get
 			{
-				if (!m_scaleByCanvasScaler)
+				if (!m_scaleByCanvasScaler || CanvasRectTransform == null)
 					return 1;
 
 				return CanvasRectTransform.sizeDelta.y / CanvasScaler.referenceResolution.y;
