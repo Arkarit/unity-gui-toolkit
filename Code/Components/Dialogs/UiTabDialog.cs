@@ -100,6 +100,7 @@ namespace GuiToolkit
 				{
 					TabInfo tabInfo = m_tabInfos[i];
 					tabInfo.Tab = Instantiate(tabInfo.Tab, m_tabContentContainer);
+					tabInfo.Tab.Toggle.group = tabToggleGroup;
 					tabInfo.Tab.IsOn = i == 0;
 					tabInfo.Page = Instantiate(tabInfo.Page, m_pageContentContainer);
 					m_tabInfos[i] = tabInfo; // I hate C#

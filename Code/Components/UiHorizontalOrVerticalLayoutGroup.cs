@@ -78,8 +78,9 @@ namespace GuiToolkit
 			}
 		}
 
-		private void OnValidate()
+		protected override void OnValidate()
 		{
+			base.OnValidate();
 			LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
 		}
 	}
