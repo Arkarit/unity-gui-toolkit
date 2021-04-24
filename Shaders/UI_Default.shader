@@ -18,6 +18,12 @@ Shader "UIToolkit/UI_Default"
 		_DisabledDesaturateStrength("Disabled Desaturate Strength", Range(0,1)) = 0.8
 		_DisabledBrightness("Disabled Brightness", Range(0,1)) = 0.7
 
+		[Toggle(SpriteSheetAnimation)] _SpriteSheetAnimation("Sprite Sheet Animation", Float) = 0
+		_NumSpritesX("Num sprites X", Float) = 1
+		_NumSpritesY("Num sprites Y", Float) = 1
+		_FrameRate("Frame rate", Float) = 20
+
+
 		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("BlendSource", Float) = 5
 		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("BlendDestination", Float) = 10
 		[Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 0
@@ -64,6 +70,7 @@ Shader "UIToolkit/UI_Default"
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
             #pragma multi_compile_local __ Disabled
+			#pragma shader_feature_local __ SpriteSheetAnimation
 
             struct appdata_t
             {
@@ -95,6 +102,10 @@ Shader "UIToolkit/UI_Default"
 			float _DisabledDesaturateStrength;
 			float _DisabledBrightness;
 
+			float _NumSpritesX;
+			float _NumSpritesY;
+			float _FrameRate;
+
             v2f vert (appdata_t v)
             {
                 v2f o;
@@ -102,8 +113,17 @@ Shader "UIToolkit/UI_Default"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 o.worldPosition = v.vertex;
                 o.vertex = UnityObjectToClipPos(o.worldPosition);
-
-                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+				#ifdef SpriteSheetAnimation
+					float frame = floor((_Time.y * _FrameRate)) % (_NumSpritesX * _NumSpritesY);
+					float frameX = frame % _NumSpritesX;
+					float frameY = _NumSpritesY - floor(frame / _NumSpritesX) - 1;
+					float2 texcoord;
+					texcoord.x = (v.texcoord.x + frameX) / _NumSpritesX;
+					texcoord.y = (v.texcoord.y + frameY) / _NumSpritesY;
+					o.texcoord = TRANSFORM_TEX(texcoord, _MainTex);
+				#else
+					o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+				#endif
 
 				#ifdef Disabled
 					float3 luminance = (0.22 * v.color.r) + (0.72 * v.color.g) + (0.06 * v.color.b) ;
