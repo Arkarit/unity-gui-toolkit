@@ -54,8 +54,6 @@ namespace GuiToolkit
 			m_playerSettings.TempSaveValues();
 			Build();
 			base.Show(_instant, _onFinish);
-			if (m_tabInfos.Count > 0)
-				GotoPage(0);
 		}
 
 		private void Build()

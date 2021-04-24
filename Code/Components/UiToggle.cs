@@ -16,6 +16,7 @@ namespace GuiToolkit
 	public class UiToggle: UiButtonBase
 	{
 		private Toggle m_toggle;
+		private ETriState m_state = ETriState.Indeterminate;
 
 		public Toggle Toggle
 		{
@@ -30,9 +31,19 @@ namespace GuiToolkit
 
 		public bool IsOn
 		{
-			get => Toggle.isOn;
-			set => Toggle.isOn = value;
+			get
+			{
+				if (m_state == ETriState.Indeterminate)
+					return Toggle.isOn;
+				return m_state == ETriState.True;
+			}
+			set
+			{
+				m_state = value ? ETriState.True : ETriState.False; 
+				Toggle.isOn = value;
+			}
 		}
+
 		public void SetDelayed(bool _value) => StartCoroutine(SetDelayedCoroutine(_value));
 
 		protected IEnumerator SetDelayedCoroutine(bool _value)

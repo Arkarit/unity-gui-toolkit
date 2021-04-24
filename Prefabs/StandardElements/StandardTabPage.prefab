@@ -53,7 +53,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
-  m_defaultSceneVisibility: 2
+  m_defaultSceneVisibility: 0
 --- !u!114 &5260212448376645014
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75,26 +75,19 @@ MonoBehaviour:
   m_autoStart: 0
   m_setOnStart: 0
   m_numberOfLoops: 0
+  m_finishInstantOnOrientationChange: 1
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 1
-  m_support: 2
+  m_support: 1
   m_target: {fileID: 7514274282858316888}
   m_markTargetForLayoutRebuild: 0
   m_canvasScaler: {fileID: 0}
   m_canvasRectTransform: {fileID: 0}
   m_scaleByCanvasScaler: 1
-  m_posXStart: 0
+  m_posXStart: 1200
   m_posXEnd: 0
   m_posXCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  m_posYStart: 1200
-  m_posYEnd: 0
-  m_posYCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -115,6 +108,14 @@ MonoBehaviour:
       weightedMode: 0
       inWeight: 0
       outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_posYStart: 1200
+  m_posYEnd: 0
+  m_posYCurve:
+    serializedVersion: 2
+    m_Curve: []
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -189,7 +190,7 @@ MonoBehaviour:
   m_visibleInLandscape: []
   m_visibleInPortrait: []
   m_autoUpdateOnEnable: 1
-  m_lastScreenOrientation: 0
+  m_lastScreenOrientation: 1
 --- !u!1 &1762271930642271724
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,6 +248,7 @@ MonoBehaviour:
   m_autoStart: 0
   m_setOnStart: 0
   m_numberOfLoops: 0
+  m_finishInstantOnOrientationChange: 1
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 1
@@ -514,6 +516,7 @@ MonoBehaviour:
   m_autoStart: 0
   m_setOnStart: 0
   m_numberOfLoops: 0
+  m_finishInstantOnOrientationChange: 1
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 1

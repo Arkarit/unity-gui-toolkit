@@ -47,9 +47,11 @@ namespace GuiToolkit
 		{
 			InitPages();
 			base.Show(_instant, _onFinish);
+			if (m_tabInfos.Count > 0)
+				GotoPage(0, true, true);
 		}
 
-		public void GotoPage(int _idx)
+		public void GotoPage(int _idx, bool _instant = true, bool _force = false)
 		{
 			if (_idx >= m_tabInfos.Count)
 			{
@@ -57,11 +59,11 @@ namespace GuiToolkit
 				return;
 			}
 
-			if (_idx == m_currentTabIdx)
+			if (!_force && _idx == m_currentTabIdx)
 				return;
 
-			m_tabInfos[m_currentTabIdx].Page.Hide(true);
-			m_tabInfos[_idx].Page.Show(true);
+			m_tabInfos[m_currentTabIdx].Page.Hide(_instant);
+			m_tabInfos[_idx].Page.Show(_instant);
 			m_tabInfos[_idx].Tab.Toggle.isOn = true;
 		}
 
@@ -119,7 +121,7 @@ namespace GuiToolkit
 				tabInfo.Tab.OnValueChanged.AddListener( (isOn) => OnToggleChanged(toggleIndex, isOn) );
 				tabInfo.Tab.Toggle.group = tabToggleGroup;
 
-				tabInfo.Page.SetVisible(tabInfo.Tab.Toggle.isOn, true);
+				tabInfo.Page.SetVisible( tabInfo.Tab.Toggle.isOn, true );
 				if (tabInfo.Tab.Toggle.isOn)
 				{
 					Debug.Assert(m_currentTabIdx == -1, "Multiple active tabs in tab dialog! Please use ToggleGroup and set only one to is on!");
