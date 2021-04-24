@@ -78,10 +78,12 @@ namespace GuiToolkit
 			}
 		}
 
+#if UNITY_EDITOR
 		protected override void OnValidate()
 		{
 			base.OnValidate();
 			LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
 		}
+#endif
 	}
 }
