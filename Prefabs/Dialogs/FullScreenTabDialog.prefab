@@ -1215,10 +1215,11 @@ MonoBehaviour:
   m_layer: 600
   m_isFullScreen: 0
   m_closeButton: {fileID: 6957560595721433611}
-  m_tabsColumn: {fileID: 5968183750924817586}
   m_tabContentContainer: {fileID: 7953324690129522827}
   m_pageContentContainer: {fileID: 5968183750671245532}
   m_tabInfos: []
+  m_instantiateTabInfosOnStart: 0
+  m_tabsParent: {fileID: 5968183750924817586}
   m_autoHideTabIfOnlyOne: 1
 --- !u!114 &2527186978879140337
 MonoBehaviour:
@@ -2533,6 +2534,7 @@ GameObject:
   - component: {fileID: 838699485284219530}
   - component: {fileID: 2368131855274987732}
   - component: {fileID: 8246042931771844808}
+  - component: {fileID: 5010036973419692574}
   m_Layer: 5
   m_Name: TabList
   m_TagString: Untagged
@@ -2598,6 +2600,20 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5010036973419692574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7789858865536894914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89f568f5beea6a645b089cac04cdab79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_useInitialNormalizedPosition: 1
+  m_initialNormalizedPosition: {x: 0, y: 0}
 --- !u!1 &7798362471346175658
 GameObject:
   m_ObjectHideFlags: 0
