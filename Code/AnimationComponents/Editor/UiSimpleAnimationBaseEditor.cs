@@ -18,6 +18,7 @@ namespace GuiToolkit
 		protected SerializedProperty m_autoStartProp;
 		protected SerializedProperty m_setOnStartProp;
 		protected SerializedProperty m_numberOfLoopsProp;
+		protected SerializedProperty m_finishInstantOnOrientationChangeProp;
 		protected SerializedProperty m_slaveAnimationsProp;
 		protected SerializedProperty m_setLoopsForSlavesProp;
 		protected SerializedProperty m_supportViewAnimationsProp;
@@ -37,6 +38,7 @@ namespace GuiToolkit
 			m_autoStartProp = serializedObject.FindProperty("m_autoStart");
 			m_setOnStartProp = serializedObject.FindProperty("m_setOnStart");
 			m_numberOfLoopsProp = serializedObject.FindProperty("m_numberOfLoops");
+			m_finishInstantOnOrientationChangeProp = serializedObject.FindProperty("m_finishInstantOnOrientationChange");
 			m_slaveAnimationsProp = serializedObject.FindProperty("m_slaveAnimations");
 			m_setLoopsForSlavesProp = serializedObject.FindProperty("m_setLoopsForSlaves");
 			m_supportViewAnimationsProp = serializedObject.FindProperty("m_supportViewAnimations");
@@ -70,6 +72,7 @@ namespace GuiToolkit
 			EditorGUILayout.PropertyField(m_backwardsAnimationProp);
 			EditorGUI.EndDisabledGroup();
 			EditorGUILayout.PropertyField(m_numberOfLoopsProp);
+			EditorGUILayout.PropertyField(m_finishInstantOnOrientationChangeProp);
 			EditorGUILayout.PropertyField(m_autoStartProp);
 			EditorGUI.BeginDisabledGroup(m_autoStartProp.boolValue);
 			EditorGUILayout.PropertyField(m_setOnStartProp);

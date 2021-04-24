@@ -33,6 +33,9 @@ namespace GuiToolkit
 		[Tooltip("Number of loops. -1: infinite loops 0: no loops, >0: Arbitrary number of loops")]
 		[SerializeField] protected int m_numberOfLoops = 0;
 
+		[Tooltip("Finish animation instantly on Orientation change. This is important to set for animations, which differ in landscape and portrait.")]
+		[SerializeField] protected bool m_finishInstantOnOrientationChange = false;
+
 		// Slave animations
 
 		[Tooltip("Slave animations which are automatically started when this animation is started.")]
@@ -41,7 +44,7 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_setLoopsForSlaves = true;
 		[SerializeField] protected bool m_supportViewAnimations = false;
 
-		protected override bool NeedsOnScreenOrientationCallback => true;
+		protected override bool NeedsOnScreenOrientationCallback => m_finishInstantOnOrientationChange;
 
 		public UiSimpleAnimationBase[] SlaveAnimations => m_slaveAnimations;
 		public bool Running => m_running;
