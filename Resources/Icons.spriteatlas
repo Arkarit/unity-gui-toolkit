@@ -31,7 +31,7 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 21b88ebcff162d042800521d84a822dd, type: 3}
-    totalSpriteSurfaceArea: 933888
+    totalSpriteSurfaceArea: 999424
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
@@ -50,6 +50,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 0cf6bf9a44d093648ad721d11a9f9dcc, type: 3}
   - {fileID: 21300000, guid: cd7814db32a13f54fb1fd147067be177, type: 3}
   - {fileID: 21300000, guid: 877e341e2f694db409ad60b7467611f0, type: 3}
+  - {fileID: 21300000, guid: c6072e1e5bfdf334696de2d9c5ef2371, type: 3}
   m_PackedSpriteNamesToIndex:
   - UITK_Text
   - UITK_Gear
@@ -66,5 +67,6 @@ SpriteAtlas:
   - UITK_Loudspeaker
   - UITK_Fast
   - UITK_Phone
+  - UITK_Logo_Zoom
   m_Tag: Icons
   m_IsVariant: 0
