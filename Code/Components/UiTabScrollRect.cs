@@ -8,7 +8,7 @@ namespace GuiToolkit
 
 		private void Update()
 		{
-			Debug.Log(ScrollRect.normalizedPosition);
+//			Debug.Log($"{ScrollRect.normalizedPosition}, {ScrollRect.content.localPosition}");
 		}
 
 	}

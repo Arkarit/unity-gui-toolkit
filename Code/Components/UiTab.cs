@@ -32,17 +32,18 @@ namespace GuiToolkit
 		protected override void RemoveEventListeners()
 		{
 			base.RemoveEventListeners();
-			OnValueChanged.AddListener(OnToggleChanged);
+			OnValueChanged.RemoveListener(OnToggleChanged);
 		}
 
 		private void OnToggleChanged( bool _isActive )
 		{
-			if (_isActive && TabScrollRect)
+			if (_isActive && TabScrollRect != null)
 				EnsureVisible();
 		}
 
 		private void EnsureVisible()
 		{
+			TabScrollRect.ScrollToChild(RectTransform);
 		}
 	}
 

@@ -135,6 +135,15 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public static Rect GetScreenRect( this RectTransform _this )
+		{
+			Vector2 size = Vector2.Scale(_this.rect.size, _this.lossyScale);
+			Rect rect = new Rect(_this.position.x, Screen.height - _this.position.y, size.x, size.y);
+			rect.x -= (_this.pivot.x * size.x);
+			rect.y -= ((1.0f - _this.pivot.y) * size.y);
+			return rect;
+		}
+
 		public static (Rect rect, Vector2 offset) BringToCenter( this Rect _this )
 		{
 			Vector2 offset = -_this.center;
@@ -503,7 +512,6 @@ namespace GuiToolkit
 		{
 			return GetPath(_this.transform);
 		}
-		
 	}
 
 

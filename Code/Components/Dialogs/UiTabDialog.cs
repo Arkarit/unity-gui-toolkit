@@ -114,8 +114,6 @@ namespace GuiToolkit
 			{
 				TabInfo tabInfo = m_tabInfos[i];
 
-				tabInfo.Tab.OnValueChanged.RemoveAllListeners();
-
 				int toggleIndex = i;
 
 				tabInfo.Tab.OnValueChanged.AddListener( (isOn) => OnToggleChanged(toggleIndex, isOn) );
