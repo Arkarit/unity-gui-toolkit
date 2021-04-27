@@ -7,8 +7,8 @@ namespace GuiToolkit
 	[RequireComponent(typeof(ScrollRect))]
 	public class UiScrollRect : MonoBehaviour
 	{
-		public bool m_useInitialNormalizedPosition;
-		public Vector2 m_initialNormalizedPosition = new Vector2(0,1);
+		[SerializeField] protected bool m_useInitialNormalizedPosition;
+		[SerializeField] protected Vector2 m_initialNormalizedPosition = new Vector2(0,1);
 
 		private ScrollRect m_scrollRect;
 
@@ -22,13 +22,13 @@ namespace GuiToolkit
 			}
 		}
 
-		private void OnEnable()
+		protected virtual void OnEnable()
 		{
 			if (m_useInitialNormalizedPosition)
 				StartCoroutine(DelayedScrollToTop());
 		}
 
-		private IEnumerator DelayedScrollToTop()
+		protected IEnumerator DelayedScrollToTop()
 		{
 			yield return 0;
 			ScrollRect.normalizedPosition = m_initialNormalizedPosition;

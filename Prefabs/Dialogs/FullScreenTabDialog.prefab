@@ -836,6 +836,7 @@ MonoBehaviour:
   m_autoStart: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
+  m_finishInstantOnOrientationChange: 0
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
@@ -1094,6 +1095,7 @@ MonoBehaviour:
   m_autoStart: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
+  m_finishInstantOnOrientationChange: 0
   m_slaveAnimations:
   - {fileID: 2527186978423661633}
   m_setLoopsForSlaves: 1
@@ -2534,7 +2536,7 @@ GameObject:
   - component: {fileID: 838699485284219530}
   - component: {fileID: 2368131855274987732}
   - component: {fileID: 8246042931771844808}
-  - component: {fileID: 5010036973419692574}
+  - component: {fileID: 2866388131332662531}
   m_Layer: 5
   m_Name: TabList
   m_TagString: Untagged
@@ -2600,7 +2602,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &5010036973419692574
+--- !u!114 &2866388131332662531
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2609,11 +2611,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 7789858865536894914}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89f568f5beea6a645b089cac04cdab79, type: 3}
+  m_Script: {fileID: 11500000, guid: 6b9949ba8566651488d5d69e8f9f4815, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_useInitialNormalizedPosition: 1
-  m_initialNormalizedPosition: {x: 0, y: 0}
+  m_initialNormalizedPosition: {x: 0, y: 1}
 --- !u!1 &7798362471346175658
 GameObject:
   m_ObjectHideFlags: 0

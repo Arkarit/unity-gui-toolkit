@@ -10,7 +10,7 @@ namespace GuiToolkit
 		[SerializeField] protected UiButton m_okButton;
 		[SerializeField] protected UiButton m_cancelButton;
 		[SerializeField] protected UiButton m_restoreDefaultsButton;
-		[SerializeField] protected UiToggle m_tabPrefab;
+		[SerializeField] protected UiTab m_tabPrefab;
 		[SerializeField] protected UiPanel m_tabPagePrefab;
 		[SerializeField] protected UiTextContainer m_groupPrefab;
 		[SerializeField] protected UiPlayerSettingKeyBinding m_keyBindingsPrefab;
@@ -66,7 +66,7 @@ namespace GuiToolkit
 
 			foreach (var category in categorized)
 			{
-				UiToggle tab = Instantiate(m_tabPrefab, m_tabContentContainer);
+				UiTab tab = Instantiate(m_tabPrefab, m_tabContentContainer);
 				tab.Text = category.Key;
 				tab.Toggle.group = tabToggleGroup;
 				tab.gameObject.name = "Tab_" + category.Key;

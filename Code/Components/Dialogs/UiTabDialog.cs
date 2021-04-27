@@ -9,7 +9,7 @@ namespace GuiToolkit
 	[Serializable]
 	public struct TabInfo
 	{
-		public UiToggle Tab;
+		public UiTab Tab;
 		public UiPanel Page;
 	}
 
