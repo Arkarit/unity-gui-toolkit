@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DigitalRuby.Tween;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,7 +15,7 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_ensureTabVisibility = true;
 
 		[Tooltip("Duration of tween to make child visible. 0 means instant.")]
-		[SerializeField] protected float m_ensureTabVisibilityDuration = 0.2f;
+		[SerializeField] protected float m_ensureTabVisibilityDuration = 0.3f;
 
 		[Tooltip("Padding (Fraction of child width). If a child isn't the first or the last child, it makes sense to also display the neighbor tabs. This distance is used for that.")]
 		[SerializeField] protected float m_ensureTabVisibilityPadding = 0.4f;
@@ -47,26 +48,42 @@ namespace GuiToolkit
 			Rect viewportRect = ScrollRect.viewport.GetScreenRect();
 			Rect childRect = child.GetScreenRect();
 
-			Vector3 pos = ScrollRect.content.position;
+			Vector3 startPos = ScrollRect.content.position;
+			Vector3 pos = startPos;
 
 			if (ScrollRect.horizontal)
 			{
 				float val = GetScrollValue(viewportRect.x, viewportRect.width, childRect.x, childRect.width);
+				if (Mathf.Approximately(val, 0))
+					return;
+
 				padding *= childRect.width;
-				if (!Mathf.Approximately(val, 0))
-					val += padding * Mathf.Sign(val);
+				val += padding * Mathf.Sign(val);
 				pos.x += val;
 			}
 			else
 			{
 				float val = GetScrollValue(viewportRect.y, viewportRect.height, childRect.y, childRect.height);
+				if (Mathf.Approximately(val, 0))
+					return;
+
 				padding *= childRect.height;
-				if (!Mathf.Approximately(val, 0))
 					val += padding * Mathf.Sign(val);
 				pos.y += val;
 			}
 
-			ScrollRect.content.position = pos;
+			if (Mathf.Approximately(m_ensureTabVisibilityDuration, 0))
+			{
+				ScrollRect.content.position = pos;
+				return;
+			}
+
+			System.Action<ITween<Vector3>> updateBar = ( t ) =>
+			{
+				ScrollRect.content.position = t.CurrentValue;
+			};
+
+			gameObject.Tween("makeVisible", startPos, pos, m_ensureTabVisibilityDuration, TweenScaleFunctions.QuadraticEaseInOut, updateBar );
 		}
 
 		private float GetScrollValue(float _xViewport, float _wViewport, float _xChild, float _wChild)
