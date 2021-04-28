@@ -82,7 +82,7 @@ namespace GuiToolkit
 
 				padding *= childRect.height;
 					val += padding * Mathf.Sign(val);
-				pos.y += val;
+				pos.y -= val;
 			}
 
 			if (!IsEnsureTabVisibilityAnimated)
