@@ -10,6 +10,16 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_useInitialNormalizedPosition;
 		[SerializeField] protected Vector2 m_initialNormalizedPosition = new Vector2(0,1);
 
+		[Tooltip("This ensures, that a Tab child in an UiScrollRect is displayed fully, if it is only partially visible when selected. (Recommended)")]
+		[SerializeField] protected bool m_ensureTabVisibility = true;
+
+		[Tooltip("Duration of tween to make child visible. 0 means instant.")]
+		[SerializeField] protected float m_ensureTabVisibilityDuration = 0.2f;
+
+		[Tooltip("Padding. If a child isn't the first or the last child, it makes sense to also display the neighbor tabs. This distance is used for that.")]
+		[SerializeField] protected float m_ensureTabVisibilityPadding = 40.0f;
+
+
 		private ScrollRect m_scrollRect;
 
 		public ScrollRect ScrollRect
@@ -22,21 +32,29 @@ namespace GuiToolkit
 			}
 		}
 
-		public void ScrollToChild( RectTransform _child )
+		public void EnsureTabVisibility( UiTab _child )
 		{
-			Rect viewport = ScrollRect.viewport.GetScreenRect();
-			Rect child = _child.GetScreenRect();
+			if (!m_ensureTabVisibility)
+				return;
+
+			RectTransform child = _child.RectTransform;
+			Rect viewportRect = ScrollRect.viewport.GetScreenRect();
+			Rect childRect = child.GetScreenRect();
+
+			Vector3 pos = ScrollRect.content.position;
 
 			if (ScrollRect.horizontal)
 			{
-				float val = GetScrollValue(viewport.x, viewport.width, child.x, child.width);
-				Vector2 v = new Vector2(val, 0);
-				Vector2 v2 = ScrollRect.viewport.InverseTransformVector(v);
-				Debug.Log(v2.x);
-				Vector3 cSharpIsCircumstancial = ScrollRect.content.position;
-				cSharpIsCircumstancial.x += v.x;
-				ScrollRect.content.position = cSharpIsCircumstancial;
+				float val = GetScrollValue(viewportRect.x, viewportRect.width, childRect.x, childRect.width);
+				pos.x += val;
 			}
+			else
+			{
+				float val = GetScrollValue(viewportRect.y, viewportRect.height, childRect.y, childRect.height);
+				pos.y += val;
+			}
+
+			ScrollRect.content.position = pos;
 		}
 
 		private float GetScrollValue(float _xViewport, float _wViewport, float _xChild, float _wChild)

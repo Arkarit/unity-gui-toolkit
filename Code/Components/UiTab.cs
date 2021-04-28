@@ -9,15 +9,15 @@ namespace GuiToolkit
 {
 	public class UiTab : UiToggle
 	{
-		protected UiTabScrollRect m_uiTabScrollRect;
+		protected UiScrollRect m_uiScrollRect;
 
-		public UiTabScrollRect TabScrollRect
+		public UiScrollRect UiScrollRect
 		{
 			get
 			{
-				if (m_uiTabScrollRect == null)
-					m_uiTabScrollRect = GetComponentInParent<UiTabScrollRect>();
-				return m_uiTabScrollRect;
+				if (m_uiScrollRect == null)
+					m_uiScrollRect = GetComponentInParent<UiScrollRect>();
+				return m_uiScrollRect;
 			}
 		}
 
@@ -37,13 +37,8 @@ namespace GuiToolkit
 
 		private void OnToggleChanged( bool _isActive )
 		{
-			if (_isActive && TabScrollRect != null)
-				EnsureVisible();
-		}
-
-		private void EnsureVisible()
-		{
-			TabScrollRect.ScrollToChild(RectTransform);
+			if (_isActive && UiScrollRect != null)
+				UiScrollRect.EnsureTabVisibility(this);
 		}
 	}
 
