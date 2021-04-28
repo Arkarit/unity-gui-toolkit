@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(ScrollRect))]
-	public class UiScrollRect : MonoBehaviour
+	public class UiScrollRect : UiThing
 	{
 		[SerializeField] protected bool m_useInitialNormalizedPosition;
 		[SerializeField] protected Vector2 m_initialNormalizedPosition = new Vector2(0,1);
@@ -20,6 +20,10 @@ namespace GuiToolkit
 		[Tooltip("Padding (Fraction of child width). If a child isn't the first or the last child, it makes sense to also display the neighbor tabs. This distance is used for that.")]
 		[SerializeField] protected float m_ensureTabVisibilityPadding = 0.4f;
 
+		[Tooltip("Finish animation instantly on Orientation change. This is important to set for tab visibility animations, which differ in landscape and portrait.")]
+		[SerializeField] protected bool m_finishTabVisibilityInstantOnOrientationChange = false;
+
+		protected override bool NeedsOnScreenOrientationCallback => IsEnsureTabVisibilityAnimated && m_finishTabVisibilityInstantOnOrientationChange;
 
 		private ScrollRect m_scrollRect;
 		private Vector3Tween m_ensureTabVisibilityTween = null;
@@ -106,8 +110,18 @@ namespace GuiToolkit
 			return 0;
 		}
 
-		protected virtual void OnEnable()
+		protected override void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation )
 		{
+			if (m_ensureTabVisibilityTween != null)
+			{
+				TweenFactory.RemoveTween(m_ensureTabVisibilityTween, TweenStopBehavior.Complete);
+				m_ensureTabVisibilityTween = null;
+			}
+		}
+
+		protected override void OnEnable()
+		{
+			base.OnEnable();
 			if (m_useInitialNormalizedPosition)
 				StartCoroutine(DelayedScrollToTop());
 		}
