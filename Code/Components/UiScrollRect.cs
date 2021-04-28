@@ -22,6 +22,9 @@ namespace GuiToolkit
 
 
 		private ScrollRect m_scrollRect;
+		private Vector3Tween m_ensureTabVisibilityTween = null;
+
+		protected bool IsEnsureTabVisibilityAnimated => m_ensureTabVisibility && !Mathf.Approximately(m_ensureTabVisibilityDuration, 0);
 
 		public ScrollRect ScrollRect
 		{
@@ -37,6 +40,12 @@ namespace GuiToolkit
 		{
 			if (!m_ensureTabVisibility)
 				return;
+
+			if (IsEnsureTabVisibilityAnimated && m_ensureTabVisibilityTween != null)
+			{
+				TweenFactory.RemoveTween(m_ensureTabVisibilityTween, TweenStopBehavior.Complete);
+				m_ensureTabVisibilityTween = null;
+			}
 
 			float padding = m_ensureTabVisibilityPadding;
 			RectTransform child = _child.RectTransform;
@@ -72,7 +81,7 @@ namespace GuiToolkit
 				pos.y += val;
 			}
 
-			if (Mathf.Approximately(m_ensureTabVisibilityDuration, 0))
+			if (!IsEnsureTabVisibilityAnimated)
 			{
 				ScrollRect.content.position = pos;
 				return;
@@ -83,7 +92,7 @@ namespace GuiToolkit
 				ScrollRect.content.position = t.CurrentValue;
 			};
 
-			gameObject.Tween("makeVisible", startPos, pos, m_ensureTabVisibilityDuration, TweenScaleFunctions.QuadraticEaseInOut, updateBar );
+			m_ensureTabVisibilityTween = gameObject.Tween("makeVisible", startPos, pos, m_ensureTabVisibilityDuration, TweenScaleFunctions.QuadraticEaseInOut, updateBar );
 		}
 
 		private float GetScrollValue(float _xViewport, float _wViewport, float _xChild, float _wChild)
