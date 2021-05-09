@@ -9,7 +9,11 @@ namespace GuiToolkit
 {
 	public class UiTab : UiToggle
 	{
+		[SerializeField] protected bool m_ensureVisibilityInScrollRect;
+
 		protected UiScrollRect m_uiScrollRect;
+
+		protected override bool NeedsOnScreenOrientationCallback => m_ensureVisibilityInScrollRect;
 
 		public UiScrollRect UiScrollRect
 		{
@@ -37,17 +41,34 @@ namespace GuiToolkit
 
 		private void OnToggleChanged( bool _isActive )
 		{
-			if (_isActive && UiScrollRect != null)
-				UiScrollRect.EnsureTabVisibility(this);
+			if (_isActive && UiScrollRect != null && m_ensureVisibilityInScrollRect)
+				UiScrollRect.EnsureChildVisibility(RectTransform);
 		}
+
+		protected override void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation )
+		{
+			base.OnScreenOrientationChanged(_oldScreenOrientation, _newScreenOrientation);
+			if (Toggle.isOn && UiScrollRect != null)
+				UiScrollRect.EnsureChildVisibility(RectTransform, true);
+		}
+
 	}
 
 #if UNITY_EDITOR
 	[CustomEditor(typeof(UiTab))]
 	public class UiTabEditor : UiToggleEditor
 	{
+		protected SerializedProperty m_ensureVisibilityInScrollRectProp;
+
+		public override void OnEnable()
+		{
+			base.OnEnable();
+			m_ensureVisibilityInScrollRectProp = serializedObject.FindProperty("m_ensureVisibilityInScrollRect");
+		}
+
 		public override void OnInspectorGUI()
 		{
+			EditorGUILayout.PropertyField(m_ensureVisibilityInScrollRectProp);
 			base.OnInspectorGUI();
 		}
 	}

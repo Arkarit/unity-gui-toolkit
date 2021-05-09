@@ -210,6 +210,7 @@ MonoBehaviour:
   m_simpleAnimation: {fileID: 0}
   m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 0}
+  m_ensureVisibilityInScrollRect: 1
 --- !u!1001 &6428330949595553073
 PrefabInstance:
   m_ObjectHideFlags: 0

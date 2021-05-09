@@ -11,24 +11,16 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_useInitialNormalizedPosition;
 		[SerializeField] protected Vector2 m_initialNormalizedPosition = new Vector2(0,1);
 
-		[Tooltip("This ensures, that a Tab child in an UiScrollRect is displayed fully, if it is only partially visible when selected. (Recommended)")]
-		[SerializeField] protected bool m_ensureTabVisibility = true;
-
 		[Tooltip("Duration of tween to make child visible. 0 means instant.")]
-		[SerializeField] protected float m_ensureTabVisibilityDuration = 0.3f;
+		[SerializeField] protected float m_ensureChildVisibilityDuration = 0.3f;
 
 		[Tooltip("Padding (Fraction of child width). If a child isn't the first or the last child, it makes sense to also display the neighbor tabs. This distance is used for that.")]
-		[SerializeField] protected float m_ensureTabVisibilityPadding = 0.4f;
-
-		[Tooltip("Finish animation instantly on Orientation change. This is important to set for tab visibility animations, which differ in landscape and portrait.")]
-		[SerializeField] protected bool m_finishTabVisibilityInstantOnOrientationChange = false;
-
-		protected override bool NeedsOnScreenOrientationCallback => IsEnsureTabVisibilityAnimated && m_finishTabVisibilityInstantOnOrientationChange;
+		[SerializeField] protected float m_ensureChildVisibilityPadding = 0.4f;
 
 		private ScrollRect m_scrollRect;
-		private Vector3Tween m_ensureTabVisibilityTween = null;
+		private Vector3Tween m_ensureChildVisibilityTween = null;
 
-		protected bool IsEnsureTabVisibilityAnimated => m_ensureTabVisibility && !Mathf.Approximately(m_ensureTabVisibilityDuration, 0);
+		protected bool IsEnsureChildVisibilityAnimated => !Mathf.Approximately(m_ensureChildVisibilityDuration, 0);
 
 		public ScrollRect ScrollRect
 		{
@@ -40,26 +32,22 @@ namespace GuiToolkit
 			}
 		}
 
-		public void EnsureTabVisibility( UiTab _child )
+		public void EnsureChildVisibility( RectTransform _child, bool _forceInstant = false )
 		{
-			if (!m_ensureTabVisibility)
-				return;
-
-			if (IsEnsureTabVisibilityAnimated && m_ensureTabVisibilityTween != null)
+			if (m_ensureChildVisibilityTween != null)
 			{
-				TweenFactory.RemoveTween(m_ensureTabVisibilityTween, TweenStopBehavior.Complete);
-				m_ensureTabVisibilityTween = null;
+				TweenFactory.RemoveTween(m_ensureChildVisibilityTween, TweenStopBehavior.Complete);
+				m_ensureChildVisibilityTween = null;
 			}
 
-			float padding = m_ensureTabVisibilityPadding;
-			RectTransform child = _child.RectTransform;
-			int siblingIndex = child.GetSiblingIndex();
+			float padding = m_ensureChildVisibilityPadding;
+			int siblingIndex = _child.GetSiblingIndex();
 
 			if (siblingIndex == 0 || siblingIndex == ScrollRect.content.childCount - 1)
 				padding = 0;
 
 			Rect viewportRect = ScrollRect.viewport.GetScreenRect();
-			Rect childRect = child.GetScreenRect();
+			Rect childRect = _child.GetScreenRect();
 
 			Vector3 startPos = ScrollRect.content.position;
 			Vector3 pos = startPos;
@@ -85,7 +73,7 @@ namespace GuiToolkit
 				pos.y -= val;
 			}
 
-			if (!IsEnsureTabVisibilityAnimated)
+			if (_forceInstant || !IsEnsureChildVisibilityAnimated)
 			{
 				ScrollRect.content.position = pos;
 				return;
@@ -96,7 +84,7 @@ namespace GuiToolkit
 				ScrollRect.content.position = t.CurrentValue;
 			};
 
-			m_ensureTabVisibilityTween = gameObject.Tween("makeVisible", startPos, pos, m_ensureTabVisibilityDuration, TweenScaleFunctions.QuadraticEaseInOut, updateBar );
+			m_ensureChildVisibilityTween = gameObject.Tween("makeVisible", startPos, pos, m_ensureChildVisibilityDuration, TweenScaleFunctions.QuadraticEaseInOut, updateBar );
 		}
 
 		private float GetScrollValue(float _xViewport, float _wViewport, float _xChild, float _wChild)
@@ -108,15 +96,6 @@ namespace GuiToolkit
 				return (_xViewport + _wViewport) - (_xChild + _wChild);
 
 			return 0;
-		}
-
-		protected override void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation )
-		{
-			if (m_ensureTabVisibilityTween != null)
-			{
-				TweenFactory.RemoveTween(m_ensureTabVisibilityTween, TweenStopBehavior.Complete);
-				m_ensureTabVisibilityTween = null;
-			}
 		}
 
 		protected override void OnEnable()
