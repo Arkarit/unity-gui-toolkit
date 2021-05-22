@@ -563,12 +563,14 @@ namespace GuiToolkit
 		private const float LARGE_NUMBER = 999999999.0f;
 		private static readonly Bounds LARGE_BOUNDS = new Bounds(Vector3.zero, new Vector3(LARGE_NUMBER, LARGE_NUMBER, LARGE_NUMBER) );
 
+		/// \brief Register an IExcludeFromFrustumCulling to be excluded from frustum culling
 		public void RegisterExcludeFrustumCulling(IExcludeFromFrustumCulling _toRegister)
 		{
 			m_excludedFromFrustumCulling.Add(_toRegister);
 			m_excludedBounds.Add(new Bounds());
 		}
 
+		/// \brief Unregister an IExcludeFromFrustumCulling not to be excluded from frustum culling anymore
 		public void UnregisterExcludeFrustumCulling(IExcludeFromFrustumCulling _toRemove)
 		{
 			int idx = m_excludedFromFrustumCulling.IndexOf(_toRemove);

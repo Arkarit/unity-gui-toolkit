@@ -2,8 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// \file EventOverrides.cs
+/// \brief Event definition overrides
+/// 
+/// UnityEvent overrides with separate handling of isPlaying and editor code.
+
 namespace GuiToolkit
 {
+
+	/// \brief Event definition override
+	/// 
+	/// This event definition supports code, which runs in editor.<BR>
+	/// If the code is running normally (Application.isPlaying == true), an event is invoked.<BR>
+	/// If the code is running in editor ([RunAlways]), the event is suppressed.<BR>
+	/// An invocation can be enforced by calling InvokeAlways() even from editor code.
 	public class CEvent : UnityEngine.Events.UnityEvent
 	{
 #if UNITY_EDITOR

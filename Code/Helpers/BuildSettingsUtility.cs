@@ -6,11 +6,11 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-/// <summary>
-/// Various BuildSettings interactions
-/// </summary>
 namespace GuiToolkit
 {
+	/// <summary>
+	/// Various BuildSettings interactions
+	/// </summary>
 	static public class BuildSettingsUtility
 	{
 		public const int SCENE_NOT_IN_BUILD = -1;

@@ -7,8 +7,13 @@ using System;
 using UnityEditor;
 #endif
 
+/// \file UiToolkitConfiguration.cs
+/// \brief Basic toolkit configuration and definitions.
+/// 
+/// In this file, all common and basic type definitions of the toolkit are collected.
 namespace GuiToolkit
 {
+	/// \brief Basic toolkit configuration and definitions.
 	public class UiToolkitConfiguration : ScriptableObject
 	{
 		public const string FILENAME = "UiToolkitConfiguration";
