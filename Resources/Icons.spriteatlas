@@ -28,11 +28,13 @@ SpriteAtlas:
       allowAlphaSplitting: 0
       enableRotation: 1
       enableTightPacking: 0
+    secondaryTextureSettings: {}
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 21b88ebcff162d042800521d84a822dd, type: 3}
-    totalSpriteSurfaceArea: 1064960
     bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 320d01a17bad420459171caa4a5d46f5, type: 3}
@@ -70,5 +72,6 @@ SpriteAtlas:
   - UITK_Fast
   - UITK_Phone
   - UITK_Logo_Zoom
+  m_RenderDataMap: {}
   m_Tag: Icons
   m_IsVariant: 0
