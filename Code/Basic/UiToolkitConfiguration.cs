@@ -11,17 +11,22 @@ using UnityEditor;
 /// \brief Basic toolkit configuration and definitions.
 /// 
 /// In this file, all common and basic type definitions of the toolkit are collected.
+/// Note that this scriptable object is best edited with the UiToolkitConfigurationWindow.
 namespace GuiToolkit
 {
 	/// \brief Basic toolkit configuration and definitions.
 	public class UiToolkitConfiguration : ScriptableObject
 	{
-		public const string FILENAME = "UiToolkitConfiguration";
-		public const string RUNTIME_DIR = "";
+		private const string FILENAME = "UiToolkitConfiguration";
+		private const string RUNTIME_DIR = "";
+		private const string EDITOR_DIR = "Assets/Resources" + RUNTIME_DIR;
+
+		/// Path to load the configuration file during runtime (Resources.Load<UiToolkitConfiguration>())
 		public const string RUNTIME_PATH = FILENAME;
-		public const string EDITOR_DIR = "Assets/Resources" + RUNTIME_DIR;
+		/// Path to load/save the configuration file in editor (AssetDatabase.LoadAssetAtPath<UiToolkitConfiguration>())
 		public const string EDITOR_PATH = EDITOR_DIR + "/" + FILENAME + ".asset";
 
+		/// \cond PRIVATE
 		public static readonly string HELP_FIRST_TIME =
 			  $"It appears that you are using the {StringConstants.TOOLKIT_NAME} for the first time\n"
 			+ $"The scriptable object '{EDITOR_PATH}' has been created to store your {StringConstants.TOOLKIT_NAME} settings.\n"
@@ -54,10 +59,12 @@ namespace GuiToolkit
 		public const string HELP_POT_PATH =
 			"Project location of the POT file (translation template containing keys, editor only). This is only necessary if you actually use translation.";
 
-		// Note: can not make this access the string constants because of shitty C# / Tooltip rules
 		public const string HELP_GENERATED_ASSETS_DIR =
 			  "Several assets need to be generated. Choose your directory here for these files.";
 
+		/// \endcond
+
+		/// Scene references.
 		[Tooltip(HELP_SCENES)]
 		public SceneReference[] m_sceneReferences;
 
