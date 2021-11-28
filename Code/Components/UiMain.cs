@@ -519,10 +519,7 @@ namespace GuiToolkit
 		// Catch the most common errors in scene setup
 		private void CheckSceneSetup()
 		{
-			// see comment below regarding isPrefabMode
-			bool isPrefabMode = UnityEditor.Experimental.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null;
-
-			if (!isPrefabMode && m_renderMode == RenderMode.ScreenSpaceCamera || m_renderMode == RenderMode.WorldSpace)
+			if (!UiEditorUtility.IsInPrefabEditingMode && m_renderMode == RenderMode.ScreenSpaceCamera || m_renderMode == RenderMode.WorldSpace)
 			{
 				Camera[] cameras = Camera.allCameras;
 				Camera uiCamera = GetComponent<Camera>();
@@ -540,7 +537,7 @@ namespace GuiToolkit
 				foreach (var camera in cameras)
 				{
 					// weird: As of a specific Unity version between 2019.3 and 2020.3, camera == uiCamera is never true in prefab editing mode.
-					// Thus, isPrefabMode guard.
+					// Thus, UiEditorUtility.IsInPrefabEditingMode guard above.
 					if (camera == uiCamera || camera.targetTexture != null)
 						continue;
 

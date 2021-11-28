@@ -42,6 +42,8 @@ namespace GuiToolkit
 			}
 		}
 
+		public static bool IsInPrefabEditingMode => PrefabStageUtility.GetCurrentPrefabStage() != null;
+
 		public delegate void DelegateButtonAction();
 
 		public static void Button( string _labelText, string _buttonText, DelegateButtonAction _delegate, int _height = NORMAL_POPUP_HEIGHT )
