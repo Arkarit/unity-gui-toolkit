@@ -66,15 +66,23 @@ namespace GuiToolkit
 
 		/// Scene references.
 		[Tooltip(HELP_SCENES)]
-		public SceneReference[] m_sceneReferences;
+		[SerializeField] private SceneReference[] m_sceneReferences;
 
 		[Tooltip(HELP_LOAD_MAIN_SCENE_ON_PLAY)]
-		public bool m_loadMainSceneOnPlay = false;
+		[SerializeField] private bool m_loadMainSceneOnPlay = false;
 
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
-		public string m_additionalScenesPath = "Scenes/";
+		[SerializeField] private string m_additionalScenesPath = "Scenes/";
+
+
+		[SerializeField] private bool m_useStyling = false;
+		[SerializeField] private string m_stylingPath;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
+
+		public bool LoadMainSceneOnPlay => m_loadMainSceneOnPlay;
+		public bool UseStyling => m_useStyling;
+		public string StylingPath => m_stylingPath;
 
 		private static UiToolkitConfiguration s_instance;
 

@@ -80,6 +80,19 @@ namespace GuiToolkit
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_generatedAssetsDir"), true);
 
+			var stylingPathProp = m_serializedSettingsObject.FindProperty("m_stylingPath");
+			if (m_firstTimeInit)
+			{
+				if (string.IsNullOrEmpty(stylingPathProp.stringValue))
+				{
+					stylingPathProp.stringValue = UiEditorUtility.GetUiToolkitRootProjectDir() + "Resources/Styles/";
+					m_serializedSettingsObject.ApplyModifiedProperties();
+				}
+			}
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_useStyling"), true);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_stylingPath"), true);
+
+
 			m_serializedSettingsObject.ApplyModifiedProperties();
 
 			if (FindObjectOfType<UiMain>() == null)

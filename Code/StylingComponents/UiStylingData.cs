@@ -1,9 +1,11 @@
 using System;
+using UnityEngine;
 
 namespace GuiToolkit
 {
 	[Serializable]
-	public class UiStylingData
+	public struct UiStylingDataSprite
 	{
+		public Sprite Sprite; 
 	}
 }

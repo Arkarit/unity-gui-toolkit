@@ -41,7 +41,7 @@ namespace GuiToolkit
 
 			UiToolkitConfiguration settings = UiToolkitConfiguration.EditorLoad();
 
-			if (!settings.m_loadMainSceneOnPlay)
+			if (!settings.LoadMainSceneOnPlay)
 				return;
 
 			try
