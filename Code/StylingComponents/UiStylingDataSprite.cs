@@ -3,8 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	[Serializable]
-	public struct UiStylingDataSprite
+	public class UiStylingDataSprite : ScriptableObject
 	{
 		public Sprite Sprite; 
 	}

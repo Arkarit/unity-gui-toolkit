@@ -38,7 +38,7 @@ namespace GuiToolkit
 
 		void ISerializationCallbackReceiver.OnBeforeSerialize()
 		{
-			SaveStyle(_original:false, _persistent:true);
+//			SaveStyle(_original:false, _persistent:true);
 			RestoreStyle(_original:true, _persistent:false);
 		}
 
@@ -47,13 +47,19 @@ namespace GuiToolkit
 			UiEditorUtility.EnsureFolderExists(GetDir());
 			if ((m_flags & UiStylingFlags.Sprite) != 0)
 			{
-				string nativePath = GetNativePath(UiStylingFlags.Sprite);
+				string path = GetPath(UiStylingFlags.Sprite);
 				Image image = GetComponent<Image>();
 				if (image)
 				{
-					var data = new UiStylingDataSprite {Sprite = image.sprite};
-					string s = JsonUtility.ToJson(data);
-					File.WriteAllText(nativePath, s);
+					var data = AssetDatabase.LoadAssetAtPath<UiStylingDataSprite>(path);
+					if (data == null)
+					{
+						data = ScriptableObject.CreateInstance<UiStylingDataSprite>();
+						UiEditorUtility.CreateAsset(data, path);
+					}
+					data.Sprite = image.sprite;
+					EditorUtility.SetDirty(data);
+					AssetDatabase.SaveAssets();
 				}
 			}
 		}
@@ -67,19 +73,19 @@ namespace GuiToolkit
 			return Config.StylingPath + m_identifier + "/";
 		}
 
-		private string GetNativePath(UiStylingFlags _flag)
+		private string GetPath(UiStylingFlags _flag)
 		{
 			string s;
 			switch (_flag)
 			{
 				case UiStylingFlags.Sprite:
-					s = "sprite.json";
+					s = "sprite.asset";
 					break;
 				default:
 					throw new ArgumentException("Only single flags allowed");
 			}
 
-			return UiEditorUtility.GetNativePath(GetDir() + s);
+			return GetDir() + s;
 		}
 	}
 }
