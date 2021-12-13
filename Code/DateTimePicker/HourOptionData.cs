@@ -6,6 +6,7 @@
 /// 
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -13,15 +14,18 @@ namespace GuiToolkit
 	[RequireComponent(typeof(Dropdown))]
 	public class HourOptionData : MonoBehaviour
 	{
-		public bool is24Hour = false;
+		[FormerlySerializedAs("is24Hour")]
+		[SerializeField] protected bool m_is24Hour = false;
+
 		private Dropdown m_dropDownComponent = null;
-		private Dropdown dropDownComponent
+
+		private Dropdown DropDownComponent
 		{
 			get
 			{
 				if (m_dropDownComponent == null)
 				{
-					m_dropDownComponent = this.GetComponent<Dropdown>();
+					m_dropDownComponent = GetComponent<Dropdown>();
 				}
 				return m_dropDownComponent;
 			}
@@ -31,17 +35,17 @@ namespace GuiToolkit
 		{
 			get
 			{
-				return dropDownComponent.value;
+				return DropDownComponent.value;
 			}
 			set
 			{
-				dropDownComponent.value = value;
+				DropDownComponent.value = value;
 			}
 		}
 
-		public void PopulateOptionData()
+		private void PopulateOptionData()
 		{
-			dropDownComponent.ClearOptions();
+			DropDownComponent.ClearOptions();
 			var lst24 = new List<string>();
 			int h = 0;
 			string tm = "am";
@@ -49,7 +53,7 @@ namespace GuiToolkit
 			for (int i = 0; i < 24; i++)
 			{
 				h = i;
-				if (!is24Hour && h > 11)
+				if (!m_is24Hour && h > 11)
 				{
 					if (h > 12)
 					{
@@ -57,11 +61,11 @@ namespace GuiToolkit
 					}
 					tm = "pm";
 				}
-				else if (!is24Hour && h == 0)
+				else if (!m_is24Hour && h == 0)
 				{
 					h = 12;
 				}
-				if (!is24Hour)
+				if (!m_is24Hour)
 				{
 					strHour = string.Format("{0} {1}", h.ToString(), tm);
 				}
@@ -71,10 +75,11 @@ namespace GuiToolkit
 				}
 				lst24.Add(strHour);
 			}
-			dropDownComponent.AddOptions(lst24);
+			DropDownComponent.AddOptions(lst24);
 		}
+
 		// Start is called before the first frame update
-		void Start()
+		protected virtual void Start()
 		{
 			PopulateOptionData();
 		}

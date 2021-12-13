@@ -6,17 +6,13 @@
 /// 
 using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
 	public class DateTimePicker : MonoBehaviour
 	{
-		[FormerlySerializedAs("datePicker")]
-		public DatePicker m_datePicker;
-		[FormerlySerializedAs("timePicker")]
-		public TimePicker m_timePicker;
-
+		[SerializeField] protected DatePicker m_datePicker;
+		[SerializeField] protected TimePicker m_timePicker;
 
 		public DateTime? SelectedDateTime()
 		{
