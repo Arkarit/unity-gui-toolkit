@@ -90,7 +90,7 @@ namespace GuiToolkit
 				string day_name = Truncate(Enum.GetName(typeof(DayOfWeek), dayOfWeek), 3);
 				var DayNameLabel = Instantiate(m_dayNameLabelTemplate);
 				DayNameLabel.name = String.Format("Day Name Label ({0})", day_name);
-				DayNameLabel.transform.SetParent(m_dayContainer.transform);
+				DayNameLabel.transform.SetParent(m_dayContainer.transform, false);
 				DayNameLabel.GetComponentInChildren<Text>().text = day_name;
 				dayOfWeek++;
 				if (dayOfWeek >= 7)
@@ -105,7 +105,7 @@ namespace GuiToolkit
 			for (int i = 0; i < m_dayToggles.Length; i++)
 			{
 				var DayToggle = Instantiate(m_dayToggleTemplate);
-				DayToggle.transform.SetParent(m_dayContainer.transform);
+				DayToggle.transform.SetParent(m_dayContainer.transform, false);
 				DayToggle.GetComponentInChildren<Text>().text = string.Empty;
 				DayToggle.m_evtOnDateSelected.AddListener(OnDaySelected);
 				m_dayToggles[i] = DayToggle;
