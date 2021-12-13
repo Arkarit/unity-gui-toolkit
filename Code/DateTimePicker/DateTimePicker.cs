@@ -6,19 +6,22 @@
 /// 
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
 	public class DateTimePicker : MonoBehaviour
 	{
-		public DatePicker datePicker;
-		public TimePicker timePicker;
+		[FormerlySerializedAs("datePicker")]
+		public DatePicker m_datePicker;
+		[FormerlySerializedAs("timePicker")]
+		public TimePicker m_timePicker;
 
 
 		public DateTime? SelectedDateTime()
 		{
-			var d = datePicker.SelectedDate;
-			var t = timePicker.SelectedTime();
+			var d = m_datePicker.SelectedDate;
+			var t = m_timePicker.SelectedTime();
 			if (d != null)
 			{
 				return new DateTime(d.Value.Year, d.Value.Month, d.Value.Day,
@@ -29,8 +32,8 @@ namespace GuiToolkit
 
 		public void SetSelectedDateTime( DateTime value )
 		{
-			datePicker.SetSelectedDate(value);
-			timePicker.SetSelectedTime(value);
+			m_datePicker.SetSelectedDate(value);
+			m_timePicker.SetSelectedTime(value);
 		}
 	}
 }

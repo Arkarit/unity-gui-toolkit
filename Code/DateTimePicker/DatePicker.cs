@@ -13,25 +13,15 @@ namespace GuiToolkit
 {
 	public class DatePicker : MonoBehaviour
 	{
-		[FormerlySerializedAs("DayToggleTemplate")]
 		[SerializeField] protected DayToggle m_dayToggleTemplate;
-		[FormerlySerializedAs("DayNameLabelTemplate")]
 		[SerializeField] protected Text m_dayNameLabelTemplate;
-		[FormerlySerializedAs("DayContainer")]
 		[SerializeField] protected GridLayoutGroup m_dayContainer;
-		[FormerlySerializedAs("SelectedDateText")]
 		[SerializeField] protected Text m_selectedDateText;
-		[FormerlySerializedAs("CurrentMonth")]
 		[SerializeField] protected Text m_currentMonth;
-		[FormerlySerializedAs("CurrentYear")]
 		[SerializeField] protected Text m_currentYear;
-		[FormerlySerializedAs("DateFormat")]
 		[SerializeField] protected string m_dateFormat = "dd-MM-yyyy";
-		[FormerlySerializedAs("MonthFormat")]
 		[SerializeField] protected string m_monthFormat = "MMMMM";
-		[FormerlySerializedAs("ForwardPickOnly")]
 		[SerializeField] protected bool m_forwardPickOnly = false;
-		[FormerlySerializedAs("startDayOfWeek")]
 		[SerializeField] protected DayOfWeek m_startDayOfWeek;
 
 		private DayToggle[] m_dayToggles = new DayToggle[7 * 6];
