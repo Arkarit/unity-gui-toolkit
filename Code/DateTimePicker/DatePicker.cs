@@ -5,6 +5,7 @@
 /// </summary>
 
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -13,10 +14,8 @@ namespace GuiToolkit
 {
 	public class DatePicker : MonoBehaviour
 	{
-		[FormerlySerializedAs("m_dayToggleTemplate")]
 		[SerializeField] protected DayToggle m_dayTogglePrefab;
-		[FormerlySerializedAs("m_dayNameLabelTemplate")]
-		[SerializeField] protected Text m_dayNameLabelPrefab;
+		[SerializeField] protected TMP_Text m_dayNameLabelPrefab;
 		[SerializeField] protected GridLayoutGroup m_dayContainer;
 		[SerializeField] protected Text m_selectedDateText;
 		[SerializeField] protected Text m_currentMonth;
@@ -94,7 +93,7 @@ namespace GuiToolkit
 				var DayNameLabel = Instantiate(m_dayNameLabelPrefab);
 				DayNameLabel.name = String.Format("Day Name Label ({0})", day_name);
 				DayNameLabel.transform.SetParent(m_dayContainer.transform, false);
-				DayNameLabel.GetComponentInChildren<Text>().text = day_name;
+				DayNameLabel.GetComponentInChildren<TMP_Text>().text = day_name;
 				dayOfWeek++;
 				if (dayOfWeek >= 7)
 				{
