@@ -14,7 +14,8 @@ namespace GuiToolkit
 	public class MinuteSecondOptionData : MonoBehaviour
 	{
 		private Dropdown m_dropDownComponent = null;
-		private Dropdown dropDownComponent
+
+		private Dropdown DropDownComponent
 		{
 			get
 			{
@@ -30,25 +31,25 @@ namespace GuiToolkit
 		{
 			get
 			{
-				return dropDownComponent.value;
+				return DropDownComponent.value;
 			}
 			set
 			{
-				dropDownComponent.value = value;
+				DropDownComponent.value = value;
 			}
 		}
 
-		public void PopulateOptionData()
+		private void PopulateOptionData()
 		{
-			dropDownComponent.ClearOptions();
+			DropDownComponent.ClearOptions();
 			var lst60 = new List<string>();
 			for (int i = 0; i < 60; i++)
 			{
 				lst60.Add(i.ToString("D2"));
 			}
-			dropDownComponent.AddOptions(lst60);
+			DropDownComponent.AddOptions(lst60);
 		}
-		// Start is called before the first frame update
+
 		void Start()
 		{
 			PopulateOptionData();

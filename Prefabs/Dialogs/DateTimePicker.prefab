@@ -3099,9 +3099,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6042117e6e8af46a99a256d074956b75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HourPicker: {fileID: 5944160462235996407}
-  MinutePicker: {fileID: 5944160460628383861}
-  SecondPicker: {fileID: 5944160462050002813}
+  m_hourPicker: {fileID: 5944160462235996407}
+  m_minutePicker: {fileID: 5944160460628383861}
+  m_secondPicker: {fileID: 5944160462050002813}
 --- !u!1 &5944160461578081516
 GameObject:
   m_ObjectHideFlags: 0

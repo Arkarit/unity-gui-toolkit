@@ -6,27 +6,30 @@
 /// 
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
 	public class TimePicker : MonoBehaviour
 	{
-		public HourOptionData HourPicker;
-		public MinuteSecondOptionData MinutePicker;
-		public MinuteSecondOptionData SecondPicker;
-		// Start is called before the first frame update
+		[FormerlySerializedAs("HourPicker")]
+		public HourOptionData m_hourPicker;
+		[FormerlySerializedAs("MinutePicker")]
+		public MinuteSecondOptionData m_minutePicker;
+		[FormerlySerializedAs("SecondPicker")]
+		public MinuteSecondOptionData m_secondPicker;
 
 		public DateTime SelectedTime()
 		{
 			return new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
-								HourPicker.SelectedValue, MinutePicker.SelectedValue, SecondPicker.SelectedValue);
+								m_hourPicker.SelectedValue, m_minutePicker.SelectedValue, m_secondPicker.SelectedValue);
 		}
 
 		public void SetSelectedTime( int hour, int minute, int second )
 		{
-			HourPicker.SelectedValue = hour;
-			MinutePicker.SelectedValue = minute;
-			SecondPicker.SelectedValue = second;
+			m_hourPicker.SelectedValue = hour;
+			m_minutePicker.SelectedValue = minute;
+			m_secondPicker.SelectedValue = second;
 		}
 		public void SetSelectedTime( DateTime value )
 		{

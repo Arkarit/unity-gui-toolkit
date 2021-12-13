@@ -15,8 +15,12 @@ namespace GuiToolkit
 	[RequireComponent(typeof(EventTrigger))]
 	public class DayToggle : Toggle
 	{
+		public class OnDateTimeSelectedEvent : UnityEvent<DateTime?> { }
+		public OnDateTimeSelectedEvent m_evtOnDateSelected = new OnDateTimeSelectedEvent();
 
+		private bool m_clicked = false;
 		private DateTime? m_dateTime;
+
 		public DateTime? dateTime
 		{
 			get
@@ -35,9 +39,6 @@ namespace GuiToolkit
 			}
 		}
 
-		public class OnDateTimeSelectedEvent : UnityEvent<DateTime?> { }
-		public OnDateTimeSelectedEvent onDateSelected = new OnDateTimeSelectedEvent();
-		bool m_clicked = false;
 
 		// Cannot make serializable field when inheriting toggle
 		private Image GetTodayMarker()
@@ -71,7 +72,7 @@ namespace GuiToolkit
 			if (isActiveAndEnabled && IsInteractable())
 			{
 				m_clicked = true;
-				onDateSelected.Invoke(dateTime);
+				m_evtOnDateSelected.Invoke(dateTime);
 			}
 		}
 

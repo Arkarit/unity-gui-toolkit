@@ -14,6 +14,7 @@ namespace GuiToolkit
 	public class TimeOptionData : MonoBehaviour
 	{
 		private Dropdown m_dropDownComponent = null;
+
 		private Dropdown dropDownComponent
 		{
 			get
@@ -36,7 +37,7 @@ namespace GuiToolkit
 			}
 			dropDownComponent.AddOptions(lst60);
 		}
-		// Start is called before the first frame update
+
 		void Start()
 		{
 			PopulateOptionData();
