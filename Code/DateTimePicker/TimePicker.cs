@@ -12,11 +12,8 @@ namespace GuiToolkit
 {
 	public class TimePicker : MonoBehaviour
 	{
-		[FormerlySerializedAs("HourPicker")]
 		public HourOptionData m_hourPicker;
-		[FormerlySerializedAs("MinutePicker")]
 		public MinuteSecondOptionData m_minutePicker;
-		[FormerlySerializedAs("SecondPicker")]
 		public MinuteSecondOptionData m_secondPicker;
 
 		public DateTime SelectedTime()
