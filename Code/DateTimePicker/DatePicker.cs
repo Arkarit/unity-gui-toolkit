@@ -6,27 +6,39 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace GuiToolkit
 {
 	public class DatePicker : MonoBehaviour
 	{
-		private DayToggle[] DayToggles = new DayToggle[7 * 6];
+		[FormerlySerializedAs("DayToggleTemplate")]
+		[SerializeField] protected DayToggle m_dayToggleTemplate;
+		[FormerlySerializedAs("DayNameLabelTemplate")]
+		[SerializeField] protected Text m_dayNameLabelTemplate;
+		[FormerlySerializedAs("DayContainer")]
+		[SerializeField] protected GridLayoutGroup m_dayContainer;
+		[FormerlySerializedAs("SelectedDateText")]
+		[SerializeField] protected Text m_selectedDateText;
+		[FormerlySerializedAs("CurrentMonth")]
+		[SerializeField] protected Text m_currentMonth;
+		[FormerlySerializedAs("CurrentYear")]
+		[SerializeField] protected Text m_currentYear;
+		[FormerlySerializedAs("DateFormat")]
+		[SerializeField] protected string m_dateFormat = "dd-MM-yyyy";
+		[FormerlySerializedAs("MonthFormat")]
+		[SerializeField] protected string m_monthFormat = "MMMMM";
+		[FormerlySerializedAs("ForwardPickOnly")]
+		[SerializeField] protected bool m_forwardPickOnly = false;
+		[FormerlySerializedAs("startDayOfWeek")]
+		[SerializeField] protected DayOfWeek m_startDayOfWeek;
+
+		private DayToggle[] m_dayToggles = new DayToggle[7 * 6];
 		private bool m_dayTogglesGenerated = false;
-		public DayToggle DayToggleTemplate;
-		public Text DayNameLabelTemplate;
-		[SerializeField]
-		private GridLayoutGroup DayContainer;
-		[SerializeField]
-		private Text SelectedDateText;
-		[SerializeField]
-		private Text CurrentMonth;
-		[SerializeField]
-		private Text CurrentYear;
-		public string DateFormat = "dd-MM-yyyy";
-		public string MonthFormat = "MMMMM";
-		public bool ForwardPickOnly = false;
+		private DateTime m_referenceDate = DateTime.Now.AddYears(-100);
+		private DateTime m_displayDate = DateTime.Now.AddYears(-101);
+
 		// Null so that it can be deselected(Yet to be implemented)
 		private DateTime? m_SelectedDate;
 
@@ -38,31 +50,28 @@ namespace GuiToolkit
 				m_SelectedDate = value;
 				if (m_SelectedDate != null)
 				{
-					SelectedDateText.text = ((DateTime)m_SelectedDate).ToString(DateFormat);
+					m_selectedDateText.text = ((DateTime)m_SelectedDate).ToString(m_dateFormat);
 				}
 				else
 				{
-					SelectedDateText.text = string.Empty;
+					m_selectedDateText.text = string.Empty;
 				}
 			}
 		}
-		DateTime m_ReferenceDate = DateTime.Now.AddYears(-100);
-		DateTime m_DisplayDate = DateTime.Now.AddYears(-101);
 		public DateTime ReferenceDateTime
 		{
 			get
 			{
-				return m_ReferenceDate;
+				return m_referenceDate;
 			}
 			set
 			{
-				m_ReferenceDate = DateTimeHelpers.GetYearMonthStart(value);
-				CurrentYear.text = m_ReferenceDate.Year.ToString();
-				CurrentMonth.text = m_ReferenceDate.ToString(MonthFormat);
+				m_referenceDate = DateTimeHelpers.GetYearMonthStart(value);
+				m_currentYear.text = m_referenceDate.Year.ToString();
+				m_currentMonth.text = m_referenceDate.ToString(m_monthFormat);
 			}
 		}
 
-		public DayOfWeek startDayOfWeek;
 		void Start()
 		{
 			GenerateDaysNames();
@@ -78,21 +87,21 @@ namespace GuiToolkit
 			}
 		}
 
-		public string Truncate( string value, int maxLength )
+		public string Truncate( string _value, int _maxLength )
 		{
-			if (string.IsNullOrEmpty(value)) return value;
-			return value.Length <= maxLength ? value : value.Substring(0, maxLength);
+			if (string.IsNullOrEmpty(_value)) return _value;
+			return _value.Length <= _maxLength ? _value : _value.Substring(0, _maxLength);
 		}
 
 		public void GenerateDaysNames()
 		{
-			int dayOfWeek = (int)startDayOfWeek;
+			int dayOfWeek = (int)m_startDayOfWeek;
 			for (int d = 1; d <= 7; d++)
 			{
 				string day_name = Truncate(Enum.GetName(typeof(DayOfWeek), dayOfWeek), 3);
-				var DayNameLabel = Instantiate(DayNameLabelTemplate);
+				var DayNameLabel = Instantiate(m_dayNameLabelTemplate);
 				DayNameLabel.name = String.Format("Day Name Label ({0})", day_name);
-				DayNameLabel.transform.SetParent(DayContainer.transform);
+				DayNameLabel.transform.SetParent(m_dayContainer.transform);
 				DayNameLabel.GetComponentInChildren<Text>().text = day_name;
 				dayOfWeek++;
 				if (dayOfWeek >= 7)
@@ -101,40 +110,42 @@ namespace GuiToolkit
 				}
 			}
 		}
+
 		public void GenerateDaysToggles()
 		{
-			for (int i = 0; i < DayToggles.Length; i++)
+			for (int i = 0; i < m_dayToggles.Length; i++)
 			{
-				var DayToggle = Instantiate(DayToggleTemplate);
-				DayToggle.transform.SetParent(DayContainer.transform);
+				var DayToggle = Instantiate(m_dayToggleTemplate);
+				DayToggle.transform.SetParent(m_dayContainer.transform);
 				DayToggle.GetComponentInChildren<Text>().text = string.Empty;
 				DayToggle.onDateSelected.AddListener(OnDaySelected);
-				DayToggles[i] = DayToggle;
+				m_dayToggles[i] = DayToggle;
 			}
 			m_dayTogglesGenerated = true;
 		}
-		private void DisplayMonthDays( bool refresh = false )
+
+		private void DisplayMonthDays( bool _refresh = false )
 		{
-			if (!refresh && m_DisplayDate.IsSameYearMonth(ReferenceDateTime))
+			if (!_refresh && m_displayDate.IsSameYearMonth(ReferenceDateTime))
 			{
 				return;
 			}
-			m_DisplayDate = ReferenceDateTime.DuplicateDate(ReferenceDateTime);
+			m_displayDate = ReferenceDateTime.DuplicateDate(ReferenceDateTime);
 
 			int monthdays = ReferenceDateTime.DaysInMonth();
 
-			DateTime day_datetime = m_DisplayDate.GetYearMonthStart();
+			DateTime day_datetime = m_displayDate.GetYearMonthStart();
 
-			int dayOffset = (int)day_datetime.DayOfWeek - (int)startDayOfWeek;
-			if ((int)day_datetime.DayOfWeek < (int)startDayOfWeek)
+			int dayOffset = (int)day_datetime.DayOfWeek - (int)m_startDayOfWeek;
+			if ((int)day_datetime.DayOfWeek < (int)m_startDayOfWeek)
 			{
 				dayOffset = (7 + dayOffset);
 			}
 			day_datetime = day_datetime.AddDays(-dayOffset);
 			//DayContainer.GetComponent<ToggleGroup>().allowSwitchOff = true;
-			for (int i = 0; i < DayToggles.Length; i++)
+			for (int i = 0; i < m_dayToggles.Length; i++)
 			{
-				SetDayToggle(DayToggles[i], day_datetime);
+				SetDayToggle(m_dayToggles[i], day_datetime);
 				day_datetime = day_datetime.AddDays(1);
 			}
 			//DayContainer.GetComponent<ToggleGroup>().allowSwitchOff = false;
@@ -142,7 +153,7 @@ namespace GuiToolkit
 
 		void SetDayToggle( DayToggle dayToggle, DateTime toggleDate )
 		{
-			dayToggle.interactable = ((!ForwardPickOnly || (ForwardPickOnly && !toggleDate.IsPast())) && toggleDate.IsSameYearMonth(m_DisplayDate));
+			dayToggle.interactable = ((!m_forwardPickOnly || (m_forwardPickOnly && !toggleDate.IsPast())) && toggleDate.IsSameYearMonth(m_displayDate));
 			dayToggle.name = String.Format("Day Toggle ({0} {1})", toggleDate.ToString("MMM"), toggleDate.Day);
 			dayToggle.SetText(toggleDate.Day.ToString());
 			dayToggle.dateTime = toggleDate;
@@ -155,22 +166,25 @@ namespace GuiToolkit
 			ReferenceDateTime = ReferenceDateTime.AddYears(1);
 			DisplayMonthDays(false);
 		}
+
 		public void YearDec_onClick()
 		{
-			if (!ForwardPickOnly || (!ReferenceDateTime.IsCurrentYear() && !ReferenceDateTime.IsPastYearMonth()))
+			if (!m_forwardPickOnly || (!ReferenceDateTime.IsCurrentYear() && !ReferenceDateTime.IsPastYearMonth()))
 			{
 				ReferenceDateTime = ReferenceDateTime.AddYears(-1);
 				DisplayMonthDays(false);
 			}
 		}
+
 		public void MonthInc_onClick()
 		{
 			ReferenceDateTime = ReferenceDateTime.AddMonths(1);
 			DisplayMonthDays(false);
 		}
+
 		public void MonthDec_onClick()
 		{
-			if (!ForwardPickOnly || (!ReferenceDateTime.IsCurrentYearMonth() && !ReferenceDateTime.IsPastYearMonth()))
+			if (!m_forwardPickOnly || (!ReferenceDateTime.IsCurrentYearMonth() && !ReferenceDateTime.IsPastYearMonth()))
 			{
 				ReferenceDateTime = ReferenceDateTime.AddMonths(-1);
 				DisplayMonthDays(false);
@@ -193,7 +207,7 @@ namespace GuiToolkit
 			if (SelectedDate != null)
 			{
 				var sd = (DateTime)SelectedDate;
-				if (!sd.IsSameYearMonth(m_DisplayDate))
+				if (!sd.IsSameYearMonth(m_displayDate))
 				{
 					ReferenceDateTime = (DateTime)SelectedDate;
 					if (m_dayTogglesGenerated)
@@ -203,12 +217,11 @@ namespace GuiToolkit
 				}
 			}
 		}
+
 		public void Today_onClick()
 		{
 			ReferenceDateTime = DateTime.Today;
 			DisplayMonthDays(false);
 		}
-
-
 	}
 }
