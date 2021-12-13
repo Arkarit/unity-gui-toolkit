@@ -222,20 +222,35 @@ namespace GuiToolkit
 		private UiPlayerSettingsDialog m_settingsDialogPrefab;
 
 		[SerializeField]
+		private UiDateTimePickerDialog m_dateTimePickerDialogPrefab;
+
+		[SerializeField]
 		[FormerlySerializedAs("m_splashMessagePrefab")]
 		private UiToastMessageView m_toastMessageViewPrefab;
 
 		[SerializeField]
 		private UiKeyPressRequester m_keyPressRequester;
 
+
+
 		private UiPlayerSettingsDialog m_playerSettingsDialog;
 		public UiPlayerSettingsDialog PlayerSettingsDialog => m_playerSettingsDialog;
+
+		private UiDateTimePickerDialog m_dateTimePickerDialog;
+		public UiDateTimePickerDialog UiDateTimePickerDialog => m_dateTimePickerDialog;
 
 		public void ShowSettingsDialog()
 		{
 			m_playerSettingsDialog = CreateView(m_settingsDialogPrefab);
 			m_playerSettingsDialog.OnDestroyed.AddListener((UiPanel _) => m_playerSettingsDialog = null);
 			m_playerSettingsDialog.Show();
+		}
+
+		public void ShowDateTimePickerDialog()
+		{
+			m_dateTimePickerDialog = CreateView(m_dateTimePickerDialogPrefab);
+			m_dateTimePickerDialog.OnDestroyed.AddListener((UiPanel _) => m_dateTimePickerDialog = null);
+			m_dateTimePickerDialog.Show();
 		}
 
 		public void ShowToastMessageView(string _message, float _duration = 2)
