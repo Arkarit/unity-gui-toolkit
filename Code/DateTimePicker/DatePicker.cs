@@ -6,14 +6,17 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace GuiToolkit
 {
 	public class DatePicker : MonoBehaviour
 	{
-		[SerializeField] protected DayToggle m_dayToggleTemplate;
-		[SerializeField] protected Text m_dayNameLabelTemplate;
+		[FormerlySerializedAs("m_dayToggleTemplate")]
+		[SerializeField] protected DayToggle m_dayTogglePrefab;
+		[FormerlySerializedAs("m_dayNameLabelTemplate")]
+		[SerializeField] protected Text m_dayNameLabelPrefab;
 		[SerializeField] protected GridLayoutGroup m_dayContainer;
 		[SerializeField] protected Text m_selectedDateText;
 		[SerializeField] protected Text m_currentMonth;
@@ -88,7 +91,7 @@ namespace GuiToolkit
 			for (int d = 1; d <= 7; d++)
 			{
 				string day_name = Truncate(Enum.GetName(typeof(DayOfWeek), dayOfWeek), 3);
-				var DayNameLabel = Instantiate(m_dayNameLabelTemplate);
+				var DayNameLabel = Instantiate(m_dayNameLabelPrefab);
 				DayNameLabel.name = String.Format("Day Name Label ({0})", day_name);
 				DayNameLabel.transform.SetParent(m_dayContainer.transform, false);
 				DayNameLabel.GetComponentInChildren<Text>().text = day_name;
@@ -104,7 +107,7 @@ namespace GuiToolkit
 		{
 			for (int i = 0; i < m_dayToggles.Length; i++)
 			{
-				var DayToggle = Instantiate(m_dayToggleTemplate);
+				var DayToggle = Instantiate(m_dayTogglePrefab);
 				DayToggle.transform.SetParent(m_dayContainer.transform, false);
 				DayToggle.GetComponentInChildren<Text>().text = string.Empty;
 				DayToggle.m_evtOnDateSelected.AddListener(OnDaySelected);
