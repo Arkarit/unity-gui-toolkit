@@ -63,7 +63,7 @@ namespace GuiToolkit
 			}
 		}
 
-		void Start()
+		private void Start()
 		{
 			GenerateDaysNames();
 			GenerateDaysToggles();
@@ -90,10 +90,10 @@ namespace GuiToolkit
 			for (int d = 1; d <= 7; d++)
 			{
 				string day_name = Truncate(Enum.GetName(typeof(DayOfWeek), dayOfWeek), 3);
-				var DayNameLabel = Instantiate(m_dayNameLabelPrefab);
-				DayNameLabel.name = String.Format("Day Name Label ({0})", day_name);
-				DayNameLabel.transform.SetParent(m_dayContainer.transform, false);
-				DayNameLabel.GetComponentInChildren<TMP_Text>().text = day_name;
+				var dayNameLabel = Instantiate(m_dayNameLabelPrefab);
+				dayNameLabel.name = String.Format("Day Name Label ({0})", day_name);
+				dayNameLabel.transform.SetParent(m_dayContainer.transform, false);
+				dayNameLabel.GetComponentInChildren<TMP_Text>().text = day_name;
 				dayOfWeek++;
 				if (dayOfWeek >= 7)
 				{
@@ -102,15 +102,17 @@ namespace GuiToolkit
 			}
 		}
 
-		public void GenerateDaysToggles()
+		private void GenerateDaysToggles()
 		{
+			ToggleGroup toggleGroup = m_dayContainer.GetComponent<ToggleGroup>();
 			for (int i = 0; i < m_dayToggles.Length; i++)
 			{
-				var DayToggle = Instantiate(m_dayTogglePrefab);
-				DayToggle.transform.SetParent(m_dayContainer.transform, false);
-				DayToggle.GetComponentInChildren<TMP_Text>().text = string.Empty;
-				DayToggle.m_evtOnDateSelected.AddListener(OnDaySelected);
-				m_dayToggles[i] = DayToggle;
+				var dayToggle = Instantiate(m_dayTogglePrefab);
+				dayToggle.transform.SetParent(m_dayContainer.transform, false);
+				dayToggle.GetComponentInChildren<TMP_Text>().text = string.Empty;
+				dayToggle.m_evtOnDateSelected.AddListener(OnDaySelected);
+				dayToggle.group = toggleGroup;
+				m_dayToggles[i] = dayToggle;
 			}
 			m_dayTogglesGenerated = true;
 		}
