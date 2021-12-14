@@ -108,7 +108,7 @@ namespace GuiToolkit
 			{
 				var DayToggle = Instantiate(m_dayTogglePrefab);
 				DayToggle.transform.SetParent(m_dayContainer.transform, false);
-				DayToggle.GetComponentInChildren<Text>().text = string.Empty;
+				DayToggle.GetComponentInChildren<TMP_Text>().text = string.Empty;
 				DayToggle.m_evtOnDateSelected.AddListener(OnDaySelected);
 				m_dayToggles[i] = DayToggle;
 			}

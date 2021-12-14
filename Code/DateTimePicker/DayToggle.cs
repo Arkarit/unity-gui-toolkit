@@ -5,6 +5,7 @@
 /// </summary>
 /// 
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -96,7 +97,7 @@ namespace GuiToolkit
 
 		public void SetText( string text )
 		{
-			GetComponentInChildren<Text>().text = text;
+			GetComponentInChildren<TMP_Text>().text = text;
 		}
 
 		public void ClearText()
