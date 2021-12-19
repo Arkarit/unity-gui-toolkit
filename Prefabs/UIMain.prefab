@@ -183,8 +183,6 @@ MonoBehaviour:
     type: 3}
   m_settingsDialogPrefab: {fileID: 2556751561047220986, guid: 22c52cc36085977418a4df5a7eb83ca9,
     type: 3}
-  m_dateTimePickerDialogPrefab: {fileID: 2719867409419150145, guid: 5b97d361cb9884f1a9d868177276c7e9,
-    type: 3}
   m_toastMessageViewPrefab: {fileID: 4628251921322500096, guid: f2f503a7e51d1b04b97312941698d8e1,
     type: 3}
   m_keyPressRequester: {fileID: 9179443079266827376, guid: 637592a4cbdecd047a54ddf9d2be9da9,
