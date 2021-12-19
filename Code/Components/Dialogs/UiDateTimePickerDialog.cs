@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -5,6 +6,10 @@ namespace GuiToolkit
 	public class UiDateTimePickerDialog : UiView
 	{
 		[SerializeField] protected UiButton m_closeButton;
+		[SerializeField] protected UiButton m_okButton;
+		[SerializeField] protected UiButton m_cancelButton;
+
+		public override bool AutoDestroyOnHide => true;
 
 		protected override void OnEnable()
 		{
@@ -14,7 +19,16 @@ namespace GuiToolkit
 			{
 				m_closeButton.gameObject.SetActive(true);
 				m_closeButton.OnClick.AddListener(OnCloseButton);
+				OnClickCatcher = OnCloseButton;
 			}
+
+			m_okButton.OnClick.AddListener(OnOk);
+			m_cancelButton.OnClick.AddListener(OnCloseButton);
+		}
+
+		private void OnOk()
+		{
+			Hide();
 		}
 
 		protected override void OnDisable()
@@ -29,7 +43,5 @@ namespace GuiToolkit
 		{
 			Hide();
 		}
-
-
 	}
 }
