@@ -41,10 +41,13 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 29fe33a231551814280f193feee2012d, type: 3}
   - {fileID: 21300000, guid: 067049d2849a45247b0c22eae0f271b7, type: 3}
   - {fileID: 21300000, guid: 93f9d4f339fb6a74fba8924b3b527131, type: 3}
+  - {fileID: 21300000, guid: 376708340e42db6469b16401074ac685, type: 3}
+  - {fileID: 21300000, guid: cbfe9c44002706245b53aaad4e3c21ee, type: 3}
   - {fileID: 21300000, guid: 79c98d05f3f7d754db6c517d7b4facd2, type: 3}
   - {fileID: 21300000, guid: 0447667592222a845b218cd7baaf5dfd, type: 3}
   - {fileID: 21300000, guid: 4fac99d6a844e944990690d8af6b9170, type: 3}
   - {fileID: 21300000, guid: 8b3aa0379592a324282e64c0997bd0f7, type: 3}
+  - {fileID: 21300000, guid: 3197e96703dc3814cb7075f11cf4f9fe, type: 3}
   - {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
   - {fileID: 21300000, guid: d6dcc4187da70474482633d542b2b502, type: 3}
   - {fileID: 21300000, guid: 620883c8a91ac9e499d41721e7fc4bb6, type: 3}
@@ -52,6 +55,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 303e3d7a3a12ad24da3313c74136c5dd, type: 3}
   - {fileID: 21300000, guid: 0cf6bf9a44d093648ad721d11a9f9dcc, type: 3}
   - {fileID: 21300000, guid: cd7814db32a13f54fb1fd147067be177, type: 3}
+  - {fileID: 21300000, guid: f224ac2cf37f8bd4da3876f33df38f31, type: 3}
   - {fileID: 21300000, guid: 877e341e2f694db409ad60b7467611f0, type: 3}
   - {fileID: 21300000, guid: c6072e1e5bfdf334696de2d9c5ef2371, type: 3}
   m_PackedSpriteNamesToIndex:
@@ -59,10 +63,13 @@ SpriteAtlas:
   - UITK_Gear
   - UITK_Target
   - UITK_Slow
+  - UITK_ArrowUp
+  - UITK_ArrowRight
   - UITK_X
   - UITK_Share
   - UITK_Send
   - UITK_Info
+  - UITK_ArrowDown
   - UITK_Checkmark
   - UITK_Search
   - UITK_RandomDice
@@ -70,6 +77,7 @@ SpriteAtlas:
   - UITK_Note
   - UITK_Loudspeaker
   - UITK_Fast
+  - UITK_ArrowLeft
   - UITK_Phone
   - UITK_Logo_Zoom
   m_RenderDataMap: {}
