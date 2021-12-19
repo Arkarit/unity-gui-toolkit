@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7118643881920268395}
   - component: {fileID: 6811265445320080197}
   m_Layer: 5
-  m_Name: DateTimePickerDayToggleLabel
+  m_Name: CalendarPickerDayToggleLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -14,15 +14,21 @@ namespace GuiToolkit
 		{
 			public bool ShowText = true;
 			public bool ShowInputField = false;
+			public bool ShowTimePicker = false;
+			public bool ShowCalendarPicker = false;
 			public string PlaceholderText;
 			public string InputText;
 		}
 
-		public GameObject m_inputFieldContainer;
 		public GameObject m_textContainer;
+		public GameObject m_inputFieldContainer;
+		public GameObject m_timePickerContainer;
+		public GameObject m_calendarPickerContainer;
 
 		public TextMeshProUGUI m_text;
 		public TMP_InputField m_inputField;
+		public TimePicker m_timePicker;
+		public CalendarPicker m_calendarPicker;
 
 		public void Requester( string _title, string _text, Options _options )
 		{
@@ -115,8 +121,10 @@ namespace GuiToolkit
 
 			Options options = (Options)_options;
 
-			m_textContainer.gameObject.SetActive(options.ShowText);
-			m_inputFieldContainer.gameObject.SetActive(options.ShowInputField);
+			m_textContainer.SetActive(options.ShowText);
+			m_inputFieldContainer.SetActive(options.ShowInputField);
+			m_timePickerContainer.SetActive(options.ShowTimePicker);
+			m_calendarPickerContainer.SetActive(options.ShowCalendarPicker);
 
 			if (options.ShowInputField)
 			{

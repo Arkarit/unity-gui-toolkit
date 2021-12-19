@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8012382730418136189}
   - component: {fileID: 9212129786126754946}
   m_Layer: 5
-  m_Name: RequesterInputModule
+  m_Name: RequesterModuleInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

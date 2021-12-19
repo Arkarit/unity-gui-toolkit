@@ -12,7 +12,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public class DatePicker : MonoBehaviour
+	public class CalendarPicker : MonoBehaviour
 	{
 		[SerializeField] protected DayToggle m_dayTogglePrefab;
 		[SerializeField] protected TMP_Text m_dayNameLabelPrefab;

@@ -11,7 +11,7 @@ namespace GuiToolkit
 {
 	public class DateTimePicker : MonoBehaviour
 	{
-		[SerializeField] protected DatePicker m_datePicker;
+		[SerializeField] protected CalendarPicker m_datePicker;
 		[SerializeField] protected TimePicker m_timePicker;
 
 		public DateTime? SelectedDateTime()
