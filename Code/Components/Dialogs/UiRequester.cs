@@ -50,8 +50,33 @@ namespace GuiToolkit
 				},
 				AllowOutsideTap = true,
 				CloseButtonIdx = 0,
-				ShowText = true,
-				ShowInputField = false,
+			};
+			Requester( _title, _text, options );
+		}
+
+		public void CalendarRequester( string _title, string _text, bool _allowOutsideTap, bool _showTime, UnityAction _onOk,
+			UnityAction _onCancel = null, string _okText = null, string _cancelText = null )
+		{
+			Options options = new Options
+			{
+				ButtonInfos = new ButtonInfo[] 
+				{
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_okText) ? _("Ok") : _okText,
+						Prefab = m_okButtonPrefab,
+						OnClick = _onOk
+					},
+					new ButtonInfo {
+						Text = string.IsNullOrEmpty(_cancelText) ? _("Cancel") : _cancelText,
+						Prefab = m_cancelButtonPrefab,
+						OnClick = _onCancel
+					}
+				},
+				ShowText = !string.IsNullOrEmpty(_text),
+				ShowTimePicker = _showTime,
+				ShowCalendarPicker = true,
+				AllowOutsideTap = _allowOutsideTap,
+				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
 			};
 			Requester( _title, _text, options );
 		}
@@ -74,10 +99,9 @@ namespace GuiToolkit
 						OnClick = _onCancel
 					}
 				},
+				ShowText = !string.IsNullOrEmpty(_text),
 				AllowOutsideTap = _allowOutsideTap,
 				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
-				ShowText = true,
-				ShowInputField = false,
 			};
 			Requester( _title, _text, options );
 		}

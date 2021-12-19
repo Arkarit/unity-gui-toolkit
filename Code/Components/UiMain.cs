@@ -222,9 +222,6 @@ namespace GuiToolkit
 		private UiPlayerSettingsDialog m_settingsDialogPrefab;
 
 		[SerializeField]
-		private UiDateTimePickerDialog m_dateTimePickerDialogPrefab;
-
-		[SerializeField]
 		[FormerlySerializedAs("m_splashMessagePrefab")]
 		private UiToastMessageView m_toastMessageViewPrefab;
 
@@ -236,21 +233,11 @@ namespace GuiToolkit
 		private UiPlayerSettingsDialog m_playerSettingsDialog;
 		public UiPlayerSettingsDialog PlayerSettingsDialog => m_playerSettingsDialog;
 
-		private UiDateTimePickerDialog m_dateTimePickerDialog;
-		public UiDateTimePickerDialog UiDateTimePickerDialog => m_dateTimePickerDialog;
-
 		public void ShowSettingsDialog()
 		{
 			m_playerSettingsDialog = CreateView(m_settingsDialogPrefab);
 			m_playerSettingsDialog.OnDestroyed.AddListener((UiPanel _) => m_playerSettingsDialog = null);
 			m_playerSettingsDialog.Show();
-		}
-
-		public void ShowDateTimePickerDialog()
-		{
-			m_dateTimePickerDialog = CreateView(m_dateTimePickerDialogPrefab);
-			m_dateTimePickerDialog.OnDestroyed.AddListener((UiPanel _) => m_dateTimePickerDialog = null);
-			m_dateTimePickerDialog.Show();
 		}
 
 		public void ShowToastMessageView(string _message, float _duration = 2)
@@ -282,6 +269,14 @@ namespace GuiToolkit
 			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _placeholderText, _inputText, _yesText, _noText);
+		}
+
+		public void CalendarRequester( string _title, string _text, bool _allowOutsideTap, bool _showTime, UnityAction _onOk,
+			UnityAction _onCancel = null, string _okText = null, string _cancelText = null )
+		{
+			UiRequester requester = CreateView(m_requesterPrefab);
+			Debug.Assert(requester);
+			requester.CalendarRequester(_title, _text, _allowOutsideTap, _showTime, _onOk, _onCancel, _okText, _cancelText);
 		}
 
 		public void KeyPressRequester( UnityAction<KeyCode> _onEvent, string _title = null )
