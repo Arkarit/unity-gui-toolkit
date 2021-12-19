@@ -271,12 +271,12 @@ namespace GuiToolkit
 			requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _placeholderText, _inputText, _yesText, _noText);
 		}
 
-		public void CalendarRequester( string _title, string _text, bool _allowOutsideTap, bool _showTime, UnityAction _onOk,
+		public void CalendarRequester( string _title, bool _allowOutsideTap, bool _showTime, UnityAction _onOk,
 			UnityAction _onCancel = null, string _okText = null, string _cancelText = null )
 		{
 			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
-			requester.CalendarRequester(_title, _text, _allowOutsideTap, _showTime, _onOk, _onCancel, _okText, _cancelText);
+			requester.CalendarRequester(_title, _allowOutsideTap, _showTime, _onOk, _onCancel, _okText, _cancelText);
 		}
 
 		public void KeyPressRequester( UnityAction<KeyCode> _onEvent, string _title = null )

@@ -54,7 +54,7 @@ namespace GuiToolkit
 			Requester( _title, _text, options );
 		}
 
-		public void CalendarRequester( string _title, string _text, bool _allowOutsideTap, bool _showTime, UnityAction _onOk,
+		public void CalendarRequester( string _title, bool _allowOutsideTap, bool _showTime, UnityAction _onOk,
 			UnityAction _onCancel = null, string _okText = null, string _cancelText = null )
 		{
 			Options options = new Options
@@ -72,13 +72,13 @@ namespace GuiToolkit
 						OnClick = _onCancel
 					}
 				},
-				ShowText = !string.IsNullOrEmpty(_text),
+				ShowText = false, // there's just not enough space for text
 				ShowTimePicker = _showTime,
 				ShowCalendarPicker = true,
 				AllowOutsideTap = _allowOutsideTap,
 				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
 			};
-			Requester( _title, _text, options );
+			Requester( _title, null, options );
 		}
 
 		public void YesNoRequester( string _title, string _text, bool _allowOutsideTap, UnityAction _onOk,
