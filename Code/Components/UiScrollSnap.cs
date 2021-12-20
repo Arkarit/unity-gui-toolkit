@@ -413,7 +413,6 @@ namespace GuiToolkit
 		//Function for switching screens with buttons
 		public void GotoNextPage()
 		{
-Debug.Log($"GotoNextPage CurrentPage():{CurrentPage()} m_pages:{m_pages}");
 			UpdateListItemPositions();
 			if (CurrentPage() < m_pages - 1)
 			{
@@ -427,7 +426,6 @@ Debug.Log($"GotoNextPage CurrentPage():{CurrentPage()} m_pages:{m_pages}");
 		//Function for switching screens with buttons
 		public void GotoPreviousPage()
 		{
-Debug.Log($"GotoPreviousPage CurrentPage():{CurrentPage()} m_pages:{m_pages}");
 			UpdateListItemPositions();
 
 			if (CurrentPage() > 0)
@@ -512,6 +510,9 @@ Debug.Log($"GotoPreviousPage CurrentPage():{CurrentPage()} m_pages:{m_pages}");
 		//changes the bullets on the bottom of the page - pagination
 		protected virtual void OnPageChanged( int currentPage )
 		{
+			if (!Application.isPlaying)
+				return;
+
 			m_startingPage = currentPage;
 
 			if (m_nextButton)
