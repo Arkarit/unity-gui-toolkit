@@ -55,6 +55,7 @@ namespace GuiToolkit
 
 		private int m_pages;
 		private int m_startingPage = 0;
+		private bool m_dirty = true;
 
 		// anchor points to lerp to see child on certain indexes
 		private Vector3[] m_pageAnchorPositions;
@@ -108,6 +109,16 @@ namespace GuiToolkit
 			}
 		}
 
+		protected bool Dirty
+		{
+			get
+			{
+				if (Application.isPlaying)
+					return m_dirty;
+				return true;
+			}
+		}
+
 
 		// Use this for initialization
 		protected override void Start()
@@ -152,18 +163,15 @@ namespace GuiToolkit
 
 		public void UpdateListItemsSize()
 		{
+			if (!Dirty)
+				return;
+
 			float size = 0;
-			float currentSize = 0;
+
 			if (m_direction == EScrollDirection.Horizontal)
-			{
 				size = Viewport.rect.width / m_itemsVisibleAtOnce;
-				currentSize = Content.rect.width / m_itemsCount;
-			}
 			else
-			{
 				size = Viewport.rect.height / m_itemsVisibleAtOnce;
-				currentSize = Content.rect.height / m_itemsCount;
-			}
 
 			m_itemSize = size;
 
@@ -172,22 +180,16 @@ namespace GuiToolkit
 				ScrollRect.scrollSensitivity = m_itemSize;
 			}
 
-			if (m_autoLayoutItems && currentSize != size && m_itemsCount > 0)
+			if (m_autoLayoutItems && m_itemsCount > 0)
 			{
 				if (m_direction == EScrollDirection.Horizontal)
 				{
-					foreach (var tr in m_content)
+					foreach (var tr in Content)
 					{
 						GameObject child = ((Transform)tr).gameObject;
 						if (child.activeInHierarchy)
 						{
-							var childLayout = child.GetComponent<LayoutElement>();
-
-							if (childLayout == null)
-							{
-								childLayout = child.AddComponent<LayoutElement>();
-							}
-
+							var childLayout = child.GetOrCreateComponent<LayoutElement>();
 							childLayout.minWidth = m_itemSize;
 							childLayout.preferredWidth = m_itemSize;
 						}
@@ -195,24 +197,20 @@ namespace GuiToolkit
 				}
 				else
 				{
-					foreach (var tr in m_content)
+					foreach (var tr in Content)
 					{
 						GameObject child = ((Transform)tr).gameObject;
 						if (child.activeInHierarchy)
 						{
-							var childLayout = child.GetComponent<LayoutElement>();
-
-							if (childLayout == null)
-							{
-								childLayout = child.AddComponent<LayoutElement>();
-							}
-
+							var childLayout = child.GetOrCreateComponent<LayoutElement>();
 							childLayout.minHeight = m_itemSize;
 							childLayout.preferredHeight = m_itemSize;
 						}
 					}
 				}
 			}
+
+			m_dirty = false;
 		}
 
 		public void UpdateListItemPositions()
@@ -222,7 +220,7 @@ namespace GuiToolkit
 				// checking how many children of list are active
 				int activeCount = 0;
 
-				foreach (var tr in m_content)
+				foreach (var tr in Content)
 				{
 					if (((Transform)tr).gameObject.activeInHierarchy)
 					{
@@ -290,8 +288,8 @@ namespace GuiToolkit
 
 				m_itemsCount = activeCount;
 				m_listContainerCachedSize.Set(Content.rect.size.x, Content.rect.size.y);
+				SetDirty();
 			}
-
 		}
 
 		public void ResetPage()
@@ -493,6 +491,17 @@ namespace GuiToolkit
 			{
 				onPageChange(currentPage);
 			}
+		}
+
+		public void SetDirty()
+		{
+			m_dirty = true;
+		}
+
+		private void OnValidate()
+		{
+			UpdateListItemsSize();
+			UpdateListItemPositions();
 		}
 
 		#region Interfaces
