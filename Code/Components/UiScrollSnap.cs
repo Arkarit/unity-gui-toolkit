@@ -189,6 +189,7 @@ namespace GuiToolkit
 							}
 
 							childLayout.minWidth = m_itemSize;
+							childLayout.preferredWidth = m_itemSize;
 						}
 					}
 				}
@@ -207,6 +208,7 @@ namespace GuiToolkit
 							}
 
 							childLayout.minHeight = m_itemSize;
+							childLayout.preferredHeight = m_itemSize;
 						}
 					}
 				}
