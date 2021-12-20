@@ -10,7 +10,7 @@ namespace GuiToolkit
 	[DisallowMultipleComponent]
 	public class UiScrollSnapScrollbarHelper : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IEndDragHandler, IDragHandler
 	{
-		internal IScrollSnap ss;
+		internal IScrollSnap m_ss;
 
 		public void OnBeginDrag( PointerEventData eventData )
 		{
@@ -19,7 +19,7 @@ namespace GuiToolkit
 
 		public void OnDrag( PointerEventData eventData )
 		{
-			ss.CurrentPage();
+			m_ss.CurrentPage();
 		}
 
 		public void OnEndDrag( PointerEventData eventData )
@@ -39,17 +39,17 @@ namespace GuiToolkit
 
 		void OnScrollBarDown()
 		{
-			if (ss != null)
+			if (m_ss != null)
 			{
-				ss.SetLerp(false);
-				ss.StartScreenChange();
+				m_ss.SetLerp(false);
+				m_ss.StartScreenChange();
 			}
 		}
 
 		void OnScrollBarUp()
 		{
-			ss.SetLerp(true);
-			ss.ChangePage(ss.CurrentPage());
+			m_ss.SetLerp(true);
+			m_ss.ChangePage(m_ss.CurrentPage());
 		}
 	}
 }

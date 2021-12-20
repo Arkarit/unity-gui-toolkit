@@ -18,102 +18,103 @@ namespace GuiToolkit
 {
 	[ExecuteInEditMode]
 	[RequireComponent(typeof(ScrollRect))]
-	[AddComponentMenu("UI/Extensions/Scroll Snap")]
-	public class UiScrollSnap : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, IScrollSnap
+	[AddComponentMenu("UI/UIToolkit/UI Scroll Snap")]
+	public class UiScrollSnap : UiThing, IBeginDragHandler, IEndDragHandler, IDragHandler, IScrollSnap
 	{
 		// needed because of reversed behaviour of axis Y compared to X
 		// (positions of children lower in children list in horizontal directions grows when in vertical it gets smaller)
-		public enum ScrollDirection
+		public enum EScrollDirection
 		{
 			Horizontal,
 			Vertical
 		}
 
-		private ScrollRect _scroll_rect;
-
-		private RectTransform _scrollRectTransform;
-
-		private Transform _listContainerTransform;
-
-		//private RectTransform _rectTransform;
-
-		private int _pages;
-
-		private int _startingPage = 0;
-
-		// anchor points to lerp to see child on certain indexes
-		private Vector3[] _pageAnchorPositions;
-
-		private Vector3 _lerpTarget;
-
-		private bool _lerp;
-
-		// item list related
-		private float _listContainerMinPosition;
-
-		private float _listContainerMaxPosition;
-
-		private float _listContainerSize;
-
-		private RectTransform _listContainerRectTransform;
-
-		private Vector2 _listContainerCachedSize;
-
-		private float _itemSize;
-
-		private int _itemsCount = 0;
-
-		// drag related
-		private bool _startDrag = true;
-
-		private Vector3 _positionOnDragStart = new Vector3();
-
-		private int _pageOnDragStart;
-
-		private bool _fastSwipeTimer = false;
-
-		private int _fastSwipeCounter = 0;
-
-		private int _fastSwipeTarget = 10;
-
-		[Tooltip("Button to go to the next page. (optional)")]
-		public Button NextButton;
-
-		[Tooltip("Button to go to the previous page. (optional)")]
-		public Button PrevButton;
-
-		[Tooltip("Number of items visible in one page of scroll frame.")]
-		[RangeAttribute(1, 100)]
-		public int ItemsVisibleAtOnce = 1;
-
-		[Tooltip("Sets minimum width of list items to 1/itemsVisibleAtOnce.")]
-		public bool AutoLayoutItems = true;
-
-		[Tooltip("If you wish to update scrollbar numberOfSteps to number of active children on list.")]
-		public bool LinkScrolbarSteps = false;
-
-		[Tooltip("If you wish to update scrollrect sensitivity to size of list element.")]
-		public bool LinkScrolrectScrollSensitivity = false;
-
-		public Boolean UseFastSwipe = true;
-
-		public int FastSwipeThreshold = 100;
-
 		public delegate void PageSnapChange( int page );
-
 		public event PageSnapChange onPageChange;
 
-		public ScrollDirection direction = ScrollDirection.Horizontal;
+		[Tooltip("Button to go to the next page. (optional)")]
+		[SerializeField] protected Button m_nextButton;
+		[Tooltip("Button to go to the previous page. (optional)")]
+		[SerializeField] protected Button m_prevButton;
+		[Tooltip("Number of items visible in one page of scroll frame.")]
+		[RangeAttribute(1, 100)]
+		[SerializeField] protected int m_itemsVisibleAtOnce = 1;
+		[Tooltip("Sets minimum width of list items to 1/itemsVisibleAtOnce.")]
+		[SerializeField] protected bool m_autoLayoutItems = true;
+		[Tooltip("If you wish to update scrollbar numberOfSteps to number of active children on list.")]
+		[SerializeField] protected bool m_linkScrollbarSteps = false;
+		[Tooltip("If you wish to update scrollrect sensitivity to size of list element.")]
+		[SerializeField] protected bool m_linkScrollrectScrollSensitivity = false;
+		[SerializeField] protected bool m_useFastSwipe = true;
+		[SerializeField] protected int m_fastSwipeThreshold = 100;
+		[SerializeField] protected EScrollDirection m_direction = EScrollDirection.Horizontal;
+
+		private ScrollRect m_scrollRect;
+		private RectTransform m_content;
+		private RectTransform m_viewport;
+
+		private int m_pages;
+		private int m_startingPage = 0;
+
+		// anchor points to lerp to see child on certain indexes
+		private Vector3[] m_pageAnchorPositions;
+		private Vector3 m_lerpTarget;
+		private bool m_lerp;
+
+		// item list related
+		private float m_listContainerMinPosition;
+		private float m_listContainerMaxPosition;
+		private float m_listContainerSize;
+		private Vector2 m_listContainerCachedSize;
+		private float m_itemSize;
+		private int m_itemsCount = 0;
+
+		// drag related
+		private bool m_startDrag = true;
+		private Vector3 m_positionOnDragStart = new Vector3();
+		private int m_pageOnDragStart;
+		private bool m_fastSwipeTimer = false;
+		private int m_fastSwipeCounter = 0;
+		private int m_fastSwipeTarget = 10;
+		private bool m_fastSwipe = false; //to determine if a fast swipe was performed
+
+		protected ScrollRect ScrollRect
+		{
+			get
+			{
+				if (m_scrollRect == null)
+					m_scrollRect = gameObject.GetComponent<ScrollRect>();
+				return m_scrollRect;
+			}
+		}
+
+		protected RectTransform Content
+		{
+			get
+			{
+				if (m_content == null)
+					m_content = ScrollRect.content;
+				return m_content;
+			}
+		}
+
+		protected RectTransform Viewport
+		{
+			get
+			{
+				if (m_viewport == null)
+					m_viewport = ScrollRect.viewport;
+				return m_viewport;
+			}
+		}
+
 
 		// Use this for initialization
-		void Start()
+		protected override void Start()
 		{
-			_lerp = false;
+			base.Start();
 
-			_scroll_rect = gameObject.GetComponent<ScrollRect>();
-			_scrollRectTransform = gameObject.GetComponent<RectTransform>();
-			_listContainerTransform = _scroll_rect.content;
-			_listContainerRectTransform = _listContainerTransform.GetComponent<RectTransform>();
+			m_lerp = false;
 
 			//_rectTransform = _listContainerTransform.gameObject.GetComponent<RectTransform>();
 			UpdateListItemsSize();
@@ -121,31 +122,31 @@ namespace GuiToolkit
 
 			PageChanged(CurrentPage());
 
-			if (NextButton)
+			if (m_nextButton)
 			{
-				NextButton.GetComponent<Button>().onClick.AddListener(() =>
+				m_nextButton.GetComponent<Button>().onClick.AddListener(() =>
 				{
 					NextScreen();
 				});
 			}
 
-			if (PrevButton)
+			if (m_prevButton)
 			{
-				PrevButton.GetComponent<Button>().onClick.AddListener(() =>
+				m_prevButton.GetComponent<Button>().onClick.AddListener(() =>
 				{
 					PreviousScreen();
 				});
 			}
-			if (_scroll_rect.horizontalScrollbar != null && _scroll_rect.horizontal)
+			if (ScrollRect.horizontalScrollbar != null && ScrollRect.horizontal)
 			{
 
-				var hscroll = _scroll_rect.horizontalScrollbar.gameObject.GetOrCreateComponent<UiScrollSnapScrollbarHelper>();
-				hscroll.ss = this;
+				var hscroll = ScrollRect.horizontalScrollbar.gameObject.GetOrCreateComponent<UiScrollSnapScrollbarHelper>();
+				hscroll.m_ss = this;
 			}
-			if (_scroll_rect.verticalScrollbar != null && _scroll_rect.vertical)
+			if (ScrollRect.verticalScrollbar != null && ScrollRect.vertical)
 			{
-				var vscroll = _scroll_rect.verticalScrollbar.gameObject.GetOrCreateComponent<UiScrollSnapScrollbarHelper>();
-				vscroll.ss = this;
+				var vscroll = ScrollRect.verticalScrollbar.gameObject.GetOrCreateComponent<UiScrollSnapScrollbarHelper>();
+				vscroll.m_ss = this;
 			}
 		}
 
@@ -153,29 +154,29 @@ namespace GuiToolkit
 		{
 			float size = 0;
 			float currentSize = 0;
-			if (direction == ScrollDirection.Horizontal)
+			if (m_direction == EScrollDirection.Horizontal)
 			{
-				size = _scrollRectTransform.rect.width / ItemsVisibleAtOnce;
-				currentSize = _listContainerRectTransform.rect.width / _itemsCount;
+				size = Viewport.rect.width / m_itemsVisibleAtOnce;
+				currentSize = Content.rect.width / m_itemsCount;
 			}
 			else
 			{
-				size = _scrollRectTransform.rect.height / ItemsVisibleAtOnce;
-				currentSize = _listContainerRectTransform.rect.height / _itemsCount;
+				size = Viewport.rect.height / m_itemsVisibleAtOnce;
+				currentSize = Content.rect.height / m_itemsCount;
 			}
 
-			_itemSize = size;
+			m_itemSize = size;
 
-			if (LinkScrolrectScrollSensitivity)
+			if (m_linkScrollrectScrollSensitivity)
 			{
-				_scroll_rect.scrollSensitivity = _itemSize;
+				ScrollRect.scrollSensitivity = m_itemSize;
 			}
 
-			if (AutoLayoutItems && currentSize != size && _itemsCount > 0)
+			if (m_autoLayoutItems && currentSize != size && m_itemsCount > 0)
 			{
-				if (direction == ScrollDirection.Horizontal)
+				if (m_direction == EScrollDirection.Horizontal)
 				{
-					foreach (var tr in _listContainerTransform)
+					foreach (var tr in m_content)
 					{
 						GameObject child = ((Transform)tr).gameObject;
 						if (child.activeInHierarchy)
@@ -187,13 +188,13 @@ namespace GuiToolkit
 								childLayout = child.AddComponent<LayoutElement>();
 							}
 
-							childLayout.minWidth = _itemSize;
+							childLayout.minWidth = m_itemSize;
 						}
 					}
 				}
 				else
 				{
-					foreach (var tr in _listContainerTransform)
+					foreach (var tr in m_content)
 					{
 						GameObject child = ((Transform)tr).gameObject;
 						if (child.activeInHierarchy)
@@ -205,7 +206,7 @@ namespace GuiToolkit
 								childLayout = child.AddComponent<LayoutElement>();
 							}
 
-							childLayout.minHeight = _itemSize;
+							childLayout.minHeight = m_itemSize;
 						}
 					}
 				}
@@ -214,12 +215,12 @@ namespace GuiToolkit
 
 		public void UpdateListItemPositions()
 		{
-			if (!_listContainerRectTransform.rect.size.Equals(_listContainerCachedSize))
+			if (!Content.rect.size.Equals(m_listContainerCachedSize))
 			{
 				// checking how many children of list are active
 				int activeCount = 0;
 
-				foreach (var tr in _listContainerTransform)
+				foreach (var tr in m_content)
 				{
 					if (((Transform)tr).gameObject.activeInHierarchy)
 					{
@@ -228,29 +229,29 @@ namespace GuiToolkit
 				}
 
 				// if anything changed since last check reinitialize anchors list
-				_itemsCount = 0;
-				Array.Resize(ref _pageAnchorPositions, activeCount);
+				m_itemsCount = 0;
+				Array.Resize(ref m_pageAnchorPositions, activeCount);
 
 				if (activeCount > 0)
 				{
-					_pages = Mathf.Max(activeCount - ItemsVisibleAtOnce + 1, 1);
+					m_pages = Mathf.Max(activeCount - m_itemsVisibleAtOnce + 1, 1);
 
-					if (direction == ScrollDirection.Horizontal)
+					if (m_direction == EScrollDirection.Horizontal)
 					{
 						// looking for list spanning range min/max
-						_scroll_rect.horizontalNormalizedPosition = 0;
-						_listContainerMaxPosition = _listContainerTransform.localPosition.x;
-						_scroll_rect.horizontalNormalizedPosition = 1;
-						_listContainerMinPosition = _listContainerTransform.localPosition.x;
+						ScrollRect.horizontalNormalizedPosition = 0;
+						m_listContainerMaxPosition = Content.localPosition.x;
+						ScrollRect.horizontalNormalizedPosition = 1;
+						m_listContainerMinPosition = Content.localPosition.x;
 
-						_listContainerSize = _listContainerMaxPosition - _listContainerMinPosition;
+						m_listContainerSize = m_listContainerMaxPosition - m_listContainerMinPosition;
 
-						for (var i = 0; i < _pages; i++)
+						for (var i = 0; i < m_pages; i++)
 						{
-							_pageAnchorPositions[i] = new Vector3(
-								_listContainerMaxPosition - _itemSize * i,
-								_listContainerTransform.localPosition.y,
-								_listContainerTransform.localPosition.z
+							m_pageAnchorPositions[i] = new Vector3(
+								m_listContainerMaxPosition - m_itemSize * i,
+								Content.localPosition.y,
+								Content.localPosition.z
 							);
 						}
 					}
@@ -258,48 +259,48 @@ namespace GuiToolkit
 					{
 						//Debug.Log ("-------------looking for list spanning range----------------");
 						// looking for list spanning range
-						_scroll_rect.verticalNormalizedPosition = 1;
-						_listContainerMinPosition = _listContainerTransform.localPosition.y;
-						_scroll_rect.verticalNormalizedPosition = 0;
-						_listContainerMaxPosition = _listContainerTransform.localPosition.y;
+						ScrollRect.verticalNormalizedPosition = 1;
+						m_listContainerMinPosition = Content.localPosition.y;
+						ScrollRect.verticalNormalizedPosition = 0;
+						m_listContainerMaxPosition = Content.localPosition.y;
 
-						_listContainerSize = _listContainerMaxPosition - _listContainerMinPosition;
+						m_listContainerSize = m_listContainerMaxPosition - m_listContainerMinPosition;
 
-						for (var i = 0; i < _pages; i++)
+						for (var i = 0; i < m_pages; i++)
 						{
-							_pageAnchorPositions[i] = new Vector3(
-								_listContainerTransform.localPosition.x,
-								_listContainerMinPosition + _itemSize * i,
-								_listContainerTransform.localPosition.z
+							m_pageAnchorPositions[i] = new Vector3(
+								Content.localPosition.x,
+								m_listContainerMinPosition + m_itemSize * i,
+								Content.localPosition.z
 							);
 						}
 					}
 
-					UpdateScrollbar(LinkScrolbarSteps);
-					_startingPage = Mathf.Min(_startingPage, _pages);
+					UpdateScrollbar(m_linkScrollbarSteps);
+					m_startingPage = Mathf.Min(m_startingPage, m_pages);
 					ResetPage();
 				}
 
-				if (_itemsCount != activeCount)
+				if (m_itemsCount != activeCount)
 				{
 					PageChanged(CurrentPage());
 				}
 
-				_itemsCount = activeCount;
-				_listContainerCachedSize.Set(_listContainerRectTransform.rect.size.x, _listContainerRectTransform.rect.size.y);
+				m_itemsCount = activeCount;
+				m_listContainerCachedSize.Set(Content.rect.size.x, Content.rect.size.y);
 			}
 
 		}
 
 		public void ResetPage()
 		{
-			if (direction == ScrollDirection.Horizontal)
+			if (m_direction == EScrollDirection.Horizontal)
 			{
-				_scroll_rect.horizontalNormalizedPosition = _pages > 1 ? (float)_startingPage / (float)(_pages - 1) : 0;
+				ScrollRect.horizontalNormalizedPosition = m_pages > 1 ? (float)m_startingPage / (float)(m_pages - 1) : 0;
 			}
 			else
 			{
-				_scroll_rect.verticalNormalizedPosition = _pages > 1 ? (float)(_pages - _startingPage - 1) / (float)(_pages - 1) : 0;
+				ScrollRect.verticalNormalizedPosition = m_pages > 1 ? (float)(m_pages - m_startingPage - 1) / (float)(m_pages - 1) : 0;
 			}
 		}
 
@@ -307,35 +308,35 @@ namespace GuiToolkit
 		{
 			if (linkSteps)
 			{
-				if (direction == ScrollDirection.Horizontal)
+				if (m_direction == EScrollDirection.Horizontal)
 				{
-					if (_scroll_rect.horizontalScrollbar != null)
+					if (ScrollRect.horizontalScrollbar != null)
 					{
-						_scroll_rect.horizontalScrollbar.numberOfSteps = _pages;
+						ScrollRect.horizontalScrollbar.numberOfSteps = m_pages;
 					}
 				}
 				else
 				{
-					if (_scroll_rect.verticalScrollbar != null)
+					if (ScrollRect.verticalScrollbar != null)
 					{
-						_scroll_rect.verticalScrollbar.numberOfSteps = _pages;
+						ScrollRect.verticalScrollbar.numberOfSteps = m_pages;
 					}
 				}
 			}
 			else
 			{
-				if (direction == ScrollDirection.Horizontal)
+				if (m_direction == EScrollDirection.Horizontal)
 				{
-					if (_scroll_rect.horizontalScrollbar != null)
+					if (ScrollRect.horizontalScrollbar != null)
 					{
-						_scroll_rect.horizontalScrollbar.numberOfSteps = 0;
+						ScrollRect.horizontalScrollbar.numberOfSteps = 0;
 					}
 				}
 				else
 				{
-					if (_scroll_rect.verticalScrollbar != null)
+					if (ScrollRect.verticalScrollbar != null)
 					{
-						_scroll_rect.verticalScrollbar.numberOfSteps = 0;
+						ScrollRect.verticalScrollbar.numberOfSteps = 0;
 					}
 				}
 			}
@@ -346,45 +347,42 @@ namespace GuiToolkit
 			UpdateListItemsSize();
 			UpdateListItemPositions();
 
-			if (_lerp)
+			if (m_lerp)
 			{
 				UpdateScrollbar(false);
 
-				_listContainerTransform.localPosition = Vector3.Lerp(_listContainerTransform.localPosition, _lerpTarget, 7.5f * Time.deltaTime);
+				Content.localPosition = Vector3.Lerp(Content.localPosition, m_lerpTarget, Mathf.Clamp01(7.5f * Time.deltaTime));
 
-				if (Vector3.Distance(_listContainerTransform.localPosition, _lerpTarget) < 0.001f)
+				if (Vector3.Distance(Content.localPosition, m_lerpTarget) < 0.001f)
 				{
-					_listContainerTransform.localPosition = _lerpTarget;
-					_lerp = false;
+					Content.localPosition = m_lerpTarget;
+					m_lerp = false;
 
-					UpdateScrollbar(LinkScrolbarSteps);
+					UpdateScrollbar(m_linkScrollbarSteps);
 				}
 
 				//change the info bullets at the bottom of the screen. Just for visual effect
-				if (Vector3.Distance(_listContainerTransform.localPosition, _lerpTarget) < 10f)
+				if (Vector3.Distance(Content.localPosition, m_lerpTarget) < 10f)
 				{
 					PageChanged(CurrentPage());
 				}
 			}
 
-			if (_fastSwipeTimer)
+			if (m_fastSwipeTimer)
 			{
-				_fastSwipeCounter++;
+				m_fastSwipeCounter++;
 			}
 		}
-
-		private bool fastSwipe = false; //to determine if a fast swipe was performed
-
 
 		//Function for switching screens with buttons
 		public void NextScreen()
 		{
 			UpdateListItemPositions();
 
-			if (CurrentPage() < _pages - 1)
+			if (CurrentPage() < m_pages - 1)
 			{
-				_lerp = true;
-				_lerpTarget = _pageAnchorPositions[CurrentPage() + 1];
+				m_lerp = true;
+				m_lerpTarget = m_pageAnchorPositions[CurrentPage() + 1];
 
 				PageChanged(CurrentPage() + 1);
 			}
@@ -397,8 +395,8 @@ namespace GuiToolkit
 
 			if (CurrentPage() > 0)
 			{
-				_lerp = true;
-				_lerpTarget = _pageAnchorPositions[CurrentPage() - 1];
+				m_lerp = true;
+				m_lerpTarget = m_pageAnchorPositions[CurrentPage() - 1];
 
 				PageChanged(CurrentPage() - 1);
 			}
@@ -407,12 +405,12 @@ namespace GuiToolkit
 		//Because the CurrentScreen function is not so reliable, these are the functions used for swipes
 		private void NextScreenCommand()
 		{
-			if (_pageOnDragStart < _pages - 1)
+			if (m_pageOnDragStart < m_pages - 1)
 			{
-				int targetPage = Mathf.Min(_pages - 1, _pageOnDragStart + ItemsVisibleAtOnce);
-				_lerp = true;
+				int targetPage = Mathf.Min(m_pages - 1, m_pageOnDragStart + m_itemsVisibleAtOnce);
+				m_lerp = true;
 
-				_lerpTarget = _pageAnchorPositions[targetPage];
+				m_lerpTarget = m_pageAnchorPositions[targetPage];
 
 				PageChanged(targetPage);
 			}
@@ -421,12 +419,12 @@ namespace GuiToolkit
 		//Because the CurrentScreen function is not so reliable, these are the functions used for swipes
 		private void PrevScreenCommand()
 		{
-			if (_pageOnDragStart > 0)
+			if (m_pageOnDragStart > 0)
 			{
-				int targetPage = Mathf.Max(0, _pageOnDragStart - ItemsVisibleAtOnce);
-				_lerp = true;
+				int targetPage = Mathf.Max(0, m_pageOnDragStart - m_itemsVisibleAtOnce);
+				m_lerp = true;
 
-				_lerpTarget = _pageAnchorPositions[targetPage];
+				m_lerpTarget = m_pageAnchorPositions[targetPage];
 
 				PageChanged(targetPage);
 			}
@@ -438,20 +436,20 @@ namespace GuiToolkit
 		{
 			float pos;
 
-			if (direction == ScrollDirection.Horizontal)
+			if (m_direction == EScrollDirection.Horizontal)
 			{
-				pos = _listContainerMaxPosition - _listContainerTransform.localPosition.x;
-				pos = Mathf.Clamp(pos, 0, _listContainerSize);
+				pos = m_listContainerMaxPosition - Content.localPosition.x;
+				pos = Mathf.Clamp(pos, 0, m_listContainerSize);
 			}
 			else
 			{
-				pos = _listContainerTransform.localPosition.y - _listContainerMinPosition;
-				pos = Mathf.Clamp(pos, 0, _listContainerSize);
+				pos = Content.localPosition.y - m_listContainerMinPosition;
+				pos = Mathf.Clamp(pos, 0, m_listContainerSize);
 			}
 
-			float page = pos / _itemSize;
+			float page = pos / m_itemSize;
 
-			return Mathf.Clamp(Mathf.RoundToInt(page), 0, _pages);
+			return Mathf.Clamp(Mathf.RoundToInt(page), 0, m_pages);
 		}
 
 		/// <summary>
@@ -459,16 +457,16 @@ namespace GuiToolkit
 		/// </summary>
 		public void SetLerp( bool value )
 		{
-			_lerp = value;
+			m_lerp = value;
 		}
 
 		public void ChangePage( int page )
 		{
-			if (0 <= page && page < _pages)
+			if (0 <= page && page < m_pages)
 			{
-				_lerp = true;
+				m_lerp = true;
 
-				_lerpTarget = _pageAnchorPositions[page];
+				m_lerpTarget = m_pageAnchorPositions[page];
 
 				PageChanged(page);
 			}
@@ -477,16 +475,16 @@ namespace GuiToolkit
 		//changes the bullets on the bottom of the page - pagination
 		private void PageChanged( int currentPage )
 		{
-			_startingPage = currentPage;
+			m_startingPage = currentPage;
 
-			if (NextButton)
+			if (m_nextButton)
 			{
-				NextButton.interactable = currentPage < _pages - 1;
+				m_nextButton.interactable = currentPage < m_pages - 1;
 			}
 
-			if (PrevButton)
+			if (m_prevButton)
 			{
-				PrevButton.interactable = currentPage > 0;
+				m_prevButton.interactable = currentPage > 0;
 			}
 
 			if (onPageChange != null)
@@ -500,40 +498,40 @@ namespace GuiToolkit
 		{
 			UpdateScrollbar(false);
 
-			_fastSwipeCounter = 0;
-			_fastSwipeTimer = true;
+			m_fastSwipeCounter = 0;
+			m_fastSwipeTimer = true;
 
-			_positionOnDragStart = eventData.position;
-			_pageOnDragStart = CurrentPage();
+			m_positionOnDragStart = eventData.position;
+			m_pageOnDragStart = CurrentPage();
 		}
 
 		public void OnEndDrag( PointerEventData eventData )
 		{
-			_startDrag = true;
+			m_startDrag = true;
 			float change = 0;
 
-			if (direction == ScrollDirection.Horizontal)
+			if (m_direction == EScrollDirection.Horizontal)
 			{
-				change = _positionOnDragStart.x - eventData.position.x;
+				change = m_positionOnDragStart.x - eventData.position.x;
 			}
 			else
 			{
-				change = -_positionOnDragStart.y + eventData.position.y;
+				change = -m_positionOnDragStart.y + eventData.position.y;
 			}
 
-			if (UseFastSwipe)
+			if (m_useFastSwipe)
 			{
-				fastSwipe = false;
-				_fastSwipeTimer = false;
+				m_fastSwipe = false;
+				m_fastSwipeTimer = false;
 
-				if (_fastSwipeCounter <= _fastSwipeTarget)
+				if (m_fastSwipeCounter <= m_fastSwipeTarget)
 				{
-					if (Math.Abs(change) > FastSwipeThreshold)
+					if (Math.Abs(change) > m_fastSwipeThreshold)
 					{
-						fastSwipe = true;
+						m_fastSwipe = true;
 					}
 				}
-				if (fastSwipe)
+				if (m_fastSwipe)
 				{
 					if (change > 0)
 					{
@@ -546,25 +544,25 @@ namespace GuiToolkit
 				}
 				else
 				{
-					_lerp = true;
-					_lerpTarget = _pageAnchorPositions[CurrentPage()];
+					m_lerp = true;
+					m_lerpTarget = m_pageAnchorPositions[CurrentPage()];
 				}
 			}
 			else
 			{
-				_lerp = true;
-				_lerpTarget = _pageAnchorPositions[CurrentPage()];
+				m_lerp = true;
+				m_lerpTarget = m_pageAnchorPositions[CurrentPage()];
 			}
 		}
 
 		public void OnDrag( PointerEventData eventData )
 		{
-			_lerp = false;
+			m_lerp = false;
 
-			if (_startDrag)
+			if (m_startDrag)
 			{
 				OnBeginDrag(eventData);
-				_startDrag = false;
+				m_startDrag = false;
 			}
 		}
 
