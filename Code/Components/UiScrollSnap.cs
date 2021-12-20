@@ -16,7 +16,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	[ExecuteInEditMode]
+	[ExecuteAlways]
 	[RequireComponent(typeof(ScrollRect))]
 	[AddComponentMenu("UI/UIToolkit/UI Scroll Snap")]
 	public class UiScrollSnap : UiThing, IBeginDragHandler, IEndDragHandler, IDragHandler, IScrollSnap
@@ -33,9 +33,9 @@ namespace GuiToolkit
 		public event PageSnapChange onPageChange;
 
 		[Tooltip("Button to go to the next page. (optional)")]
-		[SerializeField] protected Button m_nextButton;
+		[SerializeField] protected UiButton m_nextButton;
 		[Tooltip("Button to go to the previous page. (optional)")]
-		[SerializeField] protected Button m_prevButton;
+		[SerializeField] protected UiButton m_prevButton;
 		[Tooltip("Number of items visible in one page of scroll frame.")]
 		[RangeAttribute(1, 100)]
 		[SerializeField] protected int m_itemsVisibleAtOnce = 1;
@@ -119,41 +119,77 @@ namespace GuiToolkit
 			}
 		}
 
+		public int ItemCount => Content.childCount;
+
+		public GameObject GetItem(int _idx)
+		{
+			return Content.GetChild(_idx).gameObject;
+		}
+
+		public void AddItem(GameObject _item, int _idx = -1)
+		{
+			_item.transform.SetParent(Content);
+			if (_idx != -1)
+			{
+				_item.transform.SetSiblingIndex(_idx);
+			}
+			SetDirty();
+		}
+
+		public void RemoveItem(GameObject _item, bool _destroy = false)
+		{
+			_item.transform.SetParent(null);
+
+			if (_destroy)
+				_item.Destroy(false);
+
+			SetDirty();
+		}
+
+		public void RemoveItem(int _idx, bool _destroy = false)
+		{
+			GameObject item = Content.GetChild(_idx).gameObject;
+
+			item.transform.SetParent(null);
+
+			if (_destroy)
+				item.Destroy(false);
+
+			SetDirty();
+		}
+
+		public void RemoveAllItems(bool _destroy = false)
+		{
+			while(ItemCount > 0)
+				RemoveItem(0, _destroy);
+		}
+
 
 		// Use this for initialization
 		protected override void Start()
 		{
 			base.Start();
 
+			if (m_nextButton != null)
+				m_nextButton.OnClick.AddListener(GotoNextPage);
+
+			if (m_prevButton != null)
+				m_prevButton.OnClick.AddListener(GotoPreviousPage);
+
 			m_lerp = false;
 
-			//_rectTransform = _listContainerTransform.gameObject.GetComponent<RectTransform>();
 			UpdateListItemsSize();
 			UpdateListItemPositions();
 
-			PageChanged(CurrentPage());
+			OnPageChanged(CurrentPage());
 
-			if (m_nextButton)
-			{
-				m_nextButton.GetComponent<Button>().onClick.AddListener(() =>
-				{
-					NextScreen();
-				});
-			}
-
-			if (m_prevButton)
-			{
-				m_prevButton.GetComponent<Button>().onClick.AddListener(() =>
-				{
-					PreviousScreen();
-				});
-			}
 			if (ScrollRect.horizontalScrollbar != null && ScrollRect.horizontal)
 			{
 
 				var hscroll = ScrollRect.horizontalScrollbar.gameObject.GetOrCreateComponent<UiScrollSnapScrollbarHelper>();
 				hscroll.m_ss = this;
 			}
+
 			if (ScrollRect.verticalScrollbar != null && ScrollRect.vertical)
 			{
 				var vscroll = ScrollRect.verticalScrollbar.gameObject.GetOrCreateComponent<UiScrollSnapScrollbarHelper>();
@@ -283,7 +319,7 @@ namespace GuiToolkit
 
 				if (m_itemsCount != activeCount)
 				{
-					PageChanged(CurrentPage());
+					OnPageChanged(CurrentPage());
 				}
 
 				m_itemsCount = activeCount;
@@ -364,7 +400,7 @@ namespace GuiToolkit
 				//change the info bullets at the bottom of the screen. Just for visual effect
 				if (Vector3.Distance(Content.localPosition, m_lerpTarget) < 10f)
 				{
-					PageChanged(CurrentPage());
+					OnPageChanged(CurrentPage());
 				}
 			}
 
@@ -375,22 +411,23 @@ namespace GuiToolkit
 		}
 
 		//Function for switching screens with buttons
-		public void NextScreen()
+		public void GotoNextPage()
 		{
+Debug.Log($"GotoNextPage CurrentPage():{CurrentPage()} m_pages:{m_pages}");
 			UpdateListItemPositions();
-
 			if (CurrentPage() < m_pages - 1)
 			{
 				m_lerp = true;
 				m_lerpTarget = m_pageAnchorPositions[CurrentPage() + 1];
 
-				PageChanged(CurrentPage() + 1);
+				OnPageChanged(CurrentPage() + 1);
 			}
 		}
 
 		//Function for switching screens with buttons
-		public void PreviousScreen()
+		public void GotoPreviousPage()
 		{
+Debug.Log($"GotoPreviousPage CurrentPage():{CurrentPage()} m_pages:{m_pages}");
 			UpdateListItemPositions();
 
 			if (CurrentPage() > 0)
@@ -398,7 +435,7 @@ namespace GuiToolkit
 				m_lerp = true;
 				m_lerpTarget = m_pageAnchorPositions[CurrentPage() - 1];
 
-				PageChanged(CurrentPage() - 1);
+				OnPageChanged(CurrentPage() - 1);
 			}
 		}
 
@@ -412,7 +449,7 @@ namespace GuiToolkit
 
 				m_lerpTarget = m_pageAnchorPositions[targetPage];
 
-				PageChanged(targetPage);
+				OnPageChanged(targetPage);
 			}
 		}
 
@@ -426,7 +463,7 @@ namespace GuiToolkit
 
 				m_lerpTarget = m_pageAnchorPositions[targetPage];
 
-				PageChanged(targetPage);
+				OnPageChanged(targetPage);
 			}
 		}
 
@@ -468,23 +505,23 @@ namespace GuiToolkit
 
 				m_lerpTarget = m_pageAnchorPositions[page];
 
-				PageChanged(page);
+				OnPageChanged(page);
 			}
 		}
 
 		//changes the bullets on the bottom of the page - pagination
-		private void PageChanged( int currentPage )
+		protected virtual void OnPageChanged( int currentPage )
 		{
 			m_startingPage = currentPage;
 
 			if (m_nextButton)
 			{
-				m_nextButton.interactable = currentPage < m_pages - 1;
+				m_nextButton.EnabledInHierarchy = currentPage < m_pages - 1;
 			}
 
 			if (m_prevButton)
 			{
-				m_prevButton.interactable = currentPage > 0;
+				m_prevButton.EnabledInHierarchy = currentPage > 0;
 			}
 
 			if (onPageChange != null)
