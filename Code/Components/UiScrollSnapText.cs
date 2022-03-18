@@ -12,6 +12,11 @@ namespace GuiToolkit
 		[SerializeField] protected GameObject m_textPrefab;
 		[SerializeField] protected List<string> m_text;
 		[SerializeField] protected bool m_autoTranslate;
+		[SerializeField] protected bool m_useNumbers;
+		[SerializeField] protected int m_startNumber;
+		[SerializeField] protected int m_endNumber;
+
+
 
 		bool ILocaClient.UsesMultipleLocaKeys => true;
 		string ILocaClient.LocaKey => null;
@@ -20,8 +25,9 @@ namespace GuiToolkit
 		protected override void Start()
 		{
 			base.Start();
-			foreach (string text in m_text)
-				InstantiateTextItem(text);
+
+			RefreshItems();
+			return;
 		}
 
 		private void SetText( GameObject _go, string _text, bool _destroyOnError = true )
@@ -78,14 +84,26 @@ namespace GuiToolkit
 		private void OnValidate()
 		{
 			// Avoid "SendMessage cannot be called during Awake.." issued by transform.SetParent() sending messages 
-			EditorApplication.delayCall += DelayedOnValidate;
+			EditorApplication.delayCall += RefreshItems;
 		}
 
-		private void DelayedOnValidate()
+		private void RefreshItems()
 		{
 			RemoveAllItems(true);
+
+			if (m_useNumbers)
+			{
+				m_autoTranslate = false;
+
+				for (int i = m_startNumber; i <= m_endNumber; i++)
+					InstantiateTextItem(i.ToString());
+
+				return;
+			}
+
 			foreach (string text in m_text)
 				InstantiateTextItem(text);
 		}
+
 	}
 }
