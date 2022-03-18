@@ -34,6 +34,28 @@ namespace GuiToolkit
 		private readonly GUIContent m_skipIfLessThanGuiContent = new GUIContent("Skip if advance less than", "Skip adjustments, which are below this value to save space. A value of 0 entered here doesn't skip anything.");
 		private float m_skipIfLessThan = 0.5f;
 
+		private List<TMP_GlyphPairAdjustmentRecord> AdjustmentRecords
+		{
+			get
+			{
+				if (m_fontAsset == null)
+					return new List<TMP_GlyphPairAdjustmentRecord>();
+
+				return m_fontAsset.fontFeatureTable.glyphPairAdjustmentRecords;
+			}
+
+			set
+			{
+				if (m_fontAsset == null)
+					return;
+
+				m_fontAsset.fontFeatureTable.glyphPairAdjustmentRecords = value;
+				EditorUtility.SetDirty(m_fontAsset);
+				AssetDatabase.SaveAssets();
+				AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
+			}
+		}
+
 		private void OnGUI()
 		{
 			m_fontAsset = EditorGUILayout.ObjectField(m_fontAssetGuiContent, m_fontAsset, typeof(TMP_FontAsset), false) as TMP_FontAsset;
@@ -66,6 +88,39 @@ namespace GuiToolkit
 
 		private void MergeKerningTable()
 		{
+			List<TMP_GlyphPairAdjustmentRecord> mergeKerningTable = LoadJson("Merge Kerning Table");
+			if (mergeKerningTable == null)
+				return;
+			List<TMP_GlyphPairAdjustmentRecord> currentKerningTable = AdjustmentRecords;
+
+			List<TMP_GlyphPairAdjustmentRecord> newKerningTable = new List<TMP_GlyphPairAdjustmentRecord>();
+
+			foreach (TMP_GlyphPairAdjustmentRecord record in currentKerningTable)
+			{
+				TMP_GlyphPairAdjustmentRecord otherRecord = FindOtherRecord(record, mergeKerningTable);
+				if (otherRecord == null)
+				{
+					newKerningTable.Add(record);
+					continue;
+				}
+
+				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord otherFirst = otherRecord.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord otherSecond = otherRecord.secondAdjustmentRecord;
+
+				if (!IsEqual(first, otherFirst) || !IsEqual(second, otherSecond))
+					newKerningTable.Add(otherRecord);
+			}
+
+			foreach (TMP_GlyphPairAdjustmentRecord record in mergeKerningTable)
+			{
+				TMP_GlyphPairAdjustmentRecord otherRecord = FindOtherRecord(record, currentKerningTable);
+				if (otherRecord == null)
+					newKerningTable.Add(record);
+			}
+
+			AdjustmentRecords = newKerningTable;
 		}
 
 		private void LoadKerningTable()
@@ -77,11 +132,70 @@ namespace GuiToolkit
 
 		private void SaveKerningTableDiff()
 		{
+			List<TMP_GlyphPairAdjustmentRecord> originalKerningTable = LoadJson("Load Original Kerning Table");
+			if (originalKerningTable == null)
+				return;
+			List<TMP_GlyphPairAdjustmentRecord> currentKerningTable = AdjustmentRecords;
+
+			List<TMP_GlyphPairAdjustmentRecord> newKerningTable = new List<TMP_GlyphPairAdjustmentRecord>();
+
+			foreach (TMP_GlyphPairAdjustmentRecord record in currentKerningTable)
+			{
+				TMP_GlyphPairAdjustmentRecord otherRecord = FindOtherRecord(record, originalKerningTable);
+				if (otherRecord == null)
+				{
+					newKerningTable.Add(record);
+					continue;
+				}
+
+				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord otherFirst = otherRecord.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord otherSecond = otherRecord.secondAdjustmentRecord;
+
+				if (!IsEqual(first, otherFirst) || !IsEqual(second, otherSecond))
+					newKerningTable.Add(record);
+			}
+
+			if (newKerningTable.Count == 0)
+			{
+				EditorUtility.DisplayDialog("No changes detected", "Diff is not saved", "OK");
+				return;
+			}
+
+			SaveKerningTable(newKerningTable);
 		}
 
-		private void SaveKerningTable()
+		private bool IsEqual( TMP_GlyphAdjustmentRecord record, TMP_GlyphAdjustmentRecord otherRecord )
 		{
-			ListContainer listContainer = new ListContainer { Records = AdjustmentRecords };
+			var value = record.glyphValueRecord;
+			var otherValue = otherRecord.glyphValueRecord;
+
+			return
+				   Mathf.Approximately(value.xAdvance, otherValue.xAdvance)
+				&& Mathf.Approximately(value.yAdvance, otherValue.yAdvance)
+				&& Mathf.Approximately(value.xPlacement, otherValue.xPlacement)
+				&& Mathf.Approximately(value.yPlacement, otherValue.yPlacement);
+		}
+
+		private TMP_GlyphPairAdjustmentRecord FindOtherRecord( TMP_GlyphPairAdjustmentRecord record, List<TMP_GlyphPairAdjustmentRecord> kerningTable )
+		{
+			foreach (TMP_GlyphPairAdjustmentRecord otherRecord in kerningTable)
+			{
+				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord otherFirst = otherRecord.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord otherSecond = otherRecord.secondAdjustmentRecord;
+				if (first.glyphIndex == otherFirst.glyphIndex && second.glyphIndex == otherSecond.glyphIndex)
+					return otherRecord;
+			}
+
+			return null;
+		}
+
+		private void SaveKerningTable(List<TMP_GlyphPairAdjustmentRecord> table = null)
+		{
+			ListContainer listContainer = new ListContainer { Records = table == null ? AdjustmentRecords : table};
 			string s = JsonUtility.ToJson(listContainer);
 			SaveJson(s);
 		}
@@ -186,28 +300,6 @@ namespace GuiToolkit
 			string start = _skipped ? "Skipping " : "Adding ";
 			reason = string.IsNullOrEmpty(reason) ? "" : $": {reason}";
 			Debug.Log($"{start} pair '{pair}'{reason}");
-		}
-
-		private List<TMP_GlyphPairAdjustmentRecord> AdjustmentRecords
-		{
-			get
-			{
-				if (m_fontAsset == null)
-					return new List<TMP_GlyphPairAdjustmentRecord>();
-
-				return m_fontAsset.fontFeatureTable.glyphPairAdjustmentRecords;
-			}
-
-			set
-			{
-				if (m_fontAsset == null)
-					return;
-
-				m_fontAsset.fontFeatureTable.glyphPairAdjustmentRecords = value;
-				EditorUtility.SetDirty(m_fontAsset);
-				AssetDatabase.SaveAssets();
-				AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
-			}
 		}
 
 		[MenuItem(StringConstants.CLEAN_KERNING_TABLE_MENU_NAME, priority = Constants.CLEAN_KERNING_TABLE_MENU_PRIORITY)]
