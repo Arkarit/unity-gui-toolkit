@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -9,6 +10,12 @@ namespace GuiToolkit
 {
 	public class CleanKerningTable : EditorWindow
 	{
+		[Serializable]
+		private class ListContainer
+		{
+			public List<TMP_GlyphPairAdjustmentRecord> Records;
+		}
+
 		private readonly GUIContent m_fontAssetGuiContent = new GUIContent("Font Asset", "Drag your font asset here");
 		private TMP_FontAsset m_fontAsset;
 
@@ -40,8 +47,79 @@ namespace GuiToolkit
 
 			m_dryRun = EditorGUILayout.Toggle(m_dryRunGuiContent, m_dryRun);
 
-			if (m_fontAsset && GUILayout.Button("Clean up asset"))
-				CleanUp();
+			if (m_fontAsset)
+			{
+				if (GUILayout.Button("Clean up asset"))
+					CleanUp();
+
+				EditorGUILayout.Space();
+				if (GUILayout.Button("Save kerning table"))
+					SaveKerningTable();
+				if (GUILayout.Button("Save kerning table diff"))
+					SaveKerningTableDiff();
+				if (GUILayout.Button("Load kerning table"))
+					LoadKerningTable();
+				if (GUILayout.Button("Merge kerning table"))
+					MergeKerningTable();
+			}
+		}
+
+		private void MergeKerningTable()
+		{
+		}
+
+		private void LoadKerningTable()
+		{
+			List<TMP_GlyphPairAdjustmentRecord> kerningTable = LoadJson();
+			if (kerningTable != null)
+				AdjustmentRecords = kerningTable;
+		}
+
+		private void SaveKerningTableDiff()
+		{
+		}
+
+		private void SaveKerningTable()
+		{
+			ListContainer listContainer = new ListContainer { Records = AdjustmentRecords };
+			string s = JsonUtility.ToJson(listContainer);
+			SaveJson(s);
+		}
+
+		private void SaveJson( string content )
+		{
+			var path = EditorUtility.SaveFilePanel
+			(
+				"Save Kerning Table",
+				"",
+				".kerningTable.json",
+				"json"
+			);
+
+			if (!string.IsNullOrEmpty(path))
+				File.WriteAllText(path, content);
+		}
+
+		private List<TMP_GlyphPairAdjustmentRecord> LoadJson(string title = "Load Kerning Table")
+		{
+			var path = EditorUtility.OpenFilePanel
+			(
+				title,
+				"",
+				"json"
+			);
+
+			if (!string.IsNullOrEmpty(path))
+			{
+				string s = File.ReadAllText(path);
+				if (!string.IsNullOrEmpty(s))
+				{
+					ListContainer listContainer = JsonUtility.FromJson<ListContainer>(s);
+					return listContainer.Records;
+				}
+			}
+
+			return null;
 		}
 
 		private void CleanUp()
@@ -52,11 +130,11 @@ namespace GuiToolkit
 			List<TMP_Character> characters = m_fontAsset.characterTable;
 			Dictionary<uint, char> charactersByGlyphIndex = new Dictionary<uint, char>();
 			foreach (var tmpCharacter in characters)
-				charactersByGlyphIndex.Add(tmpCharacter.glyphIndex, (char) tmpCharacter.unicode);
+				charactersByGlyphIndex.Add(tmpCharacter.glyphIndex, (char)tmpCharacter.unicode);
 
 			List<TMP_GlyphPairAdjustmentRecord> newAdjustmentRecords = new List<TMP_GlyphPairAdjustmentRecord>();
 
-			foreach(TMP_GlyphPairAdjustmentRecord record in oldAdjustmentRecords)
+			foreach (TMP_GlyphPairAdjustmentRecord record in oldAdjustmentRecords)
 			{
 				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
 				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
@@ -99,15 +177,10 @@ namespace GuiToolkit
 			}
 
 			if (!m_dryRun)
-			{
 				AdjustmentRecords = newAdjustmentRecords;
-				EditorUtility.SetDirty(m_fontAsset);
-				AssetDatabase.SaveAssets();
-				AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
-			}
 		}
 
-		private void LogPair(char _a, char _b, bool _skipped = false, string reason = null)
+		private void LogPair( char _a, char _b, bool _skipped = false, string reason = null )
 		{
 			string pair = _a + "/" + _b;
 			string start = _skipped ? "Skipping " : "Adding ";
@@ -131,6 +204,9 @@ namespace GuiToolkit
 					return;
 
 				m_fontAsset.fontFeatureTable.glyphPairAdjustmentRecords = value;
+				EditorUtility.SetDirty(m_fontAsset);
+				AssetDatabase.SaveAssets();
+				AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
 			}
 		}
 
