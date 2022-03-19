@@ -201,7 +201,7 @@ namespace GuiToolkit
 			list = ToCharacters(list);
 
 			ListContainer listContainer = new ListContainer { Records = list };
-			string s = JsonUtility.ToJson(listContainer);
+			string s = JsonUtility.ToJson(listContainer, true);
 
 			var path = EditorUtility.SaveFilePanel
 			(
