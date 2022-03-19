@@ -2,16 +2,16 @@
     "Pairs": [
         {
             "m_FirstAdjustmentRecord": {
-                "m_GlyphIndex": 83,
+                "m_GlyphIndex": 65,
                 "m_GlyphValueRecord": {
                     "m_XPlacement": 0.0,
                     "m_YPlacement": 0.0,
-                    "m_XAdvance": -3.0,
+                    "m_XAdvance": -4.0,
                     "m_YAdvance": 0.0
                 }
             },
             "m_SecondAdjustmentRecord": {
-                "m_GlyphIndex": 65,
+                "m_GlyphIndex": 79,
                 "m_GlyphValueRecord": {
                     "m_XPlacement": 0.0,
                     "m_YPlacement": 0.0,
@@ -23,16 +23,16 @@
         },
         {
             "m_FirstAdjustmentRecord": {
-                "m_GlyphIndex": 84,
+                "m_GlyphIndex": 65,
                 "m_GlyphValueRecord": {
                     "m_XPlacement": 0.0,
                     "m_YPlacement": 0.0,
-                    "m_XAdvance": -5.380000114440918,
+                    "m_XAdvance": -6.5,
                     "m_YAdvance": 0.0
                 }
             },
             "m_SecondAdjustmentRecord": {
-                "m_GlyphIndex": 65,
+                "m_GlyphIndex": 84,
                 "m_GlyphValueRecord": {
                     "m_XPlacement": 0.0,
                     "m_YPlacement": 0.0,
@@ -75,6 +75,48 @@
             },
             "m_SecondAdjustmentRecord": {
                 "m_GlyphIndex": 89,
+                "m_GlyphValueRecord": {
+                    "m_XPlacement": 0.0,
+                    "m_YPlacement": 0.0,
+                    "m_XAdvance": 0.0,
+                    "m_YAdvance": 0.0
+                }
+            },
+            "m_FeatureLookupFlags": 0
+        },
+        {
+            "m_FirstAdjustmentRecord": {
+                "m_GlyphIndex": 83,
+                "m_GlyphValueRecord": {
+                    "m_XPlacement": 0.0,
+                    "m_YPlacement": 0.0,
+                    "m_XAdvance": -3.0,
+                    "m_YAdvance": 0.0
+                }
+            },
+            "m_SecondAdjustmentRecord": {
+                "m_GlyphIndex": 65,
+                "m_GlyphValueRecord": {
+                    "m_XPlacement": 0.0,
+                    "m_YPlacement": 0.0,
+                    "m_XAdvance": 0.0,
+                    "m_YAdvance": 0.0
+                }
+            },
+            "m_FeatureLookupFlags": 0
+        },
+        {
+            "m_FirstAdjustmentRecord": {
+                "m_GlyphIndex": 84,
+                "m_GlyphValueRecord": {
+                    "m_XPlacement": 0.0,
+                    "m_YPlacement": 0.0,
+                    "m_XAdvance": -5.380000114440918,
+                    "m_YAdvance": 0.0
+                }
+            },
+            "m_SecondAdjustmentRecord": {
+                "m_GlyphIndex": 65,
                 "m_GlyphValueRecord": {
                     "m_XPlacement": 0.0,
                     "m_YPlacement": 0.0,
