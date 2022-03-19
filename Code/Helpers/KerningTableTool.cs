@@ -16,6 +16,7 @@ namespace GuiToolkit
 			public List<TMP_GlyphPairAdjustmentRecord> Records;
 		}
 
+
 		private readonly GUIContent m_fontAssetGuiContent = new GUIContent("Font Asset", "Drag your font asset here");
 		private TMP_FontAsset m_fontAsset;
 
@@ -33,6 +34,7 @@ namespace GuiToolkit
 
 		private readonly GUIContent m_skipIfLessThanGuiContent = new GUIContent("Skip if advance less than", "Skip adjustments, which are below this value to save space. A value of 0 entered here doesn't skip anything.");
 		private float m_skipIfLessThan = 0.5f;
+
 
 		private List<TMP_GlyphPairAdjustmentRecord> AdjustmentRecords
 		{
@@ -56,6 +58,7 @@ namespace GuiToolkit
 			}
 		}
 
+
 		private void OnGUI()
 		{
 			m_fontAsset = EditorGUILayout.ObjectField(m_fontAssetGuiContent, m_fontAsset, typeof(TMP_FontAsset), false) as TMP_FontAsset;
@@ -72,11 +75,11 @@ namespace GuiToolkit
 			if (m_fontAsset)
 			{
 				if (GUILayout.Button("Clean up asset"))
-					CleanUp();
+					CleanUpAsset();
 
 				EditorGUILayout.Space();
 				if (GUILayout.Button("Save kerning table"))
-					SaveJson();
+					SaveKerningTable();
 				if (GUILayout.Button("Save kerning table diff"))
 					SaveKerningTableDiff();
 				if (GUILayout.Button("Load kerning table"))
@@ -86,189 +89,8 @@ namespace GuiToolkit
 			}
 		}
 
-		private void MergeKerningTable()
-		{
-			List<TMP_GlyphPairAdjustmentRecord> mergeKerningTable = LoadJson("Merge Kerning Table");
-			if (mergeKerningTable == null)
-				return;
-			List<TMP_GlyphPairAdjustmentRecord> currentKerningTable = AdjustmentRecords;
 
-			List<TMP_GlyphPairAdjustmentRecord> newKerningTable = new List<TMP_GlyphPairAdjustmentRecord>();
-
-			foreach (TMP_GlyphPairAdjustmentRecord record in currentKerningTable)
-			{
-				TMP_GlyphPairAdjustmentRecord otherRecord = FindOtherRecord(record, mergeKerningTable);
-				if (otherRecord == null)
-				{
-					newKerningTable.Add(record);
-					continue;
-				}
-
-				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
-				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
-				TMP_GlyphAdjustmentRecord otherFirst = otherRecord.firstAdjustmentRecord;
-				TMP_GlyphAdjustmentRecord otherSecond = otherRecord.secondAdjustmentRecord;
-
-				if (!IsEqual(first, otherFirst) || !IsEqual(second, otherSecond))
-					newKerningTable.Add(otherRecord);
-			}
-
-			foreach (TMP_GlyphPairAdjustmentRecord record in mergeKerningTable)
-			{
-				TMP_GlyphPairAdjustmentRecord otherRecord = FindOtherRecord(record, currentKerningTable);
-				if (otherRecord == null)
-					newKerningTable.Add(record);
-			}
-
-			AdjustmentRecords = newKerningTable;
-		}
-
-		private void LoadKerningTable()
-		{
-			List<TMP_GlyphPairAdjustmentRecord> kerningTable = LoadJson();
-			if (kerningTable != null)
-			{
-				AdjustmentRecords = kerningTable;
-			}
-		}
-
-		private void SaveKerningTableDiff()
-		{
-			List<TMP_GlyphPairAdjustmentRecord> originalKerningTable = LoadJson("Load Original Kerning Table");
-			if (originalKerningTable == null)
-				return;
-			List<TMP_GlyphPairAdjustmentRecord> currentKerningTable = AdjustmentRecords;
-
-			List<TMP_GlyphPairAdjustmentRecord> newKerningTable = new List<TMP_GlyphPairAdjustmentRecord>();
-
-			foreach (TMP_GlyphPairAdjustmentRecord record in currentKerningTable)
-			{
-				TMP_GlyphPairAdjustmentRecord otherRecord = FindOtherRecord(record, originalKerningTable);
-				if (otherRecord == null)
-				{
-					newKerningTable.Add(record);
-					continue;
-				}
-
-				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
-				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
-				TMP_GlyphAdjustmentRecord otherFirst = otherRecord.firstAdjustmentRecord;
-				TMP_GlyphAdjustmentRecord otherSecond = otherRecord.secondAdjustmentRecord;
-
-				if (!IsEqual(first, otherFirst) || !IsEqual(second, otherSecond))
-					newKerningTable.Add(record);
-			}
-
-			if (newKerningTable.Count == 0)
-			{
-				EditorUtility.DisplayDialog("No changes detected", "Diff is not saved", "OK");
-				return;
-			}
-
-			SaveJson(newKerningTable);
-		}
-
-		private bool IsEqual( TMP_GlyphAdjustmentRecord record, TMP_GlyphAdjustmentRecord otherRecord )
-		{
-			var value = record.glyphValueRecord;
-			var otherValue = otherRecord.glyphValueRecord;
-
-			return
-				   Mathf.Approximately(value.xAdvance, otherValue.xAdvance)
-				&& Mathf.Approximately(value.yAdvance, otherValue.yAdvance)
-				&& Mathf.Approximately(value.xPlacement, otherValue.xPlacement)
-				&& Mathf.Approximately(value.yPlacement, otherValue.yPlacement);
-		}
-
-		private TMP_GlyphPairAdjustmentRecord FindOtherRecord( TMP_GlyphPairAdjustmentRecord record, List<TMP_GlyphPairAdjustmentRecord> kerningTable )
-		{
-			foreach (TMP_GlyphPairAdjustmentRecord otherRecord in kerningTable)
-			{
-				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
-				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
-				TMP_GlyphAdjustmentRecord otherFirst = otherRecord.firstAdjustmentRecord;
-				TMP_GlyphAdjustmentRecord otherSecond = otherRecord.secondAdjustmentRecord;
-				if (first.glyphIndex == otherFirst.glyphIndex && second.glyphIndex == otherSecond.glyphIndex)
-					return otherRecord;
-			}
-
-			return null;
-		}
-
-		private void SaveJson(List<TMP_GlyphPairAdjustmentRecord> table = null)
-		{
-			var list = table == null ? AdjustmentRecords : table;
-			list = ConvertGlyhpsAndCharacters(list, true);
-
-			ListContainer listContainer = new ListContainer { Records = list };
-			string s = JsonUtility.ToJson(listContainer, true);
-
-			var path = EditorUtility.SaveFilePanel
-			(
-				"Save Kerning Table",
-				"",
-				".kerningTable.json",
-				"json"
-			);
-
-			if (!string.IsNullOrEmpty(path))
-				File.WriteAllText(path, s);
-		}
-
-		private List<TMP_GlyphPairAdjustmentRecord> LoadJson(string title = "Load Kerning Table")
-		{
-			var path = EditorUtility.OpenFilePanel
-			(
-				title,
-				"",
-				"json"
-			);
-
-			if (!string.IsNullOrEmpty(path))
-			{
-				string s = File.ReadAllText(path);
-				if (!string.IsNullOrEmpty(s))
-				{
-					ListContainer listContainer = JsonUtility.FromJson<ListContainer>(s);
-					listContainer.Records = ConvertGlyhpsAndCharacters(listContainer.Records, false);
-					return listContainer.Records;
-				}
-			}
-
-			return null;
-		}
-
-		private List<TMP_GlyphPairAdjustmentRecord> ConvertGlyhpsAndCharacters( List<TMP_GlyphPairAdjustmentRecord> records, bool toCharacters )
-		{
-			List<TMP_GlyphPairAdjustmentRecord> result = DeepCopy(records);
-			var conversionDict = GetConversionDict(toCharacters);
-
-			foreach (var record in result)
-			{
-				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
-				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
-
-				if (conversionDict.TryGetValue(first.glyphIndex, out uint firstGlyphIndex))
-					first.glyphIndex = firstGlyphIndex;
-
-				if (conversionDict.TryGetValue(second.glyphIndex, out uint secondGlyphIndex))
-					second.glyphIndex = secondGlyphIndex;
-
-				record.firstAdjustmentRecord = first;
-				record.secondAdjustmentRecord = second;
-			}
-
-			return result;
-		}
-
-		private List<TMP_GlyphPairAdjustmentRecord> DeepCopy( List<TMP_GlyphPairAdjustmentRecord> records )
-		{
-			var t = new ListContainer { Records = records };
-			var s = JsonUtility.ToJson(t);
-			return JsonUtility.FromJson<ListContainer>(s).Records;
-		}
-
-		private void CleanUp()
+		private void CleanUpAsset()
 		{
 			Debug.Assert(m_fontAsset != null);
 
@@ -327,6 +149,114 @@ namespace GuiToolkit
 				AdjustmentRecords = newAdjustmentRecords;
 		}
 
+		private void SaveKerningTable() => SaveJsonWithFileSelector();
+
+		private void SaveKerningTableDiff()
+		{
+			List<TMP_GlyphPairAdjustmentRecord> originalKerningTable = LoadJsonWithFileSelector("Load Original Kerning Table");
+			if (originalKerningTable == null)
+				return;
+			List<TMP_GlyphPairAdjustmentRecord> currentKerningTable = AdjustmentRecords;
+
+			List<TMP_GlyphPairAdjustmentRecord> newKerningTable = new List<TMP_GlyphPairAdjustmentRecord>();
+
+			foreach (TMP_GlyphPairAdjustmentRecord record in currentKerningTable)
+			{
+				TMP_GlyphPairAdjustmentRecord otherRecord = FindOtherRecord(record, originalKerningTable);
+				if (otherRecord == null)
+				{
+					newKerningTable.Add(record);
+					continue;
+				}
+
+				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord otherFirst = otherRecord.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord otherSecond = otherRecord.secondAdjustmentRecord;
+
+				if (!IsEqual(first, otherFirst) || !IsEqual(second, otherSecond))
+					newKerningTable.Add(record);
+			}
+
+			if (newKerningTable.Count == 0)
+			{
+				EditorUtility.DisplayDialog("No changes detected", "Diff is not saved", "OK");
+				return;
+			}
+
+			SaveJsonWithFileSelector(newKerningTable);
+		}
+
+		private void LoadKerningTable()
+		{
+			List<TMP_GlyphPairAdjustmentRecord> kerningTable = LoadJsonWithFileSelector();
+			if (kerningTable != null)
+			{
+				AdjustmentRecords = kerningTable;
+			}
+		}
+
+		private void MergeKerningTable()
+		{
+			List<TMP_GlyphPairAdjustmentRecord> mergeKerningTable = LoadJsonWithFileSelector("Merge Kerning Table");
+			if (mergeKerningTable == null)
+				return;
+			List<TMP_GlyphPairAdjustmentRecord> currentKerningTable = AdjustmentRecords;
+
+			List<TMP_GlyphPairAdjustmentRecord> newKerningTable = new List<TMP_GlyphPairAdjustmentRecord>();
+
+			foreach (TMP_GlyphPairAdjustmentRecord record in currentKerningTable)
+			{
+				TMP_GlyphPairAdjustmentRecord otherRecord = FindOtherRecord(record, mergeKerningTable);
+				if (otherRecord == null)
+				{
+					newKerningTable.Add(record);
+					continue;
+				}
+
+				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord otherFirst = otherRecord.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord otherSecond = otherRecord.secondAdjustmentRecord;
+
+				if (!IsEqual(first, otherFirst) || !IsEqual(second, otherSecond))
+					newKerningTable.Add(otherRecord);
+			}
+
+			foreach (TMP_GlyphPairAdjustmentRecord record in mergeKerningTable)
+			{
+				TMP_GlyphPairAdjustmentRecord otherRecord = FindOtherRecord(record, currentKerningTable);
+				if (otherRecord == null)
+					newKerningTable.Add(record);
+			}
+
+			AdjustmentRecords = newKerningTable;
+		}
+
+
+		private List<TMP_GlyphPairAdjustmentRecord> ConvertGlyhpsAndCharacters( List<TMP_GlyphPairAdjustmentRecord> records, bool toCharacters )
+		{
+			List<TMP_GlyphPairAdjustmentRecord> result = DeepCopy(records);
+			var conversionDict = GetConversionDict(toCharacters);
+
+			foreach (var record in result)
+			{
+				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
+
+				if (conversionDict.TryGetValue(first.glyphIndex, out uint firstGlyphIndex))
+					first.glyphIndex = firstGlyphIndex;
+
+				if (conversionDict.TryGetValue(second.glyphIndex, out uint secondGlyphIndex))
+					second.glyphIndex = secondGlyphIndex;
+
+				record.firstAdjustmentRecord = first;
+				record.secondAdjustmentRecord = second;
+			}
+
+			return result;
+		}
+
 		private Dictionary<uint, uint> GetConversionDict(bool toCharacters)
 		{
 			List<TMP_Character> characters = m_fontAsset.characterTable;
@@ -340,13 +270,91 @@ namespace GuiToolkit
 			return result;
 		}
 
-		private void LogPair( char _a, char _b, bool _skipped = false, string reason = null )
+		private void SaveJsonWithFileSelector(List<TMP_GlyphPairAdjustmentRecord> table = null)
+		{
+			var list = table == null ? AdjustmentRecords : table;
+			list = ConvertGlyhpsAndCharacters(list, true);
+
+			ListContainer listContainer = new ListContainer { Records = list };
+			string s = JsonUtility.ToJson(listContainer, true);
+
+			var path = EditorUtility.SaveFilePanel
+			(
+				"Save Kerning Table",
+				"",
+				".kerningTable.json",
+				"json"
+			);
+
+			if (!string.IsNullOrEmpty(path))
+				File.WriteAllText(path, s);
+		}
+
+		private List<TMP_GlyphPairAdjustmentRecord> LoadJsonWithFileSelector(string title = "Load Kerning Table")
+		{
+			var path = EditorUtility.OpenFilePanel
+			(
+				title,
+				"",
+				"json"
+			);
+
+			if (!string.IsNullOrEmpty(path))
+			{
+				string s = File.ReadAllText(path);
+				if (!string.IsNullOrEmpty(s))
+				{
+					ListContainer listContainer = JsonUtility.FromJson<ListContainer>(s);
+					listContainer.Records = ConvertGlyhpsAndCharacters(listContainer.Records, false);
+					return listContainer.Records;
+				}
+			}
+
+			return null;
+		}
+
+		private static List<TMP_GlyphPairAdjustmentRecord> DeepCopy( List<TMP_GlyphPairAdjustmentRecord> records )
+		{
+			var t = new ListContainer { Records = records };
+			var s = JsonUtility.ToJson(t);
+			return JsonUtility.FromJson<ListContainer>(s).Records;
+		}
+
+		private static TMP_GlyphPairAdjustmentRecord FindOtherRecord( TMP_GlyphPairAdjustmentRecord record, List<TMP_GlyphPairAdjustmentRecord> kerningTable )
+		{
+			foreach (TMP_GlyphPairAdjustmentRecord otherRecord in kerningTable)
+			{
+				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord otherFirst = otherRecord.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord otherSecond = otherRecord.secondAdjustmentRecord;
+				if (first.glyphIndex == otherFirst.glyphIndex && second.glyphIndex == otherSecond.glyphIndex)
+					return otherRecord;
+			}
+
+			return null;
+		}
+
+		private static bool IsEqual( TMP_GlyphAdjustmentRecord record, TMP_GlyphAdjustmentRecord otherRecord )
+		{
+			var value = record.glyphValueRecord;
+			var otherValue = otherRecord.glyphValueRecord;
+
+			return
+				   Mathf.Approximately(value.xAdvance, otherValue.xAdvance)
+				&& Mathf.Approximately(value.yAdvance, otherValue.yAdvance)
+				&& Mathf.Approximately(value.xPlacement, otherValue.xPlacement)
+				&& Mathf.Approximately(value.yPlacement, otherValue.yPlacement);
+		}
+
+		private static void LogPair( char _a, char _b, bool _skipped = false, string reason = null )
 		{
 			string pair = _a + "/" + _b;
 			string start = _skipped ? "Skipping " : "Adding ";
 			reason = string.IsNullOrEmpty(reason) ? "" : $": {reason}";
 			Debug.Log($"{start} pair '{pair}'{reason}");
 		}
+
 
 		[MenuItem(StringConstants.KERNING_TABLE_TOOL_MENU_NAME, priority = Constants.KERNING_TABLE_TOOL_MENU_PRIORITY)]
 		public static KerningTableTool GetWindow()
