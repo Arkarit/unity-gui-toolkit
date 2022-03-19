@@ -76,7 +76,7 @@ namespace GuiToolkit
 
 				EditorGUILayout.Space();
 				if (GUILayout.Button("Save kerning table"))
-					SaveKerningTable();
+					SaveJson();
 				if (GUILayout.Button("Save kerning table diff"))
 					SaveKerningTableDiff();
 				if (GUILayout.Button("Load kerning table"))
@@ -127,7 +127,9 @@ namespace GuiToolkit
 		{
 			List<TMP_GlyphPairAdjustmentRecord> kerningTable = LoadJson();
 			if (kerningTable != null)
+			{
 				AdjustmentRecords = kerningTable;
+			}
 		}
 
 		private void SaveKerningTableDiff()
@@ -163,7 +165,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			SaveKerningTable(newKerningTable);
+			SaveJson(newKerningTable);
 		}
 
 		private bool IsEqual( TMP_GlyphAdjustmentRecord record, TMP_GlyphAdjustmentRecord otherRecord )
@@ -193,15 +195,14 @@ namespace GuiToolkit
 			return null;
 		}
 
-		private void SaveKerningTable(List<TMP_GlyphPairAdjustmentRecord> table = null)
+		private void SaveJson(List<TMP_GlyphPairAdjustmentRecord> table = null)
 		{
-			ListContainer listContainer = new ListContainer { Records = table == null ? AdjustmentRecords : table};
-			string s = JsonUtility.ToJson(listContainer);
-			SaveJson(s);
-		}
+			var list =table == null ? AdjustmentRecords : table;
+			list = ToCharacters(list);
 
-		private void SaveJson( string content )
-		{
+			ListContainer listContainer = new ListContainer { Records = list };
+			string s = JsonUtility.ToJson(listContainer);
+
 			var path = EditorUtility.SaveFilePanel
 			(
 				"Save Kerning Table",
@@ -211,7 +212,7 @@ namespace GuiToolkit
 			);
 
 			if (!string.IsNullOrEmpty(path))
-				File.WriteAllText(path, content);
+				File.WriteAllText(path, s);
 		}
 
 		private List<TMP_GlyphPairAdjustmentRecord> LoadJson(string title = "Load Kerning Table")
@@ -229,6 +230,7 @@ namespace GuiToolkit
 				if (!string.IsNullOrEmpty(s))
 				{
 					ListContainer listContainer = JsonUtility.FromJson<ListContainer>(s);
+					listContainer.Records = ToGlyphs(listContainer.Records);
 					return listContainer.Records;
 				}
 			}
@@ -236,15 +238,61 @@ namespace GuiToolkit
 			return null;
 		}
 
+		private List<TMP_GlyphPairAdjustmentRecord> ToGlyphs( List<TMP_GlyphPairAdjustmentRecord> records )
+		{
+			List<TMP_GlyphPairAdjustmentRecord> result = DeepCopy(records);
+			var glyphIndexByCharacter = GetGlyphIndicesByCharacter();
+			foreach (var record in result)
+			{
+				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
+
+				if (glyphIndexByCharacter.TryGetValue((char)first.glyphIndex, out uint firstGlyphIndex))
+					first.glyphIndex = firstGlyphIndex;
+
+				if (glyphIndexByCharacter.TryGetValue((char)second.glyphIndex, out uint secondGlyphIndex))
+					second.glyphIndex = secondGlyphIndex;
+
+				record.firstAdjustmentRecord = first;
+				record.secondAdjustmentRecord = second;
+			}
+			return result;
+		}
+
+		private List<TMP_GlyphPairAdjustmentRecord> ToCharacters( List<TMP_GlyphPairAdjustmentRecord> records )
+		{
+			List<TMP_GlyphPairAdjustmentRecord> result = DeepCopy(records);
+			var charactersByGlyphIndex = GetCharactersByGlyphIndex();
+			foreach (var record in result)
+			{
+				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
+				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
+
+				if (charactersByGlyphIndex.TryGetValue(first.glyphIndex, out char firstGlyphIndex))
+					first.glyphIndex = (uint) firstGlyphIndex;
+
+				if (charactersByGlyphIndex.TryGetValue(second.glyphIndex, out char secondGlyphIndex))
+					second.glyphIndex = (uint) secondGlyphIndex;
+
+				record.firstAdjustmentRecord = first;
+				record.secondAdjustmentRecord = second;
+			}
+			return result;
+		}
+
+		private List<TMP_GlyphPairAdjustmentRecord> DeepCopy( List<TMP_GlyphPairAdjustmentRecord> records )
+		{
+			var t = new ListContainer { Records = records };
+			var s = JsonUtility.ToJson(t);
+			return JsonUtility.FromJson<ListContainer>(s).Records;
+		}
+
 		private void CleanUp()
 		{
 			Debug.Assert(m_fontAsset != null);
 
 			List<TMP_GlyphPairAdjustmentRecord> oldAdjustmentRecords = AdjustmentRecords;
-			List<TMP_Character> characters = m_fontAsset.characterTable;
-			Dictionary<uint, char> charactersByGlyphIndex = new Dictionary<uint, char>();
-			foreach (var tmpCharacter in characters)
-				charactersByGlyphIndex.Add(tmpCharacter.glyphIndex, (char)tmpCharacter.unicode);
+			Dictionary<uint, char> charactersByGlyphIndex = GetCharactersByGlyphIndex();
 
 			List<TMP_GlyphPairAdjustmentRecord> newAdjustmentRecords = new List<TMP_GlyphPairAdjustmentRecord>();
 
@@ -292,6 +340,24 @@ namespace GuiToolkit
 
 			if (!m_dryRun)
 				AdjustmentRecords = newAdjustmentRecords;
+		}
+
+		private Dictionary<uint, char> GetCharactersByGlyphIndex()
+		{
+			List<TMP_Character> characters = m_fontAsset.characterTable;
+			Dictionary<uint, char> result = new Dictionary<uint, char>();
+			foreach (var tmpCharacter in characters)
+				result.Add(tmpCharacter.glyphIndex, (char)tmpCharacter.unicode);
+			return result;
+		}
+
+		private Dictionary<char, uint> GetGlyphIndicesByCharacter()
+		{
+			List<TMP_Character> characters = m_fontAsset.characterTable;
+			Dictionary<char, uint> result = new Dictionary<char, uint>();
+			foreach (var tmpCharacter in characters)
+				result.Add((char)tmpCharacter.unicode, tmpCharacter.glyphIndex);
+			return result;
 		}
 
 		private void LogPair( char _a, char _b, bool _skipped = false, string reason = null )
