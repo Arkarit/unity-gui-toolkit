@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class CleanKerningTable : EditorWindow
+	public class KerningTableTool : EditorWindow
 	{
 		[Serializable]
 		private class ListContainer
@@ -368,11 +368,11 @@ namespace GuiToolkit
 			Debug.Log($"{start} pair '{pair}'{reason}");
 		}
 
-		[MenuItem(StringConstants.CLEAN_KERNING_TABLE_MENU_NAME, priority = Constants.CLEAN_KERNING_TABLE_MENU_PRIORITY)]
-		public static CleanKerningTable GetWindow()
+		[MenuItem(StringConstants.KERNING_TABLE_TOOL_MENU_NAME, priority = Constants.KERNING_TABLE_TOOL_MENU_PRIORITY)]
+		public static KerningTableTool GetWindow()
 		{
-			var window = GetWindow<CleanKerningTable>();
-			window.titleContent = new GUIContent("Clean Kerning Table");
+			var window = GetWindow<KerningTableTool>();
+			window.titleContent = new GUIContent("Kerning Table Tool");
 			window.Focus();
 			window.Repaint();
 			return window;
