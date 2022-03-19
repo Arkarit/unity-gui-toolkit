@@ -197,8 +197,8 @@ namespace GuiToolkit
 
 		private void SaveJson(List<TMP_GlyphPairAdjustmentRecord> table = null)
 		{
-			var list =table == null ? AdjustmentRecords : table;
-			list = ToCharacters(list);
+			var list = table == null ? AdjustmentRecords : table;
+			list = ConvertGlyhpsAndCharacters(list, true);
 
 			ListContainer listContainer = new ListContainer { Records = list };
 			string s = JsonUtility.ToJson(listContainer, true);
@@ -230,7 +230,7 @@ namespace GuiToolkit
 				if (!string.IsNullOrEmpty(s))
 				{
 					ListContainer listContainer = JsonUtility.FromJson<ListContainer>(s);
-					listContainer.Records = ToGlyphs(listContainer.Records);
+					listContainer.Records = ConvertGlyhpsAndCharacters(listContainer.Records, false);
 					return listContainer.Records;
 				}
 			}
@@ -238,45 +238,26 @@ namespace GuiToolkit
 			return null;
 		}
 
-		private List<TMP_GlyphPairAdjustmentRecord> ToGlyphs( List<TMP_GlyphPairAdjustmentRecord> records )
+		private List<TMP_GlyphPairAdjustmentRecord> ConvertGlyhpsAndCharacters( List<TMP_GlyphPairAdjustmentRecord> records, bool toCharacters )
 		{
 			List<TMP_GlyphPairAdjustmentRecord> result = DeepCopy(records);
-			var glyphIndexByCharacter = GetGlyphIndicesByCharacter();
+			var conversionDict = GetConversionDict(toCharacters);
+
 			foreach (var record in result)
 			{
 				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
 				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
 
-				if (glyphIndexByCharacter.TryGetValue((char)first.glyphIndex, out uint firstGlyphIndex))
+				if (conversionDict.TryGetValue(first.glyphIndex, out uint firstGlyphIndex))
 					first.glyphIndex = firstGlyphIndex;
 
-				if (glyphIndexByCharacter.TryGetValue((char)second.glyphIndex, out uint secondGlyphIndex))
+				if (conversionDict.TryGetValue(second.glyphIndex, out uint secondGlyphIndex))
 					second.glyphIndex = secondGlyphIndex;
 
 				record.firstAdjustmentRecord = first;
 				record.secondAdjustmentRecord = second;
 			}
-			return result;
-		}
 
-		private List<TMP_GlyphPairAdjustmentRecord> ToCharacters( List<TMP_GlyphPairAdjustmentRecord> records )
-		{
-			List<TMP_GlyphPairAdjustmentRecord> result = DeepCopy(records);
-			var charactersByGlyphIndex = GetCharactersByGlyphIndex();
-			foreach (var record in result)
-			{
-				TMP_GlyphAdjustmentRecord first = record.firstAdjustmentRecord;
-				TMP_GlyphAdjustmentRecord second = record.secondAdjustmentRecord;
-
-				if (charactersByGlyphIndex.TryGetValue(first.glyphIndex, out char firstGlyphIndex))
-					first.glyphIndex = (uint) firstGlyphIndex;
-
-				if (charactersByGlyphIndex.TryGetValue(second.glyphIndex, out char secondGlyphIndex))
-					second.glyphIndex = (uint) secondGlyphIndex;
-
-				record.firstAdjustmentRecord = first;
-				record.secondAdjustmentRecord = second;
-			}
 			return result;
 		}
 
@@ -292,9 +273,11 @@ namespace GuiToolkit
 			Debug.Assert(m_fontAsset != null);
 
 			List<TMP_GlyphPairAdjustmentRecord> oldAdjustmentRecords = AdjustmentRecords;
-			Dictionary<uint, char> charactersByGlyphIndex = GetCharactersByGlyphIndex();
+			Dictionary<uint, uint> charactersByGlyphIndex = GetConversionDict(true);
 
 			List<TMP_GlyphPairAdjustmentRecord> newAdjustmentRecords = new List<TMP_GlyphPairAdjustmentRecord>();
+
+			Debug.Log($"Pairs before: {oldAdjustmentRecords.Count}");
 
 			foreach (TMP_GlyphPairAdjustmentRecord record in oldAdjustmentRecords)
 			{
@@ -307,8 +290,8 @@ namespace GuiToolkit
 					continue;
 				}
 
-				char a = charactersByGlyphIndex[first.glyphIndex];
-				char b = charactersByGlyphIndex[second.glyphIndex];
+				char a = (char) charactersByGlyphIndex[first.glyphIndex];
+				char b = (char) charactersByGlyphIndex[second.glyphIndex];
 
 				if (m_skipLowerUpper && char.IsLower(a) && char.IsUpper(b))
 				{
@@ -338,25 +321,22 @@ namespace GuiToolkit
 				LogPair(a, b);
 			}
 
+			Debug.Log($"Pairs after: {newAdjustmentRecords.Count}");
+
 			if (!m_dryRun)
 				AdjustmentRecords = newAdjustmentRecords;
 		}
 
-		private Dictionary<uint, char> GetCharactersByGlyphIndex()
+		private Dictionary<uint, uint> GetConversionDict(bool toCharacters)
 		{
 			List<TMP_Character> characters = m_fontAsset.characterTable;
-			Dictionary<uint, char> result = new Dictionary<uint, char>();
+			Dictionary<uint, uint> result = new Dictionary<uint, uint>();
 			foreach (var tmpCharacter in characters)
-				result.Add(tmpCharacter.glyphIndex, (char)tmpCharacter.unicode);
-			return result;
-		}
-
-		private Dictionary<char, uint> GetGlyphIndicesByCharacter()
-		{
-			List<TMP_Character> characters = m_fontAsset.characterTable;
-			Dictionary<char, uint> result = new Dictionary<char, uint>();
-			foreach (var tmpCharacter in characters)
-				result.Add((char)tmpCharacter.unicode, tmpCharacter.glyphIndex);
+				result.Add
+				(
+					toCharacters ? tmpCharacter.glyphIndex : tmpCharacter.unicode,
+					toCharacters ? tmpCharacter.unicode : tmpCharacter.glyphIndex
+				);
 			return result;
 		}
 
