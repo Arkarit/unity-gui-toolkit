@@ -117,6 +117,7 @@ namespace GuiToolkit
 																					  
 		public const int SETTINGS_MENU_PRIORITY = -1;								  ///< Menu priority "Settings"
 		public const int GAME_SPEED_MENU_PRIORITY = 500;							  ///< Menu priority "Game speed"
+		public const int KERNING_TABLE_TOOL_MENU_PRIORITY = 510;					  ///< Menu priority "Clean Kerning Table"
 		public const int LOCA_PROCESSOR_MENU_PRIORITY = 100;						  ///< Menu priority "Process Loca"
 		public const int LOCA_PLURAL_PROCESSOR_MENU_PRIORITY = 110;					  ///< Menu priority "Update plurals"
 	}
@@ -130,7 +131,8 @@ namespace GuiToolkit
 		public const string CONFIGURATION_NAME = "Ui Toolkit Configuration";															///< Friendly name for configuration
 		public const string CONFIGURATION_MENU_NAME = MENU_HEADER + CONFIGURATION_NAME;													///< Configuration menu entry
 		public const string GAME_SPEED_MENU_NAME = MENU_HEADER + "Game speed";															///< "Game Speed" menu entry
-		public const string LOCA_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update pot file)";									///< "Processm Loca" menu entry
+		public const string KERNING_TABLE_TOOL_MENU_NAME = MENU_HEADER + "Kerning Table Tool";											///< "Kerning Table Tool" menu entry
+		public const string LOCA_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update pot file)";									///< "Process Loca" menu entry
 		public const string LOCA_PLURAL_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update plurals when added a new language)";	///< "Process Loca plurals" menu entry 
 
 		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";																			///< Prefix for all player prefs entries
