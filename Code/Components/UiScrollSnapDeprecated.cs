@@ -19,7 +19,7 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	[RequireComponent(typeof(ScrollRect))]
 	[AddComponentMenu("UI/UIToolkit/UI Scroll Snap")]
-	public class UiScrollSnap : UiThing, IBeginDragHandler, IEndDragHandler, IDragHandler, IScrollSnap
+	public class UiScrollSnapDeprecated : UiThing, IBeginDragHandler, IEndDragHandler, IDragHandler, IScrollSnap
 	{
 		// needed because of reversed behaviour of axis Y compared to X
 		// (positions of children lower in children list in horizontal directions grows when in vertical it gets smaller)

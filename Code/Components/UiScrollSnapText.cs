@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace GuiToolkit
 {
 	[ExecuteAlways]
-	public class UiScrollSnapText : UiScrollSnap, ILocaClient
+	public class UiScrollSnapText : UiScrollSnapDeprecated, ILocaClient
 	{
 		[SerializeField] protected GameObject m_textPrefab;
 		[SerializeField] protected List<string> m_text;
