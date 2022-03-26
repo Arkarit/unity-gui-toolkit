@@ -63,7 +63,7 @@ namespace GuiToolkit
 			if (_item.parent == Content)
 				throw new ArgumentException($"Can not add '{_item.gameObject.name}' to UiScrollRect '{gameObject.name}': Item was already added");
 
-			_item.SetParent(Content);
+			_item.SetParent(Content, false);
 			if (_idx != -1)
 				_item.SetSiblingIndex(_idx);
 		}
@@ -87,6 +87,14 @@ namespace GuiToolkit
 
 			if (_destroy)
 				_item.PoolDestroy();
+		}
+
+		public virtual void RemoveItem(int _idx, bool _destroy = false) => RemoveItem(GetContentChild(_idx), _destroy);
+
+		public virtual void RemoveAllItems(bool _destroy = true)
+		{
+			while (Content.childCount > 0)
+				RemoveItem(0, _destroy);
 		}
 		#endregion
 

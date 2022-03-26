@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public class UiScrollRectText : UiScrollSnapDeprecated, ILocaClient
+	public class UiScrollRectText : UiScrollRect, ILocaClient
 	{
 		[SerializeField] protected GameObject m_textPrefab;
 		[SerializeField] protected List<string> m_text;
@@ -14,8 +14,7 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_useNumbers;
 		[SerializeField] protected int m_startNumber;
 		[SerializeField] protected int m_endNumber;
-
-
+		[SerializeField] protected bool m_pooled = true;
 
 		bool ILocaClient.UsesMultipleLocaKeys => true;
 		string ILocaClient.LocaKey => null;
@@ -63,7 +62,7 @@ namespace GuiToolkit
 
 		private void InstantiateTextItem( string _text )
 		{
-			GameObject go = Instantiate(m_textPrefab);
+			GameObject go = m_pooled ? m_textPrefab.PoolInstantiate() : Instantiate(m_textPrefab);
 			go.hideFlags = HideFlags.DontSave;
 
 			if (m_autoTranslate)
@@ -77,13 +76,7 @@ namespace GuiToolkit
 
 			SetText(go, _text);
 
-			go.transform.SetParent(Content, false);
-		}
-
-		private void OnValidate()
-		{
-			// Avoid "SendMessage cannot be called during Awake.." issued by transform.SetParent() sending messages 
-			EditorApplication.delayCall += RefreshItems;
+			AddItem(go.RectTransform());
 		}
 
 		private void RefreshItems()

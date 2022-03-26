@@ -402,6 +402,16 @@ namespace GuiToolkit
 			return _this.gameObject.AddComponent(_t);
 		}
 
+		public static RectTransform RectTransform(this GameObject _this)
+		{
+			return _this.transform as RectTransform;
+		}
+
+		public static RectTransform RectTransform(this Transform _this)
+		{
+			return _this as RectTransform;
+		}
+
 		public static T GetOrCreateComponent<T>(this GameObject _this) where T : Component
 		{
 			T result = _this.GetComponent<T>();
