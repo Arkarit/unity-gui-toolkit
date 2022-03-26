@@ -5,9 +5,9 @@ namespace GuiToolkit
 {
 	public class UiScrollSnapDateController : UiThing
 	{
-		[SerializeField] protected UiScrollSnapText m_day;
-		[SerializeField] protected UiScrollSnapText m_month;
-		[SerializeField] protected UiScrollSnapText m_year;
+		[SerializeField] protected UiScrollRectText m_day;
+		[SerializeField] protected UiScrollRectText m_month;
+		[SerializeField] protected UiScrollRectText m_year;
 
 		public DateTime Date
 		{
