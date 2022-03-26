@@ -42,14 +42,14 @@ namespace GuiToolkit
 		private void OnToggleChanged( bool _isActive )
 		{
 			if (_isActive && UiScrollRect != null && m_ensureVisibilityInScrollRect)
-				UiScrollRect.EnsureChildVisibility(RectTransform);
+				UiScrollRect.EnsureVisible(RectTransform);
 		}
 
 		protected override void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation )
 		{
 			base.OnScreenOrientationChanged(_oldScreenOrientation, _newScreenOrientation);
 			if (Toggle.isOn && UiScrollRect != null)
-				UiScrollRect.EnsureChildVisibility(RectTransform, true);
+				UiScrollRect.EnsureVisible(RectTransform, false, true);
 		}
 
 	}

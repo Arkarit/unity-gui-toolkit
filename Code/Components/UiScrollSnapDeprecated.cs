@@ -16,7 +16,6 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	[ExecuteAlways]
 	[RequireComponent(typeof(ScrollRect))]
 	[AddComponentMenu("UI/UIToolkit/UI Scroll Snap")]
 	public class UiScrollSnapDeprecated : UiThing, IBeginDragHandler, IEndDragHandler, IDragHandler, IScrollSnap

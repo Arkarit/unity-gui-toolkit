@@ -1,4 +1,5 @@
 ﻿using DigitalRuby.Tween;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,10 +20,13 @@ namespace GuiToolkit
 
 		private ScrollRect m_scrollRect;
 		private Vector3Tween m_ensureChildVisibilityTween = null;
+		private RectTransform m_content;
+		private RectTransform m_viewport;
 
+		#region Getters
 		protected bool IsEnsureChildVisibilityAnimated => !Mathf.Approximately(m_ensureChildVisibilityDuration, 0);
 
-		public ScrollRect ScrollRect
+		protected ScrollRect ScrollRect
 		{
 			get
 			{
@@ -32,7 +36,65 @@ namespace GuiToolkit
 			}
 		}
 
-		public void EnsureChildVisibility( RectTransform _child, bool _forceInstant = false )
+		protected RectTransform Content
+		{
+			get
+			{
+				if (m_content == null)
+					m_content = ScrollRect.content;
+				return m_content;
+			}
+		}
+
+		protected RectTransform Viewport
+		{
+			get
+			{
+				if (m_viewport == null)
+					m_viewport = ScrollRect.viewport;
+				return m_viewport;
+			}
+		}
+		#endregion
+
+		#region Add, remove and find Items
+		public virtual void AddItem(RectTransform _item, int _idx = -1)
+		{
+			if (_item.parent == Content)
+				throw new ArgumentException($"Can not add '{_item.gameObject.name}' to UiScrollRect '{gameObject.name}': Item was already added");
+
+			_item.SetParent(Content);
+			if (_idx != -1)
+				_item.SetSiblingIndex(_idx);
+		}
+
+		public virtual void AddPooledItem(GameObject _prefab, int _idx = -1)
+		{
+			AddPooledItem((RectTransform) _prefab.transform);
+		}
+
+		public virtual void AddPooledItem(RectTransform _prefabRt, int _idx = -1)
+		{
+			RectTransform rt = _prefabRt.PoolInstantiate();
+		}
+
+		public virtual void RemoveItem(RectTransform _item, bool _destroy = true)
+		{
+			if (_item.parent != Content)
+				throw new ArgumentException($"Can not remove '{_item.gameObject.name}' from UiScrollRect '{gameObject.name}': Item not child of the scroll rect");
+
+			_item.transform.SetParent(null);
+
+			if (_destroy)
+				_item.PoolDestroy();
+		}
+		#endregion
+
+		#region Visibility
+
+		public void EnsureVisible( int _idx, bool _centered = false, bool _forceInstant = false ) => EnsureVisible(GetContentChild(_idx), _centered, _forceInstant);
+
+		public void EnsureVisible( RectTransform _child, bool _centered = false, bool _forceInstant = false )
 		{
 			if (m_ensureChildVisibilityTween != null)
 			{
@@ -40,21 +102,21 @@ namespace GuiToolkit
 				m_ensureChildVisibilityTween = null;
 			}
 
-			float padding = m_ensureChildVisibilityPadding;
+			float padding = _centered ? 0 : m_ensureChildVisibilityPadding;
 			int siblingIndex = _child.GetSiblingIndex();
 
-			if (siblingIndex == 0 || siblingIndex == ScrollRect.content.childCount - 1)
+			if (siblingIndex == 0 || siblingIndex == Content.childCount - 1)
 				padding = 0;
 
-			Rect viewportRect = ScrollRect.viewport.GetScreenRect();
+			Rect viewportRect = Viewport.GetScreenRect();
 			Rect childRect = _child.GetScreenRect();
 
-			Vector3 startPos = ScrollRect.content.position;
+			Vector3 startPos = Content.position;
 			Vector3 pos = startPos;
 
 			if (ScrollRect.horizontal)
 			{
-				float val = GetScrollValue(viewportRect.x, viewportRect.width, childRect.x, childRect.width);
+				float val = GetScrollValue(_centered, viewportRect.x, viewportRect.width, childRect.x, childRect.width);
 				if (Mathf.Approximately(val, 0))
 					return;
 
@@ -64,39 +126,46 @@ namespace GuiToolkit
 			}
 			else
 			{
-				float val = GetScrollValue(viewportRect.y, viewportRect.height, childRect.y, childRect.height);
+				float val = GetScrollValue(_centered, viewportRect.y, viewportRect.height, childRect.y, childRect.height);
 				if (Mathf.Approximately(val, 0))
 					return;
 
 				padding *= childRect.height;
-					val += padding * Mathf.Sign(val);
+				val += padding * Mathf.Sign(val);
 				pos.y -= val;
 			}
 
 			if (_forceInstant || !IsEnsureChildVisibilityAnimated)
 			{
-				ScrollRect.content.position = pos;
+				Content.position = pos;
 				return;
 			}
 
 			System.Action<ITween<Vector3>> updateBar = ( t ) =>
 			{
-				ScrollRect.content.position = t.CurrentValue;
+				Content.position = t.CurrentValue;
 			};
 
-			m_ensureChildVisibilityTween = gameObject.Tween("makeVisible", startPos, pos, m_ensureChildVisibilityDuration, TweenScaleFunctions.QuadraticEaseInOut, updateBar );
+			m_ensureChildVisibilityTween = gameObject.Tween("makeVisible", startPos, pos, m_ensureChildVisibilityDuration, TweenScaleFunctions.QuadraticEaseInOut, updateBar);
 		}
 
-		private float GetScrollValue(float _xViewport, float _wViewport, float _xChild, float _wChild)
-		{
-			if (_xChild < _xViewport)
-				return _xViewport - _xChild;
+		#endregion
 
-			if (_xChild + _wChild > _xViewport + _wViewport)
-				return (_xViewport + _wViewport) - (_xChild + _wChild);
+		private float GetScrollValue(bool _centered, float _xyViewport, float _whViewport, float _xyChild, float _whChild)
+		{
+			if (_centered)
+				return _xyViewport - _xyChild + (_whViewport - _whChild) / 2;
+
+			if (_xyChild < _xyViewport)
+				return _xyViewport - _xyChild;
+
+			if (_xyChild + _whChild > _xyViewport + _whViewport)
+				return (_xyViewport + _whViewport) - (_xyChild + _whChild);
 
 			return 0;
 		}
+
+		protected RectTransform GetContentChild(int _idx) => (RectTransform) Content.GetChild(_idx);
 
 		protected override void OnEnable()
 		{
