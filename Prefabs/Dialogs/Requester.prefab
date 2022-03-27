@@ -1151,6 +1151,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Year
       objectReference: {fileID: 0}
+    - target: {fileID: 557013116324079575, guid: fa69763ea9712d54dbdeaeda2f47004d,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 557013116679566962, guid: fa69763ea9712d54dbdeaeda2f47004d,
         type: 3}
       propertyPath: m_SizeDelta.y
@@ -1688,6 +1693,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Month
+      objectReference: {fileID: 0}
+    - target: {fileID: 557013116324079575, guid: fa69763ea9712d54dbdeaeda2f47004d,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 557013116679566962, guid: fa69763ea9712d54dbdeaeda2f47004d,
         type: 3}

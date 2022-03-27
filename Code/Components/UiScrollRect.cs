@@ -22,7 +22,7 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_snappingEnabled;
 
 		[Tooltip("Scroll rect velocity, below which it is snapped")]
-		[SerializeField] protected float m_snapBelowSpeed = 20.0f;
+		[SerializeField] protected float m_snapBelowSpeed = 50.0f;
 
 		private ScrollRect m_scrollRect;
 		private Vector3Tween m_ensureChildVisibilityTween = null;
@@ -225,7 +225,7 @@ namespace GuiToolkit
 
 		protected virtual void Update()
 		{
-			Debug.Log($"velocity:{ScrollRect.velocity} mouse:{Input.GetMouseButton(0)}");
+//			Debug.Log($"velocity:{ScrollRect.velocity} mouse:{Input.GetMouseButton(0)}");
 
 			if (!m_snappingEnabled || m_moving || Input.GetMouseButton(0))
 				return;
@@ -236,7 +236,9 @@ namespace GuiToolkit
 			if (Mathf.Approximately(0, velocity))
 				return;
 
-			if (velocity < m_snapBelowSpeed)
+			float absVelocity = Mathf.Abs(velocity);
+
+			if (absVelocity < m_snapBelowSpeed)
 			{
 				Snap();
 			}

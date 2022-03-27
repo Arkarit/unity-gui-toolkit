@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -46,7 +45,7 @@ namespace GuiToolkit
 				tmpText.text = _text;
 				return;
 			}
-
+Image i;
 			var text = _go.GetComponentInChildren<Text>();
 			if (text == null)
 			{

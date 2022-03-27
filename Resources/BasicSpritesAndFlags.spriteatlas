@@ -42,6 +42,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 55485470caed2b64d80fddbd44f03e74, type: 3}
   - {fileID: 21300000, guid: da53dd620fd299344845401301190ff9, type: 3}
   - {fileID: 21300000, guid: 78941cf264923c9488229fa3b6e029b2, type: 3}
+  - {fileID: 21300000, guid: 4f79aba4cdaf18945977ec4e47dd6de8, type: 3}
   - {fileID: 21300000, guid: f4a6c635596536c4ebdca0c03698945d, type: 3}
   - {fileID: 21300000, guid: 6f356e35c5923434da09d00a2639d98a, type: 3}
   - {fileID: 21300000, guid: 489c5ac57c2a3f649a0ffa61289ce5a1, type: 3}
@@ -64,6 +65,7 @@ SpriteAtlas:
   - UITK_RGB_Panel_r25_f07
   - de
   - UITK_Frame_r00_f07
+  - UITK_White1x1
   - UITK_Frame_r50_f07
   - lol
   - UITK_Panel_r25
