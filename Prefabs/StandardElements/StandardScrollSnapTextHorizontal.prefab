@@ -389,7 +389,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 0
-  m_DesamplingRate: 0
+  m_DesamplingRate: 8
   m_Softness: 1
   m_Alpha: 1
   m_IgnoreParent: 0

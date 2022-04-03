@@ -6,6 +6,10 @@ using UnityEngine.UI;
 namespace GuiToolkit
 {
 	[ExecuteAlways]
+	/// \brief Colorize Unity graphic by 2 colors / alpha
+	/// 
+	/// This tool can apply 2 colors and alphas to a Unity graphic by changing vertex colors.
+	/// It supports vertical or horizontal gradients.
 	public class UiGradientSimple : UiGradientBase
 	{
 		protected enum Type

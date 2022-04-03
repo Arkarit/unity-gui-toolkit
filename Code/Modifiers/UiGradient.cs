@@ -7,6 +7,12 @@ using UnityEngine.UI;
 namespace GuiToolkit
 {
 	[ExecuteAlways]
+	/// \brief Colorize Unity graphic by an Unity gradient
+	/// 
+	/// This component can apply the colors of a Unity gradient to a Unity graphic by changing vertex colors
+	/// (and introducing new vertices, if necessary) <BR>
+	/// It supports vertical or horizontal gradients, color and alpha.
+	/// It should only be used for more complex gradients; for simpler gradients of only two colors use UiGradientSimple.
 	public class UiGradient : UiGradientBase
 	{
 		protected enum Type
