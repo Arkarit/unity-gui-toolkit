@@ -29,6 +29,7 @@ namespace GuiToolkit
 		private RectTransform m_content;
 		private RectTransform m_viewport;
 		private bool m_moving;
+		private bool m_layoutDirty = true;
 
 		#region Getters
 		protected bool IsEnsureChildVisibilityAnimated => !Mathf.Approximately(m_ensureChildVisibilityDuration, 0);
@@ -73,6 +74,8 @@ namespace GuiToolkit
 			_item.SetParent(Content, false);
 			if (_idx != -1)
 				_item.SetSiblingIndex(_idx);
+
+			SetLayoutDirty();
 		}
 
 		public virtual void AddPooledItem( GameObject _prefab, int _idx = -1 )
@@ -83,6 +86,7 @@ namespace GuiToolkit
 		public virtual void AddPooledItem( RectTransform _prefabRt, int _idx = -1 )
 		{
 			RectTransform rt = _prefabRt.PoolInstantiate();
+			SetLayoutDirty();
 		}
 
 		public virtual void RemoveItem( RectTransform _item, bool _destroy = true )
@@ -94,6 +98,8 @@ namespace GuiToolkit
 
 			if (_destroy)
 				_item.PoolDestroy();
+
+			SetLayoutDirty();
 		}
 
 		public virtual void RemoveItem( int _idx, bool _destroy = false ) => RemoveItem(GetContentChild(_idx), _destroy);
@@ -104,7 +110,9 @@ namespace GuiToolkit
 				RemoveItem(0, _destroy);
 		}
 
-		RectTransform GetItemNextToCenter()
+		protected void SetLayoutDirty() => m_layoutDirty = true;
+
+		protected RectTransform GetItemNextToCenter()
 		{
 			float minDistance = 99999999.0f;
 			RectTransform result = null;
@@ -225,6 +233,12 @@ namespace GuiToolkit
 
 		protected virtual void Update()
 		{
+			if (m_layoutDirty)
+			{
+				CalculatePadding();
+				m_layoutDirty = false;
+			}
+
 //			Debug.Log($"velocity:{ScrollRect.velocity} mouse:{Input.GetMouseButton(0)}");
 
 			if (!m_snappingEnabled || m_moving || Input.GetMouseButton(0))
@@ -244,8 +258,13 @@ namespace GuiToolkit
 			}
 		}
 
+		private void CalculatePadding()
+		{
+		}
+
 		private void Snap()
 		{
+return;
 			ScrollRect.velocity = Vector2.zero;
 			RectTransform item = GetItemNextToCenter();
 			if (item)

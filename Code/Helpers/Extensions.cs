@@ -51,6 +51,9 @@ namespace GuiToolkit
 
 		public static void Destroy( this Transform _this )
 		{
+			if (_this == null)
+				return;
+
 			Extensions.Destroy(_this.gameObject);
 		}
 

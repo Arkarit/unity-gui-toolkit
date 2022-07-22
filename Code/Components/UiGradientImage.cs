@@ -73,8 +73,7 @@ namespace GuiToolkit
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			if (m_texture)
-				Destroy(m_texture);
+			m_texture.Destroy();
 			m_texture = null;
 		}
 

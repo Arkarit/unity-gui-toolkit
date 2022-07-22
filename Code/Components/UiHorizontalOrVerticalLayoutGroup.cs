@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit
 {
 	/// <summary>
@@ -79,10 +83,22 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
+		private bool m_layoutRebuildInProgress;
+
 		protected override void OnValidate()
 		{
 			base.OnValidate();
+			if (m_layoutRebuildInProgress)
+				return;
+
+			m_layoutRebuildInProgress = true;
+			EditorApplication.delayCall += RebuildLayoutDelayed;
+		}
+
+		private void RebuildLayoutDelayed()
+		{
 			LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
+			m_layoutRebuildInProgress = false;
 		}
 #endif
 	}
