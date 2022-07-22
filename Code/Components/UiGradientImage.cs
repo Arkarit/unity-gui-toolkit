@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -62,12 +64,9 @@ namespace GuiToolkit
 			}
 		}
 
+
 		private void CreateTexture()
 		{
-{
-var rct = ((RectTransform)transform).GetScreenRect();
-Debug.Log($"UIGradientImage rct: {rct} localToWorldMatrix:{transform.localToWorldMatrix}");
-}
 			if (m_texture)
 				m_texture.Destroy();
 
@@ -85,6 +84,14 @@ Debug.Log($"UIGradientImage rct: {rct} localToWorldMatrix:{transform.localToWorl
 
 			m_texture.SetPixels(colors);
 			m_texture.Apply(false, true);
+
+			StartCoroutine(DelayedSetVerticesDirty());
+		}
+
+		private IEnumerator DelayedSetVerticesDirty()
+		{
+			yield return 0;
+			SetVerticesDirty();
 		}
 
 		//		public virtual bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera) => true;

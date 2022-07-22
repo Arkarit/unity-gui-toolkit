@@ -569,10 +569,6 @@ namespace Coffee.UIExtensions
 					sm._mpb.SetFloat(s_Alpha, sm.m_Alpha);
 
 					// Draw mesh.
-{
-var rct = ((RectTransform)sm.transform).GetScreenRect();
-Debug.Log($"SoftMask rct: {rct} localToWorldMatrix:{sm.transform.localToWorldMatrix}");
-}
 					_cb.DrawMesh(sm.mesh, sm.transform.localToWorldMatrix, sm.material, 0, 0, sm._mpb);
 				}
 				s_TmpSoftMasks[i].Clear();
