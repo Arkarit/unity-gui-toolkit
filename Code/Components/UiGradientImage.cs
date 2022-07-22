@@ -1,7 +1,10 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace GuiToolkit
 {
@@ -12,8 +15,8 @@ namespace GuiToolkit
 	/// better use UiGradient or UiGradientSimple instead in that case.
 	/// The more interesting usage is that of a mask; instead of creating gradient masks, you can simply create a "procedural" mask here.
 	/// It can be either horizontal or vertical.
-//	[ExecuteAlways]
-	public class UiGradientImage : MaskableGraphic //, ICanvasRaycastFilter
+	[ExecuteAlways]
+	public class UiGradientImage : Graphic //, ICanvasRaycastFilter
 	{
 		protected enum Type
 		{
@@ -31,12 +34,8 @@ namespace GuiToolkit
 		protected int m_textureSize = 256;
 
 		private Texture2D m_texture;
-
-//		protected override void Start()
-//		{
-//			base.Start();
-//			CreateTexture();
-//		}
+		private Type m_oldType;
+		private int m_oldTextureSize;
 
 		public override Texture mainTexture
 		{
@@ -61,18 +60,39 @@ namespace GuiToolkit
 			set
 			{
 				base.material = value;
+				SetAllDirty();
 			}
 		}
 
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			CreateTexture();
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			if (m_texture)
+				Destroy(m_texture);
+			m_texture = null;
+		}
 
 		private void CreateTexture()
 		{
-			if (m_texture)
+			bool resetTexture = m_texture != null && (m_oldTextureSize != m_textureSize || m_oldType != m_type || !m_texture.isReadable);
+
+			if (resetTexture)
+			{
 				m_texture.Destroy();
+				m_texture = null;
+			}
 
 			bool horz = m_type == Type.Horizontal;
 
-			m_texture = new Texture2D(horz ? m_textureSize : 1, horz ? 1 : m_textureSize, TextureFormat.RGBA32, false);
+			if (m_texture == null)
+				m_texture = new Texture2D(horz ? m_textureSize : 1, horz ? 1 : m_textureSize, TextureFormat.RGBA32, false);
+
 			Color[] colors = new Color[m_textureSize];
 
 			for (int i = 0; i < m_textureSize; i++)
@@ -83,24 +103,41 @@ namespace GuiToolkit
 			}
 
 			m_texture.SetPixels(colors);
-			m_texture.Apply(false, true);
+			m_texture.Apply(false, Application.isPlaying);
 
-			StartCoroutine(DelayedSetVerticesDirty());
+			StartDelayedSetDirty();
 		}
 
-		private IEnumerator DelayedSetVerticesDirty()
+		private void StartDelayedSetDirty()
+		{
+#if UNITY_EDITOR
+			if (Application.isPlaying)
+				StartCoroutine(DelayedSetDirty());
+			else
+				EditorApplication.delayCall += SetAllDirty;
+#else
+			StartCoroutine(DelayedSetDirty());
+#endif
+		}
+
+#if UNITY_EDITOR
+#endif
+
+		private IEnumerator DelayedSetDirty()
 		{
 			yield return 0;
-			SetVerticesDirty();
+			SetAllDirty();
 		}
 
-		//		public virtual bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera) => true;
+		protected override void OnValidate()
+		{
+			base.OnValidate();
 
-//		protected override void OnValidate()
-//		{
-//			base.OnValidate();
-//			CreateTexture();
-//		}
+			if (gameObject.activeInHierarchy)
+				CreateTexture();
 
+			m_oldType = m_type;
+			m_oldTextureSize = m_textureSize;
+		}
 	}
 }
