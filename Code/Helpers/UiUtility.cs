@@ -44,9 +44,6 @@ namespace GuiToolkit
 		public static int ScreenWidth()
 		{
 #if UNITY_EDITOR
-			if (Application.isPlaying)
-				return Screen.width;
-
 			Vector2 v = Handles.GetMainGameViewSize();
 			return (int) v.x;
 #else
@@ -57,9 +54,6 @@ namespace GuiToolkit
 		public static int ScreenHeight()
 		{
 #if UNITY_EDITOR
-			if (Application.isPlaying)
-				return Screen.height;
-
 			Vector2 v = Handles.GetMainGameViewSize();
 			return (int) v.y;
 #else

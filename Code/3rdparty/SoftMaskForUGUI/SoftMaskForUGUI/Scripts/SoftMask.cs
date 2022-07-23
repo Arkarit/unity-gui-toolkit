@@ -1,11 +1,11 @@
-﻿using GuiToolkit;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Coffee.UIExtensions
 {
@@ -348,7 +348,10 @@ namespace Coffee.UIExtensions
 			_cb.Release();
 			_cb = null;
 
+			//FIXME: this releases not only our default mesh, but also meshes which belong to other objects!
 			ReleaseObject(_mesh);
+			//
+
 			_mesh = null;
 			ReleaseObject(_material);
 			_material = null;
@@ -583,9 +586,9 @@ namespace Coffee.UIExtensions
 		void GetDesamplingSize(DesamplingRate rate, out int w, out int h)
 		{
 #if UNITY_EDITOR
-			var res = UnityEditor.UnityStats.screenRes.Split('x');
-			w = int.Parse(res[0]);
-			h = int.Parse(res[1]);
+			var res = Handles.GetMainGameViewSize();
+			w = (int)res.x;
+			h = (int)res.y;
 #else
 			w = Screen.width;
 			h = Screen.height;
