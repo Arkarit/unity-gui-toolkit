@@ -79,7 +79,7 @@ namespace GuiToolkit
 		private void CreateTexture()
 		{
 			bool resetTexture = m_texture != null && (m_oldTextureSize != m_textureSize || m_oldType != m_type || !m_texture.isReadable);
-Debug.Log($"---::: go:{gameObject.name} CreateTexture() resetTexture:{resetTexture}");
+
 			if (resetTexture)
 			{
 				m_texture.Destroy();

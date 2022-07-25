@@ -171,7 +171,6 @@ namespace Coffee.UIExtensions
 				GetDesamplingSize(m_DesamplingRate, out w, out h);
 				if (_softMaskBuffer && (_softMaskBuffer.width != w || _softMaskBuffer.height != h))
 				{
-Debug.Log($"---::: ReleaseRT()");
 					ReleaseRT(ref _softMaskBuffer);
 				}
 
@@ -179,7 +178,7 @@ Debug.Log($"---::: ReleaseRT()");
 				{
 					if (w == 0 || h == 0)
 						return null;
-Debug.Log($"---::: w:{w} h:{h}");
+
 					_softMaskBuffer = RenderTexture.GetTemporary(w, h, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
 					hasChanged = true;
 					_hasStencilStateChanged = true;
@@ -233,17 +232,10 @@ Debug.Log($"---::: w:{w} h:{h}");
 
 		/// <summary>
 		/// Call used to modify mesh.
+		/// This is the only way to get the mesh - we can not ask Graphic for it because Unity.
 		/// </summary>
 		void IMeshModifier.ModifyMesh(Mesh inMesh)
 		{
-string s = string.Empty;
-for (int i=0; i<inMesh.vertices.Length; i++)
-s += inMesh.vertices[i].ToString() + ":" + inMesh.uv[i].ToString() + "  ";
-
-Debug.Log($"---::: ModifyMesh() {s}");
-			hasChanged = true;
-//_mesh = inMesh;
-//return;
 			ReleaseObject(_mesh);
 			_mesh = new Mesh(){ hideFlags = HideFlags.HideAndDontSave };
 			_mesh.vertices = (Vector3[]) inMesh.vertices.Clone();
@@ -256,7 +248,6 @@ Debug.Log($"---::: ModifyMesh() {s}");
 		/// </summary>
 		void IMeshModifier.ModifyMesh(VertexHelper verts)
 		{
-Debug.Log("---::: ModifyMesh()");
 			if (isActiveAndEnabled)
 			{
 				verts.FillMesh(mesh);
@@ -362,10 +353,7 @@ Debug.Log("---::: ModifyMesh()");
 			_cb.Release();
 			_cb = null;
 
-			//FIXME: this releases not only our default mesh, but also meshes which belong to other objects!
 			ReleaseObject(_mesh);
-			//
-
 			_mesh = null;
 			ReleaseObject(_material);
 			_material = null;
@@ -557,7 +545,6 @@ Debug.Log("---::: ModifyMesh()");
 			if (c && c.renderMode != RenderMode.ScreenSpaceOverlay && cam)
 			{
 				_cb.SetViewProjectionMatrices(cam.worldToCameraMatrix, GL.GetGPUProjectionMatrix(cam.projectionMatrix, false));
-Debug.Log($"---::: mat:{GL.GetGPUProjectionMatrix(cam.projectionMatrix, false)}");
 			}
 			else
 			{
@@ -588,11 +575,6 @@ Debug.Log($"---::: mat:{GL.GetGPUProjectionMatrix(cam.projectionMatrix, false)}"
 
 					// Draw mesh.
 					_cb.DrawMesh(sm.mesh, sm.transform.localToWorldMatrix, sm.material, 0, 0, sm._mpb);
-string s = string.Empty;
-for (int k=0; k<sm.mesh.vertices.Length; k++)
-s += sm.mesh.vertices[k].ToString() + ":" + sm.mesh.uv[k].ToString() + "  ";
-
-Debug.Log($"---::: mesh: {s} -- sm.transform.localToWorldMatrix:{sm.transform.localToWorldMatrix}");
 				}
 				s_TmpSoftMasks[i].Clear();
 			}
@@ -670,16 +652,14 @@ Debug.Log($"---::: mesh: {s} -- sm.transform.localToWorldMatrix:{sm.transform.lo
 		{
 			if (obj)
 			{
-				#if UNITY_EDITOR
+#if UNITY_EDITOR
 				if (!Application.isPlaying)
 					DestroyImmediate(obj);
 				else
-				#endif
+#endif
 				Destroy(obj);
-				obj = null;
 			}
 		}
-
 
 		/// <summary>
 		/// Set the parent of the soft mask.
