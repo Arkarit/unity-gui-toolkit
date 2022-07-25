@@ -28,10 +28,19 @@ namespace GuiToolkit
 		private Vector3Tween m_ensureChildVisibilityTween = null;
 		private RectTransform m_content;
 		private RectTransform m_viewport;
+		private HorizontalOrVerticalLayoutGroup m_layoutGroup;
 		private bool m_moving;
 		private bool m_layoutDirty = true;
 
 		#region Getters
+		protected RectTransform FirstChild => GetContentChild(0);
+
+		protected RectTransform LastChild => GetContentChild(Content.childCount-1);
+
+		protected int ChildCount => Content.childCount;
+
+		protected bool HasChildren => ChildCount > 0;
+
 		protected bool IsEnsureChildVisibilityAnimated => !Mathf.Approximately(m_ensureChildVisibilityDuration, 0);
 
 		protected ScrollRect ScrollRect
@@ -61,6 +70,16 @@ namespace GuiToolkit
 				if (m_viewport == null)
 					m_viewport = ScrollRect.viewport;
 				return m_viewport;
+			}
+		}
+
+		protected HorizontalOrVerticalLayoutGroup LayoutGroup
+		{
+			get
+			{
+				if (m_layoutGroup == null)
+					m_layoutGroup = Content.GetComponent<HorizontalOrVerticalLayoutGroup>();
+				return m_layoutGroup;
 			}
 		}
 		#endregion
@@ -222,11 +241,18 @@ namespace GuiToolkit
 			return 0;
 		}
 
-		protected RectTransform GetContentChild( int _idx ) => (RectTransform)Content.GetChild(_idx);
+		protected RectTransform GetContentChild( int _idx )
+		{
+			if (Content.childCount <= _idx)
+				return null;
+
+			return (RectTransform)Content.GetChild(_idx);
+		}
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
+			m_layoutDirty = true;
 			if (m_useInitialNormalizedPosition)
 				StartCoroutine(DelayedScrollToTop());
 		}
@@ -240,6 +266,8 @@ namespace GuiToolkit
 			}
 
 //			Debug.Log($"velocity:{ScrollRect.velocity} mouse:{Input.GetMouseButton(0)}");
+//ScrollRect.velocity = Vector2.zero;
+//ScrollRect.normalizedPosition = new Vector2(0,0);
 
 			if (!m_snappingEnabled || m_moving || Input.GetMouseButton(0))
 				return;
@@ -251,7 +279,7 @@ namespace GuiToolkit
 				return;
 
 			float absVelocity = Mathf.Abs(velocity);
-
+	
 			if (absVelocity < m_snapBelowSpeed)
 			{
 				Snap();
@@ -260,6 +288,30 @@ namespace GuiToolkit
 
 		private void CalculatePadding()
 		{
+			if (HasChildren && LayoutGroup != null)
+			{
+				bool horizontal = ScrollRect.horizontal;
+
+				float viewportSize = horizontal ? Viewport.rect.width : Viewport.rect.height;
+				float firstChildSize = horizontal ? FirstChild.rect.width : FirstChild.rect.height;
+				float lastChildSize = horizontal ? FirstChild.rect.width : FirstChild.rect.height;
+
+				int paddingLeftOrTop = (int)(viewportSize - firstChildSize) / 2;
+				int paddingRightOrBottom = (int)(viewportSize - lastChildSize) / 2;
+
+				var padding = LayoutGroup.padding;
+
+				if (horizontal)
+				{
+					padding.left = paddingLeftOrTop;
+					padding.right = paddingRightOrBottom;
+				}
+				else
+				{
+					padding.top = paddingLeftOrTop;
+					padding.bottom = paddingRightOrBottom;
+				}
+			}
 		}
 
 		private void Snap()
