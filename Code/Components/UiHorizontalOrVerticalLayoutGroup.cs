@@ -97,6 +97,9 @@ namespace GuiToolkit
 
 		private void RebuildLayoutDelayed()
 		{
+			if (this == null || transform == null)
+				return;
+
 			LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)transform);
 			m_layoutRebuildInProgress = false;
 		}

@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
+using System.Collections;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -170,6 +171,7 @@ namespace Coffee.UIExtensions
 				GetDesamplingSize(m_DesamplingRate, out w, out h);
 				if (_softMaskBuffer && (_softMaskBuffer.width != w || _softMaskBuffer.height != h))
 				{
+Debug.Log($"---::: ReleaseRT()");
 					ReleaseRT(ref _softMaskBuffer);
 				}
 
@@ -177,7 +179,7 @@ namespace Coffee.UIExtensions
 				{
 					if (w == 0 || h == 0)
 						return null;
-
+Debug.Log($"---::: w:{w} h:{h}");
 					_softMaskBuffer = RenderTexture.GetTemporary(w, h, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
 					hasChanged = true;
 					_hasStencilStateChanged = true;
@@ -232,10 +234,21 @@ namespace Coffee.UIExtensions
 		/// <summary>
 		/// Call used to modify mesh.
 		/// </summary>
-		void IMeshModifier.ModifyMesh(Mesh mesh)
+		void IMeshModifier.ModifyMesh(Mesh inMesh)
 		{
+string s = string.Empty;
+for (int i=0; i<inMesh.vertices.Length; i++)
+s += inMesh.vertices[i].ToString() + ":" + inMesh.uv[i].ToString() + "  ";
+
+Debug.Log($"---::: ModifyMesh() {s}");
 			hasChanged = true;
-			_mesh = mesh;
+//_mesh = inMesh;
+//return;
+			ReleaseObject(_mesh);
+			_mesh = new Mesh(){ hideFlags = HideFlags.HideAndDontSave };
+			_mesh.vertices = (Vector3[]) inMesh.vertices.Clone();
+			_mesh.triangles = (int[]) inMesh.triangles.Clone();
+			_mesh.uv = (Vector2[]) inMesh.uv.Clone();
 		}
 
 		/// <summary>
@@ -243,6 +256,7 @@ namespace Coffee.UIExtensions
 		/// </summary>
 		void IMeshModifier.ModifyMesh(VertexHelper verts)
 		{
+Debug.Log("---::: ModifyMesh()");
 			if (isActiveAndEnabled)
 			{
 				verts.FillMesh(mesh);
@@ -316,7 +330,7 @@ namespace Coffee.UIExtensions
 			_mpb = new MaterialPropertyBlock();
 			_cb = new CommandBuffer();
 
-			graphic.SetVerticesDirty();
+			graphic.SetAllDirty();
 
 			base.OnEnable();
 			_hasStencilStateChanged = false;
@@ -543,6 +557,7 @@ namespace Coffee.UIExtensions
 			if (c && c.renderMode != RenderMode.ScreenSpaceOverlay && cam)
 			{
 				_cb.SetViewProjectionMatrices(cam.worldToCameraMatrix, GL.GetGPUProjectionMatrix(cam.projectionMatrix, false));
+Debug.Log($"---::: mat:{GL.GetGPUProjectionMatrix(cam.projectionMatrix, false)}");
 			}
 			else
 			{
@@ -573,6 +588,11 @@ namespace Coffee.UIExtensions
 
 					// Draw mesh.
 					_cb.DrawMesh(sm.mesh, sm.transform.localToWorldMatrix, sm.material, 0, 0, sm._mpb);
+string s = string.Empty;
+for (int k=0; k<sm.mesh.vertices.Length; k++)
+s += sm.mesh.vertices[k].ToString() + ":" + sm.mesh.uv[k].ToString() + "  ";
+
+Debug.Log($"---::: mesh: {s} -- sm.transform.localToWorldMatrix:{sm.transform.localToWorldMatrix}");
 				}
 				s_TmpSoftMasks[i].Clear();
 			}
@@ -580,19 +600,37 @@ namespace Coffee.UIExtensions
 			Graphics.ExecuteCommandBuffer(_cb);
 		}
 
+		public static int screenWidth
+		{
+			get
+			{
+#if UNITY_EDITOR
+			return (int) Handles.GetMainGameViewSize().x;
+#else
+			return Screen.width;
+#endif
+			}
+		}
+
+		public static int screenHeight
+		{
+			get
+			{
+#if UNITY_EDITOR
+			return (int) Handles.GetMainGameViewSize().y;
+#else
+			return Screen.height;
+#endif
+			}
+		}
+
 		/// <summary>
 		/// Gets the size of the desampling.
 		/// </summary>
 		void GetDesamplingSize(DesamplingRate rate, out int w, out int h)
 		{
-#if UNITY_EDITOR
-			var res = Handles.GetMainGameViewSize();
-			w = (int)res.x;
-			h = (int)res.y;
-#else
-			w = Screen.width;
-			h = Screen.height;
-#endif
+			w = screenWidth;
+			h = screenHeight;
 
 			if (rate == DesamplingRate.None)
 				return;

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
 using System.Linq;
-
+using System.IO;
 
 namespace Coffee.UIExtensions.Editors
 {
@@ -21,6 +21,33 @@ namespace Coffee.UIExtensions.Editors
 		private void OnEnable ()
 		{
 			s_Preview = EditorPrefs.GetBool (k_PrefsPreview, false);
+		}
+
+		private static void SaveRenderTexture(RenderTexture rt, string path)
+		{
+		    var oldRT = RenderTexture.active;
+
+		    var tex = new Texture2D(rt.width, rt.height);
+		    RenderTexture.active = rt;
+		    tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+		    tex.Apply();
+
+		    File.WriteAllBytes(path, tex.EncodeToTGA());
+		    RenderTexture.active = oldRT;
+		}
+
+		private static void SaveRenderTexture(RenderTexture rt)
+		{
+		    var path = EditorUtility.SaveFilePanel(
+		        "Save texture as TGA",
+		        "",
+		        rt.name + ".tga",
+		        "tga");
+
+		    if (path.Length != 0)
+		    {
+				SaveRenderTexture(rt, path);
+		    }
 		}
 
 		public override void OnInspectorGUI ()
@@ -58,6 +85,12 @@ namespace Coffee.UIExtensions.Editors
 			{
 				EditorPrefs.SetBool (k_PrefsPreview, s_Preview);
 			}
+
+			if (GUILayout.Button("Save"))
+			{
+				SaveRenderTexture(current.softMaskBuffer);
+			}
+
 			if (s_Preview)
 			{
 				var tex = current.softMaskBuffer;
@@ -65,6 +98,7 @@ namespace Coffee.UIExtensions.Editors
 				EditorGUI.DrawPreviewTexture (GUILayoutUtility.GetRect (width, 64), tex, null, ScaleMode.ScaleToFit);
 				Repaint ();
 			}
+
 			GUILayout.FlexibleSpace ();
 			GUILayout.EndHorizontal ();
 		}

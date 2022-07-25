@@ -190,7 +190,7 @@ PrefabInstance:
     - target: {fileID: 3761486685335384212, guid: 758166379a7cb384ba0223dc3c6dcdbf,
         type: 3}
       propertyPath: m_Spacing
-      value: 20
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3761486685335384212, guid: 758166379a7cb384ba0223dc3c6dcdbf,
         type: 3}

@@ -60,7 +60,6 @@ namespace GuiToolkit
 			set
 			{
 				base.material = value;
-				SetAllDirty();
 			}
 		}
 
@@ -80,7 +79,7 @@ namespace GuiToolkit
 		private void CreateTexture()
 		{
 			bool resetTexture = m_texture != null && (m_oldTextureSize != m_textureSize || m_oldType != m_type || !m_texture.isReadable);
-
+Debug.Log($"---::: go:{gameObject.name} CreateTexture() resetTexture:{resetTexture}");
 			if (resetTexture)
 			{
 				m_texture.Destroy();
@@ -88,6 +87,9 @@ namespace GuiToolkit
 			}
 
 			bool horz = m_type == Type.Horizontal;
+
+			if (m_textureSize <= 0)
+				m_textureSize = 1;
 
 			if (m_texture == null)
 				m_texture = new Texture2D(horz ? m_textureSize : 1, horz ? 1 : m_textureSize, TextureFormat.RGBA32, false);
@@ -97,35 +99,17 @@ namespace GuiToolkit
 			for (int i = 0; i < m_textureSize; i++)
 			{
 				float norm = (float)i / (float)(m_textureSize - 1);
-				Color color = m_gradient.Evaluate(norm);
+				Color color = m_gradient.Evaluate(norm) * base.color;
 				colors[i] = color;
 			}
 
 			m_texture.SetPixels(colors);
 			m_texture.Apply(false, Application.isPlaying);
 
-			StartDelayedSetDirty();
-		}
+			m_oldType = m_type;
+			m_oldTextureSize = m_textureSize;
 
-		private void StartDelayedSetDirty()
-		{
-#if UNITY_EDITOR
-			if (Application.isPlaying)
-				StartCoroutine(DelayedSetDirty());
-			else
-				EditorApplication.delayCall += SetAllDirty;
-#else
-			StartCoroutine(DelayedSetDirty());
-#endif
-		}
-
-#if UNITY_EDITOR
-#endif
-
-		private IEnumerator DelayedSetDirty()
-		{
-			yield return 0;
-			SetAllDirty();
+			SetMaterialDirty();
 		}
 
 		protected override void OnValidate()
@@ -134,9 +118,6 @@ namespace GuiToolkit
 
 			if (gameObject.activeInHierarchy)
 				CreateTexture();
-
-			m_oldType = m_type;
-			m_oldTextureSize = m_textureSize;
 		}
 	}
 }

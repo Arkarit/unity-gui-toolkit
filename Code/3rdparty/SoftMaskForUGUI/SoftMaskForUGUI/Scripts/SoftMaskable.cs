@@ -6,6 +6,10 @@ using UnityEngine.UI;
 using MaskIntr = UnityEngine.SpriteMaskInteraction;
 using UnityEngine.Serialization;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace Coffee.UIExtensions
 {
 	/// <summary>
@@ -55,10 +59,12 @@ namespace Coffee.UIExtensions
 		{
 			//HACK: materials break on screen resize - only for Text Mesh Pro (only when cache is enabled)
 			// For now, we simply clear the cache if we detect a resize, so that all materials are re-created on resize.
-			if (Screen.width != s_screenWidth || Screen.height != s_screenHeight)
+			int w = SoftMask.screenWidth;
+			int h = SoftMask.screenHeight;
+			if (w != s_screenWidth || h != s_screenHeight)
 			{
-				s_screenWidth = Screen.width;
-				s_screenHeight = Screen.height;
+				s_screenWidth = w;
+				s_screenHeight = h;
 				
 				s_clonedMaterials.Clear();
 			}
