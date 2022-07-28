@@ -24,7 +24,6 @@ namespace GuiToolkit
 			base.Start();
 
 			RefreshItems();
-			return;
 		}
 
 		private void SetText( GameObject _go, string _text, bool _destroyOnError = true )

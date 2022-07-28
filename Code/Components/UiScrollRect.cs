@@ -1,6 +1,7 @@
 ﻿using DigitalRuby.Tween;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -252,7 +253,7 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			m_layoutDirty = true;
+			SetLayoutDirty();
 			if (m_useInitialNormalizedPosition)
 				StartCoroutine(DelayedScrollToTop());
 		}
@@ -261,7 +262,7 @@ namespace GuiToolkit
 		{
 			if (m_layoutDirty)
 			{
-				CalculatePadding();
+				StartCoroutine( CalculatePaddingDelayed() );
 				m_layoutDirty = false;
 			}
 
@@ -280,27 +281,33 @@ namespace GuiToolkit
 
 			float absVelocity = Mathf.Abs(velocity);
 	
-			if (absVelocity < m_snapBelowSpeed)
+			if (absVelocity < m_snapBelowSpeed && !Mathf.Approximately(0,absVelocity))
 			{
 				Snap();
 			}
 		}
 
+		private IEnumerator CalculatePaddingDelayed()
+		{
+			yield return 0;
+			CalculatePadding();
+		}
+
 		private void CalculatePadding()
 		{
-			if (HasChildren && LayoutGroup != null)
+			if (m_snappingEnabled && HasChildren && LayoutGroup != null)
 			{
 				bool horizontal = ScrollRect.horizontal;
 
 				float viewportSize = horizontal ? Viewport.rect.width : Viewport.rect.height;
 				float firstChildSize = horizontal ? FirstChild.rect.width : FirstChild.rect.height;
 				float lastChildSize = horizontal ? FirstChild.rect.width : FirstChild.rect.height;
-
-				int paddingLeftOrTop = (int)(viewportSize - firstChildSize) / 2;
-				int paddingRightOrBottom = (int)(viewportSize - lastChildSize) / 2;
-
+	
+				int paddingLeftOrTop = (int)(viewportSize - firstChildSize) / 2 + 100;
+				int paddingRightOrBottom = (int)(viewportSize - lastChildSize) / 2 + 100;
+	
 				var padding = LayoutGroup.padding;
-
+	
 				if (horizontal)
 				{
 					padding.left = paddingLeftOrTop;
@@ -316,11 +323,12 @@ namespace GuiToolkit
 
 		private void Snap()
 		{
-return;
 			ScrollRect.velocity = Vector2.zero;
 			RectTransform item = GetItemNextToCenter();
 			if (item)
+			{
 				EnsureVisible(item, true);
+			}
 		}
 
 		protected IEnumerator DelayedScrollToTop()
