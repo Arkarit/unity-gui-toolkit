@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
-using UnityEditor.Experimental.SceneManagement;
+
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -539,7 +539,7 @@ namespace GuiToolkit
 
 			Vector3 oldLeft = point;
 			EditorGUI.BeginChangeCheck();
-			Vector3 newLeft = Handles.FreeMoveHandle(oldLeft, Quaternion.identity, handleSize, Vector3.zero, Handles.DotHandleCap);
+			var fmh_542_54_638460985666006959 = Quaternion.identity; Vector3 newLeft = Handles.FreeMoveHandle(oldLeft, handleSize, Vector3.zero, Handles.DotHandleCap);
 			if (EditorGUI.EndChangeCheck())
 			{
 				Vector3 moveOffset = newLeft-oldLeft;
@@ -575,7 +575,7 @@ namespace GuiToolkit
 		public static bool CheckBeforeCloseEditorScenes()
 		{
 			Scene mainScene = BuildSettingsUtility.GetMainScene();
-			int numScenes = EditorSceneManager.loadedSceneCount;
+			int numScenes = SceneManager.loadedSceneCount;
 			bool saveScene = false;
 
 			for (int i=0; i<numScenes; i++)
@@ -612,7 +612,7 @@ namespace GuiToolkit
 		{
 			_sceneNames = new List<string>();
 
-			int numScenes = EditorSceneManager.loadedSceneCount;
+			int numScenes = SceneManager.loadedSceneCount;
 			for (int i = 0; i < numScenes; i++)
 			{
 				Scene scene = EditorSceneManager.GetSceneAt(i);
@@ -645,7 +645,7 @@ namespace GuiToolkit
 			if (!_scene.isLoaded)
 				return;
 
-			if (EditorSceneManager.loadedSceneCount == 1)
+			if (SceneManager.loadedSceneCount == 1)
 			{
 				Debug.LogWarning("Failed attempt to unload scene, but it was the only scene loaded");
 				return;
@@ -806,7 +806,7 @@ namespace GuiToolkit
 		public static void FindObjectsOfType<T>( List<T> _result, bool _includeInactive = true)
 		{
 			_result.Clear();
-			for (int i=0; i<EditorSceneManager.loadedSceneCount; i++)
+			for (int i=0; i<SceneManager.loadedSceneCount; i++)
 			{
 				Scene scene = EditorSceneManager.GetSceneAt(i);
 				FindObjectsOfType<T>(_result, scene, _includeInactive);

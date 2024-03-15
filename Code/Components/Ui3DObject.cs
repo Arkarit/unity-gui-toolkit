@@ -233,7 +233,7 @@ namespace GuiToolkit
 			if (m_boxCollider != null)
 			{
 				m_boxCollider.center = bounds.center;
-				m_boxCollider.extents = bounds.extents;
+				m_boxCollider.size = bounds.extents;
 			}
 		}
 
