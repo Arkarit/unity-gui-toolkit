@@ -9,7 +9,6 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -539,7 +538,7 @@ namespace GuiToolkit
 
 			Vector3 oldLeft = point;
 			EditorGUI.BeginChangeCheck();
-			var fmh_542_54_638460985666006959 = Quaternion.identity; Vector3 newLeft = Handles.FreeMoveHandle(oldLeft, handleSize, Vector3.zero, Handles.DotHandleCap);
+			Vector3 newLeft = Handles.FreeMoveHandle(oldLeft, handleSize, Vector3.zero, Handles.DotHandleCap);
 			if (EditorGUI.EndChangeCheck())
 			{
 				Vector3 moveOffset = newLeft-oldLeft;
