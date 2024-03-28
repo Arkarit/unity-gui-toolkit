@@ -1,0 +1,22 @@
+{
+  "name": "de.phoenixgrafik.ui-toolkit",
+  "version": "0.1.0",
+  "displayName": "UI toolkit",
+  "description": "UI toolkit",
+  "unity": "2022.3",
+  "unityRelease": "22f1",
+  "documentationUrl": "",
+  "changelogUrl": "",
+  "licensesUrl": "",
+  "dependencies": {},
+ "keywords": [
+    "toolkit",
+    "ui toolkit",
+    "ui library"
+  ],
+  "author": {
+    "name": "Heiko Achilles",
+    "email": "phoenix@phoenixgrafik.de",
+    "url": "https://www.phoenixgrafik.de"
+  }
+}
