@@ -42,9 +42,13 @@ namespace GuiToolkit
 		[MenuItem(StringConstants.LOCA_PLURAL_PROCESSOR_MENU_NAME, priority = Constants.LOCA_PLURAL_PROCESSOR_MENU_PRIORITY)]
 		public static void Process()
 		{
-			string internalClassProjectPath = UiEditorUtility.GetUiToolkitRootProjectDir() + "/Code/Loca/LocaPlurals.cs";
+			string internalClassProjectPath = UiEditorUtility.GetUiToolkitRootProjectDir() + "Runtime/Code/Loca/LocaPlurals.cs";
 			string internalClassFilePath = UiEditorUtility.GetApplicationDataDir() + internalClassProjectPath;
-			string userClassProjectPath = UiToolkitConfiguration.EditorLoad().GeneratedAssetsDir + "/LocaPlurals.cs";
+			string userClassProjectDir = UiToolkitConfiguration.EditorLoad().GeneratedAssetsDir + "/";
+			string userClassProjectPath = userClassProjectDir + "LocaPlurals.cs";
+			string asmrefDir = UiEditorUtility.GetUiToolkitRootProjectDir() + "Runtime/Misc/";
+			string asmrefSource = asmrefDir + "unity-gui-toolkit.asmref";
+			string asmrefTarget = userClassProjectDir + "unity-gui-toolkit.asmref";
 
 			string filePath = UiEditorUtility.GetApplicationDataDir() + userClassProjectPath;
 
@@ -118,6 +122,9 @@ namespace GuiToolkit
 				Debug.LogError($"Failed to write Plurals.cs at '{filePath}': {e.Message}");
 				return;
 			}
+
+			if(!AssetDatabase.CopyAsset(asmrefSource, asmrefTarget))
+				Debug.LogWarning($"Failed to copy {asmrefSource}");
 
 			UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
 		}

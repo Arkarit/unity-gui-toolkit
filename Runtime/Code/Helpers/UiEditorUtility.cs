@@ -890,6 +890,21 @@ namespace GuiToolkit
 			}
 		}
 
+		private static bool s_isPackage;
+
+		public static bool IsPackage
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(s_rootDir))
+				{
+					GetUiToolkitRootProjectDir();
+					s_isPackage = s_rootDir.StartsWith("Packages");
+				}
+
+				return s_isPackage;
+			}
+		}
 
 		private static string s_rootDir;
 		public static string GetUiToolkitRootProjectDir()
@@ -897,14 +912,13 @@ namespace GuiToolkit
 			if (s_rootDir == null)
 			{
 				string[] guids = AssetDatabase.FindAssets("unity-gui-toolkit t:folder");
-				Debug.Assert(guids != null && guids.Length == 1, "None or multiple root folders detected");
 				if (guids.Length >= 1)
 				{
 					s_rootDir = AssetDatabase.GUIDToAssetPath(guids[0]) + "/";
 				}
 				else
 				{
-					s_rootDir = "Assets/";
+					s_rootDir = "Packages/de.phoenixgrafik.ui-toolkit/Runtime/";
 				}
 			}
 			return s_rootDir;
