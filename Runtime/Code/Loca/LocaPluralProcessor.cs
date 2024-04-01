@@ -46,9 +46,9 @@ namespace GuiToolkit
 			string internalClassFilePath = UiEditorUtility.GetApplicationDataDir() + internalClassProjectPath;
 			string userClassProjectDir = UiToolkitConfiguration.EditorLoad().GeneratedAssetsDir + "/";
 			string userClassProjectPath = userClassProjectDir + "LocaPlurals.cs";
-			string asmrefDir = UiEditorUtility.GetUiToolkitRootProjectDir() + "Runtime/Misc/";
-			string asmrefSource = asmrefDir + "unity-gui-toolkit.asmref";
-			string asmrefTarget = userClassProjectDir + "unity-gui-toolkit.asmref";
+			string nativeAsmrefDir = UiEditorUtility.GetNativePath(UiEditorUtility.GetUiToolkitRootProjectDir()) + "/Runtime/Misc/";
+			string nativeAsmrefSource = nativeAsmrefDir + "unity-gui-toolkit.asmref";
+			string nativeAsmrefTarget = userClassProjectDir + "unity-gui-toolkit.asmref";
 
 			string filePath = UiEditorUtility.GetApplicationDataDir() + userClassProjectPath;
 
@@ -123,8 +123,8 @@ namespace GuiToolkit
 				return;
 			}
 
-			if(!AssetDatabase.CopyAsset(asmrefSource, asmrefTarget))
-				Debug.LogWarning($"Failed to copy {asmrefSource}");
+			// We only copy the file itself to avoid meta nuisance
+			File.Copy(nativeAsmrefSource, nativeAsmrefTarget, true);
 
 			UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
 		}
