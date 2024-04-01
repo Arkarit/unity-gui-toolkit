@@ -918,7 +918,7 @@ namespace GuiToolkit
 				}
 				else
 				{
-					s_rootDir = "Packages/de.phoenixgrafik.ui-toolkit/Runtime/";
+					s_rootDir = "Packages/de.phoenixgrafik.ui-toolkit/";
 				}
 			}
 			return s_rootDir;
