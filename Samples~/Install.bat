@@ -62,8 +62,8 @@
  ECHO Creating symlinks...
  ECHO Dir: "%batchDir%"
  
- mklink /D "%batchDir%\Unity\Assets\External\gui-toolkit" "%batchDir%..\Runtime"
- mklink /D "%batchDir%\Unity\Assets\External\gui-toolkit-editor" "%batchDir%..\Editor"
+ mklink /D "%batchDir%\Unity\Assets\External\unity-gui-toolkit" "%batchDir%..\Runtime"
+ mklink /D "%batchDir%\Unity\Assets\External\unity-gui-toolkit-editor" "%batchDir%..\Editor"
  
  ECHO done
  pause

@@ -8,6 +8,7 @@
 [Dd]eploymentIl2CPP/
 [Uu]ser[Ss]ettings/
 Assets/AssetStoreTools*
+Assets/External/*
 [Dd]ocs/html/*
 
 # Visual Studio cache directory
