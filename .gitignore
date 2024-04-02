@@ -43,4 +43,4 @@ package-lock.json
 # Binaries
 bin/webgl/
 bin/win/
-/Dev-App/Unity/Assets/External
+/.Dev-App/Unity/Assets/External
