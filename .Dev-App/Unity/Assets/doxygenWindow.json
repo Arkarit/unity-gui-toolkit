@@ -1,0 +1,13 @@
+{
+    "Project": "GUIToolkit",
+    "Synopsis": "Small + Simple GUI Toolkit for Unity",
+    "Version": "0.1",
+    "ScriptsDirectory": "../../../Runtime/code/",
+    "DocDirectory": "../../../Documentation~/Code/",
+    "PathtoDoxygen": "../Tools/Doxygen/doxygen.exe",
+    "Defines": "UNITY_EDITOR",
+    "ExcludePatterns": [
+        "*/3rdparty/*",
+        "*/Editor/*"
+    ]
+}

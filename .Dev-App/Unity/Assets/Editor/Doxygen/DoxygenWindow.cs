@@ -59,6 +59,7 @@ public class DoxygenWindow : EditorWindow
 	bool ViewLog = false;
 	Vector2 scroll;
 	bool DocsGenerated = false;
+	private string LocalConfig = string.Empty;
 
 	[MenuItem( "Window/Documentation with Doxygen" )]
 	public static void Init()
@@ -403,6 +404,24 @@ public class DoxygenWindow : EditorWindow
 
 	void SaveConfigtoEditor(DoxygenConfig config)
 	{
+		// If all relevant paths are relative, we can use project-wide config rather than user-dependent
+		bool isProjectConfig =
+			config.PathtoDoxygen.StartsWith(".") &&
+			config.ScriptsDirectory.StartsWith(".") &&
+			config.DocDirectory.StartsWith(".");
+
+		if (isProjectConfig)
+		{
+			string localConfig = Application.dataPath + "/doxygenWindow.json";
+
+			try
+			{
+				string json = JsonUtility.ToJson(config, true);
+				File.WriteAllText(localConfig, json);
+			}
+			catch {}
+		}
+
 		EditorPrefs.SetString(UnityProjectID+"DoxyProjectName",config.Project);
 		EditorPrefs.SetString(UnityProjectID+"DoxyProjectNumber",config.Version);
 		EditorPrefs.SetString(UnityProjectID+"DoxyProjectBrief",config.Synopsis);
@@ -448,6 +467,19 @@ public class DoxygenWindow : EditorWindow
 
 	bool LoadSavedConfig()
 	{
+		string localConfig = Application.dataPath + "/doxygenWindow.json";
+
+		try
+		{
+			string content = File.ReadAllText(localConfig);
+			if (!string.IsNullOrEmpty(content))
+			{
+				Config = JsonUtility.FromJson<DoxygenConfig>(content);
+				return true;
+			}
+		}
+		catch {}
+
 		if( EditorPrefs.HasKey (UnityProjectID+"DoxyProjectName"))
 		{
 			Config = new DoxygenConfig();
@@ -461,6 +493,7 @@ public class DoxygenWindow : EditorWindow
 			ReadExcludePatterns();
 			return true;
 		}
+
 		return false;
 	}
 
