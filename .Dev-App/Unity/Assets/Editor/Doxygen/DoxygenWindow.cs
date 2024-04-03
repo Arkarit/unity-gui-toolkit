@@ -339,7 +339,12 @@ public class DoxygenWindow : EditorWindow
 		SaveConfigtoEditor(config);
 		CreateProgressString = "Creating Output Folder";
 		DoxyfileCreateProgress = 0.1f;
-		System.IO.Directory.CreateDirectory(config.DocDirectory);
+
+		var doxyfileLocation = config.DocDirectory;
+		if (config.DocDirectory.StartsWith("."))
+			doxyfileLocation = Application.dataPath + "/../" + config.PathtoDoxygen.Replace("doxygen.exe", "") + doxyfileLocation;
+
+		System.IO.Directory.CreateDirectory(doxyfileLocation);
 
 		DoxyfileCreateProgress = 0.1f;
 		string newfile = BaseFileString.Replace("PROJECT_NAME           =", "PROJECT_NAME           = "+"\""+config.Project+"\"");
@@ -386,7 +391,7 @@ public class DoxygenWindow : EditorWindow
 
 		StringBuilder sb = new StringBuilder();
 		sb.Append(newfile);
-        StreamWriter NewDoxyfile = new StreamWriter(config.DocDirectory + @"\Doxyfile");
+        StreamWriter NewDoxyfile = new StreamWriter(doxyfileLocation + @"\Doxyfile");
         
         NewDoxyfile.Write(sb.ToString());
         NewDoxyfile.Close();
@@ -539,8 +544,7 @@ public class DoxyRunner
 		Args = args;
 		SafeOutput = safeoutput;
 		onCompleteCallBack = callback;
-		WorkingFolder = FileUtil.GetUniqueTempPathInProject();
-		System.IO.Directory.CreateDirectory(WorkingFolder);
+		WorkingFolder = exepath.Replace("doxygen.exe", "");
 	}
 
 	public void updateOuputString(string output)
