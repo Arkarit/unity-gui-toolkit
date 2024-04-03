@@ -245,8 +245,11 @@ public class DoxygenWindow : EditorWindow
 			GUILayout.Space (10);
 			if(!DocsGenerated)
 				GUI.enabled = false;
-			if(GUILayout.Button ("Browse Documentation", GUILayout.Height(40)))
-				Application.OpenURL("File://"+Config.DocDirectory+"/html/annotated.html");
+			if (GUILayout.Button("Browse Documentation", GUILayout.Height(40)))
+			{
+				Application.OpenURL("File://" + GetDoxyfileDir(Config) + "/html/annotated.html");
+			}
+
 			GUI.enabled = true;	
 
 			if(DoxygenOutput == null)
@@ -335,16 +338,21 @@ public class DoxygenWindow : EditorWindow
 		   BaseFileString = reader.ReadToEnd();
 	}
 
+	private string GetDoxyfileDir(DoxygenConfig config)
+	{
+		var result = config.DocDirectory;
+		if (config.DocDirectory.StartsWith("."))
+			result = Application.dataPath + "/../" + config.PathtoDoxygen.Replace("doxygen.exe", "") + result;
+		return result;
+	}
+
 	public void MakeNewDoxyFile(DoxygenConfig config)
 	{
 		SaveConfigtoEditor(config);
 		CreateProgressString = "Creating Output Folder";
 		DoxyfileCreateProgress = 0.1f;
 
-		var doxyfileLocation = config.DocDirectory;
-		if (config.DocDirectory.StartsWith("."))
-			doxyfileLocation = Application.dataPath + "/../" + config.PathtoDoxygen.Replace("doxygen.exe", "") + doxyfileLocation;
-
+		var doxyfileLocation = GetDoxyfileDir(config);
 		System.IO.Directory.CreateDirectory(doxyfileLocation);
 
 		DoxyfileCreateProgress = 0.1f;
