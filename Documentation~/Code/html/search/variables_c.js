@@ -1,0 +1,9 @@
+var searchData=
+[
+  ['needslanguagechangecallback_2039',['NeedsLanguageChangeCallback',['../class_gui_toolkit_1_1_ui_thing.html#a182f91d4d73200149b4784557e406ed2',1,'GuiToolkit.UiThing.NeedsLanguageChangeCallback()'],['../class_gui_toolkit_1_1_ui_t_m_p_translator.html#ab5564dd2a936ebf6b165402c8de28ce3',1,'GuiToolkit.UiTMPTranslator.NeedsLanguageChangeCallback()'],['../class_gui_toolkit_1_1_ui_player_setting_language_toggle.html#a5fa9514a4720a8b929eaaca3cf23e016',1,'GuiToolkit.UiPlayerSettingLanguageToggle.NeedsLanguageChangeCallback()']]],
+  ['needsonscreenorientationcallback_2040',['NeedsOnScreenOrientationCallback',['../class_gui_toolkit_1_1_ui_simple_animation_base.html#a44b4b4c195c2b08ca32f391e294e3a8e',1,'GuiToolkit.UiSimpleAnimationBase.NeedsOnScreenOrientationCallback()'],['../class_gui_toolkit_1_1_ui_orientation_dependent_switcher.html#a3ca3de9c4c352890ad5942408d54cf2e',1,'GuiToolkit.UiOrientationDependentSwitcher.NeedsOnScreenOrientationCallback()'],['../class_gui_toolkit_1_1_ui_tab.html#a6e242b6840abcded97845291b7bba178',1,'GuiToolkit.UiTab.NeedsOnScreenOrientationCallback()'],['../class_gui_toolkit_1_1_ui_thing.html#a67c45d6d545dba5504593a169178eb8d',1,'GuiToolkit.UiThing.NeedsOnScreenOrientationCallback()']]],
+  ['normal_5fpopup_5fheight_2041',['NORMAL_POPUP_HEIGHT',['../class_gui_toolkit_1_1_ui_editor_utility.html#a7663c63ea1b0455a624fe7fb84c7a229',1,'GuiToolkit::UiEditorUtility']]],
+  ['note_2042',['NOTE',['../class_gui_toolkit_1_1_builtin_icons.html#a53d05c4a9ec6a895e06ee9f182dfcac3',1,'GuiToolkit::BuiltinIcons']]],
+  ['numpluralforms_2043',['numPluralForms',['../class_gui_toolkit_1_1_loca_plurals.html#a5ac4b0c0691b37a48362aa688b2ea346',1,'GuiToolkit::LocaPlurals']]],
+  ['numsamples_2044',['NumSamples',['../class_gui_toolkit_1_1_ui_f_p_s.html#a733041ffe6e40954be1eb9f5a33c6d1e',1,'GuiToolkit::UiFPS']]]
+];
