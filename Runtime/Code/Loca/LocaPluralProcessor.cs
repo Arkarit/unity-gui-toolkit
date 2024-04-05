@@ -9,9 +9,6 @@ namespace GuiToolkit
 
 	public static class LocaPluralProcessor
 	{
-		private static int m_numScripts;
-		private static int m_currentScriptIdx;
-
 		private const string FILE_HEADER =
 		  "// Auto-generated, please do not change!\n"
 		+ "// Use menu '" + StringConstants.LOCA_PLURAL_PROCESSOR_MENU_NAME + "' to add new language plurals!\n"
@@ -73,7 +70,6 @@ namespace GuiToolkit
 				string language = Path.GetFileName(assetPath);
 				language = language.Substring(0, language.Length-7).Trim();
 
-				bool inPlural = false;
 				string pluralFn = "";
 				for(;;)
 				{
@@ -84,17 +80,6 @@ namespace GuiToolkit
 					if (line.StartsWith("\"Plural-Forms:"))
 					{
 						pluralFn = line.Substring(14, line.Length-15).Trim();
-						inPlural = true;
-						continue;
-					}
-
-					if (inPlural)
-					{
-						if (line.StartsWith("\""))
-						{
-							pluralFn += line.Substring(1, line.Length-2).Trim();
-							continue;
-						}
 						break;
 					}
 				}
