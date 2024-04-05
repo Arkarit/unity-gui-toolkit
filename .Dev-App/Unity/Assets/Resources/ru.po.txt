@@ -1,0 +1,174 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"X-Generator: Poedit 3.4.2\n"
+
+msgid "Ambient Occlusion"
+msgstr "Общие технические"
+
+msgid "Animation Speed"
+msgstr "России указывают"
+
+msgid "Are you really really sure you want to quit?"
+msgstr "однако номера цветов по атласам при этом не?"
+
+msgid "Cancel"
+msgstr "трав"
+
+msgid "Details"
+msgstr "корабельных"
+
+msgid "Effect Volume"
+msgstr "царский указом"
+
+msgid "Enter text..."
+msgstr "стали называть..."
+
+msgid "General"
+msgstr "России"
+
+msgid "Graphics"
+msgstr "полков"
+
+msgid "Hello World"
+msgstr "Однако император"
+
+msgid "Here you can test some of the capabilities of the GUI Toolkit"
+msgstr "по именному царскому указу изготовлено необычное парадное знамя"
+
+msgid "High"
+msgstr "на"
+
+msgid "Key Bindings"
+msgstr "герба России"
+
+msgid "Language"
+msgstr "положило"
+
+msgid "Low"
+msgstr "Оно"
+
+msgid "Medium"
+msgstr "небесного"
+
+msgid "Move Down"
+msgstr "являлся польский"
+
+msgid "Move Left"
+msgstr "на груди орла"
+
+msgid "Move Right"
+msgstr "малиновая"
+
+msgid "Move Up"
+msgstr "символику со"
+
+msgid "Music Volume"
+msgstr "Громкость музыки"
+
+msgid "No"
+msgstr "Нет"
+
+msgid "Ok"
+msgstr "Ок"
+
+#, fuzzy
+msgid "Or 'Esc' to cancel"
+msgstr "трав"
+
+msgid "Overall"
+msgstr "Общий"
+
+msgid "Page 1"
+msgstr "Страница 1"
+
+msgid "Page 2"
+msgstr "Страница 2"
+
+msgid "Page 3"
+msgstr "Страница 3"
+
+msgid ""
+"Press a key\n"
+"Or Mouse button!"
+msgstr ""
+"Нажмите клавишу\n"
+"Или кнопку мыши!"
+
+msgid "Quit"
+msgstr "Уйти"
+
+msgid "Really Quit?"
+msgstr "Правда бросить?"
+
+msgid "Restore Defaults"
+msgstr "Восстановить значения по умолчанию"
+
+msgid "Settings"
+msgstr "Настройки"
+
+msgid "Show Full screen tabs dialog"
+msgstr "Показать полноэкранный диалог вкладок"
+
+msgid "Show Requester"
+msgstr "Показать запрос"
+
+msgid "Show Splash Message"
+msgstr "Показать всплывающее сообщение"
+
+msgid "Some keys remain unbound. Really continue?"
+msgstr "Некоторые ключи остаются несвязанными. Действительно остаются?"
+
+msgid "Sound"
+msgstr "Звук"
+
+#, fuzzy
+msgid "Tab Dialog Demo"
+msgstr "Демонстрация диалогового окна вкладок"
+
+#, fuzzy
+msgid "Test Loca Key 1"
+msgstr "Тестовый лока-ключ 1"
+
+#, fuzzy
+msgid "Test Loca Key 2"
+msgstr "Тестовый ключ Loca 2"
+
+#, fuzzy
+msgid "Test Requester"
+msgstr "Инициатор запроса теста"
+
+#, fuzzy
+msgid "Test Scene"
+msgstr "Тестовая сцена"
+
+msgid "Text..."
+msgstr "стали называть..."
+
+msgid "Title..."
+msgstr "Название…"
+
+msgid "Ultra"
+msgstr "Ультра"
+
+#, fuzzy
+msgid "Unbound Keys"
+msgstr "Непривязанные ключи"
+
+msgid "Yes"
+msgstr "Да"
+
+msgid "{0} Tree, "
+msgid_plural "{0} Trees, "
+msgstr[0] "{0} Дерево 1, "
+msgstr[1] "{0} Дерево 2, "
+msgstr[2] "{0} Дерево 3, "

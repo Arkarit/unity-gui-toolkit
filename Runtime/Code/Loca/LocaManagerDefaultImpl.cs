@@ -151,11 +151,21 @@ namespace GuiToolkit
 
 		public override string Translate( string _s )
 		{
-			if (m_isDev || string.IsNullOrEmpty(_s))
+			if (string.IsNullOrEmpty(_s))
+				return "#MISSING KEY#";
+
+			if (m_isDev)
 				return _s;
 
 			if (m_translationDict.TryGetValue(_s, out string result))
+			{
+				if (string.IsNullOrEmpty(result))
+					result = $"#{_s}";
+
 				return result;
+			}
+
+			_s = $"*{_s}";
 
 			return _s;
 		}
@@ -173,10 +183,15 @@ namespace GuiToolkit
 			{
 				if (pluralIdx < plurals.Count)
 				{
-					return plurals[pluralIdx];
+					var result = plurals[pluralIdx];
+					if (string.IsNullOrEmpty(result))
+						result = $"_{pluralIdx}_{_pluralKey}";
+
+					return result;
 				}
 			}
 
+			_pluralKey = $"*{_pluralKey}";
 			return _pluralKey;
 		}
 

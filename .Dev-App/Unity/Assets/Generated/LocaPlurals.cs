@@ -23,6 +23,9 @@ namespace GuiToolkit
 				case "lol":
 					nplurals=1; plural=0;
 					break;
+				case "ru":
+					nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);
+					break;
 			}
 
 			_numPluralForms = nplurals;

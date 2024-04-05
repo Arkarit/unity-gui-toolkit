@@ -50,6 +50,7 @@ SpriteAtlas:
     - 2d423647549aaa241b88679d1e8e4fae: 21300000
     - ebfad9e774536ea4ba52588acabc7669: 21300000
     - 9b1a8cd866007234286acbe7799d7c69: 21300000
+    - a8432e59ffb1d5d499f68fff7e51269f: 21300000
     - f2b415696283cc6489a4055bec718d5a: 21300000
     - cbabdbe91b89aef42a5c7b5e3b124938: 21300000
     - 12a73a0b8b1f97d4cb1fd226f806f989: 21300000
@@ -73,6 +74,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 2d423647549aaa241b88679d1e8e4fae, type: 3}
   - {fileID: 21300000, guid: ebfad9e774536ea4ba52588acabc7669, type: 3}
   - {fileID: 21300000, guid: 9b1a8cd866007234286acbe7799d7c69, type: 3}
+  - {fileID: 21300000, guid: a8432e59ffb1d5d499f68fff7e51269f, type: 3}
   - {fileID: 21300000, guid: f2b415696283cc6489a4055bec718d5a, type: 3}
   - {fileID: 21300000, guid: cbabdbe91b89aef42a5c7b5e3b124938, type: 3}
   - {fileID: 21300000, guid: 12a73a0b8b1f97d4cb1fd226f806f989, type: 3}
@@ -91,10 +93,11 @@ SpriteAtlas:
   - lol
   - UITK_Panel_r25
   - UITK_Sunken_r25
-  - en
+  - us
   - UITK_Simple_Circle
   - UITK_Panel_Circle
   - UITK_Sunken_Circle
+  - ru
   - UITK_RGB_Panel_r00_f07
   - UITK_Panel_r00
   - UITK_Sunken_r50
@@ -102,7 +105,7 @@ SpriteAtlas:
   - UITK_Frame_r25_f07
   - dev
   - UITK_Sunken_r00
-  - us
+  - en
   - en_us
   m_RenderDataMap: {}
   m_Tag: BasicSpritesAndFlags

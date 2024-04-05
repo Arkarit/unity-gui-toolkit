@@ -5,9 +5,162 @@ msgstr ""
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: en_us\n"
+"Language: en_GB\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.2\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.4.2\n"
+
+msgid "Ambient Occlusion"
+msgstr "Ambient Occlusion"
+
+msgid "Animation Speed"
+msgstr "Animation Speed"
+
+msgid "Are you really really sure you want to quit?"
+msgstr "Are you really really sure you want to quit?"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Details"
+msgstr "Details"
+
+msgid "Effect Volume"
+msgstr "Effect Volume"
+
+msgid "Enter text..."
+msgstr "Enter text..."
+
+msgid "General"
+msgstr "General"
+
+msgid "Graphics"
+msgstr "Graphics"
+
+msgid "Hello World"
+msgstr "Hello World"
+
+msgid "Here you can test some of the capabilities of the GUI Toolkit"
+msgstr "Here you can test some of the capabilities of the GUI Toolkit"
+
+msgid "High"
+msgstr "High"
+
+msgid "Key Bindings"
+msgstr "Key Bindings"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "Low"
+msgstr "Low"
+
+msgid "Medium"
+msgstr "Medium"
+
+msgid "Move Down"
+msgstr "Move Down"
+
+msgid "Move Left"
+msgstr "Move Left"
+
+msgid "Move Right"
+msgstr "Move Right"
+
+msgid "Move Up"
+msgstr "Move Up"
+
+msgid "Music Volume"
+msgstr "Music Volume"
+
+msgid "No"
+msgstr "No"
+
+msgid "Ok"
+msgstr "Ok"
+
+msgid "Or 'Esc' to cancel"
+msgstr "Or 'Esc' to cancel"
+
+msgid "Overall"
+msgstr "Overall"
+
+msgid "Page 1"
+msgstr "Page 1"
+
+msgid "Page 2"
+msgstr "Page 2"
+
+msgid "Page 3"
+msgstr "Page 3"
+
+msgid ""
+"Press a key\n"
+"Or Mouse button!"
+msgstr ""
+"Press a key\n"
+"Or Mouse button!"
+
+msgid "Quit"
+msgstr "Quit"
+
+msgid "Really Quit?"
+msgstr "Really Quit?"
+
+msgid "Restore Defaults"
+msgstr "Restore Defaults"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Show Full screen tabs dialog"
+msgstr "Show Full screen tabs dialog"
+
+msgid "Show Requester"
+msgstr "Show Requester"
+
+msgid "Show Splash Message"
+msgstr "Show Splash Message"
+
+msgid "Some keys remain unbound. Really continue?"
+msgstr "Some keys remain unbound. Really continue?"
+
+msgid "Sound"
+msgstr "Sound"
+
+msgid "Tab Dialog Demo"
+msgstr "Tab Dialog Demo"
+
+msgid "Test Loca Key 1"
+msgstr "Test Loca Key 1"
+
+msgid "Test Loca Key 2"
+msgstr "Test Loca Key 2"
+
+msgid "Test Requester"
+msgstr "Test Requester"
+
+msgid "Test Scene"
+msgstr "Test Scene"
+
+msgid "Text..."
+msgstr "Text..."
+
+msgid "Title..."
+msgstr "Title..."
+
+msgid "Ultra"
+msgstr "Ultra"
+
+msgid "Unbound Keys"
+msgstr "Unbound Keys"
+
+msgid "Yes"
+msgstr "Yes"
+
+msgid "{0} Tree, "
+msgid_plural "{0} Trees, "
+msgstr[0] "{0} Tree, "
+msgstr[1] "{0} Trees, "

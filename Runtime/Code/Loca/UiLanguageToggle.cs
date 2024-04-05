@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -79,6 +76,7 @@ namespace GuiToolkit
 			m_flagImageProp = serializedObject.FindProperty("m_flagImage");
 			m_languageTokenProp = serializedObject.FindProperty("m_languageToken");
 		}
+
 		public override void OnInspectorGUI()
 		{
 			UiLanguageToggle thisUiLanguageToggle = (UiLanguageToggle)target;
@@ -87,8 +85,12 @@ namespace GuiToolkit
 			EditorGUILayout.PropertyField(m_languageTokenProp);
 			serializedObject.ApplyModifiedProperties();
 
-			if ( EditorUiUtility.LanguagePopup("Select available language:", thisUiLanguageToggle.Language, out string newLanguage ))
+			if (EditorUiUtility.LanguagePopup("Select available language:", thisUiLanguageToggle.Language,
+				    out string newLanguage))
+			{
 				thisUiLanguageToggle.Language = newLanguage;
+				EditorUtility.SetDirty(thisUiLanguageToggle);
+			}
 		}
 	}
 #endif
