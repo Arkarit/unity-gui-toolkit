@@ -115,10 +115,10 @@ namespace GuiToolkit
 			Vector2 size = isAbsolute ? Vector2.one : bounding.size;
 
 			bool hasChanged = false;
-			hasChanged |= UiEditorUtility.DoHandle( blprop, corners[0], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
-			hasChanged |= UiEditorUtility.DoHandle( tlprop, corners[1], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
-			hasChanged |= UiEditorUtility.DoHandle( trprop, corners[2], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
-			hasChanged |= UiEditorUtility.DoHandle( brprop, corners[3], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
+			hasChanged |= EditorUiUtility.DoHandle( blprop, corners[0], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
+			hasChanged |= EditorUiUtility.DoHandle( tlprop, corners[1], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
+			hasChanged |= EditorUiUtility.DoHandle( trprop, corners[2], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
+			hasChanged |= EditorUiUtility.DoHandle( brprop, corners[3], size, rt, mirrorHorizontal, mirrorVertical, Constants.HANDLE_SIZE );
 
 			if (hasChanged)
 			{

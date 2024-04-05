@@ -3,7 +3,6 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEditor;
 
 using UnityEditor.SceneManagement;
@@ -19,7 +18,7 @@ namespace GuiToolkit
 	/// Note: This file must reside outside of an "Editor" folder, since it must be accessible
 	/// from mixed game/editor classes (even though all accesses are in #if UNITY_EDITOR clauses)
 	/// See https://answers.unity.com/questions/426184/acces-script-in-the-editor-folder.html for reasons.
-	public static class UiEditorUtility
+	public static class EditorUiUtility
 	{
 		public const int SKIP_LINE_SPACE = -20;
 		public const int LARGE_SPACE_HEIGHT = 20;
@@ -554,122 +553,6 @@ namespace GuiToolkit
 			return false;
 		}
 
-		public enum ESceneUnloadChoice
-		{
-			Save,
-			Ignore,
-			Cancel,
-		}
-
-		public static ESceneUnloadChoice DoDirtyEditorScenesCloseDialog()
-		{
-			return (ESceneUnloadChoice) EditorUtility.DisplayDialogComplex("Pending Scene changes", "Some scenes have been changed. How should we continue?", "Save", "Ignore", "Cancel" );
-		}
-
-		public static ESceneUnloadChoice DoDirtyEditorSceneCloseDialog(string _sceneName)
-		{
-			return (ESceneUnloadChoice) EditorUtility.DisplayDialogComplex("Pending Scene changes", $"Scene '{_sceneName}' has been changed. How should we continue?", "Save", "Ignore", "Cancel");
-		}
-
-		public static bool CheckBeforeCloseEditorScenes()
-		{
-			Scene mainScene = BuildSettingsUtility.GetMainScene();
-			int numScenes = SceneManager.loadedSceneCount;
-			bool saveScene = false;
-
-			for (int i=0; i<numScenes; i++)
-			{
-				Scene scene = EditorSceneManager.GetSceneAt(i);
-				if (scene != mainScene && scene.isDirty)
-				{
-
-					if (!saveScene)
-					{
-						UiEditorUtility.ESceneUnloadChoice choice = UiEditorUtility.DoDirtyEditorScenesCloseDialog();
-						switch (choice)
-						{
-							case UiEditorUtility.ESceneUnloadChoice.Ignore:
-								return true;
-							case UiEditorUtility.ESceneUnloadChoice.Cancel:
-								return false;
-							case UiEditorUtility.ESceneUnloadChoice.Save:
-								saveScene = true;
-								break;
-							default:
-								Debug.Assert(false);
-								return false;
-						}
-
-						EditorSceneManager.SaveScene(scene);
-					}
-				}
-			}
-			return true;
-		}
-
-		public static bool CloseAllEditorScenesExcept( Scene _scene, out List<string> _sceneNames )
-		{
-			_sceneNames = new List<string>();
-
-			int numScenes = SceneManager.loadedSceneCount;
-			for (int i = 0; i < numScenes; i++)
-			{
-				Scene scene = EditorSceneManager.GetSceneAt(i);
-				if (scene != _scene)
-					_sceneNames.Add(scene.name);
-			}
-
-			if (!CheckBeforeCloseEditorScenes())
-				return false;
-
-			foreach (var sceneName in _sceneNames)
-				EditorSceneManager.CloseScene(EditorSceneManager.GetSceneByName(sceneName), true);
-
-			return true;
-		}
-
-		public static bool CloseAllEditorScenesExcept( Scene _scene )
-		{
-			return CloseAllEditorScenesExcept(_scene, out List<string> _);
-		}
-
-		public static bool CloseAllEditorScenesExceptMain( out List<string> _sceneNames )
-		{
-			Scene mainScene = BuildSettingsUtility.GetMainScene();
-			return CloseAllEditorScenesExcept(mainScene, out _sceneNames);
-		}
-
-		public static void CloseEditorScene( Scene _scene )
-		{
-			if (!_scene.isLoaded)
-				return;
-
-			if (SceneManager.loadedSceneCount == 1)
-			{
-				Debug.LogWarning("Failed attempt to unload scene, but it was the only scene loaded");
-				return;
-			}
-
-			if (_scene.isDirty)
-			{
-				ESceneUnloadChoice choice = DoDirtyEditorSceneCloseDialog( _scene.name );
-				switch( choice )
-				{
-					case ESceneUnloadChoice.Ignore:
-						break;
-					case ESceneUnloadChoice.Cancel:
-						return;
-					case ESceneUnloadChoice.Save:
-						EditorSceneManager.SaveScene(_scene);
-						break;
-					default:
-						Debug.Assert(false);
-						break;
-				}
-			}
-
-			EditorSceneManager.CloseScene(_scene, true);
-		}
 
 		public delegate void AssetFoundDelegate<T>(T _component);
 
@@ -819,111 +702,6 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static string GetApplicationDataDir(bool _withAssetsFolder = false)
-		{
-			string result = Application.dataPath;
-			if (_withAssetsFolder)
-				return result;
-
-			return result.Replace("Assets", "");
-		}
-
-		public static string GetAssetProjectDir( string _assetPath )
-		{
-			int idx = _assetPath.LastIndexOf("/");
-			if (idx == -1)
-				return "";
-
-			return _assetPath.Substring(0, idx + 1);
-		}
-
-		public static string GetNativePath( string _assetPath )
-		{
-			return GetApplicationDataDir() + "/" + _assetPath;
-		}
-
-		public static string GetDirectoryName(string _path)
-		{
-			return Path.GetDirectoryName(_path).Replace('\\', '/');
-		}
-
-		// creates an asset and ensures that the parent directory exists
-		// (Which in a sane engine obviously would be automatically done by the engine, but this is Unity)
-		public static void CreateAsset( UnityEngine.Object _object, string _path )
-		{
-			string directory = GetDirectoryName(_path);
-			EnsureFolderExists(directory);
-			AssetDatabase.CreateAsset(_object, _path);
-		}
-
-		public static bool EnsureFolderExists( string _unityPath )
-		{
-			try
-			{
-				if (!AssetDatabase.IsValidFolder(_unityPath))
-				{
-					string[] names = _unityPath.Split('/');
-					string parentPath = "";
-					string folderToCreate;
-					if (names.Length == 0)
-						return false;
-					else
-					{
-						folderToCreate = names[names.Length - 1];
-						if (names.Length > 1)
-						{
-							parentPath = _unityPath.Substring(0, _unityPath.Length - folderToCreate.Length - 1);
-							if (!AssetDatabase.IsValidFolder(parentPath))
-								if (!EnsureFolderExists(parentPath))
-									return false;
-						}
-					}
-
-					if (!string.IsNullOrEmpty(folderToCreate))
-						AssetDatabase.CreateFolder(parentPath, folderToCreate);
-				}
-				return true;
-			}
-			catch
-			{
-				return false;
-			}
-		}
-
-		private static bool s_isPackage;
-
-		public static bool IsPackage
-		{
-			get
-			{
-				if (string.IsNullOrEmpty(s_rootDir))
-				{
-					GetUiToolkitRootProjectDir();
-					s_isPackage = s_rootDir.StartsWith("Packages");
-				}
-
-				return s_isPackage;
-			}
-		}
-
-		private static string s_rootDir;
-		public static string GetUiToolkitRootProjectDir()
-		{
-			if (s_rootDir == null)
-			{
-				string[] guids = AssetDatabase.FindAssets("unity-gui-toolkit t:folder");
-				if (guids.Length >= 1)
-				{
-					s_rootDir = AssetDatabase.GUIDToAssetPath(guids[0]) + "/";
-				}
-				else
-				{
-					s_rootDir = "Packages/de.phoenixgrafik.ui-toolkit/Runtime/";
-				}
-			}
-			return s_rootDir;
-		}
-
 		private static bool ValidateListAndIndex( SerializedProperty _list, int _idx )
 		{
 			if (!ValidateList(_list))
@@ -951,7 +729,6 @@ namespace GuiToolkit
 			}
 			return true;
 		}
-
 	}
 }
 #endif

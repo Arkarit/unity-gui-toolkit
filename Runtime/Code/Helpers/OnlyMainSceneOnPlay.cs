@@ -52,7 +52,7 @@ namespace GuiToolkit
 					EditorScenes editorScenes = new EditorScenes();
 					editorScenes.MainSceneWasLoaded = LoadMainSceneIfNecessary();
 
-					if (!UiEditorUtility.CloseAllEditorScenesExceptMain(out editorScenes.Scenes))
+					if (!EditorSceneUtility.CloseAllEditorScenesExceptMain(out editorScenes.Scenes))
 					{
 						EditorApplication.isPlaying = false;
 						return;

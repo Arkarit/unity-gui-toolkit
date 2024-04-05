@@ -45,14 +45,14 @@ namespace GuiToolkit.UiStateSystem
 
 			SetDefaultValuesIfNecessary(thisStateMachine);
 
-			EditorStyles.popup.fixedHeight = UiEditorUtility.NORMAL_POPUP_HEIGHT;
+			EditorStyles.popup.fixedHeight = EditorUiUtility.NORMAL_POPUP_HEIGHT;
 
 			DisplaySupportFlags();
 			DisplayGameObjects(thisStateMachine);
 			DisplayStates(thisStateMachine);
 			bool exitGui = DisplayTransitionList(thisStateMachine);
 
-			GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 
 			TidyUpAndApply(exitGui);
 		}
@@ -75,7 +75,7 @@ namespace GuiToolkit.UiStateSystem
 		{
 			int width = (Screen.width - 80) / 3;
 
-			GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			GUILayout.Label("Support for", EditorStyles.boldLabel);
 			EStatePropertySupport support = (EStatePropertySupport)m_supportProp.longValue;
 
@@ -108,7 +108,7 @@ namespace GuiToolkit.UiStateSystem
 
 		private void DisplayGameObjects( UiStateMachine _stateMachine )
 		{
-			GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			GUILayout.Label("State Game Objects", EditorStyles.boldLabel);
 
 			bool fillWithChildren = false;
@@ -126,7 +126,7 @@ namespace GuiToolkit.UiStateSystem
 
 			EditorGUILayout.PropertyField(m_gameObjectsProp, new GUIContent("Game Objects"), true);
 
-			GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 
 			EditorGUILayout.PropertyField(m_subStateMachinesProp, new GUIContent("SubStateMachines"), true);
 
@@ -138,7 +138,7 @@ namespace GuiToolkit.UiStateSystem
 
 		private void DisplayClearAllStatesButton()
 		{
-			UiEditorUtility.Button("All States", "Clear", delegate
+			EditorUiUtility.Button("All States", "Clear", delegate
 			{
 				m_currentStateNameProp.stringValue = "";
 				m_stateNamesProp.arraySize = 0;
@@ -147,16 +147,16 @@ namespace GuiToolkit.UiStateSystem
 
 		private void DisplayStates( UiStateMachine _stateMachine )
 		{
-			GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			GUILayout.Label("State selection", EditorStyles.boldLabel);
 
 			DisplayCurrentStatePopup(_stateMachine);
 			DisplayRecordButton(_stateMachine);
 			DisplayDeleteStateButton(_stateMachine);
-			GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			GUILayout.Label("States", EditorStyles.boldLabel);
 			DisplayNewStateField();
-			GUILayout.Space(UiEditorUtility.SMALL_SPACE_HEIGHT);
+			GUILayout.Space(EditorUiUtility.SMALL_SPACE_HEIGHT);
 			DisplayClearAllStatesButton();
 		}
 
@@ -165,7 +165,7 @@ namespace GuiToolkit.UiStateSystem
 			if (string.IsNullOrEmpty(m_currentStateNameProp.stringValue))
 				return;
 
-			UiEditorUtility.Button(" ", "Delete", delegate
+			EditorUiUtility.Button(" ", "Delete", delegate
 			{
 				// Note: we only delete the state name here.
 				// The matching states are deleted by TidyUpAndApply()
@@ -198,9 +198,9 @@ namespace GuiToolkit.UiStateSystem
 					SerializedProperty sp = m_stateNamesProp.GetArrayElementAtIndex(i);
 					options[i] = sp.stringValue;
 				}
-				EditorStyles.popup.fixedHeight = UiEditorUtility.LARGE_POPUP_HEIGHT;
-				selected = EditorGUILayout.Popup(selected, options, GUILayout.Height(UiEditorUtility.LARGE_POPUP_HEIGHT - 5));
-				EditorStyles.popup.fixedHeight = UiEditorUtility.NORMAL_POPUP_HEIGHT;
+				EditorStyles.popup.fixedHeight = EditorUiUtility.LARGE_POPUP_HEIGHT;
+				selected = EditorGUILayout.Popup(selected, options, GUILayout.Height(EditorUiUtility.LARGE_POPUP_HEIGHT - 5));
+				EditorStyles.popup.fixedHeight = EditorUiUtility.NORMAL_POPUP_HEIGHT;
 
 				m_currentStateNameProp.stringValue = _stateMachine.StateNames[selected];
 				if (oldSelected != selected && !Event.current.shift)
@@ -211,7 +211,7 @@ namespace GuiToolkit.UiStateSystem
 			}
 			else
 			{
-				GUILayout.Label("(No state created yet)", UiEditorUtility.Italic, GUILayout.Height(UiEditorUtility.LARGE_POPUP_HEIGHT - 5));
+				GUILayout.Label("(No state created yet)", EditorUiUtility.Italic, GUILayout.Height(EditorUiUtility.LARGE_POPUP_HEIGHT - 5));
 			}
 			EditorGUILayout.EndHorizontal();
 		}
@@ -223,7 +223,7 @@ namespace GuiToolkit.UiStateSystem
 
 			EditorGUILayout.BeginHorizontal();
 			GUILayout.Label(" ", GUILayout.Width(EditorGUIUtility.labelWidth));
-			if (GUILayout.Button("Record", GUILayout.Height(UiEditorUtility.LARGE_BUTTON_HEIGHT)))
+			if (GUILayout.Button("Record", GUILayout.Height(EditorUiUtility.LARGE_BUTTON_HEIGHT)))
 			{
 				_stateMachine.Record();
 			}
@@ -237,13 +237,13 @@ namespace GuiToolkit.UiStateSystem
 			m_newStateName = GUILayout.TextField(m_newStateName);
 			EditorGUILayout.EndHorizontal();
 
-			UiEditorUtility.Button(" ", "Create", delegate { CreateState(); });
+			EditorUiUtility.Button(" ", "Create", delegate { CreateState(); });
 		}
 
 
 		private bool DisplayTransitionList( UiStateMachine _stateMachine )
 		{
-			GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			return UiTransitionSubEditor.DisplayTransitionList(_stateMachine, m_transitionsProp, s_drawDefaultInspector);
 		}
 
@@ -335,7 +335,7 @@ namespace GuiToolkit.UiStateSystem
 				GameObject go = m_gameObjectsProp.GetArrayElementAtIndex(i).objectReferenceValue as GameObject;
 				if (go == null)
 				{
-					UiEditorUtility.RemoveArrayElementAtIndex(m_gameObjectsProp, i);
+					EditorUiUtility.RemoveArrayElementAtIndex(m_gameObjectsProp, i);
 					result = true;
 				}
 			}
@@ -358,7 +358,7 @@ namespace GuiToolkit.UiStateSystem
 
 				if (goProp.objectReferenceValue == null || !existingStates.Contains(nameProp.stringValue))
 				{
-					UiEditorUtility.RemoveArrayElementAtIndex(m_statesProp, i);
+					EditorUiUtility.RemoveArrayElementAtIndex(m_statesProp, i);
 					result = true;
 				}
 			}

@@ -42,15 +42,15 @@ namespace GuiToolkit
 		[MenuItem(StringConstants.LOCA_PLURAL_PROCESSOR_MENU_NAME, priority = Constants.LOCA_PLURAL_PROCESSOR_MENU_PRIORITY)]
 		public static void Process()
 		{
-			string internalClassProjectPath = UiEditorUtility.GetUiToolkitRootProjectDir() + "Code/Loca/LocaPlurals.cs";
-			string internalClassFilePath = UiEditorUtility.GetApplicationDataDir() + internalClassProjectPath;
+			string internalClassProjectPath = EditorFileUtility.GetUiToolkitRootProjectDir() + "Code/Loca/LocaPlurals.cs";
+			string internalClassFilePath = EditorFileUtility.GetApplicationDataDir() + internalClassProjectPath;
 			string userClassProjectDir = UiToolkitConfiguration.EditorLoad().GeneratedAssetsDir + "/";
 			string userClassProjectPath = userClassProjectDir + "LocaPlurals.cs";
-			string nativeAsmrefDir = UiEditorUtility.GetNativePath(UiEditorUtility.GetUiToolkitRootProjectDir()) + "Misc/";
+			string nativeAsmrefDir = EditorFileUtility.GetNativePath(EditorFileUtility.GetUiToolkitRootProjectDir()) + "Misc/";
 			string nativeAsmrefSource = nativeAsmrefDir + "unity-gui-toolkit.asmref";
 			string nativeAsmrefTarget = userClassProjectDir + "unity-gui-toolkit.asmref";
 
-			string filePath = UiEditorUtility.GetApplicationDataDir() + userClassProjectPath;
+			string filePath = EditorFileUtility.GetApplicationDataDir() + userClassProjectPath;
 
 			if (internalClassFilePath == filePath)
 			{

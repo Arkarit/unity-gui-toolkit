@@ -274,7 +274,7 @@ namespace GuiToolkit
 			if (materialCloner == null)
 				return;
 
-			if (UiEditorUtility.InfoBoxIfPrefab(go))
+			if (EditorUiUtility.InfoBoxIfPrefab(go))
 				return;
 
 			bool error = false;

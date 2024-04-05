@@ -35,7 +35,7 @@ namespace GuiToolkit
 
 			serializedObject.ApplyModifiedProperties();
 
-			GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 
 			if (GUILayout.Button("Apply"))
 			{

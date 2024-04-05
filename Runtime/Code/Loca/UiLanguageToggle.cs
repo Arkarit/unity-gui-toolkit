@@ -87,7 +87,7 @@ namespace GuiToolkit
 			EditorGUILayout.PropertyField(m_languageTokenProp);
 			serializedObject.ApplyModifiedProperties();
 
-			if ( UiEditorUtility.LanguagePopup("Select available language:", thisUiLanguageToggle.Language, out string newLanguage ))
+			if ( EditorUiUtility.LanguagePopup("Select available language:", thisUiLanguageToggle.Language, out string newLanguage ))
 				thisUiLanguageToggle.Language = newLanguage;
 		}
 	}

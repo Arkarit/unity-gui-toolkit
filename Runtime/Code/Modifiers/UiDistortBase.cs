@@ -119,7 +119,7 @@ namespace GuiToolkit
 
 			if (HasMirror)
 			{
-				if (UiEditorUtility.BoolBar<EAxis2DFlags>(m_mirrorAxisFlagsProp, "Mirror"))
+				if (EditorUiUtility.BoolBar<EAxis2DFlags>(m_mirrorAxisFlagsProp, "Mirror"))
 					thisUiDistort.SetDirty();
 			}
 

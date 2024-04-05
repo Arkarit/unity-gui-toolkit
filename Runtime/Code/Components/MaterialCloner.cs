@@ -220,7 +220,7 @@ namespace GuiToolkit
 		{
 #if UNITY_EDITOR
 			// never init if we're a prefab
-			if (UiEditorUtility.IsPrefab(gameObject))
+			if (EditorUiUtility.IsPrefab(gameObject))
 				return;
 #endif
 
@@ -374,7 +374,7 @@ namespace GuiToolkit
 		public override void OnInspectorGUI()
 		{
 			MaterialCloner thisMaterialCloner = (MaterialCloner)target;
-			if (UiEditorUtility.InfoBoxIfPrefab(thisMaterialCloner.gameObject))
+			if (EditorUiUtility.InfoBoxIfPrefab(thisMaterialCloner.gameObject))
 			{
 				Renderer renderer = thisMaterialCloner.GetComponent<Renderer>();
 				if ( renderer != null && renderer.sharedMaterial == null && thisMaterialCloner.OriginalMaterial != null )

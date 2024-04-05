@@ -30,39 +30,39 @@ namespace GuiToolkit.UiStateSystem
 				stateMachineProp.objectReferenceValue = _stateMachine;
 
 				// Display fields
-				EditorStyles.popup.fixedHeight = UiEditorUtility.MEDIUM_POPUP_HEIGHT;
+				EditorStyles.popup.fixedHeight = EditorUiUtility.MEDIUM_POPUP_HEIGHT;
 				DisplayStateNamePopup("From:", fromProp, ref stateNames, true);
 				DisplayStateNamePopup("To:", toProp, ref stateNames, false);
-				EditorStyles.popup.fixedHeight = UiEditorUtility.NORMAL_POPUP_HEIGHT;
-				UiEditorUtility.PropertyField("Duration", durationProp, true);
-				UiEditorUtility.PropertyField("Delay", delayProp, true);
-				UiEditorUtility.PropertyField("Curve", curveProp, true);
+				EditorStyles.popup.fixedHeight = EditorUiUtility.NORMAL_POPUP_HEIGHT;
+				EditorUiUtility.PropertyField("Duration", durationProp, true);
+				EditorUiUtility.PropertyField("Delay", delayProp, true);
+				EditorUiUtility.PropertyField("Curve", curveProp, true);
 
-				UiEditorUtility.Button(" ", "Delete", delegate
+				EditorUiUtility.Button(" ", "Delete", delegate
 				{
 					result = true;
-					UiEditorUtility.RemoveArrayElementAtIndex(_list, i);
+					EditorUiUtility.RemoveArrayElementAtIndex(_list, i);
 					WorkaroundAnimationCurveRedrawProblem(i, _list);
 				});
 
 				GUILayout.Space(-3);
-				UiEditorUtility.Button(" ", "Test", delegate
+				EditorUiUtility.Button(" ", "Test", delegate
 				{
 					if (!string.IsNullOrEmpty(fromProp.stringValue))
 						_stateMachine.ApplyInstant(fromProp.stringValue);
 					_stateMachine.State = toProp.stringValue;
-				}, UiEditorUtility.MEDIUM_POPUP_HEIGHT);
+				}, EditorUiUtility.MEDIUM_POPUP_HEIGHT);
 
-				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			}
 
 
-			GUILayout.Space(UiEditorUtility.SMALL_SPACE_HEIGHT);
-			UiEditorUtility.Button("New Transition:", "Create", delegate
+			GUILayout.Space(EditorUiUtility.SMALL_SPACE_HEIGHT);
+			EditorUiUtility.Button("New Transition:", "Create", delegate
 			{
 				int newTransitionIdx = _list.arraySize++;
 			});
-			UiEditorUtility.Button("All Transitions", "Clear", delegate
+			EditorUiUtility.Button("All Transitions", "Clear", delegate
 			{
 				result = true;
 				_list.arraySize = 0;

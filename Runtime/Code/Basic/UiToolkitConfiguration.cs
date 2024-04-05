@@ -146,11 +146,11 @@ namespace GuiToolkit
 			{
 				try
 				{
-					Directory.CreateDirectory(UiEditorUtility.GetApplicationDataDir() + m_generatedAssetsDir);
+					Directory.CreateDirectory(EditorFileUtility.GetApplicationDataDir() + m_generatedAssetsDir);
 				}
 				catch( Exception e )
 				{
-					Debug.LogError($"Could not create generated assets dir '{UiEditorUtility.GetApplicationDataDir() + m_generatedAssetsDir}': {e.Message}");
+					Debug.LogError($"Could not create generated assets dir '{EditorFileUtility.GetApplicationDataDir() + m_generatedAssetsDir}': {e.Message}");
 				}
 				return m_generatedAssetsDir;
 			}
@@ -193,7 +193,7 @@ namespace GuiToolkit
 		{
 			if (!AssetDatabase.Contains(_settings))
 			{
-				UiEditorUtility.CreateAsset(_settings, EDITOR_PATH);
+				EditorFileUtility.CreateAsset(_settings, EDITOR_PATH);
 			}
 			AssetDatabase.SaveAssets();
 		}

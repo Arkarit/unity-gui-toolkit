@@ -27,7 +27,7 @@ namespace GuiToolkit
 			if (m_firstTimeInit)
 			{
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_FIRST_TIME, MessageType.Info);
-				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			}
 
 			SerializedObject serializedObject = new SerializedObject(this);
@@ -54,28 +54,28 @@ namespace GuiToolkit
 
 			if (m_firstTimeInit)
 			{
-				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_LOAD_MAIN_SCENE_ON_PLAY, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_loadMainSceneOnPlay"), true);
 
 			if (m_firstTimeInit)
 			{
-				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_ADDITIONAL_SCENES_PATH, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_additionalScenesPath"), true);
 
 			if (m_firstTimeInit)
 			{
-				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_POT_PATH, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_potPath"), true);
 
 			if (m_firstTimeInit)
 			{
-				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_GENERATED_ASSETS_DIR, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_generatedAssetsDir"), true);
@@ -84,7 +84,7 @@ namespace GuiToolkit
 
 			if (FindObjectOfType<UiMain>() == null)
 			{
-				GUILayout.Space(UiEditorUtility.LARGE_SPACE_HEIGHT);
+				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 				if (m_firstTimeInit)
 					EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_UI_MAIN, MessageType.Info);
 

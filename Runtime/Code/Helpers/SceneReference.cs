@@ -337,7 +337,7 @@ namespace GuiToolkit
 						scene = EditorSceneManager.OpenScene(buildScene.assetPath, OpenSceneMode.Single);
 					}
 
-					if (!UiEditorUtility.CloseAllEditorScenesExcept(scene))
+					if (!EditorSceneUtility.CloseAllEditorScenesExcept(scene))
 					{
 						if (!sceneWasLoaded)
 							EditorSceneManager.CloseScene(scene, true);
@@ -350,9 +350,10 @@ namespace GuiToolkit
 				else
 				{
 					Scene scene = EditorSceneManager.GetSceneByPath(buildScene.assetPath);
-					UiEditorUtility.CloseEditorScene(scene);
+					EditorSceneUtility.CloseEditorScene(scene);
 				}
 			}
+
 			EditorGUI.EndDisabledGroup();
 		}
 

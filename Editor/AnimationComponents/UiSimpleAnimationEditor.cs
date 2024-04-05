@@ -94,7 +94,7 @@ namespace GuiToolkit
 
 			GUILayout.Label("Properties support:", EditorStyles.boldLabel);
 			UiSimpleAnimation.ESupport support = thisUiSimpleAnimation.Support;
-			UiEditorUtility.BoolBar(ref support, null, 3);
+			EditorUiUtility.BoolBar(ref support, null, 3);
 			m_supportProp.intValue = (int)(object)support;
 			EditorGUILayout.Space();
 
