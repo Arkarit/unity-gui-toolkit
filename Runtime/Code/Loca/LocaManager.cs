@@ -22,6 +22,10 @@ namespace GuiToolkit
 		public abstract void ReadKeyData();
 		public abstract void WriteKeyData();
 #endif
+
+		private bool m_debugLoca = false;
+		public bool DebugLoca => m_debugLoca;
+
 		private static LocaManager s_locaManager = null;
 		public static LocaManager Instance
 		{
@@ -42,6 +46,7 @@ namespace GuiToolkit
 
 		protected LocaManager()
 		{
+			m_debugLoca = UiToolkitConfiguration.Instance.m_debugLoca;
 			string language = PlayerPrefs.GetString(PLAYER_PREFS_KEY, "dev");
 			ChangeLanguage(language, false);
 		}

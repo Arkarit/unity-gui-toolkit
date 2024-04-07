@@ -51,6 +51,9 @@ namespace GuiToolkit
 		public const string HELP_ADDITIONAL_SCENES_PATH =
 			"Additional scene path for scenes, which are not in the scene references list";
 
+		public const string HELP_DEBUG_LOCA =
+			"This switches loca debugging on or off";
+
 		public static readonly string HELP_UI_MAIN =
 			  $"Each {StringConstants.TOOLKIT_NAME} needs a UiMain object, which coordinates all Ui tasks.\n"
 			+ "With this button you can create it in the active scene."
@@ -73,6 +76,9 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
 		public string m_additionalScenesPath = "Scenes/";
+
+		[Tooltip(HELP_DEBUG_LOCA)]
+		public bool m_debugLoca = false;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 

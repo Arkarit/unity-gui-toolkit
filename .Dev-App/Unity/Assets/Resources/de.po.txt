@@ -141,8 +141,8 @@ msgstr "Zeige Requester"
 msgid "Test Scene"
 msgstr "Testszene"
 
-msgid "Text...\n"
-msgstr "Text...\n"
+msgid "Text..."
+msgstr "Text..."
 
 msgid "Title..."
 msgstr "Titel..."

@@ -21,8 +21,8 @@ public class TestMain : UiThing
 				{
 					Type = EPlayerSettingType.Language,
 					Key = LocaManager.PLAYER_PREFS_KEY,
-					Titles = new List<string> {"English", "Deutsch", "Lolspeak"},
-					StringValues = new List<string> {"en_us", "de", "lol" }
+					Titles = new List<string> {"English", "Deutsch", "Russian", "Lolspeak"},
+					StringValues = new List<string> {"en_us", "de", "ru", "lol" }
 				}
 			),
 

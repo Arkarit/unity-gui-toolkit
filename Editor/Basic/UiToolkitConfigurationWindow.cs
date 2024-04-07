@@ -80,6 +80,9 @@ namespace GuiToolkit
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_generatedAssetsDir"), true);
 
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_debugLoca"));
+
 			m_serializedSettingsObject.ApplyModifiedProperties();
 
 			if (FindObjectOfType<UiMain>() == null)

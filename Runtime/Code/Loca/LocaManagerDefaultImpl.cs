@@ -1,5 +1,4 @@
-﻿#define DEBUG_LOCA
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -24,7 +23,8 @@ namespace GuiToolkit
 				return false;
 			}
 
-			Log($"Language changed: '{_language}'");
+			if (DebugLoca)
+				Log($"Language changed: '{_language}'");
 
 			m_isDev = _language == "dev";
 			if (m_isDev)
@@ -152,7 +152,7 @@ namespace GuiToolkit
 		public override string Translate( string _s )
 		{
 			if (string.IsNullOrEmpty(_s))
-				return "#MISSING KEY#";
+				return DebugLoca ? "#MISSING KEY#" : "";
 
 			if (m_isDev)
 				return _s;
@@ -160,12 +160,13 @@ namespace GuiToolkit
 			if (m_translationDict.TryGetValue(_s, out string result))
 			{
 				if (string.IsNullOrEmpty(result))
-					result = $"#{_s}";
+					result = DebugLoca ? $"#{_s}" : _s;
 
 				return result;
 			}
 
-			_s = $"*{_s}";
+			if (DebugLoca)
+				_s = $"*{_s}";
 
 			return _s;
 		}
@@ -195,7 +196,6 @@ namespace GuiToolkit
 			return _pluralKey;
 		}
 
-		[System.Diagnostics.Conditional("DEBUG_LOCA")]
 		private void Log(string _s)
 		{
 			Debug.Log(_s);
@@ -261,20 +261,24 @@ namespace GuiToolkit
 
 			if (_pluralKey != null)
 			{
-				Log($"Adding plural key '{_singularKey}', '{_pluralKey}'");
+				if (DebugLoca)
+					Log($"Adding plural key '{_singularKey}', '{_pluralKey}'");
 				Debug.Assert(!Application.isPlaying);
 				m_pluralKeys.Add(_singularKey, _pluralKey);
 				return;
 			}
 
-			Log($"Adding key '{_singularKey}'");
+			if (DebugLoca)
+				Log($"Adding key '{_singularKey}'");
 			Debug.Assert(!Application.isPlaying);
 			m_keys.Add(_singularKey);
 		}
 
 		public override void ReadKeyData()
 		{
-			Log($"Read POT file at '{PotPath}'");
+			if (DebugLoca)
+				Log($"Read POT file at '{PotPath}'");
+
 			m_keys.Clear();
 			try
 			{
@@ -296,18 +300,21 @@ namespace GuiToolkit
 						{
 							line2 = line2.Substring(14, line.Length - 15);
 							line2 = Unescape(line);
-							Log($"Adding POT plural key '{line}', '{line2}'");
+							if (DebugLoca)
+								Log($"Adding POT plural key '{line}', '{line2}'");
 							m_pluralKeys.Add(line, line2);
 							i += 1;
 							continue;
 						}
 					}
 
-					Log($"Adding POT key '{line}'");
+					if (DebugLoca)
+						Log($"Adding POT key '{line}'");
 					m_keys.Add(line);
 				}
 
-				Log("Success");
+				if (DebugLoca)
+					Log("Success");
 			}
 			catch( Exception e )
 			{
@@ -318,7 +325,9 @@ namespace GuiToolkit
 
 		public override void WriteKeyData()
 		{
-			Log($"Write POT file at '{PotPath}'");
+			if (DebugLoca)
+				Log($"Write POT file at '{PotPath}'");
+
 			try
 			{
 				string dir = Path.GetDirectoryName(PotPath);
@@ -350,7 +359,8 @@ namespace GuiToolkit
 				File.WriteAllText(PotPath, s);
 
 				AssetDatabase.Refresh();
-				Log("Success");
+				if (DebugLoca)
+					Log("Success");
 			}
 			catch( Exception e )
 			{
