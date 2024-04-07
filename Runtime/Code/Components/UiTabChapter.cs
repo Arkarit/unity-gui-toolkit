@@ -19,7 +19,7 @@ namespace GuiToolkit
 			set
 			{
 				base.Text = value;
-				m_verticalLayoutGroup.padding.top = string.IsNullOrEmpty(value) ? m_topPaddingWithoutText : m_topPaddingWithText;
+				m_verticalLayoutGroup.padding.top = string.IsNullOrEmpty(base.Text) ? m_topPaddingWithoutText : m_topPaddingWithText;
 			}
 		}
 	}
