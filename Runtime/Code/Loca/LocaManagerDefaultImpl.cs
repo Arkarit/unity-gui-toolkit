@@ -152,7 +152,12 @@ namespace GuiToolkit
 		public override string Translate( string _s )
 		{
 			if (string.IsNullOrEmpty(_s))
-				return DebugLoca ? "#MISSING KEY#" : "";
+			{
+				if (DebugLoca)
+					Log("Empty key - intentional?");
+
+				return "";
+			}
 
 			if (m_isDev)
 				return _s;
@@ -198,7 +203,7 @@ namespace GuiToolkit
 
 		private void Log(string _s)
 		{
-			Debug.Log(_s);
+			Debug.Log($"Debug Loca:{_s}");
 		}
 
 		private string Escape(string _s)

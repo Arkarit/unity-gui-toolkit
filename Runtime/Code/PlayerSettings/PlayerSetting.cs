@@ -82,7 +82,7 @@ namespace GuiToolkit
 		{
 			m_options = _options != null ? _options : new PlayerSettingOptions();
 
-			System.Type type = _defaultValue.GetType();
+			Type type = _defaultValue.GetType();
 			m_category = _category;
 			m_group = _group;
 			m_isRadio = m_options.Type == EPlayerSettingType.Radio || m_options.Type == EPlayerSettingType.Language;
