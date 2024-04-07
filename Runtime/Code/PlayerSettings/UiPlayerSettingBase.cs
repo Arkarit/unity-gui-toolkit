@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,10 +8,23 @@ namespace GuiToolkit
 	public abstract class UiPlayerSettingBase : UiThing
 	{
 		[SerializeField] protected UiTMPTranslator m_titleTranslator;
+		[SerializeField] protected TMP_Text m_text;
+		[SerializeField] protected bool m_isLocalized = true;
 
 		protected PlayerSetting m_playerSetting;
 		protected string m_subKey;
-		protected string m_title;
+
+		private string Text
+		{
+			get => m_isLocalized ? m_titleTranslator.Text : m_text.text;
+			set
+			{
+				if (m_isLocalized)
+					m_titleTranslator.Text = value;
+				else
+					m_text.text = value;
+			}
+		}
 
 		public bool Initialized => m_playerSetting != null;
 
@@ -81,14 +92,16 @@ namespace GuiToolkit
 		{
 			m_subKey = _subKey;
 			m_playerSetting = _playerSetting;
+			m_isLocalized = _playerSetting.IsLocalized;
+			string key = string.Empty;
 
 			if (string.IsNullOrEmpty(_subKey))
 			{
-				m_title = m_titleTranslator.Text = _playerSetting.Title;
+				key = Text = _playerSetting.Title;
 			}
 			else if (_playerSetting.Options.Titles == null)
 			{
-				m_title = m_titleTranslator.Text = _subKey;
+				key = Text = _subKey;
 			}
 			else
 			{
@@ -96,13 +109,13 @@ namespace GuiToolkit
 				{
 					if (_playerSetting.Options.StringValues[i] == _subKey)
 					{
-						m_title = m_titleTranslator.Text = _playerSetting.Options.Titles[i];
+						key = Text = _playerSetting.Options.Titles[i];
 						break;
 					}
 				}
 			}
 
-			gameObject.name = _gameObjectNamePrefix + m_title;
+			gameObject.name = _gameObjectNamePrefix + key;
 
 			if (_playerSetting.HasIcons)
 				ApplyIcons(_playerSetting.Icons);

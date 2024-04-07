@@ -11,17 +11,18 @@ namespace GuiToolkit
 	}
 
 	[Serializable]
-	public partial class PlayerSettingOptions
+	public class PlayerSettingOptions
 	{
 		public EPlayerSettingType Type = EPlayerSettingType.Auto;
 		public string Key = null;
 		public List<string> Icons;
 		public List<string> Titles;
 		public List<string> StringValues;
+		public bool IsLocalized = true;
 	}
 
 	[Serializable]
-	public partial class PlayerSetting
+	public class PlayerSetting
 	{
 		[SerializeField] protected string m_category;
 		[SerializeField] protected string m_group;
@@ -32,6 +33,7 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_isRadio;
 		[SerializeField] protected bool m_isLanguage;
 		[SerializeField] protected List<string> m_icons;
+		[SerializeField] protected bool m_isLocalized;
 
 		protected object m_value;
 		protected object m_savedValue;
@@ -74,6 +76,7 @@ namespace GuiToolkit
 		public bool IsString => m_type == typeof(string);
 		public bool HasIcons => m_icons != null;
 		public List<string> Icons => m_icons;
+		public bool IsLocalized => m_isLocalized;
 
 		public PlayerSetting( string _category, string _group, string _title, object _defaultValue, PlayerSettingOptions _options = null )
 		{
@@ -89,6 +92,7 @@ namespace GuiToolkit
 			m_defaultValue = _defaultValue;
 			m_icons = m_options.Icons;
 			m_type = type;
+			m_isLocalized = m_options.IsLocalized;
 
 			if (type == typeof(int) || type == typeof(bool) || type.IsEnum)
 				m_value = PlayerPrefs.GetInt(Key, Convert.ToInt32(DefaultValue));
