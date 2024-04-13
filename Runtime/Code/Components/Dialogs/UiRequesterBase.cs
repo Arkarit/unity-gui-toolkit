@@ -109,8 +109,8 @@ namespace GuiToolkit
 				m_listeners.Add(bi.OnClick);
 
 				// in a real programming language you would be able to declare the lambda capture mode (ref or copy)
-				int fuckYouCSharp = i;
-				button.OnClick.AddListener( () => OnClick(fuckYouCSharp) );
+				int buttonIdx = i;
+				button.OnClick.AddListener( () => OnClick(buttonIdx) );
 
 				button.Text = bi.Text;
 			}

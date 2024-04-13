@@ -191,7 +191,7 @@ namespace GuiToolkit
 				{
 					var result = plurals[pluralIdx];
 					if (string.IsNullOrEmpty(result))
-						result = $"_{pluralIdx}_{_pluralKey}";
+						result = DebugLoca ? $"_{pluralIdx}_{_pluralKey}" : "";
 
 					return result;
 				}
