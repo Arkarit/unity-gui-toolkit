@@ -19,7 +19,7 @@ namespace GuiToolkit
 	[RequireComponent(typeof(Camera))]
 	[RequireComponent(typeof(UiPool))]
 	[ExecuteAlways]
-	public class UiMain : UiThing
+	public class UiMain : MonoBehaviour
 	{
 		[Header("Canvas Settings")]
 
@@ -213,9 +213,6 @@ namespace GuiToolkit
 		#region "Builtin Dialogs"
 
 		[SerializeField]
-		private Transform m_requesterContainer;
-
-		[SerializeField]
 		private UiRequester m_requesterPrefab;
 
 		[SerializeField]
@@ -279,7 +276,7 @@ namespace GuiToolkit
 		private T CreateView<T>(T _template) where T : UiView
 		{
 			T result = _template.PoolInstantiate();
-			result.transform.SetParent(m_requesterContainer, false);
+			result.transform.SetParent(transform, false);
 			return result;
 		}
 		#endregion
@@ -430,20 +427,16 @@ namespace GuiToolkit
 
 		static EScreenOrientation s_screenOrientation = EScreenOrientation.Invalid;
 
-		protected override void Awake()
+		protected virtual void Awake()
 		{
-			base.Awake();
-
 			InitGetters();
 
 			if (Application.isPlaying)
 				DontDestroyOnLoad(gameObject);
 		}
 
-		protected override void Start()
+		protected virtual void Start()
 		{
-			base.Start();
-
 #if UNITY_EDITOR
 			CheckSceneSetup();
 #endif
@@ -468,9 +461,8 @@ namespace GuiToolkit
 					((ISetDefaultSceneVisibility)monoBehaviour).SetDefaultSceneVisibility();
 		}
 
-		protected override void OnDestroy()
+		protected virtual void OnDestroy()
 		{
-			base.OnDestroy();
 			Instance = null;
 		}
 

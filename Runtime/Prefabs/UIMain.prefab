@@ -20,13 +20,14 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &3740621673676647904
-RectTransform:
+--- !u!4 &3740621673676647904
+Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7267538138393597003}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -36,11 +37,6 @@ RectTransform:
   - {fileID: 7267538138489494618}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!20 &7267538138393597005
 Camera:
   m_ObjectHideFlags: 0
@@ -117,7 +113,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 086a4c0f489a8674a9c387c1df6022f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_enabledInHierarchy: 1
   m_renderMode: 1
   m_layerDistance: 0.02
   m_stackAnimationType: 2
@@ -187,7 +182,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_requesterContainer: {fileID: 3740621673676647904}
   m_requesterPrefab: {fileID: 2126843345544139566, guid: d7b00544567b55d4c97d8eb3f48f4c44,
     type: 3}
   m_settingsDialogPrefab: {fileID: 2556751561047220986, guid: 22c52cc36085977418a4df5a7eb83ca9,

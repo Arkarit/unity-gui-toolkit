@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -14,7 +11,7 @@ namespace GuiToolkit
 		{
 			public string Text;
 			public UiButton Prefab;
-			public UnityEngine.Events.UnityAction OnClick;
+			public UnityAction OnClick;
 		}
 
 		public class Options
@@ -37,7 +34,6 @@ namespace GuiToolkit
 
 		public bool m_cancelButtonsLeftSide = false;
 
-		private bool m_allowOutsideTap;
 		private int m_closeButtonIdx = Constants.INVALID;
 
 		private readonly List<UiButton> m_buttons = new List<UiButton>();
@@ -88,7 +84,6 @@ namespace GuiToolkit
 
 		protected virtual void EvaluateOptions( Options _options )
 		{
-			m_allowOutsideTap = _options.AllowOutsideTap;
 			m_closeButtonIdx = _options.CloseButtonIdx;
 
 			if (m_maxButtons != Constants.INVALID && _options.ButtonInfos.Length > m_maxButtons)

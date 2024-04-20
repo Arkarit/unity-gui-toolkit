@@ -3,12 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestMain : UiThing
+public class TestMain : LocaMonoBehaviour
 {
-	protected override void Start()
+	protected void Start()
 	{
-		base.Start();
-
 		Application.targetFrameRate = 60;
 //PlayerPrefs.DeleteAll();
 		PlayerSettings.Instance.Add( new List<PlayerSetting>
