@@ -16,17 +16,16 @@ namespace GuiToolkit.Editor
 	public static class SceneChangeTracker
 	{
 		private const string LogPrefix = "Scene Change Tracker:";
-		private const string MenuEntry = StringConstants.MENU_HEADER + "Tools/Scene Change Tracker";
 		private static bool s_enabled = false;
 
-		private static readonly string PrefsKey = UnityEditor.PlayerSettings.productName + "." + nameof(SceneChangeTracker) + ".active";
+		private static readonly string PrefsKey = StringConstants.PLAYER_PREFS_PREFIX + nameof(SceneChangeTracker) + ".active";
  
 		static SceneChangeTracker()
 		{
 			IsEnabled = EditorPrefs.GetBool(PrefsKey);
 		}
 
-		[MenuItem(MenuEntry)]
+		[MenuItem(StringConstants.SCENE_CHANGE_TRACKER_MENU_NAME, priority = Constants.MISC_MENU_PRIORITY)]
 		private static void Toggle()
 		{
 			IsEnabled = !IsEnabled;
@@ -42,7 +41,7 @@ namespace GuiToolkit.Editor
 
 				s_enabled = value;
 
-				Menu.SetChecked(MenuEntry, s_enabled);
+				Menu.SetChecked(StringConstants.SCENE_CHANGE_TRACKER_MENU_NAME, s_enabled);
 				if (s_enabled)
 				{
 					Undo.postprocessModifications += OnPostProcessModifications;

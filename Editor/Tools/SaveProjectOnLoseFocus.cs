@@ -14,7 +14,6 @@ namespace GuiToolkit.Editor
 	[InitializeOnLoad]
 	public static class SaveProjectOnLoseFocus
 	{
-		private const string MenuEntry = StringConstants.MENU_HEADER + "Tools/Save Project on Lose Focus";
 		private static bool s_enabled = false;
 
 		private static readonly string PrefsKey = UnityEditor.PlayerSettings.productName + "." + nameof(SaveProjectOnLoseFocus) + ".active";
@@ -24,7 +23,7 @@ namespace GuiToolkit.Editor
 			IsEnabled = EditorPrefs.GetBool(PrefsKey);
 		}
 
-		[MenuItem(MenuEntry)]
+		[MenuItem(StringConstants.SAVE_PROJECT_ON_LOSE_FOCUS_MENU_NAME, priority = Constants.MISC_MENU_PRIORITY)]
 		private static void Toggle()
 		{
 			IsEnabled = !IsEnabled;
@@ -40,7 +39,7 @@ namespace GuiToolkit.Editor
 
 				s_enabled = value;
 
-				Menu.SetChecked(MenuEntry, s_enabled);
+				Menu.SetChecked(StringConstants.SAVE_PROJECT_ON_LOSE_FOCUS_MENU_NAME, s_enabled);
 
 				if (s_enabled)
 					EditorApplication.focusChanged += OnFocusChanged;
