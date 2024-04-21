@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace GuiToolkit.UiStateSystem
+namespace GuiToolkit.UiStateSystem.Editor
 {
 	public static class UiTransitionSubEditor
 	{

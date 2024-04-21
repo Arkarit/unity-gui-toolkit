@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 	public class UiToolkitConfigurationWindow : EditorWindow
 	{

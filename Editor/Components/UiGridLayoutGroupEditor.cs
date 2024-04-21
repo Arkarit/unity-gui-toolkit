@@ -1,6 +1,6 @@
 using UnityEditor;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
     [CustomEditor(typeof(UiGridLayoutGroup), true)]
     [CanEditMultipleObjects]
@@ -8,7 +8,7 @@ namespace GuiToolkit
     ///   Custom Editor for the UiGridLayout Component.
     ///   Extend this class to write a custom editor for an GridLayout-derived component.
     /// </summary>
-    public class UiGridLayoutGroupEditor : Editor
+    public class UiGridLayoutGroupEditor : UnityEditor.Editor
     {
         SerializedProperty m_paddingProp;
         SerializedProperty m_cellSizeProp;

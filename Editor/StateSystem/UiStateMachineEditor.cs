@@ -4,12 +4,12 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GuiToolkit.UiStateSystem
+namespace GuiToolkit.UiStateSystem.Editor
 {
 
 	[CustomEditor(typeof(UiStateMachine))]
 	//	[CanEditMultipleObjects]
-	public class UiStateMachineEditor : Editor
+	public class UiStateMachineEditor : UnityEditor.Editor
 	{
 
 		public SerializedProperty m_supportProp;

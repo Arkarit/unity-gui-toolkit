@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEditor.UI;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 	[CustomEditor(typeof(UiHorizontalOrVerticalLayoutGroup), true)]
 	[CanEditMultipleObjects]

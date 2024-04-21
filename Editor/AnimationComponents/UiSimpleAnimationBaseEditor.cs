@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 
 	[CustomEditor(typeof(UiSimpleAnimationBase))]
-	public class UiSimpleAnimationBaseEditor : Editor, IEditorUpdateable
+	public class UiSimpleAnimationBaseEditor : UnityEditor.Editor, IEditorUpdateable
 	{
 		protected SerializedProperty m_durationProp;
 		protected SerializedProperty m_delayProp;

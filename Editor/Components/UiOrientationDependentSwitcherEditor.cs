@@ -1,12 +1,11 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 	[CustomEditor(typeof(UiOrientationDependentSwitcher))]
-	public class UiOrientationDependentSwitcherEditor : Editor
+	public class UiOrientationDependentSwitcherEditor : UnityEditor.Editor
 	{
 		private const string TemplateParentName = "_orientationTemplates";
 

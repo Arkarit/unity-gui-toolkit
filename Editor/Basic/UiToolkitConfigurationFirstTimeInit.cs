@@ -1,7 +1,6 @@
 ﻿using UnityEditor;
-using UnityEngine;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 	[InitializeOnLoad]
 	public static class UiToolkitConfigurationFirstTimeInit

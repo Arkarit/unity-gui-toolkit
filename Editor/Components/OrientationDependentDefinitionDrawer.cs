@@ -1,6 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 #if true
 	[CustomPropertyDrawer(typeof(OrientationDependentDefinition))]

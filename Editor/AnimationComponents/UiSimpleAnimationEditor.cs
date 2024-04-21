@@ -1,9 +1,8 @@
-﻿using Unity;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 	[CustomEditor(typeof(UiSimpleAnimation))]
 	public class UiSimpleAnimationEditor : UiSimpleAnimationBaseEditor
