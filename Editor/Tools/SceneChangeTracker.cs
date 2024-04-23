@@ -15,7 +15,7 @@ namespace GuiToolkit.Editor
 	[InitializeOnLoad]
 	public static class SceneChangeTracker
 	{
-		private const string LogPrefix = "Scene Change Tracker:";
+		private const string LogPrefix = "Scene Change Tracker: ";
 		private static bool s_enabled = false;
 
 		private static readonly string PrefsKey = StringConstants.PLAYER_PREFS_PREFIX + nameof(SceneChangeTracker) + ".active";
@@ -72,7 +72,7 @@ namespace GuiToolkit.Editor
 
 		private static string BuildLogMessage(UndoPropertyModification mod)
 		{
-			string result = $"{LogPrefix} ";
+			string result = LogPrefix;
 			MonoBehaviour monoBehaviour = mod.currentValue.target as MonoBehaviour;
 			if (monoBehaviour)
 			{

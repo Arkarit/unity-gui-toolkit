@@ -14,6 +14,7 @@ namespace GuiToolkit.Editor
 	[InitializeOnLoad]
 	public static class SaveProjectOnLoseFocus
 	{
+		private const string LogPrefix = "Save Project On Lose Focus: ";
 		private static bool s_enabled = false;
 
 		private static readonly string PrefsKey = UnityEditor.PlayerSettings.productName + "." + nameof(SaveProjectOnLoseFocus) + ".active";
@@ -52,10 +53,10 @@ namespace GuiToolkit.Editor
 
 		private static void OnFocusChanged(bool hasFocus)
 		{
-			if (!hasFocus) 
+			if (hasFocus) 
 				return;
 
-			Debug.Log("Lost focus, saving assets");
+			Debug.Log($"{LogPrefix}Lost focus, saving assets");
 			AssetDatabase.SaveAssets();
 		}
 	}
