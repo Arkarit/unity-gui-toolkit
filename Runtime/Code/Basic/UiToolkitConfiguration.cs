@@ -4,6 +4,7 @@ using System.IO;
 using System;
 
 #if UNITY_EDITOR
+using GuiToolkit.Style;
 using UnityEditor;
 #endif
 
@@ -134,10 +135,11 @@ namespace GuiToolkit
 			}
 		}
 
-		public override void OnInitialize()
+		public override void OnEditorInitialize()
 		{
 			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
 			m_loadMainSceneOnPlay = m_sceneReferences.Length > 0;
+			UiMainStyleConfig.Initialize();
 		}
 
 		public static string GetProjectScenePath(string _sceneName)

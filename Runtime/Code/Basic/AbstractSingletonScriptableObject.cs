@@ -46,7 +46,7 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 
-		public virtual void OnInitialize() {}
+		public virtual void OnEditorInitialize() {}
 
 		protected static T EditorLoad()
 		{
@@ -80,7 +80,7 @@ namespace GuiToolkit
 			T instance = CreateInstance<T>();
 			s_instance = instance;
 			var abstractSingletonScriptableObject = instance as AbstractSingletonScriptableObject<T>;
-			abstractSingletonScriptableObject.OnInitialize();
+			abstractSingletonScriptableObject.OnEditorInitialize();
 
 			EditorSave(instance);
 		}

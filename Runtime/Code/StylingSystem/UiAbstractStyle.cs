@@ -1,8 +1,9 @@
-using UnityEngine;
+using System;
 
 namespace GuiToolkit.Style
 {
-	public abstract class UiAbstractStyle : ScriptableObject
+	[Serializable]
+	public abstract class UiAbstractStyle
 	{
 	}
 }

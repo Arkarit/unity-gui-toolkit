@@ -29,7 +29,7 @@ namespace GuiToolkit
 		public static CEvent<EScreenOrientation,EScreenOrientation>		EvScreenOrientationChange		= new();
 
 		/// \brief Invoked if style has changed
-		/// <param name="UiStyleConfig">Style config</param>
-		public static CEvent<UiAbstractStyleConfig>								EvStyleChanged					= new();
+		/// <param name="UiSkin">New skin</param>
+		public static CEvent<UiSkin>									EvSkinChanged					= new();
 	}
 }
