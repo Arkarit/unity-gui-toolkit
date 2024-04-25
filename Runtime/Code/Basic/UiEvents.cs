@@ -28,8 +28,7 @@ namespace GuiToolkit
 		/// <param name="EScreenOrientation 1">Screen orientation after change</param>
 		public static CEvent<EScreenOrientation,EScreenOrientation>		EvScreenOrientationChange		= new();
 
-		/// \brief Invoked if style has changed
-		/// <param name="UiSkin">New skin</param>
-		public static CEvent<UiSkin>									EvSkinChanged					= new();
+		/// \brief Invoked if skin has changed
+		public static CEvent											EvSkinChanged					= new();
 	}
 }
