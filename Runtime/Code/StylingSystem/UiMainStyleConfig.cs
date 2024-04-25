@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace GuiToolkit.Style
 {
-	public class UiStyleConfig : ScriptableObject
+	public class UiMainStyleConfig : ScriptableObject
 	{
 	}
 }

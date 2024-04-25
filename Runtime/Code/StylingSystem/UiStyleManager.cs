@@ -1,6 +1,6 @@
 namespace GuiToolkit.Style
 {
-	public static class UiStyleManager
+	public class UiStyleManager : AbstractSingletonMonoBehaviour<UiStyleManager>
 	{
 	}
 }

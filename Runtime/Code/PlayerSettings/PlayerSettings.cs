@@ -12,11 +12,11 @@ namespace GuiToolkit
 
 		protected PlayerSettings()
 		{
-			UiEvents.OnPlayerSettingChanged.AddListener(OnPlayerSettingChanged);
+			UiEvents.EvPlayerSettingChanged.AddListener(OnPlayerSettingChanged);
 		}
 		~PlayerSettings()
 		{
-			UiEvents.OnPlayerSettingChanged.RemoveListener(OnPlayerSettingChanged);
+			UiEvents.EvPlayerSettingChanged.RemoveListener(OnPlayerSettingChanged);
 		}
 
 		private static PlayerSettings s_instance;
@@ -64,7 +64,7 @@ namespace GuiToolkit
 			foreach (PlayerSetting playerSetting in _playerSettings )
 			{
 				playerSetting.InvokeEvents = true;
-				UiEvents.OnPlayerSettingChanged.Invoke(playerSetting);
+				UiEvents.EvPlayerSettingChanged.Invoke(playerSetting);
 			}
 		}
 

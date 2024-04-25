@@ -34,7 +34,7 @@ namespace GuiToolkit
 				if (s_locaManager == null)
 				{
 					s_locaManager = new LocaManagerDefaultImpl();
-					UiEvents.OnLanguageChanged.Invoke(s_locaManager.Language);
+					UiEvents.EvLanguageChanged.Invoke(s_locaManager.Language);
 				}
 				return s_locaManager;
 			}
@@ -72,7 +72,7 @@ namespace GuiToolkit
 			}
 
 			if (_invokeEvent)
-				UiEvents.OnLanguageChanged.Invoke(_languageId);
+				UiEvents.EvLanguageChanged.Invoke(_languageId);
 
 			return true;
 		}
