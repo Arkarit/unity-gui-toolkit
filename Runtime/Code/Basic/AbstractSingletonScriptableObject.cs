@@ -45,6 +45,9 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
+
+		public virtual void OnInitialize() {}
+
 		protected static T EditorLoad()
 		{
 			T result = AssetDatabase.LoadAssetAtPath<T>(EditorPath);
@@ -66,6 +69,23 @@ namespace GuiToolkit
 
 			AssetDatabase.SaveAssets();
 		}
+
+		public static bool Initialized => AssetDatabase.LoadAssetAtPath<T>(EditorPath) != null;
+
+		public static void Initialize()
+		{
+			if (Initialized)
+				return;
+
+			T instance = CreateInstance<T>();
+			s_instance = instance;
+			var abstractSingletonScriptableObject = instance as AbstractSingletonScriptableObject<T>;
+			abstractSingletonScriptableObject.OnInitialize();
+
+			EditorSave(instance);
+		}
+
+
 #endif
 	}
 }

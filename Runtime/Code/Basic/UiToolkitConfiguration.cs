@@ -134,20 +134,10 @@ namespace GuiToolkit
 			}
 		}
 
-		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiToolkitConfiguration>(EditorPath) != null;
-
-		public static void Initialize()
+		public override void OnInitialize()
 		{
-			if (Initialized)
-				return;
-
-			UiToolkitConfiguration settings = CreateInstance<UiToolkitConfiguration>();
-
-			settings.m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
-			settings.m_loadMainSceneOnPlay = settings.m_sceneReferences.Length > 0;
-
-			EditorSave(settings);
-			s_instance = settings;
+			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
+			m_loadMainSceneOnPlay = m_sceneReferences.Length > 0;
 		}
 
 		public static string GetProjectScenePath(string _sceneName)
