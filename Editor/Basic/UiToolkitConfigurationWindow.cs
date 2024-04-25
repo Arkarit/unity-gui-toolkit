@@ -34,7 +34,7 @@ namespace GuiToolkit.Editor
 			UiToolkitConfiguration thisSettings = settingsProp.objectReferenceValue as UiToolkitConfiguration;
 			if (thisSettings == null)
 			{
-				thisSettings = UiToolkitConfiguration.EditorLoad();
+				thisSettings = UiToolkitConfiguration.Instance;
 				settingsProp.objectReferenceValue = thisSettings;
 			}
 

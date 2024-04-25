@@ -1,6 +1,4 @@
 ﻿#if UNITY_EDITOR
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -16,7 +14,7 @@ namespace GuiToolkit
 		[MenuItem(StringConstants.LOCA_PROCESSOR_MENU_NAME, priority = Constants.LOCA_PROCESSOR_MENU_PRIORITY)]
 		public static void Process()
 		{
-			string potPath = UiToolkitConfiguration.EditorLoad().m_potPath;
+			string potPath = UiToolkitConfiguration.Instance.m_potPath;
 			if (string.IsNullOrEmpty(potPath))
 			{
 				Debug.LogError("No POT path in settings");

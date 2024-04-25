@@ -5,21 +5,21 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public abstract class AbstractSingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBehaviour
 	{
-		protected static T m_instance;
+		protected static T s_instance;
 
 		public static T Instance
 		{
 			get
 			{
-				if (m_instance == null)
+				if (s_instance == null)
 				{
 					GameObject go = new GameObject($"The_{nameof(T)}");
 					if (!Application.isPlaying)
 						go.hideFlags = HideFlags.HideAndDontSave;
 
-					m_instance = go.AddComponent<T>();
+					s_instance = go.AddComponent<T>();
 				}
-				return m_instance;
+				return s_instance;
 			}
 		}
 
@@ -27,7 +27,7 @@ namespace GuiToolkit
 
 		private void Update()
 		{
-			if (m_instance != this)
+			if (s_instance != this)
 			{
 				gameObject.Destroy(false);
 				return;
