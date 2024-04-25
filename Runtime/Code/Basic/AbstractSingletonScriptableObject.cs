@@ -10,8 +10,8 @@ namespace GuiToolkit
 	public abstract class AbstractSingletonScriptableObject<T> : ScriptableObject where T : ScriptableObject
 	{
 		protected const string EditorDir = "Assets/Resources/";
-		protected static string ResourcePath => nameof(T);
-		protected static string EditorPath => EditorDir + nameof(T) + ".asset";
+		protected static string ClassName => typeof(T).Name;
+		protected static string EditorPath => EditorDir + ClassName + ".asset";
 		
 		protected static T s_instance;
 
@@ -25,10 +25,10 @@ namespace GuiToolkit
 					if (Application.isPlaying)
 					{
 #endif
-						s_instance = Resources.Load<T>(ResourcePath);
+						s_instance = Resources.Load<T>(ClassName);
 						if (s_instance == null)
 						{
-							Debug.LogError($"UiToolkitMainSettings could not be loaded from path '{ResourcePath}'");
+							Debug.LogError($"UiToolkitMainSettings could not be loaded from path '{ClassName}'");
 							s_instance = CreateInstance<T>();
 						}
 #if UNITY_EDITOR
