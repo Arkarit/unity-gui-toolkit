@@ -27,11 +27,11 @@ namespace GuiToolkit.Editor
 
 		private void SyncStyles()
 		{
-			Dictionary<Type, UiAbstractApplyStyleBase> applianceComponentByType = new();
+			Dictionary<int, UiAbstractApplyStyleBase> applianceComponentByKey = new();
 			EditorUiUtility.FindAllComponentsInAllAssets<UiAbstractApplyStyleBase>(component =>
 			{
-				if (!applianceComponentByType.ContainsKey(component.SupportedMonoBehaviourType))
-					applianceComponentByType.Add(component.SupportedMonoBehaviourType, component);
+				if (!applianceComponentByKey.ContainsKey(component.Key))
+					applianceComponentByKey.Add(component.Key, component);
 			});
 
 			var thisUiMainStyleConfig = target as UiMainStyleConfig;
@@ -43,12 +43,12 @@ namespace GuiToolkit.Editor
 			{
 				List<UiAbstractStyleBase> newStyles = new();
 
-				foreach (var kv in applianceComponentByType)
+				foreach (var kv in applianceComponentByKey)
 				{
-					var supportedMonoBehaviourType = kv.Key;
+					var key = kv.Key;
 					var applyStyleComponent = kv.Value;
 
-					if (skin.StyleBySupportedMonoBehaviour(supportedMonoBehaviourType) == null)
+					if (skin.StyleByKey(key) == null)
 					{
 						var newStyle = applyStyleComponent.CreateStyle();
 						newStyles.Add(newStyle);

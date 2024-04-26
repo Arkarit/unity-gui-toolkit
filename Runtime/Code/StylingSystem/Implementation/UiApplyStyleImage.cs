@@ -16,6 +16,8 @@ namespace GuiToolkit.Style
 			if (!SpecificMonoBehaviour)
 				return result;
 
+			result.Name = Name;
+			result.CreateKey();
 			result.Color = SpecificMonoBehaviour.color;
 			return result;
 		}

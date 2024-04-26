@@ -15,13 +15,14 @@ MonoBehaviour:
   m_skins:
   - m_name: Fitzefatze
     m_styles:
-    - rid: 8073282372870602754
+    - rid: 8073282372870602757
   m_currentSkinIdx: 0
   references:
     version: 2
     RefIds:
-    - rid: 8073282372870602754
+    - rid: 8073282372870602757
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_name: 
-        m_color: {r: 1, g: 1, b: 1, a: 1}
+        m_name: RedSquare
+        m_key: 1250346075
+        m_color: {r: 1, g: 0, b: 0, a: 1}

@@ -57,7 +57,7 @@ namespace GuiToolkit.Style
 		private void Apply()
 		{
 			var skin = UiMainStyleConfig.Instance.CurrentSkin;
-			var style = skin.StyleBySupportedMonoBehaviour(SupportedMonoBehaviourType);
+			var style = skin.StyleByKey(Key);
 			Apply(style as ST);
 
 			UiEvents.EvSkinChanged.AddListener(OnSkinChanged);

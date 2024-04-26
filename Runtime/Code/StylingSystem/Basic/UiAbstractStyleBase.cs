@@ -9,9 +9,18 @@ namespace GuiToolkit.Style
 	{
 		[SerializeField] private string m_name;
 
-		public string Name => m_name;
+		public string Name
+		{
+			get => m_name;
+			set => m_name = value;
+		}
 
 		public abstract Type SupportedMonoBehaviourType { get; }
 		public abstract int Key { get; }
+
+		public void CreateKey()
+		{
+			var dummy = Key;
+		}
 	}
 }

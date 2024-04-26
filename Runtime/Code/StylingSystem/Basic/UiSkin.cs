@@ -10,21 +10,21 @@ namespace GuiToolkit.Style
 		[SerializeField] private string m_name;
 		[SerializeReference] private List<UiAbstractStyleBase> m_styles = new();
 
-		private readonly Dictionary<Type, UiAbstractStyleBase> m_styleByClass = new ();
+		private readonly Dictionary<int, UiAbstractStyleBase> m_styleByKey = new ();
 
 		public string Name => m_name;
 		public List<UiAbstractStyleBase> Styles => m_styles;
 
-		public UiAbstractStyleBase StyleBySupportedMonoBehaviour(Type monoBehaviourClass)
+		public UiAbstractStyleBase StyleByKey(int monoBehaviourClass)
 		{
-			if (m_styleByClass.TryGetValue(monoBehaviourClass, out UiAbstractStyleBase result))
+			if (m_styleByKey.TryGetValue(monoBehaviourClass, out UiAbstractStyleBase result))
 			{
 				return result;
 			}
 
 			BuildDictionaries();
 
-			if (m_styleByClass.TryGetValue(monoBehaviourClass, out result))
+			if (m_styleByKey.TryGetValue(monoBehaviourClass, out result))
 			{
 				return result;
 			}
@@ -34,10 +34,10 @@ namespace GuiToolkit.Style
 
 		private void BuildDictionaries()
 		{
-			m_styleByClass.Clear();
+			m_styleByKey.Clear();
 			foreach (var style in m_styles)
 			{
-				m_styleByClass.Add(style.SupportedMonoBehaviourType, style);
+				m_styleByKey.Add(style.Key, style);
 			}
 		}
 	}
