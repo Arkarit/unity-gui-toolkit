@@ -6,13 +6,17 @@ namespace GuiToolkit.Style
 	{
 		public override void Apply(UiStyleImage style)
 		{
-			SpecificMonoBehaviour.color = style.color;
+			SpecificMonoBehaviour.color = style.Color;
 		}
 
 		public override UiAbstractStyleBase CreateStyle()
 		{
 			UiStyleImage result = new UiStyleImage();
-			result.color = SpecificMonoBehaviour.color;
+
+			if (!SpecificMonoBehaviour)
+				return result;
+
+			result.Color = SpecificMonoBehaviour.color;
 			return result;
 		}
 	}

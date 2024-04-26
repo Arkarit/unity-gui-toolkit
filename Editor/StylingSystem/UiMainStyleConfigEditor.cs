@@ -7,9 +7,6 @@ using UnityEngine;
 namespace GuiToolkit.Editor
 {
 	[CustomEditor(typeof(UiMainStyleConfig), true)]
-	/// <summary>
-	/// 
-	/// </summary>
 	public class UiMainStyleConfigEditor : UnityEditor.Editor
 	{
 		protected virtual void OnEnable()

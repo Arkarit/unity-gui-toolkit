@@ -11,20 +11,28 @@ namespace GuiToolkit.Style
 
 		public override Type SupportedMonoBehaviourType => typeof(MB);
 		public override Type SupportedStyleType => typeof(ST);
-		public override MonoBehaviour MonoBehaviour => m_monoBehaviour;
-		public MB SpecificMonoBehaviour => m_monoBehaviour;
 
-		public abstract void Apply(ST style);
-
-		public virtual void Awake()
+		public override MonoBehaviour MonoBehaviour
 		{
-			m_monoBehaviour = GetComponent<MB>();
-			if (m_monoBehaviour == null)
+			get
 			{
-				Debug.LogWarning($"{GetType().Name}: Required MonoBehaviour type '{SupportedMonoBehaviourType.Name}'" + 
-				                 $" not found on GameObject '{gameObject.name}', styling won't work here");
+				if (m_monoBehaviour == null)
+				{
+					m_monoBehaviour = GetComponent<MB>();
+					if (m_monoBehaviour == null)
+					{
+						Debug.LogWarning($"{GetType().Name}: Required MonoBehaviour type '{SupportedMonoBehaviourType.Name}'" + 
+						                 $" not found on GameObject '{gameObject.name}', styling won't work here");
+					}
+				}
+
+				return m_monoBehaviour;
 			}
 		}
+
+		public MB SpecificMonoBehaviour => MonoBehaviour as MB;
+
+		public abstract void Apply(ST style);
 
 		public virtual void OnEnable()
 		{

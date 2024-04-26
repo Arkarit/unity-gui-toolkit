@@ -8,7 +8,7 @@ namespace GuiToolkit.Style
 	public class UiSkin
 	{
 		[SerializeField] private string m_name;
-		[SerializeField] [SerializeReference] private List<UiAbstractStyleBase> m_styles = new();
+		[SerializeReference] private List<UiAbstractStyleBase> m_styles = new();
 
 		private readonly Dictionary<Type, UiAbstractStyleBase> m_styleByClass = new ();
 
@@ -31,17 +31,6 @@ namespace GuiToolkit.Style
 
 			return null;
 		}
-
-#if UNITY_EDITOR
-		public HashSet<Type> GetStyleTypes()
-		{
-			HashSet<Type> result = new();
-			foreach (var style in m_styles)
-				result.Add(style.GetType());
-
-			return result;
-		}
-#endif
 
 		private void BuildDictionaries()
 		{
