@@ -15,7 +15,7 @@ namespace GuiToolkit.Style
 		public string Name => m_name;
 		public List<UiAbstractStyleBase> Styles => m_styles;
 
-		public UiAbstractStyleBase StyleByMonoBehaviourClass(Type monoBehaviourClass)
+		public UiAbstractStyleBase StyleBySupportedMonoBehaviour(Type monoBehaviourClass)
 		{
 			if (m_styleByClass.TryGetValue(monoBehaviourClass, out UiAbstractStyleBase result))
 			{

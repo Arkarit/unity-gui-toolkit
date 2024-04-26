@@ -30,38 +30,44 @@ namespace GuiToolkit.Editor
 
 		private void SyncStyles()
 		{
-			Dictionary<Type, UiAbstractApplyStyleBase> dict = new();
+			Dictionary<Type, UiAbstractApplyStyleBase> applianceComponentByType = new();
 			EditorUiUtility.FindAllComponentsInAllAssets<UiAbstractApplyStyleBase>(component =>
 			{
-				if (!dict.ContainsKey(component.SupportedMonoBehaviourType))
-					dict.Add(component.SupportedMonoBehaviourType, component);
+				if (!applianceComponentByType.ContainsKey(component.SupportedMonoBehaviourType))
+					applianceComponentByType.Add(component.SupportedMonoBehaviourType, component);
 			});
 
 			var thisUiMainStyleConfig = target as UiMainStyleConfig;
 			var skins = thisUiMainStyleConfig.Skins;
-			
+
+			bool configWasChanged = false;
 
 			foreach (var skin in skins)
 			{
-			}
+				List<UiAbstractStyleBase> newStyles = new();
 
-
-
-
-
-			foreach (var kv in dict)
-			{
-				var style = kv.Value;
-Debug.Log($"Monobehaviour:{kv.Key} : {kv.Value.GetType().Name}");
-				foreach (var skin in skins)
+				foreach (var kv in applianceComponentByType)
 				{
-					var styleTypes = skin.GetStyleTypes();
+					var supportedMonoBehaviourType = kv.Key;
+					var applyStyleComponent = kv.Value;
 
-					if (!styleTypes.Contains(style.SupportedStyleType))
+					if (skin.StyleBySupportedMonoBehaviour(supportedMonoBehaviourType) == null)
 					{
-
+						var newStyle = applyStyleComponent.CreateStyle();
+						newStyles.Add(newStyle);
 					}
 				}
+
+				if (newStyles.Count > 0)
+				{
+					skin.Styles.AddRange(newStyles);
+					configWasChanged = true;
+				}
+			}
+
+			if (configWasChanged)
+			{
+				UiMainStyleConfig.EditorSave(thisUiMainStyleConfig);
 			}
 		}
 	}
