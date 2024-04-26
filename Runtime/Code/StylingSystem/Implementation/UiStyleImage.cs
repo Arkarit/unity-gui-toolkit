@@ -7,7 +7,7 @@ namespace GuiToolkit.Style
 	[Serializable]
 	public class UiStyleImage : UiAbstractStyle<Image>
 	{
-		[SerializeField] private ApplicableValue<Color> m_color = new ();
+		[SerializeField] private ApplicableValue<Color> m_color = new();
 
 		public Color Color
 		{

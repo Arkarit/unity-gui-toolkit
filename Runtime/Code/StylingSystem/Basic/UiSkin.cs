@@ -15,16 +15,31 @@ namespace GuiToolkit.Style
 		public string Name => m_name;
 		public List<UiAbstractStyleBase> Styles => m_styles;
 
-		public UiAbstractStyleBase StyleByKey(int monoBehaviourClass)
+		public UiAbstractStyleBase StyleByKey(int _key)
 		{
-			if (m_styleByKey.TryGetValue(monoBehaviourClass, out UiAbstractStyleBase result))
+			if (m_styleByKey.TryGetValue(_key, out UiAbstractStyleBase result))
 			{
 				return result;
 			}
 
 			BuildDictionaries();
 
-			if (m_styleByKey.TryGetValue(monoBehaviourClass, out result))
+			if (m_styleByKey.TryGetValue(_key, out result))
+			{
+				return result;
+			}
+
+			return null;
+		}
+
+		public UiAbstractStyleBase StyleByKey(int _key, bool _invalidateCache)
+		{
+			if (!_invalidateCache)
+				return StyleByKey(_key);
+
+			BuildDictionaries();
+
+			if (m_styleByKey.TryGetValue(_key, out UiAbstractStyleBase result))
 			{
 				return result;
 			}
