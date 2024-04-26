@@ -32,21 +32,6 @@ namespace GuiToolkit.Style
 			return null;
 		}
 
-		public UiAbstractStyleBase StyleByKey(int _key, bool _invalidateCache)
-		{
-			if (!_invalidateCache)
-				return StyleByKey(_key);
-
-			BuildDictionaries();
-
-			if (m_styleByKey.TryGetValue(_key, out UiAbstractStyleBase result))
-			{
-				return result;
-			}
-
-			return null;
-		}
-
 		private void BuildDictionaries()
 		{
 			m_styleByKey.Clear();

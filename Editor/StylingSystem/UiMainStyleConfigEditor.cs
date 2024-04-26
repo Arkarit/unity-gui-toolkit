@@ -20,12 +20,14 @@ namespace GuiToolkit.Editor
 			DrawDefaultInspector();
 
 			if (GUILayout.Button("Sync Styles"))
-				SyncStyles();
+				SyncStyles(false);
+			if (GUILayout.Button("Replace Styles"))
+				SyncStyles(true);
 
 			serializedObject.ApplyModifiedProperties();
 		}
 
-		private void SyncStyles()
+		private void SyncStyles(bool reset)
 		{
 			Dictionary<int, UiAbstractApplyStyleBase> applianceComponentByKey = new();
 			EditorUiUtility.FindAllComponentsInAllAssets<UiAbstractApplyStyleBase>(component =>
@@ -41,6 +43,9 @@ namespace GuiToolkit.Editor
 
 			foreach (var skin in skins)
 			{
+				if (reset)
+					skin.Styles.Clear();
+
 				List<UiAbstractStyleBase> newStyles = new();
 
 				foreach (var kv in applianceComponentByKey)
