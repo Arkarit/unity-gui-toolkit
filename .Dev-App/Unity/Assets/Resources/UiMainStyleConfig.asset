@@ -15,16 +15,19 @@ MonoBehaviour:
   m_skins:
   - m_name: Default
     m_styles:
-    - rid: 8073282372870602782
+    - rid: 8073282372870602783
   m_currentSkinIdx: 0
   references:
     version: 2
     RefIds:
-    - rid: 8073282372870602782
+    - rid: 8073282372870602783
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: RedSquare
         m_key: 1250346075
         m_color:
-          IsApplicable: 0
+          IsApplicable: 1
           Value: {r: 1, g: 0, b: 0, a: 1}
+        m_sprite:
+          IsApplicable: 0
+          Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
