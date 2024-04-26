@@ -8,6 +8,7 @@ namespace GuiToolkit.Style
 		where ST : UiAbstractStyle<MB>
 	{
 		private MB m_monoBehaviour;
+		private int m_key = 0;
 
 		public override Type SupportedMonoBehaviourType => typeof(MB);
 		public override Type SupportedStyleType => typeof(ST);
@@ -27,6 +28,17 @@ namespace GuiToolkit.Style
 				}
 
 				return m_monoBehaviour;
+			}
+		}
+
+		public override int Key
+		{
+			get
+			{
+				if (m_key == 0)
+					m_key = UiStyleUtility.GetKey(SupportedMonoBehaviourType, Name);
+
+				return m_key;
 			}
 		}
 

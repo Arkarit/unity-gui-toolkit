@@ -11,6 +11,7 @@ namespace GuiToolkit.Style
 
 		public string Name => m_name;
 
-		public abstract Type SupportedMonoBehaviour { get; }
+		public abstract Type SupportedMonoBehaviourType { get; }
+		public abstract int Key { get; }
 	}
 }

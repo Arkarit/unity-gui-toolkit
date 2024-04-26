@@ -37,7 +37,7 @@ namespace GuiToolkit.Style
 			m_styleByClass.Clear();
 			foreach (var style in m_styles)
 			{
-				m_styleByClass.Add(style.SupportedMonoBehaviour, style);
+				m_styleByClass.Add(style.SupportedMonoBehaviourType, style);
 			}
 		}
 	}
