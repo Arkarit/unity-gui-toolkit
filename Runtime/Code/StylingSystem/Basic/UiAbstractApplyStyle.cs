@@ -3,24 +3,25 @@ using UnityEngine;
 
 namespace GuiToolkit.Style
 {
-	public abstract class UiAbstractApplyStyle<MB,ST> : MonoBehaviour 
+	public abstract class UiAbstractApplyStyle<MB,ST> : UiAbstractApplyStyleBase 
 		where MB : MonoBehaviour 
 		where ST : UiAbstractStyle<MB>
 	{
 		private MB m_monoBehaviour;
 
-		public Type SupportedMonoBehaviour => typeof(MB);
-		public Type SupportedStyle => typeof(ST);
-		public MB MonoBehaviour => m_monoBehaviour;
+		public override Type SupportedMonoBehaviourType => typeof(MB);
+		public override Type SupportedStyleType => typeof(ST);
+		public override MonoBehaviour MonoBehaviour => m_monoBehaviour;
+		public MB SpecificMonoBehaviour => m_monoBehaviour;
 
-		public abstract void Apply(MB monoBehaviourToApply, ST style);
+		public abstract void Apply(ST style);
 
 		public virtual void Awake()
 		{
 			m_monoBehaviour = GetComponent<MB>();
 			if (m_monoBehaviour == null)
 			{
-				Debug.LogWarning($"{GetType().Name}: Required MonoBehaviour type '{SupportedMonoBehaviour.Name}'" + 
+				Debug.LogWarning($"{GetType().Name}: Required MonoBehaviour type '{SupportedMonoBehaviourType.Name}'" + 
 				                 $" not found on GameObject '{gameObject.name}', styling won't work here");
 			}
 		}
@@ -36,8 +37,8 @@ namespace GuiToolkit.Style
 		private void Apply()
 		{
 			var skin = UiMainStyleConfig.Instance.CurrentSkin;
-			var style = skin.StyleByMonoBehaviourClass(SupportedMonoBehaviour);
-			Apply(MonoBehaviour, style as ST);
+			var style = skin.StyleByMonoBehaviourClass(SupportedMonoBehaviourType);
+			Apply(style as ST);
 
 			UiEvents.EvSkinChanged.AddListener(OnSkinChanged);
 		}

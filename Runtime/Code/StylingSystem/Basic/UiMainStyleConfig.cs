@@ -9,6 +9,8 @@ namespace GuiToolkit.Style
 
 		[SerializeField] private int m_currentSkinIdx;
 
+		public List<UiSkin> Skins => m_skins;
+
 		public UiSkin CurrentSkin 
 		{
 			get

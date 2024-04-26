@@ -32,6 +32,17 @@ namespace GuiToolkit.Style
 			return null;
 		}
 
+#if UNITY_EDITOR
+		public HashSet<Type> GetStyleTypes()
+		{
+			HashSet<Type> result = new();
+			foreach (var style in m_styles)
+				result.Add(style.GetType());
+
+			return result;
+		}
+#endif
+
 		private void BuildDictionaries()
 		{
 			m_styleByClass.Clear();

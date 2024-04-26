@@ -4,9 +4,16 @@ namespace GuiToolkit.Style
 {
 	public class UiApplyStyleImage : UiAbstractApplyStyle<Image, UiStyleImage>
 	{
-		public override void Apply(Image image, UiStyleImage style)
+		public override void Apply(UiStyleImage style)
 		{
-			image.color = style.color;
+			SpecificMonoBehaviour.color = style.color;
+		}
+
+		public override UiAbstractStyleBase CreateStyle()
+		{
+			UiStyleImage result = new UiStyleImage();
+			result.color = SpecificMonoBehaviour.color;
+			return result;
 		}
 	}
 }
