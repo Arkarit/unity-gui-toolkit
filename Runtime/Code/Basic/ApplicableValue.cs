@@ -2,6 +2,12 @@ using System;
 
 namespace GuiToolkit
 {
+	// Just a stub to satisfy PropertyDrawer
+	[Serializable]
+	public class ApplicableValueBase
+	{
+	}
+	
 	[Serializable]
 	public class ApplicableValue<T> : ApplicableValueBase
 	{
