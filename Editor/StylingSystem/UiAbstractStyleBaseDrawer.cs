@@ -7,7 +7,9 @@ namespace GuiToolkit.Style.Editor
 	[CustomPropertyDrawer(typeof(UiAbstractStyleBase), true)]
 	public class UiAbstractStyleBaseDrawer : PropertyDrawer
 	{
-		private const float Gap = 4;
+		private const float GapAfterTitle = 8;
+		private const float GapAfterDisplay = 8;
+
 		private static readonly List<SerializedProperty> s_childPropertes = new();
 
 		public override void OnGUI( Rect _position, SerializedProperty _property, GUIContent _label )
@@ -18,8 +20,16 @@ namespace GuiToolkit.Style.Editor
 			var currentStyle = _property.boxedValue as UiAbstractStyleBase;
 			if (currentStyle != null)
 			{
-				EditorGUI.LabelField(currentRect, UiStyleUtility.GetName(currentStyle.SupportedMonoBehaviourType, currentStyle.Name), EditorStyles.boldLabel );
-				NextRect(ref currentRect);
+				EditorGUI.LabelField(currentRect, UiStyleUtility.GetName(currentStyle.SupportedMonoBehaviourType, currentStyle.Name));
+				NextRect(ref currentRect, GapAfterTitle);
+				var lineRect = new Rect(
+					currentRect.x, 
+					currentRect.y - 7,
+					currentRect.width,
+					1
+				);
+
+				EditorGUI.DrawRect(lineRect, new Color ( 0.5f,0.5f,0.5f, 1 ) );
 			}
 
 			CollectChildProperties(_property);
@@ -38,7 +48,7 @@ namespace GuiToolkit.Style.Editor
 		public override float GetPropertyHeight(SerializedProperty _property, GUIContent _label)
 		{
 			CollectChildProperties(_property);
-			return s_childPropertes.Count * EditorGUIUtility.singleLineHeight + Gap;
+			return s_childPropertes.Count * EditorGUIUtility.singleLineHeight + GapAfterTitle + GapAfterDisplay;
 		}
 
 		private void CollectChildProperties(SerializedProperty _property)
@@ -57,6 +67,9 @@ namespace GuiToolkit.Style.Editor
 			}
 		}
 
-		private void NextRect(ref Rect rect) => rect.y += EditorGUIUtility.singleLineHeight;
+		private void NextRect(ref Rect rect, float gap = 0)
+		{
+			rect.y += EditorGUIUtility.singleLineHeight + gap;
+		}
 	}
 }

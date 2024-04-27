@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: UiMainStyleConfig
   m_EditorClassIdentifier: 
   m_skins:
-  - m_name: Default
+  - m_name: Dark
     m_styles:
     - rid: 8073282372870602811
     - rid: 8073282372870602812
-  - m_name: Fitzefatze
+  - m_name: Light
     m_styles:
     - rid: 8073282372870602813
     - rid: 8073282372870602814
