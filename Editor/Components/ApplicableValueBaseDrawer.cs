@@ -27,7 +27,7 @@ namespace GuiToolkit.Editor
 			using (new EditorGUI.DisabledScope(newIsApplicable == false))
 			{
 				EditorGUI.PropertyField(
-					new Rect(_position.x + EditorGUIUtility.labelWidth - 13, _position.y, _position.width - EditorGUIUtility.labelWidth + 13, _position.height), 
+					new Rect(_position.x + EditorGUIUtility.labelWidth, _position.y, _position.width - EditorGUIUtility.labelWidth, _position.height), 
 					valueProp, 
 					new GUIContent()
 				);
