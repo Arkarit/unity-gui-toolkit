@@ -8,6 +8,7 @@ namespace GuiToolkit.Style
 	public abstract class UiAbstractStyleBase
 	{
 		[SerializeField] private string m_name;
+		[SerializeField] private int m_key;
 
 		public string Name
 		{
@@ -16,6 +17,17 @@ namespace GuiToolkit.Style
 		}
 
 		public abstract Type SupportedMonoBehaviourType { get; }
-		public abstract int Key { get; }
+		
+		public int Key
+		{
+			get
+			{
+				if (m_key == 0 || !Application.isPlaying)
+					m_key = UiStyleUtility.GetKey(SupportedMonoBehaviourType, Name);
+
+				return m_key;
+			}
+		}
+
 	}
 }
