@@ -6,7 +6,7 @@ namespace GuiToolkit.Editor
 	[CustomPropertyDrawer(typeof(ApplicableValueBase), true)]
 	public class ApplicableValueBaseDrawer : PropertyDrawer
 	{
-		private const int ToggleWidth = 30;
+		private const int ToggleWidth = 25;
 
 		public override void OnGUI( Rect _position, SerializedProperty _property, GUIContent _label )
 		{

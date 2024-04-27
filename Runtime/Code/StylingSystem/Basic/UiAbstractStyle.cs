@@ -13,7 +13,7 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_key == 0)
+				if (m_key == 0 || !Application.isPlaying)
 					m_key = UiStyleUtility.GetKey(SupportedMonoBehaviourType, Name);
 
 				return m_key;

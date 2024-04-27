@@ -18,7 +18,7 @@ namespace GuiToolkit.Style
 				return result;
 
 			result.Name = Name;
-			result.CreateKey();
+			var _ = result.Key;
 			result.Color = SpecificMonoBehaviour.color;
 			result.Sprite = SpecificMonoBehaviour.sprite;
 			return result;

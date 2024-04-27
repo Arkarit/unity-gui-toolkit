@@ -17,10 +17,5 @@ namespace GuiToolkit.Style
 
 		public abstract Type SupportedMonoBehaviourType { get; }
 		public abstract int Key { get; }
-
-		public void CreateKey()
-		{
-			var dummy = Key;
-		}
 	}
 }
