@@ -7,9 +7,9 @@ namespace GuiToolkit.Style.Editor
 	[CustomPropertyDrawer(typeof(UiAbstractStyleBase), true)]
 	public class UiAbstractStyleBaseDrawer : AbstractPropertyDrawer
 	{
-		private const float GapAfterTitle = 8;
-		private const float GapAfterDisplay = 8;
 		private const float LineEndGapHor = 20;
+		private const float LineGapVert = 4;
+		private const float EndGap = 10;
 
 		protected override void OnInspectorGUI()
 		{
@@ -17,16 +17,7 @@ namespace GuiToolkit.Style.Editor
 			if (currentStyle != null)
 			{
 				LabelField(UiStyleUtility.GetName(currentStyle.SupportedMonoBehaviourType, currentStyle.Name));
-/*
-				var lineRect = new Rect(
-					currentRect.x, 
-					currentRect.y - 7,
-					EditorGUIUtility.labelWidth - LineEndGapHor,
-					1
-				);
-
-				EditorGUI.DrawRect(lineRect, new Color ( 0.5f,0.5f,0.5f, 1 ) );
-*/
+				Line(LineGapVert, EditorGUIUtility.labelWidth - LineEndGapHor);
 			}
 
 			foreach (var childProperty in ChildProperties)
@@ -36,6 +27,8 @@ namespace GuiToolkit.Style.Editor
 
 				PropertyField(childProperty);
 			}
+
+			Space(EndGap);
 		}
 	}
 }

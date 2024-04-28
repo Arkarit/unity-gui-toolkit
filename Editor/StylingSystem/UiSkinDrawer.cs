@@ -6,6 +6,8 @@ namespace GuiToolkit.Style.Editor
 	[CustomPropertyDrawer(typeof(UiSkin), true)]
 	public class UiSkinDrawer : AbstractPropertyDrawer
 	{
+		private const float GapBeforeStyles = 10;
+
 		SerializedProperty 	m_nameProp;
 		SerializedProperty m_stylesProp;
 
@@ -19,6 +21,8 @@ namespace GuiToolkit.Style.Editor
 		{
 			LabelField($"Style: {m_nameProp.stringValue}", 0, EditorStyles.boldLabel);
 			PropertyField(m_nameProp);
+
+			Space(GapBeforeStyles);
 			for (int i = 0; i < m_stylesProp.arraySize; i++)
 			{
 				SerializedProperty styleProp = m_stylesProp.GetArrayElementAtIndex(i);

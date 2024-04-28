@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.Internal;
 
@@ -14,7 +15,7 @@ namespace GuiToolkit.Style.Editor
 	{
 		private static readonly List<SerializedProperty> s_childPropertes = new();
 		protected Rect m_Rect;
-		protected Rect m_CurrentRect;
+		protected Rect m_currentRect;
 		private bool m_collectHeightMode;
 		private float m_height;
 		private SerializedProperty m_property;
@@ -35,7 +36,7 @@ namespace GuiToolkit.Style.Editor
 				return;
 			}
 
-			var drawRect = new Rect(m_CurrentRect.x, m_CurrentRect.y, m_CurrentRect.width, propertyHeight);
+			var drawRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, propertyHeight);
 			EditorGUI.PropertyField(drawRect, _property);
 			NextRect(propertyHeight);
 		}
@@ -49,7 +50,7 @@ namespace GuiToolkit.Style.Editor
 				return;
 			}
 
-			var drawRect = new Rect(m_CurrentRect.x, m_CurrentRect.y, m_CurrentRect.width, propertyHeight);
+			var drawRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, propertyHeight);
 			if (_style != null)
 				EditorGUI.LabelField(drawRect, _label, _style);
 			else
@@ -70,10 +71,34 @@ namespace GuiToolkit.Style.Editor
 			NextRect(propertyHeight);
 		}
 
+		protected void Line(Color _color, float _gap = 0, float _width = 0, float _height = 1)
+		{
+			var propertyHeight = _gap + _height;
+			if (m_collectHeightMode)
+			{
+				m_height += propertyHeight;
+				return;
+			}
+
+			var width = _width == 0 ? m_currentRect.width : _width;
+			var lineRect = new Rect(
+				m_currentRect.x, 
+				m_currentRect.y,
+				width,
+				_height
+			);
+
+			EditorGUI.DrawRect(lineRect, _color );
+			NextRect(propertyHeight);
+		}
+
+		protected void Line(float _gap = 0, float _width = 0, float _height = 1) =>
+			Line(Color.gray, _gap, _width, _height);
+
 		private void NextRect(float _propertyHeight)
 		{
-			m_CurrentRect.y += _propertyHeight;
-			m_CurrentRect.height -= _propertyHeight;
+			m_currentRect.y += _propertyHeight;
+			m_currentRect.height -= _propertyHeight;
 		}
 
 // Don't override as of here (unless you've got a real cause)
@@ -83,7 +108,7 @@ namespace GuiToolkit.Style.Editor
 			EditorGUI.BeginProperty(_rect, _label, _property);
 			m_property = _property;
 			CollectChildProperties(_property);
-			m_CurrentRect = m_Rect = _rect;
+			m_currentRect = m_Rect = _rect;
 			OnEnable();
 			OnInspectorGUI();
 			
