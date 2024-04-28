@@ -9,15 +9,15 @@ namespace GuiToolkit.Style.Editor
 		SerializedProperty 	m_nameProp;
 		SerializedProperty m_stylesProp;
 
-		protected override void OnEnable(SerializedProperty _baseProp)
+		protected override void OnEnable()
 		{
-			m_nameProp = _baseProp.FindPropertyRelative("m_name");
-			m_stylesProp = _baseProp.FindPropertyRelative("m_styles");
+			m_nameProp = Property.FindPropertyRelative("m_name");
+			m_stylesProp = Property.FindPropertyRelative("m_styles");
 		}
 
 		protected override void OnInspectorGUI()
 		{
-			LabelField($"Style: {m_nameProp.stringValue}", EditorStyles.boldLabel);
+			LabelField($"Style: {m_nameProp.stringValue}", 0, EditorStyles.boldLabel);
 			PropertyField(m_nameProp);
 			for (int i = 0; i < m_stylesProp.arraySize; i++)
 			{

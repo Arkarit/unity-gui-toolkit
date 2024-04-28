@@ -17,10 +17,14 @@ namespace GuiToolkit.Style.Editor
 		protected Rect m_CurrentRect;
 		private bool m_collectHeightMode;
 		private float m_height;
+		private SerializedProperty m_property;
 
-		protected virtual void OnEnable(SerializedProperty _baseProp) {}
+		protected virtual void OnEnable() {}
 
 		protected virtual void OnInspectorGUI() {}
+
+		protected List<SerializedProperty> ChildProperties => s_childPropertes;
+		protected SerializedProperty Property => m_property;
 
 		protected void PropertyField(SerializedProperty _property, float _gap = 0)
 		{
@@ -36,7 +40,7 @@ namespace GuiToolkit.Style.Editor
 			NextRect(propertyHeight);
 		}
 
-		protected void LabelField(string _label, [DefaultValue("EditorStyles.label")] GUIStyle _style, float _gap = 0)
+		protected void LabelField(string _label, float _gap = 0, GUIStyle _style = null)
 		{
 			var propertyHeight = EditorGUIUtility.singleLineHeight + _gap;
 			if (m_collectHeightMode)
@@ -46,7 +50,11 @@ namespace GuiToolkit.Style.Editor
 			}
 
 			var drawRect = new Rect(m_CurrentRect.x, m_CurrentRect.y, m_CurrentRect.width, propertyHeight);
-			EditorGUI.LabelField(drawRect, _label, _style);
+			if (_style != null)
+				EditorGUI.LabelField(drawRect, _label, _style);
+			else
+				EditorGUI.LabelField(drawRect, _label);
+
 			NextRect(propertyHeight);
 		}
 
@@ -68,12 +76,15 @@ namespace GuiToolkit.Style.Editor
 			m_CurrentRect.height -= _propertyHeight;
 		}
 
-// Don't override these
+// Don't override as of here (unless you've got a real cause)
+
 		public override void OnGUI(Rect _rect, SerializedProperty _property, GUIContent _label)
 		{
 			EditorGUI.BeginProperty(_rect, _label, _property);
+			m_property = _property;
+			CollectChildProperties(_property);
 			m_CurrentRect = m_Rect = _rect;
-			OnEnable(_property);
+			OnEnable();
 			OnInspectorGUI();
 			
 			EditorGUI.EndProperty();
@@ -83,7 +94,9 @@ namespace GuiToolkit.Style.Editor
 		{
 			m_collectHeightMode = true;
 			m_height = 0;
-			OnEnable(_property);
+			m_property = _property;
+			CollectChildProperties(_property);
+			OnEnable();
 			OnInspectorGUI();
 			m_collectHeightMode = false;
 			return m_height;
@@ -92,7 +105,7 @@ namespace GuiToolkit.Style.Editor
 		private void CollectChildProperties(SerializedProperty _property)
 		{
 			s_childPropertes.Clear();
-			var enumerator = _property.GetEnumerator();
+			var enumerator = _property.Copy().GetEnumerator();
 			int depth = _property.depth;
 
 			while (enumerator.MoveNext())
