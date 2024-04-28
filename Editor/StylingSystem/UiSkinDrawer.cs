@@ -4,55 +4,26 @@ using UnityEngine;
 namespace GuiToolkit.Style.Editor
 {
 	[CustomPropertyDrawer(typeof(UiSkin), true)]
-	public class UiSkinDrawer : PropertyDrawer
+	public class UiSkinDrawer : AbstractPropertyDrawer
 	{
 		SerializedProperty 	m_nameProp;
 		SerializedProperty m_stylesProp;
 
-		public override void OnGUI(Rect _position, SerializedProperty _property, GUIContent _label)
+		protected override void OnEnable(SerializedProperty _baseProp)
 		{
-			EditorGUI.BeginProperty(_position, _label, _property);
-			SetProps(_property);
-			Rect currentRect = new Rect(_position.x, _position.y, _position.width, EditorGUIUtility.singleLineHeight);
+			m_nameProp = _baseProp.FindPropertyRelative("m_name");
+			m_stylesProp = _baseProp.FindPropertyRelative("m_styles");
+		}
 
-			EditorGUI.LabelField(currentRect, $"Style: {m_nameProp.stringValue}", EditorStyles.boldLabel);
-			NextRect(ref currentRect);
-			EditorGUI.PropertyField(currentRect, m_nameProp);
-			NextRect(ref currentRect);
+		protected override void OnInspectorGUI()
+		{
+			LabelField($"Style: {m_nameProp.stringValue}", EditorStyles.boldLabel);
+			PropertyField(m_nameProp);
 			for (int i = 0; i < m_stylesProp.arraySize; i++)
 			{
 				SerializedProperty styleProp = m_stylesProp.GetArrayElementAtIndex(i);
-				EditorGUI.PropertyField(currentRect, styleProp);
-				NextRect(ref currentRect, styleProp);
+				PropertyField(styleProp);
 			}
-			
-			EditorGUI.EndProperty();
-		}
-
-		public override float GetPropertyHeight(SerializedProperty _property, GUIContent _label)
-		{
-			SetProps(_property);
-			float result = EditorGUIUtility.singleLineHeight * 2;
-			for (int i=0; i<m_stylesProp.arraySize; i++)
-				result += EditorGUI.GetPropertyHeight(m_stylesProp.GetArrayElementAtIndex(i));
-
-			return result;
-		}
-
-		private void NextRect(ref Rect _rect, float _gap = 0)
-		{
-			_rect.y += EditorGUIUtility.singleLineHeight + _gap;
-		}
-
-		private void NextRect(ref Rect _rect, SerializedProperty _property, float _gap = 0)
-		{
-			_rect.y += EditorGUI.GetPropertyHeight(_property) + _gap;
-		}
-
-		private void SetProps(SerializedProperty _property)
-		{
-			m_nameProp = _property.FindPropertyRelative("m_name");
-			m_stylesProp = _property.FindPropertyRelative("m_styles");
 		}
 	}
 }
