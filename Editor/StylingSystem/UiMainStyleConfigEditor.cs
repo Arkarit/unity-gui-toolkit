@@ -9,15 +9,21 @@ namespace GuiToolkit.Editor
 	[CustomEditor(typeof(UiMainStyleConfig), true)]
 	public class UiMainStyleConfigEditor : UnityEditor.Editor
 	{
+		private const float PerSkinGap = 20;
+
+		private SerializedProperty m_skinsProp;
+		private SerializedProperty m_currentSkinIdxProp;
 		protected virtual void OnEnable()
 		{
+			m_skinsProp = serializedObject.FindProperty("m_skins");
+			m_currentSkinIdxProp = serializedObject.FindProperty("m_currentSkinIdx");
 		}
 
 		public override void OnInspectorGUI()
 		{
 			serializedObject.Update();
 
-			DrawDefaultInspector();
+			Draw();
 
 			if (GUILayout.Button("Sync Styles"))
 				SyncStyles(false);
@@ -25,6 +31,19 @@ namespace GuiToolkit.Editor
 				SyncStyles(true);
 
 			serializedObject.ApplyModifiedProperties();
+		}
+
+		private void Draw()
+		{
+			for (int i = 0; i < m_skinsProp.arraySize; i++)
+			{
+				var skinProp = m_skinsProp.GetArrayElementAtIndex(i);
+				EditorGUILayout.PropertyField(skinProp);
+				EditorGUILayout.Space(PerSkinGap);
+			}
+
+			EditorGUILayout.PropertyField(m_currentSkinIdxProp);
+			EditorGUILayout.Space(50);
 		}
 
 		private void SyncStyles(bool reset)

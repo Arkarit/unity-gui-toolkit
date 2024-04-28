@@ -9,6 +9,7 @@ namespace GuiToolkit.Style.Editor
 	{
 		private const float GapAfterTitle = 8;
 		private const float GapAfterDisplay = 8;
+		private const float LineEndGapHor = 20;
 
 		private static readonly List<SerializedProperty> s_childPropertes = new();
 
@@ -25,7 +26,7 @@ namespace GuiToolkit.Style.Editor
 				var lineRect = new Rect(
 					currentRect.x, 
 					currentRect.y - 7,
-					currentRect.width,
+					EditorGUIUtility.labelWidth - LineEndGapHor,
 					1
 				);
 
