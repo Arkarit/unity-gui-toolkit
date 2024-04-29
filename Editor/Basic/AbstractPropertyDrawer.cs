@@ -13,7 +13,7 @@ namespace GuiToolkit.Style.Editor
 	/// Should simplify creating custom property drawers; no more dealing with awkward rects,
 	/// instead more like a custom Editor
 	/// </summary>
-	public abstract class AbstractPropertyDrawer : PropertyDrawer
+	public abstract class AbstractPropertyDrawer<T> : PropertyDrawer where T : class
 	{
 		private const float FoldoutHeight = 15;
 		private static readonly List<SerializedProperty> s_childPropertes = new();
@@ -22,11 +22,7 @@ namespace GuiToolkit.Style.Editor
 		private bool m_collectHeightMode;
 		private float m_height;
 		private SerializedProperty m_property;
-		private readonly List<bool> m_foldouts = new ();
-		private static int s_foldoutsIdx;
-
-		public static void BeginShowProperties() => s_foldoutsIdx = 0;
-		public static void EndShowProperties() {}
+		private static readonly Dictionary<object, bool> s_foldouts = new ();
 
 		protected virtual void OnEnable() {}
 
@@ -35,6 +31,7 @@ namespace GuiToolkit.Style.Editor
 		protected List<SerializedProperty> ChildProperties => s_childPropertes;
 		protected SerializedProperty Property => m_property;
 		protected float SingleLineHeight => EditorGUIUtility.singleLineHeight;
+		protected T EditedClass => Property.boxedValue as T;
 
 		protected void PropertyField(SerializedProperty _property, float _gap = 0)
 		{
@@ -104,13 +101,13 @@ namespace GuiToolkit.Style.Editor
 		protected void Line(float _gap = 0, float _width = 0, float _height = 1) =>
 			Line(Color.gray, _gap, _width, _height);
 
-		protected void Foldout(string _title, Action _onFoldout)
+		protected void Foldout(object _id, string _title, Action _onFoldout)
 		{
-			while (s_foldoutsIdx >= m_foldouts.Count)
-				m_foldouts.Add(true);
-
 			var foldoutRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, FoldoutHeight);
-			var active = m_foldouts[s_foldoutsIdx];
+			if (!s_foldouts.ContainsKey(_id))
+				s_foldouts.Add(_id, true);
+
+			var active = s_foldouts[_id];
 
 			if (!m_collectHeightMode)
 				active = EditorGUI.Foldout(foldoutRect, active, _title, true);
@@ -119,8 +116,7 @@ namespace GuiToolkit.Style.Editor
 			if (active)
 				_onFoldout();
 
-			m_foldouts[s_foldoutsIdx] = active;
-			s_foldoutsIdx++;
+			s_foldouts[_id] = active;
 		}
 
 		private void NextRect(float _propertyHeight)

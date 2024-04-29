@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GuiToolkit.Style.Editor
 {
 	[CustomPropertyDrawer(typeof(UiAbstractStyleBase), true)]
-	public class UiAbstractStyleBaseDrawer : AbstractPropertyDrawer
+	public class UiAbstractStyleBaseDrawer : AbstractPropertyDrawer<UiAbstractStyleBase>
 	{
 		private const float LineEndGapHor = 20;
 		private const float LineGapVert = 4;

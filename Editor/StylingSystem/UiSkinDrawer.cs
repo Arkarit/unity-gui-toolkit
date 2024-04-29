@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GuiToolkit.Style.Editor
 {
 	[CustomPropertyDrawer(typeof(UiSkin), true)]
-	public class UiSkinDrawer : AbstractPropertyDrawer
+	public class UiSkinDrawer : AbstractPropertyDrawer<UiSkin>
 	{
 		private const float GapBeforeStyles = 10;
 
@@ -19,7 +19,7 @@ namespace GuiToolkit.Style.Editor
 
 		protected override void OnInspectorGUI()
 		{
-			Foldout($"Style: {m_nameProp.stringValue}", () =>
+			Foldout(EditedClass.Name, $"Style: {m_nameProp.stringValue}", () =>
 			{
 				Line(5);
 				PropertyField(m_nameProp);
