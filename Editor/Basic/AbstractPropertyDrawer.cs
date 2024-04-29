@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Graphs;
 using UnityEngine;
 using UnityEngine.Internal;
+using UnityEngine.UIElements;
 
 namespace GuiToolkit.Style.Editor
 {
@@ -13,12 +15,18 @@ namespace GuiToolkit.Style.Editor
 	/// </summary>
 	public abstract class AbstractPropertyDrawer : PropertyDrawer
 	{
+		private const float FoldoutHeight = 15;
 		private static readonly List<SerializedProperty> s_childPropertes = new();
 		protected Rect m_Rect;
 		protected Rect m_currentRect;
 		private bool m_collectHeightMode;
 		private float m_height;
 		private SerializedProperty m_property;
+		private readonly List<bool> m_foldouts = new ();
+		private static int s_foldoutsIdx;
+
+		public static void BeginShowProperties() => s_foldoutsIdx = 0;
+		public static void EndShowProperties() {}
 
 		protected virtual void OnEnable() {}
 
@@ -26,6 +34,7 @@ namespace GuiToolkit.Style.Editor
 
 		protected List<SerializedProperty> ChildProperties => s_childPropertes;
 		protected SerializedProperty Property => m_property;
+		protected float SingleLineHeight => EditorGUIUtility.singleLineHeight;
 
 		protected void PropertyField(SerializedProperty _property, float _gap = 0)
 		{
@@ -43,7 +52,7 @@ namespace GuiToolkit.Style.Editor
 
 		protected void LabelField(string _label, float _gap = 0, GUIStyle _style = null)
 		{
-			var propertyHeight = EditorGUIUtility.singleLineHeight + _gap;
+			var propertyHeight = SingleLineHeight + _gap;
 			if (m_collectHeightMode)
 			{
 				m_height += propertyHeight;
@@ -94,6 +103,25 @@ namespace GuiToolkit.Style.Editor
 
 		protected void Line(float _gap = 0, float _width = 0, float _height = 1) =>
 			Line(Color.gray, _gap, _width, _height);
+
+		protected void Foldout(string _title, Action _onFoldout)
+		{
+			while (s_foldoutsIdx >= m_foldouts.Count)
+				m_foldouts.Add(true);
+
+			var foldoutRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, FoldoutHeight);
+			var active = m_foldouts[s_foldoutsIdx];
+
+			if (!m_collectHeightMode)
+				active = EditorGUI.Foldout(foldoutRect, active, _title, true);
+
+			m_currentRect.y += FoldoutHeight;
+			if (active)
+				_onFoldout();
+
+			m_foldouts[s_foldoutsIdx] = active;
+			s_foldoutsIdx++;
+		}
 
 		private void NextRect(float _propertyHeight)
 		{

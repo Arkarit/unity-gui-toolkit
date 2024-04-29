@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using GuiToolkit.Style;
+using GuiToolkit.Style.Editor;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace GuiToolkit.Editor
 {
@@ -35,6 +37,8 @@ namespace GuiToolkit.Editor
 
 		private void Draw()
 		{
+			AbstractPropertyDrawer.BeginShowProperties();
+
 			for (int i = 0; i < m_skinsProp.arraySize; i++)
 			{
 				var skinProp = m_skinsProp.GetArrayElementAtIndex(i);
@@ -44,6 +48,8 @@ namespace GuiToolkit.Editor
 
 			EditorGUILayout.PropertyField(m_currentSkinIdxProp);
 			EditorGUILayout.Space(50);
+
+			AbstractPropertyDrawer.EndShowProperties();
 		}
 
 		private void SyncStyles(bool reset)

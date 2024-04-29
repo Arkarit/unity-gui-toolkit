@@ -19,15 +19,18 @@ namespace GuiToolkit.Style.Editor
 
 		protected override void OnInspectorGUI()
 		{
-			LabelField($"Style: {m_nameProp.stringValue}", 0, EditorStyles.boldLabel);
-			PropertyField(m_nameProp);
-
-			Space(GapBeforeStyles);
-			for (int i = 0; i < m_stylesProp.arraySize; i++)
+			Foldout($"Style: {m_nameProp.stringValue}", () =>
 			{
-				SerializedProperty styleProp = m_stylesProp.GetArrayElementAtIndex(i);
-				PropertyField(styleProp);
-			}
+				Line(5);
+				PropertyField(m_nameProp);
+
+				Space(GapBeforeStyles);
+				for (int i = 0; i < m_stylesProp.arraySize; i++)
+				{
+					SerializedProperty styleProp = m_stylesProp.GetArrayElementAtIndex(i);
+					PropertyField(styleProp);
+				}
+			});
 		}
 	}
 }
