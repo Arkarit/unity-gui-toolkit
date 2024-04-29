@@ -16,6 +16,8 @@ namespace GuiToolkit.Style.Editor
 	public abstract class AbstractPropertyDrawer<T> : PropertyDrawer where T : class
 	{
 		private const float FoldoutHeight = 15;
+		private const float IndentWidth = 20;
+
 		private static readonly List<SerializedProperty> s_childPropertes = new();
 		protected Rect m_Rect;
 		protected Rect m_currentRect;
@@ -117,6 +119,13 @@ namespace GuiToolkit.Style.Editor
 				_onFoldout();
 
 			s_foldouts[_id] = active;
+		}
+
+		protected void Indent(Action _onIndent)
+		{
+			m_currentRect.x += IndentWidth;
+			_onIndent();
+			m_currentRect.x -= IndentWidth;
 		}
 
 		private void NextRect(float _propertyHeight)

@@ -20,13 +20,16 @@ namespace GuiToolkit.Style.Editor
 				Line(LineGapVert, EditorGUIUtility.labelWidth - LineEndGapHor);
 			}
 
-			foreach (var childProperty in ChildProperties)
+			Indent(() =>
 			{
-				if (childProperty.name == "m_key")
-					continue;
+				foreach (var childProperty in ChildProperties)
+				{
+					if (childProperty.name == "m_key")
+						continue;
 
-				PropertyField(childProperty);
-			}
+					PropertyField(childProperty);
+				}
+			});
 
 			Space(EndGap);
 		}
