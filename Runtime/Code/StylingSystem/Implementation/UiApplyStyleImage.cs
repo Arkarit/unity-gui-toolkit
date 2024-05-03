@@ -10,15 +10,14 @@ namespace GuiToolkit.Style
 			SpecificMonoBehaviour.sprite = style.Sprite;
 		}
 
-		public override UiAbstractStyleBase CreateStyle()
+		public override UiAbstractStyleBase CreateStyle(string _name)
 		{
 			UiStyleImage result = new UiStyleImage();
 
 			if (!SpecificMonoBehaviour)
 				return result;
 
-			result.Name = Name;
-			var _ = result.Key;
+			result.Name = _name;
 			result.Color = SpecificMonoBehaviour.color;
 			result.Sprite = SpecificMonoBehaviour.sprite;
 			return result;

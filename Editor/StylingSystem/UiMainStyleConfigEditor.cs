@@ -26,12 +26,12 @@ namespace GuiToolkit.Editor
 			serializedObject.Update();
 
 			Draw();
-
+/*
 			if (GUILayout.Button("Sync Styles"))
 				SyncStyles(false);
 			if (GUILayout.Button("Replace Styles"))
 				SyncStyles(true);
-
+*/
 			serializedObject.ApplyModifiedProperties();
 		}
 
@@ -47,7 +47,7 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_currentSkinIdxProp);
 			EditorGUILayout.Space(50);
 		}
-
+/*
 		private void SyncStyles(bool reset)
 		{
 			Dictionary<int, UiAbstractApplyStyleBase> applianceComponentByKey = new();
@@ -93,5 +93,6 @@ namespace GuiToolkit.Editor
 				UiMainStyleConfig.EditorSave(thisUiMainStyleConfig);
 			}
 		}
+*/
 	}
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GuiToolkit.Style;
 using UnityEditor;
 using UnityEngine;
@@ -24,9 +25,21 @@ namespace GuiToolkit.Editor
 				m_thisAbstractApplyStyleBase.SetStyle();
 
 			var styleNames = UiMainStyleConfig.Instance.StyleNames;
+			int countBefore = styleNames.Count;
 			if (EditorUiUtility.StringPopup("Style", styleNames, m_nameProp.stringValue, out string newName,
 				    null, false, "Add Style", "Adds a new style"))
 			{
+				if (styleNames.Count > countBefore)
+				{
+					UiMainStyleConfig.Instance.ForeachSkin(skin =>
+					{
+						var newStyle = m_thisAbstractApplyStyleBase.CreateStyle(newName);
+						skin.Styles.Add(newStyle);
+					});
+
+					UiMainStyleConfig.EditorSave(UiMainStyleConfig.Instance);
+				}
+
 				m_thisAbstractApplyStyleBase.Name = newName;
 				EditorUtility.SetDirty(m_thisAbstractApplyStyleBase);
 			}

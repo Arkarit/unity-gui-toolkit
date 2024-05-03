@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +11,12 @@ namespace GuiToolkit.Style
 		[SerializeField] private int m_currentSkinIdx;
 
 		public List<UiSkin> Skins => m_skins;
+
+		public void ForeachSkin(Action<UiSkin> action)
+		{
+			foreach (var skin in m_skins)
+				action(skin);
+		}
 
 		public List<string> StyleNames
 		{
