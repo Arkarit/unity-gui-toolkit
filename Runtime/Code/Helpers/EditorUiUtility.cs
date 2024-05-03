@@ -3,6 +3,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 
 using UnityEditor.SceneManagement;
@@ -136,37 +137,164 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static bool StringPopup( string _labelText, string[] _strings, string _current, out string _new, string _labelText2 = " " )
+		public static List<string> GetStrings(this SerializedProperty _thisSerializedProperty)
 		{
-			_new = _current;
-			if (_strings.Length == 0)
-				return false;
+			List<string> result = new();
 
-			int currentInt = 0;
-			for (int i = 0; i < _strings.Length; i++)
+			if (!_thisSerializedProperty.isArray)
+				return result;
+
+			for (int i = 0; i < _thisSerializedProperty.arraySize; i++)
 			{
-				if (_strings[i] == _current)
-				{
-					currentInt = i;
-					break;
-				}
+				var elem = _thisSerializedProperty.GetArrayElementAtIndex(i).stringValue;
+				if (string.IsNullOrEmpty(elem))
+					continue;
+
+				result.Add(elem);
 			}
+
+			return result;
+		}
+
+		public static void SetStrings(this SerializedProperty _thisSerializedProperty, List<string> _strings)
+		{
+			if (!_thisSerializedProperty.isArray)
+				return;
+
+			int arraySize = _strings.Count;
+			_thisSerializedProperty.arraySize = arraySize;
+			for (int i = 0; i < arraySize; i++)
+				_thisSerializedProperty.GetArrayElementAtIndex(i).stringValue = _strings[i];
+		}
+
+		public static List<T> GetSerializedReferencesInListProperty<T>(this SerializedProperty _thisSerializedProperty)
+		{
+			List<T> result = new();
+
+			if (!_thisSerializedProperty.isArray)
+				return result;
+
+			for (int i = 0; i < _thisSerializedProperty.arraySize; i++)
+			{
+				var elem = _thisSerializedProperty.GetArrayElementAtIndex(i).managedReferenceValue;
+				if (elem == null)
+					continue;
+
+				result.Add((T) elem);
+			}
+
+			return result;
+		}
+
+		public static void SetSerializedReferencesInListProperty<T>(this SerializedProperty _thisSerializedProperty, List<T> objects)
+		{
+			if (!_thisSerializedProperty.isArray)
+				return;
+
+			int arraySize = objects.Count;
+			_thisSerializedProperty.arraySize = arraySize;
+			for (int i = 0; i < arraySize; i++)
+				_thisSerializedProperty.GetArrayElementAtIndex(i).managedReferenceValue = objects[i];
+		}
+
+		public static bool StringPopup(string _labelText, List<string> _strings, string _current, out string _newSelection, 
+			string _labelText2 = null, bool showRemove = false, string _addItemHeadline = null, string _addItemDescription = null)
+		{
+			_newSelection = _current;
+			bool allowAdd = !string.IsNullOrEmpty(_addItemHeadline);
+
+			if (!StringPopupPrepare(_strings, _current, allowAdd, out var currentInt)) 
+				return false;
 
 			EditorGUILayout.BeginHorizontal();
 			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
 			if (!string.IsNullOrEmpty(_labelText2))
 				GUILayout.Label(_labelText2, GUILayout.Width(LABEL_WIDTH));
-			int newInt = EditorGUILayout.Popup(currentInt, _strings);
+			int newInt = EditorGUILayout.Popup(currentInt, _strings.ToArray());
+
+			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, ref _newSelection))
+				return true;
+
+			if (showRemove && _strings.Count > 0 && GUILayout.Button(EditorGUIUtility.IconContent("P4_DeletedLocal")))
+			{
+				_strings.RemoveAt(newInt);
+				if (newInt >= _strings.Count)
+					newInt = 0;
+				EditorGUILayout.EndHorizontal();
+				_newSelection = _strings.Count > 0 ? _strings[newInt] : null;
+				return true;
+			}
+
 			EditorGUILayout.EndHorizontal();
 
-			_new = _strings[newInt];
+			if (_strings.Count == 0)
+				return false;
 
+			_newSelection = _strings[newInt];
 			return currentInt != newInt;
+		}
+
+		private static bool StringPopupPrepare(List<string> _strings, string _current, bool _allowAdd, out int _currentIdx)
+		{
+			_currentIdx = -1;
+
+			if (_allowAdd)
+			{
+				_strings.Add("");
+				_strings.Add("New...");
+			}
+
+			if (!_allowAdd && _strings.Count == 0)
+				return false;
+
+			_currentIdx = 0;
+			for (int i = 0; i < _strings.Count; i++)
+			{
+				if (_strings[i] == _current)
+				{
+					_currentIdx = i;
+					break;
+				}
+			}
+
+			return true;
+		}
+
+		private static bool StringPopupAddNewEntryIfNecessary(
+			List<string> _strings, 
+			int _idx, 
+			bool _allowAdd, 
+			string _addItemHeadline, 
+			string _addItemDescription,
+			ref string _newSelection
+			)
+		{
+			if (!_allowAdd)
+				return false;
+
+			_strings.RemoveRange(_strings.Count-2, 2);
+			if (_idx != _strings.Count + 1)
+				return false;
+
+			var newEntry = EditorInputDialog.Show( _addItemHeadline, _addItemDescription, "" );
+			if (string.IsNullOrEmpty(newEntry))
+				return false;
+
+			if (_strings.Contains(newEntry))
+			{
+				Debug.LogError($"Can not add '{newEntry}'; already contained in the list of strings");
+				return false;
+			}
+
+			_strings.Add(newEntry);
+			_idx = _strings.Count - 1;
+			_newSelection = _strings[_idx];
+			return true;
 		}
 
 		public static bool LanguagePopup( string _labelText, string _current, out string _new, string _labelText2 = " ")
 		{
-			string[] languages = LocaManager.Instance.AvailableLanguages;
+			var languages = LocaManager.Instance.AvailableLanguages.ToList();
 			return StringPopup(_labelText, languages, _current, out _new, _labelText2);
 		}
 

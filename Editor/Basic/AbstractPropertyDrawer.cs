@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.Graphs;
 using UnityEngine;
-using UnityEngine.Internal;
-using UnityEngine.UIElements;
 
 namespace GuiToolkit.Style.Editor
 {
@@ -175,7 +172,5 @@ namespace GuiToolkit.Style.Editor
 				s_childPropertes.Add(property.Copy());
 			}
 		}
-
-
 	}
 }
