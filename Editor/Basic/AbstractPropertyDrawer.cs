@@ -64,6 +64,33 @@ namespace GuiToolkit.Style.Editor
 			NextRect(propertyHeight);
 		}
 
+		protected bool StringPopupField(
+			string _labelText, 
+			List<string> _strings, 
+			string _current,
+			out string _newSelection,
+			string _labelText2 = null, 
+			bool showRemove = false, 
+			string _addItemHeadline = null,
+			string _addItemDescription = null
+		)
+		{
+			_newSelection = string.Empty;
+			var propertyHeight = SingleLineHeight;
+			if (m_collectHeightMode)
+			{
+				m_height += propertyHeight;
+				return false;
+			}
+
+			var drawRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, propertyHeight);
+			var result = EditorUiUtility.StringPopup(drawRect, _labelText, _strings, _current, out _newSelection,
+				_labelText2, showRemove, _addItemHeadline, _addItemDescription);
+
+			NextRect(propertyHeight);
+			return result;
+		}
+
 		protected void Space(float _gap)
 		{
 			var propertyHeight = _gap;

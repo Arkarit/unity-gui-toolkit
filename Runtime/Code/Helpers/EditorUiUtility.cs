@@ -197,8 +197,16 @@ namespace GuiToolkit
 				_thisSerializedProperty.GetArrayElementAtIndex(i).managedReferenceValue = objects[i];
 		}
 
-		public static bool StringPopup(string _labelText, List<string> _strings, string _current, out string _newSelection, 
-			string _labelText2 = null, bool showRemove = false, string _addItemHeadline = null, string _addItemDescription = null)
+		public static bool StringPopup(
+			string _labelText, 
+			List<string> _strings, 
+			string _current, 
+			out string _newSelection, 
+			string _labelText2 = null, 
+			bool showRemove = false, 
+			string _addItemHeadline = null, 
+			string _addItemDescription = null
+		)
 		{
 			_newSelection = _current;
 			bool allowAdd = !string.IsNullOrEmpty(_addItemHeadline);
@@ -226,6 +234,64 @@ namespace GuiToolkit
 			}
 
 			EditorGUILayout.EndHorizontal();
+
+			if (_strings.Count == 0)
+				return false;
+
+			_newSelection = _strings[newInt];
+			return currentInt != newInt;
+		}
+
+		public static bool StringPopup(
+			Rect _pos, 
+			string _labelText, 
+			List<string> _strings, 
+			string _current, 
+			out string _newSelection, 
+			string _labelText2 = null, 
+			bool _showRemove = false, 
+			string _addItemHeadline = null, 
+			string _addItemDescription = null
+		)
+		{
+			_newSelection = _current;
+			bool allowAdd = !string.IsNullOrEmpty(_addItemHeadline);
+
+			if (!StringPopupPrepare(_strings, _current, allowAdd, out var currentInt)) 
+				return false;
+
+			Rect labelRect = new Rect(_pos.x, _pos.y, EditorGUIUtility.labelWidth, _pos.height);
+			EditorGUI.LabelField(labelRect, _labelText);
+			_pos.width -= EditorGUIUtility.labelWidth;
+			_pos.x += EditorGUIUtility.labelWidth;
+
+			if (!string.IsNullOrEmpty(_labelText2))
+			{
+				labelRect.x += EditorGUIUtility.labelWidth;
+				EditorGUI.LabelField(labelRect, _labelText2);
+				_pos.width -= EditorGUIUtility.labelWidth;
+				_pos.x += EditorGUIUtility.labelWidth;
+			}
+
+			int removeButtonWidth = _showRemove ? 50 : 0;
+			Rect popupRect = new Rect(_pos.x, _pos.y, _pos.width - removeButtonWidth, _pos.height);
+
+			int newInt = EditorGUI.Popup(popupRect, currentInt, _strings.ToArray());
+
+			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, ref _newSelection))
+				return true;
+
+			_pos.x += popupRect.width;
+			_pos.width -= popupRect.width;
+
+			if (_showRemove && _strings.Count > 0 && GUI.Button(_pos, EditorGUIUtility.IconContent("P4_DeletedLocal")))
+			{
+				_strings.RemoveAt(newInt);
+				if (newInt >= _strings.Count)
+					newInt = 0;
+				_newSelection = _strings.Count > 0 ? _strings[newInt] : null;
+				return true;
+			}
 
 			if (_strings.Count == 0)
 				return false;
