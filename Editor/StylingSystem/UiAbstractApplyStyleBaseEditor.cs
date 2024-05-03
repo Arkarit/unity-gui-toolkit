@@ -41,6 +41,7 @@ namespace GuiToolkit.Editor
 				}
 
 				m_thisAbstractApplyStyleBase.Name = newName;
+				m_thisAbstractApplyStyleBase.Apply();
 				EditorUtility.SetDirty(m_thisAbstractApplyStyleBase);
 			}
 

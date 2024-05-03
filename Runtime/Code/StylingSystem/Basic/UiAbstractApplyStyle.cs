@@ -43,8 +43,7 @@ namespace GuiToolkit.Style
 		}
 
 		public MB SpecificMonoBehaviour => MonoBehaviour as MB;
-
-		public abstract void Apply(ST style);
+		public ST SpecificStyle => Style as ST;
 
 		public virtual void OnEnable()
 		{
@@ -52,14 +51,6 @@ namespace GuiToolkit.Style
 				return;
 
 			Apply();
-		}
-
-		private void Apply()
-		{
-			var skin = UiMainStyleConfig.Instance.CurrentSkin;
-			var style = skin.StyleByKey(Key);
-			Apply(style as ST);
-
 			UiEvents.EvSkinChanged.AddListener(OnSkinChanged);
 		}
 

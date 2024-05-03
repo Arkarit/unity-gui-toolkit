@@ -1483,6 +1483,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_name: RedCheckmark
+  m_style:
+    rid: 6698005023013994518
+  references:
+    version: 2
+    RefIds:
+    - rid: 6698005023013994518
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: RedCheckmark
+        m_key: 1520245191
+        m_color:
+          IsApplicable: 1
+          Value: {r: 0.4339623, g: 0, b: 0, a: 1}
+        m_sprite:
+          IsApplicable: 0
+          Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
 --- !u!114 &395947630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2064,7 +2080,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef411d59c132c284898ee7d0208529aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_name: GreenCheckmark
+  m_name: RedCheckmark
+  m_style:
+    rid: 6698005023013994509
+  references:
+    version: 2
+    RefIds:
+    - rid: 6698005023013994509
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: RedCheckmark
+        m_key: 1520245191
+        m_color:
+          IsApplicable: 0
+          Value: {r: 1, g: 0, b: 0, a: 1}
+        m_sprite:
+          IsApplicable: 0
+          Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
 --- !u!114 &565626641
 MonoBehaviour:
   m_ObjectHideFlags: 0

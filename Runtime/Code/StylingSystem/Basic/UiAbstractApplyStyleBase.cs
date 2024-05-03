@@ -23,6 +23,8 @@ namespace GuiToolkit.Style
 			get => m_style;
 		}
 
+		public abstract void Apply();
+
 		public abstract UiAbstractStyleBase CreateStyle(string _name);
 
 		public string Name
