@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit.Style
 {
+	[ExecuteAlways]
 	public abstract class UiAbstractApplyStyleBase : MonoBehaviour
 	{
 		[SerializeField][HideInInspector] private string m_name;
@@ -20,7 +21,13 @@ namespace GuiToolkit.Style
 
 		public UiAbstractStyleBase Style
 		{
-			get => m_style;
+			get
+			{
+				if (m_style == null)
+					SetStyle();
+
+				return m_style;
+			}
 		}
 
 		public abstract void Apply();

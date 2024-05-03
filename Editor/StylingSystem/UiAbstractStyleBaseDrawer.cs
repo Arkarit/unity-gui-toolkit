@@ -24,7 +24,7 @@ namespace GuiToolkit.Style.Editor
 			{
 				foreach (var childProperty in ChildProperties)
 				{
-					if (childProperty.name == "m_key")
+					if (childProperty.name == "m_key" || childProperty.name == "m_name")
 						continue;
 
 					PropertyField(childProperty);

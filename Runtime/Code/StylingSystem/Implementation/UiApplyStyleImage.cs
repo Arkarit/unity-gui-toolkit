@@ -1,7 +1,9 @@
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace GuiToolkit.Style
 {
+	[ExecuteAlways]
 	public class UiApplyStyleImage : UiAbstractApplyStyle<Image, UiStyleImage>
 	{
 		public override void Apply()

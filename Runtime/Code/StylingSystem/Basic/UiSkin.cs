@@ -30,7 +30,7 @@ namespace GuiToolkit.Style
 
 		private void BuildDictionariesIfNecessary()
 		{
-			if (m_dictionaryBuilt)
+			if (Application.isPlaying && m_dictionaryBuilt)
 				return;
 
 			m_styleByKey.Clear();
@@ -39,10 +39,7 @@ namespace GuiToolkit.Style
 				m_styleByKey.Add(style.Key, style);
 			}
 
-#if UNITY_EDITOR
-			if (Application.isPlaying)
-#endif
-				m_dictionaryBuilt = true;
+			m_dictionaryBuilt = true;
 		}
 	}
 }

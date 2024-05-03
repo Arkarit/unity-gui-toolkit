@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit.Style
 {
+	[ExecuteAlways]
 	public abstract class UiAbstractApplyStyle<MB,ST> : UiAbstractApplyStyleBase 
 		where MB : MonoBehaviour 
 		where ST : UiAbstractStyle<MB>
@@ -47,23 +48,31 @@ namespace GuiToolkit.Style
 
 		public virtual void OnEnable()
 		{
+			UiEvents.EvSkinChanged.AddListener(OnSkinChanged);
+
+Debug.Log($"OnEnable {gameObject.name}");
 			if (m_monoBehaviour == null)
 				return;
 
 			Apply();
-			UiEvents.EvSkinChanged.AddListener(OnSkinChanged);
+
 		}
 
 		public virtual void OnDisable()
 		{
+			UiEvents.EvSkinChanged.RemoveListener(OnSkinChanged);
+
+Debug.Log($"OnDisable {gameObject.name}");
 			if (m_monoBehaviour == null)
 				return;
 
-			UiEvents.EvSkinChanged.RemoveListener(OnSkinChanged);
+
 		}
 
 		private void OnSkinChanged()
 		{
+Debug.Log($"OnSkinChanged {gameObject.name}");
+			SetStyle();
 			Apply();
 		}
 	}

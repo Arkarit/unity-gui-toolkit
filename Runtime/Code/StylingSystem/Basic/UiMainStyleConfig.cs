@@ -25,12 +25,64 @@ namespace GuiToolkit.Style
 				List<string> result = new();
 				if (m_skins == null || m_skins.Count <= 0)
 					return result;
+
 				var skin = m_skins[0];
 				foreach (var style in skin.Styles)
 				{
 					result.Add(style.Name);
 				}
 				return result;
+			}
+		}
+
+		public List<string> SkinNames
+		{
+			get
+			{
+				List<string> result = new();
+				if (m_skins == null)
+					return result;
+
+				foreach (var skin in m_skins)
+				{
+					result.Add(skin.Name);
+				}
+
+				return result;
+			}
+		}
+
+		public string CurrentSkinName
+		{
+			get
+			{
+				var currentSkin = CurrentSkin;
+				if (currentSkin == null)
+					return null;
+
+				return currentSkin.Name;
+			}
+			set
+			{
+				if (m_skins != null)
+				{
+					for (int i = 0; i < m_skins.Count; i++)
+					{
+						var skin = m_skins[i];
+						if (skin.Name == value)
+						{
+							if (m_currentSkinIdx == i)
+								return;
+
+							m_currentSkinIdx = i;
+							UiEvents.EvSkinChanged.InvokeAlways();
+							return;
+						}
+
+						//TODO new skin
+					}
+
+				}
 			}
 		}
 

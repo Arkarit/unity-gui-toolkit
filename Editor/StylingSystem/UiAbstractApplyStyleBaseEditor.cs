@@ -24,25 +24,38 @@ namespace GuiToolkit.Editor
 			if (m_thisAbstractApplyStyleBase.Style == null)
 				m_thisAbstractApplyStyleBase.SetStyle();
 
+			string selectedName;
+
+			EditorGUILayout.LabelField("Local Settings", EditorStyles.boldLabel);
 			var styleNames = UiMainStyleConfig.Instance.StyleNames;
-			int countBefore = styleNames.Count;
-			if (EditorUiUtility.StringPopup("Style", styleNames, m_nameProp.stringValue, out string newName,
+			int styleCountBefore = styleNames.Count;
+			if (EditorUiUtility.StringPopup("Style", styleNames, m_nameProp.stringValue, out selectedName,
 				    null, false, "Add Style", "Adds a new style"))
 			{
-				if (styleNames.Count > countBefore)
+				if (styleNames.Count > styleCountBefore)
 				{
 					UiMainStyleConfig.Instance.ForeachSkin(skin =>
 					{
-						var newStyle = m_thisAbstractApplyStyleBase.CreateStyle(newName);
+						var newStyle = m_thisAbstractApplyStyleBase.CreateStyle(selectedName);
 						skin.Styles.Add(newStyle);
 					});
 
 					UiMainStyleConfig.EditorSave(UiMainStyleConfig.Instance);
 				}
 
-				m_thisAbstractApplyStyleBase.Name = newName;
+				m_thisAbstractApplyStyleBase.Name = selectedName;
 				m_thisAbstractApplyStyleBase.Apply();
 				EditorUtility.SetDirty(m_thisAbstractApplyStyleBase);
+			}
+
+			EditorGUILayout.Space(10);
+			EditorGUILayout.LabelField("Global Settings", EditorStyles.boldLabel);
+
+			var skinNames = UiMainStyleConfig.Instance.SkinNames;
+			if (EditorUiUtility.StringPopup("Current Skin", skinNames, UiMainStyleConfig.Instance.CurrentSkinName, out selectedName,
+				    null, false, "Add Skin", "Adds a new skin"))
+			{
+				UiMainStyleConfig.Instance.CurrentSkinName = selectedName;
 			}
 
 			DrawDefaultInspector();
