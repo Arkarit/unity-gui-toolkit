@@ -11,6 +11,22 @@ namespace GuiToolkit.Style
 
 		public List<UiSkin> Skins => m_skins;
 
+		public List<string> StyleNames
+		{
+			get
+			{
+				List<string> result = new();
+				if (m_skins == null || m_skins.Count <= 0)
+					return result;
+				var skin = m_skins[0];
+				foreach (var style in skin.Styles)
+				{
+					result.Add(style.Name);
+				}
+				return result;
+			}
+		}
+
 		public UiSkin CurrentSkin 
 		{
 			get
