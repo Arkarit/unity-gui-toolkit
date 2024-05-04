@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using Codice.Client.BaseCommands.Config;
+using Microsoft.SqlServer.Server;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,8 +13,11 @@ namespace GuiToolkit
 	public class UiApplyStyleGenerator : EditorWindow
 	{
 		private MonoBehaviour m_MonoBehaviour;
+		private MonoBehaviour m_lastMonoBehaviour;
 		private readonly List<PropertyRecord> m_PropertyRecords = new();
 		private Vector2 m_ScrollPos;
+
+		private GUIStyle[] m_alternatingRowStyles = new GUIStyle[2];
 
 		[Serializable]
 		private class PropertyRecord
@@ -42,22 +46,70 @@ namespace GuiToolkit
 			if (!m_MonoBehaviour)
 				return;
 
-			CollectProperties();
+
+			m_alternatingRowStyles[0] = GUIStyle.none;
+			m_alternatingRowStyles[1] = new GUIStyle();
+			m_alternatingRowStyles[1].normal.background = MakeTex(1, 1, new Color(1.0f, 1.0f, 1.0f, 0.15f));
+
+			CollectPropertiesIfNecessary();
 			DrawProperties();
 
 			EditorGUILayout.BeginHorizontal();
+			if (GUILayout.Button($"Show Hidden ({NumHidden})"))
+				ShowHidden();
+
 			if (UiToolkitConfiguration.Instance.IsEditingInternal)
 			{
 				if (GUILayout.Button("Write JSON (internal)"))
 					WriteJson(true);
+
 				if (GUILayout.Button("Apply (internal)"))
 					Apply(true);
 			}
+
 			if (GUILayout.Button("Write JSON"))
 				WriteJson(false);
+
 			if (GUILayout.Button("Apply"))
 				Apply(false);
+
 			EditorGUILayout.EndHorizontal();
+		}
+
+		private void ShowHidden()
+		{
+			foreach (var propertyRecord in m_PropertyRecords)
+				propertyRecord.Used = true;
+		}
+
+		private int NumHidden
+		{
+			get
+			{
+				int result = 0;
+
+				foreach (var propertyRecord in m_PropertyRecords)
+				{
+					if (!propertyRecord.Used)
+						result++;
+				}
+
+				return result;
+			}
+		}
+
+		private Texture2D MakeTex(int width, int height, Color col)
+		{
+			Color[] pix = new Color[width*height];
+ 
+			for(int i = 0; i < pix.Length; i++)
+				pix[i] = col;
+ 
+			Texture2D result = new Texture2D(width, height);
+			result.SetPixels(pix);
+			result.Apply();
+ 
+			return result;
 		}
 
 		private void WriteJson(bool _internal)
@@ -82,8 +134,12 @@ namespace GuiToolkit
 			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 		}
 
-		private void CollectProperties()
+		private void CollectPropertiesIfNecessary()
 		{
+			if (m_lastMonoBehaviour == m_MonoBehaviour && m_PropertyRecords.Count > 0)
+				return;
+
+			m_lastMonoBehaviour = m_MonoBehaviour;
 			m_PropertyRecords.Clear();
 			var propertyInfos = m_MonoBehaviour.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
 			foreach (var propertyInfo in propertyInfos)
@@ -103,16 +159,25 @@ namespace GuiToolkit
 		private void DrawProperties()
 		{
 			m_ScrollPos = EditorGUILayout.BeginScrollView(m_ScrollPos);
+			int count = 0;
 			foreach (var propertyRecord in m_PropertyRecords)
-				DrawProperty(propertyRecord);
+			{
+				if (!propertyRecord.Used)
+					continue;
+
+				DrawProperty(propertyRecord, m_alternatingRowStyles[count++ & 1]);
+			}
+
 			EditorGUILayout.EndScrollView();
 		}
 
-		private void DrawProperty(PropertyRecord propertyRecord)
+		private void DrawProperty(PropertyRecord _propertyRecord, GUIStyle _guiStyle)
 		{
-			EditorGUILayout.BeginHorizontal();
-			propertyRecord.Used = GUILayout.Toggle(propertyRecord.Used, "");
-			EditorGUILayout.LabelField($"{propertyRecord.Name} ({propertyRecord.Type.Name})");
+			EditorGUILayout.BeginHorizontal(_guiStyle);
+			EditorGUILayout.Space(10, false);
+			_propertyRecord.Used = GUILayout.Toggle(_propertyRecord.Used, "", GUILayout.Width(20));
+			EditorGUILayout.LabelField($"{_propertyRecord.Name}", GUILayout.Width(200));
+			EditorGUILayout.LabelField($"({_propertyRecord.Type.Name})", GUILayout.ExpandWidth(true));
 			EditorGUILayout.EndHorizontal();
 		}
 
