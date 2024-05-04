@@ -1,6 +1,8 @@
 #if UNITY_EDITOR
+using Codice.Client.BaseCommands.Config;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -21,6 +23,13 @@ namespace GuiToolkit
 			public Type Type;
 		}
 
+		[Serializable]
+		private class PropertyRecordsJson
+		{
+			public Type Type;
+			public PropertyRecord[] Records;
+		}
+
 		private void OnGUI()
 		{
 			if (m_MonoBehaviour == null)
@@ -35,8 +44,31 @@ namespace GuiToolkit
 
 			CollectProperties();
 			DrawProperties();
+
+			EditorGUILayout.BeginHorizontal();
+			if (GUILayout.Button("Write JSON"))
+				WriteJson();
 			if (GUILayout.Button("Apply"))
 				Apply();
+			EditorGUILayout.EndHorizontal();
+		}
+
+		private void WriteJson()
+		{
+			var jsonClass = new PropertyRecordsJson();
+			jsonClass.Type = m_MonoBehaviour.GetType();
+			jsonClass.Records = m_PropertyRecords.ToArray();
+			string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir + $".{m_MonoBehaviour.GetType().FullName}.json";
+
+			try
+			{
+				string json = JsonUtility.ToJson(jsonClass, true);
+				File.WriteAllText(path, json);
+			}
+			catch (Exception e)
+			{
+				Debug.LogError($"Could not write Json, reason:'{e.Message}'");
+			}
 		}
 
 		private void CollectProperties()
