@@ -11,14 +11,21 @@ namespace GuiToolkit.Style
 		[SerializeReference] private List<UiAbstractStyleBase> m_styles = new();
 
 		private readonly Dictionary<int, UiAbstractStyleBase> m_styleByKey = new ();
-		private bool m_dictionaryBuilt = false;
 
 		public string Name => m_name;
 		public List<UiAbstractStyleBase> Styles => m_styles;
 
+		public void Init()
+		{
+			BuildDictionaries();
+		}
+
 		public UiAbstractStyleBase StyleByKey(int _key)
 		{
-			BuildDictionariesIfNecessary();
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				BuildDictionaries();
+#endif
 
 			if (m_styleByKey.TryGetValue(_key, out UiAbstractStyleBase result))
 			{
@@ -28,18 +35,13 @@ namespace GuiToolkit.Style
 			return null;
 		}
 
-		private void BuildDictionariesIfNecessary()
+		private void BuildDictionaries()
 		{
-			if (Application.isPlaying && m_dictionaryBuilt)
-				return;
-
 			m_styleByKey.Clear();
 			foreach (var style in m_styles)
 			{
 				m_styleByKey.Add(style.Key, style);
 			}
-
-			m_dictionaryBuilt = true;
 		}
 	}
 }

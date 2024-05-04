@@ -17,6 +17,7 @@ namespace GuiToolkit.Style
 		protected virtual void Awake()
 		{
 			SetStyle();
+			Apply();
 		}
 
 		public UiAbstractStyleBase Style

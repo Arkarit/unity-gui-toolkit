@@ -1485,11 +1485,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: RedCheckmark
   m_style:
-    rid: 6698005023013994541
+    rid: 6698005023013994594
   references:
     version: 2
     RefIds:
-    - rid: 6698005023013994541
+    - rid: 6698005023013994594
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: RedCheckmark
@@ -1513,7 +1513,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.4339623, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2083,11 +2083,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: GreenCheckmark
   m_style:
-    rid: 6698005023013994547
+    rid: 6698005023013994593
   references:
     version: 2
     RefIds:
-    - rid: 6698005023013994547
+    - rid: 6698005023013994593
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: GreenCheckmark
@@ -3147,7 +3147,7 @@ GameObject:
   - component: {fileID: 1413050328}
   - component: {fileID: 1413050327}
   m_Layer: 5
-  m_Name: RedCheckmark (1)
+  m_Name: BlueCheckmark
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3184,20 +3184,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef411d59c132c284898ee7d0208529aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_name: RedCheckmark
+  m_name: fgdsgsdg
   m_style:
-    rid: 6698005023013994542
+    rid: 6698005023013994595
   references:
     version: 2
     RefIds:
-    - rid: 6698005023013994542
+    - rid: 6698005023013994595
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_name: RedCheckmark
-        m_key: 1520245191
+        m_name: fgdsgsdg
+        m_key: 1264184506
         m_color:
           IsApplicable: 1
-          Value: {r: 0.4339623, g: 0, b: 0, a: 1}
+          Value: {r: 0, g: 0.07421385, b: 0.3207547, a: 1}
         m_sprite:
           IsApplicable: 0
           Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
@@ -3214,7 +3214,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4339623, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0.07421385, b: 0.3207547, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

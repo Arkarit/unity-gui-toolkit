@@ -15,6 +15,8 @@ namespace GuiToolkit
 		
 		protected static T s_instance;
 
+		protected virtual void OnEnable() {}
+
 		public static T Instance
 		{
 			get

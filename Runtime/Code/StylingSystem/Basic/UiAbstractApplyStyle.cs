@@ -51,11 +51,10 @@ namespace GuiToolkit.Style
 			UiEvents.EvSkinChanged.AddListener(OnSkinChanged);
 
 Debug.Log($"OnEnable {gameObject.name}");
-			if (m_monoBehaviour == null)
+			if (SpecificMonoBehaviour == null)
 				return;
 
 			Apply();
-
 		}
 
 		public virtual void OnDisable()
@@ -63,10 +62,6 @@ Debug.Log($"OnEnable {gameObject.name}");
 			UiEvents.EvSkinChanged.RemoveListener(OnSkinChanged);
 
 Debug.Log($"OnDisable {gameObject.name}");
-			if (m_monoBehaviour == null)
-				return;
-
-
 		}
 
 		private void OnSkinChanged()

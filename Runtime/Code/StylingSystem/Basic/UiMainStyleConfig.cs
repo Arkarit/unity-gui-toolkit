@@ -12,6 +12,13 @@ namespace GuiToolkit.Style
 
 		public List<UiSkin> Skins => m_skins;
 
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			foreach (var skin in m_skins)
+				skin.Init();
+		}
+
 		public void ForeachSkin(Action<UiSkin> action)
 		{
 			foreach (var skin in m_skins)
