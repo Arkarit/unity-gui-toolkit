@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Windows;
 using static Codice.CM.WorkspaceServer.WorkspaceTreeDataStore;
 
 namespace GuiToolkit
@@ -25,10 +26,14 @@ namespace GuiToolkit
 		#region Templates
 
 		// Format string:
-		// 0: qualified type name
+		// 0: qualified property type name
 		// 1: member name
 		private const string StyleMemberTemplate =
 			"		[SerializeField] private ApplicableValue<{0}> m_{1} = new();\n";
+		private string GetStyleMember(string _qualifiedPropertyTypeName, string _memberName)
+		{
+			return string.Format(StyleMemberTemplate, _qualifiedPropertyTypeName, _memberName);
+		}
 
 		// Format string:
 		// 0: qualified property type name
@@ -41,6 +46,19 @@ namespace GuiToolkit
 			"			get => m_{2}.Value;" +
 			"			set => m_{3}.Value = value;" +
 			"		}";
+
+		private string GetStyleProperty(string _qualifiedPropertyTypeName, string _shortPropertyName, string _memberName)
+		{
+			_shortPropertyName = UpperFirstChar(_shortPropertyName);
+			return string.Format
+			(
+				StylePropertyTemplate, 
+				_qualifiedPropertyTypeName, 
+				_shortPropertyName, 
+				_memberName,
+				_memberName
+			);
+		}
 
 		// Format string:
 		// 0: namespace
@@ -274,7 +292,7 @@ namespace GuiToolkit
 			return window;
 		}
 
-		private Texture2D MakeTex(int width, int height, Color col)
+		private static Texture2D MakeTex(int width, int height, Color col)
 		{
 			Color[] pix = new Color[width*height];
  
@@ -286,6 +304,13 @@ namespace GuiToolkit
 			result.Apply();
  
 			return result;
+		}
+
+		private static string UpperFirstChar(string _s)
+		{
+			if (string.IsNullOrEmpty(_s))
+				return string.Empty;
+			return _s[0].ToString().ToUpper() + _s.Substring(1);
 		}
 		#endregion
 
