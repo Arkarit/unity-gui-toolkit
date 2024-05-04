@@ -37,6 +37,7 @@ namespace GuiToolkit
 			public PropertyRecord[] Records;
 		}
 
+		#region Drawing
 		private void OnGUI()
 		{
 			if (m_MonoBehaviour == null)
@@ -67,18 +68,45 @@ namespace GuiToolkit
 					WriteJson(true);
 
 				if (GUILayout.Button("Generate (internal)"))
-					Apply(true);
+					Generate(true);
 			}
 
 			if (GUILayout.Button("Write JSON"))
 				WriteJson(false);
 
 			if (GUILayout.Button("Generate"))
-				Apply(false);
+				Generate(false);
 
 			EditorGUILayout.EndHorizontal();
 		}
 
+		private void DrawProperties()
+		{
+			m_ScrollPos = EditorGUILayout.BeginScrollView(m_ScrollPos);
+			int count = 0;
+			foreach (var propertyRecord in m_PropertyRecords)
+			{
+				if (!propertyRecord.Used)
+					continue;
+
+				DrawProperty(propertyRecord, m_alternatingRowStyles[count++ & 1]);
+			}
+
+			EditorGUILayout.EndScrollView();
+		}
+
+		private void DrawProperty(PropertyRecord _propertyRecord, GUIStyle _guiStyle)
+		{
+			EditorGUILayout.BeginHorizontal(_guiStyle);
+			EditorGUILayout.Space(10, false);
+			_propertyRecord.Used = GUILayout.Toggle(_propertyRecord.Used, "", GUILayout.Width(20));
+			EditorGUILayout.LabelField($"{_propertyRecord.Name}", GUILayout.Width(200));
+			EditorGUILayout.LabelField($"({_propertyRecord.TypeName})", GUILayout.ExpandWidth(true));
+			EditorGUILayout.EndHorizontal();
+		}
+		#endregion
+
+		#region Calculations
 		private void ShowHidden()
 		{
 			foreach (var propertyRecord in m_PropertyRecords)
@@ -100,21 +128,9 @@ namespace GuiToolkit
 				return result;
 			}
 		}
+		#endregion
 
-		private Texture2D MakeTex(int width, int height, Color col)
-		{
-			Color[] pix = new Color[width*height];
- 
-			for(int i = 0; i < pix.Length; i++)
-				pix[i] = col;
- 
-			Texture2D result = new Texture2D(width, height);
-			result.SetPixels(pix);
-			result.Apply();
- 
-			return result;
-		}
-
+		#region Json
 		private void WriteJson(bool _internal)
 		{
 			var jsonClass = new PropertyRecordsJson();
@@ -135,32 +151,6 @@ namespace GuiToolkit
 			}
 
 			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-		}
-
-		private void CollectPropertiesIfNecessary()
-		{
-			if (m_lastMonoBehaviour == m_MonoBehaviour && m_PropertyRecords.Count > 0)
-				return;
-
-			m_lastMonoBehaviour = m_MonoBehaviour;
-			m_PropertyRecords.Clear();
-
-			if (FindJson())
-				return;
-
-			var propertyInfos = m_MonoBehaviour.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
-			foreach (var propertyInfo in propertyInfos)
-			{
-				if (!propertyInfo.CanRead || !propertyInfo.CanWrite)
-					continue;
-
-				m_PropertyRecords.Add(new PropertyRecord()
-				{
-					Used = !s_filteredNames.Contains(propertyInfo.Name),
-					Name = propertyInfo.Name,
-					TypeName = propertyInfo.PropertyType.FullName.Replace("+", ".")
-				});
-			}
 		}
 
 		private bool FindJson()
@@ -194,36 +184,43 @@ namespace GuiToolkit
 				return false;
 			}
 		}
+		#endregion
 
-		private void DrawProperties()
+		#region Data
+		private void CollectPropertiesIfNecessary()
 		{
-			m_ScrollPos = EditorGUILayout.BeginScrollView(m_ScrollPos);
-			int count = 0;
-			foreach (var propertyRecord in m_PropertyRecords)
+			if (m_lastMonoBehaviour == m_MonoBehaviour && m_PropertyRecords.Count > 0)
+				return;
+
+			m_lastMonoBehaviour = m_MonoBehaviour;
+			m_PropertyRecords.Clear();
+
+			if (FindJson())
+				return;
+
+			var propertyInfos = m_MonoBehaviour.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+			foreach (var propertyInfo in propertyInfos)
 			{
-				if (!propertyRecord.Used)
+				if (!propertyInfo.CanRead || !propertyInfo.CanWrite)
 					continue;
 
-				DrawProperty(propertyRecord, m_alternatingRowStyles[count++ & 1]);
+				m_PropertyRecords.Add(new PropertyRecord()
+				{
+					Used = !s_filteredNames.Contains(propertyInfo.Name),
+					Name = propertyInfo.Name,
+					TypeName = propertyInfo.PropertyType.FullName.Replace("+", ".")
+				});
 			}
-
-			EditorGUILayout.EndScrollView();
 		}
+		#endregion
 
-		private void DrawProperty(PropertyRecord _propertyRecord, GUIStyle _guiStyle)
-		{
-			EditorGUILayout.BeginHorizontal(_guiStyle);
-			EditorGUILayout.Space(10, false);
-			_propertyRecord.Used = GUILayout.Toggle(_propertyRecord.Used, "", GUILayout.Width(20));
-			EditorGUILayout.LabelField($"{_propertyRecord.Name}", GUILayout.Width(200));
-			EditorGUILayout.LabelField($"({_propertyRecord.TypeName})", GUILayout.ExpandWidth(true));
-			EditorGUILayout.EndHorizontal();
-		}
-
-		private void Apply(bool _internal)
+		#region Generation
+		private void Generate(bool _internal)
 		{
 		}
+		#endregion
 
+		#region Helper
 		[MenuItem(StringConstants.APPLY_STYLE_GENERATOR_MENU_NAME, priority = Constants.STYLES_HEADER_PRIORITY)]
 		public static UiApplyStyleGenerator GetWindow()
 		{
@@ -233,6 +230,22 @@ namespace GuiToolkit
 			window.Repaint();
 			return window;
 		}
+
+		private Texture2D MakeTex(int width, int height, Color col)
+		{
+			Color[] pix = new Color[width*height];
+ 
+			for(int i = 0; i < pix.Length; i++)
+				pix[i] = col;
+ 
+			Texture2D result = new Texture2D(width, height);
+			result.SetPixels(pix);
+			result.Apply();
+ 
+			return result;
+		}
+		#endregion
+
 	}
 }
 #endif
