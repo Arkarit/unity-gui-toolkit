@@ -1,15 +1,11 @@
 #if UNITY_EDITOR
-using Codice.Client.BaseCommands.Config;
-using Microsoft.SqlServer.Server;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Windows;
-using static Codice.CM.WorkspaceServer.WorkspaceTreeDataStore;
+using File = System.IO.File;
 
 namespace GuiToolkit
 {
@@ -30,9 +26,14 @@ namespace GuiToolkit
 		// 1: member name
 		private const string StyleMemberTemplate =
 			"		[SerializeField] private ApplicableValue<{0}> m_{1} = new();\n";
-		private string GetStyleMember(string _qualifiedPropertyTypeName, string _memberName)
+		private string GetStyleMemberString(string _qualifiedPropertyTypeName, string _memberName)
 		{
-			return string.Format(StyleMemberTemplate, _qualifiedPropertyTypeName, _memberName);
+			return string.Format
+			(
+				StyleMemberTemplate, 
+				_qualifiedPropertyTypeName, 
+				_memberName
+			);
 		}
 
 		// Format string:
@@ -42,12 +43,12 @@ namespace GuiToolkit
 		// 3: member name
 		private const string StylePropertyTemplate =
 			"		public {0} {1}\n" +
-			"		{\n" +
-			"			get => m_{2}.Value;" +
-			"			set => m_{3}.Value = value;" +
-			"		}";
-
-		private string GetStyleProperty(string _qualifiedPropertyTypeName, string _shortPropertyName, string _memberName)
+			"		{{\n" +
+			"			get => m_{2}.Value;\n" +
+			"			set => m_{3}.Value = value;\n" +
+			"		}}\n" + 
+			"\n";
+		private string GetStylePropertyString(string _qualifiedPropertyTypeName, string _shortPropertyName, string _memberName)
 		{
 			_shortPropertyName = UpperFirstChar(_shortPropertyName);
 			return string.Format
@@ -62,25 +63,41 @@ namespace GuiToolkit
 
 		// Format string:
 		// 0: namespace
-		// 1: short type name,
-		// 2: qualified type name
-		// 3: members (starting with 2 tabs)
-		// 4: properties (starting with 2 tabs)
+		// 1: prefix
+		// 2: short type name,
+		// 3: qualified type name
+		// 4: members (starting with 2 tabs)
+		// 5: properties (starting with 2 tabs)
 		private const string StyleTemplate =
 			"using System;\n" +
 			"using UnityEngine;\n" +
 			"using UnityEngine.UI;\n" +
 			"\n" +
 			"namespace {0}\n" +
-			"{\n" +
+			"{{\n" +
 			"	[Serializable]\n" +
-			"	public class UiStyle{1} : UiAbstractStyle<{2}>\n" +
-			"	{\n" +
-			"{3}" +
-			"\n" +
+			"	public class UiStyle{1}{2} : UiAbstractStyle<{3}>\n" +
+			"	{{\n" +
 			"{4}" +
-			"	}\n" +
-			"}\n";
+			"\n" +
+			"{5}" +
+			"	}}\n" +
+			"}}\n";
+
+		private string GetStyleString(string _namespace, string _prefix, string _shortTypeName, string _qualifiedTypeName, string _members, string _properties)
+		{
+			return string.Format
+			(
+				StyleTemplate,
+				_namespace,
+				_prefix,
+				_shortTypeName,
+				_qualifiedTypeName,
+				_members,
+				_properties
+			);
+		}
+
 		#endregion
 
 		[Serializable]
@@ -278,7 +295,51 @@ namespace GuiToolkit
 		#region Generation
 		private void Generate(bool _internal)
 		{
+			if (!GenerateStyle(_internal))
+				return;
 		}
+
+		private bool GenerateStyle(bool _internal)
+		{
+			string members = string.Empty;
+			string properties = string.Empty;
+			bool foundSome = false;
+
+			foreach (var propertyRecord in m_PropertyRecords)
+			{
+				if (!propertyRecord.Used)
+					continue;
+
+				string qualifiedPropertyType = propertyRecord.TypeName;
+				string memberName = propertyRecord.Name;
+
+				members += GetStyleMemberString(qualifiedPropertyType, memberName);
+				foundSome = true;
+			}
+
+			if (!foundSome)
+			{
+				EditorUtility.DisplayDialog(
+					"No Properties defined",
+					"The class you'd like to generate has no properties.\n" + 
+					"Try to switch on some properties with the 'Show Hidden' button.", 
+					"Ok");
+				return false;
+			}
+
+			string namespaceStr = "GuiToolkit"; //TODO: expose, save in json
+			string classPrefix = "Fitzefatze"; //TODO: expose, save in json
+			string shortTypeName = m_MonoBehaviour.GetType().Name;
+			string qualifiedTypeName = m_MonoBehaviour.GetType().FullName;
+
+			string finalClassContent = GetStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
+				members, properties);
+
+Debug.Log($"finalClassContent:\n{finalClassContent}");
+
+			return true;
+		}
+
 		#endregion
 
 		#region Helper
