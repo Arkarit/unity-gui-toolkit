@@ -4,9 +4,11 @@ using Microsoft.SqlServer.Server;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using static Codice.CM.WorkspaceServer.WorkspaceTreeDataStore;
 
 namespace GuiToolkit
 {
@@ -14,17 +16,18 @@ namespace GuiToolkit
 	{
 		private MonoBehaviour m_MonoBehaviour;
 		private MonoBehaviour m_lastMonoBehaviour;
-		private readonly List<PropertyRecord> m_PropertyRecords = new();
+		private List<PropertyRecord> m_PropertyRecords = new();
 		private Vector2 m_ScrollPos;
 
 		private GUIStyle[] m_alternatingRowStyles = new GUIStyle[2];
+		private static readonly HashSet<string> s_filteredNames = new() { "name", "enabled", "tag", "hideFlags", "runInEditMode", "useGUILayout" };
 
 		[Serializable]
 		private class PropertyRecord
 		{
 			public bool Used;
 			public string Name;
-			public Type Type;
+			public string TypeName;
 		}
 
 		[Serializable]
@@ -63,14 +66,14 @@ namespace GuiToolkit
 				if (GUILayout.Button("Write JSON (internal)"))
 					WriteJson(true);
 
-				if (GUILayout.Button("Apply (internal)"))
+				if (GUILayout.Button("Generate (internal)"))
 					Apply(true);
 			}
 
 			if (GUILayout.Button("Write JSON"))
 				WriteJson(false);
 
-			if (GUILayout.Button("Apply"))
+			if (GUILayout.Button("Generate"))
 				Apply(false);
 
 			EditorGUILayout.EndHorizontal();
@@ -141,6 +144,10 @@ namespace GuiToolkit
 
 			m_lastMonoBehaviour = m_MonoBehaviour;
 			m_PropertyRecords.Clear();
+
+			if (FindJson())
+				return;
+
 			var propertyInfos = m_MonoBehaviour.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
 			foreach (var propertyInfo in propertyInfos)
 			{
@@ -149,10 +156,42 @@ namespace GuiToolkit
 
 				m_PropertyRecords.Add(new PropertyRecord()
 				{
-					Used = true,
+					Used = !s_filteredNames.Contains(propertyInfo.Name),
 					Name = propertyInfo.Name,
-					Type = propertyInfo.PropertyType
+					TypeName = propertyInfo.PropertyType.FullName.Replace("+", ".")
 				});
+			}
+		}
+
+		private bool FindJson()
+		{
+			string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir + $"{m_MonoBehaviour.GetType().FullName}.json";
+			if (TryReadJson(path))
+				return true;
+
+			string pathInternal = UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir +
+			                      $"Type-Json/{m_MonoBehaviour.GetType().FullName}.json";
+			if (TryReadJson(pathInternal))
+				return true;
+
+			return false;
+		}
+
+		private bool TryReadJson(string path)
+		{
+			try
+			{
+				var content = File.ReadAllText(path);
+				if (string.IsNullOrEmpty(content))
+					return false;
+
+				var propertyRecordsJson = JsonUtility.FromJson<PropertyRecordsJson>(content);
+				m_PropertyRecords = propertyRecordsJson.Records.ToList();
+				return true;
+			}
+			catch
+			{
+				return false;
 			}
 		}
 
@@ -177,7 +216,7 @@ namespace GuiToolkit
 			EditorGUILayout.Space(10, false);
 			_propertyRecord.Used = GUILayout.Toggle(_propertyRecord.Used, "", GUILayout.Width(20));
 			EditorGUILayout.LabelField($"{_propertyRecord.Name}", GUILayout.Width(200));
-			EditorGUILayout.LabelField($"({_propertyRecord.Type.Name})", GUILayout.ExpandWidth(true));
+			EditorGUILayout.LabelField($"({_propertyRecord.TypeName})", GUILayout.ExpandWidth(true));
 			EditorGUILayout.EndHorizontal();
 		}
 

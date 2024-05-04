@@ -2,143 +2,178 @@
     "Records": [
         {
             "Used": true,
-            "Name": "Support"
+            "Name": "Support",
+            "TypeName": "GuiToolkit.UiSimpleAnimation.ESupport"
         },
         {
             "Used": true,
-            "Name": "Target"
+            "Name": "Target",
+            "TypeName": "UnityEngine.RectTransform"
         },
         {
             "Used": true,
-            "Name": "MarkTargetForLayoutRebuild"
+            "Name": "MarkTargetForLayoutRebuild",
+            "TypeName": "System.Boolean"
         },
         {
             "Used": true,
-            "Name": "CanvasScaler"
+            "Name": "CanvasScaler",
+            "TypeName": "UnityEngine.UI.CanvasScaler"
         },
         {
             "Used": true,
-            "Name": "CanvasRectTransform"
+            "Name": "CanvasRectTransform",
+            "TypeName": "UnityEngine.RectTransform"
         },
         {
             "Used": true,
-            "Name": "ScaleByCanvasScaler"
+            "Name": "ScaleByCanvasScaler",
+            "TypeName": "System.Boolean"
         },
         {
             "Used": true,
-            "Name": "PosXStart"
+            "Name": "PosXStart",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "PosXEnd"
+            "Name": "PosXEnd",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "PosXCurve"
+            "Name": "PosXCurve",
+            "TypeName": "UnityEngine.AnimationCurve"
         },
         {
             "Used": true,
-            "Name": "PosYStart"
+            "Name": "PosYStart",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "PosYEnd"
+            "Name": "PosYEnd",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "PosYCurve"
+            "Name": "PosYCurve",
+            "TypeName": "UnityEngine.AnimationCurve"
         },
         {
             "Used": true,
-            "Name": "RotZStart"
+            "Name": "RotZStart",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "RotZEnd"
+            "Name": "RotZEnd",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "RotZCurve"
+            "Name": "RotZCurve",
+            "TypeName": "UnityEngine.AnimationCurve"
         },
         {
             "Used": true,
-            "Name": "ScaleXStart"
+            "Name": "ScaleXStart",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "ScaleXEnd"
+            "Name": "ScaleXEnd",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "ScaleXCurve"
+            "Name": "ScaleXCurve",
+            "TypeName": "UnityEngine.AnimationCurve"
         },
         {
             "Used": true,
-            "Name": "ScaleYStart"
+            "Name": "ScaleYStart",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "ScaleYEnd"
+            "Name": "ScaleYEnd",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "ScaleYCurve"
+            "Name": "ScaleYCurve",
+            "TypeName": "UnityEngine.AnimationCurve"
         },
         {
             "Used": true,
-            "Name": "ScaleLocked"
+            "Name": "ScaleLocked",
+            "TypeName": "System.Boolean"
         },
         {
             "Used": true,
-            "Name": "AlphaCurve"
+            "Name": "AlphaCurve",
+            "TypeName": "UnityEngine.AnimationCurve"
         },
         {
             "Used": true,
-            "Name": "AlphaImage"
+            "Name": "AlphaImage",
+            "TypeName": "UnityEngine.UI.Image"
         },
         {
             "Used": true,
-            "Name": "AlphaCanvasGroup"
+            "Name": "AlphaCanvasGroup",
+            "TypeName": "UnityEngine.CanvasGroup"
         },
         {
             "Used": true,
-            "Name": "Duration"
+            "Name": "Duration",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "Delay"
+            "Name": "Delay",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "BackwardsAnimation"
+            "Name": "BackwardsAnimation",
+            "TypeName": "GuiToolkit.UiSimpleAnimationBase"
         },
         {
-            "Used": true,
-            "Name": "EnabledInHierarchy"
+            "Used": false,
+            "Name": "EnabledInHierarchy",
+            "TypeName": "System.Boolean"
         },
         {
-            "Used": true,
-            "Name": "useGUILayout"
+            "Used": false,
+            "Name": "useGUILayout",
+            "TypeName": "System.Boolean"
         },
         {
-            "Used": true,
-            "Name": "runInEditMode"
+            "Used": false,
+            "Name": "runInEditMode",
+            "TypeName": "System.Boolean"
         },
         {
-            "Used": true,
-            "Name": "enabled"
+            "Used": false,
+            "Name": "enabled",
+            "TypeName": "System.Boolean"
         },
         {
-            "Used": true,
-            "Name": "tag"
+            "Used": false,
+            "Name": "tag",
+            "TypeName": "System.String"
         },
         {
-            "Used": true,
-            "Name": "name"
+            "Used": false,
+            "Name": "name",
+            "TypeName": "System.String"
         },
         {
-            "Used": true,
-            "Name": "hideFlags"
+            "Used": false,
+            "Name": "hideFlags",
+            "TypeName": "UnityEngine.HideFlags"
         }
     ]
 }

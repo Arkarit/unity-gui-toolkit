@@ -2,107 +2,133 @@
     "Records": [
         {
             "Used": true,
-            "Name": "sprite"
+            "Name": "sprite",
+            "TypeName": "UnityEngine.Sprite"
         },
         {
             "Used": true,
-            "Name": "overrideSprite"
+            "Name": "overrideSprite",
+            "TypeName": "UnityEngine.Sprite"
         },
         {
             "Used": true,
-            "Name": "type"
+            "Name": "type",
+            "TypeName": "UnityEngine.UI.Image.Type"
         },
         {
             "Used": true,
-            "Name": "preserveAspect"
+            "Name": "preserveAspect",
+            "TypeName": "System.Boolean"
         },
         {
             "Used": true,
-            "Name": "fillCenter"
+            "Name": "fillCenter",
+            "TypeName": "System.Boolean"
         },
         {
             "Used": true,
-            "Name": "fillMethod"
+            "Name": "fillMethod",
+            "TypeName": "UnityEngine.UI.Image.FillMethod"
         },
         {
             "Used": true,
-            "Name": "fillAmount"
+            "Name": "fillAmount",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "fillClockwise"
+            "Name": "fillClockwise",
+            "TypeName": "System.Boolean"
         },
         {
             "Used": true,
-            "Name": "fillOrigin"
+            "Name": "fillOrigin",
+            "TypeName": "System.Int32"
         },
         {
             "Used": true,
-            "Name": "eventAlphaThreshold"
+            "Name": "eventAlphaThreshold",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "alphaHitTestMinimumThreshold"
+            "Name": "alphaHitTestMinimumThreshold",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "useSpriteMesh"
+            "Name": "useSpriteMesh",
+            "TypeName": "System.Boolean"
         },
         {
             "Used": true,
-            "Name": "pixelsPerUnitMultiplier"
+            "Name": "pixelsPerUnitMultiplier",
+            "TypeName": "System.Single"
         },
         {
             "Used": true,
-            "Name": "material"
+            "Name": "material",
+            "TypeName": "UnityEngine.Material"
+        },
+        {
+            "Used": false,
+            "Name": "onCullStateChanged",
+            "TypeName": "UnityEngine.UI.MaskableGraphic.CullStateChangedEvent"
         },
         {
             "Used": true,
-            "Name": "onCullStateChanged"
+            "Name": "maskable",
+            "TypeName": "System.Boolean"
         },
         {
             "Used": true,
-            "Name": "maskable"
+            "Name": "isMaskingGraphic",
+            "TypeName": "System.Boolean"
         },
         {
             "Used": true,
-            "Name": "isMaskingGraphic"
+            "Name": "color",
+            "TypeName": "UnityEngine.Color"
         },
         {
             "Used": true,
-            "Name": "color"
+            "Name": "raycastTarget",
+            "TypeName": "System.Boolean"
         },
         {
             "Used": true,
-            "Name": "raycastTarget"
+            "Name": "raycastPadding",
+            "TypeName": "UnityEngine.Vector4"
         },
         {
-            "Used": true,
-            "Name": "raycastPadding"
+            "Used": false,
+            "Name": "useGUILayout",
+            "TypeName": "System.Boolean"
         },
         {
-            "Used": true,
-            "Name": "useGUILayout"
+            "Used": false,
+            "Name": "runInEditMode",
+            "TypeName": "System.Boolean"
         },
         {
-            "Used": true,
-            "Name": "runInEditMode"
+            "Used": false,
+            "Name": "enabled",
+            "TypeName": "System.Boolean"
         },
         {
-            "Used": true,
-            "Name": "enabled"
+            "Used": false,
+            "Name": "tag",
+            "TypeName": "System.String"
         },
         {
-            "Used": true,
-            "Name": "tag"
+            "Used": false,
+            "Name": "name",
+            "TypeName": "System.String"
         },
         {
-            "Used": true,
-            "Name": "name"
-        },
-        {
-            "Used": true,
-            "Name": "hideFlags"
+            "Used": false,
+            "Name": "hideFlags",
+            "TypeName": "UnityEngine.HideFlags"
         }
     ]
 }
