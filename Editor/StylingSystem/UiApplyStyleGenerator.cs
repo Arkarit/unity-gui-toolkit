@@ -22,6 +22,49 @@ namespace GuiToolkit
 		private GUIStyle[] m_alternatingRowStyles = new GUIStyle[2];
 		private static readonly HashSet<string> s_filteredNames = new() { "name", "enabled", "tag", "hideFlags", "runInEditMode", "useGUILayout" };
 
+		#region Templates
+
+		// Format string:
+		// 0: qualified type name
+		// 1: member name
+		private const string StyleMemberTemplate =
+			"		[SerializeField] private ApplicableValue<{0}> m_{1} = new();\n";
+
+		// Format string:
+		// 0: qualified property type name
+		// 1: short property type name, starting with upper char
+		// 2: member name
+		// 3: member name
+		private const string StylePropertyTemplate =
+			"		public {0} {1}\n" +
+			"		{\n" +
+			"			get => m_{2}.Value;" +
+			"			set => m_{3}.Value = value;" +
+			"		}";
+
+		// Format string:
+		// 0: namespace
+		// 1: short type name,
+		// 2: qualified type name
+		// 3: members (starting with 2 tabs)
+		// 4: properties (starting with 2 tabs)
+		private const string StyleTemplate =
+			"using System;\n" +
+			"using UnityEngine;\n" +
+			"using UnityEngine.UI;\n" +
+			"\n" +
+			"namespace {0}\n" +
+			"{\n" +
+			"	[Serializable]\n" +
+			"	public class UiStyle{1} : UiAbstractStyle<{2}>\n" +
+			"	{\n" +
+			"{3}" +
+			"\n" +
+			"{4}" +
+			"	}\n" +
+			"}\n";
+		#endregion
+
 		[Serializable]
 		private class PropertyRecord
 		{
