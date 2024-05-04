@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,10 +11,14 @@ namespace GuiToolkit
 	{
 		private MonoBehaviour m_MonoBehaviour;
 		private readonly List<PropertyRecord> m_PropertyRecords = new();
+		private Vector2 m_ScrollPos;
 
+		[Serializable]
 		private class PropertyRecord
 		{
-
+			public bool Used;
+			public string Name;
+			public Type Type;
 		}
 
 		private void OnGUI()
@@ -36,10 +42,35 @@ namespace GuiToolkit
 		private void CollectProperties()
 		{
 			m_PropertyRecords.Clear();
+			var propertyInfos = m_MonoBehaviour.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+			foreach (var propertyInfo in propertyInfos)
+			{
+				if (!propertyInfo.CanRead || !propertyInfo.CanWrite)
+					continue;
+
+				m_PropertyRecords.Add(new PropertyRecord()
+				{
+					Used = true,
+					Name = propertyInfo.Name,
+					Type = propertyInfo.PropertyType
+				});
+			}
 		}
 
 		private void DrawProperties()
 		{
+			m_ScrollPos = EditorGUILayout.BeginScrollView(m_ScrollPos);
+			foreach (var propertyRecord in m_PropertyRecords)
+				DrawProperty(propertyRecord);
+			EditorGUILayout.EndScrollView();
+		}
+
+		private void DrawProperty(PropertyRecord propertyRecord)
+		{
+			EditorGUILayout.BeginHorizontal();
+			propertyRecord.Used = GUILayout.Toggle(propertyRecord.Used, "");
+			EditorGUILayout.LabelField($"{propertyRecord.Name} ({propertyRecord.Type.Name})");
+			EditorGUILayout.EndHorizontal();
 		}
 
 		private void Apply()
