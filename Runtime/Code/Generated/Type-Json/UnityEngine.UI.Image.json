@@ -1,0 +1,108 @@
+{
+    "Records": [
+        {
+            "Used": true,
+            "Name": "sprite"
+        },
+        {
+            "Used": true,
+            "Name": "overrideSprite"
+        },
+        {
+            "Used": true,
+            "Name": "type"
+        },
+        {
+            "Used": true,
+            "Name": "preserveAspect"
+        },
+        {
+            "Used": true,
+            "Name": "fillCenter"
+        },
+        {
+            "Used": true,
+            "Name": "fillMethod"
+        },
+        {
+            "Used": true,
+            "Name": "fillAmount"
+        },
+        {
+            "Used": true,
+            "Name": "fillClockwise"
+        },
+        {
+            "Used": true,
+            "Name": "fillOrigin"
+        },
+        {
+            "Used": true,
+            "Name": "eventAlphaThreshold"
+        },
+        {
+            "Used": true,
+            "Name": "alphaHitTestMinimumThreshold"
+        },
+        {
+            "Used": true,
+            "Name": "useSpriteMesh"
+        },
+        {
+            "Used": true,
+            "Name": "pixelsPerUnitMultiplier"
+        },
+        {
+            "Used": true,
+            "Name": "material"
+        },
+        {
+            "Used": true,
+            "Name": "onCullStateChanged"
+        },
+        {
+            "Used": true,
+            "Name": "maskable"
+        },
+        {
+            "Used": true,
+            "Name": "isMaskingGraphic"
+        },
+        {
+            "Used": true,
+            "Name": "color"
+        },
+        {
+            "Used": true,
+            "Name": "raycastTarget"
+        },
+        {
+            "Used": true,
+            "Name": "raycastPadding"
+        },
+        {
+            "Used": true,
+            "Name": "useGUILayout"
+        },
+        {
+            "Used": true,
+            "Name": "runInEditMode"
+        },
+        {
+            "Used": true,
+            "Name": "enabled"
+        },
+        {
+            "Used": true,
+            "Name": "tag"
+        },
+        {
+            "Used": true,
+            "Name": "name"
+        },
+        {
+            "Used": true,
+            "Name": "hideFlags"
+        }
+    ]
+}

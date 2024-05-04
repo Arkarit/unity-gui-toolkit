@@ -1,0 +1,144 @@
+{
+    "Records": [
+        {
+            "Used": true,
+            "Name": "Support"
+        },
+        {
+            "Used": true,
+            "Name": "Target"
+        },
+        {
+            "Used": true,
+            "Name": "MarkTargetForLayoutRebuild"
+        },
+        {
+            "Used": true,
+            "Name": "CanvasScaler"
+        },
+        {
+            "Used": true,
+            "Name": "CanvasRectTransform"
+        },
+        {
+            "Used": true,
+            "Name": "ScaleByCanvasScaler"
+        },
+        {
+            "Used": true,
+            "Name": "PosXStart"
+        },
+        {
+            "Used": true,
+            "Name": "PosXEnd"
+        },
+        {
+            "Used": true,
+            "Name": "PosXCurve"
+        },
+        {
+            "Used": true,
+            "Name": "PosYStart"
+        },
+        {
+            "Used": true,
+            "Name": "PosYEnd"
+        },
+        {
+            "Used": true,
+            "Name": "PosYCurve"
+        },
+        {
+            "Used": true,
+            "Name": "RotZStart"
+        },
+        {
+            "Used": true,
+            "Name": "RotZEnd"
+        },
+        {
+            "Used": true,
+            "Name": "RotZCurve"
+        },
+        {
+            "Used": true,
+            "Name": "ScaleXStart"
+        },
+        {
+            "Used": true,
+            "Name": "ScaleXEnd"
+        },
+        {
+            "Used": true,
+            "Name": "ScaleXCurve"
+        },
+        {
+            "Used": true,
+            "Name": "ScaleYStart"
+        },
+        {
+            "Used": true,
+            "Name": "ScaleYEnd"
+        },
+        {
+            "Used": true,
+            "Name": "ScaleYCurve"
+        },
+        {
+            "Used": true,
+            "Name": "ScaleLocked"
+        },
+        {
+            "Used": true,
+            "Name": "AlphaCurve"
+        },
+        {
+            "Used": true,
+            "Name": "AlphaImage"
+        },
+        {
+            "Used": true,
+            "Name": "AlphaCanvasGroup"
+        },
+        {
+            "Used": true,
+            "Name": "Duration"
+        },
+        {
+            "Used": true,
+            "Name": "Delay"
+        },
+        {
+            "Used": true,
+            "Name": "BackwardsAnimation"
+        },
+        {
+            "Used": true,
+            "Name": "EnabledInHierarchy"
+        },
+        {
+            "Used": true,
+            "Name": "useGUILayout"
+        },
+        {
+            "Used": true,
+            "Name": "runInEditMode"
+        },
+        {
+            "Used": true,
+            "Name": "enabled"
+        },
+        {
+            "Used": true,
+            "Name": "tag"
+        },
+        {
+            "Used": true,
+            "Name": "name"
+        },
+        {
+            "Used": true,
+            "Name": "hideFlags"
+        }
+    ]
+}

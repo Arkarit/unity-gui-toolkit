@@ -46,19 +46,28 @@ namespace GuiToolkit
 			DrawProperties();
 
 			EditorGUILayout.BeginHorizontal();
+			if (UiToolkitConfiguration.Instance.IsEditingInternal)
+			{
+				if (GUILayout.Button("Write JSON (internal)"))
+					WriteJson(true);
+				if (GUILayout.Button("Apply (internal)"))
+					Apply(true);
+			}
 			if (GUILayout.Button("Write JSON"))
-				WriteJson();
+				WriteJson(false);
 			if (GUILayout.Button("Apply"))
-				Apply();
+				Apply(false);
 			EditorGUILayout.EndHorizontal();
 		}
 
-		private void WriteJson()
+		private void WriteJson(bool _internal)
 		{
 			var jsonClass = new PropertyRecordsJson();
 			jsonClass.Type = m_MonoBehaviour.GetType();
 			jsonClass.Records = m_PropertyRecords.ToArray();
-			string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir + $".{m_MonoBehaviour.GetType().FullName}.json";
+			string path = _internal ?
+				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir + $"Type-Json/{m_MonoBehaviour.GetType().FullName}.json" :
+				UiToolkitConfiguration.Instance.GeneratedAssetsDir + $"{m_MonoBehaviour.GetType().FullName}.json";
 
 			try
 			{
@@ -69,6 +78,8 @@ namespace GuiToolkit
 			{
 				Debug.LogError($"Could not write Json, reason:'{e.Message}'");
 			}
+
+			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 		}
 
 		private void CollectProperties()
@@ -105,7 +116,7 @@ namespace GuiToolkit
 			EditorGUILayout.EndHorizontal();
 		}
 
-		private void Apply()
+		private void Apply(bool _internal)
 		{
 		}
 

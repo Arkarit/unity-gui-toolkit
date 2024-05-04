@@ -79,6 +79,8 @@ namespace GuiToolkit
 			InitScenesByName();
 		}
 
+		public bool IsEditingInternal => EditorFileUtility.GetApplicationDataDir().Contains(".Dev-App");
+
 		public string GetScenePath(string _sceneName)
 		{
 			if (m_scenesByName.ContainsKey(_sceneName))
@@ -132,6 +134,14 @@ namespace GuiToolkit
 					Debug.LogError($"Could not create generated assets dir '{EditorFileUtility.GetApplicationDataDir() + m_generatedAssetsDir}': {e.Message}");
 				}
 				return m_generatedAssetsDir;
+			}
+		}
+
+		public string InternalGeneratedAssetsDir
+		{
+			get
+			{
+				return EditorFileUtility.GetApplicationDataDir() + "Assets/External/unity-gui-toolkit/Code/Generated/";
 			}
 		}
 
