@@ -314,12 +314,16 @@ namespace GuiToolkit
 				return false;
 
 			_currentIdx = 0;
-			for (int i = 0; i < _strings.Count; i++)
+
+			if (!string.IsNullOrEmpty(_current))
 			{
-				if (_strings[i] == _current)
+				for (int i = 0; i < _strings.Count; i++)
 				{
-					_currentIdx = i;
-					break;
+					if (_strings[i] == _current)
+					{
+						_currentIdx = i;
+						break;
+					}
 				}
 			}
 

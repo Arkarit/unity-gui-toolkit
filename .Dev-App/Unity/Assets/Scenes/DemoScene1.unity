@@ -1444,7 +1444,7 @@ GameObject:
   - component: {fileID: 395947628}
   - component: {fileID: 395947631}
   - component: {fileID: 395947630}
-  - component: {fileID: 395947629}
+  - component: {fileID: 395947632}
   m_Layer: 5
   m_Name: RedCheckmark
   m_TagString: Untagged
@@ -1471,35 +1471,6 @@ RectTransform:
   m_AnchoredPosition: {x: -817, y: -88}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &395947629
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 395947627}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef411d59c132c284898ee7d0208529aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_name: RedCheckmark
-  m_style:
-    rid: 6698005023013994594
-  references:
-    version: 2
-    RefIds:
-    - rid: 6698005023013994594
-      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_name: RedCheckmark
-        m_key: 1520245191
-        m_color:
-          IsApplicable: 1
-          Value: {r: 0.4339623, g: 0, b: 0, a: 1}
-        m_sprite:
-          IsApplicable: 0
-          Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
 --- !u!114 &395947630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1516,17 +1487,17 @@ MonoBehaviour:
   m_Color: {r: 0.4339623, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
+  m_FillCenter: 0
+  m_FillMethod: 0
+  m_FillAmount: 0
+  m_FillClockwise: 0
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
@@ -1538,6 +1509,71 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 395947627}
   m_CullTransparentMesh: 1
+--- !u!114 &395947632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395947627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc47fb5fc4aa7a54c9106afc29b08e74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_name: RedCheckmark
+  m_style:
+    rid: 6698005047724998667
+  references:
+    version: 2
+    RefIds:
+    - rid: 6698005047724998667
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: RedCheckmark
+        m_key: 1520245191
+        m_sprite:
+          IsApplicable: 0
+          Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+        m_overrideSprite:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_type:
+          IsApplicable: 0
+          Value: 0
+        m_preserveAspect:
+          IsApplicable: 0
+          Value: 0
+        m_fillCenter:
+          IsApplicable: 0
+          Value: 0
+        m_fillMethod:
+          IsApplicable: 0
+          Value: 0
+        m_fillAmount:
+          IsApplicable: 0
+          Value: 0
+        m_fillClockwise:
+          IsApplicable: 0
+          Value: 0
+        m_fillOrigin:
+          IsApplicable: 0
+          Value: 0
+        m_useSpriteMesh:
+          IsApplicable: 0
+          Value: 0
+        m_material:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_maskable:
+          IsApplicable: 0
+          Value: 0
+        m_isMaskingGraphic:
+          IsApplicable: 0
+          Value: 0
+        m_color:
+          IsApplicable: 1
+          Value: {r: 0.4339623, g: 0, b: 0, a: 1}
 --- !u!1 &434497813
 GameObject:
   m_ObjectHideFlags: 0
@@ -2042,7 +2078,7 @@ GameObject:
   - component: {fileID: 565626639}
   - component: {fileID: 565626642}
   - component: {fileID: 565626641}
-  - component: {fileID: 565626640}
+  - component: {fileID: 565626643}
   m_Layer: 5
   m_Name: GreenCheckmark
   m_TagString: Untagged
@@ -2069,35 +2105,6 @@ RectTransform:
   m_AnchoredPosition: {x: -817, y: -189}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &565626640
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 565626638}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef411d59c132c284898ee7d0208529aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_name: GreenCheckmark
-  m_style:
-    rid: 6698005023013994593
-  references:
-    version: 2
-    RefIds:
-    - rid: 6698005023013994593
-      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_name: GreenCheckmark
-        m_key: 1014935132
-        m_color:
-          IsApplicable: 1
-          Value: {r: 0, g: 0.41509432, b: 0.060229342, a: 1}
-        m_sprite:
-          IsApplicable: 0
-          Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
 --- !u!114 &565626641
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2114,17 +2121,17 @@ MonoBehaviour:
   m_Color: {r: 0, g: 0.41509432, b: 0.060229342, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
+  m_FillCenter: 0
+  m_FillMethod: 0
+  m_FillAmount: 0
+  m_FillClockwise: 0
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
@@ -2136,6 +2143,71 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 565626638}
   m_CullTransparentMesh: 1
+--- !u!114 &565626643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565626638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc47fb5fc4aa7a54c9106afc29b08e74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_name: GreenCheckmark
+  m_style:
+    rid: 6698005047724998673
+  references:
+    version: 2
+    RefIds:
+    - rid: 6698005047724998673
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: GreenCheckmark
+        m_key: 1014935132
+        m_sprite:
+          IsApplicable: 0
+          Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+        m_overrideSprite:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_type:
+          IsApplicable: 0
+          Value: 0
+        m_preserveAspect:
+          IsApplicable: 0
+          Value: 0
+        m_fillCenter:
+          IsApplicable: 0
+          Value: 0
+        m_fillMethod:
+          IsApplicable: 0
+          Value: 0
+        m_fillAmount:
+          IsApplicable: 0
+          Value: 0
+        m_fillClockwise:
+          IsApplicable: 0
+          Value: 0
+        m_fillOrigin:
+          IsApplicable: 0
+          Value: 0
+        m_useSpriteMesh:
+          IsApplicable: 0
+          Value: 0
+        m_material:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_maskable:
+          IsApplicable: 0
+          Value: 0
+        m_isMaskingGraphic:
+          IsApplicable: 0
+          Value: 0
+        m_color:
+          IsApplicable: 1
+          Value: {r: 0, g: 0.41509432, b: 0.060229342, a: 1}
 --- !u!1 &584101216
 GameObject:
   m_ObjectHideFlags: 0
@@ -3145,7 +3217,7 @@ GameObject:
   - component: {fileID: 1413050326}
   - component: {fileID: 1413050329}
   - component: {fileID: 1413050328}
-  - component: {fileID: 1413050327}
+  - component: {fileID: 1413050330}
   m_Layer: 5
   m_Name: BlueCheckmark
   m_TagString: Untagged
@@ -3172,35 +3244,6 @@ RectTransform:
   m_AnchoredPosition: {x: -817, y: 6.8}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1413050327
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1413050325}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef411d59c132c284898ee7d0208529aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_name: fgdsgsdg
-  m_style:
-    rid: 6698005023013994595
-  references:
-    version: 2
-    RefIds:
-    - rid: 6698005023013994595
-      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_name: fgdsgsdg
-        m_key: 1264184506
-        m_color:
-          IsApplicable: 1
-          Value: {r: 0, g: 0.07421385, b: 0.3207547, a: 1}
-        m_sprite:
-          IsApplicable: 0
-          Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
 --- !u!114 &1413050328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3217,17 +3260,17 @@ MonoBehaviour:
   m_Color: {r: 0, g: 0.07421385, b: 0.3207547, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
+  m_FillCenter: 0
+  m_FillMethod: 0
+  m_FillAmount: 0
+  m_FillClockwise: 0
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
@@ -3239,6 +3282,71 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1413050325}
   m_CullTransparentMesh: 1
+--- !u!114 &1413050330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1413050325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc47fb5fc4aa7a54c9106afc29b08e74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_name: fgdsgsdg
+  m_style:
+    rid: 6698005047724998665
+  references:
+    version: 2
+    RefIds:
+    - rid: 6698005047724998665
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: fgdsgsdg
+        m_key: 1264184506
+        m_sprite:
+          IsApplicable: 0
+          Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+        m_overrideSprite:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_type:
+          IsApplicable: 0
+          Value: 0
+        m_preserveAspect:
+          IsApplicable: 0
+          Value: 0
+        m_fillCenter:
+          IsApplicable: 0
+          Value: 0
+        m_fillMethod:
+          IsApplicable: 0
+          Value: 0
+        m_fillAmount:
+          IsApplicable: 0
+          Value: 0
+        m_fillClockwise:
+          IsApplicable: 0
+          Value: 0
+        m_fillOrigin:
+          IsApplicable: 0
+          Value: 0
+        m_useSpriteMesh:
+          IsApplicable: 0
+          Value: 0
+        m_material:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_maskable:
+          IsApplicable: 0
+          Value: 0
+        m_isMaskingGraphic:
+          IsApplicable: 0
+          Value: 0
+        m_color:
+          IsApplicable: 1
+          Value: {r: 0, g: 0.07421385, b: 0.3207547, a: 1}
 --- !u!1 &1508985176
 GameObject:
   m_ObjectHideFlags: 0
