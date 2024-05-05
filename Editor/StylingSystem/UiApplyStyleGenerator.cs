@@ -11,6 +11,8 @@ namespace GuiToolkit
 {
 	public class UiApplyStyleGenerator : EditorWindow
 	{
+		private const string GeneratedWarningComment = "// Auto-generated, please do not change!\n";
+
 		private MonoBehaviour m_MonoBehaviour;
 		private MonoBehaviour m_lastMonoBehaviour;
 		private List<PropertyRecord> m_PropertyRecords = new();
@@ -43,9 +45,7 @@ namespace GuiToolkit
 		}
 		#endregion
 
-		#region Templates
-
-		private const string GeneratedWarningComment = "// Auto-generated, please do not change!\n";
+		#region Style class Templates
 		// Format string:
 		// 0: qualified property type name
 		// 1: member name
@@ -124,6 +124,88 @@ namespace GuiToolkit
 			);
 		}
 
+		#endregion
+
+		#region Apply class templates
+		// Format string:
+		// 0: member name
+		// 1: member name, starting with upper char
+		private const string ApplyInstructionTemplate =
+			"			SpecificMonoBehaviour.{0} = SpecificStyle.{1};\n";
+		private string GetApplyInstructionString(string _memberName)
+		{
+			return string.Format
+			(
+				ApplyInstructionTemplate,
+				_memberName,
+				UpperFirstChar(_memberName)
+			);
+		}
+
+		// Format string:
+		// 0: member name, starting with upper char
+		// 1: member name
+		private const string PresetInstructionTemplate =
+			"			result.{0} = SpecificMonoBehaviour.{1};\n";
+		private string GetPresetInstructionString(string _memberName)
+		{
+			return string.Format
+			(
+				PresetInstructionTemplate,
+				UpperFirstChar(_memberName),
+				_memberName
+			);
+		}
+
+		// Format string:
+		// 0: Namespace
+		// 1: Prefix
+		// 2: Short type name
+		// 3: Qualified type name
+		// 4: Apply instructions (starting with 3 tabs)
+		// 5: Preset instructions (starting with 3 tabs)
+		private const string ApplyStyleTemplate =
+			GeneratedWarningComment
+			+ "using UnityEngine;\n"
+			+ "using UnityEngine.UI;\n"
+			+ "\n"
+			+ "namespace {0}\n"
+			+ "{{"
+			+ "	[ExecuteAlways]\n"
+			+ "	public class UiApplyStyle{1}{2} : UiAbstractApplyStyle<{3}, UiStyle{1}{2}>\n"
+			+ "	{{\n"
+			+ "		public override void Apply()\n"
+			+ "		{{\n"
+			+ "{4}"
+			+ "			SpecificMonoBehaviour.sprite = SpecificStyle.Sprite;\n"
+			+ "		}}\n"
+			+ "\n"
+			+ "		public override UiAbstractStyleBase CreateStyle(string _name)\n"
+			+ "		{{\n"
+			+ "			UiStyle{1}{2} result = new UiStyle{1}{2}();\n"
+			+ "\n"
+			+ "			if (!SpecificMonoBehaviour)\n"
+			+ "				return result;\n"
+			+ "\n"
+			+ "			result.Name = _name;\n"
+			+ "{5}\n"
+			+ "			return result;\n"
+			+ "		}}\n"
+			+ "	}}\n"
+			+ "}}\n";
+		private string GetApplyStyleString(string _namespace, string _prefix, string _typeName, string _qualifiedTypeName, string _applyInstructions, string _presetInstructions)
+		{
+			return string.Format
+			(
+				ApplyStyleTemplate,
+				_namespace,
+				_prefix,
+				_typeName,
+				_qualifiedTypeName,
+				_applyInstructions,
+				_presetInstructions
+			);
+		}
 		#endregion
 
 		#region Drawing
@@ -347,11 +429,12 @@ namespace GuiToolkit
 		#region Generation
 		private void Generate(bool _internal)
 		{
-			if (!GenerateStyle(_internal))
+			if (!GenerateStyleClass())
 				return;
+			GenerateApplicationClass();
 		}
 
-		private bool GenerateStyle(bool _internal)
+		private bool GenerateStyleClass()
 		{
 			string members = string.Empty;
 			string properties = string.Empty;
@@ -388,7 +471,37 @@ namespace GuiToolkit
 			string finalClassContent = GetStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
 				members, properties);
 
-Debug.Log($"finalClassContent:\n{finalClassContent}");
+Debug.Log($"finalClassContent 1:\n{finalClassContent}");
+
+			return true;
+		}
+
+		private bool GenerateApplicationClass()
+		{
+			string applyInstructions = string.Empty;
+			string presetInstructions = string.Empty;
+
+			foreach (var propertyRecord in m_PropertyRecords)
+			{
+				if (!propertyRecord.Used)
+					continue;
+
+				string qualifiedPropertyType = propertyRecord.QualifiedTypeName;
+				string memberName = propertyRecord.Name;
+
+				applyInstructions += GetApplyInstructionString(memberName);
+				presetInstructions += GetPresetInstructionString(memberName);
+			}
+
+			string namespaceStr = m_namespace;
+			string classPrefix = m_prefix;
+			string shortTypeName = m_MonoBehaviour.GetType().Name;
+			string qualifiedTypeName = m_MonoBehaviour.GetType().FullName;
+
+			string finalClassContent = GetApplyStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
+				applyInstructions, presetInstructions);
+
+Debug.Log($"finalClassContent 2:\n{finalClassContent}");
 
 			return true;
 		}
