@@ -22,13 +22,14 @@ namespace GuiToolkit
 		private string m_prefix;
 
 		#region Types
-		private const int JsonVersion = 1;
+		private const int JsonVersion = 2;
 
 		[Serializable]
 		private class PropertyRecord
 		{
 			public bool Used;
 			public string Name;
+			public string QualifiedTypeName;
 			public string TypeName;
 		}
 
@@ -217,7 +218,7 @@ namespace GuiToolkit
 			EditorGUILayout.Space(10, false);
 			_propertyRecord.Used = GUILayout.Toggle(_propertyRecord.Used, "", GUILayout.Width(40));
 			EditorGUILayout.LabelField($"{_propertyRecord.Name}", GUILayout.Width(200));
-			EditorGUILayout.LabelField($"({_propertyRecord.TypeName})", GUILayout.ExpandWidth(true));
+			EditorGUILayout.LabelField($"({_propertyRecord.QualifiedTypeName})", GUILayout.ExpandWidth(true));
 			EditorGUILayout.EndHorizontal();
 		}
 		#endregion
@@ -336,7 +337,8 @@ namespace GuiToolkit
 				{
 					Used = !s_filteredNames.Contains(propertyInfo.Name),
 					Name = propertyInfo.Name,
-					TypeName = propertyInfo.PropertyType.FullName.Replace("+", ".")
+					QualifiedTypeName = propertyInfo.PropertyType.FullName.Replace("+", "."),
+					TypeName = propertyInfo.PropertyType.Name
 				});
 			}
 		}
@@ -360,10 +362,11 @@ namespace GuiToolkit
 				if (!propertyRecord.Used)
 					continue;
 
-				string qualifiedPropertyType = propertyRecord.TypeName;
+				string qualifiedPropertyType = propertyRecord.QualifiedTypeName;
 				string memberName = propertyRecord.Name;
 
 				members += GetStyleMemberString(qualifiedPropertyType, memberName);
+				properties += GetStylePropertyString(qualifiedPropertyType, memberName, memberName);
 				foundSome = true;
 			}
 
