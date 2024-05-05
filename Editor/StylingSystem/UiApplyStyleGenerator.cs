@@ -97,7 +97,7 @@ namespace GuiToolkit
 			GeneratedWarningComment
 			+ "using System;\n"
 			+ "using UnityEngine;\n"
-			+ "using UnityEngine.UI;\n"
+			+ "using GuiToolkit.Style;\n"
 			+ "\n"
 			+ "namespace {0}\n"
 			+ "{{\n"
@@ -167,7 +167,7 @@ namespace GuiToolkit
 		private const string ApplyStyleTemplate =
 			GeneratedWarningComment
 			+ "using UnityEngine;\n"
-			+ "using UnityEngine.UI;\n"
+			+ "using GuiToolkit.Style;\n"
 			+ "\n"
 			+ "namespace {0}\n"
 			+ "{{"
@@ -407,7 +407,7 @@ namespace GuiToolkit
 			if (FindJson())
 				return;
 
-			m_namespace = _internal ? "GuiToolkit" : string.Empty;
+			m_namespace = _internal ? "GuiToolkit.Style" : string.Empty;
 			m_prefix = string.Empty;
 			var propertyInfos = m_MonoBehaviour.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
 			foreach (var propertyInfo in propertyInfos)
@@ -456,7 +456,10 @@ namespace GuiToolkit
 				return;
 			}
 
+			AssetDatabase.ImportAsset(EditorFileUtility.GetUnityPath(styleClassPath), ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
+			AssetDatabase.ImportAsset(EditorFileUtility.GetUnityPath(applicationClassPath), ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
 			UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
+			WriteJson(_internal);
 		}
 
 		private string GenerateStyleClass()

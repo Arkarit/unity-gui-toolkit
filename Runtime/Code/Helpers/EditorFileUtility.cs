@@ -35,6 +35,23 @@ namespace GuiToolkit
 			return GetApplicationDataDir() + "/" + _assetPath;
 		}
 
+		public static string GetUnityPath(string _nativePath, bool removeExtension = false)
+		{
+			string nativePath = _nativePath.Replace("\\", "/");
+			int idx = _nativePath.IndexOf("/Assets");
+			if (idx == -1)
+				return string.Empty;
+
+			string result = nativePath.Substring(idx+1);
+			if (removeExtension)
+			{
+				result = Path.GetDirectoryName(result) + "/" + Path.GetFileNameWithoutExtension(result);
+Debug.Log($"result:{result}");
+			}
+
+			return result;
+		}
+
 		public static string GetDirectoryName(string _path)
 		{
 			return Path.GetDirectoryName(_path).Replace('\\', '/');
