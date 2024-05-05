@@ -126,7 +126,7 @@ namespace GuiToolkit
 
 		#endregion
 
-		#region Apply class templates
+		#region Apply class Templates
 		// Format string:
 		// 0: member name
 		// 1: member name, starting with upper char
@@ -429,12 +429,37 @@ namespace GuiToolkit
 		#region Generation
 		private void Generate(bool _internal)
 		{
-			if (!GenerateStyleClass())
+			string styleClassContent = GenerateStyleClass();
+			if (string.IsNullOrEmpty(styleClassContent))
 				return;
-			GenerateApplicationClass();
+
+			string applicationClassContent = GenerateApplicationClass();
+			
+			string dir = _internal ?
+				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir :
+				UiToolkitConfiguration.Instance.GeneratedAssetsDir;
+
+			string classPrefix = m_prefix;
+			string shortTypeName = m_MonoBehaviour.GetType().Name;
+
+			string styleClassPath = $"{dir}UiStyle{classPrefix}{shortTypeName}.cs";
+			string applicationClassPath = $"{dir}UiApplyStyle{classPrefix}{shortTypeName}.cs";
+
+			try
+			{
+				File.WriteAllText(styleClassPath, styleClassContent);
+				File.WriteAllText(applicationClassPath, applicationClassContent);
+			}
+			catch (Exception e)
+			{
+				Debug.LogError($"Could not write class(es), reason:{e.Message}");
+				return;
+			}
+
+			UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
 		}
 
-		private bool GenerateStyleClass()
+		private string GenerateStyleClass()
 		{
 			string members = string.Empty;
 			string properties = string.Empty;
@@ -460,7 +485,7 @@ namespace GuiToolkit
 					"The class you'd like to generate has no properties.\n" + 
 					"Try to switch on some properties with the 'Show Hidden' button.", 
 					"Ok");
-				return false;
+				return null;
 			}
 
 			string namespaceStr = m_namespace;
@@ -468,15 +493,11 @@ namespace GuiToolkit
 			string shortTypeName = m_MonoBehaviour.GetType().Name;
 			string qualifiedTypeName = m_MonoBehaviour.GetType().FullName;
 
-			string finalClassContent = GetStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
+			return GetStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
 				members, properties);
-
-Debug.Log($"finalClassContent 1:\n{finalClassContent}");
-
-			return true;
 		}
 
-		private bool GenerateApplicationClass()
+		private string GenerateApplicationClass()
 		{
 			string applyInstructions = string.Empty;
 			string presetInstructions = string.Empty;
@@ -498,12 +519,8 @@ Debug.Log($"finalClassContent 1:\n{finalClassContent}");
 			string shortTypeName = m_MonoBehaviour.GetType().Name;
 			string qualifiedTypeName = m_MonoBehaviour.GetType().FullName;
 
-			string finalClassContent = GetApplyStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
+			return GetApplyStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
 				applyInstructions, presetInstructions);
-
-Debug.Log($"finalClassContent 2:\n{finalClassContent}");
-
-			return true;
 		}
 
 		#endregion
@@ -540,7 +557,6 @@ Debug.Log($"finalClassContent 2:\n{finalClassContent}");
 			return _s[0].ToString().ToUpper() + _s.Substring(1);
 		}
 		#endregion
-
 	}
 }
 #endif
