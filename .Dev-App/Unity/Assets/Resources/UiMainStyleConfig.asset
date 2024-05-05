@@ -32,64 +32,280 @@ MonoBehaviour:
       data:
         m_name: fgdsgsdg
         m_key: 1264184506
-        m_color:
-          IsApplicable: 1
-          Value: {r: 0, g: 0.07421385, b: 0.3207547, a: 1}
         m_sprite:
           IsApplicable: 0
           Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+        m_overrideSprite:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_type:
+          IsApplicable: 0
+          Value: 0
+        m_preserveAspect:
+          IsApplicable: 0
+          Value: 0
+        m_fillCenter:
+          IsApplicable: 0
+          Value: 0
+        m_fillMethod:
+          IsApplicable: 0
+          Value: 0
+        m_fillAmount:
+          IsApplicable: 0
+          Value: 0
+        m_fillClockwise:
+          IsApplicable: 0
+          Value: 0
+        m_fillOrigin:
+          IsApplicable: 0
+          Value: 0
+        m_useSpriteMesh:
+          IsApplicable: 0
+          Value: 0
+        m_material:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_maskable:
+          IsApplicable: 0
+          Value: 0
+        m_isMaskingGraphic:
+          IsApplicable: 0
+          Value: 0
+        m_color:
+          IsApplicable: 1
+          Value: {r: 0, g: 0.07421385, b: 0.3207547, a: 1}
     - rid: 6698005023013994514
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: fgdsgsdg
-        m_key: 0
-        m_color:
-          IsApplicable: 1
-          Value: {r: 0, g: 0.23238325, b: 1, a: 1}
+        m_key: 1264184506
         m_sprite:
           IsApplicable: 0
           Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+        m_overrideSprite:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_type:
+          IsApplicable: 0
+          Value: 0
+        m_preserveAspect:
+          IsApplicable: 0
+          Value: 0
+        m_fillCenter:
+          IsApplicable: 0
+          Value: 0
+        m_fillMethod:
+          IsApplicable: 0
+          Value: 0
+        m_fillAmount:
+          IsApplicable: 0
+          Value: 0
+        m_fillClockwise:
+          IsApplicable: 0
+          Value: 0
+        m_fillOrigin:
+          IsApplicable: 0
+          Value: 0
+        m_useSpriteMesh:
+          IsApplicable: 0
+          Value: 0
+        m_material:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_maskable:
+          IsApplicable: 0
+          Value: 0
+        m_isMaskingGraphic:
+          IsApplicable: 0
+          Value: 0
+        m_color:
+          IsApplicable: 1
+          Value: {r: 0, g: 0.23238325, b: 1, a: 1}
     - rid: 8073282372870602831
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: RedCheckmark
         m_key: 1520245191
-        m_color:
-          IsApplicable: 1
-          Value: {r: 0.4339623, g: 0, b: 0, a: 1}
         m_sprite:
           IsApplicable: 0
           Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+        m_overrideSprite:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_type:
+          IsApplicable: 0
+          Value: 0
+        m_preserveAspect:
+          IsApplicable: 0
+          Value: 0
+        m_fillCenter:
+          IsApplicable: 0
+          Value: 0
+        m_fillMethod:
+          IsApplicable: 0
+          Value: 0
+        m_fillAmount:
+          IsApplicable: 0
+          Value: 0
+        m_fillClockwise:
+          IsApplicable: 0
+          Value: 0
+        m_fillOrigin:
+          IsApplicable: 0
+          Value: 0
+        m_useSpriteMesh:
+          IsApplicable: 0
+          Value: 0
+        m_material:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_maskable:
+          IsApplicable: 0
+          Value: 0
+        m_isMaskingGraphic:
+          IsApplicable: 0
+          Value: 0
+        m_color:
+          IsApplicable: 1
+          Value: {r: 0.4339623, g: 0, b: 0, a: 1}
     - rid: 8073282372870602832
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: GreenCheckmark
         m_key: 1014935132
-        m_color:
-          IsApplicable: 1
-          Value: {r: 0, g: 0.41509432, b: 0.060229342, a: 1}
         m_sprite:
           IsApplicable: 0
           Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+        m_overrideSprite:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_type:
+          IsApplicable: 0
+          Value: 0
+        m_preserveAspect:
+          IsApplicable: 0
+          Value: 0
+        m_fillCenter:
+          IsApplicable: 0
+          Value: 0
+        m_fillMethod:
+          IsApplicable: 0
+          Value: 0
+        m_fillAmount:
+          IsApplicable: 0
+          Value: 0
+        m_fillClockwise:
+          IsApplicable: 0
+          Value: 0
+        m_fillOrigin:
+          IsApplicable: 0
+          Value: 0
+        m_useSpriteMesh:
+          IsApplicable: 0
+          Value: 0
+        m_material:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_maskable:
+          IsApplicable: 0
+          Value: 0
+        m_isMaskingGraphic:
+          IsApplicable: 0
+          Value: 0
+        m_color:
+          IsApplicable: 1
+          Value: {r: 0, g: 0.41509432, b: 0.060229342, a: 1}
     - rid: 8073282372870602833
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: RedCheckmark
         m_key: 1520245191
-        m_color:
-          IsApplicable: 1
-          Value: {r: 1, g: 0, b: 0, a: 1}
         m_sprite:
           IsApplicable: 0
           Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+        m_overrideSprite:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_type:
+          IsApplicable: 0
+          Value: 0
+        m_preserveAspect:
+          IsApplicable: 0
+          Value: 0
+        m_fillCenter:
+          IsApplicable: 0
+          Value: 0
+        m_fillMethod:
+          IsApplicable: 0
+          Value: 0
+        m_fillAmount:
+          IsApplicable: 0
+          Value: 0
+        m_fillClockwise:
+          IsApplicable: 0
+          Value: 0
+        m_fillOrigin:
+          IsApplicable: 0
+          Value: 0
+        m_useSpriteMesh:
+          IsApplicable: 0
+          Value: 0
+        m_material:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_maskable:
+          IsApplicable: 0
+          Value: 0
+        m_isMaskingGraphic:
+          IsApplicable: 0
+          Value: 0
+        m_color:
+          IsApplicable: 1
+          Value: {r: 1, g: 0, b: 0, a: 1}
     - rid: 8073282372870602834
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: GreenCheckmark
         m_key: 1014935132
-        m_color:
-          IsApplicable: 1
-          Value: {r: 0, g: 1, b: 0.14503145, a: 1}
         m_sprite:
           IsApplicable: 0
           Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+        m_overrideSprite:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_type:
+          IsApplicable: 0
+          Value: 0
+        m_preserveAspect:
+          IsApplicable: 0
+          Value: 0
+        m_fillCenter:
+          IsApplicable: 0
+          Value: 0
+        m_fillMethod:
+          IsApplicable: 0
+          Value: 0
+        m_fillAmount:
+          IsApplicable: 0
+          Value: 0
+        m_fillClockwise:
+          IsApplicable: 0
+          Value: 0
+        m_fillOrigin:
+          IsApplicable: 0
+          Value: 0
+        m_useSpriteMesh:
+          IsApplicable: 0
+          Value: 0
+        m_material:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_maskable:
+          IsApplicable: 0
+          Value: 0
+        m_isMaskingGraphic:
+          IsApplicable: 0
+          Value: 0
+        m_color:
+          IsApplicable: 1
+          Value: {r: 0, g: 1, b: 0.14503145, a: 1}

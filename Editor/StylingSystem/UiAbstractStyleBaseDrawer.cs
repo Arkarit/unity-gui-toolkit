@@ -1,3 +1,4 @@
+using GuiToolkit.Editor;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace GuiToolkit.Style.Editor
 	{
 		private const float LineEndGapHor = 20;
 		private const float LineGapVert = 4;
-		private const float EndGap = 10;
+		private const float EndGap = 20;
 
 		protected override void OnInspectorGUI()
 		{
@@ -20,18 +21,40 @@ namespace GuiToolkit.Style.Editor
 				Line(LineGapVert, EditorGUIUtility.labelWidth - LineEndGapHor);
 			}
 
+			Space(5);
+
 			Indent(() =>
 			{
-				foreach (var childProperty in ChildProperties)
-				{
-					if (childProperty.name == "m_key" || childProperty.name == "m_name")
-						continue;
+				EditorGUI.BeginChangeCheck();
+				var oldVal = ApplicableValueBaseDrawer.DrawCondition;
+				ApplicableValueBaseDrawer.DrawCondition = ApplicableValueBaseDrawer.EDrawCondition.OnlyEnabled;
+				DrawProperties();
 
-					PropertyField(childProperty);
+				ApplicableValueBaseDrawer.DrawCondition = ApplicableValueBaseDrawer.EDrawCondition.OnlyDisabled;
+				Foldout(currentStyle, "Unused Properties", false, () =>
+				{
+					DrawProperties();
+				});
+				ApplicableValueBaseDrawer.DrawCondition = oldVal;
+				if (EditorGUI.EndChangeCheck())
+				{
+					Property.serializedObject.ApplyModifiedProperties();
+					UiEvents.EvSkinChanged.InvokeAlways();
 				}
 			});
 
 			Space(EndGap);
+		}
+
+		private void DrawProperties()
+		{
+			foreach (var childProperty in ChildProperties)
+			{
+				if (childProperty.name == "m_key" || childProperty.name == "m_name")
+					continue;
+
+				PropertyField(childProperty);
+			}
 		}
 	}
 }

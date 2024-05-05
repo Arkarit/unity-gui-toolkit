@@ -8,12 +8,34 @@ namespace GuiToolkit.Editor
 	{
 		private const int ToggleWidth = 25;
 
+		public enum EDrawCondition
+		{
+			Always,
+			OnlyDisabled,
+			OnlyEnabled,
+		}
+
+		private static EDrawCondition s_drawCondition;
+
+		public static EDrawCondition DrawCondition
+		{
+			get => s_drawCondition;
+			set => s_drawCondition = value;
+		}
+
 		public override void OnGUI( Rect _position, SerializedProperty _property, GUIContent _label )
 		{
 			EditorGUI.BeginProperty(_position, _label, _property);
 
 			var isApplicableProp = _property.FindPropertyRelative("IsApplicable");
 			var valueProp = _property.FindPropertyRelative("Value");
+
+			if (isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyDisabled ||
+			    !isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyEnabled)
+			{
+				EditorGUI.EndProperty();
+				return;
+			}
 
 			EditorGUI.BeginChangeCheck();
 			var newIsApplicable = EditorGUI.Toggle(new Rect(_position.x, _position.y, ToggleWidth, _position.height), isApplicableProp.boolValue);
@@ -34,6 +56,18 @@ namespace GuiToolkit.Editor
 			}
 
 			EditorGUI.EndProperty();
+		}
+
+		public override float GetPropertyHeight(SerializedProperty _property, GUIContent label)
+		{
+			var isApplicableProp = _property.FindPropertyRelative("IsApplicable");
+			if (isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyDisabled ||
+			    !isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyEnabled)
+			{
+				return 0;
+			}
+
+			return base.GetPropertyHeight(_property, label);
 		}
 	}
 }

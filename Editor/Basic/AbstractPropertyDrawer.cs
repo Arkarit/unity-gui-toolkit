@@ -127,11 +127,13 @@ namespace GuiToolkit.Style.Editor
 		protected void Line(float _gap = 0, float _width = 0, float _height = 1) =>
 			Line(Color.gray, _gap, _width, _height);
 
-		protected void Foldout(object _id, string _title, Action _onFoldout)
+		protected void Foldout(object _id, string _title, Action _onFoldout) => Foldout(_id, _title, true, _onFoldout);
+
+		protected void Foldout(object _id, string _title, bool _default, Action _onFoldout)
 		{
 			var foldoutRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, FoldoutHeight);
 			if (!s_foldouts.ContainsKey(_id))
-				s_foldouts.Add(_id, true);
+				s_foldouts.Add(_id, _default);
 
 			var active = s_foldouts[_id];
 
