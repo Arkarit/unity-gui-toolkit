@@ -18,9 +18,33 @@ namespace GuiToolkit
 
 		private GUIStyle[] m_alternatingRowStyles = new GUIStyle[2];
 		private static readonly HashSet<string> s_filteredNames = new() { "name", "enabled", "tag", "hideFlags", "runInEditMode", "useGUILayout" };
+		private string m_namespace;
+		private string m_prefix;
+
+		#region Types
+		private const int JsonVersion = 1;
+
+		[Serializable]
+		private class PropertyRecord
+		{
+			public bool Used;
+			public string Name;
+			public string TypeName;
+		}
+
+		[Serializable]
+		private class PropertyRecordsJson
+		{
+			public int Version;
+			public string Namespace;
+			public string Prefix;
+			public PropertyRecord[] Records;
+		}
+		#endregion
 
 		#region Templates
 
+		private const string GeneratedWarningComment = "// Auto-generated, please do not change!\n";
 		// Format string:
 		// 0: qualified property type name
 		// 1: member name
@@ -42,12 +66,12 @@ namespace GuiToolkit
 		// 2: member name
 		// 3: member name
 		private const string StylePropertyTemplate =
-			"		public {0} {1}\n" +
-			"		{{\n" +
-			"			get => m_{2}.Value;\n" +
-			"			set => m_{3}.Value = value;\n" +
-			"		}}\n" + 
-			"\n";
+			  "		public {0} {1}\n"
+			+ "		{{\n"
+			+ "			get => m_{2}.Value;\n"
+			+ "			set => m_{3}.Value = value;\n"
+			+ "		}}\n"
+			+ "\n";
 		private string GetStylePropertyString(string _qualifiedPropertyTypeName, string _shortPropertyName, string _memberName)
 		{
 			_shortPropertyName = UpperFirstChar(_shortPropertyName);
@@ -69,20 +93,21 @@ namespace GuiToolkit
 		// 4: members (starting with 2 tabs)
 		// 5: properties (starting with 2 tabs)
 		private const string StyleTemplate =
-			"using System;\n" +
-			"using UnityEngine;\n" +
-			"using UnityEngine.UI;\n" +
-			"\n" +
-			"namespace {0}\n" +
-			"{{\n" +
-			"	[Serializable]\n" +
-			"	public class UiStyle{1}{2} : UiAbstractStyle<{3}>\n" +
-			"	{{\n" +
-			"{4}" +
-			"\n" +
-			"{5}" +
-			"	}}\n" +
-			"}}\n";
+			GeneratedWarningComment
+			+ "using System;\n"
+			+ "using UnityEngine;\n"
+			+ "using UnityEngine.UI;\n"
+			+ "\n"
+			+ "namespace {0}\n"
+			+ "{{\n"
+			+ "	[Serializable]\n"
+			+ "	public class UiStyle{1}{2} : UiAbstractStyle<{3}>\n"
+			+ "	{{\n"
+			+ "{4}"
+			+ "\n"
+			+ "{5}"
+			+ "	}}\n"
+			+ "}}\n";
 
 		private string GetStyleString(string _namespace, string _prefix, string _shortTypeName, string _qualifiedTypeName, string _members, string _properties)
 		{
@@ -100,21 +125,6 @@ namespace GuiToolkit
 
 		#endregion
 
-		[Serializable]
-		private class PropertyRecord
-		{
-			public bool Used;
-			public string Name;
-			public string TypeName;
-		}
-
-		[Serializable]
-		private class PropertyRecordsJson
-		{
-			public Type Type;
-			public PropertyRecord[] Records;
-		}
-
 		#region Drawing
 		private void OnGUI()
 		{
@@ -128,19 +138,21 @@ namespace GuiToolkit
 			if (!m_MonoBehaviour)
 				return;
 
-
 			m_alternatingRowStyles[0] = GUIStyle.none;
 			m_alternatingRowStyles[1] = new GUIStyle();
 			m_alternatingRowStyles[1].normal.background = MakeTex(1, 1, new Color(1.0f, 1.0f, 1.0f, 0.15f));
 
-			CollectPropertiesIfNecessary();
+			bool isInternal = UiToolkitConfiguration.Instance.IsEditingInternal;
+
+			InitIfNecessary(isInternal);
+			DrawHeader();
 			DrawProperties();
 
 			EditorGUILayout.BeginHorizontal();
 			if (GUILayout.Button($"Show Hidden ({NumHidden})"))
 				ShowHidden();
 
-			if (UiToolkitConfiguration.Instance.IsEditingInternal)
+			if (isInternal)
 			{
 				if (GUILayout.Button("Write JSON (internal)"))
 					WriteJson(true);
@@ -158,8 +170,22 @@ namespace GuiToolkit
 			EditorGUILayout.EndHorizontal();
 		}
 
+		private void DrawHeader()
+		{
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.LabelField($"Type:{m_MonoBehaviour.GetType().FullName}");
+			EditorGUILayout.LabelField("Namespace:", GUILayout.Width(75));
+			m_namespace = EditorGUILayout.TextField(m_namespace, GUILayout.Width(200));
+			EditorGUILayout.Space(1);
+			EditorGUILayout.LabelField("Prefix:", GUILayout.Width(40));
+			m_prefix = EditorGUILayout.TextField(m_prefix, GUILayout.Width(200));
+			EditorGUILayout.EndHorizontal();
+			EditorGUILayout.Space(5);
+		}
+
 		private void DrawProperties()
 		{
+			DrawPropertyHeader();
 			m_ScrollPos = EditorGUILayout.BeginScrollView(m_ScrollPos);
 			int count = 0;
 			foreach (var propertyRecord in m_PropertyRecords)
@@ -173,11 +199,23 @@ namespace GuiToolkit
 			EditorGUILayout.EndScrollView();
 		}
 
+		private void DrawPropertyHeader()
+		{
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.Space(5, false);
+			EditorGUILayout.LabelField("Used", EditorStyles.boldLabel, GUILayout.Width(45));
+			EditorGUILayout.LabelField("Property", EditorStyles.boldLabel, GUILayout.Width(200));
+			EditorGUILayout.LabelField($"Type", EditorStyles.boldLabel, GUILayout.ExpandWidth(true));
+			EditorGUILayout.EndHorizontal();
+			EditorUiUtility.HorizontalLine(new Color(0, 0, 0, 0.5f));
+			EditorGUILayout.Space(2);
+		}
+
 		private void DrawProperty(PropertyRecord _propertyRecord, GUIStyle _guiStyle)
 		{
 			EditorGUILayout.BeginHorizontal(_guiStyle);
 			EditorGUILayout.Space(10, false);
-			_propertyRecord.Used = GUILayout.Toggle(_propertyRecord.Used, "", GUILayout.Width(20));
+			_propertyRecord.Used = GUILayout.Toggle(_propertyRecord.Used, "", GUILayout.Width(40));
 			EditorGUILayout.LabelField($"{_propertyRecord.Name}", GUILayout.Width(200));
 			EditorGUILayout.LabelField($"({_propertyRecord.TypeName})", GUILayout.ExpandWidth(true));
 			EditorGUILayout.EndHorizontal();
@@ -211,9 +249,14 @@ namespace GuiToolkit
 		#region Json
 		private void WriteJson(bool _internal)
 		{
-			var jsonClass = new PropertyRecordsJson();
-			jsonClass.Type = m_MonoBehaviour.GetType();
-			jsonClass.Records = m_PropertyRecords.ToArray();
+			var jsonClass = new PropertyRecordsJson()
+			{
+				Version = JsonVersion,
+				Namespace = m_namespace,
+				Prefix = m_prefix,
+				Records = m_PropertyRecords.ToArray(),
+			};
+
 			string path = _internal ?
 				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir + $"Type-Json/{m_MonoBehaviour.GetType().FullName}.json" :
 				UiToolkitConfiguration.Instance.GeneratedAssetsDir + $"{m_MonoBehaviour.GetType().FullName}.json";
@@ -254,6 +297,11 @@ namespace GuiToolkit
 					return false;
 
 				var propertyRecordsJson = JsonUtility.FromJson<PropertyRecordsJson>(content);
+				if (propertyRecordsJson.Version < JsonVersion)
+					return false;
+
+				m_namespace = propertyRecordsJson.Namespace;
+				m_prefix = propertyRecordsJson.Prefix;
 				m_PropertyRecords = propertyRecordsJson.Records.ToList();
 				return true;
 			}
@@ -265,7 +313,7 @@ namespace GuiToolkit
 		#endregion
 
 		#region Data
-		private void CollectPropertiesIfNecessary()
+		private void InitIfNecessary(bool _internal)
 		{
 			if (m_lastMonoBehaviour == m_MonoBehaviour && m_PropertyRecords.Count > 0)
 				return;
@@ -276,6 +324,8 @@ namespace GuiToolkit
 			if (FindJson())
 				return;
 
+			m_namespace = _internal ? "GuiToolkit" : string.Empty;
+			m_prefix = string.Empty;
 			var propertyInfos = m_MonoBehaviour.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
 			foreach (var propertyInfo in propertyInfos)
 			{
@@ -327,8 +377,8 @@ namespace GuiToolkit
 				return false;
 			}
 
-			string namespaceStr = "GuiToolkit"; //TODO: expose, save in json
-			string classPrefix = "Fitzefatze"; //TODO: expose, save in json
+			string namespaceStr = m_namespace;
+			string classPrefix = m_prefix;
 			string shortTypeName = m_MonoBehaviour.GetType().Name;
 			string qualifiedTypeName = m_MonoBehaviour.GetType().FullName;
 

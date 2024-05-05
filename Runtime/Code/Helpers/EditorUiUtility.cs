@@ -543,6 +543,19 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public static void HorizontalLine (Color _color) 
+		{
+			GUIStyle horizontalLine;
+			horizontalLine = new GUIStyle();
+			horizontalLine.normal.background = EditorGUIUtility.whiteTexture;
+			horizontalLine.margin = new RectOffset( 0, 0, 4, 4 );
+			horizontalLine.fixedHeight = 1;			
+			var savedColor = GUI.color;
+			GUI.color = _color;
+			GUILayout.Box( GUIContent.none, horizontalLine );
+			GUI.color = savedColor;
+		}
+
 		public static void RemoveArrayElementAtIndex( SerializedProperty _list, int _idx )
 		{
 			if (!ValidateListAndIndex(_list, _idx))
