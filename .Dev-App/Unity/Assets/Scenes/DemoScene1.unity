@@ -1484,7 +1484,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.4339623, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
@@ -1496,7 +1496,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 0
   m_FillMethod: 0
-  m_FillAmount: 0
+  m_FillAmount: 0.5
   m_FillClockwise: 0
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -1523,23 +1523,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: RedCheckmark
   m_style:
-    rid: 6698005047724998713
+    rid: 6698005086188601397
   references:
     version: 2
     RefIds:
-    - rid: 6698005047724998713
+    - rid: 6698005086188601397
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: RedCheckmark
         m_key: 1520245191
         m_sprite:
-          IsApplicable: 0
+          IsApplicable: 1
           Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
         m_overrideSprite:
-          IsApplicable: 0
+          IsApplicable: 1
           Value: {fileID: 0}
         m_type:
-          IsApplicable: 0
+          IsApplicable: 1
           Value: 0
         m_preserveAspect:
           IsApplicable: 0
@@ -1552,7 +1552,7 @@ MonoBehaviour:
           Value: 0
         m_fillAmount:
           IsApplicable: 0
-          Value: 0
+          Value: 0.5
         m_fillClockwise:
           IsApplicable: 0
           Value: 0
@@ -1573,7 +1573,7 @@ MonoBehaviour:
           Value: 0
         m_color:
           IsApplicable: 1
-          Value: {r: 1, g: 0, b: 0, a: 1}
+          Value: {r: 0.4339623, g: 0, b: 0, a: 1}
 --- !u!1 &434497813
 GameObject:
   m_ObjectHideFlags: 0
@@ -2118,7 +2118,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 1, b: 0.14503145, a: 1}
+  m_Color: {r: 0, g: 0.41509432, b: 0.060229342, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
@@ -2157,11 +2157,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: GreenCheckmark
   m_style:
-    rid: 6698005047724998714
+    rid: 6698005086188601398
   references:
     version: 2
     RefIds:
-    - rid: 6698005047724998714
+    - rid: 6698005086188601398
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: GreenCheckmark
@@ -2207,7 +2207,7 @@ MonoBehaviour:
           Value: 0
         m_color:
           IsApplicable: 1
-          Value: {r: 0, g: 1, b: 0.14503145, a: 1}
+          Value: {r: 0, g: 0.41509432, b: 0.060229342, a: 1}
 --- !u!1 &584101216
 GameObject:
   m_ObjectHideFlags: 0
@@ -3257,7 +3257,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.23238325, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.07421385, b: 0.3207547, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
@@ -3296,11 +3296,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: fgdsgsdg
   m_style:
-    rid: 6698005047724998715
+    rid: 6698005086188601399
   references:
     version: 2
     RefIds:
-    - rid: 6698005047724998715
+    - rid: 6698005086188601399
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: fgdsgsdg
@@ -3346,7 +3346,7 @@ MonoBehaviour:
           Value: 0
         m_color:
           IsApplicable: 1
-          Value: {r: 0, g: 0.23238325, b: 1, a: 1}
+          Value: {r: 0, g: 0.07421385, b: 0.3207547, a: 1}
 --- !u!1 &1508985176
 GameObject:
   m_ObjectHideFlags: 0

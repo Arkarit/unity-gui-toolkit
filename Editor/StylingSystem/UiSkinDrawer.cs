@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -25,11 +26,16 @@ namespace GuiToolkit.Style.Editor
 				PropertyField(m_nameProp);
 
 				Space(GapBeforeStyles);
-				for (int i = 0; i < m_stylesProp.arraySize; i++)
+
+				try
 				{
-					SerializedProperty styleProp = m_stylesProp.GetArrayElementAtIndex(i);
-					PropertyField(styleProp);
+					for (int i = 0; i < m_stylesProp.arraySize; i++)
+					{
+						SerializedProperty styleProp = m_stylesProp.GetArrayElementAtIndex(i);
+						PropertyField(styleProp);
+					}
 				}
+				catch {}
 			});
 		}
 	}

@@ -46,7 +46,12 @@ namespace GuiToolkit.Style.Editor
 					Property.serializedObject.ApplyModifiedProperties();
 					UiEvents.EvSkinChanged.InvokeAlways();
 					if (m_applicableChanged)
+					{
 						UiEvents.EvStyleApplicableChanged.InvokeAlways(currentStyle);
+#if UNITY_EDITOR
+						UiMainStyleConfig.EditorSave(UiMainStyleConfig.Instance);
+#endif
+					}
 				}
 			});
 

@@ -38,15 +38,19 @@ namespace GuiToolkit.Editor
 
 		private void Draw()
 		{
-			for (int i = 0; i < m_skinsProp.arraySize; i++)
+			try
 			{
-				var skinProp = m_skinsProp.GetArrayElementAtIndex(i);
-				EditorGUILayout.PropertyField(skinProp);
-				EditorGUILayout.Space(PerSkinGap);
-			}
+				for (int i = 0; i < m_skinsProp.arraySize; i++)
+				{
+					var skinProp = m_skinsProp.GetArrayElementAtIndex(i);
+					EditorGUILayout.PropertyField(skinProp);
+					EditorGUILayout.Space(PerSkinGap);
+				}
+				
+				EditorGUILayout.PropertyField(m_currentSkinIdxProp);
+				EditorGUILayout.Space(50);
 
-			EditorGUILayout.PropertyField(m_currentSkinIdxProp);
-			EditorGUILayout.Space(50);
+			} catch {}
 		}
 /*
 		private void SyncStyles(bool reset)
