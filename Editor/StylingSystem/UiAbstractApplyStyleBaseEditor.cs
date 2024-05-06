@@ -37,6 +37,7 @@ namespace GuiToolkit.Editor
 					UiMainStyleConfig.Instance.ForeachSkin(skin =>
 					{
 						var newStyle = m_thisAbstractApplyStyleBase.CreateStyle(selectedName);
+						newStyle.Init();
 						skin.Styles.Add(newStyle);
 					});
 
