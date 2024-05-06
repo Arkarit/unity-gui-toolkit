@@ -40,8 +40,9 @@ namespace GuiToolkit.Editor
 						newStyle.Init();
 						skin.Styles.Add(newStyle);
 					});
-
+#if UNITY_EDITOR
 					UiMainStyleConfig.EditorSave(UiMainStyleConfig.Instance);
+#endif
 				}
 
 				m_thisAbstractApplyStyleBase.Name = selectedName;

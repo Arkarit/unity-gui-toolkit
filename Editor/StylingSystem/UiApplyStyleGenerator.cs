@@ -231,7 +231,7 @@ namespace GuiToolkit
 			bool isInternal = UiToolkitConfiguration.Instance.IsEditingInternal;
 
 			InitIfNecessary(isInternal);
-			DrawHeader();
+			DrawHeader(isInternal);
 			DrawProperties();
 
 			EditorGUILayout.BeginHorizontal();
@@ -256,7 +256,7 @@ namespace GuiToolkit
 			EditorGUILayout.EndHorizontal();
 		}
 
-		private void DrawHeader()
+		private void DrawHeader(bool _internal)
 		{
 			EditorGUILayout.BeginHorizontal();
 
@@ -274,7 +274,7 @@ namespace GuiToolkit
 			if (idx != -1)
 			{
 				m_monoBehaviourType = types[idx];
-				CollectProperties();
+				CollectProperties(_internal);
 			}
 
 			EditorGUILayout.LabelField("Namespace:", GUILayout.Width(75));
@@ -418,25 +418,24 @@ namespace GuiToolkit
 		#region Data
 		private void InitIfNecessary(bool _internal)
 		{
-			if (m_lastMonoBehaviour == m_monoBehaviour && m_PropertyRecords.Count > 0)
+			if (m_lastMonoBehaviour == m_monoBehaviour && m_PropertyRecords.Count > 0 && m_monoBehaviourType != null)
 				return;
 
 			m_lastMonoBehaviour = m_monoBehaviour;
 			m_monoBehaviourType = m_monoBehaviour.GetType();
-			m_PropertyRecords.Clear();
 
+			CollectProperties(_internal);
+		}
+
+		private void CollectProperties(bool _internal)
+		{
+			m_PropertyRecords.Clear();
 			if (FindJson())
 				return;
 
 			m_namespace = _internal ? "GuiToolkit.Style" : string.Empty;
 			m_prefix = string.Empty;
 
-			CollectProperties();
-		}
-
-		private void CollectProperties()
-		{
-			m_PropertyRecords.Clear();
 			var propertyInfos = m_monoBehaviourType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
 			foreach (var propertyInfo in propertyInfos)
 			{
