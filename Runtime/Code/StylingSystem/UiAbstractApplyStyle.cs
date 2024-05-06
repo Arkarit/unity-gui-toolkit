@@ -50,7 +50,6 @@ namespace GuiToolkit.Style
 		{
 			UiEvents.EvSkinChanged.AddListener(OnSkinChanged);
 
-Debug.Log($"OnEnable {gameObject.name}");
 			if (SpecificMonoBehaviour == null)
 				return;
 
@@ -60,13 +59,10 @@ Debug.Log($"OnEnable {gameObject.name}");
 		public virtual void OnDisable()
 		{
 			UiEvents.EvSkinChanged.RemoveListener(OnSkinChanged);
-
-Debug.Log($"OnDisable {gameObject.name}");
 		}
 
 		private void OnSkinChanged()
 		{
-Debug.Log($"OnSkinChanged {gameObject.name}");
 			SetStyle();
 			Apply();
 		}

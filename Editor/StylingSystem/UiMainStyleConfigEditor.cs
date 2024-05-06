@@ -15,6 +15,7 @@ namespace GuiToolkit.Editor
 
 		private SerializedProperty m_skinsProp;
 		private SerializedProperty m_currentSkinIdxProp;
+
 		protected virtual void OnEnable()
 		{
 			m_skinsProp = serializedObject.FindProperty("m_skins");

@@ -29,5 +29,23 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		public virtual void Init()
+		{
+			UiEvents.EvStyleApplicableChanged.RemoveListener(OnStyleApplicableChanged);
+			UiEvents.EvStyleApplicableChanged.AddListener(OnStyleApplicableChanged);
+		}
+
+		private void OnStyleApplicableChanged(UiAbstractStyleBase _from)
+		{
+			if (_from == this || _from == null)
+				return;
+
+			if (Key != _from.Key)
+				return;
+
+			Debug.Assert(GetType() == _from.GetType());
+
+			UiStyleUtility.SynchronizeApplicableness(_from, this);
+		}
 	}
 }

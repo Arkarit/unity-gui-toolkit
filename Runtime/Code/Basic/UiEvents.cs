@@ -30,5 +30,9 @@ namespace GuiToolkit
 
 		/// \brief Invoked if skin has changed
 		public static CEvent											EvSkinChanged					= new();
+
+		/// \brief Invoked if applicableness of style has changed.
+		/// Used to synchronize styles of same name but members of different skins
+		public static CEvent<UiAbstractStyleBase> 						EvStyleApplicableChanged 		= new();
 	}
 }

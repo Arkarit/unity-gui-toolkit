@@ -11,9 +11,11 @@ namespace GuiToolkit.Style.Editor
 		private const float LineEndGapHor = 20;
 		private const float LineGapVert = 4;
 		private const float EndGap = 20;
+		private bool m_applicableChanged;
 
 		protected override void OnInspectorGUI()
 		{
+			m_applicableChanged = false;
 			var currentStyle = Property.boxedValue as UiAbstractStyleBase;
 			if (currentStyle != null)
 			{
@@ -26,6 +28,7 @@ namespace GuiToolkit.Style.Editor
 			Indent(() =>
 			{
 				EditorGUI.BeginChangeCheck();
+				
 				var oldVal = ApplicableValueBaseDrawer.DrawCondition;
 				ApplicableValueBaseDrawer.DrawCondition = ApplicableValueBaseDrawer.EDrawCondition.OnlyEnabled;
 				DrawProperties();
@@ -35,11 +38,15 @@ namespace GuiToolkit.Style.Editor
 				{
 					DrawProperties();
 				});
+
 				ApplicableValueBaseDrawer.DrawCondition = oldVal;
+
 				if (EditorGUI.EndChangeCheck())
 				{
 					Property.serializedObject.ApplyModifiedProperties();
 					UiEvents.EvSkinChanged.InvokeAlways();
+					if (m_applicableChanged)
+						UiEvents.EvStyleApplicableChanged.InvokeAlways(currentStyle);
 				}
 			});
 
@@ -48,6 +55,7 @@ namespace GuiToolkit.Style.Editor
 
 		private void DrawProperties()
 		{
+			EditorGUI.BeginChangeCheck();
 			foreach (var childProperty in ChildProperties)
 			{
 				if (childProperty.name == "m_key" || childProperty.name == "m_name")
@@ -55,6 +63,9 @@ namespace GuiToolkit.Style.Editor
 
 				PropertyField(childProperty);
 			}
+
+			if (EditorGUI.EndChangeCheck())
+				m_applicableChanged = true;
 		}
 	}
 }

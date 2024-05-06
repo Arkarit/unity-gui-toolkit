@@ -1484,7 +1484,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4339623, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
@@ -1523,11 +1523,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: RedCheckmark
   m_style:
-    rid: 6698005047724998667
+    rid: 6698005047724998713
   references:
     version: 2
     RefIds:
-    - rid: 6698005047724998667
+    - rid: 6698005047724998713
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: RedCheckmark
@@ -1573,7 +1573,7 @@ MonoBehaviour:
           Value: 0
         m_color:
           IsApplicable: 1
-          Value: {r: 0.4339623, g: 0, b: 0, a: 1}
+          Value: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &434497813
 GameObject:
   m_ObjectHideFlags: 0
@@ -2118,7 +2118,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.41509432, b: 0.060229342, a: 1}
+  m_Color: {r: 0, g: 1, b: 0.14503145, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
@@ -2157,11 +2157,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: GreenCheckmark
   m_style:
-    rid: 6698005047724998673
+    rid: 6698005047724998714
   references:
     version: 2
     RefIds:
-    - rid: 6698005047724998673
+    - rid: 6698005047724998714
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: GreenCheckmark
@@ -2207,7 +2207,7 @@ MonoBehaviour:
           Value: 0
         m_color:
           IsApplicable: 1
-          Value: {r: 0, g: 0.41509432, b: 0.060229342, a: 1}
+          Value: {r: 0, g: 1, b: 0.14503145, a: 1}
 --- !u!1 &584101216
 GameObject:
   m_ObjectHideFlags: 0
@@ -3257,7 +3257,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.07421385, b: 0.3207547, a: 1}
+  m_Color: {r: 0, g: 0.23238325, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
@@ -3296,11 +3296,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: fgdsgsdg
   m_style:
-    rid: 6698005047724998665
+    rid: 6698005047724998715
   references:
     version: 2
     RefIds:
-    - rid: 6698005047724998665
+    - rid: 6698005047724998715
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: fgdsgsdg
@@ -3346,7 +3346,7 @@ MonoBehaviour:
           Value: 0
         m_color:
           IsApplicable: 1
-          Value: {r: 0, g: 0.07421385, b: 0.3207547, a: 1}
+          Value: {r: 0, g: 0.23238325, b: 1, a: 1}
 --- !u!1 &1508985176
 GameObject:
   m_ObjectHideFlags: 0

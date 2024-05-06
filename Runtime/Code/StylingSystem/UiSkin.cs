@@ -17,6 +17,9 @@ namespace GuiToolkit.Style
 
 		public void Init()
 		{
+			foreach (var style in m_styles)
+				style.Init();
+
 			BuildDictionaries();
 		}
 

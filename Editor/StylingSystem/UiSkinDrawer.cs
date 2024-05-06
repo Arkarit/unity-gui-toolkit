@@ -19,7 +19,7 @@ namespace GuiToolkit.Style.Editor
 
 		protected override void OnInspectorGUI()
 		{
-			Foldout(EditedClass.Name, $"Style: {m_nameProp.stringValue}", () =>
+			Foldout(EditedClass.Name, $"Skin: {m_nameProp.stringValue}", () =>
 			{
 				Line(5);
 				PropertyField(m_nameProp);

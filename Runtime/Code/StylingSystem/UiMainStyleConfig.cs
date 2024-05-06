@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace GuiToolkit.Style
 {
+	[ExecuteAlways]
 	public class UiMainStyleConfig : AbstractSingletonScriptableObject<UiMainStyleConfig>
 	{
 		[SerializeField] private List<UiSkin> m_skins;
