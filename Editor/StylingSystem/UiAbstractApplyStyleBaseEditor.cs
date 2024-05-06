@@ -27,7 +27,7 @@ namespace GuiToolkit.Editor
 			string selectedName;
 
 			EditorGUILayout.LabelField("Local Settings", EditorStyles.boldLabel);
-			var styleNames = UiMainStyleConfig.Instance.StyleNames;
+			var styleNames = UiMainStyleConfig.Instance.GetStyleNamesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedMonoBehaviourType);
 			int styleCountBefore = styleNames.Count;
 			if (EditorUiUtility.StringPopup("Style", styleNames, m_nameProp.stringValue, out selectedName,
 				    null, false, "Add Style", "Adds a new style"))

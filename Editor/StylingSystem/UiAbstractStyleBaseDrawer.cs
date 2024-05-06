@@ -17,11 +17,11 @@ namespace GuiToolkit.Style.Editor
 		{
 			m_applicableChanged = false;
 			var currentStyle = Property.boxedValue as UiAbstractStyleBase;
-			if (currentStyle != null)
-			{
-				LabelField(UiStyleUtility.GetName(currentStyle.SupportedMonoBehaviourType, currentStyle.Name));
-				Line(LineGapVert, EditorGUIUtility.labelWidth - LineEndGapHor);
-			}
+			if (currentStyle == null)
+				return;
+
+			LabelField(UiStyleUtility.GetName(currentStyle.SupportedMonoBehaviourType, currentStyle.Name));
+			Line(LineGapVert, EditorGUIUtility.labelWidth - LineEndGapHor);
 
 			Space(5);
 

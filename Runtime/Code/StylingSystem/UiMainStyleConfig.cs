@@ -26,21 +26,23 @@ namespace GuiToolkit.Style
 				action(skin);
 		}
 
-		public List<string> StyleNames
-		{
-			get
-			{
-				List<string> result = new();
-				if (m_skins == null || m_skins.Count <= 0)
-					return result;
+		public List<string> StyleNames => GetStyleNamesByMonoBehaviourType(null);
 
-				var skin = m_skins[0];
-				foreach (var style in skin.Styles)
-				{
-					result.Add(style.Name);
-				}
+		public List<string> GetStyleNamesByMonoBehaviourType(Type monoBehaviourType)
+		{
+			List<string> result = new();
+			if (m_skins == null || m_skins.Count <= 0)
 				return result;
+
+			var skin = m_skins[0];
+			foreach (var style in skin.Styles)
+			{
+				if (monoBehaviourType != null && style.SupportedMonoBehaviourType != monoBehaviourType)
+					continue;
+
+				result.Add(style.Name);
 			}
+			return result;
 		}
 
 		public List<string> SkinNames
