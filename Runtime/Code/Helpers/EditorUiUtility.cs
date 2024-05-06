@@ -238,6 +238,9 @@ namespace GuiToolkit
 			if (_strings.Count == 0)
 				return false;
 
+			if (newInt >= _strings.Count || newInt < 0)
+				return false;
+
 			_newSelection = _strings[newInt];
 			return currentInt != newInt;
 		}
