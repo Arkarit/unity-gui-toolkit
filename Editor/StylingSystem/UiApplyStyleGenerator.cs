@@ -13,8 +13,9 @@ namespace GuiToolkit
 	{
 		private const string GeneratedWarningComment = "// Auto-generated, please do not change!\n";
 
-		private MonoBehaviour m_MonoBehaviour;
+		private MonoBehaviour m_monoBehaviour;
 		private MonoBehaviour m_lastMonoBehaviour;
+		private Type m_monoBehaviourType;
 		private List<PropertyRecord> m_PropertyRecords = new();
 		private Vector2 m_ScrollPos;
 
@@ -213,14 +214,14 @@ namespace GuiToolkit
 		#region Drawing
 		private void OnGUI()
 		{
-			if (m_MonoBehaviour == null)
+			if (m_monoBehaviour == null)
 			{
 				EditorGUILayout.HelpBox("Drag a mono behaviour into this field to generate", MessageType.Info);
 			}
 
-			m_MonoBehaviour = EditorGUILayout.ObjectField(m_MonoBehaviour, typeof(MonoBehaviour), true) as MonoBehaviour;
+			m_monoBehaviour = EditorGUILayout.ObjectField(m_monoBehaviour, typeof(MonoBehaviour), true) as MonoBehaviour;
 
-			if (!m_MonoBehaviour)
+			if (!m_monoBehaviour)
 				return;
 
 			m_alternatingRowStyles[0] = GUIStyle.none;
@@ -258,7 +259,24 @@ namespace GuiToolkit
 		private void DrawHeader()
 		{
 			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField($"Type:{m_MonoBehaviour.GetType().FullName}");
+
+			List<string> typeNames = new();
+			List<Type> types = new();
+			for (var type = m_monoBehaviour.GetType(); type != typeof(MonoBehaviour); type = type.BaseType)
+			{
+				types.Add(type);
+				typeNames.Add(type.FullName);
+			}
+
+			int idx = EditorUiUtility.StringPopup("Type", typeNames, m_monoBehaviourType.FullName,
+				out string newSelection);
+
+			if (idx != -1)
+			{
+				m_monoBehaviourType = types[idx];
+				CollectProperties();
+			}
+
 			EditorGUILayout.LabelField("Namespace:", GUILayout.Width(75));
 			m_namespace = EditorGUILayout.TextField(m_namespace, GUILayout.Width(200));
 			EditorGUILayout.Space(1);
@@ -343,8 +361,8 @@ namespace GuiToolkit
 			};
 
 			string path = _internal ?
-				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir + $"Type-Json/{m_MonoBehaviour.GetType().FullName}.json" :
-				UiToolkitConfiguration.Instance.GeneratedAssetsDir + $"{m_MonoBehaviour.GetType().FullName}.json";
+				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir + $"Type-Json/{m_monoBehaviourType.FullName}.json" :
+				UiToolkitConfiguration.Instance.GeneratedAssetsDir + $"{m_monoBehaviourType.FullName}.json";
 
 			try
 			{
@@ -361,12 +379,12 @@ namespace GuiToolkit
 
 		private bool FindJson()
 		{
-			string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir + $"{m_MonoBehaviour.GetType().FullName}.json";
+			string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir + $"{m_monoBehaviourType.FullName}.json";
 			if (TryReadJson(path))
 				return true;
 
 			string pathInternal = UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir +
-			                      $"Type-Json/{m_MonoBehaviour.GetType().FullName}.json";
+			                      $"Type-Json/{m_monoBehaviourType.FullName}.json";
 			if (TryReadJson(pathInternal))
 				return true;
 
@@ -400,10 +418,11 @@ namespace GuiToolkit
 		#region Data
 		private void InitIfNecessary(bool _internal)
 		{
-			if (m_lastMonoBehaviour == m_MonoBehaviour && m_PropertyRecords.Count > 0)
+			if (m_lastMonoBehaviour == m_monoBehaviour && m_PropertyRecords.Count > 0)
 				return;
 
-			m_lastMonoBehaviour = m_MonoBehaviour;
+			m_lastMonoBehaviour = m_monoBehaviour;
+			m_monoBehaviourType = m_monoBehaviour.GetType();
 			m_PropertyRecords.Clear();
 
 			if (FindJson())
@@ -411,7 +430,14 @@ namespace GuiToolkit
 
 			m_namespace = _internal ? "GuiToolkit.Style" : string.Empty;
 			m_prefix = string.Empty;
-			var propertyInfos = m_MonoBehaviour.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+			CollectProperties();
+		}
+
+		private void CollectProperties()
+		{
+			m_PropertyRecords.Clear();
+			var propertyInfos = m_monoBehaviourType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
 			foreach (var propertyInfo in propertyInfos)
 			{
 				if (!propertyInfo.CanRead || !propertyInfo.CanWrite)
@@ -426,6 +452,7 @@ namespace GuiToolkit
 				});
 			}
 		}
+
 		#endregion
 
 		#region Generation
@@ -442,7 +469,7 @@ namespace GuiToolkit
 				UiToolkitConfiguration.Instance.GeneratedAssetsDir;
 
 			string classPrefix = m_prefix;
-			string shortTypeName = m_MonoBehaviour.GetType().Name;
+			string shortTypeName = m_monoBehaviourType.Name;
 
 			string styleClassPath = $"{dir}UiStyle{classPrefix}{shortTypeName}.cs";
 			string applicationClassPath = $"{dir}UiApplyStyle{classPrefix}{shortTypeName}.cs";
@@ -495,8 +522,8 @@ namespace GuiToolkit
 
 			string namespaceStr = m_namespace;
 			string classPrefix = m_prefix;
-			string shortTypeName = m_MonoBehaviour.GetType().Name;
-			string qualifiedTypeName = m_MonoBehaviour.GetType().FullName;
+			string shortTypeName = m_monoBehaviourType.Name;
+			string qualifiedTypeName = m_monoBehaviourType.FullName;
 
 			return GetStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
 				members, properties);
@@ -521,8 +548,8 @@ namespace GuiToolkit
 
 			string namespaceStr = m_namespace;
 			string classPrefix = m_prefix;
-			string shortTypeName = m_MonoBehaviour.GetType().Name;
-			string qualifiedTypeName = m_MonoBehaviour.GetType().FullName;
+			string shortTypeName = m_monoBehaviourType.Name;
+			string qualifiedTypeName = m_monoBehaviourType.FullName;
 
 			return GetApplyStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
 				applyInstructions, presetInstructions);

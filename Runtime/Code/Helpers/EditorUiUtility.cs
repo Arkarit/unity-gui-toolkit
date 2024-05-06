@@ -197,7 +197,7 @@ namespace GuiToolkit
 				_thisSerializedProperty.GetArrayElementAtIndex(i).managedReferenceValue = objects[i];
 		}
 
-		public static bool StringPopup(
+		public static int StringPopup(
 			string _labelText, 
 			List<string> _strings, 
 			string _current, 
@@ -212,7 +212,7 @@ namespace GuiToolkit
 			bool allowAdd = !string.IsNullOrEmpty(_addItemHeadline);
 
 			if (!StringPopupPrepare(_strings, _current, allowAdd, out var currentInt)) 
-				return false;
+				return -1;
 
 			EditorGUILayout.BeginHorizontal();
 			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
@@ -221,7 +221,7 @@ namespace GuiToolkit
 			int newInt = EditorGUILayout.Popup(currentInt, _strings.ToArray());
 
 			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, ref _newSelection))
-				return true;
+				return newInt;
 
 			if (showRemove && _strings.Count > 0 && GUILayout.Button(EditorGUIUtility.IconContent("P4_DeletedLocal")))
 			{
@@ -230,19 +230,19 @@ namespace GuiToolkit
 					newInt = 0;
 				EditorGUILayout.EndHorizontal();
 				_newSelection = _strings.Count > 0 ? _strings[newInt] : null;
-				return true;
+				return newInt;
 			}
 
 			EditorGUILayout.EndHorizontal();
 
 			if (_strings.Count == 0)
-				return false;
+				return -1;
 
 			if (newInt >= _strings.Count || newInt < 0)
-				return false;
+				return -1;
 
 			_newSelection = _strings[newInt];
-			return currentInt != newInt;
+			return currentInt != newInt ? newInt : -1;
 		}
 
 		public static bool StringPopup(
@@ -368,7 +368,7 @@ namespace GuiToolkit
 		public static bool LanguagePopup( string _labelText, string _current, out string _new, string _labelText2 = " ")
 		{
 			var languages = LocaManager.Instance.AvailableLanguages.ToList();
-			return StringPopup(_labelText, languages, _current, out _new, _labelText2);
+			return StringPopup(_labelText, languages, _current, out _new, _labelText2) != -1;
 		}
 
 		public static void FlagEnumPopup<T>(SerializedProperty _prop, string _labelText) where T : Enum

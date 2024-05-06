@@ -30,7 +30,7 @@ namespace GuiToolkit.Editor
 			var styleNames = UiMainStyleConfig.Instance.GetStyleNamesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedMonoBehaviourType);
 			int styleCountBefore = styleNames.Count;
 			if (EditorUiUtility.StringPopup("Style", styleNames, m_nameProp.stringValue, out selectedName,
-				    null, false, "Add Style", "Adds a new style"))
+				    null, false, "Add Style", "Adds a new style") != -1)
 			{
 				if (styleNames.Count > styleCountBefore)
 				{
@@ -54,7 +54,7 @@ namespace GuiToolkit.Editor
 
 			var skinNames = UiMainStyleConfig.Instance.SkinNames;
 			if (EditorUiUtility.StringPopup("Current Skin", skinNames, UiMainStyleConfig.Instance.CurrentSkinName, out selectedName,
-				    null, false, "Add Skin", "Adds a new skin"))
+				    null, false, "Add Skin", "Adds a new skin") != -1)
 			{
 				UiMainStyleConfig.Instance.CurrentSkinName = selectedName;
 			}
