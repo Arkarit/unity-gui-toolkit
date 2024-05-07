@@ -69,7 +69,8 @@ namespace GuiToolkit
 				EditorFileUtility.CreateAsset(instance, EditorPath);
 			}
 
-			AssetDatabase.SaveAssets();
+			EditorUtility.SetDirty(instance);
+			AssetDatabase.SaveAssetIfDirty(instance);
 		}
 
 		public static bool Initialized => AssetDatabase.LoadAssetAtPath<T>(EditorPath) != null;
