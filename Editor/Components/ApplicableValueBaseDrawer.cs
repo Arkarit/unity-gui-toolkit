@@ -38,13 +38,13 @@ namespace GuiToolkit.Editor
 			}
 
 			EditorGUI.BeginChangeCheck();
-			var newIsApplicable = EditorGUI.Toggle(new Rect(_position.x, _position.y, ToggleWidth, _position.height), isApplicableProp.boolValue);
+			var newIsApplicable = EditorGUI.Toggle(new Rect(_position.x, _position.y, ToggleWidth, EditorGUIUtility.singleLineHeight), isApplicableProp.boolValue);
 			if (EditorGUI.EndChangeCheck())
 			{
 				isApplicableProp.boolValue = newIsApplicable;
 			}
 
-			EditorGUI.LabelField(new Rect(_position.x + ToggleWidth, _position.y, EditorGUIUtility.labelWidth - ToggleWidth, _position.height), _label);
+			EditorGUI.LabelField(new Rect(_position.x + ToggleWidth, _position.y, EditorGUIUtility.labelWidth - ToggleWidth, EditorGUIUtility.singleLineHeight), _label);
 
 			using (new EditorGUI.DisabledScope(newIsApplicable == false))
 			{
@@ -67,7 +67,8 @@ namespace GuiToolkit.Editor
 				return 0;
 			}
 
-			return base.GetPropertyHeight(_property, label);
+			var valueProp = _property.FindPropertyRelative("Value");
+			return EditorGUI.GetPropertyHeight(valueProp, true);
 		}
 	}
 }
