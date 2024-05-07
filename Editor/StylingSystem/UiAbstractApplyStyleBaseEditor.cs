@@ -61,7 +61,10 @@ namespace GuiToolkit.Editor
 			}
 
 			if (styleNames.Count == 0)
+			{
 				m_styleProp.boxedValue = null;
+				serializedObject.ApplyModifiedProperties();
+			}
 
 			DrawDefaultInspector();
 			serializedObject.ApplyModifiedProperties();
