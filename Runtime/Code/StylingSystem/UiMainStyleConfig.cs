@@ -7,9 +7,9 @@ namespace GuiToolkit.Style
 	[ExecuteAlways]
 	public class UiMainStyleConfig : AbstractSingletonScriptableObject<UiMainStyleConfig>
 	{
-		[SerializeField] private List<UiSkin> m_skins;
+		[SerializeField] private List<UiSkin> m_skins = new();
 
-		[SerializeField] private int m_currentSkinIdx;
+		[SerializeField] private int m_currentSkinIdx = 0;
 
 		public List<UiSkin> Skins => m_skins;
 
@@ -31,7 +31,7 @@ namespace GuiToolkit.Style
 		public List<string> GetStyleNamesByMonoBehaviourType(Type monoBehaviourType)
 		{
 			List<string> result = new();
-			if (m_skins == null || m_skins.Count <= 0)
+			if (m_skins.Count <= 0)
 				return result;
 
 			var skin = m_skins[0];
@@ -50,9 +50,6 @@ namespace GuiToolkit.Style
 			get
 			{
 				List<string> result = new();
-				if (m_skins == null)
-					return result;
-
 				foreach (var skin in m_skins)
 				{
 					result.Add(skin.Name);
@@ -74,24 +71,20 @@ namespace GuiToolkit.Style
 			}
 			set
 			{
-				if (m_skins != null)
+				for (int i = 0; i < m_skins.Count; i++)
 				{
-					for (int i = 0; i < m_skins.Count; i++)
+					var skin = m_skins[i];
+					if (skin.Name == value)
 					{
-						var skin = m_skins[i];
-						if (skin.Name == value)
-						{
-							if (m_currentSkinIdx == i)
-								return;
-
-							m_currentSkinIdx = i;
-							UiEvents.EvSkinChanged.InvokeAlways();
+						if (m_currentSkinIdx == i)
 							return;
-						}
 
-						//TODO new skin
+						m_currentSkinIdx = i;
+						UiEvents.EvSkinChanged.InvokeAlways();
+						return;
 					}
 
+					//TODO new skin
 				}
 			}
 		}
