@@ -274,7 +274,7 @@ namespace GuiToolkit
 			if (idx != -1)
 			{
 				m_monoBehaviourType = types[idx];
-				CollectProperties(_internal);
+				CollectProperties(_internal, false);
 			}
 
 			EditorGUILayout.LabelField("Namespace:", GUILayout.Width(75));
@@ -377,16 +377,30 @@ namespace GuiToolkit
 			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 		}
 
-		private bool FindJson()
+		private bool FindJson(bool _downcastTypes)
 		{
-			string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir + $"{m_monoBehaviourType.FullName}.json";
-			if (TryReadJson(path))
-				return true;
+			for (var type = m_monoBehaviourType; type != typeof(MonoBehaviour); type = type.BaseType)
+			{
+				string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir +
+				              $"{type.FullName}.json";
+				if (TryReadJson(path))
+				{
+					m_monoBehaviourType = type;
+					return true;
+				}
 
-			string pathInternal = UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir +
-			                      $"Type-Json/{m_monoBehaviourType.FullName}.json";
-			if (TryReadJson(pathInternal))
-				return true;
+				string pathInternal = UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir +
+				                      $"Type-Json/{type.FullName}.json";
+
+				if (TryReadJson(pathInternal))
+				{
+					m_monoBehaviourType = type;
+					return true;
+				}
+
+				if (!_downcastTypes)
+					return false;
+			}
 
 			return false;
 		}
@@ -424,13 +438,13 @@ namespace GuiToolkit
 			m_lastMonoBehaviour = m_monoBehaviour;
 			m_monoBehaviourType = m_monoBehaviour.GetType();
 
-			CollectProperties(_internal);
+			CollectProperties(_internal, true);
 		}
 
-		private void CollectProperties(bool _internal)
+		private void CollectProperties(bool _internal, bool _downcastTypes)
 		{
 			m_PropertyRecords.Clear();
-			if (FindJson())
+			if (FindJson(_downcastTypes))
 				return;
 
 			m_namespace = _internal ? "GuiToolkit.Style" : string.Empty;
