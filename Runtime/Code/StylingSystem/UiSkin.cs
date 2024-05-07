@@ -12,6 +12,9 @@ namespace GuiToolkit.Style
 
 		private readonly Dictionary<int, UiAbstractStyleBase> m_styleByKey = new ();
 
+		public UiSkin() {}
+		public UiSkin(string _name) => m_name = _name;
+
 		public string Name => m_name;
 		public List<UiAbstractStyleBase> Styles => m_styles;
 
