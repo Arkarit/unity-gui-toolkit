@@ -28,6 +28,7 @@ namespace GuiToolkit.Editor
 			EditorGUI.BeginProperty(_position, _label, _property);
 
 			var isApplicableProp = _property.FindPropertyRelative("IsApplicable");
+			bool isApplicable = isApplicableProp.boolValue;	
 			var valueProp = _property.FindPropertyRelative("Value");
 
 			if (isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyDisabled ||
@@ -46,6 +47,12 @@ namespace GuiToolkit.Editor
 
 			EditorGUI.LabelField(new Rect(_position.x + ToggleWidth, _position.y, EditorGUIUtility.labelWidth - ToggleWidth, EditorGUIUtility.singleLineHeight), _label);
 
+			if (!isApplicable)
+			{
+				EditorGUI.EndProperty();
+				return;
+			}
+
 			using (new EditorGUI.DisabledScope(newIsApplicable == false))
 			{
 				EditorGUI.PropertyField(
@@ -61,11 +68,15 @@ namespace GuiToolkit.Editor
 		public override float GetPropertyHeight(SerializedProperty _property, GUIContent label)
 		{
 			var isApplicableProp = _property.FindPropertyRelative("IsApplicable");
-			if (isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyDisabled ||
-			    !isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyEnabled)
+			bool isApplicable = isApplicableProp.boolValue;	
+			if (isApplicable && s_drawCondition == EDrawCondition.OnlyDisabled ||
+			    !isApplicable && s_drawCondition == EDrawCondition.OnlyEnabled)
 			{
 				return 0;
 			}
+
+			if (!isApplicable)
+				return EditorGUIUtility.singleLineHeight;
 
 			var valueProp = _property.FindPropertyRelative("Value");
 			return EditorGUI.GetPropertyHeight(valueProp, true);
