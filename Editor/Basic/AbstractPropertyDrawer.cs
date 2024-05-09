@@ -15,7 +15,6 @@ namespace GuiToolkit.Style.Editor
 		private const float FoldoutHeight = 15;
 		private const float IndentWidth = 20;
 
-		private static readonly List<SerializedProperty> s_childPropertes = new();
 		protected Rect m_Rect;
 		protected Rect m_currentRect;
 		private bool m_collectHeightMode;
@@ -27,7 +26,6 @@ namespace GuiToolkit.Style.Editor
 
 		protected virtual void OnInspectorGUI() {}
 
-		protected List<SerializedProperty> ChildProperties => s_childPropertes;
 		protected SerializedProperty Property => m_property;
 		protected float SingleLineHeight => EditorGUIUtility.singleLineHeight;
 		protected T EditedClass => Property.boxedValue as T;
@@ -166,7 +164,6 @@ namespace GuiToolkit.Style.Editor
 		{
 			EditorGUI.BeginProperty(_rect, _label, _property);
 			m_property = _property;
-			CollectChildProperties(_property);
 			m_currentRect = m_Rect = _rect;
 			OnEnable();
 			OnInspectorGUI();
@@ -179,16 +176,14 @@ namespace GuiToolkit.Style.Editor
 			m_collectHeightMode = true;
 			m_height = 0;
 			m_property = _property;
-			CollectChildProperties(_property);
 			OnEnable();
 			OnInspectorGUI();
 			m_collectHeightMode = false;
 			return m_height;
 		}
 
-		private void CollectChildProperties(SerializedProperty _property)
+		protected void ForEachChildProperty(SerializedProperty _property, Action<SerializedProperty> callback)
 		{
-			s_childPropertes.Clear();
 			var enumerator = _property.Copy().GetEnumerator();
 			int depth = _property.depth;
 
@@ -198,7 +193,7 @@ namespace GuiToolkit.Style.Editor
 				if (property == null || property.depth > depth + 1)
 					continue;
 
-				s_childPropertes.Add(property.Copy());
+				callback(property);
 			}
 		}
 	}

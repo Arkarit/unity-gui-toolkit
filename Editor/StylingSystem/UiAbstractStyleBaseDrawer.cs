@@ -61,13 +61,14 @@ namespace GuiToolkit.Style.Editor
 		private void DrawProperties()
 		{
 			EditorGUI.BeginChangeCheck();
-			foreach (var childProperty in ChildProperties)
+
+			ForEachChildProperty(Property, childProperty =>
 			{
 				if (childProperty.name == "m_key" || childProperty.name == "m_name")
-					continue;
+					return;
 
 				PropertyField(childProperty);
-			}
+			});
 
 			if (EditorGUI.EndChangeCheck())
 				m_applicableChanged = true;
