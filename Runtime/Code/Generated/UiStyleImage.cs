@@ -23,89 +23,19 @@ namespace GuiToolkit.Style
 		[SerializeField] private ApplicableValue<System.Boolean> m_isMaskingGraphic = new();
 		[SerializeField] private ApplicableValue<UnityEngine.Color> m_color = new();
 
-		public UnityEngine.Sprite Sprite
-		{
-			get => m_sprite.Value;
-			set => m_sprite.Value = value;
-		}
-
-		public UnityEngine.Sprite OverrideSprite
-		{
-			get => m_overrideSprite.Value;
-			set => m_overrideSprite.Value = value;
-		}
-
-		public UnityEngine.UI.Image.Type Type
-		{
-			get => m_type.Value;
-			set => m_type.Value = value;
-		}
-
-		public System.Boolean PreserveAspect
-		{
-			get => m_preserveAspect.Value;
-			set => m_preserveAspect.Value = value;
-		}
-
-		public System.Boolean FillCenter
-		{
-			get => m_fillCenter.Value;
-			set => m_fillCenter.Value = value;
-		}
-
-		public UnityEngine.UI.Image.FillMethod FillMethod
-		{
-			get => m_fillMethod.Value;
-			set => m_fillMethod.Value = value;
-		}
-
-		public System.Single FillAmount
-		{
-			get => m_fillAmount.Value;
-			set => m_fillAmount.Value = value;
-		}
-
-		public System.Boolean FillClockwise
-		{
-			get => m_fillClockwise.Value;
-			set => m_fillClockwise.Value = value;
-		}
-
-		public System.Int32 FillOrigin
-		{
-			get => m_fillOrigin.Value;
-			set => m_fillOrigin.Value = value;
-		}
-
-		public System.Boolean UseSpriteMesh
-		{
-			get => m_useSpriteMesh.Value;
-			set => m_useSpriteMesh.Value = value;
-		}
-
-		public UnityEngine.Material Material
-		{
-			get => m_material.Value;
-			set => m_material.Value = value;
-		}
-
-		public System.Boolean Maskable
-		{
-			get => m_maskable.Value;
-			set => m_maskable.Value = value;
-		}
-
-		public System.Boolean IsMaskingGraphic
-		{
-			get => m_isMaskingGraphic.Value;
-			set => m_isMaskingGraphic.Value = value;
-		}
-
-		public UnityEngine.Color Color
-		{
-			get => m_color.Value;
-			set => m_color.Value = value;
-		}
-
+		public ApplicableValue<UnityEngine.Sprite> Sprite => m_sprite;
+		public ApplicableValue<UnityEngine.Sprite> OverrideSprite => m_overrideSprite;
+		public ApplicableValue<UnityEngine.UI.Image.Type> Type => m_type;
+		public ApplicableValue<System.Boolean> PreserveAspect => m_preserveAspect;
+		public ApplicableValue<System.Boolean> FillCenter => m_fillCenter;
+		public ApplicableValue<UnityEngine.UI.Image.FillMethod> FillMethod => m_fillMethod;
+		public ApplicableValue<System.Single> FillAmount => m_fillAmount;
+		public ApplicableValue<System.Boolean> FillClockwise => m_fillClockwise;
+		public ApplicableValue<System.Int32> FillOrigin => m_fillOrigin;
+		public ApplicableValue<System.Boolean> UseSpriteMesh => m_useSpriteMesh;
+		public ApplicableValue<UnityEngine.Material> Material => m_material;
+		public ApplicableValue<System.Boolean> Maskable => m_maskable;
+		public ApplicableValue<System.Boolean> IsMaskingGraphic => m_isMaskingGraphic;
+		public ApplicableValue<UnityEngine.Color> Color => m_color;
 	}
 }

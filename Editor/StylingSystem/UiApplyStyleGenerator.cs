@@ -66,14 +66,9 @@ namespace GuiToolkit
 		// 0: qualified property type name
 		// 1: short property type name, starting with upper char
 		// 2: member name
-		// 3: member name
 		private const string StylePropertyTemplate =
-			  "		public {0} {1}\n"
-			+ "		{{\n"
-			+ "			get => m_{2}.Value;\n"
-			+ "			set => m_{3}.Value = value;\n"
-			+ "		}}\n"
-			+ "\n";
+			"		public ApplicableValue<{0}> {1} => m_{2};\n";
+
 		private string GetStylePropertyString(string _qualifiedPropertyTypeName, string _shortPropertyName, string _memberName)
 		{
 			_shortPropertyName = UpperFirstChar(_shortPropertyName);
@@ -82,7 +77,6 @@ namespace GuiToolkit
 				StylePropertyTemplate, 
 				_qualifiedPropertyTypeName, 
 				_shortPropertyName, 
-				_memberName,
 				_memberName
 			);
 		}
@@ -132,7 +126,8 @@ namespace GuiToolkit
 		// 0: member name
 		// 1: member name, starting with upper char
 		private const string ApplyInstructionTemplate =
-			"			SpecificMonoBehaviour.{0} = SpecificStyle.{1};\n";
+			"			if (SpecificStyle.{1}.IsApplicable);\n" +
+			"				SpecificMonoBehaviour.{0} = SpecificStyle.{1}.Value;\n";
 		private string GetApplyInstructionString(string _memberName)
 		{
 			return string.Format
@@ -147,7 +142,7 @@ namespace GuiToolkit
 		// 0: member name, starting with upper char
 		// 1: member name
 		private const string PresetInstructionTemplate =
-			"			result.{0} = SpecificMonoBehaviour.{1};\n";
+			"			result.{0}.Value = SpecificMonoBehaviour.{1};\n";
 		private string GetPresetInstructionString(string _memberName)
 		{
 			return string.Format
