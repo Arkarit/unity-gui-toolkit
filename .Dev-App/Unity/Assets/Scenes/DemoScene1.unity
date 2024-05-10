@@ -446,33 +446,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: RedText
   m_style:
-    rid: 6698005109627682833
+    rid: 6698005158595919877
   references:
     version: 2
     RefIds:
-    - rid: 6698005109627682833
+    - rid: 6698005158595919877
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: RedText
         m_key: 1624260550
-        m_isRightToLeftText:
-          IsApplicable: 0
-          Value: 0
         m_font:
           IsApplicable: 1
           Value: {fileID: 11400000, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
         m_fontSharedMaterial:
-          IsApplicable: 1
+          IsApplicable: 0
           Value: {fileID: 2100000, guid: ef3e0ac67c9c98e43b1ab1b7cab4c9eb, type: 2}
         m_fontSharedMaterials:
-          IsApplicable: 0
+          IsApplicable: 1
           Value:
           - {fileID: -45881750512593306, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
         m_fontMaterial:
           IsApplicable: 0
-          Value: {fileID: 1900153292}
+          Value: {fileID: 0}
         m_fontMaterials:
-          IsApplicable: 0
+          IsApplicable: 1
           Value:
           - {fileID: -45881750512593306, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
         m_color:
@@ -497,9 +494,6 @@ MonoBehaviour:
         m_spriteAsset:
           IsApplicable: 0
           Value: {fileID: 0}
-        m_tintAllSprites:
-          IsApplicable: 0
-          Value: 0
         m_styleSheet:
           IsApplicable: 0
           Value: {fileID: 0}
@@ -536,9 +530,6 @@ MonoBehaviour:
         m_fontWeight:
           IsApplicable: 0
           Value: 400
-        m_enableAutoSizing:
-          IsApplicable: 0
-          Value: 0
         m_fontSizeMin:
           IsApplicable: 0
           Value: 18
@@ -575,106 +566,10 @@ MonoBehaviour:
         m_characterWidthAdjustment:
           IsApplicable: 0
           Value: 0
-        m_enableWordWrapping:
-          IsApplicable: 0
-          Value: 1
-        m_wordWrappingRatios:
-          IsApplicable: 0
-          Value: 0.4
-        m_overflowMode:
-          IsApplicable: 0
-          Value: 0
-        m_linkedTextComponent:
-          IsApplicable: 0
-          Value: {fileID: 0}
-        m_enableKerning:
-          IsApplicable: 0
-          Value: 1
         m_extraPadding:
           IsApplicable: 0
           Value: 0
-        m_richText:
-          IsApplicable: 0
-          Value: 1
-        m_parseCtrlCharacters:
-          IsApplicable: 0
-          Value: 1
-        m_isOverlay:
-          IsApplicable: 0
-          Value: 0
-        m_isOrthographic:
-          IsApplicable: 0
-          Value: 1
-        m_enableCulling:
-          IsApplicable: 0
-          Value: 0
-        m_ignoreVisibility:
-          IsApplicable: 0
-          Value: 1
-        m_horizontalMapping:
-          IsApplicable: 0
-          Value: 0
-        m_verticalMapping:
-          IsApplicable: 0
-          Value: 0
-        m_mappingUvLineOffset:
-          IsApplicable: 0
-          Value: 0
-        m_renderMode:
-          IsApplicable: 0
-          Value: 255
-        m_geometrySortingOrder:
-          IsApplicable: 0
-          Value: 0
-        m_isTextObjectScaleStatic:
-          IsApplicable: 0
-          Value: 0
-        m_vertexBufferAutoSizeReduction:
-          IsApplicable: 0
-          Value: 0
-        m_firstVisibleCharacter:
-          IsApplicable: 0
-          Value: 0
-        m_maxVisibleCharacters:
-          IsApplicable: 0
-          Value: 99999
-        m_maxVisibleWords:
-          IsApplicable: 0
-          Value: 99999
-        m_maxVisibleLines:
-          IsApplicable: 0
-          Value: 99999
-        m_useMaxVisibleDescender:
-          IsApplicable: 0
-          Value: 1
-        m_pageToDisplay:
-          IsApplicable: 0
-          Value: 1
         m_margin:
-          IsApplicable: 0
-          Value: {x: 0, y: 0, z: 0, w: 0}
-        m_havePropertiesChanged:
-          IsApplicable: 0
-          Value: 0
-        m_isUsingLegacyAnimationComponent:
-          IsApplicable: 0
-          Value: 0
-        m_autoSizeTextContainer:
-          IsApplicable: 0
-          Value: 0
-        m_isVolumetricText:
-          IsApplicable: 0
-          Value: 0
-        m_maskable:
-          IsApplicable: 0
-          Value: 1
-        m_isMaskingGraphic:
-          IsApplicable: 0
-          Value: 0
-        m_raycastTarget:
-          IsApplicable: 0
-          Value: 1
-        m_raycastPadding:
           IsApplicable: 0
           Value: {x: 0, y: 0, z: 0, w: 0}
         m_material:
@@ -1910,11 +1805,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: RedCheckmark
   m_style:
-    rid: 6698005109627682825
+    rid: 6698005158595919888
   references:
     version: 2
     RefIds:
-    - rid: 6698005109627682825
+    - rid: 6698005158595919888
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: RedCheckmark
@@ -1925,39 +1820,9 @@ MonoBehaviour:
         m_overrideSprite:
           IsApplicable: 0
           Value: {fileID: 0}
-        m_type:
-          IsApplicable: 0
-          Value: 0
-        m_preserveAspect:
-          IsApplicable: 0
-          Value: 0
-        m_fillCenter:
-          IsApplicable: 0
-          Value: 0
-        m_fillMethod:
-          IsApplicable: 0
-          Value: 0
-        m_fillAmount:
-          IsApplicable: 0
-          Value: 0
-        m_fillClockwise:
-          IsApplicable: 0
-          Value: 0
-        m_fillOrigin:
-          IsApplicable: 0
-          Value: 0
-        m_useSpriteMesh:
-          IsApplicable: 0
-          Value: 0
         m_material:
           IsApplicable: 0
           Value: {fileID: 0}
-        m_maskable:
-          IsApplicable: 0
-          Value: 0
-        m_isMaskingGraphic:
-          IsApplicable: 0
-          Value: 0
         m_color:
           IsApplicable: 1
           Value: {r: 0.4339623, g: 0, b: 0, a: 1}
@@ -2544,11 +2409,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: GreenCheckmark
   m_style:
-    rid: 6698005109627682823
+    rid: 6698005158595919886
   references:
     version: 2
     RefIds:
-    - rid: 6698005109627682823
+    - rid: 6698005158595919886
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: GreenCheckmark
@@ -2559,39 +2424,9 @@ MonoBehaviour:
         m_overrideSprite:
           IsApplicable: 0
           Value: {fileID: 0}
-        m_type:
-          IsApplicable: 0
-          Value: 0
-        m_preserveAspect:
-          IsApplicable: 0
-          Value: 0
-        m_fillCenter:
-          IsApplicable: 0
-          Value: 0
-        m_fillMethod:
-          IsApplicable: 0
-          Value: 0
-        m_fillAmount:
-          IsApplicable: 0
-          Value: 0
-        m_fillClockwise:
-          IsApplicable: 0
-          Value: 0
-        m_fillOrigin:
-          IsApplicable: 0
-          Value: 0
-        m_useSpriteMesh:
-          IsApplicable: 0
-          Value: 0
         m_material:
           IsApplicable: 0
           Value: {fileID: 0}
-        m_maskable:
-          IsApplicable: 0
-          Value: 0
-        m_isMaskingGraphic:
-          IsApplicable: 0
-          Value: 0
         m_color:
           IsApplicable: 1
           Value: {r: 0, g: 0.41509432, b: 0.060229342, a: 1}
@@ -3683,11 +3518,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: fgdsgsdg
   m_style:
-    rid: 6698005109627682824
+    rid: 6698005158595919887
   references:
     version: 2
     RefIds:
-    - rid: 6698005109627682824
+    - rid: 6698005158595919887
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: fgdsgsdg
@@ -3698,39 +3533,9 @@ MonoBehaviour:
         m_overrideSprite:
           IsApplicable: 0
           Value: {fileID: 0}
-        m_type:
-          IsApplicable: 0
-          Value: 0
-        m_preserveAspect:
-          IsApplicable: 0
-          Value: 0
-        m_fillCenter:
-          IsApplicable: 0
-          Value: 0
-        m_fillMethod:
-          IsApplicable: 0
-          Value: 0
-        m_fillAmount:
-          IsApplicable: 0
-          Value: 0
-        m_fillClockwise:
-          IsApplicable: 0
-          Value: 0
-        m_fillOrigin:
-          IsApplicable: 0
-          Value: 0
-        m_useSpriteMesh:
-          IsApplicable: 0
-          Value: 0
         m_material:
           IsApplicable: 0
           Value: {fileID: 0}
-        m_maskable:
-          IsApplicable: 0
-          Value: 0
-        m_isMaskingGraphic:
-          IsApplicable: 0
-          Value: 0
         m_color:
           IsApplicable: 1
           Value: {r: 0, g: 0.07421385, b: 0.3207547, a: 1}

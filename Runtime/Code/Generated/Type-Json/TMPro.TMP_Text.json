@@ -16,7 +16,7 @@
             "TypeName": "ITextPreprocessor"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "isRightToLeftText",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -88,7 +88,7 @@
             "TypeName": "TMP_SpriteAsset"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "tintAllSprites",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -142,7 +142,7 @@
             "TypeName": "FontWeight"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "enableAutoSizing",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -220,31 +220,31 @@
             "TypeName": "Single"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "enableWordWrapping",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "wordWrappingRatios",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "overflowMode",
             "QualifiedTypeName": "TMPro.TextOverflowModes",
             "TypeName": "TextOverflowModes"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "linkedTextComponent",
             "QualifiedTypeName": "TMPro.TMP_Text",
             "TypeName": "TMP_Text"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "enableKerning",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -256,115 +256,115 @@
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "richText",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "parseCtrlCharacters",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "isOverlay",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "isOrthographic",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "enableCulling",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "ignoreVisibility",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "horizontalMapping",
             "QualifiedTypeName": "TMPro.TextureMappingOptions",
             "TypeName": "TextureMappingOptions"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "verticalMapping",
             "QualifiedTypeName": "TMPro.TextureMappingOptions",
             "TypeName": "TextureMappingOptions"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "mappingUvLineOffset",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "renderMode",
             "QualifiedTypeName": "TMPro.TextRenderFlags",
             "TypeName": "TextRenderFlags"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "geometrySortingOrder",
             "QualifiedTypeName": "TMPro.VertexSortingOrder",
             "TypeName": "VertexSortingOrder"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "isTextObjectScaleStatic",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "vertexBufferAutoSizeReduction",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "firstVisibleCharacter",
             "QualifiedTypeName": "System.Int32",
             "TypeName": "Int32"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "maxVisibleCharacters",
             "QualifiedTypeName": "System.Int32",
             "TypeName": "Int32"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "maxVisibleWords",
             "QualifiedTypeName": "System.Int32",
             "TypeName": "Int32"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "maxVisibleLines",
             "QualifiedTypeName": "System.Int32",
             "TypeName": "Int32"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "useMaxVisibleDescender",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "pageToDisplay",
             "QualifiedTypeName": "System.Int32",
             "TypeName": "Int32"
@@ -376,25 +376,25 @@
             "TypeName": "Vector4"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "havePropertiesChanged",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "isUsingLegacyAnimationComponent",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "autoSizeTextContainer",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "isVolumetricText",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -406,25 +406,25 @@
             "TypeName": "CullStateChangedEvent"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "maskable",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "isMaskingGraphic",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "raycastTarget",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "raycastPadding",
             "QualifiedTypeName": "UnityEngine.Vector4",
             "TypeName": "Vector4"

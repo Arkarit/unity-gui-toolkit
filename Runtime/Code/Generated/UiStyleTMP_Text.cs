@@ -8,7 +8,6 @@ namespace GuiToolkit.Style
 	[Serializable]
 	public class UiStyleTMP_Text : UiAbstractStyle<TMPro.TMP_Text>
 	{
-		[SerializeField] private ApplicableValue<System.Boolean> m_isRightToLeftText = new();
 		[SerializeField] private ApplicableValue<TMPro.TMP_FontAsset> m_font = new();
 		[SerializeField] private ApplicableValue<UnityEngine.Material> m_fontSharedMaterial = new();
 		[SerializeField] private ApplicableValue<UnityEngine.Material[]> m_fontSharedMaterials = new();
@@ -20,7 +19,6 @@ namespace GuiToolkit.Style
 		[SerializeField] private ApplicableValue<TMPro.VertexGradient> m_colorGradient = new();
 		[SerializeField] private ApplicableValue<TMPro.TMP_ColorGradient> m_colorGradientPreset = new();
 		[SerializeField] private ApplicableValue<TMPro.TMP_SpriteAsset> m_spriteAsset = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_tintAllSprites = new();
 		[SerializeField] private ApplicableValue<TMPro.TMP_StyleSheet> m_styleSheet = new();
 		[SerializeField] private ApplicableValue<TMPro.TMP_Style> m_textStyle = new();
 		[SerializeField] private ApplicableValue<System.Boolean> m_overrideColorTags = new();
@@ -29,7 +27,6 @@ namespace GuiToolkit.Style
 		[SerializeField] private ApplicableValue<System.Single> m_outlineWidth = new();
 		[SerializeField] private ApplicableValue<System.Single> m_fontSize = new();
 		[SerializeField] private ApplicableValue<TMPro.FontWeight> m_fontWeight = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_enableAutoSizing = new();
 		[SerializeField] private ApplicableValue<System.Single> m_fontSizeMin = new();
 		[SerializeField] private ApplicableValue<System.Single> m_fontSizeMax = new();
 		[SerializeField] private ApplicableValue<TMPro.FontStyles> m_fontStyle = new();
@@ -42,43 +39,10 @@ namespace GuiToolkit.Style
 		[SerializeField] private ApplicableValue<System.Single> m_lineSpacingAdjustment = new();
 		[SerializeField] private ApplicableValue<System.Single> m_paragraphSpacing = new();
 		[SerializeField] private ApplicableValue<System.Single> m_characterWidthAdjustment = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_enableWordWrapping = new();
-		[SerializeField] private ApplicableValue<System.Single> m_wordWrappingRatios = new();
-		[SerializeField] private ApplicableValue<TMPro.TextOverflowModes> m_overflowMode = new();
-		[SerializeField] private ApplicableValue<TMPro.TMP_Text> m_linkedTextComponent = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_enableKerning = new();
 		[SerializeField] private ApplicableValue<System.Boolean> m_extraPadding = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_richText = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_parseCtrlCharacters = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_isOverlay = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_isOrthographic = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_enableCulling = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_ignoreVisibility = new();
-		[SerializeField] private ApplicableValue<TMPro.TextureMappingOptions> m_horizontalMapping = new();
-		[SerializeField] private ApplicableValue<TMPro.TextureMappingOptions> m_verticalMapping = new();
-		[SerializeField] private ApplicableValue<System.Single> m_mappingUvLineOffset = new();
-		[SerializeField] private ApplicableValue<TMPro.TextRenderFlags> m_renderMode = new();
-		[SerializeField] private ApplicableValue<TMPro.VertexSortingOrder> m_geometrySortingOrder = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_isTextObjectScaleStatic = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_vertexBufferAutoSizeReduction = new();
-		[SerializeField] private ApplicableValue<System.Int32> m_firstVisibleCharacter = new();
-		[SerializeField] private ApplicableValue<System.Int32> m_maxVisibleCharacters = new();
-		[SerializeField] private ApplicableValue<System.Int32> m_maxVisibleWords = new();
-		[SerializeField] private ApplicableValue<System.Int32> m_maxVisibleLines = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_useMaxVisibleDescender = new();
-		[SerializeField] private ApplicableValue<System.Int32> m_pageToDisplay = new();
 		[SerializeField] private ApplicableValue<UnityEngine.Vector4> m_margin = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_havePropertiesChanged = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_isUsingLegacyAnimationComponent = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_autoSizeTextContainer = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_isVolumetricText = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_maskable = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_isMaskingGraphic = new();
-		[SerializeField] private ApplicableValue<System.Boolean> m_raycastTarget = new();
-		[SerializeField] private ApplicableValue<UnityEngine.Vector4> m_raycastPadding = new();
 		[SerializeField] private ApplicableValue<UnityEngine.Material> m_material = new();
 
-		public ApplicableValue<System.Boolean> IsRightToLeftText => m_isRightToLeftText;
 		public ApplicableValue<TMPro.TMP_FontAsset> Font => m_font;
 		public ApplicableValue<UnityEngine.Material> FontSharedMaterial => m_fontSharedMaterial;
 		public ApplicableValue<UnityEngine.Material[]> FontSharedMaterials => m_fontSharedMaterials;
@@ -90,7 +54,6 @@ namespace GuiToolkit.Style
 		public ApplicableValue<TMPro.VertexGradient> ColorGradient => m_colorGradient;
 		public ApplicableValue<TMPro.TMP_ColorGradient> ColorGradientPreset => m_colorGradientPreset;
 		public ApplicableValue<TMPro.TMP_SpriteAsset> SpriteAsset => m_spriteAsset;
-		public ApplicableValue<System.Boolean> TintAllSprites => m_tintAllSprites;
 		public ApplicableValue<TMPro.TMP_StyleSheet> StyleSheet => m_styleSheet;
 		public ApplicableValue<TMPro.TMP_Style> TextStyle => m_textStyle;
 		public ApplicableValue<System.Boolean> OverrideColorTags => m_overrideColorTags;
@@ -99,7 +62,6 @@ namespace GuiToolkit.Style
 		public ApplicableValue<System.Single> OutlineWidth => m_outlineWidth;
 		public ApplicableValue<System.Single> FontSize => m_fontSize;
 		public ApplicableValue<TMPro.FontWeight> FontWeight => m_fontWeight;
-		public ApplicableValue<System.Boolean> EnableAutoSizing => m_enableAutoSizing;
 		public ApplicableValue<System.Single> FontSizeMin => m_fontSizeMin;
 		public ApplicableValue<System.Single> FontSizeMax => m_fontSizeMax;
 		public ApplicableValue<TMPro.FontStyles> FontStyle => m_fontStyle;
@@ -112,40 +74,8 @@ namespace GuiToolkit.Style
 		public ApplicableValue<System.Single> LineSpacingAdjustment => m_lineSpacingAdjustment;
 		public ApplicableValue<System.Single> ParagraphSpacing => m_paragraphSpacing;
 		public ApplicableValue<System.Single> CharacterWidthAdjustment => m_characterWidthAdjustment;
-		public ApplicableValue<System.Boolean> EnableWordWrapping => m_enableWordWrapping;
-		public ApplicableValue<System.Single> WordWrappingRatios => m_wordWrappingRatios;
-		public ApplicableValue<TMPro.TextOverflowModes> OverflowMode => m_overflowMode;
-		public ApplicableValue<TMPro.TMP_Text> LinkedTextComponent => m_linkedTextComponent;
-		public ApplicableValue<System.Boolean> EnableKerning => m_enableKerning;
 		public ApplicableValue<System.Boolean> ExtraPadding => m_extraPadding;
-		public ApplicableValue<System.Boolean> RichText => m_richText;
-		public ApplicableValue<System.Boolean> ParseCtrlCharacters => m_parseCtrlCharacters;
-		public ApplicableValue<System.Boolean> IsOverlay => m_isOverlay;
-		public ApplicableValue<System.Boolean> IsOrthographic => m_isOrthographic;
-		public ApplicableValue<System.Boolean> EnableCulling => m_enableCulling;
-		public ApplicableValue<System.Boolean> IgnoreVisibility => m_ignoreVisibility;
-		public ApplicableValue<TMPro.TextureMappingOptions> HorizontalMapping => m_horizontalMapping;
-		public ApplicableValue<TMPro.TextureMappingOptions> VerticalMapping => m_verticalMapping;
-		public ApplicableValue<System.Single> MappingUvLineOffset => m_mappingUvLineOffset;
-		public ApplicableValue<TMPro.TextRenderFlags> RenderMode => m_renderMode;
-		public ApplicableValue<TMPro.VertexSortingOrder> GeometrySortingOrder => m_geometrySortingOrder;
-		public ApplicableValue<System.Boolean> IsTextObjectScaleStatic => m_isTextObjectScaleStatic;
-		public ApplicableValue<System.Boolean> VertexBufferAutoSizeReduction => m_vertexBufferAutoSizeReduction;
-		public ApplicableValue<System.Int32> FirstVisibleCharacter => m_firstVisibleCharacter;
-		public ApplicableValue<System.Int32> MaxVisibleCharacters => m_maxVisibleCharacters;
-		public ApplicableValue<System.Int32> MaxVisibleWords => m_maxVisibleWords;
-		public ApplicableValue<System.Int32> MaxVisibleLines => m_maxVisibleLines;
-		public ApplicableValue<System.Boolean> UseMaxVisibleDescender => m_useMaxVisibleDescender;
-		public ApplicableValue<System.Int32> PageToDisplay => m_pageToDisplay;
 		public ApplicableValue<UnityEngine.Vector4> Margin => m_margin;
-		public ApplicableValue<System.Boolean> HavePropertiesChanged => m_havePropertiesChanged;
-		public ApplicableValue<System.Boolean> IsUsingLegacyAnimationComponent => m_isUsingLegacyAnimationComponent;
-		public ApplicableValue<System.Boolean> AutoSizeTextContainer => m_autoSizeTextContainer;
-		public ApplicableValue<System.Boolean> IsVolumetricText => m_isVolumetricText;
-		public ApplicableValue<System.Boolean> Maskable => m_maskable;
-		public ApplicableValue<System.Boolean> IsMaskingGraphic => m_isMaskingGraphic;
-		public ApplicableValue<System.Boolean> RaycastTarget => m_raycastTarget;
-		public ApplicableValue<UnityEngine.Vector4> RaycastPadding => m_raycastPadding;
 		public ApplicableValue<UnityEngine.Material> Material => m_material;
 	}
 }

@@ -16,43 +16,43 @@
             "TypeName": "Sprite"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "type",
             "QualifiedTypeName": "UnityEngine.UI.Image.Type",
             "TypeName": "Type"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "preserveAspect",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "fillCenter",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "fillMethod",
             "QualifiedTypeName": "UnityEngine.UI.Image.FillMethod",
             "TypeName": "FillMethod"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "fillAmount",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "fillClockwise",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "fillOrigin",
             "QualifiedTypeName": "System.Int32",
             "TypeName": "Int32"
@@ -70,7 +70,7 @@
             "TypeName": "Single"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "useSpriteMesh",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -94,13 +94,13 @@
             "TypeName": "CullStateChangedEvent"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "maskable",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "isMaskingGraphic",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
