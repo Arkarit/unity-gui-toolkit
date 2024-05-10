@@ -33,7 +33,7 @@ namespace GuiToolkit.Style
 
 		public abstract void Apply();
 
-		public abstract UiAbstractStyleBase CreateStyle(string _name);
+		public abstract UiAbstractStyleBase CreateStyle(string _name, UiAbstractStyleBase _template = null);
 
 		public string Name
 		{

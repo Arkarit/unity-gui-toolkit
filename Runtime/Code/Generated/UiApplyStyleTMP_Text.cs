@@ -81,7 +81,7 @@ namespace GuiToolkit.Style
 				try { SpecificMonoBehaviour.material = SpecificStyle.Material.Value; } catch {}
 		}
 
-		public override UiAbstractStyleBase CreateStyle(string _name)
+		public override UiAbstractStyleBase CreateStyle(string _name, UiAbstractStyleBase _template = null)
 		{
 			UiStyleTMP_Text result = new UiStyleTMP_Text();
 
@@ -89,6 +89,83 @@ namespace GuiToolkit.Style
 				return result;
 
 			result.Name = _name;
+
+			if (_template != null)
+			{
+				var specificTemplate = (UiStyleTMP_Text) _template;
+
+				result.Font.Value = specificTemplate.Font.Value;
+				result.Font.IsApplicable = specificTemplate.Font.IsApplicable;
+				result.FontSharedMaterial.Value = specificTemplate.FontSharedMaterial.Value;
+				result.FontSharedMaterial.IsApplicable = specificTemplate.FontSharedMaterial.IsApplicable;
+				result.FontSharedMaterials.Value = specificTemplate.FontSharedMaterials.Value;
+				result.FontSharedMaterials.IsApplicable = specificTemplate.FontSharedMaterials.IsApplicable;
+				result.FontMaterial.Value = specificTemplate.FontMaterial.Value;
+				result.FontMaterial.IsApplicable = specificTemplate.FontMaterial.IsApplicable;
+				result.FontMaterials.Value = specificTemplate.FontMaterials.Value;
+				result.FontMaterials.IsApplicable = specificTemplate.FontMaterials.IsApplicable;
+				result.Color.Value = specificTemplate.Color.Value;
+				result.Color.IsApplicable = specificTemplate.Color.IsApplicable;
+				result.Alpha.Value = specificTemplate.Alpha.Value;
+				result.Alpha.IsApplicable = specificTemplate.Alpha.IsApplicable;
+				result.EnableVertexGradient.Value = specificTemplate.EnableVertexGradient.Value;
+				result.EnableVertexGradient.IsApplicable = specificTemplate.EnableVertexGradient.IsApplicable;
+				result.ColorGradient.Value = specificTemplate.ColorGradient.Value;
+				result.ColorGradient.IsApplicable = specificTemplate.ColorGradient.IsApplicable;
+				result.ColorGradientPreset.Value = specificTemplate.ColorGradientPreset.Value;
+				result.ColorGradientPreset.IsApplicable = specificTemplate.ColorGradientPreset.IsApplicable;
+				result.SpriteAsset.Value = specificTemplate.SpriteAsset.Value;
+				result.SpriteAsset.IsApplicable = specificTemplate.SpriteAsset.IsApplicable;
+				result.StyleSheet.Value = specificTemplate.StyleSheet.Value;
+				result.StyleSheet.IsApplicable = specificTemplate.StyleSheet.IsApplicable;
+				result.TextStyle.Value = specificTemplate.TextStyle.Value;
+				result.TextStyle.IsApplicable = specificTemplate.TextStyle.IsApplicable;
+				result.OverrideColorTags.Value = specificTemplate.OverrideColorTags.Value;
+				result.OverrideColorTags.IsApplicable = specificTemplate.OverrideColorTags.IsApplicable;
+				result.FaceColor.Value = specificTemplate.FaceColor.Value;
+				result.FaceColor.IsApplicable = specificTemplate.FaceColor.IsApplicable;
+				result.OutlineColor.Value = specificTemplate.OutlineColor.Value;
+				result.OutlineColor.IsApplicable = specificTemplate.OutlineColor.IsApplicable;
+				result.OutlineWidth.Value = specificTemplate.OutlineWidth.Value;
+				result.OutlineWidth.IsApplicable = specificTemplate.OutlineWidth.IsApplicable;
+				result.FontSize.Value = specificTemplate.FontSize.Value;
+				result.FontSize.IsApplicable = specificTemplate.FontSize.IsApplicable;
+				result.FontWeight.Value = specificTemplate.FontWeight.Value;
+				result.FontWeight.IsApplicable = specificTemplate.FontWeight.IsApplicable;
+				result.FontSizeMin.Value = specificTemplate.FontSizeMin.Value;
+				result.FontSizeMin.IsApplicable = specificTemplate.FontSizeMin.IsApplicable;
+				result.FontSizeMax.Value = specificTemplate.FontSizeMax.Value;
+				result.FontSizeMax.IsApplicable = specificTemplate.FontSizeMax.IsApplicable;
+				result.FontStyle.Value = specificTemplate.FontStyle.Value;
+				result.FontStyle.IsApplicable = specificTemplate.FontStyle.IsApplicable;
+				result.HorizontalAlignment.Value = specificTemplate.HorizontalAlignment.Value;
+				result.HorizontalAlignment.IsApplicable = specificTemplate.HorizontalAlignment.IsApplicable;
+				result.VerticalAlignment.Value = specificTemplate.VerticalAlignment.Value;
+				result.VerticalAlignment.IsApplicable = specificTemplate.VerticalAlignment.IsApplicable;
+				result.Alignment.Value = specificTemplate.Alignment.Value;
+				result.Alignment.IsApplicable = specificTemplate.Alignment.IsApplicable;
+				result.CharacterSpacing.Value = specificTemplate.CharacterSpacing.Value;
+				result.CharacterSpacing.IsApplicable = specificTemplate.CharacterSpacing.IsApplicable;
+				result.WordSpacing.Value = specificTemplate.WordSpacing.Value;
+				result.WordSpacing.IsApplicable = specificTemplate.WordSpacing.IsApplicable;
+				result.LineSpacing.Value = specificTemplate.LineSpacing.Value;
+				result.LineSpacing.IsApplicable = specificTemplate.LineSpacing.IsApplicable;
+				result.LineSpacingAdjustment.Value = specificTemplate.LineSpacingAdjustment.Value;
+				result.LineSpacingAdjustment.IsApplicable = specificTemplate.LineSpacingAdjustment.IsApplicable;
+				result.ParagraphSpacing.Value = specificTemplate.ParagraphSpacing.Value;
+				result.ParagraphSpacing.IsApplicable = specificTemplate.ParagraphSpacing.IsApplicable;
+				result.CharacterWidthAdjustment.Value = specificTemplate.CharacterWidthAdjustment.Value;
+				result.CharacterWidthAdjustment.IsApplicable = specificTemplate.CharacterWidthAdjustment.IsApplicable;
+				result.ExtraPadding.Value = specificTemplate.ExtraPadding.Value;
+				result.ExtraPadding.IsApplicable = specificTemplate.ExtraPadding.IsApplicable;
+				result.Margin.Value = specificTemplate.Margin.Value;
+				result.Margin.IsApplicable = specificTemplate.Margin.IsApplicable;
+				result.Material.Value = specificTemplate.Material.Value;
+				result.Material.IsApplicable = specificTemplate.Material.IsApplicable;
+
+				return result;
+			}
+
 			try { result.Font.Value = SpecificMonoBehaviour.font; } catch {}
 			try { result.FontSharedMaterial.Value = SpecificMonoBehaviour.fontSharedMaterial; } catch {}
 			try { result.FontSharedMaterials.Value = SpecificMonoBehaviour.fontSharedMaterials; } catch {}

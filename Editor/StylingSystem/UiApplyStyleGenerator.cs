@@ -156,12 +156,28 @@ namespace GuiToolkit
 		}
 
 		// Format string:
+		// 0: member name, starting with upper char
+		private const string MemberCopyInstructionsTemplate =
+			  "				result.{0}.Value = specificTemplate.{0}.Value;\n" 
+			+ "				result.{0}.IsApplicable = specificTemplate.{0}.IsApplicable;\n";
+		private string GetMemberCopyInstructionsString(string _memberName)
+		{
+			return string.Format
+			(
+				MemberCopyInstructionsTemplate,
+				UpperFirstChar(_memberName)
+			);
+		}
+
+
+		// Format string:
 		// 0: Namespace
 		// 1: Prefix
 		// 2: Short type name
 		// 3: Qualified type name
 		// 4: Apply instructions (starting with 3 tabs)
 		// 5: Preset instructions (starting with 3 tabs)
+		// 6: Member copy instructions (starting with 4 tabs)
 		private const string ApplyStyleTemplate =
 			GeneratedWarningComment
 			+ "using UnityEngine;\n"
@@ -180,7 +196,7 @@ namespace GuiToolkit
 			+ "{4}"
 			+ "		}}\n"
 			+ "\n"
-			+ "		public override UiAbstractStyleBase CreateStyle(string _name)\n"
+			+ "		public override UiAbstractStyleBase CreateStyle(string _name, UiAbstractStyleBase _template = null)\n"
 			+ "		{{\n"
 			+ "			UiStyle{1}{2} result = new UiStyle{1}{2}();\n"
 			+ "\n"
@@ -188,12 +204,22 @@ namespace GuiToolkit
 			+ "				return result;\n"
 			+ "\n"
 			+ "			result.Name = _name;\n"
+			+ "\n"
+			+ "			if (_template != null)\n" 
+			+ "			{{\n" 
+			+ "				var specificTemplate = (UiStyle{1}{2}) _template;\n" 
+			+ "\n"
+			+ "{6}\n"
+			+ "				return result;\n" 
+			+ "			}}\n" 
+			+ "\n"
 			+ "{5}\n"
 			+ "			return result;\n"
 			+ "		}}\n"
 			+ "	}}\n"
 			+ "}}\n";
-		private string GetApplyStyleString(string _namespace, string _prefix, string _typeName, string _qualifiedTypeName, string _applyInstructions, string _presetInstructions)
+
+		private string GetApplyStyleString(string _namespace, string _prefix, string _typeName, string _qualifiedTypeName, string _applyInstructions, string _presetInstructions, string _memberCopyInstructions)
 		{
 			return string.Format
 			(
@@ -203,7 +229,8 @@ namespace GuiToolkit
 				_typeName,
 				_qualifiedTypeName,
 				_applyInstructions,
-				_presetInstructions
+				_presetInstructions,
+				_memberCopyInstructions
 			);
 		}
 		#endregion
@@ -543,6 +570,7 @@ namespace GuiToolkit
 		{
 			string applyInstructions = string.Empty;
 			string presetInstructions = string.Empty;
+			string memberCopyInstructions = string.Empty;
 
 			foreach (var propertyRecord in m_PropertyRecords)
 			{
@@ -554,6 +582,7 @@ namespace GuiToolkit
 
 				applyInstructions += GetApplyInstructionString(memberName);
 				presetInstructions += GetPresetInstructionString(memberName);
+				memberCopyInstructions += GetMemberCopyInstructionsString(memberName);
 			}
 
 			string namespaceStr = m_namespace;
@@ -562,7 +591,7 @@ namespace GuiToolkit
 			string qualifiedTypeName = m_monoBehaviourType.FullName;
 
 			return GetApplyStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
-				applyInstructions, presetInstructions);
+				applyInstructions, presetInstructions, memberCopyInstructions);
 		}
 
 		#endregion

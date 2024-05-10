@@ -307,7 +307,7 @@ GameObject:
   - component: {fileID: 74195718}
   - component: {fileID: 74195720}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: RedTextBig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -446,11 +446,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: RedText
   m_style:
-    rid: 6698005158595919877
+    rid: 6698005158595919898
   references:
     version: 2
     RefIds:
-    - rid: 6698005158595919877
+    - rid: 6698005158595919898
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: RedText
@@ -837,6 +837,7 @@ RectTransform:
   - {fileID: 1413050326}
   - {fileID: 565626639}
   - {fileID: 74195717}
+  - {fileID: 1348411447}
   m_Father: {fileID: 1633771935}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1581,6 +1582,114 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_autoTranslate: 1
+--- !u!21 &350708519
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: RammettoOne-Regular SDF Material (Instance)
+  m_Shader: {fileID: 4800000, guid: fe393ace9b354375a9cb14cdbbc28be4, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Cube:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FaceTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: -6284804877236761209, guid: 6496142350aa65d4b8e8811d85ed2006,
+          type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OutlineTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Ambient: 0.5
+    - _Bevel: 0.5
+    - _BevelClamp: 0
+    - _BevelOffset: 0
+    - _BevelRoundness: 0
+    - _BevelWidth: 0
+    - _BumpFace: 0
+    - _BumpOutline: 0
+    - _ColorMask: 15
+    - _Diffuse: 0.5
+    - _FaceDilate: 0
+    - _FaceUVSpeedX: 0
+    - _FaceUVSpeedY: 0
+    - _GlowInner: 0.05
+    - _GlowOffset: 0
+    - _GlowOuter: 0.05
+    - _GlowPower: 0.75
+    - _GradientScale: 6
+    - _LightAngle: 3.1416
+    - _MaskSoftnessX: 0
+    - _MaskSoftnessY: 0
+    - _OutlineSoftness: 0
+    - _OutlineUVSpeedX: 0
+    - _OutlineUVSpeedY: 0
+    - _OutlineWidth: 0
+    - _PerspectiveFilter: 0.875
+    - _Reflectivity: 10
+    - _ScaleRatioA: 0.8333333
+    - _ScaleRatioB: 0.6770833
+    - _ScaleRatioC: 0.6473072
+    - _ScaleX: 1
+    - _ScaleY: 1
+    - _ShaderFlags: 0
+    - _Sharpness: 0
+    - _SpecularPower: 2
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _TextureHeight: 1024
+    - _TextureWidth: 1024
+    - _UnderlayDilate: 0
+    - _UnderlayOffsetX: 0
+    - _UnderlayOffsetY: -0.741
+    - _UnderlaySoftness: 0.305
+    - _VertexOffsetX: 0
+    - _VertexOffsetY: 0
+    - _WeightBold: 0.75
+    - _WeightNormal: 0
+    m_Colors:
+    - _ClipRect: {r: -32767, g: -32767, b: 32767, a: 32767}
+    - _EnvMatrixRotation: {r: 0, g: 0, b: 0, a: 0}
+    - _FaceColor: {r: 1, g: 1, b: 1, a: 1}
+    - _GlowColor: {r: 0, g: 1, b: 0, a: 0.5}
+    - _MaskCoord: {r: 0, g: 0, b: 32767, a: 32767}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _ReflectFaceColor: {r: 0, g: 0, b: 0, a: 1}
+    - _ReflectOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+    - _UnderlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_BuildTextureStacks: []
 --- !u!1 &386835045
 GameObject:
   m_ObjectHideFlags: 0
@@ -1805,11 +1914,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: RedCheckmark
   m_style:
-    rid: 6698005158595919888
+    rid: 6698005158595919901
   references:
     version: 2
     RefIds:
-    - rid: 6698005158595919888
+    - rid: 6698005158595919901
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: RedCheckmark
@@ -2409,11 +2518,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: GreenCheckmark
   m_style:
-    rid: 6698005158595919886
+    rid: 6698005158595919899
   references:
     version: 2
     RefIds:
-    - rid: 6698005158595919886
+    - rid: 6698005158595919899
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: GreenCheckmark
@@ -3428,6 +3537,288 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Padding: {x: 0, y: 0, z: 0, w: 0}
   m_Softness: {x: 0, y: 0}
+--- !u!1 &1348411446
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1348411447}
+  - component: {fileID: 1348411450}
+  - component: {fileID: 1348411449}
+  - component: {fileID: 1348411448}
+  m_Layer: 5
+  m_Name: GreenTextSmall
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1348411447
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348411446}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 115596804}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -447, y: -367.4}
+  m_SizeDelta: {x: 239.15, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1348411448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348411446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9e2e905a7a820146a1c5ccff7d15bb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_name: GreenText
+  m_style:
+    rid: 6698005158595919897
+  references:
+    version: 2
+    RefIds:
+    - rid: 6698005158595919897
+      type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: GreenText
+        m_key: -1556520607
+        m_font:
+          IsApplicable: 0
+          Value: {fileID: 11400000, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
+        m_fontSharedMaterial:
+          IsApplicable: 0
+          Value: {fileID: -45881750512593306, guid: 6496142350aa65d4b8e8811d85ed2006,
+            type: 2}
+        m_fontSharedMaterials:
+          IsApplicable: 0
+          Value:
+          - {fileID: -45881750512593306, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
+        m_fontMaterial:
+          IsApplicable: 0
+          Value: {fileID: 350708519}
+        m_fontMaterials:
+          IsApplicable: 0
+          Value:
+          - {fileID: -45881750512593306, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
+        m_color:
+          IsApplicable: 0
+          Value: {r: 0.5849056, g: 0, b: 0, a: 1}
+        m_alpha:
+          IsApplicable: 0
+          Value: 1
+        m_enableVertexGradient:
+          IsApplicable: 0
+          Value: 0
+        m_colorGradient:
+          IsApplicable: 0
+          Value:
+            topLeft: {r: 1, g: 1, b: 1, a: 1}
+            topRight: {r: 1, g: 1, b: 1, a: 1}
+            bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+            bottomRight: {r: 1, g: 1, b: 1, a: 1}
+        m_colorGradientPreset:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_spriteAsset:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_styleSheet:
+          IsApplicable: 0
+          Value: {fileID: 0}
+        m_textStyle:
+          IsApplicable: 0
+          Value:
+            m_Name: Normal
+            m_HashCode: -1183493901
+            m_OpeningDefinition: 
+            m_ClosingDefinition: 
+            m_OpeningTagArray: 
+            m_ClosingTagArray: 
+            m_OpeningTagUnicodeArray: 
+            m_ClosingTagUnicodeArray: 
+        m_overrideColorTags:
+          IsApplicable: 0
+          Value: 0
+        m_faceColor:
+          IsApplicable: 0
+          Value:
+            serializedVersion: 2
+            rgba: 4294967295
+        m_outlineColor:
+          IsApplicable: 0
+          Value:
+            serializedVersion: 2
+            rgba: 4278190080
+        m_outlineWidth:
+          IsApplicable: 0
+          Value: 0
+        m_fontSize:
+          IsApplicable: 0
+          Value: 36
+        m_fontWeight:
+          IsApplicable: 0
+          Value: 400
+        m_fontSizeMin:
+          IsApplicable: 0
+          Value: 18
+        m_fontSizeMax:
+          IsApplicable: 0
+          Value: 72
+        m_fontStyle:
+          IsApplicable: 0
+          Value: 0
+        m_horizontalAlignment:
+          IsApplicable: 0
+          Value: 1
+        m_verticalAlignment:
+          IsApplicable: 0
+          Value: 256
+        m_alignment:
+          IsApplicable: 0
+          Value: 257
+        m_characterSpacing:
+          IsApplicable: 0
+          Value: 0
+        m_wordSpacing:
+          IsApplicable: 0
+          Value: 0
+        m_lineSpacing:
+          IsApplicable: 0
+          Value: 0
+        m_lineSpacingAdjustment:
+          IsApplicable: 0
+          Value: 0
+        m_paragraphSpacing:
+          IsApplicable: 0
+          Value: 0
+        m_characterWidthAdjustment:
+          IsApplicable: 0
+          Value: 0
+        m_extraPadding:
+          IsApplicable: 0
+          Value: 0
+        m_margin:
+          IsApplicable: 0
+          Value: {x: 0, y: 0, z: 0, w: 0}
+        m_material:
+          IsApplicable: 0
+          Value: {fileID: 0}
+--- !u!114 &1348411449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348411446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: New Text
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
+  m_sharedMaterial: {fileID: -45881750512593306, guid: 6496142350aa65d4b8e8811d85ed2006,
+    type: 2}
+  m_fontSharedMaterials:
+  - {fileID: -45881750512593306, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
+  m_fontMaterial: {fileID: 350708519}
+  m_fontMaterials:
+  - {fileID: -45881750512593306, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4278190229
+  m_fontColor: {r: 0.5849056, g: 0, b: 0, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 36
+  m_fontSizeBase: 36
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_enableWordWrapping: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 1
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1348411450
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348411446}
+  m_CullTransparentMesh: 1
 --- !u!1 &1413050325
 GameObject:
   m_ObjectHideFlags: 0
@@ -3518,11 +3909,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: fgdsgsdg
   m_style:
-    rid: 6698005158595919887
+    rid: 6698005158595919900
   references:
     version: 2
     RefIds:
-    - rid: 6698005158595919887
+    - rid: 6698005158595919900
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: fgdsgsdg
