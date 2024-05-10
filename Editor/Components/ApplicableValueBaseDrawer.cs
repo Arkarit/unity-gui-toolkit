@@ -59,7 +59,7 @@ namespace GuiToolkit.Editor
 					new Rect(_position.x + EditorGUIUtility.labelWidth, _position.y, _position.width - EditorGUIUtility.labelWidth, _position.height), 
 					valueProp, 
 					new GUIContent(),
-					valueProp.isExpanded
+					valueProp.isExpanded && valueProp.hasChildren
 				);
 			}
 
@@ -80,7 +80,7 @@ namespace GuiToolkit.Editor
 				return EditorGUIUtility.singleLineHeight;
 
 			var valueProp = _property.FindPropertyRelative("Value");
-			return EditorGUI.GetPropertyHeight(valueProp, valueProp.isExpanded);
+			return EditorGUI.GetPropertyHeight(valueProp, valueProp.isExpanded && valueProp.hasChildren);
 		}
 	}
 }
