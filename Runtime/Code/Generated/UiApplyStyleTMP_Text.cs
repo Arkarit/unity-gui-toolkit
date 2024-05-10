@@ -11,144 +11,144 @@ namespace GuiToolkit.Style
 			if (!SpecificMonoBehaviour || SpecificStyle == null)
 				return;
 
-			if (SpecificStyle.IsRightToLeftText.IsApplicable);
-				SpecificMonoBehaviour.isRightToLeftText = SpecificStyle.IsRightToLeftText.Value;
-			if (SpecificStyle.Font.IsApplicable);
-				SpecificMonoBehaviour.font = SpecificStyle.Font.Value;
-			if (SpecificStyle.FontSharedMaterial.IsApplicable);
-				SpecificMonoBehaviour.fontSharedMaterial = SpecificStyle.FontSharedMaterial.Value;
-			if (SpecificStyle.FontSharedMaterials.IsApplicable);
-				SpecificMonoBehaviour.fontSharedMaterials = SpecificStyle.FontSharedMaterials.Value;
-			if (SpecificStyle.FontMaterial.IsApplicable);
-				SpecificMonoBehaviour.fontMaterial = SpecificStyle.FontMaterial.Value;
-			if (SpecificStyle.FontMaterials.IsApplicable);
-				SpecificMonoBehaviour.fontMaterials = SpecificStyle.FontMaterials.Value;
-			if (SpecificStyle.Color.IsApplicable);
-				SpecificMonoBehaviour.color = SpecificStyle.Color.Value;
-			if (SpecificStyle.Alpha.IsApplicable);
-				SpecificMonoBehaviour.alpha = SpecificStyle.Alpha.Value;
-			if (SpecificStyle.EnableVertexGradient.IsApplicable);
-				SpecificMonoBehaviour.enableVertexGradient = SpecificStyle.EnableVertexGradient.Value;
-			if (SpecificStyle.ColorGradient.IsApplicable);
-				SpecificMonoBehaviour.colorGradient = SpecificStyle.ColorGradient.Value;
-			if (SpecificStyle.ColorGradientPreset.IsApplicable);
-				SpecificMonoBehaviour.colorGradientPreset = SpecificStyle.ColorGradientPreset.Value;
-			if (SpecificStyle.SpriteAsset.IsApplicable);
-				SpecificMonoBehaviour.spriteAsset = SpecificStyle.SpriteAsset.Value;
-			if (SpecificStyle.TintAllSprites.IsApplicable);
-				SpecificMonoBehaviour.tintAllSprites = SpecificStyle.TintAllSprites.Value;
-			if (SpecificStyle.StyleSheet.IsApplicable);
-				SpecificMonoBehaviour.styleSheet = SpecificStyle.StyleSheet.Value;
-			if (SpecificStyle.TextStyle.IsApplicable);
-				SpecificMonoBehaviour.textStyle = SpecificStyle.TextStyle.Value;
-			if (SpecificStyle.OverrideColorTags.IsApplicable);
-				SpecificMonoBehaviour.overrideColorTags = SpecificStyle.OverrideColorTags.Value;
-			if (SpecificStyle.FaceColor.IsApplicable);
-				SpecificMonoBehaviour.faceColor = SpecificStyle.FaceColor.Value;
-			if (SpecificStyle.OutlineColor.IsApplicable);
-				SpecificMonoBehaviour.outlineColor = SpecificStyle.OutlineColor.Value;
-			if (SpecificStyle.OutlineWidth.IsApplicable);
-				SpecificMonoBehaviour.outlineWidth = SpecificStyle.OutlineWidth.Value;
-			if (SpecificStyle.FontSize.IsApplicable);
-				SpecificMonoBehaviour.fontSize = SpecificStyle.FontSize.Value;
-			if (SpecificStyle.FontWeight.IsApplicable);
-				SpecificMonoBehaviour.fontWeight = SpecificStyle.FontWeight.Value;
-			if (SpecificStyle.EnableAutoSizing.IsApplicable);
-				SpecificMonoBehaviour.enableAutoSizing = SpecificStyle.EnableAutoSizing.Value;
-			if (SpecificStyle.FontSizeMin.IsApplicable);
-				SpecificMonoBehaviour.fontSizeMin = SpecificStyle.FontSizeMin.Value;
-			if (SpecificStyle.FontSizeMax.IsApplicable);
-				SpecificMonoBehaviour.fontSizeMax = SpecificStyle.FontSizeMax.Value;
-			if (SpecificStyle.FontStyle.IsApplicable);
-				SpecificMonoBehaviour.fontStyle = SpecificStyle.FontStyle.Value;
-			if (SpecificStyle.HorizontalAlignment.IsApplicable);
-				SpecificMonoBehaviour.horizontalAlignment = SpecificStyle.HorizontalAlignment.Value;
-			if (SpecificStyle.VerticalAlignment.IsApplicable);
-				SpecificMonoBehaviour.verticalAlignment = SpecificStyle.VerticalAlignment.Value;
-			if (SpecificStyle.Alignment.IsApplicable);
-				SpecificMonoBehaviour.alignment = SpecificStyle.Alignment.Value;
-			if (SpecificStyle.CharacterSpacing.IsApplicable);
-				SpecificMonoBehaviour.characterSpacing = SpecificStyle.CharacterSpacing.Value;
-			if (SpecificStyle.WordSpacing.IsApplicable);
-				SpecificMonoBehaviour.wordSpacing = SpecificStyle.WordSpacing.Value;
-			if (SpecificStyle.LineSpacing.IsApplicable);
-				SpecificMonoBehaviour.lineSpacing = SpecificStyle.LineSpacing.Value;
-			if (SpecificStyle.LineSpacingAdjustment.IsApplicable);
-				SpecificMonoBehaviour.lineSpacingAdjustment = SpecificStyle.LineSpacingAdjustment.Value;
-			if (SpecificStyle.ParagraphSpacing.IsApplicable);
-				SpecificMonoBehaviour.paragraphSpacing = SpecificStyle.ParagraphSpacing.Value;
-			if (SpecificStyle.CharacterWidthAdjustment.IsApplicable);
-				SpecificMonoBehaviour.characterWidthAdjustment = SpecificStyle.CharacterWidthAdjustment.Value;
-			if (SpecificStyle.EnableWordWrapping.IsApplicable);
-				SpecificMonoBehaviour.enableWordWrapping = SpecificStyle.EnableWordWrapping.Value;
-			if (SpecificStyle.WordWrappingRatios.IsApplicable);
-				SpecificMonoBehaviour.wordWrappingRatios = SpecificStyle.WordWrappingRatios.Value;
-			if (SpecificStyle.OverflowMode.IsApplicable);
-				SpecificMonoBehaviour.overflowMode = SpecificStyle.OverflowMode.Value;
-			if (SpecificStyle.LinkedTextComponent.IsApplicable);
-				SpecificMonoBehaviour.linkedTextComponent = SpecificStyle.LinkedTextComponent.Value;
-			if (SpecificStyle.EnableKerning.IsApplicable);
-				SpecificMonoBehaviour.enableKerning = SpecificStyle.EnableKerning.Value;
-			if (SpecificStyle.ExtraPadding.IsApplicable);
-				SpecificMonoBehaviour.extraPadding = SpecificStyle.ExtraPadding.Value;
-			if (SpecificStyle.RichText.IsApplicable);
-				SpecificMonoBehaviour.richText = SpecificStyle.RichText.Value;
-			if (SpecificStyle.ParseCtrlCharacters.IsApplicable);
-				SpecificMonoBehaviour.parseCtrlCharacters = SpecificStyle.ParseCtrlCharacters.Value;
-			if (SpecificStyle.IsOverlay.IsApplicable);
-				SpecificMonoBehaviour.isOverlay = SpecificStyle.IsOverlay.Value;
-			if (SpecificStyle.IsOrthographic.IsApplicable);
-				SpecificMonoBehaviour.isOrthographic = SpecificStyle.IsOrthographic.Value;
-			if (SpecificStyle.EnableCulling.IsApplicable);
-				SpecificMonoBehaviour.enableCulling = SpecificStyle.EnableCulling.Value;
-			if (SpecificStyle.IgnoreVisibility.IsApplicable);
-				SpecificMonoBehaviour.ignoreVisibility = SpecificStyle.IgnoreVisibility.Value;
-			if (SpecificStyle.HorizontalMapping.IsApplicable);
-				SpecificMonoBehaviour.horizontalMapping = SpecificStyle.HorizontalMapping.Value;
-			if (SpecificStyle.VerticalMapping.IsApplicable);
-				SpecificMonoBehaviour.verticalMapping = SpecificStyle.VerticalMapping.Value;
-			if (SpecificStyle.MappingUvLineOffset.IsApplicable);
-				SpecificMonoBehaviour.mappingUvLineOffset = SpecificStyle.MappingUvLineOffset.Value;
-			if (SpecificStyle.RenderMode.IsApplicable);
-				SpecificMonoBehaviour.renderMode = SpecificStyle.RenderMode.Value;
-			if (SpecificStyle.GeometrySortingOrder.IsApplicable);
-				SpecificMonoBehaviour.geometrySortingOrder = SpecificStyle.GeometrySortingOrder.Value;
-			if (SpecificStyle.IsTextObjectScaleStatic.IsApplicable);
-				SpecificMonoBehaviour.isTextObjectScaleStatic = SpecificStyle.IsTextObjectScaleStatic.Value;
-			if (SpecificStyle.VertexBufferAutoSizeReduction.IsApplicable);
-				SpecificMonoBehaviour.vertexBufferAutoSizeReduction = SpecificStyle.VertexBufferAutoSizeReduction.Value;
-			if (SpecificStyle.FirstVisibleCharacter.IsApplicable);
-				SpecificMonoBehaviour.firstVisibleCharacter = SpecificStyle.FirstVisibleCharacter.Value;
-			if (SpecificStyle.MaxVisibleCharacters.IsApplicable);
-				SpecificMonoBehaviour.maxVisibleCharacters = SpecificStyle.MaxVisibleCharacters.Value;
-			if (SpecificStyle.MaxVisibleWords.IsApplicable);
-				SpecificMonoBehaviour.maxVisibleWords = SpecificStyle.MaxVisibleWords.Value;
-			if (SpecificStyle.MaxVisibleLines.IsApplicable);
-				SpecificMonoBehaviour.maxVisibleLines = SpecificStyle.MaxVisibleLines.Value;
-			if (SpecificStyle.UseMaxVisibleDescender.IsApplicable);
-				SpecificMonoBehaviour.useMaxVisibleDescender = SpecificStyle.UseMaxVisibleDescender.Value;
-			if (SpecificStyle.PageToDisplay.IsApplicable);
-				SpecificMonoBehaviour.pageToDisplay = SpecificStyle.PageToDisplay.Value;
-			if (SpecificStyle.Margin.IsApplicable);
-				SpecificMonoBehaviour.margin = SpecificStyle.Margin.Value;
-			if (SpecificStyle.HavePropertiesChanged.IsApplicable);
-				SpecificMonoBehaviour.havePropertiesChanged = SpecificStyle.HavePropertiesChanged.Value;
-			if (SpecificStyle.IsUsingLegacyAnimationComponent.IsApplicable);
-				SpecificMonoBehaviour.isUsingLegacyAnimationComponent = SpecificStyle.IsUsingLegacyAnimationComponent.Value;
-			if (SpecificStyle.AutoSizeTextContainer.IsApplicable);
-				SpecificMonoBehaviour.autoSizeTextContainer = SpecificStyle.AutoSizeTextContainer.Value;
-			if (SpecificStyle.IsVolumetricText.IsApplicable);
-				SpecificMonoBehaviour.isVolumetricText = SpecificStyle.IsVolumetricText.Value;
-			if (SpecificStyle.Maskable.IsApplicable);
-				SpecificMonoBehaviour.maskable = SpecificStyle.Maskable.Value;
-			if (SpecificStyle.IsMaskingGraphic.IsApplicable);
-				SpecificMonoBehaviour.isMaskingGraphic = SpecificStyle.IsMaskingGraphic.Value;
-			if (SpecificStyle.RaycastTarget.IsApplicable);
-				SpecificMonoBehaviour.raycastTarget = SpecificStyle.RaycastTarget.Value;
-			if (SpecificStyle.RaycastPadding.IsApplicable);
-				SpecificMonoBehaviour.raycastPadding = SpecificStyle.RaycastPadding.Value;
-			if (SpecificStyle.Material.IsApplicable);
-				SpecificMonoBehaviour.material = SpecificStyle.Material.Value;
+			if (SpecificStyle.IsRightToLeftText.IsApplicable)
+				try { SpecificMonoBehaviour.isRightToLeftText = SpecificStyle.IsRightToLeftText.Value; } catch {}
+			if (SpecificStyle.Font.IsApplicable)
+				try { SpecificMonoBehaviour.font = SpecificStyle.Font.Value; } catch {}
+			if (SpecificStyle.FontSharedMaterial.IsApplicable)
+				try { SpecificMonoBehaviour.fontSharedMaterial = SpecificStyle.FontSharedMaterial.Value; } catch {}
+			if (SpecificStyle.FontSharedMaterials.IsApplicable)
+				try { SpecificMonoBehaviour.fontSharedMaterials = SpecificStyle.FontSharedMaterials.Value; } catch {}
+			if (SpecificStyle.FontMaterial.IsApplicable)
+				try { SpecificMonoBehaviour.fontMaterial = SpecificStyle.FontMaterial.Value; } catch {}
+			if (SpecificStyle.FontMaterials.IsApplicable)
+				try { SpecificMonoBehaviour.fontMaterials = SpecificStyle.FontMaterials.Value; } catch {}
+			if (SpecificStyle.Color.IsApplicable)
+				try { SpecificMonoBehaviour.color = SpecificStyle.Color.Value; } catch {}
+			if (SpecificStyle.Alpha.IsApplicable)
+				try { SpecificMonoBehaviour.alpha = SpecificStyle.Alpha.Value; } catch {}
+			if (SpecificStyle.EnableVertexGradient.IsApplicable)
+				try { SpecificMonoBehaviour.enableVertexGradient = SpecificStyle.EnableVertexGradient.Value; } catch {}
+			if (SpecificStyle.ColorGradient.IsApplicable)
+				try { SpecificMonoBehaviour.colorGradient = SpecificStyle.ColorGradient.Value; } catch {}
+			if (SpecificStyle.ColorGradientPreset.IsApplicable)
+				try { SpecificMonoBehaviour.colorGradientPreset = SpecificStyle.ColorGradientPreset.Value; } catch {}
+			if (SpecificStyle.SpriteAsset.IsApplicable)
+				try { SpecificMonoBehaviour.spriteAsset = SpecificStyle.SpriteAsset.Value; } catch {}
+			if (SpecificStyle.TintAllSprites.IsApplicable)
+				try { SpecificMonoBehaviour.tintAllSprites = SpecificStyle.TintAllSprites.Value; } catch {}
+			if (SpecificStyle.StyleSheet.IsApplicable)
+				try { SpecificMonoBehaviour.styleSheet = SpecificStyle.StyleSheet.Value; } catch {}
+			if (SpecificStyle.TextStyle.IsApplicable)
+				try { SpecificMonoBehaviour.textStyle = SpecificStyle.TextStyle.Value; } catch {}
+			if (SpecificStyle.OverrideColorTags.IsApplicable)
+				try { SpecificMonoBehaviour.overrideColorTags = SpecificStyle.OverrideColorTags.Value; } catch {}
+			if (SpecificStyle.FaceColor.IsApplicable)
+				try { SpecificMonoBehaviour.faceColor = SpecificStyle.FaceColor.Value; } catch {}
+			if (SpecificStyle.OutlineColor.IsApplicable)
+				try { SpecificMonoBehaviour.outlineColor = SpecificStyle.OutlineColor.Value; } catch {}
+			if (SpecificStyle.OutlineWidth.IsApplicable)
+				try { SpecificMonoBehaviour.outlineWidth = SpecificStyle.OutlineWidth.Value; } catch {}
+			if (SpecificStyle.FontSize.IsApplicable)
+				try { SpecificMonoBehaviour.fontSize = SpecificStyle.FontSize.Value; } catch {}
+			if (SpecificStyle.FontWeight.IsApplicable)
+				try { SpecificMonoBehaviour.fontWeight = SpecificStyle.FontWeight.Value; } catch {}
+			if (SpecificStyle.EnableAutoSizing.IsApplicable)
+				try { SpecificMonoBehaviour.enableAutoSizing = SpecificStyle.EnableAutoSizing.Value; } catch {}
+			if (SpecificStyle.FontSizeMin.IsApplicable)
+				try { SpecificMonoBehaviour.fontSizeMin = SpecificStyle.FontSizeMin.Value; } catch {}
+			if (SpecificStyle.FontSizeMax.IsApplicable)
+				try { SpecificMonoBehaviour.fontSizeMax = SpecificStyle.FontSizeMax.Value; } catch {}
+			if (SpecificStyle.FontStyle.IsApplicable)
+				try { SpecificMonoBehaviour.fontStyle = SpecificStyle.FontStyle.Value; } catch {}
+			if (SpecificStyle.HorizontalAlignment.IsApplicable)
+				try { SpecificMonoBehaviour.horizontalAlignment = SpecificStyle.HorizontalAlignment.Value; } catch {}
+			if (SpecificStyle.VerticalAlignment.IsApplicable)
+				try { SpecificMonoBehaviour.verticalAlignment = SpecificStyle.VerticalAlignment.Value; } catch {}
+			if (SpecificStyle.Alignment.IsApplicable)
+				try { SpecificMonoBehaviour.alignment = SpecificStyle.Alignment.Value; } catch {}
+			if (SpecificStyle.CharacterSpacing.IsApplicable)
+				try { SpecificMonoBehaviour.characterSpacing = SpecificStyle.CharacterSpacing.Value; } catch {}
+			if (SpecificStyle.WordSpacing.IsApplicable)
+				try { SpecificMonoBehaviour.wordSpacing = SpecificStyle.WordSpacing.Value; } catch {}
+			if (SpecificStyle.LineSpacing.IsApplicable)
+				try { SpecificMonoBehaviour.lineSpacing = SpecificStyle.LineSpacing.Value; } catch {}
+			if (SpecificStyle.LineSpacingAdjustment.IsApplicable)
+				try { SpecificMonoBehaviour.lineSpacingAdjustment = SpecificStyle.LineSpacingAdjustment.Value; } catch {}
+			if (SpecificStyle.ParagraphSpacing.IsApplicable)
+				try { SpecificMonoBehaviour.paragraphSpacing = SpecificStyle.ParagraphSpacing.Value; } catch {}
+			if (SpecificStyle.CharacterWidthAdjustment.IsApplicable)
+				try { SpecificMonoBehaviour.characterWidthAdjustment = SpecificStyle.CharacterWidthAdjustment.Value; } catch {}
+			if (SpecificStyle.EnableWordWrapping.IsApplicable)
+				try { SpecificMonoBehaviour.enableWordWrapping = SpecificStyle.EnableWordWrapping.Value; } catch {}
+			if (SpecificStyle.WordWrappingRatios.IsApplicable)
+				try { SpecificMonoBehaviour.wordWrappingRatios = SpecificStyle.WordWrappingRatios.Value; } catch {}
+			if (SpecificStyle.OverflowMode.IsApplicable)
+				try { SpecificMonoBehaviour.overflowMode = SpecificStyle.OverflowMode.Value; } catch {}
+			if (SpecificStyle.LinkedTextComponent.IsApplicable)
+				try { SpecificMonoBehaviour.linkedTextComponent = SpecificStyle.LinkedTextComponent.Value; } catch {}
+			if (SpecificStyle.EnableKerning.IsApplicable)
+				try { SpecificMonoBehaviour.enableKerning = SpecificStyle.EnableKerning.Value; } catch {}
+			if (SpecificStyle.ExtraPadding.IsApplicable)
+				try { SpecificMonoBehaviour.extraPadding = SpecificStyle.ExtraPadding.Value; } catch {}
+			if (SpecificStyle.RichText.IsApplicable)
+				try { SpecificMonoBehaviour.richText = SpecificStyle.RichText.Value; } catch {}
+			if (SpecificStyle.ParseCtrlCharacters.IsApplicable)
+				try { SpecificMonoBehaviour.parseCtrlCharacters = SpecificStyle.ParseCtrlCharacters.Value; } catch {}
+			if (SpecificStyle.IsOverlay.IsApplicable)
+				try { SpecificMonoBehaviour.isOverlay = SpecificStyle.IsOverlay.Value; } catch {}
+			if (SpecificStyle.IsOrthographic.IsApplicable)
+				try { SpecificMonoBehaviour.isOrthographic = SpecificStyle.IsOrthographic.Value; } catch {}
+			if (SpecificStyle.EnableCulling.IsApplicable)
+				try { SpecificMonoBehaviour.enableCulling = SpecificStyle.EnableCulling.Value; } catch {}
+			if (SpecificStyle.IgnoreVisibility.IsApplicable)
+				try { SpecificMonoBehaviour.ignoreVisibility = SpecificStyle.IgnoreVisibility.Value; } catch {}
+			if (SpecificStyle.HorizontalMapping.IsApplicable)
+				try { SpecificMonoBehaviour.horizontalMapping = SpecificStyle.HorizontalMapping.Value; } catch {}
+			if (SpecificStyle.VerticalMapping.IsApplicable)
+				try { SpecificMonoBehaviour.verticalMapping = SpecificStyle.VerticalMapping.Value; } catch {}
+			if (SpecificStyle.MappingUvLineOffset.IsApplicable)
+				try { SpecificMonoBehaviour.mappingUvLineOffset = SpecificStyle.MappingUvLineOffset.Value; } catch {}
+			if (SpecificStyle.RenderMode.IsApplicable)
+				try { SpecificMonoBehaviour.renderMode = SpecificStyle.RenderMode.Value; } catch {}
+			if (SpecificStyle.GeometrySortingOrder.IsApplicable)
+				try { SpecificMonoBehaviour.geometrySortingOrder = SpecificStyle.GeometrySortingOrder.Value; } catch {}
+			if (SpecificStyle.IsTextObjectScaleStatic.IsApplicable)
+				try { SpecificMonoBehaviour.isTextObjectScaleStatic = SpecificStyle.IsTextObjectScaleStatic.Value; } catch {}
+			if (SpecificStyle.VertexBufferAutoSizeReduction.IsApplicable)
+				try { SpecificMonoBehaviour.vertexBufferAutoSizeReduction = SpecificStyle.VertexBufferAutoSizeReduction.Value; } catch {}
+			if (SpecificStyle.FirstVisibleCharacter.IsApplicable)
+				try { SpecificMonoBehaviour.firstVisibleCharacter = SpecificStyle.FirstVisibleCharacter.Value; } catch {}
+			if (SpecificStyle.MaxVisibleCharacters.IsApplicable)
+				try { SpecificMonoBehaviour.maxVisibleCharacters = SpecificStyle.MaxVisibleCharacters.Value; } catch {}
+			if (SpecificStyle.MaxVisibleWords.IsApplicable)
+				try { SpecificMonoBehaviour.maxVisibleWords = SpecificStyle.MaxVisibleWords.Value; } catch {}
+			if (SpecificStyle.MaxVisibleLines.IsApplicable)
+				try { SpecificMonoBehaviour.maxVisibleLines = SpecificStyle.MaxVisibleLines.Value; } catch {}
+			if (SpecificStyle.UseMaxVisibleDescender.IsApplicable)
+				try { SpecificMonoBehaviour.useMaxVisibleDescender = SpecificStyle.UseMaxVisibleDescender.Value; } catch {}
+			if (SpecificStyle.PageToDisplay.IsApplicable)
+				try { SpecificMonoBehaviour.pageToDisplay = SpecificStyle.PageToDisplay.Value; } catch {}
+			if (SpecificStyle.Margin.IsApplicable)
+				try { SpecificMonoBehaviour.margin = SpecificStyle.Margin.Value; } catch {}
+			if (SpecificStyle.HavePropertiesChanged.IsApplicable)
+				try { SpecificMonoBehaviour.havePropertiesChanged = SpecificStyle.HavePropertiesChanged.Value; } catch {}
+			if (SpecificStyle.IsUsingLegacyAnimationComponent.IsApplicable)
+				try { SpecificMonoBehaviour.isUsingLegacyAnimationComponent = SpecificStyle.IsUsingLegacyAnimationComponent.Value; } catch {}
+			if (SpecificStyle.AutoSizeTextContainer.IsApplicable)
+				try { SpecificMonoBehaviour.autoSizeTextContainer = SpecificStyle.AutoSizeTextContainer.Value; } catch {}
+			if (SpecificStyle.IsVolumetricText.IsApplicable)
+				try { SpecificMonoBehaviour.isVolumetricText = SpecificStyle.IsVolumetricText.Value; } catch {}
+			if (SpecificStyle.Maskable.IsApplicable)
+				try { SpecificMonoBehaviour.maskable = SpecificStyle.Maskable.Value; } catch {}
+			if (SpecificStyle.IsMaskingGraphic.IsApplicable)
+				try { SpecificMonoBehaviour.isMaskingGraphic = SpecificStyle.IsMaskingGraphic.Value; } catch {}
+			if (SpecificStyle.RaycastTarget.IsApplicable)
+				try { SpecificMonoBehaviour.raycastTarget = SpecificStyle.RaycastTarget.Value; } catch {}
+			if (SpecificStyle.RaycastPadding.IsApplicable)
+				try { SpecificMonoBehaviour.raycastPadding = SpecificStyle.RaycastPadding.Value; } catch {}
+			if (SpecificStyle.Material.IsApplicable)
+				try { SpecificMonoBehaviour.material = SpecificStyle.Material.Value; } catch {}
 		}
 
 		public override UiAbstractStyleBase CreateStyle(string _name)
@@ -159,75 +159,75 @@ namespace GuiToolkit.Style
 				return result;
 
 			result.Name = _name;
-			result.IsRightToLeftText.Value = SpecificMonoBehaviour.isRightToLeftText;
-			result.Font.Value = SpecificMonoBehaviour.font;
-			result.FontSharedMaterial.Value = SpecificMonoBehaviour.fontSharedMaterial;
-			result.FontSharedMaterials.Value = SpecificMonoBehaviour.fontSharedMaterials;
-			result.FontMaterial.Value = SpecificMonoBehaviour.fontMaterial;
-			result.FontMaterials.Value = SpecificMonoBehaviour.fontMaterials;
-			result.Color.Value = SpecificMonoBehaviour.color;
-			result.Alpha.Value = SpecificMonoBehaviour.alpha;
-			result.EnableVertexGradient.Value = SpecificMonoBehaviour.enableVertexGradient;
-			result.ColorGradient.Value = SpecificMonoBehaviour.colorGradient;
-			result.ColorGradientPreset.Value = SpecificMonoBehaviour.colorGradientPreset;
-			result.SpriteAsset.Value = SpecificMonoBehaviour.spriteAsset;
-			result.TintAllSprites.Value = SpecificMonoBehaviour.tintAllSprites;
-			result.StyleSheet.Value = SpecificMonoBehaviour.styleSheet;
-			result.TextStyle.Value = SpecificMonoBehaviour.textStyle;
-			result.OverrideColorTags.Value = SpecificMonoBehaviour.overrideColorTags;
-			result.FaceColor.Value = SpecificMonoBehaviour.faceColor;
-			result.OutlineColor.Value = SpecificMonoBehaviour.outlineColor;
-			result.OutlineWidth.Value = SpecificMonoBehaviour.outlineWidth;
-			result.FontSize.Value = SpecificMonoBehaviour.fontSize;
-			result.FontWeight.Value = SpecificMonoBehaviour.fontWeight;
-			result.EnableAutoSizing.Value = SpecificMonoBehaviour.enableAutoSizing;
-			result.FontSizeMin.Value = SpecificMonoBehaviour.fontSizeMin;
-			result.FontSizeMax.Value = SpecificMonoBehaviour.fontSizeMax;
-			result.FontStyle.Value = SpecificMonoBehaviour.fontStyle;
-			result.HorizontalAlignment.Value = SpecificMonoBehaviour.horizontalAlignment;
-			result.VerticalAlignment.Value = SpecificMonoBehaviour.verticalAlignment;
-			result.Alignment.Value = SpecificMonoBehaviour.alignment;
-			result.CharacterSpacing.Value = SpecificMonoBehaviour.characterSpacing;
-			result.WordSpacing.Value = SpecificMonoBehaviour.wordSpacing;
-			result.LineSpacing.Value = SpecificMonoBehaviour.lineSpacing;
-			result.LineSpacingAdjustment.Value = SpecificMonoBehaviour.lineSpacingAdjustment;
-			result.ParagraphSpacing.Value = SpecificMonoBehaviour.paragraphSpacing;
-			result.CharacterWidthAdjustment.Value = SpecificMonoBehaviour.characterWidthAdjustment;
-			result.EnableWordWrapping.Value = SpecificMonoBehaviour.enableWordWrapping;
-			result.WordWrappingRatios.Value = SpecificMonoBehaviour.wordWrappingRatios;
-			result.OverflowMode.Value = SpecificMonoBehaviour.overflowMode;
-			result.LinkedTextComponent.Value = SpecificMonoBehaviour.linkedTextComponent;
-			result.EnableKerning.Value = SpecificMonoBehaviour.enableKerning;
-			result.ExtraPadding.Value = SpecificMonoBehaviour.extraPadding;
-			result.RichText.Value = SpecificMonoBehaviour.richText;
-			result.ParseCtrlCharacters.Value = SpecificMonoBehaviour.parseCtrlCharacters;
-			result.IsOverlay.Value = SpecificMonoBehaviour.isOverlay;
-			result.IsOrthographic.Value = SpecificMonoBehaviour.isOrthographic;
-			result.EnableCulling.Value = SpecificMonoBehaviour.enableCulling;
-			result.IgnoreVisibility.Value = SpecificMonoBehaviour.ignoreVisibility;
-			result.HorizontalMapping.Value = SpecificMonoBehaviour.horizontalMapping;
-			result.VerticalMapping.Value = SpecificMonoBehaviour.verticalMapping;
-			result.MappingUvLineOffset.Value = SpecificMonoBehaviour.mappingUvLineOffset;
-			result.RenderMode.Value = SpecificMonoBehaviour.renderMode;
-			result.GeometrySortingOrder.Value = SpecificMonoBehaviour.geometrySortingOrder;
-			result.IsTextObjectScaleStatic.Value = SpecificMonoBehaviour.isTextObjectScaleStatic;
-			result.VertexBufferAutoSizeReduction.Value = SpecificMonoBehaviour.vertexBufferAutoSizeReduction;
-			result.FirstVisibleCharacter.Value = SpecificMonoBehaviour.firstVisibleCharacter;
-			result.MaxVisibleCharacters.Value = SpecificMonoBehaviour.maxVisibleCharacters;
-			result.MaxVisibleWords.Value = SpecificMonoBehaviour.maxVisibleWords;
-			result.MaxVisibleLines.Value = SpecificMonoBehaviour.maxVisibleLines;
-			result.UseMaxVisibleDescender.Value = SpecificMonoBehaviour.useMaxVisibleDescender;
-			result.PageToDisplay.Value = SpecificMonoBehaviour.pageToDisplay;
-			result.Margin.Value = SpecificMonoBehaviour.margin;
-			result.HavePropertiesChanged.Value = SpecificMonoBehaviour.havePropertiesChanged;
-			result.IsUsingLegacyAnimationComponent.Value = SpecificMonoBehaviour.isUsingLegacyAnimationComponent;
-			result.AutoSizeTextContainer.Value = SpecificMonoBehaviour.autoSizeTextContainer;
-			result.IsVolumetricText.Value = SpecificMonoBehaviour.isVolumetricText;
-			result.Maskable.Value = SpecificMonoBehaviour.maskable;
-			result.IsMaskingGraphic.Value = SpecificMonoBehaviour.isMaskingGraphic;
-			result.RaycastTarget.Value = SpecificMonoBehaviour.raycastTarget;
-			result.RaycastPadding.Value = SpecificMonoBehaviour.raycastPadding;
-			result.Material.Value = SpecificMonoBehaviour.material;
+			try { result.IsRightToLeftText.Value = SpecificMonoBehaviour.isRightToLeftText; } catch {}
+			try { result.Font.Value = SpecificMonoBehaviour.font; } catch {}
+			try { result.FontSharedMaterial.Value = SpecificMonoBehaviour.fontSharedMaterial; } catch {}
+			try { result.FontSharedMaterials.Value = SpecificMonoBehaviour.fontSharedMaterials; } catch {}
+			try { result.FontMaterial.Value = SpecificMonoBehaviour.fontMaterial; } catch {}
+			try { result.FontMaterials.Value = SpecificMonoBehaviour.fontMaterials; } catch {}
+			try { result.Color.Value = SpecificMonoBehaviour.color; } catch {}
+			try { result.Alpha.Value = SpecificMonoBehaviour.alpha; } catch {}
+			try { result.EnableVertexGradient.Value = SpecificMonoBehaviour.enableVertexGradient; } catch {}
+			try { result.ColorGradient.Value = SpecificMonoBehaviour.colorGradient; } catch {}
+			try { result.ColorGradientPreset.Value = SpecificMonoBehaviour.colorGradientPreset; } catch {}
+			try { result.SpriteAsset.Value = SpecificMonoBehaviour.spriteAsset; } catch {}
+			try { result.TintAllSprites.Value = SpecificMonoBehaviour.tintAllSprites; } catch {}
+			try { result.StyleSheet.Value = SpecificMonoBehaviour.styleSheet; } catch {}
+			try { result.TextStyle.Value = SpecificMonoBehaviour.textStyle; } catch {}
+			try { result.OverrideColorTags.Value = SpecificMonoBehaviour.overrideColorTags; } catch {}
+			try { result.FaceColor.Value = SpecificMonoBehaviour.faceColor; } catch {}
+			try { result.OutlineColor.Value = SpecificMonoBehaviour.outlineColor; } catch {}
+			try { result.OutlineWidth.Value = SpecificMonoBehaviour.outlineWidth; } catch {}
+			try { result.FontSize.Value = SpecificMonoBehaviour.fontSize; } catch {}
+			try { result.FontWeight.Value = SpecificMonoBehaviour.fontWeight; } catch {}
+			try { result.EnableAutoSizing.Value = SpecificMonoBehaviour.enableAutoSizing; } catch {}
+			try { result.FontSizeMin.Value = SpecificMonoBehaviour.fontSizeMin; } catch {}
+			try { result.FontSizeMax.Value = SpecificMonoBehaviour.fontSizeMax; } catch {}
+			try { result.FontStyle.Value = SpecificMonoBehaviour.fontStyle; } catch {}
+			try { result.HorizontalAlignment.Value = SpecificMonoBehaviour.horizontalAlignment; } catch {}
+			try { result.VerticalAlignment.Value = SpecificMonoBehaviour.verticalAlignment; } catch {}
+			try { result.Alignment.Value = SpecificMonoBehaviour.alignment; } catch {}
+			try { result.CharacterSpacing.Value = SpecificMonoBehaviour.characterSpacing; } catch {}
+			try { result.WordSpacing.Value = SpecificMonoBehaviour.wordSpacing; } catch {}
+			try { result.LineSpacing.Value = SpecificMonoBehaviour.lineSpacing; } catch {}
+			try { result.LineSpacingAdjustment.Value = SpecificMonoBehaviour.lineSpacingAdjustment; } catch {}
+			try { result.ParagraphSpacing.Value = SpecificMonoBehaviour.paragraphSpacing; } catch {}
+			try { result.CharacterWidthAdjustment.Value = SpecificMonoBehaviour.characterWidthAdjustment; } catch {}
+			try { result.EnableWordWrapping.Value = SpecificMonoBehaviour.enableWordWrapping; } catch {}
+			try { result.WordWrappingRatios.Value = SpecificMonoBehaviour.wordWrappingRatios; } catch {}
+			try { result.OverflowMode.Value = SpecificMonoBehaviour.overflowMode; } catch {}
+			try { result.LinkedTextComponent.Value = SpecificMonoBehaviour.linkedTextComponent; } catch {}
+			try { result.EnableKerning.Value = SpecificMonoBehaviour.enableKerning; } catch {}
+			try { result.ExtraPadding.Value = SpecificMonoBehaviour.extraPadding; } catch {}
+			try { result.RichText.Value = SpecificMonoBehaviour.richText; } catch {}
+			try { result.ParseCtrlCharacters.Value = SpecificMonoBehaviour.parseCtrlCharacters; } catch {}
+			try { result.IsOverlay.Value = SpecificMonoBehaviour.isOverlay; } catch {}
+			try { result.IsOrthographic.Value = SpecificMonoBehaviour.isOrthographic; } catch {}
+			try { result.EnableCulling.Value = SpecificMonoBehaviour.enableCulling; } catch {}
+			try { result.IgnoreVisibility.Value = SpecificMonoBehaviour.ignoreVisibility; } catch {}
+			try { result.HorizontalMapping.Value = SpecificMonoBehaviour.horizontalMapping; } catch {}
+			try { result.VerticalMapping.Value = SpecificMonoBehaviour.verticalMapping; } catch {}
+			try { result.MappingUvLineOffset.Value = SpecificMonoBehaviour.mappingUvLineOffset; } catch {}
+			try { result.RenderMode.Value = SpecificMonoBehaviour.renderMode; } catch {}
+			try { result.GeometrySortingOrder.Value = SpecificMonoBehaviour.geometrySortingOrder; } catch {}
+			try { result.IsTextObjectScaleStatic.Value = SpecificMonoBehaviour.isTextObjectScaleStatic; } catch {}
+			try { result.VertexBufferAutoSizeReduction.Value = SpecificMonoBehaviour.vertexBufferAutoSizeReduction; } catch {}
+			try { result.FirstVisibleCharacter.Value = SpecificMonoBehaviour.firstVisibleCharacter; } catch {}
+			try { result.MaxVisibleCharacters.Value = SpecificMonoBehaviour.maxVisibleCharacters; } catch {}
+			try { result.MaxVisibleWords.Value = SpecificMonoBehaviour.maxVisibleWords; } catch {}
+			try { result.MaxVisibleLines.Value = SpecificMonoBehaviour.maxVisibleLines; } catch {}
+			try { result.UseMaxVisibleDescender.Value = SpecificMonoBehaviour.useMaxVisibleDescender; } catch {}
+			try { result.PageToDisplay.Value = SpecificMonoBehaviour.pageToDisplay; } catch {}
+			try { result.Margin.Value = SpecificMonoBehaviour.margin; } catch {}
+			try { result.HavePropertiesChanged.Value = SpecificMonoBehaviour.havePropertiesChanged; } catch {}
+			try { result.IsUsingLegacyAnimationComponent.Value = SpecificMonoBehaviour.isUsingLegacyAnimationComponent; } catch {}
+			try { result.AutoSizeTextContainer.Value = SpecificMonoBehaviour.autoSizeTextContainer; } catch {}
+			try { result.IsVolumetricText.Value = SpecificMonoBehaviour.isVolumetricText; } catch {}
+			try { result.Maskable.Value = SpecificMonoBehaviour.maskable; } catch {}
+			try { result.IsMaskingGraphic.Value = SpecificMonoBehaviour.isMaskingGraphic; } catch {}
+			try { result.RaycastTarget.Value = SpecificMonoBehaviour.raycastTarget; } catch {}
+			try { result.RaycastPadding.Value = SpecificMonoBehaviour.raycastPadding; } catch {}
+			try { result.Material.Value = SpecificMonoBehaviour.material; } catch {}
 
 			return result;
 		}

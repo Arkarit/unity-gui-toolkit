@@ -126,8 +126,10 @@ namespace GuiToolkit
 		// 0: member name
 		// 1: member name, starting with upper char
 		private const string ApplyInstructionTemplate =
-			"			if (SpecificStyle.{1}.IsApplicable);\n" +
-			"				SpecificMonoBehaviour.{0} = SpecificStyle.{1}.Value;\n";
+			"			if (SpecificStyle.{1}.IsApplicable)\n" +
+			"				try {{ SpecificMonoBehaviour.{0} = SpecificStyle.{1}.Value; }} catch {{}}\n";
+
+
 		private string GetApplyInstructionString(string _memberName)
 		{
 			return string.Format
@@ -142,7 +144,7 @@ namespace GuiToolkit
 		// 0: member name, starting with upper char
 		// 1: member name
 		private const string PresetInstructionTemplate =
-			"			result.{0}.Value = SpecificMonoBehaviour.{1};\n";
+			"			try {{ result.{0}.Value = SpecificMonoBehaviour.{1}; }} catch {{}}\n";
 		private string GetPresetInstructionString(string _memberName)
 		{
 			return string.Format

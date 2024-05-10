@@ -11,34 +11,34 @@ namespace GuiToolkit.Style
 			if (!SpecificMonoBehaviour || SpecificStyle == null)
 				return;
 
-			if (SpecificStyle.Sprite.IsApplicable);
-				SpecificMonoBehaviour.sprite = SpecificStyle.Sprite.Value;
-			if (SpecificStyle.OverrideSprite.IsApplicable);
-				SpecificMonoBehaviour.overrideSprite = SpecificStyle.OverrideSprite.Value;
-			if (SpecificStyle.Type.IsApplicable);
-				SpecificMonoBehaviour.type = SpecificStyle.Type.Value;
-			if (SpecificStyle.PreserveAspect.IsApplicable);
-				SpecificMonoBehaviour.preserveAspect = SpecificStyle.PreserveAspect.Value;
-			if (SpecificStyle.FillCenter.IsApplicable);
-				SpecificMonoBehaviour.fillCenter = SpecificStyle.FillCenter.Value;
-			if (SpecificStyle.FillMethod.IsApplicable);
-				SpecificMonoBehaviour.fillMethod = SpecificStyle.FillMethod.Value;
-			if (SpecificStyle.FillAmount.IsApplicable);
-				SpecificMonoBehaviour.fillAmount = SpecificStyle.FillAmount.Value;
-			if (SpecificStyle.FillClockwise.IsApplicable);
-				SpecificMonoBehaviour.fillClockwise = SpecificStyle.FillClockwise.Value;
-			if (SpecificStyle.FillOrigin.IsApplicable);
-				SpecificMonoBehaviour.fillOrigin = SpecificStyle.FillOrigin.Value;
-			if (SpecificStyle.UseSpriteMesh.IsApplicable);
-				SpecificMonoBehaviour.useSpriteMesh = SpecificStyle.UseSpriteMesh.Value;
-			if (SpecificStyle.Material.IsApplicable);
-				SpecificMonoBehaviour.material = SpecificStyle.Material.Value;
-			if (SpecificStyle.Maskable.IsApplicable);
-				SpecificMonoBehaviour.maskable = SpecificStyle.Maskable.Value;
-			if (SpecificStyle.IsMaskingGraphic.IsApplicable);
-				SpecificMonoBehaviour.isMaskingGraphic = SpecificStyle.IsMaskingGraphic.Value;
-			if (SpecificStyle.Color.IsApplicable);
-				SpecificMonoBehaviour.color = SpecificStyle.Color.Value;
+			if (SpecificStyle.Sprite.IsApplicable)
+				try { SpecificMonoBehaviour.sprite = SpecificStyle.Sprite.Value; } catch {}
+			if (SpecificStyle.OverrideSprite.IsApplicable)
+				try { SpecificMonoBehaviour.overrideSprite = SpecificStyle.OverrideSprite.Value; } catch {}
+			if (SpecificStyle.Type.IsApplicable)
+				try { SpecificMonoBehaviour.type = SpecificStyle.Type.Value; } catch {}
+			if (SpecificStyle.PreserveAspect.IsApplicable)
+				try { SpecificMonoBehaviour.preserveAspect = SpecificStyle.PreserveAspect.Value; } catch {}
+			if (SpecificStyle.FillCenter.IsApplicable)
+				try { SpecificMonoBehaviour.fillCenter = SpecificStyle.FillCenter.Value; } catch {}
+			if (SpecificStyle.FillMethod.IsApplicable)
+				try { SpecificMonoBehaviour.fillMethod = SpecificStyle.FillMethod.Value; } catch {}
+			if (SpecificStyle.FillAmount.IsApplicable)
+				try { SpecificMonoBehaviour.fillAmount = SpecificStyle.FillAmount.Value; } catch {}
+			if (SpecificStyle.FillClockwise.IsApplicable)
+				try { SpecificMonoBehaviour.fillClockwise = SpecificStyle.FillClockwise.Value; } catch {}
+			if (SpecificStyle.FillOrigin.IsApplicable)
+				try { SpecificMonoBehaviour.fillOrigin = SpecificStyle.FillOrigin.Value; } catch {}
+			if (SpecificStyle.UseSpriteMesh.IsApplicable)
+				try { SpecificMonoBehaviour.useSpriteMesh = SpecificStyle.UseSpriteMesh.Value; } catch {}
+			if (SpecificStyle.Material.IsApplicable)
+				try { SpecificMonoBehaviour.material = SpecificStyle.Material.Value; } catch {}
+			if (SpecificStyle.Maskable.IsApplicable)
+				try { SpecificMonoBehaviour.maskable = SpecificStyle.Maskable.Value; } catch {}
+			if (SpecificStyle.IsMaskingGraphic.IsApplicable)
+				try { SpecificMonoBehaviour.isMaskingGraphic = SpecificStyle.IsMaskingGraphic.Value; } catch {}
+			if (SpecificStyle.Color.IsApplicable)
+				try { SpecificMonoBehaviour.color = SpecificStyle.Color.Value; } catch {}
 		}
 
 		public override UiAbstractStyleBase CreateStyle(string _name)
@@ -49,20 +49,20 @@ namespace GuiToolkit.Style
 				return result;
 
 			result.Name = _name;
-			result.Sprite.Value = SpecificMonoBehaviour.sprite;
-			result.OverrideSprite.Value = SpecificMonoBehaviour.overrideSprite;
-			result.Type.Value = SpecificMonoBehaviour.type;
-			result.PreserveAspect.Value = SpecificMonoBehaviour.preserveAspect;
-			result.FillCenter.Value = SpecificMonoBehaviour.fillCenter;
-			result.FillMethod.Value = SpecificMonoBehaviour.fillMethod;
-			result.FillAmount.Value = SpecificMonoBehaviour.fillAmount;
-			result.FillClockwise.Value = SpecificMonoBehaviour.fillClockwise;
-			result.FillOrigin.Value = SpecificMonoBehaviour.fillOrigin;
-			result.UseSpriteMesh.Value = SpecificMonoBehaviour.useSpriteMesh;
-			result.Material.Value = SpecificMonoBehaviour.material;
-			result.Maskable.Value = SpecificMonoBehaviour.maskable;
-			result.IsMaskingGraphic.Value = SpecificMonoBehaviour.isMaskingGraphic;
-			result.Color.Value = SpecificMonoBehaviour.color;
+			try { result.Sprite.Value = SpecificMonoBehaviour.sprite; } catch {}
+			try { result.OverrideSprite.Value = SpecificMonoBehaviour.overrideSprite; } catch {}
+			try { result.Type.Value = SpecificMonoBehaviour.type; } catch {}
+			try { result.PreserveAspect.Value = SpecificMonoBehaviour.preserveAspect; } catch {}
+			try { result.FillCenter.Value = SpecificMonoBehaviour.fillCenter; } catch {}
+			try { result.FillMethod.Value = SpecificMonoBehaviour.fillMethod; } catch {}
+			try { result.FillAmount.Value = SpecificMonoBehaviour.fillAmount; } catch {}
+			try { result.FillClockwise.Value = SpecificMonoBehaviour.fillClockwise; } catch {}
+			try { result.FillOrigin.Value = SpecificMonoBehaviour.fillOrigin; } catch {}
+			try { result.UseSpriteMesh.Value = SpecificMonoBehaviour.useSpriteMesh; } catch {}
+			try { result.Material.Value = SpecificMonoBehaviour.material; } catch {}
+			try { result.Maskable.Value = SpecificMonoBehaviour.maskable; } catch {}
+			try { result.IsMaskingGraphic.Value = SpecificMonoBehaviour.isMaskingGraphic; } catch {}
+			try { result.Color.Value = SpecificMonoBehaviour.color; } catch {}
 
 			return result;
 		}
