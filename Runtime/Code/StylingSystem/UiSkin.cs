@@ -8,7 +8,7 @@ namespace GuiToolkit.Style
 	public class UiSkin
 	{
 		[SerializeField] private string m_name;
-		[SerializeReference] private List<UiAbstractStyleBase> m_styles = new();
+		[NonReorderable][SerializeReference] private List<UiAbstractStyleBase> m_styles = new();
 
 		private readonly Dictionary<int, UiAbstractStyleBase> m_styleByKey = new ();
 
@@ -36,6 +36,17 @@ namespace GuiToolkit.Style
 			if (m_styleByKey.TryGetValue(_key, out UiAbstractStyleBase result))
 			{
 				return result;
+			}
+
+			return null;
+		}
+
+		public UiAbstractStyleBase FindFirstStyleForMonoBehaviour(Type _monoBehaviourType)
+		{
+			foreach (var style in m_styles)
+			{
+				if (style.SupportedMonoBehaviourType == _monoBehaviourType)
+					return style;
 			}
 
 			return null;

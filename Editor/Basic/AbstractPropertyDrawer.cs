@@ -40,7 +40,7 @@ namespace GuiToolkit.Style.Editor
 			}
 
 			var drawRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, propertyHeight);
-			EditorGUI.PropertyField(drawRect, _property);
+			EditorGUI.PropertyField(drawRect, _property, true);
 			NextRect(propertyHeight);
 		}
 

@@ -54,12 +54,18 @@ namespace GuiToolkit.Style
 			if (currentSkin == null)
 				return null;
 
-			return currentSkin.StyleByKey(Key);
+			var result = currentSkin.StyleByKey(Key);
+			if (result != null)
+				return result;
+
+			return currentSkin.FindFirstStyleForMonoBehaviour(SupportedMonoBehaviourType);
 		}
 
 		public void SetStyle()
 		{
 			m_style = FindStyle();
+			if (m_style != null)
+				m_name = m_style.Name;
 		}
 	}
 }

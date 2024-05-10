@@ -7,7 +7,7 @@ namespace GuiToolkit.Style
 	[ExecuteAlways]
 	public class UiMainStyleConfig : AbstractSingletonScriptableObject<UiMainStyleConfig>
 	{
-		[SerializeField] private List<UiSkin> m_skins = new();
+		[NonReorderable][SerializeField] private List<UiSkin> m_skins = new();
 
 		[SerializeField] private int m_currentSkinIdx = 0;
 
