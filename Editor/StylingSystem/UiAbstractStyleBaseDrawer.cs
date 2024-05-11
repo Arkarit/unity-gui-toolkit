@@ -22,8 +22,17 @@ namespace GuiToolkit.Style.Editor
 
 			Background(-3, 0, 0, -10);
 			Space(3);
-			LabelField("   " + UiStyleUtility.GetName(currentStyle.SupportedMonoBehaviourType, currentStyle.Name), 0, EditorStyles.boldLabel);
-			Line(LineGapVert, EditorGUIUtility.labelWidth - LineEndGapHor);
+			Horizontal(SingleLineHeight, () =>
+			{
+				LabelField("   " + UiStyleUtility.GetName(currentStyle.SupportedMonoBehaviourType, currentStyle.Name), 0, EditorStyles.boldLabel);
+				IncreaseX(-60);
+				if (Button("Delete", 50))
+				{
+
+				}
+			});
+			Space(5);
+			Line(LineGapVert, m_currentRect.width - 5);
 
 			Space(5);
 

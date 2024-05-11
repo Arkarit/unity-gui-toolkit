@@ -18,6 +18,9 @@ namespace GuiToolkit.Style.Editor
 		protected Rect m_Rect;
 		protected Rect m_currentRect;
 		private bool m_collectHeightMode;
+		private int m_horizontalMode;
+		private float m_savedX;
+		private float m_savedWidth;
 		private float m_height;
 		private SerializedProperty m_property;
 		private static readonly Dictionary<object, bool> s_foldouts = new ();
@@ -29,6 +32,15 @@ namespace GuiToolkit.Style.Editor
 		protected SerializedProperty Property => m_property;
 		protected float SingleLineHeight => EditorGUIUtility.singleLineHeight;
 		protected T EditedClass => Property.boxedValue as T;
+		protected bool IsHorizontal => m_horizontalMode > 0;
+
+		private void IncreaseHeight(float _height)
+		{
+			if (IsHorizontal)
+				return;
+
+			m_height += _height;
+		}
 
 		protected void PropertyField(SerializedProperty _property, float _gap = 0)
 		{
@@ -38,7 +50,7 @@ namespace GuiToolkit.Style.Editor
 
 			if (m_collectHeightMode)
 			{
-				m_height += propertyHeight;
+				IncreaseHeight(propertyHeight);
 				return;
 			}
 
@@ -52,7 +64,7 @@ namespace GuiToolkit.Style.Editor
 			var propertyHeight = SingleLineHeight + _gap;
 			if (m_collectHeightMode)
 			{
-				m_height += propertyHeight;
+				IncreaseHeight(propertyHeight);
 				return;
 			}
 
@@ -80,7 +92,7 @@ namespace GuiToolkit.Style.Editor
 			var propertyHeight = SingleLineHeight;
 			if (m_collectHeightMode)
 			{
-				m_height += propertyHeight;
+				IncreaseHeight(propertyHeight);
 				return false;
 			}
 
@@ -97,7 +109,7 @@ namespace GuiToolkit.Style.Editor
 			var propertyHeight = _gap;
 			if (m_collectHeightMode)
 			{
-				m_height += propertyHeight;
+				IncreaseHeight(propertyHeight);
 				return;
 			}
 
@@ -109,7 +121,7 @@ namespace GuiToolkit.Style.Editor
 			var propertyHeight = _gap + _height;
 			if (m_collectHeightMode)
 			{
-				m_height += propertyHeight;
+				IncreaseHeight(propertyHeight);
 				return;
 			}
 
@@ -146,6 +158,67 @@ namespace GuiToolkit.Style.Editor
 				_onFoldout();
 
 			s_foldouts[_id] = active;
+		}
+
+		protected bool Button(GUIContent _content, float _width = -1)
+		{
+			if (m_collectHeightMode)
+			{
+				IncreaseHeight(SingleLineHeight);
+				return false;
+			}
+
+			if (_width == -1)
+				_width = m_currentRect.width;
+
+			var buttonRect = new Rect
+			(
+				m_currentRect.x,
+				m_currentRect.y,
+				_width,
+				SingleLineHeight
+			);
+
+			bool result = GUI.Button(buttonRect, _content);
+			NextRect(SingleLineHeight);
+			return result;
+		}
+
+		protected bool Button(string _s, float _width = -1) => Button(new GUIContent(_s), _width);
+
+		protected void IncreaseX(float _width)
+		{
+			if (_width < 0)
+			{
+				_width = m_currentRect.width + _width;
+			}
+
+			m_currentRect.x += _width;
+			m_currentRect.width -= _width;
+		}
+
+		protected void Horizontal(float _height, Action _onHorizontal)
+		{
+			if (!IsHorizontal)
+			{
+				if (m_collectHeightMode)
+					IncreaseHeight(SingleLineHeight);
+
+				m_savedX = m_currentRect.x;
+				m_savedWidth = m_currentRect.width;
+			}
+
+			m_horizontalMode++;
+			_onHorizontal();
+			m_horizontalMode--;
+
+			if (!IsHorizontal)
+			{
+				m_currentRect.x = m_savedX;
+				m_currentRect.width = m_savedWidth;
+			}
+
+			NextRect(_height);
 		}
 
 		protected void Background(float _xOffs = 0, float _yOffs = 0, float _plusWidth = 0, float _plusHeight = 0) =>
@@ -193,6 +266,9 @@ namespace GuiToolkit.Style.Editor
 
 		private void NextRect(float _propertyHeight)
 		{
+			if (IsHorizontal)
+				return;
+
 			m_currentRect.y += _propertyHeight;
 			m_currentRect.height -= _propertyHeight;
 		}
