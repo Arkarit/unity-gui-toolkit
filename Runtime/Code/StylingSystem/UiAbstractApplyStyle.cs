@@ -1,6 +1,10 @@
 using System;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit.Style
 {
 	[ExecuteAlways]
@@ -63,8 +67,19 @@ namespace GuiToolkit.Style
 
 		private void OnSkinChanged()
 		{
+#if UNITY_EDITOR
+			string oldName = Name;
+#endif
+
 			SetStyle();
 			Apply();
+
+#if UNITY_EDITOR
+			if (oldName != Name)
+			{
+				EditorUtility.SetDirty(this);
+			}
+#endif
 		}
 	}
 }

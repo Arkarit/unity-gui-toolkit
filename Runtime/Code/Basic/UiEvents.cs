@@ -35,6 +35,6 @@ namespace GuiToolkit
 		/// Used to synchronize styles of same name but members of different skins
 		public static CEvent<UiAbstractStyleBase> 						EvStyleApplicableChanged 		= new();
 
-		public static CEvent<UiAbstractStyleBase>						EvDeleteEvent					= new();
+		public static CEvent<UiAbstractStyleBase>						EvDeleteStyle					= new();
 	}
 }

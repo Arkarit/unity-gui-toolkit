@@ -37,7 +37,7 @@ namespace GuiToolkit.Style.Editor
 							"Cancel"
 					))
 					{
-						UiEvents.EvDeleteEvent.InvokeAlways(currentStyle);
+						UiEvents.EvDeleteStyle.InvokeAlways(currentStyle);
 						return;
 					}
 				}
