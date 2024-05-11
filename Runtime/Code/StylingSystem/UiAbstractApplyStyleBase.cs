@@ -7,7 +7,7 @@ namespace GuiToolkit.Style
 	public abstract class UiAbstractApplyStyleBase : MonoBehaviour
 	{
 		[SerializeField][HideInInspector] private string m_name;
-		protected UiAbstractStyleBase m_style;
+		[SerializeReference] protected UiAbstractStyleBase m_style;
 
 		public abstract Type SupportedMonoBehaviourType { get; }
 		public abstract Type SupportedStyleType { get; }
@@ -16,6 +16,7 @@ namespace GuiToolkit.Style
 
 		protected virtual void Awake()
 		{
+			m_style = null;
 			SetStyle();
 			Apply();
 		}

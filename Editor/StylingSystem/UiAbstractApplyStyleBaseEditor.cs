@@ -10,13 +10,11 @@ namespace GuiToolkit.Editor
 	{
 		private UiAbstractApplyStyleBase m_thisAbstractApplyStyleBase;
 		SerializedProperty 	m_nameProp;
-		SerializedProperty m_styleProp;
 
 		protected virtual void OnEnable()
 		{
 			m_thisAbstractApplyStyleBase = target as UiAbstractApplyStyleBase;
 			m_nameProp = serializedObject.FindProperty("m_name");
-			m_styleProp = serializedObject.FindProperty("m_style");
 		}
 
 		public override void OnInspectorGUI()
@@ -40,9 +38,8 @@ namespace GuiToolkit.Editor
 						newStyle.Init();
 						skin.Styles.Add(newStyle);
 					});
-#if UNITY_EDITOR
+
 					UiMainStyleConfig.EditorSave(UiMainStyleConfig.Instance);
-#endif
 				}
 
 				m_thisAbstractApplyStyleBase.Name = selectedName;
