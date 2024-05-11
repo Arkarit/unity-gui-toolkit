@@ -145,11 +145,47 @@ namespace GuiToolkit.Style.Editor
 			s_foldouts[_id] = active;
 		}
 
+		protected void Background(float _xOffs = 0, float _yOffs = 0, float _plusWidth = 0, float _plusHeight = 0) =>
+			Background(
+				EditorUiUtility.ColorPerSkin(new Color(0, 0, 0, .05f),new Color(1,1,1,0.05f)), 
+				_xOffs, 
+				_yOffs, 
+				_plusWidth, 
+				_plusHeight
+			);
+
+		protected void Background(Color _lightSkin, Color _darkSkin, float _xOffs = 0, float _yOffs = 0, float _plusWidth = 0, float _plusHeight = 0) =>
+			Background(
+				EditorUiUtility.ColorPerSkin(_lightSkin, _darkSkin), 
+				_xOffs, 
+				_yOffs, 
+				_plusWidth, 
+				_plusHeight
+			);
+
+		protected void Background(Color _color, float _xOffs = 0, float _yOffs = 0, float _plusWidth = 0, float _plusHeight = 0)
+		{
+			if (m_collectHeightMode)
+				return;
+
+			var rect = new Rect
+			(
+				m_currentRect.x + _xOffs, 
+				m_currentRect.y + _yOffs, 
+				m_currentRect.width + _plusWidth, 
+				m_currentRect.height + _plusHeight
+			);
+
+			EditorGUI.DrawRect(rect, _color);
+		}
+
 		protected void Indent(Action _onIndent)
 		{
 			m_currentRect.x += IndentWidth;
+			m_currentRect.width -= IndentWidth;
 			_onIndent();
 			m_currentRect.x -= IndentWidth;
+			m_currentRect.width += IndentWidth;
 		}
 
 		private void NextRect(float _propertyHeight)

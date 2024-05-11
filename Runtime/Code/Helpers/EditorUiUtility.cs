@@ -730,6 +730,8 @@ namespace GuiToolkit
 			Handles.DrawLine(point0, point1);
 		}
 
+		public static Color ColorPerSkin(Color _lightSkin, Color _darkSkin) => EditorGUIUtility.isProSkin ? _darkSkin : _lightSkin;
+
 		public static bool DoHandle( SerializedProperty _serProp, Vector3 _rectPoint, Vector2 _rectSize, RectTransform _rt, bool _mirrorHorizontal = false, bool _mirrorVertical = false, float _handleSize = 0.08f )
 		{
 			Vector2 v = _serProp.vector2Value;

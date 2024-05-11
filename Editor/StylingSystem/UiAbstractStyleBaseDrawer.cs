@@ -10,7 +10,7 @@ namespace GuiToolkit.Style.Editor
 	{
 		private const float LineEndGapHor = 20;
 		private const float LineGapVert = 4;
-		private const float EndGap = 20;
+		private const float EndGap = 30;
 		private bool m_applicableChanged;
 
 		protected override void OnInspectorGUI()
@@ -20,6 +20,7 @@ namespace GuiToolkit.Style.Editor
 			if (currentStyle == null)
 				return;
 
+			Background(-3, 0, 0, -10);
 			LabelField(UiStyleUtility.GetName(currentStyle.SupportedMonoBehaviourType, currentStyle.Name));
 			Line(LineGapVert, EditorGUIUtility.labelWidth - LineEndGapHor);
 
