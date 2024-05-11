@@ -60,12 +60,6 @@ namespace GuiToolkit.Editor
 				UiMainStyleConfig.Instance.CurrentSkinName = selectedName;
 			}
 
-			if (styleNames.Count == 0)
-			{
-				m_styleProp.boxedValue = null;
-				serializedObject.ApplyModifiedProperties();
-			}
-
 			DrawDefaultInspector();
 			serializedObject.ApplyModifiedProperties();
 		}
