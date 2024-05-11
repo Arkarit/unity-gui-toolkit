@@ -446,11 +446,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: RedText
   m_style:
-    rid: 6698005168864362503
+    rid: 6698005168864362602
   references:
     version: 2
     RefIds:
-    - rid: 6698005168864362503
+    - rid: 6698005168864362602
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: RedText
@@ -1806,11 +1806,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: RedCheckmark
   m_style:
-    rid: 6698005168864362505
+    rid: 6698005168864362604
   references:
     version: 2
     RefIds:
-    - rid: 6698005168864362505
+    - rid: 6698005168864362604
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: RedCheckmark
@@ -2410,11 +2410,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: GreenCheckmark
   m_style:
-    rid: 6698005168864362502
+    rid: 6698005168864362601
   references:
     version: 2
     RefIds:
-    - rid: 6698005168864362502
+    - rid: 6698005168864362601
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: GreenCheckmark
@@ -2520,11 +2520,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: GreenText
   m_style:
-    rid: 6698005168864362501
+    rid: 6698005168864362600
   references:
     version: 2
     RefIds:
-    - rid: 6698005168864362501
+    - rid: 6698005168864362600
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: GreenText
@@ -3800,11 +3800,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: fgdsgsdg
   m_style:
-    rid: 6698005168864362504
+    rid: 6698005168864362603
   references:
     version: 2
     RefIds:
-    - rid: 6698005168864362504
+    - rid: 6698005168864362603
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: fgdsgsdg

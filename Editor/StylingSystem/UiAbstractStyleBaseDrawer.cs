@@ -21,7 +21,8 @@ namespace GuiToolkit.Style.Editor
 				return;
 
 			Background(-3, 0, 0, -10);
-			LabelField(UiStyleUtility.GetName(currentStyle.SupportedMonoBehaviourType, currentStyle.Name));
+			Space(3);
+			LabelField("   " + UiStyleUtility.GetName(currentStyle.SupportedMonoBehaviourType, currentStyle.Name), 0, EditorStyles.boldLabel);
 			Line(LineGapVert, EditorGUIUtility.labelWidth - LineEndGapHor);
 
 			Space(5);

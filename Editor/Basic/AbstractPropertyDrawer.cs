@@ -33,6 +33,9 @@ namespace GuiToolkit.Style.Editor
 		protected void PropertyField(SerializedProperty _property, float _gap = 0)
 		{
 			var propertyHeight = EditorGUI.GetPropertyHeight(_property) + _gap;
+			if (propertyHeight == 0)
+				return;
+
 			if (m_collectHeightMode)
 			{
 				m_height += propertyHeight;
