@@ -52,6 +52,20 @@ namespace GuiToolkit.Style
 			return null;
 		}
 
+		public void DeleteStyle(UiAbstractStyleBase _style)
+		{
+			for (int i = 0; i < m_styles.Count; i++)
+			{
+				if (m_styles[i].Key == _style.Key)
+				{
+					m_styles.RemoveAt(i);
+					break;
+				}
+			}
+
+			BuildDictionaries();
+		}
+
 		private void BuildDictionaries()
 		{
 			m_styleByKey.Clear();

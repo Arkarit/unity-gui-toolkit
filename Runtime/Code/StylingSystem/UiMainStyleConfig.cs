@@ -13,6 +13,11 @@ namespace GuiToolkit.Style
 
 		public List<UiSkin> Skins => m_skins;
 
+		protected void Awake()
+		{
+			UiEvents.EvDeleteEvent.AddListener(OnDeleteStyle);
+		}
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();
@@ -101,5 +106,19 @@ namespace GuiToolkit.Style
 				return m_skins[m_currentSkinIdx];
 			}
 		}
+
+		private void OnDeleteStyle(UiAbstractStyleBase _style)
+		{
+			ForeachSkin(skin =>
+			{
+				skin.DeleteStyle(_style);
+			});
+
+#if UNITY_EDITOR
+			EditorSave(this);
+#endif
+		}
+
+
 	}
 }

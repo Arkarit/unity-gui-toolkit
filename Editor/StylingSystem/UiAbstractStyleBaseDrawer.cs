@@ -28,7 +28,18 @@ namespace GuiToolkit.Style.Editor
 				IncreaseX(-60);
 				if (Button("Delete", 50))
 				{
-
+					if (EditorUtility.DisplayDialog
+					(
+						    "Are you sure?",
+							$"The style '{currentStyle.Name}' will be removed from UiMainStyleConfig" 
+							+ " and all skins and Ui Apply Style instances which use it. This can not be undone.",
+							"OK",
+							"Cancel"
+					))
+					{
+						UiEvents.EvDeleteEvent.InvokeAlways(currentStyle);
+						return;
+					}
 				}
 			});
 			Space(5);
