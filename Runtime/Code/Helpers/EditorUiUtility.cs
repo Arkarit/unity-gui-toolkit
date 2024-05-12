@@ -205,7 +205,8 @@ namespace GuiToolkit
 			string _labelText2 = null, 
 			bool showRemove = false, 
 			string _addItemHeadline = null, 
-			string _addItemDescription = null
+			string _addItemDescription = null,
+			Action<EditorInputDialog> _additionalContent = null
 		)
 		{
 			_newSelection = _current;
@@ -220,7 +221,7 @@ namespace GuiToolkit
 				GUILayout.Label(_labelText2, GUILayout.Width(LABEL_WIDTH));
 			int newInt = EditorGUILayout.Popup(currentInt, _strings.ToArray());
 
-			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, ref _newSelection))
+			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, _additionalContent, ref _newSelection))
 				return newInt;
 
 			if (showRemove && _strings.Count > 0 && GUILayout.Button(EditorGUIUtility.IconContent("P4_DeletedLocal")))
@@ -254,7 +255,8 @@ namespace GuiToolkit
 			string _labelText2 = null, 
 			bool _showRemove = false, 
 			string _addItemHeadline = null, 
-			string _addItemDescription = null
+			string _addItemDescription = null,
+			Action<EditorInputDialog> _additionalContent = null
 		)
 		{
 			_newSelection = _current;
@@ -281,7 +283,7 @@ namespace GuiToolkit
 
 			int newInt = EditorGUI.Popup(popupRect, currentInt, _strings.ToArray());
 
-			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, ref _newSelection))
+			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, _additionalContent, ref _newSelection))
 				return true;
 
 			_pos.x += popupRect.width;
@@ -339,6 +341,7 @@ namespace GuiToolkit
 			bool _allowAdd, 
 			string _addItemHeadline, 
 			string _addItemDescription,
+			Action<EditorInputDialog> _additionalContent,
 			ref string _newSelection
 			)
 		{
@@ -349,7 +352,7 @@ namespace GuiToolkit
 			if (_idx != _strings.Count + 1)
 				return false;
 
-			var newEntry = EditorInputDialog.Show( _addItemHeadline, _addItemDescription, "" );
+			var newEntry = EditorInputDialog.Show( _addItemHeadline, _addItemDescription, "", _additionalContent);
 			if (string.IsNullOrEmpty(newEntry))
 				return false;
 

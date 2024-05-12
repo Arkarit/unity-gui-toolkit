@@ -86,7 +86,7 @@ namespace GuiToolkit.Style.Editor
 
 			ForEachChildProperty(Property, childProperty =>
 			{
-				if (childProperty.name == "m_key" || childProperty.name == "m_name")
+				if (childProperty.name == "m_name")
 					return;
 
 				PropertyField(childProperty);

@@ -29,7 +29,6 @@ namespace GuiToolkit.Editor
 
 			var isApplicableProp = _property.FindPropertyRelative("IsApplicable");
 			bool isApplicable = isApplicableProp.boolValue;	
-			var valueProp = _property.FindPropertyRelative("Value");
 
 			if (isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyDisabled ||
 			    !isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyEnabled)
@@ -53,6 +52,7 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
+			var valueProp = _property.FindPropertyRelative("Value");
 			using (new EditorGUI.DisabledScope(newIsApplicable == false))
 			{
 				EditorGUI.PropertyField(

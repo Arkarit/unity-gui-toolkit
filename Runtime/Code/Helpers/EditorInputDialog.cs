@@ -20,6 +20,8 @@ namespace GuiToolkit
 		private bool m_shouldClose = false;
 		private Vector2 m_maxScreenPos;
 
+		private Action<EditorInputDialog> m_additionalContent;
+
 		void OnGUI()
 		{
 			// Check if Esc/Return have been pressed
@@ -58,6 +60,8 @@ namespace GuiToolkit
 			m_inputText = EditorGUILayout.TextField("", m_inputText);
 			GUI.FocusControl("inText");   // Focus text field
 			EditorGUILayout.Space(12);
+
+			m_additionalContent?.Invoke(this);
 
 			// Draw OK / Cancel buttons
 			var r = EditorGUILayout.GetControlRect();
@@ -113,7 +117,7 @@ namespace GuiToolkit
 		/// <param name="_okButtonText"></param>
 		/// <param name="_cancelButtonText"></param>
 		/// <returns></returns>
-		public static string Show(string _title, string _description, string _inputText, string _okButtonText = "OK", string _cancelButtonText = "Cancel")
+		public static string Show(string _title, string _description, string _inputText, Action<EditorInputDialog> _additionalContent = null, string _okButtonText = "OK", string _cancelButtonText = "Cancel")
 		{
 			// Make sure our popup is always inside parent window, and never offscreen
 			// So get caller's window size
@@ -126,6 +130,7 @@ namespace GuiToolkit
 			window.titleContent = new GUIContent(_title);
 			window.m_description = _description;
 			window.m_inputText = _inputText;
+			window.m_additionalContent = _additionalContent;
 			window.m_okButtonText = _okButtonText;
 			window.m_cancelButtonText = _cancelButtonText;
 			window.m_onOKButton += () => result = window.m_inputText;

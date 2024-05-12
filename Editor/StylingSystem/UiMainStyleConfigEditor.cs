@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Codice.Client.GameUI.Checkin;
 using GuiToolkit.Style;
 using GuiToolkit.Style.Editor;
 using UnityEditor;
@@ -29,15 +30,35 @@ namespace GuiToolkit.Editor
 			serializedObject.Update();
 
 			Draw();
-/*
-			if (GUILayout.Button("Sync Styles"))
-				SyncStyles(false);
-			if (GUILayout.Button("Replace Styles"))
-				SyncStyles(true);
-*/
-			if (GUILayout.Button("Add Skin"))
+			EditorGUILayout.Space(10);
+
+			var skinNames = UiMainStyleConfig.Instance.SkinNames;
+			int numSkins = skinNames.Count;
+			string copyFrom = skinNames.Count > 0 ? skinNames[0] : string.Empty;
+
+			Action<EditorInputDialog> additionalContent = _ =>
 			{
-				AddSkin();
+				if (string.IsNullOrEmpty(copyFrom))
+					return;
+
+				if (EditorUiUtility.StringPopup("Copy string from ", skinNames, copyFrom,
+					    out copyFrom,
+					    null, false) != -1)
+				{
+				}
+
+				EditorGUILayout.Space(20);
+			};
+
+			if (EditorUiUtility.StringPopup("Current Skin", skinNames, UiMainStyleConfig.Instance.CurrentSkinName, out string selectedName,
+				    null, false, "Add Skin", "Adds a new skin", additionalContent) != -1)
+			{
+				if (numSkins != skinNames.Count)
+				{
+					AddSkin(selectedName, copyFrom);
+				}
+
+				UiMainStyleConfig.Instance.CurrentSkinName = selectedName;
 			}
 
 			serializedObject.ApplyModifiedProperties();
@@ -53,89 +74,43 @@ namespace GuiToolkit.Editor
 					EditorGUILayout.PropertyField(skinProp);
 					EditorGUILayout.Space(PerSkinGap);
 				}
-				
-				EditorGUILayout.PropertyField(m_currentSkinIdxProp);
-				EditorGUILayout.Space(50);
 			} catch {}
 		}
 
-		private string AddSkin()
+		private string AddSkin(string _name, string _copyFromName)
 		{
-			string newSkinName = EditorInputDialog.Show("Add skin", "Please enter name for new skin", "");
-			if (string.IsNullOrEmpty(newSkinName))
+			if (m_thisUiMainStyleConfig.SkinNames.Contains(_name))
 				return string.Empty;
 
-			if (m_thisUiMainStyleConfig.SkinNames.Contains(newSkinName))
+			var newSkin = new UiSkin(_name);
+
+			UiSkin copyFrom = null;
+			if (!string.IsNullOrEmpty(_copyFromName))
 			{
-				EditorUtility.DisplayDialog("Can't create skin", $"Skin name '{newSkinName}' already exists", "OK");
-				return string.Empty;
+				foreach (var skin in m_thisUiMainStyleConfig.Skins)
+				{
+					if (skin.Name == _copyFromName)
+					{
+						copyFrom = skin;
+						break;
+					}
+				}
 			}
 
-			return AddSkin(newSkinName);
-		}
+			if (copyFrom != null)
+			{
+				foreach (var style in copyFrom.Styles)
+				{
+					var newStyle = style.Clone();
+					newSkin.Styles.Add(newStyle);
+				}
+			}
 
-		private string AddSkin(string name)
-		{
-			if (m_thisUiMainStyleConfig.SkinNames.Contains(name))
-				return string.Empty;
-
-			var newSkin = new UiSkin(name);
 			m_skinsProp.arraySize += 1;
 			m_skinsProp.GetArrayElementAtIndex(m_skinsProp.arraySize - 1).boxedValue = newSkin;
 			serializedObject.ApplyModifiedProperties();
 			UiMainStyleConfig.EditorSave(UiMainStyleConfig.Instance);
-
-			//TODO copy styles from other skin
-
-			return name;
+			return _name;
 		}
-
-/*
-		private void SyncStyles(bool reset)
-		{
-			Dictionary<int, UiAbstractApplyStyleBase> applianceComponentByKey = new();
-			EditorUiUtility.FindAllComponentsInAllAssets<UiAbstractApplyStyleBase>(component =>
-			{
-				if (!applianceComponentByKey.ContainsKey(component.Key))
-					applianceComponentByKey.Add(component.Key, component);
-			});
-
-			var thisUiMainStyleConfig = target as UiMainStyleConfig;
-			var skins = thisUiMainStyleConfig.Skins;
-
-			bool configWasChanged = false;
-
-			foreach (var skin in skins)
-			{
-				if (reset)
-					skin.Styles.Clear();
-
-				List<UiAbstractStyleBase> newStyles = new();
-
-				foreach (var kv in applianceComponentByKey)
-				{
-					var key = kv.Key;
-					var applyStyleComponent = kv.Value;
-
-					if (skin.StyleByKey(key) == null)
-					{
-						var newStyle = applyStyleComponent.CreateStyle();
-						newStyles.Add(newStyle);
-					}
-				}
-
-				if (newStyles.Count > 0)
-				{
-					skin.Styles.AddRange(newStyles);
-					configWasChanged = true;
-				}
-			}
-
-			if (configWasChanged)
-			{
-				UiMainStyleConfig.EditorSave(thisUiMainStyleConfig);
-			}
-		}
-*/
 	}
 }

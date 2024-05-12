@@ -7,8 +7,9 @@ namespace GuiToolkit.Style
 	[Serializable]
 	public abstract class UiAbstractStyleBase
 	{
-		[SerializeField] private string m_name;
-		[SerializeField] private int m_key;
+		[SerializeField][HideInInspector] private string m_name;
+		
+		private int m_key;
 
 		public string Name
 		{
@@ -33,6 +34,11 @@ namespace GuiToolkit.Style
 		{
 			UiEvents.EvStyleApplicableChanged.RemoveListener(OnStyleApplicableChanged);
 			UiEvents.EvStyleApplicableChanged.AddListener(OnStyleApplicableChanged);
+		}
+
+		public UiAbstractStyleBase Clone()
+		{
+			return MemberwiseClone() as UiAbstractStyleBase;
 		}
 
 		private void OnStyleApplicableChanged(UiAbstractStyleBase _from)
