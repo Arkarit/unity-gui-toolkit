@@ -1,4 +1,3 @@
-using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,25 +19,25 @@ namespace GuiToolkit.Style.Editor
 
 		protected override void OnInspectorGUI()
 		{
-			BackgroundBox
+			BackgroundAbsHeight
 			(
-				new Color(0,0,0,.2f),
-				new Color(1,1,1,.2f),
+				new Color(0,0,0,.15f),
+				new Color(1,1,1,.15f),
 				0,
 				0,
 				0,
 				SingleLineHeight + 5
 			);
 
-			LabelFieldAdditional($"Skin: {m_nameProp.stringValue}", 5,-2, 0, SingleLineHeight + 10, EditorStyles.boldLabel);
+			var foldoutTitleRect = CurrentRect;
+			foldoutTitleRect.height = SingleLineHeight;
 
 			Foldout(EditedClass.Name, $"", () =>
 			{
 				Space(10);
 				Line(5);
-				PropertyField(m_nameProp);
-
-				Space(GapBeforeStyles);
+//				PropertyField(m_nameProp);
+//				Space(GapBeforeStyles);
 
 				try
 				{
@@ -50,6 +49,24 @@ namespace GuiToolkit.Style.Editor
 				}
 				catch {}
 			});
+
+			if (CollectHeightMode)
+				return;
+
+			var foldoutLabelRect = foldoutTitleRect;
+			foldoutLabelRect.x += 5;
+			foldoutLabelRect.y += 3;
+			EditorGUI.LabelField(foldoutLabelRect, $"Skin: {m_nameProp.stringValue}", EditorStyles.boldLabel);
+			var deleteButtonRect = foldoutTitleRect;
+			deleteButtonRect.x = deleteButtonRect.width + deleteButtonRect.x - 60;
+			deleteButtonRect.y += 2;
+			deleteButtonRect.width = 50;
+			if (GUI.Button(deleteButtonRect, "Delete"))
+			{
+
+			}
+
+
 		}
 	}
 }

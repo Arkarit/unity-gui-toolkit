@@ -33,6 +33,8 @@ namespace GuiToolkit.Style.Editor
 		protected float SingleLineHeight => EditorGUIUtility.singleLineHeight;
 		protected T EditedClass => Property.boxedValue as T;
 		protected bool IsHorizontal => m_horizontalMode > 0;
+		protected Rect CurrentRect => m_currentRect;
+		protected bool CollectHeightMode => m_collectHeightMode;
 
 		private void IncreaseHeight(float _height)
 		{
@@ -75,27 +77,6 @@ namespace GuiToolkit.Style.Editor
 				EditorGUI.LabelField(drawRect, _label);
 
 			NextRect(propertyHeight);
-		}
-
-		protected void LabelFieldAdditional(string _label, float _xOffset, float _yOffset, float _plusWidth, float _height, GUIStyle _style = null)
-		{
-			if (m_collectHeightMode)
-			{
-				return;
-			}
-
-			var drawRect = new Rect
-			(
-				m_currentRect.x + _xOffset, 
-				m_currentRect.y + _yOffset, 
-				m_currentRect.width + _plusWidth, 
-				_height
-			);
-
-			if (_style != null)
-				EditorGUI.LabelField(drawRect, _label, _style);
-			else
-				EditorGUI.LabelField(drawRect, _label);
 		}
 
 		protected bool StringPopupField(
@@ -165,7 +146,7 @@ namespace GuiToolkit.Style.Editor
 
 		protected void Foldout(object _id, string _title, bool _default, Action _onFoldout)
 		{
-			var foldoutRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, FoldoutHeight);
+			var foldoutRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width * .5f, FoldoutHeight);
 			if (!s_foldouts.ContainsKey(_id))
 				s_foldouts.Add(_id, _default);
 
@@ -276,8 +257,8 @@ namespace GuiToolkit.Style.Editor
 			EditorGUI.DrawRect(rect, _color);
 		}
 
-		protected void BackgroundBox(float _xOffs, float _yOffs, float _plusWidth, float _height) =>
-			BackgroundBox(
+		protected void BackgroundAbsHeight(float _xOffs, float _yOffs, float _plusWidth, float _height) =>
+			BackgroundAbsHeight(
 				EditorUiUtility.ColorPerSkin(new Color(0, 0, 0, .05f),new Color(1,1,1,0.05f)), 
 				_xOffs, 
 				_yOffs, 
@@ -285,8 +266,8 @@ namespace GuiToolkit.Style.Editor
 				_height
 			);
 
-		protected void BackgroundBox(Color _lightSkin, Color _darkSkin, float _xOffs, float _yOffs, float _plusWidth, float _height) =>
-			BackgroundBox(
+		protected void BackgroundAbsHeight(Color _lightSkin, Color _darkSkin, float _xOffs, float _yOffs, float _plusWidth, float _height) =>
+			BackgroundAbsHeight(
 				EditorUiUtility.ColorPerSkin(_lightSkin, _darkSkin), 
 				_xOffs, 
 				_yOffs, 
@@ -294,7 +275,7 @@ namespace GuiToolkit.Style.Editor
 				_height
 			);
 
-		protected void BackgroundBox(Color _color, float _xOffs, float _yOffs, float _plusWidth, float _height)
+		protected void BackgroundAbsHeight(Color _color, float _xOffs, float _yOffs, float _plusWidth, float _height)
 		{
 			if (m_collectHeightMode)
 				return;
