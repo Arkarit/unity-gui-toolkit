@@ -20,8 +20,21 @@ namespace GuiToolkit.Style.Editor
 
 		protected override void OnInspectorGUI()
 		{
-			Foldout(EditedClass.Name, $"Skin: {m_nameProp.stringValue}", () =>
+			BackgroundBox
+			(
+				new Color(0,0,0,.2f),
+				new Color(1,1,1,.2f),
+				0,
+				0,
+				0,
+				SingleLineHeight + 5
+			);
+
+			LabelFieldAdditional($"Skin: {m_nameProp.stringValue}", 5,-2, 0, SingleLineHeight + 10, EditorStyles.boldLabel);
+
+			Foldout(EditedClass.Name, $"", () =>
 			{
+				Space(10);
 				Line(5);
 				PropertyField(m_nameProp);
 

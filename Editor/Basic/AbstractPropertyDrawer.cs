@@ -77,6 +77,27 @@ namespace GuiToolkit.Style.Editor
 			NextRect(propertyHeight);
 		}
 
+		protected void LabelFieldAdditional(string _label, float _xOffset, float _yOffset, float _plusWidth, float _height, GUIStyle _style = null)
+		{
+			if (m_collectHeightMode)
+			{
+				return;
+			}
+
+			var drawRect = new Rect
+			(
+				m_currentRect.x + _xOffset, 
+				m_currentRect.y + _yOffset, 
+				m_currentRect.width + _plusWidth, 
+				_height
+			);
+
+			if (_style != null)
+				EditorGUI.LabelField(drawRect, _label, _style);
+			else
+				EditorGUI.LabelField(drawRect, _label);
+		}
+
 		protected bool StringPopupField(
 			string _labelText, 
 			List<string> _strings, 
@@ -250,6 +271,40 @@ namespace GuiToolkit.Style.Editor
 				m_currentRect.y + _yOffs, 
 				m_currentRect.width + _plusWidth, 
 				m_currentRect.height + _plusHeight
+			);
+
+			EditorGUI.DrawRect(rect, _color);
+		}
+
+		protected void BackgroundBox(float _xOffs, float _yOffs, float _plusWidth, float _height) =>
+			BackgroundBox(
+				EditorUiUtility.ColorPerSkin(new Color(0, 0, 0, .05f),new Color(1,1,1,0.05f)), 
+				_xOffs, 
+				_yOffs, 
+				_plusWidth, 
+				_height
+			);
+
+		protected void BackgroundBox(Color _lightSkin, Color _darkSkin, float _xOffs, float _yOffs, float _plusWidth, float _height) =>
+			BackgroundBox(
+				EditorUiUtility.ColorPerSkin(_lightSkin, _darkSkin), 
+				_xOffs, 
+				_yOffs, 
+				_plusWidth, 
+				_height
+			);
+
+		protected void BackgroundBox(Color _color, float _xOffs, float _yOffs, float _plusWidth, float _height)
+		{
+			if (m_collectHeightMode)
+				return;
+
+			var rect = new Rect
+			(
+				m_currentRect.x + _xOffs, 
+				m_currentRect.y + _yOffs, 
+				m_currentRect.width + _plusWidth, 
+				_height
 			);
 
 			EditorGUI.DrawRect(rect, _color);
