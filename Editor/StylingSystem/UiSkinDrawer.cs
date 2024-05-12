@@ -6,8 +6,6 @@ namespace GuiToolkit.Style.Editor
 	[CustomPropertyDrawer(typeof(UiSkin), true)]
 	public class UiSkinDrawer : AbstractPropertyDrawer<UiSkin>
 	{
-		private const float GapBeforeStyles = 10;
-
 		SerializedProperty 	m_nameProp;
 		SerializedProperty m_stylesProp;
 
@@ -36,8 +34,6 @@ namespace GuiToolkit.Style.Editor
 			{
 				Space(10);
 				Line(5);
-//				PropertyField(m_nameProp);
-//				Space(GapBeforeStyles);
 
 				try
 				{
@@ -53,6 +49,7 @@ namespace GuiToolkit.Style.Editor
 			if (CollectHeightMode)
 				return;
 
+			var skinName = m_nameProp.stringValue;
 			var foldoutLabelRect = foldoutTitleRect;
 			foldoutLabelRect.x += 5;
 			foldoutLabelRect.y += 3;
@@ -64,9 +61,18 @@ namespace GuiToolkit.Style.Editor
 			if (GUI.Button(deleteButtonRect, "Delete"))
 			{
 
+				if (EditorUtility.DisplayDialog
+			    (
+				    "Are you sure?",
+				    $"The skin '{skinName}' will be removed from UiMainStyleConfig" 
+				    + " and all Ui Apply Style instances which use it. This can not be undone.",
+				    "OK",
+				    "Cancel"
+			    ))
+				{
+					UiEvents.EvDeleteSkin.InvokeAlways(skinName);
+				}
 			}
-
-
 		}
 	}
 }

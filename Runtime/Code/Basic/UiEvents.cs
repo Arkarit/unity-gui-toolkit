@@ -36,5 +36,6 @@ namespace GuiToolkit
 		public static CEvent<UiAbstractStyleBase> 						EvStyleApplicableChanged 		= new();
 
 		public static CEvent<UiAbstractStyleBase>						EvDeleteStyle					= new();
+		public static CEvent<string>									EvDeleteSkin					= new();
 	}
 }

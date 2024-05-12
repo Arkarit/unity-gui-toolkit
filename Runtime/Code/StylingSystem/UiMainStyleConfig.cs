@@ -19,6 +19,7 @@ namespace GuiToolkit.Style
 			foreach (var skin in m_skins)
 				skin.Init();
 			UiEvents.EvDeleteStyle.AddListener(OnDeleteStyle);
+			UiEvents.EvDeleteSkin.AddListener(OnDeleteSkin);
 		}
 
 		public void ForeachSkin(Action<UiSkin> action)
@@ -109,6 +110,25 @@ namespace GuiToolkit.Style
 			{
 				skin.DeleteStyle(_style);
 			});
+
+#if UNITY_EDITOR
+			EditorSave(this);
+#endif
+
+			UiEvents.EvSkinChanged.InvokeAlways();
+		}
+
+		private void OnDeleteSkin(string _skinName)
+		{
+			for (int i = 0; i < m_skins.Count; i++)
+			{
+				var skin = m_skins[i];
+				if (skin.Name == _skinName)
+				{
+					m_skins.RemoveAt(i);
+					break;
+				}
+			}
 
 #if UNITY_EDITOR
 			EditorSave(this);
