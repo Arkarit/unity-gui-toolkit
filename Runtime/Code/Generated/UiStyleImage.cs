@@ -8,10 +8,14 @@ namespace GuiToolkit.Style
 	[Serializable]
 	public class UiStyleImage : UiAbstractStyle<UnityEngine.UI.Image>
 	{
-		[SerializeField] private ApplicableValue<UnityEngine.Sprite> m_sprite = new();
-		[SerializeField] private ApplicableValue<UnityEngine.Sprite> m_overrideSprite = new();
-		[SerializeField] private ApplicableValue<UnityEngine.Material> m_material = new();
-		[SerializeField] private ApplicableValue<UnityEngine.Color> m_color = new();
+		private class ApplicableValueSprite : ApplicableValue<UnityEngine.Sprite> {}
+		private class ApplicableValueMaterial : ApplicableValue<UnityEngine.Material> {}
+		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
+
+		[SerializeReference] private ApplicableValueSprite m_sprite = new();
+		[SerializeReference] private ApplicableValueSprite m_overrideSprite = new();
+		[SerializeReference] private ApplicableValueMaterial m_material = new();
+		[SerializeReference] private ApplicableValueColor m_color = new();
 
 		public ApplicableValue<UnityEngine.Sprite> Sprite => m_sprite;
 		public ApplicableValue<UnityEngine.Sprite> OverrideSprite => m_overrideSprite;

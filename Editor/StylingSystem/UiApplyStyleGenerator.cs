@@ -47,24 +47,43 @@ namespace GuiToolkit
 		#endregion
 
 		#region Style class Templates
+
 		// Format string:
-		// 0: qualified property type name
+		// 0: short property type name, starting with upper char
+		// 1: qualified property type name
+		private const string ClassDefinitionTemplate =
+			"		private class ApplicableValue{0} : ApplicableValue<{1}> {{}}\n";
+
+		private string GetClassDefinitionString(string _shortPropertyName, string _qualifiedPropertyTypeName, out string _className)
+		{
+			_shortPropertyName = UpperFirstChar(_shortPropertyName).Replace("[]", "Array");
+			_className = string.Format("ApplicableValue{0}", _shortPropertyName);
+			return string.Format
+			(
+				ClassDefinitionTemplate,
+				_shortPropertyName,
+				_qualifiedPropertyTypeName
+			);
+		}
+
+		// Format string:
+		// 0: class name as got from GetClassDefinitionString()
 		// 1: member name
 		private const string StyleMemberTemplate =
-			"		[SerializeField] private ApplicableValue<{0}> m_{1} = new();\n";
-		private string GetStyleMemberString(string _qualifiedPropertyTypeName, string _memberName)
+			"		[SerializeReference] private {0} m_{1} = new();\n";
+		private string GetStyleMemberString(string _classTypeName, string _memberName)
 		{
 			return string.Format
 			(
 				StyleMemberTemplate, 
-				_qualifiedPropertyTypeName, 
+				_classTypeName, 
 				_memberName
 			);
 		}
 
 		// Format string:
 		// 0: qualified property type name
-		// 1: short property type name, starting with upper char
+		// 1: short property type name
 		// 2: member name
 		private const string StylePropertyTemplate =
 			"		public ApplicableValue<{0}> {1} => m_{2};\n";
@@ -88,6 +107,7 @@ namespace GuiToolkit
 		// 3: qualified type name
 		// 4: members (starting with 2 tabs)
 		// 5: properties (starting with 2 tabs)
+		// 6: Class type definitions
 		private const string StyleTemplate =
 			GeneratedWarningComment
 			+ "using System;\n"
@@ -99,13 +119,15 @@ namespace GuiToolkit
 			+ "	[Serializable]\n"
 			+ "	public class UiStyle{1}{2} : UiAbstractStyle<{3}>\n"
 			+ "	{{\n"
+			+ "{6}"
+			+ "\n"
 			+ "{4}"
 			+ "\n"
 			+ "{5}"
 			+ "	}}\n"
 			+ "}}\n";
 
-		private string GetStyleString(string _namespace, string _prefix, string _shortTypeName, string _qualifiedTypeName, string _members, string _properties)
+		private string GetStyleString(string _namespace, string _prefix, string _shortTypeName, string _qualifiedTypeName, string _members, string _properties, string _classTypeDefinitions)
 		{
 			return string.Format
 			(
@@ -115,7 +137,8 @@ namespace GuiToolkit
 				_shortTypeName,
 				_qualifiedTypeName,
 				_members,
-				_properties
+				_properties,
+				_classTypeDefinitions
 			);
 		}
 
@@ -532,7 +555,10 @@ namespace GuiToolkit
 		{
 			string members = string.Empty;
 			string properties = string.Empty;
+			string classTypeDefinitions = string.Empty;
 			bool foundSome = false;
+
+			Dictionary<string, string> typeStringByTypeName = new();
 
 			foreach (var propertyRecord in m_PropertyRecords)
 			{
@@ -540,9 +566,19 @@ namespace GuiToolkit
 					continue;
 
 				string qualifiedPropertyType = propertyRecord.QualifiedTypeName;
+				string shortPropertyType = propertyRecord.TypeName;
 				string memberName = propertyRecord.Name;
 
-				members += GetStyleMemberString(qualifiedPropertyType, memberName);
+				if (!typeStringByTypeName.ContainsKey(qualifiedPropertyType))
+				{
+					classTypeDefinitions +=
+						GetClassDefinitionString(shortPropertyType, qualifiedPropertyType, out string entry);
+					typeStringByTypeName.Add(qualifiedPropertyType, entry);
+				}
+
+				string className = typeStringByTypeName[qualifiedPropertyType];
+
+				members += GetStyleMemberString(className, memberName);
 				properties += GetStylePropertyString(qualifiedPropertyType, memberName, memberName);
 				foundSome = true;
 			}
@@ -563,7 +599,7 @@ namespace GuiToolkit
 			string qualifiedTypeName = m_monoBehaviourType.FullName;
 
 			return GetStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
-				members, properties);
+				members, properties, classTypeDefinitions);
 		}
 
 		private string GenerateApplicationClass()

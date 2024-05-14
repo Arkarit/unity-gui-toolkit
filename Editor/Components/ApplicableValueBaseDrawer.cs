@@ -30,6 +30,8 @@ namespace GuiToolkit.Editor
 			var isApplicableProp = _property.FindPropertyRelative("IsApplicable");
 			bool isApplicable = isApplicableProp.boolValue;	
 
+			var thisApplicableValueBase = _property.boxedValue as ApplicableValueBase;
+
 			if (isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyDisabled ||
 			    !isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyEnabled)
 			{
