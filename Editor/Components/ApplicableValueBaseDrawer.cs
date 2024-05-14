@@ -32,6 +32,17 @@ namespace GuiToolkit.Editor
 
 			var thisApplicableValueBase = _property.boxedValue as ApplicableValueBase;
 
+			if (thisApplicableValueBase.ValueHasChildren == ETriState.Indeterminate)
+			{
+				var vp = _property.FindPropertyRelative("Value");
+				thisApplicableValueBase.ValueHasChildren = vp.hasChildren ? ETriState.True : ETriState.False;
+				var hasChildrenProp = _property.FindPropertyRelative("ValueHasChildren");
+				hasChildrenProp.intValue = (int) thisApplicableValueBase.ValueHasChildren;
+				_property.serializedObject.ApplyModifiedProperties();
+			}
+
+			bool hasChildren = thisApplicableValueBase.ValueHasChildren == ETriState.True;
+
 			if (isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyDisabled ||
 			    !isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyEnabled)
 			{
@@ -61,7 +72,7 @@ namespace GuiToolkit.Editor
 					new Rect(_position.x + EditorGUIUtility.labelWidth, _position.y, _position.width - EditorGUIUtility.labelWidth, _position.height), 
 					valueProp, 
 					new GUIContent(),
-					valueProp.isExpanded && valueProp.hasChildren
+					valueProp.isExpanded && hasChildren
 				);
 			}
 

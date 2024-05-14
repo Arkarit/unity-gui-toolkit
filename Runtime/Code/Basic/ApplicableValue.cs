@@ -8,30 +8,14 @@ namespace GuiToolkit
 	public class ApplicableValueBase
 	{
 		public bool IsApplicable = false;
+#if UNITY_EDITOR
+		public ETriState ValueHasChildren = ETriState.Indeterminate;
+#endif
 	}
 	
 	[Serializable]
 	public class ApplicableValue<T> : ApplicableValueBase
 	{
-		public delegate T GetterDelegate();
-		public delegate void SetterDelegate(T val);
-
 		public T Value;
-		public GetterDelegate Getter;
-		public SetterDelegate Setter;
-
-		public void Apply()
-		{
-			if (!IsApplicable)
-				return;
-
-			if (Setter == null)
-			{
-				Debug.Log("Attempt to use setter, but setter is not supplied");
-				return;
-			}
-
-			Setter(Value);
-		}
 	}
 }
