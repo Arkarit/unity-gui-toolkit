@@ -23,6 +23,12 @@ namespace GuiToolkit
 
 		protected static T s_instance;
 
+		[SerializeField] private AbstractSingletonMonoBehaviourConfig<T>[] m_children = new  AbstractSingletonMonoBehaviourConfig<T>[0];
+		[SerializeField] private AbstractSingletonMonoBehaviourConfig<T> m_parent = null;
+
+		protected virtual void OnEnable() {}
+
+
 		public static T Instance
 		{
 			get
@@ -61,6 +67,20 @@ namespace GuiToolkit
 				return s_instance;
 			}
 		}
+
+
+		public static void EditorSave(T instance)
+		{
+			if (!AssetDatabase.Contains(instance))
+			{
+				EditorFileUtility.CreateAsset(instance, EditorPath);
+			}
+
+			EditorUtility.SetDirty(instance);
+			AssetDatabase.SaveAssetIfDirty(instance);
+		}
+
+
 
 	}
 }

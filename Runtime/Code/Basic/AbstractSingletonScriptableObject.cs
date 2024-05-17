@@ -30,7 +30,7 @@ namespace GuiToolkit
 						s_instance = Resources.Load<T>(ClassName);
 						if (s_instance == null)
 						{
-							Debug.LogError($"UiToolkitMainSettings could not be loaded from path '{ClassName}'");
+							Debug.LogError($"Scriptable object could not be loaded from path '{ClassName}'");
 							s_instance = CreateInstance<T>();
 						}
 #if UNITY_EDITOR
