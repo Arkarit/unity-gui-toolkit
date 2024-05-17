@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,13 +34,7 @@ namespace GuiToolkit.Editor
 			var thisApplicableValueBase = _property.boxedValue as ApplicableValueBase;
 
 			if (thisApplicableValueBase.ValueHasChildren == ETriState.Indeterminate)
-			{
-				var vp = _property.FindPropertyRelative("Value");
-				thisApplicableValueBase.ValueHasChildren = vp.hasChildren ? ETriState.True : ETriState.False;
-				var hasChildrenProp = _property.FindPropertyRelative("ValueHasChildren");
-				hasChildrenProp.intValue = (int) thisApplicableValueBase.ValueHasChildren;
-				_property.serializedObject.ApplyModifiedProperties();
-			}
+				thisApplicableValueBase.ValueHasChildren = DoesValueHaveChildren(_property, thisApplicableValueBase) ? ETriState.True : ETriState.False;
 
 			bool hasChildren = thisApplicableValueBase.ValueHasChildren == ETriState.True;
 
@@ -79,6 +74,38 @@ namespace GuiToolkit.Editor
 			EditorGUI.EndProperty();
 		}
 
+		private static bool DoesValueHaveChildren(SerializedProperty _property, ApplicableValueBase _thisApplicableValueBase)
+		{
+			if (!_thisApplicableValueBase.IsApplicable)
+				return false;
+
+			var valueObj = _thisApplicableValueBase.ValueObj;
+			if (valueObj == null)
+				return false;
+
+			var type = valueObj.GetType();
+			if (type.IsPrimitive)
+				return false;
+
+			switch (valueObj)
+			{
+				case Color c:
+				case string s:
+				case Quaternion q:
+				case Vector2 v2:
+				case Vector2Int v2i:
+				case Vector3 v3:
+				case Vector3Int v3i:
+				case Vector4 v4:
+				case HorizontalAlignmentOptions:
+				case Material:
+					return false;
+			}
+
+			var valueProp = _property.FindPropertyRelative("Value");
+			return valueProp.hasChildren;
+		}
+
 		public override float GetPropertyHeight(SerializedProperty _property, GUIContent label)
 		{
 			var isApplicableProp = _property.FindPropertyRelative("IsApplicable");
@@ -93,7 +120,8 @@ namespace GuiToolkit.Editor
 				return EditorGUIUtility.singleLineHeight;
 
 			var valueProp = _property.FindPropertyRelative("Value");
-			return EditorGUI.GetPropertyHeight(valueProp, valueProp.isExpanded && valueProp.hasChildren);
+			var thisApplicableValueBase = _property.boxedValue as ApplicableValueBase;
+			return EditorGUI.GetPropertyHeight(valueProp, DoesValueHaveChildren(_property, thisApplicableValueBase));
 		}
 	}
 }

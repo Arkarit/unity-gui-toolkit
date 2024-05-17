@@ -44,7 +44,7 @@ namespace GuiToolkit.Style.Editor
 			m_height += _height;
 		}
 
-		protected void PropertyField(SerializedProperty _property, float _gap = 0)
+		protected void PropertyField(SerializedProperty _property, bool _withChildren = true, float _gap = 0)
 		{
 			var propertyHeight = EditorGUI.GetPropertyHeight(_property) + _gap;
 			if (propertyHeight == 0)
@@ -57,7 +57,7 @@ namespace GuiToolkit.Style.Editor
 			}
 
 			var drawRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, propertyHeight);
-			EditorGUI.PropertyField(drawRect, _property, _property.isExpanded && _property.hasChildren);
+			EditorGUI.PropertyField(drawRect, _property, _withChildren);
 			NextRect(propertyHeight);
 		}
 
