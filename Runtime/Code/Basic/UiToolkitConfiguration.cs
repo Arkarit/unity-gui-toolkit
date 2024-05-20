@@ -74,7 +74,7 @@ namespace GuiToolkit
 		public string m_additionalScenesPath = "Scenes/";
 
 		[Tooltip(HELP_STYLE_CONFIG)]
-		public UiMainStyleConfig m_styleConfig;
+		public UiStyleConfig m_styleConfig;
 
 		[Tooltip(HELP_DEBUG_LOCA)]
 		public bool m_debugLoca = false;

@@ -25,21 +25,21 @@ namespace GuiToolkit.Editor
 			string selectedName;
 
 			EditorGUILayout.LabelField("Local Settings", EditorStyles.boldLabel);
-			var styleNames = UiMainStyleConfig.Instance.GetStyleNamesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedMonoBehaviourType);
+			var styleNames = UiStyleConfig.Instance.GetStyleNamesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedMonoBehaviourType);
 			int styleCountBefore = styleNames.Count;
 			if (EditorUiUtility.StringPopup("Style", styleNames, m_nameProp.stringValue, out selectedName,
 				    null, false, "Add Style", "Adds a new style") != -1)
 			{
 				if (styleNames.Count > styleCountBefore)
 				{
-					UiMainStyleConfig.Instance.ForeachSkin(skin =>
+					UiStyleConfig.Instance.ForeachSkin(skin =>
 					{
 						var newStyle = m_thisAbstractApplyStyleBase.CreateStyle(selectedName, m_thisAbstractApplyStyleBase.Style);
 						newStyle.Init();
 						skin.Styles.Add(newStyle);
 					});
 
-					UiMainStyleConfig.Instance.EditorSave();
+					UiStyleConfig.Instance.EditorSave();
 				}
 
 				m_thisAbstractApplyStyleBase.Name = selectedName;
@@ -50,11 +50,11 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.Space(10);
 			EditorGUILayout.LabelField("Global Settings", EditorStyles.boldLabel);
 
-			var skinNames = UiMainStyleConfig.Instance.SkinNames;
-			if (EditorUiUtility.StringPopup("Current Skin", skinNames, UiMainStyleConfig.Instance.CurrentSkinName, out selectedName,
+			var skinNames = UiStyleConfig.Instance.SkinNames;
+			if (EditorUiUtility.StringPopup("Current Skin", skinNames, UiStyleConfig.Instance.CurrentSkinName, out selectedName,
 				    null, false, "Add Skin", "Adds a new skin") != -1)
 			{
-				UiMainStyleConfig.Instance.CurrentSkinName = selectedName;
+				UiStyleConfig.Instance.CurrentSkinName = selectedName;
 			}
 
 			DrawDefaultInspector();

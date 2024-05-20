@@ -6,7 +6,7 @@ using UnityEngine;
 namespace GuiToolkit.Style
 {
 	[ExecuteAlways]
-	public class UiMainStyleConfig : MonoBehaviour
+	public class UiStyleConfig : MonoBehaviour
 	{
 		[NonReorderable][SerializeField] private List<UiSkin> m_skins = new();
 
@@ -14,7 +14,7 @@ namespace GuiToolkit.Style
 
 		public List<UiSkin> Skins => m_skins;
 
-		public static UiMainStyleConfig Instance => UiToolkitConfiguration.Instance.m_styleConfig;
+		public static UiStyleConfig Instance => UiToolkitConfiguration.Instance.m_styleConfig;
 
 		protected virtual void OnEnable()
 		{

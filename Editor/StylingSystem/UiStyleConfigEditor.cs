@@ -1,28 +1,23 @@
 using System;
-using System.Collections.Generic;
-using Codice.Client.GameUI.Checkin;
 using GuiToolkit.Style;
-using GuiToolkit.Style.Editor;
 using UnityEditor;
-using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace GuiToolkit.Editor
 {
-	[CustomEditor(typeof(UiMainStyleConfig), true)]
-	public class UiMainStyleConfigEditor : UnityEditor.Editor
+	[CustomEditor(typeof(UiStyleConfig), true)]
+	public class UiStyleConfigEditor : UnityEditor.Editor
 	{
 		private const float PerSkinGap = 20;
 
 		private SerializedProperty m_skinsProp;
 		private SerializedProperty m_currentSkinIdxProp;
-		private UiMainStyleConfig m_thisUiMainStyleConfig;
+		private UiStyleConfig m_thisUiStyleConfig;
 
 		protected virtual void OnEnable()
 		{
 			m_skinsProp = serializedObject.FindProperty("m_skins");
 			m_currentSkinIdxProp = serializedObject.FindProperty("m_currentSkinIdx");
-			m_thisUiMainStyleConfig = target as UiMainStyleConfig;
+			m_thisUiStyleConfig = target as UiStyleConfig;
 		}
 
 		public override void OnInspectorGUI()
@@ -32,7 +27,7 @@ namespace GuiToolkit.Editor
 			Draw();
 			EditorGUILayout.Space(10);
 
-			var skinNames = UiMainStyleConfig.Instance.SkinNames;
+			var skinNames = UiStyleConfig.Instance.SkinNames;
 			int numSkins = skinNames.Count;
 			string copyFrom = skinNames.Count > 0 ? skinNames[0] : string.Empty;
 
@@ -50,7 +45,7 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.Space(20);
 			};
 
-			if (EditorUiUtility.StringPopup("Current Skin", skinNames, UiMainStyleConfig.Instance.CurrentSkinName, out string selectedName,
+			if (EditorUiUtility.StringPopup("Current Skin", skinNames, UiStyleConfig.Instance.CurrentSkinName, out string selectedName,
 				    null, false, "Add Skin", "Adds a new skin", additionalContent) != -1)
 			{
 				if (numSkins != skinNames.Count)
@@ -58,7 +53,7 @@ namespace GuiToolkit.Editor
 					AddSkin(selectedName, copyFrom);
 				}
 
-				UiMainStyleConfig.Instance.CurrentSkinName = selectedName;
+				UiStyleConfig.Instance.CurrentSkinName = selectedName;
 			}
 
 			serializedObject.ApplyModifiedProperties();
@@ -79,7 +74,7 @@ namespace GuiToolkit.Editor
 
 		private string AddSkin(string _name, string _copyFromName)
 		{
-			if (m_thisUiMainStyleConfig.SkinNames.Contains(_name))
+			if (m_thisUiStyleConfig.SkinNames.Contains(_name))
 				return string.Empty;
 
 			var newSkin = new UiSkin(_name);
@@ -87,7 +82,7 @@ namespace GuiToolkit.Editor
 			UiSkin copyFrom = null;
 			if (!string.IsNullOrEmpty(_copyFromName))
 			{
-				foreach (var skin in m_thisUiMainStyleConfig.Skins)
+				foreach (var skin in m_thisUiStyleConfig.Skins)
 				{
 					if (skin.Name == _copyFromName)
 					{
@@ -109,7 +104,7 @@ namespace GuiToolkit.Editor
 			m_skinsProp.arraySize += 1;
 			m_skinsProp.GetArrayElementAtIndex(m_skinsProp.arraySize - 1).boxedValue = newSkin;
 			serializedObject.ApplyModifiedProperties();
-			UiMainStyleConfig.Instance.EditorSave();
+			UiStyleConfig.Instance.EditorSave();
 			return _name;
 		}
 	}

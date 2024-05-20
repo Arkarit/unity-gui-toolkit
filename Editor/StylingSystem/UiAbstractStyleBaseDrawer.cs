@@ -71,7 +71,7 @@ namespace GuiToolkit.Style.Editor
 					{
 						UiEvents.EvStyleApplicableChanged.InvokeAlways(currentStyle);
 #if UNITY_EDITOR
-						UiMainStyleConfig.Instance.EditorSave();
+						UiStyleConfig.Instance.EditorSave();
 #endif
 					}
 				}
