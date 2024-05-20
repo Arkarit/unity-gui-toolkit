@@ -220,7 +220,7 @@ namespace GuiToolkit
 		{
 #if UNITY_EDITOR
 			// never init if we're a prefab
-			if (EditorUiUtility.IsPrefab(gameObject))
+			if (EditorObjectUtility.IsPrefab(gameObject))
 				return;
 #endif
 

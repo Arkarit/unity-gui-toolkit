@@ -225,7 +225,7 @@ namespace GuiToolkit.Style.Editor
 
 		protected void Background(float _xOffs = 0, float _yOffs = 0, float _plusWidth = 0, float _plusHeight = 0) =>
 			Background(
-				EditorUiUtility.ColorPerSkin(new Color(0, 0, 0, .05f),new Color(1,1,1,0.05f)), 
+				EditorUiUtility.ColorPerEditorSkin(new Color(0, 0, 0, .05f),new Color(1,1,1,0.05f)), 
 				_xOffs, 
 				_yOffs, 
 				_plusWidth, 
@@ -234,7 +234,7 @@ namespace GuiToolkit.Style.Editor
 
 		protected void Background(Color _lightSkin, Color _darkSkin, float _xOffs = 0, float _yOffs = 0, float _plusWidth = 0, float _plusHeight = 0) =>
 			Background(
-				EditorUiUtility.ColorPerSkin(_lightSkin, _darkSkin), 
+				EditorUiUtility.ColorPerEditorSkin(_lightSkin, _darkSkin), 
 				_xOffs, 
 				_yOffs, 
 				_plusWidth, 
@@ -259,7 +259,7 @@ namespace GuiToolkit.Style.Editor
 
 		protected void BackgroundAbsHeight(float _xOffs, float _yOffs, float _plusWidth, float _height) =>
 			BackgroundAbsHeight(
-				EditorUiUtility.ColorPerSkin(new Color(0, 0, 0, .05f),new Color(1,1,1,0.05f)), 
+				EditorUiUtility.ColorPerEditorSkin(new Color(0, 0, 0, .05f),new Color(1,1,1,0.05f)), 
 				_xOffs, 
 				_yOffs, 
 				_plusWidth, 
@@ -268,7 +268,7 @@ namespace GuiToolkit.Style.Editor
 
 		protected void BackgroundAbsHeight(Color _lightSkin, Color _darkSkin, float _xOffs, float _yOffs, float _plusWidth, float _height) =>
 			BackgroundAbsHeight(
-				EditorUiUtility.ColorPerSkin(_lightSkin, _darkSkin), 
+				EditorUiUtility.ColorPerEditorSkin(_lightSkin, _darkSkin), 
 				_xOffs, 
 				_yOffs, 
 				_plusWidth, 

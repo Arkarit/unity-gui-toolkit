@@ -13,21 +13,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: DefaultStyleConfig Variant
       objectReference: {fileID: 0}
-    - target: {fileID: 4498618002992385939, guid: 5da7536743792664b9d8ba05ec933b44,
-        type: 3}
-      propertyPath: managedReferences[6698005404950462554].Value.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4498618002992385939, guid: 5da7536743792664b9d8ba05ec933b44,
-        type: 3}
-      propertyPath: managedReferences[6698005404950462554].Value.g
-      value: 0.6415094
-      objectReference: {fileID: 0}
-    - target: {fileID: 4498618002992385939, guid: 5da7536743792664b9d8ba05ec933b44,
-        type: 3}
-      propertyPath: managedReferences[6698005404950462554].Value.r
-      value: 0.6335904
-      objectReference: {fileID: 0}
     - target: {fileID: 6509657293336357534, guid: 5da7536743792664b9d8ba05ec933b44,
         type: 3}
       propertyPath: m_LocalPosition.x

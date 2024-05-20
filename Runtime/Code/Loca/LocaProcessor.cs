@@ -25,16 +25,16 @@ namespace GuiToolkit
 			LocaManager.Instance.Clear();
 
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
-			EditorUiUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent);
+			EditorObjectUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent);
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
-			EditorUiUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent);
+			EditorObjectUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent);
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scriptable objects", 0.2f);
-			EditorUiUtility.FindAllComponentsInAllScriptableObjects<ILocaClient>(FoundComponent);
+			EditorObjectUtility.FindAllComponentsInAllScriptableObjects<ILocaClient>(FoundComponent);
 
-			m_numScripts = EditorUiUtility.FindAllScriptsCount();
+			m_numScripts = EditorObjectUtility.FindAllScriptsCount();
 			m_currentScriptIdx = 0;
 
-			EditorUiUtility.FindAllScripts(FoundScript);
+			EditorObjectUtility.FindAllScripts(FoundScript);
 
 			EditorUtility.ClearProgressBar();
 
