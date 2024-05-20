@@ -96,7 +96,7 @@ namespace GuiToolkit.Editor
 			{
 				foreach (var style in copyFrom.Styles)
 				{
-					var newStyle = style.Clone();
+					var newStyle = EditorObjectUtility.SafeClone(style);
 					newSkin.Styles.Add(newStyle);
 				}
 			}
