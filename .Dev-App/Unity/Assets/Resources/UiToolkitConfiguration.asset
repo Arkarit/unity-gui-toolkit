@@ -19,7 +19,7 @@ MonoBehaviour:
     m_scenePath: Assets/Scenes/DemoScene1.unity
   m_loadMainSceneOnPlay: 1
   m_additionalScenesPath: Scenes/
-  m_styleConfig: {fileID: 4498618002992385939, guid: 5da7536743792664b9d8ba05ec933b44,
+  m_styleConfig: {fileID: 2668182008924653639, guid: fa0fad8c9813a5d4f8f312c4f67b232d,
     type: 3}
   m_debugLoca: 1
   m_potPath: Assets/Resources/loca.pot
