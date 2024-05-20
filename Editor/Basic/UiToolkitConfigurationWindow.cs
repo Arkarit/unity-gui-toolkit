@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using GuiToolkit.Style;
+using UnityEditor;
 using UnityEngine;
 
 namespace GuiToolkit.Editor
@@ -77,6 +78,20 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_GENERATED_ASSETS_DIR, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_generatedAssetsDir"), true);
+
+			if (m_firstTimeInit)
+			{
+				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_STYLE_CONFIG, MessageType.Info);
+			}
+			var styleConfigProp = m_serializedSettingsObject.FindProperty("m_styleConfig");
+			if (styleConfigProp.objectReferenceValue == null)
+			{
+				var path = EditorFileUtility.GetUiToolkitRootProjectDir() + "Resources/DefaultStyleConfig.prefab";
+				var styleConfig = AssetDatabase.LoadAssetAtPath<UiMainStyleConfigNew>(path);
+				styleConfigProp.objectReferenceValue = styleConfig;
+			}
+			EditorGUILayout.PropertyField(styleConfigProp, true);
 
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_debugLoca"));

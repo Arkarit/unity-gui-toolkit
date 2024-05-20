@@ -55,7 +55,11 @@ namespace GuiToolkit
 			"Project location of the POT file (translation template containing keys, editor only). This is only necessary if you actually use translation.";
 
 		public const string HELP_GENERATED_ASSETS_DIR =
-			  "Several assets need to be generated. Choose your directory here for these files.";
+			"Several assets need to be generated. Choose your directory here for these files.";
+
+		public const string HELP_STYLE_CONFIG =
+			"Here you can enter your style config.\n" + 
+			"Hint: Create a prefab variant of the default style config, and enter that here to override builtin styles.";
 
 		/// \endcond
 
@@ -69,8 +73,12 @@ namespace GuiToolkit
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
 		public string m_additionalScenesPath = "Scenes/";
 
+		[Tooltip(HELP_STYLE_CONFIG)]
+		public UiMainStyleConfigNew m_styleConfig;
+
 		[Tooltip(HELP_DEBUG_LOCA)]
 		public bool m_debugLoca = false;
+
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 

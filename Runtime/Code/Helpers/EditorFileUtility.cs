@@ -46,7 +46,6 @@ namespace GuiToolkit
 			if (removeExtension)
 			{
 				result = Path.GetDirectoryName(result) + "/" + Path.GetFileNameWithoutExtension(result);
-Debug.Log($"result:{result}");
 			}
 
 			return result;
