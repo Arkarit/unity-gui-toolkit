@@ -414,13 +414,13 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         Value: 0
     - rid: 6698005269190017206
       type: {class: UiStyleTMP_Text/ApplicableValueVertexGradient, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         Value:
           topLeft: {r: 1, g: 1, b: 1, a: 1}
           topRight: {r: 1, g: 1, b: 1, a: 1}
@@ -582,13 +582,13 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueTMP_FontAsset, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 0
+        IsApplicable: 1
         Value: {fileID: 11400000, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
     - rid: 6698005269190017233
       type: {class: UiStyleTMP_Text/ApplicableValueMaterial, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 0
+        IsApplicable: 1
         Value: {fileID: 0}
     - rid: 6698005269190017234
       type: {class: UiStyleTMP_Text/ApplicableValueMaterialArray, ns: GuiToolkit.Style,
