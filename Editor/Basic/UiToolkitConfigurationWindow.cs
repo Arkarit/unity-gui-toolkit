@@ -88,7 +88,7 @@ namespace GuiToolkit.Editor
 			if (styleConfigProp.objectReferenceValue == null)
 			{
 				var path = EditorFileUtility.GetUiToolkitRootProjectDir() + "Resources/DefaultStyleConfig.prefab";
-				var styleConfig = AssetDatabase.LoadAssetAtPath<UiMainStyleConfigNew>(path);
+				var styleConfig = AssetDatabase.LoadAssetAtPath<UiMainStyleConfig>(path);
 				styleConfigProp.objectReferenceValue = styleConfig;
 			}
 			EditorGUILayout.PropertyField(styleConfigProp, true);

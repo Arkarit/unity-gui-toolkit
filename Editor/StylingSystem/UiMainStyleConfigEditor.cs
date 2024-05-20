@@ -109,7 +109,7 @@ namespace GuiToolkit.Editor
 			m_skinsProp.arraySize += 1;
 			m_skinsProp.GetArrayElementAtIndex(m_skinsProp.arraySize - 1).boxedValue = newSkin;
 			serializedObject.ApplyModifiedProperties();
-			UiMainStyleConfig.EditorSave(UiMainStyleConfig.Instance);
+			UiMainStyleConfig.Instance.EditorSave();
 			return _name;
 		}
 	}

@@ -39,7 +39,7 @@ namespace GuiToolkit.Editor
 						skin.Styles.Add(newStyle);
 					});
 
-					UiMainStyleConfig.EditorSave(UiMainStyleConfig.Instance);
+					UiMainStyleConfig.Instance.EditorSave();
 				}
 
 				m_thisAbstractApplyStyleBase.Name = selectedName;

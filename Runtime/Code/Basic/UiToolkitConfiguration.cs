@@ -74,7 +74,7 @@ namespace GuiToolkit
 		public string m_additionalScenesPath = "Scenes/";
 
 		[Tooltip(HELP_STYLE_CONFIG)]
-		public UiMainStyleConfigNew m_styleConfig;
+		public UiMainStyleConfig m_styleConfig;
 
 		[Tooltip(HELP_DEBUG_LOCA)]
 		public bool m_debugLoca = false;
@@ -157,7 +157,7 @@ namespace GuiToolkit
 		{
 			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
 			m_loadMainSceneOnPlay = m_sceneReferences.Length > 0;
-			UiMainStyleConfig.Initialize();
+//			UiMainStyleConfig.Initialize();
 		}
 
 		public static string GetProjectScenePath(string _sceneName)
