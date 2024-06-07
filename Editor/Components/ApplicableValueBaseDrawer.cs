@@ -33,11 +33,6 @@ namespace GuiToolkit.Editor
 
 			var thisApplicableValueBase = _property.boxedValue as ApplicableValueBase;
 
-			if (thisApplicableValueBase.ValueHasChildren == ETriState.Indeterminate)
-				thisApplicableValueBase.ValueHasChildren = DoesValueHaveChildren(_property, thisApplicableValueBase) ? ETriState.True : ETriState.False;
-
-			bool hasChildren = thisApplicableValueBase.ValueHasChildren == ETriState.True;
-
 			if (isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyDisabled ||
 			    !isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyEnabled)
 			{
@@ -67,7 +62,7 @@ namespace GuiToolkit.Editor
 					new Rect(_position.x + EditorGUIUtility.labelWidth, _position.y, _position.width - EditorGUIUtility.labelWidth, _position.height), 
 					valueProp, 
 					new GUIContent(),
-					valueProp.isExpanded && hasChildren
+					valueProp.isExpanded
 				);
 			}
 

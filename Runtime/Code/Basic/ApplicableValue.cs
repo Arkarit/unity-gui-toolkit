@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -8,16 +9,37 @@ namespace GuiToolkit
 	public abstract class ApplicableValueBase
 	{
 		public bool IsApplicable = false;
-#if UNITY_EDITOR
-		[NonSerialized] public ETriState ValueHasChildren = ETriState.Indeterminate;
-#endif
 		public abstract object ValueObj { get;}
 	}
 	
 	[Serializable]
 	public class ApplicableValue<T> : ApplicableValueBase
 	{
-		public T Value;
-		public override object ValueObj => Value;
+		[SerializeField] private readonly List<T> m_values = new();
+		[SerializeField] private int m_index = 0;
+
+		public override object ValueObj
+		{
+			get
+			{
+				if (m_index >= 0 && m_index < m_values.Count)
+				{
+					return m_values[m_index];
+				}
+				return null;
+			}
+		}
+
+		public T Value
+		{
+			get => (T)ValueObj;
+			set
+			{
+				if (m_index < 0 || m_index >= m_values.Count)
+					return;
+
+				m_values[m_index] = value;
+			}
+		}
 	}
 }
