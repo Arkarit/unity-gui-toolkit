@@ -9,56 +9,15 @@ namespace GuiToolkit.Editor
 	public class UiAbstractApplyStyleBaseEditor : UnityEditor.Editor
 	{
 		private UiAbstractApplyStyleBase m_thisAbstractApplyStyleBase;
-		SerializedProperty 	m_nameProp;
 
 		protected virtual void OnEnable()
 		{
 			m_thisAbstractApplyStyleBase = target as UiAbstractApplyStyleBase;
-			m_nameProp = serializedObject.FindProperty("m_name");
 		}
 
 		public override void OnInspectorGUI()
 		{
-			if (m_thisAbstractApplyStyleBase.Style == null)
-				m_thisAbstractApplyStyleBase.SetStyle();
-
-			string selectedName;
-
-			EditorGUILayout.LabelField("Local Settings", EditorStyles.boldLabel);
-			var styleNames = UiStyleConfig.Instance.GetStyleNamesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedMonoBehaviourType);
-			int styleCountBefore = styleNames.Count;
-			if (EditorUiUtility.StringPopup("Style", styleNames, m_nameProp.stringValue, out selectedName,
-				    null, false, "Add Style", "Adds a new style") != -1)
-			{
-				if (styleNames.Count > styleCountBefore)
-				{
-					UiStyleConfig.Instance.ForeachSkin(skin =>
-					{
-						var newStyle = m_thisAbstractApplyStyleBase.CreateStyle(selectedName, m_thisAbstractApplyStyleBase.Style);
-						newStyle.Init();
-						skin.Styles.Add(newStyle);
-					});
-
-					UiStyleConfig.Instance.EditorSave();
-				}
-
-				m_thisAbstractApplyStyleBase.Name = selectedName;
-				m_thisAbstractApplyStyleBase.Apply();
-				EditorUtility.SetDirty(m_thisAbstractApplyStyleBase);
-			}
-
-			EditorGUILayout.Space(10);
-			EditorGUILayout.LabelField("Global Settings", EditorStyles.boldLabel);
-
-			var skinNames = UiStyleConfig.Instance.SkinNames;
-			if (EditorUiUtility.StringPopup("Current Skin", skinNames, UiStyleConfig.Instance.CurrentSkinName, out selectedName,
-				    null, false, "Add Skin", "Adds a new skin") != -1)
-			{
-				UiStyleConfig.Instance.CurrentSkinName = selectedName;
-			}
-
 			DrawDefaultInspector();
-			serializedObject.ApplyModifiedProperties();
 		}
 	}
 }

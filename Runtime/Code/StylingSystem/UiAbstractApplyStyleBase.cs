@@ -51,15 +51,7 @@ namespace GuiToolkit.Style
 
 		public UiAbstractStyleBase FindStyle()
 		{
-			UiSkin currentSkin = UiStyleConfig.Instance.CurrentSkin;
-			if (currentSkin == null)
-				return null;
-
-			var result = currentSkin.StyleByKey(Key);
-			if (result != null)
-				return result;
-
-			return currentSkin.FindFirstStyleForMonoBehaviour(SupportedMonoBehaviourType);
+			return null;
 		}
 
 		public void SetStyle()
