@@ -88,8 +88,6 @@ namespace GuiToolkit.Style
 			if (!SpecificMonoBehaviour)
 				return result;
 
-			result.Name = _name;
-
 			if (_template != null)
 			{
 				var specificTemplate = (UiStyleTMP_Text) _template;

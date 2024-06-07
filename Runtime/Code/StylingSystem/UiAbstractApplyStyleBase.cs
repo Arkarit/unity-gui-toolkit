@@ -57,8 +57,6 @@ namespace GuiToolkit.Style
 		public void SetStyle()
 		{
 			m_style = FindStyle();
-			if (m_style != null)
-				m_name = m_style.Name;
 		}
 	}
 }
