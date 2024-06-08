@@ -84,13 +84,16 @@ namespace GuiToolkit.Style.Editor
 			List<string> _strings, 
 			string _current,
 			out string _newSelection,
+			out int _newIndex,
 			string _labelText2 = null, 
 			bool showRemove = false, 
 			string _addItemHeadline = null,
 			string _addItemDescription = null
 		)
 		{
-			_newSelection = string.Empty;
+			_newSelection = null;
+			_newIndex = -1;
+
 			var propertyHeight = SingleLineHeight;
 			if (m_collectHeightMode)
 			{
@@ -99,7 +102,7 @@ namespace GuiToolkit.Style.Editor
 			}
 
 			var drawRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, propertyHeight);
-			var result = EditorUiUtility.StringPopup(drawRect, _labelText, _strings, _current, out _newSelection,
+			var result = EditorUiUtility.StringPopup(drawRect, _labelText, _strings, _current, out _newSelection, out _newIndex,
 				_labelText2, showRemove, _addItemHeadline, _addItemDescription);
 
 			NextRect(propertyHeight);

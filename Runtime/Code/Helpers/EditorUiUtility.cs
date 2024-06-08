@@ -197,11 +197,12 @@ namespace GuiToolkit
 				_thisSerializedProperty.GetArrayElementAtIndex(i).managedReferenceValue = objects[i];
 		}
 
-		public static int StringPopup(
+		public static bool StringPopup(
 			string _labelText, 
 			List<string> _strings, 
 			string _current, 
 			out string _newSelection, 
+			out int _newIndex,
 			string _labelText2 = null, 
 			bool _showRemove = false, 
 			string _addItemHeadline = null, 
@@ -211,39 +212,41 @@ namespace GuiToolkit
 		{
 			_newSelection = _current;
 			bool allowAdd = !string.IsNullOrEmpty(_addItemHeadline);
+			_newIndex = -1;
 
-			if (!StringPopupPrepare(_strings, _current, allowAdd, out var currentInt)) 
-				return -1;
+			if (!StringPopupPrepare(_strings, _current, allowAdd, out var currentIndex))
+				return false;
 
 			EditorGUILayout.BeginHorizontal();
 			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
 			if (!string.IsNullOrEmpty(_labelText2))
 				GUILayout.Label(_labelText2, GUILayout.Width(LABEL_WIDTH));
-			int newInt = EditorGUILayout.Popup(currentInt, _strings.ToArray());
 
-			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, _additionalContent, ref _newSelection))
-				return newInt;
+			_newIndex = EditorGUILayout.Popup(currentIndex, _strings.ToArray());
+
+			if (StringPopupAddNewEntryIfNecessary(_strings, ref _newIndex, allowAdd, _addItemHeadline, _addItemDescription, _additionalContent, ref _newSelection))
+				return true;
 
 			if (_showRemove && _strings.Count > 0 && GUILayout.Button(EditorGUIUtility.IconContent("P4_DeletedLocal")))
 			{
-				_strings.RemoveAt(newInt);
-				if (newInt >= _strings.Count)
-					newInt = 0;
+				_strings.RemoveAt(_newIndex);
+				if (_newIndex >= _strings.Count)
+					_newIndex = _strings.Count -1;
 				EditorGUILayout.EndHorizontal();
-				_newSelection = _strings.Count > 0 ? _strings[newInt] : null;
-				return newInt;
+				_newSelection = _strings.Count > 0 ? _strings[_newIndex] : null;
+				return true;
 			}
 
 			EditorGUILayout.EndHorizontal();
 
 			if (_strings.Count == 0)
-				return -1;
+				return false;
 
-			if (newInt >= _strings.Count || newInt < 0)
-				return -1;
+			if (_newIndex >= _strings.Count || _newIndex < 0)
+				return false;
 
-			_newSelection = _strings[newInt];
-			return currentInt != newInt ? newInt : -1;
+			_newSelection = _strings[_newIndex];
+			return _newIndex != currentIndex;
 		}
 
 		public static bool StringPopup(
@@ -252,6 +255,7 @@ namespace GuiToolkit
 			List<string> _strings, 
 			string _current, 
 			out string _newSelection, 
+			out int _newIndex,
 			string _labelText2 = null, 
 			bool _showRemove = false, 
 			string _addItemHeadline = null, 
@@ -261,8 +265,9 @@ namespace GuiToolkit
 		{
 			_newSelection = _current;
 			bool allowAdd = !string.IsNullOrEmpty(_addItemHeadline);
+			_newIndex = -1;
 
-			if (!StringPopupPrepare(_strings, _current, allowAdd, out var currentInt)) 
+			if (!StringPopupPrepare(_strings, _current, allowAdd, out var currentIndex)) 
 				return false;
 
 			Rect labelRect = new Rect(_pos.x, _pos.y, EditorGUIUtility.labelWidth, _pos.height);
@@ -281,9 +286,9 @@ namespace GuiToolkit
 			int removeButtonWidth = _showRemove ? 50 : 0;
 			Rect popupRect = new Rect(_pos.x, _pos.y, _pos.width - removeButtonWidth, _pos.height);
 
-			int newInt = EditorGUI.Popup(popupRect, currentInt, _strings.ToArray());
+			_newIndex = EditorGUI.Popup(popupRect, currentIndex, _strings.ToArray());
 
-			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, _additionalContent, ref _newSelection))
+			if (StringPopupAddNewEntryIfNecessary(_strings, ref _newIndex, allowAdd, _addItemHeadline, _addItemDescription, _additionalContent, ref _newSelection))
 				return true;
 
 			_pos.x += popupRect.width;
@@ -291,18 +296,18 @@ namespace GuiToolkit
 
 			if (_showRemove && _strings.Count > 0 && GUI.Button(_pos, EditorGUIUtility.IconContent("P4_DeletedLocal")))
 			{
-				_strings.RemoveAt(newInt);
-				if (newInt >= _strings.Count)
-					newInt = 0;
-				_newSelection = _strings.Count > 0 ? _strings[newInt] : null;
+				_strings.RemoveAt(_newIndex);
+				if (_newIndex >= _strings.Count)
+					_newIndex = 0;
+				_newSelection = _strings.Count > 0 ? _strings[_newIndex] : null;
 				return true;
 			}
 
 			if (_strings.Count == 0)
 				return false;
 
-			_newSelection = _strings[newInt];
-			return currentInt != newInt;
+			_newSelection = _strings[_newIndex];
+			return _newIndex != currentIndex;
 		}
 
 		private static bool StringPopupPrepare(List<string> _strings, string _current, bool _allowAdd, out int _currentIdx)
@@ -337,7 +342,7 @@ namespace GuiToolkit
 
 		private static bool StringPopupAddNewEntryIfNecessary(
 			List<string> _strings, 
-			int _idx, 
+			ref int _idx, 
 			bool _allowAdd, 
 			string _addItemHeadline, 
 			string _addItemDescription,
@@ -371,7 +376,7 @@ namespace GuiToolkit
 		public static bool LanguagePopup( string _labelText, string _current, out string _new, string _labelText2 = " ")
 		{
 			var languages = LocaManager.Instance.AvailableLanguages.ToList();
-			return StringPopup(_labelText, languages, _current, out _new, _labelText2) != -1;
+			return StringPopup(_labelText, languages, _current, out _new, out int _, _labelText2);
 		}
 
 		public static void FlagEnumPopup<T>(SerializedProperty _prop, string _labelText) where T : Enum

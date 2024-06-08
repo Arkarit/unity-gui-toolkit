@@ -315,10 +315,10 @@ namespace GuiToolkit
 				typeNames.Add(type.FullName);
 			}
 
-			int idx = EditorUiUtility.StringPopup("Type", typeNames, m_monoBehaviourType.FullName,
-				out string newSelection);
+			bool typeChanged = EditorUiUtility.StringPopup("Type", typeNames, m_monoBehaviourType.FullName,
+				out string newSelection, out int idx);
 
-			if (idx != -1)
+			if (typeChanged && idx >= 0)
 			{
 				m_monoBehaviourType = types[idx];
 				CollectProperties(_internal, false);
