@@ -40,11 +40,11 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			EditorGUI.BeginChangeCheck();
 			var newIsApplicable = EditorGUI.Toggle(new Rect(_position.x, _position.y, ToggleWidth, EditorGUIUtility.singleLineHeight), isApplicableProp.boolValue);
-			if (EditorGUI.EndChangeCheck())
+			if (newIsApplicable != isApplicable)
 			{
-				isApplicableProp.boolValue = newIsApplicable;
+				isApplicable = newIsApplicable;
+				thisApplicableValueBase.IsApplicable = isApplicable;
 			}
 
 			EditorGUI.LabelField(new Rect(_position.x + ToggleWidth, _position.y, EditorGUIUtility.labelWidth - ToggleWidth, EditorGUIUtility.singleLineHeight), _label);
@@ -55,18 +55,32 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			var valueProp = _property.FindPropertyRelative("Value");
-			using (new EditorGUI.DisabledScope(newIsApplicable == false))
+			var valueProp = GetValueProp(_property);
+			if (valueProp != null)
 			{
-				EditorGUI.PropertyField(
-					new Rect(_position.x + EditorGUIUtility.labelWidth, _position.y, _position.width - EditorGUIUtility.labelWidth, _position.height), 
-					valueProp, 
-					new GUIContent(),
-					valueProp.isExpanded
-				);
+				using (new EditorGUI.DisabledScope(newIsApplicable == false))
+				{
+					EditorGUI.PropertyField(
+						new Rect(_position.x + EditorGUIUtility.labelWidth, _position.y, _position.width - EditorGUIUtility.labelWidth, _position.height), 
+						valueProp, 
+						new GUIContent(),
+						valueProp.isExpanded
+					);
+				}
 			}
 
 			EditorGUI.EndProperty();
+		}
+
+		private static SerializedProperty GetValueProp(SerializedProperty _property)
+		{
+			var propArray = _property.FindPropertyRelative("m_values");
+			var indexProp = _property.FindPropertyRelative("m_index");
+			int index = indexProp.intValue;
+			if (index < 0 || index >= propArray.arraySize)
+				return null;
+
+			return propArray.GetArrayElementAtIndex(index);
 		}
 
 		private static bool DoesValueHaveChildren(SerializedProperty _property, ApplicableValueBase _thisApplicableValueBase)

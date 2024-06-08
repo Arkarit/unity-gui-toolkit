@@ -8,6 +8,9 @@ namespace GuiToolkit
 	[Serializable]
 	public abstract class ApplicableValueBase
 	{
+		[SerializeReference] protected List<object> m_values = new();
+		[SerializeField] protected int m_index = 0;
+
 		public bool IsApplicable = false;
 		public abstract object ValueObj { get;}
 	}
@@ -15,8 +18,6 @@ namespace GuiToolkit
 	[Serializable]
 	public class ApplicableValue<T> : ApplicableValueBase
 	{
-		[SerializeField] private readonly List<T> m_values = new();
-		[SerializeField] private int m_index = 0;
 
 		public override object ValueObj
 		{
@@ -32,7 +33,7 @@ namespace GuiToolkit
 
 		public T Value
 		{
-			get => (T)ValueObj;
+			get => (T) ValueObj;
 			set
 			{
 				if (m_index < 0 || m_index >= m_values.Count)
