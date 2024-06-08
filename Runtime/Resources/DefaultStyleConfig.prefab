@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6509657293336357534}
   - component: {fileID: 4498618002992385939}
   - component: {fileID: -7995205406560289620}
+  - component: {fileID: 643345578323175338}
   m_Layer: 0
   m_Name: DefaultStyleConfig
   m_TagString: Untagged
@@ -73,20 +74,67 @@ MonoBehaviour:
       data:
         m_values: []
         m_index: 0
-        IsApplicable: 0
+        IsApplicable: 1
     - rid: 4848181243441578284
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
         m_index: 0
-        IsApplicable: 0
+        IsApplicable: 1
     - rid: 4848181243441578285
       type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
         m_index: 0
-        IsApplicable: 0
+        IsApplicable: 1
     - rid: 4848181243441578286
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_values: []
+        m_index: 0
+        IsApplicable: 0
+--- !u!114 &643345578323175338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920459335839323151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57b95071c9321f74ba1d0b4ee52dc855, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_sprite:
+    rid: 4848181243441578499
+  m_overrideSprite:
+    rid: 4848181243441578500
+  m_material:
+    rid: 4848181243441578501
+  m_color:
+    rid: 4848181243441578502
+  references:
+    version: 2
+    RefIds:
+    - rid: 4848181243441578499
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_values: []
+        m_index: 0
+        IsApplicable: 0
+    - rid: 4848181243441578500
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_values: []
+        m_index: 0
+        IsApplicable: 0
+    - rid: 4848181243441578501
+      type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_values: []
+        m_index: 0
+        IsApplicable: 0
+    - rid: 4848181243441578502
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
