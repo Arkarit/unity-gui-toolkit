@@ -46,6 +46,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca34141c3f506704892c2c8f8c1c8920, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_styles:
+  - Bla
+  - Blupp
+  - Lorem
+  - Ipsum
 --- !u!114 &-7995205406560289620
 MonoBehaviour:
   m_ObjectHideFlags: 0

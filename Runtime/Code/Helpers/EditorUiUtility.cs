@@ -203,7 +203,7 @@ namespace GuiToolkit
 			string _current, 
 			out string _newSelection, 
 			string _labelText2 = null, 
-			bool showRemove = false, 
+			bool _showRemove = false, 
 			string _addItemHeadline = null, 
 			string _addItemDescription = null,
 			Action<EditorInputDialog> _additionalContent = null
@@ -224,7 +224,7 @@ namespace GuiToolkit
 			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, _additionalContent, ref _newSelection))
 				return newInt;
 
-			if (showRemove && _strings.Count > 0 && GUILayout.Button(EditorGUIUtility.IconContent("P4_DeletedLocal")))
+			if (_showRemove && _strings.Count > 0 && GUILayout.Button(EditorGUIUtility.IconContent("P4_DeletedLocal")))
 			{
 				_strings.RemoveAt(newInt);
 				if (newInt >= _strings.Count)
