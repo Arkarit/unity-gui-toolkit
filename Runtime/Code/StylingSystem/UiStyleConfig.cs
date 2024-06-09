@@ -16,6 +16,12 @@ namespace GuiToolkit.Style
 			get => m_index;
 			set
 			{
+				if (value == -1 && m_skins.Count == 0)
+				{
+					m_index = -1;
+					return;
+				}
+
 				if (value < 0 || value >= m_skins.Count)
 					throw new ArgumentOutOfRangeException("");
 

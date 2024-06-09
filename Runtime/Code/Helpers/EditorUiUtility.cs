@@ -3,6 +3,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using UnityEditor;
 
@@ -362,10 +363,7 @@ namespace GuiToolkit
 				return false;
 
 			if (_strings.Contains(newEntry))
-			{
-				Debug.LogError($"Can not add '{newEntry}'; already contained in the list of strings");
-				return false;
-			}
+				throw new DuplicateNameException($"Can not add '{newEntry}'; already contained in the list of strings");
 
 			_strings.Add(newEntry);
 			_idx = _strings.Count - 1;
