@@ -23,10 +23,10 @@ namespace GuiToolkit.Style
 				}
 
 				if (value < 0 || value >= m_skins.Count)
-					throw new ArgumentOutOfRangeException("");
+					throw new ArgumentOutOfRangeException();
 
 				m_index = value;
-				// Event
+				UiEvents.EvSkinChanged.InvokeAlways();
 			}
 		}
 
@@ -51,7 +51,7 @@ namespace GuiToolkit.Style
 					if (skin == value)
 					{
 						m_index = i;
-						// Event
+						UiEvents.EvSkinChanged.InvokeAlways();
 						return;
 					}
 				}
@@ -60,10 +60,12 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		public UiAbstractStyleBase[] Styles => GetComponents<UiAbstractStyleBase>();
+
 		public void AddSkin(string skinName)
 		{
 			m_skins.Add(skinName);
-			// Event
+			UiEvents.EvSkinChanged.InvokeAlways();
 		}
 
 		public void RemoveCurrentSkin()
@@ -75,7 +77,7 @@ namespace GuiToolkit.Style
 			if (m_index >= m_skins.Count)
 				m_index = m_skins.Count - 1;
 
-			// Event
+			UiEvents.EvSkinChanged.InvokeAlways();
 		}
 
 		public static UiStyleConfig Instance => UiToolkitConfiguration.Instance.m_styleConfig;

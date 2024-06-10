@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	// Just a stub to satisfy PropertyDrawer
 	[Serializable]
 	public abstract class ApplicableValueBase
 	{

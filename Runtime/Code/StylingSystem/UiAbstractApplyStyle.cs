@@ -70,7 +70,7 @@ namespace GuiToolkit.Style
 #if UNITY_EDITOR
 			string oldName = Name;
 #endif
-
+Debug.Log("Skin changed");
 			SetStyle();
 			Apply();
 

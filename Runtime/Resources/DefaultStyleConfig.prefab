@@ -47,9 +47,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_skins:
-  - Bla
-  - Blupp
-  m_index: 1
+  - Dark
+  - Bright
+  m_index: 0
 --- !u!114 &-7995205406560289620
 MonoBehaviour:
   m_ObjectHideFlags: 0
