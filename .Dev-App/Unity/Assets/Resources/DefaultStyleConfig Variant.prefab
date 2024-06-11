@@ -8,16 +8,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 643345578323175338, guid: 5da7536743792664b9d8ba05ec933b44,
-        type: 3}
-      propertyPath: managedReferences[4848181243441578500].IsApplicable
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 643345578323175338, guid: 5da7536743792664b9d8ba05ec933b44,
-        type: 3}
-      propertyPath: managedReferences[4848181243441578501].IsApplicable
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1920459335839323151, guid: 5da7536743792664b9d8ba05ec933b44,
         type: 3}
       propertyPath: m_Name
@@ -2148,6 +2138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 029b9e1523e297a4aa6df057c9fdcd9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_name: 
   m_font:
     rid: 4848181243441578515
   m_fontSharedMaterial:
@@ -2224,6 +2215,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578516
@@ -2231,6 +2223,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578517
@@ -2238,6 +2231,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578518
@@ -2245,6 +2239,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578519
@@ -2252,18 +2247,21 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578520
       type: {class: UiStyleTMP_Text/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578521
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578522
@@ -2271,6 +2269,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578523
@@ -2278,6 +2277,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578524
@@ -2285,6 +2285,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578525
@@ -2292,6 +2293,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578526
@@ -2299,6 +2301,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578527
@@ -2306,6 +2309,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578528
@@ -2313,6 +2317,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578529
@@ -2320,6 +2325,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578530
@@ -2327,18 +2333,21 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578531
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578532
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578533
@@ -2346,18 +2355,21 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578534
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578535
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578536
@@ -2365,6 +2377,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578537
@@ -2372,6 +2385,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578538
@@ -2379,6 +2393,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578539
@@ -2386,42 +2401,49 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578540
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578541
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578542
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578543
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578544
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578545
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578546
@@ -2429,6 +2451,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578547
@@ -2436,6 +2459,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578548
@@ -2443,5 +2467,6 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0

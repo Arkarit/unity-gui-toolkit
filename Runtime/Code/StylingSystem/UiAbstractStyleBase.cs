@@ -7,15 +7,17 @@ namespace GuiToolkit.Style
 	// We can not use a real interface here because Unity refuses to serialize
 	public abstract class UiAbstractStyleBase : MonoBehaviour
 	{
-		[SerializeField] private List<ApplicableValueBase> m_Values = new();
+		public abstract List<ApplicableValueBase> Values { get; }
 
 		public abstract Type SupportedMonoBehaviourType { get; }
 
-		public bool Empty => m_Values.Count == 0;
+		public bool Empty => Skin == null;
 
 		[SerializeField][HideInInspector] private string m_name;
 		
 		private int m_key;
+
+		public string Skin => Values[0].Skin;
 
 		public string Name
 		{
@@ -34,28 +36,16 @@ namespace GuiToolkit.Style
 			}
 		}
 
-		public virtual void Init()
+		public void AddSkin(string _skinName, object _defaultValue)
 		{
-			UiEvents.EvStyleApplicableChanged.RemoveListener(OnStyleApplicableChanged);
-			UiEvents.EvStyleApplicableChanged.AddListener(OnStyleApplicableChanged);
+			foreach (var value in Values)
+				value.AddSkin(_skinName, _defaultValue);
 		}
 
-		public UiAbstractStyleBase Clone()
+		public void RemoveSkin(string _skinName)
 		{
-			return MemberwiseClone() as UiAbstractStyleBase;
-		}
-
-		private void OnStyleApplicableChanged(UiAbstractStyleBase _from)
-		{
-			if (_from == this || _from == null)
-				return;
-
-			if (Key != _from.Key)
-				return;
-
-			Debug.Assert(GetType() == _from.GetType());
-
-			UiStyleUtility.SynchronizeApplicableness(_from, this);
+			foreach (var value in Values)
+				value.RemoveSkin(_skinName);
 		}
 	}
 }

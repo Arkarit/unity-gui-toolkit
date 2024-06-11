@@ -4,7 +4,6 @@ using UnityEditor;
 using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
-using Object = UnityEngine.Object;
 
 namespace GuiToolkit
 {
@@ -17,23 +16,6 @@ namespace GuiToolkit
 	/// See https://answers.unity.com/questions/426184/acces-script-in-the-editor-folder.html for reasons.
 	public static class EditorObjectUtility
 	{
-		class TempScriptableObject : ScriptableObject
-		{
-			[SerializeReference] public object Value;
-		}
-
-		public static T SafeClone<T>(T _obj)
-		{
-			var original = ScriptableObject.CreateInstance<TempScriptableObject>();
-			original.Value = _obj;
-			var cloned = Object.Instantiate(original);
-			var result = (T) cloned.Value;
-			original.Destroy(false);
-			cloned.Destroy(false);
-
-			return result;
-		}
-
 		public static bool IsEditingPrefab( GameObject _go )
 		{
 			return PrefabStageUtility.GetPrefabStage(_go) != null || _go.scene.name == null;

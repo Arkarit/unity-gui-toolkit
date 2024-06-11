@@ -1,5 +1,6 @@
 // Auto-generated, please do not change!
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using GuiToolkit.Style;
 
@@ -8,6 +9,7 @@ namespace GuiToolkit.Style
 	[Serializable]
 	public class UiStyleImage : UiAbstractStyle<UnityEngine.UI.Image>
 	{
+		private readonly List<ApplicableValueBase> m_values = new();
 		private class ApplicableValueSprite : ApplicableValue<UnityEngine.Sprite> {}
 		private class ApplicableValueMaterial : ApplicableValue<UnityEngine.Material> {}
 		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
@@ -21,5 +23,21 @@ namespace GuiToolkit.Style
 		public ApplicableValue<UnityEngine.Sprite> OverrideSprite => m_overrideSprite;
 		public ApplicableValue<UnityEngine.Material> Material => m_material;
 		public ApplicableValue<UnityEngine.Color> Color => m_color;
+
+		public override List<ApplicableValueBase> Values
+		{
+			get
+			{
+				if (m_values.Count == 0)
+				{
+					m_values.Add(m_sprite);
+					m_values.Add(m_overrideSprite);
+					m_values.Add(m_material);
+					m_values.Add(m_color);
+				}
+
+				return m_values;
+			}
+		}
 	}
 }

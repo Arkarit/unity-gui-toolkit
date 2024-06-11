@@ -46,10 +46,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca34141c3f506704892c2c8f8c1c8920, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_skins:
-  - Dark
-  - Bright
-  m_index: 0
+  m_skins: []
+  m_index: -1
 --- !u!114 &-7995205406560289620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -62,6 +60,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57b95071c9321f74ba1d0b4ee52dc855, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_name: 
   m_sprite:
     rid: 4848181243441578283
   m_overrideSprite:
@@ -77,24 +76,28 @@ MonoBehaviour:
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 1
     - rid: 4848181243441578284
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 1
     - rid: 4848181243441578285
       type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 1
     - rid: 4848181243441578286
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
 --- !u!114 &643345578323175338
@@ -109,6 +112,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57b95071c9321f74ba1d0b4ee52dc855, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_name: 
   m_sprite:
     rid: 4848181243441578499
   m_overrideSprite:
@@ -124,23 +128,27 @@ MonoBehaviour:
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578500
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578501
       type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0
     - rid: 4848181243441578502
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_values: []
+        m_skins: []
         m_index: 0
         IsApplicable: 0

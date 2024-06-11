@@ -2,12 +2,14 @@
 using System;
 using UnityEngine;
 using GuiToolkit.Style;
+using System.Collections.Generic;
 
 namespace GuiToolkit.Style
 {
 	[Serializable]
 	public class UiStyleTMP_Text : UiAbstractStyle<TMPro.TMP_Text>
 	{
+		private readonly List<ApplicableValueBase> m_values = new();
 		private class ApplicableValueTMP_FontAsset : ApplicableValue<TMPro.TMP_FontAsset> {}
 		private class ApplicableValueMaterial : ApplicableValue<UnityEngine.Material> {}
 		private class ApplicableValueMaterialArray : ApplicableValue<UnityEngine.Material[]> {}
@@ -96,5 +98,52 @@ namespace GuiToolkit.Style
 		public ApplicableValue<System.Boolean> ExtraPadding => m_extraPadding;
 		public ApplicableValue<UnityEngine.Vector4> Margin => m_margin;
 		public ApplicableValue<UnityEngine.Material> Material => m_material;
+
+		public override List<ApplicableValueBase> Values
+		{
+			get
+			{
+				if (m_values.Count == 0)
+				{
+					m_values.Add(m_font);
+					m_values.Add(m_fontSharedMaterial);
+					m_values.Add(m_fontSharedMaterials);
+					m_values.Add(m_fontMaterial);
+					m_values.Add(m_fontMaterials);
+					m_values.Add(m_color);
+					m_values.Add(m_alpha);
+					m_values.Add(m_enableVertexGradient);
+					m_values.Add(m_colorGradient);
+					m_values.Add(m_colorGradientPreset);
+					m_values.Add(m_spriteAsset);
+					m_values.Add(m_styleSheet);
+					m_values.Add(m_textStyle);
+					m_values.Add(m_overrideColorTags);
+					m_values.Add(m_faceColor);
+					m_values.Add(m_outlineColor);
+					m_values.Add(m_outlineWidth);
+					m_values.Add(m_fontSize);
+					m_values.Add(m_fontWeight);
+					m_values.Add(m_fontSizeMin);
+					m_values.Add(m_fontSizeMax);
+					m_values.Add(m_fontStyle);
+					m_values.Add(m_horizontalAlignment);
+					m_values.Add(m_verticalAlignment);
+					m_values.Add(m_alignment);
+					m_values.Add(m_characterSpacing);
+					m_values.Add(m_wordSpacing);
+					m_values.Add(m_lineSpacing);
+					m_values.Add(m_lineSpacingAdjustment);
+					m_values.Add(m_paragraphSpacing);
+					m_values.Add(m_characterWidthAdjustment);
+					m_values.Add(m_extraPadding);
+					m_values.Add(m_margin);
+					m_values.Add(m_material);
+				}
+
+				return m_values;
+			}
+		}
+
 	}
 }
