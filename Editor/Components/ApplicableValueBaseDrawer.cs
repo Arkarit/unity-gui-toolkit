@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEditor;
 using UnityEngine;
-
+#if false
 namespace GuiToolkit.Editor
 {
 	[CustomPropertyDrawer(typeof(ApplicableValueBase), true)]
@@ -134,3 +134,5 @@ namespace GuiToolkit.Editor
 		}
 	}
 }
+
+#endif

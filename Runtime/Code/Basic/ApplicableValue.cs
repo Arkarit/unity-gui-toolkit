@@ -8,12 +8,23 @@ namespace GuiToolkit
 	[Serializable]
 	public abstract class ApplicableValueBase
 	{
-		[SerializeReference] protected List<object> m_values = new();
+		public bool IsApplicable = false;
+		public abstract string Skin { get; set; }
+		public abstract void RemoveSkin(string _skinName);
+		public abstract void AddSkin(string _skinName, object _defaultValue);
+		public abstract object ValueObj { get; }
+	}
+
+	[Serializable]
+	public class ApplicableValue<T> : ApplicableValueBase
+	{
+		[SerializeReference] protected List<T> m_values = new();
 		[SerializeField] protected List<string> m_skins = new();
 		[SerializeField] protected int m_index = -1;
 
-		public bool IsApplicable = false;
-		public object ValueObj
+		public override object ValueObj => Value;
+
+		public T Value
 		{
 			get
 			{
@@ -22,7 +33,7 @@ namespace GuiToolkit
 					return m_values[m_index];
 				}
 
-				return null;
+				return default;
 			}
 			set
 			{
@@ -33,7 +44,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public string Skin
+		public override string Skin
 		{
 			get
 			{
@@ -41,6 +52,12 @@ namespace GuiToolkit
 			}
 			set
 			{
+				if (value == null)
+				{
+					m_index = -1;
+					return;
+				}
+
 				for (int i = 0; i < m_skins.Count; i++)
 				{
 					if (m_skins[i] == value)
@@ -54,7 +71,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public void RemoveSkin(string _skinName)
+		public override void RemoveSkin(string _skinName)
 		{
 			for (int i = 0; i < m_skins.Count; i++)
 			{
@@ -70,25 +87,16 @@ namespace GuiToolkit
 			}
 		}
 
-		public void AddSkin(string _skinName, object _defaultValue)
+		public override void AddSkin(string _skinName, object _defaultValue)
 		{
 			if (m_skins.Contains(_skinName))
 				throw new DuplicateNameException($"Skin name '{_skinName}' already defined");
 
 			m_skins.Add(_skinName);
-			m_values.Add( _defaultValue == null ? null : ObjectUtility.SafeClone(_defaultValue));
+			m_values.Add((T) _defaultValue);
 			if (m_index == -1)
 				m_index = 0;
 		}
-	}
 
-	[Serializable]
-	public class ApplicableValue<T> : ApplicableValueBase
-	{
-		public T Value
-		{
-			get => (T) ValueObj;
-			set => ValueObj = value;
-		}
 	}
 }

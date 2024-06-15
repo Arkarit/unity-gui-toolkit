@@ -153,7 +153,7 @@ namespace GuiToolkit.Style
 			{
 				if (m_defaultValues.Count == 0)
 				{
-					var defaultComponent = this.GetOrCreateComponent<TMPro.TMP_Text>();
+					var defaultComponent = this.GetOrCreateComponent<TMPro.TextMeshPro>();
 
 					m_defaultValues.Add(defaultComponent.font);
 					m_defaultValues.Add(defaultComponent.fontSharedMaterial);

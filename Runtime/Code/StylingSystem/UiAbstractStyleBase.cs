@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace GuiToolkit.Style
 {
+	[ExecuteAlways]
 	// We can not use a real interface here because Unity refuses to serialize
 	public abstract class UiAbstractStyleBase : MonoBehaviour
 	{
@@ -38,6 +39,10 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		protected virtual void Awake()
+		{
+		}
+
 		protected virtual void OnEnable()
 		{
 			UiEvents.EvSkinAdded.AddListener(OnSkinAdded);
@@ -70,7 +75,7 @@ namespace GuiToolkit.Style
 			for (int i = 0; i < Values.Count; i++)
 			{
 				var value = Values[i];
-				value.AddSkin(_name, DefaultValues[i]);
+				value.AddSkin(_name, defaultValues[i]);
 			}
 		}
 	}

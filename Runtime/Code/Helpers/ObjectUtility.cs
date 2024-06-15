@@ -9,18 +9,32 @@ namespace GuiToolkit
 		private class TempScriptableObject : ScriptableObject
 		{
 			[SerializeReference] public object Value;
+			[SerializeField] public UnityEngine.Object ValueObj;
 		}
 
 		public static T SafeClone<T>(T _obj)
 		{
+			var unityObject = _obj as Object;
+
+			bool isUnityObject = _obj is UnityEngine.Object;
+
+			if (_obj == null)
+				return _obj;
+
 			var original = ScriptableObject.CreateInstance<TempScriptableObject>();
-			original.Value = _obj;
+
+			if (isUnityObject)
+				original.ValueObj = _obj as Object;
+			else
+				original.Value = _obj;
+
 			var cloned = Object.Instantiate(original);
-			var result = (T) cloned.Value;
+			object result = isUnityObject ? cloned.ValueObj : cloned.Value;
+
 			original.Destroy(false);
 			cloned.Destroy(false);
 
-			return result;
+			return (T) result;
 		}
 	}
 }

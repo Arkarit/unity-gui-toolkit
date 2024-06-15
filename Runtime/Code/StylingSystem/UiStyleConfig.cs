@@ -76,7 +76,10 @@ namespace GuiToolkit.Style
 		public void RemoveCurrentSkin()
 		{
 			if (m_index < 0)
+			{
+				m_skins.Clear();
 				return;
+			}
 
 			var skinToRemove = Skin;
 			m_skins.RemoveAt(m_index);
