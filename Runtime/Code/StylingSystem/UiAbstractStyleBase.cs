@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace GuiToolkit.Style
 {
@@ -41,32 +44,60 @@ namespace GuiToolkit.Style
 
 		protected virtual void Awake()
 		{
+			ReAddListeners();
 		}
 
 		protected virtual void OnEnable()
+		{
+			ReAddListeners();
+		}
+
+		protected virtual void OnDisable()
+		{
+			RemoveListeners();
+		}
+
+		protected virtual void OnValidate()
+		{
+			ReAddListeners();
+		}
+
+		private void AddListeners()
 		{
 			UiEvents.EvSkinAdded.AddListener(OnSkinAdded);
 			UiEvents.EvSkinRemoved.AddListener(OnSkinRemoved);
 			UiEvents.EvSkinChanged.AddListener(OnSkinChanged);
 		}
 
-		protected virtual void OnDisable()
+		private void RemoveListeners()
 		{
 			UiEvents.EvSkinAdded.RemoveListener(OnSkinAdded);
 			UiEvents.EvSkinRemoved.RemoveListener(OnSkinRemoved);
 			UiEvents.EvSkinChanged.RemoveListener(OnSkinChanged);
 		}
 
+		private void ReAddListeners()
+		{
+			RemoveListeners();
+			AddListeners();
+		}
+
 		private void OnSkinChanged(string _name)
 		{
 			foreach (var value in Values)
 				value.Skin = _name;
+#if UNITY_EDITOR
+			EditorUtility.SetDirty(this);
+#endif
 		}
 
 		private void OnSkinRemoved(string _name)
 		{
 			foreach (var value in Values)
 				value.RemoveSkin(_name);
+#if UNITY_EDITOR
+			EditorUtility.SetDirty(this);
+#endif
 		}
 
 		private void OnSkinAdded(string _name)
@@ -77,6 +108,9 @@ namespace GuiToolkit.Style
 				var value = Values[i];
 				value.AddSkin(_name, defaultValues[i]);
 			}
+#if UNITY_EDITOR
+			EditorUtility.SetDirty(this);
+#endif
 		}
 	}
 }
