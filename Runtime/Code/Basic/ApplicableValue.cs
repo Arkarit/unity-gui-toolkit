@@ -77,7 +77,7 @@ namespace GuiToolkit
 				throw new DuplicateNameException($"Skin name '{_skinName}' already defined");
 
 			m_skins.Add(_skinName);
-			m_values.Add(ObjectUtility.SafeClone(_defaultValue));
+			m_values.Add( _defaultValue == null ? null : ObjectUtility.SafeClone(_defaultValue));
 			if (m_index == -1)
 				m_index = 0;
 		}

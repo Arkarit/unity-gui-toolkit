@@ -65,7 +65,7 @@ namespace GuiToolkit.Style
 			UiEvents.EvSkinChanged.RemoveListener(OnSkinChanged);
 		}
 
-		private void OnSkinChanged()
+		private void OnSkinChanged(string skinName)
 		{
 #if UNITY_EDITOR
 			string oldName = Name;

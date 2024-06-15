@@ -29,9 +29,8 @@ namespace GuiToolkit
 		public static CEvent<EScreenOrientation,EScreenOrientation>		EvScreenOrientationChange		= new();
 
 		/// \brief Invoked if skin has changed
-		public static CEvent											EvSkinChanged					= new();
-
-		public static CEvent<string>									EvRemoveSkin					= new();
-		public static CEvent<string>									EvAddSkin						= new();
+		public static CEvent<string>									EvSkinRemoved					= new();
+		public static CEvent<string>									EvSkinAdded						= new();
+		public static CEvent<string>									EvSkinChanged					= new();
 	}
 }

@@ -36,16 +36,36 @@ namespace GuiToolkit.Style
 			}
 		}
 
-		public void AddSkin(string _skinName, object _defaultValue)
+		protected virtual void OnEnable()
 		{
-			foreach (var value in Values)
-				value.AddSkin(_skinName, _defaultValue);
+			UiEvents.EvSkinAdded.AddListener(OnSkinAdded);
+			UiEvents.EvSkinRemoved.AddListener(OnSkinRemoved);
+			UiEvents.EvSkinChanged.AddListener(OnSkinChanged);
 		}
 
-		public void RemoveSkin(string _skinName)
+		protected virtual void OnDisable()
+		{
+			UiEvents.EvSkinAdded.RemoveListener(OnSkinAdded);
+			UiEvents.EvSkinRemoved.RemoveListener(OnSkinRemoved);
+			UiEvents.EvSkinChanged.RemoveListener(OnSkinChanged);
+		}
+
+		private void OnSkinChanged(string _name)
 		{
 			foreach (var value in Values)
-				value.RemoveSkin(_skinName);
+				value.Skin = _name;
+		}
+
+		private void OnSkinRemoved(string _name)
+		{
+			foreach (var value in Values)
+				value.RemoveSkin(_name);
+		}
+
+		private void OnSkinAdded(string _name)
+		{
+			foreach (var value in Values)
+				value.AddSkin(_name, null);
 		}
 	}
 }

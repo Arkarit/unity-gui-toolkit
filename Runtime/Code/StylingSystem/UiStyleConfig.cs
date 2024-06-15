@@ -26,7 +26,7 @@ namespace GuiToolkit.Style
 					throw new ArgumentOutOfRangeException();
 
 				m_index = value;
-				UiEvents.EvSkinChanged.InvokeAlways();
+				UiEvents.EvSkinChanged.InvokeAlways(Skin);
 			}
 		}
 
@@ -51,7 +51,7 @@ namespace GuiToolkit.Style
 					if (skin == value)
 					{
 						m_index = i;
-						UiEvents.EvSkinChanged.InvokeAlways();
+						UiEvents.EvSkinChanged.InvokeAlways(Skin);
 						return;
 					}
 				}
@@ -62,10 +62,15 @@ namespace GuiToolkit.Style
 
 		public UiAbstractStyleBase[] Styles => GetComponents<UiAbstractStyleBase>();
 
-		public void AddSkin(string skinName)
+		public void AddSkin(string skinName, bool _setIndex = true)
 		{
 			m_skins.Add(skinName);
-			UiEvents.EvSkinChanged.InvokeAlways();
+			UiEvents.EvSkinAdded.InvokeAlways(skinName);
+			if (!_setIndex)
+				return;
+
+			m_index = m_skins.Count - 1;
+			UiEvents.EvSkinChanged.InvokeAlways(Skin);
 		}
 
 		public void RemoveCurrentSkin()
@@ -73,11 +78,13 @@ namespace GuiToolkit.Style
 			if (m_index < 0)
 				return;
 
+			var skinToRemove = Skin;
 			m_skins.RemoveAt(m_index);
 			if (m_index >= m_skins.Count)
 				m_index = m_skins.Count - 1;
 
-			UiEvents.EvSkinChanged.InvokeAlways();
+			UiEvents.EvSkinRemoved.InvokeAlways(skinToRemove);
+			UiEvents.EvSkinChanged.InvokeAlways(Skin);
 		}
 
 		public static UiStyleConfig Instance => UiToolkitConfiguration.Instance.m_styleConfig;
