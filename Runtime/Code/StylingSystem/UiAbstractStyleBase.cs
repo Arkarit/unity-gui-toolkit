@@ -11,6 +11,8 @@ namespace GuiToolkit.Style
 
 		public abstract Type SupportedMonoBehaviourType { get; }
 
+		public abstract List<object> DefaultValues { get; }
+
 		public bool Empty => Skin == null;
 
 		[SerializeField][HideInInspector] private string m_name;
@@ -64,8 +66,12 @@ namespace GuiToolkit.Style
 
 		private void OnSkinAdded(string _name)
 		{
-			foreach (var value in Values)
-				value.AddSkin(_name, null);
+			var defaultValues = DefaultValues;
+			for (int i = 0; i < Values.Count; i++)
+			{
+				var value = Values[i];
+				value.AddSkin(_name, DefaultValues[i]);
+			}
 		}
 	}
 }

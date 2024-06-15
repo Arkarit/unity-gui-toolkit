@@ -10,6 +10,8 @@ namespace GuiToolkit.Style
 	public class UiStyleImage : UiAbstractStyle<UnityEngine.UI.Image>
 	{
 		private readonly List<ApplicableValueBase> m_values = new();
+		private readonly List<object> m_defaultValues = new();
+
 		private class ApplicableValueSprite : ApplicableValue<UnityEngine.Sprite> {}
 		private class ApplicableValueMaterial : ApplicableValue<UnityEngine.Material> {}
 		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
@@ -37,6 +39,24 @@ namespace GuiToolkit.Style
 				}
 
 				return m_values;
+			}
+		}
+
+		public override List<object> DefaultValues
+		{
+			get
+			{
+				if (m_defaultValues.Count == 0)
+				{
+					var defaultComponent = this.GetOrCreateComponent<UnityEngine.UI.Image>();
+
+					m_defaultValues.Add(defaultComponent.sprite);
+					m_defaultValues.Add(defaultComponent.overrideSprite);
+					m_defaultValues.Add(defaultComponent.material);
+					m_defaultValues.Add(defaultComponent.color);
+				}
+
+				return m_defaultValues;
 			}
 		}
 	}

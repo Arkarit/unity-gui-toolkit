@@ -10,6 +10,8 @@ namespace GuiToolkit.Style
 	public class UiStyleTMP_Text : UiAbstractStyle<TMPro.TMP_Text>
 	{
 		private readonly List<ApplicableValueBase> m_values = new();
+		private readonly List<object> m_defaultValues = new();
+
 		private class ApplicableValueTMP_FontAsset : ApplicableValue<TMPro.TMP_FontAsset> {}
 		private class ApplicableValueMaterial : ApplicableValue<UnityEngine.Material> {}
 		private class ApplicableValueMaterialArray : ApplicableValue<UnityEngine.Material[]> {}
@@ -142,6 +144,54 @@ namespace GuiToolkit.Style
 				}
 
 				return m_values;
+			}
+		}
+
+		public override List<object> DefaultValues
+		{
+			get
+			{
+				if (m_defaultValues.Count == 0)
+				{
+					var defaultComponent = this.GetOrCreateComponent<TMPro.TMP_Text>();
+
+					m_defaultValues.Add(defaultComponent.font);
+					m_defaultValues.Add(defaultComponent.fontSharedMaterial);
+					m_defaultValues.Add(defaultComponent.fontSharedMaterials);
+					m_defaultValues.Add(defaultComponent.fontMaterial);
+					m_defaultValues.Add(defaultComponent.fontMaterials);
+					m_defaultValues.Add(defaultComponent.color);
+					m_defaultValues.Add(defaultComponent.alpha);
+					m_defaultValues.Add(defaultComponent.enableVertexGradient);
+					m_defaultValues.Add(defaultComponent.colorGradient);
+					m_defaultValues.Add(defaultComponent.colorGradientPreset);
+					m_defaultValues.Add(defaultComponent.spriteAsset);
+					m_defaultValues.Add(defaultComponent.styleSheet);
+					m_defaultValues.Add(defaultComponent.textStyle);
+					m_defaultValues.Add(defaultComponent.overrideColorTags);
+					m_defaultValues.Add(defaultComponent.faceColor);
+					m_defaultValues.Add(defaultComponent.outlineColor);
+					m_defaultValues.Add(defaultComponent.outlineWidth);
+					m_defaultValues.Add(defaultComponent.fontSize);
+					m_defaultValues.Add(defaultComponent.fontWeight);
+					m_defaultValues.Add(defaultComponent.fontSizeMin);
+					m_defaultValues.Add(defaultComponent.fontSizeMax);
+					m_defaultValues.Add(defaultComponent.fontStyle);
+					m_defaultValues.Add(defaultComponent.horizontalAlignment);
+					m_defaultValues.Add(defaultComponent.verticalAlignment);
+					m_defaultValues.Add(defaultComponent.alignment);
+					m_defaultValues.Add(defaultComponent.characterSpacing);
+					m_defaultValues.Add(defaultComponent.wordSpacing);
+					m_defaultValues.Add(defaultComponent.lineSpacing);
+					m_defaultValues.Add(defaultComponent.lineSpacingAdjustment);
+					m_defaultValues.Add(defaultComponent.paragraphSpacing);
+					m_defaultValues.Add(defaultComponent.characterWidthAdjustment);
+					m_defaultValues.Add(defaultComponent.extraPadding);
+					m_defaultValues.Add(defaultComponent.margin);
+					m_defaultValues.Add(defaultComponent.material);
+				}
+
+				return m_defaultValues;
 			}
 		}
 
