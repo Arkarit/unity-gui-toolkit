@@ -52,8 +52,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_skins:
-  - "\xF6klj\xF6j"
-  m_index: 0
+  - Bright
+  - Dark
+  m_index: 1
 --- !u!222 &973647198593696732
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -122,33 +123,41 @@ MonoBehaviour:
         IsApplicable: 0
         m_values:
         - {fileID: 0}
+        - {fileID: 0}
         m_skins:
-        - "\xF6klj\xF6j"
-        m_index: 0
+        - Bright
+        - Dark
+        m_index: 1
     - rid: 4848181429574566105
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_values:
         - {fileID: 0}
+        - {fileID: 0}
         m_skins:
-        - "\xF6klj\xF6j"
-        m_index: 0
+        - Bright
+        - Dark
+        m_index: 1
     - rid: 4848181429574566106
       type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_values:
         - {fileID: 0}
+        - {fileID: 0}
         m_skins:
-        - "\xF6klj\xF6j"
-        m_index: 0
+        - Bright
+        - Dark
+        m_index: 1
     - rid: 4848181429574566107
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
         m_values:
         - {r: 1, g: 1, b: 1, a: 1}
+        - {r: 1, g: 0, b: 0, a: 1}
         m_skins:
-        - "\xF6klj\xF6j"
-        m_index: 0
+        - Bright
+        - Dark
+        m_index: 1
