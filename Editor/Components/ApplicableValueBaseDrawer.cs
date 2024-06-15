@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEditor;
 using UnityEngine;
-#if false
+#if true
 namespace GuiToolkit.Editor
 {
 	[CustomPropertyDrawer(typeof(ApplicableValueBase), true)]
@@ -111,8 +111,7 @@ namespace GuiToolkit.Editor
 					return false;
 			}
 
-			var valueProp = _property.FindPropertyRelative("Value");
-			return valueProp.hasChildren;
+			return true;
 		}
 
 		public override float GetPropertyHeight(SerializedProperty _property, GUIContent label)
@@ -128,7 +127,11 @@ namespace GuiToolkit.Editor
 			if (!isApplicable)
 				return EditorGUIUtility.singleLineHeight;
 
-			var valueProp = _property.FindPropertyRelative("Value");
+			var valueArrayProp = _property.FindPropertyRelative("m_values");
+			if (valueArrayProp.arraySize == 0)
+				return EditorGUIUtility.singleLineHeight;
+
+			var valueProp = valueArrayProp.GetArrayElementAtIndex(0);
 			var thisApplicableValueBase = _property.boxedValue as ApplicableValueBase;
 			return EditorGUI.GetPropertyHeight(valueProp, DoesValueHaveChildren(_property, thisApplicableValueBase));
 		}
