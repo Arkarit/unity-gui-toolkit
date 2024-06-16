@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Reflection;
+using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -511,6 +512,13 @@ namespace GuiToolkit
 		public static string GetPath(this GameObject _this)
 		{
 			return GetPath(_this.transform);
+		}
+
+		public static void SetDirtyIfEditor(this Object _this)
+		{
+#if UNITY_EDITOR
+			EditorUtility.SetDirty(_this);
+#endif
 		}
 	}
 

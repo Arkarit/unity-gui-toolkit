@@ -86,18 +86,15 @@ namespace GuiToolkit.Style
 		{
 			foreach (var value in Values)
 				value.Skin = _name;
-#if UNITY_EDITOR
-			EditorUtility.SetDirty(this);
-#endif
+
+			this.SetDirtyIfEditor();
 		}
 
 		private void OnSkinRemoved(string _name)
 		{
 			foreach (var value in Values)
 				value.RemoveSkin(_name);
-#if UNITY_EDITOR
-			EditorUtility.SetDirty(this);
-#endif
+			this.SetDirtyIfEditor();
 		}
 
 		private void OnSkinAdded(string _name)
@@ -108,9 +105,8 @@ namespace GuiToolkit.Style
 				var value = Values[i];
 				value.AddSkin(_name, defaultValues[i]);
 			}
-#if UNITY_EDITOR
-			EditorUtility.SetDirty(this);
-#endif
+
+			this.SetDirtyIfEditor();
 		}
 	}
 }

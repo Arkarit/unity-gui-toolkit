@@ -26,6 +26,7 @@ namespace GuiToolkit.Style
 					throw new ArgumentOutOfRangeException();
 
 				m_index = value;
+				this.SetDirtyIfEditor();
 				UiEvents.EvSkinChanged.InvokeAlways(Skin);
 			}
 		}
@@ -51,6 +52,7 @@ namespace GuiToolkit.Style
 					if (skin == value)
 					{
 						m_index = i;
+						this.SetDirtyIfEditor();
 						UiEvents.EvSkinChanged.InvokeAlways(Skin);
 						return;
 					}
