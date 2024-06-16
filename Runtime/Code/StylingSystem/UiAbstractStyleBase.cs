@@ -36,11 +36,6 @@ namespace GuiToolkit.Style
 			UiEvents.EvStyleApplicableChanged.AddListener(OnStyleApplicableChanged);
 		}
 
-		public UiAbstractStyleBase Clone()
-		{
-			return MemberwiseClone() as UiAbstractStyleBase;
-		}
-
 		private void OnStyleApplicableChanged(UiAbstractStyleBase _from)
 		{
 			if (_from == this || _from == null)

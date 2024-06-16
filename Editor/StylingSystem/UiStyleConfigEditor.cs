@@ -24,9 +24,6 @@ namespace GuiToolkit.Editor
 		{
 			serializedObject.Update();
 
-			Draw();
-			EditorGUILayout.Space(10);
-
 			var skinNames = UiStyleConfig.Instance.SkinNames;
 			int numSkins = skinNames.Count;
 			string copyFrom = skinNames.Count > 0 ? skinNames[0] : string.Empty;
@@ -55,6 +52,10 @@ namespace GuiToolkit.Editor
 
 				UiStyleConfig.Instance.CurrentSkinName = selectedName;
 			}
+
+			EditorGUILayout.Space(10);
+			Draw();
+
 
 			serializedObject.ApplyModifiedProperties();
 		}
@@ -96,7 +97,7 @@ namespace GuiToolkit.Editor
 			{
 				foreach (var style in copyFrom.Styles)
 				{
-					var newStyle = style.Clone();
+					var newStyle = style.DeepClone();
 					newSkin.Styles.Add(newStyle);
 				}
 			}

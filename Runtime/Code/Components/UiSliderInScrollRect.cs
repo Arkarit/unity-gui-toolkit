@@ -55,7 +55,7 @@ namespace GuiToolkit
 
 		public void OnBeginDrag( PointerEventData _eventData )
 		{
-			m_eventData = _eventData.Clone();
+			m_eventData = _eventData.ShallowClone();
 			m_handlersDetermined = false;
 			m_wasDragged = true;
 		}
@@ -98,7 +98,7 @@ namespace GuiToolkit
 
 		public void OnPointerDown( PointerEventData _eventData )
 		{
-			StartCoroutine(DelayedOnPointerDown(_eventData.Clone()));
+			StartCoroutine(DelayedOnPointerDown(_eventData.ShallowClone()));
 		}
 
 		private void SetHandlers( MonoBehaviour _monoBehaviour )
