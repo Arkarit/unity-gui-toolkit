@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GuiToolkit.Style
 {
 	[ExecuteAlways]
-	public class UiMainStyleConfig : AbstractSingletonScriptableObject<UiMainStyleConfig>
+	public class UiStyleConfig : AbstractSingletonScriptableObject<UiStyleConfig>
 	{
 		[NonReorderable][SerializeField] private List<UiSkin> m_skins = new();
 

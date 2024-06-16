@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dbdbaab720f53f84293195e6725a8406, type: 3}
-  m_Name: UiMainStyleConfig
+  m_Name: UiStyleConfig
   m_EditorClassIdentifier: 
   m_skins:
   - m_name: Dark
@@ -377,7 +377,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueMaterial, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         Value: {fileID: -45881750512593306, guid: 6496142350aa65d4b8e8811d85ed2006,
           type: 2}
     - rid: 6698005269190017200
@@ -588,7 +588,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueMaterial, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         Value: {fileID: 0}
     - rid: 6698005269190017234
       type: {class: UiStyleTMP_Text/ApplicableValueMaterialArray, ns: GuiToolkit.Style,

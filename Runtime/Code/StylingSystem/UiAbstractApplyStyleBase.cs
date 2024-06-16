@@ -51,7 +51,7 @@ namespace GuiToolkit.Style
 
 		public UiAbstractStyleBase FindStyle()
 		{
-			UiSkin currentSkin = UiMainStyleConfig.Instance.CurrentSkin;
+			UiSkin currentSkin = UiStyleConfig.Instance.CurrentSkin;
 			if (currentSkin == null)
 				return null;
 
