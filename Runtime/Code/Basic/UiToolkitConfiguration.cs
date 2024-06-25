@@ -157,7 +157,6 @@ namespace GuiToolkit
 		{
 			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
 			m_loadMainSceneOnPlay = m_sceneReferences.Length > 0;
-			UiStyleConfig.Initialize();
 		}
 
 		public static string GetProjectScenePath(string _sceneName)

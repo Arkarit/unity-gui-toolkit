@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace GuiToolkit.Style
 {
 	[ExecuteAlways]
-	public class UiStyleConfig : AbstractSingletonScriptableObject<UiStyleConfig>
+	public class UiStyleConfig : ScriptableObject
 	{
 		[NonReorderable][SerializeField] private List<UiSkin> m_skins = new();
 
@@ -13,9 +14,8 @@ namespace GuiToolkit.Style
 
 		public List<UiSkin> Skins => m_skins;
 
-		protected override void OnEnable()
+		protected void OnEnable()
 		{
-			base.OnEnable();
 			foreach (var skin in m_skins)
 				skin.Init();
 			UiEvents.EvDeleteStyle.AddListener(OnDeleteStyle);
@@ -104,6 +104,8 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		public static UiStyleConfig Instance => UiToolkitConfiguration.Instance.StyleConfig;
+
 		private void OnDeleteStyle(UiAbstractStyleBase _style)
 		{
 			ForeachSkin(skin =>
@@ -136,7 +138,15 @@ namespace GuiToolkit.Style
 
 			UiEvents.EvSkinChanged.InvokeAlways();
 		}
+#if UNITY_EDITOR
 
+		public static void EditorSave(UiStyleConfig instance)
+		{
+			EditorUtility.SetDirty(instance);
+			AssetDatabase.SaveAssetIfDirty(instance);
+		}
+
+#endif
 
 	}
 }
