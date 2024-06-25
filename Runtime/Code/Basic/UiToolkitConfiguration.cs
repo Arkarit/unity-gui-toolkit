@@ -43,6 +43,9 @@ namespace GuiToolkit
 		public const string HELP_ADDITIONAL_SCENES_PATH =
 			"Additional scene path for scenes, which are not in the scene references list";
 
+		public const string HELP_STYLE_CONFIG =
+			"Style config for toolkit. You can replace it by your own style config.";
+
 		public const string HELP_DEBUG_LOCA =
 			"This switches loca debugging on or off";
 
@@ -69,6 +72,9 @@ namespace GuiToolkit
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
 		public string m_additionalScenesPath = "Scenes/";
 
+		[Tooltip(HELP_STYLE_CONFIG)]
+		public UiStyleConfig m_styleConfig;
+
 		[Tooltip(HELP_DEBUG_LOCA)]
 		public bool m_debugLoca = false;
 
@@ -78,6 +84,8 @@ namespace GuiToolkit
 		{
 			InitScenesByName();
 		}
+
+		public UiStyleConfig StyleConfig => m_styleConfig;
 
 		public bool IsEditingInternal => EditorFileUtility.GetApplicationDataDir().Contains(".Dev-App");
 

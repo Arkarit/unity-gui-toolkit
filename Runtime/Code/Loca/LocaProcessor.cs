@@ -29,7 +29,7 @@ namespace GuiToolkit
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
 			EditorUiUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent);
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scriptable objects", 0.2f);
-			EditorUiUtility.FindAllComponentsInAllScriptableObjects<ILocaClient>(FoundComponent);
+			EditorUiUtility.FindAllScriptableObjects<ILocaClient>(FoundComponent);
 
 			m_numScripts = EditorUiUtility.FindAllScriptsCount();
 			m_currentScriptIdx = 0;

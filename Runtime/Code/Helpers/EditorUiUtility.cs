@@ -792,15 +792,32 @@ namespace GuiToolkit
 			}
 		}
 
-		public static void FindAllComponentsInAllScriptableObjects<T>(AssetFoundDelegate<T> _foundFn)
+		public static List<T> FindAllScriptableObjects<T>(string _searchPath = "")
 		{
-			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:ScriptableObject");
+			List<T> result = new List<T>();
+			FindAllScriptableObjects<T>(asset => result.Add(asset));
+			return result;
+		}
+
+		public static T FindScriptableObject<T>(string _searchPath = "") where T:ScriptableObject
+		{
+			string[] allAssetPathGuids = AssetDatabase.FindAssets($"t:{typeof(T).Name} {_searchPath}");
+			if (allAssetPathGuids.Length == 0)
+				return null;
+
+			string assetPath = AssetDatabase.GUIDToAssetPath(allAssetPathGuids[0]);
+			return AssetDatabase.LoadAssetAtPath<T>(assetPath);
+		}
+
+		public static void FindAllScriptableObjects<T>(AssetFoundDelegate<T> _foundFn, string _searchPath = "")
+		{
+			string[] allAssetPathGuids = AssetDatabase.FindAssets($"t:{typeof(T).Name} {_searchPath}");
 
 			foreach (string guid in allAssetPathGuids)
 			{
 				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
 				ScriptableObject scriptableObject = AssetDatabase.LoadAssetAtPath<ScriptableObject>(assetPath);
-				if (scriptableObject == null || !(scriptableObject is T))
+				if (scriptableObject == null)
 					continue;
 
 				_foundFn( (T)(object) scriptableObject);
@@ -839,7 +856,7 @@ namespace GuiToolkit
 		{
 			FindAllComponentsInAllScenes(_foundFn, _includeInactive);
 			FindAllComponentsInAllPrefabs(_foundFn, _includeInactive);
-			FindAllComponentsInAllScriptableObjects(_foundFn);
+			FindAllScriptableObjects(_foundFn);
 		}
 
 		public delegate void ScriptFoundDelegate(string path, string _content);
