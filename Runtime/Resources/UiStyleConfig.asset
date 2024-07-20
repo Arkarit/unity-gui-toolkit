@@ -17,6 +17,8 @@ MonoBehaviour:
     m_styles:
     - rid: 4848181658278690901
     - rid: 4848181658278690907
+    - rid: 7059580713605267471
+    - rid: 7059580713605267488
   m_currentSkinIdx: 0
   references:
     version: 2
@@ -68,7 +70,7 @@ MonoBehaviour:
       type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         Value: 1
     - rid: 4848181658278690907
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
@@ -102,3 +104,63 @@ MonoBehaviour:
       data:
         IsApplicable: 1
         Value: {r: 1, g: 1, b: 1, a: 0.72156864}
+    - rid: 7059580713605267471
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: CheckboxBackground
+        m_ColorLeftOrTop:
+          rid: 7059580713605267472
+        m_ColorRightOrBottom:
+          rid: 7059580713605267473
+        m_Axis:
+          rid: 7059580713605267474
+    - rid: 7059580713605267472
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        Value: {r: 0, g: 0, b: 0, a: 0.7490196}
+    - rid: 7059580713605267473
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        Value: {r: 0, g: 0, b: 0, a: 0.23529412}
+    - rid: 7059580713605267474
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        Value: 1
+    - rid: 7059580713605267488
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Checkmark
+        m_sprite:
+          rid: 7059580713605267489
+        m_overrideSprite:
+          rid: 7059580713605267490
+        m_material:
+          rid: 7059580713605267491
+        m_color:
+          rid: 7059580713605267492
+    - rid: 7059580713605267489
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+    - rid: 7059580713605267490
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        Value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
+    - rid: 7059580713605267491
+      type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        Value: {fileID: 0}
+    - rid: 7059580713605267492
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        Value: {r: 1, g: 0.69803923, b: 0, a: 1}

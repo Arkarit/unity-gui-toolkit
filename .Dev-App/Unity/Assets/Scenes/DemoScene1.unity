@@ -1790,38 +1790,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: PanelBackground
   m_style:
-    rid: 4848181658278690917
+    rid: 7059580893872521231
   references:
     version: 2
     RefIds:
-    - rid: 4848181658278690917
+    - rid: 7059580893872521231
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: PanelBackground
         m_sprite:
-          rid: 4848181658278690918
+          rid: 7059580893872521232
         m_overrideSprite:
-          rid: 4848181658278690919
+          rid: 7059580893872521233
         m_material:
-          rid: 4848181658278690920
+          rid: 7059580893872521234
         m_color:
-          rid: 4848181658278690921
-    - rid: 4848181658278690918
+          rid: 7059580893872521235
+    - rid: 7059580893872521232
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
         Value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
-    - rid: 4848181658278690919
+    - rid: 7059580893872521233
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         Value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
-    - rid: 4848181658278690920
+    - rid: 7059580893872521234
       type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
         Value: {fileID: 2100000, guid: 4490c8e9758c5ca43bd3a524c0e8360a, type: 2}
-    - rid: 4848181658278690921
+    - rid: 7059580893872521235
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
@@ -2409,38 +2409,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: PanelBackground
   m_style:
-    rid: 4848181658278690927
+    rid: 7059580893872521226
   references:
     version: 2
     RefIds:
-    - rid: 4848181658278690927
+    - rid: 7059580893872521226
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: PanelBackground
         m_sprite:
-          rid: 4848181658278690928
+          rid: 7059580893872521227
         m_overrideSprite:
-          rid: 4848181658278690929
+          rid: 7059580893872521228
         m_material:
-          rid: 4848181658278690930
+          rid: 7059580893872521229
         m_color:
-          rid: 4848181658278690931
-    - rid: 4848181658278690928
+          rid: 7059580893872521230
+    - rid: 7059580893872521227
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
         Value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
-    - rid: 4848181658278690929
+    - rid: 7059580893872521228
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         Value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
-    - rid: 4848181658278690930
+    - rid: 7059580893872521229
       type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
         Value: {fileID: 2100000, guid: 4490c8e9758c5ca43bd3a524c0e8360a, type: 2}
-    - rid: 4848181658278690931
+    - rid: 7059580893872521230
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
@@ -3651,15 +3651,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 4490c8e9758c5ca43bd3a524c0e8360a, type: 2}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.72156864}
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 1, b: 0.054832935, a: 0.72156864}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 0
@@ -3689,44 +3689,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc47fb5fc4aa7a54c9106afc29b08e74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_name: PanelBackground
+  m_name: Checkmark
   m_style:
-    rid: 4848181658278690922
+    rid: 7059580893872521221
   references:
     version: 2
     RefIds:
-    - rid: 4848181658278690922
+    - rid: 7059580893872521221
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_name: PanelBackground
+        m_name: Checkmark
         m_sprite:
-          rid: 4848181658278690923
+          rid: 7059580893872521222
         m_overrideSprite:
-          rid: 4848181658278690924
+          rid: 7059580893872521223
         m_material:
-          rid: 4848181658278690925
+          rid: 7059580893872521224
         m_color:
-          rid: 4848181658278690926
-    - rid: 4848181658278690923
+          rid: 7059580893872521225
+    - rid: 7059580893872521222
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        Value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
-    - rid: 4848181658278690924
+        Value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+    - rid: 7059580893872521223
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         Value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
-    - rid: 4848181658278690925
+    - rid: 7059580893872521224
       type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        Value: {fileID: 2100000, guid: 4490c8e9758c5ca43bd3a524c0e8360a, type: 2}
-    - rid: 4848181658278690926
+        Value: {fileID: 0}
+    - rid: 7059580893872521225
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        Value: {r: 1, g: 1, b: 1, a: 0.72156864}
+        Value: {r: 0, g: 1, b: 0.054832935, a: 0.72156864}
 --- !u!1 &1508985176
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,9 +12,6 @@ GameObject:
   - component: {fileID: 663669088246370675}
   - component: {fileID: 4084593488569729382}
   - component: {fileID: 2674253432316467210}
-  - component: {fileID: 3700397892764551931}
-  - component: {fileID: 7372475401979549785}
-  - component: {fileID: 5391768746830000296}
   - component: {fileID: 2680803967743147246}
   - component: {fileID: 37045285163787125}
   m_Layer: 5
@@ -126,58 +123,6 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   m_axis: 1
   m_splitAtKeys: 1
---- !u!114 &3700397892764551931
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6382622830037067654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding:
-    m_Left: 36
-    m_Right: 40
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 4
-  m_Spacing: 0
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 1
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
---- !u!114 &7372475401979549785
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6382622830037067654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalFit: 2
-  m_VerticalFit: 2
---- !u!225 &5391768746830000296
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6382622830037067654}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!114 &2680803967743147246
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,19 +137,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: PanelBackground
   m_style:
-    rid: 4848181658278690940
+    rid: 4848181658278690995
   references:
     version: 2
     RefIds:
-    - rid: 4848181658278690940
+    - rid: 4848181658278690995
       type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: PanelBackground
         m_Gradient:
-          rid: 4848181658278690941
+          rid: 4848181658278690996
         m_Axis:
-          rid: 4848181658278690942
-    - rid: 4848181658278690941
+          rid: 4848181658278690997
+    - rid: 4848181658278690996
       type: {class: UiStyleUiGradient/ApplicableValueGradient, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -239,11 +184,11 @@ MonoBehaviour:
           m_ColorSpace: -1
           m_NumColorKeys: 3
           m_NumAlphaKeys: 2
-    - rid: 4848181658278690942
+    - rid: 4848181658278690997
       type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         Value: 1
 --- !u!114 &37045285163787125
 MonoBehaviour:
@@ -259,38 +204,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_name: PanelBackground
   m_style:
-    rid: 4848181658278690943
+    rid: 4848181658278690998
   references:
     version: 2
     RefIds:
-    - rid: 4848181658278690943
+    - rid: 4848181658278690998
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_name: PanelBackground
         m_sprite:
-          rid: 4848181658278690944
+          rid: 4848181658278690999
         m_overrideSprite:
-          rid: 4848181658278690945
+          rid: 4848181658278691000
         m_material:
-          rid: 4848181658278690946
+          rid: 4848181658278691001
         m_color:
-          rid: 4848181658278690947
-    - rid: 4848181658278690944
+          rid: 4848181658278691002
+    - rid: 4848181658278690999
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
         Value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
-    - rid: 4848181658278690945
+    - rid: 4848181658278691000
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         Value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
-    - rid: 4848181658278690946
+    - rid: 4848181658278691001
       type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
         Value: {fileID: 2100000, guid: 4490c8e9758c5ca43bd3a524c0e8360a, type: 2}
-    - rid: 4848181658278690947
+    - rid: 4848181658278691002
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
