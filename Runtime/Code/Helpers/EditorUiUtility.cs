@@ -216,9 +216,14 @@ namespace GuiToolkit
 				return -1;
 
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
+
+
+			if (!string.IsNullOrEmpty(_labelText))
+				GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
+
 			if (!string.IsNullOrEmpty(_labelText2))
 				GUILayout.Label(_labelText2, GUILayout.Width(LABEL_WIDTH));
+
 			int newInt = EditorGUILayout.Popup(currentInt, _strings.ToArray());
 
 			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, _additionalContent, ref _newSelection))

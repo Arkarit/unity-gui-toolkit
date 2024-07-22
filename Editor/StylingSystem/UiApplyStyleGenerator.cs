@@ -315,7 +315,8 @@ namespace GuiToolkit
 				typeNames.Add(type.FullName);
 			}
 
-			int idx = EditorUiUtility.StringPopup("Type", typeNames, m_monoBehaviourType.FullName,
+			EditorGUILayout.LabelField("Type:", GUILayout.Width(40));
+			int idx = EditorUiUtility.StringPopup(null, typeNames, m_monoBehaviourType.FullName,
 				out string newSelection);
 
 			if (idx != -1)
@@ -325,10 +326,10 @@ namespace GuiToolkit
 			}
 
 			EditorGUILayout.LabelField("Namespace:", GUILayout.Width(75));
-			m_namespace = EditorGUILayout.TextField(m_namespace, GUILayout.Width(200));
+			m_namespace = EditorGUILayout.TextField(m_namespace, GUILayout.ExpandWidth(true));
 			EditorGUILayout.Space(1);
 			EditorGUILayout.LabelField("Prefix:", GUILayout.Width(40));
-			m_prefix = EditorGUILayout.TextField(m_prefix, GUILayout.Width(200));
+			m_prefix = EditorGUILayout.TextField(m_prefix, GUILayout.ExpandWidth(true));
 			EditorGUILayout.EndHorizontal();
 			EditorGUILayout.Space(5);
 		}
