@@ -112,6 +112,7 @@ namespace GuiToolkit
 			GeneratedWarningComment
 			+ "using System;\n"
 			+ "using UnityEngine;\n"
+			+ "using GuiToolkit;\n"
 			+ "using GuiToolkit.Style;\n"
 			+ "\n"
 			+ "namespace {0}\n"
