@@ -41,17 +41,6 @@ namespace GuiToolkit.Style
 			return null;
 		}
 
-		public UiAbstractStyleBase FindFirstStyleForMonoBehaviour(Type _monoBehaviourType)
-		{
-			foreach (var style in m_styles)
-			{
-				if (style.SupportedMonoBehaviourType == _monoBehaviourType)
-					return style;
-			}
-
-			return null;
-		}
-
 		public void DeleteStyle(UiAbstractStyleBase _style)
 		{
 			for (int i = 0; i < m_styles.Count; i++)

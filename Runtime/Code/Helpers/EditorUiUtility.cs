@@ -318,8 +318,6 @@ namespace GuiToolkit
 			if (!_allowAdd && _strings.Count == 0)
 				return false;
 
-			_currentIdx = 0;
-
 			if (!string.IsNullOrEmpty(_current))
 			{
 				for (int i = 0; i < _strings.Count; i++)

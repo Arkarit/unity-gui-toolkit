@@ -55,11 +55,7 @@ namespace GuiToolkit.Style
 			if (currentSkin == null)
 				return null;
 
-			var result = currentSkin.StyleByKey(Key);
-			if (result != null)
-				return result;
-
-			return currentSkin.FindFirstStyleForMonoBehaviour(SupportedMonoBehaviourType);
+			return currentSkin.StyleByKey(Key);
 		}
 
 		public void SetStyle()
