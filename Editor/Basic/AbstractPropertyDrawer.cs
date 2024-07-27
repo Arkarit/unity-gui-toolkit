@@ -31,7 +31,7 @@ namespace GuiToolkit.Style.Editor
 
 		protected SerializedProperty Property => m_property;
 		protected float SingleLineHeight => EditorGUIUtility.singleLineHeight;
-		protected T EditedClass => Property.boxedValue as T;
+		protected T EditedClassInstance => Property.boxedValue as T;
 		protected bool IsHorizontal => m_horizontalMode > 0;
 		protected Rect CurrentRect => m_currentRect;
 		protected bool CollectHeightMode => m_collectHeightMode;

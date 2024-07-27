@@ -1,3 +1,4 @@
+using GuiToolkit.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -29,8 +30,9 @@ namespace GuiToolkit.Style.Editor
 
 			var foldoutTitleRect = CurrentRect;
 			foldoutTitleRect.height = SingleLineHeight;
+			var displayFilter = UiStyleConfigEditor.DisplayFilter;
 
-			Foldout(EditedClass.Name, $"", () =>
+			Foldout(EditedClassInstance.Name, $"", () =>
 			{
 				Space(10);
 				Line(5);
@@ -40,6 +42,14 @@ namespace GuiToolkit.Style.Editor
 					for (int i = 0; i < m_stylesProp.arraySize; i++)
 					{
 						SerializedProperty styleProp = m_stylesProp.GetArrayElementAtIndex(i);
+						if (!string.IsNullOrEmpty(displayFilter))
+						{
+							var style = styleProp.boxedValue as UiAbstractStyleBase;
+							var searchName = UiStyleUtility.GetName(style.SupportedMonoBehaviourType, style.Name).ToLower();
+							if (style != null && !searchName.Contains(displayFilter.ToLower()))
+								continue;
+						}
+
 						PropertyField(styleProp);
 					}
 				}

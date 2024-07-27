@@ -13,6 +13,12 @@ namespace GuiToolkit.Editor
 		private SerializedProperty m_currentSkinIdxProp;
 		private UiStyleConfig m_thisUiStyleConfig;
 
+		private static string m_filterString = string.Empty;
+
+		public static string DisplayFilter => m_filterString;
+
+
+
 		protected virtual void OnEnable()
 		{
 			m_skinsProp = serializedObject.FindProperty("m_skins");
@@ -52,6 +58,9 @@ namespace GuiToolkit.Editor
 
 				UiStyleConfig.Instance.CurrentSkinName = selectedName;
 			}
+
+			EditorGUILayout.Space(10);
+			m_filterString = EditorGUILayout.TextField("Style display filter", m_filterString);
 
 			EditorGUILayout.Space(10);
 			Draw();
