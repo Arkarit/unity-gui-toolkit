@@ -333,7 +333,8 @@ namespace GuiToolkit.Style.Editor
 			return m_height;
 		}
 
-		protected void ForEachChildProperty(SerializedProperty _property, Action<SerializedProperty> callback)
+		protected delegate bool ChildPropertyDelegate(SerializedProperty childProperty);
+		protected void ForEachChildProperty(SerializedProperty _property, ChildPropertyDelegate callback)
 		{
 			var enumerator = _property.Copy().GetEnumerator();
 			int depth = _property.depth;
@@ -344,7 +345,8 @@ namespace GuiToolkit.Style.Editor
 				if (property == null || property.depth > depth + 1)
 					continue;
 
-				callback(property);
+				if (!callback(property))
+					break;
 			}
 		}
 	}

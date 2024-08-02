@@ -56,10 +56,17 @@ namespace GuiToolkit.Style.Editor
 				DrawProperties();
 
 				ApplicableValueBaseDrawer.DrawCondition = ApplicableValueBaseDrawer.EDrawCondition.OnlyDisabled;
-				Foldout(currentStyle, "Unused Properties", false, () =>
+				if (HasHiddenProperties())
 				{
-					DrawProperties();
-				});
+					Foldout(currentStyle, "Unused Properties", false, () =>
+					{
+						DrawProperties();
+					});
+				}
+				else
+				{
+					Space(-SingleLineHeight);
+				}
 
 				ApplicableValueBaseDrawer.DrawCondition = oldVal;
 
@@ -80,6 +87,28 @@ namespace GuiToolkit.Style.Editor
 			Space(EndGap);
 		}
 
+		private bool HasHiddenProperties()
+		{
+			bool result = false;
+
+			ForEachChildProperty(Property, childProperty =>
+			{
+				if (childProperty.name == "m_name")
+					return true;
+
+				var val = childProperty.boxedValue as ApplicableValueBase;
+				if (val != null && !val.IsApplicable)
+				{
+					result = true;
+					return false;
+				}
+
+				return true;
+			});
+
+			return result;
+		}
+
 		private void DrawProperties()
 		{
 			EditorGUI.BeginChangeCheck();
@@ -87,9 +116,10 @@ namespace GuiToolkit.Style.Editor
 			ForEachChildProperty(Property, childProperty =>
 			{
 				if (childProperty.name == "m_name")
-					return;
+					return true;
 
 				PropertyField(childProperty);
+				return true;
 			});
 
 			if (EditorGUI.EndChangeCheck())
