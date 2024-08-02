@@ -26,7 +26,7 @@ MonoBehaviour:
     - rid: 4848181658278690901
       type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_name: PanelBackground
+        m_name: Backgrounds/Panel
         m_Gradient:
           rid: 4848181658278690902
         m_Axis:
@@ -75,7 +75,7 @@ MonoBehaviour:
     - rid: 4848181658278690907
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_name: PanelBackground
+        m_name: Backgrounds/Panel
         m_sprite:
           rid: 4848181658278690908
         m_overrideSprite:
@@ -107,7 +107,7 @@ MonoBehaviour:
     - rid: 7059580713605267471
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_name: CheckboxBackground
+        m_name: Backgrounds/Checkbox
         m_ColorLeftOrTop:
           rid: 7059580713605267472
         m_ColorRightOrBottom:
@@ -135,7 +135,7 @@ MonoBehaviour:
     - rid: 7059580713605267488
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_name: Checkmark
+        m_name: Icons/Checkmark
         m_sprite:
           rid: 7059580713605267489
         m_overrideSprite:

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GuiToolkit.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -39,9 +40,9 @@ namespace GuiToolkit.Style.Editor
 
 				try
 				{
-					for (int i = 0; i < m_stylesProp.arraySize; i++)
+					var styles = SortStylesProp();
+					foreach (var styleProp in styles)
 					{
-						SerializedProperty styleProp = m_stylesProp.GetArrayElementAtIndex(i);
 						if (!string.IsNullOrEmpty(displayFilter))
 						{
 							var style = styleProp.boxedValue as UiAbstractStyleBase;
@@ -64,6 +65,7 @@ namespace GuiToolkit.Style.Editor
 			foldoutLabelRect.x += 5;
 			foldoutLabelRect.y += 3;
 			EditorGUI.LabelField(foldoutLabelRect, $"Skin: {m_nameProp.stringValue}", EditorStyles.boldLabel);
+
 			var deleteButtonRect = foldoutTitleRect;
 			deleteButtonRect.x = deleteButtonRect.width + deleteButtonRect.x - 60;
 			deleteButtonRect.y += 2;
@@ -83,6 +85,23 @@ namespace GuiToolkit.Style.Editor
 					UiEvents.EvDeleteSkin.InvokeAlways(skinName);
 				}
 			}
+		}
+
+		private List<SerializedProperty> SortStylesProp()
+		{
+			List<SerializedProperty> result = new();
+
+			for (int i = 0; i < m_stylesProp.arraySize; i++)
+				result.Add(m_stylesProp.GetArrayElementAtIndex(i));
+
+			result.Sort((a, b) =>
+			{
+				var styleA = a.boxedValue as UiAbstractStyleBase;
+				var styleB = a.boxedValue as UiAbstractStyleBase;
+				return styleA.Name.CompareTo(styleB.Name);
+			});
+
+			return result;
 		}
 	}
 }
