@@ -8,8 +8,17 @@ namespace GuiToolkit.Style.Editor
 	[CustomPropertyDrawer(typeof(UiSkin), true)]
 	public class UiSkinDrawer : AbstractPropertyDrawer<UiSkin>
 	{
-		SerializedProperty 	m_nameProp;
-		SerializedProperty m_stylesProp;
+		protected enum SortType
+		{
+			NameAscending,
+			NameDescending,
+			TypeAscending,
+			TypeDescending,
+		}
+
+		protected SerializedProperty 	m_nameProp;
+		protected SerializedProperty m_stylesProp;
+		protected SortType m_SortType; 
 
 		protected override void OnEnable()
 		{
@@ -40,7 +49,7 @@ namespace GuiToolkit.Style.Editor
 
 				try
 				{
-					var styles = SortStylesProp();
+					var styles = GetSortedStylesList();
 					foreach (var styleProp in styles)
 					{
 						if (!string.IsNullOrEmpty(displayFilter))
@@ -66,6 +75,10 @@ namespace GuiToolkit.Style.Editor
 			foldoutLabelRect.y += 3;
 			EditorGUI.LabelField(foldoutLabelRect, $"Skin: {m_nameProp.stringValue}", EditorStyles.boldLabel);
 
+			foldoutLabelRect.x = EditorGUIUtility.labelWidth + 32;
+			foldoutLabelRect.width = 150;
+			m_SortType = (SortType) EditorGUI.EnumPopup(foldoutLabelRect, m_SortType);
+
 			var deleteButtonRect = foldoutTitleRect;
 			deleteButtonRect.x = deleteButtonRect.width + deleteButtonRect.x - 60;
 			deleteButtonRect.y += 2;
@@ -85,9 +98,10 @@ namespace GuiToolkit.Style.Editor
 					UiEvents.EvDeleteSkin.InvokeAlways(skinName);
 				}
 			}
+
 		}
 
-		private List<SerializedProperty> SortStylesProp()
+		private List<SerializedProperty> GetSortedStylesList()
 		{
 			List<SerializedProperty> result = new();
 
@@ -97,8 +111,28 @@ namespace GuiToolkit.Style.Editor
 			result.Sort((a, b) =>
 			{
 				var styleA = a.boxedValue as UiAbstractStyleBase;
-				var styleB = a.boxedValue as UiAbstractStyleBase;
-				return styleA.Name.CompareTo(styleB.Name);
+				var styleB = b.boxedValue as UiAbstractStyleBase;
+
+				int nameComp = styleA.Name.CompareTo(styleB.Name);
+				int typeComp = styleA.SupportedMonoBehaviourType.Name.CompareTo(styleB.SupportedMonoBehaviourType.Name);
+
+				if (m_SortType == SortType.NameDescending || m_SortType == SortType.TypeDescending)
+				{
+					nameComp = -nameComp;
+					typeComp = -typeComp;
+				}
+
+				if (m_SortType <= SortType.NameDescending)
+				{
+					if (nameComp != 0)
+						return nameComp;
+					return typeComp;
+				}
+
+				if (typeComp != 0)
+					return typeComp;
+
+				return nameComp;
 			});
 
 			return result;
