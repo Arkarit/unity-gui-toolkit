@@ -77,6 +77,8 @@ namespace GuiToolkit.Style.Editor
 
 			foldoutLabelRect.x = EditorGUIUtility.labelWidth + 32;
 			foldoutLabelRect.width = 150;
+			EditorGUI.LabelField(foldoutLabelRect,"Sort by:");
+			foldoutLabelRect.x += 60;
 			m_SortType = (SortType) EditorGUI.EnumPopup(foldoutLabelRect, m_SortType);
 
 			var deleteButtonRect = foldoutTitleRect;
