@@ -48,12 +48,15 @@ namespace GuiToolkit.Style.Editor
 			Space(5);
 			Line(LineGapVert, m_currentRect.width - 5);
 
-			Space(5);
-
 			Indent(() =>
 			{
+				Space(5);
+
 				EditorGUI.BeginChangeCheck();
 				
+				var screenOrientationConditionProp = Property.FindPropertyRelative("m_screenOrientationCondition");
+				EnumPopupField<UiAbstractStyleBase.EScreenOrientationCondition>("Condition:", screenOrientationConditionProp);
+
 				var oldVal = ApplicableValueBaseDrawer.DrawCondition;
 				ApplicableValueBaseDrawer.DrawCondition = ApplicableValueBaseDrawer.EDrawCondition.OnlyEnabled;
 				DrawProperties();

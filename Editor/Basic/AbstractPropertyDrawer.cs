@@ -106,6 +106,39 @@ namespace GuiToolkit.Style.Editor
 			return result;
 		}
 
+		protected T EnumPopupField<T>( string _labelText, T _current) where T:Enum
+		{
+			var propertyHeight = SingleLineHeight;
+			if (m_collectHeightMode)
+			{
+				IncreaseHeight(propertyHeight);
+				return _current;
+			}
+
+			var drawRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, propertyHeight);
+			var result = (T) EditorGUI.EnumPopup(drawRect, _labelText, _current);
+
+			NextRect(propertyHeight);
+			return result;
+		}
+
+		protected void EnumPopupField<T>( string _labelText, SerializedProperty _serializedProperty) where T:Enum
+		{
+			var propertyHeight = SingleLineHeight;
+			if (m_collectHeightMode)
+			{
+				IncreaseHeight(propertyHeight);
+				return;
+			}
+
+			T val = (T)(object) _serializedProperty.intValue;
+			var drawRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, propertyHeight);
+			val = (T) EditorGUI.EnumPopup(drawRect, _labelText, val);
+			_serializedProperty.intValue = (int)(object) val;
+
+			NextRect(propertyHeight);
+		}
+
 		protected void Space(float _gap)
 		{
 			var propertyHeight = _gap;

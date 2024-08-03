@@ -7,7 +7,15 @@ namespace GuiToolkit.Style
 	[Serializable]
 	public abstract class UiAbstractStyleBase
 	{
+		public enum EScreenOrientationCondition
+		{
+			Always = 0,
+			Landscape = 1,
+			Portrait = 2,
+		}
+
 		[SerializeField][HideInInspector] private string m_name;
+		[SerializeField][HideInInspector] private EScreenOrientationCondition m_screenOrientationCondition = EScreenOrientationCondition.Always;
 		
 		private int m_key;
 
@@ -15,6 +23,12 @@ namespace GuiToolkit.Style
 		{
 			get => m_name;
 			set => m_name = value;
+		}
+
+		public EScreenOrientationCondition ScreeenOrientationCondition
+		{
+			get => m_screenOrientationCondition;
+			set => m_screenOrientationCondition = value;
 		}
 
 		public abstract Type SupportedMonoBehaviourType { get; }
