@@ -3,10 +3,12 @@ using UnityEngine;
 using GuiToolkit.Style;
 
 namespace GuiToolkit.Style
-{	[ExecuteAlways]
+{
+	[ExecuteAlways]
+	[RequireComponent(typeof(GuiToolkit.UiGradientSimple))]
 	public class UiApplyStyleUiGradientSimple : UiAbstractApplyStyle<GuiToolkit.UiGradientSimple, UiStyleUiGradientSimple>
 	{
-		public override void Apply()
+		protected override void ApplyImpl()
 		{
 			if (!SpecificMonoBehaviour || SpecificStyle == null)
 				return;

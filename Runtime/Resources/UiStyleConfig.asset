@@ -19,10 +19,112 @@ MonoBehaviour:
     - rid: 4848181658278690907
     - rid: 7059580713605267471
     - rid: 7059580713605267488
+    - rid: 4571341714188402708
+    - rid: 4571341714188402714
   m_currentSkinIdx: 0
   references:
     version: 2
     RefIds:
+    - rid: 4571341714188402708
+      type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: ResolutionDependent/Landscape/Test
+        m_screenOrientationCondition: 1
+        m_Gradient:
+          rid: 4571341714188402709
+        m_Axis:
+          rid: 4571341714188402710
+    - rid: 4571341714188402709
+      type: {class: UiStyleUiGradient/ApplicableValueGradient, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        Value:
+          serializedVersion: 2
+          key0: {r: 0, g: 0.09019608, b: 0.12156863, a: 1}
+          key1: {r: 0, g: 0.14605999, b: 0.19833867, a: 1}
+          key2: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key3: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key4: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key5: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key6: {r: 0, g: 0.7294118, b: 1, a: 0}
+          key7: {r: 0, g: 0, b: 0, a: 0}
+          ctime0: 0
+          ctime1: 9699
+          ctime2: 65535
+          ctime3: 65535
+          ctime4: 65535
+          ctime5: 65535
+          ctime6: 65535
+          ctime7: 0
+          atime0: 0
+          atime1: 65535
+          atime2: 0
+          atime3: 0
+          atime4: 0
+          atime5: 0
+          atime6: 0
+          atime7: 0
+          m_Mode: 0
+          m_ColorSpace: -1
+          m_NumColorKeys: 3
+          m_NumAlphaKeys: 2
+    - rid: 4571341714188402710
+      type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        Value: 0
+    - rid: 4571341714188402714
+      type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: ResolutionDependent/Portrait/Test
+        m_screenOrientationCondition: 2
+        m_Gradient:
+          rid: 4571341714188402715
+        m_Axis:
+          rid: 4571341714188402716
+    - rid: 4571341714188402715
+      type: {class: UiStyleUiGradient/ApplicableValueGradient, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        Value:
+          serializedVersion: 2
+          key0: {r: 0, g: 0.09019608, b: 0.12156863, a: 1}
+          key1: {r: 0, g: 0.14605999, b: 0.19833867, a: 1}
+          key2: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key3: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key4: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key5: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key6: {r: 0, g: 0.7294118, b: 1, a: 0}
+          key7: {r: 0, g: 0, b: 0, a: 0}
+          ctime0: 0
+          ctime1: 9699
+          ctime2: 65535
+          ctime3: 65535
+          ctime4: 65535
+          ctime5: 65535
+          ctime6: 65535
+          ctime7: 0
+          atime0: 0
+          atime1: 65535
+          atime2: 0
+          atime3: 0
+          atime4: 0
+          atime5: 0
+          atime6: 0
+          atime7: 0
+          m_Mode: 0
+          m_ColorSpace: -1
+          m_NumColorKeys: 3
+          m_NumAlphaKeys: 2
+    - rid: 4571341714188402716
+      type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        Value: 1
     - rid: 4848181658278690901
       type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:

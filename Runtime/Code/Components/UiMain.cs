@@ -35,6 +35,7 @@ namespace GuiToolkit
 		public RenderMode RenderMode => m_renderMode;
 		public Camera Camera { get; private set; }
 		public UiPool UiPool { get; private set; }
+		public static EScreenOrientation ScreenOrientation => s_screenOrientation;
 
 		private static UiMain s_instance;
 		public static UiMain Instance

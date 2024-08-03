@@ -3,10 +3,12 @@ using UnityEngine;
 using GuiToolkit.Style;
 
 namespace GuiToolkit.Style
-{	[ExecuteAlways]
+{
+	[ExecuteAlways]
+	[RequireComponent(typeof(TMPro.TMP_Text))]
 	public class UiApplyStyleTMP_Text : UiAbstractApplyStyle<TMPro.TMP_Text, UiStyleTMP_Text>
 	{
-		public override void Apply()
+		protected override void ApplyImpl()
 		{
 			if (!SpecificMonoBehaviour || SpecificStyle == null)
 				return;

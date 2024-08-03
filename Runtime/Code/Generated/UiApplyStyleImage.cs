@@ -3,10 +3,12 @@ using UnityEngine;
 using GuiToolkit.Style;
 
 namespace GuiToolkit.Style
-{	[ExecuteAlways]
+{
+	[ExecuteAlways]
+	[RequireComponent(typeof(UnityEngine.UI.Image))]
 	public class UiApplyStyleImage : UiAbstractApplyStyle<UnityEngine.UI.Image, UiStyleImage>
 	{
-		public override void Apply()
+		protected override void ApplyImpl()
 		{
 			if (!SpecificMonoBehaviour || SpecificStyle == null)
 				return;

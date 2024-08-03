@@ -50,8 +50,9 @@ namespace GuiToolkit.Style
 		public MB SpecificMonoBehaviour => MonoBehaviour as MB;
 		public ST SpecificStyle => Style as ST;
 
-		public virtual void OnEnable()
+		protected override void OnEnable()
 		{
+			base.OnEnable();
 			UiEvents.EvSkinChanged.AddListener(OnSkinChanged);
 
 			if (SpecificMonoBehaviour == null)
@@ -60,8 +61,9 @@ namespace GuiToolkit.Style
 			Apply();
 		}
 
-		public virtual void OnDisable()
+		protected override void OnDisable()
 		{
+			base.OnDisable();
 			UiEvents.EvSkinChanged.RemoveListener(OnSkinChanged);
 		}
 

@@ -1,4 +1,5 @@
 using System;
+using PlasticGui.Gluon.Help.Conditions;
 using UnityEngine;
 
 namespace GuiToolkit.Style
@@ -21,6 +22,22 @@ namespace GuiToolkit.Style
 			Apply();
 		}
 
+		protected virtual void OnEnable()
+		{
+			UiEvents.EvScreenOrientationChange.AddListener(OnScreenOrientationChanged);
+		}
+
+		protected virtual void OnDisable()
+		{
+			UiEvents.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChanged);
+		}
+
+		private void OnScreenOrientationChanged(EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation)
+		{
+Debug.Log("OnScreenOrientationChanged");
+			Apply();
+		}
+
 		public UiAbstractStyleBase Style
 		{
 			get
@@ -32,7 +49,21 @@ namespace GuiToolkit.Style
 			}
 		}
 
-		public abstract void Apply();
+		public void Apply()
+		{
+			if (CheckCondition())
+				ApplyImpl();
+		}
+
+		private bool CheckCondition()
+		{
+			if (Style == null)
+				return false;
+			return    Style.ScreeenOrientationCondition == UiAbstractStyleBase.EScreenOrientationCondition.Always 
+			       || Style.ScreeenOrientationCondition == (UiAbstractStyleBase.EScreenOrientationCondition) UiMain.ScreenOrientation;
+		}
+
+		protected abstract void ApplyImpl();
 
 		public abstract UiAbstractStyleBase CreateStyle(string _name, UiAbstractStyleBase _template = null);
 

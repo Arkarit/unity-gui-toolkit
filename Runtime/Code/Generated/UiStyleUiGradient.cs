@@ -1,6 +1,7 @@
 // Auto-generated, please do not change!
 using System;
 using UnityEngine;
+using GuiToolkit;
 using GuiToolkit.Style;
 
 namespace GuiToolkit.Style
