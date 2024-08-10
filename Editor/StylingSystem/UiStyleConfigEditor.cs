@@ -7,6 +7,14 @@ namespace GuiToolkit.Editor
 	[CustomEditor(typeof(UiStyleConfig), true)]
 	public class UiStyleConfigEditor : UnityEditor.Editor
 	{
+		public enum ESortType
+		{
+			NameAscending,
+			NameDescending,
+			TypeAscending,
+			TypeDescending,
+		}
+
 		private const float PerSkinGap = 20;
 
 		private SerializedProperty m_skinsProp;
@@ -16,7 +24,9 @@ namespace GuiToolkit.Editor
 		private static string m_filterString = string.Empty;
 
 		public static string DisplayFilter => m_filterString;
+		private static ESortType m_SortType; 
 
+		public static ESortType SortType => m_SortType;
 
 
 		protected virtual void OnEnable()
@@ -61,6 +71,7 @@ namespace GuiToolkit.Editor
 
 			EditorGUILayout.Space(10);
 			m_filterString = EditorGUILayout.TextField("Style display filter", m_filterString);
+			m_SortType = (ESortType) EditorGUILayout.EnumPopup("Sort by", m_SortType);
 
 			EditorGUILayout.Space(10);
 			Draw();

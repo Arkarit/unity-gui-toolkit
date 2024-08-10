@@ -8,17 +8,8 @@ namespace GuiToolkit.Style.Editor
 	[CustomPropertyDrawer(typeof(UiSkin), true)]
 	public class UiSkinDrawer : AbstractPropertyDrawer<UiSkin>
 	{
-		protected enum SortType
-		{
-			NameAscending,
-			NameDescending,
-			TypeAscending,
-			TypeDescending,
-		}
-
 		protected SerializedProperty 	m_nameProp;
 		protected SerializedProperty m_stylesProp;
-		protected SortType m_SortType; 
 
 		protected override void OnEnable()
 		{
@@ -75,12 +66,6 @@ namespace GuiToolkit.Style.Editor
 			foldoutLabelRect.y += 3;
 			EditorGUI.LabelField(foldoutLabelRect, $"Skin: {m_nameProp.stringValue}", EditorStyles.boldLabel);
 
-			foldoutLabelRect.x = EditorGUIUtility.labelWidth + 32;
-			foldoutLabelRect.width = 150;
-			EditorGUI.LabelField(foldoutLabelRect,"Sort by:");
-			foldoutLabelRect.x += 60;
-			m_SortType = (SortType) EditorGUI.EnumPopup(foldoutLabelRect, m_SortType);
-
 			var deleteButtonRect = foldoutTitleRect;
 			deleteButtonRect.x = deleteButtonRect.width + deleteButtonRect.x - 60;
 			deleteButtonRect.y += 2;
@@ -118,13 +103,13 @@ namespace GuiToolkit.Style.Editor
 				int nameComp = styleA.Name.CompareTo(styleB.Name);
 				int typeComp = styleA.SupportedMonoBehaviourType.Name.CompareTo(styleB.SupportedMonoBehaviourType.Name);
 
-				if (m_SortType == SortType.NameDescending || m_SortType == SortType.TypeDescending)
+				if (UiStyleConfigEditor.SortType == UiStyleConfigEditor.ESortType.NameDescending || UiStyleConfigEditor.SortType == UiStyleConfigEditor.ESortType.TypeDescending)
 				{
 					nameComp = -nameComp;
 					typeComp = -typeComp;
 				}
 
-				if (m_SortType <= SortType.NameDescending)
+				if (UiStyleConfigEditor.SortType <= UiStyleConfigEditor.ESortType.NameDescending)
 				{
 					if (nameComp != 0)
 						return nameComp;
