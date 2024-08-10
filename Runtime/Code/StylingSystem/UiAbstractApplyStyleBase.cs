@@ -34,7 +34,6 @@ namespace GuiToolkit.Style
 
 		private void OnScreenOrientationChanged(EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation)
 		{
-Debug.Log("OnScreenOrientationChanged");
 			Apply();
 		}
 
@@ -59,8 +58,11 @@ Debug.Log("OnScreenOrientationChanged");
 		{
 			if (Style == null)
 				return false;
-			return    Style.ScreeenOrientationCondition == UiAbstractStyleBase.EScreenOrientationCondition.Always 
-			       || Style.ScreeenOrientationCondition == (UiAbstractStyleBase.EScreenOrientationCondition) UiMain.ScreenOrientation;
+
+			var result = Style.ScreenOrientationCondition == UiAbstractStyleBase.EScreenOrientationCondition.Always 
+			       || Style.ScreenOrientationCondition == (UiAbstractStyleBase.EScreenOrientationCondition) UiMain.ScreenOrientation;
+
+			return result;
 		}
 
 		protected abstract void ApplyImpl();

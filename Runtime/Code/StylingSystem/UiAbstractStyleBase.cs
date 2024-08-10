@@ -9,9 +9,9 @@ namespace GuiToolkit.Style
 	{
 		public enum EScreenOrientationCondition
 		{
-			Always = 0,
-			Landscape = 1,
-			Portrait = 2,
+			Always = -1,
+			Landscape,
+			Portrait,
 		}
 
 		[SerializeField][HideInInspector] private string m_name;
@@ -25,7 +25,7 @@ namespace GuiToolkit.Style
 			set => m_name = value;
 		}
 
-		public EScreenOrientationCondition ScreeenOrientationCondition
+		public EScreenOrientationCondition ScreenOrientationCondition
 		{
 			get => m_screenOrientationCondition;
 			set => m_screenOrientationCondition = value;

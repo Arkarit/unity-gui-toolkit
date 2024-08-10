@@ -500,6 +500,9 @@ namespace GuiToolkit
 
 		public static string GetPath(this Transform _this)
 		{
+			if (_this == null)
+				return "<null>";
+
 			string result = _this.name;
 			while (_this.parent != null)
 			{
@@ -511,6 +514,9 @@ namespace GuiToolkit
 
 		public static string GetPath(this GameObject _this)
 		{
+			if (_this == null)
+				return "<null>";
+
 			return GetPath(_this.transform);
 		}
 
