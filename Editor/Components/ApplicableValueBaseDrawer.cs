@@ -86,6 +86,8 @@ namespace GuiToolkit.Editor
 			var type = valueObj.GetType();
 			if (type.IsPrimitive)
 				return false;
+			if (type.IsEnum) 
+				return false;
 
 			switch (valueObj)
 			{
@@ -96,14 +98,11 @@ namespace GuiToolkit.Editor
 				case Vector2Int v2i:
 				case Vector3 v3:
 				case Vector3Int v3i:
-				case Vector4 v4:
-				case HorizontalAlignmentOptions:
 				case Material:
 					return false;
 			}
 
-			var valueProp = _property.FindPropertyRelative("Value");
-			return valueProp.hasChildren;
+			return true;
 		}
 
 		public override float GetPropertyHeight(SerializedProperty _property, GUIContent label)
