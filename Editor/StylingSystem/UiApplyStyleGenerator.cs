@@ -54,7 +54,7 @@ namespace GuiToolkit
 		private const string ClassDefinitionTemplate =
 			"		private class ApplicableValue{0} : ApplicableValue<{1}> {{}}\n";
 
-		private string GetClassDefinitionString(string _shortPropertyName, string _qualifiedPropertyTypeName, out string _className)
+		private string GetMemberClassDefinitionString(string _shortPropertyName, string _qualifiedPropertyTypeName, out string _className)
 		{
 			_shortPropertyName = UpperFirstChar(_shortPropertyName).Replace("[]", "Array");
 			_className = string.Format("ApplicableValue{0}", _shortPropertyName);
@@ -67,7 +67,7 @@ namespace GuiToolkit
 		}
 
 		// Format string:
-		// 0: class name as got from GetClassDefinitionString()
+		// 0: member class name as got from GetMemberClassDefinitionString()
 		// 1: member name
 		private const string StyleMemberTemplate =
 			"		[SerializeReference] private {0} m_{1} = new();\n";
@@ -101,6 +101,43 @@ namespace GuiToolkit
 		}
 
 		// Format string:
+		// 0: prefix
+		// 1: class name
+		// 2: clone members (starting with 3 tabs)
+		private const string CloneMethodTemplate =
+			"		public UiStyle{0}{1} Clone() => new UiStyle{0}{1}()\n"
+			+ "		{{\n"
+			+ "{2}"
+			+ "		}};\n";
+
+		private string GetCloneMethodString(string _prefix, string _className, string _cloneMembers)
+		{
+			return string.Format
+			(
+				CloneMethodTemplate,
+				_prefix,
+				_className,
+				_cloneMembers
+			);
+		}
+
+		// Format string:
+		// 0: member class name as got from GetMemberClassDefinitionString()
+		// 1: member name
+		private const string CloneMemberTemplate =
+			"			m_{1} = ({0}) m_{1}.Clone(),\n";
+
+		private string GetCloneMemberString(string _memberClass, string _memberName)
+		{
+			return string.Format
+			(
+				CloneMemberTemplate,
+				_memberClass,
+				_memberName
+			);
+		}
+
+		// Format string:
 		// 0: namespace
 		// 1: prefix
 		// 2: short type name,
@@ -108,6 +145,7 @@ namespace GuiToolkit
 		// 4: members (starting with 2 tabs)
 		// 5: properties (starting with 2 tabs)
 		// 6: Class type definitions
+		// 7: Clone definitions (starting with 2 tabs)
 		private const string StyleTemplate =
 			GeneratedWarningComment
 			+ "using System;\n"
@@ -125,10 +163,12 @@ namespace GuiToolkit
 			+ "{4}"
 			+ "\n"
 			+ "{5}"
+			+ "\n"
+			+ "{7}"
 			+ "	}}\n"
 			+ "}}\n";
 
-		private string GetStyleString(string _namespace, string _prefix, string _shortTypeName, string _qualifiedTypeName, string _members, string _properties, string _classTypeDefinitions)
+		private string GetStyleString(string _namespace, string _prefix, string _shortTypeName, string _qualifiedTypeName, string _members, string _properties, string _classTypeDefinitions, string _cloneDefinition)
 		{
 			return string.Format
 			(
@@ -139,7 +179,8 @@ namespace GuiToolkit
 				_qualifiedTypeName,
 				_members,
 				_properties,
-				_classTypeDefinitions
+				_classTypeDefinitions,
+				_cloneDefinition
 			);
 		}
 
@@ -559,6 +600,7 @@ namespace GuiToolkit
 			string members = string.Empty;
 			string properties = string.Empty;
 			string classTypeDefinitions = string.Empty;
+			string cloneMembers = string.Empty;
 			bool foundSome = false;
 
 			Dictionary<string, string> typeStringByTypeName = new();
@@ -571,18 +613,20 @@ namespace GuiToolkit
 				string qualifiedPropertyType = propertyRecord.QualifiedTypeName;
 				string shortPropertyType = propertyRecord.TypeName;
 				string memberName = propertyRecord.Name;
+				string memberClassName;
+				string memberClassDefinitionString = GetMemberClassDefinitionString(shortPropertyType, qualifiedPropertyType, out memberClassName);
 
 				if (!typeStringByTypeName.ContainsKey(qualifiedPropertyType))
 				{
-					classTypeDefinitions +=
-						GetClassDefinitionString(shortPropertyType, qualifiedPropertyType, out string entry);
-					typeStringByTypeName.Add(qualifiedPropertyType, entry);
+					classTypeDefinitions += memberClassDefinitionString;
+					typeStringByTypeName.Add(qualifiedPropertyType, memberClassName);
 				}
 
 				string className = typeStringByTypeName[qualifiedPropertyType];
 
 				members += GetStyleMemberString(className, memberName);
 				properties += GetStylePropertyString(qualifiedPropertyType, memberName, memberName);
+				cloneMembers += GetCloneMemberString(memberClassName, memberName);
 				foundSome = true;
 			}
 
@@ -600,9 +644,10 @@ namespace GuiToolkit
 			string classPrefix = m_prefix;
 			string shortTypeName = m_monoBehaviourType.Name;
 			string qualifiedTypeName = m_monoBehaviourType.FullName;
+			string cloneMethod = GetCloneMethodString(classPrefix, shortTypeName, cloneMembers);
 
 			return GetStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
-				members, properties, classTypeDefinitions);
+				members, properties, classTypeDefinitions, cloneMethod);
 		}
 
 		private string GenerateApplicationClass()

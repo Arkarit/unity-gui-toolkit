@@ -17,5 +17,11 @@ namespace GuiToolkit.Style
 
 		public ApplicableValue<UnityEngine.Gradient> Gradient => m_Gradient;
 		public ApplicableValue<GuiToolkit.EAxis2D> Axis => m_Axis;
+
+		public UiStyleUiGradient Clone() => new UiStyleUiGradient()
+		{
+			m_Gradient = (ApplicableValueGradient) m_Gradient.Clone(),
+			m_Axis = (ApplicableValueEAxis2D) m_Axis.Clone(),
+		};
 	}
 }

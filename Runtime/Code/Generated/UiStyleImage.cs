@@ -22,5 +22,13 @@ namespace GuiToolkit.Style
 		public ApplicableValue<UnityEngine.Sprite> OverrideSprite => m_overrideSprite;
 		public ApplicableValue<UnityEngine.Material> Material => m_material;
 		public ApplicableValue<UnityEngine.Color> Color => m_color;
+
+		public UiStyleImage Clone() => new UiStyleImage()
+		{
+			m_sprite = (ApplicableValueSprite) m_sprite.Clone(),
+			m_overrideSprite = (ApplicableValueSprite) m_overrideSprite.Clone(),
+			m_material = (ApplicableValueMaterial) m_material.Clone(),
+			m_color = (ApplicableValueColor) m_color.Clone(),
+		};
 	}
 }
