@@ -98,7 +98,7 @@ namespace GuiToolkit.Style
 		public ApplicableValue<UnityEngine.Vector4> Margin => m_margin;
 		public ApplicableValue<UnityEngine.Material> Material => m_material;
 
-		public UiStyleTMP_Text Clone() => new UiStyleTMP_Text()
+		public override UiAbstractStyleBase Clone() => new UiStyleTMP_Text()
 		{
 			m_font = (ApplicableValueTMP_FontAsset) m_font.Clone(),
 			m_fontSharedMaterial = (ApplicableValueMaterial) m_fontSharedMaterial.Clone(),

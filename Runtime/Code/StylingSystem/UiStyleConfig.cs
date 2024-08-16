@@ -22,6 +22,12 @@ namespace GuiToolkit.Style
 			UiEvents.EvDeleteSkin.AddListener(OnDeleteSkin);
 		}
 
+		protected void OnDisable()
+		{
+			UiEvents.EvDeleteStyle.RemoveListener(OnDeleteStyle);
+			UiEvents.EvDeleteSkin.RemoveListener(OnDeleteSkin);
+		}
+
 		public void ForeachSkin(Action<UiSkin> action)
 		{
 			foreach (var skin in m_skins)

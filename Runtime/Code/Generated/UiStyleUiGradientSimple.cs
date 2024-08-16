@@ -20,7 +20,7 @@ namespace GuiToolkit.Style
 		public ApplicableValue<UnityEngine.Color> ColorRightOrBottom => m_ColorRightOrBottom;
 		public ApplicableValue<GuiToolkit.EAxis2D> Axis => m_Axis;
 
-		public UiStyleUiGradientSimple Clone() => new UiStyleUiGradientSimple()
+		public override UiAbstractStyleBase Clone() => new UiStyleUiGradientSimple()
 		{
 			m_ColorLeftOrTop = (ApplicableValueColor) m_ColorLeftOrTop.Clone(),
 			m_ColorRightOrBottom = (ApplicableValueColor) m_ColorRightOrBottom.Clone(),

@@ -32,6 +32,7 @@ namespace GuiToolkit.Style
 		}
 
 		public abstract Type SupportedMonoBehaviourType { get; }
+		public abstract UiAbstractStyleBase Clone();
 		
 		public int Key
 		{
@@ -62,5 +63,6 @@ namespace GuiToolkit.Style
 
 			UiStyleUtility.SynchronizeApplicableness(_from, this);
 		}
+
 	}
 }

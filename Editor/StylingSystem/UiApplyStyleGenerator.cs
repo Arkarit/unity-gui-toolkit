@@ -105,7 +105,7 @@ namespace GuiToolkit
 		// 1: class name
 		// 2: clone members (starting with 3 tabs)
 		private const string CloneMethodTemplate =
-			"		public UiStyle{0}{1} Clone() => new UiStyle{0}{1}()\n"
+			"		public override UiAbstractStyleBase Clone() => new UiStyle{0}{1}()\n"
 			+ "		{{\n"
 			+ "{2}"
 			+ "		}};\n";
