@@ -37,7 +37,9 @@ public class TestDemoScene1 : UiView
 	private void OnSwitchSkin()
 	{
 		var skinName = UiStyleManager.Skin;
-		UiStyleManager.SetSkin(skinName == "Default" ? "Alternative" : "Default");
+		var newSkinName = skinName == "Default" ? "Alternative" : "Default";
+		UiStyleManager.SetSkin(newSkinName, 2);
+		Debug.Log($"Toggle skin to '{newSkinName}'");
 	}
 
 	protected override void OnEnable()

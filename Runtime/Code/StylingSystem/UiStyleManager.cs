@@ -1,9 +1,14 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GuiToolkit.Style
 {
 	public static class UiStyleManager
 	{
+		private static float s_currentTime;
+		private static float s_tweenDuration;
+
 		public static string Skin
 		{
 			get => UiStyleConfig.Instance.CurrentSkinName;
@@ -24,7 +29,7 @@ namespace GuiToolkit.Style
 
 			var previousStyles = previousSkin.Styles;
 			var previousStylesCount = previousStyles.Count;
-			if (_tweenDuration <= 0)
+			if (_tweenDuration <= 0 || !Application.isPlaying)
 			{
 				foreach (var style in previousStyles)
 					foreach (var value in style.Values)
@@ -63,8 +68,30 @@ namespace GuiToolkit.Style
 				}
 			}
 
-			UiEvents.EvSkinChanged.InvokeAlways();
+			s_currentTime = 0;
+			s_tweenDuration = _tweenDuration;
+			CoroutineManager.Instance.StartCoroutine(UpdateTween());
+			UiEvents.EvSkinChanged.Invoke();
 			return true;
+		}
+
+		private static IEnumerator UpdateTween()
+		{
+			while (true)
+			{
+				var normalizedValue = s_currentTime / s_tweenDuration;
+				var styles = UiStyleConfig.Instance.CurrentSkin.Styles;
+				foreach (var style in styles)
+					foreach (var value in style.Values)
+						value.UpdateTween(normalizedValue);
+
+				UiEvents.EvSkinValuesChanged.Invoke();
+				if (normalizedValue >= 1)
+					yield break;
+
+				s_currentTime += Time.deltaTime;
+				yield return 0;
+			}
 		}
 	}
 }

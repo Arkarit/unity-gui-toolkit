@@ -21,6 +21,7 @@ MonoBehaviour:
     - rid: 7059580713605267488
     - rid: 4571341714188402708
     - rid: 4571341714188402714
+    - rid: 4571342030662795296
   - m_name: Alternative
     m_styles:
     - rid: 4571342029832323155
@@ -29,6 +30,7 @@ MonoBehaviour:
     - rid: 4571342029832323158
     - rid: 4571342029832323159
     - rid: 4571342029832323160
+    - rid: 4571342030662795297
   m_currentSkinIdx: 1
   references:
     version: 2
@@ -378,6 +380,64 @@ MonoBehaviour:
       data:
         IsApplicable: 1
         m_value: 1
+    - rid: 4571342030662795296
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Test/GradientSimple
+        m_screenOrientationCondition: -1
+        m_ColorLeftOrTop:
+          rid: 4571342030662795298
+        m_ColorRightOrBottom:
+          rid: 4571342030662795299
+        m_Axis:
+          rid: 4571342030662795300
+    - rid: 4571342030662795297
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Test/GradientSimple
+        m_screenOrientationCondition: -1
+        m_ColorLeftOrTop:
+          rid: 4571342030662795301
+        m_ColorRightOrBottom:
+          rid: 4571342030662795302
+        m_Axis:
+          rid: 4571342030662795303
+    - rid: 4571342030662795298
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 0, b: 0, a: 1}
+    - rid: 4571342030662795299
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0.05724919, g: 1, b: 0, a: 1}
+    - rid: 4571342030662795300
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4571342030662795301
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0.4226508, b: 1, a: 1}
+    - rid: 4571342030662795302
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 0.9964248, b: 0, a: 1}
+    - rid: 4571342030662795303
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
     - rid: 4848181658278690901
       type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
