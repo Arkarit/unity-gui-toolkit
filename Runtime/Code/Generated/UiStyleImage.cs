@@ -1,5 +1,6 @@
 // Auto-generated, please do not change!
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
@@ -12,6 +13,17 @@ namespace GuiToolkit.Style
 		private class ApplicableValueSprite : ApplicableValue<UnityEngine.Sprite> {}
 		private class ApplicableValueMaterial : ApplicableValue<UnityEngine.Material> {}
 		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
+
+		protected override ApplicableValueBase[] GetValueList()
+		{
+			return new ApplicableValueBase[]
+			{
+				m_sprite,
+				m_overrideSprite,
+				m_material,
+				m_color,
+			};
+		}
 
 		[SerializeReference] private ApplicableValueSprite m_sprite = new();
 		[SerializeReference] private ApplicableValueSprite m_overrideSprite = new();

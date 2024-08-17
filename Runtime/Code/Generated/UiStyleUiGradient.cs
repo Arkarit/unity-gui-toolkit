@@ -3,6 +3,8 @@ using System;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
+using System.Collections.Generic;
+using TMPro;
 
 namespace GuiToolkit.Style
 {
@@ -11,6 +13,13 @@ namespace GuiToolkit.Style
 	{
 		private class ApplicableValueGradient : ApplicableValue<UnityEngine.Gradient> {}
 		private class ApplicableValueEAxis2D : ApplicableValue<GuiToolkit.EAxis2D> {}
+
+		protected override ApplicableValueBase[] GetValueList()
+		{
+			return new ApplicableValueBase[]
+			{
+			};
+		}
 
 		[SerializeReference] private ApplicableValueGradient m_Gradient = new();
 		[SerializeReference] private ApplicableValueEAxis2D m_Axis = new();

@@ -1,9 +1,9 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GuiToolkit.Style
 {
-	// We can not use a real interface here because Unity refuses to serialize
 	[Serializable]
 	public abstract class UiAbstractStyleBase
 	{
@@ -16,6 +16,9 @@ namespace GuiToolkit.Style
 
 		[SerializeField][HideInInspector] private string m_name;
 		[SerializeField][HideInInspector] private EScreenOrientationCondition m_screenOrientationCondition = EScreenOrientationCondition.Always;
+		private ApplicableValueBase[] m_values;
+
+
 		
 		private int m_key;
 
@@ -33,7 +36,21 @@ namespace GuiToolkit.Style
 
 		public abstract Type SupportedMonoBehaviourType { get; }
 		public abstract UiAbstractStyleBase Clone();
+		protected abstract ApplicableValueBase[] GetValueList();
 		
+		public ApplicableValueBase[] Values
+		{
+			get
+			{
+				if (m_values == null)
+				{
+					m_values = GetValueList();
+				}
+
+				return m_values;
+			}
+		}
+
 		public int Key
 		{
 			get

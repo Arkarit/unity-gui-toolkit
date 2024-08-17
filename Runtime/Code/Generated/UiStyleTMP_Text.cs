@@ -3,6 +3,8 @@ using System;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
+using System.Collections.Generic;
+using TMPro;
 
 namespace GuiToolkit.Style
 {
@@ -27,6 +29,13 @@ namespace GuiToolkit.Style
 		private class ApplicableValueVerticalAlignmentOptions : ApplicableValue<TMPro.VerticalAlignmentOptions> {}
 		private class ApplicableValueTextAlignmentOptions : ApplicableValue<TMPro.TextAlignmentOptions> {}
 		private class ApplicableValueVector4 : ApplicableValue<UnityEngine.Vector4> {}
+
+		protected override ApplicableValueBase[] GetValueList()
+		{
+			return new ApplicableValueBase[]
+			{
+			};
+		}
 
 		[SerializeReference] private ApplicableValueTMP_FontAsset m_font = new();
 		[SerializeReference] private ApplicableValueMaterial m_fontSharedMaterial = new();
