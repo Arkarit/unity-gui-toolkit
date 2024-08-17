@@ -14,11 +14,11 @@ namespace GuiToolkit.Style
 				return;
 
 			if (SpecificStyle.ColorLeftOrTop.IsApplicable)
-				try { SpecificMonoBehaviour.ColorLeftOrTop = SpecificStyle.ColorLeftOrTop.Value; } catch {}
+				try { SpecificMonoBehaviour.ColorLeftOrTop = SpecificStyle.ColorLeftOrTop.m_value; } catch {}
 			if (SpecificStyle.ColorRightOrBottom.IsApplicable)
-				try { SpecificMonoBehaviour.ColorRightOrBottom = SpecificStyle.ColorRightOrBottom.Value; } catch {}
+				try { SpecificMonoBehaviour.ColorRightOrBottom = SpecificStyle.ColorRightOrBottom.m_value; } catch {}
 			if (SpecificStyle.Axis.IsApplicable)
-				try { SpecificMonoBehaviour.Axis = SpecificStyle.Axis.Value; } catch {}
+				try { SpecificMonoBehaviour.Axis = SpecificStyle.Axis.m_value; } catch {}
 		}
 
 		public override UiAbstractStyleBase CreateStyle(string _name, UiAbstractStyleBase _template = null)
@@ -34,19 +34,19 @@ namespace GuiToolkit.Style
 			{
 				var specificTemplate = (UiStyleUiGradientSimple) _template;
 
-				result.ColorLeftOrTop.Value = specificTemplate.ColorLeftOrTop.Value;
+				result.ColorLeftOrTop.m_value = specificTemplate.ColorLeftOrTop.m_value;
 				result.ColorLeftOrTop.IsApplicable = specificTemplate.ColorLeftOrTop.IsApplicable;
-				result.ColorRightOrBottom.Value = specificTemplate.ColorRightOrBottom.Value;
+				result.ColorRightOrBottom.m_value = specificTemplate.ColorRightOrBottom.m_value;
 				result.ColorRightOrBottom.IsApplicable = specificTemplate.ColorRightOrBottom.IsApplicable;
-				result.Axis.Value = specificTemplate.Axis.Value;
+				result.Axis.m_value = specificTemplate.Axis.m_value;
 				result.Axis.IsApplicable = specificTemplate.Axis.IsApplicable;
 
 				return result;
 			}
 
-			try { result.ColorLeftOrTop.Value = SpecificMonoBehaviour.ColorLeftOrTop; } catch {}
-			try { result.ColorRightOrBottom.Value = SpecificMonoBehaviour.ColorRightOrBottom; } catch {}
-			try { result.Axis.Value = SpecificMonoBehaviour.Axis; } catch {}
+			try { result.ColorLeftOrTop.m_value = SpecificMonoBehaviour.ColorLeftOrTop; } catch {}
+			try { result.ColorRightOrBottom.m_value = SpecificMonoBehaviour.ColorRightOrBottom; } catch {}
+			try { result.Axis.m_value = SpecificMonoBehaviour.Axis; } catch {}
 
 			return result;
 		}

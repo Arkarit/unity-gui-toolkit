@@ -18,6 +18,22 @@ namespace GuiToolkit.Style
 		public string Name => m_name;
 		public List<UiAbstractStyleBase> Styles => m_styles;
 
+		public UiSkin Clone()
+		{
+			List<UiAbstractStyleBase> clonedStyles = new List<UiAbstractStyleBase>();
+			foreach (var style in m_styles)
+				clonedStyles.Add(style.Clone());
+
+			var result = new UiSkin()
+			{
+				m_name = m_name + "(Clone)",
+				m_styles = clonedStyles,
+			};
+
+			result.Init();
+			return result;
+		}
+
 		public void Init()
 		{
 			foreach (var style in m_styles)

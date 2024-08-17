@@ -60,7 +60,7 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			var valueProp = _property.FindPropertyRelative("Value");
+			var valueProp = _property.FindPropertyRelative("m_value");
 			using (new EditorGUI.DisabledScope(newIsApplicable == false))
 			{
 				EditorGUI.PropertyField(
@@ -118,7 +118,7 @@ namespace GuiToolkit.Editor
 			if (!isApplicable)
 				return EditorGUIUtility.singleLineHeight;
 
-			var valueProp = _property.FindPropertyRelative("Value");
+			var valueProp = _property.FindPropertyRelative("m_value");
 			var thisApplicableValueBase = _property.boxedValue as ApplicableValueBase;
 			return EditorGUI.GetPropertyHeight(valueProp, DoesValueHaveChildren(_property, thisApplicableValueBase));
 		}

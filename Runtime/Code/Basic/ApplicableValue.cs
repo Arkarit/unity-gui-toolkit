@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
@@ -17,37 +18,47 @@ namespace GuiToolkit
 	[Serializable]
 	public class ApplicableValue<T> : ApplicableValueBase
 	{
-		public T Value;
-		public override object ValueObj => Value;
+		[FormerlySerializedAs("Value")]
+		public T m_value;
+		public override object ValueObj => m_value;
 
 		private T m_oldValue;
+		private bool m_tweenRunning;
+		private float m_normalizedTweenAmount;
+
+		public T Value
+		{
+			get
+			{
+				if (!m_tweenRunning)
+					return m_value;
+
+				return Lerp(m_oldValue, m_value, m_normalizedTweenAmount);
+			}
+
+			set => m_value = value;
+		}
+
+		public void StartTween(T from)
+		{
+			m_oldValue = from;
+			m_tweenRunning = true;
+			m_normalizedTweenAmount = 0f;
+		}
+
+		public void UpdateTween(float normalizedTweenAmount)
+		{
+			m_normalizedTweenAmount = Mathf.Clamp01(normalizedTweenAmount);
+			if (m_normalizedTweenAmount >= 1)
+				m_tweenRunning = false;
+		}
 
 		public ApplicableValue<T> Clone() => new ApplicableValue<T>()
 		{
 			IsApplicable = IsApplicable,
-			Value = Value,
+			m_value = m_value,
 			m_oldValue = m_oldValue
 		};
-
-		public void TweenTo(T _value, float _amount = 1)
-		{
-			if (!IsApplicable)
-				return;
-
-			if (_amount >= 1)
-			{
-				Value = _value;
-				return;
-			}
-
-			if (_amount <= 0)
-			{
-				m_oldValue = Value;
-				return;
-			}
-
-			Value = Lerp(m_oldValue, _value, _amount);
-		}
 
 		private static T Lerp<T>(T _lhs, T _rhs, float _amount)
 		{

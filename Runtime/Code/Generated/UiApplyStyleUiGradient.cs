@@ -14,9 +14,9 @@ namespace GuiToolkit.Style
 				return;
 
 			if (SpecificStyle.Gradient.IsApplicable)
-				try { SpecificMonoBehaviour.Gradient = SpecificStyle.Gradient.Value; } catch {}
+				try { SpecificMonoBehaviour.Gradient = SpecificStyle.Gradient.m_value; } catch {}
 			if (SpecificStyle.Axis.IsApplicable)
-				try { SpecificMonoBehaviour.Axis = SpecificStyle.Axis.Value; } catch {}
+				try { SpecificMonoBehaviour.Axis = SpecificStyle.Axis.m_value; } catch {}
 		}
 
 		public override UiAbstractStyleBase CreateStyle(string _name, UiAbstractStyleBase _template = null)
@@ -32,16 +32,16 @@ namespace GuiToolkit.Style
 			{
 				var specificTemplate = (UiStyleUiGradient) _template;
 
-				result.Gradient.Value = specificTemplate.Gradient.Value;
+				result.Gradient.m_value = specificTemplate.Gradient.m_value;
 				result.Gradient.IsApplicable = specificTemplate.Gradient.IsApplicable;
-				result.Axis.Value = specificTemplate.Axis.Value;
+				result.Axis.m_value = specificTemplate.Axis.m_value;
 				result.Axis.IsApplicable = specificTemplate.Axis.IsApplicable;
 
 				return result;
 			}
 
-			try { result.Gradient.Value = SpecificMonoBehaviour.Gradient; } catch {}
-			try { result.Axis.Value = SpecificMonoBehaviour.Axis; } catch {}
+			try { result.Gradient.m_value = SpecificMonoBehaviour.Gradient; } catch {}
+			try { result.Axis.m_value = SpecificMonoBehaviour.Axis; } catch {}
 
 			return result;
 		}

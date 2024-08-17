@@ -77,25 +77,49 @@ namespace GuiToolkit.Style
 
 				return currentSkin.Name;
 			}
-			set
+
+			set => SetCurrentSkin(value, true);
+		}
+
+		public bool SetCurrentSkin(string _skinName, bool _emitEvent)
+		{
+			for (int i = 0; i < m_skins.Count; i++)
 			{
-				for (int i = 0; i < m_skins.Count; i++)
+				var skin = m_skins[i];
+				if (skin.Name == _skinName)
 				{
-					var skin = m_skins[i];
-					if (skin.Name == value)
-					{
-						if (m_currentSkinIdx == i)
-							return;
+					if (m_currentSkinIdx == i)
+						return true;
 
-						m_currentSkinIdx = i;
+					m_currentSkinIdx = i;
+					if (_emitEvent)
 						UiEvents.EvSkinChanged.InvokeAlways();
-						return;
-					}
-
-					//TODO new skin
+					return true;
 				}
 			}
+
+			return false;
 		}
+
+		public bool SetCurrentSkin(string _skinName, bool _emitEvent, float _tweenDuration)
+		{
+			var styleConfig = UiStyleConfig.Instance;
+			var previousSkin = styleConfig.CurrentSkin;
+
+			if (!styleConfig.SetCurrentSkin(_skinName, false))
+				return false;
+
+			if (_tweenDuration > 0)
+			{
+				var currentSkin = styleConfig.CurrentSkin;
+				if (currentSkin == null)
+					return false;
+
+
+			}
+			return true;
+		}
+
 
 		public UiSkin CurrentSkin 
 		{
@@ -111,6 +135,17 @@ namespace GuiToolkit.Style
 		}
 
 		public static UiStyleConfig Instance => UiToolkitConfiguration.Instance.StyleConfig;
+
+		public bool HasSkin(string skinName)
+		{
+			foreach (var skin in m_skins)
+			{
+				if (skin.Name == skinName)
+					return true;
+			}
+
+			return false;
+		}
 
 		private void OnDeleteStyle(UiAbstractStyleBase _style)
 		{

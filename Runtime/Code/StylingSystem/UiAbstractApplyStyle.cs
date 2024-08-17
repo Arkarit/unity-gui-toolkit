@@ -54,6 +54,7 @@ namespace GuiToolkit.Style
 		{
 			base.OnEnable();
 			UiEvents.EvSkinChanged.AddListener(OnSkinChanged);
+			UiEvents.EvSkinValuesChanged.AddListener(OnSkinValuesChanged);
 
 			if (SpecificMonoBehaviour == null)
 				return;
@@ -65,7 +66,10 @@ namespace GuiToolkit.Style
 		{
 			base.OnDisable();
 			UiEvents.EvSkinChanged.RemoveListener(OnSkinChanged);
+			UiEvents.EvSkinValuesChanged.RemoveListener(OnSkinValuesChanged);
 		}
+
+		private void OnSkinValuesChanged() => Apply();
 
 		private void OnSkinChanged()
 		{
