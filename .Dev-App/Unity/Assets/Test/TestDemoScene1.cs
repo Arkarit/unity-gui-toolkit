@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using GuiToolkit.Style;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ public class TestDemoScene1 : UiView
 	public Button m_showSplashMessageButton;
 	public Button m_showRequesterButton;
 	public Button m_showSettings;
+	public Button m_switchSkinButton;
 
 	public TMP_InputField m_splashMessageInput;
 	public TMP_InputField m_requesterTitleInput;
@@ -29,6 +31,13 @@ public class TestDemoScene1 : UiView
 		m_showSplashMessageButton.onClick.AddListener(OnShowSplashMessageClicked);
 		m_showRequesterButton.onClick.AddListener(OnShowRequester);
 		m_showSettings.onClick.AddListener(OnShowSettings);
+		m_switchSkinButton.onClick.AddListener(OnSwitchSkin);
+	}
+
+	private void OnSwitchSkin()
+	{
+		var skinName = UiStyleManager.Skin;
+		UiStyleManager.SetSkin(skinName == "Default" ? "Alternative" : "Default");
 	}
 
 	protected override void OnEnable()

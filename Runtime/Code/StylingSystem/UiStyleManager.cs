@@ -4,6 +4,12 @@ namespace GuiToolkit.Style
 {
 	public static class UiStyleManager
 	{
+		public static string Skin
+		{
+			get => UiStyleConfig.Instance.CurrentSkinName;
+			private set => SetSkin(value);
+		}
+
 		public static bool SetSkin(string _skinName, float _tweenDuration = 0)
 		{
 			var styleConfig = UiStyleConfig.Instance;
@@ -24,6 +30,7 @@ namespace GuiToolkit.Style
 					foreach (var value in style.Values)
 						value.StopTween();
 
+				UiEvents.EvSkinChanged.InvokeAlways();
 				return true;
 			}
 
@@ -31,7 +38,7 @@ namespace GuiToolkit.Style
 			var stylesCount = styles.Count;
 			Debug.Assert(previousStylesCount == stylesCount);
 			if (previousStyles.Count != stylesCount)
-				return true;
+				return false;
 
 			for (int i = 0; i < stylesCount; i++)
 			{
@@ -42,7 +49,7 @@ namespace GuiToolkit.Style
 
 				Debug.Assert(prevValuesLength == valuesLength);
 				if (prevValuesLength != valuesLength)
-					return true;
+					return false;
 
 				for (int j = 0; j < valuesLength; j++)
 				{
@@ -56,6 +63,7 @@ namespace GuiToolkit.Style
 				}
 			}
 
+			UiEvents.EvSkinChanged.InvokeAlways();
 			return true;
 		}
 	}
