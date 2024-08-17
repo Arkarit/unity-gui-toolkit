@@ -17,8 +17,6 @@ namespace GuiToolkit.Style
 		[SerializeField][HideInInspector] private string m_name;
 		[SerializeField][HideInInspector] private EScreenOrientationCondition m_screenOrientationCondition = EScreenOrientationCondition.Always;
 		private ApplicableValueBase[] m_values;
-
-
 		
 		private int m_key;
 
@@ -35,7 +33,6 @@ namespace GuiToolkit.Style
 		}
 
 		public abstract Type SupportedMonoBehaviourType { get; }
-		public abstract UiAbstractStyleBase Clone();
 		protected abstract ApplicableValueBase[] GetValueList();
 		
 		public ApplicableValueBase[] Values

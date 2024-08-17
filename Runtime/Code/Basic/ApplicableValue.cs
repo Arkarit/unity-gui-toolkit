@@ -83,12 +83,5 @@ namespace GuiToolkit
 			get => (T) ValueObj;
 			set => m_value = value;
 		}
-
-		public ApplicableValue<T> Clone() => new ApplicableValue<T>()
-		{
-			IsApplicable = IsApplicable,
-			m_value = m_value,
-			m_oldValue = m_oldValue
-		};
 	}
 }

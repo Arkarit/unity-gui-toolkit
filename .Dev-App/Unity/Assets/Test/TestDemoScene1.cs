@@ -38,7 +38,7 @@ public class TestDemoScene1 : UiView
 	{
 		var skinName = UiStyleManager.Skin;
 		var newSkinName = skinName == "Default" ? "Alternative" : "Default";
-		UiStyleManager.SetSkin(newSkinName, 2);
+		UiStyleManager.SetSkin(newSkinName, 1);
 		Debug.Log($"Toggle skin to '{newSkinName}'");
 	}
 

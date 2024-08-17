@@ -138,43 +138,5 @@ namespace GuiToolkit.Style
 		public ApplicableValue<System.Boolean> ExtraPadding => m_extraPadding;
 		public ApplicableValue<UnityEngine.Vector4> Margin => m_margin;
 		public ApplicableValue<UnityEngine.Material> Material => m_material;
-
-		public override UiAbstractStyleBase Clone() => new UiStyleTMP_Text()
-		{
-			m_font = (ApplicableValueTMP_FontAsset) m_font.Clone(),
-			m_fontSharedMaterial = (ApplicableValueMaterial) m_fontSharedMaterial.Clone(),
-			m_fontSharedMaterials = (ApplicableValueMaterialArray) m_fontSharedMaterials.Clone(),
-			m_fontMaterial = (ApplicableValueMaterial) m_fontMaterial.Clone(),
-			m_fontMaterials = (ApplicableValueMaterialArray) m_fontMaterials.Clone(),
-			m_color = (ApplicableValueColor) m_color.Clone(),
-			m_alpha = (ApplicableValueSingle) m_alpha.Clone(),
-			m_enableVertexGradient = (ApplicableValueBoolean) m_enableVertexGradient.Clone(),
-			m_colorGradient = (ApplicableValueVertexGradient) m_colorGradient.Clone(),
-			m_colorGradientPreset = (ApplicableValueTMP_ColorGradient) m_colorGradientPreset.Clone(),
-			m_spriteAsset = (ApplicableValueTMP_SpriteAsset) m_spriteAsset.Clone(),
-			m_styleSheet = (ApplicableValueTMP_StyleSheet) m_styleSheet.Clone(),
-			m_textStyle = (ApplicableValueTMP_Style) m_textStyle.Clone(),
-			m_overrideColorTags = (ApplicableValueBoolean) m_overrideColorTags.Clone(),
-			m_faceColor = (ApplicableValueColor32) m_faceColor.Clone(),
-			m_outlineColor = (ApplicableValueColor32) m_outlineColor.Clone(),
-			m_outlineWidth = (ApplicableValueSingle) m_outlineWidth.Clone(),
-			m_fontSize = (ApplicableValueSingle) m_fontSize.Clone(),
-			m_fontWeight = (ApplicableValueFontWeight) m_fontWeight.Clone(),
-			m_fontSizeMin = (ApplicableValueSingle) m_fontSizeMin.Clone(),
-			m_fontSizeMax = (ApplicableValueSingle) m_fontSizeMax.Clone(),
-			m_fontStyle = (ApplicableValueFontStyles) m_fontStyle.Clone(),
-			m_horizontalAlignment = (ApplicableValueHorizontalAlignmentOptions) m_horizontalAlignment.Clone(),
-			m_verticalAlignment = (ApplicableValueVerticalAlignmentOptions) m_verticalAlignment.Clone(),
-			m_alignment = (ApplicableValueTextAlignmentOptions) m_alignment.Clone(),
-			m_characterSpacing = (ApplicableValueSingle) m_characterSpacing.Clone(),
-			m_wordSpacing = (ApplicableValueSingle) m_wordSpacing.Clone(),
-			m_lineSpacing = (ApplicableValueSingle) m_lineSpacing.Clone(),
-			m_lineSpacingAdjustment = (ApplicableValueSingle) m_lineSpacingAdjustment.Clone(),
-			m_paragraphSpacing = (ApplicableValueSingle) m_paragraphSpacing.Clone(),
-			m_characterWidthAdjustment = (ApplicableValueSingle) m_characterWidthAdjustment.Clone(),
-			m_extraPadding = (ApplicableValueBoolean) m_extraPadding.Clone(),
-			m_margin = (ApplicableValueVector4) m_margin.Clone(),
-			m_material = (ApplicableValueMaterial) m_material.Clone(),
-		};
 	}
 }
