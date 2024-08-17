@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using File = System.IO.File;
@@ -138,6 +139,20 @@ namespace GuiToolkit
 		}
 
 		// Format string:
+		// 0: member name
+		private const string MemberNameTemplate =
+			"				m_{0},\n";
+
+		private string GetMemberNameString(string _memberName)
+		{
+			return string.Format
+			(
+				MemberNameTemplate,
+				_memberName
+			);
+		}
+
+		// Format string:
 		// 0: namespace
 		// 1: prefix
 		// 2: short type name,
@@ -145,7 +160,8 @@ namespace GuiToolkit
 		// 4: members (starting with 2 tabs)
 		// 5: properties (starting with 2 tabs)
 		// 6: Class type definitions
-		// 7: Clone definitions (starting with 2 tabs)
+		// 7: member names list (starting with 4 tabs, each member ending with ',')
+		// 8: Clone definitions (starting with 2 tabs)
 		private const string StyleTemplate =
 			GeneratedWarningComment
 			+ "using System;\n"
@@ -160,15 +176,32 @@ namespace GuiToolkit
 			+ "	{{\n"
 			+ "{6}"
 			+ "\n"
+			+ "		protected override ApplicableValueBase[] GetValueList()\n"
+			+ "		{{\n"
+			+ "			return new ApplicableValueBase[]\n"
+			+ "			{{\n"
+			+ "{7}"
+			+ "			}};\n"
+			+ "		}}\n"
+			+ "\n"
 			+ "{4}"
 			+ "\n"
 			+ "{5}"
 			+ "\n"
-			+ "{7}"
+			+ "{8}"
 			+ "	}}\n"
 			+ "}}\n";
 
-		private string GetStyleString(string _namespace, string _prefix, string _shortTypeName, string _qualifiedTypeName, string _members, string _properties, string _classTypeDefinitions, string _cloneDefinition)
+		private string GetStyleString(
+			string _namespace, 
+			string _prefix, 
+			string _shortTypeName, 
+			string _qualifiedTypeName, 
+			string _members, 
+			string _properties, 
+			string _classTypeDefinitions, 
+			string _memberNames,
+			string _cloneDefinition)
 		{
 			return string.Format
 			(
@@ -180,6 +213,7 @@ namespace GuiToolkit
 				_members,
 				_properties,
 				_classTypeDefinitions,
+				_memberNames,
 				_cloneDefinition
 			);
 		}
@@ -601,6 +635,7 @@ namespace GuiToolkit
 			string properties = string.Empty;
 			string classTypeDefinitions = string.Empty;
 			string cloneMembers = string.Empty;
+			string memberNames = string.Empty;
 			bool foundSome = false;
 
 			Dictionary<string, string> typeStringByTypeName = new();
@@ -627,6 +662,8 @@ namespace GuiToolkit
 				members += GetStyleMemberString(className, memberName);
 				properties += GetStylePropertyString(qualifiedPropertyType, memberName, memberName);
 				cloneMembers += GetCloneMemberString(memberClassName, memberName);
+				memberNames += GetMemberNameString(memberName);
+				
 				foundSome = true;
 			}
 
@@ -647,7 +684,7 @@ namespace GuiToolkit
 			string cloneMethod = GetCloneMethodString(classPrefix, shortTypeName, cloneMembers);
 
 			return GetStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
-				members, properties, classTypeDefinitions, cloneMethod);
+				members, properties, classTypeDefinitions, memberNames, cloneMethod);
 		}
 
 		private string GenerateApplicationClass()

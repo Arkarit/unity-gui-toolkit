@@ -3,8 +3,6 @@ using System;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
-using System.Collections.Generic;
-using TMPro;
 
 namespace GuiToolkit.Style
 {
@@ -18,6 +16,8 @@ namespace GuiToolkit.Style
 		{
 			return new ApplicableValueBase[]
 			{
+				m_Gradient,
+				m_Axis,
 			};
 		}
 

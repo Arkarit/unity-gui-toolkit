@@ -3,8 +3,6 @@ using System;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
-using System.Collections.Generic;
-using TMPro;
 
 namespace GuiToolkit.Style
 {
@@ -14,16 +12,19 @@ namespace GuiToolkit.Style
 		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
 		private class ApplicableValueEAxis2D : ApplicableValue<GuiToolkit.EAxis2D> {}
 
-		[SerializeReference] private ApplicableValueColor m_ColorLeftOrTop = new();
-		[SerializeReference] private ApplicableValueColor m_ColorRightOrBottom = new();
-		[SerializeReference] private ApplicableValueEAxis2D m_Axis = new();
-
 		protected override ApplicableValueBase[] GetValueList()
 		{
 			return new ApplicableValueBase[]
 			{
+				m_ColorLeftOrTop,
+				m_ColorRightOrBottom,
+				m_Axis,
 			};
 		}
+
+		[SerializeReference] private ApplicableValueColor m_ColorLeftOrTop = new();
+		[SerializeReference] private ApplicableValueColor m_ColorRightOrBottom = new();
+		[SerializeReference] private ApplicableValueEAxis2D m_Axis = new();
 
 		public ApplicableValue<UnityEngine.Color> ColorLeftOrTop => m_ColorLeftOrTop;
 		public ApplicableValue<UnityEngine.Color> ColorRightOrBottom => m_ColorRightOrBottom;

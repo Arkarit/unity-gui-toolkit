@@ -8,8 +8,6 @@ namespace GuiToolkit
 	public abstract class ApplicableValueBase
 	{
 		public bool IsApplicable = false;
-		[FormerlySerializedAs("Value")]
-		protected object m_value;
 		protected object m_oldValue;
 		protected bool m_tweenRunning;
 		protected float m_normalizedTweenAmount;
@@ -18,16 +16,8 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		[NonSerialized] public ETriState ValueHasChildren = ETriState.Indeterminate;
 #endif
-		public object ValueObj
-		{
-			get
-			{
-				if (!m_tweenRunning)
-					return m_value;
-
-				return Lerp(m_oldValue, m_value, m_normalizedTweenAmount);
-			}
-		}
+		public abstract object RawValueObj { get; }
+		public abstract object ValueObj { get; }
 
 		public void StartTween(object from)
 		{
@@ -72,6 +62,22 @@ namespace GuiToolkit
 	[Serializable]
 	public class ApplicableValue<T> : ApplicableValueBase
 	{
+		[FormerlySerializedAs("Value")]
+		[SerializeField] protected T m_value;
+
+		public override object RawValueObj => m_value;
+
+		public override object ValueObj
+		{
+			get
+			{
+				if (!m_tweenRunning)
+					return m_value;
+
+				return Lerp(m_oldValue, m_value, m_normalizedTweenAmount);
+			}
+		}
+
 		public T Value
 		{
 			get => (T) ValueObj;

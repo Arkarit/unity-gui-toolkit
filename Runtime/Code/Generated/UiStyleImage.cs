@@ -1,6 +1,5 @@
 // Auto-generated, please do not change!
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;

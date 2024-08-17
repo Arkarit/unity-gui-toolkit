@@ -3,8 +3,6 @@ using System;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
-using System.Collections.Generic;
-using TMPro;
 
 namespace GuiToolkit.Style
 {
@@ -34,6 +32,40 @@ namespace GuiToolkit.Style
 		{
 			return new ApplicableValueBase[]
 			{
+				m_font,
+				m_fontSharedMaterial,
+				m_fontSharedMaterials,
+				m_fontMaterial,
+				m_fontMaterials,
+				m_color,
+				m_alpha,
+				m_enableVertexGradient,
+				m_colorGradient,
+				m_colorGradientPreset,
+				m_spriteAsset,
+				m_styleSheet,
+				m_textStyle,
+				m_overrideColorTags,
+				m_faceColor,
+				m_outlineColor,
+				m_outlineWidth,
+				m_fontSize,
+				m_fontWeight,
+				m_fontSizeMin,
+				m_fontSizeMax,
+				m_fontStyle,
+				m_horizontalAlignment,
+				m_verticalAlignment,
+				m_alignment,
+				m_characterSpacing,
+				m_wordSpacing,
+				m_lineSpacing,
+				m_lineSpacingAdjustment,
+				m_paragraphSpacing,
+				m_characterWidthAdjustment,
+				m_extraPadding,
+				m_margin,
+				m_material,
 			};
 		}
 
