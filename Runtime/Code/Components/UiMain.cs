@@ -36,6 +36,7 @@ namespace GuiToolkit
 
 		public static EScreenOrientation ScreenOrientation => s_screenOrientation;
 
+#if UNITY_EDITOR
 		[InitializeOnLoadMethod]
 		private static void StaticInitialize()
 		{
@@ -43,13 +44,12 @@ namespace GuiToolkit
 			{
 				s_initialized = true;
 
-#if UNITY_EDITOR
 				EditorApplication.update += FireOnScreenOrientationChangedEventIfNecessary;
 				FireOnScreenOrientationChangedEventIfNecessary();
-#endif
 				Debug.Log("UIMain static initialized");
 			}
 		}
+#endif
 
 		private static UiMain s_instance;
 		public static UiMain Instance

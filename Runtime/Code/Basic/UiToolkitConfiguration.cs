@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System;
+using GuiToolkit.Style;
 
 #if UNITY_EDITOR
-using GuiToolkit.Style;
 using UnityEditor;
 #endif
 
@@ -87,7 +87,9 @@ namespace GuiToolkit
 
 		public UiStyleConfig StyleConfig => m_styleConfig;
 
+#if UNITY_EDITOR
 		public bool IsEditingInternal => EditorFileUtility.GetApplicationDataDir().Contains(".Dev-App");
+#endif
 
 		public string GetScenePath(string _sceneName)
 		{
