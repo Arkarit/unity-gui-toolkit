@@ -41,12 +41,12 @@ namespace GuiToolkit
 		// Unity is so incredibly shitty... they don't even get returning the screen resolution right :-o~
 		// https://forum.unity.com/threads/screen-width-is-wrong-in-editor-mode.94572/
 		// http://muzykov.com/unity-get-game-view-resolution/
+		// And not enough with that; Screen.width / .height return the values your mouse is over in the editor(!), which leads to funny "bugs"!
+		// So in editor, only Handles.GetMainGameViewSize() is used, which seems to be the only function to provide reliable results and only
+		// use the actual game screen.
 		public static int ScreenWidth()
 		{
 #if UNITY_EDITOR
-			if (Application.isPlaying)
-				return Screen.width;
-
 			Vector2 v = Handles.GetMainGameViewSize();
 			return (int) v.x;
 #else
@@ -57,9 +57,6 @@ namespace GuiToolkit
 		public static int ScreenHeight()
 		{
 #if UNITY_EDITOR
-			if (Application.isPlaying)
-				return Screen.height;
-
 			Vector2 v = Handles.GetMainGameViewSize();
 			return (int) v.y;
 #else
