@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Xml.XPath;
 using GuiToolkit.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -33,29 +34,48 @@ namespace GuiToolkit.Style.Editor
 			foldoutTitleRect.height = SingleLineHeight;
 			var displayFilter = UiStyleConfigEditor.DisplayFilter;
 
-			Foldout(EditedClassInstance.Name, $"", () =>
+			if (UiStyleConfigEditor.SortType < UiStyleConfigEditor.ESortType.FlatPathAscending)
 			{
-				Space(10);
-				Line(5);
-
 				try
 				{
-					var styles = GetSortedStylesList();
-					foreach (var styleProp in styles)
-					{
-						if (!string.IsNullOrEmpty(displayFilter))
-						{
-							var style = styleProp.boxedValue as UiAbstractStyleBase;
-							var searchName = UiStyleUtility.GetName(style.SupportedMonoBehaviourType, style.Name).ToLower();
-							if (style != null && !searchName.Contains(displayFilter.ToLower()))
-								continue;
-						}
-
-						PropertyField(styleProp);
-					}
+					var styles = GetFlatSortedStylesList();
+					var snp = new StyleNamePart();
+					snp.BuildTree(styles);
+					snp.Dump();
 				}
-				catch {}
-			});
+				catch
+				{
+				}
+			}
+			//else
+			{
+				Foldout(EditedClassInstance.Name, $"", () =>
+				{
+					Space(10);
+					Line(5);
+
+					try
+					{
+						var styles = GetFlatSortedStylesList();
+						foreach (var styleProp in styles)
+						{
+							if (!string.IsNullOrEmpty(displayFilter))
+							{
+								var style = styleProp.boxedValue as UiAbstractStyleBase;
+								var searchName = UiStyleUtility.GetName(style.SupportedMonoBehaviourType, style.Name)
+									.ToLower();
+								if (style != null && !searchName.Contains(displayFilter.ToLower()))
+									continue;
+							}
+
+							PropertyField(styleProp);
+						}
+					}
+					catch
+					{
+					}
+				});
+			}
 
 			if (CollectHeightMode)
 				return;
@@ -88,7 +108,84 @@ namespace GuiToolkit.Style.Editor
 
 		}
 
-		private List<SerializedProperty> GetSortedStylesList()
+		private class StyleNamePart
+		{
+			public string Name = string.Empty;
+			public readonly Dictionary<string, StyleNamePart> Children = new();
+			public SerializedProperty Property = null;
+
+			public void BuildTree(List<SerializedProperty> flatList)
+			{
+				foreach (var property in flatList)
+				{
+					StyleNamePart current = this;
+
+					string s = property.displayName;
+					while (true)
+					{
+						(string a, string b) = Split(s);
+						if (string.IsNullOrEmpty(a))
+						{
+							if (!current.Children.ContainsKey(b))
+							{
+								current.Children.Add(b, new StyleNamePart());
+							}
+							current = current.Children[b];
+							current.Name = b;
+							current.Property = property;
+							break;
+						}
+
+						if (!current.Children.ContainsKey(a))
+						{
+							current.Children.Add(a, new StyleNamePart());
+						}
+						current = current.Children[a];
+						current.Name = a;
+						s = b;
+					}
+				}
+			}
+
+			public void Dump() => Dump(string.Empty);
+			private void Dump(string tabStr)
+			{
+				Debug.Log($"{tabStr}{Name}");
+				foreach (var kv in Children)
+				{
+					kv.Value.Dump(tabStr + "\t");
+				}
+			}
+
+			public void Display(UiSkinDrawer drawer) => Display(drawer, this);
+
+			private void Display(UiSkinDrawer drawer, StyleNamePart current)
+			{
+				if (current.Property != null)
+				{
+					drawer.PropertyField(current.Property);
+					return;
+				}
+
+				drawer.Foldout(current.Name, current.Name, () =>
+				{
+					foreach (var kv in current.Children)
+						Display(drawer, kv.Value);
+				});
+			}
+
+
+			private (string, string) Split(string s)
+			{
+				var idx = s.IndexOf("/");
+				if (idx == -1)
+					return (string.Empty, s);
+
+				return (s.Substring(0, idx), s.Substring(idx + 1));
+			}
+		}
+
+		private List<SerializedProperty> GetFlatSortedStylesList()
 		{
 			List<SerializedProperty> result = new();
 
@@ -103,13 +200,15 @@ namespace GuiToolkit.Style.Editor
 				int nameComp = styleA.Name.CompareTo(styleB.Name);
 				int typeComp = styleA.SupportedMonoBehaviourType.Name.CompareTo(styleB.SupportedMonoBehaviourType.Name);
 
-				if (UiStyleConfigEditor.SortType == UiStyleConfigEditor.ESortType.NameDescending || UiStyleConfigEditor.SortType == UiStyleConfigEditor.ESortType.TypeDescending)
+				if (   UiStyleConfigEditor.SortType == UiStyleConfigEditor.ESortType.PathDescending 
+				    || UiStyleConfigEditor.SortType == UiStyleConfigEditor.ESortType.FlatPathDescending
+					|| UiStyleConfigEditor.SortType == UiStyleConfigEditor.ESortType.FlatTypeDescending)
 				{
 					nameComp = -nameComp;
 					typeComp = -typeComp;
 				}
 
-				if (UiStyleConfigEditor.SortType <= UiStyleConfigEditor.ESortType.NameDescending)
+				if (UiStyleConfigEditor.SortType <= UiStyleConfigEditor.ESortType.FlatPathDescending)
 				{
 					if (nameComp != 0)
 						return nameComp;

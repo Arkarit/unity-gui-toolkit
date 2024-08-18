@@ -9,10 +9,12 @@ namespace GuiToolkit.Editor
 	{
 		public enum ESortType
 		{
-			NameAscending,
-			NameDescending,
-			TypeAscending,
-			TypeDescending,
+			PathAscending,
+			PathDescending,
+			FlatPathAscending,
+			FlatPathDescending,
+			FlatTypeAscending,
+			FlatTypeDescending,
 		}
 
 		private const float PerSkinGap = 20;
