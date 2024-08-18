@@ -175,24 +175,30 @@ namespace GuiToolkit.Style.Editor
 		protected void Line(float _gap = 0, float _width = 0, float _height = 1) =>
 			Line(Color.gray, _gap, _width, _height);
 
+		private float m_currentTab = 0;
 		protected void Foldout(object _id, string _title, Action _onFoldout) => Foldout(_id, _title, true, _onFoldout);
 
 		protected void Foldout(object _id, string _title, bool _default, Action _onFoldout)
 		{
-			var foldoutRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width * .5f, FoldoutHeight);
+			var foldoutRect = new Rect(m_currentRect.x + m_currentTab, m_currentRect.y, m_currentRect.width * .5f - m_currentTab, FoldoutHeight);
 			if (!s_foldouts.ContainsKey(_id))
 				s_foldouts.Add(_id, _default);
+			m_currentTab += 30;
 
 			var active = s_foldouts[_id];
 
 			if (!m_collectHeightMode)
+			{
+Debug.Log($"{_id}, {_title} {active} {foldoutRect}");
 				active = EditorGUI.Foldout(foldoutRect, active, _title, true);
+			}
 
 			m_currentRect.y += FoldoutHeight;
 			if (active)
 				_onFoldout();
 
 			s_foldouts[_id] = active;
+			m_currentTab -= 30;
 		}
 
 		protected bool Button(GUIContent _content, float _width = -1)

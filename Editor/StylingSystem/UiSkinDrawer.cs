@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml.XPath;
 using GuiToolkit.Editor;
@@ -41,13 +42,17 @@ namespace GuiToolkit.Style.Editor
 					var styles = GetFlatSortedStylesList();
 					var snp = new StyleNamePart();
 					snp.BuildTree(styles);
-					snp.Dump();
+//					snp.Dump();
+					Space(30);
+					Line(5);
+					snp.Display(this);
+Line(5);
 				}
 				catch
 				{
 				}
 			}
-			//else
+			else
 			{
 				Foldout(EditedClassInstance.Name, $"", () =>
 				{
@@ -112,10 +117,13 @@ namespace GuiToolkit.Style.Editor
 		{
 			public string Name = string.Empty;
 			public readonly Dictionary<string, StyleNamePart> Children = new();
-			public SerializedProperty Property = null;
+			public readonly List<SerializedProperty> Properties = new ();
+			public int Id;
 
 			public void BuildTree(List<SerializedProperty> flatList)
 			{
+				Id = 0xddfa0;
+
 				foreach (var property in flatList)
 				{
 					StyleNamePart current = this;
@@ -128,17 +136,17 @@ namespace GuiToolkit.Style.Editor
 						{
 							if (!current.Children.ContainsKey(b))
 							{
-								current.Children.Add(b, new StyleNamePart());
+								current.Children.Add(b, GetNew());
 							}
 							current = current.Children[b];
 							current.Name = b;
-							current.Property = property;
+							current.Properties.Add(property);
 							break;
 						}
 
 						if (!current.Children.ContainsKey(a))
 						{
-							current.Children.Add(a, new StyleNamePart());
+							current.Children.Add(a, GetNew());
 						}
 						current = current.Children[a];
 						current.Name = a;
@@ -147,27 +155,50 @@ namespace GuiToolkit.Style.Editor
 				}
 			}
 
+			private StyleNamePart GetNew()
+			{
+				var result = new StyleNamePart();
+				result.Id = Id++;
+				return result;
+			}
+
 			public void Dump() => Dump(string.Empty);
 			private void Dump(string tabStr)
 			{
 				Debug.Log($"{tabStr}{Name}");
 				foreach (var kv in Children)
 				{
-					kv.Value.Dump(tabStr + "\t");
+					var current = kv.Value;
+					current.Dump(tabStr + "\t");
+					foreach (var property in current.Properties)
+					{
+						Debug.Log($"{tabStr}\t\t->{property.boxedValue.GetType()}");
+					}
 				}
 			}
 
-			public void Display(UiSkinDrawer drawer) => Display(drawer, this);
+			private int m_id;
+			public void Display(UiSkinDrawer drawer)
+			{
+				m_id = 0x70;
+				Display(drawer, this);
+			}
 
 			private void Display(UiSkinDrawer drawer, StyleNamePart current)
 			{
-				if (current.Property != null)
+//				foreach (var property in current.Properties)
+//				{
+//					drawer.PropertyField(property);
+//				}
+
+				if (string.IsNullOrEmpty(current.Name))
 				{
-					drawer.PropertyField(current.Property);
+					foreach (var kv in current.Children)
+						Display(drawer, kv.Value);
 					return;
 				}
 
-				drawer.Foldout(current.Name, current.Name, () =>
+				drawer.Foldout(current.Id, current.Name, false, () =>
 				{
 					foreach (var kv in current.Children)
 						Display(drawer, kv.Value);
