@@ -17,8 +17,6 @@ namespace GuiToolkit.Editor
 			FlatTypeDescending,
 		}
 
-		private const float PerSkinGap = 20;
-
 		private SerializedProperty m_skinsProp;
 		private SerializedProperty m_currentSkinIdxProp;
 		private UiStyleConfig m_thisUiStyleConfig;
@@ -29,7 +27,6 @@ namespace GuiToolkit.Editor
 		private static ESortType m_SortType; 
 
 		public static ESortType SortType => m_SortType;
-
 
 		protected virtual void OnEnable()
 		{
@@ -90,7 +87,6 @@ namespace GuiToolkit.Editor
 				{
 					var skinProp = m_skinsProp.GetArrayElementAtIndex(i);
 					EditorGUILayout.PropertyField(skinProp);
-					EditorGUILayout.Space(PerSkinGap);
 				}
 			} catch {}
 		}

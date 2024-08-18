@@ -335,6 +335,15 @@ namespace GuiToolkit.Style.Editor
 			m_currentRect.width += IndentWidth;
 		}
 
+		protected void Outdent(Action _onIndent)
+		{
+			m_currentRect.x -= IndentWidth;
+			m_currentRect.width += IndentWidth;
+			_onIndent();
+			m_currentRect.x += IndentWidth;
+			m_currentRect.width -= IndentWidth;
+		}
+
 		private void NextRect(float _propertyHeight)
 		{
 			if (IsHorizontal)

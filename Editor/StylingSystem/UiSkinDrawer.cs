@@ -199,11 +199,6 @@ namespace GuiToolkit.Style.Editor
 
 			private void Display(UiSkinDrawer drawer, StyleNamePart current)
 			{
-//				foreach (var property in current.Properties)
-//				{
-//					drawer.PropertyField(property);
-//				}
-
 				if (string.IsNullOrEmpty(current.Name))
 				{
 					foreach (var kv in current.Children)
@@ -215,6 +210,14 @@ namespace GuiToolkit.Style.Editor
 				{
 					foreach (var kv in current.Children)
 						Display(drawer, kv.Value);
+
+					drawer.Outdent(() =>
+					{
+						foreach (var property in current.Properties)
+						{
+							drawer.PropertyField(property);
+						}
+					});
 				});
 			}
 
