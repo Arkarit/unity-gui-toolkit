@@ -12,7 +12,7 @@ namespace GuiToolkit.Style.Editor
 	/// </summary>
 	public abstract class AbstractPropertyDrawer<T> : PropertyDrawer where T : class
 	{
-		private const float FoldoutHeight = 15;
+		private const float FoldoutHeight = 16;
 		private const float IndentWidth = 20;
 
 		protected Rect m_Rect;

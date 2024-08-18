@@ -24,10 +24,19 @@ namespace GuiToolkit.Style.Editor
 			Space(3);
 			Horizontal(SingleLineHeight, () =>
 			{
-				LabelField("   " + currentStyle.Name, 0, EditorStyles.boldLabel);
-				IncreaseX(EditorGUIUtility.labelWidth + 18);
-				LabelField($"Type:{currentStyle.SupportedMonoBehaviourType.Name}", 0, EditorStyles.label);
-				IncreaseX(-60);
+				if (UiStyleConfigEditor.SortType >= UiStyleConfigEditor.ESortType.FlatPathAscending)
+				{
+					LabelField("   " + currentStyle.Name, 0, EditorStyles.boldLabel);
+					IncreaseX(EditorGUIUtility.labelWidth + 18);
+					LabelField($"Type: {currentStyle.SupportedMonoBehaviourType.Name}", 0, EditorStyles.boldLabel);
+					IncreaseX(-60);
+				}
+				else
+				{
+					LabelField($"Type: {currentStyle.SupportedMonoBehaviourType.Name}", 0, EditorStyles.boldLabel);
+					IncreaseX(-60);
+				}
+
 				if (Button("Delete", 50))
 				{
 					if (EditorUtility.DisplayDialog
@@ -69,10 +78,8 @@ namespace GuiToolkit.Style.Editor
 						DrawProperties();
 					});
 				}
-				else
-				{
-					Space(-SingleLineHeight);
-				}
+
+				Space(-SingleLineHeight);
 
 				ApplicableValueBaseDrawer.DrawCondition = oldVal;
 
