@@ -1,8 +1,8 @@
 ﻿using UnityEditor;
 using UnityEngine;
+
 namespace GuiToolkit.Editor
 {
-#if true
 	[CustomPropertyDrawer(typeof(OrientationDependentDefinition))]
 	public class OrientationDependentDefinitionDrawer : PropertyDrawer
 	{
@@ -18,5 +18,4 @@ namespace GuiToolkit.Editor
 			EditorGUI.EndProperty();
 		}
 	}
-#endif
 }

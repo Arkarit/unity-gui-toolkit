@@ -127,10 +127,10 @@ namespace GuiToolkit
 		protected virtual void OnEnable()
 		{
 			if (NeedsLanguageChangeCallback)
-				UiEvents.OnLanguageChanged.AddListener(OnLanguageChanged);
+				UiEvents.EvLanguageChanged.AddListener(OnLanguageChanged);
 
 			if (NeedsOnScreenOrientationCallback)
-				UiEvents.OnScreenOrientationChange.AddListener(OnScreenOrientationChanged);
+				UiEvents.EvScreenOrientationChange.AddListener(OnScreenOrientationChanged);
 
 			if (!ReceiveEventsWhenDisabled && !m_eventListenersAdded)
 			{
@@ -143,10 +143,10 @@ namespace GuiToolkit
 		protected virtual void OnDisable()
 		{
 			if (NeedsLanguageChangeCallback)
-				UiEvents.OnLanguageChanged.RemoveListener(OnLanguageChanged);
+				UiEvents.EvLanguageChanged.RemoveListener(OnLanguageChanged);
 
 			if (NeedsOnScreenOrientationCallback)
-				UiEvents.OnScreenOrientationChange.RemoveListener(OnScreenOrientationChanged);
+				UiEvents.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChanged);
 
 			if (!ReceiveEventsWhenDisabled && m_eventListenersAdded)
 			{

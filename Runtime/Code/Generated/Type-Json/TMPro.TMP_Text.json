@@ -1,0 +1,475 @@
+{
+    "Version": 2,
+    "Namespace": "GuiToolkit.Style",
+    "Prefix": "",
+    "Records": [
+        {
+            "Used": false,
+            "Name": "text",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "textPreprocessor",
+            "QualifiedTypeName": "TMPro.ITextPreprocessor",
+            "TypeName": "ITextPreprocessor"
+        },
+        {
+            "Used": false,
+            "Name": "isRightToLeftText",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "font",
+            "QualifiedTypeName": "TMPro.TMP_FontAsset",
+            "TypeName": "TMP_FontAsset"
+        },
+        {
+            "Used": true,
+            "Name": "fontSharedMaterial",
+            "QualifiedTypeName": "UnityEngine.Material",
+            "TypeName": "Material"
+        },
+        {
+            "Used": true,
+            "Name": "fontSharedMaterials",
+            "QualifiedTypeName": "UnityEngine.Material[]",
+            "TypeName": "Material[]"
+        },
+        {
+            "Used": true,
+            "Name": "fontMaterial",
+            "QualifiedTypeName": "UnityEngine.Material",
+            "TypeName": "Material"
+        },
+        {
+            "Used": true,
+            "Name": "fontMaterials",
+            "QualifiedTypeName": "UnityEngine.Material[]",
+            "TypeName": "Material[]"
+        },
+        {
+            "Used": true,
+            "Name": "color",
+            "QualifiedTypeName": "UnityEngine.Color",
+            "TypeName": "Color"
+        },
+        {
+            "Used": true,
+            "Name": "alpha",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "enableVertexGradient",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "colorGradient",
+            "QualifiedTypeName": "TMPro.VertexGradient",
+            "TypeName": "VertexGradient"
+        },
+        {
+            "Used": true,
+            "Name": "colorGradientPreset",
+            "QualifiedTypeName": "TMPro.TMP_ColorGradient",
+            "TypeName": "TMP_ColorGradient"
+        },
+        {
+            "Used": true,
+            "Name": "spriteAsset",
+            "QualifiedTypeName": "TMPro.TMP_SpriteAsset",
+            "TypeName": "TMP_SpriteAsset"
+        },
+        {
+            "Used": false,
+            "Name": "tintAllSprites",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "styleSheet",
+            "QualifiedTypeName": "TMPro.TMP_StyleSheet",
+            "TypeName": "TMP_StyleSheet"
+        },
+        {
+            "Used": true,
+            "Name": "textStyle",
+            "QualifiedTypeName": "TMPro.TMP_Style",
+            "TypeName": "TMP_Style"
+        },
+        {
+            "Used": true,
+            "Name": "overrideColorTags",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "faceColor",
+            "QualifiedTypeName": "UnityEngine.Color32",
+            "TypeName": "Color32"
+        },
+        {
+            "Used": true,
+            "Name": "outlineColor",
+            "QualifiedTypeName": "UnityEngine.Color32",
+            "TypeName": "Color32"
+        },
+        {
+            "Used": true,
+            "Name": "outlineWidth",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "fontSize",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "fontWeight",
+            "QualifiedTypeName": "TMPro.FontWeight",
+            "TypeName": "FontWeight"
+        },
+        {
+            "Used": false,
+            "Name": "enableAutoSizing",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "fontSizeMin",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "fontSizeMax",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "fontStyle",
+            "QualifiedTypeName": "TMPro.FontStyles",
+            "TypeName": "FontStyles"
+        },
+        {
+            "Used": true,
+            "Name": "horizontalAlignment",
+            "QualifiedTypeName": "TMPro.HorizontalAlignmentOptions",
+            "TypeName": "HorizontalAlignmentOptions"
+        },
+        {
+            "Used": true,
+            "Name": "verticalAlignment",
+            "QualifiedTypeName": "TMPro.VerticalAlignmentOptions",
+            "TypeName": "VerticalAlignmentOptions"
+        },
+        {
+            "Used": true,
+            "Name": "alignment",
+            "QualifiedTypeName": "TMPro.TextAlignmentOptions",
+            "TypeName": "TextAlignmentOptions"
+        },
+        {
+            "Used": true,
+            "Name": "characterSpacing",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "wordSpacing",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "lineSpacing",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "lineSpacingAdjustment",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "paragraphSpacing",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "characterWidthAdjustment",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
+            "Name": "enableWordWrapping",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "wordWrappingRatios",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
+            "Name": "overflowMode",
+            "QualifiedTypeName": "TMPro.TextOverflowModes",
+            "TypeName": "TextOverflowModes"
+        },
+        {
+            "Used": false,
+            "Name": "linkedTextComponent",
+            "QualifiedTypeName": "TMPro.TMP_Text",
+            "TypeName": "TMP_Text"
+        },
+        {
+            "Used": false,
+            "Name": "enableKerning",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "extraPadding",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "richText",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "parseCtrlCharacters",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "isOverlay",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "isOrthographic",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "enableCulling",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "ignoreVisibility",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "horizontalMapping",
+            "QualifiedTypeName": "TMPro.TextureMappingOptions",
+            "TypeName": "TextureMappingOptions"
+        },
+        {
+            "Used": false,
+            "Name": "verticalMapping",
+            "QualifiedTypeName": "TMPro.TextureMappingOptions",
+            "TypeName": "TextureMappingOptions"
+        },
+        {
+            "Used": false,
+            "Name": "mappingUvLineOffset",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
+            "Name": "renderMode",
+            "QualifiedTypeName": "TMPro.TextRenderFlags",
+            "TypeName": "TextRenderFlags"
+        },
+        {
+            "Used": false,
+            "Name": "geometrySortingOrder",
+            "QualifiedTypeName": "TMPro.VertexSortingOrder",
+            "TypeName": "VertexSortingOrder"
+        },
+        {
+            "Used": false,
+            "Name": "isTextObjectScaleStatic",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "vertexBufferAutoSizeReduction",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "firstVisibleCharacter",
+            "QualifiedTypeName": "System.Int32",
+            "TypeName": "Int32"
+        },
+        {
+            "Used": false,
+            "Name": "maxVisibleCharacters",
+            "QualifiedTypeName": "System.Int32",
+            "TypeName": "Int32"
+        },
+        {
+            "Used": false,
+            "Name": "maxVisibleWords",
+            "QualifiedTypeName": "System.Int32",
+            "TypeName": "Int32"
+        },
+        {
+            "Used": false,
+            "Name": "maxVisibleLines",
+            "QualifiedTypeName": "System.Int32",
+            "TypeName": "Int32"
+        },
+        {
+            "Used": false,
+            "Name": "useMaxVisibleDescender",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "pageToDisplay",
+            "QualifiedTypeName": "System.Int32",
+            "TypeName": "Int32"
+        },
+        {
+            "Used": true,
+            "Name": "margin",
+            "QualifiedTypeName": "UnityEngine.Vector4",
+            "TypeName": "Vector4"
+        },
+        {
+            "Used": false,
+            "Name": "havePropertiesChanged",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "isUsingLegacyAnimationComponent",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "autoSizeTextContainer",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "isVolumetricText",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "onCullStateChanged",
+            "QualifiedTypeName": "UnityEngine.UI.MaskableGraphic.CullStateChangedEvent",
+            "TypeName": "CullStateChangedEvent"
+        },
+        {
+            "Used": false,
+            "Name": "maskable",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "isMaskingGraphic",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "raycastTarget",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "raycastPadding",
+            "QualifiedTypeName": "UnityEngine.Vector4",
+            "TypeName": "Vector4"
+        },
+        {
+            "Used": true,
+            "Name": "material",
+            "QualifiedTypeName": "UnityEngine.Material",
+            "TypeName": "Material"
+        },
+        {
+            "Used": false,
+            "Name": "useGUILayout",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "runInEditMode",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "enabled",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "tag",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "name",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "hideFlags",
+            "QualifiedTypeName": "UnityEngine.HideFlags",
+            "TypeName": "HideFlags"
+        }
+    ]
+}

@@ -121,6 +121,7 @@ namespace GuiToolkit
 		public const int KERNING_TABLE_TOOL_MENU_PRIORITY = 510;
 		public const int LOCA_PROCESSOR_MENU_PRIORITY = 100;
 		public const int LOCA_PLURAL_PROCESSOR_MENU_PRIORITY = 110;
+		public const int STYLES_HEADER_PRIORITY = 120;
 	}
 
 	/// \brief General string constants
@@ -128,10 +129,12 @@ namespace GuiToolkit
 	{
 		public const string TOOLKIT_NAME = "UI Toolkit";																				///< General Toolkit name
 		public const string MENU_HEADER = TOOLKIT_NAME + "/";																			///< Menu header "folder" definition
+		public const string STYLES_HEADER = MENU_HEADER + "Styles/";
 		public const string MISC_TOOLS_MENU_HEADER = MENU_HEADER + "Miscellaneous Tools/";											    ///< Menu header for miscellaneous tools
 
 		public const string CONFIGURATION_NAME = "Ui Toolkit Configuration";
 		public const string CONFIGURATION_MENU_NAME = MENU_HEADER + CONFIGURATION_NAME;
+		public const string APPLY_STYLE_GENERATOR_MENU_NAME = STYLES_HEADER + "'Ui Apply Style' Generator";
 		public const string GAME_SPEED_MENU_NAME = MENU_HEADER + "Game speed";
 		public const string KERNING_TABLE_TOOL_MENU_NAME = MENU_HEADER + "Kerning Table Tool";
 		public const string LOCA_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update pot file)";

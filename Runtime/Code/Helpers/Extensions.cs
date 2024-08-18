@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Reflection;
+using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -491,7 +492,7 @@ namespace GuiToolkit
 			return _this as T;
 		}
 
-		public static T Clone<T>(this T _this)
+		public static T ShallowClone<T>(this T _this)
 		{
 			var inst = _this.GetType().GetMethod("MemberwiseClone", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 			return (T)inst?.Invoke(_this, null);
@@ -499,6 +500,9 @@ namespace GuiToolkit
 
 		public static string GetPath(this Transform _this)
 		{
+			if (_this == null)
+				return "<null>";
+
 			string result = _this.name;
 			while (_this.parent != null)
 			{
@@ -510,8 +514,37 @@ namespace GuiToolkit
 
 		public static string GetPath(this GameObject _this)
 		{
+			if (_this == null)
+				return "<null>";
+
 			return GetPath(_this.transform);
 		}
+
+		private class CloneHelper : ScriptableObject
+		{
+			public Object m_unityObject;
+			[SerializeReference] public object m_object;
+		}
+
+		public static T DeepClone<T>(this T _source)
+		{
+			Object unityObject = _source as Object;
+			bool isUnityObject = unityObject != null;
+
+			var helper = ScriptableObject.CreateInstance<CloneHelper>();
+			if (isUnityObject)
+				helper.m_unityObject = unityObject;
+			else
+				helper.m_object = _source;
+
+			var clone = Object.Instantiate(helper);
+			var result = isUnityObject ? clone.m_unityObject : clone.m_object;
+
+			helper.Destroy();
+			clone.Destroy();
+			return (T) result;
+		}
+
 	}
 
 

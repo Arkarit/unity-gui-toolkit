@@ -3,6 +3,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 
 using UnityEditor.SceneManagement;
@@ -136,38 +137,244 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static bool StringPopup( string _labelText, string[] _strings, string _current, out string _new, string _labelText2 = " " )
+		public static List<string> GetStrings(this SerializedProperty _thisSerializedProperty)
 		{
-			_new = _current;
-			if (_strings.Length == 0)
+			List<string> result = new();
+
+			if (!_thisSerializedProperty.isArray)
+				return result;
+
+			for (int i = 0; i < _thisSerializedProperty.arraySize; i++)
+			{
+				var elem = _thisSerializedProperty.GetArrayElementAtIndex(i).stringValue;
+				if (string.IsNullOrEmpty(elem))
+					continue;
+
+				result.Add(elem);
+			}
+
+			return result;
+		}
+
+		public static void SetStrings(this SerializedProperty _thisSerializedProperty, List<string> _strings)
+		{
+			if (!_thisSerializedProperty.isArray)
+				return;
+
+			int arraySize = _strings.Count;
+			_thisSerializedProperty.arraySize = arraySize;
+			for (int i = 0; i < arraySize; i++)
+				_thisSerializedProperty.GetArrayElementAtIndex(i).stringValue = _strings[i];
+		}
+
+		public static List<T> GetSerializedReferencesInListProperty<T>(this SerializedProperty _thisSerializedProperty)
+		{
+			List<T> result = new();
+
+			if (!_thisSerializedProperty.isArray)
+				return result;
+
+			for (int i = 0; i < _thisSerializedProperty.arraySize; i++)
+			{
+				var elem = _thisSerializedProperty.GetArrayElementAtIndex(i).managedReferenceValue;
+				if (elem == null)
+					continue;
+
+				result.Add((T) elem);
+			}
+
+			return result;
+		}
+
+		public static void SetSerializedReferencesInListProperty<T>(this SerializedProperty _thisSerializedProperty, List<T> objects)
+		{
+			if (!_thisSerializedProperty.isArray)
+				return;
+
+			int arraySize = objects.Count;
+			_thisSerializedProperty.arraySize = arraySize;
+			for (int i = 0; i < arraySize; i++)
+				_thisSerializedProperty.GetArrayElementAtIndex(i).managedReferenceValue = objects[i];
+		}
+
+		public static int StringPopup(
+			string _labelText, 
+			List<string> _strings, 
+			string _current, 
+			out string _newSelection, 
+			string _labelText2 = null, 
+			bool showRemove = false, 
+			string _addItemHeadline = null, 
+			string _addItemDescription = null,
+			Action<EditorInputDialog> _additionalContent = null
+		)
+		{
+			_newSelection = _current;
+			bool allowAdd = !string.IsNullOrEmpty(_addItemHeadline);
+
+			if (!StringPopupPrepare(_strings, _current, allowAdd, out var currentInt)) 
+				return -1;
+
+			EditorGUILayout.BeginHorizontal();
+
+
+			if (!string.IsNullOrEmpty(_labelText))
+				GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
+
+			if (!string.IsNullOrEmpty(_labelText2))
+				GUILayout.Label(_labelText2, GUILayout.Width(LABEL_WIDTH));
+
+			int newInt = EditorGUILayout.Popup(currentInt, _strings.ToArray());
+
+			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, _additionalContent, ref _newSelection))
+				return newInt;
+
+			if (showRemove && _strings.Count > 0 && GUILayout.Button(EditorGUIUtility.IconContent("P4_DeletedLocal")))
+			{
+				_strings.RemoveAt(newInt);
+				if (newInt >= _strings.Count)
+					newInt = 0;
+				EditorGUILayout.EndHorizontal();
+				_newSelection = _strings.Count > 0 ? _strings[newInt] : null;
+				return newInt;
+			}
+
+			EditorGUILayout.EndHorizontal();
+
+			if (_strings.Count == 0)
+				return -1;
+
+			if (newInt >= _strings.Count || newInt < 0)
+				return -1;
+
+			_newSelection = _strings[newInt];
+			return currentInt != newInt ? newInt : -1;
+		}
+
+		public static bool StringPopup(
+			Rect _pos, 
+			string _labelText, 
+			List<string> _strings, 
+			string _current, 
+			out string _newSelection, 
+			string _labelText2 = null, 
+			bool _showRemove = false, 
+			string _addItemHeadline = null, 
+			string _addItemDescription = null,
+			Action<EditorInputDialog> _additionalContent = null
+		)
+		{
+			_newSelection = _current;
+			bool allowAdd = !string.IsNullOrEmpty(_addItemHeadline);
+
+			if (!StringPopupPrepare(_strings, _current, allowAdd, out var currentInt)) 
 				return false;
 
-			int currentInt = 0;
-			for (int i = 0; i < _strings.Length; i++)
+			Rect labelRect = new Rect(_pos.x, _pos.y, EditorGUIUtility.labelWidth, _pos.height);
+			EditorGUI.LabelField(labelRect, _labelText);
+			_pos.width -= EditorGUIUtility.labelWidth;
+			_pos.x += EditorGUIUtility.labelWidth;
+
+			if (!string.IsNullOrEmpty(_labelText2))
 			{
-				if (_strings[i] == _current)
+				labelRect.x += EditorGUIUtility.labelWidth;
+				EditorGUI.LabelField(labelRect, _labelText2);
+				_pos.width -= EditorGUIUtility.labelWidth;
+				_pos.x += EditorGUIUtility.labelWidth;
+			}
+
+			int removeButtonWidth = _showRemove ? 50 : 0;
+			Rect popupRect = new Rect(_pos.x, _pos.y, _pos.width - removeButtonWidth, _pos.height);
+
+			int newInt = EditorGUI.Popup(popupRect, currentInt, _strings.ToArray());
+
+			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, _additionalContent, ref _newSelection))
+				return true;
+
+			_pos.x += popupRect.width;
+			_pos.width -= popupRect.width;
+
+			if (_showRemove && _strings.Count > 0 && GUI.Button(_pos, EditorGUIUtility.IconContent("P4_DeletedLocal")))
+			{
+				_strings.RemoveAt(newInt);
+				if (newInt >= _strings.Count)
+					newInt = 0;
+				_newSelection = _strings.Count > 0 ? _strings[newInt] : null;
+				return true;
+			}
+
+			if (_strings.Count == 0)
+				return false;
+
+			_newSelection = _strings[newInt];
+			return currentInt != newInt;
+		}
+
+		private static bool StringPopupPrepare(List<string> _strings, string _current, bool _allowAdd, out int _currentIdx)
+		{
+			_currentIdx = -1;
+
+			if (_allowAdd)
+			{
+				_strings.Add("");
+				_strings.Add("New...");
+			}
+
+			if (!_allowAdd && _strings.Count == 0)
+				return false;
+
+			if (!string.IsNullOrEmpty(_current))
+			{
+				for (int i = 0; i < _strings.Count; i++)
 				{
-					currentInt = i;
-					break;
+					if (_strings[i] == _current)
+					{
+						_currentIdx = i;
+						break;
+					}
 				}
 			}
 
-			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
-			if (!string.IsNullOrEmpty(_labelText2))
-				GUILayout.Label(_labelText2, GUILayout.Width(LABEL_WIDTH));
-			int newInt = EditorGUILayout.Popup(currentInt, _strings);
-			EditorGUILayout.EndHorizontal();
+			return true;
+		}
 
-			_new = _strings[newInt];
+		private static bool StringPopupAddNewEntryIfNecessary(
+			List<string> _strings, 
+			int _idx, 
+			bool _allowAdd, 
+			string _addItemHeadline, 
+			string _addItemDescription,
+			Action<EditorInputDialog> _additionalContent,
+			ref string _newSelection
+			)
+		{
+			if (!_allowAdd)
+				return false;
 
-			return currentInt != newInt;
+			_strings.RemoveRange(_strings.Count-2, 2);
+			if (_idx != _strings.Count + 1)
+				return false;
+
+			var newEntry = EditorInputDialog.Show( _addItemHeadline, _addItemDescription, "", _additionalContent);
+			if (string.IsNullOrEmpty(newEntry))
+				return false;
+
+			if (_strings.Contains(newEntry))
+			{
+				Debug.LogError($"Can not add '{newEntry}'; already contained in the list of strings");
+				return false;
+			}
+
+			_strings.Add(newEntry);
+			_idx = _strings.Count - 1;
+			_newSelection = _strings[_idx];
+			return true;
 		}
 
 		public static bool LanguagePopup( string _labelText, string _current, out string _new, string _labelText2 = " ")
 		{
-			string[] languages = LocaManager.Instance.AvailableLanguages;
-			return StringPopup(_labelText, languages, _current, out _new, _labelText2);
+			var languages = LocaManager.Instance.AvailableLanguages.ToList();
+			return StringPopup(_labelText, languages, _current, out _new, _labelText2) != -1;
 		}
 
 		public static void FlagEnumPopup<T>(SerializedProperty _prop, string _labelText) where T : Enum
@@ -349,6 +556,19 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public static void HorizontalLine (Color _color) 
+		{
+			GUIStyle horizontalLine;
+			horizontalLine = new GUIStyle();
+			horizontalLine.normal.background = EditorGUIUtility.whiteTexture;
+			horizontalLine.margin = new RectOffset( 0, 0, 4, 4 );
+			horizontalLine.fixedHeight = 1;			
+			var savedColor = GUI.color;
+			GUI.color = _color;
+			GUILayout.Box( GUIContent.none, horizontalLine );
+			GUI.color = savedColor;
+		}
+
 		public static void RemoveArrayElementAtIndex( SerializedProperty _list, int _idx )
 		{
 			if (!ValidateListAndIndex(_list, _idx))
@@ -516,6 +736,8 @@ namespace GuiToolkit
 			Handles.DrawLine(point0, point1);
 		}
 
+		public static Color ColorPerSkin(Color _lightSkin, Color _darkSkin) => EditorGUIUtility.isProSkin ? _darkSkin : _lightSkin;
+
 		public static bool DoHandle( SerializedProperty _serProp, Vector3 _rectPoint, Vector2 _rectSize, RectTransform _rt, bool _mirrorHorizontal = false, bool _mirrorVertical = false, float _handleSize = 0.08f )
 		{
 			Vector2 v = _serProp.vector2Value;
@@ -573,15 +795,32 @@ namespace GuiToolkit
 			}
 		}
 
-		public static void FindAllComponentsInAllScriptableObjects<T>(AssetFoundDelegate<T> _foundFn)
+		public static List<T> FindAllScriptableObjects<T>(string _searchPath = "")
 		{
-			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:ScriptableObject");
+			List<T> result = new List<T>();
+			FindAllScriptableObjects<T>(asset => result.Add(asset));
+			return result;
+		}
+
+		public static T FindScriptableObject<T>(string _searchPath = "") where T:ScriptableObject
+		{
+			string[] allAssetPathGuids = AssetDatabase.FindAssets($"t:{typeof(T).Name} {_searchPath}");
+			if (allAssetPathGuids.Length == 0)
+				return null;
+
+			string assetPath = AssetDatabase.GUIDToAssetPath(allAssetPathGuids[0]);
+			return AssetDatabase.LoadAssetAtPath<T>(assetPath);
+		}
+
+		public static void FindAllScriptableObjects<T>(AssetFoundDelegate<T> _foundFn, string _searchPath = "")
+		{
+			string[] allAssetPathGuids = AssetDatabase.FindAssets($"t:{typeof(T).Name} {_searchPath}");
 
 			foreach (string guid in allAssetPathGuids)
 			{
 				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
 				ScriptableObject scriptableObject = AssetDatabase.LoadAssetAtPath<ScriptableObject>(assetPath);
-				if (scriptableObject == null || !(scriptableObject is T))
+				if (scriptableObject == null)
 					continue;
 
 				_foundFn( (T)(object) scriptableObject);
@@ -620,7 +859,7 @@ namespace GuiToolkit
 		{
 			FindAllComponentsInAllScenes(_foundFn, _includeInactive);
 			FindAllComponentsInAllPrefabs(_foundFn, _includeInactive);
-			FindAllComponentsInAllScriptableObjects(_foundFn);
+			FindAllScriptableObjects(_foundFn);
 		}
 
 		public delegate void ScriptFoundDelegate(string path, string _content);

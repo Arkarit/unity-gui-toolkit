@@ -4,6 +4,7 @@ using System.IO;
 using System;
 
 #if UNITY_EDITOR
+using GuiToolkit.Style;
 using UnityEditor;
 #endif
 
@@ -15,21 +16,12 @@ using UnityEditor;
 namespace GuiToolkit
 {
 	/// \brief Basic toolkit configuration and definitions.
-	public class UiToolkitConfiguration : ScriptableObject
+	public class UiToolkitConfiguration : AbstractSingletonScriptableObject<UiToolkitConfiguration>
 	{
-		private const string FILENAME = "UiToolkitConfiguration";
-		private const string RUNTIME_DIR = "";
-		private const string EDITOR_DIR = "Assets/Resources" + RUNTIME_DIR;
-
-		/// Path to load the configuration file during runtime (Resources.Load<UiToolkitConfiguration>())
-		public const string RUNTIME_PATH = FILENAME;
-		/// Path to load/save the configuration file in editor (AssetDatabase.LoadAssetAtPath<UiToolkitConfiguration>())
-		public const string EDITOR_PATH = EDITOR_DIR + "/" + FILENAME + ".asset";
-
 		/// \cond PRIVATE
 		public static readonly string HELP_FIRST_TIME =
 			  $"It appears that you are using the {StringConstants.TOOLKIT_NAME} for the first time\n"
-			+ $"The scriptable object '{EDITOR_PATH}' has been created to store your {StringConstants.TOOLKIT_NAME} settings.\n"
+			+ $"The scriptable object '{EditorPath}' has been created to store your {StringConstants.TOOLKIT_NAME} settings.\n"
 			+ $"Please be sure to check it in to your code versioning system!\n\n"
 			+ $"You can always access this window from the menu: '{StringConstants.CONFIGURATION_MENU_NAME}'\n\n"
 			+ $"Please check the settings below to create the initial setup for {StringConstants.TOOLKIT_NAME}:"
@@ -50,6 +42,9 @@ namespace GuiToolkit
 
 		public const string HELP_ADDITIONAL_SCENES_PATH =
 			"Additional scene path for scenes, which are not in the scene references list";
+
+		public const string HELP_STYLE_CONFIG =
+			"Style config for toolkit. You can replace it by your own style config.";
 
 		public const string HELP_DEBUG_LOCA =
 			"This switches loca debugging on or off";
@@ -77,34 +72,22 @@ namespace GuiToolkit
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
 		public string m_additionalScenesPath = "Scenes/";
 
+		[Tooltip(HELP_STYLE_CONFIG)]
+		public UiStyleConfig m_styleConfig;
+
 		[Tooltip(HELP_DEBUG_LOCA)]
 		public bool m_debugLoca = false;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 
-		private static UiToolkitConfiguration s_instance;
-
-		public static UiToolkitConfiguration Instance
-		{
-			get
-			{
-				if (s_instance == null)
-				{
-					s_instance = Resources.Load<UiToolkitConfiguration>(RUNTIME_PATH);
-					if (s_instance == null)
-					{
-						Debug.LogError($"UiToolkitMainSettings could not be loaded from path '{RUNTIME_PATH}'");
-						s_instance = CreateInstance<UiToolkitConfiguration>();
-					}
-				}
-				return s_instance;
-			}
-		}
-
 		private void OnEnable()
 		{
 			InitScenesByName();
 		}
+
+		public UiStyleConfig StyleConfig => m_styleConfig;
+
+		public bool IsEditingInternal => EditorFileUtility.GetApplicationDataDir().Contains(".Dev-App");
 
 		public string GetScenePath(string _sceneName)
 		{
@@ -162,19 +145,18 @@ namespace GuiToolkit
 			}
 		}
 
-		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiToolkitConfiguration>(UiToolkitConfiguration.EDITOR_PATH) != null;
-
-		public static void Initialize()
+		public string InternalGeneratedAssetsDir
 		{
-			if (Initialized)
-				return;
+			get
+			{
+				return EditorFileUtility.GetApplicationDataDir() + "Assets/External/unity-gui-toolkit/Code/Generated/";
+			}
+		}
 
-			UiToolkitConfiguration settings = CreateInstance<UiToolkitConfiguration>();
-
-			settings.m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
-			settings.m_loadMainSceneOnPlay = settings.m_sceneReferences.Length > 0;
-
-			EditorSave(settings);
+		public override void OnEditorInitialize()
+		{
+			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
+			m_loadMainSceneOnPlay = m_sceneReferences.Length > 0;
 		}
 
 		public static string GetProjectScenePath(string _sceneName)
@@ -182,26 +164,6 @@ namespace GuiToolkit
 			UiToolkitConfiguration settings = EditorLoad();
 			settings.InitScenesByName();
 			return "Assets/" + settings.GetScenePath(_sceneName) + ".unity";
-		}
-
-		public static UiToolkitConfiguration EditorLoad()
-		{
-			UiToolkitConfiguration settings = AssetDatabase.LoadAssetAtPath<UiToolkitConfiguration>(UiToolkitConfiguration.EDITOR_PATH);
-			if (settings == null)
-			{
-				settings = CreateInstance<UiToolkitConfiguration>();
-				EditorSave(settings);
-			}
-			return settings;
-		}
-
-		public static void EditorSave(UiToolkitConfiguration _settings)
-		{
-			if (!AssetDatabase.Contains(_settings))
-			{
-				EditorFileUtility.CreateAsset(_settings, EDITOR_PATH);
-			}
-			AssetDatabase.SaveAssets();
 		}
 #endif
 	}

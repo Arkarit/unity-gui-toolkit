@@ -114,7 +114,7 @@ namespace GuiToolkit
 			{
 				foreach (UiPlayerSettingBase uiPlayerSetting in kv.Value)
 				{
-					UiEvents.OnPlayerSettingChanged.Invoke( uiPlayerSetting.PlayerSetting );
+					UiEvents.EvPlayerSettingChanged.Invoke( uiPlayerSetting.PlayerSetting );
 				}
 			}
 		}

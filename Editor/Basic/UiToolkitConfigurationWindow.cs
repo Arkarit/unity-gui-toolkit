@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿using System.IO;
+using GuiToolkit.Style;
+using UnityEditor;
 using UnityEngine;
 
 namespace GuiToolkit.Editor
@@ -34,7 +36,7 @@ namespace GuiToolkit.Editor
 			UiToolkitConfiguration thisSettings = settingsProp.objectReferenceValue as UiToolkitConfiguration;
 			if (thisSettings == null)
 			{
-				thisSettings = UiToolkitConfiguration.EditorLoad();
+				thisSettings = UiToolkitConfiguration.Instance;
 				settingsProp.objectReferenceValue = thisSettings;
 			}
 
@@ -63,6 +65,15 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_ADDITIONAL_SCENES_PATH, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_additionalScenesPath"), true);
+
+			if (m_firstTimeInit)
+			{
+				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_STYLE_CONFIG, MessageType.Info);
+			}
+
+			HandleStyleConfig();
+
 
 			if (m_firstTimeInit)
 			{
@@ -110,6 +121,59 @@ namespace GuiToolkit.Editor
 			GUILayout.EndScrollView ();
 			GUILayout.EndVertical();
 		}
+
+		private void HandleStyleConfig()
+		{
+			var styleConfigProp = m_serializedSettingsObject.FindProperty("m_styleConfig");
+			var currentStyleConfig = styleConfigProp.objectReferenceValue as UiStyleConfig;
+			if (currentStyleConfig == null)
+			{
+				currentStyleConfig = FindStyleConfig();
+				styleConfigProp.objectReferenceValue = currentStyleConfig;
+			}
+
+			bool isDefault = IsDefaultConfig(currentStyleConfig);
+			if (isDefault)
+			{
+				EditorGUILayout.BeginHorizontal();
+				EditorGUILayout.PropertyField(styleConfigProp);
+				if (GUILayout.Button("Clone", GUILayout.Width(100)))
+					CloneStyleConfig(ref currentStyleConfig);
+				EditorGUILayout.EndHorizontal();
+				return;
+			}
+
+			EditorGUILayout.PropertyField(styleConfigProp);
+		}
+
+		private void CloneStyleConfig(ref UiStyleConfig currentStyleConfig)
+		{
+			string resourceDir = "Assets/Resources";
+			EditorFileUtility.EnsureFolderExists(resourceDir);
+			var newConfigPath = $"{resourceDir}/{nameof(UiStyleConfig)}.asset";
+			if (File.Exists(EditorFileUtility.GetNativePath(newConfigPath)))
+				if (!EditorUtility.DisplayDialog("Overwrite Configuration?", $"A config file at '{newConfigPath}' already exists. Should it be overwritten? (Not undoable)", "OK", "Cancel"))
+					return;
+
+			currentStyleConfig = Instantiate(currentStyleConfig);
+			AssetDatabase.CreateAsset(currentStyleConfig, newConfigPath);
+			var styleConfigProp = m_serializedSettingsObject.FindProperty("m_styleConfig");
+			styleConfigProp.objectReferenceValue = currentStyleConfig;
+			m_serializedSettingsObject.ApplyModifiedProperties();
+			AssetDatabase.SaveAssets();
+		}
+
+		private bool IsDefaultConfig(UiStyleConfig currentStyleConfig)
+		{
+			if (currentStyleConfig == null)
+				return false;
+
+			var path = AssetDatabase.GetAssetPath(currentStyleConfig);
+			return path.StartsWith(EditorFileUtility.GetUiToolkitRootProjectDir());
+		}
+
+
+		private UiStyleConfig FindStyleConfig() => EditorUiUtility.FindScriptableObject<UiStyleConfig>();
 
 		[MenuItem(StringConstants.CONFIGURATION_MENU_NAME, priority = Constants.SETTINGS_MENU_PRIORITY)]
 		public static UiToolkitConfigurationWindow GetWindow()

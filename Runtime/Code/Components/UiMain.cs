@@ -4,37 +4,52 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
-using UnityEngine.UI;
 using TMPro;
-using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
-using UnityEditor.SceneManagement;
 using UnityEditor;
 #endif
 
 namespace GuiToolkit
 {
+	//FIXME: currently this class is a mono behaviour singleton.
+	// It might make more sense to transform this to a static class, especially because it has already got some static members/methods
+	// changeable Members could be stored in config.
 	[RequireComponent(typeof(Camera))]
 	[RequireComponent(typeof(UiPool))]
-	[ExecuteAlways]
 	public class UiMain : MonoBehaviour
 	{
-		[Header("Canvas Settings")]
+		[Header("Canvas Settings")] 
+		[SerializeField] private RenderMode m_renderMode = RenderMode.ScreenSpaceCamera;
 
-		[SerializeField]
-		private RenderMode m_renderMode = RenderMode.ScreenSpaceCamera;
-
-		[SerializeField]
-		private float m_layerDistance = 0.02f;
+		[SerializeField] private float m_layerDistance = 0.02f;
 
 		private readonly Dictionary<string, UiView> m_scenes = new Dictionary<string, UiView>();
+
+		private static bool s_initialized = false;
 
 		public float LayerDistance => m_layerDistance;
 		public RenderMode RenderMode => m_renderMode;
 		public Camera Camera { get; private set; }
 		public UiPool UiPool { get; private set; }
+
+		public static EScreenOrientation ScreenOrientation => s_screenOrientation;
+
+		[InitializeOnLoadMethod]
+		private static void StaticInitialize()
+		{
+			if (!s_initialized)
+			{
+				s_initialized = true;
+
+#if UNITY_EDITOR
+				EditorApplication.update += FireOnScreenOrientationChangedEventIfNecessary;
+				FireOnScreenOrientationChangedEventIfNecessary();
+#endif
+				Debug.Log("UIMain static initialized");
+			}
+		}
 
 		private static UiMain s_instance;
 		public static UiMain Instance
@@ -47,6 +62,7 @@ namespace GuiToolkit
 				if (s_instance == null)
 					Debug.LogError("Attempt to access UiMain.Instance, but game object containing the instance not found." +
 						" Please set up a game object with an attached UiMain component!");
+
 #endif
 				return s_instance;
 			}
@@ -435,6 +451,11 @@ namespace GuiToolkit
 				DontDestroyOnLoad(gameObject);
 		}
 
+		protected virtual void OnDestroy()
+		{
+			Instance = null;
+		}
+
 		protected virtual void Start()
 		{
 #if UNITY_EDITOR
@@ -461,18 +482,14 @@ namespace GuiToolkit
 					((ISetDefaultSceneVisibility)monoBehaviour).SetDefaultSceneVisibility();
 		}
 
-		protected virtual void OnDestroy()
-		{
-			Instance = null;
-		}
-
-		private void FireOnScreenOrientationChangedEventIfNecessary()
+		private static void FireOnScreenOrientationChangedEventIfNecessary()
 		{
 			EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 
 			if (orientation == s_screenOrientation)
 				return;
-			UiEvents.OnScreenOrientationChange.InvokeAlways(s_screenOrientation, orientation);
+
+			UiEvents.EvScreenOrientationChange.InvokeAlways(s_screenOrientation, orientation);
 			s_screenOrientation = orientation;
 		}
 

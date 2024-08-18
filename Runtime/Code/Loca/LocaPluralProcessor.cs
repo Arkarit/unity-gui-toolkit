@@ -41,7 +41,7 @@ namespace GuiToolkit
 		{
 			string internalClassProjectPath = EditorFileUtility.GetUiToolkitRootProjectDir() + "Code/Loca/LocaPlurals.cs";
 			string internalClassFilePath = EditorFileUtility.GetApplicationDataDir() + internalClassProjectPath;
-			string userClassProjectDir = UiToolkitConfiguration.EditorLoad().GeneratedAssetsDir + "/";
+			string userClassProjectDir = UiToolkitConfiguration.Instance.GeneratedAssetsDir + "/";
 			string userClassProjectPath = userClassProjectDir + "LocaPlurals.cs";
 			string nativeAsmrefDir = EditorFileUtility.GetNativePath(EditorFileUtility.GetUiToolkitRootProjectDir()) + "Misc/";
 			string nativeAsmrefSource = nativeAsmrefDir + "unity-gui-toolkit.asmref";

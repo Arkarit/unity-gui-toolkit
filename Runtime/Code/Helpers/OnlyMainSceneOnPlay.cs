@@ -39,7 +39,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			UiToolkitConfiguration settings = UiToolkitConfiguration.EditorLoad();
+			UiToolkitConfiguration settings = UiToolkitConfiguration.Instance;
 
 			if (!settings.m_loadMainSceneOnPlay)
 				return;

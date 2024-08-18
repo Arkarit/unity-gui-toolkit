@@ -1,0 +1,585 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbdbaab720f53f84293195e6725a8406, type: 3}
+  m_Name: UiStyleConfig
+  m_EditorClassIdentifier: 
+  m_skins:
+  - m_name: Default
+    m_styles:
+    - rid: 4848181658278690901
+    - rid: 4848181658278690907
+    - rid: 7059580713605267471
+    - rid: 7059580713605267488
+    - rid: 4571341714188402708
+    - rid: 4571341714188402714
+    - rid: 4571342030662795296
+  - m_name: Alternative
+    m_styles:
+    - rid: 4571342029832323155
+    - rid: 4571342029832323156
+    - rid: 4571342029832323157
+    - rid: 4571342029832323158
+    - rid: 4571342029832323159
+    - rid: 4571342029832323160
+    - rid: 4571342030662795297
+  m_currentSkinIdx: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 4571341714188402708
+      type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: ResolutionDependent/Landscape/Test
+        m_screenOrientationCondition: 1
+        m_Gradient:
+          rid: 4571341714188402709
+        m_Axis:
+          rid: 4571341714188402710
+    - rid: 4571341714188402709
+      type: {class: UiStyleUiGradient/ApplicableValueGradient, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          key0: {r: 0, g: 0.09019608, b: 0.12156863, a: 1}
+          key1: {r: 0, g: 0.14605999, b: 0.19833867, a: 1}
+          key2: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key3: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key4: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key5: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key6: {r: 0, g: 0.7294118, b: 1, a: 0}
+          key7: {r: 0, g: 0, b: 0, a: 0}
+          ctime0: 0
+          ctime1: 9699
+          ctime2: 65535
+          ctime3: 65535
+          ctime4: 65535
+          ctime5: 65535
+          ctime6: 65535
+          ctime7: 0
+          atime0: 0
+          atime1: 65535
+          atime2: 0
+          atime3: 0
+          atime4: 0
+          atime5: 0
+          atime6: 0
+          atime7: 0
+          m_Mode: 0
+          m_ColorSpace: -1
+          m_NumColorKeys: 3
+          m_NumAlphaKeys: 2
+    - rid: 4571341714188402710
+      type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 4571341714188402714
+      type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: ResolutionDependent/Portrait/Test
+        m_screenOrientationCondition: 0
+        m_Gradient:
+          rid: 4571341714188402715
+        m_Axis:
+          rid: 4571341714188402716
+    - rid: 4571341714188402715
+      type: {class: UiStyleUiGradient/ApplicableValueGradient, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          key0: {r: 0, g: 0.09019608, b: 0.12156863, a: 1}
+          key1: {r: 0, g: 0.14605999, b: 0.19833867, a: 1}
+          key2: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key3: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key4: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key5: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key6: {r: 0, g: 0.7294118, b: 1, a: 0}
+          key7: {r: 0, g: 0, b: 0, a: 0}
+          ctime0: 0
+          ctime1: 9699
+          ctime2: 65535
+          ctime3: 65535
+          ctime4: 65535
+          ctime5: 65535
+          ctime6: 65535
+          ctime7: 0
+          atime0: 0
+          atime1: 65535
+          atime2: 0
+          atime3: 0
+          atime4: 0
+          atime5: 0
+          atime6: 0
+          atime7: 0
+          m_Mode: 0
+          m_ColorSpace: -1
+          m_NumColorKeys: 3
+          m_NumAlphaKeys: 2
+    - rid: 4571341714188402716
+      type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
+    - rid: 4571342029832323155
+      type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Backgrounds/Panel
+        m_screenOrientationCondition: -1
+        m_Gradient:
+          rid: 4571342029832323161
+        m_Axis:
+          rid: 4571342029832323162
+    - rid: 4571342029832323156
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Backgrounds/Panel
+        m_screenOrientationCondition: -1
+        m_sprite:
+          rid: 4571342029832323163
+        m_overrideSprite:
+          rid: 4571342029832323164
+        m_material:
+          rid: 4571342029832323165
+        m_color:
+          rid: 4571342029832323166
+    - rid: 4571342029832323157
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Backgrounds/Checkbox
+        m_screenOrientationCondition: -1
+        m_ColorLeftOrTop:
+          rid: 4571342029832323167
+        m_ColorRightOrBottom:
+          rid: 4571342029832323168
+        m_Axis:
+          rid: 4571342029832323169
+    - rid: 4571342029832323158
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Icons/Checkmark
+        m_screenOrientationCondition: -1
+        m_sprite:
+          rid: 4571342029832323170
+        m_overrideSprite:
+          rid: 4571342029832323171
+        m_material:
+          rid: 4571342029832323172
+        m_color:
+          rid: 4571342029832323173
+    - rid: 4571342029832323159
+      type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: ResolutionDependent/Landscape/Test
+        m_screenOrientationCondition: 1
+        m_Gradient:
+          rid: 4571342029832323174
+        m_Axis:
+          rid: 4571342029832323175
+    - rid: 4571342029832323160
+      type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: ResolutionDependent/Portrait/Test
+        m_screenOrientationCondition: 0
+        m_Gradient:
+          rid: 4571342029832323176
+        m_Axis:
+          rid: 4571342029832323177
+    - rid: 4571342029832323161
+      type: {class: UiStyleUiGradient/ApplicableValueGradient, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value:
+          serializedVersion: 2
+          key0: {r: 1, g: 0, b: 0.008883953, a: 0}
+          key1: {r: 1, g: 0, b: 0.8144698, a: 1}
+          key2: {r: 0.49517727, g: 0, b: 1, a: 1}
+          key3: {r: 0, g: 0.3885045, b: 1, a: 0}
+          key4: {r: 0, g: 0.9308512, b: 1, a: 0}
+          key5: {r: 0, g: 1, b: 0.26057076, a: 0}
+          key6: {r: 1, g: 0.92539877, b: 0, a: 0}
+          key7: {r: 1, g: 0.067070626, b: 0, a: 0}
+          ctime0: 0
+          ctime1: 8715
+          ctime2: 17987
+          ctime3: 28724
+          ctime4: 40646
+          ctime5: 48384
+          ctime6: 56681
+          ctime7: 65535
+          atime0: 0
+          atime1: 5438
+          atime2: 59330
+          atime3: 65535
+          atime4: 0
+          atime5: 0
+          atime6: 0
+          atime7: 0
+          m_Mode: 0
+          m_ColorSpace: -1
+          m_NumColorKeys: 8
+          m_NumAlphaKeys: 4
+    - rid: 4571342029832323162
+      type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 4571342029832323163
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
+    - rid: 4571342029832323164
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
+    - rid: 4571342029832323165
+      type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {fileID: 2100000, guid: 4490c8e9758c5ca43bd3a524c0e8360a, type: 2}
+    - rid: 4571342029832323166
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 1, b: 1, a: 0.09803922}
+    - rid: 4571342029832323167
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 0.7490196}
+    - rid: 4571342029832323168
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 0.23529412}
+    - rid: 4571342029832323169
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
+    - rid: 4571342029832323170
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+    - rid: 4571342029832323171
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
+    - rid: 4571342029832323172
+      type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {fileID: 0}
+    - rid: 4571342029832323173
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 1, b: 0.092865944, a: 1}
+    - rid: 4571342029832323174
+      type: {class: UiStyleUiGradient/ApplicableValueGradient, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          key0: {r: 0, g: 0.09019608, b: 0.12156863, a: 1}
+          key1: {r: 0, g: 0.14605999, b: 0.19833867, a: 1}
+          key2: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key3: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key4: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key5: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key6: {r: 0, g: 0.7294118, b: 1, a: 0}
+          key7: {r: 0, g: 0, b: 0, a: 0}
+          ctime0: 0
+          ctime1: 9699
+          ctime2: 65535
+          ctime3: 65535
+          ctime4: 65535
+          ctime5: 65535
+          ctime6: 65535
+          ctime7: 0
+          atime0: 0
+          atime1: 65535
+          atime2: 0
+          atime3: 0
+          atime4: 0
+          atime5: 0
+          atime6: 0
+          atime7: 0
+          m_Mode: 0
+          m_ColorSpace: -1
+          m_NumColorKeys: 3
+          m_NumAlphaKeys: 2
+    - rid: 4571342029832323175
+      type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 4571342029832323176
+      type: {class: UiStyleUiGradient/ApplicableValueGradient, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          key0: {r: 0, g: 0.09019608, b: 0.12156863, a: 1}
+          key1: {r: 0, g: 0.14605999, b: 0.19833867, a: 1}
+          key2: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key3: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key4: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key5: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key6: {r: 0, g: 0.7294118, b: 1, a: 0}
+          key7: {r: 0, g: 0, b: 0, a: 0}
+          ctime0: 0
+          ctime1: 9699
+          ctime2: 65535
+          ctime3: 65535
+          ctime4: 65535
+          ctime5: 65535
+          ctime6: 65535
+          ctime7: 0
+          atime0: 0
+          atime1: 65535
+          atime2: 0
+          atime3: 0
+          atime4: 0
+          atime5: 0
+          atime6: 0
+          atime7: 0
+          m_Mode: 0
+          m_ColorSpace: -1
+          m_NumColorKeys: 3
+          m_NumAlphaKeys: 2
+    - rid: 4571342029832323177
+      type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
+    - rid: 4571342030662795296
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Test/GradientSimple
+        m_screenOrientationCondition: -1
+        m_ColorLeftOrTop:
+          rid: 4571342030662795298
+        m_ColorRightOrBottom:
+          rid: 4571342030662795299
+        m_Axis:
+          rid: 4571342030662795300
+    - rid: 4571342030662795297
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Test/GradientSimple
+        m_screenOrientationCondition: -1
+        m_ColorLeftOrTop:
+          rid: 4571342030662795301
+        m_ColorRightOrBottom:
+          rid: 4571342030662795302
+        m_Axis:
+          rid: 4571342030662795303
+    - rid: 4571342030662795298
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 0, b: 0, a: 1}
+    - rid: 4571342030662795299
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0.05724919, g: 1, b: 0, a: 1}
+    - rid: 4571342030662795300
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4571342030662795301
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0.4226508, b: 1, a: 1}
+    - rid: 4571342030662795302
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 0.9964248, b: 0, a: 1}
+    - rid: 4571342030662795303
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4848181658278690901
+      type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Backgrounds/Panel
+        m_screenOrientationCondition: -1
+        m_Gradient:
+          rid: 4848181658278690902
+        m_Axis:
+          rid: 4848181658278690903
+    - rid: 4848181658278690902
+      type: {class: UiStyleUiGradient/ApplicableValueGradient, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value:
+          serializedVersion: 2
+          key0: {r: 0, g: 0.09019608, b: 0.12156863, a: 1}
+          key1: {r: 0, g: 0.14605999, b: 0.19833867, a: 1}
+          key2: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key3: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key4: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key5: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
+          key6: {r: 0, g: 0.7294118, b: 1, a: 0}
+          key7: {r: 0, g: 0, b: 0, a: 0}
+          ctime0: 0
+          ctime1: 9699
+          ctime2: 65535
+          ctime3: 65535
+          ctime4: 65535
+          ctime5: 65535
+          ctime6: 65535
+          ctime7: 0
+          atime0: 0
+          atime1: 65535
+          atime2: 0
+          atime3: 0
+          atime4: 0
+          atime5: 0
+          atime6: 0
+          atime7: 0
+          m_Mode: 0
+          m_ColorSpace: -1
+          m_NumColorKeys: 3
+          m_NumAlphaKeys: 2
+    - rid: 4848181658278690903
+      type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 4848181658278690907
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Backgrounds/Panel
+        m_screenOrientationCondition: -1
+        m_sprite:
+          rid: 4848181658278690908
+        m_overrideSprite:
+          rid: 4848181658278690909
+        m_material:
+          rid: 4848181658278690910
+        m_color:
+          rid: 4848181658278690911
+    - rid: 4848181658278690908
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
+    - rid: 4848181658278690909
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
+    - rid: 4848181658278690910
+      type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {fileID: 2100000, guid: 4490c8e9758c5ca43bd3a524c0e8360a, type: 2}
+    - rid: 4848181658278690911
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 1, b: 1, a: 0.72156864}
+    - rid: 7059580713605267471
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Backgrounds/Checkbox
+        m_screenOrientationCondition: -1
+        m_ColorLeftOrTop:
+          rid: 7059580713605267472
+        m_ColorRightOrBottom:
+          rid: 7059580713605267473
+        m_Axis:
+          rid: 7059580713605267474
+    - rid: 7059580713605267472
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 0.7490196}
+    - rid: 7059580713605267473
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 0.23529412}
+    - rid: 7059580713605267474
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
+    - rid: 7059580713605267488
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_name: Icons/Checkmark
+        m_screenOrientationCondition: -1
+        m_sprite:
+          rid: 7059580713605267489
+        m_overrideSprite:
+          rid: 7059580713605267490
+        m_material:
+          rid: 7059580713605267491
+        m_color:
+          rid: 7059580713605267492
+    - rid: 7059580713605267489
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
+    - rid: 7059580713605267490
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
+    - rid: 7059580713605267491
+      type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {fileID: 0}
+    - rid: 7059580713605267492
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 0.69803923, b: 0, a: 1}

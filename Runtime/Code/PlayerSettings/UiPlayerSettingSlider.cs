@@ -42,7 +42,7 @@ namespace GuiToolkit
 		{
 			if (_assetPaths.Count == 1)
 			{
-				_assetPaths = _assetPaths.Clone();
+				_assetPaths = _assetPaths.ShallowClone();
 				_assetPaths.Add(_assetPaths[0]);
 				m_slider.FirstIconSmall = true;
 			}
