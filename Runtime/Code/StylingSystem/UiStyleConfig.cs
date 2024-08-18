@@ -94,6 +94,7 @@ namespace GuiToolkit.Style
 					m_currentSkinIdx = i;
 					if (_emitEvent)
 						UiEvents.EvSkinChanged.InvokeAlways();
+
 					return true;
 				}
 			}

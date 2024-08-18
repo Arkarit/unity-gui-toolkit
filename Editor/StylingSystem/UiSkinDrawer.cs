@@ -10,8 +10,19 @@ namespace GuiToolkit.Style.Editor
 	[CustomPropertyDrawer(typeof(UiSkin), true)]
 	public class UiSkinDrawer : AbstractPropertyDrawer<UiSkin>
 	{
-		protected SerializedProperty 	m_nameProp;
+		protected SerializedProperty m_nameProp;
 		protected SerializedProperty m_stylesProp;
+
+		public string skinName
+		{
+			get
+			{
+				if (m_nameProp == null)
+					return string.Empty;
+
+				return m_nameProp.stringValue;
+			}
+		}
 
 		protected override void OnEnable()
 		{
@@ -39,14 +50,17 @@ namespace GuiToolkit.Style.Editor
 			{
 				try
 				{
-					var styles = GetFlatSortedStylesList();
-					var snp = new StyleNamePart();
-					snp.BuildTree(styles);
-//					snp.Dump();
-					Space(30);
-					Line(5);
-					snp.Display(this);
-Line(5);
+					Foldout(EditedClassInstance.Name, $"", () =>
+					{
+						var styles = GetFlatSortedStylesList();
+						var snp = new StyleNamePart();
+						snp.BuildTree(this, styles);
+//						snp.Dump();
+						Space(10);
+						Line(5);
+						snp.Display(this);
+						Line(5);
+					});
 				}
 				catch
 				{
@@ -110,7 +124,6 @@ Line(5);
 					UiEvents.EvDeleteSkin.InvokeAlways(skinName);
 				}
 			}
-
 		}
 
 		private class StyleNamePart
@@ -120,9 +133,9 @@ Line(5);
 			public readonly List<SerializedProperty> Properties = new ();
 			public int Id;
 
-			public void BuildTree(List<SerializedProperty> flatList)
+			public void BuildTree(UiSkinDrawer drawer, List<SerializedProperty> flatList)
 			{
-				Id = 0xddfa0;
+				Id = 0xddfa0 + Animator.StringToHash(drawer.skinName);
 
 				foreach (var property in flatList)
 				{
