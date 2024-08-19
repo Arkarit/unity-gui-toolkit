@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -116,7 +118,7 @@ namespace GuiToolkit
 		}
 
 		// Format string:
-		// 0: namespace
+		// 0: namespace open string
 		// 1: prefix
 		// 2: short type name,
 		// 3: qualified type name
@@ -124,6 +126,7 @@ namespace GuiToolkit
 		// 5: properties (starting with 2 tabs)
 		// 6: Class type definitions
 		// 7: member names list (starting with 4 tabs, each member ending with ',')
+		// 8: namespace close string
 		private const string StyleTemplate =
 			GeneratedWarningComment
 			+ "using System;\n"
@@ -131,8 +134,7 @@ namespace GuiToolkit
 			+ "using GuiToolkit;\n"
 			+ "using GuiToolkit.Style;\n"
 			+ "\n"
-			+ "namespace {0}\n"
-			+ "{{\n"
+			+ "{0}"
 			+ "	[Serializable]\n"
 			+ "	public class UiStyle{1}{2} : UiAbstractStyle<{3}>\n"
 			+ "	{{\n"
@@ -150,7 +152,7 @@ namespace GuiToolkit
 			+ "\n"
 			+ "{5}"
 			+ "	}}\n"
-			+ "}}\n";
+			+ "{8}";
 
 		private string GetStyleString(
 			string _namespace, 
@@ -162,18 +164,21 @@ namespace GuiToolkit
 			string _classTypeDefinitions, 
 			string _memberNames)
 		{
-			return string.Format
+			var result = string.Format
 			(
 				StyleTemplate,
-				_namespace,
+				GetNamespaceOpenString(_namespace),
 				_prefix,
 				_shortTypeName,
 				_qualifiedTypeName,
 				_members,
 				_properties,
 				_classTypeDefinitions,
-				_memberNames
+				_memberNames,
+				GetNamespaceCloseString(_namespace)
 			);
+
+			return RemoveFirstTabIfNoNamespace(_namespace, result);
 		}
 
 		#endregion
@@ -228,20 +233,20 @@ namespace GuiToolkit
 
 
 		// Format string:
-		// 0: Namespace
+		// 0: Namespace open string
 		// 1: Prefix
 		// 2: Short type name
 		// 3: Qualified type name
 		// 4: Apply instructions (starting with 3 tabs)
 		// 5: Preset instructions (starting with 3 tabs)
 		// 6: Member copy instructions (starting with 4 tabs)
+		// 7: Namespace close string
 		private const string ApplyStyleTemplate =
 			GeneratedWarningComment
 			+ "using UnityEngine;\n"
 			+ "using GuiToolkit.Style;\n"
 			+ "\n"
-			+ "namespace {0}\n"
-			+ "{{\n"
+			+ "{0}"
 			+ "	[ExecuteAlways]\n"
 			+ "	[RequireComponent(typeof({3}))]\n"
 			+ "	public class UiApplyStyle{1}{2} : UiAbstractApplyStyle<{3}, UiStyle{1}{2}>\n"
@@ -275,21 +280,24 @@ namespace GuiToolkit
 			+ "			return result;\n"
 			+ "		}}\n"
 			+ "	}}\n"
-			+ "}}\n";
+			+ "{7}";
 
 		private string GetApplyStyleString(string _namespace, string _prefix, string _typeName, string _qualifiedTypeName, string _applyInstructions, string _presetInstructions, string _memberCopyInstructions)
 		{
-			return string.Format
+			var result = string.Format
 			(
 				ApplyStyleTemplate,
-				_namespace,
+				GetNamespaceOpenString(_namespace),
 				_prefix,
 				_typeName,
 				_qualifiedTypeName,
 				_applyInstructions,
 				_presetInstructions,
-				_memberCopyInstructions
+				_memberCopyInstructions,
+				GetNamespaceCloseString(_namespace)
 			);
+
+			return RemoveFirstTabIfNoNamespace(_namespace, result);
 		}
 		#endregion
 
@@ -681,6 +689,31 @@ namespace GuiToolkit
 			window.Focus();
 			window.Repaint();
 			return window;
+		}
+
+		private static string GetNamespaceOpenString(string _namespace) => string.IsNullOrEmpty(_namespace) ? string.Empty : "namespace " + _namespace + "\n{\n";
+
+		private static string GetNamespaceCloseString(string _namespace) => string.IsNullOrEmpty(_namespace) ? string.Empty : "}\n";
+
+		private static string RemoveFirstTabIfNoNamespace(string _namespace, string _s) =>
+			string.IsNullOrEmpty(_namespace) ? RemoveFirstTab(_s) : _s;
+		
+		private static string RemoveFirstTab(string _s)
+		{
+			var lines = Regex.Split(_s, "\r\n|\r|\n");
+			for (int i = 0; i < lines.Length; i++)
+			{
+				if (lines[i].StartsWith('\t'))
+					lines[i] = lines[i].Substring(1);
+			}
+
+			string result = string.Empty;
+			foreach (var line in lines)
+			{
+				result += line + '\n';
+			}
+
+			return result;
 		}
 
 		private static Texture2D MakeTex(int width, int height, Color col)
