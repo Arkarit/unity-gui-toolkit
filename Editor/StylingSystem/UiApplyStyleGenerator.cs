@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -162,7 +164,7 @@ namespace GuiToolkit
 			string _classTypeDefinitions, 
 			string _memberNames)
 		{
-			return string.Format
+			var result = string.Format
 			(
 				StyleTemplate,
 				GetNamespaceOpenString(_namespace),
@@ -175,6 +177,8 @@ namespace GuiToolkit
 				_memberNames,
 				GetNamespaceCloseString(_namespace)
 			);
+
+			return RemoveFirstTabIfNoNamespace(_namespace, result);
 		}
 
 		#endregion
@@ -280,7 +284,7 @@ namespace GuiToolkit
 
 		private string GetApplyStyleString(string _namespace, string _prefix, string _typeName, string _qualifiedTypeName, string _applyInstructions, string _presetInstructions, string _memberCopyInstructions)
 		{
-			return string.Format
+			var result = string.Format
 			(
 				ApplyStyleTemplate,
 				GetNamespaceOpenString(_namespace),
@@ -292,6 +296,8 @@ namespace GuiToolkit
 				_memberCopyInstructions,
 				GetNamespaceCloseString(_namespace)
 			);
+
+			return RemoveFirstTabIfNoNamespace(_namespace, result);
 		}
 		#endregion
 
@@ -689,7 +695,26 @@ namespace GuiToolkit
 
 		private static string GetNamespaceCloseString(string _namespace) => string.IsNullOrEmpty(_namespace) ? string.Empty : "}\n";
 
-		private static string GetNamespaceTabString(string _namespace) => string.IsNullOrEmpty(_namespace) ? string.Empty : "\t";
+		private static string RemoveFirstTabIfNoNamespace(string _namespace, string _s) =>
+			string.IsNullOrEmpty(_namespace) ? RemoveFirstTab(_s) : _s;
+		
+		private static string RemoveFirstTab(string _s)
+		{
+			var lines = Regex.Split(_s, "\r\n|\r|\n");
+			for (int i = 0; i < lines.Length; i++)
+			{
+				if (lines[i].StartsWith('\t'))
+					lines[i] = lines[i].Substring(1);
+			}
+
+			string result = string.Empty;
+			foreach (var line in lines)
+			{
+				result += line + '\n';
+			}
+
+			return result;
+		}
 
 		private static Texture2D MakeTex(int width, int height, Color col)
 		{
