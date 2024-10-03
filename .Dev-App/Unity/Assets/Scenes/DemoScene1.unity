@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -305,7 +305,6 @@ GameObject:
   - component: {fileID: 74195717}
   - component: {fileID: 74195719}
   - component: {fileID: 74195718}
-  - component: {fileID: 74195720}
   m_Layer: 5
   m_Name: RedTextBig
   m_TagString: Untagged
@@ -431,26 +430,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 74195716}
   m_CullTransparentMesh: 1
---- !u!114 &74195720
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 74195716}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9e2e905a7a820146a1c5ccff7d15bb6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_name: RedText
-  m_style:
-    rid: -2
-  references:
-    version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
 --- !u!21 &90518532
 Material:
   serializedVersion: 8
@@ -912,7 +891,7 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 6
     m_NumAlphaKeys: 3
-  m_axis: 1
+  m_type: 1
   m_splitAtKeys: 1
 --- !u!1 &165851897
 GameObject:
@@ -1199,7 +1178,7 @@ MonoBehaviour:
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}
-  m_axis: 0
+  m_orientation: 0
 --- !u!114 &217098312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1680,7 +1659,7 @@ MonoBehaviour:
   m_vertexColorMode: 0
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0}
-  m_axis: 0
+  m_orientation: 0
 --- !u!1 &391793671
 GameObject:
   m_ObjectHideFlags: 0
@@ -1731,9 +1710,6 @@ GameObject:
   - component: {fileID: 395947631}
   - component: {fileID: 395947630}
   - component: {fileID: 395947633}
-  - component: {fileID: 395947632}
-  - component: {fileID: 395947635}
-  - component: {fileID: 395947634}
   m_Layer: 5
   m_Name: TestPanel
   m_TagString: Untagged
@@ -1798,74 +1774,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 395947627}
   m_CullTransparentMesh: 1
---- !u!114 &395947632
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 395947627}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45fe94ce0b6742046b5b681356a15a7c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_name: Backgrounds/Panel
-  m_style:
-    rid: 4571342030662795273
-  references:
-    version: 2
-    RefIds:
-    - rid: 4571342030662795273
-      type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_name: Backgrounds/Panel
-        m_screenOrientationCondition: -1
-        m_Gradient:
-          rid: 4571342030662795274
-        m_Axis:
-          rid: 4571342030662795275
-    - rid: 4571342030662795274
-      type: {class: UiStyleUiGradient/ApplicableValueGradient, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value:
-          serializedVersion: 2
-          key0: {r: 1, g: 0, b: 0.008883953, a: 0}
-          key1: {r: 1, g: 0, b: 0.8144698, a: 1}
-          key2: {r: 0.49517727, g: 0, b: 1, a: 1}
-          key3: {r: 0, g: 0.3885045, b: 1, a: 0}
-          key4: {r: 0, g: 0.9308512, b: 1, a: 0}
-          key5: {r: 0, g: 1, b: 0.26057076, a: 0}
-          key6: {r: 1, g: 0.92539877, b: 0, a: 0}
-          key7: {r: 1, g: 0.067070626, b: 0, a: 0}
-          ctime0: 0
-          ctime1: 8715
-          ctime2: 17987
-          ctime3: 28724
-          ctime4: 40646
-          ctime5: 48384
-          ctime6: 56681
-          ctime7: 65535
-          atime0: 0
-          atime1: 5438
-          atime2: 59330
-          atime3: 65535
-          atime4: 0
-          atime5: 0
-          atime6: 0
-          atime7: 0
-          m_Mode: 0
-          m_ColorSpace: -1
-          m_NumColorKeys: 8
-          m_NumAlphaKeys: 4
-    - rid: 4571342030662795275
-      type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 1
 --- !u!114 &395947633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1909,144 +1817,8 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 8
     m_NumAlphaKeys: 4
-  m_axis: 1
+  m_type: 1
   m_splitAtKeys: 1
---- !u!114 &395947634
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 395947627}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45fe94ce0b6742046b5b681356a15a7c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_name: ResolutionDependent/Portrait/Test
-  m_style:
-    rid: 4571342030662795279
-  references:
-    version: 2
-    RefIds:
-    - rid: 4571342030662795279
-      type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_name: ResolutionDependent/Portrait/Test
-        m_screenOrientationCondition: 0
-        m_Gradient:
-          rid: 4571342030662795280
-        m_Axis:
-          rid: 4571342030662795281
-    - rid: 4571342030662795280
-      type: {class: UiStyleUiGradient/ApplicableValueGradient, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value:
-          serializedVersion: 2
-          key0: {r: 0, g: 0.09019608, b: 0.12156863, a: 1}
-          key1: {r: 0, g: 0.14605999, b: 0.19833867, a: 1}
-          key2: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
-          key3: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
-          key4: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
-          key5: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
-          key6: {r: 0, g: 0.7294118, b: 1, a: 0}
-          key7: {r: 0, g: 0, b: 0, a: 0}
-          ctime0: 0
-          ctime1: 9699
-          ctime2: 65535
-          ctime3: 65535
-          ctime4: 65535
-          ctime5: 65535
-          ctime6: 65535
-          ctime7: 0
-          atime0: 0
-          atime1: 65535
-          atime2: 0
-          atime3: 0
-          atime4: 0
-          atime5: 0
-          atime6: 0
-          atime7: 0
-          m_Mode: 0
-          m_ColorSpace: -1
-          m_NumColorKeys: 3
-          m_NumAlphaKeys: 2
-    - rid: 4571342030662795281
-      type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: 1
---- !u!114 &395947635
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 395947627}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45fe94ce0b6742046b5b681356a15a7c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_name: ResolutionDependent/Landscape/Test
-  m_style:
-    rid: 4571342030662795276
-  references:
-    version: 2
-    RefIds:
-    - rid: 4571342030662795276
-      type: {class: UiStyleUiGradient, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_name: ResolutionDependent/Landscape/Test
-        m_screenOrientationCondition: 1
-        m_Gradient:
-          rid: 4571342030662795277
-        m_Axis:
-          rid: 4571342030662795278
-    - rid: 4571342030662795277
-      type: {class: UiStyleUiGradient/ApplicableValueGradient, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value:
-          serializedVersion: 2
-          key0: {r: 0, g: 0.09019608, b: 0.12156863, a: 1}
-          key1: {r: 0, g: 0.14605999, b: 0.19833867, a: 1}
-          key2: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
-          key3: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
-          key4: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
-          key5: {r: 0, g: 0.45416224, b: 0.6226415, a: 0}
-          key6: {r: 0, g: 0.7294118, b: 1, a: 0}
-          key7: {r: 0, g: 0, b: 0, a: 0}
-          ctime0: 0
-          ctime1: 9699
-          ctime2: 65535
-          ctime3: 65535
-          ctime4: 65535
-          ctime5: 65535
-          ctime6: 65535
-          ctime7: 0
-          atime0: 0
-          atime1: 65535
-          atime2: 0
-          atime3: 0
-          atime4: 0
-          atime5: 0
-          atime6: 0
-          atime7: 0
-          m_Mode: 0
-          m_ColorSpace: -1
-          m_NumColorKeys: 3
-          m_NumAlphaKeys: 2
-    - rid: 4571342030662795278
-      type: {class: UiStyleUiGradient/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: 0
 --- !u!1 &434497813
 GameObject:
   m_ObjectHideFlags: 0
@@ -2138,7 +1910,7 @@ MonoBehaviour:
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 1, b: 0.56078434, a: 0.3647059}
   m_colorRightOrBottom: {r: 0, g: 1, b: 0.56078434, a: 0}
-  m_axis: 0
+  m_orientation: 0
 --- !u!1001 &438568306
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2403,7 +2175,7 @@ MonoBehaviour:
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}
-  m_axis: 0
+  m_orientation: 0
 --- !u!114 &457592390
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2551,7 +2323,6 @@ GameObject:
   - component: {fileID: 565626639}
   - component: {fileID: 565626642}
   - component: {fileID: 565626641}
-  - component: {fileID: 565626643}
   m_Layer: 5
   m_Name: GreenCheckmark
   m_TagString: Untagged
@@ -2616,26 +2387,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 565626638}
   m_CullTransparentMesh: 1
---- !u!114 &565626643
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 565626638}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc47fb5fc4aa7a54c9106afc29b08e74, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_name: PanelBackground
-  m_style:
-    rid: -2
-  references:
-    version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
 --- !u!1 &584101216
 GameObject:
   m_ObjectHideFlags: 0
@@ -2904,7 +2655,6 @@ GameObject:
   - component: {fileID: 633958385}
   - component: {fileID: 633958388}
   - component: {fileID: 633958387}
-  - component: {fileID: 633958386}
   m_Layer: 5
   m_Name: GreenTextSmall
   m_TagString: Untagged
@@ -2931,26 +2681,6 @@ RectTransform:
   m_AnchoredPosition: {x: -447, y: -363.7}
   m_SizeDelta: {x: 239.15, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &633958386
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 633958384}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9e2e905a7a820146a1c5ccff7d15bb6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_name: GreenText
-  m_style:
-    rid: -2
-  references:
-    version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
 --- !u!114 &633958387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4023,7 +3753,6 @@ GameObject:
   - component: {fileID: 1413050326}
   - component: {fileID: 1413050329}
   - component: {fileID: 1413050328}
-  - component: {fileID: 1413050330}
   m_Layer: 5
   m_Name: BlueCheckmark
   m_TagString: Untagged
@@ -4088,57 +3817,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1413050325}
   m_CullTransparentMesh: 1
---- !u!114 &1413050330
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1413050325}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc47fb5fc4aa7a54c9106afc29b08e74, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_name: Icons/Checkmark
-  m_style:
-    rid: 4571342030662795282
-  references:
-    version: 2
-    RefIds:
-    - rid: 4571342030662795282
-      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_name: Icons/Checkmark
-        m_screenOrientationCondition: -1
-        m_sprite:
-          rid: 4571342030662795283
-        m_overrideSprite:
-          rid: 4571342030662795284
-        m_material:
-          rid: 4571342030662795285
-        m_color:
-          rid: 4571342030662795286
-    - rid: 4571342030662795283
-      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {fileID: 21300000, guid: 08632ad792a246b4685eb3a72320e2e5, type: 3}
-    - rid: 4571342030662795284
-      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
-    - rid: 4571342030662795285
-      type: {class: UiStyleImage/ApplicableValueMaterial, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {fileID: 0}
-    - rid: 4571342030662795286
-      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {r: 0, g: 1, b: 0.092865944, a: 1}
 --- !u!1 &1508985176
 GameObject:
   m_ObjectHideFlags: 0
@@ -4300,7 +3978,6 @@ GameObject:
   - component: {fileID: 1565272651}
   - component: {fileID: 1565272650}
   - component: {fileID: 1565272649}
-  - component: {fileID: 1565272648}
   m_Layer: 5
   m_Name: TestPanel (1)
   m_TagString: Untagged
@@ -4327,53 +4004,6 @@ RectTransform:
   m_AnchoredPosition: {x: -940.8, y: -88}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1565272648
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1565272646}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e2008c4ee16d8845b6d180c29bafa6d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_name: Test/GradientSimple
-  m_style:
-    rid: 4571342030662795304
-  references:
-    version: 2
-    RefIds:
-    - rid: 4571342030662795304
-      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_name: Test/GradientSimple
-        m_screenOrientationCondition: -1
-        m_ColorLeftOrTop:
-          rid: 4571342030662795305
-        m_ColorRightOrBottom:
-          rid: 4571342030662795306
-        m_Axis:
-          rid: 4571342030662795307
-    - rid: 4571342030662795305
-      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {r: 1, g: 0, b: 0, a: 1}
-    - rid: 4571342030662795306
-      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {r: 0.05724919, g: 1, b: 0, a: 1}
-    - rid: 4571342030662795307
-      type: {class: UiStyleUiGradientSimple/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 0
 --- !u!114 &1565272649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4387,9 +4017,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_vertexColorMode: 0
-  m_colorLeftOrTop: {r: 1, g: 0, b: 0, a: 1}
-  m_colorRightOrBottom: {r: 0.05724919, g: 1, b: 0, a: 1}
-  m_axis: 0
+  m_colorLeftOrTop: {r: 0, g: 0.4226508, b: 1, a: 1}
+  m_colorRightOrBottom: {r: 1, g: 0.9964248, b: 0, a: 1}
+  m_orientation: 0
 --- !u!114 &1565272650
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5311,7 +4941,7 @@ MonoBehaviour:
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}
-  m_axis: 0
+  m_orientation: 0
 --- !u!1 &1737456167
 GameObject:
   m_ObjectHideFlags: 0
