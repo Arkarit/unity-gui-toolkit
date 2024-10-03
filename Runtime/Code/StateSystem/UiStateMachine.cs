@@ -208,6 +208,8 @@ namespace GuiToolkit.UiStateSystem
 		{
 			return !IsTransitionRunning();
 		}
+
+		public UpdateCondition editorUpdateCondition => UpdateCondition.Always;
 #endif
 
 		public bool IsTransitionRunning()

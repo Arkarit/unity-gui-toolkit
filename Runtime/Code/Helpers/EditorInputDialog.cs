@@ -22,7 +22,7 @@ namespace GuiToolkit
 
 		private Action<EditorInputDialog> m_additionalContent;
 
-		void OnGUI()
+		private void OnGUI()
 		{
 			// Check if Esc/Return have been pressed
 			var e = Event.current;
@@ -67,17 +67,11 @@ namespace GuiToolkit
 			var r = EditorGUILayout.GetControlRect();
 			r.width /= 2;
 			if (GUI.Button(r, m_okButtonText))
-			{
-				m_onOKButton?.Invoke();
-				m_shouldClose = true;
-			}
+				Ok();
 
 			r.x += r.width;
 			if (GUI.Button(r, m_cancelButtonText))
-			{
-				m_inputText = null;   // Cancel - delete inputText
-				m_shouldClose = true;
-			}
+				Cancel();
 
 			EditorGUILayout.Space(8);
 			EditorGUILayout.EndVertical();
@@ -138,6 +132,18 @@ namespace GuiToolkit
 			window.ShowModal();
 
 			return result;
+		}
+		
+		public void Ok()
+		{
+			m_onOKButton?.Invoke();
+			m_shouldClose = true;
+		}
+		
+		public void Cancel()
+		{
+			m_inputText = null;
+			m_shouldClose = true;
 		}
 	}
 }

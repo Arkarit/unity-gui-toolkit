@@ -1,4 +1,6 @@
-﻿#if UNITY_EDITOR
+﻿using System;
+using Object = UnityEngine.Object;
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -14,70 +16,104 @@ using UnityEngine;
 namespace GuiToolkit
 {
 
+	[Flags]
+	public enum UpdateCondition : int
+	{
+		Invalid = 0,
+		IsPlaying = 1,
+		IsNotPlaying = 2,
+		Always,
+	}
+
 	public interface IEditorUpdateable
 	{
 #if UNITY_EDITOR
-		void UpdateInEditor( float _deltaTime );
+		void UpdateInEditor( float deltaTime );
 		bool RemoveFromEditorUpdate();
+		UpdateCondition editorUpdateCondition { get; }
 #endif
 	}
 
 	public static class EditorUpdater
 	{
 #if UNITY_EDITOR
-		public static float TimeScale = 1;
-		private static List<IEditorUpdateable> m_updateables = new List<IEditorUpdateable>();
-		private static System.Diagnostics.Stopwatch m_stopwatch = new System.Diagnostics.Stopwatch();
+		private static float s_timeScale = 1;
+		private static readonly List<IEditorUpdateable> s_updateables = new ();
+		private static readonly System.Diagnostics.Stopwatch s_stopwatch = new ();
+		private static readonly List<int> s_scheduledForDestroy = new ();
 #endif
 
-		static private void Update()
+#if UNITY_EDITOR
+		public static float TimeScale
+		{
+			get => s_timeScale;
+			set => s_timeScale = value;
+		}
+#else
+		public static float TimeScale
+		{
+			get => 1;
+			set {}
+		}
+#endif
+		private static void Update()
 		{
 #if UNITY_EDITOR
-			float deltaTime = m_stopwatch.ElapsedMilliseconds / 1000.0f * TimeScale;
-			m_stopwatch.Restart();
+			float deltaTime = s_stopwatch.ElapsedMilliseconds / 1000.0f * s_timeScale;
+			s_stopwatch.Restart();
 
-			List<int> moribund = new List<int>();
-			for (int i = 0; i < m_updateables.Count; i++)
+			s_scheduledForDestroy.Clear();
+
+			UpdateCondition updateCondition = Application.isPlaying ? UpdateCondition.IsPlaying : UpdateCondition.IsNotPlaying;
+
+			for (int i = 0; i < s_updateables.Count; i++)
 			{
-				IEditorUpdateable updateable = m_updateables[i];
-				updateable.UpdateInEditor(deltaTime);
-				if (updateable.RemoveFromEditorUpdate())
-					moribund.Add(i);
+				IEditorUpdateable _updateable = s_updateables[i];
+				if ((_updateable as Object) == null)
+				{
+					s_scheduledForDestroy.Add(i);
+					continue;
+				}
+
+				if ((updateCondition & _updateable.editorUpdateCondition) != 0)
+					_updateable.UpdateInEditor(deltaTime);
+
+				if (_updateable.RemoveFromEditorUpdate())
+					s_scheduledForDestroy.Add(i);
 			}
-			for (int i = moribund.Count - 1; i >= 0; i--)
-				m_updateables.RemoveAt(moribund[i]);
-			if (m_updateables.Count == 0)
+
+			for (int i = s_scheduledForDestroy.Count - 1; i >= 0; i--)
+				s_updateables.RemoveAt(s_scheduledForDestroy[i]);
+
+			if (s_updateables.Count == 0)
 				EditorApplication.update -= Update;
 #endif
 		}
 
-		static public void StartUpdating( IEditorUpdateable _updateable, bool _notWhenPlaying = true )
+		static public void StartUpdating( IEditorUpdateable _updateable )
 		{
 #if UNITY_EDITOR
-			// We don't need a separate update mechanism when in playmode
-			if (_notWhenPlaying && Application.isPlaying)
+			if (s_updateables.Contains(_updateable))
 				return;
 
-			if (m_updateables.Contains(_updateable))
-				return;
-
-			if (m_updateables.Count == 0)
+			if (s_updateables.Count == 0)
 			{
-				m_stopwatch.Restart();
+				s_stopwatch.Restart();
 				EditorApplication.update += Update;
 			}
-			m_updateables.Add(_updateable);
+
+			s_updateables.Add(_updateable);
 #endif
 		}
 
 		static public void StopUpdating( IEditorUpdateable _updateable )
 		{
 #if UNITY_EDITOR
-			if (!m_updateables.Contains(_updateable))
+			if (!s_updateables.Contains(_updateable))
 				return;
 
-			m_updateables.Remove(_updateable);
-			if (m_updateables.Count == 0)
+			s_updateables.Remove(_updateable);
+			if (s_updateables.Count == 0)
 				EditorApplication.update -= Update;
 #endif
 		}

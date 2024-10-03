@@ -59,22 +59,34 @@ namespace GuiToolkit
 			_rhs = temp;
 		}
 
+		public static float Inverse(float _f) => Mathf.Approximately(0, _f) ? 1 : 1 / _f;
+		public static Vector3 Inverse(Vector3 _v) => new Vector3(Inverse(_v.x), Inverse(_v.y), Inverse(_v.z));
+		public static Vector2 Clamp01(Vector2 _input)
+		{
+			for (int i=0; i<2; i++)
+				_input[i] = Mathf.Clamp01(_input[i]);
+			return _input;
+		}
+		
+		public static Vector2 Clamp01(Vector3 _input)
+		{
+			for (int i=0; i<3; i++)
+				_input[i] = Mathf.Clamp01(_input[i]);
+			return _input;
+		}
+		
 		public static Vector2 Lerp4P( Vector2 _tl, Vector2 _tr, Vector2 _bl, Vector2 _br, Vector2 _normP)
 		{
-			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
 			return Vector2.Lerp(Vector2.Lerp(_tl, _tr, _normP.x), Vector2.Lerp(_bl, _br, _normP.x), _normP.y );
 		}
 
 		public static Vector3 Lerp4P( Vector3 _tl, Vector3 _tr, Vector3 _bl, Vector3 _br, Vector2 _normP)
 		{
-			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
 			return Vector3.Lerp(Vector3.Lerp(_tl, _tr, _normP.x), Vector3.Lerp(_bl, _br, _normP.x), _normP.y );
 		}
 
 		public static Vector2 Lerp4P( Vector2 _tl, Vector2 _tr, Vector2 _bl, Vector2 _br, Vector2 _normP, bool _oneMinusX, bool _oneMinusY)
 		{
-			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
-
 			if (_oneMinusX)
 				_normP.x = 1.0f - _normP.x;
 			if (_oneMinusY)
@@ -85,21 +97,18 @@ namespace GuiToolkit
 
 		public static Vector2 Lerp4P( Vector2[] _points, Vector2 _normP)
 		{
-			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
 			Debug.Assert(_points.Length == 4, "Lerp4P needs 4 points bl, tl, tr, br");
 			return Lerp4P(_points[1], _points[2], _points[0], _points[3], _normP);
 		}
 
 		public static Vector3 Lerp4P( Vector3[] _points, Vector2 _normP)
 		{
-			Debug.Assert(_normP.x >= 0 && _normP.x <= 1 && _normP.y >= 0 && _normP.y <= 1, "_normP needs to be normalized");
 			Debug.Assert(_points.Length == 4, "Lerp4P needs 4 points bl, tl, tr, br");
 			return Lerp4P(_points[1], _points[2], _points[0], _points[3], _normP);
 		}
 
 		public static Vector2 Bezier( Vector2 _p0, Vector2 _p1, Vector2 _p2, float _normP )
 		{
-			Debug.Assert(_normP >= 0 && _normP <= 1, "_normP needs to be normalized");
 			float oneMinusNormP = 1f - _normP;
 			return
 				oneMinusNormP * oneMinusNormP * _p0 +
@@ -108,7 +117,6 @@ namespace GuiToolkit
 		}
 
 		public static Vector2 Bezier (Vector2 _p0, Vector2 _p1, Vector2 _p2, Vector2 _p3, float _normP) {
-			Debug.Assert(_normP >= 0 && _normP <= 1, "_normP needs to be normalized");
 			float oneMinusNormP = 1f - _normP;
 			return
 				oneMinusNormP * oneMinusNormP * oneMinusNormP * _p0 +
@@ -147,7 +155,6 @@ namespace GuiToolkit
 		}
 
 		public static Vector2 Bezier (Vector2[] _points, int _startIdx, int _numPoints, float _normP) {
-			Debug.Assert(_normP >= 0 && _normP <= 1, "_normP needs to be normalized");
 			float oneMinusNormP = 1f - _normP;
 			int npMinusOne = _numPoints - 1;
 

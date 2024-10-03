@@ -162,11 +162,11 @@ namespace GuiToolkit
 			{
 				Material foundMaterial = FindClonedMaterialInOtherInstances(s_instances, m_materialInstanceKey);
 				if (foundMaterial == null)
-					m_clonedMaterial.Destroy();
+					m_clonedMaterial.SafeDestroy();
 			}
 			else
 			{
-				m_clonedMaterial.Destroy();
+				m_clonedMaterial.SafeDestroy();
 			}
 			m_clonedMaterial = null;
 			m_originalMaterial = null;
@@ -220,7 +220,7 @@ namespace GuiToolkit
 		{
 #if UNITY_EDITOR
 			// never init if we're a prefab
-			if (EditorUiUtility.IsPrefab(gameObject))
+			if (EditorGameObjectUtility.IsPrefab(gameObject))
 				return;
 #endif
 
@@ -257,7 +257,7 @@ namespace GuiToolkit
 					Material clonedMaterial = FindClonedMaterialInOtherInstances(_instances);
 					if (clonedMaterial)
 					{
-						m_clonedMaterial.Destroy();
+						m_clonedMaterial.SafeDestroy();
 						m_clonedMaterial = clonedMaterial;
 						SetMaterialToRenderer(clonedMaterial);
 					}
@@ -303,7 +303,7 @@ namespace GuiToolkit
 					{
 						// we previously were holding the material solitary, but for the new material, there's already an instance using it.
 						// we have to destroy the old material and use the new one.
-						m_clonedMaterial.Destroy();
+						m_clonedMaterial.SafeDestroy();
 						m_clonedMaterial = newSharedMaterial;
 					}
 				}
@@ -374,7 +374,7 @@ namespace GuiToolkit
 		public override void OnInspectorGUI()
 		{
 			MaterialCloner thisMaterialCloner = (MaterialCloner)target;
-			if (EditorUiUtility.InfoBoxIfPrefab(thisMaterialCloner.gameObject))
+			if (EditorGameObjectUtility.InfoBoxIfPrefab(thisMaterialCloner.gameObject))
 			{
 				Renderer renderer = thisMaterialCloner.GetComponent<Renderer>();
 				if ( renderer != null && renderer.sharedMaterial == null && thisMaterialCloner.OriginalMaterial != null )
@@ -445,7 +445,7 @@ namespace GuiToolkit
 					serializedObject.ApplyModifiedProperties();
 				}
 
-				oldClonedMaterial.Destroy();
+				oldClonedMaterial.SafeDestroy();
 
 				Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
 			}
@@ -485,7 +485,7 @@ namespace GuiToolkit
 			serObj.FindProperty("m_clonedMaterial").objectReferenceValue = null;
 			serObj.ApplyModifiedProperties();
 
-			moribund.Destroy();
+			moribund.SafeDestroy();
 		}
 
 		private void PostChangeShareMaterial( MaterialCloner _materialCloner, bool _currentShareMaterial, bool _previousShareMaterial, IEnumerable<MaterialCloner> _instances)

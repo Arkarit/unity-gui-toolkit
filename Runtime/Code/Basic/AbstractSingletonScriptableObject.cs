@@ -66,7 +66,7 @@ namespace GuiToolkit
 		{
 			if (!AssetDatabase.Contains(instance))
 			{
-				EditorFileUtility.CreateAsset(instance, EditorPath);
+				EditorAssetUtility.CreateAsset(instance, EditorPath);
 			}
 
 			EditorUtility.SetDirty(instance);
