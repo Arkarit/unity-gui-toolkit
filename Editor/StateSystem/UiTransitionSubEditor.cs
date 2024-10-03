@@ -30,30 +30,34 @@ namespace GuiToolkit.UiStateSystem.Editor
 				stateMachineProp.objectReferenceValue = _stateMachine;
 
 				// Display fields
-				EditorStyles.popup.fixedHeight = EditorUiUtility.MEDIUM_POPUP_HEIGHT;
-				DisplayStateNamePopup("From:", fromProp, ref stateNames, true);
-				DisplayStateNamePopup("To:", toProp, ref stateNames, false);
-				EditorStyles.popup.fixedHeight = EditorUiUtility.NORMAL_POPUP_HEIGHT;
-				EditorUiUtility.PropertyField("Duration", durationProp, true);
-				EditorUiUtility.PropertyField("Delay", delayProp, true);
-				EditorUiUtility.PropertyField("Curve", curveProp, true);
-
-				EditorUiUtility.Button(" ", "Delete", delegate
-				{
-					result = true;
-					EditorGeneralUtility.RemoveArrayElementAtIndex(_list, i);
-					WorkaroundAnimationCurveRedrawProblem(i, _list);
-				});
-
-				GUILayout.Space(-3);
-				EditorUiUtility.Button(" ", "Test", delegate
+				EditorGUILayout.BeginHorizontal();
+				DisplayStateNamePopup("To/From", toProp, ref stateNames, false);
+				DisplayStateNamePopup("", fromProp, ref stateNames, true);
+				EditorGUILayout.EndHorizontal();
+				
+				EditorGUILayout.BeginHorizontal();
+				EditorUiUtility.PropertyField("Duration/Delay/Curve", durationProp, true);
+				EditorUiUtility.PropertyField("", delayProp, true);
+				EditorUiUtility.PropertyField("", curveProp, true);
+				EditorGUILayout.EndHorizontal();
+				
+				EditorGUILayout.BeginHorizontal();
+				GUILayout.Label("", GUILayout.Width(EditorGUIUtility.labelWidth));
+				if (GUILayout.Button("Test"))
 				{
 					if (!string.IsNullOrEmpty(fromProp.stringValue))
 						_stateMachine.ApplyInstant(fromProp.stringValue);
 					_stateMachine.State = toProp.stringValue;
-				}, EditorUiUtility.MEDIUM_POPUP_HEIGHT);
+				}
+				if (GUILayout.Button("Delete", GUILayout.Width(50)))
+				{
+					result = true;
+					EditorGeneralUtility.RemoveArrayElementAtIndex(_list, i);
+					WorkaroundAnimationCurveRedrawProblem(i, _list);
+				}
+				EditorGUILayout.EndHorizontal();
 
-				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+				GUILayout.Space(EditorUiUtility.SMALL_SPACE_HEIGHT);
 			}
 
 
@@ -89,12 +93,16 @@ namespace GuiToolkit.UiStateSystem.Editor
 			}
 
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label(_prefixLabel, GUILayout.Width(EditorGUIUtility.labelWidth));
+			
+			if (!string.IsNullOrEmpty(_prefixLabel))
+				GUILayout.Label(_prefixLabel, GUILayout.Width(EditorGUIUtility.labelWidth));
+			
 			selected = EditorGUILayout.Popup(selected, options, GUILayout.Height(EditorStyles.popup.fixedHeight - 5));
 			if (_allowAny && selected == 0)
 				_prop.stringValue = "";
 			else
 				_prop.stringValue = _stateNames[selected - anyOffset];
+			
 			EditorGUILayout.EndHorizontal();
 		}
 

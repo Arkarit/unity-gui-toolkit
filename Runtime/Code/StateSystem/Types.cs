@@ -12,6 +12,7 @@ namespace GuiToolkit.UiStateSystem
 		Alpha					= 0x00000010,
 		PreferredWidth			= 0x00000020,
 		PreferredHeight			= 0x00000040,
+		Interactable			= 0x00000080,
 
 		All						= 0xffffffff,
 		None					= 0x00000000,

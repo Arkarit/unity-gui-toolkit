@@ -17,7 +17,7 @@ namespace GuiToolkit.UiStateSystem
 #endif
 
 		[SerializeField]
-		// CS0649: Field 'UiStateMachine.m_propertySupport' is never assigned to, and will always have its default value 0
+		// CS0649: Field 'UIStateMachine.m_propertySupport' is never assigned to, and will always have its default value 0
 #pragma warning disable 0649
 		// Has to be stored as long - Unity does not support long enums.
 		private long m_propertySupport;
@@ -40,9 +40,13 @@ namespace GuiToolkit.UiStateSystem
 
 		[SerializeField]
 		private UiTransition[] m_transitions;
+		
+		[SerializeField]
+		private bool m_autoSetFirstStateOnEnable;
 
 
 #if UNITY_EDITOR
+		// Used by editor
 		[SerializeField]
 		private bool m_pristine = true;
 #endif
@@ -115,6 +119,14 @@ namespace GuiToolkit.UiStateSystem
 			{
 				return m_transitions;
 			}
+		}
+
+		protected void OnEnable()
+		{
+			if (!m_autoSetFirstStateOnEnable || m_states.Count == 0)
+				return;
+			
+			SetState(m_states[0].Name, false, true);
 		}
 
 #if UNITY_EDITOR
@@ -209,7 +221,7 @@ namespace GuiToolkit.UiStateSystem
 			return !IsTransitionRunning();
 		}
 
-		public UpdateCondition editorUpdateCondition => UpdateCondition.Always;
+		public UpdateCondition editorUpdateCondition => UpdateCondition.IsNotPlaying;
 #endif
 
 		public bool IsTransitionRunning()
@@ -217,9 +229,10 @@ namespace GuiToolkit.UiStateSystem
 			return m_currentTransition != null;
 		}
 
-		public void SetState( string _newStateName, bool _useTransition = true )
+		public void SetState( string _newStateName, bool _useTransition = true, bool _force = false )
 		{
 			Debug.Assert(!string.IsNullOrEmpty(_newStateName));
+			FillStateDictionary();
 
 			List<UiStateMachine> subStateMachines;
 			if (m_subStateMachinesMap.TryGetValue(m_currentStateName, out subStateMachines))
@@ -228,7 +241,7 @@ namespace GuiToolkit.UiStateSystem
 					subStateMachine.SetState(_newStateName, _useTransition);
 			}
 
-			if (_newStateName == m_currentStateName && !IsTransitionRunning())
+			if (!_force && _newStateName == m_currentStateName && !IsTransitionRunning())
 				return;
 
 			UiTransition transition = null;
@@ -239,7 +252,7 @@ namespace GuiToolkit.UiStateSystem
 
 			if (transition == null)
 			{
-				ApplyInstant(_newStateName);
+				ApplyInstant(_newStateName, true, _force);
 				return;
 			}
 
@@ -323,7 +336,7 @@ namespace GuiToolkit.UiStateSystem
 
 #endif
 
-		public void ApplyInstant( bool _alsoSubStateMachines = true )
+		public void ApplyInstant( bool _alsoSubStateMachines = true, bool _force = false )
 		{
 			if (string.IsNullOrEmpty(m_currentStateName))
 				return;
@@ -348,19 +361,19 @@ namespace GuiToolkit.UiStateSystem
 			if (m_subStateMachinesMap.TryGetValue(m_currentStateName, out subStateMachines))
 			{
 				foreach(var subStateMachine in subStateMachines)
-					subStateMachine.ApplyInstant(m_currentStateName);
+					subStateMachine.ApplyInstant(m_currentStateName, true, _force);
 			}
 		}
 
-		public void ApplyInstant( string _newStateName, bool _alsoSubStateMachines = true )
+		public void ApplyInstant( string _newStateName, bool _alsoSubStateMachines = true, bool _force = false )
 		{
 			Debug.Assert(!string.IsNullOrEmpty(_newStateName));
-			if (string.IsNullOrEmpty(_newStateName) || (m_currentStateName == _newStateName && !IsTransitionRunning()))
+			if (string.IsNullOrEmpty(_newStateName) || (!_force && m_currentStateName == _newStateName && !IsTransitionRunning()))
 				return;
 
 			m_currentTransition = null;
 			m_currentStateName = _newStateName;
-			ApplyInstant( _alsoSubStateMachines );
+			ApplyInstant( _alsoSubStateMachines, _force );
 		}
 
 #if UNITY_EDITOR
@@ -427,8 +440,7 @@ namespace GuiToolkit.UiStateSystem
 						states.Add(state);
 				}
 
-				if (states.Count != 0)
-					m_statesMap[stateName] = states;
+				m_statesMap[stateName] = states;
 
 				List<UiStateMachine> subStateMachines = new List<UiStateMachine>();
 				foreach(UiStateMachine subStateMachine in m_subStateMachines)

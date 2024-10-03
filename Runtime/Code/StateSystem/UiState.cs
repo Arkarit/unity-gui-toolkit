@@ -38,12 +38,15 @@ namespace GuiToolkit.UiStateSystem
 		private Vector3 m_scale;
 		[SerializeField]
 		private float m_alpha;
+		[SerializeField]
+		private bool m_interactable;
 
 
 #if UNITY_EDITOR
 		public UiState() { }
-		public UiState( SerializedProperty _prop)
+		public UiState(SerializedProperty _prop)
 		{
+			
 			m_name				= (string) _prop.FindPropertyRelative("m_name").stringValue;
 			m_stateMachine		= (UiStateMachine) _prop.FindPropertyRelative("m_stateMachine").objectReferenceValue;
 			m_gameObject		= (GameObject) _prop.FindPropertyRelative("m_gameObject").objectReferenceValue;
@@ -58,11 +61,14 @@ namespace GuiToolkit.UiStateSystem
 			m_rotation			= (Vector3) _prop.FindPropertyRelative("m_rotation").vector3Value;
 			m_scale				= (Vector3) _prop.FindPropertyRelative("m_scale").vector3Value;
 			m_alpha				= (float) _prop.FindPropertyRelative("m_alpha").floatValue;
+			m_interactable		= (bool) _prop.FindPropertyRelative("m_interactable").boolValue;
 		}
 
-		public void SetSerializedProperty( SerializedProperty _prop)
+		public void SetSerializedProperty(SerializedProperty _prop, bool _setName = true)
 		{
-			_prop.FindPropertyRelative("m_name").stringValue = m_name;
+			if (_setName)
+				_prop.FindPropertyRelative("m_name").stringValue = m_name;
+			
 			_prop.FindPropertyRelative("m_stateMachine").objectReferenceValue = m_stateMachine;
 			_prop.FindPropertyRelative("m_gameObject").objectReferenceValue = m_gameObject;
 			_prop.FindPropertyRelative("m_rectTransform").objectReferenceValue = m_rectTransform;
@@ -76,6 +82,7 @@ namespace GuiToolkit.UiStateSystem
 			_prop.FindPropertyRelative("m_rotation").vector3Value = m_rotation;
 			_prop.FindPropertyRelative("m_scale").vector3Value = m_scale;
 			_prop.FindPropertyRelative("m_alpha").floatValue = m_alpha;
+			_prop.FindPropertyRelative("m_interactable").boolValue = m_interactable;
 		}
 #endif
 
@@ -171,11 +178,18 @@ namespace GuiToolkit.UiStateSystem
 			{
 				m_alpha = m_canvasGroup.alpha;
 			}
+			if ((_support & EStatePropertySupport.Interactable) != 0 && m_canvasGroup != null)
+			{
+				m_interactable = m_canvasGroup.interactable;
+			}
 		}
 #endif
 
 		public void ApplyInstant()
 		{
+			if (m_rectTransform == null)
+				return;
+			
 			if ((_support & EStatePropertySupport.SizePosition) != 0)
 			{
 				m_rectTransform.sizeDelta = m_sizeDelta;
@@ -205,9 +219,16 @@ namespace GuiToolkit.UiStateSystem
 			{
 				m_canvasGroup.alpha = m_alpha;
 			}
+			if ((_support & EStatePropertySupport.Interactable) != 0 && m_canvasGroup != null)
+			{
+				m_canvasGroup.interactable = m_interactable;
+			}
 		}
 		public void Apply( UiState _from, float _normalizedValue )
 		{
+			if (m_rectTransform == null)
+				return;
+			
 			if ((_support & EStatePropertySupport.SizePosition) != 0)
 			{
 				m_rectTransform.sizeDelta = Vector2.LerpUnclamped(_from.m_sizeDelta, m_sizeDelta, _normalizedValue);
@@ -240,6 +261,10 @@ namespace GuiToolkit.UiStateSystem
 			{
 				float val = Mathf.Lerp(_from.m_alpha, m_alpha, _normalizedValue);
 				m_canvasGroup.alpha = val;
+			}
+			if ((_support & EStatePropertySupport.Interactable) != 0 && m_canvasGroup != null)
+			{
+				m_canvasGroup.interactable = m_interactable;
 			}
 		}
 

@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -20,8 +21,10 @@ namespace GuiToolkit.UiStateSystem.Editor
 		public SerializedProperty m_transitionsProp;
 		public SerializedProperty m_pristineProp;
 		public SerializedProperty m_subStateMachinesProp;
+		public SerializedProperty m_autoSetFirstStateOnEnableProp;
 		private static bool s_drawDefaultInspector = false;
 		private string m_newStateName;
+		private UiStateMachine m_thisStateMachine;
 
 		public void OnEnable()
 		{
@@ -33,31 +36,38 @@ namespace GuiToolkit.UiStateSystem.Editor
 			m_transitionsProp = serializedObject.FindProperty("m_transitions");
 			m_pristineProp = serializedObject.FindProperty("m_pristine");
 			m_subStateMachinesProp = serializedObject.FindProperty("m_subStateMachines");
+			m_autoSetFirstStateOnEnableProp = serializedObject.FindProperty("m_autoSetFirstStateOnEnable");
 		}
 
 		public override void OnInspectorGUI()
 		{
+			GUILayout.Label("Debug", EditorStyles.boldLabel);
 			s_drawDefaultInspector = GUILayout.Toggle(s_drawDefaultInspector, "Show Debug Data");
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			if (s_drawDefaultInspector)
 				DrawDefaultInspector();
 
-			UiStateMachine thisStateMachine = (UiStateMachine)target;
+			m_thisStateMachine = (UiStateMachine)target;
 
-			SetDefaultValuesIfNecessary(thisStateMachine);
+			SetDefaultValuesIfNecessary();
 
 			EditorStyles.popup.fixedHeight = EditorUiUtility.NORMAL_POPUP_HEIGHT;
 
+			GUILayout.Label("General", EditorStyles.boldLabel);
+			EditorGUILayout.PropertyField(m_autoSetFirstStateOnEnableProp);
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+			
 			DisplaySupportFlags();
-			DisplayGameObjects(thisStateMachine);
-			DisplayStates(thisStateMachine);
-			bool exitGui = DisplayTransitionList(thisStateMachine);
+			DisplayGameObjects();
+			DisplayStates();
+			bool exitGui = DisplayTransitionList();
 
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 
-			TidyUpAndApply(exitGui);
+			TidyUpAndApply(serializedObject, m_thisStateMachine, exitGui);
 		}
 
-		private void SetDefaultValuesIfNecessary( UiStateMachine _stateMachine )
+		private void SetDefaultValuesIfNecessary()
 		{
 			if (m_pristineProp.boolValue)
 			{
@@ -65,7 +75,7 @@ namespace GuiToolkit.UiStateSystem.Editor
 				if (m_gameObjectsProp.arraySize == 0)
 				{
 					m_supportProp.longValue = (long)EStatePropertySupport.All;
-					FillWithChildren(_stateMachine, _stateMachine.gameObject, true, false);
+					FillWithChildren(m_thisStateMachine.gameObject, true, false);
 					CreateState("Default");
 				}
 			}
@@ -86,6 +96,7 @@ namespace GuiToolkit.UiStateSystem.Editor
 			EditorGUILayout.EndHorizontal();
 			EditorGUILayout.BeginHorizontal();
 			DisplaySupportFlag(EStatePropertySupport.Alpha, "Alpha", ref support, width);
+			DisplaySupportFlag(EStatePropertySupport.Interactable, "Interactable", ref support, width);
 			DisplaySupportFlag(EStatePropertySupport.Active, "Active", ref support, width);
 			EditorGUILayout.EndHorizontal();
 			EditorGUILayout.BeginHorizontal();
@@ -96,7 +107,7 @@ namespace GuiToolkit.UiStateSystem.Editor
 			m_supportProp.longValue = (long)support;
 		}
 
-		private void DisplaySupportFlag( EStatePropertySupport _flag, string name, ref EStatePropertySupport _values, int _width )
+		private void DisplaySupportFlag(EStatePropertySupport _flag, string name, ref EStatePropertySupport _values, int _width)
 		{
 			bool isSet = (_values & _flag) != 0;
 			bool newSet = GUILayout.Toggle(isSet, name, GUILayout.Width(_width));
@@ -106,7 +117,7 @@ namespace GuiToolkit.UiStateSystem.Editor
 				_values &= ~_flag;
 		}
 
-		private void DisplayGameObjects( UiStateMachine _stateMachine )
+		private void DisplayGameObjects()
 		{
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			GUILayout.Label("State Game Objects", EditorStyles.boldLabel);
@@ -132,7 +143,7 @@ namespace GuiToolkit.UiStateSystem.Editor
 
 			if (fillWithChildren || fillWithSelf)
 			{
-				FillWithChildren(_stateMachine, _stateMachine.gameObject, fillWithSelf, fillWithChildren);
+				FillWithChildren(m_thisStateMachine.gameObject, fillWithSelf, fillWithChildren);
 			}
 		}
 
@@ -145,22 +156,24 @@ namespace GuiToolkit.UiStateSystem.Editor
 			});
 		}
 
-		private void DisplayStates( UiStateMachine _stateMachine )
+		private void DisplayStates()
 		{
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			GUILayout.Label("State selection", EditorStyles.boldLabel);
 
-			DisplayCurrentStatePopup(_stateMachine);
-			DisplayRecordButton(_stateMachine);
-			DisplayDeleteStateButton(_stateMachine);
+			DisplayCurrentStatePopup();
+			DisplayRecordButton();
+			DisplayDeleteStateButton();
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			GUILayout.Label("States", EditorStyles.boldLabel);
-			DisplayNewStateField();
+			DisplayNewOrRenameStateField();
 			GUILayout.Space(EditorUiUtility.SMALL_SPACE_HEIGHT);
 			DisplayClearAllStatesButton();
+			GUILayout.Space(EditorUiUtility.SMALL_SPACE_HEIGHT);
+			DisplayCopyStateValuesPopup();
 		}
 
-		private void DisplayDeleteStateButton( UiStateMachine _stateMachine )
+		private void DisplayDeleteStateButton()
 		{
 			if (string.IsNullOrEmpty(m_currentStateNameProp.stringValue))
 				return;
@@ -169,26 +182,71 @@ namespace GuiToolkit.UiStateSystem.Editor
 			{
 				// Note: we only delete the state name here.
 				// The matching states are deleted by TidyUpAndApply()
-				int selected = _stateMachine.GetStateNameIndex(m_currentStateNameProp.stringValue);
+				int selected = m_thisStateMachine.GetStateNameIndex(m_currentStateNameProp.stringValue);
 				if (selected < 0)
 					return;
 				m_stateNamesProp.DeleteArrayElementAtIndex(selected);
 				m_currentStateNameProp.stringValue = m_stateNamesProp.arraySize > 0 ? m_stateNamesProp.GetArrayElementAtIndex(0).stringValue : "";
-				TidyUpAndApply();
-				_stateMachine.ApplyInstant();
+				TidyUpAndApply(serializedObject, m_thisStateMachine);
+				m_thisStateMachine.ApplyInstant();
 			});
 		}
 
-		private void DisplayCurrentStatePopup( UiStateMachine _stateMachine )
+		private void DisplayCurrentStatePopup()
 		{
-			int selected = _stateMachine.GetStateNameIndex(m_currentStateNameProp.stringValue);
+			DisplayStatePopup("Current State", true, (prev, curr) =>
+			{
+				m_currentStateNameProp.stringValue = m_thisStateMachine.StateNames[curr];
+				serializedObject.ApplyModifiedProperties();
+				m_thisStateMachine.ApplyInstant();
+			});
+		}
+
+		private void DisplayCopyStateValuesPopup()
+		{
+			DisplayStatePopup("Copy values from", false, (prev, curr) =>
+			{
+				string nameToCopyTo = m_thisStateMachine.StateNames[prev];
+				string nameToCopyFrom = m_thisStateMachine.StateNames[curr];
+				for (int i=0; i<m_statesProp.arraySize; i++)
+				{
+					var stateProp = m_statesProp.GetArrayElementAtIndex(i);
+					var state = stateProp.boxedValue as UiState;
+					if (state == null)
+						continue;
+					
+					if (state.Name != nameToCopyTo)
+						continue;
+					
+					for (int j=0; j<m_thisStateMachine.States.Count; j++)
+					{
+						var otherState = m_thisStateMachine.States[j];
+						if (otherState.Name != nameToCopyFrom)
+							continue;
+						
+						if (otherState.GameObject != state.GameObject)
+							continue;
+						
+						otherState.SetSerializedProperty(stateProp, false);
+						break;
+					}
+				}
+				
+				serializedObject.ApplyModifiedProperties();
+				m_thisStateMachine.ApplyInstant();
+			});
+		}
+
+		private void DisplayStatePopup(string _label, bool _largeHeight, Action<int,int> onSelect)
+		{
+			int selected = m_thisStateMachine.GetStateNameIndex(m_currentStateNameProp.stringValue);
 			int oldSelected = selected;
 
 			if (selected < 0 && m_stateNamesProp.arraySize > 0)
 				selected = 0;
 
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label("Current State", GUILayout.Width(EditorGUIUtility.labelWidth));
+			GUILayout.Label(_label, GUILayout.Width(EditorGUIUtility.labelWidth));
 			if (selected >= 0)
 			{
 				int numCurrentStates = m_stateNamesProp.arraySize;
@@ -198,25 +256,28 @@ namespace GuiToolkit.UiStateSystem.Editor
 					SerializedProperty sp = m_stateNamesProp.GetArrayElementAtIndex(i);
 					options[i] = sp.stringValue;
 				}
-				EditorStyles.popup.fixedHeight = EditorUiUtility.LARGE_POPUP_HEIGHT;
-				selected = EditorGUILayout.Popup(selected, options, GUILayout.Height(EditorUiUtility.LARGE_POPUP_HEIGHT - 5));
-				EditorStyles.popup.fixedHeight = EditorUiUtility.NORMAL_POPUP_HEIGHT;
 
-				m_currentStateNameProp.stringValue = _stateMachine.StateNames[selected];
+				if (_largeHeight)
+					EditorStyles.popup.fixedHeight = EditorUiUtility.LARGE_POPUP_HEIGHT;
+				
+				selected = EditorGUILayout.Popup(selected, options, GUILayout.Height(EditorUiUtility.LARGE_POPUP_HEIGHT - 5));
+				
+				if (_largeHeight)
+					EditorStyles.popup.fixedHeight = EditorUiUtility.NORMAL_POPUP_HEIGHT;
+
 				if (oldSelected != selected && !Event.current.shift)
-				{
-					serializedObject.ApplyModifiedProperties();
-					_stateMachine.ApplyInstant();
-				}
+					onSelect(oldSelected, selected);
 			}
 			else
 			{
-				GUILayout.Label("(No state created yet)", EditorUiUtility.Italic, GUILayout.Height(EditorUiUtility.LARGE_POPUP_HEIGHT - 5));
+				GUILayout.Label("(No state created yet)", EditorUiUtility.Italic,
+					GUILayout.Height(EditorUiUtility.LARGE_POPUP_HEIGHT - 5));
 			}
+
 			EditorGUILayout.EndHorizontal();
 		}
 
-		private void DisplayRecordButton( UiStateMachine _stateMachine )
+		private void DisplayRecordButton()
 		{
 			if (string.IsNullOrEmpty(m_currentStateNameProp.stringValue))
 				return;
@@ -225,12 +286,12 @@ namespace GuiToolkit.UiStateSystem.Editor
 			GUILayout.Label(" ", GUILayout.Width(EditorGUIUtility.labelWidth));
 			if (GUILayout.Button("Record", GUILayout.Height(EditorUiUtility.LARGE_BUTTON_HEIGHT)))
 			{
-				_stateMachine.Record();
+				m_thisStateMachine.Record();
 			}
 			EditorGUILayout.EndHorizontal();
 		}
 
-		private void DisplayNewStateField()
+		private void DisplayNewOrRenameStateField()
 		{
 			EditorGUILayout.BeginHorizontal();
 			GUILayout.Label("New State", GUILayout.Width(EditorGUIUtility.labelWidth));
@@ -238,16 +299,16 @@ namespace GuiToolkit.UiStateSystem.Editor
 			EditorGUILayout.EndHorizontal();
 
 			EditorUiUtility.Button(" ", "Create", delegate { CreateState(); });
+			EditorUiUtility.Button(" ", "Rename", delegate { RenameState(); });
 		}
 
-
-		private bool DisplayTransitionList( UiStateMachine _stateMachine )
+		private bool DisplayTransitionList()
 		{
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
-			return UiTransitionSubEditor.DisplayTransitionList(_stateMachine, m_transitionsProp, s_drawDefaultInspector);
+			return UiTransitionSubEditor.DisplayTransitionList(m_thisStateMachine, m_transitionsProp, s_drawDefaultInspector);
 		}
 
-		private void FillWithChildren( UiStateMachine _stateMachine, GameObject _gameObject, bool _includeSelf, bool _includeChildren )
+		private void FillWithChildren(GameObject _gameObject, bool _includeSelf, bool _includeChildren)
 		{
 			Debug.Assert(_includeSelf || _includeChildren);
 			if (!_includeChildren)
@@ -257,7 +318,7 @@ namespace GuiToolkit.UiStateSystem.Editor
 				return;
 			}
 
-			HashSet<Transform> exclusionSet = _stateMachine.GetSubStateMachineExclusionSet();
+			HashSet<Transform> exclusionSet = m_thisStateMachine.GetSubStateMachineExclusionSet();
 
 			List<GameObject> children = new List<GameObject>();
 			FillWithChildrenRecursive(children, exclusionSet, _gameObject.transform, _includeSelf);
@@ -268,17 +329,16 @@ namespace GuiToolkit.UiStateSystem.Editor
 				m_gameObjectsProp.GetArrayElementAtIndex(i).objectReferenceValue = children[i];
 		}
 
-		private void FillWithChildrenRecursive( List<GameObject> _children, HashSet<Transform> _exclusionList, Transform _transform, bool _include )
+		private void FillWithChildrenRecursive(List<GameObject> _children, HashSet<Transform> _exclusionList, Transform _transform, bool _include)
 		{
-
 			if (_include)
 			{
-				if (!_exclusionList.Contains( _transform ))
+				if (!_exclusionList.Contains(_transform) && _transform is RectTransform)
 					_children.Add(_transform.gameObject);
 			}
 
-			foreach( Transform child in _transform)
-				FillWithChildrenRecursive(_children, _exclusionList, child, true );
+			foreach (Transform child in _transform)
+				FillWithChildrenRecursive(_children, _exclusionList, child, true);
 		}
 
 		private void CreateState()
@@ -287,13 +347,19 @@ namespace GuiToolkit.UiStateSystem.Editor
 			m_newStateName = "";
 		}
 
-		private void CreateState( string _stateName )
+		private void RenameState()
+		{
+			RenameState(m_newStateName);
+			m_newStateName = "";
+		}
+
+		private void CreateState(string _stateName)
 		{
 			UiStateMachine thisStateMachine = (UiStateMachine)target;
 
 			if (string.IsNullOrWhiteSpace(_stateName))
 			{
-				EditorUtility.DisplayDialog("Can not create state", "UiState name is empty", "OK");
+				EditorUtility.DisplayDialog("Can not create state", "UIState name is empty", "OK");
 				return;
 			}
 
@@ -303,7 +369,7 @@ namespace GuiToolkit.UiStateSystem.Editor
 				{
 					if (stateName == _stateName)
 					{
-						EditorUtility.DisplayDialog("Can not create state", "UiState '" + stateName + "' already exists", "OK");
+						EditorUtility.DisplayDialog("Can not create state", "UIState '" + stateName + "' already exists", "OK");
 						return;
 					}
 				}
@@ -316,66 +382,179 @@ namespace GuiToolkit.UiStateSystem.Editor
 			m_currentStateNameProp.stringValue = thisStateMachine.GetStateName(selected);
 		}
 
-		private void TidyUpAndApply(bool _exitGui = false)
+		private void RenameState(string _newStateName)
 		{
-			_exitGui |= RemoveDeletedGameObjects();
-			_exitGui |= RemoveObsoleteStates();
-			UpdateStates();
-			CreateMissingStates();
-			serializedObject.ApplyModifiedProperties();
+			UiStateMachine thisStateMachine = (UiStateMachine)target;
+
+			if (string.IsNullOrWhiteSpace(_newStateName))
+			{
+				EditorUtility.DisplayDialog("Can not rename state", "UIState name is empty", "OK");
+				return;
+			}
+
+			if (thisStateMachine.StateNames != null)
+			{
+				foreach (var stateName in thisStateMachine.StateNames)
+				{
+					if (stateName == _newStateName)
+					{
+						EditorUtility.DisplayDialog("Can not rename state", "UIState '" + stateName + "' already exists", "OK");
+						return;
+					}
+				}
+			}
+
+			var currentStateName = thisStateMachine.State;
+			int numStateNames = m_stateNamesProp.arraySize;
+			for (int i = 0; i < numStateNames; i++)
+			{
+				string s = m_stateNamesProp.GetArrayElementAtIndex(i).stringValue;
+				if (s == currentStateName)
+				{
+					m_stateNamesProp.GetArrayElementAtIndex(i).stringValue = _newStateName;
+					break;
+				}
+			}
+			
+			int numStates = m_statesProp.arraySize;
+			for (int i = 0; i < numStates; i++)
+			{
+				SerializedProperty stateProp = m_statesProp.GetArrayElementAtIndex(i);
+				RenamePropIfMatches(stateProp, "m_name", currentStateName, _newStateName);
+			}
+
+			int numTransitions = m_transitionsProp.arraySize;
+			for (int i = 0; i < numTransitions; i++)
+			{
+				SerializedProperty transitionProp = m_transitionsProp.GetArrayElementAtIndex(i);
+				
+				RenamePropIfMatches(transitionProp, "m_from", currentStateName, _newStateName);
+				RenamePropIfMatches(transitionProp, "m_to", currentStateName, _newStateName);
+			}
+
+			m_currentStateNameProp.stringValue = _newStateName;
+		}
+		
+		private static void RenamePropIfMatches(SerializedProperty prop, string _propName, string _nameToCheck, string _newName)
+		{
+			SerializedProperty subProp = prop.FindPropertyRelative(_propName);
+			string name = subProp.stringValue;
+			if (name == _nameToCheck)
+				subProp.stringValue = _newName;
+		}
+
+		private static void TidyUpAndApply
+		(
+			SerializedObject _serializedObject, 
+			UiStateMachine _stateMachine, 
+			bool _exitGui = false
+		)
+		{
+			SerializedProperty gameObjectsProp = _serializedObject.FindProperty("m_gameObjects");
+			SerializedProperty stateNamesProp = _serializedObject.FindProperty("m_stateNames");
+			SerializedProperty statesProp = _serializedObject.FindProperty("m_states");
+			SerializedProperty subStateMachinesProp = _serializedObject.FindProperty("m_subStateMachines");
+			
+			_exitGui |= RemoveDeletedGameObjects(gameObjectsProp);
+			_exitGui |= RemoveObsoleteStates(_stateMachine, stateNamesProp, statesProp);
+			UpdateStates(statesProp);
+			CreateMissingStates(_serializedObject, _stateMachine, stateNamesProp, statesProp, gameObjectsProp);
+			
+			int subStateMachineCount = subStateMachinesProp.arraySize;
+			for (int i=0; i<subStateMachineCount; i++)
+				TidyUpAndApplyRecursive(subStateMachinesProp.GetArrayElementAtIndex(i), ref _exitGui);
+			
+			_serializedObject.ApplyModifiedProperties();
 			if (_exitGui)
 				EditorGUIUtility.ExitGUI();
 		}
 
-		private bool RemoveDeletedGameObjects()
+		private static void TidyUpAndApplyRecursive 
+		(
+			SerializedProperty _stateMachineProp, 
+			ref bool _exitGui
+		)
+		{
+			UiStateMachine _stateMachine = (UiStateMachine) _stateMachineProp.objectReferenceValue;
+			if (_stateMachine == null)
+				return;
+			
+			SerializedObject serializedObject = new SerializedObject(_stateMachine);
+			
+			SerializedProperty gameObjectsProp = serializedObject.FindProperty("m_gameObjects");
+			SerializedProperty stateNamesProp = serializedObject.FindProperty("m_stateNames");
+			SerializedProperty statesProp = serializedObject.FindProperty("m_states");
+			SerializedProperty subStateMachinesProp = serializedObject.FindProperty("m_subStateMachines");
+			
+			_exitGui |= RemoveDeletedGameObjects(gameObjectsProp);
+			_exitGui |= RemoveObsoleteStates(_stateMachine, stateNamesProp, statesProp);
+			UpdateStates(statesProp);
+			CreateMissingStates(serializedObject, _stateMachine, stateNamesProp, statesProp, gameObjectsProp);
+			
+			int subStateMachineCount = subStateMachinesProp.arraySize;
+			for (int i=0; i<subStateMachineCount; i++)
+				TidyUpAndApplyRecursive(subStateMachinesProp.GetArrayElementAtIndex(i), ref _exitGui);
+			
+			serializedObject.ApplyModifiedProperties();
+		}
+
+		private static bool RemoveDeletedGameObjects(SerializedProperty _gameObjectsProp)
 		{
 			bool result = false;
-			for (int i = 0; i < m_gameObjectsProp.arraySize; i++)
+			for (int i = 0; i < _gameObjectsProp.arraySize; i++)
 			{
-				GameObject go = m_gameObjectsProp.GetArrayElementAtIndex(i).objectReferenceValue as GameObject;
+				GameObject go = _gameObjectsProp.GetArrayElementAtIndex(i).objectReferenceValue as GameObject;
 				if (go == null)
 				{
-					EditorGeneralUtility.RemoveArrayElementAtIndex(m_gameObjectsProp, i);
+					EditorGeneralUtility.RemoveArrayElementAtIndex(_gameObjectsProp, i);
 					result = true;
 				}
 			}
 			return result;
 		}
 
-		private bool RemoveObsoleteStates()
+		private static bool RemoveObsoleteStates
+		(
+			UiStateMachine _stateMachine, 
+			SerializedProperty _stateNamesProp, 
+			SerializedProperty _statesProp
+		)
 		{
 			bool result = false;
 			HashSet<string> existingStates = new HashSet<string>();
 
-			for (int i = 0; i < m_stateNamesProp.arraySize; i++)
-				existingStates.Add(m_stateNamesProp.GetArrayElementAtIndex(i).stringValue);
+			for (int i = 0; i < _stateNamesProp.arraySize; i++)
+				existingStates.Add(_stateNamesProp.GetArrayElementAtIndex(i).stringValue);
 
-			for (int i = 0; i < m_statesProp.arraySize; i++)
+			for (int i = 0; i < _statesProp.arraySize; i++)
 			{
-				SerializedProperty stateProp = m_statesProp.GetArrayElementAtIndex(i);
-				SerializedProperty goProp = stateProp.FindPropertyRelative("m_gameObject");
-				SerializedProperty nameProp = stateProp.FindPropertyRelative("m_name");
+				SerializedProperty stateProp = _statesProp.GetArrayElementAtIndex(i);
+				SerializedProperty stateGoProp = stateProp.FindPropertyRelative("m_gameObject");
+				SerializedProperty stateNameProp = stateProp.FindPropertyRelative("m_name");
+				var stateGo = stateGoProp.objectReferenceValue as GameObject;
+				var stateName = stateNameProp.stringValue;
 
-				if (goProp.objectReferenceValue == null || !existingStates.Contains(nameProp.stringValue))
+				if (stateGo == null || !_stateMachine.GameObjects.Contains(stateGo) || !existingStates.Contains(stateName))
 				{
-					EditorGeneralUtility.RemoveArrayElementAtIndex(m_statesProp, i);
+					EditorGeneralUtility.RemoveArrayElementAtIndex(_statesProp, i);
 					result = true;
 				}
 			}
+			
 			return result;
 		}
 
-		private void UpdateStates()
+		private static void UpdateStates(SerializedProperty _statesProp)
 		{
-			for (int i = 0; i < m_statesProp.arraySize; i++)
+			for (int i = 0; i < _statesProp.arraySize; i++)
 			{
-				SerializedProperty stateProp = m_statesProp.GetArrayElementAtIndex(i);
+				SerializedProperty stateProp = _statesProp.GetArrayElementAtIndex(i);
 				SerializedProperty goProp = stateProp.FindPropertyRelative("m_gameObject");
 				SerializedProperty rectTransformProp = stateProp.FindPropertyRelative("m_rectTransform");
 				SerializedProperty layoutElementProp = stateProp.FindPropertyRelative("m_layoutElement");
 				SerializedProperty canvasGroupProp = stateProp.FindPropertyRelative("m_canvasGroup");
 
-				GameObject go = (GameObject) goProp.objectReferenceValue;
+				GameObject go = (GameObject)goProp.objectReferenceValue;
 				if (go == null)
 					continue;
 
@@ -385,27 +564,30 @@ namespace GuiToolkit.UiStateSystem.Editor
 			}
 		}
 
-
-		private void CreateMissingStates()
+		private static void CreateMissingStates
+		(
+			SerializedObject _serializedObject, 
+			UiStateMachine _stateMachine, 
+			SerializedProperty _stateNamesProp, 
+			SerializedProperty _statesProp, 
+			SerializedProperty _gameObjectsProp
+		)
 		{
-			if (m_statesProp.arraySize == m_stateNamesProp.arraySize * m_gameObjectsProp.arraySize)
+			if (_statesProp.arraySize == _stateNamesProp.arraySize * _gameObjectsProp.arraySize)
 				return;
 
-			UiStateMachine thisStateMachine = (UiStateMachine)target;
-
-
-			UiState[] states = new UiState[m_statesProp.arraySize];
+			UiState[] states = new UiState[_statesProp.arraySize];
 			for (int i = 0; i < states.Length; i++)
-				states[i] = new UiState( m_statesProp.GetArrayElementAtIndex(i));
+				states[i] = new UiState(_statesProp.GetArrayElementAtIndex(i));
 
-			GameObject[] gameObjects = new GameObject[m_gameObjectsProp.arraySize];
+			GameObject[] gameObjects = new GameObject[_gameObjectsProp.arraySize];
 			for (int i = 0; i < gameObjects.Length; i++)
-				gameObjects[i] = m_gameObjectsProp.GetArrayElementAtIndex(i).objectReferenceValue as GameObject;
+				gameObjects[i] = _gameObjectsProp.GetArrayElementAtIndex(i).objectReferenceValue as GameObject;
 
-			int numStateNames = m_stateNamesProp.arraySize;
+			int numStateNames = _stateNamesProp.arraySize;
 			for (int i = 0; i < numStateNames; i++)
 			{
-				string stateName = m_stateNamesProp.GetArrayElementAtIndex(i).stringValue;
+				string stateName = _stateNamesProp.GetArrayElementAtIndex(i).stringValue;
 				foreach (var gameObject in gameObjects)
 				{
 					bool found = false;
@@ -420,17 +602,16 @@ namespace GuiToolkit.UiStateSystem.Editor
 
 					if (!found)
 					{
-						int newElemIdx = m_statesProp.arraySize++;
+						int newElemIdx = _statesProp.arraySize++;
 						UiState newState = new UiState();
-						newState.SetBasicValues(stateName, thisStateMachine, gameObject);
-						serializedObject.ApplyModifiedProperties();
+						newState.SetBasicValues(stateName, _stateMachine, gameObject);
+						_serializedObject.ApplyModifiedProperties();
 						newState.Record();
-						newState.SetSerializedProperty(m_statesProp.GetArrayElementAtIndex(newElemIdx));
+						newState.SetSerializedProperty(_statesProp.GetArrayElementAtIndex(newElemIdx));
 					}
 				}
 			}
 		}
-
 	}
 }
 #endif
