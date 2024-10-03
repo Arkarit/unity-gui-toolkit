@@ -52,7 +52,7 @@ namespace GuiToolkit.Editor
 					//Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
 
 					Undo.RegisterCompleteObjectUndo(target, "Apply Resolution dependent components");
-					target.CopyFrom(source);
+					source.CopyTo(target);
 				}
 				Canvas.ForceUpdateCanvases();
 			}
@@ -99,7 +99,7 @@ namespace GuiToolkit.Editor
 			//TODO Unique name
 			Transform t = CreateHolder(_parent, orientationName);
 			Component result = t.GetOrCreateComponent(_target.GetType());
-			result.CopyFrom(_target);
+			_target.CopyTo(result);
 			return result;
 		}
 

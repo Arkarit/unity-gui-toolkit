@@ -58,7 +58,7 @@ namespace GuiToolkit
 		{
 			if (!m_poolEntryByGameObject.ContainsKey(_gameObject))
 			{
-				_gameObject.Destroy();
+				_gameObject.SafeDestroy();
 				return;
 			}
 

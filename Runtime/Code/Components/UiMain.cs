@@ -110,7 +110,7 @@ namespace GuiToolkit
 		{
 			if (CheckSceneValid(_sceneName))
 			{
-				m_scenes[_sceneName].gameObject.Destroy();
+				m_scenes[_sceneName].gameObject.SafeDestroy();
 				m_scenes.Remove(_sceneName);
 			}
 		}
@@ -528,7 +528,7 @@ namespace GuiToolkit
 		// Catch the most common errors in scene setup
 		private void CheckSceneSetup()
 		{
-			if (!EditorUiUtility.IsInPrefabEditingMode && m_renderMode == RenderMode.ScreenSpaceCamera || m_renderMode == RenderMode.WorldSpace)
+			if (!EditorGameObjectUtility.IsInPrefabEditingMode && m_renderMode == RenderMode.ScreenSpaceCamera || m_renderMode == RenderMode.WorldSpace)
 			{
 				Camera[] cameras = Camera.allCameras;
 				Camera uiCamera = GetComponent<Camera>();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace GuiToolkit
 {
@@ -25,23 +26,23 @@ namespace GuiToolkit
 			LocaManager.Instance.Clear();
 
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
-			EditorUiUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent);
+			EditorAssetUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent);
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
-			EditorUiUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent);
+			EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent);
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scriptable objects", 0.2f);
-			EditorUiUtility.FindAllScriptableObjects<ILocaClient>(FoundComponent);
+			EditorAssetUtility.FindAllScriptableObjects<ILocaClient>(FoundComponent);
 
-			m_numScripts = EditorUiUtility.FindAllScriptsCount();
+			m_numScripts = EditorAssetUtility.FindAllScriptsCount();
 			m_currentScriptIdx = 0;
 
-			EditorUiUtility.FindAllScripts(FoundScript);
+			EditorAssetUtility.FindAllScripts(FoundScript);
 
 			EditorUtility.ClearProgressBar();
 
 			LocaManager.Instance.WriteKeyData();
 		}
 
-		private static void FoundComponent( ILocaClient _component )
+		private static void FoundComponent(ILocaClient _component)
 		{
 			if (_component.UsesMultipleLocaKeys)
 			{

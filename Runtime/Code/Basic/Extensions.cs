@@ -14,6 +14,7 @@ namespace GuiToolkit
 {
 	public static class Extensions
 	{
+		private static readonly List<Transform> s_tempTransformList = new List<Transform>();
 		private static readonly HashSet<string> s_excludedMembers = new HashSet<string> {"name", "_parent", "parentInternal"};
 		private static readonly HashSet<Type> s_excludedTypes = new HashSet<Type> {typeof(Component), typeof(Transform), typeof(MonoBehaviour)};
 
@@ -27,6 +28,36 @@ namespace GuiToolkit
 		public static IList<T> Clone<T>( this IList<T> _listToClone ) where T : ICloneable
 		{
 			return _listToClone.Select(item => (T)item.Clone()).ToList();
+		}
+
+		public static void DestroyAllChildren( this Transform self, bool includeHidden = true, bool supportUndoIfPossible = true )
+		{
+			var childCount = self.childCount;
+			for (int i = childCount-1; i >= 0; --i)
+			{
+				var child = self.GetChild(i).gameObject;
+				if (!child.activeSelf && !includeHidden)
+					continue;
+				
+#if UNITY_EDITOR				
+				int check = self.childCount;
+				string childName = child.name;
+#endif
+				
+				child.SafeDestroy(supportUndoIfPossible);
+				
+#if UNITY_EDITOR
+				if (check == self.childCount)
+				{
+					Debug.LogError($"Game Object '{childName}' not properly destroyed!");
+				}
+#endif
+			}
+		}
+
+		public static void DestroyAllChildren( this GameObject self, bool includeHidden = true, bool supportUndoIfPossible = true )
+		{
+			DestroyAllChildren( self.transform, includeHidden, supportUndoIfPossible );
 		}
 
 		public static string GetPath(this Transform _self, char _separator = '/')
@@ -43,6 +74,26 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public static void GetChildren(this Transform self, ICollection<Transform> list)
+		{
+			list.Clear();
+			foreach (Transform child in self)
+				list.Add(child);
+		}
+
+		public static List<Transform> GetChildrenList(this Transform self)
+		{
+			List<Transform> result = new List<Transform>();
+			GetChildren(self, result);
+			return result;
+		}
+
+		public static Transform[] GetChildrenArray(this Transform self)
+		{
+			GetChildren(self, s_tempTransformList);
+			return s_tempTransformList.ToArray();
+		}
+		
 		public static void GetComponentsInDirectChildren<T>(this Transform _self, List<T> _list) where T : Component
 		{
 			_list.Clear();
@@ -490,6 +541,12 @@ namespace GuiToolkit
 			}
 
 			return _other;
+		}
+
+		public static T ShallowClone<T>(this T _this)
+		{
+			var inst = _this.GetType().GetMethod("MemberwiseClone", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+			return (T)inst?.Invoke(_this, null);
 		}
 
 		public static T CloneTo<T>(this Component _self, GameObject _to, bool _alsoIfExists = false, HashSet<string> _excludedMembers = null, HashSet<Type> _excludedTypes = null ) where T : Component

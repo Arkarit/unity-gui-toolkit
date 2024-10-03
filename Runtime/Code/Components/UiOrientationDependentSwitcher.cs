@@ -48,7 +48,7 @@ namespace GuiToolkit
 			{
 				Component source = definition.OrientationTemplates[orientationIdx];
 
-				definition.Target.CopyFrom(source);
+				source.CopyTo(definition.Target);
 
 				// Special treatments after copy
 				// -----------------------------

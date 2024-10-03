@@ -141,7 +141,7 @@ namespace GuiToolkit
 				UiPool.Instance.DoDestroy(this);
 			}
 			else
-				gameObject.Destroy();
+				gameObject.SafeDestroy();
 		}
 
 		protected override void OnDestroy()
