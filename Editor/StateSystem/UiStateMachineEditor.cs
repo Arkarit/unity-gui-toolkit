@@ -335,7 +335,7 @@ namespace GuiToolkit.UiStateSystem.Editor
 				GameObject go = m_gameObjectsProp.GetArrayElementAtIndex(i).objectReferenceValue as GameObject;
 				if (go == null)
 				{
-					EditorUiUtility.RemoveArrayElementAtIndex(m_gameObjectsProp, i);
+					EditorGeneralUtility.RemoveArrayElementAtIndex(m_gameObjectsProp, i);
 					result = true;
 				}
 			}
@@ -358,7 +358,7 @@ namespace GuiToolkit.UiStateSystem.Editor
 
 				if (goProp.objectReferenceValue == null || !existingStates.Contains(nameProp.stringValue))
 				{
-					EditorUiUtility.RemoveArrayElementAtIndex(m_statesProp, i);
+					EditorGeneralUtility.RemoveArrayElementAtIndex(m_statesProp, i);
 					result = true;
 				}
 			}

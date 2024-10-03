@@ -44,7 +44,7 @@ namespace GuiToolkit
 
 			_vertexHelper.GetUIVertexStream(s_verts);
 
-			Bounding = UiModifierUtility.GetBounds(s_verts);
+			Bounding = UiMeshModifierUtility.GetBounds(s_verts);
 
 			Prepare();
 

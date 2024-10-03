@@ -25,10 +25,10 @@ namespace GuiToolkit
 		private const string CachePrefix = "UIECache_";
 		private static readonly Dictionary<string, Component> s_cachedComponents = new();
 
-		public delegate void ComponentAssetFoundDelegate<T>(T _component)  where T:Component;
-		public delegate bool ComponentAssetFoundDelegateWithAsset<T>(T _component, GameObject _asset, string _assetPath)  where T:Component;
-		public delegate bool ComponentAssetFoundDelegateWithSceneAsset<T>(T _component, Scene _scene, string _scenePath)  where T:Component;
-		public delegate void ScriptableObjectFoundDelegate<T>(T _scriptableObject)  where T:ScriptableObject;
+		public delegate void ComponentAssetFoundDelegate<T>(T _component);
+		public delegate bool ComponentAssetFoundDelegateWithAsset<T>(T _component, GameObject _asset, string _assetPath);
+		public delegate bool ComponentAssetFoundDelegateWithSceneAsset<T>(T _component, Scene _scene, string _scenePath);
+		public delegate void ScriptableObjectFoundDelegate<T>(T _scriptableObject);
 		public delegate void ScriptFoundDelegate(string _path, string _content);
 
 		/// <summary>
@@ -39,7 +39,7 @@ namespace GuiToolkit
 		/// <param name="_foundFn"></param>
 		/// <param name="_includeInactive"></param>
 		/// <param name="_searchString"></param>
-		public static void FindAllComponentsInAllPrefabs<T>(ComponentAssetFoundDelegateWithAsset<T> _foundFn, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true) where T:Component
+		public static void FindAllComponentsInAllPrefabs<T>(ComponentAssetFoundDelegateWithAsset<T> _foundFn, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true)
 		{
 			try
 			{
@@ -86,7 +86,7 @@ namespace GuiToolkit
 		/// <param name="_foundFn"></param>
 		/// <param name="_includeInactive"></param>
 		/// <param name="_searchString"></param>
-		public static void FindAllComponentsInAllPrefabs<T>(ComponentAssetFoundDelegate<T> _foundFn, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true) where T:Component
+		public static void FindAllComponentsInAllPrefabs<T>(ComponentAssetFoundDelegate<T> _foundFn, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true)
 		{
 			FindAllComponentsInAllPrefabs<T>((_component, _, __) =>
 			{
@@ -102,7 +102,7 @@ namespace GuiToolkit
 		/// <typeparam name="T"></typeparam>
 		/// <param name="_result"></param>
 		/// <param name="_searchString"></param>
-		public static void FindAllComponentsInAllPrefabs<T>(List<T> _result, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true) where T:Component
+		public static void FindAllComponentsInAllPrefabs<T>(List<T> _result, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true)
 		{
 			_result.Clear();
 
@@ -119,7 +119,7 @@ namespace GuiToolkit
 		/// <typeparam name="T"></typeparam>
 		/// <param name="_searchString"></param>
 		/// <returns></returns>
-		public static List<T> FindAllComponentsInAllPrefabs<T>(string _searchString = null) where T:Component
+		public static List<T> FindAllComponentsInAllPrefabs<T>(string _searchString = null)
 		{
 			List<T> result = new();
 
@@ -140,7 +140,7 @@ namespace GuiToolkit
 		/// <param name="_errorIfZero">output error message if no _asset was found</param>
 		/// <param name="_errorIfMoreThanOne">output error message if more than one _asset was found</param>
 		/// <returns>Asset if found or null</returns>
-		public static T FindComponentInAllPrefabs<T>(string _searchString = null, bool _errorIfZero = false, bool _errorIfMoreThanOne = false) where T:Component
+		public static T FindComponentInAllPrefabs<T>(string _searchString = null, bool _errorIfZero = false, bool _errorIfMoreThanOne = false)
 		{
 			string nameLogStr = string.IsNullOrEmpty(_searchString) ? "" : $", search string: '{_searchString}'";
 			
@@ -151,7 +151,7 @@ namespace GuiToolkit
 				if (_errorIfZero)
 					Debug.LogError($"Didn't find any game objects with _component type '{typeof(T).Name}'{nameLogStr}");
 
-				return null;
+				return default;
 			}
 
 			if (_errorIfMoreThanOne && numFound > 1)
@@ -250,7 +250,7 @@ namespace GuiToolkit
 		/// <typeparam name="T"></typeparam>
 		/// <param name="_foundFn"></param>
 		/// <param name="_searchString"></param>
-		public static void FindAllScriptableObjects<T>(ScriptableObjectFoundDelegate<T> _foundFn, string _searchString = null) where T:ScriptableObject
+		public static void FindAllScriptableObjects<T>(ScriptableObjectFoundDelegate<T> _foundFn, string _searchString = null)
 		{
 			if (_searchString == null)
 				_searchString = string.Empty;
@@ -340,7 +340,7 @@ namespace GuiToolkit
 		/// <param name="_foundFn"></param>
 		/// <param name="_includeInactive"></param>
 		/// <param name="_searchString"></param>
-		public static void FindAllComponentsInAllScenes<T>(ComponentAssetFoundDelegateWithSceneAsset<T> _foundFn, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true) where T:Component
+		public static void FindAllComponentsInAllScenes<T>(ComponentAssetFoundDelegateWithSceneAsset<T> _foundFn, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true)
 		{
 			try
 			{
@@ -417,7 +417,7 @@ namespace GuiToolkit
 		/// <param name="_foundFn"></param>
 		/// <param name="_includeInactive"></param>
 		/// <param name="_searchString"></param>
-		public static void FindAllComponentsInAllScenes<T>(ComponentAssetFoundDelegate<T> _foundFn, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true) where T:Component
+		public static void FindAllComponentsInAllScenes<T>(ComponentAssetFoundDelegate<T> _foundFn, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true)
 		{
 			FindAllComponentsInAllScenes<T>((_component, _, __) =>
 			{

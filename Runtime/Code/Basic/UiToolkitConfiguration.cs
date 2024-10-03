@@ -79,6 +79,8 @@ namespace GuiToolkit
 		public bool m_debugLoca = false;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
+		private string m_rootDir;
+
 
 		private void OnEnable()
 		{
@@ -167,6 +169,25 @@ namespace GuiToolkit
 			settings.InitScenesByName();
 			return "Assets/" + settings.GetScenePath(_sceneName) + ".unity";
 		}
+		
+		public string GetUiToolkitRootProjectDir()
+		{
+			if (m_rootDir == null)
+			{
+				string[] guids = AssetDatabase.FindAssets("unity-gui-toolkit t:folder");
+				if (guids.Length >= 1)
+				{
+					m_rootDir = AssetDatabase.GUIDToAssetPath(guids[0]) + "/";
+				}
+				else
+				{
+					m_rootDir = "Packages/de.phoenixgrafik.ui-toolkit/Runtime/";
+				}
+			}
+			return m_rootDir;
+		}
+
+
 #endif
 	}
 }

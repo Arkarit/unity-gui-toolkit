@@ -48,7 +48,7 @@ namespace GuiToolkit
 
 			_vertexHelper.GetUIVertexStream(s_verts);
 
-			Bounding = UiModifierUtility.GetBounds(s_verts);
+			Bounding = UiMeshModifierUtility.GetBounds(s_verts);
 			for (int i = 0; i < _vertexHelper.currentVertCount; ++i)
 			{
 				_vertexHelper.PopulateUIVertex(ref s_vertex, i);

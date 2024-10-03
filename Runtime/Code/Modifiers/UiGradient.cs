@@ -69,9 +69,9 @@ namespace GuiToolkit
 				return;
 
 			if (m_axis == EAxis2D.Horizontal)
-				UiModifierUtility.Subdivide( _vh, keyTimes.ToList(), null);
+				UiMeshModifierUtility.Subdivide( _vh, keyTimes.ToList(), null);
 			else
-				UiModifierUtility.Subdivide( _vh, null, keyTimes.ToList());
+				UiMeshModifierUtility.Subdivide( _vh, null, keyTimes.ToList());
 		}
 
 	}

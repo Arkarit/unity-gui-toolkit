@@ -13,7 +13,7 @@ namespace GuiToolkit
 			if (!IsActive())
 				return;
 
-			UiModifierUtility.RemoveZeroQuads(_vh);
+			UiMeshModifierUtility.RemoveZeroQuads(_vh);
 		}
 	}
 

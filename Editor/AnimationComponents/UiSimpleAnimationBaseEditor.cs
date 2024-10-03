@@ -229,5 +229,7 @@ namespace GuiToolkit.Editor
 
 			return true;
 		}
+
+		public UpdateCondition editorUpdateCondition => UpdateCondition.IsNotPlaying;
 	}
 }

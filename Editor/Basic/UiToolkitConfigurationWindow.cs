@@ -169,11 +169,11 @@ namespace GuiToolkit.Editor
 				return false;
 
 			var path = AssetDatabase.GetAssetPath(currentStyleConfig);
-			return path.StartsWith(EditorFileUtility.GetUiToolkitRootProjectDir());
+			return path.StartsWith(UiToolkitConfiguration.Instance.GetUiToolkitRootProjectDir());
 		}
 
 
-		private UiStyleConfig FindStyleConfig() => EditorUiUtility.FindScriptableObject<UiStyleConfig>();
+		private UiStyleConfig FindStyleConfig() => EditorAssetUtility.FindScriptableObject<UiStyleConfig>();
 
 		[MenuItem(StringConstants.CONFIGURATION_MENU_NAME, priority = Constants.SETTINGS_MENU_PRIORITY)]
 		public static UiToolkitConfigurationWindow GetWindow()

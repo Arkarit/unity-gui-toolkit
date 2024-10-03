@@ -41,7 +41,7 @@ namespace GuiToolkit.UiStateSystem.Editor
 				EditorUiUtility.Button(" ", "Delete", delegate
 				{
 					result = true;
-					EditorUiUtility.RemoveArrayElementAtIndex(_list, i);
+					EditorGeneralUtility.RemoveArrayElementAtIndex(_list, i);
 					WorkaroundAnimationCurveRedrawProblem(i, _list);
 				});
 
