@@ -24,11 +24,11 @@ namespace GuiToolkit
 		private EMode m_mode = EMode.Horizontal;
 
 		[SerializeField]
-		[Range(5,2000)]
+		[Range(1,2000)]
 		private float m_sizeHorizontal = 50.0f;
 
 		[SerializeField]
-		[Range(5,2000)]
+		[Range(1,2000)]
 		private float m_sizeVertical = 50.0f;
 
 		public EMode Mode { get { return m_mode; } }
@@ -61,7 +61,7 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 	[CustomEditor(typeof(UiTessellator))]
-	public class UiTessellatorEditor : Editor
+	public class UITessellatorEditor : UnityEditor.Editor
 	{
 		public override void OnInspectorGUI()
 		{

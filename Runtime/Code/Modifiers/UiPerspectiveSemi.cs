@@ -15,6 +15,9 @@ namespace GuiToolkit
 		[SerializeField]
 		protected ESide2D m_lockedSide;
 
+		[SerializeField]
+		protected bool m_absoluteValues;
+
 		private Vector3 m_lastPosition;
 		private Vector3 m_lastPositionVanishingPoint;
 
@@ -128,18 +131,41 @@ namespace GuiToolkit
 	{
 		protected SerializedProperty m_vanishingPointProp;
 		protected SerializedProperty m_lockedSideProp;
+		protected SerializedProperty m_topLeftProp;
+		protected SerializedProperty m_topRightProp;
+		protected SerializedProperty m_bottomLeftProp;
+		protected SerializedProperty m_bottomRightProp;
 
 		public override void OnEnable()
 		{
 			base.OnEnable();
 			m_vanishingPointProp = serializedObject.FindProperty("m_vanishingPoint");
 			m_lockedSideProp = serializedObject.FindProperty("m_lockedSide");
+			m_topLeftProp = serializedObject.FindProperty("m_topLeft");
+			m_topRightProp = serializedObject.FindProperty("m_topRight");
+			m_bottomLeftProp = serializedObject.FindProperty("m_bottomLeft");
+			m_bottomRightProp = serializedObject.FindProperty("m_bottomRight");
 		}
 
 		protected override void Edit( UiDistortBase thisUiDistort )
 		{
 			EditorGUILayout.PropertyField(m_vanishingPointProp);
 			EditorGUILayout.PropertyField(m_lockedSideProp);
+
+			float oldLabelWidth = EditorGUIUtility.labelWidth;
+			EditorGUIUtility.labelWidth = 100;
+
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.PropertyField(m_topLeftProp);
+			EditorGUILayout.PropertyField(m_topRightProp);
+			EditorGUILayout.EndHorizontal();
+
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.PropertyField(m_bottomLeftProp);
+			EditorGUILayout.PropertyField(m_bottomRightProp);
+			EditorGUILayout.EndHorizontal();
+
+			EditorGUIUtility.labelWidth = oldLabelWidth;
 		}
 	}
 #endif

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -10,9 +9,10 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public class UiDistort : UiDistortBase
 	{
+
 		[SerializeField]
 		protected bool m_absoluteValues;
-		protected override bool IsAbsolute { get { return m_absoluteValues; } }
+		protected override bool IsAbsolute => m_absoluteValues;
 	}
 
 #if UNITY_EDITOR
@@ -20,6 +20,10 @@ namespace GuiToolkit
 	public class UiDistortEditor : UiDistortEditorBase
 	{
 		protected SerializedProperty m_absoluteValuesProp;
+		protected SerializedProperty m_topLeftProp;
+		protected SerializedProperty m_topRightProp;
+		protected SerializedProperty m_bottomLeftProp;
+		protected SerializedProperty m_bottomRightProp;
 
 		protected override bool HasMirror { get { return true; } }
 
@@ -27,14 +31,18 @@ namespace GuiToolkit
 		{
 			base.OnEnable();
 			m_absoluteValuesProp = serializedObject.FindProperty("m_absoluteValues");
+			m_topLeftProp = serializedObject.FindProperty("m_topLeft");
+			m_topRightProp = serializedObject.FindProperty("m_topRight");
+			m_bottomLeftProp = serializedObject.FindProperty("m_bottomLeft");
+			m_bottomRightProp = serializedObject.FindProperty("m_bottomRight");
 		}
 
-		protected override void Edit( UiDistortBase thisUiDistort )
+		protected override void Edit( UiDistortBase _thisUiDistort )
 		{
 			bool isAbsolute = m_absoluteValuesProp.boolValue;
 			EditorGUILayout.PropertyField(m_absoluteValuesProp);
 			if (isAbsolute != m_absoluteValuesProp.boolValue)
-				ChangeAbsRel(thisUiDistort, m_absoluteValuesProp.boolValue);
+				ChangeAbsRel(_thisUiDistort, m_absoluteValuesProp.boolValue);
 
 			float oldLabelWidth = EditorGUIUtility.labelWidth;
 			EditorGUIUtility.labelWidth = 100;
@@ -62,7 +70,7 @@ namespace GuiToolkit
 			m_bottomRightProp.vector2Value *= fac;
 		}
 
-		protected override void Edit2( UiDistortBase thisUiDistort )
+		protected override void Edit2( UiDistortBase _thisUiDistort )
 		{
 			if (GUILayout.Button("Reset"))
 			{

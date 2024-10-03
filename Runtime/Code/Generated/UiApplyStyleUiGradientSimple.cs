@@ -17,8 +17,8 @@ namespace GuiToolkit.Style
 				try { SpecificMonoBehaviour.ColorLeftOrTop = SpecificStyle.ColorLeftOrTop.Value; } catch {}
 			if (SpecificStyle.ColorRightOrBottom.IsApplicable)
 				try { SpecificMonoBehaviour.ColorRightOrBottom = SpecificStyle.ColorRightOrBottom.Value; } catch {}
-			if (SpecificStyle.Axis.IsApplicable)
-				try { SpecificMonoBehaviour.Axis = SpecificStyle.Axis.Value; } catch {}
+			if (SpecificStyle.Orientation.IsApplicable)
+				try { SpecificMonoBehaviour.Orientation = SpecificStyle.Orientation.Value; } catch {}
 		}
 
 		public override UiAbstractStyleBase CreateStyle(string _name, UiAbstractStyleBase _template = null)
@@ -38,15 +38,15 @@ namespace GuiToolkit.Style
 				result.ColorLeftOrTop.IsApplicable = specificTemplate.ColorLeftOrTop.IsApplicable;
 				result.ColorRightOrBottom.Value = specificTemplate.ColorRightOrBottom.Value;
 				result.ColorRightOrBottom.IsApplicable = specificTemplate.ColorRightOrBottom.IsApplicable;
-				result.Axis.Value = specificTemplate.Axis.Value;
-				result.Axis.IsApplicable = specificTemplate.Axis.IsApplicable;
+				result.Orientation.Value = specificTemplate.Orientation.Value;
+				result.Orientation.IsApplicable = specificTemplate.Orientation.IsApplicable;
 
 				return result;
 			}
 
 			try { result.ColorLeftOrTop.Value = SpecificMonoBehaviour.ColorLeftOrTop; } catch {}
 			try { result.ColorRightOrBottom.Value = SpecificMonoBehaviour.ColorRightOrBottom; } catch {}
-			try { result.Axis.Value = SpecificMonoBehaviour.Axis; } catch {}
+			try { result.Orientation.Value = SpecificMonoBehaviour.Orientation; } catch {}
 
 			return result;
 		}

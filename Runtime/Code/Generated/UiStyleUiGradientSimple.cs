@@ -10,7 +10,7 @@ namespace GuiToolkit.Style
 	public class UiStyleUiGradientSimple : UiAbstractStyle<GuiToolkit.UiGradientSimple>
 	{
 		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
-		private class ApplicableValueEAxis2D : ApplicableValue<GuiToolkit.EAxis2D> {}
+		private class ApplicableValueOrientation : ApplicableValue<GuiToolkit.UiGradientSimple.EOrientation> {}
 
 		protected override ApplicableValueBase[] GetValueList()
 		{
@@ -18,16 +18,16 @@ namespace GuiToolkit.Style
 			{
 				m_ColorLeftOrTop,
 				m_ColorRightOrBottom,
-				m_Axis,
+				m_Orientation,
 			};
 		}
 
 		[SerializeReference] private ApplicableValueColor m_ColorLeftOrTop = new();
 		[SerializeReference] private ApplicableValueColor m_ColorRightOrBottom = new();
-		[SerializeReference] private ApplicableValueEAxis2D m_Axis = new();
+		[SerializeReference] private ApplicableValueOrientation m_Orientation = new();
 
 		public ApplicableValue<UnityEngine.Color> ColorLeftOrTop => m_ColorLeftOrTop;
 		public ApplicableValue<UnityEngine.Color> ColorRightOrBottom => m_ColorRightOrBottom;
-		public ApplicableValue<GuiToolkit.EAxis2D> Axis => m_Axis;
+		public ApplicableValue<GuiToolkit.UiGradientSimple.EOrientation> Orientation => m_Orientation;
 	}
 }

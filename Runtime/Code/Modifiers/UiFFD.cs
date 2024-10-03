@@ -81,7 +81,7 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 	[CustomEditor(typeof(UiFFD))]
-	public class UiFFDEditor : Editor
+	public class UIFFDEditor : UnityEditor.Editor
 	{
 		protected SerializedProperty m_pointsHorizontalProp;
 		protected SerializedProperty m_pointsVerticalProp;

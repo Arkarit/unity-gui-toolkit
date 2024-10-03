@@ -1,16 +1,24 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
 	[ExecuteAlways]
 	public class UiGradientSimple : UiGradientBase
 	{
-		[SerializeField]
-		protected Color m_colorLeftOrTop;
-		[SerializeField]
-		protected Color m_colorRightOrBottom;
-		[SerializeField]
-		protected EAxis2D m_axis;
+		public enum EOrientation
+		{
+			Horizontal,
+			Vertical,
+		}
+
+		[FormerlySerializedAs("m_ColorLeftOrTop")] 
+		[SerializeField] protected Color m_colorLeftOrTop;
+		[FormerlySerializedAs("m_ColorRightOrBottom")] 
+		[SerializeField] protected Color m_colorRightOrBottom;
+		[FormerlySerializedAs("m_Orientation")]
+		[FormerlySerializedAs("m_type")] 
+		[SerializeField] protected EOrientation m_orientation;
 
 		public Color ColorLeftOrTop
 		{
@@ -31,15 +39,11 @@ namespace GuiToolkit
 				SetDirty();
 			}
 		}
-
-		public EAxis2D Axis
+		
+		public EOrientation Orientation
 		{
-			get => m_axis;
-			set
-			{
-				m_axis = value;
-				SetDirty();
-			}
+			get => m_orientation;
+			set => m_orientation = value;
 		}
 
 		public void SetColors(Color _leftOrTop, Color _rightOrBottom)
@@ -54,9 +58,9 @@ namespace GuiToolkit
 			return (leftOrTop:m_colorLeftOrTop, rightOrBottom:m_colorRightOrBottom);
 		}
 
-		protected override Color GetColor( Vector2 _normVal )
+		protected override Color GetColor(Vector2 _normVal)
 		{
-			return Color.Lerp( m_colorLeftOrTop, m_colorRightOrBottom, m_axis == EAxis2D.Horizontal ? _normVal.x : 1.0f - _normVal.y );
+			return Color.Lerp( m_colorLeftOrTop, m_colorRightOrBottom, m_orientation == EOrientation.Horizontal ? _normVal.x : 1.0f - _normVal.y );
 		}
 	}
 }

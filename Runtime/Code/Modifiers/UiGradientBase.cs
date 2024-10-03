@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -23,13 +22,15 @@ namespace GuiToolkit
 
 		protected abstract Color GetColor( Vector2 _normVal );
 		protected virtual void Prepare( VertexHelper _vh ) {}
+		protected virtual bool NeedsMeshBounds => true;
 
 		public override void ModifyMesh( VertexHelper _vh )
 		{
 			if (!IsActive())
 				return;
 
-			CalcMeshBounds( _vh );
+			if (NeedsMeshBounds)
+				CalcMeshBounds( _vh );
 
 			Prepare( _vh );
 

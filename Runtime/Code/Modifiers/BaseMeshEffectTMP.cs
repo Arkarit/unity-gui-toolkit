@@ -2,7 +2,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System;
 
 namespace GuiToolkit
 {
@@ -14,7 +13,7 @@ namespace GuiToolkit
 	/// TextMeshPro has a huge flaw: It does not support mesh modifiers at all, ModifyMesh() is simply not called :(
 	/// BaseMeshEffectTMP provides a workaround for this by calling ModifyMesh() each time a m_textMeshPro text changes.
 	/// The technique/idea for this is taken from https://unitylist.com/p/i24/Mesh-Effect-For-Text-Mesh-Pro (MIT license)
-	/// The beforementioned project however is improved here by allowing modifiers to also change the mesh topology, which requires some
+	/// The aforementioned project however is improved here by allowing modifiers to also change the mesh topology, which requires some
 	/// additional tricks. The whole thing is quite a hack, but otherwise mesh modifiers weren't possible with text mesh pro at all.
 	/// 
 	/// How it works: The first active BaseMeshEffectTMP on a game object listens in a callback for TMP text changes.
@@ -110,7 +109,8 @@ namespace GuiToolkit
 			// Assign the mesh to the canvas renderer
 			if (m_canvasRenderer)
 			{
-				m_canvasRenderer.SetMesh(s_meshes[0]);
+				if (IsBoundsValid(s_meshes[0]))
+					m_canvasRenderer.SetMesh(s_meshes[0]);
 				GetComponentsInChildren(false, s_subMeshUIs);
 				int numModifiedMeshes = s_meshes.Count;
 				int numSubMeshes = s_subMeshUIs.Count;
@@ -120,13 +120,21 @@ namespace GuiToolkit
 					for (int i=0; i<numSubMeshes; i++)
 					{
 						TMP_SubMeshUI subMeshUI = s_subMeshUIs[i];
-						subMeshUI.canvasRenderer.SetMesh(s_meshes[i+1]);
+						if (IsBoundsValid(s_meshes[i+1]))
+							subMeshUI.canvasRenderer.SetMesh(s_meshes[i+1]);
 					}
 				}
+
 				s_subMeshUIs.Clear();
 			}
 
 			s_meshes.Clear();
+		}
+
+		private bool IsBoundsValid(Mesh mesh)
+		{
+			var extents = mesh.bounds.extents;
+			return extents.x > Mathf.NegativeInfinity && extents.y > Mathf.NegativeInfinity;
 		}
 
 		private void InitCanvas()
