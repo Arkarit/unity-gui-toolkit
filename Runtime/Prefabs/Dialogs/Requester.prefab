@@ -95,7 +95,7 @@ MonoBehaviour:
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}
-  m_axis: 0
+  m_orientation: 0
 --- !u!114 &2126843345276090712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,6 +292,7 @@ MonoBehaviour:
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
   m_autoStart: 0
+  m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnOrientationChange: 0
@@ -301,7 +302,7 @@ MonoBehaviour:
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 1
   m_support: 69632
-  m_target: {fileID: 2126843345544139567}
+  m_target: {fileID: 3293993525666436990}
   m_markTargetForLayoutRebuild: 0
   m_canvasScaler: {fileID: 2126843345544139564}
   m_canvasRectTransform: {fileID: 2126843345544139567}
@@ -399,7 +400,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   m_alphaImage: {fileID: 0}
-  m_alphaCanvasGroup: {fileID: 0}
+  m_alphaCanvasGroup: {fileID: 7618517870010664628}
 --- !u!1 &2126843345760536215
 GameObject:
   m_ObjectHideFlags: 0
@@ -541,6 +542,7 @@ MonoBehaviour:
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
   m_autoStart: 0
+  m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnOrientationChange: 0
@@ -783,6 +785,7 @@ MonoBehaviour:
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 1
   m_autoStart: 0
+  m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnOrientationChange: 0
@@ -1022,7 +1025,7 @@ MonoBehaviour:
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}
-  m_axis: 0
+  m_orientation: 0
 --- !u!114 &3258162625477288897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2876,6 +2879,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6075969078209465653, guid: 600b043a1570d17488917991ef0e5ba0,
         type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6075969078209465653, guid: 600b043a1570d17488917991ef0e5ba0,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6075969078209465653, guid: 600b043a1570d17488917991ef0e5ba0,
+        type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -2939,7 +2952,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: StandardPanelBackground
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2680803967743147246, guid: 600b043a1570d17488917991ef0e5ba0, type: 3}
+    - {fileID: 37045285163787125, guid: 600b043a1570d17488917991ef0e5ba0, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 6075969078209465653, guid: 600b043a1570d17488917991ef0e5ba0,
