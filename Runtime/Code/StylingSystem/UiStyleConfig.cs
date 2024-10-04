@@ -8,7 +8,7 @@ using UnityEditor;
 
 namespace GuiToolkit.Style
 {
-	[CreateAssetMenu(fileName = nameof(UiStyleConfig), menuName = StringConstants.APPLY_STYLE_GENERATOR_MENU_NAME + "UiStyleConfig")]
+	[CreateAssetMenu(fileName = nameof(UiStyleConfig), menuName = StringConstants.CREATE_STYLE_CONFIG)]
 	[ExecuteAlways]
 	public class UiStyleConfig : ScriptableObject
 	{

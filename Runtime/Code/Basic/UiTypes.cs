@@ -135,7 +135,7 @@ namespace GuiToolkit
 	/// \brief General string constants
 	public static class StringConstants
 	{
-		public const string TOOLKIT_NAME = "UI Toolkit";																				///< General Toolkit name
+		public const string TOOLKIT_NAME = "Gui Toolkit";																				///< General Toolkit name
 		public const string MENU_HEADER = TOOLKIT_NAME + "/";																			///< Menu header "folder" definition
 		public const string STYLES_HEADER = MENU_HEADER + "Styles/";
 		public const string MISC_TOOLS_MENU_HEADER = MENU_HEADER + "Miscellaneous Tools/";											    ///< Menu header for miscellaneous tools
@@ -149,6 +149,8 @@ namespace GuiToolkit
 		public const string LOCA_PLURAL_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update plurals when added a new language)";
 		public const string SCENE_CHANGE_TRACKER_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Scene Change Tracker";
 		public const string SAVE_PROJECT_ON_LOSE_FOCUS_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Save Project on lose focus";
+		public const string CREATE_MAIN_STYLE_CONFIG = STYLES_HEADER + "Main Style Config";
+		public const string CREATE_STYLE_CONFIG = STYLES_HEADER + "Style Config";
 
 		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";																			///< Prefix for all player prefs entries
 	}

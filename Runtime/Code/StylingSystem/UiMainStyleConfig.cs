@@ -6,7 +6,7 @@ using UnityEditor;
 
 namespace GuiToolkit.Style
 {
-	[CreateAssetMenu(fileName = nameof(UiMainStyleConfig), menuName = "Funatics/UiMainStyleConfig")]
+	[CreateAssetMenu(fileName = nameof(UiMainStyleConfig), menuName = StringConstants.CREATE_MAIN_STYLE_CONFIG)]
 	public class UiMainStyleConfig : UiStyleConfig
 	{
 		protected static UiMainStyleConfig s_instance;

@@ -764,7 +764,7 @@ namespace GuiToolkit.Style.Editor
 			return string.Empty;
 		}
 		
-		[MenuItem("UI Toolkit/Style Generator")]
+		[MenuItem(StringConstants.APPLY_STYLE_GENERATOR_MENU_NAME)]
 		public static UiApplyStyleGenerator GetWindow()
 		{
 			var window = GetWindow<UiApplyStyleGenerator>();
