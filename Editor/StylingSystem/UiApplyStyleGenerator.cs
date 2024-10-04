@@ -355,8 +355,7 @@ namespace GuiToolkit.Style.Editor
 			m_alternatingRowStyles[1] = new GUIStyle();
 			m_alternatingRowStyles[1].normal.background = MakeTex(1, 1, EditorUiUtility.ColorPerSkin(new Color(1.0f, 1.0f, 1.0f, 0.15f), new Color(1.0f, 1.0f, 1.0f, 0.03f)));
 
-			// leftover from ui toolkit
-			bool isInternal = false;
+			bool isInternal = EditorFileUtility.GetApplicationDataDir().Contains(".Dev-App");
 
 			InitIfNecessary(isInternal);
 			DrawHeader(isInternal);
