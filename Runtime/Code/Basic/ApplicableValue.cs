@@ -18,22 +18,24 @@ namespace GuiToolkit
 #endif
 		public abstract object RawValueObj { get; }
 		public abstract object ValueObj { get; }
+		
+		public bool TweenRunning => m_tweenRunning;
 
-		public void StartTween(object from)
+		public void StartTween(object _from)
 		{
-			m_oldValue = from;
+			m_oldValue = _from;
 			m_tweenRunning = true;
 			m_normalizedTweenAmount = 0f;
 		}
 
 		public void StopTween() => UpdateTween(1);
 
-		public void UpdateTween(float normalizedTweenAmount)
+		public void UpdateTween(float _normalizedTweenAmount)
 		{
 			if (!m_tweenRunning)
 				return;
 
-			m_normalizedTweenAmount = Mathf.Clamp01(normalizedTweenAmount);
+			m_normalizedTweenAmount = Mathf.Clamp01(_normalizedTweenAmount);
 			if (m_normalizedTweenAmount >= 1)
 				m_tweenRunning = false;
 		}
@@ -81,6 +83,12 @@ namespace GuiToolkit
 		public T Value
 		{
 			get => (T) ValueObj;
+			set => m_value = value;
+		}
+		
+		public T RawValue
+		{
+			get => (T) RawValueObj;
 			set => m_value = value;
 		}
 	}

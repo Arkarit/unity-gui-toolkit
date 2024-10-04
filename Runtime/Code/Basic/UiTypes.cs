@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 /// \file Types.cs
@@ -32,6 +32,24 @@ namespace GuiToolkit
 		Right
 	}
 
+	/// \brief Layer definition
+	/// 
+	/// The UI Toolkit makes use of layers to order UI elements visually.<BR>
+	/// E.g. a tooltip occludes a modal dialog occludes a Hud element occludes the background image.<BR>
+	/// The lower the layer definition number, the higher (more occluding)<BR>
+	/// it is regarding the visibility
+	public enum EUiLayerDefinition
+	{
+		Top = 200,				///< Topmost layer
+		Tooltip = Top * 2,		///< Use this for tool tips
+		ModalStack = Top * 3,	///< All modal dialogs
+		Popup = Top * 4,		///< Popup dialogs
+		Dialog = Top * 5,		///< Common dialogs
+		Hud = Top * 6,			///< HUD
+		Background = Top * 7,	///< Background (e.g. background image)
+		Back = Top * 8,			///< Bottommost layer
+	}
+
 	/// \brief Screen orientation enum.
 	/// Screen orientation landscape or portrait.
 	public enum EScreenOrientation
@@ -43,32 +61,15 @@ namespace GuiToolkit
 		Count
 	}
 
-	/// \brief Layer definition
-	/// 
-	/// The UI Toolkit makes use of layers to order UI elements visually.<BR>
-	/// E.g. a tooltip occludes a modal dialog occludes a Hud element occludes the background image.<BR>
-	/// The lower the layer definition number, the higher (more occluding)<BR>
-	/// it is regarding the visibility
-	public enum EUiLayerDefinition
-	{
-		Top = 200,			///< Topmost layer
-		Tooltip = 400,		///< Use this for tool tips
-		ModalStack = 600,	///< All modal dialogs
-		Popup = 800,		///< Popup dialogs
-		Dialog = 1000,		///< Common dialogs
-		Hud = 1200,			///< HUD
-		Background = 1400,	///< Background (e.g. background image)
-		Back = 1600,		///< Bottommost layer
-	}
-
 	/// \brief Visibilities of elements when scene is opened
 	public enum EDefaultSceneVisibility
 	{
-		DontCare,									 ///< Don't care. Determined by Unity active flag.
-		Visible,									 ///< Visible
-		Invisible,									 ///< Invisible
-		VisibleInDevBuild,							 ///< Only visible in dev build
-		VisibleWhen_DEFAULT_SCENE_VISIBLE_defined,	 ///< Only visible if DEFAULT_SCENE_VISIBLE is defined
+		DontCare,										///< Don't care. Determined by Unity active flag.
+		Visible,										///< Visible
+		Invisible,										///< Invisible
+		Legacy,											///< from external project, unused in toolkit itself
+		VisibleInDevBuild,								///< Only visible in dev build
+		VisibleWhen_DEFAULT_SCENE_VISIBLE_defined,		///< Only visible if DEFAULT_SCENE_VISIBLE is defined
 	}
 
 	/// \brief Stack animation type enum
@@ -87,6 +88,13 @@ namespace GuiToolkit
 		False,
 		True,
 		Indeterminate,
+	}
+
+	/// \brief Panel animation types
+	public enum EPanelAnimationType
+	{
+		Instant,
+		Animated,
 	}
 
 	/// \brief Implement this to set visibility when loaded in a scene
@@ -108,12 +116,12 @@ namespace GuiToolkit
 	/// \brief General constants
 	public static class Constants
 	{
-		public const int INVALID = -1;												  ///< General "Invalid" value definition
+		public const int INVALID = -1;												///< General "Invalid" value definition
 																					  
-		public const float HANDLE_SIZE = 0.06f;										  ///< Size for handles
-		public static Color HANDLE_COLOR = Color.yellow;							  ///< Handle color
-		public static Color HANDLE_SUPPORTING_COLOR = Color.yellow * 0.5f;		  ///< Handles "2nd order"
-		public static Color HANDLE_CAGE_LINE_COLOR = Color.yellow * 0.5f;          ///< Handle cage color
+		public const float HANDLE_SIZE = 0.08f;										///< Size for handles
+		public static Color HANDLE_COLOR = Color.yellow;							///< Handle color
+		public static Color HANDLE_SUPPORTING_COLOR = Color.yellow * 0.5f;		///< Handles "2nd order"
+		public static Color HANDLE_CAGE_LINE_COLOR = Color.yellow * 0.5f;			///< Handle cage color
 
 		public const int SETTINGS_MENU_PRIORITY = -1;
 		public const int MISC_MENU_PRIORITY = 1000;

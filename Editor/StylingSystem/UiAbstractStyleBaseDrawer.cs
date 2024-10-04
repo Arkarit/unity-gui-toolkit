@@ -48,7 +48,7 @@ namespace GuiToolkit.Style.Editor
 							"Cancel"
 					))
 					{
-						UiEvents.EvDeleteStyle.InvokeAlways(currentStyle);
+						UiEventDefinitions.EvDeleteStyle.InvokeAlways(null, currentStyle);
 						return;
 					}
 				}
@@ -86,10 +86,10 @@ namespace GuiToolkit.Style.Editor
 				if (EditorGUI.EndChangeCheck())
 				{
 					Property.serializedObject.ApplyModifiedProperties();
-					UiEvents.EvSkinChanged.InvokeAlways();
+					UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 					if (m_applicableChanged)
 					{
-						UiEvents.EvStyleApplicableChanged.InvokeAlways(currentStyle);
+						UiEventDefinitions.EvStyleApplicableChanged.InvokeAlways(null, currentStyle);
 #if UNITY_EDITOR
 						UiStyleConfig.EditorSave(UiStyleConfig.Instance);
 #endif

@@ -61,11 +61,11 @@ namespace GuiToolkit.Style
 
 		public virtual void Init()
 		{
-			UiEvents.EvStyleApplicableChanged.RemoveListener(OnStyleApplicableChanged);
-			UiEvents.EvStyleApplicableChanged.AddListener(OnStyleApplicableChanged);
+			UiEventDefinitions.EvStyleApplicableChanged.RemoveListener(OnStyleApplicableChanged);
+			UiEventDefinitions.EvStyleApplicableChanged.AddListener(OnStyleApplicableChanged);
 		}
 
-		private void OnStyleApplicableChanged(UiAbstractStyleBase _from)
+		private void OnStyleApplicableChanged(UiStyleConfig _,UiAbstractStyleBase _from)
 		{
 			if (_from == this || _from == null)
 				return;

@@ -121,7 +121,7 @@ namespace GuiToolkit.Style.Editor
 				    "Cancel"
 			    ))
 				{
-					UiEvents.EvDeleteSkin.InvokeAlways(skinName);
+					UiEventDefinitions.EvDeleteSkin.InvokeAlways(null, skinName);
 				}
 			}
 		}

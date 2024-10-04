@@ -23,12 +23,12 @@ namespace GuiToolkit.Style
 
 		protected virtual void OnEnable()
 		{
-			UiEvents.EvScreenOrientationChange.AddListener(OnScreenOrientationChanged);
+			UiEventDefinitions.EvScreenOrientationChange.AddListener(OnScreenOrientationChanged);
 		}
 
 		protected virtual void OnDisable()
 		{
-			UiEvents.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChanged);
+			UiEventDefinitions.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChanged);
 		}
 
 		private void OnScreenOrientationChanged(EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation)

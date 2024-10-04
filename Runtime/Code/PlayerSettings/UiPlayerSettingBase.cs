@@ -33,12 +33,12 @@ namespace GuiToolkit
 		protected override void AddEventListeners()
 		{
 			base.AddEventListeners();
-			UiEvents.EvPlayerSettingChanged.AddListener(OnPlayerSettingChanged);
+			UiEventDefinitions.EvPlayerSettingChanged.AddListener(OnPlayerSettingChanged);
 		}
 
 		protected override void RemoveEventListeners()
 		{
-			UiEvents.EvPlayerSettingChanged.RemoveListener(OnPlayerSettingChanged);
+			UiEventDefinitions.EvPlayerSettingChanged.RemoveListener(OnPlayerSettingChanged);
 			base.RemoveEventListeners();
 		}
 

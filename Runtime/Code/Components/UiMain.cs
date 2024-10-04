@@ -489,7 +489,7 @@ namespace GuiToolkit
 			if (orientation == s_screenOrientation)
 				return;
 
-			UiEvents.EvScreenOrientationChange.InvokeAlways(s_screenOrientation, orientation);
+			UiEventDefinitions.EvScreenOrientationChange.InvokeAlways(s_screenOrientation, orientation);
 			s_screenOrientation = orientation;
 		}
 

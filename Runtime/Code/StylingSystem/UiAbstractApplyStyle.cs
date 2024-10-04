@@ -53,8 +53,8 @@ namespace GuiToolkit.Style
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			UiEvents.EvSkinChanged.AddListener(OnSkinChanged);
-			UiEvents.EvSkinValuesChanged.AddListener(OnSkinValuesChanged);
+			UiEventDefinitions.EvSkinChanged.AddListener(OnSkinChanged);
+			UiEventDefinitions.EvSkinValuesChanged.AddListener(OnSkinValuesChanged);
 
 			if (SpecificMonoBehaviour == null)
 				return;
@@ -65,13 +65,13 @@ namespace GuiToolkit.Style
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			UiEvents.EvSkinChanged.RemoveListener(OnSkinChanged);
-			UiEvents.EvSkinValuesChanged.RemoveListener(OnSkinValuesChanged);
+			UiEventDefinitions.EvSkinChanged.RemoveListener(OnSkinChanged);
+			UiEventDefinitions.EvSkinValuesChanged.RemoveListener(OnSkinValuesChanged);
 		}
 
-		private void OnSkinValuesChanged() => Apply();
+		private void OnSkinValuesChanged(float _) => Apply();
 
-		private void OnSkinChanged()
+		private void OnSkinChanged(float _)
 		{
 #if UNITY_EDITOR
 			string oldName = Name;

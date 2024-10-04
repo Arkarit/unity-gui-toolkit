@@ -18,14 +18,14 @@ namespace GuiToolkit.Style
 		{
 			foreach (var skin in m_skins)
 				skin.Init();
-			UiEvents.EvDeleteStyle.AddListener(OnDeleteStyle);
-			UiEvents.EvDeleteSkin.AddListener(OnDeleteSkin);
+			UiEventDefinitions.EvDeleteStyle.AddListener(OnDeleteStyle);
+			UiEventDefinitions.EvDeleteSkin.AddListener(OnDeleteSkin);
 		}
 
 		protected void OnDisable()
 		{
-			UiEvents.EvDeleteStyle.RemoveListener(OnDeleteStyle);
-			UiEvents.EvDeleteSkin.RemoveListener(OnDeleteSkin);
+			UiEventDefinitions.EvDeleteStyle.RemoveListener(OnDeleteStyle);
+			UiEventDefinitions.EvDeleteSkin.RemoveListener(OnDeleteSkin);
 		}
 
 		public void ForeachSkin(Action<UiSkin> action)
@@ -93,7 +93,7 @@ namespace GuiToolkit.Style
 
 					m_currentSkinIdx = i;
 					if (_emitEvent)
-						UiEvents.EvSkinChanged.InvokeAlways();
+						UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 
 					return true;
 				}
@@ -148,7 +148,7 @@ namespace GuiToolkit.Style
 			return false;
 		}
 
-		private void OnDeleteStyle(UiAbstractStyleBase _style)
+		private void OnDeleteStyle(UiStyleConfig _, UiAbstractStyleBase _style)
 		{
 			ForeachSkin(skin =>
 			{
@@ -159,10 +159,10 @@ namespace GuiToolkit.Style
 			EditorSave(this);
 #endif
 
-			UiEvents.EvSkinChanged.InvokeAlways();
+			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}
 
-		private void OnDeleteSkin(string _skinName)
+		private void OnDeleteSkin(UiStyleConfig _, string _skinName)
 		{
 			for (int i = 0; i < m_skins.Count; i++)
 			{
@@ -178,7 +178,7 @@ namespace GuiToolkit.Style
 			EditorSave(this);
 #endif
 
-			UiEvents.EvSkinChanged.InvokeAlways();
+			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}
 #if UNITY_EDITOR
 

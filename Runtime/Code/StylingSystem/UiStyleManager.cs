@@ -35,7 +35,7 @@ namespace GuiToolkit.Style
 					foreach (var value in style.Values)
 						value.StopTween();
 
-				UiEvents.EvSkinChanged.InvokeAlways();
+				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 				return true;
 			}
 
@@ -71,7 +71,7 @@ namespace GuiToolkit.Style
 			s_currentTime = 0;
 			s_tweenDuration = _tweenDuration;
 			CoroutineManager.Instance.StartCoroutine(UpdateTween());
-			UiEvents.EvSkinChanged.Invoke();
+			UiEventDefinitions.EvSkinChanged.Invoke(0);
 			return true;
 		}
 
@@ -85,7 +85,7 @@ namespace GuiToolkit.Style
 					foreach (var value in style.Values)
 						value.UpdateTween(normalizedValue);
 
-				UiEvents.EvSkinValuesChanged.Invoke();
+				UiEventDefinitions.EvSkinValuesChanged.Invoke(0);
 				if (normalizedValue >= 1)
 					yield break;
 

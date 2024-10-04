@@ -61,7 +61,7 @@ namespace GuiToolkit
 				Apply();
 				if (InvokeEvents)
 				{
-					UiEvents.EvPlayerSettingChanged.Invoke(this);
+					UiEventDefinitions.EvPlayerSettingChanged.Invoke(this);
 				}
 			}
 		}
@@ -104,13 +104,13 @@ namespace GuiToolkit
 				Debug.LogError($"Unknown type for player setting '{Key}': {type.Name}");
 
 			if (IsLanguage)
-				UiEvents.EvLanguageChanged.AddListener(OnLanguageChanged);
+				UiEventDefinitions.EvLanguageChanged.AddListener(OnLanguageChanged);
 		}
 
 		~PlayerSetting()
 		{
 			if (IsLanguage)
-				UiEvents.EvLanguageChanged.RemoveListener(OnLanguageChanged);
+				UiEventDefinitions.EvLanguageChanged.RemoveListener(OnLanguageChanged);
 		}
 
 		public T GetValue<T>()

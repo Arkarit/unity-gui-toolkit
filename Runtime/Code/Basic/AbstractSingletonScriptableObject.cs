@@ -62,15 +62,15 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static void EditorSave(T instance)
+		public static void EditorSave(T _instance)
 		{
-			if (!AssetDatabase.Contains(instance))
+			if (!AssetDatabase.Contains(_instance))
 			{
-				EditorAssetUtility.CreateAsset(instance, EditorPath);
+				EditorAssetUtility.CreateAsset(_instance, EditorPath);
 			}
 
-			EditorUtility.SetDirty(instance);
-			AssetDatabase.SaveAssetIfDirty(instance);
+			EditorUtility.SetDirty(_instance);
+			AssetDatabase.SaveAssetIfDirty(_instance);
 		}
 
 		public static bool Initialized => AssetDatabase.LoadAssetAtPath<T>(EditorPath) != null;
