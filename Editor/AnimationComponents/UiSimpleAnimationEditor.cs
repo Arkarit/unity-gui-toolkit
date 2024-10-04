@@ -1,6 +1,5 @@
 ﻿using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace GuiToolkit.Editor
 {
@@ -72,23 +71,14 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_targetProp);
 			if (m_targetProp.objectReferenceValue == null)
 			{
-				m_targetProp.objectReferenceValue = (RectTransform) thisUiSimpleAnimation.transform;
+				var tf = (RectTransform)thisUiSimpleAnimation.transform;
+				var animatedTransform = tf.FindDescendantByName("animated", false);
+				m_targetProp.objectReferenceValue = animatedTransform ? animatedTransform : tf;
 			}
 
 			EditorGUILayout.PropertyField(m_markTargetForLayoutRebuildProp);
 
 			EditorGUILayout.PropertyField(m_scaleByCanvasScalerProp);
-			if (m_scaleByCanvasScalerProp.boolValue)
-			{
-				EditorGUILayout.PropertyField(m_canvasScalerProp);
-				if (m_canvasScalerProp.objectReferenceValue == null)
-					m_canvasScalerProp.objectReferenceValue = thisUiSimpleAnimation.GetComponentInParent<CanvasScaler>();
-
-				CanvasScaler scaler = m_canvasScalerProp.objectReferenceValue as CanvasScaler;
-	
-				if (scaler != null)
-					m_canvasRectTransformProp.objectReferenceValue = scaler.transform as RectTransform;
-			}
 			EditorGUILayout.Space();
 
 			GUILayout.Label("Properties support:", EditorStyles.boldLabel);

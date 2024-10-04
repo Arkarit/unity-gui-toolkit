@@ -15,12 +15,17 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_backwardsAnimationProp;
 		protected SerializedProperty m_gotoStartOnBackwardsProp;
 		protected SerializedProperty m_autoStartProp;
+		protected SerializedProperty m_autoOnEnableProp;
 		protected SerializedProperty m_setOnStartProp;
 		protected SerializedProperty m_numberOfLoopsProp;
 		protected SerializedProperty m_finishInstantOnOrientationChangeProp;
 		protected SerializedProperty m_slaveAnimationsProp;
 		protected SerializedProperty m_setLoopsForSlavesProp;
 		protected SerializedProperty m_supportViewAnimationsProp;
+		
+		private static bool s_drawDefaultInspector;
+
+
 #if DEBUG_SIMPLE_ANIMATION && !DEBUG_SIMPLE_ANIMATION_ALL
 		protected SerializedProperty m_debugProp;
 #endif
@@ -35,6 +40,7 @@ namespace GuiToolkit.Editor
 			m_backwardsAnimationProp = serializedObject.FindProperty("m_backwardsAnimation");
 			m_gotoStartOnBackwardsProp = serializedObject.FindProperty("m_gotoStartOnBackwards");
 			m_autoStartProp = serializedObject.FindProperty("m_autoStart");
+			m_autoOnEnableProp = serializedObject.FindProperty("m_autoOnEnable");
 			m_setOnStartProp = serializedObject.FindProperty("m_setOnStart");
 			m_numberOfLoopsProp = serializedObject.FindProperty("m_numberOfLoops");
 			m_finishInstantOnOrientationChangeProp = serializedObject.FindProperty("m_finishInstantOnOrientationChange");
@@ -51,16 +57,22 @@ namespace GuiToolkit.Editor
 			Stop();
 		}
 
+		public virtual bool DisplayDurationProp => true;
+		public virtual bool DisplaySlaveAnimations => true;
+
+
 		public virtual void EditSubClass() { }
 
 		public override void OnInspectorGUI()
 		{
 			UiSimpleAnimationBase thisUiSimpleAnimationBase = (UiSimpleAnimationBase)target;
 
-			DisplayViewConnection(thisUiSimpleAnimationBase);
+			DisplayViewConnection();
 
 			GUILayout.Label("Timing:", EditorStyles.boldLabel);
-			EditorGUILayout.PropertyField(m_durationProp);
+			if (DisplayDurationProp)
+				EditorGUILayout.PropertyField(m_durationProp);
+
 			EditorGUILayout.PropertyField(m_delayProp);
 
 			EditorGUILayout.PropertyField(m_backwardsPlayableProp);
@@ -73,15 +85,19 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_numberOfLoopsProp);
 			EditorGUILayout.PropertyField(m_finishInstantOnOrientationChangeProp);
 			EditorGUILayout.PropertyField(m_autoStartProp);
-			EditorGUI.BeginDisabledGroup(m_autoStartProp.boolValue);
+			EditorGUILayout.PropertyField(m_autoOnEnableProp);
+			EditorGUI.BeginDisabledGroup(m_autoStartProp.boolValue || m_autoOnEnableProp.boolValue);
 			EditorGUILayout.PropertyField(m_setOnStartProp);
 			EditorGUI.EndDisabledGroup();
 			EditorGUILayout.Space();
 
-			GUILayout.Label("Slave animations:", EditorStyles.boldLabel);
-			EditorGUILayout.PropertyField(m_slaveAnimationsProp, true);
-			EditorGUILayout.PropertyField(m_setLoopsForSlavesProp);
-			EditorGUILayout.Space();
+			if (DisplaySlaveAnimations)
+			{
+				GUILayout.Label("Slave animations:", EditorStyles.boldLabel);
+				EditorGUILayout.PropertyField(m_slaveAnimationsProp, true);
+				EditorGUILayout.PropertyField(m_setLoopsForSlavesProp);
+				EditorGUILayout.Space();
+			}
 
 			EditSubClass();
 
@@ -95,24 +111,23 @@ namespace GuiToolkit.Editor
 			DisplayTestFields();
 
 			serializedObject.ApplyModifiedProperties();
+			
+			s_drawDefaultInspector = GUILayout.Toggle(s_drawDefaultInspector, "Draw Default Inspector");
+			if (!s_drawDefaultInspector)
+				return;
 
-#if DEBUG_SIMPLE_ANIMATION
-				EditorGUILayout.Space(50);
-				GUILayout.Label("Default Inspector:", EditorStyles.boldLabel);
-				DrawDefaultInspector();
-				serializedObject.ApplyModifiedProperties();
-#endif
+			EditorGUILayout.Space(50);
+			GUILayout.Label("Default Inspector:", EditorStyles.boldLabel);
+			DrawDefaultInspector();
+			serializedObject.ApplyModifiedProperties();
 
 		}
 
-		private void DisplayViewConnection( UiSimpleAnimationBase uiSimpleAnimationBase )
+		private void DisplayViewConnection()
 		{
-			if (uiSimpleAnimationBase.GetComponent<UiPanel>() != null)
-			{
-				GUILayout.Label("UIView / UiPanel connection:", EditorStyles.boldLabel);
-				EditorGUILayout.PropertyField(m_supportViewAnimationsProp, new GUIContent("Support UIView and UIPanel"));
-				EditorGUILayout.Space();
-			}
+			GUILayout.Label("UIView / UIPanel connection:", EditorStyles.boldLabel);
+			EditorGUILayout.PropertyField(m_supportViewAnimationsProp, new GUIContent("Support UIView and UIPanel"));
+			EditorGUILayout.Space();
 		}
 
 		private void DisplayTestFields()
@@ -224,7 +239,7 @@ namespace GuiToolkit.Editor
 		public bool RemoveFromEditorUpdate()
 		{
 			foreach(var animation in m_animationsToUpdate)
-				if (animation.Running)
+				if (animation.IsPlaying)
 					return false;
 
 			return true;

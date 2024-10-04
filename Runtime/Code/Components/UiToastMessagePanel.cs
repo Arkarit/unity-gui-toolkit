@@ -32,7 +32,7 @@ namespace GuiToolkit
 				if (_duration >= 0)
 					m_animationWhileVisible.Duration = _duration;
 
-				m_animationWhileVisible.m_onFinishOnce = () => Hide();
+				m_animationWhileVisible.OnFinishOnce.AddListener(() => Hide());
 				Show(false, () => m_animationWhileVisible.Play());
 			}
 			else

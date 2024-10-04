@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(RectTransform))]
-	public class UiSimpleAnimation : UiSimpleAnimationBase, IShowHideViewAnimation
+	public class UiSimpleAnimation : UiSimpleAnimationBase
 	{
 		// Its so UTTERLY IDIOTIC that C# hasn't got a usable preprocessor.
 		// This class would be the classic use case for a member definition macro.
@@ -436,6 +436,7 @@ namespace GuiToolkit
 			InitFlags();
 		}
 
+#if false
 		public void SetStackAnimationType( EStackAnimationType _stackAnimationType, bool _backwards, AnimationCurve _animationCurve )
 		{
 			if (_stackAnimationType == EStackAnimationType.None)
@@ -514,7 +515,7 @@ namespace GuiToolkit
 			}
 			m_flagsSet = true;
 		}
-
+#endif
 		private void CheckCurve( bool _isY, AnimationCurve _animationCurve )
 		{
 			if (_animationCurve == null)
@@ -567,8 +568,6 @@ namespace GuiToolkit
 
 			if (m_animatePositionY)
 				pos.y = Mathf.LerpUnclamped(m_posYStart, m_posYEnd, m_posYCurve.Evaluate(_normalizedTime)) * yRatio;
-
-Log($"m_posYStart: {m_posYStart} m_posYEnd: {m_posYEnd} m_posYCurve:{m_posYCurve} m_posYCurve.Evaluate(_normalizedTime):{m_posYCurve.Evaluate(_normalizedTime)} yRatio:{yRatio} CanvasRectTransform.sizeDelta:{CanvasRectTransform.sizeDelta} CanvasScaler.referenceResolution:{CanvasScaler.referenceResolution} ");
 
 			Log($"AnimatePosition({_normalizedTime}), pos:{pos}");
 			m_target.anchoredPosition = pos;
