@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -488,10 +489,14 @@ namespace GuiToolkit.Style.Editor
 				Records = m_PropertyRecords.ToArray(),
 			};
 
-			string path = _internal ?
-				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir + $"Type-Json/{m_componentType.FullName}.json" :
-				UiToolkitConfiguration.Instance.GeneratedAssetsDir + $"{m_componentType.FullName}.json";
+			string outputDir = _internal ?
+				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir + "Type-Json" :
+				UiToolkitConfiguration.Instance.GeneratedAssetsDir;
+			EditorFileUtility.EnsureFolderExists(EditorFileUtility.GetUnityPath(outputDir));
+			
+			string path = outputDir + $"/{m_componentType.FullName}.json";
 
+			
 			try
 			{
 				string json = UnityEngine.JsonUtility.ToJson(jsonClass, true);

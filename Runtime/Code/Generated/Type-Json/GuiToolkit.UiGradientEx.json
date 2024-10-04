@@ -1,0 +1,49 @@
+{
+    "Version": 2,
+    "Namespace": "GuiToolkit.Style",
+    "Prefix": "",
+    "Records": [
+        {
+            "Used": true,
+            "Name": "Gradient",
+            "QualifiedTypeName": "UnityEngine.Gradient",
+            "TypeName": "Gradient"
+        },
+        {
+            "Used": false,
+            "Name": "useGUILayout",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "runInEditMode",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "enabled",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "tag",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "name",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "hideFlags",
+            "QualifiedTypeName": "UnityEngine.HideFlags",
+            "TypeName": "HideFlags"
+        }
+    ]
+}
