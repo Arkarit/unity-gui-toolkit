@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEditor;
 using UnityEngine;
 
@@ -23,10 +22,14 @@ namespace GuiToolkit.Editor
 			get => s_drawCondition;
 			set => s_drawCondition = value;
 		}
-
-		public override void OnGUI( Rect _position, SerializedProperty _property, GUIContent _label )
+		
+		public override void OnGUI( Rect _rect, SerializedProperty _property, GUIContent _label )
 		{
-			EditorGUI.BeginProperty(_position, _label, _property);
+			var screenPos = GUIUtility.GUIToScreenPoint(_rect.position);
+			if (screenPos.y > Screen.height || screenPos.y + _rect.height < 0)
+				return;
+			
+			EditorGUI.BeginProperty(_rect, _label, _property);
 
 			var isApplicableProp = _property.FindPropertyRelative("IsApplicable");
 			bool isApplicable = isApplicableProp.boolValue;	
@@ -46,13 +49,13 @@ namespace GuiToolkit.Editor
 			}
 
 			EditorGUI.BeginChangeCheck();
-			var newIsApplicable = EditorGUI.Toggle(new Rect(_position.x, _position.y, ToggleWidth, EditorGUIUtility.singleLineHeight), isApplicableProp.boolValue);
+			var newIsApplicable = EditorGUI.Toggle(new Rect(_rect.x, _rect.y, ToggleWidth, EditorGUIUtility.singleLineHeight), isApplicableProp.boolValue);
 			if (EditorGUI.EndChangeCheck())
 			{
 				isApplicableProp.boolValue = newIsApplicable;
 			}
 
-			EditorGUI.LabelField(new Rect(_position.x + ToggleWidth, _position.y, EditorGUIUtility.labelWidth - ToggleWidth, EditorGUIUtility.singleLineHeight), _label);
+			EditorGUI.LabelField(new Rect(_rect.x + ToggleWidth, _rect.y, EditorGUIUtility.labelWidth - ToggleWidth, EditorGUIUtility.singleLineHeight), _label);
 
 			if (!isApplicable)
 			{
@@ -64,7 +67,7 @@ namespace GuiToolkit.Editor
 			using (new EditorGUI.DisabledScope(newIsApplicable == false))
 			{
 				EditorGUI.PropertyField(
-					new Rect(_position.x + EditorGUIUtility.labelWidth, _position.y, _position.width - EditorGUIUtility.labelWidth, _position.height), 
+					new Rect(_rect.x + EditorGUIUtility.labelWidth, _rect.y, _rect.width - EditorGUIUtility.labelWidth, _rect.height), 
 					valueProp, 
 					new GUIContent(),
 					valueProp.isExpanded && hasChildren
@@ -91,21 +94,19 @@ namespace GuiToolkit.Editor
 
 			switch (valueObj)
 			{
-				case Color c:
-				case string s:
-				case Quaternion q:
-				case Vector2 v2:
-				case Vector2Int v2i:
-				case Vector3 v3:
-				case Vector3Int v3i:
+				case Color:
+				case string:
 				case Material:
 					return false;
+				
+				default:
+					return true;
 			}
-
-			return true;
 		}
 
-		public override float GetPropertyHeight(SerializedProperty _property, GUIContent label)
+		private static float GetPropHeight(ApplicableValueBase _applicableValueBase, SerializedProperty _property) => EditorGUI.GetPropertyHeight(_property, DoesValueHaveChildren(_property, _applicableValueBase));
+		
+		public override float GetPropertyHeight(SerializedProperty _property, GUIContent _label)
 		{
 			var isApplicableProp = _property.FindPropertyRelative("IsApplicable");
 			bool isApplicable = isApplicableProp.boolValue;	
@@ -120,7 +121,7 @@ namespace GuiToolkit.Editor
 
 			var valueProp = _property.FindPropertyRelative("m_value");
 			var thisApplicableValueBase = _property.boxedValue as ApplicableValueBase;
-			return EditorGUI.GetPropertyHeight(valueProp, DoesValueHaveChildren(_property, thisApplicableValueBase));
+			return GetPropHeight(thisApplicableValueBase, valueProp);
 		}
 	}
 }

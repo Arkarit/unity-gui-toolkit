@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace GuiToolkit.Style.Editor
+namespace GuiToolkit.Editor
 {
 	/// <summary>
 	/// Abstract base class for PropertyDrawer implementations.
@@ -24,6 +24,8 @@ namespace GuiToolkit.Style.Editor
 		private float m_height;
 		private SerializedProperty m_property;
 		private static readonly Dictionary<object, bool> s_foldouts = new ();
+		private static readonly Dictionary<string, float> s_heightCache = new();
+		private bool m_heightCacheEnabled;
 
 		protected virtual void OnEnable() {}
 
@@ -44,9 +46,34 @@ namespace GuiToolkit.Style.Editor
 			m_height += _height;
 		}
 
+		protected virtual float GetPropertyHeight(SerializedProperty _property)
+		{
+			if (!HeightCacheEnabled)
+				return EditorGUI.GetPropertyHeight(_property);
+			
+			string key = $"{_property.propertyPath}~{_property.isExpanded}";
+			if (s_heightCache.TryGetValue(key, out float result))
+				return result;
+			
+			result = EditorGUI.GetPropertyHeight(_property);
+			if (result == 0)
+				return result;
+			
+			s_heightCache.Add(key, result);
+			
+			return result;
+		}
+		
+		protected bool HeightCacheEnabled
+		{
+			get => m_heightCacheEnabled;
+			set => m_heightCacheEnabled = value;
+		}
+		protected void InvalidateHeightCache() => s_heightCache.Clear();
+		
 		protected void PropertyField(SerializedProperty _property, bool _withChildren = true, float _gap = 0)
 		{
-			var propertyHeight = EditorGUI.GetPropertyHeight(_property) + _gap;
+			var propertyHeight = GetPropertyHeight(_property) + _gap;
 			if (propertyHeight == 0)
 				return;
 
@@ -77,6 +104,26 @@ namespace GuiToolkit.Style.Editor
 				EditorGUI.LabelField(drawRect, _label);
 
 			NextRect(propertyHeight);
+		}
+
+		protected bool Toggle(string _label, bool _currentValue, float _gap = 0, GUIStyle _style = null)
+		{
+			var propertyHeight = SingleLineHeight + _gap;
+			if (m_collectHeightMode)
+			{
+				IncreaseHeight(propertyHeight);
+				return _currentValue;
+			}
+
+			var drawRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, propertyHeight);
+			bool result;
+			if (_style != null)
+				result = EditorGUI.Toggle(drawRect, _label, _currentValue, _style);
+			else
+				result = EditorGUI.Toggle(drawRect, _label, _currentValue);
+
+			NextRect(propertyHeight);
+			return result;
 		}
 
 		protected bool StringPopupField(
@@ -175,9 +222,9 @@ namespace GuiToolkit.Style.Editor
 		protected void Line(float _gap = 0, float _width = 0, float _height = 1) =>
 			Line(Color.gray, _gap, _width, _height);
 
-		protected void Foldout(object _id, string _title, Action _onFoldout) => Foldout(_id, _title, true, _onFoldout);
+		protected bool Foldout(object _id, string _title, Action _onFoldout) => Foldout(_id, _title, true, _onFoldout);
 
-		protected void Foldout(object _id, string _title, bool _default, Action _onFoldout)
+		protected bool Foldout(object _id, string _title, bool _default, Action _onFoldout)
 		{
 			var foldoutRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width *.5f, FoldoutHeight);
 			if (!s_foldouts.ContainsKey(_id))
@@ -195,6 +242,7 @@ namespace GuiToolkit.Style.Editor
 				Indent(() => _onFoldout());
 
 			s_foldouts[_id] = active;
+			return active;
 		}
 
 		protected bool Button(GUIContent _content, float _width = -1)
@@ -292,8 +340,8 @@ namespace GuiToolkit.Style.Editor
 			EditorGUI.DrawRect(rect, _color);
 		}
 
-		protected void BackgroundAbsHeight(float _xOffs, float _yOffs, float _plusWidth, float _height) =>
-			BackgroundAbsHeight(
+		protected void BackgroundBox(float _xOffs, float _yOffs, float _plusWidth, float _height) =>
+			BackgroundBox(
 				EditorUiUtility.ColorPerSkin(new Color(0, 0, 0, .05f),new Color(1,1,1,0.05f)), 
 				_xOffs, 
 				_yOffs, 
@@ -301,8 +349,8 @@ namespace GuiToolkit.Style.Editor
 				_height
 			);
 
-		protected void BackgroundAbsHeight(Color _lightSkin, Color _darkSkin, float _xOffs, float _yOffs, float _plusWidth, float _height) =>
-			BackgroundAbsHeight(
+		protected void BackgroundBox(Color _lightSkin, Color _darkSkin, float _xOffs, float _yOffs, float _plusWidth, float _height) =>
+			BackgroundBox(
 				EditorUiUtility.ColorPerSkin(_lightSkin, _darkSkin), 
 				_xOffs, 
 				_yOffs, 
@@ -310,7 +358,7 @@ namespace GuiToolkit.Style.Editor
 				_height
 			);
 
-		protected void BackgroundAbsHeight(Color _color, float _xOffs, float _yOffs, float _plusWidth, float _height)
+		protected void BackgroundBox(Color _color, float _xOffs, float _yOffs, float _plusWidth, float _height)
 		{
 			if (m_collectHeightMode)
 				return;
@@ -357,6 +405,10 @@ namespace GuiToolkit.Style.Editor
 
 		public override void OnGUI(Rect _rect, SerializedProperty _property, GUIContent _label)
 		{
+			var screenPos = GUIUtility.GUIToScreenPoint(_rect.position);
+			if (screenPos.y > Screen.height || screenPos.y + _rect.height < 0)
+				return;
+
 			EditorGUI.BeginProperty(_rect, _label, _property);
 			m_property = _property;
 			m_currentRect = m_Rect = _rect;

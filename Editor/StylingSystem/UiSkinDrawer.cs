@@ -32,15 +32,15 @@ namespace GuiToolkit.Style.Editor
 
 		protected override void OnInspectorGUI()
 		{
-			BackgroundAbsHeight
-			(
-				new Color(0,0,0,.15f),
-				new Color(1,1,1,.15f),
-				0,
-				0,
-				0,
-				SingleLineHeight + 5
-			);
+//			BackgroundAbsHeight
+//			(
+//				new Color(0,0,0,.15f),
+//				new Color(1,1,1,.15f),
+//				0,
+//				0,
+//				0,
+//				SingleLineHeight + 5
+//			);
 
 			var foldoutTitleRect = CurrentRect;
 			foldoutTitleRect.height = SingleLineHeight;
