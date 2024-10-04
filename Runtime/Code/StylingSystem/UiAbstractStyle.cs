@@ -4,8 +4,8 @@ using UnityEngine;
 namespace GuiToolkit.Style
 {
 	[Serializable]
-	public abstract class UiAbstractStyle<MB> : UiAbstractStyleBase where MB : MonoBehaviour
+	public abstract class UiAbstractStyle<CO> : UiAbstractStyleBase where CO : Component
 	{
-		public override Type SupportedMonoBehaviourType => typeof(MB);
+		public override Type SupportedComponentType => typeof(CO);
 	}
 }

@@ -1,0 +1,92 @@
+using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
+namespace GuiToolkit.Style
+{
+	[CreateAssetMenu(fileName = nameof(UiMainStyleConfig), menuName = "Funatics/UiMainStyleConfig")]
+	public class UiMainStyleConfig : UiStyleConfig
+	{
+		protected static UiMainStyleConfig s_instance;
+		
+		protected const string EditorDir = "Assets/Resources/";
+		protected static string ClassName => typeof(UiMainStyleConfig).Name;
+		protected static string EditorPath => EditorDir + ClassName + ".asset";
+		
+		public static UiMainStyleConfig Instance
+		{
+			get
+			{
+				if (s_instance == null)
+				{
+#if UNITY_EDITOR
+					if (Application.isPlaying)
+					{
+#endif
+						s_instance = Resources.Load<UiMainStyleConfig>(ClassName);
+						if (s_instance == null)
+						{
+							Debug.LogError($"Scriptable object could not be loaded from path '{ClassName}'");
+							s_instance = CreateInstance<UiMainStyleConfig>();
+						}
+#if UNITY_EDITOR
+					}
+					else
+					{
+						s_instance = EditorLoad();
+					}
+#endif
+				}
+
+				return s_instance;
+			}
+		}
+		
+#if UNITY_EDITOR
+
+		public virtual void OnEditorInitialize() {}
+
+		protected static UiMainStyleConfig EditorLoad()
+		{
+			UiMainStyleConfig result = AssetDatabase.LoadAssetAtPath<UiMainStyleConfig>(EditorPath);
+			if (result == null)
+			{
+				result = CreateInstance<UiMainStyleConfig>();
+				EditorSave(result);
+			}
+
+			return result;
+		}
+
+		public static void EditorSave(UiMainStyleConfig _instance)
+		{
+			if (!AssetDatabase.Contains(_instance))
+			{
+				EditorAssetUtility.CreateAsset(_instance, EditorPath);
+			}
+
+			EditorUtility.SetDirty(_instance);
+			AssetDatabase.SaveAssetIfDirty(_instance);
+		}
+
+		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiMainStyleConfig>(EditorPath) != null;
+
+		public static void Initialize()
+		{
+			if (Initialized)
+				return;
+
+			UiMainStyleConfig instance = CreateInstance<UiMainStyleConfig>();
+			s_instance = instance;
+			instance.OnEditorInitialize();
+
+			EditorSave(instance);
+		}
+
+
+#endif
+
+	}
+}

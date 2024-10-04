@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace GuiToolkit.Style
@@ -9,21 +8,17 @@ namespace GuiToolkit.Style
 		private static float s_currentTime;
 		private static float s_tweenDuration;
 
-		public static string Skin
+		public static bool SetSkin(string _skinName, float _tweenDuration = 0) => SetSkin(UiMainStyleConfig.Instance, _skinName, _tweenDuration);
+		public static bool SetSkin(UiStyleConfig _styleConfig, string _skinName, float _tweenDuration = 0)
 		{
-			get => UiStyleConfig.Instance.CurrentSkinName;
-			private set => SetSkin(value);
-		}
-
-		public static bool SetSkin(string _skinName, float _tweenDuration = 0)
-		{
-			var styleConfig = UiStyleConfig.Instance;
-			var previousSkin = styleConfig.CurrentSkin;
-
-			if (!styleConfig.SetCurrentSkin(_skinName, false))
+			var previousSkin = _styleConfig.CurrentSkin;
+			if (previousSkin != null && previousSkin.Name == _skinName)
 				return false;
 
-			var skin = styleConfig.CurrentSkin;
+			if (!_styleConfig.SetCurrentSkinByNameOrAlias(_skinName, false, false))
+				return false;
+
+			var skin = _styleConfig.CurrentSkin;
 			if (skin == previousSkin)
 				return true;
 
@@ -70,22 +65,23 @@ namespace GuiToolkit.Style
 
 			s_currentTime = 0;
 			s_tweenDuration = _tweenDuration;
-			CoroutineManager.Instance.StartCoroutine(UpdateTween());
-			UiEventDefinitions.EvSkinChanged.Invoke(0);
+			CoRoutineRunner.Instance.StartCoroutine(UpdateTween(_styleConfig));
+			UiEventDefinitions.EvSkinChanged.Invoke(_tweenDuration);
 			return true;
 		}
 
-		private static IEnumerator UpdateTween()
+		private static IEnumerator UpdateTween(UiStyleConfig _styleConfig)
 		{
+			yield return 0;
 			while (true)
 			{
 				var normalizedValue = s_currentTime / s_tweenDuration;
-				var styles = UiStyleConfig.Instance.CurrentSkin.Styles;
+				var styles = _styleConfig.CurrentSkin.Styles;
 				foreach (var style in styles)
 					foreach (var value in style.Values)
 						value.UpdateTween(normalizedValue);
 
-				UiEventDefinitions.EvSkinValuesChanged.Invoke(0);
+				UiEventDefinitions.EvSkinValuesChanged.Invoke(normalizedValue);
 				if (normalizedValue >= 1)
 					yield break;
 

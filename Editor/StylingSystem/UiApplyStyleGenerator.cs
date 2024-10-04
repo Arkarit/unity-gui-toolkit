@@ -3,22 +3,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
-using TMPro;
 using UnityEditor;
 using UnityEngine;
 using File = System.IO.File;
+using JsonUtility = UnityEngine.JsonUtility;
 
-namespace GuiToolkit
+namespace GuiToolkit.Style.Editor
 {
 	public class UiApplyStyleGenerator : EditorWindow
 	{
 		private const string GeneratedWarningComment = "// Auto-generated, please do not change!\n";
 
-		private MonoBehaviour m_monoBehaviour;
-		private MonoBehaviour m_lastMonoBehaviour;
-		private Type m_monoBehaviourType;
+		private Component m_component;
+		private Component m_lastComponent;
+		private Type m_componentType;
 		private List<PropertyRecord> m_PropertyRecords = new();
 		private Vector2 m_ScrollPos;
 
@@ -118,7 +116,7 @@ namespace GuiToolkit
 		}
 
 		// Format string:
-		// 0: namespace open string
+		// 0: namespace opening string
 		// 1: prefix
 		// 2: short type name,
 		// 3: qualified type name
@@ -126,7 +124,7 @@ namespace GuiToolkit
 		// 5: properties (starting with 2 tabs)
 		// 6: Class type definitions
 		// 7: member names list (starting with 4 tabs, each member ending with ',')
-		// 8: namespace close string
+		// 8: namespace closing string
 		private const string StyleTemplate =
 			GeneratedWarningComment
 			+ "using System;\n"
@@ -138,6 +136,12 @@ namespace GuiToolkit
 			+ "	[Serializable]\n"
 			+ "	public class UiStyle{1}{2} : UiAbstractStyle<{3}>\n"
 			+ "	{{\n"
+			+ "		public UiStyle{1}{2}(UiStyleConfig _styleConfig, string _name)\n"
+			+ "		{{\n"
+			+ "			StyleConfig = _styleConfig;\n"
+			+ "			Name = _name;\n"
+			+ "		}}\n"
+			+ "\n"
 			+ "{6}"
 			+ "\n"
 			+ "		protected override ApplicableValueBase[] GetValueList()\n"
@@ -164,10 +168,10 @@ namespace GuiToolkit
 			string _classTypeDefinitions, 
 			string _memberNames)
 		{
-			var result = string.Format
+			return string.Format
 			(
 				StyleTemplate,
-				GetNamespaceOpenString(_namespace),
+				GetNamespaceOpeningString(_namespace),
 				_prefix,
 				_shortTypeName,
 				_qualifiedTypeName,
@@ -175,10 +179,8 @@ namespace GuiToolkit
 				_properties,
 				_classTypeDefinitions,
 				_memberNames,
-				GetNamespaceCloseString(_namespace)
+				GetNamespaceClosingString(_namespace)
 			);
-
-			return RemoveFirstTabIfNoNamespace(_namespace, result);
 		}
 
 		#endregion
@@ -189,7 +191,7 @@ namespace GuiToolkit
 		// 1: member name, starting with upper char
 		private const string ApplyInstructionTemplate =
 			"			if (SpecificStyle.{1}.IsApplicable)\n" +
-			"				try {{ SpecificMonoBehaviour.{0} = SpecificStyle.{1}.Value; }} catch {{}}\n";
+			"				try {{ SpecificComponent.{0} = Tweenable ? SpecificStyle.{1}.Value : SpecificStyle.{1}.RawValue; }} catch {{}}\n";
 
 
 		private string GetApplyInstructionString(string _memberName)
@@ -203,10 +205,28 @@ namespace GuiToolkit
 		}
 
 		// Format string:
+		// 0: member name
+		// 1: member name, starting with upper char
+		private const string RecordInstructionTemplate =
+			"			if (SpecificStyle.{1}.IsApplicable)\n" +
+			"				try {{ SpecificStyle.{1}.RawValue = SpecificComponent.{0}; }} catch {{}}\n";
+
+
+		private string GetRecordInstructionString(string _memberName)
+		{
+			return string.Format
+			(
+				RecordInstructionTemplate,
+				_memberName,
+				UpperFirstChar(_memberName)
+			);
+		}
+
+		// Format string:
 		// 0: member name, starting with upper char
 		// 1: member name
 		private const string PresetInstructionTemplate =
-			"			try {{ result.{0}.Value = SpecificMonoBehaviour.{1}; }} catch {{}}\n";
+			"			try {{ result.{0}.Value = SpecificComponent.{1}; }} catch {{}}\n";
 		private string GetPresetInstructionString(string _memberName)
 		{
 			return string.Format
@@ -233,17 +253,19 @@ namespace GuiToolkit
 
 
 		// Format string:
-		// 0: Namespace open string
+		// 0: Namespace string
 		// 1: Prefix
 		// 2: Short type name
 		// 3: Qualified type name
 		// 4: Apply instructions (starting with 3 tabs)
 		// 5: Preset instructions (starting with 3 tabs)
 		// 6: Member copy instructions (starting with 4 tabs)
-		// 7: Namespace close string
+		// 7: Record instructions (starting with 3 tabs)
+		// 8: Namespace string closing bracket
 		private const string ApplyStyleTemplate =
 			GeneratedWarningComment
 			+ "using UnityEngine;\n"
+			+ "using GuiToolkit;\n"
 			+ "using GuiToolkit.Style;\n"
 			+ "\n"
 			+ "{0}"
@@ -253,20 +275,26 @@ namespace GuiToolkit
 			+ "	{{\n"
 			+ "		protected override void ApplyImpl()\n"
 			+ "		{{\n"
-			+ "			if (!SpecificMonoBehaviour || SpecificStyle == null)\n" 
+			+ "			if (!SpecificComponent || SpecificStyle == null)\n" 
 			+ "				return;\n"
 			+ "\n"
 			+ "{4}"
 			+ "		}}\n"
 			+ "\n"
-			+ "		public override UiAbstractStyleBase CreateStyle(string _name, UiAbstractStyleBase _template = null)\n"
+			+ "		protected override void RecordImpl()\n"
 			+ "		{{\n"
-			+ "			UiStyle{1}{2} result = new UiStyle{1}{2}();\n"
+			+ "			if (!SpecificComponent || SpecificStyle == null)\n" 
+			+ "				return;\n"
 			+ "\n"
-			+ "			if (!SpecificMonoBehaviour)\n"
+			+ "{7}"
+			+ "		}}\n"
+			+ "\n"
+			+ "		public override UiAbstractStyleBase CreateStyle(UiStyleConfig _styleConfig, string _name, UiAbstractStyleBase _template = null)\n"
+			+ "		{{\n"
+			+ "			UiStyle{1}{2} result = new UiStyle{1}{2}(_styleConfig, _name);\n"
+			+ "\n"
+			+ "			if (!SpecificComponent)\n"
 			+ "				return result;\n"
-			+ "\n"
-			+ "			result.Name = _name;\n"
 			+ "\n"
 			+ "			if (_template != null)\n" 
 			+ "			{{\n" 
@@ -280,45 +308,55 @@ namespace GuiToolkit
 			+ "			return result;\n"
 			+ "		}}\n"
 			+ "	}}\n"
-			+ "{7}";
+			+ "{8}";
 
-		private string GetApplyStyleString(string _namespace, string _prefix, string _typeName, string _qualifiedTypeName, string _applyInstructions, string _presetInstructions, string _memberCopyInstructions)
+		private string GetApplyStyleString
+		(
+			string _namespace, 
+			string _prefix, 
+			string _typeName, 
+			string _qualifiedTypeName, 
+			string _applyInstructions, 
+			string _presetInstructions, 
+			string _memberCopyInstructions,
+			string _recordInstructions
+		)
 		{
-			var result = string.Format
+			return string.Format
 			(
 				ApplyStyleTemplate,
-				GetNamespaceOpenString(_namespace),
+				GetNamespaceOpeningString(_namespace),
 				_prefix,
 				_typeName,
 				_qualifiedTypeName,
 				_applyInstructions,
 				_presetInstructions,
 				_memberCopyInstructions,
-				GetNamespaceCloseString(_namespace)
+				_recordInstructions,
+				GetNamespaceClosingString(_namespace)
 			);
-
-			return RemoveFirstTabIfNoNamespace(_namespace, result);
 		}
 		#endregion
 
 		#region Drawing
 		private void OnGUI()
 		{
-			if (m_monoBehaviour == null)
+			if (m_component == null)
 			{
-				EditorGUILayout.HelpBox("Drag a mono behaviour into this field to generate", MessageType.Info);
+				EditorGUILayout.HelpBox("Drag a component into this field to generate", MessageType.Info);
 			}
 
-			m_monoBehaviour = EditorGUILayout.ObjectField(m_monoBehaviour, typeof(MonoBehaviour), true) as MonoBehaviour;
+			m_component = EditorGUILayout.ObjectField(m_component, typeof(Component), true) as Component;
 
-			if (!m_monoBehaviour)
+			if (!m_component)
 				return;
 
 			m_alternatingRowStyles[0] = GUIStyle.none;
 			m_alternatingRowStyles[1] = new GUIStyle();
-			m_alternatingRowStyles[1].normal.background = MakeTex(1, 1, new Color(1.0f, 1.0f, 1.0f, 0.15f));
+			m_alternatingRowStyles[1].normal.background = MakeTex(1, 1, EditorUiUtility.ColorPerSkin(new Color(1.0f, 1.0f, 1.0f, 0.15f), new Color(1.0f, 1.0f, 1.0f, 0.03f)));
 
-			bool isInternal = UiToolkitConfiguration.Instance.IsEditingInternal;
+			// leftover from ui toolkit
+			bool isInternal = false;
 
 			InitIfNecessary(isInternal);
 			DrawHeader(isInternal);
@@ -352,19 +390,19 @@ namespace GuiToolkit
 
 			List<string> typeNames = new();
 			List<Type> types = new();
-			for (var type = m_monoBehaviour.GetType(); type != typeof(MonoBehaviour); type = type.BaseType)
+			for (var type = m_component.GetType(); type != typeof(Component); type = type.BaseType)
 			{
 				types.Add(type);
 				typeNames.Add(type.FullName);
 			}
 
 			EditorGUILayout.LabelField("Type:", GUILayout.Width(40));
-			int idx = EditorUiUtility.StringPopup(null, typeNames, m_monoBehaviourType.FullName,
+			int idx = EditorUiUtility.StringPopup(null, typeNames, m_componentType.FullName,
 				out string newSelection);
 
 			if (idx != -1)
 			{
-				m_monoBehaviourType = types[idx];
+				m_componentType = types[idx];
 				CollectProperties(_internal, false);
 			}
 
@@ -452,12 +490,12 @@ namespace GuiToolkit
 			};
 
 			string path = _internal ?
-				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir + $"Type-Json/{m_monoBehaviourType.FullName}.json" :
-				UiToolkitConfiguration.Instance.GeneratedAssetsDir + $"{m_monoBehaviourType.FullName}.json";
+				UiMainStyleConfig.Instance.InternalGeneratedAssetsDir + $"Type-Json/{m_componentType.FullName}.json" :
+				UiMainStyleConfig.Instance.GeneratedAssetsDir + $"{m_componentType.FullName}.json";
 
 			try
 			{
-				string json = JsonUtility.ToJson(jsonClass, true);
+				string json = UnityEngine.JsonUtility.ToJson(jsonClass, true);
 				File.WriteAllText(path, json);
 			}
 			catch (Exception e)
@@ -470,22 +508,22 @@ namespace GuiToolkit
 
 		private bool FindJson(bool _downcastTypes)
 		{
-			for (var type = m_monoBehaviourType; type != typeof(MonoBehaviour); type = type.BaseType)
+			for (var type = m_componentType; type != typeof(Component); type = type.BaseType)
 			{
-				string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir +
+				string path = UiMainStyleConfig.Instance.GeneratedAssetsDir +
 				              $"{type.FullName}.json";
 				if (TryReadJson(path))
 				{
-					m_monoBehaviourType = type;
+					m_componentType = type;
 					return true;
 				}
 
-				string pathInternal = UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir +
+				string pathInternal = UiMainStyleConfig.Instance.InternalGeneratedAssetsDir +
 				                      $"Type-Json/{type.FullName}.json";
 
 				if (TryReadJson(pathInternal))
 				{
-					m_monoBehaviourType = type;
+					m_componentType = type;
 					return true;
 				}
 
@@ -504,7 +542,7 @@ namespace GuiToolkit
 				if (string.IsNullOrEmpty(content))
 					return false;
 
-				var propertyRecordsJson = JsonUtility.FromJson<PropertyRecordsJson>(content);
+				var propertyRecordsJson = UnityEngine.JsonUtility.FromJson<PropertyRecordsJson>(content);
 				if (propertyRecordsJson.Version < JsonVersion)
 					return false;
 
@@ -523,11 +561,11 @@ namespace GuiToolkit
 		#region Data
 		private void InitIfNecessary(bool _internal)
 		{
-			if (m_lastMonoBehaviour == m_monoBehaviour && m_PropertyRecords.Count > 0 && m_monoBehaviourType != null)
+			if (m_lastComponent == m_component && m_PropertyRecords.Count > 0 && m_componentType != null)
 				return;
 
-			m_lastMonoBehaviour = m_monoBehaviour;
-			m_monoBehaviourType = m_monoBehaviour.GetType();
+			m_lastComponent = m_component;
+			m_componentType = m_component.GetType();
 
 			CollectProperties(_internal, true);
 		}
@@ -541,10 +579,13 @@ namespace GuiToolkit
 			m_namespace = _internal ? "GuiToolkit.Style" : string.Empty;
 			m_prefix = string.Empty;
 
-			var propertyInfos = m_monoBehaviourType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+			var propertyInfos = m_componentType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
 			foreach (var propertyInfo in propertyInfos)
 			{
 				if (!propertyInfo.CanRead || !propertyInfo.CanWrite)
+					continue;
+				
+				if (!AllAccessorsPublic(propertyInfo))
 					continue;
 
 				m_PropertyRecords.Add(new PropertyRecord()
@@ -555,6 +596,27 @@ namespace GuiToolkit
 					TypeName = propertyInfo.PropertyType.Name
 				});
 			}
+		}
+
+		private static bool AllAccessorsPublic(PropertyInfo propertyInfo)
+		{
+			string getterName = $"get_{propertyInfo.Name}";
+			string setterName = $"set_{propertyInfo.Name}";
+			bool foundGetter = false;
+			bool foundSetter = false;
+			var accessors = propertyInfo.GetAccessors(false);
+			foreach (var accessor in accessors)
+			{
+				if (accessor.Name == getterName)
+					foundGetter = true;
+				if (accessor.Name == setterName)
+					foundSetter = true;
+
+				if (foundGetter && foundSetter)
+					break;
+			}
+
+			return foundGetter && foundSetter;
 		}
 
 		#endregion
@@ -569,11 +631,11 @@ namespace GuiToolkit
 			string applicationClassContent = GenerateApplicationClass();
 			
 			string dir = _internal ?
-				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir :
-				UiToolkitConfiguration.Instance.GeneratedAssetsDir;
+				UiMainStyleConfig.Instance.InternalGeneratedAssetsDir :
+				UiMainStyleConfig.Instance.GeneratedAssetsDir;
 
 			string classPrefix = m_prefix;
-			string shortTypeName = m_monoBehaviourType.Name;
+			string shortTypeName = m_componentType.Name;
 
 			string styleClassPath = $"{dir}UiStyle{classPrefix}{shortTypeName}.cs";
 			string applicationClassPath = $"{dir}UiApplyStyle{classPrefix}{shortTypeName}.cs";
@@ -643,8 +705,8 @@ namespace GuiToolkit
 
 			string namespaceStr = m_namespace;
 			string classPrefix = m_prefix;
-			string shortTypeName = m_monoBehaviourType.Name;
-			string qualifiedTypeName = m_monoBehaviourType.FullName;
+			string shortTypeName = m_componentType.Name;
+			string qualifiedTypeName = m_componentType.FullName;
 
 			return GetStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
 				members, properties, classTypeDefinitions, memberNames);
@@ -655,6 +717,7 @@ namespace GuiToolkit
 			string applyInstructions = string.Empty;
 			string presetInstructions = string.Empty;
 			string memberCopyInstructions = string.Empty;
+			string recordInstructions = string.Empty;
 
 			foreach (var propertyRecord in m_PropertyRecords)
 			{
@@ -667,53 +730,44 @@ namespace GuiToolkit
 				applyInstructions += GetApplyInstructionString(memberName);
 				presetInstructions += GetPresetInstructionString(memberName);
 				memberCopyInstructions += GetMemberCopyInstructionsString(memberName);
+				recordInstructions += GetRecordInstructionString(memberName);
 			}
 
 			string namespaceStr = m_namespace;
 			string classPrefix = m_prefix;
-			string shortTypeName = m_monoBehaviourType.Name;
-			string qualifiedTypeName = m_monoBehaviourType.FullName;
+			string shortTypeName = m_componentType.Name;
+			string qualifiedTypeName = m_componentType.FullName;
 
 			return GetApplyStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
-				applyInstructions, presetInstructions, memberCopyInstructions);
+				applyInstructions, presetInstructions, memberCopyInstructions, recordInstructions);
 		}
 
 		#endregion
 
 		#region Helper
-		[MenuItem(StringConstants.APPLY_STYLE_GENERATOR_MENU_NAME, priority = Constants.STYLES_HEADER_PRIORITY)]
+		
+		private static string GetNamespaceOpeningString(string _namespace)
+		{
+			if (!string.IsNullOrEmpty(_namespace))
+				return $"namespace {_namespace}\n{{\n";
+			return string.Empty;
+		}
+		
+		private static string GetNamespaceClosingString(string _namespace)
+		{
+			if (!string.IsNullOrEmpty(_namespace))
+				return "}\n";
+			return string.Empty;
+		}
+		
+		[MenuItem("UI Toolkit/Style Generator")]
 		public static UiApplyStyleGenerator GetWindow()
 		{
 			var window = GetWindow<UiApplyStyleGenerator>();
-			window.titleContent = new GUIContent("'Ui Apply Style' Generator");
+			window.titleContent = new GUIContent("'UI Apply Style' Generator");
 			window.Focus();
 			window.Repaint();
 			return window;
-		}
-
-		private static string GetNamespaceOpenString(string _namespace) => string.IsNullOrEmpty(_namespace) ? string.Empty : "namespace " + _namespace + "\n{\n";
-
-		private static string GetNamespaceCloseString(string _namespace) => string.IsNullOrEmpty(_namespace) ? string.Empty : "}\n";
-
-		private static string RemoveFirstTabIfNoNamespace(string _namespace, string _s) =>
-			string.IsNullOrEmpty(_namespace) ? RemoveFirstTab(_s) : _s;
-		
-		private static string RemoveFirstTab(string _s)
-		{
-			var lines = Regex.Split(_s, "\r\n|\r|\n");
-			for (int i = 0; i < lines.Length; i++)
-			{
-				if (lines[i].StartsWith('\t'))
-					lines[i] = lines[i].Substring(1);
-			}
-
-			string result = string.Empty;
-			foreach (var line in lines)
-			{
-				result += line + '\n';
-			}
-
-			return result;
 		}
 
 		private static Texture2D MakeTex(int width, int height, Color col)

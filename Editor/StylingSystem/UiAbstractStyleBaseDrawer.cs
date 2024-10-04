@@ -1,4 +1,5 @@
 using GuiToolkit.Editor;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -16,39 +17,65 @@ namespace GuiToolkit.Style.Editor
 		protected override void OnInspectorGUI()
 		{
 			m_applicableChanged = false;
-			var currentStyle = Property.boxedValue as UiAbstractStyleBase;
-			if (currentStyle == null)
+			var thisStyle = Property.boxedValue as UiAbstractStyleBase;
+			if (thisStyle == null)
 				return;
+			
+			UiStyleConfig styleConfig = thisStyle.StyleConfig;
 
 			Background(-3, 0, 0, -10);
 			Space(3);
 			Horizontal(SingleLineHeight, () =>
 			{
-				if (UiStyleConfigEditor.SortType >= UiStyleConfigEditor.ESortType.FlatPathAscending)
-				{
-					LabelField("   " + currentStyle.Name, 0, EditorStyles.boldLabel);
-					IncreaseX(EditorGUIUtility.labelWidth + 18);
-					LabelField($"Type: {currentStyle.SupportedMonoBehaviourType.Name}", 0, EditorStyles.boldLabel);
-					IncreaseX(-60);
-				}
-				else
-				{
-					LabelField($"Type: {currentStyle.SupportedMonoBehaviourType.Name}", 0, EditorStyles.boldLabel);
-					IncreaseX(-60);
-				}
+				LabelField("   " + thisStyle.Alias, 0, EditorStyles.boldLabel);
+				IncreaseX(EditorGUIUtility.labelWidth + 18);
+				LabelField($"Type: {thisStyle.SupportedComponentType.Name}", 0, EditorStyles.boldLabel);
+				IncreaseX(-170);
 
+				if (Button("Find", 35))
+				{
+					FindAppliers(thisStyle);
+				}
+				
+				IncreaseX(40);
+
+				if (Button("Rename", 55))
+				{
+					EditorApplication.delayCall += () =>
+					{
+						Action<EditorInputDialog> additionalContent = dialog =>
+						{
+							if (GUILayout.Button("Reset Name"))
+							{
+								UiEventDefinitions.EvSetStyleAlias.InvokeAlways(thisStyle.StyleConfig, thisStyle, null);
+								dialog.Cancel();
+							}
+							
+							EditorGUILayout.Space(20);
+						};
+					
+						var newName = EditorInputDialog.Show("Rename", "Please enter new name/path", thisStyle.Alias, additionalContent);
+						if (!string.IsNullOrEmpty(newName))
+						{
+							UiEventDefinitions.EvSetStyleAlias.InvokeAlways(thisStyle.StyleConfig, thisStyle, newName);
+						}
+					};
+				}
+				
+				IncreaseX(60);
+				
 				if (Button("Delete", 50))
 				{
 					if (EditorUtility.DisplayDialog
 					(
 						    "Are you sure?",
-							$"The style '{currentStyle.Name}' will be removed from UiMainStyleConfig" 
-							+ " and all skins and Ui Apply Style instances which use it. This can not be undone.",
+							$"The style '{thisStyle.Alias}' will be removed from UiStyleConfig" 
+							+ " and all skins and UI Apply Style instances which use it. This can not be undone.",
 							"OK",
 							"Cancel"
 					))
 					{
-						UiEventDefinitions.EvDeleteStyle.InvokeAlways(null, currentStyle);
+						UiEventDefinitions.EvDeleteStyle.InvokeAlways(thisStyle.StyleConfig, thisStyle);
 						return;
 					}
 				}
@@ -73,7 +100,7 @@ namespace GuiToolkit.Style.Editor
 				ApplicableValueBaseDrawer.DrawCondition = ApplicableValueBaseDrawer.EDrawCondition.OnlyDisabled;
 				if (HasHiddenProperties())
 				{
-					Foldout(currentStyle, "Unused Properties", false, () =>
+					Foldout(thisStyle, "Unused Properties", false, () =>
 					{
 						DrawProperties();
 					});
@@ -89,15 +116,105 @@ namespace GuiToolkit.Style.Editor
 					UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 					if (m_applicableChanged)
 					{
-						UiEventDefinitions.EvStyleApplicableChanged.InvokeAlways(null, currentStyle);
+						InvalidateHeightCache();
+						UiEventDefinitions.EvStyleApplicableChanged.InvokeAlways(thisStyle.StyleConfig, thisStyle);
 #if UNITY_EDITOR
-						UiStyleConfig.EditorSave(UiStyleConfig.Instance);
+						UiStyleConfig.SetDirty(styleConfig);
 #endif
 					}
 				}
 			});
 
 			Space(EndGap);
+		}
+
+		private static void FindAppliers(UiAbstractStyleBase style)
+		{
+			if (style == null)
+				return;
+			
+			var type = style.GetType();
+			HashSet<string> prefabPathsDone = new();
+			string prefabPaths = string.Empty;
+			string alias = style.Alias;
+			
+			EditorAssetUtility.FindAllComponentsInAllPrefabs<UiAbstractApplyStyleBase>((applier, _, path) =>
+			{
+				if (applier.Style == null)
+					return true;
+				
+				if (applier.Style.GetType() != type)
+					return true;
+				
+				if (applier.Style.Alias != alias)
+					return true;
+				
+				if (!prefabPathsDone.Contains(path))
+				{
+					prefabPaths += $"\t{path}\n";
+					prefabPathsDone.Add(path);
+				}
+				
+				prefabPaths += $"\t\t{applier.gameObject.GetPath()}\n";
+				return true;
+			});
+			
+			string scenePaths = string.Empty;
+			HashSet<string> scenePathsDone = new();
+			
+			EditorAssetUtility.FindAllComponentsInAllScenes<UiAbstractApplyStyleBase>((applier, _, path) =>
+			{
+				if (applier.Style == null)
+					return true;
+				
+				if (applier.Style.GetType() != type)
+					return true;
+				
+				if (applier.Style.Alias != alias)
+					return true;
+				
+				if (!scenePathsDone.Contains(path))
+				{
+					scenePaths += $"\t{path}\n";
+					scenePathsDone.Add(path);
+				}
+				
+				scenePaths += $"\t\t{applier.gameObject.GetPath()}\n";
+				return true;
+			});
+			
+			if (string.IsNullOrEmpty(prefabPaths) && string.IsNullOrEmpty(scenePaths))
+			{
+				Debug.Log($"No Appliers of type {type.FullName} found");
+				return;
+			}
+			
+			string s = $"Found Appliers of type {type.FullName}\n";
+			
+			if (!string.IsNullOrEmpty(prefabPaths))
+				s += $"Prefabs:\n{prefabPaths}\n";
+			
+			if (!string.IsNullOrEmpty(scenePaths))
+				s += $"Scenes:\n{scenePaths}\n";
+			
+			GUIUtility.systemCopyBuffer = s;
+			
+			s += "\nA copy of this has been pasted to clipboard.";
+			Debug.Log(s);
+		}
+
+		protected override float GetPropertyHeight(SerializedProperty _property)
+		{
+			var val = _property.boxedValue as ApplicableValueBase;
+			if (val != null && !val.IsApplicable)
+			{
+				if (ApplicableValueBaseDrawer.DrawCondition == ApplicableValueBaseDrawer.EDrawCondition.OnlyEnabled)
+					return 0;
+				if (ApplicableValueBaseDrawer.DrawCondition == ApplicableValueBaseDrawer.EDrawCondition.OnlyDisabled)
+					return SingleLineHeight;
+			}
+			
+			return base.GetPropertyHeight(_property);
 		}
 
 		private bool HasHiddenProperties()

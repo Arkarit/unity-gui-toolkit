@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace GuiToolkit.Style
@@ -14,16 +13,41 @@ namespace GuiToolkit.Style
 			Portrait,
 		}
 
+		[SerializeField][HideInInspector] private UiStyleConfig m_styleConfig;
+		
+		// The m_name member should never change. Together with the supported Component type it forms the identifier of this style
+		// and is only ever set in ctor.
 		[SerializeField][HideInInspector] private string m_name;
+		// m_alias can be changed and used for display purposes.
+		[SerializeField][HideInInspector] private string m_alias;
 		[SerializeField][HideInInspector] private EScreenOrientationCondition m_screenOrientationCondition = EScreenOrientationCondition.Always;
 		private ApplicableValueBase[] m_values;
 		
 		private int m_key;
 
+		public UiStyleConfig StyleConfig
+		{
+			get => m_styleConfig;
+			protected set => m_styleConfig = value;
+		}
+		
 		public string Name
 		{
 			get => m_name;
-			set => m_name = value;
+			protected set => m_name = value;
+		}
+
+		public string Alias
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(m_alias))
+					return m_name;
+				
+				return m_alias;
+			}
+			
+			set => m_alias = value;
 		}
 
 		public EScreenOrientationCondition ScreenOrientationCondition
@@ -32,7 +56,7 @@ namespace GuiToolkit.Style
 			set => m_screenOrientationCondition = value;
 		}
 
-		public abstract Type SupportedMonoBehaviourType { get; }
+		public abstract Type SupportedComponentType { get; }
 		protected abstract ApplicableValueBase[] GetValueList();
 		
 		public ApplicableValueBase[] Values
@@ -53,7 +77,7 @@ namespace GuiToolkit.Style
 			get
 			{
 				if (m_key == 0 || !Application.isPlaying)
-					m_key = UiStyleUtility.GetKey(SupportedMonoBehaviourType, Name);
+					m_key = UiStyleUtility.GetKey(SupportedComponentType, Name);
 
 				return m_key;
 			}
@@ -65,8 +89,11 @@ namespace GuiToolkit.Style
 			UiEventDefinitions.EvStyleApplicableChanged.AddListener(OnStyleApplicableChanged);
 		}
 
-		private void OnStyleApplicableChanged(UiStyleConfig _,UiAbstractStyleBase _from)
+		private void OnStyleApplicableChanged(UiStyleConfig _styleConfig, UiAbstractStyleBase _from)
 		{
+			if (_styleConfig != StyleConfig)
+				return;
+			
 			if (_from == this || _from == null)
 				return;
 

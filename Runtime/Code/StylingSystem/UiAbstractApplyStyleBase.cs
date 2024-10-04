@@ -1,36 +1,86 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace GuiToolkit.Style
 {
 	[ExecuteAlways]
 	public abstract class UiAbstractApplyStyleBase : MonoBehaviour
 	{
+		[FormerlySerializedAs("m_config")] 
+		[SerializeField][HideInInspector] private UiStyleConfig m_optionalStyleConfig;
 		[SerializeField][HideInInspector] private string m_name;
-		[SerializeReference] protected UiAbstractStyleBase m_style;
+		[SerializeField][HideInInspector] private string m_fixedSkinName;
+		[SerializeField][HideInInspector] protected bool m_tweenable = true;
+		
+		protected UiAbstractStyleBase m_style;
 
-		public abstract Type SupportedMonoBehaviourType { get; }
+		public abstract Type SupportedComponentType { get; }
 		public abstract Type SupportedStyleType { get; }
-		public abstract MonoBehaviour MonoBehaviour { get; }
+		public abstract Component Component { get; }
 		public abstract int Key { get; }
+		public bool Tweenable
+		{
+			get => m_tweenable && !SkinIsFixed;
+			set => m_tweenable = value;
+		}
+		
+		public UiStyleConfig StyleConfig => m_optionalStyleConfig != null ? m_optionalStyleConfig : UiMainStyleConfig.Instance;
+		
+		public bool SkinIsFixed => !string.IsNullOrEmpty(FixedSkinName);
+
+		public string FixedSkinName
+		{
+			get => m_fixedSkinName;
+			set 
+			{
+				if (m_fixedSkinName == value)
+					return;
+				
+				m_fixedSkinName = value;
+				SetSkinListeners(!SkinIsFixed);
+				SetStyle();
+				Apply();
+			}
+		}
 
 		protected virtual void Awake()
 		{
 			m_style = null;
 			SetStyle();
 			Apply();
+			UiEventDefinitions.EvStyleApplierCreated.Invoke(this);
 		}
+
+		public virtual void OnDestroy()
+		{
+			UiEventDefinitions.EvStyleApplierDestroyed.Invoke(this);
+		}
+
+		protected virtual void OnTransformParentChanged() => UiEventDefinitions.EvStyleApplierChangedParent.Invoke(this);
 
 		protected virtual void OnEnable()
 		{
 			UiEventDefinitions.EvScreenOrientationChange.AddListener(OnScreenOrientationChanged);
+			SetSkinListeners(!SkinIsFixed);
+
+			if (Component == null)
+				return;
+
+			SetStyle();
+			Apply();
 		}
 
 		protected virtual void OnDisable()
 		{
 			UiEventDefinitions.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChanged);
+			SetSkinListeners(false);
 		}
-
+		
 		private void OnScreenOrientationChanged(EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation)
 		{
 			Apply();
@@ -47,10 +97,32 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		public void Reset(bool _alsoStyleConfig = false)
+		{
+			if (_alsoStyleConfig)
+				m_optionalStyleConfig = null;
+			
+			m_name = null;
+			m_style = null;
+			m_fixedSkinName = null;
+		}
+		
 		public void Apply()
 		{
 			if (CheckCondition())
 				ApplyImpl();
+		}
+		
+		public void Record()
+		{
+			if (CheckCondition())
+				RecordImpl();
+			
+#if UNITY_EDITOR
+			EditorUtility.SetDirty(StyleConfig);
+			AssetDatabase.SaveAssets();
+			UiEventDefinitions.EvSkinValuesChanged.Invoke(1);
+#endif
 		}
 
 		private bool CheckCondition()
@@ -59,14 +131,15 @@ namespace GuiToolkit.Style
 				return false;
 
 			var result = Style.ScreenOrientationCondition == UiAbstractStyleBase.EScreenOrientationCondition.Always 
-			       || Style.ScreenOrientationCondition == (UiAbstractStyleBase.EScreenOrientationCondition) UiMain.ScreenOrientation;
+			       || Style.ScreenOrientationCondition == (UiAbstractStyleBase.EScreenOrientationCondition) UiUtility.GetCurrentScreenOrientation();
 
 			return result;
 		}
 
 		protected abstract void ApplyImpl();
+		protected abstract void RecordImpl();
 
-		public abstract UiAbstractStyleBase CreateStyle(string _name, UiAbstractStyleBase _template = null);
+		public abstract UiAbstractStyleBase CreateStyle(UiStyleConfig _styleConfig, string _name, UiAbstractStyleBase _template = null);
 
 		public string Name
 		{
@@ -83,7 +156,10 @@ namespace GuiToolkit.Style
 
 		public UiAbstractStyleBase FindStyle()
 		{
-			UiSkin currentSkin = UiStyleConfig.Instance.CurrentSkin;
+			UiSkin currentSkin = SkinIsFixed ? 
+				StyleConfig.GetSkinByName(m_fixedSkinName) : 
+				StyleConfig.CurrentSkin;
+			
 			if (currentSkin == null)
 				return null;
 
@@ -96,5 +172,38 @@ namespace GuiToolkit.Style
 			if (m_style != null)
 				m_name = m_style.Name;
 		}
+		
+		public void OnSkinValuesChanged(float _) => Apply();
+
+		public void OnSkinChanged(float _)
+		{
+#if UNITY_EDITOR
+			bool isDirty = EditorUtility.IsDirty(this);
+			bool isComponentDirty = EditorUtility.IsDirty(Component);
+#endif
+			SetStyle();
+			Apply();
+
+#if UNITY_EDITOR
+			if (!isDirty)
+				EditorUtility.ClearDirty(this);
+			if (!isComponentDirty)
+				EditorUtility.ClearDirty(Component);
+#endif
+		}
+		
+		
+		public void SetSkinListeners(bool value)
+		{
+			UiEventDefinitions.EvSkinChanged.RemoveListener(OnSkinChanged);
+			UiEventDefinitions.EvSkinValuesChanged.RemoveListener(OnSkinValuesChanged);
+			if (!value)
+				return;
+			
+			UiEventDefinitions.EvSkinChanged.AddListener(OnSkinChanged);
+			UiEventDefinitions.EvSkinValuesChanged.AddListener(OnSkinValuesChanged);
+		}
+
+
 	}
 }

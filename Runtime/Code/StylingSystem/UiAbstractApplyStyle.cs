@@ -1,38 +1,34 @@
 using System;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace GuiToolkit.Style
 {
 	[ExecuteAlways]
-	public abstract class UiAbstractApplyStyle<MB,ST> : UiAbstractApplyStyleBase 
-		where MB : MonoBehaviour 
-		where ST : UiAbstractStyle<MB>
+	public abstract class UiAbstractApplyStyle<CO,ST> : UiAbstractApplyStyleBase 
+		where CO : Component 
+		where ST : UiAbstractStyle<CO>
 	{
-		private MB m_monoBehaviour;
+		private CO m_component;
 		private int m_key = 0;
 
-		public override Type SupportedMonoBehaviourType => typeof(MB);
+		public override Type SupportedComponentType => typeof(CO);
 		public override Type SupportedStyleType => typeof(ST);
 
-		public override MonoBehaviour MonoBehaviour
+		public override Component Component
 		{
 			get
 			{
-				if (m_monoBehaviour == null)
+				if (m_component == null)
 				{
-					m_monoBehaviour = GetComponent<MB>();
-					if (m_monoBehaviour == null)
+					m_component = GetComponent<CO>();
+					if (m_component == null)
 					{
-						Debug.LogWarning($"{GetType().Name}: Required MonoBehaviour type '{SupportedMonoBehaviourType.Name}'" + 
+						Debug.LogWarning($"{GetType().Name}: Required Component type '{SupportedComponentType.Name}'" + 
 						                 $" not found on GameObject '{gameObject.name}', styling won't work here");
 					}
 				}
 
-				return m_monoBehaviour;
+				return m_component;
 			}
 		}
 
@@ -41,51 +37,13 @@ namespace GuiToolkit.Style
 			get
 			{
 				if (m_key == 0 || !Application.isPlaying)
-					m_key = UiStyleUtility.GetKey(SupportedMonoBehaviourType, Name);
+					m_key = UiStyleUtility.GetKey(SupportedComponentType, Name);
 
 				return m_key;
 			}
 		}
 
-		public MB SpecificMonoBehaviour => MonoBehaviour as MB;
+		public CO SpecificComponent => Component as CO;
 		public ST SpecificStyle => Style as ST;
-
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-			UiEventDefinitions.EvSkinChanged.AddListener(OnSkinChanged);
-			UiEventDefinitions.EvSkinValuesChanged.AddListener(OnSkinValuesChanged);
-
-			if (SpecificMonoBehaviour == null)
-				return;
-
-			Apply();
-		}
-
-		protected override void OnDisable()
-		{
-			base.OnDisable();
-			UiEventDefinitions.EvSkinChanged.RemoveListener(OnSkinChanged);
-			UiEventDefinitions.EvSkinValuesChanged.RemoveListener(OnSkinValuesChanged);
-		}
-
-		private void OnSkinValuesChanged(float _) => Apply();
-
-		private void OnSkinChanged(float _)
-		{
-#if UNITY_EDITOR
-			string oldName = Name;
-#endif
-
-			SetStyle();
-			Apply();
-
-#if UNITY_EDITOR
-			if (oldName != Name)
-			{
-				EditorUtility.SetDirty(this);
-			}
-#endif
-		}
 	}
 }

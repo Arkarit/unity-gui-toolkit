@@ -1,7 +1,6 @@
+using GuiToolkit.Editor;
 using System;
 using System.Collections.Generic;
-using System.Xml.XPath;
-using GuiToolkit.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,38 +9,103 @@ namespace GuiToolkit.Style.Editor
 	[CustomPropertyDrawer(typeof(UiSkin), true)]
 	public class UiSkinDrawer : AbstractPropertyDrawer<UiSkin>
 	{
-		protected SerializedProperty m_nameProp;
 		protected SerializedProperty m_stylesProp;
+		protected UiSkin m_thisUiSkin;
 
-		public string skinName
-		{
-			get
-			{
-				if (m_nameProp == null)
-					return string.Empty;
-
-				return m_nameProp.stringValue;
-			}
-		}
+		public string skinName => m_thisUiSkin != null ? m_thisUiSkin.Name : null;
+		public string skinAlias => m_thisUiSkin != null ? m_thisUiSkin.Alias : null;
 
 		protected override void OnEnable()
 		{
-			m_nameProp = Property.FindPropertyRelative("m_name");
+			m_thisUiSkin = Property.boxedValue as UiSkin;
 			m_stylesProp = Property.FindPropertyRelative("m_styles");
 		}
 
 		protected override void OnInspectorGUI()
 		{
-//			BackgroundAbsHeight
-//			(
-//				new Color(0,0,0,.15f),
-//				new Color(1,1,1,.15f),
-//				0,
-//				0,
-//				0,
-//				SingleLineHeight + 5
-//			);
+			if (m_thisUiSkin == null)
+			{
+				Debug.LogError("Skin is null");
+				return;
+			}
+			
+			var styleConfig = m_thisUiSkin.StyleConfig;
+			var currentSkin = styleConfig.CurrentSkin;
+			bool isCurrentSkin = skinName == currentSkin.Name;
+			
+			BackgroundBox
+			(
+				isCurrentSkin ? new Color(0,0.5f,0,.15f) : new Color(0,0,0,.15f),
+				isCurrentSkin ? new Color(.75f,1,.75f,.15f) : new Color(.75f,.75f,.75f,.15f),
+				0,
+				-5,
+				0,
+				SingleLineHeight + 10
+			);
 
+			Horizontal(SingleLineHeight, () =>
+			{
+				IncreaseX(2);
+				
+				bool newCurrent = Toggle("", isCurrentSkin);
+				if (newCurrent && !isCurrentSkin)
+				{
+					isCurrentSkin = true;
+					styleConfig.CurrentSkinName = skinName;
+					return;
+				}
+				
+				IncreaseX(10);
+				
+				LabelField("   " + skinAlias, 0, EditorStyles.boldLabel);
+	
+				IncreaseX(-130);
+	
+				if (Button("Rename", 55))
+				{
+					// Create copies due to shitty c# not able to define capture copy in lambda
+					var skinAliasCopy = skinAlias;
+					var thisUiSkinCopy = m_thisUiSkin;
+					
+					EditorApplication.delayCall += () =>
+					{
+						Action<EditorInputDialog> additionalContent = dialog =>
+						{
+							if (GUILayout.Button("Reset Name"))
+							{
+								UiEventDefinitions.EvSetSkinAlias.InvokeAlways(thisUiSkinCopy.StyleConfig, thisUiSkinCopy, null);
+								dialog.Cancel();
+							}
+							
+							EditorGUILayout.Space(20);
+						};
+					
+						var newName = EditorInputDialog.Show("Rename", "Please enter new name", skinAliasCopy, additionalContent);
+						if (!string.IsNullOrEmpty(newName))
+						{
+							UiEventDefinitions.EvSetSkinAlias.InvokeAlways(thisUiSkinCopy.StyleConfig, thisUiSkinCopy, newName);
+						}
+					};
+				}
+					
+				IncreaseX(60);
+				
+				if (Button("Delete", 50))
+				{
+					if (EditorUtility.DisplayDialog
+				    (
+					    "Are you sure?",
+					    $"The skin '{skinAlias}' (identifier '{skinName}') will be removed from UiStyleConfig" 
+					    + " and all UI Apply Style instances which use it. This can not be undone.",
+					    "OK",
+					    "Cancel"
+				    ))
+					{
+						UiEventDefinitions.EvDeleteSkin.InvokeAlways(m_thisUiSkin.StyleConfig, skinName);
+					}
+				}
+			});
+			
 			var foldoutTitleRect = CurrentRect;
 			foldoutTitleRect.height = SingleLineHeight;
 			var displayFilter = UiStyleConfigEditor.DisplayFilter;
@@ -50,17 +114,22 @@ namespace GuiToolkit.Style.Editor
 			{
 				try
 				{
-					Foldout(EditedClassInstance.Name, $"", () =>
+					Space(-17);
+					
+					var foldoutOpen = Foldout(EditedClassInstance.Name, $"", () =>
 					{
 						var styles = GetFlatSortedStylesList();
-						var snp = new StyleNamePart();
-						snp.BuildTree(this, styles);
-//						snp.Dump();
-						Space(10);
+						var snp = new StyleTree();
+						snp.Build(this, styles);
+						Space(8);
 						Line(5);
 						snp.Display(this);
 						Line(5);
+						Space(1);
 					});
+					
+					if (!foldoutOpen)
+						Space(13);
 				}
 				catch
 				{
@@ -68,7 +137,9 @@ namespace GuiToolkit.Style.Editor
 			}
 			else
 			{
-				Foldout(EditedClassInstance.Name, $"", () =>
+				Space(-17);
+					
+				var foldoutOpen = Foldout(EditedClassInstance.Name, $"", () =>
 				{
 					Space(10);
 					Line(5);
@@ -78,15 +149,11 @@ namespace GuiToolkit.Style.Editor
 						var styles = GetFlatSortedStylesList();
 						foreach (var styleProp in styles)
 						{
-							if (!string.IsNullOrEmpty(displayFilter))
-							{
-								var style = styleProp.boxedValue as UiAbstractStyleBase;
-								var searchName = UiStyleUtility.GetName(style.SupportedMonoBehaviourType, style.Name)
-									.ToLower();
-								if (style != null && !searchName.Contains(displayFilter.ToLower()))
-									continue;
-							}
-
+							if (!CheckFilter(displayFilter, styleProp))
+								continue;
+var scprop = styleProp.FindPropertyRelative("m_styleConfig");
+scprop.objectReferenceValue = m_thisUiSkin.StyleConfig;
+EditorUtility.SetDirty(m_thisUiSkin.StyleConfig);
 							PropertyField(styleProp);
 						}
 					}
@@ -94,54 +161,38 @@ namespace GuiToolkit.Style.Editor
 					{
 					}
 				});
-			}
-
-			if (CollectHeightMode)
-				return;
-
-			var skinName = m_nameProp.stringValue;
-			var foldoutLabelRect = foldoutTitleRect;
-			foldoutLabelRect.x += 5;
-			foldoutLabelRect.y += 3;
-			EditorGUI.LabelField(foldoutLabelRect, $"Skin: {m_nameProp.stringValue}", EditorStyles.boldLabel);
-
-			var deleteButtonRect = foldoutTitleRect;
-			deleteButtonRect.x = deleteButtonRect.width + deleteButtonRect.x - 60;
-			deleteButtonRect.y += 2;
-			deleteButtonRect.width = 50;
-			if (GUI.Button(deleteButtonRect, "Delete"))
-			{
-
-				if (EditorUtility.DisplayDialog
-			    (
-				    "Are you sure?",
-				    $"The skin '{skinName}' will be removed from UiMainStyleConfig" 
-				    + " and all Ui Apply Style instances which use it. This can not be undone.",
-				    "OK",
-				    "Cancel"
-			    ))
-				{
-					UiEventDefinitions.EvDeleteSkin.InvokeAlways(null, skinName);
-				}
+				
+				if (!foldoutOpen)
+					Space(13);
 			}
 		}
 
-		private class StyleNamePart
+		private class StyleTree
 		{
 			public string Name = string.Empty;
-			public readonly Dictionary<string, StyleNamePart> Children = new();
+			public readonly Dictionary<string, StyleTree> Children = new();
 			public readonly List<SerializedProperty> Properties = new ();
 			public int Id;
 
-			public void BuildTree(UiSkinDrawer drawer, List<SerializedProperty> flatList)
+			public void Build(UiSkinDrawer drawer, List<SerializedProperty> flatList)
 			{
-				Id = 0xddfa0 + Animator.StringToHash(drawer.skinName);
+				Id = 0xddfa0 + (UiStyleConfigEditor.SynchronizeFoldouts ? 0 : Animator.StringToHash(drawer.skinName));
 
+				var displayFilter = UiStyleConfigEditor.DisplayFilter;
+				
 				foreach (var property in flatList)
 				{
-					StyleNamePart current = this;
+					StyleTree current = this;
 
-					string s = property.displayName;
+					var style = property.boxedValue as UiAbstractStyleBase;
+					if (style == null)
+						continue;
+					
+					if (!CheckFilter(displayFilter, property))
+						continue;
+					
+					string s = style.Alias;
+					
 					while (true)
 					{
 						(string a, string b) = Split(s);
@@ -168,9 +219,9 @@ namespace GuiToolkit.Style.Editor
 				}
 			}
 
-			private StyleNamePart GetNew()
+			private StyleTree GetNew()
 			{
-				var result = new StyleNamePart();
+				var result = new StyleTree();
 				result.Id = Id++;
 				return result;
 			}
@@ -190,14 +241,12 @@ namespace GuiToolkit.Style.Editor
 				}
 			}
 
-			private int m_id;
 			public void Display(UiSkinDrawer drawer)
 			{
-				m_id = 0x70;
 				Display(drawer, this);
 			}
 
-			private void Display(UiSkinDrawer drawer, StyleNamePart current)
+			private void Display(UiSkinDrawer drawer, StyleTree current)
 			{
 				if (string.IsNullOrEmpty(current.Name))
 				{
@@ -221,7 +270,6 @@ namespace GuiToolkit.Style.Editor
 				});
 			}
 
-
 			private (string, string) Split(string s)
 			{
 				var idx = s.IndexOf("/");
@@ -244,8 +292,8 @@ namespace GuiToolkit.Style.Editor
 				var styleA = a.boxedValue as UiAbstractStyleBase;
 				var styleB = b.boxedValue as UiAbstractStyleBase;
 
-				int nameComp = styleA.Name.CompareTo(styleB.Name);
-				int typeComp = styleA.SupportedMonoBehaviourType.Name.CompareTo(styleB.SupportedMonoBehaviourType.Name);
+				int nameComp = styleA.Alias.CompareTo(styleB.Alias);
+				int typeComp = styleA.SupportedComponentType.Name.CompareTo(styleB.SupportedComponentType.Name);
 
 				if (   UiStyleConfigEditor.SortType == UiStyleConfigEditor.ESortType.PathDescending 
 				    || UiStyleConfigEditor.SortType == UiStyleConfigEditor.ESortType.FlatPathDescending
@@ -269,6 +317,21 @@ namespace GuiToolkit.Style.Editor
 			});
 
 			return result;
+		}
+		
+		private static bool CheckFilter(UiStyleEditorFilter displayFilter, SerializedProperty styleProp)
+		{
+			if (!displayFilter.ShowAll)
+			{
+				var style = styleProp.boxedValue as UiAbstractStyleBase;
+				if (!displayFilter.HasName(style.Alias))
+					return false;
+
+				if (!displayFilter.HasType(style.SupportedComponentType.Name))
+					return false;
+			}
+
+			return true;
 		}
 	}
 }
