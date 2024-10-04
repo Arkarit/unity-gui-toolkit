@@ -29,7 +29,7 @@ namespace GuiToolkit.Style
 		public int CurrentSkinIdx
 		{
 			get =>  m_currentSkinIdx;
-			private set
+			set
 			{
 				if (m_currentSkinIdx == value)
 					return;

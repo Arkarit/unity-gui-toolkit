@@ -125,7 +125,7 @@ namespace GuiToolkit.Editor
 		private void HandleStyleConfig()
 		{
 			var styleConfigProp = m_serializedSettingsObject.FindProperty("m_styleConfig");
-			var currentStyleConfig = styleConfigProp.objectReferenceValue as UiStyleConfig;
+			var currentStyleConfig = styleConfigProp.objectReferenceValue as UiMainStyleConfig;
 			if (currentStyleConfig == null)
 			{
 				currentStyleConfig = FindStyleConfig();
@@ -146,11 +146,11 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(styleConfigProp);
 		}
 
-		private void CloneStyleConfig(ref UiStyleConfig currentStyleConfig)
+		private void CloneStyleConfig(ref UiMainStyleConfig currentStyleConfig)
 		{
 			string resourceDir = "Assets/Resources";
 			EditorFileUtility.EnsureFolderExists(resourceDir);
-			var newConfigPath = $"{resourceDir}/{nameof(UiStyleConfig)}.asset";
+			var newConfigPath = $"{resourceDir}/{nameof(UiMainStyleConfig)}.asset";
 			if (File.Exists(EditorFileUtility.GetNativePath(newConfigPath)))
 				if (!EditorUtility.DisplayDialog("Overwrite Configuration?", $"A config file at '{newConfigPath}' already exists. Should it be overwritten? (Not undoable)", "OK", "Cancel"))
 					return;
@@ -163,7 +163,7 @@ namespace GuiToolkit.Editor
 			AssetDatabase.SaveAssets();
 		}
 
-		private bool IsDefaultConfig(UiStyleConfig currentStyleConfig)
+		private bool IsDefaultConfig(UiMainStyleConfig currentStyleConfig)
 		{
 			if (currentStyleConfig == null)
 				return false;
@@ -173,7 +173,7 @@ namespace GuiToolkit.Editor
 		}
 
 
-		private UiStyleConfig FindStyleConfig() => EditorAssetUtility.FindScriptableObject<UiStyleConfig>();
+		private UiMainStyleConfig FindStyleConfig() => EditorAssetUtility.FindScriptableObject<UiMainStyleConfig>();
 
 		[MenuItem(StringConstants.CONFIGURATION_MENU_NAME, priority = Constants.SETTINGS_MENU_PRIORITY)]
 		public static UiToolkitConfigurationWindow GetWindow()

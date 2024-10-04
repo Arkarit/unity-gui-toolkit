@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1234a3a70f483ab46967744e75259593, type: 3}
+  m_Name: UiMainStyleConfig
+  m_EditorClassIdentifier: 
+  m_skins:
+  - m_config: {fileID: 11400000}
+    m_name: Skin 1
+    m_alias: 
+    m_styles:
+    - rid: 7344100057110282252
+  - m_config: {fileID: 11400000}
+    m_name: Skin 2
+    m_alias: 
+    m_styles:
+    - rid: 7344100057110282253
+  m_currentSkinIdx: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 7344100057110282252
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: Colored Image
+        m_alias: Images/Colored Image
+        m_screenOrientationCondition: -1
+        m_sprite:
+          rid: 7344100057110282254
+        m_color:
+          rid: 7344100057110282255
+    - rid: 7344100057110282253
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: Colored Image
+        m_alias: Images/Colored Image
+        m_screenOrientationCondition: -1
+        m_sprite:
+          rid: 7344100057110282256
+        m_color:
+          rid: 7344100057110282257
+    - rid: 7344100057110282254
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 21300000, guid: cd7814db32a13f54fb1fd147067be177, type: 3}
+    - rid: 7344100057110282255
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 0, b: 0, a: 1}
+    - rid: 7344100057110282256
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 21300000, guid: cd7814db32a13f54fb1fd147067be177, type: 3}
+    - rid: 7344100057110282257
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 1, b: 0.024693727, a: 1}

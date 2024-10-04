@@ -73,7 +73,7 @@ namespace GuiToolkit
 		public string m_additionalScenesPath = "Scenes/";
 
 		[Tooltip(HELP_STYLE_CONFIG)]
-		public UiStyleConfig m_styleConfig;
+		public UiMainStyleConfig m_styleConfig;
 
 		[Tooltip(HELP_DEBUG_LOCA)]
 		public bool m_debugLoca = false;
@@ -87,7 +87,7 @@ namespace GuiToolkit
 			InitScenesByName();
 		}
 
-		public UiStyleConfig StyleConfig => m_styleConfig;
+		public UiMainStyleConfig StyleConfig => m_styleConfig;
 
 		public string GetScenePath(string _sceneName)
 		{
