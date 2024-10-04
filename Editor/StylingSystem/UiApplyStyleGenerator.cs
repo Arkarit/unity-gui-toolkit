@@ -489,8 +489,8 @@ namespace GuiToolkit.Style.Editor
 			};
 
 			string path = _internal ?
-				UiMainStyleConfig.Instance.InternalGeneratedAssetsDir + $"Type-Json/{m_componentType.FullName}.json" :
-				UiMainStyleConfig.Instance.GeneratedAssetsDir + $"{m_componentType.FullName}.json";
+				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir + $"Type-Json/{m_componentType.FullName}.json" :
+				UiToolkitConfiguration.Instance.GeneratedAssetsDir + $"{m_componentType.FullName}.json";
 
 			try
 			{
@@ -509,7 +509,7 @@ namespace GuiToolkit.Style.Editor
 		{
 			for (var type = m_componentType; type != typeof(Component); type = type.BaseType)
 			{
-				string path = UiMainStyleConfig.Instance.GeneratedAssetsDir +
+				string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir +
 				              $"{type.FullName}.json";
 				if (TryReadJson(path))
 				{
@@ -517,7 +517,7 @@ namespace GuiToolkit.Style.Editor
 					return true;
 				}
 
-				string pathInternal = UiMainStyleConfig.Instance.InternalGeneratedAssetsDir +
+				string pathInternal = UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir +
 				                      $"Type-Json/{type.FullName}.json";
 
 				if (TryReadJson(pathInternal))
@@ -630,8 +630,8 @@ namespace GuiToolkit.Style.Editor
 			string applicationClassContent = GenerateApplicationClass();
 			
 			string dir = _internal ?
-				UiMainStyleConfig.Instance.InternalGeneratedAssetsDir :
-				UiMainStyleConfig.Instance.GeneratedAssetsDir;
+				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir :
+				UiToolkitConfiguration.Instance.GeneratedAssetsDir;
 
 			string classPrefix = m_prefix;
 			string shortTypeName = m_componentType.Name;

@@ -89,10 +89,6 @@ namespace GuiToolkit
 
 		public UiStyleConfig StyleConfig => m_styleConfig;
 
-#if UNITY_EDITOR
-		public bool IsEditingInternal => EditorFileUtility.GetApplicationDataDir().Contains(".Dev-App");
-#endif
-
 		public string GetScenePath(string _sceneName)
 		{
 			if (m_scenesByName.ContainsKey(_sceneName))
