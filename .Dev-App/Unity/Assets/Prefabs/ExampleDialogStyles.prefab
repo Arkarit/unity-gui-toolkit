@@ -123,6 +123,11 @@ PrefabInstance:
       propertyPath: m_Alpha
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2525010522417481711, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
+        type: 3}
+      propertyPath: m_text
+      value: Style Example
+      objectReference: {fileID: 0}
     - target: {fileID: 7128859168729151332, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
         type: 3}
       propertyPath: m_Name
@@ -131,7 +136,7 @@ PrefabInstance:
     - target: {fileID: 8806163725296523091, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
         type: 3}
       propertyPath: m_PresetInfoIsWorld
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -141,6 +146,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 3564769725716863453}
+    - targetCorrespondingSourceObject: {fileID: 7128859168729151332, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5170631180040944163}
   m_SourcePrefab: {fileID: 100100000, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe, type: 3}
 --- !u!114 &3833756557553125001 stripped
 MonoBehaviour:
@@ -177,3 +186,20 @@ MonoBehaviour:
   m_layer: 800
   m_isFullScreen: 0
   m_closeButton: {fileID: 3833756557553125001}
+--- !u!114 &5170631180040944163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3956648932524374415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
