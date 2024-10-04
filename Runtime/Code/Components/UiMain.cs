@@ -289,7 +289,7 @@ namespace GuiToolkit
 			requester.Requester(_onEvent, _title);
 		}
 
-		private T CreateView<T>(T _template) where T : UiView
+		public T CreateView<T>(T _template) where T : UiView
 		{
 			T result = _template.PoolInstantiate();
 			result.transform.SetParent(transform, false);

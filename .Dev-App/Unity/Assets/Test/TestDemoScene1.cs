@@ -14,12 +14,15 @@ public class TestDemoScene1 : UiView
 	public Button m_showRequesterButton;
 	public Button m_showSettings;
 	public Button m_switchSkinButton;
+	public Button m_exampleDialogStylesButton;
 
 	public TMP_InputField m_splashMessageInput;
 	public TMP_InputField m_requesterTitleInput;
 	public TMP_InputField m_requesterTextInput;
 
 	public TMP_Text m_singularPluralTest;
+	
+	public ExampleDialogStyles m_exampleDialogStylesPrefab;
 
 	protected override bool NeedsLanguageChangeCallback => true;
 
@@ -32,6 +35,13 @@ public class TestDemoScene1 : UiView
 		m_showRequesterButton.onClick.AddListener(OnShowRequester);
 		m_showSettings.onClick.AddListener(OnShowSettings);
 		m_switchSkinButton.onClick.AddListener(OnSwitchSkin);
+		m_exampleDialogStylesButton.onClick.AddListener(OnExampleDialogStylesButton);
+	}
+
+	private void OnExampleDialogStylesButton()
+	{
+		var exampleDialogStylesDialog = UiMain.Instance.CreateView(m_exampleDialogStylesPrefab);
+		exampleDialogStylesDialog.Show();
 	}
 
 	private void OnSwitchSkin()
