@@ -214,7 +214,12 @@ namespace GuiToolkit.Style
 
 		private void OnAddSkin(UiStyleConfig _styleConfig, UiSkin _newSkin)
 		{
-			if (_styleConfig != this || _newSkin == null)
+			if 
+			(
+				   _styleConfig != this 
+			    || _newSkin == null
+				|| m_skins.Contains(_newSkin)
+			)
 				return;
 			
 			m_skins.Add(_newSkin);
