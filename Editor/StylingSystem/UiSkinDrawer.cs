@@ -101,7 +101,9 @@ namespace GuiToolkit.Style.Editor
 					    "Cancel"
 				    ))
 					{
+Debug.Log($"Delete, by skin:{m_thisUiSkin.Name}");
 						UiEventDefinitions.EvDeleteSkin.InvokeAlways(m_thisUiSkin.StyleConfig, skinName);
+Debug.Log($"DONE Delete, by skin:{m_thisUiSkin.Name}");
 					}
 				}
 			});

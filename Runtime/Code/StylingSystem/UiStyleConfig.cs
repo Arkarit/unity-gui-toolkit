@@ -50,6 +50,14 @@ namespace GuiToolkit.Style
 		{
 			foreach (var skin in m_skins)
 				skin.Init();
+			AddListeners();
+		}
+
+		protected void OnDisable() => RemoveListeners();
+
+		private void AddListeners()
+		{
+			RemoveListeners();
 			UiEventDefinitions.EvDeleteStyle.AddListener(OnDeleteStyle);
 			UiEventDefinitions.EvDeleteSkin.AddListener(OnDeleteSkin);
 			UiEventDefinitions.EvSetStyleAlias.AddListener(OnSetStyleAlias);
@@ -57,7 +65,7 @@ namespace GuiToolkit.Style
 			UiEventDefinitions.EvAddSkin.AddListener(OnAddSkin);
 		}
 
-		protected void OnDisable()
+		private void RemoveListeners()
 		{
 			UiEventDefinitions.EvDeleteStyle.RemoveListener(OnDeleteStyle);
 			UiEventDefinitions.EvDeleteSkin.RemoveListener(OnDeleteSkin);
@@ -288,7 +296,7 @@ namespace GuiToolkit.Style
 		{
 			if (_styleConfig != this)
 				return;
-			
+Debug.Log($"Attempt to delete skin {_skinName}");			
 			for (int i = 0; i < m_skins.Count; i++)
 			{
 				var skin = m_skins[i];

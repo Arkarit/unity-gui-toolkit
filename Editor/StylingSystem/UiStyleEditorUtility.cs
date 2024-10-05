@@ -112,7 +112,9 @@ namespace GuiToolkit.Style.Editor
 		public static void SelectSkinByPopup(UiStyleConfig _config)
 		{
 			var currentSkinAlias = _config.CurrentSkinAlias;
-			_config.CurrentSkinAlias = GetSelectSkinPopup(_config, currentSkinAlias, out bool _);
+			_config.CurrentSkinAlias = GetSelectSkinPopup(_config, currentSkinAlias, out bool hasChanged);
+			if (hasChanged)
+				EditorGUIUtility.ExitGUI();
 		}
 		
 		// Draw a style in the inspector without the need to actually [SerializeReference] it (which totally bloats stuff)
