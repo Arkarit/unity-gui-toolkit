@@ -296,7 +296,7 @@ namespace GuiToolkit.Style
 		{
 			if (_styleConfig != this)
 				return;
-Debug.Log($"Attempt to delete skin {_skinName}");			
+
 			for (int i = 0; i < m_skins.Count; i++)
 			{
 				var skin = m_skins[i];
