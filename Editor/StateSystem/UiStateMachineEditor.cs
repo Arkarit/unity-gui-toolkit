@@ -1,5 +1,4 @@
 ﻿#if UNITY_EDITOR
-using Haven.PathPainter2;
 using System;
 using System.Collections.Generic;
 using UnityEditor;

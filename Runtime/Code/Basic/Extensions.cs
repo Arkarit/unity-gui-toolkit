@@ -14,6 +14,7 @@ namespace GuiToolkit
 {
 	public static class Extensions
 	{
+		private static readonly List<Transform> s_tempTransformList = new List<Transform>();
 		private static readonly HashSet<string> s_excludedMembers = new HashSet<string> {"name", "_parent", "parentInternal"};
 		private static readonly HashSet<Type> s_excludedTypes = new HashSet<Type> {typeof(Component), typeof(Transform), typeof(MonoBehaviour)};
 
@@ -131,6 +132,18 @@ namespace GuiToolkit
 #endif
 		}
 
+		public static void DestroyAllChildren( this Transform _this, bool _includeHidden = true )
+		{
+			foreach( Transform child in _this )
+				if (_includeHidden || child.gameObject.activeSelf)
+					Extensions.SafeDestroy(child);
+		}
+
+		public static void DestroyAllChildren( this GameObject _this, bool _includeHidden = true )
+		{
+			Extensions.DestroyAllChildren( _this.transform, _includeHidden );
+		}
+		
 		public static List<T> ToList<T>( this HashSet<T> _self )
 		{
 			List<T> result = new List<T>(_self.Count);
@@ -519,6 +532,26 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public static void GetChildren(this Transform _this, ICollection<Transform> _list)
+		{
+			_list.Clear();
+			foreach (Transform child in _this)
+				_list.Add(child);
+		}
+
+		public static List<Transform> GetChildrenList(this Transform _this)
+		{
+			List<Transform> result = new List<Transform>();
+			GetChildren(_this, result);
+			return result;
+		}
+
+		public static Transform[] GetChildrenArray(this Transform _this)
+		{
+			GetChildren(_this, s_tempTransformList);
+			return s_tempTransformList.ToArray();
+		}
+
 		public static void CloneAllComponents(GameObject _from, GameObject _to, bool _alsoIfExists = false, HashSet<string> _excludedMembers = null, HashSet<Type> _excludedTypes = null)
 		{
 			List<Component> components = new();
@@ -578,6 +611,12 @@ namespace GuiToolkit
 			return _self.transform.root.gameObject;
 		}
 		
+		public static T ShallowClone<T>(this T _this)
+		{
+			var inst = _this.GetType().GetMethod("MemberwiseClone", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+			return (T)inst?.Invoke(_this, null);
+		}
+
 		private class CloneHelper : ScriptableObject
 		{
 			public UnityEngine.Object m_unityObject;

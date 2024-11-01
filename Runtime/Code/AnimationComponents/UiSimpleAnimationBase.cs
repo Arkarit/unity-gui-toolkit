@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace GuiToolkit
 {
-	public class UiSimpleAnimationBase : MonoBehaviour
+	public class UiSimpleAnimationBase : UiThing, IShowHidePanelAnimation
 	{
 		protected const int INFINITE_LOOPS = -1;
 		private const int DONT_SET_LOOPS = -2;
@@ -49,7 +49,7 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_setLoopsForSlaves = true;
 		[SerializeField] protected bool m_supportViewAnimations = false;
 
-//		protected override bool NeedsOnScreenOrientationCallback => m_finishInstantOnOrientationChange;
+		protected override bool NeedsOnScreenOrientationCallback => m_finishInstantOnOrientationChange;
 
 		public List<UiSimpleAnimationBase> SlaveAnimations => m_slaveAnimations;
 		public bool IsPlaying => m_playing;
@@ -181,7 +181,10 @@ namespace GuiToolkit
 			if (m_autoOnEnable && IsPlaying)
 				Reset();
 		}
-
+		
+		public UnityEvent OnFinish => m_onFinish;
+		public UnityEvent OnFinishOnce => m_onFinishOnce;
+		
 		public void Play() => Play(false, null);
 		
 		public void Play(bool _backwards) => Play(_backwards, null);
@@ -387,7 +390,6 @@ namespace GuiToolkit
 			FinishAnimation(true);
 		}
 
-#if false
 		protected override void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation )
 		{
 			if (_oldScreenOrientation != EScreenOrientation.Invalid)
@@ -396,7 +398,6 @@ namespace GuiToolkit
 				Stop();
 			}
 		}
-#endif
 
 		private void FinishAnimation(bool _invokeOnStopDelegates)
 		{
@@ -579,6 +580,15 @@ namespace GuiToolkit
 			if (_onFinishOnce != null)
 				m_onFinishOnce.AddListener(() => _onFinishOnce());
 			Play(true);
+		}
+
+		public void StopViewAnimation(bool _visible)
+		{
+			if (!m_supportViewAnimations)
+				return;
+
+			m_onFinishOnce.RemoveAllListeners();
+			Reset(_visible);
 		}
 
 		[System.Diagnostics.Conditional("DEBUG_SIMPLE_ANIMATION")]

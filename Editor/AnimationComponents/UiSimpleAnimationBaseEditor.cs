@@ -161,8 +161,8 @@ namespace GuiToolkit.Editor
 
 			GUILayout.BeginHorizontal();
 
-			EditorUpdater.s_timeScale = EditorGUILayout.Slider("Test Speed", EditorUpdater.s_timeScale, 0.001f, 5);
-			EditorGUI.BeginDisabledGroup(EditorUpdater.s_timeScale == 1);
+			EditorUpdater.TimeScale = EditorGUILayout.Slider("Test Speed", EditorUpdater.TimeScale, 0.001f, 5);
+			EditorGUI.BeginDisabledGroup(EditorUpdater.TimeScale == 1);
 			if (GUILayout.Button("Apply"))
 			{
 				if (EditorUtility.DisplayDialog("Apply?", "Apply time scale to whole animation?", "OK", "Cancel" ))
@@ -178,7 +178,7 @@ namespace GuiToolkit.Editor
 		{
 			Stop();
 			CollectAnimations();
-			float scale = 1.0f / EditorUpdater.s_timeScale;
+			float scale = 1.0f / EditorUpdater.TimeScale;
 			foreach (var animation in m_animationsToUpdate)
 			{
 				Undo.RecordObject(animation, "Apply Time Scale");
@@ -186,7 +186,7 @@ namespace GuiToolkit.Editor
 				animation.Delay *= scale;
 			}
 			m_animationsToUpdate.Clear();
-			EditorUpdater.s_timeScale = 1;
+			EditorUpdater.TimeScale = 1;
 			UiSimpleAnimationBase thisUiSimpleAnimationBase = (UiSimpleAnimationBase)target;
 			EditorSceneManager.MarkSceneDirty(thisUiSimpleAnimationBase.gameObject.scene);
 		}
