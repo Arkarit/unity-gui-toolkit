@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
@@ -19,6 +20,9 @@ namespace GuiToolkit.Style
 		
 		protected UiAbstractStyleBase m_style;
 
+		public UnityEvent<UiAbstractApplyStyleBase> OnBeforeApplyStyle = new();
+		public UnityEvent<UiAbstractApplyStyleBase> OnAfterApplyStyle = new();
+		
 		public abstract Type SupportedComponentType { get; }
 		public abstract Type SupportedStyleType { get; }
 		public abstract Component Component { get; }
@@ -110,7 +114,11 @@ namespace GuiToolkit.Style
 		public void Apply()
 		{
 			if (CheckCondition())
+			{
+				OnBeforeApplyStyle.Invoke(this);
 				ApplyImpl();
+				OnAfterApplyStyle.Invoke(this);
+			}
 		}
 		
 		public void Record()

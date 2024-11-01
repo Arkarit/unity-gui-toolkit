@@ -20,12 +20,6 @@ namespace GuiToolkit
 		[SerializeField]
 		protected bool m_splitAtKeys = true;
 
-		public Gradient Gradient
-		{
-			get => m_gradient;
-			set => m_gradient = value;
-		}
-
 		protected override bool ChangesTopology { get {return true;} }
 
 		protected override Color GetColor( Vector2 _normVal )

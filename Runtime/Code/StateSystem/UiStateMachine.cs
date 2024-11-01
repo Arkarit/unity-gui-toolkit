@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -27,6 +30,9 @@ namespace GuiToolkit.UiStateSystem
 		private List<GameObject> m_gameObjects;
 
 		[SerializeField]
+		private List<RectTransform> m_layoutRootsToUpdate;
+
+		[SerializeField]
 		private List<string> m_stateNames;
 
 		[SerializeField]
@@ -42,7 +48,11 @@ namespace GuiToolkit.UiStateSystem
 		private UiTransition[] m_transitions;
 		
 		[SerializeField]
-		private bool m_autoSetFirstStateOnEnable;
+		[FormerlySerializedAs("m_autoSetFirstStateOnEnable")] 
+		private bool m_autoSetStateOnEnable;
+
+		[SerializeField]
+		private int m_stateIdxOnEnable = 0;
 
 
 #if UNITY_EDITOR
@@ -123,10 +133,10 @@ namespace GuiToolkit.UiStateSystem
 
 		protected void OnEnable()
 		{
-			if (!m_autoSetFirstStateOnEnable || m_states.Count == 0)
+			if (!m_autoSetStateOnEnable || m_stateIdxOnEnable < 0 || m_stateIdxOnEnable >= m_states.Count)
 				return;
 			
-			SetState(m_states[0].Name, false, true);
+			SetState(m_states[m_stateIdxOnEnable].Name, false, true);
 		}
 
 #if UNITY_EDITOR
@@ -161,6 +171,7 @@ namespace GuiToolkit.UiStateSystem
 					i--;
 				}
 			}
+			
 			for (int i=0; i<m_states.Count; i++)
 			{
 				if (m_states[i].GameObject == null)
@@ -207,7 +218,18 @@ namespace GuiToolkit.UiStateSystem
 					}
 					m_currentTime += _deltaTime;
 				}
+
+				UpdateLayouts();
 			}
+		}
+
+		private void UpdateLayouts()
+		{
+			if (m_layoutRootsToUpdate == null)
+				return;
+
+			foreach (var layoutToUpdate in m_layoutRootsToUpdate)
+				LayoutRebuilder.ForceRebuildLayoutImmediate(layoutToUpdate);
 		}
 
 #if UNITY_EDITOR
@@ -353,6 +375,8 @@ namespace GuiToolkit.UiStateSystem
 
 			foreach (var state in states)
 				state.ApplyInstant();
+			
+			UpdateLayouts();
 
 			if (!_alsoSubStateMachines)
 				return;

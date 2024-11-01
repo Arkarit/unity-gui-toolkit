@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace GuiToolkit.Style.Editor
 {
@@ -7,9 +8,12 @@ namespace GuiToolkit.Style.Editor
 	public class UiAbstractApplyStyleBaseEditor : UnityEditor.Editor
 	{
 		private UiAbstractApplyStyleBase m_thisAbstractApplyStyleBase;
-		SerializedProperty m_nameProp;
-		SerializedProperty m_fixedSkinNameProp;
-		SerializedProperty m_optionalStyleConfigProp;
+		private SerializedProperty m_nameProp;
+		private SerializedProperty m_fixedSkinNameProp;
+		private SerializedProperty m_optionalStyleConfigProp;
+		private SerializedProperty m_onBeforeApplyStyleProp;
+		private SerializedProperty m_onAfterApplyStyleProp;
+
 		
 		protected virtual void OnEnable()
 		{
@@ -17,6 +21,8 @@ namespace GuiToolkit.Style.Editor
 			m_nameProp = serializedObject.FindProperty("m_name");
 			m_fixedSkinNameProp = serializedObject.FindProperty("m_fixedSkinName");
 			m_optionalStyleConfigProp = serializedObject.FindProperty("m_optionalStyleConfig");
+			m_onBeforeApplyStyleProp = serializedObject.FindProperty("OnBeforeApplyStyle");
+			m_onAfterApplyStyleProp = serializedObject.FindProperty("OnAfterApplyStyle");
 			Undo.undoRedoPerformed += OnUndoOrRedo;
 		}
 
@@ -90,6 +96,12 @@ namespace GuiToolkit.Style.Editor
 				m_thisAbstractApplyStyleBase.Tweenable = EditorGUILayout.Toggle("Tweenable", m_thisAbstractApplyStyleBase.Tweenable);
 
 			EditorGUILayout.Space(10);
+			
+			EditorGUILayout.LabelField("Events", EditorStyles.boldLabel);
+			EditorGUILayout.PropertyField(m_onBeforeApplyStyleProp);
+			EditorGUILayout.PropertyField(m_onAfterApplyStyleProp);
+			EditorGUILayout.Space(10);
+			
 			EditorGUILayout.LabelField("Global Settings", EditorStyles.boldLabel);
 
 			if (!m_thisAbstractApplyStyleBase.SkinIsFixed)

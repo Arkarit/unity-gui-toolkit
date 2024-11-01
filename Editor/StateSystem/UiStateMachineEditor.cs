@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using Haven.PathPainter2;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -15,13 +16,15 @@ namespace GuiToolkit.UiStateSystem.Editor
 
 		public SerializedProperty m_supportProp;
 		public SerializedProperty m_gameObjectsProp;
+		public SerializedProperty m_layoutRootsToUpdateProp;
 		public SerializedProperty m_stateNamesProp;
 		public SerializedProperty m_statesProp;
 		public SerializedProperty m_currentStateNameProp;
 		public SerializedProperty m_transitionsProp;
 		public SerializedProperty m_pristineProp;
 		public SerializedProperty m_subStateMachinesProp;
-		public SerializedProperty m_autoSetFirstStateOnEnableProp;
+		public SerializedProperty m_autoSetStateOnEnableProp;
+		public SerializedProperty m_stateIdxOnEnableProp;
 		private static bool s_drawDefaultInspector = false;
 		private string m_newStateName;
 		private UiStateMachine m_thisStateMachine;
@@ -30,13 +33,15 @@ namespace GuiToolkit.UiStateSystem.Editor
 		{
 			m_supportProp = serializedObject.FindProperty("m_propertySupport");
 			m_gameObjectsProp = serializedObject.FindProperty("m_gameObjects");
+			m_layoutRootsToUpdateProp = serializedObject.FindProperty("m_layoutRootsToUpdate");
 			m_stateNamesProp = serializedObject.FindProperty("m_stateNames");
 			m_statesProp = serializedObject.FindProperty("m_states");
 			m_currentStateNameProp = serializedObject.FindProperty("m_currentStateName");
 			m_transitionsProp = serializedObject.FindProperty("m_transitions");
 			m_pristineProp = serializedObject.FindProperty("m_pristine");
 			m_subStateMachinesProp = serializedObject.FindProperty("m_subStateMachines");
-			m_autoSetFirstStateOnEnableProp = serializedObject.FindProperty("m_autoSetFirstStateOnEnable");
+			m_autoSetStateOnEnableProp = serializedObject.FindProperty("m_autoSetStateOnEnable");
+			m_stateIdxOnEnableProp = serializedObject.FindProperty("m_stateIdxOnEnable");
 		}
 
 		public override void OnInspectorGUI()
@@ -54,11 +59,18 @@ namespace GuiToolkit.UiStateSystem.Editor
 			EditorStyles.popup.fixedHeight = EditorUiUtility.NORMAL_POPUP_HEIGHT;
 
 			GUILayout.Label("General", EditorStyles.boldLabel);
-			EditorGUILayout.PropertyField(m_autoSetFirstStateOnEnableProp);
+			EditorGUILayout.PropertyField(m_autoSetStateOnEnableProp);
+			if (m_autoSetStateOnEnableProp.boolValue)
+			{
+				// TODO: state name popup instead of simple int field
+				EditorGUILayout.PropertyField(m_stateIdxOnEnableProp);
+			}
+			
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			
 			DisplaySupportFlags();
 			DisplayGameObjects();
+			EditorGUILayout.PropertyField(m_layoutRootsToUpdateProp);
 			DisplayStates();
 			bool exitGui = DisplayTransitionList();
 
@@ -294,7 +306,7 @@ namespace GuiToolkit.UiStateSystem.Editor
 		private void DisplayNewOrRenameStateField()
 		{
 			EditorGUILayout.BeginHorizontal();
-			GUILayout.Label("New State", GUILayout.Width(EditorGUIUtility.labelWidth));
+			GUILayout.Label("New State(s)", GUILayout.Width(EditorGUIUtility.labelWidth));
 			m_newStateName = GUILayout.TextField(m_newStateName);
 			EditorGUILayout.EndHorizontal();
 
@@ -343,7 +355,27 @@ namespace GuiToolkit.UiStateSystem.Editor
 
 		private void CreateState()
 		{
-			CreateState(m_newStateName);
+			var stateNames = m_newStateName.Split(',');
+			if (stateNames.Length > 1)
+			{
+				for (int i = 0; i < stateNames.Length; i++)
+				{
+					var state = stateNames[i];
+					if (state == null)
+						continue;
+					
+					state = state.Trim();
+					if (state == string.Empty)
+						continue;
+					
+					CreateState(state);
+				}
+			}
+			else
+			{
+				CreateState(m_newStateName);
+			}
+			
 			m_newStateName = "";
 		}
 

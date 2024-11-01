@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System;
-using UnityEngine.Events;
 using UnityEngine.Serialization;
 using System.Collections.Generic;
 
@@ -183,6 +181,8 @@ namespace GuiToolkit
 			if (m_originalMaterial == null)
 			{
 				m_originalMaterial = GetMaterialFromRenderer();
+				if (m_originalMaterial == null)
+					return;
 			}
 
 			// Material in renderer/graphic was forgotten. This happens on Undo. Workaround.
@@ -356,7 +356,7 @@ namespace GuiToolkit
 	/// UiMaterialCloner is quite fragile regarding its options and thus needs a special
 	/// treatment in the editor
 	[CustomEditor(typeof(MaterialCloner))]
-	public class MaterialClonerEditor : Editor
+	public class MaterialClonerEditor : UnityEditor.Editor
 	{
 		protected SerializedProperty m_isSharedMaterialProp;
 		protected SerializedProperty m_materialInstanceKeyProp;
@@ -581,6 +581,12 @@ namespace GuiToolkit
 				if (instance.ClonedMaterial == _materialCloner.ClonedMaterial)
 					numInstances++;
 			}
+
+			if (_materialCloner.OriginalMaterial == null)
+				return "Original Material is null!";
+
+			if (_materialCloner.ClonedMaterial == null)
+				return "Cloned Material is null!";
 
 			return $"Original Material:{_materialCloner.OriginalMaterial.name}    Cloned Material:{_materialCloner.ClonedMaterial.name} ClonedMaterialInstances: {numInstances}";
 		}

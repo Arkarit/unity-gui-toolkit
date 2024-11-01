@@ -53,9 +53,9 @@ namespace GuiToolkit
 			SetDirty();
 		}
 
-		public (Color leftOrTop, Color rightOrBottom) GetColors()
+		public (Color _leftOrTop, Color _rightOrBottom) GetColors()
 		{
-			return (leftOrTop:m_colorLeftOrTop, rightOrBottom:m_colorRightOrBottom);
+			return (_leftOrTop:m_colorLeftOrTop, _rightOrBottom:m_colorRightOrBottom);
 		}
 
 		protected override Color GetColor(Vector2 _normVal)

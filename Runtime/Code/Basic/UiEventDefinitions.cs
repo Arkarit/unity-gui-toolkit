@@ -6,11 +6,6 @@ namespace GuiToolkit
 	// General event definitions. See counterpart for game specific event definitions.
 	public static class UiEventDefinitions
 	{
-		/// \brief Event invoked on language change.
-		/// <param name="string">Language token, e.g. "de"</param>
-		/// Note that this event is also spawned once on startup.
-		public static CEvent<string>									EvLanguageChanged				= new();
-		
 		// string: log message
 		public static readonly CEvent<string> LogMessage = new ();
 
@@ -24,10 +19,6 @@ namespace GuiToolkit
 		/// <param name="EScreenOrientation 0">Screen orientation before change</param>
 		/// <param name="EScreenOrientation 1">Screen orientation after change</param>
 		public static CEvent<EScreenOrientation,EScreenOrientation>		EvScreenOrientationChange = new();
-
-		/// \brief Invoked if a player setting has changed.
-		/// <param name="PlayerSetting">Changed player setting class instance</param>
-		public static CEvent<PlayerSetting>								EvPlayerSettingChanged			= new();
 
 		/// \brief Invoked if skin changes
 		/// float: duration

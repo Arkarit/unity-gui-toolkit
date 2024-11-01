@@ -37,25 +37,12 @@ namespace GuiToolkit
 	public static class EditorUpdater
 	{
 #if UNITY_EDITOR
-		private static float s_timeScale = 1;
+		public static float s_timeScale = 1;
 		private static readonly List<IEditorUpdateable> s_updateables = new ();
 		private static readonly System.Diagnostics.Stopwatch s_stopwatch = new ();
 		private static readonly List<int> s_scheduledForDestroy = new ();
 #endif
 
-#if UNITY_EDITOR
-		public static float TimeScale
-		{
-			get => s_timeScale;
-			set => s_timeScale = value;
-		}
-#else
-		public static float TimeScale
-		{
-			get => 1;
-			set {}
-		}
-#endif
 		private static void Update()
 		{
 #if UNITY_EDITOR

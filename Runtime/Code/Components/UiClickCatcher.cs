@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 #if UNITY_EDITOR
@@ -8,6 +7,7 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	[RequireComponent(typeof(CanvasRenderer))]
 	public class UiClickCatcher : Graphic
 	{
 		public override bool Raycast( Vector2 _, Camera __ ) => true;
