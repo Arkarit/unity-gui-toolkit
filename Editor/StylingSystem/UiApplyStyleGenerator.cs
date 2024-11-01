@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -355,8 +356,7 @@ namespace GuiToolkit.Style.Editor
 			m_alternatingRowStyles[1] = new GUIStyle();
 			m_alternatingRowStyles[1].normal.background = MakeTex(1, 1, EditorUiUtility.ColorPerSkin(new Color(1.0f, 1.0f, 1.0f, 0.15f), new Color(1.0f, 1.0f, 1.0f, 0.03f)));
 
-			// leftover from ui toolkit
-			bool isInternal = false;
+			bool isInternal = EditorFileUtility.GetApplicationDataDir().Contains(".Dev-App");
 
 			InitIfNecessary(isInternal);
 			DrawHeader(isInternal);
@@ -489,10 +489,14 @@ namespace GuiToolkit.Style.Editor
 				Records = m_PropertyRecords.ToArray(),
 			};
 
-			string path = _internal ?
-				UiMainStyleConfig.Instance.InternalGeneratedAssetsDir + $"Type-Json/{m_componentType.FullName}.json" :
-				UiMainStyleConfig.Instance.GeneratedAssetsDir + $"{m_componentType.FullName}.json";
+			string outputDir = _internal ?
+				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir + "Type-Json" :
+				UiToolkitConfiguration.Instance.GeneratedAssetsDir;
+			EditorFileUtility.EnsureFolderExists(EditorFileUtility.GetUnityPath(outputDir));
+			
+			string path = outputDir + $"/{m_componentType.FullName}.json";
 
+			
 			try
 			{
 				string json = UnityEngine.JsonUtility.ToJson(jsonClass, true);
@@ -510,7 +514,7 @@ namespace GuiToolkit.Style.Editor
 		{
 			for (var type = m_componentType; type != typeof(Component); type = type.BaseType)
 			{
-				string path = UiMainStyleConfig.Instance.GeneratedAssetsDir +
+				string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir +
 				              $"{type.FullName}.json";
 				if (TryReadJson(path))
 				{
@@ -518,7 +522,7 @@ namespace GuiToolkit.Style.Editor
 					return true;
 				}
 
-				string pathInternal = UiMainStyleConfig.Instance.InternalGeneratedAssetsDir +
+				string pathInternal = UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir +
 				                      $"Type-Json/{type.FullName}.json";
 
 				if (TryReadJson(pathInternal))
@@ -631,8 +635,8 @@ namespace GuiToolkit.Style.Editor
 			string applicationClassContent = GenerateApplicationClass();
 			
 			string dir = _internal ?
-				UiMainStyleConfig.Instance.InternalGeneratedAssetsDir :
-				UiMainStyleConfig.Instance.GeneratedAssetsDir;
+				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir :
+				UiToolkitConfiguration.Instance.GeneratedAssetsDir;
 
 			string classPrefix = m_prefix;
 			string shortTypeName = m_componentType.Name;
@@ -760,7 +764,7 @@ namespace GuiToolkit.Style.Editor
 			return string.Empty;
 		}
 		
-		[MenuItem("UI Toolkit/Style Generator")]
+		[MenuItem(StringConstants.APPLY_STYLE_GENERATOR_MENU_NAME)]
 		public static UiApplyStyleGenerator GetWindow()
 		{
 			var window = GetWindow<UiApplyStyleGenerator>();

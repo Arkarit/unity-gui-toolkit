@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -9,14 +8,13 @@ using UnityEditor;
 
 namespace GuiToolkit.Style
 {
-	[CreateAssetMenu(fileName = nameof(UiStyleConfig), menuName = "Funatics/UiStyleConfig")]
+	[CreateAssetMenu(fileName = nameof(UiStyleConfig), menuName = StringConstants.CREATE_STYLE_CONFIG)]
 	[ExecuteAlways]
 	public class UiStyleConfig : ScriptableObject
 	{
 		[NonReorderable][SerializeField] private List<UiSkin> m_skins = new();
 
 		[SerializeField] private int m_currentSkinIdx = 0;
-		[SerializeField] private string m_generatedAssetsDir = "Assets/scripts/funatics_game/systems/ui/stylingSystem/generated/";
 
 		public List<UiSkin> Skins
 		{
@@ -31,7 +29,7 @@ namespace GuiToolkit.Style
 		public int CurrentSkinIdx
 		{
 			get =>  m_currentSkinIdx;
-			private set
+			set
 			{
 				if (m_currentSkinIdx == value)
 					return;
@@ -52,6 +50,14 @@ namespace GuiToolkit.Style
 		{
 			foreach (var skin in m_skins)
 				skin.Init();
+			AddListeners();
+		}
+
+		protected void OnDisable() => RemoveListeners();
+
+		private void AddListeners()
+		{
+			RemoveListeners();
 			UiEventDefinitions.EvDeleteStyle.AddListener(OnDeleteStyle);
 			UiEventDefinitions.EvDeleteSkin.AddListener(OnDeleteSkin);
 			UiEventDefinitions.EvSetStyleAlias.AddListener(OnSetStyleAlias);
@@ -59,7 +65,7 @@ namespace GuiToolkit.Style
 			UiEventDefinitions.EvAddSkin.AddListener(OnAddSkin);
 		}
 
-		protected void OnDisable()
+		private void RemoveListeners()
 		{
 			UiEventDefinitions.EvDeleteStyle.RemoveListener(OnDeleteStyle);
 			UiEventDefinitions.EvDeleteSkin.RemoveListener(OnDeleteSkin);
@@ -68,32 +74,6 @@ namespace GuiToolkit.Style
 			UiEventDefinitions.EvAddSkin.RemoveListener(OnAddSkin);
 		}
 
-#if UNITY_EDITOR
-		public string GeneratedAssetsDir
-		{
-			get
-			{
-				try
-				{
-					Directory.CreateDirectory(EditorFileUtility.GetApplicationDataDir() + m_generatedAssetsDir);
-				}
-				catch( Exception e )
-				{
-					Debug.LogError($"Could not create generated assets dir '{EditorFileUtility.GetApplicationDataDir() + m_generatedAssetsDir}': {e.Message}");
-				}
-				return m_generatedAssetsDir;
-			}
-		}
-
-		public string InternalGeneratedAssetsDir
-		{
-			get
-			{
-				return EditorFileUtility.GetApplicationDataDir() + "Assets/External/unity-gui-toolkit/Code/Generated/";
-			}
-		}
-#endif
-		
 		public void ForeachSkin(Action<UiSkin> _action)
 		{
 			foreach (var skin in m_skins)
@@ -242,7 +222,12 @@ namespace GuiToolkit.Style
 
 		private void OnAddSkin(UiStyleConfig _styleConfig, UiSkin _newSkin)
 		{
-			if (_styleConfig != this || _newSkin == null)
+			if 
+			(
+				   _styleConfig != this 
+			    || _newSkin == null
+				|| m_skins.Contains(_newSkin)
+			)
 				return;
 			
 			m_skins.Add(_newSkin);
@@ -311,7 +296,7 @@ namespace GuiToolkit.Style
 		{
 			if (_styleConfig != this)
 				return;
-			
+
 			for (int i = 0; i < m_skins.Count; i++)
 			{
 				var skin = m_skins[i];

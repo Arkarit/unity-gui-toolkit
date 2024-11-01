@@ -6,7 +6,7 @@ using UnityEditor;
 
 namespace GuiToolkit.Style
 {
-	[CreateAssetMenu(fileName = nameof(UiMainStyleConfig), menuName = "Funatics/UiMainStyleConfig")]
+	[CreateAssetMenu(fileName = nameof(UiMainStyleConfig), menuName = StringConstants.CREATE_MAIN_STYLE_CONFIG)]
 	public class UiMainStyleConfig : UiStyleConfig
 	{
 		protected static UiMainStyleConfig s_instance;
@@ -25,7 +25,12 @@ namespace GuiToolkit.Style
 					if (Application.isPlaying)
 					{
 #endif
-						s_instance = Resources.Load<UiMainStyleConfig>(ClassName);
+						var styleConfig = UiToolkitConfiguration.Instance.StyleConfig;
+						if (styleConfig)
+							s_instance = styleConfig;
+						else
+							s_instance = Resources.Load<UiMainStyleConfig>(ClassName);
+						
 						if (s_instance == null)
 						{
 							Debug.LogError($"Scriptable object could not be loaded from path '{ClassName}'");
