@@ -491,6 +491,7 @@ GameObject:
   - component: {fileID: 8824944210132026731}
   - component: {fileID: 3884329841504999785}
   - component: {fileID: 4621665031437184440}
+  - component: {fileID: 4254204451488694351}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -739,6 +740,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fec0a2da26eb69d42b5eecb6d7055f63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Buttons/Standard/Background
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &4254204451488694351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5284302703580940865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_optionalStyleConfig: {fileID: 0}

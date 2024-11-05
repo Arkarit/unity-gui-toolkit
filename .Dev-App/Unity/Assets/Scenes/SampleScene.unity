@@ -143,6 +143,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3265018062768890022, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
         type: 3}
+      propertyPath: m_fontSize
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 3265018062768890022, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
+        type: 3}
       propertyPath: m_textAlignment
       value: 65535
       objectReference: {fileID: 0}

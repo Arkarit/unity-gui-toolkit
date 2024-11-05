@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4613490723236809721}
   - component: {fileID: 4613490723236809723}
   - component: {fileID: 4613490723236809722}
+  - component: {fileID: 4367565547498921839}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -134,6 +135,28 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4367565547498921839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4613490723236809720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Buttons/Checkbox/Text
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4613490723856506876
 GameObject:
   m_ObjectHideFlags: 0
@@ -182,7 +205,8 @@ GameObject:
   - component: {fileID: 4613490724094713137}
   - component: {fileID: 4613490724094713136}
   - component: {fileID: 4613490724094713150}
-  - component: {fileID: 710924413315940678}
+  - component: {fileID: 2256272922246601559}
+  - component: {fileID: 7022707259122065513}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -263,8 +287,8 @@ MonoBehaviour:
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}
-  m_axis: 1
---- !u!114 &710924413315940678
+  m_orientation: 0
+--- !u!114 &2256272922246601559
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -273,43 +297,41 @@ MonoBehaviour:
   m_GameObject: {fileID: 4613490724094713148}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e2008c4ee16d8845b6d180c29bafa6d, type: 3}
+  m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_name: CheckboxBackground
-  m_style:
-    rid: 7059580713605267475
-  references:
-    version: 2
-    RefIds:
-    - rid: 7059580713605267475
-      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_name: CheckboxBackground
-        m_ColorLeftOrTop:
-          rid: 7059580713605267476
-        m_ColorRightOrBottom:
-          rid: 7059580713605267477
-        m_Axis:
-          rid: 7059580713605267478
-    - rid: 7059580713605267476
-      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        Value: {r: 0, g: 0, b: 0, a: 0.7490196}
-    - rid: 7059580713605267477
-      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        Value: {r: 0, g: 0, b: 0, a: 0.23529412}
-    - rid: 7059580713605267478
-      type: {class: UiStyleUiGradientSimple/ApplicableValueEAxis2D, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        Value: 1
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Buttons/Checkbox/Background
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &7022707259122065513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4613490724094713148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Buttons/Checkbox/Background
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4613490724297288524
 GameObject:
   m_ObjectHideFlags: 0
@@ -322,6 +344,8 @@ GameObject:
   - component: {fileID: 4613490724297288512}
   - component: {fileID: 4613490724297288527}
   - component: {fileID: 4613490724297288526}
+  - component: {fileID: 4157340311740861162}
+  - component: {fileID: 1385456523382134285}
   m_Layer: 5
   m_Name: Checkmark
   m_TagString: Untagged
@@ -401,7 +425,51 @@ MonoBehaviour:
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
   m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
-  m_axis: 0
+  m_orientation: 0
+--- !u!114 &4157340311740861162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4613490724297288524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Buttons/Checkbox/SelectionMarker
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1385456523382134285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4613490724297288524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Buttons/Checkbox/SelectionMarker
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4613490724362296237
 GameObject:
   m_ObjectHideFlags: 0
@@ -526,6 +594,7 @@ MonoBehaviour:
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
   m_autoStart: 0
+  m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnOrientationChange: 0
