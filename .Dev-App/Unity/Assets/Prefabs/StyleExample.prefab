@@ -125,9 +125,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_optionalStyleConfig: {fileID: 11400000, guid: 5bc3dac52702ac744acdf156fb172286,
+  m_optionalStyleConfig: {fileID: 11400000, guid: 9f91ceb68da6d2448822901030f2ff16,
     type: 2}
-  m_name: Examples/Images/Image Color
+  m_name: 
   m_fixedSkinName: 
   m_tweenable: 1
   OnBeforeApplyStyle:
