@@ -4,6 +4,7 @@ using TMPro;
 
 public class ExampleDialogStyles : UiView
 {
+	public UiStyleConfig m_exampleStyleConfig;
 	public UiButton m_closeButton;
 	public UiButton m_btToggleSkinInstant;
 	public UiButton m_btToggleSkinHalfSecond;
@@ -32,12 +33,12 @@ public class ExampleDialogStyles : UiView
 
 	private void ToggleSkin(float _duration)
 	{
-		int idx = UiMainStyleConfig.Instance.CurrentSkinIdx + 1;
-		if (idx >= UiMainStyleConfig.Instance.NumSkins)
+		int idx = m_exampleStyleConfig.CurrentSkinIdx + 1;
+		if (idx >= m_exampleStyleConfig.NumSkins)
 			idx = 0;
 
-		string nextSkin = UiMainStyleConfig.Instance.Skins[idx].Alias;
-		UiStyleManager.SetSkin(nextSkin, _duration);
+		string nextSkin = m_exampleStyleConfig.Skins[idx].Alias;
+		UiStyleManager.SetSkin(m_exampleStyleConfig, nextSkin, _duration);
 	}
 	
 	private void DisplayCurrentSkin() => m_txtCurrentSkin.text = $"Current Skin: {UiMainStyleConfig.Instance.CurrentSkinAlias}";

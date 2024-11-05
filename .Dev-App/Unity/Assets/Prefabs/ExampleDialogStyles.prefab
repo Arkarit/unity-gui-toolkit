@@ -1222,6 +1222,8 @@ MonoBehaviour:
   m_defaultSceneVisibility: 1
   m_layer: 800
   m_isFullScreen: 0
+  m_exampleStyleConfig: {fileID: 11400000, guid: 9f91ceb68da6d2448822901030f2ff16,
+    type: 2}
   m_closeButton: {fileID: 3833756557553125001}
   m_btToggleSkinInstant: {fileID: 6790248433436199444}
   m_btToggleSkinHalfSecond: {fileID: 6300789551014121470}

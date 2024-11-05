@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 using GuiToolkit.Style;
+using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -73,7 +74,8 @@ namespace GuiToolkit
 		public string m_additionalScenesPath = "Scenes/";
 
 		[Tooltip(HELP_STYLE_CONFIG)]
-		public UiMainStyleConfig m_styleConfig;
+		[FormerlySerializedAs("m_styleConfig")]
+		public UiMainStyleConfig m_uiMainStyleConfig;
 
 		[Tooltip(HELP_DEBUG_LOCA)]
 		public bool m_debugLoca = false;
@@ -87,7 +89,7 @@ namespace GuiToolkit
 			InitScenesByName();
 		}
 
-		public UiMainStyleConfig StyleConfig => m_styleConfig;
+		public UiMainStyleConfig UiMainStyleConfig => m_uiMainStyleConfig;
 
 		public string GetScenePath(string _sceneName)
 		{

@@ -124,7 +124,7 @@ namespace GuiToolkit.Editor
 
 		private void HandleStyleConfig()
 		{
-			var styleConfigProp = m_serializedSettingsObject.FindProperty("m_styleConfig");
+			var styleConfigProp = m_serializedSettingsObject.FindProperty("m_uiMainStyleConfig");
 			var currentStyleConfig = styleConfigProp.objectReferenceValue as UiMainStyleConfig;
 			if (currentStyleConfig == null)
 			{
@@ -157,7 +157,7 @@ namespace GuiToolkit.Editor
 
 			currentStyleConfig = Instantiate(currentStyleConfig);
 			AssetDatabase.CreateAsset(currentStyleConfig, newConfigPath);
-			var styleConfigProp = m_serializedSettingsObject.FindProperty("m_styleConfig");
+			var styleConfigProp = m_serializedSettingsObject.FindProperty("m_uiMainStyleConfig");
 			styleConfigProp.objectReferenceValue = currentStyleConfig;
 			m_serializedSettingsObject.ApplyModifiedProperties();
 			AssetDatabase.SaveAssets();

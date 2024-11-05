@@ -25,7 +25,7 @@ namespace GuiToolkit.Style
 					if (Application.isPlaying)
 					{
 #endif
-						var styleConfig = UiToolkitConfiguration.Instance.StyleConfig;
+						var styleConfig = UiToolkitConfiguration.Instance.UiMainStyleConfig;
 						if (styleConfig)
 							s_instance = styleConfig;
 						else
