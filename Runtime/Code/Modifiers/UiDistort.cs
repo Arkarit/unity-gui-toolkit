@@ -12,7 +12,27 @@ namespace GuiToolkit
 
 		[SerializeField]
 		protected bool m_absoluteValues;
-		protected override bool IsAbsolute => m_absoluteValues;
+
+		public override bool IsAbsolute
+		{
+			get => m_absoluteValues;
+			set
+			{
+				if (m_absoluteValues == value)
+					return;
+				ChangeAbsRel(value);
+			}
+		}
+
+		private void ChangeAbsRel( bool _isAbsolute )
+		{
+			Rect bounds = Bounding;
+			Vector2 fac = new Vector2( _isAbsolute ? bounds.width : 1.0f / bounds.width, _isAbsolute ? bounds.height : 1.0f / bounds.height);
+			m_bottomLeft *= fac;
+			m_topLeft *= fac;
+			m_topRight *= fac;
+			m_bottomRight *= fac;
+		}
 	}
 
 #if UNITY_EDITOR

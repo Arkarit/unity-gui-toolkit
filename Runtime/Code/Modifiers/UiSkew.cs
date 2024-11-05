@@ -72,7 +72,7 @@ namespace GuiToolkit
 			set => throw new ArgumentException($"This setter can not be used. Please use Angles getter/setter instead");
 		}
 
-		protected override bool IsAbsolute => true;
+		public override bool IsAbsolute => true;
 
 		private void CalcOffsetsIfNecessary()
 		{

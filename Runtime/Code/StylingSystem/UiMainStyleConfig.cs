@@ -21,28 +21,22 @@ namespace GuiToolkit.Style
 			{
 				if (s_instance == null)
 				{
-#if UNITY_EDITOR
-					if (Application.isPlaying)
-					{
-#endif
-						var styleConfig = UiToolkitConfiguration.Instance.UiMainStyleConfig;
-						if (styleConfig)
-							s_instance = styleConfig;
-						else
-							s_instance = Resources.Load<UiMainStyleConfig>(ClassName);
-						
-						if (s_instance == null)
-						{
-							Debug.LogError($"Scriptable object could not be loaded from path '{ClassName}'");
-							s_instance = CreateInstance<UiMainStyleConfig>();
-						}
-#if UNITY_EDITOR
-					}
+					var styleConfig = UiToolkitConfiguration.Instance.UiMainStyleConfig;
+					if (styleConfig)
+						s_instance = styleConfig;
 					else
+						s_instance = Resources.Load<UiMainStyleConfig>(ClassName);
+					
+					if (s_instance == null)
 					{
-						s_instance = EditorLoad();
-					}
+#if !UNITY_EDITOR
+						Debug.LogError($"Scriptable object could not be loaded from path '{ClassName}'");
 #endif
+						s_instance = CreateInstance<UiMainStyleConfig>();
+#if UNITY_EDITOR
+						EditorSave(s_instance);
+#endif
+					}
 				}
 
 				return s_instance;
@@ -52,18 +46,6 @@ namespace GuiToolkit.Style
 #if UNITY_EDITOR
 
 		public virtual void OnEditorInitialize() {}
-
-		protected static UiMainStyleConfig EditorLoad()
-		{
-			UiMainStyleConfig result = AssetDatabase.LoadAssetAtPath<UiMainStyleConfig>(EditorPath);
-			if (result == null)
-			{
-				result = CreateInstance<UiMainStyleConfig>();
-				EditorSave(result);
-			}
-
-			return result;
-		}
 
 		public static void EditorSave(UiMainStyleConfig _instance)
 		{

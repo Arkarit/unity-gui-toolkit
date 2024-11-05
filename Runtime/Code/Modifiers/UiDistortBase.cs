@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -22,7 +23,12 @@ namespace GuiToolkit
 		protected static readonly List<UIVertex> s_verts = new();
 		protected static UIVertex s_vertex;
 
-		protected virtual bool IsAbsolute => false;
+		public virtual bool IsAbsolute
+		{
+			get => false;
+			set => throw new NotImplementedException($"IsAbsolute for {GetType().Name} has no setter");
+		}
+
 		protected virtual void Prepare() {}
 
 		public Rect Bounding {get; protected set;}
