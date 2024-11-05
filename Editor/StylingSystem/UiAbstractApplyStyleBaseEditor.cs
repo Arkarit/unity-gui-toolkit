@@ -13,8 +13,9 @@ namespace GuiToolkit.Style.Editor
 		private SerializedProperty m_optionalStyleConfigProp;
 		private SerializedProperty m_onBeforeApplyStyleProp;
 		private SerializedProperty m_onAfterApplyStyleProp;
+		private bool m_eventsOpen;
 
-		
+
 		protected virtual void OnEnable()
 		{
 			m_thisAbstractApplyStyleBase = target as UiAbstractApplyStyleBase;
@@ -98,13 +99,17 @@ namespace GuiToolkit.Style.Editor
 			if (!m_thisAbstractApplyStyleBase.SkinIsFixed)
 				m_thisAbstractApplyStyleBase.Tweenable = EditorGUILayout.Toggle("Tweenable", m_thisAbstractApplyStyleBase.Tweenable);
 
-			EditorGUILayout.Space(10);
+			m_eventsOpen = EditorGUILayout.Foldout(m_eventsOpen, "Events");
+			if (m_eventsOpen)
+			{
+				EditorGUI.indentLevel++;
+				EditorGUILayout.PropertyField(m_onBeforeApplyStyleProp);
+				EditorGUILayout.PropertyField(m_onAfterApplyStyleProp);
+				EditorGUI.indentLevel--;
+			}
 			
-			EditorGUILayout.LabelField("Events", EditorStyles.boldLabel);
-			EditorGUILayout.PropertyField(m_onBeforeApplyStyleProp);
-			EditorGUILayout.PropertyField(m_onAfterApplyStyleProp);
 			EditorGUILayout.Space(10);
-			
+
 			EditorGUILayout.LabelField("Global Settings", EditorStyles.boldLabel);
 
 			if (!m_thisAbstractApplyStyleBase.SkinIsFixed)

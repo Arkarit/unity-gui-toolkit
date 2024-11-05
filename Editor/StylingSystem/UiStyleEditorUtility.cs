@@ -18,7 +18,10 @@ namespace GuiToolkit.Style.Editor
 		
 		private class DisplayStyleHelperObjectEditor : UnityEditor.Editor
 		{
-			public override void OnInspectorGUI() => DrawInspectorExcept(serializedObject, "m_Script");
+			public override void OnInspectorGUI()
+			{
+				DrawInspectorExcept(serializedObject, "m_Script");
+			}
 		}
 		
 		private static DisplayStyleHelperObject m_styleHelper;
