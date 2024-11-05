@@ -70,6 +70,9 @@ namespace GuiToolkit.Style.Editor
 			{
 				if (styleAliases.Count > styleCountBefore)
 				{
+					if (styleConfig.NumSkins == 0)
+						UiStyleEditorUtility.AddSkin(styleConfig, "Default");
+
 					styleConfig.ForeachSkin(skin =>
 					{
 						var newStyle = m_thisAbstractApplyStyleBase.CreateStyle(m_thisAbstractApplyStyleBase.StyleConfig, selectedName, m_thisAbstractApplyStyleBase.Style);

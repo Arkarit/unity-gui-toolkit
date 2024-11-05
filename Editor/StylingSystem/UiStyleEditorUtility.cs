@@ -160,17 +160,17 @@ namespace GuiToolkit.Style.Editor
         }
 
 		// both _name and _copyFromName have to be the actual names and not aliases
-		private static string AddSkin(UiStyleConfig config, string _name, string _copyFromName)
+		public static string AddSkin(UiStyleConfig _config, string _name, string _copyFromName = null)
 		{
-			if (config.SkinNames.Contains(_name))
+			if (_config.SkinNames.Contains(_name))
 				return string.Empty;
 
-			var newSkin = new UiSkin(config, _name);
+			var newSkin = new UiSkin(_config, _name);
 
 			UiSkin copyFrom = null;
 			if (!string.IsNullOrEmpty(_copyFromName))
 			{
-				foreach (var skin in config.Skins)
+				foreach (var skin in _config.Skins)
 				{
 					if (skin.Name == _copyFromName)
 					{
@@ -189,8 +189,8 @@ namespace GuiToolkit.Style.Editor
 				}
 			}
 
-			UiEventDefinitions.EvAddSkin.InvokeAlways(config, newSkin);
-			UiStyleConfig.SetDirty(config);
+			UiEventDefinitions.EvAddSkin.InvokeAlways(_config, newSkin);
+			UiStyleConfig.SetDirty(_config);
 			return _name;
 		}
 	}
