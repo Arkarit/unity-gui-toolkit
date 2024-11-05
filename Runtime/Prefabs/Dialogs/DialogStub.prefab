@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3389263937744463017}
   - component: {fileID: 2525010522417481711}
   - component: {fileID: 1511832863766355247}
+  - component: {fileID: 6785427370325652711}
   m_Layer: 5
   m_Name: Headline
   m_TagString: Untagged
@@ -149,6 +150,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_autoTranslate: 1
+--- !u!114 &6785427370325652711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4029534613750990895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Text/Headline
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4287691787427596034
 GameObject:
   m_ObjectHideFlags: 0
