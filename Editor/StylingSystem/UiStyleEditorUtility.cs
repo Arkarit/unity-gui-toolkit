@@ -144,9 +144,12 @@ namespace GuiToolkit.Style.Editor
         private static void DrawInspectorExcept(SerializedObject _serializedObject, string[] _fieldsToSkip)
         {
 	        if (_serializedObject == null || _serializedObject.targetObject == null)
+	        {
+				Debug.LogWarning($"serialized object or target object is null");
 		        return;
-	        
-            _serializedObject.Update();
+	        }
+
+	        _serializedObject.Update();
             SerializedProperty prop = _serializedObject.GetIterator();
             if (prop.NextVisible(true))
             {

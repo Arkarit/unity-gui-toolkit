@@ -1,0 +1,151 @@
+{
+    "Version": 2,
+    "Namespace": "GuiToolkit.Style",
+    "Prefix": "",
+    "Records": [
+        {
+            "Used": true,
+            "Name": "anchorMin",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": true,
+            "Name": "anchorMax",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": true,
+            "Name": "anchoredPosition",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": true,
+            "Name": "sizeDelta",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": true,
+            "Name": "pivot",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": false,
+            "Name": "anchoredPosition3D",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": true,
+            "Name": "offsetMin",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": true,
+            "Name": "offsetMax",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": false,
+            "Name": "position",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": true,
+            "Name": "localPosition",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": false,
+            "Name": "eulerAngles",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": true,
+            "Name": "localEulerAngles",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": false,
+            "Name": "right",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": false,
+            "Name": "up",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": false,
+            "Name": "forward",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": true,
+            "Name": "rotation",
+            "QualifiedTypeName": "UnityEngine.Quaternion",
+            "TypeName": "Quaternion"
+        },
+        {
+            "Used": true,
+            "Name": "localRotation",
+            "QualifiedTypeName": "UnityEngine.Quaternion",
+            "TypeName": "Quaternion"
+        },
+        {
+            "Used": true,
+            "Name": "localScale",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": false,
+            "Name": "parent",
+            "QualifiedTypeName": "UnityEngine.Transform",
+            "TypeName": "Transform"
+        },
+        {
+            "Used": false,
+            "Name": "hasChanged",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "hierarchyCapacity",
+            "QualifiedTypeName": "System.Int32",
+            "TypeName": "Int32"
+        },
+        {
+            "Used": false,
+            "Name": "tag",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "name",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "hideFlags",
+            "QualifiedTypeName": "UnityEngine.HideFlags",
+            "TypeName": "HideFlags"
+        }
+    ]
+}

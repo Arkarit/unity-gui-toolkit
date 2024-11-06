@@ -31,6 +31,8 @@ MonoBehaviour:
     - rid: 107647820282200351
     - rid: 107647820282200389
     - rid: 107647820282200444
+    - rid: 107647820282200851
+    - rid: 107647820282200920
   m_currentSkinIdx: 0
   references:
     version: 2
@@ -908,7 +910,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: 258
+        m_value: 8194
     - rid: 107647820282200477
       type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -921,3 +923,137 @@ MonoBehaviour:
       data:
         IsApplicable: 0
         m_value: {x: 0, y: 0, z: 0, w: 0}
+    - rid: 107647820282200851
+      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: Backgrounds/PanelHeadline
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_anchorMin:
+          rid: 107647820282200852
+        m_anchorMax:
+          rid: 107647820282200853
+        m_anchoredPosition:
+          rid: 107647820282200854
+        m_sizeDelta:
+          rid: 107647820282200855
+        m_pivot:
+          rid: 107647820282200856
+        m_offsetMin:
+          rid: 107647820282200857
+        m_offsetMax:
+          rid: 107647820282200858
+        m_localPosition:
+          rid: 107647820282200859
+        m_localEulerAngles:
+          rid: 107647820282200860
+        m_rotation:
+          rid: 107647820282200861
+        m_localRotation:
+          rid: 107647820282200862
+        m_localScale:
+          rid: 107647820282200863
+    - rid: 107647820282200852
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 0, y: 1}
+    - rid: 107647820282200853
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 1, y: 1}
+    - rid: 107647820282200854
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 0, y: -53.926727}
+    - rid: 107647820282200855
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: -16, y: 104.5142}
+    - rid: 107647820282200856
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 0.5, y: 1}
+    - rid: 107647820282200857
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 8, y: -158.44092}
+    - rid: 107647820282200858
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: -8, y: -53.926727}
+    - rid: 107647820282200859
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 0, y: 486.07327, z: 0}
+    - rid: 107647820282200860
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: -0, y: 0, z: 0}
+    - rid: 107647820282200861
+      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -0, y: -0, z: -0, w: 1}
+    - rid: 107647820282200862
+      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 0, y: 0, z: 0, w: 1}
+    - rid: 107647820282200863
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 1, y: 1, z: 1}
+    - rid: 107647820282200920
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: Backgrounds/Panel
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_ColorLeftOrTop:
+          rid: 107647820282200921
+        m_ColorRightOrBottom:
+          rid: 107647820282200922
+        m_Orientation:
+          rid: 107647820282200923
+    - rid: 107647820282200921
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0.09019608, b: 0.12156863, a: 1}
+    - rid: 107647820282200922
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0.06666667, g: 0.33333334, b: 0.6, a: 0.5882353}
+    - rid: 107647820282200923
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1

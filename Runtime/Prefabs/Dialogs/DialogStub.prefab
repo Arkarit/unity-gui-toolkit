@@ -490,126 +490,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3545402562358454354}
     m_Modifications:
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.atime1
-      value: 37717
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.atime2
-      value: 65535
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.ctime1
-      value: 3211
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.ctime2
-      value: 3272
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.ctime3
-      value: 9645
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.ctime4
-      value: 9699
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.ctime6
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key1.b
-      value: 0.15427618
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key1.g
-      value: 0.11399666
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key2.a
-      value: 0.8627451
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key2.b
-      value: 0.6117647
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key2.g
-      value: 0.44705883
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key2.r
-      value: 0.003921569
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key3.b
-      value: 0.6117647
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key3.g
-      value: 0.44705883
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key3.r
-      value: 0.003921569
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key4.b
-      value: 0.19833867
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key4.g
-      value: 0.14605999
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key6.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.key6.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.m_NumAlphaKeys
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_gradient.m_NumColorKeys
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 4084593488569729382, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_Color.a
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6075969078209465653, guid: 600b043a1570d17488917991ef0e5ba0,
         type: 3}
       propertyPath: m_Pivot.x
@@ -715,9 +595,7 @@ PrefabInstance:
       propertyPath: m_Name
       value: StandardPanelBackground
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 2680803967743147246, guid: 600b043a1570d17488917991ef0e5ba0, type: 3}
-    - {fileID: 37045285163787125, guid: 600b043a1570d17488917991ef0e5ba0, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
