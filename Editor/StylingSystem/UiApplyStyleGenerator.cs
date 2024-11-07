@@ -340,6 +340,7 @@ namespace GuiToolkit.Style.Editor
 		#endregion
 
 		#region Drawing
+
 		private void OnGUI()
 		{
 			if (m_component == null)
@@ -363,8 +364,6 @@ namespace GuiToolkit.Style.Editor
 			DrawProperties();
 
 			EditorGUILayout.BeginHorizontal();
-			if (GUILayout.Button($"Show Hidden ({NumHidden})"))
-				ShowHidden();
 
 			if (isInternal)
 			{
@@ -421,12 +420,7 @@ namespace GuiToolkit.Style.Editor
 			m_ScrollPos = EditorGUILayout.BeginScrollView(m_ScrollPos);
 			int count = 0;
 			foreach (var propertyRecord in m_PropertyRecords)
-			{
-				if (!propertyRecord.Used)
-					continue;
-
-				DrawProperty(propertyRecord, m_alternatingRowStyles[count++ & 1]);
-			}
+				DrawProperty(propertyRecord, m_alternatingRowStyles[count++ & 1], propertyRecord.Used);
 
 			EditorGUILayout.EndScrollView();
 		}
@@ -443,24 +437,23 @@ namespace GuiToolkit.Style.Editor
 			EditorGUILayout.Space(2);
 		}
 
-		private void DrawProperty(PropertyRecord _propertyRecord, GUIStyle _guiStyle)
+		private void DrawProperty(PropertyRecord _propertyRecord, GUIStyle _guiStyle, bool _isUsed)
 		{
+			var savedColor = GUI.contentColor;
+			var color = savedColor;
+			color.a = _isUsed ? 1 : 0.3f;
+			GUI.contentColor = color;
 			EditorGUILayout.BeginHorizontal(_guiStyle);
 			EditorGUILayout.Space(10, false);
 			_propertyRecord.Used = GUILayout.Toggle(_propertyRecord.Used, "", GUILayout.Width(40));
 			EditorGUILayout.LabelField($"{_propertyRecord.Name}", GUILayout.Width(200));
 			EditorGUILayout.LabelField($"({_propertyRecord.QualifiedTypeName})", GUILayout.ExpandWidth(true));
 			EditorGUILayout.EndHorizontal();
+			GUI.contentColor = savedColor;
 		}
 		#endregion
 
 		#region Calculations
-		private void ShowHidden()
-		{
-			foreach (var propertyRecord in m_PropertyRecords)
-				propertyRecord.Used = true;
-		}
-
 		private int NumHidden
 		{
 			get
