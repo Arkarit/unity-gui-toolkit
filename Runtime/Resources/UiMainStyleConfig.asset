@@ -35,6 +35,8 @@ MonoBehaviour:
     - rid: 107647820282200920
     - rid: 107647864378229377
     - rid: 107647864497242687
+    - rid: 107647865073959500
+    - rid: 107647865073959501
   m_currentSkinIdx: 0
   references:
     version: 2
@@ -99,7 +101,7 @@ MonoBehaviour:
       type: {class: UiStyleUiDistort/ApplicableValueEAxis2DFlags, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 0
     - rid: 107647812302274831
       type: {class: UiStyleUiDistort/ApplicableValueVector2, ns: GuiToolkit.Style,
@@ -1071,7 +1073,7 @@ MonoBehaviour:
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 0.50980395}
+        m_value: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 0.69411767}
     - rid: 107647864497242687
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -1092,4 +1094,66 @@ MonoBehaviour:
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 0.50980395}
+        m_value: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 0.6901961}
+    - rid: 107647865073959500
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: Buttons/Standard/BackgroundOk
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_ColorLeftOrTop:
+          rid: 107647865073959502
+        m_ColorRightOrBottom:
+          rid: 107647865073959503
+        m_Orientation:
+          rid: 107647865073959504
+    - rid: 107647865073959501
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: Buttons/Standard/BackgroundCancel
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_ColorLeftOrTop:
+          rid: 107647865073959505
+        m_ColorRightOrBottom:
+          rid: 107647865073959506
+        m_Orientation:
+          rid: 107647865073959507
+    - rid: 107647865073959502
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0.57852554, g: 1, b: 0, a: 1}
+    - rid: 107647865073959503
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0.4899372, g: 0.7169812, b: 0, a: 1}
+    - rid: 107647865073959504
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
+    - rid: 107647865073959505
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 0.50355166, b: 0.10849059, a: 1}
+    - rid: 107647865073959506
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0.9056604, g: 0.37697542, b: 0, a: 1}
+    - rid: 107647865073959507
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
