@@ -627,7 +627,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7361492398801455715
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1298,7 +1298,7 @@ MonoBehaviour:
   - {fileID: 2458428482449993784}
   - {fileID: 7373660067696398259}
   m_autoUpdateOnEnable: 1
-  m_lastScreenOrientation: 1
+  m_lastScreenOrientation: 0
 --- !u!1 &2832707242714650675
 GameObject:
   m_ObjectHideFlags: 0
@@ -1310,6 +1310,7 @@ GameObject:
   - component: {fileID: 8337285480003478079}
   - component: {fileID: 8923324440831669316}
   - component: {fileID: 8893868651983551458}
+  - component: {fileID: 313996638223167483}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -1374,6 +1375,28 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &313996638223167483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2832707242714650675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Backgrounds/PanelHeadline
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2951892407796964385
 GameObject:
   m_ObjectHideFlags: 0
@@ -1803,8 +1826,8 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
-  m_vertical: 1
-  m_reverseOrder: 1
+  m_vertical: 0
+  m_reverseOrder: 0
 --- !u!1 &5968183751041874533
 GameObject:
   m_ObjectHideFlags: 0
@@ -2071,9 +2094,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: 180
+  m_MinHeight: 140
   m_PreferredWidth: 10000
-  m_PreferredHeight: 180
+  m_PreferredHeight: 500000
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -2224,14 +2247,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd2ccc9659ef7a4bb93ab6ce92ba6e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_vertexColorMode: 1
+  m_vertexColorMode: 0
   m_gradient:
     serializedVersion: 2
-    key0: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 0.6627451}
-    key1: {r: 0.003921569, g: 0.44705886, b: 0.6117647, a: 0.1882353}
+    key0: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 1}
+    key1: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 1}
     key2: {r: 0, g: 0, b: 0, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 1}
-    key4: {r: 0, g: 0, b: 0, a: 1}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
     key5: {r: 0, g: 0, b: 0, a: 0}
     key6: {r: 0, g: 0, b: 0, a: 0}
     key7: {r: 0, g: 0, b: 0, a: 0}
@@ -2244,18 +2267,18 @@ MonoBehaviour:
     ctime6: 0
     ctime7: 0
     atime0: 0
-    atime1: 13177
-    atime2: 50685
-    atime3: 63513
-    atime4: 65535
+    atime1: 2510
+    atime2: 65535
+    atime3: 0
+    atime4: 0
     atime5: 0
     atime6: 0
     atime7: 0
     m_Mode: 0
     m_ColorSpace: -1
     m_NumColorKeys: 2
-    m_NumAlphaKeys: 5
-  m_type: 1
+    m_NumAlphaKeys: 3
+  m_type: 0
   m_splitAtKeys: 1
 --- !u!1 &5968183751846801624
 GameObject:
@@ -2375,7 +2398,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5921502832281618020
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2466,11 +2489,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1553629950334076772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 180}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -0.00012207031, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &4879301592926944607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2483,8 +2506,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_HorizontalFit: 2
-  m_VerticalFit: 0
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!114 &7629717377438157029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2514,9 +2537,9 @@ MonoBehaviour:
     m_Left: 0
     m_Right: 0
     m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 6
-  m_Spacing: 0
+    m_Bottom: 180
+  m_ChildAlignment: 0
+  m_Spacing: -9.62
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -2524,7 +2547,7 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
-  m_vertical: 0
+  m_vertical: 1
   m_reverseOrder: 0
 --- !u!1 &7789858865536894914
 GameObject:
@@ -2586,8 +2609,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 7953324690129522827}
-  m_Horizontal: 1
-  m_Vertical: 0
+  m_Horizontal: 0
+  m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
   m_Inertia: 1
@@ -2941,7 +2964,17 @@ PrefabInstance:
     - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
       propertyPath: m_textAlignment
-      value: 514
+      value: 65535
+      objectReference: {fileID: 0}
+    - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
+        type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
+        type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 512
       objectReference: {fileID: 0}
     - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
@@ -2956,6 +2989,11 @@ PrefabInstance:
     - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
       propertyPath: m_textInfo.wordCount
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
+        type: 3}
+      propertyPath: m_HorizontalAlignment
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
