@@ -948,8 +948,6 @@ MonoBehaviour:
           rid: 107647820282200859
         m_localEulerAngles:
           rid: 107647820282200860
-        m_rotation:
-          rid: 107647820282200861
         m_localRotation:
           rid: 107647820282200862
         m_localScale:
@@ -1008,12 +1006,6 @@ MonoBehaviour:
       data:
         IsApplicable: 1
         m_value: {x: -0, y: 0, z: 0}
-    - rid: 107647820282200861
-      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: -0, y: -0, z: -0, w: 1}
     - rid: 107647820282200862
       type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}

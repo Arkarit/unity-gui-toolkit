@@ -32,8 +32,6 @@ namespace GuiToolkit.Style
 				try { SpecificComponent.localPosition = Tweenable ? SpecificStyle.LocalPosition.Value : SpecificStyle.LocalPosition.RawValue; } catch {}
 			if (SpecificStyle.LocalEulerAngles.IsApplicable)
 				try { SpecificComponent.localEulerAngles = Tweenable ? SpecificStyle.LocalEulerAngles.Value : SpecificStyle.LocalEulerAngles.RawValue; } catch {}
-			if (SpecificStyle.Rotation.IsApplicable)
-				try { SpecificComponent.rotation = Tweenable ? SpecificStyle.Rotation.Value : SpecificStyle.Rotation.RawValue; } catch {}
 			if (SpecificStyle.LocalRotation.IsApplicable)
 				try { SpecificComponent.localRotation = Tweenable ? SpecificStyle.LocalRotation.Value : SpecificStyle.LocalRotation.RawValue; } catch {}
 			if (SpecificStyle.LocalScale.IsApplicable)
@@ -63,8 +61,6 @@ namespace GuiToolkit.Style
 				try { SpecificStyle.LocalPosition.RawValue = SpecificComponent.localPosition; } catch {}
 			if (SpecificStyle.LocalEulerAngles.IsApplicable)
 				try { SpecificStyle.LocalEulerAngles.RawValue = SpecificComponent.localEulerAngles; } catch {}
-			if (SpecificStyle.Rotation.IsApplicable)
-				try { SpecificStyle.Rotation.RawValue = SpecificComponent.rotation; } catch {}
 			if (SpecificStyle.LocalRotation.IsApplicable)
 				try { SpecificStyle.LocalRotation.RawValue = SpecificComponent.localRotation; } catch {}
 			if (SpecificStyle.LocalScale.IsApplicable)
@@ -100,8 +96,6 @@ namespace GuiToolkit.Style
 				result.LocalPosition.IsApplicable = specificTemplate.LocalPosition.IsApplicable;
 				result.LocalEulerAngles.Value = specificTemplate.LocalEulerAngles.Value;
 				result.LocalEulerAngles.IsApplicable = specificTemplate.LocalEulerAngles.IsApplicable;
-				result.Rotation.Value = specificTemplate.Rotation.Value;
-				result.Rotation.IsApplicable = specificTemplate.Rotation.IsApplicable;
 				result.LocalRotation.Value = specificTemplate.LocalRotation.Value;
 				result.LocalRotation.IsApplicable = specificTemplate.LocalRotation.IsApplicable;
 				result.LocalScale.Value = specificTemplate.LocalScale.Value;
@@ -119,7 +113,6 @@ namespace GuiToolkit.Style
 			try { result.OffsetMax.Value = SpecificComponent.offsetMax; } catch {}
 			try { result.LocalPosition.Value = SpecificComponent.localPosition; } catch {}
 			try { result.LocalEulerAngles.Value = SpecificComponent.localEulerAngles; } catch {}
-			try { result.Rotation.Value = SpecificComponent.rotation; } catch {}
 			try { result.LocalRotation.Value = SpecificComponent.localRotation; } catch {}
 			try { result.LocalScale.Value = SpecificComponent.localScale; } catch {}
 

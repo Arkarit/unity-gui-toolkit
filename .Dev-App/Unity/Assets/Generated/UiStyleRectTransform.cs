@@ -32,7 +32,6 @@ namespace GuiToolkit.Style
 				m_offsetMax,
 				m_localPosition,
 				m_localEulerAngles,
-				m_rotation,
 				m_localRotation,
 				m_localScale,
 			};
@@ -47,7 +46,6 @@ namespace GuiToolkit.Style
 		[SerializeReference] private ApplicableValueVector2 m_offsetMax = new();
 		[SerializeReference] private ApplicableValueVector3 m_localPosition = new();
 		[SerializeReference] private ApplicableValueVector3 m_localEulerAngles = new();
-		[SerializeReference] private ApplicableValueQuaternion m_rotation = new();
 		[SerializeReference] private ApplicableValueQuaternion m_localRotation = new();
 		[SerializeReference] private ApplicableValueVector3 m_localScale = new();
 
@@ -60,7 +58,6 @@ namespace GuiToolkit.Style
 		public ApplicableValue<UnityEngine.Vector2> OffsetMax => m_offsetMax;
 		public ApplicableValue<UnityEngine.Vector3> LocalPosition => m_localPosition;
 		public ApplicableValue<UnityEngine.Vector3> LocalEulerAngles => m_localEulerAngles;
-		public ApplicableValue<UnityEngine.Quaternion> Rotation => m_rotation;
 		public ApplicableValue<UnityEngine.Quaternion> LocalRotation => m_localRotation;
 		public ApplicableValue<UnityEngine.Vector3> LocalScale => m_localScale;
 	}

@@ -94,7 +94,7 @@
             "TypeName": "Vector3"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "rotation",
             "QualifiedTypeName": "UnityEngine.Quaternion",
             "TypeName": "Quaternion"
