@@ -88,9 +88,19 @@ namespace GuiToolkit.Style.Editor
 		// 1: short property type name
 		// 2: member name
 		private const string StylePropertyTemplate =
-			"		public ApplicableValue<{0}> {1} => m_{2};\n";
+			"		public ApplicableValue<{0}> {1}\n" +
+			"		{{\n" +
+			"			get\n" +
+			"			{{\n" +
+			"				#if UNITY_EDITOR\n" +
+			"					if (!Application.isPlaying && m_{2} == null)\n" +
+			"						m_{2} = new {3}();\n" +
+			"				#endif\n" +
+			"				return m_{2};\n" +
+			"			}}\n" +
+			"		}}\n\n";
 
-		private string GetStylePropertyString(string _qualifiedPropertyTypeName, string _shortPropertyName, string _memberName)
+		private string GetStylePropertyString(string _qualifiedPropertyTypeName, string _shortPropertyName, string _memberName, string _memberClassName)
 		{
 			_shortPropertyName = UpperFirstChar(_shortPropertyName);
 			return string.Format
@@ -98,21 +108,23 @@ namespace GuiToolkit.Style.Editor
 				StylePropertyTemplate, 
 				_qualifiedPropertyTypeName, 
 				_shortPropertyName, 
-				_memberName
+				_memberName,
+				_memberClassName
 			);
 		}
 
 		// Format string:
 		// 0: member name
-		private const string MemberNameTemplate =
-			"				m_{0},\n";
+		private const string GetterTemplate =
+			"				{0},\n";
 
-		private string GetMemberNameString(string _memberName)
+		private string GetGetterString(string _getterName)
 		{
+			_getterName = UpperFirstChar(_getterName);
 			return string.Format
 			(
-				MemberNameTemplate,
-				_memberName
+				GetterTemplate,
+				_getterName
 			);
 		}
 
@@ -167,7 +179,7 @@ namespace GuiToolkit.Style.Editor
 			string _members, 
 			string _properties, 
 			string _classTypeDefinitions, 
-			string _memberNames)
+			string _getters)
 		{
 			return string.Format
 			(
@@ -179,7 +191,7 @@ namespace GuiToolkit.Style.Editor
 				_members,
 				_properties,
 				_classTypeDefinitions,
-				_memberNames,
+				_getters,
 				GetNamespaceClosingString(_namespace)
 			);
 		}
@@ -659,7 +671,7 @@ namespace GuiToolkit.Style.Editor
 			string members = string.Empty;
 			string properties = string.Empty;
 			string classTypeDefinitions = string.Empty;
-			string memberNames = string.Empty;
+			string getters = string.Empty;
 			bool foundSome = false;
 
 			Dictionary<string, string> typeStringByTypeName = new();
@@ -684,8 +696,8 @@ namespace GuiToolkit.Style.Editor
 				string className = typeStringByTypeName[qualifiedPropertyType];
 
 				members += GetStyleMemberString(className, memberName);
-				properties += GetStylePropertyString(qualifiedPropertyType, memberName, memberName);
-				memberNames += GetMemberNameString(memberName);
+				properties += GetStylePropertyString(qualifiedPropertyType, memberName, memberName, memberClassName);
+				getters += GetGetterString(memberName);
 				
 				foundSome = true;
 			}
@@ -706,7 +718,7 @@ namespace GuiToolkit.Style.Editor
 			string qualifiedTypeName = m_componentType.FullName;
 
 			return GetStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
-				members, properties, classTypeDefinitions, memberNames);
+				members, properties, classTypeDefinitions, getters);
 		}
 
 		private string GenerateApplicationClass()
