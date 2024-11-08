@@ -33,23 +33,23 @@ namespace GuiToolkit.Style
 		{
 			return new ApplicableValueBase[]
 			{
-				m_text,
-				m_font,
-				m_color,
-				m_alpha,
-				m_colorGradient,
-				m_styleSheet,
-				m_textStyle,
-				m_outlineColor,
-				m_outlineWidth,
-				m_fontSize,
-				m_fontWeight,
-				m_fontSizeMin,
-				m_fontSizeMax,
-				m_fontStyle,
-				m_alignment,
-				m_extraPadding,
-				m_margin,
+				Text,
+				Font,
+				Color,
+				Alpha,
+				ColorGradient,
+				StyleSheet,
+				TextStyle,
+				OutlineColor,
+				OutlineWidth,
+				FontSize,
+				FontWeight,
+				FontSizeMin,
+				FontSizeMax,
+				FontStyle,
+				Alignment,
+				ExtraPadding,
+				Margin,
 			};
 		}
 
@@ -71,22 +71,209 @@ namespace GuiToolkit.Style
 		[SerializeReference] private ApplicableValueBoolean m_extraPadding = new();
 		[SerializeReference] private ApplicableValueVector4 m_margin = new();
 
-		public ApplicableValue<System.String> Text => m_text;
-		public ApplicableValue<TMPro.TMP_FontAsset> Font => m_font;
-		public ApplicableValue<UnityEngine.Color> Color => m_color;
-		public ApplicableValue<System.Single> Alpha => m_alpha;
-		public ApplicableValue<TMPro.VertexGradient> ColorGradient => m_colorGradient;
-		public ApplicableValue<TMPro.TMP_StyleSheet> StyleSheet => m_styleSheet;
-		public ApplicableValue<TMPro.TMP_Style> TextStyle => m_textStyle;
-		public ApplicableValue<UnityEngine.Color32> OutlineColor => m_outlineColor;
-		public ApplicableValue<System.Single> OutlineWidth => m_outlineWidth;
-		public ApplicableValue<System.Single> FontSize => m_fontSize;
-		public ApplicableValue<TMPro.FontWeight> FontWeight => m_fontWeight;
-		public ApplicableValue<System.Single> FontSizeMin => m_fontSizeMin;
-		public ApplicableValue<System.Single> FontSizeMax => m_fontSizeMax;
-		public ApplicableValue<TMPro.FontStyles> FontStyle => m_fontStyle;
-		public ApplicableValue<TMPro.TextAlignmentOptions> Alignment => m_alignment;
-		public ApplicableValue<System.Boolean> ExtraPadding => m_extraPadding;
-		public ApplicableValue<UnityEngine.Vector4> Margin => m_margin;
+		public ApplicableValue<System.String> Text
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_text == null)
+						m_text = new ApplicableValueString();
+				#endif
+				return m_text;
+			}
+		}
+
+		public ApplicableValue<TMPro.TMP_FontAsset> Font
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_font == null)
+						m_font = new ApplicableValueTMP_FontAsset();
+				#endif
+				return m_font;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Color> Color
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_color == null)
+						m_color = new ApplicableValueColor();
+				#endif
+				return m_color;
+			}
+		}
+
+		public ApplicableValue<System.Single> Alpha
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_alpha == null)
+						m_alpha = new ApplicableValueSingle();
+				#endif
+				return m_alpha;
+			}
+		}
+
+		public ApplicableValue<TMPro.VertexGradient> ColorGradient
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_colorGradient == null)
+						m_colorGradient = new ApplicableValueVertexGradient();
+				#endif
+				return m_colorGradient;
+			}
+		}
+
+		public ApplicableValue<TMPro.TMP_StyleSheet> StyleSheet
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_styleSheet == null)
+						m_styleSheet = new ApplicableValueTMP_StyleSheet();
+				#endif
+				return m_styleSheet;
+			}
+		}
+
+		public ApplicableValue<TMPro.TMP_Style> TextStyle
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_textStyle == null)
+						m_textStyle = new ApplicableValueTMP_Style();
+				#endif
+				return m_textStyle;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Color32> OutlineColor
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_outlineColor == null)
+						m_outlineColor = new ApplicableValueColor32();
+				#endif
+				return m_outlineColor;
+			}
+		}
+
+		public ApplicableValue<System.Single> OutlineWidth
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_outlineWidth == null)
+						m_outlineWidth = new ApplicableValueSingle();
+				#endif
+				return m_outlineWidth;
+			}
+		}
+
+		public ApplicableValue<System.Single> FontSize
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_fontSize == null)
+						m_fontSize = new ApplicableValueSingle();
+				#endif
+				return m_fontSize;
+			}
+		}
+
+		public ApplicableValue<TMPro.FontWeight> FontWeight
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_fontWeight == null)
+						m_fontWeight = new ApplicableValueFontWeight();
+				#endif
+				return m_fontWeight;
+			}
+		}
+
+		public ApplicableValue<System.Single> FontSizeMin
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_fontSizeMin == null)
+						m_fontSizeMin = new ApplicableValueSingle();
+				#endif
+				return m_fontSizeMin;
+			}
+		}
+
+		public ApplicableValue<System.Single> FontSizeMax
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_fontSizeMax == null)
+						m_fontSizeMax = new ApplicableValueSingle();
+				#endif
+				return m_fontSizeMax;
+			}
+		}
+
+		public ApplicableValue<TMPro.FontStyles> FontStyle
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_fontStyle == null)
+						m_fontStyle = new ApplicableValueFontStyles();
+				#endif
+				return m_fontStyle;
+			}
+		}
+
+		public ApplicableValue<TMPro.TextAlignmentOptions> Alignment
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_alignment == null)
+						m_alignment = new ApplicableValueTextAlignmentOptions();
+				#endif
+				return m_alignment;
+			}
+		}
+
+		public ApplicableValue<System.Boolean> ExtraPadding
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_extraPadding == null)
+						m_extraPadding = new ApplicableValueBoolean();
+				#endif
+				return m_extraPadding;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Vector4> Margin
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_margin == null)
+						m_margin = new ApplicableValueVector4();
+				#endif
+				return m_margin;
+			}
+		}
+
 	}
 }

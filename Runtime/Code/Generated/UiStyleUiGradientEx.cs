@@ -21,12 +21,23 @@ namespace GuiToolkit.Style
 		{
 			return new ApplicableValueBase[]
 			{
-				m_Gradient,
+				Gradient,
 			};
 		}
 
 		[SerializeReference] private ApplicableValueGradient m_Gradient = new();
 
-		public ApplicableValue<UnityEngine.Gradient> Gradient => m_Gradient;
+		public ApplicableValue<UnityEngine.Gradient> Gradient
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_Gradient == null)
+						m_Gradient = new ApplicableValueGradient();
+				#endif
+				return m_Gradient;
+			}
+		}
+
 	}
 }

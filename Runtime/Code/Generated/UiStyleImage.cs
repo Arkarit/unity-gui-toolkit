@@ -22,15 +22,37 @@ namespace GuiToolkit.Style
 		{
 			return new ApplicableValueBase[]
 			{
-				m_sprite,
-				m_color,
+				Sprite,
+				Color,
 			};
 		}
 
 		[SerializeReference] private ApplicableValueSprite m_sprite = new();
 		[SerializeReference] private ApplicableValueColor m_color = new();
 
-		public ApplicableValue<UnityEngine.Sprite> Sprite => m_sprite;
-		public ApplicableValue<UnityEngine.Color> Color => m_color;
+		public ApplicableValue<UnityEngine.Sprite> Sprite
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_sprite == null)
+						m_sprite = new ApplicableValueSprite();
+				#endif
+				return m_sprite;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Color> Color
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_color == null)
+						m_color = new ApplicableValueColor();
+				#endif
+				return m_color;
+			}
+		}
+
 	}
 }
