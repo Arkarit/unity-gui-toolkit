@@ -20,6 +20,8 @@ namespace GuiToolkit.Style
 				try { SpecificComponent.ColorRightOrBottom = Tweenable ? SpecificStyle.ColorRightOrBottom.Value : SpecificStyle.ColorRightOrBottom.RawValue; } catch {}
 			if (SpecificStyle.Orientation.IsApplicable)
 				try { SpecificComponent.Orientation = Tweenable ? SpecificStyle.Orientation.Value : SpecificStyle.Orientation.RawValue; } catch {}
+			if (SpecificStyle.Enabled.IsApplicable)
+				try { SpecificComponent.enabled = Tweenable ? SpecificStyle.Enabled.Value : SpecificStyle.Enabled.RawValue; } catch {}
 		}
 
 		protected override void RecordImpl()
@@ -33,6 +35,8 @@ namespace GuiToolkit.Style
 				try { SpecificStyle.ColorRightOrBottom.RawValue = SpecificComponent.ColorRightOrBottom; } catch {}
 			if (SpecificStyle.Orientation.IsApplicable)
 				try { SpecificStyle.Orientation.RawValue = SpecificComponent.Orientation; } catch {}
+			if (SpecificStyle.Enabled.IsApplicable)
+				try { SpecificStyle.Enabled.RawValue = SpecificComponent.enabled; } catch {}
 		}
 
 		public override UiAbstractStyleBase CreateStyle(UiStyleConfig _styleConfig, string _name, UiAbstractStyleBase _template = null)
@@ -52,6 +56,8 @@ namespace GuiToolkit.Style
 				result.ColorRightOrBottom.IsApplicable = specificTemplate.ColorRightOrBottom.IsApplicable;
 				result.Orientation.Value = specificTemplate.Orientation.Value;
 				result.Orientation.IsApplicable = specificTemplate.Orientation.IsApplicable;
+				result.Enabled.Value = specificTemplate.Enabled.Value;
+				result.Enabled.IsApplicable = specificTemplate.Enabled.IsApplicable;
 
 				return result;
 			}
@@ -59,6 +65,7 @@ namespace GuiToolkit.Style
 			try { result.ColorLeftOrTop.Value = SpecificComponent.ColorLeftOrTop; } catch {}
 			try { result.ColorRightOrBottom.Value = SpecificComponent.ColorRightOrBottom; } catch {}
 			try { result.Orientation.Value = SpecificComponent.Orientation; } catch {}
+			try { result.Enabled.Value = SpecificComponent.enabled; } catch {}
 
 			return result;
 		}

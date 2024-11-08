@@ -17,6 +17,7 @@ namespace GuiToolkit.Style
 
 		private class ApplicableValueSprite : ApplicableValue<UnityEngine.Sprite> {}
 		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
+		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
 
 		protected override ApplicableValueBase[] GetValueList()
 		{
@@ -24,11 +25,13 @@ namespace GuiToolkit.Style
 			{
 				Sprite,
 				Color,
+				Enabled,
 			};
 		}
 
 		[SerializeReference] private ApplicableValueSprite m_sprite = new();
 		[SerializeReference] private ApplicableValueColor m_color = new();
+		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
 
 		public ApplicableValue<UnityEngine.Sprite> Sprite
 		{
@@ -51,6 +54,18 @@ namespace GuiToolkit.Style
 						m_color = new ApplicableValueColor();
 				#endif
 				return m_color;
+			}
+		}
+
+		public ApplicableValue<System.Boolean> Enabled
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_enabled == null)
+						m_enabled = new ApplicableValueBoolean();
+				#endif
+				return m_enabled;
 			}
 		}
 

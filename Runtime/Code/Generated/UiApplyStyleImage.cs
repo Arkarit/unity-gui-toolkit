@@ -18,6 +18,8 @@ namespace GuiToolkit.Style
 				try { SpecificComponent.sprite = Tweenable ? SpecificStyle.Sprite.Value : SpecificStyle.Sprite.RawValue; } catch {}
 			if (SpecificStyle.Color.IsApplicable)
 				try { SpecificComponent.color = Tweenable ? SpecificStyle.Color.Value : SpecificStyle.Color.RawValue; } catch {}
+			if (SpecificStyle.Enabled.IsApplicable)
+				try { SpecificComponent.enabled = Tweenable ? SpecificStyle.Enabled.Value : SpecificStyle.Enabled.RawValue; } catch {}
 		}
 
 		protected override void RecordImpl()
@@ -29,6 +31,8 @@ namespace GuiToolkit.Style
 				try { SpecificStyle.Sprite.RawValue = SpecificComponent.sprite; } catch {}
 			if (SpecificStyle.Color.IsApplicable)
 				try { SpecificStyle.Color.RawValue = SpecificComponent.color; } catch {}
+			if (SpecificStyle.Enabled.IsApplicable)
+				try { SpecificStyle.Enabled.RawValue = SpecificComponent.enabled; } catch {}
 		}
 
 		public override UiAbstractStyleBase CreateStyle(UiStyleConfig _styleConfig, string _name, UiAbstractStyleBase _template = null)
@@ -46,12 +50,15 @@ namespace GuiToolkit.Style
 				result.Sprite.IsApplicable = specificTemplate.Sprite.IsApplicable;
 				result.Color.Value = specificTemplate.Color.Value;
 				result.Color.IsApplicable = specificTemplate.Color.IsApplicable;
+				result.Enabled.Value = specificTemplate.Enabled.Value;
+				result.Enabled.IsApplicable = specificTemplate.Enabled.IsApplicable;
 
 				return result;
 			}
 
 			try { result.Sprite.Value = SpecificComponent.sprite; } catch {}
 			try { result.Color.Value = SpecificComponent.color; } catch {}
+			try { result.Enabled.Value = SpecificComponent.enabled; } catch {}
 
 			return result;
 		}
