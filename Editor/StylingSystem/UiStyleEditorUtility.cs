@@ -42,7 +42,7 @@ namespace GuiToolkit.Style.Editor
 		{
 			get
 			{
-				if (m_styleHelperEditor == null)
+				if (m_styleHelperEditor == null || m_styleHelperEditor.serializedObject == null || m_styleHelperEditor.target == null)
 					m_styleHelperEditor = (DisplayStyleHelperObjectEditor) UnityEditor.Editor.CreateEditor(StyleHelper, typeof(DisplayStyleHelperObjectEditor));
 				
 				return m_styleHelperEditor;
