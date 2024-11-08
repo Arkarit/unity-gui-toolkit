@@ -64,7 +64,7 @@
             "TypeName": "Single"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "enableVertexGradient",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -232,7 +232,7 @@
             "TypeName": "Single"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "overflowMode",
             "QualifiedTypeName": "TMPro.TextOverflowModes",
             "TypeName": "TextOverflowModes"
@@ -244,7 +244,7 @@
             "TypeName": "TMP_Text"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "enableKerning",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -256,7 +256,7 @@
             "TypeName": "Boolean"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "richText",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"

@@ -26,6 +26,8 @@ namespace GuiToolkit.Style
 				try { SpecificComponent.color = Tweenable ? SpecificStyle.Color.Value : SpecificStyle.Color.RawValue; } catch {}
 			if (SpecificStyle.Alpha.IsApplicable)
 				try { SpecificComponent.alpha = Tweenable ? SpecificStyle.Alpha.Value : SpecificStyle.Alpha.RawValue; } catch {}
+			if (SpecificStyle.EnableVertexGradient.IsApplicable)
+				try { SpecificComponent.enableVertexGradient = Tweenable ? SpecificStyle.EnableVertexGradient.Value : SpecificStyle.EnableVertexGradient.RawValue; } catch {}
 			if (SpecificStyle.ColorGradient.IsApplicable)
 				try { SpecificComponent.colorGradient = Tweenable ? SpecificStyle.ColorGradient.Value : SpecificStyle.ColorGradient.RawValue; } catch {}
 			if (SpecificStyle.SpriteAsset.IsApplicable)
@@ -66,8 +68,14 @@ namespace GuiToolkit.Style
 				try { SpecificComponent.paragraphSpacing = Tweenable ? SpecificStyle.ParagraphSpacing.Value : SpecificStyle.ParagraphSpacing.RawValue; } catch {}
 			if (SpecificStyle.CharacterWidthAdjustment.IsApplicable)
 				try { SpecificComponent.characterWidthAdjustment = Tweenable ? SpecificStyle.CharacterWidthAdjustment.Value : SpecificStyle.CharacterWidthAdjustment.RawValue; } catch {}
+			if (SpecificStyle.OverflowMode.IsApplicable)
+				try { SpecificComponent.overflowMode = Tweenable ? SpecificStyle.OverflowMode.Value : SpecificStyle.OverflowMode.RawValue; } catch {}
+			if (SpecificStyle.EnableKerning.IsApplicable)
+				try { SpecificComponent.enableKerning = Tweenable ? SpecificStyle.EnableKerning.Value : SpecificStyle.EnableKerning.RawValue; } catch {}
 			if (SpecificStyle.ExtraPadding.IsApplicable)
 				try { SpecificComponent.extraPadding = Tweenable ? SpecificStyle.ExtraPadding.Value : SpecificStyle.ExtraPadding.RawValue; } catch {}
+			if (SpecificStyle.RichText.IsApplicable)
+				try { SpecificComponent.richText = Tweenable ? SpecificStyle.RichText.Value : SpecificStyle.RichText.RawValue; } catch {}
 			if (SpecificStyle.Margin.IsApplicable)
 				try { SpecificComponent.margin = Tweenable ? SpecificStyle.Margin.Value : SpecificStyle.Margin.RawValue; } catch {}
 		}
@@ -89,6 +97,8 @@ namespace GuiToolkit.Style
 				try { SpecificStyle.Color.RawValue = SpecificComponent.color; } catch {}
 			if (SpecificStyle.Alpha.IsApplicable)
 				try { SpecificStyle.Alpha.RawValue = SpecificComponent.alpha; } catch {}
+			if (SpecificStyle.EnableVertexGradient.IsApplicable)
+				try { SpecificStyle.EnableVertexGradient.RawValue = SpecificComponent.enableVertexGradient; } catch {}
 			if (SpecificStyle.ColorGradient.IsApplicable)
 				try { SpecificStyle.ColorGradient.RawValue = SpecificComponent.colorGradient; } catch {}
 			if (SpecificStyle.SpriteAsset.IsApplicable)
@@ -129,8 +139,14 @@ namespace GuiToolkit.Style
 				try { SpecificStyle.ParagraphSpacing.RawValue = SpecificComponent.paragraphSpacing; } catch {}
 			if (SpecificStyle.CharacterWidthAdjustment.IsApplicable)
 				try { SpecificStyle.CharacterWidthAdjustment.RawValue = SpecificComponent.characterWidthAdjustment; } catch {}
+			if (SpecificStyle.OverflowMode.IsApplicable)
+				try { SpecificStyle.OverflowMode.RawValue = SpecificComponent.overflowMode; } catch {}
+			if (SpecificStyle.EnableKerning.IsApplicable)
+				try { SpecificStyle.EnableKerning.RawValue = SpecificComponent.enableKerning; } catch {}
 			if (SpecificStyle.ExtraPadding.IsApplicable)
 				try { SpecificStyle.ExtraPadding.RawValue = SpecificComponent.extraPadding; } catch {}
+			if (SpecificStyle.RichText.IsApplicable)
+				try { SpecificStyle.RichText.RawValue = SpecificComponent.richText; } catch {}
 			if (SpecificStyle.Margin.IsApplicable)
 				try { SpecificStyle.Margin.RawValue = SpecificComponent.margin; } catch {}
 		}
@@ -158,6 +174,8 @@ namespace GuiToolkit.Style
 				result.Color.IsApplicable = specificTemplate.Color.IsApplicable;
 				result.Alpha.Value = specificTemplate.Alpha.Value;
 				result.Alpha.IsApplicable = specificTemplate.Alpha.IsApplicable;
+				result.EnableVertexGradient.Value = specificTemplate.EnableVertexGradient.Value;
+				result.EnableVertexGradient.IsApplicable = specificTemplate.EnableVertexGradient.IsApplicable;
 				result.ColorGradient.Value = specificTemplate.ColorGradient.Value;
 				result.ColorGradient.IsApplicable = specificTemplate.ColorGradient.IsApplicable;
 				result.SpriteAsset.Value = specificTemplate.SpriteAsset.Value;
@@ -198,8 +216,14 @@ namespace GuiToolkit.Style
 				result.ParagraphSpacing.IsApplicable = specificTemplate.ParagraphSpacing.IsApplicable;
 				result.CharacterWidthAdjustment.Value = specificTemplate.CharacterWidthAdjustment.Value;
 				result.CharacterWidthAdjustment.IsApplicable = specificTemplate.CharacterWidthAdjustment.IsApplicable;
+				result.OverflowMode.Value = specificTemplate.OverflowMode.Value;
+				result.OverflowMode.IsApplicable = specificTemplate.OverflowMode.IsApplicable;
+				result.EnableKerning.Value = specificTemplate.EnableKerning.Value;
+				result.EnableKerning.IsApplicable = specificTemplate.EnableKerning.IsApplicable;
 				result.ExtraPadding.Value = specificTemplate.ExtraPadding.Value;
 				result.ExtraPadding.IsApplicable = specificTemplate.ExtraPadding.IsApplicable;
+				result.RichText.Value = specificTemplate.RichText.Value;
+				result.RichText.IsApplicable = specificTemplate.RichText.IsApplicable;
 				result.Margin.Value = specificTemplate.Margin.Value;
 				result.Margin.IsApplicable = specificTemplate.Margin.IsApplicable;
 
@@ -212,6 +236,7 @@ namespace GuiToolkit.Style
 			try { result.FontSharedMaterials.Value = SpecificComponent.fontSharedMaterials; } catch {}
 			try { result.Color.Value = SpecificComponent.color; } catch {}
 			try { result.Alpha.Value = SpecificComponent.alpha; } catch {}
+			try { result.EnableVertexGradient.Value = SpecificComponent.enableVertexGradient; } catch {}
 			try { result.ColorGradient.Value = SpecificComponent.colorGradient; } catch {}
 			try { result.SpriteAsset.Value = SpecificComponent.spriteAsset; } catch {}
 			try { result.TintAllSprites.Value = SpecificComponent.tintAllSprites; } catch {}
@@ -232,7 +257,10 @@ namespace GuiToolkit.Style
 			try { result.LineSpacingAdjustment.Value = SpecificComponent.lineSpacingAdjustment; } catch {}
 			try { result.ParagraphSpacing.Value = SpecificComponent.paragraphSpacing; } catch {}
 			try { result.CharacterWidthAdjustment.Value = SpecificComponent.characterWidthAdjustment; } catch {}
+			try { result.OverflowMode.Value = SpecificComponent.overflowMode; } catch {}
+			try { result.EnableKerning.Value = SpecificComponent.enableKerning; } catch {}
 			try { result.ExtraPadding.Value = SpecificComponent.extraPadding; } catch {}
+			try { result.RichText.Value = SpecificComponent.richText; } catch {}
 			try { result.Margin.Value = SpecificComponent.margin; } catch {}
 
 			return result;

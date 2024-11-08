@@ -21,15 +21,16 @@ namespace GuiToolkit.Style
 		private class ApplicableValueMaterialArray : ApplicableValue<UnityEngine.Material[]> {}
 		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
 		private class ApplicableValueSingle : ApplicableValue<System.Single> {}
+		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
 		private class ApplicableValueVertexGradient : ApplicableValue<TMPro.VertexGradient> {}
 		private class ApplicableValueTMP_SpriteAsset : ApplicableValue<TMPro.TMP_SpriteAsset> {}
-		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
 		private class ApplicableValueTMP_StyleSheet : ApplicableValue<TMPro.TMP_StyleSheet> {}
 		private class ApplicableValueTMP_Style : ApplicableValue<TMPro.TMP_Style> {}
 		private class ApplicableValueColor32 : ApplicableValue<UnityEngine.Color32> {}
 		private class ApplicableValueFontWeight : ApplicableValue<TMPro.FontWeight> {}
 		private class ApplicableValueFontStyles : ApplicableValue<TMPro.FontStyles> {}
 		private class ApplicableValueTextAlignmentOptions : ApplicableValue<TMPro.TextAlignmentOptions> {}
+		private class ApplicableValueTextOverflowModes : ApplicableValue<TMPro.TextOverflowModes> {}
 		private class ApplicableValueVector4 : ApplicableValue<UnityEngine.Vector4> {}
 
 		protected override ApplicableValueBase[] GetValueList()
@@ -42,6 +43,7 @@ namespace GuiToolkit.Style
 				FontSharedMaterials,
 				Color,
 				Alpha,
+				EnableVertexGradient,
 				ColorGradient,
 				SpriteAsset,
 				TintAllSprites,
@@ -62,7 +64,10 @@ namespace GuiToolkit.Style
 				LineSpacingAdjustment,
 				ParagraphSpacing,
 				CharacterWidthAdjustment,
+				OverflowMode,
+				EnableKerning,
 				ExtraPadding,
+				RichText,
 				Margin,
 			};
 		}
@@ -73,6 +78,7 @@ namespace GuiToolkit.Style
 		[SerializeReference] private ApplicableValueMaterialArray m_fontSharedMaterials = new();
 		[SerializeReference] private ApplicableValueColor m_color = new();
 		[SerializeReference] private ApplicableValueSingle m_alpha = new();
+		[SerializeReference] private ApplicableValueBoolean m_enableVertexGradient = new();
 		[SerializeReference] private ApplicableValueVertexGradient m_colorGradient = new();
 		[SerializeReference] private ApplicableValueTMP_SpriteAsset m_spriteAsset = new();
 		[SerializeReference] private ApplicableValueBoolean m_tintAllSprites = new();
@@ -93,7 +99,10 @@ namespace GuiToolkit.Style
 		[SerializeReference] private ApplicableValueSingle m_lineSpacingAdjustment = new();
 		[SerializeReference] private ApplicableValueSingle m_paragraphSpacing = new();
 		[SerializeReference] private ApplicableValueSingle m_characterWidthAdjustment = new();
+		[SerializeReference] private ApplicableValueTextOverflowModes m_overflowMode = new();
+		[SerializeReference] private ApplicableValueBoolean m_enableKerning = new();
 		[SerializeReference] private ApplicableValueBoolean m_extraPadding = new();
+		[SerializeReference] private ApplicableValueBoolean m_richText = new();
 		[SerializeReference] private ApplicableValueVector4 m_margin = new();
 
 		public ApplicableValue<System.String> Text
@@ -165,6 +174,18 @@ namespace GuiToolkit.Style
 						m_alpha = new ApplicableValueSingle();
 				#endif
 				return m_alpha;
+			}
+		}
+
+		public ApplicableValue<System.Boolean> EnableVertexGradient
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_enableVertexGradient == null)
+						m_enableVertexGradient = new ApplicableValueBoolean();
+				#endif
+				return m_enableVertexGradient;
 			}
 		}
 
@@ -408,6 +429,30 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		public ApplicableValue<TMPro.TextOverflowModes> OverflowMode
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_overflowMode == null)
+						m_overflowMode = new ApplicableValueTextOverflowModes();
+				#endif
+				return m_overflowMode;
+			}
+		}
+
+		public ApplicableValue<System.Boolean> EnableKerning
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_enableKerning == null)
+						m_enableKerning = new ApplicableValueBoolean();
+				#endif
+				return m_enableKerning;
+			}
+		}
+
 		public ApplicableValue<System.Boolean> ExtraPadding
 		{
 			get
@@ -417,6 +462,18 @@ namespace GuiToolkit.Style
 						m_extraPadding = new ApplicableValueBoolean();
 				#endif
 				return m_extraPadding;
+			}
+		}
+
+		public ApplicableValue<System.Boolean> RichText
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_richText == null)
+						m_richText = new ApplicableValueBoolean();
+				#endif
+				return m_richText;
 			}
 		}
 
