@@ -17,16 +17,19 @@ namespace GuiToolkit.Style
 
 		private class ApplicableValueString : ApplicableValue<System.String> {}
 		private class ApplicableValueTMP_FontAsset : ApplicableValue<TMPro.TMP_FontAsset> {}
+		private class ApplicableValueMaterial : ApplicableValue<UnityEngine.Material> {}
+		private class ApplicableValueMaterialArray : ApplicableValue<UnityEngine.Material[]> {}
 		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
 		private class ApplicableValueSingle : ApplicableValue<System.Single> {}
 		private class ApplicableValueVertexGradient : ApplicableValue<TMPro.VertexGradient> {}
+		private class ApplicableValueTMP_SpriteAsset : ApplicableValue<TMPro.TMP_SpriteAsset> {}
+		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
 		private class ApplicableValueTMP_StyleSheet : ApplicableValue<TMPro.TMP_StyleSheet> {}
 		private class ApplicableValueTMP_Style : ApplicableValue<TMPro.TMP_Style> {}
 		private class ApplicableValueColor32 : ApplicableValue<UnityEngine.Color32> {}
 		private class ApplicableValueFontWeight : ApplicableValue<TMPro.FontWeight> {}
 		private class ApplicableValueFontStyles : ApplicableValue<TMPro.FontStyles> {}
 		private class ApplicableValueTextAlignmentOptions : ApplicableValue<TMPro.TextAlignmentOptions> {}
-		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
 		private class ApplicableValueVector4 : ApplicableValue<UnityEngine.Vector4> {}
 
 		protected override ApplicableValueBase[] GetValueList()
@@ -35,19 +38,30 @@ namespace GuiToolkit.Style
 			{
 				Text,
 				Font,
+				FontSharedMaterial,
+				FontSharedMaterials,
 				Color,
 				Alpha,
 				ColorGradient,
+				SpriteAsset,
+				TintAllSprites,
 				StyleSheet,
 				TextStyle,
 				OutlineColor,
 				OutlineWidth,
 				FontSize,
 				FontWeight,
+				EnableAutoSizing,
 				FontSizeMin,
 				FontSizeMax,
 				FontStyle,
 				Alignment,
+				CharacterSpacing,
+				WordSpacing,
+				LineSpacing,
+				LineSpacingAdjustment,
+				ParagraphSpacing,
+				CharacterWidthAdjustment,
 				ExtraPadding,
 				Margin,
 			};
@@ -55,19 +69,30 @@ namespace GuiToolkit.Style
 
 		[SerializeReference] private ApplicableValueString m_text = new();
 		[SerializeReference] private ApplicableValueTMP_FontAsset m_font = new();
+		[SerializeReference] private ApplicableValueMaterial m_fontSharedMaterial = new();
+		[SerializeReference] private ApplicableValueMaterialArray m_fontSharedMaterials = new();
 		[SerializeReference] private ApplicableValueColor m_color = new();
 		[SerializeReference] private ApplicableValueSingle m_alpha = new();
 		[SerializeReference] private ApplicableValueVertexGradient m_colorGradient = new();
+		[SerializeReference] private ApplicableValueTMP_SpriteAsset m_spriteAsset = new();
+		[SerializeReference] private ApplicableValueBoolean m_tintAllSprites = new();
 		[SerializeReference] private ApplicableValueTMP_StyleSheet m_styleSheet = new();
 		[SerializeReference] private ApplicableValueTMP_Style m_textStyle = new();
 		[SerializeReference] private ApplicableValueColor32 m_outlineColor = new();
 		[SerializeReference] private ApplicableValueSingle m_outlineWidth = new();
 		[SerializeReference] private ApplicableValueSingle m_fontSize = new();
 		[SerializeReference] private ApplicableValueFontWeight m_fontWeight = new();
+		[SerializeReference] private ApplicableValueBoolean m_enableAutoSizing = new();
 		[SerializeReference] private ApplicableValueSingle m_fontSizeMin = new();
 		[SerializeReference] private ApplicableValueSingle m_fontSizeMax = new();
 		[SerializeReference] private ApplicableValueFontStyles m_fontStyle = new();
 		[SerializeReference] private ApplicableValueTextAlignmentOptions m_alignment = new();
+		[SerializeReference] private ApplicableValueSingle m_characterSpacing = new();
+		[SerializeReference] private ApplicableValueSingle m_wordSpacing = new();
+		[SerializeReference] private ApplicableValueSingle m_lineSpacing = new();
+		[SerializeReference] private ApplicableValueSingle m_lineSpacingAdjustment = new();
+		[SerializeReference] private ApplicableValueSingle m_paragraphSpacing = new();
+		[SerializeReference] private ApplicableValueSingle m_characterWidthAdjustment = new();
 		[SerializeReference] private ApplicableValueBoolean m_extraPadding = new();
 		[SerializeReference] private ApplicableValueVector4 m_margin = new();
 
@@ -92,6 +117,30 @@ namespace GuiToolkit.Style
 						m_font = new ApplicableValueTMP_FontAsset();
 				#endif
 				return m_font;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Material> FontSharedMaterial
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_fontSharedMaterial == null)
+						m_fontSharedMaterial = new ApplicableValueMaterial();
+				#endif
+				return m_fontSharedMaterial;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Material[]> FontSharedMaterials
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_fontSharedMaterials == null)
+						m_fontSharedMaterials = new ApplicableValueMaterialArray();
+				#endif
+				return m_fontSharedMaterials;
 			}
 		}
 
@@ -128,6 +177,30 @@ namespace GuiToolkit.Style
 						m_colorGradient = new ApplicableValueVertexGradient();
 				#endif
 				return m_colorGradient;
+			}
+		}
+
+		public ApplicableValue<TMPro.TMP_SpriteAsset> SpriteAsset
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_spriteAsset == null)
+						m_spriteAsset = new ApplicableValueTMP_SpriteAsset();
+				#endif
+				return m_spriteAsset;
+			}
+		}
+
+		public ApplicableValue<System.Boolean> TintAllSprites
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_tintAllSprites == null)
+						m_tintAllSprites = new ApplicableValueBoolean();
+				#endif
+				return m_tintAllSprites;
 			}
 		}
 
@@ -203,6 +276,18 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		public ApplicableValue<System.Boolean> EnableAutoSizing
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_enableAutoSizing == null)
+						m_enableAutoSizing = new ApplicableValueBoolean();
+				#endif
+				return m_enableAutoSizing;
+			}
+		}
+
 		public ApplicableValue<System.Single> FontSizeMin
 		{
 			get
@@ -248,6 +333,78 @@ namespace GuiToolkit.Style
 						m_alignment = new ApplicableValueTextAlignmentOptions();
 				#endif
 				return m_alignment;
+			}
+		}
+
+		public ApplicableValue<System.Single> CharacterSpacing
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_characterSpacing == null)
+						m_characterSpacing = new ApplicableValueSingle();
+				#endif
+				return m_characterSpacing;
+			}
+		}
+
+		public ApplicableValue<System.Single> WordSpacing
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_wordSpacing == null)
+						m_wordSpacing = new ApplicableValueSingle();
+				#endif
+				return m_wordSpacing;
+			}
+		}
+
+		public ApplicableValue<System.Single> LineSpacing
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_lineSpacing == null)
+						m_lineSpacing = new ApplicableValueSingle();
+				#endif
+				return m_lineSpacing;
+			}
+		}
+
+		public ApplicableValue<System.Single> LineSpacingAdjustment
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_lineSpacingAdjustment == null)
+						m_lineSpacingAdjustment = new ApplicableValueSingle();
+				#endif
+				return m_lineSpacingAdjustment;
+			}
+		}
+
+		public ApplicableValue<System.Single> ParagraphSpacing
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_paragraphSpacing == null)
+						m_paragraphSpacing = new ApplicableValueSingle();
+				#endif
+				return m_paragraphSpacing;
+			}
+		}
+
+		public ApplicableValue<System.Single> CharacterWidthAdjustment
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_characterWidthAdjustment == null)
+						m_characterWidthAdjustment = new ApplicableValueSingle();
+				#endif
+				return m_characterWidthAdjustment;
 			}
 		}
 

@@ -28,13 +28,13 @@
             "TypeName": "TMP_FontAsset"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "fontSharedMaterial",
             "QualifiedTypeName": "UnityEngine.Material",
             "TypeName": "Material"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "fontSharedMaterials",
             "QualifiedTypeName": "UnityEngine.Material[]",
             "TypeName": "Material[]"
@@ -82,13 +82,13 @@
             "TypeName": "TMP_ColorGradient"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "spriteAsset",
             "QualifiedTypeName": "TMPro.TMP_SpriteAsset",
             "TypeName": "TMP_SpriteAsset"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "tintAllSprites",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -142,7 +142,7 @@
             "TypeName": "FontWeight"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "enableAutoSizing",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -184,37 +184,37 @@
             "TypeName": "TextAlignmentOptions"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "characterSpacing",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "wordSpacing",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "lineSpacing",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "lineSpacingAdjustment",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "paragraphSpacing",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "characterWidthAdjustment",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
