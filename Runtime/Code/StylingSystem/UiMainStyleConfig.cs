@@ -15,6 +15,8 @@ namespace GuiToolkit.Style
 		protected static string ClassName => typeof(UiMainStyleConfig).Name;
 		protected static string EditorPath => EditorDir + ClassName + ".asset";
 		
+		public static void ResetInstance() => s_instance = null;
+
 		public static UiMainStyleConfig Instance
 		{
 			get

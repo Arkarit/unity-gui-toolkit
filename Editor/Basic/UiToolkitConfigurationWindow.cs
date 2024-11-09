@@ -160,6 +160,7 @@ namespace GuiToolkit.Editor
 			var styleConfigProp = m_serializedSettingsObject.FindProperty("m_uiMainStyleConfig");
 			styleConfigProp.objectReferenceValue = currentStyleConfig;
 			m_serializedSettingsObject.ApplyModifiedProperties();
+			UiMainStyleConfig.ResetInstance();
 			AssetDatabase.SaveAssets();
 		}
 
