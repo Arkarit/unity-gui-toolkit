@@ -44,6 +44,7 @@ namespace GuiToolkit.Style
 				UiEventDefinitions.EvSkinChanged.Invoke(0);
 			}
 		}
+
 		public int NumSkins => m_skins != null ? m_skins.Count : 0;
 
 		protected void OnEnable()
@@ -51,6 +52,7 @@ namespace GuiToolkit.Style
 			foreach (var skin in m_skins)
 				skin.Init();
 			AddListeners();
+			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}
 
 		protected void OnDisable() => RemoveListeners();
