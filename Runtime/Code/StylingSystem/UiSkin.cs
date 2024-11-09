@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit.Style
 {
 	[Serializable]
@@ -17,6 +21,7 @@ namespace GuiToolkit.Style
 		[NonReorderable][SerializeReference] private List<UiAbstractStyleBase> m_styles = new();
 
 		private Dictionary<int, UiAbstractStyleBase> m_styleByKey;
+		private static readonly List<int> m_stylesToRemove = new();
 
 		public UiSkin(UiStyleConfig _config, string _name) 
 		{
@@ -43,6 +48,7 @@ namespace GuiToolkit.Style
 
 		public void Init()
 		{
+			ValidateStyles();
 			foreach (var style in m_styles)
 				style.Init();
 
@@ -116,10 +122,50 @@ namespace GuiToolkit.Style
 				m_styleByKey = new Dictionary<int, UiAbstractStyleBase>(m_styles.Count);
 			
 			m_styleByKey.Clear();
+
 			foreach (var style in m_styles)
 			{
 				m_styleByKey.Add(style.Key, style);
 			}
+		}
+
+		private void ValidateStyles()
+		{
+			for (int i=0; i < m_styles.Count; i++)
+			{
+				var style = m_styles[i];
+				if (style == null)
+					m_stylesToRemove.Add(i);
+			}
+
+			if (m_stylesToRemove.Count > 0)
+			{
+				string styleIndicesToRemoveStr = string.Empty;
+				for (int i = 0; i < m_stylesToRemove.Count; i++)
+				{
+					var styleIdx = m_stylesToRemove[i];
+					styleIndicesToRemoveStr += styleIdx.ToString();
+					var isLast = i == m_stylesToRemove.Count - 1;
+					styleIndicesToRemoveStr += isLast ? " " : ", ";
+				}
+
+				Debug.LogError($"Styling system: The styles {styleIndicesToRemoveStr} are null and will be removed. This is most likely caused by one or more missing Style/StyleApplier classes pair(s)." + 
+				               " Sorry, the exact types of these classes pairs can not be determined here - well, because the styles are null. Please be sure to revert your git changes, if you accidentally deleted it.");
+
+				for (int i = m_stylesToRemove.Count - 1; i >= 0; i--)
+				{
+					var styleIdx = m_stylesToRemove[i];
+					m_styles.RemoveAt(styleIdx);
+				}
+
+				m_stylesToRemove.Clear();
+
+#if UNITY_EDITOR
+				EditorUtility.SetDirty(m_config);
+				AssetDatabase.SaveAssets();
+#endif
+			}
+
 		}
 	}
 }
