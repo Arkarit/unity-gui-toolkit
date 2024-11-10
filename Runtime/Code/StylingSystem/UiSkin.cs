@@ -46,9 +46,9 @@ namespace GuiToolkit.Style
 		public List<UiAbstractStyleBase> Styles => m_styles;
 		public UiStyleConfig StyleConfig => m_config;
 
-		public void Init()
+		public void Init(UiStyleConfig _config)
 		{
-			ValidateStyles();
+			Validate(_config);
 			foreach (var style in m_styles)
 				style.Init();
 
@@ -129,8 +129,16 @@ namespace GuiToolkit.Style
 			}
 		}
 
-		private void ValidateStyles()
+		private void Validate(UiStyleConfig _config)
 		{
+			bool doSetDirty = false;
+
+			if (m_config != _config)
+			{
+				m_config = _config;
+				doSetDirty = true;
+			}
+
 			for (int i=0; i < m_styles.Count; i++)
 			{
 				var style = m_styles[i];
@@ -159,12 +167,16 @@ namespace GuiToolkit.Style
 				}
 
 				m_stylesToRemove.Clear();
+				doSetDirty = true;
+			}
 
 #if UNITY_EDITOR
-				EditorUtility.SetDirty(m_config);
-				AssetDatabase.SaveAssets();
+			if (!doSetDirty)
+				return;
+
+			EditorUtility.SetDirty(m_config);
+			AssetDatabase.SaveAssets();
 #endif
-			}
 
 		}
 	}

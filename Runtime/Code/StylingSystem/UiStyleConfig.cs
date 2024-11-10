@@ -50,7 +50,8 @@ namespace GuiToolkit.Style
 		protected void OnEnable()
 		{
 			foreach (var skin in m_skins)
-				skin.Init();
+				skin.Init(this);
+
 			AddListeners();
 			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}
