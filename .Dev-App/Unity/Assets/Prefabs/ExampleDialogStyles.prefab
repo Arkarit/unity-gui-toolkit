@@ -1038,6 +1038,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 776737970873565099, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -42
+      objectReference: {fileID: 0}
     - target: {fileID: 1017849121696609829, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
         type: 3}
       propertyPath: m_Pivot.x
@@ -1158,15 +1163,50 @@ PrefabInstance:
       propertyPath: m_text
       value: Style Example
       objectReference: {fileID: 0}
+    - target: {fileID: 2525010522417481711, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
+        type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 4096
+      objectReference: {fileID: 0}
+    - target: {fileID: 3173563631417158720, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.a
+      value: 0.9137255
+      objectReference: {fileID: 0}
+    - target: {fileID: 3173563631417158720, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.b
+      value: 0.49056602
+      objectReference: {fileID: 0}
+    - target: {fileID: 3173563631417158720, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.g
+      value: 0.29358298
+      objectReference: {fileID: 0}
+    - target: {fileID: 3173563631417158720, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.r
+      value: 0.09024564
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926047485326899915, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0.6901961
+      objectReference: {fileID: 0}
     - target: {fileID: 7128859168729151332, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
         type: 3}
       propertyPath: m_Name
       value: ExampleDialogStyles
       objectReference: {fileID: 0}
+    - target: {fileID: 7607785013776676545, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0.69411767
+      objectReference: {fileID: 0}
     - target: {fileID: 8806163725296523091, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
         type: 3}
       propertyPath: m_PresetInfoIsWorld
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

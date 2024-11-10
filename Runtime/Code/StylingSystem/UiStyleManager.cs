@@ -57,6 +57,12 @@ namespace GuiToolkit.Style
 				for (int j = 0; j < valuesLength; j++)
 				{
 					var value = values[j];
+					if (value == null)
+					{
+						Debug.LogError($"Value {j} of style '{styles[i].Alias}' (type '{styles[i].GetType().Name}') is null!");
+						continue;
+					}
+
 					if (!value.IsApplicable)
 						continue;
 

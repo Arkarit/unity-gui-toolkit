@@ -16,26 +16,37 @@ namespace GuiToolkit.Style
 		}
 
 		private class ApplicableValueGradient : ApplicableValue<UnityEngine.Gradient> {}
+		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
 
 		protected override ApplicableValueBase[] GetValueList()
 		{
 			return new ApplicableValueBase[]
 			{
 				Gradient,
+				Enabled,
 			};
 		}
 
 		[SerializeReference] private ApplicableValueGradient m_Gradient = new();
+		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
 
 		public ApplicableValue<UnityEngine.Gradient> Gradient
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Gradient == null)
-						m_Gradient = new ApplicableValueGradient();
-				#endif
+				if (m_Gradient == null)
+					m_Gradient = new ApplicableValueGradient();
 				return m_Gradient;
+			}
+		}
+
+		public ApplicableValue<System.Boolean> Enabled
+		{
+			get
+			{
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
+				return m_enabled;
 			}
 		}
 

@@ -52,7 +52,7 @@
             "TypeName": "Boolean"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "enabled",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"

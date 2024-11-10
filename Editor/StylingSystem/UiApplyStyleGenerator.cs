@@ -22,7 +22,7 @@ namespace GuiToolkit.Style.Editor
 		private Vector2 m_ScrollPos;
 
 		private GUIStyle[] m_alternatingRowStyles = new GUIStyle[2];
-		private static readonly HashSet<string> s_filteredNames = new() { "name", "enabled", "tag", "hideFlags", "runInEditMode", "useGUILayout" };
+		private static readonly HashSet<string> s_filteredNames = new() { "name", "tag", "hideFlags", "runInEditMode", "useGUILayout" };
 		private string m_namespace;
 		private string m_prefix;
 
@@ -92,10 +92,8 @@ namespace GuiToolkit.Style.Editor
 			"		{{\n" +
 			"			get\n" +
 			"			{{\n" +
-			"				#if UNITY_EDITOR\n" +
-			"					if (!Application.isPlaying && m_{2} == null)\n" +
-			"						m_{2} = new {3}();\n" +
-			"				#endif\n" +
+			"				if (m_{2} == null)\n" +
+			"					m_{2} = new {3}();\n" +
 			"				return m_{2};\n" +
 			"			}}\n" +
 			"		}}\n\n";

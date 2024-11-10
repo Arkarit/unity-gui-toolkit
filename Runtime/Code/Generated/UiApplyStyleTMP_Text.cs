@@ -78,6 +78,8 @@ namespace GuiToolkit.Style
 				try { SpecificComponent.richText = Tweenable ? SpecificStyle.RichText.Value : SpecificStyle.RichText.RawValue; } catch {}
 			if (SpecificStyle.Margin.IsApplicable)
 				try { SpecificComponent.margin = Tweenable ? SpecificStyle.Margin.Value : SpecificStyle.Margin.RawValue; } catch {}
+			if (SpecificStyle.Enabled.IsApplicable)
+				try { SpecificComponent.enabled = Tweenable ? SpecificStyle.Enabled.Value : SpecificStyle.Enabled.RawValue; } catch {}
 		}
 
 		protected override void RecordImpl()
@@ -149,6 +151,8 @@ namespace GuiToolkit.Style
 				try { SpecificStyle.RichText.RawValue = SpecificComponent.richText; } catch {}
 			if (SpecificStyle.Margin.IsApplicable)
 				try { SpecificStyle.Margin.RawValue = SpecificComponent.margin; } catch {}
+			if (SpecificStyle.Enabled.IsApplicable)
+				try { SpecificStyle.Enabled.RawValue = SpecificComponent.enabled; } catch {}
 		}
 
 		public override UiAbstractStyleBase CreateStyle(UiStyleConfig _styleConfig, string _name, UiAbstractStyleBase _template = null)
@@ -226,6 +230,8 @@ namespace GuiToolkit.Style
 				result.RichText.IsApplicable = specificTemplate.RichText.IsApplicable;
 				result.Margin.Value = specificTemplate.Margin.Value;
 				result.Margin.IsApplicable = specificTemplate.Margin.IsApplicable;
+				result.Enabled.Value = specificTemplate.Enabled.Value;
+				result.Enabled.IsApplicable = specificTemplate.Enabled.IsApplicable;
 
 				return result;
 			}
@@ -262,6 +268,7 @@ namespace GuiToolkit.Style
 			try { result.ExtraPadding.Value = SpecificComponent.extraPadding; } catch {}
 			try { result.RichText.Value = SpecificComponent.richText; } catch {}
 			try { result.Margin.Value = SpecificComponent.margin; } catch {}
+			try { result.Enabled.Value = SpecificComponent.enabled; } catch {}
 
 			return result;
 		}

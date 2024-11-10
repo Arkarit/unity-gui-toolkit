@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1697113851281272722}
   - component: {fileID: 1697113851281272725}
   - component: {fileID: 3152982904580889787}
+  - component: {fileID: 9137979032538683553}
   m_Layer: 5
   m_Name: StandardHeadline
   m_TagString: Untagged
@@ -164,3 +165,25 @@ MonoBehaviour:
     bottomLeft: {r: 0.745, g: 0.70709676, b: 0.47456503, a: 0.882}
     bottomRight: {r: 0.745, g: 0.70709676, b: 0.47456503, a: 0.882}
   m_disabledColor: {r: 0.745, g: 0.745, b: 0.745, a: 0.882}
+--- !u!114 &9137979032538683553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1697113851281272727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Text/Headline
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []

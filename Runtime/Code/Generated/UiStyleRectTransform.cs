@@ -23,17 +23,17 @@ namespace GuiToolkit.Style
 		{
 			return new ApplicableValueBase[]
 			{
-				m_anchorMin,
-				m_anchorMax,
-				m_anchoredPosition,
-				m_sizeDelta,
-				m_pivot,
-				m_offsetMin,
-				m_offsetMax,
-				m_localPosition,
-				m_localEulerAngles,
-				m_localRotation,
-				m_localScale,
+				AnchorMin,
+				AnchorMax,
+				AnchoredPosition,
+				SizeDelta,
+				Pivot,
+				OffsetMin,
+				OffsetMax,
+				LocalPosition,
+				LocalEulerAngles,
+				LocalRotation,
+				LocalScale,
 			};
 		}
 
@@ -49,16 +49,115 @@ namespace GuiToolkit.Style
 		[SerializeReference] private ApplicableValueQuaternion m_localRotation = new();
 		[SerializeReference] private ApplicableValueVector3 m_localScale = new();
 
-		public ApplicableValue<UnityEngine.Vector2> AnchorMin => m_anchorMin;
-		public ApplicableValue<UnityEngine.Vector2> AnchorMax => m_anchorMax;
-		public ApplicableValue<UnityEngine.Vector2> AnchoredPosition => m_anchoredPosition;
-		public ApplicableValue<UnityEngine.Vector2> SizeDelta => m_sizeDelta;
-		public ApplicableValue<UnityEngine.Vector2> Pivot => m_pivot;
-		public ApplicableValue<UnityEngine.Vector2> OffsetMin => m_offsetMin;
-		public ApplicableValue<UnityEngine.Vector2> OffsetMax => m_offsetMax;
-		public ApplicableValue<UnityEngine.Vector3> LocalPosition => m_localPosition;
-		public ApplicableValue<UnityEngine.Vector3> LocalEulerAngles => m_localEulerAngles;
-		public ApplicableValue<UnityEngine.Quaternion> LocalRotation => m_localRotation;
-		public ApplicableValue<UnityEngine.Vector3> LocalScale => m_localScale;
+		public ApplicableValue<UnityEngine.Vector2> AnchorMin
+		{
+			get
+			{
+				if (m_anchorMin == null)
+					m_anchorMin = new ApplicableValueVector2();
+				return m_anchorMin;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Vector2> AnchorMax
+		{
+			get
+			{
+				if (m_anchorMax == null)
+					m_anchorMax = new ApplicableValueVector2();
+				return m_anchorMax;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Vector2> AnchoredPosition
+		{
+			get
+			{
+				if (m_anchoredPosition == null)
+					m_anchoredPosition = new ApplicableValueVector2();
+				return m_anchoredPosition;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Vector2> SizeDelta
+		{
+			get
+			{
+				if (m_sizeDelta == null)
+					m_sizeDelta = new ApplicableValueVector2();
+				return m_sizeDelta;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Vector2> Pivot
+		{
+			get
+			{
+				if (m_pivot == null)
+					m_pivot = new ApplicableValueVector2();
+				return m_pivot;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Vector2> OffsetMin
+		{
+			get
+			{
+				if (m_offsetMin == null)
+					m_offsetMin = new ApplicableValueVector2();
+				return m_offsetMin;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Vector2> OffsetMax
+		{
+			get
+			{
+				if (m_offsetMax == null)
+					m_offsetMax = new ApplicableValueVector2();
+				return m_offsetMax;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Vector3> LocalPosition
+		{
+			get
+			{
+				if (m_localPosition == null)
+					m_localPosition = new ApplicableValueVector3();
+				return m_localPosition;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Vector3> LocalEulerAngles
+		{
+			get
+			{
+				if (m_localEulerAngles == null)
+					m_localEulerAngles = new ApplicableValueVector3();
+				return m_localEulerAngles;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Quaternion> LocalRotation
+		{
+			get
+			{
+				if (m_localRotation == null)
+					m_localRotation = new ApplicableValueQuaternion();
+				return m_localRotation;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Vector3> LocalScale
+		{
+			get
+			{
+				if (m_localScale == null)
+					m_localScale = new ApplicableValueVector3();
+				return m_localScale;
+			}
+		}
+
 	}
 }
