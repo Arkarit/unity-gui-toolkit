@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -53,6 +54,8 @@ namespace GuiToolkit.UiStateSystem
 
 		[SerializeField]
 		private int m_stateIdxOnEnable = 0;
+		
+		public UnityEvent<UiStateMachine, string> OnStateChanged = new();
 
 
 #if UNITY_EDITOR
@@ -377,6 +380,7 @@ namespace GuiToolkit.UiStateSystem
 				state.ApplyInstant();
 			
 			UpdateLayouts();
+			OnStateChanged.Invoke(this, m_currentStateName);
 
 			if (!_alsoSubStateMachines)
 				return;
@@ -398,6 +402,8 @@ namespace GuiToolkit.UiStateSystem
 			m_currentTransition = null;
 			m_currentStateName = _newStateName;
 			ApplyInstant( _alsoSubStateMachines, _force );
+			
+			
 		}
 
 #if UNITY_EDITOR
