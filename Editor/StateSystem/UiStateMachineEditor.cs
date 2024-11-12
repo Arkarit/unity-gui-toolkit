@@ -24,9 +24,11 @@ namespace GuiToolkit.UiStateSystem.Editor
 		public SerializedProperty m_subStateMachinesProp;
 		public SerializedProperty m_autoSetStateOnEnableProp;
 		public SerializedProperty m_stateIdxOnEnableProp;
+		public SerializedProperty m_OnStateChangedProp;
 		private static bool s_drawDefaultInspector = false;
 		private string m_newStateName;
 		private UiStateMachine m_thisStateMachine;
+		private bool m_eventsExpanded;
 
 		public void OnEnable()
 		{
@@ -41,6 +43,7 @@ namespace GuiToolkit.UiStateSystem.Editor
 			m_subStateMachinesProp = serializedObject.FindProperty("m_subStateMachines");
 			m_autoSetStateOnEnableProp = serializedObject.FindProperty("m_autoSetStateOnEnable");
 			m_stateIdxOnEnableProp = serializedObject.FindProperty("m_stateIdxOnEnable");
+			m_OnStateChangedProp = serializedObject.FindProperty("OnStateChanged");
 		}
 
 		public override void OnInspectorGUI()
@@ -63,6 +66,14 @@ namespace GuiToolkit.UiStateSystem.Editor
 			{
 				// TODO: state name popup instead of simple int field
 				EditorGUILayout.PropertyField(m_stateIdxOnEnableProp);
+			}
+			
+			m_eventsExpanded = EditorGUILayout.Foldout(m_eventsExpanded, "Events");
+			if (m_eventsExpanded)
+			{
+				EditorGUI.indentLevel++;
+				EditorGUILayout.PropertyField(m_OnStateChangedProp);
+				EditorGUI.indentLevel--;
 			}
 			
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
