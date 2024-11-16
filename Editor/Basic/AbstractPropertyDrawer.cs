@@ -26,6 +26,8 @@ namespace GuiToolkit.Editor
 		private static readonly Dictionary<object, bool> s_foldouts = new ();
 		private static readonly Dictionary<string, float> s_heightCache = new();
 		private bool m_heightCacheEnabled;
+		private static readonly List<SerializedProperty> s_tempProperties = new();
+
 
 		protected virtual void OnEnable() {}
 
@@ -432,6 +434,18 @@ namespace GuiToolkit.Editor
 		protected delegate bool ChildPropertyDelegate(SerializedProperty childProperty);
 		protected void ForEachChildProperty(SerializedProperty _property, ChildPropertyDelegate callback)
 		{
+			CollectChildPropertiesSorted(_property, s_tempProperties);
+			foreach (var property in s_tempProperties)
+			{
+				if (!callback(property))
+					break;
+			}
+
+			s_tempProperties.Clear();
+		}
+
+		protected void CollectChildPropertiesSorted(SerializedProperty _property, List<SerializedProperty> list)
+		{
 			var enumerator = _property.Copy().GetEnumerator();
 			int depth = _property.depth;
 
@@ -441,9 +455,10 @@ namespace GuiToolkit.Editor
 				if (property == null || property.depth > depth + 1)
 					continue;
 
-				if (!callback(property))
-					break;
+				list.Add(property.Copy());
 			}
+
+			list.Sort((a, b) => a.displayName.CompareTo(b.displayName));
 		}
 	}
 }
