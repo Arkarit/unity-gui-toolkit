@@ -71,7 +71,7 @@ MonoBehaviour:
   m_text: Really Lorem?
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
-  m_sharedMaterial: {fileID: 0}
+  m_sharedMaterial: {fileID: 2100000, guid: ef3e0ac67c9c98e43b1ab1b7cab4c9eb, type: 2}
   m_fontSharedMaterials:
   - {fileID: 2100000, guid: ef3e0ac67c9c98e43b1ab1b7cab4c9eb, type: 2}
   m_fontMaterial: {fileID: 0}

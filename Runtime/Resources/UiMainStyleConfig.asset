@@ -1012,9 +1012,9 @@ MonoBehaviour:
         IsApplicable: 1
         m_value:
           topLeft: {r: 1, g: 0.6426992, b: 0, a: 1}
-          topRight: {r: 1, g: 0.6431373, b: 0, a: 1}
+          topRight: {r: 1, g: 0.6426992, b: 0, a: 1}
           bottomLeft: {r: 1, g: 0.8598435, b: 0, a: 1}
-          bottomRight: {r: 1, g: 0.85882354, b: 0, a: 1}
+          bottomRight: {r: 1, g: 0.8598435, b: 0, a: 1}
     - rid: 107647820282200467
       type: {class: UiStyleTMP_Text/ApplicableValueTMP_StyleSheet, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -1517,8 +1517,8 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueMaterial, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 0
-        m_value: {fileID: 0}
+        IsApplicable: 1
+        m_value: {fileID: 2100000, guid: ef3e0ac67c9c98e43b1ab1b7cab4c9eb, type: 2}
     - rid: 107647876395958302
       type: {class: UiStyleTMP_Text/ApplicableValueMaterialArray, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -3181,7 +3181,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueMaterial, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 0
+        IsApplicable: 1
         m_value: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - rid: 107648060340568648
       type: {class: UiStyleTMP_Text/ApplicableValueMaterialArray, ns: GuiToolkit.Style,
