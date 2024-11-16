@@ -223,6 +223,12 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		public void Validate()
+		{
+			foreach (var skin in m_skins)
+				skin.Validate(this);
+		}
+
 		private void OnAddSkin(UiStyleConfig _styleConfig, UiSkin _newSkin)
 		{
 			if 
@@ -320,6 +326,5 @@ namespace GuiToolkit.Style
 #if UNITY_EDITOR
 		public static void SetDirty(UiStyleConfig instance) => EditorUtility.SetDirty(instance);
 #endif
-
 	}
 }

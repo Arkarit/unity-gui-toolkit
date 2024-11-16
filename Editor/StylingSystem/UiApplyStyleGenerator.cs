@@ -660,8 +660,16 @@ namespace GuiToolkit.Style.Editor
 
 			AssetDatabase.ImportAsset(EditorFileUtility.GetUnityPath(styleClassPath), ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
 			AssetDatabase.ImportAsset(EditorFileUtility.GetUnityPath(applicationClassPath), ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
-			UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
 			WriteJson(_internal);
+			UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
+		}
+
+		[UnityEditor.Callbacks.DidReloadScripts]
+		private static void ValidateConfigs()
+		{
+			var configs = EditorAssetUtility.FindAllScriptableObjects<UiStyleConfig>();
+			foreach (var config in configs)
+				config.Validate();
 		}
 
 		private string GenerateStyleClass()

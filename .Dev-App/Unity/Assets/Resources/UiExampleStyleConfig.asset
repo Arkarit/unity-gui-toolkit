@@ -13,21 +13,21 @@ MonoBehaviour:
   m_Name: UiExampleStyleConfig
   m_EditorClassIdentifier: 
   m_skins:
-  - m_config: {fileID: 11400000, guid: 5bc3dac52702ac744acdf156fb172286, type: 2}
+  - m_config: {fileID: 11400000}
     m_name: Default
     m_alias: 
     m_styles:
     - rid: 107647809050902543
     - rid: 107647809050902544
     - rid: 107647809050902545
-  - m_config: {fileID: 11400000, guid: 5bc3dac52702ac744acdf156fb172286, type: 2}
+  - m_config: {fileID: 11400000}
     m_name: Example
     m_alias: 
     m_styles:
     - rid: 107647809050902546
     - rid: 107647809050902547
     - rid: 107647809050902548
-  m_currentSkinIdx: 0
+  m_currentSkinIdx: 1
   references:
     version: 2
     RefIds:
@@ -43,6 +43,8 @@ MonoBehaviour:
           rid: 107647809050902549
         m_color:
           rid: 107647809050902550
+        m_enabled:
+          rid: 107647921859854813
     - rid: 107647809050902544
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -55,6 +57,8 @@ MonoBehaviour:
           rid: 107647809050902551
         m_color:
           rid: 107647809050902552
+        m_enabled:
+          rid: 107647921859854814
     - rid: 107647809050902545
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -67,6 +71,8 @@ MonoBehaviour:
           rid: 107647809050902553
         m_color:
           rid: 107647809050902554
+        m_enabled:
+          rid: 107647921859854815
     - rid: 107647809050902546
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -79,6 +85,8 @@ MonoBehaviour:
           rid: 107647809050902555
         m_color:
           rid: 107647809050902556
+        m_enabled:
+          rid: 107647922185699391
     - rid: 107647809050902547
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -91,6 +99,8 @@ MonoBehaviour:
           rid: 107647809050902557
         m_color:
           rid: 107647809050902558
+        m_enabled:
+          rid: 107647922185699392
     - rid: 107647809050902548
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -103,6 +113,8 @@ MonoBehaviour:
           rid: 107647809050902559
         m_color:
           rid: 107647809050902560
+        m_enabled:
+          rid: 107647922185699393
     - rid: 107647809050902549
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -163,3 +175,33 @@ MonoBehaviour:
       data:
         IsApplicable: 1
         m_value: {r: 0.32941177, g: 0.90196085, b: 0.098039225, a: 1}
+    - rid: 107647921859854813
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647921859854814
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647921859854815
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647922185699391
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647922185699392
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647922185699393
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0

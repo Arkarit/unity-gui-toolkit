@@ -333,6 +333,8 @@ MonoBehaviour:
         m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647817848455456
+        m_maskable:
+          rid: 107647922185700031
         m_color:
           rid: 107647817848455457
         m_enabled:
@@ -389,6 +391,8 @@ MonoBehaviour:
         m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647817848455862
+        m_maskable:
+          rid: 107647922185700032
         m_color:
           rid: 107647817848455863
         m_enabled:
@@ -596,6 +600,8 @@ MonoBehaviour:
         m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647819454087335
+        m_maskable:
+          rid: 107647922185700033
         m_color:
           rid: 107647819454087336
         m_enabled:
@@ -634,6 +640,8 @@ MonoBehaviour:
         m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647820208014235
+        m_maskable:
+          rid: 107647922185700034
         m_color:
           rid: 107647820208014236
         m_enabled:
@@ -675,6 +683,8 @@ MonoBehaviour:
         m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647820282200352
+        m_maskable:
+          rid: 107647922185700035
         m_color:
           rid: 107647820282200353
         m_enabled:
@@ -1223,6 +1233,8 @@ MonoBehaviour:
         m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647864378229378
+        m_maskable:
+          rid: 107647922185700036
         m_color:
           rid: 107647864378229379
         m_enabled:
@@ -1246,6 +1258,8 @@ MonoBehaviour:
         m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647864497242688
+        m_maskable:
+          rid: 107647922185700037
         m_color:
           rid: 107647864497242689
         m_enabled:
@@ -1752,6 +1766,8 @@ MonoBehaviour:
         m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647880796570246
+        m_maskable:
+          rid: 107647922185700038
         m_color:
           rid: 107647880796570247
         m_enabled:
@@ -1910,6 +1926,8 @@ MonoBehaviour:
         m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647880834318967
+        m_maskable:
+          rid: 107647922185700039
         m_color:
           rid: 107647880834318968
         m_enabled:
@@ -2264,6 +2282,51 @@ MonoBehaviour:
     - rid: 107647922185699366
       type: {class: UiStyleUiGradientEx/ApplicableValueBoolean, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647922185700031
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647922185700032
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647922185700033
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647922185700034
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647922185700035
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647922185700036
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647922185700037
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647922185700038
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 107647922185700039
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0

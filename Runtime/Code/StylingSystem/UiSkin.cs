@@ -129,7 +129,7 @@ namespace GuiToolkit.Style
 			}
 		}
 
-		private void Validate(UiStyleConfig _config)
+		public void Validate(UiStyleConfig _config)
 		{
 			bool doSetDirty = false;
 
