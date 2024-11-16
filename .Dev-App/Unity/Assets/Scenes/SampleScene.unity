@@ -131,6 +131,56 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 136086974}
     m_Modifications:
+    - target: {fileID: 1357057341990663857, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
+        type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1357057341990663857, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0.0000076293945
+      objectReference: {fileID: 0}
+    - target: {fileID: 1357057341990663857, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1357057341990663857, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1357057341990663857, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2715450361637355155, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
+        type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2715450361637355155, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0.0000076293945
+      objectReference: {fileID: 0}
+    - target: {fileID: 2715450361637355155, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 29.999998
+      objectReference: {fileID: 0}
+    - target: {fileID: 2715450361637355155, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2715450361637355155, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.00000047683716
+      objectReference: {fileID: 0}
     - target: {fileID: 3265018062635689431, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
         type: 3}
       propertyPath: m_textAlignment
@@ -305,6 +355,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: PanelCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 6277798738488912815, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -42
       objectReference: {fileID: 0}
     - target: {fileID: 7235883656200766337, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
         type: 3}

@@ -3934,6 +3934,7 @@ GameObject:
   - component: {fileID: 1508985179}
   - component: {fileID: 1508985178}
   - component: {fileID: 1508985180}
+  - component: {fileID: 1508985181}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -3984,7 +3985,8 @@ MonoBehaviour:
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_fontSharedMaterials: []
+  m_fontSharedMaterials:
+  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
@@ -3994,10 +3996,10 @@ MonoBehaviour:
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+    topLeft: {r: 1, g: 0.6426992, b: 0, a: 1}
+    topRight: {r: 1, g: 0.6431373, b: 0, a: 1}
+    bottomLeft: {r: 1, g: 0.8598435, b: 0, a: 1}
+    bottomRight: {r: 1, g: 0.85882354, b: 0, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
@@ -4015,7 +4017,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 4096
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -4071,6 +4073,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_autoTranslate: 1
+--- !u!114 &1508985181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508985176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Text/Flowing
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1565272646
 GameObject:
   m_ObjectHideFlags: 0
@@ -5496,7 +5520,7 @@ PrefabInstance:
     - target: {fileID: 1697113851281272724, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -56.42
+      value: -56.420044
       objectReference: {fileID: 0}
     - target: {fileID: 1697113851281272724, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
