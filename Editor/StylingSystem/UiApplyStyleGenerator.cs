@@ -556,6 +556,7 @@ namespace GuiToolkit.Style.Editor
 				m_namespace = propertyRecordsJson.Namespace;
 				m_prefix = propertyRecordsJson.Prefix;
 				m_PropertyRecords = propertyRecordsJson.Records.ToList();
+				m_PropertyRecords.Sort((a,b) => a.Name.CompareTo(b.Name));
 				return true;
 			}
 			catch
@@ -603,6 +604,8 @@ namespace GuiToolkit.Style.Editor
 					TypeName = propertyInfo.PropertyType.Name
 				});
 			}
+
+			m_PropertyRecords.Sort((a,b) => a.Name.CompareTo(b.Name));
 		}
 
 		private static bool AllAccessorsPublic(PropertyInfo propertyInfo)
