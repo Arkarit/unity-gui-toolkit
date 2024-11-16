@@ -111,7 +111,11 @@ namespace GuiToolkit.Style.Editor
 
 					EditorGUILayout.PropertyField(skinProp);
 				}
-			} catch {}
+			}
+			catch
+			{
+				throw;
+			}
 		}
 
 		// both _name and _copyFromName have to be the actual names and not aliases

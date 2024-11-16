@@ -41,7 +41,7 @@ namespace GuiToolkit.Style
 				}
 				
 				m_currentSkinIdx = value;
-				UiEventDefinitions.EvSkinChanged.Invoke(0);
+				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 			}
 		}
 
@@ -315,6 +315,8 @@ namespace GuiToolkit.Style
 					break;
 				}
 			}
+
+			_styleConfig.CurrentSkinIdx = m_skins.Count > 0 ? 0 : -1;
 
 #if UNITY_EDITOR
 			SetDirty(this);
