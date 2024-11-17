@@ -41,7 +41,7 @@ PrefabInstance:
     - target: {fileID: 543856192576488051, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: -16
+      value: -17.45652
       objectReference: {fileID: 0}
     - target: {fileID: 543856192576488051, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
@@ -85,6 +85,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 543856192576488051, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -0.043273926
+      objectReference: {fileID: 0}
+    - target: {fileID: 543856192576488051, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
+        type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -53.926727
       objectReference: {fileID: 0}
@@ -111,22 +116,22 @@ PrefabInstance:
     - target: {fileID: 7268780572994964249, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
       propertyPath: m_Color.a
-      value: 1
+      value: 0.69411767
       objectReference: {fileID: 0}
     - target: {fileID: 7268780572994964249, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
       propertyPath: m_Color.b
-      value: 0.6117647
+      value: 0.6792453
       objectReference: {fileID: 0}
     - target: {fileID: 7268780572994964249, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
       propertyPath: m_Color.g
-      value: 0.44705883
+      value: 0.6792453
       objectReference: {fileID: 0}
     - target: {fileID: 7268780572994964249, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
       propertyPath: m_Color.r
-      value: 0.003921569
+      value: 0.6792453
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -154,8 +159,38 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 104212132032460297, guid: 600b043a1570d17488917991ef0e5ba0,
         type: 3}
+      propertyPath: m_colorLeftOrTop.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 104212132032460297, guid: 600b043a1570d17488917991ef0e5ba0,
+        type: 3}
+      propertyPath: m_colorLeftOrTop.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 104212132032460297, guid: 600b043a1570d17488917991ef0e5ba0,
+        type: 3}
+      propertyPath: m_colorLeftOrTop.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 104212132032460297, guid: 600b043a1570d17488917991ef0e5ba0,
+        type: 3}
       propertyPath: m_colorRightOrBottom.a
-      value: 0.5882353
+      value: 0.9137255
+      objectReference: {fileID: 0}
+    - target: {fileID: 104212132032460297, guid: 600b043a1570d17488917991ef0e5ba0,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.b
+      value: 0.735849
+      objectReference: {fileID: 0}
+    - target: {fileID: 104212132032460297, guid: 600b043a1570d17488917991ef0e5ba0,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.g
+      value: 0.735849
+      objectReference: {fileID: 0}
+    - target: {fileID: 104212132032460297, guid: 600b043a1570d17488917991ef0e5ba0,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.r
+      value: 0.735849
       objectReference: {fileID: 0}
     - target: {fileID: 2674253432316467210, guid: 600b043a1570d17488917991ef0e5ba0,
         type: 3}
@@ -267,6 +302,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: StandardPanelBackgroundWithHeadline
       objectReference: {fileID: 0}
+    - target: {fileID: 7576225800353931394, guid: 600b043a1570d17488917991ef0e5ba0,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0.6901961
+      objectReference: {fileID: 0}
+    - target: {fileID: 7576225800353931394, guid: 600b043a1570d17488917991ef0e5ba0,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -274,8 +319,40 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 6816656305326703514}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6382622830037067654, guid: 600b043a1570d17488917991ef0e5ba0,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6841879168758142719}
   m_SourcePrefab: {fileID: 100100000, guid: 600b043a1570d17488917991ef0e5ba0, type: 3}
+--- !u!1 &2428980959037489662 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6382622830037067654, guid: 600b043a1570d17488917991ef0e5ba0,
+    type: 3}
+  m_PrefabInstance: {fileID: 8729903477338564216}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6841879168758142719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2428980959037489662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Backgrounds/Panel
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!224 &3275512599774014285 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6075969078209465653, guid: 600b043a1570d17488917991ef0e5ba0,

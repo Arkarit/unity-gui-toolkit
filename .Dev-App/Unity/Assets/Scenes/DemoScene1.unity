@@ -2031,7 +2031,7 @@ PrefabInstance:
     - target: {fileID: 8670806508732338289, guid: 2e29e8334442f624d94237f9c2eacc7a,
         type: 3}
       propertyPath: m_colorRightOrBottom.a
-      value: 0.5882353
+      value: 0.9137255
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5642,6 +5642,11 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4613490724094713150, guid: 937768391efe18040b14fc35df1aef28,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4613490724297288526, guid: 937768391efe18040b14fc35df1aef28,
         type: 3}
       propertyPath: m_Enabled
       value: 0

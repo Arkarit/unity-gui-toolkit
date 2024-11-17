@@ -41,7 +41,9 @@ SpriteAtlas:
     - 54091d3000ff59241813e30376792025: 21300000
     - 55485470caed2b64d80fddbd44f03e74: 21300000
     - da53dd620fd299344845401301190ff9: 21300000
+    - 96b0c7d200fe89b4196d5f82c7a161e5: 21300000
     - 78941cf264923c9488229fa3b6e029b2: 21300000
+    - 08b5759456cd7534185f825acb45ccde: 21300000
     - f4a6c635596536c4ebdca0c03698945d: 21300000
     - 6f356e35c5923434da09d00a2639d98a: 21300000
     - 489c5ac57c2a3f649a0ffa61289ce5a1: 21300000
@@ -53,10 +55,13 @@ SpriteAtlas:
     - a8432e59ffb1d5d499f68fff7e51269f: 21300000
     - f2b415696283cc6489a4055bec718d5a: 21300000
     - cbabdbe91b89aef42a5c7b5e3b124938: 21300000
+    - 55d7b8da0aa29924d887a4678135649f: 21300000
     - 12a73a0b8b1f97d4cb1fd226f806f989: 21300000
     - 7c4548cbeba5b43429c65aa68390a318: 21300000
     - cbc5250c4c52bbb48974d4adf45eefc8: 21300000
     - 35a8375cef72a06439139e0571d60e29: 21300000
+    - 416de85cf7837f44f9a6704e4c46632c: 21300000
+    - 32ba0b6c7552e3b44968b32ae2b1c722: 21300000
     - f01f116e4e6c3a943b43c4fc06c9abd9: 21300000
     - a36afbce993aae5499d2ee825b906b06: 21300000
     - 2a67d82f37fd88a45b7617ad7b8e3ea2: 21300000
@@ -65,7 +70,9 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
   - {fileID: 21300000, guid: 55485470caed2b64d80fddbd44f03e74, type: 3}
   - {fileID: 21300000, guid: da53dd620fd299344845401301190ff9, type: 3}
+  - {fileID: 21300000, guid: 96b0c7d200fe89b4196d5f82c7a161e5, type: 3}
   - {fileID: 21300000, guid: 78941cf264923c9488229fa3b6e029b2, type: 3}
+  - {fileID: 21300000, guid: 08b5759456cd7534185f825acb45ccde, type: 3}
   - {fileID: 21300000, guid: f4a6c635596536c4ebdca0c03698945d, type: 3}
   - {fileID: 21300000, guid: 6f356e35c5923434da09d00a2639d98a, type: 3}
   - {fileID: 21300000, guid: 489c5ac57c2a3f649a0ffa61289ce5a1, type: 3}
@@ -77,10 +84,13 @@ SpriteAtlas:
   - {fileID: 21300000, guid: a8432e59ffb1d5d499f68fff7e51269f, type: 3}
   - {fileID: 21300000, guid: f2b415696283cc6489a4055bec718d5a, type: 3}
   - {fileID: 21300000, guid: cbabdbe91b89aef42a5c7b5e3b124938, type: 3}
+  - {fileID: 21300000, guid: 55d7b8da0aa29924d887a4678135649f, type: 3}
   - {fileID: 21300000, guid: 12a73a0b8b1f97d4cb1fd226f806f989, type: 3}
   - {fileID: 21300000, guid: 7c4548cbeba5b43429c65aa68390a318, type: 3}
   - {fileID: 21300000, guid: cbc5250c4c52bbb48974d4adf45eefc8, type: 3}
   - {fileID: 21300000, guid: 35a8375cef72a06439139e0571d60e29, type: 3}
+  - {fileID: 21300000, guid: 416de85cf7837f44f9a6704e4c46632c, type: 3}
+  - {fileID: 21300000, guid: 32ba0b6c7552e3b44968b32ae2b1c722, type: 3}
   - {fileID: 21300000, guid: f01f116e4e6c3a943b43c4fc06c9abd9, type: 3}
   - {fileID: 21300000, guid: a36afbce993aae5499d2ee825b906b06, type: 3}
   - {fileID: 21300000, guid: 2a67d82f37fd88a45b7617ad7b8e3ea2, type: 3}
@@ -88,7 +98,9 @@ SpriteAtlas:
   - UITK_RGB_Panel_r50_f07
   - UITK_RGB_Panel_r25_f07
   - de
+  - UITK_Simple_Rectangle_r25
   - UITK_Frame_r00_f07
+  - UITK_Simple_Rectangle_r50
   - UITK_Frame_r50_f07
   - lol
   - UITK_Panel_r25
@@ -100,10 +112,13 @@ SpriteAtlas:
   - ru
   - UITK_RGB_Panel_r00_f07
   - UITK_Panel_r00
+  - UITK_Simple_Rectangle_r05
   - UITK_Sunken_r50
   - UITK_Panel_r50
   - UITK_Frame_r25_f07
   - dev
+  - UITK_Simple_Rectangle_r10
+  - UITK_Simple_Rectangle_r00
   - UITK_Sunken_r00
   - en
   - en_us
