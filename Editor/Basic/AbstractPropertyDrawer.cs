@@ -432,33 +432,46 @@ namespace GuiToolkit.Editor
 		}
 
 		protected delegate bool ChildPropertyDelegate(SerializedProperty childProperty);
+
 		protected void ForEachChildProperty(SerializedProperty _property, ChildPropertyDelegate callback)
 		{
-			CollectChildPropertiesSorted(_property, s_tempProperties);
-			foreach (var property in s_tempProperties)
-			{
-				if (!callback(property))
-					break;
-			}
-
-			s_tempProperties.Clear();
-		}
-
-		protected void CollectChildPropertiesSorted(SerializedProperty _property, List<SerializedProperty> list)
-		{
-			var enumerator = _property.Copy().GetEnumerator();
 			int depth = _property.depth;
 
-			while (enumerator.MoveNext())
+			int propertyCount = 0;
+			foreach (var obj in _property.Copy())
 			{
-				var property = enumerator.Current as SerializedProperty;
+				var property = obj as SerializedProperty;
 				if (property == null || property.depth > depth + 1)
 					continue;
 
-				list.Add(property.Copy());
+				propertyCount++;
 			}
 
-			list.Sort((a, b) => a.displayName.CompareTo(b.displayName));
+			int currentPropIdx = 0;
+			foreach (var obj in _property.Copy())
+			{
+				var property = obj as SerializedProperty;
+				if (property == null || property.depth > depth + 1)
+					continue;
+
+				s_tempProperties.Add(property.Copy());
+				if (currentPropIdx == propertyCount - 1)
+				{
+					s_tempProperties.Sort((a, b) => a.displayName.CompareTo(b.displayName));
+					foreach (var p in s_tempProperties)
+					{
+						if (!callback(p))
+						{
+							s_tempProperties.Clear();
+							return;
+						}
+					}
+				}
+
+				currentPropIdx++;		
+			}
+
+			s_tempProperties.Clear();
 		}
 	}
 }
