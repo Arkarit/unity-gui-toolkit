@@ -5282,6 +5282,41 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7479450959262844953, guid: 54842dad725d4fd40b556224ec94438d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7479450959262844953, guid: 54842dad725d4fd40b556224ec94438d,
+        type: 3}
+      propertyPath: m_EffectDistance.y
+      value: -5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490390892350505658, guid: 54842dad725d4fd40b556224ec94438d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490390892350505658, guid: 54842dad725d4fd40b556224ec94438d,
+        type: 3}
+      propertyPath: m_colorLeftOrTop.b
+      value: 0.5424528
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490390892350505658, guid: 54842dad725d4fd40b556224ec94438d,
+        type: 3}
+      propertyPath: m_colorLeftOrTop.g
+      value: 0.93540514
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490390892350505658, guid: 54842dad725d4fd40b556224ec94438d,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.b
+      value: 0.4002142
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490390892350505658, guid: 54842dad725d4fd40b556224ec94438d,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.g
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7990162219028390017, guid: 54842dad725d4fd40b556224ec94438d,
         type: 3}
       propertyPath: m_Sprite
