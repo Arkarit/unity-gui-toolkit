@@ -20,21 +20,32 @@ namespace GuiToolkit.Style.Editor
 		{
 			public override void OnInspectorGUI()
 			{
-				DrawInspectorExcept(serializedObject, "m_Script");
+				try
+				{
+					DrawInspectorExcept(serializedObject, "m_Script");
+				}
+				catch
+				{
+					// Sometimes when editing colors in a style, Unity begins to spit "The operation is not possible when moved past all properties"
+					// without any determinable reason.
+					// Just refreshing the style helper and editor helps.
+					s_styleHelper = null;
+					s_styleHelperEditor = null;
+				}
 			}
 		}
 		
-		private static DisplayStyleHelperObject m_styleHelper;
-		private static DisplayStyleHelperObjectEditor m_styleHelperEditor;
+		private static DisplayStyleHelperObject s_styleHelper;
+		private static DisplayStyleHelperObjectEditor s_styleHelperEditor;
 		
 		private static DisplayStyleHelperObject StyleHelper
 		{
 			get
 			{
-				if (m_styleHelper == null)
-					m_styleHelper = ScriptableObject.CreateInstance<DisplayStyleHelperObject>();
+				if (s_styleHelper == null)
+					s_styleHelper = ScriptableObject.CreateInstance<DisplayStyleHelperObject>();
 				
-				return m_styleHelper;
+				return s_styleHelper;
 			}
 		}
 		
@@ -42,10 +53,10 @@ namespace GuiToolkit.Style.Editor
 		{
 			get
 			{
-				if (m_styleHelperEditor == null || m_styleHelperEditor.serializedObject == null || m_styleHelperEditor.target == null)
-					m_styleHelperEditor = (DisplayStyleHelperObjectEditor) UnityEditor.Editor.CreateEditor(StyleHelper, typeof(DisplayStyleHelperObjectEditor));
+				if (s_styleHelperEditor == null || s_styleHelperEditor.serializedObject == null || s_styleHelperEditor.target == null)
+					s_styleHelperEditor = (DisplayStyleHelperObjectEditor) UnityEditor.Editor.CreateEditor(StyleHelper, typeof(DisplayStyleHelperObjectEditor));
 				
-				return m_styleHelperEditor;
+				return s_styleHelperEditor;
 			}
 		}
 		
