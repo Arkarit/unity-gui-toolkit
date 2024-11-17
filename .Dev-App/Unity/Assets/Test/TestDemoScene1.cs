@@ -1,7 +1,5 @@
 ﻿using GuiToolkit;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using GuiToolkit.Style;
 using TMPro;
 using UnityEngine;
@@ -13,7 +11,6 @@ public class TestDemoScene1 : UiView
 	public Button m_showSplashMessageButton;
 	public Button m_showRequesterButton;
 	public Button m_showSettings;
-	public Button m_switchSkinButton;
 	public Button m_exampleDialogStylesButton;
 
 	public TMP_InputField m_splashMessageInput;
@@ -34,7 +31,6 @@ public class TestDemoScene1 : UiView
 		m_showSplashMessageButton.onClick.AddListener(OnShowSplashMessageClicked);
 		m_showRequesterButton.onClick.AddListener(OnShowRequester);
 		m_showSettings.onClick.AddListener(OnShowSettings);
-		m_switchSkinButton.onClick.AddListener(OnSwitchSkin);
 		m_exampleDialogStylesButton.onClick.AddListener(OnExampleDialogStylesButton);
 	}
 
@@ -42,14 +38,6 @@ public class TestDemoScene1 : UiView
 	{
 		var exampleDialogStylesDialog = UiMain.Instance.CreateView(m_exampleDialogStylesPrefab);
 		exampleDialogStylesDialog.Show();
-	}
-
-	private void OnSwitchSkin()
-	{
-		var skinName = UiMainStyleConfig.Instance.CurrentSkinName;
-		var newSkinName = skinName == "Default" ? "Alternative" : "Default";
-		UiStyleManager.SetSkin(newSkinName, 1);
-		Debug.Log($"Toggle skin to '{newSkinName}'");
 	}
 
 	protected override void OnEnable()
