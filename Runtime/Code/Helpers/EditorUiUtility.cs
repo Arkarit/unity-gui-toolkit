@@ -217,6 +217,7 @@ namespace GuiToolkit
 			bool _showRemove = false, 
 			string _addItemHeadline = null, 
 			string _addItemDescription = null,
+			string _addItemPreset = null,
 			Action<EditorInputDialog> _additionalContent = null
 		)
 		{
@@ -237,7 +238,7 @@ namespace GuiToolkit
 
 			int newInt = EditorGUILayout.Popup(currentInt, _strings.ToArray());
 
-			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, _additionalContent, ref _newSelection))
+			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, _addItemPreset, _additionalContent, ref _newSelection))
 				return newInt;
 
 			if (_showRemove && _strings.Count > 0 && GUILayout.Button(EditorGUIUtility.IconContent("P4_DeletedLocal")))
@@ -272,6 +273,7 @@ namespace GuiToolkit
 			bool _showRemove = false, 
 			string _addItemHeadline = null, 
 			string _addItemDescription = null,
+			string _addItemPreset = null,
 			Action<EditorInputDialog> _additionalContent = null
 		)
 		{
@@ -299,7 +301,7 @@ namespace GuiToolkit
 
 			int newInt = EditorGUI.Popup(popupRect, currentInt, _strings.ToArray());
 
-			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, _additionalContent, ref _newSelection))
+			if (StringPopupAddNewEntryIfNecessary(_strings, newInt, allowAdd, _addItemHeadline, _addItemDescription, _addItemPreset, _additionalContent, ref _newSelection))
 				return true;
 
 			_pos.x += popupRect.width;
@@ -355,6 +357,7 @@ namespace GuiToolkit
 			bool _allowAdd, 
 			string _addItemHeadline, 
 			string _addItemDescription,
+			string _addItemPreset,
 			Action<EditorInputDialog> _additionalContent,
 			ref string _newSelection
 			)
@@ -366,7 +369,7 @@ namespace GuiToolkit
 			if (_idx != _strings.Count + 1)
 				return false;
 
-			var newEntry = EditorInputDialog.Show( _addItemHeadline, _addItemDescription, "", _additionalContent);
+			var newEntry = EditorInputDialog.Show( _addItemHeadline, _addItemDescription, _addItemPreset, _additionalContent);
 			if (string.IsNullOrEmpty(newEntry))
 				return false;
 

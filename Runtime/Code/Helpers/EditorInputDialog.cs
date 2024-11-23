@@ -123,7 +123,7 @@ namespace GuiToolkit
 			window.m_maxScreenPos = maxPos;
 			window.titleContent = new GUIContent(_title);
 			window.m_description = _description;
-			window.m_inputText = _inputText;
+			window.m_inputText = _inputText != null ? _inputText : string.Empty;
 			window.m_additionalContent = _additionalContent;
 			window.m_okButtonText = _okButtonText;
 			window.m_cancelButtonText = _cancelButtonText;

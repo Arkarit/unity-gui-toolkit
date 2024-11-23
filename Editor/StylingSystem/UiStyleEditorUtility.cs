@@ -92,7 +92,7 @@ namespace GuiToolkit.Style.Editor
 			}
 			
 			var skinIdx = EditorUiUtility.StringPopup("Skin", skinAliases, currentAlias, out string selectedEntry,
-				    null, false, "Add Skin", "Adds a new skin", additionalContent); 
+				    null, false, "Add Skin", "Adds a new skin", null, additionalContent); 
 
 			if (_isFixedSkin)
 			{

@@ -63,9 +63,10 @@ namespace GuiToolkit.Style.Editor
 			string currentDisplayName = string.Empty;
 			if (m_thisAbstractApplyStyleBase.Style != null)
 				currentDisplayName = m_thisAbstractApplyStyleBase.Style.Alias;
-			
+
+			string styleNameSuggestion = FindStyleNameSuggestion();
 			int styleIdx = EditorUiUtility.StringPopup("Style", styleAliases, currentDisplayName, out selectedName,
-				    null, false, "Add Style", "Adds a new style");
+				    null, false, "Add Style", "Adds a new style", styleNameSuggestion);
 			
 			if (styleIdx != -1)
 			{
@@ -121,6 +122,29 @@ namespace GuiToolkit.Style.Editor
 				m_thisAbstractApplyStyleBase.Record();
 
 			serializedObject.ApplyModifiedProperties();
+		}
+
+		private string FindStyleNameSuggestion()
+		{
+			var styleAppliers = m_thisAbstractApplyStyleBase.GetComponents<UiAbstractApplyStyleBase>();
+			if (styleAppliers.Length <= 1)
+				return null;
+
+			foreach (var styleApplier in styleAppliers)
+			{
+				if (styleApplier == m_thisAbstractApplyStyleBase)
+					continue;
+
+				string possibleResult = styleApplier.Style == null ? null : styleApplier.Style.Name;
+				if (!string.IsNullOrEmpty(possibleResult))
+				{
+					var config = styleApplier.Style.EffectiveStyleConfig;
+					if (!config.StyleExists(m_thisAbstractApplyStyleBase.SupportedStyleType, possibleResult))
+						return possibleResult;
+				}
+			}
+
+			return null;
 		}
 	}
 }

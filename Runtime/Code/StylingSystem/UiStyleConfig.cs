@@ -328,5 +328,19 @@ namespace GuiToolkit.Style
 #if UNITY_EDITOR
 		public static void SetDirty(UiStyleConfig instance) => EditorUtility.SetDirty(instance);
 #endif
+		public bool StyleExists(Type type, string name)
+		{
+			if (m_skins.Count == 0)
+				return false;
+
+			var skin = m_skins[0];
+			foreach (var style in skin.Styles)
+			{
+				if (style.Name == name && style.GetType() == type)
+					return true;
+			}
+
+			return false;
+		}
 	}
 }
