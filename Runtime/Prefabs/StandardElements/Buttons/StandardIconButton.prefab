@@ -467,7 +467,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: 628125a3ddd15eb4b8feca43ca29f673, type: 2}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.92156863}
+  m_Color: {r: 0.18689926, g: 0.44735074, b: 0.5283019, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -497,8 +497,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_vertexColorMode: 1
-  m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
-  m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
+  m_colorLeftOrTop: {r: 0.61960787, g: 0.909804, b: 1, a: 1}
+  m_colorRightOrBottom: {r: 0.46662515, g: 0.8159533, b: 0.9245283, a: 1}
   m_orientation: 1
 --- !u!114 &7479450959262844953
 MonoBehaviour:
@@ -512,8 +512,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
-  m_EffectDistance: {x: 0, y: -7}
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.21176471}
+  m_EffectDistance: {x: 4, y: -4}
   m_UseGraphicAlpha: 1
 --- !u!114 &8591811800190961484
 MonoBehaviour:

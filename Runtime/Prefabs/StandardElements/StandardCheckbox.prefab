@@ -75,8 +75,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278246399
-  m_fontColor: {r: 1, g: 0.85882354, b: 0, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -93,12 +93,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 38
-  m_fontSizeBase: 38
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
-  m_fontSizeMax: 38
+  m_fontSizeMax: 28
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
@@ -233,7 +233,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 10, y: 10}
+  m_SizeDelta: {x: 10, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4613490724094713137
 CanvasRenderer:
@@ -256,7 +256,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.2}
+  m_Color: {r: 0.5377358, g: 0.5377358, b: 0.5377358, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -367,8 +367,10 @@ GameObject:
   - component: {fileID: 4613490724297288512}
   - component: {fileID: 4613490724297288527}
   - component: {fileID: 4613490724297288526}
+  - component: {fileID: 9188300816248070337}
   - component: {fileID: 4157340311740861162}
   - component: {fileID: 1385456523382134285}
+  - component: {fileID: 4742520908904727616}
   m_Layer: 5
   m_Name: Checkmark
   m_TagString: Untagged
@@ -416,7 +418,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.61960787, g: 0.909804, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -440,7 +442,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4613490724297288524}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
@@ -449,6 +451,21 @@ MonoBehaviour:
   m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
   m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
   m_orientation: 1
+--- !u!114 &9188300816248070337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4613490724297288524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 4, y: -4}
+  m_UseGraphicAlpha: 1
 --- !u!114 &4157340311740861162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -481,6 +498,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Buttons/Checkbox/SelectionMarker
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &4742520908904727616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4613490724297288524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6502b1a98944b7c4a8f378ec03cff158, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_optionalStyleConfig: {fileID: 0}

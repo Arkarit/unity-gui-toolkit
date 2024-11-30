@@ -55,6 +55,7 @@ SpriteAtlas:
     - a8432e59ffb1d5d499f68fff7e51269f: 21300000
     - f2b415696283cc6489a4055bec718d5a: 21300000
     - cbabdbe91b89aef42a5c7b5e3b124938: 21300000
+    - 5c9796daa467b4d418c510983dd13468: 21300000
     - 55d7b8da0aa29924d887a4678135649f: 21300000
     - 12a73a0b8b1f97d4cb1fd226f806f989: 21300000
     - 7c4548cbeba5b43429c65aa68390a318: 21300000
@@ -62,6 +63,7 @@ SpriteAtlas:
     - 35a8375cef72a06439139e0571d60e29: 21300000
     - 416de85cf7837f44f9a6704e4c46632c: 21300000
     - 32ba0b6c7552e3b44968b32ae2b1c722: 21300000
+    - cabd074ec74c9b14f96186d9a5b207af: 21300000
     - f01f116e4e6c3a943b43c4fc06c9abd9: 21300000
     - a36afbce993aae5499d2ee825b906b06: 21300000
     - 2a67d82f37fd88a45b7617ad7b8e3ea2: 21300000
@@ -84,6 +86,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: a8432e59ffb1d5d499f68fff7e51269f, type: 3}
   - {fileID: 21300000, guid: f2b415696283cc6489a4055bec718d5a, type: 3}
   - {fileID: 21300000, guid: cbabdbe91b89aef42a5c7b5e3b124938, type: 3}
+  - {fileID: 21300000, guid: 5c9796daa467b4d418c510983dd13468, type: 3}
   - {fileID: 21300000, guid: 55d7b8da0aa29924d887a4678135649f, type: 3}
   - {fileID: 21300000, guid: 12a73a0b8b1f97d4cb1fd226f806f989, type: 3}
   - {fileID: 21300000, guid: 7c4548cbeba5b43429c65aa68390a318, type: 3}
@@ -91,6 +94,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 35a8375cef72a06439139e0571d60e29, type: 3}
   - {fileID: 21300000, guid: 416de85cf7837f44f9a6704e4c46632c, type: 3}
   - {fileID: 21300000, guid: 32ba0b6c7552e3b44968b32ae2b1c722, type: 3}
+  - {fileID: 21300000, guid: cabd074ec74c9b14f96186d9a5b207af, type: 3}
   - {fileID: 21300000, guid: f01f116e4e6c3a943b43c4fc06c9abd9, type: 3}
   - {fileID: 21300000, guid: a36afbce993aae5499d2ee825b906b06, type: 3}
   - {fileID: 21300000, guid: 2a67d82f37fd88a45b7617ad7b8e3ea2, type: 3}
@@ -112,6 +116,7 @@ SpriteAtlas:
   - ru
   - UITK_RGB_Panel_r00_f07
   - UITK_Panel_r00
+  - UITK_Simple_Rectangle_r20
   - UITK_Simple_Rectangle_r05
   - UITK_Sunken_r50
   - UITK_Panel_r50
@@ -119,6 +124,7 @@ SpriteAtlas:
   - dev
   - UITK_Simple_Rectangle_r10
   - UITK_Simple_Rectangle_r00
+  - UITK_Simple_Rectangle_r15
   - UITK_Sunken_r00
   - en
   - en_us
