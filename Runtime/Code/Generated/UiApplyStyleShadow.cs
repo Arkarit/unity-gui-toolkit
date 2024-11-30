@@ -20,8 +20,6 @@ namespace GuiToolkit.Style
 				try { SpecificComponent.effectDistance = Tweenable ? SpecificStyle.EffectDistance.Value : SpecificStyle.EffectDistance.RawValue; } catch {}
 			if (SpecificStyle.Enabled.IsApplicable)
 				try { SpecificComponent.enabled = Tweenable ? SpecificStyle.Enabled.Value : SpecificStyle.Enabled.RawValue; } catch {}
-			if (SpecificStyle.UseGraphicAlpha.IsApplicable)
-				try { SpecificComponent.useGraphicAlpha = Tweenable ? SpecificStyle.UseGraphicAlpha.Value : SpecificStyle.UseGraphicAlpha.RawValue; } catch {}
 		}
 
 		protected override void RecordImpl()
@@ -35,8 +33,6 @@ namespace GuiToolkit.Style
 				try { SpecificStyle.EffectDistance.RawValue = SpecificComponent.effectDistance; } catch {}
 			if (SpecificStyle.Enabled.IsApplicable)
 				try { SpecificStyle.Enabled.RawValue = SpecificComponent.enabled; } catch {}
-			if (SpecificStyle.UseGraphicAlpha.IsApplicable)
-				try { SpecificStyle.UseGraphicAlpha.RawValue = SpecificComponent.useGraphicAlpha; } catch {}
 		}
 
 		public override UiAbstractStyleBase CreateStyle(UiStyleConfig _styleConfig, string _name, UiAbstractStyleBase _template = null)
@@ -56,8 +52,6 @@ namespace GuiToolkit.Style
 				result.EffectDistance.IsApplicable = specificTemplate.EffectDistance.IsApplicable;
 				result.Enabled.Value = specificTemplate.Enabled.Value;
 				result.Enabled.IsApplicable = specificTemplate.Enabled.IsApplicable;
-				result.UseGraphicAlpha.Value = specificTemplate.UseGraphicAlpha.Value;
-				result.UseGraphicAlpha.IsApplicable = specificTemplate.UseGraphicAlpha.IsApplicable;
 
 				return result;
 			}
@@ -65,7 +59,6 @@ namespace GuiToolkit.Style
 			try { result.EffectColor.Value = SpecificComponent.effectColor; } catch {}
 			try { result.EffectDistance.Value = SpecificComponent.effectDistance; } catch {}
 			try { result.Enabled.Value = SpecificComponent.enabled; } catch {}
-			try { result.UseGraphicAlpha.Value = SpecificComponent.useGraphicAlpha; } catch {}
 
 			return result;
 		}

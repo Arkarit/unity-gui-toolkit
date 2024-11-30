@@ -46,7 +46,7 @@
             "TypeName": "String"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "useGraphicAlpha",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"

@@ -26,14 +26,12 @@ namespace GuiToolkit.Style
 				EffectColor,
 				EffectDistance,
 				Enabled,
-				UseGraphicAlpha,
 			};
 		}
 
 		[SerializeReference] private ApplicableValueColor m_effectColor = new();
 		[SerializeReference] private ApplicableValueVector2 m_effectDistance = new();
 		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
-		[SerializeReference] private ApplicableValueBoolean m_useGraphicAlpha = new();
 
 		public ApplicableValue<UnityEngine.Color> EffectColor
 		{
@@ -62,16 +60,6 @@ namespace GuiToolkit.Style
 				if (m_enabled == null)
 					m_enabled = new ApplicableValueBoolean();
 				return m_enabled;
-			}
-		}
-
-		public ApplicableValue<System.Boolean> UseGraphicAlpha
-		{
-			get
-			{
-				if (m_useGraphicAlpha == null)
-					m_useGraphicAlpha = new ApplicableValueBoolean();
-				return m_useGraphicAlpha;
 			}
 		}
 

@@ -370,9 +370,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Cancel LOREM IPSUM dolor sit amet bla
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
-  m_sharedMaterial: {fileID: -45881750512593306, guid: 6496142350aa65d4b8e8811d85ed2006,
-    type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -396,19 +395,19 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20.65
+  m_fontSize: 25
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 30
-  m_fontStyle: 16
+  m_fontSizeMax: 25
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: -1.53
   m_wordSpacing: 0
-  m_lineSpacing: -60
+  m_lineSpacing: -16
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -489,10 +488,12 @@ GameObject:
   - component: {fileID: 7490390892350505658}
   - component: {fileID: 8591811800190961484}
   - component: {fileID: 8824944210132026731}
+  - component: {fileID: 1363777897873603738}
   - component: {fileID: 3884329841504999785}
   - component: {fileID: 4621665031437184440}
   - component: {fileID: 4254204451488694351}
   - component: {fileID: 353952226620808753}
+  - component: {fileID: 7896192213724415917}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -548,7 +549,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 416de85cf7837f44f9a6704e4c46632c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: cabd074ec74c9b14f96186d9a5b207af, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -583,14 +584,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5284302703580940865}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_vertexColorMode: 1
-  m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
-  m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
+  m_colorLeftOrTop: {r: 0.61960787, g: 0.909804, b: 1, a: 1}
+  m_colorRightOrBottom: {r: 0.46662515, g: 0.8159533, b: 0.9245283, a: 1}
   m_orientation: 1
 --- !u!114 &8591811800190961484
 MonoBehaviour:
@@ -709,6 +710,21 @@ MonoBehaviour:
   m_supportDisabledMaterial: 1
   m_normalMaterial: {fileID: 2100000, guid: 628125a3ddd15eb4b8feca43ca29f673, type: 2}
   m_disabledMaterial: {fileID: 2100000, guid: bbb4d48742f261844b844be821a291cc, type: 2}
+--- !u!114 &1363777897873603738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5284302703580940865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.36862746}
+  m_EffectDistance: {x: 3.8, y: -6.03}
+  m_UseGraphicAlpha: 1
 --- !u!114 &3884329841504999785
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -785,6 +801,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 57bc3011770ca1346a002a705abd54de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: Buttons/Standard/Background
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &7896192213724415917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5284302703580940865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6502b1a98944b7c4a8f378ec03cff158, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_optionalStyleConfig: {fileID: 0}
