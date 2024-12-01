@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -33,6 +34,33 @@ namespace GuiToolkit.Style
 
 				toVal.IsApplicable = fromVal.IsApplicable;
 			}
+		}
+
+		// There's an issue if you manually change component properties, which are also handled by a style.
+		// Find an example in UiDistortGroup, which sets a distort modifier component enabled or disabled according to its needs.
+		// As the complete distort modifier might be disabled by the skin/style, this might interfere.
+		// Thus, UiDistortGroup calls ReApplyAppliers() after handling its changes to ensure the component is not enabled if forbidden by style.
+		// This is better than reapplying the complete skin, but not completely lightweight, since components need to be collected, so handle with care.
+		public static void ReApplyApplier(Component component)
+		{
+			var appliers = component.GetComponents<UiAbstractApplyStyleBase>();
+			foreach (var applier in appliers)
+			{
+				if (!applier.enabled)
+					continue;
+
+				if (applier.Component == component)
+				{
+					applier.Apply();
+					return;
+				}
+			}
+		}
+
+		public static void ReApplyAppliers<T>(IEnumerable<T> list) where T : Component
+		{
+			foreach (var elem in list)
+				ReApplyApplier(elem);
 		}
 	}
 }

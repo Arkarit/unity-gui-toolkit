@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using GuiToolkit.Style;
 using UnityEngine;
 using UnityEngine.Serialization;
 #if UNITY_EDITOR
@@ -18,9 +19,9 @@ namespace GuiToolkit
 		[SerializeField]
 		protected bool m_inverse;
 
-		private readonly List<UiDistortBase> m_elements = new List<UiDistortBase>();
-		private readonly List<UiDistortBase> m_secondaryElements = new List<UiDistortBase>();
-		private readonly Dictionary<GameObject,int> m_done = new Dictionary<GameObject, int>();
+		private readonly List<UiDistortBase> m_elements = new();
+		private readonly List<UiDistortBase> m_secondaryElements = new();
+		private readonly Dictionary<GameObject,int> m_done = new();
 		private bool m_hasSecondary;
 
 		public void Refresh()
@@ -42,6 +43,7 @@ namespace GuiToolkit
 		{
 			CollectElements();
 			PositionElements();
+			UiStyleUtility.ReApplyAppliers(m_elements);
 		}
 
 		private void CollectElements()
