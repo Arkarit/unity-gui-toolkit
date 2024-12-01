@@ -69,7 +69,7 @@ MonoBehaviour:
     - rid: 8590990167158555096
     - rid: 8590990167364076322
   - m_config: {fileID: 11400000}
-    m_name: Test
+    m_name: Light
     m_alias: 
     m_styles:
     - rid: 107648080256959054
