@@ -9125,13 +9125,13 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: {r: 0, g: 0, b: 0, a: 0.7490196}
+        m_value: {r: 0.7971698, g: 0.9519062, b: 1, a: 1}
     - rid: 107648080256959575
       type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: {r: 0, g: 0, b: 0, a: 0.23529412}
+        m_value: {r: 0.8820755, g: 0.9720385, b: 1, a: 1}
     - rid: 107648080256959576
       type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -9172,7 +9172,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: {r: 0.7735849, g: 0.7735849, b: 0.7735849, a: 0.5}
+        m_value: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 0.8666667}
     - rid: 107648080256959583
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -9372,7 +9372,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: {r: 1, g: 0.85882354, b: 0, a: 1}
+        m_value: {r: 0, g: 0, b: 0, a: 1}
     - rid: 107648080256959616
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
