@@ -47,6 +47,9 @@ namespace GuiToolkit
 		public const string HELP_STYLE_CONFIG =
 			"Style config for toolkit. You can replace it by your own style config.";
 
+		public const string HELP_STYLE_CONFIG_RESOLUTION_DEPENDENT =
+			"Resolution dependent style config for toolkit. You can replace it by your own style config.";
+
 		public const string HELP_DEBUG_LOCA =
 			"This switches loca debugging on or off";
 
@@ -77,6 +80,9 @@ namespace GuiToolkit
 		[FormerlySerializedAs("m_styleConfig")]
 		public UiMainStyleConfig m_uiMainStyleConfig;
 
+		[Tooltip(HELP_STYLE_CONFIG_RESOLUTION_DEPENDENT)]
+		public UiResolutionDependentStyleConfig m_uiResolutionDependentStyleConfig;
+
 		[Tooltip(HELP_DEBUG_LOCA)]
 		public bool m_debugLoca = false;
 
@@ -90,6 +96,7 @@ namespace GuiToolkit
 		}
 
 		public UiMainStyleConfig UiMainStyleConfig => m_uiMainStyleConfig;
+		public UiResolutionDependentStyleConfig UiResolutionDependentStyleConfig => m_uiResolutionDependentStyleConfig;
 
 		public string GetScenePath(string _sceneName)
 		{

@@ -150,6 +150,7 @@ namespace GuiToolkit
 		public const string SCENE_CHANGE_TRACKER_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Scene Change Tracker";
 		public const string SAVE_PROJECT_ON_LOSE_FOCUS_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Save Project on lose focus";
 		public const string CREATE_MAIN_STYLE_CONFIG = STYLES_HEADER + "Main Style Config";
+		public const string CREATE_RESOLUTION_DEPENDENT_STYLE_CONFIG = STYLES_HEADER + "Resolution Dependent Style Config";
 		public const string CREATE_STYLE_CONFIG = STYLES_HEADER + "Style Config";
 
 		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";																			///< Prefix for all player prefs entries
