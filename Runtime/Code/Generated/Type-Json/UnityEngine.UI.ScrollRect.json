@@ -1,0 +1,163 @@
+{
+    "Version": 2,
+    "Namespace": "GuiToolkit.Style",
+    "Prefix": "",
+    "Records": [
+        {
+            "Used": false,
+            "Name": "content",
+            "QualifiedTypeName": "UnityEngine.RectTransform",
+            "TypeName": "RectTransform"
+        },
+        {
+            "Used": false,
+            "Name": "decelerationRate",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
+            "Name": "elasticity",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "enabled",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "hideFlags",
+            "QualifiedTypeName": "UnityEngine.HideFlags",
+            "TypeName": "HideFlags"
+        },
+        {
+            "Used": true,
+            "Name": "horizontal",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "horizontalNormalizedPosition",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
+            "Name": "horizontalScrollbar",
+            "QualifiedTypeName": "UnityEngine.UI.Scrollbar",
+            "TypeName": "Scrollbar"
+        },
+        {
+            "Used": false,
+            "Name": "horizontalScrollbarSpacing",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
+            "Name": "horizontalScrollbarVisibility",
+            "QualifiedTypeName": "UnityEngine.UI.ScrollRect.ScrollbarVisibility",
+            "TypeName": "ScrollbarVisibility"
+        },
+        {
+            "Used": false,
+            "Name": "inertia",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "movementType",
+            "QualifiedTypeName": "UnityEngine.UI.ScrollRect.MovementType",
+            "TypeName": "MovementType"
+        },
+        {
+            "Used": false,
+            "Name": "name",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "normalizedPosition",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": false,
+            "Name": "onValueChanged",
+            "QualifiedTypeName": "UnityEngine.UI.ScrollRect.ScrollRectEvent",
+            "TypeName": "ScrollRectEvent"
+        },
+        {
+            "Used": false,
+            "Name": "runInEditMode",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "scrollSensitivity",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
+            "Name": "tag",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "useGUILayout",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "velocity",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": true,
+            "Name": "vertical",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "verticalNormalizedPosition",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
+            "Name": "verticalScrollbar",
+            "QualifiedTypeName": "UnityEngine.UI.Scrollbar",
+            "TypeName": "Scrollbar"
+        },
+        {
+            "Used": false,
+            "Name": "verticalScrollbarSpacing",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
+            "Name": "verticalScrollbarVisibility",
+            "QualifiedTypeName": "UnityEngine.UI.ScrollRect.ScrollbarVisibility",
+            "TypeName": "ScrollbarVisibility"
+        },
+        {
+            "Used": false,
+            "Name": "viewport",
+            "QualifiedTypeName": "UnityEngine.RectTransform",
+            "TypeName": "RectTransform"
+        }
+    ]
+}

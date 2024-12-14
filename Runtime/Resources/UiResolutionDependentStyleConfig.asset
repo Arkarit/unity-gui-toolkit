@@ -17,133 +17,137 @@ MonoBehaviour:
     m_name: Landscape
     m_alias: 
     m_styles:
-    - rid: 8590990459434959230
+    - rid: 8590990459434959334
+    - rid: 8590990459434959374
+    - rid: 8590990459434959414
   - m_config: {fileID: 11400000}
     m_name: Portrait
     m_alias: 
     m_styles:
-    - rid: 8590990459434959231
+    - rid: 8590990459434959335
+    - rid: 8590990459434959375
+    - rid: 8590990459434959415
   m_currentSkinIdx: 0
   references:
     version: 2
     RefIds:
-    - rid: 8590990459434959230
+    - rid: 8590990459434959334
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_styleConfig: {fileID: 11400000}
-        m_name: PanelWithLeftOrBottomTab
+        m_name: Layout/HorizontalInLandscape
         m_alias: 
         m_screenOrientationCondition: -1
         m_childAlignment:
-          rid: 8590990459434959232
+          rid: 8590990459434959336
         m_childControlHeight:
-          rid: 8590990459434959233
+          rid: 8590990459434959337
         m_childControlWidth:
-          rid: 8590990459434959234
+          rid: 8590990459434959338
         m_childForceExpandHeight:
-          rid: 8590990459434959235
+          rid: 8590990459434959339
         m_childForceExpandWidth:
-          rid: 8590990459434959236
+          rid: 8590990459434959340
         m_childScaleHeight:
-          rid: 8590990459434959237
+          rid: 8590990459434959341
         m_childScaleWidth:
-          rid: 8590990459434959238
+          rid: 8590990459434959342
         m_enabled:
-          rid: 8590990459434959239
+          rid: 8590990459434959343
         m_padding:
-          rid: 8590990459434959240
+          rid: 8590990459434959344
         m_reverseArrangement:
-          rid: 8590990459434959241
+          rid: 8590990459434959345
         m_ReverseOrder:
-          rid: 8590990459434959242
+          rid: 8590990459434959346
         m_spacing:
-          rid: 8590990459434959243
+          rid: 8590990459434959347
         m_Vertical:
-          rid: 8590990459434959244
-    - rid: 8590990459434959231
+          rid: 8590990459434959348
+    - rid: 8590990459434959335
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_styleConfig: {fileID: 11400000}
-        m_name: PanelWithLeftOrBottomTab
+        m_name: Layout/HorizontalInLandscape
         m_alias: 
         m_screenOrientationCondition: -1
         m_childAlignment:
-          rid: 8590990459434959245
+          rid: 8590990459434959349
         m_childControlHeight:
-          rid: 8590990459434959246
+          rid: 8590990459434959350
         m_childControlWidth:
-          rid: 8590990459434959247
+          rid: 8590990459434959351
         m_childForceExpandHeight:
-          rid: 8590990459434959248
+          rid: 8590990459434959352
         m_childForceExpandWidth:
-          rid: 8590990459434959249
+          rid: 8590990459434959353
         m_childScaleHeight:
-          rid: 8590990459434959250
+          rid: 8590990459434959354
         m_childScaleWidth:
-          rid: 8590990459434959251
+          rid: 8590990459434959355
         m_enabled:
-          rid: 8590990459434959252
+          rid: 8590990459434959356
         m_padding:
-          rid: 8590990459434959253
+          rid: 8590990459434959357
         m_reverseArrangement:
-          rid: 8590990459434959254
+          rid: 8590990459434959358
         m_ReverseOrder:
-          rid: 8590990459434959255
+          rid: 8590990459434959359
         m_spacing:
-          rid: 8590990459434959256
+          rid: 8590990459434959360
         m_Vertical:
-          rid: 8590990459434959257
-    - rid: 8590990459434959232
+          rid: 8590990459434959361
+    - rid: 8590990459434959336
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueTextAnchor,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959233
+    - rid: 8590990459434959337
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 1
-    - rid: 8590990459434959234
+    - rid: 8590990459434959338
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 1
-    - rid: 8590990459434959235
+    - rid: 8590990459434959339
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959236
+    - rid: 8590990459434959340
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959237
+    - rid: 8590990459434959341
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959238
+    - rid: 8590990459434959342
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959239
+    - rid: 8590990459434959343
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 1
-    - rid: 8590990459434959240
+    - rid: 8590990459434959344
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueRectOffset,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -153,79 +157,79 @@ MonoBehaviour:
           m_Right: 0
           m_Top: 0
           m_Bottom: 0
-    - rid: 8590990459434959241
-      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
-        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: 0
-    - rid: 8590990459434959242
+    - rid: 8590990459434959345
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959243
+    - rid: 8590990459434959346
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 8590990459434959347
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueSingle,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959244
+    - rid: 8590990459434959348
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
         m_value: 0
-    - rid: 8590990459434959245
+    - rid: 8590990459434959349
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueTextAnchor,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959246
+    - rid: 8590990459434959350
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 1
-    - rid: 8590990459434959247
+    - rid: 8590990459434959351
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 1
-    - rid: 8590990459434959248
+    - rid: 8590990459434959352
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959249
+    - rid: 8590990459434959353
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959250
+    - rid: 8590990459434959354
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959251
+    - rid: 8590990459434959355
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959252
+    - rid: 8590990459434959356
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 1
-    - rid: 8590990459434959253
+    - rid: 8590990459434959357
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueRectOffset,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -235,27 +239,321 @@ MonoBehaviour:
           m_Right: 0
           m_Top: 0
           m_Bottom: 0
-    - rid: 8590990459434959254
-      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
-        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: 1
-    - rid: 8590990459434959255
+    - rid: 8590990459434959358
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959256
+    - rid: 8590990459434959359
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
+    - rid: 8590990459434959360
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueSingle,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
-    - rid: 8590990459434959257
+    - rid: 8590990459434959361
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
         ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
         m_value: 1
+    - rid: 8590990459434959374
+      type: {class: UiStyleScrollRect, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollRect/VerticalInLandscape
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_enabled:
+          rid: 8590990459434959376
+        m_horizontal:
+          rid: 8590990459434959377
+        m_vertical:
+          rid: 8590990459434959378
+    - rid: 8590990459434959375
+      type: {class: UiStyleScrollRect, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollRect/VerticalInLandscape
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_enabled:
+          rid: 8590990459434959379
+        m_horizontal:
+          rid: 8590990459434959380
+        m_vertical:
+          rid: 8590990459434959381
+    - rid: 8590990459434959376
+      type: {class: UiStyleScrollRect/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990459434959377
+      type: {class: UiStyleScrollRect/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 8590990459434959378
+      type: {class: UiStyleScrollRect/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
+    - rid: 8590990459434959379
+      type: {class: UiStyleScrollRect/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990459434959380
+      type: {class: UiStyleScrollRect/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
+    - rid: 8590990459434959381
+      type: {class: UiStyleScrollRect/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 8590990459434959414
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: FullScreenTabDialog/TabContent
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_childAlignment:
+          rid: 8590990459434959416
+        m_childControlHeight:
+          rid: 8590990459434959417
+        m_childControlWidth:
+          rid: 8590990459434959418
+        m_childForceExpandHeight:
+          rid: 8590990459434959419
+        m_childForceExpandWidth:
+          rid: 8590990459434959420
+        m_childScaleHeight:
+          rid: 8590990459434959421
+        m_childScaleWidth:
+          rid: 8590990459434959422
+        m_enabled:
+          rid: 8590990459434959423
+        m_padding:
+          rid: 8590990459434959424
+        m_reverseArrangement:
+          rid: 8590990459434959425
+        m_ReverseOrder:
+          rid: 8590990459434959426
+        m_spacing:
+          rid: 8590990459434959427
+        m_Vertical:
+          rid: 8590990459434959428
+    - rid: 8590990459434959415
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: FullScreenTabDialog/TabContent
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_childAlignment:
+          rid: 8590990459434959429
+        m_childControlHeight:
+          rid: 8590990459434959430
+        m_childControlWidth:
+          rid: 8590990459434959431
+        m_childForceExpandHeight:
+          rid: 8590990459434959432
+        m_childForceExpandWidth:
+          rid: 8590990459434959433
+        m_childScaleHeight:
+          rid: 8590990459434959434
+        m_childScaleWidth:
+          rid: 8590990459434959435
+        m_enabled:
+          rid: 8590990459434959436
+        m_padding:
+          rid: 8590990459434959437
+        m_reverseArrangement:
+          rid: 8590990459434959438
+        m_ReverseOrder:
+          rid: 8590990459434959439
+        m_spacing:
+          rid: 8590990459434959440
+        m_Vertical:
+          rid: 8590990459434959441
+    - rid: 8590990459434959416
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueTextAnchor,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 8590990459434959417
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990459434959418
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990459434959419
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 8590990459434959420
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990459434959421
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 8590990459434959422
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 8590990459434959423
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990459434959424
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueRectOffset,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value:
+          m_Left: 0
+          m_Right: 0
+          m_Top: 0
+          m_Bottom: 180
+    - rid: 8590990459434959425
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 8590990459434959426
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 8590990459434959427
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueSingle,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: -9.62
+    - rid: 8590990459434959428
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
+    - rid: 8590990459434959429
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueTextAnchor,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 6
+    - rid: 8590990459434959430
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990459434959431
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990459434959432
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 8590990459434959433
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990459434959434
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 8590990459434959435
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 8590990459434959436
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990459434959437
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueRectOffset,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value:
+          m_Left: 0
+          m_Right: 0
+          m_Top: 0
+          m_Bottom: 0
+    - rid: 8590990459434959438
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 8590990459434959439
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 8590990459434959440
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueSingle,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 8590990459434959441
+      type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup/ApplicableValueBoolean,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0

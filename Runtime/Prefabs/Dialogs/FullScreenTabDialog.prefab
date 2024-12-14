@@ -67,7 +67,7 @@ GameObject:
   - component: {fileID: 787768469843167680}
   - component: {fileID: 6220740112663321190}
   m_Layer: 0
-  m_Name: TabContent_GuiToolkit.UiHorizontalOrVerticalLayoutGroup
+  m_Name: deprecatedTabContent_GuiToolkit.UiHorizontalOrVerticalLayoutGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -231,7 +231,7 @@ GameObject:
   - component: {fileID: 3106386990878976230}
   - component: {fileID: 7702436351353091175}
   m_Layer: 0
-  m_Name: MiddleContent_GuiToolkit.UiHorizontalOrVerticalLayoutGroup
+  m_Name: deprecatedMiddleContent_GuiToolkit.UiHorizontalOrVerticalLayoutGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -432,7 +432,7 @@ GameObject:
   - component: {fileID: 5066451835741842284}
   - component: {fileID: 6084419030596246795}
   m_Layer: 0
-  m_Name: TabList_UnityEngine.UI.ScrollRect
+  m_Name: deprecatedTabList_UnityEngine.UI.ScrollRect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -556,7 +556,7 @@ GameObject:
   - component: {fileID: 1846584925310508430}
   - component: {fileID: 4779202623916196672}
   m_Layer: 0
-  m_Name: TabContent_GuiToolkit.UiHorizontalOrVerticalLayoutGroup
+  m_Name: deprecatedTabContent_GuiToolkit.UiHorizontalOrVerticalLayoutGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1265,14 +1265,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_definitions:
-  - Target: {fileID: 8246042931771844808}
-    OrientationTemplates:
-    - {fileID: 6084419030596246795}
-    - {fileID: 6199889809050658842}
-  - Target: {fileID: 2683206772902732579}
-    OrientationTemplates:
-    - {fileID: 4779202623916196672}
-    - {fileID: 6220740112663321190}
   - Target: {fileID: 4879301592926944607}
     OrientationTemplates:
     - {fileID: 2762289790553619621}
@@ -1405,7 +1397,7 @@ GameObject:
   - component: {fileID: 264441841992628138}
   - component: {fileID: 6199889809050658842}
   m_Layer: 0
-  m_Name: TabList_UnityEngine.UI.ScrollRect
+  m_Name: deprecatedTabList_UnityEngine.UI.ScrollRect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1840,7 +1832,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isResolutionDependent: 1
   m_optionalStyleConfig: {fileID: 0}
-  m_name: PanelWithLeftOrBottomTab
+  m_name: Layout/HorizontalInLandscape
   m_fixedSkinName: 
   m_tweenable: 1
   OnBeforeApplyStyle:
@@ -2489,6 +2481,7 @@ GameObject:
   - component: {fileID: 4879301592926944607}
   - component: {fileID: 7629717377438157029}
   - component: {fileID: 2683206772902732579}
+  - component: {fileID: 1250175213473844905}
   m_Layer: 5
   m_Name: TabContent
   m_TagString: Untagged
@@ -2570,6 +2563,29 @@ MonoBehaviour:
   m_ReverseArrangement: 0
   m_vertical: 1
   m_reverseOrder: 0
+--- !u!114 &1250175213473844905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7629717377438157028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: babd8f5be8f53124395cebed293e7273, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 1
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: FullScreenTabDialog/TabContent
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &7789858865536894914
 GameObject:
   m_ObjectHideFlags: 0
@@ -2582,6 +2598,7 @@ GameObject:
   - component: {fileID: 2368131855274987732}
   - component: {fileID: 8246042931771844808}
   - component: {fileID: 445809377793568927}
+  - component: {fileID: 1785635383726911200}
   m_Layer: 5
   m_Name: TabList
   m_TagString: Untagged
@@ -2664,6 +2681,29 @@ MonoBehaviour:
   m_initialNormalizedPosition: {x: 0, y: 1}
   m_ensureChildVisibilityDuration: 0.3
   m_ensureChildVisibilityPadding: 0.4
+--- !u!114 &1785635383726911200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7789858865536894914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c3e3936c5019774495ce1bd90ca4077, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 1
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: ScrollRect/VerticalInLandscape
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &7798362471346175658
 GameObject:
   m_ObjectHideFlags: 0
@@ -2756,7 +2796,7 @@ GameObject:
   - component: {fileID: 6855631789642107519}
   - component: {fileID: 3973462993841880128}
   m_Layer: 0
-  m_Name: MiddleContent_GuiToolkit.UiHorizontalOrVerticalLayoutGroup
+  m_Name: deprecatedMiddleContent_GuiToolkit.UiHorizontalOrVerticalLayoutGroup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
