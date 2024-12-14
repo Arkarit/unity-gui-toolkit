@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 2824916095038124125}
   - component: {fileID: 2762289790553619621}
   m_Layer: 0
-  m_Name: TabContent_UnityEngine.UI.ContentSizeFitter
+  m_Name: deprecatedTabContent_UnityEngine.UI.ContentSizeFitter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 732665792102160814}
   - component: {fileID: 3860056670587975236}
   m_Layer: 0
-  m_Name: TabContent_UnityEngine.UI.ContentSizeFitter
+  m_Name: deprecatedTabContent_UnityEngine.UI.ContentSizeFitter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1265,10 +1265,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_definitions:
-  - Target: {fileID: 4879301592926944607}
-    OrientationTemplates:
-    - {fileID: 2762289790553619621}
-    - {fileID: 3860056670587975236}
   - Target: {fileID: 7953324690129522827}
     OrientationTemplates:
     - {fileID: 8923647136506295745}
@@ -2482,6 +2478,7 @@ GameObject:
   - component: {fileID: 7629717377438157029}
   - component: {fileID: 2683206772902732579}
   - component: {fileID: 1250175213473844905}
+  - component: {fileID: 3440662835167208183}
   m_Layer: 5
   m_Name: TabContent
   m_TagString: Untagged
@@ -2578,6 +2575,29 @@ MonoBehaviour:
   m_isResolutionDependent: 1
   m_optionalStyleConfig: {fileID: 0}
   m_name: FullScreenTabDialog/TabContent
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &3440662835167208183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7629717377438157028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84b2c9b2c2a74ed49a0f2f0fc826b2f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 1
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: ContentSizeFitter/PreferredHorizontalInLandscape
   m_fixedSkinName: 
   m_tweenable: 1
   OnBeforeApplyStyle:

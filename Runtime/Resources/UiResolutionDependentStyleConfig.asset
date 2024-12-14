@@ -20,6 +20,7 @@ MonoBehaviour:
     - rid: 8590990459434959334
     - rid: 8590990459434959374
     - rid: 8590990459434959414
+    - rid: 8590990459434959622
   - m_config: {fileID: 11400000}
     m_name: Portrait
     m_alias: 
@@ -27,6 +28,7 @@ MonoBehaviour:
     - rid: 8590990459434959335
     - rid: 8590990459434959375
     - rid: 8590990459434959415
+    - rid: 8590990459434959623
   m_currentSkinIdx: 0
   references:
     version: 2
@@ -557,3 +559,65 @@ MonoBehaviour:
       data:
         IsApplicable: 1
         m_value: 0
+    - rid: 8590990459434959622
+      type: {class: UiStyleContentSizeFitter, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ContentSizeFitter/PreferredHorizontalInLandscape
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_enabled:
+          rid: 8590990459434959624
+        m_horizontalFit:
+          rid: 8590990459434959625
+        m_verticalFit:
+          rid: 8590990459434959626
+    - rid: 8590990459434959623
+      type: {class: UiStyleContentSizeFitter, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ContentSizeFitter/PreferredHorizontalInLandscape
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_enabled:
+          rid: 8590990459434959627
+        m_horizontalFit:
+          rid: 8590990459434959628
+        m_verticalFit:
+          rid: 8590990459434959629
+    - rid: 8590990459434959624
+      type: {class: UiStyleContentSizeFitter/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990459434959625
+      type: {class: UiStyleContentSizeFitter/ApplicableValueFitMode, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 2
+    - rid: 8590990459434959626
+      type: {class: UiStyleContentSizeFitter/ApplicableValueFitMode, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 8590990459434959627
+      type: {class: UiStyleContentSizeFitter/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990459434959628
+      type: {class: UiStyleContentSizeFitter/ApplicableValueFitMode, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 8590990459434959629
+      type: {class: UiStyleContentSizeFitter/ApplicableValueFitMode, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 2
