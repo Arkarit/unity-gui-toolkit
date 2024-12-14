@@ -9,6 +9,9 @@ namespace GuiToolkit.Style
 	[CreateAssetMenu(fileName = nameof(UiResolutionDependentStyleConfig), menuName = StringConstants.CREATE_RESOLUTION_DEPENDENT_STYLE_CONFIG)]
 	public class UiResolutionDependentStyleConfig : UiStyleConfig
 	{
+		public const string Landscape = "Landscape";
+		public const string Portrait = "Portrait";
+
 		protected static UiResolutionDependentStyleConfig s_instance;
 		
 		protected const string EditorDir = "Assets/Resources/";
@@ -19,17 +22,31 @@ namespace GuiToolkit.Style
 
 		protected override void OnEnable()
 		{
+			base.OnEnable();
 			var instance = Instance;
 			if (instance.NumSkins == 0)
 			{
 				var skins = s_instance.Skins;
-				skins.Add(new UiSkin(s_instance, "Landscape"));
-				skins.Add(new UiSkin(s_instance, "Portrait"));
+				skins.Add(new UiSkin(s_instance, Landscape));
+				skins.Add(new UiSkin(s_instance, Portrait));
 				s_instance.Skins = skins;
 #if UNITY_EDITOR
 				EditorSave(s_instance);
 #endif
 			}
+
+			UiEventDefinitions.EvScreenOrientationChange.AddListener(OnScreenOrientationChange);
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			UiEventDefinitions.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChange);
+		}
+
+		private void OnScreenOrientationChange(EScreenOrientation _before, EScreenOrientation _after)
+		{
+			Instance.CurrentSkinName = _after == EScreenOrientation.Landscape ? Landscape : Portrait;
 		}
 
 		public static UiResolutionDependentStyleConfig Instance

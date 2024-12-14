@@ -59,7 +59,7 @@ namespace GuiToolkit.Style
 			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}
 
-		protected void OnDisable() => RemoveListeners();
+		protected virtual void OnDisable() => RemoveListeners();
 
 		private void AddListeners()
 		{

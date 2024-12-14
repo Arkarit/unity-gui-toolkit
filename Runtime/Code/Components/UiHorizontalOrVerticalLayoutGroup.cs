@@ -18,6 +18,12 @@ namespace GuiToolkit
 			set => m_vertical = value;
 		}
 
+		public bool ReverseOrder
+		{
+			get => m_reverseOrder;
+			set => m_reverseOrder = value;
+		}
+
 		protected UiHorizontalOrVerticalLayoutGroup() { }
 
 		/// <summary>
