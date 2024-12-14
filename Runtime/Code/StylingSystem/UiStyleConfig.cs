@@ -23,6 +23,9 @@ namespace GuiToolkit.Style
 			{
 				m_skins = value;
 				SetDefaultSkin();
+#if UNITY_EDITOR
+				EditorUtility.SetDirty(this);
+#endif
 			}
 		}
 		
@@ -47,7 +50,7 @@ namespace GuiToolkit.Style
 
 		public int NumSkins => m_skins != null ? m_skins.Count : 0;
 
-		protected void OnEnable()
+		protected virtual void OnEnable()
 		{
 			foreach (var skin in m_skins)
 				skin.Init(this);

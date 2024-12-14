@@ -17,6 +17,21 @@ namespace GuiToolkit.Style
 		
 		public static void ResetInstance() => s_instance = null;
 
+		protected override void OnEnable()
+		{
+			var instance = Instance;
+			if (instance.NumSkins == 0)
+			{
+				var skins = s_instance.Skins;
+				skins.Add(new UiSkin(s_instance, "Landscape"));
+				skins.Add(new UiSkin(s_instance, "Portrait"));
+				s_instance.Skins = skins;
+#if UNITY_EDITOR
+				EditorSave(s_instance);
+#endif
+			}
+		}
+
 		public static UiResolutionDependentStyleConfig Instance
 		{
 			get
@@ -35,9 +50,6 @@ namespace GuiToolkit.Style
 						Debug.LogError($"Scriptable object could not be loaded from path '{ClassName}'");
 #endif
 						s_instance = CreateInstance<UiResolutionDependentStyleConfig>();
-#if UNITY_EDITOR
-						EditorSave(s_instance);
-#endif
 					}
 				}
 

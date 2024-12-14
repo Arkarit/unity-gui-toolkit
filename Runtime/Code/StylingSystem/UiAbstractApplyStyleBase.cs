@@ -12,6 +12,7 @@ namespace GuiToolkit.Style
 	[ExecuteAlways]
 	public abstract class UiAbstractApplyStyleBase : MonoBehaviour
 	{
+		[SerializeField] [HideInInspector] private bool m_isResolutionDependent;
 		[FormerlySerializedAs("m_config")] 
 		[SerializeField][HideInInspector] private UiStyleConfig m_optionalStyleConfig;
 		[SerializeField][HideInInspector] private string m_name;
@@ -19,6 +20,9 @@ namespace GuiToolkit.Style
 		[SerializeField][HideInInspector] protected bool m_tweenable = true;
 		
 		protected UiAbstractStyleBase m_style;
+
+		private UiStyleConfig m_effectiveStyleConfig;
+		private bool m_effectiveStyleConfigInitialized;
 
 		public UnityEvent<UiAbstractApplyStyleBase> OnBeforeApplyStyle = new();
 		public UnityEvent<UiAbstractApplyStyleBase> OnAfterApplyStyle = new();
@@ -32,9 +36,40 @@ namespace GuiToolkit.Style
 			get => m_tweenable && !SkinIsFixed;
 			set => m_tweenable = value;
 		}
-		
-		public UiStyleConfig StyleConfig => m_optionalStyleConfig != null ? m_optionalStyleConfig : UiMainStyleConfig.Instance;
-		
+		public bool IsResolutionDependent => m_isResolutionDependent;
+
+		public UiStyleConfig StyleConfig
+		{
+			get
+			{
+#if UNITY_EDITOR
+				if (!Application.isPlaying)
+					m_effectiveStyleConfigInitialized = false;
+#endif
+				if (!m_effectiveStyleConfigInitialized)
+				{
+					m_effectiveStyleConfigInitialized = true;
+					if (m_isResolutionDependent)
+					{
+						m_effectiveStyleConfig = UiResolutionDependentStyleConfig.Instance;
+						if (m_effectiveStyleConfig != null)
+							return m_effectiveStyleConfig;
+					}
+
+					if (m_optionalStyleConfig != null)
+					{
+						m_effectiveStyleConfig = m_optionalStyleConfig;
+						return m_effectiveStyleConfig;
+					}
+
+					m_effectiveStyleConfig = UiMainStyleConfig.Instance;
+					m_effectiveStyleConfigInitialized = true;
+				}
+
+				return m_effectiveStyleConfig;
+			}
+		}
+
 		public bool SkinIsFixed => !string.IsNullOrEmpty(FixedSkinName);
 
 		public string FixedSkinName
@@ -104,8 +139,11 @@ namespace GuiToolkit.Style
 		public void Reset(bool _alsoStyleConfig = false)
 		{
 			if (_alsoStyleConfig)
+			{
+				m_isResolutionDependent = false;
 				m_optionalStyleConfig = null;
-			
+			}
+
 			m_name = null;
 			m_style = null;
 			m_fixedSkinName = null;
