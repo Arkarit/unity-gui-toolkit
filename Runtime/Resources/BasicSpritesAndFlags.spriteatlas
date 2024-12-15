@@ -44,6 +44,7 @@ SpriteAtlas:
     - 96b0c7d200fe89b4196d5f82c7a161e5: 21300000
     - 78941cf264923c9488229fa3b6e029b2: 21300000
     - 08b5759456cd7534185f825acb45ccde: 21300000
+    - a13d7a258751b14499b8b99390ed5ed1: 21300000
     - f4a6c635596536c4ebdca0c03698945d: 21300000
     - 6f356e35c5923434da09d00a2639d98a: 21300000
     - 489c5ac57c2a3f649a0ffa61289ce5a1: 21300000
@@ -75,6 +76,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 96b0c7d200fe89b4196d5f82c7a161e5, type: 3}
   - {fileID: 21300000, guid: 78941cf264923c9488229fa3b6e029b2, type: 3}
   - {fileID: 21300000, guid: 08b5759456cd7534185f825acb45ccde, type: 3}
+  - {fileID: 21300000, guid: a13d7a258751b14499b8b99390ed5ed1, type: 3}
   - {fileID: 21300000, guid: f4a6c635596536c4ebdca0c03698945d, type: 3}
   - {fileID: 21300000, guid: 6f356e35c5923434da09d00a2639d98a, type: 3}
   - {fileID: 21300000, guid: 489c5ac57c2a3f649a0ffa61289ce5a1, type: 3}
@@ -105,6 +107,7 @@ SpriteAtlas:
   - UITK_Simple_Rectangle_r25
   - UITK_Frame_r00_f07
   - UITK_Simple_Rectangle_r50
+  - UITK_Panel_r00_flat
   - UITK_Frame_r50_f07
   - lol
   - UITK_Panel_r25
