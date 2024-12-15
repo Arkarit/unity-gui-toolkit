@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 2683398089112248183}
   - component: {fileID: 7550463188157084331}
   - component: {fileID: 5135875721732972258}
+  - component: {fileID: 2310539096329231323}
+  - component: {fileID: 6506092393055022584}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -59,7 +61,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.21960786, b: 0.3019608, a: 1}
+  m_Color: {r: 0, g: 0.28965518, b: 0.3962264, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -89,9 +91,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_vertexColorMode: 0
-  m_colorLeftOrTop: {r: 0.754717, g: 0.754717, b: 0.754717, a: 1}
+  m_colorLeftOrTop: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 1}
   m_colorRightOrBottom: {r: 1, g: 1, b: 1, a: 1}
   m_orientation: 1
+  m_swapped: 0
+--- !u!114 &2310539096329231323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2458428482449993784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: FullScreenTabDialog/TabBackground
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &6506092393055022584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2458428482449993784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: FullScreenTabDialog/TabBackground
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2527186978423661639
 GameObject:
   m_ObjectHideFlags: 0
@@ -785,6 +834,7 @@ MonoBehaviour:
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.25490198}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0}
   m_orientation: 1
+  m_swapped: 0
 --- !u!1 &5565500717009698967
 GameObject:
   m_ObjectHideFlags: 0
@@ -1074,6 +1124,7 @@ GameObject:
   - component: {fileID: 5968183751328267710}
   - component: {fileID: 5968183751328267709}
   - component: {fileID: 2158399774974629529}
+  - component: {fileID: 4619146476343528593}
   m_Layer: 5
   m_Name: TopBar
   m_TagString: Untagged
@@ -1163,6 +1214,29 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4619146476343528593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968183751328267707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: FullScreenTabDialog/HeadlineBackground
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &5968183751335474393
 GameObject:
   m_ObjectHideFlags: 0
@@ -1259,6 +1333,7 @@ MonoBehaviour:
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}
   m_orientation: 1
+  m_swapped: 0
 --- !u!114 &5900619336476849742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1316,6 +1391,8 @@ GameObject:
   - component: {fileID: 5923643117254657005}
   - component: {fileID: 4876038079789426468}
   - component: {fileID: 1895610034041222477}
+  - component: {fileID: 4403570764919419367}
+  - component: {fileID: 8018004307357197162}
   m_Layer: 5
   m_Name: PageContainer
   m_TagString: Untagged
@@ -1418,6 +1495,7 @@ MonoBehaviour:
   m_colorLeftOrTop: {r: 1, g: 1, b: 1, a: 1}
   m_colorRightOrBottom: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 1}
   m_orientation: 0
+  m_swapped: 0
 --- !u!114 &1895610034041222477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1433,6 +1511,52 @@ MonoBehaviour:
   m_isResolutionDependent: 1
   m_optionalStyleConfig: {fileID: 0}
   m_name: GradientSimple/HorizontalInLandscape
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &4403570764919419367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968183751340798083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: FullScreenTabDialog/PageBackground
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &8018004307357197162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968183751340798083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: FullScreenTabDialog/PageBackground
   m_fixedSkinName: 
   m_tweenable: 1
   OnBeforeApplyStyle:
@@ -2741,6 +2865,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8446865095522291056, guid: f0b4f07e8e2f38d4e923e31881f94c44,
+        type: 3}
+      propertyPath: m_EffectColor.a
+      value: 0.36862746
+      objectReference: {fileID: 0}
+    - target: {fileID: 8446865095522291056, guid: f0b4f07e8e2f38d4e923e31881f94c44,
+        type: 3}
+      propertyPath: m_EffectDistance.x
+      value: 3.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8446865095522291056, guid: f0b4f07e8e2f38d4e923e31881f94c44,
+        type: 3}
+      propertyPath: m_EffectDistance.y
+      value: -6.03
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
