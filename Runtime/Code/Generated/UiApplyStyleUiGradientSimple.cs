@@ -18,10 +18,12 @@ namespace GuiToolkit.Style
 				try { SpecificComponent.ColorLeftOrTop = Tweenable ? SpecificStyle.ColorLeftOrTop.Value : SpecificStyle.ColorLeftOrTop.RawValue; } catch {}
 			if (SpecificStyle.ColorRightOrBottom.IsApplicable)
 				try { SpecificComponent.ColorRightOrBottom = Tweenable ? SpecificStyle.ColorRightOrBottom.Value : SpecificStyle.ColorRightOrBottom.RawValue; } catch {}
-			if (SpecificStyle.Orientation.IsApplicable)
-				try { SpecificComponent.Orientation = Tweenable ? SpecificStyle.Orientation.Value : SpecificStyle.Orientation.RawValue; } catch {}
 			if (SpecificStyle.Enabled.IsApplicable)
 				try { SpecificComponent.enabled = Tweenable ? SpecificStyle.Enabled.Value : SpecificStyle.Enabled.RawValue; } catch {}
+			if (SpecificStyle.Orientation.IsApplicable)
+				try { SpecificComponent.Orientation = Tweenable ? SpecificStyle.Orientation.Value : SpecificStyle.Orientation.RawValue; } catch {}
+			if (SpecificStyle.Swapped.IsApplicable)
+				try { SpecificComponent.Swapped = Tweenable ? SpecificStyle.Swapped.Value : SpecificStyle.Swapped.RawValue; } catch {}
 		}
 
 		protected override void RecordImpl()
@@ -33,10 +35,12 @@ namespace GuiToolkit.Style
 				try { SpecificStyle.ColorLeftOrTop.RawValue = SpecificComponent.ColorLeftOrTop; } catch {}
 			if (SpecificStyle.ColorRightOrBottom.IsApplicable)
 				try { SpecificStyle.ColorRightOrBottom.RawValue = SpecificComponent.ColorRightOrBottom; } catch {}
-			if (SpecificStyle.Orientation.IsApplicable)
-				try { SpecificStyle.Orientation.RawValue = SpecificComponent.Orientation; } catch {}
 			if (SpecificStyle.Enabled.IsApplicable)
 				try { SpecificStyle.Enabled.RawValue = SpecificComponent.enabled; } catch {}
+			if (SpecificStyle.Orientation.IsApplicable)
+				try { SpecificStyle.Orientation.RawValue = SpecificComponent.Orientation; } catch {}
+			if (SpecificStyle.Swapped.IsApplicable)
+				try { SpecificStyle.Swapped.RawValue = SpecificComponent.Swapped; } catch {}
 		}
 
 		public override UiAbstractStyleBase CreateStyle(UiStyleConfig _styleConfig, string _name, UiAbstractStyleBase _template = null)
@@ -54,18 +58,21 @@ namespace GuiToolkit.Style
 				result.ColorLeftOrTop.IsApplicable = specificTemplate.ColorLeftOrTop.IsApplicable;
 				result.ColorRightOrBottom.Value = specificTemplate.ColorRightOrBottom.Value;
 				result.ColorRightOrBottom.IsApplicable = specificTemplate.ColorRightOrBottom.IsApplicable;
-				result.Orientation.Value = specificTemplate.Orientation.Value;
-				result.Orientation.IsApplicable = specificTemplate.Orientation.IsApplicable;
 				result.Enabled.Value = specificTemplate.Enabled.Value;
 				result.Enabled.IsApplicable = specificTemplate.Enabled.IsApplicable;
+				result.Orientation.Value = specificTemplate.Orientation.Value;
+				result.Orientation.IsApplicable = specificTemplate.Orientation.IsApplicable;
+				result.Swapped.Value = specificTemplate.Swapped.Value;
+				result.Swapped.IsApplicable = specificTemplate.Swapped.IsApplicable;
 
 				return result;
 			}
 
 			try { result.ColorLeftOrTop.Value = SpecificComponent.ColorLeftOrTop; } catch {}
 			try { result.ColorRightOrBottom.Value = SpecificComponent.ColorRightOrBottom; } catch {}
-			try { result.Orientation.Value = SpecificComponent.Orientation; } catch {}
 			try { result.Enabled.Value = SpecificComponent.enabled; } catch {}
+			try { result.Orientation.Value = SpecificComponent.Orientation; } catch {}
+			try { result.Swapped.Value = SpecificComponent.Swapped; } catch {}
 
 			return result;
 		}

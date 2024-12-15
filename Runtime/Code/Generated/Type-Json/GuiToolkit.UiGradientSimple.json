@@ -17,15 +17,27 @@
         },
         {
             "Used": true,
-            "Name": "Orientation",
-            "QualifiedTypeName": "GuiToolkit.UiGradientSimple.EOrientation",
-            "TypeName": "EOrientation"
+            "Name": "enabled",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
         },
         {
             "Used": false,
-            "Name": "useGUILayout",
-            "QualifiedTypeName": "System.Boolean",
-            "TypeName": "Boolean"
+            "Name": "hideFlags",
+            "QualifiedTypeName": "UnityEngine.HideFlags",
+            "TypeName": "HideFlags"
+        },
+        {
+            "Used": false,
+            "Name": "name",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": true,
+            "Name": "Orientation",
+            "QualifiedTypeName": "GuiToolkit.UiGradientSimple.EOrientation",
+            "TypeName": "EOrientation"
         },
         {
             "Used": false,
@@ -35,7 +47,7 @@
         },
         {
             "Used": true,
-            "Name": "enabled",
+            "Name": "Swapped",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
@@ -47,15 +59,9 @@
         },
         {
             "Used": false,
-            "Name": "name",
-            "QualifiedTypeName": "System.String",
-            "TypeName": "String"
-        },
-        {
-            "Used": false,
-            "Name": "hideFlags",
-            "QualifiedTypeName": "UnityEngine.HideFlags",
-            "TypeName": "HideFlags"
+            "Name": "useGUILayout",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
         }
     ]
 }

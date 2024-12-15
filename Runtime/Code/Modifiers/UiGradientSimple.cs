@@ -19,23 +19,42 @@ namespace GuiToolkit
 		[FormerlySerializedAs("m_Orientation")]
 		[FormerlySerializedAs("m_type")] 
 		[SerializeField] protected EOrientation m_orientation;
+		[SerializeField] protected bool m_swapped;
+
+		public bool Swapped
+		{
+			get => m_swapped;
+			set
+			{
+				m_swapped = value;
+				SetDirty();
+			}
+		}
 
 		public Color ColorLeftOrTop
 		{
-			get => m_colorLeftOrTop;
+			get => m_swapped ? m_colorRightOrBottom : m_colorLeftOrTop;
 			set
 			{
-				m_colorLeftOrTop = value;
+				if (m_swapped)
+					m_colorRightOrBottom = value;
+				else
+					m_colorLeftOrTop = value;
+
 				SetDirty();
 			}
 		}
 
 		public Color ColorRightOrBottom
 		{
-			get => m_colorRightOrBottom;
+			get => m_swapped ? m_colorLeftOrTop : m_colorRightOrBottom;
 			set
 			{
-				m_colorRightOrBottom = value;
+				if (m_swapped)
+					m_colorLeftOrTop = value;
+				else
+					m_colorRightOrBottom = value;
+
 				SetDirty();
 			}
 		}
@@ -48,19 +67,18 @@ namespace GuiToolkit
 
 		public void SetColors(Color _leftOrTop, Color _rightOrBottom)
 		{
-			m_colorLeftOrTop = _leftOrTop;
-			m_colorRightOrBottom = _rightOrBottom;
-			SetDirty();
+			ColorLeftOrTop = _leftOrTop;
+			ColorRightOrBottom = _rightOrBottom;
 		}
 
 		public (Color leftOrTop, Color rightOrBottom) GetColors()
 		{
-			return (leftOrTop:m_colorLeftOrTop, rightOrBottom:m_colorRightOrBottom);
+			return (leftOrTop:ColorLeftOrTop, rightOrBottom:ColorRightOrBottom);
 		}
 
 		protected override Color GetColor(Vector2 _normVal)
 		{
-			return Color.Lerp( m_colorLeftOrTop, m_colorRightOrBottom, m_orientation == EOrientation.Horizontal ? _normVal.x : 1.0f - _normVal.y );
+			return Color.Lerp( ColorLeftOrTop, ColorRightOrBottom, m_orientation == EOrientation.Horizontal ? _normVal.x : 1.0f - _normVal.y );
 		}
 	}
 }

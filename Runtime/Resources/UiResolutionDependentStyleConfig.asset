@@ -24,6 +24,7 @@ MonoBehaviour:
     - rid: 8590990470422986970
     - rid: 8590990470691422228
     - rid: 8590990470691422354
+    - rid: 8590990470691422547
   - m_config: {fileID: 11400000}
     m_name: Portrait
     m_alias: 
@@ -35,6 +36,7 @@ MonoBehaviour:
     - rid: 8590990470422986971
     - rid: 8590990470691422229
     - rid: 8590990470691422355
+    - rid: 8590990470691422548
   m_currentSkinIdx: 0
   references:
     version: 2
@@ -1037,3 +1039,97 @@ MonoBehaviour:
       data:
         IsApplicable: 1
         m_value: 0
+    - rid: 8590990470691422547
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: GradientSimple/HorizontalInLandscape
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_ColorLeftOrTop:
+          rid: 8590990470691422549
+        m_ColorRightOrBottom:
+          rid: 8590990470691422550
+        m_enabled:
+          rid: 8590990470691422552
+        m_Orientation:
+          rid: 8590990470691422551
+        m_Swapped:
+          rid: 8590990470691422619
+    - rid: 8590990470691422548
+      type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: GradientSimple/HorizontalInLandscape
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_ColorLeftOrTop:
+          rid: 8590990470691422553
+        m_ColorRightOrBottom:
+          rid: 8590990470691422554
+        m_enabled:
+          rid: 8590990470691422556
+        m_Orientation:
+          rid: 8590990470691422555
+        m_Swapped:
+          rid: 8590990470691422620
+    - rid: 8590990470691422549
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 8590990470691422550
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 1}
+    - rid: 8590990470691422551
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 8590990470691422552
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990470691422553
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 8590990470691422554
+      type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 1}
+    - rid: 8590990470691422555
+      type: {class: UiStyleUiGradientSimple/ApplicableValueEOrientation, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
+    - rid: 8590990470691422556
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8590990470691422619
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 8590990470691422620
+      type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1

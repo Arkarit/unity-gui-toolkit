@@ -16,8 +16,8 @@ namespace GuiToolkit.Style
 		}
 
 		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
-		private class ApplicableValueEOrientation : ApplicableValue<GuiToolkit.UiGradientSimple.EOrientation> {}
 		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
+		private class ApplicableValueEOrientation : ApplicableValue<GuiToolkit.UiGradientSimple.EOrientation> {}
 
 		protected override ApplicableValueBase[] GetValueList()
 		{
@@ -25,15 +25,17 @@ namespace GuiToolkit.Style
 			{
 				ColorLeftOrTop,
 				ColorRightOrBottom,
-				Orientation,
 				Enabled,
+				Orientation,
+				Swapped,
 			};
 		}
 
 		[SerializeReference] private ApplicableValueColor m_ColorLeftOrTop = new();
 		[SerializeReference] private ApplicableValueColor m_ColorRightOrBottom = new();
-		[SerializeReference] private ApplicableValueEOrientation m_Orientation = new();
 		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
+		[SerializeReference] private ApplicableValueEOrientation m_Orientation = new();
+		[SerializeReference] private ApplicableValueBoolean m_Swapped = new();
 
 		public ApplicableValue<UnityEngine.Color> ColorLeftOrTop
 		{
@@ -55,6 +57,16 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		public ApplicableValue<System.Boolean> Enabled
+		{
+			get
+			{
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
+				return m_enabled;
+			}
+		}
+
 		public ApplicableValue<GuiToolkit.UiGradientSimple.EOrientation> Orientation
 		{
 			get
@@ -65,13 +77,13 @@ namespace GuiToolkit.Style
 			}
 		}
 
-		public ApplicableValue<System.Boolean> Enabled
+		public ApplicableValue<System.Boolean> Swapped
 		{
 			get
 			{
-				if (m_enabled == null)
-					m_enabled = new ApplicableValueBoolean();
-				return m_enabled;
+				if (m_Swapped == null)
+					m_Swapped = new ApplicableValueBoolean();
+				return m_Swapped;
 			}
 		}
 

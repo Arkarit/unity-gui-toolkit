@@ -981,8 +981,8 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
-  m_vertical: 1
-  m_reverseOrder: 1
+  m_vertical: 0
+  m_reverseOrder: 0
 --- !u!114 &3235234761001937476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1273,9 +1273,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_IgnoreLayout: 0
   m_MinWidth: -1
-  m_MinHeight: 180
+  m_MinHeight: 140
   m_PreferredWidth: 10000
-  m_PreferredHeight: 180
+  m_PreferredHeight: 500000
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -1314,6 +1314,8 @@ GameObject:
   - component: {fileID: 4521043971510051181}
   - component: {fileID: 4249889295606236533}
   - component: {fileID: 5923643117254657005}
+  - component: {fileID: 4876038079789426468}
+  - component: {fileID: 1895610034041222477}
   m_Layer: 5
   m_Name: PageContainer
   m_TagString: Untagged
@@ -1400,6 +1402,45 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4876038079789426468
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968183751340798083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_vertexColorMode: 0
+  m_colorLeftOrTop: {r: 1, g: 1, b: 1, a: 1}
+  m_colorRightOrBottom: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 1}
+  m_orientation: 0
+--- !u!114 &1895610034041222477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968183751340798083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 1
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: GradientSimple/HorizontalInLandscape
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &5968183751464453716
 GameObject:
   m_ObjectHideFlags: 0
@@ -1622,11 +1663,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1553629950334076772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 180}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -0.00012207031, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &4879301592926944607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1639,8 +1680,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_HorizontalFit: 2
-  m_VerticalFit: 0
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!114 &7629717377438157029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1670,9 +1711,9 @@ MonoBehaviour:
     m_Left: 0
     m_Right: 0
     m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 6
-  m_Spacing: 0
+    m_Bottom: 180
+  m_ChildAlignment: 0
+  m_Spacing: -9.62
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -1680,7 +1721,7 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
-  m_vertical: 0
+  m_vertical: 1
   m_reverseOrder: 0
 --- !u!114 &1250175213473844905
 MonoBehaviour:
@@ -1812,8 +1853,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 7953324690129522827}
-  m_Horizontal: 1
-  m_Vertical: 0
+  m_Horizontal: 0
+  m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
   m_Inertia: 1
