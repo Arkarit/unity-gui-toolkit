@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -47,6 +48,8 @@ namespace GuiToolkit.Style
 		private void OnScreenOrientationChange(EScreenOrientation _before, EScreenOrientation _after)
 		{
 			Instance.CurrentSkinName = _after == EScreenOrientation.Landscape ? Landscape : Portrait;
+//			if (Application.isPlaying)
+//				LayoutRebuilder.ForceRebuildLayoutImmediate(UiMain.Instance.transform as RectTransform);
 		}
 
 		public static UiResolutionDependentStyleConfig Instance
