@@ -513,7 +513,7 @@ namespace GuiToolkit.Style.Editor
 			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 		}
 
-		private bool FindJson(bool _downcastTypes)
+		private bool TryReadJson(bool _downcastTypes)
 		{
 			for (var type = m_componentType; type != typeof(Component); type = type.BaseType)
 			{
@@ -556,6 +556,13 @@ namespace GuiToolkit.Style.Editor
 				m_namespace = propertyRecordsJson.Namespace;
 				m_prefix = propertyRecordsJson.Prefix;
 				m_PropertyRecords = propertyRecordsJson.Records.ToList();
+
+				if (!JsonPropertiesMatching())
+				{
+					m_PropertyRecords.Clear();
+					return false;
+				}
+
 				m_PropertyRecords.Sort((a,b) => a.Name.CompareTo(b.Name));
 				return true;
 			}
@@ -564,6 +571,47 @@ namespace GuiToolkit.Style.Editor
 				return false;
 			}
 		}
+
+		// Examine if component has changed in the meantime;
+		// Remove unused properties and add newly created properties
+		private bool JsonPropertiesMatching()
+		{
+			Dictionary<string, PropertyRecord> existingPropertyRecords = new();
+			foreach (var propertyRecord in m_PropertyRecords)
+				existingPropertyRecords.Add(propertyRecord.Name, propertyRecord);
+
+			Dictionary<string, PropertyInfo> existingComponentProperties = new();
+			var propertyInfos = m_componentType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+			foreach (var propertyInfo in propertyInfos)
+			{
+				if (!propertyInfo.CanRead || !propertyInfo.CanWrite || !AllAccessorsPublic(propertyInfo))
+				{
+					if (existingPropertyRecords.ContainsKey(propertyInfo.Name))
+						return false;
+
+					continue;
+				}
+
+				if (!existingPropertyRecords.TryGetValue(propertyInfo.Name, out PropertyRecord record))
+					return false;
+
+				if (record.TypeName != propertyInfo.PropertyType.Name)
+					return false;
+
+				existingComponentProperties.Add(propertyInfo.Name, propertyInfo);
+			}
+
+			foreach (var kv in existingPropertyRecords)
+			{
+				if (!existingComponentProperties.TryGetValue(kv.Key, out PropertyInfo propertyInfo))
+					return false;
+				if (propertyInfo.PropertyType.Name != kv.Value.TypeName)
+					return false;
+			}
+
+			return true;
+		}
+
 		#endregion
 
 		#region Data
@@ -581,8 +629,10 @@ namespace GuiToolkit.Style.Editor
 		private void CollectProperties(bool _internal, bool _downcastTypes)
 		{
 			m_PropertyRecords.Clear();
-			if (FindJson(_downcastTypes))
+			if (TryReadJson(_downcastTypes))
+			{
 				return;
+			}
 
 			m_namespace = _internal ? "GuiToolkit.Style" : string.Empty;
 			m_prefix = string.Empty;
