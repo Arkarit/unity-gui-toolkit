@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5030755140131632004}
   - component: {fileID: 2536701321122303690}
   m_Layer: 0
-  m_Name: TabContainer_UnityEngine.UI.LayoutElement
+  m_Name: deprecatedTabContainer_UnityEngine.UI.LayoutElement
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -295,7 +295,7 @@ GameObject:
   - component: {fileID: 7873408280280645729}
   - component: {fileID: 8832323088425302244}
   m_Layer: 0
-  m_Name: TabContainer_UnityEngine.UI.LayoutElement
+  m_Name: deprecatedTabContainer_UnityEngine.UI.LayoutElement
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -351,7 +351,7 @@ GameObject:
   - component: {fileID: 3223239026997330807}
   - component: {fileID: 5818411660683493563}
   m_Layer: 0
-  m_Name: Page_GuiToolkit.UiGradient
+  m_Name: deprecatedPage_GuiToolkit.UiGradient
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -627,7 +627,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7361492398801455715
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1264,25 +1264,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
-  m_definitions:
-  - Target: {fileID: 7953324690129522827}
-    OrientationTemplates:
-    - {fileID: 8923647136506295745}
-    - {fileID: 1522454978665376650}
-  - Target: {fileID: 5968183751464453718}
-    OrientationTemplates:
-    - {fileID: 6270570666749986984}
-    - {fileID: 5818411660683493563}
-  - Target: {fileID: 5900619336476849742}
-    OrientationTemplates:
-    - {fileID: 2536701321122303690}
-    - {fileID: 8832323088425302244}
+  m_definitions: []
   m_visibleInLandscape: []
   m_visibleInPortrait:
   - {fileID: 2458428482449993784}
   - {fileID: 7373660067696398259}
   m_autoUpdateOnEnable: 1
-  m_lastScreenOrientation: 0
+  m_lastScreenOrientation: 1
 --- !u!1 &2832707242714650675
 GameObject:
   m_ObjectHideFlags: 0
@@ -2007,6 +1995,7 @@ GameObject:
   - component: {fileID: 5968183751335474396}
   - component: {fileID: 5968183751335474395}
   - component: {fileID: 5900619336476849742}
+  - component: {fileID: 651605020017669653}
   m_Layer: 5
   m_Name: TabContainer
   m_TagString: Untagged
@@ -2109,6 +2098,29 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &651605020017669653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968183751335474393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dec8e0f107799fc43b43e69722657af7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 1
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: FullScreenTabDialog/TabContainer
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &5968183751340798083
 GameObject:
   m_ObjectHideFlags: 0
@@ -2407,7 +2419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5921502832281618020
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2479,6 +2491,7 @@ GameObject:
   - component: {fileID: 2683206772902732579}
   - component: {fileID: 1250175213473844905}
   - component: {fileID: 3440662835167208183}
+  - component: {fileID: 4666127639633330705}
   m_Layer: 5
   m_Name: TabContent
   m_TagString: Untagged
@@ -2493,7 +2506,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7629717377438157028}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2597,7 +2610,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_isResolutionDependent: 1
   m_optionalStyleConfig: {fileID: 0}
-  m_name: ContentSizeFitter/PreferredHorizontalInLandscape
+  m_name: ContentSizeFitter/PreferredVerticalInLandscape
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &4666127639633330705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7629717377438157028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57bc3011770ca1346a002a705abd54de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 1
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: FullScreenTabDialog/TabContent
   m_fixedSkinName: 
   m_tweenable: 1
   OnBeforeApplyStyle:
@@ -2735,7 +2771,7 @@ GameObject:
   - component: {fileID: 7208163846497826350}
   - component: {fileID: 6270570666749986984}
   m_Layer: 0
-  m_Name: Page_GuiToolkit.UiGradient
+  m_Name: deprecatedPage_GuiToolkit.UiGradient
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
