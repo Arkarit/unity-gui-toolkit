@@ -2542,6 +2542,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 4016433083211000610}
+    - targetCorrespondingSourceObject: {fileID: 221534388866511754, guid: a83a296a9f385cf438eda8d72559d078,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1021233914000649129}
   m_SourcePrefab: {fileID: 100100000, guid: a83a296a9f385cf438eda8d72559d078, type: 3}
 --- !u!224 &5890765324333056213 stripped
 RectTransform:
@@ -2593,6 +2597,29 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1021233914000649129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5890765324333056214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: FullScreenTabDialog/ButtonBarBackground
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &7438791641005151064
 PrefabInstance:
   m_ObjectHideFlags: 0
