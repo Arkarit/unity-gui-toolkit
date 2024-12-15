@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3088002875102225747}
   - component: {fileID: 3962353340145202642}
   - component: {fileID: 2818685492728794989}
+  - component: {fileID: 3833328305056371703}
   m_Layer: 5
   m_Name: Name
   m_TagString: Untagged
@@ -68,16 +69,17 @@ MonoBehaviour:
       m_Calls: []
   m_text: Checkbox
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: ef3e0ac67c9c98e43b1ab1b7cab4c9eb, type: 2}
-  m_fontSharedMaterials: []
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}
+  m_fontSharedMaterials:
+  - {fileID: 2100000, guid: ef3e0ac67c9c98e43b1ab1b7cab4c9eb, type: 2}
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
-  m_enableVertexGradient: 1
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+  m_enableVertexGradient: 0
   m_colorMode: 2
   m_fontColorGradient:
     topLeft: {r: 1, g: 0.6431373, b: 0, a: 1}
@@ -103,7 +105,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 2
   m_wordSpacing: 0
   m_lineSpacing: -25
   m_lineSpacingMax: 0
@@ -149,6 +151,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_autoTranslate: 0
+--- !u!114 &3833328305056371703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3157229933018028451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: PlayerSetting/EntryText
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &3950658098091294564
 GameObject:
   m_ObjectHideFlags: 0
@@ -241,7 +266,8 @@ MonoBehaviour:
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}
-  m_type: 1
+  m_orientation: 1
+  m_swapped: 0
 --- !u!1 &7429671929018545851
 GameObject:
   m_ObjectHideFlags: 0
@@ -483,7 +509,8 @@ MonoBehaviour:
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
   m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
-  m_type: 1
+  m_orientation: 1
+  m_swapped: 0
 --- !u!1001 &2232454012980905184
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -602,6 +629,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: Background
       objectReference: {fileID: 0}
+    - target: {fileID: 8799297412413290221, guid: 22cd3de1e0c6eee408ea4d260812d2b9,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a13d7a258751b14499b8b99390ed5ed1,
+        type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

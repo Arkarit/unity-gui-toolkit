@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 3152982904580889787}
   - component: {fileID: 9137979032538683553}
   - component: {fileID: 349584424356191388}
+  - component: {fileID: 7060468467798453159}
   m_Layer: 5
   m_Name: StandardHeadline
   m_TagString: Untagged
@@ -179,6 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Text/Headline
   m_fixedSkinName: 
@@ -201,6 +203,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Text/Headline/Large
   m_fixedSkinName: 
@@ -211,3 +214,17 @@ MonoBehaviour:
   OnAfterApplyStyle:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7060468467798453159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1697113851281272727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 674c9e59151164345b581302232e337c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_enabledInHierarchy: 1
+  m_autoTranslate: 0
