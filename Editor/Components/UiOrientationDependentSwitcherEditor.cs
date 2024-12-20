@@ -24,6 +24,7 @@ namespace GuiToolkit.Editor
 
 		public override void OnInspectorGUI()
 		{
+			EditorGUILayout.HelpBox("\n\n\nDeprecated. For newly created objects, please use orientation dependent styles for automatic orientation switching.\n\n\n", MessageType.Warning);
 			var thisUiResolutionDependentSwitcher = (UiOrientationDependentSwitcher) target;
 			EnsureTemplatesExist(thisUiResolutionDependentSwitcher);
 
