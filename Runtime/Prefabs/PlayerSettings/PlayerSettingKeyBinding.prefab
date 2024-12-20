@@ -167,6 +167,10 @@ GameObject:
   - component: {fileID: 7780736904876225916}
   - component: {fileID: 2011171175324425154}
   - component: {fileID: 8883601006422504894}
+  - component: {fileID: 4196067347157078065}
+  - component: {fileID: 4275010889205746557}
+  - component: {fileID: 1673936069937930610}
+  - component: {fileID: 4446350782125058642}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -214,7 +218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 4490c8e9758c5ca43bd3a524c0e8360a, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.5529412}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -222,7 +226,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 55485470caed2b64d80fddbd44f03e74, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 489c5ac57c2a3f649a0ffa61289ce5a1, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -317,6 +321,90 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 0
+--- !u!114 &4196067347157078065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4859749554201328117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d99f0114d2119154fb8596fcb8dd571f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: PlayerSetting/KeyBackground
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &4275010889205746557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4859749554201328117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: PlayerSetting/KeyBackground
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1673936069937930610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4859749554201328117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
+--- !u!114 &4446350782125058642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4859749554201328117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6502b1a98944b7c4a8f378ec03cff158, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: PlayerSetting/KeyBackground
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &5892295275607359454
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,6 +417,7 @@ GameObject:
   - component: {fileID: 6581382865850002513}
   - component: {fileID: 4153248343045579380}
   - component: {fileID: 6807244625806320091}
+  - component: {fileID: 712786218740298992}
   m_Layer: 5
   m_Name: KeyCode
   m_TagString: Untagged
@@ -410,8 +499,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28
-  m_fontSizeBase: 28
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -422,7 +511,7 @@ MonoBehaviour:
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: -25
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -472,6 +561,29 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &712786218740298992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5892295275607359454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: PlayerSetting/KeyText
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &6805635053881466674
 GameObject:
   m_ObjectHideFlags: 0
@@ -484,6 +596,7 @@ GameObject:
   - component: {fileID: 6879257924390249410}
   - component: {fileID: 4854838333255709507}
   - component: {fileID: 5139458639859370843}
+  - component: {fileID: 8202786363071359637}
   m_Layer: 5
   m_Name: KeyName
   m_TagString: Untagged
@@ -621,6 +734,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_autoTranslate: 0
+--- !u!114 &8202786363071359637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6805635053881466674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
+  m_optionalStyleConfig: {fileID: 0}
+  m_name: PlayerSetting/EntryText
+  m_fixedSkinName: 
+  m_tweenable: 1
+  OnBeforeApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAfterApplyStyle:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &43355558726954923
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -739,6 +875,42 @@ PrefabInstance:
       propertyPath: m_Name
       value: Background
       objectReference: {fileID: 0}
+    - target: {fileID: 8688082354769386276, guid: 22cd3de1e0c6eee408ea4d260812d2b9,
+        type: 3}
+      propertyPath: m_colorLeftOrTop.b
+      value: 0.41960788
+      objectReference: {fileID: 0}
+    - target: {fileID: 8688082354769386276, guid: 22cd3de1e0c6eee408ea4d260812d2b9,
+        type: 3}
+      propertyPath: m_colorLeftOrTop.g
+      value: 0.30588236
+      objectReference: {fileID: 0}
+    - target: {fileID: 8688082354769386276, guid: 22cd3de1e0c6eee408ea4d260812d2b9,
+        type: 3}
+      propertyPath: m_colorLeftOrTop.r
+      value: 0.007843138
+      objectReference: {fileID: 0}
+    - target: {fileID: 8688082354769386276, guid: 22cd3de1e0c6eee408ea4d260812d2b9,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.b
+      value: 0.5283019
+      objectReference: {fileID: 0}
+    - target: {fileID: 8688082354769386276, guid: 22cd3de1e0c6eee408ea4d260812d2b9,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.g
+      value: 0.38011953
+      objectReference: {fileID: 0}
+    - target: {fileID: 8688082354769386276, guid: 22cd3de1e0c6eee408ea4d260812d2b9,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8799297412413290221, guid: 22cd3de1e0c6eee408ea4d260812d2b9,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: cbabdbe91b89aef42a5c7b5e3b124938,
+        type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
