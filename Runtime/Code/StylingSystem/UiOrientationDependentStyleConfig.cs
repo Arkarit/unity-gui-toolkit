@@ -7,16 +7,16 @@ using UnityEditor;
 
 namespace GuiToolkit.Style
 {
-	[CreateAssetMenu(fileName = nameof(UiResolutionDependentStyleConfig), menuName = StringConstants.CREATE_RESOLUTION_DEPENDENT_STYLE_CONFIG)]
-	public class UiResolutionDependentStyleConfig : UiStyleConfig
+	[CreateAssetMenu(fileName = nameof(UiOrientationDependentStyleConfig), menuName = StringConstants.CREATE_ORIENTATION_DEPENDENT_STYLE_CONFIG)]
+	public class UiOrientationDependentStyleConfig : UiStyleConfig
 	{
 		public const string Landscape = "Landscape";
 		public const string Portrait = "Portrait";
 
-		protected static UiResolutionDependentStyleConfig s_instance;
+		protected static UiOrientationDependentStyleConfig s_instance;
 		
 		protected const string EditorDir = "Assets/Resources/";
-		protected static string ClassName => typeof(UiResolutionDependentStyleConfig).Name;
+		protected static string ClassName => typeof(UiOrientationDependentStyleConfig).Name;
 		protected static string EditorPath => EditorDir + ClassName + ".asset";
 		
 		public static void ResetInstance() => s_instance = null;
@@ -52,24 +52,24 @@ namespace GuiToolkit.Style
 //				LayoutRebuilder.ForceRebuildLayoutImmediate(UiMain.Instance.transform as RectTransform);
 		}
 
-		public static UiResolutionDependentStyleConfig Instance
+		public static UiOrientationDependentStyleConfig Instance
 		{
 			get
 			{
 				if (s_instance == null)
 				{
-					var styleConfig = UiToolkitConfiguration.Instance.UiResolutionDependentStyleConfig;
+					var styleConfig = UiToolkitConfiguration.Instance.UiOrientationDependentStyleConfig;
 					if (styleConfig)
 						s_instance = styleConfig;
 					else
-						s_instance = Resources.Load<UiResolutionDependentStyleConfig>(ClassName);
+						s_instance = Resources.Load<UiOrientationDependentStyleConfig>(ClassName);
 					
 					if (s_instance == null)
 					{
 #if !UNITY_EDITOR
 						Debug.LogError($"Scriptable object could not be loaded from path '{ClassName}'");
 #endif
-						s_instance = CreateInstance<UiResolutionDependentStyleConfig>();
+						s_instance = CreateInstance<UiOrientationDependentStyleConfig>();
 					}
 				}
 
@@ -81,7 +81,7 @@ namespace GuiToolkit.Style
 
 		public virtual void OnEditorInitialize() {}
 
-		public static void EditorSave(UiResolutionDependentStyleConfig _instance)
+		public static void EditorSave(UiOrientationDependentStyleConfig _instance)
 		{
 			if (!AssetDatabase.Contains(_instance))
 			{
@@ -92,14 +92,14 @@ namespace GuiToolkit.Style
 			AssetDatabase.SaveAssetIfDirty(_instance);
 		}
 
-		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiResolutionDependentStyleConfig>(EditorPath) != null;
+		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiOrientationDependentStyleConfig>(EditorPath) != null;
 
 		public static void Initialize()
 		{
 			if (Initialized)
 				return;
 
-			UiResolutionDependentStyleConfig instance = CreateInstance<UiResolutionDependentStyleConfig>();
+			UiOrientationDependentStyleConfig instance = CreateInstance<UiOrientationDependentStyleConfig>();
 			s_instance = instance;
 			instance.OnEditorInitialize();
 

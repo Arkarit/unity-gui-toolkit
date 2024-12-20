@@ -73,7 +73,7 @@ namespace GuiToolkit.Editor
 			}
 
 			HandleStyleConfig<UiMainStyleConfig>("m_uiMainStyleConfig");
-			HandleStyleConfig<UiResolutionDependentStyleConfig>("m_uiResolutionDependentStyleConfig");
+			HandleStyleConfig<UiOrientationDependentStyleConfig>("m_uiOrientationDependentStyleConfig");
 
 			if (m_firstTimeInit)
 			{

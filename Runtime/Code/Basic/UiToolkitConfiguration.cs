@@ -81,7 +81,7 @@ namespace GuiToolkit
 		public UiMainStyleConfig m_uiMainStyleConfig;
 
 		[Tooltip(HELP_STYLE_CONFIG_RESOLUTION_DEPENDENT)]
-		public UiResolutionDependentStyleConfig m_uiResolutionDependentStyleConfig;
+		public UiOrientationDependentStyleConfig m_uiOrientationDependentStyleConfig;
 
 		[Tooltip(HELP_DEBUG_LOCA)]
 		public bool m_debugLoca = false;
@@ -96,7 +96,7 @@ namespace GuiToolkit
 		}
 
 		public UiMainStyleConfig UiMainStyleConfig => m_uiMainStyleConfig;
-		public UiResolutionDependentStyleConfig UiResolutionDependentStyleConfig => m_uiResolutionDependentStyleConfig;
+		public UiOrientationDependentStyleConfig UiOrientationDependentStyleConfig => m_uiOrientationDependentStyleConfig;
 
 		public string GetScenePath(string _sceneName)
 		{

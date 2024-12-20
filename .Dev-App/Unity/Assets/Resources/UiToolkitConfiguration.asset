@@ -21,7 +21,7 @@ MonoBehaviour:
   m_additionalScenesPath: Scenes/
   m_uiMainStyleConfig: {fileID: 11400000, guid: 7cb7aeb3672e49145b1d5baec8999a45,
     type: 2}
-  m_uiResolutionDependentStyleConfig: {fileID: 11400000, guid: b7be8004b5d01894a843b672cf9da74b,
+  m_uiOrientationDependentStyleConfig: {fileID: 11400000, guid: b7be8004b5d01894a843b672cf9da74b,
     type: 2}
   m_debugLoca: 1
   m_potPath: Assets/Resources/loca.pot
