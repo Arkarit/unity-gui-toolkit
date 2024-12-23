@@ -62,8 +62,8 @@ namespace GuiToolkit
 				return;
 			}
 #endif
-
-			StartCoroutine(ReInitCoroutine());
+			if (isActiveAndEnabled)
+				StartCoroutine(ReInitCoroutine());
 		}
 
 		private IEnumerator ReInitCoroutine()
@@ -75,6 +75,9 @@ namespace GuiToolkit
 
 		private void ReInit()
 		{
+			if (!this)
+				return;
+
 			CollectElements();
 			PrepareElements();
 			UiStyleUtility.ReApplyAppliers(m_elements);
@@ -85,7 +88,8 @@ namespace GuiToolkit
 				return;
 			}
 #endif
-			StartCoroutine(FinishElementsCoroutine());
+			if (isActiveAndEnabled)
+				StartCoroutine(FinishElementsCoroutine());
 		}
 
 		private void CollectElements()
