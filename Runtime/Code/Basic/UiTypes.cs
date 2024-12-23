@@ -12,6 +12,7 @@ namespace GuiToolkit
 	[Flags]
 	public enum EAxis2DFlags
 	{
+		None = 0,
 		Horizontal	= 01,
 		Vertical	= 02,
 	}

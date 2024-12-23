@@ -293,6 +293,9 @@ namespace GuiToolkit
 		/// </summary>
 		public virtual void SetDirty()
 		{
+			if (!this)
+				return;
+
 			// TextMeshPro requires a special way.
 			if (m_textMeshPro)
 			{

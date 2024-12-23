@@ -36,7 +36,11 @@ namespace GuiToolkit
 		public EAxis2DFlags Mirror
 		{
 			get => m_mirrorAxisFlags;
-			set => m_mirrorAxisFlags = value;
+			set 
+			{
+				m_mirrorAxisFlags = value;
+				SetDirty();
+			}
 		}
 		
 		public virtual Vector2 TopLeft

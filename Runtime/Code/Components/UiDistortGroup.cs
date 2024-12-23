@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using GuiToolkit.Style;
 using UnityEngine;
@@ -12,17 +13,24 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public class UiDistortGroup : MonoBehaviour
 	{
-		[SerializeField]
 		[FormerlySerializedAs("m_direction")]
-		protected EAxis2DFlags m_axisFlags;
+		[SerializeField] protected EAxis2DFlags m_axisFlags;
+		[SerializeField] private Transform m_container;
+		[SerializeField] protected bool m_inverse;
 
-		[SerializeField]
-		protected bool m_inverse;
+		protected Transform Container
+		{
+			get
+			{
+				if (m_container == null)
+					m_container = transform;
 
-		private readonly List<UiDistortBase> m_elements = new();
-		private readonly List<UiDistortBase> m_secondaryElements = new();
-		private readonly Dictionary<GameObject,int> m_done = new();
-		private bool m_hasSecondary;
+				return m_container;
+			}
+		}
+
+
+		private UiDistortBase[] m_elements = Array.Empty<UiDistortBase>();
 
 		public void Refresh()
 		{
@@ -37,83 +45,105 @@ namespace GuiToolkit
 		private void OnEnable()
 		{
 			ReInit();
+			UiEventDefinitions.EvSkinChanged.AddListener(OnSkinChanged);
 		}
+
+		private void OnDisable()
+		{
+			UiEventDefinitions.EvSkinChanged.RemoveListener(OnSkinChanged);
+		}
+
+		private void OnSkinChanged(float _)
+		{
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+			{
+				EditorApplication.delayCall += ReInit;
+				return;
+			}
+#endif
+
+			StartCoroutine(ReInitCoroutine());
+		}
+
+		private IEnumerator ReInitCoroutine()
+		{
+			yield return 0;
+			ReInit();
+		}
+
 
 		private void ReInit()
 		{
 			CollectElements();
-			PositionElements();
+			PrepareElements();
 			UiStyleUtility.ReApplyAppliers(m_elements);
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+			{
+				EditorApplication.delayCall += FinishElements;
+				return;
+			}
+#endif
+			StartCoroutine(FinishElementsCoroutine());
 		}
 
 		private void CollectElements()
 		{
-			m_elements.Clear();
-			m_secondaryElements.Clear();
-			m_done.Clear();
-
-			UiDistortBase[] elements = GetComponentsInChildren<UiDistortBase>(true);
-			foreach (var element in elements)
-			{
-				GameObject go = element.gameObject;
-				if (!go.activeInHierarchy)
-					continue;
-
-				if (!m_done.ContainsKey(go))
-					m_done.Add(go, 0);
-
-				int prevElementsOnGo = m_done[element.gameObject];
-				if (prevElementsOnGo <= 1)
-				{
-					if (prevElementsOnGo == 0)
-						m_elements.Add(element);
-					else
-						m_secondaryElements.Add(element);
-				}
-
-				m_done[go]++;
-			}
-
-			m_hasSecondary = m_elements.Count != 0 && m_elements.Count == m_secondaryElements.Count;
+			m_elements = Container.GetComponentsInChildren<UiDistortBase>();
 		}
 
-		private void PositionElements()
+		private void PrepareElements()
 		{
-			int numElements = m_elements.Count;
+			var length = m_elements.Length;
+			for (int i = 0; i < length; i++)
+			{
+				var element = m_elements[i];
+				element.enabled = true;
+				element.Mirror = EAxis2DFlags.None;
+			}
+		}
 
-			if (numElements == 0)
+		private IEnumerator FinishElementsCoroutine()
+		{
+			yield return 0;
+			FinishElements();
+		}
+
+		private void FinishElements()
+		{
+			if (!this)
 				return;
 
-			for (int i=0; i<numElements; i++)
+			CollectElements();
+			var length = m_elements.Length;
+			for (int i = 0; i < length; i++)
 			{
-				m_elements[i].SetMirror( 0 );
-				m_elements[i].enabled = true;
-				if (m_hasSecondary)
-					m_secondaryElements[i].enabled = false;
+				var element = m_elements[i];
+				bool isFirst = i == 0;
+				bool isLast = i == length - 1;
 
-				if (i > 0 && i < numElements-1)
+				bool isMiddle = !isFirst && !isLast;
+				if (isMiddle)
 				{
-					m_elements[i].enabled = false;
-					if (m_hasSecondary)
-						m_secondaryElements[i].enabled = true;
+					element.SetDirty();
+					element.enabled = false;
+					continue;
 				}
-				else if (m_inverse)
+
+				if (isFirst)
 				{
-					if (i == 0)
-						m_elements[i].SetMirror(m_axisFlags);
+					element.Mirror = m_inverse ? m_axisFlags : EAxis2DFlags.None;
+					continue;
 				}
-				else
-				{
-					if (i == numElements-1 && numElements > 1)
-						m_elements[i].SetMirror(m_axisFlags);
-				}
+
+				element.Mirror =  m_inverse ? EAxis2DFlags.None : m_axisFlags;
 			}
 		}
 
 		private void OnValidate()
 		{
-			CollectElements();
-			PositionElements();
+			ReInit();
 		}
 	}
 }
