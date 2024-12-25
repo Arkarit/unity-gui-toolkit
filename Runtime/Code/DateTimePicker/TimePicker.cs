@@ -1,42 +1,37 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class TimePicker : MonoBehaviour
+namespace GuiToolkit
 {
-    public HourOptionData HourPicker;
-    public MinuteSecondOptionData MinutePicker;
-    public MinuteSecondOptionData SecondPicker;
-    // Start is called before the first frame update
+	public class TimePicker : MonoBehaviour
+	{
+		[FormerlySerializedAs("HourPicker")] [SerializeField] private HourOptionData m_hourPicker;
+		[FormerlySerializedAs("MinutePicker")] [SerializeField] private MinuteSecondOptionData m_minutePicker;
+		[FormerlySerializedAs("SecondPicker")] [SerializeField] private MinuteSecondOptionData m_secondPicker;
 
-    public DateTime SelectedTime(){
-        return new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
-                            HourPicker.SelectedValue, MinutePicker.SelectedValue, SecondPicker.SelectedValue);
-    }
+		public DateTime SelectedTime()
+		{
+			return new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
+				m_hourPicker.SelectedValue, m_minutePicker.SelectedValue, m_secondPicker.SelectedValue);
+		}
 
-    public void SetSelectedTime(int hour, int minute, int second){
-       HourPicker.SelectedValue = hour; 
-       MinutePicker.SelectedValue = minute;
-       SecondPicker.SelectedValue = second;
-    }
-    public void SetSelectedTime(DateTime value){
-        SetSelectedTime( value.Hour, value.Minute, value.Second);
-    }
+		public void SetSelectedTime(int _hour, int _minute, int _second)
+		{
+			m_hourPicker.SelectedValue = _hour;
+			m_minutePicker.SelectedValue = _minute;
+			m_secondPicker.SelectedValue = _second;
+		}
+
+		public void SetSelectedTime(DateTime _value)
+		{
+			SetSelectedTime(_value.Hour, _value.Minute, _value.Second);
+		}
 
 
-    public void Now_onClick(){
-       SetSelectedTime(DateTime.Now);
-    }
-
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+		public void Now_onClick()
+		{
+			SetSelectedTime(DateTime.Now);
+		}
+	}
 }

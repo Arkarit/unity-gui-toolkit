@@ -1,38 +1,32 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class DateTimePicker : MonoBehaviour
+namespace GuiToolkit
 {
-    public DatePicker datePicker;
-    public TimePicker timePicker;
+	public class DateTimePicker : MonoBehaviour
+	{
+		[FormerlySerializedAs("datePicker")] [SerializeField] private DatePicker m_datePicker;
+		[FormerlySerializedAs("timePicker")] [SerializeField] private TimePicker m_timePicker;
 
 
-    public DateTime? SelectedDateTime(){
-        var d = datePicker.SelectedDate;
-        var t = timePicker.SelectedTime();
-        if (d != null){
-            return new DateTime(d.Value.Year, d.Value.Month, d.Value.Day,
-                            t.Hour, t.Minute, t.Second);
-        }
-        return null;
-    }
+		public DateTime? SelectedDateTime()
+		{
+			var d = m_datePicker.SelectedDate;
+			var t = m_timePicker.SelectedTime();
+			if (d != null)
+			{
+				return new DateTime(d.Value.Year, d.Value.Month, d.Value.Day,
+					t.Hour, t.Minute, t.Second);
+			}
 
-    public void SetSelectedDateTime(DateTime value){
-        datePicker.SetSelectedDate(value);
-        timePicker.SetSelectedTime(value);
-    }
+			return null;
+		}
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+		public void SetSelectedDateTime(DateTime _value)
+		{
+			m_datePicker.SetSelectedDate(_value);
+			m_timePicker.SetSelectedTime(_value);
+		}
+	}
 }
