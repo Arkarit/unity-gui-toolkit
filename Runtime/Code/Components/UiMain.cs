@@ -247,7 +247,7 @@ namespace GuiToolkit
 		public void ShowSettingsDialog()
 		{
 			m_playerSettingsDialog = CreateView(m_settingsDialogPrefab);
-			m_playerSettingsDialog.OnDestroyed.AddListener((UiPanel _) => m_playerSettingsDialog = null);
+			m_playerSettingsDialog.EvOnDestroyed.AddListener((UiPanel _) => m_playerSettingsDialog = null);
 			m_playerSettingsDialog.Show();
 		}
 

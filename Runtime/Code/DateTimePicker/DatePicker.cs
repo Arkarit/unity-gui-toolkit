@@ -6,7 +6,7 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
-	public class DatePicker : MonoBehaviour
+	public class DatePicker : UiThing
 	{
 
 		[SerializeField] private string m_dateFormat = "dd-MM-yyyy";
