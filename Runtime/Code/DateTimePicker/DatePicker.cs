@@ -9,16 +9,16 @@ namespace GuiToolkit
 	public class DatePicker : MonoBehaviour
 	{
 
-		[FormerlySerializedAs("DateFormat")] [SerializeField] private string m_dateFormat = "dd-MM-yyyy";
-		[FormerlySerializedAs("MonthFormat")] [SerializeField] private string m_monthFormat = "MMMMM";
-		[FormerlySerializedAs("DayToggleTemplate")] [SerializeField] private DayToggle m_dayToggleTemplate;
-		[FormerlySerializedAs("DayNameLabelTemplate")] [SerializeField] private Text m_dayNameLabelTemplate;
-		[FormerlySerializedAs("DayContainer")] [SerializeField] private GridLayoutGroup m_dayContainer;
-		[FormerlySerializedAs("SelectedDateText")] [SerializeField] private Text m_selectedDateText;
-		[FormerlySerializedAs("CurrentMonth")] [SerializeField] private Text m_currentMonth;
-		[FormerlySerializedAs("CurrentYear")] [SerializeField] private Text m_currentYear;
-		[FormerlySerializedAs("ForwardPickOnly")] [SerializeField] private bool m_forwardPickOnly = false;
-		[FormerlySerializedAs("startDayOfWeek")] [SerializeField] private DayOfWeek m_startDayOfWeek;
+		[SerializeField] private string m_dateFormat = "dd-MM-yyyy";
+		[SerializeField] private string m_monthFormat = "MMMMM";
+		[SerializeField] private DayToggle m_dayToggleTemplate;
+		[SerializeField] private Text m_dayNameLabelTemplate;
+		[SerializeField] private GridLayoutGroup m_dayContainer;
+		[SerializeField] private Text m_selectedDateText;
+		[SerializeField] private Text m_currentMonth;
+		[SerializeField] private Text m_currentYear;
+		[SerializeField] private bool m_forwardPickOnly = false;
+		[SerializeField] private DayOfWeek m_startDayOfWeek;
 
 		private DayToggle[] m_dayToggles = new DayToggle[7 * 6];
 		private bool m_dayTogglesGenerated = false;
@@ -83,11 +83,10 @@ namespace GuiToolkit
 			int dayOfWeek = (int)m_startDayOfWeek;
 			for (int d = 1; d <= 7; d++)
 			{
-				string day_name = Truncate(Enum.GetName(typeof(DayOfWeek), dayOfWeek), 3);
-				var DayNameLabel = Instantiate(m_dayNameLabelTemplate);
-				DayNameLabel.name = String.Format("Day Name Label ({0})", day_name);
-				DayNameLabel.transform.SetParent(m_dayContainer.transform);
-				DayNameLabel.GetComponentInChildren<Text>().text = day_name;
+				string dayName = Truncate(Enum.GetName(typeof(DayOfWeek), dayOfWeek), 3);
+				var dayNameLabel = Instantiate(m_dayNameLabelTemplate, m_dayContainer.transform, false);
+				dayNameLabel.name = String.Format("Day Name Label ({0})", dayName);
+				dayNameLabel.GetComponentInChildren<Text>().text = dayName;
 				dayOfWeek++;
 				if (dayOfWeek >= 7)
 				{
@@ -100,11 +99,10 @@ namespace GuiToolkit
 		{
 			for (int i = 0; i < m_dayToggles.Length; i++)
 			{
-				var DayToggle = Instantiate(m_dayToggleTemplate);
-				DayToggle.transform.SetParent(m_dayContainer.transform);
-				DayToggle.GetComponentInChildren<Text>().text = string.Empty;
-				DayToggle.onDateSelected.AddListener(OnDaySelected);
-				m_dayToggles[i] = DayToggle;
+				var dayToggle = Instantiate(m_dayToggleTemplate, m_dayContainer.transform, false);
+				dayToggle.GetComponentInChildren<Text>().text = string.Empty;
+				dayToggle.onDateSelected.AddListener(OnDaySelected);
+				m_dayToggles[i] = dayToggle;
 			}
 
 			m_dayTogglesGenerated = true;

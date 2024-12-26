@@ -4,10 +4,10 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
-	public class DateTimePicker : MonoBehaviour
+	public class DateTimePicker : UiView
 	{
-		[FormerlySerializedAs("datePicker")] [SerializeField] private DatePicker m_datePicker;
-		[FormerlySerializedAs("timePicker")] [SerializeField] private TimePicker m_timePicker;
+		[SerializeField] private DatePicker m_datePicker;
+		[SerializeField] private TimePicker m_timePicker;
 
 
 		public DateTime? SelectedDateTime()

@@ -3,6 +3,7 @@ using System;
 using GuiToolkit.Style;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class TestDemoScene1 : UiView
@@ -12,6 +13,7 @@ public class TestDemoScene1 : UiView
 	public Button m_showRequesterButton;
 	public Button m_showSettings;
 	public Button m_exampleDialogStylesButton;
+	public Button m_showDatePickerButton;
 
 	public TMP_InputField m_splashMessageInput;
 	public TMP_InputField m_requesterTitleInput;
@@ -20,6 +22,8 @@ public class TestDemoScene1 : UiView
 	public TMP_Text m_singularPluralTest;
 	
 	public ExampleDialogStyles m_exampleDialogStylesPrefab;
+
+	public DateTimePicker m_dateTimePickerPrefab;
 
 	protected override bool NeedsLanguageChangeCallback => true;
 
@@ -32,6 +36,13 @@ public class TestDemoScene1 : UiView
 		m_showRequesterButton.onClick.AddListener(OnShowRequester);
 		m_showSettings.onClick.AddListener(OnShowSettings);
 		m_exampleDialogStylesButton.onClick.AddListener(OnExampleDialogStylesButton);
+		m_showDatePickerButton.onClick.AddListener(OnShowDatePickerButton);
+	}
+
+	private void OnShowDatePickerButton()
+	{
+		var dateTimePicker = UiMain.Instance.CreateView(m_dateTimePickerPrefab);
+		dateTimePicker.Show();
 	}
 
 	private void OnExampleDialogStylesButton()
