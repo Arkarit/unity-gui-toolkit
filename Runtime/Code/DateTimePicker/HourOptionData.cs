@@ -10,7 +10,7 @@ namespace GuiToolkit
 		[SerializeField] private bool m_is24hour;
 		private Dropdown m_dropDownComponent = null;
 
-
+		
 		public bool Is24Hour
 		{
 			get => m_is24hour;

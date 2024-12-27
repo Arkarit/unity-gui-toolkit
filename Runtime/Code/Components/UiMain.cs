@@ -241,8 +241,18 @@ namespace GuiToolkit
 		[SerializeField]
 		private UiKeyPressRequester m_keyPressRequester;
 
+		[FormerlySerializedAs("m_gridPicker")] [SerializeField]
+		private UiGridPicker m_gridPickerPrefab;
+
 		private UiPlayerSettingsDialog m_playerSettingsDialog;
 		public UiPlayerSettingsDialog PlayerSettingsDialog => m_playerSettingsDialog;
+
+		public void ShowGridPicker(UiGridPicker.Options _options)
+		{
+			UiGridPicker gridPicker = CreateView(m_gridPickerPrefab);
+			gridPicker.GridPicker(_options);
+			gridPicker.Show();
+		}
 
 		public void ShowSettingsDialog()
 		{
