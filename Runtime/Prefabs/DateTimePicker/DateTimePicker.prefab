@@ -1231,7 +1231,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5944160460905710266
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4782,8 +4782,9 @@ GameObject:
   - component: {fileID: 5944160462235996404}
   - component: {fileID: 5944160462235996400}
   - component: {fileID: 5944160462235996401}
-  - component: {fileID: 5944160462235996406}
   - component: {fileID: 5944160462235996407}
+  - component: {fileID: 7413945112731672482}
+  - component: {fileID: 5310318656086663143}
   m_Layer: 5
   m_Name: Hour Dropdown
   m_TagString: Untagged
@@ -4851,7 +4852,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &5944160462235996406
+--- !u!114 &5944160462235996407
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4860,7 +4861,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 5944160462235996405}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d0b652f32a2cc243917e4028fa0f046, type: 3}
+  m_Script: {fileID: 11500000, guid: f40cb5003fccc4ad3848da06aa0d4ca4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_enabledInHierarchy: 1
+  m_is24hour: 0
+  m_button: {fileID: 5310318656086663143}
+--- !u!114 &7413945112731672482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5944160462235996405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -4892,21 +4908,10 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 5944160462235996401}
-  m_Template: {fileID: 5944160461356336586}
-  m_CaptionText: {fileID: 5944160462242626381}
-  m_CaptionImage: {fileID: 0}
-  m_ItemText: {fileID: 5944160462038764811}
-  m_ItemImage: {fileID: 0}
-  m_Value: 0
-  m_Options:
-    m_Options:
-    - m_Text: 00
-      m_Image: {fileID: 0}
-  m_OnValueChanged:
+  m_OnClick:
     m_PersistentCalls:
       m_Calls: []
-  m_AlphaFadeSpeed: 0.15
---- !u!114 &5944160462235996407
+--- !u!114 &5310318656086663143
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4915,10 +4920,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 5944160462235996405}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f40cb5003fccc4ad3848da06aa0d4ca4, type: 3}
+  m_Script: {fileID: 11500000, guid: 9df890b72f8e7864d8f1c8540cec85a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_is24hour: 0
+  m_enabledInHierarchy: 1
+  m_simpleAnimation: {fileID: 0}
+  m_audioSource: {fileID: 0}
+  m_uiImage: {fileID: 0}
+  m_simpleWiggleAnimation: {fileID: 0}
 --- !u!1 &5944160462242626371
 GameObject:
   m_ObjectHideFlags: 0

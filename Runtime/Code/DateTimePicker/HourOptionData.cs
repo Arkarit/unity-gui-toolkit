@@ -4,81 +4,50 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	[RequireComponent(typeof(Dropdown))]
-	public class HourOptionData : MonoBehaviour
+	public class HourOptionData : UiThing
 	{
 		[SerializeField] private bool m_is24hour;
-		private Dropdown m_dropDownComponent = null;
+		[SerializeField] private UiButton m_button;
 
-		
-		public bool Is24Hour
+		public int SelectedValue { get; internal set; }
+
+		protected override void OnEnable()
 		{
-			get => m_is24hour;
-			private set => m_is24hour = value;
+			base.OnEnable();
+			m_button.OnClick.AddListener(OnClick);
 		}
 
-		private Dropdown DropDownComponent
+		protected override void OnDisable()
 		{
-			get
+			base.OnDisable();
+			m_button.OnClick.RemoveListener(OnClick);
+		}
+
+		private void OnClick()
+		{
+			var options = new UiGridPicker.Options()
 			{
-				if (m_dropDownComponent == null)
-				{
-					m_dropDownComponent = this.GetComponent<Dropdown>();
-				}
+				NumColumns = 12,
+				NumRows = 2,
+				AllowOutsideTap = true,
+				ShowCloseButton = false,
+				Caption = _("Set Hour"),
+				ColumnWidth = 100,
+				RowHeight = 50,
+				MaxElements = 24,
+				OnCellClicked = OnCellClicked,
+				OnPopulateCell = OnPopulateCell,
+			};
 
-				return m_dropDownComponent;
-			}
+			UiMain.Instance.ShowGridPicker(options);
 		}
 
-		public int SelectedValue
+		private void OnPopulateCell(UiGridPicker arg0, int arg1, int arg2, RectTransform arg3)
 		{
-			get => DropDownComponent.value;
-			set => DropDownComponent.value = value;
 		}
 
-		public void PopulateOptionData()
+		private void OnCellClicked(UiGridPicker _gridPicker, int x, int y, RectTransform _cellParent)
 		{
-			DropDownComponent.ClearOptions();
-			var lst24 = new List<string>();
-			int h = 0;
-			string tm = "am";
-			string strHour = string.Empty;
-			for (int i = 0; i < 24; i++)
-			{
-				h = i;
-				if (!Is24Hour && h > 11)
-				{
-					if (h > 12)
-					{
-						h = h - 12;
-					}
-
-					tm = "pm";
-				}
-				else if (!Is24Hour && h == 0)
-				{
-					h = 12;
-				}
-
-				if (!Is24Hour)
-				{
-					strHour = string.Format("{0} {1}", h.ToString(), tm);
-				}
-				else
-				{
-					strHour = h.ToString("D2");
-				}
-
-				lst24.Add(strHour);
-			}
-
-			DropDownComponent.AddOptions(lst24);
-		}
-
-		// Start is called before the first frame update
-		void Start()
-		{
-			PopulateOptionData();
 		}
 	}
 }
