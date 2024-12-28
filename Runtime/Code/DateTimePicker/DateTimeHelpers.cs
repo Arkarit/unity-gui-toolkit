@@ -1,4 +1,6 @@
-﻿namespace GuiToolkit
+﻿using UnityEngine;
+
+namespace GuiToolkit
 {
 	using System;
 
@@ -23,16 +25,33 @@
 			int minute = _type == EDateTimeType.Minute ? _val : 0;
 			int second = _type == EDateTimeType.Second ? _val : 0;
 
-			DateTime time = new DateTime(year, month, day, hour, minute, second);
+			DateTime time;
+			try
+			{
+				time = new DateTime(year, month, day, hour, minute, second);
+			}
+			catch (Exception e)
+			{
+				Debug.LogError($"Exception in time conversion:{e.Message}\nValues: {year}:{month}:{day}:{hour}:{minute}:{second}");
+				return string.Empty;
+			}
+
+			Debug.Log($"---::: {time.ToShortTimeString()}\n{time.ToLongTimeString()}");
 
 			switch (_type)
 			{
 				case EDateTimeType.Hour:
 					return time.ToShortTimeString().Replace(":00", "");
 				case EDateTimeType.Minute:
-					break;
+					{
+						var spl = time.ToShortTimeString().Split(new char[] { ':', ' ' });
+						return spl[1];
+					}
 				case EDateTimeType.Second:
-					break;
+					{
+						var spl = time.ToLongTimeString().Split(new char[] { ':', ' ' });
+						return spl[2];
+					}
 				case EDateTimeType.Year:
 					break;
 				case EDateTimeType.Month:

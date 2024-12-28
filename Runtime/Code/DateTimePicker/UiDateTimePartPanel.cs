@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class TimeDatePanel : UiPanel
+	public class UiDateTimePartPanel : UiPanel
 	{
 		[SerializeField] protected DateTimeHelpers.EDateTimeType m_type;
 		[SerializeField] protected TMP_Text m_text;
@@ -71,6 +71,7 @@ Debug.Log($"---::: Cell clicked: {_x}, {_y} : {Value} {m_text.text}");
 		protected virtual void OnPopulateCell(UiGridPicker _gridPicker, int _x, int _y, UiGridPickerCell _cell)
 		{
 			int val = _y * m_numColumns + _x;
+Debug.Log($"---::: OnPopulateCell: {_x}, {_y} : {val} {m_type}");
 			_cell.OptionalCaption = GetContentString(val);
 		}
 

@@ -120,6 +120,9 @@ namespace GuiToolkit
 			}
 
 			m_closeButton.OnClick.RemoveAllListeners();
+			EvOnPopulateCell.RemoveAllListeners();
+			EvOnDestroyCell.RemoveAllListeners();
+			EvOnCellClicked.RemoveAllListeners();
 		}
 	}
 }
