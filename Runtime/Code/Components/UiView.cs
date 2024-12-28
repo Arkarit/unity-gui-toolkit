@@ -52,7 +52,13 @@ namespace GuiToolkit
 		protected Action OnClickCatcher
 		{
 			get => UiModal == null ? null : UiModal.OnClickCatcher;
-			set { if (UiModal == null) return; UiModal.OnClickCatcher = value; }
+			set
+			{
+				if (UiModal == null) 
+					return; 
+				
+				UiModal.OnClickCatcher = value;
+			}
 		}
 
 		public void InitView(RenderMode _renderMode, Camera _camera, float _planeDistance, int _orderInLayer)

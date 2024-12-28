@@ -42,11 +42,11 @@ namespace GuiToolkit
 			UiMain.Instance.ShowGridPicker(options);
 		}
 
-		private void OnPopulateCell(UiGridPicker _gridPicker, int _x, int _y, RectTransform _cellParent)
+		private void OnPopulateCell(UiGridPicker _gridPicker, int _x, int _y, UiGridPickerCell _cell)
 		{
 		}
 
-		private void OnCellClicked(UiGridPicker _gridPicker, int _x, int _y, RectTransform _cellParent)
+		private void OnCellClicked(UiGridPicker _gridPicker, int _x, int _y, UiGridPickerCell _cell)
 		{
 Debug.Log($"---::: Cell clicked: {_x}, {_y}");
 		}
