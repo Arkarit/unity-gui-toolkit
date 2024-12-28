@@ -6,7 +6,7 @@ namespace GuiToolkit
 {
 	public class TimePicker : UiThing
 	{
-		[SerializeField] private HourOptionData m_hourPicker;
+		[SerializeField] private TimeDatePanel m_hourPicker;
 		[SerializeField] private MinuteSecondOptionData m_minutePicker;
 		[SerializeField] private MinuteSecondOptionData m_secondPicker;
 

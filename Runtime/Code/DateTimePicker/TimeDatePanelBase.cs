@@ -1,20 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public class HourOptionData : UiThing
+	public abstract class TimeDatePanelBase : UiPanel
 	{
-		[SerializeField] private bool m_is24hour;
+		[SerializeField] private TMP_Text m_text;
+		[SerializeField] private string m_Caption;
 		[SerializeField] private UiButton m_button;
 		[SerializeField] private UiGridPickerCell m_gridPickerCellPrefab;
 		[SerializeField] private int m_numColumns = 6;
 		[SerializeField] private int m_numRows = 4;
 		[SerializeField] private int m_maxElements = 24;
 
-		public int SelectedValue { get; internal set; }
+		public int SelectedValue { get; set; }
 
 		protected override void OnEnable()
 		{
@@ -36,7 +36,7 @@ namespace GuiToolkit
 				NumRows = m_numRows,
 				AllowOutsideTap = true,
 				ShowCloseButton = false,
-				Caption = _("Set Hour"),
+				Caption = _(m_Caption),
 				ColumnWidth = 100,
 				RowHeight = 50,
 				MaxElements = m_maxElements,
@@ -48,16 +48,19 @@ namespace GuiToolkit
 			UiMain.Instance.ShowGridPicker(options);
 		}
 
-		private void OnPopulateCell(UiGridPicker _gridPicker, int _x, int _y, UiGridPickerCell _cell)
+		protected abstract string GetContentString(int val);
+
+		protected virtual void OnCellClicked(UiGridPicker _gridPicker, int _x, int _y, UiGridPickerCell _cell)
 		{
-			int hour = _y * m_numColumns + _x;
-			DateTime time = new DateTime(2000, 1, 1, hour, 0, 0);
-			_cell.OptionalCaption = time.ToShortTimeString().Replace(":00", "");
+			int val = _y * m_numColumns + _x;
+			m_text.text = GetContentString(val);
+			_gridPicker.Hide();
 		}
 
-		private void OnCellClicked(UiGridPicker _gridPicker, int _x, int _y, UiGridPickerCell _cell)
+		protected virtual void OnPopulateCell(UiGridPicker _gridPicker, int _x, int _y, UiGridPickerCell _cell)
 		{
-Debug.Log($"---::: Cell clicked: {_x}, {_y}");
+			int val = _y * m_numColumns + _x;
+			_cell.OptionalCaption = GetContentString(val);
 		}
 	}
 }
