@@ -34,6 +34,7 @@ namespace GuiToolkit
 		private Options m_options;
 		private readonly List<UiGridPickerCell> m_cells = new();
 
+		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
 		private RectTransform GridTransform => (RectTransform)m_gridLayout.transform;
 

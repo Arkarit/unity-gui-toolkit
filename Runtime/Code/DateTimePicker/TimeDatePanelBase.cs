@@ -6,13 +6,13 @@ namespace GuiToolkit
 {
 	public abstract class TimeDatePanelBase : UiPanel
 	{
-		[SerializeField] private TMP_Text m_text;
-		[SerializeField] private string m_Caption;
-		[SerializeField] private UiButton m_button;
-		[SerializeField] private UiGridPickerCell m_gridPickerCellPrefab;
-		[SerializeField] private int m_numColumns = 6;
-		[SerializeField] private int m_numRows = 4;
-		[SerializeField] private int m_maxElements = 24;
+		[SerializeField] protected TMP_Text m_text;
+		[SerializeField] protected string m_Caption;
+		[SerializeField] protected UiButton m_button;
+		[SerializeField] protected UiGridPickerCell m_gridPickerCellPrefab;
+		[SerializeField] protected int m_numColumns = 6;
+		[SerializeField] protected int m_numRows = 4;
+		[SerializeField] protected int m_maxElements = 24;
 
 		public int SelectedValue { get; set; }
 
