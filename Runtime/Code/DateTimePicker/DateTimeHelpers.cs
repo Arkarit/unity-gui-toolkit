@@ -1,9 +1,50 @@
-﻿namespace RSToolkit.Helpers
+﻿namespace GuiToolkit
 {
 	using System;
 
 	public static class DateTimeHelpers
 	{
+		public enum EDateTimeType
+		{
+			Hour,
+			Minute,
+			Second,
+			Year,
+			Month,
+			Day,
+		}
+
+		public static string GetDateTimePartAsString( int _val, EDateTimeType _type )
+		{
+			int year = _type == EDateTimeType.Year ? _val : 2000;
+			int month = _type == EDateTimeType.Month ? _val : 1;
+			int day = _type == EDateTimeType.Day ? _val : 1;
+			int hour = _type == EDateTimeType.Hour ? _val : 0;
+			int minute = _type == EDateTimeType.Minute ? _val : 0;
+			int second = _type == EDateTimeType.Second ? _val : 0;
+
+			DateTime time = new DateTime(year, month, day, hour, minute, second);
+
+			switch (_type)
+			{
+				case EDateTimeType.Hour:
+					return time.ToShortTimeString().Replace(":00", "");
+				case EDateTimeType.Minute:
+					break;
+				case EDateTimeType.Second:
+					break;
+				case EDateTimeType.Year:
+					break;
+				case EDateTimeType.Month:
+					break;
+				case EDateTimeType.Day:
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+
+			return string.Empty;
+		}
 
 		public static DateTime DuplicateDate( this DateTime value, DateTime from )
 		{
@@ -63,6 +104,5 @@
 		{
 			return value.Day == compareTo.Day && value.IsSameYearMonth(compareTo);
 		}
-
 	}
 }

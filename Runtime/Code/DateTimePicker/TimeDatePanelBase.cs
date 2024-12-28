@@ -53,6 +53,7 @@ namespace GuiToolkit
 		protected virtual void OnCellClicked(UiGridPicker _gridPicker, int _x, int _y, UiGridPickerCell _cell)
 		{
 			int val = _y * m_numColumns + _x;
+			SelectedValue = val;
 			m_text.text = GetContentString(val);
 			_gridPicker.Hide();
 		}
