@@ -15,7 +15,21 @@ namespace GuiToolkit
 		[SerializeField] protected int m_numRows = 4;
 		[SerializeField] protected int m_maxElements = 24;
 
-		public int Value { get; set; }
+		protected int m_value;
+
+		public int Value
+		{
+			get => m_value;
+			set
+			{
+				if (m_value == value) 
+					return;
+
+				m_value = value;
+				m_text.text = GetContentString(Value);
+			}
+		}
+
 		public DateTimeHelpers.EDateTimeType DateTimeType => m_type;
 
 		protected override bool NeedsLanguageChangeCallback => true;
@@ -65,13 +79,11 @@ namespace GuiToolkit
 			Value = val;
 			m_text.text = GetContentString(Value);
 			_gridPicker.Hide();
-Debug.Log($"---::: Cell clicked: {_x}, {_y} : {Value} {m_text.text}");
 		}
 
 		protected virtual void OnPopulateCell(UiGridPicker _gridPicker, int _x, int _y, UiGridPickerCell _cell)
 		{
 			int val = _y * m_numColumns + _x;
-Debug.Log($"---::: OnPopulateCell: {_x}, {_y} : {val} {m_type}");
 			_cell.OptionalCaption = GetContentString(val);
 		}
 
