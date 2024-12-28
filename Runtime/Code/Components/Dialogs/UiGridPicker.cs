@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using GuiToolkit;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,18 +25,18 @@ public class UiGridPicker : UiView
 	}
 
 	[SerializeField] private GridLayoutGroup m_gridLayout;
-	[SerializeField] private RectTransform m_prefab;
+	[SerializeField] private UiButton m_prefab;
 	[SerializeField] private UiButton m_closeButton;
 	[SerializeField] private TextMeshProUGUI m_title;
 
 	private Options m_options;
-	private readonly List<RectTransform> m_cells = new ();
+	private readonly List<UiButton> m_cells = new ();
 
 	private RectTransform GridTransform => (RectTransform) m_gridLayout.transform;
 
-	public readonly GridPickerEvent OnPopulateCell = new();
-	public readonly GridPickerEvent OnDestroyCell = new();
-	public readonly GridPickerEvent OnCellClicked = new();
+	public readonly GridPickerEvent EvOnPopulateCell = new();
+	public readonly GridPickerEvent EvOnDestroyCell = new();
+	public readonly GridPickerEvent EvOnCellClicked = new();
 	
 	public void GridPicker(Options _options)
 	{
@@ -47,6 +48,12 @@ public class UiGridPicker : UiView
 		base.OnBeginShow();
 		if (m_options == null)
 			return;
+
+		if (m_options.AllowOutsideTap)
+			OnClickCatcher = () => Hide();
+
+		if (m_options.ShowCloseButton)
+			m_closeButton.OnClick.AddListener(() => Hide());
 
 		GridTransform.DestroyAllChildren();
 
@@ -65,10 +72,10 @@ public class UiGridPicker : UiView
 		m_gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
 		m_gridLayout.constraintCount = m_options.NumColumns;
 
-		OnPopulateCell.AddListener(m_options.OnPopulateCell);
-		OnCellClicked.AddListener(m_options.OnCellClicked);
+		EvOnPopulateCell.AddListener(m_options.OnPopulateCell);
+		EvOnCellClicked.AddListener(m_options.OnCellClicked);
 		if (m_options.OnDestroyCell != null )
-			OnDestroyCell.AddListener(m_options.OnDestroyCell);
+			EvOnDestroyCell.AddListener(m_options.OnDestroyCell);
 
 		m_closeButton.gameObject.SetActive(m_options.ShowCloseButton);
 		bool hasTitle = !string.IsNullOrEmpty(m_options.Caption);
@@ -87,7 +94,14 @@ public class UiGridPicker : UiView
 				}
 
 				var cell = m_prefab.PoolInstantiate(GridTransform);
-				OnPopulateCell.Invoke(this, x, y, cell);
+				int xx = x;
+				int yy = y;
+				cell.OnClick.AddListener(() =>
+				{
+					EvOnCellClicked.Invoke(this, xx, yy, cell.RectTransform);
+				});
+
+				EvOnPopulateCell.Invoke(this, x, y, cell.RectTransform);
 				m_cells.Add(cell);
 			}
 		}
@@ -97,6 +111,11 @@ public class UiGridPicker : UiView
 	{
 		base.OnEndHide();
 		foreach (var cell in m_cells)
+		{
+			cell.OnClick.RemoveAllListeners();
 			cell.PoolDestroy();
+		}
+
+		m_closeButton.OnClick.RemoveAllListeners();
 	}
 }

@@ -319,7 +319,7 @@ MonoBehaviour:
   m_layer: 600
   m_isFullScreen: 0
   m_gridLayout: {fileID: 1192126064292898855}
-  m_prefab: {fileID: 5169099958944693031, guid: 7a9c3392ee9f7ca4eb4c55f630cb42d4,
+  m_prefab: {fileID: -5688480096085123237, guid: 7a9c3392ee9f7ca4eb4c55f630cb42d4,
     type: 3}
   m_closeButton: {fileID: 1320352992600587005}
   m_title: {fileID: 8575891545398193715}
