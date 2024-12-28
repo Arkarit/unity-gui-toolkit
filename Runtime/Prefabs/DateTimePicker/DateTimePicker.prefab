@@ -314,7 +314,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &6690728067217613655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4869,6 +4869,9 @@ MonoBehaviour:
   m_button: {fileID: 5310318656086663143}
   m_gridPickerCellPrefab: {fileID: 6803626192382413750, guid: 8722d14c7645aa04e8da616ab909355d,
     type: 3}
+  m_numColumns: 12
+  m_numRows: 2
+  m_maxElements: 24
 --- !u!114 &7413945112731672482
 MonoBehaviour:
   m_ObjectHideFlags: 0
