@@ -13,12 +13,12 @@ namespace GuiToolkit
 		public DateTime SelectedTime()
 		{
 			return new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
-				m_hourPicker.SelectedValue, m_minutePicker.SelectedValue, m_secondPicker.SelectedValue);
+				m_hourPicker.Value, m_minutePicker.SelectedValue, m_secondPicker.SelectedValue);
 		}
 
 		public void SetSelectedTime(int _hour, int _minute, int _second)
 		{
-			m_hourPicker.SelectedValue = _hour;
+			m_hourPicker.Value = _hour;
 			m_minutePicker.SelectedValue = _minute;
 			m_secondPicker.SelectedValue = _second;
 		}
