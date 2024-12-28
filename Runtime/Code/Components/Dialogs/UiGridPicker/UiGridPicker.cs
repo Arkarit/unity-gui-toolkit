@@ -22,13 +22,15 @@ namespace GuiToolkit
 			public GridPickerAction OnDestroyCell = null;
 			public float ColumnWidth = 100;
 			public float RowHeight = 50;
+			public UiGridPickerCell Prefab = null;
 		}
 
 		[SerializeField] private GridLayoutGroup m_gridLayout;
-		[SerializeField] private UiGridPickerCell m_prefab;
+		[SerializeField] private UiGridPickerCell m_defaultPrefab;
 		[SerializeField] private UiButton m_closeButton;
 		[SerializeField] private TextMeshProUGUI m_title;
 
+		private UiGridPickerCell m_prefab;
 		private Options m_options;
 		private readonly List<UiGridPickerCell> m_cells = new();
 
@@ -48,6 +50,8 @@ namespace GuiToolkit
 			base.OnBeginShow();
 			if (m_options == null)
 				return;
+
+			m_prefab = m_options.Prefab ? m_options.Prefab : m_defaultPrefab;
 
 			if (m_options.AllowOutsideTap)
 				OnClickCatcher = () => Hide();
