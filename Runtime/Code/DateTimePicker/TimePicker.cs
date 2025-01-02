@@ -9,6 +9,21 @@ namespace GuiToolkit
 		[SerializeField] private UiDateTimePartPanel m_hourPicker;
 		[SerializeField] private UiDateTimePartPanel m_minutePicker;
 		[SerializeField] private UiDateTimePartPanel m_secondPicker;
+		[SerializeField] private UiButton m_optionalNowButton;
+
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			if (m_optionalNowButton)
+				m_optionalNowButton.OnClick.AddListener(OnNowClicked);
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			if (m_optionalNowButton)
+				m_optionalNowButton.OnClick.RemoveListener(OnNowClicked);
+		}
 
 		public DateTime SelectedTime()
 		{
@@ -28,8 +43,7 @@ namespace GuiToolkit
 			SetSelectedTime(_value.Hour, _value.Minute, _value.Second);
 		}
 
-
-		public void Now_onClick()
+		public void OnNowClicked()
 		{
 			SetSelectedTime(DateTime.Now);
 		}

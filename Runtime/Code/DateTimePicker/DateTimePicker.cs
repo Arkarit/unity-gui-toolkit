@@ -40,7 +40,6 @@ namespace GuiToolkit
 		public void SetSelectedDateTime(DateTime _value)
 		{
 			m_datePicker.SetSelectedDate(_value);
-			m_timePicker.SetSelectedTime(_value);
 		}
 	}
 }
