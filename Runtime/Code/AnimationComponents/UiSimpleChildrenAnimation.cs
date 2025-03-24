@@ -7,18 +7,44 @@ namespace GuiToolkit
 	public class UiSimpleChildrenAnimation : UiSimpleAnimationBase
 	{
 		[SerializeField] private float m_delayPerChild = 0;
-		private readonly List<UiSimpleAnimationBase> m_animations = new();
+		[SerializeField] private bool m_autoCollectChildren = true;
+		
+		private readonly List<UiSimpleAnimationBase> m_childAnimations = new();
+		
+		// This event is invoked only if m_autoCollectChildren is false.
+		// You can collect the children in that case and set them via ChildAnimations
+		public readonly CEvent<UiSimpleChildrenAnimation> ShouldCollectChildren = new();
 
+		public List<UiSimpleAnimationBase> ChildAnimations => m_childAnimations;
+		public bool AutoCollectChildren
+		{
+			get => m_autoCollectChildren;
+			set
+			{
+				if (m_autoCollectChildren == value)
+					return;
+				
+				m_autoCollectChildren = value;
+				if (m_autoCollectChildren)
+				{
+					CollectChildren();
+					return;
+				}
+				
+				m_childAnimations.Clear();
+			}
+		}
+		
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			CollectChildren();
+			CollectChildrenOrInvokeEvent();
 		}
 
 		private void OnTransformChildrenChanged()
 		{
 			Stop();
-			CollectChildren();
+			CollectChildrenOrInvokeEvent();
 		}
 
 		public override void Play(bool _backwards, Action _onFinishOnce)
@@ -40,22 +66,24 @@ namespace GuiToolkit
 				BackwardsAnimation.Reset();
 			}
 				
-			CollectChildren();
+			CollectChildrenOrInvokeEvent();
 			base.Play(_backwards, _onFinishOnce);
 		}
 
-		public override void Reset(bool _toEnd = false)
+		public void CollectChildren(Transform tf = null)
 		{
-			CollectChildren();
-			base.Reset(_toEnd);
-		}
-		
-		private void CollectChildren()
-		{
+			if (tf == null)
+				tf = transform;
+			
 			m_slaveAnimations.Clear();
-			transform.GetComponentsInDirectChildren(m_animations);
+			tf.GetComponentsInDirectChildren(m_childAnimations);
+			InitChildren();
+		}
+
+		public void InitChildren()
+		{
 			float delay = 0;
-			foreach (var animation in m_animations)
+			foreach (var animation in m_childAnimations)
 			{
 				animation.Delay = delay;
 				m_slaveAnimations.Add(animation);
@@ -63,9 +91,27 @@ namespace GuiToolkit
 			}
 		}
 
+		public override void Reset(bool _toEnd = false)
+		{
+			CollectChildrenOrInvokeEvent();
+			base.Reset(_toEnd);
+		}
+		
+		private void CollectChildrenOrInvokeEvent()
+		{
+			if (m_autoCollectChildren)
+			{
+				CollectChildren();
+				return;
+			}
+			
+			ShouldCollectChildren.Invoke(this);
+		}
+		
 		private void OnValidate()
 		{
-			CollectChildren();
+			m_slaveAnimations.Clear();
+			CollectChildrenOrInvokeEvent();
 		}
 	}
 }
