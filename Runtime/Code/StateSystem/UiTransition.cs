@@ -45,6 +45,10 @@ namespace GuiToolkit.UiStateSystem
 
 		public bool Eval( float _currentTime, out float _val )
 		{
+			_val = 0;
+			if (m_animationCurve == null)
+				return false;
+			
 			float normalizedTime = (_currentTime-m_delay) / m_duration;
 
 			if (normalizedTime < 0)
