@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -33,13 +34,11 @@ namespace GuiToolkit
 		protected bool m_markTargetForLayoutRebuild;
 
 		[SerializeField]
+		protected bool m_scaleByCanvasScaler = true;
+
 		private CanvasScaler m_canvasScaler;
 
-		[SerializeField]
 		private RectTransform m_canvasRectTransform;
-
-		[SerializeField]
-		protected bool m_scaleByCanvasScaler = true;
 
 		public ESupport Support
 		{
@@ -68,7 +67,11 @@ namespace GuiToolkit
 				return m_canvasScaler;
 			}
 
-			set { Stop(); m_canvasScaler = value; }
+			set
+			{
+				Stop();
+				m_canvasScaler = value;
+			}
 		}
 
 		public RectTransform CanvasRectTransform
@@ -89,7 +92,11 @@ namespace GuiToolkit
 
 				return m_canvasRectTransform;
 			}
-			set { Stop(); m_canvasRectTransform = value; }
+			set
+			{
+				Stop(); 
+				m_canvasRectTransform = value;
+			}
 		}
 
 		public bool ScaleByCanvasScaler
@@ -244,7 +251,8 @@ namespace GuiToolkit
 		[SerializeField]
 		protected AnimationCurve m_alphaCurve;
 		[SerializeField]
-		protected Image m_alphaImage;
+		[FormerlySerializedAs("m_alphaImage")] 
+		protected Graphic m_alphaGraphic;
 		[SerializeField]
 		protected CanvasGroup m_alphaCanvasGroup;
 
@@ -254,10 +262,10 @@ namespace GuiToolkit
 			set { Stop(); m_alphaCurve = value; }
 		}
 
-		public Image AlphaImage
+		public Graphic AlphaGraphic
 		{
-			get => m_alphaImage;
-			set { Stop(); m_alphaImage = value; }
+			get => m_alphaGraphic;
+			set { Stop(); m_alphaGraphic = value; }
 		}
 
 		public CanvasGroup AlphaCanvasGroup
@@ -606,11 +614,11 @@ namespace GuiToolkit
 
 			Log($"AnimateAlpha({_normalizedTime}), alpha:{alpha}");
 
-			if (m_alphaImage != null)
+			if (m_alphaGraphic != null)
 			{
-				Color c = m_alphaImage.color;
+				Color c = m_alphaGraphic.color;
 				c.a = alpha;
-				m_alphaImage.color = c;
+				m_alphaGraphic.color = c;
 			}
 
 			if (m_alphaCanvasGroup != null)

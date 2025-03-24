@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
-	[CustomEditor(typeof(UiSimpleAnimation))]
+	[CustomEditor(typeof(UiSimpleAnimation), true)]
 	public class UiSimpleAnimationEditor : UiSimpleAnimationBaseEditor
 	{
 		protected SerializedProperty m_supportProp;
@@ -29,8 +29,11 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_scaleYCurveProp;
 		protected SerializedProperty m_scaleLockedProp;
 		protected SerializedProperty m_alphaCurveProp;
-		protected SerializedProperty m_alphaImageProp;
+		protected SerializedProperty m_alphaGraphicProp;
 		protected SerializedProperty m_alphaCanvasGroupProp;
+		protected SerializedProperty m_optionalMouseOverSlaveAnimationResetProp;
+		
+		protected SerializedProperty m_optionalMouseOverSlaveAnimationProp;
 
 		public override void OnEnable()
 		{
@@ -59,8 +62,11 @@ namespace GuiToolkit.Editor
 			m_scaleYCurveProp = serializedObject.FindProperty("m_scaleYCurve");
 			m_scaleLockedProp = serializedObject.FindProperty("m_scaleLocked");
 			m_alphaCurveProp = serializedObject.FindProperty("m_alphaCurve");
-			m_alphaImageProp = serializedObject.FindProperty("m_alphaImage");
+			m_alphaGraphicProp = serializedObject.FindProperty("m_alphaGraphic");
 			m_alphaCanvasGroupProp = serializedObject.FindProperty("m_alphaCanvasGroup");
+			
+			m_optionalMouseOverSlaveAnimationProp = serializedObject.FindProperty("m_optionalMouseOverSlaveAnimation");
+			m_optionalMouseOverSlaveAnimationResetProp = serializedObject.FindProperty("m_optionalMouseOverSlaveAnimationReset");
 		}
 
 		public override void EditSubClass()
@@ -81,6 +87,14 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_scaleByCanvasScalerProp);
 			EditorGUILayout.Space();
 
+			if (thisUiSimpleAnimation is UiSimpleAnimationMouseOver)
+			{
+				GUILayout.Label("Mouse over settings:", EditorStyles.boldLabel);
+				EditorGUILayout.PropertyField(m_optionalMouseOverSlaveAnimationProp);
+				EditorGUILayout.PropertyField(m_optionalMouseOverSlaveAnimationResetProp);
+				EditorGUILayout.Space();
+			}
+			
 			GUILayout.Label("Properties support:", EditorStyles.boldLabel);
 			UiSimpleAnimation.ESupport support = thisUiSimpleAnimation.Support;
 			EditorUiUtility.BoolBar(ref support, null, 3);
@@ -167,7 +181,7 @@ namespace GuiToolkit.Editor
 			if( support.HasFlags(UiSimpleAnimation.ESupport.Alpha))
 			{
 				GUILayout.Label("Alpha:", EditorStyles.boldLabel);
-				EditorGUILayout.PropertyField(m_alphaImageProp);
+				EditorGUILayout.PropertyField(m_alphaGraphicProp);
 				EditorGUILayout.PropertyField(m_alphaCanvasGroupProp);
 				EditorGUILayout.PropertyField(m_alphaCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();

@@ -3,12 +3,85 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 namespace GuiToolkit
 {
 	public static class EditorGameObjectUtility
 	{
+		// Includes inactive objects
+		public static GameObject EnsureGameObjectExists(string _path, Vector3 _position, string _undo = null)
+		{
+			if (string.IsNullOrEmpty(_path) || !_path.StartsWith('/'))
+			{
+				Debug.LogError($"{nameof(EditorGameObjectUtility)}.{nameof(EnsureGameObjectExists)}() needs an absolute path! (starting with /)");
+				return null;
+			}
+			
+			GameObject result;
+			var pathParts = _path.Split('/');
+			Transform currentParent = null;
+			List<Transform> currentTransforms = GetRootTransformsOfAllLoadedScenes();
+			
+			foreach (var pathPart in pathParts)
+			{
+				if (string.IsNullOrEmpty(pathPart))
+					continue;
+
+				Transform newParent = currentTransforms.Find(t => t.name == pathPart);
+				if (newParent != null)
+				{
+					currentParent = newParent;
+					currentTransforms.Clear();
+					foreach (Transform child in newParent)
+						currentTransforms.Add(child);
+					continue;
+				}
+				
+				GameObject go = new GameObject(pathPart);
+				if (!string.IsNullOrEmpty(_undo))
+					Undo.RegisterCreatedObjectUndo(go, _undo);
+				
+				if (!string.IsNullOrEmpty(_undo))
+					Undo.SetTransformParent(go.transform, currentParent, true, _undo);
+				else
+					go.transform.SetParent(currentParent);
+				
+				currentParent = go.transform;
+				currentParent.position = _position;
+				currentTransforms.Clear();
+			}
+			
+			result = currentParent.gameObject;
+			return result;
+		}
+		
+		public static List<Transform> GetRootTransformsOfActiveScene()
+		{
+			var gameObjects = SceneManager.GetActiveScene().GetRootGameObjects();
+			List<Transform> result = new();
+			foreach (var go in gameObjects)
+				result.Add(go.transform);
+			
+			return result;
+		}
+		
+		public static List<Transform> GetRootTransformsOfAllLoadedScenes()
+		{
+			List<Transform> result = new();
+			for (int i = 0; i < SceneManager.loadedSceneCount; i++)
+			{
+				var gameObjects = SceneManager.GetSceneAt(i).GetRootGameObjects();
+				foreach (var go in gameObjects)
+					result.Add(go.transform);
+			}
+			
+			return result;
+		}
+		
+		public static GameObject EnsureGameObjectExists(string _path, string _undo = null) => EnsureGameObjectExists(_path, Vector3.zero, _undo);
+		
 		public static bool IsInPrefabEditingMode => PrefabStageUtility.GetCurrentPrefabStage() != null;
 
 		// Workaround for the completely idiotic (and insanely named) PrefabUtility functions, which returns funny and completely differing values

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -8,15 +9,17 @@ namespace GuiToolkit
 		private static readonly List<int[]> s_binomialLUT = new List<int[]>();
 
 		// Note: In this implementation, only the absolute necessary values position, color and uv0 are lerped due to performance reasons,
-		public static UIVertex Bilerp( UIVertex _bl, UIVertex _tl, UIVertex _tr, UIVertex _br, float _h, float _v )
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static UIVertex Bilerp( ref UIVertex _bl, ref UIVertex _tl, ref UIVertex _tr, ref UIVertex _br, float _h, float _v )
 		{
 			UIVertex result = _bl;
-			result.position = Bilerp(_bl.position, _tl.position, _tr.position, _br.position, _h, _v);
-			result.color = Bilerp(_bl.color, _tl.color, _tr.color, _br.color, _h, _v);
-			result.uv0 = Bilerp(_bl.uv0, _tl.uv0, _tr.uv0, _br.uv0, _h, _v);
+			result.position = Bilerp(ref _bl.position, ref _tl.position, ref _tr.position, ref _br.position, _h, _v);
+			result.color = Bilerp(ref _bl.color, ref _tl.color, ref _tr.color, ref _br.color, _h, _v);
+			result.uv0 = Bilerp(ref _bl.uv0, ref _tl.uv0, ref _tr.uv0, ref _br.uv0, _h, _v);
 			return result;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float Bilerp( float _bl, float _tl, float _tr, float _br, float _h, float _v )
 		{
 			float top = Mathf.Lerp(_tl, _tr, _h);
@@ -24,6 +27,7 @@ namespace GuiToolkit
 			return Mathf.Lerp(bottom, top, _v);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2 Bilerp( Vector2 _bl, Vector2 _tl, Vector2 _tr, Vector2 _br, float _h, float _v )
 		{
 			Vector2 top = Vector2.Lerp(_tl, _tr, _h);
@@ -31,27 +35,50 @@ namespace GuiToolkit
 			return Vector2.Lerp(bottom, top, _v);
 		}
 
-		public static Vector3 Bilerp( Vector3 _bl, Vector3 _tl, Vector3 _tr, Vector3 _br, float _h, float _v )
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector3 Bilerp( ref Vector3 _bl, ref Vector3 _tl, ref Vector3 _tr, ref Vector3 _br, float _h, float _v )
 		{
 			Vector3 top = Vector3.Lerp(_tl, _tr, _h);
 			Vector3 bottom = Vector3.Lerp(_bl, _br, _h);
 			return Vector3.Lerp(bottom, top, _v);
 		}
 
-		public static Vector4 Bilerp( Vector4 _bl, Vector4 _tl, Vector4 _tr, Vector4 _br, float _h, float _v )
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector4 Bilerp(ref Vector4 _bl, ref Vector4 _tl, ref Vector4 _tr, ref Vector4 _br, float _h, float _v )
 		{
 			Vector4 top = Vector4.Lerp(_tl, _tr, _h);
 			Vector4 bottom = Vector4.Lerp(_bl, _br, _h);
 			return Vector4.Lerp(bottom, top, _v);
 		}
 
-		public static Color Bilerp( Color _bl, Color _tl, Color _tr, Color _br, float _h, float _v )
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Color Bilerp( ref Color _bl, ref Color _tl, ref Color _tr, ref Color _br, float _h, float _v )
 		{
 			Color top = Color.Lerp(_tl, _tr, _h);
 			Color bottom = Color.Lerp(_bl, _br, _h);
 			return Color.Lerp(bottom, top, _v);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Color32 Bilerp( ref Color32 _bl, ref Color32 _tl, ref Color32 _tr, ref Color32 _br, float _h, float _v )
+		{
+			Color32 top = LerpColor32(ref _tl, ref _tr, _h);
+			Color32 bottom = LerpColor32(ref _bl, ref _br, _h);
+			return LerpColor32(ref bottom, ref top, _v);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Color32 LerpColor32(ref Color32 _a, ref Color32 _b, float _t)
+		{
+			Color32 r = _a;
+			r.r = (byte)Mathf.Clamp((int)(_a.r + (_b.r - _a.r) * _t), 0, 255);
+			r.g = (byte)Mathf.Clamp((int)(_a.g + (_b.g - _a.g) * _t), 0, 255);
+			r.b = (byte)Mathf.Clamp((int)(_a.b + (_b.b - _a.b) * _t), 0, 255);
+			r.a = (byte)Mathf.Clamp((int)(_a.a + (_b.a - _a.a) * _t), 0, 255);
+			return r;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Swap<T>(ref T _lhs, ref T _rhs)
 		{
 			T temp = _lhs;
@@ -61,6 +88,8 @@ namespace GuiToolkit
 
 		public static float Inverse(float _f) => Mathf.Approximately(0, _f) ? 1 : 1 / _f;
 		public static Vector3 Inverse(Vector3 _v) => new Vector3(Inverse(_v.x), Inverse(_v.y), Inverse(_v.z));
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2 Clamp01(Vector2 _input)
 		{
 			for (int i=0; i<2; i++)
@@ -68,6 +97,7 @@ namespace GuiToolkit
 			return _input;
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Vector2 Clamp01(Vector3 _input)
 		{
 			for (int i=0; i<3; i++)
@@ -75,36 +105,33 @@ namespace GuiToolkit
 			return _input;
 		}
 		
-		public static Vector2 Lerp4P( Vector2 _tl, Vector2 _tr, Vector2 _bl, Vector2 _br, Vector2 _normP)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector2 Lerp4P( Vector2 _tl, Vector2 _tr, Vector2 _bl, Vector2 _br, ref Vector2 _normP)
 		{
-			return Vector2.Lerp(Vector2.Lerp(_tl, _tr, _normP.x), Vector2.Lerp(_bl, _br, _normP.x), _normP.y );
+			return Vector2.LerpUnclamped(Vector2.LerpUnclamped(_tl, _tr, _normP.x), Vector2.LerpUnclamped(_bl, _br, _normP.x), _normP.y );
 		}
 
-		public static Vector3 Lerp4P( Vector3 _tl, Vector3 _tr, Vector3 _bl, Vector3 _br, Vector2 _normP)
-		{
-			return Vector3.Lerp(Vector3.Lerp(_tl, _tr, _normP.x), Vector3.Lerp(_bl, _br, _normP.x), _normP.y );
-		}
-
-		public static Vector2 Lerp4P( Vector2 _tl, Vector2 _tr, Vector2 _bl, Vector2 _br, Vector2 _normP, bool _oneMinusX, bool _oneMinusY)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Vector2 Lerp4P( ref Vector2 _tl, ref Vector2 _tr, ref Vector2 _bl, ref Vector2 _br, ref Vector2 _normP, bool _oneMinusX, bool _oneMinusY)
 		{
 			if (_oneMinusX)
 				_normP.x = 1.0f - _normP.x;
 			if (_oneMinusY)
 				_normP.y = 1.0f - _normP.y;
 
-			return Vector2.Lerp(Vector2.Lerp(_tl, _tr, _normP.x), Vector2.Lerp(_bl, _br, _normP.x), _normP.y );
+			return Vector2.LerpUnclamped(Vector2.LerpUnclamped(_tl, _tr, _normP.x), Vector2.LerpUnclamped(_bl, _br, _normP.x), _normP.y );
 		}
 
-		public static Vector2 Lerp4P( Vector2[] _points, Vector2 _normP)
+		public static Vector2 Lerp4P( Vector2[] _points, ref Vector2 _normP)
 		{
 			Debug.Assert(_points.Length == 4, "Lerp4P needs 4 points bl, tl, tr, br");
-			return Lerp4P(_points[1], _points[2], _points[0], _points[3], _normP);
+			return Lerp4P(_points[1], _points[2], _points[0], _points[3], ref _normP);
 		}
 
-		public static Vector3 Lerp4P( Vector3[] _points, Vector2 _normP)
+		public static Vector3 Lerp4P( Vector3[] _points, ref Vector2 _normP)
 		{
 			Debug.Assert(_points.Length == 4, "Lerp4P needs 4 points bl, tl, tr, br");
-			return Lerp4P(_points[1], _points[2], _points[0], _points[3], _normP);
+			return Lerp4P(_points[1], _points[2], _points[0], _points[3], ref _normP);
 		}
 
 		public static Vector2 Bezier( Vector2 _p0, Vector2 _p1, Vector2 _p2, float _normP )

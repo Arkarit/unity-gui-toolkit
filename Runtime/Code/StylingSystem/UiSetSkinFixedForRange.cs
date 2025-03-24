@@ -195,6 +195,9 @@ namespace GuiToolkit.Style
 			foreach (var kv in m_savedSkinSettings)
 			{
 				var applier = kv.Key;
+				if (applier == null)
+					continue;
+				
 				var name = kv.Value;
 				applier.FixedSkinName = name;
 			}
@@ -204,6 +207,9 @@ namespace GuiToolkit.Style
 		
 		private void SaveStyleApplierAndSetFixed(UiAbstractApplyStyleBase _styleApplier)
 		{
+			if (_styleApplier == null)
+				return;
+			
 			if (!m_savedSkinSettings.TryAdd(_styleApplier, _styleApplier.FixedSkinName))
 				return;
 
@@ -212,6 +218,8 @@ namespace GuiToolkit.Style
 
 		private void RestoreStyleApplier(UiAbstractApplyStyleBase _styleApplier)
 		{
+			if (_styleApplier == null)
+				return;
 			
 			if (!m_savedSkinSettings.TryGetValue(_styleApplier, out string name))
 			    return;

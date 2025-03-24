@@ -92,8 +92,10 @@ namespace GuiToolkit.Style.Editor
 			"		{{\n" +
 			"			get\n" +
 			"			{{\n" +
-			"				if (m_{2} == null)\n" +
-			"					m_{2} = new {3}();\n" +
+			"				#if UNITY_EDITOR\n" +
+			"					if (!Application.isPlaying && m_{2} == null)\n" +
+			"						m_{2} = new {3}();\n" +
+			"				#endif\n" +
 			"				return m_{2};\n" +
 			"			}}\n" +
 			"		}}\n\n";
@@ -443,7 +445,7 @@ namespace GuiToolkit.Style.Editor
 			EditorGUILayout.LabelField("Property", EditorStyles.boldLabel, GUILayout.Width(200));
 			EditorGUILayout.LabelField($"Type", EditorStyles.boldLabel, GUILayout.ExpandWidth(true));
 			EditorGUILayout.EndHorizontal();
-			EditorUiUtility.HorizontalLine(new Color(0, 0, 0, 0.5f));
+			EditorUiUtility.DrawLine();
 			EditorGUILayout.Space(2);
 		}
 

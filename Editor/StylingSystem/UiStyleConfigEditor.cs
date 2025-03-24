@@ -25,7 +25,7 @@ namespace GuiToolkit.Style.Editor
 
 		private static string s_filterString = string.Empty;
 		private static readonly UiStyleEditorFilter s_filter = new();
-		private static bool s_synchronizeFoldouts = true;
+		private static bool s_synchronizeFoldouts = false;
 		private static ESortType s_sortType;
 
 

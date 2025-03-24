@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -172,6 +173,7 @@ namespace GuiToolkit
 			if (m_autoOnEnable)
 			{
 				Log("auto on enable");
+				Reset();
 				Play(m_backwards);
 			}
 		}
@@ -186,8 +188,27 @@ namespace GuiToolkit
 		public UnityEvent OnFinishOnce => m_onFinishOnce;
 		
 		public void Play() => Play(false, null);
-		
 		public void Play(bool _backwards) => Play(_backwards, null);
+		
+		public IEnumerator PlayUntilFinished()
+		{
+			yield return PlayUntilFinished(false, null);
+		}
+
+		public IEnumerator PlayUntilFinished(bool _backwards)
+		{
+			yield return PlayUntilFinished(_backwards, null);
+		}
+
+		//FIXME: does not work with dedicated backwards animation
+		public IEnumerator PlayUntilFinished(bool _backwards, Action _onFinishOnce)
+		{
+			Play(_backwards, _onFinishOnce);
+			yield return 0;
+			while (IsPlaying)
+				yield return 0;
+		}
+
 		
 		public virtual void Play(bool _backwards, Action _onFinishOnce)
 		{
@@ -249,6 +270,10 @@ namespace GuiToolkit
 			float completeDuration = 0;
 			CalculateCompleteTimeRecursive(ref completeDuration, ref _, 0);
 			m_currentTime = _toEnd ? completeDuration : 0;
+			
+			OnBeginAnimate();
+			OnAnimate(_toEnd ? 1 : 0);
+			OnEndAnimate();
 		}
 
 		protected virtual void Awake()
@@ -598,7 +623,7 @@ namespace GuiToolkit
 				if (!m_debug)
 					return;
 #endif
-			Debug.Log($"{GetType().Name} {gameObject.name}:{_s}");
+			Debug.Log($"{GetType().Name} {gameObject.name}:{_s}\n{gameObject.GetPath()}");
 		}
 
 #if UNITY_EDITOR

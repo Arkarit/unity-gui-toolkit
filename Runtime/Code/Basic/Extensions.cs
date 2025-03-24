@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -14,15 +15,16 @@ namespace GuiToolkit
 {
 	public static class Extensions
 	{
-		private static readonly List<Transform> s_tempTransformList = new List<Transform>();
 		private static readonly HashSet<string> s_excludedMembers = new HashSet<string> {"name", "_parent", "parentInternal"};
 		private static readonly HashSet<Type> s_excludedTypes = new HashSet<Type> {typeof(Component), typeof(Transform), typeof(MonoBehaviour)};
+		private static readonly List<Transform> s_tempTransformList = new();
 
-		// Note: This is not super performant and - worse - creates GC allocations
-		// Better cache the values in simple bools after evaluating at least in runtime code. 
-		public static bool HasFlags<T>( this T _self, T _flags) where T : Enum
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static unsafe bool HasFlags<T>( this T _self, T _flags) where T : unmanaged, Enum
 		{
-			return ((int)(object)_self & (int)(object)_flags) != 0;
+			var s = *(uint*)&_self;
+			var f = *(uint*)&_flags;
+			return (s&f) != 0;
 		}
 
 		public static IList<T> Clone<T>( this IList<T> _listToClone ) where T : ICloneable
@@ -30,17 +32,22 @@ namespace GuiToolkit
 			return _listToClone.Select(item => (T)item.Clone()).ToList();
 		}
 
-		public static string GetPath(this Transform _self, char _separator = '/')
+		public static string GetPath(this Transform _self, int _depth = -1, char _separator = '/')
 		{
 			if (_self == null)
 				return "<null>";
 			
+			if (_depth == -1)
+				_depth = 100000;
+			
 			string result = _self.name;
-			while (_self.parent != null)
+			while (_self.parent != null && _depth > 0)
 			{
 				_self = _self.parent;
 				result = _self.name + _separator + result;
+				_depth--;
 			}
+			
 			return result;
 		}
 
@@ -68,22 +75,114 @@ namespace GuiToolkit
 
 		public static List<T> GetComponentsInDirectChildren<T>(this GameObject _self) where T : Component =>
 			GetComponentsInDirectChildren<T>(_self.transform);
-		public static string GetPath(this GameObject _self)
+		public static string GetPath(this GameObject _self, int _depth = -1, char _separator = '/')
 		{
 			if (_self == null)
 				return "<null>";
 			
-			return GetPath(_self.transform);
+			return GetPath(_self.transform, _depth, _separator);
 		}
 
-		public static string GetPath(this Component _self)
+		public static string GetPath(this Component _self, int _depth = -1, char _separator = '/')
 		{
 			if (_self == null)
 				return "<null>";
 			
-			return GetPath(_self.transform);
+			return GetPath(_self.transform, _depth, _separator);
+		}
+		
+		public static string GetRelativePathOfDescendant(this Transform _self, Transform _descendant, char _separator = '/')
+		{
+			if (_descendant == null)
+				return "<null>";
+			
+			if (_self == _descendant)
+				return string.Empty;
+			
+			var path = _descendant.GetPath(-1, _separator);
+			
+			if (_self == null || !_self.IsMyDescendant(_descendant.transform))
+				return path;
+			
+			return path.Substring(_self.GetPath(-1, _separator).Length + 1);
+		}
+		
+		public static string GetRelativePathOfDescendant(this Component _self, Component _descendant, char _separator = '/')
+		{
+			if (_descendant == null)
+				return "<null>";
+			
+			if (_self == null)
+				return _descendant.transform.GetPath(-1, _separator);
+			
+			return _self.transform.GetRelativePathOfDescendant(_descendant.transform, _separator);
+		}
+		
+		public static string GetRelativePathOfDescendant(this GameObject _self, GameObject _descendant, char _separator = '/')
+		{
+			if (_descendant == null)
+				return "<null>";
+			
+			if (_self == null)
+				return _descendant.transform.GetPath(-1, _separator);
+			
+			return _self.transform.GetRelativePathOfDescendant(_descendant.transform, _separator);
+		}
+		
+		public static void DestroyEmptyChildren(this Transform _self, bool _includeSelf = false, bool _onlyIfNoComponents = true)
+		{
+			// We can not simply iterate, since children are possibly destroyed
+			var childCount = _self.childCount;
+			for (int i = childCount-1; i >= 0; --i)
+				DestroyEmptyChildren(_self.GetChild(i), true, _onlyIfNoComponents);
+			
+			if (!_includeSelf)
+				return;
+			
+			if (_onlyIfNoComponents && _self.gameObject.GetComponentCount() > 1)
+				return;
+			
+			if (_self.childCount == 0)
+				_self.gameObject.SafeDestroy();
+		}
+		
+		private static Transform s_DisabledParent;
+		
+		public static GameObject InstantiateDisabled(this GameObject original, Transform parent, bool worldPositionStays)
+		{
+			if (original == null)
+				return null;
+			
+			if (!original.activeSelf)
+				return UnityEngine.Object.Instantiate(original, parent, worldPositionStays);
+			
+			GameObject result;
+			
+			if (parent != null && !parent.gameObject.activeInHierarchy)
+			{
+				result = UnityEngine.Object.Instantiate(original, parent, worldPositionStays);
+				result.SetActive(false);
+				return result;
+			}
+			
+			if (s_DisabledParent == null)
+			{
+				GameObject go = new GameObject("Disabled");
+				UnityEngine.Object.DontDestroyOnLoad(go);
+				go.SetActive(false);
+				s_DisabledParent = go.transform;
+			}
+			
+			result = UnityEngine.Object.Instantiate(original, s_DisabledParent, worldPositionStays);
+			result.SetActive(false);
+			result.transform.SetParent(parent, true);
+			return result;
 		}
 
+		public static GameObject InstantiateDisabled(this GameObject original, Transform parent) => InstantiateDisabled(original, parent, false);
+		public static GameObject InstantiateDisabled(this GameObject original) => InstantiateDisabled(original, null, false);
+		
+		
 		public static void SafeDestroy( this UnityEngine.Object _self, bool _supportUndoIfPossible = true )
 		{
 			if (_self == null)
@@ -92,7 +191,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 			if (_supportUndoIfPossible && !Application.isPlaying)
 			{
-				Undo.DestroyObjectImmediate(_self);
+					Undo.DestroyObjectImmediate(_self);
 				return;
 			}
 #endif
@@ -131,19 +230,48 @@ namespace GuiToolkit
 			UnityEngine.Object.Destroy(_self);
 #endif
 		}
-
-		public static void DestroyAllChildren( this Transform _this, bool _includeHidden = true )
+		
+		public static MethodInfo GetPublicOrNonPublicStaticMethod(this Type _type, string _name, bool _logError = true)
 		{
-			foreach( Transform child in _this )
-				if (_includeHidden || child.gameObject.activeSelf)
-					Extensions.SafeDestroy(child);
-		}
-
-		public static void DestroyAllChildren( this GameObject _this, bool _includeHidden = true )
-		{
-			Extensions.DestroyAllChildren( _this.transform, _includeHidden );
+			// We also find public methods in case a method has been made public in an update
+			var result = _type.GetMethod(_name, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+			
+			if (_logError && result == null)
+				Debug.LogError($"Internal API for private static method '{_type.Name}.{_name}()' has changed, please fix!" );
+			
+			return result;
 		}
 		
+		public static object CallPublicOrNonPublicStaticMethod(this Type _type, string _name, out bool _success, bool _catchExceptions = false, bool _logError = true, params object[] _params)
+		{
+			_success = true;
+			MethodInfo mi = GetPublicOrNonPublicStaticMethod(_type, _name, _logError);
+			if (mi == null)
+			{
+				_success = false;
+				return null;
+			}
+
+			try
+			{
+				return mi.Invoke(null, _params);
+			}
+			catch (Exception e)
+			{
+				_success = false;
+				if (!_catchExceptions)
+					throw;
+				
+				if (_logError)
+					Debug.LogError($"Exception: Internal API for private static method '{_type.Name}.{_name}()' has changed, or other (parameter) error, please fix!\n{e.Message}" );
+				
+				return null;
+			}
+		}
+		
+		public static object CallPublicOrNonPublicStaticMethod(this Type _type, string _name, bool _catchExceptions = false, bool _logError = true, params object[] _params) =>
+			CallPublicOrNonPublicStaticMethod(_type, _name, out bool _, _catchExceptions, _logError, _params);
+
 		public static List<T> ToList<T>( this HashSet<T> _self )
 		{
 			List<T> result = new List<T>(_self.Count);
@@ -160,6 +288,14 @@ namespace GuiToolkit
 				result.Add(elem);
 
 			return result;
+		}
+
+		public static List<T> ToList<T>( this SortedSet<T> _self, List<T> _result)
+		{
+			foreach( T elem in _self )
+				_result.Add(elem);
+
+			return _result;
 		}
 
 		public static Rect GetWorldRect2D( this Rect _self, RectTransform _rt)
@@ -352,6 +488,16 @@ namespace GuiToolkit
 			return new Vector2(_self.y, _self.z);
 		}
 
+		public static Vector2 Xy( this Vector4 _self )
+		{
+			return new Vector2(_self.x, _self.y);
+		}
+		
+		public static Vector2 Zw( this Vector4 _self )
+		{
+			return new Vector2(_self.z, _self.w);
+		}
+		
 		public static Vector3 Xyz( this Vector4 _self )
 		{
 			return new Vector3(_self.x, _self.y, _self.z);
@@ -364,10 +510,14 @@ namespace GuiToolkit
 			_self.y = t;
 			return _self;
 		}
+		
+		public static float Min( this Vector3 _self ) => Mathf.Min(_self.x, Mathf.Min(_self.y, _self.z));
+		public static float Max( this Vector3 _self ) => Mathf.Max(_self.x, Mathf.Max(_self.y, _self.z));
+		
 
-		public static bool IsFlagSet<T>( this T _self, T _flag ) where T : Enum
+		public static bool IsFlagSet<T>( this T _self, T _flag ) where T : unmanaged, Enum
 		{
-			return ((int) (object) _self & (int) (object) _flag) != 0;
+			return (_self.HasFlags(_flag));
 		}
 
 		public static bool IsSimilar( this Color _self, Color _other )
@@ -532,6 +682,16 @@ namespace GuiToolkit
 			return result;
 		}
 
+		public static void CloneAllComponents(GameObject _from, GameObject _to, bool _alsoIfExists = false, HashSet<string> _excludedMembers = null, HashSet<Type> _excludedTypes = null)
+		{
+			List<Component> components = new();
+			_from.GetComponents(components);
+			foreach (var component in components)
+			{
+				CloneTo(component, _to, _alsoIfExists, _excludedMembers, _excludedTypes);
+			}
+		}
+		
 		public static void GetChildren(this Transform _this, ICollection<Transform> _list)
 		{
 			_list.Clear();
@@ -551,17 +711,42 @@ namespace GuiToolkit
 			GetChildren(_this, s_tempTransformList);
 			return s_tempTransformList.ToArray();
 		}
-
-		public static void CloneAllComponents(GameObject _from, GameObject _to, bool _alsoIfExists = false, HashSet<string> _excludedMembers = null, HashSet<Type> _excludedTypes = null)
+		
+		public static void DestroyAllChildren( this Transform _self, bool _includeHidden = true, bool _supportUndoIfPossible = true, Func<Transform, bool> _filter = null)
 		{
-			List<Component> components = new();
-			_from.GetComponents(components);
-			foreach (var component in components)
+			var childCount = _self.childCount;
+			for (int i = childCount-1; i >= 0; --i)
 			{
-				CloneTo(component, _to, _alsoIfExists, _excludedMembers, _excludedTypes);
+				var child = _self.GetChild(i).gameObject;
+				if (!child.activeSelf && !_includeHidden)
+					continue;
+				
+				if (_filter != null)
+				{
+					if (!_filter.Invoke(child.transform))
+						continue;
+				}
+				
+#if UNITY_EDITOR				
+				int check = _self.childCount;
+				string childName = child.name;
+#endif
+				
+				child.SafeDestroy(_supportUndoIfPossible);
+				
+#if UNITY_EDITOR
+				if (check == _self.childCount)
+				{
+					Debug.LogError($"Game Object '{childName}' not properly destroyed!");
+				}
+#endif
 			}
 		}
-		
+
+		public static void DestroyAllChildren( this GameObject _self, bool _includeHidden = true, bool _supportUndoIfPossible = true, Func<Transform, bool> _filter = null )
+		{
+			DestroyAllChildren( _self.transform, _includeHidden, _supportUndoIfPossible, _filter );
+		}
 		
 		public static Vector3 GetComponentWiseDivideBy(this Vector3 _dividend, Vector3 _divisor)
 		{
@@ -616,7 +801,7 @@ namespace GuiToolkit
 			var inst = _this.GetType().GetMethod("MemberwiseClone", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 			return (T)inst?.Invoke(_this, null);
 		}
-
+		
 		private class CloneHelper : ScriptableObject
 		{
 			public UnityEngine.Object m_unityObject;
@@ -662,6 +847,49 @@ namespace GuiToolkit
 			var result = FindDescendantByName(_self.transform, _name, _includeSelf);
 			return result ? result.gameObject : null;
 		}
+		
+		public static bool IsMyDescendant(this Transform _self, Transform _potentialDescendant, bool _includeSelf = false)
+		{
+			if (_includeSelf && _potentialDescendant == _self)
+				return true;
+			
+			return IsMyDescendantInternal(_self, _potentialDescendant);
+		}
+		
+		private static bool IsMyDescendantInternal(Transform _self, Transform _potentialDescendant)
+		{
+			for(var p = _potentialDescendant.parent; p != null; p = p.parent)
+			{
+				if (p == _self)
+					return true;
+			}
+			
+			return false;
+		}
+		
+		public static bool IsInRange(this RangeInt _self, int _value, bool _excludeMin = false, bool _excludeMax = false)
+		{
+			if (_excludeMin && _value <= _self.start || _value < _self.start)
+				return false;
+			
+			if (_excludeMax && _value >= _self.end || _value > _self.end)
+				return false;
+			
+			return true;
+		}
+		
+		public static bool CompareTagEx(this GameObject _go, string _tag)
+		{
+			if (!_go)
+				return false;
+			
+			if (_go.TryGetComponent(typeof(AdditionalTags), out Component additionalTags))
+				return ((AdditionalTags) additionalTags).CompareTag(_tag);
+			
+			return _go.CompareTag(_tag);
+		}
+		
+		public static bool CompareTagEx(this Transform _transform, string _tag) => _transform && CompareTagEx(_transform.gameObject, _tag);
 	}
 
 

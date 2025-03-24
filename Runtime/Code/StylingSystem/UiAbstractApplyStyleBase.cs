@@ -21,6 +21,7 @@ namespace GuiToolkit.Style
 		
 		protected UiAbstractStyleBase m_style;
 
+		private bool m_skinListenersAdded = false;
 		private UiStyleConfig m_effectiveStyleConfig;
 		private bool m_effectiveStyleConfigInitialized;
 
@@ -241,15 +242,21 @@ namespace GuiToolkit.Style
 		
 		public void SetSkinListeners(bool value)
 		{
-			UiEventDefinitions.EvSkinChanged.RemoveListener(OnSkinChanged);
-			UiEventDefinitions.EvSkinValuesChanged.RemoveListener(OnSkinValuesChanged);
-			if (!value)
+			if (m_skinListenersAdded == value)
 				return;
-			
-			UiEventDefinitions.EvSkinChanged.AddListener(OnSkinChanged);
-			UiEventDefinitions.EvSkinValuesChanged.AddListener(OnSkinValuesChanged);
+
+			if (value)
+			{
+				UiEventDefinitions.EvSkinChanged.AddListener(OnSkinChanged);
+				UiEventDefinitions.EvSkinValuesChanged.AddListener(OnSkinValuesChanged);
+			}
+			else
+			{
+				UiEventDefinitions.EvSkinChanged.RemoveListener(OnSkinChanged);
+				UiEventDefinitions.EvSkinValuesChanged.RemoveListener(OnSkinValuesChanged);
+			}
+
+			m_skinListenersAdded = value;
 		}
-
-
 	}
 }

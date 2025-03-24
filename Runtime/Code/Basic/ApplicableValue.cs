@@ -16,7 +16,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		[NonSerialized] public ETriState ValueHasChildren = ETriState.Indeterminate;
 #endif
-		public abstract object RawValueObj { get; }
+		public abstract object RawValueObj { get; set; }
 		public abstract object ValueObj { get; }
 		
 		public bool TweenRunning => m_tweenRunning;
@@ -67,7 +67,11 @@ namespace GuiToolkit
 		[FormerlySerializedAs("Value")]
 		[SerializeField] protected T m_value;
 
-		public override object RawValueObj => m_value;
+		public override object RawValueObj
+		{
+			get => m_value;
+			set => m_value = (T) value;
+		}
 
 		public override object ValueObj
 		{

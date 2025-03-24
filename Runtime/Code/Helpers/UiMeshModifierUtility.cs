@@ -450,10 +450,10 @@ namespace GuiToolkit
 			{
 				if (_iX == 0) // x=0,y=0
 				{
-					_outVertices.Add(UiMathUtility.Bilerp(_bl, _tl, _tr, _br, _leftSplit, _bottomSplit));
-					_outVertices.Add(UiMathUtility.Bilerp(_bl, _tl, _tr, _br, _leftSplit, _topSplit));
-					_outVertices.Add(UiMathUtility.Bilerp(_bl, _tl, _tr, _br, _rightSplit, _topSplit));
-					_outVertices.Add(UiMathUtility.Bilerp(_bl, _tl, _tr, _br, _rightSplit, _bottomSplit));
+					_outVertices.Add(UiMathUtility.Bilerp(ref _bl, ref _tl, ref _tr, ref _br, _leftSplit, _bottomSplit));
+					_outVertices.Add(UiMathUtility.Bilerp(ref _bl, ref _tl, ref _tr, ref _br, _leftSplit, _topSplit));
+					_outVertices.Add(UiMathUtility.Bilerp(ref _bl, ref _tl, ref _tr, ref _br, _rightSplit, _topSplit));
+					_outVertices.Add(UiMathUtility.Bilerp(ref _bl, ref _tl, ref _tr, ref _br, _rightSplit, _bottomSplit));
 
 					ibl = _currentOutIndex;
 					itl = _currentOutIndex + 1;
@@ -464,8 +464,8 @@ namespace GuiToolkit
 				}
 				else // x>0,y=0
 				{
-					_outVertices.Add(UiMathUtility.Bilerp(_bl, _tl, _tr, _br, _rightSplit, _topSplit));
-					_outVertices.Add(UiMathUtility.Bilerp(_bl, _tl, _tr, _br, _rightSplit, _bottomSplit));
+					_outVertices.Add(UiMathUtility.Bilerp(ref _bl, ref _tl, ref _tr, ref _br, _rightSplit, _topSplit));
+					_outVertices.Add(UiMathUtility.Bilerp(ref _bl, ref _tl, ref _tr, ref _br, _rightSplit, _bottomSplit));
 
 					int lastIX = _iX - 1;
 
@@ -481,8 +481,8 @@ namespace GuiToolkit
 			{
 				if (_iX == 0) // x=0,y>0
 				{
-					_outVertices.Add(UiMathUtility.Bilerp(_bl, _tl, _tr, _br, _leftSplit, _topSplit));
-					_outVertices.Add(UiMathUtility.Bilerp(_bl, _tl, _tr, _br, _rightSplit, _topSplit));
+					_outVertices.Add(UiMathUtility.Bilerp(ref _bl, ref _tl, ref _tr, ref _br, _leftSplit, _topSplit));
+					_outVertices.Add(UiMathUtility.Bilerp(ref _bl, ref _tl, ref _tr, ref _br, _rightSplit, _topSplit));
 
 					ibl = _lastTl[_iX];
 					itl = _currentOutIndex;
@@ -493,7 +493,7 @@ namespace GuiToolkit
 				}
 				else // x>0,y>0
 				{
-					_outVertices.Add(UiMathUtility.Bilerp(_bl, _tl, _tr, _br, _rightSplit, _topSplit));
+					_outVertices.Add(UiMathUtility.Bilerp(ref _bl, ref _tl, ref _tr, ref _br, _rightSplit, _topSplit));
 
 					int lastIX = _iX - 1;
 

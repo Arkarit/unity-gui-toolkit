@@ -292,8 +292,6 @@ MonoBehaviour:
   m_support: 65536
   m_target: {fileID: 2527186978423661638}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 2527186978879140348}
-  m_canvasRectTransform: {fileID: 2527186978879140351}
   m_scaleByCanvasScaler: 1
   m_posXStart: 0
   m_posXEnd: 0
@@ -360,7 +358,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 0}
+  m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 2527186978423661634}
 --- !u!225 &2527186978423661634
 CanvasGroup:
@@ -510,8 +508,6 @@ MonoBehaviour:
   m_support: 69632
   m_target: {fileID: 5968183751846801625}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 2527186978879140348}
-  m_canvasRectTransform: {fileID: 2527186978879140351}
   m_scaleByCanvasScaler: 1
   m_posXStart: 0
   m_posXEnd: 0
@@ -605,7 +601,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 0}
+  m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
 --- !u!114 &2527186978879140338
 MonoBehaviour:
