@@ -397,13 +397,18 @@ namespace GuiToolkit
 			_prop.serializedObject.ApplyModifiedProperties();
 		}
 
-		public static bool BoolBar<T>( ref T _filters, string _labelText = null, int _perRow = 0 ) where T : System.Enum
+		public static bool BoolBar<T>( ref T _filters, string _labelText = null, int _perRow = 0, bool _nicifyNames = true ) where T : System.Enum
 		{
 			int filterVal = (int)(object)_filters;
 			bool result = false;
 			string[] types = Enum.GetNames(typeof(T));
 			T[] tvalues = (T[])Enum.GetValues(typeof(T));
 
+			if (_perRow == 0)
+				_perRow = types.Length;
+			
+			float width = Screen.width / _perRow;
+			
 			EditorGUILayout.BeginHorizontal();
 
 			if (!string.IsNullOrEmpty(_labelText))
@@ -423,7 +428,11 @@ namespace GuiToolkit
 
 				int currentEnumVal = (int)(object)tvalues[i];
 				bool currentVal = (filterVal & currentEnumVal) != 0;
-				bool newVal = GUILayout.Toggle(currentVal, types[i]);
+				var name = types[i];
+				if (_nicifyNames)
+					name = ObjectNames.NicifyVariableName(name);
+				
+				bool newVal = GUILayout.Toggle(currentVal, name, GUILayout.Width(width));
 				if (currentVal != newVal)
 				{
 					result = true;
@@ -438,6 +447,69 @@ namespace GuiToolkit
 			EditorGUILayout.EndHorizontal();
 
 			return result;
+		}
+
+		public static bool BoolBar( List<string> _names, List<bool> _values, string _labelText = null, int _perRow = 0 )
+		{
+			if (_names == null || _values == null || _names.Count != _values.Count)
+			{
+				Debug.LogError("Wrong values in BoolBar");
+				return false;
+			}
+			
+			bool result = false;
+			if (_perRow == 0)
+				_perRow = _names.Count;
+			
+			bool hasLabel = !string.IsNullOrEmpty(_labelText);
+			float width = Screen.width / _perRow;
+			
+			EditorGUILayout.BeginHorizontal();
+
+			if (hasLabel)
+				GUILayout.Label(_labelText, GUILayout.Width(EditorGUIUtility.labelWidth));
+
+			for (int i = 0, visible = 0; i < _names.Count; i++)
+			{
+				if (_perRow > 0 && visible > 0 && visible % _perRow == 0)
+				{
+					EditorGUILayout.EndHorizontal();
+					EditorGUILayout.BeginHorizontal();
+				}
+				visible++;
+
+				bool currentVal = _values[i];
+				bool newVal = GUILayout.Toggle(currentVal, _names[i], GUILayout.Width(width));
+				if (currentVal != newVal)
+				{
+					result = true;
+					_values[i] = newVal;
+				}
+			}
+
+			EditorGUILayout.EndHorizontal();
+			return result;
+		}
+		
+		
+		public static bool BoolBar( Dictionary<string, bool> _dict, string _labelText = null, int _perRow = 0 )
+		{
+			List<string> names = new();
+			List<bool> values = new();
+			
+			foreach (var kv in _dict.OrderBy(x => x.Key))
+			{
+				names.Add(kv.Key);
+				values.Add(kv.Value);
+			}
+			
+			if (!BoolBar(names, values, _labelText, _perRow))
+				return false;
+			
+			for (int i=0; i<names.Count; i++)
+				_dict[names[i]] = values[i];
+
+			return true;
 		}
 
 		public static bool BoolBar<T>( SerializedProperty _prop, string _labelText = null ) where T : System.Enum
@@ -577,6 +649,18 @@ namespace GuiToolkit
 			_point1 = _rectPoint1 + offset1;
 
 			Handles.DrawLine(_point0, _point1);
+		}
+		
+		public static void DrawLine(int _height = 1)
+		{
+			DrawLine(new Color ( 0.5f,0.5f,0.5f, 1 ), _height);
+		}
+
+		public static void DrawLine(Color _color, int _height = 1)
+		{
+			Rect rect = EditorGUILayout.GetControlRect(false, _height );
+			rect.height = _height;
+			EditorGUI.DrawRect(rect, _color);
 		}
 
 		public static bool DoHandle( SerializedProperty _serializedProperty, Vector3 _pointInRect, Vector2 _rectSize, RectTransform _rt, bool _mirrorHorizontal = false, bool _mirrorVertical = false, float _handleSize = 0.08f )

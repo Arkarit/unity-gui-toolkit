@@ -8,20 +8,21 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class EditorInputDialog : EditorWindow
+	public abstract class AbstractEditorInputDialog : EditorWindow
 	{
-		private string m_description;
-		private string m_inputText;
-		private string m_okButtonText; 
-		private string m_cancelButtonText;
-		private bool m_positionInitialized = false;
-		private Action m_onOKButton;
+		protected string m_description;
+		protected string m_okButtonText; 
+		protected string m_cancelButtonText;
+		protected bool m_positionInitialized = false;
+		protected Action m_onOKButton;
 
-		private bool m_shouldClose = false;
-		private Vector2 m_maxScreenPos;
+		protected bool m_shouldClose = false;
+		protected Vector2 m_maxScreenPos;
 
-		private Action<EditorInputDialog> m_additionalContent;
-
+		protected Action<AbstractEditorInputDialog> m_additionalContent;
+		
+		protected abstract void ShowContentField();
+		
 		private void OnGUI()
 		{
 			// Check if Esc/Return have been pressed
@@ -57,7 +58,7 @@ namespace GuiToolkit
 
 			EditorGUILayout.Space(8);
 			GUI.SetNextControlName("inText");
-			m_inputText = EditorGUILayout.TextField("", m_inputText);
+			ShowContentField();
 			GUI.FocusControl("inText");   // Focus text field
 			EditorGUILayout.Space(12);
 
@@ -102,6 +103,27 @@ namespace GuiToolkit
 			}
 		}
 
+		public virtual void Ok()
+		{
+			m_onOKButton?.Invoke();
+			m_shouldClose = true;
+		}
+		
+		public virtual void Cancel()
+		{
+			m_shouldClose = true;
+		}
+	}
+	
+	public class EditorInputDialog : AbstractEditorInputDialog
+	{
+		private string m_inputText;
+
+		protected override void ShowContentField()
+		{
+			m_inputText = EditorGUILayout.TextField("", m_inputText);
+		}
+
 		/// <summary>
 		/// Returns text player entered, or null if player cancelled the dialog.
 		/// </summary>
@@ -111,7 +133,7 @@ namespace GuiToolkit
 		/// <param name="_okButtonText"></param>
 		/// <param name="_cancelButtonText"></param>
 		/// <returns></returns>
-		public static string Show(string _title, string _description, string _inputText, Action<EditorInputDialog> _additionalContent = null, string _okButtonText = "OK", string _cancelButtonText = "Cancel")
+		public static string Show(string _title, string _description, string _inputText, Action<AbstractEditorInputDialog> _additionalContent = null, string _okButtonText = "OK", string _cancelButtonText = "Cancel")
 		{
 			// Make sure our popup is always inside parent window, and never offscreen
 			// So get caller's window size
@@ -123,7 +145,7 @@ namespace GuiToolkit
 			window.m_maxScreenPos = maxPos;
 			window.titleContent = new GUIContent(_title);
 			window.m_description = _description;
-			window.m_inputText = _inputText != null ? _inputText : string.Empty;
+			window.m_inputText = _inputText;
 			window.m_additionalContent = _additionalContent;
 			window.m_okButtonText = _okButtonText;
 			window.m_cancelButtonText = _cancelButtonText;
@@ -134,16 +156,51 @@ namespace GuiToolkit
 			return result;
 		}
 		
-		public void Ok()
+		public override void Cancel()
 		{
-			m_onOKButton?.Invoke();
-			m_shouldClose = true;
-		}
-		
-		public void Cancel()
-		{
+			base.Cancel();
 			m_inputText = null;
-			m_shouldClose = true;
+		}
+
+	}
+	
+	public class EditorGameObjectInputDialog : AbstractEditorInputDialog
+	{
+		private GameObject m_gameObject;
+
+		protected override void ShowContentField()
+		{
+			m_gameObject = (GameObject) EditorGUILayout.ObjectField("", m_gameObject, typeof(GameObject));
+		}
+
+		/// <summary>
+		/// Returns game object player entered, or null if player cancelled the dialog.
+		/// </summary>
+		/// <param name="_title"></param>
+		/// <param name="_description"></param>
+		/// <param name="_gameObject"></param>
+		/// <param name="_okButtonText"></param>
+		/// <param name="_cancelButtonText"></param>
+		/// <returns></returns>
+		public static void Show(string _title, string _description, GameObject _gameObject, Action<GameObject> _onOk, Action<AbstractEditorInputDialog> _additionalContent = null, string _okButtonText = "OK", string _cancelButtonText = "Cancel")
+		{
+			// Make sure our popup is always inside parent window, and never offscreen
+			// So get caller's window size
+			var maxPos = GUIUtility.GUIToScreenPoint(new Vector2(Screen.width, Screen.height));
+
+			GameObject result = null;
+			//var window = EditorWindow.GetWindow<InputDialog>();
+			var window = CreateInstance<EditorGameObjectInputDialog>();
+			window.m_maxScreenPos = maxPos;
+			window.titleContent = new GUIContent(_title);
+			window.m_description = _description;
+			window.m_gameObject = _gameObject;
+			window.m_additionalContent = _additionalContent;
+			window.m_okButtonText = _okButtonText;
+			window.m_cancelButtonText = _cancelButtonText;
+			window.m_onOKButton += () => _onOk.Invoke(window.m_gameObject);
+			window.ShowUtility();
+			//window.ShowModal();
 		}
 	}
 }
