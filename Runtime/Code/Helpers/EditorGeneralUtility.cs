@@ -2,7 +2,6 @@
 
 // Caution! Does not work properly yet!
 //#define SCENE_DEPENDENCY_WIP
-using Haven.PathPainter2;
 using System;
 using System.Collections;
 using System.Collections.Generic;

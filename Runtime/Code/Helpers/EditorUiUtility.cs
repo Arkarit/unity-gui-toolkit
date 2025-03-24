@@ -3,6 +3,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -218,7 +219,7 @@ namespace GuiToolkit
 			string _addItemHeadline = null, 
 			string _addItemDescription = null,
 			string _addItemPreset = null,
-			Action<EditorInputDialog> _additionalContent = null
+			Action<AbstractEditorInputDialog> _additionalContent = null
 		)
 		{
 			_newSelection = _current;
@@ -274,7 +275,7 @@ namespace GuiToolkit
 			string _addItemHeadline = null, 
 			string _addItemDescription = null,
 			string _addItemPreset = null,
-			Action<EditorInputDialog> _additionalContent = null
+			Action<AbstractEditorInputDialog> _additionalContent = null
 		)
 		{
 			_newSelection = _current;
@@ -358,7 +359,7 @@ namespace GuiToolkit
 			string _addItemHeadline, 
 			string _addItemDescription,
 			string _addItemPreset,
-			Action<EditorInputDialog> _additionalContent,
+			Action<AbstractEditorInputDialog> _additionalContent,
 			ref string _newSelection
 			)
 		{
