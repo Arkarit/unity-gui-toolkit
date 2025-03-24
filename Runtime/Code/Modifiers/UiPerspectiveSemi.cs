@@ -61,7 +61,7 @@ namespace GuiToolkit
 			}
 		}
 
-		protected override bool IsAbsolute { get { return true; } }
+		public override bool IsAbsolute => true;
 
 		private void CalculatePerspectiveValues( ref Vector2 _fixedPointA, ref Vector2 _fixedPointB, ref Vector2 _movingPointA, ref Vector2 _movingPointB, ESide2D _side )
 		{
