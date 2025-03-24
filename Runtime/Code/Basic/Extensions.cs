@@ -17,6 +17,7 @@ namespace GuiToolkit
 	{
 		private static readonly HashSet<string> s_excludedMembers = new HashSet<string> {"name", "_parent", "parentInternal"};
 		private static readonly HashSet<Type> s_excludedTypes = new HashSet<Type> {typeof(Component), typeof(Transform), typeof(MonoBehaviour)};
+		private static readonly List<Transform> s_tempTransformList = new();
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static unsafe bool HasFlags<T>( this T _self, T _flags) where T : unmanaged, Enum
@@ -691,6 +692,61 @@ namespace GuiToolkit
 			}
 		}
 		
+		public static void GetChildren(this Transform _this, ICollection<Transform> _list)
+		{
+			_list.Clear();
+			foreach (Transform child in _this)
+				_list.Add(child);
+		}
+
+		public static List<Transform> GetChildrenList(this Transform _this)
+		{
+			List<Transform> result = new List<Transform>();
+			GetChildren(_this, result);
+			return result;
+		}
+
+		public static Transform[] GetChildrenArray(this Transform _this)
+		{
+			GetChildren(_this, s_tempTransformList);
+			return s_tempTransformList.ToArray();
+		}
+		
+		public static void DestroyAllChildren( this Transform _self, bool _includeHidden = true, bool _supportUndoIfPossible = true, Func<Transform, bool> _filter = null)
+		{
+			var childCount = _self.childCount;
+			for (int i = childCount-1; i >= 0; --i)
+			{
+				var child = _self.GetChild(i).gameObject;
+				if (!child.activeSelf && !_includeHidden)
+					continue;
+				
+				if (_filter != null)
+				{
+					if (!_filter.Invoke(child.transform))
+						continue;
+				}
+				
+#if UNITY_EDITOR				
+				int check = _self.childCount;
+				string childName = child.name;
+#endif
+				
+				child.SafeDestroy(_supportUndoIfPossible);
+				
+#if UNITY_EDITOR
+				if (check == _self.childCount)
+				{
+					Debug.LogError($"Game Object '{childName}' not properly destroyed!");
+				}
+#endif
+			}
+		}
+
+		public static void DestroyAllChildren( this GameObject _self, bool _includeHidden = true, bool _supportUndoIfPossible = true, Func<Transform, bool> _filter = null )
+		{
+			DestroyAllChildren( _self.transform, _includeHidden, _supportUndoIfPossible, _filter );
+		}
 		
 		public static Vector3 GetComponentWiseDivideBy(this Vector3 _dividend, Vector3 _divisor)
 		{
@@ -738,6 +794,12 @@ namespace GuiToolkit
 				return null;
 
 			return _self.transform.root.gameObject;
+		}
+		
+		public static T ShallowClone<T>(this T _this)
+		{
+			var inst = _this.GetType().GetMethod("MemberwiseClone", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+			return (T)inst?.Invoke(_this, null);
 		}
 		
 		private class CloneHelper : ScriptableObject
