@@ -12,6 +12,12 @@ namespace GuiToolkit.Style.Editor
 		protected SerializedProperty m_stylesProp;
 		protected UiSkin m_thisUiSkin;
 
+		[Serializable]
+		private class JsonHelper
+		{
+			public UiSkin Skin;
+		}
+		
 		public string skinName => m_thisUiSkin != null ? m_thisUiSkin.Name : null;
 		public string skinAlias => m_thisUiSkin != null ? m_thisUiSkin.Alias : null;
 
@@ -59,8 +65,46 @@ namespace GuiToolkit.Style.Editor
 				
 				LabelField("   " + skinAlias, 0, EditorStyles.boldLabel);
 	
-				IncreaseX(-130);
-	
+				IncreaseX(-310);
+				if (Button("HSV", 55))
+				{
+					var hsv = UiSkinHSVDialog.GetWindow();
+					hsv.Skin = m_thisUiSkin;
+					hsv.StyleConfig = styleConfig;
+				}
+				IncreaseX(60);
+				
+				if (Button("Copy", 55))
+				{
+					var jsonHelper = new JsonHelper()
+					{
+						Skin = m_thisUiSkin
+					};
+					
+					var jsonStr = UnityEngine.JsonUtility.ToJson(jsonHelper, true);
+					GUIUtility.systemCopyBuffer = jsonStr;
+				}
+				IncreaseX(60);
+				
+				if (Button("Paste", 55))
+				{
+					var jsonStr = GUIUtility.systemCopyBuffer;
+					var jsonHelper = UnityEngine.JsonUtility.FromJson<JsonHelper>(jsonStr);
+					for (int i=0; i < jsonHelper.Skin.Styles.Count && i < m_thisUiSkin.Styles.Count; i++)
+					{
+						var fromStyle = jsonHelper.Skin.Styles[i];
+						var toStyle = m_thisUiSkin.Styles[i];
+						
+						for (int j=0; j < fromStyle.Values.Length && j < toStyle.Values.Length; j++)
+						{
+							toStyle.Values[j].RawValueObj = fromStyle.Values[j].RawValueObj;
+						}
+					}
+					EditorUtility.SetDirty(styleConfig);
+					EditorApplication.delayCall += () => UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+				}
+				IncreaseX(60);
+				
 				if (Button("Rename", 55))
 				{
 					// Create copies due to shitty c# not able to define capture copy in lambda
