@@ -134,7 +134,7 @@ namespace GuiToolkit
 				if (IsNaN(pointNormalized))
 					continue;
 
-				Vector2 point = s_vertex.position.Xy() + UiMathUtility.Lerp4P(tl, tr, bl, br, pointNormalized, false, true) * mirrorVec;
+				Vector2 point = s_vertex.position.Xy() + UiMathUtility.Lerp4P(ref tl, ref tr, ref bl, ref br, ref pointNormalized, false, true) * mirrorVec;
 				s_vertex.position = new Vector3(point.x, point.y, s_vertex.position.z);
 
 				_vertexHelper.SetUIVertex(s_vertex, i);

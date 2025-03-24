@@ -20,6 +20,9 @@ namespace GuiToolkit
 		[SerializeField]
 		protected bool m_splitAtKeys = true;
 
+		private static readonly SortedSet<float> s_KeyTimesSet = new();
+		private static readonly List<float> s_KeyTimesList = new();
+
 		public Gradient Gradient
 		{
 			get => m_gradient;
@@ -41,19 +44,23 @@ namespace GuiToolkit
 			GradientColorKey[] colorKeys = m_gradient.colorKeys;
 			GradientAlphaKey[] alphaKeys = m_gradient.alphaKeys;
 
-			SortedSet<float> keyTimes = new SortedSet<float>();
 			foreach( var key in colorKeys )
-				keyTimes.Add( m_type == Type.Horizontal ? key.time : 1.0f - key.time );
+				s_KeyTimesSet.Add( m_type == Type.Horizontal ? key.time : 1.0f - key.time );
 			foreach( var key in alphaKeys )
-				keyTimes.Add( m_type == Type.Horizontal ? key.time : 1.0f - key.time );
+				s_KeyTimesSet.Add( m_type == Type.Horizontal ? key.time : 1.0f - key.time );
 
-			if (keyTimes.Count <= 2)
+			if (s_KeyTimesSet.Count <= 2)
 				return;
 
+			s_KeyTimesSet.ToList(s_KeyTimesList);
+
 			if (m_type == Type.Horizontal)
-				UiMeshModifierUtility.Subdivide( _vh, keyTimes.ToList(), null);
+				UiMeshModifierUtility.Subdivide( _vh, s_KeyTimesList, null);
 			else
-				UiMeshModifierUtility.Subdivide( _vh, null, keyTimes.ToList());
+				UiMeshModifierUtility.Subdivide( _vh, null, s_KeyTimesList);
+
+			s_KeyTimesSet.Clear();
+			s_KeyTimesList.Clear();
 		}
 
 	}

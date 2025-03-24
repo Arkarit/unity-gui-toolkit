@@ -69,6 +69,7 @@ namespace GuiToolkit
 		{
 			ColorLeftOrTop = _leftOrTop;
 			ColorRightOrBottom = _rightOrBottom;
+			SetDirty();
 		}
 
 		public (Color leftOrTop, Color rightOrBottom) GetColors()
