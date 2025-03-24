@@ -407,9 +407,10 @@ namespace GuiToolkit.Editor
 
 		public override void OnGUI(Rect _rect, SerializedProperty _property, GUIContent _label)
 		{
-			var screenPos = GUIUtility.GUIToScreenPoint(_rect.position);
-			if (screenPos.y > Screen.height || screenPos.y + _rect.height < 0)
-				return;
+			// Disabled optimization; does not properly work
+//			var screenPos = GUIUtility.GUIToScreenPoint(_rect.position);
+//			if (screenPos.y > Screen.height || screenPos.y + _rect.height < 0)
+//				return;
 
 			EditorGUI.BeginProperty(_rect, _label, _property);
 			m_property = _property;
