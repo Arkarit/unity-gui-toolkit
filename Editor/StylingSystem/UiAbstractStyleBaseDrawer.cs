@@ -43,7 +43,7 @@ namespace GuiToolkit.Style.Editor
 				{
 					EditorApplication.delayCall += () =>
 					{
-						Action<EditorInputDialog> additionalContent = dialog =>
+						Action<AbstractEditorInputDialog> additionalContent = dialog =>
 						{
 							if (GUILayout.Button("Reset Name"))
 							{

@@ -761,8 +761,6 @@ MonoBehaviour:
   m_support: 69888
   m_target: {fileID: 3265018062609709655}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 3265018062392037805}
-  m_canvasRectTransform: {fileID: 3265018062392037804}
   m_scaleByCanvasScaler: 1
   m_posXStart: 0
   m_posXEnd: 0
@@ -883,7 +881,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 3265018062609709649}
+  m_alphaGraphic: {fileID: 3265018062609709649}
   m_alphaCanvasGroup: {fileID: 0}
 --- !u!1 &3265018062697313386
 GameObject:
@@ -1222,8 +1220,6 @@ MonoBehaviour:
   m_support: 4096
   m_target: {fileID: 3265018062712379453}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 3265018062392037805}
-  m_canvasRectTransform: {fileID: 3265018062392037804}
   m_scaleByCanvasScaler: 1
   m_posXStart: 0
   m_posXEnd: 0
@@ -1290,7 +1286,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 0}
+  m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
 --- !u!1 &3265018062724108277
 GameObject:
@@ -1623,8 +1619,6 @@ MonoBehaviour:
   m_support: 65538
   m_target: {fileID: 3265018062745738774}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 3265018062392037805}
-  m_canvasRectTransform: {fileID: 3265018062392037804}
   m_scaleByCanvasScaler: 1
   m_posXStart: 1920
   m_posXEnd: 0
@@ -1736,7 +1730,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 0}
+  m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 3265018062745738775}
 --- !u!225 &3265018062745738775
 CanvasGroup:
@@ -1914,8 +1908,6 @@ MonoBehaviour:
   m_support: 1
   m_target: {fileID: 3265018062773664422}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 3265018062392037805}
-  m_canvasRectTransform: {fileID: 3265018062392037804}
   m_scaleByCanvasScaler: 1
   m_posXStart: -2000
   m_posXEnd: 0
@@ -1982,7 +1974,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 0}
+  m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
 --- !u!1 &3265018062793859289
 GameObject:
@@ -2376,8 +2368,6 @@ MonoBehaviour:
   m_support: 65537
   m_target: {fileID: 3265018062850428443}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 3265018062392037805}
-  m_canvasRectTransform: {fileID: 3265018062392037804}
   m_scaleByCanvasScaler: 1
   m_posXStart: 1920
   m_posXEnd: 0
@@ -2471,7 +2461,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 3265018062850428437}
+  m_alphaGraphic: {fileID: 3265018062850428437}
   m_alphaCanvasGroup: {fileID: 0}
 --- !u!1 &3265018062864857193
 GameObject:
@@ -4079,8 +4069,6 @@ MonoBehaviour:
   m_support: 2
   m_target: {fileID: 3265018063177636644}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 3265018062392037805}
-  m_canvasRectTransform: {fileID: 3265018062392037804}
   m_scaleByCanvasScaler: 1
   m_posXStart: 0
   m_posXEnd: 0
@@ -4147,7 +4135,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 0}
+  m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
 --- !u!1 &3265018063183642812
 GameObject:
@@ -6584,8 +6572,6 @@ MonoBehaviour:
   m_support: 65538
   m_target: {fileID: 3265018064175675196}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 3265018062392037805}
-  m_canvasRectTransform: {fileID: 3265018062392037804}
   m_scaleByCanvasScaler: 1
   m_posXStart: 1920
   m_posXEnd: 0
@@ -6697,7 +6683,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 3265018064175675198}
+  m_alphaGraphic: {fileID: 3265018064175675198}
   m_alphaCanvasGroup: {fileID: 0}
 --- !u!1 &3265018064372884948
 GameObject:
@@ -7037,8 +7023,6 @@ MonoBehaviour:
   m_support: 1
   m_target: {fileID: 3265018064413849194}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 3265018062392037805}
-  m_canvasRectTransform: {fileID: 3265018062392037804}
   m_scaleByCanvasScaler: 1
   m_posXStart: -1920
   m_posXEnd: 0
@@ -7105,7 +7089,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 0}
+  m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
 --- !u!1 &3265018064418684138
 GameObject:

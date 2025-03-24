@@ -69,7 +69,7 @@ namespace GuiToolkit.Style.Editor
 			string copyFromAlias = skinAliases.Count > 0 ? skinAliases[0] : string.Empty;
 			string copyFromName = skinAliases.Count > 0 ? skinNames[0] : string.Empty;
 
-			Action<EditorInputDialog> additionalContent = _ =>
+			Action<AbstractEditorInputDialog> additionalContent = _ =>
 			{
 				if (string.IsNullOrEmpty(copyFromAlias))
 					return;
