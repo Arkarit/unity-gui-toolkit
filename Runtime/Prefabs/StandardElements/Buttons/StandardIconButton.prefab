@@ -97,6 +97,7 @@ MonoBehaviour:
   m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
   m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
   m_orientation: 1
+  m_swapped: 0
 --- !u!114 &2646124453910735851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,8 +127,6 @@ MonoBehaviour:
   m_support: 4096
   m_target: {fileID: 6007003252683130716}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 0}
-  m_canvasRectTransform: {fileID: 0}
   m_scaleByCanvasScaler: 1
   m_posXStart: 0
   m_posXEnd: 0
@@ -194,7 +193,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 0}
+  m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
 --- !u!114 &6421671037620508412
 MonoBehaviour:
@@ -226,6 +225,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Buttons/Icon/Background
   m_fixedSkinName: 
@@ -248,6 +248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Buttons/Icon/Background
   m_fixedSkinName: 
@@ -270,6 +271,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57bc3011770ca1346a002a705abd54de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Buttons/Icon/Background
   m_fixedSkinName: 
@@ -500,6 +502,7 @@ MonoBehaviour:
   m_colorLeftOrTop: {r: 0.61960787, g: 0.909804, b: 1, a: 1}
   m_colorRightOrBottom: {r: 0.46662515, g: 0.8159533, b: 0.9245283, a: 1}
   m_orientation: 1
+  m_swapped: 0
 --- !u!114 &7479450959262844953
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -544,8 +547,6 @@ MonoBehaviour:
   m_support: 4096
   m_target: {fileID: 8841427501349092911}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 0}
-  m_canvasRectTransform: {fileID: 0}
   m_scaleByCanvasScaler: 1
   m_posXStart: 0
   m_posXEnd: 0
@@ -612,7 +613,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 0}
+  m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
 --- !u!114 &7758758935192399221
 MonoBehaviour:
@@ -644,6 +645,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Buttons/Icon/Icon
   m_fixedSkinName: 
@@ -666,6 +668,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Buttons/Icon/Icon
   m_fixedSkinName: 
@@ -688,6 +691,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57bc3011770ca1346a002a705abd54de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Buttons/Icon/Icon
   m_fixedSkinName: 
@@ -710,6 +714,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6502b1a98944b7c4a8f378ec03cff158, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Buttons/Icon/Icon
   m_fixedSkinName: 
