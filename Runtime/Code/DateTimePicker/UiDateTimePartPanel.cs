@@ -1,6 +1,7 @@
 ﻿using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
@@ -8,7 +9,8 @@ namespace GuiToolkit
 	{
 		[SerializeField] protected DateTimeHelpers.EDateTimeType m_type;
 		[SerializeField] protected TMP_Text m_text;
-		[SerializeField] protected string m_Caption;
+		[FormerlySerializedAs("m_Caption")] 
+		[SerializeField] protected string m_caption;
 		[SerializeField] protected UiButton m_button;
 		[SerializeField] protected UiGridPickerCell m_gridPickerCellPrefab;
 		[SerializeField] protected int m_numColumns = 6;
@@ -60,7 +62,7 @@ namespace GuiToolkit
 				NumRows = m_numRows,
 				AllowOutsideTap = true,
 				ShowCloseButton = false,
-				Caption = _(m_Caption),
+				Caption = _(m_caption),
 				ColumnWidth = 100,
 				RowHeight = 50,
 				MaxElements = m_maxElements,

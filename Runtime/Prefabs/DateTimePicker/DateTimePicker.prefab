@@ -206,7 +206,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &6690728067217613655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2290,6 +2290,18 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 4795992340172344727}
   m_SourcePrefab: {fileID: 100100000, guid: 9cf18d83d2a886241ba20c9f99e9f43d, type: 3}
+--- !u!114 &3637849120153892827 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8305447732415056033, guid: 9cf18d83d2a886241ba20c9f99e9f43d,
+    type: 3}
+  m_PrefabInstance: {fileID: 4701437183193595770}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9df890b72f8e7864d8f1c8540cec85a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &4313021619384072162 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8855258270339074200, guid: 9cf18d83d2a886241ba20c9f99e9f43d,
@@ -2342,12 +2354,15 @@ MonoBehaviour:
   m_defaultSceneVisibility: 0
   m_increaseButton: {fileID: 4313021619384072162}
   m_decreaseButton: {fileID: 5323787889225854787}
+  m_button: {fileID: 3637849120153892827}
   m_text: {fileID: 6138475405752746382}
   m_gridPickerCellPrefab: {fileID: 6803626192382413750, guid: 8722d14c7645aa04e8da616ab909355d,
     type: 3}
   m_strings: []
   m_index: 0
   m_isLocalizable: 0
+  m_caption: 
+  m_numColumns: 10
   m_startYear: 1950
   m_endYear: 2070
   m_currentYear: -1

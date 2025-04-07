@@ -10,11 +10,17 @@ namespace GuiToolkit
 	{
 		[SerializeField] protected UiButton m_increaseButton;
 		[SerializeField] protected UiButton m_decreaseButton;
+		[SerializeField] protected UiButton m_button;
+
 		[SerializeField] protected TMP_Text m_text;
 		[SerializeField] protected UiGridPickerCell m_gridPickerCellPrefab;
 		[SerializeField] protected List<string> m_strings;
 		[SerializeField] protected int m_index = 0;
 		[SerializeField] protected bool m_isLocalizable = false;
+		[SerializeField] protected string m_caption;
+		[SerializeField] protected int m_numColumns = 0;
+
+		public readonly CEvent<string, int> OnValueChanged = new();
 
 		protected override bool NeedsLanguageChangeCallback => m_isLocalizable;
 
@@ -27,6 +33,7 @@ namespace GuiToolkit
 
 			m_increaseButton.OnClick.AddListener(OnIncrease);
 			m_decreaseButton.OnClick.AddListener(OnDecrease);
+			m_button.OnClick.AddListener(OnClick);
 		}
 
 		protected override void OnDisable()
@@ -34,17 +41,70 @@ namespace GuiToolkit
 			base.OnDisable();
 			m_increaseButton.OnClick.RemoveListener(OnIncrease);
 			m_decreaseButton.OnClick.RemoveListener(OnDecrease);
+			m_button.OnClick.RemoveListener(OnClick);
 		}
 
 		protected void OnIncrease() => AddIndexOffset(1);
 
 		protected void OnDecrease() => AddIndexOffset(-1);
 	
+		private void OnClick()
+		{
+			var options = new UiGridPicker.Options()
+			{
+				NumColumns = m_numColumns,
+				NumRows = Mathf.CeilToInt(m_strings.Count / (float) m_numColumns),
+				AllowOutsideTap = true,
+				ShowCloseButton = false,
+				Caption = _(m_caption),
+				ColumnWidth = 100,
+				RowHeight = 50,
+				OnCellClicked = OnCellClicked,
+				OnPopulateCell = OnPopulateCell,
+				Prefab = m_gridPickerCellPrefab
+			};
+
+			UiMain.Instance.ShowGridPicker(options);
+		}
+
+		private void OnPopulateCell(UiGridPicker _gridPicker, int _x, int _y, UiGridPickerCell _cell)
+		{
+			int idx = _x + _y * m_numColumns;
+			bool isEmptyCell = idx >= m_strings.Count;
+
+			if (isEmptyCell)
+			{
+				_cell.OptionalCaption = String.Empty;
+				_cell.Button.Button.interactable = false;
+				return;
+			}
+
+			_cell.Button.Button.interactable = true;
+			_cell.OptionalCaption = m_isLocalizable ? _(m_strings[idx]) : m_strings[idx];
+		}
+
+		private void OnCellClicked(UiGridPicker _gridPicker, int _x, int _y, UiGridPickerCell _cell)
+		{
+			int idx = _x + _y * m_numColumns;
+			bool isEmptyCell = idx >= m_strings.Count;
+
+			if (isEmptyCell)
+				return;
+
+			m_index = idx;
+			OnValueChanged.Invoke(m_strings[idx], idx);
+			UpdateText();
+
+			_gridPicker.Hide();
+		}
+
 		protected void AddIndexOffset(int _addend)
 		{
 			m_index = (m_index + _addend) % m_strings.Count;
 			if (m_index < 0)
 				m_index += m_strings.Count;
+
+			OnValueChanged.Invoke(m_strings[m_index], m_index);
 
 			UpdateText();
 		}
