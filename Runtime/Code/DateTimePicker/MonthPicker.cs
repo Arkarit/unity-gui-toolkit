@@ -28,9 +28,23 @@ namespace GuiToolkit
 			m_isLocalizable = true;
 			m_strings.Clear();
 			m_strings.AddRange(Months);
-			m_index = 0;
+			SetMonthByName(m_currentMonth);
 
 			base.OnEnable();
+		}
+
+		protected void SetMonthByName(string _monthName)
+		{
+			int index = m_strings.IndexOf(_monthName);
+			if (index == -1)
+			{
+				Debug.LogWarning($"Month name '{_monthName}' unknown, setting '{Months[0]}'");
+				m_index = 0;
+				return;
+			}
+
+			m_index = 0;
+			UpdateText();
 		}
 	}
 }

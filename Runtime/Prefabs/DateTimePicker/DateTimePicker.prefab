@@ -206,7 +206,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &6690728067217613655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2188,7 +2188,7 @@ MonoBehaviour:
   m_caption: 
   m_numColumnsLandscape: 3
   m_numColumnsPortrait: 3
-  m_cellWidth: 150
+  m_cellWidth: 220
   m_cellHeight: 80
   m_currentMonth: January
 --- !u!224 &1794929491309733788 stripped

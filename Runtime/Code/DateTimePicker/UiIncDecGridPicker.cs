@@ -41,6 +41,7 @@ namespace GuiToolkit
 			m_increaseButton.OnClick.AddListener(OnIncrease);
 			m_decreaseButton.OnClick.AddListener(OnDecrease);
 			m_button.OnClick.AddListener(OnClick);
+			UpdateText();
 		}
 
 		protected override void OnDisable()
