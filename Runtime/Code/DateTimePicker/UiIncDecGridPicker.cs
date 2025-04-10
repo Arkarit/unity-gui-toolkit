@@ -31,25 +31,25 @@ namespace GuiToolkit
 
 		protected override bool NeedsLanguageChangeCallback => m_isLocalizable;
 
+		protected override void Awake()
+		{
+			AddOnEnableButtonListeners
+			(
+				(m_increaseButton, OnIncrease),
+				(m_decreaseButton, OnDecrease),
+				(m_button, OnClick)
+			);
+
+			base.Awake();
+		}
+
 		protected override void OnEnable()
 		{
 			if (m_strings == null || m_strings.Count <= m_index)
 				throw new IndexOutOfRangeException($"Index out of range in {this.GetPath()}");
 
 			base.OnEnable();
-
-			m_increaseButton.OnClick.AddListener(OnIncrease);
-			m_decreaseButton.OnClick.AddListener(OnDecrease);
-			m_button.OnClick.AddListener(OnClick);
 			UpdateText();
-		}
-
-		protected override void OnDisable()
-		{
-			base.OnDisable();
-			m_increaseButton.OnClick.RemoveListener(OnIncrease);
-			m_decreaseButton.OnClick.RemoveListener(OnDecrease);
-			m_button.OnClick.RemoveListener(OnClick);
 		}
 
 		protected void OnIncrease() => AddIndexOffset(1);

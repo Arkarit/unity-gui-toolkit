@@ -1,7 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using static UnityEngine.UI.Button;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -42,7 +45,10 @@ namespace GuiToolkit
 		/// Override to remove your event listeners.
 		protected virtual void RemoveEventListeners() {}
 
+		protected readonly List<(UiButton button, UnityAction action)> m_buttonListeners = new();
+
 		private bool m_eventListenersAdded = false;
+		private bool m_isAwake = false;
 
 		public RectTransform RectTransform => transform as RectTransform;
 
@@ -84,6 +90,18 @@ namespace GuiToolkit
 		protected virtual void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation ){}
 
 
+		/// Call this in Awake(), before calling base.Awake()!
+		protected void AddOnEnableButtonListeners(params (UiButton button, UnityAction action)[] _listeners)
+		{
+			if (m_isAwake)
+			{
+				Debug.LogError("Call this in Awake(), before calling base.Awake() please!");
+				return;
+			}
+
+			m_buttonListeners.AddRange(_listeners);
+		}
+
 		/// \brief Install Event handlers on disabled objects
 		/// 
 		/// Unity unfortunately has NO reliable "OnCreate" callback:<BR>
@@ -121,6 +139,8 @@ namespace GuiToolkit
 				AddEventListeners();
 				m_eventListenersAdded = true;
 			}
+
+			m_isAwake = true;
 		}
 
 		/// Installs event listeners, if not ReceiveEventsWhenDisabled
@@ -137,6 +157,14 @@ namespace GuiToolkit
 				AddEventListeners();
 				m_eventListenersAdded = true;
 			}
+
+			foreach (var buttonListener in m_buttonListeners)
+			{
+				if (buttonListener.button == null || buttonListener.action == null)
+					continue;
+
+				buttonListener.button.OnClick.AddListener(buttonListener.action);
+			}
 		}
 
 		/// Removes event listeners, if not ReceiveEventsWhenDisabled
@@ -152,6 +180,14 @@ namespace GuiToolkit
 			{
 				RemoveEventListeners();
 				m_eventListenersAdded = false;
+			}
+
+			foreach (var buttonListener in m_buttonListeners)
+			{
+				if (buttonListener.button == null || buttonListener.action == null)
+					continue;
+
+				buttonListener.button.OnClick.RemoveListener(buttonListener.action);
 			}
 		}
 
