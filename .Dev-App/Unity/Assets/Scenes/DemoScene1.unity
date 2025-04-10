@@ -2155,8 +2155,6 @@ MonoBehaviour:
   m_support: 65536
   m_target: {fileID: 775770457}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 1633771933}
-  m_canvasRectTransform: {fileID: 1633771935}
   m_scaleByCanvasScaler: 1
   m_posXStart: 0
   m_posXEnd: 0
@@ -2223,7 +2221,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 0}
+  m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 775770458}
 --- !u!1 &797088818
 GameObject:
@@ -4489,8 +4487,6 @@ MonoBehaviour:
   m_support: 1
   m_target: {fileID: 115596804}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 1633771933}
-  m_canvasRectTransform: {fileID: 1633771935}
   m_scaleByCanvasScaler: 1
   m_posXStart: -1920
   m_posXEnd: 0
@@ -4566,7 +4562,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 0}
+  m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
 --- !u!1 &1695028405
 GameObject:
