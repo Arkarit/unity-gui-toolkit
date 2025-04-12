@@ -206,7 +206,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &6690728067217613655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2108,7 +2108,8 @@ PrefabInstance:
       propertyPath: m_PresetInfoIsWorld
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1094821840627075865, guid: 9cf18d83d2a886241ba20c9f99e9f43d, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -2164,6 +2165,7 @@ MonoBehaviour:
   m_cellWidth: 220
   m_cellHeight: 80
   m_currentMonth: January
+  m_optionalNowButton: {fileID: 5919814051505703565}
 --- !u!224 &1794929491309733788 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1388017187930862827, guid: 9cf18d83d2a886241ba20c9f99e9f43d,
@@ -2467,12 +2469,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: YearPicker
       objectReference: {fileID: 0}
+    - target: {fileID: 1445342045220404980, guid: 9cf18d83d2a886241ba20c9f99e9f43d,
+        type: 3}
+      propertyPath: m_text
+      value: 2000
+      objectReference: {fileID: 0}
     - target: {fileID: 7645155902574072503, guid: 9cf18d83d2a886241ba20c9f99e9f43d,
         type: 3}
       propertyPath: m_PresetInfoIsWorld
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1094821840627075865, guid: 9cf18d83d2a886241ba20c9f99e9f43d, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:

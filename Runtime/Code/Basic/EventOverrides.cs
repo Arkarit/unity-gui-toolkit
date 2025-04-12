@@ -21,10 +21,12 @@ namespace GuiToolkit
 	public class CEvent : UnityEvent
 	{
 		private readonly bool m_autoInvoke;
-		public CEvent(bool _autoInvoke = false) : base()
+		public CEvent(bool _autoInvoke) : base()
 		{
 			m_autoInvoke = _autoInvoke;
 		}
+
+		public CEvent() : this(false) {}
 
 #if UNITY_EDITOR
 		public new void Invoke()
@@ -48,11 +50,12 @@ namespace GuiToolkit
 		private bool m_canAutoInvoke;
 		private T0 m_lastT0;
 
-		public CEvent( bool _canAutoInvoke = false,T0 autoInvokeStartValue = default) : base()
+		public CEvent( bool _canAutoInvoke,T0 autoInvokeStartValue = default) : base()
 		{
 			m_canAutoInvoke = _canAutoInvoke;
 			m_lastT0 = autoInvokeStartValue;
 		}
+		public CEvent() : this(false) {}
 
 		public new void Invoke(T0 _arg0)
 		{
@@ -94,7 +97,7 @@ namespace GuiToolkit
 		private T1 m_lastT1;
 
 		public CEvent(
-			bool _canAutoInvoke = false, 
+			bool _canAutoInvoke, 
 			T0 autoInvokeStartValue0 = default, 
 			T1 autoInvokeStartValue1 = default
 			) : base()
@@ -103,6 +106,8 @@ namespace GuiToolkit
 			m_lastT0 = autoInvokeStartValue0;
 			m_lastT1 = autoInvokeStartValue1;
 		}
+
+		public CEvent() : this(false) {}
 
 		public new void Invoke(T0 _arg0, T1 _arg1)
 		{
@@ -151,7 +156,7 @@ namespace GuiToolkit
 		private T2 m_lastT2;
 
 		public CEvent(
-			bool _canAutoInvoke = false, 
+			bool _canAutoInvoke, 
 			T0 autoInvokeStartValue0 = default, 
 			T1 autoInvokeStartValue1 = default, 
 			T2 autoInvokeStartValue2 = default
@@ -162,6 +167,8 @@ namespace GuiToolkit
 			m_lastT1 = autoInvokeStartValue1;
 			m_lastT2 = autoInvokeStartValue2;
 		}
+
+		public CEvent() : this(false) {}
 
 		public new void Invoke(T0 _arg0, T1 _arg1, T2 _arg2)
 		{
@@ -213,7 +220,7 @@ namespace GuiToolkit
 		private T3 m_lastT3;
 
 		public CEvent(
-			bool _canAutoInvoke = false, 
+			bool _canAutoInvoke, 
 			T0 autoInvokeStartValue0 = default, 
 			T1 autoInvokeStartValue1 = default, 
 			T2 autoInvokeStartValue2 = default,
@@ -226,6 +233,8 @@ namespace GuiToolkit
 			m_lastT2 = autoInvokeStartValue2;
 			m_lastT3 = autoInvokeStartValue3;
 		}
+
+		public CEvent() : this(false) {}
 
 		public new void Invoke(T0 _arg0, T1 _arg1, T2 _arg2, T3 _arg3)
 		{

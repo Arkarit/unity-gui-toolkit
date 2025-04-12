@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 namespace GuiToolkit
@@ -23,7 +24,9 @@ namespace GuiToolkit
 		[SerializeField] protected int m_cellWidth = 150;
 		[SerializeField] protected int m_cellHeight = 80;
 
-		public readonly CEvent<string, int> OnValueChanged = new();
+		// string: changed entry
+		// int: changed entry index
+		public CEvent<string, int> OnValueChanged = new();
 
 		public int numColumns => UiUtility.GetCurrentScreenOrientation() == EScreenOrientation.Landscape
 			? m_numColumnsLandscape
