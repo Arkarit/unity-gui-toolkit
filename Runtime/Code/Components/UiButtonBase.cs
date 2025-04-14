@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace GuiToolkit
 {
@@ -96,39 +87,4 @@ namespace GuiToolkit
 #endif
 
 	}
-
-
-#if UNITY_EDITOR
-	[CustomEditor(typeof(UiButtonBase))]
-	public class UiButtonBaseEditor : UiTextContainerEditor
-	{
-		protected SerializedProperty m_simpleAnimationProp;
-		protected SerializedProperty m_audioSourceProp;
-		protected SerializedProperty m_uiImageProp;
-
-		static private bool m_toolsVisible;
-
-		public override void OnEnable()
-		{
-			base.OnEnable();
-			m_simpleAnimationProp = serializedObject.FindProperty("m_simpleAnimation");
-			m_audioSourceProp = serializedObject.FindProperty("m_audioSource");
-			m_uiImageProp = serializedObject.FindProperty("m_uiImage");
-		}
-
-		public override void OnInspectorGUI()
-		{
-			base.OnInspectorGUI();
-			UiButtonBase thisButtonBase = (UiButtonBase)target;
-
-			EditorGUILayout.PropertyField(m_uiImageProp);
-			EditorGUILayout.PropertyField(m_simpleAnimationProp);
-			EditorGUILayout.PropertyField(m_audioSourceProp);
-
-			serializedObject.ApplyModifiedProperties();
-		}
-
-	}
-#endif
-
 }

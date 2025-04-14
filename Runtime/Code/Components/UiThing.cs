@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
-using static UnityEngine.UI.Button;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace GuiToolkit
 {
@@ -201,34 +194,4 @@ namespace GuiToolkit
 			}
 		}
 	}
-
-#if UNITY_EDITOR
-	[CustomEditor(typeof(UiThing))]
-	public class UiThingEditor : Editor
-	{
-		protected SerializedProperty m_enabledInHierarchyProp;
-
-		public virtual void OnEnable()
-		{
-			m_enabledInHierarchyProp = serializedObject.FindProperty("m_enabledInHierarchy");
-		}
-
-		public override void OnInspectorGUI()
-		{
-			UiThing thisUiThing = (UiThing)target;
-
-			if (thisUiThing.IsEnableableInHierarchy)
-			{
-				EditorGUILayout.PropertyField(m_enabledInHierarchyProp);
-				thisUiThing.EnabledInHierarchy = m_enabledInHierarchyProp.boolValue;
-			}
-
-			serializedObject.ApplyModifiedProperties();
-		}
-
-	}
-#endif
-
-
-
 }

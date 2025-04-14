@@ -1,10 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace GuiToolkit
 {
 	public class UiTabChapter : UiTextContainer
@@ -23,15 +19,4 @@ namespace GuiToolkit
 			}
 		}
 	}
-#if UNITY_EDITOR
-	[CustomEditor(typeof(UiTabChapter))]
-	public class UiTabChapterEditor : UiTextContainerEditor
-	{
-		public override void OnInspectorGUI()
-		{
-			base.OnInspectorGUI();
-			DrawDefaultInspector();
-		}
-	}
-#endif
 }

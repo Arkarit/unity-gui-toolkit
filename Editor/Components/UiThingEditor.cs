@@ -1,28 +1,30 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using UnityEditor;
-using UnityEngine;
-using UnityEngine.Events;
 
 namespace GuiToolkit.Editor
 {
 	[CustomEditor(typeof(UiThing), true)]
 	public class UiThingEditor : UnityEditor.Editor
 	{
+		protected SerializedProperty m_enabledInHierarchyProp;
+
 		private readonly List<(Type type, List<SerializedProperty> properties)> m_properties = new();
 		private readonly List<(Type type, List<SerializedProperty> properties)> m_eventProperties = new();
 		private readonly List<Type> m_typeHierarchyList = new();
 		private bool m_eventsFoldout;
+		private bool m_hasEvents;
 
 
-		private void OnEnable()
+		protected virtual void OnEnable()
 		{
+			m_enabledInHierarchyProp = serializedObject.FindProperty("m_enabledInHierarchy");
+
 			m_properties.Clear();
 			m_eventProperties.Clear();
 			m_typeHierarchyList.Clear();
+			m_hasEvents = false;
 
 			var _type = serializedObject.targetObject.GetType();
 			for (;;)
@@ -49,6 +51,7 @@ namespace GuiToolkit.Editor
 				if (IsCEvent(prop))
 				{
 					AddToList(prop, m_eventProperties);
+					m_hasEvents = true;
 					return;
 				}
 
@@ -72,10 +75,23 @@ namespace GuiToolkit.Editor
 		public override void OnInspectorGUI()
 		{
 			serializedObject.Update();
+
+			UiThing thisUiThing = (UiThing)target;
+
+			if (thisUiThing.IsEnableableInHierarchy)
+			{
+				EditorGUILayout.PropertyField(m_enabledInHierarchyProp);
+				thisUiThing.EnabledInHierarchy = m_enabledInHierarchyProp.boolValue;
+			}
+
 			DrawList(m_properties);
-			m_eventsFoldout = EditorGUILayout.Foldout(m_eventsFoldout, "Events:");
-			if (m_eventsFoldout)
-				DrawList(m_eventProperties);
+
+			if (m_hasEvents)
+			{
+				m_eventsFoldout = EditorGUILayout.Foldout(m_eventsFoldout, "Events:");
+				if (m_eventsFoldout)
+					DrawList(m_eventProperties);
+			}
 
 			serializedObject.ApplyModifiedProperties();
 		}

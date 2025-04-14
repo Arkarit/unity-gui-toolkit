@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
-using UnityEngine.EventSystems;
+﻿using UnityEngine;
 using UnityEngine.UI;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace GuiToolkit
 {
@@ -52,30 +43,4 @@ namespace GuiToolkit
 		}
 
 	}
-
-	#if UNITY_EDITOR
-	[CustomEditor(typeof(UiButton))]
-	public class UiButtonEditor : UiButtonBaseEditor
-	{
-		protected SerializedProperty m_simpleWiggleAnimationProp;
-
-		public override void OnEnable()
-		{
-			base.OnEnable();
-			m_simpleWiggleAnimationProp = serializedObject.FindProperty("m_simpleWiggleAnimation");
-		}
-
-		public override void OnInspectorGUI()
-		{
-			base.OnInspectorGUI();
-			UiButton thisButton = (UiButton)target;
-
-			EditorGUILayout.PropertyField(m_simpleWiggleAnimationProp);
-
-			serializedObject.ApplyModifiedProperties();
-		}
-
-	}
-#endif
-
 }
