@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
+using UnityEngine.Events;
 
 namespace GuiToolkit.Editor
 {
@@ -10,12 +12,15 @@ namespace GuiToolkit.Editor
 	{
 		protected SerializedProperty m_enabledInHierarchyProp;
 
+		private static readonly HashSet<string> s_emptyHashSetString = new HashSet<string>();
+
 		private readonly List<(Type type, List<SerializedProperty> properties)> m_properties = new();
 		private readonly List<(Type type, List<SerializedProperty> properties)> m_eventProperties = new();
 		private readonly List<Type> m_typeHierarchyList = new();
 		private bool m_eventsFoldout;
 		private bool m_hasEvents;
 
+		protected virtual HashSet<string> excludedProperties => s_emptyHashSetString;
 
 		protected virtual void OnEnable()
 		{
@@ -48,6 +53,9 @@ namespace GuiToolkit.Editor
 
 			EditorGeneralUtility.ForeachPropertySerObj(serializedObject, prop =>
 			{
+				if (excludedProperties.Contains(prop.name))
+					return;
+
 				if (IsCEvent(prop))
 				{
 					AddToList(prop, m_eventProperties);
@@ -80,8 +88,11 @@ namespace GuiToolkit.Editor
 
 			if (thisUiThing.IsEnableableInHierarchy)
 			{
+				EditorGUILayout.LabelField($"{nameof(UiThing)} Members:", EditorStyles.boldLabel);
+				EditorGUILayout.Space(2);
 				EditorGUILayout.PropertyField(m_enabledInHierarchyProp);
 				thisUiThing.EnabledInHierarchy = m_enabledInHierarchyProp.boolValue;
+				EditorGUILayout.Space(7);
 			}
 
 			DrawList(m_properties);

@@ -6,9 +6,11 @@ namespace GuiToolkit
 	public class UiLanguageToggle : UiToggle
 	{
 		[SerializeField]
+		[HideInInspector]
 		private Image m_flagImage;
 
 		[SerializeField]
+		[HideInInspector]
 		private string m_languageToken;
 
 		public string Language

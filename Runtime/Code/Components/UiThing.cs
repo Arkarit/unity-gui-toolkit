@@ -63,11 +63,12 @@ namespace GuiToolkit
 
 				UiThing[] childComponents = GetComponentsInChildren<UiThing>();
 
-				// We can no call 'Enabled' recursively - otherwise every called child would call recursively too
+				// We can not call 'Enabled' recursively - otherwise every called child would call recursively too
 				foreach (var childComponent in childComponents)
 				{
 					if (!childComponent.IsEnableableInHierarchy)
 						continue;
+
 					if (childComponent.m_enabledInHierarchy != value)
 					{
 						childComponent.m_enabledInHierarchy = value;
