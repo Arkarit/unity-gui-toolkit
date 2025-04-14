@@ -24,8 +24,7 @@ namespace GuiToolkit
 		[SerializeField] protected int m_cellWidth = 150;
 		[SerializeField] protected int m_cellHeight = 80;
 
-		// string: changed entry
-		// int: changed entry index
+		[Tooltip("string: changed entry\nint: changed entry index")]
 		public CEvent<string, int> OnValueChanged = new();
 
 		public int numColumns => UiUtility.GetCurrentScreenOrientation() == EScreenOrientation.Landscape

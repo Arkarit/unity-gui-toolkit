@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Events;
 
 
@@ -18,6 +19,7 @@ namespace GuiToolkit
 	/// An invocation can be enforced by calling InvokeAlways() even from editor code.
 	///
 	/// \note Although we usually don't use prefixes for classes, we do it here to not collide with UnityEngine.Event
+	[Serializable]
 	public class CEvent : UnityEvent
 	{
 		private readonly bool m_autoInvoke;
@@ -45,6 +47,7 @@ namespace GuiToolkit
 		}
 	}
 
+	[Serializable]
 	public class CEvent<T0> : UnityEvent<T0>
 	{
 		private bool m_canAutoInvoke;
@@ -90,6 +93,7 @@ namespace GuiToolkit
 		}
 	}
 
+	[Serializable]
 	public class CEvent<T0,T1> : UnityEvent<T0,T1>
 	{
 		private readonly bool m_canAutoInvoke;
@@ -148,6 +152,7 @@ namespace GuiToolkit
 		}
 	}
 
+	[Serializable]
 	public class CEvent<T0,T1,T2> : UnityEvent<T0,T1,T2>
 	{
 		private readonly bool m_canAutoInvoke;
@@ -211,6 +216,7 @@ namespace GuiToolkit
 		}
 	}
 
+	[Serializable]
 	public class CEvent<T0,T1,T2,T3> : UnityEvent<T0,T1,T2,T3>
 	{
 		private readonly bool m_canAutoInvoke;

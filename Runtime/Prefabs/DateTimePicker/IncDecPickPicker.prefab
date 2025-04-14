@@ -177,7 +177,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &8162661490361855938
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -209,6 +209,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_defaultSceneVisibility: 0
+  EvOnBeginShow:
+    m_PersistentCalls:
+      m_Calls: []
+  EvOnEndShow:
+    m_PersistentCalls:
+      m_Calls: []
+  EvOnBeginHide:
+    m_PersistentCalls:
+      m_Calls: []
+  EvOnEndHide:
+    m_PersistentCalls:
+      m_Calls: []
+  EvOnDestroyed:
+    m_PersistentCalls:
+      m_Calls: []
   m_increaseButton: {fileID: 8855258270339074200}
   m_decreaseButton: {fileID: 639292162185646137}
   m_button: {fileID: 8305447732415056033}
@@ -226,6 +241,9 @@ MonoBehaviour:
   m_numColumnsPortrait: 3
   m_cellWidth: 150
   m_cellHeight: 80
+  OnValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &5493595097746913074
 GameObject:
   m_ObjectHideFlags: 0
