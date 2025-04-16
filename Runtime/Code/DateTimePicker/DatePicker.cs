@@ -7,16 +7,16 @@ namespace GuiToolkit
 	public class DatePicker : UiThing
 	{
 
-		[SerializeField] private string m_dateFormat = "dd-MM-yyyy";
-		[SerializeField] private string m_monthFormat = "MMMMM";
-		[SerializeField] private DayToggle m_dayToggleTemplate;
-		[SerializeField] private Text m_dayNameLabelTemplate;
-		[SerializeField] private GridLayoutGroup m_dayContainer;
-		[SerializeField] private Text m_selectedDateText;
-		[SerializeField] private Text m_currentMonth;
-		[SerializeField] private Text m_currentYear;
-		[SerializeField] private bool m_forwardPickOnly = false;
-		[SerializeField] private DayOfWeek m_startDayOfWeek;
+		[SerializeField] protected string m_dateFormat = "dd-MM-yyyy";
+		[SerializeField] protected string m_monthFormat = "MMMMM";
+		[SerializeField] protected DayToggle m_dayToggleTemplate;
+		[SerializeField] protected Text m_dayNameLabelTemplate;
+		[SerializeField] protected GridLayoutGroup m_dayContainer;
+		[SerializeField] protected Text m_selectedDateText;
+		[SerializeField] protected Text m_currentMonth;
+		[SerializeField] protected Text m_currentYear;
+		[SerializeField] protected bool m_forwardPickOnly = false;
+		[SerializeField] protected DayOfWeek m_startDayOfWeek;
 
 		private DayToggle[] m_dayToggles = new DayToggle[7 * 6];
 		private bool m_dayTogglesGenerated = false;

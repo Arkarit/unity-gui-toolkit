@@ -4441,6 +4441,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_defaultSceneVisibility: 2
+  EvOnBeginShow:
+    m_PersistentCalls:
+      m_Calls: []
+  EvOnEndShow:
+    m_PersistentCalls:
+      m_Calls: []
+  EvOnBeginHide:
+    m_PersistentCalls:
+      m_Calls: []
+  EvOnEndHide:
+    m_PersistentCalls:
+      m_Calls: []
+  EvOnDestroyed:
+    m_PersistentCalls:
+      m_Calls: []
   m_layer: 1000
   m_isFullScreen: 0
   m_closeButton: {fileID: 5270523797719433137}
@@ -4661,7 +4676,7 @@ MonoBehaviour:
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}
-  m_orientation: 0
+  m_orientation: 1
   m_swapped: 0
 --- !u!114 &1695028410
 MonoBehaviour:

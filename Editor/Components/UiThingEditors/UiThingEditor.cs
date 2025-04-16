@@ -95,26 +95,26 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.Space(7);
 			}
 
-			DrawList(m_properties);
+			DrawList(m_properties, " Members:");
 
 			if (m_hasEvents)
 			{
-				m_eventsFoldout = EditorGUILayout.Foldout(m_eventsFoldout, "Events:");
+				m_eventsFoldout = EditorGUILayout.Foldout(m_eventsFoldout, "Events");
 				if (m_eventsFoldout)
-					DrawList(m_eventProperties);
+					DrawList(m_eventProperties, " Events:");
 			}
 
 			serializedObject.ApplyModifiedProperties();
 		}
 
-		private void DrawList(List<(Type type, List<SerializedProperty> properties)> list)
+		private void DrawList(List<(Type type, List<SerializedProperty> properties)> _list, string _postfix)
 		{
-			foreach (var tuple in list)
+			foreach (var tuple in _list)
 			{
 				if (tuple.properties.Count == 0)
 					continue;
 
-				EditorGUILayout.LabelField($"{tuple.type.Name} Members:", EditorStyles.boldLabel);
+				EditorGUILayout.LabelField($"{tuple.type.Name}{_postfix}", EditorStyles.boldLabel);
 				EditorGUILayout.Space(2);
 				foreach (var prop in tuple.properties)
 				{
