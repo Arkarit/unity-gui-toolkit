@@ -4,31 +4,6 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
-
-	[CustomEditor(typeof(UiTextContainer), true)]
-	public class UiTextContainerEditor : UiThingEditor
-	{
-		public override void OnInspectorGUI()
-		{
-			base.OnInspectorGUI();
-
-			UiTextContainer thisUiTextContainer = (UiTextContainer)target;
-
-			UnityEngine.Object textComponent = thisUiTextContainer.TextComponent;
-			if (textComponent != null)
-			{
-				string text = thisUiTextContainer.Text;
-				string newText = EditorGUILayout.TextField("Text:", text);
-				if (newText != text)
-				{
-					Undo.RecordObject(textComponent, "Text change");
-					thisUiTextContainer.Text = newText;
-				}
-			}
-		}
-	}
-
-
 	[CustomEditor(typeof(UiTextContainerDisableable))]
 	public class UiTextContainerDisableableEditor : UiTextContainerEditor
 	{
@@ -72,16 +47,4 @@ namespace GuiToolkit.Editor
 			thisUiTextContainerDisableable.SetColorMembersIfNecessary(changed);
 		}
 	}
-
-	[CustomEditor(typeof(UiTab))]
-	public class UiTabEditor : UiThingEditor
-	{
-		private static readonly HashSet<string> m_excludedProperties = new()
-		{
-			"m_uiImage"
-		};
-
-		protected override HashSet<string> excludedProperties => m_excludedProperties;
-	}
-
 }
