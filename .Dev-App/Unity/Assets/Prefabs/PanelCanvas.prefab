@@ -9494,7 +9494,7 @@ PrefabInstance:
     - target: {fileID: 6556752118519758830, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -10214,7 +10214,7 @@ PrefabInstance:
     - target: {fileID: 6556752118519758830, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -10418,7 +10418,7 @@ PrefabInstance:
     - target: {fileID: 6556752118519758830, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6556752118519758830, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
@@ -11729,7 +11729,7 @@ PrefabInstance:
     - target: {fileID: 6556752118519758830, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8841427501349092911, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
@@ -12264,7 +12264,7 @@ PrefabInstance:
     - target: {fileID: 6556752118519758830, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6556752118519758830, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
@@ -13620,7 +13620,7 @@ PrefabInstance:
     - target: {fileID: 6556752118519758830, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8841427501349092911, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
