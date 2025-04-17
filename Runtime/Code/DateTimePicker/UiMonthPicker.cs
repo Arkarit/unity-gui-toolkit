@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class MonthPicker : UiIncDecGridPicker
+	public class UiMonthPicker : UiIncDecGridPicker
 	{
 		private static readonly string[] Months = new string[]
 		{

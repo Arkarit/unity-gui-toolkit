@@ -2,16 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
-	public class DayPicker : UiIncDecGridPicker
+	public class UiDayPicker : UiIncDecGridPicker
 	{
 		[SerializeField] private UiButton m_optionalNowButton;
-		[SerializeField] private YearPicker m_yearPicker;
-		[SerializeField] private MonthPicker m_monthPicker;
-
-
+		[SerializeField] private UiYearPicker m_yearPicker;
+		[FormerlySerializedAs("m_monthPicker")] [SerializeField] private UiMonthPicker mUiMonthPicker;
 
 		protected override void Awake()
 		{
@@ -27,7 +26,7 @@ namespace GuiToolkit
 			m_isLocalizable = false;
 			RebuildStrings();
 
-			m_monthPicker.OnValueChanged.AddListener(OnChanged);
+			mUiMonthPicker.OnValueChanged.AddListener(OnChanged);
 			m_yearPicker.OnValueChanged.AddListener(OnChanged);
 
 			base.OnEnable();
@@ -36,7 +35,7 @@ namespace GuiToolkit
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			m_monthPicker.OnValueChanged.RemoveListener(OnChanged);
+			mUiMonthPicker.OnValueChanged.RemoveListener(OnChanged);
 			m_yearPicker.OnValueChanged.RemoveListener(OnChanged);
 		}
 
@@ -48,7 +47,7 @@ namespace GuiToolkit
 		{
 			m_strings.Clear();
 			var year = m_yearPicker.Year;
-			var month = m_monthPicker.Month + 1;
+			var month = mUiMonthPicker.Month + 1;
 			var daysInMonth = DateTime.DaysInMonth(year, month);
 			if (m_index >= daysInMonth)
 				m_index = daysInMonth - 1;

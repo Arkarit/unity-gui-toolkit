@@ -4,7 +4,7 @@ using UnityEngine.Events;
 
 namespace GuiToolkit
 {
-	public class YearPicker : UiIncDecGridPicker
+	public class UiYearPicker : UiIncDecGridPicker
 	{
 		[SerializeField] private int m_startYear = 1950;
 		[SerializeField] private int m_endYear = 2079;

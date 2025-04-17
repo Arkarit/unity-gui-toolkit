@@ -4,11 +4,11 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
-	public class DateTimePicker : UiView
+	public class UiDateTimePicker : UiView
 	{
 		[SerializeField] private UiButton m_nowButton;
 		[SerializeField] private DatePicker m_datePicker;
-		[SerializeField] private TimePicker m_timePicker;
+		[SerializeField] private UiTimePicker m_timePicker;
 
 		protected override void OnEnable()
 		{

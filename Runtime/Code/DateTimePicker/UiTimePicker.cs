@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
-	public class TimePicker : UiThing
+	public class UiTimePicker : UiThing
 	{
 		[SerializeField] private UiDateTimePartPanel m_hourPicker;
 		[SerializeField] private UiDateTimePartPanel m_minutePicker;
