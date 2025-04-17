@@ -1,16 +1,21 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace GuiToolkit
 {
+	/// \brief Set vertical and / or horizontal size of a rect transform by the sum of a list of RectTransforms
+	/// This is handy in cases where nested layout groups get too complicated.
+	///
+	/// \attention This can only be done via Update(), which is expensive. So don't overuse please.
+
 	[RequireComponent(typeof(RectTransform))]
 	public class UiSetSizeByElementList : MonoBehaviour
 	{
-		[SerializeField] private List<UiSizeChangeCallback> m_callbackComponents;
+		[SerializeField] private List<RectTransform> m_rectTransforms;
 		[SerializeField] protected bool m_horizontal;
 		[SerializeField] protected bool m_vertical;
+		[SerializeField] protected float m_widthOffset;
+		[SerializeField] protected float m_heightOffset;
 
 		private RectTransform m_rectTransform;
 
@@ -25,31 +30,20 @@ namespace GuiToolkit
 			}
 		}
 
-		private void OnEnable()
-		{
-			foreach (var callbackComponent in m_callbackComponents)
-				callbackComponent.OnSizeChanged.AddListener(OnSizeChanged);
-		}
-
-		private void OnDisable()
-		{
-			foreach (var callbackComponent in m_callbackComponents)
-				callbackComponent.OnSizeChanged.RemoveListener(OnSizeChanged);
-		}
-
-		private void OnSizeChanged(float _, float __) => UpdateSize();
-
-		private void UpdateSize()
+		private void Update()
 		{
 			if (!m_horizontal && !m_vertical)
 				return;
 
-			float width = 0;
-			float height = 0;
+			float width = m_widthOffset;
+			float height = m_heightOffset;
 
-			foreach (var callbackComponent in m_callbackComponents)
+			foreach (var rectTransform in m_rectTransforms)
 			{
-				var callbackRect = callbackComponent.RectTransform.rect;
+				if (!rectTransform.gameObject.activeInHierarchy)
+					continue;
+
+				var callbackRect = rectTransform.rect;
 				width += callbackRect.width;
 				height += callbackRect.height;
 			}
