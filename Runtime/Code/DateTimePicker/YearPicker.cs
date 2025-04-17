@@ -11,6 +11,8 @@ namespace GuiToolkit
 		[SerializeField] private int m_currentYear = -1;
 		[SerializeField] private UiButton m_optionalNowButton;
 
+		public int Year => m_startYear + m_index;
+
 		protected override void Awake()
 		{
 			AddOnEnableButtonListeners

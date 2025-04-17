@@ -25,6 +25,9 @@ namespace GuiToolkit
 
 		[SerializeField] private UiButton m_optionalNowButton;
 
+		// Zero based
+		public int Month => m_index;
+
 		protected override void Awake()
 		{
 			AddOnEnableButtonListeners

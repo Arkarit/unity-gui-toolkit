@@ -7,7 +7,7 @@ namespace GuiToolkit
 	/// This is handy in cases where nested layout groups get too complicated.
 	///
 	/// \attention This can only be done via Update(), which is expensive. So don't overuse please.
-
+	[ExecuteAlways]
 	[RequireComponent(typeof(RectTransform))]
 	public class UiSetSizeByElementList : MonoBehaviour
 	{
