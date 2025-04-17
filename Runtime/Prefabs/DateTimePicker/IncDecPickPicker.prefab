@@ -92,6 +92,7 @@ GameObject:
   - component: {fileID: 1007593121289497513}
   - component: {fileID: 7645155902574072503}
   - component: {fileID: 8162661490361855938}
+  - component: {fileID: 8951111575693892313}
   - component: {fileID: 1094821840627075865}
   m_Layer: 5
   m_Name: IncDecPickPicker
@@ -195,6 +196,26 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &8951111575693892313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1388017187930862828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: 270
+  m_MinHeight: 85
+  m_PreferredWidth: 270
+  m_PreferredHeight: 85
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &1094821840627075865
 MonoBehaviour:
   m_ObjectHideFlags: 0

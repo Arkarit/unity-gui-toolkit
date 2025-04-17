@@ -149,7 +149,7 @@ MonoBehaviour:
     - rid: 8590990584682382113
     - rid: 8590990584708334135
     - rid: 2290798622902845885
-  m_currentSkinIdx: 1
+  m_currentSkinIdx: 0
   references:
     version: 2
     RefIds:
@@ -1181,7 +1181,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueTextAlignmentOptions, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 4098
     - rid: 107647820282200477
       type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
@@ -7107,7 +7107,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueTextAlignmentOptions, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 514
     - rid: 107648080256959251
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
