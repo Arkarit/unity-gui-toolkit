@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
@@ -10,19 +11,19 @@ namespace GuiToolkit
 	{
 		[SerializeField] protected TMP_Text m_text;
 		[SerializeField] protected SerializableDateTime m_dateTime;
-		[SerializeField] protected UiDateTimePicker m_dateTimePicker;
+		[FormerlySerializedAs("m_dateTimePicker")] [SerializeField] protected UiDateTimeView m_dateTimeView;
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			m_dateTimePicker.OnValueChanged.AddListener(OnDateTimeChanged);
+			m_dateTimeView.OnValueChanged.AddListener(OnDateTimeChanged);
 			UpdateText();
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			m_dateTimePicker.OnValueChanged.RemoveListener(OnDateTimeChanged);
+			m_dateTimeView.OnValueChanged.RemoveListener(OnDateTimeChanged);
 		}
 
 		private void OnDateTimeChanged(DateTime _dateTime)
@@ -41,10 +42,10 @@ namespace GuiToolkit
 
 		protected virtual void UpdateText()
 		{
-			if (m_dateTimePicker == null)
+			if (m_dateTimeView == null)
 				return;
 
-			var dateTime = m_dateTimePicker.SelectedDateTime;
+			var dateTime = m_dateTimeView.SelectedDateTime;
 			m_text.text = dateTime.ToLongDateString();
 		}
 	}

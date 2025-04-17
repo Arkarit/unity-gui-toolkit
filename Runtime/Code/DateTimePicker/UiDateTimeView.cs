@@ -1,16 +1,31 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public class UiDateTimePicker : UiView
+	public class UiDateTimeView : UiView
 	{
+		public class Options
+		{
+			public string Caption;
+			public bool AllowOutsideTap = true;
+			public bool ShowCloseButton = false;
+		}
+
 		[SerializeField] private UiButton m_nowButton;
 		[SerializeField] private UiDatePicker m_datePicker;
 		[SerializeField] private UiTimePicker m_timePicker;
+		[SerializeField] private Button m_clickCatcher;
+
+		private Options m_options;
 
 		public CEvent<DateTime> OnValueChanged = new();
+
+		public void DateTimeView(Options _options)
+		{
+			m_options = _options;
+		}
 
 		protected override void Awake()
 		{
@@ -32,9 +47,22 @@ namespace GuiToolkit
 			m_timePicker.OnValueChanged.RemoveListener(OnDateTimeChanged);
 		}
 
+		public override void OnBeginShow()
+		{
+			base.OnBeginShow();
+			InitByOptions();
+		}
+
+		private void InitByOptions()
+		{
+			if (m_options == null)
+				m_options = new Options();
+
+			m_clickCatcher.interactable = m_options.AllowOutsideTap;
+		}
+
 		private void OnDateTimeChanged(DateTime _value)
 		{
-Debug.Log($"---::: OnDateTimeChanged");
 			SelectedDateTime = _value;
 			OnValueChanged.InvokeOnce(_value);
 		}

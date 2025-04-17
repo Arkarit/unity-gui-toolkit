@@ -241,11 +241,22 @@ namespace GuiToolkit
 		[SerializeField]
 		private UiKeyPressRequester m_keyPressRequester;
 
-		[FormerlySerializedAs("m_gridPicker")] [SerializeField]
+		[FormerlySerializedAs("m_gridPicker")] 
+		[SerializeField]
 		private UiGridPicker m_gridPickerPrefab;
+
+		[SerializeField]
+		private UiDateTimeView m_dateTimeViewPrefab;
 
 		private UiPlayerSettingsDialog m_playerSettingsDialog;
 		public UiPlayerSettingsDialog PlayerSettingsDialog => m_playerSettingsDialog;
+
+		public void ShowDateTimeView(UiDateTimeView.Options _options)
+		{
+			var dateTimeView = CreateView(m_dateTimeViewPrefab);
+			dateTimeView.DateTimeView(_options);
+			dateTimeView.Show();
+		}
 
 		public void ShowGridPicker(UiGridPicker.Options _options)
 		{
