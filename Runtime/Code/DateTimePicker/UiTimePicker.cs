@@ -11,6 +11,8 @@ namespace GuiToolkit
 		[SerializeField] private UiDateTimePartPanel m_secondPicker;
 		[SerializeField] private UiButton m_optionalNowButton;
 
+		public CEvent<DateTime> OnValueChanged = new();
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();
@@ -25,10 +27,15 @@ namespace GuiToolkit
 				m_optionalNowButton.OnClick.RemoveListener(OnNowClicked);
 		}
 
-		public DateTime SelectedTime()
+		public DateTime SelectedTime
 		{
-			return new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
-				m_hourPicker.Value, m_minutePicker.Value, m_secondPicker.Value);
+			get
+			{
+				return new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,
+					m_hourPicker.Value, m_minutePicker.Value, m_secondPicker.Value);
+			}
+
+			set => SetSelectedTime(value);
 		}
 
 		public void SetSelectedTime(int _hour, int _minute, int _second)

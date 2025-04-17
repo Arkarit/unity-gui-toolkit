@@ -7,39 +7,54 @@ namespace GuiToolkit
 	public class UiDateTimePicker : UiView
 	{
 		[SerializeField] private UiButton m_nowButton;
-		[SerializeField] private DatePicker m_datePicker;
+		[SerializeField] private UiDatePicker m_datePicker;
 		[SerializeField] private UiTimePicker m_timePicker;
+
+		public CEvent<DateTime> OnValueChanged = new();
+
+		protected override void Awake()
+		{
+			AddOnEnableButtonListeners((m_nowButton, OnNowButton));
+			base.Awake();
+		}
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			m_nowButton.OnClick.AddListener(OnNowButton);
+			m_datePicker.OnValueChanged.AddListener(OnDateTimeChanged);
+			m_timePicker.OnValueChanged.AddListener(OnDateTimeChanged);
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			m_nowButton.OnClick.RemoveListener(OnNowButton);
+			m_datePicker.OnValueChanged.RemoveListener(OnDateTimeChanged);
+			m_timePicker.OnValueChanged.RemoveListener(OnDateTimeChanged);
 		}
 
-		private void OnNowButton() => SetSelectedDateTime(DateTime.Now);
-
-		public DateTime? SelectedDateTime()
+		private void OnDateTimeChanged(DateTime _value)
 		{
-			var d = m_datePicker.SelectedDate;
-			var t = m_timePicker.SelectedTime();
-			if (d != null)
+Debug.Log($"---::: OnDateTimeChanged");
+			SelectedDateTime = _value;
+			OnValueChanged.InvokeOnce(_value);
+		}
+
+		private void OnNowButton() => SelectedDateTime = DateTime.Now;
+
+		public DateTime SelectedDateTime
+		{
+			get
 			{
-				return new DateTime(d.Value.Year, d.Value.Month, d.Value.Day,
+				var d = m_datePicker.SelectedDate;
+				var t = m_timePicker.SelectedTime;
+				return new DateTime(d.Year, d.Month, d.Day,
 					t.Hour, t.Minute, t.Second);
 			}
-
-			return null;
-		}
-
-		public void SetSelectedDateTime(DateTime _value)
-		{
-			m_datePicker.SetSelectedDate(_value);
+			set
+			{
+				m_datePicker.SelectedDate = value;
+				m_timePicker.SelectedTime = value;
+			}
 		}
 	}
 }

@@ -25,8 +25,12 @@ namespace GuiToolkit
 
 		[SerializeField] private UiButton m_optionalNowButton;
 
-		// Zero based
-		public int Month => m_index;
+		// 1-based: 1..12
+		public int Month
+		{
+			get => m_index + 1;
+			set => SetIndex(value - 1);
+		}
 
 		protected override void Awake()
 		{
@@ -37,7 +41,7 @@ namespace GuiToolkit
 			base.Awake();
 		}
 
-		private void OnNowButton() => SetMonth(DateTime.Now.Month-1);
+		private void OnNowButton() => SetIndex(DateTime.Now.Month-1);
 
 		protected override void OnEnable()
 		{
@@ -50,11 +54,11 @@ namespace GuiToolkit
 		}
 
 		// Zero based
-		protected void SetMonth(int _index)
+		protected void SetIndex(int _index)
 		{
 			if (_index < 0 || _index > 11)
 			{
-				Debug.LogError($"Month '{_index}' is outside of range '0' to '11'");
+				Debug.LogError($"Month '{_index + 1}' is outside of range '1' to '12'");
 				_index = 0;
 			}
 

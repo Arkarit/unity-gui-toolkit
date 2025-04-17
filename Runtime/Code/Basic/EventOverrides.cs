@@ -23,6 +23,8 @@ namespace GuiToolkit
 	public class CEvent : UnityEvent
 	{
 		private readonly bool m_autoInvoke;
+		private bool m_guard;
+
 		public CEvent(bool _autoInvoke) : base()
 		{
 			m_autoInvoke = _autoInvoke;
@@ -38,6 +40,17 @@ namespace GuiToolkit
 			base.Invoke();
 		}
 #endif
+
+		// Avoids stack overflows, if 2 events call each other
+		public void InvokeOnce()
+		{
+			if (m_guard)
+				return;
+			m_guard = true;
+			Invoke();
+			m_guard = false;
+		}
+
 		public void InvokeAlways() => base.Invoke();
 		public new void AddListener(UnityAction _call)
 		{
@@ -52,6 +65,7 @@ namespace GuiToolkit
 	{
 		private bool m_canAutoInvoke;
 		private T0 m_lastT0;
+		private bool m_guard;
 
 		public CEvent( bool _canAutoInvoke,T0 autoInvokeStartValue = default) : base()
 		{
@@ -70,6 +84,17 @@ namespace GuiToolkit
 				m_lastT0 = _arg0;
 
 			base.Invoke(_arg0);
+		}
+
+		// Avoids stack overflows, if 2 events call each other
+		public void InvokeOnce(T0 _arg0)
+		{
+			if (m_guard)
+				return;
+
+			m_guard = true;
+			Invoke(_arg0);
+			m_guard = false;
 		}
 
 		public void InvokeAlways(T0 _arg0)
@@ -99,6 +124,7 @@ namespace GuiToolkit
 		private readonly bool m_canAutoInvoke;
 		private T0 m_lastT0;
 		private T1 m_lastT1;
+		private bool m_guard;
 
 		public CEvent(
 			bool _canAutoInvoke, 
@@ -126,6 +152,17 @@ namespace GuiToolkit
 			}
 
 			base.Invoke(_arg0, _arg1);
+		}
+
+		// Avoids stack overflows, if 2 events call each other
+		public void InvokeOnce(T0 _arg0, T1 _arg1)
+		{
+			if (m_guard)
+				return;
+
+			m_guard = true;
+			Invoke(_arg0, _arg1);
+			m_guard = false;
 		}
 
 		public void InvokeAlways(T0 _arg0, T1 _arg1)
@@ -159,6 +196,7 @@ namespace GuiToolkit
 		private T0 m_lastT0;
 		private T1 m_lastT1;
 		private T2 m_lastT2;
+		private bool m_guard;
 
 		public CEvent(
 			bool _canAutoInvoke, 
@@ -189,6 +227,16 @@ namespace GuiToolkit
 			}
 
 			base.Invoke(_arg0, _arg1, _arg2);
+		}
+
+		// Avoids stack overflows, if 2 events call each other
+		public void InvokeOnce(T0 _arg0, T1 _arg1, T2 _arg2)
+		{
+			if (m_guard)
+				return;
+			m_guard = true;
+			Invoke(_arg0, _arg1, _arg2);
+			m_guard = false;
 		}
 
 		public void InvokeAlways(T0 _arg0, T1 _arg1, T2 _arg2)
@@ -224,6 +272,7 @@ namespace GuiToolkit
 		private T1 m_lastT1;
 		private T2 m_lastT2;
 		private T3 m_lastT3;
+		private bool m_guard;
 
 		public CEvent(
 			bool _canAutoInvoke, 
@@ -257,6 +306,16 @@ namespace GuiToolkit
 			}
 
 			base.Invoke(_arg0, _arg1, _arg2, _arg3);
+		}
+
+		// Avoids stack overflows, if 2 events call each other
+		public void InvokeOnce(T0 _arg0, T1 _arg1, T2 _arg2, T3 _arg3)
+		{
+			if (m_guard)
+				return;
+			m_guard = true;
+			Invoke(_arg0, _arg1, _arg2, _arg3);
+			m_guard = false;
 		}
 
 		public void InvokeAlways(T0 _arg0, T1 _arg1, T2 _arg2, T3 _arg3)

@@ -102,7 +102,7 @@ namespace GuiToolkit
 				return;
 
 			m_index = idx;
-			OnValueChanged.Invoke(m_strings[idx], idx);
+			OnValueChanged.InvokeOnce(m_strings[idx], idx);
 			UpdateText();
 
 			_gridPicker.Hide();
@@ -114,7 +114,7 @@ namespace GuiToolkit
 			if (m_index < 0)
 				m_index += m_strings.Count;
 
-			OnValueChanged.Invoke(m_strings[m_index], m_index);
+			OnValueChanged.InvokeOnce(m_strings[m_index], m_index);
 
 			UpdateText();
 		}

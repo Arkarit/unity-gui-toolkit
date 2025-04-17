@@ -4,7 +4,7 @@ using System;
 
 namespace GuiToolkit
 {
-	public class DatePicker : UiThing
+	public class DatePickerDeprecated : UiThing
 	{
 
 		[SerializeField] protected string m_dateFormat = "dd-MM-yyyy";
@@ -17,6 +17,7 @@ namespace GuiToolkit
 		[SerializeField] protected Text m_currentYear;
 		[SerializeField] protected bool m_forwardPickOnly = false;
 		[SerializeField] protected DayOfWeek m_startDayOfWeek;
+		[SerializeField] protected SerializableDateTime m_currentDateTime;
 
 		private DayToggle[] m_dayToggles = new DayToggle[7 * 6];
 		private bool m_dayTogglesGenerated = false;
@@ -24,24 +25,10 @@ namespace GuiToolkit
 		DateTime m_displayDate = DateTime.Now.AddYears(-101);
 
 
-		// Null so that it can be deselected(Yet to be implemented)
-		private DateTime? m_SelectedDate;
-
-		public DateTime? SelectedDate
+		public DateTime SelectedDate
 		{
-			get => m_SelectedDate;
-			private set
-			{
-				m_SelectedDate = value;
-				if (m_SelectedDate != null)
-				{
-					m_selectedDateText.text = ((DateTime)m_SelectedDate).ToString(m_dateFormat);
-				}
-				else
-				{
-					m_selectedDateText.text = string.Empty;
-				}
-			}
+			get => m_currentDateTime.DateTime;
+			set => m_currentDateTime.DateTime = value;
 		}
 
 		public DateTime ReferenceDateTime
@@ -108,6 +95,7 @@ namespace GuiToolkit
 
 		private void DisplayMonthDays(bool _refresh = false)
 		{
+return;
 			if (!_refresh && m_displayDate.IsSameYearMonth(ReferenceDateTime))
 			{
 				return;

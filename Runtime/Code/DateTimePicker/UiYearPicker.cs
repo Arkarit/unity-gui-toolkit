@@ -11,7 +11,21 @@ namespace GuiToolkit
 		[SerializeField] private int m_currentYear = -1;
 		[SerializeField] private UiButton m_optionalNowButton;
 
-		public int Year => m_startYear + m_index;
+		public int Year
+		{
+			get => m_startYear + m_index;
+			set
+			{
+				var year = value - m_startYear;
+				if (year < 0 || year > m_endYear)
+				{
+					Debug.LogError($"year '{value}' is out of range '{m_startYear}' - '{m_endYear}'");
+					return;
+				}
+
+				m_index = year;
+			}
+		}
 
 		protected override void Awake()
 		{
