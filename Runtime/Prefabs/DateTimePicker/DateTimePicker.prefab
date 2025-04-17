@@ -208,6 +208,7 @@ GameObject:
   - component: {fileID: 388932567983499926}
   - component: {fileID: 5977388269673088247}
   - component: {fileID: 4174690167723383860}
+  - component: {fileID: 6979815037738787094}
   m_Layer: 5
   m_Name: DateDisplay
   m_TagString: Untagged
@@ -232,10 +233,10 @@ RectTransform:
   - {fileID: 4544307228628779350}
   m_Father: {fileID: 5655414773300967188}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -190}
-  m_SizeDelta: {x: 0, y: 80}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &6803749675724960567
 MonoBehaviour:
@@ -347,6 +348,26 @@ MonoBehaviour:
   OnAfterApplyStyle:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6979815037738787094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1305032783932150427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: 80
+  m_PreferredWidth: -1
+  m_PreferredHeight: 80
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &1503762667745509434
 GameObject:
   m_ObjectHideFlags: 0
@@ -679,7 +700,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5944160460552536095}
   - component: {fileID: 5944160460552536090}
-  - component: {fileID: 5944160460552536094}
   - component: {fileID: 8320409907852968247}
   - component: {fileID: 502793287162140975}
   - component: {fileID: 6690728067217613655}
@@ -744,32 +764,9 @@ MonoBehaviour:
       m_Calls: []
   m_layer: 1000
   m_isFullScreen: 0
-  m_nowButton: {fileID: 0}
-  m_datePicker: {fileID: 5944160460552536094}
+  m_nowButton: {fileID: 5919814051505703565}
+  m_datePicker: {fileID: 8899611277072683065}
   m_timePicker: {fileID: 5944160461570037428}
---- !u!114 &5944160460552536094
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5944160460552536092}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96b45c7ce95464344818d410bde224dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_enabledInHierarchy: 1
-  m_dateFormat: dd-MM-yyyy
-  m_monthFormat: MMMMM
-  m_dayToggleTemplate: {fileID: 5944160461495896956}
-  m_dayNameLabelTemplate: {fileID: 5944160462532335451}
-  m_dayContainer: {fileID: 5944160461314050328}
-  m_selectedDateText: {fileID: 5944160462587234948}
-  m_currentMonth: {fileID: 0}
-  m_currentYear: {fileID: 5944160462201056099}
-  m_forwardPickOnly: 0
-  m_startDayOfWeek: 0
 --- !u!223 &8320409907852968247
 Canvas:
   m_ObjectHideFlags: 0
@@ -815,7 +812,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &6690728067217613655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1079,6 +1076,7 @@ GameObject:
   - component: {fileID: 5944160461314050334}
   - component: {fileID: 5944160461314050328}
   - component: {fileID: 5944160461314050331}
+  - component: {fileID: 1114653387128031422}
   m_Layer: 5
   m_Name: Days
   m_TagString: Untagged
@@ -1101,10 +1099,10 @@ RectTransform:
   - {fileID: 5944160461036987301}
   m_Father: {fileID: 5655414773300967188}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 450, y: -423.18463}
-  m_SizeDelta: {x: 900, y: 295}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5944160461314050329
 CanvasRenderer:
@@ -1181,6 +1179,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AllowSwitchOff: 1
+--- !u!114 &1114653387128031422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5944160461314050332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: 10000
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &5944160461542664852
 GameObject:
   m_ObjectHideFlags: 0
@@ -1454,6 +1472,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5944160462414198359}
   - component: {fileID: 4563719549801060438}
+  - component: {fileID: 8899611277072683065}
+  - component: {fileID: 6622609470858356547}
   m_Layer: 5
   m_Name: YearMonth
   m_TagString: Untagged
@@ -1479,10 +1499,10 @@ RectTransform:
   - {fileID: 1794929491309733788}
   m_Father: {fileID: 5655414773300967188}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -100}
-  m_SizeDelta: {x: 0, y: 85}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &4563719549801060438
 MonoBehaviour:
@@ -1510,6 +1530,48 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &8899611277072683065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5944160462414198356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96b45c7ce95464344818d410bde224dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_enabledInHierarchy: 1
+  m_dateFormat: dd-MM-yyyy
+  m_monthFormat: MMMMM
+  m_dayToggleTemplate: {fileID: 5944160461495896956}
+  m_dayNameLabelTemplate: {fileID: 5944160462532335451}
+  m_dayContainer: {fileID: 5944160461314050328}
+  m_selectedDateText: {fileID: 5944160462587234948}
+  m_currentYear: {fileID: 5944160462201056099}
+  m_forwardPickOnly: 0
+  m_startDayOfWeek: 0
+--- !u!114 &6622609470858356547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5944160462414198356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: 85
+  m_PreferredWidth: -1
+  m_PreferredHeight: 85
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &5944160462415618810
 GameObject:
   m_ObjectHideFlags: 0
@@ -1710,7 +1772,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5944160460552536094}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: Today_onClick
         m_Mode: 1
@@ -1925,7 +1987,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5944160460552536094}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: SwitchToSelectedDate
         m_Mode: 1
@@ -1969,10 +2031,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3895945893403512143}
+  - {fileID: 5620905838824744829}
   - {fileID: 5944160461570037386}
   - {fileID: 5944160462414198359}
   - {fileID: 8890744313777215913}
-  - {fileID: 5620905838824744829}
   - {fileID: 5944160462587234945}
   - {fileID: 5944160462526588735}
   - {fileID: 5944160461314050335}
@@ -1990,7 +2052,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6448615248345478937}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
   m_Name: 
@@ -2000,12 +2062,12 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
-  m_Spacing: 0
+  m_ChildAlignment: 1
+  m_Spacing: 7.16
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
-  m_ChildControlHeight: 0
+  m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
@@ -4168,12 +4230,12 @@ PrefabInstance:
     - target: {fileID: 3300015955173616263, guid: 915d7dea0435f9644881b10a990d2cc3,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3300015955173616263, guid: 915d7dea0435f9644881b10a990d2cc3,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3300015955173616263, guid: 915d7dea0435f9644881b10a990d2cc3,
         type: 3}
@@ -4183,7 +4245,7 @@ PrefabInstance:
     - target: {fileID: 3300015955173616263, guid: 915d7dea0435f9644881b10a990d2cc3,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3300015955173616263, guid: 915d7dea0435f9644881b10a990d2cc3,
         type: 3}
@@ -4193,7 +4255,7 @@ PrefabInstance:
     - target: {fileID: 3300015955173616263, guid: 915d7dea0435f9644881b10a990d2cc3,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 85
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3300015955173616263, guid: 915d7dea0435f9644881b10a990d2cc3,
         type: 3}
@@ -4719,7 +4781,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3300015955173616262, guid: 915d7dea0435f9644881b10a990d2cc3,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4566255777735093709}
   m_SourcePrefab: {fileID: 100100000, guid: 915d7dea0435f9644881b10a990d2cc3, type: 3}
 --- !u!224 &5944160461570037386 stripped
 RectTransform:
@@ -4727,13 +4793,39 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 9201387803679882253}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5944160461570037387 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3300015955173616262, guid: 915d7dea0435f9644881b10a990d2cc3,
+    type: 3}
+  m_PrefabInstance: {fileID: 9201387803679882253}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4566255777735093709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5944160461570037387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: 85
+  m_PreferredWidth: -1
+  m_PreferredHeight: 85
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &5944160461570037428 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3300015955173616313, guid: 915d7dea0435f9644881b10a990d2cc3,
     type: 3}
   m_PrefabInstance: {fileID: 9201387803679882253}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 5944160461570037387}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6042117e6e8af46a99a256d074956b75, type: 3}

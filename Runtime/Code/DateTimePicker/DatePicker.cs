@@ -13,7 +13,7 @@ namespace GuiToolkit
 		[SerializeField] protected Text m_dayNameLabelTemplate;
 		[SerializeField] protected GridLayoutGroup m_dayContainer;
 		[SerializeField] protected Text m_selectedDateText;
-		[SerializeField] protected Text m_currentMonth;
+//		[SerializeField] protected Text m_currentMonth;
 		[SerializeField] protected Text m_currentYear;
 		[SerializeField] protected bool m_forwardPickOnly = false;
 		[SerializeField] protected DayOfWeek m_startDayOfWeek;
@@ -51,7 +51,7 @@ namespace GuiToolkit
 			{
 				m_referenceDate = DateTimeHelpers.GetYearMonthStart(value);
 				m_currentYear.text = m_referenceDate.Year.ToString();
-				m_currentMonth.text = m_referenceDate.ToString(m_monthFormat);
+//				m_currentMonth.text = m_referenceDate.ToString(m_monthFormat);
 			}
 		}
 
