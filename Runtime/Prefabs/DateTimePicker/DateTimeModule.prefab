@@ -76,7 +76,7 @@ GameObject:
   - component: {fileID: 1876625954840442367}
   - component: {fileID: 6602331610673660376}
   m_Layer: 5
-  m_Name: TimeDateModule
+  m_Name: DateTimeModule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

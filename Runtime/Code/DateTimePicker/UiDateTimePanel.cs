@@ -4,13 +4,10 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public class UiDateTimeView : UiView
+	public class UiDateTimePanel : UiPanel
 	{
 		public class Options
 		{
-			public string Caption;
-			public bool AllowOutsideTap = true;
-			public bool ShowCloseButton = false;
 		}
 
 		[SerializeField] private UiButton m_nowButton;
@@ -22,7 +19,7 @@ namespace GuiToolkit
 
 		public CEvent<DateTime> OnValueChanged = new();
 
-		public void DateTimeView(Options _options)
+		public void DateTimePanel(Options _options)
 		{
 			m_options = _options;
 		}
@@ -58,7 +55,6 @@ namespace GuiToolkit
 			if (m_options == null)
 				m_options = new Options();
 
-			m_clickCatcher.interactable = m_options.AllowOutsideTap;
 		}
 
 		private void OnDateTimeChanged(DateTime _value)

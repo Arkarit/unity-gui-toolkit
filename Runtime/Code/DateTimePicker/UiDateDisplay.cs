@@ -11,19 +11,19 @@ namespace GuiToolkit
 	{
 		[SerializeField] protected TMP_Text m_text;
 		[SerializeField] protected SerializableDateTime m_dateTime;
-		[FormerlySerializedAs("m_dateTimePicker")] [SerializeField] protected UiDateTimeView m_dateTimeView;
+		[SerializeField] protected UiDateTimePanel m_dateTimePanel;
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			m_dateTimeView.OnValueChanged.AddListener(OnDateTimeChanged);
+			m_dateTimePanel.OnValueChanged.AddListener(OnDateTimeChanged);
 			UpdateText();
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			m_dateTimeView.OnValueChanged.RemoveListener(OnDateTimeChanged);
+			m_dateTimePanel.OnValueChanged.RemoveListener(OnDateTimeChanged);
 		}
 
 		private void OnDateTimeChanged(DateTime _dateTime)
@@ -42,10 +42,10 @@ namespace GuiToolkit
 
 		protected virtual void UpdateText()
 		{
-			if (m_dateTimeView == null)
+			if (m_dateTimePanel == null)
 				return;
 
-			var dateTime = m_dateTimeView.SelectedDateTime;
+			var dateTime = m_dateTimePanel.SelectedDateTime;
 			m_text.text = dateTime.ToLongDateString();
 		}
 	}

@@ -23,8 +23,6 @@ public class TestDemoScene1 : UiView
 	
 	public ExampleDialogStyles m_exampleDialogStylesPrefab;
 
-	[FormerlySerializedAs("m_dateTimePickerPrefab")] public UiDateTimeView m_dateTimeViewPrefab;
-
 	protected override bool NeedsLanguageChangeCallback => true;
 
 	protected override void Start()
@@ -41,10 +39,10 @@ public class TestDemoScene1 : UiView
 
 	private void OnShowDatePickerButton()
 	{
-		UiMain.Instance.ShowDateTimeView(new UiDateTimeView.Options()
-		{
-
-		});
+//		UiMain.Instance.ShowDateTimeView(new UiDateTimeView.Options()
+//		{
+//
+//		});
 	}
 
 	private void OnExampleDialogStylesButton()
