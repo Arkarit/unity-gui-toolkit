@@ -13,7 +13,6 @@ namespace GuiToolkit
 		[SerializeField] private UiButton m_nowButton;
 		[SerializeField] private UiDatePicker m_datePicker;
 		[SerializeField] private UiTimePicker m_timePicker;
-		[SerializeField] private Button m_clickCatcher;
 
 		private Options m_options;
 
@@ -78,6 +77,7 @@ namespace GuiToolkit
 			{
 				m_datePicker.SelectedDate = value;
 				m_timePicker.SelectedTime = value;
+				OnValueChanged.InvokeOnce(value);
 			}
 		}
 	}

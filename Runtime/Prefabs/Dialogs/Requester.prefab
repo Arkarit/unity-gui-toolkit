@@ -2720,7 +2720,7 @@ PrefabInstance:
     - target: {fileID: 7781224673054222275, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1000
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7781224673054222275, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
@@ -2730,7 +2730,7 @@ PrefabInstance:
     - target: {fileID: 7781224673054222275, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 500
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7781224673054222275, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
@@ -2851,6 +2851,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: TimeDateModule
+      objectReference: {fileID: 0}
+    - target: {fileID: 8621512087278283165, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8936533691106591854, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
