@@ -270,6 +270,17 @@ namespace GuiToolkit
 			message.Show(_message, _duration);
 		}
 
+		public UiRequester CreateRequester(UiRequester.Options _options, bool _show = true)
+		{
+			UiRequester result = CreateView(m_requesterPrefab);
+			Debug.Assert(result);
+			result.Requester(_options);
+			if (_show)
+				result.Show();
+
+			return result;
+		}
+
 		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null )
 		{
 			UiRequester requester = CreateView(m_requesterPrefab);

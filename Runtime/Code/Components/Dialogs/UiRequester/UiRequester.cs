@@ -8,10 +8,9 @@ namespace GuiToolkit
 	{
 		public new class Options : UiRequesterBase.Options
 		{
-			public bool ShowText = true;
-			public bool ShowInputField = false;
-			public string PlaceholderText;
-			public string InputText;
+			public string Text = null;
+			public string PlaceholderText = null;
+			public string InputText = null;
 			public UiDateTimePanel.Options DateTimeOptions = null;
 		}
 
@@ -21,10 +20,13 @@ namespace GuiToolkit
 		[SerializeField] protected TextMeshProUGUI m_text;
 		[SerializeField] protected TMP_InputField m_inputField;
 
+		public void Requester(Options _options) => DoDialog(_options);
+
 		public void Requester( string _title, string _text, Options _options )
 		{
-			m_text.text = _text;
-			DoDialog(_title, _options);
+			_options.Title = _title;
+			_options.Text = _text;
+			DoDialog(_options);
 		}
 
 		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null )
@@ -41,8 +43,7 @@ namespace GuiToolkit
 				},
 				AllowOutsideTap = true,
 				CloseButtonIdx = 0,
-				ShowText = true,
-				ShowInputField = false,
+				Text = _text,
 			};
 			Requester( _title, _text, options );
 		}
@@ -67,9 +68,9 @@ namespace GuiToolkit
 				},
 				AllowOutsideTap = _allowOutsideTap,
 				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
-				ShowText = true,
-				ShowInputField = false,
+				Text = _text,
 			};
+
 			Requester( _title, _text, options );
 		}
 
@@ -93,8 +94,7 @@ namespace GuiToolkit
 				},
 				AllowOutsideTap = _allowOutsideTap,
 				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
-				ShowText = !string.IsNullOrEmpty(_text),
-				ShowInputField = true,
+				Text = _text,
 				PlaceholderText = _placeholderText,
 				InputText = _inputText,
 			};
@@ -112,10 +112,17 @@ namespace GuiToolkit
 
 			Options options = (Options)_options;
 
-			m_textContainer.gameObject.SetActive(options.ShowText);
-			m_inputFieldContainer.gameObject.SetActive(options.ShowInputField);
+			bool hasText = !string.IsNullOrEmpty(options.Text);
+			bool hasInput = !string.IsNullOrEmpty(options.PlaceholderText);
+			bool hasDateTime = options.DateTimeOptions != null;
 
-			if (options.ShowInputField)
+			m_textContainer.gameObject.SetActive(hasText);
+			if (hasText)
+				m_text.text = options.Text;
+
+			m_inputFieldContainer.gameObject.SetActive(hasInput);
+
+			if (hasInput)
 			{
 				if (options.InputText != null)
 				{
@@ -130,15 +137,9 @@ namespace GuiToolkit
 				UiMain.Instance.SetFocus(m_inputField);
 			}
 
-			if (options.DateTimeOptions != null)
-			{
+			m_dateTimePanel.gameObject.SetActive(hasDateTime);
+			if (hasDateTime)
 				m_dateTimePanel.SetOptions(options.DateTimeOptions);
-				m_dateTimePanel.gameObject.SetActive(true);
-			}
-			else
-			{
-				m_dateTimePanel.gameObject.SetActive(false);
-			}
 		}
 	}
 }

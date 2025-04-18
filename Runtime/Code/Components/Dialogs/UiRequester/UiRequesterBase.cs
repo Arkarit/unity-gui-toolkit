@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -16,7 +17,8 @@ namespace GuiToolkit
 
 		public class Options
 		{
-			public ButtonInfo[] ButtonInfos;
+			public string Title = null;
+			public ButtonInfo[] ButtonInfos = Array.Empty<ButtonInfo>();
 			public bool AllowOutsideTap = true;
 			public int CloseButtonIdx = Constants.INVALID;
 		}
@@ -40,18 +42,12 @@ namespace GuiToolkit
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
 
-		protected void DoDialog( string _title, Options _options )
+		protected void DoDialog( Options _options )
 		{
-			bool hasTitle = !string.IsNullOrEmpty(_title);
+			bool hasTitle = !string.IsNullOrEmpty(_options.Title);
+			m_titleContainer.SetActive(hasTitle);
 			if (hasTitle)
-			{
-				m_titleContainer.SetActive(true);
-				m_title.text = _title;
-			}
-			else
-			{
-				m_titleContainer.SetActive(false);
-			}
+				m_title.text = _options.Title;
 
 			Clear();
 			EvaluateOptions(_options);

@@ -39,10 +39,13 @@ public class TestDemoScene1 : UiView
 
 	private void OnShowDatePickerButton()
 	{
-//		UiMain.Instance.ShowDateTimeView(new UiDateTimeView.Options()
-//		{
-//
-//		});
+		UiMain.Instance.CreateRequester(new UiRequester.Options()
+		{
+			DateTimeOptions = new UiDateTimePanel.Options()
+			{
+
+			}
+		});
 	}
 
 	private void OnExampleDialogStylesButton()
