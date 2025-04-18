@@ -27,9 +27,6 @@ namespace GuiToolkit
 		[SerializeField] protected GameObject m_titleContainer;
 		[SerializeField] protected UiButton m_closeButton;
 		[SerializeField] protected GameObject m_buttonContainer;
-		[SerializeField] protected UiButton m_standardButtonPrefab;
-		[SerializeField] protected UiButton m_okButtonPrefab;
-		[SerializeField] protected UiButton m_cancelButtonPrefab;
 		[SerializeField] protected float m_buttonScale = 1.0f;
 		[SerializeField] protected int m_maxButtons = 3;
 		[SerializeField] protected bool m_cancelButtonsLeftSide = false;
@@ -41,6 +38,20 @@ namespace GuiToolkit
 
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
+
+		public static ButtonInfo[] CreateButtonInfos(params (string text, UnityAction onClick)[] _buttons)
+		{
+			ButtonInfo[] result = new ButtonInfo[_buttons.Length];
+			for (int i = 0; i < result.Length; i++)
+			{
+				result[i] = new ButtonInfo();
+				result[i].Text = _buttons[i].text;
+				result[i].OnClick = _buttons[i].onClick;
+				result[i].Prefab = UiMain.Instance.StandardButtonPrefab;
+			}
+
+			return result;
+		}
 
 		protected void DoDialog( Options _options )
 		{

@@ -25,6 +25,15 @@ namespace GuiToolkit
 
 		[SerializeField] private float m_layerDistance = 0.02f;
 
+		[SerializeField] protected UiButton m_standardButtonPrefab;
+		[SerializeField] protected UiButton m_okButtonPrefab;
+		[SerializeField] protected UiButton m_cancelButtonPrefab;
+
+		public UiButton StandardButtonPrefab => m_standardButtonPrefab;
+		public UiButton OkButtonPrefab => m_okButtonPrefab;
+		public UiButton CancelButtonPrefab => m_cancelButtonPrefab;
+
+
 		private readonly Dictionary<string, UiView> m_scenes = new Dictionary<string, UiView>();
 
 		private static bool s_initialized = false;

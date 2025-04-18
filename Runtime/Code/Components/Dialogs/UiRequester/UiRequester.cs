@@ -37,7 +37,7 @@ namespace GuiToolkit
 				{
 					new ButtonInfo {
 						Text = string.IsNullOrEmpty(_okText) ? "Ok" : _okText,
-						Prefab = m_standardButtonPrefab,
+						Prefab = UiMain.Instance.StandardButtonPrefab,
 						OnClick = _onOk
 					}
 				},
@@ -57,12 +57,12 @@ namespace GuiToolkit
 				{
 					new ButtonInfo {
 						Text = string.IsNullOrEmpty(_yesText) ? "Yes" : _yesText,
-						Prefab = m_okButtonPrefab,
+						Prefab = UiMain.Instance.OkButtonPrefab,
 						OnClick = _onOk
 					},
 					new ButtonInfo {
 						Text = string.IsNullOrEmpty(_noText) ? "No" : _noText,
-						Prefab = m_cancelButtonPrefab,
+						Prefab = UiMain.Instance.CancelButtonPrefab,
 						OnClick = _onCancel
 					}
 				},
@@ -83,12 +83,12 @@ namespace GuiToolkit
 				{
 					new ButtonInfo {
 						Text = string.IsNullOrEmpty(_yesText) ? "Ok" : _yesText,
-						Prefab = m_okButtonPrefab,
+						Prefab = UiMain.Instance.OkButtonPrefab,
 						OnClick = () => _onOk(GetInputText())
 					},
 					new ButtonInfo {
 						Text = string.IsNullOrEmpty(_noText) ? "Cancel" : _noText,
-						Prefab = m_cancelButtonPrefab,
+						Prefab = UiMain.Instance.CancelButtonPrefab,
 						OnClick = _onCancel
 					}
 				},

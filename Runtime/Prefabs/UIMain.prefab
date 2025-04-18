@@ -115,6 +115,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_renderMode: 1
   m_layerDistance: 0.02
+  m_standardButtonPrefab: {fileID: 6944983982311379129, guid: 21a8687b0161cb048a99736c000f6da3,
+    type: 3}
+  m_okButtonPrefab: {fileID: 6699359830296575514, guid: ffe5dd8cf41b8e140b7de326263eedd8,
+    type: 3}
+  m_cancelButtonPrefab: {fileID: 1623664846775371399, guid: e1923f16e8be62c4aaba24e33fec90d9,
+    type: 3}
   m_stackAnimationType: 2
   m_stackMovedInCurve:
     serializedVersion: 2
