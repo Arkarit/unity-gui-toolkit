@@ -251,7 +251,7 @@ namespace GuiToolkit
 		public void ShowGridPicker(UiGridPicker.Options _options)
 		{
 			UiGridPicker gridPicker = CreateView(m_gridPickerPrefab);
-			gridPicker.GridPicker(_options);
+			gridPicker.SetOptions(_options);
 			gridPicker.Show();
 		}
 

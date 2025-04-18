@@ -42,7 +42,7 @@ namespace GuiToolkit
 		public readonly GridPickerEvent EvOnDestroyCell = new();
 		public readonly GridPickerEvent EvOnCellClicked = new();
 
-		public void GridPicker( Options _options )
+		public void SetOptions( Options _options )
 		{
 			m_options = _options;
 		}

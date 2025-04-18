@@ -12,13 +12,14 @@ namespace GuiToolkit
 			public bool ShowInputField = false;
 			public string PlaceholderText;
 			public string InputText;
+			public UiDateTimePanel.Options DateTimeOptions = null;
 		}
 
-		public GameObject m_inputFieldContainer;
-		public GameObject m_textContainer;
-
-		public TextMeshProUGUI m_text;
-		public TMP_InputField m_inputField;
+		[SerializeField] protected GameObject m_inputFieldContainer;
+		[SerializeField] protected GameObject m_textContainer;
+		[SerializeField] protected UiDateTimePanel m_dateTimePanel;
+		[SerializeField] protected TextMeshProUGUI m_text;
+		[SerializeField] protected TMP_InputField m_inputField;
 
 		public void Requester( string _title, string _text, Options _options )
 		{
@@ -127,6 +128,16 @@ namespace GuiToolkit
 						placeholderText.text = options.PlaceholderText;
 				}
 				UiMain.Instance.SetFocus(m_inputField);
+			}
+
+			if (options.DateTimeOptions != null)
+			{
+				m_dateTimePanel.SetOptions(options.DateTimeOptions);
+				m_dateTimePanel.gameObject.SetActive(true);
+			}
+			else
+			{
+				m_dateTimePanel.gameObject.SetActive(false);
 			}
 		}
 	}

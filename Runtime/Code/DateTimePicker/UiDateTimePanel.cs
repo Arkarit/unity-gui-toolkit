@@ -6,6 +6,7 @@ namespace GuiToolkit
 {
 	public class UiDateTimePanel : UiPanel
 	{
+		[Serializable]
 		public class Options
 		{
 		}
@@ -18,7 +19,7 @@ namespace GuiToolkit
 
 		public CEvent<DateTime> OnValueChanged = new();
 
-		public void DateTimePanel(Options _options)
+		public void SetOptions(Options _options)
 		{
 			m_options = _options;
 		}

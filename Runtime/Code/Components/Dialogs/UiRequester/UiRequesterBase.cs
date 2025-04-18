@@ -21,30 +21,38 @@ namespace GuiToolkit
 			public int CloseButtonIdx = Constants.INVALID;
 		}
 
-		public TextMeshProUGUI m_title;
-		public UiButton m_closeButton;
-
-		public GameObject m_buttonContainer;
-		public UiButton m_standardButtonPrefab;
-		public UiButton m_okButtonPrefab;
-		public UiButton m_cancelButtonPrefab;
-
-		public float m_buttonScale = 1.0f;
-		public int m_maxButtons = 3;
-
-		public bool m_cancelButtonsLeftSide = false;
+		[SerializeField] protected TextMeshProUGUI m_title;
+		[SerializeField] protected GameObject m_titleContainer;
+		[SerializeField] protected UiButton m_closeButton;
+		[SerializeField] protected GameObject m_buttonContainer;
+		[SerializeField] protected UiButton m_standardButtonPrefab;
+		[SerializeField] protected UiButton m_okButtonPrefab;
+		[SerializeField] protected UiButton m_cancelButtonPrefab;
+		[SerializeField] protected float m_buttonScale = 1.0f;
+		[SerializeField] protected int m_maxButtons = 3;
+		[SerializeField] protected bool m_cancelButtonsLeftSide = false;
 
 		private int m_closeButtonIdx = Constants.INVALID;
 
-		private readonly List<UiButton> m_buttons = new List<UiButton>();
-		private readonly List<UnityEngine.Events.UnityAction> m_listeners = new List<UnityEngine.Events.UnityAction>();
+		private readonly List<UiButton> m_buttons = new();
+		private readonly List<UnityEngine.Events.UnityAction> m_listeners = new();
 
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
 
 		protected void DoDialog( string _title, Options _options )
 		{
-			m_title.text = _title;
+			bool hasTitle = !string.IsNullOrEmpty(_title);
+			if (hasTitle)
+			{
+				m_titleContainer.SetActive(true);
+				m_title.text = _title;
+			}
+			else
+			{
+				m_titleContainer.SetActive(false);
+			}
+
 			Clear();
 			EvaluateOptions(_options);
 			gameObject.SetActive(true);
