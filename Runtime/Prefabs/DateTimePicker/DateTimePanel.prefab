@@ -163,7 +163,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_nowButton: {fileID: 7757159453914651417}
-  m_dateDisplay: {fileID: 5526109705676631566}
+  m_dateTimeDisplay: {fileID: 5526109705676631566}
   m_datePicker: {fileID: 4224005654026276382}
   m_timePicker: {fileID: 7781224674066007840}
   OnValueChanged:
@@ -336,6 +336,36 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1876625954840442367}
     m_Modifications:
+    - target: {fileID: 75812366841141219, guid: a9594b549d75d4443b87fece4427b4fd,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 75812366841141219, guid: a9594b549d75d4443b87fece4427b4fd,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 75812366841141219, guid: a9594b549d75d4443b87fece4427b4fd,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 75812366841141219, guid: a9594b549d75d4443b87fece4427b4fd,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 75812366841141219, guid: a9594b549d75d4443b87fece4427b4fd,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 75812366841141219, guid: a9594b549d75d4443b87fece4427b4fd,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3170993511148192814, guid: a9594b549d75d4443b87fece4427b4fd,
         type: 3}
       propertyPath: m_Name
@@ -379,7 +409,7 @@ PrefabInstance:
     - target: {fileID: 8078527267449090504, guid: a9594b549d75d4443b87fece4427b4fd,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 8078527267449090504, guid: a9594b549d75d4443b87fece4427b4fd,
         type: 3}
@@ -424,7 +454,7 @@ PrefabInstance:
     - target: {fileID: 8078527267449090504, guid: a9594b549d75d4443b87fece4427b4fd,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 8078527267449090504, guid: a9594b549d75d4443b87fece4427b4fd,
         type: 3}
@@ -1674,6 +1704,11 @@ PrefabInstance:
       propertyPath: m_PresetInfoIsWorld
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6440873469476761372, guid: b730cf9b032bf7047a05c856cd978e08,
+        type: 3}
+      propertyPath: m_optionalTimePicker
+      value: 
+      objectReference: {fileID: 7781224674066007840}
     - target: {fileID: 8990525546673182723, guid: b730cf9b032bf7047a05c856cd978e08,
         type: 3}
       propertyPath: m_Padding.m_Right

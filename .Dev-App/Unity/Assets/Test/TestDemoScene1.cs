@@ -54,7 +54,7 @@ public class TestDemoScene1 : UiView
 				),
 				DateTimeOptions = new UiDateTimePanel.Options()
 				{
-					ShowTime = false,
+//					ShowTime = false,
 				}
 			};
 		});

@@ -10,12 +10,13 @@ namespace GuiToolkit
 		[SerializeField] protected UiYearPicker m_yearPicker;
 		[SerializeField] protected UiMonthPicker m_monthPicker;
 		[SerializeField] protected UiDayPicker m_dayPicker;
+		[SerializeField] protected UiTimePicker m_optionalTimePicker;
 
 		public CEvent<DateTime> OnValueChanged = new();
 
 		public DateTime SelectedDate
 		{
-			get => new DateTime(m_yearPicker.Year, m_monthPicker.Month, m_dayPicker.Day, 0,0,0);
+			get => GetDateTime();
 			set
 			{
 				m_yearPicker.Year = value.Year;
@@ -46,8 +47,25 @@ namespace GuiToolkit
 		private void UpdateDate()
 		{
 			m_dayPicker.ValidateDaysInMonth();
-			var dateTime = new DateTime(m_yearPicker.Year, m_monthPicker.Month, m_dayPicker.Day, 0,0,0);
-			OnValueChanged.InvokeOnce(dateTime);
+			OnValueChanged.InvokeOnce(GetDateTime());
+		}
+
+		private DateTime GetDateTime()
+		{
+			var hour = 0;
+			var minute = 0;
+			var second = 0;
+
+			if (m_optionalTimePicker)
+			{
+				var time = m_optionalTimePicker.SelectedTime;
+
+				hour = time.Hour;
+				minute = time.Minute;
+				second = time.Second;
+			}
+
+			return new DateTime(m_yearPicker.Year, m_monthPicker.Month, m_dayPicker.Day, hour, minute, second);
 		}
 	}
 }
