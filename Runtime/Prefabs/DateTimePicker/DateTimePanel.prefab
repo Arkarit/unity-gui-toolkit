@@ -160,6 +160,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_nowButton: {fileID: 7757159453914651417}
+  m_dateDisplay: {fileID: 7487892606701773475}
   m_datePicker: {fileID: 4224005654026276382}
   m_timePicker: {fileID: 7781224674066007840}
   OnValueChanged:
@@ -318,6 +319,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a9594b549d75d4443b87fece4427b4fd, type: 3}
+--- !u!114 &7487892606701773475 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6950760544300082562, guid: a9594b549d75d4443b87fece4427b4fd,
+    type: 3}
+  m_PrefabInstance: {fileID: 548411404625184545}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16f03fc862e68f244881bcf7d8adc8c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &8611138652936419049 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8078527267449090504, guid: a9594b549d75d4443b87fece4427b4fd,

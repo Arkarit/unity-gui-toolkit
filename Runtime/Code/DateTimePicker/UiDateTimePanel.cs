@@ -9,9 +9,14 @@ namespace GuiToolkit
 		[Serializable]
 		public class Options
 		{
+			public DateTime StartDateTime = DateTime.Now;
+			public bool ShowCurrentDate = true;
+			public bool ShowDate = true;
+			public bool ShowTime = true;
 		}
 
 		[SerializeField] private UiButton m_nowButton;
+		[SerializeField] private UiDateDisplay m_dateDisplay;
 		[SerializeField] private UiDatePicker m_datePicker;
 		[SerializeField] private UiTimePicker m_timePicker;
 
@@ -22,6 +27,7 @@ namespace GuiToolkit
 		public void SetOptions(Options _options)
 		{
 			m_options = _options;
+			InitByOptions();
 		}
 
 		protected override void Awake()
@@ -44,17 +50,18 @@ namespace GuiToolkit
 			m_timePicker.OnValueChanged.RemoveListener(OnDateTimeChanged);
 		}
 
-		public override void OnBeginShow()
-		{
-			base.OnBeginShow();
-			InitByOptions();
-		}
-
 		private void InitByOptions()
 		{
 			if (m_options == null)
 				m_options = new Options();
 
+			if (!m_options.ShowDate && !m_options.ShowTime)
+				throw new ArgumentException("Either time or date or both needs to be set");
+
+			m_dateDisplay.gameObject.SetActive(m_options.ShowCurrentDate);
+			m_datePicker.gameObject.SetActive(m_options.ShowDate);
+			m_timePicker.gameObject.SetActive(m_options.ShowTime);
+			SelectedDateTime = m_options.StartDateTime;
 		}
 
 		private void OnDateTimeChanged(DateTime _value)
