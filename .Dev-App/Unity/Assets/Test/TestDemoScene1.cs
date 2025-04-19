@@ -41,12 +41,11 @@ public class TestDemoScene1 : UiView
 	{
 		UiMain.Instance.CreateRequester(new UiRequester.Options()
 		{
-			ButtonInfos = UiRequester.CreateButtonInfos
-			(
-				("Ok", null),
-				("Cancel", null)
-			),
-			CloseButtonAction = () => {},
+//			ButtonInfos = UiRequester.CreateButtonInfos
+//			(
+//				("Ok", null),
+//				("Cancel", null)
+//			),
 			DateTimeOptions = new UiDateTimePanel.Options()
 			{
 				

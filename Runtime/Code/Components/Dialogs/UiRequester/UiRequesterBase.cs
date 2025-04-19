@@ -21,6 +21,7 @@ namespace GuiToolkit
 			public string Title = null;
 			public ButtonInfo[] ButtonInfos = Array.Empty<ButtonInfo>();
 			public bool AllowOutsideTap = true;
+			public bool ShowCloseButton = true;
 			public UnityAction CloseButtonAction = null;
 		}
 
@@ -111,6 +112,7 @@ namespace GuiToolkit
 			if (m_maxButtons != Constants.INVALID && _options.ButtonInfos.Length > m_maxButtons)
 				Debug.LogWarning($"Dialog '{this.gameObject}' contains {_options.ButtonInfos.Length} buttons; maximum supported are {m_maxButtons}. Visual problems may appear.");
 
+			m_buttonContainer.SetActive(_options.ButtonInfos.Length > 0);
 			for (int i=0; i<_options.ButtonInfos.Length; i++)
 			{
 				ButtonInfo bi = _options.ButtonInfos[i];
@@ -150,7 +152,7 @@ namespace GuiToolkit
 				OnClickCatcher = Wiggle;
 
 			bool hasTitle = !string.IsNullOrEmpty(_options.Title);
-			bool hasCloseButton = _options.CloseButtonAction != null;
+			bool hasCloseButton = _options.ShowCloseButton;
 			int stateIdx = (hasTitle ? 2 : 0) | (hasCloseButton ? 1 : 0);
 			m_stateMachineCloseButtonAndHeadline.State = m_headlineStates[stateIdx];
 		}

@@ -68,6 +68,7 @@ namespace GuiToolkit
 					}
 				},
 				AllowOutsideTap = _allowOutsideTap,
+				ShowCloseButton = _allowOutsideTap,
 				CloseButtonAction = _allowOutsideTap ? _onCancel : null,
 				Text = _text,
 			};
@@ -94,6 +95,7 @@ namespace GuiToolkit
 					}
 				},
 				AllowOutsideTap = _allowOutsideTap,
+				ShowCloseButton = _allowOutsideTap,
 				CloseButtonAction = _allowOutsideTap ? _onCancel : null,
 				Text = _text,
 				PlaceholderText = _placeholderText,
