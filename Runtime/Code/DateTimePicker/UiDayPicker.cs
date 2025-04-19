@@ -17,6 +17,25 @@ namespace GuiToolkit
 			set => SetIndex(value - 1);
 		}
 
+		public void ValidateDaysInMonth()
+		{
+			var year = m_yearPicker.Year;
+			var month = m_monthPicker.Month;
+			var daysInMonth = DateTime.DaysInMonth(year, month);
+			if (m_index >= daysInMonth)
+				m_index = daysInMonth - 1;
+
+			if (m_strings.Count == daysInMonth)
+				return;
+
+			m_strings.Clear();
+
+			for (int i = 0; i < daysInMonth; i++)
+				m_strings.Add((i+1).ToString());
+
+			UpdateText();
+		}
+
 		protected override void Awake()
 		{
 			AddOnEnableButtonListeners
@@ -29,7 +48,7 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			m_isLocalizable = false;
-			RebuildStrings();
+			ValidateDaysInMonth();
 
 			m_monthPicker.OnValueChanged.AddListener(OnChanged);
 			m_yearPicker.OnValueChanged.AddListener(OnChanged);
@@ -44,24 +63,9 @@ namespace GuiToolkit
 			m_yearPicker.OnValueChanged.RemoveListener(OnChanged);
 		}
 
-		private void OnChanged(string _, int __) => RebuildStrings();
+		private void OnChanged(string _, int __) => ValidateDaysInMonth();
 
 		private void OnNowButton() => SetIndex(DateTime.Now.Day-1);
-
-		private void RebuildStrings()
-		{
-			m_strings.Clear();
-			var year = m_yearPicker.Year;
-			var month = m_monthPicker.Month;
-			var daysInMonth = DateTime.DaysInMonth(year, month);
-			if (m_index >= daysInMonth)
-				m_index = daysInMonth - 1;
-
-			for (int i = 0; i < daysInMonth; i++)
-				m_strings.Add((i+1).ToString());
-
-			UpdateText();
-		}
 
 		private void SetIndex(int _day)
 		{
@@ -74,8 +78,9 @@ namespace GuiToolkit
 				return;
 			}
 
-			RebuildStrings();
 			m_index = _day;
+			ValidateDaysInMonth();
+			UpdateText();
 		}
 	}
 }

@@ -18,7 +18,6 @@ namespace GuiToolkit
 			get => new DateTime(m_yearPicker.Year, m_monthPicker.Month, m_dayPicker.Day, 0,0,0);
 			set
 			{
-Debug.Log($"---::: {value}");
 				m_yearPicker.Year = value.Year;
 				m_monthPicker.Month = value.Month;
 				m_dayPicker.Day = value.Day;
@@ -46,6 +45,7 @@ Debug.Log($"---::: {value}");
 
 		private void UpdateDate()
 		{
+			m_dayPicker.ValidateDaysInMonth();
 			var dateTime = new DateTime(m_yearPicker.Year, m_monthPicker.Month, m_dayPicker.Day, 0,0,0);
 			OnValueChanged.InvokeOnce(dateTime);
 		}
