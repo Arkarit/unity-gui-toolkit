@@ -40,7 +40,7 @@ namespace GuiToolkit
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
 
-		public static ButtonInfo[] CreateButtonInfos(params (string text, UnityAction onClick)[] _buttons)
+		public static ButtonInfo[] CreateButtonInfos(bool _useOkCancelPrefabs, params (string text, UnityAction onClick)[] _buttons)
 		{
 			ButtonInfo[] result = new ButtonInfo[_buttons.Length];
 			for (int i = 0; i < result.Length; i++)
@@ -48,11 +48,27 @@ namespace GuiToolkit
 				result[i] = new ButtonInfo();
 				result[i].Text = _buttons[i].text;
 				result[i].OnClick = _buttons[i].onClick;
-				result[i].Prefab = UiMain.Instance.StandardButtonPrefab;
+
+				var text = _buttons[i].text.ToLower();
+				bool isOk = _useOkCancelPrefabs && (text == "ok" || text == "yes");
+				bool isCancel = _useOkCancelPrefabs && (text == "cancel" || text == "no");
+
+				UiButton prefab;
+				if (isOk)
+					prefab = UiMain.Instance.OkButtonPrefab;
+				else if (isCancel)
+					prefab = UiMain.Instance.CancelButtonPrefab;
+				else
+					prefab = UiMain.Instance.StandardButtonPrefab;
+
+				result[i].Prefab = prefab;
 			}
 
 			return result;
 		}
+
+		public static ButtonInfo[] CreateButtonInfos(params (string text, UnityAction onClick)[] _buttons) =>
+			CreateButtonInfos(true, _buttons);
 
 		protected void DoDialog( Options _options )
 		{
