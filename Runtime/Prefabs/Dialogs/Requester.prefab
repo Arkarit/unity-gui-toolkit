@@ -2383,6 +2383,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2126843346874919863}
     m_Modifications:
+    - target: {fileID: 56014967709732770, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
+      propertyPath: m_Name
+      value: DateTimeDisplay
+      objectReference: {fileID: 0}
     - target: {fileID: 726350679845378892, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -2583,6 +2588,36 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3300002108284787823, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3300002108284787823, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3300002108284787823, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3300002108284787823, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3300002108284787823, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3300002108284787823, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3356975636794093010, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
       propertyPath: m_PresetInfoIsWorld
@@ -2691,7 +2726,7 @@ PrefabInstance:
     - target: {fileID: 6690679041418279492, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 6690679041418279492, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
@@ -2701,7 +2736,7 @@ PrefabInstance:
     - target: {fileID: 6690679041418279492, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 6690679041418279492, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}

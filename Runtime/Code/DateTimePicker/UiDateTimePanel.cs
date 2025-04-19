@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -18,7 +19,7 @@ namespace GuiToolkit
 		}
 
 		[SerializeField] private UiButton m_nowButton;
-		[SerializeField] private UiDateDisplay m_dateDisplay;
+		[FormerlySerializedAs("m_dateDisplay")] [SerializeField] private UiDateTimeDisplay m_dateTimeDisplay;
 		[SerializeField] private UiDatePicker m_datePicker;
 		[SerializeField] private UiTimePicker m_timePicker;
 
@@ -60,7 +61,7 @@ namespace GuiToolkit
 			if (!m_options.ShowDate && !m_options.ShowTime)
 				throw new ArgumentException("Either time or date or both needs to be set");
 
-			m_dateDisplay.gameObject.SetActive(m_options.ShowCurrentDate);
+			m_dateTimeDisplay.gameObject.SetActive(m_options.ShowCurrentDate);
 			m_datePicker.gameObject.SetActive(m_options.ShowDate);
 			m_timePicker.gameObject.SetActive(m_options.ShowTime);
 			SelectedDateTime = m_options.StartDateTime;

@@ -1,17 +1,30 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
-	public class UiDateDisplay : UiPanel
+	public class UiDateTimeDisplay : UiPanel
 	{
+		[Serializable]
+		public class Options
+		{
+			public bool ShowDate = true;
+			public bool ShowTime = true;
+			public bool LongDateFormat = true;
+			public bool LongTimeFormat = true;
+		}
+
 		[SerializeField] protected TMP_Text m_text;
 		[SerializeField] protected SerializableDateTime m_dateTime;
 		[SerializeField] protected UiDateTimePanel m_dateTimePanel;
+		[SerializeField] protected Options m_options;
+
+		public void SetOptions(Options _options)
+		{
+			m_options = _options;
+			UpdateText();
+		}
 
 		protected override void OnEnable()
 		{
@@ -45,8 +58,25 @@ namespace GuiToolkit
 			if (m_dateTimePanel == null)
 				return;
 
+			if (m_options == null)
+				m_options = new Options();
+
 			var dateTime = m_dateTimePanel.SelectedDateTime;
-			m_text.text = dateTime.ToLongDateString();
+
+			var dateStr = m_options.ShowDate ? 
+				m_options.LongDateFormat ? 
+					dateTime.ToLongDateString() : 
+					dateTime.ToShortDateString() :
+				string.Empty;
+
+			var timeStr = m_options.ShowTime ?
+				m_options.LongTimeFormat ?
+					dateTime.ToLongTimeString() :
+					dateTime.ToShortTimeString() :
+				string.Empty;
+
+			var bindStr = m_options.ShowDate && m_options.ShowTime ? "\n" : string.Empty;
+ 			m_text.text = $"{dateStr}{bindStr}{timeStr}";
 		}
 	}
 }

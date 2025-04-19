@@ -36,8 +36,6 @@ namespace GuiToolkit
 				return string.Empty;
 			}
 
-			Debug.Log($"---::: {time.ToShortTimeString()}\n{time.ToLongTimeString()}");
-
 			switch (_type)
 			{
 				case EDateTimeType.Hour:
