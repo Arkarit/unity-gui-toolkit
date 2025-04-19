@@ -1,4 +1,5 @@
-﻿using GuiToolkit.UiStateSystem;
+﻿using System;
+using GuiToolkit.UiStateSystem;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -104,10 +105,10 @@ namespace GuiToolkit
 			Requester( _title, _text, options );
 		}
 
-		public string GetInputText()
-		{
-			return m_inputField.text;
-		}
+		public string GetInputText() => m_inputField.text;
+
+		public DateTime GetDateTime() => m_dateTimePanel.SelectedDateTime;
+
 
 		protected override void EvaluateOptions( UiRequesterBase.Options _options )
 		{

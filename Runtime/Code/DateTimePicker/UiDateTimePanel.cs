@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -13,6 +14,7 @@ namespace GuiToolkit
 			public bool ShowCurrentDate = true;
 			public bool ShowDate = true;
 			public bool ShowTime = true;
+			public UnityAction<DateTime> OnDateTimeChanged = null;
 		}
 
 		[SerializeField] private UiButton m_nowButton;
@@ -68,6 +70,7 @@ namespace GuiToolkit
 		{
 			SelectedDateTime = _value;
 			OnValueChanged.InvokeOnce(_value);
+			m_options.OnDateTimeChanged?.Invoke(_value);
 		}
 
 		private void OnNowButton() => SelectedDateTime = DateTime.Now;
