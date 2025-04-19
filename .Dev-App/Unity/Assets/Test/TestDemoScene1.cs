@@ -46,6 +46,7 @@ public class TestDemoScene1 : UiView
 				("Ok", null),
 				("Cancel", null)
 			),
+			CloseButtonAction = () => {},
 			DateTimeOptions = new UiDateTimePanel.Options()
 			{
 				

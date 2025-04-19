@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using GuiToolkit.UiStateSystem;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -42,7 +43,7 @@ namespace GuiToolkit
 					}
 				},
 				AllowOutsideTap = true,
-				CloseButtonIdx = 0,
+				CloseButtonAction = _onOk,
 				Text = _text,
 			};
 			Requester( _title, _text, options );
@@ -67,7 +68,7 @@ namespace GuiToolkit
 					}
 				},
 				AllowOutsideTap = _allowOutsideTap,
-				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
+				CloseButtonAction = _allowOutsideTap ? _onCancel : null,
 				Text = _text,
 			};
 
@@ -93,7 +94,7 @@ namespace GuiToolkit
 					}
 				},
 				AllowOutsideTap = _allowOutsideTap,
-				CloseButtonIdx = _allowOutsideTap ? 1 : Constants.INVALID,
+				CloseButtonAction = _allowOutsideTap ? _onCancel : null,
 				Text = _text,
 				PlaceholderText = _placeholderText,
 				InputText = _inputText,

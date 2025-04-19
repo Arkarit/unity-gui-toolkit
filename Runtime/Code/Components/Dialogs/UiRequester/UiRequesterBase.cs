@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GuiToolkit.UiStateSystem;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -20,7 +21,7 @@ namespace GuiToolkit
 			public string Title = null;
 			public ButtonInfo[] ButtonInfos = Array.Empty<ButtonInfo>();
 			public bool AllowOutsideTap = true;
-			public int CloseButtonIdx = Constants.INVALID;
+			public UnityAction CloseButtonAction = null;
 		}
 
 		[SerializeField] protected TextMeshProUGUI m_title;
@@ -31,10 +32,20 @@ namespace GuiToolkit
 		[SerializeField] protected int m_maxButtons = 3;
 		[SerializeField] protected bool m_cancelButtonsLeftSide = false;
 
-		private int m_closeButtonIdx = Constants.INVALID;
+		[Header(" Headline State Machine")]
+		[SerializeField] protected UiStateMachine m_stateMachineCloseButtonAndHeadline;
+
+		[SerializeField] protected string[] m_headlineStates = new string[]
+		{
+			"none",
+			"close",
+			"headline",
+			"headlineClose"
+		};
 
 		private readonly List<UiButton> m_buttons = new();
-		private readonly List<UnityEngine.Events.UnityAction> m_listeners = new();
+		private readonly List<UnityAction> m_listeners = new();
+		private UnityAction m_closeButtonAction;
 
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
@@ -55,9 +66,7 @@ namespace GuiToolkit
 
 		protected void DoDialog( Options _options )
 		{
-			bool hasTitle = !string.IsNullOrEmpty(_options.Title);
-			m_titleContainer.SetActive(hasTitle);
-			if (hasTitle)
+			if (!string.IsNullOrEmpty(_options.Title))
 				m_title.text = _options.Title;
 
 			Clear();
@@ -93,14 +102,12 @@ namespace GuiToolkit
 			
 			m_buttons.Clear();
 			m_listeners.Clear();
-			m_closeButtonIdx = Constants.INVALID;
 			OnClickCatcher = null;
+			m_closeButtonAction = null;
 		}
 
 		protected virtual void EvaluateOptions( Options _options )
 		{
-			m_closeButtonIdx = _options.CloseButtonIdx;
-
 			if (m_maxButtons != Constants.INVALID && _options.ButtonInfos.Length > m_maxButtons)
 				Debug.LogWarning($"Dialog '{this.gameObject}' contains {_options.ButtonInfos.Length} buttons; maximum supported are {m_maxButtons}. Visual problems may appear.");
 
@@ -133,7 +140,7 @@ namespace GuiToolkit
 
 			if (m_closeButton)
 			{
-				m_closeButton.gameObject.SetActive(m_closeButtonIdx >= 0);
+				m_closeButtonAction = _options.CloseButtonAction;
 				m_closeButton.OnClick.AddListener(OnCloseButton);
 			}
 
@@ -141,6 +148,11 @@ namespace GuiToolkit
 				OnClickCatcher = OnCloseButton;
 			else
 				OnClickCatcher = Wiggle;
+
+			bool hasTitle = !string.IsNullOrEmpty(_options.Title);
+			bool hasCloseButton = _options.CloseButtonAction != null;
+			int stateIdx = (hasTitle ? 2 : 0) | (hasCloseButton ? 1 : 0);
+			m_stateMachineCloseButtonAndHeadline.State = m_headlineStates[stateIdx];
 		}
 
 		private void OnClick( int _idx )
@@ -148,13 +160,16 @@ namespace GuiToolkit
 			Debug.Assert(_idx < m_listeners.Count);
 			if (_idx < m_listeners.Count && m_listeners[_idx] != null)
 				m_listeners[_idx]();
+
 			Hide();
 		}
 
 		private void OnCloseButton()
 		{
-			if (m_closeButtonIdx >= 0)
-				OnClick(m_closeButtonIdx);
+			if (m_closeButtonAction != null)
+				m_closeButtonAction.Invoke();
+
+			Hide();
 		}
 
 		private void Wiggle()
