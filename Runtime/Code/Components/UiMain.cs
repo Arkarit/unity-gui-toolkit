@@ -279,13 +279,12 @@ namespace GuiToolkit
 			message.Show(_message, _duration);
 		}
 
-		public UiRequester CreateRequester(UiRequester.Options _options = null, bool _show = true)
+		public UiRequester CreateRequester(Func<UiRequester, UiRequester.Options> _setOptions, bool _show = true)
 		{
 			UiRequester result = CreateView(m_requesterPrefab);
 			Debug.Assert(result);
 
-			if (_options != null)
-				result.Requester(_options);
+			result.Requester(_setOptions?.Invoke(result));
 
 			if (_show)
 				result.Show();

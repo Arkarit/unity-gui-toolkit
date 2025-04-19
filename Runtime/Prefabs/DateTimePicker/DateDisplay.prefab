@@ -94,14 +94,14 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4294967295
   m_fontSize: 36
-  m_fontSizeBase: 44.6
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 16
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 4096
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: -3
   m_wordSpacing: 0
@@ -234,7 +234,7 @@ MonoBehaviour:
   m_text: {fileID: 1136905583886140376}
   m_dateTime:
     m_ticks: 0
-  m_dateTimeView: {fileID: 0}
+  m_dateTimePanel: {fileID: 0}
 --- !u!222 &2012853883973490129
 CanvasRenderer:
   m_ObjectHideFlags: 0

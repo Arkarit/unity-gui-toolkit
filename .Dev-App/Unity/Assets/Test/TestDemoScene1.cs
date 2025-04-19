@@ -39,23 +39,24 @@ public class TestDemoScene1 : UiView
 
 	private void OnShowDatePickerButton()
 	{
-		var requester = UiMain.Instance.CreateRequester(null, false);
-		requester.Requester(new UiRequester.Options()
+		UiMain.Instance.CreateRequester(requester =>
 		{
-			ButtonInfos = UiRequester.CreateButtonInfos
-			(
-				("Ok", () =>
-				{
-					Debug.Log($"Selected date / time: {requester.GetDateTime()}");
-				}),
-				("Cancel", null)
-			),
-			DateTimeOptions = new UiDateTimePanel.Options()
+			return new UiRequester.Options()
 			{
-				ShowTime = false,
-			}
+				ButtonInfos = UiRequester.CreateButtonInfos
+				(
+					("Ok", () =>
+					{
+						Debug.Log($"Selected date / time: {requester.GetDateTime()}");
+					}),
+					("Cancel", null)
+				),
+				DateTimeOptions = new UiDateTimePanel.Options()
+				{
+					ShowTime = false,
+				}
+			};
 		});
-		requester.Show();
 	}
 
 	private void OnExampleDialogStylesButton()
