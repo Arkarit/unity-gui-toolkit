@@ -15,11 +15,14 @@ namespace GuiToolkit
 			public bool ShowCurrentDate = true;
 			public bool ShowDate = true;
 			public bool ShowTime = true;
+			public bool LongDateFormat = true;
+			public bool LongTimeFormat = true;
 			public UnityAction<DateTime> OnDateTimeChanged = null;
 		}
 
 		[SerializeField] private UiButton m_nowButton;
-		[FormerlySerializedAs("m_dateDisplay")] [SerializeField] private UiDateTimeDisplay m_dateTimeDisplay;
+		[FormerlySerializedAs("m_dateDisplay")] 
+		[SerializeField] private UiDateTimeDisplay m_dateTimeDisplay;
 		[SerializeField] private UiDatePicker m_datePicker;
 		[SerializeField] private UiTimePicker m_timePicker;
 
@@ -62,6 +65,17 @@ namespace GuiToolkit
 				throw new ArgumentException("Either time or date or both needs to be set");
 
 			m_dateTimeDisplay.gameObject.SetActive(m_options.ShowCurrentDate);
+			if (m_options.ShowCurrentDate)
+			{
+				m_dateTimeDisplay.SetOptions(new UiDateTimeDisplay.Options()
+				{
+					ShowDate = m_options.ShowDate,
+					ShowTime = m_options.ShowTime,
+					LongDateFormat = m_options.LongDateFormat,
+					LongTimeFormat = m_options.LongTimeFormat,
+				});
+			}
+
 			m_datePicker.gameObject.SetActive(m_options.ShowDate);
 			m_timePicker.gameObject.SetActive(m_options.ShowTime);
 			SelectedDateTime = m_options.StartDateTime;
