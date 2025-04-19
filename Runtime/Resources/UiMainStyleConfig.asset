@@ -149,7 +149,7 @@ MonoBehaviour:
     - rid: 8590990584682382113
     - rid: 8590990584708334135
     - rid: 2290798622902845885
-  m_currentSkinIdx: 0
+  m_currentSkinIdx: 1
   references:
     version: 2
     RefIds:
@@ -2812,7 +2812,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: 54
+        m_value: 46
     - rid: 107648060340568355
       type: {class: UiStyleTMP_Text/ApplicableValueFontWeight, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -2828,12 +2828,12 @@ MonoBehaviour:
     - rid: 107648060340568357
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 18
     - rid: 107648060340568358
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 72
     - rid: 107648060340568359
       type: {class: UiStyleTMP_Text/ApplicableValueFontStyles, ns: GuiToolkit.Style,
@@ -7905,7 +7905,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: 54
+        m_value: 46
     - rid: 107648080256959391
       type: {class: UiStyleTMP_Text/ApplicableValueFontWeight, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -7921,12 +7921,12 @@ MonoBehaviour:
     - rid: 107648080256959393
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 18
     - rid: 107648080256959394
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 72
     - rid: 107648080256959395
       type: {class: UiStyleTMP_Text/ApplicableValueFontStyles, ns: GuiToolkit.Style,

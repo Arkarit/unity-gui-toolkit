@@ -18,7 +18,7 @@ namespace GuiToolkit
 
 		public class Options
 		{
-			public string Title = null;
+			public string Title = string.Empty;
 			public ButtonInfo[] ButtonInfos = Array.Empty<ButtonInfo>();
 			public bool AllowOutsideTap = true;
 			public bool ShowCloseButton = true;
@@ -32,17 +32,6 @@ namespace GuiToolkit
 		[SerializeField] protected float m_buttonScale = 1.0f;
 		[SerializeField] protected int m_maxButtons = 3;
 		[SerializeField] protected bool m_cancelButtonsLeftSide = false;
-
-		[Header(" Headline State Machine")]
-		[SerializeField] protected UiStateMachine m_stateMachineCloseButtonAndHeadline;
-
-		[SerializeField] protected string[] m_headlineStates = new string[]
-		{
-			"none",
-			"close",
-			"headline",
-			"headlineClose"
-		};
 
 		private readonly List<UiButton> m_buttons = new();
 		private readonly List<UnityAction> m_listeners = new();
@@ -151,10 +140,8 @@ namespace GuiToolkit
 			else
 				OnClickCatcher = Wiggle;
 
-			bool hasTitle = !string.IsNullOrEmpty(_options.Title);
 			bool hasCloseButton = _options.ShowCloseButton;
-			int stateIdx = (hasTitle ? 2 : 0) | (hasCloseButton ? 1 : 0);
-			m_stateMachineCloseButtonAndHeadline.State = m_headlineStates[stateIdx];
+			m_closeButton.gameObject.SetActive(hasCloseButton);
 		}
 
 		private void OnClick( int _idx )

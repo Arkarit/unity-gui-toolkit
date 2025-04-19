@@ -43,6 +43,7 @@ public class TestDemoScene1 : UiView
 		{
 			return new UiRequester.Options()
 			{
+				Title = "Enter Time and Date",
 				ButtonInfos = UiRequester.CreateButtonInfos
 				(
 					("Ok", () =>
