@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -15,11 +14,8 @@ namespace GuiToolkit
 	[RequireComponent(typeof(GraphicRaycaster))]
 	public class UiView : UiPanel
 	{
-		[SerializeField]
-		protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
-
-		[SerializeField]
-		protected bool m_isFullScreen;
+		[SerializeField] protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
+		[SerializeField] protected bool m_isFullScreen;
 
 		private UiModal m_uiModal;
 		private bool m_uiModalChecked;

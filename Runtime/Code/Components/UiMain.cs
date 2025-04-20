@@ -416,6 +416,7 @@ namespace GuiToolkit
 					int planeIndex = (int)layer - layercount;
 					float planeDistance = LayerDistance * (float) planeIndex;
 					view.InitView(RenderMode, Camera, planeDistance, (int) EUiLayerDefinition.Back - planeIndex);
+
 					layercount++;
 				}
 			}
