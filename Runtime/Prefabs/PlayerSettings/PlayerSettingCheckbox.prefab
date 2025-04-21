@@ -307,6 +307,10 @@ MonoBehaviour:
   m_simpleAnimation: {fileID: 2445211439591650065}
   m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 8148534925401460499}
+  m_additionalMouseOver: {fileID: 0}
+  m_additionalMouseOverDuration: 0.2
+  m_additionalMouseOverAlpha: 0.2
+  m_animatedWhenSelected: 0
 --- !u!114 &7396573769442143020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -517,6 +521,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8985634489155396047}
     m_Modifications:
+    - target: {fileID: 3292170528160101493, guid: f0d5594a0c80b89438de6761afc5d59a,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.000015258789
+      objectReference: {fileID: 0}
     - target: {fileID: 4728833877965139415, guid: f0d5594a0c80b89438de6761afc5d59a,
         type: 3}
       propertyPath: m_AnchoredPosition.x

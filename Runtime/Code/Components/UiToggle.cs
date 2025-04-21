@@ -8,6 +8,7 @@ namespace GuiToolkit
 	[RequireComponent(typeof(Toggle))]
 	public class UiToggle: UiButtonBase
 	{
+		[SerializeField] protected bool m_animatedWhenSelected;
 		private Toggle m_toggle;
 		private Color m_savedColor;
 
@@ -52,7 +53,7 @@ namespace GuiToolkit
 
 		public override void OnPointerDown(PointerEventData eventData)
 		{
-			if (Toggle.isOn)
+			if (!m_animatedWhenSelected && Toggle.isOn)
 				return;
 
 			base.OnPointerDown(eventData);
@@ -60,7 +61,7 @@ namespace GuiToolkit
 
 		public override void OnPointerUp(PointerEventData eventData)
 		{
-			if (Toggle.isOn)
+			if (!m_animatedWhenSelected && Toggle.isOn)
 				return;
 
 			base.OnPointerUp(eventData);
