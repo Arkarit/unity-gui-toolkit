@@ -19,8 +19,6 @@ namespace GuiToolkit
 		[SerializeField] protected Graphic m_additionalMouseOver;
 		[Tooltip("Mouse over fade duration (optional)")]
 		[SerializeField] protected float m_additionalMouseOverDuration = 0.2f;
-		[Tooltip("Additional mouse over alpha when active (optional)")]
-		[SerializeField] protected float m_additionalMouseOverAlpha = 0.2f;
 
 		public override bool IsEnableableInHierarchy => true;
 

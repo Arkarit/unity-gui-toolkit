@@ -12,7 +12,16 @@ namespace GuiToolkit
 		private Toggle m_toggle;
 		private Color m_savedColor;
 
-		public Toggle Toggle => m_toggle;
+		public Toggle Toggle
+		{
+			get
+			{
+				if (!m_toggle)
+					m_toggle = GetComponent<Toggle>();
+
+				return m_toggle;
+			}
+		}
 
 		public Toggle.ToggleEvent OnValueChanged => Toggle.onValueChanged;
 
@@ -33,8 +42,7 @@ namespace GuiToolkit
 		protected override void Awake()
 		{
 			base.Awake();
-			m_toggle = GetComponent<Toggle>();
-			m_savedColor = m_toggle.colors.normalColor;
+			m_savedColor = Toggle.colors.normalColor;
 		}
 
 		protected override void OnEnable()
@@ -84,7 +92,7 @@ namespace GuiToolkit
 		{
 			base.OnEnabledInHierarchyChanged(_enabled);
 			InitIfNecessary();
-			m_toggle.interactable = _enabled;
+			Toggle.interactable = _enabled;
 		}
 
 		private void OnValidate()
