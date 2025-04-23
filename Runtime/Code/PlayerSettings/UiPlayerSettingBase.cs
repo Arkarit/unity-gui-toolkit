@@ -1,15 +1,21 @@
 ﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public abstract class UiPlayerSettingBase : UiThing
+	public abstract class UiPlayerSettingBase : UiThing, IPointerEnterHandler, IPointerExitHandler
 	{
 		[SerializeField] protected UiTMPTranslator m_titleTranslator;
 		[SerializeField] protected TMP_Text m_text;
 		[SerializeField] protected bool m_isLocalized = true;
+		
+		[Tooltip("Additional mouse over graphic (optional)")]
+		[SerializeField] protected Graphic m_additionalMouseOver;
+		[Tooltip("Mouse over fade duration (optional)")]
+		[SerializeField] protected float m_additionalMouseOverDuration = 0.2f;
 
 		protected PlayerSetting m_playerSetting;
 		protected string m_subKey;
@@ -29,6 +35,18 @@ namespace GuiToolkit
 		public bool Initialized => m_playerSetting != null;
 
 		public PlayerSetting PlayerSetting => m_playerSetting;
+
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			OnPointerExit(null);
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			OnPointerExit(null);
+		}
 
 		protected override void AddEventListeners()
 		{
@@ -133,6 +151,19 @@ namespace GuiToolkit
 				m_playerSetting.InvokeEvents = true;
 			}
 		}
+		
+		public void OnPointerEnter(PointerEventData _)
+		{
+			if (m_additionalMouseOver)
+				m_additionalMouseOver.CrossFadeColor(Color.white, m_additionalMouseOverDuration, false, true);
+		}
+
+		public void OnPointerExit(PointerEventData _)
+		{
+			if (m_additionalMouseOver)
+				m_additionalMouseOver.CrossFadeColor(Color.clear, m_additionalMouseOverDuration, false, true);
+		}
+
 
 	}
 }

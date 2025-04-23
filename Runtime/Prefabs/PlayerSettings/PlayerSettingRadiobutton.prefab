@@ -8,6 +8,113 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 44963853327102479, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_name
+      value: Buttons/Radio/SelectionMarker
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551104523121, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551104523122, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551104523122, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551104523122, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.000015258789
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551104523135, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 2d423647549aaa241b88679d1e8e4fae,
+        type: 3}
+    - target: {fileID: 92612551104523135, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 0.5372549
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551104523135, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0.5372549
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551104523135, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 0.5372549
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551571332352, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 2d423647549aaa241b88679d1e8e4fae,
+        type: 3}
+    - target: {fileID: 92612551571332352, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0.9098039
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551571332352, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 0.61960787
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551571332353, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551571332354, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551571332354, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551571332354, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551571332354, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551571332354, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 190.1173
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551571332354, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 67.64
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551571332354, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -0.000022888
+      objectReference: {fileID: 0}
+    - target: {fileID: 92612551571332354, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -2.04
+      objectReference: {fileID: 0}
     - target: {fileID: 1322661682543940304, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
       propertyPath: m_Pivot.x
@@ -113,6 +220,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2322384931871610406, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_name
+      value: Buttons/Radio/Background
+      objectReference: {fileID: 0}
+    - target: {fileID: 2401266517644337017, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_IsOn
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2401266517644337017, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: graphic
+      value: 
+      objectReference: {fileID: 6341834938050376294}
     - target: {fileID: 2927469975915501147, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
       propertyPath: m_Type
@@ -128,6 +250,42 @@ PrefabInstance:
         type: 3}
       propertyPath: m_text
       value: Radiobutton
+      objectReference: {fileID: 0}
+    - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee,
+        type: 2}
+    - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_fontColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_fontColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_fontColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}
+    - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_characterSpacing
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4278190080
       objectReference: {fileID: 0}
     - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
@@ -151,8 +309,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
+      propertyPath: m_enableVertexGradient
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
       propertyPath: m_textInfo.characterCount
       value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 3962353340145202642, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
+      value: 1801810542
       objectReference: {fileID: 0}
     - target: {fileID: 3994980590713455092, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
@@ -164,16 +332,77 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 60
       objectReference: {fileID: 0}
+    - target: {fileID: 4525001793197807246, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4525001793197807246, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_EffectColor.a
+      value: 0.21176471
+      objectReference: {fileID: 0}
     - target: {fileID: 4811612511003103966, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: ebfad9e774536ea4ba52588acabc7669,
         type: 3}
+    - target: {fileID: 5349384898972409608, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_name
+      value: Buttons/Radio/Background
+      objectReference: {fileID: 0}
+    - target: {fileID: 5941741729225564226, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_name
+      value: Buttons/Radio/SelectionMarker
+      objectReference: {fileID: 0}
+    - target: {fileID: 7270542049063416333, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a13d7a258751b14499b8b99390ed5ed1,
+        type: 3}
+    - target: {fileID: 7379431414376243140, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_colorLeftOrTop.b
+      value: 0.8867924
+      objectReference: {fileID: 0}
+    - target: {fileID: 7379431414376243140, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_colorLeftOrTop.g
+      value: 0.8867924
+      objectReference: {fileID: 0}
+    - target: {fileID: 7379431414376243140, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_colorLeftOrTop.r
+      value: 0.8867924
+      objectReference: {fileID: 0}
+    - target: {fileID: 7379431414376243140, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.b
+      value: 0.8679245
+      objectReference: {fileID: 0}
+    - target: {fileID: 7379431414376243140, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.g
+      value: 0.8679245
+      objectReference: {fileID: 0}
+    - target: {fileID: 7379431414376243140, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_colorRightOrBottom.r
+      value: 0.8679245
+      objectReference: {fileID: 0}
     - target: {fileID: 7429671929018545851, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
       propertyPath: m_Name
       value: PlayerSettingRadiobutton
+      objectReference: {fileID: 0}
+    - target: {fileID: 8718609602458139813, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_name
+      value: Buttons/Radio/SelectionMarker
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7396573769442143020, guid: 2a99be027eca11f428bec269d3de1bf3, type: 3}
@@ -208,6 +437,18 @@ MonoBehaviour:
   m_text: {fileID: 8049802287950748340}
   m_isLocalized: 1
   m_toggle: {fileID: 7084597382056447501}
+--- !u!114 &6341834938050376294 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 92612551571332352, guid: 2a99be027eca11f428bec269d3de1bf3,
+    type: 3}
+  m_PrefabInstance: {fileID: 6434447433178132326}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &7084597382056447501 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4258773645563961707, guid: 2a99be027eca11f428bec269d3de1bf3,
