@@ -1,10 +1,13 @@
 ﻿using GuiToolkit;
 using System.Collections;
 using System.Collections.Generic;
+using GuiToolkit.Style;
 using UnityEngine;
 
 public class TestMain : LocaMonoBehaviour
 {
+	protected const string KeyUiSkin = "UiSkin";
+	
 	protected void Start()
 	{
 		Application.targetFrameRate = 60;
@@ -58,6 +61,16 @@ public class TestMain : LocaMonoBehaviour
 					Icons = new List<string>{ BuiltinIcons.SLOW, BuiltinIcons.FAST }
 				}
 			),
+			new PlayerSetting
+			(
+				__("Graphics"), __("UI Skin"), "", __("Default"), 
+				new PlayerSettingOptions()
+				{
+					Type = EPlayerSettingType.Radio,
+					Key = KeyUiSkin,
+					StringValues = new List<string>{__("Default"), __("Light")}
+				}
+			),
 
 
 			// Key bindings
@@ -66,8 +79,16 @@ public class TestMain : LocaMonoBehaviour
 			new PlayerSetting(__("Key Bindings"), "", __("Move Up"), KeyCode.W),
 			new PlayerSetting(__("Key Bindings"), "", __("Move Down"), KeyCode.D)
 		});
-
+		
+		UiEventDefinitions.EvPlayerSettingChanged.AddListener(OnPlayerSettingChanged);
 		UiMain.Instance.LoadScene("DemoScene1");
 	}
 
+	private void OnPlayerSettingChanged(PlayerSetting _playerSetting)
+	{
+		if (_playerSetting.Key != KeyUiSkin)
+			return;
+		var val = _playerSetting.GetValue<string>();
+		UiMainStyleConfig.Instance.CurrentSkinName = val;
+	}
 }
