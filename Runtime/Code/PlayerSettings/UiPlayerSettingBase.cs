@@ -146,9 +146,9 @@ namespace GuiToolkit
 
 			if (_playerSetting.Key == m_playerSetting.Key)
 			{
-				m_playerSetting.InvokeEvents = false;
+				m_playerSetting.AllowInvokeEvents = false;
 				Value = _playerSetting.Value;
-				m_playerSetting.InvokeEvents = true;
+				m_playerSetting.AllowInvokeEvents = true;
 			}
 		}
 		

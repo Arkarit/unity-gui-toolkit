@@ -1,24 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+
 namespace GuiToolkit
 {
+	/// <summary>
+	/// Player setting type enum.
+	/// Usually default (Auto) can be used for int, float, bool and string.
+	/// Only if the player setting needs special handling (e.g. radio buttons), the type needs to be explicitly defined
+	/// </summary>
 	public enum EPlayerSettingType
 	{
-		Auto,
-		Language,
-		Radio,
+		Auto,		//!< Automatically determined
+		Language,	//!< Special case language type
+		Radio,		//!< Special case radio buttons
 	}
 
+	/// <summary>
+	/// Additional options for player settings.
+	/// Used to keep PlayerSetting ctor small and clear.
+	/// </summary>
 	[Serializable]
 	public class PlayerSettingOptions
 	{
-		public EPlayerSettingType Type = EPlayerSettingType.Auto;
-		public string Key = null;
-		public List<string> Icons;
-		public List<string> Titles;
-		public List<string> StringValues;
-		public bool IsLocalized = true;
+		public EPlayerSettingType Type = EPlayerSettingType.Auto;	//!< Player setting type. Usually left default (Auto: automatically determined)
+		public string Key = null;									//!< Key. If left null or empty, player setting title is used as key.
+		public List<string> Icons;									//!< List of icons to be used, depending on player setting type
+		public List<string> Titles;									//!< Titles for UI display(optional, else string values are also used as titles)
+		public List<string> StringValues;							//!< String values for string based PlayerSettingOptions
+		public bool IsLocalized = true;								//!< Should usually be set to true; only set to false if you want to display languages (see TestMain language setting)
+		public UnityAction<PlayerSetting> OnChanged = null;			//!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
 	}
 
 	[Serializable]
@@ -37,7 +49,7 @@ namespace GuiToolkit
 
 		protected object m_value;
 		protected object m_savedValue;
-		protected bool m_invokeEvents = false;
+		protected bool m_allowInvokeEvents = false;
 		protected PlayerSettingOptions m_options;
 
 		public PlayerSettingOptions Options => m_options;
@@ -45,10 +57,10 @@ namespace GuiToolkit
 		public string Group => m_group;
 		public string Title => m_title;
 		public string Key => m_key;
-		public bool InvokeEvents
+		public bool AllowInvokeEvents
 		{
-			get => m_invokeEvents;
-			set => m_invokeEvents = value;
+			get => m_allowInvokeEvents;
+			set => m_allowInvokeEvents = value;
 		}
 
 		public object Value
@@ -59,12 +71,10 @@ namespace GuiToolkit
 				CheckType(value.GetType());
 				m_value = value;
 				Apply();
-				if (InvokeEvents)
-				{
-					UiEventDefinitions.EvPlayerSettingChanged.Invoke(this);
-				}
+				InvokeEvents();
 			}
 		}
+
 		public object DefaultValue => GetValue(ref m_defaultValue);
 
 		public System.Type Type => m_type;
@@ -130,6 +140,16 @@ namespace GuiToolkit
 			Apply();
 			if (m_options.Type == EPlayerSettingType.Language)
 				LocaManager.Instance.ChangeLanguage((string) m_value);
+		}
+
+		public void InvokeEvents()
+		{
+			if (!AllowInvokeEvents)
+				return;
+
+			UiEventDefinitions.EvPlayerSettingChanged.Invoke(this);
+			if (m_options != null)
+				m_options.OnChanged?.Invoke(this);
 		}
 
 		private T GetValue<T>(ref object _v)

@@ -1,5 +1,4 @@
 ﻿using GuiToolkit;
-using System.Collections;
 using System.Collections.Generic;
 using GuiToolkit.Style;
 using UnityEngine;
@@ -11,8 +10,8 @@ public class TestMain : LocaMonoBehaviour
 	protected void Start()
 	{
 		Application.targetFrameRate = 60;
-//PlayerPrefs.DeleteAll();
-		PlayerSettings.Instance.Add( new List<PlayerSetting>
+
+		GuiToolkit.PlayerSettings.Instance.Add( new List<PlayerSetting>
 		{
 			// Language
 			new PlayerSetting
@@ -68,7 +67,12 @@ public class TestMain : LocaMonoBehaviour
 				{
 					Type = EPlayerSettingType.Radio,
 					Key = KeyUiSkin,
-					StringValues = new List<string>{__("Default"), __("Light")}
+					StringValues = new List<string>{__("Default"), __("Light")},
+					OnChanged = playerSetting =>
+					{
+						var val = playerSetting.GetValue<string>();
+						UiMainStyleConfig.Instance.CurrentSkinName = val;
+					}
 				}
 			),
 
@@ -79,16 +83,15 @@ public class TestMain : LocaMonoBehaviour
 			new PlayerSetting(__("Key Bindings"), "", __("Move Up"), KeyCode.W),
 			new PlayerSetting(__("Key Bindings"), "", __("Move Down"), KeyCode.D)
 		});
-		
+
+		// Alternative way to listen to player settings changed:
 		UiEventDefinitions.EvPlayerSettingChanged.AddListener(OnPlayerSettingChanged);
+
 		UiMain.Instance.LoadScene("DemoScene1");
 	}
 
 	private void OnPlayerSettingChanged(PlayerSetting _playerSetting)
 	{
-		if (_playerSetting.Key != KeyUiSkin)
-			return;
-		var val = _playerSetting.GetValue<string>();
-		UiMainStyleConfig.Instance.CurrentSkinName = val;
+		Debug.Log($"Player setting '{_playerSetting.Key}' changed to {_playerSetting.Value}");
 	}
 }

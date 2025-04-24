@@ -64,8 +64,8 @@ namespace GuiToolkit
 			// Thus second iteration.
 			foreach (PlayerSetting playerSetting in _playerSettings )
 			{
-				playerSetting.InvokeEvents = true;
-				UiEventDefinitions.EvPlayerSettingChanged.Invoke(playerSetting);
+				playerSetting.AllowInvokeEvents = true;
+				playerSetting.InvokeEvents();
 			}
 		}
 
@@ -91,7 +91,7 @@ namespace GuiToolkit
 			{
 				var playerSetting = kv.Value;
 				playerSetting.TempRestoreValue();
-				UiEventDefinitions.EvPlayerSettingChanged.Invoke(playerSetting);
+				playerSetting.InvokeEvents();
 				Log(playerSetting, "Restored");
 			}
 		}
