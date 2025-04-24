@@ -1,5 +1,6 @@
 // Auto-generated, please do not change!
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
@@ -15,40 +16,59 @@ namespace GuiToolkit.Style
 			Name = _name;
 		}
 
-		private class ApplicableValueSprite : ApplicableValue<UnityEngine.Sprite> {}
 		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
 		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
+		private class ApplicableValueSprite : ApplicableValue<UnityEngine.Sprite> {}
 
 		protected override ApplicableValueBase[] GetValueArray()
 		{
 			return new ApplicableValueBase[]
 			{
-				Sprite,
 				Color,
 				Enabled,
+				Sprite,
 			};
 		}
 
-		[SerializeReference] private ApplicableValueSprite m_sprite = new();
+#if UNITY_EDITOR
+		public override List<ValueInfo> GetValueInfos()
+		{
+			return new List<ValueInfo>()
+			{
+				new ValueInfo()
+				{
+					GetterName = "Color",
+					GetterType = typeof(ApplicableValueColor),
+					Value = Color,
+				},
+				new ValueInfo()
+				{
+					GetterName = "Enabled",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = Enabled,
+				},
+				new ValueInfo()
+				{
+					GetterName = "Sprite",
+					GetterType = typeof(ApplicableValueSprite),
+					Value = Sprite,
+				},
+			};
+		}
+#endif
+
 		[SerializeReference] private ApplicableValueColor m_color = new();
 		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
-
-		public ApplicableValue<UnityEngine.Sprite> Sprite
-		{
-			get
-			{
-				if (m_sprite == null)
-					m_sprite = new ApplicableValueSprite();
-				return m_sprite;
-			}
-		}
+		[SerializeReference] private ApplicableValueSprite m_sprite = new();
 
 		public ApplicableValue<UnityEngine.Color> Color
 		{
 			get
 			{
-				if (m_color == null)
-					m_color = new ApplicableValueColor();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_color == null)
+						m_color = new ApplicableValueColor();
+				#endif
 				return m_color;
 			}
 		}
@@ -57,9 +77,23 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_enabled == null)
-					m_enabled = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_enabled == null)
+						m_enabled = new ApplicableValueBoolean();
+				#endif
 				return m_enabled;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Sprite> Sprite
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_sprite == null)
+						m_sprite = new ApplicableValueSprite();
+				#endif
+				return m_sprite;
 			}
 		}
 

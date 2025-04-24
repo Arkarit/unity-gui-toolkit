@@ -4,32 +4,44 @@
     "Prefix": "",
     "Records": [
         {
+            "Used": false,
+            "Name": "alphaHitTestMinimumThreshold",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
             "Used": true,
-            "Name": "sprite",
-            "QualifiedTypeName": "UnityEngine.Sprite",
-            "TypeName": "Sprite"
+            "Name": "color",
+            "QualifiedTypeName": "UnityEngine.Color",
+            "TypeName": "Color"
         },
         {
-            "Used": false,
-            "Name": "overrideSprite",
-            "QualifiedTypeName": "UnityEngine.Sprite",
-            "TypeName": "Sprite"
-        },
-        {
-            "Used": false,
-            "Name": "type",
-            "QualifiedTypeName": "UnityEngine.UI.Image.Type",
-            "TypeName": "Type"
-        },
-        {
-            "Used": false,
-            "Name": "preserveAspect",
+            "Used": true,
+            "Name": "enabled",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
             "Used": false,
+            "Name": "eventAlphaThreshold",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
+            "Name": "fillAmount",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
             "Name": "fillCenter",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "fillClockwise",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
@@ -41,57 +53,21 @@
         },
         {
             "Used": false,
-            "Name": "fillAmount",
-            "QualifiedTypeName": "System.Single",
-            "TypeName": "Single"
-        },
-        {
-            "Used": false,
-            "Name": "fillClockwise",
-            "QualifiedTypeName": "System.Boolean",
-            "TypeName": "Boolean"
-        },
-        {
-            "Used": false,
             "Name": "fillOrigin",
             "QualifiedTypeName": "System.Int32",
             "TypeName": "Int32"
         },
         {
             "Used": false,
-            "Name": "eventAlphaThreshold",
-            "QualifiedTypeName": "System.Single",
-            "TypeName": "Single"
+            "Name": "hideFlags",
+            "QualifiedTypeName": "UnityEngine.HideFlags",
+            "TypeName": "HideFlags"
         },
         {
             "Used": false,
-            "Name": "alphaHitTestMinimumThreshold",
-            "QualifiedTypeName": "System.Single",
-            "TypeName": "Single"
-        },
-        {
-            "Used": false,
-            "Name": "useSpriteMesh",
+            "Name": "isMaskingGraphic",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
-        },
-        {
-            "Used": false,
-            "Name": "pixelsPerUnitMultiplier",
-            "QualifiedTypeName": "System.Single",
-            "TypeName": "Single"
-        },
-        {
-            "Used": false,
-            "Name": "material",
-            "QualifiedTypeName": "UnityEngine.Material",
-            "TypeName": "Material"
-        },
-        {
-            "Used": false,
-            "Name": "onCullStateChanged",
-            "QualifiedTypeName": "UnityEngine.UI.MaskableGraphic.CullStateChangedEvent",
-            "TypeName": "CullStateChangedEvent"
         },
         {
             "Used": false,
@@ -101,19 +77,37 @@
         },
         {
             "Used": false,
-            "Name": "isMaskingGraphic",
-            "QualifiedTypeName": "System.Boolean",
-            "TypeName": "Boolean"
-        },
-        {
-            "Used": true,
-            "Name": "color",
-            "QualifiedTypeName": "UnityEngine.Color",
-            "TypeName": "Color"
+            "Name": "material",
+            "QualifiedTypeName": "UnityEngine.Material",
+            "TypeName": "Material"
         },
         {
             "Used": false,
-            "Name": "raycastTarget",
+            "Name": "name",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "onCullStateChanged",
+            "QualifiedTypeName": "UnityEngine.UI.MaskableGraphic.CullStateChangedEvent",
+            "TypeName": "CullStateChangedEvent"
+        },
+        {
+            "Used": false,
+            "Name": "overrideSprite",
+            "QualifiedTypeName": "UnityEngine.Sprite",
+            "TypeName": "Sprite"
+        },
+        {
+            "Used": false,
+            "Name": "pixelsPerUnitMultiplier",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": false,
+            "Name": "preserveAspect",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
@@ -125,7 +119,7 @@
         },
         {
             "Used": false,
-            "Name": "useGUILayout",
+            "Name": "raycastTarget",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
@@ -137,9 +131,9 @@
         },
         {
             "Used": true,
-            "Name": "enabled",
-            "QualifiedTypeName": "System.Boolean",
-            "TypeName": "Boolean"
+            "Name": "sprite",
+            "QualifiedTypeName": "UnityEngine.Sprite",
+            "TypeName": "Sprite"
         },
         {
             "Used": false,
@@ -149,15 +143,21 @@
         },
         {
             "Used": false,
-            "Name": "name",
-            "QualifiedTypeName": "System.String",
-            "TypeName": "String"
+            "Name": "type",
+            "QualifiedTypeName": "UnityEngine.UI.Image.Type",
+            "TypeName": "Type"
         },
         {
             "Used": false,
-            "Name": "hideFlags",
-            "QualifiedTypeName": "UnityEngine.HideFlags",
-            "TypeName": "HideFlags"
+            "Name": "useGUILayout",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "useSpriteMesh",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
         }
     ]
 }

@@ -1,5 +1,6 @@
 // Auto-generated, please do not change!
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
@@ -35,6 +36,69 @@ namespace GuiToolkit.Style
 			};
 		}
 
+#if UNITY_EDITOR
+		public override List<ValueInfo> GetValueInfos()
+		{
+			return new List<ValueInfo>()
+			{
+				new ValueInfo()
+				{
+					GetterName = "Enabled",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = Enabled,
+				},
+				new ValueInfo()
+				{
+					GetterName = "FlexibleHeight",
+					GetterType = typeof(ApplicableValueSingle),
+					Value = FlexibleHeight,
+				},
+				new ValueInfo()
+				{
+					GetterName = "FlexibleWidth",
+					GetterType = typeof(ApplicableValueSingle),
+					Value = FlexibleWidth,
+				},
+				new ValueInfo()
+				{
+					GetterName = "IgnoreLayout",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = IgnoreLayout,
+				},
+				new ValueInfo()
+				{
+					GetterName = "LayoutPriority",
+					GetterType = typeof(ApplicableValueInt32),
+					Value = LayoutPriority,
+				},
+				new ValueInfo()
+				{
+					GetterName = "MinHeight",
+					GetterType = typeof(ApplicableValueSingle),
+					Value = MinHeight,
+				},
+				new ValueInfo()
+				{
+					GetterName = "MinWidth",
+					GetterType = typeof(ApplicableValueSingle),
+					Value = MinWidth,
+				},
+				new ValueInfo()
+				{
+					GetterName = "PreferredHeight",
+					GetterType = typeof(ApplicableValueSingle),
+					Value = PreferredHeight,
+				},
+				new ValueInfo()
+				{
+					GetterName = "PreferredWidth",
+					GetterType = typeof(ApplicableValueSingle),
+					Value = PreferredWidth,
+				},
+			};
+		}
+#endif
+
 		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
 		[SerializeReference] private ApplicableValueSingle m_flexibleHeight = new();
 		[SerializeReference] private ApplicableValueSingle m_flexibleWidth = new();
@@ -49,8 +113,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_enabled == null)
-					m_enabled = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_enabled == null)
+						m_enabled = new ApplicableValueBoolean();
+				#endif
 				return m_enabled;
 			}
 		}
@@ -59,8 +125,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_flexibleHeight == null)
-					m_flexibleHeight = new ApplicableValueSingle();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_flexibleHeight == null)
+						m_flexibleHeight = new ApplicableValueSingle();
+				#endif
 				return m_flexibleHeight;
 			}
 		}
@@ -69,8 +137,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_flexibleWidth == null)
-					m_flexibleWidth = new ApplicableValueSingle();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_flexibleWidth == null)
+						m_flexibleWidth = new ApplicableValueSingle();
+				#endif
 				return m_flexibleWidth;
 			}
 		}
@@ -79,8 +149,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_ignoreLayout == null)
-					m_ignoreLayout = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_ignoreLayout == null)
+						m_ignoreLayout = new ApplicableValueBoolean();
+				#endif
 				return m_ignoreLayout;
 			}
 		}
@@ -89,8 +161,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_layoutPriority == null)
-					m_layoutPriority = new ApplicableValueInt32();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_layoutPriority == null)
+						m_layoutPriority = new ApplicableValueInt32();
+				#endif
 				return m_layoutPriority;
 			}
 		}
@@ -99,8 +173,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_minHeight == null)
-					m_minHeight = new ApplicableValueSingle();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_minHeight == null)
+						m_minHeight = new ApplicableValueSingle();
+				#endif
 				return m_minHeight;
 			}
 		}
@@ -109,8 +185,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_minWidth == null)
-					m_minWidth = new ApplicableValueSingle();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_minWidth == null)
+						m_minWidth = new ApplicableValueSingle();
+				#endif
 				return m_minWidth;
 			}
 		}
@@ -119,8 +197,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_preferredHeight == null)
-					m_preferredHeight = new ApplicableValueSingle();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_preferredHeight == null)
+						m_preferredHeight = new ApplicableValueSingle();
+				#endif
 				return m_preferredHeight;
 			}
 		}
@@ -129,8 +209,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_preferredWidth == null)
-					m_preferredWidth = new ApplicableValueSingle();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_preferredWidth == null)
+						m_preferredWidth = new ApplicableValueSingle();
+				#endif
 				return m_preferredWidth;
 			}
 		}

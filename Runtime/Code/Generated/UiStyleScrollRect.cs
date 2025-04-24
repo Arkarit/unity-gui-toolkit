@@ -1,5 +1,6 @@
 // Auto-generated, please do not change!
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
@@ -27,6 +28,33 @@ namespace GuiToolkit.Style
 			};
 		}
 
+#if UNITY_EDITOR
+		public override List<ValueInfo> GetValueInfos()
+		{
+			return new List<ValueInfo>()
+			{
+				new ValueInfo()
+				{
+					GetterName = "Enabled",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = Enabled,
+				},
+				new ValueInfo()
+				{
+					GetterName = "Horizontal",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = Horizontal,
+				},
+				new ValueInfo()
+				{
+					GetterName = "Vertical",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = Vertical,
+				},
+			};
+		}
+#endif
+
 		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
 		[SerializeReference] private ApplicableValueBoolean m_horizontal = new();
 		[SerializeReference] private ApplicableValueBoolean m_vertical = new();
@@ -35,8 +63,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_enabled == null)
-					m_enabled = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_enabled == null)
+						m_enabled = new ApplicableValueBoolean();
+				#endif
 				return m_enabled;
 			}
 		}
@@ -45,8 +75,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_horizontal == null)
-					m_horizontal = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_horizontal == null)
+						m_horizontal = new ApplicableValueBoolean();
+				#endif
 				return m_horizontal;
 			}
 		}
@@ -55,8 +87,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_vertical == null)
-					m_vertical = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_vertical == null)
+						m_vertical = new ApplicableValueBoolean();
+				#endif
 				return m_vertical;
 			}
 		}
