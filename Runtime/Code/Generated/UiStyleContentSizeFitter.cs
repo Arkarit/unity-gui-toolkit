@@ -1,9 +1,9 @@
 // Auto-generated, please do not change!
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
-using System.Collections.Generic;
 
 namespace GuiToolkit.Style
 {
@@ -40,9 +40,22 @@ namespace GuiToolkit.Style
 					GetterType = typeof(ApplicableValueBoolean),
 					Value = Enabled,
 				},
+				new ValueInfo()
+				{
+					GetterName = "HorizontalFit",
+					GetterType = typeof(ApplicableValueFitMode),
+					Value = HorizontalFit,
+				},
+				new ValueInfo()
+				{
+					GetterName = "VerticalFit",
+					GetterType = typeof(ApplicableValueFitMode),
+					Value = VerticalFit,
+				},
 			};
 		}
-#endif       
+#endif
+
 		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
 		[SerializeReference] private ApplicableValueFitMode m_horizontalFit = new();
 		[SerializeReference] private ApplicableValueFitMode m_verticalFit = new();
@@ -51,8 +64,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_enabled == null)
-					m_enabled = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_enabled == null)
+						m_enabled = new ApplicableValueBoolean();
+				#endif
 				return m_enabled;
 			}
 		}
@@ -61,8 +76,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_horizontalFit == null)
-					m_horizontalFit = new ApplicableValueFitMode();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_horizontalFit == null)
+						m_horizontalFit = new ApplicableValueFitMode();
+				#endif
 				return m_horizontalFit;
 			}
 		}
@@ -71,8 +88,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_verticalFit == null)
-					m_verticalFit = new ApplicableValueFitMode();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_verticalFit == null)
+						m_verticalFit = new ApplicableValueFitMode();
+				#endif
 				return m_verticalFit;
 			}
 		}

@@ -144,7 +144,7 @@ namespace GuiToolkit.Style.Editor
 			_getterName = UpperFirstChar(_getterName);
 			return string.Format
 			(
-				GetterTemplate,
+				ValueInfoTemplate,
 				_getterName,
 				_typeName
 			);
@@ -164,6 +164,7 @@ namespace GuiToolkit.Style.Editor
 		private const string StyleTemplate =
 			GeneratedWarningComment
 			+ "using System;\n"
+			+ "using System.Collections.Generic;\n"
 			+ "using UnityEngine;\n"
 			+ "using GuiToolkit;\n"
 			+ "using GuiToolkit.Style;\n"
@@ -188,15 +189,15 @@ namespace GuiToolkit.Style.Editor
 			+ "			}};\n"
 			+ "		}}\n"
 			+ "\n"
-			+ "#if UNITY_EDITOR"
-			+ "		public override List<ValueInfo> GetValueInfos()"
-			+ "		{{"
-			+ "			return new List<ValueInfo>()"
-			+ "			{{"
+			+ "#if UNITY_EDITOR\n"
+			+ "		public override List<ValueInfo> GetValueInfos()\n"
+			+ "		{{\n"
+			+ "			return new List<ValueInfo>()\n"
+			+ "			{{\n"
 			+ "{9}"
 			+ "			}};\n"
 			+ "		}}\n"
-			+ "#endif"      
+			+ "#endif\n"      
 			+ "\n"
 			+ "{4}"
 			+ "\n"
