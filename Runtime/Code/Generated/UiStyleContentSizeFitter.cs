@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
+using System.Collections.Generic;
 
 namespace GuiToolkit.Style
 {
@@ -28,6 +29,20 @@ namespace GuiToolkit.Style
 			};
 		}
 
+#if UNITY_EDITOR
+		public override List<ValueInfo> GetValueInfos()
+		{
+			return new List<ValueInfo>()
+			{
+				new ValueInfo()
+				{
+					GetterName = "Enabled",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = Enabled,
+				},
+			};
+		}
+#endif       
 		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
 		[SerializeReference] private ApplicableValueFitMode m_horizontalFit = new();
 		[SerializeReference] private ApplicableValueFitMode m_verticalFit = new();

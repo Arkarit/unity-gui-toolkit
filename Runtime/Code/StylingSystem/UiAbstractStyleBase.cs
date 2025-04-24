@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GuiToolkit.Style
@@ -6,6 +7,15 @@ namespace GuiToolkit.Style
 	[Serializable]
 	public abstract class UiAbstractStyleBase
 	{
+#if UNITY_EDITOR
+		public struct ValueInfo
+		{
+			public string GetterName;
+			public Type GetterType;
+			public ApplicableValueBase Value;
+		}
+#endif
+
 		public enum EScreenOrientationCondition
 		{
 			Always = -1,
@@ -60,7 +70,10 @@ namespace GuiToolkit.Style
 
 		public abstract Type SupportedComponentType { get; }
 		protected abstract ApplicableValueBase[] GetValueArray();
-		
+
+#if UNITY_EDITOR
+		public virtual List<ValueInfo> GetValueInfos() => null;
+#endif       
 		public ApplicableValueBase[] Values
 		{
 			get

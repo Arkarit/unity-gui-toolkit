@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using static GuiToolkit.Style.UiAbstractStyleBase;
 using File = System.IO.File;
 using JsonUtility = UnityEngine.JsonUtility;
 
@@ -129,6 +130,27 @@ namespace GuiToolkit.Style.Editor
 		}
 
 		// Format string:
+		// 0: member name
+		private const string ValueInfoTemplate =
+			"				new ValueInfo()\n"
+			+ "				{{\n"
+			+ "					GetterName = \"{0}\",\n"
+			+ "					GetterType = typeof({1}),\n"
+			+ "					Value = {0},\n"
+			+ "				}},\n";
+
+		private string GetValueInfoString(string _getterName, string _typeName)
+		{
+			_getterName = UpperFirstChar(_getterName);
+			return string.Format
+			(
+				GetterTemplate,
+				_getterName,
+				_typeName
+			);
+		}
+
+		// Format string:
 		// 0: namespace opening string
 		// 1: prefix
 		// 2: short type name,
@@ -138,6 +160,7 @@ namespace GuiToolkit.Style.Editor
 		// 6: Class type definitions
 		// 7: member names list (starting with 4 tabs, each member ending with ',')
 		// 8: namespace closing string
+		// 9: value infos string
 		private const string StyleTemplate =
 			GeneratedWarningComment
 			+ "using System;\n"
@@ -165,6 +188,16 @@ namespace GuiToolkit.Style.Editor
 			+ "			}};\n"
 			+ "		}}\n"
 			+ "\n"
+			+ "#if UNITY_EDITOR"
+			+ "		public override List<ValueInfo> GetValueInfos()"
+			+ "		{{"
+			+ "			return new List<ValueInfo>()"
+			+ "			{{"
+			+ "{9}"
+			+ "			}};\n"
+			+ "		}}\n"
+			+ "#endif"      
+			+ "\n"
 			+ "{4}"
 			+ "\n"
 			+ "{5}"
@@ -179,7 +212,8 @@ namespace GuiToolkit.Style.Editor
 			string _members, 
 			string _properties, 
 			string _classTypeDefinitions, 
-			string _getters)
+			string _getters,
+			string _valueInfos)
 		{
 			return string.Format
 			(
@@ -192,7 +226,8 @@ namespace GuiToolkit.Style.Editor
 				_properties,
 				_classTypeDefinitions,
 				_getters,
-				GetNamespaceClosingString(_namespace)
+				GetNamespaceClosingString(_namespace),
+				_valueInfos
 			);
 		}
 
@@ -733,6 +768,7 @@ namespace GuiToolkit.Style.Editor
 			string properties = string.Empty;
 			string classTypeDefinitions = string.Empty;
 			string getters = string.Empty;
+			string valueInfos = string.Empty;
 			bool foundSome = false;
 
 			Dictionary<string, string> typeStringByTypeName = new();
@@ -759,6 +795,7 @@ namespace GuiToolkit.Style.Editor
 				members += GetStyleMemberString(className, memberName);
 				properties += GetStylePropertyString(qualifiedPropertyType, memberName, memberName, memberClassName);
 				getters += GetGetterString(memberName);
+				valueInfos += GetValueInfoString(memberName, memberClassName);
 				
 				foundSome = true;
 			}
@@ -779,7 +816,7 @@ namespace GuiToolkit.Style.Editor
 			string qualifiedTypeName = m_componentType.FullName;
 
 			return GetStyleString(namespaceStr, classPrefix, shortTypeName, qualifiedTypeName,
-				members, properties, classTypeDefinitions, getters);
+				members, properties, classTypeDefinitions, getters, valueInfos);
 		}
 
 		private string GenerateApplicationClass()
