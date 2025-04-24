@@ -157,7 +157,7 @@ namespace GuiToolkit.Style.Editor
 			+ "\n"
 			+ "{6}"
 			+ "\n"
-			+ "		protected override ApplicableValueBase[] GetValueList()\n"
+			+ "		protected override ApplicableValueBase[] GetValueArray()\n"
 			+ "		{{\n"
 			+ "			return new ApplicableValueBase[]\n"
 			+ "			{{\n"

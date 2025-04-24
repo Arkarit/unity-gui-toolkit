@@ -33,7 +33,7 @@ namespace GuiToolkit.Style
 		private class ApplicableValueTextOverflowModes : ApplicableValue<TMPro.TextOverflowModes> {}
 		private class ApplicableValueVector4 : ApplicableValue<UnityEngine.Vector4> {}
 
-		protected override ApplicableValueBase[] GetValueList()
+		protected override ApplicableValueBase[] GetValueArray()
 		{
 			return new ApplicableValueBase[]
 			{

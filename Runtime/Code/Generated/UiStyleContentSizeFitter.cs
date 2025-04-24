@@ -18,7 +18,7 @@ namespace GuiToolkit.Style
 		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
 		private class ApplicableValueFitMode : ApplicableValue<UnityEngine.UI.ContentSizeFitter.FitMode> {}
 
-		protected override ApplicableValueBase[] GetValueList()
+		protected override ApplicableValueBase[] GetValueArray()
 		{
 			return new ApplicableValueBase[]
 			{

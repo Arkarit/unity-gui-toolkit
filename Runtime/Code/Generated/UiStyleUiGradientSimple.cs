@@ -19,7 +19,7 @@ namespace GuiToolkit.Style
 		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
 		private class ApplicableValueEOrientation : ApplicableValue<GuiToolkit.UiGradientSimple.EOrientation> {}
 
-		protected override ApplicableValueBase[] GetValueList()
+		protected override ApplicableValueBase[] GetValueArray()
 		{
 			return new ApplicableValueBase[]
 			{

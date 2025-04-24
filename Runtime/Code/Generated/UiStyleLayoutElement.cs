@@ -19,7 +19,7 @@ namespace GuiToolkit.Style
 		private class ApplicableValueSingle : ApplicableValue<System.Single> {}
 		private class ApplicableValueInt32 : ApplicableValue<System.Int32> {}
 
-		protected override ApplicableValueBase[] GetValueList()
+		protected override ApplicableValueBase[] GetValueArray()
 		{
 			return new ApplicableValueBase[]
 			{

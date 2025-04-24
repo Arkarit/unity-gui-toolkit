@@ -59,7 +59,7 @@ namespace GuiToolkit.Style
 		}
 
 		public abstract Type SupportedComponentType { get; }
-		protected abstract ApplicableValueBase[] GetValueList();
+		protected abstract ApplicableValueBase[] GetValueArray();
 		
 		public ApplicableValueBase[] Values
 		{
@@ -67,7 +67,7 @@ namespace GuiToolkit.Style
 			{
 				if (m_values == null)
 				{
-					m_values = GetValueList();
+					m_values = GetValueArray();
 				}
 
 				return m_values;

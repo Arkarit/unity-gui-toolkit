@@ -19,7 +19,7 @@ namespace GuiToolkit.Style
 		private class ApplicableValueEAxis2DFlags : ApplicableValue<GuiToolkit.EAxis2DFlags> {}
 		private class ApplicableValueVector2 : ApplicableValue<UnityEngine.Vector2> {}
 
-		protected override ApplicableValueBase[] GetValueList()
+		protected override ApplicableValueBase[] GetValueArray()
 		{
 			return new ApplicableValueBase[]
 			{

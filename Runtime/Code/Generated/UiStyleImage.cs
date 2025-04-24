@@ -19,7 +19,7 @@ namespace GuiToolkit.Style
 		private class ApplicableValueColor : ApplicableValue<UnityEngine.Color> {}
 		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
 
-		protected override ApplicableValueBase[] GetValueList()
+		protected override ApplicableValueBase[] GetValueArray()
 		{
 			return new ApplicableValueBase[]
 			{

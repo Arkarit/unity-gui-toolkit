@@ -18,7 +18,7 @@ namespace GuiToolkit.Style
 		private class ApplicableValueGradient : ApplicableValue<UnityEngine.Gradient> {}
 		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
 
-		protected override ApplicableValueBase[] GetValueList()
+		protected override ApplicableValueBase[] GetValueArray()
 		{
 			return new ApplicableValueBase[]
 			{

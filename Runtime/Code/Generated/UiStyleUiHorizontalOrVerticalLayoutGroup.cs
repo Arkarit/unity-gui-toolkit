@@ -20,7 +20,7 @@ namespace GuiToolkit.Style
 		private class ApplicableValueRectOffset : ApplicableValue<UnityEngine.RectOffset> {}
 		private class ApplicableValueSingle : ApplicableValue<System.Single> {}
 
-		protected override ApplicableValueBase[] GetValueList()
+		protected override ApplicableValueBase[] GetValueArray()
 		{
 			return new ApplicableValueBase[]
 			{

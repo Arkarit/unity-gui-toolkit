@@ -19,7 +19,7 @@ namespace GuiToolkit.Style
 		private class ApplicableValueVector3 : ApplicableValue<UnityEngine.Vector3> {}
 		private class ApplicableValueQuaternion : ApplicableValue<UnityEngine.Quaternion> {}
 
-		protected override ApplicableValueBase[] GetValueList()
+		protected override ApplicableValueBase[] GetValueArray()
 		{
 			return new ApplicableValueBase[]
 			{
