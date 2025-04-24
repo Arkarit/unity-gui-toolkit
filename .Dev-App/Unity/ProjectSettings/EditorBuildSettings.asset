@@ -12,3 +12,4 @@ EditorBuildSettings:
     path: Assets/Scenes/DemoScene1.unity
     guid: 04827ecb8ef6a8844ab32d24a23890ea
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0

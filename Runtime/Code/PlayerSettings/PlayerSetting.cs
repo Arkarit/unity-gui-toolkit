@@ -117,6 +117,7 @@ namespace GuiToolkit
 		{
 			return GetValue<T>(ref m_value);
 		}
+
 		public T GetDefaultValue<T>()
 		{
 			return GetValue<T>(ref m_defaultValue);
@@ -152,6 +153,7 @@ namespace GuiToolkit
 
 		private void Apply()
 		{
+			PlayerSettings.Log(this, "Applying");
 			if (m_type == typeof(int) || m_type == typeof(bool) || m_type.IsEnum)
 				PlayerPrefs.SetInt(Key, Convert.ToInt32(m_value));
 			else if (m_type == typeof(float))
@@ -172,7 +174,5 @@ namespace GuiToolkit
 		{
 			Value = _language;
 		}
-
-
 	}
 }
