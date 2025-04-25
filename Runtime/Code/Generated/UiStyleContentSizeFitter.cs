@@ -30,9 +30,9 @@ namespace GuiToolkit.Style
 		}
 
 #if UNITY_EDITOR
-		public override List<ValueInfo> GetValueInfos()
+		public override ValueInfo[] GetValueInfoArray()
 		{
-			return new List<ValueInfo>()
+			return new ValueInfo[]
 			{
 				new ValueInfo()
 				{
@@ -64,10 +64,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enabled == null)
-						m_enabled = new ApplicableValueBoolean();
-				#endif
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
 				return m_enabled;
 			}
 		}
@@ -76,10 +74,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_horizontalFit == null)
-						m_horizontalFit = new ApplicableValueFitMode();
-				#endif
+				if (m_horizontalFit == null)
+					m_horizontalFit = new ApplicableValueFitMode();
 				return m_horizontalFit;
 			}
 		}
@@ -88,10 +84,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_verticalFit == null)
-						m_verticalFit = new ApplicableValueFitMode();
-				#endif
+				if (m_verticalFit == null)
+					m_verticalFit = new ApplicableValueFitMode();
 				return m_verticalFit;
 			}
 		}

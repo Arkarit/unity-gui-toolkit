@@ -35,9 +35,9 @@ namespace GuiToolkit.Style
 		}
 
 #if UNITY_EDITOR
-		public override List<ValueInfo> GetValueInfos()
+		public override ValueInfo[] GetValueInfoArray()
 		{
-			return new List<ValueInfo>()
+			return new ValueInfo[]
 			{
 				new ValueInfo()
 				{
@@ -97,10 +97,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_BottomLeft == null)
-						m_BottomLeft = new ApplicableValueVector2();
-				#endif
+				if (m_BottomLeft == null)
+					m_BottomLeft = new ApplicableValueVector2();
 				return m_BottomLeft;
 			}
 		}
@@ -109,10 +107,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_BottomRight == null)
-						m_BottomRight = new ApplicableValueVector2();
-				#endif
+				if (m_BottomRight == null)
+					m_BottomRight = new ApplicableValueVector2();
 				return m_BottomRight;
 			}
 		}
@@ -121,10 +117,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enabled == null)
-						m_enabled = new ApplicableValueBoolean();
-				#endif
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
 				return m_enabled;
 			}
 		}
@@ -133,10 +127,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_IsAbsolute == null)
-						m_IsAbsolute = new ApplicableValueBoolean();
-				#endif
+				if (m_IsAbsolute == null)
+					m_IsAbsolute = new ApplicableValueBoolean();
 				return m_IsAbsolute;
 			}
 		}
@@ -145,10 +137,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Mirror == null)
-						m_Mirror = new ApplicableValueEAxis2DFlags();
-				#endif
+				if (m_Mirror == null)
+					m_Mirror = new ApplicableValueEAxis2DFlags();
 				return m_Mirror;
 			}
 		}
@@ -157,10 +147,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_TopLeft == null)
-						m_TopLeft = new ApplicableValueVector2();
-				#endif
+				if (m_TopLeft == null)
+					m_TopLeft = new ApplicableValueVector2();
 				return m_TopLeft;
 			}
 		}
@@ -169,10 +157,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_TopRight == null)
-						m_TopRight = new ApplicableValueVector2();
-				#endif
+				if (m_TopRight == null)
+					m_TopRight = new ApplicableValueVector2();
 				return m_TopRight;
 			}
 		}

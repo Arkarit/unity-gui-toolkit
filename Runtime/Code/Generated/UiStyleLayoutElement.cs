@@ -37,9 +37,9 @@ namespace GuiToolkit.Style
 		}
 
 #if UNITY_EDITOR
-		public override List<ValueInfo> GetValueInfos()
+		public override ValueInfo[] GetValueInfoArray()
 		{
-			return new List<ValueInfo>()
+			return new ValueInfo[]
 			{
 				new ValueInfo()
 				{
@@ -113,10 +113,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enabled == null)
-						m_enabled = new ApplicableValueBoolean();
-				#endif
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
 				return m_enabled;
 			}
 		}
@@ -125,10 +123,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_flexibleHeight == null)
-						m_flexibleHeight = new ApplicableValueSingle();
-				#endif
+				if (m_flexibleHeight == null)
+					m_flexibleHeight = new ApplicableValueSingle();
 				return m_flexibleHeight;
 			}
 		}
@@ -137,10 +133,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_flexibleWidth == null)
-						m_flexibleWidth = new ApplicableValueSingle();
-				#endif
+				if (m_flexibleWidth == null)
+					m_flexibleWidth = new ApplicableValueSingle();
 				return m_flexibleWidth;
 			}
 		}
@@ -149,10 +143,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_ignoreLayout == null)
-						m_ignoreLayout = new ApplicableValueBoolean();
-				#endif
+				if (m_ignoreLayout == null)
+					m_ignoreLayout = new ApplicableValueBoolean();
 				return m_ignoreLayout;
 			}
 		}
@@ -161,10 +153,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_layoutPriority == null)
-						m_layoutPriority = new ApplicableValueInt32();
-				#endif
+				if (m_layoutPriority == null)
+					m_layoutPriority = new ApplicableValueInt32();
 				return m_layoutPriority;
 			}
 		}
@@ -173,10 +163,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_minHeight == null)
-						m_minHeight = new ApplicableValueSingle();
-				#endif
+				if (m_minHeight == null)
+					m_minHeight = new ApplicableValueSingle();
 				return m_minHeight;
 			}
 		}
@@ -185,10 +173,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_minWidth == null)
-						m_minWidth = new ApplicableValueSingle();
-				#endif
+				if (m_minWidth == null)
+					m_minWidth = new ApplicableValueSingle();
 				return m_minWidth;
 			}
 		}
@@ -197,10 +183,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_preferredHeight == null)
-						m_preferredHeight = new ApplicableValueSingle();
-				#endif
+				if (m_preferredHeight == null)
+					m_preferredHeight = new ApplicableValueSingle();
 				return m_preferredHeight;
 			}
 		}
@@ -209,10 +193,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_preferredWidth == null)
-						m_preferredWidth = new ApplicableValueSingle();
-				#endif
+				if (m_preferredWidth == null)
+					m_preferredWidth = new ApplicableValueSingle();
 				return m_preferredWidth;
 			}
 		}

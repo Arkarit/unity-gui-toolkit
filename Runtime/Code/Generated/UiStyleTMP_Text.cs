@@ -79,9 +79,9 @@ namespace GuiToolkit.Style
 		}
 
 #if UNITY_EDITOR
-		public override List<ValueInfo> GetValueInfos()
+		public override ValueInfo[] GetValueInfoArray()
 		{
-			return new List<ValueInfo>()
+			return new ValueInfo[]
 			{
 				new ValueInfo()
 				{
@@ -337,10 +337,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_alignment == null)
-						m_alignment = new ApplicableValueTextAlignmentOptions();
-				#endif
+				if (m_alignment == null)
+					m_alignment = new ApplicableValueTextAlignmentOptions();
 				return m_alignment;
 			}
 		}
@@ -349,10 +347,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_alpha == null)
-						m_alpha = new ApplicableValueSingle();
-				#endif
+				if (m_alpha == null)
+					m_alpha = new ApplicableValueSingle();
 				return m_alpha;
 			}
 		}
@@ -361,10 +357,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_characterSpacing == null)
-						m_characterSpacing = new ApplicableValueSingle();
-				#endif
+				if (m_characterSpacing == null)
+					m_characterSpacing = new ApplicableValueSingle();
 				return m_characterSpacing;
 			}
 		}
@@ -373,10 +367,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_characterWidthAdjustment == null)
-						m_characterWidthAdjustment = new ApplicableValueSingle();
-				#endif
+				if (m_characterWidthAdjustment == null)
+					m_characterWidthAdjustment = new ApplicableValueSingle();
 				return m_characterWidthAdjustment;
 			}
 		}
@@ -385,10 +377,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_color == null)
-						m_color = new ApplicableValueColor();
-				#endif
+				if (m_color == null)
+					m_color = new ApplicableValueColor();
 				return m_color;
 			}
 		}
@@ -397,10 +387,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_colorGradient == null)
-						m_colorGradient = new ApplicableValueVertexGradient();
-				#endif
+				if (m_colorGradient == null)
+					m_colorGradient = new ApplicableValueVertexGradient();
 				return m_colorGradient;
 			}
 		}
@@ -409,10 +397,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_emojiFallbackSupport == null)
-						m_emojiFallbackSupport = new ApplicableValueBoolean();
-				#endif
+				if (m_emojiFallbackSupport == null)
+					m_emojiFallbackSupport = new ApplicableValueBoolean();
 				return m_emojiFallbackSupport;
 			}
 		}
@@ -421,10 +407,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enableAutoSizing == null)
-						m_enableAutoSizing = new ApplicableValueBoolean();
-				#endif
+				if (m_enableAutoSizing == null)
+					m_enableAutoSizing = new ApplicableValueBoolean();
 				return m_enableAutoSizing;
 			}
 		}
@@ -433,10 +417,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enabled == null)
-						m_enabled = new ApplicableValueBoolean();
-				#endif
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
 				return m_enabled;
 			}
 		}
@@ -445,10 +427,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enableKerning == null)
-						m_enableKerning = new ApplicableValueBoolean();
-				#endif
+				if (m_enableKerning == null)
+					m_enableKerning = new ApplicableValueBoolean();
 				return m_enableKerning;
 			}
 		}
@@ -457,10 +437,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enableVertexGradient == null)
-						m_enableVertexGradient = new ApplicableValueBoolean();
-				#endif
+				if (m_enableVertexGradient == null)
+					m_enableVertexGradient = new ApplicableValueBoolean();
 				return m_enableVertexGradient;
 			}
 		}
@@ -469,10 +447,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_extraPadding == null)
-						m_extraPadding = new ApplicableValueBoolean();
-				#endif
+				if (m_extraPadding == null)
+					m_extraPadding = new ApplicableValueBoolean();
 				return m_extraPadding;
 			}
 		}
@@ -481,10 +457,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_font == null)
-						m_font = new ApplicableValueTMP_FontAsset();
-				#endif
+				if (m_font == null)
+					m_font = new ApplicableValueTMP_FontAsset();
 				return m_font;
 			}
 		}
@@ -493,10 +467,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fontFeatures == null)
-						m_fontFeatures = new ApplicableValueListUnityEngineTextCoreOTL_FeatureTag();
-				#endif
+				if (m_fontFeatures == null)
+					m_fontFeatures = new ApplicableValueListUnityEngineTextCoreOTL_FeatureTag();
 				return m_fontFeatures;
 			}
 		}
@@ -505,10 +477,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fontSharedMaterial == null)
-						m_fontSharedMaterial = new ApplicableValueMaterial();
-				#endif
+				if (m_fontSharedMaterial == null)
+					m_fontSharedMaterial = new ApplicableValueMaterial();
 				return m_fontSharedMaterial;
 			}
 		}
@@ -517,10 +487,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fontSharedMaterials == null)
-						m_fontSharedMaterials = new ApplicableValueMaterialArray();
-				#endif
+				if (m_fontSharedMaterials == null)
+					m_fontSharedMaterials = new ApplicableValueMaterialArray();
 				return m_fontSharedMaterials;
 			}
 		}
@@ -529,10 +497,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fontSize == null)
-						m_fontSize = new ApplicableValueSingle();
-				#endif
+				if (m_fontSize == null)
+					m_fontSize = new ApplicableValueSingle();
 				return m_fontSize;
 			}
 		}
@@ -541,10 +507,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fontSizeMax == null)
-						m_fontSizeMax = new ApplicableValueSingle();
-				#endif
+				if (m_fontSizeMax == null)
+					m_fontSizeMax = new ApplicableValueSingle();
 				return m_fontSizeMax;
 			}
 		}
@@ -553,10 +517,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fontSizeMin == null)
-						m_fontSizeMin = new ApplicableValueSingle();
-				#endif
+				if (m_fontSizeMin == null)
+					m_fontSizeMin = new ApplicableValueSingle();
 				return m_fontSizeMin;
 			}
 		}
@@ -565,10 +527,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fontStyle == null)
-						m_fontStyle = new ApplicableValueFontStyles();
-				#endif
+				if (m_fontStyle == null)
+					m_fontStyle = new ApplicableValueFontStyles();
 				return m_fontStyle;
 			}
 		}
@@ -577,10 +537,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_fontWeight == null)
-						m_fontWeight = new ApplicableValueFontWeight();
-				#endif
+				if (m_fontWeight == null)
+					m_fontWeight = new ApplicableValueFontWeight();
 				return m_fontWeight;
 			}
 		}
@@ -589,10 +547,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_lineSpacing == null)
-						m_lineSpacing = new ApplicableValueSingle();
-				#endif
+				if (m_lineSpacing == null)
+					m_lineSpacing = new ApplicableValueSingle();
 				return m_lineSpacing;
 			}
 		}
@@ -601,10 +557,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_lineSpacingAdjustment == null)
-						m_lineSpacingAdjustment = new ApplicableValueSingle();
-				#endif
+				if (m_lineSpacingAdjustment == null)
+					m_lineSpacingAdjustment = new ApplicableValueSingle();
 				return m_lineSpacingAdjustment;
 			}
 		}
@@ -613,10 +567,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_margin == null)
-						m_margin = new ApplicableValueVector4();
-				#endif
+				if (m_margin == null)
+					m_margin = new ApplicableValueVector4();
 				return m_margin;
 			}
 		}
@@ -625,10 +577,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_outlineColor == null)
-						m_outlineColor = new ApplicableValueColor32();
-				#endif
+				if (m_outlineColor == null)
+					m_outlineColor = new ApplicableValueColor32();
 				return m_outlineColor;
 			}
 		}
@@ -637,10 +587,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_outlineWidth == null)
-						m_outlineWidth = new ApplicableValueSingle();
-				#endif
+				if (m_outlineWidth == null)
+					m_outlineWidth = new ApplicableValueSingle();
 				return m_outlineWidth;
 			}
 		}
@@ -649,10 +597,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_overflowMode == null)
-						m_overflowMode = new ApplicableValueTextOverflowModes();
-				#endif
+				if (m_overflowMode == null)
+					m_overflowMode = new ApplicableValueTextOverflowModes();
 				return m_overflowMode;
 			}
 		}
@@ -661,10 +607,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_paragraphSpacing == null)
-						m_paragraphSpacing = new ApplicableValueSingle();
-				#endif
+				if (m_paragraphSpacing == null)
+					m_paragraphSpacing = new ApplicableValueSingle();
 				return m_paragraphSpacing;
 			}
 		}
@@ -673,10 +617,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_richText == null)
-						m_richText = new ApplicableValueBoolean();
-				#endif
+				if (m_richText == null)
+					m_richText = new ApplicableValueBoolean();
 				return m_richText;
 			}
 		}
@@ -685,10 +627,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_spriteAsset == null)
-						m_spriteAsset = new ApplicableValueTMP_SpriteAsset();
-				#endif
+				if (m_spriteAsset == null)
+					m_spriteAsset = new ApplicableValueTMP_SpriteAsset();
 				return m_spriteAsset;
 			}
 		}
@@ -697,10 +637,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_styleSheet == null)
-						m_styleSheet = new ApplicableValueTMP_StyleSheet();
-				#endif
+				if (m_styleSheet == null)
+					m_styleSheet = new ApplicableValueTMP_StyleSheet();
 				return m_styleSheet;
 			}
 		}
@@ -709,10 +647,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_text == null)
-						m_text = new ApplicableValueString();
-				#endif
+				if (m_text == null)
+					m_text = new ApplicableValueString();
 				return m_text;
 			}
 		}
@@ -721,10 +657,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_textStyle == null)
-						m_textStyle = new ApplicableValueTMP_Style();
-				#endif
+				if (m_textStyle == null)
+					m_textStyle = new ApplicableValueTMP_Style();
 				return m_textStyle;
 			}
 		}
@@ -733,10 +667,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_textWrappingMode == null)
-						m_textWrappingMode = new ApplicableValueTextWrappingModes();
-				#endif
+				if (m_textWrappingMode == null)
+					m_textWrappingMode = new ApplicableValueTextWrappingModes();
 				return m_textWrappingMode;
 			}
 		}
@@ -745,10 +677,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_wordSpacing == null)
-						m_wordSpacing = new ApplicableValueSingle();
-				#endif
+				if (m_wordSpacing == null)
+					m_wordSpacing = new ApplicableValueSingle();
 				return m_wordSpacing;
 			}
 		}

@@ -29,9 +29,9 @@ namespace GuiToolkit.Style
 		}
 
 #if UNITY_EDITOR
-		public override List<ValueInfo> GetValueInfos()
+		public override ValueInfo[] GetValueInfoArray()
 		{
-			return new List<ValueInfo>()
+			return new ValueInfo[]
 			{
 				new ValueInfo()
 				{
@@ -56,10 +56,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enabled == null)
-						m_enabled = new ApplicableValueBoolean();
-				#endif
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
 				return m_enabled;
 			}
 		}
@@ -68,10 +66,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_Gradient == null)
-						m_Gradient = new ApplicableValueGradient();
-				#endif
+				if (m_Gradient == null)
+					m_Gradient = new ApplicableValueGradient();
 				return m_Gradient;
 			}
 		}

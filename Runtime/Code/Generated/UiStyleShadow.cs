@@ -31,9 +31,9 @@ namespace GuiToolkit.Style
 		}
 
 #if UNITY_EDITOR
-		public override List<ValueInfo> GetValueInfos()
+		public override ValueInfo[] GetValueInfoArray()
 		{
-			return new List<ValueInfo>()
+			return new ValueInfo[]
 			{
 				new ValueInfo()
 				{
@@ -65,10 +65,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_effectColor == null)
-						m_effectColor = new ApplicableValueColor();
-				#endif
+				if (m_effectColor == null)
+					m_effectColor = new ApplicableValueColor();
 				return m_effectColor;
 			}
 		}
@@ -77,10 +75,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_effectDistance == null)
-						m_effectDistance = new ApplicableValueVector2();
-				#endif
+				if (m_effectDistance == null)
+					m_effectDistance = new ApplicableValueVector2();
 				return m_effectDistance;
 			}
 		}
@@ -89,10 +85,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				#if UNITY_EDITOR
-					if (!Application.isPlaying && m_enabled == null)
-						m_enabled = new ApplicableValueBoolean();
-				#endif
+				if (m_enabled == null)
+					m_enabled = new ApplicableValueBoolean();
 				return m_enabled;
 			}
 		}

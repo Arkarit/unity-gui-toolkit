@@ -72,7 +72,7 @@ namespace GuiToolkit.Style
 		protected abstract ApplicableValueBase[] GetValueArray();
 
 #if UNITY_EDITOR
-		public abstract List<ValueInfo> GetValueInfos();
+		public abstract ValueInfo[] GetValueInfoArray();
 #endif       
 		public ApplicableValueBase[] Values
 		{
