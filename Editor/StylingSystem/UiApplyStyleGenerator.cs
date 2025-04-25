@@ -551,13 +551,99 @@ namespace GuiToolkit.Style.Editor
 			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 		}
 
-		private bool TryReadJson(bool _downcastTypes)
+		private void TryGetComponentTypeFromJson(bool _downcastTypes)
 		{
 			for (var type = m_componentType; type != typeof(Component); type = type.BaseType)
 			{
 				string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir +
 				              $"{type.FullName}.json";
-				if (TryReadJson(path))
+
+				if (File.Exists(path))
+				{
+					m_componentType = type;
+					return;
+				}
+
+				string pathInternal = UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir +
+				                      $"Type-Json/{type.FullName}.json";
+
+				if (File.Exists(pathInternal))
+				{
+					m_componentType = type;
+					return;
+				}
+
+
+				if (!_downcastTypes)
+					return;
+			}
+		}
+
+
+		private bool TryReadIsUsedFromJson(bool _downcastTypes)
+		{
+			for (var type = m_componentType; type != typeof(Component); type = type.BaseType)
+			{
+				string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir +
+				              $"{type.FullName}.json";
+
+				if (TryReadIsUsedFromJson(path))
+					return true;
+
+				string pathInternal = UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir +
+				                      $"Type-Json/{type.FullName}.json";
+
+				if (TryReadIsUsedFromJson(pathInternal))
+				{
+					return true;
+				}
+
+				if (!_downcastTypes)
+					return false;
+			}
+
+			return false;
+		}
+
+		private bool TryReadIsUsedFromJson(string path)
+		{
+			try
+			{
+				var content = File.ReadAllText(path);
+				if (string.IsNullOrEmpty(content))
+					return false;
+
+				var propertyRecordsJson = UnityEngine.JsonUtility.FromJson<PropertyRecordsJson>(content);
+				if (propertyRecordsJson.Version < JsonVersion)
+					return false;
+
+				foreach (var propertyRecordJson in propertyRecordsJson.Records)
+				{
+					var name = propertyRecordJson.Name;
+					var type = propertyRecordJson.QualifiedTypeName;
+					bool isUsed = propertyRecordJson.Used;
+
+					var propertyRecord = m_PropertyRecords.Find(record => record.QualifiedTypeName == type && record.Name == name);
+					if (propertyRecord != null)
+						propertyRecord.Used = isUsed;
+				}
+
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		private bool TryReadPropertiesFromJson(bool _downcastTypes)
+		{
+			for (var type = m_componentType; type != typeof(Component); type = type.BaseType)
+			{
+				string path = UiToolkitConfiguration.Instance.GeneratedAssetsDir +
+				              $"{type.FullName}.json";
+
+				if (TryReadPropertiesFromJson(path))
 				{
 					m_componentType = type;
 					return true;
@@ -566,7 +652,7 @@ namespace GuiToolkit.Style.Editor
 				string pathInternal = UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir +
 				                      $"Type-Json/{type.FullName}.json";
 
-				if (TryReadJson(pathInternal))
+				if (TryReadPropertiesFromJson(pathInternal))
 				{
 					m_componentType = type;
 					return true;
@@ -579,7 +665,7 @@ namespace GuiToolkit.Style.Editor
 			return false;
 		}
 
-		private bool TryReadJson(string path)
+		private bool TryReadPropertiesFromJson(string path)
 		{
 			try
 			{
@@ -667,11 +753,12 @@ namespace GuiToolkit.Style.Editor
 		private void CollectProperties(bool _internal, bool _downcastTypes)
 		{
 			m_PropertyRecords.Clear();
-			if (TryReadJson(_downcastTypes))
+			if (TryReadPropertiesFromJson(_downcastTypes))
 			{
 				return;
 			}
 
+			TryGetComponentTypeFromJson(_downcastTypes);
 			m_namespace = _internal ? "GuiToolkit.Style" : string.Empty;
 			m_prefix = string.Empty;
 
@@ -702,12 +789,11 @@ namespace GuiToolkit.Style.Editor
 						continue;
 					}
 
-					var subTypeName = qualifiedTypeName.Substring(openBracketIdx + 1).Replace(".", "_");
+					var subTypeName = qualifiedTypeName.Substring(openBracketIdx + 1).Replace(".", "");
 					typeName += subTypeName;
 					qualifiedTypeName += ">";
 				}
 
-Debug.Log($"---::: {propertyInfo.PropertyType.Name} {typeName}");
 				m_PropertyRecords.Add(new PropertyRecord()
 				{
 					Used = !s_filteredNames.Contains(propertyInfo.Name),
@@ -718,6 +804,7 @@ Debug.Log($"---::: {propertyInfo.PropertyType.Name} {typeName}");
 			}
 
 			m_PropertyRecords.Sort((a,b) => a.Name.CompareTo(b.Name));
+			TryReadIsUsedFromJson(_downcastTypes);
 		}
 
 		private static bool AllAccessorsPublic(PropertyInfo propertyInfo)
