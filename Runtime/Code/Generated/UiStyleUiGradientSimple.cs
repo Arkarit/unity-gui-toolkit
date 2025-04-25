@@ -1,5 +1,6 @@
 // Auto-generated, please do not change!
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
@@ -31,6 +32,45 @@ namespace GuiToolkit.Style
 			};
 		}
 
+#if UNITY_EDITOR
+		public override List<ValueInfo> GetValueInfos()
+		{
+			return new List<ValueInfo>()
+			{
+				new ValueInfo()
+				{
+					GetterName = "ColorLeftOrTop",
+					GetterType = typeof(ApplicableValueColor),
+					Value = ColorLeftOrTop,
+				},
+				new ValueInfo()
+				{
+					GetterName = "ColorRightOrBottom",
+					GetterType = typeof(ApplicableValueColor),
+					Value = ColorRightOrBottom,
+				},
+				new ValueInfo()
+				{
+					GetterName = "Enabled",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = Enabled,
+				},
+				new ValueInfo()
+				{
+					GetterName = "Orientation",
+					GetterType = typeof(ApplicableValueEOrientation),
+					Value = Orientation,
+				},
+				new ValueInfo()
+				{
+					GetterName = "Swapped",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = Swapped,
+				},
+			};
+		}
+#endif
+
 		[SerializeReference] private ApplicableValueColor m_ColorLeftOrTop = new();
 		[SerializeReference] private ApplicableValueColor m_ColorRightOrBottom = new();
 		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
@@ -41,8 +81,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_ColorLeftOrTop == null)
-					m_ColorLeftOrTop = new ApplicableValueColor();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_ColorLeftOrTop == null)
+						m_ColorLeftOrTop = new ApplicableValueColor();
+				#endif
 				return m_ColorLeftOrTop;
 			}
 		}
@@ -51,8 +93,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_ColorRightOrBottom == null)
-					m_ColorRightOrBottom = new ApplicableValueColor();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_ColorRightOrBottom == null)
+						m_ColorRightOrBottom = new ApplicableValueColor();
+				#endif
 				return m_ColorRightOrBottom;
 			}
 		}
@@ -61,8 +105,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_enabled == null)
-					m_enabled = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_enabled == null)
+						m_enabled = new ApplicableValueBoolean();
+				#endif
 				return m_enabled;
 			}
 		}
@@ -71,8 +117,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_Orientation == null)
-					m_Orientation = new ApplicableValueEOrientation();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_Orientation == null)
+						m_Orientation = new ApplicableValueEOrientation();
+				#endif
 				return m_Orientation;
 			}
 		}
@@ -81,8 +129,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_Swapped == null)
-					m_Swapped = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_Swapped == null)
+						m_Swapped = new ApplicableValueBoolean();
+				#endif
 				return m_Swapped;
 			}
 		}

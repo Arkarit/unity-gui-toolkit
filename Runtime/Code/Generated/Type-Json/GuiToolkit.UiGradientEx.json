@@ -5,25 +5,31 @@
     "Records": [
         {
             "Used": true,
+            "Name": "enabled",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
             "Name": "Gradient",
             "QualifiedTypeName": "UnityEngine.Gradient",
             "TypeName": "Gradient"
         },
         {
             "Used": false,
-            "Name": "useGUILayout",
-            "QualifiedTypeName": "System.Boolean",
-            "TypeName": "Boolean"
+            "Name": "hideFlags",
+            "QualifiedTypeName": "UnityEngine.HideFlags",
+            "TypeName": "HideFlags"
+        },
+        {
+            "Used": false,
+            "Name": "name",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
         },
         {
             "Used": false,
             "Name": "runInEditMode",
-            "QualifiedTypeName": "System.Boolean",
-            "TypeName": "Boolean"
-        },
-        {
-            "Used": true,
-            "Name": "enabled",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
@@ -35,15 +41,9 @@
         },
         {
             "Used": false,
-            "Name": "name",
-            "QualifiedTypeName": "System.String",
-            "TypeName": "String"
-        },
-        {
-            "Used": false,
-            "Name": "hideFlags",
-            "QualifiedTypeName": "UnityEngine.HideFlags",
-            "TypeName": "HideFlags"
+            "Name": "useGUILayout",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
         }
     ]
 }

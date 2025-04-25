@@ -1,5 +1,6 @@
 // Auto-generated, please do not change!
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
@@ -40,6 +41,93 @@ namespace GuiToolkit.Style
 			};
 		}
 
+#if UNITY_EDITOR
+		public override List<ValueInfo> GetValueInfos()
+		{
+			return new List<ValueInfo>()
+			{
+				new ValueInfo()
+				{
+					GetterName = "ChildAlignment",
+					GetterType = typeof(ApplicableValueTextAnchor),
+					Value = ChildAlignment,
+				},
+				new ValueInfo()
+				{
+					GetterName = "ChildControlHeight",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = ChildControlHeight,
+				},
+				new ValueInfo()
+				{
+					GetterName = "ChildControlWidth",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = ChildControlWidth,
+				},
+				new ValueInfo()
+				{
+					GetterName = "ChildForceExpandHeight",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = ChildForceExpandHeight,
+				},
+				new ValueInfo()
+				{
+					GetterName = "ChildForceExpandWidth",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = ChildForceExpandWidth,
+				},
+				new ValueInfo()
+				{
+					GetterName = "ChildScaleHeight",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = ChildScaleHeight,
+				},
+				new ValueInfo()
+				{
+					GetterName = "ChildScaleWidth",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = ChildScaleWidth,
+				},
+				new ValueInfo()
+				{
+					GetterName = "Enabled",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = Enabled,
+				},
+				new ValueInfo()
+				{
+					GetterName = "Padding",
+					GetterType = typeof(ApplicableValueRectOffset),
+					Value = Padding,
+				},
+				new ValueInfo()
+				{
+					GetterName = "ReverseArrangement",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = ReverseArrangement,
+				},
+				new ValueInfo()
+				{
+					GetterName = "ReverseOrder",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = ReverseOrder,
+				},
+				new ValueInfo()
+				{
+					GetterName = "Spacing",
+					GetterType = typeof(ApplicableValueSingle),
+					Value = Spacing,
+				},
+				new ValueInfo()
+				{
+					GetterName = "Vertical",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = Vertical,
+				},
+			};
+		}
+#endif
+
 		[SerializeReference] private ApplicableValueTextAnchor m_childAlignment = new();
 		[SerializeReference] private ApplicableValueBoolean m_childControlHeight = new();
 		[SerializeReference] private ApplicableValueBoolean m_childControlWidth = new();
@@ -58,8 +146,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_childAlignment == null)
-					m_childAlignment = new ApplicableValueTextAnchor();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_childAlignment == null)
+						m_childAlignment = new ApplicableValueTextAnchor();
+				#endif
 				return m_childAlignment;
 			}
 		}
@@ -68,8 +158,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_childControlHeight == null)
-					m_childControlHeight = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_childControlHeight == null)
+						m_childControlHeight = new ApplicableValueBoolean();
+				#endif
 				return m_childControlHeight;
 			}
 		}
@@ -78,8 +170,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_childControlWidth == null)
-					m_childControlWidth = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_childControlWidth == null)
+						m_childControlWidth = new ApplicableValueBoolean();
+				#endif
 				return m_childControlWidth;
 			}
 		}
@@ -88,8 +182,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_childForceExpandHeight == null)
-					m_childForceExpandHeight = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_childForceExpandHeight == null)
+						m_childForceExpandHeight = new ApplicableValueBoolean();
+				#endif
 				return m_childForceExpandHeight;
 			}
 		}
@@ -98,8 +194,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_childForceExpandWidth == null)
-					m_childForceExpandWidth = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_childForceExpandWidth == null)
+						m_childForceExpandWidth = new ApplicableValueBoolean();
+				#endif
 				return m_childForceExpandWidth;
 			}
 		}
@@ -108,8 +206,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_childScaleHeight == null)
-					m_childScaleHeight = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_childScaleHeight == null)
+						m_childScaleHeight = new ApplicableValueBoolean();
+				#endif
 				return m_childScaleHeight;
 			}
 		}
@@ -118,8 +218,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_childScaleWidth == null)
-					m_childScaleWidth = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_childScaleWidth == null)
+						m_childScaleWidth = new ApplicableValueBoolean();
+				#endif
 				return m_childScaleWidth;
 			}
 		}
@@ -128,8 +230,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_enabled == null)
-					m_enabled = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_enabled == null)
+						m_enabled = new ApplicableValueBoolean();
+				#endif
 				return m_enabled;
 			}
 		}
@@ -138,8 +242,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_padding == null)
-					m_padding = new ApplicableValueRectOffset();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_padding == null)
+						m_padding = new ApplicableValueRectOffset();
+				#endif
 				return m_padding;
 			}
 		}
@@ -148,8 +254,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_reverseArrangement == null)
-					m_reverseArrangement = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_reverseArrangement == null)
+						m_reverseArrangement = new ApplicableValueBoolean();
+				#endif
 				return m_reverseArrangement;
 			}
 		}
@@ -158,8 +266,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_ReverseOrder == null)
-					m_ReverseOrder = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_ReverseOrder == null)
+						m_ReverseOrder = new ApplicableValueBoolean();
+				#endif
 				return m_ReverseOrder;
 			}
 		}
@@ -168,8 +278,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_spacing == null)
-					m_spacing = new ApplicableValueSingle();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_spacing == null)
+						m_spacing = new ApplicableValueSingle();
+				#endif
 				return m_spacing;
 			}
 		}
@@ -178,8 +290,10 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				if (m_Vertical == null)
-					m_Vertical = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_Vertical == null)
+						m_Vertical = new ApplicableValueBoolean();
+				#endif
 				return m_Vertical;
 			}
 		}

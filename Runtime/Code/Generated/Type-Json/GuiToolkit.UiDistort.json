@@ -5,6 +5,30 @@
     "Records": [
         {
             "Used": true,
+            "Name": "BottomLeft",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": true,
+            "Name": "BottomRight",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": true,
+            "Name": "enabled",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "hideFlags",
+            "QualifiedTypeName": "UnityEngine.HideFlags",
+            "TypeName": "HideFlags"
+        },
+        {
+            "Used": true,
             "Name": "IsAbsolute",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -14,6 +38,24 @@
             "Name": "Mirror",
             "QualifiedTypeName": "GuiToolkit.EAxis2DFlags",
             "TypeName": "EAxis2DFlags"
+        },
+        {
+            "Used": false,
+            "Name": "name",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "runInEditMode",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "tag",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
         },
         {
             "Used": true,
@@ -28,52 +70,10 @@
             "TypeName": "Vector2"
         },
         {
-            "Used": true,
-            "Name": "BottomLeft",
-            "QualifiedTypeName": "UnityEngine.Vector2",
-            "TypeName": "Vector2"
-        },
-        {
-            "Used": true,
-            "Name": "BottomRight",
-            "QualifiedTypeName": "UnityEngine.Vector2",
-            "TypeName": "Vector2"
-        },
-        {
             "Used": false,
             "Name": "useGUILayout",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
-        },
-        {
-            "Used": false,
-            "Name": "runInEditMode",
-            "QualifiedTypeName": "System.Boolean",
-            "TypeName": "Boolean"
-        },
-        {
-            "Used": true,
-            "Name": "enabled",
-            "QualifiedTypeName": "System.Boolean",
-            "TypeName": "Boolean"
-        },
-        {
-            "Used": false,
-            "Name": "tag",
-            "QualifiedTypeName": "System.String",
-            "TypeName": "String"
-        },
-        {
-            "Used": false,
-            "Name": "name",
-            "QualifiedTypeName": "System.String",
-            "TypeName": "String"
-        },
-        {
-            "Used": false,
-            "Name": "hideFlags",
-            "QualifiedTypeName": "UnityEngine.HideFlags",
-            "TypeName": "HideFlags"
         }
     ]
 }

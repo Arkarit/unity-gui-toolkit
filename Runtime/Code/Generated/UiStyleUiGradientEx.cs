@@ -1,5 +1,6 @@
 // Auto-generated, please do not change!
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using GuiToolkit;
 using GuiToolkit.Style;
@@ -15,38 +16,63 @@ namespace GuiToolkit.Style
 			Name = _name;
 		}
 
-		private class ApplicableValueGradient : ApplicableValue<UnityEngine.Gradient> {}
 		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
+		private class ApplicableValueGradient : ApplicableValue<UnityEngine.Gradient> {}
 
 		protected override ApplicableValueBase[] GetValueArray()
 		{
 			return new ApplicableValueBase[]
 			{
-				Gradient,
 				Enabled,
+				Gradient,
 			};
 		}
 
-		[SerializeReference] private ApplicableValueGradient m_Gradient = new();
-		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
-
-		public ApplicableValue<UnityEngine.Gradient> Gradient
+#if UNITY_EDITOR
+		public override List<ValueInfo> GetValueInfos()
 		{
-			get
+			return new List<ValueInfo>()
 			{
-				if (m_Gradient == null)
-					m_Gradient = new ApplicableValueGradient();
-				return m_Gradient;
-			}
+				new ValueInfo()
+				{
+					GetterName = "Enabled",
+					GetterType = typeof(ApplicableValueBoolean),
+					Value = Enabled,
+				},
+				new ValueInfo()
+				{
+					GetterName = "Gradient",
+					GetterType = typeof(ApplicableValueGradient),
+					Value = Gradient,
+				},
+			};
 		}
+#endif
+
+		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
+		[SerializeReference] private ApplicableValueGradient m_Gradient = new();
 
 		public ApplicableValue<System.Boolean> Enabled
 		{
 			get
 			{
-				if (m_enabled == null)
-					m_enabled = new ApplicableValueBoolean();
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_enabled == null)
+						m_enabled = new ApplicableValueBoolean();
+				#endif
 				return m_enabled;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.Gradient> Gradient
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_Gradient == null)
+						m_Gradient = new ApplicableValueGradient();
+				#endif
+				return m_Gradient;
 			}
 		}
 
