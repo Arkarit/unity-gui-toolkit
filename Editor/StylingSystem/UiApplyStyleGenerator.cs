@@ -684,12 +684,36 @@ namespace GuiToolkit.Style.Editor
 				if (!AllAccessorsPublic(propertyInfo))
 					continue;
 
+
+				var typeName = propertyInfo.PropertyType.Name;
+				var qualifiedTypeName = propertyInfo.PropertyType.FullName.Replace("+", ".").Replace("`1[[", "<");
+				var commaIdx = qualifiedTypeName.IndexOf(',');
+				if (commaIdx > -1)
+				{
+					qualifiedTypeName = qualifiedTypeName.Substring(0, commaIdx);
+					typeName = typeName.Replace("`1", "");
+					var openBracketIdx = qualifiedTypeName.IndexOf('<');
+					if (openBracketIdx == -1)
+					{
+						Debug.LogWarning($"Can not determine type of property '{propertyInfo.Name}'\n" + 
+						                 $"propertyInfo.PropertyType.Name:{propertyInfo.PropertyType.Name}\n" + 
+						                 $"propertyInfo.PropertyType.FullName:{propertyInfo.PropertyType.FullName}");
+
+						continue;
+					}
+
+					var subTypeName = qualifiedTypeName.Substring(openBracketIdx + 1).Replace(".", "_");
+					typeName += subTypeName;
+					qualifiedTypeName += ">";
+				}
+
+Debug.Log($"---::: {propertyInfo.PropertyType.Name} {typeName}");
 				m_PropertyRecords.Add(new PropertyRecord()
 				{
 					Used = !s_filteredNames.Contains(propertyInfo.Name),
 					Name = propertyInfo.Name,
-					QualifiedTypeName = propertyInfo.PropertyType.FullName.Replace("+", "."),
-					TypeName = propertyInfo.PropertyType.Name
+					QualifiedTypeName = qualifiedTypeName,
+					TypeName = typeName
 				});
 			}
 
