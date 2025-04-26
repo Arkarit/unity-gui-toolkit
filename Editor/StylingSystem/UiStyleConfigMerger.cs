@@ -1,25 +1,29 @@
 using System;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit.Style.Editor
 {
 	public static class UiStyleConfigMerger
 	{
-		public enum EOptionExisting
+		// In case someone is wondering why there are 3 enums having more or less the same parameters:
+		// Yes, their values are pretty much the same, but wording is much more understandable in Editor
+		public enum EOptionExistingBoth
 		{
 			Skip,
 			Overwrite,
 			Ask,
 		}
 
-		public enum EOptionMissing
+		public enum EOptionMissingSource
 		{
 			Keep,
 			Remove,
 			Ask,
 		}
 
-		public enum EOptionAdditional
+		public enum EOptionMissingTarget
 		{
 			Skip,
 			Add,
@@ -29,20 +33,15 @@ namespace GuiToolkit.Style.Editor
 		[Serializable]
 		public class Option
 		{
-			public EOptionExisting Existing;
-			public EOptionMissing Missing;
-			public EOptionAdditional Additional;
+			public EOptionExistingBoth ExistingBoth = EOptionExistingBoth.Overwrite;
+			public EOptionMissingSource MissingSource = EOptionMissingSource.Keep;
+			public EOptionMissingTarget MissingTarget = EOptionMissingTarget.Add;
 		}
 
 		[Serializable]
 		public class Options
 		{
-			private Option SkinOptions = new Option()
-			{
-				Existing = EOptionExisting.Overwrite,
-				Missing = EOptionMissing.Keep,
-				Additional = EOptionAdditional.Ask,
-			};
+			public Option SkinOptions = new();
 		}
 
 		public struct Entry
@@ -54,14 +53,27 @@ namespace GuiToolkit.Style.Editor
 
 		public static void Merge(UiStyleConfig _source, UiStyleConfig _target, Options _options)
 		{
-			foreach (var skin in _source.Skins)
+			for (int i = 0; i < _source.Skins.Count; i++)
+				Merge(_source, _target, _options, _source.Skins[0]);
+		}
+
+		private static void Merge(UiStyleConfig _source, UiStyleConfig _target, Options _options, UiSkin _sourceSkin)
+		{
+			if (!_target.SkinNames.Contains(_sourceSkin.Name))
 			{
-				foreach (var style in skin.Styles)
+				switch (_options.SkinOptions.MissingTarget)
 				{
-					var valueInfoArray = style.GetValueInfoArray();
-					foreach (var valueInfo in valueInfoArray)
-					{
-					}
+					case EOptionMissingTarget.Skip:
+						return;
+					case EOptionMissingTarget.Add:
+						UiStyleEditorUtility.AddSkin(_target, _sourceSkin.Name,
+							_target.NumSkins == 0 ? null : _target.Skins[0].Name);
+						break;
+					case EOptionMissingTarget.Ask:
+//						if (!EditorUtility.DisplayDialog())
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
 				}
 			}
 		}
