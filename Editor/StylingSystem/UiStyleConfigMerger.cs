@@ -5,28 +5,61 @@ namespace GuiToolkit.Style.Editor
 {
 	public static class UiStyleConfigMerger
 	{
-		public enum EOptions
+		public enum EOptionExisting
 		{
 			Skip,
 			Overwrite,
 			Ask,
 		}
 
+		public enum EOptionMissing
+		{
+			Keep,
+			Remove,
+			Ask,
+		}
+
+		public enum EOptionAdditional
+		{
+			Skip,
+			Add,
+			Ask,
+		}
+
+		[Serializable]
+		public class Option
+		{
+			public EOptionExisting Existing;
+			public EOptionMissing Missing;
+			public EOptionAdditional Additional;
+		}
+
+		[Serializable]
+		public class Options
+		{
+			private Option SkinOptions = new Option()
+			{
+				Existing = EOptionExisting.Overwrite,
+				Missing = EOptionMissing.Keep,
+				Additional = EOptionAdditional.Ask,
+			};
+		}
+
 		public struct Entry
 		{
-			public string SkinName;
-			public string StyleName;
-			public Type SupportedComponentType;
+			public UiSkin Skin;
+			public UiAbstractApplyStyleBase Style;
 			public ApplicableValueBase Value;
 		}
 
-		public static void Merge(UiStyleConfig _source, UiStyleConfig _target, EOptions _options)
+		public static void Merge(UiStyleConfig _source, UiStyleConfig _target, Options _options)
 		{
 			foreach (var skin in _source.Skins)
 			{
 				foreach (var style in skin.Styles)
 				{
-					foreach (var value in style.Values)
+					var valueInfoArray = style.GetValueInfoArray();
+					foreach (var valueInfo in valueInfoArray)
 					{
 					}
 				}
