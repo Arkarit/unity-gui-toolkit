@@ -1,7 +1,6 @@
 using System;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace GuiToolkit.Style.Editor
 {
@@ -42,6 +41,7 @@ namespace GuiToolkit.Style.Editor
 		public class Options
 		{
 			public Option SkinOptions = new();
+			public Option StyleOptions = new();
 		}
 
 		public struct Entry
@@ -53,11 +53,11 @@ namespace GuiToolkit.Style.Editor
 
 		public static void Merge(UiStyleConfig _source, UiStyleConfig _target, Options _options)
 		{
-			for (int i = 0; i < _source.Skins.Count; i++)
-				Merge(_source, _target, _options, _source.Skins[0]);
+			foreach (var skin in _source.Skins)
+				MergeSkin(_source, _target, _options, skin);
 		}
 
-		private static void Merge(UiStyleConfig _source, UiStyleConfig _target, Options _options, UiSkin _sourceSkin)
+		private static void MergeSkin(UiStyleConfig _source, UiStyleConfig _target, Options _options, UiSkin _sourceSkin)
 		{
 			if (!_target.SkinNames.Contains(_sourceSkin.Name))
 			{
@@ -66,16 +66,55 @@ namespace GuiToolkit.Style.Editor
 					case EOptionMissingTarget.Skip:
 						return;
 					case EOptionMissingTarget.Add:
-						UiStyleEditorUtility.AddSkin(_target, _sourceSkin.Name,
-							_target.NumSkins == 0 ? null : _target.Skins[0].Name);
+						AddSkin(_target, _sourceSkin, false);
 						break;
 					case EOptionMissingTarget.Ask:
-//						if (!EditorUtility.DisplayDialog())
+						if (!AddSkin(_target, _sourceSkin, true))
+							return;
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
+
+			var targetSkin = _target.GetSkinByName(_sourceSkin.Name);
+			Debug.Assert(targetSkin != null, $"target skin '{_sourceSkin.Name}' is not defined!");
+
+			foreach (var style in _sourceSkin.Styles)
+				MergeStyle(_source, _target, _options, targetSkin, style);
+		}
+
+		private static bool AddSkin(UiStyleConfig _target, UiSkin _sourceSkin, bool _ask)
+		{
+			if (_ask && !EditorUtility.DisplayDialog("Add skin?",
+				    $"Do you want the skin '{_sourceSkin.Name}' to be added?", "Ok", "Cancel"))
+				return false;
+
+			UiStyleEditorUtility.AddSkin(_target, _sourceSkin.Name,
+				_target.NumSkins == 0 ? null : _target.Skins[0].Name);
+
+			return true;
+		}
+
+		private static void MergeStyle( UiStyleConfig _source, UiStyleConfig _target, Options _options, UiSkin _targetSkin, UiAbstractStyleBase _sourceStyle )
+		{
+			// We need to also take affected component into account, not only the name. So we use Key here.
+			var sourceKey = _sourceStyle.Key;
+			if (!_targetSkin.HasStyle(sourceKey))
+			{
+				switch (_options.StyleOptions.MissingTarget)
+				{
+					case EOptionMissingTarget.Skip:
+						return;
+					case EOptionMissingTarget.Add:
+						break;
+					case EOptionMissingTarget.Ask:
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
 			}
 		}
+
 	}
 }

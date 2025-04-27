@@ -88,6 +88,8 @@ namespace GuiToolkit.Style
 			return null;
 		}
 
+		public bool HasStyle(int _key) => StyleByKey(_key) != null;
+
 		public void DeleteStyle(UiAbstractStyleBase _style)
 		{
 			for (int i = 0; i < m_styles.Count; i++)
@@ -179,5 +181,6 @@ namespace GuiToolkit.Style
 #endif
 
 		}
+
 	}
 }
