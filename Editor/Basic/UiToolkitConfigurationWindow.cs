@@ -150,7 +150,7 @@ namespace GuiToolkit.Editor
 		{
 			string resourceDir = "Assets/Resources";
 			EditorFileUtility.EnsureFolderExists(resourceDir);
-			var newConfigPath = $"{resourceDir}/{nameof(T)}.asset";
+			var newConfigPath = $"{resourceDir}/{currentStyleConfig.GetType().Name}.asset";
 			if (File.Exists(EditorFileUtility.GetNativePath(newConfigPath)))
 				if (!EditorUtility.DisplayDialog("Overwrite Configuration?", $"A config file at '{newConfigPath}' already exists. Should it be overwritten? (Not undoable)", "OK", "Cancel"))
 					return;
