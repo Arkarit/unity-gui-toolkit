@@ -181,12 +181,4 @@ namespace GuiToolkit
 		public const string TEXT			= "Icons/UITK_Text";
 
 	}
-
-	/// \brief Builtin logos
-	/// 
-	/// Colored logos of various companies and institutions
-	public static class BuiltinLogos
-	{
-		public const string ZOOM		= "Icons/UITK_Logo_Zoom";
-	}
 }
