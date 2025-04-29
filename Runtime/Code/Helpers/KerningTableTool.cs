@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-#if TMP_3_2
+#if TMP_3_2 || UNITY_6000_0_OR_NEWER
 	using KerningPair = UnityEngine.TextCore.LowLevel.GlyphPairAdjustmentRecord;
 	using KerningChar = UnityEngine.TextCore.LowLevel.GlyphAdjustmentRecord;
 #else
