@@ -53,7 +53,6 @@ SpriteAtlas:
     - 0cf6bf9a44d093648ad721d11a9f9dcc: 21300000
     - cd7814db32a13f54fb1fd147067be177: 21300000
     - 877e341e2f694db409ad60b7467611f0: 21300000
-    - c6072e1e5bfdf334696de2d9c5ef2371: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 320d01a17bad420459171caa4a5d46f5, type: 3}
@@ -72,7 +71,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 0cf6bf9a44d093648ad721d11a9f9dcc, type: 3}
   - {fileID: 21300000, guid: cd7814db32a13f54fb1fd147067be177, type: 3}
   - {fileID: 21300000, guid: 877e341e2f694db409ad60b7467611f0, type: 3}
-  - {fileID: 21300000, guid: c6072e1e5bfdf334696de2d9c5ef2371, type: 3}
   m_PackedSpriteNamesToIndex:
   - UITK_Text
   - UITK_Gear
@@ -90,7 +88,6 @@ SpriteAtlas:
   - UITK_Loudspeaker
   - UITK_Fast
   - UITK_Phone
-  - UITK_Logo_Zoom
   m_RenderDataMap: {}
   m_Tag: Icons
   m_IsVariant: 0
