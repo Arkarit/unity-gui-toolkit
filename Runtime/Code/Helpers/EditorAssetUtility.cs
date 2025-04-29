@@ -484,6 +484,22 @@ namespace GuiToolkit
 			AssetDatabase.CreateAsset(_obj, _path);
 		}
 
+		/// <summary>
+		/// Check if an asset is currently being imported for the first time.
+		/// Pretty hacky, but couldn't find a more sane way.
+		/// </summary>
+		/// <param name="_obj"></param>
+		/// <param name="_path"></param>
+		/// <returns></returns>
+		public static bool IsBeingImportedFirstTime( string _path )
+		{
+			// Asset database can't (yet) load the object
+			if (AssetDatabase.LoadAssetAtPath(_path, typeof(Object)))
+				return false;
+			
+			// but the file already exists -> importing
+			return File.Exists(_path);
+		}
 
 		private static string GetCacheKey<T>(string _searchString) => CachePrefix + typeof(T).FullName + (string.IsNullOrEmpty(_searchString) ? "" : _searchString);
 	}

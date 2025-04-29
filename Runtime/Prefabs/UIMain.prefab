@@ -85,7 +85,7 @@ Camera:
   m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
+  m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
 --- !u!114 &7267538138393596992
@@ -306,6 +306,7 @@ MonoBehaviour:
       m_Calls: []
   m_layer: 200
   m_isFullScreen: 0
+  m_useGlobalCanvasScalerTemplate: 1
 --- !u!114 &7267538138489494619
 MonoBehaviour:
   m_ObjectHideFlags: 0

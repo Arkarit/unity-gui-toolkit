@@ -353,6 +353,7 @@ MonoBehaviour:
       m_Calls: []
   m_layer: 600
   m_isFullScreen: 0
+  m_useGlobalCanvasScalerTemplate: 1
   m_title: {fileID: 2126843346133770540}
   m_titleContainer: {fileID: 3370017491754383985}
   m_closeButton: {fileID: 6780300717453316315}
