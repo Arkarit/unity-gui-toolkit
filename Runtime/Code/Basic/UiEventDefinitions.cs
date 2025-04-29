@@ -1,6 +1,10 @@
 using GuiToolkit.Style;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace GuiToolkit
 {
 	// General event definitions. See counterpart for game specific event definitions.
@@ -59,5 +63,30 @@ namespace GuiToolkit
 		// events for second, 10 seconds and minute (scaled game time)
 		public static readonly CEvent OnTickPerSecond = new(true);
 		public static readonly CEvent OnTickPerMinute = new(true);
+		
+		#if UNITY_EDITOR
+		// Fix redraw issues when changing style in Unity >= 6
+		// Scene view didn't update when skin was changed
+		[InitializeOnLoadMethod]
+		private static void Init()
+		{
+			EvSkinChanged.RemoveListener(OnSkinChanged);
+			EvSkinChanged.AddListener(OnSkinChanged);
+		}
+
+		private static void OnSkinChanged(float _)
+		{
+			if (!Application.isPlaying)
+			{
+				EditorApplication.delayCall += () =>
+				{
+					if (Selection.activeGameObject)
+						EditorUtility.SetDirty(Selection.activeGameObject);
+					
+					SceneView.RepaintAll();
+				};
+			}
+		}
+#endif
 	}
 }
