@@ -4,6 +4,7 @@ using System.IO;
 using System;
 using GuiToolkit.Style;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -53,6 +54,9 @@ namespace GuiToolkit
 		public const string HELP_DEBUG_LOCA =
 			"This switches loca debugging on or off";
 
+		public const string HELP_GLOBAL_CANVAS_SCALER_TEMPLATE =
+			"An optional global canvas scaler template, which is applied to every UiView";
+
 		public static readonly string HELP_UI_MAIN =
 			  $"Each {StringConstants.TOOLKIT_NAME} needs a UiMain object, which coordinates all Ui tasks.\n"
 			+ "With this button you can create it in the active scene."
@@ -85,6 +89,9 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_DEBUG_LOCA)]
 		public bool m_debugLoca = false;
+		
+		[Tooltip(HELP_GLOBAL_CANVAS_SCALER_TEMPLATE)]
+		public CanvasScaler m_globalCanvasScalerTemplate = null;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 		private string m_rootDir;
