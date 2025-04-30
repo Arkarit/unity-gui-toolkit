@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace GuiToolkit
 
 	public static class EditorFileUtility
 	{
-		public static string GetApplicationDataDir(bool _withAssetsFolder = false)
+		public static string GetApplicationDataDir( bool _withAssetsFolder = false )
 		{
 			string result = Application.dataPath;
 			if (_withAssetsFolder)
@@ -32,19 +33,19 @@ namespace GuiToolkit
 			return GetApplicationDataDir() + "/" + _assetPath;
 		}
 
-		public static string GetDirectoryName(string _path)
+		public static string GetDirectoryName( string _path )
 		{
 			return Path.GetDirectoryName(_path).Replace('\\', '/');
 		}
 
-		public static string GetUnityPath(string _nativePath, bool _removeExtension = false)
+		public static string GetUnityPath( string _nativePath, bool _removeExtension = false )
 		{
 			string nativePath = _nativePath.Replace("\\", "/");
 			int idx = _nativePath.IndexOf("/Assets");
 			if (idx == -1)
 				return string.Empty;
 
-			string result = nativePath.Substring(idx+1);
+			string result = nativePath.Substring(idx + 1);
 			if (_removeExtension)
 			{
 				result = Path.GetDirectoryName(result) + "/" + Path.GetFileNameWithoutExtension(result);
@@ -85,6 +86,61 @@ namespace GuiToolkit
 			{
 				return false;
 			}
+		}
+		
+		public static string PathField( string _label, string _path, bool _save, bool _folder)
+		{
+			if (_folder)
+			{
+				if (_save)
+				{
+					return PathField(_label, _path, () => EditorUtility.SaveFolderPanel(_label, _path, null));
+				}
+				
+				return PathField(_label, _path, () => EditorUtility.OpenFolderPanel(_label, _path, null));
+			}
+			
+			if (_save)
+			{
+				string dir;
+				string name;
+				try
+				{
+					dir = Path.GetDirectoryName(_path);
+					name = Path.GetFileName(_path);
+				}
+				catch
+				{
+					dir = _path;
+					name = null;
+				}
+				
+				return PathField(_label, _path, () => EditorUtility.SaveFilePanel(_label, dir, name, null));
+			}
+			
+			return PathField(_label,_path, () => EditorUtility.OpenFilePanel(_label, _path, null));
+		}
+
+		public static string PathFieldSaveFile(string _label, string _path) => PathField(_label, _path, _save:true, _folder:false);
+		public static string PathFieldReadFile(string _label, string _path) => PathField(_label, _path, _save:false, _folder:false);
+		public static string PathFieldSaveFolder(string _label, string _path) => PathField(_label, _path, _save:true, _folder:true);
+		public static string PathFieldReadFolder(string _label, string _path) => PathField(_label, _path, _save:false, _folder:true);
+		
+		private static string PathField(string _label, string _path, Func<string> _callback)
+		{
+			GUILayout.BeginHorizontal();
+			GUILayout.Label(_label);
+			var result = GUILayout.TextField(_path);
+			
+			if (GUILayout.Button("...", GUILayout.ExpandWidth(false), GUILayout.Height(EditorGUIUtility.singleLineHeight)))
+			{
+				string path = _callback();
+				if (!string.IsNullOrEmpty(path))
+					result = path;
+			}
+
+			GUILayout.EndHorizontal();
+			return result;
 		}
 	}
 }

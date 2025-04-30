@@ -208,6 +208,8 @@ namespace GuiToolkit
 		}
 #endif
 
+		public static bool IsInternal = EditorFileUtility.GetApplicationDataDir().ToLower().Contains(".dev-app");
+
 		public static void SetStaticEditorFlagsInHierarchy(Transform _transform, StaticEditorFlags _flags, bool _replace = false, bool _log = true)
 		{
 			if (_transform == null)
