@@ -13,6 +13,9 @@ namespace GuiToolkit
 
 		private DateTime m_dateTime = new DateTime();
 
+		public SerializableDateTime() { }
+		public SerializableDateTime(DateTime _time) => m_dateTime = _time;
+
 		public DateTime DateTime
 		{
 			get => m_dateTime;

@@ -8,17 +8,21 @@ namespace GuiToolkit
 	public abstract class ApplicableValueBase
 	{
 		public bool IsApplicable = false;
+
 		protected object m_oldValue;
 		protected bool m_tweenRunning;
 		protected float m_normalizedTweenAmount;
 
 
 #if UNITY_EDITOR
+		[SerializeField] private SerializableDateTime m_dateTimeChanged = new SerializableDateTime();
 		[NonSerialized] public ETriState ValueHasChildren = ETriState.Indeterminate;
 #endif
 		public abstract object RawValueObj { get; set; }
 		public abstract object ValueObj { get; }
-		
+
+		public void Touch() => m_dateTimeChanged = new SerializableDateTime(DateTime.Now);
+
 		public bool TweenRunning => m_tweenRunning;
 
 		public void StartTween(object _from)
@@ -70,7 +74,7 @@ namespace GuiToolkit
 		public override object RawValueObj
 		{
 			get => m_value;
-			set => m_value = (T) value;
+			set => SetValue((T) value);
 		}
 
 		public override object ValueObj
@@ -87,13 +91,22 @@ namespace GuiToolkit
 		public T Value
 		{
 			get => (T) ValueObj;
-			set => m_value = value;
+			set => SetValue(value);
 		}
 		
 		public T RawValue
 		{
 			get => (T) RawValueObj;
-			set => m_value = value;
+			set => SetValue(value);
+		}
+
+		private void SetValue(T _value)
+		{
+			m_value = _value;
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				Touch();
+#endif
 		}
 	}
 }
