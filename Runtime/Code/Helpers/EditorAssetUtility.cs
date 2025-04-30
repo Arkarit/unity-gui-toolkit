@@ -354,16 +354,16 @@ namespace GuiToolkit
 				for (int i=0; i<allAssetPathGuids.Length; i++)
 				{
 					string guid = allAssetPathGuids[i];
-					string _assetPath = AssetDatabase.GUIDToAssetPath(guid);
+					string assetPath = AssetDatabase.GUIDToAssetPath(guid);
 					if (_showProgressBar)
 					{
 						float done = (float) (i+1) / allAssetPathGuids.Length;
-						EditorUtility.DisplayProgressBar($"Searching scenes for components of type {typeof(T).Name}", $"Searching _scene '{Path.GetFileName(_assetPath)}' ", done);
+						EditorUtility.DisplayProgressBar($"Searching scenes for components of type {typeof(T).Name}", $"Searching _scene '{Path.GetFileName(assetPath)}' ", done);
 					}
 					
 					// Avoid dreaded "It is not allowed..." 
 					// Skip all packages scenes altogether
-					if (_assetPath.StartsWith("Packages"))
+					if (assetPath.StartsWith("Packages"))
 						continue;
 					
 					Scene scene;
@@ -371,10 +371,10 @@ namespace GuiToolkit
 					
 					try
 					{
-						scene = EditorSceneManager.GetSceneByPath(_assetPath);
+						scene = EditorSceneManager.GetSceneByPath(assetPath);
 						wasLoaded = scene.isLoaded;
 						if (!wasLoaded)
-							scene = EditorSceneManager.OpenScene(_assetPath, OpenSceneMode.Additive);
+							scene = EditorSceneManager.OpenScene(assetPath, OpenSceneMode.Additive);
 					}
 					catch
 					{
@@ -390,7 +390,7 @@ namespace GuiToolkit
 	
 						foreach (T _component in components)
 						{
-							if (!_foundFn(_component, scene, _assetPath))
+							if (!_foundFn(_component, scene, assetPath))
 								goto exitLoop;
 						}
 					}
@@ -499,6 +499,22 @@ namespace GuiToolkit
 			
 			// but the file already exists -> importing
 			return File.Exists(_path);
+		}
+		
+		public static bool IsPackagesOrInternalAsset(Object _obj)
+		{
+			if (!_obj)
+				return false;
+			
+			var path = AssetDatabase.GetAssetPath(_obj);
+			if (string.IsNullOrEmpty(path))
+				return false;
+			
+			var fullPath = Path.GetFullPath(path).Replace('\\', '/').ToLower();
+			if (fullPath.Contains(".dev-app/unity/assets/external/unity-gui-toolkit"))
+				return true;
+			
+			return path.StartsWith("Packages");
 		}
 
 		private static string GetCacheKey<T>(string _searchString) => CachePrefix + typeof(T).FullName + (string.IsNullOrEmpty(_searchString) ? "" : _searchString);

@@ -22,22 +22,46 @@ namespace GuiToolkit
 	{
 		[Header("Canvas Settings")] 
 		[SerializeField] private RenderMode m_renderMode = RenderMode.ScreenSpaceCamera;
-
 		[SerializeField] private float m_layerDistance = 0.02f;
+		
+		[Header("Prefabs")]
+		[SerializeField] private UiButton m_standardButtonPrefab;
+		[SerializeField] private UiButton m_okButtonPrefab;
+		[SerializeField] private UiButton m_cancelButtonPrefab;
+		[SerializeField] private UiRequester m_requesterPrefab;
+		[SerializeField] private UiPlayerSettingsDialog m_settingsDialogPrefab;
+		[FormerlySerializedAs("m_splashMessagePrefab")]
+		[SerializeField] private UiToastMessageView m_toastMessageViewPrefab;
+		[SerializeField] private UiKeyPressRequester m_keyPressRequester;
+		[FormerlySerializedAs("m_gridPicker")] 
+		[SerializeField] private UiGridPicker m_gridPickerPrefab;
 
-		[SerializeField] protected UiButton m_standardButtonPrefab;
-		[SerializeField] protected UiButton m_okButtonPrefab;
-		[SerializeField] protected UiButton m_cancelButtonPrefab;
+		[Header("Stack Navigation Animation")]
+		[SerializeField] private EStackAnimationType m_stackAnimationType = EStackAnimationType.None;
+		[SerializeField] private AnimationCurve m_stackMovedInCurve;
+		[SerializeField] private AnimationCurve m_stackPushedOutCurve;
+		
+		[Header("View properties")]
+		[SerializeField] protected Camera[] m_camerasToDisableWhenFullScreenView;
+
+		private readonly Dictionary<UiView,bool> m_savedVisibilities = new Dictionary<UiView,bool>();
+		private readonly Dictionary<Camera,bool> m_savedCameraActivenesses = new Dictionary<Camera,bool>();
+		private readonly Dictionary<string, UiView> m_scenes = new();
+		private static bool s_initialized = false;
+		private readonly Stack<UiView> m_stack = new();
+		private static UiMain s_instance;
+		private UiPlayerSettingsDialog m_playerSettingsDialog;
+		static EScreenOrientation s_screenOrientation = EScreenOrientation.Invalid;
+		
+		private readonly List<IExcludeFromFrustumCulling> m_excludedFromFrustumCulling = new List<IExcludeFromFrustumCulling>();
+		private readonly List<Bounds> m_excludedBounds = new List<Bounds>();
+		private const float LARGE_NUMBER = 999999999.0f;
+		private static readonly Bounds LARGE_BOUNDS = new Bounds(Vector3.zero, new Vector3(LARGE_NUMBER, LARGE_NUMBER, LARGE_NUMBER) );
 
 		public UiButton StandardButtonPrefab => m_standardButtonPrefab;
 		public UiButton OkButtonPrefab => m_okButtonPrefab;
 		public UiButton CancelButtonPrefab => m_cancelButtonPrefab;
-
-
-		private readonly Dictionary<string, UiView> m_scenes = new Dictionary<string, UiView>();
-
-		private static bool s_initialized = false;
-
+		public UiPlayerSettingsDialog PlayerSettingsDialog => m_playerSettingsDialog;
 		public float LayerDistance => m_layerDistance;
 		public RenderMode RenderMode => m_renderMode;
 		public Camera Camera { get; private set; }
@@ -60,7 +84,6 @@ namespace GuiToolkit
 		}
 #endif
 
-		private static UiMain s_instance;
 		public static UiMain Instance
 		{
 			get
@@ -178,18 +201,6 @@ namespace GuiToolkit
 		#endregion
 
 		#region "Stack"
-
-		private readonly Stack<UiView> m_stack = new Stack<UiView>();
-
-		[SerializeField]
-		private EStackAnimationType m_stackAnimationType = EStackAnimationType.None;
-
-		[SerializeField]
-		private AnimationCurve m_stackMovedInCurve;
-
-		[SerializeField]
-		private AnimationCurve m_stackPushedOutCurve;
-
 		public void NavigationPush( UiView _uiView, bool _instant = false, Action _onFinishHide = null, Action _onFinishShow = null )
 		{
 			if (m_stack.Count > 0)
@@ -236,27 +247,6 @@ namespace GuiToolkit
 		#endregion
 
 		#region "Builtin Dialogs"
-
-		[SerializeField]
-		private UiRequester m_requesterPrefab;
-
-		[SerializeField]
-		private UiPlayerSettingsDialog m_settingsDialogPrefab;
-
-		[SerializeField]
-		[FormerlySerializedAs("m_splashMessagePrefab")]
-		private UiToastMessageView m_toastMessageViewPrefab;
-
-		[SerializeField]
-		private UiKeyPressRequester m_keyPressRequester;
-
-		[FormerlySerializedAs("m_gridPicker")] 
-		[SerializeField]
-		private UiGridPicker m_gridPickerPrefab;
-
-		private UiPlayerSettingsDialog m_playerSettingsDialog;
-		public UiPlayerSettingsDialog PlayerSettingsDialog => m_playerSettingsDialog;
-
 		public void ShowGridPicker(UiGridPicker.Options _options)
 		{
 			UiGridPicker gridPicker = CreateView(m_gridPickerPrefab);
@@ -331,12 +321,6 @@ namespace GuiToolkit
 		#endregion
 
 		#region "General"
-
-		[SerializeField]
-		protected Camera[] m_camerasToDisableWhenFullScreenView;
-
-		private readonly Dictionary<UiView,bool> m_savedVisibilities = new Dictionary<UiView,bool>();
-		private readonly Dictionary<Camera,bool> m_savedCameraActivenesses = new Dictionary<Camera,bool>();
 
 		/// Caution! This currently can be called for only ONE dialog at a time!
 		public void SetFullScreenView( UiView _uiView )
@@ -474,9 +458,6 @@ namespace GuiToolkit
 		#endregion
 
 		#region "Internal and Unity callbacks"
-
-		static EScreenOrientation s_screenOrientation = EScreenOrientation.Invalid;
-
 		protected virtual void Awake()
 		{
 			InitGetters();
@@ -603,11 +584,6 @@ namespace GuiToolkit
 		#endregion
 
 		#region "Exclude from frustum culling"
-		private readonly List<IExcludeFromFrustumCulling> m_excludedFromFrustumCulling = new List<IExcludeFromFrustumCulling>();
-		private readonly List<Bounds> m_excludedBounds = new List<Bounds>();
-		private const float LARGE_NUMBER = 999999999.0f;
-		private static readonly Bounds LARGE_BOUNDS = new Bounds(Vector3.zero, new Vector3(LARGE_NUMBER, LARGE_NUMBER, LARGE_NUMBER) );
-
 		/// \brief Register an IExcludeFromFrustumCulling to be excluded from frustum culling
 		public void RegisterExcludeFrustumCulling(IExcludeFromFrustumCulling _toRegister)
 		{
