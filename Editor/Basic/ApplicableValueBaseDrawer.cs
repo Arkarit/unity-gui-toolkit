@@ -41,16 +41,15 @@ namespace GuiToolkit.Editor
 
 			bool hasChildren = thisApplicableValueBase.ValueHasChildren == ETriState.True;
 
-			if (isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyDisabled ||
-			    !isApplicableProp.boolValue && s_drawCondition == EDrawCondition.OnlyEnabled)
+			if (isApplicable && s_drawCondition == EDrawCondition.OnlyDisabled ||
+			    !isApplicable && s_drawCondition == EDrawCondition.OnlyEnabled)
 			{
 				EditorGUI.EndProperty();
 				return;
 			}
 
-			EditorGUI.BeginChangeCheck();
 			var newIsApplicable = EditorGUI.Toggle(new Rect(_rect.x, _rect.y, ToggleWidth, EditorGUIUtility.singleLineHeight), isApplicableProp.boolValue);
-			if (EditorGUI.EndChangeCheck())
+			if (newIsApplicable != isApplicable)
 			{
 				isApplicableProp.boolValue = newIsApplicable;
 			}
@@ -66,12 +65,23 @@ namespace GuiToolkit.Editor
 			var valueProp = _property.FindPropertyRelative("m_value");
 			using (new EditorGUI.DisabledScope(newIsApplicable == false))
 			{
+				var hashBefore = valueProp.contentHash;
 				EditorGUI.PropertyField(
 					new Rect(_rect.x + EditorGUIUtility.labelWidth, _rect.y, _rect.width - EditorGUIUtility.labelWidth, _rect.height), 
 					valueProp, 
 					new GUIContent(),
 					valueProp.isExpanded && hasChildren
 				);
+
+				if (hashBefore != valueProp.contentHash)
+				{
+					var applicableValue = _property.boxedValue as ApplicableValueBase;
+					if (applicableValue != null)
+					{
+						applicableValue.Touch();
+						_property.boxedValue = applicableValue;
+					}
+				}
 			}
 
 			EditorGUI.EndProperty();

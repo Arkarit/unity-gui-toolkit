@@ -15,6 +15,7 @@ namespace GuiToolkit
 
 
 #if UNITY_EDITOR
+		// each applicable value has a timestamp for determining newer elements in merge
 		[SerializeField] private SerializableDateTime m_dateTimeChanged = new SerializableDateTime();
 		[NonSerialized] public ETriState ValueHasChildren = ETriState.Indeterminate;
 #endif
@@ -63,6 +64,13 @@ namespace GuiToolkit
 				_ => _amount >= .5f ? _rhs : _lhs
 			};
 		}
+
+		// We define explicit comparison functions for time stamp; using operators might be too confusing, since it would be assumed that also the value would be compared.
+		public bool IsAccessTimeEqual(ApplicableValueBase _other) => m_dateTimeChanged.CompareTo(_other.m_dateTimeChanged) == 0;
+		public bool IsAccessTimeLater(ApplicableValueBase _other) => m_dateTimeChanged.CompareTo(_other.m_dateTimeChanged) == 1;
+		public bool IsAccessTimeEarlier(ApplicableValueBase _other) => m_dateTimeChanged.CompareTo(_other.m_dateTimeChanged) == -1;
+		public bool IsAccessTimeLaterOrEqual(ApplicableValueBase _other) => m_dateTimeChanged.CompareTo(_other.m_dateTimeChanged) != -1;
+		public bool IsAccessTimeEarlierOrEqual(ApplicableValueBase _other) => m_dateTimeChanged.CompareTo(_other.m_dateTimeChanged) != 1;
 	}
 	
 	[Serializable]

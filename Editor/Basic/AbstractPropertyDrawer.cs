@@ -86,19 +86,7 @@ namespace GuiToolkit.Editor
 			}
 
 			var drawRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width, propertyHeight);
-			var applicableValue = _property.managedReferenceValue as ApplicableValueBase;
-
-			if (applicableValue == null)
-			{
-				EditorGUI.PropertyField(drawRect, _property, _withChildren);
-				NextRect(propertyHeight);
-				return;
-			}
-
-			EditorGUI.BeginChangeCheck();
 			EditorGUI.PropertyField(drawRect, _property, _withChildren);
-			if (EditorGUI.EndChangeCheck())
-				applicableValue.Touch();
 
 			NextRect(propertyHeight);
 		}

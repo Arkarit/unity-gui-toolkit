@@ -1537,7 +1537,7 @@ MonoBehaviour:
       data:
         IsApplicable: 1
         m_dateTimeChanged:
-          m_ticks: 0
+          m_ticks: 638816871155528723
         m_value: {r: 0, g: 0.09019608, b: 0.12156863, a: 1}
     - rid: 107647820282200922
       type: {class: UiStyleUiGradientSimple/ApplicableValueColor, ns: GuiToolkit.Style,
@@ -5854,7 +5854,7 @@ MonoBehaviour:
         m_colorGradient:
           rid: 107648080256959111
         m_emojiFallbackSupport:
-          rid: -2
+          rid: 2290799089628479541
         m_enableAutoSizing:
           rid: 107648080256959120
         m_enabled:
@@ -5868,7 +5868,7 @@ MonoBehaviour:
         m_font:
           rid: 107648080256959105
         m_fontFeatures:
-          rid: -2
+          rid: 2290799089628479542
         m_fontSharedMaterial:
           rid: 107648080256959106
         m_fontSharedMaterials:
@@ -5908,7 +5908,7 @@ MonoBehaviour:
         m_textStyle:
           rid: 107648080256959115
         m_textWrappingMode:
-          rid: -2
+          rid: 2290799089628479543
         m_wordSpacing:
           rid: 107648080256959126
     - rid: 107648080256959057
@@ -6201,7 +6201,7 @@ MonoBehaviour:
         m_colorGradient:
           rid: 107648080256959237
         m_emojiFallbackSupport:
-          rid: -2
+          rid: 2290799089628479544
         m_enableAutoSizing:
           rid: 107648080256959246
         m_enabled:
@@ -6215,7 +6215,7 @@ MonoBehaviour:
         m_font:
           rid: 107648080256959231
         m_fontFeatures:
-          rid: -2
+          rid: 2290799089628479545
         m_fontSharedMaterial:
           rid: 107648080256959232
         m_fontSharedMaterials:
@@ -6255,7 +6255,7 @@ MonoBehaviour:
         m_textStyle:
           rid: 107648080256959241
         m_textWrappingMode:
-          rid: -2
+          rid: 2290799089628479546
         m_wordSpacing:
           rid: 107648080256959252
     - rid: 107648080256959068
@@ -6530,7 +6530,7 @@ MonoBehaviour:
         m_colorGradient:
           rid: 107648080256959350
         m_emojiFallbackSupport:
-          rid: -2
+          rid: 2290799089628479547
         m_enableAutoSizing:
           rid: 107648080256959359
         m_enabled:
@@ -6544,7 +6544,7 @@ MonoBehaviour:
         m_font:
           rid: 107648080256959344
         m_fontFeatures:
-          rid: -2
+          rid: 2290799089628479548
         m_fontSharedMaterial:
           rid: 107648080256959345
         m_fontSharedMaterials:
@@ -6584,7 +6584,7 @@ MonoBehaviour:
         m_textStyle:
           rid: 107648080256959354
         m_textWrappingMode:
-          rid: -2
+          rid: 2290799089628479549
         m_wordSpacing:
           rid: 107648080256959365
     - rid: 107648080256959084
@@ -6761,7 +6761,7 @@ MonoBehaviour:
         m_colorGradient:
           rid: 107648080256959449
         m_emojiFallbackSupport:
-          rid: -2
+          rid: 2290799089628479550
         m_enableAutoSizing:
           rid: 107648080256959458
         m_enabled:
@@ -6775,7 +6775,7 @@ MonoBehaviour:
         m_font:
           rid: 107648080256959443
         m_fontFeatures:
-          rid: -2
+          rid: 2290799089628479551
         m_fontSharedMaterial:
           rid: 107648080256959444
         m_fontSharedMaterials:
@@ -6815,7 +6815,7 @@ MonoBehaviour:
         m_textStyle:
           rid: 107648080256959453
         m_textWrappingMode:
-          rid: -2
+          rid: 2290799089628479552
         m_wordSpacing:
           rid: 107648080256959464
     - rid: 107648080256959087
@@ -6915,7 +6915,7 @@ MonoBehaviour:
         m_colorGradient:
           rid: 107648080256959515
         m_emojiFallbackSupport:
-          rid: -2
+          rid: 2290799089628479553
         m_enableAutoSizing:
           rid: 107648080256959524
         m_enabled:
@@ -6929,7 +6929,7 @@ MonoBehaviour:
         m_font:
           rid: 107648080256959509
         m_fontFeatures:
-          rid: -2
+          rid: 2290799089628479554
         m_fontSharedMaterial:
           rid: 107648080256959510
         m_fontSharedMaterials:
@@ -6969,7 +6969,7 @@ MonoBehaviour:
         m_textStyle:
           rid: 107648080256959519
         m_textWrappingMode:
-          rid: -2
+          rid: 2290799089628479555
         m_wordSpacing:
           rid: 107648080256959530
     - rid: 107648080256959089
@@ -11708,7 +11708,7 @@ MonoBehaviour:
       data:
         IsApplicable: 1
         m_dateTimeChanged:
-          m_ticks: 638816458793903268
+          m_ticks: 638816873114160315
         m_value: {r: 1, g: 1, b: 1, a: 1}
     - rid: 107648081670177476
       type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
@@ -13137,6 +13137,126 @@ MonoBehaviour:
           m_ticks: 0
         m_value: 
     - rid: 2290799087898853550
+      type: {class: UiStyleTMP_Text/ApplicableValueTextWrappingModes, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 0
+    - rid: 2290799089628479541
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 0
+    - rid: 2290799089628479542
+      type: {class: UiStyleTMP_Text/ApplicableValueListUnityEngineTextCoreOTL_FeatureTag,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 
+    - rid: 2290799089628479543
+      type: {class: UiStyleTMP_Text/ApplicableValueTextWrappingModes, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 0
+    - rid: 2290799089628479544
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 0
+    - rid: 2290799089628479545
+      type: {class: UiStyleTMP_Text/ApplicableValueListUnityEngineTextCoreOTL_FeatureTag,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 
+    - rid: 2290799089628479546
+      type: {class: UiStyleTMP_Text/ApplicableValueTextWrappingModes, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 0
+    - rid: 2290799089628479547
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 0
+    - rid: 2290799089628479548
+      type: {class: UiStyleTMP_Text/ApplicableValueListUnityEngineTextCoreOTL_FeatureTag,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 
+    - rid: 2290799089628479549
+      type: {class: UiStyleTMP_Text/ApplicableValueTextWrappingModes, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 0
+    - rid: 2290799089628479550
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 0
+    - rid: 2290799089628479551
+      type: {class: UiStyleTMP_Text/ApplicableValueListUnityEngineTextCoreOTL_FeatureTag,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 
+    - rid: 2290799089628479552
+      type: {class: UiStyleTMP_Text/ApplicableValueTextWrappingModes, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 0
+    - rid: 2290799089628479553
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 0
+    - rid: 2290799089628479554
+      type: {class: UiStyleTMP_Text/ApplicableValueListUnityEngineTextCoreOTL_FeatureTag,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_dateTimeChanged:
+          m_ticks: 0
+        m_value: 
+    - rid: 2290799089628479555
       type: {class: UiStyleTMP_Text/ApplicableValueTextWrappingModes, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
