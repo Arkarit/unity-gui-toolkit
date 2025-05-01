@@ -17,7 +17,7 @@ MonoBehaviour:
     m_scenePath: Assets/Scenes/SampleScene.unity
   - m_sceneAsset: {fileID: 102900000, guid: 04827ecb8ef6a8844ab32d24a23890ea, type: 3}
     m_scenePath: Assets/Scenes/DemoScene1.unity
-  m_loadMainSceneOnPlay: 1
+  m_loadMainSceneOnPlay: 0
   m_additionalScenesPath: Scenes/
   m_uiMainStyleConfig: {fileID: 11400000, guid: 7cb7aeb3672e49145b1d5baec8999a45,
     type: 2}

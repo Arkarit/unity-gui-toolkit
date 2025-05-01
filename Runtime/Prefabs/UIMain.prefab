@@ -121,6 +121,16 @@ MonoBehaviour:
     type: 3}
   m_cancelButtonPrefab: {fileID: 1623664846775371399, guid: e1923f16e8be62c4aaba24e33fec90d9,
     type: 3}
+  m_requesterPrefab: {fileID: 2126843345544139566, guid: d7b00544567b55d4c97d8eb3f48f4c44,
+    type: 3}
+  m_settingsDialogPrefab: {fileID: 2556751561047220986, guid: 22c52cc36085977418a4df5a7eb83ca9,
+    type: 3}
+  m_toastMessageViewPrefab: {fileID: 4628251921322500096, guid: f2f503a7e51d1b04b97312941698d8e1,
+    type: 3}
+  m_keyPressRequester: {fileID: 9179443079266827376, guid: 637592a4cbdecd047a54ddf9d2be9da9,
+    type: 3}
+  m_gridPickerPrefab: {fileID: 3321996524889286891, guid: d2dd1f4973a72b5499327442b0b0d326,
+    type: 3}
   m_stackAnimationType: 2
   m_stackMovedInCurve:
     serializedVersion: 2
@@ -188,16 +198,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_requesterPrefab: {fileID: 2126843345544139566, guid: d7b00544567b55d4c97d8eb3f48f4c44,
-    type: 3}
-  m_settingsDialogPrefab: {fileID: 2556751561047220986, guid: 22c52cc36085977418a4df5a7eb83ca9,
-    type: 3}
-  m_toastMessageViewPrefab: {fileID: 4628251921322500096, guid: f2f503a7e51d1b04b97312941698d8e1,
-    type: 3}
-  m_keyPressRequester: {fileID: 9179443079266827376, guid: 637592a4cbdecd047a54ddf9d2be9da9,
-    type: 3}
-  m_gridPickerPrefab: {fileID: 3321996524889286891, guid: d2dd1f4973a72b5499327442b0b0d326,
-    type: 3}
   m_camerasToDisableWhenFullScreenView: []
 --- !u!114 &2972006465301249288
 MonoBehaviour:
