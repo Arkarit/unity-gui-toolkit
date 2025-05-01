@@ -45,7 +45,6 @@ MonoBehaviour:
     - rid: 107647880834318955
     - rid: 107647889286365204
     - rid: 107647889286366017
-    - rid: 107647889527538637
     - rid: 107648059087520160
     - rid: 107648060340568338
     - rid: 107648060340568339
@@ -81,6 +80,7 @@ MonoBehaviour:
     - rid: 8590990584682382110
     - rid: 8590990584682382111
     - rid: 8590990584708334134
+    - rid: 2290798622902845884
   - m_config: {fileID: 11400000}
     m_name: Light
     m_alias: 
@@ -113,7 +113,6 @@ MonoBehaviour:
     - rid: 107648080256959079
     - rid: 107648080256959080
     - rid: 107648080256959081
-    - rid: 107648080256959082
     - rid: 107648080256959083
     - rid: 107648080256959084
     - rid: 107648080256959085
@@ -149,6 +148,7 @@ MonoBehaviour:
     - rid: 8590990584682382112
     - rid: 8590990584682382113
     - rid: 8590990584708334135
+    - rid: 2290798622902845885
   m_currentSkinIdx: 0
   references:
     version: 2
@@ -982,18 +982,18 @@ MonoBehaviour:
     - rid: 107647820282200401
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 18
     - rid: 107647820282200402
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 38
     - rid: 107647820282200403
       type: {class: UiStyleTMP_Text/ApplicableValueFontStyles, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 0
     - rid: 107647820282200404
       type: {class: UiStyleTMP_Text/ApplicableValueTextAlignmentOptions, ns: GuiToolkit.Style,
@@ -1181,8 +1181,8 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueTextAlignmentOptions, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
-        m_value: 514
+        IsApplicable: 0
+        m_value: 4098
     - rid: 107647820282200477
       type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -1566,7 +1566,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueMaterial, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: {fileID: 0}
     - rid: 107647876395958291
       type: {class: UiStyleTMP_Text/ApplicableValueMaterialArray, ns: GuiToolkit.Style,
@@ -2258,101 +2258,6 @@ MonoBehaviour:
           m_ColorSpace: -1
           m_NumColorKeys: 5
           m_NumAlphaKeys: 4
-    - rid: 107647889527538637
-      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_styleConfig: {fileID: 11400000}
-        m_name: Deco/Line/Horizontal
-        m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 107647889527538638
-        m_anchorMax:
-          rid: 107647889527538639
-        m_anchoredPosition:
-          rid: 107647889527538640
-        m_sizeDelta:
-          rid: 107647889527538641
-        m_pivot:
-          rid: 107647889527538642
-        m_offsetMin:
-          rid: 107647889527538643
-        m_offsetMax:
-          rid: 107647889527538644
-        m_localPosition:
-          rid: 107647889527538645
-        m_localEulerAngles:
-          rid: 107647889527538646
-        m_localRotation:
-          rid: 107647889527538647
-        m_localScale:
-          rid: 107647889527538648
-    - rid: 107647889527538638
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: 0, y: 0}
-    - rid: 107647889527538639
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: 1, y: 0}
-    - rid: 107647889527538640
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: -0.8800049, y: -16.049988}
-    - rid: 107647889527538641
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: 0.0000076293945, y: 30}
-    - rid: 107647889527538642
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {x: 0.5, y: 0.5}
-    - rid: 107647889527538643
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {x: -0.0000038146973, y: -15}
-    - rid: 107647889527538644
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {x: 0.0000038146973, y: 15}
-    - rid: 107647889527538645
-      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: -0.8800049, y: -556.05, z: 0}
-    - rid: 107647889527538646
-      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: -0, y: 0, z: 0}
-    - rid: 107647889527538647
-      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: 0, y: 0, z: 0, w: 1}
-    - rid: 107647889527538648
-      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: 1, y: 1, z: 1}
     - rid: 107647922185699361
       type: {class: UiStyleUiDistort/ApplicableValueBoolean, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -2907,7 +2812,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: 54
+        m_value: 46
     - rid: 107648060340568355
       type: {class: UiStyleTMP_Text/ApplicableValueFontWeight, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -2923,12 +2828,12 @@ MonoBehaviour:
     - rid: 107648060340568357
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 18
     - rid: 107648060340568358
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 72
     - rid: 107648060340568359
       type: {class: UiStyleTMP_Text/ApplicableValueFontStyles, ns: GuiToolkit.Style,
@@ -3107,7 +3012,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: 42
+        m_value: 36
     - rid: 107648060340568388
       type: {class: UiStyleTMP_Text/ApplicableValueFontWeight, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -5585,35 +5490,6 @@ MonoBehaviour:
           rid: 107648080256959330
         m_enabled:
           rid: 107648080256959331
-    - rid: 107648080256959082
-      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_styleConfig: {fileID: 11400000}
-        m_name: Deco/Line/Horizontal
-        m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 107648080256959332
-        m_anchorMax:
-          rid: 107648080256959333
-        m_anchoredPosition:
-          rid: 107648080256959334
-        m_sizeDelta:
-          rid: 107648080256959335
-        m_pivot:
-          rid: 107648080256959336
-        m_offsetMin:
-          rid: 107648080256959337
-        m_offsetMax:
-          rid: 107648080256959338
-        m_localPosition:
-          rid: 107648080256959339
-        m_localEulerAngles:
-          rid: 107648080256959340
-        m_localRotation:
-          rid: 107648080256959341
-        m_localScale:
-          rid: 107648080256959342
     - rid: 107648080256959083
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -6916,7 +6792,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueMaterial, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - rid: 107648080256959200
       type: {class: UiStyleTMP_Text/ApplicableValueMaterialArray, ns: GuiToolkit.Style,
@@ -7015,18 +6891,18 @@ MonoBehaviour:
     - rid: 107648080256959214
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 18
     - rid: 107648080256959215
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 28
     - rid: 107648080256959216
       type: {class: UiStyleTMP_Text/ApplicableValueFontStyles, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 0
     - rid: 107648080256959217
       type: {class: UiStyleTMP_Text/ApplicableValueTextAlignmentOptions, ns: GuiToolkit.Style,
@@ -7231,7 +7107,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueTextAlignmentOptions, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 514
     - rid: 107648080256959251
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
@@ -7730,72 +7606,6 @@ MonoBehaviour:
       data:
         IsApplicable: 1
         m_value: 0
-    - rid: 107648080256959332
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: 0, y: 0}
-    - rid: 107648080256959333
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: 1, y: 0}
-    - rid: 107648080256959334
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: -0.8800049, y: -16.049988}
-    - rid: 107648080256959335
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: 0.0000076293945, y: 30}
-    - rid: 107648080256959336
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {x: 0.5, y: 0.5}
-    - rid: 107648080256959337
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {x: -0.0000038146973, y: -3}
-    - rid: 107648080256959338
-      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {x: 0.0000038146973, y: 3}
-    - rid: 107648080256959339
-      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: -0.8800049, y: -556.05, z: 0}
-    - rid: 107648080256959340
-      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: -0, y: 0, z: 0}
-    - rid: 107648080256959341
-      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: 0, y: 0, z: 0, w: 1}
-    - rid: 107648080256959342
-      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
-        asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {x: 1, y: 1, z: 1}
     - rid: 107648080256959343
       type: {class: UiStyleTMP_Text/ApplicableValueString, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -8095,7 +7905,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: 54
+        m_value: 46
     - rid: 107648080256959391
       type: {class: UiStyleTMP_Text/ApplicableValueFontWeight, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -8111,12 +7921,12 @@ MonoBehaviour:
     - rid: 107648080256959393
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 18
     - rid: 107648080256959394
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: 72
     - rid: 107648080256959395
       type: {class: UiStyleTMP_Text/ApplicableValueFontStyles, ns: GuiToolkit.Style,
@@ -8344,7 +8154,7 @@ MonoBehaviour:
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: -61
+        m_value: -10
     - rid: 107648080256959433
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -9979,7 +9789,7 @@ MonoBehaviour:
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: {fileID: 21300000, guid: 32ba0b6c7552e3b44968b32ae2b1c722, type: 3}
+        m_value: {fileID: 21300000, guid: a13d7a258751b14499b8b99390ed5ed1, type: 3}
     - rid: 107648216986550295
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -10343,7 +10153,7 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
-        m_value: 0
+        m_value: 1
     - rid: 107648374073459399
       type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -10373,6 +10183,552 @@ MonoBehaviour:
         asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
+        m_value: 1
+    - rid: 2290798622902845884
+      type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: Text/Headline/VerySmall
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_text:
+          rid: 2290798622902845886
+        m_font:
+          rid: 2290798622902845887
+        m_fontSharedMaterial:
+          rid: 2290798622902845888
+        m_fontSharedMaterials:
+          rid: 2290798622902845889
+        m_color:
+          rid: 2290798622902845890
+        m_alpha:
+          rid: 2290798622902845891
+        m_enableVertexGradient:
+          rid: 2290798622902845892
+        m_colorGradient:
+          rid: 2290798622902845893
+        m_spriteAsset:
+          rid: 2290798622902845894
+        m_tintAllSprites:
+          rid: 2290798622902845895
+        m_styleSheet:
+          rid: 2290798622902845896
+        m_textStyle:
+          rid: 2290798622902845897
+        m_outlineColor:
+          rid: 2290798622902845898
+        m_outlineWidth:
+          rid: 2290798622902845899
+        m_fontSize:
+          rid: 2290798622902845900
+        m_fontWeight:
+          rid: 2290798622902845901
+        m_enableAutoSizing:
+          rid: 2290798622902845902
+        m_fontSizeMin:
+          rid: 2290798622902845903
+        m_fontSizeMax:
+          rid: 2290798622902845904
+        m_fontStyle:
+          rid: 2290798622902845905
+        m_alignment:
+          rid: 2290798622902845906
+        m_characterSpacing:
+          rid: 2290798622902845907
+        m_wordSpacing:
+          rid: 2290798622902845908
+        m_lineSpacing:
+          rid: 2290798622902845909
+        m_lineSpacingAdjustment:
+          rid: 2290798622902845910
+        m_paragraphSpacing:
+          rid: 2290798622902845911
+        m_characterWidthAdjustment:
+          rid: 2290798622902845912
+        m_overflowMode:
+          rid: 2290798622902845913
+        m_enableKerning:
+          rid: 2290798622902845914
+        m_extraPadding:
+          rid: 2290798622902845915
+        m_richText:
+          rid: 2290798622902845916
+        m_margin:
+          rid: 2290798622902845917
+        m_enabled:
+          rid: 2290798622902845918
+    - rid: 2290798622902845885
+      type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: Text/Headline/VerySmall
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_text:
+          rid: 2290798622902845919
+        m_font:
+          rid: 2290798622902845920
+        m_fontSharedMaterial:
+          rid: 2290798622902845921
+        m_fontSharedMaterials:
+          rid: 2290798622902845922
+        m_color:
+          rid: 2290798622902845923
+        m_alpha:
+          rid: 2290798622902845924
+        m_enableVertexGradient:
+          rid: 2290798622902845925
+        m_colorGradient:
+          rid: 2290798622902845926
+        m_spriteAsset:
+          rid: 2290798622902845927
+        m_tintAllSprites:
+          rid: 2290798622902845928
+        m_styleSheet:
+          rid: 2290798622902845929
+        m_textStyle:
+          rid: 2290798622902845930
+        m_outlineColor:
+          rid: 2290798622902845931
+        m_outlineWidth:
+          rid: 2290798622902845932
+        m_fontSize:
+          rid: 2290798622902845933
+        m_fontWeight:
+          rid: 2290798622902845934
+        m_enableAutoSizing:
+          rid: 2290798622902845935
+        m_fontSizeMin:
+          rid: 2290798622902845936
+        m_fontSizeMax:
+          rid: 2290798622902845937
+        m_fontStyle:
+          rid: 2290798622902845938
+        m_alignment:
+          rid: 2290798622902845939
+        m_characterSpacing:
+          rid: 2290798622902845940
+        m_wordSpacing:
+          rid: 2290798622902845941
+        m_lineSpacing:
+          rid: 2290798622902845942
+        m_lineSpacingAdjustment:
+          rid: 2290798622902845943
+        m_paragraphSpacing:
+          rid: 2290798622902845944
+        m_characterWidthAdjustment:
+          rid: 2290798622902845945
+        m_overflowMode:
+          rid: 2290798622902845946
+        m_enableKerning:
+          rid: 2290798622902845947
+        m_extraPadding:
+          rid: 2290798622902845948
+        m_richText:
+          rid: 2290798622902845949
+        m_margin:
+          rid: 2290798622902845950
+        m_enabled:
+          rid: 2290798622902845951
+    - rid: 2290798622902845886
+      type: {class: UiStyleTMP_Text/ApplicableValueString, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: Really Lorem?
+    - rid: 2290798622902845887
+      type: {class: UiStyleTMP_Text/ApplicableValueTMP_FontAsset, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 11400000, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
+    - rid: 2290798622902845888
+      type: {class: UiStyleTMP_Text/ApplicableValueMaterial, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 2100000, guid: ef3e0ac67c9c98e43b1ab1b7cab4c9eb, type: 2}
+    - rid: 2290798622902845889
+      type: {class: UiStyleTMP_Text/ApplicableValueMaterialArray, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+        - {fileID: 2100000, guid: ef3e0ac67c9c98e43b1ab1b7cab4c9eb, type: 2}
+    - rid: 2290798622902845890
+      type: {class: UiStyleTMP_Text/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 2290798622902845891
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2290798622902845892
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2290798622902845893
+      type: {class: UiStyleTMP_Text/ApplicableValueVertexGradient, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          topLeft: {r: 1, g: 0.6426992, b: 0, a: 1}
+          topRight: {r: 1, g: 0.6426992, b: 0, a: 1}
+          bottomLeft: {r: 1, g: 0.8598435, b: 0, a: 1}
+          bottomRight: {r: 1, g: 0.8598435, b: 0, a: 1}
+    - rid: 2290798622902845894
+      type: {class: UiStyleTMP_Text/ApplicableValueTMP_SpriteAsset, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2290798622902845895
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845896
+      type: {class: UiStyleTMP_Text/ApplicableValueTMP_StyleSheet, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2290798622902845897
+      type: {class: UiStyleTMP_Text/ApplicableValueTMP_Style, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          m_Name: Normal
+          m_HashCode: -1183493901
+          m_OpeningDefinition: 
+          m_ClosingDefinition: 
+          m_OpeningTagArray: 
+          m_ClosingTagArray: 
+          m_OpeningTagUnicodeArray: 
+          m_ClosingTagUnicodeArray: 
+    - rid: 2290798622902845898
+      type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          rgba: 4278190080
+    - rid: 2290798622902845899
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845900
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 24
+    - rid: 2290798622902845901
+      type: {class: UiStyleTMP_Text/ApplicableValueFontWeight, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 400
+    - rid: 2290798622902845902
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
+    - rid: 2290798622902845903
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 16
+    - rid: 2290798622902845904
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 24
+    - rid: 2290798622902845905
+      type: {class: UiStyleTMP_Text/ApplicableValueFontStyles, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 16
+    - rid: 2290798622902845906
+      type: {class: UiStyleTMP_Text/ApplicableValueTextAlignmentOptions, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 4098
+    - rid: 2290798622902845907
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: -2.16
+    - rid: 2290798622902845908
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845909
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: -61
+    - rid: 2290798622902845910
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845911
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845912
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845913
+      type: {class: UiStyleTMP_Text/ApplicableValueTextOverflowModes, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845914
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2290798622902845915
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845916
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2290798622902845917
+      type: {class: UiStyleTMP_Text/ApplicableValueVector4, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0, w: 0}
+    - rid: 2290798622902845918
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2290798622902845919
+      type: {class: UiStyleTMP_Text/ApplicableValueString, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: Really Lorem?
+    - rid: 2290798622902845920
+      type: {class: UiStyleTMP_Text/ApplicableValueTMP_FontAsset, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 11400000, guid: 6496142350aa65d4b8e8811d85ed2006, type: 2}
+    - rid: 2290798622902845921
+      type: {class: UiStyleTMP_Text/ApplicableValueMaterial, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 2100000, guid: ef3e0ac67c9c98e43b1ab1b7cab4c9eb, type: 2}
+    - rid: 2290798622902845922
+      type: {class: UiStyleTMP_Text/ApplicableValueMaterialArray, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+        - {fileID: 2100000, guid: ef3e0ac67c9c98e43b1ab1b7cab4c9eb, type: 2}
+    - rid: 2290798622902845923
+      type: {class: UiStyleTMP_Text/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 2290798622902845924
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2290798622902845925
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2290798622902845926
+      type: {class: UiStyleTMP_Text/ApplicableValueVertexGradient, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          topLeft: {r: 1, g: 0.6426992, b: 0, a: 1}
+          topRight: {r: 1, g: 0.6426992, b: 0, a: 1}
+          bottomLeft: {r: 1, g: 0.8598435, b: 0, a: 1}
+          bottomRight: {r: 1, g: 0.8598435, b: 0, a: 1}
+    - rid: 2290798622902845927
+      type: {class: UiStyleTMP_Text/ApplicableValueTMP_SpriteAsset, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2290798622902845928
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845929
+      type: {class: UiStyleTMP_Text/ApplicableValueTMP_StyleSheet, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2290798622902845930
+      type: {class: UiStyleTMP_Text/ApplicableValueTMP_Style, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          m_Name: Normal
+          m_HashCode: -1183493901
+          m_OpeningDefinition: 
+          m_ClosingDefinition: 
+          m_OpeningTagArray: 
+          m_ClosingTagArray: 
+          m_OpeningTagUnicodeArray: 
+          m_ClosingTagUnicodeArray: 
+    - rid: 2290798622902845931
+      type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          rgba: 4278190080
+    - rid: 2290798622902845932
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845933
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 24
+    - rid: 2290798622902845934
+      type: {class: UiStyleTMP_Text/ApplicableValueFontWeight, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 400
+    - rid: 2290798622902845935
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 2290798622902845936
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 16
+    - rid: 2290798622902845937
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 24
+    - rid: 2290798622902845938
+      type: {class: UiStyleTMP_Text/ApplicableValueFontStyles, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 16
+    - rid: 2290798622902845939
+      type: {class: UiStyleTMP_Text/ApplicableValueTextAlignmentOptions, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 4098
+    - rid: 2290798622902845940
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: -2.16
+    - rid: 2290798622902845941
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845942
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: -61
+    - rid: 2290798622902845943
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845944
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845945
+      type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845946
+      type: {class: UiStyleTMP_Text/ApplicableValueTextOverflowModes, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845947
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2290798622902845948
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2290798622902845949
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2290798622902845950
+      type: {class: UiStyleTMP_Text/ApplicableValueVector4, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0, w: 0}
+    - rid: 2290798622902845951
+      type: {class: UiStyleTMP_Text/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
         m_value: 1
     - rid: 8590990167029842940
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}

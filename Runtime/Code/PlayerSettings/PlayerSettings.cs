@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -63,8 +64,8 @@ namespace GuiToolkit
 			// Thus second iteration.
 			foreach (PlayerSetting playerSetting in _playerSettings )
 			{
-				playerSetting.InvokeEvents = true;
-				UiEventDefinitions.EvPlayerSettingChanged.Invoke(playerSetting);
+				playerSetting.AllowInvokeEvents = true;
+				playerSetting.InvokeEvents();
 			}
 		}
 
@@ -77,13 +78,22 @@ namespace GuiToolkit
 		public void TempSaveValues()
 		{
 			foreach (var kv in m_playerSettings)
-				kv.Value.TempSaveValue();
+			{
+				var playerSetting = kv.Value;
+				Log(playerSetting, "Saving");
+				playerSetting.TempSaveValue();
+			}
 		}
 
 		public void TempRestoreValues()
 		{
 			foreach (var kv in m_playerSettings)
-				kv.Value.TempRestoreValue();
+			{
+				var playerSetting = kv.Value;
+				playerSetting.TempRestoreValue();
+				playerSetting.InvokeEvents();
+				Log(playerSetting, "Restored");
+			}
 		}
 
 		public Dictionary<string, Dictionary<string, List<PlayerSetting>>> GetCategorized()
@@ -190,6 +200,12 @@ namespace GuiToolkit
 					break;
 				}
 			}
+		}
+
+		[System.Diagnostics.Conditional("DEBUG_PLAYER_SETTINGS")]
+		public static void Log(PlayerSetting _playerSetting, string _performedAction)
+		{
+			Debug.Log($"{_performedAction} player Setting '{_playerSetting.Key}' : {_playerSetting.Value}");
 		}
 
 	}

@@ -19,12 +19,19 @@ namespace GuiToolkit
 		[SerializeField] protected IShowHidePanelAnimation m_showHideAnimation;
 
 		// Additional events independent of the Show/Hide actions
-		public CEvent<UiPanel> OnShow = new CEvent<UiPanel>();
-		public CEvent<UiPanel> OnHide = new CEvent<UiPanel>();
-		public CEvent<UiPanel> OnDestroyed = new CEvent<UiPanel>();
+		public CEvent<UiPanel> EvOnBeginShow = new ();
+		public CEvent<UiPanel> EvOnEndShow = new ();
+		public CEvent<UiPanel> EvOnBeginHide = new ();
+		public CEvent<UiPanel> EvOnEndHide = new ();
+		public CEvent<UiPanel> EvOnDestroyed = new ();
 
 		public virtual bool AutoDestroyOnHide => false;
 		public virtual bool Poolable => false;
+
+		public virtual void OnBeginShow() {}
+		public virtual void OnEndShow() {}
+		public virtual void OnBeginHide() {}
+		public virtual void OnEndHide() {}
 
 		private bool m_defaultSceneVisibilityApplied;
 		private bool m_animationInitialized;
@@ -48,14 +55,6 @@ namespace GuiToolkit
 			InitAnimationIfNecessary();
 		}
 
-		private void OnEvHideInstant( Type _type )
-		{
-			if (GetType() == _type)
-			{
-				Hide(true);
-			}
-		}
-
 		// Have to make this public because c# programmers don't have friends. Shitty language. 
 		public virtual void OnPooled() { }
 
@@ -68,6 +67,9 @@ namespace GuiToolkit
 
 			if (Visible && !_instant)
 				return;
+
+			OnBeginShow();
+			EvOnBeginShow.Invoke(this);
 			Visible = true;
 
 			if (_instant)
@@ -76,14 +78,16 @@ namespace GuiToolkit
 				{
 					SimpleShowHideAnimation.StopViewAnimation(true);
 				}
-				OnShow.Invoke(this);
+				OnEndShow();
+				EvOnEndShow.Invoke(this);
 				_onFinish?.Invoke();
 				return;
 			}
 
 			SimpleShowHideAnimation.ShowViewAnimation(() =>
 			{
-				OnShow.Invoke(this);
+				OnEndShow();
+				EvOnEndShow.Invoke(this);
 				_onFinish?.Invoke();
 			});
 		}
@@ -95,6 +99,9 @@ namespace GuiToolkit
 
 			if (!Visible && !_instant)
 				return;
+
+			OnBeginHide();
+			EvOnBeginHide.Invoke(this);
 			Visible = false;
 
 			if (_instant)
@@ -103,7 +110,8 @@ namespace GuiToolkit
 				if (SimpleShowHideAnimation != null)
 					SimpleShowHideAnimation.StopViewAnimation(false);
 
-				OnHide.Invoke(this);
+				OnEndHide();
+				EvOnEndHide.Invoke(this);
 				_onFinish?.Invoke();
 
 				DestroyIfNecessary();
@@ -114,7 +122,8 @@ namespace GuiToolkit
 			{
 				gameObject.SetActive(false);
 
-				OnHide.Invoke(this);
+				OnEndHide();
+				EvOnEndHide.Invoke(this);
 				_onFinish?.Invoke(); 
 
 				DestroyIfNecessary();
@@ -136,8 +145,8 @@ namespace GuiToolkit
 
 			if (Poolable)
 			{
-				OnDestroyed.Invoke(this);
-				OnDestroyed.RemoveAllListeners();
+				EvOnDestroyed.Invoke(this);
+				EvOnDestroyed.RemoveAllListeners();
 				UiPool.Instance.DoDestroy(this);
 			}
 			else
@@ -146,7 +155,7 @@ namespace GuiToolkit
 
 		protected override void OnDestroy()
 		{
-			OnDestroyed.Invoke(this);
+			EvOnDestroyed.Invoke(this);
 			base.OnDestroy();
 		}
 

@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace GuiToolkit
 {
-	public abstract class UiButtonBase : UiTextContainer, IPointerDownHandler, IPointerUpHandler
+	public abstract class UiButtonBase : UiTextContainer, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 	{
 		[Tooltip("Simple animation (optional)")]
 		[SerializeField] protected UiSimpleAnimation m_simpleAnimation;
@@ -20,6 +13,12 @@ namespace GuiToolkit
 		[SerializeField] protected AudioSource m_audioSource;
 		[Tooltip("Button Image. Mandatory if you want to use the 'Color' property or the 'Enabled' property.")]
 		[SerializeField] protected UiImage m_uiImage;
+
+		[FormerlySerializedAs("m_optionalAdditionalMouseOver")]
+		[Tooltip("Additional mouse over graphic (optional)")]
+		[SerializeField] protected Graphic m_additionalMouseOver;
+		[Tooltip("Mouse over fade duration (optional)")]
+		[SerializeField] protected float m_additionalMouseOverDuration = 0.2f;
 
 		public override bool IsEnableableInHierarchy => true;
 
@@ -52,6 +51,18 @@ namespace GuiToolkit
 				return;
 			}
 			m_uiImage.SetSimpleGradientColors(_leftOrTop, _rightOrBottom);
+		}
+
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			OnPointerExit(null);
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			OnPointerExit(null);
 		}
 
 		public (Color leftOrTop, Color rightOrBottom) GetSimpleGradientColors()
@@ -88,6 +99,18 @@ namespace GuiToolkit
 				m_simpleAnimation.Play(true);
 		}
 
+		public void OnPointerEnter(PointerEventData _)
+		{
+			if (m_additionalMouseOver)
+				m_additionalMouseOver.CrossFadeColor(Color.white, m_additionalMouseOverDuration, false, true);
+		}
+
+		public void OnPointerExit(PointerEventData _)
+		{
+			if (m_additionalMouseOver)
+				m_additionalMouseOver.CrossFadeColor(Color.clear, m_additionalMouseOverDuration, false, true);
+		}
+
 #if UNITY_EDITOR
 		private void OnValidate()
 		{
@@ -96,39 +119,4 @@ namespace GuiToolkit
 #endif
 
 	}
-
-
-#if UNITY_EDITOR
-	[CustomEditor(typeof(UiButtonBase))]
-	public class UiButtonBaseEditor : UiTextContainerEditor
-	{
-		protected SerializedProperty m_simpleAnimationProp;
-		protected SerializedProperty m_audioSourceProp;
-		protected SerializedProperty m_uiImageProp;
-
-		static private bool m_toolsVisible;
-
-		public override void OnEnable()
-		{
-			base.OnEnable();
-			m_simpleAnimationProp = serializedObject.FindProperty("m_simpleAnimation");
-			m_audioSourceProp = serializedObject.FindProperty("m_audioSource");
-			m_uiImageProp = serializedObject.FindProperty("m_uiImage");
-		}
-
-		public override void OnInspectorGUI()
-		{
-			base.OnInspectorGUI();
-			UiButtonBase thisButtonBase = (UiButtonBase)target;
-
-			EditorGUILayout.PropertyField(m_uiImageProp);
-			EditorGUILayout.PropertyField(m_simpleAnimationProp);
-			EditorGUILayout.PropertyField(m_audioSourceProp);
-
-			serializedObject.ApplyModifiedProperties();
-		}
-
-	}
-#endif
-
 }

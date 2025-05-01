@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Events;
 
 
@@ -18,13 +19,18 @@ namespace GuiToolkit
 	/// An invocation can be enforced by calling InvokeAlways() even from editor code.
 	///
 	/// \note Although we usually don't use prefixes for classes, we do it here to not collide with UnityEngine.Event
+	[Serializable]
 	public class CEvent : UnityEvent
 	{
 		private readonly bool m_autoInvoke;
-		public CEvent(bool _autoInvoke = false) : base()
+		private bool m_guard;
+
+		public CEvent(bool _autoInvoke) : base()
 		{
 			m_autoInvoke = _autoInvoke;
 		}
+
+		public CEvent() : this(false) {}
 
 #if UNITY_EDITOR
 		public new void Invoke()
@@ -34,6 +40,17 @@ namespace GuiToolkit
 			base.Invoke();
 		}
 #endif
+
+		// Avoids stack overflows, if 2 events call each other
+		public void InvokeOnce()
+		{
+			if (m_guard)
+				return;
+			m_guard = true;
+			Invoke();
+			m_guard = false;
+		}
+
 		public void InvokeAlways() => base.Invoke();
 		public new void AddListener(UnityAction _call)
 		{
@@ -43,16 +60,19 @@ namespace GuiToolkit
 		}
 	}
 
+	[Serializable]
 	public class CEvent<T0> : UnityEvent<T0>
 	{
 		private bool m_canAutoInvoke;
 		private T0 m_lastT0;
+		private bool m_guard;
 
-		public CEvent( bool _canAutoInvoke = false,T0 autoInvokeStartValue = default) : base()
+		public CEvent( bool _canAutoInvoke,T0 autoInvokeStartValue = default) : base()
 		{
 			m_canAutoInvoke = _canAutoInvoke;
 			m_lastT0 = autoInvokeStartValue;
 		}
+		public CEvent() : this(false) {}
 
 		public new void Invoke(T0 _arg0)
 		{
@@ -64,6 +84,17 @@ namespace GuiToolkit
 				m_lastT0 = _arg0;
 
 			base.Invoke(_arg0);
+		}
+
+		// Avoids stack overflows, if 2 events call each other
+		public void InvokeOnce(T0 _arg0)
+		{
+			if (m_guard)
+				return;
+
+			m_guard = true;
+			Invoke(_arg0);
+			m_guard = false;
 		}
 
 		public void InvokeAlways(T0 _arg0)
@@ -87,14 +118,16 @@ namespace GuiToolkit
 		}
 	}
 
+	[Serializable]
 	public class CEvent<T0,T1> : UnityEvent<T0,T1>
 	{
 		private readonly bool m_canAutoInvoke;
 		private T0 m_lastT0;
 		private T1 m_lastT1;
+		private bool m_guard;
 
 		public CEvent(
-			bool _canAutoInvoke = false, 
+			bool _canAutoInvoke, 
 			T0 autoInvokeStartValue0 = default, 
 			T1 autoInvokeStartValue1 = default
 			) : base()
@@ -103,6 +136,8 @@ namespace GuiToolkit
 			m_lastT0 = autoInvokeStartValue0;
 			m_lastT1 = autoInvokeStartValue1;
 		}
+
+		public CEvent() : this(false) {}
 
 		public new void Invoke(T0 _arg0, T1 _arg1)
 		{
@@ -117,6 +152,17 @@ namespace GuiToolkit
 			}
 
 			base.Invoke(_arg0, _arg1);
+		}
+
+		// Avoids stack overflows, if 2 events call each other
+		public void InvokeOnce(T0 _arg0, T1 _arg1)
+		{
+			if (m_guard)
+				return;
+
+			m_guard = true;
+			Invoke(_arg0, _arg1);
+			m_guard = false;
 		}
 
 		public void InvokeAlways(T0 _arg0, T1 _arg1)
@@ -143,15 +189,17 @@ namespace GuiToolkit
 		}
 	}
 
+	[Serializable]
 	public class CEvent<T0,T1,T2> : UnityEvent<T0,T1,T2>
 	{
 		private readonly bool m_canAutoInvoke;
 		private T0 m_lastT0;
 		private T1 m_lastT1;
 		private T2 m_lastT2;
+		private bool m_guard;
 
 		public CEvent(
-			bool _canAutoInvoke = false, 
+			bool _canAutoInvoke, 
 			T0 autoInvokeStartValue0 = default, 
 			T1 autoInvokeStartValue1 = default, 
 			T2 autoInvokeStartValue2 = default
@@ -162,6 +210,8 @@ namespace GuiToolkit
 			m_lastT1 = autoInvokeStartValue1;
 			m_lastT2 = autoInvokeStartValue2;
 		}
+
+		public CEvent() : this(false) {}
 
 		public new void Invoke(T0 _arg0, T1 _arg1, T2 _arg2)
 		{
@@ -177,6 +227,16 @@ namespace GuiToolkit
 			}
 
 			base.Invoke(_arg0, _arg1, _arg2);
+		}
+
+		// Avoids stack overflows, if 2 events call each other
+		public void InvokeOnce(T0 _arg0, T1 _arg1, T2 _arg2)
+		{
+			if (m_guard)
+				return;
+			m_guard = true;
+			Invoke(_arg0, _arg1, _arg2);
+			m_guard = false;
 		}
 
 		public void InvokeAlways(T0 _arg0, T1 _arg1, T2 _arg2)
@@ -204,6 +264,7 @@ namespace GuiToolkit
 		}
 	}
 
+	[Serializable]
 	public class CEvent<T0,T1,T2,T3> : UnityEvent<T0,T1,T2,T3>
 	{
 		private readonly bool m_canAutoInvoke;
@@ -211,9 +272,10 @@ namespace GuiToolkit
 		private T1 m_lastT1;
 		private T2 m_lastT2;
 		private T3 m_lastT3;
+		private bool m_guard;
 
 		public CEvent(
-			bool _canAutoInvoke = false, 
+			bool _canAutoInvoke, 
 			T0 autoInvokeStartValue0 = default, 
 			T1 autoInvokeStartValue1 = default, 
 			T2 autoInvokeStartValue2 = default,
@@ -226,6 +288,8 @@ namespace GuiToolkit
 			m_lastT2 = autoInvokeStartValue2;
 			m_lastT3 = autoInvokeStartValue3;
 		}
+
+		public CEvent() : this(false) {}
 
 		public new void Invoke(T0 _arg0, T1 _arg1, T2 _arg2, T3 _arg3)
 		{
@@ -242,6 +306,16 @@ namespace GuiToolkit
 			}
 
 			base.Invoke(_arg0, _arg1, _arg2, _arg3);
+		}
+
+		// Avoids stack overflows, if 2 events call each other
+		public void InvokeOnce(T0 _arg0, T1 _arg1, T2 _arg2, T3 _arg3)
+		{
+			if (m_guard)
+				return;
+			m_guard = true;
+			Invoke(_arg0, _arg1, _arg2, _arg3);
+			m_guard = false;
 		}
 
 		public void InvokeAlways(T0 _arg0, T1 _arg1, T2 _arg2, T3 _arg3)

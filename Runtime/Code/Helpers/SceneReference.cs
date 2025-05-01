@@ -252,14 +252,14 @@ namespace GuiToolkit
 			// Missing from build scenes
 			if (buildScene.buildIndex == BuildSettingsUtility.SCENE_NOT_IN_BUILD)
 			{
-				iconContent = EditorGUIUtility.IconContent("d_winbtn_mac_close");
+				iconContent = EditorGUIUtility.IconContent("sv_label_6");
 				labelContent.text = "NOT In Build";
 				labelContent.tooltip = "This scene is NOT in build settings.\nIt will be NOT included in builds.";
 			}
 			// In build scenes and enabled
 			else if (buildScene.scene.enabled)
 			{
-				iconContent = EditorGUIUtility.IconContent("d_winbtn_mac_max");
+				iconContent = EditorGUIUtility.IconContent("sv_label_3");
 				mainScene = buildScene.buildIndex == 0;
 				if (mainScene)
 					labelContent.text = "Main Scene: 0";
@@ -270,7 +270,7 @@ namespace GuiToolkit
 			// In build scenes and disabled
 			else
 			{
-				iconContent = EditorGUIUtility.IconContent("d_winbtn_mac_min");
+				iconContent = EditorGUIUtility.IconContent("sv_label_4");
 				labelContent.text = "Disabled";
 				labelContent.tooltip = "This scene is in build settings and DISABLED.\nIt will be NOT included in builds.";
 			}

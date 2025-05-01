@@ -208,6 +208,8 @@ namespace GuiToolkit
 		}
 #endif
 
+		public static bool IsInternal = EditorFileUtility.GetApplicationDataDir().ToLower().Contains(".dev-app");
+
 		public static void SetStaticEditorFlagsInHierarchy(Transform _transform, StaticEditorFlags _flags, bool _replace = false, bool _log = true)
 		{
 			if (_transform == null)
@@ -346,6 +348,43 @@ namespace GuiToolkit
 			}
 		}
 
+		private static readonly HashSet<string> s_emptyStringHashSet = new();
+
+		public static void DrawInspectorExceptField( SerializedObject _serializedObject, string _fieldToSkip = null, string _header = null )
+		{
+			if (string.IsNullOrEmpty(_fieldToSkip))
+			{
+				DrawInspectorExceptFields(_serializedObject, s_emptyStringHashSet , _header);
+			}
+
+			DrawInspectorExceptFields(_serializedObject, new HashSet<string>() { _fieldToSkip }, _header);
+		}
+
+		public static void DrawInspectorExceptFields( SerializedObject _serializedObject, HashSet<string> _fieldsToSkip = null, string _header = null )
+		{
+			if (_serializedObject == null || _serializedObject.targetObject == null)
+			{
+				Debug.LogWarning($"serialized object or target object is null");
+				return;
+			}
+
+			_serializedObject.Update();
+
+			if (!string.IsNullOrEmpty(_header))
+				EditorGUILayout.LabelField(_header, EditorStyles.boldLabel);
+			if (_fieldsToSkip == null)
+				_fieldsToSkip = s_emptyStringHashSet;
+
+			ForeachPropertySerObj(_serializedObject, prop =>
+			{
+				if (_fieldsToSkip.Contains(prop.name))
+					return;
+
+				EditorGUILayout.PropertyField(_serializedObject.FindProperty(prop.name), true);
+			}, false);
+		}
+
+
 		public static void ForeachPropertySerObj(SerializedObject _serializedObject, Action<SerializedProperty> _action, bool _fullHierarchy = true)
 		{
 			if (_serializedObject == null || _serializedObject.targetObject == null)
@@ -363,10 +402,13 @@ namespace GuiToolkit
 				{
 					var prop2 = _serializedObject.FindProperty(prop.name);
 					_action.Invoke(prop2);
-					
-					SerializedProperty it = prop2.Copy();
-					while (it.Next(true))
-						_action.Invoke(it);
+
+					if (_fullHierarchy)
+					{
+						SerializedProperty it = prop2.Copy();
+						while (it.Next(true))
+							_action.Invoke(it);
+					}
 				}
 				while (prop.NextVisible(false));
 			}

@@ -1,9 +1,4 @@
 ﻿using UnityEngine;
-using System;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace GuiToolkit
 {
@@ -51,26 +46,5 @@ namespace GuiToolkit
 			if (Toggle.isOn && UiScrollRect != null)
 				UiScrollRect.EnsureChildVisibility(RectTransform, true);
 		}
-
 	}
-
-#if UNITY_EDITOR
-	[CustomEditor(typeof(UiTab))]
-	public class UiTabEditor : UiToggleEditor
-	{
-		protected SerializedProperty m_ensureVisibilityInScrollRectProp;
-
-		public override void OnEnable()
-		{
-			base.OnEnable();
-			m_ensureVisibilityInScrollRectProp = serializedObject.FindProperty("m_ensureVisibilityInScrollRect");
-		}
-
-		public override void OnInspectorGUI()
-		{
-			EditorGUILayout.PropertyField(m_ensureVisibilityInScrollRectProp);
-			base.OnInspectorGUI();
-		}
-	}
-#endif
 }

@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -15,15 +15,15 @@ namespace GuiToolkit
 	[RequireComponent(typeof(GraphicRaycaster))]
 	public class UiView : UiPanel
 	{
-		[SerializeField]
-		protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
-
-		[SerializeField]
-		protected bool m_isFullScreen;
+		[SerializeField] protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
+		[SerializeField] protected bool m_isFullScreen;
+		[Tooltip("Uses the global canvas scaler template in Ui toolkit configuration (if it is set)")]
+		[SerializeField] protected bool m_useGlobalCanvasScalerTemplate = true;
 
 		private UiModal m_uiModal;
 		private bool m_uiModalChecked;
 		private Canvas m_canvas;
+		private CanvasScaler m_canvasScaler;
 		
 		public Canvas Canvas {
 			get
@@ -31,6 +31,15 @@ namespace GuiToolkit
 				if (m_canvas == null)
 					m_canvas = GetComponent<Canvas>();
 				return m_canvas;
+			}
+		}
+
+		public CanvasScaler CanvasScaler {
+			get
+			{
+				if (m_canvasScaler == null)
+					m_canvasScaler = GetComponent<CanvasScaler>();
+				return m_canvasScaler;
 			}
 		}
 
@@ -52,7 +61,13 @@ namespace GuiToolkit
 		protected Action OnClickCatcher
 		{
 			get => UiModal == null ? null : UiModal.OnClickCatcher;
-			set { if (UiModal == null) return; UiModal.OnClickCatcher = value; }
+			set
+			{
+				if (UiModal == null) 
+					return; 
+				
+				UiModal.OnClickCatcher = value;
+			}
 		}
 
 		public void InitView(RenderMode _renderMode, Camera _camera, float _planeDistance, int _orderInLayer)
@@ -62,6 +77,20 @@ namespace GuiToolkit
 			Canvas.worldCamera = _camera;
 			Canvas.planeDistance = _planeDistance;
 			Canvas.sortingOrder = _orderInLayer;
+		}
+
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			var globalCanvasScalerTemplate = UiToolkitConfiguration.Instance.m_globalCanvasScalerTemplate;
+			if (globalCanvasScalerTemplate && m_useGlobalCanvasScalerTemplate)
+				StartCoroutine(ApplyGlobalCanvasScalerTemplateDelayed(globalCanvasScalerTemplate));
+		}
+		
+		protected IEnumerator ApplyGlobalCanvasScalerTemplateDelayed(CanvasScaler _template)
+		{
+			yield return 0;
+			_template.CopyTo(CanvasScaler);
 		}
 
 		public override void Show(bool _instant = false, Action _onFinish = null)

@@ -1,11 +1,7 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace GuiToolkit
 {
@@ -42,7 +38,10 @@ namespace GuiToolkit
 		/// Override to remove your event listeners.
 		protected virtual void RemoveEventListeners() {}
 
+		protected readonly List<(UiButton button, UnityAction action)> m_buttonListeners = new();
+
 		private bool m_eventListenersAdded = false;
+		private bool m_isAwake = false;
 
 		public RectTransform RectTransform => transform as RectTransform;
 
@@ -64,11 +63,12 @@ namespace GuiToolkit
 
 				UiThing[] childComponents = GetComponentsInChildren<UiThing>();
 
-				// We can no call 'Enabled' recursively - otherwise every called child would call recursively too
+				// We can not call 'Enabled' recursively - otherwise every called child would call recursively too
 				foreach (var childComponent in childComponents)
 				{
 					if (!childComponent.IsEnableableInHierarchy)
 						continue;
+
 					if (childComponent.m_enabledInHierarchy != value)
 					{
 						childComponent.m_enabledInHierarchy = value;
@@ -83,6 +83,18 @@ namespace GuiToolkit
 		protected virtual void OnLanguageChanged( string _languageId ){}
 		protected virtual void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation ){}
 
+
+		/// Call this in Awake(), before calling base.Awake()!
+		protected void AddOnEnableButtonListeners(params (UiButton button, UnityAction action)[] _listeners)
+		{
+			if (m_isAwake)
+			{
+				Debug.LogError("Call this in Awake(), before calling base.Awake() please!");
+				return;
+			}
+
+			m_buttonListeners.AddRange(_listeners);
+		}
 
 		/// \brief Install Event handlers on disabled objects
 		/// 
@@ -121,6 +133,8 @@ namespace GuiToolkit
 				AddEventListeners();
 				m_eventListenersAdded = true;
 			}
+
+			m_isAwake = true;
 		}
 
 		/// Installs event listeners, if not ReceiveEventsWhenDisabled
@@ -136,6 +150,14 @@ namespace GuiToolkit
 			{
 				AddEventListeners();
 				m_eventListenersAdded = true;
+			}
+
+			foreach (var buttonListener in m_buttonListeners)
+			{
+				if (buttonListener.button == null || buttonListener.action == null)
+					continue;
+
+				buttonListener.button.OnClick.AddListener(buttonListener.action);
 			}
 		}
 
@@ -153,6 +175,14 @@ namespace GuiToolkit
 				RemoveEventListeners();
 				m_eventListenersAdded = false;
 			}
+
+			foreach (var buttonListener in m_buttonListeners)
+			{
+				if (buttonListener.button == null || buttonListener.action == null)
+					continue;
+
+				buttonListener.button.OnClick.RemoveListener(buttonListener.action);
+			}
 		}
 
 		/// Removes event listeners, if ReceiveEventsWhenDisabled
@@ -165,34 +195,4 @@ namespace GuiToolkit
 			}
 		}
 	}
-
-#if UNITY_EDITOR
-	[CustomEditor(typeof(UiThing))]
-	public class UiThingEditor : Editor
-	{
-		protected SerializedProperty m_enabledInHierarchyProp;
-
-		public virtual void OnEnable()
-		{
-			m_enabledInHierarchyProp = serializedObject.FindProperty("m_enabledInHierarchy");
-		}
-
-		public override void OnInspectorGUI()
-		{
-			UiThing thisUiThing = (UiThing)target;
-
-			if (thisUiThing.IsEnableableInHierarchy)
-			{
-				EditorGUILayout.PropertyField(m_enabledInHierarchyProp);
-				thisUiThing.EnabledInHierarchy = m_enabledInHierarchyProp.boolValue;
-			}
-
-			serializedObject.ApplyModifiedProperties();
-		}
-
-	}
-#endif
-
-
-
 }

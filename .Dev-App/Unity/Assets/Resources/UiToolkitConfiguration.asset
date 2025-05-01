@@ -24,5 +24,7 @@ MonoBehaviour:
   m_uiOrientationDependentStyleConfig: {fileID: 11400000, guid: b7be8004b5d01894a843b672cf9da74b,
     type: 2}
   m_debugLoca: 1
+  m_globalCanvasScalerTemplate: {fileID: 8089787022656624402, guid: e9cd0258ba364f949a56da745971e968,
+    type: 3}
   m_potPath: Assets/Resources/loca.pot
   m_generatedAssetsDir: Assets/Generated/

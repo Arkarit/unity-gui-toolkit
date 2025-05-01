@@ -270,6 +270,21 @@ PrefabInstance:
       propertyPath: m_name
       value: Buttons/Radio/Background
       objectReference: {fileID: 0}
+    - target: {fileID: 7501671188524893417, guid: 937768391efe18040b14fc35df1aef28,
+        type: 3}
+      propertyPath: m_text
+      value: Radiobutton
+      objectReference: {fileID: 0}
+    - target: {fileID: 7501671188524893417, guid: 937768391efe18040b14fc35df1aef28,
+        type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 9188300816248070337, guid: 937768391efe18040b14fc35df1aef28,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9188300816248070337, guid: 937768391efe18040b14fc35df1aef28,
         type: 3}
       propertyPath: m_EffectColor.a
@@ -302,6 +317,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57bc3011770ca1346a002a705abd54de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isResolutionDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Buttons/Radio/SelectionMarker
   m_fixedSkinName: 

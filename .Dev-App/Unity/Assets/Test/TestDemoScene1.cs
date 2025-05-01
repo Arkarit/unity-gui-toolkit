@@ -3,6 +3,7 @@ using System;
 using GuiToolkit.Style;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class TestDemoScene1 : UiView
@@ -12,6 +13,7 @@ public class TestDemoScene1 : UiView
 	public Button m_showRequesterButton;
 	public Button m_showSettings;
 	public Button m_exampleDialogStylesButton;
+	public Button m_showDatePickerButton;
 
 	public TMP_InputField m_splashMessageInput;
 	public TMP_InputField m_requesterTitleInput;
@@ -32,6 +34,30 @@ public class TestDemoScene1 : UiView
 		m_showRequesterButton.onClick.AddListener(OnShowRequester);
 		m_showSettings.onClick.AddListener(OnShowSettings);
 		m_exampleDialogStylesButton.onClick.AddListener(OnExampleDialogStylesButton);
+		m_showDatePickerButton.onClick.AddListener(OnShowDatePickerButton);
+	}
+
+	private void OnShowDatePickerButton()
+	{
+		UiMain.Instance.CreateRequester(requester =>
+		{
+			return new UiRequester.Options()
+			{
+				Title = "Enter Time and Date",
+				ButtonInfos = UiRequester.CreateButtonInfos
+				(
+					("Ok", () =>
+					{
+						Debug.Log($"Selected date / time: {requester.GetDateTime()}");
+					}),
+					("Cancel", null)
+				),
+				DateTimeOptions = new UiDateTimePanel.Options()
+				{
+//					ShowTime = false,
+				}
+			};
+		});
 	}
 
 	private void OnExampleDialogStylesButton()

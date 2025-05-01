@@ -24,6 +24,12 @@ namespace GuiToolkit.Style
 		protected override void OnEnable()
 		{
 			base.OnEnable();
+			
+#if UNITY_EDITOR
+			if (EditorAssetUtility.IsBeingImportedFirstTime(EditorPath))
+				return;
+#endif
+			
 			var instance = Instance;
 			if (instance.NumSkins == 0)
 			{

@@ -85,7 +85,7 @@ Camera:
   m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
+  m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
 --- !u!114 &7267538138393596992
@@ -115,6 +115,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_renderMode: 1
   m_layerDistance: 0.02
+  m_standardButtonPrefab: {fileID: 6944983982311379129, guid: 21a8687b0161cb048a99736c000f6da3,
+    type: 3}
+  m_okButtonPrefab: {fileID: 6699359830296575514, guid: ffe5dd8cf41b8e140b7de326263eedd8,
+    type: 3}
+  m_cancelButtonPrefab: {fileID: 1623664846775371399, guid: e1923f16e8be62c4aaba24e33fec90d9,
+    type: 3}
   m_stackAnimationType: 2
   m_stackMovedInCurve:
     serializedVersion: 2
@@ -189,6 +195,8 @@ MonoBehaviour:
   m_toastMessageViewPrefab: {fileID: 4628251921322500096, guid: f2f503a7e51d1b04b97312941698d8e1,
     type: 3}
   m_keyPressRequester: {fileID: 9179443079266827376, guid: 637592a4cbdecd047a54ddf9d2be9da9,
+    type: 3}
+  m_gridPickerPrefab: {fileID: 3321996524889286891, guid: d2dd1f4973a72b5499327442b0b0d326,
     type: 3}
   m_camerasToDisableWhenFullScreenView: []
 --- !u!114 &2972006465301249288
@@ -281,8 +289,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_defaultSceneVisibility: 4
+  EvOnBeginShow:
+    m_PersistentCalls:
+      m_Calls: []
+  EvOnEndShow:
+    m_PersistentCalls:
+      m_Calls: []
+  EvOnBeginHide:
+    m_PersistentCalls:
+      m_Calls: []
+  EvOnEndHide:
+    m_PersistentCalls:
+      m_Calls: []
+  EvOnDestroyed:
+    m_PersistentCalls:
+      m_Calls: []
   m_layer: 200
   m_isFullScreen: 0
+  m_useGlobalCanvasScalerTemplate: 1
 --- !u!114 &7267538138489494619
 MonoBehaviour:
   m_ObjectHideFlags: 0

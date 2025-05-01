@@ -9,20 +9,20 @@ namespace GuiToolkit.Style.Editor
 	public static class UiStyleEditorUtility
 	{
 		public const string NoFixedSkinEntry = "<Use Global Skin>";
-		
+
 		private class DisplayStyleHelperObject : ScriptableObject
 		{
 			[SerializeReference]
 			public UiAbstractStyleBase Style;
 		}
-		
+
 		private class DisplayStyleHelperObjectEditor : UnityEditor.Editor
 		{
 			public override void OnInspectorGUI()
 			{
 				try
 				{
-					DrawInspectorExcept(serializedObject, "m_Script");
+					EditorGeneralUtility.DrawInspectorExceptField(serializedObject, "m_Script");
 				}
 				catch
 				{
@@ -34,33 +34,33 @@ namespace GuiToolkit.Style.Editor
 				}
 			}
 		}
-		
+
 		private static DisplayStyleHelperObject s_styleHelper;
 		private static DisplayStyleHelperObjectEditor s_styleHelperEditor;
-		
+
 		private static DisplayStyleHelperObject StyleHelper
 		{
 			get
 			{
 				if (s_styleHelper == null)
 					s_styleHelper = ScriptableObject.CreateInstance<DisplayStyleHelperObject>();
-				
+
 				return s_styleHelper;
 			}
 		}
-		
+
 		private static UnityEditor.Editor StyleHelperEditor
 		{
 			get
 			{
 				if (s_styleHelperEditor == null || s_styleHelperEditor.serializedObject == null || s_styleHelperEditor.target == null)
-					s_styleHelperEditor = (DisplayStyleHelperObjectEditor) UnityEditor.Editor.CreateEditor(StyleHelper, typeof(DisplayStyleHelperObjectEditor));
-				
+					s_styleHelperEditor = (DisplayStyleHelperObjectEditor)UnityEditor.Editor.CreateEditor(StyleHelper, typeof(DisplayStyleHelperObjectEditor));
+
 				return s_styleHelperEditor;
 			}
 		}
-		
-		public static string GetSelectSkinPopup(UiStyleConfig _config, string _currentAlias, out bool _hasChanged, bool _isFixedSkin = false)
+
+		public static string GetSelectSkinPopup( UiStyleConfig _config, string _currentAlias, out bool _hasChanged, bool _isFixedSkin = false )
 		{
 			_hasChanged = false;
 			var skinNames = _config.SkinNames;
@@ -90,9 +90,9 @@ namespace GuiToolkit.Style.Editor
 				if (string.IsNullOrEmpty(currentAlias))
 					currentAlias = NoFixedSkinEntry;
 			}
-			
+
 			var skinIdx = EditorUiUtility.StringPopup("Skin", skinAliases, currentAlias, out string selectedEntry,
-				    null, false, "Add Skin", "Adds a new skin", null, additionalContent); 
+					null, false, "Add Skin", "Adds a new skin", null, additionalContent);
 
 			if (_isFixedSkin)
 			{
@@ -104,10 +104,10 @@ namespace GuiToolkit.Style.Editor
 						return null;
 					}
 				}
-				
+
 				skinIdx--;
 			}
-			
+
 			if (skinIdx >= 0)
 			{
 				bool userSelectedNewEntry = skinIdx >= numSkins;
@@ -119,18 +119,18 @@ namespace GuiToolkit.Style.Editor
 				_hasChanged = true;
 				return selectedEntry;
 			}
-			
+
 			return _currentAlias;
 		}
-		
-		public static void SelectSkinByPopup(UiStyleConfig _config)
+
+		public static void SelectSkinByPopup( UiStyleConfig _config )
 		{
 			var currentSkinAlias = _config.CurrentSkinAlias;
 			_config.CurrentSkinAlias = GetSelectSkinPopup(_config, currentSkinAlias, out bool _);
 		}
-		
+
 		// Draw a style in the inspector without the need to actually [SerializeReference] it (which totally bloats stuff)
-		public static void DrawStyle(UiAbstractApplyStyleBase _applier, UiAbstractStyleBase _style)
+		public static void DrawStyle( UiAbstractApplyStyleBase _applier, UiAbstractStyleBase _style )
 		{
 			EditorGUILayout.LabelField("Currently used Style:");
 			if (_style == null)
@@ -139,45 +139,16 @@ namespace GuiToolkit.Style.Editor
 				EditorGUILayout.Space(10);
 				return;
 			}
-			
+
 			_applier.SetSkinListeners(true);
 			var styleHelper = StyleHelper;
 			styleHelper.Style = _style;
 			StyleHelperEditor.OnInspectorGUI();
 			_applier.SetSkinListeners(!_applier.SkinIsFixed);
 		}
-		
-        private static void DrawInspectorExcept(SerializedObject _serializedObject, string _fieldToSkip)
-        {
-            DrawInspectorExcept(_serializedObject, new [] { _fieldToSkip });
-        }
-
-        private static void DrawInspectorExcept(SerializedObject _serializedObject, string[] _fieldsToSkip)
-        {
-	        if (_serializedObject == null || _serializedObject.targetObject == null)
-	        {
-				Debug.LogWarning($"serialized object or target object is null");
-		        return;
-	        }
-
-	        _serializedObject.Update();
-            SerializedProperty prop = _serializedObject.GetIterator();
-            if (prop.NextVisible(true))
-            {
-                do
-                {
-                    if (_fieldsToSkip.Any(prop.name.Contains))
-                        continue;
-
-                    EditorGUILayout.PropertyField(_serializedObject.FindProperty(prop.name), true);
-                }
-                while (prop.NextVisible(false));
-            }
-            _serializedObject.ApplyModifiedProperties();
-        }
 
 		// both _name and _copyFromName have to be the actual names and not aliases
-		public static string AddSkin(UiStyleConfig _config, string _name, string _copyFromName = null)
+		public static string AddSkin( UiStyleConfig _config, string _name, string _copyFromName = null )
 		{
 			if (_config.SkinNames.Contains(_name))
 				return string.Empty;

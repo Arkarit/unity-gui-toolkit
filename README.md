@@ -1,6 +1,10 @@
 # unity-gui-toolkit
 Generic Unity GUI toolkit
 
+Please note that this gui toolkit for Unity is heavy work in progress.
+Especially, there is no documentation yet, except doxygen (but thats also very incomplete)
+It is however usable at least partially.
+
 ## Installation
 
 ### As a Unity package:

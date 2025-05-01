@@ -1,0 +1,129 @@
+using System.Collections.Generic;
+using System.IO;
+using Codice.CM.SEIDInfo;
+using UnityEngine;
+using UnityEditor;
+
+namespace GuiToolkit.Editor
+{
+	[CustomEditor(typeof(UiMain))]
+	public class UiMainEditor : UnityEditor.Editor
+	{
+		private const string DefaultClonePath = "Assets/Prefabs/ui-toolkit-variants";
+		
+		private SerializedProperty m_standardButtonPrefabProp;
+		private SerializedProperty m_okButtonPrefabProp;
+		private SerializedProperty m_cancelButtonPrefabProp;
+		private SerializedProperty m_requesterPrefabProp;
+		private SerializedProperty m_settingsDialogPrefabProp;
+		private SerializedProperty m_toastMessageViewPrefabProp;
+		private SerializedProperty m_keyPressRequesterProp;
+		private SerializedProperty m_gridPickerPrefabProp;
+		
+		private readonly List<SerializedProperty> m_prefabProperties = new();
+		private string m_clonePath = DefaultClonePath;
+		
+		private void OnEnable()
+		{
+			m_prefabProperties.Clear();
+			FindProperty(ref m_standardButtonPrefabProp, "m_standardButtonPrefab");
+			FindProperty(ref m_okButtonPrefabProp, "m_okButtonPrefab");
+			FindProperty(ref m_cancelButtonPrefabProp, "m_cancelButtonPrefab");
+			FindProperty(ref m_requesterPrefabProp, "m_requesterPrefab");
+			FindProperty(ref m_settingsDialogPrefabProp, "m_settingsDialogPrefab");
+			FindProperty(ref m_toastMessageViewPrefabProp, "m_toastMessageViewPrefab");
+			FindProperty(ref m_keyPressRequesterProp, "m_keyPressRequester");
+			FindProperty(ref m_gridPickerPrefabProp, "m_gridPickerPrefab");
+		}
+		
+		private void FindProperty(ref SerializedProperty _property, string _name)
+		{
+			_property = serializedObject.FindProperty(_name);
+			m_prefabProperties.Add(_property);
+		}
+
+		public override void OnInspectorGUI()
+		{
+			DrawDefaultInspector();
+
+			if (IsAnyPrefabCloned())
+			{
+				m_clonePath = EditorFileUtility.PathFieldReadFolder("Prefab Path", m_clonePath);
+				if (GUILayout.Button("Create Default Prefabs Variants"))
+					CloneDefaultPrefabs();
+			}
+
+			serializedObject.ApplyModifiedProperties();
+		}
+
+		private bool IsAnyPrefabCloned()
+		{
+			foreach (var property in m_prefabProperties)
+			{
+				if (EditorAssetUtility.IsPackagesOrInternalAsset(property.objectReferenceValue))
+					return true;
+			}
+			
+			return false;
+		}
+		
+		private void CloneDefaultPrefabs()
+		{
+			for (int i=0; i<m_prefabProperties.Count; i++)
+			{
+				var property = m_prefabProperties[i];
+				if (EditorAssetUtility.IsPackagesOrInternalAsset(property.objectReferenceValue))
+					Clone(ref property);
+			}
+		}
+
+		private void Clone(ref SerializedProperty _property)
+		{
+			var obj = _property.objectReferenceValue;
+			if (!obj)
+				return;
+			
+			var component = obj as Component;
+			if (!component)
+				return;
+			
+			if (!EditorAssetUtility.IsPackagesOrInternalAsset(component))
+				return;
+			
+			var assetPath = AssetDatabase.GetAssetPath(component);
+			if (string.IsNullOrEmpty(assetPath))
+				return;
+			
+			var asset = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+			if (!asset)
+				return;
+			
+			var filename = Path.GetFileNameWithoutExtension(assetPath);
+			var extension = Path.GetExtension(assetPath);
+			var newAssetPath = $"{m_clonePath}/{filename}{extension}";
+			var variantName = $"{filename}Variant{extension}";
+			var variantPath = $"{m_clonePath}/{variantName}";
+			
+			if (File.Exists(variantPath))
+			{
+				var existing = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
+				_property.objectReferenceValue = existing;
+				return;
+			}
+			
+			var prefab = PrefabUtility.InstantiatePrefab(asset) as GameObject;
+			if (!prefab)
+				return;
+			
+			EditorFileUtility.EnsureFolderExists(m_clonePath);
+			var variant = PrefabUtility.SaveAsPrefabAsset(prefab, newAssetPath);
+			
+			var componentInClone = EditorGeneralUtility.FindMatchingChildInPrefab(variant, component.gameObject);
+			_property.objectReferenceValue = componentInClone;
+			
+			AssetDatabase.RenameAsset(newAssetPath, variantName);
+			
+			prefab.SafeDestroy();
+		}
+	}
+}
