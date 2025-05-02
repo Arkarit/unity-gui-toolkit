@@ -1,3 +1,4 @@
+using Codice.CM.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,6 +28,8 @@ namespace GuiToolkit.Style.Editor
 		private static readonly UiStyleEditorFilter s_filter = new();
 		private static bool s_synchronizeFoldouts = false;
 		private static ESortType s_sortType;
+		private static bool s_toolsExpanded;
+		private static string s_mergePath = Application.dataPath;
 
 
 		public static UiStyleEditorFilter DisplayFilter => s_filter;
@@ -75,30 +78,84 @@ namespace GuiToolkit.Style.Editor
 			s_sortType = (ESortType) EditorGUILayout.EnumPopup("Sort by", s_sortType);
 			s_synchronizeFoldouts = EditorGUILayout.Toggle("Synchronize Foldouts", s_synchronizeFoldouts);
 
-			EditorGUILayout.BeginHorizontal();
-			if (GUILayout.Button("Export to JSON"))
-				if (ExportToJson())
-				{
-					GUIUtility.ExitGUI();
-					return;
-				}
-			
-			if (GUILayout.Button("Import from JSON"))
-				if (ImportFromJson())
-				{
-					GUIUtility.ExitGUI();
-					return;
-				}
-			
-			EditorGUILayout.EndHorizontal();
-			
 			EditorGUILayout.Space(10);
+			s_toolsExpanded = EditorGUILayout.Foldout(s_toolsExpanded, "Tools");
+			if (s_toolsExpanded)
+			{
+				EditorGUILayout.BeginHorizontal();
+				Label("JSON tools");
+				if (GUILayout.Button("Export to JSON"))
+				{
+					if (ExportToJson())
+					{
+						GUIUtility.ExitGUI();
+						return;
+					}
+				}
+
+				if (GUILayout.Button("Import from JSON"))
+				{
+					if (ImportFromJson())
+					{
+						GUIUtility.ExitGUI();
+						return;
+					}
+				}
+
+				EditorGUILayout.EndHorizontal();
+				EditorGUILayout.Space(5);
+
+				EditorGUILayout.BeginHorizontal();
+				Label("Merge tools");
+				if (GUILayout.Button("Merge into this UiStyleConfig"))
+				{
+					if (Merge())
+					{
+						GUIUtility.ExitGUI();
+						return;
+					}
+				}
+
+				EditorGUILayout.EndHorizontal();
+
+			}
+
+			EditorGUILayout.Space(10);
+
 			Draw();
 
 
 			serializedObject.ApplyModifiedProperties();
 		}
 
+		private bool Merge()
+		{
+			var path = EditorUtility.OpenFilePanel("Select Style Config to merge", s_mergePath, "asset");
+			if (string.IsNullOrEmpty(path))
+				return false;
+			s_mergePath = Path.GetDirectoryName(path);
+			var unityPath = EditorFileUtility.GetUnityPathInternal(path, false, true);
+			var otherConfig = AssetDatabase.LoadAssetAtPath<UiStyleConfig>(unityPath);
+			if (!otherConfig)
+			{
+				EditorUtility.DisplayDialog("Invalid asset",
+					$"The file '{path}' seems not to be a {nameof(UiStyleConfig)} and can't be merged.", "Ok");
+				return false;
+			}
+
+			if (otherConfig == m_thisUiStyleConfig)
+			{
+				EditorUtility.DisplayDialog("Invalid asset",
+					$"Config can't be merged with itself.", "Ok");
+				return false;
+
+			}
+
+			UiStyleConfigMerger.Merge(otherConfig, m_thisUiStyleConfig);
+			return true;
+		}
+
+		private void Label(string _text) => GUILayout.Label(_text, EditorStyles.label, new []{GUILayout.Width(EditorGUIUtility.labelWidth)});
 		private void Draw()
 		{
 			try

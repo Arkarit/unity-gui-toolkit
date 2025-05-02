@@ -38,10 +38,20 @@ namespace GuiToolkit
 			return Path.GetDirectoryName(_path).Replace('\\', '/');
 		}
 
-		public static string GetUnityPath( string _nativePath, bool _removeExtension = false )
+		public static string GetUnityPath(string _nativePath, bool _removeExtension = false) =>
+			GetUnityPathInternal(_nativePath, _removeExtension, false);
+
+		public static string GetUnityPathInternal( string _nativePath, bool _removeExtension, bool _fixSymlinks )
 		{
 			string nativePath = _nativePath.Replace("\\", "/");
-			int idx = _nativePath.IndexOf("/Assets");
+
+			if (_fixSymlinks)
+			{
+				nativePath = nativePath.Replace("unity-gui-toolkit/Runtime", "unity-gui-toolkit/.Dev-App/Unity/Assets/External/unity-gui-toolkit");
+				nativePath = nativePath.Replace("unity-gui-toolkit/Editor", "unity-gui-toolkit/.Dev-App/Unity/Assets/External/unity-gui-toolkit-editor");
+			}
+
+			int idx = nativePath.IndexOf("/Assets");
 			if (idx == -1)
 				return string.Empty;
 
