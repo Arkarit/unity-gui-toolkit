@@ -38,7 +38,7 @@ namespace GuiToolkit.Style
 		public UiStyleConfig StyleConfig
 		{
 			get => m_styleConfig;
-			protected set => m_styleConfig = value;
+			set => m_styleConfig = value;
 		}
 
 		public UiStyleConfig EffectiveStyleConfig => StyleConfig ? StyleConfig : UiMainStyleConfig.Instance;

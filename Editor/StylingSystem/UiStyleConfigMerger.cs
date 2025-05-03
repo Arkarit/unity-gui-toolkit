@@ -20,11 +20,13 @@ namespace GuiToolkit.Style.Editor
 			foreach (var sourceSkin in _source.Skins)
 				CreateSkinIfNotExists(_source, _target, sourceSkin);
 
+			foreach (var sourceSkin in _source.Skins)
+				MergeSkin(_source, _target, sourceSkin);
+
 			foreach (var targetSkin in _target.Skins)
 				targetSkin.BuildDictionaries();
 
-			foreach (var sourceSkin in _source.Skins)
-				MergeSkin(_source, _target, sourceSkin);
+
 		}
 
 		private static void CreateSkinIfNotExists(UiStyleConfig _source, UiStyleConfig _target, UiSkin _sourceSkin)
@@ -56,6 +58,8 @@ namespace GuiToolkit.Style.Editor
 					continue;
 
 				targetStyle = _sourceStyle.DeepClone();
+				targetStyle.StyleConfig = _target;
+				Log($"Cloned source style '{_sourceStyle.Name}', Config '{AssetDatabase.GetAssetPath(_sourceStyle.StyleConfig)}' to '{targetStyle.Name}', Config '{AssetDatabase.GetAssetPath(targetStyle.StyleConfig)}'");
 				targetSkin.Styles.Add(targetStyle);
 			}
 		}
