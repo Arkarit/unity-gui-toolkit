@@ -17,77 +17,42 @@ MonoBehaviour:
     m_name: Fatze
     m_alias: 
     m_styles:
-    - rid: 5857621863350928173
-    - rid: 5857621863350928197
+    - rid: 5857621884506473431
   m_currentSkinIdx: 0
   references:
     version: 2
     RefIds:
-    - rid: 5857621863350928173
+    - rid: 5857621884506473431
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         m_styleConfig: {fileID: 11400000}
-        m_name: Fatze1
+        m_name: FatzeImage1
         m_alias: 
         m_screenOrientationCondition: -1
         m_color:
-          rid: 5857621863350928174
+          rid: 5857621884506473432
         m_enabled:
-          rid: 5857621863350928175
+          rid: 5857621884506473433
         m_sprite:
-          rid: 5857621863350928176
-    - rid: 5857621863350928174
+          rid: 5857621884506473434
+    - rid: 5857621884506473432
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 1
         m_dateTimeChanged:
-          m_ticks: 638817855861755489
-        m_value: {r: 0.007843137, g: 0.99018085, b: 1, a: 0.6901961}
-    - rid: 5857621863350928175
+          m_ticks: 638818643334399994
+        m_value: {r: 0, g: 0.8215718, b: 1, a: 1}
+    - rid: 5857621884506473433
       type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_dateTimeChanged:
-          m_ticks: 638817855861755489
+          m_ticks: 638818643334399994
         m_value: 1
-    - rid: 5857621863350928176
+    - rid: 5857621884506473434
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_dateTimeChanged:
-          m_ticks: 638817855861755489
-        m_value: {fileID: 21300000, guid: f4a6c635596536c4ebdca0c03698945d, type: 3}
-    - rid: 5857621863350928197
-      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_styleConfig: {fileID: 11400000}
-        m_name: Fatze2
-        m_alias: 
-        m_screenOrientationCondition: -1
-        m_color:
-          rid: 5857621863350928198
-        m_enabled:
-          rid: 5857621863350928199
-        m_sprite:
-          rid: 5857621863350928200
-    - rid: 5857621863350928198
-      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_dateTimeChanged:
-          m_ticks: 638817856076571547
-        m_value: {r: 0.07381915, g: 1, b: 0.007843137, a: 0.6901961}
-    - rid: 5857621863350928199
-      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_dateTimeChanged:
-          m_ticks: 638817856076571547
-        m_value: 1
-    - rid: 5857621863350928200
-      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_dateTimeChanged:
-          m_ticks: 638817856076571547
-        m_value: {fileID: 21300000, guid: f4a6c635596536c4ebdca0c03698945d, type: 3}
+          m_ticks: 638818643334399994
+        m_value: {fileID: 21300000, guid: cbabdbe91b89aef42a5c7b5e3b124938, type: 3}
