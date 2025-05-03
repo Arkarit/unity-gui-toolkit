@@ -118,7 +118,7 @@ namespace GuiToolkit.Style
 			BuildDictionaries();
 		}
 
-		private void BuildDictionaries()
+		public void BuildDictionaries()
 		{
 			if (m_styleByKey == null)
 				m_styleByKey = new Dictionary<int, UiAbstractStyleBase>(m_styles.Count);

@@ -28,7 +28,7 @@ namespace GuiToolkit.Style.Editor
 		private static readonly UiStyleEditorFilter s_filter = new();
 		private static bool s_synchronizeFoldouts = false;
 		private static ESortType s_sortType;
-		private static bool s_toolsExpanded;
+		private static bool s_toolsExpanded = true;
 		private static string s_mergePath = Application.dataPath;
 
 
