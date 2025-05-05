@@ -14,7 +14,12 @@ namespace GuiToolkit
 		private DateTime m_dateTime = new DateTime();
 
 		public SerializableDateTime() { }
-		public SerializableDateTime(DateTime _time) => m_dateTime = _time;
+
+		public SerializableDateTime(DateTime _time)
+		{
+			m_dateTime = _time;
+			m_ticks = m_dateTime.Ticks;
+		}
 
 		public DateTime DateTime
 		{

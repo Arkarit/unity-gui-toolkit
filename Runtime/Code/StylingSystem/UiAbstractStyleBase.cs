@@ -8,11 +8,13 @@ namespace GuiToolkit.Style
 	public abstract class UiAbstractStyleBase
 	{
 #if UNITY_EDITOR
-		public struct ValueInfo
+		public class ValueInfo
 		{
 			public string GetterName;
 			public Type GetterType;
 			public ApplicableValueBase Value;
+
+			public bool Equals(ValueInfo _other) => GetterName == _other.GetterName && GetterType == _other.GetterType;
 		}
 #endif
 

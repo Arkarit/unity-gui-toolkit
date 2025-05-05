@@ -151,7 +151,7 @@ namespace GuiToolkit.Style.Editor
 
 			}
 
-			UiStyleConfigMerger.Merge(otherConfig, m_thisUiStyleConfig);
+			UiStyleConfigMerger.Merge(otherConfig, m_thisUiStyleConfig, UiStyleConfigMerger.MergeStyleOptions.Merge);
 			return true;
 		}
 

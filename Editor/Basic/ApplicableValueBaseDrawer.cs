@@ -74,14 +74,8 @@ namespace GuiToolkit.Editor
 				);
 
 				if (hashBefore != valueProp.contentHash)
-				{
-					var applicableValue = _property.boxedValue as ApplicableValueBase;
-					if (applicableValue != null)
-					{
+					if (_property.boxedValue is ApplicableValueBase applicableValue)
 						applicableValue.Touch();
-						_property.boxedValue = applicableValue;
-					}
-				}
 			}
 
 			EditorGUI.EndProperty();

@@ -22,6 +22,12 @@ namespace GuiToolkit
 		public abstract object RawValueObj { get; set; }
 		public abstract object ValueObj { get; }
 
+		public DateTime AccessTime
+		{
+			get => m_dateTimeChanged.DateTime;
+			set => m_dateTimeChanged.DateTime = value;
+		}
+
 		public void Touch() => m_dateTimeChanged = new SerializableDateTime(DateTime.Now);
 
 		public bool TweenRunning => m_tweenRunning;
