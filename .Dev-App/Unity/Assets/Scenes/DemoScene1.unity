@@ -1537,7 +1537,7 @@ PrefabInstance:
     - target: {fileID: 6816656305326703514, guid: 2e29e8334442f624d94237f9c2eacc7a,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -0.0000009536743
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6816656305326703514, guid: 2e29e8334442f624d94237f9c2eacc7a,
         type: 3}
@@ -4945,8 +4945,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -311, y: -25}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -178.48204, y: -106.08877}
+  m_SizeDelta: {x: 206.905, y: 169.9175}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1789100137
 MonoBehaviour:
@@ -4972,15 +4972,15 @@ MonoBehaviour:
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
   m_cornerSegments: 5
-  m_radius: 10
-  m_frameWidth: 0
+  m_radius: 0
+  m_frameWidth: 17.59
   m_blurWidth: 0
 --- !u!222 &1789100138
 CanvasRenderer:
