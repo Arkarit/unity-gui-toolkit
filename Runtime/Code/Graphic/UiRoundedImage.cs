@@ -106,8 +106,8 @@ namespace GuiToolkit
 			Rect tr = new Rect(w + x - _frameWidth, h + y - _frameWidth, _frameWidth, _frameWidth);
 
 			AddQuad(bl);
-			AddQuad(br);
-			AddQuad(tl);
+			AddQuad(br, true);
+			AddQuad(tl, true);
 			AddQuad(tr);
 
 			Rect l = new Rect(x, y + _frameWidth, _frameWidth, h - _frameWidth * 2);
@@ -342,9 +342,9 @@ namespace GuiToolkit
 			s_triangles.Add(new []{startIndex, startIndex + 1, startIndex + 2});
 		}
 
-		private void AddQuad(Rect _rect ) => AddQuad(_rect.min, _rect.max);
+		private void AddQuad(Rect _rect, bool _left = false) => AddQuad(_rect.min, _rect.max, _left);
 
-		private void AddQuad(Vector2 _posMin, Vector2 _posMax )
+		private void AddQuad(Vector2 _posMin, Vector2 _posMax, bool _left = false)
 		{
 			int startIndex = s_vertices.Count;
 
@@ -353,6 +353,13 @@ namespace GuiToolkit
 			AddVert(_posMax.x, _posMax.y, color);
 			AddVert(_posMax.x, _posMin.y, color);
 			
+			if (_left)
+			{
+				s_triangles.Add(new []{ startIndex, startIndex + 1, startIndex + 3 });
+				s_triangles.Add(new []{startIndex + 2, startIndex + 3, startIndex + 1 });
+				return;
+			}
+
 			s_triangles.Add(new []{ startIndex, startIndex + 1, startIndex + 2 });
 			s_triangles.Add(new []{ startIndex + 2, startIndex + 3, startIndex });
 		}
