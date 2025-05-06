@@ -53,6 +53,46 @@ namespace GuiToolkit
 			GenerateFrameRounded();
 		}
 
+		private void GenerateFilled()
+		{
+			if (Mathf.Approximately(0, m_radius))
+			{
+				GenerateFilledRect();
+				return;
+			}
+			
+			GenerateFilledRounded();
+		}
+
+		private void GenerateFrameRect()
+		{
+			Rect rect = rectTransform.rect;
+			var x = rect.x;
+			var y = rect.y;
+			var w = rect.width;
+			var h = rect.height;
+
+			Rect bl = new Rect(x, y, m_frameSize, m_frameSize);
+			Rect br = new Rect(w + x - m_frameSize, y, m_frameSize, m_frameSize);
+			Rect tl = new Rect(x, h + y - m_frameSize, m_frameSize, m_frameSize);
+			Rect tr = new Rect(w + x - m_frameSize, h + y - m_frameSize, m_frameSize, m_frameSize);
+
+			AddQuad(bl);
+			AddQuad(br);
+			AddQuad(tl);
+			AddQuad(tr);
+
+			Rect l = new Rect(x, y + m_frameSize, m_frameSize, h - m_frameSize * 2);
+			Rect r = new Rect(w + x - m_frameSize, y + m_frameSize, m_frameSize, h - m_frameSize * 2);
+			Rect t = new Rect(x + m_frameSize, h + y - m_frameSize, w - m_frameSize * 2, m_frameSize);
+			Rect b = new Rect(x + m_frameSize, y, w - m_frameSize * 2, m_frameSize);
+
+			AddQuad(l);
+			AddQuad(r);
+			AddQuad(t);
+			AddQuad(b);
+		}
+
 		private void GenerateFrameRounded()
 		{
 			Rect rect = rectTransform.rect;
@@ -75,6 +115,49 @@ namespace GuiToolkit
 			AddFrameSegment(Corner.TopRight);
 			AddFrameSegment(Corner.BottomLeft);
 			AddFrameSegment(Corner.BottomRight);
+		}
+
+		private void GenerateFilledRect() => AddQuad(GetPixelAdjustedRect());
+
+		private void GenerateFilledRounded()
+		{
+			Rect rect = rectTransform.rect;
+			var x = rect.x;
+			var y = rect.y;
+			var w = rect.width;
+			var h = rect.height;
+			var cex = rect.center.x;
+			var cey = rect.center.y;
+
+			AddTriangle
+			(
+				x, y + m_radius, 
+				cex, cey, 
+				x, y + h - m_radius
+			);
+			AddTriangle
+			(
+				x + m_radius, y + h, 
+				cex, cey, 
+				x + w - m_radius, y + h
+			);
+			AddTriangle
+			(
+				x + w, y + m_radius, 
+				cex, cey, 
+				x + w, y + h - m_radius
+			);
+			AddTriangle
+			(
+				x + m_radius, y, 
+				cex, cey, 
+				x + w - m_radius, y
+			);
+			
+			AddSector(cex, cey, Corner.TopLeft);
+			AddSector(cex, cey, Corner.TopRight);
+			AddSector(cex, cey, Corner.BottomLeft);
+			AddSector(cex, cey, Corner.BottomRight);
 		}
 
 		private void AddFrameSegment(Corner _corner) => AddFrameSegment(_corner, m_cornerSegments);
@@ -130,89 +213,6 @@ namespace GuiToolkit
 		}
 		
 		
-		private void GenerateFrameRect()
-		{
-			Rect rect = rectTransform.rect;
-			var x = rect.x;
-			var y = rect.y;
-			var w = rect.width;
-			var h = rect.height;
-
-			Rect bl = new Rect(x, y, m_frameSize, m_frameSize);
-			Rect br = new Rect(w + x - m_frameSize, y, m_frameSize, m_frameSize);
-			Rect tl = new Rect(x, h + y - m_frameSize, m_frameSize, m_frameSize);
-			Rect tr = new Rect(w + x - m_frameSize, h + y - m_frameSize, m_frameSize, m_frameSize);
-
-			AddQuad(bl);
-			AddQuad(br);
-			AddQuad(tl);
-			AddQuad(tr);
-
-			Rect l = new Rect(x, y + m_frameSize, m_frameSize, h - m_frameSize * 2);
-			Rect r = new Rect(w + x - m_frameSize, y + m_frameSize, m_frameSize, h - m_frameSize * 2);
-			Rect t = new Rect(x + m_frameSize, h + y - m_frameSize, w - m_frameSize * 2, m_frameSize);
-			Rect b = new Rect(x + m_frameSize, y, w - m_frameSize * 2, m_frameSize);
-
-			AddQuad(l);
-			AddQuad(r);
-			AddQuad(t);
-			AddQuad(b);
-		}
-
-		private void GenerateFilled()
-		{
-			if (Mathf.Approximately(0, m_radius))
-			{
-				GenerateQuad();
-				return;
-			}
-			
-			GenerateFilledRounded();
-		}
-
-		private void GenerateFilledRounded()
-		{
-			Rect rect = rectTransform.rect;
-			var x = rect.x;
-			var y = rect.y;
-			var w = rect.width;
-			var h = rect.height;
-			var cex = rect.center.x;
-			var cey = rect.center.y;
-
-			AddTriangle
-			(
-				x, y + m_radius, 
-				cex, cey, 
-				x, y + h - m_radius
-			);
-			AddTriangle
-			(
-				x + m_radius, y + h, 
-				cex, cey, 
-				x + w - m_radius, y + h
-			);
-			AddTriangle
-			(
-				x + w, y + m_radius, 
-				cex, cey, 
-				x + w, y + h - m_radius
-			);
-			AddTriangle
-			(
-				x + m_radius, y, 
-				cex, cey, 
-				x + w - m_radius, y
-			);
-			
-			AddSector(cex, cey, Corner.TopLeft);
-			AddSector(cex, cey, Corner.TopRight);
-			AddSector(cex, cey, Corner.BottomLeft);
-			AddSector(cex, cey, Corner.BottomRight);
-		}
-
-		private void GenerateQuad() => AddQuad(GetPixelAdjustedRect());
-
 		private void AddSector(float _cex, float _cey, Corner _corner) => AddSector(_cex, _cey, _corner, m_cornerSegments);
 		
 		private void AddSector(float _cex, float _cey, Corner _corner, int _cornerSegments)
@@ -260,17 +260,6 @@ namespace GuiToolkit
 			}
 		}
 		
-		private void AddTriangle(Vector2 _a, Vector2 _b, Vector2 _c)
-		{
-			int startIndex = s_vertexHelper.currentVertCount;
-
-			AddVert(_a, color);
-			AddVert(_b, color);
-			AddVert(_c, color);
-
-			s_vertexHelper.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
-		}
-		
 		private void AddTriangle(float _ax, float _ay, float _bx, float _by, float _cx, float _cy)
 		{
 			int startIndex = s_vertexHelper.currentVertCount;
@@ -314,8 +303,6 @@ namespace GuiToolkit
 		{
 			s_vertexHelper.AddVert(new Vector3(_x, _y, 0), _color, GetUv(_x, _y));
 		}
-
-		private void AddVert(Vector2 _p, Color32 _color ) => AddVert(_p.x, _p.y, _color);
 
 		private Vector2 GetUv( float _x, float _y )
 		{
