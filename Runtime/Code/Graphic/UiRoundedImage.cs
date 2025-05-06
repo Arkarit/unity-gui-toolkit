@@ -46,12 +46,91 @@ namespace GuiToolkit
 		{
 			if (Mathf.Approximately(0, m_radius))
 			{
-				GenerateRectFrame();
+				GenerateFrameRect();
 				return;
 			}
+			
+			GenerateFrameRounded();
 		}
 
-		private void GenerateRectFrame()
+		private void GenerateFrameRounded()
+		{
+			Rect rect = rectTransform.rect;
+			var x = rect.x;
+			var y = rect.y;
+			var w = rect.width;
+			var h = rect.height;
+			
+			Rect l = new Rect(x, y + m_radius, m_frameSize, h - m_radius * 2);
+			Rect r = new Rect(w + x - m_frameSize, y + m_radius, m_frameSize, h - m_radius * 2);
+			Rect t = new Rect(x + m_radius, h + y - m_frameSize, w - m_radius * 2, m_frameSize);
+			Rect b = new Rect(x + m_radius, y, w - m_radius * 2, m_frameSize);
+
+			AddQuad(l);
+			AddQuad(r);
+			AddQuad(t);
+			AddQuad(b);
+
+			AddFrameSegment(Corner.TopLeft);
+			AddFrameSegment(Corner.TopRight);
+			AddFrameSegment(Corner.BottomLeft);
+			AddFrameSegment(Corner.BottomRight);
+		}
+
+		private void AddFrameSegment(Corner _corner) => AddFrameSegment(_corner, m_cornerSegments);
+		
+		private void AddFrameSegment(Corner _corner, int _cornerSegments)
+		{
+			Rect rect = rectTransform.rect;
+			var x = rect.x;
+			var y = rect.y;
+			var w = rect.width;
+			var h = rect.height;
+			
+			float angle = ((int) _corner + 3) * 90 * Mathf.Deg2Rad;
+			float angleIncrement = 90f / _cornerSegments * Mathf.Deg2Rad;
+			
+			float ox, oy;
+			switch (_corner)
+			{
+				case Corner.TopLeft:
+					ox = x + m_radius;
+					oy = y + h - m_radius;
+					break;
+				case Corner.TopRight:
+					ox = x + w - m_radius;
+					oy = y + h - m_radius;
+					break;
+				case Corner.BottomRight:
+					ox = x + w - m_radius;
+					oy = y + m_radius;
+					break;
+				case Corner.BottomLeft:
+					ox = x + m_radius;
+					oy = y + m_radius;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(_corner), _corner, null);
+			}
+			
+			float radiusInner = m_radius - m_frameSize;
+			for (int i=0; i<_cornerSegments; i++)
+			{
+				float x1 = Mathf.Sin(angle) * m_radius + ox;
+				float y1 = Mathf.Cos(angle) * m_radius + oy;
+				float x3 = Mathf.Sin(angle) * radiusInner + ox;
+				float y3 = Mathf.Cos(angle) * radiusInner + oy;
+				angle += angleIncrement;
+				float x0 = Mathf.Sin(angle) * m_radius + ox;
+				float y0 = Mathf.Cos(angle) * m_radius + oy;
+				float x2 = Mathf.Sin(angle) * radiusInner + ox;
+				float y2 = Mathf.Cos(angle) * radiusInner + oy;
+				AddIrregularQuad(x0, y0, x1, y1, x2, y2, x3, y3);
+			}
+		}
+		
+		
+		private void GenerateFrameRect()
 		{
 			Rect rect = rectTransform.rect;
 			var x = rect.x;
@@ -100,7 +179,7 @@ namespace GuiToolkit
 			var h = rect.height;
 			var cex = rect.center.x;
 			var cey = rect.center.y;
-#if true			
+
 			AddTriangle
 			(
 				x, y + m_radius, 
@@ -125,17 +204,18 @@ namespace GuiToolkit
 				cex, cey, 
 				x + w - m_radius, y
 			);
-#endif			
 			
-			AddSegment(cex, cey, Corner.TopLeft);
-			AddSegment(cex, cey, Corner.TopRight);
-			AddSegment(cex, cey, Corner.BottomLeft);
-			AddSegment(cex, cey, Corner.BottomRight);
+			AddSector(cex, cey, Corner.TopLeft);
+			AddSector(cex, cey, Corner.TopRight);
+			AddSector(cex, cey, Corner.BottomLeft);
+			AddSector(cex, cey, Corner.BottomRight);
 		}
 
 		private void GenerateQuad() => AddQuad(GetPixelAdjustedRect());
 
-		private void AddSegment(float _cex, float _cey, Corner _corner)
+		private void AddSector(float _cex, float _cey, Corner _corner) => AddSector(_cex, _cey, _corner, m_cornerSegments);
+		
+		private void AddSector(float _cex, float _cey, Corner _corner, int _cornerSegments)
 		{
 			Rect rect = rectTransform.rect;
 			var x = rect.x;
@@ -144,7 +224,9 @@ namespace GuiToolkit
 			var h = rect.height;
 			
 			float angle = ((int) _corner + 3) * 90 * Mathf.Deg2Rad;
-			float ox = 0, oy = 0;
+			float angleIncrement = 90f / _cornerSegments * Mathf.Deg2Rad;
+			
+			float ox, oy;
 			switch (_corner)
 			{
 				case Corner.TopLeft:
@@ -167,9 +249,7 @@ namespace GuiToolkit
 					throw new ArgumentOutOfRangeException(nameof(_corner), _corner, null);
 			}
 			
-			float angleIncrement = 90f / m_cornerSegments * Mathf.Deg2Rad;
-			
-			for (int i=0; i<m_cornerSegments; i++)
+			for (int i=0; i<_cornerSegments; i++)
 			{
 				float x1 = Mathf.Sin(angle) * m_radius + ox;
 				float y1 = Mathf.Cos(angle) * m_radius + oy;
@@ -214,6 +294,19 @@ namespace GuiToolkit
 			AddVert(_posMax.x, _posMin.y, color);
 
 			s_vertexHelper.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
+			s_vertexHelper.AddTriangle(startIndex + 2, startIndex + 3, startIndex);
+		}
+
+		private void AddIrregularQuad(float _ax, float _ay, float _bx, float _by, float _cx, float _cy, float _dx, float _dy)
+		{
+			int startIndex = s_vertexHelper.currentVertCount;
+
+			AddVert(_ax, _ay, color);
+			AddVert(_bx, _by, color);
+			AddVert(_cx, _cy, color);
+			AddVert(_dx, _dy, color);
+
+			s_vertexHelper.AddTriangle(startIndex + 3, startIndex + 1, startIndex);
 			s_vertexHelper.AddTriangle(startIndex + 2, startIndex + 3, startIndex);
 		}
 
