@@ -128,9 +128,10 @@ namespace GuiToolkit
 #endif			
 			
 			AddSegment(cex, cey, Corner.TopLeft);
+			AddSegment(cex, cey, Corner.TopRight);
+			AddSegment(cex, cey, Corner.BottomLeft);
+			AddSegment(cex, cey, Corner.BottomRight);
 		}
-		
-		
 
 		private void GenerateQuad() => AddQuad(GetPixelAdjustedRect());
 
@@ -142,16 +143,39 @@ namespace GuiToolkit
 			var w = rect.width;
 			var h = rect.height;
 			
-			float angle = ((int) _corner + 2) * 90 * Mathf.Deg2Rad;
+			float angle = ((int) _corner + 3) * 90 * Mathf.Deg2Rad;
+			float ox = 0, oy = 0;
+			switch (_corner)
+			{
+				case Corner.TopLeft:
+					ox = x + m_radius;
+					oy = y + h - m_radius;
+					break;
+				case Corner.TopRight:
+					ox = x + w - m_radius;
+					oy = y + h - m_radius;
+					break;
+				case Corner.BottomRight:
+					ox = x + w - m_radius;
+					oy = y + m_radius;
+					break;
+				case Corner.BottomLeft:
+					ox = x + m_radius;
+					oy = y + m_radius;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(_corner), _corner, null);
+			}
+			
 			float angleIncrement = 90f / m_cornerSegments * Mathf.Deg2Rad;
 			
 			for (int i=0; i<m_cornerSegments; i++)
 			{
-				float x1 = Mathf.Sin(angle) * m_radius + x + m_radius;
-				float y1 = Mathf.Cos(angle) * m_radius + y + m_radius;
+				float x1 = Mathf.Sin(angle) * m_radius + ox;
+				float y1 = Mathf.Cos(angle) * m_radius + oy;
 				angle += angleIncrement;
-				float x0 = Mathf.Sin(angle) * m_radius + x + m_radius;
-				float y0 = Mathf.Cos(angle) * m_radius + y + m_radius;
+				float x0 = Mathf.Sin(angle) * m_radius + ox;
+				float y0 = Mathf.Cos(angle) * m_radius + oy;
 				AddTriangle(x0, y0, _cex, _cey, x1, y1);
 			}
 		}
