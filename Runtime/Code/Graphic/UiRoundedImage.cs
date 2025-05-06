@@ -7,6 +7,7 @@ using static UnityEditor.PlayerSettings;
 
 namespace GuiToolkit
 {
+	[ExecuteAlways]
 	[RequireComponent(typeof(CanvasRenderer))]
 	public class UiRoundedImage : Image
 	{
@@ -33,11 +34,46 @@ namespace GuiToolkit
 		[SerializeField] protected float m_frameSize = 0;
 		[UnityEngine.Range(0, 30)]
 		[SerializeField] protected float m_fadeSize = 0;
-		
-		
+		[SerializeField] protected bool m_useLegacyMeshGeneration = true;
+
+		public bool UseLegacyMeshGeneration
+		{
+			get => m_useLegacyMeshGeneration;
+			set
+			{
+				m_useLegacyMeshGeneration = value;
+				useLegacyMeshGeneration = value;
+				SetVerticesDirty();
+			}
+		}
+
 		private static readonly List<Vertex> s_vertices = new ();
 		private static readonly List<int[]> s_triangles = new ();
 
+		protected override void Awake()
+		{
+			base.Awake();
+			UseLegacyMeshGeneration = m_useLegacyMeshGeneration;
+		}
+
+		protected override void OnValidate()
+		{
+			base.OnValidate();
+			UseLegacyMeshGeneration = m_useLegacyMeshGeneration;
+		}
+
+		protected override void OnPopulateMesh(Mesh _mesh)
+		{
+			if (m_frameSize > 0)
+			{
+				GenerateFrame();
+				ApplyToMesh(_mesh);
+				return;
+			}
+
+			GenerateFilled();
+			ApplyToMesh(_mesh);
+		}
 
 		protected override void OnPopulateMesh( VertexHelper _vh )
 		{
@@ -50,6 +86,42 @@ namespace GuiToolkit
 
 			GenerateFilled();
 			ApplyToVertexHelper(_vh);
+		}
+
+		private void ApplyToMesh(Mesh _mesh)
+		{
+			var vertexCount = s_vertices.Count;
+
+			var vertices = new Vector3[vertexCount];
+			var colors = new Color[vertexCount];
+			var uv = new Vector2[vertexCount];
+
+			for (int i = 0; i < vertexCount; i++)
+			{
+				var vertex = s_vertices[i];
+				vertices[i] = vertex.Position;
+				colors[i] = vertex.Color;
+				uv[i] = vertex.Uv;
+			}
+
+			var triangleCount = s_triangles.Count;
+			var triangles = new int[triangleCount * 3];
+			int it = 0;
+			for (int i = 0; i < triangleCount; i++)
+			{
+				var triangle = s_triangles[i];
+				triangles[it++] = triangle[0];
+				triangles[it++] = triangle[1];
+				triangles[it++] = triangle[2];
+			}
+
+			_mesh.vertices = vertices;
+			_mesh.triangles = triangles;
+			_mesh.colors = colors;
+			_mesh.uv = uv;
+
+			s_vertices.Clear();
+			s_triangles.Clear();
 		}
 
 		private static void ApplyToVertexHelper(VertexHelper _vh)
