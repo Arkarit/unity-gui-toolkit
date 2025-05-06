@@ -31,8 +31,8 @@ namespace GuiToolkit
 		[SerializeField] protected float m_radius = 10;
 		[UnityEngine.Range(0, 200)]
 		[SerializeField] protected float m_frameSize = 0;
-		[UnityEngine.Range(0, 10)]
-		[SerializeField] protected float m_fadeWidth = 0;
+		[UnityEngine.Range(0, 30)]
+		[SerializeField] protected float m_fadeSize = 0;
 		
 		
 		private static readonly List<Vertex> s_vertices = new ();
@@ -93,7 +93,30 @@ namespace GuiToolkit
 
 		private void GenerateFrameRect() => GenerateFrameRect(rectTransform.rect, m_frameSize);
 
-		private void GenerateFrameRect(Rect _rect, float _frameWidth)
+		private void GenerateFrameRect(Rect _rect, float _frameSize)
+		{
+			if (!Mathf.Approximately(0, m_fadeSize))
+			{
+				GenerateFrameRectSimple(_rect, m_fadeSize);
+				FadeFrameRectOuter(_rect);
+				_rect.x += m_fadeSize;
+				_rect.y += m_fadeSize;
+				_rect.width -= m_fadeSize * 2;
+				_rect.height -= m_fadeSize * 2;
+				GenerateFrameRectSimple(_rect, _frameSize - m_fadeSize * 2);
+				_rect.x += _frameSize - m_fadeSize * 2;
+				_rect.y += _frameSize - m_fadeSize * 2;
+				_rect.width -= _frameSize;
+				_rect.height -= _frameSize;
+				GenerateFrameRectSimple(_rect, m_fadeSize);
+				
+				return;
+			}
+
+			GenerateFrameRectSimple(_rect, _frameSize);
+		}
+
+		private void GenerateFrameRectSimple(Rect _rect, float _frameWidth)
 		{
 			var x = _rect.x;
 			var y = _rect.y;
@@ -147,19 +170,19 @@ namespace GuiToolkit
 
 		private void GenerateFilledRect()
 		{
-			if (Mathf.Approximately(0, m_fadeWidth))
+			if (Mathf.Approximately(0, m_fadeSize))
 			{
 				AddQuad(GetPixelAdjustedRect());
 				return;
 			}
 			
 			var rect = rectTransform.rect;
-			GenerateFrameRect(rect, m_fadeWidth);
+			GenerateFrameRect(rect, m_fadeSize);
 			FadeFrameRectOuter(rect);
-			rect.x += m_fadeWidth;
-			rect.y += m_fadeWidth;
-			rect.width -= m_fadeWidth * 2;
-			rect.height -= m_fadeWidth * 2;
+			rect.x += m_fadeSize;
+			rect.y += m_fadeSize;
+			rect.width -= m_fadeSize * 2;
+			rect.height -= m_fadeSize * 2;
 			AddQuad(rect);
 		}
 
