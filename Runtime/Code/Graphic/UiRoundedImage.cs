@@ -170,7 +170,7 @@ namespace GuiToolkit
 			if (!Mathf.Approximately(0, m_fadeSize))
 			{
 				GenerateFrameRectSimple(_rect, m_fadeSize);
-				FadeFrameRectOuter(_rect);
+				FadeFrameRect(_rect, false);
 				_rect.x += m_fadeSize;
 				_rect.y += m_fadeSize;
 				_rect.width -= m_fadeSize * 2;
@@ -178,9 +178,10 @@ namespace GuiToolkit
 				GenerateFrameRectSimple(_rect, _frameSize - m_fadeSize * 2);
 				_rect.x += _frameSize - m_fadeSize * 2;
 				_rect.y += _frameSize - m_fadeSize * 2;
-				_rect.width -= _frameSize;
-				_rect.height -= _frameSize;
+				_rect.width -= (_frameSize - m_fadeSize * 2) * 2;
+				_rect.height -= (_frameSize - m_fadeSize * 2) * 2;
 				GenerateFrameRectSimple(_rect, m_fadeSize);
+				FadeFrameRect(_rect, true);
 				
 				return;
 			}
@@ -250,7 +251,7 @@ namespace GuiToolkit
 			
 			var rect = rectTransform.rect;
 			GenerateFrameRect(rect, m_fadeSize);
-			FadeFrameRectOuter(rect);
+			FadeFrameRect(rect, false);
 			rect.x += m_fadeSize;
 			rect.y += m_fadeSize;
 			rect.width -= m_fadeSize * 2;
@@ -258,7 +259,7 @@ namespace GuiToolkit
 			AddQuad(rect);
 		}
 
-		private void FadeFrameRectOuter(Rect _rect)
+		private void FadeFrameRect(Rect _rect, bool _inner)
 		{
 			var fadeColor = color;
 			fadeColor.a = 0;
@@ -273,12 +274,16 @@ namespace GuiToolkit
 				var vertex = s_vertices[i];
 				var position = vertex.Position;
 				
-				if (
+				bool condition = 
 					Mathf.Approximately(left, position.x) ||
 					Mathf.Approximately(right, position.x) ||
 					Mathf.Approximately(top, position.y) ||
-					Mathf.Approximately(bottom, position.y)
-				)
+					Mathf.Approximately(bottom, position.y);
+
+				if (_inner)
+					condition = !condition;
+
+				if (condition)
 				{
 					vertex.Color = fadeColor;
 				}
