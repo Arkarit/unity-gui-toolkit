@@ -18,7 +18,7 @@ namespace GuiToolkit
 			BottomLeft,
 		}
 		
-		private struct Vertex
+		private class Vertex
 		{
 			public Vector2 Position;
 			public Vector2 Uv;
@@ -155,11 +155,39 @@ namespace GuiToolkit
 			
 			var rect = rectTransform.rect;
 			GenerateFrameRect(rect, m_fadeWidth);
+			FadeFrameRectOuter(rect);
 			rect.x += m_fadeWidth;
 			rect.y += m_fadeWidth;
 			rect.width -= m_fadeWidth * 2;
 			rect.height -= m_fadeWidth * 2;
 			AddQuad(rect);
+		}
+
+		private void FadeFrameRectOuter(Rect _rect)
+		{
+			var fadeColor = color;
+			fadeColor.a = 0;
+			float top = _rect.yMin;
+			float bottom = _rect.yMax;
+			float left = _rect.xMin;
+			float right = _rect.xMax;
+
+			// frame is 8 quads, 16 tris, 32 verts
+			for (int i = s_vertices.Count - 32; i < s_vertices.Count; i++)
+			{
+				var vertex = s_vertices[i];
+				var position = vertex.Position;
+				
+				if (
+					Mathf.Approximately(left, position.x) ||
+					Mathf.Approximately(right, position.x) ||
+					Mathf.Approximately(top, position.y) ||
+					Mathf.Approximately(bottom, position.y)
+				)
+				{
+					vertex.Color = fadeColor;
+				}
+			}
 		}
 
 		private void GenerateFilledRounded()
