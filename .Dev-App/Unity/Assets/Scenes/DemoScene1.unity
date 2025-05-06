@@ -378,7 +378,8 @@ MonoBehaviour:
   m_cornerSegments: 2
   m_radius: 0
   m_frameSize: 0
-  m_fadeWidth: 2
+  m_fadeSize: 0
+  m_useLegacyMeshGeneration: 1
 --- !u!222 &48151819
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5020,7 +5021,6 @@ GameObject:
   - component: {fileID: 1789100136}
   - component: {fileID: 1789100138}
   - component: {fileID: 1789100137}
-  - component: {fileID: 1789100139}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -5077,10 +5077,11 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
-  m_cornerSegments: 2
-  m_radius: 0
-  m_frameSize: 37
-  m_fadeWidth: 5
+  m_cornerSegments: 10
+  m_radius: 12.8
+  m_frameSize: 3.4
+  m_fadeSize: 0
+  m_useLegacyMeshGeneration: 1
 --- !u!222 &1789100138
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5089,23 +5090,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1789100135}
   m_CullTransparentMesh: 1
---- !u!114 &1789100139
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1789100135}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_vertexColorMode: 0
-  m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 1}
-  m_colorRightOrBottom: {r: 1, g: 1, b: 1, a: 1}
-  m_orientation: 1
-  m_swapped: 0
 --- !u!1001 &1842801993
 PrefabInstance:
   m_ObjectHideFlags: 0
