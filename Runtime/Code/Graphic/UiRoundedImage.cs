@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityEditor.PlayerSettings;
@@ -7,18 +8,24 @@ namespace GuiToolkit
 	[RequireComponent(typeof(CanvasRenderer))]
 	public class UiRoundedImage : Image
 	{
+		public enum Side
+		{
+			Top,
+			Right,
+			Bottom,
+			Left,
+		}
+
 		[SerializeField] protected int m_cornerSegments = 5;
 		[SerializeField] protected float m_radius = 10;
-		[SerializeField] protected float m_frameWidth = 0;
+		[SerializeField] protected float m_frameSize = 0;
 		[SerializeField] protected float m_blurWidth = 0;
 
-        private Sprite activeSprite => overrideSprite != null ? overrideSprite : sprite;
-        
 		protected override void OnPopulateMesh( VertexHelper _vh )
 		{
 			_vh.Clear();
 
-			if (m_frameWidth > 0)
+			if (m_frameSize > 0)
 			{
 				GenerateFrame(_vh);
 				return;
@@ -43,22 +50,22 @@ namespace GuiToolkit
 			var y = rect.y;
 			var w = rect.width;
 			var h = rect.height;
-			
-			Rect bl = new Rect(x, y, m_frameWidth, m_frameWidth);
-			Rect br = new Rect(w + x - m_frameWidth, y, m_frameWidth, m_frameWidth);
-			Rect tl = new Rect(x, h + y - m_frameWidth, m_frameWidth, m_frameWidth);
-			Rect tr = new Rect(w + x - m_frameWidth, h + y - m_frameWidth, m_frameWidth, m_frameWidth);
-			
+
+			Rect bl = new Rect(x, y, m_frameSize, m_frameSize);
+			Rect br = new Rect(w + x - m_frameSize, y, m_frameSize, m_frameSize);
+			Rect tl = new Rect(x, h + y - m_frameSize, m_frameSize, m_frameSize);
+			Rect tr = new Rect(w + x - m_frameSize, h + y - m_frameSize, m_frameSize, m_frameSize);
+
 			AddQuad(_vh, bl, color);
 			AddQuad(_vh, br, color);
 			AddQuad(_vh, tl, color);
 			AddQuad(_vh, tr, color);
-			
-			Rect l = new Rect(x, y + m_frameWidth, m_frameWidth, h - m_frameWidth * 2);
-			Rect r = new Rect(w + x - m_frameWidth, y + m_frameWidth, m_frameWidth, h - m_frameWidth * 2);
-			Rect t = new Rect(x + m_frameWidth, h + y - m_frameWidth, w - m_frameWidth * 2, m_frameWidth);
-			Rect b = new Rect(x + m_frameWidth, y, w - m_frameWidth * 2, m_frameWidth);
-			
+
+			Rect l = new Rect(x, y + m_frameSize, m_frameSize, h - m_frameSize * 2);
+			Rect r = new Rect(w + x - m_frameSize, y + m_frameSize, m_frameSize, h - m_frameSize * 2);
+			Rect t = new Rect(x + m_frameSize, h + y - m_frameSize, w - m_frameSize * 2, m_frameSize);
+			Rect b = new Rect(x + m_frameSize, y, w - m_frameSize * 2, m_frameSize);
+
 			AddQuad(_vh, l, color);
 			AddQuad(_vh, r, color);
 			AddQuad(_vh, t, color);
@@ -72,10 +79,11 @@ namespace GuiToolkit
 				GenerateQuad(_vh);
 				return;
 			}
+			
 		}
 
 		private void GenerateQuad( VertexHelper _vh ) => AddQuad(_vh, GetPixelAdjustedRect(), color);
-		
+
 		private void AddQuad( VertexHelper _vh, Rect _rect, Color32 _color ) => AddQuad(_vh, _rect.min, _rect.max, color);
 
 
@@ -103,7 +111,7 @@ namespace GuiToolkit
 
 			var normalizedX = _x / r.width + .5f;
 			var normalizedY = _y / r.height + .5f;
-			
+
 			return new Vector2(normalizedX, normalizedY);
 		}
 
