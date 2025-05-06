@@ -8,6 +8,14 @@ namespace GuiToolkit
 	[RequireComponent(typeof(CanvasRenderer))]
 	public class UiRoundedImage : Image
 	{
+		public enum Corner
+		{
+			TopLeft,
+			TopRight,
+			BottomRight,
+			BottomLeft,
+		}
+		
 		[Range(2, 50)]
 		[SerializeField] protected int m_cornerSegments = 5;
 		[Range(0,200)]
@@ -92,9 +100,7 @@ namespace GuiToolkit
 			var h = rect.height;
 			var cex = rect.center.x;
 			var cey = rect.center.y;
-			
-			Vector2 a, b, c;
-			
+#if true			
 			AddTriangle
 			(
 				x, y + m_radius, 
@@ -119,11 +125,37 @@ namespace GuiToolkit
 				cex, cey, 
 				x + w - m_radius, y
 			);
+#endif			
+			
+			AddSegment(cex, cey, Corner.TopLeft);
 		}
+		
+		
 
 		private void GenerateQuad() => AddQuad(GetPixelAdjustedRect());
 
-
+		private void AddSegment(float _cex, float _cey, Corner _corner)
+		{
+			Rect rect = rectTransform.rect;
+			var x = rect.x;
+			var y = rect.y;
+			var w = rect.width;
+			var h = rect.height;
+			
+			float angle = ((int) _corner + 2) * 90 * Mathf.Deg2Rad;
+			float angleIncrement = 90f / m_cornerSegments * Mathf.Deg2Rad;
+			
+			for (int i=0; i<m_cornerSegments; i++)
+			{
+				float x1 = Mathf.Sin(angle) * m_radius + x + m_radius;
+				float y1 = Mathf.Cos(angle) * m_radius + y + m_radius;
+				angle += angleIncrement;
+				float x0 = Mathf.Sin(angle) * m_radius + x + m_radius;
+				float y0 = Mathf.Cos(angle) * m_radius + y + m_radius;
+				AddTriangle(x0, y0, _cex, _cey, x1, y1);
+			}
+		}
+		
 		private void AddTriangle(Vector2 _a, Vector2 _b, Vector2 _c)
 		{
 			int startIndex = s_vertexHelper.currentVertCount;
