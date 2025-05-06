@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityEditor.PlayerSettings;
@@ -16,30 +18,55 @@ namespace GuiToolkit
 			BottomLeft,
 		}
 		
-		[Range(2, 50)]
+		private struct Vertex
+		{
+			public Vector2 Position;
+			public Vector2 Uv;
+			public Color Color;
+		}
+		
+		[UnityEngine.Range(2, 50)]
 		[SerializeField] protected int m_cornerSegments = 5;
-		[Range(0, 200)]
+		[UnityEngine.Range(0, 200)]
 		[SerializeField] protected float m_radius = 10;
-		[Range(0, 200)]
+		[UnityEngine.Range(0, 200)]
 		[SerializeField] protected float m_frameSize = 0;
-		[Range(0, 10)]
+		[UnityEngine.Range(0, 10)]
 		[SerializeField] protected float m_fadeWidth = 0;
+		
+		
+		private static readonly List<Vertex> s_vertices = new ();
+		private static readonly List<int[]> s_triangles = new ();
 
-		private static VertexHelper s_vertexHelper;
 
 		protected override void OnPopulateMesh( VertexHelper _vh )
 		{
-			s_vertexHelper = _vh;
-			s_vertexHelper.Clear();
-
-
 			if (m_frameSize > 0)
 			{
 				GenerateFrame();
+				ApplyToVertexHelper(_vh);
 				return;
 			}
 
 			GenerateFilled();
+			ApplyToVertexHelper(_vh);
+		}
+
+		private static void ApplyToVertexHelper(VertexHelper _vh)
+		{
+			_vh.Clear();
+
+			foreach (var vertex in s_vertices)
+				_vh.AddVert(vertex.Position, vertex.Color, vertex.Uv);
+
+			for (int i = 0; i < s_triangles.Count; i++)
+			{
+				var tri = s_triangles[i];
+				_vh.AddTriangle(tri[0], tri[1], tri[2]);
+			}
+
+			s_vertices.Clear();
+			s_triangles.Clear();
 		}
 
 		private void GenerateFrame()
@@ -278,46 +305,46 @@ namespace GuiToolkit
 
 		private void AddTriangle( float _ax, float _ay, float _bx, float _by, float _cx, float _cy )
 		{
-			int startIndex = s_vertexHelper.currentVertCount;
+			int startIndex = s_vertices.Count;
 
 			AddVert(_ax, _ay, color);
 			AddVert(_bx, _by, color);
 			AddVert(_cx, _cy, color);
 
-			s_vertexHelper.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
+			s_triangles.Add(new []{startIndex, startIndex + 1, startIndex + 2});
 		}
 
 		private void AddQuad(Rect _rect ) => AddQuad(_rect.min, _rect.max);
 
 		private void AddQuad(Vector2 _posMin, Vector2 _posMax )
 		{
-			int startIndex = s_vertexHelper.currentVertCount;
+			int startIndex = s_vertices.Count;
 
 			AddVert(_posMin.x, _posMin.y, color);
 			AddVert(_posMin.x, _posMax.y, color);
 			AddVert(_posMax.x, _posMax.y, color);
 			AddVert(_posMax.x, _posMin.y, color);
 			
-			s_vertexHelper.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
-			s_vertexHelper.AddTriangle(startIndex + 2, startIndex + 3, startIndex);
+			s_triangles.Add(new []{ startIndex, startIndex + 1, startIndex + 2 });
+			s_triangles.Add(new []{ startIndex + 2, startIndex + 3, startIndex });
 		}
 
 		private void AddIrregularQuad( float _ax, float _ay, float _bx, float _by, float _cx, float _cy, float _dx, float _dy )
 		{
-			int startIndex = s_vertexHelper.currentVertCount;
+			int startIndex = s_vertices.Count;
 
 			AddVert(_ax, _ay, color);
 			AddVert(_bx, _by, color);
 			AddVert(_cx, _cy, color);
 			AddVert(_dx, _dy, color);
 
-			s_vertexHelper.AddTriangle(startIndex + 3, startIndex + 1, startIndex);
-			s_vertexHelper.AddTriangle(startIndex + 2, startIndex + 3, startIndex);
+			s_triangles.Add(new []{ startIndex + 3, startIndex + 1, startIndex });
+			s_triangles.Add(new []{ startIndex + 2, startIndex + 3, startIndex });
 		}
 
 		private void AddVert( float _x, float _y, Color32 _color )
 		{
-			s_vertexHelper.AddVert(new Vector3(_x, _y, 0), _color, GetUv(_x, _y));
+			s_vertices.Add(new Vertex() { Position = new Vector2(_x, _y), Uv = GetUv(_x, _y), Color = _color});
 		}
 
 		private Vector2 GetUv( float _x, float _y )
