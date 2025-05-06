@@ -16,30 +16,34 @@ namespace GuiToolkit
 		[SerializeField] protected float m_frameSize = 0;
 		[Range(0,10)]
 		[SerializeField] protected float m_blurWidth = 0;
+		
+		private static VertexHelper s_vertexHelper;
 
 		protected override void OnPopulateMesh( VertexHelper _vh )
 		{
-			_vh.Clear();
+			s_vertexHelper = _vh;
+			s_vertexHelper.Clear();
+			
 
 			if (m_frameSize > 0)
 			{
-				GenerateFrame(_vh);
+				GenerateFrame();
 				return;
 			}
 
-			GenerateFilled(_vh);
+			GenerateFilled();
 		}
 
-		private void GenerateFrame( VertexHelper _vh )
+		private void GenerateFrame()
 		{
 			if (Mathf.Approximately(0, m_radius))
 			{
-				GenerateRectFrame(_vh);
+				GenerateRectFrame();
 				return;
 			}
 		}
 
-		private void GenerateRectFrame( VertexHelper _vh )
+		private void GenerateRectFrame()
 		{
 			Rect rect = rectTransform.rect;
 			var x = rect.x;
@@ -52,34 +56,34 @@ namespace GuiToolkit
 			Rect tl = new Rect(x, h + y - m_frameSize, m_frameSize, m_frameSize);
 			Rect tr = new Rect(w + x - m_frameSize, h + y - m_frameSize, m_frameSize, m_frameSize);
 
-			AddQuad(_vh, bl);
-			AddQuad(_vh, br);
-			AddQuad(_vh, tl);
-			AddQuad(_vh, tr);
+			AddQuad(bl);
+			AddQuad(br);
+			AddQuad(tl);
+			AddQuad(tr);
 
 			Rect l = new Rect(x, y + m_frameSize, m_frameSize, h - m_frameSize * 2);
 			Rect r = new Rect(w + x - m_frameSize, y + m_frameSize, m_frameSize, h - m_frameSize * 2);
 			Rect t = new Rect(x + m_frameSize, h + y - m_frameSize, w - m_frameSize * 2, m_frameSize);
 			Rect b = new Rect(x + m_frameSize, y, w - m_frameSize * 2, m_frameSize);
 
-			AddQuad(_vh, l);
-			AddQuad(_vh, r);
-			AddQuad(_vh, t);
-			AddQuad(_vh, b);
+			AddQuad(l);
+			AddQuad(r);
+			AddQuad(t);
+			AddQuad(b);
 		}
 
-		private void GenerateFilled( VertexHelper _vh )
+		private void GenerateFilled()
 		{
 			if (Mathf.Approximately(0, m_radius))
 			{
-				GenerateQuad(_vh);
+				GenerateQuad();
 				return;
 			}
 			
-			GenerateFilledRounded(_vh);
+			GenerateFilledRounded();
 		}
 
-		private void GenerateFilledRounded(VertexHelper _vh)
+		private void GenerateFilledRounded()
 		{
 			Rect rect = rectTransform.rect;
 			var x = rect.x;
@@ -93,59 +97,76 @@ namespace GuiToolkit
 			
 			AddTriangle
 			(
-				_vh, 
 				x, y + m_radius, 
 				cex, cey, 
 				x, y + h - m_radius
 			);
+			AddTriangle
+			(
+				x + m_radius, y + h, 
+				cex, cey, 
+				x + w - m_radius, y + h
+			);
+			AddTriangle
+			(
+				x + w, y + m_radius, 
+				cex, cey, 
+				x + w, y + h - m_radius
+			);
+			AddTriangle
+			(
+				x + m_radius, y, 
+				cex, cey, 
+				x + w - m_radius, y
+			);
 		}
 
-		private void GenerateQuad( VertexHelper _vh ) => AddQuad(_vh, GetPixelAdjustedRect());
+		private void GenerateQuad() => AddQuad(GetPixelAdjustedRect());
 
 
-		private void AddTriangle(VertexHelper _vh, Vector2 _a, Vector2 _b, Vector2 _c)
+		private void AddTriangle(Vector2 _a, Vector2 _b, Vector2 _c)
 		{
-			int startIndex = _vh.currentVertCount;
+			int startIndex = s_vertexHelper.currentVertCount;
 
-			AddVert(_vh, _a, color);
-			AddVert(_vh, _b, color);
-			AddVert(_vh, _c, color);
+			AddVert(_a, color);
+			AddVert(_b, color);
+			AddVert(_c, color);
 
-			_vh.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
+			s_vertexHelper.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
 		}
 		
-		private void AddTriangle(VertexHelper _vh, float _ax, float _ay, float _bx, float _by, float _cx, float _cy)
+		private void AddTriangle(float _ax, float _ay, float _bx, float _by, float _cx, float _cy)
 		{
-			int startIndex = _vh.currentVertCount;
+			int startIndex = s_vertexHelper.currentVertCount;
 
-			AddVert(_vh, _ax, _ay, color);
-			AddVert(_vh, _bx, _by, color);
-			AddVert(_vh, _cx, _cy, color);
+			AddVert(_ax, _ay, color);
+			AddVert(_bx, _by, color);
+			AddVert(_cx, _cy, color);
 
-			_vh.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
+			s_vertexHelper.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
 		}
 		
-		private void AddQuad( VertexHelper _vh, Rect _rect ) => AddQuad(_vh, _rect.min, _rect.max);
+		private void AddQuad(Rect _rect ) => AddQuad(_rect.min, _rect.max);
 
-		private void AddQuad( VertexHelper _vh, Vector2 _posMin, Vector2 _posMax )
+		private void AddQuad(Vector2 _posMin, Vector2 _posMax )
 		{
-			int startIndex = _vh.currentVertCount;
+			int startIndex = s_vertexHelper.currentVertCount;
 
-			AddVert(_vh, _posMin.x, _posMin.y, color);
-			AddVert(_vh, _posMin.x, _posMax.y, color);
-			AddVert(_vh, _posMax.x, _posMax.y, color);
-			AddVert(_vh, _posMax.x, _posMin.y, color);
+			AddVert(_posMin.x, _posMin.y, color);
+			AddVert(_posMin.x, _posMax.y, color);
+			AddVert(_posMax.x, _posMax.y, color);
+			AddVert(_posMax.x, _posMin.y, color);
 
-			_vh.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
-			_vh.AddTriangle(startIndex + 2, startIndex + 3, startIndex);
+			s_vertexHelper.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
+			s_vertexHelper.AddTriangle(startIndex + 2, startIndex + 3, startIndex);
 		}
 
-		private void AddVert( VertexHelper _vh, float _x, float _y, Color32 _color )
+		private void AddVert(float _x, float _y, Color32 _color )
 		{
-			_vh.AddVert(new Vector3(_x, _y, 0), _color, GetUv(_x, _y));
+			s_vertexHelper.AddVert(new Vector3(_x, _y, 0), _color, GetUv(_x, _y));
 		}
 
-		private void AddVert( VertexHelper _vh, Vector2 _p, Color32 _color ) => AddVert(_vh, _p.x, _p.y, _color);
+		private void AddVert(Vector2 _p, Color32 _color ) => AddVert(_p.x, _p.y, _color);
 
 		private Vector2 GetUv( float _x, float _y )
 		{
