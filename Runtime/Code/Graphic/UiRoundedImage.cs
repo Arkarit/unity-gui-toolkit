@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.PlayerSettings;
 
 namespace GuiToolkit
 {
@@ -115,10 +113,11 @@ namespace GuiToolkit
 				triangles[it++] = triangle[2];
 			}
 
+			_mesh.Clear(false);
 			_mesh.vertices = vertices;
-			_mesh.triangles = triangles;
 			_mesh.colors = colors;
 			_mesh.uv = uv;
+			_mesh.triangles = triangles;
 
 			s_vertices.Clear();
 			s_triangles.Clear();
@@ -243,13 +242,13 @@ namespace GuiToolkit
 
 		private void GenerateFilledRect()
 		{
+			var rect = rectTransform.rect;
 			if (Mathf.Approximately(0, m_fadeSize))
 			{
-				AddQuad(GetPixelAdjustedRect());
+				AddQuad(rect);
 				return;
 			}
 			
-			var rect = rectTransform.rect;
 			GenerateFrameRect(rect, m_fadeSize);
 			FadeFrameRect(rect, false);
 			rect.x += m_fadeSize;
@@ -456,7 +455,7 @@ namespace GuiToolkit
 			if (_left)
 			{
 				s_triangles.Add(new []{ startIndex, startIndex + 1, startIndex + 3 });
-				s_triangles.Add(new []{startIndex + 2, startIndex + 3, startIndex + 1 });
+				s_triangles.Add(new []{ startIndex + 2, startIndex + 3, startIndex + 1 });
 				return;
 			}
 
