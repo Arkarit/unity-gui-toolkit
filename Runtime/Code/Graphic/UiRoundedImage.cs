@@ -24,7 +24,7 @@ namespace GuiToolkit
 			Outer,
 		}
 		
-		private enum FadeRect
+		private enum QuadFade
 		{
 			None,
 			Left,
@@ -219,8 +219,8 @@ namespace GuiToolkit
 			Rect tr = new Rect(w + x - _frameWidth, h + y - _frameWidth, _frameWidth, _frameWidth);
 
 			AddQuad(bl);
-			AddQuad(br, true);
-			AddQuad(tl, true);
+			AddQuad(br, QuadFade.None, true);
+			AddQuad(tl, QuadFade.None, true);
 			AddQuad(tr);
 
 			Rect l = new Rect(x, y + _frameWidth, _frameWidth, h - _frameWidth * 2);
@@ -257,10 +257,30 @@ namespace GuiToolkit
 			Rect t = new Rect(x + m_radius, h + y - _frameSize, w - m_radius * 2, _frameSize);
 			Rect b = new Rect(x + m_radius, y, w - m_radius * 2, _frameSize);
 
-			AddQuad(l);
-			AddQuad(r);
-			AddQuad(t);
-			AddQuad(b);
+			switch (_fade)
+			{
+				case Fade.None:
+					AddQuad(l);
+					AddQuad(r);
+					AddQuad(t);
+					AddQuad(b);
+					break;
+				case Fade.Inner:
+					AddQuad(l, QuadFade.Right);
+					AddQuad(r, QuadFade.Left);
+					AddQuad(t, QuadFade.Bottom);
+					AddQuad(b, QuadFade.Top);
+					break;
+				case Fade.Outer:
+					AddQuad(l, QuadFade.Left);
+					AddQuad(r, QuadFade.Right);
+					AddQuad(t, QuadFade.Top);
+					AddQuad(b, QuadFade.Bottom);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(_fade), _fade, null);
+			}
+			
 
 			AddFrameSegment(Corner.TopLeft, _frameSize, _fade);
 			AddFrameSegment(Corner.TopRight, _frameSize, _fade);
@@ -483,16 +503,49 @@ namespace GuiToolkit
 			s_triangles.Add(new[] { startIndex, startIndex + 1, startIndex + 2 });
 		}
 
-		private void AddQuad( Rect _rect, bool _left = false ) => AddQuad(_rect.min, _rect.max, _left);
+		private void AddQuad( Rect _rect, QuadFade _fade = QuadFade.None, bool _left = false ) => AddQuad(_rect.min, _rect.max, _fade, _left);
 
-		private void AddQuad( Vector2 _posMin, Vector2 _posMax, bool _left = false )
+		private void AddQuad( Vector2 _posMin, Vector2 _posMax, QuadFade _fade = QuadFade.None, bool _left = false )
 		{
 			int startIndex = s_vertices.Count;
+			var fadeColor = color;
+			fadeColor.a = 0;
 
-			AddVert(_posMin.x, _posMin.y, color);
-			AddVert(_posMin.x, _posMax.y, color);
-			AddVert(_posMax.x, _posMax.y, color);
-			AddVert(_posMax.x, _posMin.y, color);
+			switch (_fade)
+			{
+				case QuadFade.None:
+					AddVert(_posMin.x, _posMin.y, color);
+					AddVert(_posMin.x, _posMax.y, color);
+					AddVert(_posMax.x, _posMax.y, color);
+					AddVert(_posMax.x, _posMin.y, color);
+					break;
+				case QuadFade.Left:
+					AddVert(_posMin.x, _posMin.y, fadeColor);
+					AddVert(_posMin.x, _posMax.y, fadeColor);
+					AddVert(_posMax.x, _posMax.y, color);
+					AddVert(_posMax.x, _posMin.y, color);
+					break;
+				case QuadFade.Right:
+					AddVert(_posMin.x, _posMin.y, color);
+					AddVert(_posMin.x, _posMax.y, color);
+					AddVert(_posMax.x, _posMax.y, fadeColor);
+					AddVert(_posMax.x, _posMin.y, fadeColor);
+					break;
+				case QuadFade.Top:
+					AddVert(_posMin.x, _posMin.y, color);
+					AddVert(_posMin.x, _posMax.y, fadeColor);
+					AddVert(_posMax.x, _posMax.y, fadeColor);
+					AddVert(_posMax.x, _posMin.y, color);
+					break;
+				case QuadFade.Bottom:
+					AddVert(_posMin.x, _posMin.y, fadeColor);
+					AddVert(_posMin.x, _posMax.y, color);
+					AddVert(_posMax.x, _posMax.y, color);
+					AddVert(_posMax.x, _posMin.y, fadeColor);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(_fade), _fade, null);
+			}
 
 			if (_left)
 			{
