@@ -16,14 +16,14 @@ namespace GuiToolkit
 			BottomRight,
 			BottomLeft,
 		}
-		
+
 		private class Vertex
 		{
 			public Vector2 Position;
 			public Vector2 Uv;
 			public Color Color;
 		}
-		
+
 		[UnityEngine.Range(2, 50)]
 		[SerializeField] protected int m_cornerSegments = 5;
 		[UnityEngine.Range(0, 200)]
@@ -45,8 +45,8 @@ namespace GuiToolkit
 			}
 		}
 
-		private static readonly List<Vertex> s_vertices = new ();
-		private static readonly List<int[]> s_triangles = new ();
+		private static readonly List<Vertex> s_vertices = new();
+		private static readonly List<int[]> s_triangles = new();
 
 		protected override void Awake()
 		{
@@ -60,7 +60,7 @@ namespace GuiToolkit
 			UseLegacyMeshGeneration = m_useLegacyMeshGeneration;
 		}
 
-		protected override void OnPopulateMesh(Mesh _mesh)
+		protected override void OnPopulateMesh( Mesh _mesh )
 		{
 			if (m_frameSize > 0)
 			{
@@ -86,7 +86,48 @@ namespace GuiToolkit
 			ApplyToVertexHelper(_vh);
 		}
 
-		private void ApplyToMesh(Mesh _mesh)
+		protected override void UpdateGeometry()
+		{
+			workerMesh.Clear(false);
+			if (rectTransform == null || rectTransform.rect.width < 0 || rectTransform.rect.height < 0)
+				return;
+
+			var components = GetComponents<IMeshModifier>();
+			bool hasComponents = components.Length > 0;
+			VertexHelper vertexHelper = null;
+
+			try
+			{
+				if (UseLegacyMeshGeneration)
+				{
+					OnPopulateMesh(workerMesh);
+					if (hasComponents)
+						vertexHelper = new VertexHelper(workerMesh);
+				}
+				else
+				{
+					vertexHelper = new VertexHelper();
+					OnPopulateMesh(vertexHelper);
+				}
+
+				if (components.Length > 0)
+				{
+					foreach (var component in components)
+						component.ModifyMesh(vertexHelper);
+				}
+				
+				if (vertexHelper != null)
+					vertexHelper.FillMesh(workerMesh);
+			}
+			finally
+			{
+				canvasRenderer.SetMesh(workerMesh);
+				if (vertexHelper != null)
+					vertexHelper.Dispose();
+			}
+		}
+
+		private void ApplyToMesh( Mesh _mesh )
 		{
 			var vertexCount = s_vertices.Count;
 
@@ -113,17 +154,26 @@ namespace GuiToolkit
 				triangles[it++] = triangle[2];
 			}
 
-			_mesh.Clear(false);
 			_mesh.vertices = vertices;
 			_mesh.colors = colors;
 			_mesh.uv = uv;
 			_mesh.triangles = triangles;
 
+			// Crappy Vertex"Helper" needs these (completely useless for UI) entries
+			var fuCrappyVertexHelper2 = new Vector2[vertexCount];
+			var fuCrappyVertexHelper3 = new Vector3[vertexCount];
+			var fuCrappyVertexHelper4 = new Vector4[vertexCount];
+			_mesh.uv2 = fuCrappyVertexHelper2;
+			_mesh.uv3 = fuCrappyVertexHelper2;
+			_mesh.uv4 = fuCrappyVertexHelper2;
+			_mesh.normals = fuCrappyVertexHelper3;
+			_mesh.tangents = fuCrappyVertexHelper4;
+			
 			s_vertices.Clear();
 			s_triangles.Clear();
 		}
 
-		private static void ApplyToVertexHelper(VertexHelper _vh)
+		private static void ApplyToVertexHelper( VertexHelper _vh )
 		{
 			_vh.Clear();
 
@@ -164,7 +214,7 @@ namespace GuiToolkit
 
 		private void GenerateFrameRect() => GenerateFrameRect(rectTransform.rect, m_frameSize);
 
-		private void GenerateFrameRect(Rect _rect, float _frameSize)
+		private void GenerateFrameRect( Rect _rect, float _frameSize )
 		{
 			if (!Mathf.Approximately(0, m_fadeSize))
 			{
@@ -181,14 +231,14 @@ namespace GuiToolkit
 				_rect.height -= (_frameSize - m_fadeSize * 2) * 2;
 				GenerateFrameRectSimple(_rect, m_fadeSize);
 				FadeFrameRect(_rect, true);
-				
+
 				return;
 			}
 
 			GenerateFrameRectSimple(_rect, _frameSize);
 		}
 
-		private void GenerateFrameRectSimple(Rect _rect, float _frameWidth)
+		private void GenerateFrameRectSimple( Rect _rect, float _frameWidth )
 		{
 			var x = _rect.x;
 			var y = _rect.y;
@@ -248,7 +298,7 @@ namespace GuiToolkit
 				AddQuad(rect);
 				return;
 			}
-			
+
 			GenerateFrameRect(rect, m_fadeSize);
 			FadeFrameRect(rect, false);
 			rect.x += m_fadeSize;
@@ -258,7 +308,7 @@ namespace GuiToolkit
 			AddQuad(rect);
 		}
 
-		private void FadeFrameRect(Rect _rect, bool _inner)
+		private void FadeFrameRect( Rect _rect, bool _inner )
 		{
 			var fadeColor = color;
 			fadeColor.a = 0;
@@ -272,8 +322,8 @@ namespace GuiToolkit
 			{
 				var vertex = s_vertices[i];
 				var position = vertex.Position;
-				
-				bool condition = 
+
+				bool condition =
 					Mathf.Approximately(left, position.x) ||
 					Mathf.Approximately(right, position.x) ||
 					Mathf.Approximately(top, position.y) ||
@@ -438,12 +488,12 @@ namespace GuiToolkit
 			AddVert(_bx, _by, color);
 			AddVert(_cx, _cy, color);
 
-			s_triangles.Add(new []{startIndex, startIndex + 1, startIndex + 2});
+			s_triangles.Add(new[] { startIndex, startIndex + 1, startIndex + 2 });
 		}
 
-		private void AddQuad(Rect _rect, bool _left = false) => AddQuad(_rect.min, _rect.max, _left);
+		private void AddQuad( Rect _rect, bool _left = false ) => AddQuad(_rect.min, _rect.max, _left);
 
-		private void AddQuad(Vector2 _posMin, Vector2 _posMax, bool _left = false)
+		private void AddQuad( Vector2 _posMin, Vector2 _posMax, bool _left = false )
 		{
 			int startIndex = s_vertices.Count;
 
@@ -451,16 +501,16 @@ namespace GuiToolkit
 			AddVert(_posMin.x, _posMax.y, color);
 			AddVert(_posMax.x, _posMax.y, color);
 			AddVert(_posMax.x, _posMin.y, color);
-			
+
 			if (_left)
 			{
-				s_triangles.Add(new []{ startIndex, startIndex + 1, startIndex + 3 });
-				s_triangles.Add(new []{ startIndex + 2, startIndex + 3, startIndex + 1 });
+				s_triangles.Add(new[] { startIndex, startIndex + 1, startIndex + 3 });
+				s_triangles.Add(new[] { startIndex + 2, startIndex + 3, startIndex + 1 });
 				return;
 			}
 
-			s_triangles.Add(new []{ startIndex, startIndex + 1, startIndex + 2 });
-			s_triangles.Add(new []{ startIndex + 2, startIndex + 3, startIndex });
+			s_triangles.Add(new[] { startIndex, startIndex + 1, startIndex + 2 });
+			s_triangles.Add(new[] { startIndex + 2, startIndex + 3, startIndex });
 		}
 
 		private void AddIrregularQuad( float _ax, float _ay, float _bx, float _by, float _cx, float _cy, float _dx, float _dy )
@@ -472,13 +522,13 @@ namespace GuiToolkit
 			AddVert(_cx, _cy, color);
 			AddVert(_dx, _dy, color);
 
-			s_triangles.Add(new []{ startIndex + 3, startIndex + 1, startIndex });
-			s_triangles.Add(new []{ startIndex + 2, startIndex + 3, startIndex });
+			s_triangles.Add(new[] { startIndex + 3, startIndex + 1, startIndex });
+			s_triangles.Add(new[] { startIndex + 2, startIndex + 3, startIndex });
 		}
 
 		private void AddVert( float _x, float _y, Color32 _color )
 		{
-			s_vertices.Add(new Vertex() { Position = new Vector2(_x, _y), Uv = GetUv(_x, _y), Color = _color});
+			s_vertices.Add(new Vertex() { Position = new Vector2(_x, _y), Uv = GetUv(_x, _y), Color = _color });
 		}
 
 		private Vector2 GetUv( float _x, float _y )
