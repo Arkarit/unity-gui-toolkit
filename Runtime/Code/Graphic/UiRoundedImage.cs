@@ -6,13 +6,33 @@ using UnityEngine.UI;
 namespace GuiToolkit
 {
 	/// <summary>
-	/// Lorem Ipsum
+	/// Create rounded and antialiased images
+	///
+	/// In nearly every project, there's a need for rounded images and frames.
+	/// This class handles this by creating an image with rounded corners of an arbitrary radius, and optional frame (hole) functionality and antialiasing.
+	/// It works nearly like the original UnityEngine.UI.Image, where it's based on.
+	/// You can add a sprite and set a color for the image.
+	/// UV coordinates however are always 0/1 and there is no support for sliced, tiled, preserve aspect etc.
 	/// </summary>
 	[ExecuteAlways]
 	[RequireComponent(typeof(CanvasRenderer))]
 	public class UiRoundedImage : Image
 	{
-		public enum Corner
+		public const int MinCornerSegments = 2;
+		public const int MaxCornerSegments = 30;
+
+		public const float MinRadius = 0;
+		public const float MaxRadius = 200;
+
+		public const float MinFrameSize = 0;
+		public const float MaxFrameSize = 200;
+
+		public const float MinFadeSize = 0;
+		public const float MaxFadeSize = 30;
+
+
+
+		private enum Corner
 		{
 			TopLeft,
 			TopRight,
@@ -43,17 +63,76 @@ namespace GuiToolkit
 			public Color Color;
 		}
 		
-		[UnityEngine.Range(2, 50)]
+		[Tooltip("Corner segments. The more, the rounder. But keep an eye on performance; " 
+		         + "more corner segments mean more triangles and longer creation time. " 
+		         + "Between 5 and 10 should be sufficient for most tasks.")]
+		[UnityEngine.Range(MinCornerSegments, MaxCornerSegments)]
 		[SerializeField] protected int m_cornerSegments = 5;
-		[UnityEngine.Range(0, 200)]
+
+		[Tooltip("Corner radius. To work properly, this should always be greater than frame size (when used with frame)")]
+		[UnityEngine.Range(MinRadius, MaxRadius)]
 		[SerializeField] protected float m_radius = 10;
-		[UnityEngine.Range(0, 200)]
+
+		[Tooltip("Frame size. When set to 0, the image is completely filled. To work properly, this should always be less than corner radius (when used with frame)")]
+		[UnityEngine.Range(MinFrameSize, MaxFrameSize)]
 		[SerializeField] protected float m_frameSize = 0;
-		[UnityEngine.Range(0, 30)]
+
+		[Tooltip("Fades out the edges of the image. Very useful for antialiasing, but can also be used for other purposes (e.g. soft shadow)")]
+		[UnityEngine.Range(MinFadeSize, MaxFadeSize)]
 		[SerializeField] protected float m_fadeSize = 0;
 
 		private static readonly List<Vertex> s_vertices = new();
 		private static readonly List<int[]> s_triangles = new();
+
+		public int CornerSegments
+		{
+			get => m_cornerSegments;
+			set
+			{
+				CheckSetter(nameof(CornerSegments), value, MinCornerSegments, MaxCornerSegments);
+				m_cornerSegments = value;
+				SetVerticesDirty();
+			}
+		}
+
+		public float Radius
+		{
+			get => m_radius;
+			set
+			{
+				CheckSetter(nameof(Radius), value, MinRadius, MaxRadius);
+				m_radius = value;
+				SetVerticesDirty();
+			}
+		}
+
+		public float FrameSize
+		{
+			get => m_frameSize;
+			set
+			{
+				CheckSetter(nameof(FrameSize), value, MinFrameSize, MaxFrameSize);
+				m_frameSize = value;
+				SetVerticesDirty();
+			}
+		}
+
+		public float FadeSize
+		{
+			get => m_fadeSize;
+			set
+			{
+				CheckSetter(nameof(FadeSize), value, MinFadeSize, MaxFadeSize);
+				m_fadeSize = value;
+				SetVerticesDirty();
+			}
+		}
+
+		private void CheckSetter(string _name, float _value, float _min, float _max)
+		{
+			if (_value < _min ||  _value > _max)
+				throw new ArgumentOutOfRangeException($"{_name} is out of range; should be in the range of {_min}..{_max}, but is {_value}");
+		}
 
 		protected override void OnPopulateMesh( Mesh _mesh )
 		{
