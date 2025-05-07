@@ -23,6 +23,15 @@ namespace GuiToolkit
 			Inner,
 			Outer,
 		}
+		
+		private enum FadeRect
+		{
+			None,
+			Left,
+			Right,
+			Top,
+			Bottom,
+		}
 
 		private class Vertex
 		{
@@ -225,18 +234,18 @@ namespace GuiToolkit
 			AddQuad(b);
 		}
 
-		private void GenerateFrameRounded() => GenerateFrameRounded(rectTransform.rect, m_frameSize);
+		private void GenerateFrameRounded() => GenerateFrameRounded(rectTransform.rect, m_frameSize, Fade.None);
 		
-		private void GenerateFrameRounded(ref Rect _rect, float _frameSize)
+		private void GenerateFrameRounded(ref Rect _rect, float _frameSize, Fade _fade)
 		{
-			GenerateFrameRounded(_rect, _frameSize);
+			GenerateFrameRounded(_rect, _frameSize, _fade);
 			_rect.x += _frameSize;
 			_rect.y += _frameSize;
 			_rect.width -= _frameSize * 2;
 			_rect.height -= _frameSize * 2;
 		}
 		
-		private void GenerateFrameRounded(Rect _rect, float _frameSize)
+		private void GenerateFrameRounded(Rect _rect, float _frameSize, Fade _fade)
 		{
 			var x = _rect.x;
 			var y = _rect.y;
@@ -253,10 +262,10 @@ namespace GuiToolkit
 			AddQuad(t);
 			AddQuad(b);
 
-			AddFrameSegment(Corner.TopLeft, _frameSize);
-			AddFrameSegment(Corner.TopRight, _frameSize);
-			AddFrameSegment(Corner.BottomLeft, _frameSize);
-			AddFrameSegment(Corner.BottomRight, _frameSize);
+			AddFrameSegment(Corner.TopLeft, _frameSize, _fade);
+			AddFrameSegment(Corner.TopRight, _frameSize, _fade);
+			AddFrameSegment(Corner.BottomLeft, _frameSize, _fade);
+			AddFrameSegment(Corner.BottomRight, _frameSize, _fade);
 		}
 
 		private void GenerateFilledRect()
@@ -315,14 +324,11 @@ namespace GuiToolkit
 		{
 			Rect rect = rectTransform.rect;
 			float radius = m_radius;
-Debug.Log($"---::: before {rect} {radius}");
 			if (!Mathf.Approximately(0, m_fadeSize))
 			{
-				GenerateFrameRounded(ref rect, m_fadeSize);
+				GenerateFrameRounded(ref rect, m_fadeSize, Fade.Outer);
 				radius -= m_fadeSize;
-Debug.Log($"---::: after {rect} {radius}");
 			}
-			
 			
 			var x = rect.x;
 			var y = rect.y;
@@ -362,10 +368,10 @@ Debug.Log($"---::: after {rect} {radius}");
 			AddSector(rect, Corner.BottomRight, radius);
 		}
 
-		private void AddFrameSegment( Corner _corner ) => AddFrameSegment(_corner, m_cornerSegments, m_frameSize);
-		private void AddFrameSegment( Corner _corner, float _frameSize ) => AddFrameSegment(_corner, m_cornerSegments, _frameSize);
+		private void AddFrameSegment( Corner _corner ) => AddFrameSegment(_corner, m_cornerSegments, m_frameSize, Fade.None);
+		private void AddFrameSegment( Corner _corner, float _frameSize, Fade _fade ) => AddFrameSegment(_corner, m_cornerSegments, _frameSize, _fade);
 
-		private void AddFrameSegment( Corner _corner, int _cornerSegments, float _frameSize )
+		private void AddFrameSegment( Corner _corner, int _cornerSegments, float _frameSize, Fade _fade )
 		{
 			Rect rect = rectTransform.rect;
 			var x = rect.x;
@@ -411,8 +417,9 @@ Debug.Log($"---::: after {rect} {radius}");
 				float y0 = Mathf.Cos(angle) * m_radius + oy;
 				float x2 = Mathf.Sin(angle) * radiusInner + ox;
 				float y2 = Mathf.Cos(angle) * radiusInner + oy;
-				AddIrregularQuad(x0, y0, x1, y1, x2, y2, x3, y3);
+				AddIrregularQuad(x0, y0, x1, y1, x2, y2, x3, y3, _fade);
 			}
+
 		}
 
 		private void AddSector( Rect _rect, Corner _corner, float _radius ) => AddSector(_rect, _corner, m_cornerSegments, _radius);
@@ -498,14 +505,21 @@ Debug.Log($"---::: after {rect} {radius}");
 			s_triangles.Add(new[] { startIndex + 2, startIndex + 3, startIndex });
 		}
 
-		private void AddIrregularQuad( float _ax, float _ay, float _bx, float _by, float _cx, float _cy, float _dx, float _dy )
+		private void AddIrregularQuad( float _ax, float _ay, float _bx, float _by, float _cx, float _cy, float _dx, float _dy, Fade _fade )
 		{
 			int startIndex = s_vertices.Count;
-
-			AddVert(_ax, _ay, color);
-			AddVert(_bx, _by, color);
-			AddVert(_cx, _cy, color);
-			AddVert(_dx, _dy, color);
+			var fadeColor = color;
+			fadeColor.a = 0;
+			
+			var effectiveColor = _fade == Fade.Outer ? fadeColor : color;
+			
+			AddVert(_ax, _ay, effectiveColor);
+			AddVert(_bx, _by, effectiveColor);
+			
+			effectiveColor = _fade == Fade.Inner ? fadeColor : color;
+			
+			AddVert(_cx, _cy, effectiveColor);
+			AddVert(_dx, _dy, effectiveColor);
 
 			s_triangles.Add(new[] { startIndex + 3, startIndex + 1, startIndex });
 			s_triangles.Add(new[] { startIndex + 2, startIndex + 3, startIndex });
