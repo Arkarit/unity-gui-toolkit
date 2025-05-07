@@ -17,13 +17,20 @@ namespace GuiToolkit
 			BottomLeft,
 		}
 
+		private enum Fade
+		{
+			None,
+			Inner,
+			Outer,
+		}
+
 		private class Vertex
 		{
 			public Vector2 Position;
 			public Vector2 Uv;
 			public Color Color;
 		}
-
+		
 		[UnityEngine.Range(2, 50)]
 		[SerializeField] protected int m_cornerSegments = 5;
 		[UnityEngine.Range(0, 200)]
@@ -171,7 +178,7 @@ namespace GuiToolkit
 			if (!Mathf.Approximately(0, m_fadeSize))
 			{
 				GenerateFrameRectSimple(_rect, m_fadeSize);
-				FadeFrameRect(_rect, false);
+				FadeFrameRect(_rect, Fade.Outer);
 				_rect.x += m_fadeSize;
 				_rect.y += m_fadeSize;
 				_rect.width -= m_fadeSize * 2;
@@ -182,7 +189,7 @@ namespace GuiToolkit
 				_rect.width -= (_frameSize - m_fadeSize * 2) * 2;
 				_rect.height -= (_frameSize - m_fadeSize * 2) * 2;
 				GenerateFrameRectSimple(_rect, m_fadeSize);
-				FadeFrameRect(_rect, true);
+				FadeFrameRect(_rect, Fade.Inner);
 
 				return;
 			}
@@ -218,28 +225,38 @@ namespace GuiToolkit
 			AddQuad(b);
 		}
 
-		private void GenerateFrameRounded()
+		private void GenerateFrameRounded() => GenerateFrameRounded(rectTransform.rect, m_frameSize);
+		
+		private void GenerateFrameRounded(ref Rect _rect, float _frameSize)
 		{
-			Rect rect = rectTransform.rect;
-			var x = rect.x;
-			var y = rect.y;
-			var w = rect.width;
-			var h = rect.height;
+			GenerateFrameRounded(_rect, _frameSize);
+			_rect.x += _frameSize;
+			_rect.y += _frameSize;
+			_rect.width -= _frameSize * 2;
+			_rect.height -= _frameSize * 2;
+		}
+		
+		private void GenerateFrameRounded(Rect _rect, float _frameSize)
+		{
+			var x = _rect.x;
+			var y = _rect.y;
+			var w = _rect.width;
+			var h = _rect.height;
 
-			Rect l = new Rect(x, y + m_radius, m_frameSize, h - m_radius * 2);
-			Rect r = new Rect(w + x - m_frameSize, y + m_radius, m_frameSize, h - m_radius * 2);
-			Rect t = new Rect(x + m_radius, h + y - m_frameSize, w - m_radius * 2, m_frameSize);
-			Rect b = new Rect(x + m_radius, y, w - m_radius * 2, m_frameSize);
+			Rect l = new Rect(x, y + m_radius, _frameSize, h - m_radius * 2);
+			Rect r = new Rect(w + x - _frameSize, y + m_radius, _frameSize, h - m_radius * 2);
+			Rect t = new Rect(x + m_radius, h + y - _frameSize, w - m_radius * 2, _frameSize);
+			Rect b = new Rect(x + m_radius, y, w - m_radius * 2, _frameSize);
 
 			AddQuad(l);
 			AddQuad(r);
 			AddQuad(t);
 			AddQuad(b);
 
-			AddFrameSegment(Corner.TopLeft);
-			AddFrameSegment(Corner.TopRight);
-			AddFrameSegment(Corner.BottomLeft);
-			AddFrameSegment(Corner.BottomRight);
+			AddFrameSegment(Corner.TopLeft, _frameSize);
+			AddFrameSegment(Corner.TopRight, _frameSize);
+			AddFrameSegment(Corner.BottomLeft, _frameSize);
+			AddFrameSegment(Corner.BottomRight, _frameSize);
 		}
 
 		private void GenerateFilledRect()
@@ -251,8 +268,8 @@ namespace GuiToolkit
 				return;
 			}
 
-			GenerateFrameRect(rect, m_fadeSize);
-			FadeFrameRect(rect, false);
+			GenerateFrameRectSimple(rect, m_fadeSize);
+			FadeFrameRect(rect, Fade.Outer);
 			rect.x += m_fadeSize;
 			rect.y += m_fadeSize;
 			rect.width -= m_fadeSize * 2;
@@ -260,8 +277,11 @@ namespace GuiToolkit
 			AddQuad(rect);
 		}
 
-		private void FadeFrameRect( Rect _rect, bool _inner )
+		private void FadeFrameRect( Rect _rect, Fade _fade )
 		{
+			if (_fade == Fade.None)
+				return;
+			
 			var fadeColor = color;
 			fadeColor.a = 0;
 			float top = _rect.yMin;
@@ -281,7 +301,7 @@ namespace GuiToolkit
 					Mathf.Approximately(top, position.y) ||
 					Mathf.Approximately(bottom, position.y);
 
-				if (_inner)
+				if (_fade == Fade.Inner)
 					condition = !condition;
 
 				if (condition)
@@ -294,6 +314,16 @@ namespace GuiToolkit
 		private void GenerateFilledRounded()
 		{
 			Rect rect = rectTransform.rect;
+			float radius = m_radius;
+Debug.Log($"---::: before {rect} {radius}");
+			if (!Mathf.Approximately(0, m_fadeSize))
+			{
+				GenerateFrameRounded(ref rect, m_fadeSize);
+				radius -= m_fadeSize;
+Debug.Log($"---::: after {rect} {radius}");
+			}
+			
+			
 			var x = rect.x;
 			var y = rect.y;
 			var w = rect.width;
@@ -303,38 +333,39 @@ namespace GuiToolkit
 
 			AddTriangle
 			(
-				x, y + m_radius,
+				x, y + radius,
 				cex, cey,
-				x, y + h - m_radius
+				x, y + h - radius
 			);
 			AddTriangle
 			(
-				x + m_radius, y + h,
+				x + radius, y + h,
 				cex, cey,
-				x + w - m_radius, y + h
+				x + w - radius, y + h
 			);
 			AddTriangle
 			(
-				x + w, y + m_radius,
+				x + w, y + radius,
 				cex, cey,
-				x + w, y + h - m_radius
+				x + w, y + h - radius
 			);
 			AddTriangle
 			(
-				x + m_radius, y,
+				x + radius, y,
 				cex, cey,
-				x + w - m_radius, y
+				x + w - radius, y
 			);
 
-			AddSector(cex, cey, Corner.TopLeft);
-			AddSector(cex, cey, Corner.TopRight);
-			AddSector(cex, cey, Corner.BottomLeft);
-			AddSector(cex, cey, Corner.BottomRight);
+			AddSector(rect, Corner.TopLeft, radius);
+			AddSector(rect, Corner.TopRight, radius);
+			AddSector(rect, Corner.BottomLeft, radius);
+			AddSector(rect, Corner.BottomRight, radius);
 		}
 
-		private void AddFrameSegment( Corner _corner ) => AddFrameSegment(_corner, m_cornerSegments);
+		private void AddFrameSegment( Corner _corner ) => AddFrameSegment(_corner, m_cornerSegments, m_frameSize);
+		private void AddFrameSegment( Corner _corner, float _frameSize ) => AddFrameSegment(_corner, m_cornerSegments, _frameSize);
 
-		private void AddFrameSegment( Corner _corner, int _cornerSegments )
+		private void AddFrameSegment( Corner _corner, int _cornerSegments, float _frameSize )
 		{
 			Rect rect = rectTransform.rect;
 			var x = rect.x;
@@ -368,7 +399,7 @@ namespace GuiToolkit
 					throw new ArgumentOutOfRangeException(nameof(_corner), _corner, null);
 			}
 
-			float radiusInner = m_radius - m_frameSize;
+			float radiusInner = m_radius - _frameSize;
 			for (int i = 0; i < _cornerSegments; i++)
 			{
 				float x1 = Mathf.Sin(angle) * m_radius + ox;
@@ -384,16 +415,18 @@ namespace GuiToolkit
 			}
 		}
 
+		private void AddSector( Rect _rect, Corner _corner, float _radius ) => AddSector(_rect, _corner, m_cornerSegments, _radius);
+		
+		private void AddSector( Rect _rect, Corner _corner ) => AddSector(_rect, _corner, m_cornerSegments, m_radius);
 
-		private void AddSector( float _cex, float _cey, Corner _corner ) => AddSector(_cex, _cey, _corner, m_cornerSegments);
-
-		private void AddSector( float _cex, float _cey, Corner _corner, int _cornerSegments )
+		private void AddSector( Rect _rect, Corner _corner, int _cornerSegments, float _radius )
 		{
-			Rect rect = rectTransform.rect;
-			var x = rect.x;
-			var y = rect.y;
-			var w = rect.width;
-			var h = rect.height;
+			var x = _rect.x;
+			var y = _rect.y;
+			var w = _rect.width;
+			var h = _rect.height;
+			var cex = _rect.center.x;
+			var cey = _rect.center.y;
 
 			float angle = ((int)_corner + 3) * 90 * Mathf.Deg2Rad;
 			float angleIncrement = 90f / _cornerSegments * Mathf.Deg2Rad;
@@ -402,20 +435,20 @@ namespace GuiToolkit
 			switch (_corner)
 			{
 				case Corner.TopLeft:
-					ox = x + m_radius;
-					oy = y + h - m_radius;
+					ox = x + _radius;
+					oy = y + h - _radius;
 					break;
 				case Corner.TopRight:
-					ox = x + w - m_radius;
-					oy = y + h - m_radius;
+					ox = x + w - _radius;
+					oy = y + h - _radius;
 					break;
 				case Corner.BottomRight:
-					ox = x + w - m_radius;
-					oy = y + m_radius;
+					ox = x + w - _radius;
+					oy = y + _radius;
 					break;
 				case Corner.BottomLeft:
-					ox = x + m_radius;
-					oy = y + m_radius;
+					ox = x + _radius;
+					oy = y + _radius;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(_corner), _corner, null);
@@ -423,12 +456,12 @@ namespace GuiToolkit
 
 			for (int i = 0; i < _cornerSegments; i++)
 			{
-				float x1 = Mathf.Sin(angle) * m_radius + ox;
-				float y1 = Mathf.Cos(angle) * m_radius + oy;
+				float x1 = Mathf.Sin(angle) * _radius + ox;
+				float y1 = Mathf.Cos(angle) * _radius + oy;
 				angle += angleIncrement;
-				float x0 = Mathf.Sin(angle) * m_radius + ox;
-				float y0 = Mathf.Cos(angle) * m_radius + oy;
-				AddTriangle(x0, y0, _cex, _cey, x1, y1);
+				float x0 = Mathf.Sin(angle) * _radius + ox;
+				float y0 = Mathf.Cos(angle) * _radius + oy;
+				AddTriangle(x0, y0, cex, cey, x1, y1);
 			}
 		}
 
