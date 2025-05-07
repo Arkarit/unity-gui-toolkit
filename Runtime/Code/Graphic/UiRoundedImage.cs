@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// Lorem Ipsum
+	/// </summary>
 	[ExecuteAlways]
 	[RequireComponent(typeof(CanvasRenderer))]
 	public class UiRoundedImage : Image

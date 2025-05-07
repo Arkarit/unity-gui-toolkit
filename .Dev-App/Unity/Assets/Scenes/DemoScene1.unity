@@ -358,7 +358,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.38431373}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.49411765}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -375,11 +375,10 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
-  m_cornerSegments: 2
-  m_radius: 0
+  m_cornerSegments: 8
+  m_radius: 48.3
   m_frameSize: 0
-  m_fadeSize: 0
-  m_useLegacyMeshGeneration: 1
+  m_fadeSize: 12.1
 --- !u!222 &48151819
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5021,8 +5020,6 @@ GameObject:
   - component: {fileID: 1789100136}
   - component: {fileID: 1789100138}
   - component: {fileID: 1789100137}
-  - component: {fileID: 1789100140}
-  - component: {fileID: 1789100139}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -5079,11 +5076,10 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
-  m_cornerSegments: 10
-  m_radius: 0
-  m_frameSize: 50.8
-  m_fadeSize: 6.7
-  m_useLegacyMeshGeneration: 0
+  m_cornerSegments: 8
+  m_radius: 49
+  m_frameSize: 20.4
+  m_fadeSize: 0.5
 --- !u!222 &1789100138
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5092,41 +5088,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1789100135}
   m_CullTransparentMesh: 1
---- !u!114 &1789100139
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1789100135}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5fca173f30741f479e58226a2509466, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_mirrorAxisFlags: 0
-  m_topLeft: {x: 0, y: 0}
-  m_topRight: {x: 0, y: 0}
-  m_bottomLeft: {x: 0, y: 0}
-  m_bottomRight: {x: 0.20591342, y: -0.17845832}
-  m_absoluteValues: 0
---- !u!114 &1789100140
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1789100135}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_vertexColorMode: 0
-  m_colorLeftOrTop: {r: 1, g: 1, b: 1, a: 1}
-  m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0}
-  m_orientation: 1
-  m_swapped: 0
 --- !u!1001 &1842801993
 PrefabInstance:
   m_ObjectHideFlags: 0
