@@ -32,33 +32,9 @@ namespace GuiToolkit
 		[SerializeField] protected float m_frameSize = 0;
 		[UnityEngine.Range(0, 30)]
 		[SerializeField] protected float m_fadeSize = 0;
-		[SerializeField] protected bool m_useLegacyMeshGeneration = true;
-
-		public bool UseLegacyMeshGeneration
-		{
-			get => m_useLegacyMeshGeneration;
-			set
-			{
-				m_useLegacyMeshGeneration = value;
-				useLegacyMeshGeneration = value;
-				SetVerticesDirty();
-			}
-		}
 
 		private static readonly List<Vertex> s_vertices = new();
 		private static readonly List<int[]> s_triangles = new();
-
-		protected override void Awake()
-		{
-			base.Awake();
-			UseLegacyMeshGeneration = m_useLegacyMeshGeneration;
-		}
-
-		protected override void OnValidate()
-		{
-			base.OnValidate();
-			UseLegacyMeshGeneration = m_useLegacyMeshGeneration;
-		}
 
 		protected override void OnPopulateMesh( Mesh _mesh )
 		{
@@ -94,37 +70,23 @@ namespace GuiToolkit
 
 			var components = GetComponents<IMeshModifier>();
 			bool hasComponents = components.Length > 0;
-			VertexHelper vertexHelper = null;
 
-			try
+			if (hasComponents)
 			{
-				if (UseLegacyMeshGeneration)
+				using (VertexHelper vertexHelper = new VertexHelper())
 				{
-					OnPopulateMesh(workerMesh);
-					if (hasComponents)
-						vertexHelper = new VertexHelper(workerMesh);
-				}
-				else
-				{
-					vertexHelper = new VertexHelper();
 					OnPopulateMesh(vertexHelper);
-				}
-
-				if (components.Length > 0)
-				{
 					foreach (var component in components)
 						component.ModifyMesh(vertexHelper);
+					vertexHelper.FillMesh(workerMesh);
 				}
 				
-				if (vertexHelper != null)
-					vertexHelper.FillMesh(workerMesh);
-			}
-			finally
-			{
 				canvasRenderer.SetMesh(workerMesh);
-				if (vertexHelper != null)
-					vertexHelper.Dispose();
+				return;
 			}
+
+			OnPopulateMesh(workerMesh);
+			canvasRenderer.SetMesh(workerMesh);
 		}
 
 		private void ApplyToMesh( Mesh _mesh )
@@ -159,16 +121,6 @@ namespace GuiToolkit
 			_mesh.uv = uv;
 			_mesh.triangles = triangles;
 
-			// Crappy Vertex"Helper" needs these (completely useless for UI) entries
-			var fuCrappyVertexHelper2 = new Vector2[vertexCount];
-			var fuCrappyVertexHelper3 = new Vector3[vertexCount];
-			var fuCrappyVertexHelper4 = new Vector4[vertexCount];
-			_mesh.uv2 = fuCrappyVertexHelper2;
-			_mesh.uv3 = fuCrappyVertexHelper2;
-			_mesh.uv4 = fuCrappyVertexHelper2;
-			_mesh.normals = fuCrappyVertexHelper3;
-			_mesh.tangents = fuCrappyVertexHelper4;
-			
 			s_vertices.Clear();
 			s_triangles.Clear();
 		}
