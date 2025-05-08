@@ -83,6 +83,9 @@ namespace GuiToolkit
 		[Tooltip("Invert stencil mask. Useful for cutouts.")]
 		[SerializeField] protected bool m_invertMask;
 
+		[Tooltip("Extra Padding (useful for stretchable masks)")]
+		[SerializeField] protected RectOffset m_padding;
+
 		private static readonly List<Vertex> s_vertices = new();
 		private static readonly List<int[]> s_triangles = new();
 		private Material m_originalMaterial;
@@ -197,6 +200,25 @@ namespace GuiToolkit
 			}
 		}
 
+		public RectOffset Padding
+		{
+			get => m_padding;
+			set => m_padding = value;
+		}
+		
+		public Rect Rect
+		{
+			get
+			{
+				var result = rectTransform.rect;
+				result.x += m_padding.left;
+				result.y += m_padding.bottom;
+				result.width -= m_padding.horizontal;
+				result.height -= m_padding.vertical;
+				return result;
+			}
+		}
+
 		private void SetInvertMask(bool _value)
 		{
 			m_invertMask = _value;
@@ -271,7 +293,7 @@ namespace GuiToolkit
 		protected override void UpdateGeometry()
 		{
 			workerMesh.Clear(false);
-			if (rectTransform == null || rectTransform.rect.width < 0 || rectTransform.rect.height < 0)
+			if (rectTransform == null || Rect.width < 0 || Rect.height < 0)
 				return;
 
 			var components = GetComponents<IMeshModifier>();
@@ -370,7 +392,7 @@ namespace GuiToolkit
 			GenerateFilledRounded();
 		}
 
-		private void GenerateFrameRect() => GenerateFrameRect(rectTransform.rect, m_frameSize);
+		private void GenerateFrameRect() => GenerateFrameRect(Rect, m_frameSize);
 
 		private void GenerateFrameRect( Rect _rect, float _frameSize )
 		{
@@ -428,11 +450,11 @@ namespace GuiToolkit
 		{
 			if (Mathf.Approximately(0, m_fadeSize))
 			{
-				GenerateFrameRounded(rectTransform.rect, m_radius, m_frameSize, Fade.None);
+				GenerateFrameRounded(Rect, m_radius, m_frameSize, Fade.None);
 				return;
 			}
 
-			var rect = rectTransform.rect;
+			var rect = Rect;
 			var radius = m_radius;
 			GenerateFrameRounded(ref rect, ref radius, m_fadeSize, Fade.Outer);
 			GenerateFrameRounded(ref rect, ref radius, m_frameSize - m_fadeSize * 2, Fade.None);
@@ -493,7 +515,7 @@ namespace GuiToolkit
 
 		private void GenerateFilledRect()
 		{
-			var rect = rectTransform.rect;
+			var rect = Rect;
 			if (Mathf.Approximately(0, m_fadeSize))
 			{
 				AddQuad(rect);
@@ -545,7 +567,7 @@ namespace GuiToolkit
 
 		private void GenerateFilledRounded()
 		{
-			Rect rect = rectTransform.rect;
+			Rect rect = Rect;
 			float radius = m_radius;
 			if (!Mathf.Approximately(0, m_fadeSize))
 				GenerateFrameRounded(ref rect, ref radius, m_fadeSize, Fade.Outer);
