@@ -87,7 +87,8 @@ namespace GuiToolkit
 		private static readonly List<int[]> s_triangles = new();
 		private Material m_originalMaterial;
 		private Material m_clonedMaterial;
-
+		private bool m_lastInvertMask;
+		
 		private class MaterialWithRefCount
 		{
 			public Material Material;
@@ -95,16 +96,13 @@ namespace GuiToolkit
 		}
 
 		private static readonly Dictionary<Material, MaterialWithRefCount> s_clonedMaterials = new();
-		private Material GetClonedMaterial()
+		private void CloneMaterial()
 		{
-			if (material != m_originalMaterial && material != m_clonedMaterial)
-				ReleaseClonedMaterialIfNecessary();
-
 			if (!material)
-				return null;
+				return;
 
 			if (m_clonedMaterial)
-				return m_clonedMaterial;
+				return;
 
 			Debug.Assert(!m_originalMaterial);
 
@@ -113,13 +111,14 @@ namespace GuiToolkit
 			{
 				clonedMaterialWithRefCount.RefCount++;
 				m_clonedMaterial = clonedMaterialWithRefCount.Material;
-				return m_clonedMaterial;
+				material = m_clonedMaterial;
+				return;
 			}
 
-			clonedMaterialWithRefCount = new MaterialWithRefCount() { Material = new Material(material), RefCount = 1 };
+			clonedMaterialWithRefCount = new MaterialWithRefCount() { Material = Instantiate(material), RefCount = 1 };
 			s_clonedMaterials.Add(material, clonedMaterialWithRefCount);
 			m_clonedMaterial = clonedMaterialWithRefCount.Material;
-			return m_clonedMaterial;
+			material = m_clonedMaterial;
 		}
 
 		private void ReleaseClonedMaterialIfNecessary()
@@ -141,23 +140,6 @@ namespace GuiToolkit
 			m_clonedMaterial = null;
 			m_originalMaterial = null;
 		}
-
-//		public override Material materialForRendering
-//		{
-//			get
-//			{
-//				Material result;
-//				if (m_invertMask)
-//				{
-//					result = GetClonedMaterial();
-//					result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
-//					return result;
-//				}
-//				
-//				ReleaseClonedMaterialIfNecessary();
-//				return material;
-//			}
-//		}
 
 		public int CornerSegments
 		{
@@ -208,14 +190,56 @@ namespace GuiToolkit
 			get => m_invertMask;
 			set
 			{
-				m_invertMask = value;
+				if (m_invertMask == value)
+					return;
+
+				SetInvertMask(value);
 			}
 		}
 
+		private void SetInvertMask(bool _value)
+		{
+			m_invertMask = _value;
+			m_lastInvertMask = _value;
+			ReleaseClonedMaterialIfNecessary();
+			if (m_invertMask)
+				CloneMaterial();
+		}
+
+		public override Material materialForRendering
+		{
+		    get
+		    {
+		        Material result = base.materialForRendering;
+		        if (m_clonedMaterial)
+		        {
+			        if (!maskable)
+				        result.SetInt("_StencilComp", (int)CompareFunction.Always);
+			        else if (m_invertMask)
+						result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
+		        }
+		        return result;
+		    }
+		}
+    
 		private void CheckSetter( string _name, float _value, float _min, float _max )
 		{
 			if (_value < _min || _value > _max)
 				throw new ArgumentOutOfRangeException($"{_name} is out of range; should be in the range of {_min}..{_max}, but is {_value}");
+		}
+
+		protected override void Awake()
+		{
+			base.Awake();
+			ReleaseClonedMaterialIfNecessary();
+			SetInvertMask(m_invertMask);
+		}
+
+		protected override void OnValidate()
+		{
+			base.OnValidate();
+			if (m_invertMask != m_lastInvertMask)
+				SetInvertMask(m_invertMask);
 		}
 
 		protected override void OnPopulateMesh( Mesh _mesh )
