@@ -2186,7 +2186,7 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 644685396}
   m_PrefabAsset: {fileID: 0}
---- !u!21 &715768346
+--- !u!21 &672956556
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -5174,7 +5174,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.00004196167}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1789100137
@@ -5189,7 +5189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4469805793344d42adb1c74e453d208, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 715768346}
+  m_Material: {fileID: 672956556}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}

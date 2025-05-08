@@ -778,9 +778,10 @@ namespace GuiToolkit
 		private Vector2 GetUv( float _x, float _y )
 		{
 			Rect r = rectTransform.rect;
+			Vector2 pivot = rectTransform.pivot;
 
-			var normalizedX = _x / r.width + .5f;
-			var normalizedY = _y / r.height + .5f;
+			var normalizedX = _x / r.width + pivot.x;
+			var normalizedY = _y / r.height + pivot.y;
 
 			return new Vector2(normalizedX, normalizedY);
 		}
