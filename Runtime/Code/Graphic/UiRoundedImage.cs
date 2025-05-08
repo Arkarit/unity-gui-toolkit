@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -30,8 +31,6 @@ namespace GuiToolkit
 		public const float MinFadeSize = 0;
 		public const float MaxFadeSize = 30;
 
-
-
 		private enum Corner
 		{
 			TopLeft,
@@ -46,7 +45,7 @@ namespace GuiToolkit
 			Inner,
 			Outer,
 		}
-		
+
 		private enum QuadFade
 		{
 			None,
@@ -62,10 +61,10 @@ namespace GuiToolkit
 			public Vector2 Uv;
 			public Color Color;
 		}
-		
-		[Tooltip("Corner segments. The more, the rounder. But keep an eye on performance; " 
-		         + "more corner segments mean more triangles and longer creation time. " 
-		         + "Between 5 and 10 should be sufficient for most tasks.")]
+
+		[Tooltip("Corner segments. The more, the rounder. But keep an eye on performance; "
+				 + "more corner segments mean more triangles and longer creation time. "
+				 + "Between 5 and 10 should be sufficient for most tasks.")]
 		[UnityEngine.Range(MinCornerSegments, MaxCornerSegments)]
 		[SerializeField] protected int m_cornerSegments = 5;
 
@@ -81,8 +80,84 @@ namespace GuiToolkit
 		[UnityEngine.Range(MinFadeSize, MaxFadeSize)]
 		[SerializeField] protected float m_fadeSize = 0;
 
+		[Tooltip("Invert stencil mask. Useful for cutouts.")]
+		[SerializeField] protected bool m_invertMask;
+
 		private static readonly List<Vertex> s_vertices = new();
 		private static readonly List<int[]> s_triangles = new();
+		private Material m_originalMaterial;
+		private Material m_clonedMaterial;
+
+		private class MaterialWithRefCount
+		{
+			public Material Material;
+			public int RefCount;
+		}
+
+		private static readonly Dictionary<Material, MaterialWithRefCount> s_clonedMaterials = new();
+		private Material GetClonedMaterial()
+		{
+			if (material != m_originalMaterial && material != m_clonedMaterial)
+				ReleaseClonedMaterialIfNecessary();
+
+			if (!material)
+				return null;
+
+			if (m_clonedMaterial)
+				return m_clonedMaterial;
+
+			Debug.Assert(!m_originalMaterial);
+
+			m_originalMaterial = material;
+			if (s_clonedMaterials.TryGetValue(material, out MaterialWithRefCount clonedMaterialWithRefCount))
+			{
+				clonedMaterialWithRefCount.RefCount++;
+				m_clonedMaterial = clonedMaterialWithRefCount.Material;
+				return m_clonedMaterial;
+			}
+
+			clonedMaterialWithRefCount = new MaterialWithRefCount() { Material = new Material(material), RefCount = 1 };
+			s_clonedMaterials.Add(material, clonedMaterialWithRefCount);
+			m_clonedMaterial = clonedMaterialWithRefCount.Material;
+			return m_clonedMaterial;
+		}
+
+		private void ReleaseClonedMaterialIfNecessary()
+		{
+			if (!m_originalMaterial)
+				return;
+
+			if (s_clonedMaterials.TryGetValue(m_originalMaterial, out MaterialWithRefCount clonedMaterialWithRefCount))
+			{
+				clonedMaterialWithRefCount.RefCount--;
+				if (clonedMaterialWithRefCount.RefCount == 0 || !clonedMaterialWithRefCount.Material)
+				{
+					clonedMaterialWithRefCount.Material.SafeDestroy();
+					s_clonedMaterials.Remove(m_originalMaterial);
+				}
+			}
+
+			material = m_originalMaterial;
+			m_clonedMaterial = null;
+			m_originalMaterial = null;
+		}
+
+//		public override Material materialForRendering
+//		{
+//			get
+//			{
+//				Material result;
+//				if (m_invertMask)
+//				{
+//					result = GetClonedMaterial();
+//					result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
+//					return result;
+//				}
+//				
+//				ReleaseClonedMaterialIfNecessary();
+//				return material;
+//			}
+//		}
 
 		public int CornerSegments
 		{
@@ -128,9 +203,18 @@ namespace GuiToolkit
 			}
 		}
 
-		private void CheckSetter(string _name, float _value, float _min, float _max)
+		public bool InvertMask
 		{
-			if (_value < _min ||  _value > _max)
+			get => m_invertMask;
+			set
+			{
+				m_invertMask = value;
+			}
+		}
+
+		private void CheckSetter( string _name, float _value, float _min, float _max )
+		{
+			if (_value < _min || _value > _max)
 				throw new ArgumentOutOfRangeException($"{_name} is out of range; should be in the range of {_min}..{_max}, but is {_value}");
 		}
 
@@ -178,7 +262,7 @@ namespace GuiToolkit
 						component.ModifyMesh(vertexHelper);
 					vertexHelper.FillMesh(workerMesh);
 				}
-				
+
 				canvasRenderer.SetMesh(workerMesh);
 				return;
 			}
@@ -323,15 +407,15 @@ namespace GuiToolkit
 				GenerateFrameRounded(rectTransform.rect, m_radius, m_frameSize, Fade.None);
 				return;
 			}
-			
+
 			var rect = rectTransform.rect;
 			var radius = m_radius;
 			GenerateFrameRounded(ref rect, ref radius, m_fadeSize, Fade.Outer);
 			GenerateFrameRounded(ref rect, ref radius, m_frameSize - m_fadeSize * 2, Fade.None);
 			GenerateFrameRounded(rect, radius, m_fadeSize, Fade.Inner);
 		}
-		
-		private void GenerateFrameRounded(ref Rect _rect, ref float _radius, float _frameSize, Fade _fade)
+
+		private void GenerateFrameRounded( ref Rect _rect, ref float _radius, float _frameSize, Fade _fade )
 		{
 			GenerateFrameRounded(_rect, _radius, _frameSize, _fade);
 			_rect.x += _frameSize;
@@ -340,8 +424,8 @@ namespace GuiToolkit
 			_rect.height -= _frameSize * 2;
 			_radius -= _frameSize;
 		}
-		
-		private void GenerateFrameRounded(Rect _rect, float _radius, float _frameSize, Fade _fade)
+
+		private void GenerateFrameRounded( Rect _rect, float _radius, float _frameSize, Fade _fade )
 		{
 			var x = _rect.x;
 			var y = _rect.y;
@@ -405,7 +489,7 @@ namespace GuiToolkit
 		{
 			if (_fade == Fade.None)
 				return;
-			
+
 			var fadeColor = color;
 			fadeColor.a = 0;
 			float top = _rect.yMin;
@@ -647,14 +731,14 @@ namespace GuiToolkit
 			int startIndex = s_vertices.Count;
 			var fadeColor = color;
 			fadeColor.a = 0;
-			
+
 			var effectiveColor = _fade == Fade.Outer ? fadeColor : color;
-			
+
 			AddVert(_ax, _ay, effectiveColor);
 			AddVert(_bx, _by, effectiveColor);
-			
+
 			effectiveColor = _fade == Fade.Inner ? fadeColor : color;
-			
+
 			AddVert(_cx, _cy, effectiveColor);
 			AddVert(_dx, _dy, effectiveColor);
 

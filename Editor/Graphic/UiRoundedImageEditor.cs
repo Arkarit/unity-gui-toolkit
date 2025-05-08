@@ -17,6 +17,7 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_radiusProp;
 		protected SerializedProperty m_frameSizeProp;
 		protected SerializedProperty m_fadeSizeProp;
+		protected SerializedProperty m_invertMaskProp;
 
 		protected virtual void OnEnable()
 		{
@@ -31,6 +32,7 @@ namespace GuiToolkit.Editor
 			m_radiusProp = serializedObject.FindProperty("m_radius");
 			m_frameSizeProp = serializedObject.FindProperty("m_frameSize");
 			m_fadeSizeProp = serializedObject.FindProperty("m_fadeSize");
+			m_invertMaskProp = serializedObject.FindProperty("m_invertMask");
 		}
 
 		public override void OnInspectorGUI()
@@ -49,6 +51,7 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_radiusProp);
 			EditorGUILayout.PropertyField(m_frameSizeProp);
 			EditorGUILayout.PropertyField(m_fadeSizeProp);
+			EditorGUILayout.PropertyField(m_invertMaskProp);
 			serializedObject.ApplyModifiedProperties();
 
 //			GUILayout.Space(100);
