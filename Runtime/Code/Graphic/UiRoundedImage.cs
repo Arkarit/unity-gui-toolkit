@@ -85,6 +85,12 @@ namespace GuiToolkit
 
 		[Tooltip("Extra Padding (useful for stretchable masks)")]
 		[SerializeField] protected RectOffset m_padding;
+		
+		[Tooltip("Extra Padding fixed size horizontal")]
+		[SerializeField] protected bool m_paddingFixedHorizontal;
+		
+		[Tooltip("Extra Padding fixed size vertical")]
+		[SerializeField] protected bool m_paddingFixedVertical;
 
 		private static readonly List<Vertex> s_vertices = new();
 		private static readonly List<int[]> s_triangles = new();
@@ -149,7 +155,7 @@ namespace GuiToolkit
 			get => m_cornerSegments;
 			set
 			{
-				CheckSetter(nameof(CornerSegments), value, MinCornerSegments, MaxCornerSegments);
+				CheckSetterRange(nameof(CornerSegments), value, MinCornerSegments, MaxCornerSegments);
 				m_cornerSegments = value;
 				SetVerticesDirty();
 			}
@@ -160,7 +166,7 @@ namespace GuiToolkit
 			get => m_radius;
 			set
 			{
-				CheckSetter(nameof(Radius), value, MinRadius, MaxRadius);
+				CheckSetterRange(nameof(Radius), value, MinRadius, MaxRadius);
 				m_radius = value;
 				SetVerticesDirty();
 			}
@@ -171,7 +177,7 @@ namespace GuiToolkit
 			get => m_frameSize;
 			set
 			{
-				CheckSetter(nameof(FrameSize), value, MinFrameSize, MaxFrameSize);
+				CheckSetterRange(nameof(FrameSize), value, MinFrameSize, MaxFrameSize);
 				m_frameSize = value;
 				SetVerticesDirty();
 			}
@@ -182,7 +188,7 @@ namespace GuiToolkit
 			get => m_fadeSize;
 			set
 			{
-				CheckSetter(nameof(FadeSize), value, MinFadeSize, MaxFadeSize);
+				CheckSetterRange(nameof(FadeSize), value, MinFadeSize, MaxFadeSize);
 				m_fadeSize = value;
 				SetVerticesDirty();
 			}
@@ -211,10 +217,29 @@ namespace GuiToolkit
 			get
 			{
 				var result = rectTransform.rect;
-				result.x += m_padding.left;
-				result.y += m_padding.bottom;
-				result.width -= m_padding.horizontal;
-				result.height -= m_padding.vertical;
+				
+				if (m_paddingFixedHorizontal)
+				{
+					result.x += rectTransform.pivot.x * result.width - m_padding.left;
+					result.width = m_padding.horizontal;
+				}
+				else
+				{
+					result.x += m_padding.left;
+					result.width -= m_padding.horizontal;
+				}
+				
+				if (m_paddingFixedVertical)
+				{
+					result.y += rectTransform.pivot.y * result.height - m_padding.bottom;
+					result.height = m_padding.vertical;
+				}
+				else
+				{
+					result.y += m_padding.bottom;
+					result.height -= m_padding.vertical;
+				}
+				
 				return result;
 			}
 		}
@@ -244,7 +269,7 @@ namespace GuiToolkit
 		    }
 		}
     
-		private void CheckSetter( string _name, float _value, float _min, float _max )
+		private void CheckSetterRange( string _name, float _value, float _min, float _max )
 		{
 			if (_value < _min || _value > _max)
 				throw new ArgumentOutOfRangeException($"{_name} is out of range; should be in the range of {_min}..{_max}, but is {_value}");

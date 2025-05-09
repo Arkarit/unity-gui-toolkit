@@ -19,6 +19,8 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_fadeSizeProp;
 		protected SerializedProperty m_invertMaskProp;
 		protected SerializedProperty m_paddingProp;
+		protected SerializedProperty m_paddingFixedHorizontalProp;
+		protected SerializedProperty m_paddingFixedVerticalProp;
 
 		protected virtual void OnEnable()
 		{
@@ -35,6 +37,8 @@ namespace GuiToolkit.Editor
 			m_fadeSizeProp = serializedObject.FindProperty("m_fadeSize");
 			m_invertMaskProp = serializedObject.FindProperty("m_invertMask");
 			m_paddingProp = serializedObject.FindProperty("m_padding");
+			m_paddingFixedHorizontalProp = serializedObject.FindProperty("m_paddingFixedHorizontal");
+			m_paddingFixedVerticalProp = serializedObject.FindProperty("m_paddingFixedVertical");
 		}
 
 		public override void OnInspectorGUI()
@@ -55,6 +59,10 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_fadeSizeProp);
 			EditorGUILayout.PropertyField(m_invertMaskProp);
 			EditorGUILayout.PropertyField(m_paddingProp);
+			EditorGUILayout.PropertyField(m_paddingFixedHorizontalProp);
+			EditorGUILayout.PropertyField(m_paddingFixedVerticalProp);
+			
+			
 			serializedObject.ApplyModifiedProperties();
 
 //			GUILayout.Space(100);
