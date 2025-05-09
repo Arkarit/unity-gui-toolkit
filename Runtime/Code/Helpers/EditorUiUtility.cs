@@ -41,6 +41,21 @@ namespace GuiToolkit
 		public delegate void DelegateButtonAction();
 		public static Color ColorPerSkin(Color _lightSkin, Color _darkSkin) => EditorGUIUtility.isProSkin ? _darkSkin : _lightSkin;
 
+		public static void DisplayPropertyConditionally(SerializedProperty _condition, SerializedProperty _property, bool _indent = true)
+		{
+			EditorGUILayout.PropertyField(_condition);
+			if (_condition.boolValue)
+			{
+				if (_indent)
+					EditorGUI.indentLevel++;
+				
+				EditorGUILayout.PropertyField(_property);
+				
+				if (_indent)
+					EditorGUI.indentLevel--;
+			}
+		}
+
 		public static void Button( string _labelText, string _buttonText, DelegateButtonAction _callback, int height = NORMAL_POPUP_HEIGHT )
 		{
 			EditorGUILayout.BeginHorizontal();
@@ -108,7 +123,7 @@ namespace GuiToolkit
 			EditorGUILayout.EndHorizontal();
 		}
 
-		public static bool EnumPopup<T>( string _labelText, ref T _val, string _labelText2 = "" ) where T : System.Enum
+		public static bool EnumPopup<T>( string _labelText, ref T _val, string _labelText2 = "" ) where T : Enum
 		{
 			string[] types = Enum.GetNames(typeof(T));
 			T[] tvalues = (T[])Enum.GetValues(typeof(T));
@@ -128,7 +143,7 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static bool EnumPopup<T>( string _labelText, ref SerializedProperty _prop, string _labelText2 = "" ) where T : System.Enum
+		public static bool EnumPopup<T>( string _labelText, ref SerializedProperty _prop, string _labelText2 = "" ) where T : Enum
 		{
 			T _val = (T)(object)_prop.intValue;
 			bool result = EnumPopup(_labelText, ref _val, _labelText2);
@@ -398,7 +413,7 @@ namespace GuiToolkit
 			_prop.serializedObject.ApplyModifiedProperties();
 		}
 
-		public static bool BoolBar<T>( ref T _filters, string _labelText = null, int _perRow = 0, bool _nicifyNames = true ) where T : System.Enum
+		public static bool BoolBar<T>( ref T _filters, string _labelText = null, int _perRow = 0, bool _nicifyNames = true ) where T : Enum
 		{
 			int filterVal = (int)(object)_filters;
 			bool result = false;
@@ -513,7 +528,7 @@ namespace GuiToolkit
 			return true;
 		}
 
-		public static bool BoolBar<T>( SerializedProperty _prop, string _labelText = null ) where T : System.Enum
+		public static bool BoolBar<T>( SerializedProperty _prop, string _labelText = null ) where T : Enum
 		{
 			EditorGUILayout.BeginHorizontal();
 			T t = (T) (object) _prop.intValue;
@@ -532,7 +547,7 @@ namespace GuiToolkit
 			, bool _showEmptyBits = false
 			, bool _showMultiBits = false
 			, float _rowHeight = 16
-			) where T : System.Enum
+			) where T : Enum
 		{
 			int filterVal = (int)(object)_filters;
 			bool result = false;

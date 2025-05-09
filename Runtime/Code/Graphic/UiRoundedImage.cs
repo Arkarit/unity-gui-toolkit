@@ -83,14 +83,17 @@ namespace GuiToolkit
 		[Tooltip("Invert stencil mask. Useful for cutouts.")]
 		[SerializeField] protected bool m_invertMask;
 
-		[Tooltip("Extra Padding (useful for stretchable masks)")]
+		[Tooltip("Use padding. This is most useful for adjusting stretchable masks.")]
+		[SerializeField] protected bool m_usePadding;
+		
+		[Tooltip("Padding")]
 		[SerializeField] protected RectOffset m_padding;
 		
-		[Tooltip("Extra Padding fixed size horizontal")]
-		[SerializeField] protected bool m_paddingFixedHorizontal;
+		[Tooltip("Assign a fixed size instead of using rect transform boundaries. The fixed size is relative to the pivot. This is most useful for adjusting stretchable masks.")]
+		[SerializeField] protected bool m_useFixedSize;
 		
-		[Tooltip("Extra Padding fixed size vertical")]
-		[SerializeField] protected bool m_paddingFixedVertical;
+		[Tooltip("The fixed size")]
+		[SerializeField] protected Rect m_fixedSize = new Rect(-10,-10,20,20);
 
 		private static readonly List<Vertex> s_vertices = new();
 		private static readonly List<int[]> s_triangles = new();
@@ -218,24 +221,19 @@ namespace GuiToolkit
 			{
 				var result = rectTransform.rect;
 				
-				if (m_paddingFixedHorizontal)
+				if (m_useFixedSize)
 				{
-					result.x += rectTransform.pivot.x * result.width - m_padding.left;
-					result.width = m_padding.horizontal;
+					var pivot = rectTransform.pivot;
+					result.x += result.width * pivot.x + m_fixedSize.x;
+					result.y += result.height * pivot.y + m_fixedSize.y;
+					result.width = m_fixedSize.width;
+					result.height = m_fixedSize.height;
 				}
-				else
+				
+				if (m_usePadding)
 				{
 					result.x += m_padding.left;
 					result.width -= m_padding.horizontal;
-				}
-				
-				if (m_paddingFixedVertical)
-				{
-					result.y += rectTransform.pivot.y * result.height - m_padding.bottom;
-					result.height = m_padding.vertical;
-				}
-				else
-				{
 					result.y += m_padding.bottom;
 					result.height -= m_padding.vertical;
 				}
