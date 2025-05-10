@@ -45,6 +45,9 @@ namespace GuiToolkit
 			set => EnableableInHierarchyUtility.SetEnabledInHierarchy(this, value); 
 		}
 
+		IEnableableInHierarchy[] IEnableableInHierarchy.Children => GetComponentsInChildren<IEnableableInHierarchy>();
+		public virtual void OnEnabledInHierarchyChanged(bool _enabled) {}
+
 		#endregion
 
 		/// Override to add your event listeners.
@@ -59,9 +62,6 @@ namespace GuiToolkit
 		private bool m_isAwake = false;
 
 		public RectTransform RectTransform => transform as RectTransform;
-
-		IEnableableInHierarchy[] IEnableableInHierarchy.Children => GetComponentsInChildren<IEnableableInHierarchy>();
-		public virtual void OnEnabledInHierarchyChanged(bool _enabled) {}
 
 		protected virtual void OnLanguageChanged( string _languageId ){}
 		protected virtual void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation ){}
