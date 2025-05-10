@@ -22,6 +22,7 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_paddingProp;
 		protected SerializedProperty m_useFixedSizeProp;
 		protected SerializedProperty m_fixedSizeProp;
+		protected SerializedProperty m_disabledMaterialProp;
 
 		protected virtual void OnEnable()
 		{
@@ -41,13 +42,24 @@ namespace GuiToolkit.Editor
 			m_paddingProp = serializedObject.FindProperty("m_padding");
 			m_useFixedSizeProp = serializedObject.FindProperty("m_useFixedSize");
 			m_fixedSizeProp = serializedObject.FindProperty("m_fixedSize");
+			m_disabledMaterialProp = serializedObject.FindProperty("m_disabledMaterial");
 		}
 
 		public override void OnInspectorGUI()
 		{
+			var thisUiRoundedImage = (UiRoundedImage) target;
+			
 			GUILayout.Label("Image Properties", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(m_SpriteProp);
-			EditorGUILayout.PropertyField(m_MaterialProp);
+			if (thisUiRoundedImage.material == thisUiRoundedImage.defaultMaterial && !thisUiRoundedImage.InvertMask)
+				m_MaterialProp.objectReferenceValue = null;
+			
+			using (new EditorGUI.DisabledScope(thisUiRoundedImage.InvertMask))
+			{
+				EditorGUILayout.PropertyField(m_MaterialProp);
+				EditorGUILayout.PropertyField(m_disabledMaterialProp); // This is actually not an Image member, but it does not make sense to display it elsewhere
+			}
+			
 			EditorGUILayout.PropertyField(m_ColorProp);
 			EditorGUILayout.PropertyField(m_RaycastTargetProp);
 			EditorGUILayout.PropertyField(m_RaycastPaddingProp);

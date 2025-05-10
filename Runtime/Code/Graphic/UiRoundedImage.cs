@@ -17,7 +17,7 @@ namespace GuiToolkit
 	/// </summary>
 	[ExecuteAlways]
 	[RequireComponent(typeof(CanvasRenderer))]
-	public class UiRoundedImage : Image
+	public class UiRoundedImage : Image, IEnableableInHierarchy
 	{
 		public const int MinCornerSegments = 2;
 		public const int MaxCornerSegments = 30;
@@ -62,6 +62,11 @@ namespace GuiToolkit
 			public Color Color;
 		}
 
+		[HideInInspector] // Only editable in custom editors
+		[SerializeField] protected bool m_enabledInHierarchy;
+		
+		[SerializeField] protected Material m_disabledMaterial;
+		
 		[Tooltip("Corner segments. The more, the rounder. But keep an eye on performance; "
 				 + "more corner segments mean more triangles and longer creation time. "
 				 + "Between 5 and 10 should be sufficient for most tasks.")]
@@ -85,22 +90,22 @@ namespace GuiToolkit
 
 		[Tooltip("Use padding. This is most useful for adjusting stretchable masks.")]
 		[SerializeField] protected bool m_usePadding;
-		
+
 		[Tooltip("Padding")]
 		[SerializeField] protected RectOffset m_padding;
-		
+
 		[Tooltip("Assign a fixed size instead of using rect transform boundaries. The fixed size is relative to the pivot. This is most useful for adjusting stretchable masks.")]
 		[SerializeField] protected bool m_useFixedSize;
-		
+
 		[Tooltip("The fixed size")]
-		[SerializeField] protected Rect m_fixedSize = new Rect(-10,-10,20,20);
+		[SerializeField] protected Rect m_fixedSize = new Rect(-10, -10, 20, 20);
 
 		private static readonly List<Vertex> s_vertices = new();
 		private static readonly List<int[]> s_triangles = new();
 		private Material m_originalMaterial;
 		private Material m_clonedMaterial;
 		private bool m_lastInvertMask;
-		
+
 		private class MaterialWithRefCount
 		{
 			public Material Material;
@@ -108,6 +113,7 @@ namespace GuiToolkit
 		}
 
 		private static readonly Dictionary<Material, MaterialWithRefCount> s_clonedMaterials = new();
+
 		private void CloneMaterial()
 		{
 			if (!material)
@@ -214,13 +220,13 @@ namespace GuiToolkit
 			get => m_padding;
 			set => m_padding = value;
 		}
-		
+
 		public Rect Rect
 		{
 			get
 			{
 				var result = rectTransform.rect;
-				
+
 				if (m_useFixedSize)
 				{
 					var pivot = rectTransform.pivot;
@@ -229,7 +235,7 @@ namespace GuiToolkit
 					result.width = m_fixedSize.width;
 					result.height = m_fixedSize.height;
 				}
-				
+
 				if (m_usePadding)
 				{
 					result.x += m_padding.left;
@@ -237,12 +243,12 @@ namespace GuiToolkit
 					result.y += m_padding.bottom;
 					result.height -= m_padding.vertical;
 				}
-				
+
 				return result;
 			}
 		}
 
-		private void SetInvertMask(bool _value)
+		private void SetInvertMask( bool _value )
 		{
 			m_invertMask = _value;
 			m_lastInvertMask = _value;
@@ -253,26 +259,53 @@ namespace GuiToolkit
 
 		public override Material materialForRendering
 		{
-		    get
-		    {
-		        Material result = base.materialForRendering;
-		        if (m_clonedMaterial)
-		        {
-			        if (!maskable)
-				        result.SetInt("_StencilComp", (int)CompareFunction.Always);
-			        else if (m_invertMask)
+			get
+			{
+				Material result = base.materialForRendering;
+				if (m_clonedMaterial)
+				{
+					if (!maskable)
+						result.SetInt("_StencilComp", (int)CompareFunction.Always);
+					else if (m_invertMask)
 						result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
-		        }
-		        return result;
-		    }
-		}
-    
-		private void CheckSetterRange( string _name, float _value, float _min, float _max )
-		{
-			if (_value < _min || _value > _max)
-				throw new ArgumentOutOfRangeException($"{_name} is out of range; should be in the range of {_min}..{_max}, but is {_value}");
+				}
+				return result;
+			}
 		}
 
+
+		public override void OnBeforeSerialize()
+		{
+			base.OnBeforeSerialize();
+			if (m_clonedMaterial)
+				material = m_originalMaterial;
+		}
+
+		public override void OnAfterDeserialize()
+		{
+			base.OnAfterDeserialize();
+			if (m_clonedMaterial)
+				material = m_clonedMaterial;
+		}
+
+		#region IEnableableInHierarchy
+		public bool IsEnableableInHierarchy => m_disabledMaterial;
+		bool IEnableableInHierarchy.StoreEnabledInHierarchy 
+		{ 
+			get => m_enabledInHierarchy; 
+			set => m_enabledInHierarchy = value; 
+		}
+		public bool EnabledInHierarchy
+		{ 
+			get => EnableableInHierarchyUtility.GetEnabledInHierarchy(this);
+			set => EnableableInHierarchyUtility.SetEnabledInHierarchy(this, value); 
+		}
+		public IEnableableInHierarchy[] Children => GetComponentsInChildren<IEnableableInHierarchy>();
+		public void OnEnabledInHierarchyChanged(bool _enabled)
+		{
+			// TODO
+		}
+		#endregion
 		protected override void Awake()
 		{
 			base.Awake();
@@ -830,6 +863,11 @@ namespace GuiToolkit
 
 			return new Vector2(normalizedX, normalizedY);
 		}
-
+		
+		private void CheckSetterRange( string _name, float _value, float _min, float _max )
+		{
+			if (_value < _min || _value > _max)
+				throw new ArgumentOutOfRangeException($"{_name} is out of range; should be in the range of {_min}..{_max}, but is {_value}");
+		}
 	}
 }
