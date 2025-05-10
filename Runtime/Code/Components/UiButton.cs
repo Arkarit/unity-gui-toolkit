@@ -28,7 +28,7 @@ namespace GuiToolkit
 				m_simpleWiggleAnimation.Play();
 		}
 
-		protected override void OnEnabledInHierarchyChanged(bool _enabled)
+		public override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
 			base.OnEnabledInHierarchyChanged(_enabled);
 			InitIfNecessary();

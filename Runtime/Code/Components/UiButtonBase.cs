@@ -72,7 +72,7 @@ namespace GuiToolkit
 			return m_uiImage.GetSimpleGradientColors();
 		}
 
-		protected override void OnEnabledInHierarchyChanged(bool _enabled)
+		public override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
 			base.OnEnabledInHierarchyChanged(_enabled);
 			if (!_enabled && m_simpleAnimation)

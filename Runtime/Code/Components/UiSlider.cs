@@ -135,7 +135,7 @@ namespace GuiToolkit
 			return result;
 		}
 
-		protected override void OnEnabledInHierarchyChanged(bool _enabled)
+		public override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
 			m_slider.interactable = _enabled;
 		}

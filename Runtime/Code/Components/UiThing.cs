@@ -14,7 +14,7 @@ namespace GuiToolkit
 	/// Additionally, it offers event handling plus some convenience functions.
 
 	[RequireComponent(typeof(RectTransform))]
-	public class UiThing : LocaMonoBehaviour, IEventSystemHandler
+	public class UiThing : LocaMonoBehaviour, IEventSystemHandler, IEnableableInHierarchy
 	{
 		private static int s_layer = -1;
 		[HideInInspector] // Only editable in custom editors
@@ -29,8 +29,23 @@ namespace GuiToolkit
 		/// Override and return true here if you need the OnScreenOrientation() callback
 		protected virtual bool NeedsOnScreenOrientationCallback => false;
 
+		#region IEnableableInHierarchy
 		/// Override and return true here if the component is hierarchically enableable
 		public virtual bool IsEnableableInHierarchy => false;
+
+		bool IEnableableInHierarchy.StoreEnabledInHierarchy 
+		{ 
+			get => m_enabledInHierarchy; 
+			set => m_enabledInHierarchy = value; 
+		}
+
+		public bool EnabledInHierarchy
+		{ 
+			get => EnableableInHierarchyUtility.GetEnabledInHierarchy(this);
+			set => EnableableInHierarchyUtility.SetEnabledInHierarchy(this, value); 
+		}
+
+		#endregion
 
 		/// Override to add your event listeners.
 		protected virtual void AddEventListeners() {}
@@ -45,40 +60,8 @@ namespace GuiToolkit
 
 		public RectTransform RectTransform => transform as RectTransform;
 
-		/// \brief Set this UiThing and all children enabled/disabled
-		/// 
-		/// A very simple way to enable/disable whole game object trees.
-		public bool EnabledInHierarchy
-		{
-			get
-			{
-				return m_enabledInHierarchy;
-			}
-			set
-			{
-				if (m_enabledInHierarchy == value)
-					return;
-				m_enabledInHierarchy = value;
-				OnEnabledInHierarchyChanged(m_enabledInHierarchy);
-
-				UiThing[] childComponents = GetComponentsInChildren<UiThing>();
-
-				// We can not call 'Enabled' recursively - otherwise every called child would call recursively too
-				foreach (var childComponent in childComponents)
-				{
-					if (!childComponent.IsEnableableInHierarchy)
-						continue;
-
-					if (childComponent.m_enabledInHierarchy != value)
-					{
-						childComponent.m_enabledInHierarchy = value;
-						childComponent.OnEnabledInHierarchyChanged(m_enabledInHierarchy);
-					}
-				}
-			}
-		}
-
-		protected virtual void OnEnabledInHierarchyChanged(bool _enabled) {}
+		IEnableableInHierarchy[] IEnableableInHierarchy.Children => GetComponentsInChildren<IEnableableInHierarchy>();
+		public virtual void OnEnabledInHierarchyChanged(bool _enabled) {}
 
 		protected virtual void OnLanguageChanged( string _languageId ){}
 		protected virtual void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation ){}

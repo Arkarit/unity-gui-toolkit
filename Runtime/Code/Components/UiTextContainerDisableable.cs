@@ -24,7 +24,7 @@ namespace GuiToolkit
 
 		public override bool IsEnableableInHierarchy => true;
 
-		protected override void OnEnabledInHierarchyChanged( bool _enabled )
+		public override void OnEnabledInHierarchyChanged( bool _enabled )
 		{
 			base.OnEnabledInHierarchyChanged(_enabled);
 

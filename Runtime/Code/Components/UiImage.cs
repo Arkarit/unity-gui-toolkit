@@ -61,7 +61,7 @@ namespace GuiToolkit
 		}
 
 		protected virtual void Init() { }
-		protected override void OnEnabledInHierarchyChanged(bool _enabled)
+		public override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
 			SetMaterialByEnabled();
 		}
