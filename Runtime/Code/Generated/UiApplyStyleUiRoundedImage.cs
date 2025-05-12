@@ -24,12 +24,18 @@ namespace GuiToolkit.Style
 				try { SpecificComponent.FadeSize = Tweenable ? SpecificStyle.FadeSize.Value : SpecificStyle.FadeSize.RawValue; } catch {}
 			if (SpecificStyle.FrameSize.IsApplicable)
 				try { SpecificComponent.FrameSize = Tweenable ? SpecificStyle.FrameSize.Value : SpecificStyle.FrameSize.RawValue; } catch {}
+			if (SpecificStyle.InvertMask.IsApplicable)
+				try { SpecificComponent.InvertMask = Tweenable ? SpecificStyle.InvertMask.Value : SpecificStyle.InvertMask.RawValue; } catch {}
 			if (SpecificStyle.IsMaskingGraphic.IsApplicable)
 				try { SpecificComponent.isMaskingGraphic = Tweenable ? SpecificStyle.IsMaskingGraphic.Value : SpecificStyle.IsMaskingGraphic.RawValue; } catch {}
 			if (SpecificStyle.Maskable.IsApplicable)
 				try { SpecificComponent.maskable = Tweenable ? SpecificStyle.Maskable.Value : SpecificStyle.Maskable.RawValue; } catch {}
 			if (SpecificStyle.Material.IsApplicable)
 				try { SpecificComponent.material = Tweenable ? SpecificStyle.Material.Value : SpecificStyle.Material.RawValue; } catch {}
+			if (SpecificStyle.Padding.IsApplicable)
+				try { SpecificComponent.Padding = Tweenable ? SpecificStyle.Padding.Value : SpecificStyle.Padding.RawValue; } catch {}
+			if (SpecificStyle.PixelsPerUnitMultiplier.IsApplicable)
+				try { SpecificComponent.pixelsPerUnitMultiplier = Tweenable ? SpecificStyle.PixelsPerUnitMultiplier.Value : SpecificStyle.PixelsPerUnitMultiplier.RawValue; } catch {}
 			if (SpecificStyle.Radius.IsApplicable)
 				try { SpecificComponent.Radius = Tweenable ? SpecificStyle.Radius.Value : SpecificStyle.Radius.RawValue; } catch {}
 			if (SpecificStyle.Sprite.IsApplicable)
@@ -51,12 +57,18 @@ namespace GuiToolkit.Style
 				try { SpecificStyle.FadeSize.RawValue = SpecificComponent.FadeSize; } catch {}
 			if (SpecificStyle.FrameSize.IsApplicable)
 				try { SpecificStyle.FrameSize.RawValue = SpecificComponent.FrameSize; } catch {}
+			if (SpecificStyle.InvertMask.IsApplicable)
+				try { SpecificStyle.InvertMask.RawValue = SpecificComponent.InvertMask; } catch {}
 			if (SpecificStyle.IsMaskingGraphic.IsApplicable)
 				try { SpecificStyle.IsMaskingGraphic.RawValue = SpecificComponent.isMaskingGraphic; } catch {}
 			if (SpecificStyle.Maskable.IsApplicable)
 				try { SpecificStyle.Maskable.RawValue = SpecificComponent.maskable; } catch {}
 			if (SpecificStyle.Material.IsApplicable)
 				try { SpecificStyle.Material.RawValue = SpecificComponent.material; } catch {}
+			if (SpecificStyle.Padding.IsApplicable)
+				try { SpecificStyle.Padding.RawValue = SpecificComponent.Padding; } catch {}
+			if (SpecificStyle.PixelsPerUnitMultiplier.IsApplicable)
+				try { SpecificStyle.PixelsPerUnitMultiplier.RawValue = SpecificComponent.pixelsPerUnitMultiplier; } catch {}
 			if (SpecificStyle.Radius.IsApplicable)
 				try { SpecificStyle.Radius.RawValue = SpecificComponent.Radius; } catch {}
 			if (SpecificStyle.Sprite.IsApplicable)
@@ -84,12 +96,18 @@ namespace GuiToolkit.Style
 				result.FadeSize.IsApplicable = specificTemplate.FadeSize.IsApplicable;
 				result.FrameSize.Value = specificTemplate.FrameSize.Value;
 				result.FrameSize.IsApplicable = specificTemplate.FrameSize.IsApplicable;
+				result.InvertMask.Value = specificTemplate.InvertMask.Value;
+				result.InvertMask.IsApplicable = specificTemplate.InvertMask.IsApplicable;
 				result.IsMaskingGraphic.Value = specificTemplate.IsMaskingGraphic.Value;
 				result.IsMaskingGraphic.IsApplicable = specificTemplate.IsMaskingGraphic.IsApplicable;
 				result.Maskable.Value = specificTemplate.Maskable.Value;
 				result.Maskable.IsApplicable = specificTemplate.Maskable.IsApplicable;
 				result.Material.Value = specificTemplate.Material.Value;
 				result.Material.IsApplicable = specificTemplate.Material.IsApplicable;
+				result.Padding.Value = specificTemplate.Padding.Value;
+				result.Padding.IsApplicable = specificTemplate.Padding.IsApplicable;
+				result.PixelsPerUnitMultiplier.Value = specificTemplate.PixelsPerUnitMultiplier.Value;
+				result.PixelsPerUnitMultiplier.IsApplicable = specificTemplate.PixelsPerUnitMultiplier.IsApplicable;
 				result.Radius.Value = specificTemplate.Radius.Value;
 				result.Radius.IsApplicable = specificTemplate.Radius.IsApplicable;
 				result.Sprite.Value = specificTemplate.Sprite.Value;
@@ -103,9 +121,12 @@ namespace GuiToolkit.Style
 			try { result.Enabled.Value = SpecificComponent.enabled; } catch {}
 			try { result.FadeSize.Value = SpecificComponent.FadeSize; } catch {}
 			try { result.FrameSize.Value = SpecificComponent.FrameSize; } catch {}
+			try { result.InvertMask.Value = SpecificComponent.InvertMask; } catch {}
 			try { result.IsMaskingGraphic.Value = SpecificComponent.isMaskingGraphic; } catch {}
 			try { result.Maskable.Value = SpecificComponent.maskable; } catch {}
 			try { result.Material.Value = SpecificComponent.material; } catch {}
+			try { result.Padding.Value = SpecificComponent.Padding; } catch {}
+			try { result.PixelsPerUnitMultiplier.Value = SpecificComponent.pixelsPerUnitMultiplier; } catch {}
 			try { result.Radius.Value = SpecificComponent.Radius; } catch {}
 			try { result.Sprite.Value = SpecificComponent.sprite; } catch {}
 

@@ -83,6 +83,12 @@
         },
         {
             "Used": true,
+            "Name": "InvertMask",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
             "Name": "isMaskingGraphic",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -118,7 +124,13 @@
             "TypeName": "Sprite"
         },
         {
-            "Used": false,
+            "Used": true,
+            "Name": "Padding",
+            "QualifiedTypeName": "UnityEngine.RectOffset",
+            "TypeName": "RectOffset"
+        },
+        {
+            "Used": true,
             "Name": "pixelsPerUnitMultiplier",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
