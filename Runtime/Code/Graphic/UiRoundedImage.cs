@@ -280,12 +280,14 @@ namespace GuiToolkit
 			SetInvertMask(m_invertMask);
 		}
 
+#if UNITY_EDITOR		
 		protected override void OnValidate()
 		{
 			base.OnValidate();
 			if (m_invertMask != m_lastInvertMask)
 				SetInvertMask(m_invertMask);
 		}
+#endif
 
 		protected override void OnPopulateMesh( Mesh _mesh )
 		{
