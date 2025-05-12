@@ -20,6 +20,7 @@ namespace GuiToolkit.Style
 		private class ApplicableValueBoolean : ApplicableValue<System.Boolean> {}
 		private class ApplicableValueSingle : ApplicableValue<System.Single> {}
 		private class ApplicableValueMaterial : ApplicableValue<UnityEngine.Material> {}
+		private class ApplicableValueRectOffset : ApplicableValue<UnityEngine.RectOffset> {}
 		private class ApplicableValueSprite : ApplicableValue<UnityEngine.Sprite> {}
 
 		protected override ApplicableValueBase[] GetValueList()
@@ -31,9 +32,12 @@ namespace GuiToolkit.Style
 				Enabled,
 				FadeSize,
 				FrameSize,
+				InvertMask,
 				IsMaskingGraphic,
 				Maskable,
 				Material,
+				Padding,
+				PixelsPerUnitMultiplier,
 				Radius,
 				Sprite,
 			};
@@ -44,9 +48,12 @@ namespace GuiToolkit.Style
 		[SerializeReference] private ApplicableValueBoolean m_enabled = new();
 		[SerializeReference] private ApplicableValueSingle m_FadeSize = new();
 		[SerializeReference] private ApplicableValueSingle m_FrameSize = new();
+		[SerializeReference] private ApplicableValueBoolean m_InvertMask = new();
 		[SerializeReference] private ApplicableValueBoolean m_isMaskingGraphic = new();
 		[SerializeReference] private ApplicableValueBoolean m_maskable = new();
 		[SerializeReference] private ApplicableValueMaterial m_material = new();
+		[SerializeReference] private ApplicableValueRectOffset m_Padding = new();
+		[SerializeReference] private ApplicableValueSingle m_pixelsPerUnitMultiplier = new();
 		[SerializeReference] private ApplicableValueSingle m_Radius = new();
 		[SerializeReference] private ApplicableValueSprite m_sprite = new();
 
@@ -110,6 +117,18 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		public ApplicableValue<System.Boolean> InvertMask
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_InvertMask == null)
+						m_InvertMask = new ApplicableValueBoolean();
+				#endif
+				return m_InvertMask;
+			}
+		}
+
 		public ApplicableValue<System.Boolean> IsMaskingGraphic
 		{
 			get
@@ -143,6 +162,30 @@ namespace GuiToolkit.Style
 						m_material = new ApplicableValueMaterial();
 				#endif
 				return m_material;
+			}
+		}
+
+		public ApplicableValue<UnityEngine.RectOffset> Padding
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_Padding == null)
+						m_Padding = new ApplicableValueRectOffset();
+				#endif
+				return m_Padding;
+			}
+		}
+
+		public ApplicableValue<System.Single> PixelsPerUnitMultiplier
+		{
+			get
+			{
+				#if UNITY_EDITOR
+					if (!Application.isPlaying && m_pixelsPerUnitMultiplier == null)
+						m_pixelsPerUnitMultiplier = new ApplicableValueSingle();
+				#endif
+				return m_pixelsPerUnitMultiplier;
 			}
 		}
 
