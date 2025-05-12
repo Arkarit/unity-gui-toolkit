@@ -166,7 +166,7 @@ namespace GuiToolkit.Style
 				RecordImpl();
 			
 #if UNITY_EDITOR
-			EditorUtility.SetDirty(StyleConfig);
+			EditorGeneralUtility.SetDirty(StyleConfig);
 			AssetDatabase.SaveAssets();
 			UiEventDefinitions.EvSkinValuesChanged.Invoke(1);
 #endif

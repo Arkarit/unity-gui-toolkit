@@ -95,7 +95,7 @@ namespace GuiToolkit.Style.Editor
 				}
 
 				m_thisAbstractApplyStyleBase.Apply();
-				EditorUtility.SetDirty(m_thisAbstractApplyStyleBase);
+				EditorGeneralUtility.SetDirty(m_thisAbstractApplyStyleBase);
 			}
 			
 			

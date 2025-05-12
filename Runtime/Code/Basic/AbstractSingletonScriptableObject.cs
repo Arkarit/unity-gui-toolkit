@@ -69,7 +69,7 @@ namespace GuiToolkit
 				EditorAssetUtility.CreateAsset(_instance, EditorPath);
 			}
 
-			EditorUtility.SetDirty(_instance);
+			EditorGeneralUtility.SetDirty(_instance);
 			AssetDatabase.SaveAssetIfDirty(_instance);
 		}
 

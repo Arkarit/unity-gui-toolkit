@@ -124,7 +124,7 @@ namespace GuiToolkit
 					return;
 
 				m_fontAsset.fontFeatureTable.glyphPairAdjustmentRecords = value;
-				EditorUtility.SetDirty(m_fontAsset);
+				EditorGeneralUtility.SetDirty(m_fontAsset);
 				AssetDatabase.SaveAssets();
 				AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
 			}

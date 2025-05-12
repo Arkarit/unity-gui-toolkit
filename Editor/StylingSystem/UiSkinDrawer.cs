@@ -100,7 +100,7 @@ namespace GuiToolkit.Style.Editor
 							toStyle.Values[j].RawValueObj = fromStyle.Values[j].RawValueObj;
 						}
 					}
-					EditorUtility.SetDirty(styleConfig);
+					EditorGeneralUtility.SetDirty(styleConfig);
 					EditorApplication.delayCall += () => UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 				}
 				IncreaseX(60);
@@ -197,7 +197,7 @@ namespace GuiToolkit.Style.Editor
 								continue;
 var scprop = styleProp.FindPropertyRelative("m_styleConfig");
 scprop.objectReferenceValue = m_thisUiSkin.StyleConfig;
-EditorUtility.SetDirty(m_thisUiSkin.StyleConfig);
+EditorGeneralUtility.SetDirty(m_thisUiSkin.StyleConfig);
 							PropertyField(styleProp);
 						}
 					}

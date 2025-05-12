@@ -503,6 +503,14 @@ namespace GuiToolkit
 		
 		public static bool IsPackagesOrInternalAsset(Object _obj)
 		{
+			if (IsInternalAsset(_obj))
+				return true;
+			
+			return IsPackagesAsset(_obj);
+		}
+
+		public static bool IsInternalAsset(Object _obj)
+		{
 			if (!_obj)
 				return false;
 			
@@ -511,8 +519,17 @@ namespace GuiToolkit
 				return false;
 			
 			var fullPath = Path.GetFullPath(path).Replace('\\', '/').ToLower();
-			if (fullPath.Contains(".dev-app/unity/assets/external/unity-gui-toolkit"))
-				return true;
+			return fullPath.Contains(".dev-app/unity/assets/external/unity-gui-toolkit");
+		}
+
+		public static bool IsPackagesAsset(Object _obj)
+		{
+			if (!_obj)
+				return false;
+			
+			var path = AssetDatabase.GetAssetPath(_obj);
+			if (string.IsNullOrEmpty(path))
+				return false;
 			
 			return path.StartsWith("Packages");
 		}

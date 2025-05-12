@@ -86,12 +86,12 @@ namespace GuiToolkit
 					{
 						m_tmpText.colorGradient = m_disabledTmpGradient;
 						m_tmpText.color = m_disabledColor;
-						EditorUtility.SetDirty(m_tmpText);
+						EditorGeneralUtility.SetDirty(m_tmpText);
 					}
 					else
 					{
 						m_text.color = m_disabledColor;
-						EditorUtility.SetDirty(m_text);
+						EditorGeneralUtility.SetDirty(m_text);
 					}
 				}
 				return;

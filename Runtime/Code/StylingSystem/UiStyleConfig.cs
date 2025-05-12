@@ -24,7 +24,7 @@ namespace GuiToolkit.Style
 				m_skins = value;
 				SetDefaultSkin();
 #if UNITY_EDITOR
-				EditorUtility.SetDirty(this);
+				EditorGeneralUtility.SetDirty(this);
 #endif
 			}
 		}
@@ -329,7 +329,7 @@ namespace GuiToolkit.Style
 		}
 		
 #if UNITY_EDITOR
-		public static void SetDirty(UiStyleConfig instance) => EditorUtility.SetDirty(instance);
+		public static void SetDirty(UiStyleConfig instance) => EditorGeneralUtility.SetDirty(instance);
 #endif
 		public bool StyleExists(Type type, string name)
 		{

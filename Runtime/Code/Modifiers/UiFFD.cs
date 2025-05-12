@@ -209,7 +209,7 @@ namespace GuiToolkit
 			if (hasChanged)
 			{
 				serializedObject.ApplyModifiedProperties();
-				EditorUtility.SetDirty(target);
+				EditorGeneralUtility.SetDirty(target);
 			}
 
 			Handles.color = Constants.HANDLE_CAGE_LINE_COLOR;

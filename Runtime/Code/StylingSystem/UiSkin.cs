@@ -174,7 +174,7 @@ namespace GuiToolkit.Style
 			if (!doSetDirty)
 				return;
 
-			EditorUtility.SetDirty(m_config);
+			EditorGeneralUtility.SetDirty(m_config);
 			AssetDatabase.SaveAssets();
 #endif
 

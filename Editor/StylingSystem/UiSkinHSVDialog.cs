@@ -95,7 +95,7 @@ namespace GuiToolkit.Style.Editor
 				EditorApplication.delayCall += () => UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 				
 				if (StyleConfig)
-					EditorUtility.SetDirty(StyleConfig);
+					EditorGeneralUtility.SetDirty(StyleConfig);
 			}
 			
 			m_hue = 0;
@@ -123,7 +123,7 @@ namespace GuiToolkit.Style.Editor
 			}
 			
 			if (StyleConfig)
-				EditorUtility.SetDirty(StyleConfig);
+				EditorGeneralUtility.SetDirty(StyleConfig);
 			EditorApplication.delayCall += () => UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}
 

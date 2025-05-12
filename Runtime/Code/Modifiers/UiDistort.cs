@@ -151,7 +151,7 @@ namespace GuiToolkit
 			if (hasChanged)
 			{
 				serializedObject.ApplyModifiedProperties();
-				EditorUtility.SetDirty(target);
+				EditorGeneralUtility.SetDirty(target);
 			}
 		}
 	}
