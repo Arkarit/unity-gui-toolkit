@@ -14,6 +14,11 @@ namespace GuiToolkit
 	/// It works nearly like the original UnityEngine.UI.Image, where it's based on.
 	/// You can add a sprite and set a color for the image.
 	/// UV coordinates however are always 0/1 and there is no support for sliced, tiled, preserve aspect etc.
+	///
+	/// It also has some other improvements compared to UnityEngine.UI.Image; it can be disabled etc.
+	/// 
+	/// Unfortunately we can not make it an UiThing in C#, which would be a very simple task in a real programming language: just inherit from UiThing and Image.
+	/// We also can't handle the improvements via composition. Thus this class is a bit outside of the common UiThing class hierarchy.
 	/// </summary>
 	[ExecuteAlways]
 	[RequireComponent(typeof(CanvasRenderer))]
