@@ -278,7 +278,7 @@ namespace GuiToolkit
 			return propertyInfo.GetValue(_instance, null);
 		}
 		
-		private static void ForeachProperty(SerializedObject _serializedObject, Action<SerializedProperty> _action)
+		public static void ForeachProperty(SerializedObject _serializedObject, Action<SerializedProperty> _action)
 		{
 			if (_serializedObject == null || _serializedObject.targetObject == null)
 			{

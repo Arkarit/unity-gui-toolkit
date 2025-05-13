@@ -25,14 +25,21 @@ namespace GuiToolkit
 		[SerializeField] private float m_layerDistance = 0.02f;
 		
 		[Header("Prefabs")]
+		// Be sure to end the naming with "Prefab" for making them available for creating variants!
+		// See UiMainEditor
 		[SerializeField] private UiButton m_standardButtonPrefab;
 		[SerializeField] private UiButton m_okButtonPrefab;
 		[SerializeField] private UiButton m_cancelButtonPrefab;
+		[SerializeField] private UiButton m_standardButtonSmallPrefab;
+		[SerializeField] private UiLanguageToggle m_languageTogglePrefab;
+		[SerializeField] private UiButton m_closeButtonPrefab;
+		[SerializeField] private UiButton m_standardIconButtonPrefab;
 		[SerializeField] private UiRequester m_requesterPrefab;
 		[SerializeField] private UiPlayerSettingsDialog m_settingsDialogPrefab;
 		[FormerlySerializedAs("m_splashMessagePrefab")]
 		[SerializeField] private UiToastMessageView m_toastMessageViewPrefab;
-		[SerializeField] private UiKeyPressRequester m_keyPressRequester;
+		[FormerlySerializedAs("m_keyPressRequester")] 
+		[SerializeField] private UiKeyPressRequester m_keyPressRequesterPrefab;
 		[FormerlySerializedAs("m_gridPicker")] 
 		[SerializeField] private UiGridPicker m_gridPickerPrefab;
 
@@ -61,6 +68,10 @@ namespace GuiToolkit
 		public UiButton StandardButtonPrefab => m_standardButtonPrefab;
 		public UiButton OkButtonPrefab => m_okButtonPrefab;
 		public UiButton CancelButtonPrefab => m_cancelButtonPrefab;
+		public UiButton StandardButtonSmallPrefab => m_standardButtonSmallPrefab;
+		public UiLanguageToggle LanguageTogglePrefab => m_languageTogglePrefab;
+		public UiButton CloseButtonPrefab => m_closeButtonPrefab;
+		public UiButton StandardIconButtonPrefab => m_standardIconButtonPrefab;
 		public UiPlayerSettingsDialog PlayerSettingsDialog => m_playerSettingsDialog;
 		public float LayerDistance => m_layerDistance;
 		public RenderMode RenderMode => m_renderMode;
@@ -307,7 +318,7 @@ namespace GuiToolkit
 
 		public void KeyPressRequester( UnityAction<KeyCode> _onEvent, string _title = null )
 		{
-			UiKeyPressRequester requester = CreateView(m_keyPressRequester);
+			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
 			Debug.Assert(requester);
 			requester.Requester(_onEvent, _title);
 		}
