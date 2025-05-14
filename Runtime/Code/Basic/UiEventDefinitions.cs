@@ -81,7 +81,7 @@ namespace GuiToolkit
 				EditorApplication.delayCall += () =>
 				{
 					if (Selection.activeGameObject)
-						EditorUtility.SetDirty(Selection.activeGameObject);
+						EditorGeneralUtility.SetDirty(Selection.activeGameObject);
 					
 					SceneView.RepaintAll();
 				};

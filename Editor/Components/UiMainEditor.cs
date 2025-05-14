@@ -11,29 +11,17 @@ namespace GuiToolkit.Editor
 	{
 		private const string DefaultClonePath = "Assets/Prefabs/ui-toolkit-variants";
 		
-		private SerializedProperty m_standardButtonPrefabProp;
-		private SerializedProperty m_okButtonPrefabProp;
-		private SerializedProperty m_cancelButtonPrefabProp;
-		private SerializedProperty m_requesterPrefabProp;
-		private SerializedProperty m_settingsDialogPrefabProp;
-		private SerializedProperty m_toastMessageViewPrefabProp;
-		private SerializedProperty m_keyPressRequesterProp;
-		private SerializedProperty m_gridPickerPrefabProp;
-		
 		private readonly List<SerializedProperty> m_prefabProperties = new();
 		private string m_clonePath = DefaultClonePath;
 		
 		private void OnEnable()
 		{
 			m_prefabProperties.Clear();
-			FindProperty(ref m_standardButtonPrefabProp, "m_standardButtonPrefab");
-			FindProperty(ref m_okButtonPrefabProp, "m_okButtonPrefab");
-			FindProperty(ref m_cancelButtonPrefabProp, "m_cancelButtonPrefab");
-			FindProperty(ref m_requesterPrefabProp, "m_requesterPrefab");
-			FindProperty(ref m_settingsDialogPrefabProp, "m_settingsDialogPrefab");
-			FindProperty(ref m_toastMessageViewPrefabProp, "m_toastMessageViewPrefab");
-			FindProperty(ref m_keyPressRequesterProp, "m_keyPressRequester");
-			FindProperty(ref m_gridPickerPrefabProp, "m_gridPickerPrefab");
+			EditorGeneralUtility.ForeachProperty(serializedObject, property =>
+			{
+				if (property.name.EndsWith("Prefab"))
+					m_prefabProperties.Add(property);
+			});
 		}
 		
 		private void FindProperty(ref SerializedProperty _property, string _name)

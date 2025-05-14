@@ -99,10 +99,10 @@ namespace GuiToolkit
 		[Tooltip("Padding")]
 		[SerializeField] protected RectOffset m_padding;
 
-		[Tooltip("Assign a fixed size instead of using rect transform boundaries. The fixed size is relative to the pivot. This is most useful for adjusting stretchable masks.")]
+		[Tooltip("Assign a fixed size instead of using rect transform boundaries. The fixed size is centered to the pivot. This is most useful for adjusting stretchable masks. X and y are offsets.")]
 		[SerializeField] protected bool m_useFixedSize;
 
-		[Tooltip("The fixed size")]
+		[Tooltip("Fixed size")]
 		[SerializeField] protected Rect m_fixedSize = new Rect(-10, -10, 20, 20);
 
 		private static readonly List<Vertex> s_vertices = new();
@@ -235,8 +235,8 @@ namespace GuiToolkit
 				if (m_useFixedSize)
 				{
 					var pivot = rectTransform.pivot;
-					result.x += result.width * pivot.x + m_fixedSize.x;
-					result.y += result.height * pivot.y + m_fixedSize.y;
+					result.x += result.width * pivot.x + m_fixedSize.x - m_fixedSize.width / 2;
+					result.y += result.height * pivot.y + m_fixedSize.y - m_fixedSize.height / 2;
 					result.width = m_fixedSize.width;
 					result.height = m_fixedSize.height;
 				}
@@ -318,12 +318,14 @@ namespace GuiToolkit
 			SetInvertMask(m_invertMask);
 		}
 
+#if UNITY_EDITOR		
 		protected override void OnValidate()
 		{
 			base.OnValidate();
 			if (m_invertMask != m_lastInvertMask)
 				SetInvertMask(m_invertMask);
 		}
+#endif
 
 		protected override void OnPopulateMesh( Mesh _mesh )
 		{

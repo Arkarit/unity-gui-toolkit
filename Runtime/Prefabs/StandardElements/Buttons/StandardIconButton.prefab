@@ -382,6 +382,8 @@ MonoBehaviour:
   m_simpleAnimation: {fileID: 8591811800190961484}
   m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 7758758935192399221}
+  m_additionalMouseOver: {fileID: 0}
+  m_additionalMouseOverDuration: 0.2
   m_simpleWiggleAnimation: {fileID: 0}
 --- !u!114 &3594388165116690286
 MonoBehaviour:

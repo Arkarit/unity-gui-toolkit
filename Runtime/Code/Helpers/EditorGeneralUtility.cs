@@ -253,7 +253,7 @@ namespace GuiToolkit
 					Debug.Log($"Clearing static editor Flags '{_flags}'\n'{_transform.GetPath()}'\ncurrent flags:{currentFlags}");
 
 				GameObjectUtility.SetStaticEditorFlags(_transform.gameObject, currentFlags & ~_flags);
-				EditorUtility.SetDirty(_transform.gameObject);
+				EditorGeneralUtility.SetDirty(_transform.gameObject);
 			}
 
 			foreach (Transform child in _transform)
@@ -278,7 +278,7 @@ namespace GuiToolkit
 			return propertyInfo.GetValue(_instance, null);
 		}
 		
-		private static void ForeachProperty(SerializedObject _serializedObject, Action<SerializedProperty> _action)
+		public static void ForeachProperty(SerializedObject _serializedObject, Action<SerializedProperty> _action)
 		{
 			if (_serializedObject == null || _serializedObject.targetObject == null)
 			{
@@ -663,37 +663,46 @@ namespace GuiToolkit
 			return result;
 		}
 		
-		public static T InstantiateIfNotAnAsset<T>(T obj, Dictionary<T, T> clonedCache = null, Action<T, T> onCloned = null) where T : Object
+		public static T InstantiateIfNotAnAsset<T>(T _obj, Dictionary<T, T> _clonedCache = null, Action<T, T> _onCloned = null) where T : Object
 		{
-			if (!obj)
+			if (!_obj)
 				return null;
 			
-			var assetPath = AssetDatabase.GetAssetPath(obj);
+			var assetPath = AssetDatabase.GetAssetPath(_obj);
 			if (!string.IsNullOrEmpty(assetPath))
-				return obj;
+				return _obj;
 			
-			if (clonedCache != null && clonedCache.TryGetValue(obj, out T cloned))
+			if (_clonedCache != null && _clonedCache.TryGetValue(_obj, out T cloned))
 				return cloned;
 			
-			T result = Object.Instantiate<T>(obj);
-			onCloned?.Invoke(obj, result);
+			T result = Object.Instantiate<T>(_obj);
+			_onCloned?.Invoke(_obj, result);
 			
-			if (clonedCache != null)
-				clonedCache.Add(obj, result);
+			if (_clonedCache != null)
+				_clonedCache.Add(_obj, result);
 			
 			return result;
 		}
 		
-		public static bool DestroyComponents<T>(Transform t) where T : Component
+		public static bool DestroyComponents<T>(Transform _t) where T : Component
 		{
-			if (t == null)
+			if (_t == null)
 				return false;
 			
-			var components = t.GetComponents<T>();
+			var components = _t.GetComponents<T>();
 			foreach (var component in components)
 				component.SafeDestroy();
 			
 			return components.Length > 0;
+		}
+		
+		public static void SetDirty(Object _obj)
+		{
+			// Never set package assets dirty; leads to "Saving Prefab to immutable folder is not allowed" errors
+			if (EditorAssetUtility.IsPackagesAsset(_obj))
+				return;
+			
+			EditorUtility.SetDirty(_obj);
 		}
 
 

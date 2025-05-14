@@ -200,7 +200,7 @@ namespace GuiToolkit.Style.Editor
 				var jsonStr = File.ReadAllText(path);
 				var jsonHelper = UnityEngine.JsonUtility.FromJson<JsonHelper>(jsonStr);
 				m_thisUiStyleConfig.Skins = jsonHelper.Skins;
-				EditorUtility.SetDirty(m_thisUiStyleConfig);
+				EditorGeneralUtility.SetDirty(m_thisUiStyleConfig);
 			}
 			catch (Exception e)
 			{

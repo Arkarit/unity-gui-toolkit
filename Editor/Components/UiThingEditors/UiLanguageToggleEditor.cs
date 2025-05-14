@@ -21,7 +21,7 @@ namespace GuiToolkit.Editor
 				    out string newLanguage))
 			{
 				thisUiLanguageToggle.Language = newLanguage;
-				EditorUtility.SetDirty(thisUiLanguageToggle);
+				EditorGeneralUtility.SetDirty(thisUiLanguageToggle);
 			}
 		}
 	}
