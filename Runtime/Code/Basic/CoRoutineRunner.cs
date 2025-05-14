@@ -29,9 +29,16 @@ namespace GuiToolkit
 	{
 		private static MonoBehaviour s_instance;
 		
-		public static MonoBehaviour Instance => s_instance;
+		public static MonoBehaviour Instance
+		{
+			get
+			{
+				if (s_instance == null)
+					Init();
+				return s_instance;
+			}
+		}
 		
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 		public static void Init()
 		{
 			var go = new GameObject("GuiToolkit");
