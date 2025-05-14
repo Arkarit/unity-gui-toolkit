@@ -67,7 +67,6 @@ namespace GuiToolkit
 			public Color Color;
 		}
 
-		[HideInInspector] // Only editable in custom editors
 		[SerializeField] protected bool m_enabledInHierarchy;
 		
 		[SerializeField] protected Material m_disabledMaterial;
@@ -104,11 +103,15 @@ namespace GuiToolkit
 
 		[Tooltip("Fixed size")]
 		[SerializeField] protected Rect m_fixedSize = new Rect(-10, -10, 20, 20);
-
+		
 		private static readonly List<Vertex> s_vertices = new();
 		private static readonly List<int[]> s_triangles = new();
-		private Material m_originalMaterial;
+		
+		[SerializeField][HideInInspector] protected  Material m_originalMaterial;
+		
 		private Material m_clonedMaterial;
+		private Material m_clonedDisabledMaterial;
+		
 		private bool m_lastInvertMask;
 
 		private class MaterialWithRefCount
@@ -118,50 +121,64 @@ namespace GuiToolkit
 		}
 
 		private static readonly Dictionary<Material, MaterialWithRefCount> s_clonedMaterials = new();
-
-		private void CloneMaterial()
+		
+		private Material CloneOrGetMaterial(Material _originalMaterial)
 		{
-			if (!material)
-				return;
-
-			if (m_clonedMaterial)
-				return;
-
-			Debug.Assert(!m_originalMaterial);
-
-			m_originalMaterial = material;
-			if (s_clonedMaterials.TryGetValue(material, out MaterialWithRefCount clonedMaterialWithRefCount))
+			if (_originalMaterial == null)
+				return m_originalMaterial;
+			
+			Material result;
+			
+			if (s_clonedMaterials.TryGetValue(_originalMaterial, out MaterialWithRefCount clonedMaterialWithRefCount))
 			{
 				clonedMaterialWithRefCount.RefCount++;
-				m_clonedMaterial = clonedMaterialWithRefCount.Material;
-				material = m_clonedMaterial;
-				return;
+				result = clonedMaterialWithRefCount.Material;
+				return result;
 			}
 
-			clonedMaterialWithRefCount = new MaterialWithRefCount() { Material = Instantiate(material), RefCount = 1 };
-			s_clonedMaterials.Add(material, clonedMaterialWithRefCount);
-			m_clonedMaterial = clonedMaterialWithRefCount.Material;
-			material = m_clonedMaterial;
+			clonedMaterialWithRefCount = new MaterialWithRefCount() { Material = Instantiate(_originalMaterial), RefCount = 1 };
+			s_clonedMaterials.Add(_originalMaterial, clonedMaterialWithRefCount);
+			result = clonedMaterialWithRefCount.Material;
+			if (!maskable)
+				result.SetInt("_StencilComp", (int)CompareFunction.Always);
+			else if (m_invertMask)
+				result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
+
+			return result;
+		}
+		
+		private Material CloneOrGetMaterial() 
+		{
+			var result = EnabledInHierarchy ? m_originalMaterial : m_disabledMaterial;
+			if (result != null && !m_invertMask)
+			{
+				result.SetInt("_StencilComp", (int)CompareFunction.Equal);
+				return result;
+			}
+			
+			return CloneOrGetMaterial(result);
 		}
 
-		private void ReleaseClonedMaterialIfNecessary()
+		private void ReleaseAllClonedMaterials()
 		{
-			if (!m_originalMaterial)
+			ReleaseClonedMaterial(m_originalMaterial);
+			ReleaseClonedMaterial(m_disabledMaterial);
+		}
+
+		private static void ReleaseClonedMaterial(Material originalMaterial)
+		{
+			if (!originalMaterial)
 				return;
 
-			if (s_clonedMaterials.TryGetValue(m_originalMaterial, out MaterialWithRefCount clonedMaterialWithRefCount))
+			if (!s_clonedMaterials.TryGetValue(originalMaterial, out MaterialWithRefCount clonedMaterialWithRefCount)) 
+				return;
+			
+			clonedMaterialWithRefCount.RefCount--;
+			if (clonedMaterialWithRefCount.RefCount == 0 || !clonedMaterialWithRefCount.Material)
 			{
-				clonedMaterialWithRefCount.RefCount--;
-				if (clonedMaterialWithRefCount.RefCount == 0 || !clonedMaterialWithRefCount.Material)
-				{
-					clonedMaterialWithRefCount.Material.SafeDestroy();
-					s_clonedMaterials.Remove(m_originalMaterial);
-				}
+				clonedMaterialWithRefCount.Material.SafeDestroy();
+				s_clonedMaterials.Remove(originalMaterial);
 			}
-
-			material = m_originalMaterial;
-			m_clonedMaterial = null;
-			m_originalMaterial = null;
 		}
 
 		public int CornerSegments
@@ -257,40 +274,62 @@ namespace GuiToolkit
 		{
 			m_invertMask = _value;
 			m_lastInvertMask = _value;
-			ReleaseClonedMaterialIfNecessary();
+			ReleaseAllClonedMaterials();
 			if (m_invertMask)
-				CloneMaterial();
+				base.material = CloneOrGetMaterial();
 		}
 
-		public override Material materialForRendering
+		public override Material material
 		{
-			get
+			get => CloneOrGetMaterial();
+			
+			set
 			{
-				Material result = base.materialForRendering;
-				if (m_clonedMaterial)
-				{
-					if (!maskable)
-						result.SetInt("_StencilComp", (int)CompareFunction.Always);
-					else if (m_invertMask)
-						result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
-				}
-				return result;
+				if (m_originalMaterial == value)
+					return;
+				
+				ReleaseAllClonedMaterials();
+				base.material = m_originalMaterial;
+				m_originalMaterial = value;
+				SetInvertMask(m_invertMask);
+				
+				base.material = value;
 			}
 		}
+		
+//		public override Material materialForRendering
+//		{
+//			get
+//			{
+//				Material result = base.materialForRendering;
+//				if (result == null)
+//					return base.material;
+//				
+//				if (m_clonedMaterial)
+//				{
+//					if (!maskable)
+//						result.SetInt("_StencilComp", (int)CompareFunction.Always);
+//					else if (m_invertMask)
+//						result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
+//					return result;
+//				}
+//				
+//				result.SetInt("_StencilComp", (int)CompareFunction.Equal);
+//				return result;
+//			}
+//		}
 
 
 		public override void OnBeforeSerialize()
 		{
 			base.OnBeforeSerialize();
-			if (m_clonedMaterial)
-				material = m_originalMaterial;
+			m_Material = m_originalMaterial;
 		}
 
 		public override void OnAfterDeserialize()
 		{
 			base.OnAfterDeserialize();
-			if (m_clonedMaterial)
-				material = m_clonedMaterial;
+			m_Material = CloneOrGetMaterial();
 		}
 
 		#region IEnableableInHierarchy
@@ -311,11 +350,12 @@ namespace GuiToolkit
 			// TODO
 		}
 		#endregion
+		
 		protected override void Awake()
 		{
 			base.Awake();
-			ReleaseClonedMaterialIfNecessary();
-			SetInvertMask(m_invertMask);
+			m_originalMaterial = base.material;
+			ReleaseAllClonedMaterials();
 		}
 
 #if UNITY_EDITOR		

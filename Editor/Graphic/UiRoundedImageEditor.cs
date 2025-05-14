@@ -23,6 +23,7 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_useFixedSizeProp;
 		protected SerializedProperty m_fixedSizeProp;
 		protected SerializedProperty m_disabledMaterialProp;
+		protected SerializedProperty m_enabledInHierarchyProp;
 
 		protected virtual void OnEnable()
 		{
@@ -43,6 +44,7 @@ namespace GuiToolkit.Editor
 			m_useFixedSizeProp = serializedObject.FindProperty("m_useFixedSize");
 			m_fixedSizeProp = serializedObject.FindProperty("m_fixedSize");
 			m_disabledMaterialProp = serializedObject.FindProperty("m_disabledMaterial");
+			m_enabledInHierarchyProp = serializedObject.FindProperty("m_enabledInHierarchy");
 		}
 
 		public override void OnInspectorGUI()
@@ -77,6 +79,10 @@ namespace GuiToolkit.Editor
 			GUILayout.Label("Size", EditorStyles.boldLabel);
 			EditorUiUtility.DisplayPropertyConditionally(m_useFixedSizeProp, m_fixedSizeProp);
 			EditorUiUtility.DisplayPropertyConditionally(m_usePaddingProp, m_paddingProp);
+			GUILayout.Space(10);
+			
+			GUILayout.Label("Visual Enabledness", EditorStyles.boldLabel);
+			EditorGUILayout.PropertyField(m_enabledInHierarchyProp);
 			
 			
 			serializedObject.ApplyModifiedProperties();
