@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -181,8 +182,32 @@ namespace GuiToolkit
 
 		public static GameObject InstantiateDisabled(this GameObject original, Transform parent) => InstantiateDisabled(original, parent, false);
 		public static GameObject InstantiateDisabled(this GameObject original) => InstantiateDisabled(original, null, false);
+
+		public static void SafeDestroyDelayed( this UnityEngine.Object _self )
+		{
+			if (_self == null)
+				return;
+			
+			if (!Application.isPlaying)
+			{
+				SafeDestroy(_self, false);
+				return;
+			}
+			
+			CoRoutineRunner.Instance.StartCoroutine(DestroyDelayed(_self));
+		}
 		
-		
+		private static IEnumerator DestroyDelayed( UnityEngine.Object _self )
+		{
+			yield return 0;
+			
+			// Application stopped during delay
+			if (!Application.isPlaying || _self == null)
+				yield break;
+			
+			Object.Destroy(_self);
+		}
+
 		public static void SafeDestroy( this UnityEngine.Object _self, bool _supportUndoIfPossible = true )
 		{
 			if (_self == null)
@@ -191,7 +216,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 			if (_supportUndoIfPossible && !Application.isPlaying)
 			{
-					Undo.DestroyObjectImmediate(_self);
+				Undo.DestroyObjectImmediate(_self);
 				return;
 			}
 #endif

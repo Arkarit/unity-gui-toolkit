@@ -227,10 +227,12 @@ namespace GuiToolkit
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			m_clonedMaterial.SafeDestroy();
+			m_clonedMaterial.SafeDestroyDelayed();
 			m_clonedMaterial = null;
 		}
 
+		private Material m_lastMaterial;
+		
 		public override Material materialForRendering
 		{
 			get
@@ -238,15 +240,22 @@ namespace GuiToolkit
 				var currentMaterialFlags = CurrentMaterialFlags;
 				var actualMaterial = (m_disabledMaterial && (currentMaterialFlags & MaterialFlags.Enabled) == 0) ?
 					m_disabledMaterial :
-					m_Material;
+					material;
 				
-				Material result = null;
+				if (m_lastMaterial != actualMaterial)
+				{
+					m_clonedMaterial.SafeDestroyDelayed();
+					m_clonedMaterial = null;
+					m_lastMaterial = actualMaterial;
+				}
+				
+				Material result;
 				
 				bool needsClone = (currentMaterialFlags & MaterialFlags.InvertMask) != 0;
 				if (needsClone)
 				{
 					if (!m_clonedMaterial)
-						m_clonedMaterial = material;
+						m_clonedMaterial = Instantiate(actualMaterial);
 					actualMaterial = m_clonedMaterial;
 				}
 				
