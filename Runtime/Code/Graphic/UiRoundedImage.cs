@@ -274,7 +274,6 @@ namespace GuiToolkit
 				else
 					result.SetInt("_StencilComp", (int)CompareFunction.Equal);
 				
-Debug.Log($"---::: materialForRendering '{result.name}' {(CompareFunction) result.GetInt("_StencilComp")}");
 				return result;
 			}
 		}

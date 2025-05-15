@@ -7,7 +7,7 @@ namespace GuiToolkit.Editor
 	public class UiRoundedImageEditor : UnityEditor.Editor
 	{
 		protected SerializedProperty m_SpriteProp;
-		protected SerializedProperty m_originalMaterialProp;
+		protected SerializedProperty m_MaterialProp;
 		protected SerializedProperty m_ColorProp;
 		protected SerializedProperty m_RaycastTargetProp;
 		protected SerializedProperty m_RaycastPaddingProp;
@@ -28,7 +28,7 @@ namespace GuiToolkit.Editor
 		protected virtual void OnEnable()
 		{
 			m_SpriteProp = serializedObject.FindProperty("m_Sprite");
-			m_originalMaterialProp = serializedObject.FindProperty("m_originalMaterial");
+			m_MaterialProp = serializedObject.FindProperty("m_Material");
 			m_ColorProp = serializedObject.FindProperty("m_Color");
 			m_RaycastTargetProp = serializedObject.FindProperty("m_RaycastTarget");
 			m_RaycastPaddingProp = serializedObject.FindProperty("m_RaycastPadding");
@@ -53,14 +53,9 @@ namespace GuiToolkit.Editor
 			
 			GUILayout.Label("Image Properties", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(m_SpriteProp);
-//			if (thisUiRoundedImage.material == thisUiRoundedImage.defaultMaterial && !thisUiRoundedImage.InvertMask)
-//				m_originalMaterialProp.objectReferenceValue = null;
 			
-			using (new EditorGUI.DisabledScope(thisUiRoundedImage.InvertMask))
-			{
-//				EditorGUILayout.PropertyField(m_originalMaterialProp, new GUIContent("Material"));
-				EditorGUILayout.PropertyField(m_disabledMaterialProp); // This is actually not an Image member, but it does not make sense to display it elsewhere
-			}
+			EditorGUILayout.PropertyField(m_MaterialProp);
+			EditorGUILayout.PropertyField(m_disabledMaterialProp); // This is actually not an Image member, but it does not make sense to display it elsewhere
 			
 			EditorGUILayout.PropertyField(m_ColorProp);
 			EditorGUILayout.PropertyField(m_RaycastTargetProp);
@@ -73,7 +68,10 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_radiusProp);
 			EditorGUILayout.PropertyField(m_frameSizeProp);
 			EditorGUILayout.PropertyField(m_fadeSizeProp);
-			EditorGUILayout.PropertyField(m_invertMaskProp);
+			
+			using (new EditorGUI.DisabledScope(!thisUiRoundedImage.maskable))
+				EditorGUILayout.PropertyField(m_invertMaskProp);
+			
 			GUILayout.Space(10);
 
 			GUILayout.Label("Size", EditorStyles.boldLabel);
