@@ -24,6 +24,7 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_fixedSizeProp;
 		protected SerializedProperty m_disabledMaterialProp;
 		protected SerializedProperty m_enabledInHierarchyProp;
+		protected SerializedProperty m_gradientSimpleProp;
 
 		protected virtual void OnEnable()
 		{
@@ -45,6 +46,7 @@ namespace GuiToolkit.Editor
 			m_fixedSizeProp = serializedObject.FindProperty("m_fixedSize");
 			m_disabledMaterialProp = serializedObject.FindProperty("m_disabledMaterial");
 			m_enabledInHierarchyProp = serializedObject.FindProperty("m_enabledInHierarchy");
+			m_gradientSimpleProp = serializedObject.FindProperty("m_gradientSimple");
 		}
 
 		public override void OnInspectorGUI()
@@ -68,6 +70,7 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_radiusProp);
 			EditorGUILayout.PropertyField(m_frameSizeProp);
 			EditorGUILayout.PropertyField(m_fadeSizeProp);
+			EditorGUILayout.PropertyField(m_gradientSimpleProp);
 			
 			using (new EditorGUI.DisabledScope(!thisUiRoundedImage.maskable))
 				EditorGUILayout.PropertyField(m_invertMaskProp);
@@ -82,6 +85,18 @@ namespace GuiToolkit.Editor
 			GUILayout.Label("Visual Enabledness", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(m_enabledInHierarchyProp);
 			
+			if (m_gradientSimpleProp.objectReferenceValue != null)
+			{
+				UiGradientSimple gradientSimple = (UiGradientSimple) m_gradientSimpleProp.objectReferenceValue;
+				var colors = gradientSimple.GetColors();
+				Color newColorLeftOrTop = EditorGUILayout.ColorField("Color left or top:", colors.leftOrTop);
+				Color newColorRightOrBottom = EditorGUILayout.ColorField("Color right or bottom:", colors.rightOrBottom);
+				if (newColorLeftOrTop != colors.leftOrTop || newColorRightOrBottom != colors.rightOrBottom)
+				{
+					Undo.RecordObject(gradientSimple, "Simple gradient colors change");
+					thisUiRoundedImage.SetSimpleGradientColors(newColorLeftOrTop, newColorRightOrBottom);
+				}
+			}
 			
 			serializedObject.ApplyModifiedProperties();
 

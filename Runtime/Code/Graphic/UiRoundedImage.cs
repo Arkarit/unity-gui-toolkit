@@ -112,11 +112,14 @@ namespace GuiToolkit
 		[Tooltip("Fixed size")]
 		[SerializeField] protected Rect m_fixedSize = new Rect(-10, -10, 20, 20);
 		
+		[Tooltip("Ui Simple Gradient component. Mandatory if you want to use the 'SimpleGradientColors' getters+setters.")]
+		[SerializeField] protected UiGradientSimple m_gradientSimple;
+
+		
 		private static readonly List<Vertex> s_vertices = new();
 		private static readonly List<int[]> s_triangles = new();
 		
 		protected Material m_clonedMaterial;
-		protected MaterialFlags m_materialFlags = MaterialFlags.Enabled;
 		
 		public int CornerSegments
 		{
@@ -207,6 +210,24 @@ namespace GuiToolkit
 				return result;
 			}
 		}
+		
+		public void SetSimpleGradientColors(Color _leftOrTop, Color _rightOrBottom)
+		{
+			if (m_gradientSimple == null)
+			{
+				Debug.LogError("Attempt to set simple gradient colors, but simple gradient was not set");
+				return;
+			}
+			m_gradientSimple.SetColors(_leftOrTop, _rightOrBottom);
+		}
+
+		public (Color leftOrTop, Color rightOrBottom) GetSimpleGradientColors()
+		{
+			if (m_gradientSimple == null)
+				return (leftOrTop:Color.white, rightOrBottom:Color.white);
+			return m_gradientSimple.GetColors();
+		}
+
 
 		#region IEnableableInHierarchy
 		public bool IsEnableableInHierarchy => m_disabledMaterial;
