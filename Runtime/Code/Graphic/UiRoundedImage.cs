@@ -111,14 +111,11 @@ namespace GuiToolkit
 
 		[Tooltip("Fixed size")]
 		[SerializeField] protected Rect m_fixedSize = new Rect(-10, -10, 20, 20);
-
-		
-		protected Material m_originalMaterial;
 		
 		private static readonly List<Vertex> s_vertices = new();
 		private static readonly List<int[]> s_triangles = new();
 		
-		protected Material m_actualMaterial;
+		protected Material m_clonedMaterial;
 		protected MaterialFlags m_materialFlags = MaterialFlags.Enabled;
 		
 		public int CornerSegments
@@ -211,22 +208,6 @@ namespace GuiToolkit
 			}
 		}
 
-		#region Serialize
-		private Material m_tempMaterial;
-		public override void OnBeforeSerialize()
-		{
-			base.OnBeforeSerialize();
-			m_tempMaterial = m_Material;
-			m_Material = m_originalMaterial;
-		}
-
-		public override void OnAfterDeserialize()
-		{
-			base.OnAfterDeserialize();
-			m_Material = m_tempMaterial;
-		}
-		#endregion
-
 		#region IEnableableInHierarchy
 		public bool IsEnableableInHierarchy => m_disabledMaterial;
 		bool IEnableableInHierarchy.StoreEnabledInHierarchy 
@@ -243,37 +224,52 @@ namespace GuiToolkit
 		public void OnEnabledInHierarchyChanged(bool _enabled) => SetMaterialDirty();
 		#endregion
 
-		public override Material material
-		{
-			set
-			{
-				m_originalMaterial = value;
-Debug.Log($"---::: set m_originalMaterial to {m_originalMaterial}");
-				base.material = value;
-			}
-		}
-
-		protected override void OnEnable()
-		{
-			m_originalMaterial = base.material;
-Debug.Log($"---::: set m_originalMaterial to {m_originalMaterial}");
-			m_OnDirtyMaterialCallback += OnMaterialDirty;
-			base.OnEnable();
-		}
-
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			m_OnDirtyMaterialCallback += OnMaterialDirty;
-			m_Material = m_originalMaterial;
+			m_clonedMaterial.SafeDestroy();
+			m_clonedMaterial = null;
 		}
 
-#if UNITY_EDITOR		
-//		protected override void OnValidate()
-//		{
-//			SetMaterialDirty();
-//		}
-#endif
+		public override Material materialForRendering
+		{
+			get
+			{
+				var currentMaterialFlags = CurrentMaterialFlags;
+				var actualMaterial = (m_disabledMaterial && (currentMaterialFlags & MaterialFlags.Enabled) == 0) ?
+					m_disabledMaterial :
+					m_Material;
+				
+				Material result = null;
+				
+				bool needsClone = (currentMaterialFlags & MaterialFlags.InvertMask) != 0;
+				if (needsClone)
+				{
+					if (!m_clonedMaterial)
+						m_clonedMaterial = material;
+					actualMaterial = m_clonedMaterial;
+				}
+				
+				var savedMaterial = m_Material;
+				m_Material = actualMaterial;
+				result = base.materialForRendering;
+				m_Material = savedMaterial;
+				
+				if (result == null)
+					result = material;
+				
+				if (!maskable)
+					result.SetInt("_StencilComp", (int)CompareFunction.Always);
+				else if (m_invertMask)
+					result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
+				else
+					result.SetInt("_StencilComp", (int)CompareFunction.Equal);
+				
+Debug.Log($"---::: materialForRendering '{result.name}' {(CompareFunction) result.GetInt("_StencilComp")}");
+				return result;
+			}
+		}
+
 
 		protected override void OnPopulateMesh( Mesh _mesh )
 		{
@@ -339,56 +335,6 @@ Debug.Log($"---::: set m_originalMaterial to {m_originalMaterial}");
 			}
 		}
 		
-		private bool m_InDirtyCallback;
-		
-		private Material BaseMaterial
-		{
-			set
-			{
-				m_InDirtyCallback = true;
-				base.material = value;
-				m_InDirtyCallback = false;
-			}
-		}
-		
-		private void OnMaterialDirty()
-		{
-			if (m_InDirtyCallback)
-				return;
-			
-			var currentMaterialFlags = CurrentMaterialFlags;
-			if (m_materialFlags == currentMaterialFlags)
-				return;
-			
-Debug.Log($"---::: On Material dirty m_materialFlags:{m_materialFlags} CurrentMaterialFlags:{CurrentMaterialFlags}");
-
-			if (m_actualMaterial && m_actualMaterial != m_originalMaterial)
-				m_actualMaterial.SafeDestroy();
-			m_actualMaterial = m_originalMaterial;
-			
-			if (currentMaterialFlags == MaterialFlags.Enabled)
-			{
-				BaseMaterial = m_originalMaterial;
-				return;
-			}
-			
-			var materialToClone = (m_disabledMaterial && (currentMaterialFlags & MaterialFlags.Enabled) == 0) ?
-				m_disabledMaterial :
-				m_originalMaterial;
-				
-			m_actualMaterial = Instantiate(materialToClone);
-			
-			if ((currentMaterialFlags & MaterialFlags.Maskable) == 0)
-				m_actualMaterial.SetInt("_StencilComp", (int)CompareFunction.Always);
-			else if ((currentMaterialFlags & MaterialFlags.InvertMask) != 0)
-				m_actualMaterial.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
-			else
-				m_actualMaterial.SetInt("_StencilComp", (int)CompareFunction.Equal);
-			
-			m_materialFlags = currentMaterialFlags;
-			BaseMaterial = m_actualMaterial;
-		}
-
 		private void ApplyToMesh( Mesh _mesh )
 		{
 			var vertexCount = s_vertices.Count;
