@@ -36,6 +36,14 @@ namespace GuiToolkit
 		public const float MinFadeSize = 0;
 		public const float MaxFadeSize = 30;
 
+		[Flags]
+		protected enum MaterialFlags
+		{
+			Enabled		= 0x01,
+			InvertMask	= 0x02,
+			Maskable	= 0x04,
+		}
+		
 		private enum Corner
 		{
 			TopLeft,
@@ -103,84 +111,16 @@ namespace GuiToolkit
 
 		[Tooltip("Fixed size")]
 		[SerializeField] protected Rect m_fixedSize = new Rect(-10, -10, 20, 20);
+
+		
+		protected Material m_originalMaterial;
 		
 		private static readonly List<Vertex> s_vertices = new();
 		private static readonly List<int[]> s_triangles = new();
 		
-		[SerializeField][HideInInspector] protected  Material m_originalMaterial;
+		protected Material m_actualMaterial;
+		protected MaterialFlags m_materialFlags = MaterialFlags.Enabled;
 		
-		private Material m_clonedMaterial;
-		private Material m_clonedDisabledMaterial;
-		
-		private bool m_lastInvertMask;
-
-		private class MaterialWithRefCount
-		{
-			public Material Material;
-			public int RefCount;
-		}
-
-		private static readonly Dictionary<Material, MaterialWithRefCount> s_clonedMaterials = new();
-		
-		private Material CloneOrGetMaterial(Material _originalMaterial)
-		{
-			if (_originalMaterial == null)
-				return m_originalMaterial;
-			
-			Material result;
-			
-			if (s_clonedMaterials.TryGetValue(_originalMaterial, out MaterialWithRefCount clonedMaterialWithRefCount))
-			{
-				clonedMaterialWithRefCount.RefCount++;
-				result = clonedMaterialWithRefCount.Material;
-				return result;
-			}
-
-			clonedMaterialWithRefCount = new MaterialWithRefCount() { Material = Instantiate(_originalMaterial), RefCount = 1 };
-			s_clonedMaterials.Add(_originalMaterial, clonedMaterialWithRefCount);
-			result = clonedMaterialWithRefCount.Material;
-			if (!maskable)
-				result.SetInt("_StencilComp", (int)CompareFunction.Always);
-			else if (m_invertMask)
-				result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
-
-			return result;
-		}
-		
-		private Material CloneOrGetMaterial() 
-		{
-			var result = EnabledInHierarchy ? m_originalMaterial : m_disabledMaterial;
-			if (result != null && !m_invertMask)
-			{
-				result.SetInt("_StencilComp", (int)CompareFunction.Equal);
-				return result;
-			}
-			
-			return CloneOrGetMaterial(result);
-		}
-
-		private void ReleaseAllClonedMaterials()
-		{
-			ReleaseClonedMaterial(m_originalMaterial);
-			ReleaseClonedMaterial(m_disabledMaterial);
-		}
-
-		private static void ReleaseClonedMaterial(Material originalMaterial)
-		{
-			if (!originalMaterial)
-				return;
-
-			if (!s_clonedMaterials.TryGetValue(originalMaterial, out MaterialWithRefCount clonedMaterialWithRefCount)) 
-				return;
-			
-			clonedMaterialWithRefCount.RefCount--;
-			if (clonedMaterialWithRefCount.RefCount == 0 || !clonedMaterialWithRefCount.Material)
-			{
-				clonedMaterialWithRefCount.Material.SafeDestroy();
-				s_clonedMaterials.Remove(originalMaterial);
-			}
-		}
-
 		public int CornerSegments
 		{
 			get => m_cornerSegments;
@@ -232,8 +172,9 @@ namespace GuiToolkit
 			{
 				if (m_invertMask == value)
 					return;
-
-				SetInvertMask(value);
+				
+				m_invertMask = value;
+				SetMaterialDirty();
 			}
 		}
 
@@ -270,67 +211,21 @@ namespace GuiToolkit
 			}
 		}
 
-		private void SetInvertMask( bool _value )
-		{
-			m_invertMask = _value;
-			m_lastInvertMask = _value;
-			ReleaseAllClonedMaterials();
-			if (m_invertMask)
-				base.material = CloneOrGetMaterial();
-		}
-
-		public override Material material
-		{
-			get => CloneOrGetMaterial();
-			
-			set
-			{
-				if (m_originalMaterial == value)
-					return;
-				
-				ReleaseAllClonedMaterials();
-				base.material = m_originalMaterial;
-				m_originalMaterial = value;
-				SetInvertMask(m_invertMask);
-				
-				base.material = value;
-			}
-		}
-		
-//		public override Material materialForRendering
-//		{
-//			get
-//			{
-//				Material result = base.materialForRendering;
-//				if (result == null)
-//					return base.material;
-//				
-//				if (m_clonedMaterial)
-//				{
-//					if (!maskable)
-//						result.SetInt("_StencilComp", (int)CompareFunction.Always);
-//					else if (m_invertMask)
-//						result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
-//					return result;
-//				}
-//				
-//				result.SetInt("_StencilComp", (int)CompareFunction.Equal);
-//				return result;
-//			}
-//		}
-
-
+		#region Serialize
+		private Material m_tempMaterial;
 		public override void OnBeforeSerialize()
 		{
 			base.OnBeforeSerialize();
+			m_tempMaterial = m_Material;
 			m_Material = m_originalMaterial;
 		}
 
 		public override void OnAfterDeserialize()
 		{
 			base.OnAfterDeserialize();
-			m_Material = CloneOrGetMaterial();
+			m_Material = m_tempMaterial;
 		}
+		#endregion
 
 		#region IEnableableInHierarchy
 		public bool IsEnableableInHierarchy => m_disabledMaterial;
@@ -345,26 +240,39 @@ namespace GuiToolkit
 			set => EnableableInHierarchyUtility.SetEnabledInHierarchy(this, value); 
 		}
 		public IEnableableInHierarchy[] Children => GetComponentsInChildren<IEnableableInHierarchy>();
-		public void OnEnabledInHierarchyChanged(bool _enabled)
-		{
-			// TODO
-		}
+		public void OnEnabledInHierarchyChanged(bool _enabled) => SetMaterialDirty();
 		#endregion
-		
-		protected override void Awake()
+
+		public override Material material
 		{
-			base.Awake();
+			set
+			{
+				m_originalMaterial = value;
+Debug.Log($"---::: set m_originalMaterial to {m_originalMaterial}");
+				base.material = value;
+			}
+		}
+
+		protected override void OnEnable()
+		{
 			m_originalMaterial = base.material;
-			ReleaseAllClonedMaterials();
+Debug.Log($"---::: set m_originalMaterial to {m_originalMaterial}");
+			m_OnDirtyMaterialCallback += OnMaterialDirty;
+			base.OnEnable();
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			m_OnDirtyMaterialCallback += OnMaterialDirty;
+			m_Material = m_originalMaterial;
 		}
 
 #if UNITY_EDITOR		
-		protected override void OnValidate()
-		{
-			base.OnValidate();
-			if (m_invertMask != m_lastInvertMask)
-				SetInvertMask(m_invertMask);
-		}
+//		protected override void OnValidate()
+//		{
+//			SetMaterialDirty();
+//		}
 #endif
 
 		protected override void OnPopulateMesh( Mesh _mesh )
@@ -418,6 +326,67 @@ namespace GuiToolkit
 
 			OnPopulateMesh(workerMesh);
 			canvasRenderer.SetMesh(workerMesh);
+		}
+
+		private MaterialFlags CurrentMaterialFlags
+		{
+			get
+			{
+				return 
+					(EnabledInHierarchy ? MaterialFlags.Enabled : 0) | 
+					(InvertMask ? MaterialFlags.InvertMask : 0) | 
+					(maskable ? MaterialFlags.Maskable : 0);
+			}
+		}
+		
+		private bool m_InDirtyCallback;
+		
+		private Material BaseMaterial
+		{
+			set
+			{
+				m_InDirtyCallback = true;
+				base.material = value;
+				m_InDirtyCallback = false;
+			}
+		}
+		
+		private void OnMaterialDirty()
+		{
+			if (m_InDirtyCallback)
+				return;
+			
+			var currentMaterialFlags = CurrentMaterialFlags;
+			if (m_materialFlags == currentMaterialFlags)
+				return;
+			
+Debug.Log($"---::: On Material dirty m_materialFlags:{m_materialFlags} CurrentMaterialFlags:{CurrentMaterialFlags}");
+
+			if (m_actualMaterial && m_actualMaterial != m_originalMaterial)
+				m_actualMaterial.SafeDestroy();
+			m_actualMaterial = m_originalMaterial;
+			
+			if (currentMaterialFlags == MaterialFlags.Enabled)
+			{
+				BaseMaterial = m_originalMaterial;
+				return;
+			}
+			
+			var materialToClone = (m_disabledMaterial && (currentMaterialFlags & MaterialFlags.Enabled) == 0) ?
+				m_disabledMaterial :
+				m_originalMaterial;
+				
+			m_actualMaterial = Instantiate(materialToClone);
+			
+			if ((currentMaterialFlags & MaterialFlags.Maskable) == 0)
+				m_actualMaterial.SetInt("_StencilComp", (int)CompareFunction.Always);
+			else if ((currentMaterialFlags & MaterialFlags.InvertMask) != 0)
+				m_actualMaterial.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
+			else
+				m_actualMaterial.SetInt("_StencilComp", (int)CompareFunction.Equal);
+			
+			m_materialFlags = currentMaterialFlags;
+			BaseMaterial = m_actualMaterial;
 		}
 
 		private void ApplyToMesh( Mesh _mesh )
