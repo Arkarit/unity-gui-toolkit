@@ -23,9 +23,10 @@ namespace GuiToolkit.Editor
 				return;
 			}
 			
-			if (s_lastWritten.Contains(assetPath.ToLowerInvariant()))
+			string assetPathLower = assetPath.ToLowerInvariant();
+			if (s_lastWritten.Contains(assetPathLower))
 			{
-				s_lastWritten.Remove(assetPath);
+				s_lastWritten.Remove(assetPathLower);
 				return;
 			}
 			
