@@ -37,7 +37,7 @@ namespace GuiToolkit
 			m_numScripts = EditorAssetUtility.FindAllScriptsCount();
 			m_currentScriptIdx = 0;
 
-			EditorAssetUtility.FindAllScripts(FoundScript);
+			EditorAssetUtility.FindAllScripts(FoundScript, options);
 
 			EditorUtility.ClearProgressBar();
 
