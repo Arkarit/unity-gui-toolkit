@@ -10,7 +10,22 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
+msgid "Cancel LOREM IPSUM dolor sit amet bla"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Date:"
+msgstr ""
+
+msgid "Default"
+msgstr ""
+
 msgid "Details"
+msgstr ""
+
+msgid "Dialog Stub"
 msgstr ""
 
 msgid "Effect Volume"
@@ -38,6 +53,9 @@ msgid "Key Bindings"
 msgstr ""
 
 msgid "Language"
+msgstr ""
+
+msgid "Light"
 msgstr ""
 
 msgid "Low"
@@ -112,6 +130,9 @@ msgstr ""
 msgid "Sound"
 msgstr ""
 
+msgid "Style Example"
+msgstr ""
+
 msgid "Tab Dialog Demo"
 msgstr ""
 
@@ -127,10 +148,16 @@ msgstr ""
 msgid "Test Scene"
 msgstr ""
 
-msgid "Text...\n"
+msgid "Text...	"
 msgstr ""
 
-msgid "Title..."
+msgid "Time:"
+msgstr ""
+
+msgid "Title...	"
+msgstr ""
+
+msgid "UI Skin"
 msgstr ""
 
 msgid "Ultra"

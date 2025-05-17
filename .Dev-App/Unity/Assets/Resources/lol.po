@@ -5,129 +5,127 @@ msgstr ""
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: de\n"
+"Language: lolcode\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.6\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.4.2\n"
 
 msgid "Ambient Occlusion"
-msgstr "Umgebungsverdeckung"
+msgstr "Make teh cornerz dim"
 
 msgid "Are you really really sure you want to quit?"
-msgstr ""
-"Sind Sie wirklich ganz sicher, dass Sie die Anwendung beenden wollen? Echt "
-"jetzt?"
+msgstr "Iz u reeeeeely sure u want to fuk of?"
 
 msgid "Cancel"
-msgstr "Abbrechen"
+msgstr "No wai"
 
 msgid "Details"
-msgstr "Details"
+msgstr "Deetailz plz?"
 
 msgid "Effect Volume"
-msgstr "Effekt-Lautstärke"
+msgstr "Teh noize when prez buttonz"
 
 msgid "Enter text..."
-msgstr "Texteingabe..."
+msgstr "Can haz text?"
 
 msgid "General"
-msgstr "Allgemein"
+msgstr "Generel"
 
 msgid "Graphics"
-msgstr "Grafik"
+msgstr "Teh colorz"
 
 msgid "Hello World"
-msgstr "Hallo Welt"
+msgstr "Hai Wurld"
 
 msgid "Here you can test some of the capabilities of the GUI Toolkit"
-msgstr "Hier können Sie einige der Fähigkeiten des GUI Toolkit testen"
+msgstr "her u can plai some for teh capabiliTIez for teh gUI tolkit plZ?"
 
 msgid "High"
-msgstr "Hoch"
+msgstr "Hai"
 
 msgid "Key Bindings"
-msgstr "Tastenzuordnung"
+msgstr "Tap teh kei plz!"
 
 msgid "Language"
-msgstr "Sprache"
+msgstr "Teh meeowz"
 
 msgid "Low"
-msgstr "Niedrig"
+msgstr "Meh"
 
 msgid "Medium"
-msgstr "Mittel"
+msgstr "Okeh"
 
 msgid "Move Down"
-msgstr "Nach unten bewegen"
+msgstr "Move downe"
 
 msgid "Move Left"
-msgstr "Nach links bewegen"
+msgstr "Move left"
 
 msgid "Move Right"
-msgstr "Nach rechts bewegen"
+msgstr "Move rait"
 
 msgid "Move Up"
-msgstr "Nach oben bewegen"
+msgstr "Move app"
 
 msgid "Music Volume"
-msgstr "Musik-Lautstärke"
+msgstr "Teh noize when Lala"
 
 msgid "No"
-msgstr "Nein"
+msgstr "No wai"
 
 msgid "Ok"
-msgstr "Ok"
+msgstr "Ya rly"
 
 msgid "Or 'Esc' to cancel"
-msgstr "Oder 'Esc' um abzubrechen"
+msgstr "Or prez 'Esc' to "
 
 msgid "Overall"
-msgstr "Generell"
+msgstr "Overalz"
 
 msgid "Page 1"
-msgstr "Seite 1"
+msgstr "Teh page 1"
 
 msgid "Page 2"
-msgstr "Seite 2"
+msgstr "Teh page 2"
 
 msgid "Page 3"
-msgstr "Seite 3"
+msgstr "Teh page 3"
 
 msgid ""
 "Press a key\n"
 "Or Mouse button!"
 msgstr ""
-"Drücken Sie eine Taste\n"
-"oder eine Maustaste!"
+"Prez a kei\n"
+"or squeeeeze a mouze!"
 
 msgid "Quit"
-msgstr "Beenden"
+msgstr "Kthxbye"
 
 msgid "Really Quit?"
-msgstr "Wirklich beenden?"
+msgstr "O rly?"
 
 msgid "Restore Defaults"
-msgstr "Einstellungen zurücksetzen"
+msgstr "Mek all like was "
 
 msgid "Settings"
-msgstr "Einstellungen"
+msgstr "Settingz"
 
 msgid "Show Full screen tabs dialog"
-msgstr "Zeige Fullscreen Tabs Dialog"
+msgstr "Can haz Fullscreen Tabz?"
 
 msgid "Show Requester"
-msgstr "Zeige Requester"
+msgstr "Can haz Requezter?"
 
 msgid "Show Splash Message"
-msgstr "Zeige Splash Message"
+msgstr "Can haz Splasssh!"
 
 msgid "Sound"
-msgstr "Sound"
+msgstr "Teh noize"
 
 msgid "Tab Dialog Demo"
-msgstr "Tab Dialog Demo"
+msgstr "Teh dialogz wizz tabz"
 
 msgid "Test Loca Key 1"
 msgstr "Test Loca Key 1"
@@ -136,27 +134,26 @@ msgid "Test Loca Key 2"
 msgstr "Test Loca Key 2"
 
 msgid "Test Requester"
-msgstr "Zeige Requester"
+msgstr "Can haz Requezter?"
 
 msgid "Test Scene"
-msgstr "Testszene"
+msgstr "Teh Play szenez"
 
 msgid "Text..."
-msgstr "Text..."
+msgstr "Can haz text?"
 
 msgid "Title..."
-msgstr "Titel..."
+msgstr "Can haz titleh?"
 
 msgid "Ultra"
-msgstr "Ultra"
+msgstr "Awsum"
 
 msgid "Yes"
-msgstr "Ja"
+msgstr "Ya rly!"
 
 msgid "{0} Tree, "
 msgid_plural "{0} Trees, "
-msgstr[0] "{0} Baum, "
-msgstr[1] "{0} Bäume, "
+msgstr[0] "{0} teh tree, "
 
 #~ msgid "Tree"
 #~ msgid_plural "Trees"
