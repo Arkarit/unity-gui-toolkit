@@ -24,6 +24,34 @@ namespace GuiToolkit
 	{
 		private const string CachePrefix = "UIECache_";
 		private static readonly Dictionary<string, Component> s_cachedComponents = new();
+		private static readonly string[] DefaultFolders = new []{"Assets"};
+		private static readonly AssetSearchOptions DefaultSearchOptions = new();
+		
+		public class AssetSearchOptions
+		{
+			[Flags]
+			public enum EErrorCondition
+			{
+				NoError = 0,
+				ErrorIfNotFound = 1,
+				ErrorIfMultipleFound = 2,
+			}
+			
+			public enum EErrorType
+			{
+				LogWarning,
+				LogError,
+				Throw,
+				Dialog,
+			}
+			
+			public string SearchString = string.Empty;
+			public bool ShowProgressBar = true;
+			public bool IncludeInactive = true;
+			public EErrorCondition ErrorCondition = EErrorCondition.NoError;
+			public EErrorType ErrorType = EErrorType.LogError;
+			public string[] Folders = new []{"Assets"};
+		}
 
 		public delegate void ComponentAssetFoundDelegate<T>(T _component);
 		public delegate bool ComponentAssetFoundDelegateWithAsset<T>(T _component, GameObject _asset, string _assetPath);
@@ -37,62 +65,71 @@ namespace GuiToolkit
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="_foundFn"></param>
-		/// <param name="_includeInactive"></param>
-		/// <param name="_searchString"></param>
-		public static void FindAllComponentsInAllPrefabs<T>(ComponentAssetFoundDelegateWithAsset<T> _foundFn, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true)
+		/// <param name="_options"></param>
+		public static void FindAllComponentsInAllPrefabs<T>(ComponentAssetFoundDelegateWithAsset<T> _foundFn, AssetSearchOptions _options = null)
 		{
+			if (_options == null)
+				_options = DefaultSearchOptions;
+			
+			var searchString = _options.SearchString;
+			var showProgressBar = _options.ShowProgressBar;
+			var includeInactive = _options.IncludeInactive;
+			int numFound = 0;
+			
 			try
 			{
-				if (_searchString == null)
-					_searchString = string.Empty;
+				if (searchString == null)
+					searchString = string.Empty;
 	
-				string[] allAssetPathGuids = AssetDatabase.FindAssets($"t:GameObject {_searchString}");
+				string[] allAssetPathGuids = AssetDatabase.FindAssets($"t:GameObject {searchString}", _options.Folders);
 	
 				for (int i=0; i<allAssetPathGuids.Length; i++)
 				{
 					string guid = allAssetPathGuids[i];
-					string _assetPath = AssetDatabase.GUIDToAssetPath(guid);
+					string assetPath = AssetDatabase.GUIDToAssetPath(guid);
 					
-					if (_showProgressBar)
+					if (showProgressBar)
 					{
 						float done = (float) (i+1) / allAssetPathGuids.Length;
-						EditorUtility.DisplayProgressBar($"Searching prefabs for components of type {typeof(T).Name}", $"Searching prefab '{Path.GetFileName(_assetPath)}' ", done);
+						EditorUtility.DisplayProgressBar($"Searching prefabs for components of type {typeof(T).Name}", $"Searching prefab '{Path.GetFileName(assetPath)}' ", done);
 					}
 					
-					GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(_assetPath);
-					T[] components = go.GetComponentsInChildren<T>(_includeInactive);
+					GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+					T[] components = go.GetComponentsInChildren<T>(includeInactive);
 					if (components == null || components.Length == 0)
 						continue;
 	
-					foreach (T _component in components)
+					foreach (T component in components)
 					{
-						if (!_foundFn(_component, go, _assetPath))
+						if (!_foundFn(component, go, assetPath))
 							break;
+						
+						numFound++;
 					}
 				}
+				
+				ShowErrorIfNecessary<T>(numFound, _options);
 			}
 			finally
 			{
-				if (_showProgressBar)
+				if (showProgressBar)
 					EditorUtility.ClearProgressBar();
 			}
 		}
-
+		
 		/// <summary>
 		/// Finds all components in all prefabs.
 		/// Warning: Extremely slow if no search string is provided (or if a search string is provided, but very many assets are found)
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="_foundFn"></param>
-		/// <param name="_includeInactive"></param>
-		/// <param name="_searchString"></param>
-		public static void FindAllComponentsInAllPrefabs<T>(ComponentAssetFoundDelegate<T> _foundFn, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true)
+		public static void FindAllComponentsInAllPrefabs<T>(ComponentAssetFoundDelegate<T> _foundFn, AssetSearchOptions _options = null)
 		{
 			FindAllComponentsInAllPrefabs<T>((_component, _, __) =>
 			{
 				_foundFn(_component);
 				return true;
-			}, _includeInactive, _searchString, _showProgressBar);
+			}, _options);
 		}
 
 		/// <summary>
@@ -102,14 +139,14 @@ namespace GuiToolkit
 		/// <typeparam name="T"></typeparam>
 		/// <param name="_result"></param>
 		/// <param name="_searchString"></param>
-		public static void FindAllComponentsInAllPrefabs<T>(List<T> _result, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true)
+		public static void FindAllComponentsInAllPrefabs<T>(List<T> _result, AssetSearchOptions _options = null)
 		{
 			_result.Clear();
 
 			FindAllComponentsInAllPrefabs<T>(_component =>
 			{
 				_result.Add(_component);
-			}, _includeInactive, _searchString, _showProgressBar);
+			}, _options);
 		}
 
 		/// <summary>
@@ -122,11 +159,13 @@ namespace GuiToolkit
 		public static List<T> FindAllComponentsInAllPrefabs<T>(string _searchString = null)
 		{
 			List<T> result = new();
-
+			
+			var assetSearchOptions = new AssetSearchOptions() {SearchString = _searchString};
+			
 			FindAllComponentsInAllPrefabs<T>((_component) =>
 			{
 				result.Add(_component);
-			}, true, _searchString);
+			}, assetSearchOptions);
 
 			return result;
 		}
@@ -140,32 +179,22 @@ namespace GuiToolkit
 		/// <param name="_errorIfZero">output error message if no _asset was found</param>
 		/// <param name="_errorIfMoreThanOne">output error message if more than one _asset was found</param>
 		/// <returns>Asset if found or null</returns>
-		public static T FindComponentInAllPrefabs<T>(string _searchString = null, bool _errorIfZero = false, bool _errorIfMoreThanOne = false)
+		public static T FindComponentInAllPrefabs<T>(AssetSearchOptions _options)
 		{
-			string nameLogStr = string.IsNullOrEmpty(_searchString) ? "" : $", search string: '{_searchString}'";
-			
-			List<T> found = FindAllComponentsInAllPrefabs<T>(_searchString);
-			int numFound = found.Count;
-			if (numFound == 0)
-			{
-				if (_errorIfZero)
-					Debug.LogError($"Didn't find any game objects with _component type '{typeof(T).Name}'{nameLogStr}");
-
+			List<T> found = FindAllComponentsInAllPrefabs<T>(_options.SearchString);
+			bool error = ShowErrorIfNecessary<T>(found.Count, _options);
+			if (error || found.Count == 0)
 				return default;
-			}
-
-			if (_errorIfMoreThanOne && numFound > 1)
-				Debug.LogError($"Found multiple game objects ({numFound}) with _component type '{typeof(T).Name}'{nameLogStr}, but there may be only one");
-
+			
 			return found[0];
 		}
 
 		/// <summary>
-		/// This function tries to find a single _component in all prefabs.
+		/// This function tries to find a single component in all prefabs.
 		/// It issues an error message if none or more than one components were found.
 		/// As this is a super long operation, it then adds the found _component to a 2-way cache:
 		/// 1st cache: local non-persistent dictionary, super fast
-		/// 2nd cache: cached persistent _asset path in editor prefs, fast
+		/// 2nd cache: cached persistent asset path in editor prefs, fast
 		/// not cached: fast if search string is provided and not too many assets are found, extremely slow if no search string is provided.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
@@ -215,7 +244,8 @@ namespace GuiToolkit
 			}
 
 			// Attempt 3: Search manually. Super slow.
-			result = FindComponentInAllPrefabs<T>(_searchString, true, true);
+			var options = new AssetSearchOptions() {SearchString = _searchString, ErrorCondition = AssetSearchOptions.EErrorCondition.ErrorIfNotFound | AssetSearchOptions.EErrorCondition.ErrorIfMultipleFound};
+			result = FindComponentInAllPrefabs<T>(options);
 			if (!result)
 				return null;
 
@@ -249,14 +279,14 @@ namespace GuiToolkit
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="_foundFn"></param>
-		/// <param name="_searchString"></param>
-		public static void FindAllScriptableObjects<T>(ScriptableObjectFoundDelegate<T> _foundFn, string _searchString = null)
+		/// <param name="_options"></param>
+		public static void FindAllScriptableObjects<T>(ScriptableObjectFoundDelegate<T> _foundFn, AssetSearchOptions _options = null)
 		{
-			if (_searchString == null)
-				_searchString = string.Empty;
+			if (_options == null)
+				_options = DefaultSearchOptions;
 
-			string[] allAssetPathGuids = AssetDatabase.FindAssets($"t:ScriptableObject {_searchString}");
-
+			string[] allAssetPathGuids = AssetDatabase.FindAssets($"t:ScriptableObject {_options.SearchString}", _options.Folders);
+			int numFound = 0;
 			foreach (string guid in allAssetPathGuids)
 			{
 				string _assetPath = AssetDatabase.GUIDToAssetPath(guid);
@@ -264,8 +294,11 @@ namespace GuiToolkit
 				if (scriptableObject == null || !(scriptableObject is T))
 					continue;
 
+				numFound++;
 				_foundFn( (T)(object) scriptableObject);
 			}
+			
+			ShowErrorIfNecessary<T>(numFound, _options);
 		}
 
 		/// <summary>
@@ -274,14 +307,14 @@ namespace GuiToolkit
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="_result"></param>
-		/// <param name="_searchString"></param>
-		public static void FindAllScriptableObjects<T>(List<T> _result, string _searchString = null) where T : ScriptableObject
+		/// <param name="_options"></param>
+		public static void FindAllScriptableObjects<T>(List<T> _result, AssetSearchOptions _options = null) where T : ScriptableObject
 		{
 			_result.Clear();
 			FindAllScriptableObjects<T>((so) =>
 			{
 				_result.Add(so);
-			}, _searchString);
+			}, _options);
 		}
 
 		/// <summary>
@@ -289,15 +322,15 @@ namespace GuiToolkit
 		/// Warning: Slow if no search string is provided (or if a search string is provided, but very many assets are found)
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
-		/// <param name="_searchString"></param>
+		/// <param name="_options"></param>
 		/// <returns></returns>
-		public static List<T> FindAllScriptableObjects<T>(string _searchString = null) where T : ScriptableObject
+		public static List<T> FindAllScriptableObjects<T>(AssetSearchOptions _options = null) where T : ScriptableObject
 		{
 			List<T> result = new();
 			FindAllScriptableObjects<T>((so) =>
 			{
 				result.Add(so);
-			}, _searchString);
+			}, _options);
 
 			return result;
 		}
@@ -311,22 +344,12 @@ namespace GuiToolkit
 		/// <param name="_errorIfZero">output error message if no _asset was found</param>
 		/// <param name="errorIfMoreThanOne">output error message if more than one _asset was found</param>
 		/// <returns></returns>
-		public static T FindScriptableObject<T>(string _searchString = null, bool _errorIfZero = false,
-			bool errorIfMoreThanOne = false) where T:ScriptableObject
+		public static T FindScriptableObject<T>(AssetSearchOptions _options = null) where T:ScriptableObject
 		{
-			string nameLogStr = string.IsNullOrEmpty(_searchString) ? "" : $", search string: '{_searchString}'";
-			var found = FindAllScriptableObjects<T>(_searchString);
-			var numFound = found.Count;
-			if (numFound == 0)
-			{
-				if (_errorIfZero)
-					Debug.LogError($"Didn't find any scriptable objects of type '{typeof(T).Name}'{nameLogStr}");
-
-				return null;
-			}
-
-			if (errorIfMoreThanOne && numFound > 1)
-				Debug.LogError($"Found multiple scriptable objects ({numFound}) of type '{typeof(T).Name}'{nameLogStr}, but there may be only one");
+			var found = FindAllScriptableObjects<T>(_options);
+			bool error = ShowErrorIfNecessary<T>(found.Count, _options);
+			if (error || found.Count == 0)
+				return default;
 
 			return found[0];
 		}
@@ -338,16 +361,21 @@ namespace GuiToolkit
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="_foundFn"></param>
-		/// <param name="_includeInactive"></param>
-		/// <param name="_searchString"></param>
-		public static void FindAllComponentsInAllScenes<T>(ComponentAssetFoundDelegateWithSceneAsset<T> _foundFn, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true)
+		/// <param name="_options"></param>
+		public static void FindAllComponentsInAllScenes<T>(ComponentAssetFoundDelegateWithSceneAsset<T> _foundFn, AssetSearchOptions _options = null)
 		{
+			if (_options == null)
+				_options = DefaultSearchOptions;
+			
+			var searchString = _options.SearchString == null ? string.Empty : _options.SearchString;
+			var showProgressBar = _options.ShowProgressBar;
+			var includeInactive = _options.IncludeInactive;
+			
+			int objectsFound = 0;
+
 			try
 			{
-				if (_searchString == null)
-					_searchString = string.Empty;
-	
-				string[] allAssetPathGuids = AssetDatabase.FindAssets($"t:Scene {_searchString}");
+				string[] allAssetPathGuids = AssetDatabase.FindAssets($"t:Scene {searchString}", _options.Folders);
 				if (allAssetPathGuids.Length == 0)
 					return;
 				
@@ -355,7 +383,7 @@ namespace GuiToolkit
 				{
 					string guid = allAssetPathGuids[i];
 					string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-					if (_showProgressBar)
+					if (showProgressBar)
 					{
 						float done = (float) (i+1) / allAssetPathGuids.Length;
 						EditorUtility.DisplayProgressBar($"Searching scenes for components of type {typeof(T).Name}", $"Searching _scene '{Path.GetFileName(assetPath)}' ", done);
@@ -384,12 +412,13 @@ namespace GuiToolkit
 					GameObject[] roots = scene.GetRootGameObjects();
 					foreach(GameObject root in roots)
 					{
-						T[] components = root.GetComponentsInChildren<T>(_includeInactive);
+						T[] components = root.GetComponentsInChildren<T>(includeInactive);
 						if (components == null || components.Length == 0)
 							continue;
 	
 						foreach (T _component in components)
 						{
+							objectsFound++;
 							if (!_foundFn(_component, scene, assetPath))
 								goto exitLoop;
 						}
@@ -400,10 +429,12 @@ namespace GuiToolkit
 					if (!wasLoaded)
 						EditorSceneManager.CloseScene(scene, true);
 				}
+				
+				ShowErrorIfNecessary<T>(objectsFound, _options);
 			}
 			finally
 			{
-				if (_showProgressBar)
+				if (showProgressBar)
 					EditorUtility.ClearProgressBar();
 			}
 		}
@@ -417,37 +448,41 @@ namespace GuiToolkit
 		/// <param name="_foundFn"></param>
 		/// <param name="_includeInactive"></param>
 		/// <param name="_searchString"></param>
-		public static void FindAllComponentsInAllScenes<T>(ComponentAssetFoundDelegate<T> _foundFn, bool _includeInactive = true, string _searchString = null, bool _showProgressBar = true)
+		public static void FindAllComponentsInAllScenes<T>(ComponentAssetFoundDelegate<T> _foundFn, AssetSearchOptions _options = null)
 		{
 			FindAllComponentsInAllScenes<T>((_component, _, __) =>
 			{
 				_foundFn(_component);
 				return true;
-			}, _includeInactive, _searchString, _showProgressBar);
+			}, _options);
 		}
 
 		/// <summary>
 		/// Finds all scripts
 		/// </summary>
 		/// <param name="_foundFn"></param>
-		/// <param name="_excludePackages"></param>
-		public static void FindAllScripts(ScriptFoundDelegate _foundFn, bool _excludePackages = true)
+		/// <param name="_options"></param>
+		public static void FindAllScripts(ScriptFoundDelegate _foundFn, AssetSearchOptions _options = null)
 		{
-			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:Script");
+			if (_options == null)
+				_options = DefaultSearchOptions;
+			
+			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:Script", _options.Folders);
+			int objectsFound = 0;
 
 			foreach (string guid in allAssetPathGuids)
 			{
 				string _assetPath = AssetDatabase.GUIDToAssetPath(guid);
-
-				if (_excludePackages && _assetPath.StartsWith("Packages/", StringComparison.OrdinalIgnoreCase))
-					continue;
 
 				TextAsset textAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(_assetPath);
 				if (textAsset == null)
 					continue;
 
 				_foundFn( _assetPath, textAsset.text );
+				objectsFound++;
 			}
+			
+			ShowErrorIfNecessary<TextAsset>(objectsFound, _options);
 		}
 
 		/// <summary>
@@ -455,17 +490,17 @@ namespace GuiToolkit
 		/// </summary>
 		/// <param name="_excludePackages"></param>
 		/// <returns></returns>
-		public static int FindAllScriptsCount(bool _excludePackages = true)
+		public static int FindAllScriptsCount(AssetSearchOptions _options = null)
 		{
-			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:Script");
+			if (_options == null)
+				_options = DefaultSearchOptions;
+			
+			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:Script", _options.Folders);
 
 			int result = 0;
 			foreach (string guid in allAssetPathGuids)
 			{
 				string _assetPath = AssetDatabase.GUIDToAssetPath(guid);
-
-				if (_excludePackages && _assetPath.StartsWith("Packages/", StringComparison.OrdinalIgnoreCase))
-					continue;
 
 				result++;
 			}
@@ -535,6 +570,50 @@ namespace GuiToolkit
 		}
 
 		private static string GetCacheKey<T>(string _searchString) => CachePrefix + typeof(T).FullName + (string.IsNullOrEmpty(_searchString) ? "" : _searchString);
+		
+		private static bool ShowErrorIfNecessary<T>(int numFound, AssetSearchOptions _options)
+		{
+			if (_options.ErrorCondition == AssetSearchOptions.EErrorCondition.NoError)
+				return false;
+			
+			string nameLogStr = string.IsNullOrEmpty(_options.SearchString) ? "" : $", search string: '{_options.SearchString}'";
+			
+			if ((_options.ErrorCondition & AssetSearchOptions.EErrorCondition.ErrorIfNotFound) != 0 && numFound == 0)
+			{
+				string msg = $"Didn't find any objects of type '{typeof(T).Name}' with search string '{nameLogStr}'";
+				ShowError<T>(msg, _options);
+				return true;
+			}
+			else if ((_options.ErrorCondition & AssetSearchOptions.EErrorCondition.ErrorIfMultipleFound) != 0 && numFound > 1)
+			{
+				string msg = $"Found multiple game objects ({numFound}) with _component type '{typeof(T).Name}'{nameLogStr}, but there may be only one";
+				ShowError<T>(msg, _options);
+				return true;
+			}
+			
+			return false;
+		}
+
+		private static void ShowError<T>(string _msg, AssetSearchOptions _options)
+		{
+			switch (_options.ErrorType)
+			{
+				case AssetSearchOptions.EErrorType.LogWarning:
+					Debug.LogWarning(_msg);
+					break;
+				case AssetSearchOptions.EErrorType.LogError:
+					Debug.LogError(_msg);
+					break;
+				case AssetSearchOptions.EErrorType.Throw:
+					throw new Exception(_msg);
+				case AssetSearchOptions.EErrorType.Dialog:
+					EditorUtility.DisplayDialog("Asset Error", _msg, "Ok");
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
 	}
 }
 #endif

@@ -25,12 +25,14 @@ namespace GuiToolkit
 
 			LocaManager.Instance.Clear();
 
+			EditorAssetUtility.AssetSearchOptions options = new (){Folders = new []{"Assets", "Packages/de.phoenixgrafik.ui-toolkit"}};
+			
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
-			EditorAssetUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent);
+			EditorAssetUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent, options);
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
-			EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent);
+			EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent, options);
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scriptable objects", 0.2f);
-			EditorAssetUtility.FindAllScriptableObjects<ILocaClient>(FoundComponent);
+			EditorAssetUtility.FindAllScriptableObjects<ILocaClient>(FoundComponent, options);
 
 			m_numScripts = EditorAssetUtility.FindAllScriptsCount();
 			m_currentScriptIdx = 0;
