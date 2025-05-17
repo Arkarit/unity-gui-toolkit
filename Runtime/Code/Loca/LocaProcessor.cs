@@ -25,7 +25,7 @@ namespace GuiToolkit
 
 			LocaManager.Instance.Clear();
 
-			EditorAssetUtility.AssetSearchOptions options = new (){Folders = new []{"Assets", "Packages"}};
+			EditorAssetUtility.AssetSearchOptions options = new (){Folders = new []{"Assets", "Packages/de.phoenixgrafik.ui-toolkit"}};
 			
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
 			EditorAssetUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent, options);
