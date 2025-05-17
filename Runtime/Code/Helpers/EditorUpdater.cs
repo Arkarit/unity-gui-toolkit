@@ -69,7 +69,8 @@ namespace GuiToolkit
 			for (int i = 0; i < s_updateables.Count; i++)
 			{
 				IEditorUpdateable _updateable = s_updateables[i];
-				if ((_updateable as Object) == null)
+				if (_updateable == null
+				|| _updateable is Object updateableObject && !updateableObject)
 				{
 					s_scheduledForDestroy.Add(i);
 					continue;
