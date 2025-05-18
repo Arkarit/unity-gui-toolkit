@@ -52,7 +52,8 @@ namespace GuiToolkit.Editor
 			// We have to avoid an endless loop: .po imports create a .po.txt create a .po.txt ...
 			s_lastWritten.Add(_pathToSave.ToLowerInvariant());
 			File.Copy(_pathToLoad, _pathToSave, true);
-			Debug.Log($"Synced '{_pathToLoad}' to '{_pathToSave}'");
+			AssetDatabase.ImportAsset(_pathToSave);
+			Debug.Log($"Copied '{_pathToLoad}' to '{_pathToSave}'");
 		}
 	}
 }

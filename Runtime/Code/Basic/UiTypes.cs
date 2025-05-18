@@ -130,7 +130,7 @@ namespace GuiToolkit
 		public const int KERNING_TABLE_TOOL_MENU_PRIORITY = 510;
 		public const int LOCA_PROCESSOR_MENU_PRIORITY = 100;
 		public const int LOCA_PLURAL_PROCESSOR_MENU_PRIORITY = 110;
-		public const int STYLES_HEADER_PRIORITY = 120;
+		public const int LOCA_PO_FIXER_MENU_PRIORITY = 120;
 	}
 
 	/// \brief General string constants
@@ -148,8 +148,8 @@ namespace GuiToolkit
 		public const string KERNING_TABLE_TOOL_MENU_NAME = MENU_HEADER + "Kerning Table Tool";
 		public const string LOCA_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update pot file)";
 		public const string LOCA_PLURAL_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update plurals when added a new language)";
+		public const string LOCA_PO_FIXER_MENU_NAME = MENU_HEADER + "Loca PO File Fixer (Sync .po <-> .po.txt files)";
 		public const string SCENE_CHANGE_TRACKER_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Scene Change Tracker";
-		public const string PO_FIXER_MENU_NAME = MISC_TOOLS_MENU_HEADER + "PO Fixer";
 		public const string SAVE_PROJECT_ON_LOSE_FOCUS_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Save Project on lose focus";
 		public const string CREATE_MAIN_STYLE_CONFIG = STYLES_HEADER + "Main Style Config";
 		public const string CREATE_ORIENTATION_DEPENDENT_STYLE_CONFIG = STYLES_HEADER + "Orientation Dependent Style Config";

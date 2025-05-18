@@ -39,7 +39,7 @@ namespace GuiToolkit.Editor
 			IsEnabled = EditorPrefs.GetBool(PrefsKey, true);
 		}
 
-		[MenuItem(StringConstants.PO_FIXER_MENU_NAME, priority = Constants.MISC_MENU_PRIORITY)]
+		[MenuItem(StringConstants.LOCA_PO_FIXER_MENU_NAME, priority = Constants.LOCA_PO_FIXER_MENU_PRIORITY)]
 		private static void Toggle()
 		{
 			IsEnabled = !IsEnabled;
@@ -54,7 +54,7 @@ namespace GuiToolkit.Editor
 					return;
 
 				s_enabled = value;
-				Menu.SetChecked(StringConstants.PO_FIXER_MENU_NAME, s_enabled);
+				Menu.SetChecked(StringConstants.LOCA_PO_FIXER_MENU_NAME, s_enabled);
 				EditorPrefs.SetBool(PrefsKey, s_enabled);
 			}
 		}
