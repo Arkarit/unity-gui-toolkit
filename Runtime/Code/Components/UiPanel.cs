@@ -27,6 +27,7 @@ namespace GuiToolkit
 
 		public virtual bool AutoDestroyOnHide => false;
 		public virtual bool Poolable => false;
+		public virtual bool ShowDestroyFieldsInInspector => false;
 
 		public virtual void OnBeginShow() {}
 		public virtual void OnEndShow() {}

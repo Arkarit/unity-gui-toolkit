@@ -39,6 +39,7 @@ namespace GuiToolkit
 
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
+		public override bool ShowDestroyFieldsInInspector => false;
 
 		public static ButtonInfo[] CreateButtonInfos(bool _useOkCancelPrefabs, params (string text, UnityAction onClick)[] _buttons)
 		{

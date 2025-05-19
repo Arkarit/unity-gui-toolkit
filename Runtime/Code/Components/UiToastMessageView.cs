@@ -26,6 +26,7 @@ namespace GuiToolkit
 
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
+		public override bool ShowDestroyFieldsInInspector => false;
 
 		protected override void AddEventListeners()
 		{

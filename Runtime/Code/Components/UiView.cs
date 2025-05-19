@@ -33,6 +33,7 @@ namespace GuiToolkit
 		
 		public override bool AutoDestroyOnHide => m_autoDestroyOnHide;
 		public override bool Poolable => m_poolable;
+		public override bool ShowDestroyFieldsInInspector => true;
 
 		public Canvas Canvas 
 		{

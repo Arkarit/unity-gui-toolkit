@@ -145,6 +145,8 @@ MonoBehaviour:
   m_layer: 1000
   m_isFullScreen: 0
   m_useGlobalCanvasScalerTemplate: 1
+  m_autoDestroyOnHide: 1
+  m_poolable: 1
 --- !u!1 &3265018062393157058
 GameObject:
   m_ObjectHideFlags: 0
@@ -5907,6 +5909,8 @@ MonoBehaviour:
   m_layer: 1000
   m_isFullScreen: 0
   m_useGlobalCanvasScalerTemplate: 1
+  m_autoDestroyOnHide: 1
+  m_poolable: 1
 --- !u!1 &3265018064055300057
 GameObject:
   m_ObjectHideFlags: 0

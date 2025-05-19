@@ -36,6 +36,8 @@ namespace GuiToolkit
 
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
+		public override bool ShowDestroyFieldsInInspector => false;
+
 		private RectTransform GridTransform => (RectTransform)m_gridLayout.transform;
 
 		public readonly GridPickerEvent EvOnPopulateCell = new();

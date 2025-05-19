@@ -19,6 +19,8 @@ namespace GuiToolkit.Editor
 		private readonly List<Type> m_typeHierarchyList = new();
 		private bool m_eventsFoldout;
 		private bool m_hasEvents;
+		private bool m_showDestroyFieldsInInspector;
+		private bool m_autoDestroyOnHide;
 
 		protected virtual HashSet<string> excludedProperties => s_emptyHashSetString;
 
@@ -56,6 +58,9 @@ namespace GuiToolkit.Editor
 				if (excludedProperties.Contains(prop.name))
 					return;
 
+				if (prop.name == "m_autoDestroyOnHide")
+					m_autoDestroyOnHide = prop.boolValue;
+				
 				if (IsCEvent(prop))
 				{
 					AddToList(prop, m_eventProperties);
@@ -85,6 +90,10 @@ namespace GuiToolkit.Editor
 			serializedObject.Update();
 
 			UiThing thisUiThing = (UiThing)target;
+			
+			m_showDestroyFieldsInInspector = false;
+			if (thisUiThing is UiPanel thisUiPanel)
+				m_showDestroyFieldsInInspector = thisUiPanel.ShowDestroyFieldsInInspector;
 
 			if (thisUiThing.IsEnableableInHierarchy)
 			{
@@ -118,6 +127,15 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.Space(2);
 				foreach (var prop in tuple.properties)
 				{
+					bool isAutoDestroyOnHideProperty = prop.name == "m_autoDestroyOnHide";
+					bool isPoolableProperty = prop.name == "m_poolable";
+					
+					if (!m_showDestroyFieldsInInspector && (isAutoDestroyOnHideProperty || isPoolableProperty))
+						continue;
+					
+					if (!m_autoDestroyOnHide && isPoolableProperty)
+						continue;
+					
 					EditorGUILayout.PropertyField(prop);
 				}
 

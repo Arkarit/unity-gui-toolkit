@@ -16,6 +16,7 @@ namespace GuiToolkit
 
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
+		public override bool ShowDestroyFieldsInInspector => false;
 
 		public void Show(string _message, float _duration = 2)
 		{
