@@ -15,17 +15,27 @@ namespace GuiToolkit
 	[RequireComponent(typeof(GraphicRaycaster))]
 	public class UiView : UiPanel
 	{
+		[Tooltip("The layer in which the view is shown.")]
 		[SerializeField] protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
+		[Tooltip("When full screen, all other layers below are hidden")]
 		[SerializeField] protected bool m_isFullScreen;
 		[Tooltip("Uses the global canvas scaler template in Ui toolkit configuration (if it is set)")]
 		[SerializeField] protected bool m_useGlobalCanvasScalerTemplate = true;
-
+		[Tooltip("When the view is closed via Hide(), the view is automatically destroyed or pooled")]
+		[SerializeField] protected bool m_autoDestroyOnHide = true;
+		[Tooltip("When checked, the dialog is pooled instead of destroyed")]
+		[SerializeField] protected bool m_poolable = true;
+		
 		private UiModal m_uiModal;
 		private bool m_uiModalChecked;
 		private Canvas m_canvas;
 		private CanvasScaler m_canvasScaler;
 		
-		public Canvas Canvas {
+		public override bool AutoDestroyOnHide => m_autoDestroyOnHide;
+		public override bool Poolable => m_poolable;
+
+		public Canvas Canvas 
+		{
 			get
 			{
 				if (m_canvas == null)
@@ -34,7 +44,8 @@ namespace GuiToolkit
 			}
 		}
 
-		public CanvasScaler CanvasScaler {
+		public CanvasScaler CanvasScaler 
+		{
 			get
 			{
 				if (m_canvasScaler == null)

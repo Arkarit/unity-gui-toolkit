@@ -81,7 +81,7 @@ msgid "Ok"
 msgstr "Ok"
 
 msgid "Or 'Esc' to cancel"
-msgstr "Oder 'Esc' um abzubrechen"
+msgstr "oder 'Esc' um abzubrechen"
 
 msgid "Overall"
 msgstr "Generell"

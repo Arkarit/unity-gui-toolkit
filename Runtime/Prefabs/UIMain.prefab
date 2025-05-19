@@ -315,6 +315,8 @@ MonoBehaviour:
   m_layer: 200
   m_isFullScreen: 0
   m_useGlobalCanvasScalerTemplate: 1
+  m_autoDestroyOnHide: 1
+  m_poolable: 1
 --- !u!114 &7267538138489494619
 MonoBehaviour:
   m_ObjectHideFlags: 0
