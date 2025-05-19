@@ -70,7 +70,7 @@ namespace GuiToolkit
 				string language = Path.GetFileName(assetPath);
 				language = language.Substring(0, language.Length-7).Trim();
 
-				string pluralFn = "";
+				string pluralFn = string.Empty;
 				for(;;)
 				{
 					string line = reader.ReadLine();
@@ -84,7 +84,7 @@ namespace GuiToolkit
 					}
 				}
 
-				if (pluralFn != "")
+				if (!string.IsNullOrEmpty(pluralFn))
 				{
 					while (pluralFn.EndsWith("\\n"))
 						pluralFn = pluralFn.Substring(0, pluralFn.Length-2);

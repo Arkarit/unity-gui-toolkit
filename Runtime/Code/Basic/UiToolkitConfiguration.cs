@@ -184,7 +184,7 @@ namespace GuiToolkit
 		
 		public string GetUiToolkitRootProjectDir()
 		{
-			if (m_rootDir == null)
+			if (string.IsNullOrEmpty(m_rootDir))
 			{
 				string[] guids = AssetDatabase.FindAssets("unity-gui-toolkit t:folder");
 				if (guids.Length >= 1)
