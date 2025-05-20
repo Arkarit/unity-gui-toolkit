@@ -15,13 +15,21 @@ namespace GuiToolkit.Editor
 			public GameObject Asset = null;
 			public GameObject Parent = null;
 			public readonly List<PrefabVariantHierarchy> Variants = new ();
+			
+			public string GetDumpString(int _numTabs = 0)
+			{
+				var result = new string('\t', _numTabs) + Asset.name + "\n";
+				foreach (var variant in Variants)
+					result += variant.GetDumpString(_numTabs + 1);
+				return result;
+			}
 		}
 		
-		private static readonly List<GameObject> s_Prefabs = new ();
-		private static readonly Dictionary<Component, GameObject> s_Components = new ();
-		private static readonly List<PrefabVariantHierarchy> s_Variants = new ();
+		private static readonly List<GameObject> s_prefabs = new ();
+		private static readonly Dictionary<Component, GameObject> s_components = new ();
+		private static readonly List<PrefabVariantHierarchy> s_variants = new ();
 
-		private static readonly Dictionary<NullObject<GameObject>, HashSet<GameObject>> s_VariantsByGameObject = new ();
+		private static readonly Dictionary<GameObject, GameObject> s_variantBaseByGameObject = new ();
 		
 		private static string s_TargetDir;
 		
@@ -39,6 +47,7 @@ namespace GuiToolkit.Editor
 		public static void CreatePrefabVariants(string _targetDir)
 		{
 			s_TargetDir = _targetDir;
+			CleanUp();
 			BuildPrefabVariantHierarchy();
 //			CreateVariants();
 //			ChangeVariantReferences();
@@ -48,56 +57,73 @@ namespace GuiToolkit.Editor
 		private static void BuildPrefabVariantHierarchy()
 		{
 			var guids = AssetDatabase.FindAssets("t:prefab", new []{ BuiltinPrefabDir }).ToHashSet();
-			HashSet<GameObject> variants;
+			HashSet<GameObject> done = new ();
 			
 			foreach ( var guid in guids )
 			{
 				var assetPath = AssetDatabase.GUIDToAssetPath( guid );
 				var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
 				var variantBase = PrefabUtility.GetCorrespondingObjectFromSource(prefab);
-				
-				if (s_VariantsByGameObject.TryGetValue(variantBase, out variants))
-					variants.Add(prefab);
-				else
-					s_VariantsByGameObject.Add(variantBase, new () {prefab});
+				s_variantBaseByGameObject.Add(prefab, variantBase);
 			}
 
-			if (!s_VariantsByGameObject.TryGetValue(null, out variants))
-				throw new Exception("No base prefabs found!");
-			
-			s_VariantsByGameObject.Remove(null);
-
-			foreach (var gameObject in variants)
-				s_Variants.Add(new PrefabVariantHierarchy() {Asset = gameObject});
-
-foreach (var prefabVariantHierarchy in s_Variants)
-Debug.Log(prefabVariantHierarchy.Asset.name);
-
-			while (s_VariantsByGameObject.Count > 0)
+			foreach (var kv in s_variantBaseByGameObject)
 			{
+				if (kv.Value == null)
+				{
+					done.Add(kv.Key);
+					s_variants.Add(new PrefabVariantHierarchy() {Asset = kv.Key});
+				}
+			}
+
+			foreach (var gameObject in done)
+				s_variantBaseByGameObject.Remove(gameObject);
+			
+			while (s_variantBaseByGameObject.Count > 0)
+			{
+				done.Clear();
 				
+				foreach (var kv in s_variantBaseByGameObject)
+					TryInsert(s_variants, kv.Key, kv.Value, done);
+				
+				// Should not happen - avoid endless loop
+				if (done.Count == 0)
+					throw new Exception("Internal Exception: no bases found for prefabs");
+
+				foreach (var gameObject in done)
+					s_variantBaseByGameObject.Remove(gameObject);
 			}
 			
-//Debug.Log("---\n\n");			
-//			foreach (var kv in s_VariantsByGameObject)
-//			{
-//				var prefab = kv.Key;
-//				var v = kv.Value;
-//string s = $"prefab:{(prefab.IsNull ? "<null>" : prefab.Item.name)}:";
-//foreach (var variant in v)
-//{
-//	if (variant != null)
-//		s += " " + variant.name;
-//}
-//Debug.Log(s);
-//			}
+Debug.Log($"{GetVariantsDumpString()}");
 		}
 		
-		private static void Bla()
+		private static bool TryInsert(List<PrefabVariantHierarchy> _list, GameObject _gameObject, GameObject _base, HashSet<GameObject> _done)
 		{
+			foreach (var variant in _list)
+			{
+				if (variant.Asset == _base)
+				{
+					_done.Add(_gameObject);
+					variant.Variants.Add(new () {Asset = _gameObject, Parent = variant.Asset});
+					return true;
+				}
+				
+				if (TryInsert(variant.Variants, _gameObject, _base, _done))
+					return true;
+			}
 			
+			return false;
 		}
 
+		private static string GetVariantsDumpString()
+		{
+			string result = string.Empty;
+			foreach (var variant in s_variants)
+				result += variant.GetDumpString();
+			
+			return result;
+		}
+		
 		private static void CreateVariants()
 		{
 			EditorFileUtility.EnsureFolderExists(s_TargetDir);
@@ -167,9 +193,10 @@ Debug.Log($"{assetPath}:\n{DumpPrefab(assetPath)}");
 
 		private static void CleanUp()
 		{
-			s_Prefabs.Clear();
-			s_Components.Clear();
-			s_Variants.Clear();
+			s_prefabs.Clear();
+			s_components.Clear();
+			s_variants.Clear();
+			s_variantBaseByGameObject.Clear();
 		}
 	}
 }
