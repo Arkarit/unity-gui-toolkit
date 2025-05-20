@@ -54,7 +54,6 @@ namespace GuiToolkit
 		private readonly Dictionary<UiView,bool> m_savedVisibilities = new Dictionary<UiView,bool>();
 		private readonly Dictionary<Camera,bool> m_savedCameraActivenesses = new Dictionary<Camera,bool>();
 		private readonly Dictionary<string, UiView> m_scenes = new();
-		private static bool s_initialized = false;
 		private readonly Stack<UiView> m_stack = new();
 		private static UiMain s_instance;
 		private UiPlayerSettingsDialog m_playerSettingsDialog;
@@ -64,6 +63,11 @@ namespace GuiToolkit
 		private readonly List<Bounds> m_excludedBounds = new List<Bounds>();
 		private const float LARGE_NUMBER = 999999999.0f;
 		private static readonly Bounds LARGE_BOUNDS = new Bounds(Vector3.zero, new Vector3(LARGE_NUMBER, LARGE_NUMBER, LARGE_NUMBER) );
+		private bool m_isAwake;
+		
+#if UNITY_EDITOR
+		private static bool s_staticInitialized = false;
+#endif
 
 		public UiButton StandardButtonPrefab => m_standardButtonPrefab;
 		public UiButton OkButtonPrefab => m_okButtonPrefab;
@@ -77,6 +81,26 @@ namespace GuiToolkit
 		public RenderMode RenderMode => m_renderMode;
 		public Camera Camera { get; private set; }
 		public UiPool UiPool { get; private set; }
+		
+		/// <summary>
+		/// This getter is especially important for bootstrapping.
+		/// If you have a separate routine for setting up your application, there might be some state,
+		/// where UiMain has been already loaded, but isn't functional yet (UiMain.Awake() not yet called)
+		/// In that case, loop in a coroutine until IsAwake is true, before you use it.
+		/// </summary>
+		public static bool IsAwake
+		{
+			get
+			{
+				if (s_instance == null)
+					s_instance = FindAnyObjectByType<UiMain>();
+				if (s_instance == null)
+					return false;
+				return s_instance.m_isAwake;
+			}
+			
+			private set => s_instance.m_isAwake = value;
+		}
 
 		public static EScreenOrientation ScreenOrientation => s_screenOrientation;
 
@@ -84,9 +108,9 @@ namespace GuiToolkit
 		[InitializeOnLoadMethod]
 		private static void StaticInitialize()
 		{
-			if (!s_initialized)
+			if (!s_staticInitialized)
 			{
-				s_initialized = true;
+				s_staticInitialized = true;
 
 				EditorApplication.update += FireOnScreenOrientationChangedEventIfNecessary;
 				FireOnScreenOrientationChangedEventIfNecessary();
@@ -100,7 +124,7 @@ namespace GuiToolkit
 			get
 			{
 				if (s_instance == null)
-					s_instance = UnityEngine.Object.FindObjectOfType<UiMain>();
+					s_instance = FindAnyObjectByType<UiMain>();
 #if UNITY_EDITOR
 				if (s_instance == null)
 					Debug.LogError("Attempt to access UiMain.Instance, but game object containing the instance not found." +
@@ -475,6 +499,8 @@ namespace GuiToolkit
 
 			if (Application.isPlaying)
 				DontDestroyOnLoad(gameObject);
+			
+			IsAwake = true;
 		}
 
 		protected virtual void OnDestroy()
