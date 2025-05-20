@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -47,6 +48,7 @@ namespace GuiToolkit.Editor
 		private static void BuildPrefabVariantHierarchy()
 		{
 			var guids = AssetDatabase.FindAssets("t:prefab", new []{ BuiltinPrefabDir }).ToHashSet();
+			HashSet<GameObject> variants;
 			
 			foreach ( var guid in guids )
 			{
@@ -54,27 +56,47 @@ namespace GuiToolkit.Editor
 				var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
 				var variantBase = PrefabUtility.GetCorrespondingObjectFromSource(prefab);
 				
-				if (s_VariantsByGameObject.TryGetValue(variantBase, out HashSet<GameObject> variants))
+				if (s_VariantsByGameObject.TryGetValue(variantBase, out variants))
 					variants.Add(prefab);
 				else
 					s_VariantsByGameObject.Add(variantBase, new () {prefab});
 			}
 
-			foreach (var kv in s_VariantsByGameObject)
+			if (!s_VariantsByGameObject.TryGetValue(null, out variants))
+				throw new Exception("No base prefabs found!");
+			
+			s_VariantsByGameObject.Remove(null);
+
+			foreach (var gameObject in variants)
+				s_Variants.Add(new PrefabVariantHierarchy() {Asset = gameObject});
+
+foreach (var prefabVariantHierarchy in s_Variants)
+Debug.Log(prefabVariantHierarchy.Asset.name);
+
+			while (s_VariantsByGameObject.Count > 0)
 			{
-				var prefab = kv.Key;
-				var variants = kv.Value;
-string s = $"prefab:{(prefab.IsNull ? "<null>" : prefab.Item.name)}:";
-foreach (var variant in variants)
-{
-	if (variant != null)
-		s += " " + variant.name;
-}
-Debug.Log(s);
+				
 			}
+			
+//Debug.Log("---\n\n");			
+//			foreach (var kv in s_VariantsByGameObject)
+//			{
+//				var prefab = kv.Key;
+//				var v = kv.Value;
+//string s = $"prefab:{(prefab.IsNull ? "<null>" : prefab.Item.name)}:";
+//foreach (var variant in v)
+//{
+//	if (variant != null)
+//		s += " " + variant.name;
+//}
+//Debug.Log(s);
+//			}
 		}
 		
-		
+		private static void Bla()
+		{
+			
+		}
 
 		private static void CreateVariants()
 		{
