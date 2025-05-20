@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace GuiToolkit.Editor
 		{
 			public GameObject Asset = null;
 			public GameObject Parent = null;
+			public GameObject Clone = null;
 			public readonly List<PrefabVariantHierarchy> Variants = new ();
 			
 			public string GetDumpString(int _numTabs = 0)
@@ -26,14 +28,12 @@ namespace GuiToolkit.Editor
 		}
 		
 		private static readonly List<GameObject> s_prefabs = new ();
-		private static readonly Dictionary<Component, GameObject> s_components = new ();
 		private static readonly List<PrefabVariantHierarchy> s_variants = new ();
 
 		private static readonly Dictionary<GameObject, GameObject> s_variantBaseByGameObject = new ();
+		private static readonly Dictionary<GameObject, GameObject> s_clonedByVariant = new ();
 		
-		private static string s_TargetDir;
-		
-		
+		private static string s_targetDir;
 		
 		public static string BuiltinPrefabDir
 		{
@@ -46,11 +46,10 @@ namespace GuiToolkit.Editor
 		
 		public static void CreatePrefabVariants(string _targetDir)
 		{
-			s_TargetDir = _targetDir;
+			s_targetDir = _targetDir;
 			CleanUp();
 			BuildPrefabVariantHierarchy();
-//			CreateVariants();
-//			ChangeVariantReferences();
+			Clone();
 //			CleanUp();
 		}
 
@@ -124,79 +123,56 @@ Debug.Log($"{GetVariantsDumpString()}");
 			return result;
 		}
 		
-		private static void CreateVariants()
+		private static void Clone() => Clone(s_variants);
+		private static void Clone(List<PrefabVariantHierarchy> _list)
 		{
-			EditorFileUtility.EnsureFolderExists(s_TargetDir);
-			var guids = AssetDatabase.FindAssets("t:prefab", new []{ BuiltinPrefabDir });
-			foreach ( var guid in guids )
-			{
-				var assetPath = AssetDatabase.GUIDToAssetPath( guid );
+			foreach (var variant in _list)
+				Clone(variant);
+		}
+
+		private static void Clone(PrefabVariantHierarchy _variant)
+		{
+			// DoClone
+			var asset = _variant.Asset;
+			var assetPath = AssetDatabase.GetAssetPath(asset);
+			var filename = Path.GetFileNameWithoutExtension(assetPath);
+			var extension = Path.GetExtension(assetPath);
+			var newAssetPath = $"{s_targetDir}/{filename}{extension}";
+			var variantName = $"{filename}Variant{extension}";
+			var variantPath = $"{s_targetDir}/{variantName}";
 			
-Debug.Log($"{assetPath}:\n{DumpPrefab(assetPath)}");
-			}
-		}
-
-		public static string DumpPrefab(string _assetPath)
-		{
-			var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(_assetPath);
-			return DumpPrefab(prefab);
-		}
-
-		public static string DumpPrefab(GameObject _prefab)
-		{
-			string result = $"prefab.name:{_prefab.name}\n";
-			result += $"variant hierarchy:{GetPrefabVariantNamesHierarchy(_prefab)}\n";
-
-			return result;
-		}
-		public static List<GameObject> GetPrefabVariantHierarchy(string _assetPath)
-		{
-			var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(_assetPath);
-			return GetPrefabVariantHierarchy(prefab);
-		}
-		
-		public static List<GameObject> GetPrefabVariantHierarchy(GameObject _prefab)
-		{
-			List<GameObject> result = new () { _prefab };
-			var variantBase = _prefab;
-			for(;;)
+			if (File.Exists(variantPath))
 			{
-				variantBase = PrefabUtility.GetCorrespondingObjectFromSource(variantBase);
-				if (variantBase == null)
-					break;
-				
-				result.Add(variantBase);
-			}
-
-			return result;
-		}
-		
-		public static string GetPrefabVariantNamesHierarchy(GameObject _prefab)
-		{
-			var hierarchy = GetPrefabVariantHierarchy(_prefab);
-			string result = string.Empty;
-			
-			for (int i= 0; i < hierarchy.Count; i++)
-			{
-				var variant = hierarchy[i];
-				result += variant.name;
-				if (i < hierarchy.Count - 1)
-					result += "/";
+				var existing = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
+				_variant.Clone = existing;
+				return;
 			}
 			
-			return result;
-		}
-
-		private static void ChangeVariantReferences()
-		{
+			var prefab = PrefabUtility.InstantiatePrefab(asset) as GameObject;
+			if (!prefab)
+				return;
+			
+			EditorFileUtility.EnsureFolderExists(s_targetDir);
+			var variant = PrefabUtility.SaveAsPrefabAsset(prefab, newAssetPath);
+			_variant.Clone = variant;
+			
+			//TODO: Fix variant base and references
+			
+			AssetDatabase.RenameAsset(newAssetPath, variantName);
+			
+			prefab.SafeDestroy();
+			
+			
+			foreach (var v in _variant.Variants)
+				Clone(v);
 		}
 
 		private static void CleanUp()
 		{
 			s_prefabs.Clear();
-			s_components.Clear();
 			s_variants.Clear();
 			s_variantBaseByGameObject.Clear();
+			s_clonedByVariant.Clear();
 		}
 	}
 }
