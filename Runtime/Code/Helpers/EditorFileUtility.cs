@@ -126,6 +126,20 @@ namespace GuiToolkit
 		public static string PathFieldSaveFolder(string _label, string _path) => PathField(_label, _path, _save:true, _folder:true);
 		public static string PathFieldReadFolder(string _label, string _path) => PathField(_label, _path, _save:false, _folder:true);
 		
+		public static void PathFieldReadFolder(SerializedProperty _property)
+		{
+			if (_property == null) 
+				throw new NullReferenceException("Property is null");
+			
+			if (_property.propertyType != SerializedPropertyType.String)
+				throw new ArgumentException($"Property {_property.name} is of type {_property.propertyType}, but should be String");
+			
+			var label = ObjectNames.NicifyVariableName(_property.name);
+			_property.stringValue = PathField(label, _property.stringValue, _save:false, _folder:true);
+		}
+		
+		
+		
 		private static string PathField(string _label, string _path, Func<string> _callback)
 		{
 			GUILayout.BeginHorizontal();

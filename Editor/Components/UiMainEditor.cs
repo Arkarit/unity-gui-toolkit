@@ -37,8 +37,11 @@ namespace GuiToolkit.Editor
 			if (IsAnyPrefabCloned())
 			{
 				m_clonePath = EditorFileUtility.PathFieldReadFolder("Prefab Path", m_clonePath);
+//				if (GUILayout.Button("Create Default Prefabs Variants"))
+//					CloneDefaultPrefabs();
 				if (GUILayout.Button("Create Default Prefabs Variants"))
-					CloneDefaultPrefabs();
+					EditorPrefabUtility.CreatePrefabVariants(UiToolkitConfiguration.Instance.m_prefabVariantsPath);
+
 			}
 
 			serializedObject.ApplyModifiedProperties();
