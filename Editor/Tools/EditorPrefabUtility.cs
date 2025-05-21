@@ -34,6 +34,7 @@ namespace GuiToolkit.Editor
 		private static readonly Dictionary<GameObject, GameObject> s_baseByPrefab = new ();
 		private static readonly Dictionary<GameObject, GameObject> s_clonedByPrefab = new ();
 		
+		private static string s_sourceDir;
 		private static string s_targetDir;
 		
 		public static string BuiltinPrefabDir
@@ -45,8 +46,9 @@ namespace GuiToolkit.Editor
 			}
 		}
 		
-		public static void CreatePrefabVariants(string _targetDir)
+		public static void CreatePrefabVariants(string _sourceDir, string _targetDir)
 		{
+			s_sourceDir = string.IsNullOrEmpty(_sourceDir) ? BuiltinPrefabDir : _sourceDir;
 			s_targetDir = _targetDir;
 			CleanUp();
 			BuildPrefabVariantHierarchy();
@@ -56,7 +58,7 @@ namespace GuiToolkit.Editor
 
 		private static void BuildPrefabVariantHierarchy()
 		{
-			var guids = AssetDatabase.FindAssets("t:prefab", new []{ BuiltinPrefabDir }).ToHashSet();
+			var guids = AssetDatabase.FindAssets("t:prefab", new []{ s_sourceDir }).ToHashSet();
 			HashSet<GameObject> done = new ();
 			
 			foreach ( var guid in guids )
