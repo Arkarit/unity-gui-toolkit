@@ -36,6 +36,7 @@ namespace GuiToolkit.Editor
 		
 		private static string s_sourceDir;
 		private static string s_targetDir;
+		private static bool s_addVariantNamePart;
 		
 		public static string BuiltinPrefabDir
 		{
@@ -46,8 +47,9 @@ namespace GuiToolkit.Editor
 			}
 		}
 		
-		public static void CreatePrefabVariants(string _sourceDir, string _targetDir)
+		public static void CreatePrefabVariants(string _sourceDir, string _targetDir, bool _addVariantNamePart = true)
 		{
+			s_addVariantNamePart = _addVariantNamePart;
 			s_sourceDir = string.IsNullOrEmpty(_sourceDir) ? BuiltinPrefabDir : _sourceDir;
 			s_targetDir = _targetDir;
 			CleanUp();
@@ -137,11 +139,14 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 		{
 			var asset = _record.Asset;
 			var assetPath = AssetDatabase.GetAssetPath(asset);
-			var filename = Path.GetFileNameWithoutExtension(assetPath);
+			var basename = Path.GetFileNameWithoutExtension(assetPath);
 			var extension = Path.GetExtension(assetPath);
-			var newAssetPath = $"{s_targetDir}/{filename}{extension}";
-			var variantName = $"{filename}Variant{extension}";
-			var variantPath = $"{s_targetDir}/{variantName}";
+			var filename = Path.GetFileName(assetPath);
+			
+			var targetDir = s_targetDir + assetPath.Replace(s_sourceDir, "").Replace(filename,"");
+			var newAssetPath = $"{targetDir}/{basename}{extension}";
+			var variantName = s_addVariantNamePart ? $"{basename} Variant{extension}" : $"{basename}{extension}";
+			var variantPath = $"{targetDir}/{variantName}";
 			
 			if (File.Exists(variantPath))
 			{
@@ -154,7 +159,7 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 			if (!prefab)
 				return;
 			
-			EditorFileUtility.EnsureFolderExists(s_targetDir);
+			EditorFileUtility.EnsureFolderExists(targetDir);
 			var variant = PrefabUtility.SaveAsPrefabAsset(prefab, newAssetPath);
 			_record.Clone = variant;
 			
