@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace GuiToolkit.Editor
 {
@@ -55,6 +56,7 @@ namespace GuiToolkit.Editor
 			CleanUp();
 			BuildPrefabVariantHierarchy();
 			Clone();
+// AssetDatabase.DeleteAsset(s_targetDir);
 //			CleanUp();
 		}
 
@@ -132,22 +134,13 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 		private static void Clone(List<VariantRecord> _list)
 		{
 			foreach (var record in _list)
-				Clone(record);
+				Clone(record, false);
 		}
 
-		private static void Clone(VariantRecord _record)
+		private static void Clone(VariantRecord _record, bool _asVariant)
 		{
-			var asset = _record.Asset;
-			var assetPath = AssetDatabase.GetAssetPath(asset);
-			var basename = Path.GetFileNameWithoutExtension(assetPath);
-			var extension = Path.GetExtension(assetPath);
-			var filename = Path.GetFileName(assetPath);
-			
-			var targetDir = s_targetDir + assetPath.Replace(s_sourceDir, "").Replace(filename,"");
-			var newAssetPath = $"{targetDir}/{basename}{extension}";
-			var variantName = s_addVariantNamePart ? $"{basename} Variant{extension}" : $"{basename}{extension}";
-			var variantPath = $"{targetDir}/{variantName}";
-			
+			var baseSourceAsset = GetSourceAssetAndPaths(_record, out var targetDir, out var newAssetPath, out var variantName, out var variantPath);
+
 			if (File.Exists(variantPath))
 			{
 				var existing = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
@@ -155,22 +148,195 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 				return;
 			}
 			
-			var prefab = PrefabUtility.InstantiatePrefab(asset) as GameObject;
+			GameObject sourceAsset = _asVariant ? _record.Base.Clone : baseSourceAsset;
+			
+			var prefab = PrefabUtility.InstantiatePrefab(sourceAsset) as GameObject;
 			if (!prefab)
 				return;
 			
 			EditorFileUtility.EnsureFolderExists(targetDir);
-			var variant = PrefabUtility.SaveAsPrefabAsset(prefab, newAssetPath);
-			_record.Clone = variant;
+			var pristineVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(prefab, newAssetPath, InteractionMode.AutomatedAction);
+			_record.Clone = pristineVariant;
 			
 			//TODO: Fix variant base and references
 			
 			AssetDatabase.RenameAsset(newAssetPath, variantName);
 			
+			if (_asVariant)
+				CloneOverrides(baseSourceAsset, pristineVariant);
+			
 			prefab.SafeDestroy();
 			
 			foreach (var v in _record.VariantRecordsBasedOnThis)
-				Clone(v);
+				Clone(v, true);
+		}
+
+		public static void CloneOverrides(GameObject _sourceAsset, GameObject _pristineVariant)
+		{
+			var sourcePropertyModifications = PrefabUtility.GetPropertyModifications(_sourceAsset);
+			var sourceObjectOverrides = PrefabUtility.GetObjectOverrides(_sourceAsset);
+			var addedComponents = PrefabUtility.GetAddedComponents(_sourceAsset);
+			var addedGameObjects = PrefabUtility.GetAddedGameObjects(_sourceAsset);
+			var removedComponents = PrefabUtility.GetRemovedComponents(_sourceAsset);
+			var removedGameObjects = PrefabUtility.GetRemovedGameObjects(_sourceAsset);
+
+			ClonePropertyModifications(_pristineVariant, sourcePropertyModifications);
+
+			Debug.Log(DumpOverridesString(_sourceAsset, "Source"));
+			Debug.Log(DumpOverridesString(_pristineVariant, "Target"));
+		}
+
+		private static void ClonePropertyModifications(GameObject _pristineVariant,
+			PropertyModification[] sourcePropertyModifications)
+		{
+			List<PropertyModification> targetPropertyModifications = new();
+			foreach (var sourcePropertyModification in sourcePropertyModifications)
+			{
+				if (sourcePropertyModification.propertyPath == "m_Name")
+					continue;
+
+				var targetPropertyModification = new PropertyModification();
+				targetPropertyModification.value = sourcePropertyModification.value;
+				targetPropertyModification.propertyPath = sourcePropertyModification.propertyPath;
+				var targetTarget = FindMatchingInPrefab(_pristineVariant, sourcePropertyModification.target);
+				if (targetTarget == null)
+					continue;
+
+				targetPropertyModification.target = targetTarget;
+
+				if (sourcePropertyModification.objectReference != null)
+				{
+					var targetObjectReference =
+						FindMatchingInPrefab(_pristineVariant, sourcePropertyModification.objectReference);
+					targetPropertyModification.objectReference = targetObjectReference != null
+						? targetObjectReference
+						: sourcePropertyModification.objectReference;
+				}
+
+				targetPropertyModifications.Add(targetPropertyModification);
+			}
+
+			PrefabUtility.SetPropertyModifications(_pristineVariant, targetPropertyModifications.ToArray());
+		}
+
+		public static T FindMatchingInPrefab<T>(GameObject _prefab, T _object) where T : Object
+		{
+			if (_object is GameObject gameObject)
+			{
+				if (_prefab.transform.parent == gameObject.transform.parent)
+					return _object;
+				
+				var partOfPrefabPath = gameObject.GetPath();
+				var transforms = _prefab.GetComponentsInChildren<Transform>();
+				foreach (var transform in transforms)
+				{
+					//FIXME: this is by far too coarse! Check the whole path.
+					if (partOfPrefabPath.EndsWith(transform.GetPath(0)))
+						return transform.gameObject as T;
+				}
+				
+				return null;
+			}
+			
+			if (_object is Component component)
+			{
+				GameObject matchingGo = FindMatchingInPrefab(_prefab, component.gameObject);
+				if (matchingGo == null)
+					return null;
+				
+				var components = matchingGo.GetComponentsInChildren<Component>();
+				foreach (var matchingComponent in components)
+				{
+					if (matchingComponent.GetType() == component.GetType())
+						return matchingComponent as T;
+				}
+				
+				return null;
+			}
+
+			return null;
+		}
+
+		public static bool PrefabPathMatches()
+		{
+			return false;
+		}
+		
+		public static string DumpOverridesString(GameObject _asset, string _what)
+		{
+			var sourcePropertyModifications = PrefabUtility.GetPropertyModifications(_asset);
+			var sourceObjectOverrides = PrefabUtility.GetObjectOverrides(_asset);
+			var addedComponents = PrefabUtility.GetAddedComponents(_asset);
+			var addedGameObjects = PrefabUtility.GetAddedGameObjects(_asset);
+			var removedComponents = PrefabUtility.GetRemovedComponents(_asset);
+			var removedGameObjects = PrefabUtility.GetRemovedGameObjects(_asset);
+
+			string result = $"{_what}: '{_asset.GetPath()}':\n\n";
+			
+			result += $"\t{_what} Property Modifications\n";
+			foreach (var modification in sourcePropertyModifications)
+				result += $"\t\t'{modification.value}':'{modification.propertyPath}':'{modification.objectReference}':'{modification.target}'\n";
+			result += "\n\t";
+			
+			result += $"\t{_what} Object Overrides\n";
+			foreach (var sourceObjectOverride in sourceObjectOverrides)
+			{
+				var prefabOverride = sourceObjectOverride.coupledOverride;
+				result += $"\t\t'{sourceObjectOverride.coupledOverride}':'{sourceObjectOverride.instanceObject}'\n";
+			}
+			result += "\n\t";
+			
+			result += $"\t{_what} Added Components\n";
+			foreach (var addedComponent in addedComponents)
+			{
+				result += $"\t\t'{addedComponent.instanceComponent.name}'\n";
+			}
+			result += "\n\t";
+			
+			result += $"\t{_what} Added Game Objects\n";
+			foreach (var addedGameObject in addedGameObjects)
+			{
+				result += $"\t\t'{addedGameObject.instanceGameObject.name}':'{addedGameObject.siblingIndex}'\n";
+			}
+			result += "\n\t";
+			
+			result += $"\t{_what} Removed Components\n";
+			foreach (var removedComponent in removedComponents)
+			{
+				result += $"\t\t'{removedComponent.assetComponent.name}'\n";
+			}
+			result += "\n\t";
+			
+			result += $"\t{_what} Removed Game Objects\n";
+			foreach (var removedGameObject in removedGameObjects)
+			{
+				result += $"\t\t'{removedGameObject.assetGameObject.name}'\n";
+			}
+			result += "\n\t";
+			
+			return result;
+		}
+		
+		private static GameObject GetSourceAssetAndPaths
+		(
+			VariantRecord _record, 
+			out string _targetDir, 
+			out string _newAssetPath,
+			out string _variantName, 
+			out string _variantPath
+		)
+		{
+			var asset = _record.Asset;
+			var assetPath = AssetDatabase.GetAssetPath(asset);
+			var basename = Path.GetFileNameWithoutExtension(assetPath);
+			var extension = Path.GetExtension(assetPath);
+			var filename = Path.GetFileName(assetPath);
+
+			_targetDir = s_targetDir + assetPath.Replace(s_sourceDir, "").Replace(filename, "");
+			_newAssetPath = $"{_targetDir}/{basename}{extension}";
+			_variantName = s_addVariantNamePart ? $"{basename} ClonedVariant{extension}" : $"{basename}{extension}";
+			_variantPath = $"{_targetDir}/{_variantName}";
+			return asset;
 		}
 
 		private static void CleanUp()
