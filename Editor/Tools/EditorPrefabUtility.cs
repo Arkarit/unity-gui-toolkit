@@ -57,8 +57,8 @@ namespace GuiToolkit.Editor
 			CleanUp();
 			BuildPrefabVariantHierarchy();
 			Clone();
-// AssetDatabase.DeleteAsset(s_targetDir);
-//			CleanUp();
+//AssetDatabase.DeleteAsset(s_targetDir);
+			CleanUp();
 		}
 
 		private static void BuildPrefabVariantHierarchy()
@@ -140,9 +140,59 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 
 		private static void Clone(VariantRecord _record, bool _asVariant)
 		{
+			var baseSourceAsset = GetSourceAssetAndPaths(_record, out var targetDir, out var newAssetPath, out var variantName, out var variantPath);
+
+			if (File.Exists(variantPath))
+			{
+				var existing = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
+				_record.Clone = existing;
+				return;
+			}
+
+			GameObject sourceAsset = _asVariant ? _record.Base.Clone : baseSourceAsset;
+			
+			var sourceAssetSerObj = new SerializedObject(sourceAsset);
+			Debug.Log(DumpAllProperties(sourceAssetSerObj));
+			
+			var prefab = PrefabUtility.InstantiatePrefab(sourceAsset) as GameObject;
+			if (!prefab)
+				return;
+			
+			EditorFileUtility.EnsureFolderExists(targetDir);
+			var pristineVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(prefab, newAssetPath, InteractionMode.AutomatedAction);
+			EditorUtility.SetDirty(pristineVariant);
+			AssetDatabase.SaveAssetIfDirty(pristineVariant);
+			AssetDatabase.RenameAsset(newAssetPath, variantName);
+			AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate | ImportAssetOptions.ImportRecursive);
+			AssetDatabase.ImportAsset(variantPath);
+			pristineVariant = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
+			if (pristineVariant == null)
+				throw new Exception("Internal error");
+			
+			_record.Clone = pristineVariant;
+		
+Debug.Log($"!!!--- baseSourceAsset:{baseSourceAsset.GetPath()},id:{baseSourceAsset.GetInstanceID()} pristineVariant:{pristineVariant.GetPath()},id:{pristineVariant.GetInstanceID()}");			
+//			if (_asVariant)
+//				CloneOverrides(baseSourceAsset, pristineVariant);
+
+			EditorUtility.SetDirty(pristineVariant);
+			AssetDatabase.SaveAssetIfDirty(pristineVariant);
+			
+			prefab.SafeDestroy();
 			
 			foreach (var v in _record.VariantRecordsBasedOnThis)
 				Clone(v, true);
+		}
+		
+		public static string DumpAllProperties(SerializedObject _serObj)
+		{
+			string result = $"Properties for '{_serObj.targetObject.name}':\n----------------------------------------------------------------\n";
+			EditorGeneralUtility.ForeachPropertySerObj(_serObj, property =>
+			{
+				result += $"\t{property.propertyPath}:{property.prefabOverride}\n";
+			});
+			
+			return result;
 		}
 		
 		public static string DumpOverridesString(GameObject _asset, string _what)
