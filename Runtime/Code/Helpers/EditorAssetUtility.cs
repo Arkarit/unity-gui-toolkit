@@ -507,12 +507,50 @@ namespace GuiToolkit
 			return result;
 		}
 
-		/// <summary>
+		public static T FindMatchingInPrefab<T>(GameObject _prefab, T _objectToFind) where T : Object
+		{
+			if (_objectToFind is GameObject gameObjectToFind)
+			{
+				if (_prefab.transform.parent == gameObjectToFind.transform.parent)
+					return _prefab as T;
+		
+				var toFindPath = gameObjectToFind.GetPath(-1);
+				var transforms = _prefab.GetComponentsInChildren<Transform>(true);
+				foreach (var transform in transforms)
+				{
+					if (transform.GetPath(-1).EndsWith(toFindPath))
+						return transform.gameObject as T;
+				}
+		
+				return null;
+			}
+	
+			if (_objectToFind is Component componentToFind)
+			{
+				GameObject matchingGo = FindMatchingInPrefab(_prefab, componentToFind.gameObject);
+				if (matchingGo == null)
+					return null;
+		
+				var components = matchingGo.GetComponents<Component>();
+				foreach (var matchingComponent in components)
+				{
+					if (matchingComponent.GetType() == componentToFind.GetType())
+						return matchingComponent as T;
+				}
+		
+				return null;
+			}
+
+			return null;
+		}
+
+
+				/// <summary>
 		/// Create an _asset and ensure folder exists
 		/// </summary>
 		/// <param name="_obj"></param>
 		/// <param name="_path"></param>
-		public static void CreateAsset( UnityEngine.Object _obj, string _path )
+		public static void CreateAsset( Object _obj, string _path )
 		{
 			string directory = EditorFileUtility.GetDirectoryName(_path);
 			EditorFileUtility.EnsureFolderExists(directory);
@@ -613,7 +651,6 @@ namespace GuiToolkit
 					throw new ArgumentOutOfRangeException();
 			}
 		}
-
 	}
 }
 #endif
