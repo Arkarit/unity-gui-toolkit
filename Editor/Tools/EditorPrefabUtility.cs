@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -165,6 +166,9 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 			if (_asVariant)
 				CloneOverrides(baseSourceAsset, pristineVariant);
 			
+			EditorUtility.SetDirty(pristineVariant);
+			AssetDatabase.SaveAssetIfDirty(pristineVariant);
+			
 			prefab.SafeDestroy();
 			
 			foreach (var v in _record.VariantRecordsBasedOnThis)
@@ -174,6 +178,7 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 		public static void CloneOverrides(GameObject _sourceAsset, GameObject _pristineVariant)
 		{
 			var sourcePropertyModifications = PrefabUtility.GetPropertyModifications(_sourceAsset);
+Debug.Log($"---::: {sourcePropertyModifications.Length}");
 			var sourceObjectOverrides = PrefabUtility.GetObjectOverrides(_sourceAsset);
 			var addedComponents = PrefabUtility.GetAddedComponents(_sourceAsset);
 			var addedGameObjects = PrefabUtility.GetAddedGameObjects(_sourceAsset);
@@ -181,16 +186,27 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 			var removedGameObjects = PrefabUtility.GetRemovedGameObjects(_sourceAsset);
 
 			ClonePropertyModifications(_pristineVariant, sourcePropertyModifications);
+			
+			List<ObjectOverride> targetObjectOverrides = new();
+			foreach (var sourceObjectOverride in sourceObjectOverrides)
+			{
+				var targetInstanceObject = FindMatchingInPrefab(_pristineVariant, sourceObjectOverride.instanceObject);
+				if (targetInstanceObject == null)
+					continue;
+				
+				ObjectOverride targetObjectOverride = new ObjectOverride();
+				targetObjectOverride.instanceObject = targetInstanceObject;
+//				targetObjectOverrides.Add(targetObjectOverride);
+			}
 
 			Debug.Log(DumpOverridesString(_sourceAsset, "Source"));
 			Debug.Log(DumpOverridesString(_pristineVariant, "Target"));
 		}
 
-		private static void ClonePropertyModifications(GameObject _pristineVariant,
-			PropertyModification[] sourcePropertyModifications)
+		private static void ClonePropertyModifications(GameObject _pristineVariant, PropertyModification[] _sourcePropertyModifications)
 		{
 			List<PropertyModification> targetPropertyModifications = new();
-			foreach (var sourcePropertyModification in sourcePropertyModifications)
+			foreach (var sourcePropertyModification in _sourcePropertyModifications)
 			{
 				if (sourcePropertyModification.propertyPath == "m_Name")
 					continue;
@@ -232,7 +248,10 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 				{
 					//FIXME: this is by far too coarse! Check the whole path.
 					if (partOfPrefabPath.EndsWith(transform.GetPath(0)))
+					{
+Debug.Log($"---prefab: {partOfPrefabPath}:{_prefab.GetInstanceID()} clone: {transform.GetPath()}:{transform.gameObject.GetInstanceID()}");
 						return transform.gameObject as T;
+					}
 				}
 				
 				return null;
@@ -244,7 +263,7 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 				if (matchingGo == null)
 					return null;
 				
-				var components = matchingGo.GetComponentsInChildren<Component>();
+				var components = matchingGo.GetComponents<Component>();
 				foreach (var matchingComponent in components)
 				{
 					if (matchingComponent.GetType() == component.GetType())
@@ -271,47 +290,36 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 			var removedComponents = PrefabUtility.GetRemovedComponents(_asset);
 			var removedGameObjects = PrefabUtility.GetRemovedGameObjects(_asset);
 
-			string result = $"{_what}: '{_asset.GetPath()}':\n\n";
+			string result = $"{_what}: '{AssetDatabase.GetAssetPath(_asset)}':\n\n";
 			
-			result += $"\t{_what} Property Modifications\n";
+			result += $"\t{_what} Property Modifications ({sourcePropertyModifications.Length})\n";
 			foreach (var modification in sourcePropertyModifications)
 				result += $"\t\t'{modification.value}':'{modification.propertyPath}':'{modification.objectReference}':'{modification.target}'\n";
 			result += "\n\t";
 			
 			result += $"\t{_what} Object Overrides\n";
 			foreach (var sourceObjectOverride in sourceObjectOverrides)
-			{
-				var prefabOverride = sourceObjectOverride.coupledOverride;
 				result += $"\t\t'{sourceObjectOverride.coupledOverride}':'{sourceObjectOverride.instanceObject}'\n";
-			}
 			result += "\n\t";
 			
 			result += $"\t{_what} Added Components\n";
 			foreach (var addedComponent in addedComponents)
-			{
 				result += $"\t\t'{addedComponent.instanceComponent.name}'\n";
-			}
 			result += "\n\t";
 			
 			result += $"\t{_what} Added Game Objects\n";
 			foreach (var addedGameObject in addedGameObjects)
-			{
 				result += $"\t\t'{addedGameObject.instanceGameObject.name}':'{addedGameObject.siblingIndex}'\n";
-			}
 			result += "\n\t";
 			
 			result += $"\t{_what} Removed Components\n";
 			foreach (var removedComponent in removedComponents)
-			{
 				result += $"\t\t'{removedComponent.assetComponent.name}'\n";
-			}
 			result += "\n\t";
 			
 			result += $"\t{_what} Removed Game Objects\n";
 			foreach (var removedGameObject in removedGameObjects)
-			{
 				result += $"\t\t'{removedGameObject.assetGameObject.name}'\n";
-			}
 			result += "\n\t";
 			
 			return result;
