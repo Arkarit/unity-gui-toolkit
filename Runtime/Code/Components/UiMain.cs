@@ -123,6 +123,9 @@ namespace GuiToolkit
 		{
 			get
 			{
+				if (!IsAwake)
+					return null;
+				
 				if (s_instance == null)
 					s_instance = FindAnyObjectByType<UiMain>();
 #if UNITY_EDITOR
@@ -469,6 +472,8 @@ namespace GuiToolkit
 
 		public void Quit()
 		{
+			IsAwake = false;
+			
 #if UNITY_EDITOR
 			EditorApplication.isPlaying = false;
 #else

@@ -7,16 +7,19 @@ namespace GuiToolkit
 	{
 		public static GameObject PoolInstantiate( this GameObject _prefab )
 		{
-			return UiPool.Instance.DoInstantiate(_prefab);
+			return UiMain.IsAwake ? UiPool.Instance.DoInstantiate(_prefab) : null;
 		}
 
 		public static T PoolInstantiate<T>( this T _prefabComponent ) where T : Component
 		{
-			return UiPool.Instance.DoInstantiate(_prefabComponent);
+			return UiMain.IsAwake ? UiPool.Instance.DoInstantiate(_prefabComponent) : null;
 		}
 
 		public static T PoolInstantiate<T>( this T _prefabComponent, Transform _parent ) where T : Component
 		{
+			if (!UiMain.IsAwake)
+				return null;
+			
 			T result = UiPool.Instance.DoInstantiate(_prefabComponent);
 			result.transform.SetParent(_parent, false);
 			return result;
@@ -24,11 +27,17 @@ namespace GuiToolkit
 
 		public static void PoolDestroy( this GameObject _gameObject )
 		{
+			if (!UiMain.IsAwake)
+				return;
+			
 			UiPool.Instance.DoDestroy(_gameObject);
 		}
 
 		public static void PoolDestroy<T>( this T _prefabComponent ) where T : Component
 		{
+			if (!UiMain.IsAwake)
+				return;
+			
 			UiPool.Instance.DoDestroy(_prefabComponent);
 		}
 
