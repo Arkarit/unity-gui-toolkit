@@ -42,7 +42,7 @@ namespace GuiToolkit.Editor
 //				if (GUILayout.Button("Create Default Prefabs Variants"))
 //					EditorPrefabUtility.CreatePrefabVariants(EditorPrefabUtility.BuiltinPrefabDir, UiToolkitConfiguration.Instance.m_prefabVariantsPath);
 				if (GUILayout.Button("Create Default Prefabs Variants"))
-					EditorPrefabUtility.CreatePrefabVariants("Assets/External/unity-gui-toolkit/Prefabs/_Test/VariantTest", "Assets/External/unity-gui-toolkit/Prefabs/_Test/VariantTestCloned", false);
+					EditorPrefabUtility.CreatePrefabVariants("Assets/External/unity-gui-toolkit/Prefabs/_Test/VariantTest", "Assets/External/unity-gui-toolkit/Prefabs/_Test/VariantTestCloned", true);
 
 			}
 

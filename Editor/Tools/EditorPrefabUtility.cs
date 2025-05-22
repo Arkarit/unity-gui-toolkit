@@ -148,7 +148,7 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 				_record.Clone = existing;
 				return;
 			}
-			
+
 			GameObject sourceAsset = _asVariant ? _record.Base.Clone : baseSourceAsset;
 			
 			var prefab = PrefabUtility.InstantiatePrefab(sourceAsset) as GameObject;
@@ -157,15 +157,24 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 			
 			EditorFileUtility.EnsureFolderExists(targetDir);
 			var pristineVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(prefab, newAssetPath, InteractionMode.AutomatedAction);
-			_record.Clone = pristineVariant;
 			
 			//TODO: Fix variant base and references
 			
+			EditorUtility.SetDirty(pristineVariant);
+			AssetDatabase.SaveAssetIfDirty(pristineVariant);
 			AssetDatabase.RenameAsset(newAssetPath, variantName);
+			AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate | ImportAssetOptions.ImportRecursive);
+			AssetDatabase.ImportAsset(variantPath);
+			pristineVariant = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
+			if (pristineVariant == null)
+				throw new Exception("Internal error");
 			
+			_record.Clone = pristineVariant;
+		
+Debug.Log($"!!!--- baseSourceAsset:{baseSourceAsset.GetPath()},id:{baseSourceAsset.GetInstanceID()} pristineVariant:{pristineVariant.GetPath()},id:{pristineVariant.GetInstanceID()}");			
 			if (_asVariant)
 				CloneOverrides(baseSourceAsset, pristineVariant);
-			
+
 			EditorUtility.SetDirty(pristineVariant);
 			AssetDatabase.SaveAssetIfDirty(pristineVariant);
 			
@@ -196,7 +205,7 @@ Debug.Log($"---::: {sourcePropertyModifications.Length}");
 				
 				ObjectOverride targetObjectOverride = new ObjectOverride();
 				targetObjectOverride.instanceObject = targetInstanceObject;
-//				targetObjectOverrides.Add(targetObjectOverride);
+				targetObjectOverrides.Add(targetObjectOverride);
 			}
 
 			Debug.Log(DumpOverridesString(_sourceAsset, "Source"));
@@ -217,8 +226,9 @@ Debug.Log($"---::: {sourcePropertyModifications.Length}");
 				var targetTarget = FindMatchingInPrefab(_pristineVariant, sourcePropertyModification.target);
 				if (targetTarget == null)
 					continue;
-
+				
 				targetPropertyModification.target = targetTarget;
+Debug.Log($":::--- sourcePropertyModification.target:'{sourcePropertyModification.target}',id:{sourcePropertyModification.target.GetInstanceID()} targetPropertyModification.target:'{targetPropertyModification.target}',id:{targetPropertyModification.target.GetInstanceID()} ");
 
 				if (sourcePropertyModification.objectReference != null)
 				{
@@ -235,41 +245,45 @@ Debug.Log($"---::: {sourcePropertyModifications.Length}");
 			PrefabUtility.SetPropertyModifications(_pristineVariant, targetPropertyModifications.ToArray());
 		}
 
-		public static T FindMatchingInPrefab<T>(GameObject _prefab, T _object) where T : Object
+		public static T FindMatchingInPrefab<T>(GameObject _prefab, T _objectToFind) where T : Object
 		{
-			if (_object is GameObject gameObject)
+			if (_objectToFind is GameObject gameObjectToFind)
 			{
-				if (_prefab.transform.parent == gameObject.transform.parent)
-					return _object;
+				if (_prefab.transform.parent == gameObjectToFind.transform.parent)
+					return _prefab as T;
 				
-				var partOfPrefabPath = gameObject.GetPath();
-				var transforms = _prefab.GetComponentsInChildren<Transform>();
+				var toFindPath = gameObjectToFind.GetPath(-1);
+				var transforms = _prefab.GetComponentsInChildren<Transform>(true);
 				foreach (var transform in transforms)
 				{
-					//FIXME: this is by far too coarse! Check the whole path.
-					if (partOfPrefabPath.EndsWith(transform.GetPath(1)))
+					if (transform.GetPath(-1).EndsWith(toFindPath))
 					{
-Debug.Log($"---prefab: {partOfPrefabPath}:{_prefab.GetInstanceID()} clone: {transform.GetPath()}:{transform.gameObject.GetInstanceID()}");
+Debug.Log($":::--- found prefab: {toFindPath}:{_prefab.GetInstanceID()} clone: {transform.GetPath(-1)}:{transform.gameObject.GetInstanceID()}");
 						return transform.gameObject as T;
 					}
 				}
 				
+Debug.Log($"---::: null {toFindPath}");				
 				return null;
 			}
 			
-			if (_object is Component component)
+			if (_objectToFind is Component componentToFind)
 			{
-				GameObject matchingGo = FindMatchingInPrefab(_prefab, component.gameObject);
+				GameObject matchingGo = FindMatchingInPrefab(_prefab, componentToFind.gameObject);
 				if (matchingGo == null)
 					return null;
 				
 				var components = matchingGo.GetComponents<Component>();
 				foreach (var matchingComponent in components)
 				{
-					if (matchingComponent.GetType() == component.GetType())
+					if (matchingComponent.GetType() == componentToFind.GetType())
+					{
+Debug.Log($":::--- FOUND: matchingComponent:'{matchingComponent.GetPath()}',id:{matchingComponent.GetInstanceID()} componentToFind:'{componentToFind.GetPath()}',id:{componentToFind.GetInstanceID()}");
 						return matchingComponent as T;
+					}
 				}
 				
+Debug.Log($"---::: null component null {matchingGo.GetPath()}");				
 				return null;
 			}
 
@@ -294,7 +308,7 @@ Debug.Log($"---prefab: {partOfPrefabPath}:{_prefab.GetInstanceID()} clone: {tran
 			
 			result += $"\t{_what} Property Modifications ({sourcePropertyModifications.Length})\n";
 			foreach (var modification in sourcePropertyModifications)
-				result += $"\t\t'{modification.value}':'{modification.propertyPath}':'{modification.objectReference}':'{modification.target}'\n";
+				result += $"\t\t'{modification.value}':'{modification.propertyPath}':'{modification.objectReference}':'{modification.target}', id:{modification.target.GetInstanceID()}\n";
 			result += "\n\t";
 			
 			result += $"\t{_what} Object Overrides\n";

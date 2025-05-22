@@ -32,7 +32,18 @@ namespace GuiToolkit
 		{
 			return _listToClone.Select(item => (T)item.Clone()).ToList();
 		}
-
+		
+		public static bool EndsWithViceVersa(this string _self, string _other)
+		{
+			int lenSelf = _self.Length;
+			int lenOther = _other.Length;
+			bool selfGreaterThanOther = lenSelf > lenOther;
+			string a = selfGreaterThanOther ? _self : _other;
+			string b = selfGreaterThanOther ? _other : _self;
+			
+			return a.EndsWith(b);
+		}
+		
 		/// <summary>
 		/// Returns the path of a transform, game object or component.
 		/// </summary>
