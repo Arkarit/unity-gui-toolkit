@@ -33,20 +33,49 @@ namespace GuiToolkit
 			return _listToClone.Select(item => (T)item.Clone()).ToList();
 		}
 
-		public static string GetPath(this Transform _self, int _depth = -1, char _separator = '/')
+		/// <summary>
+		/// Returns the path of a transform, game object or component.
+		/// </summary>
+		/// <param name="_self">Transform, game object or component. May be null, in that case a string containing @"@<null@>@" is returned</param>
+		/// <param name="_depth">
+		/// If 0, complete path is returned
+		/// If > 0, path up to depth n is returned (e.g. MyPrefab/MyContainer/MyObject with depth 2 would return MyContainer/MyObject)
+		/// If < 0, complete path with -n parts removed at the right side (e.g. MyPrefab/MyContainer/MyObject with depth -1 would return MyContainer/MyObject)
+		/// </param>
+		/// <param name="_separator"></param>
+		/// <returns></returns>
+		public static string GetPath(this Transform _self, int _depth = 0, char _separator = '/')
 		{
 			if (_self == null)
 				return "<null>";
 			
-			if (_depth == -1)
+			if (_depth < 0 )
+				_depth = GetPathDepth(_self) + _depth;
+			
+			if (_depth <= 0)
 				_depth = 100000;
 			
 			string result = _self.name;
-			while (_self.parent != null && _depth > 0)
+			while (_self.parent != null && _depth > 1)
 			{
 				_self = _self.parent;
 				result = _self.name + _separator + result;
 				_depth--;
+			}
+			
+			return result;
+		}
+		
+		public static int GetPathDepth(this Transform _self )
+		{
+			if (_self == null)
+				return 0;
+			
+			int result = 1;
+			while (_self.parent != null)
+			{
+				result++;
+				_self = _self.parent;
 			}
 			
 			return result;
@@ -76,21 +105,26 @@ namespace GuiToolkit
 
 		public static List<T> GetComponentsInDirectChildren<T>(this GameObject _self) where T : Component =>
 			GetComponentsInDirectChildren<T>(_self.transform);
-		public static string GetPath(this GameObject _self, int _depth = -1, char _separator = '/')
+		
+		public static string GetPath(this GameObject _self, int _depth = 0, char _separator = '/')
 		{
 			if (_self == null)
 				return "<null>";
 			
 			return GetPath(_self.transform, _depth, _separator);
 		}
+		
+		public static int GetPathDepth(this GameObject _self) => _self == null ? 0 : GetPathDepth(_self.transform);
 
-		public static string GetPath(this Component _self, int _depth = -1, char _separator = '/')
+		public static string GetPath(this Component _self, int _depth = 0, char _separator = '/')
 		{
 			if (_self == null)
 				return "<null>";
 			
 			return GetPath(_self.transform, _depth, _separator);
 		}
+		
+		public static int GetPathDepth(this Component _self) => _self == null ? 0 : GetPathDepth(_self.transform);
 		
 		public static string GetRelativePathOfDescendant(this Transform _self, Transform _descendant, char _separator = '/')
 		{
@@ -100,12 +134,12 @@ namespace GuiToolkit
 			if (_self == _descendant)
 				return string.Empty;
 			
-			var path = _descendant.GetPath(-1, _separator);
+			var path = _descendant.GetPath(0, _separator);
 			
 			if (_self == null || !_self.IsMyDescendant(_descendant.transform))
 				return path;
 			
-			return path.Substring(_self.GetPath(-1, _separator).Length + 1);
+			return path.Substring(_self.GetPath(0, _separator).Length + 1);
 		}
 		
 		public static string GetRelativePathOfDescendant(this Component _self, Component _descendant, char _separator = '/')
@@ -114,7 +148,7 @@ namespace GuiToolkit
 				return "<null>";
 			
 			if (_self == null)
-				return _descendant.transform.GetPath(-1, _separator);
+				return _descendant.transform.GetPath(0, _separator);
 			
 			return _self.transform.GetRelativePathOfDescendant(_descendant.transform, _separator);
 		}
@@ -125,7 +159,7 @@ namespace GuiToolkit
 				return "<null>";
 			
 			if (_self == null)
-				return _descendant.transform.GetPath(-1, _separator);
+				return _descendant.transform.GetPath(0, _separator);
 			
 			return _self.transform.GetRelativePathOfDescendant(_descendant.transform, _separator);
 		}

@@ -424,7 +424,7 @@ namespace GuiToolkit
 			var transforms = prefab.GetComponentsInChildren<Transform>();
 			foreach (var transform in transforms)
 			{
-				if (partOfPrefabPath.EndsWith(transform.GetPath(0)))
+				if (partOfPrefabPath.EndsWith(transform.GetPath(1)))
 					return transform.gameObject;
 			}
 

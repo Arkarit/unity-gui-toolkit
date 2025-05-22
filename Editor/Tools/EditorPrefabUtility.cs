@@ -247,7 +247,7 @@ Debug.Log($"---::: {sourcePropertyModifications.Length}");
 				foreach (var transform in transforms)
 				{
 					//FIXME: this is by far too coarse! Check the whole path.
-					if (partOfPrefabPath.EndsWith(transform.GetPath(0)))
+					if (partOfPrefabPath.EndsWith(transform.GetPath(1)))
 					{
 Debug.Log($"---prefab: {partOfPrefabPath}:{_prefab.GetInstanceID()} clone: {transform.GetPath()}:{transform.gameObject.GetInstanceID()}");
 						return transform.gameObject as T;
