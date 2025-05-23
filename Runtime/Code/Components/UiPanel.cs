@@ -28,6 +28,9 @@ namespace GuiToolkit
 		public virtual bool AutoDestroyOnHide => false;
 		public virtual bool Poolable => false;
 		public virtual bool ShowDestroyFieldsInInspector => false;
+		
+		public virtual bool IsVisible => gameObject.activeSelf;
+		public virtual bool IsVisibleInHierarchy => gameObject.activeInHierarchy;
 
 		public virtual void OnBeginShow() {}
 		public virtual void OnEndShow() {}
@@ -148,7 +151,8 @@ namespace GuiToolkit
 			{
 				EvOnDestroyed.Invoke(this);
 				EvOnDestroyed.RemoveAllListeners();
-				UiPool.Instance.DoDestroy(this);
+				if (UiMain.IsAwake)
+					UiPool.Instance.DoDestroy(this);
 			}
 			else
 				gameObject.SafeDestroy();
