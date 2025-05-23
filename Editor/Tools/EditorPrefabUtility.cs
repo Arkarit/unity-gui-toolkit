@@ -187,7 +187,7 @@ Debug.Log($"!!!--- baseSourceAsset:{baseSourceAsset.GetPath()},id:{baseSourceAss
 		public static string DumpAllProperties(SerializedObject _serObj)
 		{
 			string result = $"Properties for '{_serObj.targetObject.name}':\n----------------------------------------------------------------\n";
-			EditorGeneralUtility.ForeachPropertySerObj(_serObj, property =>
+			EditorGeneralUtility.ForeachPropertyHierarchical(_serObj, property =>
 			{
 				result += $"\t{property.propertyPath}:{property.prefabOverride}\n";
 			});

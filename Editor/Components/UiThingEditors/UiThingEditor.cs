@@ -53,7 +53,7 @@ namespace GuiToolkit.Editor
 				m_eventProperties.Add(new (type, list));
 			}
 
-			EditorGeneralUtility.ForeachPropertySerObj(serializedObject, prop =>
+			EditorGeneralUtility.ForeachProperty(serializedObject, prop =>
 			{
 				if (excludedProperties.Contains(prop.name))
 					return;
@@ -69,7 +69,7 @@ namespace GuiToolkit.Editor
 				}
 
 				AddToList(prop, m_properties);
-			}, false);
+			});
 		}
 
 		private void AddToList(SerializedProperty _serializedProperty, List<(Type type, List<SerializedProperty> properties)> _list)
