@@ -150,41 +150,20 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 				return;
 			}
 
-			GameObject sourceAsset = _asVariant ? _record.Base.Clone : baseSourceAsset;
-			
-			var prefab = PrefabUtility.InstantiatePrefab(sourceAsset) as GameObject;
-			if (!prefab)
-				return;
-
 			EditorFileUtility.EnsureFolderExists(targetDir);
 
-Debug.Log(DumpYamlString(baseSourceAsset));
-var assetPath = AssetDatabase.GetAssetPath(baseSourceAsset);
-var yamlText = File.ReadAllText(assetPath);
-var yaml = Parser.Parse(yamlText);
-var newYamlText = Writer.Build(yaml);
-File.WriteAllText(newAssetPath.Replace(".", ".copy."), newYamlText);
+			Debug.Log(DumpYamlString(baseSourceAsset));
 
-			var pristineVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(prefab, newAssetPath, InteractionMode.AutomatedAction);
-			EditorUtility.SetDirty(pristineVariant);
-			AssetDatabase.SaveAssetIfDirty(pristineVariant);
-			AssetDatabase.RenameAsset(newAssetPath, variantName);
-			AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate | ImportAssetOptions.ImportRecursive);
+			var assetPath = AssetDatabase.GetAssetPath(baseSourceAsset);
+			var yamlText = File.ReadAllText(assetPath);
+			var yaml = Parser.Parse(yamlText);
+			var newYamlText = Writer.Build(yaml);
+			File.WriteAllText(variantPath, newYamlText);
 			AssetDatabase.ImportAsset(variantPath);
-			pristineVariant = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
-			if (pristineVariant == null)
-				throw new Exception("Internal error");
-			
-			_record.Clone = pristineVariant;
-		
-//Debug.Log($"!!!--- baseSourceAsset:{baseSourceAsset.GetPath()},id:{baseSourceAsset.GetInstanceID()} pristineVariant:{pristineVariant.GetPath()},id:{pristineVariant.GetInstanceID()}");			
-//			if (_asVariant)
-//				CloneOverrides(baseSourceAsset, pristineVariant);
+			var clone = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
 
-			EditorUtility.SetDirty(pristineVariant);
-			AssetDatabase.SaveAssetIfDirty(pristineVariant);
 			
-			prefab.SafeDestroy();
+			_record.Clone = clone;
 			
 			foreach (var v in _record.VariantRecordsBasedOnThis)
 				Clone(v, true);
