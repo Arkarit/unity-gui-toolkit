@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Lachee.UYAML;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -151,14 +152,19 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 
 			GameObject sourceAsset = _asVariant ? _record.Base.Clone : baseSourceAsset;
 			
-			var sourceAssetSerObj = new SerializedObject(sourceAsset);
-			Debug.Log(DumpAllProperties(sourceAssetSerObj));
-			
 			var prefab = PrefabUtility.InstantiatePrefab(sourceAsset) as GameObject;
 			if (!prefab)
 				return;
-			
+
 			EditorFileUtility.EnsureFolderExists(targetDir);
+
+Debug.Log(DumpYamlString(baseSourceAsset));
+var assetPath = AssetDatabase.GetAssetPath(baseSourceAsset);
+var yamlText = File.ReadAllText(assetPath);
+var yaml = Parser.Parse(yamlText);
+var newYamlText = Writer.Build(yaml);
+File.WriteAllText(newAssetPath.Replace(".", ".copy."), newYamlText);
+
 			var pristineVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(prefab, newAssetPath, InteractionMode.AutomatedAction);
 			EditorUtility.SetDirty(pristineVariant);
 			AssetDatabase.SaveAssetIfDirty(pristineVariant);
@@ -171,7 +177,7 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 			
 			_record.Clone = pristineVariant;
 		
-Debug.Log($"!!!--- baseSourceAsset:{baseSourceAsset.GetPath()},id:{baseSourceAsset.GetInstanceID()} pristineVariant:{pristineVariant.GetPath()},id:{pristineVariant.GetInstanceID()}");			
+//Debug.Log($"!!!--- baseSourceAsset:{baseSourceAsset.GetPath()},id:{baseSourceAsset.GetInstanceID()} pristineVariant:{pristineVariant.GetPath()},id:{pristineVariant.GetInstanceID()}");			
 //			if (_asVariant)
 //				CloneOverrides(baseSourceAsset, pristineVariant);
 
@@ -183,7 +189,31 @@ Debug.Log($"!!!--- baseSourceAsset:{baseSourceAsset.GetPath()},id:{baseSourceAss
 			foreach (var v in _record.VariantRecordsBasedOnThis)
 				Clone(v, true);
 		}
-		
+
+
+		public static string DumpYamlString(GameObject _gameObject)
+		{
+			string result = $"YAML for for '{_gameObject.name}':\n----------------------------------------------------------------\n";
+			var assetPath = AssetDatabase.GetAssetPath(_gameObject);
+			if (string.IsNullOrEmpty(assetPath))
+				return result + "\t<Asset Path Not Found>";
+
+			var yamlText = File.ReadAllText(assetPath);
+			var yaml = Parser.Parse(yamlText);
+
+			foreach (var uComponent in yaml)
+			{
+				result += $"\t{uComponent.name}:{uComponent.classID}:{uComponent.fileID}\n";
+				var root = uComponent.root;
+				foreach (var kv in root)
+				{
+					result += $"\t\t{kv.Key}:{kv.Value}\n";
+				}
+			}
+
+			return result;
+		}
+
 		public static string DumpAllProperties(SerializedObject _serObj)
 		{
 			string result = $"Properties for '{_serObj.targetObject.name}':\n----------------------------------------------------------------\n";
