@@ -26,15 +26,20 @@ namespace GuiToolkit.Editor
 		{
 			public AssetEntry Asset = null;
 			public AssetEntry Clone = null;
-
 			public VariantRecord Base = null;
+			public bool IsRootVariant => Base == null;
 			
 			
 			public readonly List<VariantRecord> VariantRecordsBasedOnThis = new ();
 			
 			public string GetDumpString(int _numTabs = 0)
 			{
-				var result = $"{new string('\t', _numTabs)}{Asset.Asset.name} Guid:{Asset.Guid} FileId:{Asset.Id}\n";
+				var result = $"{new string('\t', _numTabs)}Original:{Asset.Asset.name} Guid:{Asset.Guid} FileId:{Asset.Id} IsRootVariant:{IsRootVariant}\n";
+				if (Clone != null)
+					result += $"{new string('\t', _numTabs)}Clone:{Clone.Asset.name} Guid:{Clone.Guid} FileId:{Clone.Id}\n";
+				else
+					result += $"{new string('\t', _numTabs)}Clone:<null>\n";
+
 				foreach (var record in VariantRecordsBasedOnThis)
 					result += record.GetDumpString(_numTabs + 1);
 				
@@ -44,7 +49,6 @@ namespace GuiToolkit.Editor
 		
 		private static readonly List<VariantRecord> s_variantRecords = new ();
 		private static readonly Dictionary<GameObject, GameObject> s_baseByPrefab = new ();
-		private static readonly Dictionary<GameObject, GameObject> s_clonedByPrefab = new ();
 		
 		private static string s_sourceDir;
 		private static string s_targetDir;
@@ -67,8 +71,22 @@ namespace GuiToolkit.Editor
 			CleanUp();
 			BuildPrefabVariantHierarchy();
 			Clone();
+			ChangeParents();
+			
+Debug.Log($"{GetVariantRecordsDumpString()}");
+
 //AssetDatabase.DeleteAsset(s_targetDir);
 			CleanUp();
+		}
+
+		private static void ChangeParents()
+		{
+			foreach (var record in s_variantRecords)
+			{
+				// We need not change parents of root variants
+				if (record.IsRootVariant)
+					continue;
+			}
 		}
 
 		private static void BuildPrefabVariantHierarchy()
@@ -110,8 +128,6 @@ namespace GuiToolkit.Editor
 				foreach (var go in done)
 					s_baseByPrefab.Remove(go);
 			}
-			
-Debug.Log($"{GetVariantRecordsDumpString()}");
 		}
 		
 		private static bool TryInsertRecord(List<VariantRecord> _list, GameObject _gameObject, GameObject _base, HashSet<GameObject> _done)
@@ -189,7 +205,6 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 				var assetPath = AssetDatabase.GetAssetPath(baseSourceAsset);
 				var yamlText = File.ReadAllText(assetPath);
 				var yaml = Parser.Parse(yamlText);
-				ChangeParent(yaml, _record);
 				var newYamlText = Writer.Build(yaml);
 				File.WriteAllText(variantPath, newYamlText);
 				AssetDatabase.ImportAsset(variantPath);
@@ -206,16 +221,6 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 			foreach (var v in _record.VariantRecordsBasedOnThis)
 				Clone(v, true);
 		}
-
-		private static void ChangeParent(List<UComponent> _yaml, VariantRecord _record)
-		{
-			Debug.Assert(_record != null && _record.Base != null);
-			var previousParent = _record.Base.Asset;
-			var newParent = _record.Base.Clone;
-			Debug.Assert(previousParent != null && newParent != null);
-
-		}
-
 
 		public static string DumpYamlString(GameObject _gameObject)
 		{
@@ -321,7 +326,6 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 		{
 			s_variantRecords.Clear();
 			s_baseByPrefab.Clear();
-			s_clonedByPrefab.Clear();
 		}
 	}
 }
