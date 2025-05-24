@@ -51,6 +51,7 @@ namespace GuiToolkit.Editor
 		private static readonly Dictionary<GameObject, GameObject> s_baseByPrefab = new ();
 		private static readonly Dictionary<string, string> s_guidMapping = new ();
 		private static readonly Dictionary<long, long> s_fileIdMapping = new ();
+		private static readonly List<GameObject> s_objectsToDelete = new();
 		
 		private static string s_sourceDir;
 		private static string s_targetDir;
@@ -75,7 +76,7 @@ namespace GuiToolkit.Editor
 			Clone();
 			ChangeParents();
 			
-Debug.Log($"{GetVariantRecordsDumpString()}");
+//Debug.Log($"{GetVariantRecordsDumpString()}");
 
 //AssetDatabase.DeleteAsset(s_targetDir);
 			CleanUp();
@@ -237,8 +238,17 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 			{
 				var clone = PrefabUtility.InstantiatePrefab(baseSourceAsset) as GameObject;
 				var variant = PrefabUtility.SaveAsPrefabAsset(clone, variantPath);
+				if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(baseSourceAsset, out string originalGuid,
+					    out long originalId) &&
+				    AssetDatabase.TryGetGUIDAndLocalFileIdentifier(variant, out string variantGuid,
+					    out long variantId))
+				{
+					s_guidMapping.Add(originalGuid, variantGuid);
+					s_fileIdMapping.Add(originalId, variantId);
+				}
+
 				_record.Clone = CreateAssetEntry(variant);
-				clone.SafeDestroy();
+				s_objectsToDelete.Add(clone);
 			}
 
 			foreach (var v in _record.VariantRecordsBasedOnThis)
@@ -414,6 +424,9 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 			s_baseByPrefab.Clear();
 			s_guidMapping.Clear();
 			s_fileIdMapping.Clear();
+			foreach (var gameObject in s_objectsToDelete)
+				gameObject.SafeDestroy();
+			s_objectsToDelete.Clear();
 		}
 	}
 }
