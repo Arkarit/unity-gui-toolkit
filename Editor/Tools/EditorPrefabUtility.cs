@@ -34,9 +34,9 @@ namespace GuiToolkit.Editor
 			
 			public string GetDumpString(int _numTabs = 0)
 			{
-				var result = $"{new string('\t', _numTabs)}Original:{Asset.Asset.name} Guid:{Asset.Guid} FileId:{Asset.Id} IsRootVariant:{IsRootVariant}\n";
+				var result = $"{new string('\t', _numTabs)}Original: __ {Asset.Asset.name} __ Guid:{Asset.Guid} FileId:{Asset.Id} IsRootVariant:{IsRootVariant}\n";
 				if (Clone != null)
-					result += $"{new string('\t', _numTabs)}Clone:{Clone.Asset.name} Guid:{Clone.Guid} FileId:{Clone.Id}\n";
+					result += $"{new string('\t', _numTabs)}Clone: __ {Clone.Asset.name} __ Guid:{Clone.Guid} FileId:{Clone.Id}\n";
 				else
 					result += $"{new string('\t', _numTabs)}Clone:<null>\n";
 
@@ -49,6 +49,8 @@ namespace GuiToolkit.Editor
 		
 		private static readonly List<VariantRecord> s_variantRecords = new ();
 		private static readonly Dictionary<GameObject, GameObject> s_baseByPrefab = new ();
+		private static readonly Dictionary<string, string> s_guidMapping = new ();
+		private static readonly Dictionary<long, long> s_fileIdMapping = new ();
 		
 		private static string s_sourceDir;
 		private static string s_targetDir;
@@ -82,11 +84,31 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 		private static void ChangeParents()
 		{
 			foreach (var record in s_variantRecords)
+				ChangeParents(record);
+		}
+
+		private static void ChangeParents(VariantRecord record)
+		{
+			// We need not change parents of root variants
+			if (!record.IsRootVariant)
+				ChangeParents(record.Clone.Asset);
+
+			foreach (var basedOnThis in record.VariantRecordsBasedOnThis)
+				ChangeParents(basedOnThis);
+		}
+
+		private static void ChangeParents(GameObject _go)
+		{
+			HandleAsYaml(_go, yaml =>
 			{
-				// We need not change parents of root variants
-				if (record.IsRootVariant)
-					continue;
-			}
+				foreach (var uComponent in yaml)
+				{
+					uComponent.rootProperty.ReplaceFileID(s_fileIdMapping);
+					uComponent.rootProperty.ReplaceGUID(s_guidMapping);
+				}
+
+				return true;
+			});
 		}
 
 		private static void BuildPrefabVariantHierarchy()
@@ -202,12 +224,12 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 
 			if (_asVariant)
 			{
-				var assetPath = AssetDatabase.GetAssetPath(baseSourceAsset);
-				var yamlText = File.ReadAllText(assetPath);
-				var yaml = Parser.Parse(yamlText);
-				var newYamlText = Writer.Build(yaml);
-				File.WriteAllText(variantPath, newYamlText);
-				AssetDatabase.ImportAsset(variantPath);
+				if (!TryReadYaml(baseSourceAsset, out List<UComponent> yaml))
+					return;
+
+				if (!TryWriteYaml(yaml, variantPath))
+					return;
+
 				var clone = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
 				_record.Clone = CreateAssetEntry(clone);
 			}
@@ -216,10 +238,74 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 				var clone = PrefabUtility.InstantiatePrefab(baseSourceAsset) as GameObject;
 				var variant = PrefabUtility.SaveAsPrefabAsset(clone, variantPath);
 				_record.Clone = CreateAssetEntry(variant);
+				clone.SafeDestroy();
 			}
 
 			foreach (var v in _record.VariantRecordsBasedOnThis)
 				Clone(v, true);
+		}
+
+		private static bool TryReadYaml(GameObject _go, out List<UComponent> _yaml)
+		{
+			_yaml = new List<UComponent>();
+
+			try
+			{
+				var assetPath = AssetDatabase.GetAssetPath(_go);
+				if (string.IsNullOrEmpty(assetPath))
+					return false;
+	
+				var yamlText = File.ReadAllText(assetPath);
+				if (string.IsNullOrEmpty(yamlText))
+					return false;
+	
+				_yaml = Parser.Parse(yamlText);
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		private static bool TryWriteYaml(List<UComponent> _yaml, string _variantPath)
+		{
+			try
+			{
+				var newYamlText = Writer.Build(_yaml);
+				File.WriteAllText(_variantPath, newYamlText);
+				AssetDatabase.ImportAsset(_variantPath);
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		private static bool HandleAsYaml(GameObject _gameObject, Func<List<UComponent>, bool> _handler)
+		{
+			try
+			{
+				if (!_gameObject)
+					return false;
+
+				var assetPath = AssetDatabase.GetAssetPath(_gameObject);
+				if (_handler == null)
+					return false;
+
+				if (!TryReadYaml(_gameObject, out List<UComponent> _yaml))
+					return false;
+
+				if (_handler.Invoke(_yaml))
+					return TryWriteYaml(_yaml, assetPath);
+
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
 		}
 
 		public static string DumpYamlString(GameObject _gameObject)
@@ -326,6 +412,8 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 		{
 			s_variantRecords.Clear();
 			s_baseByPrefab.Clear();
+			s_guidMapping.Clear();
+			s_fileIdMapping.Clear();
 		}
 	}
 }
