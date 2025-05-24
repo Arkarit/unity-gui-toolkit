@@ -5,6 +5,7 @@ using System.Linq;
 using Lachee.UYAML;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -14,18 +15,26 @@ namespace GuiToolkit.Editor
 	{
 		public const string PrefabFolder = "Prefabs/";
 		
-		private class VariantRecord
+		private class AssetEntry
 		{
 			public GameObject Asset = null;
+			public string Guid = string.Empty;
+			public long Id = 0;
+		}
+
+		private class VariantRecord
+		{
+			public AssetEntry Asset = null;
+			public AssetEntry Clone = null;
+
 			public VariantRecord Base = null;
 			
-			public GameObject Clone = null;
 			
 			public readonly List<VariantRecord> VariantRecordsBasedOnThis = new ();
 			
 			public string GetDumpString(int _numTabs = 0)
 			{
-				var result = new string('\t', _numTabs) + Asset.name + "\n";
+				var result = $"{new string('\t', _numTabs)}{Asset.Asset.name} Guid:{Asset.Guid} FileId:{Asset.Id}\n";
 				foreach (var record in VariantRecordsBasedOnThis)
 					result += record.GetDumpString(_numTabs + 1);
 				
@@ -80,7 +89,7 @@ namespace GuiToolkit.Editor
 				if (kv.Value == null)
 				{
 					done.Add(kv.Key);
-					s_variantRecords.Add(new VariantRecord() {Asset = kv.Key});
+					s_variantRecords.Add(new VariantRecord() {Asset = CreateAssetEntry(kv.Key)});
 				}
 			}
 
@@ -109,10 +118,15 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 		{
 			foreach (var record in _list)
 			{
-				if (record.Asset == _base)
+				if (record.Asset.Asset == _base)
 				{
 					_done.Add(_gameObject);
-					record.VariantRecordsBasedOnThis.Add(new () {Asset = _gameObject, Base = record});
+
+					record.VariantRecordsBasedOnThis.Add(new ()
+					{
+						Asset = CreateAssetEntry(_gameObject), 
+						Base = record
+					});
 					return true;
 				}
 				
@@ -121,6 +135,22 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 			}
 			
 			return false;
+		}
+
+		private static AssetEntry CreateAssetEntry(GameObject _gameObject)
+		{
+			if (_gameObject == null)
+				throw new NullReferenceException($"Asset entry can't be created with null game object");
+
+			if (!AssetDatabase.TryGetGUIDAndLocalFileIdentifier(_gameObject, out string guid, out long id))
+				throw new ArgumentException($"Internal Exception: '{_gameObject}' is not a disk-based asset! Please create asset first");
+
+			return new AssetEntry()
+			{
+				Asset = _gameObject,
+				Guid = guid,
+				Id = id
+			};
 		}
 
 		private static string GetVariantRecordsDumpString()
@@ -146,27 +176,44 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 			if (File.Exists(variantPath))
 			{
 				var existing = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
-				_record.Clone = existing;
+				_record.Clone = CreateAssetEntry(existing);
+
 				return;
 			}
 
 			EditorFileUtility.EnsureFolderExists(targetDir);
-
 			Debug.Log(DumpYamlString(baseSourceAsset));
 
-			var assetPath = AssetDatabase.GetAssetPath(baseSourceAsset);
-			var yamlText = File.ReadAllText(assetPath);
-			var yaml = Parser.Parse(yamlText);
-			var newYamlText = Writer.Build(yaml);
-			File.WriteAllText(variantPath, newYamlText);
-			AssetDatabase.ImportAsset(variantPath);
-			var clone = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
+			if (_asVariant)
+			{
+				var assetPath = AssetDatabase.GetAssetPath(baseSourceAsset);
+				var yamlText = File.ReadAllText(assetPath);
+				var yaml = Parser.Parse(yamlText);
+				ChangeParent(yaml, _record);
+				var newYamlText = Writer.Build(yaml);
+				File.WriteAllText(variantPath, newYamlText);
+				AssetDatabase.ImportAsset(variantPath);
+				var clone = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
+				_record.Clone = CreateAssetEntry(clone);
+			}
+			else
+			{
+				var clone = PrefabUtility.InstantiatePrefab(baseSourceAsset) as GameObject;
+				var variant = PrefabUtility.SaveAsPrefabAsset(clone, variantPath);
+				_record.Clone = CreateAssetEntry(variant);
+			}
 
-			
-			_record.Clone = clone;
-			
 			foreach (var v in _record.VariantRecordsBasedOnThis)
 				Clone(v, true);
+		}
+
+		private static void ChangeParent(List<UComponent> _yaml, VariantRecord _record)
+		{
+			Debug.Assert(_record != null && _record.Base != null);
+			var previousParent = _record.Base.Asset;
+			var newParent = _record.Base.Clone;
+			Debug.Assert(previousParent != null && newParent != null);
+
 		}
 
 
@@ -257,7 +304,7 @@ Debug.Log($"{GetVariantRecordsDumpString()}");
 			out string _variantPath
 		)
 		{
-			var asset = _record.Asset;
+			var asset = _record.Asset.Asset;
 			var assetPath = AssetDatabase.GetAssetPath(asset);
 			var basename = Path.GetFileNameWithoutExtension(assetPath);
 			var extension = Path.GetExtension(assetPath);
