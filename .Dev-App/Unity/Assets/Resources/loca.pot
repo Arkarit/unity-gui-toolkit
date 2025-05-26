@@ -85,7 +85,19 @@ msgstr ""
 msgid "No"
 msgstr ""
 
+msgid "No Mouse Keys"
+msgstr ""
+
 msgid "Ok"
+msgstr ""
+
+msgid "Only Mouse Keys"
+msgstr ""
+
+msgid "Only specified Keys allowed"
+msgstr ""
+
+msgid "Only specified Keys forbidden"
 msgstr ""
 
 msgid "or"
@@ -134,9 +146,6 @@ msgid "Restore Defaults"
 msgstr ""
 
 msgid "Settings"
-msgstr ""
-
-msgid "Shoot"
 msgstr ""
 
 msgid "Show Full screen tabs dialog"

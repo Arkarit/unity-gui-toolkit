@@ -103,8 +103,20 @@ msgstr "Musik-Lautstärke"
 msgid "No"
 msgstr "Nein"
 
+msgid "No Mouse Keys"
+msgstr "Keine Maustasten"
+
 msgid "Ok"
 msgstr "Ok"
+
+msgid "Only Mouse Keys"
+msgstr "Nur Maustasten"
+
+msgid "Only specified Keys allowed"
+msgstr "Nur bestimmte Tasten erlaubt"
+
+msgid "Only specified Keys forbidden"
+msgstr "Nur bestimmte Tasten verboten"
 
 msgid "or"
 msgstr "oder"
@@ -170,9 +182,6 @@ msgstr "Einstellungen zurücksetzen"
 msgid "Settings"
 msgstr "Einstellungen"
 
-msgid "Shoot"
-msgstr "Feuerknopf"
-
 msgid "Show Full screen tabs dialog"
 msgstr "Zeige Fullscreen Tabs Dialog"
 
@@ -234,6 +243,9 @@ msgid "{0} Tree, "
 msgid_plural "{0} Trees, "
 msgstr[0] "{0} Baum, "
 msgstr[1] "{0} Bäume, "
+
+#~ msgid "Shoot"
+#~ msgstr "Feuerknopf"
 
 #~ msgid "Tree"
 #~ msgid_plural "Trees"

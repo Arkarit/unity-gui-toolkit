@@ -928,6 +928,11 @@ PrefabInstance:
       propertyPath: m_firstOverflowCharacterIndex
       value: -1
       objectReference: {fileID: 0}
+    - target: {fileID: 2527186978360673276, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
+      value: 1801810542
+      objectReference: {fileID: 0}
     - target: {fileID: 2527186978879140336, guid: 0f6119b246c780b4195ff06650f0d15e,
         type: 3}
       propertyPath: m_Name
@@ -1356,6 +1361,9 @@ MonoBehaviour:
       m_Calls: []
   m_layer: 600
   m_isFullScreen: 1
+  m_useGlobalCanvasScalerTemplate: 1
+  m_autoDestroyOnHide: 1
+  m_poolable: 1
   m_closeButton: {fileID: 6762807483001836545}
   m_tabContentContainer: {fileID: 5984029663277954689}
   m_pageContentContainer: {fileID: 8036487085992052438}

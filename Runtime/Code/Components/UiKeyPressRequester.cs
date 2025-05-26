@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -81,7 +82,6 @@ namespace GuiToolkit
 					}
 					if (i < filterList.Count - 1)
 					{
-
 						sb.Append( $" {(isWhiteList ? orStr : andStr)} ");
 					}
 				}
@@ -116,9 +116,21 @@ namespace GuiToolkit
 			if (m_onEvent == null || k == KeyCode.None)
 				return;
 
-			if (m_playerSettingOptions != null 
-			    && m_playerSettingOptions.KeyCodeFilterList.Contains(k)
-			    && k != KeyCode.Escape)
+			bool isSuppressed = false;
+			List<KeyCode> filterList = m_playerSettingOptions != null && k != KeyCode.Escape ?
+				m_playerSettingOptions.KeyCodeFilterList : 
+				null;
+			bool isWhiteList = 
+				   filterList != null 
+				&& m_playerSettingOptions.KeyCodeFilterListIsWhitelist;
+			
+			if ( filterList != null)
+			{
+				bool containsKeyCode = filterList.Contains(k);
+				isSuppressed = isWhiteList ? !containsKeyCode : containsKeyCode;
+			}
+			
+			if (isSuppressed)
 			{
 				//TODO GUI Message "Not supported for key"
 				Debug.Log($"Key '{_(k.ToString())}' not supported");

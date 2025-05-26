@@ -77,17 +77,36 @@ public class TestMain : LocaMonoBehaviour
 				}
 			),
 
-			// Key bindings
+			// Key bindings, all keys allowed except Esc
 			new PlayerSetting(__("Key Bindings"), "", __("Move Up"), KeyCode.W),
 			new PlayerSetting(__("Key Bindings"), "", __("Move Left"), KeyCode.A),
 			new PlayerSetting(__("Key Bindings"), "", __("Move Right"), KeyCode.S),
 			new PlayerSetting(__("Key Bindings"), "", __("Move Down"), KeyCode.D),
 			// An example for forbidden mouse keys
-			new PlayerSetting(__("Key Bindings"), "", __("Shoot"), KeyCode.Space, 
-				new PlayerSettingOptions()
+			new PlayerSetting(__("Key Bindings"), "", __("No Mouse Keys"), KeyCode.Space, PlayerSettingOptions.NoMouseKeys),
+			new PlayerSetting(__("Key Bindings"), "", __("Only Mouse Keys"), KeyCode.Mouse1, PlayerSettingOptions.OnlyMouseKeys),
+			// An example for specified keys
+			new PlayerSetting(__("Key Bindings"), "", __("Only specified Keys allowed"), KeyCode.E, new PlayerSettingOptions()
+			{
+				KeyCodeFilterList = new ()
 				{
-					KeyCodeFilterList = PlayerSettingOptions.KeyCodeNoMouseList,
-				}),
+					KeyCode.E,
+					KeyCode.F,
+					KeyCode.G,
+					KeyCode.Mouse0
+				},
+				KeyCodeFilterListIsWhitelist = true
+			}),
+			new PlayerSetting(__("Key Bindings"), "", __("Only specified Keys forbidden"), KeyCode.Y, new PlayerSettingOptions()
+			{
+				KeyCodeFilterList = new ()
+				{
+					KeyCode.X,
+					KeyCode.Y,
+					KeyCode.Z,
+					KeyCode.Mouse1
+				}
+			}),
 		});
 
 		// Alternative way to listen to player settings changed:

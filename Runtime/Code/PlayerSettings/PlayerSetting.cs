@@ -48,6 +48,19 @@ namespace GuiToolkit
 		public bool KeyCodeFilterListIsWhitelist;							//!< Set to true if you want the filter list to be whitelist instead of blacklist
 		public bool IsLocalized = true;										//!< Should usually be set to true; only set to false if you want to display languages (see TestMain language setting)
 		public UnityAction<PlayerSetting> OnChanged = null;					//!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
+		
+		public static PlayerSettingOptions NoMouseKeys => 
+			new ()
+			{
+				KeyCodeFilterList = KeyCodeNoMouseList
+			};
+		
+		public static PlayerSettingOptions OnlyMouseKeys => 
+			new ()
+			{
+				KeyCodeFilterList = KeyCodeNoMouseList,
+				KeyCodeFilterListIsWhitelist = true,
+			};
 	}
 
 	[Serializable]
