@@ -166,6 +166,7 @@ namespace GuiToolkit.Editor
 						Asset = CreateAssetEntry(_gameObject), 
 						Base = record
 					});
+
 					return true;
 				}
 				

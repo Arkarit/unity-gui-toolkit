@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Codice.Client.BaseCommands;
+using System;
+using System.Collections.Generic;
 
 namespace Lachee.UYAML
 {
@@ -33,50 +35,68 @@ namespace Lachee.UYAML
         /// </summary>
         /// <param name="property"></param>
         /// <param name="map"></param>
-        public static void ReplaceFileID(this UProperty property, Dictionary<long, long> map) {
-            if (property.value is UObject obj)
-            {
-                foreach (var kp in obj.properties.Values)
-                    ReplaceFileID(kp, map);
-            }
-            else if (property.value is UArray arr)
-            {
-                foreach (var item in arr.items)
-                    ReplaceFileID(new UProperty(string.Empty, item), map);
-            } 
-            else if (property.name == "fileID" && property.value is UValue value && long.TryParse(value.value, out var fileID))
-            {
-                if (map.TryGetValue(fileID, out var dest)) {
-                    value.value = dest.ToString();
-                }
-            } 
-   
-        }
-
+        public static void ReplaceFileID(this UProperty property, Dictionary<long, long> map) =>
+            ForEachProperty(property, uProperty => ReplaceFileIdIfNecessary(uProperty, map));
+ 
         /// <summary>
         /// Replaces all GUIDs inside the map.
         /// </summary>
         /// <param name="property"></param>
         /// <param name="map"></param>
-        public static void ReplaceGUID(this UProperty property, Dictionary<string, string> map) {
-            if (property.name == "guid" && property.value is UValue value)
-            {
-                if (map.TryGetValue(value.value, out var dest)) 
-                    value.value = dest.ToString();
-            } 
-            else if (property.value is UObject obj)
+        public static void ReplaceGUID(this UProperty property, Dictionary<string, string> map) =>
+            ForEachProperty(property, uProperty => ReplaceGUIDIfNecessary(uProperty, map));
+
+        public static void ReplaceGUIDAndFileID(this UProperty property, Dictionary<string, string> mapGUID, Dictionary<long, long> mapID)
+        {
+	        ForEachProperty(property, uProperty =>
+	        {
+                ReplaceGUIDIfNecessary(uProperty, mapGUID);
+		        ReplaceFileIdIfNecessary(uProperty, mapID);
+	        });
+        }
+
+        /// <summary>
+        /// Visit each property and perform callback on it
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="callback"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static void ForEachProperty(this UProperty property, Action<UProperty> callback) {
+            if (callback == null)
+                throw new ArgumentNullException(nameof(callback));
+
+            if (property.value is UObject obj)
             {
                 foreach (var kp in obj.properties.Values)
-                    ReplaceGUID(kp, map);
+                    ForEachProperty(kp, callback);
+                return;
             }
-            else if (property.value is UArray arr)
+
+            if (property.value is UArray arr)
             {
                 foreach (var item in arr.items)
-                    ReplaceGUID(new UProperty(string.Empty, item), map);
+                    ForEachProperty(new UProperty(string.Empty, item), callback);
+                return;
             }
+
+            callback.Invoke(property);
         }
-       
-    
-    }
+ 
+        private static void ReplaceGUIDIfNecessary(UProperty property, Dictionary<string, string> map) {
+	        if (property.name == "guid" && property.value is UValue value)
+	        {
+		        if (map.TryGetValue(value.value, out var dest)) 
+			        value.value = dest.ToString();
+	        }
+        }
+
+        private static void ReplaceFileIdIfNecessary(UProperty property, Dictionary<long, long> map) {
+	        if (property.name == "fileID" && property.value is UValue value && long.TryParse(value.value, out var fileID))
+	        {
+		        if (map.TryGetValue(fileID, out var dest))
+			        value.value = dest.ToString();
+	        }
+        }
+   }
     #endif
 }
