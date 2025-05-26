@@ -1,6 +1,9 @@
 msgid "Ambient Occlusion"
 msgstr ""
 
+msgid "and"
+msgstr ""
+
 msgid "Animation Speed"
 msgstr ""
 
@@ -83,6 +86,9 @@ msgid "No"
 msgstr ""
 
 msgid "Ok"
+msgstr ""
+
+msgid "or"
 msgstr ""
 
 msgid "Or 'Esc' to cancel"

@@ -13,10 +13,13 @@ msgstr ""
 "X-Generator: Poedit 3.6\n"
 
 msgid "Ambient Occlusion"
-msgstr "Umgebungsverdeckung"
+msgstr "Umgebungs\\u00ADverdeckung"
+
+msgid "and"
+msgstr "und"
 
 msgid "Animation Speed"
-msgstr ""
+msgstr "Animations\\u00ADgeschwindigkeit"
 
 msgid "Are you really really sure you want to quit?"
 msgstr ""
@@ -47,7 +50,7 @@ msgid "Dialog Stub"
 msgstr "Dialog Stub"
 
 msgid "Effect Volume"
-msgstr "Effekt-Lautstärke"
+msgstr "Effekt\\u00ADlautstärke"
 
 msgid "Enter text..."
 msgstr "Texteingabe..."
@@ -68,7 +71,7 @@ msgid "High"
 msgstr "Hoch"
 
 msgid "Key Bindings"
-msgstr "Tastenzuordnung"
+msgstr "Tasten\\u00ADzuordnung"
 
 msgid "Language"
 msgstr "Sprache"
@@ -102,6 +105,9 @@ msgstr "Nein"
 
 msgid "Ok"
 msgstr "Ok"
+
+msgid "or"
+msgstr "oder"
 
 msgid "Or 'Esc' to cancel"
 msgstr "Oder 'Esc' um abzubrechen"

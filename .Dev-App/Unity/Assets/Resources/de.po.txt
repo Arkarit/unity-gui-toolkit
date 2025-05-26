@@ -13,7 +13,13 @@ msgstr ""
 "X-Generator: Poedit 3.6\n"
 
 msgid "Ambient Occlusion"
-msgstr "Umgebungsverdeckung"
+msgstr "Umgebungs\\u00ADverdeckung"
+
+msgid "and"
+msgstr "und"
+
+msgid "Animation Speed"
+msgstr "Animations\\u00ADgeschwindigkeit"
 
 msgid "Are you really really sure you want to quit?"
 msgstr ""
@@ -23,11 +29,28 @@ msgstr ""
 msgid "Cancel"
 msgstr "Abbrechen"
 
+msgid "Cancel LOREM IPSUM dolor sit amet bla"
+msgstr "Cancel LOREM IPSUM dolor sit amet bla"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Date:"
+msgstr "Datum:"
+
+#, fuzzy
+#| msgid "Restore Defaults"
+msgid "Default"
+msgstr "Einstellungen zurücksetzen"
+
 msgid "Details"
 msgstr "Details"
 
+msgid "Dialog Stub"
+msgstr "Dialog Stub"
+
 msgid "Effect Volume"
-msgstr "Effekt-Lautstärke"
+msgstr "Effekt\\u00ADlautstärke"
 
 msgid "Enter text..."
 msgstr "Texteingabe..."
@@ -48,10 +71,13 @@ msgid "High"
 msgstr "Hoch"
 
 msgid "Key Bindings"
-msgstr "Tastenzuordnung"
+msgstr "Tasten\\u00ADzuordnung"
 
 msgid "Language"
 msgstr "Sprache"
+
+msgid "Light"
+msgstr "Hell"
 
 msgid "Low"
 msgstr "Niedrig"
@@ -80,8 +106,11 @@ msgstr "Nein"
 msgid "Ok"
 msgstr "Ok"
 
+msgid "or"
+msgstr "oder"
+
 msgid "Or 'Esc' to cancel"
-msgstr "oder 'Esc' um abzubrechen"
+msgstr "Oder 'Esc' um abzubrechen"
 
 msgid "Overall"
 msgstr "Generell"
@@ -102,6 +131,33 @@ msgstr ""
 "Drücken Sie eine Taste\n"
 "oder eine Maustaste!"
 
+msgid "Press a Key!"
+msgstr "Drücken Sie eine Taste auf der Tastatur!"
+
+msgid ""
+"Press a Key\n"
+"Or Mouse button!"
+msgstr ""
+"Drücken Sie eine Taste\n"
+"oder eine Maustaste!"
+
+msgid "Press a Mouse button!"
+msgstr "Drücken Sie eine Maustaste!"
+
+msgid ""
+"Press any key except\n"
+"{0}"
+msgstr ""
+"Drücken Sie eine Taste außer\n"
+"{0}"
+
+msgid ""
+"Press one of the keys\n"
+"{0}"
+msgstr ""
+"Drücken Sie eine der Tasten\n"
+"{0}"
+
 msgid "Quit"
 msgstr "Beenden"
 
@@ -114,6 +170,9 @@ msgstr "Einstellungen zurücksetzen"
 msgid "Settings"
 msgstr "Einstellungen"
 
+msgid "Shoot"
+msgstr "Feuerknopf"
+
 msgid "Show Full screen tabs dialog"
 msgstr "Zeige Fullscreen Tabs Dialog"
 
@@ -123,8 +182,14 @@ msgstr "Zeige Requester"
 msgid "Show Splash Message"
 msgstr "Zeige Splash Message"
 
+msgid "Some keys remain unbound. Really continue?"
+msgstr "Manche Tasten sind nicht zugeordet. Trotzdem fortfahren?"
+
 msgid "Sound"
 msgstr "Sound"
+
+msgid "Style Example"
+msgstr "Stylebeispiel"
 
 msgid "Tab Dialog Demo"
 msgstr "Tab Dialog Demo"
@@ -141,14 +206,26 @@ msgstr "Zeige Requester"
 msgid "Test Scene"
 msgstr "Testszene"
 
-msgid "Text..."
-msgstr "Text..."
+msgid "TestKey"
+msgstr "Test Loca Key 1"
 
-msgid "Title..."
-msgstr "Titel..."
+msgid "Text...\t"
+msgstr "Text...\t"
+
+msgid "Time:"
+msgstr "Zeit:"
+
+msgid "Title...\t"
+msgstr "Titel...\t"
+
+msgid "UI Skin"
+msgstr "UI Skin"
 
 msgid "Ultra"
 msgstr "Ultra"
+
+msgid "Unbound Keys"
+msgstr "Nicht zugewiesene Tasten"
 
 msgid "Yes"
 msgstr "Ja"
