@@ -1,5 +1,6 @@
 ﻿using GuiToolkit;
 using System.Collections.Generic;
+using System.Linq;
 using GuiToolkit.Style;
 using UnityEngine;
 
@@ -76,12 +77,17 @@ public class TestMain : LocaMonoBehaviour
 				}
 			),
 
-
 			// Key bindings
+			new PlayerSetting(__("Key Bindings"), "", __("Move Up"), KeyCode.W),
 			new PlayerSetting(__("Key Bindings"), "", __("Move Left"), KeyCode.A),
 			new PlayerSetting(__("Key Bindings"), "", __("Move Right"), KeyCode.S),
-			new PlayerSetting(__("Key Bindings"), "", __("Move Up"), KeyCode.W),
-			new PlayerSetting(__("Key Bindings"), "", __("Move Down"), KeyCode.D)
+			new PlayerSetting(__("Key Bindings"), "", __("Move Down"), KeyCode.D),
+			// An example for forbidden mouse keys
+			new PlayerSetting(__("Key Bindings"), "", __("Shoot"), KeyCode.Space, 
+				new PlayerSettingOptions()
+				{
+					KeyCodeBlacklist = PlayerSettingOptions.KeyCodeNoMouseBlacklist,
+				}),
 		});
 
 		// Alternative way to listen to player settings changed:

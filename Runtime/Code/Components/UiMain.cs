@@ -343,11 +343,32 @@ namespace GuiToolkit
 			requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _placeholderText, _inputText, _yesText, _noText);
 		}
 
-		public void KeyPressRequester( UnityAction<KeyCode> _onEvent, string _title = null )
+		public void KeyPressRequester( UnityAction<KeyCode> _onEvent )
 		{
 			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
 			Debug.Assert(requester);
-			requester.Requester(_onEvent, _title);
+			requester.Requester(_onEvent, null, null);
+		}
+
+		public void KeyPressRequester( PlayerSettingOptions _options, UnityAction<KeyCode> _onEvent )
+		{
+			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
+			Debug.Assert(requester);
+			requester.Requester(_onEvent, _options, null);
+		}
+
+		public void KeyPressRequester( PlayerSettingOptions _options, string _title, UnityAction<KeyCode> _onEvent )
+		{
+			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
+			Debug.Assert(requester);
+			requester.Requester(_onEvent, _options, _title);
+		}
+
+		public void KeyPressRequester( string _title, UnityAction<KeyCode> _onEvent )
+		{
+			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
+			Debug.Assert(requester);
+			requester.Requester(_onEvent, null, _title);
 		}
 
 		public T CreateView<T>(T _template) where T : UiView

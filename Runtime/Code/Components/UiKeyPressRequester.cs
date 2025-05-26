@@ -15,6 +15,9 @@ namespace GuiToolkit
 		private UiPointerDownUpHelper m_pointerDownUpHelper;
 
 		private UnityAction<KeyCode> m_onEvent;
+		private PlayerSettingOptions m_playerSettingOptions;
+		
+		private bool m_isClosable = true;
 
 		protected override void Awake()
 		{
@@ -24,14 +27,21 @@ namespace GuiToolkit
 
 		private void OnPointerUp()
 		{
-			Hide();
+			if (m_isClosable)
+				Hide();
+			
+			m_isClosable = true;
 		}
 
-		public void Requester( UnityAction<KeyCode> _onEvent, string _title = null )
+		public void Requester( UnityAction<KeyCode> _onEvent, PlayerSettingOptions _options, string _title )
 		{
+			m_playerSettingOptions = _options;
 			m_onEvent = _onEvent;
+			
+			//TODO title by Player settings
 			if (m_title != null && _title != null)
 				m_title.text = _title;
+			
 			ShowTopmost();
 		}
 
@@ -39,10 +49,20 @@ namespace GuiToolkit
 		{
 			Event e = Event.current;
 
-			KeyCode k = UiUtility.EventToKeyCode(e);
+			KeyCode k = UiUtility.EventToKeyCode(e, true);
 			if (m_onEvent == null || k == KeyCode.None)
 				return;
 
+			if (m_playerSettingOptions != null 
+			    && m_playerSettingOptions.KeyCodeBlacklist.Contains(k)
+			    && k != KeyCode.Escape)
+			{
+				//TODO GUI Message "Not supported for key"
+				Debug.Log($"Key '{_(k.ToString())}' not supported");
+				m_isClosable = false;
+				return;
+			}
+			
 			if (k != KeyCode.Escape)
 				m_onEvent.Invoke(k);
 

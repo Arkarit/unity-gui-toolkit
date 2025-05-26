@@ -810,8 +810,8 @@ namespace GuiToolkit
 			return _val;
 		}
 	
-		public static bool IsEven(this int _self) => _self % 2 == 0;
-		public static bool IsOdd(this int _self) => _self % 2 != 0;
+		public static bool IsEven(this int _self) => (_self & 1) == 0;
+		public static bool IsOdd(this int _self) => (_self & 1) != 0;
 		
 		public static GameObject GetRoot(this GameObject _self)
 		{

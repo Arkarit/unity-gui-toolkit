@@ -12,18 +12,31 @@ namespace GuiToolkit
 		private static readonly Vector3[] s_worldCorners = new Vector3[4];
 		private static readonly Vector3[] s_screenCorners = new Vector3[4];
 
-		// Dear Unity, you have KeyCodes for everything.
-		// Why please don't you simply give it to me in an event?
-		public static KeyCode EventToKeyCode(Event _keyEvent)
+		
+		/// <summary>
+		/// Converts an event to a key code
+		/// </summary>
+		/// <param name="_keyEvent"></param>
+		/// <param name="_suppressUpEvents">If true, key up and mouse key up events are ignored (return KeyCode.none)</param>
+		/// <returns></returns>
+		public static KeyCode EventToKeyCode(Event _keyEvent, bool _suppressUpEvents = false)
 		{
 			if (_keyEvent == null)
 				return KeyCode.None;
 
 			if (_keyEvent.isKey)
+			{
+				if (_suppressUpEvents &&  _keyEvent.type == EventType.KeyUp)
+					return KeyCode.None;
+				
 				return _keyEvent.keyCode;
+			}
 
 			if (_keyEvent.isMouse)
 			{
+				if (_suppressUpEvents && _keyEvent.type == EventType.MouseUp)
+					return KeyCode.None;
+				
 				int mouseButtonCode = ((int)(object) KeyCode.Mouse0 + _keyEvent.button);
 				return (KeyCode)(object) mouseButtonCode;
 			}

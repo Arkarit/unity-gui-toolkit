@@ -13,6 +13,12 @@ namespace GuiToolkit
 		[SerializeField] protected Color m_textColorIfNone = Color.red;
 		[SerializeField] protected Image m_optionalBackgroundImage;
 		[SerializeField] protected UiGradientSimple m_optionalBackgroundGradient;
+		
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			
+		}
 
 		public override object Value
 		{
@@ -26,7 +32,7 @@ namespace GuiToolkit
 
 		protected override void OnClick()
 		{
-			UiMain.Instance.KeyPressRequester((KeyCode _keyCode) =>
+			UiMain.Instance.KeyPressRequester(m_playerSetting.Options, (KeyCode _keyCode) =>
 			{
 				if (m_markIfNone)
 					MarkIfNone(_keyCode);
