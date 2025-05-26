@@ -13,6 +13,9 @@ namespace GuiToolkit
 
 		[SerializeField]
 		private UiPointerDownUpHelper m_pointerDownUpHelper;
+		
+		[SerializeField]
+		private UiSimpleAnimationBase m_keyPressNotAllowedAnimation;
 
 		private UnityAction<KeyCode> m_onEvent;
 		private PlayerSettingOptions m_playerSettingOptions;
@@ -59,10 +62,16 @@ namespace GuiToolkit
 			{
 				//TODO GUI Message "Not supported for key"
 				Debug.Log($"Key '{_(k.ToString())}' not supported");
+				if (m_keyPressNotAllowedAnimation)
+					m_keyPressNotAllowedAnimation.Play();
+				
 				m_isClosable = false;
 				return;
 			}
 			
+			if (m_keyPressNotAllowedAnimation)
+				m_keyPressNotAllowedAnimation.Reset();
+		
 			if (k != KeyCode.Escape)
 				m_onEvent.Invoke(k);
 
