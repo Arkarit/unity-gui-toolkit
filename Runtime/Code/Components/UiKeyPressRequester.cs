@@ -62,6 +62,12 @@ namespace GuiToolkit
 				var formatStr = isWhiteList ? TitleWhitelist : TitleBlacklist;
 				var sb = new StringBuilder();
 				
+				//FIXME Interpolated strings are not detected in LocaProcessor
+				// https://github.com/Arkarit/unity-gui-toolkit/issues/6
+				// When closed, these strings could be written inline
+				var orStr = _("or");
+				var andStr = _("and");
+				
 				for(int i=0; i<filterList.Count; i++)
 				{
 					sb.Append(_(filterList[i].ToString()));
@@ -74,7 +80,10 @@ namespace GuiToolkit
 						continue;
 					}
 					if (i < filterList.Count - 1)
-						sb.Append( $" {(isWhiteList ? _("or") : _("and"))} ");
+					{
+
+						sb.Append( $" {(isWhiteList ? orStr : andStr)} ");
+					}
 				}
 				
 				return string.Format(formatStr, sb);
