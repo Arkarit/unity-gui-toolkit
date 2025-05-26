@@ -86,7 +86,7 @@ public class TestMain : LocaMonoBehaviour
 			new PlayerSetting(__("Key Bindings"), "", __("Shoot"), KeyCode.Space, 
 				new PlayerSettingOptions()
 				{
-					KeyCodeBlacklist = PlayerSettingOptions.KeyCodeNoMouseBlacklist,
+					KeyCodeFilterList = PlayerSettingOptions.KeyCodeNoMouseList,
 				}),
 		});
 

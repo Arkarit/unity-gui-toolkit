@@ -103,6 +103,21 @@ msgstr ""
 msgid "Press a key\nOr Mouse button!"
 msgstr ""
 
+msgid "Press a Key!"
+msgstr ""
+
+msgid "Press a Key\nOr Mouse button!"
+msgstr ""
+
+msgid "Press a Mouse button!"
+msgstr ""
+
+msgid "Press any key except\n{0}"
+msgstr ""
+
+msgid "Press one of the keys\n{0}"
+msgstr ""
+
 msgid "Quit"
 msgstr ""
 
@@ -113,6 +128,9 @@ msgid "Restore Defaults"
 msgstr ""
 
 msgid "Settings"
+msgstr ""
+
+msgid "Shoot"
 msgstr ""
 
 msgid "Show Full screen tabs dialog"
@@ -146,6 +164,9 @@ msgid "Test Requester"
 msgstr ""
 
 msgid "Test Scene"
+msgstr ""
+
+msgid "TestKey"
 msgstr ""
 
 msgid "Text...	"

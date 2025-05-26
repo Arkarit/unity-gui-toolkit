@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -36,15 +37,65 @@ namespace GuiToolkit
 			m_isClosable = true;
 		}
 
+		private string TitleMouseAndKeyboard => _("Press a Key\nOr Mouse button!");
+		private string TitleMouse => _("Press a Mouse button!");
+		private string TitleKeyboard => _("Press a Key!");
+		private string TitleWhitelist => _("Press one of the keys\n{0}");
+		private string TitleBlacklist => _("Press any key except\n{0}");
+		
+		protected virtual string GetTitle(string _title)
+		{
+			if (!string.IsNullOrEmpty(_title))
+				return _title;
+			
+			if (m_playerSettingOptions == null)
+				return TitleMouseAndKeyboard;
+			
+			var filterList = m_playerSettingOptions.KeyCodeFilterList;
+			var isWhiteList = m_playerSettingOptions.KeyCodeFilterListIsWhitelist;
+			
+			if ( filterList != null)
+			{
+				if (filterList == PlayerSettingOptions.KeyCodeNoMouseList)
+					return isWhiteList ? TitleMouse : TitleKeyboard;
+				
+				var formatStr = isWhiteList ? TitleWhitelist : TitleBlacklist;
+				var sb = new StringBuilder();
+				
+				for(int i=0; i<filterList.Count; i++)
+				{
+					sb.Append(_(filterList[i].ToString()));
+
+					//FIXME Hope this doesn't make trouble in loca, which rules are sometimes pretty weird
+					// Is there a language with different counting rules?
+					if (i < filterList.Count - 2)
+					{
+						sb.Append(", ");
+						continue;
+					}
+					if (i < filterList.Count - 1)
+						sb.Append( $" {(isWhiteList ? _("or") : _("and"))} ");
+				}
+				
+				return string.Format(formatStr, sb);
+			}
+			
+			return TitleMouseAndKeyboard;
+		}
+		
+		private void SetTitle(string _title)
+		{
+			if (m_title == null)
+				return;
+			
+			m_title.text = GetTitle(_title);
+		}
+		
 		public void Requester( UnityAction<KeyCode> _onEvent, PlayerSettingOptions _options, string _title )
 		{
 			m_playerSettingOptions = _options;
+			SetTitle(_title);
 			m_onEvent = _onEvent;
-			
-			//TODO title by Player settings
-			if (m_title != null && _title != null)
-				m_title.text = _title;
-			
 			ShowTopmost();
 		}
 
@@ -57,7 +108,7 @@ namespace GuiToolkit
 				return;
 
 			if (m_playerSettingOptions != null 
-			    && m_playerSettingOptions.KeyCodeBlacklist.Contains(k)
+			    && m_playerSettingOptions.KeyCodeFilterList.Contains(k)
 			    && k != KeyCode.Escape)
 			{
 				//TODO GUI Message "Not supported for key"
