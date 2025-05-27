@@ -264,6 +264,7 @@ MonoBehaviour:
   m_additionalMouseOver: {fileID: 5848099051524279674}
   m_additionalMouseOverDuration: 0.2
   m_button: {fileID: 446159405813274371}
+  m_visualButton: {fileID: 4540959822111459699}
 --- !u!114 &6710481960320431086
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -670,10 +671,15 @@ PrefabInstance:
       propertyPath: m_Transition
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5270523796987331456, guid: 21a8687b0161cb048a99736c000f6da3,
+        type: 3}
+      propertyPath: m_Interactable
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5270523796987331484, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_Name
-      value: Button
+      value: VisualButton
       objectReference: {fileID: 0}
     - target: {fileID: 5270523796987331485, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
@@ -796,3 +802,15 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 6873954028719757770}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4540959822111459699 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6944983982311379129, guid: 21a8687b0161cb048a99736c000f6da3,
+    type: 3}
+  m_PrefabInstance: {fileID: 6873954028719757770}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9df890b72f8e7864d8f1c8540cec85a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

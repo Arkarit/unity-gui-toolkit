@@ -13,9 +13,10 @@ public static class DemoCheats
 			// Demo cheats
 			new
 			(
-				"Cheats", "Example", "Checkbox", true,
+				"Cheats", "Example", "Checkbox", false,
 				new PlayerSettingOptions
 				{
+					IsSaveable = false,
 					OnChanged = setting =>
 					{
 						Debug.Log($"Checkbox checked:{(bool) setting.Value}");
@@ -27,6 +28,8 @@ public static class DemoCheats
 				"Cheats", "Example", "Button", null,
 				new PlayerSettingOptions
 				{
+					IsSaveable = false,
+					Titles = new List<string> {"Main Button Text", "Button Text"},
 					OnChanged = _ =>
 					{
 						Debug.Log($"Button clicked");
