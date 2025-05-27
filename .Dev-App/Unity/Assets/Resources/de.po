@@ -70,6 +70,9 @@ msgstr "Hier können Sie einige der Fähigkeiten des GUI Toolkit testen"
 msgid "High"
 msgstr "Hoch"
 
+msgid "Key '{0}' not supported"
+msgstr "Taste '{0}' nicht unterstützt"
+
 msgid "Key Bindings"
 msgstr "Tasten\\u00ADzuordnung"
 

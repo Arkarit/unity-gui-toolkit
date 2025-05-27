@@ -1,24 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
 	public class UiKeyPressRequester : UiView
 	{
+		[FormerlySerializedAs("m_title")] 
 		[SerializeField]
-		private TMP_Text m_title;
+		private TMP_Text m_textFieldTitle;
+		
+		[SerializeField]
+		private TMP_Text m_textFieldNotSupportedWarning;
 
 		[SerializeField]
 		private UiPointerDownUpHelper m_pointerDownUpHelper;
 		
 		[SerializeField]
-		private UiSimpleAnimationBase m_keyPressNotAllowedAnimation;
+		private UiSimpleAnimationBase m_wiggleAnimation;
 
+		[SerializeField]
+		private UiSimpleAnimationBase m_warningAnimation;
+
+		public virtual string TitleMouseAndKeyboard => _("Press a Key\nOr Mouse button!");
+		public virtual string TitleMouse => _("Press a Mouse button!");
+		public virtual string TitleKeyboard => _("Press a Key!");
+		public virtual string TitleWhitelist => _("Press one of the keys\n{0}");
+		public virtual string TitleBlacklist => _("Press any key except\n{0}");
+		public virtual string TextNotSupported => _("Key '{0}' not supported");
+		
 		private UnityAction<KeyCode> m_onEvent;
 		private PlayerSettingOptions m_playerSettingOptions;
 		
@@ -38,12 +51,6 @@ namespace GuiToolkit
 			m_isClosable = true;
 		}
 
-		private string TitleMouseAndKeyboard => _("Press a Key\nOr Mouse button!");
-		private string TitleMouse => _("Press a Mouse button!");
-		private string TitleKeyboard => _("Press a Key!");
-		private string TitleWhitelist => _("Press one of the keys\n{0}");
-		private string TitleBlacklist => _("Press any key except\n{0}");
-		
 		protected virtual string GetTitle(string _title)
 		{
 			if (!string.IsNullOrEmpty(_title))
@@ -94,10 +101,10 @@ namespace GuiToolkit
 		
 		private void SetTitle(string _title)
 		{
-			if (m_title == null)
+			if (m_textFieldTitle == null)
 				return;
 			
-			m_title.text = GetTitle(_title);
+			m_textFieldTitle.text = GetTitle(_title);
 		}
 		
 		public void Requester( UnityAction<KeyCode> _onEvent, PlayerSettingOptions _options, string _title )
@@ -132,17 +139,23 @@ namespace GuiToolkit
 			
 			if (isSuppressed)
 			{
-				//TODO GUI Message "Not supported for key"
 				Debug.Log($"Key '{_(k.ToString())}' not supported");
-				if (m_keyPressNotAllowedAnimation)
-					m_keyPressNotAllowedAnimation.Play();
+
+				if (m_wiggleAnimation)
+					m_wiggleAnimation.Play();
+				
+				if (m_textFieldNotSupportedWarning)
+					m_textFieldNotSupportedWarning.text = string.Format(TextNotSupported, _(k.ToString()));
+				
+				if (m_warningAnimation)
+					m_warningAnimation.Play();
 				
 				m_isClosable = false;
 				return;
 			}
 			
-			if (m_keyPressNotAllowedAnimation)
-				m_keyPressNotAllowedAnimation.Reset();
+			if (m_wiggleAnimation)
+				m_wiggleAnimation.Reset();
 		
 			if (k != KeyCode.Escape)
 				m_onEvent.Invoke(k);

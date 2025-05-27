@@ -52,6 +52,9 @@ msgstr ""
 msgid "High"
 msgstr ""
 
+msgid "Key '{0}' not supported"
+msgstr ""
+
 msgid "Key Bindings"
 msgstr ""
 
