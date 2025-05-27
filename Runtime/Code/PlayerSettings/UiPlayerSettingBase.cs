@@ -20,7 +20,7 @@ namespace GuiToolkit
 		protected PlayerSetting m_playerSetting;
 		protected string m_subKey;
 
-		private string Text
+		protected string Text
 		{
 			get => m_isLocalized ? m_titleTranslator.Text : m_text.text;
 			set

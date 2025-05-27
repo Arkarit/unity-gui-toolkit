@@ -1,18 +1,15 @@
 ﻿using GuiToolkit;
 using System.Collections.Generic;
-using System.Linq;
 using GuiToolkit.Style;
 using UnityEngine;
 
-public class TestMain : LocaMonoBehaviour
+public static class DemoSettings
 {
-	protected const string KeyUiSkin = "UiSkin";
-	
-	protected void Start()
-	{
-		Application.targetFrameRate = 60;
+	private const string KeyUiSkin = "UiSkin";
 
-		GuiToolkit.PlayerSettings.Instance.Add( new List<PlayerSetting>
+	public static void Create()
+	{
+		PlayerSettings.Instance.Add( new List<PlayerSetting>
 		{
 			// Language
 			new PlayerSetting
@@ -109,14 +106,11 @@ public class TestMain : LocaMonoBehaviour
 			}),
 		});
 
-		// Alternative way to listen to player settings changed:
-		UiEventDefinitions.EvPlayerSettingChanged.AddListener(OnPlayerSettingChanged);
-
-		UiMain.Instance.LoadScene("DemoScene1");
 	}
-
-	private void OnPlayerSettingChanged(PlayerSetting _playerSetting)
+	
+	/// Not translated, only for POT creation
+	private static string __(string _s)
 	{
-		//Debug.Log($"Player setting '{_playerSetting.Key}' changed to {_playerSetting.Value}");
+		return _s;
 	}
 }
