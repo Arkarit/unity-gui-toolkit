@@ -828,7 +828,7 @@ PlayerSettings:
   webWasm2023: 0
   scriptingDefineSymbols:
     Android: DEFAULT_SCENE_VISIBLE;BLA
-    Standalone: DEFAULT_SCENE_VISIBLE;TMP_3_2
+    Standalone: DEFAULT_SCENE_VISIBLE;TMP_3_2;CHEATS_ALLOWED
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

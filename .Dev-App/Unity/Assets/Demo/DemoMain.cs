@@ -11,6 +11,7 @@ public class DemoMain : LocaMonoBehaviour
 		Application.targetFrameRate = 60;
 
 		DemoSettings.Create();
+		DemoCheats.Create();
 		
 		// Alternative way to listen to player settings changed:
 		UiEventDefinitions.EvPlayerSettingChanged.AddListener(OnPlayerSettingChanged);
