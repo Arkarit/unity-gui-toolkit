@@ -634,6 +634,9 @@ MonoBehaviour:
       m_Calls: []
   m_layer: 600
   m_isFullScreen: 0
+  m_useGlobalCanvasScalerTemplate: 1
+  m_autoDestroyOnHide: 1
+  m_poolable: 1
   m_closeButton: {fileID: 6957560595721433611}
   m_tabContentContainer: {fileID: 7953324690129522827}
   m_pageContentContainer: {fileID: 5968183750671245532}

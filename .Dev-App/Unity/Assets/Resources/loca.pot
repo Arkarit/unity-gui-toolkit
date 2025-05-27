@@ -1,6 +1,9 @@
 msgid "Ambient Occlusion"
 msgstr ""
 
+msgid "and"
+msgstr ""
+
 msgid "Animation Speed"
 msgstr ""
 
@@ -49,6 +52,9 @@ msgstr ""
 msgid "High"
 msgstr ""
 
+msgid "Key '{0}' not supported"
+msgstr ""
+
 msgid "Key Bindings"
 msgstr ""
 
@@ -82,7 +88,22 @@ msgstr ""
 msgid "No"
 msgstr ""
 
+msgid "No Mouse Keys"
+msgstr ""
+
 msgid "Ok"
+msgstr ""
+
+msgid "Only Mouse Keys"
+msgstr ""
+
+msgid "Only specified Keys allowed"
+msgstr ""
+
+msgid "Only specified Keys forbidden"
+msgstr ""
+
+msgid "or"
 msgstr ""
 
 msgid "Or 'Esc' to cancel"
@@ -101,6 +122,21 @@ msgid "Page 3"
 msgstr ""
 
 msgid "Press a key\nOr Mouse button!"
+msgstr ""
+
+msgid "Press a Key!"
+msgstr ""
+
+msgid "Press a Key\nOr Mouse button!"
+msgstr ""
+
+msgid "Press a Mouse button!"
+msgstr ""
+
+msgid "Press any key except\n{0}"
+msgstr ""
+
+msgid "Press one of the keys\n{0}"
 msgstr ""
 
 msgid "Quit"
@@ -146,6 +182,9 @@ msgid "Test Requester"
 msgstr ""
 
 msgid "Test Scene"
+msgstr ""
+
+msgid "TestKey"
 msgstr ""
 
 msgid "Text...	"

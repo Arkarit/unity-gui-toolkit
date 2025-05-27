@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -20,17 +21,46 @@ namespace GuiToolkit
 	/// <summary>
 	/// Additional options for player settings.
 	/// Used to keep PlayerSetting ctor small and clear.
+	/// Also, we keep all options for all PlayerSetting flavors in one simple class without hierarchy to keep things simple
 	/// </summary>
-	[Serializable]
 	public class PlayerSettingOptions
 	{
-		public EPlayerSettingType Type = EPlayerSettingType.Auto;	//!< Player setting type. Usually left default (Auto: automatically determined)
-		public string Key = null;									//!< Key. If left null or empty, player setting title is used as key.
-		public List<string> Icons;									//!< List of icons to be used, depending on player setting type
-		public List<string> Titles;									//!< Titles for UI display(optional, else string values are also used as titles)
-		public List<string> StringValues;							//!< String values for string based PlayerSettingOptions
-		public bool IsLocalized = true;								//!< Should usually be set to true; only set to false if you want to display languages (see TestMain language setting)
-		public UnityAction<PlayerSetting> OnChanged = null;			//!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
+		public static readonly List<KeyCode> KeyCodeNoMouseList =		//!< Convenient filter list for all mouse keys forbidden or only mouse keys allowed, depending on KeyCodeFilterListIsWhitelist
+			new ()
+			{
+				KeyCode.Mouse0, 
+				KeyCode.Mouse1,
+				KeyCode.Mouse2,
+				KeyCode.Mouse3,
+				KeyCode.Mouse4,
+				KeyCode.Mouse5,
+				KeyCode.Mouse6,
+				KeyCode.WheelDown,
+				KeyCode.WheelUp,
+			};
+		
+		public EPlayerSettingType Type = EPlayerSettingType.Auto;			//!< Player setting type. Usually left default (Auto: automatically determined)
+		public string Key = null;											//!< Key. If left null or empty, player setting title is used as key.
+		public List<string> Icons;											//!< List of icons to be used, depending on player setting type
+		public List<string> Titles;											//!< Titles for UI display(optional, else string values are also used as titles)
+		public List<string> StringValues;									//!< String values for string based PlayerSettingOptions
+		public List<KeyCode> KeyCodeFilterList;								//!< Filter list for keycodes
+		public bool KeyCodeFilterListIsWhitelist;							//!< Set to true if you want the filter list to be whitelist instead of blacklist
+		public bool IsLocalized = true;										//!< Should usually be set to true; only set to false if you want to display languages (see TestMain language setting)
+		public UnityAction<PlayerSetting> OnChanged = null;					//!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
+		
+		public static PlayerSettingOptions NoMouseKeys => 
+			new ()
+			{
+				KeyCodeFilterList = KeyCodeNoMouseList
+			};
+		
+		public static PlayerSettingOptions OnlyMouseKeys => 
+			new ()
+			{
+				KeyCodeFilterList = KeyCodeNoMouseList,
+				KeyCodeFilterListIsWhitelist = true,
+			};
 	}
 
 	[Serializable]

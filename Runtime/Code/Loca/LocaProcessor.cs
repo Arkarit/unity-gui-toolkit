@@ -66,7 +66,7 @@ namespace GuiToolkit
 			EditorUtility.DisplayProgressBar("Processing Loca", $"Processing script '{Path.GetFileName(_path)}'", progress);
 			m_currentScriptIdx++;
 
-			List<string> strings = ExtractAllStrings(_content);
+			List<string> strings = SeparateCodeAndStrings(_content);
 			//DebugDump(_path, strings);
 
 			int numStrings = strings.Count;
@@ -126,7 +126,9 @@ namespace GuiToolkit
 
 		// Separate all strings from other program code, remove all quotation marks and comments.
 		// Program code and string is always alternating.
-		private static List<string> ExtractAllStrings( string _content )
+		// FIXME: Interpolated strings are not detected in LocaProcessor
+		// https://github.com/Arkarit/unity-gui-toolkit/issues/6
+		private static List<string> SeparateCodeAndStrings( string _content )
 		{
 			List<string> result = new List<string>();
 

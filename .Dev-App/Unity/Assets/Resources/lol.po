@@ -10,10 +10,16 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.6\n"
 
 msgid "Ambient Occlusion"
 msgstr "Make teh cornerz dim"
+
+msgid "and"
+msgstr "and"
+
+msgid "Animation Speed"
+msgstr "Teh wiggly speedz"
 
 msgid "Are you really really sure you want to quit?"
 msgstr "Iz u reeeeeely sure u want to fuk of?"
@@ -21,8 +27,23 @@ msgstr "Iz u reeeeeely sure u want to fuk of?"
 msgid "Cancel"
 msgstr "No wai"
 
+msgid "Cancel LOREM IPSUM dolor sit amet bla"
+msgstr ""
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Date:"
+msgstr "Date:"
+
+msgid "Default"
+msgstr "Mek all like was "
+
 msgid "Details"
 msgstr "Deetailz plz?"
+
+msgid "Dialog Stub"
+msgstr "Dialog Stub"
 
 msgid "Effect Volume"
 msgstr "Teh noize when prez buttonz"
@@ -45,11 +66,17 @@ msgstr "her u can plai some for teh capabiliTIez for teh gUI tolkit plZ?"
 msgid "High"
 msgstr "Hai"
 
+msgid "Key '{0}' not supported"
+msgstr "Nah! Teh key '{0}' pooh!"
+
 msgid "Key Bindings"
 msgstr "Tap teh kei plz!"
 
 msgid "Language"
 msgstr "Teh meeowz"
+
+msgid "Light"
+msgstr "Lite"
 
 msgid "Low"
 msgstr "Meh"
@@ -75,8 +102,23 @@ msgstr "Teh noize when Lala"
 msgid "No"
 msgstr "No wai"
 
+msgid "No Mouse Keys"
+msgstr "No Mouse plz!"
+
 msgid "Ok"
 msgstr "Ya rly"
+
+msgid "Only Mouse Keys"
+msgstr "Only mouse plz!"
+
+msgid "Only specified Keys allowed"
+msgstr "Only some of da key"
+
+msgid "Only specified Keys forbidden"
+msgstr "Not some of da key"
+
+msgid "or"
+msgstr "or"
 
 msgid "Or 'Esc' to cancel"
 msgstr "Or prez 'Esc' to "
@@ -100,6 +142,33 @@ msgstr ""
 "Prez a kei\n"
 "or squeeeeze a mouze!"
 
+msgid "Press a Key!"
+msgstr "Prez a kei!"
+
+#, fuzzy
+#| msgid ""
+#| "Press a key\n"
+#| "Or Mouse button!"
+msgid ""
+"Press a Key\n"
+"Or Mouse button!"
+msgstr ""
+"Prez a kei\n"
+"or squeeeeze a mouze!"
+
+msgid "Press a Mouse button!"
+msgstr "Squeeeze a mouze!"
+
+msgid ""
+"Press any key except\n"
+"{0}"
+msgstr ""
+
+msgid ""
+"Press one of the keys\n"
+"{0}"
+msgstr ""
+
 msgid "Quit"
 msgstr "Kthxbye"
 
@@ -121,8 +190,14 @@ msgstr "Can haz Requezter?"
 msgid "Show Splash Message"
 msgstr "Can haz Splasssh!"
 
+msgid "Some keys remain unbound. Really continue?"
+msgstr ""
+
 msgid "Sound"
 msgstr "Teh noize"
+
+msgid "Style Example"
+msgstr ""
 
 msgid "Tab Dialog Demo"
 msgstr "Teh dialogz wizz tabz"
@@ -139,14 +214,32 @@ msgstr "Can haz Requezter?"
 msgid "Test Scene"
 msgstr "Teh Play szenez"
 
-msgid "Text..."
+#, fuzzy
+#| msgid "Test Loca Key 1"
+msgid "TestKey"
+msgstr "Test Loca Key 1"
+
+#, fuzzy
+#| msgid "Text..."
+msgid "Text...\t"
 msgstr "Can haz text?"
 
-msgid "Title..."
+msgid "Time:"
+msgstr ""
+
+#, fuzzy
+#| msgid "Title..."
+msgid "Title...\t"
 msgstr "Can haz titleh?"
+
+msgid "UI Skin"
+msgstr ""
 
 msgid "Ultra"
 msgstr "Awsum"
+
+msgid "Unbound Keys"
+msgstr ""
 
 msgid "Yes"
 msgstr "Ya rly!"

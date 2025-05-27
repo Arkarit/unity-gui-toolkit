@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -167,7 +168,7 @@ namespace GuiToolkit
 				if (string.IsNullOrEmpty(result))
 					result = DebugLoca ? $"#{_s}" : _s;
 
-				return result;
+				return Regex.Unescape(result);
 			}
 
 			if (DebugLoca)
