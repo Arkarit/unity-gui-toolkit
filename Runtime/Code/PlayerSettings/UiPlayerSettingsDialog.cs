@@ -18,6 +18,7 @@ namespace GuiToolkit
 		[SerializeField] protected UiPlayerSettingSlider m_sliderPrefab;
 		[SerializeField] protected UiPlayerSettingToggle m_togglePrefab;
 		[SerializeField] protected UiPlayerSettingRadio m_radioPrefab;
+		[SerializeField] protected UiPlayerSettingButton m_buttonPrefab;
 
 		protected PlayerSettings m_playerSettings;
 		protected readonly Dictionary<string,List<UiPlayerSettingBase>> m_uiPlayerSettings = new Dictionary<string, List<UiPlayerSettingBase>>();
@@ -112,11 +113,12 @@ namespace GuiToolkit
 			}
 
 			// After all player setting elements have been added, invoke a OnPlayerSettingChanged for each element
-			// to have a defined state.
+			// to have a defined state, except for buttons, which haven't got a state/value
 			foreach (var kv in m_uiPlayerSettings)
 			{
 				foreach (UiPlayerSettingBase uiPlayerSetting in kv.Value)
-					uiPlayerSetting.PlayerSetting.InvokeEvents();
+					if (!uiPlayerSetting.PlayerSetting.IsButton)
+						uiPlayerSetting.PlayerSetting.InvokeEvents();
 			}
 		}
 
@@ -133,11 +135,13 @@ namespace GuiToolkit
 				}
 			}
 			else if (_playerSetting.IsFloat)
-				InstantiateMatchingEntry(_playerSetting, m_sliderPrefab, _parent, _toggleGroup, "PlayerSettingSlider_");
+				InstantiateMatchingEntry(_playerSetting, m_sliderPrefab, _parent, null, "PlayerSettingSlider_");
 			else if (_playerSetting.IsBool)
-				InstantiateMatchingEntry(_playerSetting, m_togglePrefab, _parent, _toggleGroup, "PlayerSettingCheck_");
+				InstantiateMatchingEntry(_playerSetting, m_togglePrefab, _parent, null, "PlayerSettingCheck_");
 			else if (_playerSetting.IsKeyCode)
-				InstantiateMatchingEntry(_playerSetting, m_keyBindingsPrefab, _parent, _toggleGroup, "PlayerSettingKeyBinding_");
+				InstantiateMatchingEntry(_playerSetting, m_keyBindingsPrefab, _parent, null, "PlayerSettingKeyBinding_");
+			else if (_playerSetting.IsButton)
+				InstantiateMatchingEntry(_playerSetting, m_buttonPrefab, _parent, null, "PlayerSettingButton_");
 			else
 				Debug.LogError("Unknown player setting type");
 		}

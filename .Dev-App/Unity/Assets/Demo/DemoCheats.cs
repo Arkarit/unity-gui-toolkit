@@ -22,6 +22,17 @@ public static class DemoCheats
 					}
 				}
 			),
+			new
+			(
+				"Cheats", "Example", "Button", null,
+				new PlayerSettingOptions
+				{
+					OnChanged = _ =>
+					{
+						Debug.Log($"Button clicked");
+					}
+				}
+			),
 		});
 	}
 }

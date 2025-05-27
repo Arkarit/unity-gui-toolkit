@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace GuiToolkit
 {
@@ -23,6 +19,6 @@ namespace GuiToolkit
 			base.OnDisable();
 		}
 
-		protected virtual void OnClick(){}
+		protected virtual void OnClick() => PlayerSetting.InvokeEvents();
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -26,18 +27,18 @@ namespace GuiToolkit
 	public class PlayerSettingOptions
 	{
 		public static readonly List<KeyCode> KeyCodeNoMouseList =		//!< Convenient filter list for all mouse keys forbidden or only mouse keys allowed, depending on KeyCodeFilterListIsWhitelist
-			new ()
-			{
-				KeyCode.Mouse0, 
-				KeyCode.Mouse1,
-				KeyCode.Mouse2,
-				KeyCode.Mouse3,
-				KeyCode.Mouse4,
-				KeyCode.Mouse5,
-				KeyCode.Mouse6,
-				KeyCode.WheelDown,
-				KeyCode.WheelUp,
-			};
+		new ()
+		{
+			KeyCode.Mouse0, 
+			KeyCode.Mouse1,
+			KeyCode.Mouse2,
+			KeyCode.Mouse3,
+			KeyCode.Mouse4,
+			KeyCode.Mouse5,
+			KeyCode.Mouse6,
+			KeyCode.WheelDown,
+			KeyCode.WheelUp,
+		};
 		
 		public EPlayerSettingType Type = EPlayerSettingType.Auto;			//!< Player setting type. Usually left default (Auto: automatically determined)
 		public string Key = null;											//!< Key. If left null or empty, player setting title is used as key.
@@ -48,7 +49,7 @@ namespace GuiToolkit
 		public bool KeyCodeFilterListIsWhitelist;							//!< Set to true if you want the filter list to be whitelist instead of blacklist
 		public bool IsLocalized = true;										//!< Should usually be set to true; only set to false if you want to display languages (see TestMain language setting)
 		public UnityAction<PlayerSetting> OnChanged = null;					//!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
-		public bool IsSaved = true;											//!< Is the option saved in player prefs? Obviously usually true, but can be set to false for cheats etc.
+		public bool IsSaveable = true;											//!< Is the option saved in player prefs? Obviously usually true, but can be set to false for cheats etc.
 		
 		public static PlayerSettingOptions NoMouseKeys => 
 			new ()
@@ -99,7 +100,7 @@ namespace GuiToolkit
 			get => GetValue(ref m_value);
 			set
 			{
-				CheckType(value.GetType());
+				CheckType(value?.GetType());
 				m_value = value;
 				SaveValue();
 				InvokeEvents();
@@ -115,15 +116,15 @@ namespace GuiToolkit
 		public bool IsFloat => m_type == typeof(float);
 		public bool IsBool => m_type == typeof(bool);
 		public bool IsString => m_type == typeof(string);
+		public bool IsButton => m_type == null;
 		public bool HasIcons => m_icons != null;
 		public List<string> Icons => m_icons;
 		public bool IsLocalized => m_isLocalized;
 
 		public PlayerSetting( string _category, string _group, string _title, object _defaultValue, PlayerSettingOptions _options = null )
 		{
-			m_options = _options != null ? _options : new PlayerSettingOptions();
-
-			Type type = _defaultValue.GetType();
+			m_options = _options ?? new PlayerSettingOptions();
+			Type type = _defaultValue?.GetType();
 			m_category = _category;
 			m_group = _group;
 			m_isRadio = m_options.Type == EPlayerSettingType.Radio || m_options.Type == EPlayerSettingType.Language;
@@ -172,8 +173,7 @@ namespace GuiToolkit
 				return;
 
 			UiEventDefinitions.EvPlayerSettingChanged.Invoke(this);
-			if (m_options != null)
-				m_options.OnChanged?.Invoke(this);
+			m_options.OnChanged?.Invoke(this);
 		}
 
 		private T GetValue<T>(ref object _v)
@@ -188,6 +188,8 @@ namespace GuiToolkit
 
 		private object GetValue(ref object _v)
 		{
+			if (m_type == null)
+				return null;
 			if (m_type == typeof(bool))
 				return Convert.ToBoolean(_v);
 			if (m_type.IsEnum)
@@ -197,7 +199,7 @@ namespace GuiToolkit
 
 		private void SaveValue()
 		{
-			if (!Options.IsSaved)
+			if (!Options.IsSaveable || IsButton)
 				return;
 			
 			PlayerSettings.Log(this, "Applying");
@@ -225,23 +227,26 @@ namespace GuiToolkit
 		private static int InitValue(PlayerSettingOptions _options, string _key, int _defaultValue) 
 		{ 
 			var deflt = Convert.ToInt32(_defaultValue);
-			return _options.IsSaved ? PlayerPrefs.GetInt(_key, deflt) : deflt;
+			return _options.IsSaveable ? PlayerPrefs.GetInt(_key, deflt) : deflt;
 		}
 		
 		private static float InitValue(PlayerSettingOptions _options, string _key, float _defaultValue) 
 		{ 
 			var deflt = Convert.ToSingle(_defaultValue);
-			return _options.IsSaved ? PlayerPrefs.GetFloat(_key, deflt) : deflt;
+			return _options.IsSaveable ? PlayerPrefs.GetFloat(_key, deflt) : deflt;
 		}
 		
 		private static string InitValue(PlayerSettingOptions _options, string _key, string _defaultValue) 
 		{ 
 			var deflt = Convert.ToString(_defaultValue);
-			return _options.IsSaved ? PlayerPrefs.GetString(_key, deflt) : deflt;
+			return _options.IsSaveable ? PlayerPrefs.GetString(_key, deflt) : deflt;
 		}
 		
 		private void InitValue(Type _type)
 		{
+			if (_type == null)
+				return;
+			
 			if (_type == typeof(int) || _type == typeof(bool) || _type.IsEnum)
 				m_value = InitValue(Options, Key, Convert.ToInt32(DefaultValue));
 			else if (_type == typeof(float))

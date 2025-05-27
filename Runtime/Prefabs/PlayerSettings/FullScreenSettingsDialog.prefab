@@ -1390,6 +1390,8 @@ MonoBehaviour:
     type: 3}
   m_radioPrefab: {fileID: 2345699468765808628, guid: dffc64cfb8c59a8459afe98bfcb33b78,
     type: 3}
+  m_buttonPrefab: {fileID: 4673650707758546394, guid: 67b50759f67bed34580a606fef654e50,
+    type: 3}
 --- !u!1 &2181491294104774132 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2527186978360673278, guid: 0f6119b246c780b4195ff06650f0d15e,
