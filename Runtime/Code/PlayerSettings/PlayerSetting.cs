@@ -48,6 +48,7 @@ namespace GuiToolkit
 		public bool KeyCodeFilterListIsWhitelist;							//!< Set to true if you want the filter list to be whitelist instead of blacklist
 		public bool IsLocalized = true;										//!< Should usually be set to true; only set to false if you want to display languages (see TestMain language setting)
 		public UnityAction<PlayerSetting> OnChanged = null;					//!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
+		public bool IsSaved = true;											//!< Is the option saved in player prefs? Obviously usually true, but can be set to false for cheats etc.
 		
 		public static PlayerSettingOptions NoMouseKeys => 
 			new ()
@@ -100,7 +101,7 @@ namespace GuiToolkit
 			{
 				CheckType(value.GetType());
 				m_value = value;
-				Apply();
+				SaveValue();
 				InvokeEvents();
 			}
 		}
@@ -134,14 +135,7 @@ namespace GuiToolkit
 			m_type = type;
 			m_isLocalized = m_options.IsLocalized;
 
-			if (type == typeof(int) || type == typeof(bool) || type.IsEnum)
-				m_value = PlayerPrefs.GetInt(Key, Convert.ToInt32(DefaultValue));
-			else if (type == typeof(float))
-				m_value = PlayerPrefs.GetFloat(Key, Convert.ToSingle(DefaultValue));
-			else if (type == typeof(string))
-				m_value = PlayerPrefs.GetString(Key, Convert.ToString(DefaultValue));
-			else
-				Debug.LogError($"Unknown type for player setting '{Key}': {type.Name}");
+			InitValue(type);
 
 			if (IsLanguage)
 				UiEventDefinitions.EvLanguageChanged.AddListener(OnLanguageChanged);
@@ -167,7 +161,7 @@ namespace GuiToolkit
 		public void TempRestoreValue()
 		{
 			m_value = m_savedValue;
-			Apply();
+			SaveValue();
 			if (m_options.Type == EPlayerSettingType.Language)
 				LocaManager.Instance.ChangeLanguage((string) m_value);
 		}
@@ -201,8 +195,11 @@ namespace GuiToolkit
 			return _v;
 		}
 
-		private void Apply()
+		private void SaveValue()
 		{
+			if (!Options.IsSaved)
+				return;
+			
 			PlayerSettings.Log(this, "Applying");
 			if (m_type == typeof(int) || m_type == typeof(bool) || m_type.IsEnum)
 				PlayerPrefs.SetInt(Key, Convert.ToInt32(m_value));
@@ -224,5 +221,36 @@ namespace GuiToolkit
 		{
 			Value = _language;
 		}
+		
+		private static int InitValue(PlayerSettingOptions _options, string _key, int _defaultValue) 
+		{ 
+			var deflt = Convert.ToInt32(_defaultValue);
+			return _options.IsSaved ? PlayerPrefs.GetInt(_key, deflt) : deflt;
+		}
+		
+		private static float InitValue(PlayerSettingOptions _options, string _key, float _defaultValue) 
+		{ 
+			var deflt = Convert.ToSingle(_defaultValue);
+			return _options.IsSaved ? PlayerPrefs.GetFloat(_key, deflt) : deflt;
+		}
+		
+		private static string InitValue(PlayerSettingOptions _options, string _key, string _defaultValue) 
+		{ 
+			var deflt = Convert.ToString(_defaultValue);
+			return _options.IsSaved ? PlayerPrefs.GetString(_key, deflt) : deflt;
+		}
+		
+		private void InitValue(Type _type)
+		{
+			if (_type == typeof(int) || _type == typeof(bool) || _type.IsEnum)
+				m_value = InitValue(Options, Key, Convert.ToInt32(DefaultValue));
+			else if (_type == typeof(float))
+				m_value = InitValue(Options, Key, Convert.ToSingle(DefaultValue));
+			else if (_type == typeof(string))
+				m_value = InitValue(Options, Key, Convert.ToString(DefaultValue));
+			else
+				Debug.LogError($"Unknown type for player setting '{Key}': {_type.Name}");
+		}
+		
 	}
 }
