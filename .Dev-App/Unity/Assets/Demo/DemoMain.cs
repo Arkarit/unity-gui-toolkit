@@ -4,7 +4,7 @@ using System.Linq;
 using GuiToolkit.Style;
 using UnityEngine;
 
-public class TestMain : LocaMonoBehaviour
+public class DemoMain : LocaMonoBehaviour
 {
 	protected const string KeyUiSkin = "UiSkin";
 	
