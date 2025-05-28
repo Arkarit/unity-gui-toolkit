@@ -54,10 +54,6 @@ namespace GuiToolkit
 		[Tooltip("Objects tagged with these tags are hidden when a fullscreen dialog is open. This is especially useful for main cameras. Note that the AdditionalTags component is NOT supported.")]
 		[SerializeField] protected TagField[] m_tagsToDisableWhenFullScreenView;
 
-[PathField(isFolder:true, relativeToPath:".")]
-public PathField TestFolderField;
-[PathField(isFolder:false)]
-public PathField TestFileField;
 		private readonly Dictionary<UiView,bool> m_savedVisibilities = new ();
 		private readonly List<GameObject> m_hiddenTaggedGameObjects = new ();
 		private readonly Dictionary<string, UiView> m_scenes = new();

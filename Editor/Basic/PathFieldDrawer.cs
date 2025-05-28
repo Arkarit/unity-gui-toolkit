@@ -10,8 +10,6 @@ namespace GuiToolkit.Editor
 		public override void OnGUI( Rect _rect, SerializedProperty _property, GUIContent _label )
 		{
 			var pathProp = _property.FindPropertyRelative("Path");
-			var thisPathField = (PathField) _property.boxedValue;
-
 			bool hasAttribute = _property.TryGetCustomAttribute(out PathFieldAttribute attribute);
 
 			bool isFolder = !hasAttribute || attribute.IsFolder;

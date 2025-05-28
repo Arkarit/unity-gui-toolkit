@@ -1476,12 +1476,12 @@ PrefabInstance:
     - target: {fileID: 3092512928491751583, guid: 86f601248f4e488478ddc915abbabf70,
         type: 3}
       propertyPath: TestFileField.Path
-      value: ..\Tools\Doxygen\doxygen.exe
+      value: C:/_Programming/unity-gui-toolkit/.Dev-App/Tools/Doxygen/doxygen.exe
       objectReference: {fileID: 0}
     - target: {fileID: 3092512928491751583, guid: 86f601248f4e488478ddc915abbabf70,
         type: 3}
       propertyPath: TestFolderField.Path
-      value: ..\Tools\Doxygen
+      value: ..\..\Documentation~\Code
       objectReference: {fileID: 0}
     - target: {fileID: 3092512928491751583, guid: 86f601248f4e488478ddc915abbabf70,
         type: 3}

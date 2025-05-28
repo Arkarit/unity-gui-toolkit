@@ -10,6 +10,8 @@ namespace GuiToolkit
 
 	public static class EditorFileUtility
 	{
+		private const float PathFieldButtonWidth = 30;
+
 		public static string GetApplicationDataDir( bool _withAssetsFolder = false )
 		{
 			string result = Application.dataPath;
@@ -181,7 +183,6 @@ namespace GuiToolkit
 			return result;
 		}
 		
-		private const float PathFieldButtonWidth = 50;
 		private static string PathField(Rect _rect, string _label, string _path, Func<string> _callback)
 		{
 			Rect labelRect = new Rect(_rect.x, _rect.y, EditorGUIUtility.labelWidth, _rect.height);
