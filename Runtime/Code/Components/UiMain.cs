@@ -50,15 +50,9 @@ namespace GuiToolkit
 		[SerializeField] private AnimationCurve m_stackMovedInCurve;
 		[SerializeField] private AnimationCurve m_stackPushedOutCurve;
 		
-		// Note: this is awkwardly stored in 3 separate members instead of a more flexible array
-		// to be able to use the editor tag field in inspector
-		[HideInInspector]		
-		public string TagToDisableWhenFullScreenView1;
-		[HideInInspector]		
-		public string TagToDisableWhenFullScreenView2;
-		[HideInInspector]		
-		public string TagToDisableWhenFullScreenView3;
-		protected readonly string[] m_tagsToDisableWhenFullScreenView = new string[3];
+		[Header("Full Screen Dialogs")]
+		[Tooltip("Objects tagged with these tags are hidden when a fullscreen dialog is open. This is especially useful for main cameras. Note that the AdditionalTags component is NOT supported.")]
+		[SerializeField] protected TagField[] m_tagsToDisableWhenFullScreenView;
 
 		private readonly Dictionary<UiView,bool> m_savedVisibilities = new ();
 		private readonly List<GameObject> m_hiddenTaggedGameObjects = new ();
@@ -543,20 +537,11 @@ namespace GuiToolkit
 		protected virtual void Awake()
 		{
 			InitGetters();
-			UpdateTagsToDisableArray();
-
+			
 			if (Application.isPlaying)
 				DontDestroyOnLoad(gameObject);
 			
 			IsAwake = true;
-		}
-
-		[Conditional("UNITY_EDITOR")]
-		public void UpdateTagsToDisableArray()
-		{
-			m_tagsToDisableWhenFullScreenView[0] = TagToDisableWhenFullScreenView1;
-			m_tagsToDisableWhenFullScreenView[1] = TagToDisableWhenFullScreenView2;
-			m_tagsToDisableWhenFullScreenView[2] = TagToDisableWhenFullScreenView3;
 		}
 
 		protected virtual void OnDestroy()
