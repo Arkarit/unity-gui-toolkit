@@ -444,7 +444,8 @@ namespace GuiToolkit
 			}
 
 			foreach (var go in m_hiddenTaggedGameObjects)
-				go.SetActive(true);
+				if (go)
+					go.SetActive(true);
 		}
 
 		public void SortViews()
