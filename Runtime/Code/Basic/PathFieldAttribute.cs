@@ -6,12 +6,12 @@ namespace GuiToolkit
 	public class PathFieldAttribute : Attribute
 	{
 		public bool IsFolder;
-		public bool IsRelativeIfPossible;
+		public string RelativeToPath;
 		
-		public PathFieldAttribute(bool _isFolder, bool _isRelativeIfPossible = true)
+		public PathFieldAttribute(bool isFolder, string relativeToPath = null)
 		{
-			IsFolder = _isFolder;
-			IsRelativeIfPossible = _isRelativeIfPossible;
+			IsFolder = isFolder;
+			RelativeToPath = relativeToPath;
 		}
 	}
 }

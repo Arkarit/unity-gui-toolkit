@@ -15,14 +15,14 @@ namespace GuiToolkit.Editor
 			bool hasAttribute = _property.TryGetCustomAttribute(out PathFieldAttribute attribute);
 
 			bool isFolder = !hasAttribute || attribute.IsFolder;
-			bool isRelativeIfPossible = !hasAttribute || attribute.IsRelativeIfPossible;
+			string relativePath = hasAttribute ? attribute.RelativeToPath : null;
 			
 			var path = isFolder ?
 				EditorFileUtility.PathFieldReadFolder(_rect, ObjectNames.NicifyVariableName(_property.name), pathProp.stringValue):
 				EditorFileUtility.PathFieldReadFile(_rect, ObjectNames.NicifyVariableName(_property.name), pathProp.stringValue);
 			
-			if (isRelativeIfPossible && !string.IsNullOrEmpty(path))
-				path = Path.GetRelativePath(".", path);
+			if (!string.IsNullOrEmpty(relativePath) && !string.IsNullOrEmpty(path))
+				path = Path.GetRelativePath(relativePath, path);
 			
 			pathProp.stringValue = path;
 		}
