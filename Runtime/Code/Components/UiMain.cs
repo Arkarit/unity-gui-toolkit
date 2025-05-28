@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using TMPro;
 using UnityEngine.Serialization;
+using Debug = UnityEngine.Debug;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -48,21 +50,22 @@ namespace GuiToolkit
 		[SerializeField] private AnimationCurve m_stackMovedInCurve;
 		[SerializeField] private AnimationCurve m_stackPushedOutCurve;
 		
-		[Header("View properties")]
-		[SerializeField] protected Camera[] m_camerasToDisableWhenFullScreenView;
+		[Header("Full Screen Dialogs")]
+		[Tooltip("Objects tagged with these tags are hidden when a fullscreen dialog is open. This is especially useful for main cameras. Note that the AdditionalTags component is NOT supported.")]
+		[SerializeField] protected TagField[] m_tagsToDisableWhenFullScreenView;
 
-		private readonly Dictionary<UiView,bool> m_savedVisibilities = new Dictionary<UiView,bool>();
-		private readonly Dictionary<Camera,bool> m_savedCameraActivenesses = new Dictionary<Camera,bool>();
+		private readonly Dictionary<UiView,bool> m_savedVisibilities = new ();
+		private readonly List<GameObject> m_hiddenTaggedGameObjects = new ();
 		private readonly Dictionary<string, UiView> m_scenes = new();
 		private readonly Stack<UiView> m_stack = new();
 		private static UiMain s_instance;
 		private UiPlayerSettingsDialog m_playerSettingsDialog;
 		static EScreenOrientation s_screenOrientation = EScreenOrientation.Invalid;
 		
-		private readonly List<IExcludeFromFrustumCulling> m_excludedFromFrustumCulling = new List<IExcludeFromFrustumCulling>();
-		private readonly List<Bounds> m_excludedBounds = new List<Bounds>();
+		private readonly List<IExcludeFromFrustumCulling> m_excludedFromFrustumCulling = new ();
+		private readonly List<Bounds> m_excludedBounds = new ();
 		private const float LARGE_NUMBER = 999999999.0f;
-		private static readonly Bounds LARGE_BOUNDS = new Bounds(Vector3.zero, new Vector3(LARGE_NUMBER, LARGE_NUMBER, LARGE_NUMBER) );
+		private static readonly Bounds LARGE_BOUNDS = new (Vector3.zero, new Vector3(LARGE_NUMBER, LARGE_NUMBER, LARGE_NUMBER) );
 		private bool m_isAwake;
 		
 #if UNITY_EDITOR
@@ -388,25 +391,12 @@ namespace GuiToolkit
 			if (set)
 			{
 				m_savedVisibilities.Clear();
-				m_savedCameraActivenesses.Clear();
+				m_hiddenTaggedGameObjects.Clear();
 			}
 			else if (m_savedVisibilities.Count == 0)
 				return;
 
-			for (int i=0; i<m_camerasToDisableWhenFullScreenView.Length; i++)
-			{
-				Camera camera = m_camerasToDisableWhenFullScreenView[i];
-
-				if (set)
-				{
-					m_savedCameraActivenesses.Add(camera, camera.enabled);
-					camera.enabled = false;
-					continue;
-				}
-
-				if (m_savedCameraActivenesses.TryGetValue(camera, out bool isActive))
-					camera.enabled = isActive;
-			}
+			SetActivenessForTagged(set);
 
 			for (int i = 0; i < transform.childCount; i++)
 			{
@@ -430,6 +420,31 @@ namespace GuiToolkit
 				if (m_savedVisibilities.TryGetValue(view, out bool isActive))
 					view.gameObject.SetActive(isActive);
 			}
+		}
+
+		private void SetActivenessForTagged(bool _active)
+		{
+			if (_active)
+			{
+				for (int i = 0; i < m_tagsToDisableWhenFullScreenView.Length; i++)
+				{
+					string tag = m_tagsToDisableWhenFullScreenView[i];
+					if (string.IsNullOrEmpty(tag))
+						continue;
+	
+					var gameObjects = GameObject.FindGameObjectsWithTag(tag);
+					foreach (var go in gameObjects)
+					{
+						go.SetActive(false);
+						m_hiddenTaggedGameObjects.Add(go);
+					}
+				}
+				
+				return;
+			}
+
+			foreach (var go in m_hiddenTaggedGameObjects)
+				go.SetActive(true);
 		}
 
 		public void SortViews()
@@ -522,7 +537,7 @@ namespace GuiToolkit
 		protected virtual void Awake()
 		{
 			InitGetters();
-
+			
 			if (Application.isPlaying)
 				DontDestroyOnLoad(gameObject);
 			
