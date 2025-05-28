@@ -416,6 +416,21 @@ namespace GuiToolkit
 		public static void ForeachProperty(Object _object, Action<SerializedProperty> _action) => ForeachProperty(new SerializedObject(_object), _action);
 		public static void ForeachPropertyHierarchical(Object _object, Action<SerializedProperty> _action) => ForeachPropertyHierarchical(new SerializedObject(_object), _action);
 
+		public static bool TryGetCustomAttribute<TA>(this SerializedProperty _property, out TA _value) where TA : Attribute
+		{
+			_value = default;
+			var obj = _property.serializedObject.targetObject;
+			if (obj == null)
+				return false;
+
+			FieldInfo field = obj.GetType().GetField(_property.name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+			if (field == null) 
+				return false;
+
+			_value = field.GetCustomAttribute<TA>();
+			return _value != null;
+		}
+
 		public static GameObject FindMatchingChildInPrefab(GameObject prefab, GameObject partOfPrefab)
 		{
 			var partOfPrefabPath = partOfPrefab.GetPath();

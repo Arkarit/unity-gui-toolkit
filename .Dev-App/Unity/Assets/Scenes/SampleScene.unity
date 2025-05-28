@@ -1475,6 +1475,16 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3092512928491751583, guid: 86f601248f4e488478ddc915abbabf70,
         type: 3}
+      propertyPath: TestFileField.Path
+      value: C:/_Programming/unity-gui-toolkit/.Dev-App/Tools/Doxygen/doxygen.exe
+      objectReference: {fileID: 0}
+    - target: {fileID: 3092512928491751583, guid: 86f601248f4e488478ddc915abbabf70,
+        type: 3}
+      propertyPath: TestFolderField.Path
+      value: ..\..\Documentation~\Code
+      objectReference: {fileID: 0}
+    - target: {fileID: 3092512928491751583, guid: 86f601248f4e488478ddc915abbabf70,
+        type: 3}
       propertyPath: m_tagsToDisableWhenFullScreenView.Array.size
       value: 2
       objectReference: {fileID: 0}
