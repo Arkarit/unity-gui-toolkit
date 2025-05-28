@@ -33,7 +33,17 @@ namespace GuiToolkit.Editor
 		public override void OnInspectorGUI()
 		{
 			DrawDefaultInspector();
-
+			var thisUiMain = (UiMain)target;
+			EditorGUILayout.Space();
+			EditorGUILayout.LabelField("Tags to disable when full screen dialog is open", EditorStyles.boldLabel);
+			thisUiMain.TagToDisableWhenFullScreenView1 = EditorGUILayout.TagField("Tag 1", thisUiMain.TagToDisableWhenFullScreenView1);
+			thisUiMain.TagToDisableWhenFullScreenView2 = EditorGUILayout.TagField("Tag 2", thisUiMain.TagToDisableWhenFullScreenView2);
+			thisUiMain.TagToDisableWhenFullScreenView3 = EditorGUILayout.TagField("Tag 3", thisUiMain.TagToDisableWhenFullScreenView3);
+			thisUiMain.UpdateTagsToDisableArray();
+			serializedObject.Update();
+			
+			EditorGUILayout.Space();
+			EditorGUILayout.LabelField("Prefabs", EditorStyles.boldLabel);
 			if (IsAnyPrefabCloned())
 			{
 				m_clonePath = EditorFileUtility.PathFieldReadFolder("Prefab Path", m_clonePath);

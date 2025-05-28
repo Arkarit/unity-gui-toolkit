@@ -206,7 +206,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_camerasToDisableWhenFullScreenView: []
+  TagToDisableWhenFullScreenView1: 
+  TagToDisableWhenFullScreenView2: 
+  TagToDisableWhenFullScreenView3: 
 --- !u!114 &2972006465301249288
 MonoBehaviour:
   m_ObjectHideFlags: 0
