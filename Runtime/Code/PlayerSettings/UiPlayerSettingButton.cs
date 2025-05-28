@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace GuiToolkit
 {
@@ -10,6 +6,22 @@ namespace GuiToolkit
 	{
 		[SerializeField]
 		protected UiButton m_button;
+
+		[SerializeField]
+		protected UiButton m_visualButton;
+
+		public override void SetData(string _gameObjectNamePrefix, PlayerSetting _playerSetting, string _subKey)
+		{
+			base.SetData(_gameObjectNamePrefix, _playerSetting, _subKey);
+			
+			if (PlayerSetting.Options.Titles != null)
+			{
+				if (PlayerSetting.Options.Titles.Count >= 1 && !string.IsNullOrEmpty(PlayerSetting.Options.Titles[0]))
+					Text = PlayerSetting.Options.Titles[0];
+				if (PlayerSetting.Options.Titles.Count >= 2 )
+					m_visualButton.Text = PlayerSetting.Options.Titles[1];
+			}
+		}
 
 		protected override void OnEnable()
 		{
@@ -23,6 +35,6 @@ namespace GuiToolkit
 			base.OnDisable();
 		}
 
-		protected virtual void OnClick(){}
+		protected virtual void OnClick() => PlayerSetting.InvokeEvents();
 	}
 }

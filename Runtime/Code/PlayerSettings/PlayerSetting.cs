@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -20,17 +22,48 @@ namespace GuiToolkit
 	/// <summary>
 	/// Additional options for player settings.
 	/// Used to keep PlayerSetting ctor small and clear.
+	/// Also, we keep all options for all PlayerSetting flavors in one simple class without hierarchy to keep things simple
 	/// </summary>
-	[Serializable]
 	public class PlayerSettingOptions
 	{
-		public EPlayerSettingType Type = EPlayerSettingType.Auto;	//!< Player setting type. Usually left default (Auto: automatically determined)
-		public string Key = null;									//!< Key. If left null or empty, player setting title is used as key.
-		public List<string> Icons;									//!< List of icons to be used, depending on player setting type
-		public List<string> Titles;									//!< Titles for UI display(optional, else string values are also used as titles)
-		public List<string> StringValues;							//!< String values for string based PlayerSettingOptions
-		public bool IsLocalized = true;								//!< Should usually be set to true; only set to false if you want to display languages (see TestMain language setting)
-		public UnityAction<PlayerSetting> OnChanged = null;			//!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
+		public static readonly List<KeyCode> KeyCodeNoMouseList =		//!< Convenient filter list for all mouse keys forbidden or only mouse keys allowed, depending on KeyCodeFilterListIsWhitelist
+		new ()
+		{
+			KeyCode.Mouse0, 
+			KeyCode.Mouse1,
+			KeyCode.Mouse2,
+			KeyCode.Mouse3,
+			KeyCode.Mouse4,
+			KeyCode.Mouse5,
+			KeyCode.Mouse6,
+			KeyCode.WheelDown,
+			KeyCode.WheelUp,
+		};
+		
+		public EPlayerSettingType Type = EPlayerSettingType.Auto;			//!< Player setting type. Usually left default (Auto: automatically determined)
+		public string Key = null;											//!< Key. If left null or empty, player setting title is used as key.
+		public List<string> Icons;											//!< List of icons to be used, depending on player setting type
+		public List<string> Titles;											//!< Titles for UI display(optional, else string values are also used as titles)
+		public List<string> StringValues;									//!< String values for string based PlayerSettingOptions
+		public List<KeyCode> KeyCodeFilterList;								//!< Filter list for keycodes
+		public bool KeyCodeFilterListIsWhitelist;							//!< Set to true if you want the filter list to be whitelist instead of blacklist
+		public bool IsLocalized = true;										//!< Should usually be set to true; only set to false if you want to display languages (see TestMain language setting)
+		public UnityAction<PlayerSetting> OnChanged = null;					//!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
+		public bool IsSaveable = true;										//!< Is the option saved in player prefs? Obviously usually true, but can be set to false for cheats etc.
+		public object CustomData = null;									//!< Optional custom data to hand over to your handler
+		
+		public static PlayerSettingOptions NoMouseKeys => 
+			new ()
+			{
+				KeyCodeFilterList = KeyCodeNoMouseList
+			};
+		
+		public static PlayerSettingOptions OnlyMouseKeys => 
+			new ()
+			{
+				KeyCodeFilterList = KeyCodeNoMouseList,
+				KeyCodeFilterListIsWhitelist = true,
+			};
 	}
 
 	[Serializable]
@@ -68,9 +101,9 @@ namespace GuiToolkit
 			get => GetValue(ref m_value);
 			set
 			{
-				CheckType(value.GetType());
+				CheckType(value?.GetType());
 				m_value = value;
-				Apply();
+				SaveValue();
 				InvokeEvents();
 			}
 		}
@@ -84,15 +117,15 @@ namespace GuiToolkit
 		public bool IsFloat => m_type == typeof(float);
 		public bool IsBool => m_type == typeof(bool);
 		public bool IsString => m_type == typeof(string);
+		public bool IsButton => m_type == null;
 		public bool HasIcons => m_icons != null;
 		public List<string> Icons => m_icons;
 		public bool IsLocalized => m_isLocalized;
 
 		public PlayerSetting( string _category, string _group, string _title, object _defaultValue, PlayerSettingOptions _options = null )
 		{
-			m_options = _options != null ? _options : new PlayerSettingOptions();
-
-			Type type = _defaultValue.GetType();
+			m_options = _options ?? new PlayerSettingOptions();
+			Type type = _defaultValue?.GetType();
 			m_category = _category;
 			m_group = _group;
 			m_isRadio = m_options.Type == EPlayerSettingType.Radio || m_options.Type == EPlayerSettingType.Language;
@@ -104,14 +137,7 @@ namespace GuiToolkit
 			m_type = type;
 			m_isLocalized = m_options.IsLocalized;
 
-			if (type == typeof(int) || type == typeof(bool) || type.IsEnum)
-				m_value = PlayerPrefs.GetInt(Key, Convert.ToInt32(DefaultValue));
-			else if (type == typeof(float))
-				m_value = PlayerPrefs.GetFloat(Key, Convert.ToSingle(DefaultValue));
-			else if (type == typeof(string))
-				m_value = PlayerPrefs.GetString(Key, Convert.ToString(DefaultValue));
-			else
-				Debug.LogError($"Unknown type for player setting '{Key}': {type.Name}");
+			InitValue(type);
 
 			if (IsLanguage)
 				UiEventDefinitions.EvLanguageChanged.AddListener(OnLanguageChanged);
@@ -137,7 +163,7 @@ namespace GuiToolkit
 		public void TempRestoreValue()
 		{
 			m_value = m_savedValue;
-			Apply();
+			SaveValue();
 			if (m_options.Type == EPlayerSettingType.Language)
 				LocaManager.Instance.ChangeLanguage((string) m_value);
 		}
@@ -148,8 +174,7 @@ namespace GuiToolkit
 				return;
 
 			UiEventDefinitions.EvPlayerSettingChanged.Invoke(this);
-			if (m_options != null)
-				m_options.OnChanged?.Invoke(this);
+			m_options.OnChanged?.Invoke(this);
 		}
 
 		private T GetValue<T>(ref object _v)
@@ -164,6 +189,8 @@ namespace GuiToolkit
 
 		private object GetValue(ref object _v)
 		{
+			if (m_type == null)
+				return null;
 			if (m_type == typeof(bool))
 				return Convert.ToBoolean(_v);
 			if (m_type.IsEnum)
@@ -171,8 +198,11 @@ namespace GuiToolkit
 			return _v;
 		}
 
-		private void Apply()
+		private void SaveValue()
 		{
+			if (!Options.IsSaveable || IsButton)
+				return;
+			
 			PlayerSettings.Log(this, "Applying");
 			if (m_type == typeof(int) || m_type == typeof(bool) || m_type.IsEnum)
 				PlayerPrefs.SetInt(Key, Convert.ToInt32(m_value));
@@ -194,5 +224,39 @@ namespace GuiToolkit
 		{
 			Value = _language;
 		}
+		
+		private static int InitValue(PlayerSettingOptions _options, string _key, int _defaultValue) 
+		{ 
+			var deflt = Convert.ToInt32(_defaultValue);
+			return _options.IsSaveable ? PlayerPrefs.GetInt(_key, deflt) : deflt;
+		}
+		
+		private static float InitValue(PlayerSettingOptions _options, string _key, float _defaultValue) 
+		{ 
+			var deflt = Convert.ToSingle(_defaultValue);
+			return _options.IsSaveable ? PlayerPrefs.GetFloat(_key, deflt) : deflt;
+		}
+		
+		private static string InitValue(PlayerSettingOptions _options, string _key, string _defaultValue) 
+		{ 
+			var deflt = Convert.ToString(_defaultValue);
+			return _options.IsSaveable ? PlayerPrefs.GetString(_key, deflt) : deflt;
+		}
+		
+		private void InitValue(Type _type)
+		{
+			if (_type == null)
+				return;
+			
+			if (_type == typeof(int) || _type == typeof(bool) || _type.IsEnum)
+				m_value = InitValue(Options, Key, Convert.ToInt32(DefaultValue));
+			else if (_type == typeof(float))
+				m_value = InitValue(Options, Key, Convert.ToSingle(DefaultValue));
+			else if (_type == typeof(string))
+				m_value = InitValue(Options, Key, Convert.ToString(DefaultValue));
+			else
+				Debug.LogError($"Unknown type for player setting '{Key}': {_type.Name}");
+		}
+		
 	}
 }

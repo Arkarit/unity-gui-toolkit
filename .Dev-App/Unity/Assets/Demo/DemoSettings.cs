@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using GuiToolkit.Style;
 using UnityEngine;
 
-public class TestMain : LocaMonoBehaviour
+public static class DemoSettings
 {
-	protected const string KeyUiSkin = "UiSkin";
-	
-	protected void Start()
-	{
-		Application.targetFrameRate = 60;
+	private const string KeyUiSkin = "UiSkin";
 
-		GuiToolkit.PlayerSettings.Instance.Add( new List<PlayerSetting>
+	public static void Create()
+	{
+		PlayerSettings.Instance.Add( new List<PlayerSetting>
 		{
 			// Language
 			new PlayerSetting
@@ -76,22 +74,43 @@ public class TestMain : LocaMonoBehaviour
 				}
 			),
 
-
-			// Key bindings
+			// Key bindings, all keys allowed except Esc
+			new PlayerSetting(__("Key Bindings"), "", __("Move Up"), KeyCode.W),
 			new PlayerSetting(__("Key Bindings"), "", __("Move Left"), KeyCode.A),
 			new PlayerSetting(__("Key Bindings"), "", __("Move Right"), KeyCode.S),
-			new PlayerSetting(__("Key Bindings"), "", __("Move Up"), KeyCode.W),
-			new PlayerSetting(__("Key Bindings"), "", __("Move Down"), KeyCode.D)
+			new PlayerSetting(__("Key Bindings"), "", __("Move Down"), KeyCode.D),
+			// An example for forbidden mouse keys
+			new PlayerSetting(__("Key Bindings"), "", __("No Mouse Keys"), KeyCode.Space, PlayerSettingOptions.NoMouseKeys),
+			new PlayerSetting(__("Key Bindings"), "", __("Only Mouse Keys"), KeyCode.Mouse1, PlayerSettingOptions.OnlyMouseKeys),
+			// An example for specified keys
+			new PlayerSetting(__("Key Bindings"), "", __("Only specified Keys allowed"), KeyCode.E, new PlayerSettingOptions()
+			{
+				KeyCodeFilterList = new ()
+				{
+					KeyCode.E,
+					KeyCode.F,
+					KeyCode.G,
+					KeyCode.Mouse0
+				},
+				KeyCodeFilterListIsWhitelist = true
+			}),
+			new PlayerSetting(__("Key Bindings"), "", __("Only specified Keys forbidden"), KeyCode.Y, new PlayerSettingOptions()
+			{
+				KeyCodeFilterList = new ()
+				{
+					KeyCode.X,
+					KeyCode.Y,
+					KeyCode.Z,
+					KeyCode.Mouse1
+				}
+			}),
 		});
 
-		// Alternative way to listen to player settings changed:
-		UiEventDefinitions.EvPlayerSettingChanged.AddListener(OnPlayerSettingChanged);
-
-		UiMain.Instance.LoadScene("DemoScene1");
 	}
-
-	private void OnPlayerSettingChanged(PlayerSetting _playerSetting)
+	
+	/// Not translated, only for POT creation
+	private static string __(string _s)
 	{
-		//Debug.Log($"Player setting '{_playerSetting.Key}' changed to {_playerSetting.Value}");
+		return _s;
 	}
 }

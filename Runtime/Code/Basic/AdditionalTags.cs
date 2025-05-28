@@ -7,7 +7,7 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public class AdditionalTags : MonoBehaviour
 	{
-		[SerializeField] private List<string> m_Tags = new ();
+		[SerializeField] private List<TagField> m_Tags = new ();
 		
 		private readonly HashSet<string> m_HashSetTags = new();
 

@@ -57,7 +57,15 @@ namespace GuiToolkit
 
 				m_playerSettings.Add(playerSetting.Key, playerSetting);
 				if (playerSetting.IsKeyCode)
+				{
+					if (m_keyCodes.TryGetValue(playerSetting.GetDefaultValue<KeyCode>(), out KeyCode existing))
+					{
+						Debug.LogError($"Default Key code '{existing}' of player setting '{playerSetting.Key}' already exists. Each default key code has to be unique.");
+						continue;
+					}
+					
 					m_keyCodes.Add(playerSetting.GetDefaultValue<KeyCode>(), playerSetting.GetValue<KeyCode>());
+				}
 			}
 
 			// We want to only invoke the player settings changed event once all player settings have been added.

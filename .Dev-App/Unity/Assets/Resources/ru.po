@@ -9,11 +9,15 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
-"X-Generator: Poedit 3.4.2\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"X-Generator: Poedit 3.6\n"
 
 msgid "Ambient Occlusion"
 msgstr "Общие технические"
+
+msgid "and"
+msgstr ""
 
 msgid "Animation Speed"
 msgstr "России указывают"
@@ -24,8 +28,25 @@ msgstr "однако номера цветов по атласам при это
 msgid "Cancel"
 msgstr "трав"
 
+msgid "Cancel LOREM IPSUM dolor sit amet bla"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Date:"
+msgstr ""
+
+#, fuzzy
+#| msgid "Restore Defaults"
+msgid "Default"
+msgstr "Восстановить значения по умолчанию"
+
 msgid "Details"
 msgstr "корабельных"
+
+msgid "Dialog Stub"
+msgstr ""
 
 msgid "Effect Volume"
 msgstr "царский указом"
@@ -48,11 +69,17 @@ msgstr "по именному царскому указу изготовлено
 msgid "High"
 msgstr "на"
 
+msgid "Key '{0}' not supported"
+msgstr ""
+
 msgid "Key Bindings"
 msgstr "герба России"
 
 msgid "Language"
 msgstr "положило"
+
+msgid "Light"
+msgstr ""
 
 msgid "Low"
 msgstr "Оно"
@@ -78,8 +105,23 @@ msgstr "Громкость музыки"
 msgid "No"
 msgstr "Нет"
 
+msgid "No Mouse Keys"
+msgstr ""
+
 msgid "Ok"
 msgstr "Ок"
+
+msgid "Only Mouse Keys"
+msgstr ""
+
+msgid "Only specified Keys allowed"
+msgstr ""
+
+msgid "Only specified Keys forbidden"
+msgstr ""
+
+msgid "or"
+msgstr ""
 
 #, fuzzy
 msgid "Or 'Esc' to cancel"
@@ -103,6 +145,39 @@ msgid ""
 msgstr ""
 "Нажмите клавишу\n"
 "Или кнопку мыши!"
+
+msgid "Press a Key!"
+msgstr ""
+
+#, fuzzy
+#| msgid ""
+#| "Press a key\n"
+#| "Or Mouse button!"
+msgid ""
+"Press a Key\n"
+"Or Mouse button!"
+msgstr ""
+"Нажмите клавишу\n"
+"Или кнопку мыши!"
+
+#, fuzzy
+#| msgid ""
+#| "Press a key\n"
+#| "Or Mouse button!"
+msgid "Press a Mouse button!"
+msgstr ""
+"Нажмите клавишу\n"
+"Или кнопку мыши!"
+
+msgid ""
+"Press any key except\n"
+"{0}"
+msgstr ""
+
+msgid ""
+"Press one of the keys\n"
+"{0}"
+msgstr ""
 
 msgid "Quit"
 msgstr "Уйти"
@@ -131,6 +206,9 @@ msgstr "Некоторые ключи остаются несвязанными.
 msgid "Sound"
 msgstr "Звук"
 
+msgid "Style Example"
+msgstr ""
+
 #, fuzzy
 msgid "Tab Dialog Demo"
 msgstr "Демонстрация диалогового окна вкладок"
@@ -151,11 +229,25 @@ msgstr "Инициатор запроса теста"
 msgid "Test Scene"
 msgstr "Тестовая сцена"
 
-msgid "Text..."
+#, fuzzy
+msgid "TestKey"
+msgstr "Тестовый лока-ключ 1"
+
+#, fuzzy
+#| msgid "Text..."
+msgid "Text...\t"
 msgstr "стали называть..."
 
-msgid "Title..."
+msgid "Time:"
+msgstr ""
+
+#, fuzzy
+#| msgid "Title..."
+msgid "Title...\t"
 msgstr "Название…"
+
+msgid "UI Skin"
+msgstr ""
 
 msgid "Ultra"
 msgstr "Ультра"

@@ -33,7 +33,8 @@ namespace GuiToolkit.Editor
 		public override void OnInspectorGUI()
 		{
 			DrawDefaultInspector();
-
+			EditorGUILayout.Space();
+			EditorGUILayout.LabelField("Prefabs", EditorStyles.boldLabel);
 			if (IsAnyPrefabCloned())
 			{
 				m_clonePath = EditorFileUtility.PathFieldReadFolder("Prefab Path", m_clonePath);
