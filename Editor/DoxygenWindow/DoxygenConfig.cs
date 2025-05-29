@@ -40,10 +40,17 @@ namespace GuiToolkit.Editor
 		public string UnityProjectID;
 
 		public int SelectedTheme = 1;
-		public bool DoxyFileExists = false;
 		public bool DocsGenerated = false;
 
+		public bool DoxyFileExists
+		{
+			get => m_doxyFileExists;
+			set => m_doxyFileExists = value;
+		}
+
 		private static DoxygenConfig s_instance;
+
+		private bool m_doxyFileExists = false;
 
 		public static DoxygenConfig Instance
 		{
@@ -58,11 +65,7 @@ namespace GuiToolkit.Editor
 				return s_instance;
 			}
 
-			private set
-			{
-Debug.Log($"---SetInstance");
-				s_instance = value;
-			}
+			private set => s_instance = value;
 		}
 
 		public DoxygenConfig()

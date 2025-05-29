@@ -43,9 +43,7 @@ namespace GuiToolkit.Editor
 		WindowModes DisplayMode = WindowModes.Generate;
 		StringReader reader;
 		TextAsset basefile;
-		float DoxyfileCreateProgress = -1.0f;
 		float DoxyoutputProgress = -1.0f;
-		string CreateProgressString = "Creating Doxyfile..";
 		public string DoxygenOutputString = null;
 		public string CurentOutput = null;
 		DoxygenThreadSafeOutput DoxygenOutput = null;
@@ -103,7 +101,6 @@ namespace GuiToolkit.Editor
 			{
 				if (GUILayout.Toggle(DisplayMode == WindowModes.Generate, "Generate Documentation", normalButton))
 				{
-					DoxyfileCreateProgress = -1;
 					DisplayMode = WindowModes.Generate;
 				}
 
@@ -114,7 +111,6 @@ namespace GuiToolkit.Editor
 
 				if (GUILayout.Toggle(DisplayMode == WindowModes.About, "About", normalButton))
 				{
-					DoxyfileCreateProgress = -1;
 					DisplayMode = WindowModes.About;
 				}
 			}
@@ -129,17 +125,7 @@ namespace GuiToolkit.Editor
 				GUI.enabled = false;
 
 			if (GUILayout.Button("Save Configuration and Build new DoxyFile", GUILayout.Height(40)))
-			{
-				MakeNewDoxyFile();
-			}
-
-			if (DoxyfileCreateProgress >= 0)
-			{
-				Rect r = EditorGUILayout.BeginVertical();
-				EditorGUI.ProgressBar(r, DoxyfileCreateProgress, CreateProgressString);
-				GUILayout.Space(16);
-				EditorGUILayout.EndVertical();
-			}
+				Doxyfile.Instance.Write();
 
 			GUI.enabled = true;
 
@@ -245,7 +231,7 @@ namespace GuiToolkit.Editor
 					GUI.enabled = false;
 				if (GUILayout.Button("Browse Documentation", GUILayout.Height(40)))
 				{
-					Application.OpenURL("File://" + GetDoxyfileDir(DoxygenConfig.Instance) + "/html/annotated.html");
+					Application.OpenURL("File://" + Doxyfile.Instance.DoxyfileLocation + "/html/annotated.html");
 				}
 
 				GUI.enabled = true;
@@ -330,84 +316,6 @@ namespace GuiToolkit.Editor
 					ErrorLabel);
 			}
 		}
-
-		private string GetDoxyfileDir(DoxygenConfig config)
-		{
-			var result = config.DocDirectory;
-			if (config.DocDirectory.StartsWith("."))
-				result = Application.dataPath + "/../" + config.PathtoDoxygen.Replace("doxygen.exe", "") + result;
-			return result;
-		}
-
-		public void MakeNewDoxyFile()
-		{
-			DoxygenConfig.Instance.Save();
-			CreateProgressString = "Creating Output Folder";
-			DoxyfileCreateProgress = 0.1f;
-
-			var doxyfileLocation = GetDoxyfileDir(DoxygenConfig.Instance);
-			System.IO.Directory.CreateDirectory(doxyfileLocation);
-
-			DoxyfileCreateProgress = 0.1f;
-			string newfile = DoxygenConfig.Instance.BaseFileString.Replace("PROJECT_NAME           =",
-				"PROJECT_NAME           = " + "\"" + DoxygenConfig.Instance.Project + "\"");
-			DoxyfileCreateProgress = 0.2f;
-			newfile = newfile.Replace("PROJECT_NUMBER         =", "PROJECT_NUMBER         = " + DoxygenConfig.Instance.Version);
-			DoxyfileCreateProgress = 0.3f;
-			newfile = newfile.Replace("PROJECT_BRIEF          =",
-				"PROJECT_BRIEF          = " + "\"" + DoxygenConfig.Instance.Synopsis + "\"");
-			DoxyfileCreateProgress = 0.4f;
-			newfile = newfile.Replace("OUTPUT_DIRECTORY       =",
-				"OUTPUT_DIRECTORY       = " + "\"" + DoxygenConfig.Instance.DocDirectory + "\"");
-			newfile = newfile.Replace("IMAGE_PATH             =",
-				"IMAGE_PATH             = " + "\"" + DoxygenConfig.Instance.DocDirectory + "\"");
-			DoxyfileCreateProgress = 0.5f;
-			newfile = newfile.Replace("INPUT                  =",
-				"INPUT                  = " + "\"" + DoxygenConfig.Instance.ScriptsDirectory + "\"");
-			DoxyfileCreateProgress = 0.6f;
-			newfile = newfile.Replace("PREDEFINED             =", "PREDEFINED             = " + DoxygenConfig.Instance.Defines);
-
-			newfile = newfile.Replace("DISTRIBUTE_GROUP_DOC   = NO", "DISTRIBUTE_GROUP_DOC   = YES");
-
-
-			string excludePatterns = "";
-			for (int i = 0; i < DoxygenConfig.Instance.ExcludePatterns.Count; i++)
-			{
-				if (i > 0)
-					excludePatterns += " \\\n";
-				excludePatterns += DoxygenConfig.Instance.ExcludePatterns[i];
-			}
-
-			if (!string.IsNullOrEmpty(excludePatterns))
-			{
-				newfile = newfile.Replace("EXCLUDE_PATTERNS       =", "EXCLUDE_PATTERNS       = " + excludePatterns);
-			}
-
-			switch (DoxygenConfig.Instance.SelectedTheme)
-			{
-				case 0:
-					newfile = newfile.Replace("GENERATE_TREEVIEW      = NO", "GENERATE_TREEVIEW      = YES");
-					break;
-				case 1:
-					newfile = newfile.Replace("SEARCHENGINE           = YES", "SEARCHENGINE           = NO");
-					newfile = newfile.Replace("CLASS_DIAGRAMS         = YES", "CLASS_DIAGRAMS         = NO");
-					break;
-			}
-
-			CreateProgressString = "New Options Set";
-
-			StringBuilder sb = new StringBuilder();
-			sb.Append(newfile);
-			StreamWriter NewDoxyfile = new StreamWriter(doxyfileLocation + @"\Doxyfile");
-
-			NewDoxyfile.Write(sb.ToString());
-			NewDoxyfile.Close();
-			DoxyfileCreateProgress = 1.0f;
-			CreateProgressString = "New Doxyfile Created!";
-			DoxygenConfig.Instance.DoxyFileExists = true;
-			EditorPrefs.SetBool(DoxygenConfig.Instance.UnityProjectID + "DoxyFileExists", DoxygenConfig.Instance.DoxyFileExists);
-		}
-
 
 		public static void OnDoxygenFinished(int code)
 		{
