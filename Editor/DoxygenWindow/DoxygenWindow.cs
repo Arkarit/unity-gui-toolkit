@@ -38,26 +38,20 @@ namespace GuiToolkit.Editor
 			About
 		}
 
-		public string UnityProjectID;
 		public string AssetsFolder;
 		public static readonly string[] Themes = new string[3] { "Default", "Dark and Colorful", "Light and Clean" };
-		public int SelectedTheme = 1;
 		WindowModes DisplayMode = WindowModes.Generate;
-		public DoxygenConfig Config = new DoxygenConfig();
-		static bool DoxyFileExists = false;
 		StringReader reader;
 		TextAsset basefile;
 		float DoxyfileCreateProgress = -1.0f;
 		float DoxyoutputProgress = -1.0f;
 		string CreateProgressString = "Creating Doxyfile..";
-		public string BaseFileString = null;
 		public string DoxygenOutputString = null;
 		public string CurentOutput = null;
 		DoxygenThreadSafeOutput DoxygenOutput = null;
 		List<string> DoxygenLog = null;
 		bool ViewLog = false;
 		Vector2 scroll;
-		bool DocsGenerated = false;
 		private string LocalConfig = string.Empty;
 
 		[MenuItem("Window/Documentation with Doxygen")]
@@ -66,14 +60,12 @@ namespace GuiToolkit.Editor
 			Instance = (DoxygenWindow)GetWindow(typeof(DoxygenWindow), false, "Documentation");
 			Instance.minSize = new Vector2(420, 245);
 			Instance.maxSize = new Vector2(420, 720);
-
 		}
 
 		void OnEnable()
 		{
-			UnityProjectID = UnityEditor.PlayerSettings.productName + ":";
 			AssetsFolder = Application.dataPath;
-			LoadConfig();
+			DoxygenConfig.Instance.Load();
 			DoxyoutputProgress = 0;
 		}
 
@@ -132,13 +124,13 @@ namespace GuiToolkit.Editor
 		void ConfigGUI()
 		{
 			GUILayout.Space(10);
-			if (Config.Project == "Enter your Project name (Required)" || Config.Project == "" ||
-			    Config.PathtoDoxygen == "")
+			if (DoxygenConfig.Instance.Project == "Enter your Project name (Required)" || DoxygenConfig.Instance.Project == "" ||
+			    DoxygenConfig.Instance.PathtoDoxygen == "")
 				GUI.enabled = false;
 
 			if (GUILayout.Button("Save Configuration and Build new DoxyFile", GUILayout.Height(40)))
 			{
-				MakeNewDoxyFile(Config);
+				MakeNewDoxyFile();
 			}
 
 			if (DoxyfileCreateProgress >= 0)
@@ -157,43 +149,43 @@ namespace GuiToolkit.Editor
 			GUILayout.Label("Paths", EditorStyles.boldLabel);
 			GUILayout.Space(5);
 			EditorGUILayout.BeginHorizontal();
-			Config.PathtoDoxygen = EditorGUILayout.TextField("Doxygen.exe : ", Config.PathtoDoxygen);
+			DoxygenConfig.Instance.PathtoDoxygen = EditorGUILayout.TextField("Doxygen.exe : ", DoxygenConfig.Instance.PathtoDoxygen);
 			if (GUILayout.Button("...", EditorStyles.miniButtonRight, GUILayout.Width(22)))
-				Config.PathtoDoxygen = EditorUtility.OpenFilePanel("Where is doxygen.exe installed?", "", "");
+				DoxygenConfig.Instance.PathtoDoxygen = EditorUtility.OpenFilePanel("Where is doxygen.exe installed?", "", "");
 			EditorGUILayout.EndHorizontal();
 
 			GUILayout.Space(5);
 			EditorGUILayout.BeginHorizontal();
-			Config.ScriptsDirectory = EditorGUILayout.TextField("Scripts folder: ", Config.ScriptsDirectory);
+			DoxygenConfig.Instance.ScriptsDirectory = EditorGUILayout.TextField("Scripts folder: ", DoxygenConfig.Instance.ScriptsDirectory);
 			if (GUILayout.Button("...", EditorStyles.miniButtonRight, GUILayout.Width(22)))
-				Config.ScriptsDirectory =
-					EditorUtility.OpenFolderPanel("Select your scripts folder", Config.ScriptsDirectory, "");
+				DoxygenConfig.Instance.ScriptsDirectory =
+					EditorUtility.OpenFolderPanel("Select your scripts folder", DoxygenConfig.Instance.ScriptsDirectory, "");
 			EditorGUILayout.EndHorizontal();
 
 			GUILayout.Space(15);
 			GUILayout.Label("Theme", EditorStyles.boldLabel);
 			GUILayout.Space(5);
-			SelectedTheme = EditorGUILayout.Popup(SelectedTheme, Themes);
+			DoxygenConfig.Instance.SelectedTheme = EditorGUILayout.Popup(DoxygenConfig.Instance.SelectedTheme, Themes);
 
 
 			GUILayout.Space(20);
 			GUILayout.Label("Provide some details about the project", EditorStyles.boldLabel);
 			GUILayout.Space(5);
-			Config.Project = EditorGUILayout.TextField("Project Name: ", Config.Project);
-			Config.Synopsis = EditorGUILayout.TextField("Project Brief: ", Config.Synopsis);
-			Config.Version = EditorGUILayout.TextField("Project Version: ", Config.Version);
+			DoxygenConfig.Instance.Project = EditorGUILayout.TextField("Project Name: ", DoxygenConfig.Instance.Project);
+			DoxygenConfig.Instance.Synopsis = EditorGUILayout.TextField("Project Brief: ", DoxygenConfig.Instance.Synopsis);
+			DoxygenConfig.Instance.Version = EditorGUILayout.TextField("Project Version: ", DoxygenConfig.Instance.Version);
 
 
 			GUILayout.Space(20);
 			GUILayout.Label("Project settings", EditorStyles.boldLabel);
 			GUILayout.Space(5);
 			EditorGUILayout.BeginHorizontal();
-			Config.DocDirectory = EditorGUILayout.TextField("Output folder: ", Config.DocDirectory);
+			DoxygenConfig.Instance.DocDirectory = EditorGUILayout.TextField("Output folder: ", DoxygenConfig.Instance.DocDirectory);
 			if (GUILayout.Button("...", EditorStyles.miniButtonRight, GUILayout.Width(22)))
-				Config.DocDirectory =
-					EditorUtility.OpenFolderPanel("Select your ouput Docs folder", Config.DocDirectory, "");
+				DoxygenConfig.Instance.DocDirectory =
+					EditorUtility.OpenFolderPanel("Select your ouput Docs folder", DoxygenConfig.Instance.DocDirectory, "");
 			EditorGUILayout.EndHorizontal();
-			Config.Defines = EditorGUILayout.TextField("Defines (Separate with space): ", Config.Defines);
+			DoxygenConfig.Instance.Defines = EditorGUILayout.TextField("Defines (Separate with space): ", DoxygenConfig.Instance.Defines);
 
 			GUILayout.Space(5);
 			EditorGUILayout.BeginHorizontal();
@@ -208,8 +200,8 @@ namespace GuiToolkit.Editor
 			SerializedObject serObj = new SerializedObject(this);
 			SerializedProperty parentProp = serObj.FindProperty("Config");
 
-			SerializedProperty prop = parentProp.FindPropertyRelative("ExcludePatterns");
-			EditorGUILayout.PropertyField(prop, true);
+//			SerializedProperty prop = parentProp.FindPropertyRelative("ExcludePatterns");
+//			EditorGUILayout.PropertyField(prop, true);
 			serObj.ApplyModifiedProperties();
 		}
 
@@ -245,15 +237,15 @@ namespace GuiToolkit.Editor
 
 		void GenerateGUI()
 		{
-			if (DoxyFileExists)
+			if (DoxygenConfig.Instance.DoxyFileExists)
 			{
 				//UnityEngine.Debug.Log(DoxyoutputProgress);
 				GUILayout.Space(10);
-				if (!DocsGenerated)
+				if (!DoxygenConfig.Instance.DocsGenerated)
 					GUI.enabled = false;
 				if (GUILayout.Button("Browse Documentation", GUILayout.Height(40)))
 				{
-					Application.OpenURL("File://" + GetDoxyfileDir(Config) + "/html/annotated.html");
+					Application.OpenURL("File://" + GetDoxyfileDir(DoxygenConfig.Instance) + "/html/annotated.html");
 				}
 
 				GUI.enabled = true;
@@ -262,11 +254,11 @@ namespace GuiToolkit.Editor
 				{
 					if (GUILayout.Button("Run Doxygen", GUILayout.Height(40)))
 					{
-						DocsGenerated = false;
+						DoxygenConfig.Instance.DocsGenerated = false;
 						RunDoxygen();
 					}
 
-					if (DocsGenerated && DoxygenLog != null)
+					if (DoxygenConfig.Instance.DocsGenerated && DoxygenLog != null)
 					{
 						if (GUILayout.Button("View Doxygen Log", EditorStyles.toolbarDropDown))
 							ViewLog = !ViewLog;
@@ -317,12 +309,12 @@ namespace GuiToolkit.Editor
 
 							Doing them here seems to work every time and the Repaint event check ensures that they will only be done once.
 							*/
-							SetTheme(SelectedTheme);
+							SetTheme(DoxygenConfig.Instance.SelectedTheme);
 							DoxygenLog = DoxygenOutput.ReadFullLog();
 							DoxyoutputProgress = -1.0f;
 							DoxygenOutput = null;
-							DocsGenerated = true;
-							EditorPrefs.SetBool(UnityProjectID + "DocsGenerated", DocsGenerated);
+							DoxygenConfig.Instance.DocsGenerated = true;
+							EditorPrefs.SetBool(DoxygenConfig.Instance.UnityProjectID + "DocsGenerated", DoxygenConfig.Instance.DocsGenerated);
 						}
 					}
 				}
@@ -339,16 +331,6 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		public void readBaseConfig()
-		{
-			basefile = (TextAsset)Resources.Load("BaseDoxyfile", typeof(TextAsset));
-			reader = new StringReader(basefile.text);
-			if (reader == null)
-				UnityEngine.Debug.LogError("BaseDoxyfile not found or not readable");
-			else
-				BaseFileString = reader.ReadToEnd();
-		}
-
 		private string GetDoxyfileDir(DoxygenConfig config)
 		{
 			var result = config.DocDirectory;
@@ -357,43 +339,43 @@ namespace GuiToolkit.Editor
 			return result;
 		}
 
-		public void MakeNewDoxyFile(DoxygenConfig config)
+		public void MakeNewDoxyFile()
 		{
-			SaveConfigtoEditor(config);
+			DoxygenConfig.Instance.Save();
 			CreateProgressString = "Creating Output Folder";
 			DoxyfileCreateProgress = 0.1f;
 
-			var doxyfileLocation = GetDoxyfileDir(config);
+			var doxyfileLocation = GetDoxyfileDir(DoxygenConfig.Instance);
 			System.IO.Directory.CreateDirectory(doxyfileLocation);
 
 			DoxyfileCreateProgress = 0.1f;
-			string newfile = BaseFileString.Replace("PROJECT_NAME           =",
-				"PROJECT_NAME           = " + "\"" + config.Project + "\"");
+			string newfile = DoxygenConfig.Instance.BaseFileString.Replace("PROJECT_NAME           =",
+				"PROJECT_NAME           = " + "\"" + DoxygenConfig.Instance.Project + "\"");
 			DoxyfileCreateProgress = 0.2f;
-			newfile = newfile.Replace("PROJECT_NUMBER         =", "PROJECT_NUMBER         = " + config.Version);
+			newfile = newfile.Replace("PROJECT_NUMBER         =", "PROJECT_NUMBER         = " + DoxygenConfig.Instance.Version);
 			DoxyfileCreateProgress = 0.3f;
 			newfile = newfile.Replace("PROJECT_BRIEF          =",
-				"PROJECT_BRIEF          = " + "\"" + config.Synopsis + "\"");
+				"PROJECT_BRIEF          = " + "\"" + DoxygenConfig.Instance.Synopsis + "\"");
 			DoxyfileCreateProgress = 0.4f;
 			newfile = newfile.Replace("OUTPUT_DIRECTORY       =",
-				"OUTPUT_DIRECTORY       = " + "\"" + config.DocDirectory + "\"");
+				"OUTPUT_DIRECTORY       = " + "\"" + DoxygenConfig.Instance.DocDirectory + "\"");
 			newfile = newfile.Replace("IMAGE_PATH             =",
-				"IMAGE_PATH             = " + "\"" + config.DocDirectory + "\"");
+				"IMAGE_PATH             = " + "\"" + DoxygenConfig.Instance.DocDirectory + "\"");
 			DoxyfileCreateProgress = 0.5f;
 			newfile = newfile.Replace("INPUT                  =",
-				"INPUT                  = " + "\"" + config.ScriptsDirectory + "\"");
+				"INPUT                  = " + "\"" + DoxygenConfig.Instance.ScriptsDirectory + "\"");
 			DoxyfileCreateProgress = 0.6f;
-			newfile = newfile.Replace("PREDEFINED             =", "PREDEFINED             = " + config.Defines);
+			newfile = newfile.Replace("PREDEFINED             =", "PREDEFINED             = " + DoxygenConfig.Instance.Defines);
 
 			newfile = newfile.Replace("DISTRIBUTE_GROUP_DOC   = NO", "DISTRIBUTE_GROUP_DOC   = YES");
 
 
 			string excludePatterns = "";
-			for (int i = 0; i < config.ExcludePatterns.Count; i++)
+			for (int i = 0; i < DoxygenConfig.Instance.ExcludePatterns.Count; i++)
 			{
 				if (i > 0)
 					excludePatterns += " \\\n";
-				excludePatterns += config.ExcludePatterns[i];
+				excludePatterns += DoxygenConfig.Instance.ExcludePatterns[i];
 			}
 
 			if (!string.IsNullOrEmpty(excludePatterns))
@@ -401,7 +383,7 @@ namespace GuiToolkit.Editor
 				newfile = newfile.Replace("EXCLUDE_PATTERNS       =", "EXCLUDE_PATTERNS       = " + excludePatterns);
 			}
 
-			switch (SelectedTheme)
+			switch (DoxygenConfig.Instance.SelectedTheme)
 			{
 				case 0:
 					newfile = newfile.Replace("GENERATE_TREEVIEW      = NO", "GENERATE_TREEVIEW      = YES");
@@ -422,132 +404,17 @@ namespace GuiToolkit.Editor
 			NewDoxyfile.Close();
 			DoxyfileCreateProgress = 1.0f;
 			CreateProgressString = "New Doxyfile Created!";
-			DoxyFileExists = true;
-			EditorPrefs.SetBool(UnityProjectID + "DoxyFileExists", DoxyFileExists);
+			DoxygenConfig.Instance.DoxyFileExists = true;
+			EditorPrefs.SetBool(DoxygenConfig.Instance.UnityProjectID + "DoxyFileExists", DoxygenConfig.Instance.DoxyFileExists);
 		}
 
-		void SaveConfigtoEditor(DoxygenConfig config)
-		{
-			// If all relevant paths are relative, we can use project-wide config rather than user-dependent
-			bool isProjectConfig =
-				config.PathtoDoxygen.StartsWith(".") &&
-				config.ScriptsDirectory.StartsWith(".") &&
-				config.DocDirectory.StartsWith(".");
-
-			if (isProjectConfig)
-			{
-				string localConfig = Application.dataPath + "/doxygenWindow.json";
-
-				try
-				{
-					string json = JsonUtility.ToJson(config, true);
-					File.WriteAllText(localConfig, json);
-				}
-				catch
-				{
-				}
-			}
-
-			EditorPrefs.SetString(UnityProjectID + "DoxyProjectName", config.Project);
-			EditorPrefs.SetString(UnityProjectID + "DoxyProjectNumber", config.Version);
-			EditorPrefs.SetString(UnityProjectID + "DoxyProjectBrief", config.Synopsis);
-			EditorPrefs.SetString(UnityProjectID + "DoxyProjectFolder", config.ScriptsDirectory);
-			EditorPrefs.SetString(UnityProjectID + "DoxyProjectOutput", config.DocDirectory);
-			EditorPrefs.SetString(UnityProjectID + "DoxyProjectDefines", config.Defines);
-			EditorPrefs.SetString("DoxyEXE", config.PathtoDoxygen);
-			EditorPrefs.SetInt(UnityProjectID + "DoxyTheme", SelectedTheme);
-
-			EditorPrefs.SetInt(UnityProjectID + "DoxyExcludePatternsCount", config.ExcludePatterns.Count);
-			for (int i = 0; i < config.ExcludePatterns.Count; i++)
-			{
-				string key = UnityProjectID + "DoxyExcludePattern" + i;
-				EditorPrefs.SetString(key, config.ExcludePatterns[i]);
-			}
-		}
-
-
-		void LoadConfig()
-		{
-			if (BaseFileString == null)
-				readBaseConfig();
-
-			if (!LoadSavedConfig())
-			{
-				Config = new DoxygenConfig();
-				Config.Project = UnityEditor.PlayerSettings.productName;
-				Config.ScriptsDirectory = Application.dataPath;
-				Config.DocDirectory = Application.dataPath.Replace("Assets", "Docs");
-			}
-
-			if (EditorPrefs.HasKey(UnityProjectID + "DoxyFileExists"))
-				DoxyFileExists = EditorPrefs.GetBool(UnityProjectID + "DoxyFileExists");
-			if (EditorPrefs.HasKey(UnityProjectID + "DocsGenerated"))
-				DocsGenerated = EditorPrefs.GetBool(UnityProjectID + "DocsGenerated");
-			if (EditorPrefs.HasKey(UnityProjectID + "DoxyTheme"))
-				SelectedTheme = EditorPrefs.GetInt(UnityProjectID + "DoxyTheme");
-			if (EditorPrefs.HasKey("DoxyEXE"))
-				Config.PathtoDoxygen = EditorPrefs.GetString("DoxyEXE");
-
-			ReadExcludePatterns();
-		}
-
-		bool LoadSavedConfig()
-		{
-			string localConfig = Application.dataPath + "/doxygenWindow.json";
-
-			try
-			{
-				string content = File.ReadAllText(localConfig);
-				if (!string.IsNullOrEmpty(content))
-				{
-					Config = JsonUtility.FromJson<DoxygenConfig>(content);
-					return true;
-				}
-			}
-			catch
-			{
-			}
-
-			if (EditorPrefs.HasKey(UnityProjectID + "DoxyProjectName"))
-			{
-				Config = new DoxygenConfig();
-				Config.Project = EditorPrefs.GetString(UnityProjectID + "DoxyProjectName");
-				Config.Version = EditorPrefs.GetString(UnityProjectID + "DoxyProjectNumber");
-				Config.Synopsis = EditorPrefs.GetString(UnityProjectID + "DoxyProjectBrief");
-				Config.DocDirectory = EditorPrefs.GetString(UnityProjectID + "DoxyProjectOutput");
-				Config.ScriptsDirectory = EditorPrefs.GetString(UnityProjectID + "DoxyProjectFolder");
-				Config.Defines = EditorPrefs.GetString(UnityProjectID + "DoxyProjectDefines");
-
-				ReadExcludePatterns();
-				return true;
-			}
-
-			return false;
-		}
-
-		private void ReadExcludePatterns()
-		{
-			Config.ExcludePatterns = new List<string>();
-
-			int excludePatternsCount = 0;
-			if (EditorPrefs.HasKey(UnityProjectID + "DoxyExcludePatternsCount"))
-				excludePatternsCount = EditorPrefs.GetInt(UnityProjectID + "DoxyExcludePatternsCount");
-
-			for (int i = 0; i < excludePatternsCount; i++)
-			{
-				string key = UnityProjectID + "DoxyExcludePattern" + i;
-				if (!EditorPrefs.HasKey(key))
-					break;
-				Config.ExcludePatterns.Add(EditorPrefs.GetString(key));
-			}
-		}
 
 		public static void OnDoxygenFinished(int code)
 		{
 			if (code != 0)
 			{
-				UnityEngine.Debug.LogError("Doxygen finsished with Error: return code " + code +
-				                           "\nCheck the Doxgen Log for Errors.\nAlso try regenerating your Doxyfile,\nyou will new to close and reopen the\ndocumentation window before regenerating.");
+				UnityEngine.Debug.LogError("Doxygen finished with Error: return code " + code +
+				                           "\nCheck the Doxygen Log for Errors.\nAlso try regenerating your Doxyfile,\nyou will new to close and reopen the\ndocumentation window before regenerating.");
 			}
 		}
 
@@ -557,22 +424,22 @@ namespace GuiToolkit.Editor
 			{
 				case 1:
 					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/DarkTheme/doxygen.css",
-						Config.DocDirectory + "/html/doxygen.css");
+						DoxygenConfig.Instance.DocDirectory + "/html/doxygen.css");
 					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/DarkTheme/tabs.css",
-						Config.DocDirectory + "/html/tabs.css");
+						DoxygenConfig.Instance.DocDirectory + "/html/tabs.css");
 					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/DarkTheme/img_downArrow.png",
-						Config.DocDirectory + "/html/img_downArrow.png");
+						DoxygenConfig.Instance.DocDirectory + "/html/img_downArrow.png");
 					break;
 				case 2:
 					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/LightTheme/doxygen.css",
-						Config.DocDirectory + "/html/doxygen.css");
+						DoxygenConfig.Instance.DocDirectory + "/html/doxygen.css");
 					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/LightTheme/tabs.css",
-						Config.DocDirectory + "/html/tabs.css");
+						DoxygenConfig.Instance.DocDirectory + "/html/tabs.css");
 					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/LightTheme/img_downArrow.png",
-						Config.DocDirectory + "/html/img_downArrow.png");
+						DoxygenConfig.Instance.DocDirectory + "/html/img_downArrow.png");
 					FileUtil.ReplaceFile(
 						AssetsFolder + "/Editor/Doxygen/Resources/LightTheme/background_navigation.png",
-						Config.DocDirectory + "/html/background_navigation.png");
+						DoxygenConfig.Instance.DocDirectory + "/html/background_navigation.png");
 					break;
 			}
 		}
@@ -580,14 +447,14 @@ namespace GuiToolkit.Editor
 		public void RunDoxygen()
 		{
 			string[] Args = new string[1];
-			Args[0] = Config.DocDirectory + "/Doxyfile";
+			Args[0] = DoxygenConfig.Instance.DocDirectory + "/Doxyfile";
 
 			DoxygenOutput = new DoxygenThreadSafeOutput();
 			DoxygenOutput.SetStarted();
 
 			Action<int> setcallback = (int returnCode) => OnDoxygenFinished(returnCode);
 
-			DoxygenRunner Doxygen = new DoxygenRunner(Config.PathtoDoxygen, Args, DoxygenOutput, setcallback);
+			DoxygenRunner Doxygen = new DoxygenRunner(DoxygenConfig.Instance.PathtoDoxygen, Args, DoxygenOutput, setcallback);
 
 			Thread DoxygenThread = new Thread(new ThreadStart(Doxygen.RunThreadedDoxy));
 			DoxygenThread.Start();
