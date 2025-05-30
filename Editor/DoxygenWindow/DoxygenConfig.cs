@@ -41,7 +41,7 @@ namespace GuiToolkit.Editor
 
 		public string UnityProjectID;
 
-		public bool DocsGenerated = false;
+		public bool DocsGenerated => File.Exists(DocumentDirectory.FullPath + "/html/index.html");
 
 		public string ThemeFolder => Path.GetDirectoryName(EditorGeneralUtility.GetCallingScriptPath()) + "/Resources";
 

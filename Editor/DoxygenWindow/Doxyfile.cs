@@ -73,7 +73,6 @@ namespace GuiToolkit.Editor
 			StringBuilder sb = new StringBuilder();
 			sb.Append(newfile);
 			StreamWriter NewDoxyfile = new StreamWriter(DoxygenConfig.Instance.DocumentDirectory + "/Doxyfile");
-
 			NewDoxyfile.Write(sb.ToString());
 			NewDoxyfile.Close();
 		}

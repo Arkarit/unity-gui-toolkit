@@ -158,95 +158,62 @@ namespace GuiToolkit.Editor
 			}
 
 
-			if (Doxyfile.Instance.Exists)
+			//UnityEngine.Debug.Log(DoxyoutputProgress);
+			GUILayout.Space(10);
+			if (!DoxygenConfig.Instance.DocsGenerated)
+				GUI.enabled = false;
+			if (GUILayout.Button("Browse Documentation", GUILayout.Height(40)))
 			{
-				//UnityEngine.Debug.Log(DoxyoutputProgress);
-				GUILayout.Space(10);
-				if (!DoxygenConfig.Instance.DocsGenerated)
-					GUI.enabled = false;
-				if (GUILayout.Button("Browse Documentation", GUILayout.Height(40)))
-				{
-					Application.OpenURL("File://" + DoxygenConfig.Instance.DocumentDirectory + "/html/annotated.html");
-				}
-
-				GUI.enabled = true;
-
-				if (DoxygenOutput == null)
-				{
-					if (GUILayout.Button("Run Doxygen", GUILayout.Height(40)))
-					{
-						DoxygenConfig.Instance.DocsGenerated = false;
-						RunDoxygen();
-					}
-
-					if (DoxygenConfig.Instance.DocsGenerated && DoxygenLog != null)
-					{
-						if (GUILayout.Button("View Doxygen Log", EditorStyles.toolbarDropDown))
-							ViewLog = !ViewLog;
-						if (ViewLog)
-						{
-							scroll = EditorGUILayout.BeginScrollView(scroll, GUILayout.ExpandHeight(true));
-							foreach (string logitem in DoxygenLog)
-							{
-								EditorGUILayout.SelectableLabel(logitem, EditorStyles.miniLabel,
-									GUILayout.ExpandWidth(true));
-							}
-
-							EditorGUILayout.EndScrollView();
-						}
-					}
-				}
-				else
-				{
-					if (DoxygenOutput.isStarted() && !DoxygenOutput.isFinished())
-					{
-						string currentline = DoxygenOutput.ReadLine();
-						DoxyoutputProgress = DoxyoutputProgress + 0.1f;
-						if (DoxyoutputProgress >= 0.9f)
-							DoxyoutputProgress = 0.75f;
-						Rect r = EditorGUILayout.BeginVertical();
-						EditorGUI.ProgressBar(r, DoxyoutputProgress, currentline);
-						GUILayout.Space(40);
-						EditorGUILayout.EndVertical();
-					}
-
-					if (DoxygenOutput.isFinished())
-					{
-						if (Event.current.type == EventType.Repaint)
-						{
-							/*
-							If you look at what SetTheme is doing, I know, it seems a little scary to be
-							calling file moving operations from inside a an OnGUI call like this. And
-							maybe it would be a better choice to call SetTheme and update these other vars
-							from inside of the OnDoxygenFinished callback. But since the callback is static
-							that would require a little bit of messy singleton instance checking to make sure
-							the call back was calling into the right functions. I did try to do it that way
-							but for some reason the file operations failed every time. I'm not sure why.
-							This is what I was getting from the debugger:
-
-							Error in file: C:/BuildAgent/work/842f9551727e852/Runtime/Mono/MonoManager.cpp at line 2212
-							UnityEditor.FileUtil:DeleteFileOrDirectory(String)
-							UnityEditor.FileUtil:ReplaceFile(String, String) (at C:\BuildAgent\work\842f9557127e852\Editor\MonoGenerated\Editor\FileUtil.cs:42)
-
-							Doing them here seems to work every time and the Repaint event check ensures that they will only be done once.
-							*/
-							DoxygenLog = DoxygenOutput.ReadFullLog();
-							DoxyoutputProgress = -1.0f;
-							DoxygenOutput = null;
-							DoxygenConfig.Instance.DocsGenerated = true;
-						}
-					}
-				}
+				Application.OpenURL("File://" + DoxygenConfig.Instance.DocumentDirectory.FullPath + "/html/index.html");
 			}
-			else
+
+			GUI.enabled = true;
+
+			if (DoxygenOutput == null)
 			{
-				GUIStyle ErrorLabel = new GUIStyle(EditorStyles.largeLabel);
-				ErrorLabel.alignment = TextAnchor.MiddleCenter;
-				GUILayout.Space(20);
-				GUI.contentColor = Color.red;
-				GUILayout.Label(
-					"You must set the path to your Doxygen install and \nbuild a new Doxyfile before you can generate documentation",
-					ErrorLabel);
+				if (GUILayout.Button("Run Doxygen", GUILayout.Height(40)))
+					RunDoxygen();
+
+				if (DoxygenConfig.Instance.DocsGenerated && DoxygenLog != null)
+				{
+					if (GUILayout.Button("View Doxygen Log", EditorStyles.toolbarDropDown))
+						ViewLog = !ViewLog;
+					if (ViewLog)
+					{
+						scroll = EditorGUILayout.BeginScrollView(scroll, GUILayout.ExpandHeight(true));
+						foreach (string logitem in DoxygenLog)
+						{
+							EditorGUILayout.SelectableLabel(logitem, EditorStyles.miniLabel,
+								GUILayout.ExpandWidth(true));
+						}
+
+						EditorGUILayout.EndScrollView();
+					}
+				}
+
+				return;
+			}
+
+			if (DoxygenOutput.isStarted() && !DoxygenOutput.isFinished())
+			{
+				string currentline = DoxygenOutput.ReadLine();
+				DoxyoutputProgress = DoxyoutputProgress + 0.1f;
+				if (DoxyoutputProgress >= 0.9f)
+					DoxyoutputProgress = 0.75f;
+				Rect r = EditorGUILayout.BeginVertical();
+				EditorGUI.ProgressBar(r, DoxyoutputProgress, currentline);
+				GUILayout.Space(40);
+				EditorGUILayout.EndVertical();
+			}
+
+			if (DoxygenOutput.isFinished())
+			{
+				if (Event.current.type == EventType.Repaint)
+				{
+					DoxygenLog = DoxygenOutput.ReadFullLog();
+					DoxyoutputProgress = -1.0f;
+					DoxygenOutput = null;
+				}
 			}
 		}
 
