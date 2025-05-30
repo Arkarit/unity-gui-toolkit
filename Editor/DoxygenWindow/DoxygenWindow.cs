@@ -63,8 +63,8 @@ namespace GuiToolkit.Editor
 		void OnEnable()
 		{
 			AssetsFolder = Application.dataPath;
-			DoxygenConfig.Instance.Load();
 			DoxyoutputProgress = 0;
+			DoxygenConfig.Initialize();
 		}
 
 		void OnDisable()
@@ -75,6 +75,9 @@ namespace GuiToolkit.Editor
 
 		void OnGUI()
 		{
+			GenerateGUI();
+			return;
+#if false
 			DisplayHeadingToolbar();
 			switch (DisplayMode)
 			{
@@ -90,8 +93,10 @@ namespace GuiToolkit.Editor
 					AboutGUI();
 					break;
 			}
+#endif
 		}
 
+#if false
 		void DisplayHeadingToolbar()
 		{
 			GUIStyle normalButton = new GUIStyle(EditorStyles.toolbarButton);
@@ -220,10 +225,10 @@ namespace GuiToolkit.Editor
 			GUILayout.Space(20);
 			EditorGUILayout.EndHorizontal();
 		}
-
+#endif
 		void GenerateGUI()
 		{
-			if (DoxygenConfig.Instance.DoxyFileExists)
+			if (Doxyfile.Instance.Exists)
 			{
 				//UnityEngine.Debug.Log(DoxyoutputProgress);
 				GUILayout.Space(10);
@@ -231,7 +236,7 @@ namespace GuiToolkit.Editor
 					GUI.enabled = false;
 				if (GUILayout.Button("Browse Documentation", GUILayout.Height(40)))
 				{
-					Application.OpenURL("File://" + Doxyfile.Instance.DoxyfileLocation + "/html/annotated.html");
+					Application.OpenURL("File://" + Doxyfile.Instance.Directory + "/html/annotated.html");
 				}
 
 				GUI.enabled = true;
@@ -362,7 +367,7 @@ namespace GuiToolkit.Editor
 
 			Action<int> setcallback = (int returnCode) => OnDoxygenFinished(returnCode);
 
-			DoxygenRunner Doxygen = new DoxygenRunner(DoxygenConfig.Instance.PathtoDoxygen, Args, DoxygenOutput, setcallback);
+			DoxygenRunner Doxygen = new DoxygenRunner(Args, DoxygenOutput, setcallback);
 
 			Thread DoxygenThread = new Thread(new ThreadStart(Doxygen.RunThreadedDoxy));
 			DoxygenThread.Start();

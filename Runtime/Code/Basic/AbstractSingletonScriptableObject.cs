@@ -40,6 +40,8 @@ namespace GuiToolkit
 						s_instance = EditorLoad();
 					}
 #endif
+					if (s_instance == null)
+						s_instance = CreateInstance<T>();
 				}
 
 				return s_instance;
@@ -72,6 +74,8 @@ namespace GuiToolkit
 			EditorGeneralUtility.SetDirty(_instance);
 			AssetDatabase.SaveAssetIfDirty(_instance);
 		}
+
+		public static void EditorSave() => EditorSave(Instance);
 
 		public static bool Initialized => AssetDatabase.LoadAssetAtPath<T>(EditorPath) != null;
 

@@ -9,6 +9,7 @@ namespace GuiToolkit.Editor
 	public class Doxyfile
 	{
 		private static Doxyfile s_instance;
+		private string m_template;
 
 		public static Doxyfile Instance
 		{
@@ -21,24 +22,43 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		public string DoxyfileLocation
+		public string Template
+		{
+			get
+			{
+				if (m_template == null)
+					m_template = ReadTemplate();
+				return m_template;
+			}
+		}
+
+		public bool Exists => File.Exists(Directory);
+
+		public string Directory
 		{
 			get
 			{
 				var result = DoxygenConfig.Instance.DocDirectory;
 				if (DoxygenConfig.Instance.DocDirectory.StartsWith("."))
-					result = Application.dataPath + "/../" + DoxygenConfig.Instance.PathtoDoxygen.Replace("doxygen.exe", "") + result;
+				{
+					var doxygenPath = DoxygenRunner.DoxygenPath;
+					if (doxygenPath == null)
+						return null;
+
+					result = Application.dataPath + "/../" + Path.GetDirectoryName(doxygenPath);
+				}
+
 				return result;
 			}
 		}
 
 		public void Write()
 		{
-			DoxygenConfig.Instance.Save();
+			DoxygenConfig.EditorSave();
 
-			System.IO.Directory.CreateDirectory(DoxyfileLocation);
+			EditorFileUtility.EnsureFolderExists(Directory);
 
-			string newfile = DoxygenConfig.Instance.BaseFileString.Replace("PROJECT_NAME           =",
+			string newfile = Template.Replace("PROJECT_NAME           =",
 				"PROJECT_NAME           = " + "\"" + DoxygenConfig.Instance.Project + "\"");
 			newfile = newfile.Replace("PROJECT_NUMBER         =", "PROJECT_NUMBER         = " + DoxygenConfig.Instance.Version);
 			newfile = newfile.Replace("PROJECT_BRIEF          =",
@@ -80,12 +100,17 @@ namespace GuiToolkit.Editor
 
 			StringBuilder sb = new StringBuilder();
 			sb.Append(newfile);
-			StreamWriter NewDoxyfile = new StreamWriter(DoxyfileLocation + @"\Doxyfile");
+			StreamWriter NewDoxyfile = new StreamWriter(Directory + @"\Doxyfile");
 
 			NewDoxyfile.Write(sb.ToString());
 			NewDoxyfile.Close();
-			DoxygenConfig.Instance.DoxyFileExists = true;
-			EditorPrefs.SetBool(DoxygenConfig.Instance.UnityProjectID + "DoxyFileExists", DoxygenConfig.Instance.DoxyFileExists);
+			EditorPrefs.SetBool(DoxygenConfig.Instance.UnityProjectID + "DoxyFileExists", Exists);
+		}
+
+		private string ReadTemplate()
+		{
+			var result = Resources.Load<TextAsset>("DoxyfileTemplate");
+			return result ? result.text : null;
 		}
 	}
 

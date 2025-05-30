@@ -29,20 +29,33 @@ namespace GuiToolkit.Editor
 	/// </summary>
 	public class DoxygenRunner
 	{
-		DoxygenThreadSafeOutput SafeOutput;
-		public Action<int> onCompleteCallBack;
-		List<string> DoxyLog = new List<string>();
-		public string EXE = null;
+		private DoxygenThreadSafeOutput SafeOutput;
+		private Action<int> m_onCompleteCallBack;
+		private readonly List<string> DoxyLog = new();
 		public string[] Args;
 		static string WorkingFolder;
 
-		public DoxygenRunner(string exepath, string[] args, DoxygenThreadSafeOutput safeoutput, Action<int> callback)
+		public static string s_doxygenExecutablePath;
+
+		public static string DoxygenPath
 		{
-			EXE = exepath;
+			get
+			{
+				if (string.IsNullOrEmpty(s_doxygenExecutablePath))
+					s_doxygenExecutablePath = FindExecutableByPartialName("doxygen", true);
+				return s_doxygenExecutablePath;
+			}
+		}
+
+		public DoxygenRunner(string[] args, DoxygenThreadSafeOutput safeoutput, Action<int> callback)
+		{
+			if (DoxygenPath == null)
+				throw new FileNotFoundException("Doxygen Executable not found");
+
 			Args = args;
 			SafeOutput = safeoutput;
-			onCompleteCallBack = callback;
-			WorkingFolder = exepath.Replace("doxygen.exe", "");
+			m_onCompleteCallBack = callback;
+			WorkingFolder = Path.GetDirectoryName(s_doxygenExecutablePath);
 		}
 
 		public void updateOuputString(string output)
@@ -54,10 +67,10 @@ namespace GuiToolkit.Editor
 		public void RunThreadedDoxy()
 		{
 			Action<string> GetOutput = (string output) => updateOuputString(output);
-			int ReturnCode = Run(GetOutput, null, EXE, Args);
+			int ReturnCode = Run(GetOutput, null, "doxygen", Args);
 			SafeOutput.WriteFullLog(DoxyLog);
 			SafeOutput.SetFinished();
-			onCompleteCallBack(ReturnCode);
+			m_onCompleteCallBack(ReturnCode);
 		}
 
 		/// <summary>
@@ -87,7 +100,7 @@ namespace GuiToolkit.Editor
 			psi.CreateNoWindow = true;
 			psi.ErrorDialog = false;
 			psi.WorkingDirectory = WorkingFolder;
-			psi.FileName = FindExePath(exe);
+			psi.FileName = FindExecutableByPartialName(exe);
 			psi.Arguments = EscapeArguments(args);
 
 			using (Process process = Process.Start(psi))
@@ -176,28 +189,56 @@ namespace GuiToolkit.Editor
 		/// Expands environment variables and, if unqualified, locates the exe in the working directory
 		/// or the evironment's path.
 		/// </summary>
-		/// <param name="exe">The name of the executable file</param>
-		/// <returns>The fully-qualified path to the file</returns>
-		/// <exception cref="System.IO.FileNotFoundException">Raised when the exe was not found</exception>
-		public static string FindExePath(string exe)
+		/// <param name="fileName">The name of the executable file. Can be partial.</param>
+		/// <param name="caseInsensitive"></param>
+		/// <returns>The fully-qualified path to the file or null if not found</returns>
+		public static string FindExecutableByPartialName(string fileName, bool caseInsensitive = false)
 		{
-			exe = Environment.ExpandEnvironmentVariables(exe);
-			if (!File.Exists(exe))
+			return caseInsensitive ? 
+				FindExecutableByPartialNameInternal(fileName.ToLower(), true) :
+				FindExecutableByPartialNameInternal(fileName, false);
+		}
+
+		private static string FindExecutableByPartialNameInternal(string fileName, bool caseInsensitive)
+		{
+			fileName = Environment.ExpandEnvironmentVariables(fileName);
+			if (!File.Exists(fileName))
 			{
-				if (Path.GetDirectoryName(exe) == String.Empty)
+				fileName = Path.GetFileNameWithoutExtension(fileName);
+				if (Path.GetDirectoryName(fileName) == String.Empty)
 				{
+					string searchPattern = $"*{fileName}*";
 					foreach (string test in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
 					{
 						string path = test.Trim();
-						if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, exe)))
-							return Path.GetFullPath(path);
+						var files = Directory.GetFiles(path, searchPattern);
+
+						// First round: Direct match
+						foreach (var file in files)
+						{
+							if (Path.GetFileNameWithoutExtension(file) == fileName)
+							{
+								path = Path.Combine(path, file);
+								return Path.GetFullPath(path);
+							}
+						}
+
+						// Second round: partial match
+						foreach (var file in files)
+						{
+							if (Path.GetFileNameWithoutExtension(file).Contains(fileName))
+							{
+								path = Path.Combine(path, file);
+								return Path.GetFullPath(path);
+							}
+						}
 					}
 				}
 
-				throw new FileNotFoundException(new FileNotFoundException().Message, exe);
+				return null;
 			}
 
-			return Path.GetFullPath(exe);
+			return Path.GetFullPath(fileName);
 		}
 	}
 }
