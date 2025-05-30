@@ -39,7 +39,7 @@ namespace GuiToolkit.Editor
 		{
 			DoxygenConfig.EditorSave();
 
-			EditorFileUtility.EnsureFolderExists(DoxygenConfig.Instance.DocumentDirectory);
+			EditorFileUtility.EnsureUnityFolderExists(DoxygenConfig.Instance.DocumentDirectory);
 
 			string newfile = Template.Replace("PROJECT_NAME           =",
 				"PROJECT_NAME           = " + "\"" + DoxygenConfig.Instance.Project + "\"");

@@ -123,6 +123,26 @@ namespace GuiToolkit
 			EditorGUILayout.EndHorizontal();
 		}
 
+		public static void Centered(Action _action)
+		{
+			GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			_action.Invoke();
+			GUILayout.FlexibleSpace();
+			GUILayout.EndHorizontal();
+		}
+
+		public static void LabelCentered(string _labelText, GUIStyle _guiStyle = null)
+		{
+			Centered(() =>
+			{
+				if (_guiStyle == null)
+					GUILayout.Label(_labelText);
+				else
+					GUILayout.Label(_labelText, _guiStyle);
+			});
+		}
+
 		public static bool EnumPopup<T>( string _labelText, ref T _val, string _labelText2 = "" ) where T : Enum
 		{
 			string[] types = Enum.GetNames(typeof(T));

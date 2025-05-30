@@ -56,7 +56,7 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static bool EnsureFolderExists( string _unityPath )
+		public static bool EnsureUnityFolderExists( string _unityPath )
 		{
 			try
 			{
@@ -67,21 +67,54 @@ namespace GuiToolkit
 					string folderToCreate;
 					if (names.Length == 0)
 						return false;
-					else
+
+					folderToCreate = names[names.Length - 1];
+					if (names.Length > 1)
 					{
-						folderToCreate = names[names.Length - 1];
-						if (names.Length > 1)
-						{
-							parentPath = _unityPath.Substring(0, _unityPath.Length - folderToCreate.Length - 1);
-							if (!AssetDatabase.IsValidFolder(parentPath))
-								if (!EnsureFolderExists(parentPath))
-									return false;
-						}
+						parentPath = _unityPath.Substring(0, _unityPath.Length - folderToCreate.Length - 1);
+						if (!AssetDatabase.IsValidFolder(parentPath))
+							if (!EnsureUnityFolderExists(parentPath))
+								return false;
 					}
 
 					if (!string.IsNullOrEmpty(folderToCreate))
 						AssetDatabase.CreateFolder(parentPath, folderToCreate);
 				}
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+		
+		public static bool EnsureFolderExists( string _systemPath )
+		{
+			try
+			{
+				_systemPath = _systemPath.Replace('\\', '/');
+
+				if (!Directory.Exists(_systemPath))
+				{
+					string[] names = _systemPath.Split('/');
+					string parentPath = "";
+					string folderToCreate;
+					if (names.Length == 0)
+						return false;
+
+					folderToCreate = names[names.Length - 1];
+					if (names.Length > 1)
+					{
+						parentPath = _systemPath.Substring(0, _systemPath.Length - folderToCreate.Length - 1);
+						if (!Directory.Exists(parentPath))
+							if (!EnsureFolderExists(parentPath))
+								return false;
+					}
+
+					if (!string.IsNullOrEmpty(folderToCreate))
+						Directory.CreateDirectory(_systemPath);
+				}
+
 				return true;
 			}
 			catch

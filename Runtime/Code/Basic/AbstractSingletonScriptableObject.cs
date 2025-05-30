@@ -17,6 +17,7 @@ namespace GuiToolkit
 
 		protected virtual void OnEnable() {}
 
+
 		public static T Instance
 		{
 			get
@@ -91,8 +92,6 @@ namespace GuiToolkit
 
 			EditorSave(instance);
 		}
-
-
 #endif
 	}
 }

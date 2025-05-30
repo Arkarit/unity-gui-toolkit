@@ -47,6 +47,8 @@ namespace GuiToolkit.Editor
 			}
 		}
 
+		public static bool DoxygenExists => !string.IsNullOrEmpty(DoxygenPath);
+
 		public DoxygenRunner(string[] args, DoxygenThreadSafeOutput safeoutput, Action<int> callback)
 		{
 			if (DoxygenPath == null)
@@ -215,12 +217,10 @@ namespace GuiToolkit.Editor
 
 						try
 						{
-UnityEngine.Debug.Log($"Path: {path}");
 							files = Directory.GetFiles(path, searchPattern);
 						}
 						catch
 						{
-UnityEngine.Debug.Log("catch");
 							continue;
 						}
 

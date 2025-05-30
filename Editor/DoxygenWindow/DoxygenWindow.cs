@@ -50,12 +50,11 @@ namespace GuiToolkit.Editor
 		List<string> DoxygenLog = null;
 		bool ViewLog = false;
 		Vector2 scroll;
-		private string LocalConfig = string.Empty;
 
 		[MenuItem("Window/Documentation with Doxygen")]
 		public static void Init()
 		{
-			Instance = (DoxygenWindow)GetWindow(typeof(DoxygenWindow), false, "Documentation");
+			Instance = (DoxygenWindow)GetWindow(typeof(DoxygenWindow), false, "Doxygen");
 			Instance.minSize = new Vector2(420, 245);
 			Instance.maxSize = new Vector2(420, 720);
 		}
@@ -96,106 +95,6 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
-#if false
-		void DisplayHeadingToolbar()
-		{
-			GUIStyle normalButton = new GUIStyle(EditorStyles.toolbarButton);
-			normalButton.fixedWidth = 140;
-			GUILayout.Space(5);
-			EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-			{
-				if (GUILayout.Toggle(DisplayMode == WindowModes.Generate, "Generate Documentation", normalButton))
-				{
-					DisplayMode = WindowModes.Generate;
-				}
-
-				if (GUILayout.Toggle(DisplayMode == WindowModes.Configuration, "Settings/Configuration", normalButton))
-				{
-					DisplayMode = WindowModes.Configuration;
-				}
-
-				if (GUILayout.Toggle(DisplayMode == WindowModes.About, "About", normalButton))
-				{
-					DisplayMode = WindowModes.About;
-				}
-			}
-			EditorGUILayout.EndHorizontal();
-		}
-
-		void ConfigGUI()
-		{
-			GUILayout.Space(10);
-			if (DoxygenConfig.Instance.Project == "Enter your Project name (Required)" || DoxygenConfig.Instance.Project == "" ||
-			    DoxygenConfig.Instance.PathtoDoxygen == "")
-				GUI.enabled = false;
-
-			if (GUILayout.Button("Save Configuration and Build new DoxyFile", GUILayout.Height(40)))
-				Doxyfile.Instance.Write();
-
-			GUI.enabled = true;
-
-			GUILayout.Space(20);
-			GUILayout.Label("Per User Settings:", EditorStyles.boldLabel);
-			GUILayout.Space(5);
-			GUILayout.Label("Paths", EditorStyles.boldLabel);
-			GUILayout.Space(5);
-			EditorGUILayout.BeginHorizontal();
-			DoxygenConfig.Instance.PathtoDoxygen = EditorGUILayout.TextField("Doxygen.exe : ", DoxygenConfig.Instance.PathtoDoxygen);
-			if (GUILayout.Button("...", EditorStyles.miniButtonRight, GUILayout.Width(22)))
-				DoxygenConfig.Instance.PathtoDoxygen = EditorUtility.OpenFilePanel("Where is doxygen.exe installed?", "", "");
-			EditorGUILayout.EndHorizontal();
-
-			GUILayout.Space(5);
-			EditorGUILayout.BeginHorizontal();
-			DoxygenConfig.Instance.ScriptsDirectory = EditorGUILayout.TextField("Scripts folder: ", DoxygenConfig.Instance.ScriptsDirectory);
-			if (GUILayout.Button("...", EditorStyles.miniButtonRight, GUILayout.Width(22)))
-				DoxygenConfig.Instance.ScriptsDirectory =
-					EditorUtility.OpenFolderPanel("Select your scripts folder", DoxygenConfig.Instance.ScriptsDirectory, "");
-			EditorGUILayout.EndHorizontal();
-
-			GUILayout.Space(15);
-			GUILayout.Label("Theme", EditorStyles.boldLabel);
-			GUILayout.Space(5);
-			DoxygenConfig.Instance.SelectedTheme = EditorGUILayout.Popup(DoxygenConfig.Instance.SelectedTheme, Themes);
-
-
-			GUILayout.Space(20);
-			GUILayout.Label("Provide some details about the project", EditorStyles.boldLabel);
-			GUILayout.Space(5);
-			DoxygenConfig.Instance.Project = EditorGUILayout.TextField("Project Name: ", DoxygenConfig.Instance.Project);
-			DoxygenConfig.Instance.Synopsis = EditorGUILayout.TextField("Project Brief: ", DoxygenConfig.Instance.Synopsis);
-			DoxygenConfig.Instance.Version = EditorGUILayout.TextField("Project Version: ", DoxygenConfig.Instance.Version);
-
-
-			GUILayout.Space(20);
-			GUILayout.Label("Project settings", EditorStyles.boldLabel);
-			GUILayout.Space(5);
-			EditorGUILayout.BeginHorizontal();
-			DoxygenConfig.Instance.DocDirectory = EditorGUILayout.TextField("Output folder: ", DoxygenConfig.Instance.DocDirectory);
-			if (GUILayout.Button("...", EditorStyles.miniButtonRight, GUILayout.Width(22)))
-				DoxygenConfig.Instance.DocDirectory =
-					EditorUtility.OpenFolderPanel("Select your ouput Docs folder", DoxygenConfig.Instance.DocDirectory, "");
-			EditorGUILayout.EndHorizontal();
-			DoxygenConfig.Instance.Defines = EditorGUILayout.TextField("Defines (Separate with space): ", DoxygenConfig.Instance.Defines);
-
-			GUILayout.Space(5);
-			EditorGUILayout.BeginHorizontal();
-			GUILayout.Space(5);
-			GUILayout.Space(30);
-			GUILayout.Label(
-				"By default Doxygen will search through your whole Assets folder for C# script files to document. Then it will output the documentation it generates into a folder called \"Docs\" that is placed in your project folder next to the Assets folder. If you would like to set a specific script or output folder you can do so above. ",
-				EditorStyles.wordWrappedMiniLabel);
-			GUILayout.Space(30);
-			EditorGUILayout.EndHorizontal();
-
-			SerializedObject serObj = new SerializedObject(this);
-			SerializedProperty parentProp = serObj.FindProperty("Config");
-
-//			SerializedProperty prop = parentProp.FindPropertyRelative("ExcludePatterns");
-//			EditorGUILayout.PropertyField(prop, true);
-			serObj.ApplyModifiedProperties();
-		}
-
 		void AboutGUI()
 		{
 			GUIStyle CenterLable = new GUIStyle(EditorStyles.largeLabel);
@@ -225,9 +124,40 @@ namespace GuiToolkit.Editor
 			GUILayout.Space(20);
 			EditorGUILayout.EndHorizontal();
 		}
-#endif
+
 		void GenerateGUI()
 		{
+			if (!DoxygenRunner.DoxygenExists)
+			{
+				GUILayout.Space(20);
+
+				EditorUiUtility.LabelCentered("It seems that Doxygen is not installed.", EditorStyles.boldLabel);
+				
+				GUILayout.Space(10);
+				EditorUiUtility.LabelCentered("DoxygenWindow needs an external Doxygen");
+				GUILayout.Space(-4);
+				EditorUiUtility.LabelCentered("installation to work. Download it at the link below");
+
+				GUILayout.Space(10);
+				EditorUiUtility.Centered(() =>
+				{
+					if (GUILayout.Button("   Download Doxygen   ", GUILayout.Height(40)))
+					{
+						Application.OpenURL("https://www.doxygen.nl/download.html");
+					}
+				});
+
+				GUILayout.Space(10);
+				EditorUiUtility.LabelCentered("Note: It might be necessary to log in and out");
+				GUILayout.Space(-4);
+				EditorUiUtility.LabelCentered("of your Operating system, after you installed Doxygen");
+				GUILayout.Space(-4);
+				EditorUiUtility.LabelCentered("to detect it.");
+
+				return;
+			}
+
+
 			if (Doxyfile.Instance.Exists)
 			{
 				//UnityEngine.Debug.Log(DoxyoutputProgress);
@@ -300,7 +230,7 @@ namespace GuiToolkit.Editor
 
 							Doing them here seems to work every time and the Repaint event check ensures that they will only be done once.
 							*/
-							SetTheme(DoxygenConfig.Instance.SelectedTheme);
+							DoxygenConfig.Instance.SetTheme(DoxygenConfig.Instance.SelectedTheme);
 							DoxygenLog = DoxygenOutput.ReadFullLog();
 							DoxyoutputProgress = -1.0f;
 							DoxygenOutput = null;
@@ -327,32 +257,6 @@ namespace GuiToolkit.Editor
 			{
 				UnityEngine.Debug.LogError("Doxygen finished with Error: return code " + code +
 				                           "\nCheck the Doxygen Log for Errors.\nAlso try regenerating your Doxyfile,\nyou will new to close and reopen the\ndocumentation window before regenerating.");
-			}
-		}
-
-		void SetTheme(int theme)
-		{
-			switch (theme)
-			{
-				case 1:
-					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/DarkTheme/doxygen.css",
-						DoxygenConfig.Instance.DocumentDirectory + "/html/doxygen.css");
-					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/DarkTheme/tabs.css",
-						DoxygenConfig.Instance.DocumentDirectory + "/html/tabs.css");
-					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/DarkTheme/img_downArrow.png",
-						DoxygenConfig.Instance.DocumentDirectory + "/html/img_downArrow.png");
-					break;
-				case 2:
-					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/LightTheme/doxygen.css",
-						DoxygenConfig.Instance.DocumentDirectory + "/html/doxygen.css");
-					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/LightTheme/tabs.css",
-						DoxygenConfig.Instance.DocumentDirectory + "/html/tabs.css");
-					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/LightTheme/img_downArrow.png",
-						DoxygenConfig.Instance.DocumentDirectory + "/html/img_downArrow.png");
-					FileUtil.ReplaceFile(
-						AssetsFolder + "/Editor/Doxygen/Resources/LightTheme/background_navigation.png",
-						DoxygenConfig.Instance.DocumentDirectory + "/html/background_navigation.png");
-					break;
 			}
 		}
 
