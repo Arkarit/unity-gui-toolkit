@@ -230,7 +230,6 @@ namespace GuiToolkit.Editor
 
 							Doing them here seems to work every time and the Repaint event check ensures that they will only be done once.
 							*/
-							DoxygenConfig.Instance.SetTheme(DoxygenConfig.Instance.SelectedTheme);
 							DoxygenLog = DoxygenOutput.ReadFullLog();
 							DoxyoutputProgress = -1.0f;
 							DoxygenOutput = null;

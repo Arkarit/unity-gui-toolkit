@@ -41,9 +41,6 @@ namespace GuiToolkit.Editor
 
 		public string UnityProjectID;
 
-		public int SelectedTheme = 1;
-
-
 		public bool DocsGenerated = false;
 
 		public string ThemeFolder => Path.GetDirectoryName(EditorGeneralUtility.GetCallingScriptPath()) + "/Resources";
@@ -53,34 +50,5 @@ namespace GuiToolkit.Editor
 			base.OnEditorInitialize();
 			UnityProjectID = UnityEditor.PlayerSettings.productName + ":";
 		}
-
-		public void SetTheme(int theme)
-		{
-return;
-			EditorFileUtility.EnsureFolderExists(DocumentDirectory.FullPath + "/html");
-
-			switch (theme)
-			{
-				case 1:
-					FileUtil.ReplaceFile(ThemeFolder + "/DarkTheme/doxygen.css",
-						DocumentDirectory.FullPath + "/html/doxygen.css");
-					FileUtil.ReplaceFile(ThemeFolder + "/DarkTheme/tabs.css",
-						DocumentDirectory.FullPath + "/html/tabs.css");
-					FileUtil.ReplaceFile(ThemeFolder + "/DarkTheme/img_downArrow.png",
-						DocumentDirectory.FullPath + "/html/img_downArrow.png");
-					break;
-				case 2:
-					FileUtil.ReplaceFile(ThemeFolder + "/LightTheme/doxygen.css",
-						DocumentDirectory.FullPath + "/html/doxygen.css");
-					FileUtil.ReplaceFile(ThemeFolder + "/LightTheme/tabs.css",
-						DocumentDirectory.FullPath + "/html/tabs.css");
-					FileUtil.ReplaceFile(ThemeFolder + "/LightTheme/img_downArrow.png",
-						DocumentDirectory.FullPath + "/html/img_downArrow.png");
-					FileUtil.ReplaceFile(ThemeFolder + "/LightTheme/background_navigation.png",
-						DocumentDirectory.FullPath + "/html/background_navigation.png");
-					break;
-			}
-		}
-
 	}
 }

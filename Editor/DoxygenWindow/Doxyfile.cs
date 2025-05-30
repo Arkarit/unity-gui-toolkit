@@ -70,17 +70,6 @@ namespace GuiToolkit.Editor
 				newfile = newfile.Replace("EXCLUDE_PATTERNS       =", "EXCLUDE_PATTERNS       = " + excludePatterns);
 			}
 
-			switch (DoxygenConfig.Instance.SelectedTheme)
-			{
-				case 0:
-					newfile = newfile.Replace("GENERATE_TREEVIEW      = NO", "GENERATE_TREEVIEW      = YES");
-					break;
-				case 1:
-					newfile = newfile.Replace("SEARCHENGINE           = YES", "SEARCHENGINE           = NO");
-					newfile = newfile.Replace("CLASS_DIAGRAMS         = YES", "CLASS_DIAGRAMS         = NO");
-					break;
-			}
-
 			StringBuilder sb = new StringBuilder();
 			sb.Append(newfile);
 			StreamWriter NewDoxyfile = new StreamWriter(DoxygenConfig.Instance.DocumentDirectory + "/Doxyfile");
