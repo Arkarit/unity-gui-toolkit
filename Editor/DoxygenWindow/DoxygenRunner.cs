@@ -43,11 +43,12 @@ namespace GuiToolkit.Editor
 			{
 				if (string.IsNullOrEmpty(s_doxygenExecutablePath))
 					s_doxygenExecutablePath = FindExecutableByPartialName("doxygen", true);
+
 				return s_doxygenExecutablePath;
 			}
 		}
 
-		public static bool DoxygenExists => !string.IsNullOrEmpty(DoxygenPath);
+		public static bool DoxygenExecutableFound => !string.IsNullOrEmpty(DoxygenPath);
 
 		public DoxygenRunner(string[] args, DoxygenThreadSafeOutput safeoutput, Action<int> callback)
 		{
@@ -60,7 +61,7 @@ namespace GuiToolkit.Editor
 			WorkingFolder = Path.GetDirectoryName(s_doxygenExecutablePath);
 		}
 
-		public void updateOuputString(string output)
+		public void updateOutputString(string output)
 		{
 			SafeOutput.WriteLine(output);
 			DoxyLog.Add(output);
@@ -68,7 +69,7 @@ namespace GuiToolkit.Editor
 
 		public void RunThreadedDoxy()
 		{
-			Action<string> GetOutput = (string output) => updateOuputString(output);
+			Action<string> GetOutput = (string output) => updateOutputString(output);
 			int ReturnCode = Run(GetOutput, null, "doxygen", Args);
 			SafeOutput.WriteFullLog(DoxyLog);
 			SafeOutput.SetFinished();
@@ -88,7 +89,7 @@ namespace GuiToolkit.Editor
 		/// <exception cref="System.ArgumentOutOfRangeException">Raised if an argument contains '\0', '\r', or '\n'
 		public static int Run(Action<string> output, TextReader input, string exe, params string[] args)
 		{
-			if (String.IsNullOrEmpty(exe))
+			if (string.IsNullOrEmpty(exe))
 				throw new FileNotFoundException();
 			if (output == null)
 				throw new ArgumentNullException("output");

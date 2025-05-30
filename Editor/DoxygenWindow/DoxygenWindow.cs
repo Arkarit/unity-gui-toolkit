@@ -127,7 +127,7 @@ namespace GuiToolkit.Editor
 
 		void GenerateGUI()
 		{
-			if (!DoxygenRunner.DoxygenExists)
+			if (!DoxygenRunner.DoxygenExecutableFound)
 			{
 				GUILayout.Space(20);
 
@@ -263,7 +263,7 @@ namespace GuiToolkit.Editor
 		public void RunDoxygen()
 		{
 			string[] Args = new string[1];
-			Args[0] = DoxygenConfig.Instance.DocumentDirectory + "/Doxyfile";
+			Args[0] = Path.GetFullPath(DoxygenConfig.Instance.DocumentDirectory + "/Doxyfile");
 
 			DoxygenOutput = new DoxygenThreadSafeOutput();
 			DoxygenOutput.SetStarted();

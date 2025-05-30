@@ -56,6 +56,7 @@ namespace GuiToolkit.Editor
 
 		public void SetTheme(int theme)
 		{
+return;
 			EditorFileUtility.EnsureFolderExists(DocumentDirectory.FullPath + "/html");
 
 			switch (theme)
