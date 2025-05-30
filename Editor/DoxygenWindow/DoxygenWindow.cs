@@ -236,7 +236,7 @@ namespace GuiToolkit.Editor
 					GUI.enabled = false;
 				if (GUILayout.Button("Browse Documentation", GUILayout.Height(40)))
 				{
-					Application.OpenURL("File://" + Doxyfile.Instance.Directory + "/html/annotated.html");
+					Application.OpenURL("File://" + DoxygenConfig.Instance.DocumentDirectory + "/html/annotated.html");
 				}
 
 				GUI.enabled = true;
@@ -305,7 +305,6 @@ namespace GuiToolkit.Editor
 							DoxyoutputProgress = -1.0f;
 							DoxygenOutput = null;
 							DoxygenConfig.Instance.DocsGenerated = true;
-							EditorPrefs.SetBool(DoxygenConfig.Instance.UnityProjectID + "DocsGenerated", DoxygenConfig.Instance.DocsGenerated);
 						}
 					}
 				}
@@ -337,22 +336,22 @@ namespace GuiToolkit.Editor
 			{
 				case 1:
 					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/DarkTheme/doxygen.css",
-						DoxygenConfig.Instance.DocDirectory + "/html/doxygen.css");
+						DoxygenConfig.Instance.DocumentDirectory + "/html/doxygen.css");
 					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/DarkTheme/tabs.css",
-						DoxygenConfig.Instance.DocDirectory + "/html/tabs.css");
+						DoxygenConfig.Instance.DocumentDirectory + "/html/tabs.css");
 					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/DarkTheme/img_downArrow.png",
-						DoxygenConfig.Instance.DocDirectory + "/html/img_downArrow.png");
+						DoxygenConfig.Instance.DocumentDirectory + "/html/img_downArrow.png");
 					break;
 				case 2:
 					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/LightTheme/doxygen.css",
-						DoxygenConfig.Instance.DocDirectory + "/html/doxygen.css");
+						DoxygenConfig.Instance.DocumentDirectory + "/html/doxygen.css");
 					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/LightTheme/tabs.css",
-						DoxygenConfig.Instance.DocDirectory + "/html/tabs.css");
+						DoxygenConfig.Instance.DocumentDirectory + "/html/tabs.css");
 					FileUtil.ReplaceFile(AssetsFolder + "/Editor/Doxygen/Resources/LightTheme/img_downArrow.png",
-						DoxygenConfig.Instance.DocDirectory + "/html/img_downArrow.png");
+						DoxygenConfig.Instance.DocumentDirectory + "/html/img_downArrow.png");
 					FileUtil.ReplaceFile(
 						AssetsFolder + "/Editor/Doxygen/Resources/LightTheme/background_navigation.png",
-						DoxygenConfig.Instance.DocDirectory + "/html/background_navigation.png");
+						DoxygenConfig.Instance.DocumentDirectory + "/html/background_navigation.png");
 					break;
 			}
 		}
@@ -360,7 +359,7 @@ namespace GuiToolkit.Editor
 		public void RunDoxygen()
 		{
 			string[] Args = new string[1];
-			Args[0] = DoxygenConfig.Instance.DocDirectory + "/Doxyfile";
+			Args[0] = DoxygenConfig.Instance.DocumentDirectory + "/Doxyfile";
 
 			DoxygenOutput = new DoxygenThreadSafeOutput();
 			DoxygenOutput.SetStarted();

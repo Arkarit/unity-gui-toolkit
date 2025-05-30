@@ -16,8 +16,8 @@ MonoBehaviour:
   Synopsis: 
   Version: 
   ScriptsDirectory: 
-  DocDirectory: 
-  PathtoDoxygen: 
+  DocumentDirectory:
+    Path: ..\Docs
   Defines: 
   ExcludePatterns: []
   UnityProjectID: 

@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit.Editor
 {
@@ -29,7 +30,10 @@ namespace GuiToolkit.Editor
 		public string Synopsis = "";
 		public string Version = "";
 		public string ScriptsDirectory;
-		public string DocDirectory;
+
+		[PathField(isFolder:true, relativeToPath:".")]
+		public PathField DocumentDirectory;
+
 		public string Defines;
 		public List<string> ExcludePatterns;
 

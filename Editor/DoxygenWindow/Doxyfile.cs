@@ -31,32 +31,15 @@ namespace GuiToolkit.Editor
 				return m_template;
 			}
 		}
+		public string Path => DoxygenConfig.Instance.DocumentDirectory + "/Doxyfile";
 
-		public bool Exists => File.Exists(Directory);
-
-		public string Directory
-		{
-			get
-			{
-				var result = DoxygenConfig.Instance.DocDirectory;
-				if (DoxygenConfig.Instance.DocDirectory.StartsWith("."))
-				{
-					var doxygenPath = DoxygenRunner.DoxygenPath;
-					if (doxygenPath == null)
-						return null;
-
-					result = Application.dataPath + "/../" + Path.GetDirectoryName(doxygenPath);
-				}
-
-				return result;
-			}
-		}
+		public bool Exists => File.Exists(Path);
 
 		public void Write()
 		{
 			DoxygenConfig.EditorSave();
 
-			EditorFileUtility.EnsureFolderExists(Directory);
+			EditorFileUtility.EnsureFolderExists(DoxygenConfig.Instance.DocumentDirectory);
 
 			string newfile = Template.Replace("PROJECT_NAME           =",
 				"PROJECT_NAME           = " + "\"" + DoxygenConfig.Instance.Project + "\"");
@@ -64,9 +47,9 @@ namespace GuiToolkit.Editor
 			newfile = newfile.Replace("PROJECT_BRIEF          =",
 				"PROJECT_BRIEF          = " + "\"" + DoxygenConfig.Instance.Synopsis + "\"");
 			newfile = newfile.Replace("OUTPUT_DIRECTORY       =",
-				"OUTPUT_DIRECTORY       = " + "\"" + DoxygenConfig.Instance.DocDirectory + "\"");
+				"OUTPUT_DIRECTORY       = " + "\"" + DoxygenConfig.Instance.DocumentDirectory + "\"");
 			newfile = newfile.Replace("IMAGE_PATH             =",
-				"IMAGE_PATH             = " + "\"" + DoxygenConfig.Instance.DocDirectory + "\"");
+				"IMAGE_PATH             = " + "\"" + DoxygenConfig.Instance.DocumentDirectory + "\"");
 			newfile = newfile.Replace("INPUT                  =",
 				"INPUT                  = " + "\"" + DoxygenConfig.Instance.ScriptsDirectory + "\"");
 			newfile = newfile.Replace("PREDEFINED             =", "PREDEFINED             = " + DoxygenConfig.Instance.Defines);
@@ -100,11 +83,10 @@ namespace GuiToolkit.Editor
 
 			StringBuilder sb = new StringBuilder();
 			sb.Append(newfile);
-			StreamWriter NewDoxyfile = new StreamWriter(Directory + @"\Doxyfile");
+			StreamWriter NewDoxyfile = new StreamWriter(DoxygenConfig.Instance.DocumentDirectory + "/Doxyfile");
 
 			NewDoxyfile.Write(sb.ToString());
 			NewDoxyfile.Close();
-			EditorPrefs.SetBool(DoxygenConfig.Instance.UnityProjectID + "DoxyFileExists", Exists);
 		}
 
 		private string ReadTemplate()

@@ -211,7 +211,18 @@ namespace GuiToolkit.Editor
 					foreach (string test in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
 					{
 						string path = test.Trim();
-						var files = Directory.GetFiles(path, searchPattern);
+						string[] files;
+
+						try
+						{
+UnityEngine.Debug.Log($"Path: {path}");
+							files = Directory.GetFiles(path, searchPattern);
+						}
+						catch
+						{
+UnityEngine.Debug.Log("catch");
+							continue;
+						}
 
 						// First round: Direct match
 						foreach (var file in files)
