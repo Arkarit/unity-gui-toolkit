@@ -10,56 +10,6 @@ namespace GuiToolkit.Style.Editor
 	{
 		public const string NoFixedSkinEntry = "<Use Global Skin>";
 
-		private class DisplayStyleHelperObject : ScriptableObject
-		{
-			[SerializeReference]
-			public UiAbstractStyleBase Style;
-		}
-
-		private class DisplayStyleHelperObjectEditor : UnityEditor.Editor
-		{
-			public override void OnInspectorGUI()
-			{
-				try
-				{
-					EditorGeneralUtility.DrawInspectorExceptField(serializedObject, "m_Script");
-				}
-				catch
-				{
-					// Sometimes when editing colors in a style, Unity begins to spit "The operation is not possible when moved past all properties"
-					// without any determinable reason.
-					// Just refreshing the style helper and editor helps.
-					s_styleHelper = null;
-					s_styleHelperEditor = null;
-				}
-			}
-		}
-
-		private static DisplayStyleHelperObject s_styleHelper;
-		private static DisplayStyleHelperObjectEditor s_styleHelperEditor;
-
-		private static DisplayStyleHelperObject StyleHelper
-		{
-			get
-			{
-				if (s_styleHelper == null)
-					s_styleHelper = ScriptableObject.CreateInstance<DisplayStyleHelperObject>();
-
-				return s_styleHelper;
-			}
-		}
-
-		private static UnityEditor.Editor StyleHelperEditor
-		{
-			get
-			{
-				if (s_styleHelperEditor == null || s_styleHelperEditor.serializedObject == null || s_styleHelperEditor.target == null)
-					s_styleHelperEditor = (DisplayStyleHelperObjectEditor)UnityEditor.Editor.CreateEditor(StyleHelper, typeof(DisplayStyleHelperObjectEditor));
-
-				return s_styleHelperEditor;
-			}
-		}
-
 		public static string GetSelectSkinPopup( UiStyleConfig _config, string _currentAlias, out bool _hasChanged, bool _isFixedSkin = false )
 		{
 			_hasChanged = false;
@@ -132,19 +82,9 @@ namespace GuiToolkit.Style.Editor
 		// Draw a style in the inspector without the need to actually [SerializeReference] it (which totally bloats stuff)
 		public static void DrawStyle( UiAbstractApplyStyleBase _applier, UiAbstractStyleBase _style )
 		{
-			EditorGUILayout.LabelField("Currently used Style:");
-			if (_style == null)
-			{
-				EditorGUILayout.HelpBox("No Style assigned yet", MessageType.Warning);
-				EditorGUILayout.Space(10);
-				return;
-			}
-
 			_applier.SetSkinListeners(true);
-			EditorDisplayHelperStyle.Instance.Draw(_style);
-//			var styleHelper = StyleHelper;
-//			styleHelper.Style = _style;
-//			StyleHelperEditor.OnInspectorGUI();
+			EditorGUILayout.LabelField("Currently used Style:");
+			EditorDisplayHelper.Draw(_style, "No Style assigned yet");
 			_applier.SetSkinListeners(!_applier.SkinIsFixed);
 		}
 

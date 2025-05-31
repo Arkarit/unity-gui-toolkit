@@ -1,67 +1,21 @@
 #if UNITY_EDITOR
-using GuiToolkit.Style;
-using NUnit.Framework.Internal;
 using UnityEditor;
 using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class EditorDisplayHelperStyle : EditorDisplayHelper<UiAbstractStyleBase>
+	/// <summary>
+	/// This class helps to very easily display a generic serializable class within another context (e.g. an Editor or EditorWindow)
+	/// </summary>
+	public static class EditorDisplayHelper
 	{
-		protected class DisplayHelperObjectStyle : DisplayHelperObject<UiAbstractStyleBase>
+		private class HelperObject : ScriptableObject
 		{
-			[SerializeReference] public UiAbstractStyleBase m_obj;
-			public override UiAbstractStyleBase Obj
-			{
-				get => m_obj;
-				set => m_obj = value;
-			}
+			[SerializeReference]
+			public object Obj;
 		}
 
-		private DisplayHelperObjectStyle m_helper;
-		private static EditorDisplayHelperStyle s_instance;
-
-		public static EditorDisplayHelperStyle Instance
-		{
-			get
-			{
-				if (s_instance == null)
-					s_instance = new EditorDisplayHelperStyle();
-				return s_instance;
-			}
-		}
-
-		protected override DisplayHelperObject<UiAbstractStyleBase> Helper
-		{
-			get
-			{
-				if (m_helper == null)
-					m_helper = ScriptableObject.CreateInstance<DisplayHelperObjectStyle>();
-				return m_helper;
-			}
-		}
-	}
-
-	public abstract class EditorDisplayHelper<TC>
-	{
-		private DisplayHelperObject<TC> m_helper;
-		private DisplayHelperObjectEditor<TC> m_helperEditor;
-		
-
-		// Draw a style in the inspector without the need to actually [SerializeReference] it (which totally bloats stuff)
-		public void Draw(TC _obj)
-		{
-			var styleHelper = Helper;
-			styleHelper.Obj = _obj;
-			HelperEditor.OnInspectorGUI();
-		}
-
-		protected abstract class DisplayHelperObject<T> : ScriptableObject
-		{
-			public abstract T Obj { get; set; }
-		}
-
-		private class DisplayHelperObjectEditor<T> : Editor
+		private class HelperObjectEditor : Editor
 		{
 			public override void OnInspectorGUI()
 			{
@@ -74,39 +28,58 @@ namespace GuiToolkit
 					// Sometimes when editing colors in a style, Unity begins to spit "The operation is not possible when moved past all properties"
 					// without any determinable reason.
 					// Just refreshing the style helper and editor helps.
-//					m_helper = null;
-//					m_helperEditor = null;
+					s_helper.SafeDestroy();
+					s_helperEditor.SafeDestroy();
+					s_helper = null;
+					s_helperEditor = null;
 				}
 			}
 		}
 
-		protected abstract DisplayHelperObject<TC> Helper { get; }
-//		{
-//			get
-//			{
-//				if (m_helper == null)
-//				{
-//					var type = typeof(DisplayHelperObject<TC>);
-//					var bla = (DisplayHelperObject<TC>)ScriptableObject.CreateInstance(type);
-//					m_helper = bla;
-//				}
-//
-//				return m_helper;
-//			}
-//		}
+		private static HelperObject s_helper;
+		private static HelperObjectEditor s_helperEditor;
 
-		private Editor HelperEditor
+		public static void Draw(object _object, string _messageIfObjIsNull)
+		{
+			if (_object == null)
+			{
+				if (!string.IsNullOrEmpty(_messageIfObjIsNull))
+				{
+					EditorGUILayout.HelpBox(_messageIfObjIsNull, MessageType.Warning);
+					EditorGUILayout.Space(10);
+				}
+
+				return;
+			}
+	
+			var helper = Helper;
+			helper.Obj = _object;
+			HelperEditor.OnInspectorGUI();
+		}
+
+		private static HelperObject Helper
 		{
 			get
 			{
-				if (   m_helperEditor == null 
-				    || m_helperEditor.serializedObject == null 
-				    || m_helperEditor.target == null)
-					m_helperEditor = (DisplayHelperObjectEditor<TC>)Editor.CreateEditor(Helper, typeof(DisplayHelperObjectEditor<TC>));
+				if (s_helper == null)
+					s_helper = ScriptableObject.CreateInstance<HelperObject>();
 
-				return m_helperEditor;
+				return s_helper;
 			}
+		}
 
+		private static Editor HelperEditor
+		{
+			get
+			{
+				if (s_helperEditor == null || s_helperEditor.target == null)
+				{
+					s_helperEditor.SafeDestroy();
+					s_helperEditor = (HelperObjectEditor)Editor.CreateEditor(Helper, typeof(HelperObjectEditor));
+				}
+
+				return s_helperEditor;
+			}
 		}
 	}
 
