@@ -12,14 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d10885bb17409dc4ea9382190bf0e57c, type: 3}
   m_Name: DoxygenConfig
   m_EditorClassIdentifier: 
-  Project: Test
-  Synopsis: 
-  Version: 
-  ScriptsDirectory: 
+  Project: GUI Toolkit
+  Synopsis: Toolkit with various improvements to Unity Gui
+  Version: 0.3
+  Intro:
+    Path: 
+  ScriptsDirectory:
+    Path: ..\..\Runtime\Code
   DocumentDirectory:
     Path: ..\Docs
   Defines: 
   ExcludePatterns: []
   UnityProjectID: 
-  SelectedTheme: 1
-  DocsGenerated: 0

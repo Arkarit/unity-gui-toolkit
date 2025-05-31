@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Text;
 
 namespace GuiToolkit.Editor
 {
@@ -40,9 +39,6 @@ namespace GuiToolkit.Editor
 
 		public string AssetsFolder;
 		public static readonly string[] Themes = new string[3] { "Default", "Dark and Colorful", "Light and Clean" };
-		WindowModes DisplayMode = WindowModes.Generate;
-		StringReader reader;
-		TextAsset basefile;
 		float DoxyoutputProgress = -1.0f;
 		public string DoxygenOutputString = null;
 		public string CurentOutput = null;
@@ -164,10 +160,13 @@ namespace GuiToolkit.Editor
 				GUI.enabled = false;
 			if (GUILayout.Button("Browse Documentation", GUILayout.Height(40)))
 			{
-				Application.OpenURL("File://" + DoxygenConfig.Instance.DocumentDirectory.FullPath + "/html/index.html");
+				Application.OpenURL("File://" + DoxygenConfig.Instance.DocumentDirectory.FullPath + "/html/annotated.html");
 			}
 
 			GUI.enabled = true;
+
+			if (GUILayout.Button("Select DoxygenConfig"))
+				Selection.activeObject = DoxygenConfig.Instance;
 
 			if (DoxygenOutput == null)
 			{
@@ -229,7 +228,7 @@ namespace GuiToolkit.Editor
 		public void RunDoxygen()
 		{
 			string[] Args = new string[1];
-			Args[0] = Path.GetFullPath(DoxygenConfig.Instance.DocumentDirectory + "/Doxyfile");
+			Args[0] = Doxyfile.Write();
 
 			DoxygenOutput = new DoxygenThreadSafeOutput();
 			DoxygenOutput.SetStarted();

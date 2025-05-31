@@ -6,52 +6,35 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
-	public class Doxyfile
+	public static class Doxyfile
 	{
-		private static Doxyfile s_instance;
-		private string m_template;
+		private static string s_path;
 
-		public static Doxyfile Instance
+		public static string Path => s_path ??= System.IO.Path.GetTempFileName();
+
+		public static bool Exists => File.Exists(Path);
+
+		public static string Write()
 		{
-			get
+			string template = ReadTemplate();
+			if (template == null)
 			{
-				if (s_instance == null)
-					s_instance = new Doxyfile();
-
-				return s_instance; 
+				Debug.LogError("DoxyfileTemplate not found");
+				return null;
 			}
-		}
 
-		public string Template
-		{
-			get
-			{
-				if (m_template == null)
-					m_template = ReadTemplate();
-				return m_template;
-			}
-		}
-		public string Path => DoxygenConfig.Instance.DocumentDirectory + "/Doxyfile";
-
-		public bool Exists => File.Exists(Path);
-
-		public void Write()
-		{
 			DoxygenConfig.EditorSave();
 
-			EditorFileUtility.EnsureUnityFolderExists(DoxygenConfig.Instance.DocumentDirectory);
-
-			string newfile = Template.Replace("PROJECT_NAME           =",
-				"PROJECT_NAME           = " + "\"" + DoxygenConfig.Instance.Project + "\"");
+			string newfile = template.Replace("PROJECT_NAME           =", "PROJECT_NAME           = " + "\"" + DoxygenConfig.Instance.Project + "\"");
 			newfile = newfile.Replace("PROJECT_NUMBER         =", "PROJECT_NUMBER         = " + DoxygenConfig.Instance.Version);
 			newfile = newfile.Replace("PROJECT_BRIEF          =",
 				"PROJECT_BRIEF          = " + "\"" + DoxygenConfig.Instance.Synopsis + "\"");
 			newfile = newfile.Replace("OUTPUT_DIRECTORY       =",
-				"OUTPUT_DIRECTORY       = " + "\"" + DoxygenConfig.Instance.DocumentDirectory + "\"");
+				"OUTPUT_DIRECTORY       = " + "\"" + DoxygenConfig.Instance.DocumentDirectory.FullPath + "\"");
 			newfile = newfile.Replace("IMAGE_PATH             =",
-				"IMAGE_PATH             = " + "\"" + DoxygenConfig.Instance.DocumentDirectory + "\"");
+				"IMAGE_PATH             = " + "\"" + DoxygenConfig.Instance.DocumentDirectory.FullPath + "\"");
 			newfile = newfile.Replace("INPUT                  =",
-				"INPUT                  = " + "\"" + DoxygenConfig.Instance.ScriptsDirectory + "\"");
+				"INPUT                  = " + "\"" + DoxygenConfig.Instance.ScriptsDirectory.FullPath + "\"");
 			newfile = newfile.Replace("PREDEFINED             =", "PREDEFINED             = " + DoxygenConfig.Instance.Defines);
 
 			newfile = newfile.Replace("DISTRIBUTE_GROUP_DOC   = NO", "DISTRIBUTE_GROUP_DOC   = YES");
@@ -72,12 +55,14 @@ namespace GuiToolkit.Editor
 
 			StringBuilder sb = new StringBuilder();
 			sb.Append(newfile);
-			StreamWriter NewDoxyfile = new StreamWriter(DoxygenConfig.Instance.DocumentDirectory + "/Doxyfile");
+			StreamWriter NewDoxyfile = new StreamWriter(Path);
 			NewDoxyfile.Write(sb.ToString());
 			NewDoxyfile.Close();
+
+			return Path;
 		}
 
-		private string ReadTemplate()
+		private static string ReadTemplate()
 		{
 			var result = Resources.Load<TextAsset>("DoxyfileTemplate");
 			return result ? result.text : null;

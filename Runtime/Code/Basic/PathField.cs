@@ -31,9 +31,9 @@ namespace GuiToolkit
 					return null;
 
 				if (IsRelative)
-					return System.IO.Path.GetFullPath("./" + Path);
+					return System.IO.Path.GetFullPath("./" + Path).Replace('\\', '/');
 
-				return Path;
+				return Path.Replace('\\', '/');
 			}
 		}
 		

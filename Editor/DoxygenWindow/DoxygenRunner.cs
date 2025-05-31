@@ -204,6 +204,8 @@ namespace GuiToolkit.Editor
 
 		private static string FindExecutableByPartialNameInternal(string fileName, bool caseInsensitive)
 		{
+			//TODO: Mac/Linux implementation
+
 			fileName = Environment.ExpandEnvironmentVariables(fileName);
 			if (!File.Exists(fileName))
 			{
