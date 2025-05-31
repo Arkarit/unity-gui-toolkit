@@ -143,6 +143,25 @@ namespace GuiToolkit
 			});
 		}
 
+		public static void WithHeadline(string _headline, Action _action)
+		{
+			EditorGUILayout.Space(5);
+			DrawLine();
+			BackgroundBox(new Color(0,0,0,.1f), 22);
+			GUILayout.Label("   " + _headline, EditorStyles.boldLabel);
+			EditorGUILayout.Space(1);
+			DrawLine();
+			EditorGUILayout.Space(15);
+			_action.Invoke();
+			EditorGUILayout.Space(5);
+		}
+
+		public static void BackgroundBox(Color _color, int _height)
+		{
+			DrawLine(_color, _height);
+			EditorGUILayout.Space(-_height);
+		}
+
 		public static bool EnumPopup<T>( string _labelText, ref T _val, string _labelText2 = "" ) where T : Enum
 		{
 			string[] types = Enum.GetNames(typeof(T));
