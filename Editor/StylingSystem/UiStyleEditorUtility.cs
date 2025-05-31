@@ -141,9 +141,10 @@ namespace GuiToolkit.Style.Editor
 			}
 
 			_applier.SetSkinListeners(true);
-			var styleHelper = StyleHelper;
-			styleHelper.Style = _style;
-			StyleHelperEditor.OnInspectorGUI();
+			EditorDisplayHelperStyle.Instance.Draw(_style);
+//			var styleHelper = StyleHelper;
+//			styleHelper.Style = _style;
+//			StyleHelperEditor.OnInspectorGUI();
 			_applier.SetSkinListeners(!_applier.SkinIsFixed);
 		}
 
