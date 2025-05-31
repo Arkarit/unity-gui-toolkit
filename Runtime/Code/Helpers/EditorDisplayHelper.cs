@@ -1,6 +1,8 @@
 #if UNITY_EDITOR
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
@@ -12,7 +14,9 @@ namespace GuiToolkit
 		private class HelperObject : ScriptableObject
 		{
 			[SerializeReference]
-			public object Obj;
+			public object GenericInstanceObject;
+
+			public Object ObjectInstanceObject;
 		}
 
 		private class HelperObjectEditor : Editor
@@ -21,7 +25,19 @@ namespace GuiToolkit
 			{
 				try
 				{
-					EditorGeneralUtility.DrawInspectorExceptField(serializedObject, "m_Script");
+					var thisHelperObject = (HelperObject) target;
+					if (thisHelperObject.GenericInstanceObject != null)
+					{
+						EditorGeneralUtility.DrawInspectorExceptFields(serializedObject, new HashSet<string>{"m_Script", "ObjectInstanceObject"});
+						return;
+					}
+
+//					EditorGeneralUtility.DrawInspectorExceptFields(serializedObject, new HashSet<string>{"m_Script", "GenericInstanceObject"});
+					var serObj = new SerializedObject(thisHelperObject.ObjectInstanceObject);
+					EditorGUI.BeginChangeCheck();
+					DrawPropertiesExcluding(serObj, "m_name");
+					if (EditorGUI.EndChangeCheck())
+						serObj.ApplyModifiedProperties();
 				}
 				catch
 				{
@@ -53,7 +69,15 @@ namespace GuiToolkit
 			}
 	
 			var helper = Helper;
-			helper.Obj = _object;
+
+			helper.GenericInstanceObject = null;
+			helper.ObjectInstanceObject = null;
+
+			if (_object is Object unityObject)
+				helper.ObjectInstanceObject = unityObject;
+			else
+				helper.GenericInstanceObject = _object;
+
 			HelperEditor.OnInspectorGUI();
 		}
 

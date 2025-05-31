@@ -70,6 +70,7 @@ namespace GuiToolkit.Editor
 
 		void OnGUI()
 		{
+			EditorDisplayHelper.Draw(DoxygenConfig.Instance, "DoxygenConfig instance is null. Please create one.");
 			GenerateGUI();
 			return;
 #if false
