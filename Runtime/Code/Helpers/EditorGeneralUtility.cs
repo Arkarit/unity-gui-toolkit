@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -420,6 +421,7 @@ namespace GuiToolkit
 
 		// Get the path of the script which calls this function. Weird and hacky but works.
 		public static string GetCallingScriptPath() => new System.Diagnostics.StackTrace(true).GetFrame(1).GetFileName();
+		public static string GetCallingScriptDirectory() => Path.GetDirectoryName(new System.Diagnostics.StackTrace(true).GetFrame(1).GetFileName());
 
 		public static bool TryGetCustomAttribute<TA>(this SerializedProperty _property, out TA _value) where TA : Attribute
 		{

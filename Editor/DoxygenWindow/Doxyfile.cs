@@ -1,6 +1,5 @@
+using System;
 using System.IO;
-using System.Text;
-using UnityEditor;
 using UnityEngine;
 
 
@@ -16,29 +15,14 @@ namespace GuiToolkit.Editor
 
 		public static string Write()
 		{
-			string template = ReadTemplate();
-			if (template == null)
+			var templateLines = ReadTemplate();
+			if (templateLines == null)
 			{
 				Debug.LogError("DoxyfileTemplate not found");
 				return null;
 			}
 
 			DoxygenConfig.EditorSave();
-
-			string newfile = template.Replace("PROJECT_NAME           =", "PROJECT_NAME           = " + "\"" + DoxygenConfig.Instance.Project + "\"");
-			newfile = newfile.Replace("PROJECT_NUMBER         =", "PROJECT_NUMBER         = " + DoxygenConfig.Instance.Version);
-			newfile = newfile.Replace("PROJECT_BRIEF          =",
-				"PROJECT_BRIEF          = " + "\"" + DoxygenConfig.Instance.Synopsis + "\"");
-			newfile = newfile.Replace("OUTPUT_DIRECTORY       =",
-				"OUTPUT_DIRECTORY       = " + "\"" + DoxygenConfig.Instance.DocumentDirectory.FullPath + "\"");
-			newfile = newfile.Replace("IMAGE_PATH             =",
-				"IMAGE_PATH             = " + "\"" + DoxygenConfig.Instance.DocumentDirectory.FullPath + "\"");
-			newfile = newfile.Replace("INPUT                  =",
-				"INPUT                  = " + "\"" + DoxygenConfig.Instance.ScriptsDirectory.FullPath + "\"");
-			newfile = newfile.Replace("PREDEFINED             =", "PREDEFINED             = " + DoxygenConfig.Instance.Defines);
-
-			newfile = newfile.Replace("DISTRIBUTE_GROUP_DOC   = NO", "DISTRIBUTE_GROUP_DOC   = YES");
-
 
 			string excludePatterns = "";
 			for (int i = 0; i < DoxygenConfig.Instance.ExcludePatterns.Count; i++)
@@ -48,24 +32,61 @@ namespace GuiToolkit.Editor
 				excludePatterns += DoxygenConfig.Instance.ExcludePatterns[i];
 			}
 
-			if (!string.IsNullOrEmpty(excludePatterns))
+			for (int i = 0; i < templateLines.Length; i++)
 			{
-				newfile = newfile.Replace("EXCLUDE_PATTERNS       =", "EXCLUDE_PATTERNS       = " + excludePatterns);
+				var line = templateLines[i].Trim();
+
+				if (   ReplaceLineIfNecessary(ref line, "PROJECT_NAME", DoxygenConfig.Instance.Project)
+				    || ReplaceLineIfNecessary(ref line, "PROJECT_NUMBER", DoxygenConfig.Instance.Version)
+				    || ReplaceLineIfNecessary(ref line, "PROJECT_BRIEF", DoxygenConfig.Instance.Synopsis)
+				    || ReplaceLineIfNecessary(ref line, "OUTPUT_DIRECTORY", DoxygenConfig.Instance.DocumentDirectory.FullPath)
+				    || ReplaceLineIfNecessary(ref line, "IMAGE_PATH", DoxygenConfig.Instance.DocumentDirectory.FullPath)
+				    || ReplaceLineIfNecessary(ref line, "INPUT", DoxygenConfig.Instance.ScriptsDirectory.FullPath)
+				    || ReplaceLineIfNecessary(ref line, "PREDEFINED", DoxygenConfig.Instance.Defines, null)
+				    || ReplaceLineIfNecessary(ref line, "DISTRIBUTE_GROUP_DOC", "YES", null)
+				    || ReplaceLineIfNecessary(ref line, "EXCLUDE_PATTERNS", excludePatterns, null)
+				)
+					templateLines[i] = line;
 			}
 
-			StringBuilder sb = new StringBuilder();
-			sb.Append(newfile);
-			StreamWriter NewDoxyfile = new StreamWriter(Path);
-			NewDoxyfile.Write(sb.ToString());
-			NewDoxyfile.Close();
+			try
+			{
+				File.WriteAllLines(Path, templateLines);
+			}
+			catch (Exception e)
+			{
+				Debug.LogError($"Could not write doxyfile, exception:'{e.Message}'");
+			}
 
 			return Path;
 		}
 
-		private static string ReadTemplate()
+		private static bool ReplaceLineIfNecessary(ref string line, string keyword, string replacement, string quoteChar = "\"")
 		{
-			var result = Resources.Load<TextAsset>("DoxyfileTemplate");
-			return result ? result.text : null;
+			if (!line.StartsWith(keyword))
+				return false;
+
+			if (quoteChar == null)
+				quoteChar = string.Empty;
+
+			line = $"{keyword} = {quoteChar}{replacement}{quoteChar}";
+			return true;
+		}
+
+
+		private static string[] ReadTemplate()
+		{
+			var path = EditorGeneralUtility.GetCallingScriptDirectory() + "/DoxyfileTemplate";
+
+			try
+			{
+				return File.ReadAllLines(path);
+			}
+			catch (Exception e)
+			{
+				Debug.LogError($"Could not read doxyfile at path '{path}', exception:'{e.Message}'");
+				return new String [0];
+			}
 		}
 	}
 
