@@ -32,8 +32,16 @@ namespace GuiToolkit
 						return;
 					}
 
-//					EditorGeneralUtility.DrawInspectorExceptFields(serializedObject, new HashSet<string>{"m_Script", "GenericInstanceObject"});
 					var serObj = new SerializedObject(thisHelperObject.ObjectInstanceObject);
+
+					if (thisHelperObject.ObjectInstanceObject is ScriptableObject so)
+					{
+						var tempEditor = CreateEditor(so);
+						tempEditor.OnInspectorGUI();
+						tempEditor.SafeDestroy();
+						return;
+					}
+
 					EditorGUI.BeginChangeCheck();
 					DrawPropertiesExcluding(serObj, "m_name");
 					if (EditorGUI.EndChangeCheck())
