@@ -17,8 +17,9 @@ MonoBehaviour:
   Version: 0.3
   Intro:
     Path: 
-  ScriptsDirectory:
-    Path: ..\..\Runtime\Code
+  ScriptsDirectories:
+  - Path: ..\..\Runtime\Code
+  - Path: ..\..\Editor
   DocumentDirectory:
     Path: ..\Docs
   Defines: UNITY_EDITOR

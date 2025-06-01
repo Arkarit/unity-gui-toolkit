@@ -36,7 +36,7 @@ namespace GuiToolkit.Editor
 		public PathField Intro;
 
 		[PathField(isFolder:true, relativeToPath:".")]
-		public PathField ScriptsDirectory;
+		public List<PathField> ScriptsDirectories;
 
 		[PathField(isFolder:true, relativeToPath:".")]
 		public PathField DocumentDirectory;

@@ -95,6 +95,18 @@ namespace GuiToolkit.Editor
 					});
 				}
 
+				using (new EditorGUI.DisabledScope(!Doxyfile.Exists))
+				{
+					EditorUiUtility.Centered(() =>
+					{
+						if (GUILayout.Button(
+							new GUIContent("   View last Doxyfile   ", $"Open the last Doxyfile. You can also find it at the path '{Doxyfile.Path}'"),
+							GUILayout.Height(40)
+						))
+							Application.OpenURL("File://" + Doxyfile.Path);
+					});
+				}
+
 			});
 
 			if (IsDoxygenExeWorking)

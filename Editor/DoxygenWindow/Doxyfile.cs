@@ -23,12 +23,20 @@ namespace GuiToolkit.Editor
 
 			DoxygenConfig.EditorSave();
 
-			string excludePatterns = "";
+			string excludePatterns = string.Empty;
 			for (int i = 0; i < DoxygenConfig.Instance.ExcludePatterns.Count; i++)
 			{
 				if (i > 0)
 					excludePatterns += " \\\n";
 				excludePatterns += DoxygenConfig.Instance.ExcludePatterns[i];
+			}
+
+			string scriptsDirectories = string.Empty;
+			for (int i = 0; i < DoxygenConfig.Instance.ScriptsDirectories.Count; i++)
+			{
+				if (i > 0)
+					scriptsDirectories += " ";
+				scriptsDirectories += $"\"{DoxygenConfig.Instance.ScriptsDirectories[i].FullPath}\"";
 			}
 
 			for (int i = 0; i < templateLines.Length; i++)
@@ -40,7 +48,7 @@ namespace GuiToolkit.Editor
 				    || ReplaceLineIfNecessary(ref line, "PROJECT_BRIEF", DoxygenConfig.Instance.Synopsis)
 				    || ReplaceLineIfNecessary(ref line, "OUTPUT_DIRECTORY", DoxygenConfig.Instance.DocumentDirectory.FullPath)
 				    || ReplaceLineIfNecessary(ref line, "IMAGE_PATH", DoxygenConfig.Instance.DocumentDirectory.FullPath)
-				    || ReplaceLineIfNecessary(ref line, "INPUT", DoxygenConfig.Instance.ScriptsDirectory.FullPath)
+				    || ReplaceLineIfNecessary(ref line, "INPUT", scriptsDirectories, null)
 				    || ReplaceLineIfNecessary(ref line, "PREDEFINED", DoxygenConfig.Instance.Defines, null)
 				    || ReplaceLineIfNecessary(ref line, "DISTRIBUTE_GROUP_DOC", "YES", null)
 				    || ReplaceLineIfNecessary(ref line, "EXCLUDE_PATTERNS", excludePatterns, null)
@@ -62,7 +70,11 @@ namespace GuiToolkit.Editor
 
 		private static bool ReplaceLineIfNecessary(ref string line, string keyword, string replacement, string quoteChar = "\"")
 		{
-			if (!line.StartsWith(keyword))
+			var lineSplit = line.Split(' ');
+			if (lineSplit.Length == 0)
+				return false;
+
+			if (lineSplit[0] != keyword)
 				return false;
 
 			if (quoteChar == null)

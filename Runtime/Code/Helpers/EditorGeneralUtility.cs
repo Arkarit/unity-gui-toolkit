@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEditor.Search;
@@ -423,8 +424,49 @@ namespace GuiToolkit
 		public static string GetCallingScriptPath() => new System.Diagnostics.StackTrace(true).GetFrame(1).GetFileName();
 		public static string GetCallingScriptDirectory() => Path.GetDirectoryName(new System.Diagnostics.StackTrace(true).GetFrame(1).GetFileName());
 
-		public static bool TryGetCustomAttribute<TA>(this SerializedProperty _property, out TA _value) where TA : Attribute
+		public static SerializedProperty GetParentProperty(this SerializedProperty _property)
 		{
+			var propertyPaths = _property.propertyPath.Split('.');
+			if (propertyPaths.Length <= 1)
+			{
+				return default;
+			}
+
+			var parentSerializedProperty = _property.serializedObject.FindProperty(propertyPaths.First());
+			for (var i = 1; i < propertyPaths.Length - 1; i++)
+			{
+				if (propertyPaths[i] == "Array")
+				{
+					if (i + 1 == propertyPaths.Length - 1)
+					{
+						// reached the end
+						break;
+					}
+					if (propertyPaths.Length > i + 1 && Regex.IsMatch(propertyPaths[i + 1], "^data\\[\\d+\\]$"))
+					{
+						var match = Regex.Match(propertyPaths[i + 1], "^data\\[(\\d+)\\]$");
+						var arrayIndex = int.Parse(match.Groups[1].Value);
+						parentSerializedProperty = parentSerializedProperty.GetArrayElementAtIndex(arrayIndex);
+						i++;
+					}
+				}
+				else
+				{
+					parentSerializedProperty = parentSerializedProperty.FindPropertyRelative(propertyPaths[i]);
+				}
+			}
+			return parentSerializedProperty;
+		}
+
+		public static bool TryGetCustomAttribute<TA>(this SerializedProperty _property, out TA _value, bool _checkArray = false) where TA : Attribute
+		{
+			if (_checkArray)
+			{
+				var parentProperty = _property.GetParentProperty();
+				if (parentProperty != null && parentProperty.isArray)
+					return TryGetCustomAttribute<TA>(parentProperty, out _value, false);
+			}
+
 			_value = default;
 			var obj = _property.serializedObject.targetObject;
 			if (obj == null)
