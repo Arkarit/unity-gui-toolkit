@@ -15,21 +15,21 @@ namespace GuiToolkit
 	{
 		private class HelperObject : ScriptableObject
 		{
-			[SerializeReference]
-			public object GenericInstanceObject;
-
+			[SerializeReference] public object GenericInstanceObject;
 			public Object ObjectInstanceObject;
 		}
 
 		private class HelperObjectEditor : Editor
 		{
-			private Editor m_helperEditor;
+			private Editor m_targetHelperEditor;
 			private Type m_lastType = null;
+
+			public Editor TargetHelperEditor => m_targetHelperEditor;
 
 			private void OnDisable()
 			{
-				m_helperEditor.SafeDestroy();
-				m_helperEditor = null;
+				m_targetHelperEditor.SafeDestroy();
+				m_targetHelperEditor = null;
 				m_lastType = null;
 			}
 
@@ -48,14 +48,14 @@ namespace GuiToolkit
 
 					if (thisHelperObject.ObjectInstanceObject is ScriptableObject so)
 					{
-						if (!m_helperEditor || m_lastType != so.GetType())
+						if (!m_targetHelperEditor || m_lastType != so.GetType())
 						{
 							m_lastType = so.GetType();
-							m_helperEditor.SafeDestroy();
-							m_helperEditor = CreateEditor(so);
+							m_targetHelperEditor.SafeDestroy();
+							m_targetHelperEditor = CreateEditor(so);
 						}
 
-						m_helperEditor.OnInspectorGUI();
+						m_targetHelperEditor.OnInspectorGUI();
 						return;
 					}
 
@@ -79,6 +79,14 @@ namespace GuiToolkit
 
 		private static HelperObject s_helper;
 		private static HelperObjectEditor s_helperEditor;
+
+		public static T GetTargetHelperEditor<T>() where T : Editor
+		{
+			if (!HelperEditor)
+				return null;
+
+			return HelperEditor.TargetHelperEditor as T;
+		}
 
 		public static void Draw(object _object, string _messageIfObjIsNull)
 		{
@@ -117,7 +125,7 @@ namespace GuiToolkit
 			}
 		}
 
-		private static Editor HelperEditor
+		private static HelperObjectEditor HelperEditor
 		{
 			get
 			{

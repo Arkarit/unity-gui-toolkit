@@ -26,6 +26,8 @@ namespace GuiToolkit.Editor
 	{
 		private static DoxygenWindow s_window;
 
+		public static DoxygenWindow Instance => s_window;
+
 		[MenuItem("Window/Documentation with Doxygen")]
 		public static void Init()
 		{
@@ -37,6 +39,9 @@ namespace GuiToolkit.Editor
 		void OnGUI()
 		{
 			EditorDisplayHelper.Draw(DoxygenConfig.Instance, "DoxygenConfig instance is null. Please create one.");
+			var editor = EditorDisplayHelper.GetTargetHelperEditor<DoxygenConfigEditor>();
+			if (editor && editor.IsDoxygenExeWorking)
+				Repaint();
 		}
 	}
 }

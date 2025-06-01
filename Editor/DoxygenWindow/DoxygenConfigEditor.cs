@@ -9,13 +9,15 @@ namespace GuiToolkit.Editor
 	[CustomEditor(typeof(DoxygenConfig), true)]
 	public class DoxygenConfigEditor : UnityEditor.Editor
 	{
-		private float m_progress = -1.0f;
+		private float m_progress;
 		private DoxygenThreadSafeOutput m_doxygenOutput = null;
 
 		private static string s_doxygenLogPath;
+
+		public bool IsDoxygenExeWorking => IsDoxygenExeActive && m_doxygenOutput.isStarted() && !m_doxygenOutput.isFinished();
+
 		private static string DoxygenLogPath => s_doxygenLogPath ??= ($"{System.IO.Path.GetTempPath()}unityDoxygen.log").Replace('\\', '/');
 		private bool IsDoxygenExeActive => m_doxygenOutput != null;
-		private bool IsDoxygenExeWorking => IsDoxygenExeActive && m_doxygenOutput.isStarted() && !m_doxygenOutput.isFinished();
 		private bool IsDoxygenExeFinished => IsDoxygenExeActive && m_doxygenOutput.isFinished();
 		private bool m_showAbout;
 
@@ -95,15 +97,12 @@ namespace GuiToolkit.Editor
 
 			});
 
-			m_showAbout = EditorGUILayout.Foldout(m_showAbout, "About...");
-			if (m_showAbout)
-				AboutGUI();
-
 			if (IsDoxygenExeWorking)
 			{
 				string currentLine = m_doxygenOutput.ReadLine();
 				if (m_progress < 0.75f)
-					m_progress += 0.025f;
+					m_progress += 0.01f;
+
 				Rect r = EditorGUILayout.BeginVertical();
 				EditorGUI.ProgressBar(r, m_progress, currentLine);
 				GUILayout.Space(40);
@@ -127,16 +126,26 @@ namespace GuiToolkit.Editor
 						Debug.LogError($"Could not write doxygen log, exception:{e.Message}");
 					}
 
-					m_progress = -1.0f;
+					m_progress = 0;
 					m_doxygenOutput = null;
 				}
 			}
+
+			m_showAbout = EditorGUILayout.Foldout(m_showAbout, "About...");
+			if (m_showAbout)
+				AboutGUI();
+
 		}
 
 		private void AboutGUI()
 		{
+			GUILayout.Label("Original Message by Jacob Pennock:");
+			GUILayout.Space(20);
+
+
 			GUIStyle CenterLable = new GUIStyle(EditorStyles.largeLabel);
 			GUIStyle littletext = new GUIStyle(EditorStyles.miniLabel);
+
 			CenterLable.alignment = TextAnchor.MiddleCenter;
 			GUILayout.Space(20);
 			GUILayout.Label("Automatic C# Documentation Generation through Doxygen", CenterLable);
@@ -176,6 +185,7 @@ namespace GuiToolkit.Editor
 		{
 			string[] args = new string[1];
 			args[0] = Doxyfile.Write();
+			m_progress = 0;
 
 			m_doxygenOutput = new DoxygenThreadSafeOutput();
 			m_doxygenOutput.SetStarted();
