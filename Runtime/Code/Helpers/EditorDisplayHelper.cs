@@ -1,8 +1,10 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Object = UnityEngine.Object;
 
 namespace GuiToolkit
 {
@@ -21,6 +23,16 @@ namespace GuiToolkit
 
 		private class HelperObjectEditor : Editor
 		{
+			private Editor m_helperEditor;
+			private Type m_lastType = null;
+
+			private void OnDisable()
+			{
+				m_helperEditor.SafeDestroy();
+				m_helperEditor = null;
+				m_lastType = null;
+			}
+
 			public override void OnInspectorGUI()
 			{
 				try
@@ -36,9 +48,14 @@ namespace GuiToolkit
 
 					if (thisHelperObject.ObjectInstanceObject is ScriptableObject so)
 					{
-						var tempEditor = CreateEditor(so);
-						tempEditor.OnInspectorGUI();
-						tempEditor.SafeDestroy();
+						if (!m_helperEditor || m_lastType != so.GetType())
+						{
+							m_lastType = so.GetType();
+							m_helperEditor.SafeDestroy();
+							m_helperEditor = CreateEditor(so);
+						}
+
+						m_helperEditor.OnInspectorGUI();
 						return;
 					}
 
