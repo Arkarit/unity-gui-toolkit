@@ -21,5 +21,6 @@ MonoBehaviour:
     Path: ..\..\Runtime\Code
   DocumentDirectory:
     Path: ..\Docs
-  Defines: 
-  ExcludePatterns: []
+  Defines: UNITY_EDITOR
+  ExcludePatterns:
+  - '*/3rdparty/*'
