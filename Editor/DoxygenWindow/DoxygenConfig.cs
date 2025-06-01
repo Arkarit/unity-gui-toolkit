@@ -43,17 +43,6 @@ namespace GuiToolkit.Editor
 
 		public string Defines;
 		public List<string> ExcludePatterns;
-
-		public string UnityProjectID;
-
 		public bool DocsGenerated => File.Exists(DocumentDirectory.FullPath + "/html/index.html");
-
-		public string ThemeFolder => Path.GetDirectoryName(EditorGeneralUtility.GetCallingScriptPath()) + "/Resources";
-
-		public override void OnEditorInitialize()
-		{
-			base.OnEditorInitialize();
-			UnityProjectID = UnityEditor.PlayerSettings.productName + ":";
-		}
 	}
 }

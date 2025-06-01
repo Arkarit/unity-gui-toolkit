@@ -1,6 +1,6 @@
 using System.Threading;
 using System;
-using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,13 +9,15 @@ namespace GuiToolkit.Editor
 	[CustomEditor(typeof(DoxygenConfig), true)]
 	public class DoxygenConfigEditor : UnityEditor.Editor
 	{
-		public string CurentOutput = null;
-		float DoxyoutputProgress = -1.0f;
+		private float m_progress = -1.0f;
+		private DoxygenThreadSafeOutput m_doxygenOutput = null;
 
-		DoxygenThreadSafeOutput DoxygenOutput = null;
-		List<string> DoxygenLog = null;
-		bool ViewLog = false;
-		Vector2 scroll;
+		private static string s_doxygenLogPath;
+		private static string DoxygenLogPath => s_doxygenLogPath ??= ($"{System.IO.Path.GetTempPath()}unityDoxygen.log").Replace('\\', '/');
+		private bool IsDoxygenExeActive => m_doxygenOutput != null;
+		private bool IsDoxygenExeWorking => IsDoxygenExeActive && m_doxygenOutput.isStarted() && !m_doxygenOutput.isFinished();
+		private bool IsDoxygenExeFinished => IsDoxygenExeActive && m_doxygenOutput.isFinished();
+		private bool m_showAbout;
 
 		public override void OnInspectorGUI()
 		{
@@ -55,96 +57,134 @@ namespace GuiToolkit.Editor
 					return;
 				}
 
-				GUILayout.Space(10);
-				if (!DoxygenConfig.Instance.DocsGenerated)
-					GUI.enabled = false;
-
-				EditorUiUtility.Centered(() =>
-				{
-					if (GUILayout.Button("   Browse Documentation   ", GUILayout.Height(40)))
-					{
-						Application.OpenURL("File://" + DoxygenConfig.Instance.DocumentDirectory.FullPath + "/html/annotated.html");
-					}
-				});
-
-
-				GUI.enabled = true;
-
-				if (DoxygenOutput == null)
+				using (new EditorGUI.DisabledScope(!DoxygenConfig.Instance.DocsGenerated))
 				{
 					EditorUiUtility.Centered(() =>
 					{
-						if (GUILayout.Button("   Run Doxygen   ", GUILayout.Height(40)))
+						if (GUILayout.Button(
+							new GUIContent("   Browse Documentation   ", "Press this to view your Documentation when it has been generated."),
+							GUILayout.Height(40)
+						))
+							Application.OpenURL("File://" + DoxygenConfig.Instance.DocumentDirectory.FullPath + "/html/annotated.html");
+					});
+				}
+
+				using (new EditorGUI.DisabledScope(IsDoxygenExeActive))
+				{
+					EditorUiUtility.Centered(() =>
+					{
+						if (GUILayout.Button(
+							new GUIContent("   Run Doxygen   ", "Press this to (re)-generate your documentation."), 
+							GUILayout.Height(40)
+						))
 							RunDoxygen();
 					});
-
-					if (DoxygenConfig.Instance.DocsGenerated && DoxygenLog != null)
-					{
-						if (GUILayout.Button("View Doxygen Log", EditorStyles.toolbarDropDown))
-							ViewLog = !ViewLog;
-						if (ViewLog)
-						{
-							scroll = EditorGUILayout.BeginScrollView(scroll, GUILayout.ExpandHeight(true));
-							foreach (string logitem in DoxygenLog)
-							{
-								EditorGUILayout.SelectableLabel(logitem, EditorStyles.miniLabel,
-									GUILayout.ExpandWidth(true));
-							}
-
-							EditorGUILayout.EndScrollView();
-						}
-					}
-
-					return;
 				}
 
-				if (DoxygenOutput.isStarted() && !DoxygenOutput.isFinished())
+				using (new EditorGUI.DisabledScope(!File.Exists(DoxygenLogPath)))
 				{
-					string currentline = DoxygenOutput.ReadLine();
-					DoxyoutputProgress = DoxyoutputProgress + 0.1f;
-					if (DoxyoutputProgress >= 0.9f)
-						DoxyoutputProgress = 0.75f;
-					Rect r = EditorGUILayout.BeginVertical();
-					EditorGUI.ProgressBar(r, DoxyoutputProgress, currentline);
-					GUILayout.Space(40);
-					EditorGUILayout.EndVertical();
+					EditorUiUtility.Centered(() =>
+					{
+						if (GUILayout.Button(
+							new GUIContent("   View last Doxygen Log   ", $"Open the last Doxygen Log. You can also find it at the path '{DoxygenLogPath}'"),
+							GUILayout.Height(40)
+						))
+							Application.OpenURL("File://" + DoxygenLogPath);
+					});
 				}
 
-				if (DoxygenOutput.isFinished())
-				{
-					if (Event.current.type == EventType.Repaint)
-					{
-						DoxygenLog = DoxygenOutput.ReadFullLog();
-						DoxyoutputProgress = -1.0f;
-						DoxygenOutput = null;
-					}
-				}
 			});
+
+			m_showAbout = EditorGUILayout.Foldout(m_showAbout, "About...");
+			if (m_showAbout)
+				AboutGUI();
+
+			if (IsDoxygenExeWorking)
+			{
+				string currentLine = m_doxygenOutput.ReadLine();
+				if (m_progress < 0.75f)
+					m_progress += 0.025f;
+				Rect r = EditorGUILayout.BeginVertical();
+				EditorGUI.ProgressBar(r, m_progress, currentLine);
+				GUILayout.Space(40);
+				EditorGUILayout.EndVertical();
+				EditorUtility.SetDirty(target);
+				return;
+			}
+			
+			if (IsDoxygenExeFinished)
+			{
+				if (Event.current.type == EventType.Repaint)
+				{
+					var doxygenLog = m_doxygenOutput.ReadFullLog();
+
+					try
+					{
+						File.WriteAllText(DoxygenLogPath, doxygenLog);
+					}
+					catch (Exception e)
+					{
+						Debug.LogError($"Could not write doxygen log, exception:{e.Message}");
+					}
+
+					m_progress = -1.0f;
+					m_doxygenOutput = null;
+				}
+			}
 		}
 
-		public static void OnDoxygenFinished(int code)
+		private void AboutGUI()
 		{
-			if (code != 0)
+			GUIStyle CenterLable = new GUIStyle(EditorStyles.largeLabel);
+			GUIStyle littletext = new GUIStyle(EditorStyles.miniLabel);
+			CenterLable.alignment = TextAnchor.MiddleCenter;
+			GUILayout.Space(20);
+			GUILayout.Label("Automatic C# Documentation Generation through Doxygen", CenterLable);
+			GUILayout.Label("Version: 1.0", CenterLable);
+			GUILayout.Label("By: Jacob Pennock", CenterLable);
+
+			GUILayout.Space(20);
+			EditorGUILayout.BeginHorizontal();
+			GUILayout.Space(20);
+			GUILayout.Label("Follow me for more Unity tips and tricks", littletext);
+			GUILayout.Space(15);
+			if (GUILayout.Button("twitter"))
+				Application.OpenURL("http://twitter.com/@JacobPennock");
+			GUILayout.Space(20);
+			EditorGUILayout.EndHorizontal();
+
+			GUILayout.Space(10);
+			EditorGUILayout.BeginHorizontal();
+			GUILayout.Space(20);
+			GUILayout.Label("Visit my site for more plugins and tutorials", littletext);
+			if (GUILayout.Button("JacobPennock.com"))
+				Application.OpenURL("http://www.jacobpennock.com/Blog/?cat=19");
+			GUILayout.Space(20);
+			EditorGUILayout.EndHorizontal();
+		}
+
+		public static void OnDoxygenFinished(int _code)
+		{
+			if (_code != 0)
 			{
-				UnityEngine.Debug.LogError("Doxygen finished with Error: return code " + code +
-				                           "\nCheck the Doxygen Log for Errors.\nAlso try regenerating your Doxyfile,\nyou will new to close and reopen the\ndocumentation window before regenerating.");
+				UnityEngine.Debug.LogError("Doxygen finished with Error: return code " + _code +
+				                           "\nPlease check the Doxygen Log for Errors.");
 			}
 		}
 
 		public void RunDoxygen()
 		{
-			string[] Args = new string[1];
-			Args[0] = Doxyfile.Write();
+			string[] args = new string[1];
+			args[0] = Doxyfile.Write();
 
-			DoxygenOutput = new DoxygenThreadSafeOutput();
-			DoxygenOutput.SetStarted();
+			m_doxygenOutput = new DoxygenThreadSafeOutput();
+			m_doxygenOutput.SetStarted();
 
-			Action<int> setcallback = (int returnCode) => OnDoxygenFinished(returnCode);
+			Action<int> callback = (int returnCode) => OnDoxygenFinished(returnCode);
 
-			DoxygenRunner Doxygen = new DoxygenRunner(Args, DoxygenOutput, setcallback);
-
-			Thread DoxygenThread = new Thread(new ThreadStart(Doxygen.RunThreadedDoxy));
-			DoxygenThread.Start();
+			DoxygenRunner doxygenRunner = new DoxygenRunner(args, m_doxygenOutput, callback);
+			Thread doxygenThread = new Thread(doxygenRunner.RunThreadedDoxygen);
+			doxygenThread.Start();
 		}
 	}
 }

@@ -29,15 +29,15 @@ namespace GuiToolkit.Editor
 	/// </summary>
 	public class DoxygenRunner
 	{
-		private DoxygenThreadSafeOutput SafeOutput;
+		private DoxygenThreadSafeOutput m_output;
 		private Action<int> m_onCompleteCallBack;
-		private readonly List<string> DoxyLog = new();
-		public string[] Args;
-		static string WorkingFolder;
+		private readonly List<string> m_doxyLog = new();
+		private string[] m_args;
+		private string m_workingFolder;
 
-		public static string s_doxygenExecutablePath;
+		private static string s_doxygenExecutablePath;
 
-		public static string DoxygenPath
+		private static string DoxygenPath
 		{
 			get
 			{
@@ -55,25 +55,25 @@ namespace GuiToolkit.Editor
 			if (DoxygenPath == null)
 				throw new FileNotFoundException("Doxygen Executable not found");
 
-			Args = args;
-			SafeOutput = safeoutput;
+			m_args = args;
+			m_output = safeoutput;
 			m_onCompleteCallBack = callback;
-			WorkingFolder = Path.GetDirectoryName(s_doxygenExecutablePath);
+			m_workingFolder = Path.GetDirectoryName(s_doxygenExecutablePath);
 		}
 
-		public void updateOutputString(string output)
+		public void RunThreadedDoxygen()
 		{
-			SafeOutput.WriteLine(output);
-			DoxyLog.Add(output);
-		}
-
-		public void RunThreadedDoxy()
-		{
-			Action<string> GetOutput = (string output) => updateOutputString(output);
-			int ReturnCode = Run(GetOutput, null, "doxygen", Args);
-			SafeOutput.WriteFullLog(DoxyLog);
-			SafeOutput.SetFinished();
+			Action<string> GetOutput = (string output) => UpdateOutputString(output);
+			int ReturnCode = Run(GetOutput, null, "doxygen", m_args);
+			m_output.WriteFullLog(m_doxyLog);
+			m_output.SetFinished();
 			m_onCompleteCallBack(ReturnCode);
+		}
+
+		private void UpdateOutputString(string output)
+		{
+			m_output.WriteLine(output);
+			m_doxyLog.Add(output);
 		}
 
 		/// <summary>
@@ -87,7 +87,7 @@ namespace GuiToolkit.Editor
 		/// <exception cref="System.IO.FileNotFoundException">Raised when the exe was not found</exception>
 		/// <exception cref="System.ArgumentNullException">Raised when one of the arguments is null</exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">Raised if an argument contains '\0', '\r', or '\n'
-		public static int Run(Action<string> output, TextReader input, string exe, params string[] args)
+		private int Run(Action<string> output, TextReader input, string exe, params string[] args)
 		{
 			if (string.IsNullOrEmpty(exe))
 				throw new FileNotFoundException();
@@ -102,7 +102,7 @@ namespace GuiToolkit.Editor
 			psi.WindowStyle = ProcessWindowStyle.Hidden;
 			psi.CreateNoWindow = true;
 			psi.ErrorDialog = false;
-			psi.WorkingDirectory = WorkingFolder;
+			psi.WorkingDirectory = m_workingFolder;
 			psi.FileName = FindExecutableByPartialName(exe);
 			psi.Arguments = EscapeArguments(args);
 
@@ -144,7 +144,7 @@ namespace GuiToolkit.Editor
 		/// <returns>The combined list of escaped/quoted strings</returns>
 		/// <exception cref="System.ArgumentNullException">Raised when one of the arguments is null</exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">Raised if an argument contains '\0', '\r', or '\n'</exception>
-		public static string EscapeArguments(params string[] args)
+		private static string EscapeArguments(params string[] args)
 		{
 			StringBuilder arguments = new StringBuilder();
 			Regex invalidChar = new Regex("[\x00\x0a\x0d]"); //  these can not be escaped
@@ -195,7 +195,7 @@ namespace GuiToolkit.Editor
 		/// <param name="fileName">The name of the executable file. Can be partial.</param>
 		/// <param name="caseInsensitive"></param>
 		/// <returns>The fully-qualified path to the file or null if not found</returns>
-		public static string FindExecutableByPartialName(string fileName, bool caseInsensitive = false)
+		private static string FindExecutableByPartialName(string fileName, bool caseInsensitive = false)
 		{
 			return caseInsensitive ? 
 				FindExecutableByPartialNameInternal(fileName.ToLower(), true) :

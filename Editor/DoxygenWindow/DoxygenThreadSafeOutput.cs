@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 
 namespace GuiToolkit.Editor
@@ -22,115 +23,117 @@ namespace GuiToolkit.Editor
 	/// </summary>
 	public class DoxygenThreadSafeOutput
 	{
-		private ReaderWriterLockSlim outputLock = new ReaderWriterLockSlim();
-		private string CurrentOutput = "";
-		private List<string> FullLog = new List<string>();
-		private bool Finished = false;
-		private bool Started = false;
+		private ReaderWriterLockSlim m_outputLock = new ();
+		private string m_currentOutput = string.Empty;
+		private List<string> m_fullLog = new ();
+		private bool m_isFinished;
+		private bool m_isStarted;
 
 		public string ReadLine()
 		{
-			outputLock.EnterReadLock();
+			m_outputLock.EnterReadLock();
 			try
 			{
-				return CurrentOutput;
+				return m_currentOutput;
 			}
 			finally
 			{
-				outputLock.ExitReadLock();
+				m_outputLock.ExitReadLock();
 			}
 		}
 
 		public void SetFinished()
 		{
-			outputLock.EnterWriteLock();
+			m_outputLock.EnterWriteLock();
 			try
 			{
-				Finished = true;
+				m_isFinished = true;
 			}
 			finally
 			{
-				outputLock.ExitWriteLock();
+				m_outputLock.ExitWriteLock();
 			}
 		}
 
 		public void SetStarted()
 		{
-			outputLock.EnterWriteLock();
+			m_outputLock.EnterWriteLock();
 			try
 			{
-				Started = true;
+				m_isStarted = true;
 			}
 			finally
 			{
-				outputLock.ExitWriteLock();
+				m_outputLock.ExitWriteLock();
 			}
 		}
 
 		public bool isStarted()
 		{
-			outputLock.EnterReadLock();
+			m_outputLock.EnterReadLock();
 			try
 			{
-				return Started;
+				return m_isStarted;
 			}
 			finally
 			{
-				outputLock.ExitReadLock();
+				m_outputLock.ExitReadLock();
 			}
 		}
 
 		public bool isFinished()
 		{
-			outputLock.EnterReadLock();
+			m_outputLock.EnterReadLock();
 			try
 			{
-				return Finished;
+				return m_isFinished;
 			}
 			finally
 			{
-				outputLock.ExitReadLock();
+				m_outputLock.ExitReadLock();
 			}
 		}
 
-		public List<string> ReadFullLog()
+		public string ReadFullLog()
 		{
-			outputLock.EnterReadLock();
+			m_outputLock.EnterReadLock();
 			try
 			{
-				return FullLog;
+				StringBuilder sb = new();
+				foreach (var line in m_fullLog)
+					sb.AppendLine(line);
+				return sb.ToString();
 			}
 			finally
 			{
-				outputLock.ExitReadLock();
+				m_outputLock.ExitReadLock();
 			}
 		}
 
 		public void WriteFullLog(List<string> newLog)
 		{
-			outputLock.EnterWriteLock();
+			m_outputLock.EnterWriteLock();
 			try
 			{
-				FullLog = newLog;
+				m_fullLog = newLog;
 			}
 			finally
 			{
-				outputLock.ExitWriteLock();
+				m_outputLock.ExitWriteLock();
 			}
 		}
 
 		public void WriteLine(string newOutput)
 		{
-			outputLock.EnterWriteLock();
+			m_outputLock.EnterWriteLock();
 			try
 			{
-				CurrentOutput = newOutput;
+				m_currentOutput = newOutput;
 			}
 			finally
 			{
-				outputLock.ExitWriteLock();
+				m_outputLock.ExitWriteLock();
 			}
 		}
 	}
-
 }

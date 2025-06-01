@@ -9,8 +9,7 @@ namespace GuiToolkit.Editor
 	{
 		private static string s_path;
 
-		public static string Path => s_path ??= System.IO.Path.GetTempFileName();
-
+		public static string Path => s_path ??= $"{System.IO.Path.GetTempPath()}/~~~tempDoxyfile.txt";
 		public static bool Exists => File.Exists(Path);
 
 		public static string Write()
@@ -89,5 +88,4 @@ namespace GuiToolkit.Editor
 			}
 		}
 	}
-
 }
