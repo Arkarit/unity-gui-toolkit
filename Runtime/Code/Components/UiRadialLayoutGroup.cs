@@ -192,7 +192,7 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 	[CustomEditor(typeof(UiRadialLayoutGroup))]
-	public class UiRadialLayoutGroupEditor : Editor
+	public class UiRadialLayoutGroupEditor : UnityEditor.Editor
 	{
 		protected SerializedProperty m_modeProp;
 		protected SerializedProperty m_angle0Prop;

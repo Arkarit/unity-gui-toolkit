@@ -17,6 +17,7 @@ namespace GuiToolkit
 
 		protected virtual void OnEnable() {}
 
+
 		public static T Instance
 		{
 			get
@@ -40,6 +41,8 @@ namespace GuiToolkit
 						s_instance = EditorLoad();
 					}
 #endif
+					if (s_instance == null)
+						s_instance = CreateInstance<T>();
 				}
 
 				return s_instance;
@@ -73,6 +76,8 @@ namespace GuiToolkit
 			AssetDatabase.SaveAssetIfDirty(_instance);
 		}
 
+		public static void EditorSave() => EditorSave(Instance);
+
 		public static bool Initialized => AssetDatabase.LoadAssetAtPath<T>(EditorPath) != null;
 
 		public static void Initialize()
@@ -87,8 +92,6 @@ namespace GuiToolkit
 
 			EditorSave(instance);
 		}
-
-
 #endif
 	}
 }
