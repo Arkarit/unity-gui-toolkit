@@ -25,19 +25,15 @@ namespace GuiToolkit.Editor
 
 			string excludePatterns = string.Empty;
 			for (int i = 0; i < DoxygenConfig.Instance.ExcludePatterns.Count; i++)
-			{
-				if (i > 0)
-					excludePatterns += " \\\n";
-				excludePatterns += DoxygenConfig.Instance.ExcludePatterns[i];
-			}
+				excludePatterns += $"{DoxygenConfig.Instance.ExcludePatterns[i]} ";
 
 			string scriptsDirectories = string.Empty;
 			for (int i = 0; i < DoxygenConfig.Instance.InputDirectories.Count; i++)
-			{
-				if (i > 0)
-					scriptsDirectories += " ";
-				scriptsDirectories += $"\"{DoxygenConfig.Instance.InputDirectories[i].FullPath}\"";
-			}
+				scriptsDirectories += $"\"{DoxygenConfig.Instance.InputDirectories[i].FullPath}\" ";
+
+			string defines = string.Empty;
+			for (int i = 0; i < DoxygenConfig.Instance.Defines.Count; i++)
+				defines += $"\"{DoxygenConfig.Instance.Defines[i]}\" ";
 
 			for (int i = 0; i < templateLines.Length; i++)
 			{
@@ -50,7 +46,7 @@ namespace GuiToolkit.Editor
 				    || ReplaceLineIfNecessary(ref line, "IMAGE_PATH", DoxygenConfig.Instance.OutputDirectory.FullPath)
 				    || ReplaceLineIfNecessary(ref line, "USE_MDFILE_AS_MAINPAGE", DoxygenConfig.Instance.OptionalMainPage.FullPath)
 				    || ReplaceLineIfNecessary(ref line, "INPUT", scriptsDirectories, null)
-				    || ReplaceLineIfNecessary(ref line, "PREDEFINED", DoxygenConfig.Instance.Defines, null)
+				    || ReplaceLineIfNecessary(ref line, "PREDEFINED", defines, null)
 				    || ReplaceLineIfNecessary(ref line, "DISTRIBUTE_GROUP_DOC", "YES", null)
 				    || ReplaceLineIfNecessary(ref line, "EXCLUDE_PATTERNS", excludePatterns, null)
 				)

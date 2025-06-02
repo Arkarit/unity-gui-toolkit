@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace GuiToolkit.Editor
 {
@@ -21,9 +22,45 @@ namespace GuiToolkit.Editor
 		private bool IsDoxygenExeFinished => IsDoxygenExeActive && m_doxygenOutput.isFinished();
 		private bool m_showAbout;
 
+		private SerializedProperty m_ProjectProp;
+		private SerializedProperty m_SynopsisProp;
+		private SerializedProperty m_VersionSourceProp;
+		private SerializedProperty m_versionProp;
+		private SerializedProperty m_OutputDirectoryProp;
+		private SerializedProperty m_OptionalMainPageProp;
+		private SerializedProperty m_InputDirectoriesProp;
+		private SerializedProperty m_DefinesProp;
+		private SerializedProperty m_ExcludePatternsProp;
+
+		private void OnEnable()
+		{
+			m_ProjectProp = serializedObject.FindProperty("Project");
+			m_SynopsisProp = serializedObject.FindProperty("Synopsis");
+			m_VersionSourceProp = serializedObject.FindProperty("VersionSource");
+			m_versionProp = serializedObject.FindProperty("m_version");
+			m_OutputDirectoryProp = serializedObject.FindProperty("OutputDirectory");
+			m_OptionalMainPageProp = serializedObject.FindProperty("OptionalMainPage");
+			m_InputDirectoriesProp = serializedObject.FindProperty("InputDirectories");
+			m_DefinesProp = serializedObject.FindProperty("Defines");
+			m_ExcludePatternsProp = serializedObject.FindProperty("ExcludePatterns");
+		}
+
 		public override void OnInspectorGUI()
 		{
-			EditorUiUtility.WithHeadline("Doxygen Settings", () => DrawDefaultInspector());
+			EditorUiUtility.WithHeadline("Doxygen Settings", () =>
+			{
+				EditorGUILayout.PropertyField(m_ProjectProp);
+				EditorGUILayout.PropertyField(m_SynopsisProp);
+				EditorGUILayout.PropertyField(m_VersionSourceProp);
+				if ((DoxygenConfig.EVersionSource)m_VersionSourceProp.intValue == DoxygenConfig.EVersionSource.Manual)
+					EditorGUILayout.PropertyField(m_versionProp);
+
+				EditorGUILayout.PropertyField(m_OutputDirectoryProp);
+				EditorGUILayout.PropertyField(m_OptionalMainPageProp);
+				EditorGUILayout.PropertyField(m_InputDirectoriesProp);
+				EditorGUILayout.PropertyField(m_DefinesProp);
+				EditorGUILayout.PropertyField(m_ExcludePatternsProp);
+			});
 
 			EditorUiUtility.WithHeadline("Doxygen Tools", () =>
 			{

@@ -13,11 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 
 
+using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace GuiToolkit.Editor
 {
@@ -28,9 +27,21 @@ namespace GuiToolkit.Editor
 	[CreateAssetMenu(fileName = nameof(DoxygenConfig), menuName = StringConstants.CREATE_DOXYGEN_CONFIG)]
 	public class DoxygenConfig : AbstractSingletonScriptableObject<DoxygenConfig>
 	{
+		public enum EVersionSource
+		{
+			Manual,
+			FromGitTag,
+			FromProject,
+		}
+
 		public string Project;
-		public string Synopsis = "";
-		public string Version = "";
+		public string Synopsis;
+		public EVersionSource VersionSource;
+		[SerializeField] private string m_version;
+
+		[Tooltip("In this directory Doxygen's output is created (in a sub directory called 'html'). It is mandatory to set this field.")]
+		[PathField(_isFolder:true, _relativeToPath:".")]
+		public PathField OutputDirectory;
 
 		[Tooltip("Optional: Here you can set a MD main page, if you wish. If you leave it empty, the default Doxygen start page is used.")]
 		[PathField(_isFolder:false, _relativeToPath:".", _extensions:"md")]
@@ -38,16 +49,30 @@ namespace GuiToolkit.Editor
 		
 		[Tooltip("Doxygen analyzes files in these directories. At least one valid input directory needs to be set.")]
 		[PathField(_isFolder:true, _relativeToPath:".")]
-		[FormerlySerializedAs("ScriptsDirectories")]
 		public List<PathField> InputDirectories;
 
-		[Tooltip("In this directory Doxygen's output is created (in a sub directory called 'html')")]
-		[PathField(_isFolder:true, _relativeToPath:".")]
-		[FormerlySerializedAs("DocumentDirectory")]
-		public PathField OutputDirectory;
-
-		public string Defines;
+		public List<string> Defines;
 		public List<string> ExcludePatterns;
 		public bool DocsGenerated => File.Exists(OutputDirectory.FullPath + "/html/index.html");
+
+		public string Version
+		{
+			get
+			{
+				switch (VersionSource)
+				{
+					case EVersionSource.Manual:
+						return m_version;
+					case EVersionSource.FromGitTag:
+						break;
+					case EVersionSource.FromProject:
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+
+return "";
+			}
+		}
 	}
 }
