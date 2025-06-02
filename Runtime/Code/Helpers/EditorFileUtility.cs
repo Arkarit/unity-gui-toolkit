@@ -123,16 +123,16 @@ namespace GuiToolkit
 			}
 		}
 		
-		public static string PathField( string _label, string _path, bool _save, bool _folder)
+		public static string PathField( string _label, string _tooltip, string _path, bool _save, bool _folder, string _extensions)
 		{
 			if (_folder)
 			{
 				if (_save)
 				{
-					return PathField(_label, _path, () => EditorUtility.SaveFolderPanel(_label, _path, null));
+					return PathField(_label, _tooltip, _path, () => EditorUtility.SaveFolderPanel(_label, _path, null));
 				}
 				
-				return PathField(_label, _path, () => EditorUtility.OpenFolderPanel(_label, _path, null));
+				return PathField(_label, _tooltip, _path, () => EditorUtility.OpenFolderPanel(_label, _path, null));
 			}
 			
 			if (_save)
@@ -150,22 +150,22 @@ namespace GuiToolkit
 					name = null;
 				}
 				
-				return PathField(_label, _path, () => EditorUtility.SaveFilePanel(_label, dir, name, null));
+				return PathField(_label, _tooltip, _path, () => EditorUtility.SaveFilePanel(_label, dir, name, _extensions));
 			}
 			
-			return PathField(_label,_path, () => EditorUtility.OpenFilePanel(_label, _path, null));
+			return PathField(_label, _tooltip,_path, () => EditorUtility.OpenFilePanel(_label, _path, _extensions));
 		}
 
-		public static string PathField(Rect _rect, string _label, string _path, bool _save, bool _folder)
+		public static string PathField(Rect _rect, string _label, string _tooltip, string _path, bool _save, bool _folder, string _extensions)
 		{
 			if (_folder)
 			{
 				if (_save)
 				{
-					return PathField(_rect, _label, _path, () => EditorUtility.SaveFolderPanel(_label, _path, null));
+					return PathField(_rect, _label, _tooltip, _path, () => EditorUtility.SaveFolderPanel(_label, _path, null));
 				}
 				
-				return PathField(_rect, _label, _path, () => EditorUtility.OpenFolderPanel(_label, _path, null));
+				return PathField(_rect, _label, _tooltip, _path, () => EditorUtility.OpenFolderPanel(_label, _path, null));
 			}
 			
 			if (_save)
@@ -183,26 +183,26 @@ namespace GuiToolkit
 					name = null;
 				}
 				
-				return PathField(_rect, _label, _path, () => EditorUtility.SaveFilePanel(_label, dir, name, null));
+				return PathField(_rect, _label, _tooltip, _path, () => EditorUtility.SaveFilePanel(_label, dir, name, _extensions));
 			}
 			
-			return PathField(_rect, _label,_path, () => EditorUtility.OpenFilePanel(_label, _path, null));
+			return PathField(_rect, _label, _tooltip, _path, () => EditorUtility.OpenFilePanel(_label, _path, _extensions));
 		}
 
-		public static string PathFieldSaveFile(Rect _rect, string _label, string _path) => PathField(_rect, _label, _path, _save:true, _folder:false);
-		public static string PathFieldReadFile(Rect _rect, string _label, string _path) => PathField(_rect, _label, _path, _save:false, _folder:false);
-		public static string PathFieldSaveFolder(Rect _rect, string _label, string _path) => PathField(_rect, _label, _path, _save:true, _folder:true);
-		public static string PathFieldReadFolder(Rect _rect, string _label, string _path) => PathField(_rect, _label, _path, _save:false, _folder:true);
+		public static string PathFieldSaveFile(Rect _rect, string _label, string _path, string _extensions = null, string _tooltip = null) => PathField(_rect, _label, _tooltip, _path, _save:true, _folder:false, _extensions);
+		public static string PathFieldReadFile(Rect _rect, string _label, string _path, string _extensions = null, string _tooltip = null) => PathField(_rect, _label, _tooltip, _path, _save:false, _folder:false, _extensions);
+		public static string PathFieldSaveFolder(Rect _rect, string _label, string _path, string _tooltip = null) => PathField(_rect, _label, _tooltip, _path, _save:true, _folder:true, null);
+		public static string PathFieldReadFolder(Rect _rect, string _label, string _path, string _tooltip = null) => PathField(_rect, _label, _tooltip, _path, _save:false, _folder:true, null);
 		
-		public static string PathFieldSaveFile(string _label, string _path) => PathField(_label, _path, _save:true, _folder:false);
-		public static string PathFieldReadFile(string _label, string _path) => PathField(_label, _path, _save:false, _folder:false);
-		public static string PathFieldSaveFolder(string _label, string _path) => PathField(_label, _path, _save:true, _folder:true);
-		public static string PathFieldReadFolder(string _label, string _path) => PathField(_label, _path, _save:false, _folder:true);
+		public static string PathFieldSaveFile(string _label, string _path, string _extensions = null, string _tooltip = null) => PathField(_label, _tooltip, _path, _save:true, _folder:false, _extensions);
+		public static string PathFieldReadFile(string _label, string _path, string _extensions = null, string _tooltip = null) => PathField(_label, _tooltip, _path, _save:false, _folder:false, _extensions);
+		public static string PathFieldSaveFolder(string _label, string _path, string _tooltip = null) => PathField(_label, _tooltip, _path, _save:true, _folder:true, null);
+		public static string PathFieldReadFolder(string _label, string _path, string _tooltip = null) => PathField(_label, _tooltip, _path, _save:false, _folder:true, null);
 		
-		private static string PathField(string _label, string _path, Func<string> _callback)
+		private static string PathField(string _label, string _tooltip, string _path, Func<string> _callback)
 		{
 			GUILayout.BeginHorizontal();
-			GUILayout.Label(_label);
+			GUILayout.Label(new GUIContent(_label, _tooltip));
 			var result = GUILayout.TextField(_path);
 			
 			if (GUILayout.Button("...", GUILayout.ExpandWidth(false), GUILayout.Height(EditorGUIUtility.singleLineHeight)))
@@ -216,12 +216,12 @@ namespace GuiToolkit
 			return result;
 		}
 		
-		private static string PathField(Rect _rect, string _label, string _path, Func<string> _callback)
+		private static string PathField(Rect _rect, string _label, string _tooltip, string _path, Func<string> _callback)
 		{
 			Rect labelRect = new Rect(_rect.x, _rect.y, EditorGUIUtility.labelWidth, _rect.height);
 			Rect pathRect = new Rect(_rect.x + EditorGUIUtility.labelWidth, _rect.y, _rect.width - PathFieldButtonWidth - EditorGUIUtility.labelWidth, _rect.height);
 			Rect buttonRect = new Rect(_rect.x + _rect.width - PathFieldButtonWidth, _rect.y, PathFieldButtonWidth, _rect.height);
-			GUI.Label(labelRect, _label);
+			GUI.Label(labelRect, new GUIContent(_label, _tooltip));
 			var result = GUI.TextField(pathRect, _path);
 			
 			if (GUI.Button(buttonRect, "..."))

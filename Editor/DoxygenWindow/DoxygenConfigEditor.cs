@@ -67,7 +67,7 @@ namespace GuiToolkit.Editor
 							new GUIContent("   Browse Documentation   ", "Press this to view your Documentation when it has been generated."),
 							GUILayout.Height(40)
 						))
-							Application.OpenURL("File://" + DoxygenConfig.Instance.DocumentDirectory.FullPath + "/html/annotated.html");
+							Application.OpenURL("File://" + DoxygenConfig.Instance.OutputDirectory.FullPath + "/html/annotated.html");
 					});
 				}
 

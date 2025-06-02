@@ -32,11 +32,11 @@ namespace GuiToolkit.Editor
 			}
 
 			string scriptsDirectories = string.Empty;
-			for (int i = 0; i < DoxygenConfig.Instance.ScriptsDirectories.Count; i++)
+			for (int i = 0; i < DoxygenConfig.Instance.InputDirectories.Count; i++)
 			{
 				if (i > 0)
 					scriptsDirectories += " ";
-				scriptsDirectories += $"\"{DoxygenConfig.Instance.ScriptsDirectories[i].FullPath}\"";
+				scriptsDirectories += $"\"{DoxygenConfig.Instance.InputDirectories[i].FullPath}\"";
 			}
 
 			for (int i = 0; i < templateLines.Length; i++)
@@ -46,8 +46,8 @@ namespace GuiToolkit.Editor
 				if (   ReplaceLineIfNecessary(ref line, "PROJECT_NAME", DoxygenConfig.Instance.Project)
 				    || ReplaceLineIfNecessary(ref line, "PROJECT_NUMBER", DoxygenConfig.Instance.Version)
 				    || ReplaceLineIfNecessary(ref line, "PROJECT_BRIEF", DoxygenConfig.Instance.Synopsis)
-				    || ReplaceLineIfNecessary(ref line, "OUTPUT_DIRECTORY", DoxygenConfig.Instance.DocumentDirectory.FullPath)
-				    || ReplaceLineIfNecessary(ref line, "IMAGE_PATH", DoxygenConfig.Instance.DocumentDirectory.FullPath)
+				    || ReplaceLineIfNecessary(ref line, "OUTPUT_DIRECTORY", DoxygenConfig.Instance.OutputDirectory.FullPath)
+				    || ReplaceLineIfNecessary(ref line, "IMAGE_PATH", DoxygenConfig.Instance.OutputDirectory.FullPath)
 				    || ReplaceLineIfNecessary(ref line, "INPUT", scriptsDirectories, null)
 				    || ReplaceLineIfNecessary(ref line, "PREDEFINED", DoxygenConfig.Instance.Defines, null)
 				    || ReplaceLineIfNecessary(ref line, "DISTRIBUTE_GROUP_DOC", "YES", null)

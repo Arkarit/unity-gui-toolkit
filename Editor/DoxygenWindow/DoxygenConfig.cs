@@ -32,17 +32,22 @@ namespace GuiToolkit.Editor
 		public string Synopsis = "";
 		public string Version = "";
 
-		[PathField(isFolder:false, relativeToPath:".")]
-		public PathField Intro;
+		[Tooltip("Optional: Here you can set a MD main page, if you wish. If you leave it empty, the default Doxygen start page is used.")]
+		[PathField(_isFolder:false, _relativeToPath:".", _extensions:"md")]
+		public PathField OptionalMainPage;
+		
+		[Tooltip("Doxygen analyzes files in these directories. At least one valid input directory needs to be set.")]
+		[PathField(_isFolder:true, _relativeToPath:".")]
+		[FormerlySerializedAs("ScriptsDirectories")]
+		public List<PathField> InputDirectories;
 
-		[PathField(isFolder:true, relativeToPath:".")]
-		public List<PathField> ScriptsDirectories;
-
-		[PathField(isFolder:true, relativeToPath:".")]
-		public PathField DocumentDirectory;
+		[Tooltip("In this directory Doxygen's output is created (in a sub directory called 'html')")]
+		[PathField(_isFolder:true, _relativeToPath:".")]
+		[FormerlySerializedAs("DocumentDirectory")]
+		public PathField OutputDirectory;
 
 		public string Defines;
 		public List<string> ExcludePatterns;
-		public bool DocsGenerated => File.Exists(DocumentDirectory.FullPath + "/html/index.html");
+		public bool DocsGenerated => File.Exists(OutputDirectory.FullPath + "/html/index.html");
 	}
 }
