@@ -16,7 +16,7 @@ MonoBehaviour:
   Synopsis: Toolkit with various improvements to Unity Gui
   Version: 0.3
   OptionalMainPage:
-    Path: 
+    Path: ..\..\README.md
   InputDirectories:
   - Path: ..\..\Runtime
   - Path: ..\..\Editor

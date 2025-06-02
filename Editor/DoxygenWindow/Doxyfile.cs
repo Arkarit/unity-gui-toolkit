@@ -20,7 +20,7 @@ namespace GuiToolkit.Editor
 				Debug.LogError("DoxyfileTemplate not found");
 				return null;
 			}
-
+			
 			DoxygenConfig.EditorSave();
 
 			string excludePatterns = string.Empty;
@@ -48,6 +48,7 @@ namespace GuiToolkit.Editor
 				    || ReplaceLineIfNecessary(ref line, "PROJECT_BRIEF", DoxygenConfig.Instance.Synopsis)
 				    || ReplaceLineIfNecessary(ref line, "OUTPUT_DIRECTORY", DoxygenConfig.Instance.OutputDirectory.FullPath)
 				    || ReplaceLineIfNecessary(ref line, "IMAGE_PATH", DoxygenConfig.Instance.OutputDirectory.FullPath)
+				    || ReplaceLineIfNecessary(ref line, "USE_MDFILE_AS_MAINPAGE", DoxygenConfig.Instance.OptionalMainPage.FullPath)
 				    || ReplaceLineIfNecessary(ref line, "INPUT", scriptsDirectories, null)
 				    || ReplaceLineIfNecessary(ref line, "PREDEFINED", DoxygenConfig.Instance.Defines, null)
 				    || ReplaceLineIfNecessary(ref line, "DISTRIBUTE_GROUP_DOC", "YES", null)
@@ -55,6 +56,10 @@ namespace GuiToolkit.Editor
 				)
 					templateLines[i] = line;
 			}
+
+			// Main page needs to be added to input to work
+			if (!string.IsNullOrEmpty(DoxygenConfig.Instance.OptionalMainPage.FullPath))
+				templateLines[templateLines.Length - 1] += $"\nINPUT += \"{DoxygenConfig.Instance.OptionalMainPage.FullPath}\"";
 
 			try
 			{
