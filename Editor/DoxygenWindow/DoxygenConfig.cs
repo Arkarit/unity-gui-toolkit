@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using System;
 using System.Collections.Generic;
 using System.IO;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 namespace GuiToolkit.Editor
@@ -30,7 +31,7 @@ namespace GuiToolkit.Editor
 		public enum EVersionSource
 		{
 			Manual,
-			FromGitTag,
+			FromLatestGitTag,
 			FromProject,
 		}
 
@@ -63,16 +64,51 @@ namespace GuiToolkit.Editor
 				{
 					case EVersionSource.Manual:
 						return m_version;
-					case EVersionSource.FromGitTag:
-						break;
+					case EVersionSource.FromLatestGitTag:
+						return GetGitVersion();
 					case EVersionSource.FromProject:
-						break;
+						return Application.version;
 					default:
 						throw new ArgumentOutOfRangeException();
 				}
-
-return "";
 			}
+		}
+
+		private string GetGitVersion()
+		{
+			var currentWorkingDir = Environment.CurrentDirectory;
+			var workingFolder = EditorFileUtility.FindGitFolderInParent(currentWorkingDir);
+			if (workingFolder == null)
+			{
+				string s = "Error: No .git folder found";
+				Debug.LogError(s);
+				return s;
+			}
+
+			workingFolder += "/";
+
+			string result = string.Empty;
+			int processResult = 0;
+
+			try
+			{
+				// TODO Mac and Linux version
+				processResult = EditorProcessHelper.Run(null, "git.exe", workingFolder, s => result = s, "describe", "--tags", "--abbrev=0");
+			}
+			catch (Exception e)
+			{
+				Debug.LogError($"Exception when starting Git:{e.Message}");
+				return "Git Exception";
+			}
+
+			if (processResult != 0)
+			{
+				string s = $"Error: Git exited with code {processResult}";
+				Debug.LogError(s);
+				return s;
+			}
+
+			return result;
 		}
 	}
 }

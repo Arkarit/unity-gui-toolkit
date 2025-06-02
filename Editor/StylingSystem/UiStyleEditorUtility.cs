@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using GuiToolkit.Editor;
 using UnityEditor;
-using UnityEngine;
 
 namespace GuiToolkit.Style.Editor
 {

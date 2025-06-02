@@ -63,8 +63,8 @@ namespace GuiToolkit.Editor
 
 		public void RunThreadedDoxygen()
 		{
-			Action<string> GetOutput = (string output) => UpdateOutputString(output);
-			int ReturnCode = EditorProcessHelper.Run(GetOutput, null, "doxygen", m_workingFolder, m_args);
+			Action<string> outputHandler = (string output) => UpdateOutputString(output);
+			int ReturnCode = EditorProcessHelper.Run(null, "doxygen", m_workingFolder, outputHandler, m_args);
 			m_output.WriteFullLog(m_doxyLog);
 			m_output.SetFinished();
 			m_onCompleteCallBack(ReturnCode);

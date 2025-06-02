@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -5,9 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-#if UNITY_EDITOR
-
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 	/// <summary>
 	/// General static helper class for processes
@@ -26,7 +25,7 @@ namespace GuiToolkit
 		/// <exception cref="System.IO.FileNotFoundException">Raised when the exe was not found</exception>
 		/// <exception cref="System.ArgumentNullException">Raised when one of the arguments is null</exception>
 		/// <exception cref="System.ArgumentOutOfRangeException">Raised if an argument contains '\0', '\r', or '\n'
-		public static int Run(Action<string> output, TextReader input, string exe, string workingFolder, params string[] args)
+		public static int Run(TextReader input, string exe, string workingFolder, Action<string> output, params string[] args)
 		{
 			if (string.IsNullOrEmpty(exe))
 				throw new FileNotFoundException();
@@ -144,53 +143,58 @@ namespace GuiToolkit
 		{
 			//TODO: Mac/Linux implementation
 
-			fileName = Environment.ExpandEnvironmentVariables(fileName);
-			if (!File.Exists(fileName))
+			var baseName = Environment.ExpandEnvironmentVariables(fileName);
+			if (!File.Exists(baseName))
 			{
-				fileName = Path.GetFileNameWithoutExtension(fileName);
-				if (Path.GetDirectoryName(fileName) == String.Empty)
+				baseName = Path.GetFileNameWithoutExtension(baseName);
+				if (Path.GetDirectoryName(baseName) == String.Empty)
 				{
-					string searchPattern = $"*{fileName}*";
-					foreach (string test in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
-					{
-						string path = test.Trim();
-						string[] files;
-
-						try
-						{
-							files = Directory.GetFiles(path, searchPattern);
-						}
-						catch
-						{
-							continue;
-						}
-
-						// First round: Direct match
-						foreach (var file in files)
-						{
-							if (Path.GetFileNameWithoutExtension(file) == fileName)
-							{
-								path = Path.Combine(path, file);
-								return Path.GetFullPath(path);
-							}
-						}
-
-						// Second round: partial match
-						foreach (var file in files)
-						{
-							if (Path.GetFileNameWithoutExtension(file).Contains(fileName))
-							{
-								path = Path.Combine(path, file);
-								return Path.GetFullPath(path);
-							}
-						}
-					}
+					string result = string.Empty;
+					if (TryEvaluateEnvironment(fileName, out result, (file, searchedFor) => Path.GetFileName(file) == searchedFor))
+						return result;
+					if (TryEvaluateEnvironment(fileName, out result, (file, searchedFor) => Path.GetFileNameWithoutExtension(file) == searchedFor))
+						return result;
+					if (TryEvaluateEnvironment(fileName, out result, (file, searchedFor) => Path.GetFileNameWithoutExtension(file).Contains(searchedFor)))
+						return result;
 				}
 
 				return null;
 			}
 
-			return Path.GetFullPath(fileName);
+			return Path.GetFullPath(baseName);
+		}
+
+		private static bool TryEvaluateEnvironment( string _fileName, out string _path, Func<string, string, bool> _fn )
+		{
+			_path = null;
+			string searchPattern = $"*";
+			foreach (string test in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
+			{
+				string path = test.Trim();
+				string[] files;
+
+				try
+				{
+					files = Directory.GetFiles(path, searchPattern);
+				}
+				catch
+				{
+					continue;
+				}
+
+				// First round: Direct match with extension
+				foreach (var file in files)
+				{
+					if (_fn(file, _fileName))
+					{
+						path = Path.Combine(path, file);
+						_path = Path.GetFullPath(path);
+						return true;
+					}
+				}
+			}
+
+			return false;
 		}
 
 	}

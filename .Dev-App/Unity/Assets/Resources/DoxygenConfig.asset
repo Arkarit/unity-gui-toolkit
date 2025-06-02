@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Project: GUI Toolkit
   Synopsis: Toolkit with various improvements to Unity Gui
-  VersionSource: 0
+  VersionSource: 1
   m_version: 
   OutputDirectory:
     Path: ..\..\Documentation~\Code

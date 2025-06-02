@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace GuiToolkit.Editor
 {
@@ -60,6 +59,7 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.PropertyField(m_InputDirectoriesProp);
 				EditorGUILayout.PropertyField(m_DefinesProp);
 				EditorGUILayout.PropertyField(m_ExcludePatternsProp);
+				serializedObject.ApplyModifiedProperties();
 			});
 
 			EditorUiUtility.WithHeadline("Doxygen Tools", () =>

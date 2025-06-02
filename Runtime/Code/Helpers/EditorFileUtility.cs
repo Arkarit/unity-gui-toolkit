@@ -12,6 +12,24 @@ namespace GuiToolkit
 	{
 		private const float PathFieldButtonWidth = 30;
 
+		public static string FindFolderInParent(string _name, string _startDir)
+		{
+			var dirs = Directory.GetDirectories(_startDir);
+			foreach (var dir in dirs)
+			{
+				if (Path.GetFileName(dir) == _name)
+					return _startDir;
+			}
+
+			var parent = Directory.GetParent(_startDir);
+			if (parent == null)
+				return null;
+
+			return FindFolderInParent(_name, parent.FullName);
+		}
+
+		public static string FindGitFolderInParent(string _startDir) => FindFolderInParent(".git", _startDir);
+
 		public static string GetApplicationDataDir( bool _withAssetsFolder = false )
 		{
 			string result = Application.dataPath;

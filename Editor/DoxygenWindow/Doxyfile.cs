@@ -35,12 +35,14 @@ namespace GuiToolkit.Editor
 			for (int i = 0; i < DoxygenConfig.Instance.Defines.Count; i++)
 				defines += $"\"{DoxygenConfig.Instance.Defines[i]}\" ";
 
+			string version = DoxygenConfig.Instance.Version;
+
 			for (int i = 0; i < templateLines.Length; i++)
 			{
 				var line = templateLines[i].Trim();
 
 				if (   ReplaceLineIfNecessary(ref line, "PROJECT_NAME", DoxygenConfig.Instance.Project)
-				    || ReplaceLineIfNecessary(ref line, "PROJECT_NUMBER", DoxygenConfig.Instance.Version)
+				    || ReplaceLineIfNecessary(ref line, "PROJECT_NUMBER", version)
 				    || ReplaceLineIfNecessary(ref line, "PROJECT_BRIEF", DoxygenConfig.Instance.Synopsis)
 				    || ReplaceLineIfNecessary(ref line, "OUTPUT_DIRECTORY", DoxygenConfig.Instance.OutputDirectory.FullPath)
 				    || ReplaceLineIfNecessary(ref line, "IMAGE_PATH", DoxygenConfig.Instance.OutputDirectory.FullPath)

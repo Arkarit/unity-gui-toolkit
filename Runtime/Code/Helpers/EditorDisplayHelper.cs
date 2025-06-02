@@ -3,10 +3,9 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 	/// <summary>
 	/// This class helps to very easily display a generic serializable class within another context (e.g. an Editor or EditorWindow)
@@ -19,12 +18,12 @@ namespace GuiToolkit
 			public Object ObjectInstanceObject;
 		}
 
-		private class HelperObjectEditor : Editor
+		private class HelperObjectEditor : UnityEditor.Editor
 		{
-			private Editor m_targetHelperEditor;
+			private UnityEditor.Editor m_targetHelperEditor;
 			private Type m_lastType = null;
 
-			public Editor TargetHelperEditor => m_targetHelperEditor;
+			public UnityEditor.Editor TargetHelperEditor => m_targetHelperEditor;
 
 			private void OnDisable()
 			{
@@ -80,7 +79,7 @@ namespace GuiToolkit
 		private static HelperObject s_helper;
 		private static HelperObjectEditor s_helperEditor;
 
-		public static T GetTargetHelperEditor<T>() where T : Editor
+		public static T GetTargetHelperEditor<T>() where T : UnityEditor.Editor
 		{
 			if (!HelperEditor)
 				return null;
@@ -132,7 +131,7 @@ namespace GuiToolkit
 				if (s_helperEditor == null || s_helperEditor.target == null)
 				{
 					s_helperEditor.SafeDestroy();
-					s_helperEditor = (HelperObjectEditor)Editor.CreateEditor(Helper, typeof(HelperObjectEditor));
+					s_helperEditor = (HelperObjectEditor)UnityEditor.Editor.CreateEditor(Helper, typeof(HelperObjectEditor));
 				}
 
 				return s_helperEditor;
