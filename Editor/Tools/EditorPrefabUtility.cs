@@ -49,8 +49,6 @@ namespace GuiToolkit.Editor
 		
 		private static readonly List<VariantRecord> s_variantRecords = new ();
 		private static readonly Dictionary<GameObject, GameObject> s_baseByPrefab = new ();
-		private static readonly Dictionary<string, string> s_guidMapping = new ();
-		private static readonly Dictionary<long, long> s_fileIdMapping = new ();
 		private static readonly List<GameObject> s_objectsToDelete = new();
 		
 		private static string s_sourceDir;
@@ -74,40 +72,7 @@ namespace GuiToolkit.Editor
 			CleanUp();
 			BuildPrefabVariantHierarchy();
 			Clone();
-//			ChangeParents();
-			
-//Debug.Log($"{GetVariantRecordsDumpString()}");
-
-//AssetDatabase.DeleteAsset(s_targetDir);
 			CleanUp();
-		}
-
-		private static void ChangeParents()
-		{
-			foreach (var record in s_variantRecords)
-				ChangeParents(record);
-		}
-
-		private static void ChangeParents(VariantRecord record)
-		{
-			// We need not change parents of root variants
-			if (!record.IsRootVariant)
-				ChangeParents(record.CloneEntry.Asset);
-
-			foreach (var basedOnThis in record.VariantRecordsBasedOnThis)
-				ChangeParents(basedOnThis);
-		}
-
-		private static void ChangeParents(GameObject _go)
-		{
-Debug.Log(DumpMapping());
-			HandleAsYaml(_go, yaml =>
-			{
-				foreach (var uComponent in yaml)
-					uComponent.rootProperty.ReplaceGUIDAndFileID(s_guidMapping, s_fileIdMapping);
-
-				return true;
-			});
 		}
 
 		private static void BuildPrefabVariantHierarchy()
@@ -207,10 +172,10 @@ Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesStr
 		private static void Clone(List<VariantRecord> _list)
 		{
 			foreach (var record in _list)
-				Clone(record, false);
+				Clone(record, true);
 		}
 
-		private static void Clone(VariantRecord _record, bool _asVariant)
+		private static void Clone(VariantRecord _record, bool _isRoot)
 		{
 			var baseSourceAsset = GetSourceAssetAndPaths(_record, out var targetDir, out var newAssetPath, out var variantName, out var variantPath);
 
@@ -222,164 +187,20 @@ Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesStr
 				return;
 			}
 
-			EditorFileUtility.EnsureFolderExists(targetDir);
-			Debug.Log(DumpYamlString(baseSourceAsset));
-
-			if (_asVariant)
+			if (_isRoot)
 			{
-				if (!TryReadYaml(baseSourceAsset, out List<UComponent> yaml))
-					return;
-
-				if (!TryWriteYaml(yaml, variantPath))
-					return;
-
-				var clone = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
-AssetDatabase.TryGetGUIDAndLocalFileIdentifier(clone, out string guid, out long id);
-Debug.Log($"---::: {clone.name}:  {id}  :  {guid}");
-				_record.CloneEntry = CreateAssetEntry(clone);
-				AddToMapping(baseSourceAsset, clone);
-			}
-			else
-			{
+				EditorFileUtility.EnsureFolderExists(targetDir);
 				var clone = PrefabUtility.InstantiatePrefab(baseSourceAsset) as GameObject;
 				var variant = PrefabUtility.SaveAsPrefabAsset(clone, variantPath);
-				AddToMapping(baseSourceAsset, variant);
-
 				_record.CloneEntry = CreateAssetEntry(variant);
 				s_objectsToDelete.Add(clone);
 			}
 
+
 			foreach (var v in _record.VariantRecordsBasedOnThis)
-				Clone(v, true);
+				Clone(v, false);
 		}
 
-		private static void AddToMapping(GameObject baseSourceAsset, GameObject variant)
-		{
-			if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(baseSourceAsset, out string originalGuid,
-				    out long originalId) &&
-			    AssetDatabase.TryGetGUIDAndLocalFileIdentifier(variant, out string variantGuid,
-				    out long variantId))
-			{
-				s_guidMapping.Add(originalGuid, variantGuid);
-				s_fileIdMapping.Add(originalId, variantId);
-				return;
-			}
-
-			Debug.LogError($"Could not add mapping for '{baseSourceAsset.GetPath()}' -> {variant.GetPath()}");
-		}
-
-		private static bool TryReadYaml(GameObject _go, out List<UComponent> _yaml)
-		{
-			_yaml = new List<UComponent>();
-
-			try
-			{
-				var assetPath = AssetDatabase.GetAssetPath(_go);
-				if (string.IsNullOrEmpty(assetPath))
-					return false;
-	
-				var yamlText = File.ReadAllText(assetPath);
-				if (string.IsNullOrEmpty(yamlText))
-					return false;
-	
-				_yaml = Parser.Parse(yamlText);
-				return true;
-			}
-			catch
-			{
-				return false;
-			}
-		}
-
-		private static bool TryWriteYaml(List<UComponent> _yaml, string _variantPath)
-		{
-			try
-			{
-//				_yaml[0].fileID = new System.Random().NextLong(0, Int64.MaxValue);
-				var newYamlText = Writer.Build(_yaml);
-				File.WriteAllText(_variantPath, newYamlText);
-				AssetDatabase.ImportAsset(_variantPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
-				return true;
-			}
-			catch
-			{
-				return false;
-			}
-		}
-
-		private static bool HandleAsYaml(GameObject _gameObject, Func<List<UComponent>, bool> _handler)
-		{
-			try
-			{
-				if (!_gameObject)
-					return false;
-
-				var assetPath = AssetDatabase.GetAssetPath(_gameObject);
-				if (_handler == null)
-					return false;
-
-				if (!TryReadYaml(_gameObject, out List<UComponent> _yaml))
-					return false;
-
-				if (_handler.Invoke(_yaml))
-					return TryWriteYaml(_yaml, assetPath);
-
-				return true;
-			}
-			catch
-			{
-				return false;
-			}
-		}
-
-		public static string DumpYamlString(GameObject _gameObject)
-		{
-			string result = $"YAML for for '{_gameObject.name}':\n----------------------------------------------------------------\n";
-			var assetPath = AssetDatabase.GetAssetPath(_gameObject);
-			if (string.IsNullOrEmpty(assetPath))
-				return result + "\t<Asset Path Not Found>";
-
-			var yamlText = File.ReadAllText(assetPath);
-			var yaml = Parser.Parse(yamlText);
-
-			foreach (var uComponent in yaml)
-			{
-				result += $"\t{uComponent.name}:{uComponent.classID}:{uComponent.fileID}\n";
-				var root = uComponent.root;
-				foreach (var kv in root)
-				{
-					result += $"\t\t{kv.Key}:{kv.Value}\n";
-				}
-			}
-
-			return result;
-		}
-
-		private static string DumpMapping()
-		{
-			Debug.Assert(s_fileIdMapping.Count == s_guidMapping.Count);
-			string result = "File Id/GUID mapping:\n";
-
-			List<string> guidSrc = new ();
-			List<string> guidDst = new ();
-			List<long> idSrc = new ();
-			List<long> idDst = new ();
-			foreach (var kv in s_guidMapping)
-			{
-				guidSrc.Add(kv.Key);
-				guidDst.Add(kv.Value);
-			}
-			foreach (var kv in s_fileIdMapping)
-			{
-				idSrc.Add(kv.Key);
-				idDst.Add(kv.Value);
-			}
-
-			for (int i = 0; i < s_guidMapping.Count; i++)
-				result += $"{idSrc[i]}, {guidSrc[i]} -> {idDst[i]}, {guidDst[i]}\n";
-
-			return result;
-		}
 
 		public static string DumpAllProperties(SerializedObject _serObj)
 		{
@@ -477,8 +298,6 @@ Debug.Log($"---::: {clone.name}:  {id}  :  {guid}");
 		{
 			s_variantRecords.Clear();
 			s_baseByPrefab.Clear();
-			s_guidMapping.Clear();
-			s_fileIdMapping.Clear();
 			foreach (var gameObject in s_objectsToDelete)
 				gameObject.SafeDestroy();
 			s_objectsToDelete.Clear();
