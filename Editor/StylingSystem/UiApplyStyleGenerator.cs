@@ -497,7 +497,7 @@ namespace GuiToolkit.Style.Editor
 			string outputDir = _internal ?
 				UiToolkitConfiguration.Instance.InternalGeneratedAssetsDir + "Type-Json" :
 				UiToolkitConfiguration.Instance.GeneratedAssetsDir;
-			EditorFileUtility.EnsureFolderExists(EditorFileUtility.GetUnityPath(outputDir));
+			EditorFileUtility.EnsureUnityFolderExists(EditorFileUtility.GetUnityPath(outputDir));
 			
 			string path = outputDir + $"/{m_componentType.FullName}.json";
 

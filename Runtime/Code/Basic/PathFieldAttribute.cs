@@ -7,11 +7,13 @@ namespace GuiToolkit
 	{
 		public bool IsFolder;
 		public string RelativeToPath;
+		public string Extensions; 
 		
-		public PathFieldAttribute(bool isFolder, string relativeToPath = null)
+		public PathFieldAttribute(bool _isFolder, string _relativeToPath = null, string _extensions = null)
 		{
-			IsFolder = isFolder;
-			RelativeToPath = relativeToPath;
+			IsFolder = _isFolder;
+			RelativeToPath = _relativeToPath;
+			Extensions = _extensions;
 		}
 	}
 }

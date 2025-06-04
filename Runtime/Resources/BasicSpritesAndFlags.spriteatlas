@@ -43,12 +43,14 @@ SpriteAtlas:
     - da53dd620fd299344845401301190ff9: 21300000
     - 96b0c7d200fe89b4196d5f82c7a161e5: 21300000
     - 78941cf264923c9488229fa3b6e029b2: 21300000
+    - 3f1a78240ed8aab4bbe610645986c92a: 21300000
     - 08b5759456cd7534185f825acb45ccde: 21300000
     - a13d7a258751b14499b8b99390ed5ed1: 21300000
     - f4a6c635596536c4ebdca0c03698945d: 21300000
     - 6f356e35c5923434da09d00a2639d98a: 21300000
     - 489c5ac57c2a3f649a0ffa61289ce5a1: 21300000
     - 4bafba0620e03dd409f9f7b3b9efff92: 21300000
+    - a5e33db6acc91eb4b89fbb54dabab4dc: 21300000
     - 77e633c6704b5a941a4453840b0aff60: 21300000
     - 2d423647549aaa241b88679d1e8e4fae: 21300000
     - ebfad9e774536ea4ba52588acabc7669: 21300000
@@ -65,8 +67,10 @@ SpriteAtlas:
     - 35a8375cef72a06439139e0571d60e29: 21300000
     - 416de85cf7837f44f9a6704e4c46632c: 21300000
     - 32ba0b6c7552e3b44968b32ae2b1c722: 21300000
+    - dbee080dd926b5d48b642104ef63b1b0: 21300000
     - cabd074ec74c9b14f96186d9a5b207af: 21300000
     - f01f116e4e6c3a943b43c4fc06c9abd9: 21300000
+    - d60477ce43c68f94d92820a4d9acab07: 21300000
     - a36afbce993aae5499d2ee825b906b06: 21300000
     - 2a67d82f37fd88a45b7617ad7b8e3ea2: 21300000
   m_MasterAtlas: {fileID: 0}
@@ -76,12 +80,14 @@ SpriteAtlas:
   - {fileID: 21300000, guid: da53dd620fd299344845401301190ff9, type: 3}
   - {fileID: 21300000, guid: 96b0c7d200fe89b4196d5f82c7a161e5, type: 3}
   - {fileID: 21300000, guid: 78941cf264923c9488229fa3b6e029b2, type: 3}
+  - {fileID: 21300000, guid: 3f1a78240ed8aab4bbe610645986c92a, type: 3}
   - {fileID: 21300000, guid: 08b5759456cd7534185f825acb45ccde, type: 3}
   - {fileID: 21300000, guid: a13d7a258751b14499b8b99390ed5ed1, type: 3}
   - {fileID: 21300000, guid: f4a6c635596536c4ebdca0c03698945d, type: 3}
   - {fileID: 21300000, guid: 6f356e35c5923434da09d00a2639d98a, type: 3}
   - {fileID: 21300000, guid: 489c5ac57c2a3f649a0ffa61289ce5a1, type: 3}
   - {fileID: 21300000, guid: 4bafba0620e03dd409f9f7b3b9efff92, type: 3}
+  - {fileID: 21300000, guid: a5e33db6acc91eb4b89fbb54dabab4dc, type: 3}
   - {fileID: 21300000, guid: 77e633c6704b5a941a4453840b0aff60, type: 3}
   - {fileID: 21300000, guid: 2d423647549aaa241b88679d1e8e4fae, type: 3}
   - {fileID: 21300000, guid: ebfad9e774536ea4ba52588acabc7669, type: 3}
@@ -98,8 +104,10 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 35a8375cef72a06439139e0571d60e29, type: 3}
   - {fileID: 21300000, guid: 416de85cf7837f44f9a6704e4c46632c, type: 3}
   - {fileID: 21300000, guid: 32ba0b6c7552e3b44968b32ae2b1c722, type: 3}
+  - {fileID: 21300000, guid: dbee080dd926b5d48b642104ef63b1b0, type: 3}
   - {fileID: 21300000, guid: cabd074ec74c9b14f96186d9a5b207af, type: 3}
   - {fileID: 21300000, guid: f01f116e4e6c3a943b43c4fc06c9abd9, type: 3}
+  - {fileID: 21300000, guid: d60477ce43c68f94d92820a4d9acab07, type: 3}
   - {fileID: 21300000, guid: a36afbce993aae5499d2ee825b906b06, type: 3}
   - {fileID: 21300000, guid: 2a67d82f37fd88a45b7617ad7b8e3ea2, type: 3}
   m_PackedSpriteNamesToIndex:
@@ -108,13 +116,15 @@ SpriteAtlas:
   - de
   - UITK_Simple_Rectangle_r25
   - UITK_Frame_r00_f07
+  - UITK_Panel_r05
   - UITK_Simple_Rectangle_r50
   - UITK_Panel_r00_flat
   - UITK_Frame_r50_f07
   - lol
   - UITK_Panel_r25
   - UITK_Sunken_r25
-  - us
+  - UITK_Panel_r20
+  - en
   - UITK_Simple_Circle
   - UITK_Panel_Circle
   - UITK_Triangle
@@ -130,9 +140,11 @@ SpriteAtlas:
   - dev
   - UITK_Simple_Rectangle_r10
   - UITK_Simple_Rectangle_r00
+  - UITK_Panel_r10
   - UITK_Simple_Rectangle_r15
   - UITK_Sunken_r00
-  - en
+  - UITK_Panel_r15
+  - us
   - en_us
   m_RenderDataMap: {}
   m_Tag: BasicSpritesAndFlags

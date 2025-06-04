@@ -19,7 +19,7 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 	[CustomEditor(typeof(UiClickCatcher))]
-	public class UiClickCatcherEditor : Editor
+	public class UiClickCatcherEditor : UnityEditor.Editor
 	{
 		public override void OnInspectorGUI() {}
 	}

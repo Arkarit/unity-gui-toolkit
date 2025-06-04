@@ -553,7 +553,7 @@ namespace GuiToolkit
 		public static void CreateAsset( Object _obj, string _path )
 		{
 			string directory = EditorFileUtility.GetDirectoryName(_path);
-			EditorFileUtility.EnsureFolderExists(directory);
+			EditorFileUtility.EnsureUnityFolderExists(directory);
 			AssetDatabase.CreateAsset(_obj, _path);
 		}
 

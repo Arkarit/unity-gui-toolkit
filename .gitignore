@@ -5,6 +5,9 @@
 [Bb]uilds/
 Assets/AssetStoreTools*
 
+# Doxygen generated docs
+html
+
 # Visual Studio cache directory
 .vs/
 

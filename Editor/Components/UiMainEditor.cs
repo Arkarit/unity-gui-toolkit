@@ -109,7 +109,7 @@ namespace GuiToolkit.Editor
 			if (!prefab)
 				return;
 			
-			EditorFileUtility.EnsureFolderExists(m_clonePath);
+			EditorFileUtility.EnsureUnityFolderExists(m_clonePath);
 			var variant = PrefabUtility.SaveAsPrefabAsset(prefab, newAssetPath);
 			
 			var componentInClone = EditorGeneralUtility.FindMatchingChildInPrefab(variant, component.gameObject);

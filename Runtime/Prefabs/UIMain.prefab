@@ -207,10 +207,6 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   m_tagsToDisableWhenFullScreenView: []
-  TestFolderField:
-    Path: 
-  TestFileField:
-    Path: 
 --- !u!114 &2972006465301249288
 MonoBehaviour:
   m_ObjectHideFlags: 0

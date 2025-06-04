@@ -154,6 +154,7 @@ namespace GuiToolkit
 		public const string CREATE_MAIN_STYLE_CONFIG = STYLES_HEADER + "Main Style Config";
 		public const string CREATE_ORIENTATION_DEPENDENT_STYLE_CONFIG = STYLES_HEADER + "Orientation Dependent Style Config";
 		public const string CREATE_STYLE_CONFIG = STYLES_HEADER + "Style Config";
+		public const string CREATE_DOXYGEN_CONFIG = MENU_HEADER + "Doxygen Config";
 
 		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";																			///< Prefix for all player prefs entries
 	}

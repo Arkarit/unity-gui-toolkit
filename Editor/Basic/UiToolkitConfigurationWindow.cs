@@ -160,7 +160,7 @@ namespace GuiToolkit.Editor
 		private void CloneStyleConfig<T>(ref T currentStyleConfig, string _memberName) where T : UiStyleConfig
 		{
 			string resourceDir = "Assets/Resources";
-			EditorFileUtility.EnsureFolderExists(resourceDir);
+			EditorFileUtility.EnsureUnityFolderExists(resourceDir);
 			var newConfigPath = $"{resourceDir}/{currentStyleConfig.GetType().Name}.asset";
 			if (File.Exists(EditorFileUtility.GetNativePath(newConfigPath)))
 				if (!EditorUtility.DisplayDialog("Overwrite Configuration?", $"A config file at '{newConfigPath}' already exists. Should it be overwritten? (Not undoable)", "OK", "Cancel"))
