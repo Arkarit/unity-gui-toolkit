@@ -11,7 +11,12 @@ PrefabInstance:
     - target: {fileID: 6724424186370362338, guid: 261fef67ef1607644be4cec2ce8626ec,
         type: 3}
       propertyPath: m_Name
-      value: CubeB
+      value: Cube Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 7094232299796348445, guid: 261fef67ef1607644be4cec2ce8626ec,
+        type: 3}
+      propertyPath: m_CastShadows
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7216293063551331575, guid: 261fef67ef1607644be4cec2ce8626ec,
         type: 3}

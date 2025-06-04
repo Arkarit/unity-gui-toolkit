@@ -8,6 +8,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1888686218408263567, guid: 257fd8be676e8234d999c80069007b97,
+        type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2045580797511429477, guid: 257fd8be676e8234d999c80069007b97,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -61,7 +66,7 @@ PrefabInstance:
     - target: {fileID: 2672820961941015152, guid: 257fd8be676e8234d999c80069007b97,
         type: 3}
       propertyPath: m_Name
-      value: CubeB Variant
+      value: Cube Variant Variant
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
