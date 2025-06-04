@@ -172,11 +172,12 @@ Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesStr
 		private static void Clone(List<VariantRecord> _list)
 		{
 			foreach (var record in _list)
-				Clone(record, true);
+				Clone(record, null);
 		}
 
-		private static void Clone(VariantRecord _record, bool _isRoot)
+		private static void Clone(VariantRecord _record, GameObject parent)
 		{
+			bool isRoot = parent == null;
 			var baseSourceAsset = GetSourceAssetAndPaths(_record, out var targetDir, out var newAssetPath, out var variantName, out var variantPath);
 
 			if (File.Exists(variantPath))
@@ -187,18 +188,20 @@ Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesStr
 				return;
 			}
 
-			if (_isRoot)
+			// First step is to create a chain of prefab variants, starting with a variant of the base object
+			EditorFileUtility.EnsureFolderExists(targetDir);
+			var clone = PrefabUtility.InstantiatePrefab(isRoot ? baseSourceAsset : parent) as GameObject;
+			var cloneVariant = PrefabUtility.SaveAsPrefabAsset(clone, variantPath);
+			_record.CloneEntry = CreateAssetEntry(cloneVariant);
+			s_objectsToDelete.Add(clone);
+
+			if (!isRoot)
 			{
-				EditorFileUtility.EnsureFolderExists(targetDir);
-				var clone = PrefabUtility.InstantiatePrefab(baseSourceAsset) as GameObject;
-				var variant = PrefabUtility.SaveAsPrefabAsset(clone, variantPath);
-				_record.CloneEntry = CreateAssetEntry(variant);
-				s_objectsToDelete.Add(clone);
+Debug.Log(DumpOverridesString(_record.AssetEntry.Asset, _record.AssetEntry.Asset.name));
 			}
 
-
 			foreach (var v in _record.VariantRecordsBasedOnThis)
-				Clone(v, false);
+				Clone(v, cloneVariant);
 		}
 
 
