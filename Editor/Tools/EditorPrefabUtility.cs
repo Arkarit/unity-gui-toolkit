@@ -191,17 +191,50 @@ Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesStr
 			// First step is to create a chain of prefab variants, starting with a variant of the base object
 			EditorFileUtility.EnsureFolderExists(targetDir);
 			var clone = PrefabUtility.InstantiatePrefab(isRoot ? baseSourceAsset : parent) as GameObject;
-			var cloneVariant = PrefabUtility.SaveAsPrefabAsset(clone, variantPath);
-			_record.CloneEntry = CreateAssetEntry(cloneVariant);
-			s_objectsToDelete.Add(clone);
 
 			if (!isRoot)
 			{
-Debug.Log(DumpOverridesString(_record.AssetEntry.Asset, _record.AssetEntry.Asset.name));
+				CloneOverrides(_record.AssetEntry.Asset, clone);
+Debug.Log($"---::: after CloneOverrides: {DumpOverridesString(clone, clone.name)}");
+
 			}
 
+			var clonedVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(clone, variantPath, InteractionMode.AutomatedAction);
+Debug.Log($"---::: after SaveAsPrefab: {DumpOverridesString(clonedVariant, clonedVariant.name)}");
+			_record.CloneEntry = CreateAssetEntry(clonedVariant);
+			s_objectsToDelete.Add(clone);
+
 			foreach (var v in _record.VariantRecordsBasedOnThis)
-				Clone(v, cloneVariant);
+				Clone(v, clonedVariant);
+		}
+
+		private static void CloneOverrides(GameObject _originalAsset, GameObject _clonedAsset)
+		{
+			var sourcePropertyModifications = PrefabUtility.GetPropertyModifications(_originalAsset);
+			List<PropertyModification> targetPropertyModifications = new();
+
+string s = "---::: Overrides mapping:\n";
+
+			foreach (var propertyModification in sourcePropertyModifications)
+			{
+				Object originalTarget = propertyModification.target;
+				var clonedTarget = EditorAssetUtility.FindMatchingInPrefab(_clonedAsset, originalTarget);
+				if (clonedTarget != null)
+				{
+s += $"\t{DumpCorrespondingObjectFromSource(originalTarget)} ->\n\t{DumpCorrespondingObjectFromSource(clonedTarget)}\n\n";
+
+					PropertyModification targetPropertyModification =  propertyModification.ShallowClone();
+					targetPropertyModification.target = clonedTarget;
+					targetPropertyModifications.Add(targetPropertyModification);
+				}
+				else
+				{
+s += $"\tNo matching object found for {DumpCorrespondingObjectFromSource(originalTarget)}\n\n";
+				}
+			}
+
+			PrefabUtility.SetPropertyModifications(_clonedAsset, targetPropertyModifications.ToArray());
+Debug.Log(s);
 		}
 
 
@@ -232,23 +265,12 @@ Debug.Log(DumpOverridesString(_record.AssetEntry.Asset, _record.AssetEntry.Asset
 			
 			result += $"\t{_what} Property Modifications ({sourcePropertyModifications.Length})\n";
 			foreach (var modification in sourcePropertyModifications)
-				result += $"\t\t'{modification.value}':'{modification.propertyPath}':'{modification.objectReference}':'{modification.target}', id:{modification.target.GetInstanceID()}\n";
+				result += $"\t\t'{modification.value}':'{modification.propertyPath}':'{modification.objectReference}':'{modification.target}', id:{modification.target.GetInstanceID()}{DumpCorrespondingObjectFromSource(modification.target)}\n";
 			result += "\n\t";
 			
 			result += $"\t{_what} Object Overrides\n";
 			foreach (var sourceObjectOverride in sourceObjectOverrides)
-			{
-				result += $"\t\t'{sourceObjectOverride.coupledOverride}':'{sourceObjectOverride.instanceObject}'";
-				var cofs = PrefabUtility.GetCorrespondingObjectFromSource(sourceObjectOverride.instanceObject);
-				if (cofs != null)
-				{
-					result += $" cofs:{cofs.name} type:{cofs.GetType()}";
-					if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(cofs, out string guid, out long id))
-						result += $" guid:{guid} fileid:{id}";
-				}
-
-				result += "\n";
-			}
+				result += $"\t\t'{sourceObjectOverride.coupledOverride}':'{sourceObjectOverride.instanceObject}'{DumpCorrespondingObjectFromSource(sourceObjectOverride.instanceObject)}\n";
 
 			result += "\n\t";
 			
@@ -272,6 +294,20 @@ Debug.Log(DumpOverridesString(_record.AssetEntry.Asset, _record.AssetEntry.Asset
 				result += $"\t\t'{removedGameObject.assetGameObject.name}'\n";
 			result += "\n\t";
 			
+			return result;
+		}
+
+		private static string DumpCorrespondingObjectFromSource(Object _obj)
+		{
+			string result = string.Empty;
+			var cofs = PrefabUtility.GetCorrespondingObjectFromSource(_obj);
+			if (cofs != null)
+			{
+				result = $" cofs:{cofs.name} type:{cofs.GetType()}";
+				if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(cofs, out string guid, out long id))
+					result += $" guid:{guid} fileid:{id}";
+			}
+
 			return result;
 		}
 		
