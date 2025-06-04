@@ -119,6 +119,9 @@ Debug.Log(DumpMapping());
 			{
 				var assetPath = AssetDatabase.GUIDToAssetPath( guid );
 				var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+AssetDatabase.TryGetGUIDAndLocalFileIdentifier(prefab, out string tguid, out long id);
+Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesString(prefab, prefab.name)}");
+
 				var variantBase = PrefabUtility.GetCorrespondingObjectFromSource(prefab);
 				s_baseByPrefab.Add(prefab, variantBase);
 			}
@@ -231,6 +234,8 @@ Debug.Log(DumpMapping());
 					return;
 
 				var clone = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
+AssetDatabase.TryGetGUIDAndLocalFileIdentifier(clone, out string guid, out long id);
+Debug.Log($"---::: {clone.name}:  {id}  :  {guid}");
 				_record.CloneEntry = CreateAssetEntry(clone);
 				AddToMapping(baseSourceAsset, clone);
 			}
@@ -288,27 +293,17 @@ Debug.Log(DumpMapping());
 
 		private static bool TryWriteYaml(List<UComponent> _yaml, string _variantPath)
 		{
-			GameObject go = null;
 			try
 			{
-				go = new GameObject("UnitySucks");
-				PrefabUtility.SaveAsPrefabAsset(go, "Assets/UnitySucks.prefab");
-				var ass = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/UnitySucks.prefab");
-				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(ass, out string _, out long id);
-				_yaml[0].fileID = id;
+//				_yaml[0].fileID = new System.Random().NextLong(0, Int64.MaxValue);
 				var newYamlText = Writer.Build(_yaml);
 				File.WriteAllText(_variantPath, newYamlText);
-				AssetDatabase.ImportAsset(_variantPath);
+				AssetDatabase.ImportAsset(_variantPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
 				return true;
 			}
 			catch
 			{
 				return false;
-			}
-			finally
-			{
-				AssetDatabase.DeleteAsset("Assets/UnitySucks.prefab");
-				go.SafeDestroy();
 			}
 		}
 
@@ -399,6 +394,9 @@ Debug.Log(DumpMapping());
 		
 		public static string DumpOverridesString(GameObject _asset, string _what)
 		{
+			if (!PrefabUtility.IsPartOfVariantPrefab(_asset))
+				return string.Empty;
+
 			var sourcePropertyModifications = PrefabUtility.GetPropertyModifications(_asset);
 			var sourceObjectOverrides = PrefabUtility.GetObjectOverrides(_asset);
 			var addedComponents = PrefabUtility.GetAddedComponents(_asset);
@@ -415,7 +413,19 @@ Debug.Log(DumpMapping());
 			
 			result += $"\t{_what} Object Overrides\n";
 			foreach (var sourceObjectOverride in sourceObjectOverrides)
-				result += $"\t\t'{sourceObjectOverride.coupledOverride}':'{sourceObjectOverride.instanceObject}'\n";
+			{
+				result += $"\t\t'{sourceObjectOverride.coupledOverride}':'{sourceObjectOverride.instanceObject}'";
+				var cofs = PrefabUtility.GetCorrespondingObjectFromSource(sourceObjectOverride.instanceObject);
+				if (cofs != null)
+				{
+					result += $" cofs:{cofs.name} type:{cofs.GetType()}";
+					if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(cofs, out string guid, out long id))
+						result += $" guid:{guid} fileid:{id}";
+				}
+
+				result += "\n";
+			}
+
 			result += "\n\t";
 			
 			result += $"\t{_what} Added Components\n";
