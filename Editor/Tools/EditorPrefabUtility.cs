@@ -191,16 +191,15 @@ Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesStr
 			// First step is to create a chain of prefab variants, starting with a variant of the base object
 			EditorFileUtility.EnsureFolderExists(targetDir);
 			var clone = PrefabUtility.InstantiatePrefab(isRoot ? baseSourceAsset : parent) as GameObject;
+			var clonedVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(clone, variantPath, InteractionMode.AutomatedAction);
 
 			if (!isRoot)
 			{
-				CloneOverrides(_record.AssetEntry.Asset, clone);
-Debug.Log($"---::: after CloneOverrides: {DumpOverridesString(clone, clone.name)}");
+				CloneOverrides(_record.AssetEntry.Asset, clonedVariant);
+Debug.Log($"---::: after CloneOverrides: {DumpOverridesString(clonedVariant, clonedVariant.name)}");
 
 			}
 
-			var clonedVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(clone, variantPath, InteractionMode.AutomatedAction);
-Debug.Log($"---::: after SaveAsPrefab: {DumpOverridesString(clonedVariant, clonedVariant.name)}");
 			_record.CloneEntry = CreateAssetEntry(clonedVariant);
 			s_objectsToDelete.Add(clone);
 
@@ -224,7 +223,7 @@ string s = "---::: Overrides mapping:\n";
 s += $"\t{DumpCorrespondingObjectFromSource(originalTarget)} ->\n\t{DumpCorrespondingObjectFromSource(clonedTarget)}\n\n";
 
 					PropertyModification targetPropertyModification =  propertyModification.ShallowClone();
-					targetPropertyModification.target = clonedTarget;
+					targetPropertyModification.target = PrefabUtility.GetCorrespondingObjectFromSource(clonedTarget);
 					targetPropertyModifications.Add(targetPropertyModification);
 				}
 				else
