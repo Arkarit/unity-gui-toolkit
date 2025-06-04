@@ -8,6 +8,7 @@ using UnityEditor.SceneManagement;
 using UnityEditor.VersionControl;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 namespace GuiToolkit.Editor
 {
@@ -73,7 +74,7 @@ namespace GuiToolkit.Editor
 			CleanUp();
 			BuildPrefabVariantHierarchy();
 			Clone();
-			ChangeParents();
+//			ChangeParents();
 			
 //Debug.Log($"{GetVariantRecordsDumpString()}");
 
@@ -287,8 +288,14 @@ Debug.Log(DumpMapping());
 
 		private static bool TryWriteYaml(List<UComponent> _yaml, string _variantPath)
 		{
+			GameObject go = null;
 			try
 			{
+				go = new GameObject("UnitySucks");
+				PrefabUtility.SaveAsPrefabAsset(go, "Assets/UnitySucks.prefab");
+				var ass = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/UnitySucks.prefab");
+				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(ass, out string _, out long id);
+				_yaml[0].fileID = id;
 				var newYamlText = Writer.Build(_yaml);
 				File.WriteAllText(_variantPath, newYamlText);
 				AssetDatabase.ImportAsset(_variantPath);
@@ -297,6 +304,11 @@ Debug.Log(DumpMapping());
 			catch
 			{
 				return false;
+			}
+			finally
+			{
+				AssetDatabase.DeleteAsset("Assets/UnitySucks.prefab");
+				go.SafeDestroy();
 			}
 		}
 
