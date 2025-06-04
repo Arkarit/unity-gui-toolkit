@@ -24,19 +24,18 @@ namespace GuiToolkit.Editor
 
 		private class VariantRecord
 		{
-			public AssetEntry Asset = null;
-			public AssetEntry Clone = null;
+			public AssetEntry AssetEntry = null;
+			public AssetEntry CloneEntry = null;
 			public VariantRecord Base = null;
 			public bool IsRootVariant => Base == null;
-			
 			
 			public readonly List<VariantRecord> VariantRecordsBasedOnThis = new ();
 			
 			public string GetDumpString(int _numTabs = 0)
 			{
-				var result = $"{new string('\t', _numTabs)}Original: __ {Asset.Asset.name} __ Guid:{Asset.Guid} FileId:{Asset.Id} IsRootVariant:{IsRootVariant}\n";
-				if (Clone != null)
-					result += $"{new string('\t', _numTabs)}Clone: __ {Clone.Asset.name} __ Guid:{Clone.Guid} FileId:{Clone.Id}\n";
+				var result = $"{new string('\t', _numTabs)}Original: __ {AssetEntry.Asset.name} __ Guid:{AssetEntry.Guid} FileId:{AssetEntry.Id} IsRootVariant:{IsRootVariant}\n";
+				if (CloneEntry != null)
+					result += $"{new string('\t', _numTabs)}Clone: __ {CloneEntry.Asset.name} __ Guid:{CloneEntry.Guid} FileId:{CloneEntry.Id}\n";
 				else
 					result += $"{new string('\t', _numTabs)}Clone:<null>\n";
 
@@ -92,7 +91,7 @@ namespace GuiToolkit.Editor
 		{
 			// We need not change parents of root variants
 			if (!record.IsRootVariant)
-				ChangeParents(record.Clone.Asset);
+				ChangeParents(record.CloneEntry.Asset);
 
 			foreach (var basedOnThis in record.VariantRecordsBasedOnThis)
 				ChangeParents(basedOnThis);
@@ -100,13 +99,11 @@ namespace GuiToolkit.Editor
 
 		private static void ChangeParents(GameObject _go)
 		{
+Debug.Log(DumpMapping());
 			HandleAsYaml(_go, yaml =>
 			{
 				foreach (var uComponent in yaml)
-				{
-					uComponent.rootProperty.ReplaceFileID(s_fileIdMapping);
-					uComponent.rootProperty.ReplaceGUID(s_guidMapping);
-				}
+					uComponent.rootProperty.ReplaceGUIDAndFileID(s_guidMapping, s_fileIdMapping);
 
 				return true;
 			});
@@ -130,7 +127,7 @@ namespace GuiToolkit.Editor
 				if (kv.Value == null)
 				{
 					done.Add(kv.Key);
-					s_variantRecords.Add(new VariantRecord() {Asset = CreateAssetEntry(kv.Key)});
+					s_variantRecords.Add(new VariantRecord() {AssetEntry = CreateAssetEntry(kv.Key)});
 				}
 			}
 
@@ -157,13 +154,13 @@ namespace GuiToolkit.Editor
 		{
 			foreach (var record in _list)
 			{
-				if (record.Asset.Asset == _base)
+				if (record.AssetEntry.Asset == _base)
 				{
 					_done.Add(_gameObject);
 
 					record.VariantRecordsBasedOnThis.Add(new ()
 					{
-						Asset = CreateAssetEntry(_gameObject), 
+						AssetEntry = CreateAssetEntry(_gameObject), 
 						Base = record
 					});
 
@@ -216,7 +213,7 @@ namespace GuiToolkit.Editor
 			if (File.Exists(variantPath))
 			{
 				var existing = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
-				_record.Clone = CreateAssetEntry(existing);
+				_record.CloneEntry = CreateAssetEntry(existing);
 
 				return;
 			}
@@ -233,27 +230,36 @@ namespace GuiToolkit.Editor
 					return;
 
 				var clone = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
-				_record.Clone = CreateAssetEntry(clone);
+				_record.CloneEntry = CreateAssetEntry(clone);
+				AddToMapping(baseSourceAsset, clone);
 			}
 			else
 			{
 				var clone = PrefabUtility.InstantiatePrefab(baseSourceAsset) as GameObject;
 				var variant = PrefabUtility.SaveAsPrefabAsset(clone, variantPath);
-				if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(baseSourceAsset, out string originalGuid,
-					    out long originalId) &&
-				    AssetDatabase.TryGetGUIDAndLocalFileIdentifier(variant, out string variantGuid,
-					    out long variantId))
-				{
-					s_guidMapping.Add(originalGuid, variantGuid);
-					s_fileIdMapping.Add(originalId, variantId);
-				}
+				AddToMapping(baseSourceAsset, variant);
 
-				_record.Clone = CreateAssetEntry(variant);
+				_record.CloneEntry = CreateAssetEntry(variant);
 				s_objectsToDelete.Add(clone);
 			}
 
 			foreach (var v in _record.VariantRecordsBasedOnThis)
 				Clone(v, true);
+		}
+
+		private static void AddToMapping(GameObject baseSourceAsset, GameObject variant)
+		{
+			if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(baseSourceAsset, out string originalGuid,
+				    out long originalId) &&
+			    AssetDatabase.TryGetGUIDAndLocalFileIdentifier(variant, out string variantGuid,
+				    out long variantId))
+			{
+				s_guidMapping.Add(originalGuid, variantGuid);
+				s_fileIdMapping.Add(originalId, variantId);
+				return;
+			}
+
+			Debug.LogError($"Could not add mapping for '{baseSourceAsset.GetPath()}' -> {variant.GetPath()}");
 		}
 
 		private static bool TryReadYaml(GameObject _go, out List<UComponent> _yaml)
@@ -342,6 +348,32 @@ namespace GuiToolkit.Editor
 			return result;
 		}
 
+		private static string DumpMapping()
+		{
+			Debug.Assert(s_fileIdMapping.Count == s_guidMapping.Count);
+			string result = "File Id/GUID mapping:\n";
+
+			List<string> guidSrc = new ();
+			List<string> guidDst = new ();
+			List<long> idSrc = new ();
+			List<long> idDst = new ();
+			foreach (var kv in s_guidMapping)
+			{
+				guidSrc.Add(kv.Key);
+				guidDst.Add(kv.Value);
+			}
+			foreach (var kv in s_fileIdMapping)
+			{
+				idSrc.Add(kv.Key);
+				idDst.Add(kv.Value);
+			}
+
+			for (int i = 0; i < s_guidMapping.Count; i++)
+				result += $"{idSrc[i]}, {guidSrc[i]} -> {idDst[i]}, {guidDst[i]}\n";
+
+			return result;
+		}
+
 		public static string DumpAllProperties(SerializedObject _serObj)
 		{
 			string result = $"Properties for '{_serObj.targetObject.name}':\n----------------------------------------------------------------\n";
@@ -406,7 +438,7 @@ namespace GuiToolkit.Editor
 			out string _variantPath
 		)
 		{
-			var asset = _record.Asset.Asset;
+			var asset = _record.AssetEntry.Asset;
 			var assetPath = AssetDatabase.GetAssetPath(asset);
 			var basename = Path.GetFileNameWithoutExtension(assetPath);
 			var extension = Path.GetExtension(assetPath);
