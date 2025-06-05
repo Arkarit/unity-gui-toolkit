@@ -50,8 +50,8 @@ namespace GuiToolkit
 		/// <param name="_self">Transform, game object or component. May be null, in that case a string containing @"@<null@>@" is returned</param>
 		/// <param name="_depth">
 		/// If 0, complete path is returned
-		/// If > 0, path up to depth n is returned (e.g. MyPrefab/MyContainer/MyObject with depth 2 would return MyContainer/MyObject)
-		/// If < 0, complete path with -n parts removed at the right side (e.g. MyPrefab/MyContainer/MyObject with depth -1 would return MyContainer/MyObject)
+		/// If > 0, path up to depth n is returned (e.g. MyOuterPrefab/MyPrefab/MyContainer/MyObject with depth 2 would return MyContainer/MyObject)
+		/// If < 0, complete path with -n parts removed at the left side (e.g. MyOuterPrefab/MyPrefab/MyContainer/MyObject with depth -1 would return MyPrefab/MyContainer/MyObject)
 		/// </param>
 		/// <param name="_separator"></param>
 		/// <returns></returns>
@@ -871,23 +871,33 @@ namespace GuiToolkit
 
 		private static GameObject PrefabAwareCloneInternal(GameObject _gameObject, GameObject _clonedRoot, Transform _newParent = null)
 		{
+Debug.Log($"Handling {_gameObject.GetPath(0)}");
 			if (_gameObject == null)
 				return null;
 
 			GameObject result;
+			GameObject alreadyExistingInClone = _clonedRoot != null ? EditorAssetUtility.FindMatchingInPrefab(_clonedRoot, _gameObject) : null;
 
-			if (PrefabUtility.IsAddedGameObjectOverride(_gameObject) || !PrefabUtility.IsPartOfAnyPrefab(_gameObject))
+			if (alreadyExistingInClone != null)
 			{
+Debug.Log($"Already existing {_gameObject.name}");
+				result = alreadyExistingInClone;
+			}
+			else if (PrefabUtility.IsAnyPrefabInstanceRoot(_gameObject))
+			{
+				var prefabToClone = PrefabUtility.GetCorrespondingObjectFromSource(_gameObject);
+Debug.Log($"Prefab Cloning {prefabToClone.name}");
+				result = (GameObject) PrefabUtility.InstantiatePrefab(prefabToClone, _newParent);
+				var targetTransform = result.transform;
+				var sourceTransform = _gameObject.transform;
+				targetTransform.position = sourceTransform.position;
+				targetTransform.rotation = sourceTransform.rotation;
+				targetTransform.localScale = sourceTransform.localScale;
+			}
+			else
+			{
+Debug.Log($"Cloning {_gameObject.name}");
 				result = _gameObject.CloneWithoutChildren(_newParent);
-			}
-			else if (PrefabUtility.IsAnyPrefabInstanceRoot(_gameObject)) // It is a prefab root 
-			{
-				result = (GameObject) PrefabUtility.InstantiatePrefab(_gameObject, _newParent);
-			}
-			else // It is part of an already cloned prefab. Can not happen if nothing has been cloned yet (_clonedRoot is null)
-			{
-				Debug.Assert(_clonedRoot != null, "_clonedRoot is null. This shouldn't happen");
-				result = EditorAssetUtility.FindMatchingInPrefab(_gameObject, _clonedRoot);
 			}
 
 			if (_clonedRoot == null)
@@ -909,7 +919,7 @@ namespace GuiToolkit
 		/// <returns></returns>
 		public static GameObject CloneWithoutChildren(this GameObject _gameObject, Transform _newParent = null)
 		{
-			GameObject result = Object.Instantiate(_gameObject, _newParent, true);
+			GameObject result = Object.Instantiate(_gameObject, _newParent, false);
 			result.DestroyAllChildren();
 			return result;
 		}
