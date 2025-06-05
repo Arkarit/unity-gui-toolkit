@@ -191,15 +191,16 @@ Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesStr
 			// First step is to create a chain of prefab variants, starting with a variant of the base object
 			EditorFileUtility.EnsureFolderExists(targetDir);
 			var clone = PrefabUtility.InstantiatePrefab(isRoot ? baseSourceAsset : parent) as GameObject;
-			var clonedVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(clone, variantPath, InteractionMode.AutomatedAction);
 
 			if (!isRoot)
 			{
-				CloneOverrides(_record.AssetEntry.Asset, clonedVariant);
-Debug.Log($"---::: after CloneOverrides: {DumpOverridesString(clonedVariant, clonedVariant.name)}");
-
+Debug.Log($"---::: original: {DumpOverridesString(_record.AssetEntry.Asset, _record.AssetEntry.Asset.name)}");
+				CloneRemovedAndAdded(_record.AssetEntry.Asset, clone);
+				CloneOverrides(_record.AssetEntry.Asset, clone);
+Debug.Log($"---::: after CloneOverrides: {DumpOverridesString(clone, clone.name)}");
 			}
 
+			var clonedVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(clone, variantPath, InteractionMode.AutomatedAction);
 			_record.CloneEntry = CreateAssetEntry(clonedVariant);
 			s_objectsToDelete.Add(clone);
 
@@ -207,12 +208,69 @@ Debug.Log($"---::: after CloneOverrides: {DumpOverridesString(clonedVariant, clo
 				Clone(v, clonedVariant);
 		}
 
+		private static void CloneRemovedAndAdded(GameObject _originalAsset, GameObject _clonedAsset)
+		{
+			var addedGameObjects = PrefabUtility.GetAddedGameObjects(_originalAsset);
+			var removedGameObjects = PrefabUtility.GetRemovedGameObjects(_originalAsset);
+			var addedComponents = PrefabUtility.GetAddedComponents(_originalAsset);
+			var removedComponents = PrefabUtility.GetRemovedComponents(_originalAsset);
+string s = $"---::: Processing {addedGameObjects.Count} added game objects\n";
+			foreach (var addedGameObject in addedGameObjects)
+			{
+				var addedGo = addedGameObject.instanceGameObject;
+s += $"\tCloning {addedGo.name}...\n";
+				var originalParent = addedGo.transform.parent;
+				if (originalParent == null)
+				{
+					// Error msg?
+s += "\toriginalParent is null\n\n";
+					continue;
+				}
+
+				var clonedParent = EditorAssetUtility.FindMatchingInPrefab(_clonedAsset, originalParent);
+				if (clonedParent == null)
+				{
+					// Error msg?
+s += "\tclonedParent is null\n\n";
+					continue;
+				}
+
+				var clone = GameObject.Instantiate(addedGo, clonedParent);
+				clone.name = addedGo.name;
+				clone.transform.SetSiblingIndex(addedGameObject.siblingIndex);
+s += $"\tcloned {clone.name}\n\n";
+
+			}
+
+s += $"---::: Processing {removedGameObjects.Count} removed game objects\n";
+			foreach (var removedGameObject in removedGameObjects)
+			{
+				var removedGo = removedGameObject.assetGameObject;
+s += $"\tRemoving {removedGo.name}...\n";
+
+				var clonedRemovedGo = EditorAssetUtility.FindMatchingInPrefab(_clonedAsset, removedGo);
+				if (clonedRemovedGo == null)
+				{
+					// Error msg?
+s += "\tclonedRemovedGo is null\n\n";
+					continue;
+				}
+
+s += $"\tRemoving {clonedRemovedGo.name}\n\n";
+				clonedRemovedGo.SafeDestroy();
+
+			}
+
+
+Debug.Log(s);
+		}
+
 		private static void CloneOverrides(GameObject _originalAsset, GameObject _clonedAsset)
 		{
 			var sourcePropertyModifications = PrefabUtility.GetPropertyModifications(_originalAsset);
 			List<PropertyModification> targetPropertyModifications = new();
 
-string s = "---::: Overrides mapping:\n";
+string s = $"---::: Overrides mapping ({sourcePropertyModifications} modifications):\n";
 
 			foreach (var propertyModification in sourcePropertyModifications)
 			{
@@ -220,7 +278,7 @@ string s = "---::: Overrides mapping:\n";
 				var clonedTarget = EditorAssetUtility.FindMatchingInPrefab(_clonedAsset, originalTarget);
 				if (clonedTarget != null)
 				{
-s += $"\t{DumpCorrespondingObjectFromSource(originalTarget)} ->\n\t{DumpCorrespondingObjectFromSource(clonedTarget)}\n\n";
+s += $"\t{propertyModification.propertyPath}:\n\t{DumpCorrespondingObjectFromSource(originalTarget)} ->\n\t{DumpCorrespondingObjectFromSource(clonedTarget)}\n\n";
 
 					PropertyModification targetPropertyModification =  propertyModification.ShallowClone();
 					targetPropertyModification.target = PrefabUtility.GetCorrespondingObjectFromSource(clonedTarget);
@@ -232,8 +290,10 @@ s += $"\tNo matching object found for {DumpCorrespondingObjectFromSource(origina
 				}
 			}
 
+
 			PrefabUtility.SetPropertyModifications(_clonedAsset, targetPropertyModifications.ToArray());
 Debug.Log(s);
+Debug.Log($"---::: Set {targetPropertyModifications.Count} modifications");
 		}
 
 
