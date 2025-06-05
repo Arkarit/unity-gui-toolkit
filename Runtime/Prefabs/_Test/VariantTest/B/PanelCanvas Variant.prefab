@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6428025826085755460}
   - component: {fileID: 6413764923043247525}
   m_Layer: 5
-  m_Name: InsertedIntoButton
+  m_Name: ImageInsertedIntoButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 2798163692416252064}
   - component: {fileID: 424228363756420652}
   m_Layer: 5
-  m_Name: Image
+  m_Name: ImageInsertedIntoContentContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
