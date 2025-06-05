@@ -66,13 +66,19 @@ namespace GuiToolkit.Editor
 		
 		public static void CreatePrefabVariants(string _sourceDir, string _targetDir, bool _addVariantNamePart = true)
 		{
-			s_addVariantNamePart = _addVariantNamePart;
-			s_sourceDir = string.IsNullOrEmpty(_sourceDir) ? BuiltinPrefabDir : _sourceDir;
-			s_targetDir = _targetDir;
-			CleanUp();
-			BuildPrefabVariantHierarchy();
-			Clone();
-			CleanUp();
+			try
+			{
+				s_addVariantNamePart = _addVariantNamePart;
+				s_sourceDir = string.IsNullOrEmpty(_sourceDir) ? BuiltinPrefabDir : _sourceDir;
+				s_targetDir = _targetDir;
+				CleanUp();
+				BuildPrefabVariantHierarchy();
+				Clone();
+			}
+			finally
+			{
+				CleanUp();
+			}
 		}
 
 		private static void BuildPrefabVariantHierarchy()
@@ -191,6 +197,7 @@ Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesStr
 			// First step is to create a chain of prefab variants, starting with a variant of the base object
 			EditorFileUtility.EnsureFolderExists(targetDir);
 			var clone = PrefabUtility.InstantiatePrefab(isRoot ? baseSourceAsset : parent) as GameObject;
+			s_objectsToDelete.Add(clone);
 
 			if (!isRoot)
 			{
@@ -202,7 +209,6 @@ Debug.Log($"---::: after CloneOverrides: {DumpOverridesString(clone, clone.name)
 
 			var clonedVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(clone, variantPath, InteractionMode.AutomatedAction);
 			_record.CloneEntry = CreateAssetEntry(clonedVariant);
-			s_objectsToDelete.Add(clone);
 
 			foreach (var v in _record.VariantRecordsBasedOnThis)
 				Clone(v, clonedVariant);
@@ -235,7 +241,9 @@ s += "\tclonedParent is null\n\n";
 					continue;
 				}
 
-				var clone = GameObject.Instantiate(addedGo, clonedParent);
+//				var clone = GameObject.Instantiate(addedGo, clonedParent);
+				var clone = addedGo.PrefabAwareClone(clonedParent);
+				
 				clone.name = addedGo.name;
 				clone.transform.SetSiblingIndex(addedGameObject.siblingIndex);
 s += $"\tcloned {clone.name}\n\n";

@@ -545,8 +545,8 @@ namespace GuiToolkit
 		}
 
 
-				/// <summary>
-		/// Create an _asset and ensure folder exists
+		/// <summary>
+		/// Create an asset and ensure folder exists
 		/// </summary>
 		/// <param name="_obj"></param>
 		/// <param name="_path"></param>

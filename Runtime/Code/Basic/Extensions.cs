@@ -858,6 +858,63 @@ namespace GuiToolkit
 		public static bool IsEven(this int _self) => (_self & 1) == 0;
 		public static bool IsOdd(this int _self) => (_self & 1) != 0;
 		
+		/// <summary>
+		/// This clones a whole game object hierarchy, while keeping all prefabs
+		/// </summary>
+		/// <param name="_gameObject"></param>
+		/// <param name="_newParent"></param>
+		/// <returns></returns>
+		public static GameObject PrefabAwareClone(this GameObject _gameObject, Transform _newParent = null)
+		{
+			return PrefabAwareCloneInternal(_gameObject, null, _newParent);
+		}
+
+		private static GameObject PrefabAwareCloneInternal(GameObject _gameObject, GameObject _clonedRoot, Transform _newParent = null)
+		{
+			if (_gameObject == null)
+				return null;
+
+			GameObject result;
+
+			if (PrefabUtility.IsAddedGameObjectOverride(_gameObject) || !PrefabUtility.IsPartOfAnyPrefab(_gameObject))
+			{
+				result = _gameObject.CloneWithoutChildren(_newParent);
+			}
+			else if (PrefabUtility.IsAnyPrefabInstanceRoot(_gameObject)) // It is a prefab root 
+			{
+				result = (GameObject) PrefabUtility.InstantiatePrefab(_gameObject, _newParent);
+			}
+			else // It is part of an already cloned prefab. Can not happen if nothing has been cloned yet (_clonedRoot is null)
+			{
+				Debug.Assert(_clonedRoot != null, "_clonedRoot is null. This shouldn't happen");
+				result = EditorAssetUtility.FindMatchingInPrefab(_gameObject, _clonedRoot);
+			}
+
+			if (_clonedRoot == null)
+				_clonedRoot = result;
+
+			foreach (Transform child in _gameObject.transform)
+				PrefabAwareCloneInternal(child.gameObject, _clonedRoot, result != null ? result.transform : null);
+
+			return result;
+		}
+
+		/// <summary>
+		/// Clone a single game object without its children.
+		/// Horribly inefficient, but afaik the only way;
+		/// Detaching children temporarily doesn't work for persistent objects
+		/// </summary>
+		/// <param name="_gameObject"></param>
+		/// <param name="_newParent"></param>
+		/// <returns></returns>
+		public static GameObject CloneWithoutChildren(this GameObject _gameObject, Transform _newParent = null)
+		{
+			GameObject result = Object.Instantiate(_gameObject, _newParent, true);
+			result.DestroyAllChildren();
+			return result;
+		}
+
+
 		public static GameObject GetRoot(this GameObject _self)
 		{
 			if (!_self)
