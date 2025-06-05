@@ -859,57 +859,6 @@ namespace GuiToolkit
 		public static bool IsOdd(this int _self) => (_self & 1) != 0;
 		
 		/// <summary>
-		/// This clones a whole game object hierarchy, while keeping all prefabs
-		/// </summary>
-		/// <param name="_gameObject"></param>
-		/// <param name="_newParent"></param>
-		/// <returns></returns>
-		public static GameObject PrefabAwareClone(this GameObject _gameObject, Transform _newParent = null)
-		{
-			return PrefabAwareCloneInternal(_gameObject, null, _newParent);
-		}
-
-		private static GameObject PrefabAwareCloneInternal(GameObject _gameObject, GameObject _clonedRoot, Transform _newParent = null)
-		{
-Debug.Log($"Handling {_gameObject.GetPath(0)}");
-			if (_gameObject == null)
-				return null;
-
-			GameObject result;
-			GameObject alreadyExistingInClone = _clonedRoot != null ? EditorAssetUtility.FindMatchingInPrefab(_clonedRoot, _gameObject) : null;
-
-			if (alreadyExistingInClone != null)
-			{
-Debug.Log($"Already existing {_gameObject.name}");
-				result = alreadyExistingInClone;
-			}
-			else if (PrefabUtility.IsAnyPrefabInstanceRoot(_gameObject))
-			{
-				var prefabToClone = PrefabUtility.GetCorrespondingObjectFromSource(_gameObject);
-Debug.Log($"Prefab Cloning {prefabToClone.name}");
-				result = (GameObject) PrefabUtility.InstantiatePrefab(prefabToClone, _newParent);
-				var targetTransform = result.transform;
-				var sourceTransform = _gameObject.transform;
-				targetTransform.position = sourceTransform.position;
-				targetTransform.rotation = sourceTransform.rotation;
-				targetTransform.localScale = sourceTransform.localScale;
-			}
-			else
-			{
-Debug.Log($"Cloning {_gameObject.name}");
-				result = _gameObject.CloneWithoutChildren(_newParent);
-			}
-
-			if (_clonedRoot == null)
-				_clonedRoot = result;
-
-			foreach (Transform child in _gameObject.transform)
-				PrefabAwareCloneInternal(child.gameObject, _clonedRoot, result != null ? result.transform : null);
-
-			return result;
-		}
-
-		/// <summary>
 		/// Clone a single game object without its children.
 		/// Horribly inefficient, but afaik the only way;
 		/// Detaching children temporarily doesn't work for persistent objects
