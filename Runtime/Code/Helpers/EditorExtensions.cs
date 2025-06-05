@@ -49,7 +49,7 @@ Debug.Log($"Handling {_gameObject.GetPath(0)}");
 				return null;
 
 			GameObject result;
-			GameObject alreadyExistingInClone = _clonedRoot != null ? EditorAssetUtility.FindMatchingInPrefab(_clonedRoot, _gameObject) : null;
+			GameObject alreadyExistingInClone = _clonedRoot != null ? EditorAssetUtility.FindMatchingGameObject(_clonedRoot, _gameObject) : null;
 
 			if (alreadyExistingInClone != null)
 			{

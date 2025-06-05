@@ -233,7 +233,7 @@ s += "\toriginalParent is null\n\n";
 					continue;
 				}
 
-				var clonedParent = EditorAssetUtility.FindMatchingInPrefab(_clonedAsset, originalParent);
+				var clonedParent = EditorAssetUtility.FindMatchingComponent(_clonedAsset, originalParent);
 				if (clonedParent == null)
 				{
 					// Error msg?
@@ -256,7 +256,7 @@ s += $"---::: Processing {removedGameObjects.Count} removed game objects\n";
 				var removedGo = removedGameObject.assetGameObject;
 s += $"\tRemoving {removedGo.name}...\n";
 
-				var clonedRemovedGo = EditorAssetUtility.FindMatchingInPrefab(_clonedAsset, removedGo);
+				var clonedRemovedGo = EditorAssetUtility.FindMatchingGameObject(_clonedAsset, removedGo);
 				if (clonedRemovedGo == null)
 				{
 					// Error msg?
@@ -276,7 +276,7 @@ s += $"---::: Processing {addedComponents.Count} added components\n";
 				var sourceComponent = addedComponent.instanceComponent;
 				var sourceGameObject = sourceComponent.gameObject;
 
-				var clonedGameObject = EditorAssetUtility.FindMatchingInPrefab(_clonedAsset, sourceGameObject);
+				var clonedGameObject = EditorAssetUtility.FindMatchingGameObject(_clonedAsset, sourceGameObject);
 				if (clonedGameObject == null)
 				{
 					// Error msg?
@@ -293,7 +293,7 @@ s += $"---::: Processing {removedComponents.Count} removed components\n";
 			foreach (var removedComponent in removedComponents)
 			{
 				var sourceComponent = removedComponent.assetComponent;
-				var targetComponent = EditorAssetUtility.FindMatchingInPrefab(_clonedAsset, sourceComponent);
+				var targetComponent = EditorAssetUtility.FindMatchingComponent(_clonedAsset, sourceComponent);
 				if (targetComponent == null)
 				{
 s += "\ttargetComponent is null\n\n";
@@ -317,7 +317,7 @@ string s = $"---::: Overrides mapping ({sourcePropertyModifications} modificatio
 			foreach (var propertyModification in sourcePropertyModifications)
 			{
 				Object originalTarget = propertyModification.target;
-				var clonedTarget = EditorAssetUtility.FindMatchingInPrefab(_clonedAsset, originalTarget);
+				var clonedTarget = EditorAssetUtility.FindMatchingObject(_clonedAsset, originalTarget);
 				if (clonedTarget != null)
 				{
 s += $"\t{propertyModification.propertyPath}:\n\t{DumpCorrespondingObjectFromSource(originalTarget)} ->\n\t{DumpCorrespondingObjectFromSource(clonedTarget)}\n\n";

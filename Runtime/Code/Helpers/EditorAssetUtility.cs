@@ -507,40 +507,110 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static T FindMatchingInPrefab<T>(GameObject _prefab, T _objectToFind) where T : Object
+		/// <summary>
+		/// Find a matching object in a game object hierarchy by inspecting the paths of the two.
+		/// This method attempts to find a game object or component in an unrelated game object hierarchy.
+		/// This is very useful e.g. for cloning prefab variants or fixing references after cloning.
+		/// </summary>
+		/// <typeparam name="T">GameObject or Component subclass</typeparam>
+		/// <param name="_gameObjectHierarchy"></param>
+		/// <param name="_objectToFind"></param>
+		/// <returns>found object or null if not found or error</returns>
+		public static T FindMatchingObject<T>(GameObject _gameObjectHierarchy, T _objectToFind) where T : Object
 		{
 			if (_objectToFind is GameObject gameObjectToFind)
-			{
-				if (_prefab.transform.parent == gameObjectToFind.transform.parent)
-					return _prefab as T;
-		
-				var toFindPath = gameObjectToFind.GetPath(-1);
-				var transforms = _prefab.GetComponentsInChildren<Transform>(true);
-				foreach (var transform in transforms)
-				{
-					if (transform.GetPath(-1).EndsWith(toFindPath))
-						return transform.gameObject as T;
-				}
-		
+				return FindMatchingGameObject(_gameObjectHierarchy, gameObjectToFind) as T;
+
+			if (_objectToFind is Component componentToFind)
+				return FindMatchingComponent(_gameObjectHierarchy, componentToFind) as T;
+
+			return null;
+		}
+
+		/// <summary>
+		/// Find a matching component in a game object hierarchy by inspecting the paths of the two.
+		/// This method attempts to find a component in an unrelated game object hierarchy.
+		/// Multiple components of the same type on a single game object are supported.
+		/// </summary>
+		/// <typeparam name="T">Component subclass</typeparam>
+		/// <param name="_gameObjectHierarchy"></param>
+		/// <param name="_componentToFind"></param>
+		/// <returns>found component or null if not found or error</returns>
+		public static T FindMatchingComponent<T>(GameObject _gameObjectHierarchy, T _componentToFind) where T : Component
+		{
+			GameObject matchingGo = FindMatchingGameObject(_gameObjectHierarchy, _componentToFind.gameObject);
+			if (matchingGo == null)
 				return null;
+	
+			int componentIndex = FindIndexOfMultipleSameTypeComponents(_componentToFind);
+
+			int currentComponentIndex = 0;
+			var components = matchingGo.GetComponents<Component>();
+			foreach (var matchingComponent in components)
+			{
+				if (matchingComponent.GetType() == _componentToFind.GetType())
+				{
+					if (currentComponentIndex < componentIndex)
+					{
+						currentComponentIndex++;
+						continue;
+					}
+
+					return matchingComponent as T;
+				}
 			}
 	
-			if (_objectToFind is Component componentToFind)
+			return null;
+		}
+
+		/// <summary>
+		/// Find the index for multiple components of the same type.
+		/// Multiple components of the same type are quite rare, but clearly allowed and should thus be supported.
+		/// Warning: NOT to be confused with Component.GetComponentIndex() (which relates to ALL components, not only those of the same kind)
+		/// </summary>
+		/// <param name="_component"></param>
+		/// <returns>Index or -1 if no component of the given type is found</returns>
+		public static int FindIndexOfMultipleSameTypeComponents(Component _component)
+		{
+			int result = 0;
+			var allSourceComponents = _component.gameObject.GetComponents<Component>();
+			foreach (var sourceComponent in allSourceComponents)
 			{
-				GameObject matchingGo = FindMatchingInPrefab(_prefab, componentToFind.gameObject);
-				if (matchingGo == null)
-					return null;
-		
-				var components = matchingGo.GetComponents<Component>();
-				foreach (var matchingComponent in components)
+				if (sourceComponent.GetType() != _component.GetType())
+					continue;
+
+				if (sourceComponent != _component)
 				{
-					if (matchingComponent.GetType() == componentToFind.GetType())
-						return matchingComponent as T;
+					result++;
+					continue;
 				}
-		
-				return null;
+
+				return result;
 			}
 
+			return -1;
+		}
+			
+		/// <summary>
+		/// Find a matching game object in a game object hierarchy by inspecting the paths of the two.
+		/// This method attempts to find a game object in an unrelated game object hierarchy.
+		/// </summary>
+		/// <param name="_gameObjectHierarchy"></param>
+		/// <param name="_gameObjectToFind"></param>
+		/// <returns>found game object or null if not found or error</returns>
+		public static GameObject FindMatchingGameObject(GameObject _gameObjectHierarchy, GameObject _gameObjectToFind)
+		{
+			if (_gameObjectHierarchy.transform.parent == _gameObjectToFind.transform.parent)
+				return _gameObjectHierarchy;
+	
+			var toFindPath = _gameObjectToFind.GetPath(-1);
+			var transforms = _gameObjectHierarchy.GetComponentsInChildren<Transform>(true);
+			foreach (var transform in transforms)
+			{
+				if (transform.GetPath(-1).EndsWith(toFindPath))
+					return transform.gameObject;
+			}
+	
 			return null;
 		}
 
