@@ -873,7 +873,6 @@ namespace GuiToolkit
 			return result;
 		}
 
-
 		public static GameObject GetRoot(this GameObject _self)
 		{
 			if (!_self)

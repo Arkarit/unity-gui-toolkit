@@ -266,9 +266,43 @@ s += "\tclonedRemovedGo is null\n\n";
 
 s += $"\tRemoving {clonedRemovedGo.name}\n\n";
 				clonedRemovedGo.SafeDestroy();
-
 			}
 
+s += $"---::: Processing {addedComponents.Count} added components\n";
+			foreach (var addedComponent in addedComponents)
+			{
+				//TODO: Component index not yet supported!
+
+				var sourceComponent = addedComponent.instanceComponent;
+				var sourceGameObject = sourceComponent.gameObject;
+
+				var clonedGameObject = EditorAssetUtility.FindMatchingInPrefab(_clonedAsset, sourceGameObject);
+				if (clonedGameObject == null)
+				{
+					// Error msg?
+s += "\tclonedGameObject is null\n\n";
+					continue;
+				}
+
+				var clonedComponent = clonedGameObject.AddComponent(sourceComponent.GetType());
+				EditorUtility.CopySerializedManagedFieldsOnly(sourceComponent, clonedComponent);
+s += $"\tcloned component {clonedComponent.GetType().Name} on {clonedGameObject.name}\n\n";
+			}
+
+s += $"---::: Processing {removedComponents.Count} removed components\n";
+			foreach (var removedComponent in removedComponents)
+			{
+				var sourceComponent = removedComponent.assetComponent;
+				var targetComponent = EditorAssetUtility.FindMatchingInPrefab(_clonedAsset, sourceComponent);
+				if (targetComponent == null)
+				{
+s += "\ttargetComponent is null\n\n";
+					continue;
+				}
+
+s += $"\tRemoving {targetComponent.name}\n\n";
+				targetComponent.SafeDestroy();
+			}
 
 Debug.Log(s);
 		}
