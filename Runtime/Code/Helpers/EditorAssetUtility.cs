@@ -614,6 +614,46 @@ namespace GuiToolkit
 			return null;
 		}
 
+		public static void FixReferencesInClone(GameObject _original, GameObject _clone)
+		{
+string s = $"---::: Fix {_clone.name}\n";
+			FixReferencesInCloneInternal(_original, _clone, 1, ref s);
+Debug.Log(s);
+		}
+
+		private static void FixReferencesInCloneInternal(GameObject _original, GameObject _clone, int _numTabs, ref string _s)
+		{
+_s += $"{new string('\t', _numTabs)}Fix Game Object '{_clone.name}'\n";
+string s = string.Empty;
+			var components = _clone.GetComponents<Component>();
+			foreach (var component in components)
+			{
+_s += $"{new string('\t', _numTabs)}Fix Component '{component.GetType().Name}'\n";
+				var cloneComponentSerObj = new SerializedObject(component);
+				
+				EditorGeneralUtility.ForeachProperty(cloneComponentSerObj, property =>
+				{
+					if (property.propertyType != SerializedPropertyType.ObjectReference)
+						return;
+	
+					var matchingObject = FindMatchingObject(_clone, property.objectReferenceValue);
+					if (matchingObject != null)
+					{
+s += $"{new string('\t', _numTabs)}Fixed Property '{property.propertyPath}'\n";
+						property.objectReferenceValue = matchingObject;
+					}
+				});
+_s += s + "\n";
+
+				cloneComponentSerObj.ApplyModifiedProperties();
+			}
+
+
+			foreach (Transform child in _clone.transform)
+			{
+				FixReferencesInCloneInternal(_original, child.gameObject, _numTabs+1, ref _s);
+			}
+		}
 
 		/// <summary>
 		/// Create an asset and ensure folder exists
