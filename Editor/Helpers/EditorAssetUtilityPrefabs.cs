@@ -51,7 +51,10 @@ namespace GuiToolkit.Editor
 		private static readonly List<VariantRecord> s_variantRecords = new();
 		private static readonly Dictionary<GameObject, GameObject> s_baseByPrefab = new();
 		private static readonly List<GameObject> s_objectsToDelete = new();
-		private static readonly Dictionary<GameObject, GameObject> s_cloneByOriginal = new();
+		private static readonly List<GameObject> s_originals = new();
+		private static readonly List<GameObject> s_clones = new();
+		private static readonly Dictionary<GameObject, GameObject> s_clonesByOriginals = new();
+		private static readonly Dictionary<GameObject, GameObject> s_originalsByClones = new();
 		
 		private static string s_sourceDir;
 		private static string s_targetDir;
@@ -69,24 +72,35 @@ namespace GuiToolkit.Editor
 		// Untested
 		public static bool ExecuteInPrefab(GameObject _prefab, Func<GameObject, bool> _callback, EErrorType _errorType = EErrorType.None)
 		{
-			if (!PrefabUtility.IsAnyPrefabInstanceRoot(_prefab))
-				return ShowError
-				(
-					$"{nameof(ExecuteInPrefab)} works only with prefab instance roots, but " + 
-				    $"'{_prefab.GetPath(1)}' isn't such.\nFull path:'{_prefab.GetPath()}'",
-					_errorType
-				);
+			GameObject temporaryClone = null;
 
-			var prefabRoot = PrefabUtility.GetCorrespondingObjectFromSource(_prefab);
-			if (prefabRoot == null)
-				return ShowError($"Prefab Root for '{_prefab.GetPath(1)}' not found.\nFull path:'{_prefab.GetPath()}'", _errorType);
-
-			if (_callback.Invoke(prefabRoot))
+			try
 			{
-				EditorUtility.SetDirty(prefabRoot);
-				AssetDatabase.SaveAssetIfDirty(prefabRoot);
+				if (!PrefabUtility.IsAnyPrefabInstanceRoot(_prefab))
+					return ShowError
+					(
+						$"{nameof(ExecuteInPrefab)} works only with prefab instance roots, but " + 
+					    $"'{_prefab.GetPath(1)}' isn't such.\nFull path:'{_prefab.GetPath()}'",
+						_errorType
+					);
+	
+//				var prefabRoot = PrefabUtility.GetCorrespondingObjectFromSource(_prefab);
+//				if (prefabRoot == null)
+//					return ShowError($"Prefab Root for '{_prefab.GetPath(1)}' not found.\nFull path:'{_prefab.GetPath()}'", _errorType);
 
-				return true;
+				var assetPath = AssetDatabase.GetAssetPath(_prefab);
+				temporaryClone = (GameObject) PrefabUtility.InstantiatePrefab(_prefab);
+
+				if (_callback.Invoke(temporaryClone))
+				{
+					PrefabUtility.SaveAsPrefabAssetAndConnect(temporaryClone, assetPath, InteractionMode.AutomatedAction);
+	
+					return true;
+				}
+			}
+			finally
+			{
+				temporaryClone.SafeDestroy();
 			}
 
 			return false;
@@ -103,6 +117,7 @@ namespace GuiToolkit.Editor
 				CleanUp();
 				BuildPrefabVariantHierarchy();
 				Clone();
+				ReplaceInsertedPrefabs();
 			}
 			finally
 			{
@@ -119,6 +134,7 @@ namespace GuiToolkit.Editor
 			{
 				var assetPath = AssetDatabase.GUIDToAssetPath( guid );
 				var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+
 AssetDatabase.TryGetGUIDAndLocalFileIdentifier(prefab, out string tguid, out long id);
 Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesString(prefab, prefab.name)}");
 
@@ -207,9 +223,9 @@ Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesStr
 		{
 			string result = "Original -> Clone:\n_________________________\n";
 
-			foreach (var kv in s_cloneByOriginal)
+			for (int i=0; i<s_originals.Count; i++)
 			{
-				result += $"{kv.Key.GetPath(1)} -> {kv.Value.GetPath(1)}\n";
+				result += $"{s_originals[i].GetPath(1)} -> {s_clones[i].GetPath(1)}\n";
 			}
 
 			return result;
@@ -219,6 +235,52 @@ Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesStr
 		{
 			Clone(s_variantRecords);
 Debug.Log(GetCloneByOriginalDumpString());
+		}
+
+		private static void ReplaceInsertedPrefabs()
+		{
+			Debug.Assert(s_originals.Count == s_clones.Count);
+			var len = s_originals.Count;
+
+			for (int i = 0; i < len; i++)
+			{
+				var original = s_originals[i];
+
+				ExecuteInPrefab(s_clones[i], root =>
+				{
+					var transforms = root.GetComponentsInChildren<Transform>();
+					Dictionary<GameObject, GameObject> clonesByOriginalsToReplace = new();
+
+					foreach (var transform in transforms)
+					{
+						if (transform == root.transform)
+							continue;
+
+						var go = transform.gameObject;
+						var cgo = PrefabUtility.GetCorrespondingObjectFromOriginalSource(go);
+						if (!s_clonesByOriginals.ContainsKey(cgo))
+							continue;
+
+						clonesByOriginalsToReplace.Add(go, s_clonesByOriginals[cgo]);
+					}
+
+					foreach (var kv in clonesByOriginalsToReplace)
+					{
+						var original = kv.Key;
+						var clone = kv.Value;
+						var parent = original.transform.parent;
+						var instance = (GameObject) PrefabUtility.InstantiatePrefab(clone, parent);
+						instance.transform.SetSiblingIndex(original.transform.GetSiblingIndex()+1);
+
+						// TODO: clone overrides, change references
+
+						original.SafeDestroy();
+					}
+
+					return clonesByOriginalsToReplace.Count > 0;
+				});
+
+			}
 		}
 
 		private static void Clone(List<VariantRecord> _list)
@@ -257,7 +319,10 @@ Debug.Log($"---::: after CloneOverrides: {DumpOverridesString(clone, clone.name)
 			FixReferencesInClone(sourceGameObject, clone);
 			var clonedVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(clone, variantPath, InteractionMode.AutomatedAction);
 			_record.CloneEntry = CreateAssetEntry(clonedVariant);
-			s_cloneByOriginal.Add(baseSourceAsset, clonedVariant);
+			s_originals.Add(baseSourceAsset);
+			s_clones.Add(clonedVariant);
+			s_clonesByOriginals.Add(baseSourceAsset, clonedVariant);
+			s_originalsByClones.Add(clonedVariant, baseSourceAsset);
 
 			foreach (var v in _record.VariantRecordsBasedOnThis)
 				Clone(v, clonedVariant);
@@ -490,7 +555,10 @@ Debug.Log($"---::: Set {targetPropertyModifications.Count} modifications");
 		{
 			s_variantRecords.Clear();
 			s_baseByPrefab.Clear();
-			s_cloneByOriginal.Clear();
+			s_originals.Clear();
+			s_clones.Clear();
+			s_clonesByOriginals.Clear();
+			s_originalsByClones.Clear();
 			foreach (var gameObject in s_objectsToDelete)
 				gameObject.SafeDestroy();
 			s_objectsToDelete.Clear();
