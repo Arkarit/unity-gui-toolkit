@@ -18,7 +18,16 @@ namespace GuiToolkit.Editor
 		private static readonly Dictionary<string, Component> s_cachedComponents = new();
 		private static readonly string[] DefaultFolders = new []{"Assets"};
 		private static readonly AssetSearchOptions DefaultSearchOptions = new();
-		
+
+		public enum EErrorType
+		{
+			None,
+			LogWarning,
+			LogError,
+			Throw,
+			Dialog,
+		}
+
 		public class AssetSearchOptions
 		{
 			[Flags]
@@ -27,14 +36,6 @@ namespace GuiToolkit.Editor
 				NoError = 0,
 				ErrorIfNotFound = 1,
 				ErrorIfMultipleFound = 2,
-			}
-			
-			public enum EErrorType
-			{
-				LogWarning,
-				LogError,
-				Throw,
-				Dialog,
 			}
 			
 			public string SearchString = string.Empty;
@@ -704,37 +705,43 @@ _s += s + "\n";
 			if ((_options.ErrorCondition & AssetSearchOptions.EErrorCondition.ErrorIfNotFound) != 0 && numFound == 0)
 			{
 				string msg = $"Didn't find any objects of type '{typeof(T).Name}' with search string '{nameLogStr}'";
-				ShowError<T>(msg, _options);
+				ShowError(msg, _options.ErrorType);
 				return true;
 			}
 			else if ((_options.ErrorCondition & AssetSearchOptions.EErrorCondition.ErrorIfMultipleFound) != 0 && numFound > 1)
 			{
 				string msg = $"Found multiple game objects ({numFound}) with _component type '{typeof(T).Name}'{nameLogStr}, but there may be only one";
-				ShowError<T>(msg, _options);
+				ShowError(msg, _options.ErrorType);
 				return true;
 			}
 			
 			return false;
 		}
 
-		private static void ShowError<T>(string _msg, AssetSearchOptions _options)
+		// note: return value is always false to for returning with error in one line
+		// e.g. if (errorHappened) return ShowError(...)
+		private static bool ShowError(string _msg, EErrorType _errorType)
 		{
-			switch (_options.ErrorType)
+			switch (_errorType)
 			{
-				case AssetSearchOptions.EErrorType.LogWarning:
+				case EErrorType.None:
+					break;
+				case EErrorType.LogWarning:
 					Debug.LogWarning(_msg);
 					break;
-				case AssetSearchOptions.EErrorType.LogError:
+				case EErrorType.LogError:
 					Debug.LogError(_msg);
 					break;
-				case AssetSearchOptions.EErrorType.Throw:
+				case EErrorType.Throw:
 					throw new Exception(_msg);
-				case AssetSearchOptions.EErrorType.Dialog:
+				case EErrorType.Dialog:
 					EditorUtility.DisplayDialog("Asset Error", _msg, "Ok");
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+
+			return false;
 		}
 	}
 }

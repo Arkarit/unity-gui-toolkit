@@ -48,9 +48,10 @@ namespace GuiToolkit.Editor
 			}
 		}
 		
-		private static readonly List<VariantRecord> s_variantRecords = new ();
-		private static readonly Dictionary<GameObject, GameObject> s_baseByPrefab = new ();
+		private static readonly List<VariantRecord> s_variantRecords = new();
+		private static readonly Dictionary<GameObject, GameObject> s_baseByPrefab = new();
 		private static readonly List<GameObject> s_objectsToDelete = new();
+		private static readonly Dictionary<GameObject, GameObject> s_cloneByOriginal = new();
 		
 		private static string s_sourceDir;
 		private static string s_targetDir;
@@ -64,7 +65,33 @@ namespace GuiToolkit.Editor
 				return rootProjectDir + PrefabFolder;
 			}
 		}
-		
+
+		// Untested
+		public static bool ExecuteInPrefab(GameObject _prefab, Func<GameObject, bool> _callback, EErrorType _errorType = EErrorType.None)
+		{
+			if (!PrefabUtility.IsAnyPrefabInstanceRoot(_prefab))
+				return ShowError
+				(
+					$"{nameof(ExecuteInPrefab)} works only with prefab instance roots, but " + 
+				    $"'{_prefab.GetPath(1)}' isn't such.\nFull path:'{_prefab.GetPath()}'",
+					_errorType
+				);
+
+			var prefabRoot = PrefabUtility.GetCorrespondingObjectFromSource(_prefab);
+			if (prefabRoot == null)
+				return ShowError($"Prefab Root for '{_prefab.GetPath(1)}' not found.\nFull path:'{_prefab.GetPath()}'", _errorType);
+
+			if (_callback.Invoke(prefabRoot))
+			{
+				EditorUtility.SetDirty(prefabRoot);
+				AssetDatabase.SaveAssetIfDirty(prefabRoot);
+
+				return true;
+			}
+
+			return false;
+		}
+
 		public static void CreatePrefabVariants(string _sourceDir, string _targetDir, PrefabVariantsOptions _options = null)
 		{
 
@@ -175,8 +202,25 @@ Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesStr
 			
 			return result;
 		}
-		
-		private static void Clone() => Clone(s_variantRecords);
+
+		private static string GetCloneByOriginalDumpString()
+		{
+			string result = "Original -> Clone:\n_________________________\n";
+
+			foreach (var kv in s_cloneByOriginal)
+			{
+				result += $"{kv.Key.GetPath(1)} -> {kv.Value.GetPath(1)}\n";
+			}
+
+			return result;
+		}
+
+		private static void Clone()
+		{
+			Clone(s_variantRecords);
+Debug.Log(GetCloneByOriginalDumpString());
+		}
+
 		private static void Clone(List<VariantRecord> _list)
 		{
 			foreach (var record in _list)
@@ -210,9 +254,10 @@ Debug.Log($"---::: original: {DumpOverridesString(_record.AssetEntry.Asset, _rec
 Debug.Log($"---::: after CloneOverrides: {DumpOverridesString(clone, clone.name)}");
 			}
 
-			EditorAssetUtility.FixReferencesInClone(sourceGameObject, clone);
+			FixReferencesInClone(sourceGameObject, clone);
 			var clonedVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(clone, variantPath, InteractionMode.AutomatedAction);
 			_record.CloneEntry = CreateAssetEntry(clonedVariant);
+			s_cloneByOriginal.Add(baseSourceAsset, clonedVariant);
 
 			foreach (var v in _record.VariantRecordsBasedOnThis)
 				Clone(v, clonedVariant);
@@ -237,7 +282,7 @@ s += "\toriginalParent is null\n\n";
 					continue;
 				}
 
-				var clonedParent = EditorAssetUtility.FindMatchingComponent(_clonedAsset, originalParent);
+				var clonedParent = FindMatchingComponent(_clonedAsset, originalParent);
 				if (clonedParent == null)
 				{
 					// Error msg?
@@ -260,7 +305,7 @@ s += $"---::: Processing {removedGameObjects.Count} removed game objects\n";
 				var removedGo = removedGameObject.assetGameObject;
 s += $"\tRemoving {removedGo.name}...\n";
 
-				var clonedRemovedGo = EditorAssetUtility.FindMatchingGameObject(_clonedAsset, removedGo);
+				var clonedRemovedGo = FindMatchingGameObject(_clonedAsset, removedGo);
 				if (clonedRemovedGo == null)
 				{
 					// Error msg?
@@ -280,7 +325,7 @@ s += $"---::: Processing {addedComponents.Count} added components\n";
 				var sourceComponent = addedComponent.instanceComponent;
 				var sourceGameObject = sourceComponent.gameObject;
 
-				var clonedGameObject = EditorAssetUtility.FindMatchingGameObject(_clonedAsset, sourceGameObject);
+				var clonedGameObject = FindMatchingGameObject(_clonedAsset, sourceGameObject);
 				if (clonedGameObject == null)
 				{
 					// Error msg?
@@ -297,7 +342,7 @@ s += $"---::: Processing {removedComponents.Count} removed components\n";
 			foreach (var removedComponent in removedComponents)
 			{
 				var sourceComponent = removedComponent.assetComponent;
-				var targetComponent = EditorAssetUtility.FindMatchingComponent(_clonedAsset, sourceComponent);
+				var targetComponent = FindMatchingComponent(_clonedAsset, sourceComponent);
 				if (targetComponent == null)
 				{
 s += "\ttargetComponent is null\n\n";
@@ -321,7 +366,7 @@ string s = $"---::: Overrides mapping ({sourcePropertyModifications} modificatio
 			foreach (var propertyModification in sourcePropertyModifications)
 			{
 				Object originalTarget = propertyModification.target;
-				var clonedTarget = EditorAssetUtility.FindMatchingObject(_clonedAsset, originalTarget);
+				var clonedTarget = FindMatchingObject(_clonedAsset, originalTarget);
 				if (clonedTarget != null)
 				{
 s += $"\t{propertyModification.propertyPath}:\n\t{DumpCorrespondingObjectFromSource(originalTarget)} ->\n\t{DumpCorrespondingObjectFromSource(clonedTarget)}\n\n";
@@ -442,6 +487,7 @@ Debug.Log($"---::: Set {targetPropertyModifications.Count} modifications");
 		{
 			s_variantRecords.Clear();
 			s_baseByPrefab.Clear();
+			s_cloneByOriginal.Clear();
 			foreach (var gameObject in s_objectsToDelete)
 				gameObject.SafeDestroy();
 			s_objectsToDelete.Clear();
