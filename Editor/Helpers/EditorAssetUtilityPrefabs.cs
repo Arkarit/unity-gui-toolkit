@@ -415,7 +415,7 @@ Debug.Log($"---::: Set {targetPropertyModifications.Count} modifications");
 			
 			result += $"\t{_what} Property Modifications ({sourcePropertyModifications.Length})\n";
 			foreach (var modification in sourcePropertyModifications)
-				result += $"\t\t'{modification.value}':'{modification.propertyPath}':'{modification.objectReference}':'{modification.target}', id:{modification.target.GetInstanceID()}{DumpCorrespondingObjectFromSource(modification.target)}\n";
+				result += $"\t\t'{modification.value}':'{modification.propertyPath}':'{modification.objectReference}':'{modification.target}', {DumpCorrespondingObjectFromSource(modification.target)}\n";
 			result += "\n\t";
 			
 			result += $"\t{_what} Object Overrides\n";
@@ -450,6 +450,9 @@ Debug.Log($"---::: Set {targetPropertyModifications.Count} modifications");
 		private static string DumpCorrespondingObjectFromSource(Object _obj)
 		{
 			string result = string.Empty;
+			if (_obj == null)
+				return "<null>";
+
 			var cofs = PrefabUtility.GetCorrespondingObjectFromSource(_obj);
 			if (cofs != null)
 			{
