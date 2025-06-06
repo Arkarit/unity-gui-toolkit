@@ -15,7 +15,7 @@ namespace GuiToolkit
 {
 	/// \brief General Asset Utility
 	/// 
-	/// This is a collection of _asset helper functions.
+	/// This is a collection of asset helper functions.
 	/// 
 	/// Note: This file must reside outside of an "Editor" folder, since it must be accessible
 	/// from mixed game/editor classes (even though all accesses are in #if UNITY_EDITOR clauses)
