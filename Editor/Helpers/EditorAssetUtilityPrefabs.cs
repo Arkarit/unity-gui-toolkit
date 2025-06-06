@@ -11,6 +11,11 @@ namespace GuiToolkit.Editor
 	public static partial class EditorAssetUtility
 	{
 		public const string PrefabFolder = "Prefabs/";
+
+		public class PrefabVariantsOptions
+		{
+			public string Postfix = string.Empty;
+		}
 		
 		private class AssetEntry
 		{
@@ -49,7 +54,7 @@ namespace GuiToolkit.Editor
 		
 		private static string s_sourceDir;
 		private static string s_targetDir;
-		private static bool s_addVariantNamePart;
+		private static PrefabVariantsOptions s_options;
 		
 		public static string BuiltinPrefabDir
 		{
@@ -60,11 +65,12 @@ namespace GuiToolkit.Editor
 			}
 		}
 		
-		public static void CreatePrefabVariants(string _sourceDir, string _targetDir, bool _addVariantNamePart = true)
+		public static void CreatePrefabVariants(string _sourceDir, string _targetDir, PrefabVariantsOptions _options = null)
 		{
+
 			try
 			{
-				s_addVariantNamePart = _addVariantNamePart;
+				s_options = _options ?? new PrefabVariantsOptions();
 				s_sourceDir = string.IsNullOrEmpty(_sourceDir) ? BuiltinPrefabDir : _sourceDir;
 				s_targetDir = _targetDir;
 				CleanUp();
@@ -427,7 +433,7 @@ Debug.Log($"---::: Set {targetPropertyModifications.Count} modifications");
 
 			_targetDir = s_targetDir + assetPath.Replace(s_sourceDir, "").Replace(filename, "");
 			_newAssetPath = $"{_targetDir}/{basename}{extension}";
-			_variantName = s_addVariantNamePart ? $"{basename} ClonedVariant{extension}" : $"{basename}{extension}";
+			_variantName = $"{basename}{s_options.Postfix}{extension}";
 			_variantPath = $"{_targetDir}/{_variantName}";
 			return asset;
 		}
