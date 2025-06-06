@@ -8,30 +8,15 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 417321780327755690, guid: 3822bb3109aa84d4ca8daf38096a7a2e,
-        type: 3}
-      propertyPath: m_mirrorAxisFlags
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 465741703343331317, guid: 3822bb3109aa84d4ca8daf38096a7a2e,
-        type: 3}
-      propertyPath: m_mirrorAxisFlags
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3233245497101037226, guid: 3822bb3109aa84d4ca8daf38096a7a2e,
         type: 3}
       propertyPath: m_Name
       value: PanelCanvas Variant Variant
       objectReference: {fileID: 0}
-    - target: {fileID: 3677207134188358128, guid: 3822bb3109aa84d4ca8daf38096a7a2e,
+    - target: {fileID: 4589040235709316650, guid: 3822bb3109aa84d4ca8daf38096a7a2e,
         type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4635169800272053446, guid: 3822bb3109aa84d4ca8daf38096a7a2e,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
+      propertyPath: m_mirrorAxisFlags
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5033501057235377744, guid: 3822bb3109aa84d4ca8daf38096a7a2e,
         type: 3}
