@@ -756,10 +756,17 @@ namespace GuiToolkit
 			return components.Length > 0;
 		}
 		
+		public static void CreateAsset( Object _obj, string _path )
+		{
+			string directory = EditorFileUtility.GetDirectoryName(_path);
+			EditorFileUtility.EnsureUnityFolderExists(directory);
+			AssetDatabase.CreateAsset(_obj, _path);
+		}
+
 		public static void SetDirty(Object _obj)
 		{
 			// Never set package assets dirty; leads to "Saving Prefab to immutable folder is not allowed" errors
-			if (EditorAssetUtility.IsPackagesAsset(_obj))
+			if (PrefabUtility.IsPartOfImmutablePrefab(_obj))
 				return;
 			
 			EditorUtility.SetDirty(_obj);

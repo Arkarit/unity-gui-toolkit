@@ -65,12 +65,17 @@ namespace GuiToolkit
 			return result;
 		}
 
+		private static void CreateAsset( Object _obj, string _path )
+		{
+			string directory = EditorFileUtility.GetDirectoryName(_path);
+			EditorFileUtility.EnsureUnityFolderExists(directory);
+			AssetDatabase.CreateAsset(_obj, _path);
+		}
+
 		public static void EditorSave(T _instance)
 		{
 			if (!AssetDatabase.Contains(_instance))
-			{
-				EditorAssetUtility.CreateAsset(_instance, EditorPath);
-			}
+				CreateAsset(_instance, EditorPath);
 
 			EditorGeneralUtility.SetDirty(_instance);
 			AssetDatabase.SaveAssetIfDirty(_instance);

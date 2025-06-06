@@ -53,7 +53,7 @@ namespace GuiToolkit.Style
 		{
 			if (!AssetDatabase.Contains(_instance))
 			{
-				EditorAssetUtility.CreateAsset(_instance, EditorPath);
+				EditorGeneralUtility.CreateAsset(_instance, EditorPath);
 			}
 
 			EditorGeneralUtility.SetDirty(_instance);
