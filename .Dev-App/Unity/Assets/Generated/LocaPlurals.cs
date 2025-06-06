@@ -1,5 +1,5 @@
 // Auto-generated, please do not change!
-// Use menu 'UI Toolkit/Process Loca (Update plurals when added a new language)' to add new language plurals!
+// Use menu 'Gui Toolkit/Process Loca (Update plurals when added a new language)' to add new language plurals!
 namespace GuiToolkit
 {
 	public static partial class LocaPlurals
@@ -24,7 +24,7 @@ namespace GuiToolkit
 					nplurals=1; plural=0;
 					break;
 				case "ru":
-					nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);
+					nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 &&n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);
 					break;
 			}
 

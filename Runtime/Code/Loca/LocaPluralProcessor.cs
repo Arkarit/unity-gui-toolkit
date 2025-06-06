@@ -71,15 +71,34 @@ namespace GuiToolkit
 				language = language.Substring(0, language.Length-7).Trim();
 
 				string pluralFn = string.Empty;
+				bool inConcatenation = false;
 				for(;;)
 				{
 					string line = reader.ReadLine();
 					if (line == null)
 						break;
 
+					if (inConcatenation)
+					{
+						if (line.Length < 2)
+							break;
+
+						pluralFn += line.Substring(1, line.Length - 2);
+						if (pluralFn.EndsWith("\\n"))
+							break;
+
+						continue;
+					}
+
 					if (line.StartsWith("\"Plural-Forms:"))
 					{
 						pluralFn = line.Substring(14, line.Length-15).Trim();
+						if (!pluralFn.EndsWith("\\n"))
+						{
+							inConcatenation = true;
+							continue;
+						}
+
 						break;
 					}
 				}
