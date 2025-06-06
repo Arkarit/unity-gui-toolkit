@@ -1,8 +1,4 @@
-﻿// Note: don't move this file to an Editor folder, since it needs to be available
-// for inplace editor code
-#if UNITY_EDITOR
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor.SceneManagement;
@@ -11,7 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 	/// \brief General Asset Utility
 	/// 
@@ -746,5 +742,4 @@ _s += s + "\n";
 		}
 	}
 }
-#endif
 

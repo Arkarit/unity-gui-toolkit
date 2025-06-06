@@ -1,11 +1,9 @@
-﻿#if UNITY_EDITOR
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 	public static class LocaProcessor
 	{
@@ -293,4 +291,3 @@ namespace GuiToolkit
 		}
 	}
 }
-#endif

@@ -1,9 +1,8 @@
-﻿#if UNITY_EDITOR
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 	public static class EditorExtensions
 	{
@@ -85,4 +84,3 @@ Debug.Log($"Cloning {_gameObject.name}");
 
 	}
 }
-#endif
