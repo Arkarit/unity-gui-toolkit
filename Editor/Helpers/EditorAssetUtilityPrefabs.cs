@@ -2,17 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Lachee.UYAML;
 using UnityEditor;
-using UnityEditor.SceneManagement;
-using UnityEditor.VersionControl;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
 
 namespace GuiToolkit.Editor
 {
-	public static class EditorPrefabUtility
+	public static partial class EditorAssetUtility
 	{
 		public const string PrefabFolder = "Prefabs/";
 		

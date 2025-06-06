@@ -16,7 +16,7 @@ namespace GuiToolkit.Editor
 	/// Note: This file must reside outside of an "Editor" folder, since it must be accessible
 	/// from mixed game/editor classes (even though all accesses are in #if UNITY_EDITOR clauses)
 	/// See https://answers.unity.com/questions/426184/acces-script-in-the-editor-folder.html for reasons.
-	public static class EditorAssetUtility
+	public static partial class EditorAssetUtility
 	{
 		private const string CachePrefix = "UIECache_";
 		private static readonly Dictionary<string, Component> s_cachedComponents = new();
