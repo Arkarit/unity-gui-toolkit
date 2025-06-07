@@ -84,10 +84,6 @@ namespace GuiToolkit.Editor
 						_errorType
 					);
 	
-//				var prefabRoot = PrefabUtility.GetCorrespondingObjectFromSource(_prefab);
-//				if (prefabRoot == null)
-//					return ShowError($"Prefab Root for '{_prefab.GetPath(1)}' not found.\nFull path:'{_prefab.GetPath()}'", _errorType);
-
 				var assetPath = AssetDatabase.GetAssetPath(_prefab);
 				temporaryClone = (GameObject) PrefabUtility.InstantiatePrefab(_prefab);
 
@@ -239,47 +235,79 @@ Debug.Log(GetCloneByOriginalDumpString());
 
 		private static void ReplaceInsertedPrefabs()
 		{
-			Debug.Assert(s_originals.Count == s_clones.Count);
-			var len = s_originals.Count;
+			HashSet<GameObject> clonesToDo = s_clones.ToHashSet();
+			HashSet<GameObject> clonesDone = new();
+			int currIdx = 0;
 
-			for (int i = 0; i < len; i++)
+			// The approach is necessarily quite complicated.
+			// The first clones to save are those which don't contain any other clones from the list (e.g. a button)
+			// Then those which only contain these buttons (e.g. a button panel)
+			// Then those which only contain these button panels and buttons...
+			// Only by this way it can be ensured that overrides can be cloned properly.
+			while (clonesToDo.Count > 0)
 			{
-				var original = s_originals[i];
-
-				ExecuteInPrefab(s_clones[i], root =>
+				foreach (var clone in clonesToDo)
 				{
-					var transforms = root.GetComponentsInChildren<Transform>();
-					Dictionary<GameObject, GameObject> clonesByOriginalsToReplace = new();
-
-					foreach (var transform in transforms)
+					ExecuteInPrefab(clone, root =>
 					{
-						if (transform == root.transform)
-							continue;
+						var transforms = root.GetComponentsInChildren<Transform>();
+						Dictionary<GameObject, GameObject> clonesByOriginalsToReplace = new();
+	
+						foreach (var transform in transforms)
+						{
+							if (transform == root.transform)
+								continue;
+	
+							var go = transform.gameObject;
+							var cgo = PrefabUtility.GetCorrespondingObjectFromOriginalSource(go);
+							if (!s_clonesByOriginals.ContainsKey(cgo))
+								continue;
+	
+							clonesByOriginalsToReplace.Add(go, s_clonesByOriginals[cgo]);
+						}
 
-						var go = transform.gameObject;
-						var cgo = PrefabUtility.GetCorrespondingObjectFromOriginalSource(go);
-						if (!s_clonesByOriginals.ContainsKey(cgo))
-							continue;
+						if (clonesByOriginalsToReplace.Count == 0)
+						{
+Debug.Log($";;;::: Nothing embedded, done {clone.GetPath(1)}");
+							clonesDone.Add(clone);
+							return false;
+						}
+						
+						foreach (var kv in clonesByOriginalsToReplace)
+						{
+							if (!clonesDone.Contains(kv.Value))
+							{
+Debug.Log($";;;::: Still contains unhandled embedded ({kv.Value.GetPath(1)}): {clone.GetPath(1)}");
+								return false;
+							}
+						}
 
-						clonesByOriginalsToReplace.Add(go, s_clonesByOriginals[cgo]);
-					}
+						foreach (var kv in clonesByOriginalsToReplace)
+						{
+							var embeddedOriginal = kv.Key;
+							var embeddedClone = kv.Value;
+							var parent = embeddedOriginal.transform.parent;
+							var embeddedCloneInstance = (GameObject) PrefabUtility.InstantiatePrefab(embeddedClone, parent);
+							embeddedCloneInstance.transform.SetSiblingIndex(embeddedOriginal.transform.GetSiblingIndex()+1);
 
-					foreach (var kv in clonesByOriginalsToReplace)
-					{
-						var original = kv.Key;
-						var clone = kv.Value;
-						var parent = original.transform.parent;
-						var instance = (GameObject) PrefabUtility.InstantiatePrefab(clone, parent);
-						instance.transform.SetSiblingIndex(original.transform.GetSiblingIndex()+1);
+							var children = embeddedOriginal.transform.GetChildrenList();
+//							foreach (var child in children)
+//								child.SetParent(embeddedCloneInstance.transform, true);
 
-						// TODO: clone overrides, change references
+							// TODO: Destroy later
+							embeddedOriginal.SetActive(false);
+//							// TODO: clone overrides, change references
+//	
+//							embeddedOriginal.SafeDestroy();
+						}
+Debug.Log($";;;::: Saving clone {clone.GetPath(1)}");
+						clonesDone.Add(clone);
+						return true;
+					});
+				}
 
-						original.SafeDestroy();
-					}
-
-					return clonesByOriginalsToReplace.Count > 0;
-				});
-
+				foreach (var go in clonesDone)
+					clonesToDo.Remove(go);
 			}
 		}
 
