@@ -69,7 +69,6 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		// Untested
 		public static bool ExecuteInPrefab(GameObject _prefab, Func<GameObject, bool> _callback, EErrorType _errorType = EErrorType.None)
 		{
 			GameObject temporaryClone = null;
@@ -89,8 +88,16 @@ namespace GuiToolkit.Editor
 
 				if (_callback.Invoke(temporaryClone))
 				{
+Debug.Log($"~~~ Saving '{assetPath}'");
+try
+{
 					PrefabUtility.SaveAsPrefabAssetAndConnect(temporaryClone, assetPath, InteractionMode.AutomatedAction);
-	
+}
+catch
+{
+PrefabUtility.SaveAsPrefabAssetAndConnect(temporaryClone, assetPath.Replace(".", ".bla."), InteractionMode.AutomatedAction);
+}
+
 					return true;
 				}
 			}
@@ -288,9 +295,19 @@ Debug.Log($";;;::: Still contains unhandled embedded ({kv.Value.GetPath(1)}): {c
 							var embeddedClone = kv.Value;
 							var parent = embeddedOriginal.transform.parent;
 							var embeddedCloneInstance = (GameObject) PrefabUtility.InstantiatePrefab(embeddedClone, parent);
+Debug.Log($";;;::: Instantiated '{embeddedCloneInstance.GetPath(1)}'");
+//							var embeddedCloneInstance = embeddedClone.PrefabAwareClone(parent);
 							embeddedCloneInstance.transform.SetSiblingIndex(embeddedOriginal.transform.GetSiblingIndex()+1);
 
 							var children = embeddedOriginal.transform.GetChildrenList();
+//							foreach (var child in children)
+//								child.gameObject.PrefabAwareClone(embeddedCloneInstance.transform);
+							foreach (var child in children)
+							{
+Debug.Log($";;;::: Instantiate child '{child.GetPath()}', Parent:'{embeddedCloneInstance.GetPath(1)}'");
+//								Object.Instantiate(child.gameObject, embeddedCloneInstance.transform);
+								child.gameObject.PrefabAwareClone(embeddedCloneInstance.transform);
+							}
 //							foreach (var child in children)
 //								child.SetParent(embeddedCloneInstance.transform, true);
 

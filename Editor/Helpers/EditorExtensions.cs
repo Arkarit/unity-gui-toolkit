@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GuiToolkit.Debugging;
 using UnityEditor;
 using UnityEngine;
 
@@ -57,14 +58,16 @@ Debug.Log($"Already existing {_gameObject.name}");
 			}
 			else if (PrefabUtility.IsAnyPrefabInstanceRoot(_gameObject))
 			{
-				var prefabToClone = PrefabUtility.GetCorrespondingObjectFromSource(_gameObject);
-Debug.Log($"Prefab Cloning {prefabToClone.name}");
+				var prefabToClone = PrefabUtility.GetCorrespondingObjectFromOriginalSource(_gameObject);
+
+Debug.Log($"Prefab Cloning {prefabToClone.name}\nPrefab:\n{DebugUtility.GetGameObjectHierarchyDump(prefabToClone)}");
 				result = (GameObject) PrefabUtility.InstantiatePrefab(prefabToClone, _newParent);
 				var targetTransform = result.transform;
 				var sourceTransform = _gameObject.transform;
 				targetTransform.position = sourceTransform.position;
 				targetTransform.rotation = sourceTransform.rotation;
 				targetTransform.localScale = sourceTransform.localScale;
+Debug.Log($"DONE Prefab Cloning {prefabToClone.name}, {result.name}");
 			}
 			else
 			{
