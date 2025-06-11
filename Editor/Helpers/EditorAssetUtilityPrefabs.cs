@@ -112,7 +112,7 @@ PrefabUtility.SaveAsPrefabAssetAndConnect(temporaryClone, assetPath.Replace(".",
 
 		public static void CreatePrefabVariants(string _sourceDir, string _targetDir, PrefabVariantsOptions _options = null)
 		{
-
+s_counter = 0;
 			try
 			{
 				s_options = _options ?? new PrefabVariantsOptions();
@@ -241,6 +241,21 @@ Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesStr
 Debug.Log(GetCloneByOriginalDumpString());
 		}
 
+public static int sv_counter = 0;
+
+public static int s_counter
+{
+get => sv_counter;
+set
+{
+if (value == 10)
+{
+int bla = 10;
+}
+sv_counter = value;
+}
+}
+
 		private static void ReplaceInsertedPrefabs()
 		{
 			HashSet<GameObject> clonesToDo = s_clones.ToHashSet();
@@ -323,6 +338,8 @@ DebugUtility.Log("Instantiate child", child.gameObject);
 //	
 //							embeddedOriginal.SafeDestroy();
 						}
+
+clone.name = $"{clone.name}_{s_counter++}";
 DebugUtility.Log("Saving clone", clone);
 						clonesDone.Add(clone);
 						return true;

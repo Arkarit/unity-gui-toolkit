@@ -76,7 +76,7 @@ DebugUtility.Log("Raw Cloned", result);
 
 			if (_clonedRoot == null)
 				_clonedRoot = result;
-
+result.name = $"{result.name}_{EditorAssetUtility.s_counter++}";
 			foreach (Transform child in _gameObject.transform)
 				PrefabAwareCloneInternal(child.gameObject, _clonedRoot, result != null ? result.transform : null);
 
