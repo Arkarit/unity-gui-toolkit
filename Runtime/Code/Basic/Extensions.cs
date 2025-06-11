@@ -659,6 +659,11 @@ namespace GuiToolkit
 			return _self.gameObject.AddComponent(t);
 		}
 
+		public static T GetOrCreateComponent<T>(this GameObject _self) where T : Component
+		{
+			return GetOrCreateComponent<T>(_self.transform);
+		}
+
 		public static T GetOrCreateComponentOnChild<T>(this Component _self, GameObject _parent, string _childName ) where T : Component
 		{
 			Transform child = _self.transform.Find(_childName);

@@ -2,6 +2,7 @@
 
 // Caution! Does not work properly yet!
 //#define SCENE_DEPENDENCY_WIP
+using GuiToolkit.Debugging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -417,10 +418,6 @@ namespace GuiToolkit
 
 		public static void ForeachProperty(Object _object, Action<SerializedProperty> _action) => ForeachProperty(new SerializedObject(_object), _action);
 		public static void ForeachPropertyHierarchical(Object _object, Action<SerializedProperty> _action) => ForeachPropertyHierarchical(new SerializedObject(_object), _action);
-
-		// Get the path of the script which calls this function. Weird and hacky but works.
-		public static string GetCallingScriptPath() => new System.Diagnostics.StackTrace(true).GetFrame(1).GetFileName();
-		public static string GetCallingScriptDirectory() => Path.GetDirectoryName(new System.Diagnostics.StackTrace(true).GetFrame(1).GetFileName());
 
 		public static SerializedProperty GetParentProperty(this SerializedProperty _property)
 		{

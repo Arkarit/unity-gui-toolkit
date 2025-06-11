@@ -44,8 +44,8 @@ namespace GuiToolkit.Editor
 
 		private static GameObject PrefabAwareCloneInternal(GameObject _gameObject, GameObject _clonedRoot, Transform _newParent = null)
 		{
-Debug.Log($"Handling {_gameObject.GetPath(0)}");
-			if (_gameObject == null)
+DebugUtility.Log("Handling", _gameObject);
+			if (_gameObject == null || _gameObject.GetComponent<CommentTagMarkedForDestroy>() != null)
 				return null;
 
 			GameObject result;
@@ -53,26 +53,25 @@ Debug.Log($"Handling {_gameObject.GetPath(0)}");
 
 			if (alreadyExistingInClone != null)
 			{
-Debug.Log($"Already existing {_gameObject.name}");
+DebugUtility.Log("Already existing", _gameObject);
 				result = alreadyExistingInClone;
 			}
 			else if (PrefabUtility.IsAnyPrefabInstanceRoot(_gameObject))
 			{
 				var prefabToClone = PrefabUtility.GetCorrespondingObjectFromOriginalSource(_gameObject);
-
-Debug.Log($"Prefab Cloning {prefabToClone.name}\nPrefab:\n{DebugUtility.GetGameObjectHierarchyDump(prefabToClone)}");
+DebugUtility.Log("Prefab Cloning", prefabToClone);
 				result = (GameObject) PrefabUtility.InstantiatePrefab(prefabToClone, _newParent);
 				var targetTransform = result.transform;
 				var sourceTransform = _gameObject.transform;
 				targetTransform.position = sourceTransform.position;
 				targetTransform.rotation = sourceTransform.rotation;
 				targetTransform.localScale = sourceTransform.localScale;
-Debug.Log($"DONE Prefab Cloning {prefabToClone.name}, {result.name}");
+DebugUtility.Log("DONE Prefab Cloning", result);
 			}
 			else
 			{
-Debug.Log($"Cloning {_gameObject.name}");
 				result = _gameObject.CloneWithoutChildren(_newParent);
+DebugUtility.Log("Raw Cloned", result);
 			}
 
 			if (_clonedRoot == null)

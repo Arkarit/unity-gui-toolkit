@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using GuiToolkit.Debugging;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -262,10 +263,14 @@ Debug.Log(GetCloneByOriginalDumpString());
 	
 						foreach (var transform in transforms)
 						{
+							if (transform.GetComponent<CommentTagMarkedForDestroy>())
+								continue;
+
 							if (transform == root.transform)
 								continue;
 	
 							var go = transform.gameObject;
+
 							var cgo = PrefabUtility.GetCorrespondingObjectFromOriginalSource(go);
 							if (!s_clonesByOriginals.ContainsKey(cgo))
 								continue;
@@ -275,7 +280,7 @@ Debug.Log(GetCloneByOriginalDumpString());
 
 						if (clonesByOriginalsToReplace.Count == 0)
 						{
-Debug.Log($";;;::: Nothing embedded, done {clone.GetPath(1)}");
+DebugUtility.Log("Nothing embedded, done", clone);
 							clonesDone.Add(clone);
 							return false;
 						}
@@ -284,7 +289,7 @@ Debug.Log($";;;::: Nothing embedded, done {clone.GetPath(1)}");
 						{
 							if (!clonesDone.Contains(kv.Value))
 							{
-Debug.Log($";;;::: Still contains unhandled embedded ({kv.Value.GetPath(1)}): {clone.GetPath(1)}");
+DebugUtility.Log("Still contains unhandled embedded", kv.Value);
 								return false;
 							}
 						}
@@ -295,7 +300,7 @@ Debug.Log($";;;::: Still contains unhandled embedded ({kv.Value.GetPath(1)}): {c
 							var embeddedClone = kv.Value;
 							var parent = embeddedOriginal.transform.parent;
 							var embeddedCloneInstance = (GameObject) PrefabUtility.InstantiatePrefab(embeddedClone, parent);
-Debug.Log($";;;::: Instantiated '{embeddedCloneInstance.GetPath(1)}'");
+DebugUtility.Log("Instantiated", embeddedCloneInstance);
 //							var embeddedCloneInstance = embeddedClone.PrefabAwareClone(parent);
 							embeddedCloneInstance.transform.SetSiblingIndex(embeddedOriginal.transform.GetSiblingIndex()+1);
 
@@ -304,7 +309,7 @@ Debug.Log($";;;::: Instantiated '{embeddedCloneInstance.GetPath(1)}'");
 //								child.gameObject.PrefabAwareClone(embeddedCloneInstance.transform);
 							foreach (var child in children)
 							{
-Debug.Log($";;;::: Instantiate child '{child.GetPath()}', Parent:'{embeddedCloneInstance.GetPath(1)}'");
+DebugUtility.Log("Instantiate child", child.gameObject);
 //								Object.Instantiate(child.gameObject, embeddedCloneInstance.transform);
 								child.gameObject.PrefabAwareClone(embeddedCloneInstance.transform);
 							}
@@ -312,12 +317,13 @@ Debug.Log($";;;::: Instantiate child '{child.GetPath()}', Parent:'{embeddedClone
 //								child.SetParent(embeddedCloneInstance.transform, true);
 
 							// TODO: Destroy later
+							embeddedOriginal.AddComponent<CommentTagMarkedForDestroy>();
 							embeddedOriginal.SetActive(false);
 //							// TODO: clone overrides, change references
 //	
 //							embeddedOriginal.SafeDestroy();
 						}
-Debug.Log($";;;::: Saving clone {clone.GetPath(1)}");
+DebugUtility.Log("Saving clone", clone);
 						clonesDone.Add(clone);
 						return true;
 					});
@@ -402,6 +408,8 @@ s += "\tclonedParent is null\n\n";
 
 //				var clone = GameObject.Instantiate(addedGo, clonedParent);
 				var clone = addedGo.PrefabAwareClone(clonedParent);
+				if (clone == null)
+					continue;
 				
 				clone.name = addedGo.name;
 				clone.transform.SetSiblingIndex(addedGameObject.siblingIndex);
