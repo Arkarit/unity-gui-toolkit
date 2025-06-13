@@ -92,7 +92,9 @@ namespace GuiToolkit.Editor
 Debug.Log($"~~~ Saving '{assetPath}'");
 try
 {
+var bla =
 					PrefabUtility.SaveAsPrefabAssetAndConnect(temporaryClone, assetPath, InteractionMode.AutomatedAction);
+bla.name = $"{bla.name}_{s_counter++}";
 }
 catch
 {
@@ -248,6 +250,7 @@ public static int s_counter
 get => sv_counter;
 set
 {
+
 if (value == 10)
 {
 int bla = 10;
@@ -278,19 +281,16 @@ sv_counter = value;
 	
 						foreach (var transform in transforms)
 						{
-							if (transform.GetComponent<CommentTagMarkedForDestroy>())
-								continue;
-
 							if (transform == root.transform)
 								continue;
 	
 							var go = transform.gameObject;
 
-							var cgo = PrefabUtility.GetCorrespondingObjectFromOriginalSource(go);
-							if (!s_clonesByOriginals.ContainsKey(cgo))
+							var source = PrefabUtility.GetCorrespondingObjectFromOriginalSource(go);
+							if (!s_clonesByOriginals.ContainsKey(source))
 								continue;
 	
-							clonesByOriginalsToReplace.Add(go, s_clonesByOriginals[cgo]);
+							clonesByOriginalsToReplace.Add(go, s_clonesByOriginals[source]);
 						}
 
 						if (clonesByOriginalsToReplace.Count == 0)
@@ -299,6 +299,13 @@ DebugUtility.Log("Nothing embedded, done", clone);
 							clonesDone.Add(clone);
 							return false;
 						}
+
+var s = "";
+foreach (var kv in clonesByOriginalsToReplace)
+{
+s += $"{kv.Key.GetPath()} -> {kv.Value.GetPath()}\n";
+}
+Debug.Log($"---!!! clonesByOriginalsToReplace:\n{s}");
 						
 						foreach (var kv in clonesByOriginalsToReplace)
 						{
@@ -312,9 +319,13 @@ DebugUtility.Log("Still contains unhandled embedded", kv.Value);
 						foreach (var kv in clonesByOriginalsToReplace)
 						{
 							var embeddedOriginal = kv.Key;
+							if (embeddedOriginal == null)
+								continue;
+
 							var embeddedClone = kv.Value;
 							var parent = embeddedOriginal.transform.parent;
 							var embeddedCloneInstance = (GameObject) PrefabUtility.InstantiatePrefab(embeddedClone, parent);
+embeddedCloneInstance.name = $"{embeddedCloneInstance.name}_{s_counter++}";
 DebugUtility.Log("Instantiated", embeddedCloneInstance);
 //							var embeddedCloneInstance = embeddedClone.PrefabAwareClone(parent);
 							embeddedCloneInstance.transform.SetSiblingIndex(embeddedOriginal.transform.GetSiblingIndex()+1);
@@ -324,6 +335,16 @@ DebugUtility.Log("Instantiated", embeddedCloneInstance);
 //								child.gameObject.PrefabAwareClone(embeddedCloneInstance.transform);
 							foreach (var child in children)
 							{
+if (s_counter == 12)
+{
+int a = 10;
+}
+
+								DebugUtility.Log("Check for match", child.gameObject);
+								// Possibly already exists in clone
+								if (FindMatchingGameObject(embeddedCloneInstance, child.gameObject))
+									continue;
+
 DebugUtility.Log("Instantiate child", child.gameObject);
 //								Object.Instantiate(child.gameObject, embeddedCloneInstance.transform);
 								child.gameObject.PrefabAwareClone(embeddedCloneInstance.transform);
@@ -331,12 +352,9 @@ DebugUtility.Log("Instantiate child", child.gameObject);
 //							foreach (var child in children)
 //								child.SetParent(embeddedCloneInstance.transform, true);
 
-							// TODO: Destroy later
-							embeddedOriginal.AddComponent<CommentTagMarkedForDestroy>();
-							embeddedOriginal.SetActive(false);
 //							// TODO: clone overrides, change references
 //	
-//							embeddedOriginal.SafeDestroy();
+							embeddedOriginal.SafeDestroy();
 						}
 
 clone.name = $"{clone.name}_{s_counter++}";

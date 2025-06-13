@@ -45,7 +45,7 @@ namespace GuiToolkit.Editor
 		private static GameObject PrefabAwareCloneInternal(GameObject _gameObject, GameObject _clonedRoot, Transform _newParent = null)
 		{
 DebugUtility.Log("Handling", _gameObject);
-			if (_gameObject == null || _gameObject.GetComponent<CommentTagMarkedForDestroy>() != null)
+			if (_gameObject == null)
 				return null;
 
 			GameObject result;
@@ -66,23 +66,23 @@ DebugUtility.Log("Prefab Cloning", prefabToClone);
 				targetTransform.position = sourceTransform.position;
 				targetTransform.rotation = sourceTransform.rotation;
 				targetTransform.localScale = sourceTransform.localScale;
+result.name = $"{result.name}_{EditorAssetUtility.s_counter++}";
 DebugUtility.Log("DONE Prefab Cloning", result);
 			}
 			else
 			{
 				result = _gameObject.CloneWithoutChildren(_newParent);
+result.name = $"{result.name}_{EditorAssetUtility.s_counter++}";
 DebugUtility.Log("Raw Cloned", result);
 			}
 
 			if (_clonedRoot == null)
 				_clonedRoot = result;
-result.name = $"{result.name}_{EditorAssetUtility.s_counter++}";
+
 			foreach (Transform child in _gameObject.transform)
 				PrefabAwareCloneInternal(child.gameObject, _clonedRoot, result != null ? result.transform : null);
 
 			return result;
 		}
-
-
 	}
 }

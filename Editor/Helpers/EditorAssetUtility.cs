@@ -583,7 +583,7 @@ namespace GuiToolkit.Editor
 
 			return -1;
 		}
-			
+
 		/// <summary>
 		/// Find a matching game object in a game object hierarchy by inspecting the paths of the two.
 		/// This method attempts to find a game object in an unrelated game object hierarchy.
@@ -591,20 +591,75 @@ namespace GuiToolkit.Editor
 		/// <param name="_gameObjectHierarchy"></param>
 		/// <param name="_gameObjectToFind"></param>
 		/// <returns>found game object or null if not found or error</returns>
-		public static GameObject FindMatchingGameObject(GameObject _gameObjectHierarchy, GameObject _gameObjectToFind)
+		public static GameObject FindMatchingGameObject( GameObject _gameObjectHierarchy, GameObject _gameObjectToFind )
 		{
 			if (_gameObjectHierarchy.transform.parent == _gameObjectToFind.transform.parent)
 				return _gameObjectHierarchy;
-	
+
 			var toFindPath = _gameObjectToFind.GetPath(-1);
+			var toFindSource = PrefabUtility.GetCorrespondingObjectFromOriginalSource(_gameObjectToFind);
+
 			var transforms = _gameObjectHierarchy.GetComponentsInChildren<Transform>(true);
 			foreach (var transform in transforms)
 			{
 				if (transform.GetPath(-1).EndsWith(toFindPath))
 					return transform.gameObject;
+
+//				if (PrefabUtility.GetPrefabAssetType(_gameObjectToFind) == PrefabAssetType.NotAPrefab)
+//					continue;
+
+				var candidateSource = PrefabUtility.GetCorrespondingObjectFromOriginalSource(transform.gameObject);
+				if (candidateSource != null && candidateSource == toFindSource)
+					return transform.gameObject;
 			}
-	
+
 			return null;
+		}
+
+		/// <summary>
+		/// Checks if two GameObjects are structurally equivalent in terms of their original prefab source.
+		/// This ignores renaming and variant levels.
+		/// </summary>
+		public static bool AreStructurallyEquivalent( GameObject _a, GameObject _b )
+		{
+			if (_a == null || _b == null)
+				return false;
+
+			var aRoot = PrefabUtility.GetCorrespondingObjectFromOriginalSource(_a);
+			var bRoot = PrefabUtility.GetCorrespondingObjectFromOriginalSource(_b);
+
+			if (aRoot == null || bRoot == null)
+				return false;
+
+			if (aRoot != bRoot)
+				return false;
+
+			// Check relative path within prefab
+			string aPath = GetRelativePrefabPath(_a);
+			string bPath = GetRelativePrefabPath(_b);
+
+			return aPath == bPath;
+		}
+
+		/// <summary>
+		/// Gets the relative path of a GameObject within its original prefab root.
+		/// </summary>
+		private static string GetRelativePrefabPath( GameObject go )
+		{
+			var path = go.name;
+			var current = go.transform;
+
+			while (current.parent != null)
+			{
+				current = current.parent;
+				path = current.name + "/" + path;
+
+				// Stop if we're outside prefab instance
+				if (PrefabUtility.GetPrefabInstanceStatus(current.gameObject) == PrefabInstanceStatus.NotAPrefab)
+					break;
+			}
+
+			return path;
 		}
 
 		public static void FixReferencesInClone(GameObject _original, GameObject _clone)
