@@ -235,7 +235,7 @@ Debug.Log(GetCloneByOriginalDumpString());
 		private static void ReplaceInsertedPrefabs()
 		{
 			HashSet<GameObject> clonesToDo = s_clones.ToHashSet();
-			HashSet<GameObject> clonesDone = new();
+			List<GameObject> clonesDone = new();
 
 			int currIdx = 0;
 
@@ -325,7 +325,25 @@ Debug.Log(GetCloneByOriginalDumpString());
 				foreach (var go in clonesDone)
 					clonesToDo.Remove(go);
 			}
+
+			// clonesDone is already properly sorted in terms of prefab chain dependencies, so we
+			// can just conveniently walk through the list to remove the temporary EditorMarker
+			foreach (var clone in clonesDone)
+			{
+				ExecuteInPrefab(clone, root =>
+				{
+					var markers = clone.GetComponentsInChildren<EditorMarker>();
+					if (markers == null || markers.Length == 0)
+						return false;
+
+					foreach (var editorMarker in markers)
+						editorMarker.SafeDestroy();
+
+					return true;
+				});
+			}
 		}
+
 
 		private static void Clone(List<VariantRecord> _list)
 		{
