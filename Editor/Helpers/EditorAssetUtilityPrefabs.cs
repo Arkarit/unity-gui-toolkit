@@ -292,14 +292,14 @@ Debug.Log(GetCloneByOriginalDumpString());
 							var embeddedClone = kv.Value;
 							var parent = embeddedOriginal.transform.parent;
 							var embeddedCloneInstance = (GameObject) PrefabUtility.InstantiatePrefab(embeddedClone, parent);
-							embeddedCloneInstance.AddComponent<EditorMarker>();
+							embeddedCloneInstance.AddComponent<EditorMarkerIsClone>();
 
 							embeddedCloneInstance.transform.SetSiblingIndex(embeddedOriginal.transform.GetSiblingIndex()+1);
 
 							var children = embeddedOriginal.transform.GetChildrenList();
 							foreach (var child in children)
 							{
-								if (child.GetComponent<EditorMarker>())
+								if (child.GetComponent<EditorMarkerIsClone>())
 									continue;
 
 								DebugUtility.Log("Check for match", child.gameObject);
@@ -308,13 +308,11 @@ Debug.Log(GetCloneByOriginalDumpString());
 									continue;
 
 								var clonedChild = child.gameObject.PrefabAwareClone(embeddedCloneInstance.transform);
-								Debug.Assert(clonedChild.GetComponent<EditorMarker>() == null, "There should be no EditorMarker on this go, because it should be tested already in an earlier stage");
-								clonedChild.AddComponent<EditorMarker>();
+								Debug.Assert(clonedChild.GetComponent<EditorMarkerIsClone>() == null, "There should be no EditorMarker on this go, because it should be tested already in an earlier stage");
+								clonedChild.AddComponent<EditorMarkerIsClone>();
 							}
 
-//							// TODO: clone overrides, change references
-
-							embeddedOriginal.SafeDestroy();
+							embeddedOriginal.AddComponent<EditorMarkerIsOriginal>();
 						}
 
 						clonesDone.Add(clone);
@@ -327,21 +325,54 @@ Debug.Log(GetCloneByOriginalDumpString());
 			}
 
 			// clonesDone is already properly sorted in terms of prefab chain dependencies, so we
-			// can just conveniently walk through the list to remove the temporary EditorMarker
+			// can just conveniently walk through the list to clone stuff and remove the temporary EditorMarkers
 			foreach (var clone in clonesDone)
 			{
 				ExecuteInPrefab(clone, root =>
 				{
-					var markers = clone.GetComponentsInChildren<EditorMarker>();
-					if (markers == null || markers.Length == 0)
+					var originalMarkers = clone.GetComponentsInChildren<EditorMarkerIsOriginal>();
+					var clonedMarkers = clone.GetComponentsInChildren<EditorMarkerIsClone>();
+
+					// If there are no original markers, there shouldn't be any clone markers as well
+					if (originalMarkers == null || originalMarkers.Length == 0)
 						return false;
 
-					foreach (var editorMarker in markers)
-						editorMarker.SafeDestroy();
+					foreach (var originalMarker in originalMarkers)
+					{
+						GameObject originalGameObject = originalMarker.gameObject;
+						Transform originalTransform = originalMarker.transform;
+						Transform parent = originalTransform.parent;
+						int originalSiblingIndex = originalTransform.GetSiblingIndex();
+						Debug.Assert(parent != null && originalSiblingIndex <= parent.childCount - 2);
+						// The clone is always the sibling after the original
+						Transform clonedTransform = parent.GetChild(originalSiblingIndex + 1);
+						var clonedMarker = clonedTransform.GetComponent<EditorMarkerIsClone>();
+						Debug.Assert(clonedMarker != null);
+						GameObject clonedGameObject = clonedTransform.gameObject;
+
+						// TODO: transfer all overrides in "clone" related to originalGameObject to clonedGameObject
+					}
+
+					foreach (var clonedMarker in clonedMarkers)
+					{
+						if (clonedMarker == null)
+							continue;
+
+						clonedMarker.SafeDestroy();
+					}
+
+					foreach (var originalMarker in originalMarkers)
+					{
+						if (originalMarker == null)
+							continue;
+
+						originalMarker.gameObject.SafeDestroy();
+					}
 
 					return true;
 				});
 			}
+
 		}
 
 
