@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using GuiToolkit.Debugging;
 using UnityEditor;
 using UnityEngine;
 
@@ -44,7 +43,6 @@ namespace GuiToolkit.Editor
 
 		private static GameObject PrefabAwareCloneInternal(GameObject _gameObject, GameObject _clonedRoot, Transform _newParent = null)
 		{
-DebugUtility.Log("Handling", _gameObject);
 			if (_gameObject == null)
 				return null;
 
@@ -53,27 +51,21 @@ DebugUtility.Log("Handling", _gameObject);
 
 			if (alreadyExistingInClone != null)
 			{
-DebugUtility.Log("Already existing", _gameObject);
 				result = alreadyExistingInClone;
 			}
 			else if (PrefabUtility.IsAnyPrefabInstanceRoot(_gameObject))
 			{
 				var prefabToClone = PrefabUtility.GetCorrespondingObjectFromOriginalSource(_gameObject);
-DebugUtility.Log("Prefab Cloning", prefabToClone);
 				result = (GameObject) PrefabUtility.InstantiatePrefab(prefabToClone, _newParent);
 				var targetTransform = result.transform;
 				var sourceTransform = _gameObject.transform;
 				targetTransform.position = sourceTransform.position;
 				targetTransform.rotation = sourceTransform.rotation;
 				targetTransform.localScale = sourceTransform.localScale;
-result.name = $"{result.name}_{EditorAssetUtility.s_counter++}";
-DebugUtility.Log("DONE Prefab Cloning", result);
 			}
 			else
 			{
 				result = _gameObject.CloneWithoutChildren(_newParent);
-result.name = $"{result.name}_{EditorAssetUtility.s_counter++}";
-DebugUtility.Log("Raw Cloned", result);
 			}
 
 			if (_clonedRoot == null)
