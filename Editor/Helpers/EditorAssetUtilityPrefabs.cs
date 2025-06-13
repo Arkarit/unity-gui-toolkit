@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using GuiToolkit.Debugging;
+using GuiToolkit.Editor.Internal;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -263,6 +264,7 @@ sv_counter = value;
 		{
 			HashSet<GameObject> clonesToDo = s_clones.ToHashSet();
 			HashSet<GameObject> clonesDone = new();
+
 			int currIdx = 0;
 
 			// The approach is necessarily quite complicated.
@@ -285,11 +287,13 @@ sv_counter = value;
 								continue;
 	
 							var go = transform.gameObject;
+							if (go.GetComponent<EditorMarker>())
+								continue;
 
 							var source = PrefabUtility.GetCorrespondingObjectFromOriginalSource(go);
 							if (!s_clonesByOriginals.ContainsKey(source))
 								continue;
-	
+
 							clonesByOriginalsToReplace.Add(go, s_clonesByOriginals[source]);
 						}
 
@@ -325,6 +329,8 @@ DebugUtility.Log("Still contains unhandled embedded", kv.Value);
 							var embeddedClone = kv.Value;
 							var parent = embeddedOriginal.transform.parent;
 							var embeddedCloneInstance = (GameObject) PrefabUtility.InstantiatePrefab(embeddedClone, parent);
+							embeddedCloneInstance.AddComponent<EditorMarker>();
+
 embeddedCloneInstance.name = $"{embeddedCloneInstance.name}_{s_counter++}";
 DebugUtility.Log("Instantiated", embeddedCloneInstance);
 //							var embeddedCloneInstance = embeddedClone.PrefabAwareClone(parent);
@@ -339,6 +345,8 @@ if (s_counter == 12)
 {
 int a = 10;
 }
+								if (child.GetComponent<EditorMarker>())
+									continue;
 
 								DebugUtility.Log("Check for match", child.gameObject);
 								// Possibly already exists in clone
@@ -347,7 +355,9 @@ int a = 10;
 
 DebugUtility.Log("Instantiate child", child.gameObject);
 //								Object.Instantiate(child.gameObject, embeddedCloneInstance.transform);
-								child.gameObject.PrefabAwareClone(embeddedCloneInstance.transform);
+								var clonedChild = child.gameObject.PrefabAwareClone(embeddedCloneInstance.transform);
+								Debug.Assert(clonedChild.GetComponent<EditorMarker>() == null, "There should be no EditorMarker on this go, because it should be tested already in an earlier stage");
+								clonedChild.AddComponent<EditorMarker>();
 							}
 //							foreach (var child in children)
 //								child.SetParent(embeddedCloneInstance.transform, true);
