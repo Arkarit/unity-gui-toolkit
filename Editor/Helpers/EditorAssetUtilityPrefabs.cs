@@ -114,10 +114,42 @@ namespace GuiToolkit.Editor
 				BuildPrefabVariantHierarchy();
 				Clone();
 				ReplaceInsertedPrefabs();
+				TransferOverrides();
 			}
 			finally
 			{
 				CleanUp();
+			}
+		}
+
+		private static void TransferOverrides()
+		{
+			// TODO: clone overrides/add/remove recursively
+
+			foreach (var kv in s_clonesByOriginals)
+			{
+				GameObject originalInstance = null;
+				GameObject cloneInstance = null;
+				try
+				{
+					var original = kv.Key;
+					originalInstance = (GameObject)PrefabUtility.InstantiatePrefab(original);
+					var clone = kv.Value;
+					cloneInstance = (GameObject)PrefabUtility.InstantiatePrefab(clone);
+DebugUtility.Log("Original", original);
+DebugUtility.Log("OriginalInstance", originalInstance);
+DebugUtility.Log("Clone", clone);
+DebugUtility.Log("CloneInstance", cloneInstance);
+Debug.Log($"{DumpOverridesString(original, "Original")}\n{DumpOverridesString(originalInstance, "OriginalInstance")}");
+					CloneRemovedAndAdded(originalInstance, cloneInstance);
+					CloneOverrides(originalInstance, cloneInstance);
+					PrefabUtility.SaveAsPrefabAssetAndConnect(cloneInstance, AssetDatabase.GetAssetPath(clone), InteractionMode.AutomatedAction);
+				}
+				finally
+				{
+					originalInstance.SafeDestroy();
+					cloneInstance.SafeDestroy();
+				}
 			}
 		}
 
@@ -388,11 +420,11 @@ Debug.Log(GetCloneByOriginalDumpString());
 			clone.name = sourceGameObject.name;
 			s_objectsToDelete.Add(clone);
 
-			if (!isRoot)
-			{
-				CloneRemovedAndAdded(_record.AssetEntry.Asset, clone);
-				CloneOverrides(_record.AssetEntry.Asset, clone);
-			}
+//			if (!isRoot)
+//			{
+//				CloneRemovedAndAdded(_record.AssetEntry.Asset, clone);
+//				CloneOverrides(_record.AssetEntry.Asset, clone);
+//			}
 
 			FixReferencesInClone(sourceGameObject, clone);
 			var clonedVariant = PrefabUtility.SaveAsPrefabAssetAndConnect(clone, variantPath, InteractionMode.AutomatedAction);

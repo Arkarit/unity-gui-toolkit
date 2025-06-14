@@ -3,6 +3,9 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 namespace GuiToolkit.Debugging
 {
 	public static class DebugUtility
@@ -23,7 +26,14 @@ namespace GuiToolkit.Debugging
 		public static string GetLogString(string _text, GameObject _gameObject, DumpFeatures _features = DumpFeatures.Default)
 		{
 			string callerPrefix = HasFlag(_features, DumpFeatures.CallingMethod) ? $"[{GetCallingClassAndMethod()}]:" : string.Empty;
-			return $"{callerPrefix}{_text} {_gameObject.GetPath(1)}\nPath:{_gameObject.GetPath()}\nHierarchy:\n{GetHierarchyString(_gameObject, _features)}\n";
+#if UNITY_EDITOR
+			string assetPath = AssetDatabase.GetAssetPath(_gameObject);
+			if (string.IsNullOrEmpty(assetPath))
+				assetPath = "<null>";
+#else
+			string assetPath = "<N/A>";
+#endif
+			return $"{callerPrefix}{_text} {_gameObject.GetPath(1)}\nInstance Path:'{_gameObject.GetPath()}'\nAsset Path:'{assetPath}'\nHierarchy:\n{GetHierarchyString(_gameObject, _features)}\n";
 		}
 
 		public static string GetHierarchyString(GameObject _gameObject, DumpFeatures _features = DumpFeatures.Default)
