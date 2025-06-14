@@ -87,6 +87,7 @@ namespace GuiToolkit.Editor
 	
 				var assetPath = AssetDatabase.GetAssetPath(_prefab);
 				temporaryClone = (GameObject) PrefabUtility.InstantiatePrefab(_prefab);
+				temporaryClone.name = _prefab.name;
 
 				if (_callback.Invoke(temporaryClone))
 				{
@@ -292,6 +293,7 @@ Debug.Log(GetCloneByOriginalDumpString());
 							var embeddedClone = kv.Value;
 							var parent = embeddedOriginal.transform.parent;
 							var embeddedCloneInstance = (GameObject) PrefabUtility.InstantiatePrefab(embeddedClone, parent);
+							embeddedCloneInstance.name = embeddedOriginal.name;
 							embeddedCloneInstance.AddComponent<EditorMarkerIsClone>();
 
 							embeddedCloneInstance.transform.SetSiblingIndex(embeddedOriginal.transform.GetSiblingIndex()+1);
@@ -336,22 +338,6 @@ Debug.Log(GetCloneByOriginalDumpString());
 					// If there are no original markers, there shouldn't be any clone markers as well
 					if (originalMarkers == null || originalMarkers.Length == 0)
 						return false;
-
-					foreach (var originalMarker in originalMarkers)
-					{
-						GameObject originalGameObject = originalMarker.gameObject;
-						Transform originalTransform = originalMarker.transform;
-						Transform parent = originalTransform.parent;
-						int originalSiblingIndex = originalTransform.GetSiblingIndex();
-						Debug.Assert(parent != null && originalSiblingIndex <= parent.childCount - 2);
-						// The clone is always the sibling after the original
-						Transform clonedTransform = parent.GetChild(originalSiblingIndex + 1);
-						var clonedMarker = clonedTransform.GetComponent<EditorMarkerIsClone>();
-						Debug.Assert(clonedMarker != null);
-						GameObject clonedGameObject = clonedTransform.gameObject;
-
-						// TODO: transfer all overrides in "clone" related to originalGameObject to clonedGameObject
-					}
 
 					foreach (var clonedMarker in clonedMarkers)
 					{
@@ -399,6 +385,7 @@ Debug.Log(GetCloneByOriginalDumpString());
 			// First step is to create a chain of prefab variants, starting with a variant of the base object
 			EditorFileUtility.EnsureFolderExists(targetDir);
 			var clone = PrefabUtility.InstantiatePrefab(sourceGameObject) as GameObject;
+			clone.name = sourceGameObject.name;
 			s_objectsToDelete.Add(clone);
 
 			if (!isRoot)
@@ -608,7 +595,7 @@ Debug.Log(GetCloneByOriginalDumpString());
 
 			_targetDir = s_targetDir + assetPath.Replace(s_sourceDir, "").Replace(filename, "");
 			_newAssetPath = $"{_targetDir}/{basename}{extension}";
-			_variantName = $"{basename}{s_options.Postfix}{extension}";
+			_variantName = $"{basename}{extension}";
 			_variantPath = $"{_targetDir}/{_variantName}";
 			return asset;
 		}

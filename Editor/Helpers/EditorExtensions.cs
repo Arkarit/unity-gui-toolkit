@@ -36,12 +36,12 @@ namespace GuiToolkit.Editor
 		/// <param name="_gameObject"></param>
 		/// <param name="_newParent"></param>
 		/// <returns></returns>
-		public static GameObject PrefabAwareClone(this GameObject _gameObject, Transform _newParent = null)
+		public static GameObject PrefabAwareClone(this GameObject _gameObject, Transform _newParent = null, bool _keepName = true)
 		{
-			return PrefabAwareCloneInternal(_gameObject, null, _newParent);
+			return PrefabAwareCloneInternal(_gameObject, null, _newParent, _keepName);
 		}
 
-		private static GameObject PrefabAwareCloneInternal(GameObject _gameObject, GameObject _clonedRoot, Transform _newParent = null)
+		private static GameObject PrefabAwareCloneInternal(GameObject _gameObject, GameObject _clonedRoot, Transform _newParent, bool _keepName)
 		{
 			if (_gameObject == null)
 				return null;
@@ -71,8 +71,11 @@ namespace GuiToolkit.Editor
 			if (_clonedRoot == null)
 				_clonedRoot = result;
 
+			if (_keepName)
+				result.name = _gameObject.name;
+
 			foreach (Transform child in _gameObject.transform)
-				PrefabAwareCloneInternal(child.gameObject, _clonedRoot, result != null ? result.transform : null);
+				PrefabAwareCloneInternal(child.gameObject, _clonedRoot, result != null ? result.transform : null, _keepName);
 
 			return result;
 		}
