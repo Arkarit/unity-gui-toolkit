@@ -114,7 +114,7 @@ namespace GuiToolkit.Editor
 				BuildPrefabVariantHierarchy();
 				Clone();
 				ReplaceInsertedPrefabs();
-				TransferOverrides();
+				TransferOverridesDir(_sourceDir, _targetDir);
 			}
 			finally
 			{
@@ -122,36 +122,63 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		private static void TransferOverrides()
+		public static void TransferOverridesDir(string _sourceDir, string _targetDir)
 		{
 			// TODO: clone overrides/add/remove recursively
-
-			foreach (var kv in s_clonesByOriginals)
+			List<(string sourcePath, string targetPath)> paths = new();
+			var sourceGuids = AssetDatabase.FindAssets("t:prefab", new []{ _sourceDir });
+			foreach (var sourceGuid in sourceGuids)
 			{
-				GameObject originalInstance = null;
-				GameObject cloneInstance = null;
+				var sourcePath = AssetDatabase.GUIDToAssetPath( sourceGuid );
+				var targetPath = sourcePath.Replace(_sourceDir, _targetDir);
+				if (sourcePath == targetPath || !File.Exists(targetPath))
+				{
+					//TODO error msg?
+					continue;
+				}
+
+Debug.Log($"!!! sourcePath:{sourcePath}\ntargetPath:{targetPath}");
+				paths.Add((sourcePath, targetPath));
+			}
+
+			TransferOverrides(paths);
+		}
+
+		public static void TransferOverrides(List<(string sourcePath, string targetPath)> _paths)
+		{
+			foreach (var valueTuple in _paths)
+				TransferOverrides(valueTuple.sourcePath, valueTuple.targetPath);
+		}
+
+		public static void TransferOverrides(string _sourcePath, string _targetPath)
+		{
+				GameObject sourceInstance = null;
+				GameObject targetInstance = null;
 				try
 				{
-					var original = kv.Key;
-					originalInstance = (GameObject)PrefabUtility.InstantiatePrefab(original);
-					var clone = kv.Value;
-					cloneInstance = (GameObject)PrefabUtility.InstantiatePrefab(clone);
-DebugUtility.Log("Original", original);
-DebugUtility.Log("OriginalInstance", originalInstance);
-DebugUtility.Log("Clone", clone);
-DebugUtility.Log("CloneInstance", cloneInstance);
-Debug.Log($"{DumpOverridesString(original, "Original")}\n{DumpOverridesString(originalInstance, "OriginalInstance")}");
-					CloneRemovedAndAdded(originalInstance, cloneInstance);
-					CloneOverrides(originalInstance, cloneInstance);
-					PrefabUtility.SaveAsPrefabAssetAndConnect(cloneInstance, AssetDatabase.GetAssetPath(clone), InteractionMode.AutomatedAction);
+					var source = AssetDatabase.LoadAssetAtPath<GameObject>(_sourcePath);
+					if (!PrefabUtility.IsPartOfVariantPrefab(source))
+						return;
+
+					sourceInstance = (GameObject)PrefabUtility.InstantiatePrefab(source);
+					var target = AssetDatabase.LoadAssetAtPath<GameObject>(_targetPath);
+					targetInstance = (GameObject)PrefabUtility.InstantiatePrefab(target);
+DebugUtility.Log("Source", source);
+DebugUtility.Log("SourceInstance", sourceInstance);
+DebugUtility.Log("Target", target);
+DebugUtility.Log("TargetInstance", targetInstance);
+Debug.Log($"{DumpOverridesString(source, "Source")}\n\n{DumpOverridesString(sourceInstance, "SourceInstance")}\n\n{DumpOverridesString(sourceInstance, "TargetInstance")}");
+					CloneRemovedAndAdded(source, targetInstance);
+					CloneOverrides(source, targetInstance);
+					PrefabUtility.SaveAsPrefabAssetAndConnect(targetInstance, AssetDatabase.GetAssetPath(target), InteractionMode.AutomatedAction);
 				}
 				finally
 				{
-					originalInstance.SafeDestroy();
-					cloneInstance.SafeDestroy();
+					sourceInstance.SafeDestroy();
+					targetInstance.SafeDestroy();
 				}
-			}
 		}
+
 
 		private static void BuildPrefabVariantHierarchy()
 		{
