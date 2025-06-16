@@ -769,7 +769,6 @@ namespace GuiToolkit
 			EditorUtility.SetDirty(_obj);
 		}
 
-
 		private static bool ValidateListAndIndex(SerializedProperty _list, int _idx)
 		{
 			if (!ValidateList(_list))

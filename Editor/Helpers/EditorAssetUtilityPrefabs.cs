@@ -180,7 +180,7 @@ DebugUtility.Log("After", _gameObjectList, DebugUtility.DumpFeatures.None);
 				assets.Add(asset);
 			}
 
-			SortByPrefabHierarchy(assets);
+//			SortByPrefabHierarchy(assets);
 			_pathList.Clear();
 			foreach (var gameObject in assets)
 				_pathList.Add(AssetDatabase.GetAssetPath(gameObject));
@@ -635,7 +635,238 @@ Debug.Log(GetCloneByOriginalDumpString());
 			}
 		}
 
-		private static void CloneOverrides(GameObject _originalAsset, GameObject _clonedAsset) => CloneOverrides(_originalAsset, _clonedAsset, _clonedAsset);
+		private static void CloneOverrides(GameObject _originalAsset, GameObject _clonedAsset)
+		{
+			if (_originalAsset == null || _clonedAsset == null)
+			{
+				Debug.LogError($"Error: _originalAsset and/or _clonedAsset is null.\n" + 
+				               $"_originalAsset:{_originalAsset.GetPath()}\n_clonedAsset:{_clonedAsset.GetPath()}");
+				return;
+			}
+
+			if (PrefabUtility.IsPartOfVariantPrefab(_clonedAsset))
+			{
+				if (PrefabUtility.IsPartOfRegularPrefab(_originalAsset))
+				{
+					CloneOverridesForRegularPrefab(_originalAsset, _clonedAsset);
+					return;
+				}
+				if (PrefabUtility.IsPartOfVariantPrefab(_originalAsset))
+				{
+					CloneOverridesForVariantPrefab(_originalAsset, _clonedAsset);
+					return;
+				}
+				
+			}
+
+			Debug.LogError("Error: _originalAsset and/or _clonedAsset don't match requirements. " + 
+			               "_originalAsset has to be a regular or variant prefab, and _clonedAsset always has to be a variant prefab.\n" + 
+			               $"_originalAsset:{_originalAsset.GetPath()}\n" + 
+			               $"_clonedAsset:{_clonedAsset.GetPath()}");
+		}
+
+		private static void CloneOverridesForRegularPrefab( GameObject _originalAsset, GameObject _clonedAsset)
+		{
+
+			if (PrefabUtility.IsAnyPrefabInstanceRoot(_originalAsset))
+			{
+				var originalMods = PrefabUtility.GetPropertyModifications(_originalAsset);
+				var clonedGameObject = FindMatchingObject(_clonedAsset, _originalAsset);
+
+				if (originalMods != null)
+				{
+string s = DebugUtility.DumpOverridesString(_originalAsset,	"!!!Before:" + _originalAsset.GetPath(1));
+Debug.Log(s);
+
+					List<PropertyModification> newMods = new();
+
+					foreach (var modification in originalMods)
+					{
+						if (modification.propertyPath == "m_Name")
+							continue;
+
+						var originalTarget = FindMatchingObject(_originalAsset, modification.target);;
+						var clonedTarget = FindMatchingObject(_clonedAsset, originalTarget);
+						var otherObjectReference = modification.objectReference != null ? FindMatchingObject(_clonedAsset, modification.objectReference) : null;
+
+						if (clonedTarget == null)
+							continue;
+
+						clonedTarget = PrefabUtility.GetCorrespondingObjectFromSource(clonedTarget);
+						if (clonedTarget == null)
+							continue;
+
+GameObject src;
+if (originalTarget is Component sc)
+src = sc.gameObject;
+else src = originalTarget as GameObject;
+
+GameObject dst;
+if (clonedTarget is Component c)
+dst = c.gameObject;
+else dst = clonedTarget as GameObject;
+Debug.Log($"---:::{modification.propertyPath}\nsrc:{src.GetPath()} dst:{dst.GetPath()}");
+
+						newMods.Add(new PropertyModification()
+						{
+							target = clonedTarget,
+							objectReference = otherObjectReference,
+							propertyPath = modification.propertyPath,
+							value = modification.value
+						});
+					}
+
+					if (newMods.Count > 0)
+						PrefabUtility.SetPropertyModifications(clonedGameObject, newMods.ToArray());
+
+Debug.Log(DebugUtility.DumpOverridesString(clonedGameObject, "---After:" + clonedGameObject.GetPath(1)));
+					return;
+				}
+			}
+
+			foreach (Transform child in _originalAsset.transform)
+				CloneOverridesForRegularPrefab(child.gameObject, _clonedAsset);
+		}
+
+		private static bool TryApplyValue( SerializedProperty property, PropertyModification mod )
+		{
+			try
+			{
+				switch (property.propertyType)
+				{
+					case SerializedPropertyType.Integer:
+						property.intValue = int.Parse(mod.value);
+						return true;
+					case SerializedPropertyType.Boolean:
+						property.boolValue = mod.value == "1";
+						return true;
+					case SerializedPropertyType.Float:
+						property.floatValue = float.Parse(mod.value, System.Globalization.CultureInfo.InvariantCulture);
+						return true;
+					case SerializedPropertyType.String:
+						property.stringValue = mod.value;
+						return true;
+					case SerializedPropertyType.Color:
+						var colorValues = mod.value.Trim('(', ')').Split(',');
+						if (colorValues.Length == 4)
+						{
+							property.colorValue = new Color(
+								float.Parse(colorValues[0], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(colorValues[1], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(colorValues[2], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(colorValues[3], System.Globalization.CultureInfo.InvariantCulture)
+							);
+							return true;
+						}
+						break;
+					case SerializedPropertyType.ObjectReference:
+						property.objectReferenceValue = mod.objectReference;
+						return true;
+					case SerializedPropertyType.LayerMask:
+						property.intValue = int.Parse(mod.value);
+						return true;
+					case SerializedPropertyType.Enum:
+						property.enumValueIndex = int.Parse(mod.value);
+						return true;
+					case SerializedPropertyType.Vector2:
+						var vec2 = mod.value.Trim('(', ')').Split(',');
+						if (vec2.Length == 2)
+						{
+							property.vector2Value = new Vector2(
+								float.Parse(vec2[0], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(vec2[1], System.Globalization.CultureInfo.InvariantCulture)
+							);
+							return true;
+						}
+						break;
+					case SerializedPropertyType.Vector3:
+						var vec3 = mod.value.Trim('(', ')').Split(',');
+						if (vec3.Length == 3)
+						{
+							property.vector3Value = new Vector3(
+								float.Parse(vec3[0], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(vec3[1], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(vec3[2], System.Globalization.CultureInfo.InvariantCulture)
+							);
+							return true;
+						}
+						break;
+					case SerializedPropertyType.Vector4:
+						var vec4 = mod.value.Trim('(', ')').Split(',');
+						if (vec4.Length == 4)
+						{
+							property.vector4Value = new Vector4(
+								float.Parse(vec4[0], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(vec4[1], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(vec4[2], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(vec4[3], System.Globalization.CultureInfo.InvariantCulture)
+							);
+							return true;
+						}
+						break;
+					case SerializedPropertyType.Rect:
+						var rect = mod.value.Trim('(', ')').Split(',');
+						if (rect.Length == 4)
+						{
+							property.rectValue = new Rect(
+								float.Parse(rect[0], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(rect[1], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(rect[2], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(rect[3], System.Globalization.CultureInfo.InvariantCulture)
+							);
+							return true;
+						}
+						break;
+					case SerializedPropertyType.Bounds:
+						var bounds = mod.value.Trim('(', ')').Split(',');
+						if (bounds.Length == 6)
+						{
+							property.boundsValue = new Bounds(
+								new Vector3(
+									float.Parse(bounds[0], System.Globalization.CultureInfo.InvariantCulture),
+									float.Parse(bounds[1], System.Globalization.CultureInfo.InvariantCulture),
+									float.Parse(bounds[2], System.Globalization.CultureInfo.InvariantCulture)
+								),
+								new Vector3(
+									float.Parse(bounds[3], System.Globalization.CultureInfo.InvariantCulture),
+									float.Parse(bounds[4], System.Globalization.CultureInfo.InvariantCulture),
+									float.Parse(bounds[5], System.Globalization.CultureInfo.InvariantCulture)
+								)
+							);
+							return true;
+						}
+						break;
+					case SerializedPropertyType.Quaternion:
+						var quat = mod.value.Trim('(', ')').Split(',');
+						if (quat.Length == 4)
+						{
+							property.quaternionValue = new Quaternion(
+								float.Parse(quat[0], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(quat[1], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(quat[2], System.Globalization.CultureInfo.InvariantCulture),
+								float.Parse(quat[3], System.Globalization.CultureInfo.InvariantCulture)
+							);
+							return true;
+						}
+						break;
+					case SerializedPropertyType.ArraySize:
+						property.intValue = int.Parse(mod.value);
+						return true;
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.LogWarning($"Error applying property modification '{mod.propertyPath}': {ex.Message}");
+			}
+
+			return false;
+		}
+
+		private static void CloneOverridesForVariantPrefab( GameObject _originalAsset, GameObject _clonedAsset )
+		{
+		}
+
+		//		private static void CloneOverrides(GameObject _originalAsset, GameObject _clonedAsset) => CloneOverrides(_originalAsset, _clonedAsset, _clonedAsset);
 
 		private static void CloneOverrides(GameObject _originalAsset, GameObject _clonedAsset, GameObject _clonedRoot)
 		{

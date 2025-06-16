@@ -122,7 +122,7 @@ namespace GuiToolkit.Debugging
 
 		public static string DumpOverridesString(GameObject _asset, string _what)
 		{
-			if (!PrefabUtility.IsPartOfVariantPrefab(_asset))
+			if (!PrefabUtility.IsPartOfVariantPrefab(_asset) && !PrefabUtility.IsAnyPrefabInstanceRoot(_asset))
 				return string.Empty;
 
 			var sourcePropertyModifications = PrefabUtility.GetPropertyModifications(_asset);

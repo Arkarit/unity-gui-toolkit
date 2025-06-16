@@ -339,8 +339,8 @@ namespace GuiToolkit
 			}
 		}
 		
-		public static object CallPublicOrNonPublicStaticMethod(this Type _type, string _name, bool _catchExceptions = false, bool _logError = true, params object[] _params) =>
-			CallPublicOrNonPublicStaticMethod(_type, _name, out bool _, _catchExceptions, _logError, _params);
+		public static object CallPublicOrNonPublicStaticMethod(this Type _type, string _name, params object[] _params) =>
+			CallPublicOrNonPublicStaticMethod(_type, _name, out bool _, _catchExceptions:false, _logError:true, _params);
 
 		public static List<T> ToList<T>( this HashSet<T> _self )
 		{

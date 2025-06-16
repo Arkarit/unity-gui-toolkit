@@ -11,7 +11,7 @@ namespace GuiToolkit.Editor.Tools
 
 		private const string DumpOverridesName = "Dump Overrides";
 		private const string DumpOverridesEntry = BaseMenuEntry + DumpOverridesName;
-		private const int DumpOverridesOrder = -400;
+		private const int    DumpOverridesOrder = -400;
 
 		[MenuItem(DumpOverridesEntry, false, DumpOverridesOrder)]
 		private static void DumpOverrides()

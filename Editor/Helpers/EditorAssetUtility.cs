@@ -593,7 +593,7 @@ namespace GuiToolkit.Editor
 		/// <returns>found game object or null if not found or error</returns>
 		public static GameObject FindMatchingGameObject( GameObject _gameObjectHierarchy, GameObject _gameObjectToFind )
 		{
-			if (_gameObjectHierarchy.transform.parent == _gameObjectToFind.transform.parent)
+			if (_gameObjectHierarchy.transform.parent != null && _gameObjectToFind.transform.parent != null && _gameObjectHierarchy.transform.parent == _gameObjectToFind.transform.parent)
 				return _gameObjectHierarchy;
 
 			var toFindPath = _gameObjectToFind.GetPath(-1);
@@ -604,10 +604,10 @@ namespace GuiToolkit.Editor
 			{
 				if (transform.GetPath(-1).EndsWith(toFindPath))
 					return transform.gameObject;
+			}
 
-//				if (PrefabUtility.GetPrefabAssetType(_gameObjectToFind) == PrefabAssetType.NotAPrefab)
-//					continue;
-
+			foreach (var transform in transforms)
+			{
 				var candidateSource = PrefabUtility.GetCorrespondingObjectFromOriginalSource(transform.gameObject);
 				if (candidateSource != null && candidateSource == toFindSource)
 					return transform.gameObject;
