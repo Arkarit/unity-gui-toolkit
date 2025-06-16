@@ -5,6 +5,7 @@ using System.Linq;
 using GuiToolkit.Debugging;
 using GuiToolkit.Editor.Internal;
 using UnityEditor;
+using UnityEditor.iOS;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -103,193 +104,104 @@ namespace GuiToolkit.Editor
 			return false;
 		}
 
-		public static void CreatePrefabVariants(string _sourceDir, string _targetDir, PrefabVariantsOptions _options = null)
+		public static void SortByPrefabHierarchy(List<GameObject> _gameObjectList)
 		{
-			try
-			{
-				s_options = _options ?? new PrefabVariantsOptions();
-				s_sourceDir = string.IsNullOrEmpty(_sourceDir) ? BuiltinPrefabDir : _sourceDir;
-				s_targetDir = _targetDir;
-				CleanUp();
-				BuildPrefabVariantHierarchy();
-				Clone();
-				ReplaceInsertedPrefabs();
-				TransferOverridesDir(_sourceDir, _targetDir);
-			}
-			finally
-			{
-				CleanUp();
-			}
-		}
+DebugUtility.Log("Before", _gameObjectList, DebugUtility.DumpFeatures.None);
+			List<GameObject> toDo = new List<GameObject>(_gameObjectList);
+			List<GameObject> done = new ();
 
-		public static void TransferOverridesDir(string _sourceDir, string _targetDir)
-		{
-			// TODO: clone overrides/add/remove recursively
-			List<(string sourcePath, string targetPath)> paths = new();
-			var sourceGuids = AssetDatabase.FindAssets("t:prefab", new []{ _sourceDir });
-			foreach (var sourceGuid in sourceGuids)
+			List<Transform[]> transforms = new();
+			foreach (var gameObject in toDo)
+				transforms.Add(gameObject.GetComponentsInChildren<Transform>());
+
+			for (int i = toDo.Count - 1; i >= 0; i--)
 			{
-				var sourcePath = AssetDatabase.GUIDToAssetPath( sourceGuid );
-				var targetPath = sourcePath.Replace(_sourceDir, _targetDir);
-				if (sourcePath == targetPath || !File.Exists(targetPath))
+				GameObject current = toDo[i];
+
+				if (PrefabUtility.IsPartOfRegularPrefab(current))
 				{
-					//TODO error msg?
-					continue;
-				}
-
-Debug.Log($"!!! sourcePath:{sourcePath}\ntargetPath:{targetPath}");
-				paths.Add((sourcePath, targetPath));
-			}
-
-			TransferOverrides(paths);
-		}
-
-		public static void TransferOverrides(List<(string sourcePath, string targetPath)> _paths)
-		{
-			foreach (var valueTuple in _paths)
-				TransferOverrides(valueTuple.sourcePath, valueTuple.targetPath);
-		}
-
-		public static void TransferOverrides(string _sourcePath, string _targetPath)
-		{
-				GameObject sourceInstance = null;
-				GameObject targetInstance = null;
-				try
-				{
-					var source = AssetDatabase.LoadAssetAtPath<GameObject>(_sourcePath);
-					if (!PrefabUtility.IsPartOfVariantPrefab(source))
-						return;
-
-					sourceInstance = (GameObject)PrefabUtility.InstantiatePrefab(source);
-					var target = AssetDatabase.LoadAssetAtPath<GameObject>(_targetPath);
-					targetInstance = (GameObject)PrefabUtility.InstantiatePrefab(target);
-DebugUtility.Log("Source", source);
-DebugUtility.Log("SourceInstance", sourceInstance);
-DebugUtility.Log("Target", target);
-DebugUtility.Log("TargetInstance", targetInstance);
-Debug.Log($"{DumpOverridesString(source, "Source")}\n\n{DumpOverridesString(sourceInstance, "SourceInstance")}\n\n{DumpOverridesString(sourceInstance, "TargetInstance")}");
-					CloneRemovedAndAdded(source, targetInstance);
-					CloneOverrides(source, targetInstance);
-					PrefabUtility.SaveAsPrefabAssetAndConnect(targetInstance, AssetDatabase.GetAssetPath(target), InteractionMode.AutomatedAction);
-				}
-				finally
-				{
-					sourceInstance.SafeDestroy();
-					targetInstance.SafeDestroy();
-				}
-		}
-
-
-		private static void BuildPrefabVariantHierarchy()
-		{
-			var guids = AssetDatabase.FindAssets("t:prefab", new []{ s_sourceDir }).ToHashSet();
-			HashSet<GameObject> done = new ();
-			
-			foreach ( var guid in guids )
-			{
-				var assetPath = AssetDatabase.GUIDToAssetPath( guid );
-				var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-
-AssetDatabase.TryGetGUIDAndLocalFileIdentifier(prefab, out string tguid, out long id);
-Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DumpOverridesString(prefab, prefab.name)}");
-
-				var variantBase = PrefabUtility.GetCorrespondingObjectFromSource(prefab);
-				s_baseByPrefab.Add(prefab, variantBase);
-			}
-
-			foreach (var kv in s_baseByPrefab)
-			{
-				if (kv.Value == null)
-				{
-					done.Add(kv.Key);
-					s_variantRecords.Add(new VariantRecord() {AssetEntry = CreateAssetEntry(kv.Key)});
+Debug.Log($"Add base {current.GetPath()}");
+					done.Add(current);
+					toDo.RemoveAt(i);
+					transforms.RemoveAt(i);
 				}
 			}
 
-			foreach (var gameObject in done)
-				s_baseByPrefab.Remove(gameObject);
-			
-			while (s_baseByPrefab.Count > 0)
+			while (toDo.Count > 0)
 			{
-				done.Clear();
-				
-				foreach (var kv in s_baseByPrefab)
-					TryInsertRecord(s_variantRecords, kv.Key, kv.Value, done);
-				
-				// Should not happen - avoid endless loop
-				if (done.Count == 0)
-					throw new Exception("Internal Exception: no bases found for prefabs");
-
-				foreach (var go in done)
-					s_baseByPrefab.Remove(go);
-			}
-		}
-		
-		private static bool TryInsertRecord(List<VariantRecord> _list, GameObject _gameObject, GameObject _base, HashSet<GameObject> _done)
-		{
-			foreach (var record in _list)
-			{
-				if (record.AssetEntry.Asset == _base)
+				for (int i = 0; i < toDo.Count; i++)
 				{
-					_done.Add(_gameObject);
+					GameObject current = toDo[i];
 
-					record.VariantRecordsBasedOnThis.Add(new ()
+					bool containsUnhandledPrefabs = false;
+					foreach (var t in transforms[i])
 					{
-						AssetEntry = CreateAssetEntry(_gameObject), 
-						Base = record
-					});
+						GameObject currentDescendant = t.gameObject;
+						if (currentDescendant == current)
+							continue;
 
-					return true;
+						if (!PrefabUtility.IsAnyPrefabInstanceRoot(currentDescendant))
+							continue;
+
+						var prefab = PrefabUtility.GetCorrespondingObjectFromOriginalSource(currentDescendant);
+						if (toDo.Contains(prefab))
+						{
+Debug.Log($"Found {prefab.GetPath()}");
+							containsUnhandledPrefabs = true;
+							break;
+						}
+					}
+
+					if (containsUnhandledPrefabs)
+						continue;
+
+Debug.Log($"Add {current.GetPath()}");
+					done.Add(current);
+					toDo.RemoveAt(i);
+					transforms.RemoveAt(i);
+					break;
 				}
-				
-				if (TryInsertRecord(record.VariantRecordsBasedOnThis, _gameObject, _base, _done))
-					return true;
-			}
-			
-			return false;
-		}
-
-		private static AssetEntry CreateAssetEntry(GameObject _gameObject)
-		{
-			if (_gameObject == null)
-				throw new NullReferenceException($"Asset entry can't be created with null game object");
-
-			if (!AssetDatabase.TryGetGUIDAndLocalFileIdentifier(_gameObject, out string guid, out long id))
-				throw new ArgumentException($"Internal Exception: '{_gameObject}' is not a disk-based asset! Please create asset first");
-
-			return new AssetEntry()
-			{
-				Asset = _gameObject,
-				Guid = guid,
-				Id = id
-			};
-		}
-
-		private static string GetVariantRecordsDumpString()
-		{
-			string result = string.Empty;
-			foreach (var record in s_variantRecords)
-				result += record.GetDumpString();
-			
-			return result;
-		}
-
-		private static string GetCloneByOriginalDumpString()
-		{
-			string result = "Original -> Clone:\n_________________________\n";
-
-			for (int i=0; i<s_originals.Count; i++)
-			{
-				result += $"{s_originals[i].GetPath(1)} -> {s_clones[i].GetPath(1)}\n";
 			}
 
-			return result;
+			_gameObjectList.Clear();
+			_gameObjectList.AddRange(done);
+DebugUtility.Log("After", _gameObjectList, DebugUtility.DumpFeatures.None);
 		}
 
-		private static void Clone()
+		public static void SortByPrefabHierarchyAssetPath(List<string> _pathList)
 		{
-			Clone(s_variantRecords);
-Debug.Log(GetCloneByOriginalDumpString());
+			List<GameObject> assets = new();
+			foreach (var path in _pathList)
+			{
+				var asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+				if (asset == null)
+					continue;
+
+				assets.Add(asset);
+			}
+
+			SortByPrefabHierarchy(assets);
+			_pathList.Clear();
+			foreach (var gameObject in assets)
+				_pathList.Add(AssetDatabase.GetAssetPath(gameObject));
+		}
+
+		public static void SortByPrefabHierarchyGuids(List<string> _guidList)
+		{
+			List<string> pathList = new();
+			foreach (var guid in _guidList)
+			{
+				var path = AssetDatabase.GUIDToAssetPath(guid);
+				if (string.IsNullOrEmpty(path))
+					continue;
+				pathList.Add(path);
+			}
+
+			SortByPrefabHierarchyAssetPath(pathList);
+
+			_guidList.Clear();
+			foreach (var path in pathList)
+				_guidList.Add(AssetDatabase.AssetPathToGUID(path));
 		}
 
 		private static void ReplaceInsertedPrefabs()
@@ -420,6 +332,187 @@ Debug.Log(GetCloneByOriginalDumpString());
 
 		}
 
+		public static void CreatePrefabVariants(string _sourceDir, string _targetDir, PrefabVariantsOptions _options = null)
+		{
+			try
+			{
+				s_options = _options ?? new PrefabVariantsOptions();
+				s_sourceDir = string.IsNullOrEmpty(_sourceDir) ? BuiltinPrefabDir : _sourceDir;
+				s_targetDir = _targetDir;
+				CleanUp();
+				BuildPrefabVariantHierarchy();
+				Clone();
+				ReplaceInsertedPrefabs();
+				TransferOverridesDir(_sourceDir, _targetDir);
+			}
+			finally
+			{
+				CleanUp();
+			}
+		}
+
+		public static void TransferOverridesDir(string _sourceDir, string _targetDir)
+		{
+			// TODO: clone overrides/add/remove recursively
+			List<(string sourcePath, string targetPath)> paths = new();
+			var sourceGuids = AssetDatabase.FindAssets("t:prefab", new []{ _sourceDir }).ToList();
+			SortByPrefabHierarchyGuids(sourceGuids);
+
+			foreach (var sourceGuid in sourceGuids)
+			{
+				var sourcePath = AssetDatabase.GUIDToAssetPath( sourceGuid );
+				var targetPath = sourcePath.Replace(_sourceDir, _targetDir);
+				if (sourcePath == targetPath || !File.Exists(targetPath))
+				{
+					//TODO error msg?
+					continue;
+				}
+
+Debug.Log($"!!! sourcePath:{sourcePath}\ntargetPath:{targetPath}");
+				paths.Add((sourcePath, targetPath));
+			}
+
+			TransferOverrides(paths);
+		}
+
+		public static void TransferOverrides(List<(string sourcePath, string targetPath)> _paths)
+		{
+			foreach (var valueTuple in _paths)
+				TransferOverrides(valueTuple.sourcePath, valueTuple.targetPath);
+		}
+
+		public static void TransferOverrides(string _sourcePath, string _targetPath)
+		{
+			GameObject targetInstance = null;
+			try
+			{
+				var source = AssetDatabase.LoadAssetAtPath<GameObject>(_sourcePath);
+				var target = AssetDatabase.LoadAssetAtPath<GameObject>(_targetPath);
+				targetInstance = (GameObject)PrefabUtility.InstantiatePrefab(target);
+
+				CloneOverrides(source, targetInstance);
+				PrefabUtility.SaveAsPrefabAssetAndConnect(targetInstance, AssetDatabase.GetAssetPath(target), InteractionMode.AutomatedAction);
+			}
+			finally
+			{
+				targetInstance.SafeDestroy();
+			}
+		}
+
+
+		private static void BuildPrefabVariantHierarchy()
+		{
+			var guids = AssetDatabase.FindAssets("t:prefab", new []{ s_sourceDir }).ToHashSet();
+			HashSet<GameObject> done = new ();
+			
+			foreach ( var guid in guids )
+			{
+				var assetPath = AssetDatabase.GUIDToAssetPath( guid );
+				var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+
+AssetDatabase.TryGetGUIDAndLocalFileIdentifier(prefab, out string tguid, out long id);
+Debug.Log($"---::: Original: {prefab.name}:  {id}  :  {tguid}\n{DebugUtility.DumpOverridesString(prefab, prefab.name)}");
+
+				var variantBase = PrefabUtility.GetCorrespondingObjectFromSource(prefab);
+				s_baseByPrefab.Add(prefab, variantBase);
+			}
+
+			foreach (var kv in s_baseByPrefab)
+			{
+				if (kv.Value == null)
+				{
+					done.Add(kv.Key);
+					s_variantRecords.Add(new VariantRecord() {AssetEntry = CreateAssetEntry(kv.Key)});
+				}
+			}
+
+			foreach (var gameObject in done)
+				s_baseByPrefab.Remove(gameObject);
+			
+			while (s_baseByPrefab.Count > 0)
+			{
+				done.Clear();
+				
+				foreach (var kv in s_baseByPrefab)
+					TryInsertRecord(s_variantRecords, kv.Key, kv.Value, done);
+				
+				// Should not happen - avoid endless loop
+				if (done.Count == 0)
+					throw new Exception("Internal Exception: no bases found for prefabs");
+
+				foreach (var go in done)
+					s_baseByPrefab.Remove(go);
+			}
+		}
+		
+		private static bool TryInsertRecord(List<VariantRecord> _list, GameObject _gameObject, GameObject _base, HashSet<GameObject> _done)
+		{
+			foreach (var record in _list)
+			{
+				if (record.AssetEntry.Asset == _base)
+				{
+					_done.Add(_gameObject);
+
+					record.VariantRecordsBasedOnThis.Add(new ()
+					{
+						AssetEntry = CreateAssetEntry(_gameObject), 
+						Base = record
+					});
+
+					return true;
+				}
+				
+				if (TryInsertRecord(record.VariantRecordsBasedOnThis, _gameObject, _base, _done))
+					return true;
+			}
+			
+			return false;
+		}
+
+		private static AssetEntry CreateAssetEntry(GameObject _gameObject)
+		{
+			if (_gameObject == null)
+				throw new NullReferenceException($"Asset entry can't be created with null game object");
+
+			if (!AssetDatabase.TryGetGUIDAndLocalFileIdentifier(_gameObject, out string guid, out long id))
+				throw new ArgumentException($"Internal Exception: '{_gameObject}' is not a disk-based asset! Please create asset first");
+
+			return new AssetEntry()
+			{
+				Asset = _gameObject,
+				Guid = guid,
+				Id = id
+			};
+		}
+
+		private static string GetVariantRecordsDumpString()
+		{
+			string result = string.Empty;
+			foreach (var record in s_variantRecords)
+				result += record.GetDumpString();
+			
+			return result;
+		}
+
+		private static string GetCloneByOriginalDumpString()
+		{
+			string result = "Original -> Clone:\n_________________________\n";
+
+			for (int i=0; i<s_originals.Count; i++)
+			{
+				result += $"{s_originals[i].GetPath(1)} -> {s_clones[i].GetPath(1)}\n";
+			}
+
+			return result;
+		}
+
+		private static void Clone()
+		{
+			Clone(s_variantRecords);
+Debug.Log(GetCloneByOriginalDumpString());
+		}
+
+
 
 		private static void Clone(List<VariantRecord> _list)
 		{
@@ -467,6 +560,9 @@ Debug.Log(GetCloneByOriginalDumpString());
 
 		private static void CloneRemovedAndAdded(GameObject _originalAsset, GameObject _clonedAsset)
 		{
+			if (!PrefabUtility.IsPartOfVariantPrefab(_originalAsset))
+				return;
+
 			var addedGameObjects = PrefabUtility.GetAddedGameObjects(_originalAsset);
 			var removedGameObjects = PrefabUtility.GetRemovedGameObjects(_originalAsset);
 			var addedComponents = PrefabUtility.GetAddedComponents(_originalAsset);
@@ -539,25 +635,42 @@ Debug.Log(GetCloneByOriginalDumpString());
 			}
 		}
 
-		private static void CloneOverrides(GameObject _originalAsset, GameObject _clonedAsset)
-		{
-			var sourcePropertyModifications = PrefabUtility.GetPropertyModifications(_originalAsset);
-			List<PropertyModification> targetPropertyModifications = new();
+		private static void CloneOverrides(GameObject _originalAsset, GameObject _clonedAsset) => CloneOverrides(_originalAsset, _clonedAsset, _clonedAsset);
 
-			foreach (var propertyModification in sourcePropertyModifications)
+		private static void CloneOverrides(GameObject _originalAsset, GameObject _clonedAsset, GameObject _clonedRoot)
+		{
+			if (PrefabUtility.IsPartOfVariantPrefab(_originalAsset) || PrefabUtility.IsAnyPrefabInstanceRoot(_originalAsset))
 			{
-				Object originalTarget = propertyModification.target;
-				var clonedTarget = FindMatchingObject(_clonedAsset, originalTarget);
-				if (clonedTarget != null)
+				var sourcePropertyModifications = PrefabUtility.GetPropertyModifications(_originalAsset);
+Debug.Log($"___!!! Overrides: {DebugUtility.DumpOverridesString(_originalAsset, _originalAsset.GetPath(1))}\n\n{_originalAsset.GetPath()}");
+				if (sourcePropertyModifications != null)
 				{
-					PropertyModification targetPropertyModification =  propertyModification.ShallowClone();
-					targetPropertyModification.target = PrefabUtility.GetCorrespondingObjectFromSource(clonedTarget);
-					targetPropertyModifications.Add(targetPropertyModification);
+					List<PropertyModification> targetPropertyModifications = new();
+	
+					foreach (var propertyModification in sourcePropertyModifications)
+					{
+						Object originalTarget = propertyModification.target;
+						var clonedTarget = FindMatchingObject(_clonedRoot, originalTarget);
+						if (clonedTarget != null)
+						{
+							PropertyModification targetPropertyModification = propertyModification.ShallowClone();
+							targetPropertyModification.target =
+								PrefabUtility.GetCorrespondingObjectFromSource(clonedTarget);
+							targetPropertyModifications.Add(targetPropertyModification);
+						}
+					}
+	
+					PrefabUtility.SetPropertyModifications(_clonedAsset, targetPropertyModifications.ToArray());
 				}
 			}
 
-
-			PrefabUtility.SetPropertyModifications(_clonedAsset, targetPropertyModifications.ToArray());
+			foreach (Transform childTransform in _originalAsset.transform)
+			{
+				var child = childTransform.gameObject;
+				var clonedChild = FindMatchingObject(_clonedRoot, child);
+				if (clonedChild != null )
+					CloneOverrides(child, clonedChild, _clonedRoot);
+			}
 		}
 
 
@@ -569,71 +682,6 @@ Debug.Log(GetCloneByOriginalDumpString());
 				result += $"\t{property.propertyPath}:{property.prefabOverride}\n";
 			});
 			
-			return result;
-		}
-		
-		public static string DumpOverridesString(GameObject _asset, string _what)
-		{
-			if (!PrefabUtility.IsPartOfVariantPrefab(_asset))
-				return string.Empty;
-
-			var sourcePropertyModifications = PrefabUtility.GetPropertyModifications(_asset);
-			var sourceObjectOverrides = PrefabUtility.GetObjectOverrides(_asset);
-			var addedComponents = PrefabUtility.GetAddedComponents(_asset);
-			var addedGameObjects = PrefabUtility.GetAddedGameObjects(_asset);
-			var removedComponents = PrefabUtility.GetRemovedComponents(_asset);
-			var removedGameObjects = PrefabUtility.GetRemovedGameObjects(_asset);
-
-			string result = $"{_what}: '{AssetDatabase.GetAssetPath(_asset)}':\n\n";
-			
-			result += $"\t{_what} Property Modifications ({sourcePropertyModifications.Length})\n";
-			foreach (var modification in sourcePropertyModifications)
-				result += $"\t\t'{modification.value}':'{modification.propertyPath}':'{modification.objectReference}':'{modification.target}', {DumpCorrespondingObjectFromSource(modification.target)}\n";
-			result += "\n\t";
-			
-			result += $"\t{_what} Object Overrides\n";
-			foreach (var sourceObjectOverride in sourceObjectOverrides)
-				result += $"\t\t'{sourceObjectOverride.coupledOverride}':'{sourceObjectOverride.instanceObject}'{DumpCorrespondingObjectFromSource(sourceObjectOverride.instanceObject)}\n";
-
-			result += "\n\t";
-			
-			result += $"\t{_what} Added Components\n";
-			foreach (var addedComponent in addedComponents)
-				result += $"\t\t'{addedComponent.instanceComponent.name}'\n";
-			result += "\n\t";
-			
-			result += $"\t{_what} Added Game Objects\n";
-			foreach (var addedGameObject in addedGameObjects)
-				result += $"\t\t'{addedGameObject.instanceGameObject.name}':'{addedGameObject.siblingIndex}'\n";
-			result += "\n\t";
-			
-			result += $"\t{_what} Removed Components\n";
-			foreach (var removedComponent in removedComponents)
-				result += $"\t\t'{removedComponent.assetComponent.name}'\n";
-			result += "\n\t";
-			
-			result += $"\t{_what} Removed Game Objects\n";
-			foreach (var removedGameObject in removedGameObjects)
-				result += $"\t\t'{removedGameObject.assetGameObject.name}'\n";
-			result += "\n\t";
-			
-			return result;
-		}
-
-		private static string DumpCorrespondingObjectFromSource(Object _obj)
-		{
-			string result = string.Empty;
-			if (_obj == null)
-				return "<null>";
-
-			var cofs = PrefabUtility.GetCorrespondingObjectFromSource(_obj);
-			if (cofs != null)
-			{
-				result = $" cofs:{cofs.name} type:{cofs.GetType()}";
-				if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(cofs, out string guid, out long id))
-					result += $" guid:{guid} fileid:{id}";
-			}
-
 			return result;
 		}
 		

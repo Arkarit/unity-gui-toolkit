@@ -174,6 +174,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 35a8375cef72a06439139e0571d60e29,
         type: 3}
+    - target: {fileID: 2240357770089497061, guid: 321569a1317fa7d4997db0d41ade2a20,
+        type: 3}
+      propertyPath: m_text
+      value: No
+      objectReference: {fileID: 0}
     - target: {fileID: 2240357770499134626, guid: 321569a1317fa7d4997db0d41ade2a20,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -223,6 +228,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8482035558829802917, guid: 321569a1317fa7d4997db0d41ade2a20,
+        type: 3}
+      propertyPath: m_text
+      value: Yes
       objectReference: {fileID: 0}
     - target: {fileID: 8554779771754203307, guid: 321569a1317fa7d4997db0d41ade2a20,
         type: 3}
@@ -396,6 +406,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 952ebb2e93aaf9a42aeb70411f059805, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_executeInEditor: 0
+  m_features: 0
+  m_prefix: 'WhatEnablesMe:'
 --- !u!224 &2326396456182597782 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1381264961979276909, guid: 321569a1317fa7d4997db0d41ade2a20,
