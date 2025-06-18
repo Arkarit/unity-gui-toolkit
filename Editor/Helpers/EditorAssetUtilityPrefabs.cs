@@ -285,7 +285,7 @@ DebugUtility.Log("After", _gameObjectList, DebugUtility.DumpFeatures.None);
 								if (FindMatchingGameObject(embeddedCloneInstance, child.gameObject))
 									continue;
 
-								var clonedChild = child.gameObject.PrefabAwareClone(embeddedCloneInstance.transform);
+								var clonedChild = child.gameObject.InstantiatePrefabAware(embeddedCloneInstance.transform);
 								Debug.Assert(clonedChild.GetComponent<EditorMarkerIsClone>() == null, "There should be no EditorMarker on this go, because it should be tested already in an earlier stage");
 								clonedChild.AddComponent<EditorMarkerIsClone>();
 							}
@@ -589,7 +589,7 @@ Debug.Log(GetCloneByOriginalDumpString());
 					continue;
 				}
 
-				var clone = addedGo.PrefabAwareClone(clonedParent);
+				var clone = addedGo.InstantiatePrefabAware(clonedParent);
 				if (clone == null)
 					continue;
 				
