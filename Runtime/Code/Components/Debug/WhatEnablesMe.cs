@@ -20,14 +20,24 @@ namespace GuiToolkit.Debugging
 		}
 
 		[SerializeField] private bool m_executeInEditor;
+		[SerializeField] private bool m_autoNumerateOnAwake;
 		[SerializeField] private Features m_features;
 		[SerializeField] private string m_prefix = "WhatEnablesMe:";
 
+		private static int m_count = 0;
 
 		private void Start() => Log(Features.Start);
 		private void OnEnable() => Log(Features.OnEnable);
 		private void OnDisable() => Log(Features.OnDisable);
-		private void Awake() => Log(Features.Awake);
+
+		private void Awake()
+		{
+			if (m_autoNumerateOnAwake)
+				gameObject.name = $"{gameObject.name}_{m_count++}";
+
+			Log(Features.Awake);
+		}
+
 		private void OnDestroy() => Log(Features.OnDestroy);
 		private void OnBeforeTransformParentChanged() => Log(Features.OnBeforeTransformParentChanged);
 		private void OnTransformParentChanged() => Log(Features.OnTransformParentChanged);

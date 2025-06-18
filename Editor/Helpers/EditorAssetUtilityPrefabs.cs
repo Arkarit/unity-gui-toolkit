@@ -89,6 +89,7 @@ namespace GuiToolkit.Editor
 				var assetPath = AssetDatabase.GetAssetPath(_prefab);
 				temporaryClone = (GameObject) PrefabUtility.InstantiatePrefab(_prefab);
 				temporaryClone.name = _prefab.name;
+Debug.Log($"---Created:{temporaryClone.GetPath()}");
 
 				if (_callback.Invoke(temporaryClone))
 				{
@@ -98,6 +99,11 @@ namespace GuiToolkit.Editor
 			}
 			finally
 			{
+Debug.Log($"---Destroyed:{temporaryClone.GetPath()}");
+if (temporaryClone.GetPath().Contains("_18"))
+{
+int a = 0;
+}
 				temporaryClone.SafeDestroy();
 			}
 
@@ -665,17 +671,39 @@ Debug.Log(GetCloneByOriginalDumpString());
 			               $"_clonedAsset:{_clonedAsset.GetPath()}");
 		}
 
+
+		private static HashSet<string> GetHierarchyPaths(GameObject _asset)
+		{
+			HashSet<string> result = new();
+			var transforms = _asset.GetComponentsInChildren<Transform>();
+			foreach (Transform t in transforms)
+			{
+				if (PrefabUtility.IsAddedGameObjectOverride(t.gameObject))
+					continue;
+
+				result.Add(t.GetPath());
+			}
+
+			return result;
+		}
+
 		private static void CloneOverridesForRegularPrefab( GameObject _originalAsset, GameObject _clonedAsset)
 		{
+			HashSet<string> pathsDone = new();
+			CloneOverridesForRegularPrefabRecursively(_originalAsset, _clonedAsset, pathsDone);
+		}
 
-			if (PrefabUtility.IsAnyPrefabInstanceRoot(_originalAsset))
+		private static void CloneOverridesForRegularPrefabRecursively( GameObject _originalAsset, GameObject _clonedAsset, HashSet<string> _pathsDone)
+		{
+
+			if (!_pathsDone.Contains(_originalAsset.GetPath()) && PrefabUtility.IsAnyPrefabInstanceRoot(_originalAsset))
 			{
 				var originalMods = PrefabUtility.GetPropertyModifications(_originalAsset);
 				var clonedGameObject = FindMatchingObject(_clonedAsset, _originalAsset);
 
 				if (originalMods != null)
 				{
-string s = DebugUtility.DumpOverridesString(_originalAsset,	"!!!Before:" + _originalAsset.GetPath(1));
+string s = DebugUtility.DumpOverridesString(_originalAsset,	$"!!!Before: {_originalAsset.GetPath()}\n");
 Debug.Log(s);
 
 					List<PropertyModification> newMods = new();
@@ -719,13 +747,15 @@ Debug.Log($"---:::{modification.propertyPath}\nsrc:{src.GetPath()} dst:{dst.GetP
 					if (newMods.Count > 0)
 						PrefabUtility.SetPropertyModifications(clonedGameObject, newMods.ToArray());
 
-Debug.Log(DebugUtility.DumpOverridesString(clonedGameObject, "---After:" + clonedGameObject.GetPath(1)));
-					return;
+					var currentPathsDone = GetHierarchyPaths(_originalAsset);
+					_pathsDone.UnionWith(currentPathsDone);
+
+Debug.Log(DebugUtility.DumpOverridesString(clonedGameObject, $"!!!After: {clonedGameObject.GetPath()}\n"));
 				}
 			}
 
 			foreach (Transform child in _originalAsset.transform)
-				CloneOverridesForRegularPrefab(child.gameObject, _clonedAsset);
+				CloneOverridesForRegularPrefabRecursively(child.gameObject, _clonedAsset, _pathsDone);
 		}
 
 		private static bool TryApplyValue( SerializedProperty property, PropertyModification mod )

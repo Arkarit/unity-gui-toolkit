@@ -266,9 +266,13 @@ namespace GuiToolkit
 			}
 #endif
 
-			// We want the object _to be immediately detached _from its _parent if it is a game object
+			// We want the object to be immediately detached from its parent if it is a game object
 			GameObject go = _self as GameObject;
+#if UNITY_EDITOR
+			if (go && !PrefabUtility.IsPartOfImmutablePrefab(go))
+#else
 			if (go)
+#endif
 				go.transform.SetParent(null);
 
 #if UNITY_EDITOR
@@ -802,7 +806,7 @@ namespace GuiToolkit
 						continue;
 				}
 				
-#if UNITY_EDITOR				
+#if UNITY_EDITOR
 				int check = _self.childCount;
 				string childName = child.name;
 #endif

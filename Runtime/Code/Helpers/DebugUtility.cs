@@ -132,7 +132,7 @@ namespace GuiToolkit.Debugging
 			var removedComponents = PrefabUtility.GetRemovedComponents(_asset);
 			var removedGameObjects = PrefabUtility.GetRemovedGameObjects(_asset);
 
-			string result = $"{_what}: '{AssetDatabase.GetAssetPath(_asset)}':\n\n";
+			string result = $"{_what}: Asset Path:'{AssetDatabase.GetAssetPath(_asset)}':\n\n";
 			
 			result += GetHeadline($"{_what} Property Modifications ({sourcePropertyModifications.Length})");
 			foreach (var modification in sourcePropertyModifications)
