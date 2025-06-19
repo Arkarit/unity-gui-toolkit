@@ -101,9 +101,20 @@ namespace GuiToolkit.Editor
 
 				foreach (var propertyModification in overrideInfo.PropertyModifications)
 				{
-					var foundObj = EditorAssetUtility.FindMatchingObject(_clonedRoot, propertyModification.objectReference);
-					if (foundObj != null)
-						propertyModification.objectReference = foundObj;
+					if (propertyModification.target == null)
+						continue;
+
+					if (propertyModification.objectReference != null)
+					{
+						var foundObj =
+							EditorAssetUtility.FindMatchingObject(_clonedRoot, propertyModification.objectReference);
+						if (foundObj != null)
+							propertyModification.objectReference = foundObj;
+					}
+
+					var foundTarget = EditorAssetUtility.FindMatchingObject(_clonedRoot, propertyModification.target);
+					if (foundTarget != null)
+						propertyModification.target = foundTarget;
 				}
 
 				SetOverrideInfo(_currentClonedGameObject, overrideInfo);
