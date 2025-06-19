@@ -51,8 +51,9 @@ namespace GuiToolkit.Editor
 			if (_gameObject == null)
 				return null;
 
+			bool isRoot = _clonedRoot == null;
 			GameObject result;
-			GameObject alreadyExistingInClone = _clonedRoot != null ? EditorAssetUtility.FindMatchingGameObject(_clonedRoot, _gameObject) : null;
+			GameObject alreadyExistingInClone = !isRoot ? EditorAssetUtility.FindMatchingGameObject(_clonedRoot, _gameObject) : null;
 
 			if (alreadyExistingInClone != null)
 			{
@@ -75,7 +76,7 @@ namespace GuiToolkit.Editor
 				result = _gameObject.CloneWithoutChildren(_newParent);
 			}
 
-			if (_clonedRoot == null)
+			if (isRoot)
 				_clonedRoot = result;
 
 			if (_keepName)
@@ -84,9 +85,39 @@ namespace GuiToolkit.Editor
 			foreach (Transform child in _gameObject.transform)
 				InstantiatePrefabAwareInternal(child.gameObject, _clonedRoot, result != null ? result.transform : null, _keepName);
 
+			if (isRoot)
+				FixOverrides(_gameObject, _clonedRoot, _clonedRoot);
+
 			return result;
 		}
-		
+
+		private static void FixOverrides(GameObject _originalRoot, GameObject _clonedRoot, GameObject _currentClonedGameObject)
+		{
+			bool isRoot = _clonedRoot == _currentClonedGameObject;
+
+			if (PrefabUtility.IsAnyPrefabInstanceRoot(_currentClonedGameObject))
+			{
+				var overrideInfo = GetOverrideInfo(_currentClonedGameObject);
+
+				foreach (var propertyModification in overrideInfo.PropertyModifications)
+				{
+					var foundObj = EditorAssetUtility.FindMatchingObject(_clonedRoot, propertyModification.objectReference);
+					if (foundObj != null)
+						propertyModification.objectReference = foundObj;
+				}
+
+				SetOverrideInfo(_currentClonedGameObject, overrideInfo);
+			}
+
+			foreach (Transform child in _currentClonedGameObject.transform)
+				FixOverrides(_originalRoot, _clonedRoot, child.gameObject);
+
+			if (isRoot)
+			{
+				//?
+			}
+		}
+
 		struct OverrideInfo
 		{
 			public bool IsPrefab;

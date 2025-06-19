@@ -236,7 +236,7 @@ DebugUtility.Log("After", _gameObjectList, DebugUtility.DumpFeatures.None);
 								continue;
 	
 							var go = transform.gameObject;
-							if (go.GetComponent<EditorMarker>())
+							if (go.GetComponent<EditorMarkerIsClone>())
 								continue;
 
 							var source = PrefabUtility.GetCorrespondingObjectFromOriginalSource(go);
@@ -271,7 +271,9 @@ DebugUtility.Log("After", _gameObjectList, DebugUtility.DumpFeatures.None);
 //							var embeddedCloneInstance = (GameObject) PrefabUtility.InstantiatePrefab(embeddedClone, parent);
 							var embeddedCloneInstance = embeddedClone.InstantiatePrefabAware(parent);
 							embeddedCloneInstance.name = embeddedOriginal.name;
-							embeddedCloneInstance.AddComponent<EditorMarkerIsClone>();
+							var clonedTransforms = embeddedCloneInstance.GetComponentsInChildren<Transform>();
+							foreach (var clonedTransform in clonedTransforms)
+								clonedTransform.gameObject.AddComponent<EditorMarkerIsClone>();
 //
 //							embeddedCloneInstance.transform.SetSiblingIndex(embeddedOriginal.transform.GetSiblingIndex()+1);
 //
@@ -291,7 +293,7 @@ DebugUtility.Log("After", _gameObjectList, DebugUtility.DumpFeatures.None);
 //								clonedChild.AddComponent<EditorMarkerIsClone>();
 //							}
 
-							embeddedOriginal.AddComponent<EditorMarkerIsOriginal>();
+//							embeddedOriginal.AddComponent<EditorMarkerIsOriginal>();
 						}
 
 						clonesDone.Add(clone);
