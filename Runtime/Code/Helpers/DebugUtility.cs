@@ -171,7 +171,7 @@ namespace GuiToolkit.Debugging
 
 		private static string GetHeadline(string _text) => $"\t{_text}\n\t{new string('-', 80)}\n";
 
-		public static string DumpCorrespondingObjectFromSource(Object _obj)
+		public static string GetCorrespondingObjectFromSourceString(Object _obj)
 		{
 			string result = string.Empty;
 			if (_obj == null)
@@ -188,13 +188,24 @@ namespace GuiToolkit.Debugging
 			return result;
 		}
 		
-		public static string DumpAllProperties(SerializedObject _serObj)
+		public static string GetAllPropertiesString(SerializedObject _serObj)
 		{
-			string result = $"Properties for '{_serObj.targetObject.name}':\n----------------------------------------------------------------\n";
+			string result = $"Properties for '{_serObj.targetObject.name}':\n{new string('-', 80)}\n";
 			EditorGeneralUtility.ForeachPropertyHierarchical(_serObj, property =>
 			{
 				result += $"\t{property.propertyPath}:{property.prefabOverride}\n";
 			});
+			
+			return result;
+		}
+
+		public static string GetAllGuidsString(List<string> _guids, string _text = null)
+		{
+			string result = $"{_text}:\n{new string('-', 80)}\n";
+			foreach (var guid in _guids)
+			{
+				result += $"\t{AssetDatabase.GUIDToAssetPath(guid)} : {guid}\n";
+			}
 			
 			return result;
 		}

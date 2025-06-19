@@ -111,7 +111,5 @@ namespace GuiToolkit.Editor
 			foreach (var path in pathList)
 				_guidList.Add(AssetDatabase.AssetPathToGUID(path));
 		}
-
-
 	}
 }
