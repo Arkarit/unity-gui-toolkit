@@ -46,37 +46,6 @@ namespace GuiToolkit.Editor
 			return InstantiatePrefabAwareInternal(_gameObject, null, _newParent, _keepName);
 		}
 
-		struct OverrideInfo
-		{
-			public bool IsPrefab;
-			public List<PropertyModification> PropertyModifications;
-			public List<AddedGameObject> AddedGameObjects;
-			public List<string> AddedGameObjectsParents;
-			public List<RemovedGameObject> RemovedGameObjects;
-			public List<AddedComponent> AddedComponents;
-			public List<string> AddedComponentsGameObjects;
-			public List<RemovedComponent> RemovedComponents;
-
-			public string GetParentForAddedGameObject(AddedGameObject _addedGameObject)
-			{
-				int idx = AddedGameObjects.IndexOf(_addedGameObject);
-				if (idx < 0)
-					return null;
-
-				return AddedGameObjectsParents[idx];
-			}
-
-			public bool TrySetParentForAddedGameObject(AddedGameObject _addedGameObject, Transform _parent)
-			{
-				int idx = AddedGameObjects.IndexOf(_addedGameObject);
-				if (idx < 0)
-					return false;
-
-				AddedGameObjectsParents[idx] = _parent.GetPath();
-				return true;
-			}
-		}
-		
 		private static GameObject InstantiatePrefabAwareInternal(GameObject _gameObject, GameObject _clonedRoot, Transform _newParent, bool _keepName)
 		{
 			if (_gameObject == null)
@@ -118,15 +87,30 @@ namespace GuiToolkit.Editor
 			return result;
 		}
 		
+		struct OverrideInfo
+		{
+			public bool IsPrefab;
+			public List<PropertyModification> PropertyModifications;
+			public List<AddedGameObject> AddedGameObjects;
+			public List<RemovedGameObject> RemovedGameObjects;
+			public List<AddedComponent> AddedComponents;
+			public List<RemovedComponent> RemovedComponents;
+		}
+		
+		/// <summary>
+		/// Transfers overrides from one game object to another.
+		/// Note that references are NOT corrected in this step; this is
+		/// due to the hierarchical cloning; the objects the references point to might not yet exist.
+		/// </summary>
+		/// <param name="_gameObject"></param>
+		/// <param name="_clonedGameObject"></param>
 		private static void TransferOverridesAddedAndRemoved(GameObject _gameObject, GameObject _clonedGameObject)
 		{
 			var overrideInfo = GetOverrideInfo(_gameObject);
 			if (!overrideInfo.IsPrefab)
 				return;
 
-			// TODO: Transfer between _gameObject and _clonedGameObject
-
-//			SetOverrideInfo(_clonedGameObject, overrideInfo);
+			SetOverrideInfo(_clonedGameObject, overrideInfo);
 		}
 		
 		private static OverrideInfo GetOverrideInfo(GameObject _gameObject)
@@ -137,26 +121,16 @@ namespace GuiToolkit.Editor
 			bool isPrefab = PrefabUtility.IsPartOfAnyPrefab(_gameObject);
 			var outermostRoot = isPrefab ? PrefabUtility.GetOutermostPrefabInstanceRoot(_gameObject) : null;
 			
-			var result = new OverrideInfo()
+			return new OverrideInfo()
 			{
 				IsPrefab = isPrefab,
 
 				PropertyModifications = isPrefab ? PrefabUtility.GetPropertyModifications(outermostRoot).ToList() : new List<PropertyModification>(),
 				AddedGameObjects = isPrefab ? PrefabUtility.GetAddedGameObjects(outermostRoot) : new List<AddedGameObject>(),
-				AddedGameObjectsParents = new List<string>(),
 				RemovedGameObjects = isPrefab ? PrefabUtility.GetRemovedGameObjects(outermostRoot) : new List<RemovedGameObject>(),
 				AddedComponents = isPrefab ? PrefabUtility.GetAddedComponents(outermostRoot) : new List<AddedComponent>(),
-				AddedComponentsGameObjects = new List<string>(),
 				RemovedComponents = isPrefab ? PrefabUtility.GetRemovedComponents(outermostRoot) : new List<RemovedComponent>()
 			};
-
-			foreach (var addedGameObject in result.AddedGameObjects)
-				result.AddedGameObjectsParents.Add(addedGameObject.instanceGameObject.transform.parent.GetPath());
-
-			foreach (var addedComponent in result.AddedComponents)
-				result.AddedComponentsGameObjects.Add(addedComponent.instanceComponent.gameObject.GetPath());
-
-			return result;
 		}
 		
 		private static bool SetOverrideInfo(GameObject _gameObject, OverrideInfo _overrideInfo)
@@ -190,9 +164,8 @@ namespace GuiToolkit.Editor
 
 			foreach (var addedGameObject in _overrideInfo.AddedGameObjects)
 			{
-				var parent = _overrideInfo.GetParentForAddedGameObject(addedGameObject);
-//				var go = addedGameObject.instanceGameObject.InstantiatePrefabAware(parent);
-//				go.transform.SetSiblingIndex(addedGameObject.siblingIndex);
+				var go = addedGameObject.instanceGameObject.InstantiatePrefabAware(_gameObject.transform);
+				go.transform.SetSiblingIndex(addedGameObject.siblingIndex);
 			}
 
 			foreach (var removedComponent in _overrideInfo.RemovedComponents)
@@ -200,13 +173,13 @@ namespace GuiToolkit.Editor
 
 			foreach (var addedComponent in _overrideInfo.AddedComponents)
 			{
+				var clonedComponent = _gameObject.AddComponent(addedComponent.instanceComponent.GetType());
+				EditorUtility.CopySerializedManagedFieldsOnly(addedComponent.instanceComponent, clonedComponent);
 			}
 
 			PrefabUtility.SetPropertyModifications(outermostRoot, _overrideInfo.PropertyModifications.ToArray());
 
 			return true;
 		}
-
-
 	}
 }
