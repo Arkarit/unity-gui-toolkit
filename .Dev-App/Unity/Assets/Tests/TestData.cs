@@ -7,7 +7,7 @@ namespace GuiToolkit.Test
 	{
 		[Header("EditorAssetUtility")]
 		[PathField(_isFolder:true, _relativeToPath:".")]
-		[SerializeField] private PathField[] m_sortByPrefabHierarchyPaths;
+		[SerializeField] private PathField[] m_sortByPrefabHierarchyPaths = new PathField[0];
 	
 		public PathField[] SortByPrefabHierarchyPaths => m_sortByPrefabHierarchyPaths;
 	}
