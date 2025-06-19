@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using UnityEditor.SceneManagement;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -147,7 +148,7 @@ namespace GuiToolkit.Debugging
 			
 			result += GetHeadline($"{_what} Added Components");
 			foreach (var addedComponent in addedComponents)
-				result += $"\t\t'{addedComponent.instanceComponent.name}'\n";
+				result += $"\t\t'{addedComponent.instanceComponent.name}':'{addedComponent.instanceComponent.GetType().Name}'\n";
 			result += "\n";
 			
 			result += GetHeadline($"{_what} Added Game Objects");
@@ -157,7 +158,7 @@ namespace GuiToolkit.Debugging
 			
 			result += GetHeadline($"{_what} Removed Components");
 			foreach (var removedComponent in removedComponents)
-				result += $"\t\t'{removedComponent.assetComponent.name}'\n";
+				result += $"\t\t'{removedComponent.assetComponent.name}':'{removedComponent.assetComponent.GetType().Name}'\n";
 			result += "\n";
 			
 			result += GetHeadline($"{_what} Removed Game Objects");

@@ -305,36 +305,36 @@ DebugUtility.Log("After", _gameObjectList, DebugUtility.DumpFeatures.None);
 
 			// clonesDone is already properly sorted in terms of prefab chain dependencies, so we
 			// can just conveniently walk through the list to clone stuff and remove the temporary EditorMarkers
-			foreach (var clone in clonesDone)
-			{
-				ExecuteInPrefab(clone, root =>
-				{
-					var originalMarkers = clone.GetComponentsInChildren<EditorMarkerIsOriginal>();
-					var clonedMarkers = clone.GetComponentsInChildren<EditorMarkerIsClone>();
-
-					// If there are no original markers, there shouldn't be any clone markers as well
-					if (originalMarkers == null || originalMarkers.Length == 0)
-						return false;
-
-					foreach (var clonedMarker in clonedMarkers)
-					{
-						if (clonedMarker == null)
-							continue;
-
-						clonedMarker.SafeDestroy();
-					}
-
-					foreach (var originalMarker in originalMarkers)
-					{
-						if (originalMarker == null)
-							continue;
-
-						originalMarker.gameObject.SafeDestroy();
-					}
-
-					return true;
-				});
-			}
+//			foreach (var clone in clonesDone)
+//			{
+//				ExecuteInPrefab(clone, root =>
+//				{
+//					var originalMarkers = clone.GetComponentsInChildren<EditorMarkerIsOriginal>();
+//					var clonedMarkers = clone.GetComponentsInChildren<EditorMarkerIsClone>();
+//
+//					// If there are no original markers, there shouldn't be any clone markers as well
+//					if (originalMarkers == null || originalMarkers.Length == 0)
+//						return false;
+//
+//					foreach (var clonedMarker in clonedMarkers)
+//					{
+//						if (clonedMarker == null)
+//							continue;
+//
+//						clonedMarker.SafeDestroy();
+//					}
+//
+//					foreach (var originalMarker in originalMarkers)
+//					{
+//						if (originalMarker == null)
+//							continue;
+//
+//						originalMarker.gameObject.SafeDestroy();
+//					}
+//
+//					return true;
+//				});
+//			}
 
 		}
 
