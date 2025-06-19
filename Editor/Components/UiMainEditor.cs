@@ -42,17 +42,17 @@ namespace GuiToolkit.Editor
 					CloneDefaultPrefabs();
 //				if (GUILayout.Button("Create Default Prefabs Variants"))
 //					EditorPrefabUtility.CreatePrefabVariants(EditorPrefabUtility.BuiltinPrefabDir, UiToolkitConfiguration.Instance.m_prefabVariantsPath);
-				if (GUILayout.Button("Test"))
-					EditorAssetUtility.CreatePrefabVariants
-					(
-						"Assets/External/unity-gui-toolkit/Prefabs/_Test/VariantTest", 
-						"Assets/External/unity-gui-toolkit/Prefabs/_Test/VariantTestCloned", 
-						new EditorAssetUtility.PrefabVariantsOptions()
-						{
-							Postfix = " ClonedVariant",
-						}
-					);
-
+//				if (GUILayout.Button("Test"))
+//					EditorAssetUtility.CreatePrefabVariants
+//					(
+//						"Assets/External/unity-gui-toolkit/Prefabs/_Test/VariantTest", 
+//						"Assets/External/unity-gui-toolkit/Prefabs/_Test/VariantTestCloned", 
+//						new EditorAssetUtility.PrefabVariantsOptions()
+//						{
+//							Postfix = " ClonedVariant",
+//						}
+//					);
+//
 			}
 
 			serializedObject.ApplyModifiedProperties();

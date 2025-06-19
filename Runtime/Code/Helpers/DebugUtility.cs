@@ -188,6 +188,17 @@ namespace GuiToolkit.Debugging
 			return result;
 		}
 		
+		public static string DumpAllProperties(SerializedObject _serObj)
+		{
+			string result = $"Properties for '{_serObj.targetObject.name}':\n----------------------------------------------------------------\n";
+			EditorGeneralUtility.ForeachPropertyHierarchical(_serObj, property =>
+			{
+				result += $"\t{property.propertyPath}:{property.prefabOverride}\n";
+			});
+			
+			return result;
+		}
+
 
 		private static void GetHierarchyString(GameObject _gameObject, ref StringBuilder _sb, int _numTabs, DumpFeatures _features)
 		{
