@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace GuiToolkit.Test
@@ -7,7 +8,7 @@ namespace GuiToolkit.Test
 	{
 		[Header("EditorAssetUtility")]
 		[PathField(_isFolder:true, _relativeToPath:".")]
-		[SerializeField] private PathField[] m_sortByPrefabHierarchyPaths = new PathField[0];
+		[SerializeField] private PathField[] m_sortByPrefabHierarchyPaths = Array.Empty<PathField>();
 	
 		public PathField[] SortByPrefabHierarchyPaths => m_sortByPrefabHierarchyPaths;
 	}
