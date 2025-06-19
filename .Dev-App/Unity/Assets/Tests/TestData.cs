@@ -1,9 +1,14 @@
-using GuiToolkit;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "TestData", menuName = StringConstants.CREATE_TEST_DATA)]
-public class TestData : AbstractSingletonScriptableObject<TestData>
+namespace GuiToolkit.Test
 {
-	[Header("EditorAssetUtility")]
-	public PathField[] SortByPrefabHierarchyPaths;
+	[CreateAssetMenu(fileName = "TestData", menuName = StringConstants.CREATE_TEST_DATA)]
+	public class TestData : AbstractSingletonScriptableObject<TestData>
+	{
+		[Header("EditorAssetUtility")]
+		[PathField(_isFolder:true, _relativeToPath:".")]
+		[SerializeField] private PathField[] m_sortByPrefabHierarchyPaths;
+	
+		public PathField[] SortByPrefabHierarchyPaths => m_sortByPrefabHierarchyPaths;
+	}
 }

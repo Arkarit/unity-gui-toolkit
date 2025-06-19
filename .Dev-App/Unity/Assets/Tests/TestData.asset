@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f33d167200699ff4783a4800f888053e, type: 3}
   m_Name: TestData
   m_EditorClassIdentifier: 
-  SortByPrefabHierarchyPaths: []
+  m_sortByPrefabHierarchyPaths:
+  - Path: Assets\Tests\TestObjects\Prefabs\TestSortByPrefabHierarchy
