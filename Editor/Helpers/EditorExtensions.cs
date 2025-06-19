@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -47,12 +48,33 @@ namespace GuiToolkit.Editor
 
 		struct OverrideInfo
 		{
-			public GameObject OutermostRoot;
+			public bool IsPrefab;
 			public List<PropertyModification> PropertyModifications;
 			public List<AddedGameObject> AddedGameObjects;
+			public List<string> AddedGameObjectsParents;
 			public List<RemovedGameObject> RemovedGameObjects;
 			public List<AddedComponent> AddedComponents;
+			public List<string> AddedComponentsGameObjects;
 			public List<RemovedComponent> RemovedComponents;
+
+			public string GetParentForAddedGameObject(AddedGameObject _addedGameObject)
+			{
+				int idx = AddedGameObjects.IndexOf(_addedGameObject);
+				if (idx < 0)
+					return null;
+
+				return AddedGameObjectsParents[idx];
+			}
+
+			public bool TrySetParentForAddedGameObject(AddedGameObject _addedGameObject, Transform _parent)
+			{
+				int idx = AddedGameObjects.IndexOf(_addedGameObject);
+				if (idx < 0)
+					return false;
+
+				AddedGameObjectsParents[idx] = _parent.GetPath();
+				return true;
+			}
 		}
 		
 		private static GameObject InstantiatePrefabAwareInternal(GameObject _gameObject, GameObject _clonedRoot, Transform _newParent, bool _keepName)
@@ -98,29 +120,93 @@ namespace GuiToolkit.Editor
 		
 		private static void TransferOverridesAddedAndRemoved(GameObject _gameObject, GameObject _clonedGameObject)
 		{
-			
+			var overrideInfo = GetOverrideInfo(_gameObject);
+			if (!overrideInfo.IsPrefab)
+				return;
+
+			// TODO: Transfer between _gameObject and _clonedGameObject
+
+//			SetOverrideInfo(_clonedGameObject, overrideInfo);
 		}
 		
 		private static OverrideInfo GetOverrideInfo(GameObject _gameObject)
 		{
+			if (_gameObject == null)
+				throw new ArgumentNullException("GameObject mustn't be null");
+
 			bool isPrefab = PrefabUtility.IsPartOfAnyPrefab(_gameObject);
 			var outermostRoot = isPrefab ? PrefabUtility.GetOutermostPrefabInstanceRoot(_gameObject) : null;
 			
-			return new OverrideInfo()
+			var result = new OverrideInfo()
 			{
-				OutermostRoot = outermostRoot,
+				IsPrefab = isPrefab,
+
 				PropertyModifications = isPrefab ? PrefabUtility.GetPropertyModifications(outermostRoot).ToList() : new List<PropertyModification>(),
 				AddedGameObjects = isPrefab ? PrefabUtility.GetAddedGameObjects(outermostRoot) : new List<AddedGameObject>(),
+				AddedGameObjectsParents = new List<string>(),
 				RemovedGameObjects = isPrefab ? PrefabUtility.GetRemovedGameObjects(outermostRoot) : new List<RemovedGameObject>(),
 				AddedComponents = isPrefab ? PrefabUtility.GetAddedComponents(outermostRoot) : new List<AddedComponent>(),
+				AddedComponentsGameObjects = new List<string>(),
 				RemovedComponents = isPrefab ? PrefabUtility.GetRemovedComponents(outermostRoot) : new List<RemovedComponent>()
 			};
+
+			foreach (var addedGameObject in result.AddedGameObjects)
+				result.AddedGameObjectsParents.Add(addedGameObject.instanceGameObject.transform.parent.GetPath());
+
+			foreach (var addedComponent in result.AddedComponents)
+				result.AddedComponentsGameObjects.Add(addedComponent.instanceComponent.gameObject.GetPath());
+
+			return result;
 		}
 		
 		private static bool SetOverrideInfo(GameObject _gameObject, OverrideInfo _overrideInfo)
 		{
-			
+			if (!_overrideInfo.IsPrefab)
+				return false;
+
+			if (_gameObject == null)
+				throw new ArgumentNullException("GameObject mustn't be null");
+
+			bool isPrefab = PrefabUtility.IsPartOfAnyPrefab(_gameObject);
+			if (!isPrefab)
+				return false;
+
+			var outermostRoot = PrefabUtility.GetOutermostPrefabInstanceRoot(_gameObject);
+			if (outermostRoot == null)
+				return false;
+
+			bool hasOverrides =
+				_overrideInfo.PropertyModifications.Count > 0
+				|| _overrideInfo.RemovedGameObjects.Count > 0
+				|| _overrideInfo.AddedGameObjects.Count > 0
+				|| _overrideInfo.RemovedComponents.Count > 0
+				|| _overrideInfo.AddedComponents.Count > 0;
+
+			if (!hasOverrides)
+				return false;
+
+			foreach (var removedGameObject in _overrideInfo.RemovedGameObjects)
+				removedGameObject.assetGameObject.SafeDestroy();
+
+			foreach (var addedGameObject in _overrideInfo.AddedGameObjects)
+			{
+				var parent = _overrideInfo.GetParentForAddedGameObject(addedGameObject);
+//				var go = addedGameObject.instanceGameObject.InstantiatePrefabAware(parent);
+//				go.transform.SetSiblingIndex(addedGameObject.siblingIndex);
+			}
+
+			foreach (var removedComponent in _overrideInfo.RemovedComponents)
+				removedComponent.assetComponent.SafeDestroy();
+
+			foreach (var addedComponent in _overrideInfo.AddedComponents)
+			{
+			}
+
+			PrefabUtility.SetPropertyModifications(outermostRoot, _overrideInfo.PropertyModifications.ToArray());
+
 			return true;
 		}
+
+
 	}
 }

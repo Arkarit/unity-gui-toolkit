@@ -268,27 +268,28 @@ DebugUtility.Log("After", _gameObjectList, DebugUtility.DumpFeatures.None);
 
 							var embeddedClone = kv.Value;
 							var parent = embeddedOriginal.transform.parent;
-							var embeddedCloneInstance = (GameObject) PrefabUtility.InstantiatePrefab(embeddedClone, parent);
+//							var embeddedCloneInstance = (GameObject) PrefabUtility.InstantiatePrefab(embeddedClone, parent);
+							var embeddedCloneInstance = embeddedClone.InstantiatePrefabAware(parent);
 							embeddedCloneInstance.name = embeddedOriginal.name;
 							embeddedCloneInstance.AddComponent<EditorMarkerIsClone>();
-
-							embeddedCloneInstance.transform.SetSiblingIndex(embeddedOriginal.transform.GetSiblingIndex()+1);
-
-							var children = embeddedOriginal.transform.GetChildrenList();
-							foreach (var child in children)
-							{
-								if (child.GetComponent<EditorMarkerIsClone>())
-									continue;
-
-								DebugUtility.Log("Check for match", child.gameObject);
-								// Possibly already exists in clone
-								if (FindMatchingGameObject(embeddedCloneInstance, child.gameObject))
-									continue;
-
-								var clonedChild = child.gameObject.InstantiatePrefabAware(embeddedCloneInstance.transform);
-								Debug.Assert(clonedChild.GetComponent<EditorMarkerIsClone>() == null, "There should be no EditorMarker on this go, because it should be tested already in an earlier stage");
-								clonedChild.AddComponent<EditorMarkerIsClone>();
-							}
+//
+//							embeddedCloneInstance.transform.SetSiblingIndex(embeddedOriginal.transform.GetSiblingIndex()+1);
+//
+//							var children = embeddedOriginal.transform.GetChildrenList();
+//							foreach (var child in children)
+//							{
+//								if (child.GetComponent<EditorMarkerIsClone>())
+//									continue;
+//
+//								DebugUtility.Log("Check for match", child.gameObject);
+//								// Possibly already exists in clone
+//								if (FindMatchingGameObject(embeddedCloneInstance, child.gameObject))
+//									continue;
+//
+//								var clonedChild = child.gameObject.InstantiatePrefabAware(embeddedCloneInstance.transform);
+//								Debug.Assert(clonedChild.GetComponent<EditorMarkerIsClone>() == null, "There should be no EditorMarker on this go, because it should be tested already in an earlier stage");
+//								clonedChild.AddComponent<EditorMarkerIsClone>();
+//							}
 
 							embeddedOriginal.AddComponent<EditorMarkerIsOriginal>();
 						}
@@ -348,7 +349,7 @@ DebugUtility.Log("After", _gameObjectList, DebugUtility.DumpFeatures.None);
 				BuildPrefabVariantHierarchy();
 				Clone();
 				ReplaceInsertedPrefabs();
-				TransferOverridesDir(_sourceDir, _targetDir);
+//				TransferOverridesDir(_sourceDir, _targetDir);
 			}
 			finally
 			{
