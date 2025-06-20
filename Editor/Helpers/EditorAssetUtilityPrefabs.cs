@@ -70,6 +70,15 @@ namespace GuiToolkit.Editor
 					done.Add(current);
 					toDo.RemoveAt(i);
 					transformsCache.RemoveAt(i);
+
+					// This "break" is very counterintuitive, but it is crucial,
+					// because once we successfully mark a GameObject as done (processed),
+					// we need to stop the current iteration and start over with the remaining
+					// GameObjects in the "to-do" list. This ensures that we don't accidentally
+					// skip any GameObjects that depend on the current one, and we can process
+					// them in the correct order. Without this, we would risk processing a
+					// GameObject before its dependencies, causing the hierarchy to be incorrectly sorted.
+					break;
 				}
 			}
 
