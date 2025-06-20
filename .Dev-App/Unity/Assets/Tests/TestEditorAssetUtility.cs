@@ -14,13 +14,16 @@ namespace GuiToolkit.Test
 		[Test]
 		public void TestSortByPrefabHierarchy()
 		{
+			Assert.DoesNotThrow(() => EditorAssetUtility.SortByPrefabHierarchyGuids(new List<string>()));
+			Assert.DoesNotThrow(() => EditorAssetUtility.SortByPrefabHierarchyAssetPaths(new List<string>()));
+			Assert.DoesNotThrow(() => EditorAssetUtility.SortByPrefabHierarchy(new List<GameObject>()));
 			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyGuids(null));
-			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyAssetPath(null));
+			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyAssetPaths(null));
 			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchy(null));
 			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyGuids(new List<string>() {null}));
-			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyAssetPath(new List<string>() {null}));
+			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyAssetPaths(new List<string>() {null}));
 			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyGuids(new List<string>() {"not a valid guid"}));
-			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyAssetPath(new List<string>() {"not a valid path"}));
+			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyAssetPaths(new List<string>() {"not a valid path"}));
 			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchy(new List<GameObject>() {null}));
 
 			GameObject notAPrefab = new GameObject();

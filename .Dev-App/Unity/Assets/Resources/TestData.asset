@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_sortByPrefabHierarchyPaths:
   - Path: Assets\Tests\TestObjects\Prefabs\TestSortByPrefabHierarchy
+  - Path: Assets\External\unity-gui-toolkit\Prefabs

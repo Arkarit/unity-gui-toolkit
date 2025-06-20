@@ -110,7 +110,7 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		public static void SortByPrefabHierarchyAssetPath(List<string> _pathList)
+		public static void SortByPrefabHierarchyAssetPaths(List<string> _pathList)
 		{
 			ValidateList(_pathList);
 			List<GameObject> assets = _pathList.Select(AssetDatabase.LoadAssetAtPath<GameObject>).ToList();
@@ -126,7 +126,7 @@ namespace GuiToolkit.Editor
 			ValidateList(_guidList);
 			var pathList = _guidList.Select(AssetDatabase.GUIDToAssetPath).ToList();
 			ValidateList(pathList, "; seems not to be a valid GUID");
-			SortByPrefabHierarchyAssetPath(pathList);
+			SortByPrefabHierarchyAssetPaths(pathList);
 
 			_guidList.Clear();
 			foreach (var path in pathList)
