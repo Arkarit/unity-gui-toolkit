@@ -49,7 +49,7 @@ namespace GuiToolkit.Test
 			var all = new HashSet<GameObject>(toDo);
 			var done = new HashSet<GameObject>();
 
-			for (int i = 1; i < _sortedGuids.Count; i++)
+			for (int i = 0; i < _sortedGuids.Count; i++)
 			{
 				var currentPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(_sortedGuids[i]));
 
@@ -60,7 +60,7 @@ namespace GuiToolkit.Test
 				// Ensure that the prefab is based on a prefab which already was handled (lower index in list)
 				// or is based on a prefab outside of the list
 				if (PrefabUtility.IsPartOfVariantPrefab(currentPrefab))
-					AssertPrefabValidity(currentPrefab, "is based on");
+					AssertPrefabValidity(currentPrefab, $"(list index {i}) is based on");
 
 				done.Add(currentPrefab);
 				toDo.Remove(currentPrefab);
