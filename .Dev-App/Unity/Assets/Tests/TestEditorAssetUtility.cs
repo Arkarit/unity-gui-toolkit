@@ -1,84 +1,96 @@
-using System.Linq;
-using GuiToolkit.Debugging;
-using GuiToolkit.Editor;
 using NUnit.Framework;
-using UnityEditor;
 using UnityEngine;
+using UnityEditor;
+using System.Linq;
+using GuiToolkit.Editor;
+using System.Collections.Generic;
+using GuiToolkit.Debugging;
+using System;
 
 namespace GuiToolkit.Test
 {
 	public class TestEditorAssetUtility
 	{
-
-		[SetUp]
-		public void SetUpSortByPrefabHierarchy()
-		{
-		}
-
-		/// <summary>
-		/// Test the sort order of prefabs by their variant hierarchy
-		/// Sorting order should be (only as example:)
-		/// 1 A: Regular Prefab
-		/// 2 B: Regular Prefab
-		/// 3 A Variant: Variant of A
-		/// 4 B Variant: Variant of B
-		/// 5 B Variant Variant: Variant of B Variant
-		///
-		/// The only sorting criteria is the prefab chain; names are unimportant;
-		/// thus 3 B Variant, 4 A Variant would also count as succeeded
-		/// </summary>
 		[Test]
 		public void TestSortByPrefabHierarchy()
 		{
-			Debug.Log($"Test '{nameof(TestSortByPrefabHierarchy)}'\n{new string('-', 80)}");
+			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyGuids(null));
+			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyAssetPath(null));
+			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchy(null));
+			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyGuids(new List<string>() {null}));
+			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyAssetPath(new List<string>() {null}));
+			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyGuids(new List<string>() {"not a valid guid"}));
+			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchyAssetPath(new List<string>() {"not a valid path"}));
+			Assert.Throws<ArgumentNullException>(() => EditorAssetUtility.SortByPrefabHierarchy(new List<GameObject>() {null}));
+
+			GameObject notAPrefab = new GameObject();
+			Assert.Throws<ArgumentException>(() => EditorAssetUtility.SortByPrefabHierarchy(new List<GameObject>() {notAPrefab} ));
+			UnityEngine.Object.DestroyImmediate(notAPrefab );
+
 			var paths = TestData.Instance.SortByPrefabHierarchyPaths;
+
 
 			foreach (var pathField in paths)
 			{
 				string path = pathField;
+				Debug.Log($"Testing path '{path}'");
 				var guids = AssetDatabase.FindAssets("t:prefab", new[] { path }).ToList();
-
-				// Sort using the tested utility
 				Debug.Log(DebugUtility.GetAllGuidsString(guids, "Before sorting:"));
 				EditorAssetUtility.SortByPrefabHierarchyGuids(guids);
 				Debug.Log(DebugUtility.GetAllGuidsString(guids, "After sorting:"));
-
-				// Determine the prefab hierarchy depth for each prefab
-				var levels = guids
-					.Select(guid =>
-					{
-						var assetPath = AssetDatabase.GUIDToAssetPath(guid);
-						var go = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-						int level = 0;
-						var current = go;
-
-						// Count how many times we can walk up the variant chain
-						while (PrefabUtility.IsPartOfVariantPrefab(current))
-						{
-							var basePrefab = PrefabUtility.GetCorrespondingObjectFromSource(current);
-							if (basePrefab == null)
-								break;
-
-							level++;
-							current = basePrefab;
-						}
-						return level;
-					})
-					.ToList();
-
-				// Assert that the sorted prefabs are in correct hierarchy order
-				for (int i = 1; i < levels.Count; i++)
-				{
-					Assert.That(levels[i], Is.GreaterThanOrEqualTo(levels[i - 1]),
-						$"Sorting error: Prefab at index {i} (level {levels[i]}) comes after index {i - 1} (level {levels[i - 1]}), which violates ascending hierarchy order.\n" +
-						$"GUID[{i - 1}] = {guids[i - 1]}\nGUID[{i}] = {guids[i]}");
-				}
+				AssertSortingOrder(guids);
 			}
 		}
 
-		[TearDown]
-		public void TearDownSortByPrefabHierarchy()
+		private void AssertSortingOrder( List<string> _sortedGuids )
 		{
+			var currentPaths = _sortedGuids.Select(AssetDatabase.GUIDToAssetPath);
+			var toDo = currentPaths.Select(AssetDatabase.LoadAssetAtPath<GameObject>).ToHashSet();
+			var all = new HashSet<GameObject>(toDo);
+			var done = new HashSet<GameObject>();
+
+			for (int i = 1; i < _sortedGuids.Count; i++)
+			{
+				var currentPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(_sortedGuids[i]));
+
+				// Ensure that the prefab does not contain any children which haven't been handled yet
+				// (if they are in the list at all)
+				AssertDoesNotContainUnhandledChildren(currentPrefab);
+
+				// Ensure that the prefab is based on a prefab which already was handled (lower index in list)
+				// or is based on a prefab outside of the list
+				if (PrefabUtility.IsPartOfVariantPrefab(currentPrefab))
+					AssertPrefabValidity(currentPrefab, "is based on");
+
+				done.Add(currentPrefab);
+				toDo.Remove(currentPrefab);
+			}
+
+			void AssertDoesNotContainUnhandledChildren(GameObject _go)
+			{
+				var transforms = _go.GetComponentsInChildren<Transform>();
+				foreach (Transform t in transforms)
+				{
+					if (t == _go.transform)
+						continue;
+
+					GameObject currentPrefab = t.gameObject;
+					if (!PrefabUtility.IsAnyPrefabInstanceRoot(currentPrefab))
+						continue;
+
+					AssertPrefabValidity(currentPrefab, "has child based on");
+				}
+			}
+
+			void AssertPrefabValidity(GameObject _currentPrefab, string _text)
+			{
+				var basePrefab = PrefabUtility.GetCorrespondingObjectFromSource(_currentPrefab);
+				var currentPath = AssetDatabase.GetAssetPath(_currentPrefab);
+				var basePath = AssetDatabase.GetAssetPath(basePrefab);
+
+				Assert.IsTrue(!all.Contains(basePrefab) || done.Contains(basePrefab), 
+					$"Asset\n\t'{currentPath}'\n{_text}\n\t'{basePath}'\n, which hasn't been handled yet");
+			}
 		}
 	}
 }

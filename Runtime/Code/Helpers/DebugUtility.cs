@@ -202,9 +202,10 @@ namespace GuiToolkit.Debugging
 		public static string GetAllGuidsString(List<string> _guids, string _text = null)
 		{
 			string result = $"{_text}:\n{new string('-', 80)}\n";
-			foreach (var guid in _guids)
+			for (int i = 0; i < _guids.Count; i++)
 			{
-				result += $"\t{AssetDatabase.GUIDToAssetPath(guid)} : {guid}\n";
+				var guid = _guids[i];
+				result += $"\t{i:D3} {AssetDatabase.GUIDToAssetPath(guid)} : {guid}\n";
 			}
 			
 			return result;
