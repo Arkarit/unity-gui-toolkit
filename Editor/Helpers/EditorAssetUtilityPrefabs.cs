@@ -6,6 +6,15 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
+	/// <summary>
+	/// EditorAssetUtility, static methods for handling prefabs.
+	/// Note that the argument validation in this part is quite strict, because
+	/// - the topic is really complicated and subtle errors might else be missed
+	/// - Some of the methods create persistent objects, and it might be a huge issue, if broken things would
+	///   only be detected weeks later.
+	/// 
+	/// So please try/catch to detect errors when using these methods.
+	/// </summary>
 	public static partial class EditorAssetUtility
 	{
 		public const string PrefabFolder = "Prefabs/";
@@ -53,15 +62,12 @@ namespace GuiToolkit.Editor
 					GameObject current = toDo[i];
 					var transforms = transformsCache[i];
 
-					// Skip the current GameObject if it has unprocessed prefabs in its hierarchy
 					if (ContainsUnhandledPrefabs(transforms, current))
 						continue;
 
 					if (PrefabUtility.IsPartOfVariantPrefab(current))
 					{
 						var basePrefab = PrefabUtility.GetCorrespondingObjectFromSource(current);
-
-						// Skip if the base prefab is still in the "to-do" list
 						if (toDo.Contains(basePrefab))
 							continue;
 					}
