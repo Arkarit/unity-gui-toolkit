@@ -17,8 +17,10 @@ MonoBehaviour:
   - Path: Assets\External\unity-gui-toolkit\Prefabs
   m_regularPrefabAsset:
     Path: Assets\Tests\TestObjects\Prefabs\TestPrefabInfo\Cube.prefab
-  m_variantPrefabAsset:
-    Path: Assets\Tests\TestObjects\Prefabs\TestPrefabInfo\Cube Variant.prefab
+  m_variantPrefabAssetWithoutOverrides:
+    Path: Assets\Tests\TestObjects\Prefabs\TestPrefabInfo\Cube Variant Without Overrides.prefab
+  m_variantPrefabAssetWithOverrides:
+    Path: Assets\Tests\TestObjects\Prefabs\TestPrefabInfo\Cube Variant With Overrides.prefab
   m_modelPrefabAsset:
     Path: Assets\Tests\TestObjects\Prefabs\TestPrefabInfo\Medaillon.FBX
   m_nestedPrefabWithRegularInstance:

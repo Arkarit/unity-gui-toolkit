@@ -3,6 +3,7 @@ using UnityEditor.SceneManagement;              // ObjectOverride + PrefabStageU
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GuiToolkit.Editor
 {
@@ -11,9 +12,22 @@ namespace GuiToolkit.Editor
 	/// All relevant prefab data are resolved eagerly (except expensive override lists, which are
 	/// fetched lazily).  The class is intended for editor tooling where clarity and robustness
 	/// outweigh raw performance.
+	/// One other goal for this class was to find a sane naming for Unity's wildly weird naming in PrefabUtility().
+	/// E.G. PrefabUtility.HasPrefabInstanceAnyOverrides is simply called IsDirty here (which exactly is the purpose of this PrefabUtility method)
 	/// </summary>
 	public class PrefabInfo
 	{
+		public class OverrideInfo
+		{
+			public bool IsPrefab;
+			public List<PropertyModification> PropertyModifications;
+			public List<AddedGameObject> AddedGameObjects;
+			public List<RemovedGameObject> RemovedGameObjects;
+			public List<AddedComponent> AddedComponents;
+			public List<RemovedComponent> RemovedComponents;
+			public List<ObjectOverride> ObjectOverrides;
+		}
+		
 		private GameObject m_gameObject;
 		private bool m_isPrefab;
 		private bool m_isInstanceRoot;
@@ -22,7 +36,7 @@ namespace GuiToolkit.Editor
 		private PrefabInstanceStatus m_instanceStatus;
 		private string m_assetPath;
 		private string m_assetGuid;
-		private List<ObjectOverride> m_overrides;
+		private OverrideInfo m_overrideInfo;
 
 		// -------------------------------------------------------------------
 		// Info getters
@@ -32,9 +46,14 @@ namespace GuiToolkit.Editor
 		public bool IsVariantAsset => m_assetType == PrefabAssetType.Variant;
 		public bool IsModelAsset => m_assetType == PrefabAssetType.Model;
 
-		public bool HasOverrides => m_instanceStatus == PrefabInstanceStatus.Connected
-		                            && PrefabUtility.HasPrefabInstanceAnyOverrides(m_gameObject, false);
+		public bool IsDirty => m_instanceStatus == PrefabInstanceStatus.Connected
+		                       && PrefabUtility.HasPrefabInstanceAnyOverrides(m_gameObject, false);
+		public bool HasUnsavedChanges => IsDirty;
 
+
+
+
+		public bool IsConnected => m_instanceStatus == PrefabInstanceStatus.Connected;
 		public bool IsDisconnected => m_instanceStatus == PrefabInstanceStatus.Disconnected;
 
 		public bool IsMissingAsset => m_assetType == PrefabAssetType.MissingAsset
@@ -73,15 +92,28 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		public IReadOnlyList<ObjectOverride> Overrides
+		public OverrideInfo GetOverrideInfo()
 		{
-			get
+			if (!IsValid)
+				throw new ArgumentNullException("GameObject mustn't be null");
+
+			bool isPrefab = PrefabUtility.IsPartOfAnyPrefab(m_gameObject);
+			var outermostRoot = isPrefab ? PrefabUtility.GetOutermostPrefabInstanceRoot(m_gameObject) : null;
+			
+			return new OverrideInfo()
 			{
-				if (m_overrides == null && HasOverrides)
-					m_overrides = PrefabUtility.GetObjectOverrides(m_gameObject);
-				return m_overrides;
-			}
+				IsPrefab = isPrefab,
+
+				PropertyModifications = isPrefab ? PrefabUtility.GetPropertyModifications(outermostRoot).ToList() : new List<PropertyModification>(),
+				AddedGameObjects = isPrefab ? PrefabUtility.GetAddedGameObjects(outermostRoot) : new List<AddedGameObject>(),
+				RemovedGameObjects = isPrefab ? PrefabUtility.GetRemovedGameObjects(outermostRoot) : new List<RemovedGameObject>(),
+				AddedComponents = isPrefab ? PrefabUtility.GetAddedComponents(outermostRoot) : new List<AddedComponent>(),
+				RemovedComponents = isPrefab ? PrefabUtility.GetRemovedComponents(outermostRoot) : new List<RemovedComponent>(),
+				ObjectOverrides = isPrefab ? PrefabUtility.GetObjectOverrides(outermostRoot) : new List<ObjectOverride>()
+			};
 		}
+		
+
 
 		// -------------------------------------------------------------------
 		// Factory

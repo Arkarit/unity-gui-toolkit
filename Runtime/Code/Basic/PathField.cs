@@ -104,6 +104,7 @@ namespace GuiToolkit
 		// --------------- constructors / casts ---------------
 		public PathField(string _val = null) => Path = _val;
 		public static implicit operator string(PathField _val) => _val.Path;
+		public override string ToString() => Path;
 
 		// --------------- NEW: loading helpers ---------------
 #if UNITY_EDITOR
