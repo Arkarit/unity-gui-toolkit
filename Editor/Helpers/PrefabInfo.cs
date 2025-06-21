@@ -12,30 +12,20 @@ namespace GuiToolkit.Editor
 	/// fetched lazily).  The class is intended for editor tooling where clarity and robustness
 	/// outweigh raw performance.
 	/// </summary>
-	[Serializable]
 	public class PrefabInfo
 	{
-		// -------------------------------------------------------------------
-		// Serialized core data
-		// -------------------------------------------------------------------
-
-		public GameObject m_gameObject;
-		public bool m_isPrefab;
-		public bool m_isInstanceRoot;
-		public bool m_isPartOfPrefab;
-		public PrefabAssetType m_assetType;
-		public PrefabInstanceStatus m_instanceStatus;
-
-		// -------------------------------------------------------------------
-		// Private, non-serialized caches
-		// -------------------------------------------------------------------
-
-		[NonSerialized] private string m_assetPath;
-		[NonSerialized] private string m_assetGuid;
-		[NonSerialized] private List<ObjectOverride> m_overrides;
+		private GameObject m_gameObject;
+		private bool m_isPrefab;
+		private bool m_isInstanceRoot;
+		private bool m_isPartOfPrefab;
+		private PrefabAssetType m_assetType;
+		private PrefabInstanceStatus m_instanceStatus;
+		private string m_assetPath;
+		private string m_assetGuid;
+		private List<ObjectOverride> m_overrides;
 
 		// -------------------------------------------------------------------
-		// Quick checks
+		// Info getters
 		// -------------------------------------------------------------------
 
 		public bool IsValid => m_gameObject != null;
@@ -49,6 +39,14 @@ namespace GuiToolkit.Editor
 
 		public bool IsMissingAsset => m_assetType == PrefabAssetType.MissingAsset
 		                              || m_instanceStatus == PrefabInstanceStatus.MissingAsset;
+
+		public GameObject GameObject           => m_gameObject;
+		public bool IsPrefab                   => m_isPrefab;
+		public bool IsInstanceRoot             => m_isInstanceRoot;
+		public bool IsPartOfPrefab             => m_isPartOfPrefab;
+		public PrefabAssetType AssetType       => m_assetType;
+		public PrefabInstanceStatus InstanceStatus => m_instanceStatus;
+
 
 		// -------------------------------------------------------------------
 		// Lazy data
@@ -97,7 +95,7 @@ namespace GuiToolkit.Editor
 			{
 				m_gameObject = _go,
 				m_isPrefab = PrefabUtility.IsPartOfPrefabAsset(_go),
-				m_isInstanceRoot = PrefabUtility.IsAnyPrefabInstanceRoot(_go),
+				m_isInstanceRoot = PrefabUtility.IsAnyPrefabInstanceRoot(_go) && !PrefabUtility.IsPartOfPrefabAsset(_go),
 				m_isPartOfPrefab = PrefabUtility.IsPartOfPrefabInstance(_go)
 				                   || PrefabUtility.IsPartOfPrefabAsset(_go),
 				m_assetType = PrefabUtility.GetPrefabAssetType(_go),
