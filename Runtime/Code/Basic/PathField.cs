@@ -1,26 +1,25 @@
 using System;
+using System.IO;
+using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace GuiToolkit
 {
 	/// <summary>
-	/// Purpose of this class to create a path property drawer (with path select button)
+	/// Lightweight path wrapper that can represent absolute or relative
+	/// file / folder paths and offers helper utilities for asset loading in editor.
 	/// </summary>
 	[Serializable]
 	public struct PathField
 	{
+		// --------------- data ---------------
 		public string Path;
 
-		public bool IsRelative
-		{
-			get
-			{
-				if (string.IsNullOrEmpty(Path))
-					return false;
-
-				return Path.StartsWith('.');
-			}
-		}
-
+		// --------------- path basics ---------------
+		public bool   IsRelative => !string.IsNullOrEmpty(Path) && Path.StartsWith('.');
 		public string FullPath
 		{
 			get
@@ -28,14 +27,132 @@ namespace GuiToolkit
 				if (string.IsNullOrEmpty(Path))
 					return null;
 
-				if (IsRelative)
-					return System.IO.Path.GetFullPath("./" + Path).Replace('\\', '/');
-
-				return Path.Replace('\\', '/');
+				return IsRelative
+					? System.IO.Path.GetFullPath("./" + Path).Replace('\\', '/')
+					: Path.Replace('\\', '/');
 			}
 		}
-		
+
+		public bool Exists
+		{
+			get
+			{
+				var fp = FullPath;
+				if (string.IsNullOrEmpty(fp))
+					return false;
+
+				try
+				{
+					return File.Exists(fp) || Directory.Exists(fp);
+				}
+				catch
+				{
+					return false;     // swallow any IO-ish edge cases
+				}
+			}
+		}
+
+		public bool IsFolder
+		{
+			get
+			{
+				var fp = FullPath;
+				if (string.IsNullOrEmpty(fp))
+					return false;
+
+				try
+				{
+					return Directory.Exists(fp);
+				}
+				catch
+				{
+					return false;
+				}
+			}
+		}
+
+		public bool IsFile
+		{
+			get
+			{
+				var fp = FullPath;
+				if (string.IsNullOrEmpty(fp))
+					return false;
+
+				try
+				{
+					return File.Exists(fp) && !Directory.Exists(fp);
+				}
+				catch
+				{
+					return false;
+				}
+			}
+		}
+
+		public bool IsValid => IsFile || IsFolder;
+
+		public string Extension => IsFile ? System.IO.Path.GetExtension(FullPath).TrimStart('.').ToLowerInvariant() : null;
+
+#if UNITY_EDITOR
+		/// <summary>
+		/// Main asset type at this path (editor-only, null if not an asset or path invalid).
+		/// </summary>
+		public Type AssetType => IsFile ? AssetDatabase.GetMainAssetTypeAtPath(FullPath) : null;
+#endif
+
+		// --------------- constructors / casts ---------------
 		public PathField(string _val = null) => Path = _val;
 		public static implicit operator string(PathField _val) => _val.Path;
+
+		// --------------- NEW: loading helpers ---------------
+#if UNITY_EDITOR
+		/// <summary>Shorthand: true if an asset of type <typeparamref name="T"/> can be loaded.</summary>
+		public T TryLoad<T>(bool _logError = true) where T : UnityEngine.Object
+		{
+			var result = TryLoad<T>(out string errorMessage);
+			if (result == null && _logError)
+				Debug.LogError(errorMessage);
+			return result;
+		}
+
+		/// <summary>
+		/// Tries to load an asset of the given type.  
+		/// Returns true on success; on failure <paramref name="_errorMessage"/> describes why.
+		/// </summary>
+		public T TryLoad<T>(out string _errorMessage) where T : UnityEngine.Object
+		{
+			_errorMessage = null;
+
+			if (!IsFile)
+			{
+				_errorMessage = $"Path '{Path}' is not a file.";
+				return null;
+			}
+
+			try
+			{
+				var asset = AssetDatabase.LoadAssetAtPath<T>(FullPath);
+				if (asset != null)
+					return asset;
+			}
+			catch(Exception e)
+			{
+				_errorMessage = $"{e.GetType().Name}: '{e.Message}'";
+				return null;
+			}
+
+			_errorMessage = $"No asset of type {typeof(T).Name} found at '{Path}'.";
+			return null;
+		}
+#else
+		// In Player builds simply stub out the helpers.
+		public T TryLoad<T>() where T : UnityEngine.Object => null;
+		public T TryLoad<T>(out string _errorMessage) where T : UnityEngine.Object
+		{
+			_errorMessage = "Asset loading is editor-only.";
+			return null;
+		}
+#endif
 	}
 }
