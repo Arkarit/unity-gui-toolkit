@@ -16,10 +16,14 @@ MonoBehaviour:
   - Path: Assets\Tests\TestObjects\Prefabs\TestSortByPrefabHierarchy
   - Path: Assets\External\unity-gui-toolkit\Prefabs
   m_regularPrefabAsset:
-    Path: 
+    Path: Assets\Tests\TestObjects\Prefabs\TestPrefabInfo\Cube.prefab
   m_variantPrefabAsset:
-    Path: 
+    Path: Assets\Tests\TestObjects\Prefabs\TestPrefabInfo\Cube Variant.prefab
   m_modelPrefabAsset:
+    Path: Assets\Tests\TestObjects\Prefabs\TestPrefabInfo\Medaillon.FBX
+  m_nestedPrefabWithRegularInstance:
+    Path: 
+  m_nestedPrefabWithVariantInstance:
     Path: 
   m_regularPrefabScene:
     Path: 

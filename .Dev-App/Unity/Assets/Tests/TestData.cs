@@ -32,9 +32,21 @@ namespace GuiToolkit.Test
 		public PathField VariantPrefabAsset => m_variantPrefabAsset;
 
 		/// <summary>Model prefab asset, e.g. FBX (A3).</summary>
-		[PathField(_isFolder: false, _relativeToPath: ".", Extensions = "prefab")]
+		[PathField(_isFolder: false, _relativeToPath: ".", Extensions = "fbx")]
 		[SerializeField] private PathField m_modelPrefabAsset;
 		public PathField ModelPrefabAsset => m_modelPrefabAsset;
+
+		[Header("PrefabInfo • Nested Asset Instances")]
+		
+		/// <summary>Nested prefab asset with a RegularPrefab instance inside.</summary>
+		[PathField(_isFolder: false, _relativeToPath: ".", Extensions = "prefab")]
+		[SerializeField] private PathField m_nestedPrefabWithRegularInstance;
+		public PathField NestedPrefabWithRegularInstance => m_nestedPrefabWithRegularInstance;
+		
+		/// <summary>Nested prefab asset with a VariantPrefab instance inside.</summary>
+		[PathField(_isFolder: false, _relativeToPath: ".", Extensions = "prefab")]
+		[SerializeField] private PathField m_nestedPrefabWithVariantInstance;
+		public PathField NestedPrefabWithVariantInstance => m_nestedPrefabWithVariantInstance;
 
 		// ------------------------------------------------------------------
 		// PrefabInfo – Scene-based test cases
