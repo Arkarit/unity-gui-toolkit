@@ -10,31 +10,19 @@ namespace GuiToolkit.Test
 	public class TestPrefabInfo
 	{
 		[Test]
-		public void Test()
+		public void TestInvalidPrefabInfo()
 		{
 			Assert.DoesNotThrow(() => PrefabInfo.Create(null));
 			PrefabInfo pi;
 			GameObject go;
 
 			pi = new PrefabInfo();
-			AssertInvalidity(pi);
+			AssertInvalidPrefabInfo(pi);
 			pi = PrefabInfo.Create(null);
-			AssertInvalidity(pi);
-
-			go = TestData.Instance.RegularPrefabAsset.TryLoad<GameObject>();
-			pi = PrefabInfo.Create(go);
-			AssertRegularPrefabAsset(pi);
-
-			go = TestData.Instance.VariantPrefabAsset.TryLoad<GameObject>();
-			pi = PrefabInfo.Create(go);
-			AssertVariantPrefabAsset(pi);
-
-			go = TestData.Instance.ModelPrefabAsset.TryLoad<GameObject>();
-			pi = PrefabInfo.Create(go);
-			AssertModelPrefabAsset(pi);
+			AssertInvalidPrefabInfo(pi);
 		}
 
-		private void AssertInvalidity( PrefabInfo _pi )
+		private void AssertInvalidPrefabInfo( PrefabInfo _pi )
 		{
 			// Object itself must exist
 			Assert.IsNotNull(_pi, "PrefabInfo instance should never be null.");
@@ -60,58 +48,69 @@ namespace GuiToolkit.Test
 			Assert.IsFalse(_pi.HasOverrides, "HasOverrides must be false when no GameObject is present.");
 		}
 
-		private void AssertRegularPrefabAsset( PrefabInfo _pi )
+
+		[Test]
+		public void TestRegularPrefabInfo()
 		{
-			Assert.IsNotNull(_pi);
-			Assert.IsTrue(_pi.IsValid, "Regular prefab should be valid.");
-			Assert.IsNotNull(_pi.GameObject, "GameObject must not be null.");
+			var go = TestData.Instance.RegularPrefabAsset.TryLoad<GameObject>();
+			var pi = PrefabInfo.Create(go);
 
-			Assert.IsTrue(_pi.IsPrefab, "Should be marked as prefab asset.");
-			Assert.IsFalse(_pi.IsInstanceRoot, "Prefab assets are never instance roots.");
-			Assert.IsTrue(_pi.IsPartOfPrefab, "Prefab asset should be part of a prefab.");
+			Assert.IsNotNull(pi);
+			Assert.IsTrue(pi.IsValid, "Regular prefab should be valid.");
+			Assert.IsNotNull(pi.GameObject, "GameObject must not be null.");
 
-			Assert.AreEqual(PrefabAssetType.Regular, _pi.AssetType, "Expected Regular asset type.");
-			Assert.AreEqual(PrefabInstanceStatus.NotAPrefab, _pi.InstanceStatus, "Asset should not be an instance.");
+			Assert.IsTrue(pi.IsPrefab, "Should be marked as prefab asset.");
+			Assert.IsFalse(pi.IsInstanceRoot, "Prefab assets are never instance roots.");
+			Assert.IsTrue(pi.IsPartOfPrefab, "Prefab asset should be part of a prefab.");
 
-			Assert.IsFalse(_pi.HasOverrides, "Prefab assets should not have overrides.");
-			Assert.IsFalse(_pi.IsVariantAsset);
-			Assert.IsFalse(_pi.IsModelAsset);
+			Assert.AreEqual(PrefabAssetType.Regular, pi.AssetType, "Expected Regular asset type.");
+			Assert.AreEqual(PrefabInstanceStatus.NotAPrefab, pi.InstanceStatus, "Asset should not be an instance.");
+
+			Assert.IsFalse(pi.HasOverrides, "Prefab assets should not have overrides.");
+			Assert.IsFalse(pi.IsVariantAsset);
+			Assert.IsFalse(pi.IsModelAsset);
 		}
 
-		private void AssertVariantPrefabAsset( PrefabInfo _pi )
+		[Test]
+		public void TestVariantPrefabInfo()
 		{
-			Assert.IsNotNull(_pi);
-			Assert.IsTrue(_pi.IsValid, "Variant prefab should be valid.");
-			Assert.IsNotNull(_pi.GameObject, "GameObject must not be null.");
+			var go = TestData.Instance.VariantPrefabAsset.TryLoad<GameObject>();
+			var pi = PrefabInfo.Create(go);
+			Assert.IsNotNull(pi);
+			Assert.IsTrue(pi.IsValid, "Variant prefab should be valid.");
+			Assert.IsNotNull(pi.GameObject, "GameObject must not be null.");
 
-			Assert.IsTrue(_pi.IsPrefab, "Should be marked as prefab asset.");
-			Assert.IsFalse(_pi.IsInstanceRoot, "Prefab assets are never instance roots.");
-			Assert.IsTrue(_pi.IsPartOfPrefab, "Prefab asset should be part of a prefab.");
+			Assert.IsTrue(pi.IsPrefab, "Should be marked as prefab asset.");
+			Assert.IsFalse(pi.IsInstanceRoot, "Prefab assets are never instance roots.");
+			Assert.IsTrue(pi.IsPartOfPrefab, "Prefab asset should be part of a prefab.");
 
-			Assert.AreEqual(PrefabAssetType.Variant, _pi.AssetType, "Expected Variant asset type.");
-			Assert.AreEqual(PrefabInstanceStatus.NotAPrefab, _pi.InstanceStatus, "Asset should not be an instance.");
+			Assert.AreEqual(PrefabAssetType.Variant, pi.AssetType, "Expected Variant asset type.");
+			Assert.AreEqual(PrefabInstanceStatus.NotAPrefab, pi.InstanceStatus, "Asset should not be an instance.");
 
-			Assert.IsFalse(_pi.HasOverrides, "Prefab assets should not have overrides.");
-			Assert.IsTrue(_pi.IsVariantAsset);
-			Assert.IsFalse(_pi.IsModelAsset);
+			Assert.IsFalse(pi.HasOverrides, "Prefab assets should not have overrides.");
+			Assert.IsTrue(pi.IsVariantAsset);
+			Assert.IsFalse(pi.IsModelAsset);
 		}
 
-		private void AssertModelPrefabAsset( PrefabInfo _pi )
+		[Test]
+		public void TestModelPrefabInfo()
 		{
-			Assert.IsNotNull(_pi);
-			Assert.IsTrue(_pi.IsValid, "Model prefab should be valid.");
-			Assert.IsNotNull(_pi.GameObject, "GameObject must not be null.");
+			var go = TestData.Instance.ModelPrefabAsset.TryLoad<GameObject>();
+			var pi = PrefabInfo.Create(go);
+			Assert.IsNotNull(pi);
+			Assert.IsTrue(pi.IsValid, "Model prefab should be valid.");
+			Assert.IsNotNull(pi.GameObject, "GameObject must not be null.");
 
-			Assert.IsTrue(_pi.IsPrefab, "Should be marked as prefab asset.");
-			Assert.IsFalse(_pi.IsInstanceRoot, "Prefab assets are never instance roots.");
-			Assert.IsTrue(_pi.IsPartOfPrefab, "Model asset should be part of a prefab.");
+			Assert.IsTrue(pi.IsPrefab, "Should be marked as prefab asset.");
+			Assert.IsFalse(pi.IsInstanceRoot, "Prefab assets are never instance roots.");
+			Assert.IsTrue(pi.IsPartOfPrefab, "Model asset should be part of a prefab.");
 
-			Assert.AreEqual(PrefabAssetType.Model, _pi.AssetType, "Expected Model asset type.");
-			Assert.AreEqual(PrefabInstanceStatus.NotAPrefab, _pi.InstanceStatus, "Asset should not be an instance.");
+			Assert.AreEqual(PrefabAssetType.Model, pi.AssetType, "Expected Model asset type.");
+			Assert.AreEqual(PrefabInstanceStatus.NotAPrefab, pi.InstanceStatus, "Asset should not be an instance.");
 
-			Assert.IsFalse(_pi.HasOverrides, "Prefab assets should not have overrides.");
-			Assert.IsFalse(_pi.IsVariantAsset);
-			Assert.IsTrue(_pi.IsModelAsset);
+			Assert.IsFalse(pi.HasOverrides, "Prefab assets should not have overrides.");
+			Assert.IsFalse(pi.IsVariantAsset);
+			Assert.IsTrue(pi.IsModelAsset);
 		}
 	}
 }
