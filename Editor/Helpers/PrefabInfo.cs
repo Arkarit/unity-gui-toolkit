@@ -17,7 +17,7 @@ namespace GuiToolkit.Editor
 	/// </summary>
 	public class PrefabInfo
 	{
-		public class OverrideInfo
+		public class COverrideInfo
 		{
 			public bool IsPrefab;
 			public List<PropertyModification> PropertyModifications;
@@ -36,7 +36,6 @@ namespace GuiToolkit.Editor
 		private PrefabInstanceStatus m_instanceStatus;
 		private string m_assetPath;
 		private string m_assetGuid;
-		private OverrideInfo m_overrideInfo;
 
 		// -------------------------------------------------------------------
 		// Info getters
@@ -46,12 +45,21 @@ namespace GuiToolkit.Editor
 		public bool IsVariantAsset => m_assetType == PrefabAssetType.Variant;
 		public bool IsModelAsset => m_assetType == PrefabAssetType.Model;
 
-		public bool IsDirty => m_instanceStatus == PrefabInstanceStatus.Connected
-		                       && PrefabUtility.HasPrefabInstanceAnyOverrides(m_gameObject, false);
+		public bool IsDirty
+		{
+			get
+			{
+				if (m_gameObject == null)
+					return false;
+
+				if (PrefabUtility.IsPartOfPrefabInstance(m_gameObject))
+					return PrefabUtility.HasPrefabInstanceAnyOverrides(m_gameObject, false);
+
+				return EditorUtility.IsDirty(m_gameObject);
+			}
+		}
+
 		public bool HasUnsavedChanges => IsDirty;
-
-
-
 
 		public bool IsConnected => m_instanceStatus == PrefabInstanceStatus.Connected;
 		public bool IsDisconnected => m_instanceStatus == PrefabInstanceStatus.Disconnected;
@@ -65,11 +73,6 @@ namespace GuiToolkit.Editor
 		public bool IsPartOfPrefab             => m_isPartOfPrefab;
 		public PrefabAssetType AssetType       => m_assetType;
 		public PrefabInstanceStatus InstanceStatus => m_instanceStatus;
-
-
-		// -------------------------------------------------------------------
-		// Lazy data
-		// -------------------------------------------------------------------
 
 		public string AssetPath
 		{
@@ -92,32 +95,35 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		public OverrideInfo GetOverrideInfo()
+		public COverrideInfo OverrideInfo
 		{
-			if (!IsValid)
-				throw new ArgumentNullException("GameObject mustn't be null");
-
-			bool isPrefab = PrefabUtility.IsPartOfAnyPrefab(m_gameObject);
-			var outermostRoot = isPrefab ? PrefabUtility.GetOutermostPrefabInstanceRoot(m_gameObject) : null;
-			
-			return new OverrideInfo()
+			get
 			{
-				IsPrefab = isPrefab,
+				bool isPrefab = IsValid && PrefabUtility.IsPartOfAnyPrefab(m_gameObject);
+				var outermostRoot = isPrefab ? PrefabUtility.GetOutermostPrefabInstanceRoot(m_gameObject) : null;
 
-				PropertyModifications = isPrefab ? PrefabUtility.GetPropertyModifications(outermostRoot).ToList() : new List<PropertyModification>(),
-				AddedGameObjects = isPrefab ? PrefabUtility.GetAddedGameObjects(outermostRoot) : new List<AddedGameObject>(),
-				RemovedGameObjects = isPrefab ? PrefabUtility.GetRemovedGameObjects(outermostRoot) : new List<RemovedGameObject>(),
-				AddedComponents = isPrefab ? PrefabUtility.GetAddedComponents(outermostRoot) : new List<AddedComponent>(),
-				RemovedComponents = isPrefab ? PrefabUtility.GetRemovedComponents(outermostRoot) : new List<RemovedComponent>(),
-				ObjectOverrides = isPrefab ? PrefabUtility.GetObjectOverrides(outermostRoot) : new List<ObjectOverride>()
-			};
+				return new COverrideInfo()
+				{
+					IsPrefab = isPrefab,
+
+					PropertyModifications =
+						isPrefab
+							? PrefabUtility.GetPropertyModifications(outermostRoot).ToList()
+							: new List<PropertyModification>(),
+					AddedGameObjects =
+						isPrefab ? PrefabUtility.GetAddedGameObjects(outermostRoot) : new List<AddedGameObject>(),
+					RemovedGameObjects = isPrefab
+						? PrefabUtility.GetRemovedGameObjects(outermostRoot)
+						: new List<RemovedGameObject>(),
+					AddedComponents =
+						isPrefab ? PrefabUtility.GetAddedComponents(outermostRoot) : new List<AddedComponent>(),
+					RemovedComponents =
+						isPrefab ? PrefabUtility.GetRemovedComponents(outermostRoot) : new List<RemovedComponent>(),
+					ObjectOverrides =
+						isPrefab ? PrefabUtility.GetObjectOverrides(outermostRoot) : new List<ObjectOverride>()
+				};
+			}
 		}
-		
-
-
-		// -------------------------------------------------------------------
-		// Factory
-		// -------------------------------------------------------------------
 
 		public static PrefabInfo Create(GameObject _go)
 		{
@@ -134,10 +140,6 @@ namespace GuiToolkit.Editor
 				m_instanceStatus = PrefabUtility.GetPrefabInstanceStatus(_go)
 			};
 		}
-
-		// -------------------------------------------------------------------
-		// Convenience / validation
-		// -------------------------------------------------------------------
 
 		public void AssertIsVariantAsset(string _msg = null)
 		{
@@ -165,5 +167,66 @@ namespace GuiToolkit.Editor
 				PrefabStageUtility.OpenPrefab(AssetPath); // Unity 6 API
 			}
 		}
+
+		public void Modify<T>( T _target, Action<T> _edit, string _label = "Prefab Change" ) where T : UnityEngine.Object
+		{
+			if (!IsValid)
+				throw new NullReferenceException($"{nameof(IsValid)} is false ({nameof(GameObject)} is null); Only existing objects can be modified.");
+
+			if (_target == null) 
+				throw new ArgumentNullException(nameof(_target));
+			if (_edit == null) 
+				throw new ArgumentNullException(nameof(_edit));
+
+			Undo.RecordObject(_target, _label);
+			_edit(_target);
+			EditorUtility.SetDirty(_target);
+		}
+
+		public void Modify<T>(Action<T> _edit, bool _inChildren = true, string _label = "Prefab Change" ) where T : UnityEngine.Component
+		{
+			if (!IsValid)
+				throw new NullReferenceException($"{nameof(IsValid)} is false ({nameof(GameObject)} is null); Only existing objects can be modified.");
+
+			if (_edit == null) 
+				throw new ArgumentNullException(nameof(_edit));
+
+			T target = _inChildren ? GameObject.GetComponentInChildren<T>() : GameObject.GetComponent<T>();
+			if (target == null)
+				throw new InvalidOperationException($"Missing required component '{typeof(T).Name}' on GameObject '{GameObject.name}'.");
+
+			Undo.RecordObject(target, _label);
+			_edit(target);
+			EditorUtility.SetDirty(target);
+			EditorUtility.SetDirty(GameObject);
+		}
+
+		public override string ToString()
+		{
+			if (!IsValid)
+				return "<Invalid PrefabInfo>";
+
+			var parts = new List<string>
+			{
+				$"{GameObject.name} ({GameObject.GetInstanceID()})",
+				$"IsPrefab={IsPrefab}",
+				$"IsInstanceRoot={IsInstanceRoot}",
+				$"IsPartOfPrefab={IsPartOfPrefab}",
+				$"IsConnected={IsConnected}",
+				$"IsDisconnected={IsDisconnected}",
+				$"AssetType={AssetType}",
+				$"InstanceStatus={InstanceStatus}",
+				$"IsVariantAsset={IsVariantAsset}",
+				$"IsModelAsset={IsModelAsset}",
+				$"IsMissingAsset={IsMissingAsset}",
+				$"IsDirty={IsDirty}",
+				$"HasUnsavedChanges={HasUnsavedChanges}",
+				$"AssetPath='{AssetPath}'",
+				$"AssetGuid='{AssetGuid}'"
+			};
+
+			return string.Join("\n", parts);
+		}
+
 	}
 }

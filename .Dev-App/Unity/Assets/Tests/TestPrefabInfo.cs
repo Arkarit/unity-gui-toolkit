@@ -69,6 +69,7 @@ namespace GuiToolkit.Test
 			Assert.IsFalse(pi.IsDirty, "Prefab assets should not have overrides.");
 			Assert.IsFalse(pi.IsVariantAsset);
 			Assert.IsFalse(pi.IsModelAsset);
+			SubTestOverrides(pi);
 		}
 
 		[Test]
@@ -130,7 +131,7 @@ namespace GuiToolkit.Test
 			Assert.AreEqual(PrefabAssetType.Variant, pi.AssetType, "Expected Variant asset type.");
 			Assert.AreEqual(PrefabInstanceStatus.Connected, pi.InstanceStatus, "Instance should be connected");
 
-			Assert.IsFalse(pi.IsDirty, "Prefab asset instance should not have overrides.");
+			Assert.IsFalse(pi.IsDirty, "Fresh Prefab asset instance should not have overrides.");
 			Assert.IsTrue(pi.IsVariantAsset);
 			Assert.IsFalse(pi.IsModelAsset);
 		}
@@ -152,7 +153,7 @@ namespace GuiToolkit.Test
 			Assert.AreEqual(PrefabAssetType.Variant, pi.AssetType, "Expected Variant asset type.");
 			Assert.AreEqual(PrefabInstanceStatus.Connected, pi.InstanceStatus, "Instance should be connected");
 
-			Assert.IsFalse(pi.IsDirty, "Prefab asset instance should not have overrides.");
+			Assert.IsFalse(pi.IsDirty, "Fresh Prefab asset instance should not have overrides.");
 			Assert.IsTrue(pi.IsVariantAsset);
 			Assert.IsFalse(pi.IsModelAsset);
 		}
@@ -176,6 +177,30 @@ namespace GuiToolkit.Test
 			Assert.IsFalse(pi.IsDirty, "Prefab assets should not have overrides.");
 			Assert.IsFalse(pi.IsVariantAsset);
 			Assert.IsTrue(pi.IsModelAsset);
+		}
+
+		private void SubTestOverrides(PrefabInfo _assetPrefabInfo)
+		{
+			if (_assetPrefabInfo == null || !_assetPrefabInfo.IsValid)
+				return;
+
+			PrefabInfo pi;
+
+			var obj = PrefabUtility.InstantiatePrefab(_assetPrefabInfo.GameObject);
+			var go = obj as GameObject;
+			pi = PrefabInfo.Create(go);
+			Assert.IsFalse(pi.IsDirty);
+			
+			Debug.Log($"Before Modify():\n{pi.ToString()}");
+			pi.Modify<TestMonoBehaviour>(target => target.Int = Random.Range(-200000, 200000));
+			Debug.Log($"After Modify():\n{pi.ToString()}");
+			Assert.IsTrue(pi.IsDirty);
+			PrefabUtility.SaveAsPrefabAsset(pi.GameObject, TestData.Instance.TempFolderPath + "/1.prefab");
+			Assert.IsFalse(pi.IsDirty);
+
+
+
+
 		}
 	}
 }
