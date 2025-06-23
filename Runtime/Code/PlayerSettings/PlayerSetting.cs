@@ -257,5 +257,10 @@ namespace GuiToolkit
 				Debug.LogError($"Unknown type for player setting '{Key}': {_type.Name}");
 		}
 		
+		/// Not translated, only for POT creation
+		protected static string __(string _s)
+		{
+			return _s;
+		}
 	}
 }

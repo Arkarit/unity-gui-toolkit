@@ -37,16 +37,7 @@ public static class DemoSettings
 			),
 
 			// Graphics
-			new PlayerSetting
-			(
-				__("Graphics"), __("Overall"), "", "High",
-				new PlayerSettingOptions
-				{
-					Type = EPlayerSettingType.Radio,
-					Key = "GraphicsOptionsOverall",
-					StringValues = new List<string>{__("Ultra"), __("High"), __("Medium"), __("Low")}
-				}
-			),
+			new PlayerSettingQuality(),
 
 			// Graphics details
 			new PlayerSetting(__("Graphics"), __("Details"), __("Ambient Occlusion"), true),
