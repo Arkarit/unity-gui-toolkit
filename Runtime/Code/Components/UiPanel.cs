@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -8,8 +6,8 @@ namespace GuiToolkit
 {
 	public interface IShowHidePanelAnimation
 	{
-		void ShowViewAnimation(Action _onFinish = null);
-		void HideViewAnimation(Action _onFinish = null);
+		void ShowViewAnimation(UnityAction _onFinish = null);
+		void HideViewAnimation(UnityAction _onFinish = null);
 		void StopViewAnimation(bool _visible);
 	}
 
