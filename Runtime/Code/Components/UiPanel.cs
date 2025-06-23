@@ -39,6 +39,7 @@ namespace GuiToolkit
 
 		private bool m_defaultSceneVisibilityApplied;
 		private bool m_animationInitialized;
+		private Action m_onShowHideFinishAction;
 
 		public bool Visible { get; private set; }
 
@@ -85,15 +86,11 @@ namespace GuiToolkit
 				OnEndShow();
 				EvOnEndShow.Invoke(this);
 				_onFinish?.Invoke();
+				m_onShowHideFinishAction = null;
 				return;
 			}
 
-			SimpleShowHideAnimation.ShowViewAnimation(() =>
-			{
-				OnEndShow();
-				EvOnEndShow.Invoke(this);
-				_onFinish?.Invoke();
-			});
+			PlayShowHideAnimation(true, _onFinish);
 		}
 
 		public virtual void Hide(bool _instant = false, Action _onFinish = null)
@@ -118,20 +115,42 @@ namespace GuiToolkit
 				EvOnEndHide.Invoke(this);
 				_onFinish?.Invoke();
 
+				m_onShowHideFinishAction = null;
 				DestroyIfNecessary();
 				return;
 			}
 
-			SimpleShowHideAnimation.HideViewAnimation( () =>
-			{
-				gameObject.SetActive(false);
+			PlayShowHideAnimation(false, _onFinish);
+		}
+		
+		private void PlayShowHideAnimation(bool _show, Action _onFinish)
+		{
+			m_onShowHideFinishAction = _onFinish;
+			SimpleShowHideAnimation.OnFinishOnce.RemoveListener(HideViewCallback);
+			SimpleShowHideAnimation.OnFinishOnce.RemoveListener(ShowViewCallback);
+			if (_show)
+				SimpleShowHideAnimation.ShowViewAnimation(ShowViewCallback);
+			else
+				SimpleShowHideAnimation.HideViewAnimation(HideViewCallback);
+		}
+		
+		private void ShowViewCallback()
+		{
+			OnEndShow();
+			EvOnEndShow.Invoke(this);
+			m_onShowHideFinishAction?.Invoke();
+		}
+		
+		private void HideViewCallback()
+		{
+			gameObject.SetActive(false);
 
-				OnEndHide();
-				EvOnEndHide.Invoke(this);
-				_onFinish?.Invoke(); 
+			OnEndHide();
+			EvOnEndHide.Invoke(this);
+			m_onShowHideFinishAction?.Invoke();
+			m_onShowHideFinishAction = null;
 
-				DestroyIfNecessary();
-			});
+			DestroyIfNecessary();
 		}
 
 		public void SetVisible(bool _visible, bool _instant = false, Action _onFinish = null)
