@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -13,7 +11,7 @@ namespace GuiToolkit
 		private const int BaseValue = 30;
 		private const int MaxValue = 121;
 		private const int Range = MaxValue - BaseValue;
-		private const float DefaultValue = (float)(60-BaseValue) / (MaxValue-BaseValue);
+		private const float DefaultValue = 1; //unlimited
 		
 		public PlayerSettingFPS(string _category = null, string _group = null, string _title = null)
 		{
