@@ -321,6 +321,31 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2633651487578084694, guid: 2b5fe23326d242a45b3a8b472f23df9c,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2633651487578084694, guid: 2b5fe23326d242a45b3a8b472f23df9c,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2633651487578084694, guid: 2b5fe23326d242a45b3a8b472f23df9c,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 103.47
+      objectReference: {fileID: 0}
+    - target: {fileID: 2633651487578084694, guid: 2b5fe23326d242a45b3a8b472f23df9c,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 51.735
+      objectReference: {fileID: 0}
+    - target: {fileID: 2633651487578084694, guid: 2b5fe23326d242a45b3a8b472f23df9c,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -32.89
+      objectReference: {fileID: 0}
     - target: {fileID: 2693423411724803111, guid: 2b5fe23326d242a45b3a8b472f23df9c,
         type: 3}
       propertyPath: m_autoTranslate
@@ -361,6 +386,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_text
       value: Max  FPS
+      objectReference: {fileID: 0}
+    - target: {fileID: 6676996271120638987, guid: 2b5fe23326d242a45b3a8b472f23df9c,
+        type: 3}
+      propertyPath: m_textMode
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6998438487966498076, guid: 2b5fe23326d242a45b3a8b472f23df9c,
         type: 3}
@@ -531,6 +561,11 @@ PrefabInstance:
     - target: {fileID: 9155142059391083667, guid: 2b5fe23326d242a45b3a8b472f23df9c,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9220434216905092537, guid: 2b5fe23326d242a45b3a8b472f23df9c,
+        type: 3}
+      propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

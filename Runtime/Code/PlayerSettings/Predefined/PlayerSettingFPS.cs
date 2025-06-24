@@ -6,7 +6,7 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	/// <summary>
-	/// Predefined Player setting for Quality
+	/// Predefined Player setting for FPS
 	/// </summary>
 	public class PlayerSettingFPS : PlayerSetting
 	{
