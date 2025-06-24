@@ -38,6 +38,7 @@ public static class DemoSettings
 
 			// Graphics
 			new PlayerSettingQuality(),
+			new PlayerSettingFPS(),
 
 			// Graphics details
 			new PlayerSetting(__("Graphics"), __("Details"), __("Ambient Occlusion"), true),

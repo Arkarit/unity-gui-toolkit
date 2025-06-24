@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.UI.Slider;
@@ -8,6 +11,13 @@ namespace GuiToolkit
 {
 	public class UiSlider : UiThing
 	{
+		public enum ETextMode
+		{
+			NoText,
+			Always,
+			OnMove
+		}
+		
 		private const string LAYOUT_TOOLTIP = "The first icon can be set small with FirstIconSmall setter (Useful e.g. for volume sliders.) Set these fields if you want to use this.";
 		[Header("Mandatory members")]
 		[Tooltip("Unity slider component (mandatory)")]
@@ -27,6 +37,18 @@ namespace GuiToolkit
 		[Header("Icons")]
 		[Tooltip("Icon images. Needs to be set if 'Icons' getter/setter is used.")]
 		[SerializeField] protected Image[] m_optionalIconImages;
+		
+		[Header("Text")]
+		[Tooltip("Show text when slider is moved.")]
+		[SerializeField] protected ETextMode m_textMode;
+		[Tooltip("Optional text component")]
+		[SerializeField] protected TMP_Text m_optionalValueText;
+		[Tooltip("Optional animation for show/hide text")]
+		[SerializeField] protected UiSimpleAnimation m_optionalShowTextAnimation;
+		[SerializeField] protected float m_textBaseValue = 0;
+		[SerializeField] protected float m_textMultiplier = 1;
+		[SerializeField] protected bool m_textIsInt = false;
+		[SerializeField] protected float m_hideTextDelaySeconds = 1;
 
 		[Space]
 		[Tooltip(LAYOUT_TOOLTIP)]
@@ -44,18 +66,27 @@ namespace GuiToolkit
 		[Tooltip(LAYOUT_TOOLTIP)]
 		[SerializeField] protected bool m_firstIconSmall;
 
+		public Func<UiSlider, string> ValueToStringFn = DefaultValueToStringFn;
+		public float TextMultiplier => m_textMultiplier;
+		public float TextBaseValue => m_textBaseValue;
+		
+		public bool TextIsInt => m_textIsInt;
+		public ETextMode TextMode
+		{
+			get => m_textMode;
+			set => m_textMode = value;
+		}
 
 		public override bool IsEnableableInHierarchy => true;
 
 		private float m_savedSliderVal;
 		private List<string> m_icons;
+		private Coroutine m_hideTextCoroutine = null;
+		
 
-		public SliderEvent OnValueChanged
-		{
-			get => m_slider.onValueChanged;
-			set => m_slider.onValueChanged = value;
-		}
+		public SliderEvent OnValueChanged => m_slider.onValueChanged;
 
+		// This value is always normalized.
 		public float Value
 		{
 			get => m_slider.value;
@@ -121,6 +152,18 @@ namespace GuiToolkit
 			}
 		}
 
+		public static string DefaultValueToStringFn(UiSlider _slider)
+		{
+			var val = _slider.TextBaseValue + _slider.Value * _slider.TextMultiplier;
+			if (_slider.TextIsInt)
+			{
+				int intVal = (int) Mathf.Round(val);
+				return intVal.ToString();
+			}
+
+			return string.Format(CultureInfo.InvariantCulture, "{0:F2}", val);
+		}
+
 		private Sprite LoadIcon(string _assetPath)
 		{
 			if (string.IsNullOrEmpty(_assetPath))
@@ -156,10 +199,25 @@ namespace GuiToolkit
 
 			if (m_optionalFullVolumeButton != null)
 				m_optionalFullVolumeButton.OnClick.AddListener(OnFullVolumeClick);
+			
+			bool hasText = m_optionalValueText != null;
+			
+			if (!hasText)
+				return;
+			
+			m_optionalValueText.gameObject.SetActive(m_textMode == ETextMode.Always || m_optionalShowTextAnimation != null);
+			if (m_optionalShowTextAnimation != null)
+				m_optionalShowTextAnimation.Reset();
+			
+			if (m_textMode != ETextMode.NoText)
+				OnValueChanged.AddListener(ChangeText);
 		}
 
 		protected override void OnDisable()
 		{
+			if (m_textMode != ETextMode.NoText)
+				OnValueChanged.RemoveListener(ChangeText);
+			
 			if (m_optionalOnOffToggle != null)
 				m_optionalOnOffToggle.OnValueChanged.RemoveListener(OnOnOffValueChanged);
 			else if (m_optionalNoVolumeButton != null)
@@ -167,9 +225,51 @@ namespace GuiToolkit
 
 			if (m_optionalFullVolumeButton != null)
 				m_optionalFullVolumeButton.OnClick.RemoveListener(OnFullVolumeClick);
+			
+			m_hideTextCoroutine = null;
 			base.OnDisable();
 		}
 
+		private void ChangeText(float _value)
+		{
+			if ( m_optionalValueText == null || TextMode == ETextMode.NoText)
+				return;
+			
+			m_optionalValueText.text = ValueToStringFn(this);
+			
+			if (TextMode == ETextMode.Always)
+				return;
+			
+			if (m_hideTextCoroutine != null)
+			{
+				StopCoroutine(m_hideTextCoroutine);
+				m_hideTextCoroutine = StartCoroutine(HideTextDelayed());
+				return;
+			}
+			
+			m_optionalValueText.gameObject.SetActive(true);
+			if (m_optionalShowTextAnimation != null)
+				m_optionalShowTextAnimation.Play();
+
+			m_hideTextCoroutine = StartCoroutine(HideTextDelayed());
+		}
+
+		IEnumerator HideTextDelayed()
+		{
+			yield return new WaitForSeconds(m_hideTextDelaySeconds);
+			
+			m_hideTextCoroutine = null;
+
+			if (m_optionalShowTextAnimation != null)
+			{
+				m_optionalShowTextAnimation.Play(true);
+				yield break;
+			}
+			
+			if (m_optionalValueText != null)
+				m_optionalValueText.gameObject.SetActive(false);
+		}
+		
 		protected virtual void OnOnOffValueChanged( bool _value )
 		{
 			// The on/off toggle is inverted - when it's on, the slider is off and vice versa

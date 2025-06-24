@@ -49,6 +49,7 @@ namespace GuiToolkit
 		public UnityAction<PlayerSetting> OnChanged = null;					//!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
 		public bool IsSaveable = true;										//!< Is the option saved in player prefs? Obviously usually true, but can be set to false for cheats etc.
 		public object CustomData = null;									//!< Optional custom data to hand over to your handler
+		public Func<float, string> ValueToStringFn = null;						//!< Optional slider text conversion. If left null, no text is displayed.
 		
 		public static PlayerSettingOptions NoMouseKeys => 
 			new ()
