@@ -21,12 +21,13 @@ namespace GuiToolkit
 			{
 				ValueToStringFn = GetText,
 				OnChanged = OnFpsChanged,
+				CustomPrefab = Resources.Load<GameObject>("PlayerSettingFPS")
 			};
 			
 			Type type = typeof(float);
 			m_category = string.IsNullOrEmpty(_category) ? __("Graphics"): _category;
 			m_group = string.IsNullOrEmpty(_group) ? __("Details"): _group;
-			m_title = string.IsNullOrEmpty(_title) ? string.Empty: _title;
+			m_title = string.IsNullOrEmpty(_title) ? _("Max FPS"): _title;
 			m_isRadio = false;
 			m_isLanguage = false;
 			m_key = "GraphicsFPS";
@@ -52,7 +53,7 @@ namespace GuiToolkit
 			int intVal = (int) Mathf.Round(val);
 			
 			if (intVal == MaxValue)
-				return __("Unlimited");
+				return _("Unlimited");
 			
 			return intVal.ToString();
 		}

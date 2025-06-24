@@ -49,7 +49,8 @@ namespace GuiToolkit
 		public UnityAction<PlayerSetting> OnChanged = null;					//!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
 		public bool IsSaveable = true;										//!< Is the option saved in player prefs? Obviously usually true, but can be set to false for cheats etc.
 		public object CustomData = null;									//!< Optional custom data to hand over to your handler
-		public Func<float, string> ValueToStringFn = null;						//!< Optional slider text conversion. If left null, no text is displayed.
+		public Func<float, string> ValueToStringFn = null;					//!< Optional slider text conversion. If left null, no text is displayed.
+		public GameObject CustomPrefab = null;								//!< Custom prefab to be used in Ui
 		
 		public static PlayerSettingOptions NoMouseKeys => 
 			new ()
@@ -66,7 +67,7 @@ namespace GuiToolkit
 	}
 
 	[Serializable]
-	public class PlayerSetting
+	public class PlayerSetting : LocaClass
 	{
 		[SerializeField] protected string m_category;
 		[SerializeField] protected string m_group;
@@ -256,12 +257,6 @@ namespace GuiToolkit
 				m_value = InitValue(Options, Key, Convert.ToString(DefaultValue));
 			else
 				Debug.LogError($"Unknown type for player setting '{Key}': {_type.Name}");
-		}
-		
-		/// Not translated, only for POT creation
-		protected static string __(string _s)
-		{
-			return _s;
 		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -143,12 +144,56 @@ namespace GuiToolkit
 			else if (_playerSetting.IsButton)
 				InstantiateMatchingEntry(_playerSetting, m_buttonPrefab, _parent, null, "PlayerSettingButton_");
 			else
+			{
+				var customEntry = InstantiateCustomPrefabIfNecessary(_playerSetting, _parent);
+				if (customEntry != null)
+				{
+					InstantiateMatchingEntry(_playerSetting, customEntry, _parent, null, "PlayerSetting_Custom_", null, true);
+					return;
+				}
+
 				Debug.LogError("Unknown player setting type");
+			}
 		}
 
-		private void InstantiateMatchingEntry(PlayerSetting _playerSetting, UiPlayerSettingBase _prefab, RectTransform _parent, ToggleGroup _toggleGroup, string _gameObjectNamePrefix, string _subKey = null )
+		private UiPlayerSettingBase InstantiateCustomPrefabIfNecessary(PlayerSetting _playerSetting, RectTransform _parent)
 		{
-			UiPlayerSettingBase entry = Instantiate(_prefab, _parent);
+			if (_playerSetting.Options == null || _playerSetting.Options.CustomPrefab == null)
+				return null;
+				
+			GameObject customPrefabGo = _playerSetting.Options.CustomPrefab;
+			var playerSettingBase = customPrefabGo.GetComponent<UiPlayerSettingBase>();
+			if (playerSettingBase == null)
+			{
+				Debug.LogError($"Custom Prefab defined, but doesn't contain a '{nameof(UiPlayerSettingBase)}' component");
+				return null;
+			}
+			
+			return Instantiate(playerSettingBase, _parent);
+		}
+		
+		private void InstantiateMatchingEntry
+		(
+			PlayerSetting _playerSetting, 
+			UiPlayerSettingBase _prefab, 
+			RectTransform _parent, 
+			ToggleGroup _toggleGroup, 
+			string _gameObjectNamePrefix, 
+			string _subKey = null, 
+			bool _preInstantiated = false
+		)
+		{
+			if (!_preInstantiated)
+			{
+				var customEntry = InstantiateCustomPrefabIfNecessary(_playerSetting, _parent);
+				if (customEntry != null)
+				{
+					_prefab = customEntry;
+					_preInstantiated = true;
+				}
+			}
+			
+			UiPlayerSettingBase entry = _preInstantiated ? _prefab : Instantiate(_prefab, _parent);
 			entry.SetData(_gameObjectNamePrefix, _playerSetting, _subKey );
 			if (_toggleGroup && entry.Toggle != null)
 				entry.Toggle.group = _toggleGroup;

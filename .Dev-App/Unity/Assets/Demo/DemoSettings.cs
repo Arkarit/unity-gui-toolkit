@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using GuiToolkit.Style;
 using UnityEngine;
 
-public static class DemoSettings
+public class DemoSettings : LocaClass
 {
 	private const string KeyUiSkin = "UiSkin";
 
@@ -98,11 +98,5 @@ public static class DemoSettings
 			}),
 		});
 
-	}
-	
-	/// Not translated, only for POT creation
-	private static string __(string _s)
-	{
-		return _s;
 	}
 }
