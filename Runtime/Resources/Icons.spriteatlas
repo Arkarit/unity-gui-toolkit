@@ -37,6 +37,8 @@ SpriteAtlas:
     isAtlasV2: 0
     cachedData: {fileID: 0}
     packedSpriteRenderDataKeys:
+    - 08e91730f84d58245baf84a6de011344: 21300000
+    - 62b32790cab8c3d489996c9cf315857b: 21300000
     - 320d01a17bad420459171caa4a5d46f5: 21300000
     - 29fe33a231551814280f193feee2012d: 21300000
     - 067049d2849a45247b0c22eae0f271b7: 21300000
@@ -55,6 +57,8 @@ SpriteAtlas:
     - 877e341e2f694db409ad60b7467611f0: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
+  - {fileID: 21300000, guid: 08e91730f84d58245baf84a6de011344, type: 3}
+  - {fileID: 21300000, guid: 62b32790cab8c3d489996c9cf315857b, type: 3}
   - {fileID: 21300000, guid: 320d01a17bad420459171caa4a5d46f5, type: 3}
   - {fileID: 21300000, guid: 29fe33a231551814280f193feee2012d, type: 3}
   - {fileID: 21300000, guid: 067049d2849a45247b0c22eae0f271b7, type: 3}
@@ -72,6 +76,8 @@ SpriteAtlas:
   - {fileID: 21300000, guid: cd7814db32a13f54fb1fd147067be177, type: 3}
   - {fileID: 21300000, guid: 877e341e2f694db409ad60b7467611f0, type: 3}
   m_PackedSpriteNamesToIndex:
+  - UITK_Infinity
+  - UITK_Invisible
   - UITK_Text
   - UITK_Gear
   - UITK_Target

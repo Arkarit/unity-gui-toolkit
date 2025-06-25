@@ -182,6 +182,7 @@ namespace GuiToolkit
 		public const string SEARCH			= "Icons/UITK_Search";
 		public const string SHARE			= "Icons/UITK_Share";
 		public const string TEXT			= "Icons/UITK_Text";
-
+		public const string INFINITY		= "Icons/UITK_Infinity";
+		public const string INVISIBLE		= "Icons/UITK_Invisible";
 	}
 }

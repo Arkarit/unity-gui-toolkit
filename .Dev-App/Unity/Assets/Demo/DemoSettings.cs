@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using GuiToolkit.Style;
 using UnityEngine;
 
-public static class DemoSettings
+public class DemoSettings : LocaClass
 {
 	private const string KeyUiSkin = "UiSkin";
 
@@ -37,16 +37,8 @@ public static class DemoSettings
 			),
 
 			// Graphics
-			new PlayerSetting
-			(
-				__("Graphics"), __("Overall"), "", "High",
-				new PlayerSettingOptions
-				{
-					Type = EPlayerSettingType.Radio,
-					Key = "GraphicsOptionsOverall",
-					StringValues = new List<string>{__("Ultra"), __("High"), __("Medium"), __("Low")}
-				}
-			),
+			new PlayerSettingQuality(),
+			new PlayerSettingFPS(),
 
 			// Graphics details
 			new PlayerSetting(__("Graphics"), __("Details"), __("Ambient Occlusion"), true),
@@ -106,11 +98,5 @@ public static class DemoSettings
 			}),
 		});
 
-	}
-	
-	/// Not translated, only for POT creation
-	private static string __(string _s)
-	{
-		return _s;
 	}
 }

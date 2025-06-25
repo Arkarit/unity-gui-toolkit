@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -51,6 +49,8 @@ namespace GuiToolkit
 		public UnityAction<PlayerSetting> OnChanged = null;					//!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
 		public bool IsSaveable = true;										//!< Is the option saved in player prefs? Obviously usually true, but can be set to false for cheats etc.
 		public object CustomData = null;									//!< Optional custom data to hand over to your handler
+		public Func<float, string> ValueToStringFn = null;					//!< Optional slider text conversion. If left null, no text is displayed.
+		public GameObject CustomPrefab = null;								//!< Custom prefab to be used in Ui
 		
 		public static PlayerSettingOptions NoMouseKeys => 
 			new ()
@@ -67,7 +67,7 @@ namespace GuiToolkit
 	}
 
 	[Serializable]
-	public class PlayerSetting
+	public class PlayerSetting : LocaClass
 	{
 		[SerializeField] protected string m_category;
 		[SerializeField] protected string m_group;
@@ -122,6 +122,7 @@ namespace GuiToolkit
 		public List<string> Icons => m_icons;
 		public bool IsLocalized => m_isLocalized;
 
+		public PlayerSetting() {}
 		public PlayerSetting( string _category, string _group, string _title, object _defaultValue, PlayerSettingOptions _options = null )
 		{
 			m_options = _options ?? new PlayerSettingOptions();
@@ -177,7 +178,7 @@ namespace GuiToolkit
 			m_options.OnChanged?.Invoke(this);
 		}
 
-		private T GetValue<T>(ref object _v)
+		protected T GetValue<T>(ref object _v)
 		{
 			CheckType(typeof(T));
 
@@ -187,7 +188,7 @@ namespace GuiToolkit
 			return (T)_v;
 		}
 
-		private object GetValue(ref object _v)
+		protected object GetValue(ref object _v)
 		{
 			if (m_type == null)
 				return null;
@@ -198,7 +199,7 @@ namespace GuiToolkit
 			return _v;
 		}
 
-		private void SaveValue()
+		protected void SaveValue()
 		{
 			if (!Options.IsSaveable || IsButton)
 				return;
@@ -214,36 +215,36 @@ namespace GuiToolkit
 				Debug.LogError($"Unknown type for player setting '{Key}': {m_type.Name}");
 		}
 
-		private void CheckType(Type _t)
+		protected void CheckType(Type _t)
 		{
 			if (_t != m_type)
 				throw new ArgumentException($"Wrong value type in Player Setting '{m_key}': Should be '{m_type.Name}', is '{_t.Name}'");
 		}
 
-		private void OnLanguageChanged( string _language )
+		protected void OnLanguageChanged( string _language )
 		{
 			Value = _language;
 		}
 		
-		private static int InitValue(PlayerSettingOptions _options, string _key, int _defaultValue) 
+		protected static int InitValue(PlayerSettingOptions _options, string _key, int _defaultValue) 
 		{ 
 			var deflt = Convert.ToInt32(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetInt(_key, deflt) : deflt;
 		}
 		
-		private static float InitValue(PlayerSettingOptions _options, string _key, float _defaultValue) 
+		protected static float InitValue(PlayerSettingOptions _options, string _key, float _defaultValue) 
 		{ 
 			var deflt = Convert.ToSingle(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetFloat(_key, deflt) : deflt;
 		}
 		
-		private static string InitValue(PlayerSettingOptions _options, string _key, string _defaultValue) 
+		protected static string InitValue(PlayerSettingOptions _options, string _key, string _defaultValue) 
 		{ 
 			var deflt = Convert.ToString(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetString(_key, deflt) : deflt;
 		}
 		
-		private void InitValue(Type _type)
+		protected void InitValue(Type _type)
 		{
 			if (_type == null)
 				return;
@@ -257,6 +258,5 @@ namespace GuiToolkit
 			else
 				Debug.LogError($"Unknown type for player setting '{Key}': {_type.Name}");
 		}
-		
 	}
 }

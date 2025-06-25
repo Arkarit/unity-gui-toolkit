@@ -580,7 +580,7 @@ namespace GuiToolkit
 			}
 		}
 		
-		public void ShowViewAnimation(Action _onFinishOnce = null)
+		public void ShowViewAnimation(UnityAction _onFinishOnce = null)
 		{
 			if (!m_supportViewAnimations)
 			{
@@ -589,12 +589,12 @@ namespace GuiToolkit
 			}
 
 			if (_onFinishOnce != null)
-				m_onFinishOnce.AddListener(() => _onFinishOnce());
+				m_onFinishOnce.AddListener(_onFinishOnce);
 
 			Play();
 		}
 
-		public void HideViewAnimation(Action _onFinishOnce = null)
+		public void HideViewAnimation(UnityAction _onFinishOnce = null)
 		{
 			if (!m_supportViewAnimations)
 			{
@@ -603,7 +603,7 @@ namespace GuiToolkit
 			}
 
 			if (_onFinishOnce != null)
-				m_onFinishOnce.AddListener(() => _onFinishOnce());
+				m_onFinishOnce.AddListener(_onFinishOnce);
 			Play(true);
 		}
 

@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -10,10 +9,29 @@ namespace GuiToolkit
 	{
 		[SerializeField] protected UiSlider m_slider;
 
+		private Func<float, string> OptionsValueToStringFn => m_playerSetting.Options.ValueToStringFn;
+		
 		protected override void OnEnable()
 		{
 			base.OnEnable();
 			m_slider.OnValueChanged.AddListener(OnSliderValueChanged);
+			StartCoroutine(SetSliderOptionsDelayed());
+		}
+
+		private string ValueToStringFn(UiSlider _slider) => 
+			OptionsValueToStringFn == null ? 
+				UiSlider.DefaultValueToStringFn(_slider) : 
+				OptionsValueToStringFn.Invoke(_slider.Value);
+		
+		private IEnumerator SetSliderOptionsDelayed()
+		{
+			while (m_playerSetting == null || m_playerSetting.Options == null)
+				yield return 0;
+			
+			m_slider.ValueToStringFn = ValueToStringFn;
+			m_slider.TextMode = OptionsValueToStringFn != null ? 
+				UiSlider.ETextMode.OnMove : 
+				UiSlider.ETextMode.NoText;
 		}
 
 		protected override void OnDisable()
