@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -15,21 +16,26 @@ namespace GuiToolkit
 	[Serializable]
 	public struct PathField
 	{
-		// --------------- data ---------------
-		public string Path;
+		[FormerlySerializedAs("Path")] 
+		[SerializeField] private string m_path;
 
-		// --------------- path basics ---------------
-		public bool   IsRelative => !string.IsNullOrEmpty(Path) && Path.StartsWith('.');
+		public string Path
+		{
+			get => m_path;
+			set => m_path = value.Replace('\\', '/');
+		}
+
+		public bool   IsRelative => !string.IsNullOrEmpty(m_path) && m_path.StartsWith('.');
 		public string FullPath
 		{
 			get
 			{
-				if (string.IsNullOrEmpty(Path))
+				if (string.IsNullOrEmpty(m_path))
 					return null;
 
 				return IsRelative
-					? System.IO.Path.GetFullPath("./" + Path).Replace('\\', '/')
-					: Path.Replace('\\', '/');
+					? System.IO.Path.GetFullPath("./" + m_path).Replace('\\', '/')
+					: m_path.Replace('\\', '/');
 			}
 		}
 
@@ -102,9 +108,9 @@ namespace GuiToolkit
 #endif
 
 		// --------------- constructors / casts ---------------
-		public PathField(string _val = null) => Path = _val;
-		public static implicit operator string(PathField _val) => _val.Path;
-		public override string ToString() => Path;
+		public PathField(string _val = null) => m_path = _val;
+		public static implicit operator string(PathField _val) => _val.m_path;
+		public override string ToString() => m_path;
 
 		// --------------- NEW: loading helpers ---------------
 #if UNITY_EDITOR
@@ -127,7 +133,7 @@ namespace GuiToolkit
 
 			if (!IsFile)
 			{
-				_errorMessage = $"Path '{Path}' is not a file.";
+				_errorMessage = $"Path '{m_path}' is not a file.";
 				return null;
 			}
 
@@ -143,7 +149,7 @@ namespace GuiToolkit
 				return null;
 			}
 
-			_errorMessage = $"No asset of type {typeof(T).Name} found at '{Path}'.";
+			_errorMessage = $"No asset of type {typeof(T).Name} found at '{m_path}'.";
 			return null;
 		}
 #else

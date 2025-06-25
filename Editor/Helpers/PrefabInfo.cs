@@ -52,9 +52,6 @@ namespace GuiToolkit.Editor
 				if (m_gameObject == null)
 					return false;
 
-				if (PrefabUtility.IsPartOfPrefabInstance(m_gameObject))
-					return PrefabUtility.HasPrefabInstanceAnyOverrides(m_gameObject, false);
-
 				return EditorUtility.IsDirty(m_gameObject);
 			}
 		}
@@ -198,7 +195,7 @@ namespace GuiToolkit.Editor
 			Undo.RecordObject(target, _label);
 			_edit(target);
 			EditorUtility.SetDirty(target);
-			EditorUtility.SetDirty(GameObject);
+//			EditorUtility.SetDirty(GameObject);
 		}
 
 		public override string ToString()

@@ -9,7 +9,7 @@ namespace GuiToolkit.Editor
 	{
 		public override void OnGUI(Rect _rect, SerializedProperty _property, GUIContent _label)
 		{
-			var pathProp = _property.FindPropertyRelative("Path");
+			var pathProp = _property.FindPropertyRelative("m_path");
 
 			bool hasPathFieldAttribute = _property.TryGetCustomAttribute(out PathFieldAttribute pathFieldAttr, true);
 			bool hasTooltipAttribute   = _property.TryGetCustomAttribute(out TooltipAttribute tooltipAttr, true);
@@ -31,7 +31,7 @@ namespace GuiToolkit.Editor
 				path = Path.GetRelativePath(relativeTo, path);
 
 			// Apply (button / text field) modification
-			pathProp.stringValue = path;
+			pathProp.stringValue = path.Replace('\\', '/');
 
 			// ---------------------------------------------------------------------------
 			// Drag-and-Drop support

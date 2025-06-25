@@ -13,29 +13,30 @@ MonoBehaviour:
   m_Name: TestData
   m_EditorClassIdentifier: 
   m_TempFolderPath:
-    Path: Assets\Tests\TestObjects\Temp
+    m_path: Assets/Tests/TestObjects/Temp
   m_sortByPrefabHierarchyPaths:
-  - Path: Assets\Tests\TestObjects\Prefabs\TestSortByPrefabHierarchy
-  - Path: Assets\External\unity-gui-toolkit\Prefabs
+  - m_path: Assets/Tests/TestObjects/Prefabs/TestSortByPrefabHierarchy
+  - m_path: Assets/External/unity-gui-toolkit/Prefabs
   m_regularPrefabAsset:
-    Path: Assets\Tests\TestObjects\Prefabs\TestPrefabInfo\Cube.prefab
+    m_path: Assets/Tests/TestObjects/Prefabs/TestPrefabInfo/Cube.prefab
   m_variantPrefabAssetWithoutOverrides:
-    Path: Assets\Tests\TestObjects\Prefabs\TestPrefabInfo\Cube Variant Without Overrides.prefab
+    m_path: Assets/Tests/TestObjects/Prefabs/TestPrefabInfo/Cube Variant Without
+      Overrides.prefab
   m_variantPrefabAssetWithOverrides:
-    Path: Assets\Tests\TestObjects\Prefabs\TestPrefabInfo\Cube Variant With Overrides.prefab
+    m_path: Assets/Tests/TestObjects/Prefabs/TestPrefabInfo/Cube Variant With Overrides.prefab
   m_modelPrefabAsset:
-    Path: Assets\Tests\TestObjects\Prefabs\TestPrefabInfo\Medaillon.FBX
+    m_path: Assets/Tests/TestObjects/Prefabs/TestPrefabInfo/Medaillon.FBX
   m_nestedPrefabWithRegularInstance:
-    Path: 
+    m_path: 
   m_nestedPrefabWithVariantInstance:
-    Path: 
+    m_path: 
   m_regularPrefabScene:
-    Path: 
+    m_path: 
   m_variantPrefabScene:
-    Path: 
+    m_path: 
   m_disconnectedPrefabScene:
-    Path: 
+    m_path: 
   m_overriddenPrefabScene:
-    Path: 
+    m_path: 
   m_nonPrefabScene:
-    Path: 
+    m_path: 
