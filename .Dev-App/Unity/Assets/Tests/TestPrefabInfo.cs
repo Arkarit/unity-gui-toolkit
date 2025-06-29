@@ -131,7 +131,7 @@ namespace GuiToolkit.Test
 			Assert.AreEqual(PrefabAssetType.Variant, pi.AssetType, "Expected Variant asset type.");
 			Assert.AreEqual(PrefabInstanceStatus.Connected, pi.InstanceStatus, "Instance should be connected");
 
-			Assert.IsFalse(pi.IsDirty, "Fresh Prefab asset instance should not have overrides.");
+			Assert.IsTrue(pi.IsDirty, "Fresh Prefab asset instance should be dirty.");
 			Assert.IsTrue(pi.IsVariantAsset);
 			Assert.IsFalse(pi.IsModelAsset);
 		}
@@ -153,7 +153,7 @@ namespace GuiToolkit.Test
 			Assert.AreEqual(PrefabAssetType.Variant, pi.AssetType, "Expected Variant asset type.");
 			Assert.AreEqual(PrefabInstanceStatus.Connected, pi.InstanceStatus, "Instance should be connected");
 
-			Assert.IsFalse(pi.IsDirty, "Fresh Prefab asset instance should not have overrides.");
+			Assert.IsTrue(pi.IsDirty, "Fresh Prefab asset instance should be dirty.");
 			Assert.IsTrue(pi.IsVariantAsset);
 			Assert.IsFalse(pi.IsModelAsset);
 		}
