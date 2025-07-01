@@ -59,6 +59,17 @@ namespace GuiToolkit.Editor
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_loadMainSceneOnPlay"), true);
 
+			var loadViewInEveryScene = m_serializedSettingsObject.FindProperty("m_loadViewInEveryScene");
+			EditorGUILayout.PropertyField(loadViewInEveryScene, true);
+			if (loadViewInEveryScene.boolValue)
+			{
+				EditorGUI.indentLevel++;
+				EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_exceptUiMainExists"), true);
+				EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_uiMainPrefab"), true);
+				EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_uiViewPrefab"), true);
+				EditorGUI.indentLevel--;
+			}
+
 			if (m_firstTimeInit)
 			{
 				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);

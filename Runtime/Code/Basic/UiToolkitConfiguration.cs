@@ -76,6 +76,11 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_LOAD_MAIN_SCENE_ON_PLAY)]
 		public bool m_loadMainSceneOnPlay = false;
+		
+		public bool m_loadViewInEveryScene = false;
+		public bool m_exceptUiMainExists = true;
+		public UiMain m_uiMainPrefab;
+		public UiView m_uiViewPrefab;
 
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
 		public string m_additionalScenesPath = "Scenes/";

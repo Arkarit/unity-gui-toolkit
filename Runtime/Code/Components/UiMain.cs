@@ -542,11 +542,13 @@ namespace GuiToolkit
 			if (Application.isPlaying)
 				DontDestroyOnLoad(gameObject);
 			
+			Instance = this;
 			IsAwake = true;
 		}
 
 		protected virtual void OnDestroy()
 		{
+			IsAwake = false;
 			Instance = null;
 		}
 

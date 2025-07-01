@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -92,8 +91,5 @@ namespace GuiToolkit
 			EditorSceneManager.OpenScene(mainScenePath, OpenSceneMode.Additive);
 			return false;
 		}
-
-
 	}
 }
-#endif
