@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -8,16 +9,25 @@ namespace GuiToolkit.Editor
 {
 	public static class CreatePackageVariantInProject
 	{
+		// --------------------------------------------------------------------
+		// Menu labels & priorities
+		// --------------------------------------------------------------------
 		private const string Prefix = "Assets/Create Variant/";
-		private const string SelectEachPath     = Prefix + "Select each Path";
-		private const int    SelectEachPathPriority = -800;
+		
+		private const string SelectEachPath      = Prefix + "Select each Path";
+		private const int    SelectEachPriority  = -800;
 
-		/// <summary>
-		/// Creates a prefab variant from a selected prefab inside a package folder.
-		/// The variant will be saved inside the 'Assets' folder.
-		/// </summary>
-		[MenuItem(SelectEachPath, false, SelectEachPathPriority)]
-		public static void SelectEachPathExec(MenuCommand cmd)
+		private const string FlatInAssets        = Prefix + "Flat in Assets";
+		private const int    FlatInAssetsPriority = -810;
+
+		private const string MirrorHierarchy     = Prefix + "Mirror Package Hierarchy";
+		private const int    MirrorHierarchyPriority = -820;
+
+		// --------------------------------------------------------------------
+		// 1) Prompt for each file
+		// --------------------------------------------------------------------
+		[MenuItem(SelectEachPath, false, SelectEachPriority)]
+		private static void SelectEachPathExec(MenuCommand cmd)
 		{
 			foreach (var obj in Selection.objects.OfType<GameObject>())
 			{
@@ -33,28 +43,76 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		/// <summary>
-		/// Enables the menu item only if one or more selected objects are regular prefabs inside a package.
-		/// </summary>
-		[MenuItem(SelectEachPath, true, SelectEachPathPriority)]
-		public static bool CreatePackageVariantValidate() => Validate();
-
-		private static void CreateVariant(GameObject obj, Func<GameObject, string, string> _getPath)
+		// --------------------------------------------------------------------
+		// 2) Flat in Assets
+		// --------------------------------------------------------------------
+		[MenuItem(FlatInAssets, false, FlatInAssetsPriority)]
+		private static void FlatInAssetsExec(MenuCommand cmd)
 		{
-			var sourcePath = AssetDatabase.GetAssetPath(obj);
+			foreach (var obj in Selection.objects.OfType<GameObject>())
+			{
+				CreateVariant(obj, (_, defaultName) =>
+				{
+					// Always create directly under Assets/, ensure unique name.
+					var assetPath = $"Assets/{defaultName}";
+					return AssetDatabase.GenerateUniqueAssetPath(assetPath);
+				});
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// 3) Mirror Package Hierarchy
+		// --------------------------------------------------------------------
+		[MenuItem(MirrorHierarchy, false, MirrorHierarchyPriority)]
+		private static void MirrorHierarchyExec(MenuCommand cmd)
+		{
+			foreach (var obj in Selection.objects.OfType<GameObject>())
+			{
+				CreateVariant(obj, (src, defaultName) =>
+				{
+					var sourcePath = AssetDatabase.GetAssetPath(src);              // "Packages/com.foo.bar/Prefabs/My.prefab"
+					var relative   = sourcePath.Substring("Packages/".Length);     // "com.foo.bar/Prefabs/My.prefab"
+					var relFolder  = Path.GetDirectoryName(relative) ?? string.Empty;
+
+					// Target: Assets/PackageVariants/com.foo.bar/Prefabs/
+					var destFolder = Path.Combine("Assets/PackageVariants", relFolder).Replace("\\", "/");
+
+					// Ensure folder exists (absolute system path required)
+					var absolute = Path.GetFullPath(Path.Combine(Application.dataPath, "..", destFolder));
+					EditorFileUtility.EnsureFolderExists(absolute);
+
+					var destPath = Path.Combine(destFolder, defaultName).Replace("\\", "/");
+					return AssetDatabase.GenerateUniqueAssetPath(destPath);
+				});
+			}
+		}
+
+		// --------------------------------------------------------------------
+		// Validation (shared by all three menu items)
+		// --------------------------------------------------------------------
+		[MenuItem(SelectEachPath, true, SelectEachPriority)]
+		[MenuItem(FlatInAssets,  true, FlatInAssetsPriority)]
+		[MenuItem(MirrorHierarchy, true, MirrorHierarchyPriority)]
+		private static bool MenuValidate() => ValidateSelection();
+
+		// --------------------------------------------------------------------
+		// Core helper
+		// --------------------------------------------------------------------
+		private static void CreateVariant(GameObject prefab,
+			Func<GameObject, string, string> getTargetPath)
+		{
+			var sourcePath = AssetDatabase.GetAssetPath(prefab);
 			if (!sourcePath.StartsWith("Packages/"))
 				return;
 
-			// Ask user for destination path
-			var defaultName = $"{obj.name} Variant.prefab";
-			var targetPath = _getPath(obj, defaultName);
+			var defaultName = $"{prefab.name} Variant.prefab";
+			var targetPath  = getTargetPath(prefab, defaultName);
 
-			
 			if (string.IsNullOrEmpty(targetPath))
-				return; // User cancelled
+				return; // user cancelled
 
 			// 1) Instantiate prefab temporarily
-			var instance = PrefabUtility.InstantiatePrefab(obj) as GameObject;
+			var instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
 
 			try
 			{
@@ -74,20 +132,19 @@ namespace GuiToolkit.Editor
 			}
 			finally
 			{
-				// 3) Clean up temporary instance
+				// 3) Clean up
 				Object.DestroyImmediate(instance);
 			}
-			
 		}
-		
-		private static bool Validate()
+
+		private static bool ValidateSelection()
 		{
 			return Selection.objects.OfType<GameObject>().Any(obj =>
 			{
 				var path = AssetDatabase.GetAssetPath(obj);
+				var type = PrefabUtility.GetPrefabAssetType(obj);
 				return path.StartsWith("Packages/") &&
-				       (PrefabUtility.GetPrefabAssetType(obj) == PrefabAssetType.Regular ||
-				        PrefabUtility.GetPrefabAssetType(obj) == PrefabAssetType.Variant);
+				       (type == PrefabAssetType.Regular || type == PrefabAssetType.Variant);
 			});
 		}
 	}
