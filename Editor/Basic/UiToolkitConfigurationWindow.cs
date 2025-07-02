@@ -59,13 +59,25 @@ namespace GuiToolkit.Editor
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_loadMainSceneOnPlay"), true);
 
+			if (m_firstTimeInit)
+			{
+				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_LOAD_VIEW_IN_EVERY_SCENE, MessageType.Info);
+			}
+			
 			var loadViewInEveryScene = m_serializedSettingsObject.FindProperty("m_loadViewInEveryScene");
 			EditorGUILayout.PropertyField(loadViewInEveryScene, true);
 			if (loadViewInEveryScene.boolValue)
 			{
 				EditorGUI.indentLevel++;
+				if (m_firstTimeInit)
+					EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_LOAD_VIEW_IN_EVERY_SCENE_EXCEPT_UI_MAIN_EXISTS, MessageType.Info);
 				EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_exceptUiMainExists"), true);
+				if (m_firstTimeInit)
+					EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_LOAD_VIEW_IN_EVERY_SCENE_UI_MAIN_PREFAB, MessageType.Info);
 				EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_uiMainPrefab"), true);
+				if (m_firstTimeInit)
+					EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_LOAD_VIEW_IN_EVERY_SCENE_UI_VIEW_PREFAB, MessageType.Info);
 				EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_uiViewPrefab"), true);
 				EditorGUI.indentLevel--;
 			}
