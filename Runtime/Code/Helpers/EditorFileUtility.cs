@@ -168,10 +168,10 @@ namespace GuiToolkit
 					name = null;
 				}
 				
-				return PathField(_label, _tooltip, _path, () => EditorUtility.SaveFilePanel(_label, dir, name, _extensions));
+				return PathField(_label, _tooltip, _path, () => EditorUtility.SaveFilePanel(_label, dir, name, _extensions).ToLogicalPath());
 			}
 			
-			return PathField(_label, _tooltip,_path, () => EditorUtility.OpenFilePanel(_label, _path, _extensions));
+			return PathField(_label, _tooltip,_path, () => EditorUtility.OpenFilePanel(_label, _path, _extensions).ToLogicalPath());
 		}
 
 		public static string PathField(Rect _rect, string _label, string _tooltip, string _path, bool _save, bool _folder, string _extensions)
@@ -201,10 +201,10 @@ namespace GuiToolkit
 					name = null;
 				}
 				
-				return PathField(_rect, _label, _tooltip, _path, () => EditorUtility.SaveFilePanel(_label, dir, name, _extensions));
+				return PathField(_rect, _label, _tooltip, _path, () => EditorUtility.SaveFilePanel(_label, dir, name, _extensions).ToLogicalPath());
 			}
 			
-			return PathField(_rect, _label, _tooltip, _path, () => EditorUtility.OpenFilePanel(_label, _path, _extensions));
+			return PathField(_rect, _label, _tooltip, _path, () => EditorUtility.OpenFilePanel(_label, _path, _extensions).ToLogicalPath());
 		}
 
 		public static string PathFieldSaveFile(Rect _rect, string _label, string _path, string _extensions = null, string _tooltip = null) => PathField(_rect, _label, _tooltip, _path, _save:true, _folder:false, _extensions);

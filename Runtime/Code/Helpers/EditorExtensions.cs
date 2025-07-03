@@ -29,6 +29,9 @@ namespace GuiToolkit
 			foreach (var prop in props)
 				EditorGUILayout.PropertyField(prop, true);
 		}
+		
+		public static string ToLogicalPath(this string _s) => string.IsNullOrEmpty(_s) ? _s : FileUtil.GetLogicalPath(_s);
+		public static string ToPhysicalPath(this string _s) => string.IsNullOrEmpty(_s) ? _s : FileUtil.GetPhysicalPath(_s);
 
 	}
 }
