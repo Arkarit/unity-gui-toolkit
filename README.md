@@ -17,5 +17,6 @@ It is however usable at least partially.
 
 ### Work in the repo itself:
 - Pull the repo (https://github.com/Arkarit/unity-gui-toolkit.git)
+- Execute the batch file .Dev-App/Install.bat. This will create some symlinks which are necessary to edit the demo application.
 - In Unity hub, open the folder .Dev-App\Unity
 
