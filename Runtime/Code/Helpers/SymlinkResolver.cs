@@ -19,7 +19,29 @@ namespace GuiToolkit
 		/// Works even if the link target is *outside* the Unity project folder,
 		/// as long as it lives inside the repo (ancestor containing .git or package.json).
 		/// </summary>
-		public static List<(string physical, string logical)> ResolveAll()
+		/// <remarks>
+		/// Implementation detail:
+		/// We find the targets of symlinks by first scanning all directories of the
+		/// Unity project. Wherever a symlink is detected (via file attributes),
+		/// we drop a uniquely named temporary file into it.
+		///
+		/// In a second step, we scan the repo root (where `.git` or `package.json` live),
+		/// excluding all files inside symlinks, to find these temp files again.
+		/// This reliably gives us a mapping from logical (Unity project) to physical (target)
+		/// paths – even if the targets lie *outside* the Unity project
+		/// (which is the case for GuiToolkit).
+		///
+		/// **Reason for this MacGyveresque\* approach:**
+		/// One might think of `DirectoryInfo.LinkTarget`, right?
+		/// Well, it’s not available in Unity 6. In earlier Unity versions, .NET 6 was
+		/// only “experimental”. In Unity 6, they just *removed* it. *slow clap*
+		///
+		/// Once Unity ships a proper .NET, please: delete this abomination.
+		///
+		/// \* My AI Elfie called it that. She’s not wrong.\* :D
+		/// \* she says.
+		/// </remarks>
+		public static List<(string symlink, string target)> ResolveAll()
 		{
 			string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."))
 									 .Replace('\\', '/');
@@ -65,7 +87,7 @@ namespace GuiToolkit
 				}
 				
 				// --- step 2: one single sweep through the *repo* to find those temp files ---
-				var results = new List<(string physical, string logical)>();
+				var results = new List<(string symlink, string target)>();
 
 				foreach (var file in Directory.EnumerateFiles(repoRoot, TempPrefix + "*" + TempExt,
 															  SearchOption.AllDirectories))
@@ -77,13 +99,7 @@ namespace GuiToolkit
 									  .Substring(TempPrefix.Length); // strip prefix
 					if (guidToPhysical.TryGetValue(guid, out string physical))
 					{
-						
-						
-//						// logical directory = directory that *contains* the temp file
-//						string logicalDir = Path.GetDirectoryName(file)!.Replace('\\', '/');
-//Debug.Log($"--:: Logical:{logicalDir} root:{projectRoot}");						
-//						// turn it into project-relative "Assets/…" (projectRoot ends with slash)
-//						string logical = logicalDir.Substring(projectRoot.Length + 1);
+						var logical = Path.GetDirectoryName(file)!.Replace('\\', '/');
 						results.Add((physical, logical));
 					}
 				}

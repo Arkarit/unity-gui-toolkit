@@ -9,14 +9,14 @@ namespace GuiToolkit
 	[InitializeOnLoad]
 	public static class EditorExtensions
 	{
-		private static readonly List<(string src, string dst)> s_symlinks = new();
+		private static readonly List<(string symlink, string target)> s_symlinks = new();
 		static EditorExtensions()
 		{
 			s_symlinks = SymlinkResolver.ResolveAll();
 string s = "Symlinks found:\n";
 foreach (var valueTuple in s_symlinks)
 {
-s += $"{valueTuple.src} -> {valueTuple.dst}\n";
+s += $"{valueTuple.symlink} -> {valueTuple.target}\n";
 }
 Debug.Log(s);
 		}
