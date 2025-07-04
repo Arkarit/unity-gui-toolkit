@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace GuiToolkit.Editor
+namespace GuiToolkit
 {
 	[InitializeOnLoad]
 	public static class EditorExtensions
@@ -33,6 +34,7 @@ namespace GuiToolkit.Editor
 			foreach (var prop in props)
 				EditorGUILayout.PropertyField(prop, true);
 		}
+
 		public static string ToLogicalPath( this string _s )
 		{
 			if (string.IsNullOrEmpty(_s))
@@ -58,3 +60,4 @@ namespace GuiToolkit.Editor
 		}
 	}
 }
+#endif
