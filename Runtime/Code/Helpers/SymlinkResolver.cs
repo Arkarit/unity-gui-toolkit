@@ -40,42 +40,49 @@ namespace GuiToolkit
 
 		/// <summary>Return the physical target for a given logical Unity path (Assets/...).
 		/// If the path is not a symlink, the input value is returned unchanged.</summary>
-		public static string GetTarget( string _symlinkPath )
-		{
-			if (string.IsNullOrEmpty(_symlinkPath))
-				return _symlinkPath;
-
-			InitIfNecessary();
-			var hit = s_symlinks.FirstOrDefault(t => t.symlink.Equals(_symlinkPath, StringComparison.OrdinalIgnoreCase));
-			return string.IsNullOrEmpty(hit.target) ? _symlinkPath : hit.target;
-		}
+		public static string GetTarget( string targetPath ) => Get(targetPath, true);
 
 		/// <summary>Return the logical Unity path that points to the given physical directory.
 		/// If the directory is not referenced by a symlink, the input value is returned unchanged.</summary>
-		public static string GetSource( string targetPath )
+		public static string GetSource( string targetPath ) => Get(targetPath, false);
+
+		private static string Get( string _path, bool _symlinkToTarget )
 		{
-			if (string.IsNullOrEmpty(targetPath))
-				return targetPath;
+			if (string.IsNullOrEmpty(_path))
+				return _path;
 
 			// We don't do a path normalization here except replacing backslashes, since we don't know if a directory or file is requested
-			targetPath = Path.GetFullPath(targetPath).Replace('\\', '/');
+			_path = Path.GetFullPath(_path).Replace('\\', '/');
 
 			InitIfNecessary();
 
 			var hit = s_symlinks.FirstOrDefault(t =>
-				targetPath.StartsWith(t.target, StringComparison.OrdinalIgnoreCase));
+				_path.StartsWith(_symlinkToTarget ? t.symlink : t.target, StringComparison.OrdinalIgnoreCase));
 
 			if (string.IsNullOrEmpty(hit.symlink))
-				return targetPath;
+				return _path;
 
 			if (!AssertNormalizedDirectoryPath(hit.target) || !AssertNormalizedDirectoryPath(hit.symlink))
-				return targetPath;
+				return _path;
 
-			return hit.symlink + targetPath.Substring(hit.target.Length);
+			if (_symlinkToTarget)
+				return hit.target + _path.Substring(hit.symlink.Length);
+			
+			return hit.symlink + _path.Substring(hit.target.Length);
 		}
 
 		/// <summary>Clears the internal cache, forcing a rescan on next access.</summary>
 		public static void Clear() => s_symlinks = null;
+		
+		public static string DumpSymlinks()
+		{
+			InitIfNecessary();
+			string result = "Symlinks in project:\n";
+			foreach (var valueTuple in s_symlinks)
+				result += $"{valueTuple.symlink} -> {valueTuple.target}\n";
+			
+			return result;
+		}
 
 		// ---------------------------------------------------------------------
 		// internal
@@ -108,7 +115,7 @@ namespace GuiToolkit
 					try
 					{
 						File.WriteAllText(tempPath, di.FullName); // file content only for debugging purposes, not actually used
-						guidToPhysical[guid] = di.FullName.Replace('\\', '/');
+						guidToPhysical[guid] = di.FullName.NormalizedDirectoryPath();
 					}
 					catch (UnauthorizedAccessException) { continue; }
 					catch (IOException ioex) when (ioex.HResult == unchecked((int)0x80070005)) { continue; }
@@ -124,9 +131,8 @@ namespace GuiToolkit
 						string guid = Path.GetFileNameWithoutExtension(file).Substring(TempPrefix.Length);
 						if (guidToPhysical.TryGetValue(guid, out string physical))
 						{
-							string logicalDir = Path.GetDirectoryName(file)!.NormalizedDirectoryPath();
-							string logical = logicalDir.Substring(projectRoot.Length + 1); // "Assets/..."
-							results.Add((logical, physical));
+							string dir = Path.GetDirectoryName(file)!.NormalizedDirectoryPath();
+							results.Add((dir, physical));
 						}
 					}
 				}
@@ -158,16 +164,6 @@ namespace GuiToolkit
 			
 			// ReSharper disable once ConditionIsAlwaysTrueOrFalse
 			return result;
-		}
-		
-		private static string NormalizedFilePath(this string _filePath) => _filePath.Replace('\\', '/').TrimEnd('/');
-		
-		private static void AssertNormalizedFilePath(string _filePath)
-		{
-			bool condition = !_filePath.Contains('\\') && 
-			                 !_filePath.EndsWith('/');
-			
-			Debug.Assert(condition, $"File Path '{_filePath}' is not normalized! (Mustn't contain \\ and mustn't end with /)");
 		}
 		
 		// --------------------------------------------------------------------- helpers

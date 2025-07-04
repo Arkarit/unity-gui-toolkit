@@ -9,8 +9,7 @@ namespace GuiToolkit
 	[InitializeOnLoad]
 	public static class EditorExtensions
 	{
-		private static readonly List<(string symlink, string target)> s_symlinks = new();
-		static EditorExtensions() => s_symlinks = SymlinkResolver.ResolveAll();
+		static EditorExtensions() => Debug.Log(SymlinkResolver.DumpSymlinks());
 
 		public static IEnumerable<SerializedProperty> GetVisibleChildren( this SerializedProperty _serializedProperty, bool _hideScript = true )
 		{
