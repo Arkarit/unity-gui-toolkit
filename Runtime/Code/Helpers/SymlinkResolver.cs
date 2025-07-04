@@ -52,17 +52,26 @@ namespace GuiToolkit
 
 		/// <summary>Return the logical Unity path that points to the given physical directory.
 		/// If the directory is not referenced by a symlink, the input value is returned unchanged.</summary>
-		public static string GetSource( string _targetPath )
+		public static string GetSource( string targetPath )
 		{
-			if (string.IsNullOrEmpty(_targetPath))
-				return _targetPath;
+			if (string.IsNullOrEmpty(targetPath))
+				return targetPath;
+
+			// We don't do a path normalization here except replacing backslashes, since we don't know if a directory or file is requested
+			targetPath = Path.GetFullPath(targetPath).Replace('\\', '/');
 
 			InitIfNecessary();
-			var hit = s_symlinks.FirstOrDefault(t => _targetPath.StartsWith(t.target, StringComparison.OrdinalIgnoreCase));
+
+			var hit = s_symlinks.FirstOrDefault(t =>
+				targetPath.StartsWith(t.target, StringComparison.OrdinalIgnoreCase));
+
 			if (string.IsNullOrEmpty(hit.symlink))
-				return _targetPath;
-			
-			return _targetPath.Replace(hit.target, hit.symlink);
+				return targetPath;
+
+			if (!AssertNormalizedDirectoryPath(hit.target) || !AssertNormalizedDirectoryPath(hit.symlink))
+				return targetPath;
+
+			return hit.symlink + targetPath.Substring(hit.target.Length);
 		}
 
 		/// <summary>Clears the internal cache, forcing a rescan on next access.</summary>
@@ -76,8 +85,7 @@ namespace GuiToolkit
 			if (s_symlinks != null)
 				return;
 
-			string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."))
-									 .Replace('\\', '/');
+			string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, "..")).NormalizedDirectoryPath();
 			string repoRoot = FindRepoRoot(projectRoot) ?? projectRoot;
 
 			var linkDirs = Directory.GetDirectories(projectRoot, "*", SearchOption.AllDirectories)
@@ -99,7 +107,7 @@ namespace GuiToolkit
 
 					try
 					{
-						File.WriteAllText(tempPath, di.FullName);
+						File.WriteAllText(tempPath, di.FullName); // file content only for debugging purposes, not actually used
 						guidToPhysical[guid] = di.FullName.Replace('\\', '/');
 					}
 					catch (UnauthorizedAccessException) { continue; }
@@ -116,7 +124,7 @@ namespace GuiToolkit
 						string guid = Path.GetFileNameWithoutExtension(file).Substring(TempPrefix.Length);
 						if (guidToPhysical.TryGetValue(guid, out string physical))
 						{
-							string logicalDir = Path.GetDirectoryName(file)!.Replace('\\', '/');
+							string logicalDir = Path.GetDirectoryName(file)!.NormalizedDirectoryPath();
 							string logical = logicalDir.Substring(projectRoot.Length + 1); // "Assets/..."
 							results.Add((logical, physical));
 						}
@@ -138,6 +146,30 @@ namespace GuiToolkit
 			s_symlinks = results;
 		}
 
+		private static string NormalizedDirectoryPath(this string _directory)=> _directory.Replace('\\', '/').TrimEnd('/') + '/';
+		
+		private static bool AssertNormalizedDirectoryPath(string _directory)
+		{
+			bool result = !_directory.Contains('\\') && 
+			              _directory.EndsWith('/') &&
+			              !_directory.EndsWith("//");
+			
+			Debug.Assert(result, $"Directory Path '{_directory}' is not normalized! (Mustn't contain \\ and must end with single /)");
+			
+			// ReSharper disable once ConditionIsAlwaysTrueOrFalse
+			return result;
+		}
+		
+		private static string NormalizedFilePath(this string _filePath) => _filePath.Replace('\\', '/').TrimEnd('/');
+		
+		private static void AssertNormalizedFilePath(string _filePath)
+		{
+			bool condition = !_filePath.Contains('\\') && 
+			                 !_filePath.EndsWith('/');
+			
+			Debug.Assert(condition, $"File Path '{_filePath}' is not normalized! (Mustn't contain \\ and mustn't end with /)");
+		}
+		
 		// --------------------------------------------------------------------- helpers
 		private static string FindRepoRoot( string startDir )
 		{
@@ -145,7 +177,7 @@ namespace GuiToolkit
 			while (dir != null)
 			{
 				if (dir.GetDirectories(".git").Any() || dir.GetFiles("package.json").Any())
-					return dir.FullName.Replace('\\', '/');
+					return dir.FullName.NormalizedDirectoryPath();
 				dir = dir.Parent;
 			}
 			return null;
