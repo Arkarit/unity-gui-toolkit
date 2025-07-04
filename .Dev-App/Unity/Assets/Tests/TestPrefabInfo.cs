@@ -192,10 +192,10 @@ namespace GuiToolkit.Test
 			Assert.IsTrue(pi.IsDirty);
 			pi.Modify<TestMonoBehaviour>(target => target.Int = Random.Range(-200000, 200000));
 			Assert.IsTrue(pi.IsDirty);
-			PrefabUtility.SaveAsPrefabAsset(pi.GameObject, TestData.Instance.TempFolderPath + "/1.prefab");
+			pi.SaveAs(TestData.Instance.TempFolderPath + "/1.prefab", InteractionMode.AutomatedAction);
 
-			// Note:
-			//Assert.IsFalse(pi.IsDirty);
+			// Note: This can not properly be tested, because dirty flag is delayed by Unity
+			Assert.IsFalse(pi.IsDirty);
 		}
 	}
 }
