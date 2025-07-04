@@ -7,58 +7,90 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-
+	/// <summary>
+	/// Resolves directory symlinks that sit *inside* the Unity project (logical "Assets/...") but
+	/// point to folders *outside* the project – the setup we use for GuiToolkit’s Runtime/Editor sources.
+	/// </summary>
+	/// <remarks>
+	/// Implementation detail (aka the MacGyver-Hack):
+	///
+	/// 1.  Scan all directories below the Unity project root.
+	///     Whenever we detect a symlink (FileAttributes.ReparsePoint), we drop a uniquely named temp file
+	///     (.symlink_resolver_<guid>.tmp) into that directory.
+	///
+	/// 2.  Starting from the repo root (first ancestor that contains .git or package.json) we search for
+	///     these temp files *excluding* any path that itself lies inside another symlink.
+	///     The folder Directory.GetDirectoryName(file) gives us the logical Unity path; the directory in which
+	///     we created the temp file is the physical target.
+	///
+	/// We end up with a mapping list (symlink, target) which we cache lazily on first access.
+	///
+	/// Why so dirty? A proper cross-platform API would be DirectoryInfo.LinkTarget, but that is absent in
+	/// Unity 6. Earlier Unity versions exposed it only in "experimental" .NET 6 mode; now it’s gone. Hence this
+	/// workaround until Unity ships a sane runtime. Once they do: *please delete this abomination.*
+	///
+	/// *Coined by my AI side-kick Elfie. She’s not wrong.*
+	/// </remarks>
 	public static class SymlinkResolver
 	{
-		private const string TempPrefix = ".symlink_resolver_";   // Unity ignores ".", no .meta
+		private const string TempPrefix = ".symlink_resolver_";   // Unity ignores '.', no .meta
 		private const string TempExt = ".tmp";
 
-		/// <summary>
-		/// Scans the project for directory symlinks and returns
-		/// (physicalTarget, logicalUnityPath) tuples.
-		/// Works even if the link target is *outside* the Unity project folder,
-		/// as long as it lives inside the repo (ancestor containing .git or package.json).
-		/// </summary>
-		/// <remarks>
-		/// Implementation detail:
-		/// We find the targets of symlinks by first scanning all directories of the
-		/// Unity project. Wherever a symlink is detected (via file attributes),
-		/// we drop a uniquely named temporary file into it.
-		///
-		/// In a second step, we scan the repo root (where `.git` or `package.json` live),
-		/// excluding all files inside symlinks, to find these temp files again.
-		/// This reliably gives us a mapping from logical (Unity project) to physical (target)
-		/// paths – even if the targets lie *outside* the Unity project
-		/// (which is the case for GuiToolkit).
-		///
-		/// **Reason for this MacGyveresque\* approach:**
-		/// One might think of `DirectoryInfo.LinkTarget`, right?
-		/// Well, it’s not available in Unity 6. In earlier Unity versions, .NET 6 was
-		/// only “experimental”. In Unity 6, they just *removed* it. *slow clap*
-		///
-		/// Once Unity ships a proper .NET, please: delete this abomination.
-		///
-		/// \* My AI Elfie called it that. She’s not wrong.\* :D
-		/// \* she says.
-		/// </remarks>
-		public static List<(string symlink, string target)> ResolveAll()
+		private static List<(string symlink, string target)> s_symlinks; // cached mapping
+
+		/// <summary>Return the physical target for a given logical Unity path (Assets/...).
+		/// If the path is not a symlink, the input value is returned unchanged.</summary>
+		public static string GetTarget( string _symlinkPath )
 		{
+			if (string.IsNullOrEmpty(_symlinkPath))
+				return _symlinkPath;
+
+			InitIfNecessary();
+			var hit = s_symlinks.FirstOrDefault(t => t.symlink.Equals(_symlinkPath, StringComparison.OrdinalIgnoreCase));
+			return string.IsNullOrEmpty(hit.target) ? _symlinkPath : hit.target;
+		}
+
+		/// <summary>Return the logical Unity path that points to the given physical directory.
+		/// If the directory is not referenced by a symlink, the input value is returned unchanged.</summary>
+		public static string GetSource( string _targetPath )
+		{
+			if (string.IsNullOrEmpty(_targetPath))
+				return _targetPath;
+
+			InitIfNecessary();
+			var hit = s_symlinks.FirstOrDefault(t => _targetPath.StartsWith(t.target, StringComparison.OrdinalIgnoreCase));
+			if (string.IsNullOrEmpty(hit.symlink))
+				return _targetPath;
+			
+			return _targetPath.Replace(hit.target, hit.symlink);
+		}
+
+		/// <summary>Clears the internal cache, forcing a rescan on next access.</summary>
+		public static void Clear() => s_symlinks = null;
+
+		// ---------------------------------------------------------------------
+		// internal
+		// ---------------------------------------------------------------------
+		private static void InitIfNecessary()
+		{
+			if (s_symlinks != null)
+				return;
+
 			string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."))
 									 .Replace('\\', '/');
 			string repoRoot = FindRepoRoot(projectRoot) ?? projectRoot;
 
-			// --- collect all directories flagged as ReparsePoint ---
 			var linkDirs = Directory.GetDirectories(projectRoot, "*", SearchOption.AllDirectories)
-									.Select(d => new DirectoryInfo(d))
-									.Where(di => (di.Attributes & FileAttributes.ReparsePoint) != 0)
-									.ToArray();
+									 .Select(d => new DirectoryInfo(d))
+									 .Where(di => (di.Attributes & FileAttributes.ReparsePoint) != 0)
+									 .ToArray();
 
-			// Map GUID -> physical path so we can pair them later
 			var guidToPhysical = new Dictionary<string, string>(linkDirs.Length);
+			var results = new List<(string symlink, string target)>();
 
 			try
 			{
-				// --- step 1: drop temp-files into every symlink dir ---
+				// STEP 1 - drop temp files
 				foreach (var di in linkDirs)
 				{
 					string guid = Guid.NewGuid().ToString("N");
@@ -67,97 +99,64 @@ namespace GuiToolkit
 
 					try
 					{
-						// some readonly package installs (or weird ACLs) may block this
-						File.WriteAllText(tempPath, di.FullName);   // content irrelevant; we handle this by guid table
+						File.WriteAllText(tempPath, di.FullName);
 						guidToPhysical[guid] = di.FullName.Replace('\\', '/');
 					}
-					catch (UnauthorizedAccessException uaex)
-					{
-						Debug.LogWarning(
-							$"SymlinkResolver: No write permission in '{di.FullName}'. Skipping. ({uaex.Message})");
-						continue;   // ignore link – can’t create marker
-					}
-					catch (IOException ioex) when (ioex.Message.Contains("denied", StringComparison.OrdinalIgnoreCase) ||
-												   ioex.HResult == unchecked((int)0x80070005))  // E_ACCESSDENIED
-					{
-						Debug.LogWarning(
-							$"SymlinkResolver: Write-protected directory '{di.FullName}'. Skipping. ({ioex.Message})");
-						continue;
-					}
+					catch (UnauthorizedAccessException) { continue; }
+					catch (IOException ioex) when (ioex.HResult == unchecked((int)0x80070005)) { continue; }
 				}
 
-				// --- step 2: one single sweep through the *repo* to find those temp files ---
-				var results = new List<(string symlink, string target)>();
-
+				// STEP 2 - single sweep through repo to find the temp markers
 				try
 				{
-					foreach (var file in Directory.EnumerateFiles(repoRoot, TempPrefix + "*" + TempExt,
-																  SearchOption.AllDirectories))
+					foreach (var file in Directory.EnumerateFiles(repoRoot, TempPrefix + "*" + TempExt, SearchOption.AllDirectories))
 					{
-						if (IsInsideAnotherSymlink(file, projectRoot))
-							continue; // ignore temp files that sit in nested symlinks
+						if (IsInsideAnotherSymlink(file, projectRoot)) continue;
 
-						string guid = Path.GetFileNameWithoutExtension(file)
-										  .Substring(TempPrefix.Length); // strip prefix
+						string guid = Path.GetFileNameWithoutExtension(file).Substring(TempPrefix.Length);
 						if (guidToPhysical.TryGetValue(guid, out string physical))
 						{
-							var logical = Path.GetDirectoryName(file)!.Replace('\\', '/');
-							results.Add((physical, logical));
+							string logicalDir = Path.GetDirectoryName(file)!.Replace('\\', '/');
+							string logical = logicalDir.Substring(projectRoot.Length + 1); // "Assets/..."
+							results.Add((logical, physical));
 						}
 					}
 				}
-				catch (UnauthorizedAccessException ex)
-				{
-					Debug.LogWarning($"SymlinkResolver: No read permission somewhere in '{repoRoot}'. " +
-									 $"Temp-scan aborted. ({ex.Message})");
-					throw;
-				}
-				catch (IOException ioex) when (ioex.Message.Contains("denied", StringComparison.OrdinalIgnoreCase) ||
-												ioex.HResult == unchecked((int)0x80070005))
-				{
-					Debug.LogWarning($"SymlinkResolver: Read-protected path inside repo. " +
-									 $"Temp-scan aborted. ({ioex.Message})");
-					throw;
-				}
-
-				return results;
+				catch (UnauthorizedAccessException) { }
+				catch (IOException ioex) when (ioex.HResult == unchecked((int)0x80070005)) { }
 			}
 			finally
 			{
-				// --- cleanup no matter what ---
+				// cleanup temp files
 				foreach (var kvp in guidToPhysical)
 				{
 					string tmp = Path.Combine(kvp.Value, TempPrefix + kvp.Key + TempExt);
-					try
-					{
-						File.Delete(tmp);
-					}
-					catch { }  // ignore – readonly, already gone, etc.
+					try { File.Delete(tmp); } catch { }
 				}
 			}
+
+			s_symlinks = results;
 		}
 
-		// ----------------------------------------------------------- helpers
-		private static string FindRepoRoot( string _startDir )
+		// --------------------------------------------------------------------- helpers
+		private static string FindRepoRoot( string startDir )
 		{
-			var dir = new DirectoryInfo(_startDir);
+			var dir = new DirectoryInfo(startDir);
 			while (dir != null)
 			{
-				if (dir.GetDirectories(".git").Any() ||
-					dir.GetFiles("package.json").Any())
+				if (dir.GetDirectories(".git").Any() || dir.GetFiles("package.json").Any())
 					return dir.FullName.Replace('\\', '/');
 				dir = dir.Parent;
 			}
 			return null;
 		}
 
-		private static bool IsInsideAnotherSymlink( string _path, string _projectRoot )
+		private static bool IsInsideAnotherSymlink( string path, string projectRoot )
 		{
-			var di = new DirectoryInfo(Path.GetDirectoryName(_path)!);
-			while (di != null && di.FullName.Length >= _projectRoot.Length)
+			var di = new DirectoryInfo(Path.GetDirectoryName(path)!);
+			while (di != null && di.FullName.Length >= projectRoot.Length)
 			{
-				if ((di.Attributes & FileAttributes.ReparsePoint) != 0)
-					return true;
+				if ((di.Attributes & FileAttributes.ReparsePoint) != 0) return true;
 				di = di.Parent;
 			}
 			return false;
