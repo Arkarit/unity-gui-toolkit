@@ -85,23 +85,39 @@ namespace GuiToolkit
 						continue;
 					}
 				}
-				
+
 				// --- step 2: one single sweep through the *repo* to find those temp files ---
 				var results = new List<(string symlink, string target)>();
 
-				foreach (var file in Directory.EnumerateFiles(repoRoot, TempPrefix + "*" + TempExt,
-															  SearchOption.AllDirectories))
+				try
 				{
-					if (IsInsideAnotherSymlink(file, projectRoot))
-						continue; // ignore temp files that sit in nested symlinks
-
-					string guid = Path.GetFileNameWithoutExtension(file)
-									  .Substring(TempPrefix.Length); // strip prefix
-					if (guidToPhysical.TryGetValue(guid, out string physical))
+					foreach (var file in Directory.EnumerateFiles(repoRoot, TempPrefix + "*" + TempExt,
+																  SearchOption.AllDirectories))
 					{
-						var logical = Path.GetDirectoryName(file)!.Replace('\\', '/');
-						results.Add((physical, logical));
+						if (IsInsideAnotherSymlink(file, projectRoot))
+							continue; // ignore temp files that sit in nested symlinks
+
+						string guid = Path.GetFileNameWithoutExtension(file)
+										  .Substring(TempPrefix.Length); // strip prefix
+						if (guidToPhysical.TryGetValue(guid, out string physical))
+						{
+							var logical = Path.GetDirectoryName(file)!.Replace('\\', '/');
+							results.Add((physical, logical));
+						}
 					}
+				}
+				catch (UnauthorizedAccessException ex)
+				{
+					Debug.LogWarning($"SymlinkResolver: No read permission somewhere in '{repoRoot}'. " +
+									 $"Temp-scan aborted. ({ex.Message})");
+					throw;
+				}
+				catch (IOException ioex) when (ioex.Message.Contains("denied", StringComparison.OrdinalIgnoreCase) ||
+												ioex.HResult == unchecked((int)0x80070005))
+				{
+					Debug.LogWarning($"SymlinkResolver: Read-protected path inside repo. " +
+									 $"Temp-scan aborted. ({ioex.Message})");
+					throw;
 				}
 
 				return results;
@@ -112,16 +128,19 @@ namespace GuiToolkit
 				foreach (var kvp in guidToPhysical)
 				{
 					string tmp = Path.Combine(kvp.Value, TempPrefix + kvp.Key + TempExt);
-					if (File.Exists(tmp))
+					try
+					{
 						File.Delete(tmp);
+					}
+					catch { }  // ignore – readonly, already gone, etc.
 				}
 			}
 		}
 
 		// ----------------------------------------------------------- helpers
-		private static string FindRepoRoot( string startDir )
+		private static string FindRepoRoot( string _startDir )
 		{
-			var dir = new DirectoryInfo(startDir);
+			var dir = new DirectoryInfo(_startDir);
 			while (dir != null)
 			{
 				if (dir.GetDirectories(".git").Any() ||
@@ -132,10 +151,10 @@ namespace GuiToolkit
 			return null;
 		}
 
-		private static bool IsInsideAnotherSymlink( string path, string projectRoot )
+		private static bool IsInsideAnotherSymlink( string _path, string _projectRoot )
 		{
-			var di = new DirectoryInfo(Path.GetDirectoryName(path)!);
-			while (di != null && di.FullName.Length >= projectRoot.Length)
+			var di = new DirectoryInfo(Path.GetDirectoryName(_path)!);
+			while (di != null && di.FullName.Length >= _projectRoot.Length)
 			{
 				if ((di.Attributes & FileAttributes.ReparsePoint) != 0)
 					return true;
