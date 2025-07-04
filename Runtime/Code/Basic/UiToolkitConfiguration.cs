@@ -41,6 +41,26 @@ namespace GuiToolkit
 			  "When enabled, the main scene is loaded when you press play in the editor, and all other scenes are unloaded.\n" 
 			+ "After play, the scenes, which were previously loaded, are restored."
 			;
+		
+		public const string HELP_LOAD_VIEW_IN_EVERY_SCENE =
+			  "When a scene is loaded in editor, which is not the main scene, a view can be automatically loaded (e.g. a HUD).\n" 
+			+ "This is useful for editing scenes; you can start the scene directly and still have your HUD."
+			;
+
+		public const string HELP_LOAD_VIEW_IN_EVERY_SCENE_EXCEPT_UI_MAIN_EXISTS =
+			  "The loaded UiView needs a UiMain, which is automatically created in the loaded scene.\n" 
+			+ "If checked, this UiMain is NOT created and the UiView is NOT created, if an UiMain already exists\n"
+			+ "This is useful to avoid duplication in your main scene (e.g. HUD)"
+			;
+
+		public const string HELP_LOAD_VIEW_IN_EVERY_SCENE_UI_MAIN_PREFAB =
+			  "The prefab for the automatically created UiMain"
+			;
+
+		public const string HELP_LOAD_VIEW_IN_EVERY_SCENE_UI_VIEW_PREFAB =
+			  "Your UiView to load"
+			;
+
 
 		public const string HELP_ADDITIONAL_SCENES_PATH =
 			"Additional scene path for scenes, which are not in the scene references list";
@@ -79,6 +99,15 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_LOAD_MAIN_SCENE_ON_PLAY)]
 		public bool m_loadMainSceneOnPlay = false;
+		
+		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE)]
+		public bool m_loadViewInEveryScene = false;
+		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE_EXCEPT_UI_MAIN_EXISTS)]
+		public bool m_exceptUiMainExists = true;
+		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE_UI_MAIN_PREFAB)]
+		public UiMain m_uiMainPrefab;
+		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE_UI_VIEW_PREFAB)]
+		public UiView m_uiViewPrefab;
 
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
 		public string m_additionalScenesPath = "Assets/Scenes/";

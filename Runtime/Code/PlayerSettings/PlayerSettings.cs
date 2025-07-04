@@ -68,12 +68,13 @@ namespace GuiToolkit
 				}
 			}
 
-			// We want to only invoke the player settings changed event once all player settings have been added.
+			// We want to only invoke the player settings changed event once after all player settings have been added.
 			// Thus second iteration.
 			foreach (PlayerSetting playerSetting in _playerSettings )
 			{
 				playerSetting.AllowInvokeEvents = true;
-				playerSetting.InvokeEvents();
+				if (!playerSetting.IsButton)
+					playerSetting.InvokeEvents();
 			}
 		}
 

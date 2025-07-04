@@ -22,6 +22,20 @@ namespace GuiToolkit.Editor
 		{
 			private UnityEditor.Editor m_targetHelperEditor;
 			private Type m_lastType = null;
+			private SerializedObject m_serializedObject;
+
+			private SerializedObject GetCachedSerializedObject( HelperObject _helperObject )
+			{
+				bool serializedObjectCreated = m_serializedObject != null;
+				bool isGenericInstanceObject = serializedObjectCreated && _helperObject.GenericInstanceObject == m_serializedObject.targetObject;
+				bool isObjectInstanceObject = serializedObjectCreated && _helperObject.ObjectInstanceObject == m_serializedObject.targetObject;
+				bool isInvalid = !(isObjectInstanceObject || isGenericInstanceObject);
+
+				if (isInvalid)
+					m_serializedObject = new SerializedObject(_helperObject);
+
+				return m_serializedObject;
+			}
 
 			public UnityEditor.Editor TargetHelperEditor => m_targetHelperEditor;
 
@@ -37,13 +51,12 @@ namespace GuiToolkit.Editor
 				try
 				{
 					var thisHelperObject = (HelperObject) target;
+					var serObj = GetCachedSerializedObject(thisHelperObject);
 					if (thisHelperObject.GenericInstanceObject != null)
 					{
-						EditorGeneralUtility.DrawInspectorExceptFields(serializedObject, new HashSet<string>{"m_Script", "ObjectInstanceObject"});
+						EditorGeneralUtility.DrawInspectorExceptFields(serObj, new HashSet<string>{"m_Script", "ObjectInstanceObject"});
 						return;
 					}
-
-					var serObj = new SerializedObject(thisHelperObject.ObjectInstanceObject);
 
 					if (thisHelperObject.ObjectInstanceObject is ScriptableObject so)
 					{
@@ -63,11 +76,17 @@ namespace GuiToolkit.Editor
 					if (EditorGUI.EndChangeCheck())
 						serObj.ApplyModifiedProperties();
 				}
-				catch
+				catch (ExitGUIException)
+			    {
+				    // We need to rethrow, since Unity abuses this exception for its control flow
+			        throw;
+			    }				
+				catch (Exception e)
 				{
 					// Sometimes when editing colors in a style, Unity begins to spit "The operation is not possible when moved past all properties"
 					// without any determinable reason.
 					// Just refreshing the style helper and editor helps.
+					Debug.Log($"Refreshing style helper, exception:'{e.Message}'");
 					s_helper.SafeDestroy();
 					s_helperEditor.SafeDestroy();
 					s_helper = null;

@@ -360,13 +360,7 @@ namespace GuiToolkit
 			ListContainer listContainer = new ListContainer { Pairs = list };
 			string s = JsonUtility.ToJson(listContainer, true);
 
-			var path = EditorUtility.SaveFilePanel
-			(
-				"Save Kerning Table",
-				"",
-				".kerningTable.json",
-				"json"
-			);
+			var path = EditorUtility.SaveFilePanel("Save Kerning Table", "", ".kerningTable.json", "json");
 
 			if (!string.IsNullOrEmpty(path))
 				File.WriteAllText(path, s);
@@ -374,12 +368,7 @@ namespace GuiToolkit
 
 		private List<KerningPair> LoadJsonWithFileSelector(string title = "Load Kerning Table")
 		{
-			var path = EditorUtility.OpenFilePanel
-			(
-				title,
-				"",
-				"json"
-			);
+			var path = EditorUtility.OpenFilePanel (title, "", "json").ToLogicalPath();
 
 			if (!string.IsNullOrEmpty(path))
 			{

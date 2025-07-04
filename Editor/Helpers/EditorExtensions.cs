@@ -1,10 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
+using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
+	[InitializeOnLoad]
 	public static class EditorExtensions
 	{
+		static EditorExtensions() => Debug.Log(SymlinkResolver.DumpSymlinks());
+
 		public static IEnumerable<SerializedProperty> GetVisibleChildren( this SerializedProperty _serializedProperty, bool _hideScript = true )
 		{
 			SerializedProperty currentProperty = _serializedProperty.Copy();
@@ -27,6 +32,29 @@ namespace GuiToolkit.Editor
 			var props = _this.GetIterator().GetVisibleChildren();
 			foreach (var prop in props)
 				EditorGUILayout.PropertyField(prop, true);
+		}
+		public static string ToLogicalPath( this string _s )
+		{
+			if (string.IsNullOrEmpty(_s))
+				return _s;
+
+			var directory = Path.GetDirectoryName(_s);
+			if (string.IsNullOrEmpty(directory))
+				return _s;
+
+			var rootPath = Application.dataPath;
+			var logicalPath = FileUtil.GetLogicalPath(_s);
+			Debug.Log($"--:: In:'{_s}' Out:'{logicalPath}'");
+
+			if (!string.IsNullOrEmpty(logicalPath))
+				return logicalPath;
+
+			return "";
+		}
+
+		public static string ToPhysicalPath( this string _s )
+		{
+			return string.IsNullOrEmpty(_s) ? _s : FileUtil.GetPhysicalPath(_s);
 		}
 	}
 }
