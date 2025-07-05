@@ -9,7 +9,8 @@ namespace GuiToolkit
 	[InitializeOnLoad]
 	public static class EditorExtensions
 	{
-		//TODO: move this to tests
+		// Temporary test code for verifying symlink resolver logic
+		// TODO: Move to unit test class later
 		static EditorExtensions()
 		{
 			Debug.Log(SymlinkResolver.DumpSymlinks());
@@ -38,10 +39,15 @@ namespace GuiToolkit
 			string t1e = SymlinkResolver.GetTarget(s1e);
 			string s2e = SymlinkResolver.GetSource(t1e);
 			Debug.Log($"{s1e} -> {t1e} target to source:({s2e})");
-
 		}
 
-		public static IEnumerable<SerializedProperty> GetVisibleChildren( this SerializedProperty _serializedProperty, bool _hideScript = true )
+		/// <summary>
+		/// Returns the visible children of a serialized property. Optionally hides the m_Script field.
+		/// </summary>
+		/// <param name="_serializedProperty">The parent serialized property.</param>
+		/// <param name="_hideScript">If true, hides the m_Script property from the result.</param>
+		/// <returns>An enumerable of all visible child properties.</returns>
+		public static IEnumerable<SerializedProperty> GetVisibleChildren(this SerializedProperty _serializedProperty, bool _hideScript = true)
 		{
 			SerializedProperty currentProperty = _serializedProperty.Copy();
 
@@ -58,30 +64,50 @@ namespace GuiToolkit
 			}
 		}
 
-		public static void DisplayProperties( this SerializedObject _this )
+		/// <summary>
+		/// Displays all visible properties in the serialized object using default Unity GUI.
+		/// </summary>
+		/// <param name="_this">The serialized object to display.</param>
+		public static void DisplayProperties(this SerializedObject _this)
 		{
 			var props = _this.GetIterator().GetVisibleChildren();
 			foreach (var prop in props)
 				EditorGUILayout.PropertyField(prop, true);
 		}
 
-		public static string ToLogicalPath( this string _path )
+		/// <summary>
+		/// Converts a physical file system path to a logical Unity project-relative path.
+		/// In opposite to FileUtil.GetLogicalPath() it
+		/// - supports symlinked files/directories (within a repo)
+		/// - also works for Assets paths (FileUtil.GetLogicalPath() only works for packet paths, which renders it completely useless)
+		/// </summary>
+		/// <param name="_path">The physical path to convert.</param>
+		/// <returns>The logical Unity path (e.g. Assets/...).</returns>
+		public static string ToLogicalPath(this string _path)
 		{
 			if (string.IsNullOrEmpty(_path))
 				return _path;
 
-			// In case we have a path which points to a file outside of the project, but within the repo,
-			// we need the symlink path, not the path outside
+			// If path is inside repo but outside project, convert to symlink path if needed
 			var result = SymlinkResolver.GetSource(_path);
 			return FileUtil.GetProjectRelativePath(result);
 		}
 
-		public static string NormalizedDirectoryPath(this string _directory) => 
+		/// <summary>
+		/// Normalizes a directory path to use forward slashes and ensures a trailing slash.
+		/// </summary>
+		/// <param name="_directory">The directory path to normalize.</param>
+		/// <returns>The normalized directory path ending with a single forward slash.</returns>
+		public static string NormalizedDirectoryPath(this string _directory) =>
 			NormalizedFilePath(_directory) + '/';
-		
-		public static string NormalizedFilePath(this string _directory) => 
+
+		/// <summary>
+		/// Normalizes a file or directory path to use forward slashes and trims trailing slashes.
+		/// </summary>
+		/// <param name="_directory">The file or directory path to normalize.</param>
+		/// <returns>The normalized path.</returns>
+		public static string NormalizedFilePath(this string _directory) =>
 			string.IsNullOrEmpty(_directory) ? string.Empty : Path.GetFullPath(_directory).Replace('\\', '/').TrimEnd('/');
-		
 	}
 }
 #endif
