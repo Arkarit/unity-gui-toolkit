@@ -24,7 +24,7 @@ namespace GuiToolkit.Editor
 			IsEnabled = EditorPrefs.GetBool(PrefsKey);
 		}
 
-		[MenuItem(StringConstants.SAVE_PROJECT_ON_LOSE_FOCUS_MENU_NAME, priority = Constants.MISC_MENU_PRIORITY)]
+		[MenuItem(StringConstants.SAVE_PROJECT_ON_LOSE_FOCUS_MENU_NAME, priority = Constants.SAVE_PROJECT_ON_LOSE_FOCUS_MENU_PRIORITY)]
 		private static void Toggle()
 		{
 			IsEnabled = !IsEnabled;
