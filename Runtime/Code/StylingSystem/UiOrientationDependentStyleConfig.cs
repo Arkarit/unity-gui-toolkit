@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,7 +27,7 @@ namespace GuiToolkit.Style
 			base.OnEnable();
 			
 #if UNITY_EDITOR
-			if (EditorAssetUtility.IsBeingImportedFirstTime(EditorPath))
+			if (IsBeingImportedFirstTime(EditorPath))
 				return;
 #endif
 			
@@ -84,14 +85,23 @@ namespace GuiToolkit.Style
 		}
 		
 #if UNITY_EDITOR
-
+		private static bool IsBeingImportedFirstTime( string _path )
+		{
+			// Asset database can't (yet) load the object
+			if (AssetDatabase.LoadAssetAtPath(_path, typeof(Object)))
+				return false;
+			
+			// but the file already exists -> importing
+			return File.Exists(_path);
+		}
+		
 		public virtual void OnEditorInitialize() {}
 
 		public static void EditorSave(UiOrientationDependentStyleConfig _instance)
 		{
 			if (!AssetDatabase.Contains(_instance))
 			{
-				EditorAssetUtility.CreateAsset(_instance, EditorPath);
+				EditorGeneralUtility.CreateAsset(_instance, EditorPath);
 			}
 
 			EditorGeneralUtility.SetDirty(_instance);

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f33d167200699ff4783a4800f888053e, type: 3}
+  m_Name: TestData
+  m_EditorClassIdentifier: 
+  m_TempFolderPath:
+    m_path: Assets/Tests/TestObjects/Temp
+  m_sortByPrefabHierarchyPaths:
+  - m_path: Assets/Tests/TestObjects/Prefabs/TestSortByPrefabHierarchy
+  - m_path: Assets/External/unity-gui-toolkit/Prefabs
+  m_regularPrefabAsset:
+    m_path: Assets/Tests/TestObjects/Prefabs/TestPrefabInfo/Cube.prefab
+  m_variantPrefabAssetWithoutOverrides:
+    m_path: Assets/Tests/TestObjects/Prefabs/TestPrefabInfo/Cube Variant Without
+      Overrides.prefab
+  m_variantPrefabAssetWithOverrides:
+    m_path: Assets/Tests/TestObjects/Prefabs/TestPrefabInfo/Cube Variant With Overrides.prefab
+  m_modelPrefabAsset:
+    m_path: Assets/Tests/TestObjects/Prefabs/TestPrefabInfo/Medaillon.FBX
+  m_nestedPrefabWithRegularInstance:
+    m_path: 
+  m_nestedPrefabWithVariantInstance:
+    m_path: 
+  m_regularPrefabScene:
+    m_path: 
+  m_variantPrefabScene:
+    m_path: 
+  m_disconnectedPrefabScene:
+    m_path: 
+  m_overriddenPrefabScene:
+    m_path: 
+  m_nonPrefabScene:
+    m_path: 

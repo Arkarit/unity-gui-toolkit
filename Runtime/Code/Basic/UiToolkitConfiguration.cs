@@ -64,6 +64,9 @@ namespace GuiToolkit
 
 		public const string HELP_ADDITIONAL_SCENES_PATH =
 			"Additional scene path for scenes, which are not in the scene references list";
+		
+		public const string HELP_PREFAB_VARIANTS_PATH =
+			"Path for prefab variants of the builtin prefabs";
 
 		public const string HELP_STYLE_CONFIG =
 			"Style config for toolkit. You can replace it by your own style config.";
@@ -107,7 +110,10 @@ namespace GuiToolkit
 		public UiView m_uiViewPrefab;
 
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
-		public string m_additionalScenesPath = "Scenes/";
+		public string m_additionalScenesPath = "Assets/Scenes/";
+
+		[Tooltip(HELP_PREFAB_VARIANTS_PATH)]
+		public string m_prefabVariantsPath = "Assets/Prefabs/PrefabVariants/";
 
 		[Tooltip(HELP_STYLE_CONFIG)]
 		[FormerlySerializedAs("m_styleConfig")]

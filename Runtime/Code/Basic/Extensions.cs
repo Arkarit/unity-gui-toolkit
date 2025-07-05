@@ -32,21 +32,61 @@ namespace GuiToolkit
 		{
 			return _listToClone.Select(item => (T)item.Clone()).ToList();
 		}
-
-		public static string GetPath(this Transform _self, int _depth = -1, char _separator = '/')
+		
+		public static bool EndsWithViceVersa(this string _self, string _other)
+		{
+			int lenSelf = _self.Length;
+			int lenOther = _other.Length;
+			bool selfGreaterThanOther = lenSelf > lenOther;
+			string a = selfGreaterThanOther ? _self : _other;
+			string b = selfGreaterThanOther ? _other : _self;
+			
+			return a.EndsWith(b);
+		}
+		
+		/// <summary>
+		/// Returns the path of a transform, game object or component.
+		/// </summary>
+		/// <param name="_self">Transform, game object or component. May be null, in that case a string containing @"@<null@>@" is returned</param>
+		/// <param name="_depth">
+		/// If 0, complete path is returned
+		/// If > 0, path up to depth n is returned (e.g. MyOuterPrefab/MyPrefab/MyContainer/MyObject with depth 2 would return MyContainer/MyObject)
+		/// If < 0, complete path with -n parts removed at the left side (e.g. MyOuterPrefab/MyPrefab/MyContainer/MyObject with depth -1 would return MyPrefab/MyContainer/MyObject)
+		/// </param>
+		/// <param name="_separator"></param>
+		/// <returns></returns>
+		public static string GetPath(this Transform _self, int _depth = 0, char _separator = '/')
 		{
 			if (_self == null)
 				return "<null>";
 			
-			if (_depth == -1)
+			if (_depth < 0 )
+				_depth = GetPathDepth(_self) + _depth;
+			
+			if (_depth <= 0)
 				_depth = 100000;
 			
 			string result = _self.name;
-			while (_self.parent != null && _depth > 0)
+			while (_self.parent != null && _depth > 1)
 			{
 				_self = _self.parent;
 				result = _self.name + _separator + result;
 				_depth--;
+			}
+			
+			return result;
+		}
+		
+		public static int GetPathDepth(this Transform _self )
+		{
+			if (_self == null)
+				return 0;
+			
+			int result = 1;
+			while (_self.parent != null)
+			{
+				result++;
+				_self = _self.parent;
 			}
 			
 			return result;
@@ -76,21 +116,26 @@ namespace GuiToolkit
 
 		public static List<T> GetComponentsInDirectChildren<T>(this GameObject _self) where T : Component =>
 			GetComponentsInDirectChildren<T>(_self.transform);
-		public static string GetPath(this GameObject _self, int _depth = -1, char _separator = '/')
+		
+		public static string GetPath(this GameObject _self, int _depth = 0, char _separator = '/')
 		{
 			if (_self == null)
 				return "<null>";
 			
 			return GetPath(_self.transform, _depth, _separator);
 		}
+		
+		public static int GetPathDepth(this GameObject _self) => _self == null ? 0 : GetPathDepth(_self.transform);
 
-		public static string GetPath(this Component _self, int _depth = -1, char _separator = '/')
+		public static string GetPath(this Component _self, int _depth = 0, char _separator = '/')
 		{
 			if (_self == null)
 				return "<null>";
 			
 			return GetPath(_self.transform, _depth, _separator);
 		}
+		
+		public static int GetPathDepth(this Component _self) => _self == null ? 0 : GetPathDepth(_self.transform);
 		
 		public static string GetRelativePathOfDescendant(this Transform _self, Transform _descendant, char _separator = '/')
 		{
@@ -100,12 +145,12 @@ namespace GuiToolkit
 			if (_self == _descendant)
 				return string.Empty;
 			
-			var path = _descendant.GetPath(-1, _separator);
+			var path = _descendant.GetPath(0, _separator);
 			
 			if (_self == null || !_self.IsMyDescendant(_descendant.transform))
 				return path;
 			
-			return path.Substring(_self.GetPath(-1, _separator).Length + 1);
+			return path.Substring(_self.GetPath(0, _separator).Length + 1);
 		}
 		
 		public static string GetRelativePathOfDescendant(this Component _self, Component _descendant, char _separator = '/')
@@ -114,7 +159,7 @@ namespace GuiToolkit
 				return "<null>";
 			
 			if (_self == null)
-				return _descendant.transform.GetPath(-1, _separator);
+				return _descendant.transform.GetPath(0, _separator);
 			
 			return _self.transform.GetRelativePathOfDescendant(_descendant.transform, _separator);
 		}
@@ -125,7 +170,7 @@ namespace GuiToolkit
 				return "<null>";
 			
 			if (_self == null)
-				return _descendant.transform.GetPath(-1, _separator);
+				return _descendant.transform.GetPath(0, _separator);
 			
 			return _self.transform.GetRelativePathOfDescendant(_descendant.transform, _separator);
 		}
@@ -221,9 +266,13 @@ namespace GuiToolkit
 			}
 #endif
 
-			// We want the object _to be immediately detached _from its _parent if it is a game object
+			// We want the object to be immediately detached from its parent if it is a game object
 			GameObject go = _self as GameObject;
+#if UNITY_EDITOR
+			if (go && !PrefabUtility.IsPartOfImmutablePrefab(go))
+#else
 			if (go)
+#endif
 				go.transform.SetParent(null);
 
 #if UNITY_EDITOR
@@ -294,8 +343,8 @@ namespace GuiToolkit
 			}
 		}
 		
-		public static object CallPublicOrNonPublicStaticMethod(this Type _type, string _name, bool _catchExceptions = false, bool _logError = true, params object[] _params) =>
-			CallPublicOrNonPublicStaticMethod(_type, _name, out bool _, _catchExceptions, _logError, _params);
+		public static object CallPublicOrNonPublicStaticMethod(this Type _type, string _name, params object[] _params) =>
+			CallPublicOrNonPublicStaticMethod(_type, _name, out bool _, _catchExceptions:false, _logError:true, _params);
 
 		public static List<T> ToList<T>( this HashSet<T> _self )
 		{
@@ -614,6 +663,11 @@ namespace GuiToolkit
 			return _self.gameObject.AddComponent(t);
 		}
 
+		public static T GetOrCreateComponent<T>(this GameObject _self) where T : Component
+		{
+			return GetOrCreateComponent<T>(_self.transform);
+		}
+
 		public static T GetOrCreateComponentOnChild<T>(this Component _self, GameObject _parent, string _childName ) where T : Component
 		{
 			Transform child = _self.transform.Find(_childName);
@@ -752,7 +806,7 @@ namespace GuiToolkit
 						continue;
 				}
 				
-#if UNITY_EDITOR				
+#if UNITY_EDITOR
 				int check = _self.childCount;
 				string childName = child.name;
 #endif
@@ -813,6 +867,21 @@ namespace GuiToolkit
 		public static bool IsEven(this int _self) => (_self & 1) == 0;
 		public static bool IsOdd(this int _self) => (_self & 1) != 0;
 		
+		/// <summary>
+		/// Clone a single game object without its children.
+		/// Horribly inefficient, but afaik the only way;
+		/// Detaching children temporarily doesn't work for persistent objects
+		/// </summary>
+		/// <param name="_gameObject"></param>
+		/// <param name="_newParent"></param>
+		/// <returns></returns>
+		public static GameObject CloneWithoutChildren(this GameObject _gameObject, Transform _newParent = null)
+		{
+			GameObject result = Object.Instantiate(_gameObject, _newParent, false);
+			result.DestroyAllChildren();
+			return result;
+		}
+
 		public static GameObject GetRoot(this GameObject _self)
 		{
 			if (!_self)
@@ -915,6 +984,56 @@ namespace GuiToolkit
 		}
 		
 		public static bool CompareTagEx(this Transform _transform, string _tag) => _transform && CompareTagEx(_transform.gameObject, _tag);
+
+		/// <summary>
+        /// Returns a random long from min (inclusive) to max (exclusive)
+        /// </summary>
+        /// <param name="random">The given random instance</param>
+        /// <param name="min">The inclusive minimum bound</param>
+        /// <param name="max">The exclusive maximum bound.  Must be greater than min</param>
+        public static long NextLong(this System.Random random, long min, long max)
+        {
+            if (max <= min)
+                throw new ArgumentOutOfRangeException("max", "max must be > min!");
+
+            //Working with ulong so that modulo works correctly with values > long.MaxValue
+            ulong uRange = (ulong)(max - min);
+
+            //Prevent a modolo bias; see https://stackoverflow.com/a/10984975/238419
+            //for more information.
+            //In the worst case, the expected number of calls is 2 (though usually it's
+            //much closer to 1) so this loop doesn't really hurt performance at all.
+            ulong ulongRand;
+            do
+            {
+                byte[] buf = new byte[8];
+                random.NextBytes(buf);
+                ulongRand = (ulong)BitConverter.ToInt64(buf, 0);
+            } while (ulongRand > ulong.MaxValue - ((ulong.MaxValue % uRange) + 1) % uRange);
+
+            return (long)(ulongRand % uRange) + min;
+        }
+
+        /// <summary>
+        /// Returns a random long from 0 (inclusive) to max (exclusive)
+        /// </summary>
+        /// <param name="random">The given random instance</param>
+        /// <param name="max">The exclusive maximum bound.  Must be greater than 0</param>
+        public static long NextLong(this System.Random random, long max)
+        {
+            return random.NextLong(0, max);
+        }
+
+        /// <summary>
+        /// Returns a random long over all possible values of long (except long.MaxValue, similar to
+        /// random.Next())
+        /// </summary>
+        /// <param name="random">The given random instance</param>
+        public static long NextLong(this System.Random random)
+        {
+            return random.NextLong(long.MinValue, long.MaxValue);
+        }
+
 	}
 
 

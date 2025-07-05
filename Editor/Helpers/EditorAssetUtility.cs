@@ -1,8 +1,4 @@
-﻿// Note: don't move this file to an Editor folder, since it needs to be available
-// for inplace editor code
-#if UNITY_EDITOR
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor.SceneManagement;
@@ -11,22 +7,27 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 	/// \brief General Asset Utility
 	/// 
-	/// This is a collection of _asset helper functions.
-	/// 
-	/// Note: This file must reside outside of an "Editor" folder, since it must be accessible
-	/// from mixed game/editor classes (even though all accesses are in #if UNITY_EDITOR clauses)
-	/// See https://answers.unity.com/questions/426184/acces-script-in-the-editor-folder.html for reasons.
-	public static class EditorAssetUtility
+	/// This is a collection of asset helper functions.
+	public static partial class EditorAssetUtility
 	{
 		private const string CachePrefix = "UIECache_";
 		private static readonly Dictionary<string, Component> s_cachedComponents = new();
 		private static readonly string[] DefaultFolders = new []{"Assets"};
 		private static readonly AssetSearchOptions DefaultSearchOptions = new();
-		
+
+		public enum EErrorType
+		{
+			None,
+			LogWarning,
+			LogError,
+			Throw,
+			Dialog,
+		}
+
 		public class AssetSearchOptions
 		{
 			[Flags]
@@ -35,14 +36,6 @@ namespace GuiToolkit
 				NoError = 0,
 				ErrorIfNotFound = 1,
 				ErrorIfMultipleFound = 2,
-			}
-			
-			public enum EErrorType
-			{
-				LogWarning,
-				LogError,
-				Throw,
-				Dialog,
 			}
 			
 			public string SearchString = string.Empty;
@@ -508,34 +501,220 @@ namespace GuiToolkit
 		}
 
 		/// <summary>
-		/// Create an _asset and ensure folder exists
+		/// Find a matching object in a game object hierarchy by inspecting the paths of the two.
+		/// This method attempts to find a game object or component in an unrelated game object hierarchy.
+		/// This is very useful e.g. for cloning prefab variants or fixing references after cloning.
+		/// </summary>
+		/// <typeparam name="T">GameObject or Component subclass</typeparam>
+		/// <param name="_gameObjectHierarchy"></param>
+		/// <param name="_objectToFind"></param>
+		/// <returns>found object or null if not found or error</returns>
+		public static T FindMatchingObject<T>(GameObject _gameObjectHierarchy, T _objectToFind) where T : Object
+		{
+			if (_objectToFind is GameObject gameObjectToFind)
+				return FindMatchingGameObject(_gameObjectHierarchy, gameObjectToFind) as T;
+
+			if (_objectToFind is Component componentToFind)
+				return FindMatchingComponent(_gameObjectHierarchy, componentToFind) as T;
+
+			return null;
+		}
+
+		/// <summary>
+		/// Find a matching component in a game object hierarchy by inspecting the paths of the two.
+		/// This method attempts to find a component in an unrelated game object hierarchy.
+		/// Multiple components of the same type on a single game object are supported.
+		/// </summary>
+		/// <typeparam name="T">Component subclass</typeparam>
+		/// <param name="_gameObjectHierarchy"></param>
+		/// <param name="_componentToFind"></param>
+		/// <returns>found component or null if not found or error</returns>
+		public static T FindMatchingComponent<T>(GameObject _gameObjectHierarchy, T _componentToFind) where T : Component
+		{
+			GameObject matchingGo = FindMatchingGameObject(_gameObjectHierarchy, _componentToFind.gameObject);
+			if (matchingGo == null)
+				return null;
+	
+			int componentIndex = FindIndexOfMultipleSameTypeComponents(_componentToFind);
+
+			int currentComponentIndex = 0;
+			var components = matchingGo.GetComponents<Component>();
+			foreach (var matchingComponent in components)
+			{
+				if (matchingComponent.GetType() == _componentToFind.GetType())
+				{
+					if (currentComponentIndex < componentIndex)
+					{
+						currentComponentIndex++;
+						continue;
+					}
+
+					return matchingComponent as T;
+				}
+			}
+	
+			return null;
+		}
+
+		/// <summary>
+		/// Find the index for multiple components of the same type.
+		/// Multiple components of the same type are quite rare, but clearly allowed and should thus be supported.
+		/// Warning: NOT to be confused with Component.GetComponentIndex() (which relates to ALL components, not only those of the same kind)
+		/// </summary>
+		/// <param name="_component"></param>
+		/// <returns>Index or -1 if no component of the given type is found</returns>
+		public static int FindIndexOfMultipleSameTypeComponents(Component _component)
+		{
+			int result = 0;
+			var allSourceComponents = _component.gameObject.GetComponents<Component>();
+			foreach (var sourceComponent in allSourceComponents)
+			{
+				if (sourceComponent.GetType() != _component.GetType())
+					continue;
+
+				if (sourceComponent != _component)
+				{
+					result++;
+					continue;
+				}
+
+				return result;
+			}
+
+			return -1;
+		}
+
+		/// <summary>
+		/// Find a matching game object in a game object hierarchy by inspecting the paths of the two.
+		/// This method attempts to find a game object in an unrelated game object hierarchy.
+		/// </summary>
+		/// <param name="_gameObjectHierarchy"></param>
+		/// <param name="_gameObjectToFind"></param>
+		/// <returns>found game object or null if not found or error</returns>
+		public static GameObject FindMatchingGameObject( GameObject _gameObjectHierarchy, GameObject _gameObjectToFind )
+		{
+			if (_gameObjectHierarchy.transform.parent != null && _gameObjectToFind.transform.parent != null && _gameObjectHierarchy.transform.parent == _gameObjectToFind.transform.parent)
+				return _gameObjectHierarchy;
+
+			var toFindPath = _gameObjectToFind.GetPath(-1);
+			var toFindSource = PrefabUtility.GetCorrespondingObjectFromOriginalSource(_gameObjectToFind);
+
+			var transforms = _gameObjectHierarchy.GetComponentsInChildren<Transform>(true);
+			foreach (var transform in transforms)
+			{
+				if (transform.GetPath(-1).EndsWith(toFindPath))
+					return transform.gameObject;
+			}
+
+			foreach (var transform in transforms)
+			{
+				var candidateSource = PrefabUtility.GetCorrespondingObjectFromOriginalSource(transform.gameObject);
+				if (candidateSource != null && candidateSource == toFindSource)
+					return transform.gameObject;
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// Checks if two GameObjects are structurally equivalent in terms of their original prefab source.
+		/// This ignores renaming and variant levels.
+		/// </summary>
+		public static bool AreStructurallyEquivalent( GameObject _a, GameObject _b )
+		{
+			if (_a == null || _b == null)
+				return false;
+
+			var aRoot = PrefabUtility.GetCorrespondingObjectFromOriginalSource(_a);
+			var bRoot = PrefabUtility.GetCorrespondingObjectFromOriginalSource(_b);
+
+			if (aRoot == null || bRoot == null)
+				return false;
+
+			if (aRoot != bRoot)
+				return false;
+
+			// Check relative path within prefab
+			string aPath = GetRelativePrefabPath(_a);
+			string bPath = GetRelativePrefabPath(_b);
+
+			return aPath == bPath;
+		}
+
+		/// <summary>
+		/// Gets the relative path of a GameObject within its original prefab root.
+		/// </summary>
+		private static string GetRelativePrefabPath( GameObject go )
+		{
+			var path = go.name;
+			var current = go.transform;
+
+			while (current.parent != null)
+			{
+				current = current.parent;
+				path = current.name + "/" + path;
+
+				// Stop if we're outside prefab instance
+				if (PrefabUtility.GetPrefabInstanceStatus(current.gameObject) == PrefabInstanceStatus.NotAPrefab)
+					break;
+			}
+
+			return path;
+		}
+
+		public static void FixReferencesInClone(GameObject _original, GameObject _clone)
+		{
+string s = $"---::: Fix {_clone.name}\n";
+			FixReferencesInCloneInternal(_original, _clone, 1, ref s);
+Debug.Log(s);
+		}
+
+		private static void FixReferencesInCloneInternal(GameObject _original, GameObject _clone, int _numTabs, ref string _s)
+		{
+_s += $"{new string('\t', _numTabs)}Fix Game Object '{_clone.name}'\n";
+string s = string.Empty;
+			var components = _clone.GetComponents<Component>();
+			foreach (var component in components)
+			{
+_s += $"{new string('\t', _numTabs)}Fix Component '{component.GetType().Name}'\n";
+				var cloneComponentSerObj = new SerializedObject(component);
+				
+				EditorGeneralUtility.ForeachProperty(cloneComponentSerObj, property =>
+				{
+					if (property.propertyType != SerializedPropertyType.ObjectReference)
+						return;
+	
+					var matchingObject = FindMatchingObject(_clone, property.objectReferenceValue);
+					if (matchingObject != null)
+					{
+s += $"{new string('\t', _numTabs)}Fixed Property '{property.propertyPath}'\n";
+						property.objectReferenceValue = matchingObject;
+					}
+				});
+_s += s + "\n";
+
+				cloneComponentSerObj.ApplyModifiedProperties();
+			}
+
+
+			foreach (Transform child in _clone.transform)
+			{
+				FixReferencesInCloneInternal(_original, child.gameObject, _numTabs+1, ref _s);
+			}
+		}
+
+		/// <summary>
+		/// Create an asset and ensure folder exists
 		/// </summary>
 		/// <param name="_obj"></param>
 		/// <param name="_path"></param>
-		public static void CreateAsset( UnityEngine.Object _obj, string _path )
+		public static void CreateAsset( Object _obj, string _path )
 		{
 			string directory = EditorFileUtility.GetDirectoryName(_path);
 			EditorFileUtility.EnsureUnityFolderExists(directory);
 			AssetDatabase.CreateAsset(_obj, _path);
 		}
 
-		/// <summary>
-		/// Check if an asset is currently being imported for the first time.
-		/// Pretty hacky, but couldn't find a more sane way.
-		/// </summary>
-		/// <param name="_obj"></param>
-		/// <param name="_path"></param>
-		/// <returns></returns>
-		public static bool IsBeingImportedFirstTime( string _path )
-		{
-			// Asset database can't (yet) load the object
-			if (AssetDatabase.LoadAssetAtPath(_path, typeof(Object)))
-				return false;
-			
-			// but the file already exists -> importing
-			return File.Exists(_path);
-		}
-		
 		public static bool IsPackagesOrInternalAsset(Object _obj)
 		{
 			if (IsInternalAsset(_obj))
@@ -581,40 +760,44 @@ namespace GuiToolkit
 			if ((_options.ErrorCondition & AssetSearchOptions.EErrorCondition.ErrorIfNotFound) != 0 && numFound == 0)
 			{
 				string msg = $"Didn't find any objects of type '{typeof(T).Name}' with search string '{nameLogStr}'";
-				ShowError<T>(msg, _options);
+				ShowError(msg, _options.ErrorType);
 				return true;
 			}
 			else if ((_options.ErrorCondition & AssetSearchOptions.EErrorCondition.ErrorIfMultipleFound) != 0 && numFound > 1)
 			{
 				string msg = $"Found multiple game objects ({numFound}) with _component type '{typeof(T).Name}'{nameLogStr}, but there may be only one";
-				ShowError<T>(msg, _options);
+				ShowError(msg, _options.ErrorType);
 				return true;
 			}
 			
 			return false;
 		}
 
-		private static void ShowError<T>(string _msg, AssetSearchOptions _options)
+		// note: return value is always false to for returning with error in one line
+		// e.g. if (errorHappened) return ShowError(...)
+		private static bool ShowError(string _msg, EErrorType _errorType)
 		{
-			switch (_options.ErrorType)
+			switch (_errorType)
 			{
-				case AssetSearchOptions.EErrorType.LogWarning:
+				case EErrorType.None:
+					break;
+				case EErrorType.LogWarning:
 					Debug.LogWarning(_msg);
 					break;
-				case AssetSearchOptions.EErrorType.LogError:
+				case EErrorType.LogError:
 					Debug.LogError(_msg);
 					break;
-				case AssetSearchOptions.EErrorType.Throw:
+				case EErrorType.Throw:
 					throw new Exception(_msg);
-				case AssetSearchOptions.EErrorType.Dialog:
+				case EErrorType.Dialog:
 					EditorUtility.DisplayDialog("Asset Error", _msg, "Ok");
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
-		}
 
+			return false;
+		}
 	}
 }
-#endif
 

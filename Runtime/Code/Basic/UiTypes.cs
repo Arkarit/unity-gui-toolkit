@@ -157,6 +157,7 @@ namespace GuiToolkit
 		public const string CREATE_DOXYGEN_CONFIG = MENU_HEADER + "Doxygen Config";
 
 		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";																			///< Prefix for all player prefs entries
+		public const string CREATE_TEST_DATA = MENU_HEADER + "Test Data";
 	}
 
 	/// \brief Builtin icon definitions

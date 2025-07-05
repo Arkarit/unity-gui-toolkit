@@ -2,6 +2,7 @@
 
 // Caution! Does not work properly yet!
 //#define SCENE_DEPENDENCY_WIP
+using GuiToolkit.Debugging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -280,27 +281,6 @@ namespace GuiToolkit
 			return propertyInfo.GetValue(_instance, null);
 		}
 		
-		public static void ForeachProperty(SerializedObject _serializedObject, Action<SerializedProperty> _action)
-		{
-			if (_serializedObject == null || _serializedObject.targetObject == null)
-			{
-				Debug.LogWarning($"serialized object or target object is null");
-				return;
-			}
-
-			_serializedObject.Update();
-			SerializedProperty prop = _serializedObject.GetIterator();
-			if (prop.NextVisible(true))
-			{
-				do
-				{
-					_action.Invoke(_serializedObject.FindProperty(prop.name));
-				}
-				while (prop.NextVisible(false));
-			}
-			_serializedObject.ApplyModifiedProperties();
-		}
-
 		public static void DestroyStrayMeshes(bool _hiddenOnly = true)
 		{
 			List<Mesh> meshesToDestroy = new();
@@ -377,17 +357,38 @@ namespace GuiToolkit
 			if (_fieldsToSkip == null)
 				_fieldsToSkip = s_emptyStringHashSet;
 
-			ForeachPropertySerObj(_serializedObject, prop =>
+			ForeachProperty(_serializedObject, prop =>
 			{
 				if (_fieldsToSkip.Contains(prop.name))
 					return;
 
 				EditorGUILayout.PropertyField(_serializedObject.FindProperty(prop.name), true);
-			}, false);
+			});
 		}
 
+		public static void ForeachProperty(SerializedObject _serializedObject, Action<SerializedProperty> _action)
+		{
+			if (_serializedObject == null || _serializedObject.targetObject == null)
+			{
+				Debug.LogWarning($"serialized object or target object is null");
+				return;
+			}
 
-		public static void ForeachPropertySerObj(SerializedObject _serializedObject, Action<SerializedProperty> _action, bool _fullHierarchy = true)
+			_serializedObject.Update();
+			SerializedProperty prop = _serializedObject.GetIterator();
+			if (prop.NextVisible(true))
+			{
+				do
+				{
+					_action.Invoke(_serializedObject.FindProperty(prop.name));
+				}
+				while (prop.NextVisible(false));
+			}
+
+			_serializedObject.ApplyModifiedProperties();
+		}
+
+		public static void ForeachPropertyHierarchical(SerializedObject _serializedObject, Action<SerializedProperty> _action)
 		{
 			if (_serializedObject == null || _serializedObject.targetObject == null)
 			{
@@ -405,12 +406,9 @@ namespace GuiToolkit
 					var prop2 = _serializedObject.FindProperty(prop.name);
 					_action.Invoke(prop2);
 
-					if (_fullHierarchy)
-					{
-						SerializedProperty it = prop2.Copy();
-						while (it.Next(true))
-							_action.Invoke(it);
-					}
+					SerializedProperty it = prop2.Copy();
+					while (it.Next(true))
+						_action.Invoke(it);
 				}
 				while (prop.NextVisible(false));
 			}
@@ -418,11 +416,8 @@ namespace GuiToolkit
 			_serializedObject.ApplyModifiedProperties();
 		}
 
-		public static void ForeachProperty(Object _object, Action<SerializedProperty> _action, bool _fullHierarchy = true) => ForeachPropertySerObj(new SerializedObject(_object), _action, _fullHierarchy);
-
-		// Get the path of the script which calls this function. Weird and hacky but works.
-		public static string GetCallingScriptPath() => new System.Diagnostics.StackTrace(true).GetFrame(1).GetFileName();
-		public static string GetCallingScriptDirectory() => Path.GetDirectoryName(new System.Diagnostics.StackTrace(true).GetFrame(1).GetFileName());
+		public static void ForeachProperty(Object _object, Action<SerializedProperty> _action) => ForeachProperty(new SerializedObject(_object), _action);
+		public static void ForeachPropertyHierarchical(Object _object, Action<SerializedProperty> _action) => ForeachPropertyHierarchical(new SerializedObject(_object), _action);
 
 		public static SerializedProperty GetParentProperty(this SerializedProperty _property)
 		{
@@ -486,7 +481,7 @@ namespace GuiToolkit
 			var transforms = prefab.GetComponentsInChildren<Transform>();
 			foreach (var transform in transforms)
 			{
-				if (partOfPrefabPath.EndsWith(transform.GetPath(0)))
+				if (partOfPrefabPath.EndsWith(transform.GetPath(1)))
 					return transform.gameObject;
 			}
 
@@ -758,15 +753,21 @@ namespace GuiToolkit
 			return components.Length > 0;
 		}
 		
+		public static void CreateAsset( Object _obj, string _path )
+		{
+			string directory = EditorFileUtility.GetDirectoryName(_path);
+			EditorFileUtility.EnsureUnityFolderExists(directory);
+			AssetDatabase.CreateAsset(_obj, _path);
+		}
+
 		public static void SetDirty(Object _obj)
 		{
 			// Never set package assets dirty; leads to "Saving Prefab to immutable folder is not allowed" errors
-			if (EditorAssetUtility.IsPackagesAsset(_obj))
+			if (PrefabUtility.IsPartOfImmutablePrefab(_obj))
 				return;
 			
 			EditorUtility.SetDirty(_obj);
 		}
-
 
 		private static bool ValidateListAndIndex(SerializedProperty _list, int _idx)
 		{

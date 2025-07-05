@@ -87,8 +87,16 @@ namespace GuiToolkit.Editor
 				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_ADDITIONAL_SCENES_PATH, MessageType.Info);
 			}
-			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_additionalScenesPath"), true);
+			EditorFileUtility.PathFieldReadFolder(m_serializedSettingsObject.FindProperty("m_additionalScenesPath"));
 
+			if (m_firstTimeInit)
+			{
+				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_PREFAB_VARIANTS_PATH, MessageType.Info);
+			}
+			EditorFileUtility.PathFieldReadFolder(m_serializedSettingsObject.FindProperty("m_prefabVariantsPath"));
+
+			
 			if (m_firstTimeInit)
 			{
 				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);

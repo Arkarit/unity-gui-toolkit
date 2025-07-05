@@ -1,10 +1,9 @@
-﻿#if UNITY_EDITOR
-using System;
+﻿using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace GuiToolkit
+namespace GuiToolkit.Editor
 {
 
 	public static class LocaPluralProcessor
@@ -134,4 +133,3 @@ namespace GuiToolkit
 		}
 	}
 }
-#endif

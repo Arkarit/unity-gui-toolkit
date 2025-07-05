@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using GuiToolkit.Debugging;
 using UnityEngine;
 
 
@@ -90,7 +91,7 @@ namespace GuiToolkit.Editor
 
 		private static string[] ReadTemplate()
 		{
-			var path = EditorGeneralUtility.GetCallingScriptDirectory() + "/DoxyfileTemplate";
+			var path = DebugUtility.GetCallingScriptDirectory() + "/DoxyfileTemplate";
 
 			try
 			{
