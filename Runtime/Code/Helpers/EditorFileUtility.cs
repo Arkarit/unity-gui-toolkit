@@ -140,6 +140,20 @@ namespace GuiToolkit
 				return false;
 			}
 		}
+
+		public static bool AssertNormalizedDirectoryPath(string _directory)
+		{
+			bool result = !string.IsNullOrEmpty(_directory) &&
+			              !_directory.Contains('\\') && 
+			              _directory.EndsWith('/') &&
+			              !_directory.EndsWith("//");
+			
+			Debug.Assert(result, $"Directory Path '{_directory}' is not normalized! (Mustn't contain \\ and must end with single /)");
+			
+			// ReSharper disable once ConditionIsAlwaysTrueOrFalse
+			return result;
+		}
+
 		
 		public static string PathField( string _label, string _tooltip, string _path, bool _save, bool _folder, string _extensions)
 		{

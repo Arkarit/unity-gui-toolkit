@@ -54,8 +54,19 @@ namespace GuiToolkit
 			if (string.IsNullOrEmpty(_path))
 				return _path;
 
-			// We don't do a path normalization here except replacing backslashes, since we don't know if a directory or file is requested
-			_path = Path.GetFullPath(_path).Replace('\\', '/');
+			FileAttributes attr;
+			try
+			{
+				attr = File.GetAttributes(_path);
+			}
+			catch (Exception e)
+			{
+				Debug.LogWarning($"Exception: {e.Message}");
+				return _path;
+			}
+
+			bool isDirectory = (attr & FileAttributes.Directory) == FileAttributes.Directory;
+			_path = isDirectory ? _path.NormalizedDirectoryPath() : _path.NormalizedFilePath();
 
 			InitIfNecessary();
 
@@ -65,12 +76,12 @@ namespace GuiToolkit
 			if (string.IsNullOrEmpty(hit.symlink))
 				return _path;
 
-			if (!AssertNormalizedDirectoryPath(hit.target) || !AssertNormalizedDirectoryPath(hit.symlink))
+			if (!EditorFileUtility.AssertNormalizedDirectoryPath(hit.target) || !EditorFileUtility.AssertNormalizedDirectoryPath(hit.symlink))
 				return _path;
 
 			if (_symlinkToTarget)
 				return hit.target + _path.Substring(hit.symlink.Length);
-			
+
 			return hit.symlink + _path.Substring(hit.target.Length);
 		}
 
@@ -80,7 +91,7 @@ namespace GuiToolkit
 		public static string DumpSymlinks()
 		{
 			InitIfNecessary();
-			string result = "Symlinks in project:\n";
+			string result = "!Symlinks in project:\n";
 			foreach (var valueTuple in s_symlinks)
 				result += $"{valueTuple.symlink} -> {valueTuple.target}\n";
 			
@@ -132,10 +143,10 @@ namespace GuiToolkit
 						if (IsInsideAnotherSymlink(file, projectRoot)) continue;
 
 						string guid = Path.GetFileNameWithoutExtension(file).Substring(TempPrefix.Length);
-						if (symlinkByGuid.TryGetValue(guid, out string target))
+						if (symlinkByGuid.TryGetValue(guid, out string symlink))
 						{
-							string dir = Path.GetDirectoryName(file)!.NormalizedDirectoryPath();
-							results.Add((dir, target));
+							string target = Path.GetDirectoryName(file)!.NormalizedDirectoryPath();
+							results.Add((symlink, target));
 						}
 					}
 				}
@@ -155,20 +166,6 @@ namespace GuiToolkit
 			s_symlinks = results;
 		}
 
-		private static string NormalizedDirectoryPath(this string _directory)=> _directory.Replace('\\', '/').TrimEnd('/') + '/';
-		
-		private static bool AssertNormalizedDirectoryPath(string _directory)
-		{
-			bool result = !_directory.Contains('\\') && 
-			              _directory.EndsWith('/') &&
-			              !_directory.EndsWith("//");
-			
-			Debug.Assert(result, $"Directory Path '{_directory}' is not normalized! (Mustn't contain \\ and must end with single /)");
-			
-			// ReSharper disable once ConditionIsAlwaysTrueOrFalse
-			return result;
-		}
-		
 		// --------------------------------------------------------------------- helpers
 		private static string FindRepoRoot( string startDir )
 		{
