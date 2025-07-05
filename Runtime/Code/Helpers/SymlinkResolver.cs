@@ -43,11 +43,11 @@ namespace GuiToolkit
 
 		/// <summary>Return the physical target for a given logical Unity path (Assets/...).
 		/// If the path is not a symlink, the input value is returned unchanged.</summary>
-		public static string GetTarget( string targetPath ) => Get(targetPath, true);
+		public static string GetTarget( string _sourcePath ) => Get(_sourcePath, true);
 
 		/// <summary>Return the logical Unity path that points to the given physical directory.
 		/// If the directory is not referenced by a symlink, the input value is returned unchanged.</summary>
-		public static string GetSource( string targetPath ) => Get(targetPath, false);
+		public static string GetSource( string _targetPath ) => Get(_targetPath, false);
 
 		private static string Get( string _path, bool _symlinkToTarget )
 		{
@@ -98,9 +98,6 @@ namespace GuiToolkit
 			return result;
 		}
 
-		// ---------------------------------------------------------------------
-		// internal
-		// ---------------------------------------------------------------------
 		private static void InitIfNecessary()
 		{
 			if (s_symlinks != null)
@@ -166,10 +163,9 @@ namespace GuiToolkit
 			s_symlinks = results;
 		}
 
-		// --------------------------------------------------------------------- helpers
-		private static string FindRepoRoot( string startDir )
+		private static string FindRepoRoot( string _startDir )
 		{
-			var dir = new DirectoryInfo(startDir);
+			var dir = new DirectoryInfo(_startDir);
 			while (dir != null)
 			{
 				if (dir.GetDirectories(".git").Any() || dir.GetFiles("package.json").Any())
@@ -179,10 +175,10 @@ namespace GuiToolkit
 			return null;
 		}
 
-		private static bool IsInsideAnotherSymlink( string path, string projectRoot )
+		private static bool IsInsideAnotherSymlink( string _path, string _projectRoot )
 		{
-			var di = new DirectoryInfo(Path.GetDirectoryName(path)!);
-			while (di != null && di.FullName.Length >= projectRoot.Length)
+			var di = new DirectoryInfo(Path.GetDirectoryName(_path)!);
+			while (di != null && di.FullName.Length >= _projectRoot.Length)
 			{
 				if ((di.Attributes & FileAttributes.ReparsePoint) != 0) return true;
 				di = di.Parent;
