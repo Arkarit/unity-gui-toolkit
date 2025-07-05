@@ -43,19 +43,30 @@ namespace GuiToolkit
 
 		/// <summary>Return the physical target for a given logical Unity path (Assets/...).
 		/// If the path is not a symlink, the input value is returned unchanged.</summary>
-		public static string GetTarget( string targetPath ) => Get(targetPath, true);
+		public static string GetTarget( string _sourcePath ) => Get(_sourcePath, true);
 
 		/// <summary>Return the logical Unity path that points to the given physical directory.
 		/// If the directory is not referenced by a symlink, the input value is returned unchanged.</summary>
-		public static string GetSource( string targetPath ) => Get(targetPath, false);
+		public static string GetSource( string _targetPath ) => Get(_targetPath, false);
 
 		private static string Get( string _path, bool _symlinkToTarget )
 		{
 			if (string.IsNullOrEmpty(_path))
 				return _path;
 
-			// We don't do a path normalization here except replacing backslashes, since we don't know if a directory or file is requested
-			_path = Path.GetFullPath(_path).Replace('\\', '/');
+			FileAttributes attr;
+			try
+			{
+				attr = File.GetAttributes(_path);
+			}
+			catch (Exception e)
+			{
+				Debug.LogWarning($"Exception: {e.Message}");
+				return _path;
+			}
+
+			bool isDirectory = (attr & FileAttributes.Directory) == FileAttributes.Directory;
+			_path = isDirectory ? _path.NormalizedDirectoryPath() : _path.NormalizedFilePath();
 
 			InitIfNecessary();
 
@@ -65,12 +76,12 @@ namespace GuiToolkit
 			if (string.IsNullOrEmpty(hit.symlink))
 				return _path;
 
-			if (!AssertNormalizedDirectoryPath(hit.target) || !AssertNormalizedDirectoryPath(hit.symlink))
+			if (!EditorFileUtility.AssertNormalizedDirectoryPath(hit.target) || !EditorFileUtility.AssertNormalizedDirectoryPath(hit.symlink))
 				return _path;
 
 			if (_symlinkToTarget)
 				return hit.target + _path.Substring(hit.symlink.Length);
-			
+
 			return hit.symlink + _path.Substring(hit.target.Length);
 		}
 
@@ -87,9 +98,6 @@ namespace GuiToolkit
 			return result;
 		}
 
-		// ---------------------------------------------------------------------
-		// internal
-		// ---------------------------------------------------------------------
 		private static void InitIfNecessary()
 		{
 			if (s_symlinks != null)
@@ -132,10 +140,10 @@ namespace GuiToolkit
 						if (IsInsideAnotherSymlink(file, projectRoot)) continue;
 
 						string guid = Path.GetFileNameWithoutExtension(file).Substring(TempPrefix.Length);
-						if (symlinkByGuid.TryGetValue(guid, out string target))
+						if (symlinkByGuid.TryGetValue(guid, out string symlink))
 						{
-							string dir = Path.GetDirectoryName(file)!.NormalizedDirectoryPath();
-							results.Add((dir, target));
+							string target = Path.GetDirectoryName(file)!.NormalizedDirectoryPath();
+							results.Add((symlink, target));
 						}
 					}
 				}
@@ -155,24 +163,9 @@ namespace GuiToolkit
 			s_symlinks = results;
 		}
 
-		private static string NormalizedDirectoryPath(this string _directory)=> _directory.Replace('\\', '/').TrimEnd('/') + '/';
-		
-		private static bool AssertNormalizedDirectoryPath(string _directory)
+		private static string FindRepoRoot( string _startDir )
 		{
-			bool result = !_directory.Contains('\\') && 
-			              _directory.EndsWith('/') &&
-			              !_directory.EndsWith("//");
-			
-			Debug.Assert(result, $"Directory Path '{_directory}' is not normalized! (Mustn't contain \\ and must end with single /)");
-			
-			// ReSharper disable once ConditionIsAlwaysTrueOrFalse
-			return result;
-		}
-		
-		// --------------------------------------------------------------------- helpers
-		private static string FindRepoRoot( string startDir )
-		{
-			var dir = new DirectoryInfo(startDir);
+			var dir = new DirectoryInfo(_startDir);
 			while (dir != null)
 			{
 				if (dir.GetDirectories(".git").Any() || dir.GetFiles("package.json").Any())
@@ -182,10 +175,10 @@ namespace GuiToolkit
 			return null;
 		}
 
-		private static bool IsInsideAnotherSymlink( string path, string projectRoot )
+		private static bool IsInsideAnotherSymlink( string _path, string _projectRoot )
 		{
-			var di = new DirectoryInfo(Path.GetDirectoryName(path)!);
-			while (di != null && di.FullName.Length >= projectRoot.Length)
+			var di = new DirectoryInfo(Path.GetDirectoryName(_path)!);
+			while (di != null && di.FullName.Length >= _projectRoot.Length)
 			{
 				if ((di.Attributes & FileAttributes.ReparsePoint) != 0) return true;
 				di = di.Parent;
