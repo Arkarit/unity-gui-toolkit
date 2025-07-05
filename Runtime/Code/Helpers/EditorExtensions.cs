@@ -65,24 +65,15 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(prop, true);
 		}
 
-		// Caution, WIP!
-		public static string ToLogicalPath( this string _s )
+		public static string ToLogicalPath( this string _path )
 		{
-			if (string.IsNullOrEmpty(_s))
-				return _s;
+			if (string.IsNullOrEmpty(_path))
+				return _path;
 
-			var directory = Path.GetDirectoryName(_s);
-			if (string.IsNullOrEmpty(directory))
-				return _s;
-
-			var rootPath = Application.dataPath;
-			var logicalPath = FileUtil.GetLogicalPath(_s);
-			Debug.Log($"--:: In:'{_s}' Out:'{logicalPath}'");
-
-			if (!string.IsNullOrEmpty(logicalPath))
-				return logicalPath;
-
-			return "";
+			// In case we have a path which points to a file outside of the project, but within the repo,
+			// we need the symlink path, not the path outside
+			var result = SymlinkResolver.GetSource(_path);
+			return FileUtil.GetProjectRelativePath(result);
 		}
 
 		public static string NormalizedDirectoryPath(this string _directory) => 

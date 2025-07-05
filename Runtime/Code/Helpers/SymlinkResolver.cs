@@ -91,7 +91,7 @@ namespace GuiToolkit
 		public static string DumpSymlinks()
 		{
 			InitIfNecessary();
-			string result = "!Symlinks in project:\n";
+			string result = "Symlinks in project:\n";
 			foreach (var valueTuple in s_symlinks)
 				result += $"{valueTuple.symlink} -> {valueTuple.target}\n";
 			
