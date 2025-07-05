@@ -35,8 +35,10 @@ namespace GuiToolkit
 				EditorGUILayout.PropertyField(prop, true);
 		}
 
+		// Caution, WIP!
 		public static string ToLogicalPath( this string _s )
 		{
+return _s;
 			if (string.IsNullOrEmpty(_s))
 				return _s;
 
@@ -52,11 +54,6 @@ namespace GuiToolkit
 				return logicalPath;
 
 			return "";
-		}
-
-		public static string ToPhysicalPath( this string _s )
-		{
-			return string.IsNullOrEmpty(_s) ? _s : FileUtil.GetPhysicalPath(_s);
 		}
 	}
 }
