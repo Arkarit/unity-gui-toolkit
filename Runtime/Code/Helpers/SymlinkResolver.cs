@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	// Caution, WIP!
+
+	
 	/// <summary>
 	/// Resolves directory symlinks that sit *inside* the Unity project (logical "Assets/...") but
 	/// point to folders *outside* the project – the setup we use for GuiToolkit’s Runtime/Editor sources.
@@ -100,7 +103,7 @@ namespace GuiToolkit
 									 .Where(di => (di.Attributes & FileAttributes.ReparsePoint) != 0)
 									 .ToArray();
 
-			var guidToPhysical = new Dictionary<string, string>(linkDirs.Length);
+			var symlinkByGuid = new Dictionary<string, string>(linkDirs.Length);
 			var results = new List<(string symlink, string target)>();
 
 			try
@@ -115,7 +118,7 @@ namespace GuiToolkit
 					try
 					{
 						File.WriteAllText(tempPath, di.FullName); // file content only for debugging purposes, not actually used
-						guidToPhysical[guid] = di.FullName.NormalizedDirectoryPath();
+						symlinkByGuid[guid] = di.FullName.NormalizedDirectoryPath();
 					}
 					catch (UnauthorizedAccessException) { continue; }
 					catch (IOException ioex) when (ioex.HResult == unchecked((int)0x80070005)) { continue; }
@@ -129,10 +132,10 @@ namespace GuiToolkit
 						if (IsInsideAnotherSymlink(file, projectRoot)) continue;
 
 						string guid = Path.GetFileNameWithoutExtension(file).Substring(TempPrefix.Length);
-						if (guidToPhysical.TryGetValue(guid, out string physical))
+						if (symlinkByGuid.TryGetValue(guid, out string target))
 						{
 							string dir = Path.GetDirectoryName(file)!.NormalizedDirectoryPath();
-							results.Add((dir, physical));
+							results.Add((dir, target));
 						}
 					}
 				}
@@ -142,7 +145,7 @@ namespace GuiToolkit
 			finally
 			{
 				// cleanup temp files
-				foreach (var kvp in guidToPhysical)
+				foreach (var kvp in symlinkByGuid)
 				{
 					string tmp = Path.Combine(kvp.Value, TempPrefix + kvp.Key + TempExt);
 					try { File.Delete(tmp); } catch { }
