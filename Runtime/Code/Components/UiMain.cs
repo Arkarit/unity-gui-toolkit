@@ -420,6 +420,9 @@ namespace GuiToolkit
 				if (view == _uiView)
 					break;
 
+				if (view.VisibleThoughFullScreen)
+					continue;
+
 				if (doSet)
 				{
 					m_savedVisibilities.Add(view, view.gameObject.activeSelf);

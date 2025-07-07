@@ -17,8 +17,10 @@ namespace GuiToolkit
 	{
 		[Tooltip("The layer in which the view is shown.")]
 		[SerializeField] protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
-		[Tooltip("When full screen, all other layers below are hidden")]
+		[Tooltip("When full screen, all other layers below are hidden, except for those where Visible Though Full Screen is set.")]
 		[SerializeField] protected bool m_isFullScreen;
+		[Tooltip("Visible in background, although Full Screen dialog is open")]
+		[SerializeField] protected bool m_visibleThoughFullScreen;
 		[Tooltip("Uses the global canvas scaler template in Ui toolkit configuration (if it is set)")]
 		[SerializeField] protected bool m_useGlobalCanvasScalerTemplate = true;
 		[Tooltip("When the view is closed via Hide(), the view is automatically destroyed or pooled")]
@@ -56,6 +58,8 @@ namespace GuiToolkit
 		}
 
 		public EUiLayerDefinition Layer => m_layer;
+		
+		public bool VisibleThoughFullScreen => m_visibleThoughFullScreen;
 
 		protected UiModal UiModal
 		{
