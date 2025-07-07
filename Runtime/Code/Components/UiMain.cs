@@ -397,15 +397,12 @@ namespace GuiToolkit
 				m_savedVisibilities.Clear();
 				m_hiddenTaggedGameObjects.Clear();
 				m_fullScreenView = _uiView;
-				UiEventDefinitions.EvFullScreenView.Invoke(m_fullScreenView, true);
 			}
 			else 
 			{
 				if (m_savedVisibilities.Count == 0)
 					return;
 				
-				Debug.Assert(m_fullScreenView != null);
-				UiEventDefinitions.EvFullScreenView.Invoke(m_fullScreenView, false);
 				m_fullScreenView = null;
 			}
 

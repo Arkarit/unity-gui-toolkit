@@ -107,6 +107,9 @@ namespace GuiToolkit
 
 		public override void Show(bool _instant = false, Action _onFinish = null)
 		{
+			if (m_isFullScreen)
+				UiEventDefinitions.EvFullScreenView.Invoke(this, true);
+
 			base.Show(_instant, ()=>
 			{
 				if (m_isFullScreen)
@@ -117,6 +120,9 @@ namespace GuiToolkit
 
 		public override void Hide(bool _instant = false, Action _onFinish = null)
 		{
+			if (m_isFullScreen)
+				UiEventDefinitions.EvFullScreenView.Invoke(this, false);
+			
 			UiMain.Instance.SetFullScreenView(null);
 			base.Hide(_instant, _onFinish);
 		}
