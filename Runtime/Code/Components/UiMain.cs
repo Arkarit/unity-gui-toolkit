@@ -66,6 +66,7 @@ namespace GuiToolkit
 		private const float LARGE_NUMBER = 999999999.0f;
 		private static readonly Bounds LARGE_BOUNDS = new (Vector3.zero, new Vector3(LARGE_NUMBER, LARGE_NUMBER, LARGE_NUMBER) );
 		private bool m_isAwake;
+		private UiView m_fullScreenView;
 		
 #if UNITY_EDITOR
 		private static bool s_staticInitialized = false;
@@ -83,6 +84,9 @@ namespace GuiToolkit
 		public RenderMode RenderMode => m_renderMode;
 		public Camera Camera { get; private set; }
 		public UiPool UiPool { get; private set; }
+		
+		public UiView FullScreenView => m_fullScreenView;
+		public bool IsFullScreenViewOpen => FullScreenView != null;
 		
 		/// <summary>
 		/// This getter is especially important for bootstrapping.
@@ -386,16 +390,26 @@ namespace GuiToolkit
 		/// Caution! This currently can be called for only ONE dialog at a time!
 		public void SetFullScreenView( UiView _uiView )
 		{
-			bool set = _uiView != null;
-			if (set)
+			bool doSet = _uiView != null;
+			
+			if (doSet)
 			{
 				m_savedVisibilities.Clear();
 				m_hiddenTaggedGameObjects.Clear();
+				m_fullScreenView = _uiView;
+				UiEventDefinitions.EvFullScreenView.Invoke(m_fullScreenView, true);
 			}
-			else if (m_savedVisibilities.Count == 0)
-				return;
+			else 
+			{
+				if (m_savedVisibilities.Count == 0)
+					return;
+				
+				Debug.Assert(m_fullScreenView != null);
+				UiEventDefinitions.EvFullScreenView.Invoke(m_fullScreenView, false);
+				m_fullScreenView = null;
+			}
 
-			SetActivenessForTagged(set);
+			SetActivenessForTagged(doSet);
 
 			for (int i = 0; i < transform.childCount; i++)
 			{
@@ -409,7 +423,7 @@ namespace GuiToolkit
 				if (view == _uiView)
 					break;
 
-				if (set)
+				if (doSet)
 				{
 					m_savedVisibilities.Add(view, view.gameObject.activeSelf);
 					view.gameObject.SetActive(false);

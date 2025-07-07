@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class QualityBasedVisibility : MonoBehaviour
+	public class VisibilityByQuality : MonoBehaviour
 	{
 		[SerializeField] private int m_qualitiesVisible;
 		
@@ -10,6 +11,11 @@ namespace GuiToolkit
 		{
 			QualitySettings.activeQualityLevelChanged += ActiveQualityLevelChanged;
 			AdjustVisibility(QualitySettings.GetQualityLevel());
+		}
+
+		private void OnDestroy()
+		{
+			QualitySettings.activeQualityLevelChanged -= ActiveQualityLevelChanged;
 		}
 
 		private void ActiveQualityLevelChanged(int _, int _newQualityLevel) => AdjustVisibility(_newQualityLevel);
