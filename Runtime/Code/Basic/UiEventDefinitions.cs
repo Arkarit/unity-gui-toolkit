@@ -32,13 +32,6 @@ namespace GuiToolkit
 		/// \brief Invoked if a player setting has changed.
 		/// <param name="PlayerSetting">Changed player setting class instance</param>
 		public static CEvent<PlayerSetting>								EvPlayerSettingChanged			= new();
-		
-		/// \brief Invoked when a full screen view is opened or closed.
-		/// <param name="UiView">Full screen view which is opened or closed</param>
-		/// <param name="bool">true when opened</param>
-		public static CEvent<UiView, bool>								EvFullScreenView = new();
-		
-		// Skins/Styles ---------------------------------------------------------------------
 
 		/// \brief Invoked if skin changes
 		/// float: duration

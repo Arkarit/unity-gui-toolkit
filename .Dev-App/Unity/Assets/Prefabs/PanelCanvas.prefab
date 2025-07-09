@@ -144,7 +144,6 @@ MonoBehaviour:
       m_Calls: []
   m_layer: 1000
   m_isFullScreen: 0
-  m_visibleThoughFullScreen: 0
   m_useGlobalCanvasScalerTemplate: 1
   m_autoDestroyOnHide: 1
   m_poolable: 1
@@ -5909,7 +5908,6 @@ MonoBehaviour:
       m_Calls: []
   m_layer: 1000
   m_isFullScreen: 0
-  m_visibleThoughFullScreen: 0
   m_useGlobalCanvasScalerTemplate: 1
   m_autoDestroyOnHide: 1
   m_poolable: 1

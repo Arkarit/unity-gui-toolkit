@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
-	[CustomEditor(typeof(VisibilityByQuality), true)]
-	public class VisibilityByQualityEditor : UnityEditor.Editor
+	[CustomEditor(typeof(QualityBasedVisibility), true)]
+	public class QualityBasedVisibilityEditor : UnityEditor.Editor
 	{
 		SerializedProperty m_qualitiesVisibleProp;
 
