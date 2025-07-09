@@ -3,7 +3,6 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	[RequireComponent(typeof(CanvasGroup))]
 	public class UiToggleFader : MonoBehaviour
 	{
 		[SerializeField] protected CanvasGroup m_canvasGroup;
