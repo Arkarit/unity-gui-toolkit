@@ -9,6 +9,7 @@ namespace GuiToolkit
 		[SerializeField] protected CanvasGroup m_canvasGroup;
 		[SerializeField] protected Toggle m_toggle;
 		[SerializeField] protected bool m_disableAfterFade;
+		[SerializeField] protected float m_duration = .3f;
 
 		protected Coroutine m_coroutine;
 		
@@ -33,8 +34,6 @@ namespace GuiToolkit
 				return m_canvasGroup;
 			}
 		}
-		
-		float Duration => Toggle.colors.fadeDuration;
 
 		void OnEnable()
 		{
@@ -58,7 +57,7 @@ namespace GuiToolkit
 		System.Collections.IEnumerator FadeRoutine( float target )
 		{
 			float start = CanvasGroup.alpha;
-			for (float t = 0; t < 1; t += Time.unscaledDeltaTime / Duration)
+			for (float t = 0; t < 1; t += Time.unscaledDeltaTime / m_duration)
 			{
 				CanvasGroup.alpha = Mathf.Lerp(start, target, t);
 				yield return null;
