@@ -36,6 +36,8 @@ namespace GuiToolkit
 		private bool m_uiModalChecked;
 		private Canvas m_canvas;
 		private CanvasScaler m_canvasScaler;
+		private bool m_temporarilyHidden;
+		private bool m_temporarilyHiddenAutoDestroyOnHide;
 		
 		public override bool AutoDestroyOnHide => m_autoDestroyOnHide;
 		public override bool Poolable => m_poolable;
@@ -117,7 +119,6 @@ namespace GuiToolkit
 			base.OnDestroy();
 		}
 
-		private bool m_temporarilyHiddenAutoDestroyOnHide;
 		protected virtual void OnEvFullscreenView(UiView _view, bool _show)
 		{
 			if (!m_hideOnOccludedByFullScreen)
@@ -135,12 +136,20 @@ namespace GuiToolkit
 			//TODO Disable Events (EvOnBeginShow, ...)?
 			if (_show)
 			{
+				if (m_temporarilyHidden)
+					return;
+				
+				m_temporarilyHidden = true;
 				m_temporarilyHiddenAutoDestroyOnHide = m_autoDestroyOnHide;
 				m_autoDestroyOnHide = false;
 				Hide(m_hideOnOccludedByFullScreenInstant);
 				return;
 			}
 			
+			if (!m_temporarilyHidden)
+				return;
+			
+			m_temporarilyHidden = false;
 			m_autoDestroyOnHide = m_temporarilyHiddenAutoDestroyOnHide;
 			Show(m_hideOnOccludedByFullScreenInstant);
 		}
