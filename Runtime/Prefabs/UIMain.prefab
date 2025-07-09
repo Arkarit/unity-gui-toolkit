@@ -314,6 +314,8 @@ MonoBehaviour:
       m_Calls: []
   m_layer: 200
   m_isFullScreen: 0
+  m_hideOnOccludedByFullScreen: 0
+  m_hideOnOccludedByFullScreenInstant: 0
   m_useGlobalCanvasScalerTemplate: 1
   m_autoDestroyOnHide: 1
   m_poolable: 1

@@ -53,6 +53,12 @@ namespace GuiToolkit
 		public static CEvent<UiAbstractApplyStyleBase>						EvStyleApplierChangedParent = new();	
 		public static CEvent<UiAbstractApplyStyleBase>						EvStyleApplierDestroyed = new();
 		
+		
+		/// \brief Invoked before a full screen view is opened or closed.
+		/// UiView: The UiView to open/closed
+		/// bool: opened
+		public static CEvent<UiView, bool>									EvFullScreenView = new();
+		
 
 		// Timer events ---------------------------------------------------------------------
 		// Not yet implemented: unscaled time. Implement/test on demand please.
