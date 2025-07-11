@@ -131,6 +131,10 @@ namespace GuiToolkit
 		public const int LOCA_PROCESSOR_MENU_PRIORITY = 100;
 		public const int LOCA_PLURAL_PROCESSOR_MENU_PRIORITY = 110;
 		public const int LOCA_PO_FIXER_MENU_PRIORITY = 120;
+
+		public const int CONFIG_MANAGER_MENU_PRIORITY = 0;
+		public const int SAVE_PROJECT_ON_LOSE_FOCUS_MENU_PRIORITY = 1000;
+		public const int SCENE_CHANGE_TRACKER_MENU_PRIORITY = 1010;
 	}
 
 	/// \brief General string constants
@@ -141,11 +145,11 @@ namespace GuiToolkit
 		public const string STYLES_HEADER = MENU_HEADER + "Styles/";
 		public const string MISC_TOOLS_MENU_HEADER = MENU_HEADER + "Miscellaneous Tools/";											    ///< Menu header for miscellaneous tools
 
-		public const string CONFIGURATION_NAME = "Ui Toolkit Configuration";
+		public const string CONFIGURATION_NAME = "Ui Toolkit Configuration...";
 		public const string CONFIGURATION_MENU_NAME = MENU_HEADER + CONFIGURATION_NAME;
-		public const string APPLY_STYLE_GENERATOR_MENU_NAME = STYLES_HEADER + "'Ui Apply Style' Generator";
-		public const string GAME_SPEED_MENU_NAME = MENU_HEADER + "Game speed";
-		public const string KERNING_TABLE_TOOL_MENU_NAME = MENU_HEADER + "Kerning Table Tool";
+		public const string APPLY_STYLE_GENERATOR_MENU_NAME = STYLES_HEADER + "'Ui Apply Style' Generator...";
+		public const string GAME_SPEED_MENU_NAME = MENU_HEADER + "Game speed...";
+		public const string KERNING_TABLE_TOOL_MENU_NAME = MENU_HEADER + "Kerning Table Tool...";
 		public const string LOCA_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update pot file)";
 		public const string LOCA_PLURAL_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update plurals when added a new language)";
 		public const string LOCA_PO_FIXER_MENU_NAME = MENU_HEADER + "Loca PO File Fixer (Sync .po <-> .po.txt files)";
@@ -158,6 +162,8 @@ namespace GuiToolkit
 
 		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";																			///< Prefix for all player prefs entries
 		public const string CREATE_TEST_DATA = MENU_HEADER + "Test Data";
+
+		public const string CONFIG_MANAGER_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Config Manager...";
 	}
 
 	/// \brief Builtin icon definitions

@@ -53,7 +53,6 @@ namespace GuiToolkit
 		[Tooltip("Objects tagged with these tags are hidden when a fullscreen dialog is open. This is especially useful for main cameras. Note that the AdditionalTags component is NOT supported.")]
 		[SerializeField] protected TagField[] m_tagsToDisableWhenFullScreenView;
 
-		private readonly Dictionary<UiView,bool> m_savedVisibilities = new ();
 		private readonly List<GameObject> m_hiddenTaggedGameObjects = new ();
 		private readonly Dictionary<string, UiView> m_scenes = new();
 		private readonly Stack<UiView> m_stack = new();
@@ -383,44 +382,8 @@ namespace GuiToolkit
 
 		#region "General"
 
-		/// Caution! This currently can be called for only ONE dialog at a time!
-		public void SetFullScreenView( UiView _uiView )
-		{
-			bool set = _uiView != null;
-			if (set)
-			{
-				m_savedVisibilities.Clear();
-				m_hiddenTaggedGameObjects.Clear();
-			}
-			else if (m_savedVisibilities.Count == 0)
-				return;
-
-			SetActivenessForTagged(set);
-
-			for (int i = 0; i < transform.childCount; i++)
-			{
-				Transform t = transform.GetChild(i);
-				UiView view = t.GetComponent<UiView>();
-
-				if (view == null)
-					continue;
-
-				// Views which are in front of the full screen view are not hidden
-				if (view == _uiView)
-					break;
-
-				if (set)
-				{
-					m_savedVisibilities.Add(view, view.gameObject.activeSelf);
-					view.gameObject.SetActive(false);
-					continue;
-				}
-
-				if (m_savedVisibilities.TryGetValue(view, out bool isActive))
-					view.gameObject.SetActive(isActive);
-			}
-		}
-
+		private void OnFullScreenView(UiView _, bool _show) => SetActivenessForTagged(_show);
+		
 		private void SetActivenessForTagged(bool _active)
 		{
 			if (_active)
@@ -445,6 +408,8 @@ namespace GuiToolkit
 			foreach (var go in m_hiddenTaggedGameObjects)
 				if (go)
 					go.SetActive(true);
+			
+			m_hiddenTaggedGameObjects.Clear();
 		}
 
 		public void SortViews()
@@ -543,12 +508,14 @@ namespace GuiToolkit
 			
 			Instance = this;
 			IsAwake = true;
+			UiEventDefinitions.EvFullScreenView.AddListener(OnFullScreenView);
 		}
 
 		protected virtual void OnDestroy()
 		{
 			IsAwake = false;
 			Instance = null;
+			UiEventDefinitions.EvFullScreenView.RemoveListener(OnFullScreenView);
 		}
 
 		protected virtual void Start()

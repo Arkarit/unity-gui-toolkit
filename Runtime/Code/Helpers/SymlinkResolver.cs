@@ -54,19 +54,7 @@ namespace GuiToolkit
 			if (string.IsNullOrEmpty(_path))
 				return _path;
 
-			FileAttributes attr;
-			try
-			{
-				attr = File.GetAttributes(_path);
-			}
-			catch (Exception e)
-			{
-				Debug.LogWarning($"Exception: {e.Message}");
-				return _path;
-			}
-
-			bool isDirectory = (attr & FileAttributes.Directory) == FileAttributes.Directory;
-			_path = isDirectory ? _path.NormalizedDirectoryPath() : _path.NormalizedFilePath();
+			_path = _path.NormalizedPath();
 
 			InitIfNecessary();
 

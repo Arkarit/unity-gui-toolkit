@@ -25,7 +25,7 @@ namespace GuiToolkit.Editor
 			IsEnabled = EditorPrefs.GetBool(PrefsKey);
 		}
 
-		[MenuItem(StringConstants.SCENE_CHANGE_TRACKER_MENU_NAME, priority = Constants.MISC_MENU_PRIORITY)]
+		[MenuItem(StringConstants.SCENE_CHANGE_TRACKER_MENU_NAME, priority = Constants.SCENE_CHANGE_TRACKER_MENU_PRIORITY)]
 		private static void Toggle()
 		{
 			IsEnabled = !IsEnabled;

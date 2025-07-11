@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using UnityEditor.SceneManagement;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -121,6 +120,7 @@ namespace GuiToolkit.Debugging
 			return "<External Caller Not Found>";
 		}
 
+#if UNITY_EDITOR
 		public static string DumpOverridesString(GameObject _asset, string _what)
 		{
 			if (!PrefabUtility.IsPartOfVariantPrefab(_asset) && !PrefabUtility.IsAnyPrefabInstanceRoot(_asset))
@@ -171,6 +171,7 @@ namespace GuiToolkit.Debugging
 
 		private static string GetHeadline(string _text) => $"\t{_text}\n\t{new string('-', 80)}\n";
 
+
 		public static string GetCorrespondingObjectFromSourceString(Object _obj)
 		{
 			string result = string.Empty;
@@ -187,7 +188,7 @@ namespace GuiToolkit.Debugging
 
 			return result;
 		}
-		
+
 		public static string GetAllPropertiesString(SerializedObject _serObj)
 		{
 			string result = $"Properties for '{_serObj.targetObject.name}':\n{new string('-', 80)}\n";
@@ -210,6 +211,8 @@ namespace GuiToolkit.Debugging
 			
 			return result;
 		}
+
+#endif
 
 
 		private static void GetHierarchyString(GameObject _gameObject, ref StringBuilder _sb, int _numTabs, DumpFeatures _features)

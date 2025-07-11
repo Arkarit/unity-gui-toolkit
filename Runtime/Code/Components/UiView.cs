@@ -19,6 +19,12 @@ namespace GuiToolkit
 		[SerializeField] protected EUiLayerDefinition m_layer = EUiLayerDefinition.Dialog;
 		[Tooltip("When full screen, all other layers below are hidden")]
 		[SerializeField] protected bool m_isFullScreen;
+		[Tooltip("Dialog is hidden when occluded by a full screen dialog")]
+		[SerializeField] protected bool m_hideOnOccludedByFullScreen = true;
+		[Tooltip("Dialog is hidden instant when occluded by a full screen dialog")]
+		[SerializeField] protected bool m_hideOnOccludedByFullScreenInstant;
+		
+		
 		[Tooltip("Uses the global canvas scaler template in Ui toolkit configuration (if it is set)")]
 		[SerializeField] protected bool m_useGlobalCanvasScalerTemplate = true;
 		[Tooltip("When the view is closed via Hide(), the view is automatically destroyed or pooled")]
@@ -30,6 +36,8 @@ namespace GuiToolkit
 		private bool m_uiModalChecked;
 		private Canvas m_canvas;
 		private CanvasScaler m_canvasScaler;
+		private bool m_temporarilyHidden;
+		private bool m_temporarilyHiddenAutoDestroyOnHide;
 		
 		public override bool AutoDestroyOnHide => m_autoDestroyOnHide;
 		public override bool Poolable => m_poolable;
@@ -98,7 +106,54 @@ namespace GuiToolkit
 			if (globalCanvasScalerTemplate && m_useGlobalCanvasScalerTemplate)
 				StartCoroutine(ApplyGlobalCanvasScalerTemplateDelayed(globalCanvasScalerTemplate));
 		}
-		
+
+		protected override void Awake()
+		{
+			UiEventDefinitions.EvFullScreenView.AddListener(OnEvFullscreenView);
+			base.Awake();
+		}
+
+		protected override void OnDestroy()
+		{
+			UiEventDefinitions.EvFullScreenView.RemoveListener(OnEvFullscreenView);
+			base.OnDestroy();
+		}
+
+		protected virtual void OnEvFullscreenView(UiView _view, bool _show)
+		{
+			if (!m_hideOnOccludedByFullScreen)
+				return;
+			
+			if (_view == this)
+				return;
+			
+			if (_view.Layer > Layer)
+				return;
+			
+			if (_show != Visible)
+				return;
+			
+			//TODO Disable Events (EvOnBeginShow, ...)?
+			if (_show)
+			{
+				if (m_temporarilyHidden)
+					return;
+				
+				m_temporarilyHidden = true;
+				m_temporarilyHiddenAutoDestroyOnHide = m_autoDestroyOnHide;
+				m_autoDestroyOnHide = false;
+				Hide(m_hideOnOccludedByFullScreenInstant);
+				return;
+			}
+			
+			if (!m_temporarilyHidden)
+				return;
+			
+			m_temporarilyHidden = false;
+			m_autoDestroyOnHide = m_temporarilyHiddenAutoDestroyOnHide;
+			Show(m_hideOnOccludedByFullScreenInstant);
+		}
+
 		protected IEnumerator ApplyGlobalCanvasScalerTemplateDelayed(CanvasScaler _template)
 		{
 			yield return 0;
@@ -107,17 +162,17 @@ namespace GuiToolkit
 
 		public override void Show(bool _instant = false, Action _onFinish = null)
 		{
-			base.Show(_instant, ()=>
-			{
-				if (m_isFullScreen)
-					UiMain.Instance.SetFullScreenView(this);
-				_onFinish?.Invoke();
-			});
+			if (m_isFullScreen)
+				UiEventDefinitions.EvFullScreenView.Invoke(this, true);
+			
+			base.Show(_instant, _onFinish);
 		}
 
 		public override void Hide(bool _instant = false, Action _onFinish = null)
 		{
-			UiMain.Instance.SetFullScreenView(null);
+			if (m_isFullScreen)
+				UiEventDefinitions.EvFullScreenView.Invoke(this, false);
+			
 			base.Hide(_instant, _onFinish);
 		}
 
