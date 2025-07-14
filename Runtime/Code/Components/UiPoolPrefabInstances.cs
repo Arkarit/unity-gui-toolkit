@@ -16,11 +16,7 @@ namespace GuiToolkit
 			m_poolContainer = _poolContainer;
 		}
 
-		~UiPoolPrefabInstances()
-		{
-			foreach (var instance in m_instances)
-				instance.SafeDestroy();
-		}
+		~UiPoolPrefabInstances() => Clear();
 
 		public bool HasInstances => m_instances.Count > 0;
 		
@@ -43,6 +39,13 @@ namespace GuiToolkit
 			_instance.SetActive(false);
 			_instance.transform.SetParent(m_poolContainer, false);
 			m_instances.Push(_instance);
+		}
+		
+		public void Clear()
+		{
+			foreach (var instance in m_instances)
+				instance.SafeDestroy();
+			m_instances.Clear();			
 		}
 	}
 }

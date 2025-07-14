@@ -66,7 +66,22 @@ namespace GuiToolkit
 			
 			DoDestroy(_component.gameObject);
 		}
+		
+		public void Clear(bool _destroyAllInstances = true)
+		{
+			foreach (var kv in m_instancesByPrefab)
+			{
+				kv.Value.Clear();
+			}
+			
+			if (!_destroyAllInstances)
+				return;
 
-
+			foreach (var kv in m_instancesByInstance)
+				kv.Key.SafeDestroy();
+			
+			m_instancesByPrefab.Clear();
+			m_instancesByInstance.Clear();
+		}
 	}
 }
