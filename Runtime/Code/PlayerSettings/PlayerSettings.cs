@@ -100,7 +100,9 @@ namespace GuiToolkit
 			{
 				var playerSetting = kv.Value;
 				playerSetting.TempRestoreValue();
-				playerSetting.InvokeEvents();
+				if (!playerSetting.IsButton)
+					playerSetting.InvokeEvents();
+				
 				Log(playerSetting, "Restored");
 			}
 		}
