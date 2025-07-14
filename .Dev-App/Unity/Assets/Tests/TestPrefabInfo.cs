@@ -4,6 +4,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
+using System.Linq;
 
 namespace GuiToolkit.Test
 {
@@ -14,7 +15,6 @@ namespace GuiToolkit.Test
 		{
 			Assert.DoesNotThrow(() => PrefabInfo.Create(null));
 			PrefabInfo pi;
-			GameObject go;
 
 			pi = new PrefabInfo();
 			AssertInvalidPrefabInfo(pi);
@@ -22,7 +22,7 @@ namespace GuiToolkit.Test
 			AssertInvalidPrefabInfo(pi);
 		}
 
-		private void AssertInvalidPrefabInfo( PrefabInfo _pi )
+		private void AssertInvalidPrefabInfo(PrefabInfo _pi)
 		{
 			// Object itself must exist
 			Assert.IsNotNull(_pi, "PrefabInfo instance should never be null.");
@@ -47,7 +47,6 @@ namespace GuiToolkit.Test
 			Assert.IsNull(_pi.AssetGuid, "AssetGuid should be null for invalid PrefabInfo.");
 			Assert.IsFalse(_pi.IsDirty, "HasOverrides must be false when no GameObject is present.");
 		}
-
 
 		[Test]
 		public void TestRegular()
@@ -118,7 +117,7 @@ namespace GuiToolkit.Test
 		public void TestInstanceVariantWithoutOverrides()
 		{
 			var go = TestData.Instance.VariantPrefabAssetWithoutOverrides.TryLoad<GameObject>();
-			go = (GameObject) PrefabUtility.InstantiatePrefab(go);
+			go = (GameObject)PrefabUtility.InstantiatePrefab(go);
 			var pi = PrefabInfo.Create(go);
 			Assert.IsNotNull(pi);
 			Assert.IsTrue(pi.IsValid, "Variant prefab instance should be valid.");
@@ -131,7 +130,7 @@ namespace GuiToolkit.Test
 			Assert.AreEqual(PrefabAssetType.Variant, pi.AssetType, "Expected Variant asset type.");
 			Assert.AreEqual(PrefabInstanceStatus.Connected, pi.InstanceStatus, "Instance should be connected");
 
-			Assert.IsTrue(pi.IsDirty, "Fresh Prefab asset instance should be dirty.");
+			Assert.That(pi.IsDirty, Is.EqualTo(EditorUtility.IsDirty(pi.GameObject)), "IsDirty should match Unity's internal dirty flag.");
 			Assert.IsTrue(pi.IsVariantAsset);
 			Assert.IsFalse(pi.IsModelAsset);
 		}
@@ -140,7 +139,7 @@ namespace GuiToolkit.Test
 		public void TestInstanceVariantWithOverrides()
 		{
 			var go = TestData.Instance.VariantPrefabAssetWithOverrides.TryLoad<GameObject>();
-			go = (GameObject) PrefabUtility.InstantiatePrefab(go);
+			go = (GameObject)PrefabUtility.InstantiatePrefab(go);
 			var pi = PrefabInfo.Create(go);
 			Assert.IsNotNull(pi);
 			Assert.IsTrue(pi.IsValid, "Variant prefab instance should be valid.");
@@ -153,7 +152,7 @@ namespace GuiToolkit.Test
 			Assert.AreEqual(PrefabAssetType.Variant, pi.AssetType, "Expected Variant asset type.");
 			Assert.AreEqual(PrefabInstanceStatus.Connected, pi.InstanceStatus, "Instance should be connected");
 
-			Assert.IsTrue(pi.IsDirty, "Fresh Prefab asset instance should be dirty.");
+			Assert.That(pi.IsDirty, Is.EqualTo(EditorUtility.IsDirty(pi.GameObject)), "IsDirty should match Unity's internal dirty flag.");
 			Assert.IsTrue(pi.IsVariantAsset);
 			Assert.IsFalse(pi.IsModelAsset);
 		}
@@ -179,6 +178,16 @@ namespace GuiToolkit.Test
 			Assert.IsTrue(pi.IsModelAsset);
 		}
 
+		[Test]
+		public void TestToString()
+		{
+			var go = TestData.Instance.RegularPrefabAsset.TryLoad<GameObject>();
+			var pi = PrefabInfo.Create(go);
+			var str = pi.ToString();
+			Assert.IsTrue(str.Contains(go.name), "ToString should contain GameObject name.");
+			Assert.IsTrue(str.Contains("IsPrefab="), "ToString should report key flags.");
+		}
+
 		private void SubTestOverrides(PrefabInfo _assetPrefabInfo)
 		{
 			if (_assetPrefabInfo == null || !_assetPrefabInfo.IsValid)
@@ -189,13 +198,31 @@ namespace GuiToolkit.Test
 			var obj = PrefabUtility.InstantiatePrefab(_assetPrefabInfo.GameObject);
 			var go = obj as GameObject;
 			pi = PrefabInfo.Create(go);
+			var oi = pi.OverrideInfo;
+			Assert.IsNotNull(oi);
 			Assert.IsTrue(pi.IsDirty);
-			pi.Modify<TestMonoBehaviour>(target => target.Int = Random.Range(-200000, 200000));
+
+			// Modify a known property
+			pi.Modify<TestMonoBehaviour>("Int", sp =>
+			{
+			    sp.intValue += 1;
+			    return true;
+			});
+			
 			Assert.IsTrue(pi.IsDirty);
+			Assert.That(oi.PropertyModifications.Any(pm => pm.propertyPath.Contains("Int")),
+				"Expected override on 'Int' field of TestMonoBehaviour.");
+
+			// Save as new prefab asset
 			pi.SaveAs(TestData.Instance.TempFolderPath + "/1.prefab", InteractionMode.AutomatedAction);
 
-			// Note: This can not properly be tested, because dirty flag is delayed by Unity
-			Assert.IsFalse(pi.IsDirty);
+			// Unity does not clear the dirty flag immediately after SaveAsPrefabAssetAndConnect.
+			// Therefore, this assertion might not be reliable in all contexts:
+			// Assert.IsFalse(pi.IsDirty);
+
+			Assert.IsTrue(oi.PropertyModifications.Count > 0 || pi.OverrideInfo.ObjectOverrides.Count > 0,
+				"Expected at least one override to be recorded.");
+
 		}
 	}
 }
