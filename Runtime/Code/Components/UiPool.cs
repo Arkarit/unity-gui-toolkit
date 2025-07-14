@@ -1,79 +1,69 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
 	public class UiPool : MonoBehaviour
 	{
-		public Transform m_container;
+		[FormerlySerializedAs("m_container")] 
+		public Transform m_poolContainer;
 
-		private readonly Dictionary<GameObject,UiPoolPrefabInstances> m_poolEntryByPrefab = new Dictionary<GameObject, UiPoolPrefabInstances>();
-		private readonly Dictionary<GameObject,UiPoolPrefabInstances> m_poolEntryByGameObject = new Dictionary<GameObject, UiPoolPrefabInstances>();
+		private readonly Dictionary<GameObject,UiPoolPrefabInstances> m_instancesByPrefab = new ();
+		private readonly Dictionary<GameObject,UiPoolPrefabInstances> m_instancesByInstance = new ();
 
 		public static UiPool Instance => UiMain.IsAwake ? UiMain.Instance.UiPool : null;
 
-		public GameObject DoInstantiate( GameObject _prefab )
+		[Obsolete("Use Get() instead")]
+		public GameObject DoInstantiate( GameObject _prefab ) => Get(_prefab);
+		
+		public GameObject Get( GameObject _prefab )
 		{
-			GameObject result;
+			if (!m_instancesByPrefab.ContainsKey(_prefab))
+				m_instancesByPrefab.Add(_prefab, new UiPoolPrefabInstances(_prefab, m_poolContainer));
 
-			if (m_poolEntryByPrefab.ContainsKey(_prefab))
-			{
-				UiPoolPrefabInstances poolEntry = m_poolEntryByPrefab[_prefab];
-				if (poolEntry.m_instances.Count > 0)
-				{
-					int lastIdx = poolEntry.m_instances.Count-1;
-					result = poolEntry.m_instances[lastIdx];
-					poolEntry.m_instances.RemoveAt(lastIdx);
-					result.transform.SetParent(null, false);
-					result.SetActive(true);
-					if (!m_poolEntryByGameObject.ContainsKey(result))
-						m_poolEntryByGameObject.Add(result, poolEntry);
-					return result;
-				}
-
-				result = Instantiate(_prefab);
-				m_poolEntryByGameObject.Add(result, poolEntry);
-				return result;
-			}
-
-			result = Instantiate(_prefab);
-			UiPoolPrefabInstances newPoolEntry = new UiPoolPrefabInstances();
-			m_poolEntryByPrefab.Add(_prefab, newPoolEntry);
-			m_poolEntryByGameObject.Add(result, newPoolEntry);
-
+			var instances = m_instancesByPrefab[_prefab];
+			var result = instances.Get();
+			m_instancesByInstance.Add(result, instances);
 			return result;
 		}
 
-		public T DoInstantiate<T>( T _componentOnPrefabRoot ) where T : Component
-		{
-			return DoInstantiate(_componentOnPrefabRoot.gameObject).GetComponent<T>();
-		}
+		[Obsolete("Use Get() instead")]
+		public T DoInstantiate<T>( T _componentOnPrefabRoot ) where T : Component => Get<T>(_componentOnPrefabRoot);
 
-		public void DoDestroy( GameObject _gameObject )
+		public T Get<T>( T _componentOnPrefabRoot ) where T : Component
 		{
-			if (!m_poolEntryByGameObject.ContainsKey(_gameObject))
+			return Get(_componentOnPrefabRoot.gameObject).GetComponent<T>();
+		}
+		
+		[Obsolete("Use Release() instead")]
+		public void DoDestroy( GameObject _instance ) => Release(_instance);
+
+		public void Release( GameObject _instance )
+		{
+			if (m_instancesByInstance.TryGetValue(_instance, out UiPoolPrefabInstances instances))
 			{
-				_gameObject.SafeDestroy();
+				m_instancesByInstance.Remove(_instance);
+				instances.Release(_instance);
 				return;
 			}
-
-			UiPoolPrefabInstances poolEntry = m_poolEntryByGameObject[_gameObject];
-			_gameObject.transform.SetParent( m_container, false );
-			_gameObject.SetActive(false);
-
-			// We must check if the game object is already in the pool - it is not
-			// forbidden to pool an object which is already in the pool (e.g. induced by events, which are also fired to inactive components)
-			if (!poolEntry.m_instances.Contains(_gameObject))
-				poolEntry.m_instances.Add(_gameObject);
+			
+			_instance.SafeDestroy();
 		}
 
-		public void DoDestroy<T>( T _component ) where T : Component
+		[Obsolete("Use Release() instead")]
+		public void DoDestroy<T>( T _component ) where T : Component => Release<T>(_component);
+		
+		public void Release<T>( T _component ) where T : Component
 		{
 			if (_component is UiPanel)
 			{
 				UiPanel view = _component as UiPanel;
+				//TODO as interface instead
 				view.OnPooled();
 			}
+			
 			DoDestroy(_component.gameObject);
 		}
 

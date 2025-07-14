@@ -574,11 +574,11 @@ namespace GuiToolkit
 			Camera = this.GetOrCreateComponent<Camera>();
 
 			UiPool = this.GetOrCreateComponent<UiPool>();
-			if (UiPool.m_container == null)
+			if (UiPool.m_poolContainer == null)
 			{
 				GameObject poolContainer = new GameObject("Pool");
 				poolContainer.transform.SetParent(transform);
-				UiPool.m_container = poolContainer.transform;
+				UiPool.m_poolContainer = poolContainer.transform;
 			}
 		}
 
