@@ -32,7 +32,9 @@ namespace GuiToolkit
 				return instance;
 			}
 			
-			return Object.Instantiate(m_prefab);
+			var result = Object.Instantiate(m_prefab);
+			m_instancesByInstance.Add(result, this);
+			return result;
 		}
 		
 		public void Release(GameObject _instance)
