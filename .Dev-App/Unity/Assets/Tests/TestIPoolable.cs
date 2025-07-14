@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace GuiToolkit.Test
 {
@@ -73,14 +74,15 @@ namespace GuiToolkit.Test
 		}
 
 		[Test]
-		public void Releasing_Alien_With_IPoolable_Does_Not_Call_It()
+		public void Releasing_Alien_With_IPoolable_Triggers_Callback_And_Warning()
 		{
 			var alien = new GameObject("Alien");
 			var poolable = alien.AddComponent<TestPoolable>();
-
+		
+			LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(".*not created by the pool.*"));
 			m_pool.Release(poolable);
-
-			Assert.AreEqual(0, poolable.ReleasedCount);
+		
+			Assert.AreEqual(1, poolable.ReleasedCount);
 			Object.DestroyImmediate(alien);
 		}
 	}

@@ -91,6 +91,7 @@ namespace GuiToolkit.Test
 		{
 			var instance = m_pool.Get(m_prefabA);
 			Object.DestroyImmediate(instance);
+			LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(".*null.*"));
 			Assert.DoesNotThrow(() => m_pool.Release(instance));
 		}
 

@@ -48,6 +48,17 @@ namespace GuiToolkit
 
 		public void Release( GameObject _instance )
 		{
+			if (_instance == null)
+			{
+				Debug.LogWarning($"[UiPool] Releasing null object");
+				return;
+			}
+			
+#if UNITY_EDITOR
+			if (!m_instancesByInstance.ContainsKey(_instance))
+				Debug.LogWarning($"[UiPool] Releasing object '{_instance.GetPath()}', which was not created by the pool.");
+#endif
+		
 			if (m_instancesByInstance.TryGetValue(_instance, out UiPoolPrefabInstances instances))
 			{
 				instances.Release(_instance);
@@ -60,8 +71,14 @@ namespace GuiToolkit
 		[Obsolete("Use Release() instead")]
 		public void DoDestroy<T>( T _component ) where T : Component => Release<T>(_component);
 		
-		public void Release<T>( T _component ) where T : Component
+		public void Release<T>(T _component) where T : Component
 		{
+			if (_component == null)
+			{
+				Debug.LogWarning($"[UiPool] Releasing null component");
+				return;
+			}
+			
 			if (_component is IPoolable poolable)
 				poolable.OnPoolReleased();
 			
