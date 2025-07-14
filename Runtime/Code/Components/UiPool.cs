@@ -1,87 +1,128 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// Provides runtime pooling for UI prefabs.
+	/// Reuses inactive instances to reduce GC and instantiation overhead.
+	/// </summary>
 	public class UiPool : MonoBehaviour
 	{
-		private class PoolEntry
-		{
-			public readonly List<GameObject> m_instances = new List<GameObject>();
-		}
+		/// <summary>
+		/// The parent transform used to store inactive pooled objects.
+		/// </summary>
+		[FormerlySerializedAs("m_container")] 
+		public Transform m_poolContainer;
 
-		public Transform m_container;
+		private readonly Dictionary<GameObject, UiPoolPrefabInstances> m_instancesByPrefab = new();
+		private readonly Dictionary<GameObject, UiPoolPrefabInstances> m_instancesByInstance = new();
 
-		private readonly Dictionary<GameObject,PoolEntry> m_poolEntryByPrefab = new Dictionary<GameObject, PoolEntry>();
-		private readonly Dictionary<GameObject,PoolEntry> m_poolEntryByGameObject = new Dictionary<GameObject, PoolEntry>();
-
+		/// <summary>
+		/// Global singleton instance of the UI pool.
+		/// Returns null if the main UI system is not initialized.
+		/// </summary>
 		public static UiPool Instance => UiMain.IsAwake ? UiMain.Instance.UiPool : null;
 
-		public GameObject DoInstantiate( GameObject _prefab )
+		protected void OnDestroy() => Clear();
+
+		[Obsolete("Use Get() instead")]
+		public GameObject DoInstantiate(GameObject _prefab) => Get(_prefab);
+
+		/// <summary>
+		/// Retrieves an instance of the given prefab from the pool.
+		/// If no pooled instance is available, a new one is instantiated.
+		/// </summary>
+		public GameObject Get(GameObject _prefab)
 		{
-			GameObject result;
+			if (!m_instancesByPrefab.ContainsKey(_prefab))
+				m_instancesByPrefab.Add(_prefab, new UiPoolPrefabInstances(_prefab, m_poolContainer, m_instancesByInstance));
 
-			if (m_poolEntryByPrefab.ContainsKey(_prefab))
-			{
-				PoolEntry poolEntry = m_poolEntryByPrefab[_prefab];
-				if (poolEntry.m_instances.Count > 0)
-				{
-					int lastIdx = poolEntry.m_instances.Count-1;
-					result = poolEntry.m_instances[lastIdx];
-					poolEntry.m_instances.RemoveAt(lastIdx);
-					result.transform.SetParent(null, false);
-					result.SetActive(true);
-					if (!m_poolEntryByGameObject.ContainsKey(result))
-						m_poolEntryByGameObject.Add(result, poolEntry);
-					return result;
-				}
+			var instances = m_instancesByPrefab[_prefab];
+			var result = instances.Get();
+			return result;
+		}
 
-				result = Instantiate(_prefab);
-				m_poolEntryByGameObject.Add(result, poolEntry);
-				return result;
-			}
+		[Obsolete("Use Get() instead")]
+		public T DoInstantiate<T>(T _componentOnPrefabRoot) where T : Component => Get<T>(_componentOnPrefabRoot);
 
-			result = Instantiate(_prefab);
-			PoolEntry newPoolEntry = new PoolEntry();
-			m_poolEntryByPrefab.Add(_prefab, newPoolEntry);
-			m_poolEntryByGameObject.Add(result, newPoolEntry);
+		/// <summary>
+		/// Retrieves a pooled instance based on a prefab component.
+		/// Triggers OnPoolCreated() if the component implements IPoolable.
+		/// </summary>
+		public T Get<T>(T _componentOnPrefabRoot) where T : Component
+		{
+			T result = Get(_componentOnPrefabRoot.gameObject).GetComponent<T>();
+			if (result is IPoolable poolable)
+				poolable.OnPoolCreated();
 
 			return result;
 		}
 
-		public T DoInstantiate<T>( T _componentOnPrefabRoot ) where T : Component
-		{
-			return DoInstantiate(_componentOnPrefabRoot.gameObject).GetComponent<T>();
-		}
+		[Obsolete("Use Release() instead")]
+		public void DoDestroy(GameObject _instance) => Release(_instance);
 
-		public void DoDestroy( GameObject _gameObject )
+		/// <summary>
+		/// Releases a pooled GameObject back to the pool, or destroys it if unknown.
+		/// </summary>
+		public void Release(GameObject _instance)
 		{
-			if (!m_poolEntryByGameObject.ContainsKey(_gameObject))
+			if (_instance == null)
 			{
-				_gameObject.SafeDestroy();
+				Debug.LogWarning("[UiPool] Releasing null object");
 				return;
 			}
 
-			PoolEntry poolEntry = m_poolEntryByGameObject[_gameObject];
-			_gameObject.transform.SetParent( m_container, false );
-			_gameObject.SetActive(false);
+#if UNITY_EDITOR
+			if (!m_instancesByInstance.ContainsKey(_instance))
+				Debug.LogWarning($"[UiPool] Releasing object '{_instance.GetPath()}', which was not created by the pool.");
+#endif
 
-			// We must check if the game object is already in the pool - it is not
-			// forbidden to pool an object which is already in the pool (e.g. induced by events, which are also fired to inactive components)
-			if (!poolEntry.m_instances.Contains(_gameObject))
-				poolEntry.m_instances.Add(_gameObject);
-		}
-
-		public void DoDestroy<T>( T _component ) where T : Component
-		{
-			if (_component is UiPanel)
+			if (m_instancesByInstance.TryGetValue(_instance, out UiPoolPrefabInstances instances))
 			{
-				UiPanel view = _component as UiPanel;
-				view.OnPooled();
+				instances.Release(_instance);
+				return;
 			}
-			DoDestroy(_component.gameObject);
+
+			_instance.SafeDestroy();
 		}
 
+		[Obsolete("Use Release() instead")]
+		public void DoDestroy<T>(T _component) where T : Component => Release<T>(_component);
 
+		/// <summary>
+		/// Releases a pooled component's GameObject. 
+		/// Calls OnPoolReleased() if the component implements IPoolable.
+		/// </summary>
+		public void Release<T>(T _component) where T : Component
+		{
+			if (_component == null)
+			{
+				Debug.LogWarning("[UiPool] Releasing null component");
+				return;
+			}
+
+			if (_component is IPoolable poolable)
+				poolable.OnPoolReleased();
+
+			Release(_component.gameObject);
+		}
+
+		/// <summary>
+		/// Clears the entire pool, removing all tracked instances.
+		/// Note: Leased objects are NOT destroyed, as forcibly destroying objects that are still in use
+		/// may lead to confusing or unintended behavior.
+		/// Calling Release() after Clear() is perfectly safe; such objects will simply be destroyed.
+		/// </summary>
+		public void Clear()
+		{
+			foreach (var kv in m_instancesByPrefab)
+				kv.Value.Clear();
+
+			m_instancesByPrefab.Clear();
+			m_instancesByInstance.Clear();
+		}
 	}
 }
