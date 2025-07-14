@@ -12,8 +12,11 @@ namespace GuiToolkit
 
 		private readonly Dictionary<GameObject,UiPoolPrefabInstances> m_instancesByPrefab = new ();
 		private readonly Dictionary<GameObject,UiPoolPrefabInstances> m_instancesByInstance = new ();
-
+		
 		public static UiPool Instance => UiMain.IsAwake ? UiMain.Instance.UiPool : null;
+
+
+		protected void OnDestroy() => Clear();
 
 		[Obsolete("Use Get() instead")]
 		public GameObject DoInstantiate( GameObject _prefab ) => Get(_prefab);
@@ -21,11 +24,10 @@ namespace GuiToolkit
 		public GameObject Get( GameObject _prefab )
 		{
 			if (!m_instancesByPrefab.ContainsKey(_prefab))
-				m_instancesByPrefab.Add(_prefab, new UiPoolPrefabInstances(_prefab, m_poolContainer));
+				m_instancesByPrefab.Add(_prefab, new UiPoolPrefabInstances(_prefab, m_poolContainer, m_instancesByInstance));
 
 			var instances = m_instancesByPrefab[_prefab];
 			var result = instances.Get();
-			m_instancesByInstance.Add(result, instances);
 			return result;
 		}
 
@@ -44,7 +46,6 @@ namespace GuiToolkit
 		{
 			if (m_instancesByInstance.TryGetValue(_instance, out UiPoolPrefabInstances instances))
 			{
-				m_instancesByInstance.Remove(_instance);
 				instances.Release(_instance);
 				return;
 			}
@@ -64,21 +65,21 @@ namespace GuiToolkit
 				view.OnPooled();
 			}
 			
-			DoDestroy(_component.gameObject);
+			Release(_component.gameObject);
 		}
 		
-		public void Clear(bool _destroyAllInstances = true)
+		/// <summary>
+		/// Clears the pool.
+		/// Note: Leased objects are NOT destroyed, as forcibly destroying objects that are still in use
+		/// may lead to confusing or unintended behavior.
+		/// Calling Release() after Clear() is perfectly safe; such objects will simply be destroyed.
+		/// </summary>
+		public void Clear()
 		{
 			foreach (var kv in m_instancesByPrefab)
 			{
 				kv.Value.Clear();
 			}
-			
-			if (!_destroyAllInstances)
-				return;
-
-			foreach (var kv in m_instancesByInstance)
-				kv.Key.SafeDestroy();
 			
 			m_instancesByPrefab.Clear();
 			m_instancesByInstance.Clear();

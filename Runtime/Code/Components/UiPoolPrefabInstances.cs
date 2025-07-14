@@ -7,16 +7,16 @@ namespace GuiToolkit
 	{
 		private GameObject m_prefab;
 		private Transform m_poolContainer;
+		private Dictionary<GameObject,UiPoolPrefabInstances> m_instancesByInstance;
 		
 		private readonly Stack<GameObject> m_instances = new ();
 		
-		public UiPoolPrefabInstances(GameObject _prefab, Transform _poolContainer)
+		public UiPoolPrefabInstances(GameObject _prefab, Transform _poolContainer, Dictionary<GameObject,UiPoolPrefabInstances> _instancesByInstance)
 		{
 			m_prefab = _prefab;
 			m_poolContainer = _poolContainer;
+			m_instancesByInstance = _instancesByInstance;
 		}
-
-		~UiPoolPrefabInstances() => Clear();
 
 		public bool HasInstances => m_instances.Count > 0;
 		
@@ -28,6 +28,7 @@ namespace GuiToolkit
 			{
 				instance.transform.SetParent(null, false);
 				instance.SetActive(true);
+				m_instancesByInstance.Add(instance, this);
 				return instance;
 			}
 			
@@ -38,6 +39,7 @@ namespace GuiToolkit
 		{
 			_instance.SetActive(false);
 			_instance.transform.SetParent(m_poolContainer, false);
+			m_instancesByInstance.Remove(_instance);
 			m_instances.Push(_instance);
 		}
 		
@@ -45,7 +47,8 @@ namespace GuiToolkit
 		{
 			foreach (var instance in m_instances)
 				instance.SafeDestroy();
-			m_instances.Clear();			
+			
+			m_instances.Clear();
 		}
 	}
 }
