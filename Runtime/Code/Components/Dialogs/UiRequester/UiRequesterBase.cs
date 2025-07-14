@@ -88,9 +88,9 @@ namespace GuiToolkit
 			Clear();
 		}
 
-		public override void OnPooled()
+		public override void OnPoolReleased()
 		{
-			base.OnPooled();
+			base.OnPoolReleased();
 			Clear();
 		}
 

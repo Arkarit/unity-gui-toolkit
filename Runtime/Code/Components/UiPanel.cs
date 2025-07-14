@@ -11,7 +11,7 @@ namespace GuiToolkit
 		void StopViewAnimation(bool _visible);
 	}
 
-	public class UiPanel : UiThing, ISetDefaultSceneVisibility
+	public class UiPanel : UiThing, ISetDefaultSceneVisibility, IPoolable
 	{
 		[SerializeField] protected EDefaultSceneVisibility m_defaultSceneVisibility = EDefaultSceneVisibility.DontCare;
 		[SerializeField] protected IShowHidePanelAnimation m_showHideAnimation;
@@ -58,8 +58,8 @@ namespace GuiToolkit
 			InitAnimationIfNecessary();
 		}
 
-		// Have to make this public because c# programmers don't have friends. Shitty language. 
-		public virtual void OnPooled() { }
+		public virtual void OnPoolReleased() { }
+		public virtual void OnPoolCreated() { }
 
 		public virtual void Show(bool _instant = false, Action _onFinish = null)
 		{

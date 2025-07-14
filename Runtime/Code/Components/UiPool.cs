@@ -36,7 +36,11 @@ namespace GuiToolkit
 
 		public T Get<T>( T _componentOnPrefabRoot ) where T : Component
 		{
-			return Get(_componentOnPrefabRoot.gameObject).GetComponent<T>();
+			T result = Get(_componentOnPrefabRoot.gameObject).GetComponent<T>();
+			if (result is IPoolable poolable)
+				poolable.OnPoolCreated();
+			
+			return result;
 		}
 		
 		[Obsolete("Use Release() instead")]
@@ -58,12 +62,8 @@ namespace GuiToolkit
 		
 		public void Release<T>( T _component ) where T : Component
 		{
-			if (_component is UiPanel)
-			{
-				UiPanel view = _component as UiPanel;
-				//TODO as interface instead
-				view.OnPooled();
-			}
+			if (_component is IPoolable poolable)
+				poolable.OnPoolReleased();
 			
 			Release(_component.gameObject);
 		}
