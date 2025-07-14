@@ -7,8 +7,8 @@ namespace GuiToolkit
 	{
 		public Transform m_container;
 
-		private readonly Dictionary<GameObject,UiPoolEntry> m_poolEntryByPrefab = new Dictionary<GameObject, UiPoolEntry>();
-		private readonly Dictionary<GameObject,UiPoolEntry> m_poolEntryByGameObject = new Dictionary<GameObject, UiPoolEntry>();
+		private readonly Dictionary<GameObject,UiPoolPrefabInstances> m_poolEntryByPrefab = new Dictionary<GameObject, UiPoolPrefabInstances>();
+		private readonly Dictionary<GameObject,UiPoolPrefabInstances> m_poolEntryByGameObject = new Dictionary<GameObject, UiPoolPrefabInstances>();
 
 		public static UiPool Instance => UiMain.IsAwake ? UiMain.Instance.UiPool : null;
 
@@ -18,7 +18,7 @@ namespace GuiToolkit
 
 			if (m_poolEntryByPrefab.ContainsKey(_prefab))
 			{
-				UiPoolEntry poolEntry = m_poolEntryByPrefab[_prefab];
+				UiPoolPrefabInstances poolEntry = m_poolEntryByPrefab[_prefab];
 				if (poolEntry.m_instances.Count > 0)
 				{
 					int lastIdx = poolEntry.m_instances.Count-1;
@@ -37,7 +37,7 @@ namespace GuiToolkit
 			}
 
 			result = Instantiate(_prefab);
-			UiPoolEntry newPoolEntry = new UiPoolEntry();
+			UiPoolPrefabInstances newPoolEntry = new UiPoolPrefabInstances();
 			m_poolEntryByPrefab.Add(_prefab, newPoolEntry);
 			m_poolEntryByGameObject.Add(result, newPoolEntry);
 
@@ -57,7 +57,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			UiPoolEntry poolEntry = m_poolEntryByGameObject[_gameObject];
+			UiPoolPrefabInstances poolEntry = m_poolEntryByGameObject[_gameObject];
 			_gameObject.transform.SetParent( m_container, false );
 			_gameObject.SetActive(false);
 
