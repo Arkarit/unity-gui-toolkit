@@ -213,7 +213,7 @@ namespace GuiToolkit.Test
 			Assert.That(oi.PropertyModifications.Any(pm => pm.propertyPath.Contains("Int")),
 				"Expected override on 'Int' field of TestMonoBehaviour.");
 
-			// Save as new prefab asset
+			// Save as new prefab asset variant
 			pi.SaveAs(TestData.Instance.TempFolderPath + "/1.prefab", InteractionMode.AutomatedAction);
 
 			// Unity does not clear the dirty flag immediately after SaveAsPrefabAssetAndConnect.
@@ -222,6 +222,9 @@ namespace GuiToolkit.Test
 
 			Assert.IsTrue(oi.PropertyModifications.Count > 0 || pi.OverrideInfo.ObjectOverrides.Count > 0,
 				"Expected at least one override to be recorded.");
+
+			Assert.That(!oi.PropertyModifications.Any(pm => pm.propertyPath.Contains("Int")),
+				"Unexpected override on 'Int' field of TestMonoBehaviour.");
 
 		}
 	}
