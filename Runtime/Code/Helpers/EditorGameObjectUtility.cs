@@ -92,7 +92,7 @@ namespace GuiToolkit
 		public static GameObject GetPrefab( GameObject _gameObject, bool _rootPrefab = false )
 		{
 			// _gameObject is a prefab root being edited.
-			if (IsEditingPrefab(_gameObject) && IsRoot(_gameObject))
+			if (IsEditingPrefab(_gameObject) && _gameObject.IsRoot())
 			{
 				GameObject editedPrefab = GetEditedPrefab(_gameObject);
 				return _rootPrefab ? PrefabUtility.GetCorrespondingObjectFromOriginalSource(_gameObject) : editedPrefab;
@@ -160,14 +160,6 @@ namespace GuiToolkit
 			if (_gameObject == null)
 				return false;
 			return _gameObject.scene.name != null;
-		}
-
-		public static bool IsRoot( GameObject _gameObject )
-		{
-			if (IsEditingPrefab(_gameObject))
-				return _gameObject.transform.parent != null && _gameObject.transform.parent.parent == null;
-			else
-				return _gameObject.transform.parent == null;
 		}
 
 		public static bool HasAnyLabel<T>( GameObject _gameObject, T _labelsToFind ) where T : ICollection<string>

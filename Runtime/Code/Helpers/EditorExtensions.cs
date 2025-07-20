@@ -134,6 +134,34 @@ namespace GuiToolkit
 			string.IsNullOrEmpty(_directory) ? string.Empty : Path.GetFullPath(_directory).Replace('\\', '/').TrimEnd('/');
 
 		/// <summary>
+		/// Checks if a given game object is root.
+		/// In Prefab Edit Mode, the visible GameObject is placed inside a wrapper root.
+		/// This detects if the object is the real root of the edited prefab.
+		/// </summary>
+		/// <param name="_gameObject"></param>
+		/// <returns>true if root, false if not root or game object is null</returns>
+		public static bool IsRoot( this GameObject _gameObject )
+		{
+			if (_gameObject == null )
+				return false;
+
+			if (EditorGameObjectUtility.IsEditingPrefab(_gameObject))
+				return _gameObject.transform.parent != null && _gameObject.transform.parent.parent == null;
+
+			return _gameObject.transform.parent == null;
+		}
+
+		/// <summary>
+		/// Checks if the component's game object is root.
+		/// </summary>
+		public static bool IsRoot(this Component _component) => _component != null && _component.gameObject.IsRoot();
+		
+		/// <summary>
+		/// Checks if the transform's game object is root.
+		/// </summary>
+		public static bool IsRoot(this Transform _transform) => _transform != null && _transform.gameObject.IsRoot();
+
+		/// <summary>
 		/// Normalizes a file or directory path to use forward slashes and remove redundant slashes.
 		/// If the path points to a directory, a trailing slash is added. If it is a file, the trailing slash is removed.
 		/// </summary>

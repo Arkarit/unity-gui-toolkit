@@ -587,12 +587,26 @@ namespace GuiToolkit.Editor
 		/// <summary>
 		/// Find a matching game object in a game object hierarchy by inspecting the paths of the two.
 		/// This method attempts to find a game object in an unrelated game object hierarchy.
+		/// 
+		/// If both objects are root (parent == null), we assume the caller wants to match root to root.
+		/// No further validation (name, components, children) is done here, because:
+		/// - Root objects often have different names
+		/// - Clone hierarchies may include added children
+		/// - Structural equivalence may not be preserved at root level
+		///
+		/// That also implies, that if you want to check an object, which already is in a hierarchy, you need to temporarily unparent it.
 		/// </summary>
 		/// <param name="_gameObjectHierarchy"></param>
 		/// <param name="_gameObjectToFind"></param>
 		/// <returns>found game object or null if not found or error</returns>
 		public static GameObject FindMatchingGameObject( GameObject _gameObjectHierarchy, GameObject _gameObjectToFind )
 		{
+			if (_gameObjectToFind.IsRoot() && _gameObjectHierarchy.IsRoot())
+			{
+				// No name check, no component check, no child check – just trust the caller.
+				return _gameObjectHierarchy;
+			}
+
 			if (_gameObjectHierarchy.transform.parent != null && _gameObjectToFind.transform.parent != null && _gameObjectHierarchy.transform.parent == _gameObjectToFind.transform.parent)
 				return _gameObjectHierarchy;
 
