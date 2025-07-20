@@ -138,8 +138,8 @@ namespace GuiToolkit.Test
 			// We needn't / mustn't check name and path for roots, since these may vary in name.
 			if (!originalComponent.IsRoot() && !found.IsRoot())
 			{
-				Assert.AreEqual(originalComponent.name, ((Transform)found).name);
-				Assert.AreEqual(((Transform)found).GetPath(-1), originalComponent.GetPath(-1));
+				Assert.AreEqual(originalComponent.name, found.name);
+				Assert.AreEqual(found.GetPath(-1), originalComponent.GetPath(-1));
 			}
 
 			// Cleanup

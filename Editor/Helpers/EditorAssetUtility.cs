@@ -611,12 +611,14 @@ namespace GuiToolkit.Editor
 				return _gameObjectHierarchy;
 
 			var toFindPath = _gameObjectToFind.GetPath(-1);
+			var toFindPathDepth = _gameObjectToFind.GetPathDepth();
+
 			var toFindSource = PrefabUtility.GetCorrespondingObjectFromOriginalSource(_gameObjectToFind);
 
 			var transforms = _gameObjectHierarchy.GetComponentsInChildren<Transform>(true);
 			foreach (var transform in transforms)
 			{
-				if (transform.GetPath(-1).EndsWith(toFindPath))
+				if (transform.GetPath(-1).EndsWith(toFindPath) && transform.GetPathDepth() == toFindPathDepth)
 					return transform.gameObject;
 			}
 
