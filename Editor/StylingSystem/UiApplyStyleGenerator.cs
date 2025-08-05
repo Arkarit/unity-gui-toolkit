@@ -721,7 +721,7 @@ namespace GuiToolkit.Style.Editor
 		[UnityEditor.Callbacks.DidReloadScripts]
 		private static void ValidateConfigs()
 		{
-			var configs = EditorAssetUtility.FindAllScriptableObjects<UiStyleConfig>();
+			var configs = EditorAssetUtility.FindAllScriptableObjects<UiStyleConfig>(new EditorAssetUtility.AssetSearchOptions() {Folders = new []{"Assets", "Packages"}});
 			foreach (var config in configs)
 				config.Validate();
 		}
