@@ -34,8 +34,10 @@ namespace GuiToolkit
 			KeyCode.Mouse4,
 			KeyCode.Mouse5,
 			KeyCode.Mouse6,
+#if UNITY_2023_1_OR_NEWER
 			KeyCode.WheelDown,
 			KeyCode.WheelUp,
+#endif
 		};
 		
 		public EPlayerSettingType Type = EPlayerSettingType.Auto;			//!< Player setting type. Usually left default (Auto: automatically determined)
