@@ -339,6 +339,9 @@ namespace GuiToolkit.Editor
 		/// <returns></returns>
 		public static T FindScriptableObject<T>(AssetSearchOptions _options = null) where T:ScriptableObject
 		{
+			if (_options == null)
+				_options = DefaultSearchOptions;
+			
 			var found = FindAllScriptableObjects<T>(_options);
 			bool error = ShowErrorIfNecessary<T>(found.Count, _options);
 			if (error || found.Count == 0)
