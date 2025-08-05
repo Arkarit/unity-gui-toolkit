@@ -210,7 +210,7 @@ namespace GuiToolkit.Editor
 
 		private T FindStyleConfig<T>() where T:UiStyleConfig
 		{
-			return EditorAssetUtility.FindScriptableObject<T>();
+			return EditorAssetUtility.FindScriptableObject<T>(new EditorAssetUtility.AssetSearchOptions() {Folders = new []{"Assets", "Packages"}});
 		}
 
 		[MenuItem(StringConstants.CONFIGURATION_MENU_NAME, priority = Constants.SETTINGS_MENU_PRIORITY)]
