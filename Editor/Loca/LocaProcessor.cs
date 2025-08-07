@@ -68,7 +68,7 @@ namespace GuiToolkit.Editor
 			EditorUtility.DisplayProgressBar("Processing Loca", $"Processing script '{Path.GetFileName(_path)}'", progress);
 			m_currentScriptIdx++;
 
-			List<string> strings = SeparateCodeAndStrings(_content);
+			List<string> strings = EditorCodeUtility.SeparateCodeAndStrings(_content);
 			//DebugDump(_path, strings);
 
 			int numStrings = strings.Count;
@@ -124,67 +124,6 @@ namespace GuiToolkit.Editor
 			}
 
 			return false;
-		}
-
-		// Separate all strings from other program code, remove all quotation marks and comments.
-		// Program code and string is always alternating.
-		public static List<string> SeparateCodeAndStrings( string sourceCode )
-		{
-			var tree = CSharpSyntaxTree.ParseText(sourceCode);
-			var root = tree.GetRoot();
-
-			var segments = new List<(int start, int end, string type, string value)>();
-
-			// 1. Sammle alle String-Literale
-			foreach (var literal in root.DescendantNodes().OfType<LiteralExpressionSyntax>())
-			{
-				if (literal.IsKind(SyntaxKind.StringLiteralExpression))
-				{
-					segments.Add((
-						literal.SpanStart,
-						literal.Span.End,
-						"string",
-						literal.Token.ValueText // unescaped content
-					));
-				}
-			}
-
-			// 2. Sammle alle interpolierten Strings
-			foreach (var interpolated in root.DescendantNodes().OfType<InterpolatedStringExpressionSyntax>())
-			{
-				segments.Add((
-					interpolated.SpanStart,
-					interpolated.Span.End,
-					"string",
-					interpolated.ToFullString() // inkl. $"..."
-				));
-			}
-
-			// 3. Sortiere alle nach Position
-			var sorted = segments.OrderBy(s => s.start).ToList();
-
-			var result = new List<string>();
-			int pos = 0;
-
-			foreach (var seg in sorted)
-			{
-				if (seg.start > pos)
-				{
-					var codePart = sourceCode.Substring(pos, seg.start - pos);
-					result.Add(codePart);
-				}
-
-				result.Add(seg.value);
-				pos = seg.end;
-			}
-
-			// Letzter Rest
-			if (pos < sourceCode.Length)
-			{
-				result.Add(sourceCode.Substring(pos));
-			}
-
-			return result;
 		}
 
 		private static void DebugDump( string _path, List<string> _strings )
