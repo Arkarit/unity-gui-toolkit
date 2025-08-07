@@ -23,11 +23,15 @@ public class EditorCodeUtilityTests
 		Assert.IsTrue(match.Success, "Test source markers not found");
 
 		string source = match.Groups[1].Value;
-		var parts = EditorCodeUtility.SeparateCodeAndStringsDeprecated(source);
+		var parts = EditorCodeUtility.SeparateCodeAndStrings(source);
 		
 		string debugStr = "Parts:\n";
+		var code = true;
 		foreach (var part in parts)
-			debugStr += $"{part}\n";
+		{
+			debugStr += $"{(code ? "code:\n" : "string:\n") }{part}\n_____\n\n";
+			code = !code;
+		}
 		Debug.Log(debugStr);
 
 		Assert.That(parts, Does.Contain("Hello"));

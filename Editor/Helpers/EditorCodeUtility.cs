@@ -5,70 +5,89 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using UnityEngine;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace GuiToolkit.Editor
 {
 	public static class EditorCodeUtility
 	{
-		// Separate all strings from other program code, remove all quotation marks and comments.
-		// Program code and string is always alternating.
-		public static List<string> SeparateCodeAndStrings( string _sourceCode )
+		/// <summary>
+		/// Splits a source string into alternating code and string content.
+		/// The result list always starts with code and alternates with string.
+		/// Strings are unescaped and do not include quotes.
+		/// </summary>
+		public static List<string> SeparateCodeAndStrings( string sourceCode )
 		{
-			var tree = CSharpSyntaxTree.ParseText(_sourceCode);
+			var tree = CSharpSyntaxTree.ParseText(sourceCode);
 			var root = tree.GetRoot();
+			var result = new List<string>();
 
-			var segments = new List<(int start, int end, string type, string value)>();
+			var spans = new List<(int start, int end, bool isString, string text)>();
 
-			// 1. Collect all string literals
 			foreach (var literal in root.DescendantNodes().OfType<LiteralExpressionSyntax>())
 			{
 				if (literal.IsKind(SyntaxKind.StringLiteralExpression))
 				{
-					segments.Add((
-						literal.SpanStart,
-						literal.Span.End,
-						"string",
-						literal.Token.ValueText // unescaped content
-					));
+					spans.Add((literal.SpanStart, literal.Span.End, true, literal.Token.ValueText));
 				}
 			}
 
-			// 2. Collect all interpolated strings
 			foreach (var interpolated in root.DescendantNodes().OfType<InterpolatedStringExpressionSyntax>())
 			{
-				segments.Add((
-					interpolated.SpanStart,
-					interpolated.Span.End,
-					"string",
-					interpolated.ToFullString() // inkl. $"..."
-				));
+				foreach (var content in interpolated.Contents)
+				{
+					if (content is InterpolatedStringTextSyntax text)
+					{
+						spans.Add((text.SpanStart, text.Span.End, true, text.TextToken.ValueText));
+					}
+					else if (content is InterpolationSyntax interp)
+					{
+						var inner = interp.Expression?.ToFullString()?.Trim() ?? "";
+						spans.Add((interp.SpanStart, interp.Span.End, false, inner));
+					}
+				}
 			}
 
-			// 3. Sort by position
-			var sorted = segments.OrderBy(s => s.start).ToList();
-
-			var result = new List<string>();
+			spans = spans.OrderBy(s => s.start).ToList();
 			int pos = 0;
 
-			foreach (var seg in sorted)
+			foreach (var span in spans)
 			{
-				if (seg.start > pos)
+				if (span.start > pos)
 				{
-					var codePart = _sourceCode.Substring(pos, seg.start - pos);
-					result.Add(codePart);
+					result.Add(sourceCode.Substring(pos, span.start - pos)); // code
 				}
 
-				result.Add(seg.value);
-				pos = seg.end;
+				result.Add(span.text); // already parsed as code or unescaped string
+				pos = span.end;
 			}
 
-			// Remaining code
-			if (pos < _sourceCode.Length)
+			if (pos < sourceCode.Length)
 			{
-				result.Add(_sourceCode.Substring(pos));
+				// we may need to split final segment into code + empty string if it follows a string
+				var finalCode = sourceCode.Substring(pos);
+				result.Add(finalCode);
+				result.Add("");
+			}
+			else if (result.Count % 2 == 1)
+			{
+				// ensure list is even count (always ending with string)
+				result.Add("");
 			}
 
 			return result;
+		}
+
+		/// <summary>
+		/// Checks if the string at a given index is followed by a localization function.
+		/// </summary>
+		public static bool IsFollowedByLocalizationFunction( List<string> parts, int index )
+		{
+			if (index % 2 != 1 || index + 1 >= parts.Count)
+				return false;
+
+			var nextCode = parts[index + 1];
+			return Regex.IsMatch(nextCode, @"\b(_|__|_n|gettext|ngettext)\s*\(");
 		}
 
 		// Separate all strings from other program code, remove all quotation marks and comments.
@@ -86,7 +105,7 @@ namespace GuiToolkit.Editor
 
 			string current = "";
 
-			for (int i=0; i<_content.Length; i++)
+			for (int i = 0; i < _content.Length; i++)
 			{
 				char c = _content[i];
 
@@ -122,7 +141,7 @@ namespace GuiToolkit.Editor
 							break;
 						}
 
-						char c2 = _content[i+1];
+						char c2 = _content[i + 1];
 
 						if (c2 == '/')
 						{
@@ -176,7 +195,7 @@ namespace GuiToolkit.Editor
 						break;
 					}
 
-					char c2 = _content[i+1];
+					char c2 = _content[i + 1];
 
 					if (c2 == '/')
 					{
@@ -204,7 +223,7 @@ namespace GuiToolkit.Editor
 
 			return result;
 		}
-		
+
 		public static string GetThisFilePath( [CallerFilePath] string _path = null ) => _path;
 	}
 }
