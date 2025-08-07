@@ -12,9 +12,14 @@ namespace GuiToolkit.Editor
 	public static class EditorCodeUtility
 	{
 		/// <summary>
-		/// Splits a source string into alternating code and string content.
-		/// The result list always starts with code and alternates with string.
-		/// Strings are unescaped and do not include quotes.
+		/// Splits a C# source string into alternating code and string segments.
+		/// The resulting list always starts with a code segment and alternates:
+		/// [code, string, code, string, ..., code]. If necessary, an empty string
+		/// is appended at the end to ensure this pattern.
+		/// 
+		/// - Code segments are raw source code.
+		/// - String segments are unescaped literal or interpolated string parts.
+		/// - Interpolated expressions (e.g. {value}) are included as code without braces.
 		/// </summary>
 		public static List<string> SeparateCodeAndStrings( string sourceCode )
 		{
@@ -22,8 +27,10 @@ namespace GuiToolkit.Editor
 			var root = tree.GetRoot();
 			var result = new List<string>();
 
+			// Collect all string and interpolation parts with position info
 			var spans = new List<(int start, int end, bool isString, string text)>();
 
+			// Handle standard string literals ("...")
 			foreach (var literal in root.DescendantNodes().OfType<LiteralExpressionSyntax>())
 			{
 				if (literal.IsKind(SyntaxKind.StringLiteralExpression))
@@ -32,22 +39,26 @@ namespace GuiToolkit.Editor
 				}
 			}
 
+			// Handle interpolated strings ($"...")
 			foreach (var interpolated in root.DescendantNodes().OfType<InterpolatedStringExpressionSyntax>())
 			{
 				foreach (var content in interpolated.Contents)
 				{
 					if (content is InterpolatedStringTextSyntax text)
 					{
+						// Literal text part of an interpolated string
 						spans.Add((text.SpanStart, text.Span.End, true, text.TextToken.ValueText));
 					}
 					else if (content is InterpolationSyntax interp)
 					{
+						// Embedded code inside { } – we extract only the inner expression
 						var inner = interp.Expression?.ToFullString()?.Trim() ?? "";
 						spans.Add((interp.SpanStart, interp.Span.End, false, inner));
 					}
 				}
 			}
 
+			// Sort all spans by their position in the source
 			spans = spans.OrderBy(s => s.start).ToList();
 			int pos = 0;
 
@@ -55,23 +66,30 @@ namespace GuiToolkit.Editor
 			{
 				if (span.start > pos)
 				{
-					result.Add(sourceCode.Substring(pos, span.start - pos)); // code
+					// Add code between previous span and current one
+					result.Add(sourceCode.Substring(pos, span.start - pos));
 				}
 
-				result.Add(span.text); // already parsed as code or unescaped string
+				// Add the actual span text (either string or code)
+				result.Add(span.text);
 				pos = span.end;
 			}
 
+			// last part
 			if (pos < sourceCode.Length)
 			{
-				// we may need to split final segment into code + empty string if it follows a string
-				var finalCode = sourceCode.Substring(pos);
-				result.Add(finalCode);
-				result.Add("");
+				var trailing = sourceCode.Substring(pos);
+
+				// if the last entry is code, add an empty string to make the count even
+				if (result.Count.IsOdd())
+					result.Add("");
+
+				result.Add(trailing.Trim('\"')); // code
+				result.Add(""); // a final empty string to make the count even
 			}
-			else if (result.Count % 2 == 1)
+			else if (result.Count.IsOdd())
 			{
-				// ensure list is even count (always ending with string)
+				// Ensure result always ends with a string
 				result.Add("");
 			}
 
