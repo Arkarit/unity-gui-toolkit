@@ -76,11 +76,13 @@ public class EditorCodeUtilityTests
 	{
 		string name = string.Empty;
 
-		//=== BEGIN TEST SOURCE ===
 		
+		//=== BEGIN TEST SOURCE ===
+
 		string a = "Hello";
 		// Comment with "not a string"
 		/* Comment with "not a string" */
+
 		string b = $"World {name}";
 		string c = $"World {name /* Crazy but allowed comment*/ }";
 		string d = $"World {name} bla";
