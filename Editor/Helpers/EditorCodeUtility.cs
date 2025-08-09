@@ -51,37 +51,67 @@ namespace GuiToolkit.Editor
 						case LiteralExpressionSyntax literalExpr
 							when literalExpr.IsKind(SyntaxKind.StringLiteralExpression):
 							EnsureStringSlot(result);
-							result[result.Count - 1] += literalExpr.Token.ValueText;
+							result[result.Count - 1] += literalExpr.Token.ValueText; // unescaped
 							break;
 
 						case InterpolatedStringTextSyntax interpText:
 							EnsureStringSlot(result);
-							result[result.Count - 1] += interpText.TextToken.ValueText;
+							result[result.Count - 1] += interpText.TextToken.ValueText; // unescaped
 							break;
 
 						case InterpolationSyntax interp:
+							// switch to code; recurse only into the inner expression (no braces)
 							EnsureCodeSlot(result);
-							// Recursively, expression between { }
 							ProcessNode(result, interp.Expression);
 							break;
 
 						default:
-							// Go deeper into normal nodes
+							// descend into other nodes
 							ProcessNode(result, childNode);
 							break;
 					}
 				}
 				else
 				{
-					// Tokens
-					var tokenText = child.AsToken().ToFullString();
-					if (!string.IsNullOrEmpty(tokenText))
+					// TOKEN: use .Text (no trivia) -> strips comments and whitespace automatically
+					var token = child.AsToken();
+					var text = token.Text;
+					if (!string.IsNullOrEmpty(text))
 					{
 						EnsureCodeSlot(result);
-						result[result.Count - 1] += tokenText;
+						AppendTokenWithMinimalSpace(result, text);
 					}
 				}
 			}
+		}
+
+		// Append token text into current code slot, inserting a single space only if needed
+		private static void AppendTokenWithMinimalSpace( List<string> result, string tokenText )
+		{
+			// We are in a code slot by contract
+			var idx = result.Count - 1;
+			var current = result[idx];
+
+			if (NeedsSpace(current, tokenText))
+				current += " ";
+
+			current += tokenText;
+			result[idx] = current; //.Trim('"', '$', ' ');
+		}
+
+		private static bool NeedsSpace( string left, string right )
+		{
+			if (string.IsNullOrEmpty(left) || string.IsNullOrEmpty(right))
+				return false;
+
+			char lc = left[left.Length - 1];
+			char rc = right[0];
+
+			// add a space only when both sides are "wordy" (identifier-ish)
+			bool wordLeft = char.IsLetterOrDigit(lc) || lc == '_';
+			bool wordRight = char.IsLetterOrDigit(rc) || rc == '_';
+
+			return wordLeft && wordRight;
 		}
 
 		private static void EnsureCodeSlot( List<string> result )

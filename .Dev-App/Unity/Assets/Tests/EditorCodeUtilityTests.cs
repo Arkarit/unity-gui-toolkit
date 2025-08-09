@@ -34,14 +34,31 @@ public class EditorCodeUtilityTests
 		// Specific expected pairs
 		var expected = new List<(string code, string str)>
 		{
-			("\t\tstring a = ", "Hello"),
-			(";\n\t\t// Comment with \"not a string\"\n\t\t/* Comment with \"not a string\" */\n\t\tstring b = $\"", "World "),
+			// string a = "Literal";
+		    ("string a=", "Literal"),
+		
+		    // string b = $"Literal {name}";
+		    (";string b=$\"", "Literal "),
 			("name", ""),
-			("\";\n\t\tstring c = $\"", "World "),
-			("name", ""),
-			("\";\n\t\tstring d = $\"", "World "),
-			("name", " bla"),
-			("\";", "")
+			("\";string c=$\"", "Literal "),
+		
+		    // string c = $"Literal {name /* Crazy but allowed comment*/ }";
+		    ("name", ""),
+			("\";string d=$\"", "Literal "),
+		
+		    // string d = $"Literal {name} bla";
+		    ("name", " bla"),
+			("\";string e=$\"", "Literal "),
+		
+		    // string e = $"Literal {(bl ? "1" : "2")}" ;
+		    ("(bl?", "1"),
+			(":", "2"),
+			("\")\";string f=$\"", "Literal "),
+		
+		    // string f = $"Literal {(bl ? _("1") : _("2"))}" ;
+		    ("(bl?", "1"),
+			(":", "2"),
+			("\")\";", "")
 		};
 
 		for (int i = 0; i < expected.Count; i++)
@@ -51,7 +68,7 @@ public class EditorCodeUtilityTests
 		}
 	}
 
-	private void AssertCodeTextPair(string code, string str, string shouldCode, string shouldStr, string message)
+	private void AssertCodeTextPair( string code, string str, string shouldCode, string shouldStr, string message )
 	{
 		code = code.Replace("\r", "");
 		str = str.Replace("\r", "");
@@ -59,7 +76,7 @@ public class EditorCodeUtilityTests
 		Assert.That(str, Is.EqualTo(shouldStr), message + " - string mismatch");
 	}
 
-	private static void LogParts(List<string> parts)
+	private static void LogParts( List<string> parts )
 	{
 		string debugStr = "Parts:\n";
 		var code = true;
@@ -75,19 +92,24 @@ public class EditorCodeUtilityTests
 	public void TestData()
 	{
 		string name = string.Empty;
+		bool bl = false;
 
-		
+
 		//=== BEGIN TEST SOURCE ===
 
-		string a = "Hello";
+		string a = "Literal";
 		// Comment with "not a string"
 		/* Comment with "not a string" */
 
-		string b = $"World {name}";
-		string c = $"World {name /* Crazy but allowed comment*/ }";
-		string d = $"World {name} bla";
+		string b = $"Literal {name}";
+		string c = $"Literal {name /* Crazy but allowed comment*/ }";
+		string d = $"Literal {name} bla";
+		string e = $"Literal {(bl ? "1" : "2")}";
+		string f = $"Literal {(bl ? _("1") : _("2"))}";
 
 		//=== END TEST SOURCE ===
+
+		string _( string msg ) => msg;
 	}
 }
 
