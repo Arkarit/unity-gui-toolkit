@@ -1,17 +1,26 @@
 {
-  "name": "de.phoenixgrafik.ui-toolkit.Editor",
-  "rootNamespace": "GuiToolkit.Editor",
-  "references": [
-    "de.phoenixgrafik.ui-toolkit",
-    "Unity.TextMeshPro",
-    "Unity.TextMeshPro.Editor",
-    "Roslyn"
-  ],
-  "includePlatforms": [ "Editor" ],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": true,
-  "noEngineReferences": false
+    "name": "de.phoenixgrafik.ui-toolkit.Editor",
+    "rootNamespace": "GuiToolkit.Editor",
+    "references": [
+        "de.phoenixgrafik.ui-toolkit",
+        "Unity.TextMeshPro",
+        "Unity.TextMeshPro.Editor",
+        "Roslyn"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Microsoft.CodeAnalysis.CSharp.dll",
+        "Microsoft.CodeAnalysis.dll",
+        "System.Collections.Immutable.dll",
+        "System.Reflection.Metadata.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
