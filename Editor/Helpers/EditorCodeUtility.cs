@@ -1,9 +1,13 @@
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
+using UnityEngine;
+
+#if USE_ROSLYN
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
+#endif
 
 namespace GuiToolkit.Editor
 {
@@ -40,6 +44,7 @@ namespace GuiToolkit.Editor
 		/// </summary>
 		public static List<string> SeparateCodeAndStrings( string _sourceCode )
 		{
+#if USE_ROSLYN
 			var result = new List<string>();
 
 			var tree = CSharpSyntaxTree.ParseText(_sourceCode);
@@ -52,8 +57,13 @@ namespace GuiToolkit.Editor
 				result.Add("");
 
 			return result;
+#else
+			Debug.LogError("Roslyn not found");
+			return new List<string>();
+#endif
 		}
-
+		
+#if USE_ROSLYN
 		private static void ProcessNode( List<string> _result, SyntaxNode _node )
 		{
 			foreach (var child in _node.ChildNodesAndTokens())
@@ -151,6 +161,6 @@ namespace GuiToolkit.Editor
 			if (_list.Count.IsOdd())
 				_list.Add("");
 		}
-
+#endif
 	}
 }
