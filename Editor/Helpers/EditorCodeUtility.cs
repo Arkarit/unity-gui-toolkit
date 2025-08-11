@@ -1,10 +1,7 @@
-using System;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.CodeAnalysis;
-using UnityEngine;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
@@ -12,6 +9,25 @@ namespace GuiToolkit.Editor
 {
 	public static class EditorCodeUtility
 	{
+		/// <summary>
+		/// Checks if the string at a given index is followed by a localization function.
+		/// </summary>
+		public static bool IsFollowedByLocalizationFunction( List<string> _parts, int _index )
+		{
+			if (_index % 2 != 1 || _index + 1 >= _parts.Count)
+				return false;
+
+			var nextCode = _parts[_index + 1];
+			return Regex.IsMatch(nextCode, @"\b(_|__|_n|gettext|ngettext)\s*\(");
+		}
+
+		/// <summary>
+		/// Return the file path of caller.
+		/// </summary>
+		/// <param name="_path"></param>
+		/// <returns></returns>
+		public static string GetThisFilePath( [CallerFilePath] string _path = null ) => _path;
+		
 		/// <summary>
 		/// Splits a C# source string into alternating code and string segments.
 		/// The resulting list always starts with a code segment and alternates:
@@ -22,11 +38,11 @@ namespace GuiToolkit.Editor
 		/// - String segments are unescaped literal or interpolated string parts.
 		/// - Interpolated expressions (e.g. {value}) are included as code without braces.
 		/// </summary>
-		public static List<string> SeparateCodeAndStrings( string sourceCode )
+		public static List<string> SeparateCodeAndStrings( string _sourceCode )
 		{
 			var result = new List<string>();
 
-			var tree = CSharpSyntaxTree.ParseText(sourceCode);
+			var tree = CSharpSyntaxTree.ParseText(_sourceCode);
 			var root = tree.GetRoot();
 
 			ProcessNode(result, root);
@@ -38,9 +54,9 @@ namespace GuiToolkit.Editor
 			return result;
 		}
 
-		private static void ProcessNode( List<string> result, SyntaxNode node )
+		private static void ProcessNode( List<string> _result, SyntaxNode _node )
 		{
-			foreach (var child in node.ChildNodesAndTokens())
+			foreach (var child in _node.ChildNodesAndTokens())
 			{
 				if (child.IsNode)
 				{
@@ -50,31 +66,31 @@ namespace GuiToolkit.Editor
 					{
 						case LiteralExpressionSyntax literalExpr
 							when literalExpr.IsKind(SyntaxKind.StringLiteralExpression):
-							EnsureStringSlot(result);
-							result[result.Count - 1] += literalExpr.Token.ValueText; // unescaped
+							EnsureStringSlot(_result);
+							_result[_result.Count - 1] += literalExpr.Token.ValueText; // unescaped
 							break;
 
 						case InterpolatedStringTextSyntax interpText:
-							EnsureStringSlot(result);
-							result[result.Count - 1] += interpText.TextToken.ValueText; // unescaped
+							EnsureStringSlot(_result);
+							_result[_result.Count - 1] += interpText.TextToken.ValueText; // unescaped
 							break;
 
 						case InterpolationSyntax interp:
 							// We are currently in a code slot; first, close it by inserting an empty string segment
-							EnsureStringSlot(result);
+							EnsureStringSlot(_result);
 
 							// Now create a fresh code slot for the inner expression
-							EnsureCodeSlot(result);
+							EnsureCodeSlot(_result);
 
 							// Recurse only into the inner expression (no braces)
-							ProcessNode(result, interp.Expression);
+							ProcessNode(_result, interp.Expression);
 
 							// And ensure a trailing empty string to separate from the following code/text
-							EnsureStringSlot(result);
+							EnsureStringSlot(_result);
 							break;
 						default:
 							// descend into other nodes
-							ProcessNode(result, childNode);
+							ProcessNode(_result, childNode);
 							break;
 					}
 				}
@@ -85,34 +101,34 @@ namespace GuiToolkit.Editor
 					var text = token.Text;
 					if (!string.IsNullOrEmpty(text))
 					{
-						EnsureCodeSlot(result);
-						AppendTokenWithMinimalSpace(result, text);
+						EnsureCodeSlot(_result);
+						AppendTokenWithMinimalSpace(_result, text);
 					}
 				}
 			}
 		}
 
 		// Append token text into current code slot, inserting a single space only if needed
-		private static void AppendTokenWithMinimalSpace( List<string> result, string tokenText )
+		private static void AppendTokenWithMinimalSpace( List<string> _list, string _tokenText )
 		{
 			// We are in a code slot by contract
-			var idx = result.Count - 1;
-			var current = result[idx];
+			var idx = _list.Count - 1;
+			var current = _list[idx];
 
-			if (NeedsSpace(current, tokenText))
+			if (NeedsSpace(current, _tokenText))
 				current += " ";
 
-			current += tokenText;
-			result[idx] = current.Trim('"', '$');
+			current += _tokenText;
+			_list[idx] = current.Trim('"', '$');
 		}
 
-		private static bool NeedsSpace( string left, string right )
+		private static bool NeedsSpace( string _left, string _right )
 		{
-			if (string.IsNullOrEmpty(left) || string.IsNullOrEmpty(right))
+			if (string.IsNullOrEmpty(_left) || string.IsNullOrEmpty(_right))
 				return false;
 
-			char lc = left[left.Length - 1];
-			char rc = right[0];
+			char lc = _left[_left.Length - 1];
+			char rc = _right[0];
 
 			// add a space only when both sides are "wordy" (identifier-ish)
 			bool wordLeft = char.IsLetterOrDigit(lc) || lc == '_';
@@ -121,167 +137,20 @@ namespace GuiToolkit.Editor
 			return wordLeft && wordRight;
 		}
 
-		private static void EnsureCodeSlot( List<string> result )
+		private static void EnsureCodeSlot( List<string> _result )
 		{
 			// If list is empty, start with a code slot
 			// Also, add an empty string entry if last slot was code
-			if (result.Count == 0 || result.Count.IsEven())
-				result.Add("");
+			if (_result.Count == 0 || _result.Count.IsEven())
+				_result.Add("");
 		}
 
-		private static void EnsureStringSlot( List<string> result )
+		private static void EnsureStringSlot( List<string> _list )
 		{
 			// Add an empty code entry if last slot was string
-			if (result.Count.IsOdd())
-				result.Add("");
+			if (_list.Count.IsOdd())
+				_list.Add("");
 		}
 
-		/// <summary>
-		/// Checks if the string at a given index is followed by a localization function.
-		/// </summary>
-		public static bool IsFollowedByLocalizationFunction( List<string> parts, int index )
-		{
-			if (index % 2 != 1 || index + 1 >= parts.Count)
-				return false;
-
-			var nextCode = parts[index + 1];
-			return Regex.IsMatch(nextCode, @"\b(_|__|_n|gettext|ngettext)\s*\(");
-		}
-
-		// Separate all strings from other program code, remove all quotation marks and comments.
-		// Program code and string is always alternating.
-		// FIXME: Interpolated strings are not detected in LocaProcessor
-		// https://github.com/Arkarit/unity-gui-toolkit/issues/6
-		public static List<string> SeparateCodeAndStringsDeprecated( string _content )
-		{
-			List<string> result = new List<string>();
-
-			bool inString = false;
-			bool inEscape = false;
-			bool inScopeComment = false;
-			bool inLineComment = false;
-
-			string current = "";
-
-			for (int i = 0; i < _content.Length; i++)
-			{
-				char c = _content[i];
-
-				if (inEscape)
-				{
-					Debug.Assert(inString);
-					current += c;
-					inEscape = false;
-					continue;
-				}
-
-				if (inLineComment)
-				{
-					Debug.Assert(!inString);
-					if (c == '\n' || c == '\r')
-					{
-						current += '\n';
-						inLineComment = false;
-						continue;
-					}
-					continue;
-				}
-
-				if (inScopeComment)
-				{
-					if (c == '*')
-					{
-						// A * is the last char of the source.
-						// Definitely an error, but we have to handle it to avoid oob
-						if (i == _content.Length - 1)
-						{
-							result.Add(current);
-							break;
-						}
-
-						char c2 = _content[i + 1];
-
-						if (c2 == '/')
-						{
-							i += 1;
-							inScopeComment = false;
-							continue;
-						}
-
-					}
-					continue;
-				}
-
-				if (inString)
-				{
-					Debug.Assert(!inScopeComment && !inLineComment);
-
-					if (c == '\"')
-					{
-						result.Add(current);
-						current = "";
-						inString = false;
-						continue;
-					}
-
-					if (c == '\\')
-					{
-						current += c;
-						inEscape = true;
-						continue;
-					}
-
-					current += c;
-					continue;
-				}
-
-				if (c == '\"')
-				{
-					result.Add(current);
-					current = "";
-					inString = true;
-					continue;
-				}
-
-				if (c == '/')
-				{
-					// A / is the last char of the source.
-					// Definitely an error, but we have to handle it to avoid oob
-					if (i == _content.Length - 1)
-					{
-						result.Add(current);
-						break;
-					}
-
-					char c2 = _content[i + 1];
-
-					if (c2 == '/')
-					{
-						i += 1;
-						inLineComment = true;
-						continue;
-					}
-
-					if (c2 == '*')
-					{
-						i += 1;
-						inScopeComment = true;
-						continue;
-					}
-
-					current += c;
-					continue;
-				}
-
-				current += c;
-			}
-
-			if (current.Length > 0)
-				result.Add(current);
-
-			return result;
-		}
-
-		public static string GetThisFilePath( [CallerFilePath] string _path = null ) => _path;
 	}
 }
