@@ -23,8 +23,8 @@ namespace GuiToolkit.Editor
 
 			LocaManager.Instance.Clear();
 
-			EditorAssetUtility.AssetSearchOptions options = new (){Folders = new []{"Assets", "Packages/de.phoenixgrafik.ui-toolkit"}};
-			
+			EditorAssetUtility.AssetSearchOptions options = new() { Folders = new[] { "Assets", "Packages/de.phoenixgrafik.ui-toolkit" } };
+
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
 			EditorAssetUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent, options);
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
@@ -42,7 +42,7 @@ namespace GuiToolkit.Editor
 			LocaManager.Instance.WriteKeyData();
 		}
 
-		private static void FoundComponent(ILocaClient _component)
+		private static void FoundComponent( ILocaClient _component )
 		{
 			if (_component.UsesMultipleLocaKeys)
 			{
@@ -64,27 +64,27 @@ namespace GuiToolkit.Editor
 			EditorUtility.DisplayProgressBar("Processing Loca", $"Processing script '{Path.GetFileName(_path)}'", progress);
 			m_currentScriptIdx++;
 
-			List<string> strings = SeparateCodeAndStrings(_content);
+			List<string> strings = EditorCodeUtility.SeparateCodeAndStrings(_content);
 			//DebugDump(_path, strings);
 
 			int numStrings = strings.Count;
 
-			for (int i=0; i<numStrings; i += 2)
+			for (int i = 0; i < numStrings; i += 2)
 			{
-				if ( i > numStrings - 2 )
+				if (i > numStrings - 2)
 					break;
 
 				string code = strings[i];
-				string str = strings[i+1];
+				string str = strings[i + 1];
 
 				if (Evaluate(code, "_(", str) || Evaluate(code, "__(", str) || Evaluate(code, "gettext(", str))
 					continue;
 
-				if ( i > numStrings - 4)
+				if (i > numStrings - 4)
 					continue;
 
-				string code2 = strings[i+2];
-				string str2 = strings[i+3];
+				string code2 = strings[i + 2];
+				string str2 = strings[i + 3];
 
 				if (code2.Trim() != ",")
 					continue;
@@ -93,9 +93,9 @@ namespace GuiToolkit.Editor
 					i += 2;
 			}
 
- 		}
+		}
 
-		private static bool Evaluate(string _code, string _keyword, string _singular, string _plural = null)
+		private static bool Evaluate( string _code, string _keyword, string _singular, string _plural = null )
 		{
 			int codeLength = _code.Length;
 			int keywordLength = _keyword.Length;
@@ -122,154 +122,22 @@ namespace GuiToolkit.Editor
 			return false;
 		}
 
-		// Separate all strings from other program code, remove all quotation marks and comments.
-		// Program code and string is always alternating.
-		// FIXME: Interpolated strings are not detected in LocaProcessor
-		// https://github.com/Arkarit/unity-gui-toolkit/issues/6
-		private static List<string> SeparateCodeAndStrings( string _content )
-		{
-			List<string> result = new List<string>();
-
-			bool inString = false;
-			bool inEscape = false;
-			bool inScopeComment = false;
-			bool inLineComment = false;
-
-			string current = "";
-
-			for (int i=0; i<_content.Length; i++)
-			{
-				char c = _content[i];
-
-				if (inEscape)
-				{
-					Debug.Assert(inString);
-					current += c;
-					inEscape = false;
-					continue;
-				}
-
-				if (inLineComment)
-				{
-					Debug.Assert(!inString);
-					if (c == '\n' || c == '\r')
-					{
-						current += '\n';
-						inLineComment = false;
-						continue;
-					}
-					continue;
-				}
-
-				if (inScopeComment)
-				{
-					if (c == '*')
-					{
-						// A * is the last char of the source.
-						// Definitely an error, but we have to handle it to avoid oob
-						if (i == _content.Length - 1)
-						{
-							result.Add(current);
-							break;
-						}
-
-						char c2 = _content[i+1];
-
-						if (c2 == '/')
-						{
-							i += 1;
-							inScopeComment = false;
-							continue;
-						}
-
-					}
-					continue;
-				}
-
-				if (inString)
-				{
-					Debug.Assert(!inScopeComment && !inLineComment);
-
-					if (c == '\"')
-					{
-						result.Add(current);
-						current = "";
-						inString = false;
-						continue;
-					}
-
-					if (c == '\\')
-					{
-						current += c;
-						inEscape = true;
-						continue;
-					}
-
-					current += c;
-					continue;
-				}
-
-				if (c == '\"')
-				{
-					result.Add(current);
-					current = "";
-					inString = true;
-					continue;
-				}
-
-				if (c == '/')
-				{
-					// A / is the last char of the source.
-					// Definitely an error, but we have to handle it to avoid oob
-					if (i == _content.Length - 1)
-					{
-						result.Add(current);
-						break;
-					}
-
-					char c2 = _content[i+1];
-
-					if (c2 == '/')
-					{
-						i += 1;
-						inLineComment = true;
-						continue;
-					}
-
-					if (c2 == '*')
-					{
-						i += 1;
-						inScopeComment = true;
-						continue;
-					}
-
-					current += c;
-					continue;
-				}
-
-				current += c;
-			}
-
-			if (current.Length > 0)
-				result.Add(current);
-
-			return result;
-		}
-
-		private static void DebugDump(string _path, List <string> _strings)
+		private static void DebugDump( string _path, List<string> _strings )
 		{
 			string outPath = "C:\\temp\\LocaProcessorTest\\";
-			try {
+			try
+			{
 				Directory.CreateDirectory(outPath);
-			} catch
+			}
+			catch
 			{
 				Debug.LogError("Failed to create directory");
 				return;
 			}
 			outPath += _path.Replace("/", "_") + ".txt";
-			
+
 			string str = "";
-			for (int i = 0; i<_strings.Count; i++)
+			for (int i = 0; i < _strings.Count; i++)
 			{
 				if ((i & 1) == 0)
 					str += "\n\n---Program---\n";
