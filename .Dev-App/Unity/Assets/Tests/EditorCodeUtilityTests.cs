@@ -50,7 +50,10 @@ public class EditorCodeUtilityTests
 		    ("(bl?_(", "1"),
 			("):_(", "2"),
 			("))", ""),
-			(";", "")
+			(";string g=", "Literal 1"),
+			("+", "Literal 2"),
+			("+", "Literal 3"),
+			(";", ""),
 		};
 
 		for (int i = 0; i < expected.Count; i++)
@@ -102,6 +105,8 @@ public class EditorCodeUtilityTests
 		string d = $"Literal {name} bla";
 		string e = $"Literal {(bl ? "1" : "2")}";
 		string f = $"Literal {(bl ? _("1") : _("2"))}";
+		string g = $"Literal 1" + "Literal 2" + 
+		           "Literal 3";
 
 		//=== END TEST SOURCE ===
 
