@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using GuiToolkit;
 using GuiToolkit.Editor;
 using UnityEngine;
 
@@ -34,31 +35,22 @@ public class EditorCodeUtilityTests
 		// Specific expected pairs
 		var expected = new List<(string code, string str)>
 		{
-			// string a = "Literal";
 		    ("string a=", "Literal"),
-		
-		    // string b = $"Literal {name}";
 		    (";string b=$\"", "Literal "),
 			("name", ""),
 			("\";string c=$\"", "Literal "),
-		
-		    // string c = $"Literal {name /* Crazy but allowed comment*/ }";
 		    ("name", ""),
 			("\";string d=$\"", "Literal "),
-		
-		    // string d = $"Literal {name} bla";
 		    ("name", " bla"),
 			("\";string e=$\"", "Literal "),
-		
-		    // string e = $"Literal {(bl ? "1" : "2")}" ;
 		    ("(bl?", "1"),
 			(":", "2"),
-			("\")\";string f=$\"", "Literal "),
-		
-		    // string f = $"Literal {(bl ? _("1") : _("2"))}" ;
-		    ("(bl?", "1"),
-			(":", "2"),
-			("\")\";", "")
+			(")", ""),
+			("\";string f=$\"", "Literal "),
+		    ("(bl?_(", "1"),
+			("):_(", "2"),
+			("))", ""),
+			("\";", "")
 		};
 
 		for (int i = 0; i < expected.Count; i++)
@@ -80,9 +72,13 @@ public class EditorCodeUtilityTests
 	{
 		string debugStr = "Parts:\n";
 		var code = true;
-		foreach (var part in parts)
+		for (var i = 0; i < parts.Count; i++)
 		{
-			debugStr += $"{(code ? "code:\n" : "string:\n")}{part}\n_____\n\n";
+			if (code)
+				debugStr += $"\nPair {i/2}: ";
+			
+			var part = parts[i];
+			debugStr += $"{(code ? "'" : "::: '")}{part}' ";
 			code = !code;
 		}
 

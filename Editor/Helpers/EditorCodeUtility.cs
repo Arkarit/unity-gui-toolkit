@@ -60,11 +60,12 @@ namespace GuiToolkit.Editor
 							break;
 
 						case InterpolationSyntax interp:
-							// switch to code; recurse only into the inner expression (no braces)
 							EnsureCodeSlot(result);
+							// recurse only the inner expression
 							ProcessNode(result, interp.Expression);
+							// >>> ensure an empty string segment after the interpolation boundary
+							EnsureStringSlot(result);
 							break;
-
 						default:
 							// descend into other nodes
 							ProcessNode(result, childNode);
