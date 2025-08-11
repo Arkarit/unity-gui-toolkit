@@ -63,7 +63,7 @@ namespace GuiToolkit.Editor
 							EnsureCodeSlot(result);
 							// recurse only the inner expression
 							ProcessNode(result, interp.Expression);
-							// >>> ensure an empty string segment after the interpolation boundary
+							// ensure an empty string segment after the interpolation boundary
 							EnsureStringSlot(result);
 							break;
 						default:
@@ -97,7 +97,7 @@ namespace GuiToolkit.Editor
 				current += " ";
 
 			current += tokenText;
-			result[idx] = current; //.Trim('"', '$', ' ');
+			result[idx] = current.Trim('"', '$');
 		}
 
 		private static bool NeedsSpace( string left, string right )

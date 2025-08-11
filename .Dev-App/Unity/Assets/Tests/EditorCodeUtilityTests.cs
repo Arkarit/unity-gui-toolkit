@@ -36,21 +36,21 @@ public class EditorCodeUtilityTests
 		var expected = new List<(string code, string str)>
 		{
 		    ("string a=", "Literal"),
-		    (";string b=$\"", "Literal "),
+		    (";string b=", "Literal "),
 			("name", ""),
-			("\";string c=$\"", "Literal "),
+			(";string c=", "Literal "),
 		    ("name", ""),
-			("\";string d=$\"", "Literal "),
+			(";string d=", "Literal "),
 		    ("name", " bla"),
-			("\";string e=$\"", "Literal "),
+			(";string e=", "Literal "),
 		    ("(bl?", "1"),
 			(":", "2"),
 			(")", ""),
-			("\";string f=$\"", "Literal "),
+			(";string f=", "Literal "),
 		    ("(bl?_(", "1"),
 			("):_(", "2"),
 			("))", ""),
-			("\";", "")
+			(";", "")
 		};
 
 		for (int i = 0; i < expected.Count; i++)
