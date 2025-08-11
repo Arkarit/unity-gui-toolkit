@@ -1,21 +1,17 @@
 {
-    "name": "de.phoenixgrafik.ui-toolkit.Editor",
-    "rootNamespace": "",
-    "references": [
-        "GUID:8527d1ce1101a3b44971ce4242b16c6d",
-        "GUID:6055be8ebefd69e48b49212b09b47b2f",
-        "GUID:6546d7765b4165b40850b3667f981c26",
-        "GUID:a1b540c27a1b8eb448e7ab345b8c4e93"
-    ],
-    "includePlatforms": [
-        "Editor"
-    ],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "de.phoenixgrafik.ui-toolkit.Editor",
+  "rootNamespace": "GuiToolkit.Editor",
+  "references": [
+    "de.phoenixgrafik.ui-toolkit",
+    "Unity.TextMeshPro",
+    "Unity.TextMeshPro.Editor",
+    "Roslyn"
+  ],
+  "includePlatforms": [ "Editor" ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "noEngineReferences": false
 }
