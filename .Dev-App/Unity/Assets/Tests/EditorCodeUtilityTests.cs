@@ -35,25 +35,36 @@ public class EditorCodeUtilityTests
 		// Specific expected pairs
 		var expected = new List<(string code, string str)>
 		{
-		    ("string a=", "Literal"),
-		    (";string b=", "Literal "),
-			("name", ""),
-			(";string c=", "Literal "),
-		    ("name", ""),
-			(";string d=", "Literal "),
-		    ("name", " bla"),
-			(";string e=", "Literal "),
-		    ("(bl?", "1"),
-			(":", "2"),
-			(")", ""),
-			(";string f=", "Literal "),
-		    ("(bl?_(", "1"),
-			("):_(", "2"),
-			("))", ""),
-			(";string g=", "Literal 1"),
-			("+", "Literal 2"),
-			("+", "Literal 3"),
-			(";", ""),
+			("string a=", "Literal"),			// Pair 0
+		    (";string b=", "Literal "),			// Pair 1
+		    ("name", ""),						// Pair 2
+		    (";string c=", "Literal "),			// Pair 3
+		    ("name", ""),						// Pair 4
+		    (";string d=", "Literal "),			// Pair 5
+		    ("name", " bla"),					// Pair 6
+		    (";string e=", "Literal "),			// Pair 7
+		    ("(bl?", "1"),						// Pair 8
+		    (":", "2"),							// Pair 9
+		    (")", ""),							// Pair 10
+		    (";string f=", "Literal "),			// Pair 11
+		    ("(bl?_(", "1"),					// Pair 12
+		    ("):_(", "2"),						// Pair 13
+		    ("))", ""),							// Pair 14
+		    (";string g=", "Literal 1"),		// Pair 15
+		    ("+", "Literal 2"),					// Pair 16
+		    ("+", "Literal 3"),					// Pair 17
+		    (";string h=", ""),					// Pair 18
+		    (";string i=", "He said \"Hi\""),	// Pair 19
+		    (";string j=", ""),					// Pair 20
+		    ("name", ""),						// Pair 21
+		    (";string k=", ""),					// Pair 22
+		    ("_(", "key"),						// Pair 23
+		    (")", ""),							// Pair 24
+		    (";string l=", ""),					// Pair 25
+		    ("+", ""),							// Pair 26
+		    (";string m=", ""),					// Pair 27
+		    ("idx", ""),						// Pair 28
+		    (";string n=str;", ""),				// Pair 29
 		};
 
 		for (int i = 0; i < expected.Count; i++)
@@ -78,8 +89,8 @@ public class EditorCodeUtilityTests
 		for (var i = 0; i < parts.Count; i++)
 		{
 			if (code)
-				debugStr += $"\nPair {i/2}: ";
-			
+				debugStr += $"\nPair {i / 2}: ";
+
 			var part = parts[i];
 			debugStr += $"{(code ? "'" : "::: '")}{part}' ";
 			code = !code;
@@ -92,6 +103,8 @@ public class EditorCodeUtilityTests
 	{
 		string name = string.Empty;
 		bool bl = false;
+		int idx = 7;
+		string str = string.Empty;
 
 
 		//=== BEGIN TEST SOURCE ===
@@ -105,9 +118,15 @@ public class EditorCodeUtilityTests
 		string d = $"Literal {name} bla";
 		string e = $"Literal {(bl ? "1" : "2")}";
 		string f = $"Literal {(bl ? _("1") : _("2"))}";
-		string g = $"Literal 1" + "Literal 2" + 
-		           "Literal 3";
-
+		string g = $"Literal 1" + "Literal 2" +
+				   "Literal 3";
+		string h = "";
+		string i = "He said \"Hi\"";
+		string j = $"{name}";
+		string k = $"{_("key")}";
+		string l = "" + "";
+		string m = $"{idx,3:D2}";
+		string n = str;
 		//=== END TEST SOURCE ===
 
 		string _( string msg ) => msg;

@@ -60,10 +60,16 @@ namespace GuiToolkit.Editor
 							break;
 
 						case InterpolationSyntax interp:
+							// We are currently in a code slot; first, close it by inserting an empty string segment
+							EnsureStringSlot(result);
+
+							// Now create a fresh code slot for the inner expression
 							EnsureCodeSlot(result);
-							// recurse only the inner expression
+
+							// Recurse only into the inner expression (no braces)
 							ProcessNode(result, interp.Expression);
-							// ensure an empty string segment after the interpolation boundary
+
+							// And ensure a trailing empty string to separate from the following code/text
 							EnsureStringSlot(result);
 							break;
 						default:
