@@ -1,17 +1,22 @@
 {
-  "name": "de.phoenixgrafik.ui-toolkit.Editor",
-  "rootNamespace": "GuiToolkit.Editor",
-  "references": [
-    "de.phoenixgrafik.ui-toolkit",
-    "Unity.TextMeshPro",
-    "Unity.TextMeshPro.Editor",
-    "Roslyn"
-  ],
-  "includePlatforms": [ "Editor" ],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": true,
-  "noEngineReferences": false
+    "name": "de.phoenixgrafik.ui-toolkit.Editor",
+    "rootNamespace": "GuiToolkit.Editor",
+    "references": [
+        "de.phoenixgrafik.ui-toolkit",
+        "Unity.TextMeshPro",
+        "Unity.TextMeshPro.Editor",
+        "RoslynBridge",
+        "Roslyn"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
