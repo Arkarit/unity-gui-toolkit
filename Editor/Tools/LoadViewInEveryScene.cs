@@ -1,5 +1,4 @@
-﻿using GuiToolkit.Style;
-using System.Collections;
+﻿using System.Collections;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,16 +20,16 @@ namespace GuiToolkit
 				return;
 
 			UiToolkitConfiguration settings = UiToolkitConfiguration.Instance;
-			if (!settings.m_loadViewInEveryScene || !settings.m_uiMainPrefab || !settings.m_uiViewPrefab)
+			if (!settings.LoadViewInEveryScene || !settings.UiMainPrefab || !settings.UiViewPrefab)
 				return;
 			
 			var uiMain = Object.FindAnyObjectByType<UiMain>();
-			if (uiMain && settings.m_exceptUiMainExists)
+			if (uiMain && settings.ExceptUiMainExists)
 				return;
 
 			if (!uiMain)
 			{
-				uiMain = Object.Instantiate(settings.m_uiMainPrefab);
+				uiMain = Object.Instantiate(settings.UiMainPrefab);
 				if (!uiMain)
 				{
 					Debug.LogError("Can not instantiate UIMain");
@@ -53,7 +52,7 @@ namespace GuiToolkit
 		private static IEnumerator DelayedCreateView(UiToolkitConfiguration _settings)
 		{
 			yield return 0;
-			var view = UiMain.Instance.CreateView(_settings.m_uiViewPrefab);
+			var view = UiMain.Instance.CreateView(_settings.UiViewPrefab);
 			view.Show();
 		}
 	}

@@ -95,38 +95,38 @@ namespace GuiToolkit
 
 		/// Scene references.
 		[Tooltip(HELP_SCENES)]
-		public SceneReference[] m_sceneReferences;
+		[SerializeField] private SceneReference[] m_sceneReferences;
 
 		[Tooltip(HELP_LOAD_MAIN_SCENE_ON_PLAY)]
-		public bool m_loadMainSceneOnPlay = false;
+		[SerializeField] private bool m_loadMainSceneOnPlay = false;
 		
 		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE)]
-		public bool m_loadViewInEveryScene = false;
+		[SerializeField] private bool m_loadViewInEveryScene = false;
 		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE_EXCEPT_UI_MAIN_EXISTS)]
-		public bool m_exceptUiMainExists = true;
+		[SerializeField] private bool m_exceptUiMainExists = true;
 		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE_UI_MAIN_PREFAB)]
-		public UiMain m_uiMainPrefab;
+		[SerializeField] private UiMain m_uiMainPrefab;
 		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE_UI_VIEW_PREFAB)]
-		public UiView m_uiViewPrefab;
+		[SerializeField] private UiView m_uiViewPrefab;
 
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
-		public string m_additionalScenesPath = "Assets/Scenes/";
+		[SerializeField] private  string m_additionalScenesPath = "Assets/Scenes/";
 
 		[Tooltip(HELP_PREFAB_VARIANTS_PATH)]
-		public string m_prefabVariantsPath = "Assets/Prefabs/PrefabVariants/";
+		[SerializeField] private string m_prefabVariantsPath = "Assets/Prefabs/PrefabVariants/";
 
 		[Tooltip(HELP_STYLE_CONFIG)]
 		[FormerlySerializedAs("m_styleConfig")]
-		public UiMainStyleConfig m_uiMainStyleConfig;
+		[SerializeField] private UiMainStyleConfig m_uiMainStyleConfig;
 
 		[Tooltip(HELP_STYLE_CONFIG_RESOLUTION_DEPENDENT)]
-		public UiOrientationDependentStyleConfig m_uiOrientationDependentStyleConfig;
-
+		[SerializeField] private UiOrientationDependentStyleConfig m_uiOrientationDependentStyleConfig;
+		
 		[Tooltip(HELP_DEBUG_LOCA)]
-		public bool m_debugLoca = false;
+		[SerializeField] private bool m_debugLoca = false;
 		
 		[Tooltip(HELP_GLOBAL_CANVAS_SCALER_TEMPLATE)]
-		public CanvasScaler m_globalCanvasScalerTemplate = null;
+		[SerializeField] private CanvasScaler m_globalCanvasScalerTemplate = null;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 		private string m_rootDir;
@@ -139,7 +139,14 @@ namespace GuiToolkit
 
 		public UiMainStyleConfig UiMainStyleConfig => m_uiMainStyleConfig;
 		public UiOrientationDependentStyleConfig UiOrientationDependentStyleConfig => m_uiOrientationDependentStyleConfig;
-
+		public CanvasScaler GlobalCanvasScalerTemplate => m_globalCanvasScalerTemplate;
+		public bool DebugLoca => m_debugLoca;
+		public bool LoadMainSceneOnPlay => m_loadMainSceneOnPlay;
+		public bool LoadViewInEveryScene => m_loadViewInEveryScene;
+		public UiMain UiMainPrefab => m_uiMainPrefab;
+		public UiView UiViewPrefab => m_uiViewPrefab;
+		public bool ExceptUiMainExists => m_exceptUiMainExists;
+	
 		public string GetScenePath(string _sceneName)
 		{
 			if (m_scenesByName.ContainsKey(_sceneName))
