@@ -5,6 +5,7 @@
         "de.phoenixgrafik.ui-toolkit",
         "Unity.TextMeshPro",
         "Unity.TextMeshPro.Editor",
+		"Roslyn2022Hack",
         "Roslyn"
     ],
     "includePlatforms": [
