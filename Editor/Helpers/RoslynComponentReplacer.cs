@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -27,8 +26,8 @@ public static class RoslynComponentReplacer
 		if (sourceCode == null) throw new ArgumentNullException(nameof(sourceCode));
 		if (references == null) throw new ArgumentNullException(nameof(references));
 
-		var taMetadataName = typeof(TA).FullName;         // e.g. "UnityEngine.UI.Text"
-		var tbMetadataName = typeof(TB).FullName;         // e.g. "TMPro.TMP_Text"
+		var taMetadataName = typeof(TA).FullName;      // e.g. "UnityEngine.UI.Text"
+		var tbMetadataName = typeof(TB).FullName;      // e.g. "TMPro.TMP_Text"
 		var tbNamespace = typeof(TB).Namespace;        // e.g. "TMPro"
 		var tbShortName = typeof(TB).Name;             // e.g. "TMP_Text"
 
@@ -54,11 +53,11 @@ public static class RoslynComponentReplacer
 		var newRoot = rewriter.Visit(syntaxTree.GetRoot());
 
 		// 2) Optionally ensure we can use the short name (insert using for TB namespace if missing).
-		if (addUsingForTargetNamespace && !string.IsNullOrEmpty(tbNamespace))
+		if (addUsingForTargetNamespace && rewriter.Changed && !string.IsNullOrEmpty(tbNamespace))
 		{
 			newRoot = EnsureUsing(newRoot as CompilationUnitSyntax, tbNamespace);
 		}
-
+		
 		// 3) Return pretty-printed code.
 		return newRoot.NormalizeWhitespace().ToFullString();
 	}
@@ -73,6 +72,8 @@ public static class RoslynComponentReplacer
 		private readonly ITypeSymbol _fromType;
 		private readonly string _toShortName;
 
+		public bool Changed { get; private set; }
+
 		public TypeUseRewriter( SemanticModel model, ITypeSymbol fromType, string toShortName )
 		{
 			_model = model;
@@ -82,79 +83,70 @@ public static class RoslynComponentReplacer
 
 		public override SyntaxNode VisitIdentifierName( IdentifierNameSyntax node )
 		{
-			// Handles: type names in most places (variables, params, fields, casts, generics, typeof/nameof)
-			if (IsTypeReference(node, out var symbolIsFromType))
+			if (IsTypeReference(node, out var symbolIsFromType) && symbolIsFromType)
 			{
-				if (symbolIsFromType)
-					return WithTrivia(node, SyntaxFactory.IdentifierName(_toShortName));
+				Changed = true;
+				return WithTrivia(node, SyntaxFactory.IdentifierName(_toShortName));
 			}
 			return base.VisitIdentifierName(node);
 		}
 
 		public override SyntaxNode VisitQualifiedName( QualifiedNameSyntax node )
 		{
-			// Handles fully-qualified type names like UnityEngine.UI.Text
-			if (IsTypeReference(node, out var symbolIsFromType))
+			if (IsTypeReference(node, out var symbolIsFromType) && symbolIsFromType)
 			{
-				if (symbolIsFromType)
-					return WithTrivia(node, SyntaxFactory.IdentifierName(_toShortName));
+				Changed = true;
+				return WithTrivia(node, SyntaxFactory.IdentifierName(_toShortName));
 			}
 			return base.VisitQualifiedName(node);
 		}
 
 		public override SyntaxNode VisitGenericName( GenericNameSyntax node )
 		{
-			// Handles generic usages like GetComponent<TA>(), List<TA>, Dictionary<string, TA> etc.
 			var newTypeArgs = node.TypeArgumentList.Arguments;
-			var changed = false;
+			var changedLocal = false;
 
 			var builder = new List<TypeSyntax>(newTypeArgs.Count);
 			for (int i = 0; i < newTypeArgs.Count; i++)
 			{
 				var arg = newTypeArgs[i];
-				if (IsTypeReference(arg, out var isFrom))
+				if (IsTypeReference(arg, out var isFrom) && isFrom)
 				{
-					if (isFrom)
-					{
-						builder.Add(SyntaxFactory.IdentifierName(_toShortName).WithTriviaFrom(arg));
-						changed = true;
-						continue;
-					}
+					builder.Add(SyntaxFactory.IdentifierName(_toShortName).WithTriviaFrom(arg));
+					changedLocal = true;
+					continue;
 				}
 				builder.Add((TypeSyntax)Visit(arg));
 			}
 
-			if (changed)
+			if (changedLocal)
 			{
+				Changed = true;
 				return node.WithTypeArgumentList(
 					node.TypeArgumentList.WithArguments(SyntaxFactory.SeparatedList(builder)));
 			}
 			return base.VisitGenericName(node);
 		}
 
-		public override SyntaxNode VisitPredefinedType( PredefinedTypeSyntax node )
-		{
-			// Not needed for components, but here for completeness; just default behavior.
-			return base.VisitPredefinedType(node);
-		}
-
 		public override SyntaxNode VisitCastExpression( CastExpressionSyntax node )
 		{
-			// (TA)x  -> (TB)x
 			var type = node.Type;
 			if (IsTypeReference(type, out var isFrom) && isFrom)
+			{
+				Changed = true;
 				return node.WithType(SyntaxFactory.IdentifierName(_toShortName).WithTriviaFrom(type));
-
+			}
 			return base.VisitCastExpression(node);
 		}
 
 		public override SyntaxNode VisitTypeOfExpression( TypeOfExpressionSyntax node )
 		{
-			// typeof(TA) -> typeof(TB)
 			var type = node.Type;
 			if (IsTypeReference(type, out var isFrom) && isFrom)
+			{
+				Changed = true;
 				return node.WithType(SyntaxFactory.IdentifierName(_toShortName).WithTriviaFrom(type));
-
+			}
 			return base.VisitTypeOfExpression(node);
 		}
 
@@ -166,7 +158,7 @@ public static class RoslynComponentReplacer
 				.WithLeadingTrivia(oldNode.GetLeadingTrivia())
 				.WithTrailingTrivia(oldNode.GetTrailingTrivia());
 		}
-		
+
 		private bool IsTypeReference( SyntaxNode node, out bool symbolIsFromType )
 		{
 			symbolIsFromType = false;
@@ -176,11 +168,8 @@ public static class RoslynComponentReplacer
 				var symbolInfo = _model.GetSymbolInfo(node);
 				var sym = symbolInfo.Symbol;
 
-				// In some contexts (e.g., nameof), Symbol can be null but CandidateSymbols may contain the type.
 				if (sym == null && symbolInfo.CandidateSymbols.Length > 0)
-				{
 					sym = symbolInfo.CandidateSymbols[0];
-				}
 
 				if (sym is ITypeSymbol t)
 				{
@@ -189,7 +178,6 @@ public static class RoslynComponentReplacer
 					return true;
 				}
 
-				// nameof(TA) inside nameof can bind to a type (ITypeSymbol) as well:
 				if (sym is INamedTypeSymbol nts)
 				{
 					symbolIsFromType = SymbolEqualityComparer.Default.Equals(nts, _fromType);

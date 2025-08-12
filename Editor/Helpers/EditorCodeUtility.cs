@@ -96,8 +96,6 @@ namespace GuiToolkit.Editor
 			var baseDir = Path.Combine(EditorApplication.applicationContentsPath,
 									   "NetStandard", "ref", "2.1.0");
 			var netstandardPath = Path.Combine(baseDir, "netstandard.dll");
-
-			// 1) netstandard selbst
 			refs.Add(MetadataReference.CreateFromFile(netstandardPath));
 
 			// 2) Alle Assembly-References aus netstandard.dll auslesen
