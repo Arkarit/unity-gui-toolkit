@@ -23,7 +23,7 @@ internal static class Roslyn2022Hack
     static Roslyn2022Hack()
     {
         // Run after domain reload
-        EditorApplication.delayCall += EnsureBridgeInstalled;
+//        EditorApplication.delayCall += EnsureBridgeInstalled;
     }
 
     [MenuItem("Tools/UIToolkit/Install Roslyn (Bridge for <6000)")]
@@ -71,7 +71,7 @@ internal static class Roslyn2022Hack
             }
         }
 
-        // Create/update asmdef named "Roslyn"
+        // Create/update asmdef named "Roslyn2022Hack"
         var asmdefPath = Path.Combine(DestDir, AsmdefFile).Replace('\\','/');
         var json =
 @"{
