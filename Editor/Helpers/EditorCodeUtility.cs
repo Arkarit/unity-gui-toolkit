@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -13,15 +12,20 @@ using UnityEngine;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
-using System.Linq;
-using System.IO;
-using UnityEditor;
-using UnityEditor.Compilation;
-using System.Reflection.PortableExecutable;
+using GuiToolkit.Editor.Roslyn;
 #endif
 
 namespace GuiToolkit.Editor
 {
+	public sealed class RoslynUnavailableException : NotSupportedException
+	{
+		public RoslynUnavailableException()
+			: base($"Roslyn-based parsing is not available in this Unity version.\n" +
+			       $"Install Roslyn via menu '{StringConstants.ROSLYN_INSTALL_HACK}' " +
+					"or run this on Unity 6+ where Roslyn in package is supported.")
+		{ }
+	}
+
 	public static class EditorCodeUtility
 	{
 		/// <summary>
@@ -69,50 +73,49 @@ namespace GuiToolkit.Editor
 
 			return result;
 #else
-			Debug.LogError($"Roslyn not available in your Unity version.\nPlease install Roslyn by selecting '{StringConstants.ROSLYN_INSTALL_HACK}' in menu.");
-			return new List<string>();
+			throw new RoslynUnavailableException();
 #endif
 		}
 
-		public static string ReplaceComponent<TA, TB>( string _sourceCode, bool _addUsing = true )
+		public static string ReplaceComponent<TA, TB>( string _sourceCode, bool _addUsing = true, params Type[] _extraTypes )
 			where TA : Component
 			where TB : Component
 		{
-			var refs = new List<MetadataReference>();
-			AddNetstandardWithDependencies(refs);
+#if UITK_USE_ROSLYN
+			var refs = new List<MetadataReference>
+			{
+				MetadataReference.CreateFromFile(typeof(object).Assembly.Location),           // CoreLib
+				MetadataReference.CreateFromFile(typeof(UnityEngine.Object).Assembly.Location), // UnityEngine.CoreModule
+				MetadataReference.CreateFromFile(typeof(TA).Assembly.Location),
+				MetadataReference.CreateFromFile(typeof(TB).Assembly.Location),
+				MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location),
+				MetadataReference.CreateFromFile(typeof(System.Threading.Tasks.Task).Assembly.Location)
+			};
 
-			refs.Add(MetadataReference.CreateFromFile(typeof(TA).Assembly.Location));
-			refs.Add(MetadataReference.CreateFromFile(typeof(TB).Assembly.Location));
+			if (_extraTypes != null)
+			{
+				foreach (var t in _extraTypes)
+				{
+					try
+					{
+						refs.Add(MetadataReference.CreateFromFile(t.Assembly.Location));
+					}
+					catch
+					{
+						Debug.LogError($"Assembly for Type {t.Name} not found!");
+					}
+				}
+			}
 
 			return RoslynComponentReplacer.ReplaceComponent<TA, TB>(
 				_sourceCode,
 				refs,
 				_addUsing
 			);
+#else
+			throw new RoslynUnavailableException();
+#endif
 		}
-		
-		public static void AddNetstandardWithDependencies( List<MetadataReference> refs )
-		{
-			var baseDir = Path.Combine(EditorApplication.applicationContentsPath,
-									   "NetStandard", "ref", "2.1.0");
-			var netstandardPath = Path.Combine(baseDir, "netstandard.dll");
-			refs.Add(MetadataReference.CreateFromFile(netstandardPath));
-
-			// 2) Alle Assembly-References aus netstandard.dll auslesen
-			using var stream = File.OpenRead(netstandardPath);
-			using var peReader = new PEReader(stream);
-			var reader = peReader.GetMetadataReader();
-
-			foreach (var handle in reader.AssemblyReferences)
-			{
-				var refAsm = reader.GetAssemblyReference(handle);
-				var refName = reader.GetString(refAsm.Name) + ".dll";
-				var refPath = Path.Combine(baseDir, refName);
-				if (File.Exists(refPath))
-					refs.Add(MetadataReference.CreateFromFile(refPath));
-			}
-		}
-
 
 #if UITK_USE_ROSLYN
 		private static void ProcessNode( List<string> _result, SyntaxNode _node )

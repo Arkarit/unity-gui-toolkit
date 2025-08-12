@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,41 +7,16 @@ using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
 using TMPro;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UI;
 
-public class RoslynComponentReplacerTests
+namespace GuiToolkit.Test
 {
-	// --- Helpers -------------------------------------------------------------
-
-	private static void AddRef( List<MetadataReference> list, string path )
+	public class RoslynComponentReplacerTests
 	{
-		if (!string.IsNullOrEmpty(path))
-			list.Add(MetadataReference.CreateFromFile(path));
-	}
-	private static void TryAddRef( List<MetadataReference> list, string path )
-	{
-		try { AddRef(list, path); } catch { /* ignore */ }
-	}
-
-	private static void AssertCompiles( string code, IEnumerable<MetadataReference> refs )
-	{
-		var tree = CSharpSyntaxTree.ParseText(code, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview));
-		var comp = CSharpCompilation.Create("TestAsm", new[] { tree }, refs,
-			new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-		var diags = comp.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
-		if (diags.Length > 0)
+		[Test]
+		public void Field_Parameter_Local_Generic_Typeof_Nameof_Cast_Attribute_Are_Replaced()
 		{
-			Assert.Fail("Compilation failed:\n" + string.Join("\n", diags.Select(d => d.ToString())));
-		}
-	}
-
-	// --- Tests ---------------------------------------------------------------
-
-	[Test]
-	public void Field_Parameter_Local_Generic_Typeof_Nameof_Cast_Attribute_Are_Replaced()
-	{
-		const string input = @"
+			const string input = @"
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -60,42 +34,42 @@ public class Foo : MonoBehaviour
     }
 }
 ";
-		var output = EditorCodeUtility.ReplaceComponent<Text, TMP_Text>(input);
+			var output = EditorCodeUtility.ReplaceComponent<Text, TMP_Text>(input);
 
-		// Erwartung (grobe Form; Whitespace egal)
-		StringAssert.Contains("using TMPro;", output);
-		StringAssert.Contains("RequireComponent(typeof(TMP_Text))", output);
-		StringAssert.Contains("public TMP_Text label;", output);
-		StringAssert.Contains("Bar(TMP_Text p)", output);
-		StringAssert.Contains("(TMP_Text)null", output);
-		StringAssert.Contains("typeof(TMP_Text)", output);
-		StringAssert.Contains("nameof(TMP_Text)", output);
-		StringAssert.Contains("GetComponent<TMP_Text>()", output);
-		StringAssert.Contains("TryGetComponent<TMP_Text>", output);
+			// Expectations; without order
+			StringAssert.Contains("using TMPro;", output);
+			StringAssert.Contains("RequireComponent(typeof(TMP_Text))", output);
+			StringAssert.Contains("public TMP_Text label;", output);
+			StringAssert.Contains("Bar(TMP_Text p)", output);
+			StringAssert.Contains("(TMP_Text)null", output);
+			StringAssert.Contains("typeof(TMP_Text)", output);
+			StringAssert.Contains("nameof(TMP_Text)", output);
+			StringAssert.Contains("GetComponent<TMP_Text>()", output);
+			StringAssert.Contains("TryGetComponent<TMP_Text>", output);
 
-		var refs = new List<MetadataReference>();
-		var monoApiDir = Path.Combine(EditorApplication.applicationContentsPath, "MonoBleedingEdge", "lib", "mono", "4.7.1-api");
-		foreach (var dll in Directory.EnumerateFiles(monoApiDir, "*.dll"))
-		    refs.Add(MetadataReference.CreateFromFile(dll));
-		
-		var facadesDir = Path.Combine(monoApiDir, "Facades");
-		foreach (var dll in Directory.EnumerateFiles(facadesDir, "*.dll"))
-		    refs.Add(MetadataReference.CreateFromFile(dll));
+			var refs = new List<MetadataReference>();
+			var monoApiDir = Path.Combine(EditorApplication.applicationContentsPath, "MonoBleedingEdge", "lib", "mono", "4.7.1-api");
+			foreach (var dll in Directory.EnumerateFiles(monoApiDir, "*.dll"))
+				refs.Add(MetadataReference.CreateFromFile(dll));
 
-		AddRef(refs, typeof(void).Assembly.Location);
-		AddRef(refs, typeof(object).Assembly.Location);
-		AddRef(refs, typeof(UnityEngine.Object).Assembly.Location);
-		AddRef(refs, typeof(Text).Assembly.Location);
-		AddRef(refs, typeof(TMP_Text).Assembly.Location);
-		TryAddRef(refs, typeof(Enumerable).Assembly.Location);
+			var facadesDir = Path.Combine(monoApiDir, "Facades");
+			foreach (var dll in Directory.EnumerateFiles(facadesDir, "*.dll"))
+				refs.Add(MetadataReference.CreateFromFile(dll));
 
-		AssertCompiles(output, refs);
-	}
+			AddRef(refs, typeof(void).Assembly.Location);
+			AddRef(refs, typeof(object).Assembly.Location);
+			AddRef(refs, typeof(UnityEngine.Object).Assembly.Location);
+			AddRef(refs, typeof(Text).Assembly.Location);
+			AddRef(refs, typeof(TMP_Text).Assembly.Location);
+			TryAddRef(refs, typeof(Enumerable).Assembly.Location);
 
-	[Test]
-	public void Alias_Using_Is_Handled()
-	{
-		const string input = @"
+			AssertCompiles(output, refs);
+		}
+
+		[Test]
+		public void Alias_Using_Is_Handled()
+		{
+			const string input = @"
 using UnityEngine;
 using UI = UnityEngine.UI;
 
@@ -104,32 +78,30 @@ public class Foo : MonoBehaviour
     public UI.Text label;
 }
 ";
-		var output = EditorCodeUtility.ReplaceComponent<Text, TMP_Text>(input);
+			var output = EditorCodeUtility.ReplaceComponent<Text, TMP_Text>(input);
 
-		StringAssert.Contains("TMP_Text label;", output);
-		// Alias-using bleibt bestehen; wichtig ist, dass ein TMP-Namespace verfügbar ist:
-		StringAssert.Contains("using TMPro;", output);
-	}
+			StringAssert.Contains("TMP_Text label;", output);
+			StringAssert.Contains("using TMPro;", output);
+		}
 
-	[Test]
-	public void Idempotent_When_No_Source_Type_In_Code()
-	{
-		const string input = @"
+		[Test]
+		public void Idempotent_When_No_Source_Type_In_Code()
+		{
+			const string input = @"
 using UnityEngine;
 public class Foo : MonoBehaviour
 {
     public int x;
 }
 ";
-		var output = EditorCodeUtility.ReplaceComponent<Text, TMP_Text>(input);
-		// Sollte unverändert bleiben (abgesehen von evtl. NormalizedWhitespace – unser Replace fügt aber kein TMPro using hinzu)
-		Assert.AreEqual(Normalize(input), Normalize(output));
-	}
+			var output = EditorCodeUtility.ReplaceComponent<Text, TMP_Text>(input);
+			Assert.AreEqual(Normalize(input), Normalize(output));
+		}
 
-	[Test]
-	public void Already_Target_Type_Is_NoOp()
-	{
-		const string input = @"
+		[Test]
+		public void Already_Target_Type_Is_NoOp()
+		{
+			const string input = @"
 using UnityEngine;
 using TMPro;
 public class Foo : MonoBehaviour
@@ -137,10 +109,32 @@ public class Foo : MonoBehaviour
     public TMP_Text label;
 }
 ";
-		var output = EditorCodeUtility.ReplaceComponent<Text, TMP_Text>(input);
-		Assert.AreEqual(Normalize(input), Normalize(output));
-	}
+			var output = EditorCodeUtility.ReplaceComponent<Text, TMP_Text>(input);
+			Assert.AreEqual(Normalize(input), Normalize(output));
+		}
 
-	private static string Normalize( string s )
-		=> CSharpSyntaxTree.ParseText(s).GetRoot().NormalizeWhitespace().ToFullString();
+		private static string Normalize( string s ) => CSharpSyntaxTree.ParseText(s).GetRoot().NormalizeWhitespace().ToFullString();
+
+		private static void AddRef( List<MetadataReference> list, string path )
+		{
+			if (!string.IsNullOrEmpty(path))
+				list.Add(MetadataReference.CreateFromFile(path));
+		}
+		private static void TryAddRef( List<MetadataReference> list, string path )
+		{
+			try { AddRef(list, path); } catch { /* ignore */ }
+		}
+
+		private static void AssertCompiles( string code, IEnumerable<MetadataReference> refs )
+		{
+			var tree = CSharpSyntaxTree.ParseText(code, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview));
+			var comp = CSharpCompilation.Create("TestAsm", new[] { tree }, refs,
+				new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+			var diags = comp.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+			if (diags.Length > 0)
+			{
+				Assert.Fail("Compilation failed:\n" + string.Join("\n", diags.Select(d => d.ToString())));
+			}
+		}
+	}
 }
