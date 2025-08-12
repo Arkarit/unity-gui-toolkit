@@ -162,8 +162,6 @@ namespace GuiToolkit
 		public const string ROSLYN_HEADER = MENU_HEADER + "Roslyn/";
 		public const string ROSLYN_INSTALL_HACK = ROSLYN_HEADER + "Install Roslyn Hack for Unity Version < 6";
 		public const string ROSLYN_REMOVE_HACK = ROSLYN_HEADER + "Remove Roslyn Hack for Unity Version < 6";
-		public const string ROSLYN_RESET_HACK = ROSLYN_HEADER + "Reset consent for Roslyn Hack";
-		
 
 		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";																			///< Prefix for all player prefs entries
 		public const string CREATE_TEST_DATA = MENU_HEADER + "Test Data";

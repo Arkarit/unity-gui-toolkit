@@ -34,14 +34,6 @@ namespace GuiToolkit.Editor
 		[MenuItem(StringConstants.ROSLYN_INSTALL_HACK)]
 		private static void InstallMenu() => EnsureBridgeInstalled(force: true, showConfirm: true);
 
-		[MenuItem(StringConstants.ROSLYN_RESET_HACK)]
-		private static void ResetConsentMenu()
-		{
-			EditorPrefs.DeleteKey(PrefsConsentKey);
-			EditorPrefs.DeleteKey(PrefsShownKey);
-			Debug.Log("Roslyn bridge: consent has been reset. The automatic prompt will show once again.");
-		}
-
 		[MenuItem(StringConstants.ROSLYN_REMOVE_HACK)]
 		private static void RemoveHack()
 		{
