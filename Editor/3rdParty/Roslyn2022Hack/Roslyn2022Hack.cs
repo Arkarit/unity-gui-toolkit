@@ -33,8 +33,10 @@ namespace GuiToolkit.Editor
 
 		static Roslyn2022Hack()
 		{
+#if !UITK_USE_ROSLYN
 			// Run shortly after domain reload
 			EditorApplication.delayCall += MaybeAutoInstall;
+#endif
 		}
 
 		[MenuItem(StringConstants.ROSLYN_INSTALL_HACK)]
