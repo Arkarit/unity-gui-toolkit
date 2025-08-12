@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -15,8 +16,8 @@ using Microsoft.CodeAnalysis;
 using System.Linq;
 using System.IO;
 using UnityEditor;
-
-
+using UnityEditor.Compilation;
+using System.Reflection.PortableExecutable;
 #endif
 
 namespace GuiToolkit.Editor
@@ -78,81 +79,42 @@ namespace GuiToolkit.Editor
 			where TB : Component
 		{
 			var refs = new List<MetadataReference>();
-			AddRef(refs, typeof(object).Assembly.Location);                 // mscorlib / System.Private.CoreLib
-			AddRef(refs, typeof(UnityEngine.Object).Assembly.Location);     // UnityEngine.CoreModule.dll
-			AddRef(refs, typeof(Attribute).Assembly.Location); // System.Runtime.dll
-			AddRef(refs, typeof(Enumerable).Assembly.Location); // System.Linq.dll
-			AddRef(refs, typeof(Uri).Assembly.Location); // System.dll
-			AddRef(refs, typeof(TA).Assembly.Location);                     // e.g. UnityEngine.UI.dll
-			AddRef(refs, typeof(TB).Assembly.Location);                     // e.g. Unity.TextMeshPro.dll
+			AddNetstandardWithDependencies(refs);
 
-			// Optional & defensive – only if exists:
-			TryAddRef(refs, typeof(System.Linq.Enumerable).Assembly.Location);
-			TryAddRef(refs, typeof(System.Threading.Tasks.Task).Assembly.Location);
-			TryAddRef(refs, typeof(System.Collections.Generic.List<>).Assembly.Location);
-
-			var baseDir = EditorApplication.applicationContentsPath; // .../Editor/Data
-			var nsRefDir = Path.Combine(baseDir, "NetStandard", "ref", "2.1.0");
-			bool found = false;
-			if (Directory.Exists(nsRefDir))
-			{
-				foreach (var dll in Directory.EnumerateFiles(nsRefDir, "netstandard.dll"))
-				{
-					AddRef(refs, dll);
-					found = true;
-					break;
-				}
-			}
-			
-			if (!found)
-			{
-				// Fallback: MonoBleedingEdge Facades
-				var facadesDir = Path.Combine(baseDir, "MonoBleedingEdge", "lib", "mono", "4.7.1-api", "Facades");
-				if (Directory.Exists(facadesDir))
-				{
-					foreach (var dll in Directory.EnumerateFiles(facadesDir, "*.dll"))
-						AddRef(refs, dll);
-				}
-
-				// last fallback: Use windows ref dll
-				TryAddAllIn(refs, @"C:\Program Files (x86)\Reference Assemblies\Microsoft\NETStandard\2.1.0\ref");
-			}
+			refs.Add(MetadataReference.CreateFromFile(typeof(TA).Assembly.Location));
+			refs.Add(MetadataReference.CreateFromFile(typeof(TB).Assembly.Location));
 
 			return RoslynComponentReplacer.ReplaceComponent<TA, TB>(
 				_sourceCode,
 				refs,
 				_addUsing
 			);
+		}
+		
+		public static void AddNetstandardWithDependencies( List<MetadataReference> refs )
+		{
+			var baseDir = Path.Combine(EditorApplication.applicationContentsPath,
+									   "NetStandard", "ref", "2.1.0");
+			var netstandardPath = Path.Combine(baseDir, "netstandard.dll");
 
-			static void AddRef( List<MetadataReference> list, string path )
-			{
-				if (!string.IsNullOrEmpty(path))
-					list.Add(MetadataReference.CreateFromFile(path));
-			}
+			// 1) netstandard selbst
+			refs.Add(MetadataReference.CreateFromFile(netstandardPath));
 
-			static void TryAddRef( List<MetadataReference> list, string path )
+			// 2) Alle Assembly-References aus netstandard.dll auslesen
+			using var stream = File.OpenRead(netstandardPath);
+			using var peReader = new PEReader(stream);
+			var reader = peReader.GetMetadataReader();
+
+			foreach (var handle in reader.AssemblyReferences)
 			{
-				try
-				{
-					if (!string.IsNullOrEmpty(path))
-						list.Add(MetadataReference.CreateFromFile(path));
-				}
-				catch { }
-			}
-			
-			static void TryAddAllIn( System.Collections.Generic.List<MetadataReference> list, string dir )
-			{
-				try
-				{
-					if (Directory.Exists(dir))
-					{
-						foreach (var dll in Directory.EnumerateFiles(dir, "*.dll"))
-							AddRef(list, dll);
-					}
-				}
-				catch { /* egal */ }
+				var refAsm = reader.GetAssemblyReference(handle);
+				var refName = reader.GetString(refAsm.Name) + ".dll";
+				var refPath = Path.Combine(baseDir, refName);
+				if (File.Exists(refPath))
+					refs.Add(MetadataReference.CreateFromFile(refPath));
 			}
 		}
+
 
 #if UITK_USE_ROSLYN
 		private static void ProcessNode( List<string> _result, SyntaxNode _node )
