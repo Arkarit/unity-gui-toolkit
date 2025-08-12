@@ -31,14 +31,6 @@ namespace GuiToolkit.Editor
 			"System.Runtime.CompilerServices.Unsafe.dll"
 		};
 
-		static Roslyn2022Hack()
-		{
-#if !UITK_USE_ROSLYN
-			// Run shortly after domain reload
-			EditorApplication.delayCall += MaybeAutoInstall;
-#endif
-		}
-
 		[MenuItem(StringConstants.ROSLYN_INSTALL_HACK)]
 		private static void InstallMenu() => EnsureBridgeInstalled(force: true, showConfirm: true);
 
@@ -115,54 +107,6 @@ namespace GuiToolkit.Editor
 
 			AssetDatabase.Refresh();
 			Debug.Log("Roslyn bridge removed: define cleared, DLLs deleted, folder cleaned up.");
-		}
-
-		private static void MaybeAutoInstall()
-		{
-			// If an assembly named "Roslyn" is already present, we're done
-			if (CompilationPipeline.GetAssemblies().Any(a => a.name == "Roslyn"))
-				return;
-
-			// Package source folder available?
-			if (!Directory.Exists(PackageRoslynFolder))
-				return; // keep quiet in case package path changed
-
-			var shown = EditorPrefs.GetInt(PrefsShownKey, 0) == 1;
-			var consent = EditorPrefs.GetInt(PrefsConsentKey, 0);
-
-			if (!shown)
-			{
-				// Show once
-				EditorPrefs.SetInt(PrefsShownKey, 1);
-
-				var ok = EditorUtility.DisplayDialog(
-					"Install Roslyn bridge for Unity 2022?",
-					"This will copy the Roslyn DLLs into your project (Editor-only),\n" +
-					$"create/update {AsmdefFile}, and add the global scripting define '{GlobalDefine}'\n" +
-					"to all build target groups.\n" +
-					"Without doing that, some features won't be available.\n" +
-					"Alternatively, you could upgrade to Unity 6, where this workaround is not necessary.\n" +
-					"\n\nProceed?",
-					"Install & set define",
-					"Cancel"
-				);
-
-				if (!ok)
-				{
-					EditorUtility.DisplayDialog(
-						"Manual Install",
-						"You can always install Roslyn 'manually' by selecting" +
-						$"'{StringConstants.ROSLYN_INSTALL_HACK}'",
-						"OK"
-					);
-				}
-				EditorPrefs.SetInt(PrefsConsentKey, ok ? 1 : -1);
-				consent = ok ? 1 : -1;
-			}
-
-			if (consent == 1)
-				EnsureBridgeInstalled(force: false, showConfirm: false);
-			// if declined, stay quiet until user uses the menu or resets consent
 		}
 
 		private static void EnsureBridgeInstalled( bool force, bool showConfirm )

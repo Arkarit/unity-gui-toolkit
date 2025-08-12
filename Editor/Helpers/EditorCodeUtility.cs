@@ -62,7 +62,7 @@ namespace GuiToolkit.Editor
 
 			return result;
 #else
-			Debug.LogError("Roslyn not found");
+			Debug.LogError($"Roslyn not available in your Unity version.\nPlease install Roslyn by selecting '{StringConstants.ROSLYN_INSTALL_HACK}' in menu.");
 			return new List<string>();
 #endif
 		}
