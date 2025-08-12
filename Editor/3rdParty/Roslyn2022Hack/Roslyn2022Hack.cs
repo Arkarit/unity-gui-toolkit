@@ -49,11 +49,72 @@ namespace GuiToolkit.Editor
 			EditorPrefs.DeleteKey(PrefsShownKey);
 			Debug.Log("Roslyn bridge: consent has been reset. The automatic prompt will show once again.");
 		}
-		
+
 		[MenuItem(StringConstants.ROSLYN_REMOVE_HACK)]
 		private static void RemoveHack()
 		{
-			//TODO
+			// 1) Remove global define
+			foreach (BuildTargetGroup group in Enum.GetValues(typeof(BuildTargetGroup)))
+			{
+				if (!IsValidGroup(group)) continue;
+
+				try
+				{
+					var defines = UnityEditor.PlayerSettings.GetScriptingDefineSymbolsForGroup(group);
+					if (string.IsNullOrEmpty(defines))
+						continue;
+
+					var list = defines.Split(';').ToList();
+					if (list.RemoveAll(d => d == GlobalDefine) > 0)
+					{
+						UnityEditor.PlayerSettings.SetScriptingDefineSymbolsForGroup(group, string.Join(";", list));
+					}
+				}
+				catch
+				{
+					// ignore invalid groups
+				}
+			}
+
+			// 2) Delete DLLs in DestDir
+			if (Directory.Exists(DestDir))
+			{
+				foreach (var dll in Dlls)
+				{
+					var path = Path.Combine(DestDir, dll);
+					if (File.Exists(path))
+					{
+						AssetDatabase.DeleteAsset(path.Replace('\\', '/'));
+					}
+				}
+
+				// 3) Delete asmdef if present
+				var asmdefPath = Path.Combine(DestDir, AsmdefFile);
+				if (File.Exists(asmdefPath))
+				{
+					AssetDatabase.DeleteAsset(asmdefPath.Replace('\\', '/'));
+				}
+
+				AssetDatabase.Refresh();
+
+				// 4) If folder is now empty, delete it
+				if (!Directory.EnumerateFileSystemEntries(DestDir).Any())
+				{
+					AssetDatabase.DeleteAsset(DestDir.Replace('\\', '/'));
+
+					// Optionally also remove Plugins folder if empty
+					var pluginsDir = Path.GetDirectoryName(DestDir);
+					if (!string.IsNullOrEmpty(pluginsDir) &&
+						Directory.Exists(pluginsDir) &&
+						!Directory.EnumerateFileSystemEntries(pluginsDir).Any())
+					{
+						AssetDatabase.DeleteAsset(pluginsDir.Replace('\\', '/'));
+					}
+				}
+			}
+
+			AssetDatabase.Refresh();
+			Debug.Log("Roslyn bridge removed: define cleared, DLLs deleted, folder cleaned up.");
 		}
 
 		private static void MaybeAutoInstall()
@@ -79,7 +140,7 @@ namespace GuiToolkit.Editor
 					"This will copy the Roslyn DLLs into your project (Editor-only),\n" +
 					$"create/update {AsmdefFile}, and add the global scripting define '{GlobalDefine}'\n" +
 					"to all build target groups.\n" +
-					"Without doing that, some features won't be available.\n" + 
+					"Without doing that, some features won't be available.\n" +
 					"Alternatively, you could upgrade to Unity 6, where this workaround is not necessary.\n" +
 					"\n\nProceed?",
 					"Install & set define",
@@ -89,9 +150,9 @@ namespace GuiToolkit.Editor
 				if (!ok)
 				{
 					EditorUtility.DisplayDialog(
-						"Manual Install", 
-						"You can always install Roslyn 'manually' by selecting" + 
-						$"'{StringConstants.ROSLYN_INSTALL_HACK}'", 
+						"Manual Install",
+						"You can always install Roslyn 'manually' by selecting" +
+						$"'{StringConstants.ROSLYN_INSTALL_HACK}'",
 						"OK"
 					);
 				}
