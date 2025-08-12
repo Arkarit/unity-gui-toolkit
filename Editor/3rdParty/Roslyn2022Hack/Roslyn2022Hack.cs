@@ -17,7 +17,8 @@ internal static class Roslyn2022Hack
         "Microsoft.CodeAnalysis.dll",
         "Microsoft.CodeAnalysis.CSharp.dll",
         "System.Collections.Immutable.dll",
-        "System.Reflection.Metadata.dll"
+        "System.Reflection.Metadata.dll",
+		"System.Runtime.CompilerServices.Unsafe.dll"
     };
 
     static Roslyn2022Hack()
@@ -86,7 +87,8 @@ internal static class Roslyn2022Hack
     ""Microsoft.CodeAnalysis.dll"",
     ""Microsoft.CodeAnalysis.CSharp.dll"",
     ""System.Collections.Immutable.dll"",
-    ""System.Reflection.Metadata.dll""
+    ""System.Reflection.Metadata.dll"",
+    ""System.Runtime.CompilerServices.Unsafe.dll""
   ],
   ""autoReferenced"": true,
   ""noEngineReferences"": false
