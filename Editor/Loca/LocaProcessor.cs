@@ -23,6 +23,7 @@ namespace GuiToolkit.Editor
 
 			LocaManager.Instance.Clear();
 
+//			UiToolkitConfiguration.Instance.m_additionalScenesPath
 			EditorAssetUtility.AssetSearchOptions options = new() { Folders = new[] { "Assets", "Packages/de.phoenixgrafik.ui-toolkit" } };
 
 			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);

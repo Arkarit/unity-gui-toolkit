@@ -48,7 +48,7 @@ namespace GuiToolkit
 
 		protected LocaManager()
 		{
-			m_debugLoca = UiToolkitConfiguration.Instance.m_debugLoca;
+			m_debugLoca = UiToolkitConfiguration.Instance.DebugLoca;
 			string language = PlayerPrefs.GetString(PLAYER_PREFS_KEY, "dev");
 			ChangeLanguage(language, false);
 		}

@@ -40,7 +40,7 @@ namespace GuiToolkit
 
 			UiToolkitConfiguration settings = UiToolkitConfiguration.Instance;
 
-			if (!settings.m_loadMainSceneOnPlay)
+			if (!settings.LoadMainSceneOnPlay)
 				return;
 
 			try

@@ -102,7 +102,7 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			var globalCanvasScalerTemplate = UiToolkitConfiguration.Instance.m_globalCanvasScalerTemplate;
+			var globalCanvasScalerTemplate = UiToolkitConfiguration.Instance.GlobalCanvasScalerTemplate;
 			if (globalCanvasScalerTemplate && m_useGlobalCanvasScalerTemplate)
 				StartCoroutine(ApplyGlobalCanvasScalerTemplateDelayed(globalCanvasScalerTemplate));
 		}

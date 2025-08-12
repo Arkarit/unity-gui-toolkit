@@ -1,9 +1,17 @@
+#if UNITY_6000_0_OR_NEWER
+#define UITK_USE_ROSLYN
+#endif
+
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
+using UnityEngine;
+
+#if UITK_USE_ROSLYN
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
+#endif
 
 namespace GuiToolkit.Editor
 {
@@ -40,6 +48,7 @@ namespace GuiToolkit.Editor
 		/// </summary>
 		public static List<string> SeparateCodeAndStrings( string _sourceCode )
 		{
+#if UITK_USE_ROSLYN
 			var result = new List<string>();
 
 			var tree = CSharpSyntaxTree.ParseText(_sourceCode);
@@ -52,8 +61,13 @@ namespace GuiToolkit.Editor
 				result.Add("");
 
 			return result;
+#else
+			Debug.LogError($"Roslyn not available in your Unity version.\nPlease install Roslyn by selecting '{StringConstants.ROSLYN_INSTALL_HACK}' in menu.");
+			return new List<string>();
+#endif
 		}
-
+		
+#if UITK_USE_ROSLYN
 		private static void ProcessNode( List<string> _result, SyntaxNode _node )
 		{
 			foreach (var child in _node.ChildNodesAndTokens())
@@ -151,6 +165,6 @@ namespace GuiToolkit.Editor
 			if (_list.Count.IsOdd())
 				_list.Add("");
 		}
-
+#endif
 	}
 }
