@@ -2,6 +2,7 @@
 #define UITK_USE_ROSLYN
 #endif
 
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
@@ -11,6 +12,11 @@ using UnityEngine;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
+using System.Linq;
+using System.IO;
+using UnityEditor;
+
+
 #endif
 
 namespace GuiToolkit.Editor
@@ -35,7 +41,7 @@ namespace GuiToolkit.Editor
 		/// <param name="_path"></param>
 		/// <returns></returns>
 		public static string GetThisFilePath( [CallerFilePath] string _path = null ) => _path;
-		
+
 		/// <summary>
 		/// Splits a C# source string into alternating code and string segments.
 		/// The resulting list always starts with a code segment and alternates:
@@ -66,7 +72,88 @@ namespace GuiToolkit.Editor
 			return new List<string>();
 #endif
 		}
-		
+
+		public static string ReplaceComponent<TA, TB>( string _sourceCode, bool _addUsing = true )
+			where TA : Component
+			where TB : Component
+		{
+			var refs = new List<MetadataReference>();
+			AddRef(refs, typeof(object).Assembly.Location);                 // mscorlib / System.Private.CoreLib
+			AddRef(refs, typeof(UnityEngine.Object).Assembly.Location);     // UnityEngine.CoreModule.dll
+			AddRef(refs, typeof(Attribute).Assembly.Location); // System.Runtime.dll
+			AddRef(refs, typeof(Enumerable).Assembly.Location); // System.Linq.dll
+			AddRef(refs, typeof(Uri).Assembly.Location); // System.dll
+			AddRef(refs, typeof(TA).Assembly.Location);                     // e.g. UnityEngine.UI.dll
+			AddRef(refs, typeof(TB).Assembly.Location);                     // e.g. Unity.TextMeshPro.dll
+
+			// Optional & defensive – only if exists:
+			TryAddRef(refs, typeof(System.Linq.Enumerable).Assembly.Location);
+			TryAddRef(refs, typeof(System.Threading.Tasks.Task).Assembly.Location);
+			TryAddRef(refs, typeof(System.Collections.Generic.List<>).Assembly.Location);
+
+			var baseDir = EditorApplication.applicationContentsPath; // .../Editor/Data
+			var nsRefDir = Path.Combine(baseDir, "NetStandard", "ref", "2.1.0");
+			bool found = false;
+			if (Directory.Exists(nsRefDir))
+			{
+				foreach (var dll in Directory.EnumerateFiles(nsRefDir, "netstandard.dll"))
+				{
+					AddRef(refs, dll);
+					found = true;
+					break;
+				}
+			}
+			
+			if (!found)
+			{
+				// Fallback: MonoBleedingEdge Facades
+				var facadesDir = Path.Combine(baseDir, "MonoBleedingEdge", "lib", "mono", "4.7.1-api", "Facades");
+				if (Directory.Exists(facadesDir))
+				{
+					foreach (var dll in Directory.EnumerateFiles(facadesDir, "*.dll"))
+						AddRef(refs, dll);
+				}
+
+				// last fallback: Use windows ref dll
+				TryAddAllIn(refs, @"C:\Program Files (x86)\Reference Assemblies\Microsoft\NETStandard\2.1.0\ref");
+			}
+
+			return RoslynComponentReplacer.ReplaceComponent<TA, TB>(
+				_sourceCode,
+				refs,
+				_addUsing
+			);
+
+			static void AddRef( List<MetadataReference> list, string path )
+			{
+				if (!string.IsNullOrEmpty(path))
+					list.Add(MetadataReference.CreateFromFile(path));
+			}
+
+			static void TryAddRef( List<MetadataReference> list, string path )
+			{
+				try
+				{
+					if (!string.IsNullOrEmpty(path))
+						list.Add(MetadataReference.CreateFromFile(path));
+				}
+				catch { }
+			}
+			
+			static void TryAddAllIn( System.Collections.Generic.List<MetadataReference> list, string dir )
+			{
+				try
+				{
+					if (Directory.Exists(dir))
+					{
+						foreach (var dll in Directory.EnumerateFiles(dir, "*.dll"))
+							AddRef(list, dll);
+					}
+				}
+				catch { /* egal */ }
+			}
+		}
+
 #if UITK_USE_ROSLYN
 		private static void ProcessNode( List<string> _result, SyntaxNode _node )
 		{

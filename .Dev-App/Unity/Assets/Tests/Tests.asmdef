@@ -5,7 +5,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "de.phoenixgrafik.ui-toolkit",
-        "de.phoenixgrafik.ui-toolkit.Editor"
+        "de.phoenixgrafik.ui-toolkit.Editor",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [
         "Editor"
@@ -14,7 +15,12 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll"
+        "nunit.framework.dll",
+        "Microsoft.CodeAnalysis.dll",
+        "Microsoft.CodeAnalysis.CSharp.dll",
+        "System.Collections.Immutable.dll",
+        "System.Reflection.Metadata.dll",
+        "System.Runtime.CompilerServices.Unsafe.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [

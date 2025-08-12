@@ -1,0 +1,135 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using GuiToolkit.Editor;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using NUnit.Framework;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class RoslynComponentReplacerTests
+{
+    // --- Helpers -------------------------------------------------------------
+
+    private static void AddRef(List<MetadataReference> list, string path)
+    {
+        if (!string.IsNullOrEmpty(path))
+            list.Add(MetadataReference.CreateFromFile(path));
+    }
+    private static void TryAddRef(List<MetadataReference> list, string path)
+    {
+        try { AddRef(list, path); } catch { /* ignore */ }
+    }
+
+    private static void AssertCompiles(string code, IEnumerable<MetadataReference> refs)
+    {
+        var tree = CSharpSyntaxTree.ParseText(code, CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview));
+        var comp = CSharpCompilation.Create("TestAsm", new[] { tree }, refs,
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var diags = comp.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+        if (diags.Length > 0)
+        {
+            Assert.Fail("Compilation failed:\n" + string.Join("\n", diags.Select(d => d.ToString())));
+        }
+    }
+
+    // --- Tests ---------------------------------------------------------------
+
+    [Test]
+    public void Field_Parameter_Local_Generic_Typeof_Nameof_Cast_Attribute_Are_Replaced()
+    {
+        const string input = @"
+using UnityEngine;
+using UnityEngine.UI;
+
+[RequireComponent(typeof(Text))]
+public class Foo : MonoBehaviour
+{
+    public Text label;
+    void Bar(Text p)
+    {
+        var l = (Text)null;
+        var t = typeof(Text);
+        var n = nameof(Text);
+        var c = GetComponent<Text>();
+        TryGetComponent<Text>(out var _);
+    }
+}
+";
+        var output = EditorCodeUtility.ReplaceComponent<Text, TMP_Text>(input);
+
+        // Erwartung (grobe Form; Whitespace egal)
+        StringAssert.Contains("using TMPro;", output);
+        StringAssert.Contains("RequireComponent(typeof(TMP_Text))", output);
+        StringAssert.Contains("public TMP_Text label;", output);
+        StringAssert.Contains("Bar(TMP_Text p)", output);
+        StringAssert.Contains("(TMP_Text)null", output);
+        StringAssert.Contains("typeof(TMP_Text)", output);
+        StringAssert.Contains("nameof(TMP_Text)", output);
+        StringAssert.Contains("GetComponent<TMP_Text>()", output);
+        StringAssert.Contains("TryGetComponent<TMP_Text>", output);
+
+        // Smoke-Compile (nutzt die gleiche Referenzliste wie der Rewriter-Call)
+        var refs = new List<MetadataReference>();
+        AddRef(refs, typeof(object).Assembly.Location);
+        AddRef(refs, typeof(UnityEngine.Object).Assembly.Location);
+        AddRef(refs, typeof(Text).Assembly.Location);
+        AddRef(refs, typeof(TMP_Text).Assembly.Location);
+        TryAddRef(refs, typeof(Enumerable).Assembly.Location);
+        AssertCompiles(output, refs);
+    }
+
+    [Test]
+    public void Alias_Using_Is_Handled()
+    {
+        const string input = @"
+using UnityEngine;
+using UI = UnityEngine.UI;
+
+public class Foo : MonoBehaviour
+{
+    public UI.Text label;
+}
+";
+        var output =EditorCodeUtility.ReplaceComponent<Text, TMP_Text>(input);
+
+        StringAssert.Contains("TMP_Text label;", output);
+        // Alias-using bleibt bestehen; wichtig ist, dass ein TMP-Namespace verfügbar ist:
+        StringAssert.Contains("using TMPro;", output);
+    }
+
+    [Test]
+    public void Idempotent_When_No_Source_Type_In_Code()
+    {
+        const string input = @"
+using UnityEngine;
+public class Foo : MonoBehaviour
+{
+    public int x;
+}
+";
+        var output = EditorCodeUtility.ReplaceComponent<Text, TMP_Text>(input);
+        // Sollte unverändert bleiben (abgesehen von evtl. NormalizedWhitespace – unser Replace fügt aber kein TMPro using hinzu)
+        Assert.AreEqual(Normalize(input), Normalize(output));
+    }
+
+    [Test]
+    public void Already_Target_Type_Is_NoOp()
+    {
+        const string input = @"
+using UnityEngine;
+using TMPro;
+public class Foo : MonoBehaviour
+{
+    public TMP_Text label;
+}
+";
+        var output = EditorCodeUtility.ReplaceComponent<Text, TMP_Text>(input);
+        Assert.AreEqual(Normalize(input), Normalize(output));
+    }
+
+    private static string Normalize(string s)
+        => CSharpSyntaxTree.ParseText(s).GetRoot().NormalizeWhitespace().ToFullString();
+}
