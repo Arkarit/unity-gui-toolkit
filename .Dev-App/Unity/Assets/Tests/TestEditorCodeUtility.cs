@@ -10,6 +10,7 @@ using FindSort = UnityEngine.FindObjectsSortMode;
 using TMPro;
 using UnityEditor.SceneManagement;
 using UnityEngine.UI;
+using UnityEditor;
 
 
 namespace GuiToolkit.Test
@@ -88,6 +89,27 @@ namespace GuiToolkit.Test
 
 			var after = Object.FindObjectsByType<Text>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
 			Assert.AreEqual(0, after);
+		}
+
+		[Test]
+		public void ReplaceUITextWithTMP_UndoRestoresText()
+		{
+			EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+			var go = new GameObject("X");
+			var t = go.AddComponent<Text>();
+			t.text = "Hello";
+
+			GuiToolkit.Editor.EditorCodeUtility.ReplaceUITextWithTMPInActiveScene();
+
+			Assert.IsNotNull(go.GetComponent<TMPro.TextMeshProUGUI>());
+			Assert.IsNull(go.GetComponent<Text>());
+
+			Undo.PerformUndo();
+
+			Assert.IsNull(go.GetComponent<TMPro.TextMeshProUGUI>());
+			var restored = go.GetComponent<Text>();
+			Assert.IsNotNull(restored);
+			Assert.AreEqual("Hello", restored.text);
 		}
 
 		[Test]
