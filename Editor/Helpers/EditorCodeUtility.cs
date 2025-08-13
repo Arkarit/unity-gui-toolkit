@@ -135,11 +135,16 @@ namespace GuiToolkit.Editor
 			public TextAnchor anchor;
 			public bool raycast;
 			public float lineSpacing;
+
+			// used to rewire serialized references to the new component
+			public int oldId;
 		}
 
-		public static List<(Text OldComp, TextMeshProUGUI NewComp)>
-			ReplaceUITextWithTMPInActiveScene()
+		public static List<(Text OldComp, TextMeshProUGUI NewComp)> ReplaceUITextWithTMPInActiveScene()
 		{
+			// collect all object-reference properties that currently point to Text
+			var refGroups = CollectRefGroupsToTextInActiveScene();
+
 			return ReplaceComponentsInActiveSceneWithMapping<Text, TextMeshProUGUI>(
 				capture: ( Text t ) => new TextSnapshot
 				{
@@ -151,11 +156,13 @@ namespace GuiToolkit.Editor
 					anchor = t.alignment,
 					raycast = t.raycastTarget,
 					lineSpacing = t.lineSpacing,
+					oldId = t.GetInstanceID(), // key to rewire later
 				},
 				apply: ( snapObj, tmp ) =>
 				{
 					var s = (TextSnapshot)snapObj;
 
+					// map fields
 					tmp.text = s.text;
 					tmp.color = s.color;
 					tmp.fontSize = s.fontSize;
@@ -177,7 +184,11 @@ namespace GuiToolkit.Editor
 						case TextAnchor.LowerRight: tmp.alignment = TMPro.TextAlignmentOptions.BottomRight; break;
 						default: tmp.alignment = TMPro.TextAlignmentOptions.Center; break;
 					}
-				});
+
+					// rewire any serialized references that pointed to the old Text (by oldId)
+					RewireRefsForOldId(refGroups, s.oldId, tmp);
+				}
+			);
 		}
 
 		/// <summary>
@@ -270,6 +281,81 @@ namespace GuiToolkit.Editor
 			);
 
 			return results;
+		}
+
+		private static Dictionary<int, List<(UnityEngine.Object owner, string propertyPath)>> CollectRefGroupsToTextInActiveScene()
+		{
+			var map = new Dictionary<int, List<(UnityEngine.Object, string)>>();
+
+#if UNITY_2023_1_OR_NEWER
+			var allComponents = UnityEngine.Object.FindObjectsByType<Component>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+#else
+			var allComponents = UnityEngine.Object.FindObjectsOfType<Component>(true);
+#endif
+
+			foreach (var comp in allComponents)
+			{
+				if (!comp) continue;
+
+				var so = new UnityEditor.SerializedObject(comp);
+				var it = so.GetIterator();
+				var enterChildren = true;
+
+				while (it.NextVisible(enterChildren))
+				{
+					enterChildren = false;
+
+					if (it.propertyType != UnityEditor.SerializedPropertyType.ObjectReference)
+						continue;
+
+					var obj = it.objectReferenceValue;
+					if (!obj) continue;
+
+					var txt = obj as UnityEngine.UI.Text;
+					if (!txt) continue;
+
+					var id = txt.GetInstanceID();
+					if (!map.TryGetValue(id, out var list))
+					{
+						list = new List<(UnityEngine.Object, string)>();
+						map.Add(id, list);
+					}
+					list.Add((comp, it.propertyPath));
+				}
+			}
+
+			return map;
+		}
+		private static void RewireRefsForOldId
+		(
+			Dictionary<int, List<(UnityEngine.Object owner, string propertyPath)>> groups,
+			int oldId,
+			TMPro.TMP_Text newTarget
+		)
+		{
+			if (newTarget == null) return;
+			if (groups == null) return;
+
+			if (!groups.TryGetValue(oldId, out var props) || props == null || props.Count == 0)
+				return;
+
+			foreach (var (owner, path) in props)
+			{
+				if (!owner) continue;
+
+				var so = new UnityEditor.SerializedObject(owner);
+				var sp = so.FindProperty(path);
+				if (sp == null || sp.propertyType != UnityEditor.SerializedPropertyType.ObjectReference)
+					continue;
+
+				if (sp.objectReferenceValue != (UnityEngine.Object)newTarget)
+				{
+					Undo.RecordObject(owner, "Rewire TMP reference");
+					sp.objectReferenceValue = newTarget;
+					so.ApplyModifiedProperties();
+					UnityEditor.EditorUtility.SetDirty(owner);
+				}
+			}
 		}
 
 
