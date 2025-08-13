@@ -9,15 +9,87 @@ using FindInactive = UnityEngine.FindObjectsInactive;
 using FindSort = UnityEngine.FindObjectsSortMode;
 using TMPro;
 using UnityEditor.SceneManagement;
+using UnityEngine.UI;
 
 
 namespace GuiToolkit.Test
 {
 	public class TestEditorCodeUtility
 	{
-		private GameObject m_go1;
-		private GameObject m_go2;
-		
+		GameObject go1, go2;
+
+		[SetUp]
+		public void Setup()
+		{
+			EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+			go1 = new GameObject("A");
+			go2 = new GameObject("B");
+
+			var t1 = go1.AddComponent<Text>();
+			var t2 = go2.AddComponent<Text>();
+
+			// Preconfigure some values to see they carry over
+			t1.text = "Hello";
+			t1.color = Color.red;
+			t1.fontSize = 18;
+			t1.supportRichText = true;
+			t1.alignment = TextAnchor.MiddleCenter;
+
+			t2.text = "World";
+			t2.color = Color.green;
+			t2.fontSize = 12;
+			t2.supportRichText = false;
+			t2.alignment = TextAnchor.UpperLeft;
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			if (go1) Object.DestroyImmediate(go1);
+			if (go2) Object.DestroyImmediate(go2);
+			EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+		}
+
+		[Test]
+		public void ReplaceUITextWithTMP_MapsEssentialFields()
+		{
+			var results = GuiToolkit.Editor.EditorCodeUtility.ReplaceUITextWithTMPInActiveScene();
+
+			Assert.AreEqual(2, results.Count);
+
+			var tmp1 = go1.GetComponent<TMP_Text>();
+			var tmp2 = go2.GetComponent<TMP_Text>();
+			Assert.NotNull(tmp1);
+			Assert.NotNull(tmp2);
+
+			// Content
+			Assert.AreEqual("Hello", tmp1.text);
+			Assert.AreEqual("World", tmp2.text);
+
+			// Visuals / sizing
+			Assert.AreEqual(Color.red, tmp1.color);
+			Assert.AreEqual(Color.green, tmp2.color);
+			Assert.AreEqual(18, tmp1.fontSize, 0.001f);
+			Assert.AreEqual(12, tmp2.fontSize, 0.001f);
+
+			// RichText
+			Assert.IsTrue(tmp1.richText);
+			Assert.IsFalse(tmp2.richText);
+		}
+
+		[Test]
+		public void ReplaceUITextWithTMP_RemovesAllLegacyText()
+		{
+			var before = Object.FindObjectsByType<Text>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
+			Assert.AreEqual(2, before);
+
+			GuiToolkit.Editor.EditorCodeUtility.ReplaceUITextWithTMPInActiveScene();
+
+			var after = Object.FindObjectsByType<Text>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
+			Assert.AreEqual(0, after);
+		}
+
 		[Test]
 		public void SeparateCodeAndStrings_SelfExtractedSource()
 		{
@@ -112,60 +184,6 @@ namespace GuiToolkit.Test
 				int partIndex = i * 2;
 				AssertCodeTextPair(parts[partIndex], parts[partIndex + 1], expected[i].code, expected[i].str, $"Pair {i}");
 			}
-		}
-
-		[SetUp]
-		public void SetUp()
-		{
-			// Create a new empty scene for isolation
-			EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-
-			// Create two new test GameObjects with Text components
-			m_go1 = new GameObject("Test1");
-			m_go2 = new GameObject("Test2");
-			m_go1.AddComponent<UnityEngine.UI.Text>();
-			m_go2.AddComponent<UnityEngine.UI.Text>();
-		}
-
-		[TearDown]
-		public void TearDown()
-		{
-			// Ensure cleanup of created objects
-			if (m_go1 != null) Object.DestroyImmediate(m_go1);
-			if (m_go2 != null) Object.DestroyImmediate(m_go2);
-
-			// Optionally close the test scene
-			EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-		}
-
-		[Test]
-		public void ReplaceComponentsInActiveScene_ReplacesAllInstances()
-		{
-			// Count any Text components that already exist in the active scene
-			int existing = Object.FindObjectsByType<UnityEngine.UI.Text>(FindInactive.Include, FindSort.None).Length;
-
-			// Create two new test GameObjects with Text components
-			var go1 = new GameObject("Test1");
-			var go2 = new GameObject("Test2");
-			go1.AddComponent<UnityEngine.UI.Text>();
-			go2.AddComponent<UnityEngine.UI.Text>();
-
-			var expectedTotal = existing + 2;
-
-			// Perform the replacement
-			var results = GuiToolkit.Editor.EditorCodeUtility.ReplaceComponentsInActiveScene<UnityEngine.UI.Text, TMPro.TextMeshProUGUI>();
-
-			// Verify that all (existing + newly created) Text components were replaced
-			Assert.AreEqual(expectedTotal, results.Count);
-			Assert.IsTrue(results.All(r => r.NewComp is TMPro.TMP_Text));
-
-			// Ensure there are no remaining UnityEngine.UI.Text components in the scene
-			var remainingTexts = Object.FindObjectsByType<UnityEngine.UI.Text>(FindInactive.Include, FindSort.None).Length;
-			Assert.AreEqual(0, remainingTexts);
-
-			// Clean up the two test GameObjects (optional if they can remain in the scene)
-			Object.DestroyImmediate(go1);
-			Object.DestroyImmediate(go2);
 		}
 
 		private void AssertCodeTextPair( string _code, string _str, string _shouldCode, string _shouldStr, string _message )
