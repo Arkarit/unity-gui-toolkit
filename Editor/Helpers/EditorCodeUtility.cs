@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.UI;
 
 #if UITK_USE_ROSLYN
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -14,6 +15,10 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
 using GuiToolkit.Editor.Roslyn;
 using UnityEditor;
+using TMPro;
+using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
+
 
 #endif
 
@@ -119,6 +124,121 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
+		// Public entry – specialized helper for UI.Text -> TextMeshProUGUI
+		private struct TextSnapshot
+		{
+			public string text;
+			public Color color;
+			public float fontSize;
+			public bool rich;
+			public bool autoSize;
+			public TextAnchor anchor;
+			public bool raycast;
+			public float lineSpacing;
+		}
+
+		public static List<(Text OldComp, TextMeshProUGUI NewComp)>
+			ReplaceUITextWithTMPInActiveScene()
+		{
+			return ReplaceComponentsInActiveSceneWithMapping<Text, TextMeshProUGUI>(
+				capture: ( Text t ) => new TextSnapshot
+				{
+					text = t.text,
+					color = t.color,
+					fontSize = t.fontSize,
+					rich = t.supportRichText,
+					autoSize = t.resizeTextForBestFit,
+					anchor = t.alignment,
+					raycast = t.raycastTarget,
+					lineSpacing = t.lineSpacing,
+				},
+				apply: ( snapObj, tmp ) =>
+				{
+					var s = (TextSnapshot)snapObj;
+
+					tmp.text = s.text;
+					tmp.color = s.color;
+					tmp.fontSize = s.fontSize;
+					tmp.richText = s.rich;
+					tmp.enableAutoSizing = s.autoSize;
+					tmp.raycastTarget = s.raycast;
+					tmp.lineSpacing = s.lineSpacing;
+
+					switch (s.anchor)
+					{
+						case TextAnchor.UpperLeft: tmp.alignment = TMPro.TextAlignmentOptions.TopLeft; break;
+						case TextAnchor.UpperCenter: tmp.alignment = TMPro.TextAlignmentOptions.Top; break;
+						case TextAnchor.UpperRight: tmp.alignment = TMPro.TextAlignmentOptions.TopRight; break;
+						case TextAnchor.MiddleLeft: tmp.alignment = TMPro.TextAlignmentOptions.Left; break;
+						case TextAnchor.MiddleCenter: tmp.alignment = TMPro.TextAlignmentOptions.Center; break;
+						case TextAnchor.MiddleRight: tmp.alignment = TMPro.TextAlignmentOptions.Right; break;
+						case TextAnchor.LowerLeft: tmp.alignment = TMPro.TextAlignmentOptions.BottomLeft; break;
+						case TextAnchor.LowerCenter: tmp.alignment = TMPro.TextAlignmentOptions.Bottom; break;
+						case TextAnchor.LowerRight: tmp.alignment = TMPro.TextAlignmentOptions.BottomRight; break;
+						default: tmp.alignment = TMPro.TextAlignmentOptions.Center; break;
+					}
+				});
+		}
+
+		/// <summary>
+		/// Generic replace in active scene with a two-phase mapping:
+		/// 1) capture(TA) is invoked while the old component still exists.
+		/// 2) old is destroyed, new TB is added.
+		/// 3) apply(captured, TB) is invoked to restore/migrate data.
+		/// This avoids co-existence conflicts (e.g., multiple Graphics on one GO).
+		/// </summary>
+		public static List<(TA OldComp, TB NewComp)> ReplaceComponentsInActiveSceneWithMapping<TA, TB>(
+			Func<TA, object> capture,
+			Action<object, TB> apply )
+			where TA : Component
+			where TB : Component
+		{
+			if (typeof(TA).IsAbstract)
+				throw new ArgumentException($"{typeof(TA).Name} is abstract.");
+			if (typeof(TB).IsAbstract)
+				throw new ArgumentException($"{typeof(TB).Name} is abstract.");
+
+			var results = new List<(TA, TB)>();
+
+			var targets = UnityEngine.Object.FindObjectsByType<TA>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+			if (targets == null || targets.Length == 0)
+				return results;
+
+			Undo.IncrementCurrentGroup();
+			Undo.SetCurrentGroupName($"Replace {typeof(TA).Name} ? {typeof(TB).Name}");
+
+			foreach (var oldComp in targets)
+			{
+				if (!oldComp) continue;
+				var go = oldComp.gameObject;
+
+				// 1) Capture data while TA is still present
+				object snapshot = capture?.Invoke(oldComp);
+
+				// 2) Remove TA first (prevents co-existence conflicts like multiple Graphics)
+				Undo.RegisterCompleteObjectUndo(go, "Remove Source Component");
+				Undo.DestroyObjectImmediate(oldComp);
+
+				// 3) Ensure TB exists (reuse if already present; otherwise add)
+				var newComp = go.GetComponent<TB>();
+				if (!newComp)
+				{
+					Undo.RegisterCompleteObjectUndo(go, "Add Target Component");
+					newComp = Undo.AddComponent<TB>(go);
+				}
+
+				// 4) Apply captured data to TB
+				apply?.Invoke(snapshot, newComp);
+
+				results.Add((null, newComp)); // oldComp no longer exists; set to null in tuple
+			}
+
+			EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+			Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
+
+			return results;
+		}
 
 		public static List<(TA OldComp, TB NewComp)> ReplaceComponentsInActiveScene<TA, TB>()
 			where TA : Component
@@ -151,8 +271,7 @@ namespace GuiToolkit.Editor
 
 			return results;
 		}
-		
-		
+
 
 #if UITK_USE_ROSLYN
 		private static void ProcessNode( List<string> _result, SyntaxNode _node )
