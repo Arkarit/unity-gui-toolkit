@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using GuiToolkit.Editor;
 using UnityEngine;
+using System.Linq;
 
 namespace GuiToolkit.Test
 {
@@ -39,12 +40,12 @@ namespace GuiToolkit.Test
 				int idx = 7;
 				string str = string.Empty;
 				string _( string msg ) => msg;
-	
+
 				//=== BEGIN TEST SOURCE ===
 				string a = "Literal";
 				// Comment with "not a string"
 				/* Comment with "not a string" */
-	
+
 				string b = $"Literal {name}";
 				string c = $"Literal {name /* Crazy but allowed comment*/ }";
 				string d = $"Literal {name} bla";
@@ -60,9 +61,9 @@ namespace GuiToolkit.Test
 				string m = $"{idx,3:D2}";
 				string n = str;
 				//=== END TEST SOURCE ===
-	
+
 			}
-		
+
 			// Specific expected pairs
 			var expected = new List<(string code, string str)>
 			{
@@ -103,6 +104,20 @@ namespace GuiToolkit.Test
 				int partIndex = i * 2;
 				AssertCodeTextPair(parts[partIndex], parts[partIndex + 1], expected[i].code, expected[i].str, $"Pair {i}");
 			}
+		}
+
+		[Test]
+		public void ReplaceComponentsInActiveScene_ReplacesAllInstances()
+		{
+			var go1 = new GameObject("Test1");
+			var go2 = new GameObject("Test2");
+			go1.AddComponent<UnityEngine.UI.Text>();
+			go2.AddComponent<UnityEngine.UI.Text>();
+
+			var results = EditorCodeUtility.ReplaceComponentsInActiveScene<UnityEngine.UI.Text, TMPro.TMP_Text>();
+
+			Assert.AreEqual(2, results.Count);
+			Assert.IsTrue(results.All(r => r.NewComp is TMPro.TMP_Text));
 		}
 
 		private void AssertCodeTextPair( string _code, string _str, string _shouldCode, string _shouldStr, string _message )

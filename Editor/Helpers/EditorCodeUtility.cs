@@ -13,6 +13,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
 using GuiToolkit.Editor.Roslyn;
+using UnityEditor;
+
 #endif
 
 namespace GuiToolkit.Editor
@@ -21,7 +23,7 @@ namespace GuiToolkit.Editor
 	{
 		public RoslynUnavailableException()
 			: base($"Roslyn-based parsing is not available in this Unity version.\n" +
-			       $"Install Roslyn via menu '{StringConstants.ROSLYN_INSTALL_HACK}' " +
+				   $"Install Roslyn via menu '{StringConstants.ROSLYN_INSTALL_HACK}' " +
 					"or run this on Unity 6+ where Roslyn in package is supported.")
 		{ }
 	}
@@ -116,6 +118,41 @@ namespace GuiToolkit.Editor
 			throw new RoslynUnavailableException();
 #endif
 		}
+
+
+		public static List<(TA OldComp, TB NewComp)> ReplaceComponentsInActiveScene<TA, TB>()
+			where TA : Component
+			where TB : Component
+		{
+			var results = new List<(TA, TB)>();
+
+			var targets = UnityEngine.Object.FindObjectsOfType<TA>(true);
+			if (targets == null || targets.Length == 0)
+				return results;
+
+			Undo.SetCurrentGroupName($"Replace {typeof(TA).Name} with {typeof(TB).Name}");
+
+			foreach (var oldComp in targets)
+			{
+				var go = oldComp.gameObject;
+				Undo.RegisterCompleteObjectUndo(go, "Replace Component");
+
+				// Kopie der relevanten Werte/Felder kann später hier rein
+				Undo.DestroyObjectImmediate(oldComp);
+
+				var newComp = Undo.AddComponent<TB>(go);
+
+				results.Add((oldComp, newComp));
+			}
+
+			UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
+				UnityEngine.SceneManagement.SceneManager.GetActiveScene()
+			);
+
+			return results;
+		}
+		
+		
 
 #if UITK_USE_ROSLYN
 		private static void ProcessNode( List<string> _result, SyntaxNode _node )
