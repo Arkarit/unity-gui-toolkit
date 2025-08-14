@@ -25,12 +25,21 @@ namespace GuiToolkit.Style
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			
 #if UNITY_EDITOR
-			if (IsBeingImportedFirstTime(EditorPath))
+			if (Application.isPlaying)
+			{
+				Init();
 				return;
-#endif
+			}
 			
+			EditorApplication.delayCall += Init;
+#else
+			Init();
+#endif
+		}
+
+		private void Init()
+		{
 			var instance = Instance;
 			if (instance.NumSkins == 0)
 			{
@@ -85,16 +94,6 @@ namespace GuiToolkit.Style
 		}
 		
 #if UNITY_EDITOR
-		private static bool IsBeingImportedFirstTime( string _path )
-		{
-			// Asset database can't (yet) load the object
-			if (AssetDatabase.LoadAssetAtPath(_path, typeof(Object)))
-				return false;
-			
-			// but the file already exists -> importing
-			return File.Exists(_path);
-		}
-		
 		public virtual void OnEditorInitialize() {}
 
 		public static void EditorSave(UiOrientationDependentStyleConfig _instance)
