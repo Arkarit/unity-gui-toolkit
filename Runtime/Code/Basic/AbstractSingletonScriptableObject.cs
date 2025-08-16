@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -12,58 +14,54 @@ namespace GuiToolkit
 		protected const string EditorDir = "Assets/Resources/";
 		protected static string ClassName => typeof(T).Name;
 		protected static string EditorPath => EditorDir + ClassName + ".asset";
-		
+
 		protected static T s_instance;
 
-		protected virtual void OnEnable() {}
-
+		protected virtual void OnEnable() { }
 
 		public static T Instance
 		{
 			get
 			{
 				if (s_instance == null)
-				{
-#if UNITY_EDITOR
-					if (Application.isPlaying)
-					{
-#endif
-						s_instance = Resources.Load<T>(ClassName);
-						if (s_instance == null)
-						{
-							Debug.LogError($"Scriptable object could not be loaded from path '{ClassName}'");
-							s_instance = CreateInstance<T>();
-						}
-#if UNITY_EDITOR
-					}
-					else
-					{
-						s_instance = EditorLoad();
-					}
-#endif
-					if (s_instance == null)
-						s_instance = CreateInstance<T>();
-				}
+					SingletonScriptableObjectHelper.SetInstanceRuntime(ref s_instance, ClassName);
+				
+				return s_instance;
+			}
+		}
 
+		// Editor-safe: return null while not ready
+		public static T InstanceOrNull
+		{
+			get
+			{
+				if (s_instance == null)
+					SingletonScriptableObjectHelper.TrySetInstance(ref s_instance, ClassName, EditorPath);
+				
 				return s_instance;
 			}
 		}
 
 #if UNITY_EDITOR
-
-		public virtual void OnEditorInitialize() {}
-
-		protected static T EditorLoad()
+		// Deferred, safe in Editor. Immediate call if already ready.
+		public static void WhenReady( Action<T> _callback, int _extraFrameTries = 5 )
 		{
-			T result = AssetDatabase.LoadAssetAtPath<T>(EditorPath);
-			if (result == null)
-			{
-				result = CreateInstance<T>();
-				EditorSave(result);
-			}
-
-			return result;
+			SingletonScriptableObjectHelper.WhenReady
+			(
+				() => s_instance,
+				inst => s_instance = inst,
+				_callback,
+				ClassName,
+				EditorPath, 
+				_extraFrameTries
+			);
 		}
+#endif
+
+
+#if UNITY_EDITOR
+
+		public virtual void OnEditorInitialize() { }
 
 		private static void CreateAsset( Object _obj, string _path )
 		{
@@ -72,7 +70,7 @@ namespace GuiToolkit
 			AssetDatabase.CreateAsset(_obj, _path);
 		}
 
-		public static void EditorSave(T _instance)
+		public static void EditorSave( T _instance )
 		{
 			if (!AssetDatabase.Contains(_instance))
 				CreateAsset(_instance, EditorPath);
