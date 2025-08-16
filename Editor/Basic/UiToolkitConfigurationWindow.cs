@@ -7,23 +7,17 @@ namespace GuiToolkit.Editor
 {
 	public class UiToolkitConfigurationWindow : EditorWindow
 	{
-		[SerializeField]
-		private UiToolkitConfiguration m_settings;
+		// ReSharper disable once NotAccessedField.Local
+		[SerializeField] private UiToolkitConfiguration m_settings;
+		[SerializeField] private bool m_firstTimeInit = true;
 
 		private SerializedObject m_serializedSettingsObject;
 		private Vector2 scrollPos;
 
-		private bool m_firstTimeInit = false;
-
+		public bool FirstTimeInit => m_firstTimeInit;
+		
 		private void OnGUI()
 		{
-
-			if (!UiToolkitConfiguration.Initialized)
-			{
-				m_firstTimeInit = true;
-				UiToolkitConfiguration.Initialize();
-			}
-
 			if (m_firstTimeInit)
 			{
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_FIRST_TIME, MessageType.Info);

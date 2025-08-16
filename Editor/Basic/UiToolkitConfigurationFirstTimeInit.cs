@@ -9,18 +9,14 @@ namespace GuiToolkit.Editor
 
 		static UiToolkitConfigurationFirstTimeInit()
 		{
-			if (UiToolkitConfiguration.Initialized)
-				return;
-
-			EditorApplication.update += CreateWindow;
-		}
-
-		private static void CreateWindow()
-		{
-			EditorApplication.update -= CreateWindow;
-
-			s_window = UiToolkitConfigurationWindow.GetWindow();
-			s_window.Show();
+			UiToolkitConfiguration.WhenReady(_ =>
+			{
+				s_window = UiToolkitConfigurationWindow.GetWindow();
+				if (s_window.FirstTimeInit)
+				{
+					s_window.Show();
+				}
+			});
 		}
 	}
 }

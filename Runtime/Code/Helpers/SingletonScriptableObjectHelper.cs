@@ -1,9 +1,7 @@
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using UnityEngine;
-using UnityEditor.TestTools.TestRunner.Api;
-
 
 #if UNITY_EDITOR
+using GuiToolkit.Debugging;
 using UnityEditor;
 #endif
 
@@ -54,7 +52,7 @@ namespace GuiToolkit
 			System.Action<T> set,
 			System.Action<T> callback,
 			string name,
-			string editorPath,
+			string _assetPath,
 			int extraFrameTries = 5
 		)
 			where T : ScriptableObject
@@ -68,17 +66,17 @@ namespace GuiToolkit
 
 			void Tick()
 			{
-				if (ImportBusy() || ImporterPending(editorPath))
+				if (ImportBusy() || ImporterPending(_assetPath))
 					return;
 
 				if (countdown-- < 0)
 				{
 					EditorApplication.update -= Tick;
-					Debug.LogError($"Could not load '{editorPath}' after {extraFrameTries + 1} frames delay. Consider increasing the delay.");
+					Debug.LogError($"Could not load '{_assetPath}' after {extraFrameTries + 1} frames delay. Consider increasing the delay.");
 					return;
 				}
 
-				var inst = EditorLoadOrCreate<T>(name, editorPath);
+				var inst = EditorLoadOrCreate<T>(name, _assetPath);
 				if (inst != null)
 				{
 					set(inst);
@@ -95,6 +93,8 @@ namespace GuiToolkit
 			if (string.IsNullOrEmpty(_assetPath))
 				throw new System.InvalidOperationException("AssetPath not set for " + typeof(T).FullName);
 
+			ThrowIfNotReady(_assetPath);
+			
 			var asset = AssetDatabase.LoadAssetAtPath<T>(_assetPath);
 			if (asset)
 				return asset;
@@ -108,35 +108,31 @@ namespace GuiToolkit
 			return AssetDatabase.LoadAssetAtPath<T>(_assetPath);
 		}
 
-		private static void CreateAsset( Object _obj, string _path )
+		public static void EditorSave<T>( T _instance, string _name, string _assetPath ) where T : ScriptableObject
 		{
-			string directory = EditorFileUtility.GetDirectoryName(_path);
-			EditorFileUtility.EnsureUnityFolderExists(directory);
-			AssetDatabase.CreateAsset(_obj, _path);
-		}
+			ThrowIfNotReady(_assetPath);
+			
+			if (_instance == null )
+				_instance = EditorLoadOrCreate<T>(_name, _assetPath);
 
-		public static void EditorSave<T>( T _instance, string _name, string _assetPath, int _extraFrameTries ) where T : ScriptableObject
-		{
-			WhenReady
-			(
-				() => _instance,
-				inst => _instance = inst,
-				inst =>
-				{
-					EditorGeneralUtility.SetDirty(inst);
-					AssetDatabase.SaveAssetIfDirty(inst);
-				},
-				_name,
-				_assetPath,
-				_extraFrameTries
-			);
+			EditorGeneralUtility.SetDirty(_instance);
+			AssetDatabase.SaveAssetIfDirty(_instance);
 		}
 		
 		public static bool ImportBusy() => EditorApplication.isCompiling || EditorApplication.isUpdating;
 
-		public static bool ImporterPending( string path ) =>
-			!string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(path))
-			&& AssetDatabase.GetMainAssetTypeAtPath(path) == null;
+		public static bool ImporterPending( string _assetPath ) =>
+			!string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(_assetPath))
+			&& AssetDatabase.GetMainAssetTypeAtPath(_assetPath) == null;
+		
+		public static bool Ready( string _assetPath ) => Application.isPlaying || !(ImportBusy() || ImporterPending( _assetPath ));
+		
+		private static void ThrowIfNotReady( string _assetPath )
+		{
+			if (!Ready(_assetPath))
+				throw new System.InvalidOperationException(
+					$"{DebugUtility.GetCallingClassAndMethod(false, true, 1)} is not allowed in Editor while reimporting/domain reload. Please encapsulate with WhenReady(...)\nAsset path:{_assetPath}");
+		}
 #endif
 
 		private static T RuntimeLoad<T>( string _name ) where T : ScriptableObject

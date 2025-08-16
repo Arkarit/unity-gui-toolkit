@@ -13,7 +13,7 @@ namespace GuiToolkit
 	{
 		protected const string EditorDir = "Assets/Resources/";
 		protected static string ClassName => typeof(T).Name;
-		protected static string EditorPath => EditorDir + ClassName + ".asset";
+		protected static string AssetPath => EditorDir + ClassName + ".asset";
 
 		protected static T s_instance;
 
@@ -36,7 +36,7 @@ namespace GuiToolkit
 			get
 			{
 				if (s_instance == null)
-					SingletonScriptableObjectHelper.TrySetInstance(ref s_instance, ClassName, EditorPath);
+					SingletonScriptableObjectHelper.TrySetInstance(ref s_instance, ClassName, AssetPath);
 				
 				return s_instance;
 			}
@@ -52,49 +52,15 @@ namespace GuiToolkit
 				inst => s_instance = inst,
 				_callback,
 				ClassName,
-				EditorPath, 
+				AssetPath, 
 				_extraFrameTries
 			);
 		}
-#endif
-
-
-#if UNITY_EDITOR
+		public static T EditorLoadOrCreate<T>() where T : ScriptableObject => SingletonScriptableObjectHelper.EditorLoadOrCreate<T>(ClassName, AssetPath);
 
 		public virtual void OnEditorInitialize() { }
 
-		private static void CreateAsset( Object _obj, string _path )
-		{
-			string directory = EditorFileUtility.GetDirectoryName(_path);
-			EditorFileUtility.EnsureUnityFolderExists(directory);
-			AssetDatabase.CreateAsset(_obj, _path);
-		}
-
-		public static void EditorSave( T _instance )
-		{
-			if (!AssetDatabase.Contains(_instance))
-				CreateAsset(_instance, EditorPath);
-
-			EditorGeneralUtility.SetDirty(_instance);
-			AssetDatabase.SaveAssetIfDirty(_instance);
-		}
-
-		public static void EditorSave() => EditorSave(Instance);
-
-		public static bool Initialized => AssetDatabase.LoadAssetAtPath<T>(EditorPath) != null;
-
-		public static void Initialize()
-		{
-			if (Initialized)
-				return;
-
-			T instance = CreateInstance<T>();
-			s_instance = instance;
-			var abstractSingletonScriptableObject = instance as AbstractSingletonScriptableObject<T>;
-			abstractSingletonScriptableObject.OnEditorInitialize();
-
-			EditorSave(instance);
-		}
+		public static void EditorSave() => SingletonScriptableObjectHelper.EditorSave(s_instance, ClassName, AssetPath);
 #endif
 	}
 }
