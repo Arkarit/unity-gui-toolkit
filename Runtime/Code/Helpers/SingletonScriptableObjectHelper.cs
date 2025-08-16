@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -42,9 +43,7 @@ namespace GuiToolkit
 			return GetInstanceRuntime<T>(ref _instance, _name);
 #endif
 		}
-
-
-#if UNITY_EDITOR
+		
 		// Deferred, safe in Editor. Immediate call if already ready.
 		public static void WhenReady<T>
 		(
@@ -57,10 +56,22 @@ namespace GuiToolkit
 		)
 			where T : ScriptableObject
 		{
-			if (callback == null) return;
+			if (callback == null) 
+				return;
 
+			if (Application.isPlaying)
+			{
+				callback(RuntimeLoad<T>(name));
+				return;
+			}
+			
+#if UNITY_EDITOR
 			var current = get();
-			if (current != null) { callback(current); return; }
+			if (current != null)
+			{
+				callback(current); 
+				return;
+			}
 
 			int countdown = extraFrameTries;
 
@@ -86,8 +97,12 @@ namespace GuiToolkit
 			}
 
 			EditorApplication.update += Tick;
+#endif
 		}
 
+
+
+#if UNITY_EDITOR
 		public static T EditorLoadOrCreate<T>( string _name, string _assetPath ) where T : ScriptableObject
 		{
 			if (string.IsNullOrEmpty(_assetPath))
@@ -127,12 +142,25 @@ namespace GuiToolkit
 		
 		public static bool Ready( string _assetPath ) => Application.isPlaying || !(ImportBusy() || ImporterPending( _assetPath ));
 		
-		private static void ThrowIfNotReady( string _assetPath )
+		public static void ThrowIfNotReady( string _assetPath )
 		{
 			if (!Ready(_assetPath))
 				throw new System.InvalidOperationException(
 					$"{DebugUtility.GetCallingClassAndMethod(false, true, 1)} is not allowed in Editor while reimporting/domain reload. Please encapsulate with WhenReady(...)\nAsset path:{_assetPath}");
 		}
+#else
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool ImportBusy() => false;
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool ImporterPending( string _assetPath ) => false;
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool Ready( string _assetPath ) => true;
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void ThrowIfNotReady( string _assetPath ) {}
+		
 #endif
 
 		private static T RuntimeLoad<T>( string _name ) where T : ScriptableObject

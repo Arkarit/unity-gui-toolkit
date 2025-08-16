@@ -41,11 +41,16 @@ namespace GuiToolkit
 				return s_instance;
 			}
 		}
-
-#if UNITY_EDITOR
 		// Deferred, safe in Editor. Immediate call if already ready.
 		public static void WhenReady( Action<T> _callback, int _extraFrameTries = 5 )
 		{
+#if UNITY_EDITOR
+			if (Application.isPlaying)
+			{
+				_callback.Invoke(Instance);
+				return;
+			}
+			
 			SingletonScriptableObjectHelper.WhenReady
 			(
 				() => s_instance,
@@ -55,7 +60,12 @@ namespace GuiToolkit
 				AssetPath, 
 				_extraFrameTries
 			);
+#else
+			_callback.Invoke(Instance);
+#endif
 		}
+
+#if UNITY_EDITOR
 		public static T EditorLoadOrCreate<T>() where T : ScriptableObject => SingletonScriptableObjectHelper.EditorLoadOrCreate<T>(ClassName, AssetPath);
 
 		public virtual void OnEditorInitialize() { }
