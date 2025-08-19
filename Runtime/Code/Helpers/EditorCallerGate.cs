@@ -19,7 +19,7 @@ namespace GuiToolkit
 		/// skipTypes: optional infra types to skip early (e.g., your getters/helpers).
 		/// </summary>
 		[MethodImpl(MethodImplOptions.NoInlining)]
-		public static bool AnyCallerIsEditorAware( params Type[] _skipTypes )
+		public static bool IsAnyCallerEditorAware( params Type[] _skipTypes )
 		{
 			var trace = new StackTrace(skipFrames: 1, fNeedFileInfo: false);
 			var frames = trace.GetFrames();
@@ -76,12 +76,11 @@ namespace GuiToolkit
 
 		public static void ThrowIfNotEditorAware( string _name, params Type[] _skipTypes )
 		{
-			if (Application.isPlaying)
+			if (Application.isPlaying || IsAnyCallerEditorAware(_skipTypes))
 				return;
 
-			throw new InvalidOperationException(
-				$"{DebugUtility.GetCallingClassAndMethod(false, true, 1)} " +
-				 $"(with '{_name}') is not allowed in Editor while not playing. Please use WhenReady(...) or InstanceOrNull.");
+			throw new InvalidOperationException($"{DebugUtility.GetCallingClassAndMethod(false, true, 1)} needs to be called with\n" + 
+			                                    "at least one caller in the stack trace to implement IEditorAware (and of course implement Editor awareness)");
 		}
 	}
 

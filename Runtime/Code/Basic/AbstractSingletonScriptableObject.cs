@@ -22,6 +22,8 @@ namespace GuiToolkit
 		{
 			get
 			{
+				EditorCallerGate.ThrowIfNotEditorAware(ClassName);
+				
 				if (s_instance == null)
 				{
 #if UNITY_EDITOR
