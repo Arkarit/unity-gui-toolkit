@@ -10,7 +10,7 @@ using UnityEditor;
 namespace GuiToolkit.Style
 {
 	[ExecuteAlways]
-	public abstract class UiAbstractApplyStyleBase : MonoBehaviour
+	public abstract class UiAbstractApplyStyleBase : AbstractEditorAwareMonoBehaviour
 	{
 		[SerializeField] [HideInInspector] private bool m_isResolutionDependent;
 		[FormerlySerializedAs("m_config")] 
@@ -88,7 +88,9 @@ namespace GuiToolkit.Style
 			}
 		}
 
-		protected virtual void Awake()
+		public override string[] RequiredScriptableObjects => new []{UiToolkitConfiguration.AssetPath};
+
+		protected override void SafeAwake()
 		{
 			m_style = null;
 			SetStyle();
@@ -103,7 +105,7 @@ namespace GuiToolkit.Style
 
 		protected virtual void OnTransformParentChanged() => UiEventDefinitions.EvStyleApplierChangedParent.Invoke(this);
 
-		protected virtual void OnEnable()
+		protected override void SafeOnEnable()
 		{
 			UiEventDefinitions.EvScreenOrientationChange.AddListener(OnScreenOrientationChanged);
 			SetSkinListeners(!SkinIsFixed);
