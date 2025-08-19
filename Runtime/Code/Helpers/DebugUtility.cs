@@ -87,14 +87,16 @@ namespace GuiToolkit.Debugging
 		public static string GetCallingScriptDirectory() => Path.GetDirectoryName(new System.Diagnostics.StackTrace(true).GetFrame(1).GetFileName());
 
 		[MethodImpl(MethodImplOptions.NoInlining)]
-		public static string GetCallingClassAndMethod(
-			bool includeFilename = false,
-			bool includeClass = true,
-			int callerOffset = 0,
-			bool skipAccessors = true,
-			bool skipCompilerGenerated = true )
+		public static string GetCallingClassAndMethod
+		(
+			bool _includeFilename = false,
+			bool _includeClass = true,
+			int _callerOffset = 0,
+			bool _skipAccessors = true,
+			bool _skipCompilerGenerated = true 
+		)
 		{
-			if (callerOffset < 0) callerOffset = 0;
+			if (_callerOffset < 0) _callerOffset = 0;
 
 			var trace = new StackTrace(true);
 			var frames = trace.GetFrames();
@@ -114,7 +116,7 @@ namespace GuiToolkit.Debugging
 					continue;
 
 				// Skip compiler-generated types/methods (lambdas, async state machines, etc.)
-				if (skipCompilerGenerated)
+				if (_skipCompilerGenerated)
 				{
 					if (declaringType.IsDefined(typeof(CompilerGeneratedAttribute), inherit: false))
 						continue;
@@ -126,20 +128,20 @@ namespace GuiToolkit.Debugging
 				}
 
 				// Optionally skip property/field accessor boilerplate
-				if (skipAccessors && method.IsSpecialName &&
+				if (_skipAccessors && method.IsSpecialName &&
 					(method.Name.StartsWith("get_") || method.Name.StartsWith("set_")))
 					continue;
 
 				// This frame qualifies
 				hits++;
-				if (hits < callerOffset)
+				if (hits < _callerOffset)
 					continue;
 
 				string result = method.Name;
-				if (includeClass)
+				if (_includeClass)
 					result = declaringType.Name + "." + result; // use FullName if you prefer namespaces
 
-				if (includeFilename)
+				if (_includeFilename)
 				{
 					string file = frame.GetFileName();
 					int line = frame.GetFileLineNumber();

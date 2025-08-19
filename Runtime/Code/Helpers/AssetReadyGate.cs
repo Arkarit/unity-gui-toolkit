@@ -9,7 +9,7 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	public static partial class AssetReadyGate
+	public static class AssetReadyGate
 	{
 		public static void SetInstanceRuntime<T>( ref T _instance, string _name ) where T : ScriptableObject
 		{
@@ -32,6 +32,7 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
+		
 		public static bool TrySetInstance<T>( ref T _instance, string _name, string _assetPath ) where T : ScriptableObject
 		{
 			if (Application.isPlaying)
