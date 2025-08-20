@@ -4,6 +4,8 @@ using UnityEngine;
 
 // Do not remove
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,13 +15,8 @@ namespace GuiToolkit
 {
 	public static class AssetReadyGate
 	{
-		public static void SetInstanceRuntime<T>( ref T _instance, string _name ) where T : ScriptableObject
-		{
-			ThrowIfNotPlaying(_name);
-			if (!_instance)
-				_instance = RuntimeLoad<T>(_name);
-		}
-
+		private static readonly HashSet<string> s_pathsDone = new();
+		
 		public static T RuntimeLoad<T>( string _name ) where T : ScriptableObject
 		{
 			ThrowIfNotPlaying(_name);
@@ -34,6 +31,7 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
+		public static void Clear() => s_pathsDone.Clear();
 		
 		// Gate for specific ScriptableObject assets (type+path), e.g. to ensure importer finished.
 		public static void WhenReady(
@@ -67,7 +65,7 @@ namespace GuiToolkit
 			}
 
 			// Immediate fast path
-			if (CompletelyLoaded())
+			if (AllAssetsDone(_assets))
 			{
 				_callback();
 				return;
@@ -92,6 +90,9 @@ namespace GuiToolkit
 					if (string.IsNullOrEmpty(asset.assetPath))
 						continue;
 					
+					if (s_pathsDone.Contains(asset.assetPath))
+						continue;
+					
 					if (ImporterPending(asset.assetPath))
 						return false;
 
@@ -100,6 +101,8 @@ namespace GuiToolkit
 						if (ImporterPending(dep))
 							return false;
 					}
+					
+					s_pathsDone.Add(asset.assetPath);
 				}
 
 				return true;
@@ -127,6 +130,17 @@ namespace GuiToolkit
 				try { _callback(); }
 				catch (Exception ex) { Debug.LogException(ex); }
 			}
+		}
+
+		private static bool AllAssetsDone((Type type, string assetPath)[] _assets)
+		{
+			foreach (var asset in _assets)
+			{
+				if (!s_pathsDone.Contains(asset.assetPath))
+					return false;
+			}
+			
+			return true;
 		}
 
 		// Convenience overload: only paths (no type check needed).
@@ -202,4 +216,22 @@ namespace GuiToolkit
 		public static void ThrowIfNotPlaying( string _0, int _1 = 0 ) { }
 #endif
 	}
+	
+#if UNITY_EDITOR
+	[InitializeOnLoad]
+	static class AssetReadyGateReset
+	{
+		static AssetReadyGateReset()
+		{
+			AssemblyReloadEvents.beforeAssemblyReload += Clear;
+			EditorApplication.playModeStateChanged += _ => Clear();
+		}
+
+		private static void Clear()
+		{
+			AssetReadyGateReset.Clear();
+		}
+	}
+#endif
+	
 }
