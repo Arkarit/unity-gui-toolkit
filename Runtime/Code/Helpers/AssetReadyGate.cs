@@ -23,7 +23,7 @@ namespace GuiToolkit
 			var result = Resources.Load<T>(_name);
 			if (!result)
 			{
-				Debug.LogError($"Scriptable object could not be loaded from path '{_name}'");
+				Debug.LogError($"Scriptable object could not be loaded from path '{_name}' ");
 				return ScriptableObject.CreateInstance<T>();
 			}
 
@@ -200,7 +200,9 @@ namespace GuiToolkit
 		}
 
 #else
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void WhenReady( Action _callback, Func<bool> _0, (Type type, string assetPath)[] _1, int _2 = 0, int _3 = 0 ) => _callback.Invoke();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void WhenReady( Action _callback, Func<bool> _0, params string[] _1 ) => _callback?.Invoke();
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Save<T>( T _0, string _1, string _2 ) where T : ScriptableObject {}
