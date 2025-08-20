@@ -229,7 +229,7 @@ namespace GuiToolkit
 
 		private static void Clear()
 		{
-			AssetReadyGateReset.Clear();
+			AssetReadyGate.Clear();
 		}
 	}
 #endif
