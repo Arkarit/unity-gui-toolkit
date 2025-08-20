@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
-	public class UiToolkitConfigurationWindow : EditorWindow
+	public class UiToolkitConfigurationWindow : EditorWindow, IEditorAware
 	{
 		[SerializeField]
 		private UiToolkitConfiguration m_settings;
@@ -17,7 +17,9 @@ namespace GuiToolkit.Editor
 
 		private void OnGUI()
 		{
-
+			if (!AssetReadyGate.Ready(UiToolkitConfiguration.AssetPath))
+				GUIUtility.ExitGUI();
+			
 			if (!UiToolkitConfiguration.Initialized)
 			{
 				m_firstTimeInit = true;

@@ -22,24 +22,9 @@ namespace GuiToolkit.Style
 		
 		public static void ResetInstance() => s_instance = null;
 
-		protected override void OnEnable()
+		protected override void SafeOnEnable()
 		{
-			base.OnEnable();
-#if UNITY_EDITOR
-			if (Application.isPlaying)
-			{
-				Init();
-				return;
-			}
-			
-			EditorApplication.delayCall += Init;
-#else
-			Init();
-#endif
-		}
-
-		private void Init()
-		{
+			base.SafeOnEnable();
 			var instance = Instance;
 			if (instance.NumSkins == 0)
 			{
@@ -47,6 +32,7 @@ namespace GuiToolkit.Style
 				skins.Add(new UiSkin(s_instance, Landscape));
 				skins.Add(new UiSkin(s_instance, Portrait));
 				s_instance.Skins = skins;
+				
 #if UNITY_EDITOR
 				EditorSave(s_instance);
 #endif
