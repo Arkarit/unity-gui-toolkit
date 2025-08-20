@@ -10,6 +10,7 @@ using File = System.IO.File;
 
 namespace GuiToolkit.Style.Editor
 {
+	[EditorAware]
 	public class UiApplyStyleGenerator : EditorWindow
 	{
 		private const string GeneratedWarningComment = "// Auto-generated, please do not change!\n";
@@ -354,6 +355,9 @@ namespace GuiToolkit.Style.Editor
 
 		private void OnGUI()
 		{
+			if (!AssetReadyGate.Ready(UiToolkitConfiguration.AssetPath))
+				GUIUtility.ExitGUI();
+			
 			if (m_component == null)
 			{
 				EditorGUILayout.HelpBox("Drag a component into this field to generate", MessageType.Info);

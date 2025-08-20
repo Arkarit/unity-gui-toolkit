@@ -60,6 +60,8 @@ namespace GuiToolkit.Style
 			{
 				if (s_instance == null)
 				{
+					EditorCallerGate.ThrowIfNotEditorAware(ClassName);
+					
 					var styleConfig = UiToolkitConfiguration.Instance.UiOrientationDependentStyleConfig;
 					if (styleConfig)
 						s_instance = styleConfig;

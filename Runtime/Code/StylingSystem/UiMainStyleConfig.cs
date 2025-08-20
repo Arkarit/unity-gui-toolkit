@@ -23,6 +23,8 @@ namespace GuiToolkit.Style
 			{
 				if (s_instance == null)
 				{
+					EditorCallerGate.ThrowIfNotEditorAware(ClassName);
+					
 					var styleConfig = UiToolkitConfiguration.Instance.UiMainStyleConfig;
 					if (styleConfig)
 						s_instance = styleConfig;

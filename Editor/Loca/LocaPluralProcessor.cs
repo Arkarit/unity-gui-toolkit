@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
-
+	[EditorAware]
 	public static class LocaPluralProcessor
 	{
 		private const string FILE_HEADER =
@@ -37,6 +37,16 @@ namespace GuiToolkit.Editor
 
 		[MenuItem(StringConstants.LOCA_PLURAL_PROCESSOR_MENU_NAME, priority = Constants.LOCA_PLURAL_PROCESSOR_MENU_PRIORITY)]
 		public static void Process()
+		{
+			AssetReadyGate.WhenReady
+			(
+				() => SafeProcess(),
+				null,
+				new []{UiToolkitConfiguration.ClassName}
+			);
+		}
+		
+		public static void SafeProcess()
 		{
 			string internalClassProjectPath = UiToolkitConfiguration.Instance.GetUiToolkitRootProjectDir() + "Code/Loca/LocaPlurals.cs";
 			string internalClassFilePath = EditorFileUtility.GetApplicationDataDir() + internalClassProjectPath;
