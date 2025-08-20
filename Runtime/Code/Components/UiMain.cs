@@ -19,7 +19,7 @@ namespace GuiToolkit
 	// changeable Members could be stored in config.
 	[RequireComponent(typeof(Camera))]
 	[RequireComponent(typeof(UiPool))]
-	public class UiMain : MonoBehaviour
+	public class UiMain : MonoBehaviour, IEditorAware
 	{
 		[Header("Canvas Settings")] 
 		[SerializeField] private RenderMode m_renderMode = RenderMode.ScreenSpaceCamera;
@@ -153,8 +153,10 @@ namespace GuiToolkit
 
 				if (_whenLoaded != null)
 					_whenLoaded.Invoke(m_scenes[_sceneName]);
+				
 				return;
 			}
+			
 			StartCoroutine(LoadAsyncScene(_sceneName, _show, _instant, _whenLoaded));
 		}
 
@@ -193,6 +195,8 @@ namespace GuiToolkit
 			// You could also load the Scene by using sceneBuildIndex. In this case Scene2 has
 			// a sceneBuildIndex of 1 as shown in Build Settings.
 
+			yield return new WaitUntil(() => AssetReadyGate.Ready(UiToolkitConfiguration.AssetPath));
+			
 			AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(UiToolkitConfiguration.Instance.GetScenePath(_name), LoadSceneMode.Additive);
 
 			if (asyncLoad == null)

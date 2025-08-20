@@ -19,15 +19,6 @@ namespace GuiToolkit.Editor
 	{
 		public const string PrefabFolder = "Prefabs/";
 		
-		public static string BuiltinPrefabDir
-		{
-			get
-			{
-				string rootProjectDir = UiToolkitConfiguration.Instance.GetUiToolkitRootProjectDir();
-				return rootProjectDir + PrefabFolder;
-			}
-		}
-
 		/// <summary>
 		/// Sorts a list of GameObjects based on their prefab hierarchy.
 		/// This method ensures that GameObjects are ordered according to the hierarchy

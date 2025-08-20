@@ -16,6 +16,7 @@ namespace GuiToolkit
 	}
 
 	[InitializeOnLoad]
+	[EditorAware] // We can declare EditorAware, because we only evaluate PlayModeStateChange.ExitingEditMode, which should never happen when just reloading domain/reimporting
 	public static class OnlyMainSceneOnPlay
 	{
 
@@ -29,7 +30,7 @@ namespace GuiToolkit
 
 		private static void HandleScenes( PlayModeStateChange _state )
 		{
-			if (_state == PlayModeStateChange.EnteredPlayMode || _state == PlayModeStateChange.ExitingPlayMode)
+			if (_state != PlayModeStateChange.ExitingEditMode)
 				return;
 
 			if (!BuildSettingsUtility.HasMainScene())

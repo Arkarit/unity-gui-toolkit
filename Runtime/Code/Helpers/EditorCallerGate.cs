@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 
 #if UNITY_EDITOR
+using System.Reflection;
 using UnityEditor;
 #endif
 
@@ -48,26 +49,31 @@ namespace GuiToolkit
 				// Skip compiler-generated (lambdas/async state machines)
 				if (currentType.IsDefined(typeof(CompilerGeneratedAttribute), false))
 					continue;
+				
 				if (currentType.Name.Length > 0 && currentType.Name[0] == '<')
 					continue;
 
-				if (IsEditorAware(currentType))
+				if (IsEditorAware(currentType, currentMethod))
 					return true;
 			}
 
 			return false;
 		}
 
-		public static bool IsEditorAware( Type _callerType )
+		public static bool IsEditorAware( Type _type, MethodBase _method )
 		{
-			if (_callerType == null)
+			if (_type == null)
 				return false;
 
-			if (s_isAwareCache.TryGetValue(_callerType, out var cached))
+			if (s_isAwareCache.TryGetValue(_type, out var cached))
 				return cached;
 
-			bool isAware = typeof(IEditorAware).IsAssignableFrom(_callerType);
-			s_isAwareCache[_callerType] = isAware;
+			bool isAware =
+                typeof(IEditorAware).IsAssignableFrom(_type) ||
+                _type.IsDefined(typeof(EditorAwareAttribute), inherit: true) ||
+                _method.IsDefined(typeof(EditorAwareAttribute), inherit: true);
+			
+			s_isAwareCache[_type] = isAware;
 			return isAware;
 		}
 
