@@ -9,9 +9,9 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public abstract class AbstractSingletonScriptableObject<T> : ScriptableObject where T : ScriptableObject
 	{
-		protected const string EditorDir = "Assets/Resources/";
-		protected static string ClassName => typeof(T).Name;
-		protected static string EditorPath => EditorDir + ClassName + ".asset";
+		public const string AssetDir = "Assets/Resources/";
+		public static string ClassName => typeof(T).Name;
+		public static string AssetPath => AssetDir + ClassName + ".asset";
 		
 		protected static T s_instance;
 
@@ -22,6 +22,8 @@ namespace GuiToolkit
 		{
 			get
 			{
+				EditorCallerGate.ThrowIfNotEditorAware(ClassName);
+				
 				if (s_instance == null)
 				{
 #if UNITY_EDITOR
@@ -55,7 +57,7 @@ namespace GuiToolkit
 
 		protected static T EditorLoad()
 		{
-			T result = AssetDatabase.LoadAssetAtPath<T>(EditorPath);
+			T result = AssetDatabase.LoadAssetAtPath<T>(AssetPath);
 			if (result == null)
 			{
 				result = CreateInstance<T>();
@@ -75,7 +77,7 @@ namespace GuiToolkit
 		public static void EditorSave(T _instance)
 		{
 			if (!AssetDatabase.Contains(_instance))
-				CreateAsset(_instance, EditorPath);
+				CreateAsset(_instance, AssetPath);
 
 			EditorGeneralUtility.SetDirty(_instance);
 			AssetDatabase.SaveAssetIfDirty(_instance);
@@ -83,7 +85,7 @@ namespace GuiToolkit
 
 		public static void EditorSave() => EditorSave(Instance);
 
-		public static bool Initialized => AssetDatabase.LoadAssetAtPath<T>(EditorPath) != null;
+		public static bool Initialized => AssetDatabase.LoadAssetAtPath<T>(AssetPath) != null;
 
 		public static void Initialize()
 		{

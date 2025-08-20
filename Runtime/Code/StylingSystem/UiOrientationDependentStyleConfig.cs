@@ -22,15 +22,9 @@ namespace GuiToolkit.Style
 		
 		public static void ResetInstance() => s_instance = null;
 
-		protected override void OnEnable()
+		protected override void SafeOnEnable()
 		{
-			base.OnEnable();
-			
-#if UNITY_EDITOR
-			if (IsBeingImportedFirstTime(EditorPath))
-				return;
-#endif
-			
+			base.SafeOnEnable();
 			var instance = Instance;
 			if (instance.NumSkins == 0)
 			{
@@ -38,6 +32,7 @@ namespace GuiToolkit.Style
 				skins.Add(new UiSkin(s_instance, Landscape));
 				skins.Add(new UiSkin(s_instance, Portrait));
 				s_instance.Skins = skins;
+				
 #if UNITY_EDITOR
 				EditorSave(s_instance);
 #endif
@@ -85,16 +80,6 @@ namespace GuiToolkit.Style
 		}
 		
 #if UNITY_EDITOR
-		private static bool IsBeingImportedFirstTime( string _path )
-		{
-			// Asset database can't (yet) load the object
-			if (AssetDatabase.LoadAssetAtPath(_path, typeof(Object)))
-				return false;
-			
-			// but the file already exists -> importing
-			return File.Exists(_path);
-		}
-		
 		public virtual void OnEditorInitialize() {}
 
 		public static void EditorSave(UiOrientationDependentStyleConfig _instance)
