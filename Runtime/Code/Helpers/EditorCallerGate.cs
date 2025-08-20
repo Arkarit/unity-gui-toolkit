@@ -1,17 +1,20 @@
-#if UNITY_EDITOR
 using GuiToolkit.Debugging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using UnityEditor;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace GuiToolkit
 {
 	public static class EditorCallerGate
 	{
+#if UNITY_EDITOR
 		private static readonly Dictionary<Type, bool> s_isAwareCache = new();
 
 		/// <summary>
@@ -82,8 +85,20 @@ namespace GuiToolkit
 			throw new InvalidOperationException($"{DebugUtility.GetCallingClassAndMethod(false, true, 1)} needs to be called with\n" + 
 			                                    "at least one caller in the stack trace to implement IEditorAware (and of course implement Editor awareness)");
 		}
+		
+#else
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsAnyCallerEditorAware( params Type[] _skipTypes ) => true;
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsEditorAware( Type _callerType ) => true;
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void Clear() {}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void ThrowIfNotEditorAware( string _name, params Type[] _skipTypes ) {}
+#endif
 	}
 
+#if UNITY_EDITOR
 	[InitializeOnLoad]
 	static class EditorCallerGateReset
 	{
@@ -98,6 +113,6 @@ namespace GuiToolkit
 			EditorCallerGate.Clear();
 		}
 	}
+#endif
 
 }
-#endif
