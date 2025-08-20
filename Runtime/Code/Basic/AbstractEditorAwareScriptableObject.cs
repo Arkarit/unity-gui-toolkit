@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -14,7 +16,25 @@ namespace GuiToolkit
 		/// Absolute Unity asset paths (e.g. "Assets/Resources/...") that must be ready
 		/// before initialization. May be empty but never null.
 		/// </summary>
-		public abstract string[] RequiredScriptableObjects { get; }
+		public virtual string[] RequiredScriptableObjects
+		{
+			get
+			{
+#if UNITY_EDITOR
+				if (Application.isPlaying)
+					return Array.Empty<string>();
+				
+				var result = new List<string> () {UiToolkitConfiguration.AssetPath};
+				var path = AssetDatabase.GetAssetPath(this);
+				if (!string.IsNullOrEmpty(path))
+					result.Add(path);
+				
+				return result.ToArray();
+#else
+				return Array.Empty<string>();
+#endif
+			}
+		}
 
 		/// <summary>
 		/// Safe initialization logic. Called only after the gate conditions are met.

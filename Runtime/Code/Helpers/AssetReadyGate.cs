@@ -191,6 +191,9 @@ namespace GuiToolkit
 
 				foreach (var asset in assets)
 				{
+					if (string.IsNullOrEmpty(asset.assetPath))
+						continue;
+					
 					if (ImporterPending(asset.assetPath))
 						return false;
 

@@ -13,7 +13,7 @@ namespace GuiToolkit
 		/// Absolute Unity asset paths (e.g. "Assets/Resources/…") that must be ready in the Editor.
 		/// May be empty; never return null.
 		/// </summary>
-		public abstract string[] RequiredScriptableObjects { get; }
+		public virtual string[] RequiredScriptableObjects => new []{UiToolkitConfiguration.AssetPath};
 
 		/// <summary> Called when it is safe to perform Awake work. </summary>
 		protected abstract void SafeAwake();

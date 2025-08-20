@@ -88,8 +88,6 @@ namespace GuiToolkit.Style
 			}
 		}
 
-		public override string[] RequiredScriptableObjects => new []{UiToolkitConfiguration.AssetPath};
-
 		protected override void SafeAwake()
 		{
 			m_style = null;

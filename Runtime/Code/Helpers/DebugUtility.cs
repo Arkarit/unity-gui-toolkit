@@ -92,7 +92,7 @@ namespace GuiToolkit.Debugging
 			bool _includeFilename = false,
 			bool _includeClass = true,
 			int _callerOffset = 0,
-			bool _skipAccessors = true,
+			bool _skipAccessors = false,
 			bool _skipCompilerGenerated = true 
 		)
 		{
