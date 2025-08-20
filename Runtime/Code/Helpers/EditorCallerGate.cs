@@ -1,17 +1,21 @@
-#if UNITY_EDITOR
 using GuiToolkit.Debugging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using UnityEditor;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using System.Reflection;
+using UnityEditor;
+#endif
 
 namespace GuiToolkit
 {
 	public static class EditorCallerGate
 	{
+#if UNITY_EDITOR
 		private static readonly Dictionary<Type, bool> s_isAwareCache = new();
 
 		/// <summary>
@@ -45,26 +49,31 @@ namespace GuiToolkit
 				// Skip compiler-generated (lambdas/async state machines)
 				if (currentType.IsDefined(typeof(CompilerGeneratedAttribute), false))
 					continue;
+				
 				if (currentType.Name.Length > 0 && currentType.Name[0] == '<')
 					continue;
 
-				if (IsEditorAware(currentType))
+				if (IsEditorAware(currentType, currentMethod))
 					return true;
 			}
 
 			return false;
 		}
 
-		public static bool IsEditorAware( Type _callerType )
+		public static bool IsEditorAware( Type _type, MethodBase _method )
 		{
-			if (_callerType == null)
+			if (_type == null)
 				return false;
 
-			if (s_isAwareCache.TryGetValue(_callerType, out var cached))
+			if (s_isAwareCache.TryGetValue(_type, out var cached))
 				return cached;
 
-			bool isAware = typeof(IEditorAware).IsAssignableFrom(_callerType);
-			s_isAwareCache[_callerType] = isAware;
+			bool isAware =
+                typeof(IEditorAware).IsAssignableFrom(_type) ||
+                _type.IsDefined(typeof(EditorAwareAttribute), inherit: true) ||
+                _method.IsDefined(typeof(EditorAwareAttribute), inherit: true);
+			
+			s_isAwareCache[_type] = isAware;
 			return isAware;
 		}
 
@@ -82,8 +91,20 @@ namespace GuiToolkit
 			throw new InvalidOperationException($"{DebugUtility.GetCallingClassAndMethod(false, true, 1)} needs to be called with\n" + 
 			                                    "at least one caller in the stack trace to implement IEditorAware (and of course implement Editor awareness)");
 		}
+		
+#else
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsAnyCallerEditorAware( params Type[] _skipTypes ) => true;
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsEditorAware( Type _callerType ) => true;
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void Clear() {}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void ThrowIfNotEditorAware( string _name, params Type[] _skipTypes ) {}
+#endif
 	}
 
+#if UNITY_EDITOR
 	[InitializeOnLoad]
 	static class EditorCallerGateReset
 	{
@@ -98,6 +119,6 @@ namespace GuiToolkit
 			EditorCallerGate.Clear();
 		}
 	}
+#endif
 
 }
-#endif

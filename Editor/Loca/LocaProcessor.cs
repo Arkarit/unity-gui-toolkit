@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
+	[EditorAware]
 	public static class LocaProcessor
 	{
 		private static int m_numScripts;
@@ -14,17 +15,29 @@ namespace GuiToolkit.Editor
 		[MenuItem(StringConstants.LOCA_PROCESSOR_MENU_NAME, priority = Constants.LOCA_PROCESSOR_MENU_PRIORITY)]
 		public static void Process()
 		{
+			AssetReadyGate.WhenReady
+			(
+				() => SafeProcess(),
+				null,
+				new []{UiToolkitConfiguration.ClassName}
+			);
+		}
+
+		private static void SafeProcess()
+		{
 			string potPath = UiToolkitConfiguration.Instance.m_potPath;
 			if (string.IsNullOrEmpty(potPath))
 			{
 				Debug.LogError("No POT path in settings");
-				EditorUtility.DisplayDialog("No POT path in settings", "Using Loca requires a path to your POT file (translation template) in your settings dialog", "Ok");
+				EditorUtility.DisplayDialog("No POT path in settings",
+					"Using Loca requires a path to your POT file (translation template) in your settings dialog", "Ok");
 				return;
 			}
 
 			LocaManager.Instance.Clear();
 
-			EditorAssetUtility.AssetSearchOptions options = new() { Folders = new[] { "Assets", "Packages/de.phoenixgrafik.ui-toolkit" } };
+			EditorAssetUtility.AssetSearchOptions options = new()
+				{ Folders = new[] { "Assets", "Packages/de.phoenixgrafik.ui-toolkit" } };
 
 			try
 			{
