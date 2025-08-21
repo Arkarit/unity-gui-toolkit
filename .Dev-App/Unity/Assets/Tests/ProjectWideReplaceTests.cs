@@ -42,6 +42,28 @@ namespace GuiToolkit.Test
 				var reverted = RevertIntendedChanges(dst, src);
 
 				// Now the reverted should be exactly equal to the original
+
+				if (src != reverted)
+				{
+					try
+					{
+						var docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+						var fileName = System.IO.Path.GetFileName(path);
+
+						var origPath = System.IO.Path.Combine(docs, $"___{fileName}_original.cs");
+						var changedPath = System.IO.Path.Combine(docs, $"___{fileName}_changed.cs");
+
+						System.IO.File.WriteAllText(origPath, src);
+						System.IO.File.WriteAllText(changedPath, reverted);
+
+						Debug.LogError($"File mismatch logged: {fileName}\nSaved as:\n{origPath}\n{changedPath}");
+					}
+					catch (Exception ex)
+					{
+						Debug.LogError($"Failed to save diff files: {ex}");
+					}
+				}
+				
 				Assert.AreEqual(src, reverted, $"Unexpected changes in file: {path}");
 
 				checkedFiles++;
