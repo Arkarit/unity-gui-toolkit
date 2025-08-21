@@ -327,7 +327,7 @@ namespace GuiToolkit.Editor
 		public static int ReplaceTextTypeInProjectAndCompile()
 		{
 			int changed = 0;
-			var guids = AssetDatabase.FindAssets("t:MonoScript");
+			var guids = AssetDatabase.FindAssets("t:MonoScript", new []{"Assets/"});
 			foreach (var guid in guids)
 			{
 				var path = AssetDatabase.GUIDToAssetPath(guid);
