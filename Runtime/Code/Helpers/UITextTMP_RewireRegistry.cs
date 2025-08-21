@@ -1,14 +1,15 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
-	[ExecuteAlways]
-	internal class UITextTMP_RewireRegistry : MonoBehaviour
-	{
+    [ExecuteAlways]
+    public class UITextTMP_RewireRegistry : MonoBehaviour
+    {
+#if UNITY_EDITOR
 		[Serializable]
-		internal class Entry
+		public class Entry
 		{
 			public UnityEngine.Object owner;   // Component in the same scene or prefab stage
 			public string propertyPath;        // SerializedProperty path on owner
@@ -16,5 +17,8 @@ namespace GuiToolkit.Editor
 		}
 
 		public List<Entry> entries = new List<Entry>();
-	}
+#else
+        private void Awake() => this.gameObject.SafeDestroy();
+#endif
+    }
 }
