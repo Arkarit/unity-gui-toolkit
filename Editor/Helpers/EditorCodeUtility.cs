@@ -18,6 +18,7 @@ using UnityEditor;
 using TMPro;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
+using UnityEditor.Compilation;
 #endif
 
 namespace GuiToolkit.Editor
@@ -78,6 +79,77 @@ namespace GuiToolkit.Editor
 #else
             throw new RoslynUnavailableException();
 #endif
+		}
+
+		/// Step 2: after scripts compiled and field types accept TMP,
+		/// replace Text -> TextMeshProUGUI in the current context and
+		/// rewire previously recorded properties. Finally, remove registry.
+		public static (int replaced, int rewired, int missingTargets)
+			FinalizeUITextToTMP_Migration_CurrentContext()
+		{
+			var scene = GetCurrentContextScene();
+			if (!scene.IsValid())
+				throw new InvalidOperationException("No valid scene or prefab stage.");
+
+			UITextTMP_RewireRegistry reg = null;
+			foreach (var root in scene.GetRootGameObjects())
+			{
+				if (root.name == "__UITextTMP_RewireRegistry__")
+				{
+					reg = root.GetComponent<UITextTMP_RewireRegistry>();
+					break;
+				}
+			}
+
+			// 1) Replace components (mapping only; no SerializedProperty writes in this step)
+			var replacedList = ReplaceUITextWithTMPInActiveScene();
+			int replaced = replacedList.Count;
+
+			int rewired = 0;
+			int missing = 0;
+
+			// 2) Rewire from registry
+			if (reg != null && reg.entries != null && reg.entries.Count > 0)
+			{
+				foreach (var e in reg.entries)
+				{
+					if (!e.owner) { missing++; continue; }
+					if (!e.targetGO) { missing++; continue; }
+
+					var tmp = e.targetGO.GetComponent<TextMeshProUGUI>();
+					if (!tmp)
+					{
+						// fallback: any TMP_Text on this GO
+						var any = e.targetGO.GetComponent<TMPro.TMP_Text>();
+						if (any == null) { missing++; continue; }
+						tmp = any as TextMeshProUGUI;
+						if (tmp == null) { missing++; continue; }
+					}
+
+					var so = new UnityEditor.SerializedObject(e.owner);
+					var sp = so.FindProperty(e.propertyPath);
+					if (sp == null || sp.propertyType != UnityEditor.SerializedPropertyType.ObjectReference)
+					{
+						missing++;
+						continue;
+					}
+
+					if (sp.objectReferenceValue != (UnityEngine.Object)tmp)
+					{
+						Undo.RecordObject(e.owner, "Rewire TMP reference");
+						sp.objectReferenceValue = tmp;
+						so.ApplyModifiedProperties();
+						EditorUtility.SetDirty(e.owner);
+						rewired++;
+					}
+				}
+
+				// Remove registry GO
+				Undo.DestroyObjectImmediate(reg.gameObject);
+			}
+
+			EditorSceneManager.MarkSceneDirty(scene);
+			return (replaced, rewired, missing);
 		}
 
 		public static string ReplaceComponent<TA, TB>( string _sourceCode, bool _addUsing = true, params Type[] _extraTypes )
@@ -250,6 +322,45 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
+		/// Replaces Text -> TMP_Text in all C# files in the project (simple sweep),
+		/// writes back changed files, and requests a script compilation.
+		public static int ReplaceTextTypeInProjectAndCompile()
+		{
+			int changed = 0;
+			var guids = AssetDatabase.FindAssets("t:MonoScript");
+			foreach (var guid in guids)
+			{
+				var path = AssetDatabase.GUIDToAssetPath(guid);
+				if (!path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+					continue;
+
+				var src = System.IO.File.ReadAllText(path);
+				var dst = ReplaceComponent<UnityEngine.UI.Text, TMPro.TMP_Text>(src, _addUsing: true);
+
+				if (!string.Equals(src, dst, StringComparison.Ordinal))
+				{
+					System.IO.File.WriteAllText(path, dst);
+					changed++;
+				}
+			}
+
+			if (changed > 0)
+			{
+				AssetDatabase.SaveAssets();
+				AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+#if UITK_USE_ROSLYN
+				CompilationPipeline.RequestScriptCompilation();
+#endif
+				Debug.Log($"[Code Replace Text->TMP] Changed {changed} files, requested compilation.");
+			}
+			else
+			{
+				Debug.Log("[Code Replace Text->TMP] No changes in scripts.");
+			}
+
+			return changed;
+		}
+
 		/// <summary>
 		/// Convenience wrapper that preserves the previous object-based mapping signature.
 		/// Returns a list of (object Snapshot, NewComp).
@@ -371,7 +482,7 @@ namespace GuiToolkit.Editor
 				var sp = so.FindProperty(path);
 				if (sp == null || sp.propertyType != UnityEditor.SerializedPropertyType.ObjectReference)
 					continue;
-
+				Debug.Log($"Bla");
 				if (sp.objectReferenceValue != (UnityEngine.Object)newTarget)
 				{
 					Undo.RecordObject(owner, "Rewire TMP reference");
@@ -384,6 +495,116 @@ namespace GuiToolkit.Editor
             throw new RoslynUnavailableException();
 #endif
 		}
+
+		/// One-click helper:
+		/// 1) Prepare (collect refs)
+		/// 2) Code replace in project
+		/// 3) Request compile
+		/// After domain reload, finalize will run automatically.
+		public static void Migrate_Text_To_TMP_CurrentContext_OneClick()
+		{
+			var found = PrepareUITextToTMP_Migration_CurrentContext();
+			ReplaceTextTypeInProjectAndCompile();
+			Debug.Log($"[OneClick Text->TMP] Prepared {found} refs and triggered compilation. Finalize will run after reload.");
+		}
+
+		// Returns the working scene for "current context":
+		// - If in Prefab Editing Mode: the prefab stage scene
+		// - Otherwise: the active scene
+		public static Scene GetCurrentContextScene()
+		{
+			var stage = PrefabStageUtility.GetCurrentPrefabStage();
+			if (stage != null && stage.scene.IsValid())
+				return stage.scene;
+			return SceneManager.GetActiveScene();
+		}
+
+		// Finds or creates (hidden) a registry GameObject in the given scene
+		private static GameObject GetOrCreateRegistryGO( Scene scene )
+		{
+			GameObject found = null;
+			foreach (var root in scene.GetRootGameObjects())
+			{
+				if (root.name == "__UITextTMP_RewireRegistry__")
+				{
+					found = root;
+					break;
+				}
+			}
+			if (found == null)
+			{
+				found = new GameObject("__UITextTMP_RewireRegistry__");
+				found.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInBuild;
+				SceneManager.MoveGameObjectToScene(found, scene);
+				Undo.RegisterCreatedObjectUndo(found, "Create TMP Rewire Registry");
+			}
+			return found;
+		}
+
+		/// Step 1: collect all object reference properties pointing to UnityEngine.UI.Text
+		/// in the current context (active scene or Prefab Stage). Stores them in a hidden
+		/// registry GO inside that scene so they survive domain reload.
+		public static int PrepareUITextToTMP_Migration_CurrentContext()
+		{
+			var scene = GetCurrentContextScene();
+			if (!scene.IsValid())
+				throw new InvalidOperationException("No valid scene or prefab stage.");
+
+			var regGO = GetOrCreateRegistryGO(scene);
+			var reg = regGO.GetComponent<UITextTMP_RewireRegistry>();
+			if (reg == null) reg = regGO.AddComponent<UITextTMP_RewireRegistry>();
+			reg.entries.Clear();
+
+			int count = 0;
+
+			// Iterate all components in the context scene only
+			var roots = scene.GetRootGameObjects();
+			foreach (var root in roots)
+			{
+				var comps = root.GetComponentsInChildren<Component>(true);
+				foreach (var comp in comps)
+				{
+					if (!comp) continue;
+
+					var so = new UnityEditor.SerializedObject(comp);
+					var it = so.GetIterator();
+					var enterChildren = true;
+
+					while (it.NextVisible(enterChildren))
+					{
+						enterChildren = false;
+
+						if (it.propertyType != UnityEditor.SerializedPropertyType.ObjectReference)
+							continue;
+
+						var obj = it.objectReferenceValue;
+						var txt = obj as UnityEngine.UI.Text;
+						if (!txt) continue;
+
+						reg.entries.Add(new UITextTMP_RewireRegistry.Entry
+						{
+							owner = comp,
+							propertyPath = it.propertyPath,
+							targetGO = txt.gameObject
+						});
+						count++;
+					}
+				}
+			}
+
+			if (count > 0)
+			{
+				EditorSceneManager.MarkSceneDirty(scene);
+				Debug.Log($"[Prepare Text->TMP] Recorded {count} references in context '{scene.path}'.");
+			}
+			else
+			{
+				Debug.Log("[Prepare Text->TMP] No references found in current context.");
+			}
+
+			return count;
+		}
+
 
 #if UITK_USE_ROSLYN
 		private static void ProcessNode( List<string> _result, SyntaxNode _node )

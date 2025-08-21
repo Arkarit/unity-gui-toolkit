@@ -54,8 +54,9 @@ namespace GuiToolkit.Editor
 						return;
 					}
 
-					var result = EditorCodeUtility.ReplaceUITextWithTMPInActiveScene();
-					Debug.Log($"Replaced {result?.Count ?? 0} components in active scene.");
+					EditorCodeUtility.Migrate_Text_To_TMP_CurrentContext_OneClick();
+//					var result = EditorCodeUtility.ReplaceUITextWithTMPInActiveScene();
+//					Debug.Log($"Replaced {result?.Count ?? 0} components in active scene.");
 				}
 			}
 		}
