@@ -17,7 +17,7 @@ MonoBehaviour:
     m_scenePath: Assets/Scenes/SampleScene.unity
   - m_sceneAsset: {fileID: 102900000, guid: 04827ecb8ef6a8844ab32d24a23890ea, type: 3}
     m_scenePath: Assets/Scenes/DemoScene1.unity
-  m_loadMainSceneOnPlay: 0
+  m_loadMainSceneOnPlay: 1
   m_loadViewInEveryScene: 1
   m_exceptUiMainExists: 1
   m_uiMainPrefab: {fileID: 3092512928491751583, guid: 86f601248f4e488478ddc915abbabf70,
@@ -25,6 +25,7 @@ MonoBehaviour:
   m_uiViewPrefab: {fileID: 6358958798351812573, guid: 2e3f55bdac2b00a459d4de8cfe06604d,
     type: 3}
   m_additionalScenesPath: Scenes/
+  m_prefabVariantsPath: Assets/Prefabs/PrefabVariants/
   m_uiMainStyleConfig: {fileID: 11400000, guid: 7cb7aeb3672e49145b1d5baec8999a45,
     type: 2}
   m_uiOrientationDependentStyleConfig: {fileID: 11400000, guid: b7be8004b5d01894a843b672cf9da74b,
