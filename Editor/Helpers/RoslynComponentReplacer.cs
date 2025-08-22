@@ -59,13 +59,12 @@ namespace GuiToolkit.Editor.Roslyn
 			var newRoot = rewriter.Visit(syntaxTree.GetRoot());
 
 			// 2) Optionally ensure we can use the short name (insert using for TB namespace if missing).
-			if (_addUsingForTargetNamespace && rewriter.Changed && !string.IsNullOrEmpty(tbNamespace))
-			{
-				newRoot = EnsureUsing(newRoot as CompilationUnitSyntax, tbNamespace);
-			}
+//			if (_addUsingForTargetNamespace && rewriter.Changed && !string.IsNullOrEmpty(tbNamespace))
+//			{
+//				newRoot = EnsureUsing(newRoot as CompilationUnitSyntax, tbNamespace);
+//			}
 
-			// 3) Return pretty-printed code.
-			return newRoot.NormalizeWhitespace().ToFullString();
+			return newRoot.ToFullString();
 		}
 
 		/// <summary>
