@@ -45,7 +45,7 @@ namespace GuiToolkit.Test
 
 //				if (src != reverted)
 				{
-					WriteFaultyFiles(path, src, reverted);
+					WriteFaultyFiles(path, src, dst, "Files differ");
 				}
 				
 				Assert.AreEqual(src, reverted, $"Unexpected changes in file: {path}");
@@ -56,7 +56,7 @@ namespace GuiToolkit.Test
 			Debug.Log($"[ProjectWide_TextToTMP_OnlyIntendedChanges] Checked: {checkedFiles}, Changed: {changedFiles}");
 		}
 
-		private static void WriteFaultyFiles(string path, string _changed, string _original)
+		private static void WriteFaultyFiles(string path, string _source, string _destination, string _message)
 		{
 			try
 			{
@@ -65,13 +65,13 @@ namespace GuiToolkit.Test
 				EditorFileUtility.EnsureFolderExists(docs);
 				var fileName = System.IO.Path.GetFileName(path);
 
-				var origPath = System.IO.Path.Combine(docs, $"___{fileName}_0original.cs");
-				var changedPath = System.IO.Path.Combine(docs, $"___{fileName}_1changed.cs");
+				var sourcePath = System.IO.Path.Combine(docs, $"___{fileName}_0source.cs");
+				var destinationPath = System.IO.Path.Combine(docs, $"___{fileName}_1destination.cs");
 
-				System.IO.File.WriteAllText(origPath, _changed);
-				System.IO.File.WriteAllText(changedPath, _original);
+				System.IO.File.WriteAllText(sourcePath, _source);
+				System.IO.File.WriteAllText(destinationPath, _destination);
 
-				Debug.LogError($"File mismatch logged: {fileName}\nSaved as:\n{origPath}\n{changedPath}");
+				Debug.LogError($"{_message}: {fileName}\nSaved as:\n{sourcePath}\n{destinationPath}");
 			}
 			catch (Exception ex)
 			{

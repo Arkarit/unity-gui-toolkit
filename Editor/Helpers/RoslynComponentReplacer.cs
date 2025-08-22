@@ -1,7 +1,10 @@
+#define ROSLYN_VERBOSE
 #if UITK_USE_ROSLYN || UNITY_6000_0_OR_NEWER
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using GuiToolkit.Debugging;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -59,10 +62,10 @@ namespace GuiToolkit.Editor.Roslyn
 			var newRoot = rewriter.Visit(syntaxTree.GetRoot());
 
 			// 2) Optionally ensure we can use the short name (insert using for TB namespace if missing).
-//			if (_addUsingForTargetNamespace && rewriter.Changed && !string.IsNullOrEmpty(tbNamespace))
-//			{
-//				newRoot = EnsureUsing(newRoot as CompilationUnitSyntax, tbNamespace);
-//			}
+			if (_addUsingForTargetNamespace && rewriter.Changed && !string.IsNullOrEmpty(tbNamespace))
+			{
+				newRoot = EnsureUsing(newRoot as CompilationUnitSyntax, tbNamespace);
+			}
 
 			return newRoot.ToFullString();
 		}
@@ -91,8 +94,11 @@ namespace GuiToolkit.Editor.Roslyn
 				if (IsTypeReference(_node, out var symbolIsFromType) && symbolIsFromType)
 				{
 					Changed = true;
-					return WithTrivia(_node, SyntaxFactory.IdentifierName(m_toShortName));
+					var result = WithTrivia(_node, SyntaxFactory.IdentifierName(m_toShortName));
+					LogVerbose($"Changed: {_node.ToFullString()} -> {result.ToFullString()}");
+					return result;
 				}
+				
 				return base.VisitIdentifierName(_node);
 			}
 
@@ -101,8 +107,11 @@ namespace GuiToolkit.Editor.Roslyn
 				if (IsTypeReference(_node, out var symbolIsFromType) && symbolIsFromType)
 				{
 					Changed = true;
-					return WithTrivia(_node, SyntaxFactory.IdentifierName(m_toShortName));
+					var result = WithTrivia(_node, SyntaxFactory.IdentifierName(m_toShortName));
+					LogVerbose($"Changed: {_node.ToFullString()} -> {result.ToFullString()}");
+					return result;
 				}
+				
 				return base.VisitQualifiedName(_node);
 			}
 
@@ -127,9 +136,13 @@ namespace GuiToolkit.Editor.Roslyn
 				if (changedLocal)
 				{
 					Changed = true;
-					return _node.WithTypeArgumentList(
+					
+					var result = _node.WithTypeArgumentList(
 						_node.TypeArgumentList.WithArguments(SyntaxFactory.SeparatedList(builder)));
+					LogVerbose($"Changed: {_node.ToFullString()} -> {result.ToFullString()}");
+					return result;
 				}
+				
 				return base.VisitGenericName(_node);
 			}
 
@@ -195,7 +208,9 @@ namespace GuiToolkit.Editor.Roslyn
 
 		private static CompilationUnitSyntax EnsureUsing( CompilationUnitSyntax _root, string _namespaceName )
 		{
-			if (_root == null) return null;
+			if (_root == null) 
+				return null;
+			
 			if (_root.Usings.Any(u => string.Equals(u.Name.ToString(), _namespaceName, StringComparison.Ordinal)))
 				return _root;
 
@@ -204,6 +219,12 @@ namespace GuiToolkit.Editor.Roslyn
 
 			// Keep usings sorted-ish: place after existing usings.
 			return _root.WithUsings(_root.Usings.Add(usingDirective));
+		}
+		
+		[Conditional("ROSLYN_VERBOSE")]
+		private static void LogVerbose(string _s)
+		{
+			UnityEngine.Debug.Log($"---::: {DebugUtility.GetCallingClassAndMethod(false, true, 1)}: {_s}");
 		}
 	}
 }
