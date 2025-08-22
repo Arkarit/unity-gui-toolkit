@@ -215,6 +215,7 @@ namespace GuiToolkit.Editor.Roslyn
 				return _root;
 
 			var usingDirective = SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(_namespaceName))
+				.NormalizeWhitespace()
 				.WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed);
 
 			// Keep usings sorted-ish: place after existing usings.
@@ -222,7 +223,7 @@ namespace GuiToolkit.Editor.Roslyn
 		}
 		
 		[Conditional("ROSLYN_VERBOSE")]
-		private static void LogVerbose(string _s)
+		public static void LogVerbose(string _s)
 		{
 			UnityEngine.Debug.Log($"---::: {DebugUtility.GetCallingClassAndMethod(false, true, 1)}: {_s}");
 		}

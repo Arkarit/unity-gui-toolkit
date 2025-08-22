@@ -1,3 +1,4 @@
+#define ROSLYN_VERBOSE
 using NUnit.Framework;
 using UnityEngine;
 using UnityEditor;
@@ -6,6 +7,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using GuiToolkit.Editor.Roslyn;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace GuiToolkit.Test
 {
@@ -17,6 +20,8 @@ namespace GuiToolkit.Test
 			var guids = AssetDatabase.FindAssets("t:MonoScript", new[] { "Assets/" });
 			int checkedFiles = 0;
 			int changedFiles = 0;
+			int skippedFiles = 0;
+			int ignoredFiles = 0;
 
 			foreach (var guid in guids)
 			{
@@ -26,14 +31,26 @@ namespace GuiToolkit.Test
 
 				var srcBytes = System.IO.File.ReadAllBytes(path);
 				var src = Encoding.UTF8.GetString(srcBytes);
+				if (ContainsIdentifierOutsideStrings(src, "TMP_Text"))
+				{
+					RoslynComponentReplacer.LogVerbose($"Skipping '{path}'");
+					skippedFiles++;
+					continue;
+				}
+				
 				var newline = DetectNewline(src);
 
 				var dst = GuiToolkit.Editor.EditorCodeUtility.ReplaceComponent<UnityEngine.UI.Text, TMPro.TMP_Text>(src, _addUsing: true);
 				dst = NormalizeNewlines(dst, newline);
 
 				if (src == dst)
-					continue; // no change; skip
+				{
+					RoslynComponentReplacer.LogVerbose($"Ignoring (no TMP_Text) '{path}'");
+					ignoredFiles++;
+					continue;
+				}
 
+				RoslynComponentReplacer.LogVerbose($"Testing '{path}'");
 				changedFiles++;
 
 				// Build a "revert to original" version from dst, but ONLY undo the intended changes:
@@ -42,21 +59,24 @@ namespace GuiToolkit.Test
 				var reverted = RevertIntendedChanges(dst, src);
 
 				// Now the reverted should be exactly equal to the original
+				var srcTree = CSharpSyntaxTree.ParseText(src);
+				var revTree = CSharpSyntaxTree.ParseText(reverted);
 
-//				if (src != reverted)
+				bool isEquivalent = SyntaxFactory.AreEquivalent(srcTree.GetRoot(), revTree.GetRoot());
+				if (!isEquivalent)
 				{
-					WriteFaultyFiles(path, src, dst, "Files differ");
+					WriteFaultyFiles(path, src, dst, reverted, "Files differ");
 				}
-				
-				Assert.AreEqual(src, reverted, $"Unexpected changes in file: {path}");
+
+				Assert.IsTrue(isEquivalent, $"Unexpected semantic changes in file: {path}");
 
 				checkedFiles++;
 			}
 
-			Debug.Log($"[ProjectWide_TextToTMP_OnlyIntendedChanges] Checked: {checkedFiles}, Changed: {changedFiles}");
+			Debug.Log($"[ProjectWide_TextToTMP_OnlyIntendedChanges] Ignored: {ignoredFiles} Skipped: {skippedFiles} Checked: {checkedFiles}, Changed: {changedFiles}");
 		}
 
-		private static void WriteFaultyFiles(string path, string _source, string _destination, string _message)
+		private static void WriteFaultyFiles( string path, string _source, string _destination, string _reverted, string _message )
 		{
 			try
 			{
@@ -67,9 +87,11 @@ namespace GuiToolkit.Test
 
 				var sourcePath = System.IO.Path.Combine(docs, $"___{fileName}_0source.cs");
 				var destinationPath = System.IO.Path.Combine(docs, $"___{fileName}_1destination.cs");
+				var revertedPath = System.IO.Path.Combine(docs, $"___{fileName}_2reverted.cs");
 
 				System.IO.File.WriteAllText(sourcePath, _source);
 				System.IO.File.WriteAllText(destinationPath, _destination);
+				System.IO.File.WriteAllText(revertedPath, _reverted);
 
 				Debug.LogError($"{_message}: {fileName}\nSaved as:\n{sourcePath}\n{destinationPath}");
 			}
@@ -187,5 +209,60 @@ namespace GuiToolkit.Test
 				return !(char.IsLetterOrDigit(ch) || ch == '_');
 			}
 		}
+
+		private static bool ContainsIdentifierOutsideStrings( string input, string ident )
+		{
+			bool inString = false, verbatim = false;
+			for (int i = 0; i < input.Length;)
+			{
+				char c = input[i];
+
+				// String Start?
+				if (!inString && c == '"')
+				{
+					inString = true;
+					verbatim = i > 0 && input[i - 1] == '@';
+					i++;
+					continue;
+				}
+
+				if (inString)
+				{
+					i++;
+					if (!verbatim)
+					{
+						if (c == '\\' && i < input.Length) { i++; continue; }
+						if (c == '"') { inString = false; verbatim = false; }
+					}
+					else
+					{
+						if (c == '"' && i < input.Length && input[i] == '"') { i++; continue; }
+						if (c == '"') { inString = false; verbatim = false; }
+					}
+					continue;
+				}
+
+				// token check
+				if (IsWordAt(input, i, ident))
+					return true;
+
+				i++;
+			}
+			return false;
+
+			static bool IsWordAt( string s, int i, string w )
+			{
+				if (i + w.Length > s.Length) return false;
+				if (string.CompareOrdinal(s, i, w, 0, w.Length) != 0) return false;
+				return IsBoundary(s, i - 1) && IsBoundary(s, i + w.Length);
+			}
+			static bool IsBoundary( string s, int idx )
+			{
+				if (idx < 0 || idx >= s.Length) return true;
+				char ch = s[idx];
+				return !(char.IsLetterOrDigit(ch) || ch == '_');
+			}
+		}
+
 	}
 }

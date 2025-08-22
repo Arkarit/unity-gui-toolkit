@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 #if UITK_USE_ROSLYN
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,7 +16,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
 using GuiToolkit.Editor.Roslyn;
 using UnityEditor;
-using TMPro;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using UnityEditor.Compilation;
