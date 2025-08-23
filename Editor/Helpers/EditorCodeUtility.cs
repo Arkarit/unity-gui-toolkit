@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -32,7 +33,7 @@ namespace GuiToolkit.Editor
 		{ }
 	}
 
-	public static class EditorCodeUtility
+	public static partial class EditorCodeUtility
 	{
 		/// <summary>
 		/// Checks if the string at a given index is followed by a localization function.
@@ -192,7 +193,7 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
-		// Public entry � specialized helper for UI.Text -> TextMeshProUGUI
+		// Public entry specialized helper for UI.Text -> TextMeshProUGUI
 		public struct TextSnapshot
 		{
 			public string text;
@@ -214,7 +215,7 @@ namespace GuiToolkit.Editor
 			// collect all object-reference properties that currently point to Text
 			var refGroups = CollectRefGroupsToTextInActiveScene();
 
-			return ReplaceComponentsInActiveSceneWithMapping<Text,TextMeshProUGUI,TextSnapshot>(
+			return ReplaceComponentsInActiveSceneWithMapping<Text, TextMeshProUGUI, TextSnapshot>(
 				capture: ( Text t ) => new TextSnapshot
 				{
 					text = t.text,
@@ -322,12 +323,16 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
-		/// Replaces Text -> TMP_Text in all C# files in the project (simple sweep),
-		/// writes back changed files, and requests a script compilation.
-		public static int ReplaceTextTypeInProjectAndCompile()
+		public enum ReplaceScope
+		{
+			ReplaceCurrentContext,
+			//ReplaceProjectWide,
+		}
+
+		public static int Text2TmpReplaceInScripts( ReplaceScope _replaceScope = ReplaceScope.ReplaceCurrentContext )
 		{
 			int changed = 0;
-			var guids = AssetDatabase.FindAssets("t:MonoScript", new []{"Assets/"});
+			var guids = AssetDatabase.FindAssets("t:MonoScript", new[] { "Assets/" });
 			foreach (var guid in guids)
 			{
 				var path = AssetDatabase.GUIDToAssetPath(guid);
@@ -335,7 +340,72 @@ namespace GuiToolkit.Editor
 					continue;
 
 				var src = System.IO.File.ReadAllText(path);
-				var dst = ReplaceComponent<TMP_Text,TMP_Text>(src, _addUsing: true);
+				var dst = ReplaceComponent<Text, TMP_Text>(src, _addUsing: true);
+
+				if (!string.Equals(src, dst, StringComparison.Ordinal))
+				{
+					System.IO.File.WriteAllText(path, dst);
+					changed++;
+				}
+			}
+
+			if (changed > 0)
+			{
+				AssetDatabase.SaveAssets();
+				AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+#if UITK_USE_ROSLYN
+				CompilationPipeline.RequestScriptCompilation();
+#endif
+				Debug.Log($"[Code Replace Text->TMP] Changed {changed} files, requested compilation.");
+			}
+			else
+			{
+				Debug.Log("[Code Replace Text->TMP] No changes in scripts.");
+			}
+
+			return changed;
+		}
+
+		public static int ReplaceTextByTextMeshProProjectWide(string _filter = "")
+		{
+			List<string> paths = new();
+			var guids = AssetDatabase.FindAssets($"t:MonoScript {_filter}", new[] { "Assets/" });
+			foreach (var guid in guids)
+			{
+				var path = AssetDatabase.GUIDToAssetPath(guid);
+				if (string.IsNullOrEmpty(path))
+					continue;
+				
+				paths.Add(path);
+			}
+			
+			return ReplaceTextByTextMeshPro(paths);
+			
+		}
+		
+		public static int ReplaceTextByTextMeshPro(IEnumerable<MonoScript> _scripts)
+		{
+			if (_scripts == null )
+				return 0;
+
+			var scriptPaths = GetScriptPathsFromScripts(_scripts);
+			if (scriptPaths.Count == 0)
+				return 0;
+			
+			return ReplaceTextByTextMeshPro(scriptPaths);
+		}
+		
+		public static int ReplaceTextByTextMeshPro(IEnumerable<string> _scriptPaths)
+		{
+			int changed = 0;
+			
+			foreach (var path in _scriptPaths)
+			{
+				if (!path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+					continue;
+
+				var src = System.IO.File.ReadAllText(path);
+				var dst = ReplaceComponent<Text, TMP_Text>(src, _addUsing: true);
 
 				if (!string.Equals(src, dst, StringComparison.Ordinal))
 				{
@@ -501,11 +571,10 @@ namespace GuiToolkit.Editor
 		/// 2) Code replace in project
 		/// 3) Request compile
 		/// After domain reload, finalize will run automatically.
-		public static void ReplaceTextWithTextMeshProInCurrentStage()
+		public static void ReplaceTextWithTextMeshProInCurrentContext()
 		{
-			var found = PrepareUITextToTMP_Migration_CurrentContext();
-			ReplaceTextTypeInProjectAndCompile();
-			Debug.Log($"[OneClick Text->TMP] Prepared {found} refs and triggered compilation. Finalize will run after reload.");
+			PrepareUITextToTMP_Migration_CurrentContext();
+			Text2TmpReplaceInScripts(ReplaceScope.ReplaceCurrentContext);
 		}
 
 		// Returns the working scene for "current context":
@@ -518,6 +587,8 @@ namespace GuiToolkit.Editor
 				return stage.scene;
 			return SceneManager.GetActiveScene();
 		}
+
+		public static GameObject[] GetCurrentContextSceneRoots() => GetCurrentContextScene().GetRootGameObjects();
 
 		// Finds or creates (hidden) a registry GameObject in the given scene
 		private static GameObject GetOrCreateRegistryGO( Scene scene )
@@ -605,6 +676,99 @@ namespace GuiToolkit.Editor
 			return count;
 		}
 
+		/// <summary>
+		/// Returns all components from 'sources' that contain a serialized reference to any T
+		/// (optionally also counts a GameObject reference that has a T on it).
+		/// </summary>
+		public static IEnumerable<MonoBehaviour> FilterReferencingType<T>
+		(
+			IEnumerable<MonoBehaviour> _sources,
+			bool _treatGameObjectWithTAsRef = true,
+			bool _onlySceneObjects = true 
+		) 
+			where T : MonoBehaviour
+		{
+			foreach (var c in _sources)
+			{
+				if (c == null) continue;
+				if (DoesComponentReferenceType<T>(c, _treatGameObjectWithTAsRef, _onlySceneObjects))
+					yield return c;
+			}
+		}
+
+		/// <summary>
+		/// True if 'source' has any serialized reference to T (or to a GO that has T).
+		/// </summary>
+		public static bool DoesComponentReferenceType<T>
+		(
+			Component _source,
+			bool _treatGameObjectWithTAsRef = true,
+			bool _onlySceneObjects = true 
+		) 
+			where T : Component
+		{
+			var so = new SerializedObject(_source);
+			var it = so.GetIterator();
+			bool enterChildren = true;
+
+			while (it.NextVisible(enterChildren))
+			{
+				enterChildren = false;
+
+				if (it.propertyType != SerializedPropertyType.ObjectReference)
+					continue;
+
+				var obj = it.objectReferenceValue;
+				if (obj == null)
+					continue;
+
+				// Ignore project assets if we only care about scene/prefab-stage objects
+				if (_onlySceneObjects && EditorUtility.IsPersistent(obj))
+					continue;
+
+				// Direct Component reference of type T
+				if (obj is T)
+					return true;
+
+				// A GameObject reference that carries a T
+				if (_treatGameObjectWithTAsRef && obj is GameObject go && go.TryGetComponent<T>(out _))
+					return true;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Variant: does 'source' reference this specific target object?
+		/// </summary>
+		public static bool DoesComponentReferenceObject( Component _source, UnityEngine.Object _target, bool _onlySceneObjects = true )
+		{
+			if (_source == null || _target == null) return false;
+
+			var so = new SerializedObject(_source);
+			var it = so.GetIterator();
+			bool enterChildren = true;
+
+			while (it.NextVisible(enterChildren))
+			{
+				enterChildren = false;
+
+				if (it.propertyType != SerializedPropertyType.ObjectReference)
+					continue;
+
+				var obj = it.objectReferenceValue;
+				if (obj == null)
+					continue;
+
+				if (_onlySceneObjects && EditorUtility.IsPersistent(obj))
+					continue;
+
+				if (ReferenceEquals(obj, _target))
+					return true;
+			}
+
+			return false;
+		}
 
 #if UITK_USE_ROSLYN
 		private static void ProcessNode( List<string> _result, SyntaxNode _node )
