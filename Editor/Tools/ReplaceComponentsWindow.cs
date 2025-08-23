@@ -1,6 +1,8 @@
 using UnityEditor;
 using UnityEngine;
 using System;
+using TMPro;
+using UnityEngine.UI;
 
 namespace GuiToolkit.Editor
 {
@@ -19,8 +21,8 @@ namespace GuiToolkit.Editor
 		private void OnEnable()
 		{
 			// Defaults: Text -> TextMeshProUGUI (NOT TMP_Text -> abstract)
-			sourceScript = GetMonoScriptForClass(typeof(UnityEngine.UI.Text));
-			targetScript = GetMonoScriptForClass(typeof(TMPro.TextMeshProUGUI));
+			sourceScript = GetMonoScriptForClass(typeof(Text));
+			targetScript = GetMonoScriptForClass(typeof(TextMeshProUGUI));
 		}
 
 		private void OnGUI()
@@ -54,7 +56,7 @@ namespace GuiToolkit.Editor
 						return;
 					}
 
-					EditorCodeUtility.Migrate_Text_To_TMP_CurrentContext_OneClick();
+					EditorCodeUtility.ReplaceTextWithTextMeshProInCurrentStage();
 //					var result = EditorCodeUtility.ReplaceUITextWithTMPInActiveScene();
 //					Debug.Log($"Replaced {result?.Count ?? 0} components in active scene.");
 				}

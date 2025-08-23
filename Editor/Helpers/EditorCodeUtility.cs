@@ -120,7 +120,7 @@ namespace GuiToolkit.Editor
 					if (!tmp)
 					{
 						// fallback: any TMP_Text on this GO
-						var any = e.targetGO.GetComponent<TMPro.TMP_Text>();
+						var any = e.targetGO.GetComponent<TMP_Text>();
 						if (any == null) { missing++; continue; }
 						tmp = any as TextMeshProUGUI;
 						if (tmp == null) { missing++; continue; }
@@ -192,7 +192,7 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
-		// Public entry – specialized helper for UI.Text -> TextMeshProUGUI
+		// Public entry ï¿½ specialized helper for UI.Text -> TextMeshProUGUI
 		public struct TextSnapshot
 		{
 			public string text;
@@ -214,7 +214,7 @@ namespace GuiToolkit.Editor
 			// collect all object-reference properties that currently point to Text
 			var refGroups = CollectRefGroupsToTextInActiveScene();
 
-			return ReplaceComponentsInActiveSceneWithMapping<Text, TextMeshProUGUI, TextSnapshot>(
+			return ReplaceComponentsInActiveSceneWithMapping<Text,TextMeshProUGUI,TextSnapshot>(
 				capture: ( Text t ) => new TextSnapshot
 				{
 					text = t.text,
@@ -335,7 +335,7 @@ namespace GuiToolkit.Editor
 					continue;
 
 				var src = System.IO.File.ReadAllText(path);
-				var dst = ReplaceComponent<UnityEngine.UI.Text, TMPro.TMP_Text>(src, _addUsing: true);
+				var dst = ReplaceComponent<TMP_Text,TMP_Text>(src, _addUsing: true);
 
 				if (!string.Equals(src, dst, StringComparison.Ordinal))
 				{
@@ -464,7 +464,7 @@ namespace GuiToolkit.Editor
 		(
 			Dictionary<int, List<(UnityEngine.Object owner, string propertyPath)>> groups,
 			int oldId,
-			TMPro.TMP_Text newTarget
+			TMP_Text newTarget
 		)
 		{
 #if UITK_USE_ROSLYN
@@ -501,7 +501,7 @@ namespace GuiToolkit.Editor
 		/// 2) Code replace in project
 		/// 3) Request compile
 		/// After domain reload, finalize will run automatically.
-		public static void Migrate_Text_To_TMP_CurrentContext_OneClick()
+		public static void ReplaceTextWithTextMeshProInCurrentStage()
 		{
 			var found = PrepareUITextToTMP_Migration_CurrentContext();
 			ReplaceTextTypeInProjectAndCompile();
@@ -578,7 +578,7 @@ namespace GuiToolkit.Editor
 							continue;
 
 						var obj = it.objectReferenceValue;
-						var txt = obj as UnityEngine.UI.Text;
+						TMP_Text txt = obj as TMP_Text;
 						if (!txt) continue;
 
 						reg.entries.Add(new UITextTMP_RewireRegistry.Entry

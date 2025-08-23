@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using GuiToolkit.Editor.Roslyn;
 using Microsoft.CodeAnalysis.CSharp;
+using TMPro;
 
 namespace GuiToolkit.Test
 {
@@ -40,7 +41,7 @@ namespace GuiToolkit.Test
 				
 				var newline = DetectNewline(src);
 
-				var dst = GuiToolkit.Editor.EditorCodeUtility.ReplaceComponent<UnityEngine.UI.Text, TMPro.TMP_Text>(src, _addUsing: true);
+				var dst = GuiToolkit.Editor.EditorCodeUtility.ReplaceComponent<TMP_Text,TMP_Text>(src, _addUsing: true);
 				dst = NormalizeNewlines(dst, newline);
 
 				if (src == dst)
