@@ -21,12 +21,11 @@ namespace GuiToolkit.Editor
 				if (!scene.IsValid()) 
 					return;
 
-				ReferencesRewireRegistry reg = ReferencesRewireRegistry.Get(scene);
-				if (reg == null || reg.Entries == null || reg.Entries.Count == 0)
+				if (!ReferencesRewireRegistry.HasRegistryWithEntries(scene))
 					return;
 
-				var result = EditorCodeUtility.FinalizeUITextToTMP_Migration_CurrentContext();
-				Debug.Log($"[Finalize Text->TMP] Replaced={result.replaced}, Rewired={result.rewired}, Missing={result.missingTargets}");
+				var replacementInfo = EditorCodeUtility.ApplyRewireRegistryIfFound();
+				Debug.Log($"[Finalize Text->TMP] Replaced={replacementInfo.replaced}, Rewired={replacementInfo.rewired}, Missing={replacementInfo.missingTargets}");
 			}
 			catch (Exception ex)
 			{

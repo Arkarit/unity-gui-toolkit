@@ -84,73 +84,78 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
-		/// Step 2: after scripts compiled and field types accept TMP,
-		/// replace Text -> TextMeshProUGUI in the current context and
-		/// rewire previously recorded properties. Finally, remove registry.
-		public static (int replaced, int rewired, int missingTargets) FinalizeUITextToTMP_Migration_CurrentContext()
+		public static (int replaced, int rewired, int missingTargets) ApplyRewireRegistryIfFound()
 		{
+			int replaced = 0;
+			int rewired = 0;
+			int missing = 0;
+
 			var scene = GetCurrentContextScene();
 			if (!scene.IsValid())
 				throw new InvalidOperationException("No valid scene or prefab stage.");
 
-			ReferencesRewireRegistry reg = null;
-			foreach (var root in scene.GetRootGameObjects())
-			{
-				if (root.name == "__UITextTMP_RewireRegistry__")
-				{
-					reg = root.GetComponent<ReferencesRewireRegistry>();
-					break;
-				}
-			}
+			if (!ReferencesRewireRegistry.TryGetRegistryWithEntries(scene, out ReferencesRewireRegistry reg))
+				return (replaced, rewired, missing);
 
 			// 1) Replace components (mapping only; no SerializedProperty writes in this step)
 			var replacedList = ReplaceUITextWithTMPInActiveScene();
-			int replaced = replacedList.Count;
+			replaced = replacedList.Count;
 
-			int rewired = 0;
-			int missing = 0;
-
-			// 2) Rewire from registry
-			if (reg != null && reg.Entries != null && reg.Entries.Count > 0)
+			// Rewire from registry
+			foreach (var e in reg.Entries)
 			{
-				foreach (var e in reg.Entries)
+				if (!e.Owner)
 				{
-					if (!e.Owner) { missing++; continue; }
-					if (!e.TargetGameObject) { missing++; continue; }
+					missing++; 
+					continue;
+				}
+				if (!e.TargetGameObject)
+				{
+					missing++; 
+					continue;
+				}
 
-					var tmp = e.TargetGameObject.GetComponent<TextMeshProUGUI>();
-					if (!tmp)
+				var tmp = e.TargetGameObject.GetComponent<TextMeshProUGUI>();
+				if (!tmp)
+				{
+					// fallback: any TMP_Text on this GO
+					var any = e.TargetGameObject.GetComponent<TMP_Text>();
+					if (any == null)
 					{
-						// fallback: any TMP_Text on this GO
-						var any = e.TargetGameObject.GetComponent<TMP_Text>();
-						if (any == null) { missing++; continue; }
-						tmp = any as TextMeshProUGUI;
-						if (tmp == null) { missing++; continue; }
-					}
-
-					var so = new UnityEditor.SerializedObject(e.Owner);
-					var sp = so.FindProperty(e.PropertyPath);
-					if (sp == null || sp.propertyType != UnityEditor.SerializedPropertyType.ObjectReference)
-					{
-						missing++;
+						missing++; 
 						continue;
 					}
-
-					if (sp.objectReferenceValue != (UnityEngine.Object)tmp)
+					
+					tmp = any as TextMeshProUGUI;
+					if (tmp == null)
 					{
-						Undo.RecordObject(e.Owner, "Rewire TMP reference");
-						sp.objectReferenceValue = tmp;
-						so.ApplyModifiedProperties();
-						EditorUtility.SetDirty(e.Owner);
-						rewired++;
+						missing++; 
+						continue;
 					}
 				}
 
-				// Remove registry GO
-				Undo.DestroyObjectImmediate(reg.gameObject);
+				var so = new SerializedObject(e.Owner);
+				var sp = so.FindProperty(e.PropertyPath);
+				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
+				{
+					missing++;
+					continue;
+				}
+
+				if (sp.objectReferenceValue != tmp)
+				{
+					Undo.RecordObject(e.Owner, "Rewire TMP reference");
+					sp.objectReferenceValue = tmp;
+					so.ApplyModifiedProperties();
+					EditorUtility.SetDirty(e.Owner);
+					rewired++;
+				}
 			}
 
+			// Remove registry GO
+			Undo.DestroyObjectImmediate(reg.gameObject);
 			EditorSceneManager.MarkSceneDirty(scene);
+			
 			return (replaced, rewired, missing);
 		}
 
@@ -373,7 +378,7 @@ namespace GuiToolkit.Editor
 
 			foreach (var comp in allComponents)
 			{
-				if (!comp) 
+				if (!comp)
 					continue;
 
 				var so = new SerializedObject(comp);
@@ -388,11 +393,11 @@ namespace GuiToolkit.Editor
 						continue;
 
 					var obj = it.objectReferenceValue;
-					if (!obj) 
+					if (!obj)
 						continue;
 
 					var txt = obj as Text;
-					if (!txt) 
+					if (!txt)
 						continue;
 
 					var id = txt.GetInstanceID();
@@ -401,7 +406,7 @@ namespace GuiToolkit.Editor
 						list = new OwnerAndPathList();
 						result.Add(id, list);
 					}
-					
+
 					list.Add((comp, it.propertyPath));
 				}
 			}
@@ -416,10 +421,10 @@ namespace GuiToolkit.Editor
 			TMP_Text _newTarget
 		)
 		{
-			if (_newTarget == null) 
+			if (_newTarget == null)
 				return;
-			
-			if (_groups == null) 
+
+			if (_groups == null)
 				return;
 
 			if (!_groups.TryGetValue(_oldId, out var props) || props == null || props.Count == 0)
@@ -427,7 +432,7 @@ namespace GuiToolkit.Editor
 
 			foreach (var (owner, path) in props)
 			{
-				if (!owner) 
+				if (!owner)
 					continue;
 
 				var so = new SerializedObject(owner);
@@ -482,7 +487,7 @@ namespace GuiToolkit.Editor
 			var reg = ReferencesRewireRegistry.GetOrCreate(scene);
 			if (reg == null)
 				throw new Exception("Unexpected: could not create Registry object");
-			
+
 			reg.Entries.Clear();
 
 			var components = CollectMonoBehavioursInContextSceneReferencing<Text>();
