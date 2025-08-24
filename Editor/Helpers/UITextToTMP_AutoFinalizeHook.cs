@@ -24,8 +24,8 @@ namespace GuiToolkit.Editor
 				if (!ReferencesRewireRegistry.HasRegistryWithEntries(scene))
 					return;
 
-				var replacementInfo = EditorCodeUtility.ApplyRewireRegistryIfFound();
-				Debug.Log($"[Finalize Text->TMP] Replaced={replacementInfo.replaced}, Rewired={replacementInfo.rewired}, Missing={replacementInfo.missingTargets}");
+				EditorCodeUtility.ApplyRewireRegistryIfFound(out int replaced, out int rewired, out int missing);
+				Debug.Log($"[Finalize Text->TMP] Replaced={replaced}, Rewired={rewired}, Missing={missing}");
 			}
 			catch (Exception ex)
 			{

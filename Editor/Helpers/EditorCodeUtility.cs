@@ -9,20 +9,21 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
+using UnityEditor.Compilation;
 
 #if UITK_USE_ROSLYN
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
 using GuiToolkit.Editor.Roslyn;
-using UnityEditor;
-using UnityEditor.SceneManagement;
-using UnityEngine.SceneManagement;
-using UnityEditor.Compilation;
 #endif
 
 using OwnerAndPathList = System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>;
 using OwnerAndPathListById = System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>>;
+using SnapshotList = System.Collections.Generic.List<(GuiToolkit.Editor.EditorCodeUtility.TextSnapshot Snapshot, TMPro.TextMeshProUGUI NewComp)>;
 
 namespace GuiToolkit.Editor
 {
@@ -37,6 +38,23 @@ namespace GuiToolkit.Editor
 
 	public static partial class EditorCodeUtility
 	{
+		// Public entry specialized helper for changing UI.Text to TextMeshProUGUI
+		// TODO: replace this by a generic data structure, perhaps similar to styles appliance
+		public struct TextSnapshot
+		{
+			public string Text;
+			public Color Color;
+			public float FontSize;
+			public bool Rich;
+			public bool AutoSize;
+			public TextAnchor Anchor;
+			public bool Raycast;
+			public float LineSpacing;
+
+			// used to rewire serialized references to the new component if needed
+			public int OldId;
+		}
+
 		/// <summary>
 		/// Checks if the string at a given index is followed by a localization function.
 		/// </summary>
@@ -84,52 +102,39 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
-		public static (int replaced, int rewired, int missingTargets) ApplyRewireRegistryIfFound()
+		public static void ApplyRewireRegistryIfFound(out int _replaced, out int _rewired, out int _missing)
 		{
-			int replaced = 0;
-			int rewired = 0;
-			int missing = 0;
+			_replaced = 0;
+			_rewired = 0;
+			_missing = 0;
 
 			var scene = GetCurrentContextScene();
 			if (!scene.IsValid())
 				throw new InvalidOperationException("No valid scene or prefab stage.");
 
 			if (!ReferencesRewireRegistry.TryGetRegistryWithEntries(scene, out ReferencesRewireRegistry reg))
-				return (replaced, rewired, missing);
+				return;
 
 			// 1) Replace components (mapping only; no SerializedProperty writes in this step)
 			var replacedList = ReplaceUITextWithTMPInActiveScene();
-			replaced = replacedList.Count;
+			_replaced = replacedList.Count;
 
 			// Rewire from registry
 			foreach (var e in reg.Entries)
 			{
-				if (!e.Owner)
+				if (!e.Owner || !e.TargetGameObject)
 				{
-					missing++; 
-					continue;
-				}
-				if (!e.TargetGameObject)
-				{
-					missing++; 
+					_missing++; 
 					continue;
 				}
 
 				var tmp = e.TargetGameObject.GetComponent<TextMeshProUGUI>();
 				if (!tmp)
 				{
-					// fallback: any TMP_Text on this GO
-					var any = e.TargetGameObject.GetComponent<TMP_Text>();
-					if (any == null)
-					{
-						missing++; 
-						continue;
-					}
-					
-					tmp = any as TextMeshProUGUI;
+					tmp = e.TargetGameObject.GetComponent<TMP_Text>() as TextMeshProUGUI;
 					if (tmp == null)
 					{
-						missing++; 
+						_missing++; 
 						continue;
 					}
 				}
@@ -138,7 +143,7 @@ namespace GuiToolkit.Editor
 				var sp = so.FindProperty(e.PropertyPath);
 				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
 				{
-					missing++;
+					_missing++;
 					continue;
 				}
 
@@ -148,15 +153,13 @@ namespace GuiToolkit.Editor
 					sp.objectReferenceValue = tmp;
 					so.ApplyModifiedProperties();
 					EditorUtility.SetDirty(e.Owner);
-					rewired++;
+					_rewired++;
 				}
 			}
 
 			// Remove registry GO
 			Undo.DestroyObjectImmediate(reg.gameObject);
 			EditorSceneManager.MarkSceneDirty(scene);
-			
-			return (replaced, rewired, missing);
 		}
 
 		public static string ReplaceComponent<TA, TB>( string _sourceCode, bool _addUsing = true, params Type[] _extraTypes )
@@ -199,53 +202,36 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
-		// Public entry specialized helper for UI.Text -> TextMeshProUGUI
-		public struct TextSnapshot
-		{
-			public string text;
-			public Color color;
-			public float fontSize;
-			public bool rich;
-			public bool autoSize;
-			public TextAnchor anchor;
-			public bool raycast;
-			public float lineSpacing;
-
-			// used to rewire serialized references to the new component if needed
-			public int oldId;
-		}
-
-		public static List<(TextSnapshot Snapshot, TextMeshProUGUI NewComp)>
-			ReplaceUITextWithTMPInActiveScene()
+		public static SnapshotList ReplaceUITextWithTMPInActiveScene()
 		{
 			// collect all object-reference properties that currently point to Text
 			var refGroups = CollectRefGroupsToTextInActiveScene();
 
-			return ReplaceComponentsInActiveSceneWithMapping<Text, TextMeshProUGUI, TextSnapshot>(
+			return ReplaceComponentsInActiveSceneWithMapping(
 				capture: ( Text t ) => new TextSnapshot
 				{
-					text = t.text,
-					color = t.color,
-					fontSize = t.fontSize,
-					rich = t.supportRichText,
-					autoSize = t.resizeTextForBestFit,
-					anchor = t.alignment,
-					raycast = t.raycastTarget,
-					lineSpacing = t.lineSpacing,
-					oldId = t.GetInstanceID(), // key to rewire later
+					Text = t.text,
+					Color = t.color,
+					FontSize = t.fontSize,
+					Rich = t.supportRichText,
+					AutoSize = t.resizeTextForBestFit,
+					Anchor = t.alignment,
+					Raycast = t.raycastTarget,
+					LineSpacing = t.lineSpacing,
+					OldId = t.GetInstanceID(), // key to rewire later
 				},
 				apply: ( TextSnapshot s, TextMeshProUGUI tmp ) =>
 				{
 					// map fields
-					tmp.text = s.text;
-					tmp.color = s.color;
-					tmp.fontSize = s.fontSize;
-					tmp.richText = s.rich;
-					tmp.enableAutoSizing = s.autoSize;
-					tmp.raycastTarget = s.raycast;
-					tmp.lineSpacing = s.lineSpacing;
+					tmp.text = s.Text;
+					tmp.color = s.Color;
+					tmp.fontSize = s.FontSize;
+					tmp.richText = s.Rich;
+					tmp.enableAutoSizing = s.AutoSize;
+					tmp.raycastTarget = s.Raycast;
+					tmp.lineSpacing = s.LineSpacing;
 
-					switch (s.anchor)
+					switch (s.Anchor)
 					{
 						case TextAnchor.UpperLeft: tmp.alignment = TMPro.TextAlignmentOptions.TopLeft; break;
 						case TextAnchor.UpperCenter: tmp.alignment = TMPro.TextAlignmentOptions.Top; break;
@@ -260,7 +246,7 @@ namespace GuiToolkit.Editor
 					}
 
 					// rewire any serialized references that pointed to the old Text (by oldId)
-					RewireRefsForOldId(refGroups, s.oldId, tmp);
+					RewireRefsForOldId(refGroups, s.OldId, tmp);
 				}
 			);
 		}
@@ -457,7 +443,7 @@ namespace GuiToolkit.Editor
 		/// After domain reload, finalize will run automatically.
 		public static void ReplaceTextWithTextMeshProInCurrentContext()
 		{
-			PrepareUITextToTMP_Migration_CurrentContext();
+			PrepareUITextToTMPInContextScene();
 			ReplaceTextInContextSceneWithTextMeshPro();
 		}
 
@@ -478,7 +464,7 @@ namespace GuiToolkit.Editor
 		/// Step 1: collect all object reference properties pointing to UnityEngine.UI.Text
 		/// in the current context (active scene or Prefab Stage). Stores them in a hidden
 		/// registry GO inside that scene so they survive domain reload.
-		public static int PrepareUITextToTMP_Migration_CurrentContext()
+		public static int PrepareUITextToTMPInContextScene()
 		{
 			var scene = GetCurrentContextScene();
 			if (!scene.IsValid())
