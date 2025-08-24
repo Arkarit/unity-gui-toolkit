@@ -102,7 +102,7 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
-		public static void ApplyRewireRegistryIfFound(out int _replaced, out int _rewired, out int _missing)
+		public static bool ApplyRewireRegistryIfFound(out int _replaced, out int _rewired, out int _missing)
 		{
 			_replaced = 0;
 			_rewired = 0;
@@ -113,7 +113,7 @@ namespace GuiToolkit.Editor
 				throw new InvalidOperationException("No valid scene or prefab stage.");
 
 			if (!ReferencesRewireRegistry.TryGetRegistryWithEntries(scene, out ReferencesRewireRegistry reg))
-				return;
+				return false;
 
 			// 1) Replace components (mapping only; no SerializedProperty writes in this step)
 			var replacedList = ReplaceUITextWithTMPInActiveScene();
@@ -160,6 +160,7 @@ namespace GuiToolkit.Editor
 			// Remove registry GO
 			Undo.DestroyObjectImmediate(reg.gameObject);
 			EditorSceneManager.MarkSceneDirty(scene);
+			return true;
 		}
 
 		public static string ReplaceComponent<TA, TB>( string _sourceCode, bool _addUsing = true, params Type[] _extraTypes )

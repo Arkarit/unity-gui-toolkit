@@ -5,9 +5,9 @@ using UnityEngine;
 namespace GuiToolkit.Editor
 {
 	[InitializeOnLoad]
-	internal static class UITextToTMP_AutoFinalizeHook
+	internal static class ApplyRewireRegistryHook
 	{
-		static UITextToTMP_AutoFinalizeHook()
+		static ApplyRewireRegistryHook()
 		{
 			AssemblyReloadEvents.afterAssemblyReload += OnAfterReload;
 		}
@@ -21,10 +21,9 @@ namespace GuiToolkit.Editor
 				if (!scene.IsValid()) 
 					return;
 
-				if (!ReferencesRewireRegistry.HasRegistryWithEntries(scene))
+				if (!EditorCodeUtility.ApplyRewireRegistryIfFound(out int replaced, out int rewired, out int missing)) 
 					return;
-
-				EditorCodeUtility.ApplyRewireRegistryIfFound(out int replaced, out int rewired, out int missing);
+				
 				Debug.Log($"[Finalize Text->TMP] Replaced={replaced}, Rewired={rewired}, Missing={missing}");
 			}
 			catch (Exception ex)
