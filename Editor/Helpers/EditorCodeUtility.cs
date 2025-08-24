@@ -23,7 +23,7 @@ using GuiToolkit.Editor.Roslyn;
 
 using OwnerAndPathList = System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>;
 using OwnerAndPathListById = System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>>;
-using SnapshotList = System.Collections.Generic.List<(GuiToolkit.Editor.EditorCodeUtility.TextSnapshot Snapshot, TMPro.TextMeshProUGUI NewComp)>;
+using TextSnapshotList = System.Collections.Generic.List<(GuiToolkit.Editor.EditorCodeUtility.TextSnapshot Snapshot, TMPro.TextMeshProUGUI NewComp)>;
 
 namespace GuiToolkit.Editor
 {
@@ -203,13 +203,13 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
-		public static SnapshotList ReplaceUITextWithTMPInActiveScene()
+		public static TextSnapshotList ReplaceUITextWithTMPInActiveScene()
 		{
 			// collect all object-reference properties that currently point to Text
 			var refGroups = CollectRefGroupsToTextInActiveScene();
 
 			return ReplaceComponentsInActiveSceneWithMapping(
-				capture: ( Text t ) => new TextSnapshot
+				_capture: ( Text t ) => new TextSnapshot
 				{
 					Text = t.text,
 					Color = t.color,
@@ -221,7 +221,7 @@ namespace GuiToolkit.Editor
 					LineSpacing = t.lineSpacing,
 					OldId = t.GetInstanceID(), // key to rewire later
 				},
-				apply: ( TextSnapshot s, TextMeshProUGUI tmp ) =>
+				_apply: ( TextSnapshot s, TextMeshProUGUI tmp ) =>
 				{
 					// map fields
 					tmp.text = s.Text;
@@ -260,11 +260,14 @@ namespace GuiToolkit.Editor
 		/// This avoids co-existence conflicts (e.g., multiple Graphics on one GO).
 		/// Returns a list of (Snapshot, NewComp).
 		/// </summary>
-		public static List<(TSnapshot Snapshot, TB NewComp)> ReplaceComponentsInActiveSceneWithMapping<TA, TB, TSnapshot>(
-			Func<TA, TSnapshot> capture,
-			Action<TSnapshot, TB> apply )
-			where TA : Component
-			where TB : Component
+		public static List<(TSnapshot Snapshot, TB NewComp)> ReplaceComponentsInActiveSceneWithMapping
+		<TA, TB, TSnapshot>
+		(
+			Func<TA, TSnapshot> _capture,
+			Action<TSnapshot, TB> _apply 
+		)
+		where TA : Component
+		where TB : Component
 		{
 #if UITK_USE_ROSLYN
 			if (typeof(TA).IsAbstract)
@@ -287,7 +290,7 @@ namespace GuiToolkit.Editor
 				var go = oldComp.gameObject;
 
 				// 1) Capture data while TA is still present
-				var snapshot = capture != null ? capture(oldComp) : default;
+				var snapshot = _capture != null ? _capture(oldComp) : default;
 
 				// 2) Remove TA first (prevents co-existence conflicts like multiple Graphics)
 				Undo.RegisterCompleteObjectUndo(go, "Remove Source Component");
@@ -302,7 +305,7 @@ namespace GuiToolkit.Editor
 				}
 
 				// 4) Apply captured data to TB
-				apply?.Invoke(snapshot, newComp);
+				_apply?.Invoke(snapshot, newComp);
 
 				results.Add((snapshot, newComp));
 			}
@@ -351,90 +354,6 @@ namespace GuiToolkit.Editor
 			}
 
 			return changed;
-		}
-
-		private static OwnerAndPathListById CollectRefGroupsToTextInActiveScene()
-		{
-			var result = new OwnerAndPathListById();
-
-#if UNITY_2023_1_OR_NEWER
-			var allComponents = UnityEngine.Object.FindObjectsByType<Component>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-#else
-            var allComponents = UnityEngine.Object.FindObjectsOfType<Component>(true);
-#endif
-
-			foreach (var comp in allComponents)
-			{
-				if (!comp)
-					continue;
-
-				var so = new SerializedObject(comp);
-				var it = so.GetIterator();
-				var enterChildren = true;
-
-				while (it.NextVisible(enterChildren))
-				{
-					enterChildren = false;
-
-					if (it.propertyType != SerializedPropertyType.ObjectReference)
-						continue;
-
-					var obj = it.objectReferenceValue;
-					if (!obj)
-						continue;
-
-					var txt = obj as Text;
-					if (!txt)
-						continue;
-
-					var id = txt.GetInstanceID();
-					if (!result.TryGetValue(id, out var list))
-					{
-						list = new OwnerAndPathList();
-						result.Add(id, list);
-					}
-
-					list.Add((comp, it.propertyPath));
-				}
-			}
-
-			return result;
-		}
-
-		private static void RewireRefsForOldId
-		(
-			OwnerAndPathListById _groups,
-			int _oldId,
-			TMP_Text _newTarget
-		)
-		{
-			if (_newTarget == null)
-				return;
-
-			if (_groups == null)
-				return;
-
-			if (!_groups.TryGetValue(_oldId, out var props) || props == null || props.Count == 0)
-				return;
-
-			foreach (var (owner, path) in props)
-			{
-				if (!owner)
-					continue;
-
-				var so = new SerializedObject(owner);
-				var sp = so.FindProperty(path);
-				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
-					continue;
-
-				if (sp.objectReferenceValue != _newTarget)
-				{
-					Undo.RecordObject(owner, "Rewire TMP reference");
-					sp.objectReferenceValue = _newTarget;
-					so.ApplyModifiedProperties();
-					EditorUtility.SetDirty(owner);
-				}
-			}
 		}
 
 		/// One-click helper:
@@ -530,6 +449,91 @@ namespace GuiToolkit.Editor
 			return count;
 		}
 
+		private static OwnerAndPathListById CollectRefGroupsToTextInActiveScene()
+		{
+			var result = new OwnerAndPathListById();
+
+#if UNITY_2023_1_OR_NEWER
+			var allComponents = UnityEngine.Object.FindObjectsByType<Component>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+#else
+            var allComponents = UnityEngine.Object.FindObjectsOfType<Component>(true);
+#endif
+
+			foreach (var comp in allComponents)
+			{
+				if (!comp)
+					continue;
+
+				var so = new SerializedObject(comp);
+				var it = so.GetIterator();
+				var enterChildren = true;
+
+				while (it.NextVisible(enterChildren))
+				{
+					enterChildren = false;
+
+					if (it.propertyType != SerializedPropertyType.ObjectReference)
+						continue;
+
+					var obj = it.objectReferenceValue;
+					if (!obj)
+						continue;
+
+					var txt = obj as Text;
+					if (!txt)
+						continue;
+
+					var id = txt.GetInstanceID();
+					if (!result.TryGetValue(id, out var list))
+					{
+						list = new OwnerAndPathList();
+						result.Add(id, list);
+					}
+
+					list.Add((comp, it.propertyPath));
+				}
+			}
+
+			return result;
+		}
+
+		private static void RewireRefsForOldId
+		(
+			OwnerAndPathListById _groups,
+			int _oldId,
+			TMP_Text _newTarget
+		)
+		{
+			if (_newTarget == null)
+				return;
+
+			if (_groups == null)
+				return;
+
+			if (!_groups.TryGetValue(_oldId, out var props) || props == null || props.Count == 0)
+				return;
+
+			foreach (var (owner, path) in props)
+			{
+				if (!owner)
+					continue;
+
+				var so = new SerializedObject(owner);
+				var sp = so.FindProperty(path);
+				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
+					continue;
+
+				if (sp.objectReferenceValue != _newTarget)
+				{
+					Undo.RecordObject(owner, "Rewire TMP reference");
+					sp.objectReferenceValue = _newTarget;
+					so.ApplyModifiedProperties();
+					EditorUtility.SetDirty(owner);
+				}
+			}
+		}
+
+		
 #if UITK_USE_ROSLYN
 
 		private static void ProcessNode( List<string> _result, SyntaxNode _node )
