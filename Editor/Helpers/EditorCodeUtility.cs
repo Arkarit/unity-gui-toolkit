@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -21,6 +20,9 @@ using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using UnityEditor.Compilation;
 #endif
+
+using OwnerAndPathList = System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>;
+using OwnerAndPathListById = System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>>;
 
 namespace GuiToolkit.Editor
 {
@@ -322,13 +324,7 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
-		public enum ReplaceScope
-		{
-			ReplaceCurrentContext,
-			//ReplaceProjectWide,
-		}
-
-		public static int ReplaceTextInContextSceneWithTextMeshPro( ReplaceScope _replaceScope = ReplaceScope.ReplaceCurrentContext )
+		public static int ReplaceTextInContextSceneWithTextMeshPro()
 		{
 			var scriptPaths = CollectScriptPathsInContextSceneReferencing<Text>();
 			if (scriptPaths == null || scriptPaths.Count == 0)
@@ -354,9 +350,7 @@ namespace GuiToolkit.Editor
 			{
 				AssetDatabase.SaveAssets();
 				AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-#if UITK_USE_ROSLYN
 				CompilationPipeline.RequestScriptCompilation();
-#endif
 				Debug.Log($"[Code Replace Text->TMP] Changed {changed} files, requested compilation.");
 			}
 			else
@@ -367,97 +361,9 @@ namespace GuiToolkit.Editor
 			return changed;
 		}
 
-		public static int ReplaceTextByTextMeshPro( IEnumerable<string> _scriptPaths )
+		private static OwnerAndPathListById CollectRefGroupsToTextInActiveScene()
 		{
-			int changed = 0;
-
-			foreach (var path in _scriptPaths)
-			{
-				if (!path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
-					continue;
-
-				var src = System.IO.File.ReadAllText(path);
-				var dst = ReplaceComponent<Text, TMP_Text>(src, _addUsing: true);
-
-				if (!string.Equals(src, dst, StringComparison.Ordinal))
-				{
-					System.IO.File.WriteAllText(path, dst);
-					changed++;
-				}
-			}
-
-			if (changed > 0)
-			{
-				AssetDatabase.SaveAssets();
-				AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-#if UITK_USE_ROSLYN
-				CompilationPipeline.RequestScriptCompilation();
-#endif
-				Debug.Log($"[Code Replace Text->TMP] Changed {changed} files, requested compilation.");
-			}
-			else
-			{
-				Debug.Log("[Code Replace Text->TMP] No changes in scripts.");
-			}
-
-			return changed;
-		}
-
-		/// <summary>
-		/// Convenience wrapper that preserves the previous object-based mapping signature.
-		/// Returns a list of (object Snapshot, NewComp).
-		/// </summary>
-		public static List<(object Snapshot, TB NewComp)> ReplaceComponentsInActiveSceneWithMapping<TA, TB>(
-			Func<TA, object> capture,
-			Action<object, TB> apply )
-			where TA : Component
-			where TB : Component
-		{
-			return ReplaceComponentsInActiveSceneWithMapping<TA, TB, object>(
-				capture,
-				apply
-			);
-		}
-
-		public static List<(TA OldComp, TB NewComp)> ReplaceComponentsInActiveScene<TA, TB>()
-			where TA : Component
-			where TB : Component
-		{
-#if UITK_USE_ROSLYN
-			var results = new List<(TA, TB)>();
-
-			var targets = UnityEngine.Object.FindObjectsOfType<TA>(true);
-			if (targets == null || targets.Length == 0)
-				return results;
-
-			Undo.SetCurrentGroupName($"Replace {typeof(TA).Name} with {typeof(TB).Name}");
-
-			foreach (var oldComp in targets)
-			{
-				var go = oldComp.gameObject;
-				Undo.RegisterCompleteObjectUndo(go, "Replace Component");
-
-				// NOTE: simple swap without mapping
-				Undo.DestroyObjectImmediate(oldComp);
-				var newComp = Undo.AddComponent<TB>(go);
-
-				results.Add((oldComp, newComp));
-			}
-
-			UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
-				UnityEngine.SceneManagement.SceneManager.GetActiveScene()
-			);
-
-			return results;
-#else
-            throw new RoslynUnavailableException();
-#endif
-		}
-
-		private static Dictionary<int, List<(UnityEngine.Object owner, string propertyPath)>> CollectRefGroupsToTextInActiveScene()
-		{
-#if UITK_USE_ROSLYN
-			var map = new Dictionary<int, List<(UnityEngine.Object, string)>>();
+			var result = new OwnerAndPathListById();
 
 #if UNITY_2023_1_OR_NEWER
 			var allComponents = UnityEngine.Object.FindObjectsByType<Component>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -467,9 +373,10 @@ namespace GuiToolkit.Editor
 
 			foreach (var comp in allComponents)
 			{
-				if (!comp) continue;
+				if (!comp) 
+					continue;
 
-				var so = new UnityEditor.SerializedObject(comp);
+				var so = new SerializedObject(comp);
 				var it = so.GetIterator();
 				var enterChildren = true;
 
@@ -477,65 +384,65 @@ namespace GuiToolkit.Editor
 				{
 					enterChildren = false;
 
-					if (it.propertyType != UnityEditor.SerializedPropertyType.ObjectReference)
+					if (it.propertyType != SerializedPropertyType.ObjectReference)
 						continue;
 
 					var obj = it.objectReferenceValue;
-					if (!obj) continue;
+					if (!obj) 
+						continue;
 
-					var txt = obj as UnityEngine.UI.Text;
-					if (!txt) continue;
+					var txt = obj as Text;
+					if (!txt) 
+						continue;
 
 					var id = txt.GetInstanceID();
-					if (!map.TryGetValue(id, out var list))
+					if (!result.TryGetValue(id, out var list))
 					{
-						list = new List<(UnityEngine.Object, string)>();
-						map.Add(id, list);
+						list = new OwnerAndPathList();
+						result.Add(id, list);
 					}
+					
 					list.Add((comp, it.propertyPath));
 				}
 			}
 
-			return map;
-#else
-            throw new RoslynUnavailableException();
-#endif
+			return result;
 		}
 
 		private static void RewireRefsForOldId
 		(
-			Dictionary<int, List<(UnityEngine.Object owner, string propertyPath)>> groups,
-			int oldId,
-			TMP_Text newTarget
+			OwnerAndPathListById _groups,
+			int _oldId,
+			TMP_Text _newTarget
 		)
 		{
-#if UITK_USE_ROSLYN
-			if (newTarget == null) return;
-			if (groups == null) return;
+			if (_newTarget == null) 
+				return;
+			
+			if (_groups == null) 
+				return;
 
-			if (!groups.TryGetValue(oldId, out var props) || props == null || props.Count == 0)
+			if (!_groups.TryGetValue(_oldId, out var props) || props == null || props.Count == 0)
 				return;
 
 			foreach (var (owner, path) in props)
 			{
-				if (!owner) continue;
-
-				var so = new UnityEditor.SerializedObject(owner);
-				var sp = so.FindProperty(path);
-				if (sp == null || sp.propertyType != UnityEditor.SerializedPropertyType.ObjectReference)
+				if (!owner) 
 					continue;
-				Debug.Log($"Bla");
-				if (sp.objectReferenceValue != (UnityEngine.Object)newTarget)
+
+				var so = new SerializedObject(owner);
+				var sp = so.FindProperty(path);
+				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
+					continue;
+
+				if (sp.objectReferenceValue != _newTarget)
 				{
 					Undo.RecordObject(owner, "Rewire TMP reference");
-					sp.objectReferenceValue = newTarget;
+					sp.objectReferenceValue = _newTarget;
 					so.ApplyModifiedProperties();
-					UnityEditor.EditorUtility.SetDirty(owner);
+					EditorUtility.SetDirty(owner);
 				}
 			}
-#else
-            throw new RoslynUnavailableException();
-#endif
 		}
 
 		/// One-click helper:
@@ -546,7 +453,7 @@ namespace GuiToolkit.Editor
 		public static void ReplaceTextWithTextMeshProInCurrentContext()
 		{
 			PrepareUITextToTMP_Migration_CurrentContext();
-			ReplaceTextInContextSceneWithTextMeshPro(ReplaceScope.ReplaceCurrentContext);
+			ReplaceTextInContextSceneWithTextMeshPro();
 		}
 
 		// Returns the working scene for "current context":

@@ -1,4 +1,3 @@
-using GuiToolkit.Editor;
 using System;
 using UnityEditor;
 using UnityEngine;
@@ -19,7 +18,8 @@ namespace GuiToolkit.Editor
 			{
 				// If there is a registry in current context, run finalize
 				var scene = EditorCodeUtility.GetCurrentContextScene();
-				if (!scene.IsValid()) return;
+				if (!scene.IsValid()) 
+					return;
 
 				UITextTMP_RewireRegistry reg = null;
 				foreach (var root in scene.GetRootGameObjects())

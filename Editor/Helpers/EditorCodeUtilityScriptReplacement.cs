@@ -128,38 +128,5 @@ namespace GuiToolkit.Editor
 
 			return false;
 		}
-
-		/// <summary>
-		/// Variant: does 'source' reference this specific target object?
-		/// </summary>
-		public static bool DoesComponentReferenceObject( Component _source, UnityEngine.Object _target, bool _onlySceneObjects = true )
-		{
-			if (_source == null || _target == null) return false;
-
-			var so = new SerializedObject(_source);
-			var it = so.GetIterator();
-			bool enterChildren = true;
-
-			while (it.NextVisible(enterChildren))
-			{
-				enterChildren = false;
-
-				if (it.propertyType != SerializedPropertyType.ObjectReference)
-					continue;
-
-				var obj = it.objectReferenceValue;
-				if (obj == null)
-					continue;
-
-				if (_onlySceneObjects && EditorUtility.IsPersistent(obj))
-					continue;
-
-				if (ReferenceEquals(obj, _target))
-					return true;
-			}
-
-			return false;
-		}
-
 	}
 }
