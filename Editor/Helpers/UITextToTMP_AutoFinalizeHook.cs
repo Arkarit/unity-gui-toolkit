@@ -21,16 +21,7 @@ namespace GuiToolkit.Editor
 				if (!scene.IsValid()) 
 					return;
 
-				ReferencesRewireRegistry reg = null;
-				foreach (var root in scene.GetRootGameObjects())
-				{
-					if (root.name == "__UITextTMP_RewireRegistry__")
-					{
-						reg = root.GetComponent<ReferencesRewireRegistry>();
-						break;
-					}
-				}
-				
+				ReferencesRewireRegistry reg = ReferencesRewireRegistry.Get(scene);
 				if (reg == null || reg.Entries == null || reg.Entries.Count == 0)
 					return;
 

@@ -469,27 +469,6 @@ namespace GuiToolkit.Editor
 
 		public static GameObject[] GetCurrentContextSceneRoots() => GetCurrentContextScene().GetRootGameObjects();
 
-		// Finds or creates (hidden) a registry GameObject in the given scene
-		private static GameObject GetOrCreateRegistryGO( Scene scene )
-		{
-			GameObject found = null;
-			foreach (var root in scene.GetRootGameObjects())
-			{
-				if (root.name == "__UITextTMP_RewireRegistry__")
-				{
-					found = root;
-					break;
-				}
-			}
-			if (found == null)
-			{
-				found = new GameObject("__UITextTMP_RewireRegistry__");
-				found.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInBuild;
-				SceneManager.MoveGameObjectToScene(found, scene);
-				Undo.RegisterCreatedObjectUndo(found, "Create TMP Rewire Registry");
-			}
-			return found;
-		}
 
 		/// Step 1: collect all object reference properties pointing to UnityEngine.UI.Text
 		/// in the current context (active scene or Prefab Stage). Stores them in a hidden
@@ -500,9 +479,10 @@ namespace GuiToolkit.Editor
 			if (!scene.IsValid())
 				throw new InvalidOperationException("No valid scene or prefab stage.");
 
-			var regGo = GetOrCreateRegistryGO(scene);
-			var reg = regGo.GetComponent<ReferencesRewireRegistry>();
-			if (reg == null) reg = regGo.AddComponent<ReferencesRewireRegistry>();
+			var reg = ReferencesRewireRegistry.GetOrCreate(scene);
+			if (reg == null)
+				throw new Exception("Unexpected: could not create Registry object");
+			
 			reg.Entries.Clear();
 
 			var components = CollectMonoBehavioursInContextSceneReferencing<Text>();
