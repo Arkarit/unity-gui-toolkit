@@ -331,9 +331,9 @@ namespace GuiToolkit.Editor
 		public static int ReplaceTextInContextSceneWithTextMeshPro( ReplaceScope _replaceScope = ReplaceScope.ReplaceCurrentContext )
 		{
 			var scriptPaths = CollectScriptPathsInContextSceneReferencing<Text>();
-			if (scriptPaths == null || scriptPaths.Count == 0 )
+			if (scriptPaths == null || scriptPaths.Count == 0)
 				return 0;
-			
+
 			int changed = 0;
 			foreach (var path in scriptPaths)
 			{
@@ -367,10 +367,10 @@ namespace GuiToolkit.Editor
 			return changed;
 		}
 
-		public static int ReplaceTextByTextMeshPro(IEnumerable<string> _scriptPaths)
+		public static int ReplaceTextByTextMeshPro( IEnumerable<string> _scriptPaths )
 		{
 			int changed = 0;
-			
+
 			foreach (var path in _scriptPaths)
 			{
 				if (!path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
@@ -598,40 +598,41 @@ namespace GuiToolkit.Editor
 			if (reg == null) reg = regGO.AddComponent<UITextTMP_RewireRegistry>();
 			reg.entries.Clear();
 
+			var components = CollectMonoBehavioursInContextSceneReferencing<Text>();
+			if (components == null || components.Count == 0)
+				return 0;
+
+
 			int count = 0;
 
 			// Iterate all components in the context scene only
-			var roots = scene.GetRootGameObjects();
-			foreach (var root in roots)
+			foreach (var comp in components)
 			{
-				var comps = root.GetComponentsInChildren<Component>(true);
-				foreach (var comp in comps)
+				if (!comp) continue;
+
+				var so = new UnityEditor.SerializedObject(comp);
+				var it = so.GetIterator();
+				var enterChildren = true;
+
+				while (it.NextVisible(enterChildren))
 				{
-					if (!comp) continue;
+					enterChildren = false;
 
-					var so = new UnityEditor.SerializedObject(comp);
-					var it = so.GetIterator();
-					var enterChildren = true;
+					if (it.propertyType != UnityEditor.SerializedPropertyType.ObjectReference)
+						continue;
 
-					while (it.NextVisible(enterChildren))
+					var obj = it.objectReferenceValue;
+					Text txt = obj as Text;
+					if (!txt)
+						continue;
+
+					reg.entries.Add(new UITextTMP_RewireRegistry.Entry
 					{
-						enterChildren = false;
-
-						if (it.propertyType != UnityEditor.SerializedPropertyType.ObjectReference)
-							continue;
-
-						var obj = it.objectReferenceValue;
-						TMP_Text txt = obj as TMP_Text;
-						if (!txt) continue;
-
-						reg.entries.Add(new UITextTMP_RewireRegistry.Entry
-						{
-							owner = comp,
-							propertyPath = it.propertyPath,
-							targetGO = txt.gameObject
-						});
-						count++;
-					}
+						owner = comp,
+						propertyPath = it.propertyPath,
+						targetGO = txt.gameObject
+					});
+					count++;
 				}
 			}
 
@@ -649,7 +650,7 @@ namespace GuiToolkit.Editor
 		}
 
 #if UITK_USE_ROSLYN
-		
+
 		private static void ProcessNode( List<string> _result, SyntaxNode _node )
 		{
 			foreach (var child in _node.ChildNodesAndTokens())

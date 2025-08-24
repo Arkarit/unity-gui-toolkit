@@ -5,8 +5,8 @@ using TMPro;
 
 public class TestTextHoldingComponent : MonoBehaviour
 {
-	[SerializeField] private TMP_Text m_Text;
-	[SerializeField] private TMP_Text m_OtherText;
+	[SerializeField] private Text m_Text;
+	[SerializeField] private Text m_OtherText;
 
 	private void OnEnable()
 	{
