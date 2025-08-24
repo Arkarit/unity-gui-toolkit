@@ -3,13 +3,13 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEditor;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using GuiToolkit.Editor.Roslyn;
 using Microsoft.CodeAnalysis.CSharp;
 using TMPro;
+using UnityEngine.UI;
 
 namespace GuiToolkit.Test
 {
@@ -41,7 +41,7 @@ namespace GuiToolkit.Test
 				
 				var newline = DetectNewline(src);
 
-				var dst = GuiToolkit.Editor.EditorCodeUtility.ReplaceComponent<TMP_Text,TMP_Text>(src, _addUsing: true);
+				var dst = GuiToolkit.Editor.EditorCodeUtility.ReplaceComponent<Text,TMP_Text>(src, _addUsing: true);
 				dst = NormalizeNewlines(dst, newline);
 
 				if (src == dst)

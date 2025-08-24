@@ -27,8 +27,8 @@ namespace GuiToolkit.Test
 			go1 = new GameObject("A");
 			go2 = new GameObject("B");
 
-			Text t1 = go1.AddComponent<Text>();
-			Text t2 = go2.AddComponent<Text>();
+			var t1 = go1.AddComponent<Text>();
+			var t2 = go2.AddComponent<Text>();
 
 			// Preconfigure some values to see they carry over
 			t1.text = "Hello";
@@ -59,8 +59,8 @@ namespace GuiToolkit.Test
 
 			Assert.AreEqual(2, results.Count);
 
-			TMP_Text tmp1 = go1.GetComponent<TMP_Text>();
-			TMP_Text tmp2 = go2.GetComponent<TMP_Text>();
+			var tmp1 = go1.GetComponent<TMP_Text>();
+			var tmp2 = go2.GetComponent<TMP_Text>();
 			Assert.NotNull(tmp1);
 			Assert.NotNull(tmp2);
 
@@ -82,12 +82,12 @@ namespace GuiToolkit.Test
 		[Test]
 		public void ReplaceUITextWithTMP_RemovesAllLegacyText()
 		{
-			var before = Object.FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
+			var before = Object.FindObjectsByType<Text>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
 			Assert.AreEqual(2, before);
 
 			GuiToolkit.Editor.EditorCodeUtility.ReplaceUITextWithTMPInActiveScene();
 
-			var after = Object.FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
+			var after = Object.FindObjectsByType<Text>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
 			Assert.AreEqual(0, after);
 		}
 
@@ -96,18 +96,18 @@ namespace GuiToolkit.Test
 		{
 			EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 			var go = new GameObject("X");
-			TMP_Text t = go.AddComponent<TMP_Text>();
+			var t = go.AddComponent<Text>();
 			t.text = "Hello";
 
 			GuiToolkit.Editor.EditorCodeUtility.ReplaceUITextWithTMPInActiveScene();
 
 			Assert.IsNotNull(go.GetComponent<TMPro.TextMeshProUGUI>());
-			Assert.IsNull(go.GetComponent<TMP_Text>());
+			Assert.IsNull(go.GetComponent<Text>());
 
 			Undo.PerformUndo();
 
 			Assert.IsNull(go.GetComponent<TMPro.TextMeshProUGUI>());
-			TMP_Text restored = go.GetComponent<TMP_Text>();
+			var restored = go.GetComponent<Text>();
 			Assert.IsNotNull(restored);
 			Assert.AreEqual("Hello", restored.text);
 		}
