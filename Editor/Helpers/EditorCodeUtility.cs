@@ -93,12 +93,12 @@ namespace GuiToolkit.Editor
 			if (!scene.IsValid())
 				throw new InvalidOperationException("No valid scene or prefab stage.");
 
-			UITextTMP_RewireRegistry reg = null;
+			ReferencesRewireRegistry reg = null;
 			foreach (var root in scene.GetRootGameObjects())
 			{
 				if (root.name == "__UITextTMP_RewireRegistry__")
 				{
-					reg = root.GetComponent<UITextTMP_RewireRegistry>();
+					reg = root.GetComponent<ReferencesRewireRegistry>();
 					break;
 				}
 			}
@@ -111,25 +111,25 @@ namespace GuiToolkit.Editor
 			int missing = 0;
 
 			// 2) Rewire from registry
-			if (reg != null && reg.entries != null && reg.entries.Count > 0)
+			if (reg != null && reg.Entries != null && reg.Entries.Count > 0)
 			{
-				foreach (var e in reg.entries)
+				foreach (var e in reg.Entries)
 				{
-					if (!e.owner) { missing++; continue; }
-					if (!e.targetGO) { missing++; continue; }
+					if (!e.Owner) { missing++; continue; }
+					if (!e.TargetGameObject) { missing++; continue; }
 
-					var tmp = e.targetGO.GetComponent<TextMeshProUGUI>();
+					var tmp = e.TargetGameObject.GetComponent<TextMeshProUGUI>();
 					if (!tmp)
 					{
 						// fallback: any TMP_Text on this GO
-						var any = e.targetGO.GetComponent<TMP_Text>();
+						var any = e.TargetGameObject.GetComponent<TMP_Text>();
 						if (any == null) { missing++; continue; }
 						tmp = any as TextMeshProUGUI;
 						if (tmp == null) { missing++; continue; }
 					}
 
-					var so = new UnityEditor.SerializedObject(e.owner);
-					var sp = so.FindProperty(e.propertyPath);
+					var so = new UnityEditor.SerializedObject(e.Owner);
+					var sp = so.FindProperty(e.PropertyPath);
 					if (sp == null || sp.propertyType != UnityEditor.SerializedPropertyType.ObjectReference)
 					{
 						missing++;
@@ -138,10 +138,10 @@ namespace GuiToolkit.Editor
 
 					if (sp.objectReferenceValue != (UnityEngine.Object)tmp)
 					{
-						Undo.RecordObject(e.owner, "Rewire TMP reference");
+						Undo.RecordObject(e.Owner, "Rewire TMP reference");
 						sp.objectReferenceValue = tmp;
 						so.ApplyModifiedProperties();
-						EditorUtility.SetDirty(e.owner);
+						EditorUtility.SetDirty(e.Owner);
 						rewired++;
 					}
 				}
@@ -500,10 +500,10 @@ namespace GuiToolkit.Editor
 			if (!scene.IsValid())
 				throw new InvalidOperationException("No valid scene or prefab stage.");
 
-			var regGO = GetOrCreateRegistryGO(scene);
-			var reg = regGO.GetComponent<UITextTMP_RewireRegistry>();
-			if (reg == null) reg = regGO.AddComponent<UITextTMP_RewireRegistry>();
-			reg.entries.Clear();
+			var regGo = GetOrCreateRegistryGO(scene);
+			var reg = regGo.GetComponent<ReferencesRewireRegistry>();
+			if (reg == null) reg = regGo.AddComponent<ReferencesRewireRegistry>();
+			reg.Entries.Clear();
 
 			var components = CollectMonoBehavioursInContextSceneReferencing<Text>();
 			if (components == null || components.Count == 0)
@@ -517,7 +517,7 @@ namespace GuiToolkit.Editor
 			{
 				if (!comp) continue;
 
-				var so = new UnityEditor.SerializedObject(comp);
+				var so = new SerializedObject(comp);
 				var it = so.GetIterator();
 				var enterChildren = true;
 
@@ -525,7 +525,7 @@ namespace GuiToolkit.Editor
 				{
 					enterChildren = false;
 
-					if (it.propertyType != UnityEditor.SerializedPropertyType.ObjectReference)
+					if (it.propertyType != SerializedPropertyType.ObjectReference)
 						continue;
 
 					var obj = it.objectReferenceValue;
@@ -533,11 +533,13 @@ namespace GuiToolkit.Editor
 					if (!txt)
 						continue;
 
-					reg.entries.Add(new UITextTMP_RewireRegistry.Entry
+					reg.Entries.Add(new ReferencesRewireRegistry.Entry
 					{
-						owner = comp,
-						propertyPath = it.propertyPath,
-						targetGO = txt.gameObject
+						Owner = comp,
+						PropertyPath = it.propertyPath,
+						TargetGameObject = txt.gameObject,
+						OldType = typeof(Text),
+						NewType = typeof(TextMeshProUGUI)
 					});
 					count++;
 				}

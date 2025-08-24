@@ -21,16 +21,17 @@ namespace GuiToolkit.Editor
 				if (!scene.IsValid()) 
 					return;
 
-				UITextTMP_RewireRegistry reg = null;
+				ReferencesRewireRegistry reg = null;
 				foreach (var root in scene.GetRootGameObjects())
 				{
 					if (root.name == "__UITextTMP_RewireRegistry__")
 					{
-						reg = root.GetComponent<UITextTMP_RewireRegistry>();
+						reg = root.GetComponent<ReferencesRewireRegistry>();
 						break;
 					}
 				}
-				if (reg == null || reg.entries == null || reg.entries.Count == 0)
+				
+				if (reg == null || reg.Entries == null || reg.Entries.Count == 0)
 					return;
 
 				var result = EditorCodeUtility.FinalizeUITextToTMP_Migration_CurrentContext();
