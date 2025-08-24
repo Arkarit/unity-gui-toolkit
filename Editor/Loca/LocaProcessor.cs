@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -38,19 +39,25 @@ namespace GuiToolkit.Editor
 			EditorAssetUtility.AssetSearchOptions options = new()
 				{ Folders = new[] { "Assets", "Packages/de.phoenixgrafik.ui-toolkit" } };
 
-			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
-			EditorAssetUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent, options);
-			EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
-			EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent, options);
-			EditorUtility.DisplayProgressBar("Processing Loca", "Processing scriptable objects", 0.2f);
-			EditorAssetUtility.FindAllScriptableObjects<ILocaClient>(FoundComponent, options);
+			try
+			{
+				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
+				EditorAssetUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent, options);
+				EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
+				EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent, options);
+				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scriptable objects", 0.2f);
+				EditorAssetUtility.FindAllScriptableObjects<ILocaClient>(FoundComponent, options);
 
-			m_numScripts = EditorAssetUtility.FindAllScriptsCount();
-			m_currentScriptIdx = 0;
+				m_numScripts = EditorAssetUtility.FindAllScriptsCount();
+				m_currentScriptIdx = 0;
 
-			EditorAssetUtility.FindAllScripts(FoundScript, options);
+				EditorAssetUtility.FindAllScripts(FoundScript, options);
+			}
+			finally
+			{
+				EditorUtility.ClearProgressBar();
+			}
 
-			EditorUtility.ClearProgressBar();
 
 			LocaManager.Instance.WriteKeyData();
 		}
