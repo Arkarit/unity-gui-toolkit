@@ -27,8 +27,15 @@ using TextSnapshotList = System.Collections.Generic.List<(GuiToolkit.Editor.Edit
 
 namespace GuiToolkit.Editor
 {
+	/// <summary>
+	/// Exception thrown when Roslyn-based parsing or rewriting is not available
+	/// for the current Unity version or environment.
+	/// </summary>
 	public sealed class RoslynUnavailableException : NotSupportedException
 	{
+		/// <summary>
+		/// Creates a new instance that explains how to enable Roslyn support.
+		/// </summary>
 		public RoslynUnavailableException()
 			: base($"Roslyn-based parsing is not available in this Unity version.\n" +
 				   $"Install Roslyn via menu '{StringConstants.ROSLYN_INSTALL_HACK}' " +
@@ -36,28 +43,52 @@ namespace GuiToolkit.Editor
 		{ }
 	}
 
+	/// <summary>
+	/// Editor utilities for migrating UnityEngine.UI.Text to TextMeshProUGUI, including:
+	/// - collecting serialized references,
+	/// - replacing components in scenes,
+	/// - rewriting C# source code using Roslyn,
+	/// - and applying rewiring after domain reload.
+	/// </summary>
 	public static partial class EditorCodeUtility
 	{
-		// Public entry specialized helper for changing UI.Text to TextMeshProUGUI
-		// TODO: replace this by a generic data structure, perhaps similar to styles appliance
+		/// <summary>
+		/// Snapshot of important properties from a legacy UnityEngine.UI.Text
+		/// used to restore equivalent values on a new TextMeshProUGUI component.
+		/// </summary>
 		public struct TextSnapshot
 		{
+			/// <summary>Text content.</summary>
 			public string Text;
+			/// <summary>Text color.</summary>
 			public Color Color;
+			/// <summary>Font size value.</summary>
 			public float FontSize;
+			/// <summary>Whether rich text is enabled on the legacy Text.</summary>
 			public bool Rich;
+			/// <summary>Whether auto sizing was enabled (best-fit).</summary>
 			public bool AutoSize;
+			/// <summary>Legacy Text alignment anchor.</summary>
 			public TextAnchor Anchor;
+			/// <summary>Whether the legacy Text was a raycast target.</summary>
 			public bool Raycast;
+			/// <summary>Legacy line spacing.</summary>
 			public float LineSpacing;
 
-			// used to rewire serialized references to the new component if needed
+			/// <summary>
+			/// Instance ID of the original Text component.
+			/// Used to rewire serialized object references to the new component.
+			/// </summary>
 			public int OldId;
 		}
 
 		/// <summary>
-		/// Checks if the string at a given index is followed by a localization function.
+		/// Checks if the string segment at the given index is immediately followed
+		/// by a known localization function call in the next code segment.
 		/// </summary>
+		/// <param name="_parts">Alternating list of code and string parts as produced by SeparateCodeAndStrings.</param>
+		/// <param name="_index">Index pointing to a string entry inside the list.</param>
+		/// <returns>True if the subsequent code contains a localization call, otherwise false.</returns>
 		public static bool IsFollowedByLocalizationFunction( List<string> _parts, int _index )
 		{
 			if (_index % 2 != 1 || _index + 1 >= _parts.Count)
@@ -68,20 +99,23 @@ namespace GuiToolkit.Editor
 		}
 
 		/// <summary>
-		/// Return the file path of caller.
+		/// Returns the absolute file path of the caller source file (primarily used in tests).
 		/// </summary>
+		/// <param name="_path">Automatically provided by the compiler via CallerFilePath.</param>
+		/// <returns>Absolute file path string of the caller source file.</returns>
 		public static string GetThisFilePath( [CallerFilePath] string _path = null ) => _path;
 
 		/// <summary>
 		/// Splits a C# source string into alternating code and string segments.
-		/// The resulting list always starts with a code segment and alternates:
-		/// [code, string, code, string, ..., code]. If necessary, an empty string
-		/// is appended at the end to ensure this pattern.
-		///
-		/// - Code segments are raw source code.
-		/// - String segments are unescaped literal or interpolated string parts.
-		/// - Interpolated expressions (e.g. {value}) are included as code without braces.
+		/// The result list always starts with a code segment and alternates:
+		/// [code, string, code, string, ..., code]. If needed, an empty string
+		/// is appended at the end to keep the even-pair structure.
+		/// Code segments contain tokens stripped from trivia; string segments
+		/// contain unescaped literal contents and interpolated string text parts.
+		/// Interpolated expressions are emitted as code segments without braces.
 		/// </summary>
+		/// <param name="_sourceCode">Input C# source code.</param>
+		/// <returns>Alternating list of code and string items starting with code.</returns>
 		public static List<string> SeparateCodeAndStrings( string _sourceCode )
 		{
 #if UITK_USE_ROSLYN
@@ -102,7 +136,16 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
-		public static bool ApplyRewireRegistryIfFound(out int _replaced, out int _rewired, out int _missing)
+		/// <summary>
+		/// Applies a previously recorded rewiring registry, if present in the current context scene.
+		/// This replaces UI.Text with TMP, then rewires all recorded object references
+		/// to point to the new TMP components.
+		/// </summary>
+		/// <param name="_replaced">Number of Text components that were replaced by TMP components.</param>
+		/// <param name="_rewired">Number of serialized object references successfully rewired to TMP.</param>
+		/// <param name="_missing">Number of rewiring attempts that could not be completed (missing objects or types).</param>
+		/// <returns>True if a registry was found and applied; false otherwise.</returns>
+		public static bool ApplyRewireRegistryIfFound( out int _replaced, out int _rewired, out int _missing )
 		{
 			_replaced = 0;
 			_rewired = 0;
@@ -124,7 +167,7 @@ namespace GuiToolkit.Editor
 			{
 				if (!e.Owner || !e.TargetGameObject)
 				{
-					_missing++; 
+					_missing++;
 					continue;
 				}
 
@@ -134,7 +177,7 @@ namespace GuiToolkit.Editor
 					tmp = e.TargetGameObject.GetComponent<TMP_Text>() as TextMeshProUGUI;
 					if (tmp == null)
 					{
-						_missing++; 
+						_missing++;
 						continue;
 					}
 				}
@@ -163,6 +206,17 @@ namespace GuiToolkit.Editor
 			return true;
 		}
 
+		/// <summary>
+		/// Roslyn-backed C# source rewriter that replaces all usages of TA with TB.
+		/// Adds a using for TB's namespace if requested and not already present.
+		/// </summary>
+		/// <typeparam name="TA">Source component type to replace (e.g. UnityEngine.UI.Text).</typeparam>
+		/// <typeparam name="TB">Target component type to use (e.g. TMPro.TMP_Text).</typeparam>
+		/// <param name="_sourceCode">Full C# source code to rewrite.</param>
+		/// <param name="_addUsing">If true, ensure a using directive exists for TB's namespace.</param>
+		/// <param name="_extraTypes">Optional extra runtime types whose assemblies should be referenced.</param>
+		/// <returns>Rewritten C# source code.</returns>
+		/// <exception cref="RoslynUnavailableException">Thrown when Roslyn is not available.</exception>
 		public static string ReplaceComponent<TA, TB>( string _sourceCode, bool _addUsing = true, params Type[] _extraTypes )
 			where TA : Component
 			where TB : Component
@@ -203,6 +257,12 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
+		/// <summary>
+		/// Replaces all UnityEngine.UI.Text components in the active scene with TextMeshProUGUI components.
+		/// Captures relevant data before removal and applies it to the new components.
+		/// Also rewires references that previously pointed to the old Text objects.
+		/// </summary>
+		/// <returns>List of tuples containing the captured snapshot and the new TMP component.</returns>
 		public static TextSnapshotList ReplaceUITextWithTMPInActiveScene()
 		{
 			// collect all object-reference properties that currently point to Text
@@ -253,18 +313,24 @@ namespace GuiToolkit.Editor
 		}
 
 		/// <summary>
-		/// Generic replace in active scene with a two-phase mapping:
-		/// 1) capture(TA) is invoked while the old component still exists.
-		/// 2) old is destroyed, new TB is added.
-		/// 3) apply(captured, TB) is invoked to restore/migrate data.
-		/// This avoids co-existence conflicts (e.g., multiple Graphics on one GO).
-		/// Returns a list of (Snapshot, NewComp).
+		/// Generic two-phase replacement in the active scene:
+		/// 1) capture(TA) runs while the old component still exists,
+		/// 2) TA is destroyed and TB is ensured on the same GameObject,
+		/// 3) apply(snapshot, TB) runs to apply migrated data.
+		/// This avoids conflicts (e.g., multiple Graphics on the same object).
 		/// </summary>
+		/// <typeparam name="TA">Old component type to remove.</typeparam>
+		/// <typeparam name="TB">New component type to add or reuse.</typeparam>
+		/// <typeparam name="TSnapshot">Type holding captured state from TA.</typeparam>
+		/// <param name="_capture">Delegate that captures TA state before removal.</param>
+		/// <param name="_apply">Delegate that applies captured state to TB.</param>
+		/// <returns>List of tuples (captured snapshot, new component).</returns>
+		/// <exception cref="RoslynUnavailableException">Thrown when Roslyn-related compilation guards are required.</exception>
 		public static List<(TSnapshot Snapshot, TB NewComp)> ReplaceComponentsInActiveSceneWithMapping
 		<TA, TB, TSnapshot>
 		(
 			Func<TA, TSnapshot> _capture,
-			Action<TSnapshot, TB> _apply 
+			Action<TSnapshot, TB> _apply
 		)
 		where TA : Component
 		where TB : Component
@@ -319,6 +385,11 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
+		/// <summary>
+		/// Scans scripts referenced by MonoBehaviours in the current context scene that reference UnityEngine.UI.Text,
+		/// and uses the Roslyn rewriter to replace usages with TMP, saving and requesting recompilation if needed.
+		/// </summary>
+		/// <returns>Number of source files that were modified.</returns>
 		public static int ReplaceTextInContextSceneWithTextMeshPro()
 		{
 			var scriptPaths = CollectScriptPathsInContextSceneReferencing<Text>();
@@ -356,20 +427,25 @@ namespace GuiToolkit.Editor
 			return changed;
 		}
 
-		/// One-click helper:
-		/// 1) Prepare (collect refs)
-		/// 2) Code replace in project
-		/// 3) Request compile
-		/// After domain reload, finalize will run automatically.
+		/// <summary>
+		/// One-click helper that performs:
+		/// 1) Prepare (collect references into registry)
+		/// 2) Code replacement in project files
+		/// 3) Request compilation
+		/// After domain reload, ApplyRewireRegistryIfFound will finalize rewiring.
+		/// </summary>
 		public static void ReplaceTextWithTextMeshProInCurrentContext()
 		{
 			PrepareUITextToTMPInContextScene();
 			ReplaceTextInContextSceneWithTextMeshPro();
 		}
 
-		// Returns the working scene for "current context":
-		// - If in Prefab Editing Mode: the prefab stage scene
-		// - Otherwise: the active scene
+		/// <summary>
+		/// Returns the "current context" scene:
+		/// - Prefab Stage scene if currently editing a prefab,
+		/// - Otherwise the active scene.
+		/// </summary>
+		/// <returns>Scene to operate on.</returns>
 		public static Scene GetCurrentContextScene()
 		{
 			var stage = PrefabStageUtility.GetCurrentPrefabStage();
@@ -378,12 +454,19 @@ namespace GuiToolkit.Editor
 			return SceneManager.GetActiveScene();
 		}
 
+		/// <summary>
+		/// Returns the root GameObjects of the current context scene.
+		/// </summary>
+		/// <returns>Array of root GameObjects.</returns>
 		public static GameObject[] GetCurrentContextSceneRoots() => GetCurrentContextScene().GetRootGameObjects();
 
 
-		/// Step 1: collect all object reference properties pointing to UnityEngine.UI.Text
-		/// in the current context (active scene or Prefab Stage). Stores them in a hidden
-		/// registry GO inside that scene so they survive domain reload.
+		/// <summary>
+		/// Step 1 of the migration: collects all object-reference properties in the current context
+		/// that reference UnityEngine.UI.Text. Stores them in a hidden registry GameObject inside
+		/// the scene so the data survives domain reload and can be applied afterward.
+		/// </summary>
+		/// <returns>Number of collected references recorded into the registry.</returns>
 		public static int PrepareUITextToTMPInContextScene()
 		{
 			var scene = GetCurrentContextScene();
@@ -449,6 +532,12 @@ namespace GuiToolkit.Editor
 			return count;
 		}
 
+		/// <summary>
+		/// Scans all components in the active scene for object reference properties
+		/// that currently point to a UnityEngine.UI.Text, and groups them by the
+		/// instance ID of the referenced Text component.
+		/// </summary>
+		/// <returns>Dictionary from old Text instance ID to a list of (owner, propertyPath) pairs.</returns>
 		private static OwnerAndPathListById CollectRefGroupsToTextInActiveScene()
 		{
 			var result = new OwnerAndPathListById();
@@ -497,6 +586,13 @@ namespace GuiToolkit.Editor
 			return result;
 		}
 
+		/// <summary>
+		/// Rewires all serialized object references recorded for the given old instance ID
+		/// to point at the provided new TMP_Text target.
+		/// </summary>
+		/// <param name="_groups">Group mapping from old instance IDs to (owner, propertyPath) lists.</param>
+		/// <param name="_oldId">Instance ID of the original Text component.</param>
+		/// <param name="_newTarget">The new TMP component that references should point to.</param>
 		private static void RewireRefsForOldId
 		(
 			OwnerAndPathListById _groups,
@@ -533,9 +629,17 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		
+
 #if UITK_USE_ROSLYN
 
+		/// <summary>
+		/// Recursively walks the syntax tree to build alternating code and string segments.
+		/// String literal content and interpolated string text are appended to the current
+		/// string slot (unescaped). Non-string tokens contribute to the code slot with
+		/// minimal spacing to separate adjacent identifiers.
+		/// </summary>
+		/// <param name="_result">Accumulator list for alternating code/string parts.</param>
+		/// <param name="_node">Current syntax node to process.</param>
 		private static void ProcessNode( List<string> _result, SyntaxNode _node )
 		{
 			foreach (var child in _node.ChildNodesAndTokens())
@@ -590,7 +694,14 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		// Append token text into current code slot, inserting a single space only if needed
+		/// <summary>
+		/// Appends a token into the current code slot, inserting a single space only
+		/// when both the trailing left char and the leading right char are "wordy"
+		/// (letters, digits or underscore). Also trims quotes and '$' at boundaries
+		/// that can appear around interpolated string tokens.
+		/// </summary>
+		/// <param name="_list">Alternating code/string list.</param>
+		/// <param name="_tokenText">Token text to append.</param>
 		private static void AppendTokenWithMinimalSpace( List<string> _list, string _tokenText )
 		{
 			// We are in a code slot by contract
@@ -604,6 +715,13 @@ namespace GuiToolkit.Editor
 			_list[idx] = current.Trim('"', '$');
 		}
 
+		/// <summary>
+		/// Determines whether a space is needed between two token strings to avoid
+		/// merging adjacent identifiers (e.g., "int" + "x" -> "int x").
+		/// </summary>
+		/// <param name="_left">Current accumulated code segment.</param>
+		/// <param name="_right">Next token to append.</param>
+		/// <returns>True if a separating space is required; otherwise false.</returns>
 		private static bool NeedsSpace( string _left, string _right )
 		{
 			if (string.IsNullOrEmpty(_left) || string.IsNullOrEmpty(_right))
@@ -619,6 +737,11 @@ namespace GuiToolkit.Editor
 			return wordLeft && wordRight;
 		}
 
+		/// <summary>
+		/// Ensures the current slot is a code slot. If the list is empty or already
+		/// ends with a code slot, a new empty code slot is appended.
+		/// </summary>
+		/// <param name="_result">Alternating code/string list.</param>
 		private static void EnsureCodeSlot( List<string> _result )
 		{
 			// If list is empty, start with a code slot
@@ -627,6 +750,11 @@ namespace GuiToolkit.Editor
 				_result.Add("");
 		}
 
+		/// <summary>
+		/// Ensures the current slot is a string slot. If the list ends with a string slot,
+		/// appends an empty code slot to alternate properly.
+		/// </summary>
+		/// <param name="_list">Alternating code/string list.</param>
 		private static void EnsureStringSlot( List<string> _list )
 		{
 			// Add an empty code entry if last slot was string
