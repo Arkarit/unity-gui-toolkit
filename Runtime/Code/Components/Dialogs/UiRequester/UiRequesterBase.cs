@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
@@ -27,7 +28,8 @@ namespace GuiToolkit
 
 		[SerializeField] protected TextMeshProUGUI m_title;
 		[SerializeField] protected GameObject m_titleContainer;
-		[SerializeField] protected UiButton m_closeButton;
+		[FormerlySerializedAs("m_closeButton")] 
+		[SerializeField] protected UiButton m_optionalCloseButton;
 		[SerializeField] protected GameObject m_buttonContainer;
 		[SerializeField] protected float m_buttonScale = 1.0f;
 		[SerializeField] protected int m_maxButtons = 3;
@@ -104,8 +106,8 @@ namespace GuiToolkit
 				m_buttons[i].PoolDestroy();
 			}
 
-			if (m_closeButton)
-				m_closeButton.OnClick.RemoveListener(OnCloseButton);
+			if (m_optionalCloseButton)
+				m_optionalCloseButton.OnClick.RemoveListener(OnCloseButton);
 			
 			m_buttons.Clear();
 			m_listeners.Clear();
@@ -146,10 +148,10 @@ namespace GuiToolkit
 				m_buttons[m_buttons.Count -1].transform.SetAsFirstSibling();
 			}
 
-			if (m_closeButton)
+			if (m_optionalCloseButton)
 			{
 				m_closeButtonAction = _options.CloseButtonAction;
-				m_closeButton.OnClick.AddListener(OnCloseButton);
+				m_optionalCloseButton.OnClick.AddListener(OnCloseButton);
 			}
 
 			if (_options.AllowOutsideTap)
@@ -157,8 +159,11 @@ namespace GuiToolkit
 			else
 				OnClickCatcher = Wiggle;
 
+			if (!m_optionalCloseButton)
+				return;
+			
 			bool hasCloseButton = _options.ShowCloseButton;
-			m_closeButton.gameObject.SetActive(hasCloseButton);
+			m_optionalCloseButton.gameObject.SetActive(hasCloseButton);
 		}
 
 		private void OnClick( int _idx )
