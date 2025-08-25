@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -45,7 +46,7 @@ namespace GuiToolkit.Editor
 			var projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."))
 								  .Replace("\\", "/");
 
-			if (!absFolder.StartsWith(projectRoot))
+			if (!absFolder.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
 			{
 				Debug.LogError("Folder must be inside this Unity project (under 'Assets/').");
 				return;
@@ -57,10 +58,10 @@ namespace GuiToolkit.Editor
 			// 3) Ensure the folder exists (create if needed)
 			EditorFileUtility.EnsureFolderExists(absFolder);
 
-			// 4) Create prefab variant for each selected object into the same folder
-			foreach (var obj in Selection.objects.OfType<GameObject>())
+			// 4) Create prefab variant for each selected prefab or from selected folders
+			foreach (var prefab in EnumerateSourcePrefabsFromSelection())
 			{
-				CreateVariant(obj, ( _, defaultName ) => Path.Combine(relFolder, defaultName).Replace("\\", "/"));
+				CreateVariant(prefab, ( _, defaultName ) => Path.Combine(relFolder, defaultName).Replace("\\", "/"));
 			}
 		}
 
@@ -70,9 +71,9 @@ namespace GuiToolkit.Editor
 		[MenuItem(SelectEachPath, false, SelectEachPriority)]
 		private static void SelectEachPathExec( MenuCommand cmd )
 		{
-			foreach (var obj in Selection.objects.OfType<GameObject>())
+			foreach (var prefab in EnumerateSourcePrefabsFromSelection())
 			{
-				CreateVariant(obj, ( _, defaultName ) =>
+				CreateVariant(prefab, ( _, defaultName ) =>
 				{
 					return EditorUtility.SaveFilePanelInProject(
 						"Save Prefab Variant",
@@ -90,9 +91,9 @@ namespace GuiToolkit.Editor
 		[MenuItem(FlatInAssets, false, FlatInAssetsPriority)]
 		private static void FlatInAssetsExec( MenuCommand cmd )
 		{
-			foreach (var obj in Selection.objects.OfType<GameObject>())
+			foreach (var prefab in EnumerateSourcePrefabsFromSelection())
 			{
-				CreateVariant(obj, ( _, defaultName ) => $"Assets/{defaultName}");
+				CreateVariant(prefab, ( _, defaultName ) => $"Assets/{defaultName}");
 			}
 		}
 
@@ -102,12 +103,12 @@ namespace GuiToolkit.Editor
 		[MenuItem(MirrorHierarchy, false, MirrorHierarchyPriority)]
 		private static void MirrorHierarchyExec( MenuCommand cmd )
 		{
-			foreach (var obj in Selection.objects.OfType<GameObject>())
+			foreach (var prefab in EnumerateSourcePrefabsFromSelection())
 			{
-				CreateVariant(obj, ( src, defaultName ) =>
+				CreateVariant(prefab, ( src, defaultName ) =>
 				{
-					var sourcePath = AssetDatabase.GetAssetPath(src);              // "Packages/com.foo.bar/Prefabs/My.prefab"
-					var relative = sourcePath.Substring("Packages/".Length);     // "com.foo.bar/Prefabs/My.prefab"
+					var sourcePath = AssetDatabase.GetAssetPath(src);           // "Packages/com.foo.bar/Prefabs/My.prefab"
+					var relative = sourcePath.Substring("Packages/".Length);    // "com.foo.bar/Prefabs/My.prefab"
 					var relFolder = Path.GetDirectoryName(relative) ?? string.Empty;
 
 					// Target: Assets/PackageVariants/com.foo.bar/Prefabs/
@@ -141,7 +142,7 @@ namespace GuiToolkit.Editor
 			var sourcePath = AssetDatabase.GetAssetPath(prefab);
 			if (!sourcePath.StartsWith("packages/", StringComparison.OrdinalIgnoreCase))
 			{
-				Debug.LogError($"!Can not create variant of '{sourcePath}'; needs to reside in 'Packages'");
+				Debug.LogError($"!Can not create variant of '{sourcePath}'; needs to reside in 'Packages'.");
 				return;
 			}
 
@@ -151,33 +152,23 @@ namespace GuiToolkit.Editor
 			if (string.IsNullOrEmpty(targetPath))
 				return; // user canceled
 
-			// ----------------------------------------------------------------
-			// Ensure Unity knows the target folder (user might have created it
-			// via the file dialog -> not yet imported).
-			// ----------------------------------------------------------------
+			// Ensure Unity knows the target folder (in case it was created externally)
 			var targetFolder = Path.GetDirectoryName(targetPath)?.Replace("\\", "/") ?? "Assets";
 			if (!AssetDatabase.IsValidFolder(targetFolder))
 			{
-				// Force AssetDatabase to import the new folder
 				AssetDatabase.Refresh();
-
-				// Defer the actual save to the next editor tick
 				EditorApplication.delayCall += () => CreateVariant(prefab, getTargetPath);
 				return;
 			}
-			
+
 			targetPath = AssetDatabase.GenerateUniqueAssetPath(targetPath);
 
-			// ----------------------------------------------------------------
 			// 1) Instantiate prefab temporarily
-			// ----------------------------------------------------------------
 			var instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
 
 			try
 			{
-				// ----------------------------------------------------------------
 				// 2) Save instance as prefab variant
-				// ----------------------------------------------------------------
 				PrefabUtility.SaveAsPrefabAsset(instance, targetPath, out bool success);
 
 				if (success)
@@ -193,22 +184,81 @@ namespace GuiToolkit.Editor
 			}
 			finally
 			{
-				// ----------------------------------------------------------------
 				// 3) Clean up
-				// ----------------------------------------------------------------
 				Object.DestroyImmediate(instance);
 			}
 		}
 
-		private static bool ValidateSelection()
+		// --------------------------------------------------------------------
+		// New: selection-to-prefabs expansion (supports folders, recursive)
+		// --------------------------------------------------------------------
+		private static IEnumerable<GameObject> EnumerateSourcePrefabsFromSelection()
 		{
-			return Selection.objects.OfType<GameObject>().Any(obj =>
+			// 1) Directly selected prefab assets
+			foreach (var go in Selection.objects.OfType<GameObject>())
+			{
+				if (IsEligiblePrefabAsset(go))
+					yield return go;
+			}
+
+			// 2) For any selected folder, collect all prefab assets recursively
+			foreach (var obj in Selection.objects)
 			{
 				var path = AssetDatabase.GetAssetPath(obj);
-				var type = PrefabUtility.GetPrefabAssetType(obj);
-				bool pathValid = path.StartsWith("packages/", StringComparison.OrdinalIgnoreCase);
-				return pathValid && (type == PrefabAssetType.Regular || type == PrefabAssetType.Variant);
-			});
+				if (string.IsNullOrEmpty(path))
+					continue;
+
+				if (!AssetDatabase.IsValidFolder(path))
+					continue;
+
+				foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { path }))
+				{
+					var assetPath = AssetDatabase.GUIDToAssetPath(guid);
+					var go = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+					if (go != null && IsEligiblePrefabAsset(go))
+						yield return go;
+				}
+			}
+		}
+
+		private static bool IsEligiblePrefabAsset(GameObject prefab)
+		{
+			var path = AssetDatabase.GetAssetPath(prefab);
+			var type = PrefabUtility.GetPrefabAssetType(prefab);
+
+			// We accept Regular and Variant (skip Model prefabs etc.)
+			bool typeOk = (type == PrefabAssetType.Regular || type == PrefabAssetType.Variant);
+
+			// Only from Packages/ (tool contract)
+			bool pathOk = path.StartsWith("Packages/", StringComparison.OrdinalIgnoreCase);
+
+			return typeOk && pathOk;
+		}
+
+		private static bool ValidateSelection()
+		{
+			// Any eligible prefab directly selected?
+			if (Selection.objects.OfType<GameObject>().Any(IsEligiblePrefabAsset))
+				return true;
+
+			// Any selected folder that contains at least one eligible prefab?
+			foreach (var obj in Selection.objects)
+			{
+				var path = AssetDatabase.GetAssetPath(obj);
+				if (string.IsNullOrEmpty(path) || !AssetDatabase.IsValidFolder(path))
+					continue;
+
+				// Cheap probe: stop at first hit
+				foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { path }))
+				{
+					var assetPath = AssetDatabase.GUIDToAssetPath(guid);
+					var go = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+					if (go != null && IsEligiblePrefabAsset(go))
+						return true;
+				}
+			}
+
+			return false;
 		}
 	}
 }
