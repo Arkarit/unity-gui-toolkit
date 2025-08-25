@@ -9,6 +9,7 @@ using System;
 
 namespace GuiToolkit.Test
 {
+	[EditorAware]
 	public class TestEditorAssetUtility
 	{
 		[Test]

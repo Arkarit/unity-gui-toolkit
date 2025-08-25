@@ -4,6 +4,7 @@ using UnityEngine.TestTools;
 
 namespace GuiToolkit.Test
 {
+	[EditorAware]
 	public class TestIPoolable
 	{
 		private GameObject m_prefab;

@@ -7,6 +7,7 @@ using UnityEngine.TestTools;
 
 namespace GuiToolkit.Test
 {
+	[EditorAware]
 	public class TestPrefabInfo
 	{
 		[Test]
