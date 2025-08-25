@@ -4,6 +4,7 @@ using UnityEngine.TestTools;
 
 namespace GuiToolkit.Test
 {
+	[EditorAware]
 	public class TestUiPool
 	{
 		private GameObject m_prefabA;

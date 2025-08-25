@@ -15,6 +15,7 @@ using UnityEditor;
 
 namespace GuiToolkit.Test
 {
+	[EditorAware]
 	public class TestEditorCodeUtility
 	{
 		GameObject go1, go2;

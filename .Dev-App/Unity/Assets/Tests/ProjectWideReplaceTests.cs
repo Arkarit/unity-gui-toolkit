@@ -13,6 +13,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit.Test
 {
+	[EditorAware]
 	public class ProjectWideReplaceTests
 	{
 		[Test]

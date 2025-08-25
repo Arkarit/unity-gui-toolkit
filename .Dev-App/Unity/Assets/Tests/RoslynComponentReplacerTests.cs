@@ -11,6 +11,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit.Test
 {
+	[EditorAware]
 	public class RoslynComponentReplacerTests
 	{
 		[Test]

@@ -8,7 +8,6 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 using System.Reflection;
-using NUnit.Framework;
 using UnityEditor;
 #endif
 
@@ -50,10 +49,6 @@ namespace GuiToolkit
 				// Skip compiler-generated (lambdas/async state machines)
 				if (currentType.IsDefined(typeof(CompilerGeneratedAttribute), false))
 					continue;
-				
-				// Tests are assumed to always be editor aware
-				if (currentMethod.IsDefined(typeof(TestAttribute), false))
-					return true;
 				
 				if (currentType.Name.Length > 0 && currentType.Name[0] == '<')
 					continue;
