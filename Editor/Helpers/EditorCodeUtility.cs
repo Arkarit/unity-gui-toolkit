@@ -177,6 +177,7 @@ namespace GuiToolkit.Editor
 					tmp = e.TargetGameObject.GetComponent<TMP_Text>() as TextMeshProUGUI;
 					if (tmp == null)
 					{
+						Debug.LogError($"Missing: No {nameof(TextMeshProUGUI)} found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'");
 						_missing++;
 						continue;
 					}
@@ -186,6 +187,7 @@ namespace GuiToolkit.Editor
 				var sp = so.FindProperty(e.PropertyPath);
 				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
 				{
+					Debug.LogError($"Missing: No property found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'");
 					_missing++;
 					continue;
 				}
@@ -343,7 +345,7 @@ namespace GuiToolkit.Editor
 
 			var results = new List<(TSnapshot, TB)>();
 
-			var targets = UnityEngine.Object.FindObjectsByType<TA>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+			var targets = EditorAssetUtility.FindObjectsInCurrentEditedPrefabOrScene<TA>();
 			if (targets == null || targets.Length == 0)
 				return results;
 
@@ -542,11 +544,7 @@ namespace GuiToolkit.Editor
 		{
 			var result = new OwnerAndPathListById();
 
-#if UNITY_2023_1_OR_NEWER
-			var allComponents = UnityEngine.Object.FindObjectsByType<Component>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-#else
-            var allComponents = UnityEngine.Object.FindObjectsOfType<Component>(true);
-#endif
+			var allComponents = EditorAssetUtility.FindObjectsInCurrentEditedPrefabOrScene<Component>();;
 
 			foreach (var comp in allComponents)
 			{
