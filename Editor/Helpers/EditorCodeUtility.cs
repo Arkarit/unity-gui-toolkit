@@ -150,22 +150,52 @@ namespace GuiToolkit.Editor
 				}
 			}
 
+			// 2) prefer the font asset's own (default) material; override only if a clearly better neutral preset exists
 			Material mat = null;
 
-			// 2) try to find a material preset with similar name in same folder, else use font's default material
 			if (best)
 			{
-				// default material from font asset
-				mat = best.material;
+				// always start with the asset's own material (usually effect-free)
+				var defaultMat = best.material;
+				mat = defaultMat;
 
-				// search for presets that include the family or asset name
+				// search for neutral presets in the same folder; avoid effecty ones like Outline/Shadow/Glow/Underlay
 				var folder = System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(best)).Replace("\\", "/");
 				if (!string.IsNullOrEmpty(folder))
 				{
 					var matGuids = AssetDatabase.FindAssets("t:Material", new[] { folder });
-					var bestMat = mat;
-					int bestMatScore = -1;
 
+					// scoring helpers
+					int ScoreMaterialName( string name, IEnumerable<string> keys )
+					{
+						if (string.IsNullOrEmpty(name)) return int.MinValue;
+						var mk = NormalizeFontKey(name);
+
+						// hard penalties for effect keywords
+						// note: keep this set conservative; fontStyle handles bold/italic already
+						string[] effectHints = { "outline", "shadow", "glow", "underlay", "stroke", "soft", "thick", "thin" };
+						foreach (var eh in effectHints)
+							if (mk.Contains(NormalizeFontKey(eh))) return -1000;
+
+						int score = 0;
+
+						// small bonuses for neutral keywords
+						string[] neutralHints = { "regular", "normal", "default", "atlas", "sdf" };
+						foreach (var nh in neutralHints)
+							if (mk.Contains(NormalizeFontKey(nh))) score += 5;
+
+						foreach (var k in keys)
+						{
+							if (string.IsNullOrEmpty(k)) continue;
+							if (mk == k) score = Math.Max(score, score + 100);
+							else if (mk.StartsWith(k)) score = Math.Max(score, score + 70);
+							else if (mk.Contains(k)) score = Math.Max(score, score + 50);
+						}
+
+						return score;
+					}
+
+					// keys representing this font
 					var keysToTry = new[]
 					{
 						NormalizeFontKey(best.faceInfo.familyName),
@@ -173,35 +203,35 @@ namespace GuiToolkit.Editor
 						NormalizeFontKey(best.sourceFontFile ? best.sourceFontFile.name : null)
 					};
 
+					var bestPreset = defaultMat;
+					int bestPresetScore = -1;
+
 					foreach (var mg in matGuids)
 					{
 						var mPath = AssetDatabase.GUIDToAssetPath(mg);
 						var m = AssetDatabase.LoadAssetAtPath<Material>(mPath);
-						if (!m) continue;
+						if (!m || m == defaultMat) continue;
 
-						// only consider TMP compatible shaders
+						// consider only TMP-compatible shaders
 						var shaderName = m.shader ? m.shader.name : "";
 						if (string.IsNullOrEmpty(shaderName) || (!shaderName.Contains("TextMeshPro") && !shaderName.Contains("TMP")))
 							continue;
 
-						var mKey = NormalizeFontKey(m.name);
-						int score = 0;
-						foreach (var k in keysToTry)
+						int score = ScoreMaterialName(m.name, keysToTry);
+						if (score > bestPresetScore)
 						{
-							if (string.IsNullOrEmpty(k)) continue;
-							if (mKey == k) score = Math.Max(score, 100);
-							else if (mKey.StartsWith(k)) score = Math.Max(score, 70);
-							else if (mKey.Contains(k)) score = Math.Max(score, 50);
-						}
-
-						if (score > bestMatScore)
-						{
-							bestMatScore = score;
-							bestMat = m;
+							bestPresetScore = score;
+							bestPreset = m;
 						}
 					}
 
-					if (bestMat) mat = bestMat;
+					// Only override the default if the preset is clearly better AND not an "effect" (penalties enforce that)
+					// Threshold keeps us conservative; tweak if you like.
+					const int OVERRIDE_THRESHOLD = 95;
+					if (bestPreset != null && bestPreset != defaultMat && bestPresetScore >= OVERRIDE_THRESHOLD)
+						mat = bestPreset;
+					else
+						mat = defaultMat; // stick to the asset's own material
 				}
 			}
 
@@ -436,7 +466,7 @@ namespace GuiToolkit.Editor
 					tmp.enableAutoSizing = s.AutoSize;
 					tmp.raycastTarget = s.Raycast;
 					tmp.lineSpacing = s.LineSpacing;
-				
+
 					// map alignment (wie gehabt)
 					switch (s.Anchor)
 					{
@@ -451,7 +481,7 @@ namespace GuiToolkit.Editor
 						case TextAnchor.LowerRight: tmp.alignment = TextAlignmentOptions.BottomRight; break;
 						default: tmp.alignment = TextAlignmentOptions.Center; break;
 					}
-				
+
 					// assign TMP font asset and material based on legacy font name
 					if (!string.IsNullOrEmpty(s.FontName))
 					{
@@ -463,10 +493,10 @@ namespace GuiToolkit.Editor
 							if (mat) tmp.fontSharedMaterial = mat;
 						}
 					}
-				
+
 					// map legacy font style (Bold/Italic) to TMP fontStyle
 					tmp.fontStyle = MapFontStyle(s.FontStyle);
-				
+
 					// rewire references
 					RewireRefsForOldId(refGroups, s.OldId, tmp);
 				}
