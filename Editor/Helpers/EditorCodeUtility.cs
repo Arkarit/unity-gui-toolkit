@@ -465,7 +465,7 @@ namespace GuiToolkit.Editor
 					tmp.richText = s.Rich;
 					tmp.enableAutoSizing = s.AutoSize;
 					tmp.raycastTarget = s.Raycast;
-					tmp.lineSpacing = s.LineSpacing;
+					tmp.lineSpacing = ConvertLineSpacingFromTextToTmp(s.LineSpacing);
 
 					// map alignment (wie gehabt)
 					switch (s.Anchor)
@@ -842,6 +842,14 @@ namespace GuiToolkit.Editor
 			}
 		}
 
+		// Convert legacy uGUI lineSpacing (multiplier) to TMP (percent of font size)
+		private static float ConvertLineSpacingFromTextToTmp( float _legacyMultiplier )
+		{
+			// uGUI: 1.0 = normal, 1.2 = +20%
+			// TMP:  0   = normal, 20   = +20% (in % of point size)
+			return (_legacyMultiplier - 1f) * 100f;
+		}
+
 		// Helper: detect components that require a Graphic on the same GameObject
 		private static bool RequiresGraphic( Type t )
 		{
@@ -854,7 +862,7 @@ namespace GuiToolkit.Editor
 				if (IsGraphic(r.m_Type0) || IsGraphic(r.m_Type1) || IsGraphic(r.m_Type2))
 					return true;
 			}
-			
+
 			return false;
 
 			bool IsGraphic( Type x ) => x != null && (x == typeof(Graphic) || x == typeof(MaskableGraphic));
@@ -874,15 +882,15 @@ namespace GuiToolkit.Editor
 
 			foreach (var c in components)
 			{
-				if (!c) 
+				if (!c)
 					continue;
-				if (c == graphicToKeep) 
+				if (c == graphicToKeep)
 					continue;
-				if (c is Transform) 
+				if (c is Transform)
 					continue;
 
 				var ct = c.GetType();
-				if (!RequiresGraphic(ct)) 
+				if (!RequiresGraphic(ct))
 					continue;
 
 				// serialize state
