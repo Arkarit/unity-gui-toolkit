@@ -167,6 +167,7 @@ namespace GuiToolkit.Editor
 			{
 				if (!e.Owner || !e.TargetGameObject)
 				{
+					Debug.LogError($"Missing: No owner or target game object found for property path '{e.PropertyPath}'");
 					_missing++;
 					continue;
 				}
@@ -177,7 +178,7 @@ namespace GuiToolkit.Editor
 					tmp = e.TargetGameObject.GetComponent<TMP_Text>() as TextMeshProUGUI;
 					if (tmp == null)
 					{
-						Debug.LogError($"Missing: No {nameof(TextMeshProUGUI)} found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'");
+						Debug.LogError($"Missing: No {nameof(TextMeshProUGUI)} found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'", e.TargetGameObject);
 						_missing++;
 						continue;
 					}
@@ -187,7 +188,7 @@ namespace GuiToolkit.Editor
 				var sp = so.FindProperty(e.PropertyPath);
 				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
 				{
-					Debug.LogError($"Missing: No property found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'");
+					Debug.LogError($"Missing: No property found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'", e.TargetGameObject);
 					_missing++;
 					continue;
 				}
@@ -354,13 +355,21 @@ namespace GuiToolkit.Editor
 
 			foreach (var oldComp in targets)
 			{
-				if (!oldComp) continue;
+				if (!oldComp) 
+					continue;
+				
 				var go = oldComp.gameObject;
 
 				// 1) Capture data while TA is still present
 				var snapshot = _capture != null ? _capture(oldComp) : default;
 
 				// 2) Remove TA first (prevents co-existence conflicts like multiple Graphics)
+				if (!oldComp.CanBeDestroyed(out string reasons))
+				{
+					Debug.LogError($"Can not replace '{go.GetPath()}'\nReason(s): {reasons}", oldComp);
+					continue;
+				}
+				
 				Undo.RegisterCompleteObjectUndo(go, "Remove Source Component");
 				Undo.DestroyObjectImmediate(oldComp);
 

@@ -253,16 +253,19 @@ namespace GuiToolkit
 			Object.Destroy(_self);
 		}
 
-		public static void SafeDestroy( this UnityEngine.Object _self, bool _supportUndoIfPossible = true )
+		public static bool SafeDestroy( this UnityEngine.Object _self, bool _supportUndoIfPossible = true, bool _logText = false )
 		{
 			if (_self == null)
-				return;
+				return true;
 
 #if UNITY_EDITOR
+			if (!CanBeDestroyed(_self))
+				return false;
+			
 			if (_supportUndoIfPossible && !Application.isPlaying)
 			{
 				Undo.DestroyObjectImmediate(_self);
-				return;
+				return true;
 			}
 #endif
 
@@ -292,19 +295,42 @@ namespace GuiToolkit
 			
 			if (Application.isPlaying)
 			{
-				UnityEngine.Object.Destroy(_self);
-				return;
+				Object.Destroy(_self);
+				return true;
 			}
 
-			UnityEditor.EditorApplication.delayCall += () =>
+			EditorApplication.delayCall += () =>
 			{
-				UnityEngine.Object.DestroyImmediate(_self);
+				Object.DestroyImmediate(_self);
 			};
+			
+			return true;
 #else
-			UnityEngine.Object.Destroy(_self);
+			Object.Destroy(_self);
 #endif
 		}
-		
+
+		public static bool CanBeDestroyed(this Object _self, out string _issues)
+		{
+			_issues = string.Empty;
+#if UNITY_EDITOR
+			if (Application.isPlaying)
+				return true;
+			
+			if (!(_self is Component component))
+				return true;
+			
+			bool result = EditorGameObjectUtility.CanRemoveComponent(component, out var reasons);
+			if (!result)
+				_issues = string.Join(", ", reasons);
+			
+			return result;
+#else
+			return true;
+#endif
+		}
+
+		public static bool CanBeDestroyed(this Object _self) => CanBeDestroyed(_self, out var _);
 		public static MethodInfo GetPublicOrNonPublicStaticMethod(this Type _type, string _name, bool _logError = true)
 		{
 			// We also find public methods in case a method has been made public in an update

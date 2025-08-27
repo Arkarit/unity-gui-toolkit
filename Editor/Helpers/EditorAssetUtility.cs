@@ -744,7 +744,7 @@ exitLoop:
 				// Otherwise return empty, since PrefabStage is mainly for GameObjects/Components
 				return Array.Empty<T>();
 			}
-			
+
 			// Main Stage ? active scene
 			if (typeof(Component).IsAssignableFrom(typeof(T)) || typeof(GameObject) == typeof(T))
 			{

@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -11,19 +13,19 @@ namespace GuiToolkit
 	public static class EditorGameObjectUtility
 	{
 		// Includes inactive objects
-		public static GameObject EnsureGameObjectExists(string _path, Vector3 _position, string _undo = null)
+		public static GameObject EnsureGameObjectExists( string _path, Vector3 _position, string _undo = null )
 		{
 			if (string.IsNullOrEmpty(_path) || !_path.StartsWith('/'))
 			{
 				Debug.LogError($"{nameof(EditorGameObjectUtility)}.{nameof(EnsureGameObjectExists)}() needs an absolute path! (starting with /)");
 				return null;
 			}
-			
+
 			GameObject result;
 			var pathParts = _path.Split('/');
 			Transform currentParent = null;
 			List<Transform> currentTransforms = GetRootTransformsOfAllLoadedScenes();
-			
+
 			foreach (var pathPart in pathParts)
 			{
 				if (string.IsNullOrEmpty(pathPart))
@@ -38,35 +40,35 @@ namespace GuiToolkit
 						currentTransforms.Add(child);
 					continue;
 				}
-				
+
 				GameObject go = new GameObject(pathPart);
 				if (!string.IsNullOrEmpty(_undo))
 					Undo.RegisterCreatedObjectUndo(go, _undo);
-				
+
 				if (!string.IsNullOrEmpty(_undo))
 					Undo.SetTransformParent(go.transform, currentParent, true, _undo);
 				else
 					go.transform.SetParent(currentParent);
-				
+
 				currentParent = go.transform;
 				currentParent.position = _position;
 				currentTransforms.Clear();
 			}
-			
+
 			result = currentParent.gameObject;
 			return result;
 		}
-		
+
 		public static List<Transform> GetRootTransformsOfActiveScene()
 		{
 			var gameObjects = SceneManager.GetActiveScene().GetRootGameObjects();
 			List<Transform> result = new();
 			foreach (var go in gameObjects)
 				result.Add(go.transform);
-			
+
 			return result;
 		}
-		
+
 		public static List<Transform> GetRootTransformsOfAllLoadedScenes()
 		{
 			List<Transform> result = new();
@@ -76,12 +78,12 @@ namespace GuiToolkit
 				foreach (var go in gameObjects)
 					result.Add(go.transform);
 			}
-			
+
 			return result;
 		}
-		
-		public static GameObject EnsureGameObjectExists(string _path, string _undo = null) => EnsureGameObjectExists(_path, Vector3.zero, _undo);
-		
+
+		public static GameObject EnsureGameObjectExists( string _path, string _undo = null ) => EnsureGameObjectExists(_path, Vector3.zero, _undo);
+
 		public static bool IsInPrefabEditingMode => PrefabStageUtility.GetCurrentPrefabStage() != null;
 
 		// Workaround for the completely idiotic (and insanely named) PrefabUtility functions, which returns funny and completely differing values
@@ -116,7 +118,7 @@ namespace GuiToolkit
 			return null;
 		}
 
-		public static bool IsNotAttachedPrefab(GameObject _gameObject) => PrefabUtility.GetNearestPrefabInstanceRoot(_gameObject) == null;
+		public static bool IsNotAttachedPrefab( GameObject _gameObject ) => PrefabUtility.GetNearestPrefabInstanceRoot(_gameObject) == null;
 
 		public static bool IsEditingPrefab( GameObject _gameObject, bool _onlyDirectPrefab = false )
 		{
@@ -221,7 +223,7 @@ namespace GuiToolkit
 			AddLabels(_gameObject, new HashSet<string>() { _label });
 		}
 
-		public static string GetPathInScene(GameObject _gameObject)
+		public static string GetPathInScene( GameObject _gameObject )
 		{
 			string result = _gameObject.name;
 
@@ -233,6 +235,96 @@ namespace GuiToolkit
 
 			return result;
 		}
+
+		/// <summary>
+		/// Returns all dependents on the same GameObject which would be violated
+		/// if <paramref name="_target"/> were removed. Each tuple includes the dependent
+		/// component and the exact required Type it declares via [RequireComponent].
+		/// </summary>
+		public static IEnumerable<(Component dependent, Type requiredType)> GetRequireDependents( Component _target )
+		{
+			if (_target == null) yield break;
+
+			var go = _target.gameObject;
+			var targetType = _target.GetType();
+
+			// Hard stops
+			if (targetType == typeof(Transform) || targetType == typeof(RectTransform))
+			{
+				// Treat as if everybody depends on it
+				foreach (var c in go.GetComponents<Component>())
+				{
+					if (c && c != _target)
+						yield return (c, targetType);
+				}
+				yield break;
+			}
+
+			// All components that remain after deletion (i.e., excluding the target)
+			var siblings = go.GetComponents<Component>().Where(c => c && c != _target).ToArray();
+
+			// Helper: does 'required' have at least one fulfilling instance among 'siblings'?
+			bool HasFulfillingSibling( Type required )
+				=> siblings.Any(sib => required.IsAssignableFrom(sib.GetType()));
+
+			// For each sibling, inspect its [RequireComponent] attributes (incl. inherited)
+			foreach (var sib in siblings)
+			{
+				var attrs = sib.GetType()
+					.GetCustomAttributes(typeof(RequireComponent), inherit: true)
+					.Cast<RequireComponent>();
+
+				foreach (var attr in attrs)
+				{
+					// [RequireComponent(typeof(A), typeof(B), typeof(C))]
+					foreach (var required in new[] { attr.m_Type0, attr.m_Type1, attr.m_Type2 })
+					{
+						if (required == null) continue;
+
+						// If this requirement is satisfied ONLY by the target (i.e., target matches,
+						// and there is no other fulfilling sibling), removal would violate it.
+						if (required.IsAssignableFrom(targetType) && !HasFulfillingSibling(required))
+						{
+							yield return (sib, required);
+						}
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Returns whether the component can be safely removed without breaking any RequireComponent constraints.
+		/// Provides human-readable reasons if not removable.
+		/// </summary>
+		public static bool CanRemoveComponent( Component _target, out List<string> _reasons )
+		{
+			_reasons = new List<string>();
+			if (_target == null)
+			{
+				_reasons.Add("Target is null.");
+				return false;
+			}
+
+			var t = _target.GetType();
+			if (t == typeof(Transform) || t == typeof(RectTransform))
+			{
+				_reasons.Add($"Cannot remove {t.Name} (engine-mandatory transform).");
+				return false;
+			}
+
+			var blockers = GetRequireDependents(_target).ToList();
+			if (blockers.Count == 0) return true;
+
+			foreach (var (dep, req) in blockers)
+			{
+				var depName = dep ? dep.GetType().Name : "<MissingComponent>";
+				_reasons.Add($"{depName} requires {TypePretty(req)} on the same GameObject.");
+			}
+			return false;
+		}
+
+		private static string TypePretty( Type t )
+			=> t == null ? "<null>" : t.Name;
 
 	}
 }
