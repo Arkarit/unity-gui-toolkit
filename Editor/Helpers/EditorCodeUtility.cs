@@ -849,15 +849,15 @@ namespace GuiToolkit.Editor
 			var reqs = (RequireComponent[])Attribute.GetCustomAttributes(t, typeof(RequireComponent), inherit: true);
 			if (reqs == null || reqs.Length == 0) return false;
 
-			bool IsGraphic( Type x ) =>
-				x != null && (x == typeof(Graphic) || typeof(Graphic).IsAssignableFrom(x));
-
 			foreach (var r in reqs)
 			{
 				if (IsGraphic(r.m_Type0) || IsGraphic(r.m_Type1) || IsGraphic(r.m_Type2))
 					return true;
 			}
+			
 			return false;
+
+			bool IsGraphic( Type x ) => x != null && (x == typeof(Graphic) || x == typeof(MaskableGraphic));
 		}
 
 		// Helper: capture, destroy, later restore "blocker" components
@@ -874,12 +874,16 @@ namespace GuiToolkit.Editor
 
 			foreach (var c in components)
 			{
-				if (!c) continue;
-				if (c == graphicToKeep) continue;
-				if (c is Transform) continue;
+				if (!c) 
+					continue;
+				if (c == graphicToKeep) 
+					continue;
+				if (c is Transform) 
+					continue;
 
 				var ct = c.GetType();
-				if (!RequiresGraphic(ct)) continue;
+				if (!RequiresGraphic(ct)) 
+					continue;
 
 				// serialize state
 				string json = EditorJsonUtility.ToJson(c);
