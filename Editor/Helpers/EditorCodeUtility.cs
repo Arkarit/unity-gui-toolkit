@@ -465,7 +465,7 @@ namespace GuiToolkit.Editor
 					tmp.richText = s.Rich;
 					tmp.enableAutoSizing = s.AutoSize;
 					tmp.raycastTarget = s.Raycast;
-					tmp.lineSpacing = s.LineSpacing;
+					tmp.lineSpacing = ConvertLineSpacingFromTextToTmp(s.LineSpacing);
 
 					// map alignment (wie gehabt)
 					switch (s.Anchor)
@@ -546,15 +546,22 @@ namespace GuiToolkit.Editor
 				if (!oldComp)
 					continue;
 
-				var go = oldComp.gameObject;
-
 				// 1) Capture data while TA is still present
 				var snapshot = _capture != null ? _capture(oldComp) : default;
 
-				// 2) Remove TA first (prevents co-existence conflicts like multiple Graphics)
+				var go = oldComp.gameObject;
+
+				// 1a) Remove blockers that Require Graphic (e.g., Outline/Shadow/custom effects)
+				var blockers = CaptureAndRemoveGraphicBlockers(go, oldComp);
+
+				// 2) Remove TA (Graphic) now that no blockers are enforcing it
 				if (!oldComp.CanBeDestroyed(out string reasons))
 				{
+					// if your CanBeDestroyed() does Require checks, this should no longer fail
 					Debug.LogError($"Can not replace '{go.GetPath()}'\nReason(s): {reasons}", oldComp);
+
+					// try to restore blockers before continuing
+					RestoreGraphicBlockers(go, blockers);
 					continue;
 				}
 
@@ -565,12 +572,23 @@ namespace GuiToolkit.Editor
 				var newComp = go.GetComponent<TB>();
 				if (!newComp)
 				{
-					Undo.RegisterCompleteObjectUndo(go, "Add Target Component");
 					newComp = Undo.AddComponent<TB>(go);
+					if (!newComp)
+					{
+						// catastrophic: restore original situation as best as possible
+						// (re-add TA and blockers)
+						var restoredTA = Undo.AddComponent(go, typeof(TA)) as TA;
+						RestoreGraphicBlockers(go, blockers);
+						Debug.LogError($"Failed to add target component {typeof(TB).Name} to '{go.GetPath()}'. Rolled back.", go);
+						continue;
+					}
 				}
 
 				// 4) Apply captured data to TB
 				_apply?.Invoke(snapshot, newComp);
+
+				// 5) Restore previously removed blockers (Outline/Shadow/etc.)
+				RestoreGraphicBlockers(go, blockers);
 
 				results.Add((snapshot, newComp));
 			}
@@ -820,6 +838,85 @@ namespace GuiToolkit.Editor
 					sp.objectReferenceValue = _newTarget;
 					so.ApplyModifiedProperties();
 					EditorUtility.SetDirty(owner);
+				}
+			}
+		}
+
+		// Convert legacy uGUI lineSpacing (multiplier) to TMP (percent of font size)
+		private static float ConvertLineSpacingFromTextToTmp( float _legacyMultiplier )
+		{
+			// uGUI: 1.0 = normal, 1.2 = +20%
+			// TMP:  0   = normal, 20   = +20% (in % of point size)
+			return (_legacyMultiplier - 1f) * 100f;
+		}
+
+		// Helper: detect components that require a Graphic on the same GameObject
+		private static bool RequiresGraphic( Type t )
+		{
+			// Walk [RequireComponent] attributes (can be multiple)
+			var reqs = (RequireComponent[])Attribute.GetCustomAttributes(t, typeof(RequireComponent), inherit: true);
+			if (reqs == null || reqs.Length == 0) return false;
+
+			foreach (var r in reqs)
+			{
+				if (IsGraphic(r.m_Type0) || IsGraphic(r.m_Type1) || IsGraphic(r.m_Type2))
+					return true;
+			}
+
+			return false;
+
+			bool IsGraphic( Type x ) => x != null && (x == typeof(Graphic) || x == typeof(MaskableGraphic));
+		}
+
+		// Helper: capture, destroy, later restore "blocker" components
+		private struct BlockerSnapshot
+		{
+			public Type Type;
+			public string Json;   // EditorJsonUtility snapshot
+		}
+
+		private static List<BlockerSnapshot> CaptureAndRemoveGraphicBlockers( GameObject go, Component graphicToKeep )
+		{
+			var blockers = new List<BlockerSnapshot>();
+			var components = go.GetComponents<Component>();
+
+			foreach (var c in components)
+			{
+				if (!c)
+					continue;
+				if (c == graphicToKeep)
+					continue;
+				if (c is Transform)
+					continue;
+
+				var ct = c.GetType();
+				if (!RequiresGraphic(ct))
+					continue;
+
+				// serialize state
+				string json = EditorJsonUtility.ToJson(c);
+				blockers.Add(new BlockerSnapshot { Type = ct, Json = json });
+
+				// remove now (so Text can be removed without failing RequireComponent)
+				Undo.DestroyObjectImmediate(c);
+			}
+
+			return blockers;
+		}
+
+		private static void RestoreGraphicBlockers( GameObject go, List<BlockerSnapshot> blockers )
+		{
+			if (blockers == null) return;
+
+			foreach (var b in blockers)
+			{
+				if (b.Type == null) continue;
+				var restored = Undo.AddComponent(go, b.Type);
+				if (restored != null && !string.IsNullOrEmpty(b.Json))
+				{
+					// restore serialized values
+					EditorJsonUtility.FromJsonOverwrite(b.Json, restored);
+					EditorUtility.SetDirty(restored);
 				}
 			}
 		}
