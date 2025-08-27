@@ -24,6 +24,7 @@ using GuiToolkit.Editor.Roslyn;
 using OwnerAndPathList = System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>;
 using OwnerAndPathListById = System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>>;
 using TextSnapshotList = System.Collections.Generic.List<(GuiToolkit.Editor.EditorCodeUtility.TextSnapshot Snapshot, TMPro.TextMeshProUGUI NewComp)>;
+using System.Linq;
 
 namespace GuiToolkit.Editor
 {
@@ -75,6 +76,9 @@ namespace GuiToolkit.Editor
 			/// <summary>Legacy line spacing.</summary>
 			public float LineSpacing;
 
+			public string FontName;         // legacy Text.font?.name
+			public FontStyle FontStyle;     // legacy Text.fontStyle
+
 			/// <summary>
 			/// Instance ID of the original Text component.
 			/// Used to rewire serialized object references to the new component.
@@ -82,6 +86,172 @@ namespace GuiToolkit.Editor
 			public int OldId;
 		}
 
+		// ---- NEW: helper cache and lookup for TMP fonts/materials -------------------
+		private static readonly Dictionary<string, (TMP_FontAsset font, Material mat)> s_tmpFontLookupCache
+			= new Dictionary<string, (TMP_FontAsset, Material)>(StringComparer.OrdinalIgnoreCase);
+
+		private static string NormalizeFontKey( string name )
+		{
+			if (string.IsNullOrEmpty(name)) return "";
+			// normalize aggressively: lower, remove spaces, underscores, hyphens and common SDF tags
+			var key = new string(name.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+			key = key.Replace("sdf", "").Replace("tmp", "");
+			return key;
+		}
+
+		private static (TMP_FontAsset font, Material mat) FindMatchingTMPFontAndMaterial( string legacyFontName )
+		{
+			if (string.IsNullOrEmpty(legacyFontName))
+				return (null, null);
+
+			if (s_tmpFontLookupCache.TryGetValue(legacyFontName, out var cached))
+				return cached;
+
+			var legacyKey = NormalizeFontKey(legacyFontName);
+
+			TMP_FontAsset best = null;
+			int bestScore = int.MinValue;
+
+			// 1) scan all TMP_FontAsset assets once
+			var guids = AssetDatabase.FindAssets("t:TMP_FontAsset");
+			foreach (var guid in guids)
+			{
+				var path = AssetDatabase.GUIDToAssetPath(guid);
+				var fa = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path);
+				if (!fa) continue;
+
+				// candidates to compare
+				var cand = new[]
+				{
+					fa.faceInfo.familyName,                    // most robust match
+					fa.sourceFontFile ? fa.sourceFontFile.name : null,
+					fa.name
+				};
+
+				int scoreHere = int.MinValue;
+				for (int i = 0; i < cand.Length; i++)
+				{
+					var c = cand[i];
+					if (string.IsNullOrEmpty(c)) continue;
+
+					var key = NormalizeFontKey(c);
+
+					// scoring: exact normalized match >> startswith/contains
+					if (key == legacyKey) scoreHere = Math.Max(scoreHere, 100 - i); // prefer earlier fields
+					else if (key.StartsWith(legacyKey)) scoreHere = Math.Max(scoreHere, 60 - i);
+					else if (legacyKey.StartsWith(key)) scoreHere = Math.Max(scoreHere, 50 - i);
+					else if (key.Contains(legacyKey)) scoreHere = Math.Max(scoreHere, 40 - i);
+				}
+
+				if (scoreHere > bestScore)
+				{
+					bestScore = scoreHere;
+					best = fa;
+				}
+			}
+
+			// 2) prefer the font asset's own (default) material; override only if a clearly better neutral preset exists
+			Material mat = null;
+
+			if (best)
+			{
+				// always start with the asset's own material (usually effect-free)
+				var defaultMat = best.material;
+				mat = defaultMat;
+
+				// search for neutral presets in the same folder; avoid effecty ones like Outline/Shadow/Glow/Underlay
+				var folder = System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(best)).Replace("\\", "/");
+				if (!string.IsNullOrEmpty(folder))
+				{
+					var matGuids = AssetDatabase.FindAssets("t:Material", new[] { folder });
+
+					// scoring helpers
+					int ScoreMaterialName( string name, IEnumerable<string> keys )
+					{
+						if (string.IsNullOrEmpty(name)) return int.MinValue;
+						var mk = NormalizeFontKey(name);
+
+						// hard penalties for effect keywords
+						// note: keep this set conservative; fontStyle handles bold/italic already
+						string[] effectHints = { "outline", "shadow", "glow", "underlay", "stroke", "soft", "thick", "thin" };
+						foreach (var eh in effectHints)
+							if (mk.Contains(NormalizeFontKey(eh))) return -1000;
+
+						int score = 0;
+
+						// small bonuses for neutral keywords
+						string[] neutralHints = { "regular", "normal", "default", "atlas", "sdf" };
+						foreach (var nh in neutralHints)
+							if (mk.Contains(NormalizeFontKey(nh))) score += 5;
+
+						foreach (var k in keys)
+						{
+							if (string.IsNullOrEmpty(k)) continue;
+							if (mk == k) score = Math.Max(score, score + 100);
+							else if (mk.StartsWith(k)) score = Math.Max(score, score + 70);
+							else if (mk.Contains(k)) score = Math.Max(score, score + 50);
+						}
+
+						return score;
+					}
+
+					// keys representing this font
+					var keysToTry = new[]
+					{
+						NormalizeFontKey(best.faceInfo.familyName),
+						NormalizeFontKey(best.name),
+						NormalizeFontKey(best.sourceFontFile ? best.sourceFontFile.name : null)
+					};
+
+					var bestPreset = defaultMat;
+					int bestPresetScore = -1;
+
+					foreach (var mg in matGuids)
+					{
+						var mPath = AssetDatabase.GUIDToAssetPath(mg);
+						var m = AssetDatabase.LoadAssetAtPath<Material>(mPath);
+						if (!m || m == defaultMat) continue;
+
+						// consider only TMP-compatible shaders
+						var shaderName = m.shader ? m.shader.name : "";
+						if (string.IsNullOrEmpty(shaderName) || (!shaderName.Contains("TextMeshPro") && !shaderName.Contains("TMP")))
+							continue;
+
+						int score = ScoreMaterialName(m.name, keysToTry);
+						if (score > bestPresetScore)
+						{
+							bestPresetScore = score;
+							bestPreset = m;
+						}
+					}
+
+					// Only override the default if the preset is clearly better AND not an "effect" (penalties enforce that)
+					// Threshold keeps us conservative; tweak if you like.
+					const int OVERRIDE_THRESHOLD = 95;
+					if (bestPreset != null && bestPreset != defaultMat && bestPresetScore >= OVERRIDE_THRESHOLD)
+						mat = bestPreset;
+					else
+						mat = defaultMat; // stick to the asset's own material
+				}
+			}
+
+			var result = (best, mat);
+			s_tmpFontLookupCache[legacyFontName] = result;
+			return result;
+		}
+
+		private static TMPro.FontStyles MapFontStyle( FontStyle fs )
+		{
+			// Legacy FontStyle has bitwise Bold/Italic, others are Normal/Bold/Italic/BoldAndItalic
+			switch (fs)
+			{
+				case FontStyle.Bold: return TMPro.FontStyles.Bold;
+				case FontStyle.Italic: return TMPro.FontStyles.Italic;
+				case FontStyle.BoldAndItalic: return TMPro.FontStyles.Bold | TMPro.FontStyles.Italic;
+				case FontStyle.Normal:
+				default: return TMPro.FontStyles.Normal;
+			}
+		}
 		/// <summary>
 		/// Checks if the string segment at the given index is immediately followed
 		/// by a known localization function call in the next code segment.
@@ -167,6 +337,7 @@ namespace GuiToolkit.Editor
 			{
 				if (!e.Owner || !e.TargetGameObject)
 				{
+					Debug.LogError($"Missing: No owner or target game object found for property path '{e.PropertyPath}'");
 					_missing++;
 					continue;
 				}
@@ -177,7 +348,7 @@ namespace GuiToolkit.Editor
 					tmp = e.TargetGameObject.GetComponent<TMP_Text>() as TextMeshProUGUI;
 					if (tmp == null)
 					{
-						Debug.LogError($"Missing: No {nameof(TextMeshProUGUI)} found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'");
+						Debug.LogError($"Missing: No {nameof(TextMeshProUGUI)} found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'", e.TargetGameObject);
 						_missing++;
 						continue;
 					}
@@ -187,7 +358,7 @@ namespace GuiToolkit.Editor
 				var sp = so.FindProperty(e.PropertyPath);
 				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
 				{
-					Debug.LogError($"Missing: No property found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'");
+					Debug.LogError($"Missing: No property found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'", e.TargetGameObject);
 					_missing++;
 					continue;
 				}
@@ -281,11 +452,13 @@ namespace GuiToolkit.Editor
 					Anchor = t.alignment,
 					Raycast = t.raycastTarget,
 					LineSpacing = t.lineSpacing,
+					FontName = t.font ? t.font.name : null,
+					FontStyle = t.fontStyle,
+
 					OldId = t.GetInstanceID(), // key to rewire later
 				},
 				_apply: ( TextSnapshot s, TextMeshProUGUI tmp ) =>
 				{
-					// map fields
 					tmp.text = s.Text;
 					tmp.color = s.Color;
 					tmp.fontSize = s.FontSize;
@@ -294,21 +467,37 @@ namespace GuiToolkit.Editor
 					tmp.raycastTarget = s.Raycast;
 					tmp.lineSpacing = s.LineSpacing;
 
+					// map alignment (wie gehabt)
 					switch (s.Anchor)
 					{
-						case TextAnchor.UpperLeft: tmp.alignment = TMPro.TextAlignmentOptions.TopLeft; break;
-						case TextAnchor.UpperCenter: tmp.alignment = TMPro.TextAlignmentOptions.Top; break;
-						case TextAnchor.UpperRight: tmp.alignment = TMPro.TextAlignmentOptions.TopRight; break;
-						case TextAnchor.MiddleLeft: tmp.alignment = TMPro.TextAlignmentOptions.Left; break;
-						case TextAnchor.MiddleCenter: tmp.alignment = TMPro.TextAlignmentOptions.Center; break;
-						case TextAnchor.MiddleRight: tmp.alignment = TMPro.TextAlignmentOptions.Right; break;
-						case TextAnchor.LowerLeft: tmp.alignment = TMPro.TextAlignmentOptions.BottomLeft; break;
-						case TextAnchor.LowerCenter: tmp.alignment = TMPro.TextAlignmentOptions.Bottom; break;
-						case TextAnchor.LowerRight: tmp.alignment = TMPro.TextAlignmentOptions.BottomRight; break;
-						default: tmp.alignment = TMPro.TextAlignmentOptions.Center; break;
+						case TextAnchor.UpperLeft: tmp.alignment = TextAlignmentOptions.TopLeft; break;
+						case TextAnchor.UpperCenter: tmp.alignment = TextAlignmentOptions.Top; break;
+						case TextAnchor.UpperRight: tmp.alignment = TextAlignmentOptions.TopRight; break;
+						case TextAnchor.MiddleLeft: tmp.alignment = TextAlignmentOptions.Left; break;
+						case TextAnchor.MiddleCenter: tmp.alignment = TextAlignmentOptions.Center; break;
+						case TextAnchor.MiddleRight: tmp.alignment = TextAlignmentOptions.Right; break;
+						case TextAnchor.LowerLeft: tmp.alignment = TextAlignmentOptions.BottomLeft; break;
+						case TextAnchor.LowerCenter: tmp.alignment = TextAlignmentOptions.Bottom; break;
+						case TextAnchor.LowerRight: tmp.alignment = TextAlignmentOptions.BottomRight; break;
+						default: tmp.alignment = TextAlignmentOptions.Center; break;
 					}
 
-					// rewire any serialized references that pointed to the old Text (by oldId)
+					// assign TMP font asset and material based on legacy font name
+					if (!string.IsNullOrEmpty(s.FontName))
+					{
+						var (fa, mat) = FindMatchingTMPFontAndMaterial(s.FontName);
+						if (fa)
+						{
+							tmp.font = fa;
+							// Optional: preset material if found (keine harte Pflicht)
+							if (mat) tmp.fontSharedMaterial = mat;
+						}
+					}
+
+					// map legacy font style (Bold/Italic) to TMP fontStyle
+					tmp.fontStyle = MapFontStyle(s.FontStyle);
+
+					// rewire references
 					RewireRefsForOldId(refGroups, s.OldId, tmp);
 				}
 			);
@@ -354,13 +543,21 @@ namespace GuiToolkit.Editor
 
 			foreach (var oldComp in targets)
 			{
-				if (!oldComp) continue;
+				if (!oldComp)
+					continue;
+
 				var go = oldComp.gameObject;
 
 				// 1) Capture data while TA is still present
 				var snapshot = _capture != null ? _capture(oldComp) : default;
 
 				// 2) Remove TA first (prevents co-existence conflicts like multiple Graphics)
+				if (!oldComp.CanBeDestroyed(out string reasons))
+				{
+					Debug.LogError($"Can not replace '{go.GetPath()}'\nReason(s): {reasons}", oldComp);
+					continue;
+				}
+
 				Undo.RegisterCompleteObjectUndo(go, "Remove Source Component");
 				Undo.DestroyObjectImmediate(oldComp);
 
@@ -544,7 +741,7 @@ namespace GuiToolkit.Editor
 		{
 			var result = new OwnerAndPathListById();
 
-			var allComponents = EditorAssetUtility.FindObjectsInCurrentEditedPrefabOrScene<Component>();;
+			var allComponents = EditorAssetUtility.FindObjectsInCurrentEditedPrefabOrScene<Component>(); ;
 
 			foreach (var comp in allComponents)
 			{

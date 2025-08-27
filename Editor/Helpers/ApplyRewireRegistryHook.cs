@@ -40,6 +40,8 @@ namespace GuiToolkit.Editor
 			catch (Exception ex)
 			{
 				Debug.LogError("[Finalize Text->TMP] Exception after reload: " + ex.Message);
+				// We want the original exception to become visible.
+				throw;
 			}
 		}
 	}
