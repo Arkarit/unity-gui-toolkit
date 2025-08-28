@@ -91,8 +91,12 @@ namespace GuiToolkit
 		public static int ScreenWidth()
 		{
 #if UNITY_EDITOR
+#if UNITY_6000_0_OR_NEWER
 			Vector2 v = Handles.GetMainGameViewSize();
-			return (int) v.x;
+			return Mathf.RoundToInt(v.x);
+#else
+			return Screen.width;
+#endif
 #else
 			return Screen.width;
 #endif
@@ -101,8 +105,12 @@ namespace GuiToolkit
 		public static int ScreenHeight()
 		{
 #if UNITY_EDITOR
+#if UNITY_6000_0_OR_NEWER
 			Vector2 v = Handles.GetMainGameViewSize();
-			return (int) v.y;
+			return Mathf.RoundToInt(v.y);
+#else
+			return Screen.height;
+#endif
 #else
 			return Screen.height;
 #endif
