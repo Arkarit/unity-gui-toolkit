@@ -25,6 +25,7 @@ namespace GuiToolkit.Editor
 		private static GameObject m_imageGameObject;
 		private static Image m_image;
 		private static Scene m_tempScene;
+		private static string m_prefabPath;
 
 
 		[MenuItem(MenuPath, priority = -10000)]
@@ -94,6 +95,7 @@ namespace GuiToolkit.Editor
 		private static void CreateTempScene()
 		{
 			var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+			m_prefabPath = prefabStage.assetPath;
 			var prefabObj = AssetDatabase.LoadAssetAtPath<GameObject>(prefabStage.assetPath);
 			for (int i = 0; i < SceneManager.sceneCount; i++)
 			{
@@ -121,7 +123,7 @@ namespace GuiToolkit.Editor
 
 			SceneManager.SetActiveScene(m_activeScene);
 			EditorSceneManager.CloseScene(m_tempScene, true);
-
+			PrefabStageUtility.OpenPrefab(m_prefabPath);
 			m_scenesLoaded.Clear();
 		}
 
