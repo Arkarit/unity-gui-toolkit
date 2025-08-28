@@ -35,18 +35,6 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			if (m_isPrefab)
-			{
-				var roots = EditorCodeUtility.GetCurrentContextSceneRoots();
-				if (roots == null || roots.Length == 0)
-				{
-					Debug.LogError("No roots found.");
-					return;
-				}
-
-				m_root = roots[0];
-			}
-
 			// 1) size like GameView
 			m_width = Mathf.Max(64, Mathf.RoundToInt(UiUtility.ScreenWidth()));
 			m_height = Mathf.Max(64, Mathf.RoundToInt(UiUtility.ScreenHeight()));
@@ -127,8 +115,8 @@ namespace GuiToolkit.Editor
 			PlaceInCurrentStage(m_canvasGo);
 			if (m_isPrefab)
 			{
-				var roots = GetCurrentPrefabStage().scene.GetRootGameObjects();
-				m_canvasGo.transform.SetParent(roots[0].transform);
+				m_root = GetCurrentPrefabStage().prefabContentsRoot;
+				m_canvasGo.transform.SetParent(m_root.transform);
 				var rt2 = m_canvasGo.AddComponent<RectTransform>();
 				rt2.anchorMin = Vector2.zero;
 				rt2.anchorMax = Vector2.one;
