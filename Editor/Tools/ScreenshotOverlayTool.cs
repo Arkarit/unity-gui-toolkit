@@ -55,8 +55,8 @@ namespace GuiToolkit.Editor
 			}
 
 			// 1) size like GameView
-			m_width = Mathf.Max(64, Mathf.RoundToInt(UiUtility.ScreenWidth()));
-			m_height = Mathf.Max(64, Mathf.RoundToInt(UiUtility.ScreenHeight()));
+			m_width = Mathf.Max(64, UiUtility.ScreenWidth());
+			m_height = Mathf.Max(64, UiUtility.ScreenHeight());
 
 			Log("Creating Overlay", 0);
 			CreateOverlay();
@@ -139,7 +139,7 @@ namespace GuiToolkit.Editor
 		{
 			// ensure a topmost canvas separate from project UI
 			m_canvasGo = new GameObject("__ScreenshotOverlayCanvas__");
-			PlaceInCurrentStage(m_canvasGo);
+			SceneManager.MoveGameObjectToScene(m_canvasGo, SceneManager.GetActiveScene());
 			if (m_isPrefab)
 			{
 				m_root = GetCurrentPrefabStage().prefabContentsRoot;
@@ -193,15 +193,20 @@ namespace GuiToolkit.Editor
 
 		private static Camera CreateTempCamera()
 		{
+			Log("Creating Temp Camera Game Object", .32f);
 			var go = new GameObject("__ScreenshotCamera__");
-			if (m_root)
-				go.transform.SetParent(m_root.transform);
+			SceneManager.MoveGameObjectToScene(go, SceneManager.GetActiveScene());
 
+			Log("Adding Camera Component", .34f);
 			var cam = go.AddComponent<Camera>();
+
+			Log("Setting camera properties", .36f);
 			cam.clearFlags = CameraClearFlags.SolidColor;
 			cam.backgroundColor = new Color(.5f, .5f, .5f, 0);
 			cam.cullingMask = 1 << LayerMask.NameToLayer("UI");
 			cam.orthographic = true;
+			cam.forceIntoRenderTexture = true;
+			cam.enabled = false;
 			return cam;
 		}
 
@@ -268,17 +273,17 @@ namespace GuiToolkit.Editor
 
 			try
 			{
-
 				if (m_isPrefab)
 				{
 					var canvas = m_instancedPrefab.GetComponent<Canvas>();
-					
+
 					// We need a canvas to render; if none is set, create a temporary one
 					if (!canvas)
 					{
+						Log("Adding Canvas wrapper", .63f);
 						var wrapper = new GameObject("__TempCanvasRoot__");
-						wrapper.layer = LayerMask.NameToLayer("UI");
 						SceneManager.MoveGameObjectToScene(wrapper, m_tempScene);
+						wrapper.layer = LayerMask.NameToLayer("UI");
 
 						canvas = wrapper.AddComponent<Canvas>();
 						canvas.renderMode = RenderMode.ScreenSpaceCamera;
@@ -294,7 +299,10 @@ namespace GuiToolkit.Editor
 				}
 
 				cam.targetTexture = rt;
+				Log("Render", .66f);
 				cam.Render();
+
+				Log("Applying rendered texture", .69f);
 				var holder = Object.FindAnyObjectByType<UiSpriteHolder>(FindObjectsInactive.Include);
 				var tmpTex = new Texture2D(width, height, TextureFormat.RGBA32, false, false);
 				RenderTexture.active = rt;
@@ -308,11 +316,32 @@ namespace GuiToolkit.Editor
 
 				if (m_isPrefab)
 				{
-					// record + apply to source prefab
-					PrefabUtility.RecordPrefabInstancePropertyModifications(holder);
-					PrefabUtility.ApplyPrefabInstance(m_instancedPrefab, InteractionMode.AutomatedAction);
+					Log("Apply Prefab", .72f);
+					// Get prefab asset path of the instanced prefab
+					var prefabAsset = PrefabUtility.GetCorrespondingObjectFromSource(m_instancedPrefab);
+					var assetPath = AssetDatabase.GetAssetPath(prefabAsset);
+					if (string.IsNullOrEmpty(assetPath))
+					{
+						Debug.LogError("Could not resolve prefab asset path.");
+					}
+					else
+					{
+						// Open prefab contents off-stage, patch bytes, save, unload
+						var root = PrefabUtility.LoadPrefabContents(assetPath);
+						try
+						{
+							var holderInAsset = root.GetComponentInChildren<UiSpriteHolder>(true);
+							holderInAsset.SetFromPngBytes(png, width, height);
+							PrefabUtility.SaveAsPrefabAsset(root, assetPath);
+						}
+						finally
+						{
+							PrefabUtility.UnloadPrefabContents(root);
+						}
+					}
 				}
 
+				Log("Save Assets", .73f);
 				AssetDatabase.SaveAssets();
 			}
 			finally
