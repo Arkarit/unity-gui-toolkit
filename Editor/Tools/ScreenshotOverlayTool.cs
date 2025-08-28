@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Image = UnityEngine.UI.Image;
 using Object = UnityEngine.Object;
+using System.Net.NetworkInformation;
 
 namespace GuiToolkit.Editor
 {
@@ -77,7 +78,7 @@ namespace GuiToolkit.Editor
 			}
 
 			// 7) non-pickable and dont-save
-//			MakeNonPickableAndDontSave();
+			//			MakeNonPickableAndDontSave();
 
 			if (m_isPrefab)
 				DestroyTempScene();
@@ -99,24 +100,27 @@ namespace GuiToolkit.Editor
 				var sc = SceneManager.GetSceneAt(i);
 				if (!sc.isLoaded)
 					continue;
-				
+
 				m_scenesLoaded.Add(sc);
 			}
-			
+
 			m_tempScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
 			m_activeScene = EditorSceneManager.GetActiveScene();
 			EditorSceneManager.SetActiveScene(m_tempScene);
 			foreach (var scene in m_scenesLoaded)
 				EditorSceneManager.CloseScene(scene, false);
-			
-			
+
+
 			m_instancedPrefab = (GameObject)PrefabUtility.InstantiatePrefab(prefabObj, m_tempScene);
 		}
 
 		private static void DestroyTempScene()
 		{
-			//			EditorSceneManager.SetActiveScene(m_activeScene);
-			//			EditorSceneManager.CloseScene(m_tempScene, true);
+			foreach (var scene in m_scenesLoaded)
+				EditorSceneManager.OpenScene(scene.path, OpenSceneMode.Additive);
+
+			SceneManager.SetActiveScene(m_activeScene);
+			EditorSceneManager.CloseScene(m_tempScene, true);
 
 			m_scenesLoaded.Clear();
 		}
@@ -180,10 +184,10 @@ namespace GuiToolkit.Editor
 			cam.clearFlags = CameraClearFlags.SolidColor;
 			cam.backgroundColor = new Color(.5f, .5f, .5f, 0);
 			cam.cullingMask = 1 << LayerMask.NameToLayer("UI");
-			cam.orthographic = false;
-			//			cam.enabled = false;
-			//			cam.hideFlags = HideFlags.DontSave;
-			//			cam.forceIntoRenderTexture = true;
+			cam.orthographic = true;
+//			cam.enabled = false;
+//			cam.hideFlags = HideFlags.DontSave;
+//			cam.forceIntoRenderTexture = true;
 			return cam;
 		}
 
@@ -250,8 +254,26 @@ namespace GuiToolkit.Editor
 			{
 				cam.targetTexture = rt;
 				cam.Render();
-				var spriteHolder = Object.FindAnyObjectByType<UiSpriteHolder>(FindObjectsInactive.Include);
-				spriteHolder.ReadFromRenderTexture(rt);
+				var holder = Object.FindAnyObjectByType<UiSpriteHolder>(FindObjectsInactive.Include);
+
+				var tmpTex = new Texture2D(width, height, TextureFormat.RGBA32, false, false);
+				RenderTexture.active = rt;
+				tmpTex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+				tmpTex.Apply(false, false);
+				var png = tmpTex.EncodeToPNG();
+				Object.DestroyImmediate(tmpTex);
+
+				// make sure you're modifying *serialized* data on the instance:
+				holder.SetFromPngBytes(png, width, height);
+
+				if (m_isPrefab)
+				{
+					// record + apply to source prefab
+					PrefabUtility.RecordPrefabInstancePropertyModifications(holder);
+					PrefabUtility.ApplyPrefabInstance(m_instancedPrefab, InteractionMode.AutomatedAction);
+				}
+
+				AssetDatabase.SaveAssets();
 			}
 			finally
 			{

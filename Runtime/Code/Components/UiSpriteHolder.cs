@@ -63,11 +63,11 @@ namespace GuiToolkit
 			m_dirty = true;
 		}
 
-		public void ReadFromRenderTexture(RenderTexture _renderTexture)
+		public void ReadFromRenderTexture( RenderTexture _renderTexture )
 		{
-			if (m_texture == null) 
+			if (m_texture == null)
 				Create();
-			
+
 			if (_renderTexture == null || _renderTexture.width != m_width || _renderTexture.height != m_height)
 			{
 				// Resize to match RT
@@ -88,6 +88,24 @@ namespace GuiToolkit
 			m_dirty = true;
 		}
 
+		public void SetFromPngBytes( byte[] bytes, int width, int height, float ppu = 100f, Vector2? pivot = null )
+		{
+			if (bytes == null || bytes.Length == 0) 
+				return;
+			m_pngBytes = bytes;                 // <-- serialized
+			m_width = width;
+			m_height = height;
+			m_pixelsPerUnit = ppu;
+			m_pivot = pivot ?? new Vector2(0.5f, 0.5f);
+
+			// rebuild runtime objects now so the Image updates immediately if we're in a stage
+			DestroyRuntimeObjects();
+			RebuildFromBytesIfNeeded();
+			var img = GetComponent<UnityEngine.UI.Image>();
+			if (img && m_sprite) 
+				img.sprite = m_sprite;
+		}
+		
 		// Set from an existing Texture2D (copies pixels)
 		public void SetFromTexture( Texture2D source, bool encodeNow = true )
 		{
