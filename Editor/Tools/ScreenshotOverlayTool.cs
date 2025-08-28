@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Image = UnityEngine.UI.Image;
 using Object = UnityEngine.Object;
+using System.IO;
 
 namespace GuiToolkit.Editor
 {
@@ -27,6 +29,23 @@ namespace GuiToolkit.Editor
 		[MenuItem(StringConstants.CREATE_GUI_SCREENSHOT_OVERLAY)]
 		public static void MakeScreenshotOverlay()
 		{
+			try
+			{
+				SafeMakeScreenshotOverlay();
+			}
+			catch (Exception e)
+			{
+				Debug.LogError(e.Message);
+				throw;
+			}
+			finally
+			{
+				EditorUtility.ClearProgressBar();
+			}
+		}
+
+		private static void SafeMakeScreenshotOverlay()
+		{
 			m_root = null;
 			var scene = EditorCodeUtility.GetCurrentContextScene(out m_isPrefab);
 			if (!scene.IsValid())
@@ -39,31 +58,40 @@ namespace GuiToolkit.Editor
 			m_width = Mathf.Max(64, Mathf.RoundToInt(UiUtility.ScreenWidth()));
 			m_height = Mathf.Max(64, Mathf.RoundToInt(UiUtility.ScreenHeight()));
 
+			Log("Creating Overlay", 0);
 			CreateOverlay();
 
 			if (m_isPrefab)
+			{
+				Log("Creating Temp Scene", 15f);
 				CreateTempScene();
+			}
 
-			// 2) temp camera
+			Log("Creating Temp Camera", .3f);
 			var cam = CreateTempCamera();
 
-			// 3) switch Overlay canvases to ScreenSpaceCamera (remember original state)
+			Log("Switch Overlay canvases to ScreenSpaceCamera", .45f);
 			var canvasSnaps = SwitchOverlayCanvasesToCamera(cam);
 
-			// 4) render into RT and read back
+			Log("Render Texture", .6f);
 			CaptureCameraToTexture(cam, m_width, m_height);
 
-			// 5) restore canvases
-			try { }
+			try
+			{
+				Log("Restore Canvases", .75f);
+				RestoreCanvasSnapshots(canvasSnaps);
+			}
 			finally
 			{
-				RestoreCanvasSnapshots(canvasSnaps);
 				if (cam != null && cam.gameObject.name == "__ScreenshotCamera__")
 					UnityEngine.Object.DestroyImmediate(cam.gameObject);
 			}
 
 			if (m_isPrefab)
+			{
+				Log("Destroy Temp Scene", .9f);
 				DestroyTempScene();
+			}
 
 			// Done
 			Debug.Log($"Screenshot overlay created ({m_width}x{m_height}) at 50% opacity.");
@@ -312,11 +340,11 @@ namespace GuiToolkit.Editor
 			else
 				SceneManager.MoveGameObjectToScene(go, SceneManager.GetActiveScene());
 		}
-
-		static T[] FindInCurrentStage<T>() where T : Component
+		
+		private static void Log(string _s, float _progress)
 		{
-			// liefert nur Komponenten des aktiven Stages (PrefabStage oder MainStage)
-			return CurrentStageHandle().FindComponentsOfType<T>();
+			EditorUtility.DisplayProgressBar($"Creating GUI Screenshot overlay", _s, _progress);
+			Debug.Log(_s);
 		}
 	}
 }
