@@ -663,13 +663,20 @@ namespace GuiToolkit.Editor
 		/// - Otherwise the active scene.
 		/// </summary>
 		/// <returns>Scene to operate on.</returns>
-		public static Scene GetCurrentContextScene()
+		public static Scene GetCurrentContextScene(out bool _isPrefab)
 		{
+			_isPrefab = false;
 			var stage = PrefabStageUtility.GetCurrentPrefabStage();
 			if (stage != null && stage.scene.IsValid())
+			{
+				_isPrefab = true;
 				return stage.scene;
+			}
+			
 			return SceneManager.GetActiveScene();
 		}
+		
+		public static Scene GetCurrentContextScene() => GetCurrentContextScene(out var _);
 
 		/// <summary>
 		/// Returns the root GameObjects of the current context scene.
