@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -8,14 +7,11 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Image = UnityEngine.UI.Image;
 using Object = UnityEngine.Object;
-using System.Net.NetworkInformation;
 
 namespace GuiToolkit.Editor
 {
 	public static class ScreenshotOverlayTool
 	{
-		private const string MenuPath = "Tools/GUI/Make 50% Screenshot Overlay";
-
 		private static bool m_isPrefab;
 		private static GameObject m_root;
 		private static UiSpriteHolder m_spriteHolder;
@@ -28,7 +24,7 @@ namespace GuiToolkit.Editor
 		private static string m_prefabPath;
 
 
-		[MenuItem(MenuPath, priority = -10000)]
+		[MenuItem(StringConstants.CREATE_SCREENSHOT_OVERLAY)]
 		public static void MakeScreenshotOverlay()
 		{
 			m_root = null;
@@ -74,12 +70,9 @@ namespace GuiToolkit.Editor
 			finally
 			{
 				RestoreCanvasSnapshots(canvasSnaps);
-				//				if (cam != null && cam.gameObject.name == "__ScreenshotCamera__")
-				//					UnityEngine.Object.DestroyImmediate(cam.gameObject);
+				if (cam != null && cam.gameObject.name == "__ScreenshotCamera__")
+					UnityEngine.Object.DestroyImmediate(cam.gameObject);
 			}
-
-			// 7) non-pickable and dont-save
-			//			MakeNonPickableAndDontSave();
 
 			if (m_isPrefab)
 				DestroyTempScene();
@@ -170,6 +163,13 @@ namespace GuiToolkit.Editor
 				var stage = PrefabStageUtility.GetCurrentPrefabStage();
 				PrefabUtility.SaveAsPrefabAsset(stage.prefabContentsRoot, stage.assetPath);
 			}
+			else
+			{
+				var scene = SceneManager.GetActiveScene();
+				EditorSceneManager.MarkSceneDirty(scene);
+			}
+
+			SceneVisibilityManager.instance.DisablePicking(m_canvasGo, true);
 		}
 
 		// --------------------------------------------------------------------
@@ -187,9 +187,9 @@ namespace GuiToolkit.Editor
 			cam.backgroundColor = new Color(.5f, .5f, .5f, 0);
 			cam.cullingMask = 1 << LayerMask.NameToLayer("UI");
 			cam.orthographic = true;
-//			cam.enabled = false;
-//			cam.hideFlags = HideFlags.DontSave;
-//			cam.forceIntoRenderTexture = true;
+			//			cam.enabled = false;
+			//			cam.hideFlags = HideFlags.DontSave;
+			//			cam.forceIntoRenderTexture = true;
 			return cam;
 		}
 
@@ -305,11 +305,6 @@ namespace GuiToolkit.Editor
 		{
 			// liefert nur Komponenten des aktiven Stages (PrefabStage oder MainStage)
 			return CurrentStageHandle().FindComponentsOfType<T>();
-		}
-
-		private static void MakeNonPickableAndDontSave()
-		{
-			SceneVisibilityManager.instance.DisablePicking(m_canvasGo, true);
 		}
 	}
 }
