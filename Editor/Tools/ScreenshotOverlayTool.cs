@@ -24,7 +24,7 @@ namespace GuiToolkit.Editor
 		private static string m_prefabPath;
 
 
-		[MenuItem(StringConstants.CREATE_SCREENSHOT_OVERLAY)]
+		[MenuItem(StringConstants.CREATE_GUI_SCREENSHOT_OVERLAY)]
 		public static void MakeScreenshotOverlay()
 		{
 			m_root = null;
@@ -86,13 +86,12 @@ namespace GuiToolkit.Editor
 
 				m_scenesLoaded.Add(sc);
 			}
-
+				
 			m_tempScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
-			m_activeScene = EditorSceneManager.GetActiveScene();
-			EditorSceneManager.SetActiveScene(m_tempScene);
+			m_activeScene = SceneManager.GetActiveScene();
+			SceneManager.SetActiveScene(m_tempScene);
 			foreach (var scene in m_scenesLoaded)
 				EditorSceneManager.CloseScene(scene, false);
-
 
 			m_instancedPrefab = (GameObject)PrefabUtility.InstantiatePrefab(prefabObj, m_tempScene);
 		}
@@ -175,9 +174,6 @@ namespace GuiToolkit.Editor
 			cam.backgroundColor = new Color(.5f, .5f, .5f, 0);
 			cam.cullingMask = 1 << LayerMask.NameToLayer("UI");
 			cam.orthographic = true;
-			//			cam.enabled = false;
-			//			cam.hideFlags = HideFlags.DontSave;
-			//			cam.forceIntoRenderTexture = true;
 			return cam;
 		}
 
@@ -194,7 +190,8 @@ namespace GuiToolkit.Editor
 		{
 			var snaps = new List<CanvasSnapshot>();
 
-			foreach (var c in FindInCurrentStage<Canvas>())
+			var canvases = Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+			foreach (var c in canvases)
 			{
 				if (!c)
 					continue;
@@ -215,6 +212,7 @@ namespace GuiToolkit.Editor
 					c.overrideSorting = true;
 				}
 			}
+			
 			Canvas.ForceUpdateCanvases();
 			return snaps;
 		}
@@ -242,10 +240,28 @@ namespace GuiToolkit.Editor
 
 			try
 			{
+				Canvas addedCanvas = null;
+				CanvasScaler addedCanvasScaler = null;
+				Vector3 scale = Vector3.one;
+				
+				if (m_isPrefab)
+				{
+					var canvas = m_instancedPrefab.GetComponent<Canvas>();
+					// We need a canvas to render; if none is set, create a temporary one
+					if (!canvas)
+					{
+						scale = m_instancedPrefab.transform.localScale;
+						addedCanvas = m_instancedPrefab.AddComponent<Canvas>();
+						addedCanvasScaler = m_instancedPrefab.AddComponent<CanvasScaler>();
+						addedCanvas.renderMode = RenderMode.ScreenSpaceCamera;
+						addedCanvas.worldCamera = cam;
+						addedCanvas.overrideSorting = true;
+					}
+				}
+				
 				cam.targetTexture = rt;
 				cam.Render();
 				var holder = Object.FindAnyObjectByType<UiSpriteHolder>(FindObjectsInactive.Include);
-
 				var tmpTex = new Texture2D(width, height, TextureFormat.RGBA32, false, false);
 				RenderTexture.active = rt;
 				tmpTex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
@@ -258,6 +274,14 @@ namespace GuiToolkit.Editor
 
 				if (m_isPrefab)
 				{
+					// destroy temporary canvas, if it was set; otherwise it will end up in the ApplyPrefabInstance()
+					if (addedCanvas)
+					{
+						addedCanvasScaler.SafeDestroy();
+						addedCanvas.SafeDestroy();
+						m_instancedPrefab.transform.localScale = scale;
+					}
+					
 					// record + apply to source prefab
 					PrefabUtility.RecordPrefabInstancePropertyModifications(holder);
 					PrefabUtility.ApplyPrefabInstance(m_instancedPrefab, InteractionMode.AutomatedAction);
