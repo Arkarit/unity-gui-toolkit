@@ -141,8 +141,8 @@ namespace GuiToolkit.Editor
 			cam.cullingMask = 1 << LayerMask.NameToLayer("UI");
 			cam.orthographic = false;
 			cam.enabled = false;
-			cam.hideFlags = HideFlags.DontSave;
-			cam.forceIntoRenderTexture = true;
+//			cam.hideFlags = HideFlags.DontSave;
+//			cam.forceIntoRenderTexture = true;
 			return cam;
 		}
 
@@ -158,9 +158,12 @@ namespace GuiToolkit.Editor
 		private static List<CanvasSnapshot> SwitchOverlayCanvasesToCamera( Camera cam )
 		{
 			var snaps = new List<CanvasSnapshot>();
+			
 			foreach (var c in FindInCurrentStage<Canvas>())
 			{
-				if (!c) continue;
+				if (!c) 
+					continue;
+				
 				snaps.Add(new CanvasSnapshot
 				{
 					Canvas = c,
@@ -183,7 +186,9 @@ namespace GuiToolkit.Editor
 
 		private static void RestoreCanvasSnapshots( List<CanvasSnapshot> snaps )
 		{
-			if (snaps == null) return;
+			if (snaps == null) 
+				return;
+			
 			foreach (var s in snaps)
 			{
 				if (!s.Canvas) continue;
