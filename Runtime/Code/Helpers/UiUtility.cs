@@ -87,6 +87,26 @@ namespace GuiToolkit
 			return outer;
 		}
 
+#if UNITY_EDITOR && !UNITY_6000_0_OR_NEWER
+		// This is necessary, because crappy Unity < 6 does NOT supply a safe way for getting the actual play mode window size.
+		[InitializeOnLoadMethod]
+		public static void RefreshGameView()
+		{
+			EditorApplication.delayCall += () =>
+			{
+				var playModeWindow = EditorWindow.GetWindow(Type.GetType("UnityEditor.PlayModeView, UnityEditor"));
+				var sceneWindow = EditorWindow.GetWindow<SceneView>();
+				
+				if (playModeWindow)
+					playModeWindow.Repaint();
+				if (sceneWindow)
+					sceneWindow.Repaint();
+			};
+		}
+#else
+		public static void RefreshGameView(){}
+#endif
+
 		public static Vector2Int GetScreenSize()
 		{
 #if UNITY_EDITOR
