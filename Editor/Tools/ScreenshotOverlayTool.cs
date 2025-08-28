@@ -114,7 +114,7 @@ namespace GuiToolkit.Editor
 
 				m_scenesLoaded.Add(sc);
 			}
-				
+
 			m_tempScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
 			m_activeScene = SceneManager.GetActiveScene();
 			SceneManager.SetActiveScene(m_tempScene);
@@ -240,7 +240,7 @@ namespace GuiToolkit.Editor
 					c.overrideSorting = true;
 				}
 			}
-			
+
 			Canvas.ForceUpdateCanvases();
 			return snaps;
 		}
@@ -268,25 +268,31 @@ namespace GuiToolkit.Editor
 
 			try
 			{
-				Canvas addedCanvas = null;
-				CanvasScaler addedCanvasScaler = null;
-				Vector3 scale = Vector3.one;
-				
+
 				if (m_isPrefab)
 				{
 					var canvas = m_instancedPrefab.GetComponent<Canvas>();
+					
 					// We need a canvas to render; if none is set, create a temporary one
 					if (!canvas)
 					{
-						scale = m_instancedPrefab.transform.localScale;
-						addedCanvas = m_instancedPrefab.AddComponent<Canvas>();
-						addedCanvasScaler = m_instancedPrefab.AddComponent<CanvasScaler>();
-						addedCanvas.renderMode = RenderMode.ScreenSpaceCamera;
-						addedCanvas.worldCamera = cam;
-						addedCanvas.overrideSorting = true;
+						var wrapper = new GameObject("__TempCanvasRoot__");
+						wrapper.layer = LayerMask.NameToLayer("UI");
+						SceneManager.MoveGameObjectToScene(wrapper, m_tempScene);
+
+						canvas = wrapper.AddComponent<Canvas>();
+						canvas.renderMode = RenderMode.ScreenSpaceCamera;
+						canvas.worldCamera = cam;
+						canvas.overrideSorting = true;
+
+						var scaler = wrapper.AddComponent<CanvasScaler>();
+						scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
+						scaler.referencePixelsPerUnit = 100f;
+
+						m_instancedPrefab.transform.SetParent(wrapper.transform, false);
 					}
 				}
-				
+
 				cam.targetTexture = rt;
 				cam.Render();
 				var holder = Object.FindAnyObjectByType<UiSpriteHolder>(FindObjectsInactive.Include);
@@ -302,14 +308,6 @@ namespace GuiToolkit.Editor
 
 				if (m_isPrefab)
 				{
-					// destroy temporary canvas, if it was set; otherwise it will end up in the ApplyPrefabInstance()
-					if (addedCanvas)
-					{
-						addedCanvasScaler.SafeDestroy();
-						addedCanvas.SafeDestroy();
-						m_instancedPrefab.transform.localScale = scale;
-					}
-					
 					// record + apply to source prefab
 					PrefabUtility.RecordPrefabInstancePropertyModifications(holder);
 					PrefabUtility.ApplyPrefabInstance(m_instancedPrefab, InteractionMode.AutomatedAction);
@@ -340,8 +338,8 @@ namespace GuiToolkit.Editor
 			else
 				SceneManager.MoveGameObjectToScene(go, SceneManager.GetActiveScene());
 		}
-		
-		private static void Log(string _s, float _progress)
+
+		private static void Log( string _s, float _progress )
 		{
 			EditorUtility.DisplayProgressBar($"Creating GUI Screenshot overlay", _s, _progress);
 			Debug.Log(_s);
