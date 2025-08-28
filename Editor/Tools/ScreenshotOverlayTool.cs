@@ -55,8 +55,9 @@ namespace GuiToolkit.Editor
 			}
 
 			// 1) size like GameView
-			m_width = Mathf.Max(64, UiUtility.ScreenWidth());
-			m_height = Mathf.Max(64, UiUtility.ScreenHeight());
+			var screenSize = UiUtility.GetScreenSize();
+			m_width = Mathf.Max(64, screenSize.x);
+			m_height = Mathf.Max(64, screenSize.y);
 
 			Log("Creating Overlay", 0);
 			CreateOverlay();
