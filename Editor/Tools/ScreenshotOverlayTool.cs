@@ -6,9 +6,8 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using static System.Net.Mime.MediaTypeNames;
-using UnityEditor.SearchService;
 using Image = UnityEngine.UI.Image;
+using Object = UnityEngine.Object;
 
 namespace GuiToolkit.Editor
 {
@@ -24,7 +23,8 @@ namespace GuiToolkit.Editor
 		private static GameObject m_canvasGo;
 		private static GameObject m_imageGameObject;
 		private static Image m_image;
-		
+		private static Scene m_tempScene;
+
 
 		[MenuItem(MenuPath, priority = -10000)]
 		public static void MakeScreenshotOverlay()
@@ -45,45 +45,80 @@ namespace GuiToolkit.Editor
 					Debug.LogError("No roots found.");
 					return;
 				}
-				
+
 				m_root = roots[0];
 			}
 
 			// 1) size like GameView
 			m_width = Mathf.Max(64, Mathf.RoundToInt(UiUtility.ScreenWidth()));
 			m_height = Mathf.Max(64, Mathf.RoundToInt(UiUtility.ScreenHeight()));
-			
+
 			CreateOverlay();
 
+			if (m_isPrefab)
+				CreateTempScene();
+
 			// 2) temp camera
-			var cam = CreateTempCameraInStage();
+			var cam = CreateTempCamera();
 
 			// 3) switch Overlay canvases to ScreenSpaceCamera (remember original state)
 			var canvasSnaps = SwitchOverlayCanvasesToCamera(cam);
 
 			// 4) render into RT and read back
-			var tex = CaptureCameraToTexture(cam, m_width, m_height);
+			CaptureCameraToTexture(cam, m_width, m_height);
 
 			// 5) restore canvases
 			try { }
 			finally
 			{
 				RestoreCanvasSnapshots(canvasSnaps);
-//				if (cam != null && cam.gameObject.name == "__ScreenshotCamera__")
-//					UnityEngine.Object.DestroyImmediate(cam.gameObject);
-			}
-
-			if (tex == null)
-			{
-				Debug.LogError("Failed to capture screenshot.");
-				return;
+				//				if (cam != null && cam.gameObject.name == "__ScreenshotCamera__")
+				//					UnityEngine.Object.DestroyImmediate(cam.gameObject);
 			}
 
 			// 7) non-pickable and dont-save
-			MakeNonPickableAndDontSave();
+//			MakeNonPickableAndDontSave();
+
+			if (m_isPrefab)
+				DestroyTempScene();
 
 			// Done
 			Debug.Log($"Screenshot overlay created ({m_width}x{m_height}) at 50% opacity.");
+		}
+
+		private static Scene m_activeScene;
+		private static GameObject m_instancedPrefab;
+		private static readonly List<Scene> m_scenesLoaded = new();
+
+		private static void CreateTempScene()
+		{
+			var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+			var prefabObj = AssetDatabase.LoadAssetAtPath<GameObject>(prefabStage.assetPath);
+			for (int i = 0; i < SceneManager.sceneCount; i++)
+			{
+				var sc = SceneManager.GetSceneAt(i);
+				if (!sc.isLoaded)
+					continue;
+				
+				m_scenesLoaded.Add(sc);
+			}
+			
+			m_tempScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
+			m_activeScene = EditorSceneManager.GetActiveScene();
+			EditorSceneManager.SetActiveScene(m_tempScene);
+			foreach (var scene in m_scenesLoaded)
+				EditorSceneManager.CloseScene(scene, false);
+			
+			
+			m_instancedPrefab = (GameObject)PrefabUtility.InstantiatePrefab(prefabObj, m_tempScene);
+		}
+
+		private static void DestroyTempScene()
+		{
+			//			EditorSceneManager.SetActiveScene(m_activeScene);
+			//			EditorSceneManager.CloseScene(m_tempScene, true);
+
+			m_scenesLoaded.Clear();
 		}
 
 		private static void CreateOverlay()
@@ -123,26 +158,32 @@ namespace GuiToolkit.Editor
 			m_image.raycastTarget = false;
 			m_image.sprite = m_spriteHolder.Sprite;
 			m_image.color = new Color(1f, 1f, 1f, 0.5f); // 50% opacity
+
+			if (m_isPrefab)
+			{
+				var stage = PrefabStageUtility.GetCurrentPrefabStage();
+				PrefabUtility.SaveAsPrefabAsset(stage.prefabContentsRoot, stage.assetPath);
+			}
 		}
 
 		// --------------------------------------------------------------------
 		// Helpers
 		// --------------------------------------------------------------------
 
-		private static Camera CreateTempCameraInStage()
+		private static Camera CreateTempCamera()
 		{
 			var go = new GameObject("__ScreenshotCamera__");
 			if (m_root)
 				go.transform.SetParent(m_root.transform);
-			
+
 			var cam = go.AddComponent<Camera>();
 			cam.clearFlags = CameraClearFlags.SolidColor;
-			cam.backgroundColor =new Color(.5f, .5f, .5f, 0);
+			cam.backgroundColor = new Color(.5f, .5f, .5f, 0);
 			cam.cullingMask = 1 << LayerMask.NameToLayer("UI");
 			cam.orthographic = false;
-			cam.enabled = false;
-//			cam.hideFlags = HideFlags.DontSave;
-//			cam.forceIntoRenderTexture = true;
+			//			cam.enabled = false;
+			//			cam.hideFlags = HideFlags.DontSave;
+			//			cam.forceIntoRenderTexture = true;
 			return cam;
 		}
 
@@ -158,12 +199,12 @@ namespace GuiToolkit.Editor
 		private static List<CanvasSnapshot> SwitchOverlayCanvasesToCamera( Camera cam )
 		{
 			var snaps = new List<CanvasSnapshot>();
-			
+
 			foreach (var c in FindInCurrentStage<Canvas>())
 			{
-				if (!c) 
+				if (!c)
 					continue;
-				
+
 				snaps.Add(new CanvasSnapshot
 				{
 					Canvas = c,
@@ -186,9 +227,9 @@ namespace GuiToolkit.Editor
 
 		private static void RestoreCanvasSnapshots( List<CanvasSnapshot> snaps )
 		{
-			if (snaps == null) 
+			if (snaps == null)
 				return;
-			
+
 			foreach (var s in snaps)
 			{
 				if (!s.Canvas) continue;
@@ -200,28 +241,21 @@ namespace GuiToolkit.Editor
 			Canvas.ForceUpdateCanvases();
 		}
 
-		private static Texture2D CaptureCameraToTexture( Camera cam, int width, int height )
+		private static void CaptureCameraToTexture( Camera cam, int width, int height )
 		{
 			var rt = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32);
 			var prevRT = cam.targetTexture;
-			var prevActive = RenderTexture.active;
 
 			try
 			{
 				cam.targetTexture = rt;
 				cam.Render();
-				RenderTexture.active = rt;
-
-				var tex = m_spriteHolder.Texture;
-				tex.ReadPixels(new Rect(0, 0, width, height), 0, 0, false);
-				tex.Apply(false, false);
-
-				return tex;
+				var spriteHolder = Object.FindAnyObjectByType<UiSpriteHolder>(FindObjectsInactive.Include);
+				spriteHolder.ReadFromRenderTexture(rt);
 			}
 			finally
 			{
 				cam.targetTexture = prevRT;
-				RenderTexture.active = prevActive;
 				RenderTexture.ReleaseTemporary(rt);
 			}
 		}

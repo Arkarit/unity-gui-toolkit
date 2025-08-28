@@ -63,21 +63,21 @@ namespace GuiToolkit
 			m_dirty = true;
 		}
 
-		// Copy pixels from active RenderTexture into our Texture and mark for persistence
-		public void ReadFromActiveRT()
+		public void ReadFromRenderTexture(RenderTexture _renderTexture)
 		{
-			if (m_texture == null) Create();
-			var rt = RenderTexture.active;
-			if (rt == null || rt.width != m_width || rt.height != m_height)
+			if (m_texture == null) 
+				Create();
+			
+			if (_renderTexture == null || _renderTexture.width != m_width || _renderTexture.height != m_height)
 			{
 				// Resize to match RT
-				Create(m_texture ? m_texture.name : null, rt ? rt.width : m_width, rt ? rt.height : m_height);
+				Create(m_texture ? m_texture.name : null, _renderTexture ? _renderTexture.width : m_width, _renderTexture ? _renderTexture.height : m_height);
 			}
 
 			var prev = RenderTexture.active;
 			try
 			{
-				// Assume caller already set RenderTexture.active
+				RenderTexture.active = _renderTexture;
 				m_texture.ReadPixels(new Rect(0, 0, m_width, m_height), 0, 0, false);
 				m_texture.Apply(false, false);
 			}
