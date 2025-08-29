@@ -18,7 +18,7 @@ namespace GuiToolkit.Editor
 		/// Name of the hidden GameObject that stores the registry in a scene.
 		/// </summary>
 		public const string RegistryName = "__ReferencesRewireRegistry__";
-
+		
 		/// <summary>
 		/// A single rewiring entry that describes how to update a reference
 		/// from an old component (e.g. UnityEngine.UI.Text) to a new one (e.g. TextMeshProUGUI).
@@ -73,6 +73,7 @@ namespace GuiToolkit.Editor
 				SceneManager.MoveGameObjectToScene(registryGameObject, _scene);
 				result = registryGameObject.AddComponent<ReferencesRewireRegistry>();
 				Undo.RegisterCreatedObjectUndo(registryGameObject, "Create TMP Rewire Registry");
+				ComponentReplaceLog.Log(_scene.path, "Create ReferencesRewireRegistry");
 			}
 
 			return result;

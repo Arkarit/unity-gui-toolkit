@@ -13,6 +13,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using UnityEditor.Compilation;
+using System.Linq;
 
 #if UITK_USE_ROSLYN
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -24,10 +25,11 @@ using GuiToolkit.Editor.Roslyn;
 using OwnerAndPathList = System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>;
 using OwnerAndPathListById = System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>>;
 using TextSnapshotList = System.Collections.Generic.List<(GuiToolkit.Editor.EditorCodeUtility.TextSnapshot Snapshot, TMPro.TextMeshProUGUI NewComp)>;
-using System.Linq;
 
 namespace GuiToolkit.Editor
 {
+	
+#if !UITK_USE_ROSLYN
 	/// <summary>
 	/// Exception thrown when Roslyn-based parsing or rewriting is not available
 	/// for the current Unity version or environment.
@@ -43,7 +45,8 @@ namespace GuiToolkit.Editor
 					"or run this on Unity 6+ where Roslyn in package is supported.")
 		{ }
 	}
-
+#endif
+	
 	/// <summary>
 	/// Editor utilities for migrating UnityEngine.UI.Text to TextMeshProUGUI, including:
 	/// - collecting serialized references,
@@ -85,10 +88,16 @@ namespace GuiToolkit.Editor
 			/// </summary>
 			public int OldId;
 		}
+		
+		private static string s_replacementLogName;
 
-		// ---- NEW: helper cache and lookup for TMP fonts/materials -------------------
-		private static readonly Dictionary<string, (TMP_FontAsset font, Material mat)> s_tmpFontLookupCache
-			= new Dictionary<string, (TMP_FontAsset, Material)>(StringComparer.OrdinalIgnoreCase);
+		private static readonly Dictionary<string, (TMP_FontAsset font, Material mat)> s_tmpFontLookupCache = new (StringComparer.OrdinalIgnoreCase);
+
+		public static string ReplacementLogName
+		{
+			get => s_replacementLogName;
+			set => s_replacementLogName = value;
+		}
 
 		private static string NormalizeFontKey( string name )
 		{
@@ -328,6 +337,7 @@ namespace GuiToolkit.Editor
 			if (!ReferencesRewireRegistry.TryGetRegistryWithEntries(scene, out ReferencesRewireRegistry reg))
 				return false;
 
+			ComponentReplaceLog.Log(scene.path, "");
 			// 1) Replace components (mapping only; no SerializedProperty writes in this step)
 			var replacedList = ReplaceUITextWithTMPInActiveScene();
 			_replaced = replacedList.Count;
@@ -354,6 +364,9 @@ namespace GuiToolkit.Editor
 					}
 				}
 
+				Undo.RecordObject(e.TargetGameObject, "Rewire TMP reference");
+				e.TargetGameObject.name = e.TargetGameObject.name.Replace(" (Legacy)", "");
+				
 				var so = new SerializedObject(e.Owner);
 				var sp = so.FindProperty(e.PropertyPath);
 				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
@@ -467,7 +480,7 @@ namespace GuiToolkit.Editor
 					tmp.raycastTarget = s.Raycast;
 					tmp.lineSpacing = ConvertLineSpacingFromTextToTmp(s.LineSpacing);
 
-					// map alignment (wie gehabt)
+					// map alignment
 					switch (s.Anchor)
 					{
 						case TextAnchor.UpperLeft: tmp.alignment = TextAlignmentOptions.TopLeft; break;
@@ -527,11 +540,16 @@ namespace GuiToolkit.Editor
 		where TB : Component
 		{
 #if UITK_USE_ROSLYN
+			var scene = GetCurrentContextScene(out bool isPrefab);
+			if (!scene.IsValid())
+				throw new ArgumentException($"No scene found.");
 			if (typeof(TA).IsAbstract)
 				throw new ArgumentException($"{typeof(TA).Name} is abstract.");
 			if (typeof(TB).IsAbstract)
 				throw new ArgumentException($"{typeof(TB).Name} is abstract.");
 
+			ReplacementLogName = scene.path;
+			
 			var results = new List<(TSnapshot, TB)>();
 
 			var targets = EditorAssetUtility.FindObjectsInCurrentEditedPrefabOrScene<TA>();
@@ -557,14 +575,15 @@ namespace GuiToolkit.Editor
 				// 2) Remove TA (Graphic) now that no blockers are enforcing it
 				if (!oldComp.CanBeDestroyed(out string reasons))
 				{
-					// if your CanBeDestroyed() does Require checks, this should no longer fail
-					Debug.LogError($"Can not replace '{go.GetPath()}'\nReason(s): {reasons}", oldComp);
-
+					string s = $"Can not replace '{go.GetPath()}'\nReason(s): {reasons}";
+					Debug.LogError(s, oldComp);
+					LogReplacement($"Error:{s}");
 					// try to restore blockers before continuing
 					RestoreGraphicBlockers(go, blockers);
 					continue;
 				}
 
+				LogReplacement($"Removing old component '{oldComp.GetType().Name}' on '{oldComp.GetPath()}'");
 				Undo.RegisterCompleteObjectUndo(go, "Remove Source Component");
 				Undo.DestroyObjectImmediate(oldComp);
 
@@ -573,6 +592,7 @@ namespace GuiToolkit.Editor
 				if (!newComp)
 				{
 					newComp = Undo.AddComponent<TB>(go);
+					LogReplacement($"Created new component '{newComp.GetType().Name}' on '{newComp.GetPath()}'");
 					if (!newComp)
 					{
 						// catastrophic: restore original situation as best as possible
@@ -653,6 +673,15 @@ namespace GuiToolkit.Editor
 		/// </summary>
 		public static void ReplaceTextWithTextMeshProInCurrentContext()
 		{
+			var scene = GetCurrentContextScene(out bool isPrefab);
+			if (!scene.IsValid())
+			{
+				Debug.LogError("Scene is invalid");
+				return;
+			}
+
+			s_replacementLogName = scene.path;
+			LogReplacement($"___ Starting replacement of scene '{scene.path}' ___");
 			PrepareUITextToTMPInContextScene();
 			ReplaceTextInContextSceneWithTextMeshPro();
 		}
@@ -694,9 +723,10 @@ namespace GuiToolkit.Editor
 		public static int PrepareUITextToTMPInContextScene()
 		{
 			var scene = GetCurrentContextScene();
+			
 			if (!scene.IsValid())
 				throw new InvalidOperationException("No valid scene or prefab stage.");
-
+			
 			var reg = ReferencesRewireRegistry.GetOrCreate(scene);
 			if (reg == null)
 				throw new Exception("Unexpected: could not create Registry object");
@@ -887,25 +917,26 @@ namespace GuiToolkit.Editor
 			var blockers = new List<BlockerSnapshot>();
 			var components = go.GetComponents<Component>();
 
-			foreach (var c in components)
+			foreach (var component in components)
 			{
-				if (!c)
+				if (!component)
 					continue;
-				if (c == graphicToKeep)
+				if (component == graphicToKeep)
 					continue;
-				if (c is Transform)
+				if (component is Transform)
 					continue;
 
-				var ct = c.GetType();
+				var ct = component.GetType();
 				if (!RequiresGraphic(ct))
 					continue;
 
 				// serialize state
-				string json = EditorJsonUtility.ToJson(c);
+				string json = EditorJsonUtility.ToJson(component, true);
 				blockers.Add(new BlockerSnapshot { Type = ct, Json = json });
 
+				LogReplacement($"Temporarily delete '{component.GetType().Name}' on '{component.GetPath()}' due to Graphics dependencies");
 				// remove now (so Text can be removed without failing RequireComponent)
-				Undo.DestroyObjectImmediate(c);
+				Undo.DestroyObjectImmediate(component);
 			}
 
 			return blockers;
@@ -915,14 +946,22 @@ namespace GuiToolkit.Editor
 		{
 			if (blockers == null) return;
 
-			foreach (var b in blockers)
+			foreach (var blocker in blockers)
 			{
-				if (b.Type == null) continue;
-				var restored = Undo.AddComponent(go, b.Type);
-				if (restored != null && !string.IsNullOrEmpty(b.Json))
+				if (blocker.Type == null) continue;
+				var restored = Undo.AddComponent(go, blocker.Type);
+				if (restored == null)
+				{
+					LogReplacement($"Error: Can not restore '{blocker.Type.Name}' on '{go.GetPath()}'");
+					continue;
+				}
+				
+				LogReplacement($"Restored '{blocker.Type.Name}' on '{go.GetPath()}'");
+				if (!string.IsNullOrEmpty(blocker.Json))
 				{
 					// restore serialized values
-					EditorJsonUtility.FromJsonOverwrite(b.Json, restored);
+					LogReplacement($"Restoreding properties for '{blocker.Type.Name}' on '{go.GetPath()}':\n{blocker.Json}");
+					EditorJsonUtility.FromJsonOverwrite(blocker.Json, restored);
 					EditorUtility.SetDirty(restored);
 				}
 			}
@@ -1059,6 +1098,17 @@ namespace GuiToolkit.Editor
 			// Add an empty code entry if last slot was string
 			if (_list.Count.IsOdd())
 				_list.Add("");
+		}
+		
+		private static void LogReplacement( string _msg )
+		{
+			if (string.IsNullOrEmpty(s_replacementLogName))
+			{
+				Debug.Log(_msg);
+				return;
+			}
+			
+			ComponentReplaceLog.Log(s_replacementLogName, _msg);
 		}
 #endif
 	}
