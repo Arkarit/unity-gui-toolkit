@@ -356,20 +356,7 @@ namespace GuiToolkit.Editor
 					}
 				}
 
-				var go = e.TargetGameObject;
-				var oldName = go.name;
-				var newName = oldName.Replace(" (Legacy)", "");
-
-				if (newName != oldName)
-				{
-					Undo.RecordObject(go, "Rename");
-					go.name = newName;
-
-					if (isPrefab)
-						PrefabUtility.RecordPrefabInstancePropertyModifications(go);
-				}
-				
-				EditorUtility.SetDirty(go);
+				EditorUtility.SetDirty(e.TargetGameObject);
 
 				var so = new SerializedObject(e.Owner);
 				var sp = so.FindProperty(e.PropertyPath);
