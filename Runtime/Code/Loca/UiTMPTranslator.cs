@@ -18,7 +18,11 @@ namespace GuiToolkit
 
 		private LocaManager m_locaManager;
 
-		public bool AutoTranslate => m_autoTranslate;
+		public bool AutoTranslate
+		{
+			get => m_autoTranslate;
+			set => m_autoTranslate = value;
+		}
 
 		protected override bool NeedsLanguageChangeCallback => true;
 		protected override void OnLanguageChanged(string _languageId)
