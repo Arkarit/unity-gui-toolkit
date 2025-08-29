@@ -89,15 +89,7 @@ namespace GuiToolkit.Editor
 			public int OldId;
 		}
 		
-		private static string s_replacementLogName;
-
 		private static readonly Dictionary<string, (TMP_FontAsset font, Material mat)> s_tmpFontLookupCache = new (StringComparer.OrdinalIgnoreCase);
-
-		public static string ReplacementLogName
-		{
-			get => s_replacementLogName;
-			set => s_replacementLogName = value;
-		}
 
 		private static string NormalizeFontKey( string name )
 		{
@@ -337,7 +329,7 @@ namespace GuiToolkit.Editor
 			if (!ReferencesRewireRegistry.TryGetRegistryWithEntries(scene, out ReferencesRewireRegistry reg))
 				return false;
 
-			ComponentReplaceLog.Log(scene.path, "");
+			LogReplacement("Apply Rewire Registry");
 			// 1) Replace components (mapping only; no SerializedProperty writes in this step)
 			var replacedList = ReplaceUITextWithTMPInActiveScene();
 			_replaced = replacedList.Count;
@@ -547,8 +539,6 @@ namespace GuiToolkit.Editor
 				throw new ArgumentException($"{typeof(TA).Name} is abstract.");
 			if (typeof(TB).IsAbstract)
 				throw new ArgumentException($"{typeof(TB).Name} is abstract.");
-
-			ReplacementLogName = scene.path;
 			
 			var results = new List<(TSnapshot, TB)>();
 
@@ -680,7 +670,6 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			s_replacementLogName = scene.path;
 			LogReplacement($"___ Starting replacement of scene '{scene.path}' ___");
 			PrepareUITextToTMPInContextScene();
 			ReplaceTextInContextSceneWithTextMeshPro();
@@ -1102,13 +1091,7 @@ namespace GuiToolkit.Editor
 		
 		private static void LogReplacement( string _msg )
 		{
-			if (string.IsNullOrEmpty(s_replacementLogName))
-			{
-				Debug.Log(_msg);
-				return;
-			}
-			
-			ComponentReplaceLog.Log(s_replacementLogName, _msg);
+			ComponentReplaceLog.Log(_msg);
 		}
 #endif
 	}

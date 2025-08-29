@@ -73,7 +73,7 @@ namespace GuiToolkit.Editor
 				SceneManager.MoveGameObjectToScene(registryGameObject, _scene);
 				result = registryGameObject.AddComponent<ReferencesRewireRegistry>();
 				Undo.RegisterCreatedObjectUndo(registryGameObject, "Create TMP Rewire Registry");
-				ComponentReplaceLog.Log(_scene.path, "Create ReferencesRewireRegistry");
+				ComponentReplaceLog.Log("Create ReferencesRewireRegistry");
 			}
 
 			return result;

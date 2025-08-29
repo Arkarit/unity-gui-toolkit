@@ -1,7 +1,9 @@
 #if UNITY_EDITOR
 using System;
 using System.IO;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace GuiToolkit.Editor
 {
@@ -11,29 +13,51 @@ namespace GuiToolkit.Editor
 		/// Append a single log line to the dialog-specific log file.
 		/// File name equals dialogName; only the message line contains the time.
 		/// </summary>
-		public static void Log( string _dialogName, string _message )
+		public static void Log(string _message )
 		{
-			string path = GetFilePath(_dialogName);
+			var scene = GetCurrentContextScene(out bool isPrefab);
+			if (!scene.IsValid())
+			{
+				Debug.LogWarning( "Invalid scene" );
+				Debug.Log( _message );
+				return;
+			}
+			
+			string scenePath = isPrefab ? PrefabStageUtility.GetCurrentPrefabStage().assetPath : scene.path;
+			string path = GetFilePath(scenePath);
 			string line = $"[{System.DateTime.Now:yyyy-MM-dd HH:mm:ss}] {_message}";
 			File.AppendAllText(path, line + "\n");
-			Debug.Log(line); // Kommentar entfernen, falls kein Console-Echo gewünscht
+			Debug.Log(line);
 		}
 
 		// ProjectRoot/Logs/ComponentReplacement/<DialogName>.log
-		private static string GetFilePath( string _dialogName )
+		private static string GetFilePath( string _scenePath )
 		{
-			if (string.IsNullOrEmpty(_dialogName))
+			if (string.IsNullOrEmpty(_scenePath))
 				throw new InvalidOperationException($"{nameof(ComponentReplaceLog)} needs a valid dialog name");
 
-			_dialogName = Path.ChangeExtension(_dialogName, null).ToLower();
+			_scenePath = Path.ChangeExtension(_scenePath, null).ToLower();
 			foreach (char c in Path.GetInvalidFileNameChars())
-				_dialogName = _dialogName.Replace(c, '_');
+				_scenePath = _scenePath.Replace(c, '_');
 
 			string projectRoot = Directory.GetParent(Application.dataPath).FullName;
 			string dir = Path.Combine(projectRoot, "Logs", "ComponentReplacement");
 			EditorFileUtility.EnsureFolderExists(dir);
 
-			return Path.Combine(dir, _dialogName + ".log");
+			return Path.Combine(dir, _scenePath + ".log");
+		}
+		
+		private static Scene GetCurrentContextScene(out bool _isPrefab)
+		{
+			_isPrefab = false;
+			var stage = PrefabStageUtility.GetCurrentPrefabStage();
+			if (stage != null && stage.scene.IsValid())
+			{
+				_isPrefab = true;
+				return stage.scene;
+			}
+			
+			return SceneManager.GetActiveScene();
 		}
 
 	}

@@ -35,7 +35,7 @@ namespace GuiToolkit.Editor
 				if (!EditorCodeUtility.ApplyRewireRegistryIfFound(out int replaced, out int rewired, out int missing))
 					return;
 
-				ComponentReplaceLog.Log(scene.name, $"[Finalize Text->TMP] Replaced={replaced}, Rewired={rewired}, Missing={missing}");
+				ComponentReplaceLog.Log($"[Finalize Text->TMP] Replaced={replaced}, Rewired={rewired}, Missing={missing}");
 			}
 			catch (Exception ex)
 			{
