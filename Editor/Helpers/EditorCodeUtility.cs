@@ -88,6 +88,46 @@ namespace GuiToolkit.Editor
 			/// Used to rewire serialized object references to the new component.
 			/// </summary>
 			public int OldId;
+			
+			public override string ToString()
+			{
+				var sb = new System.Text.StringBuilder(128);
+				sb.AppendLine("TextSnapshot");
+				sb.AppendLine("{");
+				sb.AppendLine("\t  Text='").Append(Preview(Text, 80)).Append("'");
+				sb.AppendLine("\t, Color=").Append(ColorToHex(Color));
+				sb.AppendLine("\t, FontSize=").Append(FontSize.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture));
+				sb.AppendLine("\t, Rich=").Append(Rich);
+				sb.AppendLine("\t, AutoSize=").Append(AutoSize);
+				sb.AppendLine("\t, Anchor=").Append(Anchor);
+				sb.AppendLine("\t, Raycast=").Append(Raycast);
+				sb.AppendLine("\t, LineSpacing=").Append(LineSpacing.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture));
+				sb.AppendLine("\t, FontName=").Append(string.IsNullOrEmpty(FontName) ? "<null>" : FontName);
+				sb.AppendLine("\t, FontStyle=").Append(FontStyle);
+				sb.AppendLine("\t, OldId=").Append(OldId);
+				sb.AppendLine("}");
+				return sb.ToString();
+			}
+
+			// --- helpers (ASCII-safe) ---
+			private static string Preview( string s, int maxLen )
+			{
+				if (string.IsNullOrEmpty(s)) 
+					return "<empty>";
+				
+				s = s.Replace("\r", "\\r").Replace("\n", "\\n");
+				if (s.Length <= maxLen) return s;
+				return s.Substring(0, maxLen) + "...";
+			}
+
+			private static string ColorToHex( Color c )
+			{
+				int r = Mathf.Clamp(Mathf.RoundToInt(c.r * 255f), 0, 255);
+				int g = Mathf.Clamp(Mathf.RoundToInt(c.g * 255f), 0, 255);
+				int b = Mathf.Clamp(Mathf.RoundToInt(c.b * 255f), 0, 255);
+				int a = Mathf.Clamp(Mathf.RoundToInt(c.a * 255f), 0, 255);
+				return string.Format("#{0:X2}{1:X2}{2:X2}{3:X2}", r, g, b, a);
+			}
 		}
 
 		private static readonly Dictionary<string, (TMP_FontAsset font, Material mat)> s_tmpFontLookupCache = new(StringComparer.OrdinalIgnoreCase);
@@ -556,6 +596,7 @@ namespace GuiToolkit.Editor
 
 				// 1) Capture data while TA is still present
 				var snapshot = _capture != null ? _capture(oldComp) : default;
+				LogReplacement($"Captured text properties from '{oldComp.GetType().Name}' on '{oldComp.GetPath()}':\n{snapshot}");
 
 				var go = oldComp.gameObject;
 
@@ -593,7 +634,7 @@ namespace GuiToolkit.Editor
 						continue;
 					}
 				}
-				
+
 				LogReplacement($"Adding additional components 'UiTMPTranslator' and '' to '{newComp.GetPath()}'");
 				var translator = go.GetComponent<UiTMPTranslator>();
 				if (!translator)
@@ -601,12 +642,14 @@ namespace GuiToolkit.Editor
 					translator = Undo.AddComponent<UiTMPTranslator>(go);
 					translator.AutoTranslate = true;
 				}
-				
+
 				var styleApplier = go.GetComponent<UiApplyStyleTMP_Text>();
 				if (!styleApplier)
 					Undo.AddComponent<UiApplyStyleTMP_Text>(go);
 
 				// 4) Apply captured data to TB
+				
+				LogReplacement($"Applying captured text properties from '{oldComp.GetType().Name}' on '{oldComp.GetPath()}':\n{snapshot}");
 				_apply?.Invoke(snapshot, newComp);
 
 				// 5) Restore previously removed blockers (Outline/Shadow/etc.)
