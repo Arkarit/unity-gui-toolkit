@@ -30,7 +30,7 @@ namespace GuiToolkit.Editor
 		private static UiSpriteHolder m_spriteHolder;
 		private static int m_width;
 		private static int m_height;
-		private static GameObject m_canvasGo;
+		private static GameObject m_canvasGameObject;
 		private static GameObject m_imageGameObject;
 		private static Image m_image;
 		private static Scene m_tempScene;
@@ -153,29 +153,31 @@ namespace GuiToolkit.Editor
 		private static void CreateOverlay()
 		{
 			// ensure a topmost canvas separate from project UI
-			m_canvasGo = new GameObject("__ScreenshotOverlayCanvas__");
-			SceneManager.MoveGameObjectToScene(m_canvasGo, SceneManager.GetActiveScene());
+			m_canvasGameObject = new GameObject("__ScreenshotOverlayCanvas__");
+			m_canvasGameObject.tag = "EditorOnly";
+			SceneManager.MoveGameObjectToScene(m_canvasGameObject, SceneManager.GetActiveScene());
 			if (m_isPrefab)
 			{
 				m_root = PrefabStageUtility.GetCurrentPrefabStage().prefabContentsRoot;
-				m_canvasGo.transform.SetParent(m_root.transform);
-				var rt2 = m_canvasGo.AddComponent<RectTransform>();
+				m_canvasGameObject.transform.SetParent(m_root.transform);
+				var rt2 = m_canvasGameObject.AddComponent<RectTransform>();
 				rt2.anchorMin = Vector2.zero;
 				rt2.anchorMax = Vector2.one;
 				rt2.offsetMin = Vector2.zero;
 				rt2.offsetMax = Vector2.zero;
 			}
 
-			var canvas = m_canvasGo.AddComponent<Canvas>();
+			var canvas = m_canvasGameObject.AddComponent<Canvas>();
 			canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 			canvas.sortingOrder = 32760; // very high
 			canvas.overrideSorting = true;
-			var raycaster = m_canvasGo.AddComponent<GraphicRaycaster>();
+			var raycaster = m_canvasGameObject.AddComponent<GraphicRaycaster>();
 			raycaster.ignoreReversedGraphics = true;
 
 			// Image child
 			m_imageGameObject = new GameObject("__ScreenshotOverlay__");
-			m_imageGameObject.transform.SetParent(m_canvasGo.transform, false);
+			m_imageGameObject.tag = "EditorOnly";
+			m_imageGameObject.transform.SetParent(m_canvasGameObject.transform, false);
 			var rt = m_imageGameObject.AddComponent<RectTransform>();
 			rt.anchorMin = Vector2.zero;
 			rt.anchorMax = Vector2.one;
@@ -200,7 +202,7 @@ namespace GuiToolkit.Editor
 			}
 
 			//TODO: #44 DisablePicking(m_canvasGo, true) does not work for prefab editing in ScreenshotOverlayTool
-			SceneVisibilityManager.instance.DisablePicking(m_canvasGo, true);
+			SceneVisibilityManager.instance.DisablePicking(m_canvasGameObject, true);
 		}
 
 		// --------------------------------------------------------------------
@@ -361,7 +363,7 @@ namespace GuiToolkit.Editor
 			m_spriteHolder = null;
 			m_width = 0;
 			m_height = 0;
-			m_canvasGo = null;
+			m_canvasGameObject = null;
 			m_imageGameObject = null;
 			m_image = null;
 			m_tempScene = default;

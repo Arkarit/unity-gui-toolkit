@@ -28,6 +28,20 @@ namespace GuiToolkit.Editor
 			Debug.Log(line);
 		}
 		
+		public static void LogCr(int _howMany)
+		{
+			string scenePath = GetLogScenePath();
+			if (string.IsNullOrEmpty(scenePath))
+			{
+				Debug.LogWarning( $"Invalid scene!" );
+				return;
+			}
+			
+			string path = GetFilePath(scenePath);
+			string line = new string('\n', _howMany);
+			File.AppendAllText(path, line);
+		}
+		
 		public static string GetLogScenePath()
 		{
 			var scene = GetCurrentContextScene(out bool isPrefab);

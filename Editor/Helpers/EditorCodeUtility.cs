@@ -669,6 +669,7 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
+			ComponentReplaceLog.LogCr(2);
 			LogReplacement($"___ Starting replacement of scene '{ComponentReplaceLog.GetLogScenePath()}' ___");
 			PrepareUITextToTMPInContextScene();
 			ReplaceTextInContextSceneWithTextMeshPro();
