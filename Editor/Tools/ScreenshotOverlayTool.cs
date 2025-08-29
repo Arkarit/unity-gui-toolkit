@@ -173,6 +173,7 @@ namespace GuiToolkit.Editor
 			canvas.overrideSorting = true;
 			var raycaster = m_canvasGameObject.AddComponent<GraphicRaycaster>();
 			raycaster.ignoreReversedGraphics = true;
+			m_canvasGameObject.AddComponent<HideOnPlay>();
 
 			// Image child
 			m_imageGameObject = new GameObject("__ScreenshotOverlay__");
