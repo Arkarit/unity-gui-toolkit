@@ -8,22 +8,39 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Image = UnityEngine.UI.Image;
 using Object = UnityEngine.Object;
-using System.IO;
 
 namespace GuiToolkit.Editor
 {
 	public static class ScreenshotOverlayTool
 	{
+		private struct CanvasSnapshot
+		{
+			public Canvas Canvas;
+			public RenderMode RenderMode;
+			public Camera WorldCamera;
+			public int SortingOrder;
+			public bool OverrideSorting;
+		}
+
+		// TODO: Extract TempScene handling into a reusable context (PrefabStageTempSceneContext).
+		// Keep it simple for now – current one-off logic is fine until multiple tools need it.
+
 		private static bool m_isPrefab;
 		private static GameObject m_root;
 		private static UiSpriteHolder m_spriteHolder;
 		private static int m_width;
 		private static int m_height;
-		private static GameObject m_canvasGo;
+		private static GameObject m_canvasGameObject;
 		private static GameObject m_imageGameObject;
 		private static Image m_image;
 		private static Scene m_tempScene;
 		private static string m_prefabPath;
+		private static Camera m_tempCamera;
+		private static Scene m_activeScene;
+		private static GameObject m_instancedPrefab;
+		private static readonly List<Scene> m_scenesLoaded = new();
+		private static readonly List<CanvasSnapshot> s_canvasSnapshots = new();
+
 
 
 		[MenuItem(StringConstants.CREATE_GUI_SCREENSHOT_OVERLAY)]
@@ -41,6 +58,7 @@ namespace GuiToolkit.Editor
 			finally
 			{
 				EditorUtility.ClearProgressBar();
+				ResetState();
 			}
 		}
 
@@ -69,23 +87,23 @@ namespace GuiToolkit.Editor
 			}
 
 			Log("Creating Temp Camera", .3f);
-			var cam = CreateTempCamera();
+			CreateTempCamera();
 
 			Log("Switch Overlay canvases to ScreenSpaceCamera", .45f);
-			var canvasSnaps = SwitchOverlayCanvasesToCamera(cam);
+			SwitchOverlayCanvasesToCamera();
 
 			Log("Render Texture", .6f);
-			CaptureCameraToTexture(cam, m_width, m_height);
+			CaptureCameraToTexture();
 
 			try
 			{
 				Log("Restore Canvases", .75f);
-				RestoreCanvasSnapshots(canvasSnaps);
+				RestoreCanvasSnapshots();
 			}
 			finally
 			{
-				if (cam != null && cam.gameObject.name == "__ScreenshotCamera__")
-					UnityEngine.Object.DestroyImmediate(cam.gameObject);
+				if (m_tempCamera != null && m_tempCamera.gameObject.name == "__ScreenshotCamera__")
+					UnityEngine.Object.DestroyImmediate(m_tempCamera.gameObject);
 			}
 
 			if (m_isPrefab)
@@ -97,10 +115,6 @@ namespace GuiToolkit.Editor
 			// Done
 			Debug.Log($"Screenshot overlay created ({m_width}x{m_height}) at 50% opacity.");
 		}
-
-		private static Scene m_activeScene;
-		private static GameObject m_instancedPrefab;
-		private static readonly List<Scene> m_scenesLoaded = new();
 
 		private static void CreateTempScene()
 		{
@@ -139,29 +153,31 @@ namespace GuiToolkit.Editor
 		private static void CreateOverlay()
 		{
 			// ensure a topmost canvas separate from project UI
-			m_canvasGo = new GameObject("__ScreenshotOverlayCanvas__");
-			SceneManager.MoveGameObjectToScene(m_canvasGo, SceneManager.GetActiveScene());
+			m_canvasGameObject = new GameObject("__ScreenshotOverlayCanvas__");
+			m_canvasGameObject.tag = "EditorOnly";
+			SceneManager.MoveGameObjectToScene(m_canvasGameObject, SceneManager.GetActiveScene());
 			if (m_isPrefab)
 			{
-				m_root = GetCurrentPrefabStage().prefabContentsRoot;
-				m_canvasGo.transform.SetParent(m_root.transform);
-				var rt2 = m_canvasGo.AddComponent<RectTransform>();
+				m_root = PrefabStageUtility.GetCurrentPrefabStage().prefabContentsRoot;
+				m_canvasGameObject.transform.SetParent(m_root.transform);
+				var rt2 = m_canvasGameObject.AddComponent<RectTransform>();
 				rt2.anchorMin = Vector2.zero;
 				rt2.anchorMax = Vector2.one;
 				rt2.offsetMin = Vector2.zero;
 				rt2.offsetMax = Vector2.zero;
 			}
 
-			var canvas = m_canvasGo.AddComponent<Canvas>();
+			var canvas = m_canvasGameObject.AddComponent<Canvas>();
 			canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 			canvas.sortingOrder = 32760; // very high
 			canvas.overrideSorting = true;
-			var raycaster = m_canvasGo.AddComponent<GraphicRaycaster>();
+			var raycaster = m_canvasGameObject.AddComponent<GraphicRaycaster>();
 			raycaster.ignoreReversedGraphics = true;
 
 			// Image child
 			m_imageGameObject = new GameObject("__ScreenshotOverlay__");
-			m_imageGameObject.transform.SetParent(m_canvasGo.transform, false);
+			m_imageGameObject.tag = "EditorOnly";
+			m_imageGameObject.transform.SetParent(m_canvasGameObject.transform, false);
 			var rt = m_imageGameObject.AddComponent<RectTransform>();
 			rt.anchorMin = Vector2.zero;
 			rt.anchorMax = Vector2.one;
@@ -185,44 +201,35 @@ namespace GuiToolkit.Editor
 				EditorSceneManager.MarkSceneDirty(scene);
 			}
 
-			SceneVisibilityManager.instance.DisablePicking(m_canvasGo, true);
+			//TODO: #44 DisablePicking(m_canvasGo, true) does not work for prefab editing in ScreenshotOverlayTool
+			SceneVisibilityManager.instance.DisablePicking(m_canvasGameObject, true);
 		}
 
 		// --------------------------------------------------------------------
 		// Helpers
 		// --------------------------------------------------------------------
 
-		private static Camera CreateTempCamera()
+		private static void CreateTempCamera()
 		{
 			Log("Creating Temp Camera Game Object", .32f);
 			var go = new GameObject("__ScreenshotCamera__");
 			SceneManager.MoveGameObjectToScene(go, SceneManager.GetActiveScene());
 
 			Log("Adding Camera Component", .34f);
-			var cam = go.AddComponent<Camera>();
+			m_tempCamera = go.AddComponent<Camera>();
 
 			Log("Setting camera properties", .36f);
-			cam.clearFlags = CameraClearFlags.SolidColor;
-			cam.backgroundColor = new Color(.5f, .5f, .5f, 0);
-			cam.cullingMask = 1 << LayerMask.NameToLayer("UI");
-			cam.orthographic = true;
-			cam.forceIntoRenderTexture = true;
-			cam.enabled = false;
-			return cam;
+			m_tempCamera.clearFlags = CameraClearFlags.SolidColor;
+			m_tempCamera.backgroundColor = new Color(.5f, .5f, .5f, 0);
+			m_tempCamera.cullingMask = 1 << LayerMask.NameToLayer("UI");
+			m_tempCamera.orthographic = true;
+			m_tempCamera.forceIntoRenderTexture = true;
+			m_tempCamera.enabled = false;
 		}
 
-		private struct CanvasSnapshot
+		private static void SwitchOverlayCanvasesToCamera()
 		{
-			public Canvas Canvas;
-			public RenderMode RenderMode;
-			public Camera WorldCamera;
-			public int SortingOrder;
-			public bool OverrideSorting;
-		}
-
-		private static List<CanvasSnapshot> SwitchOverlayCanvasesToCamera( Camera cam )
-		{
-			var snaps = new List<CanvasSnapshot>();
+			s_canvasSnapshots.Clear();
 
 			var canvases = Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 			foreach (var c in canvases)
@@ -230,7 +237,7 @@ namespace GuiToolkit.Editor
 				if (!c)
 					continue;
 
-				snaps.Add(new CanvasSnapshot
+				s_canvasSnapshots.Add(new CanvasSnapshot
 				{
 					Canvas = c,
 					RenderMode = c.renderMode,
@@ -242,21 +249,17 @@ namespace GuiToolkit.Editor
 				if (c.renderMode == RenderMode.ScreenSpaceOverlay)
 				{
 					c.renderMode = RenderMode.ScreenSpaceCamera;
-					c.worldCamera = cam;
+					c.worldCamera = m_tempCamera;
 					c.overrideSorting = true;
 				}
 			}
 
 			Canvas.ForceUpdateCanvases();
-			return snaps;
 		}
 
-		private static void RestoreCanvasSnapshots( List<CanvasSnapshot> snaps )
+		private static void RestoreCanvasSnapshots()
 		{
-			if (snaps == null)
-				return;
-
-			foreach (var s in snaps)
+			foreach (var s in s_canvasSnapshots)
 			{
 				if (!s.Canvas) continue;
 				s.Canvas.renderMode = s.RenderMode;
@@ -265,12 +268,13 @@ namespace GuiToolkit.Editor
 				s.Canvas.overrideSorting = s.OverrideSorting;
 			}
 			Canvas.ForceUpdateCanvases();
+			s_canvasSnapshots.Clear();
 		}
 
-		private static void CaptureCameraToTexture( Camera cam, int width, int height )
+		private static void CaptureCameraToTexture()
 		{
-			var rt = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32);
-			var prevRT = cam.targetTexture;
+			var rt = RenderTexture.GetTemporary(m_width, m_height, 24, RenderTextureFormat.ARGB32);
+			var prevRT = m_tempCamera.targetTexture;
 
 			try
 			{
@@ -288,7 +292,7 @@ namespace GuiToolkit.Editor
 
 						canvas = wrapper.AddComponent<Canvas>();
 						canvas.renderMode = RenderMode.ScreenSpaceCamera;
-						canvas.worldCamera = cam;
+						canvas.worldCamera = m_tempCamera;
 						canvas.overrideSorting = true;
 
 						var scaler = wrapper.AddComponent<CanvasScaler>();
@@ -299,21 +303,21 @@ namespace GuiToolkit.Editor
 					}
 				}
 
-				cam.targetTexture = rt;
+				m_tempCamera.targetTexture = rt;
 				Log("Render", .66f);
-				cam.Render();
+				m_tempCamera.Render();
 
 				Log("Applying rendered texture", .69f);
 				var holder = Object.FindAnyObjectByType<UiSpriteHolder>(FindObjectsInactive.Include);
-				var tmpTex = new Texture2D(width, height, TextureFormat.RGBA32, false, false);
+				var tmpTex = new Texture2D(m_width, m_height, TextureFormat.RGBA32, false, false);
 				RenderTexture.active = rt;
-				tmpTex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+				tmpTex.ReadPixels(new Rect(0, 0, m_width, m_height), 0, 0);
 				tmpTex.Apply(false, false);
 				var png = tmpTex.EncodeToPNG();
 				Object.DestroyImmediate(tmpTex);
 
 				// make sure you're modifying *serialized* data on the instance:
-				holder.SetFromPngBytes(png, width, height);
+				holder.SetFromPngBytes(png, m_width, m_height);
 
 				if (m_isPrefab)
 				{
@@ -332,7 +336,7 @@ namespace GuiToolkit.Editor
 						try
 						{
 							var holderInAsset = root.GetComponentInChildren<UiSpriteHolder>(true);
-							holderInAsset.SetFromPngBytes(png, width, height);
+							holderInAsset.SetFromPngBytes(png, m_width, m_height);
 							PrefabUtility.SaveAsPrefabAsset(root, assetPath);
 						}
 						finally
@@ -347,26 +351,29 @@ namespace GuiToolkit.Editor
 			}
 			finally
 			{
-				cam.targetTexture = prevRT;
+				m_tempCamera.targetTexture = prevRT;
 				RenderTexture.ReleaseTemporary(rt);
 			}
 		}
 
-		private static PrefabStage GetCurrentPrefabStage() => PrefabStageUtility.GetCurrentPrefabStage();
-
-		private static StageHandle CurrentStageHandle()
+		private static void ResetState()
 		{
-			var ps = GetCurrentPrefabStage();
-			return ps != null ? ps.stageHandle : StageUtility.GetMainStage().stageHandle;
-		}
+			m_isPrefab = false;
+			m_root = null;
+			m_spriteHolder = null;
+			m_width = 0;
+			m_height = 0;
+			m_canvasGameObject = null;
+			m_imageGameObject = null;
+			m_image = null;
+			m_tempScene = default;
+			m_prefabPath = null;
+			m_tempCamera = null;
+			m_activeScene = default;
+			m_instancedPrefab = null;
 
-		private static void PlaceInCurrentStage( GameObject go )
-		{
-			var ps = GetCurrentPrefabStage();
-			if (ps != null)
-				StageUtility.PlaceGameObjectInCurrentStage(go);           // << wichtig für Prefab Mode
-			else
-				SceneManager.MoveGameObjectToScene(go, SceneManager.GetActiveScene());
+			m_scenesLoaded.Clear();
+			s_canvasSnapshots.Clear();
 		}
 
 		private static void Log( string _s, float _progress )

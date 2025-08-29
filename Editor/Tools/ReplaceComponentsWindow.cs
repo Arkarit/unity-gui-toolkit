@@ -57,8 +57,6 @@ namespace GuiToolkit.Editor
 					}
 
 					EditorCodeUtility.ReplaceTextWithTextMeshProInCurrentContext();
-//					var result = EditorCodeUtility.ReplaceUITextWithTMPInActiveScene();
-//					Debug.Log($"Replaced {result?.Count ?? 0} components in active scene.");
 				}
 			}
 		}
