@@ -73,6 +73,9 @@ namespace GuiToolkit.Editor
 			public bool Rich;
 			/// <summary>Whether auto sizing was enabled (best-fit).</summary>
 			public bool AutoSize;
+			public float AutoSizeMin;
+			public float AutoSizeMax;
+
 			/// <summary>Legacy Text alignment anchor.</summary>
 			public TextAnchor Anchor;
 			/// <summary>Whether the legacy Text was a raycast target.</summary>
@@ -88,33 +91,37 @@ namespace GuiToolkit.Editor
 			/// Used to rewire serialized object references to the new component.
 			/// </summary>
 			public int OldId;
-			
+
 			public override string ToString()
 			{
 				var sb = new System.Text.StringBuilder(128);
-				sb.AppendLine("TextSnapshot");
-				sb.AppendLine("{");
-				sb.AppendLine("\t  Text='").Append(Preview(Text, 80)).Append("'");
-				sb.AppendLine("\t, Color=").Append(ColorToHex(Color));
-				sb.AppendLine("\t, FontSize=").Append(FontSize.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture));
-				sb.AppendLine("\t, Rich=").Append(Rich);
-				sb.AppendLine("\t, AutoSize=").Append(AutoSize);
-				sb.AppendLine("\t, Anchor=").Append(Anchor);
-				sb.AppendLine("\t, Raycast=").Append(Raycast);
-				sb.AppendLine("\t, LineSpacing=").Append(LineSpacing.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture));
-				sb.AppendLine("\t, FontName=").Append(string.IsNullOrEmpty(FontName) ? "<null>" : FontName);
-				sb.AppendLine("\t, FontStyle=").Append(FontStyle);
-				sb.AppendLine("\t, OldId=").Append(OldId);
-				sb.AppendLine("}");
+				sb.Append("TextSnapshot\n");
+				sb.Append("{\n");
+				sb.Append("\t  Text='").Append(Preview(Text, 80)).Append("'\n");
+				sb.Append("\t, Color=").Append(ColorToHex(Color)).Append('\n');
+				sb.Append("\t, FontSize=").Append(FloatToString(FontSize)).Append('\n');
+				sb.Append("\t, Rich=").Append(Rich).Append('\n');
+				sb.Append("\t, AutoSize=").Append(AutoSize).Append('\n');
+				sb.Append("\t, AutoSizeMin=").Append(FloatToString(AutoSizeMin)).Append('\n');
+				sb.Append("\t, AutoSizeMax=").Append(FloatToString(AutoSizeMax)).Append('\n');
+				sb.Append("\t, Anchor=").Append(Anchor).Append('\n');
+				sb.Append("\t, Raycast=").Append(Raycast).Append('\n');
+				sb.Append("\t, LineSpacing=").Append(FloatToString(LineSpacing)).Append('\n');
+				sb.Append("\t, FontName=").Append(string.IsNullOrEmpty(FontName) ? "<null>" : FontName).Append('\n');
+				sb.Append("\t, FontStyle=").Append(FontStyle).Append('\n');
+				sb.Append("\t, OldId=").Append(OldId).Append('\n');
+				sb.Append("}\n");
 				return sb.ToString();
 			}
+
+			private static string FloatToString( float _f ) => _f.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
 
 			// --- helpers (ASCII-safe) ---
 			private static string Preview( string s, int maxLen )
 			{
-				if (string.IsNullOrEmpty(s)) 
+				if (string.IsNullOrEmpty(s))
 					return "<empty>";
-				
+
 				s = s.Replace("\r", "\\r").Replace("\n", "\\n");
 				if (s.Length <= maxLen) return s;
 				return s.Substring(0, maxLen) + "...";
@@ -494,6 +501,8 @@ namespace GuiToolkit.Editor
 					FontSize = t.fontSize,
 					Rich = t.supportRichText,
 					AutoSize = t.resizeTextForBestFit,
+					AutoSizeMin = t.resizeTextMinSize,
+					AutoSizeMax = t.resizeTextMaxSize,
 					Anchor = t.alignment,
 					Raycast = t.raycastTarget,
 					LineSpacing = t.lineSpacing,
@@ -509,6 +518,8 @@ namespace GuiToolkit.Editor
 					tmp.fontSize = s.FontSize;
 					tmp.richText = s.Rich;
 					tmp.enableAutoSizing = s.AutoSize;
+					tmp.fontSizeMin = s.AutoSizeMin > 0 ? s.AutoSizeMin : 18;
+					tmp.fontSizeMax = s.AutoSizeMax > 0 ? s.AutoSizeMax : 72;
 					tmp.raycastTarget = s.Raycast;
 					tmp.lineSpacing = ConvertLineSpacingFromTextToTmp(s.LineSpacing);
 
@@ -541,6 +552,9 @@ namespace GuiToolkit.Editor
 
 					// map legacy font style (Bold/Italic) to TMP fontStyle
 					tmp.fontStyle = MapFontStyle(s.FontStyle);
+					tmp.SetVerticesDirty();
+					tmp.SetLayoutDirty();
+					EditorUtility.SetDirty(tmp);
 
 					// rewire references
 					RewireRefsForOldId(refGroups, s.OldId, tmp);
@@ -623,6 +637,15 @@ namespace GuiToolkit.Editor
 				if (!newComp)
 				{
 					newComp = Undo.AddComponent<TB>(go);
+					if (!go.activeInHierarchy)
+					{
+						var tmpGO = new GameObject("__tmp_tmpro_defaults__", typeof(RectTransform));
+						var def = tmpGO.AddComponent<TextMeshProUGUI>();
+						UnityEditorInternal.ComponentUtility.CopyComponent(def);
+						UnityEditorInternal.ComponentUtility.PasteComponentValues(newComp);
+						UnityEngine.Object.DestroyImmediate(tmpGO);
+					}
+
 					LogReplacement($"Created new component '{newComp.GetType().Name}' on '{newComp.GetPath()}'");
 					if (!newComp)
 					{
@@ -648,7 +671,7 @@ namespace GuiToolkit.Editor
 					Undo.AddComponent<UiApplyStyleTMP_Text>(go);
 
 				// 4) Apply captured data to TB
-				
+
 				LogReplacement($"Applying captured text properties from '{oldComp.GetType().Name}' on '{oldComp.GetPath()}':\n{snapshot}");
 				_apply?.Invoke(snapshot, newComp);
 
