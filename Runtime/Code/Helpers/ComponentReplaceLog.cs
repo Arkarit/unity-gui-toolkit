@@ -15,19 +15,26 @@ namespace GuiToolkit.Editor
 		/// </summary>
 		public static void Log(string _message )
 		{
-			var scene = GetCurrentContextScene(out bool isPrefab);
-			if (!scene.IsValid())
+			string scenePath = GetLogScenePath();
+			if (string.IsNullOrEmpty(scenePath))
 			{
-				Debug.LogWarning( "Invalid scene" );
-				Debug.Log( _message );
+				Debug.LogWarning( $"Invalid scene! {_message}" );
 				return;
 			}
 			
-			string scenePath = isPrefab ? PrefabStageUtility.GetCurrentPrefabStage().assetPath : scene.path;
 			string path = GetFilePath(scenePath);
 			string line = $"[{System.DateTime.Now:yyyy-MM-dd HH:mm:ss}] {_message}";
 			File.AppendAllText(path, line + "\n");
 			Debug.Log(line);
+		}
+		
+		public static string GetLogScenePath()
+		{
+			var scene = GetCurrentContextScene(out bool isPrefab);
+			if (!scene.IsValid())
+				return null;
+			
+			return isPrefab ? PrefabStageUtility.GetCurrentPrefabStage().assetPath : scene.path;
 		}
 
 		// ProjectRoot/Logs/ComponentReplacement/<DialogName>.log

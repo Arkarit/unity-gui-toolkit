@@ -670,7 +670,7 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			LogReplacement($"___ Starting replacement of scene '{scene.path}' ___");
+			LogReplacement($"___ Starting replacement of scene '{ComponentReplaceLog.GetLogScenePath()}' ___");
 			PrepareUITextToTMPInContextScene();
 			ReplaceTextInContextSceneWithTextMeshPro();
 		}
