@@ -28,7 +28,7 @@ using TextSnapshotList = System.Collections.Generic.List<(GuiToolkit.Editor.Edit
 
 namespace GuiToolkit.Editor
 {
-	
+
 #if !UITK_USE_ROSLYN
 	/// <summary>
 	/// Exception thrown when Roslyn-based parsing or rewriting is not available
@@ -46,7 +46,7 @@ namespace GuiToolkit.Editor
 		{ }
 	}
 #endif
-	
+
 	/// <summary>
 	/// Editor utilities for migrating UnityEngine.UI.Text to TextMeshProUGUI, including:
 	/// - collecting serialized references,
@@ -88,8 +88,8 @@ namespace GuiToolkit.Editor
 			/// </summary>
 			public int OldId;
 		}
-		
-		private static readonly Dictionary<string, (TMP_FontAsset font, Material mat)> s_tmpFontLookupCache = new (StringComparer.OrdinalIgnoreCase);
+
+		private static readonly Dictionary<string, (TMP_FontAsset font, Material mat)> s_tmpFontLookupCache = new(StringComparer.OrdinalIgnoreCase);
 
 		private static string NormalizeFontKey( string name )
 		{
@@ -322,7 +322,7 @@ namespace GuiToolkit.Editor
 			_rewired = 0;
 			_missing = 0;
 
-			var scene = GetCurrentContextScene();
+			var scene = GetCurrentContextScene(out bool isPrefab);
 			if (!scene.IsValid())
 				throw new InvalidOperationException("No valid scene or prefab stage.");
 
@@ -356,9 +356,21 @@ namespace GuiToolkit.Editor
 					}
 				}
 
-				Undo.RecordObject(e.TargetGameObject, "Rewire TMP reference");
-				e.TargetGameObject.name = e.TargetGameObject.name.Replace(" (Legacy)", "");
+				var go = e.TargetGameObject;
+				var oldName = go.name;
+				var newName = oldName.Replace(" (Legacy)", "");
+
+				if (newName != oldName)
+				{
+					Undo.RecordObject(go, "Rename");
+					go.name = newName;
+
+					if (isPrefab)
+						PrefabUtility.RecordPrefabInstancePropertyModifications(go);
+				}
 				
+				EditorUtility.SetDirty(go);
+
 				var so = new SerializedObject(e.Owner);
 				var sp = so.FindProperty(e.PropertyPath);
 				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
@@ -539,7 +551,7 @@ namespace GuiToolkit.Editor
 				throw new ArgumentException($"{typeof(TA).Name} is abstract.");
 			if (typeof(TB).IsAbstract)
 				throw new ArgumentException($"{typeof(TB).Name} is abstract.");
-			
+
 			var results = new List<(TSnapshot, TB)>();
 
 			var targets = EditorAssetUtility.FindObjectsInCurrentEditedPrefabOrScene<TA>();
@@ -681,7 +693,7 @@ namespace GuiToolkit.Editor
 		/// - Otherwise the active scene.
 		/// </summary>
 		/// <returns>Scene to operate on.</returns>
-		public static Scene GetCurrentContextScene(out bool _isPrefab)
+		public static Scene GetCurrentContextScene( out bool _isPrefab )
 		{
 			_isPrefab = false;
 			var stage = PrefabStageUtility.GetCurrentPrefabStage();
@@ -690,10 +702,10 @@ namespace GuiToolkit.Editor
 				_isPrefab = true;
 				return stage.scene;
 			}
-			
+
 			return SceneManager.GetActiveScene();
 		}
-		
+
 		public static Scene GetCurrentContextScene() => GetCurrentContextScene(out var _);
 
 		/// <summary>
@@ -712,10 +724,10 @@ namespace GuiToolkit.Editor
 		public static int PrepareUITextToTMPInContextScene()
 		{
 			var scene = GetCurrentContextScene();
-			
+
 			if (!scene.IsValid())
 				throw new InvalidOperationException("No valid scene or prefab stage.");
-			
+
 			var reg = ReferencesRewireRegistry.GetOrCreate(scene);
 			if (reg == null)
 				throw new Exception("Unexpected: could not create Registry object");
@@ -944,7 +956,7 @@ namespace GuiToolkit.Editor
 					LogReplacement($"Error: Can not restore '{blocker.Type.Name}' on '{go.GetPath()}'");
 					continue;
 				}
-				
+
 				LogReplacement($"Restored '{blocker.Type.Name}' on '{go.GetPath()}'");
 				if (!string.IsNullOrEmpty(blocker.Json))
 				{
@@ -1088,7 +1100,7 @@ namespace GuiToolkit.Editor
 			if (_list.Count.IsOdd())
 				_list.Add("");
 		}
-		
+
 		private static void LogReplacement( string _msg )
 		{
 			ComponentReplaceLog.Log(_msg);
