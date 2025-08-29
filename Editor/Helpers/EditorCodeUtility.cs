@@ -20,6 +20,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
 using GuiToolkit.Editor.Roslyn;
+using GuiToolkit.Style;
 #endif
 
 using OwnerAndPathList = System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>;
@@ -592,6 +593,18 @@ namespace GuiToolkit.Editor
 						continue;
 					}
 				}
+				
+				LogReplacement($"Adding additional components 'UiTMPTranslator' and '' to '{newComp.GetPath()}'");
+				var translator = go.GetComponent<UiTMPTranslator>();
+				if (!translator)
+				{
+					translator = Undo.AddComponent<UiTMPTranslator>(go);
+					translator.AutoTranslate = true;
+				}
+				
+				var styleApplier = go.GetComponent<UiApplyStyleTMP_Text>();
+				if (!styleApplier)
+					Undo.AddComponent<UiApplyStyleTMP_Text>(go);
 
 				// 4) Apply captured data to TB
 				_apply?.Invoke(snapshot, newComp);
