@@ -699,7 +699,10 @@ namespace GuiToolkit.Editor
 		{
 			var scriptPaths = CollectScriptPathsInContextSceneReferencing<Text>();
 			if (scriptPaths == null || scriptPaths.Count == 0)
+			{
+				LogReplacement("No referring scripts found");
 				return 0;
+			}
 
 			int changed = 0;
 			foreach (var path in scriptPaths)
@@ -707,6 +710,7 @@ namespace GuiToolkit.Editor
 				if (!path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
 					continue;
 
+				LogReplacement($"Replace Text component references in '{path}' with Text Mesh Pro references");
 				var src = System.IO.File.ReadAllText(path);
 				var dst = ReplaceComponent<Text, TMP_Text>(src, _addUsing: true);
 
@@ -750,8 +754,14 @@ namespace GuiToolkit.Editor
 
 			ComponentReplaceLog.LogCr(2);
 			LogReplacement($"___ Starting replacement of scene '{ComponentReplaceLog.GetLogScenePath()}' ___");
-			PrepareUITextToTMPInContextScene();
-			ReplaceTextInContextSceneWithTextMeshPro();
+			int prepared = PrepareUITextToTMPInContextScene();
+			int replacedReferences = ReplaceTextInContextSceneWithTextMeshPro();
+			
+			if (prepared == 0 && replacedReferences == 0)
+			{
+				LogReplacement("No Text references found; replacing Text -> TextMeshPro directly without domain reload");
+				ReplaceUITextWithTMPInActiveScene();
+			}
 		}
 
 		/// <summary>
@@ -802,8 +812,12 @@ namespace GuiToolkit.Editor
 			reg.Entries.Clear();
 
 			var components = CollectMonoBehavioursInContextSceneReferencing<Text>();
+			
 			if (components == null || components.Count == 0)
+			{
+				LogReplacement("No referring components found");
 				return 0;
+			}
 
 
 			int count = 0;

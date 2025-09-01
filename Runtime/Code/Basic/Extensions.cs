@@ -307,6 +307,7 @@ namespace GuiToolkit
 			return true;
 #else
 			Object.Destroy(_self);
+			return true;
 #endif
 		}
 
