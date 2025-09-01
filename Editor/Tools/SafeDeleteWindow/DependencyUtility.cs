@@ -62,14 +62,14 @@ namespace SafeDelete
 		/// </summary>
 		public static bool HasExternalReferrers( DependencyNode node, HashSet<DependencyNode> closure )
 		{
-			string s = $"---::: node:{node}\n";
-			foreach (var closureNode in closure)
-				s += $"\tclosureNode: {closureNode}\n";
-			Debug.Log(s);
+string s = $"---::: node:{node}\n";
+foreach (var closureNode in closure)
+s += $"\tclosureNode: {closureNode}\n";
+Debug.Log(s);
 
 			foreach (var r in EnumerateReferrers(node))
 			{
-				Debug.Log($"---::: {r}");
+Debug.Log($"---::: {r}");
 				if (!closure.Contains(r))
 					return true;
 			}

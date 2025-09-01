@@ -18,7 +18,7 @@ namespace SafeDelete
 		private Vector2 _scroll;
 		private readonly List<RootPanelModel> _models = new List<RootPanelModel>();
 
-		[MenuItem("Tools/Safe Delete/Analyze Selection")]
+//		[MenuItem("Tools/Safe Delete/Analyze Selection")]
 		public static void OpenForSelection()
 		{
 			var wnd = GetWindow<SafeDeleteWindow>("Safe Delete");
