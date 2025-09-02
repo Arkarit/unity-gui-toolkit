@@ -13,7 +13,7 @@ using Object = UnityEngine.Object;
 using UnityEditor.Search;
 #endif
 
-namespace SafeDelete
+namespace GuiToolkit.Editor
 {
 	/// <summary>
 	/// Builds downstream closures and checks for external referrers (blockers).

@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace SafeDelete
+namespace GuiToolkit.Editor
 {
 	/// <summary>
 	/// Minimal UI for main-asset-only deletion.
