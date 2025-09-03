@@ -169,6 +169,7 @@ namespace GuiToolkit
 		public const string CREATE_TEST_DATA = MENU_HEADER + "Test Data";
 
 		public const string CONFIG_MANAGER_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Config Manager...";
+		public const string CHECK_EXTERNAL_REQUIRED = MISC_TOOLS_MENU_HEADER + "Check open scenes for [MandatoryExternal] attributes";
 	}
 
 	/// \brief Builtin icon definitions
