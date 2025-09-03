@@ -32,6 +32,27 @@ namespace GuiToolkit
 		Left,
 		Right
 	}
+	
+	/// \brief Corner enum
+	public enum Corner
+	{
+		TopLeft,
+		TopRight,
+		BottomRight,
+		BottomLeft,
+	}
+
+	/// \brief Corner flags enum
+	[Flags]
+	public enum CornerFlags
+	{
+		TopLeft		= 0x0001,
+		TopRight	= 0x0002,
+		BottomRight	= 0x0004,
+		BottomLeft	= 0x0008,
+	}
+
+	
 
 	/// \brief Layer definition
 	/// 

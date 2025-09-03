@@ -44,14 +44,6 @@ namespace GuiToolkit
 			Maskable	= 0x04,
 		}
 		
-		private enum Corner
-		{
-			TopLeft,
-			TopRight,
-			BottomRight,
-			BottomLeft,
-		}
-
 		private enum Fade
 		{
 			None,
