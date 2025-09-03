@@ -38,7 +38,7 @@ namespace GuiToolkit.Editor
 			{
 				// Normalize subassets -> main asset
 				var main = AssetDatabase.LoadMainAssetAtPath(path) ?? _object;
-				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(main, out var guid, out _);
+				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(main, out var guid, out long _);
 				return guid; // main asset key
 			}
 
