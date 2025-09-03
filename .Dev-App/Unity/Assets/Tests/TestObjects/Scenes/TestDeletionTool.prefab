@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8533661758384611761}
   - component: {fileID: 2253047218186435343}
   m_Layer: 5
-  m_Name: Texture 1
+  m_Name: Image 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 6875370126777670737}
   - component: {fileID: 93111764169999134}
   m_Layer: 5
-  m_Name: Texture 2
+  m_Name: Image 1 a
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

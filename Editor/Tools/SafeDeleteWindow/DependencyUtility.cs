@@ -13,7 +13,7 @@ using Object = UnityEngine.Object;
 using UnityEditor.Search;
 #endif
 
-namespace SafeDelete
+namespace GuiToolkit.Editor
 {
 	/// <summary>
 	/// Builds downstream closures and checks for external referrers (blockers).
@@ -45,7 +45,7 @@ namespace SafeDelete
 			}
 			else
 			{
-				// Root is an asset → ensure it's treated as main asset
+				// Root is an asset -> ensure it's treated as main asset
 				if (!string.IsNullOrEmpty(rootNode.Guid))
 				{
 					seenAssets.Add(rootNode.Guid);
@@ -170,7 +170,7 @@ Debug.Log($"---::: {r}");
 			Stack<Object> toVisit,
 			HashSet<string> seenAssets )
 		{
-			// A) SerializedObject walk → normalize asset refs to main asset
+			// A) SerializedObject walk -> normalize asset refs to main asset
 			try
 			{
 				using (var so = new SerializedObject(obj))
@@ -208,7 +208,7 @@ Debug.Log($"---::: {r}");
 						}
 						else
 						{
-							// Stage object or component → schedule traversal
+							// Stage object or component -> schedule traversal
 							toVisit.Push(refObj);
 						}
 					}
@@ -216,7 +216,7 @@ Debug.Log($"---::: {r}");
 			}
 			catch { /* best-effort */ }
 
-			// B) Robust sweep via CollectDependencies → normalize to main assets
+			// B) Robust sweep via CollectDependencies -> normalize to main assets
 			var hardDeps = EditorUtility.CollectDependencies(new Object[] { obj });
 			for (int i = 0; i < hardDeps.Length; i++)
 			{
@@ -339,7 +339,7 @@ Debug.Log($"---::: {r}");
 									var path = AssetDatabase.GetAssetPath(refObj);
 									if (string.IsNullOrEmpty(path)) continue;
 
-									// Normalize subasset → main asset GUID
+									// Normalize subasset -> main asset GUID
 									var main = AssetDatabase.LoadMainAssetAtPath(path);
 									if (!main) continue;
 
