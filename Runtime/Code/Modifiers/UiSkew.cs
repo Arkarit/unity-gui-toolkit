@@ -97,13 +97,14 @@ namespace GuiToolkit
 			m_bottomLeft.y = Used(CornerFlags.BottomLeft) ? -vert : 0;
 			m_bottomRight.y = Used(CornerFlags.BottomRight) ? vert : 0;
 		}
-
+		
+#if UNITY_EDITOR
 		protected override void OnValidate()
 		{
 			base.OnValidate();
 			m_lastBounding = Rect.zero;
 		}
-
+#endif
 		private bool Used(CornerFlags _flag) => (m_usedCorners & _flag) != 0;
 		
 		// https://en.wikipedia.org/wiki/Law_of_tangents
