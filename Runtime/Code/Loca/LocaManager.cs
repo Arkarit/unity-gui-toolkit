@@ -4,9 +4,10 @@ using System.Globalization;
 using System.Threading;
 using UnityEngine;
 
+
 namespace GuiToolkit
 {
-	public abstract class LocaManager
+	public abstract class LocaManager : IEditorAware
 	{
 		public const string PLAYER_PREFS_KEY = StringConstants.PLAYER_PREFS_PREFIX + "Language";
 
@@ -48,9 +49,12 @@ namespace GuiToolkit
 
 		protected LocaManager()
 		{
-			m_debugLoca = UiToolkitConfiguration.Instance.DebugLoca;
-			string language = PlayerPrefs.GetString(PLAYER_PREFS_KEY, "dev");
-			ChangeLanguage(language, false);
+			AssetReadyGate.WhenReady(() =>
+			{
+				m_debugLoca = UiToolkitConfiguration.Instance.DebugLoca;
+				string language = PlayerPrefs.GetString(PLAYER_PREFS_KEY, "dev");
+				ChangeLanguage(language, false);
+			}, null);
 		}
 
 		public bool ChangeLanguage(string _languageId)
