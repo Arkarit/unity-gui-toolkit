@@ -46,7 +46,7 @@ namespace GuiToolkit.Editor
 			return goid.ToString(); // stage key
 		}
 
-		public DependencyNode GetOrCreateNode( Object _obj, DependencyNode _parent )
+		public DependencyNode GetOrCreateNode( Object _obj )
 		{
 			var key = MakeKey(_obj);
 			if (string.IsNullOrEmpty(key)) return null;
@@ -54,7 +54,7 @@ namespace GuiToolkit.Editor
 			if (m_byKey.TryGetValue(key, out var existing))
 				return existing;
 
-			var node = new DependencyNode(_obj, this, _parent);
+			var node = new DependencyNode(_obj, this);
 			m_byKey[key] = node;
 			m_allNodes.Add(node);
 			return node;
@@ -67,7 +67,7 @@ namespace GuiToolkit.Editor
 			
 			var visited = new HashSet<string>(StringComparer.Ordinal);
 			var stack = new Stack<DependencyNode>();
-			var rootNode = GetOrCreateNode(_root, null);
+			var rootNode = GetOrCreateNode(_root);
 			stack.Push(rootNode);
 
 			while (stack.Count > 0)

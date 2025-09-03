@@ -25,7 +25,6 @@ namespace GuiToolkit.Editor
 		public bool IsScript;
 		public bool IsInResources;
 		public bool IsInPackages;
-		public DependencyNode Parent;
 		public Object Object;
 
 		public readonly HashSet<DependencyNode> DirectDependencies = new();
@@ -34,11 +33,10 @@ namespace GuiToolkit.Editor
 
 		public DependencyNode() { } // Deprecated
 
-		public DependencyNode( Object _object, DependencyNodeTree _tree, DependencyNode _parent )
+		public DependencyNode( Object _object, DependencyNodeTree _tree )
 		{
 			Object = _object;
 			Tree = _tree;
-			Parent = _parent;
 
 			SetProperties(_object);
 		}
@@ -68,7 +66,7 @@ namespace GuiToolkit.Editor
 			for (int i = 0; i < t.childCount; ++i)
 			{
 				var childGo = t.GetChild(i).gameObject;
-				var childNode = Tree.GetOrCreateNode(childGo, this);
+				var childNode = Tree.GetOrCreateNode(childGo);
 				Link(this, childNode);
 			}
 
@@ -101,7 +99,7 @@ namespace GuiToolkit.Editor
 								var main = AssetDatabase.LoadMainAssetAtPath(path);
 								if (!main) continue;
 
-								var depNode = Tree.GetOrCreateNode(main, this);
+								var depNode = Tree.GetOrCreateNode(main);
 								Link(this, depNode);
 							}
 							else
@@ -110,7 +108,7 @@ namespace GuiToolkit.Editor
 								var refGo = (refObj as GameObject) ?? (refObj as Component)?.gameObject;
 								if (!refGo) continue;
 
-								var depNode = Tree.GetOrCreateNode(refGo, this);
+								var depNode = Tree.GetOrCreateNode(refGo);
 								Link(this, depNode);
 							}
 						}
@@ -141,7 +139,7 @@ namespace GuiToolkit.Editor
 				if (string.Equals(ext, ".cs", StringComparison.OrdinalIgnoreCase))
 					continue; // ignore scripts
 
-				var depNode = Tree.GetOrCreateNode(main, this);
+				var depNode = Tree.GetOrCreateNode(main);
 				Link(this, depNode);
 			}
 		}
