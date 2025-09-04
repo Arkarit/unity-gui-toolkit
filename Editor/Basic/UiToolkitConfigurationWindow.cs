@@ -127,6 +127,10 @@ namespace GuiToolkit.Editor
 
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_globalCanvasScalerTemplate"));
+			
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_assetProviderFactory"));
+			
 
 			m_serializedSettingsObject.ApplyModifiedProperties();
 

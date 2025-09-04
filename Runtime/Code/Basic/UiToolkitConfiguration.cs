@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System;
+using GuiToolkit.AssetHandling;
 using GuiToolkit.Style;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -91,6 +92,8 @@ namespace GuiToolkit
 		public const string HELP_GENERATED_ASSETS_DIR =
 			  "Several assets need to be generated. Choose your directory here for these files.";
 
+		public const string HELP_ASSET_PROVIDER_FACTORY = "An Optional Asset Provider Factory in case you want to use Addressables.";
+
 		/// \endcond
 
 		/// Scene references.
@@ -105,12 +108,12 @@ namespace GuiToolkit
 		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE_EXCEPT_UI_MAIN_EXISTS)]
 		[SerializeField] private bool m_exceptUiMainExists = true;
 		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE_UI_MAIN_PREFAB)]
-		[SerializeField] private UiMain m_uiMainPrefab;
+		[SerializeField, Mandatory] private UiMain m_uiMainPrefab;
 		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE_UI_VIEW_PREFAB)]
-		[SerializeField] private UiView m_uiViewPrefab;
+		[SerializeField, Mandatory] private UiView m_uiViewPrefab;
 
 		[Tooltip(HELP_ADDITIONAL_SCENES_PATH)]
-		[SerializeField] private  string m_additionalScenesPath = "Assets/Scenes/";
+		[SerializeField] private string m_additionalScenesPath = "Assets/Scenes/";
 
 		[Tooltip(HELP_PREFAB_VARIANTS_PATH)]
 		[SerializeField] private string m_prefabVariantsPath = "Assets/Prefabs/PrefabVariants/";
@@ -126,7 +129,10 @@ namespace GuiToolkit
 		[SerializeField] private bool m_debugLoca = false;
 		
 		[Tooltip(HELP_GLOBAL_CANVAS_SCALER_TEMPLATE)]
-		[SerializeField] private CanvasScaler m_globalCanvasScalerTemplate = null;
+		[SerializeField, Optional] private CanvasScaler m_globalCanvasScalerTemplate = null;
+		
+		[Tooltip(HELP_ASSET_PROVIDER_FACTORY)]
+		[SerializeField, Optional] private AbstractAssetProviderFactory m_assetProviderFactory = null;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 		private string m_rootDir;
@@ -146,6 +152,8 @@ namespace GuiToolkit
 		public UiMain UiMainPrefab => m_uiMainPrefab;
 		public UiView UiViewPrefab => m_uiViewPrefab;
 		public bool ExceptUiMainExists => m_exceptUiMainExists;
+		public AbstractAssetProviderFactory AssetProviderFactory => m_assetProviderFactory;
+		
 	
 		public string GetScenePath(string _sceneName)
 		{
