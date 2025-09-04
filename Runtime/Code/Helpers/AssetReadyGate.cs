@@ -152,6 +152,8 @@ namespace GuiToolkit
 			
 			WhenReady(_callback, _conditionWhenNotRunning, items);
 		}
+		
+		public static void WhenReady( Action _callback, params string[] _assetPaths ) => WhenReady(_callback, null, _assetPaths);
 
 		public static bool ImportBusy()
 			=> EditorApplication.isCompiling || EditorApplication.isUpdating;

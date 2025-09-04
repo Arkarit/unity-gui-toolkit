@@ -54,7 +54,7 @@ namespace GuiToolkit
 				m_debugLoca = UiToolkitConfiguration.Instance.DebugLoca;
 				string language = PlayerPrefs.GetString(PLAYER_PREFS_KEY, "dev");
 				ChangeLanguage(language, false);
-			}, null);
+			});
 		}
 
 		public bool ChangeLanguage(string _languageId)
