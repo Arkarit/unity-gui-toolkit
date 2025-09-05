@@ -22,7 +22,7 @@ namespace GuiToolkit.Editor
 	/// <para> An Editor Plugin for automatic doc generation through Doxygen</para>
 	/// <para> Original Author: Jacob Pennock (http://Jacobpennock.com)</para>
 	/// </summary>
-	public class DoxygenWindow : EditorWindow
+	public class DoxygenWindow : EditorWindow, IEditorAware
 	{
 		private static DoxygenWindow s_window;
 
@@ -38,6 +38,9 @@ namespace GuiToolkit.Editor
 
 		void OnGUI()
 		{
+			if (!AssetReadyGate.Ready(DoxygenConfig.AssetPath))
+				GUIUtility.ExitGUI();
+			
 			EditorDisplayHelper.Draw(DoxygenConfig.Instance, "DoxygenConfig instance is null. Please create one.");
 			var editor = EditorDisplayHelper.GetTargetHelperEditor<DoxygenConfigEditor>();
 			if (editor && editor.IsDoxygenExeWorking)
