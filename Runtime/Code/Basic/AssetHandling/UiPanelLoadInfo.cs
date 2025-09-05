@@ -1,0 +1,27 @@
+using GuiToolkit;
+using System;
+using UnityEngine;
+
+
+namespace GuiToolkit.AssetHandling
+{
+
+	public class UiPanelLoadInfo
+	{
+		public enum EInstantiationType
+		{
+			Instantiate,        // Automatically destroyed after close
+			Pool,               // Pooled
+			InstantiateAndKeep, // Kept in memory after close
+		}
+
+		public Type PanelType;
+		public int MaxInstances = 0; // maximum number of allowed instances for this panel. <= 0 means unlimited.
+		public EInstantiationType InstantiationType = EInstantiationType.Instantiate;
+		public Transform Parent = null;
+		public IInitPanelData InitPanelData = null;
+		public Action<UiPanel> OnSuccess = null;
+		public Action<UiPanelLoadInfo> OnFail = null;
+	}
+
+}

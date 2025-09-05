@@ -1,9 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.Events;
+using Debug = UnityEngine.Debug;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// Interface for initializing a panel.
+	/// </summary>
+	public interface IInitPanelData { }
+
 	/// <summary>
 	/// Interface for simple show/hide panel animations.
 	/// Implement this on a MonoBehaviour attached to the same GameObject
@@ -129,10 +137,27 @@ namespace GuiToolkit
 		/// </summary>
 		public virtual void OnEndHide() { }
 
+		/// <summary>
+		/// Hook called after a panel is async loaded. Note that this ONLY applies to
+		/// panels, which are dynamically loaded and have InitPanelData set in their UiPanelLoadInfo
+		/// </summary>
+		/// <param name="_initData">User data</param>
+		public virtual void Init( IInitPanelData _initData ) { }
+
 		protected IShowHidePanelAnimation m_showHideAnimation;
 		private bool m_defaultSceneVisibilityApplied;
 		private bool m_animationInitialized;
 		private Action m_onShowHideFinishAction;
+		private static readonly Dictionary<Type, HashSet<UiPanel>> s_openPanels = new();
+
+		public static int GetNumOpenDialogs( Type _type )
+		{
+			if (!s_openPanels.TryGetValue(_type, out HashSet<UiPanel> openDialogs))
+				return 0;
+
+			return openDialogs.Count;
+		}
+
 
 		/// <summary>
 		/// Logical visibility flag managed by the panel API (SetVisible/Show/Hide).
@@ -162,6 +187,18 @@ namespace GuiToolkit
 		{
 			base.Awake();
 			InitAnimationIfNecessary();
+		}
+
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			AddPanelToOpen();
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			RemovePanelFromOpen();
 		}
 
 		/// <summary>
@@ -297,6 +334,19 @@ namespace GuiToolkit
 			}
 		}
 
+		[Conditional("DEBUG_UI")]
+		public static void DebugLogStatic( string s )
+		{
+			Debug.Log($"UiLogging: {s}");
+		}
+
+		[Conditional("DEBUG_UI")]
+		public void DebugLog( string s )
+		{
+			Debug.Log($"UiLogging: {s}\n{this.GetPath()}");
+		}
+
+
 		/// <summary>
 		/// Ensure an animation provider is cached. If m_showHideAnimation is not
 		/// assigned, scans the attached MonoBehaviours and picks the first one
@@ -397,5 +447,25 @@ namespace GuiToolkit
 			EvOnDestroyed.Invoke(this);
 			base.OnDestroy();
 		}
+
+		private void AddPanelToOpen()
+		{
+			if (!s_openPanels.TryGetValue(GetType(), out HashSet<UiPanel> openPanels))
+			{
+				openPanels = new HashSet<UiPanel>();
+				s_openPanels.Add(GetType(), openPanels);
+			}
+
+			openPanels.Add(this);
+		}
+
+		private void RemovePanelFromOpen()
+		{
+			if (!s_openPanels.TryGetValue(GetType(), out HashSet<UiPanel> openPanels))
+				return;
+
+			openPanels.Remove(this);
+		}
+
 	}
 }
