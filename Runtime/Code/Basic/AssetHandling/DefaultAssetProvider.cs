@@ -32,12 +32,14 @@ namespace GuiToolkit.AssetHandling
 
 		private static GameObject Resolve( object _key )
 		{
-			if (_key is GameObject go) return go;
-			if (_key is string path) return Resources.Load<GameObject>(path);
+			if (_key is GameObject go) 
+				return go;
+			if (_key is string path) 
+				return Resources.Load<GameObject>(path);
 #if UNITY_EDITOR
 			// Optional: GUID support for Editor tooling
-			if (_key is Guid guid) return (GameObject)UnityEditor.AssetDatabase.LoadAssetAtPath<Object>(
-				UnityEditor.AssetDatabase.GUIDToAssetPath(guid.ToString("N")));
+			if (_key is Guid guid) 
+				return (GameObject)UnityEditor.AssetDatabase.LoadAssetAtPath<Object>(UnityEditor.AssetDatabase.GUIDToAssetPath(guid.ToString("N")));
 #endif
 			return null;
 		}
