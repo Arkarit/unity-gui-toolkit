@@ -5,177 +5,258 @@ using UnityEngine.EventSystems;
 
 namespace GuiToolkit
 {
-	/// \brief Basic UI class
-	///
-	/// Basic UI class which defines virtual methods for the most common
-	/// Unity functions Awake(), OnEnable(), OnDisable() and OnDestroy().
-	/// \attention Be sure to always call the base class methods if you inherit from UiThing
-	/// 
-	/// Additionally, it offers event handling plus some convenience functions.
+    /// <summary>
+    /// Basic UI class providing a dependable Unity lifecycle scaffold and
+    /// opt-in event subscriptions. Inherits LocaMonoBehaviour so gettext helpers
+    /// are available to derived classes.
+    ///
+    /// Responsibilities:
+    /// - Defines virtual lifecycle hooks (Awake, OnEnable, OnDisable, OnDestroy, Start).
+    /// - Provides an opt-in pattern for receiving events while disabled.
+    /// - Integrates optional UiEventDefinitions callbacks (language, orientation).
+    /// - Centralizes UI-layer assignment and requires a RectTransform.
+    /// - Adds a small convenience mechanism for wiring UiButton click listeners.
+    ///
+    /// Contract:
+    /// - If you override lifecycle methods, always call the base implementation.
+    /// - If you need to receive events while the component is disabled, override
+    ///   ReceiveEventsWhenDisabled and return true.
+    /// - If you need language or orientation callbacks, override the corresponding
+   ///   Needs... properties and return true.
+    /// </summary>
+    [RequireComponent(typeof(RectTransform))]
+    public class UiThing : LocaMonoBehaviour, IEventSystemHandler, IEnableableInHierarchy
+    {
+        // Cached UI layer index. Lazily resolved once per domain reload.
+        private static int s_layer = -1;
 
-	[RequireComponent(typeof(RectTransform))]
-	public class UiThing : LocaMonoBehaviour, IEventSystemHandler, IEnableableInHierarchy
-	{
-		private static int s_layer = -1;
-		[HideInInspector] // Only editable in custom editors
-		[SerializeField] private bool m_enabledInHierarchy = true;
+        [HideInInspector] // Only editable via custom inspectors or helpers.
+        [SerializeField] private bool m_enabledInHierarchy = true;
 
-		/// Override and return false here if you don't want to receive events when currently not active.
-		protected virtual bool ReceiveEventsWhenDisabled => true;
+        /// <summary>
+        /// If true, event listeners are installed in Awake even when the component
+        /// is disabled, allowing it to react to external events while inactive.
+        /// Default: true.
+        /// </summary>
+        protected virtual bool ReceiveEventsWhenDisabled => true;
 
-		/// Override and return true here if you need the OnLanguageChanged() callback
-		protected virtual bool NeedsLanguageChangeCallback => false;
+        /// <summary>
+        /// If true, subscribes to UiEventDefinitions.EvLanguageChanged on enable.
+        /// </summary>
+        protected virtual bool NeedsLanguageChangeCallback => false;
 
-		/// Override and return true here if you need the OnScreenOrientation() callback
-		protected virtual bool NeedsOnScreenOrientationCallback => false;
+        /// <summary>
+        /// If true, subscribes to UiEventDefinitions.EvScreenOrientationChange on enable.
+        /// </summary>
+        protected virtual bool NeedsOnScreenOrientationCallback => false;
 
-		#region IEnableableInHierarchy
-		/// Override and return true here if the component is hierarchically enableable
-		public virtual bool IsEnableableInHierarchy => false;
+        #region IEnableableInHierarchy
 
-		bool IEnableableInHierarchy.StoreEnabledInHierarchy 
-		{ 
-			get => m_enabledInHierarchy; 
-			set => m_enabledInHierarchy = value; 
-		}
+        /// <summary>
+        /// If true, this component participates in hierarchical enable/disable
+        /// logic managed by EnableableInHierarchyUtility.
+        /// </summary>
+        public virtual bool IsEnableableInHierarchy => false;
 
-		public bool EnabledInHierarchy
-		{ 
-			get => EnableableInHierarchyUtility.GetEnabledInHierarchy(this);
-			set => EnableableInHierarchyUtility.SetEnabledInHierarchy(this, value); 
-		}
+        /// <summary>
+        /// Storage for the effective enabled state used by IEnableableInHierarchy.
+        /// This is the backing field that the utility reads and writes.
+        /// </summary>
+        bool IEnableableInHierarchy.StoreEnabledInHierarchy
+        {
+            get => m_enabledInHierarchy;
+            set => m_enabledInHierarchy = value;
+        }
 
-		IEnableableInHierarchy[] IEnableableInHierarchy.Children => GetComponentsInChildren<IEnableableInHierarchy>();
-		public virtual void OnEnabledInHierarchyChanged(bool _enabled) {}
+        /// <summary>
+        /// Gets or sets the effective enabled state in the hierarchy as computed
+        /// by EnableableInHierarchyUtility.
+        /// </summary>
+        public bool EnabledInHierarchy
+        {
+            get => EnableableInHierarchyUtility.GetEnabledInHierarchy(this);
+            set => EnableableInHierarchyUtility.SetEnabledInHierarchy(this, value);
+        }
 
-		#endregion
+        /// <summary>
+        /// Enumerates children that also implement IEnableableInHierarchy.
+        /// </summary>
+        IEnableableInHierarchy[] IEnableableInHierarchy.Children => GetComponentsInChildren<IEnableableInHierarchy>();
 
-		/// Override to add your event listeners.
-		protected virtual void AddEventListeners() {}
+        /// <summary>
+        /// Called when the effective hierarchical enabled state changes.
+        /// Override to react to changes (e.g., show/hide view content).
+        /// </summary>
+        public virtual void OnEnabledInHierarchyChanged(bool _enabled) {}
 
-		/// Override to remove your event listeners.
-		protected virtual void RemoveEventListeners() {}
+        #endregion
 
-		protected readonly List<(UiButton button, UnityAction action)> m_buttonListeners = new();
+        /// <summary>
+        /// Override to add your custom event listeners (e.g., bus subscriptions).
+        /// This is invoked according to ReceiveEventsWhenDisabled and lifecycle.
+        /// </summary>
+        protected virtual void AddEventListeners() {}
 
-		private bool m_eventListenersAdded = false;
-		private bool m_isAwake = false;
+        /// <summary>
+        /// Override to remove your custom event listeners.
+        /// Must be symmetrical to AddEventListeners to prevent leaks.
+        /// </summary>
+        protected virtual void RemoveEventListeners() {}
 
-		public RectTransform RectTransform => transform as RectTransform;
+        /// <summary>
+        /// Convenience container for UiButton -> UnityAction pairs to be wired
+        /// automatically on enable and unwired on disable.
+        /// </summary>
+        protected readonly List<(UiButton button, UnityAction action)> m_buttonListeners = new();
 
-		protected virtual void OnLanguageChanged( string _languageId ){}
-		protected virtual void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation ){}
+        private bool m_eventListenersAdded = false;
+        private bool m_isAwake = false;
 
+        /// <summary>
+        /// Convenience accessor for the required RectTransform.
+        /// </summary>
+        public RectTransform RectTransform => transform as RectTransform;
 
-		/// Call this in Awake(), before calling base.Awake()!
-		protected void AddOnEnableButtonListeners(params (UiButton button, UnityAction action)[] _listeners)
-		{
-			if (m_isAwake)
-			{
-				Debug.LogError("Call this in Awake(), before calling base.Awake() please!");
-				return;
-			}
+        /// <summary>
+        /// Optional callback when application language changes.
+        /// Only active if NeedsLanguageChangeCallback returns true.
+        /// </summary>
+        protected virtual void OnLanguageChanged(string _languageId) {}
 
-			m_buttonListeners.AddRange(_listeners);
-		}
+        /// <summary>
+        /// Optional callback when screen orientation changes.
+        /// Only active if NeedsOnScreenOrientationCallback returns true.
+        /// </summary>
+        protected virtual void OnScreenOrientationChanged(EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation) {}
 
-		/// \brief Install Event handlers on disabled objects
-		/// 
-		/// Unity unfortunately has NO reliable "OnCreate" callback:<BR>
-		/// Constructors should not be used according to Unity, and Awake() is only called on active game objects.<BR>
-		/// So if you e.g. want to install event handlers on components, which are disabled on creation (e.g. to enable them on event),
-		/// you're lost.<BR>
-		/// In such cases, you have to call InitEvents() manually.
-		public void InitEvents()
-		{
-			// When we are active, leave it up to the common Awake() etc.
-			if (gameObject.activeInHierarchy && enabled)
-				return;
+        /// <summary>
+        /// Registers UiButton click listeners to be installed later in OnEnable.
+        /// Call this in your Awake() BEFORE base.Awake().
+        /// </summary>
+        /// <param name="_listeners">Pairs of (UiButton, UnityAction).</param>
+        protected void AddOnEnableButtonListeners(params (UiButton button, UnityAction action)[] _listeners)
+        {
+            if (m_isAwake)
+            {
+                Debug.LogError("Call this in Awake(), before calling base.Awake() please!");
+                return;
+            }
 
-			// only when we receive events while disabled, we initialize the events.
-			if (ReceiveEventsWhenDisabled && !m_eventListenersAdded)
-			{
-				AddEventListeners();
-				m_eventListenersAdded = true;
-			}
-		}
+            m_buttonListeners.AddRange(_listeners);
+        }
 
-		protected virtual void Start() {}
+        /// <summary>
+        /// Initializes event listeners even when the object is inactive.
+        /// Use this if you need to receive events while disabled and the
+        /// standard Awake() path is not guaranteed to run.
+        ///
+        /// Unity specifics:
+        /// - Constructors should not be used for initialization.
+        /// - Awake() is called only on active objects at load time.
+        /// </summary>
+        public void InitEvents()
+        {
+            // If we are active, rely on regular lifecycle.
+            if (gameObject.activeInHierarchy && enabled)
+                return;
 
-		/// Installs event listeners, if ReceiveEventsWhenDisabled
-		/// Also ensure that the game object is always in UI layer
-		protected virtual void Awake()
-		{
-			if (s_layer == -1)
-				s_layer = LayerMask.NameToLayer("UI");
+            // Only initialize when allowed to receive while disabled.
+            if (ReceiveEventsWhenDisabled && !m_eventListenersAdded)
+            {
+                AddEventListeners();
+                m_eventListenersAdded = true;
+            }
+        }
 
-			gameObject.layer = s_layer;
+        /// <summary>
+        /// Optional Unity Start hook for derived classes.
+        /// </summary>
+        protected virtual void Start() {}
 
-			if (ReceiveEventsWhenDisabled && !m_eventListenersAdded)
-			{
-				AddEventListeners();
-				m_eventListenersAdded = true;
-			}
+        /// <summary>
+        /// Sets the UI layer and installs listeners if ReceiveEventsWhenDisabled.
+        /// This is the earliest safe point for engine-side setup.
+        /// </summary>
+        protected virtual void Awake()
+        {
+            if (s_layer == -1)
+                s_layer = LayerMask.NameToLayer("UI");
 
-			m_isAwake = true;
-		}
+            gameObject.layer = s_layer;
 
-		/// Installs event listeners, if not ReceiveEventsWhenDisabled
-		protected virtual void OnEnable()
-		{
-			if (NeedsLanguageChangeCallback)
-				UiEventDefinitions.EvLanguageChanged.AddListener(OnLanguageChanged);
+            if (ReceiveEventsWhenDisabled && !m_eventListenersAdded)
+            {
+                AddEventListeners();
+                m_eventListenersAdded = true;
+            }
 
-			if (NeedsOnScreenOrientationCallback)
-				UiEventDefinitions.EvScreenOrientationChange.AddListener(OnScreenOrientationChanged);
+            m_isAwake = true;
+        }
 
-			if (!ReceiveEventsWhenDisabled && !m_eventListenersAdded)
-			{
-				AddEventListeners();
-				m_eventListenersAdded = true;
-			}
+        /// <summary>
+        /// Subscribes optional UiEventDefinitions callbacks and installs
+        /// listeners if we do not receive while disabled. Also wires UiButton clicks.
+        /// </summary>
+        protected virtual void OnEnable()
+        {
+            if (NeedsLanguageChangeCallback)
+                UiEventDefinitions.EvLanguageChanged.AddListener(OnLanguageChanged);
 
-			foreach (var buttonListener in m_buttonListeners)
-			{
-				if (buttonListener.button == null || buttonListener.action == null)
-					continue;
+            if (NeedsOnScreenOrientationCallback)
+                UiEventDefinitions.EvScreenOrientationChange.AddListener(OnScreenOrientationChanged);
 
-				buttonListener.button.OnClick.AddListener(buttonListener.action);
-			}
-		}
+            if (!ReceiveEventsWhenDisabled && !m_eventListenersAdded)
+            {
+                AddEventListeners();
+                m_eventListenersAdded = true;
+            }
 
-		/// Removes event listeners, if not ReceiveEventsWhenDisabled
-		protected virtual void OnDisable()
-		{
-			if (NeedsLanguageChangeCallback)
-				UiEventDefinitions.EvLanguageChanged.RemoveListener(OnLanguageChanged);
+            foreach (var buttonListener in m_buttonListeners)
+            {
+                if (buttonListener.button == null || buttonListener.action == null)
+                    continue;
 
-			if (NeedsOnScreenOrientationCallback)
-				UiEventDefinitions.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChanged);
+                buttonListener.button.OnClick.AddListener(buttonListener.action);
+            }
+        }
 
-			if (!ReceiveEventsWhenDisabled && m_eventListenersAdded)
-			{
-				RemoveEventListeners();
-				m_eventListenersAdded = false;
-			}
+        /// <summary>
+        /// Unsubscribes optional UiEventDefinitions callbacks, removes listeners
+        /// if we only receive while enabled, and unwires UiButton clicks.
+        /// </summary>
+        protected virtual void OnDisable()
+        {
+            if (NeedsLanguageChangeCallback)
+                UiEventDefinitions.EvLanguageChanged.RemoveListener(OnLanguageChanged);
 
-			foreach (var buttonListener in m_buttonListeners)
-			{
-				if (buttonListener.button == null || buttonListener.action == null)
-					continue;
+            if (NeedsOnScreenOrientationCallback)
+                UiEventDefinitions.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChanged);
 
-				buttonListener.button.OnClick.RemoveListener(buttonListener.action);
-			}
-		}
+            if (!ReceiveEventsWhenDisabled && m_eventListenersAdded)
+            {
+                RemoveEventListeners();
+                m_eventListenersAdded = false;
+            }
 
-		/// Removes event listeners, if ReceiveEventsWhenDisabled
-		protected virtual void OnDestroy()
-		{
-			if (ReceiveEventsWhenDisabled && m_eventListenersAdded)
-			{
-				RemoveEventListeners();
-				m_eventListenersAdded = false;
-			}
-		}
-	}
+            foreach (var buttonListener in m_buttonListeners)
+            {
+                if (buttonListener.button == null || buttonListener.action == null)
+                    continue;
+
+                buttonListener.button.OnClick.RemoveListener(buttonListener.action);
+            }
+        }
+
+        /// <summary>
+        /// Final cleanup for the receive-while-disabled case.
+        /// </summary>
+        protected virtual void OnDestroy()
+        {
+            if (ReceiveEventsWhenDisabled && m_eventListenersAdded)
+            {
+                RemoveEventListeners();
+                m_eventListenersAdded = false;
+            }
+        }
+    }
 }
