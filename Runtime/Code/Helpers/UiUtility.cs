@@ -92,8 +92,14 @@ namespace GuiToolkit
 		[InitializeOnLoadMethod]
 		public static void RefreshGameView()
 		{
+			if (Application.isPlaying)
+				return;
+			
 			EditorApplication.delayCall += () =>
 			{
+				if (Application.isPlaying)
+					return;
+			
 				var playModeWindow = EditorWindow.GetWindow(Type.GetType("UnityEditor.PlayModeView, UnityEditor"));
 				var sceneWindow = EditorWindow.GetWindow<SceneView>();
 				
