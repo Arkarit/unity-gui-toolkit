@@ -8,58 +8,74 @@ using Object = UnityEngine.Object;
 
 namespace GuiToolkit.AssetHandling
 {
+	public sealed class DefaultInstanceHandle : IInstanceHandle
+	{
+		public Object Instance { get; }
+		public void Release()
+		{
+			if (Instance)
+				Object.Destroy(Instance);
+		}
+
+		public T GetInstance<T>() where T : Object => (T)Instance;
+		public DefaultInstanceHandle( Object _object ) { Instance = _object; }
+	}
+
+	public sealed class DefaultAssetHandle : IAssetHandle
+	{
+		public Object Asset { get; }
+		public object Key { get; }
+		public bool IsLoaded => Asset != null;
+		public T GetAsset<T>() where T : Object => (T) Asset;
+
+		public DefaultAssetHandle( GameObject _asset, object _key ) { Asset = _asset; Key = _key; }
+	}
+	
 	public sealed class DefaultAssetProvider : IAssetProvider
 	{
 		public async Task<IInstanceHandle> InstantiateAsync( object _key, Transform _parent = null, CancellationToken _cancellationToken = default )
 		{
-			GameObject prefab = Resolve(_key); // GameObject or Resources.Load<GameObject>((string)key)
-			if (!prefab) 
+			var key = (DefaultAssetHandle)NormalizeKey(_key);
+			if (!key.IsLoaded)
 				throw new Exception("<Prefab missing>");
-			
-			var go = Object.Instantiate(prefab, _parent);
+
+			var go = Object.Instantiate(key.GetAsset<GameObject>(), _parent);
 			return new DefaultInstanceHandle(go);
 		}
 
-		public Task<IAssetHandle<GameObject>> LoadPrefabAsync( object _key, CancellationToken _cancellationToken = default )
+		public Task<IAssetHandle> LoadPrefabAsync( object _key, CancellationToken _cancellationToken = default )
 		{
-			var prefab = Resolve(_key);
-			return Task.FromResult<IAssetHandle<GameObject>>(new DefaultAssetHandle(prefab, _key));
+			var key = NormalizeKey(_key);
+			if (!key.IsLoaded)
+				return null;
+			
+			return Task.FromResult<IAssetHandle>(new DefaultAssetHandle(key.GetAsset<GameObject>(), _key));
 		}
 
-		public void Release( IAssetHandle<GameObject> _handle ) {}
+		public void Release( IAssetHandle _handle ) { }
 		public Task PreloadAsync( IEnumerable<object> _keysOrLabels, CancellationToken _cancellationToken = default ) => Task.CompletedTask;
-		public void ReleaseUnused() {}
+		public void ReleaseUnused() { }
 
-		private static GameObject Resolve( object _key )
+		public IAssetHandle NormalizeKey( object _key )
 		{
-			if (_key is GameObject go) 
-				return go;
-			if (_key is string path) 
-				return Resources.Load<GameObject>(path);
+			if (_key is GameObject go)
+				return new DefaultAssetHandle(go, _key);
+
+			if (_key is string path)
+				return new DefaultAssetHandle(Resources.Load<GameObject>(path), _key);
+
 #if UNITY_EDITOR
 			// Optional: GUID support for Editor tooling
-			if (_key is Guid guid) 
-				return (GameObject)UnityEditor.AssetDatabase.LoadAssetAtPath<Object>(UnityEditor.AssetDatabase.GUIDToAssetPath(guid.ToString("N")));
+			if (_key is Guid guid)
+				return new DefaultAssetHandle
+				(
+					(GameObject)UnityEditor.AssetDatabase.LoadAssetAtPath<Object>(UnityEditor.AssetDatabase.GUIDToAssetPath(guid.ToString("N"))), 
+					_key
+				);
 #endif
-			return null;
+			
+			return new DefaultAssetHandle(null, _key);
 		}
 
-		private sealed class DefaultInstanceHandle : IInstanceHandle
-		{
-			public GameObject Instance { get; }
-			public DefaultInstanceHandle( GameObject _go ) { Instance = _go; }
-			public void Release()
-			{
-				if (Instance) 
-					Object.Destroy(Instance);
-			}
-		}
-
-		private sealed class DefaultAssetHandle : IAssetHandle<GameObject>
-		{
-			public GameObject Asset { get; }
-			public object Key { get; }
-			public DefaultAssetHandle( GameObject _asset, object _key ) { Asset = _asset; Key = _key; }
-		}
 	}
 }

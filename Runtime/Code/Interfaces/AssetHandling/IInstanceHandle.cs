@@ -4,7 +4,8 @@ namespace GuiToolkit.AssetHandling
 {
 	public interface IInstanceHandle
 	{
-		GameObject Instance { get; }
+		Object Instance { get; }
 		void Release(); // Addressables: ReleaseInstance; Direct: Destroy
+		T GetInstance<T>() where T : Object;
 	}
 }

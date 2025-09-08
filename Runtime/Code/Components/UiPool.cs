@@ -61,6 +61,17 @@ namespace GuiToolkit
 			return result;
 		}
 
+		
+		public bool HasPrefab<T>(T _componentOnPrefabRoot) where T : Component => HasPrefab(_componentOnPrefabRoot.gameObject);
+
+		public bool HasPrefab(GameObject _prefab)
+		{
+			if (!m_instancesByPrefab.ContainsKey(_prefab))
+				return false;
+			
+			return m_instancesByPrefab[_prefab].HasInstances;
+		}
+			
 		[Obsolete("Use Release() instead")]
 		public void DoDestroy(GameObject _instance) => Release(_instance);
 

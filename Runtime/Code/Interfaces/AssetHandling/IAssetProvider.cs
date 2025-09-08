@@ -8,7 +8,7 @@ namespace GuiToolkit.AssetHandling
 	public interface IAssetProvider
 	{
 		// Load prefab without instantiation (optional; can be no-op)
-		Task<IAssetHandle<GameObject>> LoadPrefabAsync( object _key, CancellationToken _cancellationToken = default );
+		Task<IAssetHandle> LoadPrefabAsync( object _key, CancellationToken _cancellationToken = default );
 
 		// Instantiate and return a handle that knows how to free itself
 		Task<IInstanceHandle> InstantiateAsync( object _key, Transform _parent = null, CancellationToken _cancellationToken = default );
@@ -17,9 +17,11 @@ namespace GuiToolkit.AssetHandling
 		Task PreloadAsync( IEnumerable<object> _keysOrLabels, CancellationToken _cancellationToken = default );
 
 		// Free loaded prefab handle (not the instance)
-		void Release( IAssetHandle<GameObject> _handle );
+		void Release( IAssetHandle _handle );
 
 		// Housekeeping hook
 		void ReleaseUnused();
+		
+		IAssetHandle NormalizeKey(object _key);
 	}
 }

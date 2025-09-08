@@ -8,7 +8,14 @@ namespace GuiToolkit.AssetHandling
 	public class UiPanelLoader
 	{
 		public static UiPanelLoader s_instance;
+		private class LoadedPrefab
+		{
+			public GameObject Prefab;
+			public IInstanceHandle Handle;
+		}
+		
 		private readonly HashSet<string> m_BeingLoaded = new();
+		private readonly Dictionary<string, LoadedPrefab> m_loadedPrefabsByClassName = new();
 
 		
 		public static UiPanelLoader Instance
@@ -20,6 +27,7 @@ namespace GuiToolkit.AssetHandling
 				return s_instance; 
 			}
 		}
+		
 #if false		
 		public void LoadAsync(UiPanelLoadInfo _loadInfo)
 		{
@@ -50,7 +58,7 @@ namespace GuiToolkit.AssetHandling
 				LoadConfig();
 			
 			UiPanel.DebugLogStatic($"Attempt to find already loaded {_loadInfo.PanelType.Name}");
-			if (m_LoadedPrefabsByClassName.TryGetValue(_loadInfo.PanelType.Name, out LoadedPrefab loadedPrefab))
+			if (m_loadedPrefabsByClassName.TryGetValue(_loadInfo.PanelType.Name, out LoadedPrefab loadedPrefab))
 			{
 				UiPanel.DebugLogStatic($"Success.");
 				DoInstantiate(_loadInfo, loadedPrefab.Prefab);
@@ -133,7 +141,7 @@ namespace GuiToolkit.AssetHandling
 
 			UiPanel.DebugLogStatic($"Adding panel {loadInfo.PanelType.Name}");
 			var go = handle.Result;
-			m_LoadedPrefabsByClassName.Add(loadInfo.PanelType.Name, new LoadedPrefab()
+			m_loadedPrefabsByClassName.Add(loadInfo.PanelType.Name, new LoadedPrefab()
 			{
 				Prefab = go,
 				Handle = handle

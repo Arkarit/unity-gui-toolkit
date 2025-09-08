@@ -1,9 +1,11 @@
 namespace GuiToolkit.AssetHandling
 {
-	public interface IAssetHandle<T>
+	public interface IAssetHandle
 	{
-		T Asset { get; }
+		UnityEngine.Object Asset { get; }
 		// Optional meta for diagnostics
 		object Key { get; }
+		bool IsLoaded { get; }
+		T GetAsset<T>() where T : UnityEngine.Object;
 	}
 }
