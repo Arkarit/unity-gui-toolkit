@@ -1,29 +1,35 @@
+using System;
 using GuiToolkit.AssetHandling;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using Object = UnityEngine.Object;
 
-public sealed class AddrInstanceHandle : IInstanceHandle
+public sealed class AddressableInstanceHandle : IInstanceHandle
 {
-	public Object Instance { get; }
-	private UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<GameObject> _h;
-	public AddrInstanceHandle( UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<GameObject> h ) { _h = h; Instance = h.Result; }
-	Object IInstanceHandle.Instance => Instance;
+	public GameObject Instance { get; }
+	private AsyncOperationHandle<GameObject> m_handle;
+	public AddressableInstanceHandle( AsyncOperationHandle<GameObject> _handle )
+	{
+		m_handle = _handle;
+		Instance = _handle.Result;
+	}
 
-	public void Release() { UnityEngine.AddressableAssets.Addressables.ReleaseInstance(Instance); }
-	public T GetInstance<T>() where T : Object => (T)Instance;
+	public void Release()
+	{
+		UnityEngine.AddressableAssets.Addressables.ReleaseInstance(Instance);
+	}
 }
 
-public sealed class AddrAssetHandle : IAssetHandle
+public sealed class AddressableAssetHandle<T> : IAssetHandle<T> where T : Object
 {
-	public Object Asset => Handle.Result;
+	public T Asset => Handle.Result;
 	public object Key { get; }
 	public bool IsLoaded => Asset != null;
-	public T GetAsset<T>() where T : Object => (T)Asset;
-	public UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<GameObject> Handle;
-	public AddrAssetHandle( UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<GameObject> handle, object key )
+	public AsyncOperationHandle<T> Handle;
+	public AddressableAssetHandle( AsyncOperationHandle<T> handle, object key )
 	{
 		Handle = handle;
 		Key = key;
@@ -32,29 +38,29 @@ public sealed class AddrAssetHandle : IAssetHandle
 
 public sealed class AddressablesProvider : IAssetProvider
 {
-	public async Task<IInstanceHandle> InstantiateAsync( object key, Transform parent = null, CancellationToken ct = default )
+	public async Task<IInstanceHandle> InstantiateAsync( object _key, Transform _parent = null, CancellationToken _cancellationToken = default )
 	{
-		UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<GameObject> h;
-		if (key is UnityEngine.AddressableAssets.AssetReferenceGameObject ar)
-			h = ar.InstantiateAsync(parent);
+		AsyncOperationHandle<GameObject> handle;
+		if (_key is UnityEngine.AddressableAssets.AssetReferenceGameObject assetReferenceGameObject)
+			handle = assetReferenceGameObject.InstantiateAsync(_parent);
 		else
-			h = UnityEngine.AddressableAssets.Addressables.InstantiateAsync(key, parent);
+			handle = UnityEngine.AddressableAssets.Addressables.InstantiateAsync(_key, _parent);
 
-		await h.Task;
-		return new AddrInstanceHandle(h);
+		await handle.Task;
+		return new AddressableInstanceHandle(handle);
 	}
 
-	public async Task<IAssetHandle> LoadPrefabAsync( object key, CancellationToken ct = default )
+	public async Task<IAssetHandle<T>> LoadAssetAsync<T>( object _key, CancellationToken _cancellationToken = default ) where T : Object
 	{
-		var h = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<GameObject>(key);
-		await h.Task;
-		return new AddrAssetHandle(h, key);
+		var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<T>(_key);
+		await handle.Task;
+		return new AddressableAssetHandle<T>(handle, _key);
 	}
 
-	public void Release( IAssetHandle handle )
+	public void Release<T>( IAssetHandle<T> handle ) where T : Object
 	{
-		var a = (AddrAssetHandle)handle;
-		UnityEngine.AddressableAssets.Addressables.Release(a.Handle);
+		var assetHandle = (AddressableAssetHandle<T>)handle;
+		UnityEngine.AddressableAssets.Addressables.Release(assetHandle.Handle);
 	}
 
 	public async Task PreloadAsync( IEnumerable<object> keysOrLabels, CancellationToken ct = default )
@@ -69,5 +75,33 @@ public sealed class AddressablesProvider : IAssetProvider
 
 	public void ReleaseUnused() { /* optional trimming */ }
 
-	public IAssetHandle NormalizeKey( object _key ) => new AddrAssetHandle(new AsyncOperationHandle<GameObject>(), _key);
+	public AssetKey NormalizeKey<T>( object _key ) where T : Object
+	{
+		if (_key is AssetKey assetKey)
+		{
+			if (!ReferenceEquals(assetKey.Provider, this))
+				throw new InvalidOperationException($"Attempt to use Key designed for Asset provider '{assetKey.Provider.GetType().Name}' with '{GetType().Name}'");
+
+			return assetKey;
+		}
+
+		// Direct AssetReference
+		if (_key is UnityEngine.AddressableAssets.AssetReference assetReference)
+		{
+			// RuntimeKey is the official, stable ID for Addressables
+			return new AssetKey(this, assetReference.RuntimeKey.ToString(), typeof(T));
+		}
+
+		// String key/label (Addressables supports both)
+		if (_key is string key)
+			return new AssetKey(this, $"addr:{key}", typeof(T));
+
+		// Editor convenience: GUID
+#if UNITY_EDITOR
+		if (_key is Guid guid)
+			return new AssetKey(this, $"guid:{guid:N}", typeof(T));
+#endif
+
+		return new AssetKey(this, $"unknown:{_key}", typeof(T));
+	}
 }

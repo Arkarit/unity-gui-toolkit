@@ -39,8 +39,8 @@ namespace GuiToolkit.AssetHandling
 			}
 		}
 		
-		// Load prefab without instantiation (optional; can be no-op)
-		public static Task<IAssetHandle<GameObject>> LoadPrefabAsync( object _key, CancellationToken _cancellationToken = default ) => AssetProvider.LoadPrefabAsync(_key, _cancellationToken);
+		// Load asset without instantiation (optional; can be no-op)
+		public static Task<IAssetHandle<GameObject>> LoadAssetAsync( object _key, CancellationToken _cancellationToken = default ) => AssetProvider.LoadAssetAsync<GameObject>(_key, _cancellationToken);
 
 		// Instantiate and return a handle that knows how to free itself
 		public static Task<IInstanceHandle> InstantiateAsync( object _key, Transform _parent = null, CancellationToken _cancellationToken = default ) => AssetProvider.InstantiateAsync(_key, _parent, _cancellationToken);
