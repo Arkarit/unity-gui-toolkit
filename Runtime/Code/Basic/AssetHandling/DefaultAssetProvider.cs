@@ -26,6 +26,14 @@ namespace GuiToolkit.AssetHandling
 			if (!Instance)
 				return;
 
+#if UNITY_EDITOR
+			if (Application.isPlaying)
+				Object.Destroy(Instance);
+			else
+				Object.DestroyImmediate(Instance);
+#else	
+			Object.Destroy(Instance);
+#endif
 			Instance.SafeDestroy(false);
 			Instance = null;
 		}
