@@ -6,7 +6,10 @@
         "UnityEditor.TestRunner",
         "de.phoenixgrafik.ui-toolkit",
         "de.phoenixgrafik.ui-toolkit.Editor",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "Unity.Addressables",
+        "Unity.Addressables.Editor",
+        "NewAssembly"
     ],
     "includePlatforms": [
         "Editor"
