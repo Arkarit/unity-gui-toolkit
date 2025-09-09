@@ -11,46 +11,48 @@ namespace GuiToolkit.Test
 {
 	public class TestDefaultAssetProvider
 	{
-		private const string kFolder = "Assets/Tests/Resources";
+		private const string kTempRoot = "Assets/~Temp_GT_Tests";
+		private const string kResFolder = kTempRoot + "/Resources";
 		private const string kPrefabName = "GT_TestPrefab_DefaultProvider";
-		private const string kPrefabPath = kFolder + "/" + kPrefabName + ".prefab";
+		private const string kPrefabPath = kResFolder + "/" + kPrefabName + ".prefab";
+
+		private bool _createdTempRoot;
+		private bool _createdResFolder;
+		private bool _createdPrefab;
 		private DefaultAssetProvider _provider;
+
 
 		[OneTimeSetUp]
 		public void OneTimeSetUp()
 		{
-			// Create Resources folder if missing
-			if (!AssetDatabase.IsValidFolder("Assets/Tests"))
-				AssetDatabase.CreateFolder("Assets", "Tests");
-			if (!AssetDatabase.IsValidFolder(kFolder))
-				AssetDatabase.CreateFolder("Assets/Tests", "Resources");
-
-			// Create a tiny prefab in Resources
-			if (!File.Exists(kPrefabPath))
+			if (!AssetDatabase.IsValidFolder(kTempRoot))
+			{
+				AssetDatabase.CreateFolder("Assets", "~Temp_GT_Tests");
+				_createdTempRoot = true;
+			}
+			if (!AssetDatabase.IsValidFolder(kResFolder))
+			{
+				AssetDatabase.CreateFolder(kTempRoot, "Resources");
+				_createdResFolder = true;
+			}
+			if (!System.IO.File.Exists(kPrefabPath))
 			{
 				var go = new GameObject("PF_" + kPrefabName);
-				try
-				{
-					PrefabUtility.SaveAsPrefabAsset(go, kPrefabPath);
-				}
-				finally
-				{
-					Object.DestroyImmediate(go);
-				}
+				try { PrefabUtility.SaveAsPrefabAsset(go, kPrefabPath); }
+				finally { UnityEngine.Object.DestroyImmediate(go); }
 				AssetDatabase.ImportAsset(kPrefabPath, ImportAssetOptions.ForceUpdate);
+				_createdPrefab = true;
 			}
-
 			_provider = new DefaultAssetProvider();
 		}
 
 		[OneTimeTearDown]
 		public void OneTimeTearDown()
 		{
-			// Clean up test assets (keep if you prefer to inspect)
-			AssetDatabase.DeleteAsset(kPrefabPath);
-			if (AssetDatabase.IsValidFolder(kFolder)) AssetDatabase.DeleteAsset(kFolder);
-			if (AssetDatabase.IsValidFolder("Assets/Tests/Resources")) { } // already deleted via kFolder
-			if (AssetDatabase.IsValidFolder("Assets/Tests")) { AssetDatabase.DeleteAsset("Assets/Tests"); }
+			// Delete only what THIS test created.
+			if (_createdPrefab) AssetDatabase.DeleteAsset(kPrefabPath);
+			if (_createdResFolder && AssetDatabase.IsValidFolder(kResFolder)) AssetDatabase.DeleteAsset(kResFolder);
+			if (_createdTempRoot && AssetDatabase.IsValidFolder(kTempRoot)) AssetDatabase.DeleteAsset(kTempRoot);
 			AssetDatabase.Refresh();
 		}
 
