@@ -79,7 +79,6 @@ namespace GuiToolkit
 
 		private MeshFilter m_meshFilter;
 		private MeshRenderer m_meshRenderer;
-		private RectTransform m_rectTransform;
 		private MaterialCloner m_materialCloner;
 		private BoxCollider m_boxCollider;
 
@@ -138,7 +137,6 @@ namespace GuiToolkit
 		{
 			m_meshFilter = this.GetOrCreateComponent<MeshFilter>();
 			m_meshRenderer = this.GetOrCreateComponent<MeshRenderer>();
-			m_rectTransform = this.GetOrCreateComponent<RectTransform>();
 			m_materialCloner = this.GetOrCreateComponent<MaterialCloner>();
 			m_materialPropertyBlock = new MaterialPropertyBlock();
 
@@ -167,10 +165,7 @@ namespace GuiToolkit
 
 		private void AlignMaterialToRectTransformSize()
 		{
-			if (m_rectTransform == null)
-				return;
-
-			Rect rect = m_rectTransform.rect;
+			Rect rect = RectTransform.rect;
 			if (rect == m_previousRect && m_previousMaterial == Material)
 				return;
 
