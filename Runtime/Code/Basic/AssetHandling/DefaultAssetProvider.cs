@@ -26,7 +26,7 @@ namespace GuiToolkit.AssetHandling
 			if (!Instance)
 				return;
 
-			Object.Destroy(Instance);
+			Instance.SafeDestroy(false);
 			Instance = null;
 		}
 	}
