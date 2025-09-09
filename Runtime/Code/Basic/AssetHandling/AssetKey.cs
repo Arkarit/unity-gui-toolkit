@@ -19,6 +19,18 @@ namespace GuiToolkit.AssetHandling
 			Type = _type;
 		}
 
+		public bool TryGetValue(string _type, out string _val )
+		{
+			_val = null;
+			if (Id.StartsWith(_type))
+			{
+				_val = Id.Substring(_type.Length);
+				return true;
+			}
+			
+			return false;
+		}
+		
 		public bool Equals( AssetKey _other ) =>
 			   Provider == _other.Provider 
 			&& string.Equals(Id, _other.Id, StringComparison.Ordinal)

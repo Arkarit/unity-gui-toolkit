@@ -5,7 +5,10 @@ using System;
 using UnityEngine;
 
 using Object = UnityEngine.Object;
+
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace GuiToolkit.AssetHandling
 {
@@ -27,10 +30,15 @@ namespace GuiToolkit.AssetHandling
 	public sealed class DefaultAssetHandle<T> : IAssetHandle<T> where T : Object
 	{
 		public T Asset { get; }
-		public object Key { get; }
+		public AssetKey Key { get; }
 		public bool IsLoaded => Asset != null;
+		public void Release()
+		{
+			if (Asset)
+				Object.Destroy(Asset);
+		}
 
-		public DefaultAssetHandle( T _asset, object _key )
+		public DefaultAssetHandle( T _asset, AssetKey _key )
 		{
 			Asset = _asset; 
 			Key = _key;
@@ -64,10 +72,12 @@ namespace GuiToolkit.AssetHandling
 			// Keep method truly async-friendly
 			await Task.Yield();
 			
-			return new DefaultAssetHandle<T>(obj, _key);
+			return new DefaultAssetHandle<T>(obj, assetKey);
 		}
 
-		public void Release<T>( IAssetHandle<T> _handle ) where T : Object { }
+		public void Release<T>( IAssetHandle<T> _handle ) where T : Object => _handle.Release();
+		public void Release(IInstanceHandle _handle) => _handle.Release();
+		
 		public Task PreloadAsync( IEnumerable<object> _keysOrLabels, CancellationToken _cancellationToken = default ) => Task.CompletedTask;
 
 		public void ReleaseUnused() { }
@@ -106,31 +116,26 @@ namespace GuiToolkit.AssetHandling
 			return new AssetKey(this, $"unknown:{_key}", typeof(T));
 		}
 		
-		private static Object Load(AssetKey _assetKey, CancellationToken _cancellationToken)
+		public Object Load(AssetKey _assetKey, CancellationToken _cancellationToken)
 		{
 			Object result = null;
-			var id = _assetKey.Id ?? string.Empty;
 
-			if (id.StartsWith("res:"))
-			{
-				var path = id.Substring(4);
-				result = Resources.Load(path, _assetKey.Type);
-			}
+			if (_assetKey.TryGetValue("res:", out string resourcePath))
+				result = Resources.Load(resourcePath, _assetKey.Type);
 
 #if UNITY_EDITOR
-			else if (id.StartsWith("guid:"))
+			else if (_assetKey.TryGetValue("guid:", out string guid))
 			{
-				var guid = id.Substring(5);
-				var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+				var path = AssetDatabase.GUIDToAssetPath(guid);
 				if (!string.IsNullOrEmpty(path))
-					result = UnityEditor.AssetDatabase.LoadAssetAtPath(path, _assetKey.Type);
+					result = AssetDatabase.LoadAssetAtPath(path, _assetKey.Type);
 			}
 #endif
 
 			_cancellationToken.ThrowIfCancellationRequested();
 
 			if (!result)
-				throw new Exception("<Prefab missing>");
+				throw new Exception($"Could not load asset: '{_assetKey.Id}'");
 			
 			return result;
 		}

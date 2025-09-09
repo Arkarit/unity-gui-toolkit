@@ -16,8 +16,11 @@ namespace GuiToolkit.AssetHandling
 		// Optional preload by label/set
 		Task PreloadAsync( IEnumerable<object> _keysOrLabels, CancellationToken _cancellationToken = default );
 
-		// Free loaded prefab handle (not the instance)
+		// Free loaded asset handle
 		void Release<T>( IAssetHandle<T> _handle ) where T : Object;
+		
+		// Free loaded instance handle
+		void Release(IInstanceHandle _handle);
 
 		// Housekeeping hook
 		void ReleaseUnused();
