@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace GuiToolkit.AssetHandling
+{
+	[CreateAssetMenu(fileName = nameof(UiPanelConfig), menuName = StringConstants.UI_PANEL_CONFIG)]
+	public class UiPanelConfig : ScriptableObject
+	{
+		[Serializable]
+		public class PanelEntry
+		{
+			public string Type;     // logical panel type name (e.g., "ShopPanel")
+			public string PanelId;  // canonical id with prefix: "res:/...", "guid:...", "addr:..."
+		}
+
+		[Serializable]
+		public class CategoryEntry
+		{
+			public string Category;
+			public List<PanelEntry> PanelEntries = new();
+		}
+
+		[SerializeField] private List<CategoryEntry> m_categories = new();
+
+		private Dictionary<string, PanelEntry> m_panelEntryByTypeName;
+
+		public List<CategoryEntry> Categories => m_categories;
+
+		public bool TryGetAssetKeyByType( Type _type, IAssetProviderRouter _router, out AssetKey _assetKey )
+		{
+			_assetKey = default;
+			if (_type == null || _router == null)
+				return false;
+
+			InitIfNecessary();
+
+			if (!m_panelEntryByTypeName.TryGetValue(_type.Name, out var entry))
+				return false;
+
+			if (string.IsNullOrEmpty(entry.PanelId))
+				return false;
+
+			if (!_router.TryGetProviderForId(entry.PanelId, out var provider) || provider == null)
+				return false;
+
+			// Panels are GameObjects
+			_assetKey = new AssetKey(provider, entry.PanelId, typeof(GameObject));
+			return true;
+		}
+
+		public AssetKey GetAssetKeyByType( Type _type, IAssetProviderRouter _router )
+		{
+			if (TryGetAssetKeyByType(_type, _router, out var key))
+				return key;
+
+			throw new InvalidOperationException($"Panel type '{_type?.Name}' not found or unmapped in UiPanelConfig '{name}'.");
+		}
+
+		private void InitIfNecessary()
+		{
+			if (m_panelEntryByTypeName != null)
+				return;
+
+			m_panelEntryByTypeName = new Dictionary<string, PanelEntry>(StringComparer.Ordinal);
+			foreach (var category in m_categories)
+			{
+				foreach (var entry in category.PanelEntries)
+				{
+					if (!string.IsNullOrEmpty(entry.Type) && !m_panelEntryByTypeName.ContainsKey(entry.Type))
+						m_panelEntryByTypeName.Add(entry.Type, entry);
+				}
+			}
+		}
+	}
+}
