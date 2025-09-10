@@ -27,10 +27,10 @@ namespace GuiToolkit.AssetHandling
 
 		public List<CategoryEntry> Categories => m_categories;
 
-		public bool TryGetAssetKeyByType( Type _type, IAssetProviderRouter _router, out AssetKey _assetKey )
+		public bool TryGetAssetKeyByType( Type _type, out AssetKey _assetKey )
 		{
 			_assetKey = default;
-			if (_type == null || _router == null)
+			if (_type == null)
 				return false;
 
 			InitIfNecessary();
@@ -41,17 +41,16 @@ namespace GuiToolkit.AssetHandling
 			if (string.IsNullOrEmpty(entry.PanelId))
 				return false;
 
-			if (!_router.TryGetProviderForId(entry.PanelId, out var provider) || provider == null)
-				return false;
+			var provider = AssetManager.GetAssetProviderOrThrow(entry.PanelId);
 
 			// Panels are GameObjects
 			_assetKey = new AssetKey(provider, entry.PanelId, typeof(GameObject));
 			return true;
 		}
 
-		public AssetKey GetAssetKeyByType( Type _type, IAssetProviderRouter _router )
+		public AssetKey GetAssetKeyByType( Type _type )
 		{
-			if (TryGetAssetKeyByType(_type, _router, out var key))
+			if (TryGetAssetKeyByType(_type, out var key))
 				return key;
 
 			throw new InvalidOperationException($"Panel type '{_type?.Name}' not found or unmapped in UiPanelConfig '{name}'.");

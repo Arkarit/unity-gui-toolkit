@@ -5,6 +5,8 @@ using System;
 using UnityEngine;
 
 using Object = UnityEngine.Object;
+using static Codice.Client.Common.Locks.ServerLocks.ForWorkingBranchOnRepoByItem;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -147,6 +149,46 @@ namespace GuiToolkit.AssetHandling
 #endif
 
 			return new AssetKey(this, $"unknown:{_key}", typeof(T));
+		}
+
+		public bool Supports(AssetKey _key) => _key.Provider == this;
+
+		public bool Supports(string _id)
+		{
+#if UNITY_EDITOR
+			if (_id.StartsWith("guid:"))
+				return true;
+#endif
+			return _id.StartsWith("res:");
+		}
+		
+		public bool Supports(object _obj)
+		{
+			if (_obj is AssetKey key)
+				return Supports(key);
+			
+			if (_obj is string id)
+				return Supports(id);
+			
+#if UNITY_EDITOR
+			if (_obj is Guid)
+				return true;
+
+			if (_obj is Object obj)
+			{
+				if (!EditorUtility.IsPersistent(obj))
+					throw new InvalidOperationException($"Invalid key object '{obj.name}': Only persistent assets can be used as keys");
+
+				string path = AssetDatabase.GetAssetPath(obj);
+				if (!string.IsNullOrEmpty(path))
+				{
+					string guidStr = AssetDatabase.AssetPathToGUID(path);
+					if (!string.IsNullOrEmpty(guidStr))
+						return true;
+				}
+			}
+#endif
+			return false;
 		}
 
 		public Object Load( AssetKey _assetKey, CancellationToken _cancellationToken )

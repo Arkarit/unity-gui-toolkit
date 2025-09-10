@@ -26,5 +26,9 @@ namespace GuiToolkit.AssetHandling
 		void ReleaseUnused();
 		
 		AssetKey NormalizeKey<T>(object _key) where T : Object;
+		
+		bool Supports(AssetKey _key);
+		bool Supports(string _id);
+		bool Supports(object _obj);
 	}
 }

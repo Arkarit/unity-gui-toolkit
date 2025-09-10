@@ -132,7 +132,7 @@ namespace GuiToolkit
 		[SerializeField, Optional] private CanvasScaler m_globalCanvasScalerTemplate = null;
 		
 		[Tooltip(HELP_ASSET_PROVIDER_FACTORY)]
-		[SerializeField, Optional] private AbstractAssetProviderFactory m_assetProviderFactory = null;
+		[SerializeField, Optional] private AbstractAssetProviderFactory[] m_assetProviderFactories = null;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 		private string m_rootDir;
@@ -152,7 +152,7 @@ namespace GuiToolkit
 		public UiMain UiMainPrefab => m_uiMainPrefab;
 		public UiView UiViewPrefab => m_uiViewPrefab;
 		public bool ExceptUiMainExists => m_exceptUiMainExists;
-		public AbstractAssetProviderFactory AssetProviderFactory => m_assetProviderFactory;
+		public AbstractAssetProviderFactory[] AssetProviderFactories => m_assetProviderFactories;
 		
 	
 		public string GetScenePath(string _sceneName)

@@ -9,7 +9,8 @@ namespace GuiToolkit.AssetHandling
 	[EditorAware]
 	public static class AssetManager
 	{
-		private static IAssetProvider s_assetProvider = null;
+		private static IAssetProvider[] s_assetProviders = Array.Empty<IAssetProvider>();
+		
 #if UNITY_EDITOR
 		[UnityEditor.InitializeOnLoadMethod]
 #endif
@@ -18,42 +19,80 @@ namespace GuiToolkit.AssetHandling
 		{
 			AssetReadyGate.WhenReady(() =>
 			{
-				var factory = UiToolkitConfiguration.Instance.AssetProviderFactory;
-				if (factory != null)
-				{
-					s_assetProvider = factory.CreateProvider();
-					return;
-				}
+				List<IAssetProvider> providers = new ();
+				var factories = UiToolkitConfiguration.Instance.AssetProviderFactories;
+				foreach (var factory in factories)
+					providers.Add(factory.CreateProvider());
 				
-				s_assetProvider = new DefaultAssetProvider();
+				providers.Add(new DefaultAssetProvider());
+				s_assetProviders = providers.ToArray();
 			});
 		}
 		
-		public static IAssetProvider AssetProvider
+		public static IAssetProvider[] AssetProviders
 		{
 			get
 			{
-				if (s_assetProvider == null)
+				if (s_assetProviders == null || s_assetProviders.Length == 0)
 					throw new InvalidOperationException("Called asset provider before initialization. Please delay call.");
-				return s_assetProvider;
+				return s_assetProviders;
 			}
 		}
 		
+		public static IAssetProvider GetAssetProvider(object _obj)
+		{
+			foreach (var assetProvider in AssetProviders)
+			{
+				if (assetProvider.Supports(_obj))
+					return assetProvider;
+			}
+			
+			return null;
+		}
+		
+		public static bool TryGetAssetProvider(object _obj,  out IAssetProvider _assetProvider)
+		{
+			_assetProvider = GetAssetProvider(_obj);
+			return _assetProvider != null;
+		}
+		
 		// Load asset without instantiation (optional; can be no-op)
-		public static Task<IAssetHandle<GameObject>> LoadAssetAsync( object _key, CancellationToken _cancellationToken = default ) => AssetProvider.LoadAssetAsync<GameObject>(_key, _cancellationToken);
+		public static Task<IAssetHandle<GameObject>> LoadAssetAsync( object _key, CancellationToken _cancellationToken = default )
+		{
+			return GetAssetProviderOrThrow(_key).LoadAssetAsync<GameObject>(_key, _cancellationToken);
+		}
 
 		// Instantiate and return a handle that knows how to free itself
-		public static Task<IInstanceHandle> InstantiateAsync( object _key, Transform _parent = null, CancellationToken _cancellationToken = default ) => AssetProvider.InstantiateAsync(_key, _parent, _cancellationToken);
+		public static Task<IInstanceHandle> InstantiateAsync( object _key, Transform _parent = null, CancellationToken _cancellationToken = default )
+		{
+			return GetAssetProviderOrThrow(_key).InstantiateAsync(_key, _parent, _cancellationToken);
+		}
 
-		// Optional preload by label/set
-		public static Task PreloadAsync( IEnumerable<object> _keysOrLabels, CancellationToken _cancellationToken = default ) => AssetProvider.PreloadAsync(_keysOrLabels, _cancellationToken);
+		// Optional preload by label/set.
+		// Note: All keys / labels need to use the same provider
+		public static Task PreloadAsync( List<object> _keysOrLabels, CancellationToken _cancellationToken = default )
+		{
+			if ( _keysOrLabels == null || _keysOrLabels.Count == 0)
+				return Task.CompletedTask;
+			
+			return GetAssetProviderOrThrow(_keysOrLabels.ToArray()[0]).PreloadAsync(_keysOrLabels, _cancellationToken);
+		}
 
 		// Free loaded prefab handle (not the instance)
-		public static void Release( IAssetHandle<GameObject> _handle ) => AssetProvider.Release( _handle );
+		public static void Release( IAssetHandle<GameObject> _handle ) => _handle.Release();
 
 		// Housekeeping hook
-		public static void ReleaseUnused() => AssetProvider.ReleaseUnused();
-		
-		
+		public static void ReleaseUnused()
+		{
+			foreach (var assetProvider in AssetProviders)
+				assetProvider.ReleaseUnused();
+		}
+
+		public static IAssetProvider GetAssetProviderOrThrow( object _obj )
+		{
+			if (!TryGetAssetProvider(_obj, out IAssetProvider result))
+				throw new InvalidOperationException($"Could not handle key '{_obj}'. No matching asset provider found.");
+			return result;
+		}
 	}
 }

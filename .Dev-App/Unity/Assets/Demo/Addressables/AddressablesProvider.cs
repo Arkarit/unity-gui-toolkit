@@ -8,6 +8,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using Object = UnityEngine.Object;
 using Addressables = UnityEngine.AddressableAssets.Addressables;
 using AssetReference = UnityEngine.AddressableAssets.AssetReference;
+using UnityEditor;
 
 public sealed class AddressableInstanceHandle : IInstanceHandle
 {
@@ -243,4 +244,19 @@ public sealed class AddressablesProvider : IAssetProvider
 
 		return new AssetKey(this, $"unknown:{_key}", typeof(T));
 	}
+
+	public bool Supports( AssetKey _key ) => _key.Provider == this;
+	public bool Supports( string _id ) => _id.StartsWith("addr:");
+	public bool Supports( object _obj )
+	{
+		if (_obj is AssetKey key)
+			return Supports(key);
+
+		if (_obj is string id)
+			return Supports(id);
+
+		return false;
+	}
+
+
 }
