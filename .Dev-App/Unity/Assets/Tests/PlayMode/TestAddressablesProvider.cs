@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using GuiToolkit.AssetHandling;
 using Addressables = UnityEngine.AddressableAssets.Addressables;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class TestAddressablesProvider
 {

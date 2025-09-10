@@ -33,5 +33,6 @@ MonoBehaviour:
   m_debugLoca: 1
   m_globalCanvasScalerTemplate: {fileID: 8089787022656624402, guid: e9cd0258ba364f949a56da745971e968,
     type: 3}
+  m_assetProviderFactory: {fileID: 0}
   m_potPath: Assets/Resources/loca.pot
   m_generatedAssetsDir: Assets/Generated/
