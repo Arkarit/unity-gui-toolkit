@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -26,19 +27,25 @@ namespace GuiToolkit
 
 		private static string TempFileName => Path.Combine(Application.temporaryCachePath, "openScenes.txt");
 
+		// Matches Unity's InitTestScene with optional GUID/hex suffix
+		private static readonly Regex s_initTestSceneRegEx = new Regex(
+			pattern: @"^InitTestScene(?:$|[ \-_]?[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12})(?:\.unity)?$",
+			options: RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase
+		);
+
 		public static bool IsPlayModeTestRun()
 		{
 			int numScenes = SceneManager.loadedSceneCount;
 			for (int i = 0; i < numScenes; i++)
 			{
-				Scene scene = SceneManager.GetSceneAt(i);
-				if (scene.name.StartsWith("InitTestScene"))
+				var scene = SceneManager.GetSceneAt(i);
+				if (s_initTestSceneRegEx.IsMatch(scene.name))
 					return true;
 			}
 
 			return false;
 		}
-		
+
 		private static void HandleScenes( PlayModeStateChange _state )
 		{
 			// Do not interfere with PlayMode tests
