@@ -9,7 +9,8 @@
         "Unity.TextMeshPro",
         "Unity.Addressables",
         "Unity.Addressables.Editor",
-        "NewAssembly"
+        "NewAssembly",
+        "Unity.ResourceManager"
     ],
     "includePlatforms": [
         "Editor"
