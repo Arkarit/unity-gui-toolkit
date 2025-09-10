@@ -1,4 +1,3 @@
-// Assets/Tests/PlayMode/TestAddressablesProvider.cs
 using System.Collections;
 using System.Threading;
 using NUnit.Framework;

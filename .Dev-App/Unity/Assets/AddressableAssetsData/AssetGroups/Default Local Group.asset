@@ -16,7 +16,7 @@ MonoBehaviour:
   m_GUID: 891cb9c7686396445a4dd7dff0b544f2
   m_SerializeEntries:
   - m_GUID: 77075fe2a8c67324b85578730dd66791
-    m_Address: TestAddrPrefab
+    m_Address: GT_TestAddrPrefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
