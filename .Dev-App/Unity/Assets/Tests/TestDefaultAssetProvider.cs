@@ -6,6 +6,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using GuiToolkit.AssetHandling;
+using Object = UnityEngine.Object;
 
 namespace GuiToolkit.Test
 {
@@ -16,11 +17,11 @@ namespace GuiToolkit.Test
 		private const string kPrefabName = "GT_TestPrefab_DefaultProvider";
 		private const string kPrefabPath = kResFolder + "/" + kPrefabName + ".prefab";
 
-		private bool _createdTempRoot;
-		private bool _createdResFolder;
-		private bool _createdPrefab;
-		private DefaultAssetProvider _provider;
+		private bool m_createdTempRoot;
+		private bool m_createdResFolder;
+		private bool m_createdPrefab;
 
+		private DefaultAssetProvider m_provider;
 
 		[OneTimeSetUp]
 		public void OneTimeSetUp()
@@ -28,31 +29,47 @@ namespace GuiToolkit.Test
 			if (!AssetDatabase.IsValidFolder(kTempRoot))
 			{
 				AssetDatabase.CreateFolder("Assets", "~Temp_GT_Tests");
-				_createdTempRoot = true;
+				m_createdTempRoot = true;
 			}
+
 			if (!AssetDatabase.IsValidFolder(kResFolder))
 			{
 				AssetDatabase.CreateFolder(kTempRoot, "Resources");
-				_createdResFolder = true;
+				m_createdResFolder = true;
 			}
-			if (!System.IO.File.Exists(kPrefabPath))
+
+			if (!File.Exists(kPrefabPath))
 			{
 				var go = new GameObject("PF_" + kPrefabName);
-				try { PrefabUtility.SaveAsPrefabAsset(go, kPrefabPath); }
-				finally { UnityEngine.Object.DestroyImmediate(go); }
+				try
+				{
+					PrefabUtility.SaveAsPrefabAsset(go, kPrefabPath);
+				}
+				finally
+				{
+					Object.DestroyImmediate(go);
+				}
+
 				AssetDatabase.ImportAsset(kPrefabPath, ImportAssetOptions.ForceUpdate);
-				_createdPrefab = true;
+				m_createdPrefab = true;
 			}
-			_provider = new DefaultAssetProvider();
+
+			m_provider = new DefaultAssetProvider();
 		}
 
 		[OneTimeTearDown]
 		public void OneTimeTearDown()
 		{
 			// Delete only what THIS test created.
-			if (_createdPrefab) AssetDatabase.DeleteAsset(kPrefabPath);
-			if (_createdResFolder && AssetDatabase.IsValidFolder(kResFolder)) AssetDatabase.DeleteAsset(kResFolder);
-			if (_createdTempRoot && AssetDatabase.IsValidFolder(kTempRoot)) AssetDatabase.DeleteAsset(kTempRoot);
+			if (m_createdPrefab)
+				AssetDatabase.DeleteAsset(kPrefabPath);
+
+			if (m_createdResFolder && AssetDatabase.IsValidFolder(kResFolder))
+				AssetDatabase.DeleteAsset(kResFolder);
+
+			if (m_createdTempRoot && AssetDatabase.IsValidFolder(kTempRoot))
+				AssetDatabase.DeleteAsset(kTempRoot);
+
 			AssetDatabase.Refresh();
 		}
 
@@ -63,7 +80,7 @@ namespace GuiToolkit.Test
 			var key = kPrefabName; // Resources path without extension
 
 			// Act
-			var handle = await _provider.LoadAssetAsync<GameObject>(key, CancellationToken.None);
+			var handle = await m_provider.LoadAssetAsync<GameObject>(key, CancellationToken.None);
 
 			// Assert
 			Assert.NotNull(handle, "Handle is null");
@@ -72,7 +89,7 @@ namespace GuiToolkit.Test
 			Assert.AreEqual(kPrefabName, handle.Asset.name.Replace("PF_", ""), "Loaded the wrong prefab name");
 
 			// Release is no-op for Default provider, but call to keep symmetry
-			_provider.Release(handle);
+			m_provider.Release(handle);
 		}
 
 		[Test]
@@ -82,7 +99,7 @@ namespace GuiToolkit.Test
 			var key = kPrefabName;
 
 			// Act
-			var instHandle = await _provider.InstantiateAsync(key, null, CancellationToken.None);
+			var instHandle = await m_provider.InstantiateAsync(key, null, CancellationToken.None);
 
 			// Assert instance exists
 			Assert.NotNull(instHandle);
@@ -91,19 +108,20 @@ namespace GuiToolkit.Test
 
 			// Release should destroy the instance
 			var go = instHandle.Instance;
-			_provider.Release(instHandle);
+			m_provider.Release(instHandle);
 			Assert.IsFalse(go, "Instance should be destroyed after Release()");
 		}
 
 		[Test]
 		public void NormalizeKey_WrongProvider_Throws()
 		{
-			var otherProvider = new AddressablesProvider(); // only to construct a mismatched AssetKey object
+			// Only used to create a foreign AssetKey for mismatch testing
+			var otherProvider = new AddressablesProvider();
 			var foreignKey = new AssetKey(otherProvider, "addr:dummy", typeof(GameObject));
 
 			Assert.Throws<System.InvalidOperationException>(() =>
 			{
-				_provider.NormalizeKey<GameObject>(foreignKey);
+				m_provider.NormalizeKey<GameObject>(foreignKey);
 			});
 		}
 
@@ -115,7 +133,7 @@ namespace GuiToolkit.Test
 			{
 				Assert.Throws<System.InvalidOperationException>(() =>
 				{
-					_provider.NormalizeKey<GameObject>(go);
+					m_provider.NormalizeKey<GameObject>(go);
 				});
 			}
 			finally
