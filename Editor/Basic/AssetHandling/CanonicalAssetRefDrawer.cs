@@ -113,26 +113,20 @@ namespace GuiToolkit.AssetHandling
 			HandleDragAndDrop(right, _provider, _typeProp, _idProp);
 
 			// When the user edited this provider's field, commit and validate
-			if (textChanged)
+			if (textChanged && !string.IsNullOrEmpty(shownId))
 			{
-				if (!string.IsNullOrEmpty(shownId))
+				if (!SafeValidateId(_provider, shownId, out var panelTypeName))
 				{
-					if (!SafeValidateId(_provider, shownId, out var panelTypeName))
-					{
-						Warn($"Invalid id for provider '{_provider.Name}': {shownId}");
-					}
-					else
-					{
-						CommitEntry(_typeProp, _idProp, panelTypeName, shownId);
-					}
+					Warn($"Invalid id for provider '{_provider.Name}': {shownId}");
 				}
 				else
 				{
-					// Clearing this field clears the mapping if it belonged here
-					if (BelongsToProvider(_provider, currentId))
-						CommitEntry(_typeProp, _idProp, null, null);
+					CommitEntry(_typeProp, _idProp, panelTypeName, shownId);
 				}
 			}
+
+			if (BelongsToProvider(_provider, currentId) && string.IsNullOrEmpty(shownId))
+				CommitEntry(_typeProp, _idProp, null, null);
 
 			_row.y += kLine + kPadY;
 		}
@@ -274,7 +268,7 @@ namespace GuiToolkit.AssetHandling
 					Warn("Prefab does not meet required component type constraints.");
 					return false;
 				}
-				
+
 				return true;
 			}
 			catch (Exception ex)
