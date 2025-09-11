@@ -89,7 +89,8 @@ namespace GuiToolkit.AssetHandling
 			var assetKey = NormalizeKey<T>(_key);
 			var obj = (T)Load(assetKey, _cancellationToken);
 
-			await Task.Yield();
+			// Actually the asset is loaded sync - waiting for finish leads to freezes in editor D&D
+			//await Task.Yield();
 
 			return new DefaultAssetHandle<T>(obj, assetKey);
 		}
@@ -167,10 +168,12 @@ namespace GuiToolkit.AssetHandling
 			_cancellationToken.ThrowIfCancellationRequested();
 
 			if (!result)
+			{
 				throw new Exception
 				(
 					$"DefaultAssetProvider.Load failed: id='{_assetKey.Id}', type='{_assetKey.Type?.Name ?? "null"}', provider='{GetType().Name}'."
 				);
+			}
 
 			return result;
 		}

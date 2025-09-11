@@ -15,6 +15,11 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 891cb9c7686396445a4dd7dff0b544f2
   m_SerializeEntries:
+  - m_GUID: 715f257ea51987e40a3c636cd42229dd
+    m_Address: GT_TestAddrPanel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 77075fe2a8c67324b85578730dd66791
     m_Address: GT_TestAddrPrefab
     m_ReadOnly: 0

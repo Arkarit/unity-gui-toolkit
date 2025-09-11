@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3213295807259118825}
   - component: {fileID: 6358958798351812573}
   m_Layer: 5
-  m_Name: DemoHud
+  m_Name: TestAddrPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

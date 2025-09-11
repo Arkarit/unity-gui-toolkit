@@ -249,6 +249,7 @@ namespace GuiToolkit.AssetHandling
 		private bool SafeValidateId( IAssetProvider _provider, string _id, out string _panelTypeName )
 		{
 			_panelTypeName = null;
+
 			try
 			{
 				// Build an AssetKey and resolve through provider

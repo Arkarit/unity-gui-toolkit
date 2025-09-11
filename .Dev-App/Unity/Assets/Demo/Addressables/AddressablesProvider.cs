@@ -76,7 +76,7 @@ public sealed class AddressablesProvider : IAssetProvider
 	public string Name => "Addressables Asset Provider";
 	public string ResName => "Addressables";
 	public IAssetProviderEditorBridge EditorBridge => s_editorBridge;
-	
+
 	public async Task<IInstanceHandle> InstantiateAsync
 	(
 		object _key,
@@ -141,6 +141,21 @@ public sealed class AddressablesProvider : IAssetProvider
 		if (!assetKey.TryGetValue("addr:", out string addr))
 			throw new Exception($"AddressablesProvider.LoadAssetAsync: Unsupported key '{assetKey.Id}' (expected 'addr:...').");
 
+#if UNITY_EDITOR
+		if (!Application.isPlaying)
+		{
+			var h = Addressables.LoadAssetAsync<T>(addr);
+			h.WaitForCompletion(); // safe im Editor
+			if (!h.IsValid() || h.Status != AsyncOperationStatus.Succeeded)
+			{
+				if (h.IsValid()) Addressables.Release(h);
+				throw new Exception($"LoadAssetAsync<{typeof(T).Name}> failed for '{assetKey.Id}' (status {h.Status}).");
+			}
+			
+			return new AddressableAssetHandle<T>(h, assetKey);
+		}
+#endif
+		
 		AsyncOperationHandle<T> handle = default;
 
 		try
@@ -219,14 +234,14 @@ public sealed class AddressablesProvider : IAssetProvider
 		}
 
 #if UNITY_EDITOR
-			if (_key is Object obj)
-				if ( EditorBridge != null && EditorBridge.TryMakeId(obj, out string id))
-					return new AssetKey(this, id, obj.GetType());
+		if (_key is Object obj)
+			if (EditorBridge != null && EditorBridge.TryMakeId(obj, out string id))
+				return new AssetKey(this, id, obj.GetType());
 #else
-			if (_key is Object obj)
-				throw new InvalidOperationException("Object keys are not supported. Use an 'addr:' path instead.");
+		if (_key is Object obj)
+			throw new InvalidOperationException("Object keys are not supported. Use an 'addr:' path instead.");
 #endif
-		
+
 		return new AssetKey(this, $"unknown:{_key}", typeof(T));
 	}
 
@@ -239,16 +254,16 @@ public sealed class AddressablesProvider : IAssetProvider
 
 		if (_obj is string id)
 			return Supports(id);
-		
-		if ( _obj is AssetReference)
+
+		if (_obj is AssetReference)
 			return true;
 
 #if UNITY_EDITOR
-			if (_obj is Object obj)
-				return EditorBridge != null
-					&& EditorBridge.TryMakeId(obj, out _);
+		if (_obj is Object obj)
+			return EditorBridge != null
+				&& EditorBridge.TryMakeId(obj, out _);
 #endif
-		
+
 		return false;
 	}
 
