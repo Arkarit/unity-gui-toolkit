@@ -13,9 +13,6 @@ namespace GuiToolkit.AssetHandling
 		// Instantiate and return a handle that knows how to free itself
 		Task<IInstanceHandle> InstantiateAsync( object _key, Transform _parent = null, CancellationToken _cancellationToken = default );
 
-		// Optional preload by label/set
-		Task PreloadAsync( IEnumerable<object> _keysOrLabels, CancellationToken _cancellationToken = default );
-
 		// Free loaded asset handle
 		void Release<T>( IAssetHandle<T> _handle ) where T : Object;
 		

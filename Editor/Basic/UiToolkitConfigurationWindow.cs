@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using GuiToolkit.Style;
 using UnityEditor;
 using UnityEngine;
@@ -210,7 +211,7 @@ namespace GuiToolkit.Editor
 				return false;
 
 			var path = AssetDatabase.GetAssetPath(currentStyleConfig);
-			return path.StartsWith(UiToolkitConfiguration.Instance.GetUiToolkitRootProjectDir());
+			return path.StartsWith(UiToolkitConfiguration.Instance.GetUiToolkitRootProjectDir(), StringComparison.Ordinal);
 		}
 
 

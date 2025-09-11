@@ -22,7 +22,7 @@ namespace GuiToolkit.AssetHandling
 		public bool TryGetValue(string _type, out string _val )
 		{
 			_val = null;
-			if (Id.StartsWith(_type))
+			if (Id.StartsWith(_type, StringComparison.Ordinal))
 			{
 				_val = Id.Substring(_type.Length);
 				return true;

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using GuiToolkit.AssetHandling;
 using Addressables = UnityEngine.AddressableAssets.Addressables;
+using System;
 
 public class TestAddressablesProvider
 {
@@ -98,7 +99,7 @@ public class TestAddressablesProvider
 		var ar = new UnityEngine.AddressableAssets.AssetReference(kAddrKey);
 
 		var canonical = _provider.NormalizeKey<GameObject>(ar);
-		Assert.IsTrue(canonical.Id.StartsWith("addr:"), "Expected 'addr:' prefix");
+		Assert.IsTrue(canonical.Id.StartsWith("addr:", StringComparison.Ordinal), "Expected 'addr:' prefix");
 
 		Addressables.Release(locsH);
 

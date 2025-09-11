@@ -97,12 +97,6 @@ namespace GuiToolkit.AssetHandling
 			_handle?.Release();
 		}
 
-		public Task PreloadAsync
-		(
-			IEnumerable<object> _keysOrLabels,
-			CancellationToken _cancellationToken = default
-		) => Task.CompletedTask;
-
 		public void ReleaseUnused() { }
 
 		public AssetKey NormalizeKey<T>( object _key ) where T : Object
@@ -119,7 +113,7 @@ namespace GuiToolkit.AssetHandling
 			}
 
 			if (_key is Object obj)
-				throw new InvalidOperationException("Object keys are not supported at runtime. Use a 'res:' path instead.");
+				throw new InvalidOperationException("Object keys are not supported. Use a 'res:' path instead.");
 
 			if (_key is string pathStr)
 				return new AssetKey(this, pathStr.StartsWith("res:", StringComparison.Ordinal) ? pathStr : $"res:{pathStr}", typeof(T));
@@ -129,7 +123,7 @@ namespace GuiToolkit.AssetHandling
 
 		public bool Supports(AssetKey _key) => _key.Provider == this;
 
-		public bool Supports(string _id) => _id.StartsWith("res:");
+		public bool Supports(string _id) => _id.StartsWith("res:", StringComparison.Ordinal);
 
 		public bool Supports(object _obj)
 		{

@@ -8,7 +8,6 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using Object = UnityEngine.Object;
 using Addressables = UnityEngine.AddressableAssets.Addressables;
 using AssetReference = UnityEngine.AddressableAssets.AssetReference;
-using UnityEditor;
 
 public sealed class AddressableInstanceHandle : IInstanceHandle
 {
@@ -181,34 +180,6 @@ public sealed class AddressablesProvider : IAssetProvider
 		_handle?.Release();
 	}
 
-	public async Task PreloadAsync
-	(
-		IEnumerable<object> _keysOrLabels,
-		CancellationToken _cancellationToken = default
-	)
-	{
-		foreach (var raw in _keysOrLabels)
-		{
-			if (_cancellationToken.IsCancellationRequested)
-				break;
-
-			var key = NormalizeKey<GameObject>(raw);
-			if (!key.TryGetValue("addr:", out string addr))
-				continue;
-
-			var h = Addressables.LoadAssetAsync<GameObject>(addr);
-			try
-			{
-				await h.Task;
-			}
-			finally
-			{
-				if (h.IsValid())
-					Addressables.Release(h);
-			}
-		}
-	}
-
 	public void ReleaseUnused()
 	{
 		// optional trimming
@@ -246,7 +217,7 @@ public sealed class AddressablesProvider : IAssetProvider
 	}
 
 	public bool Supports( AssetKey _key ) => _key.Provider == this;
-	public bool Supports( string _id ) => _id.StartsWith("addr:");
+	public bool Supports( string _id ) => _id.StartsWith("addr:", StringComparison.Ordinal);
 	public bool Supports( object _obj )
 	{
 		if (_obj is AssetKey key)
@@ -254,6 +225,9 @@ public sealed class AddressablesProvider : IAssetProvider
 
 		if (_obj is string id)
 			return Supports(id);
+		
+		if ( _obj is AssetReference)
+			return true;
 
 		return false;
 	}

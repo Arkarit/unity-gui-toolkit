@@ -68,16 +68,6 @@ namespace GuiToolkit.AssetHandling
 			return GetAssetProviderOrThrow(_key).InstantiateAsync(_key, _parent, _cancellationToken);
 		}
 
-		// Optional preload by label/set.
-		// Note: All keys / labels need to use the same provider
-		public static Task PreloadAsync( List<object> _keysOrLabels, CancellationToken _cancellationToken = default )
-		{
-			if ( _keysOrLabels == null || _keysOrLabels.Count == 0)
-				return Task.CompletedTask;
-			
-			return GetAssetProviderOrThrow(_keysOrLabels.ToArray()[0]).PreloadAsync(_keysOrLabels, _cancellationToken);
-		}
-
 		// Free loaded prefab handle (not the instance)
 		public static void Release( IAssetHandle<GameObject> _handle ) => _handle.Release();
 
