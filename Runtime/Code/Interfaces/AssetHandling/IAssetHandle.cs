@@ -6,7 +6,7 @@ namespace GuiToolkit.AssetHandling
 	{
 		T Asset { get; }
 		// Optional meta for diagnostics
-		AssetKey Key { get; }
+		CanonicalAssetKey Key { get; }
 		bool IsLoaded { get; }
 		void Release();
 	}

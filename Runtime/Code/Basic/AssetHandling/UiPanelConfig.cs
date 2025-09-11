@@ -8,26 +8,19 @@ namespace GuiToolkit.AssetHandling
 	public class UiPanelConfig : ScriptableObject
 	{
 		[Serializable]
-		public class PanelEntry
-		{
-			public string Type;     // logical panel type name (e.g., "ShopPanel")
-			public string PanelId;  // canonical id with prefix: "res:/...", "guid:...", "addr:..."
-		}
-
-		[Serializable]
 		public class CategoryEntry
 		{
 			public string Category;
-			public List<PanelEntry> PanelEntries = new();
+			public List<CanonicalAssetRef> PanelEntries = new();
 		}
 
 		[SerializeField] private List<CategoryEntry> m_categories = new();
 
-		private Dictionary<string, PanelEntry> m_panelEntryByTypeName;
+		private Dictionary<string, CanonicalAssetRef> m_panelEntryByTypeName;
 
 		public List<CategoryEntry> Categories => m_categories;
 
-		public bool TryGetAssetKeyByType( Type _type, out AssetKey _assetKey )
+		public bool TryGetAssetKeyByType( Type _type, out CanonicalAssetKey _assetKey )
 		{
 			_assetKey = default;
 			if (_type == null)
@@ -44,11 +37,11 @@ namespace GuiToolkit.AssetHandling
 			var provider = AssetManager.GetAssetProviderOrThrow(entry.PanelId);
 
 			// Panels are GameObjects
-			_assetKey = new AssetKey(provider, entry.PanelId, typeof(GameObject));
+			_assetKey = new CanonicalAssetKey(provider, entry.PanelId, typeof(GameObject));
 			return true;
 		}
 
-		public AssetKey GetAssetKeyByType( Type _type )
+		public CanonicalAssetKey GetAssetKeyByType( Type _type )
 		{
 			if (TryGetAssetKeyByType(_type, out var key))
 				return key;
@@ -61,7 +54,7 @@ namespace GuiToolkit.AssetHandling
 			if (m_panelEntryByTypeName != null)
 				return;
 
-			m_panelEntryByTypeName = new Dictionary<string, PanelEntry>(StringComparer.Ordinal);
+			m_panelEntryByTypeName = new Dictionary<string, CanonicalAssetRef>(StringComparer.Ordinal);
 			foreach (var category in m_categories)
 			{
 				foreach (var entry in category.PanelEntries)

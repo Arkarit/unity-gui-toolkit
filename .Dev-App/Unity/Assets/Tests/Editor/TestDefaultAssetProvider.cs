@@ -117,7 +117,7 @@ namespace GuiToolkit.Test
 		{
 			// Only used to create a foreign AssetKey for mismatch testing
 			var otherProvider = new AddressablesProvider();
-			var foreignKey = new AssetKey(otherProvider, "addr:dummy", typeof(GameObject));
+			var foreignKey = new CanonicalAssetKey(otherProvider, "addr:dummy", typeof(GameObject));
 
 			Assert.Throws<System.InvalidOperationException>(() =>
 			{

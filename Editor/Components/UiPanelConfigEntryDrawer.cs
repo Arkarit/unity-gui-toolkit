@@ -1,6 +1,5 @@
 #if UNITY_EDITOR
 using System;
-using System.Linq;
 using System.Threading;
 using GuiToolkit.Exceptions;
 using UnityEditor;
@@ -9,8 +8,8 @@ using Object = UnityEngine.Object;
 
 namespace GuiToolkit.AssetHandling
 {
-	[CustomPropertyDrawer(typeof(UiPanelConfig.PanelEntry))]
-	public class UiPanelConfigEntryDrawer : PropertyDrawer
+	[CustomPropertyDrawer(typeof(CanonicalAssetRef))]
+	public class CanonicalAssetRefDrawer : PropertyDrawer
 	{
 		// layout
 		private const float kLine = 18f;
@@ -253,7 +252,7 @@ namespace GuiToolkit.AssetHandling
 			try
 			{
 				// Build an AssetKey and resolve through provider
-				var key = new AssetKey(_provider, _id, typeof(GameObject));
+				var key = new CanonicalAssetKey(_provider, _id, typeof(GameObject));
 
 				// Synchronously load in editor context
 				var task = _provider.LoadAssetAsync<GameObject>(key, CancellationToken.None);

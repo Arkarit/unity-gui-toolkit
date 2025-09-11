@@ -45,10 +45,10 @@ public sealed class AddressableAssetHandle<T> : IAssetHandle<T> where T : Object
 {
 	private bool m_isReleased;
 
-	public AssetKey Key { get; }
+	public CanonicalAssetKey Key { get; }
 	public AsyncOperationHandle<T> Handle;
 
-	public AddressableAssetHandle( AsyncOperationHandle<T> _handle, AssetKey _key )
+	public AddressableAssetHandle( AsyncOperationHandle<T> _handle, CanonicalAssetKey _key )
 	{
 		Handle = _handle;
 		Key = _key;
@@ -205,9 +205,9 @@ public sealed class AddressablesProvider : IAssetProvider
 		// optional trimming
 	}
 
-	public AssetKey NormalizeKey<T>( object _key ) where T : Object
+	public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : Object
 	{
-		if (_key is AssetKey assetKey)
+		if (_key is CanonicalAssetKey assetKey)
 		{
 			if (!ReferenceEquals(assetKey.Provider, this))
 				throw new InvalidOperationException
@@ -224,32 +224,32 @@ public sealed class AddressablesProvider : IAssetProvider
 			if (!runtimeKey.StartsWith("addr:", StringComparison.Ordinal))
 				runtimeKey = $"addr:{runtimeKey}";
 
-			return new AssetKey(this, runtimeKey, typeof(T));
+			return new CanonicalAssetKey(this, runtimeKey, typeof(T));
 		}
 
 		if (_key is string s)
 		{
 			var id = s.StartsWith("addr:", StringComparison.Ordinal) ? s : $"addr:{s}";
-			return new AssetKey(this, id, typeof(T));
+			return new CanonicalAssetKey(this, id, typeof(T));
 		}
 
 #if UNITY_EDITOR
 		if (_key is Object obj)
 			if (EditorBridge != null && EditorBridge.TryMakeId(obj, out string id))
-				return new AssetKey(this, id, obj.GetType());
+				return new CanonicalAssetKey(this, id, obj.GetType());
 #else
 		if (_key is Object obj)
 			throw new InvalidOperationException("Object keys are not supported. Use an 'addr:' path instead.");
 #endif
 
-		return new AssetKey(this, $"unknown:{_key}", typeof(T));
+		return new CanonicalAssetKey(this, $"unknown:{_key}", typeof(T));
 	}
 
-	public bool Supports( AssetKey _key ) => _key.Provider == this;
+	public bool Supports( CanonicalAssetKey _key ) => _key.Provider == this;
 	public bool Supports( string _id ) => _id.StartsWith("addr:", StringComparison.Ordinal);
 	public bool Supports( object _obj )
 	{
-		if (_obj is AssetKey key)
+		if (_obj is CanonicalAssetKey key)
 			return Supports(key);
 
 		if (_obj is string id)

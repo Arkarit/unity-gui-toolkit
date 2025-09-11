@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
@@ -7,7 +6,7 @@ namespace GuiToolkit.AssetHandling
 {
 	public interface IAssetProviderEditorBridge
 	{
-		bool TryMakeId(UnityEngine.Object _obj, out string _resId);
+		bool TryMakeId(Object _obj, out string _resId);
 	}
 	
 	public interface IAssetProvider
@@ -35,9 +34,9 @@ namespace GuiToolkit.AssetHandling
 		// Housekeeping hook
 		void ReleaseUnused();
 		
-		AssetKey NormalizeKey<T>(object _key) where T : Object;
+		CanonicalAssetKey NormalizeKey<T>(object _key) where T : Object;
 		
-		bool Supports(AssetKey _key);
+		bool Supports(CanonicalAssetKey _key);
 		bool Supports(string _id);
 		bool Supports(object _obj);
 	}

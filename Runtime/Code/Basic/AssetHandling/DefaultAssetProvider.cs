@@ -42,12 +42,12 @@ namespace GuiToolkit.AssetHandling
 	public sealed class DefaultAssetHandle<T> : IAssetHandle<T> where T : Object
 	{
 		public T Asset { get; }
-		public AssetKey Key { get; }
+		public CanonicalAssetKey Key { get; }
 		public bool IsLoaded => Asset != null;
 
 		public void Release() { }
 
-		public DefaultAssetHandle( T _asset, AssetKey _key )
+		public DefaultAssetHandle( T _asset, CanonicalAssetKey _key )
 		{
 			Asset = _asset;
 			Key = _key;
@@ -107,9 +107,9 @@ namespace GuiToolkit.AssetHandling
 
 		public void ReleaseUnused() { }
 
-		public AssetKey NormalizeKey<T>( object _key ) where T : Object
+		public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : Object
 		{
-			if (_key is AssetKey assetKey)
+			if (_key is CanonicalAssetKey assetKey)
 			{
 				if (!ReferenceEquals(assetKey.Provider, this))
 					throw new InvalidOperationException
@@ -123,25 +123,25 @@ namespace GuiToolkit.AssetHandling
 #if UNITY_EDITOR
 			if (_key is Object obj)
 				if ( EditorBridge != null && EditorBridge.TryMakeId(obj, out string id))
-					return new AssetKey(this, id, obj.GetType());
+					return new CanonicalAssetKey(this, id, obj.GetType());
 #else
 			if (_key is Object obj)
 				throw new InvalidOperationException("Object keys are not supported. Use a 'res:' path instead.");
 #endif
 
 			if (_key is string pathStr)
-				return new AssetKey(this, pathStr.StartsWith("res:", StringComparison.Ordinal) ? pathStr : $"res:{pathStr}", typeof(T));
+				return new CanonicalAssetKey(this, pathStr.StartsWith("res:", StringComparison.Ordinal) ? pathStr : $"res:{pathStr}", typeof(T));
 
-			return new AssetKey(this, $"unknown:{_key}", typeof(T));
+			return new CanonicalAssetKey(this, $"unknown:{_key}", typeof(T));
 		}
 
-		public bool Supports( AssetKey _key ) => _key.Provider == this;
+		public bool Supports( CanonicalAssetKey _key ) => _key.Provider == this;
 
 		public bool Supports( string _id ) => !string.IsNullOrEmpty(_id) && _id.StartsWith("res:", StringComparison.Ordinal);
 
 		public bool Supports( object _obj )
 		{
-			if (_obj is AssetKey key)
+			if (_obj is CanonicalAssetKey key)
 				return Supports(key);
 
 			if (_obj is string id)
@@ -156,7 +156,7 @@ namespace GuiToolkit.AssetHandling
 			return false;
 		}
 
-		public Object Load( AssetKey _assetKey, CancellationToken _cancellationToken )
+		public Object Load( CanonicalAssetKey _assetKey, CancellationToken _cancellationToken )
 		{
 			Object result = null;
 
