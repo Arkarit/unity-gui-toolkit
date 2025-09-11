@@ -181,10 +181,8 @@ namespace GuiToolkit
 		public const string CREATE_STYLE_CONFIG = STYLES_HEADER + "Style Config";
 		public const string CREATE_DOXYGEN_CONFIG = MENU_HEADER + "Doxygen Config";
 		public const string ROSLYN_HEADER = MENU_HEADER + "Roslyn/";
-#if !UNITY_6000_0_OR_NEWER
 		public const string ROSLYN_INSTALL_HACK = ROSLYN_HEADER + "Install Roslyn Hack for Unity Version < 6";
 		public const string ROSLYN_REMOVE_HACK = ROSLYN_HEADER + "Remove Roslyn Hack for Unity Version < 6";
-#endif
 		public const string REPLACE_COMPONENTS_WINDOW = MISC_TOOLS_MENU_HEADER + "Replace Components Window";
 		public const string CREATE_GUI_SCREENSHOT_OVERLAY = MISC_TOOLS_MENU_HEADER + "Create GUI Screenshot overlay";
 

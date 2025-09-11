@@ -35,6 +35,7 @@ namespace GuiToolkit.AssetHandling
 			{
 				if (s_assetProviders == null || s_assetProviders.Length == 0)
 					throw new InvalidOperationException("Called asset provider before initialization. Please delay call.");
+				
 				return s_assetProviders;
 			}
 		}
