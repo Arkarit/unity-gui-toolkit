@@ -72,6 +72,9 @@ public sealed class AddressableAssetHandle<T> : IAssetHandle<T> where T : Object
 
 public sealed class AddressablesProvider : IAssetProvider
 {
+	public string Name => "Addressables Asset Provider";
+	public string ResName => "Addressables";
+	
 	public async Task<IInstanceHandle> InstantiateAsync
 	(
 		object _key,

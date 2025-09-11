@@ -7,6 +7,12 @@ namespace GuiToolkit.AssetHandling
 {
 	public interface IAssetProvider
 	{
+		// Nice name of the provider for usage in Editor GUI or debugging, e.g. "Default Asset Provider"
+		string Name { get; }
+		
+		// Nice name of the loading type for usage in Editor GUI or debugging, e.g. "Resources"
+		string ResName { get; }
+		
 		// Load prefab without instantiation (optional; can be no-op)
 		Task<IAssetHandle<T>> LoadAssetAsync<T>( object _key, CancellationToken _cancellationToken = default ) where T : Object;
 

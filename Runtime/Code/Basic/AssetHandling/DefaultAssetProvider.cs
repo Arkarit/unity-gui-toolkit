@@ -56,6 +56,9 @@ namespace GuiToolkit.AssetHandling
 
 	public sealed class DefaultAssetProvider : IAssetProvider
 	{
+		public string Name => "Default Asset Provider";
+		public string ResName => "Resources";
+		
 		public async Task<IInstanceHandle> InstantiateAsync
 		(
 			object _key,
