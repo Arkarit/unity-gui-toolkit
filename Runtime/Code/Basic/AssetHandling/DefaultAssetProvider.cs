@@ -5,7 +5,6 @@ using System;
 using UnityEngine;
 
 using Object = UnityEngine.Object;
-using static Codice.Client.Common.Locks.ServerLocks.ForWorkingBranchOnRepoByItem;
 
 
 #if UNITY_EDITOR
@@ -36,7 +35,6 @@ namespace GuiToolkit.AssetHandling
 #else	
 			Object.Destroy(Instance);
 #endif
-			Instance.SafeDestroy(false);
 			Instance = null;
 		}
 	}
@@ -121,47 +119,18 @@ namespace GuiToolkit.AssetHandling
 			}
 
 			if (_key is Object obj)
-			{
-#if UNITY_EDITOR
-				if (!EditorUtility.IsPersistent(obj))
-					throw new InvalidOperationException($"Invalid key object '{obj.name}': Only persistent assets can be used as keys");
-
-				string path = AssetDatabase.GetAssetPath(obj);
-				if (!string.IsNullOrEmpty(path))
-				{
-					string guidStr = AssetDatabase.AssetPathToGUID(path);
-					if (!string.IsNullOrEmpty(guidStr))
-						return new AssetKey(this, $"guid:{guidStr}", typeof(T));
-				}
-
-				throw new InvalidOperationException($"Could not derive GUID for asset object '{obj.name}'.");
-#else
 				throw new InvalidOperationException("Object keys are not supported at runtime. Use a 'res:' path instead.");
-#endif
-			}
 
 			if (_key is string pathStr)
 				return new AssetKey(this, pathStr.StartsWith("res:", StringComparison.Ordinal) ? pathStr : $"res:{pathStr}", typeof(T));
-
-#if UNITY_EDITOR
-			if (_key is Guid guid)
-				return new AssetKey(this, $"guid:{guid:N}", typeof(T));
-#endif
 
 			return new AssetKey(this, $"unknown:{_key}", typeof(T));
 		}
 
 		public bool Supports(AssetKey _key) => _key.Provider == this;
 
-		public bool Supports(string _id)
-		{
-#if UNITY_EDITOR
-			if (_id.StartsWith("guid:"))
-				return true;
-#endif
-			return _id.StartsWith("res:");
-		}
-		
+		public bool Supports(string _id) => _id.StartsWith("res:");
+
 		public bool Supports(object _obj)
 		{
 			if (_obj is AssetKey key)
@@ -170,24 +139,6 @@ namespace GuiToolkit.AssetHandling
 			if (_obj is string id)
 				return Supports(id);
 			
-#if UNITY_EDITOR
-			if (_obj is Guid)
-				return true;
-
-			if (_obj is Object obj)
-			{
-				if (!EditorUtility.IsPersistent(obj))
-					throw new InvalidOperationException($"Invalid key object '{obj.name}': Only persistent assets can be used as keys");
-
-				string path = AssetDatabase.GetAssetPath(obj);
-				if (!string.IsNullOrEmpty(path))
-				{
-					string guidStr = AssetDatabase.AssetPathToGUID(path);
-					if (!string.IsNullOrEmpty(guidStr))
-						return true;
-				}
-			}
-#endif
 			return false;
 		}
 
@@ -199,15 +150,6 @@ namespace GuiToolkit.AssetHandling
 			{
 				result = Resources.Load(resourcePath, _assetKey.Type);
 			}
-
-#if UNITY_EDITOR
-			else if (_assetKey.TryGetValue("guid:", out string guid))
-			{
-				var path = AssetDatabase.GUIDToAssetPath(guid);
-				if (!string.IsNullOrEmpty(path))
-					result = AssetDatabase.LoadAssetAtPath(path, _assetKey.Type);
-			}
-#endif
 
 			_cancellationToken.ThrowIfCancellationRequested();
 
