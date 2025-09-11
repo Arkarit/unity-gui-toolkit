@@ -88,7 +88,6 @@ namespace GuiToolkit.AssetHandling
 			SerializedProperty _idProp
 		)
 		{
-Debug.Log($"---::: Draw Provider {_provider.Name}");
 			// Label (provider name + ResName)
 			float labelWidth = Mathf.Min(160f, _bounds.width * 0.35f);
 			var left = new Rect(_row.x, _row.y, labelWidth, kLine);
@@ -228,36 +227,20 @@ Debug.Log($"---::: Draw Provider {_provider.Name}");
 		// Turn a dragged UnityEngine.Object into a provider-specific id string if possible.
 		// For Default provider: compute "res:" path. For other providers: only allow if provider.Supports(obj) returns true
 		// and NormalizeKey(obj) can produce a stable id (if your provider supports that). Otherwise return false.
-		private bool CanMakeIdFromObject( IAssetProvider _provider, Object _o, out string _id )
+		private bool CanMakeIdFromObject( IAssetProvider _provider, Object _object, out string _id )
 		{
 			_id = null;
+			if (!_provider.Supports(_object)) 
+				return false;
 
-			// Default provider: accept prefabs in Resources and build "res:" id
-			if (_provider is DefaultAssetProvider)
-			{
-				if (!TryMakeResId(_o, out _id))
-				{
-					Warn("Asset must be inside a Resources folder for Default provider.");
-					return false;
-				}
-				return true;
-			}
-
-			// Other providers: ask Supports(object). If false, do not accept DnD.
-			// If true, try to normalize and take the canonical id (this relies on provider NormalizeKey supporting object).
 			try
 			{
-				if (!_provider.Supports(_o))
-					return false;
-
-				// We try GameObject as panels are prefabs.
-				var key = _provider.NormalizeKey<GameObject>(_o);
+				var key = _provider.NormalizeKey<GameObject>(_object);
 				_id = key.Id;
 				return true;
 			}
 			catch
 			{
-				// If provider cannot normalize raw objects, we do not support DnD for it.
 				return false;
 			}
 		}
@@ -302,36 +285,6 @@ Debug.Log($"---::: Draw Provider {_provider.Name}");
 			}
 		}
 
-		// Build a "res:" id from a dragged asset if it is under a Resources folder.
-		private static bool TryMakeResId( Object _o, out string _id )
-		{
-			_id = null;
-			if (_o == null)
-				return false;
-
-			var path = AssetDatabase.GetAssetPath(_o);
-			if (string.IsNullOrEmpty(path))
-				return false;
-
-			// Must contain "/Resources/"
-			int idx = path.IndexOf("/Resources/", StringComparison.Ordinal);
-			if (idx < 0)
-				return false;
-
-			int start = idx + "/Resources/".Length;
-			int len = path.Length - start;
-			if (len <= 0)
-				return false;
-
-			// strip extension
-			string sub = path.Substring(start);
-			int dot = sub.LastIndexOf('.');
-			if (dot >= 0)
-				sub = sub.Substring(0, dot);
-
-			_id = sub.StartsWith("res:", StringComparison.Ordinal) ? sub : "res:" + sub;
-			return true;
-		}
 	}
 }
 #endif

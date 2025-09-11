@@ -218,6 +218,15 @@ public sealed class AddressablesProvider : IAssetProvider
 			return new AssetKey(this, id, typeof(T));
 		}
 
+#if UNITY_EDITOR
+			if (_key is Object obj)
+				if ( EditorBridge != null && EditorBridge.TryMakeId(obj, out string id))
+					return new AssetKey(this, id, obj.GetType());
+#else
+			if (_key is Object obj)
+				throw new InvalidOperationException("Object keys are not supported. Use an 'addr:' path instead.");
+#endif
+		
 		return new AssetKey(this, $"unknown:{_key}", typeof(T));
 	}
 
@@ -234,6 +243,12 @@ public sealed class AddressablesProvider : IAssetProvider
 		if ( _obj is AssetReference)
 			return true;
 
+#if UNITY_EDITOR
+			if (_obj is Object obj)
+				return EditorBridge != null
+					&& EditorBridge.TryMakeId(obj, out _);
+#endif
+		
 		return false;
 	}
 

@@ -9,13 +9,16 @@ namespace GuiToolkit.Editor
 		public bool TryMakeId( UnityEngine.Object _obj, out string _resId )
 		{
 			_resId = null;
-			if (_obj == null) return false;
+			if (_obj == null) 
+				return false;
 
 			var path = AssetDatabase.GetAssetPath(_obj);
-			if (string.IsNullOrEmpty(path)) return false;
+			if (string.IsNullOrEmpty(path)) 
+				return false;
 
 			int idx = path.IndexOf("/Resources/", StringComparison.Ordinal);
-			if (idx < 0) return false;
+			if (idx < 0) 
+				return false;
 
 			var sub = path.Substring(idx + "/Resources/".Length);
 			int dot = sub.LastIndexOf('.');
