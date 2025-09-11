@@ -72,8 +72,10 @@ public sealed class AddressableAssetHandle<T> : IAssetHandle<T> where T : Object
 
 public sealed class AddressablesProvider : IAssetProvider
 {
+	public static IAssetProviderEditorBridge s_editorBridge;
 	public string Name => "Addressables Asset Provider";
 	public string ResName => "Addressables";
+	public IAssetProviderEditorBridge EditorBridge => s_editorBridge;
 	
 	public async Task<IInstanceHandle> InstantiateAsync
 	(

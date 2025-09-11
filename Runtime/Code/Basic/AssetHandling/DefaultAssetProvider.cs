@@ -32,7 +32,7 @@ namespace GuiToolkit.AssetHandling
 				Object.Destroy(Instance);
 			else
 				Object.DestroyImmediate(Instance);
-#else	
+#else
 			Object.Destroy(Instance);
 #endif
 			Instance = null;
@@ -56,9 +56,13 @@ namespace GuiToolkit.AssetHandling
 
 	public sealed class DefaultAssetProvider : IAssetProvider
 	{
+		public static IAssetProviderEditorBridge s_editorBridge;
+
 		public string Name => "Default Asset Provider";
 		public string ResName => "Resources";
-		
+
+		public IAssetProviderEditorBridge EditorBridge => s_editorBridge;
+
 		public async Task<IInstanceHandle> InstantiateAsync
 		(
 			object _key,
@@ -67,7 +71,7 @@ namespace GuiToolkit.AssetHandling
 		)
 		{
 			var assetKey = NormalizeKey<GameObject>(_key);
-			var prefab = (GameObject) Load(assetKey, _cancellationToken);
+			var prefab = (GameObject)Load(assetKey, _cancellationToken);
 
 			await Task.Yield();
 			_cancellationToken.ThrowIfCancellationRequested();
@@ -83,7 +87,7 @@ namespace GuiToolkit.AssetHandling
 		) where T : Object
 		{
 			var assetKey = NormalizeKey<T>(_key);
-			var obj = (T) Load(assetKey, _cancellationToken);
+			var obj = (T)Load(assetKey, _cancellationToken);
 
 			await Task.Yield();
 
@@ -114,9 +118,15 @@ namespace GuiToolkit.AssetHandling
 
 				return assetKey;
 			}
-
+			
+#if UNITY_EDITOR
+			if (_key is Object obj)
+				if ( EditorBridge != null && EditorBridge.TryMakeId(obj, out string id))
+					return new AssetKey(this, id, obj.GetType());
+#else
 			if (_key is Object obj)
 				throw new InvalidOperationException("Object keys are not supported. Use a 'res:' path instead.");
+#endif
 
 			if (_key is string pathStr)
 				return new AssetKey(this, pathStr.StartsWith("res:", StringComparison.Ordinal) ? pathStr : $"res:{pathStr}", typeof(T));
@@ -124,18 +134,24 @@ namespace GuiToolkit.AssetHandling
 			return new AssetKey(this, $"unknown:{_key}", typeof(T));
 		}
 
-		public bool Supports(AssetKey _key) => _key.Provider == this;
+		public bool Supports( AssetKey _key ) => _key.Provider == this;
 
-		public bool Supports(string _id) => _id.StartsWith("res:", StringComparison.Ordinal);
+		public bool Supports( string _id ) => !string.IsNullOrEmpty(_id) && _id.StartsWith("res:", StringComparison.Ordinal);
 
-		public bool Supports(object _obj)
+		public bool Supports( object _obj )
 		{
 			if (_obj is AssetKey key)
 				return Supports(key);
-			
+
 			if (_obj is string id)
 				return Supports(id);
-			
+
+#if UNITY_EDITOR
+			if (_obj is Object obj)
+				return EditorBridge != null
+					&& EditorBridge.TryMakeId(obj, out _);
+#endif
+
 			return false;
 		}
 

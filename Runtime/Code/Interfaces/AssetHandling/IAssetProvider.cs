@@ -5,6 +5,11 @@ using UnityEngine;
 
 namespace GuiToolkit.AssetHandling
 {
+	public interface IAssetProviderEditorBridge
+	{
+		bool TryMakeId(UnityEngine.Object _obj, out string _resId);
+	}
+	
 	public interface IAssetProvider
 	{
 		// Nice name of the provider for usage in Editor GUI or debugging, e.g. "Default Asset Provider"
@@ -12,6 +17,8 @@ namespace GuiToolkit.AssetHandling
 		
 		// Nice name of the loading type for usage in Editor GUI or debugging, e.g. "Resources"
 		string ResName { get; }
+		
+		IAssetProviderEditorBridge EditorBridge {get;}
 		
 		// Load prefab without instantiation (optional; can be no-op)
 		Task<IAssetHandle<T>> LoadAssetAsync<T>( object _key, CancellationToken _cancellationToken = default ) where T : Object;
