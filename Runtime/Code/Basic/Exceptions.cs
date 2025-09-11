@@ -2,13 +2,13 @@ using System;
 
 namespace GuiToolkit.Exceptions
 {
-	public sealed class NotInitializedException : Exception
+	public sealed class NotInitializedException : InvalidOperationException
 	{
 		/// <summary>
 		/// Not yet initialized
 		/// </summary>
 		public NotInitializedException(Type _type)
-			: base($"The class instance '{_type.Name}' is not yet initialized. Please ensure call order or postpone")
+			: base($"A class instance of type '{_type.Name}' is not yet initialized. Please ensure call order")
 		{ }
 	}
 

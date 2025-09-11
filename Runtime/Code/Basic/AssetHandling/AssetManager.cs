@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
+using GuiToolkit.Exceptions;
 using UnityEngine;
 
 namespace GuiToolkit.AssetHandling
@@ -34,7 +35,7 @@ namespace GuiToolkit.AssetHandling
 			get
 			{
 				if (s_assetProviders == null || s_assetProviders.Length == 0)
-					throw new InvalidOperationException("Called asset provider before initialization. Please delay call.");
+					throw new NotInitializedException(typeof(AssetManager));
 				
 				return s_assetProviders;
 			}

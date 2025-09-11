@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using GuiToolkit.Exceptions;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -18,7 +19,7 @@ namespace GuiToolkit.AssetHandling
 		// warnings
 		private string m_lastWarning;
 		private double m_warningUntil; // EditorApplication.timeSinceStartup deadline
-		private static IAssetProvider[] s_assetProviders;
+		private IAssetProvider[] m_assetProviders;
 
 		public override void OnGUI( Rect _position, SerializedProperty _property, GUIContent _label )
 		{
@@ -32,25 +33,20 @@ namespace GuiToolkit.AssetHandling
 			EditorGUI.LabelField(row, new GUIContent(string.IsNullOrEmpty(typeProp.stringValue) ? "<Type not set>" : typeProp.stringValue));
 			row.y += kLine + kPadY;
 
-			if (s_assetProviders == null)
+			if (m_assetProviders == null)
 			{
 				try
 				{
-					s_assetProviders = AssetManager.AssetProviders;
+					m_assetProviders = AssetManager.AssetProviders;
 				}
-				catch (Exception ex)
+				catch (NotInitializedException)
 				{
-					
-					DrawWarning(ref row, _position, "AssetManager not initialized: " + ex.Message);
-					EditorGUI.EndProperty();
-					return;
+					GUIUtility.ExitGUI();
 				}
-
 			}
-			// Get providers from manager (safe guard)
-
+			
 			// Draw one input per provider
-			foreach (var provider in s_assetProviders)
+			foreach (var provider in m_assetProviders)
 			{
 				DrawProviderRow(ref row, _position, provider, typeProp, idProp);
 			}
@@ -92,6 +88,7 @@ namespace GuiToolkit.AssetHandling
 			SerializedProperty _idProp
 		)
 		{
+Debug.Log($"---::: Draw Provider {_provider.Name}");
 			// Label (provider name + ResName)
 			float labelWidth = Mathf.Min(160f, _bounds.width * 0.35f);
 			var left = new Rect(_row.x, _row.y, labelWidth, kLine);
