@@ -23,9 +23,11 @@ namespace GuiToolkit.AssetHandling
 		public override void OnGUI( Rect _position, SerializedProperty _property, GUIContent _label )
 		{
 			var typeProp = _property.FindPropertyRelative("Type");
-			var idProp = _property.FindPropertyRelative("PanelId");
+			var idProp = _property.FindPropertyRelative("Id");
 
 			EditorGUI.BeginProperty(_position, _label, _property);
+
+			EnsureConstraints();
 
 			// Title row: shows current logical type
 			var row = new Rect(_position.x, _position.y, _position.width, kLine);
@@ -43,7 +45,7 @@ namespace GuiToolkit.AssetHandling
 					GUIUtility.ExitGUI();
 				}
 			}
-			
+
 			// Draw one input per provider
 			foreach (var provider in m_assetProviders)
 			{
@@ -92,11 +94,12 @@ namespace GuiToolkit.AssetHandling
 			var left = new Rect(_row.x, _row.y, labelWidth, kLine);
 			var right = new Rect(_row.x + labelWidth + 4f, _row.y, _bounds.width - labelWidth - 4f, kLine);
 
-			string providerLabel = string.IsNullOrEmpty(_provider.ResName)
+			string providerResName = string.IsNullOrEmpty(_provider.ResName)
 				? _provider.Name
-				: $"{_provider.Name} ({_provider.ResName})";
+				: _provider.ResName;
+			providerResName += ":";
 
-			EditorGUI.LabelField(left, providerLabel);
+			EditorGUI.LabelField(left, providerResName);
 
 			// Prefill with current id only if it belongs to this provider
 			string currentId = _idProp.stringValue;
@@ -229,7 +232,7 @@ namespace GuiToolkit.AssetHandling
 		private bool CanMakeIdFromObject( IAssetProvider _provider, Object _object, out string _id )
 		{
 			_id = null;
-			if (!_provider.Supports(_object)) 
+			if (!_provider.Supports(_object))
 				return false;
 
 			try
@@ -245,9 +248,9 @@ namespace GuiToolkit.AssetHandling
 		}
 
 		// Validate an id by asking the provider to load the prefab and extracting UiPanel type name.
-		private bool SafeValidateId( IAssetProvider _provider, string _id, out string _panelTypeName )
+		private bool SafeValidateId( IAssetProvider _provider, string _id, out string _typeName )
 		{
-			_panelTypeName = null;
+			_typeName = null;
 
 			try
 			{
@@ -261,21 +264,17 @@ namespace GuiToolkit.AssetHandling
 				var handle = task.Result;
 				if (handle == null || !handle.IsLoaded || handle.Asset == null)
 					return false;
-
+				string matchedName;
 				var go = handle.Asset;
-				var panel = go != null ? go.GetComponent<UiPanel>() : null;
-				_panelTypeName = panel != null ? panel.GetType().Name : string.Empty;
-
-				// Release via provider (even if default no-op)
+				bool ok = MatchesConstraints(go, out matchedName);
+				_typeName = matchedName;
 				_provider.Release(handle);
-
-				// Accept also when no UiPanel found? If not, treat as invalid.
-				if (panel == null)
+				if (!ok)
 				{
-					Warn("Prefab does not contain a UiPanel component.");
+					Warn("Prefab does not meet required component type constraints.");
 					return false;
 				}
-
+				
 				return true;
 			}
 			catch (Exception ex)
@@ -283,6 +282,79 @@ namespace GuiToolkit.AssetHandling
 				Warn(ex.Message);
 				return false;
 			}
+		}
+
+		// constraints (from [CanonicalAssetRef] on field)
+		private Type[] m_requiredTypes;
+		private Type[] m_requiredBaseClasses;
+
+		private void EnsureConstraints()
+		{
+			if (m_requiredTypes != null || m_requiredBaseClasses != null)
+				return;
+
+			try
+			{
+				if (fieldInfo == null)
+					return;
+
+				var attrs = fieldInfo.GetCustomAttributes(typeof(CanonicalAssetRefAttribute), true);
+				if (attrs != null && attrs.Length > 0)
+				{
+					var a = (CanonicalAssetRefAttribute)attrs[0];
+					m_requiredTypes = a.RequiredTypes;
+					m_requiredBaseClasses = a.RequiredBaseClasses;
+				}
+			}
+			catch { /* ignore */ }
+		}
+
+		private bool MatchesConstraints( GameObject _go, out string _matchedTypeName )
+		{
+			_matchedTypeName = nameof(GameObject);
+
+			bool hasType = m_requiredTypes != null && m_requiredTypes.Length > 0;
+			bool hasBase = m_requiredBaseClasses != null && m_requiredBaseClasses.Length > 0;
+			if (!hasType && !hasBase)
+				return true; // no constraints -> accept anything
+
+			if (_go == null)
+				return false;
+
+			var comps = _go.GetComponents<Component>();
+			foreach (var c in comps)
+			{
+				if (c == null) continue;
+				var t = c.GetType();
+
+				if (hasType)
+				{
+					foreach (var rt in m_requiredTypes)
+					{
+						if (rt == null) continue;
+						if (rt.IsAssignableFrom(t))
+						{
+							_matchedTypeName = t.Name;
+							return true;
+						}
+					}
+				}
+
+				if (hasBase)
+				{
+					foreach (var rb in m_requiredBaseClasses)
+					{
+						if (rb == null) continue;
+						if (rb.IsAssignableFrom(t))
+						{
+							_matchedTypeName = t.Name;
+							return true;
+						}
+					}
+				}
+			}
+
+			return false;
 		}
 
 	}

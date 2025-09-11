@@ -11,6 +11,7 @@ namespace GuiToolkit.AssetHandling
 		public class CategoryEntry
 		{
 			public string Category;
+			[CanonicalAssetRef(_requiredBaseClasses:new []{typeof(UiPanel)})]
 			public List<CanonicalAssetRef> PanelEntries = new();
 		}
 
@@ -31,13 +32,13 @@ namespace GuiToolkit.AssetHandling
 			if (!m_panelEntryByTypeName.TryGetValue(_type.Name, out var entry))
 				return false;
 
-			if (string.IsNullOrEmpty(entry.PanelId))
+			if (string.IsNullOrEmpty(entry.Id))
 				return false;
 
-			var provider = AssetManager.GetAssetProviderOrThrow(entry.PanelId);
+			var provider = AssetManager.GetAssetProviderOrThrow(entry.Id);
 
 			// Panels are GameObjects
-			_assetKey = new CanonicalAssetKey(provider, entry.PanelId, typeof(GameObject));
+			_assetKey = new CanonicalAssetKey(provider, entry.Id, typeof(GameObject));
 			return true;
 		}
 

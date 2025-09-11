@@ -59,7 +59,7 @@ namespace GuiToolkit.AssetHandling
 		public static IAssetProviderEditorBridge s_editorBridge;
 
 		public string Name => "Default Asset Provider";
-		public string ResName => "Resources";
+		public string ResName => "Resource";
 
 		public IAssetProviderEditorBridge EditorBridge => s_editorBridge;
 
