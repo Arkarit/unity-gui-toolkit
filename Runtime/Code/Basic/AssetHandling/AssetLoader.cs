@@ -33,7 +33,7 @@ namespace GuiToolkit.AssetHandling
 		public void LoadAsync( UiPanelLoadInfo _loadInfo )
 		{
 			if (_loadInfo == null)
-				throw new ArgumentNullException(nameof(UiPanelLoadInfo));
+				throw new ArgumentNullException(nameof(_loadInfo));
 
 			if (_loadInfo.MaxInstances > 0)
 			{
