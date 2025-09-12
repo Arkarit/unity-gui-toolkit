@@ -45,6 +45,11 @@ namespace GuiToolkit.AssetHandling
 				}
 			}
 			
+//			if (_loadInfo.InstantiationType == UiPanelLoadInfo.EInstantiationType.Pool && PrefabPools.instance.HasPrefab(_loadInfo.PanelType.Name))
+//			{
+//				GetPanelFromPool(_loadInfo);
+//				return;
+//			}
 			
 		}
 		
