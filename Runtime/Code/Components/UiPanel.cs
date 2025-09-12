@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using GuiToolkit.AssetHandling;
 using UnityEngine;
 using UnityEngine.Events;
 using Debug = UnityEngine.Debug;
@@ -10,7 +11,7 @@ namespace GuiToolkit
 	/// <summary>
 	/// Interface for initializing a panel.
 	/// </summary>
-	public interface IInitPanelData { }
+	public class IInitPanelData { }
 
 	/// <summary>
 	/// Interface for simple show/hide panel animations.
@@ -142,13 +143,17 @@ namespace GuiToolkit
 		/// panels, which are dynamically loaded and have InitPanelData set in their UiPanelLoadInfo
 		/// </summary>
 		/// <param name="_initData">User data</param>
-		public virtual void Init( IInitPanelData _initData ) { }
+		public virtual void Init( IInitPanelData _initData, IInstanceHandle _handle )
+		{
+			m_handle = _handle;
+		}
 
 		protected IShowHidePanelAnimation m_showHideAnimation;
 		private bool m_defaultSceneVisibilityApplied;
 		private bool m_animationInitialized;
 		private Action m_onShowHideFinishAction;
 		private static readonly Dictionary<Type, HashSet<UiPanel>> s_openPanels = new();
+		private IInstanceHandle m_handle;
 
 		public static int GetNumOpenDialogs( Type _type )
 		{
@@ -319,7 +324,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 						gameObject.SetActive(true);
 #else
-                            gameObject.SetActive(false);
+                        gameObject.SetActive(false);
 #endif
 						break;
 
@@ -327,7 +332,7 @@ namespace GuiToolkit
 #if DEFAULT_SCENE_VISIBLE
 						gameObject.SetActive(true);
 #else
-                            gameObject.SetActive(false);
+                        gameObject.SetActive(false);
 #endif
 						break;
 				}
@@ -433,10 +438,12 @@ namespace GuiToolkit
 				EvOnDestroyed.RemoveAllListeners();
 
 				if (UiMain.IsAwake)
-					UiPool.Instance.DoDestroy(this);
+					UiPool.Instance.Release(this);
 			}
 			else
+			{
 				gameObject.SafeDestroy();
+			}
 		}
 
 		/// <summary>
@@ -444,6 +451,12 @@ namespace GuiToolkit
 		/// </summary>
 		protected override void OnDestroy()
 		{
+			if (m_handle != null)
+			{
+				m_handle.Release();
+				m_handle = null;
+			}
+			
 			EvOnDestroyed.Invoke(this);
 			base.OnDestroy();
 		}

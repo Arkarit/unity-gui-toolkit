@@ -15,100 +15,114 @@ namespace GuiToolkit.AssetHandling
 			public GameObject Prefab;
 			public IInstanceHandle Handle;
 		}
-		
+
 		private readonly HashSet<string> m_BeingLoaded = new();
 		private readonly Dictionary<string, LoadedPrefab> m_loadedPrefabsByClassName = new();
 
-		
+
 		public static AssetLoader Instance
 		{
 			get
 			{
 				if (s_instance == null)
 					s_instance = new AssetLoader();
-				return s_instance; 
+				return s_instance;
 			}
 		}
-		
-		public void LoadAsync(UiPanelLoadInfo _loadInfo)
+
+		public void LoadAsync( UiPanelLoadInfo _loadInfo )
 		{
 			if (_loadInfo == null)
-				throw new ArgumentNullException($"{nameof(UiPanelLoadInfo)} is null!");
-			
+				throw new ArgumentNullException(nameof(UiPanelLoadInfo));
+
 			if (_loadInfo.MaxInstances > 0)
 			{
 				int openInstances = UiPanel.GetNumOpenDialogs(_loadInfo.PanelType);
 				UiPanel.DebugLogStatic($"Checking max instances {_loadInfo.PanelType.Name}: openInstances:{openInstances} loadInfo.MaxInstances:{_loadInfo.MaxInstances}");
 				if (openInstances >= _loadInfo.MaxInstances)
 				{
-					Debug.LogWarning($"Attempt to load panel '{_loadInfo.PanelType.Name}', " + 
-					                 $"but open instances ({openInstances}) is >= allowed instances in load info {_loadInfo.MaxInstances}, cancelling load without callbacks");
+					Debug.LogWarning($"Attempt to load panel '{_loadInfo.PanelType.Name}', " +
+									 $"but open instances ({openInstances}) is >= allowed instances in load info {_loadInfo.MaxInstances}, cancelling load without callbacks");
 					return;
 				}
 			}
-			
+
 			if (_loadInfo.InstantiationType == UiPanelLoadInfo.EInstantiationType.Pool)
 			{
 				LoadAsyncFromPool(_loadInfo);
 				return;
 			}
-			
+
 			LoadAsyncImpl(_loadInfo);
 		}
-		
-		public async Task LoadAsyncImpl(UiPanelLoadInfo _loadInfo)
-		{
-			// Convention for Panels: Id == class name
-			CanonicalAssetKey key = new CanonicalAssetKey(_loadInfo.AssetProvider, _loadInfo.PanelType);
-			var task = AssetManager.LoadAssetAsync(key);			
-			await task;
-			if (!task.IsCompletedSuccessfully)
-			{
-				_loadInfo.OnFail?.Invoke(_loadInfo);
-				return;
-			}
-			
-			var panel = task.Result.Asset.GetComponent(_loadInfo.PanelType) as UiPanel;
-			
-			// This isn't a 'normal' fail (e.g. by lost connection), but definitely a configuration error, thus we throw
-			if (panel == null)
-			{
-				AssetManager.Release(task.Result);
-				throw new AssetLoadFailedException(key, $"GameObject was loaded, but doesn't contain the requested Panel type '{_loadInfo.PanelType.Name}'");
-			}
 
-			_loadInfo.OnSuccess?.Invoke(panel);
-			if (_loadInfo.InitPanelData != null)
-				panel.Init(_loadInfo.InitPanelData);
+		private async Task LoadAsyncImpl( UiPanelLoadInfo _loadInfo )
+		{
+			var key = new CanonicalAssetKey(_loadInfo.AssetProvider, _loadInfo.PanelType);
+
+			try
+			{
+				var instHandle = await AssetManager.InstantiateAsync(key, _loadInfo.Parent);
+
+				var go = instHandle.Instance;
+				var panel = go != null ? go.GetComponent(_loadInfo.PanelType) as UiPanel : null;
+
+				if (panel == null)
+				{
+					// This is definitely a config error, so we release instantly
+					instHandle.Release();
+					throw new AssetLoadFailedException(key,
+						$"Instance does not contain requested panel type '{_loadInfo.PanelType.Name}'.");
+				}
+
+				_loadInfo.OnSuccess?.Invoke(panel);
+				if (_loadInfo.InitPanelData != null)
+					panel.Init(_loadInfo.InitPanelData, instHandle);
+				// TODO: Panel needs to release itself -> carry instance handle and release
+			}
+			catch (OperationCanceledException ex)
+			{
+				_loadInfo.OnFail?.Invoke(_loadInfo, ex);
+			}
+			catch (Exception ex)
+			{
+				_loadInfo.OnFail?.Invoke(_loadInfo, ex);
+				throw;
+			}
 		}
-		
-		public async Task LoadAsyncFromPool(UiPanelLoadInfo _loadInfo)
-		{
-			// Convention for Panels: Id == class name
-			CanonicalAssetKey key = new CanonicalAssetKey(_loadInfo.AssetProvider, _loadInfo.PanelType);
-			var task = UiPool.Instance.GetAsync(key);			
-			await task;
-			if (!task.IsCompletedSuccessfully)
-			{
-				_loadInfo.OnFail?.Invoke(_loadInfo);
-				return;
-			}
-			
-			var panel = task.Result.GetComponent(_loadInfo.PanelType) as UiPanel;
-			
-			// This isn't a 'normal' fail (e.g. by lost connection), but definitely a configuration error, thus we throw
-			if (panel == null)
-			{
-				UiPool.Instance.Release(task.Result);
-				throw new AssetLoadFailedException(key, $"GameObject was loaded, but doesn't contain the requested Panel type '{_loadInfo.PanelType.Name}'");
-			}
 
-			_loadInfo.OnSuccess?.Invoke(panel);
-			if (_loadInfo.InitPanelData != null)
-				panel.Init(_loadInfo.InitPanelData);
-		}		
-		
-#if false		
+		private async Task LoadAsyncFromPool( UiPanelLoadInfo _loadInfo )
+		{
+			var key = new CanonicalAssetKey(_loadInfo.AssetProvider, _loadInfo.PanelType);
+
+			try
+			{
+				var go = await UiPool.Instance.GetAsync(key);
+				var panel = go != null ? go.GetComponent(_loadInfo.PanelType) as UiPanel : null;
+
+				if (panel == null)
+				{
+					UiPool.Instance.Release(go);
+					throw new AssetLoadFailedException(key,
+						$"Pooled instance does not contain requested panel type '{_loadInfo.PanelType.Name}'.");
+				}
+
+				_loadInfo.OnSuccess?.Invoke(panel);
+				if (_loadInfo.InitPanelData != null)
+					panel.Init(_loadInfo.InitPanelData, null);
+			}
+			catch (OperationCanceledException ex)
+			{
+				_loadInfo.OnFail?.Invoke(_loadInfo, ex);
+			}
+			catch (Exception ex)
+			{
+				_loadInfo.OnFail?.Invoke(_loadInfo, ex);
+				throw;
+			}
+		}
+
+#if false
 		public void LoadAsync(UiPanelLoadInfo _loadInfo)
 		{
 			if (_loadInfo == null)

@@ -17,11 +17,11 @@ namespace GuiToolkit.AssetHandling
 
 		public Type PanelType;
 		public int MaxInstances = 0; // maximum number of allowed instances for this panel. <= 0 means unlimited.
-		public EInstantiationType InstantiationType = EInstantiationType.Instantiate;
+		public EInstantiationType InstantiationType = EInstantiationType.Pool;
 		public Transform Parent = null;
 		public IInitPanelData InitPanelData = null;
 		public Action<UiPanel> OnSuccess = null;
-		public Action<UiPanelLoadInfo> OnFail = null;
+		public Action<UiPanelLoadInfo, Exception> OnFail = null;
 		public IAssetProvider AssetProvider = null;
 	}
 
