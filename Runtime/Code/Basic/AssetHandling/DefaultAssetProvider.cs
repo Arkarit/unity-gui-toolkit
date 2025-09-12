@@ -137,7 +137,16 @@ namespace GuiToolkit.AssetHandling
 
 		public bool Supports( CanonicalAssetKey _key ) => _key.Provider == this;
 
-		public bool Supports( string _id ) => !string.IsNullOrEmpty(_id) && _id.StartsWith("res:", StringComparison.Ordinal);
+		public bool Supports( string _id )
+		{
+			if ( string.IsNullOrEmpty(_id) )
+				return false;
+			
+			if (_id.Contains(':'))
+				return _id.StartsWith("res:");
+			
+			return true;
+		}
 
 		public bool Supports( object _obj )
 		{

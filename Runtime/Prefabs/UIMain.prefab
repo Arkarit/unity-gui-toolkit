@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d9e1fea56d6a144baa9d006ecf3bc8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_container: {fileID: 7267538139792882977}
+  m_poolContainer: {fileID: 7267538139792882977}
 --- !u!114 &3092512928491751583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,6 +297,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_defaultSceneVisibility: 4
+  m_simpleShowHideAnimation: {fileID: 0}
   EvOnBeginShow:
     m_PersistentCalls:
       m_Calls: []

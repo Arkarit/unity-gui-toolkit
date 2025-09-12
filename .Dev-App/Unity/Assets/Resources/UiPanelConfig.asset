@@ -17,3 +17,7 @@ MonoBehaviour:
     PanelEntries:
     - Type: DemoHud
       Id: res:TestPanel
+  - Category: Test
+    PanelEntries:
+    - Type: DemoDynamicLoaded
+      Id: res:DemoDynamicLoaded

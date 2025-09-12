@@ -53,7 +53,6 @@ namespace GuiToolkit.Test
 			public void ReleaseUnused() { }
 		}
 
-		// Simpler InstanceHandle für den Test
 		private sealed class FakeInstanceHandle : IInstanceHandle
 		{
 			public CanonicalAssetKey Key { get; }
