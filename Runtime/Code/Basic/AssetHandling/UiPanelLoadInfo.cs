@@ -22,6 +22,7 @@ namespace GuiToolkit.AssetHandling
 		public IInitPanelData InitPanelData = null;
 		public Action<UiPanel> OnSuccess = null;
 		public Action<UiPanelLoadInfo> OnFail = null;
+		public IAssetProvider AssetProvider = null;
 	}
 
 }

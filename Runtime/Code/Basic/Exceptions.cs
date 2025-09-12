@@ -1,4 +1,5 @@
 using System;
+using GuiToolkit.AssetHandling;
 
 namespace GuiToolkit.Exceptions
 {
@@ -9,6 +10,17 @@ namespace GuiToolkit.Exceptions
 		/// </summary>
 		public NotInitializedException(Type _type)
 			: base($"A class instance of type '{_type.Name}' is not yet initialized. Please ensure call order")
+		{ }
+	}
+
+	public sealed class AssetLoadFailedException : InvalidOperationException
+	{
+		public AssetLoadFailedException(CanonicalAssetKey _key)
+			: base($"Asset load failed for '{_key.ToString()}'")
+		{ }
+		
+		public AssetLoadFailedException(CanonicalAssetKey _key, string _msg)
+			: base($"Asset load failed for '{_key.ToString()}'\n{_msg}")
 		{ }
 	}
 

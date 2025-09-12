@@ -20,8 +20,8 @@ namespace GuiToolkit.AssetHandling
 		/// <param name="_type"></param>
 		public CanonicalAssetKey( IAssetProvider _provider, string _id, Type _type )
 		{
-			Provider = _provider;
 			Id = _id ?? string.Empty;
+			Provider = _provider ?? AssetManager.GetAssetProvider(Id);
 			Type = _type;
 		}
 
@@ -45,8 +45,8 @@ namespace GuiToolkit.AssetHandling
 		/// <param name="_type"></param>
 		public CanonicalAssetKey( IAssetProvider _provider, Type _type )
 		{
-			Provider = _provider;
 			Id = _type.Name;
+			Provider = _provider ?? AssetManager.GetAssetProvider(Id);
 			Type = _type;
 		}
 
@@ -82,6 +82,6 @@ namespace GuiToolkit.AssetHandling
 
 		public override int GetHashCode() => HashCode.Combine(Provider, Type, Id);
 
-		public override string ToString() => $"{Provider}:{Id}";
+		public override string ToString() => $"{Provider}:{Id}:{Type.Name}";
 	}
 }
