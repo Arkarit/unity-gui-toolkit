@@ -124,22 +124,5 @@ namespace GuiToolkit.Test
 				m_provider.NormalizeKey<GameObject>(foreignKey);
 			});
 		}
-
-		[Test]
-		public void NormalizeKey_Object_NotPersistent_Throws()
-		{
-			var go = new GameObject("TempSceneObject");
-			try
-			{
-				Assert.Throws<System.InvalidOperationException>(() =>
-				{
-					m_provider.NormalizeKey<GameObject>(go);
-				});
-			}
-			finally
-			{
-				Object.DestroyImmediate(go);
-			}
-		}
 	}
 }

@@ -10,7 +10,6 @@ namespace GuiToolkit.Test
 {
 	public class AssetManagerTests
 	{
-
 		private sealed class FakeAssetHandle<T> : IAssetHandle<T> where T : UnityEngine.Object
 		{
 			public CanonicalAssetKey Key { get; }
@@ -257,7 +256,5 @@ namespace GuiToolkit.Test
 			CanonicalAssetKey another = new CanonicalAssetKey(m_provider, "other", typeof(GameObject));
 			Assert.DoesNotThrow(() => AssetManager.Release(another));
 		}
-
-
 	}
 }
