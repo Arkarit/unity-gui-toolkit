@@ -28,6 +28,26 @@ namespace GuiToolkit.AssetHandling
 			}
 		}
 		
+		public void LoadAsync(UiPanelLoadInfo _loadInfo)
+		{
+			if (_loadInfo == null)
+				throw new ArgumentNullException($"{nameof(UiPanelLoadInfo)} is null!");
+			
+			if (_loadInfo.MaxInstances > 0)
+			{
+				int openInstances = UiPanel.GetNumOpenDialogs(_loadInfo.PanelType);
+				UiPanel.DebugLogStatic($"Checking max instances {_loadInfo.PanelType.Name}: openInstances:{openInstances} loadInfo.MaxInstances:{_loadInfo.MaxInstances}");
+				if (openInstances >= _loadInfo.MaxInstances)
+				{
+					Debug.LogWarning($"Attempt to load panel '{_loadInfo.PanelType.Name}', " + 
+					                 $"but open instances ({openInstances}) is >= allowed instances in load info {_loadInfo.MaxInstances}, cancelling load without callbacks");
+					return;
+				}
+			}
+			
+			
+		}
+		
 #if false		
 		public void LoadAsync(UiPanelLoadInfo _loadInfo)
 		{

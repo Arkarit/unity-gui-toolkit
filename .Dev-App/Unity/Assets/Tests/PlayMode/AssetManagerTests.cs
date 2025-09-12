@@ -241,6 +241,24 @@ namespace GuiToolkit.Test
 			Assert.IsTrue(tr == null || tr.gameObject == null);
 		}
 
+		[UnityTest]
+		public IEnumerator InstantiateAsync_Cancellation_Stops_Work()
+		{
+			var cts = new System.Threading.CancellationTokenSource();
+			cts.Cancel();
+
+			bool success = false, fail = false;
+			AssetManager.InstantiateAsync<GameObject>(
+				m_keyGO,
+				_onSuccess: _ => success = true,
+				_onFail: _ => fail = true,
+				_cancellationToken: cts.Token);
+
+			yield return null;
+			Assert.IsFalse(success);
+			Assert.IsTrue(fail);
+		}
+
 		[Test]
 		public void ReleaseUnused_Forwards_To_Provider()
 		{
@@ -256,5 +274,13 @@ namespace GuiToolkit.Test
 			CanonicalAssetKey another = new CanonicalAssetKey(m_provider, "other", typeof(GameObject));
 			Assert.DoesNotThrow(() => AssetManager.Release(another));
 		}
+
+		[Test]
+		public void Release_Twice_NoThrow()
+		{
+			Assert.DoesNotThrow(() => AssetManager.Release(m_keyGO));
+			Assert.DoesNotThrow(() => AssetManager.Release(m_keyGO));
+		}
+
 	}
 }
