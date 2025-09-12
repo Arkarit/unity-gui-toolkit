@@ -16,4 +16,4 @@ MonoBehaviour:
   - Category: Test
     PanelEntries:
     - Type: DemoHud
-      PanelId: addr:GT_TestAddrPanel
+      Id: res:TestPanel
