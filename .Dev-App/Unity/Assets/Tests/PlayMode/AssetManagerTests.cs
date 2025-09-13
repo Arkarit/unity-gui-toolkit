@@ -60,6 +60,8 @@ namespace GuiToolkit.Test
 			public string ResName => "fake";
 			public IAssetProviderEditorBridge EditorBridge => null;
 
+			public bool IsInitialized => true;
+			public void Init() { }
 			public bool Supports( CanonicalAssetKey _key )
 			{
 				return ReferenceEquals(_key.Provider, this);
@@ -85,8 +87,8 @@ namespace GuiToolkit.Test
 				return false;
 			}
 
-			public CanonicalAssetKey NormalizeKey<T>(object _key) where T : UnityEngine.Object => NormalizeKey(_key, typeof(T));
-			public CanonicalAssetKey NormalizeKey(object _key, Type _type)
+			public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : UnityEngine.Object => NormalizeKey(_key, typeof(T));
+			public CanonicalAssetKey NormalizeKey( object _key, Type _type )
 			{
 				if (_key is CanonicalAssetKey ck)
 				{

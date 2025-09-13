@@ -34,7 +34,7 @@ namespace GuiToolkit.Test
 			public bool IsLoaded => !IsReleased && Asset != null;
 			public bool IsReleased { get; private set; }
 
-			public FakeAssetHandle(CanonicalAssetKey _key, T _asset)
+			public FakeAssetHandle( CanonicalAssetKey _key, T _asset )
 			{
 				Key = _key;
 				Asset = _asset;
@@ -53,7 +53,7 @@ namespace GuiToolkit.Test
 			public GameObject Instance { get; private set; }
 			public bool IsReleased { get; private set; }
 
-			public FakeInstanceHandle(CanonicalAssetKey _key, GameObject _go)
+			public FakeInstanceHandle( CanonicalAssetKey _key, GameObject _go )
 			{
 				Key = _key;
 				Instance = _go;
@@ -76,24 +76,26 @@ namespace GuiToolkit.Test
 		{
 			private readonly Type m_alwaysAddComponentType;
 
-			public FakeProvider(Type _alwaysAdd = null) { m_alwaysAddComponentType = _alwaysAdd; }
+			public FakeProvider( Type _alwaysAdd = null ) { m_alwaysAddComponentType = _alwaysAdd; }
 
+			public bool IsInitialized => true;
+			public void Init() { }
 			public string Name => "Fake Provider";
 			public string ResName => "fake";
 			public IAssetProviderEditorBridge EditorBridge => null;
 
-			public bool Supports(CanonicalAssetKey _key) => ReferenceEquals(_key.Provider, this);
-			public bool Supports(string _id) => !string.IsNullOrEmpty(_id) && _id.StartsWith("fake:", StringComparison.Ordinal);
-			public bool Supports(object _obj)
+			public bool Supports( CanonicalAssetKey _key ) => ReferenceEquals(_key.Provider, this);
+			public bool Supports( string _id ) => !string.IsNullOrEmpty(_id) && _id.StartsWith("fake:", StringComparison.Ordinal);
+			public bool Supports( object _obj )
 			{
 				if (_obj is CanonicalAssetKey ck) return Supports(ck);
 				if (_obj is string s) return Supports(s);
 				return false;
 			}
 
-			public CanonicalAssetKey NormalizeKey<T>(object _key) where T : UnityEngine.Object =>
+			public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : UnityEngine.Object =>
 				NormalizeKey(_key, typeof(T));
-			public CanonicalAssetKey NormalizeKey( object _key, Type _type)
+			public CanonicalAssetKey NormalizeKey( object _key, Type _type )
 			{
 				if (_key is CanonicalAssetKey ck)
 				{
@@ -108,7 +110,7 @@ namespace GuiToolkit.Test
 				throw new InvalidOperationException("Unsupported key type for FakeProvider.");
 			}
 
-			public Task<IAssetHandle<T>> LoadAssetAsync<T>(object _key, CancellationToken _ct) where T : UnityEngine.Object
+			public Task<IAssetHandle<T>> LoadAssetAsync<T>( object _key, CancellationToken _ct ) where T : UnityEngine.Object
 			{
 				_ct.ThrowIfCancellationRequested();
 				CanonicalAssetKey ck = NormalizeKey<T>(_key);
@@ -143,7 +145,7 @@ namespace GuiToolkit.Test
 				return Task.FromResult<IAssetHandle<T>>(new FakeAssetHandle<T>(ck, asset));
 			}
 
-			public Task<IInstanceHandle> InstantiateAsync(object _key, Transform _parent, CancellationToken _ct)
+			public Task<IInstanceHandle> InstantiateAsync( object _key, Transform _parent, CancellationToken _ct )
 			{
 				_ct.ThrowIfCancellationRequested();
 				CanonicalAssetKey ck = NormalizeKey<GameObject>(_key);
@@ -155,14 +157,14 @@ namespace GuiToolkit.Test
 				return Task.FromResult<IInstanceHandle>(new FakeInstanceHandle(ck, go));
 			}
 
-			public void Release<T>(IAssetHandle<T> _handle) where T : UnityEngine.Object => _handle?.Release();
-			public void Release(IInstanceHandle _handle) => _handle?.Release();
+			public void Release<T>( IAssetHandle<T> _handle ) where T : UnityEngine.Object => _handle?.Release();
+			public void Release( IInstanceHandle _handle ) => _handle?.Release();
 			public void ReleaseUnused() { }
 		}
 
 #if UNITY_INCLUDE_TESTS
 		// Test hook from earlier step; keep here for safety if not already added.
-		private static void OverrideProviders(params IAssetProvider[] _providers)
+		private static void OverrideProviders( params IAssetProvider[] _providers )
 		{
 			AssetManager.OverrideProvidersForTests(_providers);
 		}
@@ -190,7 +192,7 @@ namespace GuiToolkit.Test
 		[TearDown]
 		public void TearDown()
 		{
-			if (m_pool != null) 
+			if (m_pool != null)
 				UnityEngine.Object.DestroyImmediate(m_pool.gameObject);
 		}
 
@@ -198,7 +200,7 @@ namespace GuiToolkit.Test
 		public IEnumerator GetAsync_GameObject_Reuses_Instance()
 		{
 			Task<GameObject> t1 = m_pool.GetAsync(m_key);
-			while (!t1.IsCompleted) 
+			while (!t1.IsCompleted)
 				yield return null;
 
 			GameObject a = t1.Result;
@@ -206,7 +208,7 @@ namespace GuiToolkit.Test
 			m_pool.Release(a);
 
 			Task<GameObject> t2 = m_pool.GetAsync(m_key);
-			while (!t2.IsCompleted) 
+			while (!t2.IsCompleted)
 				yield return null;
 
 			GameObject b = t2.Result;
@@ -217,7 +219,7 @@ namespace GuiToolkit.Test
 		public IEnumerator GetAsync_Component_Triggers_IPoolable()
 		{
 			Task<TestPoolable> t = m_pool.GetAsync<TestPoolable>(m_key);
-			while (!t.IsCompleted) 
+			while (!t.IsCompleted)
 				yield return null;
 
 			TestPoolable comp = t.Result;
@@ -229,9 +231,9 @@ namespace GuiToolkit.Test
 
 			// Reuse increases Created again
 			Task<TestPoolable> t2 = m_pool.GetAsync<TestPoolable>(m_key);
-			while (!t2.IsCompleted) 
+			while (!t2.IsCompleted)
 				yield return null;
-			
+
 			Assert.AreEqual(2, t2.Result.Created);
 		}
 
@@ -239,7 +241,7 @@ namespace GuiToolkit.Test
 		public IEnumerator Clear_Destroys_Pooled_Canonical_Instances()
 		{
 			Task<GameObject> t1 = m_pool.GetAsync(m_key);
-			while (!t1.IsCompleted) 
+			while (!t1.IsCompleted)
 				yield return null;
 
 			GameObject go = t1.Result;
@@ -247,7 +249,7 @@ namespace GuiToolkit.Test
 
 			m_pool.Release(go);
 			m_pool.Clear();
-			
+
 			yield return null; // destruction finalizes
 
 			Assert.IsTrue(go == null || go.Equals(null));

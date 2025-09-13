@@ -22,14 +22,16 @@ namespace GuiToolkit.Test
 			public string ResName => "fake";
 			public IAssetProviderEditorBridge EditorBridge => null;
 
+			public bool IsInitialized => true;
+			public void Init() { }
 			public bool Supports( CanonicalAssetKey _key ) => true;
 			public bool Supports( string _id ) => true;
 			public bool Supports( object _obj ) => true;
 
-			public CanonicalAssetKey NormalizeKey<T>(object _key) where T : UnityEngine.Object => NormalizeKey(_key, typeof(T));
-			public CanonicalAssetKey NormalizeKey(object _key, Type _type)
+			public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : UnityEngine.Object => NormalizeKey(_key, typeof(T));
+			public CanonicalAssetKey NormalizeKey( object _key, Type _type )
 			{
-				if (_key is CanonicalAssetKey ck) 
+				if (_key is CanonicalAssetKey ck)
 					return ck;
 
 				return new CanonicalAssetKey(this, "fake:test", _type);
@@ -50,7 +52,7 @@ namespace GuiToolkit.Test
 				go.AddComponent<TestPanel>();
 				if (_parent != null) go.transform.SetParent(_parent, false);
 
-				return System.Threading.Tasks.Task.FromResult<IInstanceHandle>(new FakeInstanceHandle((CanonicalAssetKey) _key, go));
+				return System.Threading.Tasks.Task.FromResult<IInstanceHandle>(new FakeInstanceHandle((CanonicalAssetKey)_key, go));
 			}
 
 			public void Release<T>( IAssetHandle<T> _handle ) where T : UnityEngine.Object => _handle?.Release();
@@ -182,14 +184,16 @@ namespace GuiToolkit.Test
 			public string ResName => "fake";
 			public IAssetProviderEditorBridge EditorBridge => null;
 
+			public bool IsInitialized => true;
+			public void Init() { }
 			public bool Supports( CanonicalAssetKey _key ) => true;
 			public bool Supports( string _id ) => true;
 			public bool Supports( object _obj ) => true;
 
 			public CanonicalAssetKey NormalizeKey( object _key, Type _ )
-				=> (CanonicalAssetKey) _key;
+				=> (CanonicalAssetKey)_key;
 			public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : Object
-				=> (CanonicalAssetKey) _key;
+				=> (CanonicalAssetKey)_key;
 
 			public System.Threading.Tasks.Task<IAssetHandle<T>> LoadAssetAsync<T>( object _key, CancellationToken _ct )
 				where T : UnityEngine.Object

@@ -72,10 +72,29 @@ public sealed class AddressableAssetHandle<T> : IAssetHandle<T> where T : Object
 
 public sealed class AddressablesProvider : IAssetProvider
 {
+	private static Task s_initTask;
+
+	public AddressablesProvider( bool strictInit = true )
+	{
+		if (s_initTask == null || s_initTask.IsFaulted || s_initTask.IsCanceled)
+			s_initTask = Addressables.InitializeAsync().Task;
+	}
+
 	public static IAssetProviderEditorBridge s_editorBridge;
 	public string Name => "Addressables Asset Provider";
 	public string ResName => "Addressable";
 	public IAssetProviderEditorBridge EditorBridge => s_editorBridge;
+
+	// Note: In our demo AddressablesProvider we initialize Addressables here.
+	// If you initialize it elsewhere (which likely is the case, please just implement these empty:
+	// public bool IsInitialized => true;
+	// public void Init() {}
+	public bool IsInitialized => s_initTask != null && s_initTask.IsCompleted;
+	public void Init()
+	{
+		if (s_initTask == null || s_initTask.IsFaulted || s_initTask.IsCanceled)
+			s_initTask = Addressables.InitializeAsync().Task;
+	}
 
 	public async Task<IInstanceHandle> InstantiateAsync
 	(
@@ -205,8 +224,8 @@ public sealed class AddressablesProvider : IAssetProvider
 		// optional trimming
 	}
 
-	public CanonicalAssetKey NormalizeKey<T>(object _key) where T : Object => NormalizeKey(_key, typeof(T));
-	public CanonicalAssetKey NormalizeKey( object _key, Type _type)
+	public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : Object => NormalizeKey(_key, typeof(T));
+	public CanonicalAssetKey NormalizeKey( object _key, Type _type )
 	{
 		if (_key is CanonicalAssetKey assetKey)
 		{
@@ -249,7 +268,7 @@ public sealed class AddressablesProvider : IAssetProvider
 	public bool Supports( CanonicalAssetKey _key ) => _key.Provider == this;
 	public bool Supports( string _id )
 	{
-		if (_id.StartsWith("addr:", StringComparison.Ordinal)) 
+		if (_id.StartsWith("addr:", StringComparison.Ordinal))
 			return true;
 
 		return Exists(_id);
@@ -277,7 +296,8 @@ public sealed class AddressablesProvider : IAssetProvider
 
 	private bool Exists( string _key )
 	{
-		foreach (var loc in Addressables.ResourceLocators)
+		var locators = Addressables.ResourceLocators;
+		foreach (var loc in locators)
 			if (loc.Locate(_key, typeof(object), out var _))
 				return true;
 

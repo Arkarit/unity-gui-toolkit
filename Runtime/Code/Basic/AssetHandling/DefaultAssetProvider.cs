@@ -62,6 +62,9 @@ namespace GuiToolkit.AssetHandling
 		public string Name => "Default Asset Provider";
 		public string ResName => "Resource";
 
+		public bool IsInitialized => true;
+		public void Init() {}
+
 		public IAssetProviderEditorBridge EditorBridge => s_editorBridge;
 
 		public async Task<IInstanceHandle> InstantiateAsync

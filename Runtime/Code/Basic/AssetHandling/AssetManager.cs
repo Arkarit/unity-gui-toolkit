@@ -41,9 +41,15 @@ namespace GuiToolkit.AssetHandling
 				List<IAssetProvider> providers = new();
 				var factories = UiToolkitConfiguration.Instance.AssetProviderFactories;
 				foreach (var factory in factories)
-					providers.Add(factory.CreateProvider());
+				{
+					var provider = factory.CreateProvider();
+					provider.Init();
+					providers.Add(provider);
+				}
 
-				providers.Add(new DefaultAssetProvider());
+				var defaultProvider = new DefaultAssetProvider();
+				defaultProvider.Init();
+				providers.Add(defaultProvider);
 				s_assetProviders = providers.ToArray();
 			});
 		}

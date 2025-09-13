@@ -21,6 +21,9 @@ namespace GuiToolkit.AssetHandling
 		
 		IAssetProviderEditorBridge EditorBridge {get;}
 		
+		bool IsInitialized { get; }
+		void Init();
+
 		// Load prefab without instantiation (optional; can be no-op)
 		Task<IAssetHandle<T>> LoadAssetAsync<T>( object _key, CancellationToken _cancellationToken = default ) where T : Object;
 
