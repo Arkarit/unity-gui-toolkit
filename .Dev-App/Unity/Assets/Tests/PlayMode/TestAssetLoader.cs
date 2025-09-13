@@ -23,8 +23,8 @@ namespace GuiToolkit.Test
 			public bool Supports( string _id ) => true;
 			public bool Supports( object _obj ) => true;
 
-			public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : UnityEngine.Object
-				=> (CanonicalAssetKey) _key;
+			public CanonicalAssetKey NormalizeKey(object _key, Type _type) => (CanonicalAssetKey) _key;
+			public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : UnityEngine.Object => (CanonicalAssetKey) _key;
 
 			public Task<IAssetHandle<T>> LoadAssetAsync<T>( object _key, CancellationToken _ct ) where T : UnityEngine.Object
 			{

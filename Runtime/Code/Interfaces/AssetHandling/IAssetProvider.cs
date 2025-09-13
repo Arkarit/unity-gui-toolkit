@@ -1,6 +1,8 @@
+using System;
 using System.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace GuiToolkit.AssetHandling
 {
@@ -35,6 +37,7 @@ namespace GuiToolkit.AssetHandling
 		void ReleaseUnused();
 		
 		CanonicalAssetKey NormalizeKey<T>(object _key) where T : Object;
+		CanonicalAssetKey NormalizeKey(object _key, Type _type);
 		
 		bool Supports(CanonicalAssetKey _key);
 		bool Supports(string _id);

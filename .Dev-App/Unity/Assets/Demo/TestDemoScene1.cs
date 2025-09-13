@@ -47,7 +47,19 @@ public class TestDemoScene1 : UiView
 			PanelType = typeof(DemoDynamicLoaded),
 			InstantiationType = UiPanelLoadInfo.EInstantiationType.Instantiate,
 			OnSuccess = (UiPanel _) => Debug.Log("Success"),
-			OnFail = (UiPanelLoadInfo _, Exception ex) => Debug.Log($"Fail: {ex.Message}")
+			OnFail = (UiPanelLoadInfo _loadInfo, Exception _ex) =>
+			{
+				string s = 
+					_loadInfo
+					.ToString()
+					.Replace(",", ",\n", StringComparison.Ordinal)
+					.Replace("(", "(\n ", StringComparison.Ordinal)
+					.Replace(")","\n)\n");
+
+				Debug.LogError($"Fail: {s}");
+				if (_ex != null)
+					Debug.LogException(_ex);
+			}
 		});
 	}
 

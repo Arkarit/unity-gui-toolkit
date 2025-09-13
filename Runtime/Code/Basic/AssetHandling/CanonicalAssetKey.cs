@@ -26,18 +26,6 @@ namespace GuiToolkit.AssetHandling
 		}
 
 		/// <summary>
-		/// Create canonical asset key by id and type; use the first found provider
-		/// </summary>
-		/// <param name="_id"></param>
-		/// <param name="_type"></param>
-		public CanonicalAssetKey( string _id, Type _type )
-		{
-			Id = _id ?? string.Empty;
-			Provider = AssetManager.GetAssetProvider(Id);
-			Type = _type;
-		}
-		
-		/// <summary>
 		/// Create canonical asset key by a specified provider and type; id is determined by type name
 		/// </summary>
 		/// <param name="_provider"></param>
@@ -45,19 +33,9 @@ namespace GuiToolkit.AssetHandling
 		/// <param name="_type"></param>
 		public CanonicalAssetKey( IAssetProvider _provider, Type _type )
 		{
-			Id = _type.Name;
-			Provider = _provider ?? AssetManager.GetAssetProvider(Id);
-			Type = _type;
-		}
-
-		/// <summary>
-		/// Create canonical asset key by type; id is determined by type name, use the first found provider
-		/// </summary>
-		/// <param name="_type"></param>
-		public CanonicalAssetKey( Type _type )
-		{
-			Id = _type.Name;
-			Provider = AssetManager.GetAssetProvider(Id);
+			var id = _type.Name;
+			Provider = _provider ?? AssetManager.GetAssetProvider(id);
+			Id = Provider != null ? Provider.NormalizeKey(id, _type).Id : id;
 			Type = _type;
 		}
 
@@ -82,6 +60,6 @@ namespace GuiToolkit.AssetHandling
 
 		public override int GetHashCode() => HashCode.Combine(Provider, Type, Id);
 
-		public override string ToString() => $"{Provider}:{Id}:{Type.Name}";
+		public override string ToString() => $"Provider:'{Provider}' Id:'{Id}' Type:'{Type.Name}'";
 	}
 }

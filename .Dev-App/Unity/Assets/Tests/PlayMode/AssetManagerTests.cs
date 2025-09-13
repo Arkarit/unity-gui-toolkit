@@ -85,7 +85,8 @@ namespace GuiToolkit.Test
 				return false;
 			}
 
-			public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : UnityEngine.Object
+			public CanonicalAssetKey NormalizeKey<T>(object _key) where T : UnityEngine.Object => NormalizeKey(_key, typeof(T));
+			public CanonicalAssetKey NormalizeKey(object _key, Type _type)
 			{
 				if (_key is CanonicalAssetKey ck)
 				{
@@ -97,7 +98,7 @@ namespace GuiToolkit.Test
 				if (_key is string s)
 				{
 					string id = s.StartsWith("fake:", StringComparison.Ordinal) ? s : "fake:" + s;
-					return new CanonicalAssetKey(this, id, typeof(T));
+					return new CanonicalAssetKey(this, id, _type);
 				}
 
 				// Keep it strict in tests

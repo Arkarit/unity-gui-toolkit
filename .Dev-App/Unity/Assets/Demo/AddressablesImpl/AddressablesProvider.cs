@@ -151,11 +151,11 @@ public sealed class AddressablesProvider : IAssetProvider
 				if (h.IsValid()) Addressables.Release(h);
 				throw new Exception($"LoadAssetAsync<{typeof(T).Name}> failed for '{assetKey.Id}' (status {h.Status}).");
 			}
-			
+
 			return new AddressableAssetHandle<T>(h, assetKey);
 		}
 #endif
-		
+
 		AsyncOperationHandle<T> handle = default;
 
 		try
@@ -205,7 +205,8 @@ public sealed class AddressablesProvider : IAssetProvider
 		// optional trimming
 	}
 
-	public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : Object
+	public CanonicalAssetKey NormalizeKey<T>(object _key) where T : Object => NormalizeKey(_key, typeof(T));
+	public CanonicalAssetKey NormalizeKey( object _key, Type _type)
 	{
 		if (_key is CanonicalAssetKey assetKey)
 		{
@@ -224,13 +225,13 @@ public sealed class AddressablesProvider : IAssetProvider
 			if (!runtimeKey.StartsWith("addr:", StringComparison.Ordinal))
 				runtimeKey = $"addr:{runtimeKey}";
 
-			return new CanonicalAssetKey(this, runtimeKey, typeof(T));
+			return new CanonicalAssetKey(this, runtimeKey, _type);
 		}
 
 		if (_key is string s)
 		{
 			var id = s.StartsWith("addr:", StringComparison.Ordinal) ? s : $"addr:{s}";
-			return new CanonicalAssetKey(this, id, typeof(T));
+			return new CanonicalAssetKey(this, id, _type);
 		}
 
 #if UNITY_EDITOR
@@ -242,11 +243,18 @@ public sealed class AddressablesProvider : IAssetProvider
 			throw new InvalidOperationException("Object keys are not supported. Use an 'addr:' path instead.");
 #endif
 
-		return new CanonicalAssetKey(this, $"unknown:{_key}", typeof(T));
+		return new CanonicalAssetKey(this, $"unknown:{_key}", _type);
 	}
 
 	public bool Supports( CanonicalAssetKey _key ) => _key.Provider == this;
-	public bool Supports( string _id ) => _id.StartsWith("addr:", StringComparison.Ordinal);
+	public bool Supports( string _id )
+	{
+		if (_id.StartsWith("addr:", StringComparison.Ordinal)) 
+			return true;
+
+		return Exists(_id);
+	}
+
 	public bool Supports( object _obj )
 	{
 		if (_obj is CanonicalAssetKey key)
@@ -267,5 +275,13 @@ public sealed class AddressablesProvider : IAssetProvider
 		return false;
 	}
 
+	private bool Exists( string _key )
+	{
+		foreach (var loc in Addressables.ResourceLocators)
+			if (loc.Locate(_key, typeof(object), out var _))
+				return true;
+
+		return false;
+	}
 
 }

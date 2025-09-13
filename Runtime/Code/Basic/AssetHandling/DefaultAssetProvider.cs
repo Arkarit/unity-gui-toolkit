@@ -5,6 +5,7 @@ using System;
 using UnityEngine;
 
 using Object = UnityEngine.Object;
+using GuiToolkit.Exceptions;
 
 
 #if UNITY_EDITOR
@@ -107,7 +108,8 @@ namespace GuiToolkit.AssetHandling
 
 		public void ReleaseUnused() { }
 
-		public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : Object
+		public CanonicalAssetKey NormalizeKey<T>(object _key) where T : Object => NormalizeKey(_key, typeof(T));
+		public CanonicalAssetKey NormalizeKey(object _key, Type _type)
 		{
 			if (_key is CanonicalAssetKey assetKey)
 			{
@@ -119,10 +121,10 @@ namespace GuiToolkit.AssetHandling
 
 				return assetKey;
 			}
-			
+
 #if UNITY_EDITOR
 			if (_key is Object obj)
-				if ( EditorBridge != null && EditorBridge.TryMakeId(obj, out string id))
+				if (EditorBridge != null && EditorBridge.TryMakeId(obj, out string id))
 					return new CanonicalAssetKey(this, id, obj.GetType());
 #else
 			if (_key is Object obj)
@@ -130,22 +132,18 @@ namespace GuiToolkit.AssetHandling
 #endif
 
 			if (_key is string pathStr)
-				return new CanonicalAssetKey(this, pathStr.StartsWith("res:", StringComparison.Ordinal) ? pathStr : $"res:{pathStr}", typeof(T));
+				return new CanonicalAssetKey(this, pathStr.StartsWith("res:", StringComparison.Ordinal) ? pathStr : $"res:{pathStr}", _type);
 
-			return new CanonicalAssetKey(this, $"unknown:{_key}", typeof(T));
+			return new CanonicalAssetKey(this, $"unknown:{_key}", _type);
 		}
 
 		public bool Supports( CanonicalAssetKey _key ) => _key.Provider == this;
 
 		public bool Supports( string _id )
 		{
-			if ( string.IsNullOrEmpty(_id) )
-				return false;
-			
-			if (_id.Contains(':'))
-				return _id.StartsWith("res:");
-			
-			return true;
+			if (string.IsNullOrEmpty(_id)) return false;
+			return _id.StartsWith("res:", StringComparison.Ordinal)
+				   || !_id.Contains(":");
 		}
 
 		public bool Supports( object _obj )
@@ -171,18 +169,35 @@ namespace GuiToolkit.AssetHandling
 
 			if (_assetKey.TryGetValue("res:", out string resourcePath))
 			{
-				result = Resources.Load(resourcePath, _assetKey.Type);
+				// Components can not be loaded directly.
+				// Thus we load and return a game object.
+				// Caller is responsible for getting the component.
+				// We only check if the required type exists on the game object.
+				if (typeof(Component).IsAssignableFrom(_assetKey.Type))
+				{
+					var go = Resources.Load(resourcePath, typeof(GameObject)) as GameObject;
+					if (!go)
+						throw new AssetLoadFailedException(_assetKey);
+
+					var component = go.GetComponent(_assetKey.Type);
+					if (!component)
+					{
+						go.SafeDestroy();
+						throw new AssetLoadFailedException(_assetKey, $"Asset was found, but didn't carry a Component of type '{_assetKey.Type}'");
+					}
+
+					result = go;
+				}
+				else
+				{
+					result = Resources.Load(resourcePath, _assetKey.Type);
+				}
 			}
 
 			_cancellationToken.ThrowIfCancellationRequested();
 
 			if (!result)
-			{
-				throw new Exception
-				(
-					$"DefaultAssetProvider.Load failed: id='{_assetKey.Id}', type='{_assetKey.Type?.Name ?? "null"}', provider='{GetType().Name}'."
-				);
-			}
+				throw new AssetLoadFailedException(_assetKey);
 
 			return result;
 		}

@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using System.Threading;
 using GuiToolkit.AssetHandling;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using Object = UnityEngine.Object;
 
 namespace GuiToolkit.Test
 {
@@ -24,10 +26,13 @@ namespace GuiToolkit.Test
 			public bool Supports( string _id ) => true;
 			public bool Supports( object _obj ) => true;
 
-			public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : UnityEngine.Object
+			public CanonicalAssetKey NormalizeKey<T>(object _key) where T : UnityEngine.Object => NormalizeKey(_key, typeof(T));
+			public CanonicalAssetKey NormalizeKey(object _key, Type _type)
 			{
-				if (_key is CanonicalAssetKey ck) return ck;
-				return new CanonicalAssetKey(this, "fake:test", typeof(T));
+				if (_key is CanonicalAssetKey ck) 
+					return ck;
+
+				return new CanonicalAssetKey(this, "fake:test", _type);
 			}
 
 			public System.Threading.Tasks.Task<IAssetHandle<T>> LoadAssetAsync<T>( object _key, CancellationToken _ct )
@@ -181,6 +186,8 @@ namespace GuiToolkit.Test
 			public bool Supports( string _id ) => true;
 			public bool Supports( object _obj ) => true;
 
+			public CanonicalAssetKey NormalizeKey( object _key, Type _ )
+				=> (CanonicalAssetKey) _key;
 			public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : Object
 				=> (CanonicalAssetKey) _key;
 

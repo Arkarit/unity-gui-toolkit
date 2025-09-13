@@ -168,13 +168,13 @@ namespace GuiToolkit.AssetHandling
 				{
 					DragAndDrop.AcceptDrag();
 
-					if (!SafeValidateId(_provider, id, out var panelTypeName))
+					if (!SafeValidateId(_provider, id, out var typeName))
 					{
 						Warn($"Object not valid for provider '{_provider.Name}'.");
 					}
 					else
 					{
-						CommitEntry(_typeProp, _idProp, panelTypeName, id);
+						CommitEntry(_typeProp, _idProp, typeName, id);
 					}
 
 					Event.current.Use();
@@ -258,11 +258,13 @@ namespace GuiToolkit.AssetHandling
 				var handle = task.Result;
 				if (handle == null || !handle.IsLoaded || handle.Asset == null)
 					return false;
+
 				string matchedName;
 				var go = handle.Asset;
 				bool ok = MatchesConstraints(go, out matchedName);
 				_typeName = matchedName;
 				_provider.Release(handle);
+
 				if (!ok)
 				{
 					Warn("Prefab does not meet required component type constraints.");

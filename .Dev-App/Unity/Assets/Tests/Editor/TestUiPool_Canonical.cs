@@ -91,7 +91,9 @@ namespace GuiToolkit.Test
 				return false;
 			}
 
-			public CanonicalAssetKey NormalizeKey<T>(object _key) where T : UnityEngine.Object
+			public CanonicalAssetKey NormalizeKey<T>(object _key) where T : UnityEngine.Object =>
+				NormalizeKey(_key, typeof(T));
+			public CanonicalAssetKey NormalizeKey( object _key, Type _type)
 			{
 				if (_key is CanonicalAssetKey ck)
 				{
@@ -101,7 +103,7 @@ namespace GuiToolkit.Test
 				}
 
 				if (_key is string s)
-					return new CanonicalAssetKey(this, s.StartsWith("fake:", StringComparison.Ordinal) ? s : "fake:" + s, typeof(T));
+					return new CanonicalAssetKey(this, s.StartsWith("fake:", StringComparison.Ordinal) ? s : "fake:" + s, _type);
 
 				throw new InvalidOperationException("Unsupported key type for FakeProvider.");
 			}
