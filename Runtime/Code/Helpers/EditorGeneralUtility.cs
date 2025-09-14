@@ -285,7 +285,7 @@ namespace GuiToolkit
 		{
 			List<Mesh> meshesToDestroy = new();
 
-			var allFlaggedMeshes = Object.FindObjectsOfType<UnityEngine.Object>(true)
+			var allFlaggedMeshes = Object.FindObjectsOfType<Object>(true)
 				.Where(obj => obj is Mesh)
 				.Where(obj => !_hiddenOnly || (obj.hideFlags & (HideFlags.HideInHierarchy | HideFlags.HideInInspector)) != 0)
 				.ToList();

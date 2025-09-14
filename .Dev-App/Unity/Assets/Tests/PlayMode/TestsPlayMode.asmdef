@@ -1,0 +1,22 @@
+{
+    "name": "TestsPlayMode",
+    "rootNamespace": "",
+    "references": [
+        "de.phoenixgrafik.ui-toolkit",
+        "Unity.Addressables",
+        "UnityEngine.TestRunner",
+        "NewAssembly",
+        "Unity.ResourceManager"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

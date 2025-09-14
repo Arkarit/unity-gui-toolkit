@@ -1,5 +1,6 @@
 ﻿using GuiToolkit;
 using System;
+using GuiToolkit.AssetHandling;
 using GuiToolkit.Style;
 using TMPro;
 using UnityEngine;
@@ -14,6 +15,7 @@ public class TestDemoScene1 : UiView
 	public Button m_showSettings;
 	public Button m_exampleDialogStylesButton;
 	public Button m_showDatePickerButton;
+	public Button m_loadByAddressablesButton;
 
 	public TMP_InputField m_splashMessageInput;
 	public TMP_InputField m_requesterTitleInput;
@@ -35,6 +37,23 @@ public class TestDemoScene1 : UiView
 		m_showSettings.onClick.AddListener(OnShowSettings);
 		m_exampleDialogStylesButton.onClick.AddListener(OnExampleDialogStylesButton);
 		m_showDatePickerButton.onClick.AddListener(OnShowDatePickerButton);
+		m_loadByAddressablesButton.onClick.AddListener(OnLoadByAddressablesClicked);
+	}
+
+	private void OnLoadByAddressablesClicked()
+	{
+		AssetLoader.Instance.LoadAsync(new UiPanelLoadInfo()
+		{
+			PanelType = typeof(DemoDynamicLoaded),
+			InstantiationType = UiPanelLoadInfo.EInstantiationType.Pool,
+			OnSuccess = (UiPanel _) => Debug.Log("Success"),
+			OnFail = (UiPanelLoadInfo _loadInfo, Exception _ex) =>
+			{
+				Debug.LogError($"Fail: {_loadInfo.ToMultilineString()}");
+				if (_ex != null)
+					Debug.LogException(_ex);
+			}
+		});
 	}
 
 	private void OnShowDatePickerButton()

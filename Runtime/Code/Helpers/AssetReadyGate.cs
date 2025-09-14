@@ -16,7 +16,7 @@ namespace GuiToolkit
 	public static class AssetReadyGate
 	{
 		private static readonly HashSet<string> s_pathsDone = new();
-		
+
 		public static T RuntimeLoad<T>( string _name ) where T : ScriptableObject
 		{
 			ThrowIfNotPlaying(_name);
@@ -32,8 +32,18 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 		public static void Clear() => s_pathsDone.Clear();
-		
-		// Gate for specific ScriptableObject assets (type+path), e.g. to ensure importer finished.
+
+		private static bool AllAssetsDone( (Type type, string assetPath)[] _assets )
+		{
+			foreach (var asset in _assets)
+			{
+				if (!s_pathsDone.Contains(asset.assetPath))
+					return false;
+			}
+
+			return true;
+		}
+
 		public static void WhenReady(
 			Action _callback,
 			Func<bool> _conditionIfNotPlaying,
@@ -89,10 +99,10 @@ namespace GuiToolkit
 				{
 					if (string.IsNullOrEmpty(asset.assetPath))
 						continue;
-					
+
 					if (s_pathsDone.Contains(asset.assetPath))
 						continue;
-					
+
 					if (ImporterPending(asset.assetPath))
 						return false;
 
@@ -101,7 +111,7 @@ namespace GuiToolkit
 						if (ImporterPending(dep))
 							return false;
 					}
-					
+
 					s_pathsDone.Add(asset.assetPath);
 				}
 
@@ -132,26 +142,17 @@ namespace GuiToolkit
 			}
 		}
 
-		private static bool AllAssetsDone((Type type, string assetPath)[] _assets)
-		{
-			foreach (var asset in _assets)
-			{
-				if (!s_pathsDone.Contains(asset.assetPath))
-					return false;
-			}
-			
-			return true;
-		}
-
 		// Convenience overload: only paths (no type check needed).
 		public static void WhenReady( Action _callback, Func<bool> _conditionWhenNotRunning, params string[] _assetPaths )
 		{
 			var items = new (Type, string)[_assetPaths?.Length ?? 0];
 			for (int i = 0; i < items.Length; i++)
 				items[i] = (typeof(ScriptableObject), _assetPaths[i]);
-			
+
 			WhenReady(_callback, _conditionWhenNotRunning, items);
 		}
+
+		public static void WhenReady( Action _callback, params string[] _assetPaths ) => WhenReady(_callback, null, _assetPaths);
 
 		public static bool ImportBusy()
 			=> EditorApplication.isCompiling || EditorApplication.isUpdating;
@@ -199,11 +200,18 @@ namespace GuiToolkit
 			return AssetDatabase.LoadAssetAtPath<T>(_assetPath);
 		}
 
+		// Gate for specific ScriptableObject assets (type+path), e.g. to ensure importer finished.
+
+
 #else
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void Clear() {}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void WhenReady(Action _callback, Func<bool> _0, params string[] _1) => _callback.Invoke();
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void WhenReady( Action _callback, Func<bool> _0, (Type type, string assetPath)[] _1, int _2 = 0, int _3 = 0 ) => _callback.Invoke();
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void WhenReady( Action _callback, Func<bool> _0, params string[] _1 ) => _callback?.Invoke();
+		public static void WhenReady( Action _callback, params string[] _1 ) => _callback?.Invoke();
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Save<T>( T _0, string _1, string _2 ) where T : ScriptableObject {}
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -216,9 +224,10 @@ namespace GuiToolkit
 		public static void ThrowIfNotReady( string _ ) { }
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void ThrowIfNotPlaying( string _0, int _1 = 0 ) { }
+
 #endif
 	}
-	
+
 #if UNITY_EDITOR
 	[InitializeOnLoad]
 	static class AssetReadyGateReset
@@ -235,5 +244,5 @@ namespace GuiToolkit
 		}
 	}
 #endif
-	
+
 }

@@ -14,6 +14,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using UnityEditor.Compilation;
 using System.Linq;
+using GuiToolkit.Exceptions;
 
 #if UITK_USE_ROSLYN
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -29,25 +30,6 @@ using TextSnapshotList = System.Collections.Generic.List<(GuiToolkit.Editor.Edit
 
 namespace GuiToolkit.Editor
 {
-
-#if !UITK_USE_ROSLYN
-	/// <summary>
-	/// Exception thrown when Roslyn-based parsing or rewriting is not available
-	/// for the current Unity version or environment.
-	/// </summary>
-	public sealed class RoslynUnavailableException : NotSupportedException
-	{
-		/// <summary>
-		/// Creates a new instance that explains how to enable Roslyn support.
-		/// </summary>
-		public RoslynUnavailableException()
-			: base($"Roslyn-based parsing is not available in this Unity version.\n" +
-				   $"Install Roslyn via menu '{StringConstants.ROSLYN_INSTALL_HACK}' " +
-					"or run this on Unity 6+ where Roslyn in package is supported.")
-		{ }
-	}
-#endif
-
 	/// <summary>
 	/// Editor utilities for migrating UnityEngine.UI.Text to TextMeshProUGUI, including:
 	/// - collecting serialized references,

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using GuiToolkit.Style;
 using UnityEditor;
 using UnityEngine;
@@ -127,6 +128,10 @@ namespace GuiToolkit.Editor
 
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_globalCanvasScalerTemplate"));
+			
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_assetProviderFactories"));
+			
 
 			m_serializedSettingsObject.ApplyModifiedProperties();
 
@@ -206,7 +211,7 @@ namespace GuiToolkit.Editor
 				return false;
 
 			var path = AssetDatabase.GetAssetPath(currentStyleConfig);
-			return path.StartsWith(UiToolkitConfiguration.Instance.GetUiToolkitRootProjectDir());
+			return path.StartsWith(UiToolkitConfiguration.Instance.GetUiToolkitRootProjectDir(), StringComparison.Ordinal);
 		}
 
 

@@ -85,7 +85,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &3213295807259118825
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,6 +117,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_defaultSceneVisibility: 1
+  m_simpleShowHideAnimation: {fileID: 0}
   EvOnBeginShow:
     m_PersistentCalls:
       m_Calls: []
@@ -134,6 +135,8 @@ MonoBehaviour:
       m_Calls: []
   m_layer: 600
   m_isFullScreen: 0
+  m_hideOnOccludedByFullScreen: 1
+  m_hideOnOccludedByFullScreenInstant: 0
   m_useGlobalCanvasScalerTemplate: 1
   m_autoDestroyOnHide: 1
   m_poolable: 1

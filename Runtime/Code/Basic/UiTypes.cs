@@ -191,6 +191,7 @@ namespace GuiToolkit
 
 		public const string CONFIG_MANAGER_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Config Manager...";
 		public const string CHECK_EXTERNAL_REQUIRED = MISC_TOOLS_MENU_HEADER + "Check open scenes for [MandatoryExternal] attributes";
+		public const string UI_PANEL_CONFIG = MENU_HEADER + "Panel Config";
 	}
 
 	/// \brief Builtin icon definitions

@@ -7,41 +7,8 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	[InitializeOnLoad]
 	public static class EditorExtensions
 	{
-		// Temporary test code for verifying symlink resolver logic
-		// TODO: Move to unit test class later
-		static EditorExtensions()
-		{
-			Debug.Log(SymlinkResolver.DumpSymlinks());
-
-			string s1a = "Assets/External/unity-gui-toolkit-editor/Graphic/UiRoundedImageEditor.cs";
-			string t1a = SymlinkResolver.GetTarget(s1a);
-			string s2a = SymlinkResolver.GetSource(t1a);
-			Debug.Log($"{s1a} -> {t1a} target to source:({s2a})");
-
-			string s1b = "Assets/External/unity-gui-toolkit-editor/Graphic/";
-			string t1b = SymlinkResolver.GetTarget(s1b);
-			string s2b = SymlinkResolver.GetSource(t1b);
-			Debug.Log($"{s1b} -> {t1b} target to source:({s2b})");
-
-			string s1c = "Assets/External/unity-gui-toolkit-editor/Graphic";
-			string t1c = SymlinkResolver.GetTarget(s1c);
-			string s2c = SymlinkResolver.GetSource(t1c);
-			Debug.Log($"{s1c} -> {t1c} target to source:({s2c})");
-
-			string s1d = "Assets/External/unity-gui-toolkit-editor/";
-			string t1d = SymlinkResolver.GetTarget(s1d);
-			string s2d = SymlinkResolver.GetSource(t1d);
-			Debug.Log($"{s1d} -> {t1d} target to source:({s2d})");
-
-			string s1e = "Assets/External/unity-gui-toolkit-editor";
-			string t1e = SymlinkResolver.GetTarget(s1e);
-			string s2e = SymlinkResolver.GetSource(t1e);
-			Debug.Log($"{s1e} -> {t1e} target to source:({s2e})");
-		}
-
 		/// <summary>
 		/// Returns the visible children of a serialized property. Optionally hides the m_Script field.
 		/// </summary>
