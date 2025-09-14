@@ -12,12 +12,12 @@ namespace GuiToolkit.Test
 	public class TestAddressablesProvider
 	{
 		private const string kAddrKey = "GT_TestAddrPrefab"; // provide this Addressable in your project
-		private AddressablesProvider _provider;
+		private AddressablesAssetProvider _provider;
 
 		[UnitySetUp]
 		public IEnumerator Setup()
 		{
-			_provider = new AddressablesProvider();
+			_provider = new AddressablesAssetProvider();
 			// Quick existence check via locations
 			var locHandle = Addressables.LoadResourceLocationsAsync(kAddrKey);
 			yield return locHandle;

@@ -36,7 +36,7 @@ namespace GuiToolkit.Editor
 		{
 			static AddressablesProviderEditorBridgeBootstrap()
 			{
-				AddressablesProvider.s_editorBridge = new AddressablesProviderEditorBridge();
+				AddressablesAssetProvider.s_editorBridge = new AddressablesProviderEditorBridge();
 			}
 		}
 	}

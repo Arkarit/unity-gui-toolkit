@@ -116,7 +116,7 @@ namespace GuiToolkit.Test
 		public void NormalizeKey_WrongProvider_Throws()
 		{
 			// Only used to create a foreign AssetKey for mismatch testing
-			var otherProvider = new AddressablesProvider();
+			var otherProvider = new AddressablesAssetProvider();
 			var foreignKey = new CanonicalAssetKey(otherProvider, "addr:dummy", typeof(GameObject));
 
 			Assert.Throws<System.InvalidOperationException>(() =>
