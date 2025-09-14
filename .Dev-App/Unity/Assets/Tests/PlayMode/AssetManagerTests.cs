@@ -58,6 +58,7 @@ namespace GuiToolkit.Test
 
 			public string Name => "Fake Provider";
 			public string ResName => "fake";
+			public string Prefix => "fake:";
 			public IAssetProviderEditorBridge EditorBridge => null;
 
 			public bool IsInitialized => true;

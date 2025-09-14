@@ -148,6 +148,11 @@ public sealed class AddressablesAssetProvider : IAssetProvider
     /// <inheritdoc/>
     public string ResName => "Addressable";
 
+    /// <summary>
+    /// Prefix: 'addr:'
+    /// </summary>
+    public string Prefix => "addr:";
+
     /// <inheritdoc/>
     public IAssetProviderEditorBridge EditorBridge => s_editorBridge;
 
@@ -184,8 +189,8 @@ public sealed class AddressablesAssetProvider : IAssetProvider
         CheckInitialized();
         var assetKey = NormalizeKey<GameObject>(_key);
 
-        if (!assetKey.TryGetValue("addr:", out string addr))
-            throw new Exception($"AddressablesProvider.InstantiateAsync: Unsupported key '{assetKey.Id}' (expected 'addr:...').");
+        if (!assetKey.TryGetValue(Prefix, out string addr))
+            throw new Exception($"AddressablesProvider.InstantiateAsync: Unsupported key '{assetKey.Id}' (expected '{Prefix}...').");
 
         AsyncOperationHandle<GameObject> handle = default;
 
@@ -247,8 +252,8 @@ public sealed class AddressablesAssetProvider : IAssetProvider
 
         var assetKey = NormalizeKey<T>(_key);
 
-        if (!assetKey.TryGetValue("addr:", out string addr))
-            throw new Exception($"AddressablesProvider.LoadAssetAsync: Unsupported key '{assetKey.Id}' (expected 'addr:...').");
+        if (!assetKey.TryGetValue(Prefix, out string addr))
+            throw new Exception($"AddressablesProvider.LoadAssetAsync: Unsupported key '{assetKey.Id}' (expected '{Prefix}...').");
 
 #if UNITY_EDITOR
         // In the editor, synchronous completion is acceptable for dev workflows (e.g., D&D).
@@ -352,15 +357,15 @@ public sealed class AddressablesAssetProvider : IAssetProvider
         if (_key is AssetReference assetReference)
         {
             var runtimeKey = assetReference.RuntimeKey.ToString();
-            if (!runtimeKey.StartsWith("addr:", StringComparison.Ordinal))
-                runtimeKey = $"addr:{runtimeKey}";
+            if (!runtimeKey.StartsWith(Prefix, StringComparison.Ordinal))
+                runtimeKey = $"{Prefix}{runtimeKey}";
 
             return new CanonicalAssetKey(this, runtimeKey, _type);
         }
 
         if (_key is string s)
         {
-            var id = s.StartsWith("addr:", StringComparison.Ordinal) ? s : $"addr:{s}";
+            var id = s.StartsWith(Prefix, StringComparison.Ordinal) ? s : $"{Prefix}{s}";
             return new CanonicalAssetKey(this, id, _type);
         }
 
@@ -370,7 +375,7 @@ public sealed class AddressablesAssetProvider : IAssetProvider
                 return new CanonicalAssetKey(this, id, obj.GetType());
 #else
         if (_key is Object obj)
-            throw new InvalidOperationException("Object keys are not supported. Use an 'addr:' path instead.");
+            throw new InvalidOperationException($"Object keys are not supported. Use a '{Prefix}' path instead.");
 #endif
 
         return new CanonicalAssetKey(this, $"unknown:{_key}", _type);
@@ -388,7 +393,7 @@ public sealed class AddressablesAssetProvider : IAssetProvider
     {
         CheckInitialized();
 
-        if (_id.StartsWith("addr:", StringComparison.Ordinal))
+        if (_id.StartsWith(Prefix, StringComparison.Ordinal))
             return true;
 
         return Exists(_id);

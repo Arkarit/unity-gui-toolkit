@@ -82,6 +82,7 @@ namespace GuiToolkit.Test
 			public void Init() { }
 			public string Name => "Fake Provider";
 			public string ResName => "fake";
+			public string Prefix => "fake:";
 			public IAssetProviderEditorBridge EditorBridge => null;
 
 			public bool Supports( CanonicalAssetKey _key ) => ReferenceEquals(_key.Provider, this);

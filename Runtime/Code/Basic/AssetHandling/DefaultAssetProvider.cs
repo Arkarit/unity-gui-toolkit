@@ -113,6 +113,11 @@ namespace GuiToolkit.AssetHandling
         /// <inheritdoc/>
         public string ResName => "Resource";
 
+        /// <summary>
+        /// Prefix: "res:"
+        /// </summary>
+        public string Prefix => "res:";
+
         /// <inheritdoc/>
         public bool IsInitialized => true;
 
@@ -211,12 +216,12 @@ namespace GuiToolkit.AssetHandling
                     return new CanonicalAssetKey(this, id, obj.GetType());
 #else
             if (_key is Object obj)
-                throw new InvalidOperationException("Object keys are not supported. Use a 'res:' path instead.");
+                throw new InvalidOperationException($"Object keys are not supported. Use a '{Prefix}' path instead.");
 #endif
 
             if (_key is string pathStr)
                 return new CanonicalAssetKey(this,
-                    pathStr.StartsWith("res:", StringComparison.Ordinal) ? pathStr : $"res:{pathStr}",
+                    pathStr.StartsWith(Prefix, StringComparison.Ordinal) ? pathStr : $"{Prefix}{pathStr}",
                     _type);
 
             return new CanonicalAssetKey(this, $"unknown:{_key}", _type);
@@ -229,7 +234,7 @@ namespace GuiToolkit.AssetHandling
         public bool Supports(string _id)
         {
             if (string.IsNullOrEmpty(_id)) return false;
-            return _id.StartsWith("res:", StringComparison.Ordinal)
+            return _id.StartsWith(Prefix, StringComparison.Ordinal)
                    || !_id.Contains(":"); // fallback for unprefixed strings
         }
 
@@ -265,7 +270,7 @@ namespace GuiToolkit.AssetHandling
         {
             Object result = null;
 
-            if (_assetKey.TryGetValue("res:", out string resourcePath))
+            if (_assetKey.TryGetValue(Prefix, out string resourcePath))
             {
                 // Components cannot be loaded directly via Resources.
                 // We load a GameObject and (optionally) verify the required component type exists.

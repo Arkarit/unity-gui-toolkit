@@ -95,6 +95,11 @@ namespace GuiToolkit.AssetHandling
 		string ResName { get; }
 
 		/// <summary>
+		/// Loading Prefix ending with : , e.g. "res:"
+		/// </summary>
+		string Prefix { get; }
+
+		/// <summary>
 		/// Optional editor-only bridge for editor-specific functionality.
 		/// Can be null in runtime contexts.
 		/// </summary>
