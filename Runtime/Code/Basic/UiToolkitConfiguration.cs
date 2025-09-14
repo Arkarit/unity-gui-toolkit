@@ -132,7 +132,7 @@ namespace GuiToolkit
 		[SerializeField, Optional] private CanvasScaler m_globalCanvasScalerTemplate = null;
 		
 		[Tooltip(HELP_ASSET_PROVIDER_FACTORY)]
-		[SerializeField, Optional] private AbstractAssetProviderFactory[] m_assetProviderFactories = null;
+		[SerializeField, Optional] private AbstractAssetProviderFactory[] m_assetProviderFactories = new AbstractAssetProviderFactory[0];
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 		private string m_rootDir;
