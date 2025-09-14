@@ -20,8 +20,18 @@ namespace GuiToolkit.AssetHandling
 		/// <param name="_type"></param>
 		public CanonicalAssetKey( IAssetProvider _provider, string _id, Type _type )
 		{
-			Id = _id ?? string.Empty;
-			Provider = _provider ?? AssetManager.GetAssetProvider(Id);
+			var id = string.IsNullOrEmpty(_id) ? _type.Name : _id;
+			if (_provider != null)
+			{
+				Provider = _provider;
+				Id = id;
+			}
+			else
+			{
+				Provider = AssetManager.GetAssetProvider(id);
+				Id = Provider != null ? Provider.NormalizeKey(id, _type).Id : id;
+			}
+			
 			Type = _type;
 		}
 
@@ -32,11 +42,8 @@ namespace GuiToolkit.AssetHandling
 		/// <param name="_id"></param>
 		/// <param name="_type"></param>
 		public CanonicalAssetKey( IAssetProvider _provider, Type _type )
+			: this(_provider, null, _type)
 		{
-			var id = _type.Name;
-			Provider = _provider ?? AssetManager.GetAssetProvider(id);
-			Id = Provider != null ? Provider.NormalizeKey(id, _type).Id : id;
-			Type = _type;
 		}
 
 		public bool TryGetValue(string _type, out string _val )

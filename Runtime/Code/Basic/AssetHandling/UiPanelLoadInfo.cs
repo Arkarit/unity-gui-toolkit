@@ -1,4 +1,4 @@
-using GuiToolkit;
+using Codice.Client.BaseCommands.CheckIn;
 using System;
 using UnityEngine;
 
@@ -15,14 +15,17 @@ namespace GuiToolkit.AssetHandling
 			InstantiateAndKeep, // Kept in memory after close
 		}
 
-		public Type PanelType;
-		public int MaxInstances = 0; // maximum number of allowed instances for this panel. <= 0 means unlimited.
-		public EInstantiationType InstantiationType = EInstantiationType.Pool;
-		public Transform Parent = null;
-		public IInitPanelData InitPanelData = null;
-		public Action<UiPanel> OnSuccess = null;
-		public Action<UiPanelLoadInfo, Exception> OnFail = null;
-		public IAssetProvider AssetProvider = null;
+		// Note: The Attributes used here are solely for overview which parts are mandatory
+
+		[Mandatory] public Type PanelType;
+		[Optional] public string CanonicalId;
+		[Optional] public int MaxInstances = 0;
+		[Optional] public EInstantiationType InstantiationType = EInstantiationType.Pool;
+		[Optional] public Transform Parent = null;
+		[Optional] public IInitPanelData InitPanelData = null;
+		[Optional] public Action<UiPanel> OnSuccess = null;
+		[Optional] public Action<UiPanelLoadInfo, Exception> OnFail = null;
+		[Optional] public IAssetProvider AssetProvider = null;
 
 		public override string ToString()
 		{
@@ -32,6 +35,7 @@ namespace GuiToolkit.AssetHandling
 
 			return $"UiPanelLoadInfo(" +
 				   $"PanelType={PanelType?.Name ?? "<null>"}, " +
+				   $"CanonicalKey={CanonicalId ?? "<null>"}, " +
 				   $"InstantiationType={InstantiationType}, " +
 				   $"MaxInstances={(MaxInstances <= 0 ? "unlimited" : MaxInstances.ToString())}, " +
 				   $"Parent={parentPath}, " +
@@ -39,6 +43,15 @@ namespace GuiToolkit.AssetHandling
 				   $"OnSuccess={(OnSuccess != null ? "yes" : "no")}, " +
 				   $"OnFail={(OnFail != null ? "yes" : "no")}, " +
 				   $"AssetProvider={provider})";
+		}
+
+		public string ToMultilineString()
+		{
+			return 
+				ToString()
+				.Replace(",", ",\n", StringComparison.Ordinal)
+				.Replace("(", "(\n ", StringComparison.Ordinal)
+				.Replace(")", "\n)\n");
 		}
 
 	}

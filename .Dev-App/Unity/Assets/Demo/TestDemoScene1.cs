@@ -49,14 +49,7 @@ public class TestDemoScene1 : UiView
 			OnSuccess = (UiPanel _) => Debug.Log("Success"),
 			OnFail = (UiPanelLoadInfo _loadInfo, Exception _ex) =>
 			{
-				string s = 
-					_loadInfo
-					.ToString()
-					.Replace(",", ",\n", StringComparison.Ordinal)
-					.Replace("(", "(\n ", StringComparison.Ordinal)
-					.Replace(")","\n)\n");
-
-				Debug.LogError($"Fail: {s}");
+				Debug.LogError($"Fail: {_loadInfo.ToMultilineString()}");
 				if (_ex != null)
 					Debug.LogException(_ex);
 			}

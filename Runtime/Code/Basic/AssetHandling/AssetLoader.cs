@@ -60,7 +60,7 @@ namespace GuiToolkit.AssetHandling
 		{
 			try
 			{
-				var key = new CanonicalAssetKey(_loadInfo.AssetProvider, _loadInfo.PanelType);
+				var key = new CanonicalAssetKey(_loadInfo.AssetProvider, _loadInfo.CanonicalId, _loadInfo.PanelType);
 
 				var instHandle = await AssetManager.InstantiateAsync(key, _loadInfo.Parent);
 				var go = instHandle.Instance;
@@ -92,7 +92,7 @@ namespace GuiToolkit.AssetHandling
 		{
 			try
 			{
-				var key = new CanonicalAssetKey(_loadInfo.AssetProvider, _loadInfo.PanelType);
+				var key = new CanonicalAssetKey(_loadInfo.AssetProvider, _loadInfo.CanonicalId, _loadInfo.PanelType);
 
 				var go = await UiPool.Instance.GetAsync(key);
 				var panel = go != null ? go.GetComponent(_loadInfo.PanelType) as UiPanel : null;
