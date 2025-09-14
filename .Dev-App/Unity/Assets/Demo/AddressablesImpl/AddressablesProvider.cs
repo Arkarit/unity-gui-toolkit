@@ -3,11 +3,15 @@ using GuiToolkit.AssetHandling;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
+using GuiToolkit.Exceptions;
+using NUnit.Framework.Internal.Filters;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Object = UnityEngine.Object;
 using Addressables = UnityEngine.AddressableAssets.Addressables;
 using AssetReference = UnityEngine.AddressableAssets.AssetReference;
+using System.Runtime.CompilerServices;
+using GuiToolkit.Debugging;
 
 public sealed class AddressableInstanceHandle : IInstanceHandle
 {
@@ -74,11 +78,8 @@ public sealed class AddressablesProvider : IAssetProvider
 {
 	private static Task s_initTask;
 
-	public AddressablesProvider( bool strictInit = true )
-	{
-		if (s_initTask == null || s_initTask.IsFaulted || s_initTask.IsCanceled)
-			s_initTask = Addressables.InitializeAsync().Task;
-	}
+	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+	private static void InitializeOnLoad() => s_initTask = null;
 
 	public static IAssetProviderEditorBridge s_editorBridge;
 	public string Name => "Addressables Asset Provider";
@@ -103,6 +104,7 @@ public sealed class AddressablesProvider : IAssetProvider
 		CancellationToken _cancellationToken = default
 	)
 	{
+		CheckInitialized();
 		var assetKey = NormalizeKey<GameObject>(_key);
 
 		if (!assetKey.TryGetValue("addr:", out string addr))
@@ -155,6 +157,8 @@ public sealed class AddressablesProvider : IAssetProvider
 		CancellationToken _cancellationToken = default
 	) where T : Object
 	{
+		CheckInitialized();
+
 		var assetKey = NormalizeKey<T>(_key);
 
 		if (!assetKey.TryGetValue("addr:", out string addr))
@@ -224,9 +228,16 @@ public sealed class AddressablesProvider : IAssetProvider
 		// optional trimming
 	}
 
-	public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : Object => NormalizeKey(_key, typeof(T));
+	public CanonicalAssetKey NormalizeKey<T>( object _key ) where T : Object
+	{
+		CheckInitialized();
+		return NormalizeKey(_key, typeof(T));
+	}
+
 	public CanonicalAssetKey NormalizeKey( object _key, Type _type )
 	{
+		CheckInitialized();
+
 		if (_key is CanonicalAssetKey assetKey)
 		{
 			if (!ReferenceEquals(assetKey.Provider, this))
@@ -265,9 +276,16 @@ public sealed class AddressablesProvider : IAssetProvider
 		return new CanonicalAssetKey(this, $"unknown:{_key}", _type);
 	}
 
-	public bool Supports( CanonicalAssetKey _key ) => _key.Provider == this;
+	public bool Supports( CanonicalAssetKey _key )
+	{
+		CheckInitialized();
+		return _key.Provider == this;
+	}
+
 	public bool Supports( string _id )
 	{
+		CheckInitialized();
+
 		if (_id.StartsWith("addr:", StringComparison.Ordinal))
 			return true;
 
@@ -282,6 +300,7 @@ public sealed class AddressablesProvider : IAssetProvider
 		if (_obj is string id)
 			return Supports(id);
 
+		CheckInitialized();
 		if (_obj is AssetReference)
 			return true;
 
@@ -302,6 +321,17 @@ public sealed class AddressablesProvider : IAssetProvider
 				return true;
 
 		return false;
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	private void CheckInitialized()
+	{
+		if (!IsInitialized)
+		{
+			var caller = DebugUtility.GetCallingClassAndMethod(false, true, 1);
+			throw new NotInitializedException(typeof(AddressablesProvider),
+				$"Please ensure Addressables to be initialized before using {caller}()");
+		}
 	}
 
 }

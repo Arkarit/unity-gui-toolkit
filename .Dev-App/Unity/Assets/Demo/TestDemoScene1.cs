@@ -45,7 +45,7 @@ public class TestDemoScene1 : UiView
 		AssetLoader.Instance.LoadAsync(new UiPanelLoadInfo()
 		{
 			PanelType = typeof(DemoDynamicLoaded),
-			InstantiationType = UiPanelLoadInfo.EInstantiationType.Instantiate,
+			InstantiationType = UiPanelLoadInfo.EInstantiationType.Pool,
 			OnSuccess = (UiPanel _) => Debug.Log("Success"),
 			OnFail = (UiPanelLoadInfo _loadInfo, Exception _ex) =>
 			{

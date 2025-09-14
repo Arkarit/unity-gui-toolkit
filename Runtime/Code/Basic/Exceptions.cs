@@ -11,6 +11,9 @@ namespace GuiToolkit.Exceptions
 		public NotInitializedException(Type _type)
 			: base($"A class instance of type '{_type.Name}' is not yet initialized. Please ensure call order")
 		{ }
+		public NotInitializedException(Type _type, string _msg)
+			: base($"A class instance of type '{_type.Name}' is not yet initialized. Please ensure call order.\n{_msg}")
+		{ }
 	}
 
 	public sealed class AssetLoadFailedException : InvalidOperationException
