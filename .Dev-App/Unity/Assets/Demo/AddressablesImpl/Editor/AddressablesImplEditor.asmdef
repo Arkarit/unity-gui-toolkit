@@ -1,5 +1,5 @@
 {
-    "name": "DemoEditor",
+    "name": "AddressablesImplEditor",
     "rootNamespace": "",
     "references": [
         "GUID:a328087c30e63b24185dc6826834468b",
