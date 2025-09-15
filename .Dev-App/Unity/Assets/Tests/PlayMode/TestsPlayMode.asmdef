@@ -5,7 +5,7 @@
         "de.phoenixgrafik.ui-toolkit",
         "Unity.Addressables",
         "UnityEngine.TestRunner",
-        "NewAssembly",
+        "AddressablesImpl",
         "Unity.ResourceManager"
     ],
     "includePlatforms": [],
