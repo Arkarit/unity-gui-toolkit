@@ -26,12 +26,26 @@ namespace GuiToolkit.AssetHandling
 			var idProp = _property.FindPropertyRelative("Id");
 
 			EditorGUI.BeginProperty(_position, _label, _property);
-
 			EnsureConstraints();
 
-			// Title row: shows current logical type
+
+			// Header row: bold label + gray type info on the same line
 			var row = new Rect(_position.x, _position.y, _position.width, kLine);
-			EditorGUI.LabelField(row, new GUIContent(string.IsNullOrEmpty(typeProp.stringValue) ? "<Type not set>" : typeProp.stringValue));
+
+			// split the header row in two parts
+			float labelWidth = EditorGUIUtility.labelWidth;
+			var labelRect = new Rect(row.x, row.y, labelWidth, kLine);
+			var typeRect = new Rect(labelRect.xMax + 4f, row.y, _position.width - labelWidth - 4f, kLine);
+
+			EditorGUI.LabelField(labelRect, _label, EditorStyles.boldLabel);
+
+			string typeNameToShow = GetDisplayTypeName(typeProp);
+			if (!string.IsNullOrEmpty(typeNameToShow))
+			{
+				var typeContent = EditorGUIUtility.TrTextContent($"{typeNameToShow}", "Logical type saved on this reference");
+				EditorGUI.LabelField(typeRect, typeContent, EditorStyles.miniLabel);
+			}
+
 			row.y += kLine + kPadY;
 
 			if (m_assetProviders == null)
@@ -46,13 +60,11 @@ namespace GuiToolkit.AssetHandling
 				}
 			}
 
-			// Draw one input per provider
 			foreach (var provider in m_assetProviders)
 			{
 				DrawProviderRow(ref row, _position, provider, typeProp, idProp);
 			}
 
-			// Optional warning below
 			if (!string.IsNullOrEmpty(m_lastWarning) && EditorApplication.timeSinceStartup < m_warningUntil)
 			{
 				DrawWarning(ref row, _position, m_lastWarning);
@@ -73,7 +85,6 @@ namespace GuiToolkit.AssetHandling
 				lines += 1;
 			}
 
-			// extra line for warning when active
 			if (!string.IsNullOrEmpty(m_lastWarning) && EditorApplication.timeSinceStartup < m_warningUntil)
 				lines += 2;
 
@@ -89,8 +100,7 @@ namespace GuiToolkit.AssetHandling
 			SerializedProperty _idProp
 		)
 		{
-			// Label (provider name + ResName)
-			float labelWidth = Mathf.Min(160f, _bounds.width * 0.35f);
+			float labelWidth = EditorGUIUtility.labelWidth;
 			var left = new Rect(_row.x, _row.y, labelWidth, kLine);
 			var right = new Rect(_row.x + labelWidth + 4f, _row.y, _bounds.width - labelWidth - 4f, kLine);
 
@@ -101,7 +111,6 @@ namespace GuiToolkit.AssetHandling
 
 			EditorGUI.LabelField(left, providerResName);
 
-			// Prefill with current id only if it belongs to this provider
 			string currentId = _idProp.stringValue;
 			string shownId = BelongsToProvider(_provider, currentId) ? currentId : string.Empty;
 
@@ -109,10 +118,8 @@ namespace GuiToolkit.AssetHandling
 			shownId = EditorGUI.TextField(right, shownId);
 			bool textChanged = EditorGUI.EndChangeCheck();
 
-			// Drag and drop over the text field
 			HandleDragAndDrop(right, _provider, _typeProp, _idProp);
 
-			// When the user edited this provider's field, commit and validate
 			if (textChanged && !string.IsNullOrEmpty(shownId))
 			{
 				if (!SafeValidateId(_provider, shownId, out var panelTypeName))
@@ -231,7 +238,8 @@ namespace GuiToolkit.AssetHandling
 
 			try
 			{
-				var key = _provider.NormalizeKey<GameObject>(_object);
+				// Use the object's real type, not GameObject
+				var key = _provider.NormalizeKey(_object, _object.GetType());
 				_id = key.Id;
 				return true;
 			}
@@ -248,26 +256,29 @@ namespace GuiToolkit.AssetHandling
 
 			try
 			{
-				// Build an AssetKey and resolve through provider
-				var key = new CanonicalAssetKey(_provider, _id, typeof(GameObject));
+				var loadType = GetExpectedLoadType();
 
-				// Synchronously load in editor context
-				var task = _provider.LoadAssetAsync<GameObject>(key, CancellationToken.None);
+				// Build canonical key with the chosen type
+				var key = new CanonicalAssetKey(_provider, _id, loadType);
+
+				// Editor-only: blocking validate is ok here
+				var task = _provider.LoadAssetAsync<Object>(key, CancellationToken.None);
 				task.Wait();
-
 				var handle = task.Result;
 				if (handle == null || !handle.IsLoaded || handle.Asset == null)
 					return false;
 
-				string matchedName;
-				var go = handle.Asset;
-				bool ok = MatchesConstraints(go, out matchedName);
+				var obj = handle.Asset;
+
+				// Validate against constraints (GameObject OR plain asset)
+				bool ok = MatchesConstraints(obj, out var matchedName);
 				_typeName = matchedName;
+
 				_provider.Release(handle);
 
 				if (!ok)
 				{
-					Warn("Prefab does not meet required component type constraints.");
+					Warn("Asset does not meet required component/type constraints.");
 					return false;
 				}
 
@@ -278,6 +289,21 @@ namespace GuiToolkit.AssetHandling
 				Warn(ex.Message);
 				return false;
 			}
+		}
+
+		// Pick expected load type from constraints; fall back to Object
+		private Type GetExpectedLoadType()
+		{
+			// prefer a single explicit required type
+			if (m_requiredTypes != null && m_requiredTypes.Length == 1 && m_requiredTypes[0] != null)
+				return m_requiredTypes[0];
+
+			// or a single base class
+			if (m_requiredBaseClasses != null && m_requiredBaseClasses.Length == 1 && m_requiredBaseClasses[0] != null)
+				return m_requiredBaseClasses[0];
+
+			// unknown -> load as Object, then validate post-load
+			return typeof(Object);
 		}
 
 		// constraints (from [CanonicalAssetRef] on field)
@@ -330,7 +356,7 @@ namespace GuiToolkit.AssetHandling
 						if (rt == null) continue;
 						if (rt.IsAssignableFrom(t))
 						{
-							_matchedTypeName = t.Name;
+							_matchedTypeName = t.AssemblyQualifiedName;
 							return true;
 						}
 					}
@@ -343,7 +369,7 @@ namespace GuiToolkit.AssetHandling
 						if (rb == null) continue;
 						if (rb.IsAssignableFrom(t))
 						{
-							_matchedTypeName = t.Name;
+							_matchedTypeName = t.AssemblyQualifiedName;
 							return true;
 						}
 					}
@@ -351,6 +377,67 @@ namespace GuiToolkit.AssetHandling
 			}
 
 			return false;
+		}
+
+		// Overload for generic Object
+		private bool MatchesConstraints( Object _obj, out string _matchedTypeName )
+		{
+			_matchedTypeName = _obj ? _obj.GetType().AssemblyQualifiedName : nameof(Object);
+
+			bool hasType = m_requiredTypes != null && m_requiredTypes.Length > 0;
+			bool hasBase = m_requiredBaseClasses != null && m_requiredBaseClasses.Length > 0;
+			if (!hasType && !hasBase)
+				return true;
+
+			if (!_obj)
+				return false;
+
+			// If it's a GameObject, check its components too
+			if (_obj is GameObject go)
+				return MatchesConstraints(go, out _matchedTypeName);
+
+			var t = _obj.GetType();
+
+			if (hasType)
+				foreach (var rt in m_requiredTypes)
+					if (rt != null && rt.IsAssignableFrom(t))
+						return true;
+
+			if (hasBase)
+				foreach (var rb in m_requiredBaseClasses)
+					if (rb != null && rb.IsAssignableFrom(t))
+						return true;
+
+			return false;
+		}
+
+		private string GetDisplayTypeName( SerializedProperty _typeProp )
+		{
+			// primary: value stored on the serialized property
+			var s = _typeProp != null ? _typeProp.stringValue : null;
+			if (!string.IsNullOrEmpty(s))
+			{
+				var type = Type.GetType(s);
+				if (type == null)
+					return "<Invalid Type>";
+				
+				return type.FullName;
+			}
+
+			// fallback: show constraints summary when nothing stored yet
+			bool hasTypes = m_requiredTypes != null && m_requiredTypes.Length > 0;
+			bool hasBases = m_requiredBaseClasses != null && m_requiredBaseClasses.Length > 0;
+
+			if (hasTypes && m_requiredTypes.Length == 1 && m_requiredTypes[0] != null)
+				return m_requiredTypes[0].FullName;
+
+			if (hasBases && m_requiredBaseClasses.Length == 1 && m_requiredBaseClasses[0] != null)
+				return m_requiredBaseClasses[0].FullName;
+
+			if (hasTypes || hasBases)
+				return "<Constrained>";
+
+			return "<Type not set>";
 		}
 
 	}

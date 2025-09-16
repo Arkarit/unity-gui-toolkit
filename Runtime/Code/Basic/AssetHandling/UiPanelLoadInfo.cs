@@ -117,5 +117,21 @@ namespace GuiToolkit.AssetHandling
 				.Replace("(", "(\n ", StringComparison.Ordinal)
 				.Replace(")", "\n)\n");
 		}
+		
+		public UiPanelLoadInfo() {}
+		
+		public UiPanelLoadInfo(CanonicalAssetKey _key)
+		{
+			PanelType = _key.Type;
+			CanonicalId = _key.Id;
+			AssetProvider = _key.Provider;
+		}
+		
+		public UiPanelLoadInfo(CanonicalAssetRef _ref)
+		{
+//			PanelType = _ref.Type;
+			CanonicalId = _ref.Id;
+		}
+		
 	}
 }

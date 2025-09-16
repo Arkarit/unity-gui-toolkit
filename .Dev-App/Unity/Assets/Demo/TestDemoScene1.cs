@@ -9,6 +9,7 @@ using UnityEngine.UI;
 
 public class TestDemoScene1 : UiView
 {
+	public CanonicalAssetRef m_testRef;
 	public Button m_closeButton;
 	public Button m_showSplashMessageButton;
 	public Button m_showRequesterButton;
