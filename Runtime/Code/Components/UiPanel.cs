@@ -160,7 +160,14 @@ namespace GuiToolkit
 
 		#region Asset Loading
 
+		[Tooltip(
+			"If enabled, this panel automatically loads its declared resources during Awake(). " +
+			"Use only for panels with static resources. " +
+			"Do NOT enable for dialogs or panels that compute resources dynamically at runtime."
+		)]
 		[SerializeField] bool m_autoLoadResources;
+		
+		private readonly List<CanonicalAssetKey> m_resources = new();
 
 		// All loaded handles for this element (lifecycle-bound to this panel)
 		private readonly List<IAssetHandle<Object>> m_handles = new();
@@ -175,13 +182,13 @@ namespace GuiToolkit
 		protected List<Object> LoadedAssets => m_loadedAssets;
 
 		// Subclass defines which assets it needs (ids + expected type)
-		protected virtual CanonicalAssetKey[] Resources => null;
+		protected virtual List<CanonicalAssetKey> Resources => m_resources;
 
 		// Called after all assets are loaded successfully (and not cancelled)
 		protected virtual void OnAssetsLoaded() { }
 		protected virtual void OnAssetLoadFailed( Exception _ex ) { }
 
-		public bool NeedsResources => Resources != null && Resources.Length > 0;
+		public bool NeedsResources => Resources != null && Resources.Count > 0;
 
 		/// <summary>
 		/// Starts async loading of all declared 'resources'.
@@ -210,16 +217,20 @@ namespace GuiToolkit
 			var list = Resources;
 
 			m_cts = new CancellationTokenSource();
-			var _ = LoadAllAsync(list, m_cts.Token);
+			var _ = LoadAllResourcesAsync(list, m_cts.Token);
 		}
 
+		protected void AddResource(CanonicalAssetKey _key) => Resources.Add(_key);
+		protected void RemoveResource(CanonicalAssetKey _key) => Resources.Remove(_key);
+		protected void ClearResources() => Resources.Clear();
+		
 		protected T GetAsset<T>( int _index ) where T : Object
 		{
 			if (_index < 0 || _index >= m_loadedAssets.Count)
 				throw new IndexOutOfRangeException($"Asset index {_index} out of range (count {m_loadedAssets.Count}).");
 
 			var obj = m_loadedAssets[_index];
-			if (obj is T t) 
+			if (obj is T t)
 				return t;
 
 			throw new InvalidCastException($"Loaded asset at index {_index} is {obj?.GetType().Name ?? "<null>"}, not {typeof(T).Name}.");
@@ -228,20 +239,20 @@ namespace GuiToolkit
 		protected bool TryGetAsset<T>( int _index, out T _asset ) where T : Object
 		{
 			_asset = null;
-			if (_index < 0 || _index >= m_loadedAssets.Count) 
+			if (_index < 0 || _index >= m_loadedAssets.Count)
 				return false;
-			
+
 			_asset = m_loadedAssets[_index] as T;
 			return _asset != null;
 		}
-		
-		private async Task LoadAllAsync( CanonicalAssetKey[] keys, CancellationToken ct )
+
+		private async Task LoadAllResourcesAsync( List<CanonicalAssetKey> keys, CancellationToken ct )
 		{
 			try
 			{
 				m_loadedAssets.Clear();
 
-				for (int i = 0; i < keys.Length; i++)
+				for (int i = 0; i < keys.Count; i++)
 				{
 					ct.ThrowIfCancellationRequested();
 
