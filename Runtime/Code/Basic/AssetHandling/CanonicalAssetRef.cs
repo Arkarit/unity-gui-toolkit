@@ -9,6 +9,12 @@ namespace GuiToolkit.AssetHandling
 		public string Type;
 		public string Id;
 		
-		public Type GetType() => System.Type.GetType(Type);
+		public Type GetContentType()
+		{
+			if (string.IsNullOrEmpty(Type))
+				return null;
+			
+			return System.Type.GetType(Type);
+		}
 	}
 }
