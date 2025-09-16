@@ -1,10 +1,13 @@
-﻿using System;
+﻿using GuiToolkit.AssetHandling;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using GuiToolkit.AssetHandling;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 namespace GuiToolkit
 {
@@ -155,6 +158,119 @@ namespace GuiToolkit
 		private static readonly Dictionary<Type, HashSet<UiPanel>> s_openPanels = new();
 		private IInstanceHandle m_handle;
 
+		#region Asset Loading
+
+		[SerializeField] bool m_autoLoadResources;
+
+		// All loaded handles for this element (lifecycle-bound to this panel)
+		private readonly List<IAssetHandle<Object>> m_handles = new();
+
+		// Convenience list of resolved assets - same order as 'resources'
+		private readonly List<Object> m_loadedAssets = new();
+
+		// Cancel loads when re-init/destroy
+		private CancellationTokenSource m_cts;
+
+		// Exposed read-only access for subclasses
+		protected List<Object> LoadedAssets => m_loadedAssets;
+
+
+		// Subclass defines which assets it needs (ids + expected type)
+		protected virtual CanonicalAssetKey[] resources => null;
+
+		// Called after all assets are loaded successfully (and not cancelled)
+		protected virtual void OnAssetsLoaded() { }
+		protected virtual void OnAssetLoadFailed( Exception _ex ) { }
+
+		public bool NeedsResources => resources != null && resources.Length > 0;
+
+		/// <summary>
+		/// Starts async loading of all declared 'resources'.
+		/// Returns true if the load was started (or no resources), false if cancelled immediately.
+		/// Completion signal: OnAssetsLoaded() will be invoked when everything is ready.
+		/// </summary>
+		public bool LoadResources()
+		{
+			// cancel any previous run
+			if (m_cts != null)
+			{
+				m_cts.Cancel();
+				m_cts.Dispose();
+				m_cts = null;
+			}
+
+			// cleanup previous assets/handles
+			ReleaseAllResourceHandles();
+
+			if (!NeedsResources)
+			{
+				OnAssetsLoaded();
+				return true;
+			}
+
+			var list = resources;
+
+			m_cts = new CancellationTokenSource();
+			var _ = LoadAllAsync(list, m_cts.Token);
+			return true;
+		}
+
+		private async Task LoadAllAsync( CanonicalAssetKey[] keys, CancellationToken ct )
+		{
+			try
+			{
+				m_loadedAssets.Clear();
+
+				for (int i = 0; i < keys.Length; i++)
+				{
+					ct.ThrowIfCancellationRequested();
+
+					var key = keys[i];
+
+					// Let provider logic decide (addr:/res:/etc). We request Object handle:
+					// - For CanonicalAssetKey, providers ignore generic T for normalization and honor key.Type.
+					var provider = AssetManager.GetAssetProviderOrThrow(key);
+					var handle = await provider.LoadAssetAsync<Object>(key, ct);
+
+					// track handle for release
+					m_handles.Add(handle);
+
+					// cache the loaded asset (order matches 'resources')
+					m_loadedAssets.Add(handle.Asset);
+				}
+
+				ct.ThrowIfCancellationRequested();
+
+				// everything loaded
+				OnAssetsLoaded();
+			}
+			catch (OperationCanceledException)
+			{
+				// normal on re-init/destroy; swallow
+			}
+			catch (Exception ex)
+			{
+				OnAssetLoadFailed(ex);
+				Debug.LogError($"[{GetType().Name}] Failed to load resources: {ex.Message}");
+			}
+		}
+
+		private void ReleaseAllResourceHandles()
+		{
+			if (m_handles.Count > 0)
+			{
+				for (int i = m_handles.Count - 1; i >= 0; i--)
+					try { m_handles[i]?.Release(); } catch { /* swallow */ }
+
+				m_handles.Clear();
+			}
+
+			m_loadedAssets.Clear();
+		}
+
+		#endregion
+
+
 		public static int GetNumOpenDialogs( Type _type )
 		{
 			if (!s_openPanels.TryGetValue(_type, out HashSet<UiPanel> openDialogs))
@@ -192,6 +308,8 @@ namespace GuiToolkit
 		{
 			base.Awake();
 			InitAnimationIfNecessary();
+			if (m_autoLoadResources)
+				LoadResources();
 		}
 
 		protected override void OnEnable()
@@ -451,12 +569,21 @@ namespace GuiToolkit
 		/// </summary>
 		protected override void OnDestroy()
 		{
+			if (m_cts != null)
+			{
+				m_cts.Cancel();
+				m_cts.Dispose();
+				m_cts = null;
+			}
+			
+			ReleaseAllResourceHandles();
+
 			if (m_handle != null)
 			{
 				m_handle.Release();
 				m_handle = null;
 			}
-			
+
 			EvOnDestroyed.Invoke(this);
 			base.OnDestroy();
 		}
