@@ -14,7 +14,7 @@ namespace GuiToolkit
 	/// <summary>
 	/// Interface for initializing a panel.
 	/// </summary>
-	public class IInitPanelData { }
+	public interface IInitPanelData { }
 
 	/// <summary>
 	/// Interface for simple show/hide panel animations.
@@ -174,22 +174,21 @@ namespace GuiToolkit
 		// Exposed read-only access for subclasses
 		protected List<Object> LoadedAssets => m_loadedAssets;
 
-
 		// Subclass defines which assets it needs (ids + expected type)
-		protected virtual CanonicalAssetKey[] resources => null;
+		protected virtual CanonicalAssetKey[] Resources => null;
 
 		// Called after all assets are loaded successfully (and not cancelled)
 		protected virtual void OnAssetsLoaded() { }
 		protected virtual void OnAssetLoadFailed( Exception _ex ) { }
 
-		public bool NeedsResources => resources != null && resources.Length > 0;
+		public bool NeedsResources => Resources != null && Resources.Length > 0;
 
 		/// <summary>
 		/// Starts async loading of all declared 'resources'.
 		/// Returns true if the load was started (or no resources), false if cancelled immediately.
 		/// Completion signal: OnAssetsLoaded() will be invoked when everything is ready.
 		/// </summary>
-		public bool LoadResources()
+		public void LoadResources()
 		{
 			// cancel any previous run
 			if (m_cts != null)
@@ -205,16 +204,37 @@ namespace GuiToolkit
 			if (!NeedsResources)
 			{
 				OnAssetsLoaded();
-				return true;
+				return;
 			}
 
-			var list = resources;
+			var list = Resources;
 
 			m_cts = new CancellationTokenSource();
 			var _ = LoadAllAsync(list, m_cts.Token);
-			return true;
 		}
 
+		protected T GetAsset<T>( int _index ) where T : Object
+		{
+			if (_index < 0 || _index >= m_loadedAssets.Count)
+				throw new IndexOutOfRangeException($"Asset index {_index} out of range (count {m_loadedAssets.Count}).");
+
+			var obj = m_loadedAssets[_index];
+			if (obj is T t) 
+				return t;
+
+			throw new InvalidCastException($"Loaded asset at index {_index} is {obj?.GetType().Name ?? "<null>"}, not {typeof(T).Name}.");
+		}
+
+		protected bool TryGetAsset<T>( int _index, out T _asset ) where T : Object
+		{
+			_asset = null;
+			if (_index < 0 || _index >= m_loadedAssets.Count) 
+				return false;
+			
+			_asset = m_loadedAssets[_index] as T;
+			return _asset != null;
+		}
+		
 		private async Task LoadAllAsync( CanonicalAssetKey[] keys, CancellationToken ct )
 		{
 			try
@@ -504,16 +524,27 @@ namespace GuiToolkit
 		/// </summary>
 		private void PlayShowHideAnimation( bool _show, Action _onFinish )
 		{
+			var anim = SimpleShowHideAnimation;
+			if (anim == null)
+			{
+				if (_show)
+					Show(true, _onFinish);
+				else
+					Hide(true, _onFinish);
+
+				return;
+			}
+
 			m_onShowHideFinishAction = _onFinish;
 
 			// Ensure previous once-callback is cleared before wiring a new one.
-			SimpleShowHideAnimation.OnFinishOnce.RemoveListener(HideViewCallback);
-			SimpleShowHideAnimation.OnFinishOnce.RemoveListener(ShowViewCallback);
+			anim.OnFinishOnce.RemoveListener(HideViewCallback);
+			anim.OnFinishOnce.RemoveListener(ShowViewCallback);
 
 			if (_show)
-				SimpleShowHideAnimation.ShowViewAnimation(ShowViewCallback);
+				anim.ShowViewAnimation(ShowViewCallback);
 			else
-				SimpleShowHideAnimation.HideViewAnimation(HideViewCallback);
+				anim.HideViewAnimation(HideViewCallback);
 		}
 
 		/// <summary>
@@ -575,7 +606,7 @@ namespace GuiToolkit
 				m_cts.Dispose();
 				m_cts = null;
 			}
-			
+
 			ReleaseAllResourceHandles();
 
 			if (m_handle != null)
@@ -585,6 +616,7 @@ namespace GuiToolkit
 			}
 
 			EvOnDestroyed.Invoke(this);
+			RemovePanelFromOpen();
 			base.OnDestroy();
 		}
 
