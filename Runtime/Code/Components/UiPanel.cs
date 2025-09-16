@@ -325,7 +325,7 @@ namespace GuiToolkit
 			catch (Exception ex)
 			{
 				OnAssetLoadFailed(ex);
-				Debug.LogError($"[{GetType().Name}] Failed to load resources: {ex.Message}");
+				Debug.LogError($"[{GetType().Name}] Failed to load resources\n{ex}");
 			}
 		}
 
