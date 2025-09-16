@@ -15,6 +15,49 @@ namespace GuiToolkit
 	/// Interface for initializing a panel.
 	/// </summary>
 	public interface IInitPanelData { }
+	
+	/// <summary>
+	/// Convenience implementations for IInitPanelData 
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public class InitPanelData<T> : IInitPanelData
+	{
+		public T Data;
+		public InitPanelData(T _data)
+		{
+			Data = _data;
+		}
+	}
+	
+	/// <summary>
+	/// Convenience implementations for IInitPanelData 
+	/// </summary>
+	public class InitPanelData<TA,TB> : IInitPanelData
+	{
+		public TA Data0;
+		public TB Data1;
+		public InitPanelData(TA _data0, TB _data1)
+		{
+			Data0 = _data0;
+			Data1 = _data1;
+		}
+	}
+	
+	/// <summary>
+	/// Convenience implementations for IInitPanelData 
+	/// </summary>
+	public class InitPanelData<TA,TB,TC> : IInitPanelData
+	{
+		public TA Data0;
+		public TB Data1;
+		public TC Data2;
+		public InitPanelData(TA _data0, TB _data1, TC _data2)
+		{
+			Data0 = _data0;
+			Data1 = _data1;
+			Data2 = _data2;
+		}
+	}
 
 	/// <summary>
 	/// Interface for simple show/hide panel animations.
