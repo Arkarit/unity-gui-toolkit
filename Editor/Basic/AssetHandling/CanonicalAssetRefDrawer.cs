@@ -28,9 +28,24 @@ namespace GuiToolkit.AssetHandling
 			EditorGUI.BeginProperty(_position, _label, _property);
 			EnsureConstraints();
 
-			// Header row: show label in bold
+
+			// Header row: bold label + gray type info on the same line
 			var row = new Rect(_position.x, _position.y, _position.width, kLine);
-			EditorGUI.LabelField(row, _label, EditorStyles.boldLabel);
+
+			// split the header row in two parts
+			float labelWidth = EditorGUIUtility.labelWidth;
+			var labelRect = new Rect(row.x, row.y, labelWidth, kLine);
+			var typeRect = new Rect(labelRect.xMax + 4f, row.y, _position.width - labelWidth - 4f, kLine);
+
+			EditorGUI.LabelField(labelRect, _label, EditorStyles.boldLabel);
+
+			string typeNameToShow = GetDisplayTypeName(typeProp);
+			if (!string.IsNullOrEmpty(typeNameToShow))
+			{
+				var typeContent = EditorGUIUtility.TrTextContent($"{typeNameToShow}", "Logical type saved on this reference");
+				EditorGUI.LabelField(typeRect, typeContent, EditorStyles.miniLabel);
+			}
+
 			row.y += kLine + kPadY;
 
 			if (m_assetProviders == null)
@@ -85,7 +100,7 @@ namespace GuiToolkit.AssetHandling
 			SerializedProperty _idProp
 		)
 		{
-			float labelWidth = Mathf.Min(160f, _bounds.width * 0.35f);
+			float labelWidth = EditorGUIUtility.labelWidth;
 			var left = new Rect(_row.x, _row.y, labelWidth, kLine);
 			var right = new Rect(_row.x + labelWidth + 4f, _row.y, _bounds.width - labelWidth - 4f, kLine);
 
@@ -341,7 +356,7 @@ namespace GuiToolkit.AssetHandling
 						if (rt == null) continue;
 						if (rt.IsAssignableFrom(t))
 						{
-							_matchedTypeName = t.Name;
+							_matchedTypeName = t.AssemblyQualifiedName;
 							return true;
 						}
 					}
@@ -354,7 +369,7 @@ namespace GuiToolkit.AssetHandling
 						if (rb == null) continue;
 						if (rb.IsAssignableFrom(t))
 						{
-							_matchedTypeName = t.Name;
+							_matchedTypeName = t.AssemblyQualifiedName;
 							return true;
 						}
 					}
@@ -365,23 +380,23 @@ namespace GuiToolkit.AssetHandling
 		}
 
 		// Overload for generic Object
-		private bool MatchesConstraints( Object obj, out string matchedTypeName )
+		private bool MatchesConstraints( Object _obj, out string _matchedTypeName )
 		{
-			matchedTypeName = obj ? obj.GetType().Name : nameof(Object);
+			_matchedTypeName = _obj ? _obj.GetType().AssemblyQualifiedName : nameof(Object);
 
 			bool hasType = m_requiredTypes != null && m_requiredTypes.Length > 0;
 			bool hasBase = m_requiredBaseClasses != null && m_requiredBaseClasses.Length > 0;
 			if (!hasType && !hasBase)
 				return true;
 
-			if (!obj)
+			if (!_obj)
 				return false;
 
 			// If it's a GameObject, check its components too
-			if (obj is GameObject go)
-				return MatchesConstraints(go, out matchedTypeName);
+			if (_obj is GameObject go)
+				return MatchesConstraints(go, out _matchedTypeName);
 
-			var t = obj.GetType();
+			var t = _obj.GetType();
 
 			if (hasType)
 				foreach (var rt in m_requiredTypes)
@@ -395,6 +410,36 @@ namespace GuiToolkit.AssetHandling
 
 			return false;
 		}
+
+		private string GetDisplayTypeName( SerializedProperty _typeProp )
+		{
+			// primary: value stored on the serialized property
+			var s = _typeProp != null ? _typeProp.stringValue : null;
+			if (!string.IsNullOrEmpty(s))
+			{
+				var type = Type.GetType(s);
+				if (type == null)
+					return "<Invalid Type>";
+				
+				return type.FullName;
+			}
+
+			// fallback: show constraints summary when nothing stored yet
+			bool hasTypes = m_requiredTypes != null && m_requiredTypes.Length > 0;
+			bool hasBases = m_requiredBaseClasses != null && m_requiredBaseClasses.Length > 0;
+
+			if (hasTypes && m_requiredTypes.Length == 1 && m_requiredTypes[0] != null)
+				return m_requiredTypes[0].FullName;
+
+			if (hasBases && m_requiredBaseClasses.Length == 1 && m_requiredBaseClasses[0] != null)
+				return m_requiredBaseClasses[0].FullName;
+
+			if (hasTypes || hasBases)
+				return "<Constrained>";
+
+			return "<Type not set>";
+		}
+
 	}
 }
 #endif

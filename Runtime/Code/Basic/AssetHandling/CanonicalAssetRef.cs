@@ -8,5 +8,7 @@ namespace GuiToolkit.AssetHandling
 	{
 		public string Type;
 		public string Id;
+		
+		public Type GetType() => System.Type.GetType(Type);
 	}
 }
