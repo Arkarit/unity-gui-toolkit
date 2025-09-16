@@ -1,17 +1,63 @@
-﻿using System;
+﻿using GuiToolkit.AssetHandling;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using GuiToolkit.AssetHandling;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 namespace GuiToolkit
 {
 	/// <summary>
 	/// Interface for initializing a panel.
 	/// </summary>
-	public class IInitPanelData { }
+	public interface IInitPanelData { }
+	
+	/// <summary>
+	/// Convenience implementations for IInitPanelData 
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public class InitPanelData<T> : IInitPanelData
+	{
+		public T Data;
+		public InitPanelData(T _data)
+		{
+			Data = _data;
+		}
+	}
+	
+	/// <summary>
+	/// Convenience implementations for IInitPanelData 
+	/// </summary>
+	public class InitPanelData<TA,TB> : IInitPanelData
+	{
+		public TA Data0;
+		public TB Data1;
+		public InitPanelData(TA _data0, TB _data1)
+		{
+			Data0 = _data0;
+			Data1 = _data1;
+		}
+	}
+	
+	/// <summary>
+	/// Convenience implementations for IInitPanelData 
+	/// </summary>
+	public class InitPanelData<TA,TB,TC> : IInitPanelData
+	{
+		public TA Data0;
+		public TB Data1;
+		public TC Data2;
+		public InitPanelData(TA _data0, TB _data1, TC _data2)
+		{
+			Data0 = _data0;
+			Data1 = _data1;
+			Data2 = _data2;
+		}
+	}
 
 	/// <summary>
 	/// Interface for simple show/hide panel animations.
@@ -155,6 +201,150 @@ namespace GuiToolkit
 		private static readonly Dictionary<Type, HashSet<UiPanel>> s_openPanels = new();
 		private IInstanceHandle m_handle;
 
+		#region Asset Loading
+
+		[Tooltip(
+			"If enabled, this panel automatically loads its declared resources during Awake(). " +
+			"Use only for panels with static resources. " +
+			"Do NOT enable for dialogs or panels that compute resources dynamically at runtime."
+		)]
+		[SerializeField] bool m_autoLoadResources;
+		
+		private readonly List<CanonicalAssetKey> m_resources = new();
+
+		// All loaded handles for this element (lifecycle-bound to this panel)
+		private readonly List<IAssetHandle<Object>> m_handles = new();
+
+		// Convenience list of resolved assets - same order as 'resources'
+		private readonly List<Object> m_loadedAssets = new();
+
+		// Cancel loads when re-init/destroy
+		private CancellationTokenSource m_cts;
+
+		// Exposed read-only access for subclasses
+		protected List<Object> LoadedAssets => m_loadedAssets;
+
+		// Subclass defines which assets it needs (ids + expected type)
+		protected virtual List<CanonicalAssetKey> Resources => m_resources;
+
+		// Called after all assets are loaded successfully (and not cancelled)
+		protected virtual void OnAssetsLoaded() { }
+		protected virtual void OnAssetLoadFailed( Exception _ex ) { }
+
+		public bool NeedsResources => Resources != null && Resources.Count > 0;
+
+		/// <summary>
+		/// Starts async loading of all declared 'resources'.
+		/// Returns true if the load was started (or no resources), false if cancelled immediately.
+		/// Completion signal: OnAssetsLoaded() will be invoked when everything is ready.
+		/// </summary>
+		public void LoadResources()
+		{
+			// cancel any previous run
+			if (m_cts != null)
+			{
+				m_cts.Cancel();
+				m_cts.Dispose();
+				m_cts = null;
+			}
+
+			// cleanup previous assets/handles
+			ReleaseAllResourceHandles();
+
+			if (!NeedsResources)
+			{
+				OnAssetsLoaded();
+				return;
+			}
+
+			var list = Resources;
+
+			m_cts = new CancellationTokenSource();
+			var _ = LoadAllResourcesAsync(list, m_cts.Token);
+		}
+
+		protected void AddResource(CanonicalAssetKey _key) => Resources.Add(_key);
+		protected void RemoveResource(CanonicalAssetKey _key) => Resources.Remove(_key);
+		protected void ClearResources() => Resources.Clear();
+		
+		protected T GetAsset<T>( int _index ) where T : Object
+		{
+			if (_index < 0 || _index >= m_loadedAssets.Count)
+				throw new IndexOutOfRangeException($"Asset index {_index} out of range (count {m_loadedAssets.Count}).");
+
+			var obj = m_loadedAssets[_index];
+			if (obj is T t)
+				return t;
+
+			throw new InvalidCastException($"Loaded asset at index {_index} is {obj?.GetType().Name ?? "<null>"}, not {typeof(T).Name}.");
+		}
+
+		protected bool TryGetAsset<T>( int _index, out T _asset ) where T : Object
+		{
+			_asset = null;
+			if (_index < 0 || _index >= m_loadedAssets.Count)
+				return false;
+
+			_asset = m_loadedAssets[_index] as T;
+			return _asset != null;
+		}
+
+		private async Task LoadAllResourcesAsync( List<CanonicalAssetKey> keys, CancellationToken ct )
+		{
+			try
+			{
+				m_loadedAssets.Clear();
+
+				for (int i = 0; i < keys.Count; i++)
+				{
+					ct.ThrowIfCancellationRequested();
+
+					var key = keys[i];
+
+					// Let provider logic decide (addr:/res:/etc). We request Object handle:
+					// - For CanonicalAssetKey, providers ignore generic T for normalization and honor key.Type.
+					var provider = AssetManager.GetAssetProviderOrThrow(key);
+					var handle = await provider.LoadAssetAsync<Object>(key, ct);
+
+					// track handle for release
+					m_handles.Add(handle);
+
+					// cache the loaded asset (order matches 'resources')
+					m_loadedAssets.Add(handle.Asset);
+				}
+
+				ct.ThrowIfCancellationRequested();
+
+				// everything loaded
+				OnAssetsLoaded();
+			}
+			catch (OperationCanceledException)
+			{
+				// normal on re-init/destroy; swallow
+			}
+			catch (Exception ex)
+			{
+				OnAssetLoadFailed(ex);
+				Debug.LogError($"[{GetType().Name}] Failed to load resources: {ex.Message}");
+			}
+		}
+
+		private void ReleaseAllResourceHandles()
+		{
+			if (m_handles.Count > 0)
+			{
+				for (int i = m_handles.Count - 1; i >= 0; i--)
+					try { m_handles[i]?.Release(); } catch { /* swallow */ }
+
+				m_handles.Clear();
+			}
+
+			m_loadedAssets.Clear();
+		}
+
+		#endregion
+
+
 		public static int GetNumOpenDialogs( Type _type )
 		{
 			if (!s_openPanels.TryGetValue(_type, out HashSet<UiPanel> openDialogs))
@@ -192,6 +382,8 @@ namespace GuiToolkit
 		{
 			base.Awake();
 			InitAnimationIfNecessary();
+			if (m_autoLoadResources)
+				LoadResources();
 		}
 
 		protected override void OnEnable()
@@ -386,16 +578,27 @@ namespace GuiToolkit
 		/// </summary>
 		private void PlayShowHideAnimation( bool _show, Action _onFinish )
 		{
+			var anim = SimpleShowHideAnimation;
+			if (anim == null)
+			{
+				if (_show)
+					Show(true, _onFinish);
+				else
+					Hide(true, _onFinish);
+
+				return;
+			}
+
 			m_onShowHideFinishAction = _onFinish;
 
 			// Ensure previous once-callback is cleared before wiring a new one.
-			SimpleShowHideAnimation.OnFinishOnce.RemoveListener(HideViewCallback);
-			SimpleShowHideAnimation.OnFinishOnce.RemoveListener(ShowViewCallback);
+			anim.OnFinishOnce.RemoveListener(HideViewCallback);
+			anim.OnFinishOnce.RemoveListener(ShowViewCallback);
 
 			if (_show)
-				SimpleShowHideAnimation.ShowViewAnimation(ShowViewCallback);
+				anim.ShowViewAnimation(ShowViewCallback);
 			else
-				SimpleShowHideAnimation.HideViewAnimation(HideViewCallback);
+				anim.HideViewAnimation(HideViewCallback);
 		}
 
 		/// <summary>
@@ -451,13 +654,23 @@ namespace GuiToolkit
 		/// </summary>
 		protected override void OnDestroy()
 		{
+			if (m_cts != null)
+			{
+				m_cts.Cancel();
+				m_cts.Dispose();
+				m_cts = null;
+			}
+
+			ReleaseAllResourceHandles();
+
 			if (m_handle != null)
 			{
 				m_handle.Release();
 				m_handle = null;
 			}
-			
+
 			EvOnDestroyed.Invoke(this);
+			RemovePanelFromOpen();
 			base.OnDestroy();
 		}
 
