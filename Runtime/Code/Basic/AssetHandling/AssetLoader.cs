@@ -98,7 +98,7 @@ namespace GuiToolkit.AssetHandling
 
 				panel.SetHandle(instHandle);
 
-				// We need to try/catch possible exceptions in panel.Init separately, since these interfere with the loading exceptions
+				// We need to try/catch possible exceptions in panel.Init() separately, since these interfere with the loading exceptions
 				try
 				{
 					if (_loadInfo.InitPanelData != null)
@@ -127,18 +127,20 @@ namespace GuiToolkit.AssetHandling
 		private async Task LoadAsyncFromPool( UiPanelLoadInfo _loadInfo )
 		{
 			UiPanel panel = null;
+			GameObject go = null;
+
 			try
 			{
 				var key = new CanonicalAssetKey(_loadInfo.AssetProvider, _loadInfo.CanonicalId, _loadInfo.PanelType);
 
-				var go = await UiPool.Instance.GetAsync(key);
-				panel = go != null ? go.GetComponent(_loadInfo.PanelType) as UiPanel : null;
+				go = await UiPool.Instance.GetAsync(key);
+				panel = go ? go.GetComponent(_loadInfo.PanelType) as UiPanel : null;
 
 				if (panel == null)
 				{
 					UiPool.Instance.Release(go);
-					throw new AssetLoadFailedException
-					(
+					go = null; // prevent double release in catch/finally
+					throw new AssetLoadFailedException(
 						key,
 						$"Pooled instance does not contain requested panel type '{_loadInfo.PanelType.Name}'."
 					);
@@ -147,7 +149,7 @@ namespace GuiToolkit.AssetHandling
 				// Handle is managed by pool; set it to null for the panel to be sure
 				panel.SetHandle(null);
 
-				// We need to try/catch possible exceptions in panel.Init separately, since these interfere with the loading exceptions
+				// We need to try/catch possible exceptions in panel.Init() separately, since these interfere with the loading exceptions
 				try
 				{
 					if (_loadInfo.InitPanelData != null)
@@ -156,9 +158,8 @@ namespace GuiToolkit.AssetHandling
 				catch (Exception ex)
 				{
 					SafeInvokeFail(_loadInfo, panel, ex);
-
-					// at this point, panel is already loaded and releases the handle itself, so we don't need to keep track
 					UiPool.Instance.Release(go);
+					go = null;
 					return;
 				}
 
@@ -166,14 +167,26 @@ namespace GuiToolkit.AssetHandling
 			}
 			catch (OperationCanceledException ex)
 			{
+				if (panel == null && go != null)
+				{
+					UiPool.Instance.Release(go);
+					go = null;
+				}
+				
 				SafeInvokeFail(_loadInfo, panel, ex);
 			}
 			catch (Exception ex)
 			{
+				if (panel == null && go != null)
+				{
+					UiPool.Instance.Release(go);
+					go = null;
+				}
+				
 				SafeInvokeFail(_loadInfo, panel, ex);
 			}
 		}
-
+		
 		private static void SafeInvokeSuccess( UiPanelLoadInfo _loadInfo, UiPanel _panel )
 		{
 			try
