@@ -195,7 +195,7 @@ namespace GuiToolkit.AssetHandling
 			}
 			catch (Exception cbEx)
 			{
-				Debug.Log($"Exception in OnSuccess():{cbEx}");
+				Debug.LogError($"Exception in OnSuccess():{cbEx}");
 			}
 		}
 
@@ -210,10 +210,10 @@ namespace GuiToolkit.AssetHandling
 			}
 			catch (Exception cbEx)
 			{
-				Debug.Log($"Exception in OnFail():{cbEx}");
+				Debug.LogError($"Exception in OnFail():{cbEx}");
 			}
 
-			Debug.Log($"Panel load failed, exception:{_ex}");
+			Debug.LogError($"Panel load failed, exception:{_ex}");
 		}
 	}
 }
