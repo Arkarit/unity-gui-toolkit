@@ -184,22 +184,27 @@ namespace GuiToolkit
 		/// </summary>
 		public virtual void OnEndHide() { }
 
-		/// <summary>
-		/// Hook called after a panel is async loaded. Note that this ONLY applies to
-		/// panels, which are dynamically loaded and have InitPanelData set in their UiPanelLoadInfo
-		/// </summary>
-		/// <param name="_initData">User data</param>
-		public virtual void Init( IInitPanelData _initData, IInstanceHandle _handle )
-		{
-			m_handle = _handle;
-		}
-
 		protected IShowHidePanelAnimation m_showHideAnimation;
 		private bool m_defaultSceneVisibilityApplied;
 		private bool m_animationInitialized;
 		private Action m_onShowHideFinishAction;
 		private static readonly Dictionary<Type, HashSet<UiPanel>> s_openPanels = new();
 		private IInstanceHandle m_handle;
+		
+		/// <summary>
+		/// Hook called after a panel is async loaded. Note that this ONLY applies to
+		/// panels, which are dynamically loaded and have InitPanelData set in their UiPanelLoadInfo
+		/// </summary>
+		/// <param name="_initData">User data</param>
+		public virtual void Init( IInitPanelData _initData )
+		{
+		}
+
+		internal void SetHandle( IInstanceHandle _handle )
+		{
+			m_handle = _handle;
+		}
+
 
 		#region Asset Loading
 
@@ -229,7 +234,12 @@ namespace GuiToolkit
 
 		// Called after all assets are loaded successfully (and not cancelled)
 		protected virtual void OnAssetsLoaded() { }
-		protected virtual void OnAssetLoadFailed( Exception _ex ) { }
+		protected virtual void OnAssetLoadFailed( Exception _ex )
+		{
+			Debug.LogError($"Asset load/initialization failed, exception:{_ex}");
+		}
+		
+		internal void OnAssetLoadFailedInternal(Exception _ex ) => OnAssetLoadFailed(_ex);
 
 		public bool NeedsResources => Resources != null && Resources.Count > 0;
 
@@ -325,7 +335,7 @@ namespace GuiToolkit
 			catch (Exception ex)
 			{
 				OnAssetLoadFailed(ex);
-				Debug.LogError($"[{GetType().Name}] Failed to load resources: {ex.Message}");
+				Debug.LogError($"[{GetType().Name}] Failed to load resources\n{ex}");
 			}
 		}
 
