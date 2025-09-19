@@ -1,3 +1,4 @@
+using GuiToolkit.Style;
 using System;
 using UnityEngine;
 
@@ -13,7 +14,22 @@ namespace GuiToolkit
 		/// Absolute Unity asset paths (e.g. "Assets/Resources/…") that must be ready in the Editor.
 		/// May be empty; never return null.
 		/// </summary>
-		public virtual string[] RequiredScriptableObjects => new []{UiToolkitConfiguration.AssetPath};
+		public virtual string[] RequiredScriptableObjects
+		{
+#if UNITY_EDITOR
+			get
+			{
+				return new[]
+				{
+					UiToolkitConfiguration.AssetPath,
+					UiMainStyleConfig.AssetPath, 
+					UiOrientationDependentStyleConfig.AssetPath
+				};
+			}
+#else
+			get => Array.Empty<string>();
+#endif
+		}
 
 		/// <summary> Called when it is safe to perform Awake work. </summary>
 		protected abstract void SafeAwake();
@@ -61,6 +77,7 @@ namespace GuiToolkit
 					catch (Exception ex)
 					{
 						Debug.LogException(ex, this);
+						Debug.Log($"Exception in ScheduleSafeInvoke):{ex}");
 					}
 				},
 				Condition,

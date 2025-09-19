@@ -92,14 +92,14 @@ namespace GuiToolkit
 			EditorApplication.update += Tick;
 			return;
 
-			bool CompletelyLoaded()
+			bool CompletelyLoaded(int _tick)
 			{
 				if (_conditionIfNotPlaying != null && !_conditionIfNotPlaying())
 					return false;
 
 				if (ImportBusy())
 					return false;
-
+int a = 0;
 				foreach (var asset in _assets)
 				{
 					if (string.IsNullOrEmpty(asset.assetPath))
@@ -109,12 +109,18 @@ namespace GuiToolkit
 						continue;
 
 					if (ImporterPending(asset.assetPath))
+					{
+						Debug.Log($"[{_tick}]Importer pending for asset:'{asset.assetPath}'");
 						return false;
+					}
 
 					foreach (var dep in AssetDatabase.GetDependencies(asset.assetPath, recursive: true))
 					{
 						if (ImporterPending(dep))
+						{
+							Debug.Log($"[{_tick}]Importer pending for dependency:'{dep}'");
 							return false;
+						}
 					}
 
 					s_pathsDone.Add(asset.assetPath);
@@ -131,8 +137,8 @@ namespace GuiToolkit
 					Debug.LogError($"WhenReady(assets) timeout after {_maxFrames} frames. Caller: {DebugUtility.GetCallingClassAndMethod()}");
 					return;
 				}
-
-				if (!CompletelyLoaded())
+int a = 0;
+				if (!CompletelyLoaded(frames))
 				{
 					countdown = _quietFrames;
 					return;
@@ -142,8 +148,15 @@ namespace GuiToolkit
 					return;
 
 				EditorApplication.update -= Tick;
-				try { _callback(); }
-				catch (Exception ex) { Debug.LogException(ex); }
+				
+				try
+				{
+					_callback();
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError($"Exception in Callback: {ex}");
+				}
 			}
 		}
 
@@ -162,15 +175,24 @@ namespace GuiToolkit
 		public static bool ImportBusy()
 			=> EditorApplication.isCompiling || EditorApplication.isUpdating;
 
+//		public static bool ImporterPending( string _assetPath )
+//			=> !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(_assetPath))
+//			   && AssetDatabase.GetMainAssetTypeAtPath(_assetPath) == null;
+
 		public static bool ImporterPending( string _assetPath )
-			=> !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(_assetPath))
-			   && AssetDatabase.GetMainAssetTypeAtPath(_assetPath) == null;
+		{
+			var guid = AssetDatabase.AssetPathToGUID(_assetPath);
+			if (string.IsNullOrEmpty(guid))
+				return false;
+			
+			return AssetDatabase.GetMainAssetTypeAtPath(_assetPath) == null
+		}
 
 		public static bool Ready( params string[] _assetPaths )
 		{
 			if (Application.isPlaying)
 				return true;
-			
+
 			if (ImportBusy())
 				return false;
 
@@ -179,7 +201,7 @@ namespace GuiToolkit
 				if (ImporterPending(assetPath))
 					return false;
 			}
-			
+
 			return true;
 		}
 
