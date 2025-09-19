@@ -10,6 +10,16 @@ namespace GuiToolkit.Exceptions
     public sealed class NotInitializedException : InvalidOperationException
     {
         /// <summary>
+        /// Creates a new exception indicating that the given type has not yet been initialized,
+        /// including a custom message with additional context.
+        /// </summary>
+        /// <param name="_type">The type that was not initialized.</param>
+        /// <param name="_msg">Additional context or details.</param>
+        public NotInitializedException(string _msg)
+            : base($"A class instance is not yet initialized. Please ensure call order.\n{_msg}")
+        { }
+        
+        /// <summary>
         /// Creates a new exception indicating that the given type has not yet been initialized.
         /// </summary>
         /// <param name="_type">The type that was not initialized.</param>

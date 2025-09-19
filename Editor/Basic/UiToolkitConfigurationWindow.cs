@@ -21,10 +21,11 @@ namespace GuiToolkit.Editor
 			if (!AssetReadyGate.Ready(UiToolkitConfiguration.AssetPath))
 				GUIUtility.ExitGUI();
 			
-			if (!UiToolkitConfiguration.Initialized)
+			if (!AssetReadyGate.AssetExists(UiToolkitConfiguration.AssetPath))
 			{
 				m_firstTimeInit = true;
-				UiToolkitConfiguration.Initialize();
+				// Calling Instance for the first time automatically creates the asset
+				_ = UiToolkitConfiguration.Instance;
 			}
 
 			if (m_firstTimeInit)

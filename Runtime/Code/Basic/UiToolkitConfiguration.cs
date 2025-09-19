@@ -219,17 +219,16 @@ namespace GuiToolkit
 			}
 		}
 
-		public override void OnEditorInitialize()
+		public override void OnEditorCreatedAsset()
 		{
 			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
 			m_loadMainSceneOnPlay = m_sceneReferences.Length > 0;
 		}
 
-		public static string GetProjectScenePath(string _sceneName)
+		public string GetProjectScenePath(string _sceneName)
 		{
-			UiToolkitConfiguration settings = EditorLoad();
-			settings.InitScenesByName();
-			return "Assets/" + settings.GetScenePath(_sceneName) + ".unity";
+			InitScenesByName();
+			return "Assets/" + GetScenePath(_sceneName) + ".unity";
 		}
 		
 		public string GetUiToolkitRootProjectDir()

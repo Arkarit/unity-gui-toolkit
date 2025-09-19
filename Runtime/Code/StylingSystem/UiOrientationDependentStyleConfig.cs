@@ -16,9 +16,9 @@ namespace GuiToolkit.Style
 
 		protected static UiOrientationDependentStyleConfig s_instance;
 		
-		protected const string EditorDir = "Assets/Resources/";
-		protected static string ClassName => typeof(UiOrientationDependentStyleConfig).Name;
-		protected static string EditorPath => EditorDir + ClassName + ".asset";
+		public const string EditorDir = "Assets/Resources/";
+		public static string ClassName => typeof(UiOrientationDependentStyleConfig).Name;
+		public static string AssetPath => EditorDir + ClassName + ".asset";
 		
 		public static void ResetInstance() => s_instance = null;
 
@@ -58,44 +58,41 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
+				EditorCallerGate.ThrowIfNotEditorAware(ClassName);
 				if (s_instance == null)
 				{
-					EditorCallerGate.ThrowIfNotEditorAware(ClassName);
-					
-					var styleConfig = UiToolkitConfiguration.Instance.UiOrientationDependentStyleConfig;
-					if (styleConfig)
-						s_instance = styleConfig;
-					else
-						s_instance = Resources.Load<UiOrientationDependentStyleConfig>(ClassName);
-					
-					if (s_instance == null)
-					{
-#if !UNITY_EDITOR
-						Debug.LogError($"Scriptable object could not be loaded from path '{ClassName}'");
+					s_instance = (UiOrientationDependentStyleConfig)AssetReadyGate.LoadOrCreateScriptableObject
+					(
+						ClassName, 
+						AssetPath, 
+						typeof(UiOrientationDependentStyleConfig), 
+						out bool wasCreated
+					);
+#if UNITY_EDITOR
+					if (wasCreated)
+						s_instance.OnEditorCreatedAsset();
 #endif
-						s_instance = CreateInstance<UiOrientationDependentStyleConfig>();
-					}
 				}
-
+				
 				return s_instance;
 			}
 		}
 		
 #if UNITY_EDITOR
-		public virtual void OnEditorInitialize() {}
+		public virtual void OnEditorCreatedAsset() {}
 
 		public static void EditorSave(UiOrientationDependentStyleConfig _instance)
 		{
 			if (!AssetDatabase.Contains(_instance))
 			{
-				EditorGeneralUtility.CreateAsset(_instance, EditorPath);
+				EditorGeneralUtility.CreateAsset(_instance, AssetPath);
 			}
 
 			EditorGeneralUtility.SetDirty(_instance);
 			AssetDatabase.SaveAssetIfDirty(_instance);
 		}
 
-		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiOrientationDependentStyleConfig>(EditorPath) != null;
+		public static bool Initialized => AssetDatabase.LoadAssetAtPath<UiOrientationDependentStyleConfig>(AssetPath) != null;
 
 		public static void Initialize()
 		{
@@ -104,7 +101,7 @@ namespace GuiToolkit.Style
 
 			UiOrientationDependentStyleConfig instance = CreateInstance<UiOrientationDependentStyleConfig>();
 			s_instance = instance;
-			instance.OnEditorInitialize();
+			instance.OnEditorCreatedAsset();
 
 			EditorSave(instance);
 		}

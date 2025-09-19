@@ -5,6 +5,11 @@ using UnityEngine;
 // Do not remove
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using GuiToolkit.Exceptions;
+using Object = UnityEngine.Object;
+using System.Runtime.InteropServices;
+
+
 
 
 #if UNITY_EDITOR
@@ -167,7 +172,7 @@ namespace GuiToolkit
 		public static void ThrowIfNotReady( string _assetPath, int _extraStackFrames = 0 )
 		{
 			if (!Ready(_assetPath))
-				throw new InvalidOperationException(
+				throw new NotInitializedException(
 					$"{DebugUtility.GetCallingClassAndMethod(false, true, 1 + _extraStackFrames)} is not allowed during import/compile. " +
 					$"Wrap with WhenReady(...). Asset: {_assetPath}");
 		}
@@ -180,24 +185,52 @@ namespace GuiToolkit
 					 $"(with '{_name}') is not allowed in Editor while not playing. Please use WhenReady(...) or InstanceOrNull.");
 		}
 
-		public static T EditorLoadOrCreate<T>( string _name, string _assetPath ) where T : ScriptableObject
+		public static T EditorLoad<T>( string _name, string _assetPath ) where T : ScriptableObject
+		{
+			return (T)EditorLoad(_name, _assetPath, typeof(T));
+		}
+
+		public static T EditorLoadOrCreate<T>( string _name, string _assetPath, out bool _wasCreated ) where T : ScriptableObject
+		{
+			return (T)EditorLoadOrCreate(_name, _assetPath, typeof(T), out _wasCreated);
+		}
+
+		public static T EditorLoadOrCreate<T>( string _name, string _assetPath ) where T : ScriptableObject => (T)EditorLoadOrCreate(_name, _assetPath, typeof(T), out _);
+
+		public static ScriptableObject EditorLoad( string _name, string _assetPath, Type _type )
 		{
 			if (string.IsNullOrEmpty(_assetPath))
-				throw new System.InvalidOperationException("AssetPath not set for " + typeof(T).FullName);
+				throw new InvalidOperationException("AssetPath not set for " + _type.FullName);
 
 			ThrowIfNotReady(_assetPath);
+			return AssetDatabase.LoadAssetAtPath<ScriptableObject>(_assetPath);
+		}
 
-			var asset = AssetDatabase.LoadAssetAtPath<T>(_assetPath);
+		public static ScriptableObject EditorLoadOrCreate( string _name, string _assetPath, Type _type, out bool _wasCreated )
+		{
+			_wasCreated = false;
+			// We don't need a ThrowIfNotReady(), since EditorLoad() checks this.
+			var asset = EditorLoad<ScriptableObject>(_name, _assetPath);
 			if (asset)
 				return asset;
 
+			_wasCreated = true;
 			EditorFileUtility.EnsureUnityFolderExists(System.IO.Path.GetDirectoryName(_assetPath).Replace('\\', '/'));
-			var inst = ScriptableObject.CreateInstance<T>();
+			var inst = ScriptableObject.CreateInstance(_type);
 			inst.name = _name;
+			Debug.Log($"Create scriptable object instance '{_name}' of type '{_type.Name}' at '{_assetPath}'");
 			AssetDatabase.CreateAsset(inst, _assetPath);
 			AssetDatabase.SaveAssets();
 			AssetDatabase.ImportAsset(_assetPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
-			return AssetDatabase.LoadAssetAtPath<T>(_assetPath);
+			return AssetDatabase.LoadAssetAtPath<ScriptableObject>(_assetPath);
+		}
+
+		public static ScriptableObject EditorLoadOrCreate( string _name, string _assetPath, Type _type ) => EditorLoadOrCreate(_name, _assetPath, _type, out _);
+
+		public static bool AssetExists( string _assetPath )
+		{
+			ThrowIfNotReady(_assetPath);
+			return AssetDatabase.LoadAssetAtPath<Object>(_assetPath) != null;
 		}
 
 		// Gate for specific ScriptableObject assets (type+path), e.g. to ensure importer finished.
@@ -226,7 +259,48 @@ namespace GuiToolkit
 		public static void ThrowIfNotPlaying( string _0, int _1 = 0 ) { }
 
 #endif
+
+		public static ScriptableObject LoadOrCreateScriptableObject( string _className, string _assetPath, Type _type, out bool _wasCreated )
+		{
+			_wasCreated = false;
+			ScriptableObject result = null;
+
+#if UNITY_EDITOR
+			if (Application.isPlaying)
+			{
+#endif
+				result = Resources.Load<ScriptableObject>(_className);
+				if (result == null)
+				{
+					Debug.LogError($"Scriptable object could not be loaded from path '{_className}'");
+					result = ScriptableObject.CreateInstance(_type);
+				}
+#if UNITY_EDITOR
+			}
+			else
+			{
+				EditorCallerGate.ThrowIfNotEditorAware(_className);
+				ThrowIfNotReady(_assetPath);
+				result = EditorLoadOrCreate(_className, _assetPath, _type, out _wasCreated);
+			}
+#endif
+
+			if (result == null)
+			{
+				result = ScriptableObject.CreateInstance(_type);
+				_wasCreated = true;
+			}
+
+			return result;
+		}
+
+		public static ScriptableObject LoadOrCreateScriptableObject( string _className, string _assetPath, Type _type )
+		{
+			return LoadOrCreateScriptableObject(_className, _assetPath, _type, out _);
+		}
+
 	}
+
 
 #if UNITY_EDITOR
 	[InitializeOnLoad]
