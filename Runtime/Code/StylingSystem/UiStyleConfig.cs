@@ -54,7 +54,7 @@ namespace GuiToolkit.Style
 		{
 			foreach (var skin in m_skins)
 				skin.Init(this);
-			int a = 0;
+
 			AddListeners();
 			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}

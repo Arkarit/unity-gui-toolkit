@@ -40,9 +40,9 @@ namespace GuiToolkit
 			ScheduleSafeInvoke(SafeOnEnable);
 		}
 
-		private void ScheduleSafeInvoke( Action safeAction )
+		private void ScheduleSafeInvoke( Action _safeAction )
 		{
-			if (safeAction == null) 
+			if (_safeAction == null) 
 				return;
 
 			// Editor: guard with AssetReadyGate; Runtime: should be immediate
@@ -56,7 +56,7 @@ namespace GuiToolkit
 
 					try
 					{
-						safeAction();
+						_safeAction();
 					}
 					catch (Exception ex)
 					{

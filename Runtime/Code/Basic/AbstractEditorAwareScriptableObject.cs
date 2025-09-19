@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GuiToolkit.Style;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -27,7 +28,13 @@ namespace GuiToolkit
 				if (Application.isPlaying)
 					return Array.Empty<string>();
 				
-				var result = new List<string> () {UiToolkitConfiguration.AssetPath};
+				var result = new List<string> ()
+				{
+					UiToolkitConfiguration.AssetPath, 
+					UiMainStyleConfig.AssetPath, 
+					UiOrientationDependentStyleConfig.AssetPath
+				};
+				
 				var path = AssetDatabase.GetAssetPath(this);
 				if (!string.IsNullOrEmpty(path))
 					result.Add(path);

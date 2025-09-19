@@ -166,8 +166,22 @@ namespace GuiToolkit
 			=> !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(_assetPath))
 			   && AssetDatabase.GetMainAssetTypeAtPath(_assetPath) == null;
 
-		public static bool Ready( string _assetPath )
-			=> Application.isPlaying || !(ImportBusy() || ImporterPending(_assetPath));
+		public static bool Ready( params string[] _assetPaths )
+		{
+			if (Application.isPlaying)
+				return true;
+			
+			if (ImportBusy())
+				return false;
+
+			foreach (var assetPath in _assetPaths)
+			{
+				if (ImporterPending(assetPath))
+					return false;
+			}
+			
+			return true;
+		}
 
 		public static void ThrowIfNotReady( string _assetPath, int _extraStackFrames = 0 )
 		{

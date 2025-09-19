@@ -59,6 +59,9 @@ namespace GuiToolkit.Style
 
 		public static void ReApplyAppliers<T>(IEnumerable<T> list) where T : Component
 		{
+			if (!AssetReadyGate.Ready(UiToolkitConfiguration.AssetPath, UiMainStyleConfig.AssetPath, UiOrientationDependentStyleConfig.AssetPath))
+				return;
+			
 			foreach (var elem in list)
 				ReApplyApplier(elem);
 		}
