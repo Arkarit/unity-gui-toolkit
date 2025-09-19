@@ -355,7 +355,7 @@ namespace GuiToolkit.Style.Editor
 
 		private void OnGUI()
 		{
-			if (!AssetReadyGate.Ready(UiToolkitConfiguration.AssetPath))
+			if (!AssetReadyGate.Ready)
 				GUIUtility.ExitGUI();
 			
 			if (m_component == null)

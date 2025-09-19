@@ -38,7 +38,7 @@ namespace GuiToolkit.Editor
 
 		void OnGUI()
 		{
-			if (!AssetReadyGate.Ready(DoxygenConfig.AssetPath))
+			if (!AssetReadyGate.Ready)
 				GUIUtility.ExitGUI();
 			
 			EditorDisplayHelper.Draw(DoxygenConfig.Instance, "DoxygenConfig instance is null. Please create one.");

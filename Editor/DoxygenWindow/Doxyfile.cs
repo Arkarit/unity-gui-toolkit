@@ -16,7 +16,7 @@ namespace GuiToolkit.Editor
 
 		public static string Write()
 		{
-			AssetReadyGate.ThrowIfNotReady(DoxygenConfig.AssetPath);
+			AssetReadyGate.ThrowIfNotReady();
 			
 			var templateLines = ReadTemplate();
 			if (templateLines == null)

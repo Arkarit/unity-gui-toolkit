@@ -18,7 +18,7 @@ namespace GuiToolkit.Editor
 
 		private void OnGUI()
 		{
-			if (!AssetReadyGate.Ready(UiToolkitConfiguration.AssetPath))
+			if (!AssetReadyGate.Ready)
 				GUIUtility.ExitGUI();
 			
 			if (!AssetReadyGate.AssetExists(UiToolkitConfiguration.AssetPath))

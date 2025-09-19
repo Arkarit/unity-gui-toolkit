@@ -1,4 +1,3 @@
-using GuiToolkit.Style;
 using System;
 using UnityEngine;
 
@@ -10,27 +9,6 @@ namespace GuiToolkit
 	/// </summary>
 	public abstract class AbstractEditorAwareMonoBehaviour : MonoBehaviour, IEditorAware
 	{
-		/// <summary>
-		/// Absolute Unity asset paths (e.g. "Assets/Resources/…") that must be ready in the Editor.
-		/// May be empty; never return null.
-		/// </summary>
-		public virtual string[] RequiredScriptableObjects
-		{
-#if UNITY_EDITOR
-			get
-			{
-				return new[]
-				{
-					UiToolkitConfiguration.AssetPath,
-					UiMainStyleConfig.AssetPath, 
-					UiOrientationDependentStyleConfig.AssetPath
-				};
-			}
-#else
-			get => Array.Empty<string>();
-#endif
-		}
-
 		/// <summary> Called when it is safe to perform Awake work. </summary>
 		protected abstract void SafeAwake();
 
@@ -80,8 +58,7 @@ namespace GuiToolkit
 						Debug.Log($"Exception in ScheduleSafeInvoke):{ex}");
 					}
 				},
-				Condition,
-				RequiredScriptableObjects
+				Condition
 			);
 		}
 	}

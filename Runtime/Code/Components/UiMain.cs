@@ -195,7 +195,7 @@ namespace GuiToolkit
 			// You could also load the Scene by using sceneBuildIndex. In this case Scene2 has
 			// a sceneBuildIndex of 1 as shown in Build Settings.
 
-			yield return new WaitUntil(() => AssetReadyGate.Ready(UiToolkitConfiguration.AssetPath));
+			yield return new WaitUntil(() => AssetReadyGate.Ready);
 			
 			AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(UiToolkitConfiguration.Instance.GetScenePath(_name), LoadSceneMode.Additive);
 

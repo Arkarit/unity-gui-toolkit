@@ -44,8 +44,7 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
-				AssetReadyGate.ThrowIfNotReady(UiOrientationDependentStyleConfig.AssetPath);
-				AssetReadyGate.ThrowIfNotReady(UiMainStyleConfig.AssetPath);
+				AssetReadyGate.ThrowIfNotReady();
 				EditorCallerGate.ThrowIfNotEditorAware(Name);
 #if UNITY_EDITOR
 				if (!Application.isPlaying)

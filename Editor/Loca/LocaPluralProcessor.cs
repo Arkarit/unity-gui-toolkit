@@ -40,9 +40,7 @@ namespace GuiToolkit.Editor
 		{
 			AssetReadyGate.WhenReady
 			(
-				() => SafeProcess(),
-				null,
-				new []{UiToolkitConfiguration.ClassName}
+				() => SafeProcess()
 			);
 		}
 		

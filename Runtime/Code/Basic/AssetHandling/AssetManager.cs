@@ -344,9 +344,7 @@ namespace GuiToolkit.AssetHandling
 					defaultProvider.Init();
 					providers.Add(defaultProvider);
 					s_assetProviders = providers.ToArray();
-				},
-				null,
-				new []{UiToolkitConfiguration.AssetPath}
+				}
 			);
 		}
 	}

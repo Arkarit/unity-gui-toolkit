@@ -49,7 +49,7 @@ namespace GuiToolkit
 		private static void HandleScenes( PlayModeStateChange _state )
 		{
 			// Don't do anything if not ready yet
-			if (!AssetReadyGate.Ready(UiToolkitConfiguration.AssetPath))
+			if (!AssetReadyGate.Ready)
 				return;
 			
 			// Do not interfere with PlayMode tests

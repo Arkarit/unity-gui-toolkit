@@ -20,8 +20,6 @@ namespace GuiToolkit
 {
 	public static class AssetReadyGate
 	{
-		private static readonly HashSet<string> s_pathsDone = new();
-
 		public static T RuntimeLoad<T>( string _name ) where T : ScriptableObject
 		{
 			ThrowIfNotPlaying(_name);
@@ -36,42 +34,15 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		public static void Clear() => s_pathsDone.Clear();
-
-		private static bool AllAssetsDone( (Type type, string assetPath)[] _assets )
-		{
-			foreach (var asset in _assets)
-			{
-				if (!s_pathsDone.Contains(asset.assetPath))
-					return false;
-			}
-
-			return true;
-		}
-
 		public static void WhenReady(
 			Action _callback,
-			Func<bool> _conditionIfNotPlaying,
-			(Type type, string assetPath)[] _assets,
+			Func<bool> _conditionIfNotPlaying = null,
 			int _quietFrames = 2,
-			int _maxFrames = 30 // 0 = no timeout
+			int _maxFrames = 60 // 0 = no timeout
 		)
 		{
 			if (_callback == null)
 				return;
-
-			_assets ??= Array.Empty<(Type, string)>();
-
-			// Validate types
-			foreach (var asset in _assets)
-			{
-				if (asset.type == null)
-					throw new ArgumentException("Type must not be null.", nameof(_assets));
-
-				if (!typeof(ScriptableObject).IsAssignableFrom(asset.type))
-					throw new ArgumentException(
-						$"WhenReady() only supports ScriptableObject types, but got '{asset.type.Name}'.");
-			}
 
 			if (Application.isPlaying)
 			{
@@ -80,7 +51,7 @@ namespace GuiToolkit
 			}
 
 			// Immediate fast path
-			if (AllAssetsDone(_assets))
+			if (AssetReadyChecker.AllScriptableObjectsReady)
 			{
 				_callback();
 				return;
@@ -92,43 +63,6 @@ namespace GuiToolkit
 			EditorApplication.update += Tick;
 			return;
 
-			bool CompletelyLoaded(int _tick)
-			{
-				if (_conditionIfNotPlaying != null && !_conditionIfNotPlaying())
-					return false;
-
-				if (ImportBusy())
-					return false;
-int a = 0;
-				foreach (var asset in _assets)
-				{
-					if (string.IsNullOrEmpty(asset.assetPath))
-						continue;
-
-					if (s_pathsDone.Contains(asset.assetPath))
-						continue;
-
-					if (ImporterPending(asset.assetPath))
-					{
-						Debug.Log($"[{_tick}]Importer pending for asset:'{asset.assetPath}'");
-						return false;
-					}
-
-					foreach (var dep in AssetDatabase.GetDependencies(asset.assetPath, recursive: true))
-					{
-						if (ImporterPending(dep))
-						{
-							Debug.Log($"[{_tick}]Importer pending for dependency:'{dep}'");
-							return false;
-						}
-					}
-
-					s_pathsDone.Add(asset.assetPath);
-				}
-
-				return true;
-			}
-
 			void Tick()
 			{
 				if (_maxFrames > 0 && ++frames > _maxFrames)
@@ -137,8 +71,8 @@ int a = 0;
 					Debug.LogError($"WhenReady(assets) timeout after {_maxFrames} frames. Caller: {DebugUtility.GetCallingClassAndMethod()}");
 					return;
 				}
-int a = 0;
-				if (!CompletelyLoaded(frames))
+
+				if (!AssetReadyChecker.AllScriptableObjectsReady)
 				{
 					countdown = _quietFrames;
 					return;
@@ -160,57 +94,17 @@ int a = 0;
 			}
 		}
 
-		// Convenience overload: only paths (no type check needed).
-		public static void WhenReady( Action _callback, Func<bool> _conditionWhenNotRunning, params string[] _assetPaths )
-		{
-			var items = new (Type, string)[_assetPaths?.Length ?? 0];
-			for (int i = 0; i < items.Length; i++)
-				items[i] = (typeof(ScriptableObject), _assetPaths[i]);
-
-			WhenReady(_callback, _conditionWhenNotRunning, items);
-		}
-
-		public static void WhenReady( Action _callback, params string[] _assetPaths ) => WhenReady(_callback, null, _assetPaths);
-
 		public static bool ImportBusy()
 			=> EditorApplication.isCompiling || EditorApplication.isUpdating;
 
-//		public static bool ImporterPending( string _assetPath )
-//			=> !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(_assetPath))
-//			   && AssetDatabase.GetMainAssetTypeAtPath(_assetPath) == null;
+		public static bool Ready => AssetReadyChecker.AllScriptableObjectsReady;
 
-		public static bool ImporterPending( string _assetPath )
+		public static void ThrowIfNotReady( int _extraStackFrames = 0 )
 		{
-			var guid = AssetDatabase.AssetPathToGUID(_assetPath);
-			if (string.IsNullOrEmpty(guid))
-				return false;
-			
-			return AssetDatabase.GetMainAssetTypeAtPath(_assetPath) == null
-		}
-
-		public static bool Ready( params string[] _assetPaths )
-		{
-			if (Application.isPlaying)
-				return true;
-
-			if (ImportBusy())
-				return false;
-
-			foreach (var assetPath in _assetPaths)
-			{
-				if (ImporterPending(assetPath))
-					return false;
-			}
-
-			return true;
-		}
-
-		public static void ThrowIfNotReady( string _assetPath, int _extraStackFrames = 0 )
-		{
-			if (!Ready(_assetPath))
+			if (!Ready)
 				throw new NotInitializedException(
 					$"{DebugUtility.GetCallingClassAndMethod(false, true, 1 + _extraStackFrames)} is not allowed during import/compile. " +
-					$"Wrap with WhenReady(...). Asset: {_assetPath}");
+					$"Wrap with WhenReady(...).");
 		}
 
 		public static void ThrowIfNotPlaying( string _name, int _extraStackFrames = 0 )
@@ -238,7 +132,7 @@ int a = 0;
 			if (string.IsNullOrEmpty(_assetPath))
 				throw new InvalidOperationException("AssetPath not set for " + _type.FullName);
 
-			ThrowIfNotReady(_assetPath);
+			ThrowIfNotReady();
 			return AssetDatabase.LoadAssetAtPath<ScriptableObject>(_assetPath);
 		}
 
@@ -265,7 +159,7 @@ int a = 0;
 
 		public static bool AssetExists( string _assetPath )
 		{
-			ThrowIfNotReady(_assetPath);
+			ThrowIfNotReady();
 			return AssetDatabase.LoadAssetAtPath<Object>(_assetPath) != null;
 		}
 
@@ -316,7 +210,7 @@ int a = 0;
 			else
 			{
 				EditorCallerGate.ThrowIfNotEditorAware(_className);
-				ThrowIfNotReady(_assetPath);
+				ThrowIfNotReady();
 				result = EditorLoadOrCreate(_className, _assetPath, _type, out _wasCreated);
 			}
 #endif
@@ -336,23 +230,4 @@ int a = 0;
 		}
 
 	}
-
-
-#if UNITY_EDITOR
-	[InitializeOnLoad]
-	static class AssetReadyGateReset
-	{
-		static AssetReadyGateReset()
-		{
-			AssemblyReloadEvents.beforeAssemblyReload += Clear;
-			EditorApplication.playModeStateChanged += _ => Clear();
-		}
-
-		private static void Clear()
-		{
-			AssetReadyGate.Clear();
-		}
-	}
-#endif
-
 }
