@@ -24,7 +24,7 @@ namespace GuiToolkit.Style
 				EditorCallerGate.ThrowIfNotEditorAware(ClassName);
 				if (s_instance == null)
 				{
-					s_instance = (UiMainStyleConfig)AssetReadyGate.LoadOrCreateScriptableObject(ClassName, AssetPath, typeof(UiMainStyleConfig), out bool wasCreated);
+					s_instance = (UiMainStyleConfig)AssetReadyGate.LoadOrCreateScriptableObject(typeof(UiMainStyleConfig), out bool wasCreated);
 #if UNITY_EDITOR
 					if (wasCreated)
 						s_instance.OnEditorCreatedAsset();

@@ -21,7 +21,7 @@ namespace GuiToolkit.Editor
 			if (!AssetReadyGate.Ready)
 				GUIUtility.ExitGUI();
 			
-			if (!AssetReadyGate.AssetExists(UiToolkitConfiguration.AssetPath))
+			if (!AssetReadyGate.ScriptableObjectExists<UiToolkitConfiguration>())
 			{
 				m_firstTimeInit = true;
 				// Calling Instance for the first time automatically creates the asset

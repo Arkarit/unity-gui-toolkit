@@ -19,7 +19,7 @@ namespace GuiToolkit.Editor
 		private static void CreateWindow()
 		{
 			EditorApplication.update -= CreateWindow;
-			if (AssetReadyGate.AssetExists(UiToolkitConfiguration.AssetPath))
+			if (AssetReadyGate.ScriptableObjectExists<UiToolkitConfiguration>())
 				return;
 
 			s_window = UiToolkitConfigurationWindow.GetWindow();

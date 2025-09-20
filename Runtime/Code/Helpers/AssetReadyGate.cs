@@ -82,7 +82,7 @@ namespace GuiToolkit
 					return;
 
 				EditorApplication.update -= Tick;
-				
+
 				try
 				{
 					_callback();
@@ -115,52 +115,58 @@ namespace GuiToolkit
 					 $"(with '{_name}') is not allowed in Editor while not playing. Please use WhenReady(...) or InstanceOrNull.");
 		}
 
-		public static T EditorLoad<T>( string _name, string _assetPath ) where T : ScriptableObject
+		public static T EditorLoad<T>() where T : ScriptableObject => (T)EditorLoad(typeof(T));
+
+		public static T EditorLoadOrCreate<T>(out bool _wasCreated ) where T : ScriptableObject => (T)EditorLoadOrCreate(typeof(T), out _wasCreated);
+
+		public static T EditorLoadOrCreate<T>() where T : ScriptableObject => (T)EditorLoadOrCreate(typeof(T), out _);
+
+		public static ScriptableObject EditorLoad( Type _type )
 		{
-			return (T)EditorLoad(_name, _assetPath, typeof(T));
-		}
-
-		public static T EditorLoadOrCreate<T>( string _name, string _assetPath, out bool _wasCreated ) where T : ScriptableObject
-		{
-			return (T)EditorLoadOrCreate(_name, _assetPath, typeof(T), out _wasCreated);
-		}
-
-		public static T EditorLoadOrCreate<T>( string _name, string _assetPath ) where T : ScriptableObject => (T)EditorLoadOrCreate(_name, _assetPath, typeof(T), out _);
-
-		public static ScriptableObject EditorLoad( string _name, string _assetPath, Type _type )
-		{
-			if (string.IsNullOrEmpty(_assetPath))
-				throw new InvalidOperationException("AssetPath not set for " + _type.FullName);
-
 			ThrowIfNotReady();
-			return AssetDatabase.LoadAssetAtPath<ScriptableObject>(_assetPath);
+			string path;
+			var foundGuids = AssetDatabase.FindAssets($"t:{_type}");
+			if (foundGuids == null || foundGuids.Length == 0)
+				return null;
+
+			// Assets in user dirs are preferred
+			foreach (var guid in foundGuids)
+			{
+				path = AssetDatabase.GUIDToAssetPath(guid);
+				if (path.StartsWith("Assets", StringComparison.Ordinal))
+					return AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
+			}
+
+			path = AssetDatabase.GUIDToAssetPath(foundGuids[0]);
+			return AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
 		}
 
-		public static ScriptableObject EditorLoadOrCreate( string _name, string _assetPath, Type _type, out bool _wasCreated )
+		public static ScriptableObject EditorLoadOrCreate( Type _type, out bool _wasCreated )
 		{
 			_wasCreated = false;
 			// We don't need a ThrowIfNotReady(), since EditorLoad() checks this.
-			var asset = EditorLoad<ScriptableObject>(_name, _assetPath);
+			var asset = EditorLoad(_type);
 			if (asset)
 				return asset;
 
 			_wasCreated = true;
-			EditorFileUtility.EnsureUnityFolderExists(System.IO.Path.GetDirectoryName(_assetPath).Replace('\\', '/'));
+			var assetPath = $"Assets/Resources/{_type.Name}.asset";
+			EditorFileUtility.EnsureUnityFolderExists(System.IO.Path.GetDirectoryName(assetPath).Replace('\\', '/'));
 			var inst = ScriptableObject.CreateInstance(_type);
-			inst.name = _name;
-			Debug.Log($"Create scriptable object instance '{_name}' of type '{_type.Name}' at '{_assetPath}'");
-			AssetDatabase.CreateAsset(inst, _assetPath);
+			inst.name = _type.Name;
+			Debug.Log($"Create scriptable object instance '{inst.name}' of type '{_type.Name}' at '{assetPath}'");
+			AssetDatabase.CreateAsset(inst, assetPath);
 			AssetDatabase.SaveAssets();
-			AssetDatabase.ImportAsset(_assetPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
-			return AssetDatabase.LoadAssetAtPath<ScriptableObject>(_assetPath);
+			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
+			return AssetDatabase.LoadAssetAtPath<ScriptableObject>(assetPath);
 		}
 
-		public static ScriptableObject EditorLoadOrCreate( string _name, string _assetPath, Type _type ) => EditorLoadOrCreate(_name, _assetPath, _type, out _);
+		public static ScriptableObject EditorLoadOrCreate( Type _type ) => EditorLoadOrCreate(_type, out _);
 
-		public static bool AssetExists( string _assetPath )
+		public static bool ScriptableObjectExists<T>() where T : ScriptableObject
 		{
-			ThrowIfNotReady();
-			return AssetDatabase.LoadAssetAtPath<Object>(_assetPath) != null;
+			var found = AssetDatabase.FindAssets($"t:{typeof(T).Name}");
+			return found != null && found.Length > 0;
 		}
 
 		// Gate for specific ScriptableObject assets (type+path), e.g. to ensure importer finished.
@@ -190,28 +196,29 @@ namespace GuiToolkit
 
 #endif
 
-		public static ScriptableObject LoadOrCreateScriptableObject( string _className, string _assetPath, Type _type, out bool _wasCreated )
+		public static ScriptableObject LoadOrCreateScriptableObject( Type _type, out bool _wasCreated )
 		{
 			_wasCreated = false;
 			ScriptableObject result = null;
+			string className = _type.Name;
 
 #if UNITY_EDITOR
 			if (Application.isPlaying)
 			{
 #endif
-				result = Resources.Load<ScriptableObject>(_className);
+				result = Resources.Load<ScriptableObject>(className);
 				if (result == null)
 				{
-					Debug.LogError($"Scriptable object could not be loaded from path '{_className}'");
+					Debug.LogError($"Scriptable object could not be loaded from path '{className}'");
 					result = ScriptableObject.CreateInstance(_type);
 				}
 #if UNITY_EDITOR
 			}
 			else
 			{
-				EditorCallerGate.ThrowIfNotEditorAware(_className);
+				EditorCallerGate.ThrowIfNotEditorAware(className);
 				ThrowIfNotReady();
-				result = EditorLoadOrCreate(_className, _assetPath, _type, out _wasCreated);
+				result = EditorLoadOrCreate(_type, out _wasCreated);
 			}
 #endif
 
@@ -224,9 +231,9 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static ScriptableObject LoadOrCreateScriptableObject( string _className, string _assetPath, Type _type )
+		public static ScriptableObject LoadOrCreateScriptableObject( Type _type )
 		{
-			return LoadOrCreateScriptableObject(_className, _assetPath, _type, out _);
+			return LoadOrCreateScriptableObject(_type, out _);
 		}
 
 	}

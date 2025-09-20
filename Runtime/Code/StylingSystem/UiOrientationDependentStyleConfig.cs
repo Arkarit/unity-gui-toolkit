@@ -61,8 +61,6 @@ namespace GuiToolkit.Style
 				{
 					s_instance = (UiOrientationDependentStyleConfig)AssetReadyGate.LoadOrCreateScriptableObject
 					(
-						ClassName, 
-						AssetPath, 
 						typeof(UiOrientationDependentStyleConfig), 
 						out bool wasCreated
 					);

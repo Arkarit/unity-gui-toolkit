@@ -9,9 +9,7 @@ namespace GuiToolkit
 	[ExecuteAlways]
 	public abstract class AbstractSingletonScriptableObject<T> : ScriptableObject where T : AbstractSingletonScriptableObject<T>
 	{
-		public const string AssetDir = "Assets/Resources/";
 		public static string ClassName => typeof(T).Name;
-		public static string AssetPath => AssetDir + ClassName + ".asset";
 
 		private static T s_instance;
 
@@ -24,7 +22,7 @@ namespace GuiToolkit
 				EditorCallerGate.ThrowIfNotEditorAware(ClassName);
 				if (s_instance == null)
 				{
-					s_instance = (T)AssetReadyGate.LoadOrCreateScriptableObject(ClassName, AssetPath, typeof(T), out bool wasCreated);
+					s_instance = (T)AssetReadyGate.LoadOrCreateScriptableObject(typeof(T), out bool wasCreated);
 #if UNITY_EDITOR
 					if (wasCreated)
 						s_instance.OnEditorCreatedAsset();
