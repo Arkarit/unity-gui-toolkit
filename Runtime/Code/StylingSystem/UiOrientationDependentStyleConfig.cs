@@ -16,11 +16,7 @@ namespace GuiToolkit.Style
 		public const string Portrait = "Portrait";
 
 		protected static UiOrientationDependentStyleConfig s_instance;
-
-		public const string EditorDir = "Assets/Resources/";
 		public static string ClassName => typeof(UiOrientationDependentStyleConfig).Name;
-		public static string AssetPath => EditorDir + ClassName + ".asset";
-
 		public static void ResetInstance() => s_instance = null;
 
 		protected override void OnEnable()

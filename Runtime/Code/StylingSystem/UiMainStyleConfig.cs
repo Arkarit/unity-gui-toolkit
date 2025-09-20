@@ -10,10 +10,7 @@ namespace GuiToolkit.Style
 	public class UiMainStyleConfig : UiStyleConfig
 	{
 		protected static UiMainStyleConfig s_instance;
-
-		public const string EditorDir = "Assets/Resources/";
 		public static string ClassName => typeof(UiMainStyleConfig).Name;
-		public static string AssetPath => EditorDir + ClassName + ".asset";
 
 		public static void ResetInstance() => s_instance = null;
 
