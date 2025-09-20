@@ -22,9 +22,8 @@ namespace GuiToolkit.Style
 		
 		public static void ResetInstance() => s_instance = null;
 
-		protected override void SafeOnEnable()
+		protected override void OnEnable()
 		{
-			base.SafeOnEnable();
 			var instance = Instance;
 			if (instance.NumSkins == 0)
 			{

@@ -13,15 +13,14 @@ namespace GuiToolkit
 		/// <summary>
 		/// Safe initialization logic. Called only after the gate conditions are met.
 		/// </summary>
-		protected abstract void SafeOnEnable();
+		protected virtual void SafeOnEnable() { }
 
 		/// <summary>
 		/// Optional extra condition to check in the editor; ignored in play mode.
 		/// </summary>
 		protected virtual bool Condition() => true;
 
-		// Do not override: always goes through AssetReadyGate
-		private void OnEnable()
+		protected virtual void OnEnable()
 		{
 			AssetReadyGate.WhenReady
 			(

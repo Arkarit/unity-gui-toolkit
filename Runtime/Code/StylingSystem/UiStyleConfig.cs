@@ -10,7 +10,7 @@ namespace GuiToolkit.Style
 {
 	[CreateAssetMenu(fileName = nameof(UiStyleConfig), menuName = StringConstants.CREATE_STYLE_CONFIG)]
 	[ExecuteAlways]
-	public class UiStyleConfig : AbstractEditorAwareScriptableObject
+	public class UiStyleConfig : ScriptableObject
 	{
 		[NonReorderable][SerializeField] private List<UiSkin> m_skins = new();
 
@@ -50,7 +50,7 @@ namespace GuiToolkit.Style
 
 		public int NumSkins => m_skins != null ? m_skins.Count : 0;
 
-		protected override void SafeOnEnable()
+		protected virtual void OnEnable()
 		{
 			foreach (var skin in m_skins)
 				skin.Init(this);
