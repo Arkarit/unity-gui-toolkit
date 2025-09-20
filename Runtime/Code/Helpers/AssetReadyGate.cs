@@ -59,7 +59,8 @@ namespace GuiToolkit
 		/// <summary>
 		/// Returns true if the editor is calm (no compile/update) and
 		/// all ScriptableObjects under the given folders are fully imported.
-		/// Defaults to "Assets" to avoid scanning Packages.
+		/// Scans Assets and Packages (since our library resides in Packages and scriptable Objects may be
+		/// used both from Assets/Resources and Resource folders in Packages
 		/// </summary>
 		public static bool AllScriptableObjectsReady
 		{
@@ -67,6 +68,9 @@ namespace GuiToolkit
 			{
 				if (Application.isPlaying)
 					return true;
+
+				if (BuildPipeline.isBuildingPlayer)
+					return false;
 
 				// Editor must be calm first.
 				if (ImportBusy)
@@ -79,29 +83,20 @@ namespace GuiToolkit
 
 					// If path cannot be resolved (and editor is calm), treat as missing, not pending.
 					if (string.IsNullOrEmpty(path))
-					{
 						continue;
-					}
 
 					// Folders are not assets to wait for.
 					if (AssetDatabase.IsValidFolder(path))
-					{
 						continue;
-					}
 
 					// If file is not on disk (and editor is calm), treat as missing, not pending.
 					if (!File.Exists(path))
-					{
 						continue;
-					}
 
 					// Importer is done when the main type is known.
 					Type mainType = AssetDatabase.GetMainAssetTypeAtPath(path);
 					if (mainType == null)
-					{
-						// Still pending.
-						return false;
-					}
+						return false; // Still pending.
 				}
 
 				// All checked paths are ready (or irrelevant).
@@ -140,6 +135,13 @@ namespace GuiToolkit
 
 			void Tick()
 			{
+				if (BuildPipeline.isBuildingPlayer)
+				{
+					EditorApplication.update -= Tick;
+					Debug.LogWarning("WhenReady aborted: build started.");
+					return;
+				}
+
 				if (_maxFrames > 0 && ++frames > _maxFrames)
 				{
 					EditorApplication.update -= Tick;
@@ -195,7 +197,7 @@ namespace GuiToolkit
 		{
 			ThrowIfNotReady();
 			string path;
-			var foundGuids = AssetDatabase.FindAssets($"t:{_type}");
+			var foundGuids = AssetDatabase.FindAssets($"t:{_type.Name}");
 			if (foundGuids == null || foundGuids.Length == 0)
 				return null;
 
@@ -203,7 +205,7 @@ namespace GuiToolkit
 			foreach (var guid in foundGuids)
 			{
 				path = AssetDatabase.GUIDToAssetPath(guid);
-				if (path.StartsWith("Assets", StringComparison.Ordinal))
+				if (path.StartsWith("Assets/", StringComparison.Ordinal))
 					return AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
 			}
 
@@ -300,7 +302,7 @@ namespace GuiToolkit
 
 	}
 
-	#if UNITY_EDITOR
+#if UNITY_EDITOR
 	[InitializeOnLoad]
 	static class AssetReadyGateReset
 	{
