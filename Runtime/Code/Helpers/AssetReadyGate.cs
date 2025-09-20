@@ -36,9 +36,25 @@ namespace GuiToolkit
 
 
 #if UNITY_EDITOR
+		private const string AssetDir = "Assets/Resources/";
+
 		public static bool ImportBusy => EditorApplication.isCompiling || EditorApplication.isUpdating;
 
 		public static bool Ready => AllScriptableObjectsReady;
+
+		private static string[] s_scriptableObjectGuids;
+
+		private static string[] ScriptableObjectGuids
+		{
+			get
+			{
+				if (s_scriptableObjectGuids == null)
+					s_scriptableObjectGuids = AssetDatabase.FindAssets("t:ScriptableObject", new[] { "Assets", "Packages" });
+				return s_scriptableObjectGuids;
+			}
+		}
+
+		public static void Clear() => s_scriptableObjectGuids = null;
 
 		/// <summary>
 		/// Returns true if the editor is calm (no compile/update) and
@@ -56,14 +72,9 @@ namespace GuiToolkit
 				if (ImportBusy)
 					return false;
 
-				string[] folders = new[] { "Assets", "Packages" };
-
-				// GUID-level search is safe even while importer churns.
-				string[] guids = AssetDatabase.FindAssets("t:ScriptableObject", folders);
-
-				for (int i = 0; i < guids.Length; i++)
+				for (int i = 0; i < ScriptableObjectGuids.Length; i++)
 				{
-					string guid = guids[i];
+					string guid = ScriptableObjectGuids[i];
 					string path = AssetDatabase.GUIDToAssetPath(guid);
 
 					// If path cannot be resolved (and editor is calm), treat as missing, not pending.
@@ -208,8 +219,14 @@ namespace GuiToolkit
 			if (asset)
 				return asset;
 
+			if (BuildPipeline.isBuildingPlayer)
+			{
+				Debug.LogError($"Attempt to create scriptable object '{_type.Name}' during build process");
+				return null;
+			}
+
 			_wasCreated = true;
-			var assetPath = $"Assets/Resources/{_type.Name}.asset";
+			var assetPath = $"{AssetDir}{_type.Name}.asset";
 			EditorFileUtility.EnsureUnityFolderExists(System.IO.Path.GetDirectoryName(assetPath).Replace('\\', '/'));
 			var inst = ScriptableObject.CreateInstance(_type);
 			inst.name = _type.Name;
@@ -282,4 +299,23 @@ namespace GuiToolkit
 		}
 
 	}
+
+	#if UNITY_EDITOR
+	[InitializeOnLoad]
+	static class AssetReadyGateReset
+	{
+		static AssetReadyGateReset()
+		{
+			AssemblyReloadEvents.beforeAssemblyReload += Clear;
+			EditorApplication.playModeStateChanged += _ => Clear();
+			EditorApplication.projectChanged += Clear;
+		}
+
+		private static void Clear()
+		{
+			AssetReadyGate.Clear();
+		}
+	}
+#endif
+
 }
