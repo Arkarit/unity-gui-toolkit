@@ -34,10 +34,73 @@ namespace GuiToolkit
 			return result;
 		}
 
+
 #if UNITY_EDITOR
+		public static bool ImportBusy => EditorApplication.isCompiling || EditorApplication.isUpdating;
+
+		public static bool Ready => AllScriptableObjectsReady;
+
+		/// <summary>
+		/// Returns true if the editor is calm (no compile/update) and
+		/// all ScriptableObjects under the given folders are fully imported.
+		/// Defaults to "Assets" to avoid scanning Packages.
+		/// </summary>
+		public static bool AllScriptableObjectsReady
+		{
+			get
+			{
+				if (Application.isPlaying)
+					return true;
+
+				// Editor must be calm first.
+				if (ImportBusy)
+					return false;
+
+				string[] folders = new[] { "Assets", "Packages" };
+
+				// GUID-level search is safe even while importer churns.
+				string[] guids = AssetDatabase.FindAssets("t:ScriptableObject", folders);
+
+				for (int i = 0; i < guids.Length; i++)
+				{
+					string guid = guids[i];
+					string path = AssetDatabase.GUIDToAssetPath(guid);
+
+					// If path cannot be resolved (and editor is calm), treat as missing, not pending.
+					if (string.IsNullOrEmpty(path))
+					{
+						continue;
+					}
+
+					// Folders are not assets to wait for.
+					if (AssetDatabase.IsValidFolder(path))
+					{
+						continue;
+					}
+
+					// If file is not on disk (and editor is calm), treat as missing, not pending.
+					if (!File.Exists(path))
+					{
+						continue;
+					}
+
+					// Importer is done when the main type is known.
+					Type mainType = AssetDatabase.GetMainAssetTypeAtPath(path);
+					if (mainType == null)
+					{
+						// Still pending.
+						return false;
+					}
+				}
+
+				// All checked paths are ready (or irrelevant).
+				return true;
+			}
+		}
+
+
 		public static void WhenReady(
 			Action _callback,
-			Func<bool> _conditionIfNotPlaying = null,
 			int _quietFrames = 2,
 			int _maxFrames = 60 // 0 = no timeout
 		)
@@ -94,11 +157,6 @@ namespace GuiToolkit
 				}
 			}
 		}
-
-		public static bool ImportBusy()
-			=> EditorApplication.isCompiling || EditorApplication.isUpdating;
-
-		public static bool Ready => AllScriptableObjectsReady;
 
 		public static void ThrowIfNotReady( int _extraStackFrames = 0 )
 		{
@@ -170,90 +228,17 @@ namespace GuiToolkit
 			return found != null && found.Length > 0;
 		}
 
-		/// <summary>
-		/// Returns true if the editor is calm (no compile/update) and
-		/// all ScriptableObjects under the given folders are fully imported.
-		/// Defaults to "Assets" to avoid scanning Packages.
-		/// </summary>
-		public static bool AllScriptableObjectsReady
-		{
-			get
-			{
-				if (Application.isPlaying)
-					return true;
-
-				// Editor must be calm first.
-				if (EditorApplication.isCompiling || EditorApplication.isUpdating)
-					return false;
-
-				string[] folders = new[] { "Assets", "Packages" };
-
-				// GUID-level search is safe even while importer churns.
-				string[] guids = AssetDatabase.FindAssets("t:ScriptableObject", folders);
-
-				for (int i = 0; i < guids.Length; i++)
-				{
-					string guid = guids[i];
-					string path = AssetDatabase.GUIDToAssetPath(guid);
-
-					// If path cannot be resolved (and editor is calm), treat as missing, not pending.
-					if (string.IsNullOrEmpty(path))
-					{
-						continue;
-					}
-
-					// Folders are not assets to wait for.
-					if (AssetDatabase.IsValidFolder(path))
-					{
-						continue;
-					}
-
-					// If file is not on disk (and editor is calm), treat as missing, not pending.
-					if (!File.Exists(path))
-					{
-						continue;
-					}
-
-					// Importer is done when the main type is known.
-					Type mainType = AssetDatabase.GetMainAssetTypeAtPath(path);
-					if (mainType == null)
-					{
-						// Still pending.
-						return false;
-					}
-				}
-
-				// All checked paths are ready (or irrelevant).
-				return true;
-			}
-		}
-
-
-		// Gate for specific ScriptableObject assets (type+path), e.g. to ensure importer finished.
-
-
 #else
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void Clear() {}
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void WhenReady(Action _callback, Func<bool> _0, params string[] _1) => _callback.Invoke();
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void WhenReady( Action _callback, Func<bool> _0, (Type type, string assetPath)[] _1, int _2 = 0, int _3 = 0 ) => _callback.Invoke();
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void WhenReady( Action _callback, params string[] _1 ) => _callback?.Invoke();
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void Save<T>( T _0, string _1, string _2 ) where T : ScriptableObject {}
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool ImportBusy() => false;
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool ImporterPending( string _ ) => false;
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool Ready( string _ ) => true;
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void ThrowIfNotReady( string _ ) { }
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void ThrowIfNotPlaying( string _0, int _1 = 0 ) { }
 
+		public static bool ImportBusy => false;
+		public static bool Ready => true;
+		public static bool AllScriptableObjectsReady => true;
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void WhenReady(Action _callback, Func<bool> _0 = null, int _1 = 0, int _2 = 0) => _callback?.Invoke();
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void ThrowIfNotReady( int _ = 0 ) {}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void ThrowIfNotPlaying( string _0, int __1 = 0 ) {}
 #endif
 
 		public static ScriptableObject LoadOrCreateScriptableObject( Type _type, out bool _wasCreated )

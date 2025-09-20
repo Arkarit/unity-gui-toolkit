@@ -15,12 +15,6 @@ namespace GuiToolkit
 		/// <summary> Called when it is safe to perform OnEnable work. </summary>
 		protected abstract void SafeOnEnable();
 
-		/// <summary>
-		/// Optional additional condition evaluated only when NOT playing.
-		/// Return true when your component is ready to proceed.
-		/// </summary>
-		protected virtual bool Condition() => true;
-
 		// --- Unity lifecycle (do not override) ---
 
 		// Intentionally not virtual: we want the gate to always run.
@@ -57,8 +51,7 @@ namespace GuiToolkit
 						Debug.LogException(ex, this);
 						Debug.Log($"Exception in ScheduleSafeInvoke):{ex}");
 					}
-				},
-				Condition
+				}
 			);
 		}
 	}
