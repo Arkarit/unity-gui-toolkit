@@ -5,6 +5,7 @@ using UnityEngine;
 // Do not remove
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using System.IO;
 using GuiToolkit.Exceptions;
 using Object = UnityEngine.Object;
 using System.Runtime.InteropServices;
@@ -51,7 +52,7 @@ namespace GuiToolkit
 			}
 
 			// Immediate fast path
-			if (AssetReadyChecker.AllScriptableObjectsReady)
+			if (AllScriptableObjectsReady)
 			{
 				_callback();
 				return;
@@ -72,7 +73,7 @@ namespace GuiToolkit
 					return;
 				}
 
-				if (!AssetReadyChecker.AllScriptableObjectsReady)
+				if (!AllScriptableObjectsReady)
 				{
 					countdown = _quietFrames;
 					return;
@@ -97,7 +98,7 @@ namespace GuiToolkit
 		public static bool ImportBusy()
 			=> EditorApplication.isCompiling || EditorApplication.isUpdating;
 
-		public static bool Ready => AssetReadyChecker.AllScriptableObjectsReady;
+		public static bool Ready => AllScriptableObjectsReady;
 
 		public static void ThrowIfNotReady( int _extraStackFrames = 0 )
 		{
@@ -117,7 +118,7 @@ namespace GuiToolkit
 
 		public static T EditorLoad<T>() where T : ScriptableObject => (T)EditorLoad(typeof(T));
 
-		public static T EditorLoadOrCreate<T>(out bool _wasCreated ) where T : ScriptableObject => (T)EditorLoadOrCreate(typeof(T), out _wasCreated);
+		public static T EditorLoadOrCreate<T>( out bool _wasCreated ) where T : ScriptableObject => (T)EditorLoadOrCreate(typeof(T), out _wasCreated);
 
 		public static T EditorLoadOrCreate<T>() where T : ScriptableObject => (T)EditorLoadOrCreate(typeof(T), out _);
 
@@ -168,6 +169,65 @@ namespace GuiToolkit
 			var found = AssetDatabase.FindAssets($"t:{typeof(T).Name}");
 			return found != null && found.Length > 0;
 		}
+
+		/// <summary>
+		/// Returns true if the editor is calm (no compile/update) and
+		/// all ScriptableObjects under the given folders are fully imported.
+		/// Defaults to "Assets" to avoid scanning Packages.
+		/// </summary>
+		public static bool AllScriptableObjectsReady
+		{
+			get
+			{
+				if (Application.isPlaying)
+					return true;
+
+				// Editor must be calm first.
+				if (EditorApplication.isCompiling || EditorApplication.isUpdating)
+					return false;
+
+				string[] folders = new[] { "Assets", "Packages" };
+
+				// GUID-level search is safe even while importer churns.
+				string[] guids = AssetDatabase.FindAssets("t:ScriptableObject", folders);
+
+				for (int i = 0; i < guids.Length; i++)
+				{
+					string guid = guids[i];
+					string path = AssetDatabase.GUIDToAssetPath(guid);
+
+					// If path cannot be resolved (and editor is calm), treat as missing, not pending.
+					if (string.IsNullOrEmpty(path))
+					{
+						continue;
+					}
+
+					// Folders are not assets to wait for.
+					if (AssetDatabase.IsValidFolder(path))
+					{
+						continue;
+					}
+
+					// If file is not on disk (and editor is calm), treat as missing, not pending.
+					if (!File.Exists(path))
+					{
+						continue;
+					}
+
+					// Importer is done when the main type is known.
+					Type mainType = AssetDatabase.GetMainAssetTypeAtPath(path);
+					if (mainType == null)
+					{
+						// Still pending.
+						return false;
+					}
+				}
+
+				// All checked paths are ready (or irrelevant).
+				return true;
+			}
+		}
+
 
 		// Gate for specific ScriptableObject assets (type+path), e.g. to ensure importer finished.
 
