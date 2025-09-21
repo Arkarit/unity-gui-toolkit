@@ -1,3 +1,7 @@
+#if UNITY_6000_0_OR_NEWER
+#define UITK_USE_ROSLYN
+#endif
+
 using System;
 using UnityEditor;
 using UnityEngine;
@@ -24,6 +28,7 @@ namespace GuiToolkit.Editor
 		/// </summary>
 		private static void OnAfterReload()
 		{
+#if UITK_USE_ROSLYN
 			try
 			{
 				// Get current context scene (prefab stage or main scene)
@@ -41,6 +46,7 @@ namespace GuiToolkit.Editor
 			{
 				Debug.LogException(ex);
 			}
+#endif
 		}
 	}
 }
