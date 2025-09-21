@@ -10,7 +10,7 @@ namespace GuiToolkit.Style
 {
 	[CreateAssetMenu(fileName = nameof(UiStyleConfig), menuName = StringConstants.CREATE_STYLE_CONFIG)]
 	[ExecuteAlways]
-	public class UiStyleConfig : AbstractEditorAwareScriptableObject
+	public class UiStyleConfig : ScriptableObject
 	{
 		[NonReorderable][SerializeField] private List<UiSkin> m_skins = new();
 
@@ -28,21 +28,21 @@ namespace GuiToolkit.Style
 #endif
 			}
 		}
-		
+
 		public int CurrentSkinIdx
 		{
-			get =>  m_currentSkinIdx;
+			get => m_currentSkinIdx;
 			set
 			{
 				if (m_currentSkinIdx == value)
 					return;
-				
+
 				if (value > Skins.Count)
 				{
 					Debug.LogError($"Skin idx {value} exceeeds skin count {Skins.Count}");
 					return;
 				}
-				
+
 				m_currentSkinIdx = value;
 				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 			}
@@ -50,7 +50,7 @@ namespace GuiToolkit.Style
 
 		public int NumSkins => m_skins != null ? m_skins.Count : 0;
 
-		protected override void SafeOnEnable()
+		protected virtual void OnEnable()
 		{
 			foreach (var skin in m_skins)
 				skin.Init(this);
@@ -80,7 +80,7 @@ namespace GuiToolkit.Style
 			UiEventDefinitions.EvAddSkin.RemoveListener(OnAddSkin);
 		}
 
-		public void ForeachSkin(Action<UiSkin> _action)
+		public void ForeachSkin( Action<UiSkin> _action )
 		{
 			foreach (var skin in m_skins)
 				_action(skin);
@@ -91,17 +91,17 @@ namespace GuiToolkit.Style
 		{
 			if (m_skins == null || m_skins.Count == 0)
 				return;
-			
+
 			CurrentSkinIdx = 0;
 		}
-		
+
 		public List<string> StyleNames => GetStyleNamesByMonoBehaviourType(null, false);
 		public List<string> StyleAliases => GetStyleNamesByMonoBehaviourType(null, true);
 
-		public List<string> GetStyleNamesByMonoBehaviourType(Type _monoBehaviourType) => GetStyleNamesByMonoBehaviourType(_monoBehaviourType, false);
-		public List<string> GetStyleAliasesByMonoBehaviourType(Type _monoBehaviourType) => GetStyleNamesByMonoBehaviourType(_monoBehaviourType, true);
+		public List<string> GetStyleNamesByMonoBehaviourType( Type _monoBehaviourType ) => GetStyleNamesByMonoBehaviourType(_monoBehaviourType, false);
+		public List<string> GetStyleAliasesByMonoBehaviourType( Type _monoBehaviourType ) => GetStyleNamesByMonoBehaviourType(_monoBehaviourType, true);
 
-		private List<string> GetStyleNamesByMonoBehaviourType(Type _monoBehaviourType, bool _alias)
+		private List<string> GetStyleNamesByMonoBehaviourType( Type _monoBehaviourType, bool _alias )
 		{
 			List<string> result = new();
 			if (m_skins.Count <= 0)
@@ -115,15 +115,15 @@ namespace GuiToolkit.Style
 
 				result.Add(_alias ? style.Alias : style.Name);
 			}
-			
+
 			return result;
 		}
 
 		public List<string> SkinNames => GetSkinNamesOrAliases(false);
 
 		public List<string> SkinAliases => GetSkinNamesOrAliases(true);
-		
-		public List<string> GetSkinNamesOrAliases(bool _isAlias)
+
+		public List<string> GetSkinNamesOrAliases( bool _isAlias )
 		{
 			List<string> result = new();
 			foreach (var skin in m_skins)
@@ -146,7 +146,7 @@ namespace GuiToolkit.Style
 			set => SetCurrentSkinByNameOrAlias(value, true, true);
 		}
 
-		public string GetCurrentSkinNameOrAlias(bool _isAlias)
+		public string GetCurrentSkinNameOrAlias( bool _isAlias )
 		{
 			var currentSkin = CurrentSkin;
 			if (currentSkin == null)
@@ -155,9 +155,9 @@ namespace GuiToolkit.Style
 			return _isAlias ? currentSkin.Alias : currentSkin.Name;
 		}
 
-		public UiSkin GetSkinByName(string _name) => GetSkinByNameOrAlias(_name, false);
-		public UiSkin GetSkinByAlias(string _alias) => GetSkinByNameOrAlias(_alias, true);
-		public UiSkin GetSkinByNameOrAlias(string _skinNameOrAlias, bool _isAlias)
+		public UiSkin GetSkinByName( string _name ) => GetSkinByNameOrAlias(_name, false);
+		public UiSkin GetSkinByAlias( string _alias ) => GetSkinByNameOrAlias(_alias, true);
+		public UiSkin GetSkinByNameOrAlias( string _skinNameOrAlias, bool _isAlias )
 		{
 			for (int i = 0; i < m_skins.Count; i++)
 			{
@@ -169,31 +169,31 @@ namespace GuiToolkit.Style
 
 			return null;
 		}
-		
-		public UiAbstractStyleBase GetStyleByName(Type _componentType, string _skinName, string _styleName) => GetStyleByNameOrAlias(_componentType, _skinName, _styleName, false);
-		public UiAbstractStyleBase GetStyleByAlias(Type _componentType, string _skinAlias, string _styleAlias) => GetStyleByNameOrAlias(_componentType, _skinAlias, _styleAlias, true);
 
-		public UiAbstractStyleBase GetStyleByNameOrAlias(Type _componentType, string _skin, string _style, bool _isAlias)
+		public UiAbstractStyleBase GetStyleByName( Type _componentType, string _skinName, string _styleName ) => GetStyleByNameOrAlias(_componentType, _skinName, _styleName, false);
+		public UiAbstractStyleBase GetStyleByAlias( Type _componentType, string _skinAlias, string _styleAlias ) => GetStyleByNameOrAlias(_componentType, _skinAlias, _styleAlias, true);
+
+		public UiAbstractStyleBase GetStyleByNameOrAlias( Type _componentType, string _skin, string _style, bool _isAlias )
 		{
 			var skin = GetSkinByNameOrAlias(_skin, _isAlias);
 			if (skin == null)
 				return null;
-			
+
 			var styles = skin.Styles;
 			foreach (var style in styles)
 			{
 				if (style.SupportedComponentType != _componentType)
 					continue;
-				
+
 				var styleIdentifier = _isAlias ? style.Alias : style.Name;
 				if (styleIdentifier == _style)
 					return style;
 			}
-			
+
 			return null;
 		}
 
-		public bool SetCurrentSkinByNameOrAlias(string _skinNameOrAlias, bool _emitEvent, bool _isAlias)
+		public bool SetCurrentSkinByNameOrAlias( string _skinNameOrAlias, bool _emitEvent, bool _isAlias )
 		{
 			for (int i = 0; i < m_skins.Count; i++)
 			{
@@ -215,7 +215,7 @@ namespace GuiToolkit.Style
 			return false;
 		}
 
-		public UiSkin CurrentSkin 
+		public UiSkin CurrentSkin
 		{
 			get
 			{
@@ -232,18 +232,18 @@ namespace GuiToolkit.Style
 				skin.Validate(this);
 		}
 
-		private void OnAddSkin(UiStyleConfig _styleConfig, UiSkin _newSkin)
+		private void OnAddSkin( UiStyleConfig _styleConfig, UiSkin _newSkin )
 		{
-			if 
+			if
 			(
-				   _styleConfig != this 
-			    || _newSkin == null
+				   _styleConfig != this
+				|| _newSkin == null
 				|| m_skins.Contains(_newSkin)
 			)
 				return;
-			
+
 			m_skins.Add(_newSkin);
-			
+
 #if UNITY_EDITOR
 			SetDirty(this);
 #endif
@@ -251,11 +251,11 @@ namespace GuiToolkit.Style
 			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}
 
-		private void OnSetSkinAlias(UiStyleConfig _styleConfig, UiSkin _skin, string _alias)
+		private void OnSetSkinAlias( UiStyleConfig _styleConfig, UiSkin _skin, string _alias )
 		{
 			if (_styleConfig != this)
 				return;
-			
+
 			//FIXME: The _skin instance is different than the skins in style config - why??!
 			ForeachSkin(skin =>
 			{
@@ -270,7 +270,7 @@ namespace GuiToolkit.Style
 			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}
 
-		private void OnSetStyleAlias(UiStyleConfig _styleConfig, UiAbstractStyleBase _style, string _alias)
+		private void OnSetStyleAlias( UiStyleConfig _styleConfig, UiAbstractStyleBase _style, string _alias )
 		{
 			if (_styleConfig != this)
 				return;
@@ -286,12 +286,12 @@ namespace GuiToolkit.Style
 
 			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}
-		
-		private void OnDeleteStyle(UiStyleConfig _styleConfig, UiAbstractStyleBase _style)
+
+		private void OnDeleteStyle( UiStyleConfig _styleConfig, UiAbstractStyleBase _style )
 		{
 			if (_styleConfig != this)
 				return;
-			
+
 			ForeachSkin(skin =>
 			{
 				skin.DeleteStyle(_style);
@@ -304,7 +304,7 @@ namespace GuiToolkit.Style
 			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}
 
-		private void OnDeleteSkin(UiStyleConfig _styleConfig, string _skinName)
+		private void OnDeleteSkin( UiStyleConfig _styleConfig, string _skinName )
 		{
 			if (_styleConfig != this)
 				return;
@@ -327,11 +327,15 @@ namespace GuiToolkit.Style
 
 			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}
-		
+
 #if UNITY_EDITOR
-		public static void SetDirty(UiStyleConfig instance) => EditorGeneralUtility.SetDirty(instance);
+		public static void SetDirty( UiStyleConfig _instance )
+		{
+			if (_instance)
+				EditorGeneralUtility.SetDirty(_instance);
+		}
 #endif
-		public bool StyleExists(Type type, string name)
+		public bool StyleExists( Type type, string name )
 		{
 			if (m_skins.Count == 0)
 				return false;

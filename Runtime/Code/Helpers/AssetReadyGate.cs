@@ -5,7 +5,10 @@ using UnityEngine;
 // Do not remove
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
-
+using System.IO;
+using GuiToolkit.Exceptions;
+using Object = UnityEngine.Object;
+using System.Runtime.InteropServices;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,10 +16,20 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// Gatekeeper for safe ScriptableObject access and creation.
+	/// Prevents saving or creating assets while the Editor is importing/compiling
+	/// or while a player build is in progress. Provides simple runtime loading
+	/// via Resources in Play Mode.
+	/// </summary>
 	public static class AssetReadyGate
 	{
-		private static readonly HashSet<string> s_pathsDone = new();
-
+		/// <summary>
+		/// Loads a ScriptableObject from Resources at runtime. Throws in Editor if not playing.
+		/// </summary>
+		/// <typeparam name="T">ScriptableObject type to load.</typeparam>
+		/// <param name="_name">Resources path (without extension).</param>
+		/// <returns>Loaded instance or a transient ScriptableObject if not found.</returns>
 		public static T RuntimeLoad<T>( string _name ) where T : ScriptableObject
 		{
 			ThrowIfNotPlaying(_name);
@@ -31,42 +44,104 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		public static void Clear() => s_pathsDone.Clear();
+		private const string AssetDir = "Assets/Resources/";
 
-		private static bool AllAssetsDone( (Type type, string assetPath)[] _assets )
+		/// <summary>
+		/// True while the Editor is compiling scripts or updating assets.
+		/// </summary>
+		public static bool ImportBusy => EditorApplication.isCompiling || EditorApplication.isUpdating;
+
+		/// <summary>
+		/// Shorthand for AllScriptableObjectsReady.
+		/// </summary>
+		public static bool Ready => AllScriptableObjectsReady;
+
+		private static string[] s_scriptableObjectGuids;
+
+		/// <summary>
+		/// Cached list of all ScriptableObject GUIDs in Assets and Packages.
+		/// This is intentionally broad because the library may live in Packages
+		/// and consumers may have ScriptableObjects in both trees.
+		/// </summary>
+		private static string[] ScriptableObjectGuids
 		{
-			foreach (var asset in _assets)
+			get
 			{
-				if (!s_pathsDone.Contains(asset.assetPath))
-					return false;
+				if (s_scriptableObjectGuids == null)
+					s_scriptableObjectGuids = AssetDatabase.FindAssets("t:ScriptableObject", new[] { "Assets", "Packages" });
+				return s_scriptableObjectGuids;
 			}
-
-			return true;
 		}
 
+		/// <summary>
+		/// Clears the cached GUID list. Called on relevant Editor events.
+		/// </summary>
+		public static void Clear() => s_scriptableObjectGuids = null;
+
+		/// <summary>
+		/// Returns true if Editor is idle (no compile/update) and all ScriptableObjects
+		/// in Assets/Packages have a resolvable main type (i.e., importer finished).
+		/// Also returns false if a player build is in progress.
+		/// In Play Mode this always returns true.
+		/// </summary>
+		public static bool AllScriptableObjectsReady
+		{
+			get
+			{
+				if (Application.isPlaying)
+					return true;
+
+				if (BuildPipeline.isBuildingPlayer)
+					return false;
+
+				// Editor must be calm first.
+				if (ImportBusy)
+					return false;
+
+				for (int i = 0; i < ScriptableObjectGuids.Length; i++)
+				{
+					string guid = ScriptableObjectGuids[i];
+					string path = AssetDatabase.GUIDToAssetPath(guid);
+
+					// If path cannot be resolved (and editor is calm), treat as missing, not pending.
+					if (string.IsNullOrEmpty(path))
+						continue;
+
+					// Folders are not assets to wait for.
+					if (AssetDatabase.IsValidFolder(path))
+						continue;
+
+					// If file is not on disk (and editor is calm), treat as missing, not pending.
+					if (!File.Exists(path))
+						continue;
+
+					// Importer is done when the main type is known.
+					Type mainType = AssetDatabase.GetMainAssetTypeAtPath(path);
+					if (mainType == null)
+						return false; // Still pending.
+				}
+
+				// All checked paths are ready (or irrelevant).
+				return true;
+			}
+		}
+
+		/// <summary>
+		/// Executes a callback after the Editor becomes quiet and all ScriptableObjects are ready.
+		/// Uses a "quiet frame" countdown to avoid firing on the very first ready frame.
+		/// Aborts if a build starts or a timeout is reached.
+		/// </summary>
+		/// <param name="_callback">Action to invoke when ready.</param>
+		/// <param name="_quietFrames">Number of consecutive ready frames required before invoking.</param>
+		/// <param name="_maxFrames">Hard timeout in frames (0 disables timeout).</param>
 		public static void WhenReady(
 			Action _callback,
-			Func<bool> _conditionIfNotPlaying,
-			(Type type, string assetPath)[] _assets,
 			int _quietFrames = 2,
-			int _maxFrames = 30 // 0 = no timeout
+			int _maxFrames = 60 // 0 = no timeout
 		)
 		{
 			if (_callback == null)
 				return;
-
-			_assets ??= Array.Empty<(Type, string)>();
-
-			// Validate types
-			foreach (var asset in _assets)
-			{
-				if (asset.type == null)
-					throw new ArgumentException("Type must not be null.", nameof(_assets));
-
-				if (!typeof(ScriptableObject).IsAssignableFrom(asset.type))
-					throw new ArgumentException(
-						$"WhenReady() only supports ScriptableObject types, but got '{asset.type.Name}'.");
-			}
 
 			if (Application.isPlaying)
 			{
@@ -75,7 +150,7 @@ namespace GuiToolkit
 			}
 
 			// Immediate fast path
-			if (AllAssetsDone(_assets))
+			if (AllScriptableObjectsReady)
 			{
 				_callback();
 				return;
@@ -87,39 +162,17 @@ namespace GuiToolkit
 			EditorApplication.update += Tick;
 			return;
 
-			bool CompletelyLoaded()
-			{
-				if (_conditionIfNotPlaying != null && !_conditionIfNotPlaying())
-					return false;
-
-				if (ImportBusy())
-					return false;
-
-				foreach (var asset in _assets)
-				{
-					if (string.IsNullOrEmpty(asset.assetPath))
-						continue;
-
-					if (s_pathsDone.Contains(asset.assetPath))
-						continue;
-
-					if (ImporterPending(asset.assetPath))
-						return false;
-
-					foreach (var dep in AssetDatabase.GetDependencies(asset.assetPath, recursive: true))
-					{
-						if (ImporterPending(dep))
-							return false;
-					}
-
-					s_pathsDone.Add(asset.assetPath);
-				}
-
-				return true;
-			}
-
 			void Tick()
 			{
+				// Abort if a build begins after scheduling.
+				if (BuildPipeline.isBuildingPlayer)
+				{
+					EditorApplication.update -= Tick;
+					Debug.LogWarning("WhenReady aborted: build started.");
+					return;
+				}
+
+				// Timeout guard to avoid dangling subscriptions.
 				if (_maxFrames > 0 && ++frames > _maxFrames)
 				{
 					EditorApplication.update -= Tick;
@@ -127,51 +180,51 @@ namespace GuiToolkit
 					return;
 				}
 
-				if (!CompletelyLoaded())
+				// Not ready yet; reset quiet countdown.
+				if (!AllScriptableObjectsReady)
 				{
 					countdown = _quietFrames;
 					return;
 				}
 
+				// Wait for the required number of consecutive quiet frames.
 				if (countdown-- > 0)
 					return;
 
 				EditorApplication.update -= Tick;
-				try { _callback(); }
-				catch (Exception ex) { Debug.LogException(ex); }
+
+				try
+				{
+					_callback();
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError($"Exception in Callback: {ex}");
+				}
 			}
 		}
 
-		// Convenience overload: only paths (no type check needed).
-		public static void WhenReady( Action _callback, Func<bool> _conditionWhenNotRunning, params string[] _assetPaths )
+		/// <summary>
+		/// Throws if the asset system is not ready (import/compile/build in progress).
+		/// Use this to guard any Editor-time asset IO that must not run during import/build.
+		/// </summary>
+		/// <param name="_extraStackFrames">Extra frames to skip for caller extraction in logs.</param>
+		/// <exception cref="NotInitializedException">Thrown if assets are not ready.</exception>
+		public static void ThrowIfNotReady( int _extraStackFrames = 0 )
 		{
-			var items = new (Type, string)[_assetPaths?.Length ?? 0];
-			for (int i = 0; i < items.Length; i++)
-				items[i] = (typeof(ScriptableObject), _assetPaths[i]);
-
-			WhenReady(_callback, _conditionWhenNotRunning, items);
-		}
-
-		public static void WhenReady( Action _callback, params string[] _assetPaths ) => WhenReady(_callback, null, _assetPaths);
-
-		public static bool ImportBusy()
-			=> EditorApplication.isCompiling || EditorApplication.isUpdating;
-
-		public static bool ImporterPending( string _assetPath )
-			=> !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(_assetPath))
-			   && AssetDatabase.GetMainAssetTypeAtPath(_assetPath) == null;
-
-		public static bool Ready( string _assetPath )
-			=> Application.isPlaying || !(ImportBusy() || ImporterPending(_assetPath));
-
-		public static void ThrowIfNotReady( string _assetPath, int _extraStackFrames = 0 )
-		{
-			if (!Ready(_assetPath))
-				throw new InvalidOperationException(
+			if (!Ready)
+				throw new NotInitializedException(
 					$"{DebugUtility.GetCallingClassAndMethod(false, true, 1 + _extraStackFrames)} is not allowed during import/compile. " +
-					$"Wrap with WhenReady(...). Asset: {_assetPath}");
+					$"Wrap with WhenReady(...).");
 		}
 
+		/// <summary>
+		/// Throws if called in the Editor while not in Play Mode.
+		/// Use this to enforce that runtime-only accessors are not used in Edit Mode.
+		/// </summary>
+		/// <param name="_name">Logical object name for diagnostics.</param>
+		/// <param name="_extraStackFrames">Extra frames to skip for caller extraction in logs.</param>
+		/// <exception cref="InvalidOperationException">Thrown if not in Play Mode.</exception>
 		public static void ThrowIfNotPlaying( string _name, int _extraStackFrames = 0 )
 		{
 			if (!Application.isPlaying)
@@ -180,55 +233,195 @@ namespace GuiToolkit
 					 $"(with '{_name}') is not allowed in Editor while not playing. Please use WhenReady(...) or InstanceOrNull.");
 		}
 
-		public static T EditorLoadOrCreate<T>( string _name, string _assetPath ) where T : ScriptableObject
+		/// <summary>
+		/// Loads a ScriptableObject of type T from the project (Editor-only).
+		/// Prefers assets under Assets/ if multiple matches exist.
+		/// Returns null if none found.
+		/// </summary>
+		public static T EditorLoad<T>() where T : ScriptableObject => (T)EditorLoad(typeof(T));
+
+		/// <summary>
+		/// Loads or creates a ScriptableObject of type T (Editor-only).
+		/// Outputs whether a new instance had to be created.
+		/// </summary>
+		public static T EditorLoadOrCreate<T>( out bool _wasCreated ) where T : ScriptableObject => (T)EditorLoadOrCreate(typeof(T), out _wasCreated);
+
+		/// <summary>
+		/// Loads or creates a ScriptableObject of type T (Editor-only).
+		/// </summary>
+		public static T EditorLoadOrCreate<T>() where T : ScriptableObject => (T)EditorLoadOrCreate(typeof(T), out _);
+
+		/// <summary>
+		/// Loads a ScriptableObject of the given type from the project (Editor-only).
+		/// Uses type name filter (t:TypeName). Prefers Assets/ over Packages/ if multiple matches exist.
+		/// Returns null if none found.
+		/// </summary>
+		/// <param name="_type">Concrete ScriptableObject type to load.</param>
+		/// <returns>Loaded asset or null.</returns>
+		public static ScriptableObject EditorLoad( Type _type )
 		{
-			if (string.IsNullOrEmpty(_assetPath))
-				throw new System.InvalidOperationException("AssetPath not set for " + typeof(T).FullName);
+			ThrowIfNotReady();
+			string path;
+			var foundGuids = AssetDatabase.FindAssets($"t:{_type.Name}");
+			if (foundGuids == null || foundGuids.Length == 0)
+				return null;
 
-			ThrowIfNotReady(_assetPath);
+			// Assets in user dirs are preferred
+			foreach (var guid in foundGuids)
+			{
+				path = AssetDatabase.GUIDToAssetPath(guid);
+				if (path.StartsWith("Assets/", StringComparison.Ordinal))
+					return AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
+			}
 
-			var asset = AssetDatabase.LoadAssetAtPath<T>(_assetPath);
+			path = AssetDatabase.GUIDToAssetPath(foundGuids[0]);
+			return AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
+		}
+
+		/// <summary>
+		/// Loads a ScriptableObject of the given type or creates it if missing (Editor-only).
+		/// Creation is blocked during player build to avoid writing while building.
+		/// New assets are created at Assets/Resources/{TypeName}.asset.
+		/// </summary>
+		/// <param name="_type">Concrete ScriptableObject type.</param>
+		/// <param name="_wasCreated">True if a new asset was created.</param>
+		/// <returns>Existing or newly created asset, or null if creation was blocked.</returns>
+		public static ScriptableObject EditorLoadOrCreate( Type _type, out bool _wasCreated )
+		{
+			_wasCreated = false;
+			// We do not need a ThrowIfNotReady() here; EditorLoad() already enforces it.
+			var asset = EditorLoad(_type);
 			if (asset)
 				return asset;
 
-			EditorFileUtility.EnsureUnityFolderExists(System.IO.Path.GetDirectoryName(_assetPath).Replace('\\', '/'));
-			var inst = ScriptableObject.CreateInstance<T>();
-			inst.name = _name;
-			AssetDatabase.CreateAsset(inst, _assetPath);
+			// Hard guard: never create assets while building the player.
+			if (BuildPipeline.isBuildingPlayer)
+			{
+				Debug.LogError($"Attempt to create scriptable object '{_type.Name}' during build process");
+				return null;
+			}
+
+			_wasCreated = true;
+			var assetPath = $"{AssetDir}{_type.Name}.asset";
+			EditorFileUtility.EnsureUnityFolderExists(System.IO.Path.GetDirectoryName(assetPath).Replace('\\', '/'));
+			var inst = ScriptableObject.CreateInstance(_type);
+			inst.name = _type.Name;
+			Debug.Log($"Create scriptable object instance '{inst.name}' of type '{_type.Name}' at '{assetPath}'");
+			AssetDatabase.CreateAsset(inst, assetPath);
 			AssetDatabase.SaveAssets();
-			AssetDatabase.ImportAsset(_assetPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
-			return AssetDatabase.LoadAssetAtPath<T>(_assetPath);
+			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
+			return AssetDatabase.LoadAssetAtPath<ScriptableObject>(assetPath);
 		}
 
-		// Gate for specific ScriptableObject assets (type+path), e.g. to ensure importer finished.
+		/// <summary>
+		/// Shorthand for EditorLoadOrCreate(Type, out _).
+		/// </summary>
+		public static ScriptableObject EditorLoadOrCreate( Type _type ) => EditorLoadOrCreate(_type, out _);
 
+		/// <summary>
+		/// Returns true if there is at least one ScriptableObject of type T in the project (Editor-only).
+		/// </summary>
+		public static bool ScriptableObjectExists<T>() where T : ScriptableObject
+		{
+			var found = AssetDatabase.FindAssets($"t:{typeof(T).Name}");
+			return found != null && found.Length > 0;
+		}
 
 #else
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void Clear() {}
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void WhenReady(Action _callback, Func<bool> _0, params string[] _1) => _callback.Invoke();
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void WhenReady( Action _callback, Func<bool> _0, (Type type, string assetPath)[] _1, int _2 = 0, int _3 = 0 ) => _callback.Invoke();
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void WhenReady( Action _callback, params string[] _1 ) => _callback?.Invoke();
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void Save<T>( T _0, string _1, string _2 ) where T : ScriptableObject {}
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool ImportBusy() => false;
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool ImporterPending( string _ ) => false;
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool Ready( string _ ) => true;
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void ThrowIfNotReady( string _ ) { }
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void ThrowIfNotPlaying( string _0, int _1 = 0 ) { }
 
+		/// <summary>
+		/// Always false in player builds.
+		/// </summary>
+		public static bool ImportBusy => false;
+
+		/// <summary>
+		/// Always true in player builds.
+		/// </summary>
+		public static bool Ready => true;
+
+		/// <summary>
+		/// Always true in player builds.
+		/// </summary>
+		public static bool AllScriptableObjectsReady => true;
+
+		/// <summary>
+		/// In player builds, invoke immediately.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void WhenReady(Action _callback, Func<bool> _0 = null, int _1 = 0, int _2 = 0) => _callback?.Invoke();
+
+		/// <summary>
+		/// No-op in player builds.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void ThrowIfNotReady( int _ = 0 ) {}
+
+		/// <summary>
+		/// No-op in player builds.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void ThrowIfNotPlaying( string _0, int __1 = 0 ) {}
 #endif
+
+		/// <summary>
+		/// Loads or creates a ScriptableObject regardless of context.
+		/// In Play Mode, loads from Resources and falls back to transient instance.
+		/// In Editor (not playing), uses EditorLoadOrCreate with readiness checks.
+		/// </summary>
+		/// <param name="_type">Concrete ScriptableObject type.</param>
+		/// <param name="_wasCreated">True if a new instance was created (asset or transient).</param>
+		/// <returns>ScriptableObject instance (asset or transient).</returns>
+		public static ScriptableObject LoadOrCreateScriptableObject( Type _type, out bool _wasCreated )
+		{
+			_wasCreated = false;
+			ScriptableObject result = null;
+			string className = _type.Name;
+
+#if UNITY_EDITOR
+			if (Application.isPlaying)
+			{
+#endif
+				result = Resources.Load<ScriptableObject>(className);
+				if (result == null)
+				{
+					Debug.LogError($"Scriptable object could not be loaded from path '{className}'");
+					result = ScriptableObject.CreateInstance(_type);
+				}
+#if UNITY_EDITOR
+			}
+			else
+			{
+				// Enforce that the caller is Editor-aware, then ensure asset readiness.
+				EditorCallerGate.ThrowIfNotEditorAware(className);
+				ThrowIfNotReady();
+				result = EditorLoadOrCreate(_type, out _wasCreated);
+			}
+#endif
+
+			// Fallback: transient instance to avoid returning null to callers.
+			if (result == null)
+			{
+				result = ScriptableObject.CreateInstance(_type);
+				_wasCreated = true;
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Shorthand for LoadOrCreateScriptableObject(Type, out _).
+		/// </summary>
+		public static ScriptableObject LoadOrCreateScriptableObject( Type _type )
+		{
+		 return LoadOrCreateScriptableObject(_type, out _);
+		}
 	}
 
 #if UNITY_EDITOR
+	/// <summary>
+	/// Resets the cached GUID list on significant Editor lifecycle events
+	/// to keep the readiness evaluation correct as the project changes.
+	/// </summary>
 	[InitializeOnLoad]
 	static class AssetReadyGateReset
 	{
@@ -236,6 +429,7 @@ namespace GuiToolkit
 		{
 			AssemblyReloadEvents.beforeAssemblyReload += Clear;
 			EditorApplication.playModeStateChanged += _ => Clear();
+			EditorApplication.projectChanged += Clear;
 		}
 
 		private static void Clear()
@@ -244,5 +438,4 @@ namespace GuiToolkit
 		}
 	}
 #endif
-
 }

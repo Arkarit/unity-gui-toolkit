@@ -9,23 +9,11 @@ namespace GuiToolkit
 	/// </summary>
 	public abstract class AbstractEditorAwareMonoBehaviour : MonoBehaviour, IEditorAware
 	{
-		/// <summary>
-		/// Absolute Unity asset paths (e.g. "Assets/Resources/…") that must be ready in the Editor.
-		/// May be empty; never return null.
-		/// </summary>
-		public virtual string[] RequiredScriptableObjects => new []{UiToolkitConfiguration.AssetPath};
-
 		/// <summary> Called when it is safe to perform Awake work. </summary>
 		protected abstract void SafeAwake();
 
 		/// <summary> Called when it is safe to perform OnEnable work. </summary>
 		protected abstract void SafeOnEnable();
-
-		/// <summary>
-		/// Optional additional condition evaluated only when NOT playing.
-		/// Return true when your component is ready to proceed.
-		/// </summary>
-		protected virtual bool Condition() => true;
 
 		// --- Unity lifecycle (do not override) ---
 
@@ -40,9 +28,9 @@ namespace GuiToolkit
 			ScheduleSafeInvoke(SafeOnEnable);
 		}
 
-		private void ScheduleSafeInvoke( Action safeAction )
+		private void ScheduleSafeInvoke( Action _safeAction )
 		{
-			if (safeAction == null) 
+			if (_safeAction == null) 
 				return;
 
 			// Editor: guard with AssetReadyGate; Runtime: should be immediate
@@ -56,15 +44,14 @@ namespace GuiToolkit
 
 					try
 					{
-						safeAction();
+						_safeAction();
 					}
 					catch (Exception ex)
 					{
 						Debug.LogException(ex, this);
+						Debug.Log($"Exception in ScheduleSafeInvoke):{ex}");
 					}
-				},
-				Condition,
-				RequiredScriptableObjects
+				}
 			);
 		}
 	}

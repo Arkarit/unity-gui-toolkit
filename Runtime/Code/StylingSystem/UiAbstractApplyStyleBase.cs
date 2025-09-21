@@ -10,6 +10,7 @@ using UnityEditor;
 namespace GuiToolkit.Style
 {
 	[ExecuteAlways]
+	[EditorAware]
 	public abstract class UiAbstractApplyStyleBase : AbstractEditorAwareMonoBehaviour
 	{
 		[SerializeField] [HideInInspector] private bool m_isResolutionDependent;
@@ -43,6 +44,8 @@ namespace GuiToolkit.Style
 		{
 			get
 			{
+				AssetReadyGate.ThrowIfNotReady();
+				EditorCallerGate.ThrowIfNotEditorAware(Name);
 #if UNITY_EDITOR
 				if (!Application.isPlaying)
 					m_effectiveStyleConfigInitialized = false;

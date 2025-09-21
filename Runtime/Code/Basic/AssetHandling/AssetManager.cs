@@ -327,22 +327,25 @@ namespace GuiToolkit.AssetHandling
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 		private static void Init()
 		{
-			AssetReadyGate.WhenReady(() =>
-			{
-				List<IAssetProvider> providers = new();
-				var factories = UiToolkitConfiguration.Instance.AssetProviderFactories;
-				foreach (var factory in factories)
+			AssetReadyGate.WhenReady
+			(
+				() =>
 				{
-					var provider = factory.CreateProvider();
-					provider.Init();
-					providers.Add(provider);
-				}
+					List<IAssetProvider> providers = new();
+					var factories = UiToolkitConfiguration.Instance.AssetProviderFactories;
+					foreach (var factory in factories)
+					{
+						var provider = factory.CreateProvider();
+						provider.Init();
+						providers.Add(provider);
+					}
 
-				var defaultProvider = new DefaultAssetProvider();
-				defaultProvider.Init();
-				providers.Add(defaultProvider);
-				s_assetProviders = providers.ToArray();
-			});
+					var defaultProvider = new DefaultAssetProvider();
+					defaultProvider.Init();
+					providers.Add(defaultProvider);
+					s_assetProviders = providers.ToArray();
+				}
+			);
 		}
 	}
 }

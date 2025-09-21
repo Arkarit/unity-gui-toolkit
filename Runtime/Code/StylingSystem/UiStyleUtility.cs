@@ -59,6 +59,9 @@ namespace GuiToolkit.Style
 
 		public static void ReApplyAppliers<T>(IEnumerable<T> list) where T : Component
 		{
+			if (!AssetReadyGate.Ready)
+				return;
+			
 			foreach (var elem in list)
 				ReApplyApplier(elem);
 		}

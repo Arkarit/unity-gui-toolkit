@@ -25,56 +25,46 @@ namespace GuiToolkit
 		[MethodImpl(MethodImplOptions.NoInlining)]
 		public static bool IsAnyCallerEditorAware( params Type[] _skipTypes )
 		{
-			var trace = new StackTrace(skipFrames: 1, fNeedFileInfo: false);
-			var frames = trace.GetFrames();
-			if (frames == null)
-				return false;
+			var frames = new StackTrace(1, false).GetFrames();
+			if (frames == null) return false;
 
-			for (int i = 0; i < frames.Length; i++)
+			foreach (var f in frames)
 			{
-				var currentMethod = frames[i].GetMethod();
-				var currentType = currentMethod?.DeclaringType;
-
-				if (currentType == null)
+				var m = f.GetMethod();
+				var t = m?.DeclaringType;
+				if (t == null) 
 					continue;
 
-				// Skip infra types (self, helpers) if provided
-				if (_skipTypes != null && _skipTypes.Contains(currentType))
-					continue;
-
-				// Skip our own infra automatically
-				if (currentType == typeof(EditorCallerGate))
-					continue;
-
-				// Skip compiler-generated (lambdas/async state machines)
-				if (currentType.IsDefined(typeof(CompilerGeneratedAttribute), false))
+				if (_skipTypes != null && _skipTypes.Contains(t)) 
 					continue;
 				
-				if (currentType.Name.Length > 0 && currentType.Name[0] == '<')
+				if (t == typeof(EditorCallerGate)) 
 					continue;
 
-				if (IsEditorAware(currentType, currentMethod))
+				if (IsOrHasOuterEditorAware(t)) 
+					return true;
+
+				if (m.IsDefined(typeof(EditorAwareAttribute), inherit: true)) 
 					return true;
 			}
-
+			
 			return false;
 		}
 
-		public static bool IsEditorAware( Type _type, MethodBase _method )
+		private static bool IsOrHasOuterEditorAware( Type _type )
 		{
-			if (_type == null)
-				return false;
-
-			if (s_isAwareCache.TryGetValue(_type, out var cached))
-				return cached;
-
-			bool isAware =
-                typeof(IEditorAware).IsAssignableFrom(_type) ||
-                _type.IsDefined(typeof(EditorAwareAttribute), inherit: true) ||
-                _method.IsDefined(typeof(EditorAwareAttribute), inherit: true);
-			
-			s_isAwareCache[_type] = isAware;
-			return isAware;
+			for (var cur = _type; cur != null; cur = cur.DeclaringType)
+			{
+				if (!s_isAwareCache.TryGetValue(cur, out bool aware))
+				{
+					aware = typeof(IEditorAware).IsAssignableFrom(cur)
+						 || cur.IsDefined(typeof(EditorAwareAttribute), inherit: true);
+					s_isAwareCache[cur] = aware;
+				}
+				if (aware) 
+					return true;
+			}
+			return false;
 		}
 
 		/// <summary>
@@ -87,11 +77,11 @@ namespace GuiToolkit
 		{
 			if (Application.isPlaying || IsAnyCallerEditorAware(_skipTypes))
 				return;
-
-			throw new InvalidOperationException($"{DebugUtility.GetCallingClassAndMethod(false, true, 1)} needs to be called with\n" + 
-			                                    "at least one caller in the stack trace to implement IEditorAware (and of course implement Editor awareness)");
+			
+			throw new InvalidOperationException($"{DebugUtility.GetCallingClassAndMethod(false, true, 1)} needs to be called with\n" +
+												"at least one caller in the stack trace to implement IEditorAware (and of course implement Editor awareness)");
 		}
-		
+
 #else
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool IsAnyCallerEditorAware( params Type[] _skipTypes ) => true;

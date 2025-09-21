@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
+	[EditorAware]
 	public static class Doxyfile
 	{
 		private static string s_path;
@@ -15,6 +16,8 @@ namespace GuiToolkit.Editor
 
 		public static string Write()
 		{
+			AssetReadyGate.ThrowIfNotReady();
+			
 			var templateLines = ReadTemplate();
 			if (templateLines == null)
 			{
@@ -22,7 +25,8 @@ namespace GuiToolkit.Editor
 				return null;
 			}
 			
-			DoxygenConfig.EditorSave();
+			// This creates the config if it doesn't exist
+			_ = DoxygenConfig.Instance;
 
 			string excludePatterns = string.Empty;
 			for (int i = 0; i < DoxygenConfig.Instance.ExcludePatterns.Count; i++)

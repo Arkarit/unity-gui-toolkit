@@ -7,98 +7,36 @@ using UnityEditor;
 namespace GuiToolkit
 {
 	[ExecuteAlways]
-	public abstract class AbstractSingletonScriptableObject<T> : ScriptableObject where T : ScriptableObject
+	public abstract class AbstractSingletonScriptableObject<T> : ScriptableObject where T : AbstractSingletonScriptableObject<T>
 	{
-		public const string AssetDir = "Assets/Resources/";
 		public static string ClassName => typeof(T).Name;
-		public static string AssetPath => AssetDir + ClassName + ".asset";
-		
-		protected static T s_instance;
 
-		protected virtual void OnEnable() {}
+		private static T s_instance;
 
+		protected virtual void OnEnable() { }
 
 		public static T Instance
 		{
 			get
 			{
 				EditorCallerGate.ThrowIfNotEditorAware(ClassName);
-				
 				if (s_instance == null)
 				{
+					s_instance = (T)AssetReadyGate.LoadOrCreateScriptableObject(typeof(T), out bool wasCreated);
 #if UNITY_EDITOR
-					if (Application.isPlaying)
-					{
+					if (wasCreated)
+						s_instance.OnEditorCreatedAsset();
 #endif
-						s_instance = Resources.Load<T>(ClassName);
-						if (s_instance == null)
-						{
-							Debug.LogError($"Scriptable object could not be loaded from path '{ClassName}'");
-							s_instance = CreateInstance<T>();
-						}
-#if UNITY_EDITOR
-					}
-					else
-					{
-						s_instance = EditorLoad();
-					}
-#endif
-					if (s_instance == null)
-						s_instance = CreateInstance<T>();
 				}
-
+				
 				return s_instance;
 			}
 		}
 
 #if UNITY_EDITOR
 
-		public virtual void OnEditorInitialize() {}
+		public virtual void OnEditorCreatedAsset() { }
 
-		protected static T EditorLoad()
-		{
-			T result = AssetDatabase.LoadAssetAtPath<T>(AssetPath);
-			if (result == null)
-			{
-				result = CreateInstance<T>();
-				EditorSave(result);
-			}
-
-			return result;
-		}
-
-		private static void CreateAsset( Object _obj, string _path )
-		{
-			string directory = EditorFileUtility.GetDirectoryName(_path);
-			EditorFileUtility.EnsureUnityFolderExists(directory);
-			AssetDatabase.CreateAsset(_obj, _path);
-		}
-
-		public static void EditorSave(T _instance)
-		{
-			if (!AssetDatabase.Contains(_instance))
-				CreateAsset(_instance, AssetPath);
-
-			EditorGeneralUtility.SetDirty(_instance);
-			AssetDatabase.SaveAssetIfDirty(_instance);
-		}
-
-		public static void EditorSave() => EditorSave(Instance);
-
-		public static bool Initialized => AssetDatabase.LoadAssetAtPath<T>(AssetPath) != null;
-
-		public static void Initialize()
-		{
-			if (Initialized)
-				return;
-
-			T instance = CreateInstance<T>();
-			s_instance = instance;
-			var abstractSingletonScriptableObject = instance as AbstractSingletonScriptableObject<T>;
-			abstractSingletonScriptableObject.OnEditorInitialize();
-
-			EditorSave(instance);
-		}
 #endif
 	}
 }

@@ -333,7 +333,7 @@ namespace GuiToolkit.Editor
 
 			return result;
 #else
-            throw new RoslynUnavailableException();
+			throw new RoslynUnavailableException();
 #endif
 		}
 
@@ -348,6 +348,7 @@ namespace GuiToolkit.Editor
 		/// <returns>True if a registry was found and applied; false otherwise.</returns>
 		public static bool ApplyRewireRegistryIfFound( out int _replaced, out int _rewired, out int _missing )
 		{
+#if UITK_USE_ROSLYN
 			_replaced = 0;
 			_rewired = 0;
 			_missing = 0;
@@ -411,6 +412,9 @@ namespace GuiToolkit.Editor
 			Undo.DestroyObjectImmediate(reg.gameObject);
 			EditorSceneManager.MarkSceneDirty(scene);
 			return true;
+#else
+			throw new RoslynUnavailableException();
+#endif
 		}
 
 		/// <summary>
@@ -460,7 +464,7 @@ namespace GuiToolkit.Editor
 				_addUsing
 			);
 #else
-            throw new RoslynUnavailableException();
+			throw new RoslynUnavailableException();
 #endif
 		}
 
@@ -472,6 +476,7 @@ namespace GuiToolkit.Editor
 		/// <returns>List of tuples containing the captured snapshot and the new TMP component.</returns>
 		public static TextSnapshotList ReplaceUITextWithTMPInActiveScene()
 		{
+#if UITK_USE_ROSLYN
 			// collect all object-reference properties that currently point to Text
 			var refGroups = CollectRefGroupsToTextInActiveScene();
 
@@ -542,6 +547,9 @@ namespace GuiToolkit.Editor
 					RewireRefsForOldId(refGroups, s.OldId, tmp);
 				}
 			);
+#else
+			throw new RoslynUnavailableException();
+#endif
 		}
 
 		/// <summary>
@@ -668,7 +676,7 @@ namespace GuiToolkit.Editor
 
 			return results;
 #else
-            throw new RoslynUnavailableException();
+			throw new RoslynUnavailableException();
 #endif
 		}
 
@@ -679,6 +687,7 @@ namespace GuiToolkit.Editor
 		/// <returns>Number of source files that were modified.</returns>
 		public static int ReplaceTextInContextSceneWithTextMeshPro()
 		{
+#if UITK_USE_ROSLYN
 			var scriptPaths = CollectScriptPathsInContextSceneReferencing<Text>();
 			if (scriptPaths == null || scriptPaths.Count == 0)
 			{
@@ -716,6 +725,9 @@ namespace GuiToolkit.Editor
 			}
 
 			return changed;
+#else
+			throw new RoslynUnavailableException();
+#endif
 		}
 
 		/// <summary>
@@ -727,6 +739,7 @@ namespace GuiToolkit.Editor
 		/// </summary>
 		public static void ReplaceTextWithTextMeshProInCurrentContext()
 		{
+#if UITK_USE_ROSLYN
 			var scene = GetCurrentContextScene(out bool isPrefab);
 			if (!scene.IsValid())
 			{
@@ -738,12 +751,16 @@ namespace GuiToolkit.Editor
 			LogReplacement($"___ Starting replacement of scene '{ComponentReplaceLog.GetLogScenePath()}' ___");
 			int prepared = PrepareUITextToTMPInContextScene();
 			int replacedReferences = ReplaceTextInContextSceneWithTextMeshPro();
-			
+
 			if (prepared == 0 && replacedReferences == 0)
 			{
 				LogReplacement("No Text references found; replacing Text -> TextMeshPro directly without domain reload");
 				ReplaceUITextWithTMPInActiveScene();
 			}
+#else
+			throw new RoslynUnavailableException();
+#endif
+
 		}
 
 		/// <summary>
@@ -782,6 +799,7 @@ namespace GuiToolkit.Editor
 		/// <returns>Number of collected references recorded into the registry.</returns>
 		public static int PrepareUITextToTMPInContextScene()
 		{
+#if UITK_USE_ROSLYN
 			var scene = GetCurrentContextScene();
 
 			if (!scene.IsValid())
@@ -794,7 +812,7 @@ namespace GuiToolkit.Editor
 			reg.Entries.Clear();
 
 			var components = CollectMonoBehavioursInContextSceneReferencing<Text>();
-			
+
 			if (components == null || components.Count == 0)
 			{
 				LogReplacement("No referring components found");
@@ -848,7 +866,13 @@ namespace GuiToolkit.Editor
 			}
 
 			return count;
+#else
+			throw new RoslynUnavailableException();
+#endif
+
 		}
+
+#if UITK_USE_ROSLYN
 
 		/// <summary>
 		/// Scans all components in the active scene for object reference properties
@@ -1030,9 +1054,6 @@ namespace GuiToolkit.Editor
 				}
 			}
 		}
-
-
-#if UITK_USE_ROSLYN
 
 		/// <summary>
 		/// Recursively walks the syntax tree to build alternating code and string segments.

@@ -24,7 +24,7 @@ namespace GuiToolkit
 		/// \cond PRIVATE
 		public static readonly string HELP_FIRST_TIME =
 			  $"It appears that you are using the {StringConstants.TOOLKIT_NAME} for the first time\n"
-			+ $"The scriptable object '{AssetPath}' has been created to store your {StringConstants.TOOLKIT_NAME} settings.\n"
+			+ $"The scriptable object '{nameof(UiToolkitConfiguration)}' has been created to store your {StringConstants.TOOLKIT_NAME} settings.\n"
 			+ $"Please be sure to check it in to your code versioning system!\n\n"
 			+ $"You can always access this window from the menu: '{StringConstants.CONFIGURATION_MENU_NAME}'\n\n"
 			+ $"Please check the settings below to create the initial setup for {StringConstants.TOOLKIT_NAME}:"
@@ -219,17 +219,16 @@ namespace GuiToolkit
 			}
 		}
 
-		public override void OnEditorInitialize()
+		public override void OnEditorCreatedAsset()
 		{
 			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
 			m_loadMainSceneOnPlay = m_sceneReferences.Length > 0;
 		}
 
-		public static string GetProjectScenePath(string _sceneName)
+		public string GetProjectScenePath(string _sceneName)
 		{
-			UiToolkitConfiguration settings = EditorLoad();
-			settings.InitScenesByName();
-			return "Assets/" + settings.GetScenePath(_sceneName) + ".unity";
+			InitScenesByName();
+			return "Assets/" + GetScenePath(_sceneName) + ".unity";
 		}
 		
 		public string GetUiToolkitRootProjectDir()

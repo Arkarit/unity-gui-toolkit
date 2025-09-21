@@ -48,6 +48,10 @@ namespace GuiToolkit
 
 		private static void HandleScenes( PlayModeStateChange _state )
 		{
+			// Don't do anything if not ready yet
+			if (!AssetReadyGate.Ready)
+				return;
+			
 			// Do not interfere with PlayMode tests
 			if (IsPlayModeTestRun())
 				return;
@@ -58,8 +62,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			var settings = UiToolkitConfiguration.Instance;
-			if (!settings.LoadMainSceneOnPlay)
+			if (!UiToolkitConfiguration.Instance.LoadMainSceneOnPlay)
 				return;
 
 			try
@@ -99,7 +102,7 @@ namespace GuiToolkit
 
 							foreach (var sceneName in editorScenes.Scenes)
 							{
-								var path = UiToolkitConfiguration.GetProjectScenePath(sceneName);
+								var path = UiToolkitConfiguration.Instance.GetProjectScenePath(sceneName);
 								if (!string.IsNullOrEmpty(path))
 									EditorSceneManager.OpenScene(path, OpenSceneMode.Additive);
 							}
