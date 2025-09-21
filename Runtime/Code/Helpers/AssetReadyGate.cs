@@ -195,10 +195,20 @@ namespace GuiToolkit
 				EditorApplication.update -= Tick;
 				if (UiLog.LogOnce($"All scriptable objects became available after {frames} frames plus {_quietFrames} extra frames."))
 				{
-					string s = "Scriptable Objects ready:";
-					foreach (var guid in s_scriptableObjectGuids)
-						s += $"\n\t{AssetDatabase.GUIDToAssetPath(guid)}";
-					UiLog.LogVerbose(s);
+					if (s_scriptableObjectGuids != null)
+					{
+						string s = "Scriptable Objects ready:";
+						
+						foreach (var guid in s_scriptableObjectGuids)
+						{
+							if (guid == null)
+								continue;
+							
+							s += $"\n\t{AssetDatabase.GUIDToAssetPath(guid)}";
+						}
+						
+						UiLog.LogVerbose(s);
+					}
 				}
 
 				try

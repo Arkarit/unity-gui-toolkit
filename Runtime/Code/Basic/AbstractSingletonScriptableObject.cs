@@ -23,6 +23,11 @@ namespace GuiToolkit
 				if (s_instance == null)
 				{
 					s_instance = (T)AssetReadyGate.LoadOrCreateScriptableObject(typeof(T), out bool wasCreated);
+					string s = $"Loaded Singleton Scriptable Object {ClassName}";
+#if UNITY_EDITOR
+					s += $" asset path:{AssetDatabase.GetAssetPath(s_instance)}, wasCreated:{wasCreated}";
+#endif
+					UiLog.Log(s);
 #if UNITY_EDITOR
 					if (wasCreated)
 						s_instance.OnEditorCreatedAsset();

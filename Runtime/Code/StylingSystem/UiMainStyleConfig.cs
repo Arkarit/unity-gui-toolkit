@@ -22,6 +22,11 @@ namespace GuiToolkit.Style
 				if (s_instance == null)
 				{
 					s_instance = (UiMainStyleConfig)AssetReadyGate.LoadOrCreateScriptableObject(typeof(UiMainStyleConfig), out bool wasCreated);
+					string s = $"Loaded {ClassName}";
+#if UNITY_EDITOR
+					s += $", asset path:{AssetDatabase.GetAssetPath(s_instance)}, wasCreated:{wasCreated}";
+#endif
+					UiLog.Log(s);
 #if UNITY_EDITOR
 					if (wasCreated)
 						s_instance.OnEditorCreatedAsset();
@@ -33,6 +38,12 @@ namespace GuiToolkit.Style
 			
 			internal set
 			{
+#if UNITY_EDITOR
+				if (s_instance != null)
+					UiLog.Log($"Replacing {ClassName} instance '{AssetDatabase.GetAssetPath(s_instance)}' with '{AssetDatabase.GetAssetPath(value)}'");
+				else
+					UiLog.Log($"Setting {ClassName} instance to '{AssetDatabase.GetAssetPath(value)}'");
+#endif
 				s_instance = value;
 			}
 		}

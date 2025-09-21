@@ -1,8 +1,9 @@
+using GuiToolkit.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using GuiToolkit.Exceptions;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -201,7 +202,7 @@ namespace GuiToolkit.AssetHandling
 			}
 
 			foreach (var k in keys)
-				if (Release(k)) 
+				if (Release(k))
 					count++;
 
 			// Assets (remaining keys without instances)
@@ -210,7 +211,7 @@ namespace GuiToolkit.AssetHandling
 				keys = new List<CanonicalAssetKey>(s_assetReleases.Keys);
 			}
 			foreach (var k in keys)
-				if (Release(k)) 
+				if (Release(k))
 					count++;
 
 			return count;
@@ -324,28 +325,75 @@ namespace GuiToolkit.AssetHandling
 #if UNITY_EDITOR
 		[UnityEditor.InitializeOnLoadMethod]
 #endif
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 		private static void Init()
 		{
 			AssetReadyGate.WhenReady
 			(
 				() =>
 				{
-					List<IAssetProvider> providers = new();
-					var factories = UiToolkitConfiguration.Instance.AssetProviderFactories;
-					foreach (var factory in factories)
+					InitProviders();
+				}
+			);
+		}
+
+		private static void InitProviders()
+		{
+			UiLog.Log("Initializing AssetProviders");
+			if (s_assetProviders != null && s_assetProviders.Length > 0)
+			{
+				UiLog.Log("AssetProviderFactories already created, doing nothing");
+				return;
+			}
+
+			var config = UiToolkitConfiguration.Instance;
+			if (config == null)
+			{
+				throw new InvalidOperationException(
+					"UiToolkitConfiguration.Instance is null in InitProviders() " +
+					"although AssetReadyGate.WhenReady was awaited. Broken init contract.");
+			}
+
+			var factories = config.AssetProviderFactories;
+			UiLog.Log(factories == null || factories.Length == 0 ?
+				"No AssetProviderFactories configured." :
+				$"Found {factories.Length} AssetProviderFactories.");
+
+			var providers = new List<IAssetProvider>();
+
+			if (factories != null)
+			{
+				for (int i = 0; i < factories.Length; i++)
+				{
+					var factory = factories[i];
+					if (factory == null)
+					{
+						UiLog.LogError($"AssetProviderFactory {i} is null, can not create provider!");
+						continue;
+					}
+
+					try
 					{
 						var provider = factory.CreateProvider();
 						provider.Init();
 						providers.Add(provider);
+						UiLog.Log($"Created and initialized provider {i}: '{provider.Name}'");
 					}
-
-					var defaultProvider = new DefaultAssetProvider();
-					defaultProvider.Init();
-					providers.Add(defaultProvider);
-					s_assetProviders = providers.ToArray();
+					catch (Exception ex)
+					{
+						UiLog.LogError($"Exception when creating provider {i}:\n{ex}");
+					}
 				}
-			);
+			}
+
+			UiLog.Log("Creating DefaultAssetProvider");
+			var defaultProvider = new DefaultAssetProvider();
+			defaultProvider.Init();
+			providers.Add(defaultProvider);
+			UiLog.Log("Done creating DefaultAssetProvider, finished initializing AssetProviders");
+
+			s_assetProviders = providers.ToArray();
 		}
+
 	}
 }
