@@ -68,6 +68,11 @@ namespace GuiToolkit.Style
 
 				return s_instance;
 			}
+			
+			internal set
+			{
+				s_instance = value;
+			}
 		}
 
 #if UNITY_EDITOR
