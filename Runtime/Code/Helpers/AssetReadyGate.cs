@@ -159,6 +159,7 @@ namespace GuiToolkit
 			int countdown = _quietFrames;
 			int frames = 0;
 
+			UiLog.LogOnce("Begin waiting for Scriptable Objects to be available");
 			EditorApplication.update += Tick;
 			return;
 
@@ -192,6 +193,13 @@ namespace GuiToolkit
 					return;
 
 				EditorApplication.update -= Tick;
+				if (UiLog.LogOnce($"All scriptable objects became available after {frames} frames plus {_quietFrames} extra frames."))
+				{
+					string s = "Scriptable Objects ready:";
+					foreach (var guid in s_scriptableObjectGuids)
+						s += $"\n\t{AssetDatabase.GUIDToAssetPath(guid)}";
+					UiLog.LogVerbose(s);
+				}
 
 				try
 				{

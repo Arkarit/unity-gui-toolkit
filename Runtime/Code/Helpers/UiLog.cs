@@ -58,17 +58,18 @@ namespace GuiToolkit
 		public static void Log( string _s, Object _context = null ) => Log(_s, _context, LogMode.Default);
 		public static void LogWarning( string _s, Object _context = null ) => Log(_s, _context, LogMode.Warning);
 		public static void LogError( string _s, Object _context = null ) => Log(_s, _context, LogMode.Error);
-		public static void LogVerboseOnce( string _s, Object _context = null ) => Log(_s, _context, LogMode.VerboseOnce);
-		public static void LogOnce( string _s, Object _context = null ) => Log(_s, _context, LogMode.DefaultOnce);
-		public static void LogWarningOnce( string _s, Object _context = null ) => Log(_s, _context, LogMode.WarningOnce);
-		public static void LogErrorOnce( string _s, Object _context = null ) => Log(_s, _context, LogMode.ErrorOnce);
+		public static bool LogVerboseOnce( string _s, Object _context = null ) => Log(_s, _context, LogMode.VerboseOnce);
+		public static bool LogOnce( string _s, Object _context = null ) => Log(_s, _context, LogMode.DefaultOnce);
+		public static bool LogWarningOnce( string _s, Object _context = null ) => Log(_s, _context, LogMode.WarningOnce);
+		public static bool LogErrorOnce( string _s, Object _context = null ) => Log(_s, _context, LogMode.ErrorOnce);
 
 		/// <summary>
 		/// Core logger. For "Once" modes, the message is emitted only once per callsite (file:line) per editor/runtime session.
 		/// Caution: "Once" modes have a high performance impact, since they have to extract an additional stack trace.
 		/// Use sparingly and handle with care.
+		/// Returns true if the text was actually logged (important for "Once" modes, where you can detect the first occurrence of the logging)
 		/// </summary>
-		public static void Log( string _s, Object _context, LogMode _logMode )
+		public static bool Log( string _s, Object _context, LogMode _logMode )
 		{
 			// Release player: only warnings and errors
 #if !UNITY_EDITOR && !DEVELOPMENT_BUILD
@@ -76,7 +77,7 @@ namespace GuiToolkit
 			    _logMode != LogMode.WarningOnce &&
 			    _logMode != LogMode.Error &&
 			    _logMode != LogMode.ErrorOnce)
-				return;
+				return false;
 #endif
 
 			string ts = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
@@ -88,7 +89,7 @@ namespace GuiToolkit
 				lock (s_lock)
 				{
 					if (!s_onceKeys.Add(key))
-						return;
+						return false;
 				}
 			}
 
@@ -126,6 +127,8 @@ namespace GuiToolkit
 						Debug.LogError(msg);
 					break;
 			}
+
+			return true;
 		}
 
 		/// <summary>
