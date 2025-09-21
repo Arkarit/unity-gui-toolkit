@@ -9,8 +9,21 @@ namespace GuiToolkit
 {
 	/// <summary>
 	/// Lightweight logger with "once per callsite" modes.
+	/// Named <c>UiLog</c> instead of <c>Logger</c> to avoid
+	/// collisions with Unity's own logging API and common third-party loggers.
+	/// The "Ui" prefix ties it to the GuiToolkit namespace, even though
+	/// it can be used for non-UI logging as well.
+	///
+	/// Note:
+	/// - <c>LogOnce</c> variants are more expensive than regular logging.
+	///   They rely on caller information and a global cache lookup to ensure
+	///   that a message is only emitted once per file/line. This adds overhead
+	///   compared to standard <c>Debug.Log</c> calls and should be used sparingly
+	///   in performance-critical runtime code.
+	/// - In non-development player builds, only warnings and errors are logged.
+	///   Verbose and default messages are stripped at compile time.
 	/// </summary>
-	public static class Logger
+	public static class UiLog
 	{
 		public enum LogMode
 		{
@@ -131,7 +144,7 @@ namespace GuiToolkit
 					continue;
 
 				var declaringType = m.DeclaringType;
-				if (declaringType == typeof(Logger))
+				if (declaringType == typeof(UiLog))
 					continue;
 
 				string file = f.GetFileName();
@@ -164,7 +177,7 @@ namespace GuiToolkit
 
 		private static void Clear()
 		{
-			Logger.Clear();
+			UiLog.Clear();
 		}
 	}
 #endif
