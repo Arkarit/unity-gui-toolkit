@@ -55,7 +55,7 @@ namespace GuiToolkit.AssetHandling
 
 				if (openInstances >= _loadInfo.MaxInstances)
 				{
-					Debug.LogWarning(
+					UiLog.LogWarning(
 						$"Attempt to load panel '{_loadInfo.PanelType.Name}', " +
 						$"but open instances ({openInstances}) is >= allowed instances in load info {_loadInfo.MaxInstances}, cancelling load without callbacks"
 					);
@@ -195,7 +195,7 @@ namespace GuiToolkit.AssetHandling
 			}
 			catch (Exception cbEx)
 			{
-				Debug.LogError($"Exception in OnSuccess():{cbEx}");
+				UiLog.LogError($"Exception in OnSuccess():{cbEx}");
 			}
 		}
 
@@ -210,10 +210,10 @@ namespace GuiToolkit.AssetHandling
 			}
 			catch (Exception cbEx)
 			{
-				Debug.LogError($"Exception in OnFail():{cbEx}");
+				UiLog.LogError($"Exception in OnFail():{cbEx}");
 			}
 
-			Debug.LogError($"Panel load failed, exception:{_ex}");
+			UiLog.LogError($"Panel load failed, exception:{_ex}");
 		}
 	}
 }

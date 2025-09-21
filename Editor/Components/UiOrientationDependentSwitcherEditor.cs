@@ -41,7 +41,7 @@ namespace GuiToolkit.Editor
 			{
 				EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 				int orientationIdx = (int) orientation;
-				//Debug.Log($"orientation: {orientation} UiUtility.ScreenWidth():{UiUtility.ScreenWidth()} UiUtility.ScreenHeight():{UiUtility.ScreenHeight()}");
+				//UiLog.Log($"orientation: {orientation} UiUtility.ScreenWidth():{UiUtility.ScreenWidth()} UiUtility.ScreenHeight():{UiUtility.ScreenHeight()}");
 
 				foreach (var definition in thisUiResolutionDependentSwitcher.Definitions)
 				{
@@ -50,7 +50,7 @@ namespace GuiToolkit.Editor
 					if (source == null || target == null)
 						continue;
 
-					//Debug.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
+					//UiLog.Log($"Copy {source} ('{source.transform.GetPath()}') to {target} ('{target.transform.GetPath()}') ");
 
 					Undo.RegisterCompleteObjectUndo(target, "Apply Resolution dependent components");
 					source.CopyTo(target);

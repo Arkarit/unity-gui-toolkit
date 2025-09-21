@@ -32,7 +32,7 @@ namespace GuiToolkit
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"Exception in time conversion:{e.Message}\nValues: {year}:{month}:{day}:{hour}:{minute}:{second}");
+				UiLog.LogError($"Exception in time conversion:{e.Message}\nValues: {year}:{month}:{day}:{hour}:{minute}:{second}");
 				return string.Empty;
 			}
 

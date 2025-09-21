@@ -74,7 +74,7 @@ namespace GuiToolkit
 
 			if (!ChangeLanguageImpl(_languageId))
 			{
-				Debug.LogWarning($"Language '{_languageId}' not found");
+				UiLog.LogWarning($"Language '{_languageId}' not found");
 				_languageId = "dev";
 				ChangeLanguageImpl(_languageId);
 			}
@@ -95,7 +95,7 @@ namespace GuiToolkit
 			}
 			catch (CultureNotFoundException _)
 			{
-				Debug.LogWarning($"Culture '{_languageId}' not found, setting default culture");
+				UiLog.LogWarning($"Culture '{_languageId}' not found, setting default culture");
 
 				try
 				{
@@ -105,7 +105,7 @@ namespace GuiToolkit
 				}
 				catch (CultureNotFoundException __)
 				{
-					Debug.LogError("Could not set default culture 'en'");
+					UiLog.LogError("Could not set default culture 'en'");
 				}
 			}
 		}

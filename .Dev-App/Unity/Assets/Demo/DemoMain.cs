@@ -21,6 +21,6 @@ public class DemoMain : LocaMonoBehaviour
 
 	private void OnPlayerSettingChanged(PlayerSetting _playerSetting)
 	{
-		//Debug.Log($"Player setting '{_playerSetting.Key}' changed to {_playerSetting.Value}");
+		//UiLog.Log($"Player setting '{_playerSetting.Key}' changed to {_playerSetting.Value}");
 	}
 }

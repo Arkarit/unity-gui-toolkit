@@ -23,7 +23,7 @@ namespace GuiToolkit.Style
 					m_component = GetComponent<CO>();
 					if (m_component == null)
 					{
-						Debug.LogWarning($"{GetType().Name}: Required Component type '{SupportedComponentType.Name}'" + 
+						UiLog.LogWarning($"{GetType().Name}: Required Component type '{SupportedComponentType.Name}'" + 
 						                 $" not found on GameObject '{gameObject.name}', styling won't work here");
 					}
 				}

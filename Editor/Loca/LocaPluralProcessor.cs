@@ -58,7 +58,7 @@ namespace GuiToolkit.Editor
 
 			if (internalClassFilePath == filePath)
 			{
-				Debug.LogError("Overwrite of internal class not allowed");
+				UiLog.LogError("Overwrite of internal class not allowed");
 				EditorUtility.DisplayDialog("Overwrite of internal class not allowed", "Please change 'Loca Plurals Dir' in the settings so that it doesn't have the same location as the internal\n" +
 					"counterpart of this class.", "Ok");
 				return;
@@ -130,7 +130,7 @@ namespace GuiToolkit.Editor
 			}
 			catch( Exception e)
 			{
-				Debug.LogError($"Failed to write Plurals.cs at '{filePath}': {e.Message}");
+				UiLog.LogError($"Failed to write Plurals.cs at '{filePath}': {e.Message}");
 				return;
 			}
 

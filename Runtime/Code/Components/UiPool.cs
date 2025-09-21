@@ -110,13 +110,13 @@ namespace GuiToolkit
 		{
 			if (_instance == null)
 			{
-				Debug.LogWarning("[UiPool] Releasing null object");
+				UiLog.LogWarning("[UiPool] Releasing null object");
 				return;
 			}
 
 #if UNITY_EDITOR
 			if (!m_instancesByInstance.ContainsKey(_instance) && !m_canonicalByInstance.ContainsKey(_instance))
-				Debug.LogWarning($"[UiPool] Releasing object '{_instance.GetPath()}', which was not created by the pool.");
+				UiLog.LogWarning($"[UiPool] Releasing object '{_instance.GetPath()}', which was not created by the pool.");
 #endif
 
 			if (m_instancesByInstance.TryGetValue(_instance, out UiPoolPrefabInstances prefabGroup))
@@ -145,7 +145,7 @@ namespace GuiToolkit
 		{
 			if (_component == null)
 			{
-				Debug.LogWarning("[UiPool] Releasing null component");
+				UiLog.LogWarning("[UiPool] Releasing null component");
 				return;
 			}
 

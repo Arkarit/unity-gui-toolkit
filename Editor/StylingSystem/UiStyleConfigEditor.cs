@@ -183,7 +183,7 @@ namespace GuiToolkit.Style.Editor
 			}
 			catch(Exception e)
 			{
-				Debug.LogError($"Couldn't write file, reason: {e.Message}");
+				UiLog.LogError($"Couldn't write file, reason: {e.Message}");
 			}
 			
 			return true;
@@ -204,7 +204,7 @@ namespace GuiToolkit.Style.Editor
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"Couldn't write file, reason: {e.Message}");
+				UiLog.LogError($"Couldn't write file, reason: {e.Message}");
 			}
 			
 			return true;

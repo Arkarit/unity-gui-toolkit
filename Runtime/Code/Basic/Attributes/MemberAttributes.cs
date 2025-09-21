@@ -343,7 +343,7 @@ namespace GuiToolkit
 
 										// Context hint
 										string ctx = string.IsNullOrEmpty(attr.ContextNameHint) ? "external context" : attr.ContextNameHint;
-										Debug.LogError(
+										UiLog.LogError(
 											$"ExternalRequired violation: <{compName}.{fieldName}> is null. " +
 											$"This reference must be assigned in {ctx}.",
 											c
@@ -360,9 +360,9 @@ namespace GuiToolkit
 			if (_logToConsole)
 			{
 				if (violations == 0)
-					Debug.Log("ExternalRequired: No violations found in open scenes.");
+					UiLog.Log("ExternalRequired: No violations found in open scenes.");
 				else
-					Debug.Log($"ExternalRequired: Found {violations} violation(s) in open scenes.");
+					UiLog.Log($"ExternalRequired: Found {violations} violation(s) in open scenes.");
 			}
 
 			return violations;

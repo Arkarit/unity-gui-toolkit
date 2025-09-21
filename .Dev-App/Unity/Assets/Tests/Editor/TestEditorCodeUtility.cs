@@ -231,7 +231,7 @@ namespace GuiToolkit.Test
 				code = !code;
 			}
 
-			Debug.Log(debugStr);
+			UiLog.Log(debugStr);
 		}
 	}
 }

@@ -31,7 +31,7 @@ namespace GuiToolkit.Style.Editor
 		{
 			if (m_thisUiSkin == null)
 			{
-				Debug.LogError("Skin is null");
+				UiLog.LogError("Skin is null");
 				return;
 			}
 			
@@ -273,14 +273,14 @@ EditorGeneralUtility.SetDirty(m_thisUiSkin.StyleConfig);
 			public void Dump() => Dump(string.Empty);
 			private void Dump(string tabStr)
 			{
-				Debug.Log($"{tabStr}{Name}");
+				UiLog.Log($"{tabStr}{Name}");
 				foreach (var kv in Children)
 				{
 					var current = kv.Value;
 					current.Dump(tabStr + "\t");
 					foreach (var property in current.Properties)
 					{
-						Debug.Log($"{tabStr}\t\t->{property.boxedValue.GetType()}");
+						UiLog.Log($"{tabStr}\t\t->{property.boxedValue.GetType()}");
 					}
 				}
 			}

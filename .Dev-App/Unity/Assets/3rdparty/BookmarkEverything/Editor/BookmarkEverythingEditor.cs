@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using System.Text;
+using GuiToolkit;
 
 namespace BookmarkEverything
 {
@@ -181,7 +182,7 @@ namespace BookmarkEverything
             _projectFinderContents.Add(RetrieveGUIContent(CATEGORY_SO, ResolveIconNameFromFileExtension("asset")));
             if (_projectFinderContents.Count != _projectFinderHeaders.Length)
             {
-                Debug.LogError("Inconsistency between Content count and Header count, please add to both of them!");
+                UiLog.LogError("Inconsistency between Content count and Header count, please add to both of them!");
             }
         }
         private int GetIndexOfCategory(string category)
@@ -201,7 +202,7 @@ namespace BookmarkEverything
             {
                 return _projectFinderHeaders[index];
             }
-            Debug.LogError("No category found with given index of " + index);
+            UiLog.LogError("No category found with given index of " + index);
             return "";
         }
 

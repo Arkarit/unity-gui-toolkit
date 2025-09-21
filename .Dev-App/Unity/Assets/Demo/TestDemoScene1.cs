@@ -47,10 +47,10 @@ public class TestDemoScene1 : UiView
 		{
 			PanelType = typeof(DemoDynamicLoaded),
 			InstantiationType = UiPanelLoadInfo.EInstantiationType.Pool,
-			OnSuccess = (UiPanel _) => Debug.Log("Success"),
+			OnSuccess = (UiPanel _) => UiLog.Log("Success"),
 			OnFail = (UiPanelLoadInfo _loadInfo, Exception _ex) =>
 			{
-				Debug.LogError($"Fail: {_loadInfo.ToMultilineString()}");
+				UiLog.LogError($"Fail: {_loadInfo.ToMultilineString()}");
 				if (_ex != null)
 					Debug.LogException(_ex);
 			}
@@ -68,7 +68,7 @@ public class TestDemoScene1 : UiView
 				(
 					("Ok", () =>
 					{
-						Debug.Log($"Selected date / time: {requester.GetDateTime()}");
+						UiLog.Log($"Selected date / time: {requester.GetDateTime()}");
 					}),
 					("Cancel", null)
 				),

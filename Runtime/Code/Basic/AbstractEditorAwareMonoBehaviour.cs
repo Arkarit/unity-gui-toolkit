@@ -49,7 +49,7 @@ namespace GuiToolkit
 					catch (Exception ex)
 					{
 						Debug.LogException(ex, this);
-						Debug.Log($"Exception in ScheduleSafeInvoke):{ex}");
+						UiLog.Log($"Exception in ScheduleSafeInvoke):{ex}");
 					}
 				}
 			);

@@ -236,7 +236,7 @@ namespace GuiToolkit
 		protected virtual void OnAssetsLoaded() { }
 		protected virtual void OnAssetLoadFailed( Exception _ex )
 		{
-			Debug.LogError($"Asset load/initialization failed, exception:{_ex}");
+			UiLog.LogError($"Asset load/initialization failed, exception:{_ex}");
 		}
 		
 		internal void OnAssetLoadFailedInternal(Exception _ex ) => OnAssetLoadFailed(_ex);
@@ -335,7 +335,7 @@ namespace GuiToolkit
 			catch (Exception ex)
 			{
 				OnAssetLoadFailed(ex);
-				Debug.LogError($"[{GetType().Name}] Failed to load resources\n{ex}");
+				UiLog.LogError($"[{GetType().Name}] Failed to load resources\n{ex}");
 			}
 		}
 
@@ -544,13 +544,13 @@ namespace GuiToolkit
 		[Conditional("DEBUG_UI")]
 		public static void DebugLogStatic( string s )
 		{
-			Debug.Log($"UiLogging: {s}");
+			UiLog.Log($"UiLogging: {s}");
 		}
 
 		[Conditional("DEBUG_UI")]
 		public void DebugLog( string s )
 		{
-			Debug.Log($"UiLogging: {s}\n{this.GetPath()}");
+			UiLog.Log($"UiLogging: {s}\n{this.GetPath()}");
 		}
 
 

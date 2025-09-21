@@ -56,7 +56,7 @@ namespace GuiToolkit
 					CalculatePerspectiveValues( ref m_topRight, ref m_bottomRight, ref m_topLeft, ref m_bottomLeft, m_lockedSide );
 					break;
 				default:
-					Debug.LogError("None or multiple flags not allowed here");
+					UiLog.LogError("None or multiple flags not allowed here");
 					break;
 			}
 		}
@@ -89,7 +89,7 @@ namespace GuiToolkit
 					_movingPointB = CalculatePerspectiveValue( Bounding.xMax, Bounding.xMin, Bounding.xMin, vanishingPoint, true);
 					break;
 				default:
-					Debug.LogError("None or multiple flags not allowed here");
+					UiLog.LogError("None or multiple flags not allowed here");
 					break;
 			}
 		}
@@ -119,7 +119,7 @@ namespace GuiToolkit
 			if (_horizontal)
 				result = result.Swap();
 
-			//Debug.Log($"_byMin:{_byMin} _byMax:{_byMax} _bxMax:{_bxMax} _vanishingPoint:{_vanishingPoint} b0:{b0} b1:{b1} ratio:{ratio} a0:{a0} a1:{a1} result:{result}");
+			//UiLog.Log($"_byMin:{_byMin} _byMax:{_byMax} _bxMax:{_bxMax} _vanishingPoint:{_vanishingPoint} b0:{b0} b1:{b1} ratio:{ratio} a0:{a0} a1:{a1} result:{result}");
 
 			return result;
 		}

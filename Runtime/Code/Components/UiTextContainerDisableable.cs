@@ -66,7 +66,7 @@ namespace GuiToolkit
 			{
 				if (!EnabledInHierarchy)
 				{
-					Debug.LogError("Can not set enabled color - please temporarily switch to Enabled");
+					UiLog.LogError("Can not set enabled color - please temporarily switch to Enabled");
 					return;
 				}
 
@@ -116,7 +116,7 @@ namespace GuiToolkit
 				}
 				else
 				{
-					Debug.LogError("Please don't change text colors when disabled! Disabled color has been reset");
+					UiLog.LogError("Please don't change text colors when disabled! Disabled color has been reset");
 				}
 			}
 		}

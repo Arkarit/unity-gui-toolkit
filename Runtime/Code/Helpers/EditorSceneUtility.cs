@@ -103,7 +103,7 @@ namespace GuiToolkit
 
 			if (SceneManager.loadedSceneCount == 1)
 			{
-				Debug.LogWarning("Failed attempt to unload scene, but it was the only scene loaded");
+				UiLog.LogWarning("Failed attempt to unload scene, but it was the only scene loaded");
 				return;
 			}
 

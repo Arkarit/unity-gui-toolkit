@@ -338,7 +338,7 @@ namespace GuiToolkit
 			var result = _type.GetMethod(_name, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
 			
 			if (_logError && result == null)
-				Debug.LogError($"Internal API for private static method '{_type.Name}.{_name}()' has changed, please fix!" );
+				UiLog.LogError($"Internal API for private static method '{_type.Name}.{_name}()' has changed, please fix!" );
 			
 			return result;
 		}
@@ -364,7 +364,7 @@ namespace GuiToolkit
 					throw;
 				
 				if (_logError)
-					Debug.LogError($"Exception: Internal API for private static method '{_type.Name}.{_name}()' has changed, or other (parameter) error, please fix!\n{e.Message}" );
+					UiLog.LogError($"Exception: Internal API for private static method '{_type.Name}.{_name}()' has changed, or other (parameter) error, please fix!\n{e.Message}" );
 				
 				return null;
 			}
@@ -732,7 +732,7 @@ namespace GuiToolkit
 
 			while (!_excludedTypes.Contains(type))
 			{
-				//Debug.Log($"type: {type}");
+				//UiLog.Log($"type: {type}");
 				_other.GetInstanceID();
 				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 				
@@ -743,7 +743,7 @@ namespace GuiToolkit
 					{
 						try
 						{
-							//Debug.Log($"finfo {finfo.Name}");
+							//UiLog.Log($"finfo {finfo.Name}");
 							finfo.SetValue(_other, finfo.GetValue(_self));
 						} catch {}
 					}
@@ -756,7 +756,7 @@ namespace GuiToolkit
 					{
 						try
 						{
-							//Debug.Log($"pinfo {pinfo.Name}");
+							//UiLog.Log($"pinfo {pinfo.Name}");
 							pinfo.SetValue(_other, pinfo.GetValue(_self, null), null);
 						}
 						catch {}
@@ -843,7 +843,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 				if (check == _self.childCount)
 				{
-					Debug.LogError($"Game Object '{childName}' not properly destroyed!");
+					UiLog.LogError($"Game Object '{childName}' not properly destroyed!");
 				}
 #endif
 			}

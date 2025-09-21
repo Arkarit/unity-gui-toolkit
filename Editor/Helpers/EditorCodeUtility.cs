@@ -370,7 +370,7 @@ namespace GuiToolkit.Editor
 			{
 				if (!e.Owner || !e.TargetGameObject)
 				{
-					Debug.LogError($"Missing: No owner or target game object found for property path '{e.PropertyPath}'");
+					UiLog.LogError($"Missing: No owner or target game object found for property path '{e.PropertyPath}'");
 					_missing++;
 					continue;
 				}
@@ -381,7 +381,7 @@ namespace GuiToolkit.Editor
 					tmp = e.TargetGameObject.GetComponent<TMP_Text>() as TextMeshProUGUI;
 					if (tmp == null)
 					{
-						Debug.LogError($"Missing: No {nameof(TextMeshProUGUI)} found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'", e.TargetGameObject);
+						UiLog.LogError($"Missing: No {nameof(TextMeshProUGUI)} found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'", e.TargetGameObject);
 						_missing++;
 						continue;
 					}
@@ -393,7 +393,7 @@ namespace GuiToolkit.Editor
 				var sp = so.FindProperty(e.PropertyPath);
 				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
 				{
-					Debug.LogError($"Missing: No property found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'", e.TargetGameObject);
+					UiLog.LogError($"Missing: No property found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'", e.TargetGameObject);
 					_missing++;
 					continue;
 				}
@@ -453,7 +453,7 @@ namespace GuiToolkit.Editor
 					}
 					catch
 					{
-						Debug.LogError($"Assembly for Type {t.Name} not found!");
+						UiLog.LogError($"Assembly for Type {t.Name} not found!");
 					}
 				}
 			}
@@ -611,7 +611,7 @@ namespace GuiToolkit.Editor
 				if (!oldComp.CanBeDestroyed(out string reasons))
 				{
 					string s = $"Can not replace '{go.GetPath()}'\nReason(s): {reasons}";
-					Debug.LogError(s, oldComp);
+					UiLog.LogError(s, oldComp);
 					LogReplacement($"Error:{s}");
 					// try to restore blockers before continuing
 					RestoreGraphicBlockers(go, blockers);
@@ -643,7 +643,7 @@ namespace GuiToolkit.Editor
 						// (re-add TA and blockers)
 						var restoredTA = Undo.AddComponent(go, typeof(TA)) as TA;
 						RestoreGraphicBlockers(go, blockers);
-						Debug.LogError($"Failed to add target component {typeof(TB).Name} to '{go.GetPath()}'. Rolled back.", go);
+						UiLog.LogError($"Failed to add target component {typeof(TB).Name} to '{go.GetPath()}'. Rolled back.", go);
 						continue;
 					}
 				}
@@ -717,11 +717,11 @@ namespace GuiToolkit.Editor
 				AssetDatabase.SaveAssets();
 				AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 				CompilationPipeline.RequestScriptCompilation();
-				Debug.Log($"[Code Replace Text->TMP] Changed {changed} files, requested compilation.");
+				UiLog.Log($"[Code Replace Text->TMP] Changed {changed} files, requested compilation.");
 			}
 			else
 			{
-				Debug.Log("[Code Replace Text->TMP] No changes in scripts.");
+				UiLog.Log("[Code Replace Text->TMP] No changes in scripts.");
 			}
 
 			return changed;
@@ -743,7 +743,7 @@ namespace GuiToolkit.Editor
 			var scene = GetCurrentContextScene(out bool isPrefab);
 			if (!scene.IsValid())
 			{
-				Debug.LogError("Scene is invalid");
+				UiLog.LogError("Scene is invalid");
 				return;
 			}
 
@@ -858,11 +858,11 @@ namespace GuiToolkit.Editor
 			if (count > 0)
 			{
 				EditorSceneManager.MarkSceneDirty(scene);
-				Debug.Log($"[Prepare Text->TMP] Recorded {count} references in context '{scene.path}'.");
+				UiLog.Log($"[Prepare Text->TMP] Recorded {count} references in context '{scene.path}'.");
 			}
 			else
 			{
-				Debug.Log("[Prepare Text->TMP] No references found in current context.");
+				UiLog.Log("[Prepare Text->TMP] No references found in current context.");
 			}
 
 			return count;

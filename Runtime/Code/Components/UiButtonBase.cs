@@ -35,7 +35,7 @@ namespace GuiToolkit
 			{
 				if (m_uiImage == null)
 				{
-					Debug.LogError("Attempt to set button color, but UI image was not set");
+					UiLog.LogError("Attempt to set button color, but UI image was not set");
 					return;
 				}
 
@@ -47,7 +47,7 @@ namespace GuiToolkit
 		{
 			if (m_uiImage == null)
 			{
-				Debug.LogError("Attempt to set simple gradient colors, but simple gradient was not set");
+				UiLog.LogError("Attempt to set simple gradient colors, but simple gradient was not set");
 				return;
 			}
 			m_uiImage.SetSimpleGradientColors(_leftOrTop, _rightOrBottom);

@@ -148,7 +148,7 @@ namespace GuiToolkit
 		{
 			if (m_isAwake)
 			{
-				Debug.LogError("Call this in Awake(), before calling base.Awake() please!");
+				UiLog.LogError("Call this in Awake(), before calling base.Awake() please!");
 				return;
 			}
 
@@ -194,7 +194,7 @@ namespace GuiToolkit
 
 			if (s_layer == -1)
 			{
-				Debug.LogError($"Standard 'UI' Layer not present - please check your project setup. Falling back to Layer {gameObject.layer} (as set in Game Object)");
+				UiLog.LogError($"Standard 'UI' Layer not present - please check your project setup. Falling back to Layer {gameObject.layer} (as set in Game Object)");
 				s_layer = gameObject.layer;
 			}
 			else

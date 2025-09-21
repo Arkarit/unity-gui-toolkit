@@ -55,7 +55,7 @@ namespace GuiToolkit
 		{
 			if (_idx >= m_tabInfos.Count)
 			{
-				Debug.LogError("Page out of bounds");
+				UiLog.LogError("Page out of bounds");
 				return;
 			}
 

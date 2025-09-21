@@ -21,7 +21,7 @@ namespace GuiToolkit.Editor
 			var templateLines = ReadTemplate();
 			if (templateLines == null)
 			{
-				Debug.LogError("DoxyfileTemplate not found");
+				UiLog.LogError("DoxyfileTemplate not found");
 				return null;
 			}
 			
@@ -70,7 +70,7 @@ namespace GuiToolkit.Editor
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"Could not write doxyfile, exception:'{e.Message}'");
+				UiLog.LogError($"Could not write doxyfile, exception:'{e.Message}'");
 			}
 
 			return Path;
@@ -103,7 +103,7 @@ namespace GuiToolkit.Editor
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"Could not read doxyfile at path '{path}', exception:'{e.Message}'");
+				UiLog.LogError($"Could not read doxyfile at path '{path}', exception:'{e.Message}'");
 				return new String [0];
 			}
 		}

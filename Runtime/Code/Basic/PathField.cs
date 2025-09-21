@@ -119,7 +119,7 @@ namespace GuiToolkit
 		{
 			var result = TryLoad<T>(out string errorMessage);
 			if (result == null && _logError)
-				Debug.LogError(errorMessage);
+				UiLog.LogError(errorMessage);
 			return result;
 		}
 

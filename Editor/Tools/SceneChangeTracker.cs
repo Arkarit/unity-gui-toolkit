@@ -59,13 +59,13 @@ namespace GuiToolkit.Editor
 
 		private static void SceneDirtied( Scene scene )
 		{
-			Debug.Log( $"sceneDirtied on {scene.name}. (See full stacktrace)" );
+			UiLog.Log( $"sceneDirtied on {scene.name}. (See full stacktrace)" );
 		}
 
 		private static UndoPropertyModification[] OnPostProcessModifications( UndoPropertyModification[] propertyModifications )
 		{
 			foreach( UndoPropertyModification mod in propertyModifications )
-				Debug.Log(BuildLogMessage(mod));
+				UiLog.Log(BuildLogMessage(mod));
 
 			return propertyModifications;
 		}

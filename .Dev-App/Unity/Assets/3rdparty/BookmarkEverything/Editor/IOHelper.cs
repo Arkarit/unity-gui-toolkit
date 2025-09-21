@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using GuiToolkit;
 using UnityEditor;
 using UnityEngine;
 
@@ -57,7 +58,7 @@ namespace BookmarkEverything
             }
             catch (Exception ex)
             {
-                Debug.LogError("Cannot deserialize to type " + typeFromHandle.ToString() + ": " + ex.Message + ", Json string: " + text);
+                UiLog.LogError("Cannot deserialize to type " + typeFromHandle.ToString() + ": " + ex.Message + ", Json string: " + text);
             }
             if (obj != null && obj.GetType() == typeFromHandle)
             {

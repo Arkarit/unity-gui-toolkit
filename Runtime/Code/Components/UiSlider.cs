@@ -101,7 +101,7 @@ namespace GuiToolkit
 				m_firstIconSmall = value;
 				if (m_optionalFirstIconLayoutElement == null || m_optionalFirstSpacerLayoutElement == null)
 				{
-					Debug.LogError("Attempt to set first icon big/small, but necessary members were not set");
+					UiLog.LogError("Attempt to set first icon big/small, but necessary members were not set");
 					return;
 				}
 				if (m_slider.direction == Direction.LeftToRight || m_slider.direction == Direction.RightToLeft)
@@ -136,7 +136,7 @@ namespace GuiToolkit
 				{
 					if (i >= m_optionalIconImages.Length)
 					{
-						Debug.LogWarning($"Attempting to set icon '{m_icons[i]}', but only {m_optionalIconImages.Length} icon images have been set");
+						UiLog.LogWarning($"Attempting to set icon '{m_icons[i]}', but only {m_optionalIconImages.Length} icon images have been set");
 						return;
 					}
 					if (m_icons[i] == null)
@@ -172,7 +172,7 @@ namespace GuiToolkit
 			Sprite result = Resources.Load<Sprite>(_assetPath);
 			if (result == null)
 			{
-				Debug.LogError($"Sprite '{_assetPath}' not found!");
+				UiLog.LogError($"Sprite '{_assetPath}' not found!");
 				return null;
 			}
 			return result;

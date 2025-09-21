@@ -64,7 +64,7 @@ namespace GuiToolkit
 		{
 			if (m_playerSetting == null)
 			{
-				Debug.LogError($"GetValue() is only available after GetData() for '{GetType().ToString()}' on '{gameObject.name}'");
+				UiLog.LogError($"GetValue() is only available after GetData() for '{GetType().ToString()}' on '{gameObject.name}'");
 				return default;
 			}
 			return m_playerSetting.GetValue<T>();
@@ -74,7 +74,7 @@ namespace GuiToolkit
 		{
 			if (m_playerSetting == null)
 			{
-				Debug.LogError($"GetDefaultValue() is only available after GetData() for '{GetType().ToString()}' on '{gameObject.name}'");
+				UiLog.LogError($"GetDefaultValue() is only available after GetData() for '{GetType().ToString()}' on '{gameObject.name}'");
 				return default;
 			}
 			return m_playerSetting.GetDefaultValue<T>();
@@ -86,7 +86,7 @@ namespace GuiToolkit
 			{
 				if (m_playerSetting == null)
 				{
-					Debug.LogError($"Value is only available after GetData() for '{GetType().ToString()}' on '{gameObject.name}'");
+					UiLog.LogError($"Value is only available after GetData() for '{GetType().ToString()}' on '{gameObject.name}'");
 					return null;
 				}
 				return m_playerSetting.Value;
@@ -95,7 +95,7 @@ namespace GuiToolkit
 			{
 				if (m_playerSetting == null)
 				{
-					Debug.LogError($"Value is only available after GetData() for '{GetType().ToString()}' on '{gameObject.name}'");
+					UiLog.LogError($"Value is only available after GetData() for '{GetType().ToString()}' on '{gameObject.name}'");
 					return;
 				}
 				m_playerSetting.Value = value;

@@ -32,7 +32,7 @@ namespace GuiToolkit
 				uiMain = Object.Instantiate(settings.UiMainPrefab);
 				if (!uiMain)
 				{
-					Debug.LogError("Can not instantiate UIMain");
+					UiLog.LogError("Can not instantiate UIMain");
 					return;
 				}
 			}

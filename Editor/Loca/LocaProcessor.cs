@@ -26,7 +26,7 @@ namespace GuiToolkit.Editor
 			string potPath = UiToolkitConfiguration.Instance.m_potPath;
 			if (string.IsNullOrEmpty(potPath))
 			{
-				Debug.LogError("No POT path in settings");
+				UiLog.LogError("No POT path in settings");
 				EditorUtility.DisplayDialog("No POT path in settings",
 					"Using Loca requires a path to your POT file (translation template) in your settings dialog", "Ok");
 				return;
@@ -149,7 +149,7 @@ namespace GuiToolkit.Editor
 			}
 			catch
 			{
-				Debug.LogError("Failed to create directory");
+				UiLog.LogError("Failed to create directory");
 				return;
 			}
 			outPath += _path.Replace("/", "_") + ".txt";
@@ -171,7 +171,7 @@ namespace GuiToolkit.Editor
 			}
 			catch
 			{
-				Debug.LogError("Failed to write file");
+				UiLog.LogError("Failed to write file");
 				return;
 			}
 		}

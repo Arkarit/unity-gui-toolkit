@@ -98,7 +98,7 @@ namespace GuiToolkit.Editor
 			}
 
 			AssetDatabase.Refresh();
-			Debug.Log("Roslyn bridge removed: define cleared, DLLs deleted, folder cleaned up.");
+			UiLog.Log("Roslyn bridge removed: define cleared, DLLs deleted, folder cleaned up.");
 		}
 
 		private static void EnsureBridgeInstalled( bool force, bool showConfirm )
@@ -132,7 +132,7 @@ namespace GuiToolkit.Editor
 
 				if (!File.Exists(src))
 				{
-					Debug.LogWarning($"Roslyn bridge: source missing: {src}");
+					UiLog.LogWarning($"Roslyn bridge: source missing: {src}");
 					continue;
 				}
 
@@ -158,7 +158,7 @@ namespace GuiToolkit.Editor
 				}
 				catch (Exception ex)
 				{
-					Debug.LogError($"Roslyn bridge: failed to copy/import {dll}: {ex.Message}");
+					UiLog.LogError($"Roslyn bridge: failed to copy/import {dll}: {ex.Message}");
 				}
 			}
 
@@ -191,7 +191,7 @@ namespace GuiToolkit.Editor
 			// Add global define to all target groups
 			AddDefineToAllBuildTargetGroups(GlobalDefine);
 
-			Debug.Log("Installed Roslyn bridge (Unity < 6000) and set scripting define '" + GlobalDefine + "'.");
+			UiLog.Log("Installed Roslyn bridge (Unity < 6000) and set scripting define '" + GlobalDefine + "'.");
 		}
 
 		private static void AddDefineToAllBuildTargetGroups( string define )

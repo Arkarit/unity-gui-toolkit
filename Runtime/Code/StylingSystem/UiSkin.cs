@@ -157,7 +157,7 @@ namespace GuiToolkit.Style
 					styleIndicesToRemoveStr += isLast ? " " : ", ";
 				}
 
-				Debug.LogError($"Styling system: The styles {styleIndicesToRemoveStr} are null and will be removed. This is most likely caused by one or more missing Style/StyleApplier classes pair(s)." + 
+				UiLog.LogError($"Styling system: The styles {styleIndicesToRemoveStr} are null and will be removed. This is most likely caused by one or more missing Style/StyleApplier classes pair(s)." + 
 				               " Sorry, the exact types of these classes pairs can not be determined here - well, because the styles are null. Please be sure to revert your git changes, if you accidentally deleted it.");
 
 				for (int i = m_stylesToRemove.Count - 1; i >= 0; i--)

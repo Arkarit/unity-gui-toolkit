@@ -20,7 +20,7 @@ namespace GuiToolkit
 		{
 			if (string.IsNullOrEmpty(_language))
 			{
-				Debug.LogError("null/Empty language Id");
+				UiLog.LogError("null/Empty language Id");
 				return false;
 			}
 
@@ -58,7 +58,7 @@ namespace GuiToolkit
 				{
 					if (i >= lines.Length-1)
 					{
-						Debug.LogError("Malformed PO file");
+						UiLog.LogError("Malformed PO file");
 						break;
 					}
 
@@ -82,7 +82,7 @@ namespace GuiToolkit
 					i += 1;
 					if (i >= lines.Length-1)
 					{
-						Debug.LogError("Malformed PO file");
+						UiLog.LogError("Malformed PO file");
 						break;
 					}
 
@@ -95,7 +95,7 @@ namespace GuiToolkit
 
 					if (currentPlurals.Count < 1)
 					{
-						Debug.LogError("Malformed PO file");
+						UiLog.LogError("Malformed PO file");
 						continue;
 					}
 
@@ -129,7 +129,7 @@ namespace GuiToolkit
 				{
 					if (lastKeyword == -1)
 					{
-						Debug.LogError("Malformed PO file");
+						UiLog.LogError("Malformed PO file");
 						continue;
 					}
 
@@ -204,7 +204,7 @@ namespace GuiToolkit
 
 		private void Log(string _s)
 		{
-			Debug.Log($"Debug Loca:{_s}");
+			UiLog.Log($"Debug Loca:{_s}");
 		}
 
 		private string Escape(string _s)
@@ -325,7 +325,7 @@ namespace GuiToolkit
 			catch( Exception e )
 			{
 				// This is not necessarily an error, since it may just not exist yet.
-				Debug.LogWarning($"Could not read POT file at '{PotPath}':'{e.Message}'");
+				UiLog.LogWarning($"Could not read POT file at '{PotPath}':'{e.Message}'");
 			}
 		}
 
@@ -370,7 +370,7 @@ namespace GuiToolkit
 			}
 			catch( Exception e )
 			{
-				Debug.LogError($"Write Fail for POT file at '{PotPath}':'{e.Message}'");
+				UiLog.LogError($"Write Fail for POT file at '{PotPath}':'{e.Message}'");
 			}
 		}
 
@@ -402,7 +402,7 @@ namespace GuiToolkit
 			}
 			catch
 			{
-				Debug.LogError("Could not write dump file");
+				UiLog.LogError("Could not write dump file");
 			}
 		}
 

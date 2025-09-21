@@ -152,7 +152,7 @@ namespace GuiToolkit
 					return;
 				}
 
-				Debug.LogError("Unknown player setting type");
+				UiLog.LogError("Unknown player setting type");
 			}
 		}
 
@@ -165,7 +165,7 @@ namespace GuiToolkit
 			var playerSettingBase = customPrefabGo.GetComponent<UiPlayerSettingBase>();
 			if (playerSettingBase == null)
 			{
-				Debug.LogError($"Custom Prefab defined, but doesn't contain a '{nameof(UiPlayerSettingBase)}' component");
+				UiLog.LogError($"Custom Prefab defined, but doesn't contain a '{nameof(UiPlayerSettingBase)}' component");
 				return null;
 			}
 			

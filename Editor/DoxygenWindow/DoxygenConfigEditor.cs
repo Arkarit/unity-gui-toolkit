@@ -172,7 +172,7 @@ namespace GuiToolkit.Editor
 					}
 					catch (Exception e)
 					{
-						Debug.LogError($"Could not write doxygen log, exception:{e.Message}");
+						UiLog.LogError($"Could not write doxygen log, exception:{e.Message}");
 					}
 
 					m_progress = 0;
@@ -225,8 +225,8 @@ namespace GuiToolkit.Editor
 		{
 			if (_code != 0)
 			{
-				UnityEngine.Debug.LogError("Doxygen finished with Error: return code " + _code +
-				                           "\nPlease check the Doxygen Log for Errors.");
+				UiLog.LogError("Doxygen finished with Error: return code " + _code +
+				               "\nPlease check the Doxygen Log for Errors.");
 			}
 		}
 
