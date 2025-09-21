@@ -48,7 +48,14 @@ namespace GuiToolkit.Style.Editor
 			string selectedName;
 
 			EditorGUILayout.LabelField("Local Settings", EditorStyles.boldLabel);
+			var effectiveStyleConfig = m_thisAbstractApplyStyleBase.StyleConfig;
+			if (effectiveStyleConfig == null)
+				EditorGUILayout.LabelField("Effective Style Config: <null>",EditorStyles.miniLabel);
+			else
+				EditorGUILayout.LabelField($"Effective Style Config: '{AssetDatabase.GetAssetPath(effectiveStyleConfig)}'",EditorStyles.miniLabel);
 
+			EditorGUILayout.Space(5);
+			
 			EditorGUI.BeginChangeCheck();
 			EditorGUILayout.PropertyField(m_isResolutionDependentProp);
 			if (!m_thisAbstractApplyStyleBase.IsResolutionDependent)

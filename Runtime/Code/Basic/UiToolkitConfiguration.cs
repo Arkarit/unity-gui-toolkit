@@ -141,6 +141,10 @@ namespace GuiToolkit
 		private void OnEnable()
 		{
 			InitScenesByName();
+			if (m_uiMainStyleConfig != null)
+				UiMainStyleConfig.Instance = m_uiMainStyleConfig;
+			if (m_uiOrientationDependentStyleConfig != null)
+				UiOrientationDependentStyleConfig.Instance = m_uiOrientationDependentStyleConfig;
 		}
 
 		public UiMainStyleConfig UiMainStyleConfig => m_uiMainStyleConfig;
