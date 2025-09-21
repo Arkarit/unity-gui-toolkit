@@ -19,7 +19,7 @@ namespace GuiToolkit
 				var year = value - m_startYear;
 				if (year < 0 || year > m_endYear)
 				{
-					Debug.LogError($"year '{value}' is out of range '{m_startYear}' - '{m_endYear}'");
+					UiLog.LogError($"year '{value}' is out of range '{m_startYear}' - '{m_endYear}'");
 					return;
 				}
 
@@ -43,7 +43,7 @@ namespace GuiToolkit
 			var index = m_strings.IndexOf(_year.ToString());
 			if (index == -1)
 			{
-				Debug.LogError($"Year '{_year}' is outside of range '{m_startYear}' to '{m_endYear}'");
+				UiLog.LogError($"Year '{_year}' is outside of range '{m_startYear}' to '{m_endYear}'");
 				return;
 			}
 

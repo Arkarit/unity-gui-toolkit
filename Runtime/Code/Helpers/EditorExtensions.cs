@@ -128,7 +128,7 @@ namespace GuiToolkit
 			{
 				// Could be FileNotFoundException, UnauthorizedAccessException etc.
 				// Log and fall back to returning original input
-				Debug.LogWarning($"Exception while accessing path '{_path}': {e.Message}");
+				UiLog.LogWarning($"Exception while accessing path '{_path}': {e.Message}");
 				return _path;
 			}
 

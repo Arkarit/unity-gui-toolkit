@@ -44,7 +44,7 @@ namespace GuiToolkit
 			if (m_playerSettings.TryGetValue(_key, out PlayerSetting ps))
 				return ps.GetValue<T>();
 
-			Debug.LogError($"Player setting with key '{_key}' not found");
+			UiLog.LogError($"Player setting with key '{_key}' not found");
 			return default;
 		}
 
@@ -60,7 +60,7 @@ namespace GuiToolkit
 				{
 					if (m_keyCodes.TryGetValue(playerSetting.GetDefaultValue<KeyCode>(), out KeyCode existing))
 					{
-						Debug.LogError($"Default Key code '{existing}' of player setting '{playerSetting.Key}' already exists. Each default key code has to be unique.");
+						UiLog.LogError($"Default Key code '{existing}' of player setting '{playerSetting.Key}' already exists. Each default key code has to be unique.");
 						continue;
 					}
 					
@@ -216,7 +216,7 @@ namespace GuiToolkit
 		[System.Diagnostics.Conditional("DEBUG_PLAYER_SETTINGS")]
 		public static void Log(PlayerSetting _playerSetting, string _performedAction)
 		{
-			Debug.Log($"{_performedAction} player Setting '{_playerSetting.Key}' : {_playerSetting.Value}");
+			UiLog.Log($"{_performedAction} player Setting '{_playerSetting.Key}' : {_playerSetting.Value}");
 		}
 
 	}

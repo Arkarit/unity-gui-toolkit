@@ -59,7 +59,7 @@ namespace GuiToolkit.Style
 					var value = values[j];
 					if (value == null)
 					{
-						Debug.LogError($"Value {j} of style '{styles[i].Alias}' (type '{styles[i].GetType().Name}') is null!");
+						UiLog.LogError($"Value {j} of style '{styles[i].Alias}' (type '{styles[i].GetType().Name}') is null!");
 						continue;
 					}
 

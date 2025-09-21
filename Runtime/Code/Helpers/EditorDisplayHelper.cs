@@ -86,7 +86,7 @@ namespace GuiToolkit.Editor
 					// Sometimes when editing colors in a style, Unity begins to spit "The operation is not possible when moved past all properties"
 					// without any determinable reason.
 					// Just refreshing the style helper and editor helps.
-					Debug.Log($"Refreshing style helper, exception:'{e.Message}'");
+					UiLog.Log($"Refreshing style helper, exception:'{e.Message}'");
 					s_helper.SafeDestroy();
 					s_helperEditor.SafeDestroy();
 					s_helper = null;

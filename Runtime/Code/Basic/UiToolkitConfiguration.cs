@@ -179,7 +179,7 @@ namespace GuiToolkit
 				string name = Path.GetFileNameWithoutExtension(sceneReference.ScenePath);
 				if (m_scenesByName.ContainsKey(name))
 				{
-					Debug.LogError($"Found non-unique scene name for '{name}'");
+					UiLog.LogError($"Found non-unique scene name for '{name}'");
 					continue;
 				}
 				m_scenesByName.Add(name, sceneReference);
@@ -205,7 +205,7 @@ namespace GuiToolkit
 				}
 				catch( Exception e )
 				{
-					Debug.LogError($"Could not create generated assets dir '{EditorFileUtility.GetApplicationDataDir() + m_generatedAssetsDir}': {e.Message}");
+					UiLog.LogError($"Could not create generated assets dir '{EditorFileUtility.GetApplicationDataDir() + m_generatedAssetsDir}': {e.Message}");
 				}
 				return m_generatedAssetsDir;
 			}

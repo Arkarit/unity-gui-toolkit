@@ -15,6 +15,7 @@ using System.Collections;
 // for your own scripts make sure to add the following line:
 using DigitalRuby.Tween;
 using UnityEngine.SceneManagement;
+using GuiToolkit;
 
 namespace DigitalRuby.Tween
 {
@@ -34,7 +35,7 @@ namespace DigitalRuby.Tween
 
             System.Action<ITween<Vector3>> circleMoveCompleted = (t) =>
             {
-                Debug.Log("Circle move completed");
+                UiLog.Log("Circle move completed");
             };
 
             Vector3 currentPos = Circle.transform.position;

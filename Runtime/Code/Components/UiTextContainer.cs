@@ -41,7 +41,7 @@ namespace GuiToolkit
 				else if (m_text)
 					m_text.text = value;
 				else
-					Debug.LogError($"No text found for '{gameObject.name}', can not set string '{value}'");
+					UiLog.LogError($"No text found for '{gameObject.name}', can not set string '{value}'");
 			}
 		}
 
@@ -67,7 +67,7 @@ namespace GuiToolkit
 				else if (m_text)
 					m_text.color = value;
 				else
-					Debug.LogError($"No text found for '{gameObject.name}', can not set color '{value}'");
+					UiLog.LogError($"No text found for '{gameObject.name}', can not set color '{value}'");
 			}
 		}
 

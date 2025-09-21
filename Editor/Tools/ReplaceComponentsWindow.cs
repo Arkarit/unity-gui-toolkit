@@ -46,13 +46,13 @@ namespace GuiToolkit.Editor
 
 					if (srcType.IsAbstract || dstType.IsAbstract)
 					{
-						Debug.LogError("Source and target must be non-abstract Component types.");
+						UiLog.LogError("Source and target must be non-abstract Component types.");
 						return;
 					}
 					if (!typeof(Component).IsAssignableFrom(srcType) ||
 						!typeof(Component).IsAssignableFrom(dstType))
 					{
-						Debug.LogError("Both source and target must inherit from UnityEngine.Component.");
+						UiLog.LogError("Both source and target must inherit from UnityEngine.Component.");
 						return;
 					}
 

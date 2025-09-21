@@ -139,7 +139,7 @@ namespace GuiToolkit
 			
 			if (isSuppressed)
 			{
-				Debug.Log($"Key '{_(k.ToString())}' not supported");
+				UiLog.Log($"Key '{_(k.ToString())}' not supported");
 
 				if (m_wiggleAnimation)
 					m_wiggleAnimation.Play();

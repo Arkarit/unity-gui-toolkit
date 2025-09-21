@@ -19,7 +19,7 @@ public static class DemoCheats
 					IsSaveable = false,
 					OnChanged = setting =>
 					{
-						Debug.Log($"Checkbox checked:{(bool) setting.Value}");
+						UiLog.Log($"Checkbox checked:{(bool) setting.Value}");
 					}
 				}
 			),
@@ -32,7 +32,7 @@ public static class DemoCheats
 					Titles = new List<string> {"Main Button Text", "Button Text"},
 					OnChanged = _ =>
 					{
-						Debug.Log($"Button clicked");
+						UiLog.Log($"Button clicked");
 					}
 				}
 			),

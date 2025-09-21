@@ -81,7 +81,7 @@ namespace GuiToolkit.Editor
 			if (workingFolder == null)
 			{
 				string s = "Error: No .git folder found";
-				Debug.LogError(s);
+				UiLog.LogError(s);
 				return s;
 			}
 
@@ -97,14 +97,14 @@ namespace GuiToolkit.Editor
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"Exception when starting Git:{e.Message}");
+				UiLog.LogError($"Exception when starting Git:{e.Message}");
 				return "Git Exception";
 			}
 
 			if (processResult != 0)
 			{
 				string s = $"Error: Git exited with code {processResult}";
-				Debug.LogError(s);
+				UiLog.LogError(s);
 				return s;
 			}
 

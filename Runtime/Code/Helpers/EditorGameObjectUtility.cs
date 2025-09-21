@@ -17,7 +17,7 @@ namespace GuiToolkit
 		{
 			if (string.IsNullOrEmpty(_path) || !_path.StartsWith('/'))
 			{
-				Debug.LogError($"{nameof(EditorGameObjectUtility)}.{nameof(EnsureGameObjectExists)}() needs an absolute path! (starting with /)");
+				UiLog.LogError($"{nameof(EditorGameObjectUtility)}.{nameof(EnsureGameObjectExists)}() needs an absolute path! (starting with /)");
 				return null;
 			}
 

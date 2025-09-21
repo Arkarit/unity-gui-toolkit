@@ -452,7 +452,7 @@ namespace GuiToolkit
 
 			if (CanvasScaler == null)
 			{
-				Debug.LogError("Can not perform stack animation without canvas scaler!");
+				UiLog.LogError("Can not perform stack animation without canvas scaler!");
 				return;
 			}
 

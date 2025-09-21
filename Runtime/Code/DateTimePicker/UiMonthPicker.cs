@@ -58,7 +58,7 @@ namespace GuiToolkit
 		{
 			if (_index < 0 || _index > 11)
 			{
-				Debug.LogError($"Month '{_index + 1}' is outside of range '1' to '12'");
+				UiLog.LogError($"Month '{_index + 1}' is outside of range '1' to '12'");
 				_index = 0;
 			}
 
@@ -71,7 +71,7 @@ namespace GuiToolkit
 			int index = m_strings.IndexOf(_monthName);
 			if (index == -1)
 			{
-				Debug.LogWarning($"Month name '{_monthName}' unknown, setting '{Months[0]}'");
+				UiLog.LogWarning($"Month name '{_monthName}' unknown, setting '{Months[0]}'");
 				index = 0;
 			}
 

@@ -56,7 +56,7 @@ namespace GuiToolkit
 					Iterate(component, go, _flags);
 			}
 
-			Debug.Log(DumpDependencyCache());
+			UiLog.Log(DumpDependencyCache());
 		}
 		
 		public static List<GameObject> QueryGameObjectSceneReferences(GameObject _gameObject, SearchableEditorWindow.SearchMode _searchMode = SearchableEditorWindow.SearchMode.All, bool _excludeSelf = true)
@@ -224,7 +224,7 @@ namespace GuiToolkit
 			if ((currentFlags & _flags) != _flags)
 			{
 				if (_log)
-					Debug.Log($"Setting static editor Flags '{_flags}'\n'{_transform.GetPath()}'\ncurrent flags:{currentFlags}");
+					UiLog.Log($"Setting static editor Flags '{_flags}'\n'{_transform.GetPath()}'\ncurrent flags:{currentFlags}");
 			
 				if (_replace)
 					GameObjectUtility.SetStaticEditorFlags(go, _flags);
@@ -253,7 +253,7 @@ namespace GuiToolkit
 			if ((currentFlags & _flags) != 0)
 			{
 				if (_log)
-					Debug.Log($"Clearing static editor Flags '{_flags}'\n'{_transform.GetPath()}'\ncurrent flags:{currentFlags}");
+					UiLog.Log($"Clearing static editor Flags '{_flags}'\n'{_transform.GetPath()}'\ncurrent flags:{currentFlags}");
 
 				GameObjectUtility.SetStaticEditorFlags(_transform.gameObject, currentFlags & ~_flags);
 				EditorGeneralUtility.SetDirty(_transform.gameObject);
@@ -324,7 +324,7 @@ namespace GuiToolkit
 					}
 					catch (Exception e)
 					{
-						Debug.LogWarning($"Could not unpack prefab instance '{descendant.name}'\nException:{e.Message}\n{descendant.GetPath()}");
+						UiLog.LogWarning($"Could not unpack prefab instance '{descendant.name}'\nException:{e.Message}\n{descendant.GetPath()}");
 					}
 				}
 			}
@@ -346,7 +346,7 @@ namespace GuiToolkit
 		{
 			if (_serializedObject == null || _serializedObject.targetObject == null)
 			{
-				Debug.LogWarning($"serialized object or target object is null");
+				UiLog.LogWarning($"serialized object or target object is null");
 				return;
 			}
 
@@ -370,7 +370,7 @@ namespace GuiToolkit
 		{
 			if (_serializedObject == null || _serializedObject.targetObject == null)
 			{
-				Debug.LogWarning($"serialized object or target object is null");
+				UiLog.LogWarning($"serialized object or target object is null");
 				return;
 			}
 
@@ -392,7 +392,7 @@ namespace GuiToolkit
 		{
 			if (_serializedObject == null || _serializedObject.targetObject == null)
 			{
-				Debug.LogWarning($"serialized object or target object is null");
+				UiLog.LogWarning($"serialized object or target object is null");
 				return;
 			}
 
@@ -497,7 +497,7 @@ namespace GuiToolkit
 			MethodInfo setSearchFilterMethod = type.GetMethod("SetSearchFilter", nonPublicInstanceFlags);
 			if (setSearchFilterMethod == null)
 			{
-				Debug.LogError($"Unity internal API has changed, please fix!");
+				UiLog.LogError($"Unity internal API has changed, please fix!");
 				return false;
 			}
 			
@@ -525,7 +525,7 @@ namespace GuiToolkit
 			return searchFilterMember.GetValue(sceneHierarchy);
 			
 		ReflectionError:
-			Debug.LogError($"Unity internal API has changed, please fix!");
+			UiLog.LogError($"Unity internal API has changed, please fix!");
 			return null;
 		}
 		
@@ -577,7 +577,7 @@ namespace GuiToolkit
 			return SearchList;
 			
 		ReflectionError:
-			Debug.LogError($"Unity internal API has changed, please fix!");
+			UiLog.LogError($"Unity internal API has changed, please fix!");
 			return SearchList;
 		}
 		
@@ -781,7 +781,7 @@ namespace GuiToolkit
 		{
 			if (!_list.isArray)
 			{
-				Debug.LogError("Attempt to access array element from a SerializedProperty which isn't an array");
+				UiLog.LogError("Attempt to access array element from a SerializedProperty which isn't an array");
 				return false;
 			}
 			return true;
@@ -791,7 +791,7 @@ namespace GuiToolkit
 		{
 			if (_idx < 0 || _idx >= _list.arraySize)
 			{
-				Debug.LogError("Out of Bounds when accessing an array element");
+				UiLog.LogError("Out of Bounds when accessing an array element");
 				return false;
 			}
 			return true;

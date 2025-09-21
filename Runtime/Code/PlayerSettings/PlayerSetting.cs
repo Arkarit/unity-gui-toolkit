@@ -214,7 +214,7 @@ namespace GuiToolkit
 			else if (m_type == typeof(string))
 				PlayerPrefs.SetString(Key, Convert.ToString(m_value));
 			else
-				Debug.LogError($"Unknown type for player setting '{Key}': {m_type.Name}");
+				UiLog.LogError($"Unknown type for player setting '{Key}': {m_type.Name}");
 		}
 
 		protected void CheckType(Type _t)
@@ -258,7 +258,7 @@ namespace GuiToolkit
 			else if (_type == typeof(string))
 				m_value = InitValue(Options, Key, Convert.ToString(DefaultValue));
 			else
-				Debug.LogError($"Unknown type for player setting '{Key}': {_type.Name}");
+				UiLog.LogError($"Unknown type for player setting '{Key}': {_type.Name}");
 		}
 	}
 }

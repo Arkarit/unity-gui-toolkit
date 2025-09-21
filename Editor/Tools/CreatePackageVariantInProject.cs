@@ -43,7 +43,7 @@ namespace GuiToolkit.Editor
 			var projectRoot = GetProjectRoot();
 			if (!absFolder.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
 			{
-				Debug.LogError("Folder must be inside this Unity project (under 'Assets/').");
+				UiLog.LogError("Folder must be inside this Unity project (under 'Assets/').");
 				return;
 			}
 
@@ -53,7 +53,7 @@ namespace GuiToolkit.Editor
 			var sources = EnumerateSourcePrefabsFromSelection().ToList();
 			if (sources.Count == 0)
 			{
-				Debug.LogWarning("No eligible prefabs found in the selection.");
+				UiLog.LogWarning("No eligible prefabs found in the selection.");
 				return;
 			}
 
@@ -157,7 +157,7 @@ namespace GuiToolkit.Editor
 			var sourcePath = AssetDatabase.GetAssetPath(prefab);
 			if (!sourcePath.StartsWith("packages/", StringComparison.OrdinalIgnoreCase))
 			{
-				Debug.LogError($"!Can not create variant of '{sourcePath}'; needs to reside in 'Packages'.");
+				UiLog.LogError($"!Can not create variant of '{sourcePath}'; needs to reside in 'Packages'.");
 				return;
 			}
 
@@ -185,12 +185,12 @@ namespace GuiToolkit.Editor
 				PrefabUtility.SaveAsPrefabAsset(instance, targetPath, out bool success);
 				if (success)
 				{
-					Debug.Log($"Prefab Variant saved to: {targetPath}");
+					UiLog.Log($"Prefab Variant saved to: {targetPath}");
 					onCreated?.Invoke(targetPath);
 				}
 				else
 				{
-					Debug.LogError($"Failed to save Prefab Variant to: {targetPath}");
+					UiLog.LogError($"Failed to save Prefab Variant to: {targetPath}");
 				}
 			}
 			finally

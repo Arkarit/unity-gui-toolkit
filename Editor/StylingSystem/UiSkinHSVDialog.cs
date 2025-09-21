@@ -61,7 +61,7 @@ namespace GuiToolkit.Style.Editor
 		{
 			if (Skin == null)
 			{
-				Debug.LogError("Skin is null!");
+				UiLog.LogError("Skin is null!");
 				return;
 			}
 

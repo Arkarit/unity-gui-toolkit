@@ -58,7 +58,7 @@ namespace GuiToolkit
 
 			if (!BuildSettingsUtility.HasMainScene())
 			{
-				Debug.LogError("Automatic scene loading requires a main scene in Build Settings.");
+				UiLog.LogError("Automatic scene loading requires a main scene in Build Settings.");
 				return;
 			}
 

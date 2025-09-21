@@ -115,7 +115,7 @@ namespace GuiToolkit
 
 				EditorApplication.update += FireOnScreenOrientationChangedEventIfNecessary;
 				FireOnScreenOrientationChangedEventIfNecessary();
-				Debug.Log("UIMain static initialized");
+				UiLog.Log("UIMain static initialized");
 			}
 		}
 #endif
@@ -131,7 +131,7 @@ namespace GuiToolkit
 					s_instance = FindAnyObjectByType<UiMain>();
 #if UNITY_EDITOR
 				if (s_instance == null)
-					Debug.LogError("Attempt to access UiMain.Instance, but game object containing the instance not found." +
+					UiLog.LogError("Attempt to access UiMain.Instance, but game object containing the instance not found." +
 						" Please set up a game object with an attached UiMain component!");
 
 #endif
@@ -262,7 +262,7 @@ namespace GuiToolkit
 			bool stackValid = m_stack.Count >= 1 + _skip;
 			if (!stackValid)
 			{
-				Debug.LogError($"Attempting to pop {1 + _skip} from UiView stack, but stack contains only {m_stack.Count}");
+				UiLog.LogError($"Attempting to pop {1 + _skip} from UiView stack, but stack contains only {m_stack.Count}");
 				return;
 			}
 			UiView currentShown = m_stack.Pop();
@@ -604,7 +604,7 @@ namespace GuiToolkit
 				int uiLayer = 1 << LayerMask.NameToLayer("UI");
 				if ((uiCamera.cullingMask & uiLayer) == 0)
 				{
-					Debug.LogError($"UiMain camera on GameObject '{gameObject.name}' needs the culling mask 'UI' flag set!");
+					UiLog.LogError($"UiMain camera on GameObject '{gameObject.name}' needs the culling mask 'UI' flag set!");
 				}
 
 				float uiCameraDepth = uiCamera.depth;
@@ -618,7 +618,7 @@ namespace GuiToolkit
 
 					if (camera.depth >= uiCameraDepth)
 					{
-						Debug.LogError($"UI Camera needs highest depth. Camera depth {camera.depth} detected on camera '{camera.gameObject.name}', which is >= Ui camera depth ({uiCameraDepth})" );
+						UiLog.LogError($"UI Camera needs highest depth. Camera depth {camera.depth} detected on camera '{camera.gameObject.name}', which is >= Ui camera depth ({uiCameraDepth})" );
 					}
 				}
 			}
@@ -648,7 +648,7 @@ namespace GuiToolkit
 			int idx = m_excludedFromFrustumCulling.IndexOf(_toRemove);
 			if (idx == -1)
 			{
-				Debug.LogError($"Could not find {_toRemove} in list of frustum culling exclusion list");
+				UiLog.LogError($"Could not find {_toRemove} in list of frustum culling exclusion list");
 				return;
 			}
 			m_excludedFromFrustumCulling.RemoveAt(idx);

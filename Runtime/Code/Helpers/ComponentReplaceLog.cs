@@ -18,14 +18,14 @@ namespace GuiToolkit.Editor
 			string scenePath = GetLogScenePath();
 			if (string.IsNullOrEmpty(scenePath))
 			{
-				Debug.LogWarning( $"Invalid scene! {_message}" );
+				UiLog.LogWarning( $"Invalid scene! {_message}" );
 				return;
 			}
 			
 			string path = GetFilePath(scenePath);
 			string line = $"[{System.DateTime.Now:yyyy-MM-dd HH:mm:ss}] {_message}";
 			File.AppendAllText(path, line + "\n");
-			Debug.Log(line);
+			UiLog.Log(line);
 		}
 		
 		public static void LogCr(int _howMany)
@@ -33,7 +33,7 @@ namespace GuiToolkit.Editor
 			string scenePath = GetLogScenePath();
 			if (string.IsNullOrEmpty(scenePath))
 			{
-				Debug.LogWarning( $"Invalid scene!" );
+				UiLog.LogWarning( $"Invalid scene!" );
 				return;
 			}
 			

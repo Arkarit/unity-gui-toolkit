@@ -39,7 +39,7 @@ namespace GuiToolkit.Style
 
 				if (value > Skins.Count)
 				{
-					Debug.LogError($"Skin idx {value} exceeeds skin count {Skins.Count}");
+					UiLog.LogError($"Skin idx {value} exceeeds skin count {Skins.Count}");
 					return;
 				}
 

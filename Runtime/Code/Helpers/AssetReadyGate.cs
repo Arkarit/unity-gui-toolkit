@@ -36,7 +36,7 @@ namespace GuiToolkit
 			var result = Resources.Load<T>(_name);
 			if (!result)
 			{
-				Debug.LogError($"Scriptable object could not be loaded from path '{_name}' ");
+				UiLog.LogError($"Scriptable object could not be loaded from path '{_name}' ");
 				return ScriptableObject.CreateInstance<T>();
 			}
 
@@ -168,7 +168,7 @@ namespace GuiToolkit
 				if (BuildPipeline.isBuildingPlayer)
 				{
 					EditorApplication.update -= Tick;
-					Debug.LogWarning("WhenReady aborted: build started.");
+					UiLog.LogWarning("WhenReady aborted: build started.");
 					return;
 				}
 
@@ -176,7 +176,7 @@ namespace GuiToolkit
 				if (_maxFrames > 0 && ++frames > _maxFrames)
 				{
 					EditorApplication.update -= Tick;
-					Debug.LogError($"WhenReady(assets) timeout after {_maxFrames} frames. Caller: {DebugUtility.GetCallingClassAndMethod()}");
+					UiLog.LogError($"WhenReady(assets) timeout after {_maxFrames} frames. Caller: {DebugUtility.GetCallingClassAndMethod()}");
 					return;
 				}
 
@@ -199,7 +199,7 @@ namespace GuiToolkit
 				}
 				catch (Exception ex)
 				{
-					Debug.LogError($"Exception in Callback: {ex}");
+					UiLog.LogError($"Exception in Callback: {ex}");
 				}
 			}
 		}
@@ -297,7 +297,7 @@ namespace GuiToolkit
 			// Hard guard: never create assets while building the player.
 			if (BuildPipeline.isBuildingPlayer)
 			{
-				Debug.LogError($"Attempt to create scriptable object '{_type.Name}' during build process");
+				UiLog.LogError($"Attempt to create scriptable object '{_type.Name}' during build process");
 				return null;
 			}
 
@@ -306,7 +306,7 @@ namespace GuiToolkit
 			EditorFileUtility.EnsureUnityFolderExists(System.IO.Path.GetDirectoryName(assetPath).Replace('\\', '/'));
 			var inst = ScriptableObject.CreateInstance(_type);
 			inst.name = _type.Name;
-			Debug.Log($"Create scriptable object instance '{inst.name}' of type '{_type.Name}' at '{assetPath}'");
+			UiLog.Log($"Create scriptable object instance '{inst.name}' of type '{_type.Name}' at '{assetPath}'");
 			AssetDatabase.CreateAsset(inst, assetPath);
 			AssetDatabase.SaveAssets();
 			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
@@ -384,7 +384,7 @@ namespace GuiToolkit
 				result = Resources.Load<ScriptableObject>(className);
 				if (result == null)
 				{
-					Debug.LogError($"Scriptable object could not be loaded from path '{className}'");
+					UiLog.LogError($"Scriptable object could not be loaded from path '{className}'");
 					result = ScriptableObject.CreateInstance(_type);
 				}
 #if UNITY_EDITOR

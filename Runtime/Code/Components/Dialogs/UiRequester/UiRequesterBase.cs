@@ -118,7 +118,7 @@ namespace GuiToolkit
 		protected virtual void EvaluateOptions( Options _options )
 		{
 			if (m_maxButtons != Constants.INVALID && _options.ButtonInfos.Length > m_maxButtons)
-				Debug.LogWarning($"Dialog '{this.gameObject}' contains {_options.ButtonInfos.Length} buttons; maximum supported are {m_maxButtons}. Visual problems may appear.");
+				UiLog.LogWarning($"Dialog '{this.gameObject}' contains {_options.ButtonInfos.Length} buttons; maximum supported are {m_maxButtons}. Visual problems may appear.");
 
 			m_buttonContainer.SetActive(_options.ButtonInfos.Length > 0);
 			for (int i=0; i<_options.ButtonInfos.Length; i++)

@@ -261,7 +261,7 @@ namespace GuiToolkit.Editor.Roslyn
 		[Conditional("ROSLYN_VERBOSE")]
 		public static void LogVerbose( string _s )
 		{
-			UnityEngine.Debug.Log($"---::: {DebugUtility.GetCallingClassAndMethod(false, true, 1)}: {_s}");
+			UiLog.LogVerbose($"{DebugUtility.GetCallingClassAndMethod(false, true, 1)}: {_s}");
 		}
 	}
 }

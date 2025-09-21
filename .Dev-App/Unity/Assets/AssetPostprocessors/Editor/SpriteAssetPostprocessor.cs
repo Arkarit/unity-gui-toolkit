@@ -1,3 +1,4 @@
+using GuiToolkit;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,7 +18,7 @@ public class SpriteAssetPostprocessor : AssetPostprocessor
 		)
 			return;
 		
-		Debug.Log($"Setting texture properties for sprite '{assetPath}'");
+		UiLog.Log($"Setting texture properties for sprite '{assetPath}'");
 		TextureImporter importer = (TextureImporter) assetImporter;
 		
 		importer.mipmapEnabled = false;

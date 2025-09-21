@@ -331,7 +331,7 @@ namespace GuiToolkit.UiStateSystem
 		{
 			if (string.IsNullOrEmpty(m_currentStateName))
 			{
-				Debug.LogError("No state selected, not possible to Record");
+				UiLog.LogError("No state selected, not possible to Record");
 				return;
 			}
 

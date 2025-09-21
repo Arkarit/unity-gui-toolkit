@@ -430,7 +430,7 @@ namespace GuiToolkit
 
 			if (_strings.Contains(newEntry))
 			{
-				Debug.LogError($"Can not add '{newEntry}'; already contained in the list of _strings");
+				UiLog.LogError($"Can not add '{newEntry}'; already contained in the list of _strings");
 				return false;
 			}
 
@@ -508,7 +508,7 @@ namespace GuiToolkit
 		{
 			if (_names == null || _values == null || _names.Count != _values.Count)
 			{
-				Debug.LogError("Wrong values in BoolBar");
+				UiLog.LogError("Wrong values in BoolBar");
 				return false;
 			}
 			

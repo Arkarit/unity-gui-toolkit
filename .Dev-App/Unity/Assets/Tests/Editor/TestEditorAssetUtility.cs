@@ -37,11 +37,11 @@ namespace GuiToolkit.Test
 			foreach (var pathField in paths)
 			{
 				string path = pathField;
-				Debug.Log($"Testing path '{path}'");
+				UiLog.Log($"Testing path '{path}'");
 				var guids = AssetDatabase.FindAssets("t:prefab", new[] { path }).ToList();
-				Debug.Log(DebugUtility.GetAllGuidsString(guids, "Before sorting:"));
+				UiLog.Log(DebugUtility.GetAllGuidsString(guids, "Before sorting:"));
 				EditorAssetUtility.SortByPrefabHierarchyGuids(guids);
-				Debug.Log(DebugUtility.GetAllGuidsString(guids, "After sorting:"));
+				UiLog.Log(DebugUtility.GetAllGuidsString(guids, "After sorting:"));
 				AssertSortingOrder(guids);
 			}
 		}

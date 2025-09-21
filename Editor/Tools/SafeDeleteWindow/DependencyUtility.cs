@@ -65,11 +65,11 @@ namespace GuiToolkit.Editor
 string s = $"---::: node:{node}\n";
 foreach (var closureNode in closure)
 s += $"\tclosureNode: {closureNode}\n";
-Debug.Log(s);
+UiLog.Log(s);
 
 			foreach (var r in EnumerateReferrers(node))
 			{
-Debug.Log($"---::: {r}");
+UiLog.Log($"---::: {r}");
 				if (!closure.Contains(r))
 					return true;
 			}

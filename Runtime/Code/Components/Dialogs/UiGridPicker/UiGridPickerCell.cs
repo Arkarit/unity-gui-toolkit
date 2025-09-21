@@ -31,7 +31,7 @@ namespace GuiToolkit
 			{
 				if (!m_optionalText)
 				{
-					Debug.LogWarning($"Attempt to set caption for '{gameObject.name}', but {nameof(m_optionalText)} is not set!\n{gameObject.GetPath()}");
+					UiLog.LogWarning($"Attempt to set caption for '{gameObject.name}', but {nameof(m_optionalText)} is not set!\n{gameObject.GetPath()}");
 					return;
 				}
 

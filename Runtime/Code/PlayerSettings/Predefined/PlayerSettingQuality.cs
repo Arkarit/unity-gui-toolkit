@@ -43,7 +43,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			Debug.LogError("Quality Level '" + targetQuality + "' not found!");
+			UiLog.LogError("Quality Level '" + targetQuality + "' not found!");
 		}
 
 		protected List<string> GetQualities() => QualitySettings.names.ToList();

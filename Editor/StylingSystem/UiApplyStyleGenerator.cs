@@ -512,7 +512,7 @@ namespace GuiToolkit.Style.Editor
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"Could not write Json, reason:'{e.Message}'");
+				UiLog.LogError($"Could not write Json, reason:'{e.Message}'");
 			}
 
 			AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
@@ -712,7 +712,7 @@ namespace GuiToolkit.Style.Editor
 			}
 			catch (Exception e)
 			{
-				Debug.LogError($"Could not write class(es), reason:{e.Message}");
+				UiLog.LogError($"Could not write class(es), reason:{e.Message}");
 				return;
 			}
 

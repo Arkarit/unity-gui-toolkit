@@ -52,7 +52,7 @@ namespace GuiToolkit.Editor
 			}
 			catch (Exception e)
 			{
-				Debug.LogError(e.Message);
+				UiLog.LogError(e.Message);
 				throw;
 			}
 			finally
@@ -68,7 +68,7 @@ namespace GuiToolkit.Editor
 			var scene = EditorCodeUtility.GetCurrentContextScene(out m_isPrefab);
 			if (!scene.IsValid())
 			{
-				Debug.LogError("No valid scene or prefab stage.");
+				UiLog.LogError("No valid scene or prefab stage.");
 				return;
 			}
 
@@ -113,7 +113,7 @@ namespace GuiToolkit.Editor
 			}
 
 			// Done
-			Debug.Log($"Screenshot overlay created ({m_width}x{m_height}) at 50% opacity.");
+			UiLog.Log($"Screenshot overlay created ({m_width}x{m_height}) at 50% opacity.");
 		}
 
 		private static void CreateTempScene()
@@ -328,7 +328,7 @@ namespace GuiToolkit.Editor
 					var assetPath = AssetDatabase.GetAssetPath(prefabAsset);
 					if (string.IsNullOrEmpty(assetPath))
 					{
-						Debug.LogError("Could not resolve prefab asset path.");
+						UiLog.LogError("Could not resolve prefab asset path.");
 					}
 					else
 					{
@@ -380,7 +380,7 @@ namespace GuiToolkit.Editor
 		private static void Log( string _s, float _progress )
 		{
 			EditorUtility.DisplayProgressBar($"Creating GUI Screenshot overlay", _s, _progress);
-			Debug.Log(_s);
+			UiLog.Log(_s);
 		}
 	}
 }

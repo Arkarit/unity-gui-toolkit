@@ -35,12 +35,12 @@ namespace GuiToolkit
 		{
 			if (_assetPaths.Count != 1)
 			{
-				Debug.LogError($"{GetType().Name} can only have one icon!");
+				UiLog.LogError($"{GetType().Name} can only have one icon!");
 				return;
 			}
 			m_flagImage.sprite = Resources.Load<Sprite>(_assetPaths[0]);
 			if (m_flagImage.sprite == null)
-				Debug.LogError($"Sprite '{_assetPaths[0]}' not found!");
+				UiLog.LogError($"Sprite '{_assetPaths[0]}' not found!");
 		}
 
 		protected override void OnLanguageChanged( string _languageId )
@@ -64,7 +64,7 @@ namespace GuiToolkit
 			string assetPath = "Flags/" + SubKey;
 			m_flagImage.sprite = Resources.Load<Sprite>(assetPath);
 			if (m_flagImage.sprite == null)
-				Debug.LogError($"Sprite '{assetPath}' not found!");
+				UiLog.LogError($"Sprite '{assetPath}' not found!");
 		}
 
 	}

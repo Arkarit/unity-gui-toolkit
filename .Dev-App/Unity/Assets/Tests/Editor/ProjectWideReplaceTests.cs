@@ -75,7 +75,7 @@ namespace GuiToolkit.Test
 				checkedFiles++;
 			}
 
-			Debug.Log($"[ProjectWide_TextToTMP_OnlyIntendedChanges] Ignored: {ignoredFiles} Skipped: {skippedFiles} Checked: {checkedFiles}, Changed: {changedFiles}");
+			UiLog.Log($"[ProjectWide_TextToTMP_OnlyIntendedChanges] Ignored: {ignoredFiles} Skipped: {skippedFiles} Checked: {checkedFiles}, Changed: {changedFiles}");
 		}
 
 		private static void WriteFaultyFiles( string path, string _source, string _destination, string _reverted, string _message )
@@ -95,11 +95,11 @@ namespace GuiToolkit.Test
 				System.IO.File.WriteAllText(destinationPath, _destination);
 				System.IO.File.WriteAllText(revertedPath, _reverted);
 
-				Debug.LogError($"{_message}: {fileName}\nSaved as:\n{sourcePath}\n{destinationPath}");
+				UiLog.LogError($"{_message}: {fileName}\nSaved as:\n{sourcePath}\n{destinationPath}");
 			}
 			catch (Exception ex)
 			{
-				Debug.LogError($"Failed to save diff files: {ex}");
+				UiLog.LogError($"Failed to save diff files: {ex}");
 			}
 		}
 

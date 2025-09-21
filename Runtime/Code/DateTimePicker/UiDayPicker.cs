@@ -74,7 +74,7 @@ namespace GuiToolkit
 			var daysInMonth = DateTime.DaysInMonth(year, month);
 			if (_day < 0 || _day >= daysInMonth)
 			{
-				Debug.LogError($"day '{_day + 1}' is out of range '1' - '{daysInMonth}'");
+				UiLog.LogError($"day '{_day + 1}' is out of range '1' - '{daysInMonth}'");
 				return;
 			}
 

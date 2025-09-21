@@ -111,7 +111,7 @@ namespace GuiToolkit
 			if (autoInvoke)
 			{
 				if(!m_canAutoInvoke)
-					Debug.LogError($"Event {GetType().Name} cannot auto invoke");
+					UiLog.LogError($"Event {GetType().Name} cannot auto invoke");
 				
 				_call(m_lastT0);
 			}
@@ -182,7 +182,7 @@ namespace GuiToolkit
 			if (_canAutoInvoke)
 			{
 				if(!m_canAutoInvoke)
-					Debug.LogError($"Event {GetType().Name} cannot auto invoke");
+					UiLog.LogError($"Event {GetType().Name} cannot auto invoke");
 				
 				_call(m_lastT0, m_lastT1);
 			}
@@ -257,7 +257,7 @@ namespace GuiToolkit
 			if (_canAutoInvoke)
 			{
 				if(!m_canAutoInvoke)
-					Debug.LogError($"Event {GetType().Name} cannot auto invoke");
+					UiLog.LogError($"Event {GetType().Name} cannot auto invoke");
 				
 				_call(m_lastT0, m_lastT1, m_lastT2);
 			}
@@ -337,7 +337,7 @@ namespace GuiToolkit
 			if (_canAutoInvoke)
 			{
 				if(!m_canAutoInvoke)
-					Debug.LogError($"Event {GetType().Name} cannot auto invoke");
+					UiLog.LogError($"Event {GetType().Name} cannot auto invoke");
 				
 				_call(m_lastT0, m_lastT1, m_lastT2, m_lastT3);
 			}

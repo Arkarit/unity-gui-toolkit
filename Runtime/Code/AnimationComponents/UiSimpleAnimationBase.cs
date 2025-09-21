@@ -215,7 +215,7 @@ namespace GuiToolkit
 			Log($"Play({_backwards})");
 			if (!enabled)
 			{
-				Debug.LogWarning($"Animation on '{gameObject.GetPath()}' was disabled - enabling it, otherwise it won't play properly");
+				UiLog.LogWarning($"Animation on '{gameObject.GetPath()}' was disabled - enabling it, otherwise it won't play properly");
 				enabled = true;
 			}
 
@@ -515,7 +515,7 @@ namespace GuiToolkit
 					
 					if (slave == null)
 					{
-						Debug.LogError($"Slave animation at index {i} in '{gameObject.GetPath()}' is null");
+						UiLog.LogError($"Slave animation at index {i} in '{gameObject.GetPath()}' is null");
 						continue;
 					}
 					
@@ -531,7 +531,7 @@ namespace GuiToolkit
 				
 				if (slave == null)
 				{
-					Debug.LogError($"Slave animation at index {i} in '{gameObject.GetPath()}' is null");
+					UiLog.LogError($"Slave animation at index {i} in '{gameObject.GetPath()}' is null");
 					continue;
 				}
 					
@@ -572,7 +572,7 @@ namespace GuiToolkit
 				
 				if (slave == null)
 				{
-					Debug.LogError($"Slave animation at index {i} in '{gameObject.GetPath()}' is null");
+					UiLog.LogError($"Slave animation at index {i} in '{gameObject.GetPath()}' is null");
 					continue;
 				}
 				
@@ -623,7 +623,7 @@ namespace GuiToolkit
 				if (!m_debug)
 					return;
 #endif
-			Debug.Log($"{GetType().Name} {gameObject.name}:{_s}\n{gameObject.GetPath()}");
+			UiLog.Log($"{GetType().Name} {gameObject.name}:{_s}\n{gameObject.GetPath()}");
 		}
 
 #if UNITY_EDITOR
