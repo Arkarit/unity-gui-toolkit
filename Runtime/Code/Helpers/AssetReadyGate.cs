@@ -45,6 +45,8 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 		private const string AssetDir = "Assets/Resources/";
+		private static string[] s_scriptableObjectGuids;
+		private static bool m_allScriptableObjectsReady = false;
 
 		/// <summary>
 		/// True while the Editor is compiling scripts or updating assets.
@@ -56,7 +58,6 @@ namespace GuiToolkit
 		/// </summary>
 		public static bool Ready => AllScriptableObjectsReady;
 
-		private static string[] s_scriptableObjectGuids;
 
 		/// <summary>
 		/// Cached list of all ScriptableObject GUIDs in Assets and Packages.
@@ -76,7 +77,11 @@ namespace GuiToolkit
 		/// <summary>
 		/// Clears the cached GUID list. Called on relevant Editor events.
 		/// </summary>
-		public static void Clear() => s_scriptableObjectGuids = null;
+		public static void Clear()
+		{
+			s_scriptableObjectGuids = null;
+			m_allScriptableObjectsReady = false;
+		}
 
 		/// <summary>
 		/// Returns true if Editor is idle (no compile/update) and all ScriptableObjects
@@ -88,7 +93,7 @@ namespace GuiToolkit
 		{
 			get
 			{
-				if (Application.isPlaying)
+				if (Application.isPlaying || m_allScriptableObjectsReady)
 					return true;
 
 				if (BuildPipeline.isBuildingPlayer)
@@ -122,6 +127,7 @@ namespace GuiToolkit
 				}
 
 				// All checked paths are ready (or irrelevant).
+				m_allScriptableObjectsReady = true;
 				return true;
 			}
 		}
@@ -198,15 +204,15 @@ namespace GuiToolkit
 					if (s_scriptableObjectGuids != null)
 					{
 						string s = "Scriptable Objects ready:";
-						
+
 						foreach (var guid in s_scriptableObjectGuids)
 						{
 							if (guid == null)
 								continue;
-							
+
 							s += $"\n\t{AssetDatabase.GUIDToAssetPath(guid)}";
 						}
-						
+
 						UiLog.LogVerbose(s);
 					}
 				}
@@ -431,7 +437,7 @@ namespace GuiToolkit
 		/// </summary>
 		public static ScriptableObject LoadOrCreateScriptableObject( Type _type )
 		{
-		 return LoadOrCreateScriptableObject(_type, out _);
+			return LoadOrCreateScriptableObject(_type, out _);
 		}
 	}
 
@@ -453,6 +459,47 @@ namespace GuiToolkit
 		private static void Clear()
 		{
 			AssetReadyGate.Clear();
+		}
+	}
+
+	class AssetReadyGateResetAp : AssetPostprocessor
+	{
+		private static void OnPostprocessAllAssets
+		(
+			string[] _importedAssets,
+			string[] _deletedAssets,
+			string[] _movedAssets,
+			string[] _movedFromAssetPaths
+		)
+		{
+			if (
+				ContainsScriptableObjectAsset(_importedAssets) ||
+				ContainsScriptableObjectAsset(_deletedAssets) ||
+				ContainsScriptableObjectAsset(_movedAssets) ||
+				ContainsScriptableObjectAsset(_movedFromAssetPaths)
+			)
+			{
+				AssetReadyGate.Clear();
+			}
+		}
+
+		private static bool ContainsScriptableObjectAsset( string[] _paths )
+		{
+			if (_paths == null)
+				return false;
+
+			for (int i = 0; i < _paths.Length; i++)
+			{
+				string path = _paths[i];
+				if (string.IsNullOrEmpty(path))
+					continue;
+
+				// Simple heuristic: ScriptableObjects typically use .asset
+				if (path.EndsWith(".asset", System.StringComparison.OrdinalIgnoreCase))
+					return true;
+			}
+
+			return false;
 		}
 	}
 #endif
