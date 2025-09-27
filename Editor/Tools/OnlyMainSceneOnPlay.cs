@@ -56,14 +56,14 @@ namespace GuiToolkit
 			if (IsPlayModeTestRun())
 				return;
 
+			if (!UiToolkitConfiguration.Instance.LoadMainSceneOnPlay)
+				return;
+
 			if (!BuildSettingsUtility.HasMainScene())
 			{
 				UiLog.LogError("Automatic scene loading requires a main scene in Build Settings.");
 				return;
 			}
-
-			if (!UiToolkitConfiguration.Instance.LoadMainSceneOnPlay)
-				return;
 
 			try
 			{
