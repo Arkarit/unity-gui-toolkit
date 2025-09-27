@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 using UnityEditor;
 #endif
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -94,19 +95,25 @@ namespace GuiToolkit
 		{
 			if (Application.isPlaying)
 				return;
-			
+
 			EditorApplication.delayCall += () =>
 			{
 				if (Application.isPlaying)
 					return;
-			
-				var playModeWindow = EditorWindow.GetWindow(Type.GetType("UnityEditor.PlayModeView, UnityEditor"));
-				var sceneWindow = EditorWindow.GetWindow<SceneView>();
-				
-				if (playModeWindow)
-					playModeWindow.Repaint();
-				if (sceneWindow)
-					sceneWindow.Repaint();
+
+				var playModeViewType = Type.GetType("UnityEditor.PlayModeView, UnityEditor");
+
+				if (playModeViewType == null)
+					return;
+
+				var gameView = Resources.FindObjectsOfTypeAll(playModeViewType).FirstOrDefault() as EditorWindow;
+				var sceneView = SceneView.lastActiveSceneView;
+
+				if (gameView)
+					gameView.Repaint();
+
+				if (sceneView)
+					sceneView.Repaint();
 			};
 		}
 #else
