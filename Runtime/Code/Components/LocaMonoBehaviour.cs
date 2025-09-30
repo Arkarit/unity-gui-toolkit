@@ -24,7 +24,7 @@ namespace GuiToolkit
 		/// <param name="_s">Source string (msgid) to translate.</param>
 		/// <returns>Localized string.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		protected string _( string _s )
+		protected static string _( string _s )
 		{
 			return gettext(_s);
 		}
@@ -36,7 +36,7 @@ namespace GuiToolkit
 		/// <param name="_s">Source string (msgid) to translate.</param>
 		/// <returns>Localized string.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		protected string gettext( string _s )
+		protected static string gettext( string _s )
 		{
 			return LocaManager.Instance.Translate(_s);
 		}
@@ -49,7 +49,7 @@ namespace GuiToolkit
 		/// <param name="_n">Number used for pluralization rules.</param>
 		/// <returns>Localized string in correct plural form.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		protected string _n( string _singular, string _plural, int _n )
+		protected static string _n( string _singular, string _plural, int _n )
 		{
 			return ngettext(_singular, _plural, _n);
 		}
@@ -63,7 +63,7 @@ namespace GuiToolkit
 		/// <param name="_n">Number used for pluralization rules.</param>
 		/// <returns>Localized string in correct plural form.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		protected string ngettext( string _singular, string _plural, int _n )
+		protected static string ngettext( string _singular, string _plural, int _n )
 		{
 			return LocaManager.Instance.Translate(_singular, _plural, _n);
 		}
