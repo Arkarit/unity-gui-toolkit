@@ -11,8 +11,8 @@ namespace GuiToolkit
 	{
 		public const string PLAYER_PREFS_KEY = StringConstants.PLAYER_PREFS_PREFIX + "Language";
 
-		public abstract string Translate(string _key);
-		public abstract string Translate(string _singularKey, string _pluralKey, int _n );
+		public abstract string Translate(string _key, string _group = null);
+		public abstract string Translate(string _singularKey, string _pluralKey, int _n, string _group = null );
 
 		public abstract bool ChangeLanguageImpl(string _languageId);
 
@@ -21,7 +21,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		public abstract string[] AvailableLanguages { get; }
 		public abstract void Clear();
-		public abstract void AddKey( string _singularKey, string _pluralKey = null );
+		public abstract void AddKey( string _singularKey, string _pluralKey = null, string _group = null );
 		public abstract void ReadKeyData();
 		public abstract void WriteKeyData();
 #endif

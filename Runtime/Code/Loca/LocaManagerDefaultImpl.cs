@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -12,9 +13,14 @@ namespace GuiToolkit
 {
 	public class LocaManagerDefaultImpl : LocaManager
 	{
+		private const string GROUPS_RESOURCE_NAME = "uitk_loca_groups";
+		private const string DEFAULT_LOCA_GROUP = "__default__";
 		private bool m_isDev = true;
-		private readonly Dictionary<string, string> m_translationDict = new Dictionary<string, string>();
-		private readonly Dictionary<string, List<string>> m_translationDictPlural = new Dictionary<string, List<string>>();
+
+		// Key 0: Group Key 1: key
+		private readonly Dictionary<string, Dictionary<string, string>> m_translationDict = new();
+		private readonly Dictionary<string, Dictionary<string, List<string>>> m_translationDictPlural = new();
+		private List<string> m_groups;
 
 		public override bool ChangeLanguageImpl( string _language )
 		{
@@ -42,32 +48,44 @@ namespace GuiToolkit
 		{
 			m_translationDict.Clear();
 			m_translationDictPlural.Clear();
+			m_groups = AssetUtility.ReadLines(GROUPS_RESOURCE_NAME);
 
-			TextAsset text = Resources.Load<TextAsset>(_languageId + ".po");
+			bool result = ReadTranslation(_languageId, null);
+			foreach (var group in m_groups)
+				result |= ReadTranslation(_languageId, group);
+
+DebugDump();
+			return result;
+		}
+
+		private bool ReadTranslation( string _languageId, string _group )
+		{
+			_group = _group == null ? string.Empty : "_" + _group;
+			TextAsset text = Resources.Load<TextAsset>($"{_languageId}{_group}.po");
 			if (text == null)
 				return false;
 
-			string[] lines = text.text.Split(new [] { '\r', '\n' });
+			string[] lines = text.text.Split(new[] { '\r', '\n' });
 			lines = CleanUpLines(lines);
 
-			for (int i=0; i<lines.Length; i++)
+			for (int i = 0; i < lines.Length; i++)
 			{
 				string line1 = lines[i];
 
 				if (line1.StartsWith("msgid"))
 				{
-					if (i >= lines.Length-1)
+					if (i >= lines.Length - 1)
 					{
 						UiLog.LogError("Malformed PO file");
 						break;
 					}
 
-					string line2 = lines[i+1];
+					string line2 = lines[i + 1];
 					if (line2.StartsWith("msgstr"))
 					{
 						string cleanKey = Unescape(line1.Substring(7, line1.Length - 8));
 						string cleanValue = Unescape(line2.Substring(8, line2.Length - 9));
-						m_translationDict.Add(cleanKey, cleanValue);
+						Add(_group, cleanKey, cleanValue);
 						i++;
 						continue;
 					}
@@ -80,16 +98,16 @@ namespace GuiToolkit
 					string cleanKeyPlural = Unescape(line2.Substring(14, line2.Length - 15));
 
 					i += 1;
-					if (i >= lines.Length-1)
+					if (i >= lines.Length - 1)
 					{
 						UiLog.LogError("Malformed PO file");
 						break;
 					}
 
 					List<string> currentPlurals = new List<string>();
-					while (i+1 < lines.Length && lines[i+1].StartsWith("msgstr["))
+					while (i + 1 < lines.Length && lines[i + 1].StartsWith("msgstr["))
 					{
-						currentPlurals.Add(Unescape(lines[i+1].Substring(11, lines[i+1].Length - 12)));
+						currentPlurals.Add(Unescape(lines[i + 1].Substring(11, lines[i + 1].Length - 12)));
 						i++;
 					}
 
@@ -99,27 +117,83 @@ namespace GuiToolkit
 						continue;
 					}
 
-					m_translationDict.Add(cleanKeySingular, currentPlurals[0]);
-					m_translationDictPlural.Add(cleanKeyPlural, currentPlurals);
+					Add(_group, cleanKeySingular, currentPlurals[0], cleanKeyPlural, currentPlurals);
 				}
 			}
 
 			//DebugDump();
 
-
 			return true;
+		}
+
+
+		private void Add( string _group, string _key, string _value, string _keyPlural = null, List<string> _plurals = null )
+		{
+			if (_group == null)
+				_group = DEFAULT_LOCA_GROUP;
+
+			if (!m_translationDict.ContainsKey(_group))
+				m_translationDict.Add(_group, new Dictionary<string, string>());
+
+			var groupDict = m_translationDict[_group];
+			if (groupDict.TryGetValue(_key, out string existingValue))
+			{
+				if (existingValue != _value)
+					UiLog.LogWarning($"Group '{_group}': Multiple Key '{_key}', existing:'{existingValue}', new value:'{_value}'. Ignoring new value.");
+			}
+			else
+			{
+				groupDict.Add(_key, _value);
+			}
+
+			if (_plurals == null)
+				return;
+
+			if (!m_translationDictPlural.ContainsKey(_keyPlural))
+				m_translationDictPlural.Add(_keyPlural, new Dictionary<string, List<string>>());
+
+			var groupDictPlural = m_translationDictPlural[_keyPlural];
+			if (groupDictPlural.TryGetValue(_keyPlural, out List<string> existingValues))
+			{
+				if (existingValues == null)
+				{
+					UiLog.LogError($"Group '{_group}': Internal error: Existing plurals list for key '{_keyPlural}' is null!");
+					groupDictPlural[_keyPlural] = _plurals;
+				}
+				else if (existingValues.Count != _plurals.Count)
+				{
+					UiLog.LogWarning($"Group '{_group}': Multiple Plural Key '{_keyPlural}', existing values length mismatch:"
+									 + $"{existingValues.Count} entries, new values:{_plurals.Count} entries. Ignoring new values.");
+				}
+				else
+				{
+					for (int i = 0; i < existingValues.Count; i++)
+					{
+						if (existingValues[i] != _plurals[i])
+						{
+							if (existingValue != _value)
+								UiLog.LogWarning($"Group '{_group}': Multiple Plural Key '{_keyPlural}' {i}, " +
+												 $"existing:'{existingValues[i]}', new value:'{_plurals[i]}'. Ignoring new value.");
+						}
+					}
+				}
+			}
+			else
+			{
+				groupDictPlural.Add(_keyPlural, _plurals);
+			}
 		}
 
 		// removes empty lines, concatenates strings
 		private string[] CleanUpLines( string[] _lines )
 		{
-			List <string> result = new List<string>();
+			List<string> result = new List<string>();
 
 			int lastKeyword = -1;
-			for (int i=0; i<_lines.Length; i++)
+			for (int i = 0; i < _lines.Length; i++)
 			{
 				string line = _lines[i].Trim();
-				if (   line.StartsWith("#")
+				if (line.StartsWith("#")
 					|| line.Length <= 2)
 				{
 					_lines[i] = null;
@@ -133,7 +207,7 @@ namespace GuiToolkit
 						continue;
 					}
 
-					_lines[lastKeyword] = _lines[lastKeyword].Substring(0, _lines[lastKeyword].Length-1) + line.Substring(1, line.Length-1);
+					_lines[lastKeyword] = _lines[lastKeyword].Substring(0, _lines[lastKeyword].Length - 1) + line.Substring(1, line.Length - 1);
 					_lines[i] = null;
 					continue;
 				}
@@ -150,7 +224,7 @@ namespace GuiToolkit
 			return result.ToArray();
 		}
 
-		public override string Translate( string _s )
+		public override string Translate( string _s, string _group = null )
 		{
 			if (string.IsNullOrEmpty(_s))
 			{
@@ -163,7 +237,7 @@ namespace GuiToolkit
 			if (m_isDev)
 				return _s;
 
-			if (m_translationDict.TryGetValue(_s, out string result))
+			if (TryGetTranslation(_group, _s, out string result))
 			{
 				if (string.IsNullOrEmpty(result))
 					result = DebugLoca ? $"#{_s}" : _s;
@@ -177,7 +251,16 @@ namespace GuiToolkit
 			return _s;
 		}
 
-		public override string Translate(string _singularKey, string _pluralKey, int _n )
+		private bool TryGetTranslation( string _group, string _key, out string result )
+		{
+			result = string.Empty;
+			if (!m_translationDict.TryGetValue(_group, out var entry))
+				return false;
+
+			return entry.TryGetValue(_key, out result);
+		}
+
+		public override string Translate( string _singularKey, string _pluralKey, int _n, string _group = null )
 		{
 			(int numPluralForms, int pluralIdx) = LocaPlurals.GetPluralIdx(Language, _n);
 			if (pluralIdx == 0)
@@ -186,7 +269,7 @@ namespace GuiToolkit
 			if (m_isDev)
 				return _pluralKey;
 
-			if (m_translationDictPlural.TryGetValue(_pluralKey, out List<string> plurals))
+			if (TryGetTranslation(_group, _pluralKey, out List<string> plurals))
 			{
 				if (pluralIdx < plurals.Count)
 				{
@@ -202,12 +285,21 @@ namespace GuiToolkit
 			return _pluralKey;
 		}
 
-		private void Log(string _s)
+		private bool TryGetTranslation( string _group, string _key, out List<string> result )
+		{
+			result = new List<string>();
+			if (!m_translationDictPlural.TryGetValue(_group, out var entry))
+				return false;
+
+			return entry.TryGetValue(_key, out result);
+		}
+
+		private void Log( string _s )
 		{
 			UiLog.Log($"Debug Loca:{_s}");
 		}
 
-		private string Escape(string _s)
+		private string Escape( string _s )
 		{
 			_s = _s.Replace("\"", "\\\"");
 			_s = _s.Replace("\n", "\\n");
@@ -215,7 +307,7 @@ namespace GuiToolkit
 			return _s;
 		}
 
-		private string Unescape(string _s)
+		private string Unescape( string _s )
 		{
 			_s = _s.Replace("\\\"", "\"");
 			_s = _s.Replace("\\n", "\n");
@@ -239,7 +331,7 @@ namespace GuiToolkit
 					availableLanguages.Add("dev");
 
 					string[] guids = AssetDatabase.FindAssets(".po t:textasset");
-					for (int i=0; i<guids.Length; i++)
+					for (int i = 0; i < guids.Length; i++)
 					{
 						string guid = guids[i];
 						string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
@@ -260,7 +352,7 @@ namespace GuiToolkit
 			m_pluralKeys.Clear();
 		}
 
-		public override void AddKey( string _singularKey, string _pluralKey = null )
+		public override void AddKey( string _singularKey, string _pluralKey = null, string _group = null )
 		{
 			if (string.IsNullOrEmpty(_singularKey))
 				return;
@@ -289,7 +381,7 @@ namespace GuiToolkit
 			try
 			{
 				string[] lines = File.ReadAllLines(PotPath);
-				for (int i=0; i<lines.Length; i++)
+				for (int i = 0; i < lines.Length; i++)
 				{
 					string line = lines[i];
 
@@ -299,9 +391,9 @@ namespace GuiToolkit
 					line = line.Substring(7, line.Length - 8);
 					line = Unescape(line);
 
-					if (i<lines.Length-1)
+					if (i < lines.Length - 1)
 					{
-						string line2 = lines[i+1];
+						string line2 = lines[i + 1];
 						if (line2.StartsWith("msgid_plural"))
 						{
 							line2 = line2.Substring(14, line.Length - 15);
@@ -322,7 +414,7 @@ namespace GuiToolkit
 				if (DebugLoca)
 					Log("Success");
 			}
-			catch( Exception e )
+			catch (Exception e)
 			{
 				// This is not necessarily an error, since it may just not exist yet.
 				UiLog.LogWarning($"Could not read POT file at '{PotPath}':'{e.Message}'");
@@ -343,7 +435,7 @@ namespace GuiToolkit
 				foreach (string key in m_keys)
 				{
 					string cleanKey = Escape(key);
-					s += 
+					s +=
 						  $"msgid \"{cleanKey}\"\n"
 						+ $"msgstr \"\"\n\n";
 				}
@@ -352,11 +444,11 @@ namespace GuiToolkit
 				{
 					string cleanSingular = Escape(kv.Key);
 					string cleanPlural = Escape(kv.Value);
-					s += 
-						  $"msgid \"{cleanSingular}\"\n" 
+					s +=
+						  $"msgid \"{cleanSingular}\"\n"
 						+ $"msgid_plural \"{cleanPlural}\"\n";
 
-					for (int i=0; i<4; i++)
+					for (int i = 0; i < 4; i++)
 						s += $"msgstr[{i}] \"\"\n";
 
 					s += "\n";
@@ -368,7 +460,7 @@ namespace GuiToolkit
 				if (DebugLoca)
 					Log("Success");
 			}
-			catch( Exception e )
+			catch (Exception e)
 			{
 				UiLog.LogError($"Write Fail for POT file at '{PotPath}':'{e.Message}'");
 			}
@@ -376,24 +468,37 @@ namespace GuiToolkit
 
 		private void DebugDump()
 		{
-			string s = $"Language:'{Language}'\n";
+			string s = $"Language:'{Language}'\n\nSingular:\n";
 
-			foreach (var kv in m_translationDict)
+
+			foreach (var kvGroup in m_translationDict)
 			{
-				s += "*************************************************\n";
-				s += "key:" + kv.Key + "\n";
-				s += "-------------------------------------------------\n";
-				s += "val:" + kv.Value + "\n\n";
+				s += $"Group: '{kvGroup.Key}'\n";
+				var groupentry = kvGroup.Value;
+
+				foreach (var kv in groupentry)
+				{
+					s += "*************************************************\n";
+					s += "key:" + kv.Key + "\n";
+					s += "-------------------------------------------------\n";
+					s += "val:" + kv.Value + "\n\n";
+				}
 			}
 
-			foreach (var kv in m_translationDictPlural)
+			s += "\n\nPlurals:";
+			foreach (var kvGroup in m_translationDictPlural)
 			{
-				s += "*************************************************\n";
-				s += "pluralkey:" + kv.Key + "\n";
-				s += "-------------------------------------------------\n";
-				for (int i=0; i<kv.Value.Count; i++)
-					s += $"val[{i}]:{kv.Value[i]}\n";
-				s += "\n";
+				s += $"Group: '{kvGroup.Key}'\n";
+				var groupentry = kvGroup.Value;
+				foreach (var kv in groupentry)
+				{
+					s += "*************************************************\n";
+					s += "pluralkey:" + kv.Key + "\n";
+					s += "-------------------------------------------------\n";
+					for (int i = 0; i < kv.Value.Count; i++)
+						s += $"val[{i}]:{kv.Value[i]}\n";
+					s += "\n";
+				}
 			}
 
 			try
