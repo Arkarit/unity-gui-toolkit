@@ -129,7 +129,7 @@ DebugDump();
 
 		private void Add( string _group, string _key, string _value, string _keyPlural = null, List<string> _plurals = null )
 		{
-			if (_group == null)
+			if (string.IsNullOrEmpty(_group))
 				_group = DEFAULT_LOCA_GROUP;
 
 			if (!m_translationDict.ContainsKey(_group))
@@ -149,10 +149,11 @@ DebugDump();
 			if (_plurals == null)
 				return;
 
-			if (!m_translationDictPlural.ContainsKey(_keyPlural))
-				m_translationDictPlural.Add(_keyPlural, new Dictionary<string, List<string>>());
 
-			var groupDictPlural = m_translationDictPlural[_keyPlural];
+			if (!m_translationDictPlural.ContainsKey(_group))
+				m_translationDictPlural.Add(_group, new Dictionary<string, List<string>>());
+
+			var groupDictPlural = m_translationDictPlural[_group];
 			if (groupDictPlural.TryGetValue(_keyPlural, out List<string> existingValues))
 			{
 				if (existingValues == null)
@@ -226,6 +227,9 @@ DebugDump();
 
 		public override string Translate( string _s, string _group = null )
 		{
+			if (string.IsNullOrEmpty(_group))
+				_group = DEFAULT_LOCA_GROUP;
+
 			if (string.IsNullOrEmpty(_s))
 			{
 				if (DebugLoca)
@@ -251,17 +255,20 @@ DebugDump();
 			return _s;
 		}
 
-		private bool TryGetTranslation( string _group, string _key, out string result )
+		private bool TryGetTranslation( string _group, string _key, out string _result )
 		{
-			result = string.Empty;
+			_result = string.Empty;
 			if (!m_translationDict.TryGetValue(_group, out var entry))
 				return false;
 
-			return entry.TryGetValue(_key, out result);
+			return entry.TryGetValue(_key, out _result);
 		}
 
 		public override string Translate( string _singularKey, string _pluralKey, int _n, string _group = null )
 		{
+			if (string.IsNullOrEmpty(_group))
+				_group = DEFAULT_LOCA_GROUP;
+
 			(int numPluralForms, int pluralIdx) = LocaPlurals.GetPluralIdx(Language, _n);
 			if (pluralIdx == 0)
 				return Translate(_singularKey);
@@ -354,6 +361,9 @@ DebugDump();
 
 		public override void AddKey( string _singularKey, string _pluralKey = null, string _group = null )
 		{
+			if (string.IsNullOrEmpty(_group))
+				_group = DEFAULT_LOCA_GROUP;
+
 			if (string.IsNullOrEmpty(_singularKey))
 				return;
 
