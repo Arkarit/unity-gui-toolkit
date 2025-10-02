@@ -325,11 +325,11 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null )
+		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null, bool _allowOutsideTap = true )
 		{
 			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
-			requester.OkRequester(_title, _text, _onOk, _okText);
+			requester.OkRequester(_title, _text, _onOk, _okText, _allowOutsideTap);
 		}
 
 		public void YesNoRequester( string _title, string _text, bool _allowOutsideTap, UnityAction _onOk,
