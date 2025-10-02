@@ -31,7 +31,7 @@ namespace GuiToolkit
 			DoDialog(_options);
 		}
 
-		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null )
+		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null, bool _allowOutsideTap = true )
 		{
 			Options options = new Options
 			{
@@ -43,10 +43,11 @@ namespace GuiToolkit
 						OnClick = _onOk
 					}
 				},
-				AllowOutsideTap = true,
+				AllowOutsideTap = _allowOutsideTap,
 				CloseButtonAction = _onOk,
 				Text = _text,
 			};
+			
 			Requester( _title, _text, options );
 		}
 
