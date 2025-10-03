@@ -32,7 +32,7 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			LocaManager.Instance.Clear();
+			LocaManager.Instance.EdClear();
 
 			EditorAssetUtility.AssetSearchOptions options = new()
 				{ Folders = new[] { "Assets", "Packages/de.phoenixgrafik.ui-toolkit" } };
@@ -57,7 +57,7 @@ namespace GuiToolkit.Editor
 			}
 
 
-			LocaManager.Instance.WriteKeyData();
+			LocaManager.Instance.EdWriteKeyData();
 		}
 
 		private static void FoundComponent( ILocaClient _component )
@@ -66,14 +66,14 @@ namespace GuiToolkit.Editor
 			{
 				var keys = _component.LocaKeys;
 				foreach (var key in keys)
-					LocaManager.Instance.AddKey(key);
+					LocaManager.Instance.EdAddKey(key);
 
 				return;
 			}
 
 			string locaKey = _component.LocaKey;
 			if (!string.IsNullOrEmpty(locaKey))
-				LocaManager.Instance.AddKey(locaKey);
+				LocaManager.Instance.EdAddKey(locaKey);
 		}
 
 		private static void FoundScript( string _path, string _content )
@@ -124,7 +124,7 @@ namespace GuiToolkit.Editor
 			{
 				if (codeLength == keywordLength)
 				{
-					LocaManager.Instance.AddKey(_singular, _plural);
+					LocaManager.Instance.EdAddKey(_singular, _plural);
 					return true;
 				}
 
@@ -132,7 +132,7 @@ namespace GuiToolkit.Editor
 
 				if ((char.IsWhiteSpace(c) || !char.IsLetterOrDigit(c)) && c != '_')
 				{
-					LocaManager.Instance.AddKey(_singular, _plural);
+					LocaManager.Instance.EdAddKey(_singular, _plural);
 					return true;
 				}
 			}

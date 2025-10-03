@@ -54,19 +54,21 @@ namespace GuiToolkit
 			foreach (var group in m_groups)
 				result |= ReadTranslation(_languageId, group);
 
-DebugDump();
+			DebugDump();
 			return result;
+		}
+
+
+		private void SetEffectiveGroup( ref string _group )
+		{
+			if (string.IsNullOrEmpty(_group))
+				_group = DEFAULT_LOCA_GROUP;
 		}
 
 		private bool ReadTranslation( string _languageId, string _group )
 		{
-			_group = _group == null ? string.Empty : "_" + _group;
-			TextAsset text = Resources.Load<TextAsset>($"{_languageId}{_group}.po");
-			if (text == null)
-				return false;
-
-			string[] lines = text.text.Split(new[] { '\r', '\n' });
-			lines = CleanUpLines(lines);
+			SetEffectiveGroup(ref _group);
+			string[] lines = LoadPo(_languageId, _group);
 
 			for (int i = 0; i < lines.Length; i++)
 			{
@@ -129,8 +131,7 @@ DebugDump();
 
 		private void Add( string _group, string _key, string _value, string _keyPlural = null, List<string> _plurals = null )
 		{
-			if (string.IsNullOrEmpty(_group))
-				_group = DEFAULT_LOCA_GROUP;
+			SetEffectiveGroup(ref _group);
 
 			if (!m_translationDict.ContainsKey(_group))
 				m_translationDict.Add(_group, new Dictionary<string, string>());
@@ -227,8 +228,7 @@ DebugDump();
 
 		public override string Translate( string _s, string _group = null )
 		{
-			if (string.IsNullOrEmpty(_group))
-				_group = DEFAULT_LOCA_GROUP;
+			SetEffectiveGroup(ref _group);
 
 			if (string.IsNullOrEmpty(_s))
 			{
@@ -266,8 +266,7 @@ DebugDump();
 
 		public override string Translate( string _singularKey, string _pluralKey, int _n, string _group = null )
 		{
-			if (string.IsNullOrEmpty(_group))
-				_group = DEFAULT_LOCA_GROUP;
+			SetEffectiveGroup(ref _group);
 
 			(int numPluralForms, int pluralIdx) = LocaPlurals.GetPluralIdx(Language, _n);
 			if (pluralIdx == 0)
@@ -322,26 +321,46 @@ DebugDump();
 			return _s;
 		}
 
+		private string GetPoUnityPath( string _languageId, string _group )
+		{
+			_group = _group == null || _group == DEFAULT_LOCA_GROUP ? string.Empty : "_" + _group;
+			return $"{_languageId}{_group}.po";
+		}
+
+		private string[] LoadPo( string _languageId, string _group )
+		{
+			var path = GetPoUnityPath(_languageId, _group);
+			if (path == null)
+				return null;
+
+			TextAsset text = Resources.Load<TextAsset>($"{_languageId}{_group}.po");
+			if (text == null)
+				return null;
+
+			string[] lines = text.text.Split(new[] { '\r', '\n' });
+			return CleanUpLines(lines);
+		}
+
+
 #if UNITY_EDITOR
-		private readonly SortedSet<string> m_keys = new SortedSet<string>();
-		private readonly SortedDictionary<string, string> m_pluralKeys = new SortedDictionary<string, string>();
-		private string PotPath => EditorFileUtility.GetApplicationDataDir() + UiToolkitConfiguration.Instance.m_potPath;
+		private readonly SortedDictionary<string, SortedSet<string>> m_keys = new();
+		private readonly SortedDictionary<string, SortedDictionary<string, string>> m_pluralKeys = new();
 
 		private string[] m_availableLanguages = null;
-		public override string[] AvailableLanguages
+
+		public override string[] EdAvailableLanguages
 		{
 			get
 			{
 				if (m_availableLanguages == null)
 				{
-					List<string> availableLanguages = new List<string>();
-					availableLanguages.Add("dev");
+					var availableLanguages = new HashSet<string> { "dev" };
 
 					string[] guids = AssetDatabase.FindAssets(".po t:textasset");
 					for (int i = 0; i < guids.Length; i++)
 					{
 						string guid = guids[i];
-						string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
+						string assetPath = AssetDatabase.GUIDToAssetPath(guid);
 						string language = Path.GetFileNameWithoutExtension(assetPath);
 						availableLanguages.Add(language.Substring(0, language.Length - 3));
 					}
@@ -353,16 +372,15 @@ DebugDump();
 			}
 		}
 
-		public override void Clear()
+		public override void EdClear()
 		{
 			m_keys.Clear();
 			m_pluralKeys.Clear();
 		}
 
-		public override void AddKey( string _singularKey, string _pluralKey = null, string _group = null )
+		public override void EdAddKey( string _singularKey, string _pluralKey = null, string _group = null )
 		{
-			if (string.IsNullOrEmpty(_group))
-				_group = DEFAULT_LOCA_GROUP;
+			SetEffectiveGroup(ref _group);
 
 			if (string.IsNullOrEmpty(_singularKey))
 				return;
@@ -371,26 +389,74 @@ DebugDump();
 			{
 				if (DebugLoca)
 					Log($"Adding plural key '{_singularKey}', '{_pluralKey}'");
+
 				Debug.Assert(!Application.isPlaying);
-				m_pluralKeys.Add(_singularKey, _pluralKey);
+				if (!m_pluralKeys.ContainsKey(_group))
+					m_pluralKeys.Add(_group, new SortedDictionary<string, string>());
+
+				var groupEntryPlural = m_pluralKeys[_group];
+				groupEntryPlural.Add(_singularKey, _pluralKey);
 				return;
 			}
 
 			if (DebugLoca)
 				Log($"Adding key '{_singularKey}'");
+
 			Debug.Assert(!Application.isPlaying);
-			m_keys.Add(_singularKey);
+			if (!m_keys.ContainsKey(_group))
+				m_keys.Add(_group, new SortedSet<string>());
+
+			var groupEntry = m_keys[_group];
+			groupEntry.Add(_singularKey);
 		}
 
-		public override void ReadKeyData()
+		public override void EdReadKeyData()
 		{
 			if (DebugLoca)
-				Log($"Read POT file at '{PotPath}'");
+				Log("Reading POT files");
 
 			m_keys.Clear();
+
+			var groups = AssetUtility.ReadLines(GROUPS_RESOURCE_NAME);
+			EdReadKeyData(DEFAULT_LOCA_GROUP);
+			foreach (var group in groups)
+				EdReadKeyData(group);
+		}
+
+		private string EdGetPotSystemPath( string _group )
+		{
+			var result = EditorFileUtility.GetApplicationDataDir() + UiToolkitConfiguration.Instance.m_potPath;
+			if (File.Exists(result))
+				result = Path.GetDirectoryName(result);
+			else if (!Directory.Exists(result))
+				return null;
+
+			string groupAppendix = string.Empty;
+			if (!string.IsNullOrEmpty(_group) && _group != DEFAULT_LOCA_GROUP)
+				groupAppendix = $"_{_group}";
+
+			result += $"/loca{groupAppendix}.pot";
+			result = EditorFileUtility.GetSafeFileName(result);
+			return result;
+		}
+
+		private void EdReadKeyData( string _group )
+		{
+			var path = EdGetPotSystemPath(_group);
+			if (string.IsNullOrEmpty(path))
+				return;
+
+			if (DebugLoca)
+				Log($"Read POT file at '{path}'");
+
+			if (!m_keys.ContainsKey(_group))
+				m_keys.Add(_group, new SortedSet<string>());
+
+			var keys = m_keys[_group];
+
 			try
 			{
-				string[] lines = File.ReadAllLines(PotPath);
+				string[] lines = File.ReadAllLines(path);
 				for (int i = 0; i < lines.Length; i++)
 				{
 					string line = lines[i];
@@ -410,7 +476,12 @@ DebugDump();
 							line2 = Unescape(line);
 							if (DebugLoca)
 								Log($"Adding POT plural key '{line}', '{line2}'");
-							m_pluralKeys.Add(line, line2);
+
+							if (!m_pluralKeys.ContainsKey(_group))
+								m_pluralKeys.Add(_group, new SortedDictionary<string, string>());
+
+							var pluralKeys = m_pluralKeys[_group];
+							pluralKeys.Add(line, line2);
 							i += 1;
 							continue;
 						}
@@ -418,7 +489,7 @@ DebugDump();
 
 					if (DebugLoca)
 						Log($"Adding POT key '{line}'");
-					m_keys.Add(line);
+					keys.Add(line);
 				}
 
 				if (DebugLoca)
@@ -427,44 +498,72 @@ DebugDump();
 			catch (Exception e)
 			{
 				// This is not necessarily an error, since it may just not exist yet.
-				UiLog.LogWarning($"Could not read POT file at '{PotPath}':'{e.Message}'");
+				UiLog.LogWarning($"Could not read POT file at '{path}':'{e.Message}'");
 			}
 		}
 
-		public override void WriteKeyData()
+		public override void EdWriteKeyData()
+		{
+			string groups = string.Empty;
+
+			foreach (var kv in m_keys)
+			{
+				var path = EdGetPotSystemPath(kv.Key);
+				m_keys.TryGetValue(kv.Key, out var keys);
+				m_pluralKeys.TryGetValue(kv.Key, out var pluralKeys);
+				WriteKeyData(path, keys, pluralKeys);
+				if (kv.Key != DEFAULT_LOCA_GROUP)
+					groups += $"{kv.Key}\n";
+			}
+
+			if (!string.IsNullOrEmpty(groups))
+			{
+				var groupAsset = new TextAsset(groups);
+				AssetDatabase.CreateAsset(groupAsset, $"Assets/Resources/GROUPS_RESOURCE_NAME");
+			}
+		}
+
+		private void WriteKeyData(string _path, SortedSet<string> _keys, SortedDictionary<string, string> _pluralKeys)
 		{
 			if (DebugLoca)
-				Log($"Write POT file at '{PotPath}'");
+				Log($"Write POT file at '{_path}'");
 
 			try
 			{
-				string dir = Path.GetDirectoryName(PotPath);
+				string dir = Path.GetDirectoryName(_path);
 				Directory.CreateDirectory(dir);
 
 				string s = "";
-				foreach (string key in m_keys)
+
+				if (_keys != null)
 				{
-					string cleanKey = Escape(key);
-					s +=
-						  $"msgid \"{cleanKey}\"\n"
-						+ $"msgstr \"\"\n\n";
+					foreach (string key in _keys)
+					{
+						string cleanKey = Escape(key);
+						s +=
+							$"msgid \"{cleanKey}\"\n"
+							+ $"msgstr \"\"\n\n";
+					}
 				}
 
-				foreach (var kv in m_pluralKeys)
+				if (_pluralKeys != null)
 				{
-					string cleanSingular = Escape(kv.Key);
-					string cleanPlural = Escape(kv.Value);
-					s +=
-						  $"msgid \"{cleanSingular}\"\n"
-						+ $"msgid_plural \"{cleanPlural}\"\n";
+					foreach (var kv in _pluralKeys)
+					{
+						string cleanSingular = Escape(kv.Key);
+						string cleanPlural = Escape(kv.Value);
+						s +=
+							$"msgid \"{cleanSingular}\"\n"
+							+ $"msgid_plural \"{cleanPlural}\"\n";
 
-					for (int i = 0; i < 4; i++)
-						s += $"msgstr[{i}] \"\"\n";
+						for (int i = 0; i < 4; i++)
+							s += $"msgstr[{i}] \"\"\n";
 
-					s += "\n";
+						s += "\n";
+					}
 				}
 
-				File.WriteAllText(PotPath, s);
+				File.WriteAllText(_path, s);
 
 				AssetDatabase.Refresh();
 				if (DebugLoca)
@@ -472,7 +571,7 @@ DebugDump();
 			}
 			catch (Exception e)
 			{
-				UiLog.LogError($"Write Fail for POT file at '{PotPath}':'{e.Message}'");
+				UiLog.LogError($"Write Fail for POT file at '{_path}':'{e.Message}'");
 			}
 		}
 

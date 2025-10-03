@@ -19,11 +19,11 @@ namespace GuiToolkit
 		public string Language { get; private set; } = null;
 
 #if UNITY_EDITOR
-		public abstract string[] AvailableLanguages { get; }
-		public abstract void Clear();
-		public abstract void AddKey( string _singularKey, string _pluralKey = null, string _group = null );
-		public abstract void ReadKeyData();
-		public abstract void WriteKeyData();
+		public abstract string[] EdAvailableLanguages { get; }
+		public abstract void EdClear();
+		public abstract void EdAddKey( string _singularKey, string _pluralKey = null, string _group = null );
+		public abstract void EdReadKeyData();
+		public abstract void EdWriteKeyData();
 #endif
 
 		private bool m_debugLoca = false;

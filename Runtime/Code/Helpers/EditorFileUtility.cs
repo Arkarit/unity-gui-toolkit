@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -52,6 +53,22 @@ namespace GuiToolkit
 		public static string GetNativePath( string _assetPath )
 		{
 			return GetApplicationDataDir() + "/" + _assetPath;
+		}
+
+		public static string GetSafeFileName( string _input, char _replacement = '_' )
+		{
+			var invalidChars = Path.GetInvalidFileNameChars();
+			return new string(_input
+				.Select(c => invalidChars.Contains(c) ? _replacement : c)
+				.ToArray());
+		}
+
+		public static string GetSafePath( string _input, char _replacement = '_' )
+		{
+			var invalidChars = Path.GetInvalidPathChars();
+			return new string(_input
+				.Select(c => invalidChars.Contains(c) ? _replacement : c)
+				.ToArray());
 		}
 
 		public static string GetDirectoryName( string _path )
