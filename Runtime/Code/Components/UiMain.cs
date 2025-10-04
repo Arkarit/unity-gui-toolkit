@@ -58,7 +58,7 @@ namespace GuiToolkit
 		private readonly Stack<UiView> m_stack = new();
 		private static UiMain s_instance;
 		private UiPlayerSettingsDialog m_playerSettingsDialog;
-		static EScreenOrientation s_screenOrientation = EScreenOrientation.Invalid;
+		static ScreenOrientation s_screenOrientation = GuiToolkit.ScreenOrientation.Invalid;
 		
 		private readonly List<IExcludeFromFrustumCulling> m_excludedFromFrustumCulling = new ();
 		private readonly List<Bounds> m_excludedBounds = new ();
@@ -103,7 +103,7 @@ namespace GuiToolkit
 			private set => s_instance.m_isAwake = value;
 		}
 
-		public static EScreenOrientation ScreenOrientation => s_screenOrientation;
+		public static ScreenOrientation ScreenOrientation => s_screenOrientation;
 
 #if UNITY_EDITOR
 		[InitializeOnLoadMethod]

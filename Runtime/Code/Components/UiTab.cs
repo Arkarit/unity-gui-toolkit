@@ -40,7 +40,7 @@ namespace GuiToolkit
 				UiScrollRect.EnsureChildVisibility(RectTransform);
 		}
 
-		protected override void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation )
+		protected override void OnScreenOrientationChanged( ScreenOrientation _oldScreenOrientation, ScreenOrientation _newScreenOrientation )
 		{
 			base.OnScreenOrientationChanged(_oldScreenOrientation, _newScreenOrientation);
 			if (Toggle.isOn && UiScrollRect != null)

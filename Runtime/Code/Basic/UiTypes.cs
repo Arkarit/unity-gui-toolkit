@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using UnityEngine;
 
 /// \file Types.cs
@@ -13,8 +14,8 @@ namespace GuiToolkit
 	public enum EAxis2DFlags
 	{
 		None = 0,
-		Horizontal	= 01,
-		Vertical	= 02,
+		Horizontal = 01,
+		Vertical = 02,
 	}
 
 	/// \brief Axis enum
@@ -32,7 +33,7 @@ namespace GuiToolkit
 		Left,
 		Right
 	}
-	
+
 	/// \brief Corner enum
 	public enum Corner
 	{
@@ -46,13 +47,13 @@ namespace GuiToolkit
 	[Flags]
 	public enum CornerFlags
 	{
-		TopLeft		= 0x0001,
-		TopRight	= 0x0002,
-		BottomRight	= 0x0004,
-		BottomLeft	= 0x0008,
+		TopLeft = 0x0001,
+		TopRight = 0x0002,
+		BottomRight = 0x0004,
+		BottomLeft = 0x0008,
 	}
 
-	
+
 
 	/// \brief Layer definition
 	/// 
@@ -62,36 +63,71 @@ namespace GuiToolkit
 	/// it is regarding the visibility
 	public enum EUiLayerDefinition
 	{
-		Top = 200,				///< Topmost layer
-		Tooltip = Top * 2,		///< Use this for tool tips
-		ModalStack = Top * 3,	///< All modal dialogs
-		Popup = Top * 4,		///< Popup dialogs
-		Dialog = Top * 5,		///< Common dialogs
-		Hud = Top * 6,			///< HUD
-		Background = Top * 7,	///< Background (e.g. background image)
-		Back = Top * 8,			///< Bottommost layer
+		Top = 200,              ///< Topmost layer
+		Tooltip = Top * 2,      ///< Use this for tool tips
+		ModalStack = Top * 3,   ///< All modal dialogs
+		Popup = Top * 4,        ///< Popup dialogs
+		Dialog = Top * 5,       ///< Common dialogs
+		Hud = Top * 6,          ///< HUD
+		Background = Top * 7,   ///< Background (e.g. background image)
+		Back = Top * 8,         ///< Bottommost layer
 	}
 
 	/// \brief Screen orientation enum.
 	/// Screen orientation landscape or portrait.
-	public enum EScreenOrientation
+	public struct ScreenOrientation : IComparable
 	{
-		Invalid = -1,
-		Landscape,
-		Portrait,
+		public float Width;
+		public float Height;
 
-		Count
+		public float AspectRatio => Height == 0 ? 0 : Width / Height;
+
+		public bool Landscape => AspectRatio >= 1;
+		public bool Portrait => AspectRatio >= 0 && AspectRatio < 1;
+
+		public ScreenOrientation( float _width = 0, float _height = 0 )
+		{
+			Width = _width;
+			Height = _height;
+		}
+
+		public static ScreenOrientation Invalid => new();
+
+		[Obsolete("Do not use. Only backwards compatibility for old code.")]
+		public int DeprecatedIndex => Landscape ? 2 : 1;
+
+		[Obsolete("Do not use. Only backwards compatibility for old code.")]
+		public static int DeprecatedCount => 2;
+
+		public int CompareTo( object _obj )
+		{
+			if (_obj is not ScreenOrientation other)
+				return 1;
+
+			float a = AspectRatio;
+			float b = other.AspectRatio;
+
+			int aspectCompare = a.CompareTo(b);
+			if (aspectCompare != 0)
+				return aspectCompare;
+
+			// Secondary sort: by total pixel area (Width * Height)
+			float areaA = Width * Height;
+			float areaB = other.Width * other.Height;
+
+			return areaA.CompareTo(areaB);
+		}
 	}
 
 	/// \brief Visibilities of elements when scene is opened
 	public enum EDefaultSceneVisibility
 	{
-		DontCare,										///< Don't care. Determined by Unity active flag.
-		Visible,										///< Visible
-		Invisible,										///< Invisible
-		Legacy,											///< from external project, unused in toolkit itself
-		VisibleInDevBuild,								///< Only visible in dev build
-		VisibleWhen_DEFAULT_SCENE_VISIBLE_defined,		///< Only visible if DEFAULT_SCENE_VISIBLE is defined
+		DontCare,                                       ///< Don't care. Determined by Unity active flag.
+		Visible,                                        ///< Visible
+		Invisible,                                      ///< Invisible
+		Legacy,                                         ///< from external project, unused in toolkit itself
+		VisibleInDevBuild,                              ///< Only visible in dev build
+		VisibleWhen_DEFAULT_SCENE_VISIBLE_defined,      ///< Only visible if DEFAULT_SCENE_VISIBLE is defined
 	}
 
 	/// \brief Stack animation type enum
@@ -138,12 +174,12 @@ namespace GuiToolkit
 	/// \brief General constants
 	public static class Constants
 	{
-		public const int INVALID = -1;												///< General "Invalid" value definition
-																					  
-		public const float HANDLE_SIZE = 0.08f;										///< Size for handles
-		public static Color HANDLE_COLOR = Color.yellow;							///< Handle color
-		public static Color HANDLE_SUPPORTING_COLOR = Color.yellow * 0.5f;		///< Handles "2nd order"
-		public static Color HANDLE_CAGE_LINE_COLOR = Color.yellow * 0.5f;			///< Handle cage color
+		public const int INVALID = -1;                                              ///< General "Invalid" value definition
+
+		public const float HANDLE_SIZE = 0.08f;                                     ///< Size for handles
+		public static Color HANDLE_COLOR = Color.yellow;                            ///< Handle color
+		public static Color HANDLE_SUPPORTING_COLOR = Color.yellow * 0.5f;      ///< Handles "2nd order"
+		public static Color HANDLE_CAGE_LINE_COLOR = Color.yellow * 0.5f;           ///< Handle cage color
 
 		public const int SETTINGS_MENU_PRIORITY = -1;
 		public const int MISC_MENU_PRIORITY = 1000;
@@ -161,10 +197,10 @@ namespace GuiToolkit
 	/// \brief General string constants
 	public static class StringConstants
 	{
-		public const string TOOLKIT_NAME = "Gui Toolkit";																				///< General Toolkit name
-		public const string MENU_HEADER = TOOLKIT_NAME + "/";																			///< Menu header "folder" definition
+		public const string TOOLKIT_NAME = "Gui Toolkit";                                                                               ///< General Toolkit name
+		public const string MENU_HEADER = TOOLKIT_NAME + "/";                                                                           ///< Menu header "folder" definition
 		public const string STYLES_HEADER = MENU_HEADER + "Styles/";
-		public const string MISC_TOOLS_MENU_HEADER = MENU_HEADER + "Miscellaneous Tools/";											    ///< Menu header for miscellaneous tools
+		public const string MISC_TOOLS_MENU_HEADER = MENU_HEADER + "Miscellaneous Tools/";                                              ///< Menu header for miscellaneous tools
 
 		public const string CONFIGURATION_NAME = "Ui Toolkit Configuration...";
 		public const string CONFIGURATION_MENU_NAME = MENU_HEADER + CONFIGURATION_NAME;
@@ -186,7 +222,7 @@ namespace GuiToolkit
 		public const string REPLACE_COMPONENTS_WINDOW = MISC_TOOLS_MENU_HEADER + "Replace Components Window";
 		public const string CREATE_GUI_SCREENSHOT_OVERLAY = MISC_TOOLS_MENU_HEADER + "Create GUI Screenshot overlay";
 
-		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";																			///< Prefix for all player prefs entries
+		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";                                                                         ///< Prefix for all player prefs entries
 		public const string CREATE_TEST_DATA = MENU_HEADER + "Test Data";
 
 		public const string CONFIG_MANAGER_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Config Manager...";
@@ -200,23 +236,23 @@ namespace GuiToolkit
 	/// The style is very basic, thus it can be suitable for a very wide range of projects.
 	public static class BuiltinIcons
 	{
-		public const string CHECKMARK		= "Icons/UITK_Checkmark";
-		public const string FORBIDDEN		= "Icons/UITK_Forbidden";
-		public const string GEAR			= "Icons/UITK_Gear";
-		public const string LOUDSPEAKER		= "Icons/UITK_Loudspeaker";
-		public const string NOTE			= "Icons/UITK_Note";
-		public const string RANDOM_DICE		= "Icons/UITK_RandomDice";
-		public const string SEND			= "Icons/UITK_Send";
-		public const string TARGET			= "Icons/UITK_Target";
-		public const string X				= "Icons/UITK_X";
-		public const string FAST			= "Icons/UITK_Fast";
-		public const string SLOW			= "Icons/UITK_Slow";
-		public const string INFO			= "Icons/UITK_Info";
-		public const string PHONE			= "Icons/UITK_Phone";
-		public const string SEARCH			= "Icons/UITK_Search";
-		public const string SHARE			= "Icons/UITK_Share";
-		public const string TEXT			= "Icons/UITK_Text";
-		public const string INFINITY		= "Icons/UITK_Infinity";
-		public const string INVISIBLE		= "Icons/UITK_Invisible";
+		public const string CHECKMARK = "Icons/UITK_Checkmark";
+		public const string FORBIDDEN = "Icons/UITK_Forbidden";
+		public const string GEAR = "Icons/UITK_Gear";
+		public const string LOUDSPEAKER = "Icons/UITK_Loudspeaker";
+		public const string NOTE = "Icons/UITK_Note";
+		public const string RANDOM_DICE = "Icons/UITK_RandomDice";
+		public const string SEND = "Icons/UITK_Send";
+		public const string TARGET = "Icons/UITK_Target";
+		public const string X = "Icons/UITK_X";
+		public const string FAST = "Icons/UITK_Fast";
+		public const string SLOW = "Icons/UITK_Slow";
+		public const string INFO = "Icons/UITK_Info";
+		public const string PHONE = "Icons/UITK_Phone";
+		public const string SEARCH = "Icons/UITK_Search";
+		public const string SHARE = "Icons/UITK_Share";
+		public const string TEXT = "Icons/UITK_Text";
+		public const string INFINITY = "Icons/UITK_Infinity";
+		public const string INVISIBLE = "Icons/UITK_Invisible";
 	}
 }

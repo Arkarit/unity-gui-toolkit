@@ -51,10 +51,10 @@ namespace GuiToolkit
 			return _keyCode >= KeyCode.Mouse0 && _keyCode <= KeyCode.Mouse6;
 		}
 
-		public static EScreenOrientation GetCurrentScreenOrientation()
+		public static ScreenOrientation GetCurrentScreenOrientation()
 		{
 			var screenSize = GetScreenSize();
-			return screenSize.x >= screenSize.y ? EScreenOrientation.Landscape : EScreenOrientation.Portrait;
+			return new ScreenOrientation(screenSize.x, screenSize.y);
 		}
 
 		public static Rect GetScreenRect( RectTransform _transform, Camera _cam = null, Canvas _canvas = null )

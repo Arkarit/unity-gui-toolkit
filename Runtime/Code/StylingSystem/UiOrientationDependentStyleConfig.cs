@@ -43,9 +43,9 @@ namespace GuiToolkit.Style
 			UiEventDefinitions.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChange);
 		}
 
-		private void OnScreenOrientationChange( EScreenOrientation _before, EScreenOrientation _after )
+		private void OnScreenOrientationChange( ScreenOrientation _before, ScreenOrientation _after )
 		{
-			Instance.CurrentSkinName = _after == EScreenOrientation.Landscape ? Landscape : Portrait;
+			Instance.CurrentSkinName = _after == ScreenOrientation.Landscape ? Landscape : Portrait;
 		}
 
 		public static UiOrientationDependentStyleConfig Instance

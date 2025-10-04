@@ -39,7 +39,7 @@ namespace GuiToolkit.Editor
 
 			if (GUILayout.Button("Apply"))
 			{
-				EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
+				ScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 				int orientationIdx = (int) orientation;
 				//UiLog.Log($"orientation: {orientation} UiUtility.ScreenWidth():{UiUtility.ScreenWidth()} UiUtility.ScreenHeight():{UiUtility.ScreenHeight()}");
 
@@ -64,9 +64,9 @@ namespace GuiToolkit.Editor
 			Transform thisTransform = _thisUiResolutionDependentSwitcher.transform;
 			Transform templateParent = CreateHolder(thisTransform, TemplateParentName, 0, true);
 
-			int orientationCount = (int)EScreenOrientation.Count;
+			int orientationCount = (int)ScreenOrientation.Count;
 			Transform[] subParents = new Transform[orientationCount];
-			for (EScreenOrientation screenOrientation = EScreenOrientation.Landscape; screenOrientation < EScreenOrientation.Count; screenOrientation++)
+			for (ScreenOrientation screenOrientation = ScreenOrientation.Landscape; screenOrientation < ScreenOrientation.Count; screenOrientation++)
 			{
 				int idx = (int) screenOrientation;
 				string name = idx.ToString();

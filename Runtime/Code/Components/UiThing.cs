@@ -137,7 +137,7 @@ namespace GuiToolkit
 		/// Optional callback when screen orientation changes.
 		/// Only active if NeedsOnScreenOrientationCallback returns true.
 		/// </summary>
-		protected virtual void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation ) { }
+		protected virtual void OnScreenOrientationChanged( ScreenOrientation _oldScreenOrientation, ScreenOrientation _newScreenOrientation ) { }
 
 		/// <summary>
 		/// Registers UiButton click listeners to be installed later in OnEnable.

@@ -16,7 +16,7 @@ namespace GuiToolkit
 		// 3: pc portrait
 		// mobile is all tablets and phones,
 		// pc is all pc, mac, webplayer and console
-		public Component[] OrientationTemplates = new Component[(int) EScreenOrientation.Count];
+		public Component[] OrientationTemplates = new Component[ScreenOrientation.DeprecatedCount];
 	}
 
 	[RequireComponent(typeof(RectTransform))]
@@ -28,7 +28,7 @@ namespace GuiToolkit
 		[SerializeField] protected GameObject[] m_visibleInPortrait = new GameObject[0];
 		[SerializeField] protected bool m_autoUpdateOnEnable = true;
 #if UNITY_EDITOR
-		[SerializeField] private EScreenOrientation m_lastScreenOrientation = EScreenOrientation.Invalid;
+		[SerializeField] private ScreenOrientation m_lastScreenOrientation = ScreenOrientation.Invalid;
 #endif
 
 		public OrientationDependentDefinition[] Definitions => m_definitions;
@@ -40,13 +40,11 @@ namespace GuiToolkit
 			if (!enabled)
 				return;
 
-			EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
-			int orientationIdx = (int) orientation;
-			//UiLog.Log($"orientation: {orientation} UiUtility.ScreenWidth():{UiUtility.ScreenWidth()} UiUtility.ScreenHeight():{UiUtility.ScreenHeight()}");
+			ScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 
 			foreach( var definition in m_definitions )
 			{
-				Component source = definition.OrientationTemplates[orientationIdx];
+				Component source = definition.OrientationTemplates[orientation.DeprecatedIndex];
 
 				source.CopyTo(definition.Target);
 
@@ -60,10 +58,10 @@ namespace GuiToolkit
 			}
 
 			foreach (var go in m_visibleInLandscape)
-				go.SetActive(orientation == EScreenOrientation.Landscape);
+				go.SetActive(orientation.Landscape);
 
 			foreach (var go in m_visibleInPortrait)
-				go.SetActive(orientation == EScreenOrientation.Portrait);
+				go.SetActive(orientation.Portrait);
 
 		}
 
@@ -77,7 +75,7 @@ namespace GuiToolkit
 
 			//UiLog.Log($"Update() UiUtility.GetCurrentScreenOrientation():{UiUtility.GetCurrentScreenOrientation()}");
 
-			EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
+			ScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 
 			if (orientation == m_lastScreenOrientation)
 				return;
@@ -95,7 +93,7 @@ namespace GuiToolkit
 				UpdateElements();
 		}
 
-		protected override void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation )
+		protected override void OnScreenOrientationChanged( ScreenOrientation _oldScreenOrientation, ScreenOrientation _newScreenOrientation )
 		{
 			UpdateElements();
 		}

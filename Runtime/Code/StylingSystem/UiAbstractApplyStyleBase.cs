@@ -124,7 +124,7 @@ namespace GuiToolkit.Style
 			SetSkinListeners(false);
 		}
 		
-		private void OnScreenOrientationChanged(EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation)
+		private void OnScreenOrientationChanged(ScreenOrientation _oldScreenOrientation, ScreenOrientation _newScreenOrientation)
 		{
 			Apply();
 		}
