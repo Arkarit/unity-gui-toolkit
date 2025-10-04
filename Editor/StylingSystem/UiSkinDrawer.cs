@@ -10,6 +10,7 @@ namespace GuiToolkit.Style.Editor
 	public class UiSkinDrawer : AbstractPropertyDrawer<UiSkin>
 	{
 		protected SerializedProperty m_stylesProp;
+		protected SerializedProperty m_aspectRatioGEProp;
 		protected UiSkin m_thisUiSkin;
 
 		[Serializable]
@@ -25,6 +26,7 @@ namespace GuiToolkit.Style.Editor
 		{
 			m_thisUiSkin = Property.boxedValue as UiSkin;
 			m_stylesProp = Property.FindPropertyRelative("m_styles");
+			m_aspectRatioGEProp = Property.FindPropertyRelative("m_aspectRatioGE");
 		}
 
 		protected override void OnInspectorGUI()
@@ -64,8 +66,28 @@ namespace GuiToolkit.Style.Editor
 				IncreaseX(10);
 				
 				LabelField("   " + skinAlias, 0, EditorStyles.boldLabel);
-	
-				IncreaseX(-310);
+
+				if (m_thisUiSkin.IsOrientationDependent)
+				{
+					IncreaseX(-460);
+					LabelField("Aspect Ratio >= ");
+					IncreaseX(100);
+
+					float before = m_aspectRatioGEProp.floatValue;
+					float after = Float(before, 40);
+					if (!Mathf.Approximately(before, after))
+					{
+						m_aspectRatioGEProp.floatValue = after;
+						EditorGeneralUtility.SetDirty(styleConfig);
+					}
+
+					IncreaseX(50);
+				}
+				else
+				{
+					IncreaseX(-310);
+				}
+
 				if (Button("HSV", 55))
 				{
 					var hsv = UiSkinHSVDialog.GetWindow();
@@ -195,9 +217,7 @@ namespace GuiToolkit.Style.Editor
 						{
 							if (!CheckFilter(displayFilter, styleProp))
 								continue;
-var scprop = styleProp.FindPropertyRelative("m_styleConfig");
-scprop.objectReferenceValue = m_thisUiSkin.StyleConfig;
-EditorGeneralUtility.SetDirty(m_thisUiSkin.StyleConfig);
+
 							PropertyField(styleProp);
 						}
 					}

@@ -247,6 +247,39 @@ namespace GuiToolkit.Editor
 			return active;
 		}
 
+		protected float Float(GUIContent _label, float _value, float _width = -1)
+		{
+			if (m_collectHeightMode)
+			{
+				IncreaseHeight(SingleLineHeight);
+				return _value;
+			}
+
+			if (_width == -1)
+				_width = m_currentRect.width;
+
+			var floatRect = new Rect
+			(
+				m_currentRect.x,
+				m_currentRect.y,
+				_width,
+				SingleLineHeight
+			);
+
+			float result = string.IsNullOrEmpty(_label.text) ?
+				EditorGUI.FloatField(floatRect, _value):
+				EditorGUI.FloatField(floatRect, _label, _value);
+
+			NextRect(SingleLineHeight);
+			return result;
+		}
+
+		protected float Float(string _label, float _value, float _width = -1) =>
+			Float(new GUIContent(_label), _value, _width);
+		protected float Float(float _value, float _width = -1) =>
+			Float(new GUIContent(), _value, _width);
+
+
 		protected bool Button(GUIContent _content, float _width = -1)
 		{
 			if (m_collectHeightMode)

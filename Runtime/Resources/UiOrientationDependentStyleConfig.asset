@@ -25,6 +25,7 @@ MonoBehaviour:
     - rid: 8590990470691422228
     - rid: 8590990470691422354
     - rid: 8590990470691422547
+    m_aspectRatioGE: 1
   - m_config: {fileID: 11400000}
     m_name: Portrait
     m_alias: 
@@ -37,6 +38,7 @@ MonoBehaviour:
     - rid: 8590990470691422229
     - rid: 8590990470691422355
     - rid: 8590990470691422548
+    m_aspectRatioGE: 0
   m_currentSkinIdx: 0
   references:
     version: 2

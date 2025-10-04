@@ -19,6 +19,8 @@ namespace GuiToolkit.Style
 		// m_alias can be changed and used for display purposes.
 		[SerializeField] private string m_alias;
 		[NonReorderable][SerializeReference] private List<UiAbstractStyleBase> m_styles = new();
+		[SerializeField] private float m_aspectRatioGE = 0;
+
 
 		private Dictionary<int, UiAbstractStyleBase> m_styleByKey;
 		private static readonly List<int> m_stylesToRemove = new();
@@ -45,6 +47,7 @@ namespace GuiToolkit.Style
 
 		public List<UiAbstractStyleBase> Styles => m_styles;
 		public UiStyleConfig StyleConfig => m_config;
+		public bool IsOrientationDependent => m_config is UiOrientationDependentStyleConfig;
 
 		public void Init(UiStyleConfig _config)
 		{
