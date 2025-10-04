@@ -11,10 +11,10 @@ namespace GuiToolkit
 	{
 		public const string PLAYER_PREFS_KEY = StringConstants.PLAYER_PREFS_PREFIX + "Language";
 
-		public abstract string Translate(string _key, string _group = null);
-		public abstract string Translate(string _singularKey, string _pluralKey, int _n, string _group = null );
+		public abstract string Translate( string _key, string _group = null );
+		public abstract string Translate( string _singularKey, string _pluralKey, int _n, string _group = null );
 
-		public abstract bool ChangeLanguageImpl(string _languageId);
+		public abstract bool ChangeLanguageImpl( string _languageId );
 
 		public string Language { get; private set; } = null;
 
@@ -35,16 +35,18 @@ namespace GuiToolkit
 			get
 			{
 				if (s_locaManager == null)
-				{
 					s_locaManager = new LocaManagerDefaultImpl();
-					UiEventDefinitions.EvLanguageChanged.Invoke(s_locaManager.Language);
-				}
 				return s_locaManager;
 			}
 			set
 			{
 				s_locaManager = value;
 			}
+		}
+
+		public bool ChangeLanguage( string _languageId )
+		{
+			return ChangeLanguage(_languageId, true);
 		}
 
 		protected LocaManager()
@@ -57,55 +59,79 @@ namespace GuiToolkit
 			});
 		}
 
-		public bool ChangeLanguage(string _languageId)
-		{
-			return ChangeLanguage(_languageId, true);
-		}
 
-		private bool ChangeLanguage(string _languageId, bool _invokeEvent)
+		private bool ChangeLanguage( string _languageId, bool _invokeEvent )
 		{
+			if (string.IsNullOrWhiteSpace(_languageId))
+			{
+				_languageId = "dev";
+			}
+
 			if (Language == _languageId)
 				return true;
 
-			Language = _languageId;
-			PlayerPrefs.SetString(PLAYER_PREFS_KEY, Language);
-
-			SetCulture(_languageId);
-
-			if (!ChangeLanguageImpl(_languageId))
+			// Try desired language first, without committing state yet.
+			if (ChangeLanguageImpl(_languageId))
 			{
-				UiLog.LogWarning($"Language '{_languageId}' not found");
-				_languageId = "dev";
-				ChangeLanguageImpl(_languageId);
+				CommitLanguage(_languageId, _invokeEvent);
+				return true;
 			}
 
-			if (_invokeEvent)
-				UiEventDefinitions.EvLanguageChanged.Invoke(_languageId);
+			UiLog.LogWarning($"Language '{_languageId}' not found. Falling back to 'dev'.");
 
-			return true;
+			// Fallback
+			const string fallback = "dev";
+			if (Language == fallback)
+			{
+				// Already at fallback; still notify if requested.
+				if (_invokeEvent)
+					UiEventDefinitions.EvLanguageChanged.Invoke(fallback);
+				return false;
+			}
+
+			if (ChangeLanguageImpl(fallback))
+			{
+				CommitLanguage(fallback, _invokeEvent);
+				return false; // indicates we fell back
+			}
+
+			UiLog.LogError("Fallback language 'dev' could not be set.");
+			return false;
 		}
 
-		private static void SetCulture(string _languageId)
+		private void CommitLanguage( string _finalLanguageId, bool _invokeEvent )
+		{
+			Language = _finalLanguageId;
+
+			SetCulture(_finalLanguageId);
+
+			PlayerPrefs.SetString(PLAYER_PREFS_KEY, Language);
+			// Optional: PlayerPrefs.Save();
+
+			if (_invokeEvent)
+				UiEventDefinitions.EvLanguageChanged.Invoke(Language);
+		}
+
+		private static void SetCulture( string _languageId )
 		{
 			try
 			{
-				CultureInfo ci = new CultureInfo(_languageId);
+				var ci = new CultureInfo(_languageId);
 				Thread.CurrentThread.CurrentCulture = ci;
 				Thread.CurrentThread.CurrentUICulture = ci;
 			}
-			catch (CultureNotFoundException _)
+			catch (CultureNotFoundException)
 			{
 				UiLog.LogWarning($"Culture '{_languageId}' not found, setting default culture");
-
 				try
 				{
-					CultureInfo ci = new CultureInfo("en");
+					var ci = CultureInfo.InvariantCulture;
 					Thread.CurrentThread.CurrentCulture = ci;
 					Thread.CurrentThread.CurrentUICulture = ci;
 				}
-				catch (CultureNotFoundException __)
+				catch (CultureNotFoundException)
 				{
-					UiLog.LogError("Could not set default culture 'en'");
+					UiLog.LogError("Could not set default culture.");
 				}
 			}
 		}
