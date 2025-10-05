@@ -109,10 +109,6 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.PropertyField(m_posXCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
 			}
-			else
-			{
-				m_posXCurveProp.animationCurveValue.keys = new Keyframe[0];
-			}
 
 			if( support.HasFlags(UiSimpleAnimation.ESupport.PositionY))
 			{
@@ -121,10 +117,6 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.PropertyField(m_posYEndProp, new GUIContent("End"));
 				EditorGUILayout.PropertyField(m_posYCurveProp, new GUIContent("Norm. Curve"));
 				EditorGUILayout.Space();
-			}
-			else
-			{
-				m_posYCurveProp.animationCurveValue = new AnimationCurve();
 			}
 
 			if( support.HasFlags(UiSimpleAnimation.ESupport.RotationZ))

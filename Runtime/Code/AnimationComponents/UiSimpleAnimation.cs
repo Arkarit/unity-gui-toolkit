@@ -43,7 +43,15 @@ namespace GuiToolkit
 		public ESupport Support
 		{
 			get => m_support;
-			set { Stop(); m_support = value; }
+			set
+			{
+				if (m_support == value)
+					return;
+
+				Stop(); 
+				m_support = value;
+				InitFlags();
+			}
 		}
 
 		public RectTransform Target
@@ -524,16 +532,6 @@ namespace GuiToolkit
 			m_flagsSet = true;
 		}
 #endif
-		private void CheckCurve( bool _isY, AnimationCurve _animationCurve )
-		{
-			if (_animationCurve == null)
-				_animationCurve = new AnimationCurve(new Keyframe(0,0,0,0), new Keyframe(1,1,0,0));
-
-			if (_isY)
-				m_posYCurve = _animationCurve;
-			else
-				m_posXCurve = _animationCurve;
-		}
 
 #if UNITY_EDITOR
 		// In editor, while not play mode, we have no Awake, so we set the flags when initializing the animation

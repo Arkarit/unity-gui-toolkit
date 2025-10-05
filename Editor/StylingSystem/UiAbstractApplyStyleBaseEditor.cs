@@ -14,6 +14,7 @@ namespace GuiToolkit.Style.Editor
 		private SerializedProperty m_optionalStyleConfigProp;
 		private SerializedProperty m_onBeforeApplyStyleProp;
 		private SerializedProperty m_onAfterApplyStyleProp;
+		private SerializedProperty m_frameDelayProp;
 		private bool m_eventsOpen;
 
 
@@ -26,6 +27,7 @@ namespace GuiToolkit.Style.Editor
 			m_optionalStyleConfigProp = serializedObject.FindProperty("m_optionalStyleConfig");
 			m_onBeforeApplyStyleProp = serializedObject.FindProperty("OnBeforeApplyStyle");
 			m_onAfterApplyStyleProp = serializedObject.FindProperty("OnAfterApplyStyle");
+			m_frameDelayProp = serializedObject.FindProperty("m_frameDelay");
 			Undo.undoRedoPerformed += OnUndoOrRedo;
 		}
 
@@ -110,6 +112,10 @@ namespace GuiToolkit.Style.Editor
 			
 			if (!m_thisAbstractApplyStyleBase.SkinIsFixed)
 				m_thisAbstractApplyStyleBase.Tweenable = EditorGUILayout.Toggle("Tweenable", m_thisAbstractApplyStyleBase.Tweenable);
+
+			m_thisAbstractApplyStyleBase.RebuildLayoutOnApply = EditorGUILayout.Toggle("Rebuild Layout",
+				m_thisAbstractApplyStyleBase.RebuildLayoutOnApply);
+			EditorGUILayout.PropertyField(m_frameDelayProp);
 
 			m_eventsOpen = EditorGUILayout.Foldout(m_eventsOpen, "Events");
 			if (m_eventsOpen)

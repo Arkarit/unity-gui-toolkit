@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -19,6 +21,8 @@ namespace GuiToolkit.Style
 		[SerializeField][HideInInspector] private string m_name;
 		[SerializeField][HideInInspector] private string m_fixedSkinName;
 		[SerializeField][HideInInspector] protected bool m_tweenable = true;
+		[SerializeField][HideInInspector] private bool m_rebuildLayoutOnApply = false;
+		[SerializeField][HideInInspector] protected int m_frameDelay = 0;
 		
 		protected UiAbstractStyleBase m_style;
 
@@ -38,6 +42,13 @@ namespace GuiToolkit.Style
 			get => m_tweenable && !SkinIsFixed;
 			set => m_tweenable = value;
 		}
+
+		public bool RebuildLayoutOnApply
+		{
+			get => m_rebuildLayoutOnApply;
+			set => m_rebuildLayoutOnApply = value;
+		}
+
 		public bool IsResolutionDependent => m_isResolutionDependent;
 
 		public UiStyleConfig StyleConfig
@@ -155,14 +166,35 @@ namespace GuiToolkit.Style
 		
 		public void Apply()
 		{
+			if (Application.isPlaying && m_frameDelay > 0)
+			{
+				CoRoutineRunner.Instance.StartCoroutine(ApplyDelayed());
+				return;
+			}
+
+			ApplyInternal();
+		}
+
+		IEnumerator ApplyDelayed()
+		{
+			for (int i = 0; i < m_frameDelay; i++)
+				yield return null;
+
+			ApplyInternal();
+		}
+
+		private void ApplyInternal()
+		{
 			if (CheckCondition())
 			{
 				OnBeforeApplyStyle.Invoke(this);
 				ApplyImpl();
+				if (m_rebuildLayoutOnApply && transform is RectTransform targetRectTransform)
+					LayoutRebuilder.ForceRebuildLayoutImmediate(targetRectTransform);
 				OnAfterApplyStyle.Invoke(this);
 			}
 		}
-		
+
 		public void Record()
 		{
 			if (CheckCondition())
