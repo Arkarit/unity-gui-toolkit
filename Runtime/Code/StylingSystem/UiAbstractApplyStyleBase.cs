@@ -181,7 +181,8 @@ namespace GuiToolkit.Style
 				return false;
 
 			var result = Style.ScreenOrientationCondition == UiAbstractStyleBase.EScreenOrientationCondition.Always 
-			       || Style.ScreenOrientationCondition == (UiAbstractStyleBase.EScreenOrientationCondition) UiUtility.GetCurrentScreenOrientation();
+			       || Style.ScreenOrientationCondition == UiAbstractStyleBase.EScreenOrientationCondition.Landscape && UiUtility.GetCurrentScreenOrientation().IsLandscape
+			       || Style.ScreenOrientationCondition == UiAbstractStyleBase.EScreenOrientationCondition.Portrait && UiUtility.GetCurrentScreenOrientation().IsPortrait;
 
 			return result;
 		}

@@ -40,7 +40,7 @@ namespace GuiToolkit.Editor
 			if (GUILayout.Button("Apply"))
 			{
 				ScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
-				int orientationIdx = (int) orientation;
+				int orientationIdx = orientation.DeprecatedIndex;
 				//UiLog.Log($"orientation: {orientation} UiUtility.ScreenWidth():{UiUtility.ScreenWidth()} UiUtility.ScreenHeight():{UiUtility.ScreenHeight()}");
 
 				foreach (var definition in thisUiResolutionDependentSwitcher.Definitions)
@@ -64,23 +64,21 @@ namespace GuiToolkit.Editor
 			Transform thisTransform = _thisUiResolutionDependentSwitcher.transform;
 			Transform templateParent = CreateHolder(thisTransform, TemplateParentName, 0, true);
 
-			int orientationCount = (int)ScreenOrientation.Count;
-			Transform[] subParents = new Transform[orientationCount];
-			for (ScreenOrientation screenOrientation = ScreenOrientation.Landscape; screenOrientation < ScreenOrientation.Count; screenOrientation++)
+			Transform[] subParents = new Transform[2];
+			for (int i = 0; i<2; i++)
 			{
-				int idx = (int) screenOrientation;
-				string name = idx.ToString();
-				subParents[idx] = CreateHolder(templateParent, name, idx);
+				string name = i.ToString();
+				subParents[i] = CreateHolder(templateParent, name, i);
 			}
 
 			foreach (var definition in _thisUiResolutionDependentSwitcher.Definitions)
 			{
 				if (definition.OrientationTemplates == null)
-					definition.OrientationTemplates = new Component[orientationCount];
+					definition.OrientationTemplates = new Component[2];
 
-				if (definition.OrientationTemplates.Length != orientationCount)
+				if (definition.OrientationTemplates.Length != 2)
 				{
-					Component[] orientations = new Component[orientationCount];
+					Component[] orientations = new Component[2];
 					for (int i=0; i<orientations.Length && i<definition.OrientationTemplates.Length; i++)
 						orientations[i] = definition.OrientationTemplates[i];
 					definition.OrientationTemplates = orientations;

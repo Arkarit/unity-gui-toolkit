@@ -417,7 +417,7 @@ namespace GuiToolkit
 
 		protected override void OnScreenOrientationChanged( ScreenOrientation _oldScreenOrientation, ScreenOrientation _newScreenOrientation )
 		{
-			if (_oldScreenOrientation != ScreenOrientation.Invalid)
+			if (!_oldScreenOrientation.IsInvalid)
 			{
 				Log($"Screen orientation changed to {_newScreenOrientation}, stopping (finishing) animation");
 				Stop();

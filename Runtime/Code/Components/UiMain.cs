@@ -58,7 +58,7 @@ namespace GuiToolkit
 		private readonly Stack<UiView> m_stack = new();
 		private static UiMain s_instance;
 		private UiPlayerSettingsDialog m_playerSettingsDialog;
-		static ScreenOrientation s_screenOrientation = GuiToolkit.ScreenOrientation.Invalid;
+		static ScreenOrientation s_screenOrientation = GuiToolkit.ScreenOrientation.Empty;
 		
 		private readonly List<IExcludeFromFrustumCulling> m_excludedFromFrustumCulling = new ();
 		private readonly List<Bounds> m_excludedBounds = new ();
@@ -550,7 +550,7 @@ namespace GuiToolkit
 
 		private static void FireOnScreenOrientationChangedEventIfNecessary()
 		{
-			EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
+			ScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
 
 			if (orientation == s_screenOrientation)
 				return;

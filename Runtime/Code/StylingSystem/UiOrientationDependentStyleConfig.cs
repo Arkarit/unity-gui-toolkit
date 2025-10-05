@@ -45,7 +45,7 @@ namespace GuiToolkit.Style
 
 		private void OnScreenOrientationChange( ScreenOrientation _before, ScreenOrientation _after )
 		{
-			Instance.CurrentSkinName = _after == ScreenOrientation.Landscape ? Landscape : Portrait;
+			Instance.CurrentSkinName = _after.IsLandscape ? Landscape : Portrait;
 		}
 
 		public static UiOrientationDependentStyleConfig Instance

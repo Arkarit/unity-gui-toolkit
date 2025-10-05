@@ -27,7 +27,7 @@ namespace GuiToolkit
 		[Tooltip("string: changed entry\nint: changed entry index")]
 		public CEvent<string, int> OnValueChanged = new();
 
-		public int numColumns => UiUtility.GetCurrentScreenOrientation() == ScreenOrientation.Landscape
+		public int numColumns => UiUtility.GetCurrentScreenOrientation().IsLandscape
 			? m_numColumnsLandscape
 			: m_numColumnsPortrait;
 

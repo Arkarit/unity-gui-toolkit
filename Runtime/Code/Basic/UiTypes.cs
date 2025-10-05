@@ -82,8 +82,10 @@ namespace GuiToolkit
 
 		public float AspectRatio => Height == 0 ? 0 : Width / Height;
 
-		public bool Landscape => AspectRatio >= 1;
-		public bool Portrait => AspectRatio >= 0 && AspectRatio < 1;
+		public bool IsLandscape => AspectRatio >= 1;
+		public bool IsPortrait => AspectRatio >= 0 && AspectRatio < 1;
+		public bool IsInvalid => Height <= 0 || Width <= 0;
+
 
 		public ScreenOrientation( float _width = 0, float _height = 0 )
 		{
@@ -91,13 +93,16 @@ namespace GuiToolkit
 			Height = _height;
 		}
 
-		public static ScreenOrientation Invalid => new();
+
+		public static ScreenOrientation Empty => new();
 
 		[Obsolete("Do not use. Only backwards compatibility for old code.")]
-		public int DeprecatedIndex => Landscape ? 2 : 1;
+		public int DeprecatedIndex => IsLandscape ? 1 : 0;
 
 		[Obsolete("Do not use. Only backwards compatibility for old code.")]
 		public static int DeprecatedCount => 2;
+		public static bool operator ==( ScreenOrientation t1, ScreenOrientation t2 ) => t1.Equals(t2);
+		public static bool operator !=( ScreenOrientation t1, ScreenOrientation t2 ) => !t1.Equals(t2);
 
 		public int CompareTo( object _obj )
 		{

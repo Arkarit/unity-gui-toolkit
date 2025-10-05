@@ -28,7 +28,7 @@ namespace GuiToolkit
 		[SerializeField] protected GameObject[] m_visibleInPortrait = new GameObject[0];
 		[SerializeField] protected bool m_autoUpdateOnEnable = true;
 #if UNITY_EDITOR
-		[SerializeField] private ScreenOrientation m_lastScreenOrientation = ScreenOrientation.Invalid;
+		[SerializeField] private ScreenOrientation m_lastScreenOrientation = ScreenOrientation.Empty;
 #endif
 
 		public OrientationDependentDefinition[] Definitions => m_definitions;
@@ -58,10 +58,10 @@ namespace GuiToolkit
 			}
 
 			foreach (var go in m_visibleInLandscape)
-				go.SetActive(orientation.Landscape);
+				go.SetActive(orientation.IsLandscape);
 
 			foreach (var go in m_visibleInPortrait)
-				go.SetActive(orientation.Portrait);
+				go.SetActive(orientation.IsPortrait);
 
 		}
 
