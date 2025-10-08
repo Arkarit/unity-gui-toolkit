@@ -1,0 +1,163 @@
+{
+    "Version": 2,
+    "Namespace": "GuiToolkit.Style",
+    "Prefix": "",
+    "Records": [
+        {
+            "Used": true,
+            "Name": "alignByGeometry",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "alignment",
+            "QualifiedTypeName": "UnityEngine.TextAnchor",
+            "TypeName": "TextAnchor"
+        },
+        {
+            "Used": true,
+            "Name": "color",
+            "QualifiedTypeName": "UnityEngine.Color",
+            "TypeName": "Color"
+        },
+        {
+            "Used": true,
+            "Name": "enabled",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "font",
+            "QualifiedTypeName": "UnityEngine.Font",
+            "TypeName": "Font"
+        },
+        {
+            "Used": true,
+            "Name": "fontSize",
+            "QualifiedTypeName": "System.Int32",
+            "TypeName": "Int32"
+        },
+        {
+            "Used": true,
+            "Name": "fontStyle",
+            "QualifiedTypeName": "UnityEngine.FontStyle",
+            "TypeName": "FontStyle"
+        },
+        {
+            "Used": false,
+            "Name": "hideFlags",
+            "QualifiedTypeName": "UnityEngine.HideFlags",
+            "TypeName": "HideFlags"
+        },
+        {
+            "Used": true,
+            "Name": "horizontalOverflow",
+            "QualifiedTypeName": "UnityEngine.HorizontalWrapMode",
+            "TypeName": "HorizontalWrapMode"
+        },
+        {
+            "Used": true,
+            "Name": "isMaskingGraphic",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "lineSpacing",
+            "QualifiedTypeName": "System.Single",
+            "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "maskable",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "material",
+            "QualifiedTypeName": "UnityEngine.Material",
+            "TypeName": "Material"
+        },
+        {
+            "Used": false,
+            "Name": "name",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": true,
+            "Name": "onCullStateChanged",
+            "QualifiedTypeName": "UnityEngine.UI.MaskableGraphic.CullStateChangedEvent",
+            "TypeName": "CullStateChangedEvent"
+        },
+        {
+            "Used": true,
+            "Name": "raycastPadding",
+            "QualifiedTypeName": "UnityEngine.Vector4",
+            "TypeName": "Vector4"
+        },
+        {
+            "Used": true,
+            "Name": "raycastTarget",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "resizeTextForBestFit",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "resizeTextMaxSize",
+            "QualifiedTypeName": "System.Int32",
+            "TypeName": "Int32"
+        },
+        {
+            "Used": true,
+            "Name": "resizeTextMinSize",
+            "QualifiedTypeName": "System.Int32",
+            "TypeName": "Int32"
+        },
+        {
+            "Used": false,
+            "Name": "runInEditMode",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "supportRichText",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "tag",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": true,
+            "Name": "text",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "useGUILayout",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "verticalOverflow",
+            "QualifiedTypeName": "UnityEngine.VerticalWrapMode",
+            "TypeName": "VerticalWrapMode"
+        }
+    ]
+}
