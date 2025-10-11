@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -110,9 +111,13 @@ namespace GuiToolkit.Editor
 			{
 				foreach (var root in roots)
 				{
-					if (root == null) continue;
+					if (root == null) 
+						continue;
 
 					var scaler = root.GetComponentInParent<CanvasScaler>();
+					if (scaler == null)
+						continue;
+					
 					float u = ComputeCanvasUniform(m_oldWidth, m_oldHeight, m_newWidth, m_newHeight, scaler);
 					Action runner = () => ScaleRecursively(root.transform, u, u, u);
 
@@ -123,10 +128,12 @@ namespace GuiToolkit.Editor
 						runner();
 						ForceRebuildIfRect(root.transform as RectTransform);
 					}
+					
+					UiLog.Log($"--- Scaling for root {root.name}, scaler {scaler.name} by factor '{u.ToString(CultureInfo.InvariantCulture)}' done. ---\n" + 
+					          "In case you need to rescale some unsupported items, please use the scale factor mentioned here.");				
 				}
 
 				Undo.CollapseUndoOperations(undoGroup);
-				EditorUtility.DisplayDialog("Done", "Rescale completed.", "OK");
 			}
 			catch
 			{
