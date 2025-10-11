@@ -9,10 +9,10 @@ namespace GuiToolkit.Editor
 {
 	public sealed class UiResolutionRescalerWindow : EditorWindow
 	{
-		private float m_newWidth = 1024f;
-		private float m_newHeight = 768f;
-		private float m_oldWidth = 1920f;
-		private float m_oldHeight = 1080f;
+		private float m_oldWidth = 1024f;
+		private float m_oldHeight = 768f;
+		private float m_newWidth = 1920f;
+		private float m_newHeight = 1080f;
 
 		private bool m_scaleAnchoredPosition = true;
 		private bool m_scaleFontSizes = true;
@@ -32,6 +32,17 @@ namespace GuiToolkit.Editor
 
 		private void OnGUI()
 		{
+			EditorGUILayout.HelpBox(
+				"\nPreview version — handle with care! While the tool is already functional, many cases are still untested or unsupported (especially UI styles). Unexpected results may occur.\n",
+				MessageType.Warning);
+
+			EditorGUILayout.HelpBox(
+				"\nUse this tool to rescale an entire dialog after changing the Canvas Scaler reference resolution.\n\n" +
+				"1. Enter the previous and new reference resolutions.\n" +
+				"2. Select the affected dialog root(s).\n" +
+				"3. Click 'Scale Selected Hierarchies'.\n",
+				MessageType.Info);
+
 			EditorGUILayout.LabelField("Reference Resolution", EditorStyles.boldLabel);
 
 			EditorGUILayout.BeginHorizontal();
@@ -129,15 +140,17 @@ namespace GuiToolkit.Editor
 			if (_t == null) return;
 			if (!m_processInactiveObjects && !_t.gameObject.activeInHierarchy) return;
 
-			// 1) Erst Kinder
 			int childCount = _t.childCount;
 			for (int i = 0; i < childCount; i++)
 				ScaleRecursively(_t.GetChild(i), _sx, _sy, _sUniform);
 
-			// 2) Dann aktuelle Komponenten
 			var rect = _t as RectTransform;
 			if (rect != null)
 				ScaleRectTransform(rect, _sx, _sy);
+
+			var legacy = _t.GetComponent<Text>();
+			if (legacy != null && m_scaleFontSizes)
+				ScaleLegacyText(legacy, _sUniform);
 
 			var tmp = _t.GetComponent<TMP_Text>();
 			if (tmp != null && m_scaleFontSizes)
@@ -224,11 +237,36 @@ namespace GuiToolkit.Editor
 			return Mathf.Abs(_a - _b) <= 0.0001f;
 		}
 
+		private void ScaleLegacyText( Text _text, float _sUniform )
+		{
+			Undo.RegisterCompleteObjectUndo(_text, "Scale Legacy Text");
+
+			float s = _sUniform;
+
+			// Font size
+			_text.fontSize = Mathf.RoundToInt(_text.fontSize * s);
+
+			// Best Fit
+			if (_text.resizeTextForBestFit)
+			{
+				_text.resizeTextMinSize = Mathf.Max(1, Mathf.RoundToInt(_text.resizeTextMinSize * s));
+				_text.resizeTextMaxSize = Mathf.Max(1, Mathf.RoundToInt(_text.resizeTextMaxSize * s));
+				if (_text.resizeTextMinSize > _text.resizeTextMaxSize)
+					_text.resizeTextMinSize = _text.resizeTextMaxSize;
+			}
+
+			// Line spacing (UI.Text has a scalar float)
+			_text.lineSpacing *= s;
+
+			// Note: alignment, supportRichText, overflow modes do not require scaling.
+		}
+
 		private void ScaleTmpText( TMP_Text _tmp, float _sx, float _sy, float _sUniform )
 		{
 			Undo.RegisterCompleteObjectUndo(_tmp, "Scale TMP_Text");
 
-			float s = _sUniform; // gematchter Faktor
+			float s = _sUniform;
+
 			_tmp.fontSize *= s;
 
 			if (_tmp.enableAutoSizing)
@@ -243,6 +281,7 @@ namespace GuiToolkit.Editor
 				_tmp.wordSpacing *= s;
 				_tmp.lineSpacing *= s;
 				_tmp.paragraphSpacing *= s;
+				_tmp.lineSpacingAdjustment *= s;
 
 				Vector4 m = _tmp.margin;
 				m.x *= _sx; // left

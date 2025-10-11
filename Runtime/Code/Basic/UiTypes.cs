@@ -185,7 +185,7 @@ namespace GuiToolkit
 		public const string ROSLYN_REMOVE_HACK = ROSLYN_HEADER + "Remove Roslyn Hack for Unity Version < 6";
 		public const string REPLACE_COMPONENTS_WINDOW = MISC_TOOLS_MENU_HEADER + "Replace Components Window";
 		public const string CREATE_GUI_SCREENSHOT_OVERLAY = MISC_TOOLS_MENU_HEADER + "Create GUI Screenshot overlay";
-		public const string RESOLUTION_RESCALER = MISC_TOOLS_MENU_HEADER + "Resolution Rescaler";
+		public const string RESOLUTION_RESCALER = MISC_TOOLS_MENU_HEADER + "Resolution Rescaler (PREVIEW!)";
 
 		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";																			///< Prefix for all player prefs entries
 		public const string CREATE_TEST_DATA = MENU_HEADER + "Test Data";
