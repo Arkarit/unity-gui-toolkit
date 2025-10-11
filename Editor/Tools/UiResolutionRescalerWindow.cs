@@ -21,6 +21,9 @@ namespace GuiToolkit.Editor
 		private bool m_scaleUiEffects = true;
 		private bool m_disableFittersDuringScale = true;
 		private bool m_processInactiveObjects = true;
+		// Fallbacks when no CanvasScaler is found in parent (important for sub-prefabs)
+		private CanvasScaler.ScaleMode m_fallbackScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+		private float m_fallbackMatchWidthOrHeight = .5f; // 0=width, 1=height
 
 		[MenuItem(StringConstants.RESOLUTION_RESCALER)]
 		private static void Open()
@@ -69,6 +72,10 @@ namespace GuiToolkit.Editor
 			m_scaleUiEffects = EditorGUILayout.Toggle("Scale UI Effects (Shadow/Outline)", m_scaleUiEffects);
 			m_disableFittersDuringScale = EditorGUILayout.Toggle("Disable Fitters During Scale", m_disableFittersDuringScale);
 			m_processInactiveObjects = EditorGUILayout.Toggle("Process Inactive Objects", m_processInactiveObjects);
+			EditorGUILayout.Space(6f);
+			EditorGUILayout.LabelField("Fallback (when no Canvas Scaler is found)", EditorStyles.boldLabel);
+			m_fallbackScaleMode = (CanvasScaler.ScaleMode)EditorGUILayout.EnumPopup("Fallback Scale Mode", m_fallbackScaleMode);
+			m_fallbackMatchWidthOrHeight = EditorGUILayout.Slider("Fallback Match (0..1)", m_fallbackMatchWidthOrHeight, 0f, 1f);
 
 			EditorGUILayout.Space(10f);
 
@@ -111,14 +118,15 @@ namespace GuiToolkit.Editor
 			{
 				foreach (var root in roots)
 				{
-					if (root == null) 
+					if (root == null)
 						continue;
 
 					var scaler = root.GetComponentInParent<CanvasScaler>();
-					if (scaler == null)
-						continue;
-					
-					float u = ComputeCanvasUniform(m_oldWidth, m_oldHeight, m_newWidth, m_newHeight, scaler);
+					// Use real scaler if present, otherwise use fallbacks
+					float u = ComputeCanvasUniformWithFallback(
+						m_oldWidth, m_oldHeight, m_newWidth, m_newHeight,
+						scaler, m_fallbackScaleMode, m_fallbackMatchWidthOrHeight);
+
 					Action runner = () => ScaleRecursively(root.transform, u, u, u);
 
 					if (m_disableFittersDuringScale)
@@ -128,9 +136,11 @@ namespace GuiToolkit.Editor
 						runner();
 						ForceRebuildIfRect(root.transform as RectTransform);
 					}
-					
-					UiLog.Log($"--- Scaling for root {root.name}, scaler {scaler.name} by factor '{u.ToString(CultureInfo.InvariantCulture)}' done. ---\n" + 
-					          "In case you need to rescale some unsupported items, please use the scale factor mentioned here.");				
+
+					string src = scaler != null ? $"scaler {scaler.name}" : "fallback settings";
+					UiLog.Log(
+						$"--- Scaling for root {root.name}, {src} by factor '{u.ToString(CultureInfo.InvariantCulture)}' done. ---\n" +
+						"If you need to rescale unsupported items, use the factor shown here.");
 				}
 
 				Undo.CollapseUndoOperations(undoGroup);
@@ -441,6 +451,36 @@ namespace GuiToolkit.Editor
 			return Mathf.Pow(2f, lerp);
 		}
 
+		private static float ComputeCanvasUniformWithFallback
+		(
+			float _oldW, float _oldH, float _newW, float _newH,
+			CanvasScaler _scalerOrNull,
+			CanvasScaler.ScaleMode _fallbackMode,
+			float _fallbackMatchWidthOrHeight 
+		)
+		{
+			// If we have a scaler and it is ScaleWithScreenSize, use its match (Unity's log interpolation)
+			if (_scalerOrNull != null && _scalerOrNull.uiScaleMode == CanvasScaler.ScaleMode.ScaleWithScreenSize)
+				return DoScale(_scalerOrNull.matchWidthOrHeight);
+
+			// No scaler: respect fallback mode
+			if (_fallbackMode == CanvasScaler.ScaleMode.ScaleWithScreenSize)
+				return DoScale(_fallbackMatchWidthOrHeight);
+
+			// For ConstantPixelSize or ConstantPhysicalSize we return width ratio as neutral fallback
+			// (Unity does not rescale pixel sizes in these modes the same way; width is a sane bake base.)
+			return _newW / _oldW;
+
+			float DoScale(float _scale)
+			{
+				float widthScale = _newW / _oldW;
+				float heightScale = _newH / _oldH;
+				float logW = Mathf.Log(widthScale, 2f);
+				float logH = Mathf.Log(heightScale, 2f);
+				float lerp = Mathf.Lerp(logW, logH, Mathf.Clamp01(_scale));
+				return Mathf.Pow(2f, lerp);
+			}
+		}
 
 	}
 }
