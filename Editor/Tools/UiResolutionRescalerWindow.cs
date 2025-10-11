@@ -101,9 +101,9 @@ namespace GuiToolkit.Editor
 				{
 					if (root == null) continue;
 
-					float sUniform = ComputeUniformScale(root.transform, _sx, _sy);
-
-					Action runner = () => ScaleRecursively(root.transform, _sx, _sy, sUniform);
+					var scaler = root.GetComponentInParent<CanvasScaler>();
+					float u = ComputeCanvasUniform(m_oldWidth, m_oldHeight, m_newWidth, m_newHeight, scaler);
+					Action runner = () => ScaleRecursively(root.transform, u, u, u);
 
 					if (m_disableFittersDuringScale)
 						WithFittersDisabled(root.transform, runner);
@@ -379,6 +379,22 @@ namespace GuiToolkit.Editor
 			float m = Mathf.Clamp01(scaler.matchWidthOrHeight);
 			return Mathf.Lerp(_sx, _sy, m);
 		}
+
+		private static float ComputeCanvasUniform( float _oldW, float _oldH, float _newW, float _newH, CanvasScaler _scaler )
+		{
+			if (_scaler == null || _scaler.uiScaleMode != CanvasScaler.ScaleMode.ScaleWithScreenSize)
+				return _newW / _oldW;
+
+			float widthScale = _newW / _oldW;
+			float heightScale = _newH / _oldH;
+
+			// Unity does log interpolation:
+			float logW = Mathf.Log(widthScale, 2f);
+			float logH = Mathf.Log(heightScale, 2f);
+			float lerp = Mathf.Lerp(logW, logH, Mathf.Clamp01(_scaler.matchWidthOrHeight));
+			return Mathf.Pow(2f, lerp);
+		}
+
 
 	}
 }
