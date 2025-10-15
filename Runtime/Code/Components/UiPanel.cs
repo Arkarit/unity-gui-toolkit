@@ -371,17 +371,15 @@ namespace GuiToolkit
 		public bool Visible { get; private set; }
 
 		/// <summary>
-		/// Returns the concrete simple animation component if present.
-		/// Null if m_showHideAnimation is not a UiSimpleAnimation.
+		/// Returns the simple animation component if present.
+		/// Null if m_showHideAnimation is not a UiSimpleAnimationBase.
 		/// </summary>
 		public UiSimpleAnimationBase SimpleShowHideAnimation
 		{
 			get
 			{
 				InitAnimationIfNecessary();
-				if (m_showHideAnimation is UiSimpleAnimation)
-					return (UiSimpleAnimation)m_showHideAnimation;
-				return null;
+				return m_showHideAnimation as UiSimpleAnimationBase;
 			}
 		}
 
