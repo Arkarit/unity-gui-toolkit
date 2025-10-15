@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace GuiToolkit.Editor
 {
 	[CustomEditor(typeof(UiCanvasScalerReference))]
-	public class UICanvasScalerReferenceEditor : CanvasScalerEditor
+	public class UiCanvasScalerReferenceEditor : CanvasScalerEditor
 	{
 		private SerializedProperty m_referenceProp;
 
