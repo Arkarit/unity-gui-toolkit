@@ -48,7 +48,7 @@ namespace GuiToolkit
 		[SerializeField] protected List<UiSimpleAnimationBase> m_slaveAnimations = new();
 
 		[SerializeField] protected bool m_setLoopsForSlaves = true;
-		[SerializeField] protected bool m_supportViewAnimations = false;
+		[SerializeField] protected bool m_supportViewAnimations = true;
 
 		protected override bool NeedsOnScreenOrientationCallback => m_finishInstantOnOrientationChange;
 
