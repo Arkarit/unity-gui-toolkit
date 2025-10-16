@@ -93,6 +93,9 @@ namespace GuiToolkit
 			  "Several assets need to be generated. Choose your directory here for these files.";
 
 		public const string HELP_ASSET_PROVIDER_FACTORY = "An Optional Asset Provider Factory in case you want to use Addressables.";
+		
+		public const string HELP_TRANSITION_OVERLAY = "A transition overlay, which can cover the screen during level changes etc.";
+
 
 		/// \endcond
 
@@ -133,6 +136,9 @@ namespace GuiToolkit
 		
 		[Tooltip(HELP_ASSET_PROVIDER_FACTORY)]
 		[SerializeField, Optional] private AbstractAssetProviderFactory[] m_assetProviderFactories = new AbstractAssetProviderFactory[0];
+		
+		[Tooltip(HELP_TRANSITION_OVERLAY)]
+		[SerializeField, Optional] private UiTransitionOverlay m_transitionOverlay = null;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 		private string m_rootDir;
@@ -157,6 +163,7 @@ namespace GuiToolkit
 		public UiView UiViewPrefab => m_uiViewPrefab;
 		public bool ExceptUiMainExists => m_exceptUiMainExists;
 		public AbstractAssetProviderFactory[] AssetProviderFactories => m_assetProviderFactories;
+		public UiTransitionOverlay TransitionOverlay => m_transitionOverlay;
 		
 	
 		public string GetScenePath(string _sceneName)

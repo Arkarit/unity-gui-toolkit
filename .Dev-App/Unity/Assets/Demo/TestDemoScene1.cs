@@ -23,7 +23,7 @@ public class TestDemoScene1 : UiView
 	public TMP_InputField m_requesterTextInput;
 
 	public TMP_Text m_singularPluralTest;
-	
+
 	public ExampleDialogStyles m_exampleDialogStylesPrefab;
 
 	protected override bool NeedsLanguageChangeCallback => true;
@@ -43,17 +43,25 @@ public class TestDemoScene1 : UiView
 
 	private void OnLoadByAddressablesClicked()
 	{
-		AssetLoader.Instance.LoadAsync(new UiPanelLoadInfo()
+int bla = 10;
+		UiTransitionOverlay.Instance.FadeInOverlay(() =>
 		{
-			PanelType = typeof(DemoDynamicLoaded),
-			InstantiationType = UiPanelLoadInfo.EInstantiationType.Pool,
-			OnSuccess = (UiPanel _) => UiLog.Log("Success"),
-			OnFail = (UiPanelLoadInfo _loadInfo, Exception _ex) =>
+			AssetLoader.Instance.LoadAsync(new UiPanelLoadInfo()
 			{
-				UiLog.LogError($"Fail: {_loadInfo.ToMultilineString()}");
-				if (_ex != null)
-					Debug.LogException(_ex);
-			}
+				PanelType = typeof(DemoDynamicLoaded),
+				InstantiationType = UiPanelLoadInfo.EInstantiationType.Pool,
+				OnSuccess = ( UiPanel _ ) =>
+				{
+					UiTransitionOverlay.Instance.FadeOutOverlay();
+					UiLog.Log("Success");
+				},
+				OnFail = ( UiPanelLoadInfo _loadInfo, Exception _ex ) =>
+				{
+					UiLog.LogError($"Fail: {_loadInfo.ToMultilineString()}");
+					if (_ex != null)
+						Debug.LogException(_ex);
+				}
+			});
 		});
 	}
 
@@ -69,12 +77,13 @@ public class TestDemoScene1 : UiView
 					("Ok", () =>
 					{
 						UiLog.Log($"Selected date / time: {requester.GetDateTime()}");
-					}),
+					}
+				),
 					("Cancel", null)
 				),
 				DateTimeOptions = new UiDateTimePanel.Options()
 				{
-//					ShowTime = false,
+					//					ShowTime = false,
 				}
 			};
 		});
@@ -130,7 +139,7 @@ public class TestDemoScene1 : UiView
 
 	private void OnCloseButtonClicked()
 	{
-		UiMain.Instance.YesNoRequester(gettext("Really Quit?"), gettext("Are you really really sure you want to quit?"), false, OnQuit, null );
+		UiMain.Instance.YesNoRequester(gettext("Really Quit?"), gettext("Are you really really sure you want to quit?"), false, OnQuit, null);
 	}
 
 	private void OnQuit()
