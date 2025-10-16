@@ -51,9 +51,13 @@ namespace GuiToolkit
 			
 			SetBlocking(true);
 			
+			// FIXME #73 We can NOT use OnFinishOnce here, because the listener handling breaks when you call FadeOutOverlay() from
+			// finish hook of FadeInOverlay() - the animation is still "playing"
+			// OnFinish hasn't got this problem, because listeners are not automatically removed.
+			// https://github.com/Arkarit/unity-gui-toolkit/issues/73
+			m_animation.OnFinish.AddListener(OnFinish);
 			if (m_state == EFading.FadingIn || _instant)
 			{
-				m_animation.OnFinishOnce.AddListener(() => _onFadedIn?.Invoke());
 				if (_instant)
 					m_animation.Reset(true);
 				
@@ -62,12 +66,16 @@ namespace GuiToolkit
 			
 			m_state = EFading.FadingIn;
 			
-UiLog.Log($"---::: Fading in");
-			m_animation.Play(false, () =>
+			m_animation.Log("Fading in");
+			m_animation.Play(false);
+			
+			void OnFinish()
 			{
+				m_animation.Log("OnFinish FadeInOverlay()");
 				_onFadedIn?.Invoke();
 				m_state = EFading.FadedIn;
-			});
+				m_animation.OnFinish.RemoveListener(OnFinish);
+			}
 		}
 
 		public void FadeOutOverlay( Action _onFadedOut = null, bool _instant = false )
@@ -78,9 +86,14 @@ UiLog.Log($"---::: Fading in");
 				return;
 			}
 			
+			// FIXME #73 We can NOT use OnFinishOnce here, because the listener handling breaks when you call FadeOutOverlay() from
+			// finish hook of FadeInOverlay() - the animation is still "playing"
+			// OnFinish hasn't got this problem, because listeners are not automatically removed.
+			// https://github.com/Arkarit/unity-gui-toolkit/issues/73
+			m_animation.OnFinish.AddListener(OnFinish);
+
 			if (m_state == EFading.FadingOut || _instant)
 			{
-				m_animation.OnFinishOnce.AddListener(() => _onFadedOut?.Invoke());
 				if (_instant)
 					m_animation.Reset();
 				
@@ -89,18 +102,22 @@ UiLog.Log($"---::: Fading in");
 			
 			m_state = EFading.FadingOut;
 			
-UiLog.Log($"---::: Fading out");
-			m_animation.Play(true, () =>
+			m_animation.Log("Fading out");
+			m_animation.Play(true);
+			
+			void OnFinish()
 			{
+				m_animation.Log("OnFinish FadeOutOverlay()");
 				SetBlocking(false);
 				_onFadedOut?.Invoke();
 				m_state = EFading.FadedOut;
-			});
+				m_animation.OnFinish.RemoveListener(OnFinish);
+			}
 		}
 		
 		private void SetBlocking(bool _isBlocking)
 		{
-UiLog.Log($"---::: SetBlocking({_isBlocking}); m_setNonInteractive:{m_setNonInteractive}");
+			m_animation.Log($"SetBlocking({_isBlocking}); m_setNonInteractive:{m_setNonInteractive}");
 			if (!m_setNonInteractive) 
 				return;
 			
@@ -167,6 +184,8 @@ UiLog.Log($"---::: SetBlocking({_isBlocking}); m_setNonInteractive:{m_setNonInte
 			animation.Duration = .5f;
 			animation.AlphaCurve = AnimationCurve.Linear(0, 0, 1, 1);
 			animation.Support = UiSimpleAnimation.ESupport.Alpha;
+			// does nothing when not compiled with DEBUG_SIMPLE_ANIMATION
+			animation.Debug = true;
 
 			// Attach component and cache instance
 			UiTransitionOverlay overlay = root.AddComponent<UiTransitionOverlay>();

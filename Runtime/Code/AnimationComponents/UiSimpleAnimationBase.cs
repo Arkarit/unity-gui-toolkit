@@ -53,7 +53,19 @@ namespace GuiToolkit
 		protected override bool NeedsOnScreenOrientationCallback => m_finishInstantOnOrientationChange;
 
 		public List<UiSimpleAnimationBase> SlaveAnimations => m_slaveAnimations;
-		public bool IsPlaying => m_playing;
+		public bool IsPlaying
+		{
+			get => m_playing;
+			private set
+			{
+#if DEBUG_SIMPLE_ANIMATION
+				if (m_playing == value)
+					return;
+				Log($"Set IsPlaying:{value}");
+#endif
+				m_playing = value;
+			}
+		}
 		public bool IsBackwards => m_backwards;
 		public bool IsAtBeginning => m_currentTime == 0;
 		public bool HasBackwardsAnimation => m_backwardsAnimation;
@@ -168,6 +180,26 @@ namespace GuiToolkit
 			[SerializeField] protected bool m_debug;
 #endif
 
+		public bool Debug
+		{
+			get
+			{
+#if DEBUG_SIMPLE_ANIMATION
+				return m_debug;
+#else
+				return false;
+#endif
+			}
+			
+			// ReSharper disable once ValueParameterNotUsed
+			set
+			{
+#if DEBUG_SIMPLE_ANIMATION
+				m_debug = value;
+#endif
+			}
+		}
+		
 		protected virtual void OnEnable()
 		{
 			if (m_autoOnEnable)
@@ -221,7 +253,11 @@ namespace GuiToolkit
 
 			m_backwards = _backwards;
 			if (_onFinishOnce != null)
+			{
+				Log("Add m_onFinishOnce listener");
 				m_onFinishOnce.AddListener(() => _onFinishOnce());
+			}
+			
 			InitAnimateIfNecessary();
 			m_completeTime = m_completeBackwardsTime = 0;
 			CalculateCompleteTimeRecursive(ref m_completeTime, ref m_completeBackwardsTime, 0);
@@ -239,7 +275,7 @@ namespace GuiToolkit
 		public void Pause()
 		{
 			Log("Pause()");
-			if (m_playing)
+			if (IsPlaying)
 				m_pause = true;
 		}
 
@@ -252,7 +288,7 @@ namespace GuiToolkit
 		public void Stop(bool _invokeOnStopDelegates = true)
 		{
 			Log($"Stop({_invokeOnStopDelegates})");
-			if (!m_playing)
+			if (!IsPlaying)
 			{
 				Log("Not running, returning");
 				return;
@@ -312,7 +348,7 @@ namespace GuiToolkit
 		protected virtual void Update(float _timeDelta)
 		{
 			// first check running status.
-			if (!m_playing || m_pause)
+			if (!IsPlaying || m_pause)
 				return;
 
 			Log($"Update({_timeDelta})");
@@ -326,7 +362,7 @@ namespace GuiToolkit
 					Log("Not backwards playable -> stopping");
 					if (m_gotoStartOnBackwards)
 						OnAnimate(0);
-					m_playing = false;
+					IsPlaying = false;
 					FinishAnimation(true);
 					return;
 				}
@@ -335,8 +371,8 @@ namespace GuiToolkit
 				{
 					Log("Update backwards animation and return");
 					m_backwardsAnimation.Update(_timeDelta);
-					m_playing = m_backwardsAnimation.m_playing;
-					if (!m_playing)
+					m_playing = m_backwardsAnimation.IsPlaying;
+					if (!IsPlaying)
 						FinishAnimation(true);
 					return;
 				}
@@ -431,16 +467,18 @@ namespace GuiToolkit
 			if (m_backwardsAnimation != null)
 				m_backwardsAnimation.Stop(false);
 
-			m_playing = false;
+			IsPlaying = false;
 			m_pause = false;
 			OnStopAnimate();
 
 			if (_invokeOnStopDelegates)
 			{
-				m_onFinish?.Invoke();
-				m_onFinishOnce?.Invoke();
+				m_onFinish.Invoke();
+				Log("Invoke m_onFinishOnce listeners");
+				m_onFinishOnce.Invoke();
 			}
 
+			Log("m_onFinishOnce Remove All Listeners");
 			m_onFinishOnce.RemoveAllListeners();
 		}
 
@@ -462,7 +500,7 @@ namespace GuiToolkit
 
 			m_forwardsDelay = _completeForwardsDelay + m_delay;
 			m_backwardsDelay = m_completeBackwardsTime - m_forwardsDelay - m_duration;
-			m_playing = true;
+			IsPlaying = true;
 
 			if (m_backwards)
 			{
@@ -589,7 +627,10 @@ namespace GuiToolkit
 			}
 
 			if (_onFinishOnce != null)
+			{
+				Log("Add m_onFinishOnce listener");
 				m_onFinishOnce.AddListener(_onFinishOnce);
+			}
 
 			Play();
 		}
@@ -603,7 +644,10 @@ namespace GuiToolkit
 			}
 
 			if (_onFinishOnce != null)
+			{
+				Log("Add m_onFinishOnce listener");
 				m_onFinishOnce.AddListener(_onFinishOnce);
+			}
 			Play(true);
 		}
 
@@ -612,12 +656,13 @@ namespace GuiToolkit
 			if (!m_supportViewAnimations)
 				return;
 
+			Log("m_onFinishOnce Remove All Listeners");
 			m_onFinishOnce.RemoveAllListeners();
 			Reset(_visible);
 		}
 
 		[System.Diagnostics.Conditional("DEBUG_SIMPLE_ANIMATION")]
-		protected void Log(string _s)
+		public void Log(string _s)
 		{
 #if DEBUG_SIMPLE_ANIMATION
 				if (!m_debug)
