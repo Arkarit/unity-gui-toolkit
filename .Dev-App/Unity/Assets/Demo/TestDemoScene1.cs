@@ -43,7 +43,6 @@ public class TestDemoScene1 : UiView
 
 	private void OnLoadByAddressablesClicked()
 	{
-int bla = 10;
 		UiTransitionOverlay.Instance.FadeInOverlay(() =>
 		{
 			AssetLoader.Instance.LoadAsync(new UiPanelLoadInfo()
