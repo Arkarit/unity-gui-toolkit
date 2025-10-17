@@ -43,7 +43,9 @@ public class TestDemoScene1 : UiView
 
 	private void OnLoadByAddressablesClicked()
 	{
-		UiTransitionOverlay.Instance.FadeInOverlay(() =>
+		bool finished = false;
+		
+		UiTransitionOverlay.Instance.FadeInOutOverlay(() =>
 		{
 			AssetLoader.Instance.LoadAsync(new UiPanelLoadInfo()
 			{
@@ -51,17 +53,18 @@ public class TestDemoScene1 : UiView
 				InstantiationType = UiPanelLoadInfo.EInstantiationType.Pool,
 				OnSuccess = ( UiPanel _ ) =>
 				{
-					UiTransitionOverlay.Instance.FadeOutOverlay();
+					finished = true;
 					UiLog.Log("Success");
 				},
 				OnFail = ( UiPanelLoadInfo _loadInfo, Exception _ex ) =>
 				{
+					finished = true;
 					UiLog.LogError($"Fail: {_loadInfo.ToMultilineString()}");
 					if (_ex != null)
 						Debug.LogException(_ex);
 				}
 			});
-		});
+		}, () => finished);
 	}
 
 	private void OnShowDatePickerButton()
