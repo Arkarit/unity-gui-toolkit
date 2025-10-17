@@ -8,8 +8,7 @@ namespace GuiToolkit
 	{
 		[SerializeField] private float m_delayPerChild = 0;
 		[SerializeField] private bool m_autoCollectChildren = true;
-		
-		private readonly List<UiSimpleAnimationBase> m_childAnimations = new();
+		[SerializeField] private List<UiSimpleAnimationBase> m_childAnimations = new();
 		
 		// This event is invoked only if m_autoCollectChildren is false.
 		// You can collect the children in that case and set them via ChildAnimations
@@ -83,6 +82,7 @@ namespace GuiToolkit
 		public void InitChildren()
 		{
 			float delay = 0;
+			m_slaveAnimations.Clear();
 			foreach (var animation in m_childAnimations)
 			{
 				animation.Delay = delay;
@@ -106,6 +106,7 @@ namespace GuiToolkit
 			}
 			
 			ShouldCollectChildren.Invoke(this);
+			InitChildren();
 		}
 		
 		private void OnValidate()
