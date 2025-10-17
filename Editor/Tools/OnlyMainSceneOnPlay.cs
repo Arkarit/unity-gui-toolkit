@@ -29,11 +29,7 @@ namespace GuiToolkit
 			get => s_enabled;
 			set
 			{
-				if (value == s_enabled)
-					return;
-
 				s_enabled = value;
-
 				Menu.SetChecked(StringConstants.MAIN_SCENE_ON_PLAY_MENU_NAME, s_enabled);
 				EditorPrefs.SetBool(PrefsKey, s_enabled);
 			}
