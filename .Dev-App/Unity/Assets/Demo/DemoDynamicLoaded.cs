@@ -8,7 +8,12 @@ public class DemoDynamicLoaded : UiView
 
 	protected override void Awake()
 	{
-		m_closeButton.onClick.AddListener(()=> Hide());
+		m_closeButton.onClick.AddListener(OnCloseButtonClicked);
 		base.Awake();
+	}
+	
+	private void OnCloseButtonClicked()
+	{
+		UiTransitionOverlay.Instance.FadeInOutOverlay(() => Hide(true));
 	}
 }

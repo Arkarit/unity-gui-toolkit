@@ -156,6 +156,7 @@ namespace GuiToolkit
 		public const int CONFIG_MANAGER_MENU_PRIORITY = 0;
 		public const int SAVE_PROJECT_ON_LOSE_FOCUS_MENU_PRIORITY = 1000;
 		public const int SCENE_CHANGE_TRACKER_MENU_PRIORITY = 1010;
+		public const int MAIN_SCENE_ON_PLAY_MENU_NAME_PRIORITY = 1020;
 	}
 
 	/// \brief General string constants
@@ -175,6 +176,7 @@ namespace GuiToolkit
 		public const string LOCA_PLURAL_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update plurals when added a new language)";
 		public const string LOCA_PO_FIXER_MENU_NAME = MENU_HEADER + "Loca PO File Fixer (Sync .po <-> .po.txt files)";
 		public const string SCENE_CHANGE_TRACKER_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Scene Change Tracker";
+		public const string MAIN_SCENE_ON_PLAY_MENU_NAME = MENU_HEADER + "Only Main Scene on Play";
 		public const string SAVE_PROJECT_ON_LOSE_FOCUS_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Save Project on lose focus";
 		public const string CREATE_MAIN_STYLE_CONFIG = STYLES_HEADER + "Main Style Config";
 		public const string CREATE_ORIENTATION_DEPENDENT_STYLE_CONFIG = STYLES_HEADER + "Orientation Dependent Style Config";
@@ -192,7 +194,8 @@ namespace GuiToolkit
 
 		public const string CONFIG_MANAGER_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Config Manager...";
 		public const string CHECK_EXTERNAL_REQUIRED = MISC_TOOLS_MENU_HEADER + "Check open scenes for [MandatoryExternal] attributes";
-		public const string UI_PANEL_CONFIG = MENU_HEADER + "Panel Config";
+		public const string SCENE_MENU_GENERATOR_HEADER = MENU_HEADER + "Scenes/";
+		public const string SCENE_MENU_GENERATOR = SCENE_MENU_GENERATOR_HEADER + "(Re)Generate List";
 	}
 
 	/// \brief Builtin icon definitions

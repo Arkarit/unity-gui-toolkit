@@ -43,7 +43,15 @@ namespace GuiToolkit
 		public ESupport Support
 		{
 			get => m_support;
-			set { Stop(); m_support = value; }
+			set
+			{
+				if (m_support == value)
+					return;
+				
+				Stop(); 
+				m_support = value;
+				InitFlags();
+			}
 		}
 
 		public RectTransform Target
