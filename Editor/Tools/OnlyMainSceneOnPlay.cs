@@ -22,7 +22,7 @@ namespace GuiToolkit
 	{
 		private static bool s_enabled = false;
 
-		private static readonly string PrefsKey = StringConstants.PLAYER_PREFS_PREFIX + nameof(OnlyMainSceneOnPlay) + ".active";
+		private static readonly string PrefsKey = EditorGeneralUtility.GetPlayerPrefsProjectKey(nameof(OnlyMainSceneOnPlay), "active");
 		
 		private static bool IsEnabled
 		{

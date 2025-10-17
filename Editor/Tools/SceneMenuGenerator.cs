@@ -9,6 +9,7 @@ namespace GuiToolkit.Editor
 	[EditorAware]
 	public static class SceneMenuGenerator
 	{
+		private const int BASE_PRIO = 1500;
 		private const string TEMPLATE_NAME = "SceneMenuGeneratorTemplate";
 		private const string TEMPLATE_FILE_NAME = TEMPLATE_NAME + ".cs";
 		private const string CLASS_NAME = "GuiToolkitSceneMenu";
@@ -16,12 +17,12 @@ namespace GuiToolkit.Editor
 		
 		private const string TEMPLATE_MARKER = "/* TEMPLATE */";
 		private const string MENUENTRY_TEMPLATE =
-			"\t\t[MenuItem(StringConstants.SCENE_MENU_GENERATOR_HEADER + \"{0}\", false)]\n" +
+			"\t\t[MenuItem(StringConstants.SCENE_MENU_GENERATOR_HEADER + \"{0}/Replace\", false, {3})]\n" +
 			"\t\tprivate static void OpenScene_{1}() => OpenScene(\"{2}\", false);\n\n" +
-			"\t\t[MenuItem(StringConstants.SCENE_MENU_GENERATOR_HEADER + \"{0} (Additive)\", false)]\n" +
+			"\t\t[MenuItem(StringConstants.SCENE_MENU_GENERATOR_HEADER + \"{0}/Additive\", false, {4})]\n" +
 			"\t\tprivate static void OpenScene_{1}_Additive() => OpenScene(\"{2}\", true);\n\n\n";
 
-		[MenuItem(StringConstants.SCENE_MENU_GENERATOR, false, 1500)]
+		[MenuItem(StringConstants.SCENE_MENU_GENERATOR, false, BASE_PRIO)]
 		private static void Menu() => Generate();
 
 		private static void Generate()
@@ -72,7 +73,10 @@ namespace GuiToolkit.Editor
 		private static string GenerateMenuEntry( int _sceneIdx, string _sceneName, string _scenePath )
 		{
 			string sceneIdx = _sceneIdx.ToString();
-			return string.Format(MENUENTRY_TEMPLATE, _sceneName, sceneIdx, _scenePath);
+			string prio0 = (BASE_PRIO + _sceneIdx * 2 + 1).ToString();
+			string prio1 = (BASE_PRIO + _sceneIdx * 2 + 2).ToString();
+			
+			return string.Format(MENUENTRY_TEMPLATE, _sceneName, sceneIdx, _scenePath, prio0, prio1);
 		}
 
 		private static string LoadTemplate()

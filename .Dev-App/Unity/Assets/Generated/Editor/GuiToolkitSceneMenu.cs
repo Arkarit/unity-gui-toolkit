@@ -8,17 +8,17 @@ namespace GuiToolkit.Editor
 {
 	public static class GuiToolkitSceneMenu
 	{
-		[MenuItem(StringConstants.SCENE_MENU_GENERATOR_HEADER + "SampleScene", false)]
+		[MenuItem(StringConstants.SCENE_MENU_GENERATOR_HEADER + "SampleScene/Replace", false, 1501)]
 		private static void OpenScene_0() => OpenScene("Assets/Scenes/SampleScene.unity", false);
 
-		[MenuItem(StringConstants.SCENE_MENU_GENERATOR_HEADER + "SampleScene (Additive)", false)]
+		[MenuItem(StringConstants.SCENE_MENU_GENERATOR_HEADER + "SampleScene/Additive", false, 1502)]
 		private static void OpenScene_0_Additive() => OpenScene("Assets/Scenes/SampleScene.unity", true);
 
 
-		[MenuItem(StringConstants.SCENE_MENU_GENERATOR_HEADER + "DemoScene1", false)]
+		[MenuItem(StringConstants.SCENE_MENU_GENERATOR_HEADER + "DemoScene1/Replace", false, 1503)]
 		private static void OpenScene_1() => OpenScene("Assets/Scenes/DemoScene1.unity", false);
 
-		[MenuItem(StringConstants.SCENE_MENU_GENERATOR_HEADER + "DemoScene1 (Additive)", false)]
+		[MenuItem(StringConstants.SCENE_MENU_GENERATOR_HEADER + "DemoScene1/Additive", false, 1504)]
 		private static void OpenScene_1_Additive() => OpenScene("Assets/Scenes/DemoScene1.unity", true);
 
 
