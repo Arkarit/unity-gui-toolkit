@@ -59,13 +59,6 @@ namespace GuiToolkit.Editor
 			if (m_firstTimeInit)
 			{
 				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
-				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_LOAD_MAIN_SCENE_ON_PLAY, MessageType.Info);
-			}
-			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_loadMainSceneOnPlay"), true);
-
-			if (m_firstTimeInit)
-			{
-				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_LOAD_VIEW_IN_EVERY_SCENE, MessageType.Info);
 			}
 			

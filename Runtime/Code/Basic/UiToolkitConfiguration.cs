@@ -38,11 +38,6 @@ namespace GuiToolkit
 			+ "By setting the checkmark together with the shift key, cou can load a scene exclusively."
 			;
 
-		public const string HELP_LOAD_MAIN_SCENE_ON_PLAY =
-			  "When enabled, the main scene is loaded when you press play in the editor, and all other scenes are unloaded.\n" 
-			+ "After play, the scenes, which were previously loaded, are restored."
-			;
-		
 		public const string HELP_LOAD_VIEW_IN_EVERY_SCENE =
 			  "When a scene is loaded in editor, which is not the main scene, a view can be automatically loaded (e.g. a HUD).\n" 
 			+ "This is useful for editing scenes; you can start the scene directly and still have your HUD."
@@ -103,9 +98,6 @@ namespace GuiToolkit
 		[Tooltip(HELP_SCENES)]
 		[SerializeField] private SceneReference[] m_sceneReferences;
 
-		[Tooltip(HELP_LOAD_MAIN_SCENE_ON_PLAY)]
-		[SerializeField] private bool m_loadMainSceneOnPlay = false;
-		
 		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE)]
 		[SerializeField] private bool m_loadViewInEveryScene = false;
 		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE_EXCEPT_UI_MAIN_EXISTS)]
@@ -157,7 +149,6 @@ namespace GuiToolkit
 		public UiOrientationDependentStyleConfig UiOrientationDependentStyleConfig => m_uiOrientationDependentStyleConfig;
 		public CanvasScaler GlobalCanvasScalerTemplate => m_globalCanvasScalerTemplate;
 		public bool DebugLoca => m_debugLoca;
-		public bool LoadMainSceneOnPlay => m_loadMainSceneOnPlay;
 		public bool LoadViewInEveryScene => m_loadViewInEveryScene;
 		public UiMain UiMainPrefab => m_uiMainPrefab;
 		public UiView UiViewPrefab => m_uiViewPrefab;
@@ -233,7 +224,6 @@ namespace GuiToolkit
 		public override void OnEditorCreatedAsset()
 		{
 			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
-			m_loadMainSceneOnPlay = m_sceneReferences.Length > 0;
 		}
 
 		public string GetProjectScenePath(string _sceneName)
