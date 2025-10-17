@@ -25,12 +25,7 @@ namespace GuiToolkit
 				
 				m_autoCollectChildren = value;
 				if (m_autoCollectChildren)
-				{
 					CollectChildren();
-					return;
-				}
-				
-				m_childAnimations.Clear();
 			}
 		}
 		
@@ -74,7 +69,6 @@ namespace GuiToolkit
 			if (tf == null)
 				tf = transform;
 			
-			m_slaveAnimations.Clear();
 			tf.GetComponentsInDirectChildren(m_childAnimations);
 			InitChildren();
 		}
