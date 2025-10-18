@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,19 +26,34 @@ namespace GuiToolkit
 				
 				m_autoCollectChildren = value;
 				if (m_autoCollectChildren)
-				{
-					CollectChildren();
-					return;
-				}
-				
-				m_childAnimations.Clear();
+					CollectChildren(null, false);
 			}
 		}
 		
 		protected override void OnEnable()
 		{
+			// We need to wait for one frame for the children to also become enabled
+			if (m_autoOnEnable)
+			{
+				// But reset has to be done instantly; otherwise we see the unanimated items for one frame
+				if (m_autoCollectChildren)
+					CollectChildren(null, true);
+				Reset();
+				
+				StartCoroutine(AutoOnEnableDelayed());
+				return;
+			}
+			
 			base.OnEnable();
+		}
+		
+		IEnumerator AutoOnEnableDelayed()
+		{
+			yield return null;
+			
+			Log("auto on enable");
 			CollectChildrenOrInvokeEvent();
+			Play(IsBackwards);
 		}
 
 		private void OnTransformChildrenChanged()
@@ -69,13 +85,12 @@ namespace GuiToolkit
 			base.Play(_backwards, _onFinishOnce);
 		}
 
-		public void CollectChildren(Transform tf = null)
+		public void CollectChildren(Transform tf = null, bool _includeInactive = true)
 		{
 			if (tf == null)
 				tf = transform;
 			
-			m_slaveAnimations.Clear();
-			tf.GetComponentsInDirectChildren(m_childAnimations);
+			tf.GetComponentsInDirectChildren(m_childAnimations, _includeInactive);
 			InitChildren();
 		}
 
@@ -101,7 +116,7 @@ namespace GuiToolkit
 		{
 			if (m_autoCollectChildren)
 			{
-				CollectChildren();
+				CollectChildren(null, false);
 				return;
 			}
 			

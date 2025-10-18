@@ -240,7 +240,6 @@ namespace GuiToolkit
 			while (IsPlaying)
 				yield return 0;
 		}
-
 		
 		public virtual void Play(bool _backwards, Action _onFinishOnce)
 		{
