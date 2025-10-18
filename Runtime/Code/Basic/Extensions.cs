@@ -92,30 +92,33 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static void GetComponentsInDirectChildren<T>( this Transform _self, List<T> _list ) where T : Component
+		public static void GetComponentsInDirectChildren<T>( this Transform _self, List<T> _list, bool _includeInactive = true ) where T : Component
 		{
 			_list.Clear();
 
 			foreach (Transform child in _self)
 			{
+				if (!_includeInactive && !child.gameObject.activeInHierarchy)
+					continue;
+				
 				T component = child.GetComponent<T>();
 				if (component)
 					_list.Add(component);
 			}
 		}
 
-		public static void GetComponentsInDirectChildren<T>( this GameObject _self, List<T> _list ) where T : Component =>
-			GetComponentsInDirectChildren<T>(_self.transform, _list);
+		public static void GetComponentsInDirectChildren<T>( this GameObject _self, List<T> _list, bool _includeInactive = true ) where T : Component =>
+			GetComponentsInDirectChildren<T>(_self.transform, _list, _includeInactive);
 
-		public static List<T> GetComponentsInDirectChildren<T>( this Transform _self ) where T : Component
+		public static List<T> GetComponentsInDirectChildren<T>( this Transform _self, bool _includeInactive = true ) where T : Component
 		{
 			List<T> result = new();
-			GetComponentsInDirectChildren<T>(_self, result);
+			GetComponentsInDirectChildren<T>(_self, result, _includeInactive);
 			return result;
 		}
 
-		public static List<T> GetComponentsInDirectChildren<T>( this GameObject _self ) where T : Component =>
-			GetComponentsInDirectChildren<T>(_self.transform);
+		public static List<T> GetComponentsInDirectChildren<T>( this GameObject _self, bool _includeInactive = true ) where T : Component =>
+			GetComponentsInDirectChildren<T>(_self.transform, _includeInactive);
 
 		public static string GetPath( this GameObject _self, int _depth = 0, char _separator = '/' )
 		{
