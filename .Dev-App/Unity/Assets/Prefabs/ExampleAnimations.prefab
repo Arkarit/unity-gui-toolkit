@@ -1857,7 +1857,7 @@ MonoBehaviour:
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
-  m_autoStart: 1
+  m_autoStart: 0
   m_autoOnEnable: 1
   m_setOnStart: 1
   m_numberOfLoops: 0
@@ -3493,7 +3493,7 @@ PrefabInstance:
     - target: {fileID: 8806163725296523091, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
         type: 3}
       propertyPath: m_PresetInfoIsWorld
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

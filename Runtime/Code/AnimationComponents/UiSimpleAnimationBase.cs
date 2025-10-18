@@ -206,7 +206,7 @@ namespace GuiToolkit
 			{
 				Log("auto on enable");
 				Reset();
-				Play(m_backwards);
+				PlayDelayed(m_backwards);
 			}
 		}
 
@@ -241,6 +241,16 @@ namespace GuiToolkit
 				yield return 0;
 		}
 
+		public void PlayDelayed(bool _backwards = false, Action _onFinishOnce = null)
+		{
+			CoRoutineRunner.Instance.StartCoroutine(PlayDelayedCoroutine(_backwards, _onFinishOnce));
+		}
+		
+		private IEnumerator PlayDelayedCoroutine(bool _backwards, Action _onFinishOnce)
+		{
+			yield return null;
+			Play(_backwards, _onFinishOnce);
+		}
 		
 		public virtual void Play(bool _backwards, Action _onFinishOnce)
 		{
