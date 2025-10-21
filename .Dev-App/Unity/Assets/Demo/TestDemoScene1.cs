@@ -1,5 +1,6 @@
 ﻿using GuiToolkit;
 using System;
+using System.Threading.Tasks;
 using GuiToolkit.AssetHandling;
 using GuiToolkit.Style;
 using TMPro;
@@ -47,7 +48,7 @@ public class TestDemoScene1 : UiView
 	private void OnLoadByAddressablesClicked()
 	{
 		bool finished = false;
-		
+
 		UiTransitionOverlay.Instance.FadeInOutOverlay(() =>
 		{
 			AssetLoader.Instance.LoadAsync(new UiPanelLoadInfo()
@@ -106,7 +107,7 @@ public class TestDemoScene1 : UiView
 		exampleAnimationDialog.Show();
 	}
 
-	
+
 	protected override void OnEnable()
 	{
 		base.OnEnable();
@@ -151,10 +152,16 @@ public class TestDemoScene1 : UiView
 
 	private void OnCloseButtonClicked()
 	{
-		UiMain.Instance.YesNoRequester(gettext("Really Quit?"), gettext("Are you really really sure you want to quit?"), false, OnQuit, null);
+		var _ = OnCloseButtonClickedAsync();
+
+		async Task OnCloseButtonClickedAsync()
+		{
+			if (await UiMain.Instance.YesNoRequesterBlocking(gettext("Really Quit?"), gettext("Are you really really sure you want to quit?"), false))
+				DoQuit();
+		}
 	}
 
-	private void OnQuit()
+	private void DoQuit()
 	{
 		Hide(false, () => UiMain.Instance.Quit());
 	}
