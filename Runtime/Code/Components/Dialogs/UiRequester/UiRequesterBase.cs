@@ -106,6 +106,25 @@ namespace GuiToolkit
 			return m_requesterHandle;
 		}
 
+		// Waits until a button is clicked; returns button index (-1 = dismissed).
+		protected Task<int> DoDialogAwaitClickAsync( Options _options )
+		{
+			RequesterHandle handle = DoDialog(_options);
+			return handle.Clicked;
+		}
+
+		// Waits until the dialog is fully closed (outro finished),
+		// but still returns which button was clicked (-1 = dismissed).
+		protected async Task<int> DoDialogAwaitCloseAsync( Options _options )
+		{
+			RequesterHandle handle = DoDialog(_options);
+
+			int idx = await handle.Clicked;
+			await handle.Closed;
+
+			return idx;
+		}
+
 		protected override void OnDestroy()
 		{
 			base.OnDestroy();
@@ -128,7 +147,7 @@ namespace GuiToolkit
 				m_requesterHandle.MarkButton(-1);
 				m_requesterHandle.MarkClosed();
 			}
-			
+
 			m_requesterHandle = new RequesterHandle();
 			m_consumed = false;
 			SetAllButtonsInteractability(true);
