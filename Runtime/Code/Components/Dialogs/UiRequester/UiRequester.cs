@@ -22,7 +22,7 @@ namespace GuiToolkit
 		[SerializeField] protected TextMeshProUGUI m_text;
 		[SerializeField] protected TMP_InputField m_inputField;
 
-		public void Requester(Options _options) => DoDialog(_options);
+		public void Requester( Options _options ) => DoDialog(_options);
 
 		public void Requester( string _title, string _text, Options _options )
 		{
@@ -31,11 +31,18 @@ namespace GuiToolkit
 			DoDialog(_options);
 		}
 
-		public void OkRequester( string _title, string _text, UnityAction _onOk = null, string _okText = null, bool _allowOutsideTap = true )
+		public void OkRequester
+		(
+			string _title,
+			string _text,
+			UnityAction _onOk = null,
+			string _okText = null,
+			bool _allowOutsideTap = true
+		)
 		{
 			Options options = new Options
 			{
-				ButtonInfos = new ButtonInfo[] 
+				ButtonInfos = new ButtonInfo[]
 				{
 					new ButtonInfo {
 						Text = string.IsNullOrEmpty(_okText) ? __("Ok") : _okText,
@@ -47,16 +54,36 @@ namespace GuiToolkit
 				CloseButtonAction = _onOk,
 				Text = _text,
 			};
-			
-			Requester( _title, _text, options );
+
+			Requester(_title, _text, options);
 		}
 
-		public void YesNoRequester( string _title, string _text, bool _allowOutsideTap, UnityAction _onOk,
-			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
+		public void OkRequesterBlocking
+		(
+			string _title,
+			string _text,
+			string _okText = null,
+			bool _allowOutsideTap = true,
+			bool _waitForClose = true
+		)
+		{
+			//TODO
+		}
+		
+		public void YesNoRequester
+		( 
+			string _title, 
+			string _text, 
+			bool _allowOutsideTap, 
+			UnityAction _onOk,
+			UnityAction _onCancel = null, 
+			string _yesText = null, 
+			string _noText = null 
+		)
 		{
 			Options options = new Options
 			{
-				ButtonInfos = new ButtonInfo[] 
+				ButtonInfos = new ButtonInfo[]
 				{
 					new ButtonInfo {
 						Text = string.IsNullOrEmpty(_yesText) ? __("Yes") : _yesText,
@@ -75,15 +102,38 @@ namespace GuiToolkit
 				Text = _text,
 			};
 
-			Requester( _title, _text, options );
+			Requester(_title, _text, options);
 		}
 
-		public void OkCancelInputRequester( string _title, string _text, bool _allowOutsideTap,UnityAction<string> _onOk, UnityAction _onCancel = null, 
-			 string _placeholderText = null, string _inputText = null, string _yesText = null, string _noText = null )
+		public int YesNoRequesterBlocking
+		( 
+			string _title, 
+			string _text, 
+			bool _allowOutsideTap, 
+			bool _waitForClose = true,
+			string _yesText = null, 
+			string _noText = null 
+		)
+		{
+			//TODO
+		}
+
+		public void OkCancelInputRequester
+		( 
+			string _title, 
+			string _text, 
+			bool _allowOutsideTap, 
+			UnityAction<string> _onOk, 
+			UnityAction _onCancel = null,
+			string _placeholderText = null, 
+			string _inputText = null, 
+			string _yesText = null, 
+			string _noText = null 
+		)
 		{
 			Options options = new Options
 			{
-				ButtonInfos = new ButtonInfo[] 
+				ButtonInfos = new ButtonInfo[]
 				{
 					new ButtonInfo {
 						Text = string.IsNullOrEmpty(_yesText) ? __("Ok") : _yesText,
@@ -103,7 +153,22 @@ namespace GuiToolkit
 				PlaceholderText = _placeholderText,
 				InputText = _inputText,
 			};
-			Requester( _title, _text, options );
+			Requester(_title, _text, options);
+		}
+
+		public string OkCancelInputRequesterBlocking
+		( 
+			string _title, 
+			string _text, 
+			bool _allowOutsideTap, 
+			bool _waitForClose = true,
+			string _placeholderText = null, 
+			string _inputText = null, 
+			string _yesText = null, 
+			string _noText = null 
+		)
+		{
+			//TODO: Return input text on ok, null on cancel
 		}
 
 		public string GetInputText() => m_inputField.text;
