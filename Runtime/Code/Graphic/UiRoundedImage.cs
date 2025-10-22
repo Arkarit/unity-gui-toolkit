@@ -34,16 +34,16 @@ namespace GuiToolkit
 		public const float MaxFrameSize = 200;
 
 		public const float MinFadeSize = 0;
-		public const float MaxFadeSize = 30;
+		public const float MaxFadeSize = 200;
 
 		[Flags]
 		protected enum MaterialFlags
 		{
-			Enabled		= 0x01,
-			InvertMask	= 0x02,
-			Maskable	= 0x04,
+			Enabled = 0x01,
+			InvertMask = 0x02,
+			Maskable = 0x04,
 		}
-		
+
 		private enum Fade
 		{
 			None,
@@ -68,9 +68,9 @@ namespace GuiToolkit
 		}
 
 		[SerializeField] protected bool m_enabledInHierarchy;
-		
+
 		[SerializeField] protected Material m_disabledMaterial;
-		
+
 		[Tooltip("Corner segments. The more, the rounder. But keep an eye on performance; "
 				 + "more corner segments mean more triangles and longer creation time. "
 				 + "Between 5 and 10 should be sufficient for most tasks.")]
@@ -89,6 +89,9 @@ namespace GuiToolkit
 		[UnityEngine.Range(MinFadeSize, MaxFadeSize)]
 		[SerializeField] protected float m_fadeSize = 0;
 
+		[Tooltip("The Transparent color")]
+		[SerializeField] protected Color m_fadeColor = Color.clear;
+
 		[Tooltip("Invert stencil mask. Useful for cutouts.")]
 		[SerializeField] protected bool m_invertMask;
 
@@ -103,16 +106,16 @@ namespace GuiToolkit
 
 		[Tooltip("Fixed size")]
 		[SerializeField] protected Rect m_fixedSize = new Rect(-10, -10, 20, 20);
-		
+
 		[Tooltip("Ui Simple Gradient component. Mandatory if you want to use the 'SimpleGradientColors' getters+setters.")]
 		[SerializeField] protected UiGradientSimple m_gradientSimple;
 
-		
+
 		private static readonly List<Vertex> s_vertices = new();
 		private static readonly List<int[]> s_triangles = new();
-		
+
 		protected Material m_clonedMaterial;
-		
+
 		public int CornerSegments
 		{
 			get => m_cornerSegments;
@@ -164,9 +167,22 @@ namespace GuiToolkit
 			{
 				if (m_invertMask == value)
 					return;
-				
+
 				m_invertMask = value;
 				SetMaterialDirty();
+			}
+		}
+
+		public Color FadeColor
+		{
+			get => m_fadeColor;
+			set
+			{
+				if (m_fadeColor == value)
+					return;
+
+				m_fadeColor = value;
+				SetVerticesDirty();
 			}
 		}
 
@@ -202,8 +218,8 @@ namespace GuiToolkit
 				return result;
 			}
 		}
-		
-		public void SetSimpleGradientColors(Color _leftOrTop, Color _rightOrBottom)
+
+		public void SetSimpleGradientColors( Color _leftOrTop, Color _rightOrBottom )
 		{
 			if (m_gradientSimple == null)
 			{
@@ -216,25 +232,25 @@ namespace GuiToolkit
 		public (Color leftOrTop, Color rightOrBottom) GetSimpleGradientColors()
 		{
 			if (m_gradientSimple == null)
-				return (leftOrTop:Color.white, rightOrBottom:Color.white);
+				return (leftOrTop: Color.white, rightOrBottom: Color.white);
 			return m_gradientSimple.GetColors();
 		}
 
 
 		#region IEnableableInHierarchy
 		public bool IsEnableableInHierarchy => m_disabledMaterial;
-		bool IEnableableInHierarchy.StoreEnabledInHierarchy 
-		{ 
-			get => m_enabledInHierarchy; 
-			set => m_enabledInHierarchy = value; 
+		bool IEnableableInHierarchy.StoreEnabledInHierarchy
+		{
+			get => m_enabledInHierarchy;
+			set => m_enabledInHierarchy = value;
 		}
 		public bool EnabledInHierarchy
-		{ 
+		{
 			get => EnableableInHierarchyUtility.GetEnabledInHierarchy(this);
-			set => EnableableInHierarchyUtility.SetEnabledInHierarchy(this, value); 
+			set => EnableableInHierarchyUtility.SetEnabledInHierarchy(this, value);
 		}
 		public IEnableableInHierarchy[] Children => GetComponentsInChildren<IEnableableInHierarchy>();
-		public void OnEnabledInHierarchyChanged(bool _enabled) => SetMaterialDirty();
+		public void OnEnabledInHierarchyChanged( bool _enabled ) => SetMaterialDirty();
 		#endregion
 
 		protected override void OnDisable()
@@ -245,7 +261,7 @@ namespace GuiToolkit
 		}
 
 		private Material m_lastMaterial;
-		
+
 		public override Material materialForRendering
 		{
 			get
@@ -254,16 +270,16 @@ namespace GuiToolkit
 				var actualMaterial = (m_disabledMaterial && (currentMaterialFlags & MaterialFlags.Enabled) == 0) ?
 					m_disabledMaterial :
 					material;
-				
+
 				if (m_lastMaterial != actualMaterial)
 				{
 					m_clonedMaterial.SafeDestroyDelayed();
 					m_clonedMaterial = null;
 					m_lastMaterial = actualMaterial;
 				}
-				
+
 				Material result;
-				
+
 				bool needsClone = (currentMaterialFlags & MaterialFlags.InvertMask) != 0;
 				if (needsClone)
 				{
@@ -271,22 +287,22 @@ namespace GuiToolkit
 						m_clonedMaterial = Instantiate(actualMaterial);
 					actualMaterial = m_clonedMaterial;
 				}
-				
+
 				var savedMaterial = m_Material;
 				m_Material = actualMaterial;
 				result = base.materialForRendering;
 				m_Material = savedMaterial;
-				
+
 				if (result == null)
 					result = material;
-				
+
 				if (!maskable)
 					result.SetInt("_StencilComp", (int)CompareFunction.Always);
 				else if (m_invertMask)
 					result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
 				else
 					result.SetInt("_StencilComp", (int)CompareFunction.Equal);
-				
+
 				return result;
 			}
 		}
@@ -349,13 +365,13 @@ namespace GuiToolkit
 		{
 			get
 			{
-				return 
-					(EnabledInHierarchy ? MaterialFlags.Enabled : 0) | 
-					(InvertMask ? MaterialFlags.InvertMask : 0) | 
+				return
+					(EnabledInHierarchy ? MaterialFlags.Enabled : 0) |
+					(InvertMask ? MaterialFlags.InvertMask : 0) |
 					(maskable ? MaterialFlags.Maskable : 0);
 			}
 		}
-		
+
 		private void ApplyToMesh( Mesh _mesh )
 		{
 			var vertexCount = s_vertices.Count;
@@ -575,8 +591,6 @@ namespace GuiToolkit
 			if (_fade == Fade.None)
 				return;
 
-			var fadeColor = color;
-			fadeColor.a = 0;
 			float top = _rect.yMin;
 			float bottom = _rect.yMax;
 			float left = _rect.xMin;
@@ -599,7 +613,7 @@ namespace GuiToolkit
 
 				if (condition)
 				{
-					vertex.Color = fadeColor;
+					vertex.Color = m_fadeColor;
 				}
 			}
 		}
@@ -748,7 +762,7 @@ namespace GuiToolkit
 		private void AddTriangle( float _ax, float _ay, float _bx, float _by, float _cx, float _cy )
 		{
 			int startIndex = s_vertices.Count;
-
+			
 			AddVert(_ax, _ay, color);
 			AddVert(_bx, _by, color);
 			AddVert(_cx, _cy, color);
@@ -761,8 +775,6 @@ namespace GuiToolkit
 		private void AddQuad( Vector2 _posMin, Vector2 _posMax, QuadFade _fade = QuadFade.None, bool _left = false )
 		{
 			int startIndex = s_vertices.Count;
-			var fadeColor = color;
-			fadeColor.a = 0;
 
 			switch (_fade)
 			{
@@ -773,28 +785,28 @@ namespace GuiToolkit
 					AddVert(_posMax.x, _posMin.y, color);
 					break;
 				case QuadFade.Left:
-					AddVert(_posMin.x, _posMin.y, fadeColor);
-					AddVert(_posMin.x, _posMax.y, fadeColor);
+					AddVert(_posMin.x, _posMin.y, m_fadeColor);
+					AddVert(_posMin.x, _posMax.y, m_fadeColor);
 					AddVert(_posMax.x, _posMax.y, color);
 					AddVert(_posMax.x, _posMin.y, color);
 					break;
 				case QuadFade.Right:
 					AddVert(_posMin.x, _posMin.y, color);
 					AddVert(_posMin.x, _posMax.y, color);
-					AddVert(_posMax.x, _posMax.y, fadeColor);
-					AddVert(_posMax.x, _posMin.y, fadeColor);
+					AddVert(_posMax.x, _posMax.y, m_fadeColor);
+					AddVert(_posMax.x, _posMin.y, m_fadeColor);
 					break;
 				case QuadFade.Top:
 					AddVert(_posMin.x, _posMin.y, color);
-					AddVert(_posMin.x, _posMax.y, fadeColor);
-					AddVert(_posMax.x, _posMax.y, fadeColor);
+					AddVert(_posMin.x, _posMax.y, m_fadeColor);
+					AddVert(_posMax.x, _posMax.y, m_fadeColor);
 					AddVert(_posMax.x, _posMin.y, color);
 					break;
 				case QuadFade.Bottom:
-					AddVert(_posMin.x, _posMin.y, fadeColor);
+					AddVert(_posMin.x, _posMin.y, m_fadeColor);
 					AddVert(_posMin.x, _posMax.y, color);
 					AddVert(_posMax.x, _posMax.y, color);
-					AddVert(_posMax.x, _posMin.y, fadeColor);
+					AddVert(_posMax.x, _posMin.y, m_fadeColor);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(_fade), _fade, null);
@@ -814,15 +826,13 @@ namespace GuiToolkit
 		private void AddIrregularQuad( float _ax, float _ay, float _bx, float _by, float _cx, float _cy, float _dx, float _dy, Fade _fade )
 		{
 			int startIndex = s_vertices.Count;
-			var fadeColor = color;
-			fadeColor.a = 0;
 
-			var effectiveColor = _fade == Fade.Outer ? fadeColor : color;
+			var effectiveColor = _fade == Fade.Outer ? m_fadeColor : color;
 
 			AddVert(_ax, _ay, effectiveColor);
 			AddVert(_bx, _by, effectiveColor);
 
-			effectiveColor = _fade == Fade.Inner ? fadeColor : color;
+			effectiveColor = _fade == Fade.Inner ? m_fadeColor : color;
 
 			AddVert(_cx, _cy, effectiveColor);
 			AddVert(_dx, _dy, effectiveColor);
@@ -846,11 +856,11 @@ namespace GuiToolkit
 
 			return new Vector2(normalizedX, normalizedY);
 		}
-		
+
 		private void CheckSetterRange( string _name, float _value, float _min, float _max )
 		{
 			if (_value < _min || _value > _max)
 				throw new ArgumentOutOfRangeException($"{_name} is out of range; should be in the range of {_min}..{_max}, but is {_value}");
 		}
-	}
+			}
 }

@@ -25,6 +25,7 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_disabledMaterialProp;
 		protected SerializedProperty m_enabledInHierarchyProp;
 		protected SerializedProperty m_gradientSimpleProp;
+		protected SerializedProperty m_fadeColorProp;
 
 		protected virtual void OnEnable()
 		{
@@ -47,6 +48,7 @@ namespace GuiToolkit.Editor
 			m_disabledMaterialProp = serializedObject.FindProperty("m_disabledMaterial");
 			m_enabledInHierarchyProp = serializedObject.FindProperty("m_enabledInHierarchy");
 			m_gradientSimpleProp = serializedObject.FindProperty("m_gradientSimple");
+			m_fadeColorProp = serializedObject.FindProperty("m_fadeColor");
 		}
 
 		public override void OnInspectorGUI()
@@ -70,6 +72,7 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_radiusProp);
 			EditorGUILayout.PropertyField(m_frameSizeProp);
 			EditorGUILayout.PropertyField(m_fadeSizeProp);
+			EditorGUILayout.PropertyField(m_fadeColorProp);
 			EditorGUILayout.PropertyField(m_gradientSimpleProp);
 			
 			using (new EditorGUI.DisabledScope(!thisUiRoundedImage.maskable))
