@@ -762,7 +762,7 @@ namespace GuiToolkit
 		private void AddTriangle( float _ax, float _ay, float _bx, float _by, float _cx, float _cy )
 		{
 			int startIndex = s_vertices.Count;
-			
+
 			AddVert(_ax, _ay, color);
 			AddVert(_bx, _by, color);
 			AddVert(_cx, _cy, color);
@@ -848,13 +848,32 @@ namespace GuiToolkit
 
 		private Vector2 GetUv( float _x, float _y )
 		{
-			Rect r = rectTransform.rect;
-			Vector2 pivot = rectTransform.pivot;
+			if (sprite == null)
+				return Vector2.zero;
 
-			var normalizedX = _x / r.width + pivot.x;
-			var normalizedY = _y / r.height + pivot.y;
+			// Base Rect for Mesh
+			Rect r = Rect;
 
-			return new Vector2(normalizedX, normalizedY);
+			// UV-Rect within texture
+			Rect uvRect = sprite.textureRect;
+			Rect fullTex = sprite.textureRect;
+
+			if (sprite.packed && sprite.associatedAlphaSplitTexture == null)
+				fullTex = new Rect(0, 0, sprite.texture.width, sprite.texture.height);
+
+			float u = Mathf.Lerp(
+				uvRect.x / fullTex.width,
+				(uvRect.x + uvRect.width) / fullTex.width,
+				(_x - r.xMin) / r.width
+			);
+
+			float v = Mathf.Lerp(
+				uvRect.y / fullTex.height,
+				(uvRect.y + uvRect.height) / fullTex.height,
+				(_y - r.yMin) / r.height
+			);
+
+			return new Vector2(u, v);
 		}
 
 		private void CheckSetterRange( string _name, float _value, float _min, float _max )
@@ -862,5 +881,5 @@ namespace GuiToolkit
 			if (_value < _min || _value > _max)
 				throw new ArgumentOutOfRangeException($"{_name} is out of range; should be in the range of {_min}..{_max}, but is {_value}");
 		}
-			}
+	}
 }
