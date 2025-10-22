@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	public class UiTransitionOverlay : MonoBehaviour
+	public class UiTransitionOverlay : UiAbstractTransitionOverlay
 	{
 		public enum EFading
 		{
@@ -15,7 +15,7 @@ namespace GuiToolkit
 			FadedOut
 		}
 
-		private static UiTransitionOverlay s_instance;
+		private static UiAbstractTransitionOverlay s_instance;
 
 		[SerializeField][Mandatory] private UiSimpleAnimation m_animation;
 		[SerializeField][Mandatory] private CanvasGroup m_canvasGroup;
@@ -23,26 +23,36 @@ namespace GuiToolkit
 
 		private EFading m_state = EFading.FadedOut;
 
-		public static UiTransitionOverlay Instance
+		public static UiAbstractTransitionOverlay Instance
 		{
 			get
 			{
 				if (s_instance == null)
 				{
-					s_instance = UiToolkitConfiguration.Instance.TransitionOverlay;
-
-					// For convenience, we create a fallback game object (black, .5s fade)
-					if (s_instance == null)
+					if (UiToolkitConfiguration.Instance.TransitionOverlay != null)
+					{
+						var go = Instantiate(UiToolkitConfiguration.Instance.TransitionOverlay.gameObject);
+						s_instance = go.GetComponent<UiAbstractTransitionOverlay>();
+					}
+					else
+					{
 						s_instance = BuildFallbackOverlay();
+					}
 				}
 
 				return s_instance;
 			}
 
-			set => s_instance = value;
+			set
+			{
+				if (s_instance)
+					Destroy(s_instance.gameObject);
+				
+				s_instance = value;
+			}
 		}
 
-		public void FadeInOutOverlay( Action _onFadedIn, Func<bool> _readyForFadeOut = null, Action _onFadedOut = null )
+		public override void FadeInOutOverlay( Action _onFadedIn, Func<bool> _readyForFadeOut = null, Action _onFadedOut = null )
 		{
 			FadeInOverlay(() =>
 			{
@@ -69,7 +79,7 @@ namespace GuiToolkit
 			});
 		}
 
-		public void FadeInOverlay( Action _onFadedIn = null, bool _instant = false )
+		public override void FadeInOverlay( Action _onFadedIn = null, bool _instant = false )
 		{
 			if (m_state == EFading.FadedIn)
 			{
@@ -106,7 +116,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public void FadeOutOverlay( Action _onFadedOut = null, bool _instant = false )
+		public override void FadeOutOverlay( Action _onFadedOut = null, bool _instant = false )
 		{
 			if (m_state == EFading.FadedOut)
 			{

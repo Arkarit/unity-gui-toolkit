@@ -154,7 +154,7 @@ namespace GuiToolkit
 		public UiView UiViewPrefab => m_uiViewPrefab;
 		public bool ExceptUiMainExists => m_exceptUiMainExists;
 		public AbstractAssetProviderFactory[] AssetProviderFactories => m_assetProviderFactories;
-		public UiTransitionOverlay TransitionOverlay => m_transitionOverlay;
+		public UiAbstractTransitionOverlay TransitionOverlay => m_transitionOverlay;
 		
 	
 		public string GetScenePath(string _sceneName)
