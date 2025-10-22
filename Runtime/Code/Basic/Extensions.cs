@@ -1082,6 +1082,20 @@ namespace GuiToolkit
 		}
 
 		public static bool GetPasswordDisplay( this InputField _inputField) => _inputField.contentType == InputField.ContentType.Password;
+		
+		public static void InvokeDelayed(this Action _action)
+		{
+			if (_action == null)
+				return;
+			
+			CoRoutineRunner.Instance.StartCoroutine(InvokeActionDelayedCoroutine(_action));
+		}
+		
+		private static IEnumerator InvokeActionDelayedCoroutine(Action _action)
+		{
+			yield return null;
+			_action?.Invoke();
+		}
 	}
 
 
