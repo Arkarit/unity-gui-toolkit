@@ -10,6 +10,7 @@ namespace GuiToolkit
 		[SerializeField] private float m_delayPerChild = 0;
 		[SerializeField] private bool m_autoCollectChildren = true;
 		[SerializeField] private List<UiSimpleAnimationBase> m_childAnimations = new();
+		[SerializeField][Optional] private RectTransform m_container;
 		
 		// This event is invoked only if m_autoCollectChildren is false.
 		// You can collect the children in that case and set them via ChildAnimations
@@ -26,7 +27,7 @@ namespace GuiToolkit
 				
 				m_autoCollectChildren = value;
 				if (m_autoCollectChildren)
-					CollectChildren(null, false);
+					CollectChildren(m_container, false);
 			}
 		}
 		
@@ -37,7 +38,7 @@ namespace GuiToolkit
 			{
 				// But reset has to be done instantly; otherwise we see the unanimated items for one frame
 				if (m_autoCollectChildren)
-					CollectChildren(null, true);
+					CollectChildren(m_container, true);
 				Reset();
 				
 				StartCoroutine(AutoOnEnableDelayed());
@@ -116,7 +117,7 @@ namespace GuiToolkit
 		{
 			if (m_autoCollectChildren)
 			{
-				CollectChildren(null, false);
+				CollectChildren(m_container, false);
 				return;
 			}
 			
