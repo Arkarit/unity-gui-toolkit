@@ -14,6 +14,10 @@ public class DemoDynamicLoaded : UiView
 	
 	private void OnCloseButtonClicked()
 	{
-		UiTransitionOverlay.Instance.FadeInOutOverlay(() => Hide(true));
+		UiTransitionOverlay.Instance.FadeInOverlay(() =>
+		{
+			Hide(true);
+			UiTransitionOverlay.Instance.FadeOutOverlay();
+		});
 	}
 }

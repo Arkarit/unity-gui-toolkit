@@ -52,33 +52,6 @@ namespace GuiToolkit
 			}
 		}
 
-		public override void FadeInOutOverlay( Action _onFadedIn, Func<bool> _readyForFadeOut = null, Action _onFadedOut = null )
-		{
-			FadeInOverlay(() =>
-			{
-				_onFadedIn?.Invoke();
-				if (_readyForFadeOut == null)
-				{
-					FadeOutOverlay(() =>
-					{
-						_onFadedOut?.Invoke();
-					});
-					return;
-				}
-
-				CoRoutineRunner.Instance.StartCoroutine(FadeOutWhenReady(_readyForFadeOut, _onFadedOut));
-			});
-		}
-
-		private IEnumerator FadeOutWhenReady( Func<bool> _readyForFadeOut, Action _onFadedOut )
-		{
-			yield return new WaitUntil(() => _readyForFadeOut());
-			FadeOutOverlay(() =>
-			{
-				_onFadedOut?.Invoke();
-			});
-		}
-
 		public override void FadeInOverlay( Action _onFadedIn = null, bool _instant = false )
 		{
 			if (m_state == EFading.FadedIn)
@@ -110,7 +83,8 @@ namespace GuiToolkit
 			void OnFinish()
 			{
 				m_animation.Log("OnFinish FadeInOverlay()");
-				_onFadedIn?.Invoke();
+				
+				_onFadedIn?.InvokeDelayed();
 				m_state = EFading.FadedIn;
 				m_animation.OnFinish.RemoveListener(OnFinish);
 			}
@@ -147,7 +121,7 @@ namespace GuiToolkit
 			{
 				m_animation.Log("OnFinish FadeOutOverlay()");
 				SetBlocking(false);
-				_onFadedOut?.Invoke();
+				_onFadedOut?.InvokeDelayed();
 				m_state = EFading.FadedOut;
 				m_animation.OnFinish.RemoveListener(OnFinish);
 			}
