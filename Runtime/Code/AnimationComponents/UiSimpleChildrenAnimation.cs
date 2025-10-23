@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,8 +9,8 @@ namespace GuiToolkit
 	{
 		[SerializeField] private float m_delayPerChild = 0;
 		[SerializeField] private bool m_autoCollectChildren = true;
-		
-		private readonly List<UiSimpleAnimationBase> m_childAnimations = new();
+		[SerializeField] private List<UiSimpleAnimationBase> m_childAnimations = new();
+		[SerializeField][Optional] private RectTransform m_container;
 		
 		// This event is invoked only if m_autoCollectChildren is false.
 		// You can collect the children in that case and set them via ChildAnimations
@@ -26,19 +27,34 @@ namespace GuiToolkit
 				
 				m_autoCollectChildren = value;
 				if (m_autoCollectChildren)
-				{
-					CollectChildren();
-					return;
-				}
-				
-				m_childAnimations.Clear();
+					CollectChildren(m_container, false);
 			}
 		}
 		
 		protected override void OnEnable()
 		{
+			// We need to wait for one frame for the children to also become enabled
+			if (m_autoOnEnable)
+			{
+				// But reset has to be done instantly; otherwise we see the unanimated items for one frame
+				if (m_autoCollectChildren)
+					CollectChildren(m_container, true);
+				Reset();
+				
+				StartCoroutine(AutoOnEnableDelayed());
+				return;
+			}
+			
 			base.OnEnable();
+		}
+		
+		IEnumerator AutoOnEnableDelayed()
+		{
+			yield return null;
+			
+			Log("auto on enable");
 			CollectChildrenOrInvokeEvent();
+			Play(IsBackwards);
 		}
 
 		private void OnTransformChildrenChanged()
@@ -70,19 +86,19 @@ namespace GuiToolkit
 			base.Play(_backwards, _onFinishOnce);
 		}
 
-		public void CollectChildren(Transform tf = null)
+		public void CollectChildren(Transform tf = null, bool _includeInactive = true)
 		{
 			if (tf == null)
 				tf = transform;
 			
-			m_slaveAnimations.Clear();
-			tf.GetComponentsInDirectChildren(m_childAnimations);
+			tf.GetComponentsInDirectChildren(m_childAnimations, _includeInactive);
 			InitChildren();
 		}
 
 		public void InitChildren()
 		{
 			float delay = 0;
+			m_slaveAnimations.Clear();
 			foreach (var animation in m_childAnimations)
 			{
 				animation.Delay = delay;
@@ -101,11 +117,12 @@ namespace GuiToolkit
 		{
 			if (m_autoCollectChildren)
 			{
-				CollectChildren();
+				CollectChildren(m_container, false);
 				return;
 			}
 			
 			ShouldCollectChildren.Invoke(this);
+			InitChildren();
 		}
 		
 		private void OnValidate()

@@ -215,7 +215,7 @@ namespace GuiToolkit
 		)]
 		[SerializeField] bool m_autoLoadResources;
 		
-		private readonly List<CanonicalAssetKey> m_resources = new();
+		private readonly List<CanonicalAssetKey> m_panelResources = new();
 
 		// All loaded handles for this element (lifecycle-bound to this panel)
 		private readonly List<IAssetHandle<Object>> m_handles = new();
@@ -230,7 +230,7 @@ namespace GuiToolkit
 		protected List<Object> LoadedAssets => m_loadedAssets;
 
 		// Subclass defines which assets it needs (ids + expected type)
-		protected virtual List<CanonicalAssetKey> Resources => m_resources;
+		protected virtual List<CanonicalAssetKey> PanelResources => m_panelResources;
 
 		// Called after all assets are loaded successfully (and not cancelled)
 		protected virtual void OnAssetsLoaded() { }
@@ -241,7 +241,7 @@ namespace GuiToolkit
 		
 		internal void OnAssetLoadFailedInternal(Exception _ex ) => OnAssetLoadFailed(_ex);
 
-		public bool NeedsResources => Resources != null && Resources.Count > 0;
+		public bool NeedsResources => PanelResources != null && PanelResources.Count > 0;
 
 		/// <summary>
 		/// Starts async loading of all declared 'resources'.
@@ -267,15 +267,15 @@ namespace GuiToolkit
 				return;
 			}
 
-			var list = Resources;
+			var list = PanelResources;
 
 			m_cts = new CancellationTokenSource();
 			var _ = LoadAllResourcesAsync(list, m_cts.Token);
 		}
 
-		protected void AddResource(CanonicalAssetKey _key) => Resources.Add(_key);
-		protected void RemoveResource(CanonicalAssetKey _key) => Resources.Remove(_key);
-		protected void ClearResources() => Resources.Clear();
+		protected void AddResource(CanonicalAssetKey _key) => PanelResources.Add(_key);
+		protected void RemoveResource(CanonicalAssetKey _key) => PanelResources.Remove(_key);
+		protected void ClearResources() => PanelResources.Clear();
 		
 		protected T GetAsset<T>( int _index ) where T : Object
 		{
@@ -371,17 +371,15 @@ namespace GuiToolkit
 		public bool Visible { get; private set; }
 
 		/// <summary>
-		/// Returns the concrete simple animation component if present.
-		/// Null if m_showHideAnimation is not a UiSimpleAnimation.
+		/// Returns the simple animation component if present.
+		/// Null if m_showHideAnimation is not a UiSimpleAnimationBase.
 		/// </summary>
 		public UiSimpleAnimationBase SimpleShowHideAnimation
 		{
 			get
 			{
 				InitAnimationIfNecessary();
-				if (m_showHideAnimation is UiSimpleAnimation)
-					return (UiSimpleAnimation)m_showHideAnimation;
-				return null;
+				return m_showHideAnimation as UiSimpleAnimationBase;
 			}
 		}
 

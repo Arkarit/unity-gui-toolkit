@@ -47,7 +47,7 @@ namespace GuiToolkit
 			{
 				if (m_support == value)
 					return;
-
+				
 				Stop(); 
 				m_support = value;
 				InitFlags();

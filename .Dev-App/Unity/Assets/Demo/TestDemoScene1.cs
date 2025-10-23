@@ -1,5 +1,6 @@
 ﻿using GuiToolkit;
 using System;
+using System.Threading.Tasks;
 using GuiToolkit.AssetHandling;
 using GuiToolkit.Style;
 using TMPro;
@@ -15,6 +16,7 @@ public class TestDemoScene1 : UiView
 	public Button m_showRequesterButton;
 	public Button m_showSettings;
 	public Button m_exampleDialogStylesButton;
+	public Button m_exampleAnimationButton;
 	public Button m_showDatePickerButton;
 	public Button m_loadByAddressablesButton;
 
@@ -23,8 +25,9 @@ public class TestDemoScene1 : UiView
 	public TMP_InputField m_requesterTextInput;
 
 	public TMP_Text m_singularPluralTest;
-	
+
 	public ExampleDialogStyles m_exampleDialogStylesPrefab;
+	public ExampleAnimations m_exampleAnimationsPrefab;
 
 	protected override bool NeedsLanguageChangeCallback => true;
 
@@ -37,23 +40,37 @@ public class TestDemoScene1 : UiView
 		m_showRequesterButton.onClick.AddListener(OnShowRequester);
 		m_showSettings.onClick.AddListener(OnShowSettings);
 		m_exampleDialogStylesButton.onClick.AddListener(OnExampleDialogStylesButton);
+		m_exampleAnimationButton.onClick.AddListener(OnExampleAnimationButton);
 		m_showDatePickerButton.onClick.AddListener(OnShowDatePickerButton);
 		m_loadByAddressablesButton.onClick.AddListener(OnLoadByAddressablesClicked);
 	}
 
 	private void OnLoadByAddressablesClicked()
 	{
-		AssetLoader.Instance.LoadAsync(new UiPanelLoadInfo()
+		bool finished = false;
+
+		UiTransitionOverlay.Instance.FadeInOverlay(() =>
 		{
-			PanelType = typeof(DemoDynamicLoaded),
-			InstantiationType = UiPanelLoadInfo.EInstantiationType.Pool,
-			OnSuccess = (UiPanel _) => UiLog.Log("Success"),
-			OnFail = (UiPanelLoadInfo _loadInfo, Exception _ex) =>
+			AssetLoader.Instance.LoadAsync(new UiPanelLoadInfo()
 			{
-				UiLog.LogError($"Fail: {_loadInfo.ToMultilineString()}");
-				if (_ex != null)
-					Debug.LogException(_ex);
-			}
+				PanelType = typeof(DemoDynamicLoaded),
+				InstantiationType = UiPanelLoadInfo.EInstantiationType.Pool,
+				OnSuccess = ( UiPanel _ ) =>
+				{
+					finished = true;
+					UiLog.Log("Success");
+					UiTransitionOverlay.Instance.FadeOutOverlay();
+				},
+				OnFail = ( UiPanelLoadInfo _loadInfo, Exception _ex ) =>
+				{
+					finished = true;
+					UiLog.LogError($"Fail: {_loadInfo.ToMultilineString()}");
+					if (_ex != null)
+						Debug.LogException(_ex);
+					UiTransitionOverlay.Instance.FadeOutOverlay();
+				}
+			});
+			
 		});
 	}
 
@@ -69,12 +86,13 @@ public class TestDemoScene1 : UiView
 					("Ok", () =>
 					{
 						UiLog.Log($"Selected date / time: {requester.GetDateTime()}");
-					}),
+					}
+				),
 					("Cancel", null)
 				),
 				DateTimeOptions = new UiDateTimePanel.Options()
 				{
-//					ShowTime = false,
+					//					ShowTime = false,
 				}
 			};
 		});
@@ -85,6 +103,13 @@ public class TestDemoScene1 : UiView
 		var exampleDialogStylesDialog = UiMain.Instance.CreateView(m_exampleDialogStylesPrefab);
 		exampleDialogStylesDialog.Show();
 	}
+
+	private void OnExampleAnimationButton()
+	{
+		var exampleAnimationDialog = UiMain.Instance.CreateView(m_exampleAnimationsPrefab);
+		exampleAnimationDialog.Show();
+	}
+
 
 	protected override void OnEnable()
 	{
@@ -130,10 +155,16 @@ public class TestDemoScene1 : UiView
 
 	private void OnCloseButtonClicked()
 	{
-		UiMain.Instance.YesNoRequester(gettext("Really Quit?"), gettext("Are you really really sure you want to quit?"), false, OnQuit, null );
+		var _ = OnCloseButtonClickedAsync();
+
+		async Task OnCloseButtonClickedAsync()
+		{
+			if (await UiMain.Instance.YesNoRequesterBlocking(gettext("Really Quit?"), gettext("Are you really really sure you want to quit?"), false))
+				DoQuit();
+		}
 	}
 
-	private void OnQuit()
+	private void DoQuit()
 	{
 		Hide(false, () => UiMain.Instance.Quit());
 	}

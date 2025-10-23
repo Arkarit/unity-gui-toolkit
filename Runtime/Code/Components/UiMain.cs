@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
@@ -331,23 +332,88 @@ namespace GuiToolkit
 			Debug.Assert(requester);
 			requester.OkRequester(_title, _text, _onOk, _okText, _allowOutsideTap);
 		}
+		
+		public async Task OkRequesterBlocking
+		(
+			string _title,
+			string _text,
+			string _okText = null,
+			bool _allowOutsideTap = true,
+			bool _waitForClose = true
+		)
+		{
+			UiRequester requester = CreateView(m_requesterPrefab);
+			Debug.Assert(requester);
+			await requester.OkRequesterBlocking(_title, _text, _okText, _allowOutsideTap, _waitForClose);
+		}
 
-		public void YesNoRequester( string _title, string _text, bool _allowOutsideTap, UnityAction _onOk,
-			UnityAction _onCancel = null, string _yesText = null, string _noText = null )
+		public void YesNoRequester
+		( 
+			string _title, 
+			string _text, 
+			bool _allowOutsideTap, 
+			UnityAction _onOk,
+			UnityAction _onCancel = null, 
+			string _yesText = null, 
+			string _noText = null 
+		)
 		{
 			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.YesNoRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText);
 		}
+		
+		public async Task<bool> YesNoRequesterBlocking
+		(
+			string _title,
+			string _text,
+			bool _allowOutsideTap = true,
+			bool _waitForClose = true,
+			string _yesText = null,
+			string _noText = null
+		)
+		{
+			UiRequester requester = CreateView(m_requesterPrefab);
+			Debug.Assert(requester);
+			return await requester.YesNoRequesterBlocking(_title, _text, _allowOutsideTap, _waitForClose, _yesText, _noText);
+		}
 
-		public void OkCancelInputRequester( string _title, string _text, bool _allowOutsideTap,UnityAction<string> _onOk, UnityAction _onCancel = null, 
-			 string _placeholderText = null, string _inputText = null, string _yesText = null, string _noText = null )
+		public void OkCancelInputRequester
+		( 
+			string _title, 
+			string _text, 
+			bool _allowOutsideTap,
+			UnityAction<string> _onOk, 
+			UnityAction _onCancel = null, 
+			string _placeholderText = null, 
+			string _inputText = null, 
+			string _yesText = null, 
+			string _noText = null 
+		)
 		{
 			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
 			requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _placeholderText, _inputText, _yesText, _noText);
 		}
 
+		// Blocking: returns input on OK, null on cancel/dismiss
+		public async Task<string> OkCancelInputRequesterBlocking
+		(
+			string _title,
+			string _text,
+			bool _allowOutsideTap,
+			bool _waitForClose = true,
+			string _placeholderText = null,
+			string _inputText = null,
+			string _yesText = null,
+			string _noText = null
+		)
+		{
+			UiRequester requester = CreateView(m_requesterPrefab);
+			Debug.Assert(requester);
+			return await requester.OkCancelInputRequesterBlocking(_title, _text, _allowOutsideTap, _waitForClose, _placeholderText, _inputText, _yesText, _noText);
+		}
+		
 		public void KeyPressRequester( UnityAction<KeyCode> _onEvent )
 		{
 			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
