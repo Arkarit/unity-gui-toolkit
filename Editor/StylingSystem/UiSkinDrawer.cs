@@ -69,19 +69,19 @@ namespace GuiToolkit.Style.Editor
 
 				if (m_thisUiSkin.IsOrientationDependent)
 				{
-					IncreaseX(-460);
+					IncreaseX(-490);
 					LabelField("Aspect Ratio >= ");
 					IncreaseX(100);
 
 					float before = m_aspectRatioGEProp.floatValue;
-					float after = Float(before, 40);
+					float after = Float(before, 80);
 					if (!Mathf.Approximately(before, after))
 					{
 						m_aspectRatioGEProp.floatValue = after;
 						EditorGeneralUtility.SetDirty(styleConfig);
 					}
 
-					IncreaseX(50);
+					IncreaseX(80);
 				}
 				else
 				{
