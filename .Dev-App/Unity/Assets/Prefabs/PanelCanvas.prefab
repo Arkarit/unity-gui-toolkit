@@ -143,6 +143,7 @@ MonoBehaviour:
   EvOnDestroyed:
     m_PersistentCalls:
       m_Calls: []
+  m_autoLoadResources: 0
   m_layer: 1000
   m_isFullScreen: 0
   m_hideOnOccludedByFullScreen: 1
@@ -5453,6 +5454,8 @@ MonoBehaviour:
   m_name: Text/Flowing
   m_fixedSkinName: 
   m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []
@@ -5476,6 +5479,8 @@ MonoBehaviour:
   m_name: Text/Flowing/Medium
   m_fixedSkinName: 
   m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []
@@ -5910,6 +5915,7 @@ MonoBehaviour:
   EvOnDestroyed:
     m_PersistentCalls:
       m_Calls: []
+  m_autoLoadResources: 0
   m_layer: 1000
   m_isFullScreen: 0
   m_hideOnOccludedByFullScreen: 1
@@ -6331,6 +6337,8 @@ MonoBehaviour:
   m_name: Text/Background
   m_fixedSkinName: 
   m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []

@@ -19,6 +19,7 @@ public class TestDemoScene1 : UiView
 	public Button m_exampleAnimationButton;
 	public Button m_showDatePickerButton;
 	public Button m_loadByAddressablesButton;
+	public Button m_exampleResDepStylesButton;
 
 	public TMP_InputField m_splashMessageInput;
 	public TMP_InputField m_requesterTitleInput;
@@ -28,6 +29,7 @@ public class TestDemoScene1 : UiView
 
 	public ExampleDialogStyles m_exampleDialogStylesPrefab;
 	public ExampleAnimations m_exampleAnimationsPrefab;
+	public ExampleResDepStyles m_exampleResDepStylesPrefab;
 
 	protected override bool NeedsLanguageChangeCallback => true;
 
@@ -43,6 +45,13 @@ public class TestDemoScene1 : UiView
 		m_exampleAnimationButton.onClick.AddListener(OnExampleAnimationButton);
 		m_showDatePickerButton.onClick.AddListener(OnShowDatePickerButton);
 		m_loadByAddressablesButton.onClick.AddListener(OnLoadByAddressablesClicked);
+		m_exampleResDepStylesButton.onClick.AddListener(OnResDepStylesClicked);
+	}
+
+	private void OnResDepStylesClicked()
+	{
+		var exampleResDepStyles = UiMain.Instance.CreateView(m_exampleResDepStylesPrefab);
+		exampleResDepStyles.Show();
 	}
 
 	private void OnLoadByAddressablesClicked()
@@ -70,7 +79,6 @@ public class TestDemoScene1 : UiView
 					UiTransitionOverlay.Instance.FadeOutOverlay();
 				}
 			});
-			
 		});
 	}
 
