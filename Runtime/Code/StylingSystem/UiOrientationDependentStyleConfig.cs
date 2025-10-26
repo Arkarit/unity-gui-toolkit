@@ -27,13 +27,22 @@ namespace GuiToolkit.Style
 				if (instance.NumSkins == 0)
 				{
 					var skins = s_instance.Skins;
-					skins.Add(new UiSkin(s_instance, Landscape));
-					skins.Add(new UiSkin(s_instance, Portrait));
+					skins.Add(new UiSkin(s_instance, Landscape, 1));
+					skins.Add(new UiSkin(s_instance, Portrait, 0));
 					s_instance.Skins = skins;
 				}
 
+				Skins.Sort((a, b) =>
+				{
+					if (a.AspectRatioGreaterEqual > b.AspectRatioGreaterEqual)
+						return -1;
+					if (b.AspectRatioGreaterEqual > a.AspectRatioGreaterEqual) 
+						return 1;
+					return 0;
+				});
+
 				base.OnEnable();
-				UiEventDefinitions.EvScreenOrientationChange.AddListener(OnScreenOrientationChange);
+				UiEventDefinitions.EvScreenOrientationChange.AddListener(OnScreenOrientationChange, true);
 			});
 		}
 
@@ -45,7 +54,26 @@ namespace GuiToolkit.Style
 
 		private void OnScreenOrientationChange( ScreenOrientation _before, ScreenOrientation _after )
 		{
-			Instance.CurrentSkinName = _after.IsLandscape ? Landscape : Portrait;
+			var bestMatchingSkin = FindBestMatchingSkin(_after);
+			if ( bestMatchingSkin == null )
+				return;
+
+			if (bestMatchingSkin != Instance.CurrentSkin )
+				CurrentSkinName = bestMatchingSkin.Name;
+		}
+
+		private UiSkin FindBestMatchingSkin(ScreenOrientation _screenOrientation)
+		{
+			if (_screenOrientation.AspectRatio == 0)
+				return null;
+
+			foreach (var uiSkin in Skins)
+			{
+				if (uiSkin.AspectRatioGreaterEqual < _screenOrientation.AspectRatio)
+					return uiSkin;
+			}
+
+			return Skins[0];
 		}
 
 		public static UiOrientationDependentStyleConfig Instance

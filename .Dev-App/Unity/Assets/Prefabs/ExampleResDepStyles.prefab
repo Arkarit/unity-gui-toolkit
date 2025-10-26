@@ -11,7 +11,7 @@ PrefabInstance:
     - target: {fileID: 7494938938897100992, guid: 9d3b6bdd5a611474f98dec479689c68f,
         type: 3}
       propertyPath: m_text
-      value: 'Current Skin: Lorem Ipsum'
+      value: <b>Aspect Ratio:</b> 1.22
       objectReference: {fileID: 0}
     - target: {fileID: 7494938938897100992, guid: 9d3b6bdd5a611474f98dec479689c68f,
         type: 3}
@@ -56,7 +56,7 @@ PrefabInstance:
     - target: {fileID: 7494938938897100992, guid: 9d3b6bdd5a611474f98dec479689c68f,
         type: 3}
       propertyPath: m_HorizontalAlignment
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7494938938897100992, guid: 9d3b6bdd5a611474f98dec479689c68f,
         type: 3}
@@ -66,12 +66,12 @@ PrefabInstance:
     - target: {fileID: 7494938938897101021, guid: 9d3b6bdd5a611474f98dec479689c68f,
         type: 3}
       propertyPath: m_Name
-      value: TxtCurrentSkin
+      value: AspectRatioText
       objectReference: {fileID: 0}
     - target: {fileID: 7494938938897101021, guid: 9d3b6bdd5a611474f98dec479689c68f,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7494938938897101022, guid: 9d3b6bdd5a611474f98dec479689c68f,
         type: 3}
@@ -184,6 +184,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 5430973355160583130}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2548454908726692634 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7494938938897100992, guid: 9d3b6bdd5a611474f98dec479689c68f,
+    type: 3}
+  m_PrefabInstance: {fileID: 5430973355160583130}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &6054558194278600427
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -549,6 +561,8 @@ MonoBehaviour:
   m_autoDestroyOnHide: 1
   m_poolable: 1
   m_closeButton: {fileID: 3833756557553125001}
+  m_aspectRatioText: {fileID: 2548454908726692634}
+  m_styleConfig: {fileID: 11400000, guid: d68b8eadc12bc094d9ad53e45780e859, type: 2}
 --- !u!224 &4995831565389492426 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1248305030014008865, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,

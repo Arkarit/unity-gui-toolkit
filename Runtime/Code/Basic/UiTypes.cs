@@ -84,7 +84,7 @@ namespace GuiToolkit
 
 		public bool IsLandscape => AspectRatio >= 1;
 		public bool IsPortrait => AspectRatio >= 0 && AspectRatio < 1;
-		public bool IsInvalid => Height <= 0 || Width <= 0;
+		public readonly bool IsInvalid => Height <= 0 || Width <= 0;
 
 
 		public ScreenOrientation( float _width = 0, float _height = 0 )
@@ -121,6 +121,11 @@ namespace GuiToolkit
 			float areaB = other.Width * other.Height;
 
 			return areaA.CompareTo(areaB);
+		}
+
+		public override string ToString()
+		{
+			return $"{Width}:{Height}";
 		}
 	}
 
