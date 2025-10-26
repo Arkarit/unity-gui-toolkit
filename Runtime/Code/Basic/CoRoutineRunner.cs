@@ -41,6 +41,9 @@ namespace GuiToolkit
 		
 		public static void Init()
 		{
+			if (GeneralUtility.IsQuitting)
+				UiLog.LogError("Attempting to init CoRoutineRunner while quitting");
+
 			var go = new GameObject("GuiToolkit");
 			s_instance = go.AddComponent<EmptyMonoBehaviour>();
 			go.AddComponent<ResolutionWatcher>();

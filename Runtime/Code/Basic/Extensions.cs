@@ -19,6 +19,14 @@ namespace GuiToolkit
 		private static readonly HashSet<string> s_excludedMembers = new HashSet<string> { "name", "_parent", "parentInternal" };
 		private static readonly HashSet<Type> s_excludedTypes = new HashSet<Type> { typeof(Component), typeof(Transform), typeof(MonoBehaviour) };
 		private static readonly List<Transform> s_tempTransformList = new();
+		private static bool s_isQuitting = false;
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+		private static void Init()
+		{
+			Application.quitting += () => s_isQuitting = true;
+		}
+
+		public static bool IsQuitting(this Application _) => s_isQuitting;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static unsafe bool HasFlags<T>( this T _self, T _flags ) where T : unmanaged, Enum
@@ -100,7 +108,7 @@ namespace GuiToolkit
 			{
 				if (!_includeInactive && !child.gameObject.activeInHierarchy)
 					continue;
-				
+
 				T component = child.GetComponent<T>();
 				if (component)
 					_list.Add(component);
@@ -233,6 +241,9 @@ namespace GuiToolkit
 
 		public static void SafeDestroyDelayed( this UnityEngine.Object _self )
 		{
+			if (GeneralUtility.IsQuitting)
+				return;
+
 			if (_self == null)
 				return;
 
@@ -255,6 +266,7 @@ namespace GuiToolkit
 
 			Object.Destroy(_self);
 		}
+
 
 		public static bool SafeDestroy( this UnityEngine.Object _self, bool _supportUndoIfPossible = true, bool _logText = false )
 		{
@@ -1065,33 +1077,33 @@ namespace GuiToolkit
 			return random.NextLong(long.MinValue, long.MaxValue);
 		}
 
-		public static void SetPasswordDisplay 
-		( 
-			this InputField _inputField, 
-			bool _isPassword, 
-			InputField.ContentType _nonPasswordType = InputField.ContentType.Standard, 
-			bool _activate = true 
+		public static void SetPasswordDisplay
+		(
+			this InputField _inputField,
+			bool _isPassword,
+			InputField.ContentType _nonPasswordType = InputField.ContentType.Standard,
+			bool _activate = true
 		)
 		{
-			_inputField.contentType = _isPassword ? 
-				InputField.ContentType.Password : 
+			_inputField.contentType = _isPassword ?
+				InputField.ContentType.Password :
 				_nonPasswordType;
 
 			if (_activate)
 				_inputField.ActivateInputField();
 		}
 
-		public static bool GetPasswordDisplay( this InputField _inputField) => _inputField.contentType == InputField.ContentType.Password;
-		
-		public static void InvokeDelayed(this Action _action)
+		public static bool GetPasswordDisplay( this InputField _inputField ) => _inputField.contentType == InputField.ContentType.Password;
+
+		public static void InvokeDelayed( this Action _action )
 		{
 			if (_action == null)
 				return;
-			
+
 			CoRoutineRunner.Instance.StartCoroutine(InvokeActionDelayedCoroutine(_action));
 		}
-		
-		private static IEnumerator InvokeActionDelayedCoroutine(Action _action)
+
+		private static IEnumerator InvokeActionDelayedCoroutine( Action _action )
 		{
 			yield return null;
 			_action?.Invoke();

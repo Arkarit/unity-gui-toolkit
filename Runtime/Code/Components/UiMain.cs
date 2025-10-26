@@ -94,14 +94,23 @@ namespace GuiToolkit
 		{
 			get
 			{
+				if (GeneralUtility.IsQuitting)
+					return false;
+
 				if (s_instance == null)
 					s_instance = FindAnyObjectByType<UiMain>();
 				if (s_instance == null)
 					return false;
 				return s_instance.m_isAwake;
 			}
-			
-			private set => s_instance.m_isAwake = value;
+
+			private set
+			{
+				if (GeneralUtility.IsQuitting)
+					return;
+
+				s_instance.m_isAwake = value;
+			}
 		}
 
 		public static ScreenOrientation ScreenOrientation => s_screenOrientation;
@@ -583,6 +592,9 @@ namespace GuiToolkit
 
 		protected virtual void OnDestroy()
 		{
+			if (GeneralUtility.IsQuitting)
+				return;
+
 			IsAwake = false;
 			Instance = null;
 			UiEventDefinitions.EvFullScreenView.RemoveListener(OnFullScreenView);
