@@ -64,7 +64,7 @@ namespace GuiToolkit.Style
 
 		private UiSkin FindBestMatchingSkin(ScreenResolution _screenResolution)
 		{
-			if (_screenResolution.AspectRatio == 0)
+			if (_screenResolution.AspectRatio == 0 || Skins == null || Skins.Count == 0)
 				return null;
 
 			foreach (var uiSkin in Skins)
