@@ -43,6 +43,9 @@ namespace GuiToolkit.Style.Editor
 
 		public override void OnInspectorGUI()
 		{
+			if (!AssetReadyGate.Ready)
+				return;
+
 			if (m_thisAbstractApplyStyleBase.Style == null)
 				m_thisAbstractApplyStyleBase.SetStyle();
 
@@ -59,9 +62,21 @@ namespace GuiToolkit.Style.Editor
 			EditorGUILayout.Space(5);
 			
 			EditorGUI.BeginChangeCheck();
-			EditorGUILayout.PropertyField(m_isResolutionDependentProp);
-			if (!m_thisAbstractApplyStyleBase.IsResolutionDependent)
-				EditorGUILayout.PropertyField(m_optionalStyleConfigProp);
+			EditorGUILayout.PropertyField(m_optionalStyleConfigProp);
+
+			var config = (UiStyleConfig) m_optionalStyleConfigProp.objectReferenceValue;
+			if (config == null)
+			{
+				EditorGUILayout.PropertyField(m_isResolutionDependentProp);
+			}
+			else
+			{
+				m_isResolutionDependentProp.boolValue = config is UiOrientationDependentStyleConfig;
+				EditorGUI.BeginDisabledGroup(true);
+				EditorGUILayout.PropertyField(m_isResolutionDependentProp);
+				EditorGUI.EndDisabledGroup();
+			}
+
 			if (EditorGUI.EndChangeCheck())
 			{
 				m_thisAbstractApplyStyleBase.Reset();

@@ -64,17 +64,18 @@ namespace GuiToolkit.Style
 				if (!m_effectiveStyleConfigInitialized)
 				{
 					m_effectiveStyleConfigInitialized = true;
-					if (m_isResolutionDependent)
-					{
-						m_effectiveStyleConfig = UiOrientationDependentStyleConfig.Instance;
-						if (m_effectiveStyleConfig != null)
-							return m_effectiveStyleConfig;
-					}
 
 					if (m_optionalStyleConfig != null)
 					{
 						m_effectiveStyleConfig = m_optionalStyleConfig;
 						return m_effectiveStyleConfig;
+					}
+
+					if (m_isResolutionDependent)
+					{
+						m_effectiveStyleConfig = UiOrientationDependentStyleConfig.Instance;
+						if (m_effectiveStyleConfig != null)
+							return m_effectiveStyleConfig;
 					}
 
 					m_effectiveStyleConfig = UiMainStyleConfig.Instance;
