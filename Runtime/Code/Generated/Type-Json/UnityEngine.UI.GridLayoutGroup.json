@@ -1,0 +1,91 @@
+{
+    "Version": 2,
+    "Namespace": "GuiToolkit.Style",
+    "Prefix": "",
+    "Records": [
+        {
+            "Used": true,
+            "Name": "cellSize",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": true,
+            "Name": "childAlignment",
+            "QualifiedTypeName": "UnityEngine.TextAnchor",
+            "TypeName": "TextAnchor"
+        },
+        {
+            "Used": true,
+            "Name": "constraint",
+            "QualifiedTypeName": "UnityEngine.UI.GridLayoutGroup.Constraint",
+            "TypeName": "Constraint"
+        },
+        {
+            "Used": true,
+            "Name": "constraintCount",
+            "QualifiedTypeName": "System.Int32",
+            "TypeName": "Int32"
+        },
+        {
+            "Used": true,
+            "Name": "enabled",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "hideFlags",
+            "QualifiedTypeName": "UnityEngine.HideFlags",
+            "TypeName": "HideFlags"
+        },
+        {
+            "Used": false,
+            "Name": "name",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": true,
+            "Name": "padding",
+            "QualifiedTypeName": "UnityEngine.RectOffset",
+            "TypeName": "RectOffset"
+        },
+        {
+            "Used": false,
+            "Name": "runInEditMode",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "spacing",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": true,
+            "Name": "startAxis",
+            "QualifiedTypeName": "UnityEngine.UI.GridLayoutGroup.Axis",
+            "TypeName": "Axis"
+        },
+        {
+            "Used": true,
+            "Name": "startCorner",
+            "QualifiedTypeName": "UnityEngine.UI.GridLayoutGroup.Corner",
+            "TypeName": "Corner"
+        },
+        {
+            "Used": false,
+            "Name": "tag",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": false,
+            "Name": "useGUILayout",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        }
+    ]
+}
