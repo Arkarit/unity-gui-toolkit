@@ -4,7 +4,7 @@ namespace GuiToolkit
 {
 	public class CoRoutineRunner : MonoBehaviour
 	{
-		private static MonoBehaviour s_instance;
+		private static CoRoutineRunner s_instance;
 		
 		private int m_seconds;
 		private int m_minutes;
@@ -79,7 +79,7 @@ namespace GuiToolkit
 				UiEventDefinitions.EvMainCameraFovChanged.Invoke(oldFov, m_fov);
 		}
 
-		public static MonoBehaviour Instance => s_instance;
+		public static CoRoutineRunner Instance => s_instance;
 		
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void Init()
