@@ -17,146 +17,30 @@ MonoBehaviour:
     m_name: Landscape Wide (16:9 or wider)
     m_alias: 
     m_styles:
-    - rid: 2715894372057481528
     - rid: 2715894372057481640
     m_aspectRatioGreaterEqual: 1.7777778
   - m_config: {fileID: 11400000}
     m_name: Landscape Narrow (narrower than 16/9)
     m_alias: Landscape Narrow (narrower than 16:9)
     m_styles:
-    - rid: 2715894372057481529
     - rid: 2715894372057481641
     m_aspectRatioGreaterEqual: 1
   - m_config: {fileID: 11400000}
     m_name: Portrait Wide (wider than 9:16)
     m_alias: 
     m_styles:
-    - rid: 2715894372057481530
     - rid: 2715894372057481642
     m_aspectRatioGreaterEqual: 0.5625
   - m_config: {fileID: 11400000}
     m_name: Portrait Narrow (narrower than 9/16)
     m_alias: Portrait Narrow (narrower than 9:16)
     m_styles:
-    - rid: 2715894372057481531
     - rid: 2715894372057481643
     m_aspectRatioGreaterEqual: 0
-  m_currentSkinIdx: 3
+  m_currentSkinIdx: 0
   references:
     version: 2
     RefIds:
-    - rid: 2715894372057481528
-      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_styleConfig: {fileID: 11400000}
-        m_name: ImageWidth
-        m_alias: 
-        m_screenOrientationCondition: -1
-        m_sprite:
-          rid: 2715894372057481532
-        m_color:
-          rid: 2715894372057481533
-        m_enabled:
-          rid: 2715894372057481534
-    - rid: 2715894372057481529
-      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_styleConfig: {fileID: 11400000}
-        m_name: ImageWidth
-        m_alias: 
-        m_screenOrientationCondition: -1
-        m_sprite:
-          rid: 2715894372057481535
-        m_color:
-          rid: 2715894372057481536
-        m_enabled:
-          rid: 2715894372057481537
-    - rid: 2715894372057481530
-      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_styleConfig: {fileID: 11400000}
-        m_name: ImageWidth
-        m_alias: 
-        m_screenOrientationCondition: -1
-        m_sprite:
-          rid: 2715894372057481538
-        m_color:
-          rid: 2715894372057481539
-        m_enabled:
-          rid: 2715894372057481540
-    - rid: 2715894372057481531
-      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        m_styleConfig: {fileID: 11400000}
-        m_name: ImageWidth
-        m_alias: 
-        m_screenOrientationCondition: -1
-        m_sprite:
-          rid: 2715894372057481541
-        m_color:
-          rid: 2715894372057481542
-        m_enabled:
-          rid: 2715894372057481543
-    - rid: 2715894372057481532
-      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {fileID: 0}
-    - rid: 2715894372057481533
-      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 2715894372057481534
-      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 1
-    - rid: 2715894372057481535
-      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {fileID: 0}
-    - rid: 2715894372057481536
-      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 2715894372057481537
-      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 1
-    - rid: 2715894372057481538
-      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {fileID: 0}
-    - rid: 2715894372057481539
-      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 2715894372057481540
-      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 1
-    - rid: 2715894372057481541
-      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: {fileID: 0}
-    - rid: 2715894372057481542
-      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 1
-        m_value: {r: 1, g: 1, b: 1, a: 1}
-    - rid: 2715894372057481543
-      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
-      data:
-        IsApplicable: 0
-        m_value: 1
     - rid: 2715894372057481640
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:

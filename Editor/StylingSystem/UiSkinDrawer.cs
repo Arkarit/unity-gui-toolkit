@@ -10,7 +10,7 @@ namespace GuiToolkit.Style.Editor
 	public class UiSkinDrawer : AbstractPropertyDrawer<UiSkin>
 	{
 		protected SerializedProperty m_stylesProp;
-		protected SerializedProperty m_aspectRatioGEProp;
+		protected SerializedProperty m_aspectRatioGreaterEqualProp;
 		protected UiSkin m_thisUiSkin;
 
 		[Serializable]
@@ -26,7 +26,7 @@ namespace GuiToolkit.Style.Editor
 		{
 			m_thisUiSkin = Property.boxedValue as UiSkin;
 			m_stylesProp = Property.FindPropertyRelative("m_styles");
-			m_aspectRatioGEProp = Property.FindPropertyRelative("m_aspectRatioGE");
+			m_aspectRatioGreaterEqualProp = Property.FindPropertyRelative("m_aspectRatioGreaterEqual");
 		}
 
 		protected override void OnInspectorGUI()
@@ -73,11 +73,11 @@ namespace GuiToolkit.Style.Editor
 					LabelField("Aspect Ratio >= ");
 					IncreaseX(100);
 
-					float before = m_aspectRatioGEProp.floatValue;
+					float before = m_aspectRatioGreaterEqualProp.floatValue;
 					float after = Float(before, 80);
 					if (!Mathf.Approximately(before, after))
 					{
-						m_aspectRatioGEProp.floatValue = after;
+						m_aspectRatioGreaterEqualProp.floatValue = after;
 						EditorGeneralUtility.SetDirty(styleConfig);
 					}
 
