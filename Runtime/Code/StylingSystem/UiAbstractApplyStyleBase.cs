@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using System.Runtime.CompilerServices;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -208,17 +209,8 @@ namespace GuiToolkit.Style
 #endif
 		}
 
-		private bool CheckCondition()
-		{
-			if (Style == null)
-				return false;
-
-			var result = Style.ScreenOrientationCondition == UiAbstractStyleBase.EScreenOrientationCondition.Always 
-			       || Style.ScreenOrientationCondition == UiAbstractStyleBase.EScreenOrientationCondition.Landscape && UiUtility.GetCurrentScreenOrientation().IsLandscape
-			       || Style.ScreenOrientationCondition == UiAbstractStyleBase.EScreenOrientationCondition.Portrait && UiUtility.GetCurrentScreenOrientation().IsPortrait;
-
-			return result;
-		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private bool CheckCondition() => Style != null;
 
 		protected abstract void ApplyImpl();
 		protected abstract void RecordImpl();
