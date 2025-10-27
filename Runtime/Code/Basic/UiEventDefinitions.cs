@@ -7,70 +7,75 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	// General event definitions. See counterpart for game specific event definitions.
+	// General Ui event definitions.
 	public static class UiEventDefinitions
 	{
-		/// \brief Event invoked on language change.
-		/// <param name="string">Language token, e.g. "de"</param>
-		/// Note that this event is also spawned once on startup.
-		public static CEvent<string>									EvLanguageChanged				= new();
-		
-		// string: log message
-		public static readonly CEvent<string> LogMessage = new ();
+		#region Loca
+			/// \brief Event invoked on language change.
+			/// <param name="string">Language token, e.g. "de"</param>
+			/// Note that this event is also spawned once on startup.
+			public static CEvent<string>										EvLanguageChanged = new(true);
+		#endregion
 
-		public static readonly CEvent DebugEvent00 = new();
-		
-		// Vector2Int: previous resolution
-		// Vector2Int: current resolution
-		public static readonly CEvent<Vector2Int, Vector2Int> OnResolutionChanged = new();
-		
-		/// \brief Invoked if the screen orientation has changed
-		/// <param name="ScreenResolution 0">Screen resolution before change</param>
-		/// <param name="ScreenResolution 1">Screen resolution after change</param>
-		public static CEvent<ScreenResolution,ScreenResolution>		EvScreenResolutionChange = new(true, new ScreenResolution(), new ScreenResolution(Screen.width, Screen.height));
+		#region Screen
+			/// \brief Invoked if the screen resolution has changed
+			/// <param name="ScreenResolution 0">Screen resolution before change</param>
+			/// <param name="ScreenResolution 1">Screen resolution after change</param>
+			public static CEvent<ScreenResolution,ScreenResolution>				EvScreenResolutionChange = new(true, new ScreenResolution(), new ScreenResolution(Screen.width, Screen.height));
+		#endregion
 
-		/// \brief Invoked if a player setting has changed.
-		/// <param name="PlayerSetting">Changed player setting class instance</param>
-		public static CEvent<PlayerSetting>								EvPlayerSettingChanged			= new();
+		#region Player Settings
+			/// \brief Invoked if a player setting has changed.
+			/// <param name="PlayerSetting">Changed player setting class instance</param>
+			public static CEvent<PlayerSetting>									EvPlayerSettingChanged = new();
+		#endregion
 
-		/// \brief Invoked if skin changes
-		/// float: duration
-		public static CEvent<float>										EvSkinChanged = new();
-		/// \brief Invoked if skin values have changed - the skin itself stays the same
-		/// float: normalized amount of change
-		public static CEvent<float>										EvSkinValuesChanged = new();
+		#region Views
+			/// \brief Invoked before a full screen view is opened or closed.
+			/// UiView: The UiView to open/closed
+			/// bool: opened
+			public static CEvent<UiView, bool>									EvFullScreenView = new();
+		#endregion
 
-		// Style system
-		/// \brief Invoked if applicableness of style has changed.
-		/// Used to synchronize styles of same name but members of different skins
-		public static CEvent<UiStyleConfig, UiAbstractStyleBase> 			EvStyleApplicableChanged = new();
-		public static CEvent<UiStyleConfig, UiAbstractStyleBase>			EvDeleteStyle = new();
-		public static CEvent<UiStyleConfig, UiSkin>							EvAddSkin = new();
-		public static CEvent<UiStyleConfig, string>							EvDeleteSkin = new();
-		public static CEvent<UiStyleConfig, UiSkin, string>					EvSetSkinAlias = new();
-		public static CEvent<UiStyleConfig, UiAbstractStyleBase, string>	EvSetStyleAlias = new();
-		public static CEvent<UiAbstractApplyStyleBase>						EvStyleApplierCreated = new();	
-		public static CEvent<UiAbstractApplyStyleBase>						EvStyleApplierChangedParent = new();	
-		public static CEvent<UiAbstractApplyStyleBase>						EvStyleApplierDestroyed = new();
-		
-		
-		/// \brief Invoked before a full screen view is opened or closed.
-		/// UiView: The UiView to open/closed
-		/// bool: opened
-		public static CEvent<UiView, bool>									EvFullScreenView = new();
-		
+		#region Style System
+			/// \brief Invoked if skin changes
+			/// float: duration
+			public static CEvent<float>											EvSkinChanged = new();
+			/// \brief Invoked if skin values have changed - the skin itself stays the same
+			/// float: normalized amount of change
+			public static CEvent<float>											EvSkinValuesChanged = new();
+	
+			// Style system
+			/// \brief Invoked if applicableness of style has changed.
+			/// Used to synchronize styles of same name but members of different skins
+			public static CEvent<UiStyleConfig, UiAbstractStyleBase> 			EvStyleApplicableChanged = new();
+			public static CEvent<UiStyleConfig, UiAbstractStyleBase>			EvDeleteStyle = new();
+			public static CEvent<UiStyleConfig, UiSkin>							EvAddSkin = new();
+			public static CEvent<UiStyleConfig, string>							EvDeleteSkin = new();
+			public static CEvent<UiStyleConfig, UiSkin, string>					EvSetSkinAlias = new();
+			public static CEvent<UiStyleConfig, UiAbstractStyleBase, string>	EvSetStyleAlias = new();
+			public static CEvent<UiAbstractApplyStyleBase>						EvStyleApplierCreated = new();	
+			public static CEvent<UiAbstractApplyStyleBase>						EvStyleApplierChangedParent = new();	
+			public static CEvent<UiAbstractApplyStyleBase>						EvStyleApplierDestroyed = new();
+		#endregion
 
-		// Timer events ---------------------------------------------------------------------
-		// Not yet implemented: unscaled time. Implement/test on demand please.
 
-		// This is called every frame. Use this if you need an update for standalone classes or disabled game objects.
-		// For regular and active game objects consider using Update() instead (less overhead)
-		public static readonly CEvent OnTickPerFrame = new(true);
-		// events for second, 10 seconds and minute (scaled game time)
-		public static readonly CEvent OnTickPerSecond = new(true);
-		public static readonly CEvent OnTickPerMinute = new(true);
+		#region Camera
+			public static CEvent<Camera, Camera>								EvMainCameraChanged = new(true);
+			public static CEvent<float, float>									EvMainCameraFovChanged = new(true);
+		#endregion
+
+		#region Time
+			// Not yet implemented: unscaled time. Implement/test on demand please.
+	
+			// This is called every frame. Use this if you need an update for standalone classes or disabled game objects.
+			// For regular and active game objects consider using Update() instead (less overhead)
+			public static readonly CEvent<int> OnTickPerFrame = new(true);
+			public static readonly CEvent<int> OnTickPerSecond = new(true);
+			public static readonly CEvent<int> OnTickPerMinute = new(true);
+		#endregion
 		
-		#if UNITY_EDITOR
+#if UNITY_EDITOR
 		// Fix redraw issues when changing style in Unity >= 6
 		// Scene view didn't update when skin was changed
 		[InitializeOnLoadMethod]

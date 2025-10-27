@@ -37,7 +37,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public void SetDelayed(bool _value) => CoroutineManager.Instance.StartCoroutine(SetDelayedCoroutine(_value));
+		public void SetDelayed(bool _value) => CoRoutineRunner.Instance.StartCoroutine(SetDelayedCoroutine(_value));
 
 		protected override void Awake()
 		{
