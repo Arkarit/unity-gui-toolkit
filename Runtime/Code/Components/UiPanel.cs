@@ -434,6 +434,7 @@ namespace GuiToolkit
 
 			OnBeginShow();
 			EvOnBeginShow.Invoke(this);
+			UiEventDefinitions.EvOnPanelBeginShow.Invoke(this);
 			Visible = true;
 
 			if (_instant)
@@ -443,6 +444,7 @@ namespace GuiToolkit
 
 				OnEndShow();
 				EvOnEndShow.Invoke(this);
+				UiEventDefinitions.EvOnPanelEndShow.Invoke(this);
 				_onFinish?.Invoke();
 				m_onShowHideFinishAction = null;
 				return;
@@ -465,6 +467,8 @@ namespace GuiToolkit
 
 			OnBeginHide();
 			EvOnBeginHide.Invoke(this);
+			UiEventDefinitions.EvOnPanelBeginHide.Invoke(this);
+
 			Visible = false;
 
 			if (_instant)
@@ -475,6 +479,7 @@ namespace GuiToolkit
 					SimpleShowHideAnimation.StopViewAnimation(false);
 
 				OnEndHide();
+				UiEventDefinitions.EvOnPanelEndHide.Invoke(this);
 				EvOnEndHide.Invoke(this);
 				_onFinish?.Invoke();
 
@@ -616,6 +621,7 @@ namespace GuiToolkit
 		{
 			OnEndShow();
 			EvOnEndShow.Invoke(this);
+			UiEventDefinitions.EvOnPanelEndShow.Invoke(this);
 			m_onShowHideFinishAction?.Invoke();
 		}
 
@@ -629,6 +635,7 @@ namespace GuiToolkit
 
 			OnEndHide();
 			EvOnEndHide.Invoke(this);
+			UiEventDefinitions.EvOnPanelEndHide.Invoke(this);
 			m_onShowHideFinishAction?.Invoke();
 			m_onShowHideFinishAction = null;
 
@@ -646,6 +653,8 @@ namespace GuiToolkit
 			if (Poolable)
 			{
 				EvOnDestroyed.Invoke(this);
+				UiEventDefinitions.EvOnPanelDestroyed.Invoke(this);
+
 				EvOnDestroyed.RemoveAllListeners();
 
 				if (UiMain.IsAwake)
@@ -678,6 +687,8 @@ namespace GuiToolkit
 			}
 
 			EvOnDestroyed.Invoke(this);
+			UiEventDefinitions.EvOnPanelDestroyed.Invoke(this);
+			
 			RemovePanelFromOpen();
 			base.OnDestroy();
 		}

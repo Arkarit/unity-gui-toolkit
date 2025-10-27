@@ -30,11 +30,27 @@ namespace GuiToolkit
 			public static CEvent<PlayerSetting>									EvPlayerSettingChanged = new();
 		#endregion
 
-		#region Views
+		#region Views and Panels
 			/// \brief Invoked before a full screen view is opened or closed.
 			/// UiView: The UiView to open/closed
 			/// bool: opened
 			public static CEvent<UiView, bool>									EvFullScreenView = new();
+			
+			/// <summary>Raised right before the show transition starts.</summary>
+			public static CEvent<UiPanel>										EvOnPanelBeginShow = new();
+	
+			/// <summary>Raised after the show transition completes (or instant show is done).</summary>
+			public static CEvent<UiPanel>										EvOnPanelEndShow = new();
+	
+			/// <summary>Raised right before the hide transition starts.</summary>
+			public static CEvent<UiPanel>										EvOnPanelBeginHide = new();
+	
+			/// <summary>Raised after the hide transition completes (or instant hide is done).</summary>
+			public static CEvent<UiPanel>										EvOnPanelEndHide = new();
+	
+			/// <summary>Raised when the panel is about to be destroyed (or returned to pool).</summary>
+			public static CEvent<UiPanel>										EvOnPanelDestroyed = new();
+
 		#endregion
 
 		#region Style System
