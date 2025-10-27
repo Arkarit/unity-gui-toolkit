@@ -73,9 +73,8 @@ namespace GuiToolkit
 		Back = Top * 8,         ///< Bottommost layer
 	}
 
-	/// \brief Screen orientation enum.
-	/// Screen orientation landscape or portrait.
-	public struct ScreenOrientation : IComparable
+	/// \brief Screen resolution enum.
+	public struct ScreenResolution : IComparable
 	{
 		public float Width;
 		public float Height;
@@ -83,30 +82,23 @@ namespace GuiToolkit
 		public float AspectRatio => Height == 0 ? 0 : Width / Height;
 
 		public bool IsLandscape => AspectRatio >= 1;
-		public bool IsPortrait => AspectRatio >= 0 && AspectRatio < 1;
+		public bool IsPortrait => AspectRatio is >= 0 and < 1;
 		public readonly bool IsInvalid => Height <= 0 || Width <= 0;
 
-
-		public ScreenOrientation( float _width = 0, float _height = 0 )
+		public ScreenResolution( float _width = 0, float _height = 0 )
 		{
 			Width = _width;
 			Height = _height;
 		}
 
 
-		public static ScreenOrientation Empty => new();
-
-		[Obsolete("Do not use. Only backwards compatibility for old code.")]
-		public int DeprecatedIndex => IsLandscape ? 1 : 0;
-
-		[Obsolete("Do not use. Only backwards compatibility for old code.")]
-		public static int DeprecatedCount => 2;
-		public static bool operator ==( ScreenOrientation t1, ScreenOrientation t2 ) => t1.Equals(t2);
-		public static bool operator !=( ScreenOrientation t1, ScreenOrientation t2 ) => !t1.Equals(t2);
+		public static ScreenResolution Empty => new();
+		public static bool operator ==( ScreenResolution t1, ScreenResolution t2 ) => t1.Equals(t2);
+		public static bool operator !=( ScreenResolution t1, ScreenResolution t2 ) => !t1.Equals(t2);
 
 		public int CompareTo( object _obj )
 		{
-			if (_obj is not ScreenOrientation other)
+			if (_obj is not ScreenResolution other)
 				return 1;
 
 			float a = AspectRatio;
@@ -225,7 +217,7 @@ namespace GuiToolkit
 		public const string MAIN_SCENE_ON_PLAY_MENU_NAME = MENU_HEADER + "Only Main Scene on Play";
 		public const string SAVE_PROJECT_ON_LOSE_FOCUS_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Save Project on lose focus";
 		public const string CREATE_MAIN_STYLE_CONFIG = STYLES_HEADER + "Main Style Config";
-		public const string CREATE_ORIENTATION_DEPENDENT_STYLE_CONFIG = STYLES_HEADER + "Orientation Dependent Style Config";
+		public const string CREATE_ASPECT_RATIO_DEPENDENT_STYLE_CONFIG = STYLES_HEADER + "Aspect Ratio Dependent Style Config";
 		public const string CREATE_STYLE_CONFIG = STYLES_HEADER + "Style Config";
 		public const string CREATE_DOXYGEN_CONFIG = MENU_HEADER + "Doxygen Config";
 		public const string ROSLYN_HEADER = MENU_HEADER + "Roslyn/";

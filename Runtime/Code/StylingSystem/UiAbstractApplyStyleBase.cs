@@ -16,7 +16,8 @@ namespace GuiToolkit.Style
 	[EditorAware]
 	public abstract class UiAbstractApplyStyleBase : AbstractEditorAwareMonoBehaviour
 	{
-		[SerializeField] [HideInInspector] private bool m_isResolutionDependent;
+		[FormerlySerializedAs("m_isResolutionDependent")] 
+		[SerializeField] [HideInInspector] private bool m_isAspectRatioDependent;
 		[FormerlySerializedAs("m_config")] 
 		[SerializeField][HideInInspector] private UiStyleConfig m_optionalStyleConfig;
 		[SerializeField][HideInInspector] private string m_name;
@@ -50,7 +51,7 @@ namespace GuiToolkit.Style
 			set => m_rebuildLayoutOnApply = value;
 		}
 
-		public bool IsResolutionDependent => m_isResolutionDependent;
+		public bool IsAspectRatioDependent => m_isAspectRatioDependent;
 
 		public UiStyleConfig StyleConfig
 		{
@@ -72,9 +73,9 @@ namespace GuiToolkit.Style
 						return m_effectiveStyleConfig;
 					}
 
-					if (m_isResolutionDependent)
+					if (m_isAspectRatioDependent)
 					{
-						m_effectiveStyleConfig = UiOrientationDependentStyleConfig.Instance;
+						m_effectiveStyleConfig = UiAspectRatioDependentStyleConfig.Instance;
 						if (m_effectiveStyleConfig != null)
 							return m_effectiveStyleConfig;
 					}
@@ -121,7 +122,7 @@ namespace GuiToolkit.Style
 
 		protected override void SafeOnEnable()
 		{
-			UiEventDefinitions.EvScreenOrientationChange.AddListener(OnScreenOrientationChanged);
+			UiEventDefinitions.EvScreenResolutionChange.AddListener(OnScreenResolutionChanged);
 			SetSkinListeners(!SkinIsFixed);
 
 			if (Component == null)
@@ -133,11 +134,11 @@ namespace GuiToolkit.Style
 
 		protected virtual void OnDisable()
 		{
-			UiEventDefinitions.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChanged);
+			UiEventDefinitions.EvScreenResolutionChange.RemoveListener(OnScreenResolutionChanged);
 			SetSkinListeners(false);
 		}
 		
-		private void OnScreenOrientationChanged(ScreenOrientation _oldScreenOrientation, ScreenOrientation _newScreenOrientation)
+		private void OnScreenResolutionChanged(ScreenResolution _oldScreenResolution, ScreenResolution _newScreenResolution)
 		{
 			Apply();
 		}
@@ -157,7 +158,7 @@ namespace GuiToolkit.Style
 		{
 			if (_alsoStyleConfig)
 			{
-				m_isResolutionDependent = false;
+				m_isAspectRatioDependent = false;
 				m_optionalStyleConfig = null;
 			}
 

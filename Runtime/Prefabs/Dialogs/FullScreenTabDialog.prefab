@@ -107,7 +107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: FullScreenTabDialog/TabBackground
   m_fixedSkinName: 
@@ -132,7 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: FullScreenTabDialog/TabBackground
   m_fixedSkinName: 
@@ -289,7 +289,7 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
@@ -372,7 +372,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2527186978423661639}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -504,7 +504,7 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
   m_slaveAnimations:
   - {fileID: 2527186978423661633}
   m_setLoopsForSlaves: 1
@@ -753,7 +753,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Backgrounds/PanelHeadline
   m_fixedSkinName: 
@@ -1069,7 +1069,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: babd8f5be8f53124395cebed293e7273, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 1
+  m_isAspectRatioDependent: 1
   m_optionalStyleConfig: {fileID: 0}
   m_name: Layout/HorizontalInLandscape
   m_fixedSkinName: 
@@ -1252,7 +1252,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: FullScreenTabDialog/HeadlineBackground
   m_fixedSkinName: 
@@ -1394,7 +1394,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dec8e0f107799fc43b43e69722657af7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 1
+  m_isAspectRatioDependent: 1
   m_optionalStyleConfig: {fileID: 0}
   m_name: FullScreenTabDialog/TabContainer
   m_fixedSkinName: 
@@ -1538,7 +1538,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 1
+  m_isAspectRatioDependent: 1
   m_optionalStyleConfig: {fileID: 0}
   m_name: GradientSimple/HorizontalInLandscape
   m_fixedSkinName: 
@@ -1563,7 +1563,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: FullScreenTabDialog/PageBackground
   m_fixedSkinName: 
@@ -1588,7 +1588,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: FullScreenTabDialog/PageBackground
   m_fixedSkinName: 
@@ -1895,7 +1895,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: babd8f5be8f53124395cebed293e7273, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 1
+  m_isAspectRatioDependent: 1
   m_optionalStyleConfig: {fileID: 0}
   m_name: FullScreenTabDialog/TabContent
   m_fixedSkinName: 
@@ -1920,7 +1920,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84b2c9b2c2a74ed49a0f2f0fc826b2f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 1
+  m_isAspectRatioDependent: 1
   m_optionalStyleConfig: {fileID: 0}
   m_name: ContentSizeFitter/PreferredVerticalInLandscape
   m_fixedSkinName: 
@@ -1945,7 +1945,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57bc3011770ca1346a002a705abd54de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 1
+  m_isAspectRatioDependent: 1
   m_optionalStyleConfig: {fileID: 0}
   m_name: FullScreenTabDialog/TabContent
   m_fixedSkinName: 
@@ -2065,7 +2065,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c3e3936c5019774495ce1bd90ca4077, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 1
+  m_isAspectRatioDependent: 1
   m_optionalStyleConfig: {fileID: 0}
   m_name: ScrollRect/VerticalInLandscape
   m_fixedSkinName: 
@@ -2674,7 +2674,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: FullScreenTabDialog/ButtonBarBackground
   m_fixedSkinName: 

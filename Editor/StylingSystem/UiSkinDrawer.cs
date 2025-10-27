@@ -67,7 +67,7 @@ namespace GuiToolkit.Style.Editor
 				
 				LabelField("   " + skinAlias, 0, EditorStyles.boldLabel);
 
-				if (m_thisUiSkin.IsOrientationDependent)
+				if (m_thisUiSkin.IsAspectRatioDependent)
 				{
 					IncreaseX(-490);
 					LabelField("Aspect Ratio >= ");

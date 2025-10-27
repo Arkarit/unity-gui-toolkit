@@ -25,9 +25,9 @@ namespace GuiToolkit
 		public static readonly CEvent<Vector2Int, Vector2Int> OnResolutionChanged = new();
 		
 		/// \brief Invoked if the screen orientation has changed
-		/// <param name="EScreenOrientation 0">Screen orientation before change</param>
-		/// <param name="EScreenOrientation 1">Screen orientation after change</param>
-		public static CEvent<ScreenOrientation,ScreenOrientation>		EvScreenOrientationChange = new(true, new ScreenOrientation(), new ScreenOrientation(Screen.width, Screen.height));
+		/// <param name="ScreenResolution 0">Screen resolution before change</param>
+		/// <param name="ScreenResolution 1">Screen resolution after change</param>
+		public static CEvent<ScreenResolution,ScreenResolution>		EvScreenResolutionChange = new(true, new ScreenResolution(), new ScreenResolution(Screen.width, Screen.height));
 
 		/// \brief Invoked if a player setting has changed.
 		/// <param name="PlayerSetting">Changed player setting class instance</param>

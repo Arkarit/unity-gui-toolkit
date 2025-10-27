@@ -31,8 +31,8 @@ namespace GuiToolkit.Style
 			m_config = _config;
 			m_name = _name;
 			m_aspectRatioGreaterEqual = _aspectRatioGreaterEqual;
-			if (!IsOrientationDependent && !Mathf.Approximately(-1, _aspectRatioGreaterEqual))
-				throw new ArgumentException("Non-Orientation dependent UiSkins can't have an 'aspect ratio greater than' setting");
+			if (!IsAspectRatioDependent && !Mathf.Approximately(-1, _aspectRatioGreaterEqual))
+				throw new ArgumentException("Non-Aspect Ratio dependent UiSkins can't have an 'aspect ratio greater than' setting");
 		}
 		
 		public string Name => m_name;
@@ -51,7 +51,7 @@ namespace GuiToolkit.Style
 
 		public List<UiAbstractStyleBase> Styles => m_styles;
 		public UiStyleConfig StyleConfig => m_config;
-		public bool IsOrientationDependent => m_config is UiOrientationDependentStyleConfig;
+		public bool IsAspectRatioDependent => m_config is UiAspectRatioDependentStyleConfig;
 		public float AspectRatioGreaterEqual => m_aspectRatioGreaterEqual;
 
 		public void Init(UiStyleConfig _config)

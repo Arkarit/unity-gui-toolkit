@@ -8,15 +8,15 @@ using UnityEditor;
 
 namespace GuiToolkit.Style
 {
-	[CreateAssetMenu(fileName = nameof(UiOrientationDependentStyleConfig), menuName = StringConstants.CREATE_ORIENTATION_DEPENDENT_STYLE_CONFIG)]
+	[CreateAssetMenu(fileName = nameof(UiAspectRatioDependentStyleConfig), menuName = StringConstants.CREATE_ASPECT_RATIO_DEPENDENT_STYLE_CONFIG)]
 	[EditorAware]
-	public class UiOrientationDependentStyleConfig : UiStyleConfig
+	public class UiAspectRatioDependentStyleConfig : UiStyleConfig
 	{
 		public const string Landscape = "Landscape";
 		public const string Portrait = "Portrait";
 
-		protected static UiOrientationDependentStyleConfig s_instance;
-		public static string ClassName => typeof(UiOrientationDependentStyleConfig).Name;
+		protected static UiAspectRatioDependentStyleConfig s_instance;
+		public static string ClassName => typeof(UiAspectRatioDependentStyleConfig).Name;
 		public static void ResetInstance() => s_instance = null;
 
 		protected override void OnEnable()
@@ -42,17 +42,17 @@ namespace GuiToolkit.Style
 				});
 
 				base.OnEnable();
-				UiEventDefinitions.EvScreenOrientationChange.AddListener(OnScreenOrientationChange, true);
+				UiEventDefinitions.EvScreenResolutionChange.AddListener(OnScreenResolutionChange, true);
 			});
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			UiEventDefinitions.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChange);
+			UiEventDefinitions.EvScreenResolutionChange.RemoveListener(OnScreenResolutionChange);
 		}
 
-		private void OnScreenOrientationChange( ScreenOrientation _before, ScreenOrientation _after )
+		private void OnScreenResolutionChange( ScreenResolution _before, ScreenResolution _after )
 		{
 			var bestMatchingSkin = FindBestMatchingSkin(_after);
 			if ( bestMatchingSkin == null )
@@ -62,30 +62,30 @@ namespace GuiToolkit.Style
 				CurrentSkinName = bestMatchingSkin.Name;
 		}
 
-		private UiSkin FindBestMatchingSkin(ScreenOrientation _screenOrientation)
+		private UiSkin FindBestMatchingSkin(ScreenResolution _screenResolution)
 		{
-			if (_screenOrientation.AspectRatio == 0)
+			if (_screenResolution.AspectRatio == 0)
 				return null;
 
 			foreach (var uiSkin in Skins)
 			{
-				if (uiSkin.AspectRatioGreaterEqual < _screenOrientation.AspectRatio)
+				if (uiSkin.AspectRatioGreaterEqual < _screenResolution.AspectRatio)
 					return uiSkin;
 			}
 
 			return Skins[0];
 		}
 
-		public static UiOrientationDependentStyleConfig Instance
+		public static UiAspectRatioDependentStyleConfig Instance
 		{
 			get
 			{
 				EditorCallerGate.ThrowIfNotEditorAware(ClassName);
 				if (s_instance == null)
 				{
-					s_instance = (UiOrientationDependentStyleConfig)AssetReadyGate.LoadOrCreateScriptableObject
+					s_instance = (UiAspectRatioDependentStyleConfig)AssetReadyGate.LoadOrCreateScriptableObject
 					(
-						typeof(UiOrientationDependentStyleConfig),
+						typeof(UiAspectRatioDependentStyleConfig),
 						out bool wasCreated
 					);
 					string s = $"Loaded {ClassName}";

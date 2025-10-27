@@ -782,7 +782,7 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
@@ -1243,7 +1243,7 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 3
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
@@ -1637,7 +1637,7 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
   m_slaveAnimations:
   - {fileID: 5197005156575208393}
   - {fileID: 5197005156502262068}
@@ -1933,7 +1933,7 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 3
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
@@ -2392,7 +2392,7 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
   m_slaveAnimations:
   - {fileID: 3265018064175675197}
   m_setLoopsForSlaves: 1
@@ -4096,7 +4096,7 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 3
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
   m_slaveAnimations:
   - {fileID: 3265018062773664423}
   - {fileID: 3265018062712379454}
@@ -5449,7 +5449,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Text/Flowing
   m_fixedSkinName: 
@@ -5474,7 +5474,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Text/Flowing/Medium
   m_fixedSkinName: 
@@ -6332,7 +6332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Text/Background
   m_fixedSkinName: 
@@ -6643,7 +6643,7 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
   m_slaveAnimations:
   - {fileID: 3265018062745738768}
   m_setLoopsForSlaves: 1
@@ -7094,7 +7094,7 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
   m_slaveAnimations:
   - {fileID: 3265018062850428436}
   m_setLoopsForSlaves: 1

@@ -59,7 +59,7 @@ namespace GuiToolkit
 		private readonly Stack<UiView> m_stack = new();
 		private static UiMain s_instance;
 		private UiPlayerSettingsDialog m_playerSettingsDialog;
-		static ScreenOrientation s_screenOrientation = GuiToolkit.ScreenOrientation.Empty;
+		static ScreenResolution s_screenResolution = GuiToolkit.ScreenResolution.Empty;
 		
 		private readonly List<IExcludeFromFrustumCulling> m_excludedFromFrustumCulling = new ();
 		private readonly List<Bounds> m_excludedBounds = new ();
@@ -113,7 +113,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public static ScreenOrientation ScreenOrientation => s_screenOrientation;
+		public static ScreenResolution ScreenResolution => s_screenResolution;
 
 #if UNITY_EDITOR
 		[InitializeOnLoadMethod]
@@ -123,8 +123,8 @@ namespace GuiToolkit
 			{
 				s_staticInitialized = true;
 
-				EditorApplication.update += FireOnScreenOrientationChangedEventIfNecessary;
-				FireOnScreenOrientationChangedEventIfNecessary();
+				EditorApplication.update += FireOnScreenResolutionChangedEventIfNecessary;
+				FireOnScreenResolutionChangedEventIfNecessary();
 				UiLog.Log("UIMain static initialized");
 			}
 		}
@@ -606,14 +606,14 @@ namespace GuiToolkit
 			CheckSceneSetup();
 #endif
 			SetDefaultSceneVisibilities(gameObject);
-			FireOnScreenOrientationChangedEventIfNecessary();
+			FireOnScreenResolutionChangedEventIfNecessary();
 		}
 
 		//FIXME: performance. Need some "dirty" stuff.
 		protected virtual void Update()
 		{
 			Instance = this;
-			FireOnScreenOrientationChangedEventIfNecessary();
+			FireOnScreenResolutionChangedEventIfNecessary();
 			InitGetters();
 			SortViews();
 		}
@@ -626,15 +626,15 @@ namespace GuiToolkit
 					((ISetDefaultSceneVisibility)monoBehaviour).SetDefaultSceneVisibility();
 		}
 
-		private static void FireOnScreenOrientationChangedEventIfNecessary()
+		private static void FireOnScreenResolutionChangedEventIfNecessary()
 		{
-			ScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
+			ScreenResolution resolution = UiUtility.GetCurrentScreenResolution();
 
-			if (orientation == s_screenOrientation)
+			if (resolution == s_screenResolution)
 				return;
 
-			UiEventDefinitions.EvScreenOrientationChange.InvokeAlways(s_screenOrientation, orientation);
-			s_screenOrientation = orientation;
+			UiEventDefinitions.EvScreenResolutionChange.InvokeAlways(s_screenResolution, resolution);
+			s_screenResolution = resolution;
 		}
 
 		private bool CheckSceneValid(string _sceneName)

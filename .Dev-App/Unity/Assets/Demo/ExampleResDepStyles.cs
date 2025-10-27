@@ -8,7 +8,7 @@ public class ExampleResDepStyles : UiView
 {
 	public UiButton m_closeButton;
 	public TMP_Text m_aspectRatioText;
-	public UiOrientationDependentStyleConfig m_styleConfig;
+	public UiAspectRatioDependentStyleConfig m_styleConfig;
 	
 	public override bool AutoDestroyOnHide => true;
 	public override bool Poolable => true;

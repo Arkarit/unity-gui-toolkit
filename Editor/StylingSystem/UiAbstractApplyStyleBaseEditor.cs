@@ -10,7 +10,7 @@ namespace GuiToolkit.Style.Editor
 		private UiAbstractApplyStyleBase m_thisAbstractApplyStyleBase;
 		private SerializedProperty m_nameProp;
 		private SerializedProperty m_fixedSkinNameProp;
-		private SerializedProperty m_isResolutionDependentProp;
+		private SerializedProperty m_isAspectRatioDependentProp;
 		private SerializedProperty m_optionalStyleConfigProp;
 		private SerializedProperty m_onBeforeApplyStyleProp;
 		private SerializedProperty m_onAfterApplyStyleProp;
@@ -23,7 +23,7 @@ namespace GuiToolkit.Style.Editor
 			m_thisAbstractApplyStyleBase = target as UiAbstractApplyStyleBase;
 			m_nameProp = serializedObject.FindProperty("m_name");
 			m_fixedSkinNameProp = serializedObject.FindProperty("m_fixedSkinName");
-			m_isResolutionDependentProp = serializedObject.FindProperty("m_isResolutionDependent");
+			m_isAspectRatioDependentProp = serializedObject.FindProperty("m_isAspectRatioDependent");
 			m_optionalStyleConfigProp = serializedObject.FindProperty("m_optionalStyleConfig");
 			m_onBeforeApplyStyleProp = serializedObject.FindProperty("OnBeforeApplyStyle");
 			m_onAfterApplyStyleProp = serializedObject.FindProperty("OnAfterApplyStyle");
@@ -67,13 +67,13 @@ namespace GuiToolkit.Style.Editor
 			var config = (UiStyleConfig) m_optionalStyleConfigProp.objectReferenceValue;
 			if (config == null)
 			{
-				EditorGUILayout.PropertyField(m_isResolutionDependentProp);
+				EditorGUILayout.PropertyField(m_isAspectRatioDependentProp);
 			}
 			else
 			{
-				m_isResolutionDependentProp.boolValue = config is UiOrientationDependentStyleConfig;
+				m_isAspectRatioDependentProp.boolValue = config is UiAspectRatioDependentStyleConfig;
 				EditorGUI.BeginDisabledGroup(true);
-				EditorGUILayout.PropertyField(m_isResolutionDependentProp);
+				EditorGUILayout.PropertyField(m_isAspectRatioDependentProp);
 				EditorGUI.EndDisabledGroup();
 			}
 
