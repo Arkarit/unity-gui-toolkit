@@ -5,31 +5,7 @@
     "Records": [
         {
             "Used": true,
-            "Name": "anchorMin",
-            "QualifiedTypeName": "UnityEngine.Vector2",
-            "TypeName": "Vector2"
-        },
-        {
-            "Used": true,
-            "Name": "anchorMax",
-            "QualifiedTypeName": "UnityEngine.Vector2",
-            "TypeName": "Vector2"
-        },
-        {
-            "Used": true,
             "Name": "anchoredPosition",
-            "QualifiedTypeName": "UnityEngine.Vector2",
-            "TypeName": "Vector2"
-        },
-        {
-            "Used": true,
-            "Name": "sizeDelta",
-            "QualifiedTypeName": "UnityEngine.Vector2",
-            "TypeName": "Vector2"
-        },
-        {
-            "Used": true,
-            "Name": "pivot",
             "QualifiedTypeName": "UnityEngine.Vector2",
             "TypeName": "Vector2"
         },
@@ -41,49 +17,19 @@
         },
         {
             "Used": true,
-            "Name": "offsetMin",
+            "Name": "anchorMax",
             "QualifiedTypeName": "UnityEngine.Vector2",
             "TypeName": "Vector2"
         },
         {
             "Used": true,
-            "Name": "offsetMax",
+            "Name": "anchorMin",
             "QualifiedTypeName": "UnityEngine.Vector2",
             "TypeName": "Vector2"
-        },
-        {
-            "Used": false,
-            "Name": "position",
-            "QualifiedTypeName": "UnityEngine.Vector3",
-            "TypeName": "Vector3"
-        },
-        {
-            "Used": true,
-            "Name": "localPosition",
-            "QualifiedTypeName": "UnityEngine.Vector3",
-            "TypeName": "Vector3"
         },
         {
             "Used": false,
             "Name": "eulerAngles",
-            "QualifiedTypeName": "UnityEngine.Vector3",
-            "TypeName": "Vector3"
-        },
-        {
-            "Used": true,
-            "Name": "localEulerAngles",
-            "QualifiedTypeName": "UnityEngine.Vector3",
-            "TypeName": "Vector3"
-        },
-        {
-            "Used": false,
-            "Name": "right",
-            "QualifiedTypeName": "UnityEngine.Vector3",
-            "TypeName": "Vector3"
-        },
-        {
-            "Used": false,
-            "Name": "up",
             "QualifiedTypeName": "UnityEngine.Vector3",
             "TypeName": "Vector3"
         },
@@ -95,9 +41,33 @@
         },
         {
             "Used": false,
-            "Name": "rotation",
-            "QualifiedTypeName": "UnityEngine.Quaternion",
-            "TypeName": "Quaternion"
+            "Name": "hasChanged",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": false,
+            "Name": "hideFlags",
+            "QualifiedTypeName": "UnityEngine.HideFlags",
+            "TypeName": "HideFlags"
+        },
+        {
+            "Used": false,
+            "Name": "hierarchyCapacity",
+            "QualifiedTypeName": "System.Int32",
+            "TypeName": "Int32"
+        },
+        {
+            "Used": true,
+            "Name": "localEulerAngles",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": true,
+            "Name": "localPosition",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
         },
         {
             "Used": true,
@@ -113,21 +83,57 @@
         },
         {
             "Used": false,
+            "Name": "name",
+            "QualifiedTypeName": "System.String",
+            "TypeName": "String"
+        },
+        {
+            "Used": true,
+            "Name": "offsetMax",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": true,
+            "Name": "offsetMin",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": false,
             "Name": "parent",
             "QualifiedTypeName": "UnityEngine.Transform",
             "TypeName": "Transform"
         },
         {
-            "Used": false,
-            "Name": "hasChanged",
-            "QualifiedTypeName": "System.Boolean",
-            "TypeName": "Boolean"
+            "Used": true,
+            "Name": "pivot",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
         },
         {
             "Used": false,
-            "Name": "hierarchyCapacity",
-            "QualifiedTypeName": "System.Int32",
-            "TypeName": "Int32"
+            "Name": "position",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": false,
+            "Name": "right",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
+        },
+        {
+            "Used": false,
+            "Name": "rotation",
+            "QualifiedTypeName": "UnityEngine.Quaternion",
+            "TypeName": "Quaternion"
+        },
+        {
+            "Used": true,
+            "Name": "sizeDelta",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
         },
         {
             "Used": false,
@@ -137,15 +143,9 @@
         },
         {
             "Used": false,
-            "Name": "name",
-            "QualifiedTypeName": "System.String",
-            "TypeName": "String"
-        },
-        {
-            "Used": false,
-            "Name": "hideFlags",
-            "QualifiedTypeName": "UnityEngine.HideFlags",
-            "TypeName": "HideFlags"
+            "Name": "up",
+            "QualifiedTypeName": "UnityEngine.Vector3",
+            "TypeName": "Vector3"
         }
     ]
 }

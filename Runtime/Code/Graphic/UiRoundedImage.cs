@@ -256,6 +256,9 @@ namespace GuiToolkit
 		protected override void OnDisable()
 		{
 			base.OnDisable();
+			if (GeneralUtility.IsQuitting)
+				return;
+
 			m_clonedMaterial.SafeDestroyDelayed();
 			m_clonedMaterial = null;
 		}

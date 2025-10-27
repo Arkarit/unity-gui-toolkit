@@ -1,7 +1,10 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
+using System.Runtime.CompilerServices;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,12 +16,15 @@ namespace GuiToolkit.Style
 	[EditorAware]
 	public abstract class UiAbstractApplyStyleBase : AbstractEditorAwareMonoBehaviour
 	{
-		[SerializeField] [HideInInspector] private bool m_isResolutionDependent;
+		[FormerlySerializedAs("m_isResolutionDependent")] 
+		[SerializeField] [HideInInspector] private bool m_isAspectRatioDependent;
 		[FormerlySerializedAs("m_config")] 
 		[SerializeField][HideInInspector] private UiStyleConfig m_optionalStyleConfig;
 		[SerializeField][HideInInspector] private string m_name;
 		[SerializeField][HideInInspector] private string m_fixedSkinName;
 		[SerializeField][HideInInspector] protected bool m_tweenable = true;
+		[SerializeField][HideInInspector] private bool m_rebuildLayoutOnApply = false;
+		[SerializeField][HideInInspector] protected int m_frameDelay = 0;
 		
 		protected UiAbstractStyleBase m_style;
 
@@ -38,7 +44,14 @@ namespace GuiToolkit.Style
 			get => m_tweenable && !SkinIsFixed;
 			set => m_tweenable = value;
 		}
-		public bool IsResolutionDependent => m_isResolutionDependent;
+
+		public bool RebuildLayoutOnApply
+		{
+			get => m_rebuildLayoutOnApply;
+			set => m_rebuildLayoutOnApply = value;
+		}
+
+		public bool IsAspectRatioDependent => m_isAspectRatioDependent;
 
 		public UiStyleConfig StyleConfig
 		{
@@ -53,17 +66,18 @@ namespace GuiToolkit.Style
 				if (!m_effectiveStyleConfigInitialized)
 				{
 					m_effectiveStyleConfigInitialized = true;
-					if (m_isResolutionDependent)
-					{
-						m_effectiveStyleConfig = UiOrientationDependentStyleConfig.Instance;
-						if (m_effectiveStyleConfig != null)
-							return m_effectiveStyleConfig;
-					}
 
 					if (m_optionalStyleConfig != null)
 					{
 						m_effectiveStyleConfig = m_optionalStyleConfig;
 						return m_effectiveStyleConfig;
+					}
+
+					if (m_isAspectRatioDependent)
+					{
+						m_effectiveStyleConfig = UiAspectRatioDependentStyleConfig.Instance;
+						if (m_effectiveStyleConfig != null)
+							return m_effectiveStyleConfig;
 					}
 
 					m_effectiveStyleConfig = UiMainStyleConfig.Instance;
@@ -108,7 +122,7 @@ namespace GuiToolkit.Style
 
 		protected override void SafeOnEnable()
 		{
-			UiEventDefinitions.EvScreenOrientationChange.AddListener(OnScreenOrientationChanged);
+			UiEventDefinitions.EvScreenResolutionChange.AddListener(OnScreenResolutionChanged);
 			SetSkinListeners(!SkinIsFixed);
 
 			if (Component == null)
@@ -120,11 +134,11 @@ namespace GuiToolkit.Style
 
 		protected virtual void OnDisable()
 		{
-			UiEventDefinitions.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChanged);
+			UiEventDefinitions.EvScreenResolutionChange.RemoveListener(OnScreenResolutionChanged);
 			SetSkinListeners(false);
 		}
 		
-		private void OnScreenOrientationChanged(EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation)
+		private void OnScreenResolutionChanged(ScreenResolution _oldScreenResolution, ScreenResolution _newScreenResolution)
 		{
 			Apply();
 		}
@@ -144,7 +158,7 @@ namespace GuiToolkit.Style
 		{
 			if (_alsoStyleConfig)
 			{
-				m_isResolutionDependent = false;
+				m_isAspectRatioDependent = false;
 				m_optionalStyleConfig = null;
 			}
 
@@ -155,14 +169,35 @@ namespace GuiToolkit.Style
 		
 		public void Apply()
 		{
+			if (Application.isPlaying && m_frameDelay > 0)
+			{
+				CoRoutineRunner.Instance.StartCoroutine(ApplyDelayed());
+				return;
+			}
+
+			ApplyInternal();
+		}
+
+		IEnumerator ApplyDelayed()
+		{
+			for (int i = 0; i < m_frameDelay; i++)
+				yield return null;
+
+			ApplyInternal();
+		}
+
+		private void ApplyInternal()
+		{
 			if (CheckCondition())
 			{
 				OnBeforeApplyStyle.Invoke(this);
 				ApplyImpl();
+				if (m_rebuildLayoutOnApply && transform is RectTransform targetRectTransform)
+					LayoutRebuilder.ForceRebuildLayoutImmediate(targetRectTransform);
 				OnAfterApplyStyle.Invoke(this);
 			}
 		}
-		
+
 		public void Record()
 		{
 			if (CheckCondition())
@@ -175,16 +210,8 @@ namespace GuiToolkit.Style
 #endif
 		}
 
-		private bool CheckCondition()
-		{
-			if (Style == null)
-				return false;
-
-			var result = Style.ScreenOrientationCondition == UiAbstractStyleBase.EScreenOrientationCondition.Always 
-			       || Style.ScreenOrientationCondition == (UiAbstractStyleBase.EScreenOrientationCondition) UiUtility.GetCurrentScreenOrientation();
-
-			return result;
-		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private bool CheckCondition() => Style != null;
 
 		protected abstract void ApplyImpl();
 		protected abstract void RecordImpl();

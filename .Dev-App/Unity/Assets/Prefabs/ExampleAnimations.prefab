@@ -468,22 +468,13 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnOrientationChange: 0
-  m_slaveAnimations:
-  - {fileID: 7602058738114447746}
-  - {fileID: 2117938461237363087}
-  - {fileID: 2295137362371619364}
-  - {fileID: 8306068767533765224}
-  - {fileID: 753692578509936322}
+  m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 1
   m_delayPerChild: 0.2
   m_autoCollectChildren: 1
-  m_childAnimations:
-  - {fileID: 7602058738114447746}
-  - {fileID: 2117938461237363087}
-  - {fileID: 2295137362371619364}
-  - {fileID: 8306068767533765224}
-  - {fileID: 753692578509936322}
+  m_childAnimations: []
+  m_container: {fileID: 0}
 --- !u!1 &1853818843675036507
 GameObject:
   m_ObjectHideFlags: 0
@@ -1862,22 +1853,13 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnOrientationChange: 0
-  m_slaveAnimations:
-  - {fileID: 8058476733951546112}
-  - {fileID: 1620762672605039370}
-  - {fileID: 7056781776473736211}
-  - {fileID: 8468107237159648698}
-  - {fileID: 6036747040408229139}
+  m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 1
   m_delayPerChild: 0.2
   m_autoCollectChildren: 1
-  m_childAnimations:
-  - {fileID: 8058476733951546112}
-  - {fileID: 1620762672605039370}
-  - {fileID: 7056781776473736211}
-  - {fileID: 8468107237159648698}
-  - {fileID: 6036747040408229139}
+  m_childAnimations: []
+  m_container: {fileID: 0}
 --- !u!1 &6360180286368115365
 GameObject:
   m_ObjectHideFlags: 0
@@ -3493,7 +3475,7 @@ PrefabInstance:
     - target: {fileID: 8806163725296523091, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
         type: 3}
       propertyPath: m_PresetInfoIsWorld
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

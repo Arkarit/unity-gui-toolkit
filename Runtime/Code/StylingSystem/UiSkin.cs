@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
@@ -19,14 +20,19 @@ namespace GuiToolkit.Style
 		// m_alias can be changed and used for display purposes.
 		[SerializeField] private string m_alias;
 		[NonReorderable][SerializeReference] private List<UiAbstractStyleBase> m_styles = new();
+		[FormerlySerializedAs("m_aspectRatioGE")] [SerializeField] private float m_aspectRatioGreaterEqual = 0;
+
 
 		private Dictionary<int, UiAbstractStyleBase> m_styleByKey;
 		private static readonly List<int> m_stylesToRemove = new();
 
-		public UiSkin(UiStyleConfig _config, string _name) 
+		public UiSkin(UiStyleConfig _config, string _name, float _aspectRatioGreaterEqual = -1 ) 
 		{
 			m_config = _config;
 			m_name = _name;
+			m_aspectRatioGreaterEqual = _aspectRatioGreaterEqual;
+			if (!IsAspectRatioDependent && !Mathf.Approximately(-1, _aspectRatioGreaterEqual))
+				throw new ArgumentException("Non-Aspect Ratio dependent UiSkins can't have an 'aspect ratio greater than' setting");
 		}
 		
 		public string Name => m_name;
@@ -45,6 +51,8 @@ namespace GuiToolkit.Style
 
 		public List<UiAbstractStyleBase> Styles => m_styles;
 		public UiStyleConfig StyleConfig => m_config;
+		public bool IsAspectRatioDependent => m_config is UiAspectRatioDependentStyleConfig;
+		public float AspectRatioGreaterEqual => m_aspectRatioGreaterEqual;
 
 		public void Init(UiStyleConfig _config)
 		{

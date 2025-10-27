@@ -90,9 +90,6 @@ namespace GuiToolkit.Style.Editor
 
 				EditorGUI.BeginChangeCheck();
 				
-				var screenOrientationConditionProp = Property.FindPropertyRelative("m_screenOrientationCondition");
-				EnumPopupField<UiAbstractStyleBase.EScreenOrientationCondition>("Condition:", screenOrientationConditionProp);
-
 				var oldVal = ApplicableValueBaseDrawer.DrawCondition;
 				ApplicableValueBaseDrawer.DrawCondition = ApplicableValueBaseDrawer.EDrawCondition.OnlyEnabled;
 				DrawProperties();

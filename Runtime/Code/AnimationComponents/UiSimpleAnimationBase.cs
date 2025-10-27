@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
@@ -39,8 +40,9 @@ namespace GuiToolkit
 		[Tooltip("Number of loops. -1: infinite loops 0: no loops, >0: Arbitrary number of loops")]
 		[SerializeField] protected int m_numberOfLoops = 0;
 
-		[Tooltip("Finish animation instantly on Orientation change. This is important to set for animations, which differ in landscape and portrait.")]
-		[SerializeField] protected bool m_finishInstantOnOrientationChange = false;
+		[FormerlySerializedAs("m_finishInstantOnOrientationChange")]
+		[Tooltip("Finish animation instantly on screen resolution change. This is important to set for animations, which differ in landscape and portrait.")]
+		[SerializeField] protected bool m_finishInstantOnResolutionChange = false;
 
 		// Slave animations
 
@@ -50,7 +52,7 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_setLoopsForSlaves = true;
 		[SerializeField] protected bool m_supportViewAnimations = true;
 
-		protected override bool NeedsOnScreenOrientationCallback => m_finishInstantOnOrientationChange;
+		protected override bool NeedsOnScreenResolutionChangedCallback => m_finishInstantOnResolutionChange;
 
 		public List<UiSimpleAnimationBase> SlaveAnimations => m_slaveAnimations;
 		public bool IsPlaying
@@ -450,11 +452,11 @@ namespace GuiToolkit
 			FinishAnimation(true);
 		}
 
-		protected override void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation )
+		protected override void OnScreenResolutionChanged( ScreenResolution _oldScreenResolution, ScreenResolution _newScreenResolution )
 		{
-			if (_oldScreenOrientation != EScreenOrientation.Invalid)
+			if (!_oldScreenResolution.IsInvalid)
 			{
-				Log($"Screen orientation changed to {_newScreenOrientation}, stopping (finishing) animation");
+				Log($"Screen resolution changed to {_newScreenResolution}, stopping (finishing) animation");
 				Stop();
 			}
 		}

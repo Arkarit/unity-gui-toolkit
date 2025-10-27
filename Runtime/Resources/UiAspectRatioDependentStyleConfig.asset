@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 77339a0b7f8033d4a9f1bd5c1d28b5e1, type: 3}
-  m_Name: UiOrientationDependentStyleConfig
+  m_Name: UiAspectRatioDependentStyleConfig
   m_EditorClassIdentifier: 
   m_skins:
   - m_config: {fileID: 11400000}
@@ -25,6 +25,9 @@ MonoBehaviour:
     - rid: 8590990470691422228
     - rid: 8590990470691422354
     - rid: 8590990470691422547
+    - rid: 2715893904985292980
+    - rid: 2715893905744461959
+    m_aspectRatioGE: 1
   - m_config: {fileID: 11400000}
     m_name: Portrait
     m_alias: 
@@ -37,10 +40,829 @@ MonoBehaviour:
     - rid: 8590990470691422229
     - rid: 8590990470691422355
     - rid: 8590990470691422548
+    - rid: 2715893904985292981
+    - rid: 2715893905744461960
+    m_aspectRatioGE: 0
   m_currentSkinIdx: 0
   references:
     version: 2
     RefIds:
+    - rid: 2715893904985292980
+      type: {class: UiStyleUiSimpleAnimation, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: PositionYInLandscape
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_AlphaCanvasGroup:
+          rid: 2715893904985292982
+        m_AlphaCurve:
+          rid: 2715893904985292983
+        m_AlphaGraphic:
+          rid: 2715893904985292984
+        m_BackwardsAnimation:
+          rid: 2715893904985292985
+        m_CanvasRectTransform:
+          rid: 2715893904985292986
+        m_CanvasScaler:
+          rid: 2715893904985292987
+        m_Delay:
+          rid: 2715893904985292988
+        m_Duration:
+          rid: 2715893904985292989
+        m_enabled:
+          rid: 2715893904985292990
+        m_EnabledInHierarchy:
+          rid: 2715893904985292991
+        m_MarkTargetForLayoutRebuild:
+          rid: 2715893904985292992
+        m_PosXCurve:
+          rid: 2715893904985292993
+        m_PosXEnd:
+          rid: 2715893904985292994
+        m_PosXStart:
+          rid: 2715893904985292995
+        m_PosYCurve:
+          rid: 2715893904985292996
+        m_PosYEnd:
+          rid: 2715893904985292997
+        m_PosYStart:
+          rid: 2715893904985292998
+        m_RotZCurve:
+          rid: 2715893904985292999
+        m_RotZEnd:
+          rid: 2715893904985293000
+        m_RotZStart:
+          rid: 2715893904985293001
+        m_ScaleByCanvasScaler:
+          rid: 2715893904985293002
+        m_ScaleLocked:
+          rid: 2715893904985293003
+        m_ScaleXCurve:
+          rid: 2715893904985293004
+        m_ScaleXEnd:
+          rid: 2715893904985293005
+        m_ScaleXStart:
+          rid: 2715893904985293006
+        m_ScaleYCurve:
+          rid: 2715893904985293007
+        m_ScaleYEnd:
+          rid: 2715893904985293008
+        m_ScaleYStart:
+          rid: 2715893904985293009
+        m_Support:
+          rid: 2715893904985293010
+        m_Target:
+          rid: 2715893904985293011
+    - rid: 2715893904985292981
+      type: {class: UiStyleUiSimpleAnimation, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: PositionYInLandscape
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_AlphaCanvasGroup:
+          rid: 2715893904985293012
+        m_AlphaCurve:
+          rid: 2715893904985293013
+        m_AlphaGraphic:
+          rid: 2715893904985293014
+        m_BackwardsAnimation:
+          rid: 2715893904985293015
+        m_CanvasRectTransform:
+          rid: 2715893904985293016
+        m_CanvasScaler:
+          rid: 2715893904985293017
+        m_Delay:
+          rid: 2715893904985293018
+        m_Duration:
+          rid: 2715893904985293019
+        m_enabled:
+          rid: 2715893904985293020
+        m_EnabledInHierarchy:
+          rid: 2715893904985293021
+        m_MarkTargetForLayoutRebuild:
+          rid: 2715893904985293022
+        m_PosXCurve:
+          rid: 2715893904985293023
+        m_PosXEnd:
+          rid: 2715893904985293024
+        m_PosXStart:
+          rid: 2715893904985293025
+        m_PosYCurve:
+          rid: 2715893904985293026
+        m_PosYEnd:
+          rid: 2715893904985293027
+        m_PosYStart:
+          rid: 2715893904985293028
+        m_RotZCurve:
+          rid: 2715893904985293029
+        m_RotZEnd:
+          rid: 2715893904985293030
+        m_RotZStart:
+          rid: 2715893904985293031
+        m_ScaleByCanvasScaler:
+          rid: 2715893904985293032
+        m_ScaleLocked:
+          rid: 2715893904985293033
+        m_ScaleXCurve:
+          rid: 2715893904985293034
+        m_ScaleXEnd:
+          rid: 2715893904985293035
+        m_ScaleXStart:
+          rid: 2715893904985293036
+        m_ScaleYCurve:
+          rid: 2715893904985293037
+        m_ScaleYEnd:
+          rid: 2715893904985293038
+        m_ScaleYStart:
+          rid: 2715893904985293039
+        m_Support:
+          rid: 2715893904985293040
+        m_Target:
+          rid: 2715893904985293041
+    - rid: 2715893904985292982
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueCanvasGroup, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2715893904985292983
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueAnimationCurve, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 2715893904985292984
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueGraphic, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2715893904985292985
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueUiSimpleAnimationBase,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2715893904985292986
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueRectTransform, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2715893904985292987
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueCanvasScaler, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2715893904985292988
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985292989
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0.3
+    - rid: 2715893904985292990
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2715893904985292991
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2715893904985292992
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985292993
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueAnimationCurve, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 2715893904985292994
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 2715893904985292995
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1920
+    - rid: 2715893904985292996
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueAnimationCurve, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 2715893904985292997
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 2715893904985292998
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1200
+    - rid: 2715893904985292999
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueAnimationCurve, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 2715893904985293000
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293001
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293002
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2715893904985293003
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293004
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueAnimationCurve, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 2715893904985293005
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293006
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293007
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueAnimationCurve, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 2715893904985293008
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293009
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293010
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueESupport, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 2
+    - rid: 2715893904985293011
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueRectTransform, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2715893904985293012
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueCanvasGroup, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2715893904985293013
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueAnimationCurve, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 2715893904985293014
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueGraphic, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2715893904985293015
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueUiSimpleAnimationBase,
+        ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2715893904985293016
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueRectTransform, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2715893904985293017
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueCanvasScaler, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2715893904985293018
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293019
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0.3
+    - rid: 2715893904985293020
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2715893904985293021
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2715893904985293022
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293023
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueAnimationCurve, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 2715893904985293024
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 2715893904985293025
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1200
+    - rid: 2715893904985293026
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueAnimationCurve, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 2715893904985293027
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 0
+    - rid: 2715893904985293028
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1920
+    - rid: 2715893904985293029
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueAnimationCurve, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 2715893904985293030
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293031
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293032
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 2715893904985293033
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293034
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueAnimationCurve, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 2715893904985293035
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293036
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293037
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueAnimationCurve, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 2715893904985293038
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293039
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 2715893904985293040
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueESupport, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: 1
+    - rid: 2715893904985293041
+      type: {class: UiStyleUiSimpleAnimation/ApplicableValueRectTransform, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 2715893905744461959
+      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: PositionYInLandscape
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_anchoredPosition:
+          rid: 2715893905744461963
+        m_anchorMax:
+          rid: 2715893905744461962
+        m_anchorMin:
+          rid: 2715893905744461961
+        m_localEulerAngles:
+          rid: 2715893905744461969
+        m_localPosition:
+          rid: 2715893905744461968
+        m_localRotation:
+          rid: 2715893905744461970
+        m_localScale:
+          rid: 2715893905744461971
+        m_offsetMax:
+          rid: 2715893905744461967
+        m_offsetMin:
+          rid: 2715893905744461966
+        m_pivot:
+          rid: 2715893905744461965
+        m_sizeDelta:
+          rid: 2715893905744461964
+    - rid: 2715893905744461960
+      type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: PositionYInLandscape
+        m_alias: 
+        m_screenOrientationCondition: -1
+        m_anchoredPosition:
+          rid: 2715893905744461974
+        m_anchorMax:
+          rid: 2715893905744461973
+        m_anchorMin:
+          rid: 2715893905744461972
+        m_localEulerAngles:
+          rid: 2715893905744461980
+        m_localPosition:
+          rid: 2715893905744461979
+        m_localRotation:
+          rid: 2715893905744461981
+        m_localScale:
+          rid: 2715893905744461982
+        m_offsetMax:
+          rid: 2715893905744461978
+        m_offsetMin:
+          rid: 2715893905744461977
+        m_pivot:
+          rid: 2715893905744461976
+        m_sizeDelta:
+          rid: 2715893905744461975
+    - rid: 2715893905744461961
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 2715893905744461962
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1}
+    - rid: 2715893905744461963
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 0, y: 0}
+    - rid: 2715893905744461964
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 2715893905744461965
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0.5, y: 0.5}
+    - rid: 2715893905744461966
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 2715893905744461967
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 2715893905744461968
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0}
+    - rid: 2715893905744461969
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -0, y: 0, z: 0}
+    - rid: 2715893905744461970
+      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0, w: 1}
+    - rid: 2715893905744461971
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1, z: 1}
+    - rid: 2715893905744461972
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 2715893905744461973
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1}
+    - rid: 2715893905744461974
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {x: 0, y: 0}
+    - rid: 2715893905744461975
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 2715893905744461976
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0.5, y: 0.5}
+    - rid: 2715893905744461977
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 2715893905744461978
+      type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 2715893905744461979
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0}
+    - rid: 2715893905744461980
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: -0, y: 0, z: 0}
+    - rid: 2715893905744461981
+      type: {class: UiStyleRectTransform/ApplicableValueQuaternion, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0, z: 0, w: 1}
+    - rid: 2715893905744461982
+      type: {class: UiStyleRectTransform/ApplicableValueVector3, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 1, y: 1, z: 1}
     - rid: 8590990459434959334
       type: {class: UiStyleUiHorizontalOrVerticalLayoutGroup, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -794,28 +1616,28 @@ MonoBehaviour:
         m_name: FullScreenTabDialog/TabContent
         m_alias: 
         m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 8590990470691422230
-        m_anchorMax:
-          rid: 8590990470691422231
         m_anchoredPosition:
           rid: 8590990470691422232
-        m_sizeDelta:
-          rid: 8590990470691422233
-        m_pivot:
-          rid: 8590990470691422234
-        m_offsetMin:
-          rid: 8590990470691422235
-        m_offsetMax:
-          rid: 8590990470691422236
-        m_localPosition:
-          rid: 8590990470691422237
+        m_anchorMax:
+          rid: 8590990470691422231
+        m_anchorMin:
+          rid: 8590990470691422230
         m_localEulerAngles:
           rid: 8590990470691422238
+        m_localPosition:
+          rid: 8590990470691422237
         m_localRotation:
           rid: 8590990470691422239
         m_localScale:
           rid: 8590990470691422240
+        m_offsetMax:
+          rid: 8590990470691422236
+        m_offsetMin:
+          rid: 8590990470691422235
+        m_pivot:
+          rid: 8590990470691422234
+        m_sizeDelta:
+          rid: 8590990470691422233
     - rid: 8590990470691422229
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -823,28 +1645,28 @@ MonoBehaviour:
         m_name: FullScreenTabDialog/TabContent
         m_alias: 
         m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 8590990470691422241
-        m_anchorMax:
-          rid: 8590990470691422242
         m_anchoredPosition:
           rid: 8590990470691422243
-        m_sizeDelta:
-          rid: 8590990470691422244
-        m_pivot:
-          rid: 8590990470691422245
-        m_offsetMin:
-          rid: 8590990470691422246
-        m_offsetMax:
-          rid: 8590990470691422247
-        m_localPosition:
-          rid: 8590990470691422248
+        m_anchorMax:
+          rid: 8590990470691422242
+        m_anchorMin:
+          rid: 8590990470691422241
         m_localEulerAngles:
           rid: 8590990470691422249
+        m_localPosition:
+          rid: 8590990470691422248
         m_localRotation:
           rid: 8590990470691422250
         m_localScale:
           rid: 8590990470691422251
+        m_offsetMax:
+          rid: 8590990470691422247
+        m_offsetMin:
+          rid: 8590990470691422246
+        m_pivot:
+          rid: 8590990470691422245
+        m_sizeDelta:
+          rid: 8590990470691422244
     - rid: 8590990470691422230
       type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}

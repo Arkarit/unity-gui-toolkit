@@ -6,13 +6,6 @@ namespace GuiToolkit.Style
 	[Serializable]
 	public abstract class UiAbstractStyleBase
 	{
-		public enum EScreenOrientationCondition
-		{
-			Always = -1,
-			Landscape,
-			Portrait,
-		}
-
 		[SerializeField][HideInInspector] private UiStyleConfig m_styleConfig;
 		
 		// The m_name member should never change. Together with the supported Component type it forms the identifier of this style
@@ -20,7 +13,6 @@ namespace GuiToolkit.Style
 		[SerializeField][HideInInspector] private string m_name;
 		// m_alias can be changed and used for display purposes.
 		[SerializeField][HideInInspector] private string m_alias;
-		[SerializeField][HideInInspector] private EScreenOrientationCondition m_screenOrientationCondition = EScreenOrientationCondition.Always;
 		private ApplicableValueBase[] m_values;
 		
 		private int m_key;
@@ -50,12 +42,6 @@ namespace GuiToolkit.Style
 			}
 			
 			set => m_alias = value;
-		}
-
-		public EScreenOrientationCondition ScreenOrientationCondition
-		{
-			get => m_screenOrientationCondition;
-			set => m_screenOrientationCondition = value;
 		}
 
 		public abstract Type SupportedComponentType { get; }

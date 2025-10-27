@@ -59,7 +59,7 @@ namespace GuiToolkit
 		private readonly Stack<UiView> m_stack = new();
 		private static UiMain s_instance;
 		private UiPlayerSettingsDialog m_playerSettingsDialog;
-		static EScreenOrientation s_screenOrientation = EScreenOrientation.Invalid;
+		static ScreenResolution s_screenResolution = GuiToolkit.ScreenResolution.Empty;
 		
 		private readonly List<IExcludeFromFrustumCulling> m_excludedFromFrustumCulling = new ();
 		private readonly List<Bounds> m_excludedBounds = new ();
@@ -94,17 +94,26 @@ namespace GuiToolkit
 		{
 			get
 			{
+				if (GeneralUtility.IsQuitting)
+					return false;
+
 				if (s_instance == null)
 					s_instance = FindAnyObjectByType<UiMain>();
 				if (s_instance == null)
 					return false;
 				return s_instance.m_isAwake;
 			}
-			
-			private set => s_instance.m_isAwake = value;
+
+			private set
+			{
+				if (GeneralUtility.IsQuitting)
+					return;
+
+				s_instance.m_isAwake = value;
+			}
 		}
 
-		public static EScreenOrientation ScreenOrientation => s_screenOrientation;
+		public static ScreenResolution ScreenResolution => s_screenResolution;
 
 #if UNITY_EDITOR
 		[InitializeOnLoadMethod]
@@ -114,8 +123,8 @@ namespace GuiToolkit
 			{
 				s_staticInitialized = true;
 
-				EditorApplication.update += FireOnScreenOrientationChangedEventIfNecessary;
-				FireOnScreenOrientationChangedEventIfNecessary();
+				EditorApplication.update += FireOnScreenResolutionChangedEventIfNecessary;
+				FireOnScreenResolutionChangedEventIfNecessary();
 				UiLog.Log("UIMain static initialized");
 			}
 		}
@@ -583,6 +592,9 @@ namespace GuiToolkit
 
 		protected virtual void OnDestroy()
 		{
+			if (GeneralUtility.IsQuitting)
+				return;
+
 			IsAwake = false;
 			Instance = null;
 			UiEventDefinitions.EvFullScreenView.RemoveListener(OnFullScreenView);
@@ -594,14 +606,14 @@ namespace GuiToolkit
 			CheckSceneSetup();
 #endif
 			SetDefaultSceneVisibilities(gameObject);
-			FireOnScreenOrientationChangedEventIfNecessary();
+			FireOnScreenResolutionChangedEventIfNecessary();
 		}
 
 		//FIXME: performance. Need some "dirty" stuff.
 		protected virtual void Update()
 		{
 			Instance = this;
-			FireOnScreenOrientationChangedEventIfNecessary();
+			FireOnScreenResolutionChangedEventIfNecessary();
 			InitGetters();
 			SortViews();
 		}
@@ -614,15 +626,15 @@ namespace GuiToolkit
 					((ISetDefaultSceneVisibility)monoBehaviour).SetDefaultSceneVisibility();
 		}
 
-		private static void FireOnScreenOrientationChangedEventIfNecessary()
+		private static void FireOnScreenResolutionChangedEventIfNecessary()
 		{
-			EScreenOrientation orientation = UiUtility.GetCurrentScreenOrientation();
+			ScreenResolution resolution = UiUtility.GetCurrentScreenResolution();
 
-			if (orientation == s_screenOrientation)
+			if (resolution == s_screenResolution)
 				return;
 
-			UiEventDefinitions.EvScreenOrientationChange.InvokeAlways(s_screenOrientation, orientation);
-			s_screenOrientation = orientation;
+			UiEventDefinitions.EvScreenResolutionChange.InvokeAlways(s_screenResolution, resolution);
+			s_screenResolution = resolution;
 		}
 
 		private bool CheckSceneValid(string _sceneName)
