@@ -548,6 +548,20 @@ namespace GuiToolkit
 			return _rt.center;
 		}
 
+		public static float GetLeftUnscaled( this RectTransform _self ) => _self.rect.xMin;
+		public static float GetRightUnscaled( this RectTransform _self ) => _self.rect.xMax;
+		public static float GetTopUnscaled( this RectTransform _self ) => _self.rect.yMax;
+		public static float GetBottomUnscaled( this RectTransform _self ) => _self.rect.yMin;
+		public static float GetWidthUnscaled( this RectTransform _self ) => _self.rect.width;
+		public static float GetHeightUnscaled( this RectTransform _self ) => _self.rect.height;
+		public static float GetLeftScaled( this RectTransform _self ) => _self.rect.xMin * _self.lossyScale.x;
+		public static float GetRightScaled( this RectTransform _self ) => _self.rect.xMax * _self.lossyScale.x;
+		public static float GetTopScaled( this RectTransform _self ) => _self.rect.yMax * _self.lossyScale.y;
+		public static float GetBottomScaled( this RectTransform _self ) => _self.rect.yMin * _self.lossyScale.y;
+		public static float GetWidthScaled( this RectTransform _self ) => _self.rect.width * _self.lossyScale.x;
+		public static float GetHeightScaled( this RectTransform _self ) => _self.rect.height * _self.lossyScale.y;
+
+
 		public static Vector2 TopLeft( this Rect _self )
 		{
 			return new Vector2(_self.xMin, _self.yMax);
@@ -1028,31 +1042,31 @@ namespace GuiToolkit
 
 		public static Transform FindDescendantWithTag( this Transform _parent, string _tag, bool _includeInactive = false )
 		{
-			if (_parent == null) 
+			if (_parent == null)
 				return null;
-			
+
 			if (!_includeInactive && !_parent.gameObject.activeInHierarchy)
 				return null;
-			
+
 			if (_parent.CompareTag(_tag))
 				return _parent;
-			
+
 			foreach (Transform child in _parent)
 			{
 				var result = child.FindDescendantWithTag(_tag, _includeInactive);
 				if (result != null)
 					return result;
 			}
-			
+
 			return null;
 		}
-		
-		public static GameObject FindDescendantWithTag(this GameObject _parent, string _tag, bool _includeInactive = false )
+
+		public static GameObject FindDescendantWithTag( this GameObject _parent, string _tag, bool _includeInactive = false )
 		{
 			var found = _parent.transform.FindDescendantWithTag(_tag, _includeInactive);
 			return found != null ? found.gameObject : null;
 		}
-		
+
 		public static bool CompareTagEx( this Transform _transform, string _tag ) => _transform && CompareTagEx(_transform.gameObject, _tag);
 
 		/// <summary>
