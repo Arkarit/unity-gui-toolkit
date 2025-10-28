@@ -26,7 +26,7 @@ namespace GuiToolkit
 			Application.quitting += () => s_isQuitting = true;
 		}
 
-		public static bool IsQuitting(this Application _) => s_isQuitting;
+		public static bool IsQuitting( this Application _ ) => s_isQuitting;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static unsafe bool HasFlags<T>( this T _self, T _flags ) where T : unmanaged, Enum
@@ -1026,6 +1026,33 @@ namespace GuiToolkit
 			return _go.CompareTag(_tag);
 		}
 
+		public static Transform FindDescendantWithTag( this Transform _parent, string _tag, bool _includeInactive = false )
+		{
+			if (_parent == null) 
+				return null;
+			
+			if (!_includeInactive && !_parent.gameObject.activeInHierarchy)
+				return null;
+			
+			if (_parent.CompareTag(_tag))
+				return _parent;
+			
+			foreach (Transform child in _parent)
+			{
+				var result = child.FindDescendantWithTag(_tag, _includeInactive);
+				if (result != null)
+					return result;
+			}
+			
+			return null;
+		}
+		
+		public static GameObject FindDescendantWithTag(this GameObject _parent, string _tag, bool _includeInactive = false )
+		{
+			var found = _parent.transform.FindDescendantWithTag(_tag, _includeInactive);
+			return found != null ? found.gameObject : null;
+		}
+		
 		public static bool CompareTagEx( this Transform _transform, string _tag ) => _transform && CompareTagEx(_transform.gameObject, _tag);
 
 		/// <summary>
