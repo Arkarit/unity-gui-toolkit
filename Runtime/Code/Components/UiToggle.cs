@@ -61,7 +61,9 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			SetToggleGroupIfNecessary();
+			if (m_toggleGroupHandling != EToggleGroupHandling.Ignore && !m_toggleGroupWasManuallySet)
+				ExecuteFrameDelayed(SetToggleGroupIfNecessary);
+			
 			PlaySelectionAnimationIfNecessary(Toggle.isOn, true);
 			Toggle.onValueChanged.AddListener(PlaySelectionAnimationIfNecessary);
 		}
@@ -93,8 +95,7 @@ namespace GuiToolkit
 		
 		private void SetToggleGroupIfNecessary()
 		{
-			if (m_toggleGroupHandling == EToggleGroupHandling.Ignore || m_toggleGroupWasManuallySet)
-				return;
+			Debug.Assert(m_toggleGroupHandling != EToggleGroupHandling.Ignore && !m_toggleGroupWasManuallySet);
 			
 			var toggleGroup = GetComponentInParent<ToggleGroup>();
 			if (toggleGroup != null)

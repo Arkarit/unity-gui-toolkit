@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -153,6 +155,43 @@ namespace GuiToolkit
 			}
 
 			m_buttonListeners.AddRange(_listeners);
+		}
+		
+		protected void ExecuteFrameDelayed(Action _action, int _frames = 1, bool _useCoRoutineRunner = true)
+		{
+			if (_useCoRoutineRunner)
+				CoRoutineRunner.Instance.StartCoroutine(ExecuteFrameDelayedCoroutine(_action, _frames));
+			else
+				StartCoroutine(ExecuteFrameDelayedCoroutine(_action, _frames));
+		}
+		
+		protected void ExecuteTimeDelayed(Action _action, float _timeSeconds = 1, bool _useCoRoutineRunner = true)
+		{
+			if (_useCoRoutineRunner)
+				CoRoutineRunner.Instance.StartCoroutine(ExecuteTimeDelayedCoroutine(_action, _timeSeconds));
+			else
+				StartCoroutine(ExecuteTimeDelayedCoroutine(_action, _timeSeconds));
+		}
+		
+		private IEnumerator ExecuteFrameDelayedCoroutine(Action _action, int _frames)
+		{
+			for (int i = 0; i < _frames; i++)
+				yield return null;
+			
+			if (this == null)
+				yield break;
+			
+			_action?.Invoke();
+		}
+
+		private IEnumerator ExecuteTimeDelayedCoroutine(Action _action, float _timeSeconds)
+		{
+			yield return new WaitForSeconds(_timeSeconds);
+			
+			if (this == null)
+				yield break;
+			
+			_action?.Invoke();
 		}
 
 		/// <summary>
