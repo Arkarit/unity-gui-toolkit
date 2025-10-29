@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -15,7 +16,8 @@ namespace GuiToolkit
 			FindOrCreate,
 		}
 		
-		[SerializeField] protected bool m_animatedWhenSelected;
+		[FormerlySerializedAs("m_animatedWhenSelected")] [SerializeField] protected bool m_playButtonAnimation;
+		[SerializeField][Optional] protected UiSimpleAnimation m_selectionAnimation;
 		[SerializeField] protected EToggleGroupHandling m_toggleGroupHandling = EToggleGroupHandling.Ignore;
 		
 		private Toggle m_toggle;
@@ -81,20 +83,20 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			ToggleWorkaround(Toggle.isOn);
-			Toggle.onValueChanged.AddListener(ToggleWorkaround);
+			PlaySelectionAnimationIfNecessary(Toggle.isOn, true);
+			Toggle.onValueChanged.AddListener(PlaySelectionAnimationIfNecessary);
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			Toggle.onValueChanged.RemoveListener(ToggleWorkaround);
-			ToggleWorkaround(false);
+			Toggle.onValueChanged.RemoveListener(PlaySelectionAnimationIfNecessary);
+			PlaySelectionAnimationIfNecessary(false, true);
 		}
 
 		public override void OnPointerDown(PointerEventData eventData)
 		{
-			if (!m_animatedWhenSelected && Toggle.isOn)
+			if (!m_playButtonAnimation && Toggle.isOn)
 				return;
 
 			base.OnPointerDown(eventData);
@@ -102,17 +104,28 @@ namespace GuiToolkit
 
 		public override void OnPointerUp(PointerEventData eventData)
 		{
-			if (!m_animatedWhenSelected && Toggle.isOn)
+			if (!m_playButtonAnimation && Toggle.isOn)
 				return;
 
 			base.OnPointerUp(eventData);
 		}
+		
+		private void PlaySelectionAnimationIfNecessary(bool _active) => PlaySelectionAnimationIfNecessary(_active, false);
 
-		private void ToggleWorkaround(bool _active)
+		private void PlaySelectionAnimationIfNecessary(bool _active, bool _instant)
 		{
+			// Workaround for Unity issue
 			var colors = Toggle.colors;
 			colors.normalColor = _active ? colors.selectedColor : m_savedColor;
 			Toggle.colors = colors;
+			
+			if (m_selectionAnimation != null)
+			{
+				if (_instant)
+					m_selectionAnimation.Reset(_active);
+				else
+					m_selectionAnimation.Play(!_active);
+			}
 		}
 
 		protected IEnumerator SetDelayedCoroutine(bool _value)
