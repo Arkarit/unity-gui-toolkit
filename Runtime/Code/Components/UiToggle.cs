@@ -8,7 +8,16 @@ namespace GuiToolkit
 	[RequireComponent(typeof(Toggle))]
 	public class UiToggle: UiButtonBase
 	{
+		public enum EToggleGroupHandling
+		{
+			Ignore,
+			Find,
+			FindOrCreate,
+		}
+		
 		[SerializeField] protected bool m_animatedWhenSelected;
+		[SerializeField] protected EToggleGroupHandling m_toggleGroupHandling = EToggleGroupHandling.Ignore;
+		
 		private Toggle m_toggle;
 		private Color m_savedColor;
 
@@ -43,6 +52,30 @@ namespace GuiToolkit
 		{
 			base.Awake();
 			m_savedColor = Toggle.colors.normalColor;
+			
+			if (m_toggleGroupHandling == EToggleGroupHandling.Ignore)
+				return;
+			
+			var toggleGroup = GetComponentInParent<ToggleGroup>();
+			if (toggleGroup != null)
+			{
+				Toggle.group = toggleGroup;
+				return;
+			}
+			
+			if (m_toggleGroupHandling == EToggleGroupHandling.Find)
+			{
+				UiLog.LogWarning($"Toggle group could not be found, toggle might not work properly\n{this.GetPath()}", this);
+				return;
+			}
+			
+			if (transform.parent == null)
+			{
+				UiLog.LogWarning($"Toggle group could not be created, since toggle has no parent; might not work properly\n{this.GetPath()}", this);
+				return;
+			}
+			
+			Toggle.group = transform.parent.gameObject.AddComponent<ToggleGroup>();
 		}
 
 		protected override void OnEnable()
