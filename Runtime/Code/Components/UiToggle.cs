@@ -22,6 +22,7 @@ namespace GuiToolkit
 		
 		private Toggle m_toggle;
 		private Color m_savedColor;
+		private bool m_toggleGroupWasManuallySet;
 
 		public Toggle Toggle
 		{
@@ -54,8 +55,45 @@ namespace GuiToolkit
 		{
 			base.Awake();
 			m_savedColor = Toggle.colors.normalColor;
-			
-			if (m_toggleGroupHandling == EToggleGroupHandling.Ignore)
+			m_toggleGroupWasManuallySet = Toggle.group != null;
+		}
+
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			SetToggleGroupIfNecessary();
+			PlaySelectionAnimationIfNecessary(Toggle.isOn, true);
+			Toggle.onValueChanged.AddListener(PlaySelectionAnimationIfNecessary);
+		}
+
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			Toggle.onValueChanged.RemoveListener(PlaySelectionAnimationIfNecessary);
+			PlaySelectionAnimationIfNecessary(false, true);
+			if (!m_toggleGroupWasManuallySet && m_toggleGroupHandling != EToggleGroupHandling.Ignore)
+				Toggle.group = null;
+		}
+
+		public override void OnPointerDown(PointerEventData eventData)
+		{
+			if (!m_playButtonAnimation && Toggle.isOn)
+				return;
+
+			base.OnPointerDown(eventData);
+		}
+
+		public override void OnPointerUp(PointerEventData eventData)
+		{
+			if (!m_playButtonAnimation && Toggle.isOn)
+				return;
+
+			base.OnPointerUp(eventData);
+		}
+		
+		private void SetToggleGroupIfNecessary()
+		{
+			if (m_toggleGroupHandling == EToggleGroupHandling.Ignore || m_toggleGroupWasManuallySet)
 				return;
 			
 			var toggleGroup = GetComponentInParent<ToggleGroup>();
@@ -80,36 +118,6 @@ namespace GuiToolkit
 			Toggle.group = transform.parent.gameObject.AddComponent<ToggleGroup>();
 		}
 
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-			PlaySelectionAnimationIfNecessary(Toggle.isOn, true);
-			Toggle.onValueChanged.AddListener(PlaySelectionAnimationIfNecessary);
-		}
-
-		protected override void OnDisable()
-		{
-			base.OnDisable();
-			Toggle.onValueChanged.RemoveListener(PlaySelectionAnimationIfNecessary);
-			PlaySelectionAnimationIfNecessary(false, true);
-		}
-
-		public override void OnPointerDown(PointerEventData eventData)
-		{
-			if (!m_playButtonAnimation && Toggle.isOn)
-				return;
-
-			base.OnPointerDown(eventData);
-		}
-
-		public override void OnPointerUp(PointerEventData eventData)
-		{
-			if (!m_playButtonAnimation && Toggle.isOn)
-				return;
-
-			base.OnPointerUp(eventData);
-		}
-		
 		private void PlaySelectionAnimationIfNecessary(bool _active) => PlaySelectionAnimationIfNecessary(_active, false);
 
 		private void PlaySelectionAnimationIfNecessary(bool _active, bool _instant)
