@@ -101,7 +101,7 @@ namespace GuiToolkit
 			m_slaveAnimations.Clear();
 			foreach (var animation in m_childAnimations)
 			{
-				animation.Delay = delay;
+				animation.SetDelay(delay, false);
 				m_slaveAnimations.Add(animation);
 				delay += m_delayPerChild;
 			}

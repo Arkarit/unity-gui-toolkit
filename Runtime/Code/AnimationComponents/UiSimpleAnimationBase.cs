@@ -68,14 +68,65 @@ namespace GuiToolkit
 				m_playing = value;
 			}
 		}
+		
 		public bool IsBackwards => m_backwards;
 		public bool IsAtBeginning => m_currentTime == 0;
 		public bool HasBackwardsAnimation => m_backwardsAnimation;
 
-		public float Duration { get { return m_duration; } set { Reset(); m_duration = value; } }
-		public float Delay { get { return m_delay; } set { Reset(); m_delay = value; } }
-		public UiSimpleAnimationBase BackwardsAnimation { get { return m_backwardsAnimation; } set { Reset(); m_backwardsAnimation = value; } }
+		public float Duration
+		{
+			get => m_duration; 
+			set
+			{
+				Reset(); 
+				m_duration = value;
+			}
+		}
+		
+		public float Delay
+		{
+			get => m_delay;
+			set
+			{
+				Reset(); 
+				m_delay = value;
+			}
+		}
+		
+		public UiSimpleAnimationBase BackwardsAnimation
+		{
+			get => m_backwardsAnimation; 
+			set
+			{
+				Reset(); 
+				m_backwardsAnimation = value;
+			}
+		}
 
+		public void SetDuration(float _duration, bool _reset)
+		{
+			if (_reset)
+				Reset();
+			
+			m_duration = _duration;
+		}
+		
+		public void SetDelay(float _delay, bool _reset)
+		{
+			if (_reset)
+				Reset();
+			
+			m_delay = _delay;
+		}
+		
+		public void SetBackwardsAnimation(UiSimpleAnimationBase _backwardsAnimation, bool _reset)
+		{
+			if (_reset)
+				Reset();
+			
+			m_backwardsAnimation = _backwardsAnimation;
+		}
+		
 		// delegates
 		private readonly UnityEvent m_onFinish = new();
 		private readonly UnityEvent m_onFinishOnce = new();
