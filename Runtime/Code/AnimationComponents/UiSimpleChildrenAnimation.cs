@@ -9,6 +9,8 @@ namespace GuiToolkit
 	{
 		[Tooltip("A delay, which is added to every child")]
 		[SerializeField] private float m_delayPerChild = 0;
+		[Tooltip("Base Duration per child. If left 0, each child sets its duration itself")]
+		[SerializeField] private float m_baseDurationPerChild = 0;
 		[Tooltip("Duration per child. If left 0, each child sets its duration itself. Negative values reverse the direction of children.")]
 		[SerializeField] private float m_durationPerChild = 0;
 		
@@ -112,8 +114,8 @@ namespace GuiToolkit
 				if (m_delayPerChild > 0)
 					animation.SetDelay(delay, false);
 				
-				if (m_durationPerChild > 0)
-					animation.SetDuration(duration, false);
+				if (m_durationPerChild > 0 || m_baseDurationPerChild > 0)
+					animation.SetDuration(duration + m_baseDurationPerChild, false);
 				
 				m_slaveAnimations.Add(animation);
 				delay += m_delayPerChild;

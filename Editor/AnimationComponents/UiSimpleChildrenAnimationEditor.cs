@@ -6,6 +6,7 @@ namespace GuiToolkit.Editor
 	public class UiSimpleChildrenAnimationEditor : UiSimpleAnimationBaseEditor
 	{
 		private SerializedProperty m_delayPerChildProp;
+		private SerializedProperty m_baseDurationPerChildProp;
 		private SerializedProperty m_durationPerChildProp;
 		private SerializedProperty m_autoCollectChildrenProp;
 		private SerializedProperty m_childAnimationsProp;
@@ -17,6 +18,7 @@ namespace GuiToolkit.Editor
 		{
 			base.OnEnable();
 			m_delayPerChildProp = serializedObject.FindProperty("m_delayPerChild");
+			m_baseDurationPerChildProp = serializedObject.FindProperty("m_baseDurationPerChild");
 			m_durationPerChildProp = serializedObject.FindProperty("m_durationPerChild");
 			m_autoCollectChildrenProp = serializedObject.FindProperty("m_autoCollectChildren");
 			m_childAnimationsProp = serializedObject.FindProperty("m_childAnimations");
@@ -26,6 +28,7 @@ namespace GuiToolkit.Editor
 		{
 			base.EditSubClass();
 			EditorGUILayout.PropertyField(m_delayPerChildProp);
+			EditorGUILayout.PropertyField(m_baseDurationPerChildProp);
 			EditorGUILayout.PropertyField(m_durationPerChildProp);
 			EditorGUILayout.PropertyField(m_autoCollectChildrenProp);
 			if (m_autoCollectChildrenProp.boolValue)
