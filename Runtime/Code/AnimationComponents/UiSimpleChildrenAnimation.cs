@@ -104,6 +104,9 @@ namespace GuiToolkit
 		public void InitChildren()
 		{
 			float delay = 0;
+			if (m_delayPerChild < 0)
+				delay = -m_delayPerChild * m_childAnimations.Count;
+			
 			float duration = m_durationPerChild;
 			if (duration < 0)
 				duration = -duration * m_childAnimations.Count;
@@ -111,13 +114,14 @@ namespace GuiToolkit
 			m_slaveAnimations.Clear();
 			foreach (var animation in m_childAnimations)
 			{
-				if (m_delayPerChild > 0)
+				if (m_delayPerChild != 0)
 					animation.SetDelay(delay, false);
 				
-				if (m_durationPerChild > 0 || m_baseDurationPerChild > 0)
+				if (m_durationPerChild != 0 || m_baseDurationPerChild > 0)
 					animation.SetDuration(duration + m_baseDurationPerChild, false);
 				
 				m_slaveAnimations.Add(animation);
+				
 				delay += m_delayPerChild;
 				duration += m_durationPerChild;
 			}
