@@ -7,7 +7,11 @@ namespace GuiToolkit
 {
 	public class UiSimpleChildrenAnimation : UiSimpleAnimationBase
 	{
+		[Tooltip("A delay, which is added to every child")]
 		[SerializeField] private float m_delayPerChild = 0;
+		[Tooltip("Duration per child. If left 0, each child sets its duration itself. Negative values reverse the direction of children.")]
+		[SerializeField] private float m_durationPerChild = 0;
+		
 		[SerializeField] private bool m_autoCollectChildren = true;
 		[SerializeField] private List<UiSimpleAnimationBase> m_childAnimations = new();
 		[SerializeField][Optional] private RectTransform m_container;
@@ -98,12 +102,22 @@ namespace GuiToolkit
 		public void InitChildren()
 		{
 			float delay = 0;
+			float duration = m_durationPerChild;
+			if (duration < 0)
+				duration = -duration * m_childAnimations.Count;
+			
 			m_slaveAnimations.Clear();
 			foreach (var animation in m_childAnimations)
 			{
-				animation.SetDelay(delay, false);
+				if (m_delayPerChild > 0)
+					animation.SetDelay(delay, false);
+				
+				if (m_durationPerChild > 0)
+					animation.SetDuration(duration, false);
+				
 				m_slaveAnimations.Add(animation);
 				delay += m_delayPerChild;
+				duration += m_durationPerChild;
 			}
 		}
 
