@@ -70,6 +70,12 @@ namespace GuiToolkit
 			SetEffectiveGroup(ref _group);
 			string[] lines = LoadPo(_languageId, _group);
 
+			if (lines == null)
+			{
+				UiLog.LogWarning($"Could not load PO file for language:'{_languageId}', group:'{_group}'");
+				return false;
+			}
+
 			for (int i = 0; i < lines.Length; i++)
 			{
 				string line1 = lines[i];
@@ -329,16 +335,26 @@ namespace GuiToolkit
 
 		private string[] LoadPo( string _languageId, string _group )
 		{
-			var path = GetPoUnityPath(_languageId, _group);
-			if (path == null)
-				return null;
-
-			TextAsset text = Resources.Load<TextAsset>($"{_languageId}{_group}.po");
-			if (text == null)
+			if (!TryLoadPoText(_languageId, _group, out var text)) 
 				return null;
 
 			string[] lines = text.text.Split(new[] { '\r', '\n' });
 			return CleanUpLines(lines);
+		}
+
+		private bool TryLoadPoText(string _languageId, string _group, out TextAsset text)
+		{
+			text = null;
+
+			var path = GetPoUnityPath(_languageId, _group);
+			if (path == null)
+				return false;
+
+			text = Resources.Load<TextAsset>(path);
+			if (text == null)
+				return false;
+
+			return true;
 		}
 
 
