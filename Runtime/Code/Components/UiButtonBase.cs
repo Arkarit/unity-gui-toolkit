@@ -8,17 +8,17 @@ namespace GuiToolkit
 	public abstract class UiButtonBase : UiTextContainer, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 	{
 		[Tooltip("Simple animation (optional)")]
-		[SerializeField] protected UiSimpleAnimation m_simpleAnimation;
+		[SerializeField][Optional] protected UiSimpleAnimation m_simpleAnimation;
 		[Tooltip("Audio source (optional)")]
-		[SerializeField] protected AudioSource m_audioSource;
+		[SerializeField][Optional] protected AudioSource m_audioSource;
 		[Tooltip("Button Image. Mandatory if you want to use the 'Color' property or the 'Enabled' property.")]
 		[SerializeField] protected UiImage m_uiImage;
 
 		[FormerlySerializedAs("m_optionalAdditionalMouseOver")]
 		[Tooltip("Additional mouse over graphic (optional)")]
-		[SerializeField] protected Graphic m_additionalMouseOver;
+		[SerializeField][Optional] protected Graphic m_additionalMouseOver;
 		[Tooltip("Mouse over fade duration (optional)")]
-		[SerializeField] protected float m_additionalMouseOverDuration = 0.2f;
+		[SerializeField][Optional] protected float m_additionalMouseOverDuration = 0.2f;
 
 		public override bool IsEnableableInHierarchy => true;
 

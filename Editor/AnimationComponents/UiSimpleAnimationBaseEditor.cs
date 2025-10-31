@@ -11,6 +11,8 @@ namespace GuiToolkit.Editor
 	{
 		protected SerializedProperty m_durationProp;
 		protected SerializedProperty m_delayProp;
+		protected SerializedProperty m_animationSpeedProp;
+		protected SerializedProperty m_setSpeedForSlavesProp;
 		protected SerializedProperty m_backwardsPlayableProp;
 		protected SerializedProperty m_backwardsAnimationProp;
 		protected SerializedProperty m_gotoStartOnBackwardsProp;
@@ -18,7 +20,7 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_autoOnEnableProp;
 		protected SerializedProperty m_setOnStartProp;
 		protected SerializedProperty m_numberOfLoopsProp;
-		protected SerializedProperty m_finishInstantOnOrientationChangeProp;
+		protected SerializedProperty m_finishInstantOnResolutionChangeProp;
 		protected SerializedProperty m_slaveAnimationsProp;
 		protected SerializedProperty m_setLoopsForSlavesProp;
 		protected SerializedProperty m_supportViewAnimationsProp;
@@ -36,6 +38,8 @@ namespace GuiToolkit.Editor
 		{
 			m_durationProp = serializedObject.FindProperty("m_duration");
 			m_delayProp = serializedObject.FindProperty("m_delay");
+			m_animationSpeedProp = serializedObject.FindProperty("m_animationSpeed");
+			m_setSpeedForSlavesProp = serializedObject.FindProperty("m_setSpeedForSlaves");
 			m_backwardsPlayableProp = serializedObject.FindProperty("m_backwardsPlayable");
 			m_backwardsAnimationProp = serializedObject.FindProperty("m_backwardsAnimation");
 			m_gotoStartOnBackwardsProp = serializedObject.FindProperty("m_gotoStartOnBackwards");
@@ -43,7 +47,7 @@ namespace GuiToolkit.Editor
 			m_autoOnEnableProp = serializedObject.FindProperty("m_autoOnEnable");
 			m_setOnStartProp = serializedObject.FindProperty("m_setOnStart");
 			m_numberOfLoopsProp = serializedObject.FindProperty("m_numberOfLoops");
-			m_finishInstantOnOrientationChangeProp = serializedObject.FindProperty("m_finishInstantOnOrientationChange");
+			m_finishInstantOnResolutionChangeProp = serializedObject.FindProperty("m_finishInstantOnResolutionChange");
 			m_slaveAnimationsProp = serializedObject.FindProperty("m_slaveAnimations");
 			m_setLoopsForSlavesProp = serializedObject.FindProperty("m_setLoopsForSlaves");
 			m_supportViewAnimationsProp = serializedObject.FindProperty("m_supportViewAnimations");
@@ -74,7 +78,10 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.PropertyField(m_durationProp);
 
 			EditorGUILayout.PropertyField(m_delayProp);
+			EditorGUILayout.PropertyField(m_animationSpeedProp);
 
+			EditorGUILayout.Space();
+			
 			EditorGUILayout.PropertyField(m_backwardsPlayableProp);
 			EditorGUI.BeginDisabledGroup(m_backwardsPlayableProp.boolValue);
 			EditorGUILayout.PropertyField(m_gotoStartOnBackwardsProp);
@@ -83,7 +90,7 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_backwardsAnimationProp);
 			EditorGUI.EndDisabledGroup();
 			EditorGUILayout.PropertyField(m_numberOfLoopsProp);
-			EditorGUILayout.PropertyField(m_finishInstantOnOrientationChangeProp);
+			EditorGUILayout.PropertyField(m_finishInstantOnResolutionChangeProp);
 			EditorGUILayout.PropertyField(m_autoStartProp);
 			EditorGUILayout.PropertyField(m_autoOnEnableProp);
 			EditorGUI.BeginDisabledGroup(m_autoStartProp.boolValue || m_autoOnEnableProp.boolValue);
@@ -96,6 +103,7 @@ namespace GuiToolkit.Editor
 				GUILayout.Label("Slave animations:", EditorStyles.boldLabel);
 				EditorGUILayout.PropertyField(m_slaveAnimationsProp, true);
 				EditorGUILayout.PropertyField(m_setLoopsForSlavesProp);
+				EditorGUILayout.PropertyField(m_setSpeedForSlavesProp);
 				EditorGUILayout.Space();
 			}
 

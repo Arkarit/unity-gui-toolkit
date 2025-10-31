@@ -20,11 +20,33 @@ namespace GuiToolkit
 	[EditorAware]
 	public static class OnlyMainSceneOnPlay
 	{
+		private static bool s_enabled = false;
+
+		private static readonly string PrefsKey = EditorGeneralUtility.GetPlayerPrefsProjectKey(nameof(OnlyMainSceneOnPlay), "active");
+		
+		private static bool IsEnabled
+		{
+			get => s_enabled;
+			set
+			{
+				s_enabled = value;
+				Menu.SetChecked(StringConstants.MAIN_SCENE_ON_PLAY_MENU_NAME, s_enabled);
+				EditorPrefs.SetBool(PrefsKey, s_enabled);
+			}
+		}
+		
 		static OnlyMainSceneOnPlay()
 		{
+			IsEnabled = EditorPrefs.GetBool(PrefsKey);
 			EditorApplication.playModeStateChanged += HandleScenes;
 		}
 
+		[MenuItem(StringConstants.MAIN_SCENE_ON_PLAY_MENU_NAME, priority = Constants.MAIN_SCENE_ON_PLAY_MENU_NAME_PRIORITY)]
+		private static void Toggle()
+		{
+			IsEnabled = !IsEnabled;
+		}
+		
 		private static string TempFileName => Path.Combine(Application.temporaryCachePath, "openScenes.txt");
 
 		// Matches Unity's InitTestScene with optional GUID/hex suffix
@@ -56,7 +78,7 @@ namespace GuiToolkit
 			if (IsPlayModeTestRun())
 				return;
 
-			if (!UiToolkitConfiguration.Instance.LoadMainSceneOnPlay)
+			if (!IsEnabled)
 				return;
 
 			if (!BuildSettingsUtility.HasMainScene())

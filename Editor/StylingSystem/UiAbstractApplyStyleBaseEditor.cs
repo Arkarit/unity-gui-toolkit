@@ -10,10 +10,11 @@ namespace GuiToolkit.Style.Editor
 		private UiAbstractApplyStyleBase m_thisAbstractApplyStyleBase;
 		private SerializedProperty m_nameProp;
 		private SerializedProperty m_fixedSkinNameProp;
-		private SerializedProperty m_isResolutionDependentProp;
+		private SerializedProperty m_isAspectRatioDependentProp;
 		private SerializedProperty m_optionalStyleConfigProp;
 		private SerializedProperty m_onBeforeApplyStyleProp;
 		private SerializedProperty m_onAfterApplyStyleProp;
+		private SerializedProperty m_frameDelayProp;
 		private bool m_eventsOpen;
 
 
@@ -22,10 +23,11 @@ namespace GuiToolkit.Style.Editor
 			m_thisAbstractApplyStyleBase = target as UiAbstractApplyStyleBase;
 			m_nameProp = serializedObject.FindProperty("m_name");
 			m_fixedSkinNameProp = serializedObject.FindProperty("m_fixedSkinName");
-			m_isResolutionDependentProp = serializedObject.FindProperty("m_isResolutionDependent");
+			m_isAspectRatioDependentProp = serializedObject.FindProperty("m_isAspectRatioDependent");
 			m_optionalStyleConfigProp = serializedObject.FindProperty("m_optionalStyleConfig");
 			m_onBeforeApplyStyleProp = serializedObject.FindProperty("OnBeforeApplyStyle");
 			m_onAfterApplyStyleProp = serializedObject.FindProperty("OnAfterApplyStyle");
+			m_frameDelayProp = serializedObject.FindProperty("m_frameDelay");
 			Undo.undoRedoPerformed += OnUndoOrRedo;
 		}
 
@@ -41,6 +43,9 @@ namespace GuiToolkit.Style.Editor
 
 		public override void OnInspectorGUI()
 		{
+			if (!AssetReadyGate.Ready)
+				return;
+
 			if (m_thisAbstractApplyStyleBase.Style == null)
 				m_thisAbstractApplyStyleBase.SetStyle();
 
@@ -57,9 +62,21 @@ namespace GuiToolkit.Style.Editor
 			EditorGUILayout.Space(5);
 			
 			EditorGUI.BeginChangeCheck();
-			EditorGUILayout.PropertyField(m_isResolutionDependentProp);
-			if (!m_thisAbstractApplyStyleBase.IsResolutionDependent)
-				EditorGUILayout.PropertyField(m_optionalStyleConfigProp);
+			EditorGUILayout.PropertyField(m_optionalStyleConfigProp);
+
+			var config = (UiStyleConfig) m_optionalStyleConfigProp.objectReferenceValue;
+			if (config == null)
+			{
+				EditorGUILayout.PropertyField(m_isAspectRatioDependentProp);
+			}
+			else
+			{
+				m_isAspectRatioDependentProp.boolValue = config is UiAspectRatioDependentStyleConfig;
+				EditorGUI.BeginDisabledGroup(true);
+				EditorGUILayout.PropertyField(m_isAspectRatioDependentProp);
+				EditorGUI.EndDisabledGroup();
+			}
+
 			if (EditorGUI.EndChangeCheck())
 			{
 				m_thisAbstractApplyStyleBase.Reset();
@@ -110,6 +127,10 @@ namespace GuiToolkit.Style.Editor
 			
 			if (!m_thisAbstractApplyStyleBase.SkinIsFixed)
 				m_thisAbstractApplyStyleBase.Tweenable = EditorGUILayout.Toggle("Tweenable", m_thisAbstractApplyStyleBase.Tweenable);
+
+			m_thisAbstractApplyStyleBase.RebuildLayoutOnApply = EditorGUILayout.Toggle("Rebuild Layout",
+				m_thisAbstractApplyStyleBase.RebuildLayoutOnApply);
+			EditorGUILayout.PropertyField(m_frameDelayProp);
 
 			m_eventsOpen = EditorGUILayout.Foldout(m_eventsOpen, "Events");
 			if (m_eventsOpen)

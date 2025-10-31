@@ -8,7 +8,7 @@ namespace GuiToolkit
 
 		protected UiScrollRect m_uiScrollRect;
 
-		protected override bool NeedsOnScreenOrientationCallback => m_ensureVisibilityInScrollRect;
+		protected override bool NeedsOnScreenResolutionChangedCallback => m_ensureVisibilityInScrollRect;
 
 		public UiScrollRect UiScrollRect
 		{
@@ -40,9 +40,9 @@ namespace GuiToolkit
 				UiScrollRect.EnsureChildVisibility(RectTransform);
 		}
 
-		protected override void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation )
+		protected override void OnScreenResolutionChanged( ScreenResolution _oldScreenResolution, ScreenResolution _newScreenResolution )
 		{
-			base.OnScreenOrientationChanged(_oldScreenOrientation, _newScreenOrientation);
+			base.OnScreenResolutionChanged(_oldScreenResolution, _newScreenResolution);
 			if (Toggle.isOn && UiScrollRect != null)
 				UiScrollRect.EnsureChildVisibility(RectTransform, true);
 		}

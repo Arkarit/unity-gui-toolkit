@@ -59,13 +59,6 @@ namespace GuiToolkit.Editor
 			if (m_firstTimeInit)
 			{
 				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
-				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_LOAD_MAIN_SCENE_ON_PLAY, MessageType.Info);
-			}
-			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_loadMainSceneOnPlay"), true);
-
-			if (m_firstTimeInit)
-			{
-				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_LOAD_VIEW_IN_EVERY_SCENE, MessageType.Info);
 			}
 			
@@ -108,7 +101,7 @@ namespace GuiToolkit.Editor
 			}
 
 			HandleStyleConfig<UiMainStyleConfig>("m_uiMainStyleConfig");
-			HandleStyleConfig<UiOrientationDependentStyleConfig>("m_uiOrientationDependentStyleConfig");
+			HandleStyleConfig<UiAspectRatioDependentStyleConfig>("m_uiAspectRatioDependentStyleConfig");
 
 			if (m_firstTimeInit)
 			{
@@ -129,6 +122,7 @@ namespace GuiToolkit.Editor
 
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_globalCanvasScalerTemplate"));
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_transitionOverlay"));
 			
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_assetProviderFactories"));

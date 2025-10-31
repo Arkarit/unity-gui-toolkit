@@ -313,6 +313,7 @@ MonoBehaviour:
   EvOnDestroyed:
     m_PersistentCalls:
       m_Calls: []
+  m_autoLoadResources: 0
   m_layer: 200
   m_isFullScreen: 0
   m_hideOnOccludedByFullScreen: 0

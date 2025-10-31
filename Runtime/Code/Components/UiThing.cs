@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -13,7 +15,7 @@ namespace GuiToolkit
 	/// Responsibilities:
 	/// - Defines virtual lifecycle hooks (Awake, OnEnable, OnDisable, OnDestroy, Start).
 	/// - Provides an opt-in pattern for receiving events while disabled.
-	/// - Integrates optional UiEventDefinitions callbacks (language, orientation).
+	/// - Integrates optional UiEventDefinitions callbacks (language, resolution).
 	/// - Centralizes UI-layer assignment and requires a RectTransform.
 	/// - Adds a small convenience mechanism for wiring UiButton click listeners.
 	///
@@ -21,7 +23,7 @@ namespace GuiToolkit
 	/// - If you override lifecycle methods, always call the base implementation.
 	/// - If you need to receive events while the component is disabled, override
 	///   ReceiveEventsWhenDisabled and return true.
-	/// - If you need language or orientation callbacks, override the corresponding
+	/// - If you need language or resolution callbacks, override the corresponding
 	///   Needs... properties and return true.
 	/// </summary>
 	[RequireComponent(typeof(RectTransform))]
@@ -46,9 +48,9 @@ namespace GuiToolkit
 		protected virtual bool NeedsLanguageChangeCallback => false;
 
 		/// <summary>
-		/// If true, subscribes to UiEventDefinitions.EvScreenOrientationChange on enable.
+		/// If true, subscribes to UiEventDefinitions.EvScreenresolutionChange on enable.
 		/// </summary>
-		protected virtual bool NeedsOnScreenOrientationCallback => false;
+		protected virtual bool NeedsOnScreenResolutionChangedCallback => false;
 
 		#region IEnableableInHierarchy
 
@@ -134,10 +136,10 @@ namespace GuiToolkit
 		protected virtual void OnLanguageChanged( string _languageId ) { }
 
 		/// <summary>
-		/// Optional callback when screen orientation changes.
-		/// Only active if NeedsOnScreenOrientationCallback returns true.
+		/// Optional callback when screen resolution changes.
+		/// Only active if NeedsOnScreenResolutionCallback returns true.
 		/// </summary>
-		protected virtual void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation ) { }
+		protected virtual void OnScreenResolutionChanged( ScreenResolution _oldScreenResolution, ScreenResolution _newScreenResolution ) { }
 
 		/// <summary>
 		/// Registers UiButton click listeners to be installed later in OnEnable.
@@ -153,6 +155,43 @@ namespace GuiToolkit
 			}
 
 			m_buttonListeners.AddRange(_listeners);
+		}
+		
+		protected void ExecuteFrameDelayed(Action _action, int _frames = 1, bool _useCoRoutineRunner = true)
+		{
+			if (_useCoRoutineRunner)
+				CoRoutineRunner.Instance.StartCoroutine(ExecuteFrameDelayedCoroutine(_action, _frames));
+			else
+				StartCoroutine(ExecuteFrameDelayedCoroutine(_action, _frames));
+		}
+		
+		protected void ExecuteTimeDelayed(Action _action, float _timeSeconds = 1, bool _useCoRoutineRunner = true)
+		{
+			if (_useCoRoutineRunner)
+				CoRoutineRunner.Instance.StartCoroutine(ExecuteTimeDelayedCoroutine(_action, _timeSeconds));
+			else
+				StartCoroutine(ExecuteTimeDelayedCoroutine(_action, _timeSeconds));
+		}
+		
+		private IEnumerator ExecuteFrameDelayedCoroutine(Action _action, int _frames)
+		{
+			for (int i = 0; i < _frames; i++)
+				yield return null;
+			
+			if (this == null)
+				yield break;
+			
+			_action?.Invoke();
+		}
+
+		private IEnumerator ExecuteTimeDelayedCoroutine(Action _action, float _timeSeconds)
+		{
+			yield return new WaitForSeconds(_timeSeconds);
+			
+			if (this == null)
+				yield break;
+			
+			_action?.Invoke();
 		}
 
 		/// <summary>
@@ -220,8 +259,8 @@ namespace GuiToolkit
 			if (NeedsLanguageChangeCallback)
 				UiEventDefinitions.EvLanguageChanged.AddListener(OnLanguageChanged);
 
-			if (NeedsOnScreenOrientationCallback)
-				UiEventDefinitions.EvScreenOrientationChange.AddListener(OnScreenOrientationChanged);
+			if (NeedsOnScreenResolutionChangedCallback)
+				UiEventDefinitions.EvScreenResolutionChange.AddListener(OnScreenResolutionChanged);
 
 			if (!ReceiveEventsWhenDisabled && !m_eventListenersAdded)
 			{
@@ -247,8 +286,8 @@ namespace GuiToolkit
 			if (NeedsLanguageChangeCallback)
 				UiEventDefinitions.EvLanguageChanged.RemoveListener(OnLanguageChanged);
 
-			if (NeedsOnScreenOrientationCallback)
-				UiEventDefinitions.EvScreenOrientationChange.RemoveListener(OnScreenOrientationChanged);
+			if (NeedsOnScreenResolutionChangedCallback)
+				UiEventDefinitions.EvScreenResolutionChange.RemoveListener(OnScreenResolutionChanged);
 
 			if (!ReceiveEventsWhenDisabled && m_eventListenersAdded)
 			{

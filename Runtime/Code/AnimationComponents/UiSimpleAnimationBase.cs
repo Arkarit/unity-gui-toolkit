@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
@@ -17,6 +18,13 @@ namespace GuiToolkit
 
 		[Tooltip("Delay for the beginning of the animation (when played forwards)")]
 		[SerializeField] protected float m_delay = 0;
+		
+		[Tooltip("Animation speed")]
+		[Range(0.01f, 100f)]
+		[SerializeField] protected float m_animationSpeed = 1;
+		
+		[Tooltip("Propagates the speed setting to all slaves (hierarchically)")]
+		[SerializeField] protected bool m_setSpeedForSlaves = false;
 
 		[Tooltip("If set to false, this animation is skipped when playing backwards")]
 		[SerializeField] protected bool m_backwardsPlayable = true;
@@ -39,8 +47,9 @@ namespace GuiToolkit
 		[Tooltip("Number of loops. -1: infinite loops 0: no loops, >0: Arbitrary number of loops")]
 		[SerializeField] protected int m_numberOfLoops = 0;
 
-		[Tooltip("Finish animation instantly on Orientation change. This is important to set for animations, which differ in landscape and portrait.")]
-		[SerializeField] protected bool m_finishInstantOnOrientationChange = false;
+		[FormerlySerializedAs("m_finishInstantOnOrientationChange")]
+		[Tooltip("Finish animation instantly on screen resolution change. This is important to set for animations, which differ in landscape and portrait.")]
+		[SerializeField] protected bool m_finishInstantOnResolutionChange = false;
 
 		// Slave animations
 
@@ -48,20 +57,83 @@ namespace GuiToolkit
 		[SerializeField] protected List<UiSimpleAnimationBase> m_slaveAnimations = new();
 
 		[SerializeField] protected bool m_setLoopsForSlaves = true;
-		[SerializeField] protected bool m_supportViewAnimations = false;
+		[SerializeField] protected bool m_supportViewAnimations = true;
 
-		protected override bool NeedsOnScreenOrientationCallback => m_finishInstantOnOrientationChange;
+		protected override bool NeedsOnScreenResolutionChangedCallback => m_finishInstantOnResolutionChange;
 
 		public List<UiSimpleAnimationBase> SlaveAnimations => m_slaveAnimations;
-		public bool IsPlaying => m_playing;
+		public bool IsPlaying
+		{
+			get => m_playing;
+			private set
+			{
+#if DEBUG_SIMPLE_ANIMATION
+				if (m_playing == value)
+					return;
+				Log($"Set IsPlaying:{value}");
+#endif
+				m_playing = value;
+			}
+		}
+		
 		public bool IsBackwards => m_backwards;
 		public bool IsAtBeginning => m_currentTime == 0;
 		public bool HasBackwardsAnimation => m_backwardsAnimation;
 
-		public float Duration { get { return m_duration; } set { Reset(); m_duration = value; } }
-		public float Delay { get { return m_delay; } set { Reset(); m_delay = value; } }
-		public UiSimpleAnimationBase BackwardsAnimation { get { return m_backwardsAnimation; } set { Reset(); m_backwardsAnimation = value; } }
+		public float Duration
+		{
+			get => m_duration; 
+			set
+			{
+				Reset(); 
+				m_duration = value;
+			}
+		}
+		
+		public float Delay
+		{
+			get => m_delay;
+			set
+			{
+				Reset(); 
+				m_delay = value;
+			}
+		}
+		
+		public UiSimpleAnimationBase BackwardsAnimation
+		{
+			get => m_backwardsAnimation; 
+			set
+			{
+				Reset(); 
+				m_backwardsAnimation = value;
+			}
+		}
 
+		public void SetDuration(float _duration, bool _reset)
+		{
+			if (_reset)
+				Reset();
+			
+			m_duration = _duration;
+		}
+		
+		public void SetDelay(float _delay, bool _reset)
+		{
+			if (_reset)
+				Reset();
+			
+			m_delay = _delay;
+		}
+		
+		public void SetBackwardsAnimation(UiSimpleAnimationBase _backwardsAnimation, bool _reset)
+		{
+			if (_reset)
+				Reset();
+			
+			m_backwardsAnimation = _backwardsAnimation;
+		}
+		
 		// delegates
 		private readonly UnityEvent m_onFinish = new();
 		private readonly UnityEvent m_onFinishOnce = new();
@@ -168,6 +240,26 @@ namespace GuiToolkit
 			[SerializeField] protected bool m_debug;
 #endif
 
+		public bool Debug
+		{
+			get
+			{
+#if DEBUG_SIMPLE_ANIMATION
+				return m_debug;
+#else
+				return false;
+#endif
+			}
+			
+			// ReSharper disable once ValueParameterNotUsed
+			set
+			{
+#if DEBUG_SIMPLE_ANIMATION
+				m_debug = value;
+#endif
+			}
+		}
+		
 		protected virtual void OnEnable()
 		{
 			if (m_autoOnEnable)
@@ -208,7 +300,6 @@ namespace GuiToolkit
 			while (IsPlaying)
 				yield return 0;
 		}
-
 		
 		public virtual void Play(bool _backwards, Action _onFinishOnce)
 		{
@@ -221,7 +312,11 @@ namespace GuiToolkit
 
 			m_backwards = _backwards;
 			if (_onFinishOnce != null)
+			{
+				Log("Add m_onFinishOnce listener");
 				m_onFinishOnce.AddListener(() => _onFinishOnce());
+			}
+			
 			InitAnimateIfNecessary();
 			m_completeTime = m_completeBackwardsTime = 0;
 			CalculateCompleteTimeRecursive(ref m_completeTime, ref m_completeBackwardsTime, 0);
@@ -239,7 +334,7 @@ namespace GuiToolkit
 		public void Pause()
 		{
 			Log("Pause()");
-			if (m_playing)
+			if (IsPlaying)
 				m_pause = true;
 		}
 
@@ -252,7 +347,7 @@ namespace GuiToolkit
 		public void Stop(bool _invokeOnStopDelegates = true)
 		{
 			Log($"Stop({_invokeOnStopDelegates})");
-			if (!m_playing)
+			if (!IsPlaying)
 			{
 				Log("Not running, returning");
 				return;
@@ -312,10 +407,14 @@ namespace GuiToolkit
 		protected virtual void Update(float _timeDelta)
 		{
 			// first check running status.
-			if (!m_playing || m_pause)
+			if (!IsPlaying || m_pause)
 				return;
 
 			Log($"Update({_timeDelta})");
+			
+			_timeDelta *= m_animationSpeed;
+			var animationSpeedInverse = 1 / m_animationSpeed;
+			var duration = m_duration * animationSpeedInverse;
 
 			if (m_backwards)
 			{
@@ -326,7 +425,7 @@ namespace GuiToolkit
 					Log("Not backwards playable -> stopping");
 					if (m_gotoStartOnBackwards)
 						OnAnimate(0);
-					m_playing = false;
+					IsPlaying = false;
 					FinishAnimation(true);
 					return;
 				}
@@ -335,8 +434,8 @@ namespace GuiToolkit
 				{
 					Log("Update backwards animation and return");
 					m_backwardsAnimation.Update(_timeDelta);
-					m_playing = m_backwardsAnimation.m_playing;
-					if (!m_playing)
+					m_playing = m_backwardsAnimation.IsPlaying;
+					if (!IsPlaying)
 						FinishAnimation(true);
 					return;
 				}
@@ -345,6 +444,7 @@ namespace GuiToolkit
 			// calculate current time and wait for delay finished
 			m_currentTime += _timeDelta;
 			float delay = m_backwards ? m_backwardsDelay : m_forwardsDelay;
+			delay *= animationSpeedInverse;
 			if (m_currentTime < delay)
 				return;
 
@@ -358,11 +458,11 @@ namespace GuiToolkit
 
 			// do the animation itself.
 			bool durationExceeded = false;
-			if (m_duration <= 0)
+			if (duration <= 0)
 				durationExceeded = true;
 			else
 			{
-				float normalizedTime = (m_currentTime - delay) / m_duration;
+				float normalizedTime = (m_currentTime - delay) / duration;
 
 				if (normalizedTime <= 1)
 				{
@@ -388,6 +488,7 @@ namespace GuiToolkit
 			}
 
 			float completeTime = m_backwards ? m_completeBackwardsTime : m_completeTime;
+			completeTime *= animationSpeedInverse;
 
 			// wait for the complete end
 			if (m_currentTime < completeTime)
@@ -415,11 +516,11 @@ namespace GuiToolkit
 			FinishAnimation(true);
 		}
 
-		protected override void OnScreenOrientationChanged( EScreenOrientation _oldScreenOrientation, EScreenOrientation _newScreenOrientation )
+		protected override void OnScreenResolutionChanged( ScreenResolution _oldScreenResolution, ScreenResolution _newScreenResolution )
 		{
-			if (_oldScreenOrientation != EScreenOrientation.Invalid)
+			if (!_oldScreenResolution.IsInvalid)
 			{
-				Log($"Screen orientation changed to {_newScreenOrientation}, stopping (finishing) animation");
+				Log($"Screen resolution changed to {_newScreenResolution}, stopping (finishing) animation");
 				Stop();
 			}
 		}
@@ -431,16 +532,18 @@ namespace GuiToolkit
 			if (m_backwardsAnimation != null)
 				m_backwardsAnimation.Stop(false);
 
-			m_playing = false;
+			IsPlaying = false;
 			m_pause = false;
 			OnStopAnimate();
 
 			if (_invokeOnStopDelegates)
 			{
-				m_onFinish?.Invoke();
-				m_onFinishOnce?.Invoke();
+				m_onFinish.Invoke();
+				Log("Invoke m_onFinishOnce listeners");
+				m_onFinishOnce.Invoke();
 			}
 
+			Log("m_onFinishOnce Remove All Listeners");
 			m_onFinishOnce.RemoveAllListeners();
 		}
 
@@ -462,7 +565,7 @@ namespace GuiToolkit
 
 			m_forwardsDelay = _completeForwardsDelay + m_delay;
 			m_backwardsDelay = m_completeBackwardsTime - m_forwardsDelay - m_duration;
-			m_playing = true;
+			IsPlaying = true;
 
 			if (m_backwards)
 			{
@@ -481,7 +584,12 @@ namespace GuiToolkit
 					m_backwardsAnimation.Stop(false);
 			}
 
-			IterateSlaveAnimations(slave => slave.PlayRecursive(_completeTime, _completeBackwardsTime, m_forwardsDelay, false, _backwards, _loops));
+			IterateSlaveAnimations(slave =>
+			{
+				if (m_setSpeedForSlaves)
+					slave.m_animationSpeed = m_animationSpeed;
+				slave.PlayRecursive(_completeTime, _completeBackwardsTime, m_forwardsDelay, false, _backwards, _loops);
+			});
 		}
 
 		private void CalculateCompleteTimeRecursive(ref float _completeTime, ref float _completeBackwardsTime, float _completeDelay)
@@ -589,7 +697,10 @@ namespace GuiToolkit
 			}
 
 			if (_onFinishOnce != null)
+			{
+				Log("Add m_onFinishOnce listener");
 				m_onFinishOnce.AddListener(_onFinishOnce);
+			}
 
 			Play();
 		}
@@ -603,7 +714,10 @@ namespace GuiToolkit
 			}
 
 			if (_onFinishOnce != null)
+			{
+				Log("Add m_onFinishOnce listener");
 				m_onFinishOnce.AddListener(_onFinishOnce);
+			}
 			Play(true);
 		}
 
@@ -612,12 +726,13 @@ namespace GuiToolkit
 			if (!m_supportViewAnimations)
 				return;
 
+			Log("m_onFinishOnce Remove All Listeners");
 			m_onFinishOnce.RemoveAllListeners();
 			Reset(_visible);
 		}
 
 		[System.Diagnostics.Conditional("DEBUG_SIMPLE_ANIMATION")]
-		protected void Log(string _s)
+		public void Log(string _s)
 		{
 #if DEBUG_SIMPLE_ANIMATION
 				if (!m_debug)

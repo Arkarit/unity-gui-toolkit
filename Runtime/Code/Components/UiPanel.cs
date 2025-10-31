@@ -15,7 +15,7 @@ namespace GuiToolkit
 	/// Interface for initializing a panel.
 	/// </summary>
 	public interface IInitPanelData { }
-	
+
 	/// <summary>
 	/// Convenience implementations for IInitPanelData 
 	/// </summary>
@@ -23,35 +23,35 @@ namespace GuiToolkit
 	public class InitPanelData<T> : IInitPanelData
 	{
 		public T Data;
-		public InitPanelData(T _data)
+		public InitPanelData( T _data )
 		{
 			Data = _data;
 		}
 	}
-	
+
 	/// <summary>
 	/// Convenience implementations for IInitPanelData 
 	/// </summary>
-	public class InitPanelData<TA,TB> : IInitPanelData
+	public class InitPanelData<TA, TB> : IInitPanelData
 	{
 		public TA Data0;
 		public TB Data1;
-		public InitPanelData(TA _data0, TB _data1)
+		public InitPanelData( TA _data0, TB _data1 )
 		{
 			Data0 = _data0;
 			Data1 = _data1;
 		}
 	}
-	
+
 	/// <summary>
 	/// Convenience implementations for IInitPanelData 
 	/// </summary>
-	public class InitPanelData<TA,TB,TC> : IInitPanelData
+	public class InitPanelData<TA, TB, TC> : IInitPanelData
 	{
 		public TA Data0;
 		public TB Data1;
 		public TC Data2;
-		public InitPanelData(TA _data0, TB _data1, TC _data2)
+		public InitPanelData( TA _data0, TB _data1, TC _data2 )
 		{
 			Data0 = _data0;
 			Data1 = _data1;
@@ -184,13 +184,19 @@ namespace GuiToolkit
 		/// </summary>
 		public virtual void OnEndHide() { }
 
+		public float UnscaledWidth => RectTransform.rect.width;
+		public float UnscaledHeight => RectTransform.rect.height;
+
+		public float ScaledWidth => RectTransform.rect.width * RectTransform.lossyScale.x;
+		public float ScaledHeight => RectTransform.rect.height * RectTransform.lossyScale.y;
+
 		protected IShowHidePanelAnimation m_showHideAnimation;
 		private bool m_defaultSceneVisibilityApplied;
 		private bool m_animationInitialized;
 		private Action m_onShowHideFinishAction;
 		private static readonly Dictionary<Type, HashSet<UiPanel>> s_openPanels = new();
 		private IInstanceHandle m_handle;
-		
+
 		/// <summary>
 		/// Hook called after a panel is async loaded. Note that this ONLY applies to
 		/// panels, which are dynamically loaded and have InitPanelData set in their UiPanelLoadInfo
@@ -214,8 +220,8 @@ namespace GuiToolkit
 			"Do NOT enable for dialogs or panels that compute resources dynamically at runtime."
 		)]
 		[SerializeField] bool m_autoLoadResources;
-		
-		private readonly List<CanonicalAssetKey> m_resources = new();
+
+		private readonly List<CanonicalAssetKey> m_panelResources = new();
 
 		// All loaded handles for this element (lifecycle-bound to this panel)
 		private readonly List<IAssetHandle<Object>> m_handles = new();
@@ -230,7 +236,7 @@ namespace GuiToolkit
 		protected List<Object> LoadedAssets => m_loadedAssets;
 
 		// Subclass defines which assets it needs (ids + expected type)
-		protected virtual List<CanonicalAssetKey> Resources => m_resources;
+		protected virtual List<CanonicalAssetKey> PanelResources => m_panelResources;
 
 		// Called after all assets are loaded successfully (and not cancelled)
 		protected virtual void OnAssetsLoaded() { }
@@ -238,10 +244,10 @@ namespace GuiToolkit
 		{
 			UiLog.LogError($"Asset load/initialization failed, exception:{_ex}");
 		}
-		
-		internal void OnAssetLoadFailedInternal(Exception _ex ) => OnAssetLoadFailed(_ex);
 
-		public bool NeedsResources => Resources != null && Resources.Count > 0;
+		internal void OnAssetLoadFailedInternal( Exception _ex ) => OnAssetLoadFailed(_ex);
+
+		public bool NeedsResources => PanelResources != null && PanelResources.Count > 0;
 
 		/// <summary>
 		/// Starts async loading of all declared 'resources'.
@@ -267,16 +273,16 @@ namespace GuiToolkit
 				return;
 			}
 
-			var list = Resources;
+			var list = PanelResources;
 
 			m_cts = new CancellationTokenSource();
 			var _ = LoadAllResourcesAsync(list, m_cts.Token);
 		}
 
-		protected void AddResource(CanonicalAssetKey _key) => Resources.Add(_key);
-		protected void RemoveResource(CanonicalAssetKey _key) => Resources.Remove(_key);
-		protected void ClearResources() => Resources.Clear();
-		
+		protected void AddResource( CanonicalAssetKey _key ) => PanelResources.Add(_key);
+		protected void RemoveResource( CanonicalAssetKey _key ) => PanelResources.Remove(_key);
+		protected void ClearResources() => PanelResources.Clear();
+
 		protected T GetAsset<T>( int _index ) where T : Object
 		{
 			if (_index < 0 || _index >= m_loadedAssets.Count)
@@ -371,17 +377,15 @@ namespace GuiToolkit
 		public bool Visible { get; private set; }
 
 		/// <summary>
-		/// Returns the concrete simple animation component if present.
-		/// Null if m_showHideAnimation is not a UiSimpleAnimation.
+		/// Returns the simple animation component if present.
+		/// Null if m_showHideAnimation is not a UiSimpleAnimationBase.
 		/// </summary>
 		public UiSimpleAnimationBase SimpleShowHideAnimation
 		{
 			get
 			{
 				InitAnimationIfNecessary();
-				if (m_showHideAnimation is UiSimpleAnimation)
-					return (UiSimpleAnimation)m_showHideAnimation;
-				return null;
+				return m_showHideAnimation as UiSimpleAnimationBase;
 			}
 		}
 
@@ -436,6 +440,7 @@ namespace GuiToolkit
 
 			OnBeginShow();
 			EvOnBeginShow.Invoke(this);
+			UiEventDefinitions.EvOnPanelBeginShow.Invoke(this);
 			Visible = true;
 
 			if (_instant)
@@ -445,6 +450,7 @@ namespace GuiToolkit
 
 				OnEndShow();
 				EvOnEndShow.Invoke(this);
+				UiEventDefinitions.EvOnPanelEndShow.Invoke(this);
 				_onFinish?.Invoke();
 				m_onShowHideFinishAction = null;
 				return;
@@ -467,6 +473,8 @@ namespace GuiToolkit
 
 			OnBeginHide();
 			EvOnBeginHide.Invoke(this);
+			UiEventDefinitions.EvOnPanelBeginHide.Invoke(this);
+
 			Visible = false;
 
 			if (_instant)
@@ -477,6 +485,7 @@ namespace GuiToolkit
 					SimpleShowHideAnimation.StopViewAnimation(false);
 
 				OnEndHide();
+				UiEventDefinitions.EvOnPanelEndHide.Invoke(this);
 				EvOnEndHide.Invoke(this);
 				_onFinish?.Invoke();
 
@@ -618,6 +627,7 @@ namespace GuiToolkit
 		{
 			OnEndShow();
 			EvOnEndShow.Invoke(this);
+			UiEventDefinitions.EvOnPanelEndShow.Invoke(this);
 			m_onShowHideFinishAction?.Invoke();
 		}
 
@@ -631,6 +641,7 @@ namespace GuiToolkit
 
 			OnEndHide();
 			EvOnEndHide.Invoke(this);
+			UiEventDefinitions.EvOnPanelEndHide.Invoke(this);
 			m_onShowHideFinishAction?.Invoke();
 			m_onShowHideFinishAction = null;
 
@@ -648,6 +659,8 @@ namespace GuiToolkit
 			if (Poolable)
 			{
 				EvOnDestroyed.Invoke(this);
+				UiEventDefinitions.EvOnPanelDestroyed.Invoke(this);
+
 				EvOnDestroyed.RemoveAllListeners();
 
 				if (UiMain.IsAwake)
@@ -680,6 +693,8 @@ namespace GuiToolkit
 			}
 
 			EvOnDestroyed.Invoke(this);
+			UiEventDefinitions.EvOnPanelDestroyed.Invoke(this);
+
 			RemovePanelFromOpen();
 			base.OnDestroy();
 		}

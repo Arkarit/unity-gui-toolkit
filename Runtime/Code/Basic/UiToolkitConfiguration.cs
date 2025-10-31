@@ -38,11 +38,6 @@ namespace GuiToolkit
 			+ "By setting the checkmark together with the shift key, cou can load a scene exclusively."
 			;
 
-		public const string HELP_LOAD_MAIN_SCENE_ON_PLAY =
-			  "When enabled, the main scene is loaded when you press play in the editor, and all other scenes are unloaded.\n" 
-			+ "After play, the scenes, which were previously loaded, are restored."
-			;
-		
 		public const string HELP_LOAD_VIEW_IN_EVERY_SCENE =
 			  "When a scene is loaded in editor, which is not the main scene, a view can be automatically loaded (e.g. a HUD).\n" 
 			+ "This is useful for editing scenes; you can start the scene directly and still have your HUD."
@@ -93,6 +88,9 @@ namespace GuiToolkit
 			  "Several assets need to be generated. Choose your directory here for these files.";
 
 		public const string HELP_ASSET_PROVIDER_FACTORY = "An Optional Asset Provider Factory in case you want to use Addressables.";
+		
+		public const string HELP_TRANSITION_OVERLAY = "A transition overlay, which can cover the screen during level changes etc.";
+
 
 		/// \endcond
 
@@ -100,9 +98,6 @@ namespace GuiToolkit
 		[Tooltip(HELP_SCENES)]
 		[SerializeField] private SceneReference[] m_sceneReferences;
 
-		[Tooltip(HELP_LOAD_MAIN_SCENE_ON_PLAY)]
-		[SerializeField] private bool m_loadMainSceneOnPlay = false;
-		
 		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE)]
 		[SerializeField] private bool m_loadViewInEveryScene = false;
 		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE_EXCEPT_UI_MAIN_EXISTS)]
@@ -122,8 +117,9 @@ namespace GuiToolkit
 		[FormerlySerializedAs("m_styleConfig")]
 		[SerializeField] private UiMainStyleConfig m_uiMainStyleConfig;
 
+		[FormerlySerializedAs("m_uiOrientationDependentStyleConfig")]
 		[Tooltip(HELP_STYLE_CONFIG_RESOLUTION_DEPENDENT)]
-		[SerializeField] private UiOrientationDependentStyleConfig m_uiOrientationDependentStyleConfig;
+		[SerializeField] private UiAspectRatioDependentStyleConfig m_uiAspectRatioDependentStyleConfig;
 		
 		[Tooltip(HELP_DEBUG_LOCA)]
 		[SerializeField] private bool m_debugLoca = false;
@@ -133,6 +129,9 @@ namespace GuiToolkit
 		
 		[Tooltip(HELP_ASSET_PROVIDER_FACTORY)]
 		[SerializeField, Optional] private AbstractAssetProviderFactory[] m_assetProviderFactories = new AbstractAssetProviderFactory[0];
+		
+		[Tooltip(HELP_TRANSITION_OVERLAY)]
+		[SerializeField, Optional] private UiTransitionOverlay m_transitionOverlay = null;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 		private string m_rootDir;
@@ -143,20 +142,20 @@ namespace GuiToolkit
 			InitScenesByName();
 			if (m_uiMainStyleConfig != null)
 				UiMainStyleConfig.Instance = m_uiMainStyleConfig;
-			if (m_uiOrientationDependentStyleConfig != null)
-				UiOrientationDependentStyleConfig.Instance = m_uiOrientationDependentStyleConfig;
+			if (m_uiAspectRatioDependentStyleConfig != null)
+				UiAspectRatioDependentStyleConfig.Instance = m_uiAspectRatioDependentStyleConfig;
 		}
 
 		public UiMainStyleConfig UiMainStyleConfig => m_uiMainStyleConfig;
-		public UiOrientationDependentStyleConfig UiOrientationDependentStyleConfig => m_uiOrientationDependentStyleConfig;
+		public UiAspectRatioDependentStyleConfig UiAspectRatioDependentStyleConfig => m_uiAspectRatioDependentStyleConfig;
 		public CanvasScaler GlobalCanvasScalerTemplate => m_globalCanvasScalerTemplate;
 		public bool DebugLoca => m_debugLoca;
-		public bool LoadMainSceneOnPlay => m_loadMainSceneOnPlay;
 		public bool LoadViewInEveryScene => m_loadViewInEveryScene;
 		public UiMain UiMainPrefab => m_uiMainPrefab;
 		public UiView UiViewPrefab => m_uiViewPrefab;
 		public bool ExceptUiMainExists => m_exceptUiMainExists;
 		public AbstractAssetProviderFactory[] AssetProviderFactories => m_assetProviderFactories;
+		public UiAbstractTransitionOverlay TransitionOverlay => m_transitionOverlay;
 		
 	
 		public string GetScenePath(string _sceneName)
@@ -226,7 +225,6 @@ namespace GuiToolkit
 		public override void OnEditorCreatedAsset()
 		{
 			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
-			m_loadMainSceneOnPlay = m_sceneReferences.Length > 0;
 		}
 
 		public string GetProjectScenePath(string _sceneName)

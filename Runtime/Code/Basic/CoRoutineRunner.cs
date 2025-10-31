@@ -2,49 +2,91 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class EmptyMonoBehaviour : MonoBehaviour {}
-	
-	public class ResolutionWatcher : MonoBehaviour
+	public class CoRoutineRunner : MonoBehaviour
 	{
-		Vector2Int m_screenSize;
+		private static CoRoutineRunner s_instance;
+		
+		private int m_seconds;
+		private int m_minutes;
+		private int m_ticks;
+		private float m_time;
+		
+		private Camera m_mainCamera;
+		private float m_fov;
+		
+		public int Ticks => m_ticks;
+		public int Seconds => m_seconds;
+		public int Minutes => m_minutes;
+		public float Time => m_time;
+		
+		public Camera MainCamera => m_mainCamera;
+		public float Fov => m_fov;
 		
 		private void Start()
 		{
-			m_screenSize.x = Screen.width;
-			m_screenSize.y = Screen.height;
+			InitTicks();
+			InitCamera();
 		}
 
 		private void Update()
 		{
-			if (m_screenSize.x == Screen.width && m_screenSize.y == Screen.height)
-				return;
-			
-			Vector2Int newScreenSize = new Vector2Int(Screen.width, Screen.height);
-			UiEventDefinitions.OnResolutionChanged.Invoke(m_screenSize, newScreenSize);
-			m_screenSize = newScreenSize;
+			UpdateTicks();
+			UpdateCamera();
 		}
-	}
-
-	public class CoRoutineRunner : MonoBehaviour
-	{
-		private static MonoBehaviour s_instance;
 		
-		public static MonoBehaviour Instance
+		private void InitTicks() {}
+
+		private void InitCamera()
 		{
-			get
+			m_mainCamera = Camera.main;
+			m_fov = m_mainCamera ? m_mainCamera.fieldOfView : -1;
+		}
+
+		private void UpdateTicks()
+		{
+			m_ticks++;
+			UiEventDefinitions.OnTickPerFrame.Invoke(m_ticks);
+
+			m_time = UnityEngine.Time.time;
+
+			int currSeconds = (int) m_time;
+			if (currSeconds > m_seconds)
 			{
-				if (s_instance == null)
-					Init();
-				return s_instance;
+				m_seconds++;
+				UiEventDefinitions.OnTickPerSecond.Invoke(m_seconds);
+			}
+
+			int currMinutes = (int) m_time / 60;
+			if (currMinutes > m_minutes)
+			{
+				m_minutes++;
+				UiEventDefinitions.OnTickPerMinute.Invoke(m_minutes);
 			}
 		}
 		
-		public static void Init()
+		private void UpdateCamera()
 		{
-			var go = new GameObject("GuiToolkit");
-			s_instance = go.AddComponent<EmptyMonoBehaviour>();
-			go.AddComponent<ResolutionWatcher>();
-			Object.DontDestroyOnLoad(go);
+			var oldCamera = m_mainCamera;
+			var oldFov = m_fov;
+			
+			m_mainCamera = Camera.main;
+			m_fov = m_mainCamera ? m_mainCamera.fieldOfView : -1;
+			
+			if (oldCamera != m_mainCamera)
+				UiEventDefinitions.EvMainCameraChanged.Invoke(oldCamera, m_mainCamera);
+			
+			if (!Mathf.Approximately(oldFov, m_fov))
+				UiEventDefinitions.EvMainCameraFovChanged.Invoke(oldFov, m_fov);
+		}
+
+		public static CoRoutineRunner Instance => s_instance;
+		
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+		private static void Init()
+		{
+			var go = new GameObject("GuiToolkit.CoRoutineRunner");
+			s_instance = go.AddComponent<CoRoutineRunner>();
+			DontDestroyOnLoad(go);
 		}
 	}
 
