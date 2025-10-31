@@ -18,6 +18,13 @@ namespace GuiToolkit
 
 		[Tooltip("Delay for the beginning of the animation (when played forwards)")]
 		[SerializeField] protected float m_delay = 0;
+		
+		[Tooltip("Animation speed")]
+		[Range(0.01f, 100f)]
+		[SerializeField] protected float m_animationSpeed = 1;
+		
+		[Tooltip("Propagates the speed setting to all slaves (hierarchically)")]
+		[SerializeField] protected bool m_setSpeedForSlaves = false;
 
 		[Tooltip("If set to false, this animation is skipped when playing backwards")]
 		[SerializeField] protected bool m_backwardsPlayable = true;
@@ -404,6 +411,10 @@ namespace GuiToolkit
 				return;
 
 			Log($"Update({_timeDelta})");
+			
+			_timeDelta *= m_animationSpeed;
+			var animationSpeedInverse = 1 / m_animationSpeed;
+			var duration = m_duration * animationSpeedInverse;
 
 			if (m_backwards)
 			{
@@ -433,6 +444,7 @@ namespace GuiToolkit
 			// calculate current time and wait for delay finished
 			m_currentTime += _timeDelta;
 			float delay = m_backwards ? m_backwardsDelay : m_forwardsDelay;
+			delay *= animationSpeedInverse;
 			if (m_currentTime < delay)
 				return;
 
@@ -446,11 +458,11 @@ namespace GuiToolkit
 
 			// do the animation itself.
 			bool durationExceeded = false;
-			if (m_duration <= 0)
+			if (duration <= 0)
 				durationExceeded = true;
 			else
 			{
-				float normalizedTime = (m_currentTime - delay) / m_duration;
+				float normalizedTime = (m_currentTime - delay) / duration;
 
 				if (normalizedTime <= 1)
 				{
@@ -476,6 +488,7 @@ namespace GuiToolkit
 			}
 
 			float completeTime = m_backwards ? m_completeBackwardsTime : m_completeTime;
+			completeTime *= animationSpeedInverse;
 
 			// wait for the complete end
 			if (m_currentTime < completeTime)
@@ -571,7 +584,12 @@ namespace GuiToolkit
 					m_backwardsAnimation.Stop(false);
 			}
 
-			IterateSlaveAnimations(slave => slave.PlayRecursive(_completeTime, _completeBackwardsTime, m_forwardsDelay, false, _backwards, _loops));
+			IterateSlaveAnimations(slave =>
+			{
+				if (m_setSpeedForSlaves)
+					slave.m_animationSpeed = m_animationSpeed;
+				slave.PlayRecursive(_completeTime, _completeBackwardsTime, m_forwardsDelay, false, _backwards, _loops);
+			});
 		}
 
 		private void CalculateCompleteTimeRecursive(ref float _completeTime, ref float _completeBackwardsTime, float _completeDelay)

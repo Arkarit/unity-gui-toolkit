@@ -11,6 +11,8 @@ namespace GuiToolkit.Editor
 	{
 		protected SerializedProperty m_durationProp;
 		protected SerializedProperty m_delayProp;
+		protected SerializedProperty m_animationSpeedProp;
+		protected SerializedProperty m_setSpeedForSlavesProp;
 		protected SerializedProperty m_backwardsPlayableProp;
 		protected SerializedProperty m_backwardsAnimationProp;
 		protected SerializedProperty m_gotoStartOnBackwardsProp;
@@ -36,6 +38,8 @@ namespace GuiToolkit.Editor
 		{
 			m_durationProp = serializedObject.FindProperty("m_duration");
 			m_delayProp = serializedObject.FindProperty("m_delay");
+			m_animationSpeedProp = serializedObject.FindProperty("m_animationSpeed");
+			m_setSpeedForSlavesProp = serializedObject.FindProperty("m_setSpeedForSlaves");
 			m_backwardsPlayableProp = serializedObject.FindProperty("m_backwardsPlayable");
 			m_backwardsAnimationProp = serializedObject.FindProperty("m_backwardsAnimation");
 			m_gotoStartOnBackwardsProp = serializedObject.FindProperty("m_gotoStartOnBackwards");
@@ -74,7 +78,10 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.PropertyField(m_durationProp);
 
 			EditorGUILayout.PropertyField(m_delayProp);
+			EditorGUILayout.PropertyField(m_animationSpeedProp);
 
+			EditorGUILayout.Space();
+			
 			EditorGUILayout.PropertyField(m_backwardsPlayableProp);
 			EditorGUI.BeginDisabledGroup(m_backwardsPlayableProp.boolValue);
 			EditorGUILayout.PropertyField(m_gotoStartOnBackwardsProp);
@@ -96,6 +103,7 @@ namespace GuiToolkit.Editor
 				GUILayout.Label("Slave animations:", EditorStyles.boldLabel);
 				EditorGUILayout.PropertyField(m_slaveAnimationsProp, true);
 				EditorGUILayout.PropertyField(m_setLoopsForSlavesProp);
+				EditorGUILayout.PropertyField(m_setSpeedForSlavesProp);
 				EditorGUILayout.Space();
 			}
 

@@ -24,6 +24,7 @@ namespace GuiToolkit.Editor
 			m_durationPerChildProp = serializedObject.FindProperty("m_durationPerChild");
 			m_autoCollectChildrenProp = serializedObject.FindProperty("m_autoCollectChildren");
 			m_childAnimationsProp = serializedObject.FindProperty("m_childAnimations");
+			
 		}
 
 		public override void EditSubClass()
@@ -38,6 +39,9 @@ namespace GuiToolkit.Editor
 				m_childAnimationsProp.arraySize = 0;
 			else
 				EditorGUILayout.PropertyField(m_childAnimationsProp);
+			
+			// Speed for slaves is always true; children animation wouldn't make sense elsewise
+			m_setSpeedForSlavesProp.boolValue = true;
 		}
 	}
 }
