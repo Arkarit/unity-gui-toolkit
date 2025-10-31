@@ -7,6 +7,8 @@ using UnityEngine.UI;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Object = UnityEngine.Object;
+using UnityEngine.Events;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -1149,6 +1151,37 @@ namespace GuiToolkit
 			yield return null;
 			_action?.Invoke();
 		}
+
+		public static bool HasAnyListeners( this UnityEventBase unityEvent )
+		{
+			if (unityEvent == null)
+				return false;
+
+			// Persistent (Inspector)
+			if (unityEvent.GetPersistentEventCount() > 0)
+				return true;
+
+			// Dynamic (AddListener)
+			var field = typeof(UnityEventBase).GetField("m_Calls",
+				BindingFlags.Instance | BindingFlags.NonPublic);
+			
+			if (field == null)
+			{
+				UiLog.LogErrorOnce($"Unity API for events has changed; can not find field 'm_Calls'");
+				return false;
+			}
+			
+			var calls = field.GetValue(unityEvent);
+			if (calls == null)
+				return false;
+
+			var callsField = calls.GetType().GetField("m_RuntimeCalls",
+				BindingFlags.Instance | BindingFlags.NonPublic);
+			var runtimeCalls = callsField?.GetValue(calls) as System.Collections.ICollection;
+
+			return runtimeCalls != null && runtimeCalls.Count > 0;
+		}
+
 	}
 
 
