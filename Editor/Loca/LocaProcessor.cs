@@ -40,6 +40,10 @@ namespace GuiToolkit.Editor
 				{
 					"Assets", 
 					"Packages/de.phoenixgrafik.ui-toolkit"
+				},
+				ExcludeFolders = new []
+				{
+					"Assets/Test"
 				}
 			};
 
