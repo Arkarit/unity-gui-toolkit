@@ -95,7 +95,7 @@ namespace GuiToolkit.Editor
 				string code = strings[i];
 				string str = strings[i + 1];
 
-				if (Evaluate(code, "_(", str) || Evaluate(code, "__(", str) || Evaluate(code, "gettext(", str))
+				if (EvaluateDeprecated(code, "_(", str, null) || EvaluateDeprecated(code, "__(", str, null) || EvaluateDeprecated(code, "gettext(", str, null))
 					continue;
 
 				if (i > numStrings - 4)
@@ -107,13 +107,69 @@ namespace GuiToolkit.Editor
 				if (code2.Trim() != ",")
 					continue;
 
-				if (Evaluate(code, "_n(", str, str2) || Evaluate(code, "ngettext(", str, str2))
+				if (EvaluateDeprecated(code, "_n(", str, str2) || EvaluateDeprecated(code, "ngettext(", str, str2))
 					i += 2;
 			}
 
 		}
 
-		private static bool Evaluate( string _code, string _keyword, string _singular, string _plural = null )
+		private static bool Evaluate(string _path, List<string> strings, ref int i, string _keyword, bool _isPluralKeyword)
+		{
+			if (AtEnd(i))
+				return false;
+
+			string keyword = strings[i++];
+			string locaKey = strings[i++];
+
+			if (!keyword.EndsWith(_keyword, StringComparison.Ordinal))
+				return AtEnd(i);
+
+			if (string.IsNullOrEmpty(locaKey))
+				return Error("Syntax error: empty loca key", i);
+
+			string locaKeyPlural = null;
+			if (_isPluralKeyword)
+			{
+				if (AtEnd(i))
+					return Error("Unexpected end of file", i);
+
+				string comma = strings[i++];
+				string pluralKey = strings[i++];
+
+				if (comma.Trim() != ",")
+					return Error("Syntax error: missing ',' in plural", i);
+
+				if (string.IsNullOrEmpty(pluralKey))
+					return Error("Syntax error: empty plural loca key in plural", i);
+
+				locaKeyPlural = pluralKey;
+			}
+
+			string groupKey = null;
+			if (!AtEnd(i))
+			{
+				if (strings[i].Trim() == ",")
+				{
+					i++;
+					groupKey = strings[i++];
+					if (groupKey == string.Empty)
+						groupKey = null;
+				}
+			}
+
+			LocaManager.Instance.EdAddKey(locaKey, locaKeyPlural, groupKey);
+			return AtEnd(i);
+
+			bool AtEnd(int _idx) => _idx >= strings.Count - 2;
+
+			bool Error(string _message, int _idx)
+			{
+				UiLog.LogError($"Loca parsing error '{_message}'\nin '{_path}' near line {_idx}");
+				return AtEnd(_idx);
+			}
+		}
+
+		private static bool EvaluateDeprecated( string _code, string _keyword, string _singular, string _plural )
 		{
 			int codeLength = _code.Length;
 			int keywordLength = _keyword.Length;
