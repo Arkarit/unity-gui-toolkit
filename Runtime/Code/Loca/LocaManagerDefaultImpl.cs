@@ -411,7 +411,8 @@ namespace GuiToolkit
 					m_pluralKeys.Add(_group, new SortedDictionary<string, string>());
 
 				var groupEntryPlural = m_pluralKeys[_group];
-				groupEntryPlural.Add(_singularKey, _pluralKey);
+				if (!groupEntryPlural.ContainsKey(_singularKey))
+					groupEntryPlural.Add(_singularKey, _pluralKey);
 				return;
 			}
 

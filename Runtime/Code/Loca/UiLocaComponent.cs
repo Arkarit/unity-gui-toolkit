@@ -7,9 +7,10 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(TMP_Text))]
-	public class UiTMPTranslator : UiThing, ILocaClient
+	public class UiLocaComponent : UiThing, ILocaClient
 	{
 		[SerializeField] bool m_autoTranslate = true;
+		[SerializeField] private string m_group = string.Empty;
 
 		private TMP_Text m_text;
 		private string m_locaKey;
@@ -22,6 +23,12 @@ namespace GuiToolkit
 		{
 			get => m_autoTranslate;
 			set => m_autoTranslate = value;
+		}
+
+		public string Group
+		{
+			get => m_group;
+			set => m_group = value;
 		}
 
 		protected override bool NeedsLanguageChangeCallback => true;
@@ -82,7 +89,7 @@ namespace GuiToolkit
 
 		private void Translate()
 		{
-			m_translatedText = LocaManager.Translate(m_locaKey);
+			m_translatedText = LocaManager.Translate(m_locaKey, m_group);
 			TextComponent.text = m_translatedText;
 		}
 

@@ -76,14 +76,15 @@ namespace GuiToolkit.Editor
 			{
 				var keys = _component.LocaKeys;
 				foreach (var key in keys)
-					LocaManager.Instance.EdAddKey(key);
+					LocaManager.Instance.EdAddKey(key, null, _component.Group);
 
 				return;
 			}
 
 			string locaKey = _component.LocaKey;
+			string group = _component.Group;
 			if (!string.IsNullOrEmpty(locaKey))
-				LocaManager.Instance.EdAddKey(locaKey);
+				LocaManager.Instance.EdAddKey(locaKey, null, group);
 		}
 
 		private static void FoundScript( string _path, string _content )

@@ -649,10 +649,10 @@ namespace GuiToolkit.Editor
 				}
 
 				LogReplacement($"Adding additional components 'UiTMPTranslator' and '' to '{newComp.GetPath()}'");
-				var translator = go.GetComponent<UiTMPTranslator>();
+				var translator = go.GetComponent<UiLocaComponent>();
 				if (!translator)
 				{
-					translator = Undo.AddComponent<UiTMPTranslator>(go);
+					translator = Undo.AddComponent<UiLocaComponent>(go);
 					translator.AutoTranslate = true;
 				}
 
