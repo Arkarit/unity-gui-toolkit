@@ -111,7 +111,7 @@ namespace GuiToolkit.Editor
 					i += 2;
 			}
 #endif
-			for (int i = 0;;)
+			for (int i = 0; i < numStrings; )
 			{
 				bool found =
 					Evaluate(_path, strings, ref i, "_(", false) ||
