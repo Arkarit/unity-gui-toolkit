@@ -4,7 +4,13 @@ msgstr ""
 msgid "and"
 msgstr ""
 
+msgid "Animation Example"
+msgstr ""
+
 msgid "Animation Speed"
+msgstr ""
+
+msgid "Animations Example"
 msgstr ""
 
 msgid "Are you really really sure you want to quit?"
@@ -31,6 +37,9 @@ msgstr ""
 msgid "Dialog Stub"
 msgstr ""
 
+msgid "Dynamic Load"
+msgstr ""
+
 msgid "Effect Volume"
 msgstr ""
 
@@ -49,9 +58,6 @@ msgstr ""
 msgid "Here you can test some of the capabilities of the GUI Toolkit"
 msgstr ""
 
-msgid "High"
-msgstr ""
-
 msgid "Key '{0}' not supported"
 msgstr ""
 
@@ -64,10 +70,10 @@ msgstr ""
 msgid "Light"
 msgstr ""
 
-msgid "Low"
+msgid "Max  FPS"
 msgstr ""
 
-msgid "Medium"
+msgid "Max FPS"
 msgstr ""
 
 msgid "Move Down"
@@ -109,25 +115,13 @@ msgstr ""
 msgid "Or 'Esc' to cancel"
 msgstr ""
 
-msgid "Overall"
-msgstr ""
-
-msgid "Page 1"
-msgstr ""
-
-msgid "Page 2"
-msgstr ""
-
-msgid "Page 3"
-msgstr ""
-
 msgid "Press a key\nOr Mouse button!"
 msgstr ""
 
-msgid "Press a Key!"
+msgid "Press a Key\nOr Mouse button!"
 msgstr ""
 
-msgid "Press a Key\nOr Mouse button!"
+msgid "Press a Key!"
 msgstr ""
 
 msgid "Press a Mouse button!"
@@ -139,10 +133,19 @@ msgstr ""
 msgid "Press one of the keys\n{0}"
 msgstr ""
 
+msgid "Quality"
+msgstr ""
+
 msgid "Quit"
 msgstr ""
 
 msgid "Really Quit?"
+msgstr ""
+
+msgid "Res. Dep. Style Example"
+msgstr ""
+
+msgid "Resolution Dependent Style Example"
 msgstr ""
 
 msgid "Restore Defaults"
@@ -167,9 +170,6 @@ msgid "Sound"
 msgstr ""
 
 msgid "Style Example"
-msgstr ""
-
-msgid "Tab Dialog Demo"
 msgstr ""
 
 msgid "Test Loca Key 1"
@@ -199,10 +199,10 @@ msgstr ""
 msgid "UI Skin"
 msgstr ""
 
-msgid "Ultra"
+msgid "Unbound Keys"
 msgstr ""
 
-msgid "Unbound Keys"
+msgid "Unlimited"
 msgstr ""
 
 msgid "Yes"

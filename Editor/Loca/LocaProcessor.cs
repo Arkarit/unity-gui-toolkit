@@ -99,8 +99,8 @@ namespace GuiToolkit.Editor
 			for (int i = 0; i < numStrings; )
 			{
 				bool found =
-					Evaluate(_path, strings, ref i, "_(", false) ||
 					Evaluate(_path, strings, ref i, "__(", false) ||
+					Evaluate(_path, strings, ref i, "_(", false) ||
 					Evaluate(_path, strings, ref i, "gettext(", false) ||
 					Evaluate(_path, strings, ref i, "_n(", true) ||
 					Evaluate(_path, strings, ref i, "ngettext(", true);
@@ -130,10 +130,10 @@ namespace GuiToolkit.Editor
 			if (_strings[_idx] == null)
 				return Error("null string", _idx);
 
-			string keyword = _strings[_idx].Replace(" ", "");
+			string keyword = _strings[_idx].RemoveWhitespace();
 			string locaKey = _strings[_idx + 1];
 
-			if (!string.Equals(keyword, _expectedKeyword, StringComparison.Ordinal))
+			if (!keyword.EndsWith(_expectedKeyword, StringComparison.Ordinal))
 				return false;
 
 			// Now consume the two tokens

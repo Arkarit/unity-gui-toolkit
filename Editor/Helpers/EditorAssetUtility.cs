@@ -44,7 +44,21 @@ namespace GuiToolkit.Editor
 			public EErrorCondition ErrorCondition = EErrorCondition.NoError;
 			public EErrorType ErrorType = EErrorType.LogError;
 			public string[] Folders = new[] { "Assets" };
-			public string[] ExcludeFolders = Array.Empty<string>();
+			public string[] ExcludeFolders = null;
+
+			public bool IsPathExcluded( string _path )
+			{
+				if (ExcludeFolders == null)
+					return false;
+
+				foreach (var excludeFolder in ExcludeFolders)
+				{
+					if (_path.StartsWith(excludeFolder, StringComparison.OrdinalIgnoreCase))
+						return true;
+				}
+
+				return false;
+			}
 		}
 
 		public delegate void ComponentAssetFoundDelegate<T>( T _component );
@@ -81,7 +95,7 @@ namespace GuiToolkit.Editor
 				{
 					string guid = allAssetPathGuids[i];
 					string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-					if (IsPathExcluded(_options, assetPath))
+					if (_options.IsPathExcluded(assetPath))
 						continue;
 
 					if (showProgressBar)
@@ -242,7 +256,7 @@ namespace GuiToolkit.Editor
 			// Attempt 3: Search manually. Super slow.
 			var options = new AssetSearchOptions()
 			{
-				SearchString = _searchString, 
+				SearchString = _searchString,
 				ErrorCondition = AssetSearchOptions.EErrorCondition.ErrorIfNotFound | AssetSearchOptions.EErrorCondition.ErrorIfMultipleFound
 			};
 
@@ -291,7 +305,7 @@ namespace GuiToolkit.Editor
 			foreach (string guid in allAssetPathGuids)
 			{
 				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-				if (IsPathExcluded(_options, assetPath))
+				if (_options.IsPathExcluded(assetPath))
 					continue;
 
 				ScriptableObject scriptableObject = AssetDatabase.LoadAssetAtPath<ScriptableObject>(assetPath);
@@ -390,7 +404,7 @@ namespace GuiToolkit.Editor
 				{
 					string guid = allAssetPathGuids[i];
 					string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-					if (IsPathExcluded(_options, assetPath))
+					if (_options.IsPathExcluded(assetPath))
 						continue;
 
 					if (showProgressBar)
@@ -483,7 +497,7 @@ exitLoop:
 			foreach (string guid in allAssetPathGuids)
 			{
 				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-				if (IsPathExcluded(_options, assetPath))
+				if (_options.IsPathExcluded(assetPath))
 					continue;
 
 				TextAsset textAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
@@ -513,7 +527,7 @@ exitLoop:
 			foreach (string guid in allAssetPathGuids)
 			{
 				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-				if (IsPathExcluded(_options, assetPath))
+				if (_options.IsPathExcluded(assetPath))
 					continue;
 
 				result++;
@@ -820,17 +834,6 @@ exitLoop:
 				return false;
 
 			return path.StartsWith("Packages");
-		}
-
-		private static bool IsPathExcluded(AssetSearchOptions _options, string _path)
-		{
-			foreach (var excludeFolder in _options.ExcludeFolders)
-			{
-				if (_path.StartsWith(excludeFolder, StringComparison.OrdinalIgnoreCase))
-					return true;
-			}
-
-			return false;
 		}
 
 		private static string GetCacheKey<T>( string _searchString ) => CachePrefix + typeof(T).FullName + (string.IsNullOrEmpty(_searchString) ? "" : _searchString);
