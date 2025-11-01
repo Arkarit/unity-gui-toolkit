@@ -35,7 +35,13 @@ namespace GuiToolkit.Editor
 			LocaManager.Instance.EdClear();
 
 			EditorAssetUtility.AssetSearchOptions options = new()
-			{ Folders = new[] { "Assets", "Packages/de.phoenixgrafik.ui-toolkit" } };
+			{
+				Folders = new[]
+				{
+					"Assets", 
+					"Packages/de.phoenixgrafik.ui-toolkit"
+				}
+			};
 
 			try
 			{
@@ -86,31 +92,6 @@ namespace GuiToolkit.Editor
 			//DebugDump(_path, strings);
 
 			int numStrings = strings.Count;
-#if false
-			for (int i = 0; i < numStrings; i += 2)
-			{
-				if (i > numStrings - 2)
-					break;
-
-				string code = strings[i];
-				string str = strings[i + 1];
-
-				if (EvaluateDeprecated(code, "_(", str, null) || EvaluateDeprecated(code, "__(", str, null) || EvaluateDeprecated(code, "gettext(", str, null))
-					continue;
-
-				if (i > numStrings - 4)
-					continue;
-
-				string code2 = strings[i + 2];
-				string str2 = strings[i + 3];
-
-				if (code2.Trim() != ",")
-					continue;
-
-				if (EvaluateDeprecated(code, "_n(", str, str2) || EvaluateDeprecated(code, "ngettext(", str, str2))
-					i += 2;
-			}
-#endif
 			for (int i = 0; i < numStrings; )
 			{
 				bool found =

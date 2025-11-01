@@ -452,7 +452,7 @@ namespace GuiToolkit
 				groupAppendix = $"_{_group}";
 
 			result += $"/loca{groupAppendix}.pot";
-			result = EditorFileUtility.GetSafeFileName(result);
+			result = EditorFileUtility.GetSafePath(result);
 			return result;
 		}
 
@@ -530,12 +530,6 @@ namespace GuiToolkit
 				WriteKeyData(path, keys, pluralKeys);
 				if (kv.Key != DEFAULT_LOCA_GROUP)
 					groups += $"{kv.Key}\n";
-			}
-
-			if (!string.IsNullOrEmpty(groups))
-			{
-				var groupAsset = new TextAsset(groups);
-				AssetDatabase.CreateAsset(groupAsset, $"Assets/Resources/GROUPS_RESOURCE_NAME");
 			}
 		}
 
