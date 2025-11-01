@@ -35,7 +35,7 @@ namespace GuiToolkit.Editor
 			LocaManager.Instance.EdClear();
 
 			EditorAssetUtility.AssetSearchOptions options = new()
-				{ Folders = new[] { "Assets", "Packages/de.phoenixgrafik.ui-toolkit" } };
+			{ Folders = new[] { "Assets", "Packages/de.phoenixgrafik.ui-toolkit" } };
 
 			try
 			{
@@ -86,7 +86,7 @@ namespace GuiToolkit.Editor
 			//DebugDump(_path, strings);
 
 			int numStrings = strings.Count;
-
+#if false
 			for (int i = 0; i < numStrings; i += 2)
 			{
 				if (i > numStrings - 2)
@@ -110,63 +110,87 @@ namespace GuiToolkit.Editor
 				if (EvaluateDeprecated(code, "_n(", str, str2) || EvaluateDeprecated(code, "ngettext(", str, str2))
 					i += 2;
 			}
+#endif
+			for (int i = 0;;)
+			{
+				bool found =
+					Evaluate(_path, strings, ref i, "_(", false) ||
+					Evaluate(_path, strings, ref i, "__(", false) ||
+					Evaluate(_path, strings, ref i, "gettext(", false) ||
+					Evaluate(_path, strings, ref i, "_n(", true) ||
+					Evaluate(_path, strings, ref i, "ngettext(", true);
 
+				if (!found)
+					i += 2;
+			}
 		}
 
-		private static bool Evaluate(string _path, List<string> strings, ref int i, string _keyword, bool _isPluralKeyword)
+		private static bool Evaluate( string _path, List<string> _strings, ref int _idx, string _expectedKeyword, bool _expectsPlural )
 		{
-			if (AtEnd(i))
+			// Peek helpers
+			bool AreTwoTokensLeft( int _idx ) => _idx <= _strings.Count - 2;
+			bool IsOneTokenLeft( int _idx ) => _idx <= _strings.Count - 1;
+
+			bool Error( string _message, int _idx )
+			{
+				UiLog.LogError($"Loca parsing error '{_message}'\n" +
+							   $"in '{_path}' near line {_idx}");
+				return false;
+			}
+
+			// Peek keyword + locaKey without consuming on mismatch
+			if (!AreTwoTokensLeft(_idx))
 				return false;
 
-			string keyword = strings[i++];
-			string locaKey = strings[i++];
+			if (_strings[_idx] == null)
+				return Error("null string", _idx);
 
-			if (!keyword.EndsWith(_keyword, StringComparison.Ordinal))
-				return AtEnd(i);
+			string keyword = _strings[_idx].Replace(" ", "");
+			string locaKey = _strings[_idx + 1];
+
+			if (!string.Equals(keyword, _expectedKeyword, StringComparison.Ordinal))
+				return false;
+
+			// Now consume the two tokens
+			_idx += 2;
 
 			if (string.IsNullOrEmpty(locaKey))
-				return Error("Syntax error: empty loca key", i);
+				return Error("Syntax error: empty loca key", _idx);
 
 			string locaKeyPlural = null;
-			if (_isPluralKeyword)
+			if (_expectsPlural)
 			{
-				if (AtEnd(i))
-					return Error("Unexpected end of file", i);
+				if (!AreTwoTokensLeft(_idx))
+					return Error("Unexpected end of file (plural)", _idx);
 
-				string comma = strings[i++];
-				string pluralKey = strings[i++];
+				string comma = _strings[_idx++];
+				string pluralKey = _strings[_idx++];
 
 				if (comma.Trim() != ",")
-					return Error("Syntax error: missing ',' in plural", i);
+					return Error("Syntax error: missing ',' in plural", _idx);
 
 				if (string.IsNullOrEmpty(pluralKey))
-					return Error("Syntax error: empty plural loca key in plural", i);
+					return Error("Syntax error: empty plural key", _idx);
 
 				locaKeyPlural = pluralKey;
 			}
 
 			string groupKey = null;
-			if (!AtEnd(i))
+			if (AreTwoTokensLeft(_idx) && _strings[_idx].Trim() == ",")
 			{
-				if (strings[i].Trim() == ",")
-				{
-					i++;
-					groupKey = strings[i++];
-					if (groupKey == string.Empty)
-						groupKey = null;
-				}
+				_idx++; // consume comma
+				if (!IsOneTokenLeft(_idx))
+					return Error("Unexpected end after group comma", _idx);
+
+				groupKey = _strings[_idx++];
+				if (groupKey == string.Empty)
+					groupKey = null;
 			}
 
 			LocaManager.Instance.EdAddKey(locaKey, locaKeyPlural, groupKey);
-			return AtEnd(i);
 
-			bool AtEnd(int _idx) => _idx >= strings.Count - 2;
-
-			bool Error(string _message, int _idx)
-			{
-				UiLog.LogError($"Loca parsing error '{_message}'\nin '{_path}' near line {_idx}");
-				return AtEnd(_idx);
-			}
+			// Found and added Key
+			return true;
 		}
 
 		private static bool EvaluateDeprecated( string _code, string _keyword, string _singular, string _plural )
