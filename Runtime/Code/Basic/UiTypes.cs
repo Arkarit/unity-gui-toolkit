@@ -204,15 +204,17 @@ namespace GuiToolkit
 		public const string MENU_HEADER = TOOLKIT_NAME + "/";                                                                           ///< Menu header "folder" definition
 		public const string STYLES_HEADER = MENU_HEADER + "Styles/";
 		public const string MISC_TOOLS_MENU_HEADER = MENU_HEADER + "Miscellaneous Tools/";                                              ///< Menu header for miscellaneous tools
+		public const string LOCA_HEADER = MENU_HEADER + "Localization/";
 
 		public const string CONFIGURATION_NAME = "Ui Toolkit Configuration...";
 		public const string CONFIGURATION_MENU_NAME = MENU_HEADER + CONFIGURATION_NAME;
 		public const string APPLY_STYLE_GENERATOR_MENU_NAME = STYLES_HEADER + "'Ui Apply Style' Generator...";
 		public const string GAME_SPEED_MENU_NAME = MENU_HEADER + "Game speed...";
 		public const string KERNING_TABLE_TOOL_MENU_NAME = MENU_HEADER + "Kerning Table Tool...";
-		public const string LOCA_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update pot file)";
-		public const string LOCA_PLURAL_PROCESSOR_MENU_NAME = MENU_HEADER + "Process Loca (Update plurals when added a new language)";
-		public const string LOCA_PO_FIXER_MENU_NAME = MENU_HEADER + "Loca PO File Fixer (Sync .po <-> .po.txt files)";
+		public const string LOCA_PROCESSOR_MENU_NAME = LOCA_HEADER + "Process Loca (Update pot file)";
+		public const string LOCA_PLURAL_PROCESSOR_MENU_NAME = LOCA_HEADER + "Process Loca (Update plurals when added a new language)";
+		public const string LOCA_PO_FIXER_MENU_NAME = LOCA_HEADER + "Loca PO File Fixer (Sync .po <-> .po.txt files)";
+		public const string SET_ALL_UI_LOCA_GROUPS = LOCA_HEADER + "Set Group for all current UiLocaComponent";
 		public const string SCENE_CHANGE_TRACKER_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Scene Change Tracker";
 		public const string MAIN_SCENE_ON_PLAY_MENU_NAME = MENU_HEADER + "Only Main Scene on Play";
 		public const string SAVE_PROJECT_ON_LOSE_FOCUS_MENU_NAME = MISC_TOOLS_MENU_HEADER + "Save Project on lose focus";

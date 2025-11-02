@@ -44,6 +44,21 @@ namespace GuiToolkit.Editor
 			public EErrorCondition ErrorCondition = EErrorCondition.NoError;
 			public EErrorType ErrorType = EErrorType.LogError;
 			public string[] Folders = new[] { "Assets" };
+			public string[] ExcludeFolders = null;
+
+			public bool IsPathExcluded( string _path )
+			{
+				if (ExcludeFolders == null)
+					return false;
+
+				foreach (var excludeFolder in ExcludeFolders)
+				{
+					if (_path.StartsWith(excludeFolder, StringComparison.OrdinalIgnoreCase))
+						return true;
+				}
+
+				return false;
+			}
 		}
 
 		public delegate void ComponentAssetFoundDelegate<T>( T _component );
@@ -80,6 +95,8 @@ namespace GuiToolkit.Editor
 				{
 					string guid = allAssetPathGuids[i];
 					string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+					if (_options.IsPathExcluded(assetPath))
+						continue;
 
 					if (showProgressBar)
 					{
@@ -237,7 +254,12 @@ namespace GuiToolkit.Editor
 			}
 
 			// Attempt 3: Search manually. Super slow.
-			var options = new AssetSearchOptions() { SearchString = _searchString, ErrorCondition = AssetSearchOptions.EErrorCondition.ErrorIfNotFound | AssetSearchOptions.EErrorCondition.ErrorIfMultipleFound };
+			var options = new AssetSearchOptions()
+			{
+				SearchString = _searchString,
+				ErrorCondition = AssetSearchOptions.EErrorCondition.ErrorIfNotFound | AssetSearchOptions.EErrorCondition.ErrorIfMultipleFound
+			};
+
 			result = FindComponentInAllPrefabs<T>(options);
 			if (!result)
 				return null;
@@ -282,8 +304,11 @@ namespace GuiToolkit.Editor
 			int numFound = 0;
 			foreach (string guid in allAssetPathGuids)
 			{
-				string _assetPath = AssetDatabase.GUIDToAssetPath(guid);
-				ScriptableObject scriptableObject = AssetDatabase.LoadAssetAtPath<ScriptableObject>(_assetPath);
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				if (_options.IsPathExcluded(assetPath))
+					continue;
+
+				ScriptableObject scriptableObject = AssetDatabase.LoadAssetAtPath<ScriptableObject>(assetPath);
 				if (scriptableObject == null || !(scriptableObject is T))
 					continue;
 
@@ -379,6 +404,9 @@ namespace GuiToolkit.Editor
 				{
 					string guid = allAssetPathGuids[i];
 					string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+					if (_options.IsPathExcluded(assetPath))
+						continue;
+
 					if (showProgressBar)
 					{
 						float done = (float)(i + 1) / allAssetPathGuids.Length;
@@ -468,13 +496,15 @@ exitLoop:
 
 			foreach (string guid in allAssetPathGuids)
 			{
-				string _assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				if (_options.IsPathExcluded(assetPath))
+					continue;
 
-				TextAsset textAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(_assetPath);
+				TextAsset textAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
 				if (textAsset == null)
 					continue;
 
-				_foundFn(_assetPath, textAsset.text);
+				_foundFn(assetPath, textAsset.text);
 				objectsFound++;
 			}
 
@@ -496,7 +526,9 @@ exitLoop:
 			int result = 0;
 			foreach (string guid in allAssetPathGuids)
 			{
-				string _assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				if (_options.IsPathExcluded(assetPath))
+					continue;
 
 				result++;
 			}

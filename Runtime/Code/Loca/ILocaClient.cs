@@ -9,6 +9,7 @@ namespace GuiToolkit
 		bool UsesMultipleLocaKeys {get;}
 		string LocaKey {get;}
 		List<string> LocaKeys {get;}
+		string Group {get;}
 #endif
 	}
 }

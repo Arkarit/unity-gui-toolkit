@@ -24,9 +24,9 @@ namespace GuiToolkit
 		/// <param name="_s">Source string (msgid) to translate.</param>
 		/// <returns>Localized string.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		protected static string _( string _s )
+		protected static string _( string _s, string _group = null )
 		{
-			return gettext(_s);
+			return gettext(_s, _group);
 		}
 
 		/// <summary>
@@ -36,9 +36,9 @@ namespace GuiToolkit
 		/// <param name="_s">Source string (msgid) to translate.</param>
 		/// <returns>Localized string.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		protected static string gettext( string _s )
+		protected static string gettext( string _s, string _group = null )
 		{
-			return LocaManager.Instance.Translate(_s);
+			return LocaManager.Instance.Translate(_s, _group);
 		}
 
 		/// <summary>
@@ -49,9 +49,9 @@ namespace GuiToolkit
 		/// <param name="_n">Number used for pluralization rules.</param>
 		/// <returns>Localized string in correct plural form.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		protected static string _n( string _singular, string _plural, int _n )
+		protected static string _n( string _singular, string _plural, int _n, string _group = null )
 		{
-			return ngettext(_singular, _plural, _n);
+			return ngettext(_singular, _plural, _n, _group);
 		}
 
 		/// <summary>
@@ -63,9 +63,9 @@ namespace GuiToolkit
 		/// <param name="_n">Number used for pluralization rules.</param>
 		/// <returns>Localized string in correct plural form.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		protected static string ngettext( string _singular, string _plural, int _n )
+		protected static string ngettext( string _singular, string _plural, int _n, string _group = null )
 		{
-			return LocaManager.Instance.Translate(_singular, _plural, _n);
+			return LocaManager.Instance.Translate(_singular, _plural, _n, _group);
 		}
 
 		/// <summary>
@@ -76,7 +76,7 @@ namespace GuiToolkit
 		/// <param name="_s">Source string to be extracted.</param>
 		/// <returns>Unmodified source string.</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		protected static string __( string _s )
+		protected static string __( string _s, string _group = null )
 		{
 			return _s;
 		}

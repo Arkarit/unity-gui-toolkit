@@ -142,7 +142,10 @@ namespace GuiToolkit.Test
 				bool bl = false;
 				int idx = 7;
 				string str = string.Empty;
-				string _( string msg ) => msg;
+				string fakeKey = string.Empty;
+				string fakeGroup = string.Empty;
+
+				string _( string msg, string _ = null ) => msg;
 
 				//=== BEGIN TEST SOURCE ===
 				string a = "Literal";
@@ -163,6 +166,10 @@ namespace GuiToolkit.Test
 				string l = "" + "";
 				string m = $"{idx,3:D2}";
 				string n = str;
+				string o = $"{_(fakeKey)}";
+				string p = $"{_("key", "group")}";
+				string q = $"{_("key", fakeGroup)}";
+				string r = $"{_(fakeKey, fakeGroup)}";
 				//=== END TEST SOURCE ===
 
 			}
@@ -199,7 +206,27 @@ namespace GuiToolkit.Test
 			    ("+", ""),							// Pair 26
 			    (";string m=", ""),					// Pair 27
 			    ("idx", ""),						// Pair 28
-			    (";string n=str;", ""),				// Pair 29
+
+				// n, o
+			    (";string n=str;string o=", ""),	// Pair 29/30
+
+				// o
+				("_(fakeKey)", ""),                  // Pair 31
+				
+				// p
+				(";string p=", ""),                  // Pair 32
+				("_(", "key"),                       // Pair 33
+				(",", "group"),                      // Pair 34
+				(")", ""),                           // Pair 35
+				
+				// q
+				(";string q=", ""),                  // Pair 36
+				("_(", "key"),                       // Pair 37
+				(",fakeGroup)", ""),                 // Pair 38
+				
+				// r
+				(";string r=", ""),                  // Pair 39
+				("_(fakeKey,fakeGroup)", ""),        // Pair 40
 			};
 
 			for (int i = 0; i < expected.Count; i++)

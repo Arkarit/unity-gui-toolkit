@@ -30,6 +30,14 @@ namespace GuiToolkit
 
 		public static bool IsQuitting( this Application _ ) => s_isQuitting;
 
+		public static string RemoveWhitespace( this string _s )
+		{
+			return new string
+			(
+				_s.Where(c => !char.IsWhiteSpace(c)).ToArray()
+			);
+		}
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static unsafe bool HasFlags<T>( this T _self, T _flags ) where T : unmanaged, Enum
 		{
@@ -1164,13 +1172,13 @@ namespace GuiToolkit
 			// Dynamic (AddListener)
 			var field = typeof(UnityEventBase).GetField("m_Calls",
 				BindingFlags.Instance | BindingFlags.NonPublic);
-			
+
 			if (field == null)
 			{
 				UiLog.LogErrorOnce($"Unity API for events has changed; can not find field 'm_Calls'");
 				return false;
 			}
-			
+
 			var calls = field.GetValue(unityEvent);
 			if (calls == null)
 				return false;

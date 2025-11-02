@@ -8,7 +8,7 @@ namespace GuiToolkit
 {
 	public abstract class UiPlayerSettingBase : UiThing, IPointerEnterHandler, IPointerExitHandler
 	{
-		[SerializeField] protected UiTMPTranslator m_titleTranslator;
+		[SerializeField] protected UiLocaComponent m_titleTranslator;
 		[SerializeField] protected TMP_Text m_text;
 		[SerializeField] protected bool m_isLocalized = true;
 		

@@ -9,7 +9,7 @@ namespace GuiToolkit
 	{
 		public static bool LanguagePopup( string _labelText, string _current, out string _new, string _labelText2 = " " )
 		{
-			var languages = LocaManager.Instance.AvailableLanguages.ToList();
+			var languages = LocaManager.Instance.EdAvailableLanguages.ToList();
 			return EditorUiUtility.StringPopup(_labelText, languages, _current, out _new, _labelText2) != -1;
 		}
 	}
