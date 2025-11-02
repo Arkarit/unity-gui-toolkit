@@ -54,7 +54,9 @@ namespace GuiToolkit
 			foreach (var group in m_groups)
 				result |= ReadTranslation(_languageId, group);
 
-			DebugDump();
+#if UNITY_EDITOR
+			//DebugDump();
+#endif
 			return result;
 		}
 
