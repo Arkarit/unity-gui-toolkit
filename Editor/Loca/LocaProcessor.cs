@@ -162,7 +162,7 @@ namespace GuiToolkit.Editor
 			}
 
 			string groupKey = null;
-			if (AreTwoTokensLeft(_idx) && _strings[_idx].Trim() == ",")
+			if (AreTwoTokensLeft(_idx) && _strings[_idx].Trim().StartsWith(","))
 			{
 				_idx++; // consume comma
 				if (!IsOneTokenLeft(_idx))
