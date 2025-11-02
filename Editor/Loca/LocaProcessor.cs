@@ -53,13 +53,22 @@ namespace GuiToolkit.Editor
 				EditorAssetUtility.FindAllComponentsInAllScenes<ILocaKeyProvider>(FoundComponent, options);
 				EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
 				EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaKeyProvider>(FoundComponent, options);
-				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scriptable objects", 0.2f);
+				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scripts", 0.2f);
 				EditorAssetUtility.FindAllScriptableObjects<ILocaKeyProvider>(FoundComponent, options);
 
 				m_numScripts = EditorAssetUtility.FindAllScriptsCount();
 				m_currentScriptIdx = 0;
 
 				EditorAssetUtility.FindAllScripts(FoundScript, options);
+
+				LocaProviderList locaProviderList = new();
+				EditorAssetUtility.FindAllScriptableObjects<ILocaProvider>(locaProvider =>
+				{
+					var so = (ScriptableObject) locaProvider;
+					locaProviderList.Paths.Add(AssetDatabase.GetAssetPath(so));
+					locaProvider.CollectData();
+				}, options);
+				locaProviderList.Save();
 			}
 			finally
 			{
@@ -177,33 +186,6 @@ namespace GuiToolkit.Editor
 
 			// Found and added Key
 			return true;
-		}
-
-		private static bool EvaluateDeprecated( string _code, string _keyword, string _singular, string _plural )
-		{
-			int codeLength = _code.Length;
-			int keywordLength = _keyword.Length;
-			if (codeLength < keywordLength)
-				return false;
-
-			if (_code.EndsWith(_keyword))
-			{
-				if (codeLength == keywordLength)
-				{
-					LocaManager.Instance.EdAddKey(_singular, _plural);
-					return true;
-				}
-
-				char c = _code[codeLength - keywordLength - 1];
-
-				if ((char.IsWhiteSpace(c) || !char.IsLetterOrDigit(c)) && c != '_')
-				{
-					LocaManager.Instance.EdAddKey(_singular, _plural);
-					return true;
-				}
-			}
-
-			return false;
 		}
 
 		private static void DebugDump( string _path, List<string> _strings )

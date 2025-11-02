@@ -14,6 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_excelPath:
     m_path: Assets/Resources/LocaDemo.xlsx
+  m_group: 
   m_columnDescriptions:
   - ColumnType: 1
+    Prefix: 
+    Postfix: 
   - ColumnType: 2
+    Prefix: 
+    Postfix: 
+  - ColumnType: 2
+    Prefix: 
+    Postfix: 
+  - ColumnType: 2
+    Prefix: fitze_
+    Postfix: 
+  - ColumnType: 2
+    Prefix: 
+    Postfix: _fatze

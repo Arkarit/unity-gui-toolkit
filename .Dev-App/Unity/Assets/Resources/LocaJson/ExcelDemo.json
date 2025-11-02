@@ -1,0 +1,30 @@
+{
+    "group": "",
+    "languages": [
+        "en",
+        "de"
+    ],
+    "rows": [
+        {
+            "key": "excel_key1",
+            "trans": [
+                {
+                    "lang": "en",
+                    "text": "Excel Key 1"
+                },
+                {
+                    "lang": "de",
+                    "text": "Excel Schlüssel 1"
+                },
+                {
+                    "lang": "de",
+                    "text": "fitze_Bla"
+                },
+                {
+                    "lang": "de",
+                    "text": "Blupp_fatze"
+                }
+            ]
+        }
+    ]
+}
