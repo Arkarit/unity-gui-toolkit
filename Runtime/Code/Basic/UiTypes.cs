@@ -236,6 +236,7 @@ namespace GuiToolkit
 		public const string CHECK_EXTERNAL_REQUIRED = MISC_TOOLS_MENU_HEADER + "Check open scenes for [MandatoryExternal] attributes";
 		public const string SCENE_MENU_GENERATOR_HEADER = MENU_HEADER + "Scenes/";
 		public const string SCENE_MENU_GENERATOR = SCENE_MENU_GENERATOR_HEADER + "(Re)Generate List";
+		public const string LOCA_EXCEL_BRIDGE = LOCA_HEADER + "Loca Excel Bridge";
 	}
 
 	/// \brief Builtin icon definitions

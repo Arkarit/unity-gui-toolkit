@@ -50,11 +50,11 @@ namespace GuiToolkit.Editor
 			try
 			{
 				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
-				EditorAssetUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent, options);
+				EditorAssetUtility.FindAllComponentsInAllScenes<ILocaKeyProvider>(FoundComponent, options);
 				EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
-				EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent, options);
+				EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaKeyProvider>(FoundComponent, options);
 				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scriptable objects", 0.2f);
-				EditorAssetUtility.FindAllScriptableObjects<ILocaClient>(FoundComponent, options);
+				EditorAssetUtility.FindAllScriptableObjects<ILocaKeyProvider>(FoundComponent, options);
 
 				m_numScripts = EditorAssetUtility.FindAllScriptsCount();
 				m_currentScriptIdx = 0;
@@ -70,7 +70,7 @@ namespace GuiToolkit.Editor
 			LocaManager.Instance.EdWriteKeyData();
 		}
 
-		private static void FoundComponent( ILocaClient _component )
+		private static void FoundComponent( ILocaKeyProvider _component )
 		{
 			if (_component.UsesMultipleLocaKeys)
 			{
