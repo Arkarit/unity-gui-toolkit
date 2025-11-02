@@ -162,15 +162,19 @@ namespace GuiToolkit.Editor
 			}
 
 			string groupKey = null;
-			if (AreTwoTokensLeft(_idx) && _strings[_idx].Trim().StartsWith(","))
+			if (AreTwoTokensLeft(_idx))
 			{
-				_idx++; // consume comma
-				if (!IsOneTokenLeft(_idx))
-					return Error("Unexpected end after group comma", _idx);
+				var s = _strings[_idx].Trim();
+				if (s.StartsWith(",") && !s.Contains(")"))
+				{
+					_idx++; // consume comma
+					if (!IsOneTokenLeft(_idx))
+						return Error("Unexpected end after group comma", _idx);
 
-				groupKey = _strings[_idx++];
-				if (groupKey == string.Empty)
-					groupKey = null;
+					groupKey = _strings[_idx++];
+					if (groupKey == string.Empty)
+						groupKey = null;
+				}
 			}
 
 			LocaManager.Instance.EdAddKey(locaKey, locaKeyPlural, groupKey);
