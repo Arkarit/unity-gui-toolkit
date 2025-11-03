@@ -11,7 +11,9 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+#if UITK_USE_ROSLYN
 using ExcelDataReader;
+#endif
 using UnityEditor;
 #endif
 
