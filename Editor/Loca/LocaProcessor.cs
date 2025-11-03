@@ -65,7 +65,7 @@ namespace GuiToolkit.Editor
 				EditorAssetUtility.FindAllScriptableObjects<ILocaProvider>(locaProvider =>
 				{
 					var so = (ScriptableObject) locaProvider;
-					locaProviderList.Paths.Add(AssetDatabase.GetAssetPath(so));
+					locaProviderList.Paths.Add(so.name);
 					locaProvider.CollectData();
 				}, options);
 				locaProviderList.Save();
@@ -74,7 +74,6 @@ namespace GuiToolkit.Editor
 			{
 				EditorUtility.ClearProgressBar();
 			}
-
 
 			LocaManager.Instance.EdWriteKeyData();
 		}

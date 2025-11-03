@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -54,7 +55,7 @@ namespace GuiToolkit
 			foreach (var group in m_groups)
 				result |= ReadTranslation(_languageId, group);
 
-			ReadLocaProviders();
+			ReadLocaProviders(_languageId);
 
 #if UNITY_EDITOR
 			DebugDump();
@@ -62,26 +63,20 @@ namespace GuiToolkit
 			return result;
 		}
 
-		private void ReadLocaProviders()
+		private void ReadLocaProviders(string _languageId)
 		{
 			var providerList = LocaProviderList.Load();
 			if (providerList == null)
 				return;
 
-			string currentLang = NormalizeLang(Language);
+			string currentLang = NormalizeLang(_languageId);
 
 			foreach (var path in providerList.Paths)
 			{
-				var so = Resources.Load<ScriptableObject>(path);
-				if (so == null)
+				var locaProvider = Resources.Load<LocaExcelBridge>(path);
+				if (locaProvider == null)
 				{
 					UiLog.LogError($"Could not load Loca Provider at path '{path}'");
-					continue;
-				}
-
-				if (so is not ILocaProvider locaProvider)
-				{
-					UiLog.LogError($"Scriptable Object at path '{path}' is not an ILocaProvider");
 					continue;
 				}
 
@@ -743,7 +738,7 @@ namespace GuiToolkit
 
 			try
 			{
-				File.WriteAllText($"C:\\temp\\{Language}_dump.txt", s);
+				File.WriteAllText($"C:\\temp\\{Language}_dump.txt", s, Encoding.UTF8);
 			}
 			catch
 			{
