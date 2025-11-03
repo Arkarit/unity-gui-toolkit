@@ -5,27 +5,13 @@
             "LanguageId": "en",
             "Key": "excel_key1",
             "Text": "Excel Key 1",
-            "Forms": [
-                "",
-                "",
-                "",
-                "",
-                "",
-                ""
-            ]
+            "Forms": []
         },
         {
             "LanguageId": "de",
             "Key": "excel_key1",
             "Text": "Excel Schlüssel 1",
-            "Forms": [
-                "",
-                "",
-                "",
-                "",
-                "",
-                ""
-            ]
+            "Forms": []
         },
         {
             "LanguageId": "de",
@@ -64,18 +50,6 @@
                 "",
                 ""
             ]
-        },
-        {
-            "LanguageId": "de",
-            "Key": "bla_excel_dog",
-            "Text": "",
-            "Forms": []
-        },
-        {
-            "LanguageId": "de",
-            "Key": "bluppexcel_dog",
-            "Text": "",
-            "Forms": []
         }
     ]
 }

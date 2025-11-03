@@ -34,10 +34,10 @@ namespace GuiToolkit
 			public int PluralForm = -1;
 		}
 
-		[PathField(_isFolder:false, _relativeToPath:".", _extensions:"xlsx")]
+		[PathField(_isFolder: false, _relativeToPath: ".", _extensions: "xlsx")]
 		[SerializeField][Mandatory] private PathField m_excelPath;
 		[SerializeField] private string m_group;
-		[SerializeField] private List<ColumnDescription> m_columnDescriptions = new ();
+		[SerializeField] private List<ColumnDescription> m_columnDescriptions = new();
 		[SerializeField] private int m_startRow = 0; // all rows before are ignored (0-based index)
 
 		private LocaJson m_cached; // loaded at runtime from Resources
@@ -153,22 +153,24 @@ namespace GuiToolkit
 				foreach (var lc in langColumns)
 				{
 					string lang = lc.lang;
-					string cell = sheet.Rows[r][lc.col]?.ToString() ?? string.Empty;
+					string cell = sheet.Rows[r][lc.col]?.ToString();
+					cell = cell != null ? cell.Trim() : string.Empty;
+
+					int plural = lc.desc?.PluralForm ?? -1;
+
+					// skip empty cells
+					if (string.IsNullOrEmpty(cell))
+						continue;
 
 					string effectiveKey = ApplyKeyAffixes(baseEffectiveKey, lc.desc);
 
 					var k = (lang, effectiveKey);
 					if (!byLangAndKey.TryGetValue(k, out var entry))
 					{
-						entry = new LocaJsonEntry
-						{
-							LanguageId = lang,
-							Key = effectiveKey
-						};
+						entry = new LocaJsonEntry { LanguageId = lang, Key = effectiveKey };
 						byLangAndKey[k] = entry;
 					}
 
-					int plural = lc.desc?.PluralForm ?? -1;
 					if (plural < 0)
 					{
 						entry.Text = cell;
@@ -181,17 +183,24 @@ namespace GuiToolkit
 				}
 			}
 
+			var pruned = byLangAndKey.Values
+				.Where(e =>
+					!string.IsNullOrEmpty(e.Text) ||
+					(e.Forms != null && e.Forms.Any(s => !string.IsNullOrEmpty(s)))
+				)
+				.ToList();
+
 			var result = new LocaJson
 			{
 				Group = m_group,
-				Entries = byLangAndKey.Values.ToList()
+				Entries = pruned
 			};
 
 			WriteJson(result);
 			AssetDatabase.Refresh();
 		}
 
-		private static string ApplyKeyAffixes(string _key, ColumnDescription _desc)
+		private static string ApplyKeyAffixes( string _key, ColumnDescription _desc )
 		{
 			if (_desc == null)
 				return _key ?? string.Empty;
@@ -202,7 +211,7 @@ namespace GuiToolkit
 			return string.Concat(prefix, _key ?? string.Empty, postfix);
 		}
 
-		private static string NormalizeLang(string _lang)
+		private static string NormalizeLang( string _lang )
 		{
 			if (string.IsNullOrEmpty(_lang))
 				return string.Empty;
@@ -210,7 +219,7 @@ namespace GuiToolkit
 			return _lang.Trim().ToLowerInvariant();
 		}
 
-		private void WriteJson(LocaJson _data)
+		private void WriteJson( LocaJson _data )
 		{
 			string assetName = string.IsNullOrEmpty(name) ? "LocaTable" : name;
 			string relDir = $"Assets/Resources/{LocaProviderList.RESOURCES_SUB_PATH}";
@@ -252,13 +261,13 @@ namespace GuiToolkit
 		{
 			public static readonly StringTupleComparer Ordinal = new StringTupleComparer();
 
-			public bool Equals((string a, string b) _x, (string a, string b) _y)
+			public bool Equals( (string a, string b) _x, (string a, string b) _y )
 			{
 				return string.Equals(_x.a, _y.a, StringComparison.Ordinal)
-				       && string.Equals(_x.b, _y.b, StringComparison.Ordinal);
+					   && string.Equals(_x.b, _y.b, StringComparison.Ordinal);
 			}
 
-			public int GetHashCode((string a, string b) _obj)
+			public int GetHashCode( (string a, string b) _obj )
 			{
 				int h1 = _obj.a != null ? _obj.a.GetHashCode() : 0;
 				int h2 = _obj.b != null ? _obj.b.GetHashCode() : 0;
