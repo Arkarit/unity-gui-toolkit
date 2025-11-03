@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR && !UNITY_6000_0_OR_NEWER
+﻿#if UNITY_EDITOR && !UNITY_6000_0_OR_NEWERZ
 using System;
 using System.IO;
 using System.Linq;
@@ -182,9 +182,9 @@ namespace GuiToolkit.Editor
 				.AppendLine(@"    ""Microsoft.CodeAnalysis.CSharp.dll"",")
 				.AppendLine(@"    ""System.Collections.Immutable.dll"",")
 				.AppendLine(@"    ""System.Reflection.Metadata.dll"",")
-				.AppendLine(@"    ""System.Runtime.CompilerServices.Unsafe.dll""")
-				.AppendLine(@"    ""ExcelDataReader.dll""")
-				.AppendLine(@"    ""ExcelDataReader.DataSet.dll""")
+				.AppendLine(@"    ""System.Runtime.CompilerServices.Unsafe.dll"",")
+				.AppendLine(@"    ""ExcelDataReader.dll"",")
+				.AppendLine(@"    ""ExcelDataReader.DataSet.dll"",")
 				.AppendLine(@"    ""System.Text.Encoding.CodePages.dll""")
 				.AppendLine(@"  ],")
 				.AppendLine(@"  ""autoReferenced"": true,")
