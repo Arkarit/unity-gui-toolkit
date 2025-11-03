@@ -11,7 +11,20 @@ namespace GuiToolkit.Editor
 	{
 		private static int m_numScripts;
 		private static int m_currentScriptIdx;
+		private static readonly	EditorAssetUtility.AssetSearchOptions s_options = new()
+		{
+			Folders = new[]
+			{
+				"Assets", 
+				"Packages/de.phoenixgrafik.ui-toolkit"
+			},
+			ExcludeFolders = new []
+			{
+				"Assets/Test"
+			}
+		};
 
+		
 		[MenuItem(StringConstants.LOCA_PROCESSOR_MENU_NAME, priority = Constants.LOCA_PROCESSOR_MENU_PRIORITY)]
 		public static void Process()
 		{
@@ -34,41 +47,21 @@ namespace GuiToolkit.Editor
 
 			LocaManager.Instance.EdClear();
 
-			EditorAssetUtility.AssetSearchOptions options = new()
-			{
-				Folders = new[]
-				{
-					"Assets", 
-					"Packages/de.phoenixgrafik.ui-toolkit"
-				},
-				ExcludeFolders = new []
-				{
-					"Assets/Test"
-				}
-			};
-
 			try
 			{
 				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
-				EditorAssetUtility.FindAllComponentsInAllScenes<ILocaKeyProvider>(FoundComponent, options);
+				EditorAssetUtility.FindAllComponentsInAllScenes<ILocaKeyProvider>(FoundComponent, s_options);
 				EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
-				EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaKeyProvider>(FoundComponent, options);
+				EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaKeyProvider>(FoundComponent, s_options);
 				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scripts", 0.2f);
-				EditorAssetUtility.FindAllScriptableObjects<ILocaKeyProvider>(FoundComponent, options);
+				EditorAssetUtility.FindAllScriptableObjects<ILocaKeyProvider>(FoundComponent, s_options);
 
 				m_numScripts = EditorAssetUtility.FindAllScriptsCount();
 				m_currentScriptIdx = 0;
 
-				EditorAssetUtility.FindAllScripts(FoundScript, options);
+				EditorAssetUtility.FindAllScripts(FoundScript, s_options);
 
-				LocaProviderList locaProviderList = new();
-				EditorAssetUtility.FindAllScriptableObjects<ILocaProvider>(locaProvider =>
-				{
-					var so = (ScriptableObject) locaProvider;
-					locaProviderList.Paths.Add(so.name);
-					locaProvider.CollectData();
-				}, options);
-				locaProviderList.Save();
+				ProcessLocaProviders();
 			}
 			finally
 			{
@@ -76,6 +69,20 @@ namespace GuiToolkit.Editor
 			}
 
 			LocaManager.Instance.EdWriteKeyData();
+		}
+
+		[MenuItem(StringConstants.LOCA_PROCESSOR_MENU_NAME_PROVIDERS, priority = Constants.LOCA_PROCESSOR_MENU_PRIORITY + 1)]
+		private static void ProcessLocaProviders()
+		{
+
+			LocaProviderList locaProviderList = new();
+			EditorAssetUtility.FindAllScriptableObjects<ILocaProvider>(locaProvider =>
+			{
+				var so = (ScriptableObject) locaProvider;
+				locaProviderList.Paths.Add(so.name);
+				locaProvider.CollectData();
+			}, s_options);
+			locaProviderList.Save();
 		}
 
 		private static void FoundComponent( ILocaKeyProvider _component )
