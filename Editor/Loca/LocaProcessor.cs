@@ -50,27 +50,35 @@ namespace GuiToolkit.Editor
 			try
 			{
 				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
-				EditorAssetUtility.FindAllComponentsInAllScenes<ILocaClient>(FoundComponent, options);
+				EditorAssetUtility.FindAllComponentsInAllScenes<ILocaKeyProvider>(FoundComponent, options);
 				EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
-				EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaClient>(FoundComponent, options);
-				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scriptable objects", 0.2f);
-				EditorAssetUtility.FindAllScriptableObjects<ILocaClient>(FoundComponent, options);
+				EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaKeyProvider>(FoundComponent, options);
+				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scripts", 0.2f);
+				EditorAssetUtility.FindAllScriptableObjects<ILocaKeyProvider>(FoundComponent, options);
 
 				m_numScripts = EditorAssetUtility.FindAllScriptsCount();
 				m_currentScriptIdx = 0;
 
 				EditorAssetUtility.FindAllScripts(FoundScript, options);
+
+				LocaProviderList locaProviderList = new();
+				EditorAssetUtility.FindAllScriptableObjects<ILocaProvider>(locaProvider =>
+				{
+					var so = (ScriptableObject) locaProvider;
+					locaProviderList.Paths.Add(so.name);
+					locaProvider.CollectData();
+				}, options);
+				locaProviderList.Save();
 			}
 			finally
 			{
 				EditorUtility.ClearProgressBar();
 			}
 
-
 			LocaManager.Instance.EdWriteKeyData();
 		}
 
-		private static void FoundComponent( ILocaClient _component )
+		private static void FoundComponent( ILocaKeyProvider _component )
 		{
 			if (_component.UsesMultipleLocaKeys)
 			{
@@ -181,33 +189,6 @@ namespace GuiToolkit.Editor
 
 			// Found and added Key
 			return true;
-		}
-
-		private static bool EvaluateDeprecated( string _code, string _keyword, string _singular, string _plural )
-		{
-			int codeLength = _code.Length;
-			int keywordLength = _keyword.Length;
-			if (codeLength < keywordLength)
-				return false;
-
-			if (_code.EndsWith(_keyword))
-			{
-				if (codeLength == keywordLength)
-				{
-					LocaManager.Instance.EdAddKey(_singular, _plural);
-					return true;
-				}
-
-				char c = _code[codeLength - keywordLength - 1];
-
-				if ((char.IsWhiteSpace(c) || !char.IsLetterOrDigit(c)) && c != '_')
-				{
-					LocaManager.Instance.EdAddKey(_singular, _plural);
-					return true;
-				}
-			}
-
-			return false;
 		}
 
 		private static void DebugDump( string _path, List<string> _strings )

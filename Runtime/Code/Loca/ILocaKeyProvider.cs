@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
-	public interface ILocaClient
+	public interface ILocaKeyProvider
 	{
 #if UNITY_EDITOR
 		bool UsesMultipleLocaKeys {get;}

@@ -7,6 +7,7 @@ using UnityEngine;
 namespace GuiToolkit.Editor
 {
 	[CustomEditor(typeof(DoxygenConfig), true)]
+	[EditorAware]
 	public class DoxygenConfigEditor : UnityEditor.Editor
 	{
 		private float m_progress;
@@ -46,6 +47,9 @@ namespace GuiToolkit.Editor
 
 		public override void OnInspectorGUI()
 		{
+			if (!AssetReadyGate.Ready)
+				GUIUtility.ExitGUI();
+
 			EditorUiUtility.WithHeadline("Doxygen Settings", () =>
 			{
 				EditorGUILayout.PropertyField(m_ProjectProp);

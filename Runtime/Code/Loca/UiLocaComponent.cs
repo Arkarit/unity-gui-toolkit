@@ -7,7 +7,7 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(TMP_Text))]
-	public class UiLocaComponent : UiThing, ILocaClient
+	public class UiLocaComponent : UiThing, ILocaKeyProvider
 	{
 		[SerializeField] bool m_autoTranslate = true;
 		[SerializeField] private string m_group = string.Empty;

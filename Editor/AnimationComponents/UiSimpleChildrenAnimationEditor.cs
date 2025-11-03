@@ -24,7 +24,6 @@ namespace GuiToolkit.Editor
 			m_durationPerChildProp = serializedObject.FindProperty("m_durationPerChild");
 			m_autoCollectChildrenProp = serializedObject.FindProperty("m_autoCollectChildren");
 			m_childAnimationsProp = serializedObject.FindProperty("m_childAnimations");
-			
 		}
 
 		public override void EditSubClass()

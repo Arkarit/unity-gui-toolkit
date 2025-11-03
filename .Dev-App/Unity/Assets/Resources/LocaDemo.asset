@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 303a8e300958448438e13c3ef8724ce0, type: 3}
+  m_Name: LocaDemo
+  m_EditorClassIdentifier: 
+  m_excelPath:
+    m_path: Assets/Resources/LocaDemo.xlsx
+  m_group: 
+  m_columnDescriptions:
+  - ColumnType: 1
+    LanguageId: en_us
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: -1
+  - ColumnType: 2
+    LanguageId: en_us
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: -1
+  - ColumnType: 2
+    LanguageId: de
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: -1
+  - ColumnType: 2
+    LanguageId: de
+    KeyPrefix: bla_
+    KeyPostfix: 
+    PluralForm: -1
+  - ColumnType: 2
+    LanguageId: de
+    KeyPrefix: blupp
+    KeyPostfix: 
+    PluralForm: -1
+  - ColumnType: 2
+    LanguageId: en_us
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: 0
+  - ColumnType: 2
+    LanguageId: en_us
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: 1
+  - ColumnType: 2
+    LanguageId: de
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: 0
+  - ColumnType: 2
+    LanguageId: de
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: 1
+  m_startRow: 2

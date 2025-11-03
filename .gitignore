@@ -49,3 +49,7 @@ package-lock.json
 bin/webgl/
 bin/win/
 /.Dev-App/Unity/Assets/External
+
+# Office temp files (Excel/Word/PowerPoint)
+~$*
+*.tmp

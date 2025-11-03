@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 namespace GuiToolkit
 {
 	[CreateAssetMenu()]
-	public class AdditionalLocaKeys : ScriptableObject, ILocaClient
+	public class AdditionalLocaKeys : ScriptableObject, ILocaKeyProvider
 	{
 		[FormerlySerializedAs("Keys")] [SerializeField] private List<string> m_keys;
 		[SerializeField] private string m_group;
