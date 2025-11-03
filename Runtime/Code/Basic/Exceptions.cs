@@ -73,7 +73,7 @@ namespace GuiToolkit.Exceptions
         /// </summary>
         public RoslynUnavailableException()
             : base($"Roslyn-based parsing is not available in this Unity version.\n" +
-                   $"Install Roslyn via menu '{StringConstants.ROSLYN_INSTALL_HACK}' " +
+                   $"Install Roslyn via menu '{StringConstants.DLL_INSTALL_HACK}' " +
                    "or run this on Unity 6+ where Roslyn in package is supported.")
         { }
     }

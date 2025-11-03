@@ -1,5 +1,10 @@
+#if UNITY_6000_0_OR_NEWER
+#define UITK_USE_ROSLYN
+#endif
+
 using System;
 using System.Collections.Generic;
+using GuiToolkit.Exceptions;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -7,7 +12,9 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+#if UITK_USE_ROSLYN
 using ExcelDataReader;
+#endif
 using UnityEditor;
 #endif
 
@@ -54,6 +61,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		public void CollectData()
 		{
+#if UITK_USE_ROSLYN
 			if (m_excelPath == null || string.IsNullOrEmpty(m_excelPath.Path))
 			{
 				Debug.LogError($"{nameof(LocaExcelBridge)}: Excel path is not set.");
@@ -198,8 +206,12 @@ namespace GuiToolkit
 
 			WriteJson(result);
 			AssetDatabase.Refresh();
+#else
+			throw new RoslynUnavailableException();
+#endif
 		}
-
+		
+#if UITK_USE_ROSLYN
 		private static string ApplyKeyAffixes( string _key, ColumnDescription _desc )
 		{
 			if (_desc == null)
@@ -230,6 +242,7 @@ namespace GuiToolkit
 			File.WriteAllText(outPath, json, new UTF8Encoding(false));
 			Debug.Log($"{nameof(LocaExcelBridge)}: Wrote JSON -> {outPath}");
 		}
+#endif
 #endif
 
 		private void LoadJsonIfNeeded()

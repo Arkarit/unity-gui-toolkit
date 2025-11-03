@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR && !UNITY_6000_0_OR_NEWER
+﻿#if UNITY_EDITOR && !UNITY_6000_0_OR_NEWERZ
 using System;
 using System.IO;
 using System.Linq;
@@ -10,31 +10,34 @@ using UnityEngine;
 namespace GuiToolkit.Editor
 {
 	[InitializeOnLoad]
-	internal static class Roslyn2022Hack
+	internal static class Dll2022Hack
 	{
-		private const string DestDir = "Assets/Plugins/Roslyn2022Hack";
-		private const string AsmdefFile = "Roslyn2022Hack.asmdef";
-		private const string PackageRoslynFolder = "Packages/de.phoenixgrafik.ui-toolkit/Editor/3rdParty/Roslyn";
+		private const string RoslynDestDir = "Assets/Plugins/Roslyn2022Hack";
+		private const string RoslynAsmdefFile = "Roslyn2022Hack.asmdef";
+		private const string RoslynPackageFolder = "Packages/de.phoenixgrafik.ui-toolkit/Editor/3rdParty/Roslyn";
 
 		private const string GlobalDefine = "UITK_USE_ROSLYN";
 
 		// EditorPrefs keys
-		private const string PrefsConsentKey = "Roslyn2022Hack.Consent"; // 1=approved, -1=declined, 0/absent=unknown
-		private const string PrefsShownKey = "Roslyn2022Hack.ConsentShown"; // 1=shown, 0/absent=not shown
+		private const string PrefsConsentKey = "Dll2022Hack.Consent"; // 1=approved, -1=declined, 0/absent=unknown
+		private const string PrefsShownKey = "Dll2022Hack.ConsentShown"; // 1=shown, 0/absent=not shown
 
-		private static readonly string[] Dlls =
+		private static readonly string[] RoslynDlls =
 		{
 			"Microsoft.CodeAnalysis.dll",
 			"Microsoft.CodeAnalysis.CSharp.dll",
 			"System.Collections.Immutable.dll",
 			"System.Reflection.Metadata.dll",
-			"System.Runtime.CompilerServices.Unsafe.dll"
+			"System.Runtime.CompilerServices.Unsafe.dll",
+			"ExcelDataReader.dll",
+			"ExcelDataReader.DataSet.dll",
+			"System.Text.Encoding.CodePages.dll"
 		};
 
-		[MenuItem(StringConstants.ROSLYN_INSTALL_HACK)]
+		[MenuItem(StringConstants.DLL_INSTALL_HACK)]
 		private static void InstallMenu() => EnsureBridgeInstalled(force: true, showConfirm: true);
 
-		[MenuItem(StringConstants.ROSLYN_REMOVE_HACK)]
+		[MenuItem(StringConstants.DLL_REMOVE_HACK)]
 		private static void RemoveHack()
 		{
 			// 1) Remove global define
@@ -61,11 +64,11 @@ namespace GuiToolkit.Editor
 			}
 
 			// 2) Delete DLLs in DestDir
-			if (Directory.Exists(DestDir))
+			if (Directory.Exists(RoslynDestDir))
 			{
-				foreach (var dll in Dlls)
+				foreach (var dll in RoslynDlls)
 				{
-					var path = Path.Combine(DestDir, dll);
+					var path = Path.Combine(RoslynDestDir, dll);
 					if (File.Exists(path))
 					{
 						AssetDatabase.DeleteAsset(path.Replace('\\', '/'));
@@ -73,7 +76,7 @@ namespace GuiToolkit.Editor
 				}
 
 				// 3) Delete asmdef if present
-				var asmdefPath = Path.Combine(DestDir, AsmdefFile);
+				var asmdefPath = Path.Combine(RoslynDestDir, RoslynAsmdefFile);
 				if (File.Exists(asmdefPath))
 				{
 					AssetDatabase.DeleteAsset(asmdefPath.Replace('\\', '/'));
@@ -82,12 +85,12 @@ namespace GuiToolkit.Editor
 				AssetDatabase.Refresh();
 
 				// 4) If folder is now empty, delete it
-				if (!Directory.EnumerateFileSystemEntries(DestDir).Any())
+				if (!Directory.EnumerateFileSystemEntries(RoslynDestDir).Any())
 				{
-					AssetDatabase.DeleteAsset(DestDir.Replace('\\', '/'));
+					AssetDatabase.DeleteAsset(RoslynDestDir.Replace('\\', '/'));
 
 					// Optionally also remove Plugins folder if empty
-					var pluginsDir = Path.GetDirectoryName(DestDir);
+					var pluginsDir = Path.GetDirectoryName(RoslynDestDir);
 					if (!string.IsNullOrEmpty(pluginsDir) &&
 						Directory.Exists(pluginsDir) &&
 						!Directory.EnumerateFileSystemEntries(pluginsDir).Any())
@@ -106,15 +109,16 @@ namespace GuiToolkit.Editor
 			if (!force && CompilationPipeline.GetAssemblies().Any(a => a.name == "Roslyn"))
 				return;
 
-			if (!Directory.Exists(PackageRoslynFolder))
+			if (!Directory.Exists(RoslynPackageFolder))
 				return;
 
 			if (showConfirm)
 			{
-				var ok = EditorUtility.DisplayDialog(
+				var ok = EditorUtility.DisplayDialog
+				(
 					"Install Roslyn bridge",
-					$"Copy DLLs from:\n{PackageRoslynFolder}\n\n" +
-					$"into:\n{DestDir}\n\n" +
+					$"Copy DLLs from packages\n\n" +
+					$"into plugins\n\n" +
 					$"and set define '{GlobalDefine}'?",
 					"Install",
 					"Cancel"
@@ -122,13 +126,13 @@ namespace GuiToolkit.Editor
 				if (!ok) return;
 			}
 
-			Directory.CreateDirectory(DestDir);
+			Directory.CreateDirectory(RoslynDestDir);
 
 			// Copy DLLs and mark Editor-only
-			foreach (var dll in Dlls)
+			foreach (var dll in RoslynDlls)
 			{
-				var src = Path.Combine(PackageRoslynFolder, dll).Replace('\\', '/');
-				var dst = Path.Combine(DestDir, dll).Replace('\\', '/');
+				var src = Path.Combine(RoslynPackageFolder, dll).Replace('\\', '/');
+				var dst = Path.Combine(RoslynDestDir, dll).Replace('\\', '/');
 
 				if (!File.Exists(src))
 				{
@@ -163,7 +167,7 @@ namespace GuiToolkit.Editor
 			}
 
 			// Create/update asmdef
-			var asmdefPath = Path.Combine(DestDir, AsmdefFile).Replace('\\', '/');
+			var asmdefPath = Path.Combine(RoslynDestDir, RoslynAsmdefFile).Replace('\\', '/');
 			var json = new StringBuilder()
 				.AppendLine("{")
 				.AppendLine(@"  ""name"": ""Roslyn2022Hack"",")
@@ -178,7 +182,10 @@ namespace GuiToolkit.Editor
 				.AppendLine(@"    ""Microsoft.CodeAnalysis.CSharp.dll"",")
 				.AppendLine(@"    ""System.Collections.Immutable.dll"",")
 				.AppendLine(@"    ""System.Reflection.Metadata.dll"",")
-				.AppendLine(@"    ""System.Runtime.CompilerServices.Unsafe.dll""")
+				.AppendLine(@"    ""System.Runtime.CompilerServices.Unsafe.dll"",")
+				.AppendLine(@"    ""ExcelDataReader.dll"",")
+				.AppendLine(@"    ""ExcelDataReader.DataSet.dll"",")
+				.AppendLine(@"    ""System.Text.Encoding.CodePages.dll""")
 				.AppendLine(@"  ],")
 				.AppendLine(@"  ""autoReferenced"": true,")
 				.AppendLine(@"  ""noEngineReferences"": false")

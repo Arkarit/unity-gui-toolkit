@@ -1,4 +1,8 @@
-﻿using System;
+﻿#if UNITY_6000_0_OR_NEWER
+#define UITK_USE_ROSLYN
+#endif
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -61,7 +65,9 @@ namespace GuiToolkit.Editor
 
 				EditorAssetUtility.FindAllScripts(FoundScript, s_options);
 
+#if UITK_USE_ROSLYN
 				ProcessLocaProviders();
+#endif
 			}
 			finally
 			{
@@ -70,7 +76,8 @@ namespace GuiToolkit.Editor
 
 			LocaManager.Instance.EdWriteKeyData();
 		}
-
+		
+#if UITK_USE_ROSLYN
 		[MenuItem(StringConstants.LOCA_PROCESSOR_MENU_NAME_PROVIDERS, priority = Constants.LOCA_PROCESSOR_MENU_PRIORITY + 1)]
 		private static void ProcessLocaProviders()
 		{
@@ -84,7 +91,7 @@ namespace GuiToolkit.Editor
 			}, s_options);
 			locaProviderList.Save();
 		}
-
+#endif
 		private static void FoundComponent( ILocaKeyProvider _component )
 		{
 			if (_component.UsesMultipleLocaKeys)
