@@ -251,9 +251,7 @@ namespace GuiToolkit
 		private TextAsset LoadTextAsset()
 		{
 			string assetName = string.IsNullOrEmpty(name) ? "LocaTable" : name;
-			string resPath = string.IsNullOrEmpty(LocaProviderList.RESOURCES_SUB_PATH)
-				? assetName
-				: $"{LocaProviderList.RESOURCES_SUB_PATH}/{assetName}";
+			string resPath = $"{LocaProviderList.RESOURCES_SUB_PATH}{assetName}";
 			return Resources.Load<TextAsset>(resPath);
 		}
 
