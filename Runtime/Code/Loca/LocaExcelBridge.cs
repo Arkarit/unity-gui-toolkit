@@ -27,6 +27,7 @@ namespace GuiToolkit
 		public class ColumnDescription
 		{
 			public ColumnType ColumnType;
+			public string LanguageId;   // manually assigned per language column
 			public string KeyPrefix;
 			public string KeyPostfix;
 			// -1: singular (no plurals); 0..5: plural form index
@@ -36,7 +37,8 @@ namespace GuiToolkit
 		[PathField(_isFolder:false, _relativeToPath:".", _extensions:"xlsx")]
 		[SerializeField][Mandatory] private PathField m_excelPath;
 		[SerializeField] private string m_group;
-		[SerializeField] private List<ColumnDescription> m_columnDescriptions = new List<ColumnDescription>();
+		[SerializeField] private List<ColumnDescription> m_columnDescriptions = new ();
+		[SerializeField] private int m_startRow = 0; // all rows before are ignored (0-based index)
 
 		private LocaJson m_cached; // loaded at runtime from Resources
 
@@ -50,7 +52,6 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		// Converts .xlsx to JSON matching LocaJson and stores under Resources/LocaProviderList.RESOURCES_SUB_PATH/<assetName>.json
 		public void CollectData()
 		{
 			if (m_excelPath == null || string.IsNullOrEmpty(m_excelPath.Path))
@@ -78,21 +79,16 @@ namespace GuiToolkit
 			}
 
 			var sheet = ds.Tables[0];
-			if (sheet.Rows.Count == 0)
+			if (sheet.Rows.Count <= m_startRow)
 			{
-				Debug.LogWarning($"{nameof(LocaExcelBridge)}: Worksheet is empty.");
+				Debug.LogWarning($"{nameof(LocaExcelBridge)}: Worksheet has no data rows after start row {m_startRow}.");
 				WriteJson(new LocaJson { Group = m_group, Entries = new List<LocaJsonEntry>() });
 				return;
 			}
 
 			int colCount = sheet.Columns.Count;
-			var headers = new string[colCount];
-			for (int c = 0; c < colCount; c++)
-			{
-				headers[c] = sheet.Rows[0][c]?.ToString()?.Trim() ?? string.Empty;
-			}
 
-			// Infer columns if config does not match header count
+			// Infer column config if not matching column count
 			if (m_columnDescriptions == null || m_columnDescriptions.Count != colCount)
 			{
 				m_columnDescriptions = new List<ColumnDescription>(colCount);
@@ -103,6 +99,7 @@ namespace GuiToolkit
 						ColumnType = (c == 0) ? ColumnType.Key : ColumnType.LanguageTranslation,
 						KeyPrefix = string.Empty,
 						KeyPostfix = string.Empty,
+						LanguageId = string.Empty,
 						PluralForm = -1
 					});
 				}
@@ -110,29 +107,30 @@ namespace GuiToolkit
 
 			int keyCol = -1;
 			ColumnDescription keyColDesc = null;
-
-			// Collect language columns: index, lang id, desc
 			var langColumns = new List<(int col, string lang, ColumnDescription desc)>();
+
 			for (int c = 0; c < colCount; c++)
 			{
 				var desc = m_columnDescriptions[c];
 				if (desc == null)
 					continue;
 
-				if (desc.ColumnType == ColumnType.Key)
+				switch (desc.ColumnType)
 				{
-					keyCol = c;
-					keyColDesc = desc;
-				}
-				else if (desc.ColumnType == ColumnType.LanguageTranslation)
-				{
-					string langId = headers[c];
-					if (string.IsNullOrEmpty(langId))
-					{
-						Debug.LogWarning($"{nameof(LocaExcelBridge)}: Empty language id in header at column {c}. Skipping.");
-						continue;
-					}
-					langColumns.Add((c, langId, desc));
+					case ColumnType.Key:
+						keyCol = c;
+						keyColDesc = desc;
+						break;
+
+					case ColumnType.LanguageTranslation:
+						string langId = NormalizeLang(desc.LanguageId);
+						if (string.IsNullOrEmpty(langId))
+						{
+							Debug.LogWarning($"{nameof(LocaExcelBridge)}: Empty LanguageId at column {c}, skipping.");
+							continue;
+						}
+						langColumns.Add((c, langId, desc));
+						break;
 				}
 			}
 
@@ -142,11 +140,9 @@ namespace GuiToolkit
 				return;
 			}
 
-			// Build entries per (lang, effectiveKey)
-			// Effective key = keyColPrefix + baseKey + keyColPostfix, then per language column apply its own prefix/postfix
 			var byLangAndKey = new Dictionary<(string lang, string key), LocaJsonEntry>(1024, StringTupleComparer.Ordinal);
 
-			for (int r = 1; r < sheet.Rows.Count; r++)
+			for (int r = m_startRow; r < sheet.Rows.Count; r++)
 			{
 				string baseKey = sheet.Rows[r][keyCol]?.ToString()?.Trim();
 				if (string.IsNullOrEmpty(baseKey))
@@ -156,7 +152,7 @@ namespace GuiToolkit
 
 				foreach (var lc in langColumns)
 				{
-					string lang = NormalizeLang(lc.lang);
+					string lang = lc.lang;
 					string cell = sheet.Rows[r][lc.col]?.ToString() ?? string.Empty;
 
 					string effectiveKey = ApplyKeyAffixes(baseEffectiveKey, lc.desc);
@@ -172,18 +168,14 @@ namespace GuiToolkit
 						byLangAndKey[k] = entry;
 					}
 
-					int plural = lc.desc != null ? lc.desc.PluralForm : -1;
-
+					int plural = lc.desc?.PluralForm ?? -1;
 					if (plural < 0)
 					{
 						entry.Text = cell;
 					}
 					else
 					{
-						if (entry.Forms == null || entry.Forms.Length < 6)
-						{
-							entry.Forms = EnsureSix(entry.Forms);
-						}
+						entry.Forms ??= new string[6];
 						entry.Forms[plural] = cell;
 					}
 				}
@@ -218,20 +210,6 @@ namespace GuiToolkit
 			return _lang.Trim().ToLowerInvariant();
 		}
 
-		private static string[] EnsureSix(string[] _forms)
-		{
-			const int N = 6;
-			if (_forms == null)
-				return new string[N];
-
-			if (_forms.Length >= N)
-				return _forms;
-
-			var dst = new string[N];
-			Array.Copy(_forms, dst, _forms.Length);
-			return dst;
-		}
-
 		private void WriteJson(LocaJson _data)
 		{
 			string assetName = string.IsNullOrEmpty(name) ? "LocaTable" : name;
@@ -258,10 +236,7 @@ namespace GuiToolkit
 			}
 
 			m_cached = JsonUtility.FromJson<LocaJson>(ta.text);
-			if (m_cached == null)
-			{
-				m_cached = new LocaJson { Group = m_group, Entries = new List<LocaJsonEntry>() };
-			}
+			m_cached ??= new LocaJson { Group = m_group, Entries = new List<LocaJsonEntry>() };
 		}
 
 		private TextAsset LoadTextAsset()
@@ -287,10 +262,7 @@ namespace GuiToolkit
 			{
 				int h1 = _obj.a != null ? _obj.a.GetHashCode() : 0;
 				int h2 = _obj.b != null ? _obj.b.GetHashCode() : 0;
-				unchecked
-				{
-					return (h1 * 397) ^ h2;
-				}
+				unchecked { return (h1 * 397) ^ h2; }
 			}
 		}
 	}

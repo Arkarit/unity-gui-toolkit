@@ -14,9 +14,13 @@ namespace GuiToolkit
 
 		public List<string> Paths = new();
 
-		public static void Load()
+		public static LocaProviderList Load()
 		{
+			if (!File.Exists(PATH))
+				return null;
 
+			string json = File.ReadAllText(PATH, new UTF8Encoding(false));
+			return JsonUtility.FromJson<LocaProviderList>(json);
 		}
 
 #if UNITY_EDITOR

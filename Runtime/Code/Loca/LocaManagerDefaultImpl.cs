@@ -54,10 +54,37 @@ namespace GuiToolkit
 			foreach (var group in m_groups)
 				result |= ReadTranslation(_languageId, group);
 
+			ReadLocaProviders();
+
 #if UNITY_EDITOR
-			//DebugDump();
+			DebugDump();
 #endif
 			return result;
+		}
+
+		private void ReadLocaProviders()
+		{
+			var providerList = LocaProviderList.Load();
+			if (providerList == null)
+				return;
+
+			foreach (var path in providerList.Paths)
+			{
+				var so = Resources.Load<ScriptableObject>(path);
+				if (path == null)
+				{
+					UiLog.LogError($"Could not load Loca Provider at path '{path}'");
+					continue;
+				}
+
+				if (so is ILocaProvider locaProvider)
+				{
+					UiLog.LogError($"Scriptable Object at path '{path}' is not an ILocaProvider");
+					continue;
+				}
+
+				//TODO insert locaProvider into existing structures
+			}
 		}
 
 
