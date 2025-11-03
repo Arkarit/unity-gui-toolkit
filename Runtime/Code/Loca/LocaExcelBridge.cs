@@ -20,15 +20,17 @@ namespace GuiToolkit
 		{
 			Ignore,
 			Key,
-			LanguageTranslation
+			LanguageTranslation,
 		}
 
 		[Serializable]
-		public struct ColumnDescription
+		public class ColumnDescription
 		{
 			public ColumnType ColumnType;
-			public string Prefix;
-			public string Postfix;
+			public string KeyPrefix;
+			public string KeyPostfix;
+			// -1: singular (no plurals); 0..5: plural form index
+			public int PluralForm = -1;
 		}
 
 		[PathField(_isFolder:false, _relativeToPath:".", _extensions:"xlsx")]
@@ -36,83 +38,19 @@ namespace GuiToolkit
 		[SerializeField] private string m_group;
 		[SerializeField] private List<ColumnDescription> m_columnDescriptions = new List<ColumnDescription>();
 
-		// Runtime state
-		private string m_currentLanguageId;
-		private Dictionary<string, string> m_table; // key: group:key
+		private LocaJson m_cached; // loaded at runtime from Resources
 
-		[Serializable]
-		private class SerializableTable
+		public LocaJson Localization
 		{
-			public string group;
-			public string[] languages;
-			public Row[] rows;
-		}
-
-		[Serializable]
-		private class Row
-		{
-			public string key;
-			public Trans[] trans;
-		}
-
-		[Serializable]
-		private class Trans
-		{
-			public string lang;
-			public string text;
-		}
-
-		public void InitData(string _languageId)
-		{
-			LoadJsonIfNeeded();
-			ChangeLanguage(_languageId);
-		}
-
-		public string Translate(string _s, string _group = null)
-		{
-			if (string.IsNullOrEmpty(_s))
-				return string.Empty;
-
-			if (m_table == null)
-				LoadJsonIfNeeded();
-
-			string group = string.IsNullOrEmpty(_group) ? m_group : _group;
-			string k = MakeGroupedKey(group, _s);
-
-			if (m_table != null && m_table.TryGetValue(k, out var v))
-				return v ?? string.Empty;
-
-			// Fallback: return key if not found
-			return _s;
-		}
-
-		public string Translate(string _singularKey, string _pluralKey, int _n, string _group = null)
-		{
-			// Simple plural rule: n == 1 -> singular, else plural
-			var key = (_n == 1 || string.IsNullOrEmpty(_pluralKey)) ? _singularKey : _pluralKey;
-			return Translate(key, _group);
-		}
-
-		public void ChangeLanguage(string _languageId)
-		{
-			if (string.IsNullOrEmpty(_languageId))
-				return;
-
-			TextAsset ta = LoadTextAsset();
-			if (ta == null)
+			get
 			{
-				m_currentLanguageId = _languageId;
-				m_table = new Dictionary<string, string>();
-				return;
+				LoadJsonIfNeeded();
+				return m_cached;
 			}
-
-			var table = JsonUtility.FromJson<SerializableTable>(ta.text);
-			m_currentLanguageId = _languageId;
-			m_table = BuildTable(table, m_currentLanguageId);
 		}
 
 #if UNITY_EDITOR
-		// Converts xlsx to JSON and stores under Resources/m_resourcesSubPath/<assetName>.json
+		// Converts .xlsx to JSON matching LocaJson and stores under Resources/LocaProviderList.RESOURCES_SUB_PATH/<assetName>.json
 		public void CollectData()
 		{
 			if (m_excelPath == null || string.IsNullOrEmpty(m_excelPath.Path))
@@ -128,7 +66,6 @@ namespace GuiToolkit
 				return;
 			}
 
-			// Ensure codepages for legacy encodings (harmless for pure .xlsx)
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 			using var fs = File.Open(xlsxPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
@@ -144,22 +81,18 @@ namespace GuiToolkit
 			if (sheet.Rows.Count == 0)
 			{
 				Debug.LogWarning($"{nameof(LocaExcelBridge)}: Worksheet is empty.");
-				WriteJson(new SerializableTable
-				{
-					group = m_group,
-					languages = Array.Empty<string>(),
-					rows = Array.Empty<Row>()
-				});
+				WriteJson(new LocaJson { Group = m_group, Entries = new List<LocaJsonEntry>() });
 				return;
 			}
 
-			// Header detection
-			var colCount = sheet.Columns.Count;
+			int colCount = sheet.Columns.Count;
 			var headers = new string[colCount];
 			for (int c = 0; c < colCount; c++)
+			{
 				headers[c] = sheet.Rows[0][c]?.ToString()?.Trim() ?? string.Empty;
+			}
 
-			// If user did not configure columns, infer: col0 = Key, others = LanguageTranslation
+			// Infer columns if config does not match header count
 			if (m_columnDescriptions == null || m_columnDescriptions.Count != colCount)
 			{
 				m_columnDescriptions = new List<ColumnDescription>(colCount);
@@ -168,36 +101,38 @@ namespace GuiToolkit
 					m_columnDescriptions.Add(new ColumnDescription
 					{
 						ColumnType = (c == 0) ? ColumnType.Key : ColumnType.LanguageTranslation,
-						Prefix = string.Empty,
-						Postfix = string.Empty
+						KeyPrefix = string.Empty,
+						KeyPostfix = string.Empty,
+						PluralForm = -1
 					});
 				}
 			}
 
-			// Collect language ids from header for LanguageTranslation columns
-			var langColumns = new List<(int col, string lang, string prefix, string postfix)>();
 			int keyCol = -1;
+			ColumnDescription keyColDesc = null;
 
+			// Collect language columns: index, lang id, desc
+			var langColumns = new List<(int col, string lang, ColumnDescription desc)>();
 			for (int c = 0; c < colCount; c++)
 			{
 				var desc = m_columnDescriptions[c];
-				switch (desc.ColumnType)
-				{
-					case ColumnType.Key:
-						keyCol = c;
-						break;
+				if (desc == null)
+					continue;
 
-					case ColumnType.LanguageTranslation:
+				if (desc.ColumnType == ColumnType.Key)
+				{
+					keyCol = c;
+					keyColDesc = desc;
+				}
+				else if (desc.ColumnType == ColumnType.LanguageTranslation)
+				{
+					string langId = headers[c];
+					if (string.IsNullOrEmpty(langId))
 					{
-						string langId = headers[c];
-						if (string.IsNullOrEmpty(langId))
-						{
-							Debug.LogWarning($"{nameof(LocaExcelBridge)}: Empty language id in header at column {c}. Skipping.");
-							continue;
-						}
-						langColumns.Add((c, langId, desc.Prefix ?? string.Empty, desc.Postfix ?? string.Empty));
-						break;
+						Debug.LogWarning($"{nameof(LocaExcelBridge)}: Empty language id in header at column {c}. Skipping.");
+						continue;
 					}
+					langColumns.Add((c, langId, desc));
 				}
 			}
 
@@ -207,45 +142,104 @@ namespace GuiToolkit
 				return;
 			}
 
-			var rows = new List<Row>(Math.Max(0, sheet.Rows.Count - 1));
+			// Build entries per (lang, effectiveKey)
+			// Effective key = keyColPrefix + baseKey + keyColPostfix, then per language column apply its own prefix/postfix
+			var byLangAndKey = new Dictionary<(string lang, string key), LocaJsonEntry>(1024, StringTupleComparer.Ordinal);
+
 			for (int r = 1; r < sheet.Rows.Count; r++)
 			{
-				string key = sheet.Rows[r][keyCol]?.ToString()?.Trim();
-				if (string.IsNullOrEmpty(key))
+				string baseKey = sheet.Rows[r][keyCol]?.ToString()?.Trim();
+				if (string.IsNullOrEmpty(baseKey))
 					continue;
 
-				var trans = new List<Trans>(langColumns.Count);
+				string baseEffectiveKey = ApplyKeyAffixes(baseKey, keyColDesc);
+
 				foreach (var lc in langColumns)
 				{
-					string raw = sheet.Rows[r][lc.col]?.ToString() ?? string.Empty;
-					string val = string.Concat(lc.prefix, raw, lc.postfix);
-					trans.Add(new Trans { lang = lc.lang, text = val });
-				}
+					string lang = NormalizeLang(lc.lang);
+					string cell = sheet.Rows[r][lc.col]?.ToString() ?? string.Empty;
 
-				rows.Add(new Row { key = key, trans = trans.ToArray() });
+					string effectiveKey = ApplyKeyAffixes(baseEffectiveKey, lc.desc);
+
+					var k = (lang, effectiveKey);
+					if (!byLangAndKey.TryGetValue(k, out var entry))
+					{
+						entry = new LocaJsonEntry
+						{
+							LanguageId = lang,
+							Key = effectiveKey
+						};
+						byLangAndKey[k] = entry;
+					}
+
+					int plural = lc.desc != null ? lc.desc.PluralForm : -1;
+
+					if (plural < 0)
+					{
+						entry.Text = cell;
+					}
+					else
+					{
+						if (entry.Forms == null || entry.Forms.Length < 6)
+						{
+							entry.Forms = EnsureSix(entry.Forms);
+						}
+						entry.Forms[plural] = cell;
+					}
+				}
 			}
 
-			var serializable = new SerializableTable
+			var result = new LocaJson
 			{
-				group = m_group,
-				languages = langColumns.Select(x => x.lang).Distinct().ToArray(),
-				rows = rows.ToArray()
+				Group = m_group,
+				Entries = byLangAndKey.Values.ToList()
 			};
 
-			WriteJson(serializable);
+			WriteJson(result);
 			AssetDatabase.Refresh();
 		}
 
-		private void WriteJson(SerializableTable _table)
+		private static string ApplyKeyAffixes(string _key, ColumnDescription _desc)
+		{
+			if (_desc == null)
+				return _key ?? string.Empty;
+
+			string prefix = _desc.KeyPrefix ?? string.Empty;
+			string postfix = _desc.KeyPostfix ?? string.Empty;
+
+			return string.Concat(prefix, _key ?? string.Empty, postfix);
+		}
+
+		private static string NormalizeLang(string _lang)
+		{
+			if (string.IsNullOrEmpty(_lang))
+				return string.Empty;
+
+			return _lang.Trim().ToLowerInvariant();
+		}
+
+		private static string[] EnsureSix(string[] _forms)
+		{
+			const int N = 6;
+			if (_forms == null)
+				return new string[N];
+
+			if (_forms.Length >= N)
+				return _forms;
+
+			var dst = new string[N];
+			Array.Copy(_forms, dst, _forms.Length);
+			return dst;
+		}
+
+		private void WriteJson(LocaJson _data)
 		{
 			string assetName = string.IsNullOrEmpty(name) ? "LocaTable" : name;
 			string relDir = $"Assets/Resources/{LocaProviderList.RESOURCES_SUB_PATH}";
 			Directory.CreateDirectory(relDir);
 			string outPath = Path.Combine(relDir, assetName + ".json");
 
-			// Pretty JSON via JsonUtility workaround (it has no pretty mode for nested arrays reliably).
-			// Keep it simple: JsonUtility.ToJson with pretty = true is acceptable here.
-			string json = JsonUtility.ToJson(_table, true);
+			string json = JsonUtility.ToJson(_data, true);
 			File.WriteAllText(outPath, json, new UTF8Encoding(false));
 			Debug.Log($"{nameof(LocaExcelBridge)}: Wrote JSON -> {outPath}");
 		}
@@ -253,23 +247,21 @@ namespace GuiToolkit
 
 		private void LoadJsonIfNeeded()
 		{
-			if (m_table != null)
+			if (m_cached != null)
 				return;
 
 			TextAsset ta = LoadTextAsset();
 			if (!ta)
 			{
-				m_table = new Dictionary<string, string>();
+				m_cached = new LocaJson { Group = m_group, Entries = new List<LocaJsonEntry>() };
 				return;
 			}
 
-			var table = JsonUtility.FromJson<SerializableTable>(ta.text);
-			// Keep last selected language or first available
-			string lang = string.IsNullOrEmpty(m_currentLanguageId)
-				? (table.languages != null && table.languages.Length > 0 ? table.languages[0] : "en")
-				: m_currentLanguageId;
-
-			m_table = BuildTable(table, lang);
+			m_cached = JsonUtility.FromJson<LocaJson>(ta.text);
+			if (m_cached == null)
+			{
+				m_cached = new LocaJson { Group = m_group, Entries = new List<LocaJsonEntry>() };
+			}
 		}
 
 		private TextAsset LoadTextAsset()
@@ -281,50 +273,25 @@ namespace GuiToolkit
 			return Resources.Load<TextAsset>(resPath);
 		}
 
-		private Dictionary<string, string> BuildTable(SerializableTable _table, string _lang)
+		private sealed class StringTupleComparer : IEqualityComparer<(string a, string b)>
 		{
-			var dict = new Dictionary<string, string>(StringComparer.Ordinal);
-			if (_table == null || _table.rows == null)
-				return dict;
+			public static readonly StringTupleComparer Ordinal = new StringTupleComparer();
 
-			foreach (var row in _table.rows)
+			public bool Equals((string a, string b) _x, (string a, string b) _y)
 			{
-				if (row == null || string.IsNullOrEmpty(row.key))
-					continue;
-
-				string value = null;
-
-				// Exact language
-				if (row.trans != null)
-				{
-					for (int i = 0; i < row.trans.Length; i++)
-					{
-						if (row.trans[i] != null && string.Equals(row.trans[i].lang, _lang, StringComparison.Ordinal))
-						{
-							value = row.trans[i].text;
-							break;
-						}
-					}
-
-					// Fallback to first available if exact not found
-					if (value == null && row.trans.Length > 0 && row.trans[0] != null)
-						value = row.trans[0].text;
-				}
-
-				string grouped = MakeGroupedKey(_table.group, row.key);
-				dict[grouped] = value ?? row.key;
+				return string.Equals(_x.a, _y.a, StringComparison.Ordinal)
+				       && string.Equals(_x.b, _y.b, StringComparison.Ordinal);
 			}
 
-			return dict;
-		}
-
-		private static string MakeGroupedKey(string _group, string _key)
-		{
-			// Use "group:key" to avoid accidental collisions across groups
-			if (string.IsNullOrEmpty(_group))
-				return _key ?? string.Empty;
-
-			return string.Concat(_group, ":", _key ?? string.Empty);
+			public int GetHashCode((string a, string b) _obj)
+			{
+				int h1 = _obj.a != null ? _obj.a.GetHashCode() : 0;
+				int h2 = _obj.b != null ? _obj.b.GetHashCode() : 0;
+				unchecked
+				{
+					return (h1 * 397) ^ h2;
+				}
+			}
 		}
 	}
 }

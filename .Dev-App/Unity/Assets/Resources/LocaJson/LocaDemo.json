@@ -1,0 +1,29 @@
+{
+    "Group": "",
+    "Entries": [
+        {
+            "LanguageId": "en",
+            "Key": "excel_key1",
+            "Text": "Excel Key 1",
+            "Forms": []
+        },
+        {
+            "LanguageId": "de",
+            "Key": "excel_key1",
+            "Text": "Excel Schlüssel 1",
+            "Forms": []
+        },
+        {
+            "LanguageId": "de",
+            "Key": "bla_excel_key1",
+            "Text": "Bla",
+            "Forms": []
+        },
+        {
+            "LanguageId": "de",
+            "Key": "bluppexcel_key1",
+            "Text": "Blupp",
+            "Forms": []
+        }
+    ]
+}

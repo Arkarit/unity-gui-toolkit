@@ -10,24 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 303a8e300958448438e13c3ef8724ce0, type: 3}
-  m_Name: ExcelDemo
+  m_Name: LocaDemo
   m_EditorClassIdentifier: 
   m_excelPath:
     m_path: Assets/Resources/LocaDemo.xlsx
   m_group: 
   m_columnDescriptions:
   - ColumnType: 1
-    Prefix: 
-    Postfix: 
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: -1
   - ColumnType: 2
-    Prefix: 
-    Postfix: 
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: -1
   - ColumnType: 2
-    Prefix: 
-    Postfix: 
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: -1
   - ColumnType: 2
-    Prefix: fitze_
-    Postfix: 
+    KeyPrefix: bla_
+    KeyPostfix: 
+    PluralForm: -1
   - ColumnType: 2
-    Prefix: 
-    Postfix: _fatze
+    KeyPrefix: blupp
+    KeyPostfix: 
+    PluralForm: -1

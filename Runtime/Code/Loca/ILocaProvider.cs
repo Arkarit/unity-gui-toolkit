@@ -1,16 +1,28 @@
-﻿using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
+	[Serializable]
+	public sealed class LocaJson
+	{
+		public string Group;
+		public List<LocaJsonEntry> Entries;
+	}
+
+	[Serializable]
+	public sealed class LocaJsonEntry
+	{
+		public string LanguageId;
+		public string Key;
+		public string Text;       // optional
+		public string[] Forms;    // optional, length up to 6
+	}
+
 	public interface ILocaProvider
 	{
-		public void InitData( string _languageId );
-		public string Translate(string _s, string _group = null);
-		public string Translate(string _singularKey, string _pluralKey, int _n, string _group = null);
-
-		public void ChangeLanguage( string _languageId );
+		public LocaJson Localization { get; }
 
 #if UNITY_EDITOR
 		public void CollectData();
