@@ -211,7 +211,8 @@ namespace GuiToolkit
 		public const string APPLY_STYLE_GENERATOR_MENU_NAME = STYLES_HEADER + "'Ui Apply Style' Generator...";
 		public const string GAME_SPEED_MENU_NAME = MENU_HEADER + "Game speed...";
 		public const string KERNING_TABLE_TOOL_MENU_NAME = MENU_HEADER + "Kerning Table Tool...";
-		public const string LOCA_PROCESSOR_MENU_NAME = LOCA_HEADER + "Process Loca (Update pot file)";
+		public const string LOCA_PROCESSOR_MENU_NAME = LOCA_HEADER + "Process Loca (Update pot file and Loca Providers)";
+		public const string LOCA_PROCESSOR_MENU_NAME_PROVIDERS = LOCA_HEADER + "Process Loca (Loca Providers only)";
 		public const string LOCA_PLURAL_PROCESSOR_MENU_NAME = LOCA_HEADER + "Process Loca (Update plurals when added a new language)";
 		public const string LOCA_PO_FIXER_MENU_NAME = LOCA_HEADER + "Loca PO File Fixer (Sync .po <-> .po.txt files)";
 		public const string SET_ALL_UI_LOCA_GROUPS = LOCA_HEADER + "Set Group for all current UiLocaComponent";
