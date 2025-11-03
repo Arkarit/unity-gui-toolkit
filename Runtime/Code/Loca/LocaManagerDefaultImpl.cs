@@ -68,22 +68,55 @@ namespace GuiToolkit
 			if (providerList == null)
 				return;
 
+			string currentLang = NormalizeLang(Language);
+
 			foreach (var path in providerList.Paths)
 			{
 				var so = Resources.Load<ScriptableObject>(path);
-				if (path == null)
+				if (so == null)
 				{
 					UiLog.LogError($"Could not load Loca Provider at path '{path}'");
 					continue;
 				}
 
-				if (so is ILocaProvider locaProvider)
+				if (so is not ILocaProvider locaProvider)
 				{
 					UiLog.LogError($"Scriptable Object at path '{path}' is not an ILocaProvider");
 					continue;
 				}
 
-				//TODO insert locaProvider into existing structures
+				var data = locaProvider.Localization;
+				if (data == null || data.Entries == null)
+					continue;
+
+				string group = data.Group;
+				SetEffectiveGroup(ref group);
+
+				foreach (var e in data.Entries)
+				{
+					if (e == null)
+						continue;
+
+					string lang = NormalizeLang(e.LanguageId);
+					if (string.IsNullOrEmpty(lang) || lang != currentLang)
+						continue;
+
+					string key = e.Key;
+					if (string.IsNullOrEmpty(key))
+						continue;
+
+					// Singular
+					if (!string.IsNullOrEmpty(e.Text))
+					{
+						Add(group, key, e.Text);
+					}
+
+					// Plural
+					if (e.Forms != null && e.Forms.Length > 0)
+					{
+						IntegratePlural(group, key, e.Forms);
+					}
+				}
 			}
 		}
 
@@ -364,28 +397,86 @@ namespace GuiToolkit
 
 		private string[] LoadPo( string _languageId, string _group )
 		{
-			if (!TryLoadPoText(_languageId, _group, out var text)) 
+			if (!TryLoadPoText(_languageId, _group, out var text))
 				return null;
 
 			string[] lines = text.text.Split(new[] { '\r', '\n' });
 			return CleanUpLines(lines);
 		}
 
-		private bool TryLoadPoText(string _languageId, string _group, out TextAsset text)
+		private bool TryLoadPoText( string _languageId, string _group, out TextAsset _text )
 		{
-			text = null;
+			_text = null;
 
 			var path = GetPoUnityPath(_languageId, _group);
 			if (path == null)
 				return false;
 
-			text = Resources.Load<TextAsset>(path);
-			if (text == null)
+			_text = Resources.Load<TextAsset>(path);
+			if (_text == null)
 				return false;
 
 			return true;
 		}
 
+		private static string NormalizeLang( string _lang )
+		{
+			if (string.IsNullOrEmpty(_lang))
+				return string.Empty;
+
+			return _lang.Trim().ToLowerInvariant();
+		}
+
+		private void IntegratePlural( string _group, string _pluralKey, string[] _forms )
+		{
+			if (_forms == null || _forms.Length == 0)
+				return;
+
+			SetEffectiveGroup(ref _group);
+
+			// Ensure group dict
+			if (!m_translationDictPlural.TryGetValue(_group, out var groupDictPlural))
+			{
+				groupDictPlural = new Dictionary<string, List<string>>();
+				m_translationDictPlural.Add(_group, groupDictPlural);
+			}
+
+			// Normalize to up to 6 slots (Arabisch-kompatibel)
+			int count = Math.Min(_forms.Length, 6);
+			var list = new List<string>(count);
+			for (int i = 0; i < count; i++)
+				list.Add(_forms[i] ?? string.Empty);
+
+			if (groupDictPlural.TryGetValue(_pluralKey, out var existing))
+			{
+				// Merge-Policy: gleiche Laenge nötig, sonst warnen und bestehende behalten
+				if (existing == null)
+				{
+					groupDictPlural[_pluralKey] = list;
+					return;
+				}
+
+				if (existing.Count != list.Count)
+				{
+					UiLog.LogWarning($"Group '{_group}': Multiple Plural Key '{_pluralKey}',"
+									 + $" existing count {existing.Count} vs new {list.Count}. Keeping existing.");
+					return;
+				}
+
+				for (int i = 0; i < existing.Count; i++)
+				{
+					if (!string.Equals(existing[i], list[i], StringComparison.Ordinal))
+					{
+						UiLog.LogWarning($"Group '{_group}': Multiple Plural Key '{_pluralKey}' [{i}],"
+										 + $" existing:'{existing[i]}', new:'{list[i]}'. Keeping existing.");
+					}
+				}
+			}
+			else
+			{
+				groupDictPlural.Add(_pluralKey, list);
+			}
+		}
 
 #if UNITY_EDITOR
 		private readonly SortedDictionary<string, SortedSet<string>> m_keys = new();
@@ -563,7 +654,7 @@ namespace GuiToolkit
 			}
 		}
 
-		private void WriteKeyData(string _path, SortedSet<string> _keys, SortedDictionary<string, string> _pluralKeys)
+		private void WriteKeyData( string _path, SortedSet<string> _keys, SortedDictionary<string, string> _pluralKeys )
 		{
 			if (DebugLoca)
 				Log($"Write POT file at '{_path}'");

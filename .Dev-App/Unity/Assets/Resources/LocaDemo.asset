@@ -41,4 +41,24 @@ MonoBehaviour:
     KeyPrefix: blupp
     KeyPostfix: 
     PluralForm: -1
+  - ColumnType: 2
+    LanguageId: en
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: 0
+  - ColumnType: 2
+    LanguageId: en
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: 1
+  - ColumnType: 2
+    LanguageId: de
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: 0
+  - ColumnType: 2
+    LanguageId: de
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: 1
   m_startRow: 2
