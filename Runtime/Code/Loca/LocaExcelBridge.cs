@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using GuiToolkit.Exceptions;
 using UnityEngine;
 
 #if UNITY_EDITOR
