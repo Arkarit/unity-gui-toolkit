@@ -16,7 +16,7 @@ namespace GuiToolkit
 
 		public abstract bool ChangeLanguageImpl( string _languageId );
 
-		public string Language { get; private set; } = null;
+		public string Language { get; protected set; } = null;
 
 #if UNITY_EDITOR
 		public abstract string[] EdAvailableLanguages { get; }

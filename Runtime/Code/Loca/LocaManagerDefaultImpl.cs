@@ -42,20 +42,21 @@ namespace GuiToolkit
 				return true;
 			}
 
-			return ReadTranslation(_language);
+			Language = _language;
+			return ReadTranslation();
 		}
 
-		private bool ReadTranslation( string _languageId )
+		private bool ReadTranslation()
 		{
 			m_translationDict.Clear();
 			m_translationDictPlural.Clear();
 			m_groups = AssetUtility.ReadLines(GROUPS_RESOURCE_NAME);
 
-			bool result = ReadTranslation(_languageId, null);
+			bool result = ReadTranslation(null);
 			foreach (var group in m_groups)
-				result |= ReadTranslation(_languageId, group);
+				result |= ReadTranslation(group);
 
-			ReadLocaProviders(_languageId);
+			ReadLocaProviders();
 
 #if UNITY_EDITOR
 			DebugDump();
@@ -63,13 +64,13 @@ namespace GuiToolkit
 			return result;
 		}
 
-		private void ReadLocaProviders(string _languageId)
+		private void ReadLocaProviders()
 		{
 			var providerList = LocaProviderList.Load();
 			if (providerList == null)
 				return;
 
-			string currentLang = NormalizeLang(_languageId);
+			string currentLang = NormalizeLang(Language);
 
 			foreach (var path in providerList.Paths)
 			{
@@ -122,14 +123,14 @@ namespace GuiToolkit
 				_group = DEFAULT_LOCA_GROUP;
 		}
 
-		private bool ReadTranslation( string _languageId, string _group )
+		private bool ReadTranslation(string _group )
 		{
 			SetEffectiveGroup(ref _group);
-			string[] lines = LoadPo(_languageId, _group);
+			string[] lines = LoadPo(Language, _group);
 
 			if (lines == null)
 			{
-				UiLog.LogWarning($"Could not load PO file for language:'{_languageId}', group:'{_group}'");
+				UiLog.LogWarning($"Could not load PO file for language:'{Language}', group:'{_group}'");
 				return false;
 			}
 
@@ -185,8 +186,6 @@ namespace GuiToolkit
 					Add(_group, cleanKeySingular, currentPlurals[0], cleanKeyPlural, currentPlurals);
 				}
 			}
-
-			//DebugDump();
 
 			return true;
 		}
