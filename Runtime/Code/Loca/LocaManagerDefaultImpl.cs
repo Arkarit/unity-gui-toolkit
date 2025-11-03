@@ -59,7 +59,7 @@ namespace GuiToolkit
 			ReadLocaProviders();
 
 #if UNITY_EDITOR
-			DebugDump();
+			//DebugDump();
 #endif
 			return result;
 		}
