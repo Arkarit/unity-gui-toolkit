@@ -34,6 +34,7 @@ namespace GuiToolkit
 			if (DebugLoca)
 				Log($"Language changed: '{_language}'");
 
+			Language = _language;
 			m_isDev = _language == "dev";
 			if (m_isDev)
 			{
@@ -42,7 +43,6 @@ namespace GuiToolkit
 				return true;
 			}
 
-			Language = _language;
 			return ReadTranslation();
 		}
 
@@ -435,15 +435,16 @@ namespace GuiToolkit
 				m_translationDictPlural.Add(_group, groupDictPlural);
 			}
 
-			// Normalize to up to 6 slots (Arabisch-kompatibel)
+			// Normalize to up to 6 slots
 			int count = Math.Min(_forms.Length, 6);
-			var list = new List<string>(count);
-			for (int i = 0; i < count; i++)
-				list.Add(_forms[i] ?? string.Empty);
+			var list = new List<string>();
+			for (int i = 0; i < count && !string.IsNullOrEmpty(_forms[i]); i++)
+			{
+				list.Add(_forms[i]);
+			}
 
 			if (groupDictPlural.TryGetValue(_pluralKey, out var existing))
 			{
-				// Merge-Policy: gleiche Laenge nötig, sonst warnen und bestehende behalten
 				if (existing == null)
 				{
 					groupDictPlural[_pluralKey] = list;

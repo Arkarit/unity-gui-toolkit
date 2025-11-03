@@ -17,12 +17,12 @@ MonoBehaviour:
   m_group: 
   m_columnDescriptions:
   - ColumnType: 1
-    LanguageId: en
+    LanguageId: en_us
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: -1
   - ColumnType: 2
-    LanguageId: en
+    LanguageId: en_us
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: -1
@@ -42,12 +42,12 @@ MonoBehaviour:
     KeyPostfix: 
     PluralForm: -1
   - ColumnType: 2
-    LanguageId: en
+    LanguageId: en_us
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: 0
   - ColumnType: 2
-    LanguageId: en
+    LanguageId: en_us
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: 1

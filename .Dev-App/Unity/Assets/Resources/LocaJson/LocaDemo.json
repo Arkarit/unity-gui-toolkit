@@ -2,7 +2,7 @@
     "Group": "",
     "Entries": [
         {
-            "LanguageId": "en",
+            "LanguageId": "en_us",
             "Key": "excel_key1",
             "Text": "Excel Key 1",
             "Forms": []
@@ -26,7 +26,7 @@
             "Forms": []
         },
         {
-            "LanguageId": "en",
+            "LanguageId": "en_us",
             "Key": "excel_dog",
             "Text": "",
             "Forms": [
