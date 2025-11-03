@@ -26,6 +26,8 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		public void Save()
 		{
+			EditorFileUtility.EnsureUnityFolderExists("Assets/Resources/" + RESOURCES_SUB_PATH);
+
 			string json = JsonUtility.ToJson(this, true);
 			File.WriteAllText(PATH, json, new UTF8Encoding(false));
 		}
