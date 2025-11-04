@@ -48,7 +48,6 @@ namespace GuiToolkit
 		[SerializeField] private int m_startRow = 0; // all rows before are ignored (0-based index)
 
 		private LocaJson m_cached; // loaded at runtime from Resources
-		private int m_keyColumn = -1;
 
 		public LocaJson Localization
 		{
@@ -60,31 +59,20 @@ namespace GuiToolkit
 		}
 		
 		public int NumColumns => m_columnDescriptions.Count;
-		public int NumRows
-		{
-			get
-			{
-				var loca = Localization;
-				if (loca == null || loca.Entries == null)
-					return 0;
-				
-				return loca.Entries.Count;
-			}
-		}
 		
-		public string GetKey(int _column)
+		public string GetKey(string _key, int _column)
 		{
-			if (m_keyColumn < 0)
+			if (!_column.IsInRange(0, NumColumns))
 				return null;
 			
 			var description = GetColumnDescription(_column);
 			if (description.ColumnType != ColumnType.LanguageTranslation)
 				return null;
-			
-			return $"{description.KeyPrefix}{m_columnDescriptions[m_keyColumn]}{description.KeyPostfix}";
+				
+			return $"{description.KeyPrefix}{_key}{description.KeyPostfix}";
 		}
 
-		private ColumnDescription GetColumnDescription(int _column)
+		public ColumnDescription GetColumnDescription(int _column)
 		{
 			if (_column < 0 || _column >= m_columnDescriptions.Count)
 				return null;
@@ -285,7 +273,6 @@ namespace GuiToolkit
 			if (m_cached != null)
 				return;
 
-			m_keyColumn = -1;
 			TextAsset ta = LoadTextAsset();
 			if (!ta)
 			{
@@ -295,18 +282,7 @@ namespace GuiToolkit
 
 			m_cached = JsonUtility.FromJson<LocaJson>(ta.text);
 			if (m_cached != null)
-			{
-				for (int i = 0; i < m_columnDescriptions.Count; i++)
-				{
-					if (m_columnDescriptions[i].ColumnType == ColumnType.Key)
-					{
-						m_keyColumn = i;
-						return;
-					}
-				}
-				
 				return;
-			}
 			
 			m_cached = new LocaJson { Group = m_group, Entries = new List<LocaJsonEntry>() };
 		}
