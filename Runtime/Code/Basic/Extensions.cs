@@ -933,6 +933,7 @@ namespace GuiToolkit
 
 		public static bool IsEven( this int _self ) => (_self & 1) == 0;
 		public static bool IsOdd( this int _self ) => (_self & 1) != 0;
+		public static bool IsInRange(this int _self, int _minInclusive, int _maxExclusive) => _self >= _minInclusive && _self < _maxExclusive;
 
 		/// <summary>
 		/// Clone a single game object without its children.
