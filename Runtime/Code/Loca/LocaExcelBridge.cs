@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using GuiToolkit.Exceptions;
 using UnityEngine;
 
@@ -23,7 +24,7 @@ namespace GuiToolkit
 	[CreateAssetMenu(fileName = nameof(LocaExcelBridge), menuName = StringConstants.LOCA_EXCEL_BRIDGE)]
 	public class LocaExcelBridge : ScriptableObject, ILocaProvider
 	{
-		public enum ColumnType
+		public enum EInColumnType
 		{
 			Ignore,
 			Key,
@@ -31,32 +32,59 @@ namespace GuiToolkit
 		}
 
 		[Serializable]
-		public class ColumnDescription
+		public class InColumnDescription
 		{
-			public ColumnType ColumnType;
+			[ReadOnly] public string Description; // only purpose is making better readable tables in editor
+			public EInColumnType ColumnType;
 			public string LanguageId;   // manually assigned per language column
 			public string KeyPrefix;
 			public string KeyPostfix;
 			// -1: singular (no plurals); 0..5: plural form index
 			public int PluralForm = -1;
+			
+			public void UpdateDescriptionField()
+			{
+				switch (ColumnType)
+				{
+					case EInColumnType.Ignore:
+						Description = "Ignored";
+						break;
+					case EInColumnType.Key:
+						Description = "Master Key";
+						break;
+					case EInColumnType.LanguageTranslation:
+						Description = LanguageId;
+						if (!string.IsNullOrEmpty(KeyPrefix))
+							Description += $" prefix '{KeyPrefix}'";
+						if (!string.IsNullOrEmpty(KeyPostfix))
+							Description += $" postfix '{KeyPostfix}'";
+						if(PluralForm == -1)
+						{
+							Description += " singular";
+							break;
+						}
+						
+						Description += $" plural {PluralForm}";
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
 		}
 
+		[Header("Input")]
+		[Space]
 		[PathField(_isFolder: false, _relativeToPath: ".", _extensions: "xlsx")]
 		[SerializeField][Mandatory] private PathField m_excelPath;
 		[SerializeField] private string m_group;
-		[SerializeField] private List<ColumnDescription> m_columnDescriptions = new();
+		[SerializeField] private List<InColumnDescription> m_columnDescriptions = new();
 		[SerializeField] private int m_startRow = 0; // all rows before are ignored (0-based index)
+		
+		[Header("Output (Read-Only)")]
+		[Space]
+		[GuiToolkit.ReadOnly][SerializeField] private ProcessedLoca m_processedLoca;
 
-		private LocaJson m_cached; // loaded at runtime from Resources
-
-		public LocaJson Localization
-		{
-			get
-			{
-				LoadJsonIfNeeded();
-				return m_cached;
-			}
-		}
+		public ProcessedLoca Localization => m_processedLoca != null ? m_processedLoca : new ProcessedLoca();
 		
 		public int NumColumns => m_columnDescriptions.Count;
 		
@@ -66,13 +94,13 @@ namespace GuiToolkit
 				return null;
 			
 			var description = GetColumnDescription(_column);
-			if (description.ColumnType != ColumnType.LanguageTranslation)
+			if (description.ColumnType != EInColumnType.LanguageTranslation)
 				return null;
 				
 			return $"{description.KeyPrefix}{_key}{description.KeyPostfix}";
 		}
 
-		public ColumnDescription GetColumnDescription(int _column)
+		public InColumnDescription GetColumnDescription(int _column)
 		{
 			if (_column < 0 || _column >= m_columnDescriptions.Count)
 				return null;
@@ -82,6 +110,15 @@ namespace GuiToolkit
 
 
 #if UNITY_EDITOR
+		private void OnValidate()
+		{
+			if (m_columnDescriptions == null)
+				return;
+			
+			foreach (var description in m_columnDescriptions)
+				description.UpdateDescriptionField();
+		}
+
 		public void CollectData()
 		{
 #if UITK_USE_ROSLYN
@@ -113,7 +150,7 @@ namespace GuiToolkit
 			if (sheet.Rows.Count <= m_startRow)
 			{
 				Debug.LogWarning($"{nameof(LocaExcelBridge)}: Worksheet has no data rows after start row {m_startRow}.");
-				WriteJson(new LocaJson { Group = m_group, Entries = new List<LocaJsonEntry>() });
+				WriteJson(new ProcessedLoca { Group = m_group, Entries = new List<ProcessedLocaEntry>() });
 				return;
 			}
 
@@ -122,12 +159,12 @@ namespace GuiToolkit
 			// Infer column config if not matching column count
 			if (m_columnDescriptions == null || m_columnDescriptions.Count != colCount)
 			{
-				m_columnDescriptions = new List<ColumnDescription>(colCount);
+				m_columnDescriptions = new List<InColumnDescription>(colCount);
 				for (int c = 0; c < colCount; c++)
 				{
-					m_columnDescriptions.Add(new ColumnDescription
+					m_columnDescriptions.Add(new InColumnDescription
 					{
-						ColumnType = (c == 0) ? ColumnType.Key : ColumnType.LanguageTranslation,
+						ColumnType = (c == 0) ? EInColumnType.Key : EInColumnType.LanguageTranslation,
 						KeyPrefix = string.Empty,
 						KeyPostfix = string.Empty,
 						LanguageId = string.Empty,
@@ -137,8 +174,8 @@ namespace GuiToolkit
 			}
 
 			int keyCol = -1;
-			ColumnDescription keyColDesc = null;
-			var langColumns = new List<(int col, string lang, ColumnDescription desc)>();
+			InColumnDescription keyColDesc = null;
+			var langColumns = new List<(int col, string lang, InColumnDescription desc)>();
 
 			for (int c = 0; c < colCount; c++)
 			{
@@ -148,12 +185,12 @@ namespace GuiToolkit
 
 				switch (desc.ColumnType)
 				{
-					case ColumnType.Key:
+					case EInColumnType.Key:
 						keyCol = c;
 						keyColDesc = desc;
 						break;
 
-					case ColumnType.LanguageTranslation:
+					case EInColumnType.LanguageTranslation:
 						string langId = NormalizeLang(desc.LanguageId);
 						if (string.IsNullOrEmpty(langId))
 						{
@@ -171,7 +208,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			var byLangAndKey = new Dictionary<(string lang, string key), LocaJsonEntry>(1024, StringTupleComparer.Ordinal);
+			var byLangAndKey = new Dictionary<(string lang, string key), ProcessedLocaEntry>(1024, StringTupleComparer.Ordinal);
 
 			for (int r = m_startRow; r < sheet.Rows.Count; r++)
 			{
@@ -198,7 +235,7 @@ namespace GuiToolkit
 					var k = (lang, effectiveKey);
 					if (!byLangAndKey.TryGetValue(k, out var entry))
 					{
-						entry = new LocaJsonEntry { LanguageId = lang, Key = effectiveKey };
+						entry = new ProcessedLocaEntry { LanguageId = lang, Key = effectiveKey };
 						byLangAndKey[k] = entry;
 					}
 
@@ -221,13 +258,9 @@ namespace GuiToolkit
 				)
 				.ToList();
 
-			var result = new LocaJson
-			{
-				Group = m_group,
-				Entries = pruned
-			};
-
-			WriteJson(result);
+			m_processedLoca = new ProcessedLoca ( m_group, pruned );
+			
+			EditorUtility.SetDirty(this);
 			AssetDatabase.Refresh();
 #else
 			throw new RoslynUnavailableException();
@@ -235,7 +268,7 @@ namespace GuiToolkit
 		}
 		
 #if UITK_USE_ROSLYN
-		private static string ApplyKeyAffixes( string _key, ColumnDescription _desc )
+		private static string ApplyKeyAffixes( string _key, InColumnDescription _desc )
 		{
 			if (_desc == null)
 				return _key ?? string.Empty;
@@ -254,7 +287,7 @@ namespace GuiToolkit
 			return _lang.Trim().ToLowerInvariant();
 		}
 
-		private void WriteJson( LocaJson _data )
+		private void WriteJson( ProcessedLoca _data )
 		{
 			string assetName = string.IsNullOrEmpty(name) ? "LocaTable" : name;
 			string relDir = $"Assets/Resources/{LocaProviderList.RESOURCES_SUB_PATH}";
@@ -267,32 +300,6 @@ namespace GuiToolkit
 		}
 #endif
 #endif
-
-		private void LoadJsonIfNeeded()
-		{
-			if (m_cached != null)
-				return;
-
-			TextAsset ta = LoadTextAsset();
-			if (!ta)
-			{
-				m_cached = new LocaJson { Group = m_group, Entries = new List<LocaJsonEntry>() };
-				return;
-			}
-
-			m_cached = JsonUtility.FromJson<LocaJson>(ta.text);
-			if (m_cached != null)
-				return;
-			
-			m_cached = new LocaJson { Group = m_group, Entries = new List<LocaJsonEntry>() };
-		}
-
-		private TextAsset LoadTextAsset()
-		{
-			string assetName = string.IsNullOrEmpty(name) ? "LocaTable" : name;
-			string resPath = $"{LocaProviderList.RESOURCES_SUB_PATH}{assetName}";
-			return Resources.Load<TextAsset>(resPath);
-		}
 
 		private sealed class StringTupleComparer : IEqualityComparer<(string a, string b)>
 		{

@@ -16,49 +16,97 @@ MonoBehaviour:
     m_path: Assets/Resources/LocaDemo.xlsx
   m_group: 
   m_columnDescriptions:
-  - ColumnType: 1
+  - Description: Master Key
+    ColumnType: 1
+    LanguageId: 
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: -1
+  - Description: en_us singular
+    ColumnType: 2
     LanguageId: en_us
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: -1
-  - ColumnType: 2
-    LanguageId: en_us
-    KeyPrefix: 
-    KeyPostfix: 
-    PluralForm: -1
-  - ColumnType: 2
+  - Description: de singular
+    ColumnType: 2
     LanguageId: de
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: -1
-  - ColumnType: 2
+  - Description: de prefix:bla_ singular
+    ColumnType: 2
     LanguageId: de
     KeyPrefix: bla_
     KeyPostfix: 
     PluralForm: -1
-  - ColumnType: 2
+  - Description: de postfix:_blupp singular
+    ColumnType: 2
     LanguageId: de
-    KeyPrefix: blupp
-    KeyPostfix: 
+    KeyPrefix: 
+    KeyPostfix: _blupp
     PluralForm: -1
-  - ColumnType: 2
+  - Description: en_us plural:0
+    ColumnType: 2
     LanguageId: en_us
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: 0
-  - ColumnType: 2
+  - Description: en_us plural:1
+    ColumnType: 2
     LanguageId: en_us
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: 1
-  - ColumnType: 2
+  - Description: de plural:0
+    ColumnType: 2
     LanguageId: de
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: 0
-  - ColumnType: 2
+  - Description: de plural:1
+    ColumnType: 2
     LanguageId: de
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: 1
   m_startRow: 2
+  m_processedLoca:
+    Group: 
+    Entries:
+    - Key: bla_excel_key1
+      LanguageId: de
+      Text: Bla
+      Forms: []
+    - Key: excel_dog
+      LanguageId: de
+      Text: 
+      Forms:
+      - Hund
+      - Hunde
+      - 
+      - 
+      - 
+      - 
+    - Key: excel_dog
+      LanguageId: en_us
+      Text: 
+      Forms:
+      - Dog
+      - Dogs
+      - 
+      - 
+      - 
+      - 
+    - Key: excel_key1
+      LanguageId: de
+      Text: "Excel Schl\xFCssel 1"
+      Forms: []
+    - Key: excel_key1
+      LanguageId: en_us
+      Text: Excel Key 1
+      Forms: []
+    - Key: excel_key1_blupp
+      LanguageId: de
+      Text: Blupp
+      Forms: []
