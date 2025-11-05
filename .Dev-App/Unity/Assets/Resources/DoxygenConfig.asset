@@ -17,12 +17,12 @@ MonoBehaviour:
   VersionSource: 1
   m_version: 
   OutputDirectory:
-    Path: ..\..\Documentation~\Code
+    m_path: ../../Documentation~/Code
   OptionalMainPage:
-    Path: ..\..\README.md
+    m_path: ../../README.md
   InputDirectories:
-  - Path: ..\..\Runtime
-  - Path: ..\..\Editor
+  - m_path: ..\..\Runtime
+  - m_path: ..\..\Editor
   Defines:
   - UNITY_EDITOR
   ExcludePatterns:
