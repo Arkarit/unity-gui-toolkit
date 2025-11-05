@@ -34,37 +34,37 @@ MonoBehaviour:
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: -1
-  - Description: de prefix:bla_ singular
+  - Description: de prefix 'bla_' singular
     ColumnType: 2
     LanguageId: de
     KeyPrefix: bla_
     KeyPostfix: 
     PluralForm: -1
-  - Description: de postfix:_blupp singular
+  - Description: de postfix '_blupp' singular
     ColumnType: 2
     LanguageId: de
     KeyPrefix: 
     KeyPostfix: _blupp
     PluralForm: -1
-  - Description: en_us plural:0
+  - Description: en_us plural 0
     ColumnType: 2
     LanguageId: en_us
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: 0
-  - Description: en_us plural:1
+  - Description: en_us plural 1
     ColumnType: 2
     LanguageId: en_us
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: 1
-  - Description: de plural:0
+  - Description: de plural 0
     ColumnType: 2
     LanguageId: de
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: 0
-  - Description: de plural:1
+  - Description: de plural 1
     ColumnType: 2
     LanguageId: de
     KeyPrefix: 
@@ -74,9 +74,37 @@ MonoBehaviour:
   m_processedLoca:
     Group: 
     Entries:
+    - Key: bla_excel_cat
+      LanguageId: de
+      Text: Katzenbeschreibung
+      Forms: []
     - Key: bla_excel_key1
       LanguageId: de
       Text: Bla
+      Forms: []
+    - Key: excel_cat
+      LanguageId: de
+      Text: Katze
+      Forms:
+      - Katze
+      - Katzen
+      - 
+      - 
+      - 
+      - 
+    - Key: excel_cat
+      LanguageId: en_us
+      Text: cat
+      Forms:
+      - cat
+      - cats
+      - 
+      - 
+      - 
+      - 
+    - Key: excel_cat_blupp
+      LanguageId: de
+      Text: Noch ne Katzenbeschreibung
       Forms: []
     - Key: excel_dog
       LanguageId: de

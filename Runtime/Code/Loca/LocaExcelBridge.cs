@@ -41,7 +41,7 @@ namespace GuiToolkit
 			public string KeyPostfix;
 			// -1: singular (no plurals); 0..5: plural form index
 			public int PluralForm = -1;
-			
+
 			public void UpdateDescriptionField()
 			{
 				switch (ColumnType)
@@ -58,12 +58,12 @@ namespace GuiToolkit
 							Description += $" prefix '{KeyPrefix}'";
 						if (!string.IsNullOrEmpty(KeyPostfix))
 							Description += $" postfix '{KeyPostfix}'";
-						if(PluralForm == -1)
+						if (PluralForm == -1)
 						{
 							Description += " singular";
 							break;
 						}
-						
+
 						Description += $" plural {PluralForm}";
 						break;
 					default:
@@ -79,32 +79,32 @@ namespace GuiToolkit
 		[SerializeField] private string m_group;
 		[SerializeField] private List<InColumnDescription> m_columnDescriptions = new();
 		[SerializeField] private int m_startRow = 0; // all rows before are ignored (0-based index)
-		
+
 		[Header("Output (Read-Only)")]
 		[Space]
 		[GuiToolkit.ReadOnly][SerializeField] private ProcessedLoca m_processedLoca;
 
 		public ProcessedLoca Localization => m_processedLoca != null ? m_processedLoca : new ProcessedLoca();
-		
+
 		public int NumColumns => m_columnDescriptions.Count;
-		
-		public string GetKey(string _key, int _column)
+
+		public string GetKey( string _key, int _column )
 		{
 			if (!_column.IsInRange(0, NumColumns))
 				return null;
-			
+
 			var description = GetColumnDescription(_column);
 			if (description.ColumnType != EInColumnType.LanguageTranslation)
 				return null;
-				
+
 			return $"{description.KeyPrefix}{_key}{description.KeyPostfix}";
 		}
 
-		public InColumnDescription GetColumnDescription(int _column)
+		public InColumnDescription GetColumnDescription( int _column )
 		{
 			if (_column < 0 || _column >= m_columnDescriptions.Count)
 				return null;
-			
+
 			return m_columnDescriptions[_column];
 		}
 
@@ -114,7 +114,7 @@ namespace GuiToolkit
 		{
 			if (m_columnDescriptions == null)
 				return;
-			
+
 			foreach (var description in m_columnDescriptions)
 				description.UpdateDescriptionField();
 		}
@@ -122,16 +122,18 @@ namespace GuiToolkit
 		public void CollectData()
 		{
 #if UITK_USE_ROSLYN
+			m_processedLoca = null;
+
 			if (m_excelPath == null || string.IsNullOrEmpty(m_excelPath.Path))
 			{
-				Debug.LogError($"{nameof(LocaExcelBridge)}: Excel path is not set.");
+				UiLog.LogError($"{nameof(LocaExcelBridge)}: Excel path is not set.");
 				return;
 			}
 
 			string xlsxPath = m_excelPath.Path;
 			if (!File.Exists(xlsxPath))
 			{
-				Debug.LogError($"{nameof(LocaExcelBridge)}: Excel file not found: {xlsxPath}");
+				UiLog.LogError($"{nameof(LocaExcelBridge)}: Excel file not found: {xlsxPath}");
 				return;
 			}
 
@@ -140,21 +142,31 @@ namespace GuiToolkit
 			using var fs = File.Open(xlsxPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 			using var reader = ExcelReaderFactory.CreateReader(fs);
 			DataSet ds = reader.AsDataSet();
-			if (ds.Tables.Count == 0)
+			int tablesCount = ds.Tables.Count;
+			if (tablesCount == 0)
 			{
-				Debug.LogError($"{nameof(LocaExcelBridge)}: No worksheets found in {xlsxPath}");
+				UiLog.LogError($"{nameof(LocaExcelBridge)}: No worksheets found in {xlsxPath}");
 				return;
 			}
 
 			var sheet = ds.Tables[0];
+			int colCount = sheet.Columns.Count;
+
+			for (int i = 1; i < tablesCount; i++)
+			{
+				if (ds.Tables[i].Columns.Count != colCount)
+				{
+					UiLog.LogError($"{nameof(LocaExcelBridge)}: Column count in work sheet differs!");
+					return;
+				}
+			}
+
 			if (sheet.Rows.Count <= m_startRow)
 			{
-				Debug.LogWarning($"{nameof(LocaExcelBridge)}: Worksheet has no data rows after start row {m_startRow}.");
-				WriteJson(new ProcessedLoca { Group = m_group, Entries = new List<ProcessedLocaEntry>() });
+				UiLog.LogError($"{nameof(LocaExcelBridge)}: Worksheet has no data rows after start row {m_startRow}.");
 				return;
 			}
 
-			int colCount = sheet.Columns.Count;
 
 			// Infer column config if not matching column count
 			if (m_columnDescriptions == null || m_columnDescriptions.Count != colCount)
@@ -194,7 +206,7 @@ namespace GuiToolkit
 						string langId = NormalizeLang(desc.LanguageId);
 						if (string.IsNullOrEmpty(langId))
 						{
-							Debug.LogWarning($"{nameof(LocaExcelBridge)}: Empty LanguageId at column {c}, skipping.");
+							UiLog.LogWarning($"{nameof(LocaExcelBridge)}: Empty LanguageId at column {c}, skipping.");
 							continue;
 						}
 						langColumns.Add((c, langId, desc));
@@ -204,49 +216,53 @@ namespace GuiToolkit
 
 			if (keyCol < 0)
 			{
-				Debug.LogError($"{nameof(LocaExcelBridge)}: No key column defined or inferred.");
+				UiLog.LogError($"{nameof(LocaExcelBridge)}: No key column defined or inferred.");
 				return;
 			}
 
 			var byLangAndKey = new Dictionary<(string lang, string key), ProcessedLocaEntry>(1024, StringTupleComparer.Ordinal);
 
-			for (int r = m_startRow; r < sheet.Rows.Count; r++)
+			for (int i = 0; i < tablesCount; i++)
 			{
-				string baseKey = sheet.Rows[r][keyCol]?.ToString()?.Trim();
-				if (string.IsNullOrEmpty(baseKey))
-					continue;
-
-				string baseEffectiveKey = ApplyKeyAffixes(baseKey, keyColDesc);
-
-				foreach (var lc in langColumns)
+				sheet = ds.Tables[i];
+				for (int r = m_startRow; r < sheet.Rows.Count; r++)
 				{
-					string lang = lc.lang;
-					string cell = sheet.Rows[r][lc.col]?.ToString();
-					cell = cell != null ? cell.Trim() : string.Empty;
-
-					int plural = lc.desc?.PluralForm ?? -1;
-
-					// skip empty cells
-					if (string.IsNullOrEmpty(cell))
+					string baseKey = sheet.Rows[r][keyCol]?.ToString()?.Trim();
+					if (string.IsNullOrEmpty(baseKey))
 						continue;
 
-					string effectiveKey = ApplyKeyAffixes(baseEffectiveKey, lc.desc);
+					string baseEffectiveKey = ApplyKeyAffixes(baseKey, keyColDesc);
 
-					var k = (lang, effectiveKey);
-					if (!byLangAndKey.TryGetValue(k, out var entry))
+					foreach (var lc in langColumns)
 					{
-						entry = new ProcessedLocaEntry { LanguageId = lang, Key = effectiveKey };
-						byLangAndKey[k] = entry;
-					}
+						string lang = lc.lang;
+						string cell = sheet.Rows[r][lc.col]?.ToString();
+						cell = cell != null ? cell.Trim() : string.Empty;
 
-					if (plural < 0)
-					{
-						entry.Text = cell;
-					}
-					else
-					{
-						entry.Forms ??= new string[6];
-						entry.Forms[plural] = cell;
+						int plural = lc.desc?.PluralForm ?? -1;
+
+						// skip empty cells
+						if (string.IsNullOrEmpty(cell))
+							continue;
+
+						string effectiveKey = ApplyKeyAffixes(baseEffectiveKey, lc.desc);
+
+						var k = (lang, effectiveKey);
+						if (!byLangAndKey.TryGetValue(k, out var entry))
+						{
+							entry = new ProcessedLocaEntry { LanguageId = lang, Key = effectiveKey };
+							byLangAndKey[k] = entry;
+						}
+
+						if (plural < 0)
+						{
+							entry.Text = cell;
+						}
+						else
+						{
+							entry.Forms ??= new string[6];
+							entry.Forms[plural] = cell;
+						}
 					}
 				}
 			}
@@ -258,15 +274,15 @@ namespace GuiToolkit
 				)
 				.ToList();
 
-			m_processedLoca = new ProcessedLoca ( m_group, pruned );
-			
+			m_processedLoca = new ProcessedLoca(m_group, pruned);
+
 			EditorUtility.SetDirty(this);
 			AssetDatabase.Refresh();
 #else
 			throw new RoslynUnavailableException();
 #endif
 		}
-		
+
 #if UITK_USE_ROSLYN
 		private static string ApplyKeyAffixes( string _key, InColumnDescription _desc )
 		{
@@ -296,7 +312,7 @@ namespace GuiToolkit
 
 			string json = JsonUtility.ToJson(_data, true);
 			File.WriteAllText(outPath, json, new UTF8Encoding(false));
-			Debug.Log($"{nameof(LocaExcelBridge)}: Wrote JSON -> {outPath}");
+			UiLog.Log($"{nameof(LocaExcelBridge)}: Wrote JSON -> {outPath}");
 		}
 #endif
 #endif
