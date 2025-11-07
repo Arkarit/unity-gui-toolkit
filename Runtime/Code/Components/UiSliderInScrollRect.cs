@@ -50,5 +50,9 @@ namespace GuiToolkit
 		{
 			m_slider.OnPointerDown(_eventData);
 		}
+
+		protected override void OnPrimaryPointerUp(PointerEventData _eventData)
+		{
+		}
 	}
 }
