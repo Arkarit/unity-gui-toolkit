@@ -13,7 +13,7 @@ namespace GuiToolkit
 		[SerializeField][Mandatory] private ScrollRect m_innerScrollRect;
 
 		[Tooltip("The outer ScrollRect (secondary). Usually a parent. Will be auto-resolved if null.")]
-		[SerializeField][Mandatory] private ScrollRect m_outerScrollRect;
+		[SerializeField][Optional] private ScrollRect m_outerScrollRect;
 
 		protected override bool TryResolveDependencies()
 		{
@@ -70,7 +70,12 @@ namespace GuiToolkit
 
 		protected override void OnPrimaryPointerDown(PointerEventData _eventData)
 		{
-			// ScrollRect does not implement IPointerDownHandler. Intentionally no-op.
+			m_innerScrollRect.enabled = false;
+		}
+
+		protected override void OnPrimaryPointerUp(PointerEventData _eventData)
+		{
+			m_innerScrollRect.enabled = true;
 		}
 	}
 }

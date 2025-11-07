@@ -8,7 +8,7 @@ namespace GuiToolkit
 	/// 
 	/// Determines horizontal vs. vertical drag and routes all pointer/drag events
 	/// to the "primary" or "secondary" target accordingly.
-	public abstract class UiAbstractDragRouter : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler
+	public abstract class UiAbstractDragRouter : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler, IPointerUpHandler
 	{
 		protected const float DRAG_DETECTION_TIME = 0.2f;
 
@@ -35,6 +35,8 @@ namespace GuiToolkit
 
 		/// \brief Dispatches pointer down to the primary control (e.g., Slider.OnPointerDown).
 		protected abstract void OnPrimaryPointerDown(PointerEventData _eventData);
+		/// \brief Dispatches pointer down to the primary control (e.g., Slider.OnPointerDown).
+		protected abstract void OnPrimaryPointerUp(PointerEventData _eventData);
 
 		public virtual void Start()
 		{
@@ -100,6 +102,12 @@ namespace GuiToolkit
 			StartCoroutine(DelayedOnPointerDown(_eventData.ShallowClone()));
 		}
 
+
+		public void OnPointerUp(PointerEventData _eventData)
+		{
+			OnPrimaryPointerUp(_eventData);
+		}
+		
 		private void SetHandlers(MonoBehaviour _monoBehaviour)
 		{
 			m_beginDragHandler = _monoBehaviour is IBeginDragHandler ? (IBeginDragHandler)_monoBehaviour : null;
