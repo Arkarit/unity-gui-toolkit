@@ -22,6 +22,7 @@ namespace GuiToolkit
 			ScaleX			= 0x00001000,
 			ScaleY			= 0x00002000,
 			Alpha			= 0x00010000,
+			Skew			= 0x00020000,
 		}
 
 		[SerializeField]
@@ -283,6 +284,23 @@ namespace GuiToolkit
 		}
 		#endregion
 
+		#region Skew
+		[SerializeField]
+		protected UiSkew m_uiSkew;
+		[SerializeField]
+		protected float m_skewMinHorizontal;
+		[SerializeField]
+		protected float m_skewMaxHorizontal;
+		[SerializeField]
+		protected float m_skewMinVertical;
+		[SerializeField]
+		protected float m_skewMaxVertical;
+		[SerializeField]
+		protected AnimationCurve m_skewCurveHorizontal;
+		[SerializeField]
+		protected AnimationCurve m_skewCurveVertical;
+		#endregion
+		
 		// TODO: sound
 
 		// TODO: animator
@@ -337,6 +355,12 @@ namespace GuiToolkit
 		#endif
 		#endregion
 		private bool m_animateAlpha;
+		#region debug serialize member
+		#if DEBUG_SIMPLE_ANIMATION
+			[SerializeField]
+		#endif
+		#endregion
+		private bool m_animateSkew;
 		#region debug serialize member
 		#if DEBUG_SIMPLE_ANIMATION
 			[SerializeField]
@@ -414,6 +438,7 @@ namespace GuiToolkit
 			m_animateScaleY = m_support.HasFlags(ESupport.ScaleY);
 			m_animateScale = m_animateScaleX || m_animateScaleY;
 			m_animateAlpha = m_support.HasFlags(ESupport.Alpha);
+			m_animateSkew = m_support.HasFlags(ESupport.Skew);
 			m_flagsSet = true;
 			Log( "InitFlags() done: "
 				+ $"m_animatePositionX: {m_animatePositionX}, "
@@ -424,6 +449,7 @@ namespace GuiToolkit
 				+ $"m_animateScaleY: {m_animateScaleY}, "
 				+ $"m_animateScale: {m_animateScale}, "
 				+ $"m_animateAlpha: {m_animateAlpha}, "
+				+ $"m_animateSkew: {m_animateSkew}, "
 				+ $"m_flagsSet: {m_flagsSet}"
 			);
 		}
@@ -560,9 +586,35 @@ namespace GuiToolkit
 
 			if ( m_animateAlpha )
 				AnimateAlpha(_normalizedTime);
+			
+			if (m_animateSkew)
+				AnimateSkew(_normalizedTime);
 
 			if (m_markTargetForLayoutRebuild)
 				LayoutRebuilder.MarkLayoutForRebuild(m_target);
+		}
+
+		private void AnimateSkew(float _normalizedTime)
+		{
+			bool animateX = m_skewCurveHorizontal != null && m_skewCurveHorizontal.length > 1;
+			bool animateY = m_skewCurveVertical != null && m_skewCurveVertical.length > 1;
+			var x = animateX ? Mathf.LerpUnclamped(m_skewMinHorizontal, m_skewMaxHorizontal, m_skewCurveHorizontal.Evaluate(_normalizedTime)) : 0;
+			var y = animateX ? Mathf.LerpUnclamped(m_skewMinVertical, m_skewMaxVertical, m_skewCurveVertical.Evaluate(_normalizedTime)) : 0;
+			
+			if (animateX && animateY)
+			{
+				m_uiSkew.Angles = new Vector2(x, y);
+				return;
+			}
+			
+			if (animateX)
+			{
+				m_uiSkew.AngleHorizontal = x;
+				return;
+			}
+			
+			if (animateY)
+				m_uiSkew.AngleVertical = x;
 		}
 
 		private void AnimatePosition( float _normalizedTime )

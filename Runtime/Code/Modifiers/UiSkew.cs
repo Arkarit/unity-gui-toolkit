@@ -33,6 +33,34 @@ namespace GuiToolkit
 			}
 		}
 		
+		public virtual float AngleHorizontal
+		{
+			get => m_angleHorizontal;
+			set
+			{
+				if (m_angleHorizontal == value)
+					return;
+				
+				m_angleHorizontal = value;
+				CalcOffsetsIfNecessary();
+				SetDirty();
+			}
+		}
+		
+		public virtual float AngleVertical
+		{
+			get => m_angleHorizontal;
+			set
+			{
+				if (m_angleVertical == value)
+					return;
+				
+				m_angleVertical = value;
+				CalcOffsetsIfNecessary();
+				SetDirty();
+			}
+		}
+		
 		public override Vector2 TopLeft
 		{
 			get

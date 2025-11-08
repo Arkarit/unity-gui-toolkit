@@ -31,6 +31,15 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_alphaCurveProp;
 		protected SerializedProperty m_alphaGraphicProp;
 		protected SerializedProperty m_alphaCanvasGroupProp;
+		protected SerializedProperty m_uiSkewProp;
+		protected SerializedProperty m_skewMinHorizontalProp;
+		protected SerializedProperty m_skewMaxHorizontalProp;
+		protected SerializedProperty m_skewMinVerticalProp;
+		protected SerializedProperty m_skewMaxVerticalProp;
+		protected SerializedProperty m_skewCurveHorizontalProp;
+		protected SerializedProperty m_skewCurveVerticalProp;
+
+		
 		protected SerializedProperty m_optionalMouseOverSlaveAnimationResetProp;
 		
 		protected SerializedProperty m_optionalMouseOverSlaveAnimationProp;
@@ -64,6 +73,13 @@ namespace GuiToolkit.Editor
 			m_alphaCurveProp = serializedObject.FindProperty("m_alphaCurve");
 			m_alphaGraphicProp = serializedObject.FindProperty("m_alphaGraphic");
 			m_alphaCanvasGroupProp = serializedObject.FindProperty("m_alphaCanvasGroup");
+			m_uiSkewProp = serializedObject.FindProperty("m_uiSkew");
+			m_skewMinHorizontalProp = serializedObject.FindProperty("m_skewMinHorizontal");
+			m_skewMaxHorizontalProp = serializedObject.FindProperty("m_skewMaxHorizontal");
+			m_skewMinVerticalProp = serializedObject.FindProperty("m_skewMinVertical");
+			m_skewMaxVerticalProp = serializedObject.FindProperty("m_skewMaxVertical");
+			m_skewCurveHorizontalProp = serializedObject.FindProperty("m_skewCurveHorizontal");
+			m_skewCurveVerticalProp = serializedObject.FindProperty("m_skewCurveVertical");
 			
 			m_optionalMouseOverSlaveAnimationProp = serializedObject.FindProperty("m_optionalMouseOverSlaveAnimation");
 			m_optionalMouseOverSlaveAnimationResetProp = serializedObject.FindProperty("m_optionalMouseOverSlaveAnimationReset");
@@ -181,6 +197,19 @@ namespace GuiToolkit.Editor
 			else
 			{
 				m_alphaCurveProp.animationCurveValue = new AnimationCurve();
+			}
+			
+			if (support.HasFlags(UiSimpleAnimation.ESupport.Skew))
+			{
+				GUILayout.Label("Skew:", EditorStyles.boldLabel);
+				EditorGUILayout.PropertyField(m_uiSkewProp);
+				EditorGUILayout.PropertyField(m_skewMinHorizontalProp);
+				EditorGUILayout.PropertyField(m_skewMaxHorizontalProp);
+				EditorGUILayout.PropertyField(m_skewMinVerticalProp);
+				EditorGUILayout.PropertyField(m_skewMaxVerticalProp);
+				EditorGUILayout.PropertyField(m_skewCurveHorizontalProp);
+				EditorGUILayout.PropertyField(m_skewCurveVerticalProp);
+				EditorGUILayout.Space();
 			}
 
 		}
