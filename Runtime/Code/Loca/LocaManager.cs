@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Threading;
 using UnityEngine;
 
@@ -9,10 +7,17 @@ namespace GuiToolkit
 {
 	public abstract class LocaManager : IEditorAware
 	{
+		public enum RetValIfNotFound
+		{
+			Key,
+			EmptyString,
+			Null,
+		}
+		
 		public const string PLAYER_PREFS_KEY = StringConstants.PLAYER_PREFS_PREFIX + "Language";
 
-		public abstract string Translate( string _key, string _group = null );
-		public abstract string Translate( string _singularKey, string _pluralKey, int _n, string _group = null );
+		public abstract string Translate( string _key, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key );
+		public abstract string Translate( string _singularKey, string _pluralKey, int _n, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key );
 
 		public abstract bool ChangeLanguageImpl( string _languageId );
 

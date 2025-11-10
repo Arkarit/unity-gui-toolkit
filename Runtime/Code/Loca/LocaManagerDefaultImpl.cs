@@ -288,7 +288,7 @@ namespace GuiToolkit
 			return result.ToArray();
 		}
 
-		public override string Translate( string _s, string _group = null )
+		public override string Translate( string _s, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key )
 		{
 			SetEffectiveGroup(ref _group);
 
@@ -311,10 +311,17 @@ namespace GuiToolkit
 				return Regex.Unescape(result);
 			}
 
-			if (DebugLoca)
-				_s = $"*{_s}";
-
-			return _s;
+			switch (_retValIfNotFound)
+			{
+				case RetValIfNotFound.Key:
+					return DebugLoca ? $"*{_s}" : _s;
+				case RetValIfNotFound.EmptyString:
+					return string.Empty;
+				case RetValIfNotFound.Null:
+					return null;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(_retValIfNotFound), _retValIfNotFound, null);
+			}
 		}
 
 		private bool TryGetTranslation( string _group, string _key, out string _result )
@@ -326,13 +333,13 @@ namespace GuiToolkit
 			return entry.TryGetValue(_key, out _result);
 		}
 
-		public override string Translate( string _singularKey, string _pluralKey, int _n, string _group = null )
+		public override string Translate( string _singularKey, string _pluralKey, int _n, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key )
 		{
 			SetEffectiveGroup(ref _group);
 
 			(int numPluralForms, int pluralIdx) = LocaPlurals.GetPluralIdx(Language, _n);
 			if (pluralIdx == 0)
-				return Translate(_singularKey);
+				return Translate(_singularKey, _group, _retValIfNotFound);
 
 			if (m_isDev)
 				return _pluralKey;
@@ -342,15 +349,22 @@ namespace GuiToolkit
 				if (pluralIdx < plurals.Count)
 				{
 					var result = plurals[pluralIdx];
-					if (string.IsNullOrEmpty(result))
-						result = DebugLoca ? $"_{pluralIdx}_{_pluralKey}" : "";
-
-					return result;
+					if (!string.IsNullOrEmpty(result))
+						return result;
 				}
 			}
 
-			_pluralKey = $"*{_pluralKey}";
-			return _pluralKey;
+			switch (_retValIfNotFound)
+			{
+				case RetValIfNotFound.Key:
+					return DebugLoca ? $"*{_pluralKey}" : _pluralKey;
+				case RetValIfNotFound.EmptyString:
+					return string.Empty;
+				case RetValIfNotFound.Null:
+					return null;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(_retValIfNotFound), _retValIfNotFound, null);
+			}
 		}
 
 		private bool TryGetTranslation( string _group, string _key, out List<string> result )
