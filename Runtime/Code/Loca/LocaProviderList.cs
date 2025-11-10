@@ -10,16 +10,18 @@ namespace GuiToolkit
 	public class LocaProviderList
 	{
 		public const string RESOURCES_SUB_PATH = "LocaJson/";
-		private const string PATH = "Assets/Resources/" + RESOURCES_SUB_PATH + "_locaProviders.json";
+		private const string PATH = RESOURCES_SUB_PATH + "_locaProviders";
+		private const string EDITOR_PATH = "Assets/Resources/" + PATH + ".json";
 
 		public List<string> Paths = new();
 
 		public static LocaProviderList Load()
 		{
-			if (!File.Exists(PATH))
+			var text = Resources.Load<TextAsset>(PATH);
+			if (text == null)
 				return null;
-
-			string json = File.ReadAllText(PATH, new UTF8Encoding(false));
+			
+			string json = text.text;
 			return JsonUtility.FromJson<LocaProviderList>(json);
 		}
 
@@ -29,7 +31,7 @@ namespace GuiToolkit
 			EditorFileUtility.EnsureUnityFolderExists("Assets/Resources/" + RESOURCES_SUB_PATH);
 
 			string json = JsonUtility.ToJson(this, true);
-			File.WriteAllText(PATH, json, new UTF8Encoding(false));
+			File.WriteAllText(EDITOR_PATH, json, new UTF8Encoding(false));
 		}
 #endif
 	}
