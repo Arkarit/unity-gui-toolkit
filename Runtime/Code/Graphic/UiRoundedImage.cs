@@ -24,7 +24,7 @@ namespace GuiToolkit
 	[RequireComponent(typeof(CanvasRenderer))]
 	public class UiRoundedImage : Image, IEnableableInHierarchy
 	{
-		public const int MinCornerSegments = 2;
+		public const int MinCornerSegments = 1;
 		public const int MaxCornerSegments = 30;
 
 		public const float MinRadius = 0;
