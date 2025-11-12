@@ -228,6 +228,7 @@ namespace GuiToolkit
 		public const string DLL_REMOVE_HACK = DLLS_HEADER + "Remove Dll Hack for Unity Version < 6";
 		public const string REPLACE_COMPONENTS_WINDOW = MISC_TOOLS_MENU_HEADER + "Replace Components Window";
 		public const string GRADIENT_GENERATOR = MISC_TOOLS_MENU_HEADER + "Gradient Generator";
+		public const string SCREENSHOT_TO_DESKTOP = MISC_TOOLS_MENU_HEADER + "Screenshot to desktop";
 		public const string CREATE_GUI_SCREENSHOT_OVERLAY = MISC_TOOLS_MENU_HEADER + "Create GUI Screenshot overlay";
 		public const string RESOLUTION_RESCALER = MISC_TOOLS_MENU_HEADER + "Resolution Rescaler (PREVIEW!)";
 
