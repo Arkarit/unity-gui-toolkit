@@ -20,6 +20,10 @@ Shader "UIToolkit/UI_MultiPurpose"
 
 		[Toggle(UseAdditionalTransformation)] _UseAdditionalTransformation("Additional Transformation", Float) = 0
 		_AdditionalTransformation("x,y = Pos, z,w = Scale", Vector) = (0,0,1,1)
+		
+		[Toggle(SecondaryUseAdditionalTransformation)] _SecondaryUseAdditionalTransformation("Secondary Additional Transformation", Float) = 0
+		_SecondaryAdditionalTransformation("x,y = Pos, z,w = Scale", Vector) = (0,0,1,1)
+
 
 		[Toggle(UnscaledTime)] _UnscaledTime("Time Unscaled", Float) = 0
 
@@ -113,6 +117,7 @@ Shader "UIToolkit/UI_MultiPurpose"
 			#pragma shader_feature_local __ _TEXTUREBLENDMODE_TRANSPARENT _TEXTUREBLENDMODE_TRANSPARENTPREMULTIPLIED _TEXTUREBLENDMODE_ADDITIVE _TEXTUREBLENDMODE_MULTIPLICATIVE
 			#pragma shader_feature_local __ Adjustments
 			#pragma shader_feature_local __ UseAdditionalTransformation
+			#pragma shader_feature_local __ SecondaryUseAdditionalTransformation
 			#pragma shader_feature_local __ UnscaledTime
 
 			#ifdef SecondaryTexture
@@ -206,7 +211,11 @@ Shader "UIToolkit/UI_MultiPurpose"
 			#ifdef UseAdditionalTransformation
 				float4 _AdditionalTransformation;
 			#endif
-
+			
+			#ifdef SecondaryUseAdditionalTransformation
+				float4 _SecondaryAdditionalTransformation;
+			#endif
+			
 			#ifdef UnscaledTime
 				// x: Time
 				// y: Delta
@@ -270,13 +279,26 @@ Shader "UIToolkit/UI_MultiPurpose"
 				#ifdef CSharpHandledFeatures
 					o.texcoord += _UvOffsetMain;
 					#ifdef SecondaryTexture
-						o.texcoord += _UvOffsetSecondary;
+						o.texcoordSecondary += _UvOffsetSecondary;
 					#endif
 				#endif
 
 				#ifdef UseAdditionalTransformation
+					// Main texture atlas transform
 					o.texcoord *= _AdditionalTransformation.zw;
 					o.texcoord += _AdditionalTransformation.xy;
+				#endif
+				
+				#ifdef SecondaryTexture
+					#ifdef SecondaryUseAdditionalTransformation
+						// Own Atlas-Transformation for Secondary
+						o.texcoordSecondary *= _SecondaryAdditionalTransformation.zw;
+						o.texcoordSecondary += _SecondaryAdditionalTransformation.xy;
+					#elif defined(UseAdditionalTransformation)
+						// fallback: if secoondary not set, use primary,
+						o.texcoordSecondary *= _AdditionalTransformation.zw;
+						o.texcoordSecondary += _AdditionalTransformation.xy;
+					#endif
 				#endif
 
 				#ifdef NoVertexColor

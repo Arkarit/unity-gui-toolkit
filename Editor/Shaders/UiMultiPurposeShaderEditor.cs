@@ -73,6 +73,10 @@ namespace GuiToolkit.Editor
 				{
 					DisplayProperty("_SecondaryTex");
 					DisplayProperty("_SecondaryColor");
+					KeywordToggle("_SecondaryUseAdditionalTransformation", () =>
+					{
+						DisplayProperty("_SecondaryAdditionalTransformation");
+					});
 					var secondaryTextureBlendMode = DisplayProperty("_SecondaryTextureBlendMode");
 					var secondaryTextureBlendModeVal = secondaryTextureBlendMode.floatValue;
 					if (secondaryTextureBlendModeVal == 0)
