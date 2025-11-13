@@ -549,6 +549,7 @@ namespace GuiToolkit
 
 		private void PlayRecursive(float _completeTime, float _completeBackwardsTime, float _completeForwardsDelay, bool _master, bool _backwards, int _loops)
 		{
+			Reset(_backwards);
 			InitAnimateIfNecessary();
 			OnAnimate(_backwards ? 1 : 0);
 
