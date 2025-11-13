@@ -19,7 +19,6 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_autoStartProp;
 		protected SerializedProperty m_autoOnEnableProp;
 		protected SerializedProperty m_setOnStartProp;
-		protected SerializedProperty m_setOnEnableProp;
 		protected SerializedProperty m_numberOfLoopsProp;
 		protected SerializedProperty m_finishInstantOnResolutionChangeProp;
 		protected SerializedProperty m_slaveAnimationsProp;
@@ -47,7 +46,6 @@ namespace GuiToolkit.Editor
 			m_autoStartProp = serializedObject.FindProperty("m_autoStart");
 			m_autoOnEnableProp = serializedObject.FindProperty("m_autoOnEnable");
 			m_setOnStartProp = serializedObject.FindProperty("m_setOnStart");
-			m_setOnEnableProp = serializedObject.FindProperty("m_setOnEnable");
 			m_numberOfLoopsProp = serializedObject.FindProperty("m_numberOfLoops");
 			m_finishInstantOnResolutionChangeProp = serializedObject.FindProperty("m_finishInstantOnResolutionChange");
 			m_slaveAnimationsProp = serializedObject.FindProperty("m_slaveAnimations");
@@ -97,7 +95,6 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_autoOnEnableProp);
 			EditorGUI.BeginDisabledGroup(m_autoStartProp.boolValue || m_autoOnEnableProp.boolValue);
 			EditorGUILayout.PropertyField(m_setOnStartProp);
-			EditorGUILayout.PropertyField(m_setOnEnableProp);
 			EditorGUI.EndDisabledGroup();
 			EditorGUILayout.Space();
 

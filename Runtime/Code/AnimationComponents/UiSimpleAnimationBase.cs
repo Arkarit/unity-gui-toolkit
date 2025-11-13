@@ -43,9 +43,6 @@ namespace GuiToolkit
 
 		[Tooltip("Set the animation beginning values as it becomes visible, but don't start it")]
 		[SerializeField] protected bool m_setOnStart = true;
-		
-		[Tooltip("Set the animation beginning values as it becomes visible, but don't start it")]
-		[SerializeField] protected bool m_setOnEnable = true;
 
 		[Tooltip("Number of loops. -1: infinite loops 0: no loops, >0: Arbitrary number of loops")]
 		[SerializeField] protected int m_numberOfLoops = 0;
@@ -270,13 +267,6 @@ namespace GuiToolkit
 				Log("auto on enable");
 				Reset();
 				Play(m_backwards);
-			}
-			
-			if (m_setOnEnable)
-			{
-				Log("set on enable");
-				InitAnimateIfNecessary();
-				OnAnimate(m_backwards ? 1 : 0);
 			}
 		}
 
