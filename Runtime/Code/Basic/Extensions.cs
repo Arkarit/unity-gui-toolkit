@@ -8,6 +8,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Object = UnityEngine.Object;
 using UnityEngine.Events;
+using System.Text.RegularExpressions;
+
 
 
 #if UNITY_EDITOR
@@ -29,6 +31,8 @@ namespace GuiToolkit
 		}
 
 		public static bool IsQuitting( this Application _ ) => s_isQuitting;
+
+		public static string ToCaps(this string _s) => Regex.Replace(_s, @"(^\w)|(\s\w)", m => m.Value.ToUpper());
 
 		public static string RemoveWhitespace( this string _s )
 		{
