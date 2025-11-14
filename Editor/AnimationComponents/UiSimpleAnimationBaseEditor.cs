@@ -24,6 +24,10 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_slaveAnimationsProp;
 		protected SerializedProperty m_setLoopsForSlavesProp;
 		protected SerializedProperty m_supportViewAnimationsProp;
+// Workaround #95
+protected SerializedProperty m_timingWorkaroundActiveProp;
+protected SerializedProperty m_timingWorkaroundBackwardsBiasProp;
+//
 		
 		private static bool s_drawDefaultInspector;
 
@@ -51,6 +55,12 @@ namespace GuiToolkit.Editor
 			m_slaveAnimationsProp = serializedObject.FindProperty("m_slaveAnimations");
 			m_setLoopsForSlavesProp = serializedObject.FindProperty("m_setLoopsForSlaves");
 			m_supportViewAnimationsProp = serializedObject.FindProperty("m_supportViewAnimations");
+			
+// Workaround #95
+m_timingWorkaroundActiveProp = serializedObject.FindProperty("m_timingWorkaroundActive");
+m_timingWorkaroundBackwardsBiasProp = serializedObject.FindProperty("m_timingWorkaroundBackwardsBias");
+//
+
 #if DEBUG_SIMPLE_ANIMATION && !DEBUG_SIMPLE_ANIMATION_ALL
 			m_debugProp = serializedObject.FindProperty("m_debug");
 #endif
@@ -96,6 +106,16 @@ namespace GuiToolkit.Editor
 			EditorGUI.BeginDisabledGroup(m_autoStartProp.boolValue || m_autoOnEnableProp.boolValue);
 			EditorGUILayout.PropertyField(m_setOnStartProp);
 			EditorGUI.EndDisabledGroup();
+			
+// Workaround #95
+EditorGUILayout.Space();
+GUILayout.Label("Timing workaround:", EditorStyles.boldLabel);
+EditorGUILayout.PropertyField(m_timingWorkaroundActiveProp);
+EditorGUI.BeginDisabledGroup(!m_timingWorkaroundActiveProp.boolValue);
+EditorGUILayout.PropertyField(m_timingWorkaroundBackwardsBiasProp);
+EditorGUI.EndDisabledGroup();
+//
+			
 			EditorGUILayout.Space();
 
 			if (DisplaySlaveAnimations)

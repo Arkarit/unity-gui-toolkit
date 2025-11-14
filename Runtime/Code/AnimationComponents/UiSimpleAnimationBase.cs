@@ -58,6 +58,13 @@ namespace GuiToolkit
 
 		[SerializeField] protected bool m_setLoopsForSlaves = true;
 		[SerializeField] protected bool m_supportViewAnimations = true;
+		
+// Workaround #95
+[Tooltip("Currently, the calculation of the backwards time is broken. It's pretty complicated and I don't have the time to fix it. " + 
+         "If you do: You know where the Repo is :) Activating this workaround sets the backward delay to 0, and lets you enter a correction factor for the backwards time.")]
+[SerializeField] protected bool m_timingWorkaroundActive;
+[SerializeField] protected float m_timingWorkaroundBackwardsBias = 0f;
+//
 
 		protected override bool NeedsOnScreenResolutionChangedCallback => m_finishInstantOnResolutionChange;
 
@@ -320,6 +327,12 @@ namespace GuiToolkit
 			InitAnimateIfNecessary();
 			m_completeTime = m_completeBackwardsTime = 0;
 			CalculateCompleteTimeRecursive(ref m_completeTime, ref m_completeBackwardsTime, 0);
+			
+// Workaround #95		
+if (m_timingWorkaroundActive)
+	m_completeBackwardsTime += m_timingWorkaroundBackwardsBias;
+//
+
 			PlayRecursive(m_completeTime, m_completeBackwardsTime, 0, true, m_backwards, m_setLoopsForSlaves ? m_numberOfLoops : DONT_SET_LOOPS);
 		}
 
@@ -443,6 +456,12 @@ namespace GuiToolkit
 
 			// calculate current time and wait for delay finished
 			m_currentTime += _timeDelta;
+			
+// Workaround #95		
+if (m_timingWorkaroundActive)
+	m_backwardsDelay = 0;
+//
+
 			float delay = m_backwards ? m_backwardsDelay : m_forwardsDelay;
 			delay *= animationSpeedInverse;
 			if (m_currentTime < delay)
