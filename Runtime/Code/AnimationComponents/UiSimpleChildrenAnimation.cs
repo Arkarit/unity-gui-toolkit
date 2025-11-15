@@ -1,11 +1,10 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace GuiToolkit
 {
-	public class UiSimpleChildrenAnimation : UiSimpleAnimationBase
+	public class UiSimpleChildrenAnimation : UiAbstractSimpleChildrenAnimation
 	{
 		[Tooltip("A delay, which is added to every child")]
 		[SerializeField] private float m_baseDelayPerChild = 0;
@@ -15,30 +14,12 @@ namespace GuiToolkit
 		[SerializeField] private float m_baseDurationPerChild = 0;
 		[Tooltip("Duration per child. If left 0, each child sets its duration itself. Negative values reverse the direction of children.")]
 		[SerializeField] private float m_durationPerChild = 0;
-		
-		[SerializeField] private bool m_autoCollectChildren = true;
-		[SerializeField] private List<UiSimpleAnimationBase> m_childAnimations = new();
-		[SerializeField][Optional] private RectTransform m_container;
-		
-		// This event is invoked only if m_autoCollectChildren is false.
-		// You can collect the children in that case and set them via ChildAnimations
-		public readonly CEvent<UiSimpleChildrenAnimation> ShouldCollectChildren = new();
 
-		public List<UiSimpleAnimationBase> ChildAnimations => m_childAnimations;
-		public bool AutoCollectChildren
+		protected override void DoPlay()
 		{
-			get => m_autoCollectChildren;
-			set
-			{
-				if (m_autoCollectChildren == value)
-					return;
-				
-				m_autoCollectChildren = value;
-				if (m_autoCollectChildren)
-					CollectChildren(m_container, false);
-			}
+			Play(IsBackwards);
 		}
-		
+
 		protected override void OnEnable()
 		{
 			// We need to wait for one frame for the children to also become enabled
@@ -94,16 +75,7 @@ namespace GuiToolkit
 			base.Play(_backwards, _onFinishOnce);
 		}
 
-		public void CollectChildren(Transform tf = null, bool _includeInactive = true)
-		{
-			if (tf == null)
-				tf = transform;
-			
-			tf.GetComponentsInDirectChildren(m_childAnimations, _includeInactive);
-			InitChildren();
-		}
-
-		public void InitChildren()
+		protected override void InitChildren()
 		{
 			float delay = 0;
 			if (m_delayPerChild < 0)
@@ -127,30 +99,6 @@ namespace GuiToolkit
 				delay += m_delayPerChild;
 				duration += m_durationPerChild;
 			}
-		}
-
-		public override void Reset(bool _toEnd = false)
-		{
-			CollectChildrenOrInvokeEvent();
-			base.Reset(_toEnd);
-		}
-		
-		private void CollectChildrenOrInvokeEvent()
-		{
-			if (m_autoCollectChildren)
-			{
-				CollectChildren(m_container, false);
-				return;
-			}
-			
-			ShouldCollectChildren.Invoke(this);
-			InitChildren();
-		}
-		
-		private void OnValidate()
-		{
-			m_slaveAnimations.Clear();
-			CollectChildrenOrInvokeEvent();
 		}
 	}
 }
