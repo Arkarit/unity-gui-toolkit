@@ -457,6 +457,14 @@ namespace GuiToolkit
 			result.transform.SetParent(transform, false);
 			return result;
 		}
+		
+		public T CreateAndShowView<T>(T _template, Action<T> _initCode = null, bool _instant = false, Action _onFinish = null) where T : UiView
+		{
+			T result = CreateView(_template);
+			_initCode?.Invoke(result);
+			result.Show(_instant, _onFinish);
+			return result;
+		}
 		#endregion
 
 		#region "General"
