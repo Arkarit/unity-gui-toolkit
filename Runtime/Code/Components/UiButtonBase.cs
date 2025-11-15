@@ -88,9 +88,9 @@ namespace GuiToolkit
 
 		protected virtual bool ForwardClick() => false;
 
-		protected bool EvaluateButton(bool _playBackwardsAnimation)
+		protected virtual bool EvaluateButton(bool _playBackwardsAnimation)
 		{
-			if (!EnabledInHierarchy)
+			if (!EnabledInHierarchy || !enabled || !gameObject.activeInHierarchy)
 				return false;
 
 			if (m_forwardButton != null)

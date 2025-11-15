@@ -35,6 +35,14 @@ namespace GuiToolkit
 			m_button.interactable = _enabled;
 		}
 
+		protected override bool EvaluateButton(bool _playBackwardsAnimation)
+		{
+			if (!m_button.enabled || !m_button.gameObject.activeInHierarchy || !m_button.interactable)
+				return false;
+			
+			return base.EvaluateButton(_playBackwardsAnimation);
+		}
+
 		protected override void Init()
 		{
 			base.Init();
