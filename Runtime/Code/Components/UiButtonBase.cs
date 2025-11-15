@@ -7,18 +7,20 @@ namespace GuiToolkit
 {
 	public abstract class UiButtonBase : UiTextContainer, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 	{
-		[Tooltip("Simple animation (optional)")]
+		[Tooltip("Simple animation")]
 		[SerializeField][Optional] protected UiSimpleAnimation m_simpleAnimation;
-		[Tooltip("Audio source (optional)")]
+		[Tooltip("Audio source")]
 		[SerializeField][Optional] protected AudioSource m_audioSource;
 		[Tooltip("Button Image. Mandatory if you want to use the 'Color' property or the 'Enabled' property.")]
 		[SerializeField] protected UiImage m_uiImage;
 
 		[FormerlySerializedAs("m_optionalAdditionalMouseOver")]
-		[Tooltip("Additional mouse over graphic (optional)")]
+		[Tooltip("Additional mouse over graphic")]
 		[SerializeField][Optional] protected Graphic m_additionalMouseOver;
-		[Tooltip("Mouse over fade duration (optional)")]
+		[Tooltip("Mouse over fade duration")]
 		[SerializeField][Optional] protected float m_additionalMouseOverDuration = 0.2f;
+		[Tooltip("Forward button. Forwards the click to another button. Animations etc. for this button are not played in that case")]
+		[SerializeField][Optional] protected UiButtonBase m_forwardButton;
 
 		public override bool IsEnableableInHierarchy => true;
 
@@ -79,18 +81,36 @@ namespace GuiToolkit
 				m_simpleAnimation.Stop(false);
 		}
 
-		public virtual void OnPointerDown( PointerEventData eventData )
+		public virtual void OnPointerDown( PointerEventData _ )
 		{
-			if (!EnabledInHierarchy)
-				return;
-
-			if (m_simpleAnimation != null)
-				m_simpleAnimation.Play();
-			if (m_audioSource != null)
-				m_audioSource.Play();
+			EvaluateButton(false);
 		}
 
-		public virtual void OnPointerUp( PointerEventData eventData )
+		protected virtual bool ForwardClick() => false;
+
+		protected bool EvaluateButton(bool _playBackwardsAnimation)
+		{
+			if (!EnabledInHierarchy)
+				return false;
+
+			if (m_forwardButton != null)
+				return m_forwardButton.ForwardClick();
+			
+			if (m_simpleAnimation != null)
+			{
+				if (_playBackwardsAnimation)
+					m_simpleAnimation.Play(false, () => m_simpleAnimation.Play(true));
+				else
+					m_simpleAnimation.Play();
+			}
+			
+			if (m_audioSource != null)
+				m_audioSource.Play();
+			
+			return true;
+		}
+
+		public virtual void OnPointerUp( PointerEventData _ )
 		{
 			if (!EnabledInHierarchy)
 				return;

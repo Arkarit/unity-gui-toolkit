@@ -42,5 +42,13 @@ namespace GuiToolkit
 			m_button = GetComponent<Button>();
 		}
 
+		protected override bool ForwardClick()
+		{
+			if (!EvaluateButton(true))
+				return false;
+			
+			m_button.onClick.Invoke();
+			return true;
+		}
 	}
 }
