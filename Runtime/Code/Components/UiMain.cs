@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GuiToolkit.Exceptions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
@@ -53,6 +54,9 @@ namespace GuiToolkit
 		[Header("Full Screen Dialogs")]
 		[Tooltip("Objects tagged with these tags are hidden when a fullscreen dialog is open. This is especially useful for main cameras. Note that the AdditionalTags component is NOT supported.")]
 		[SerializeField] protected TagField[] m_tagsToDisableWhenFullScreenView;
+		
+		[Header("Additional Views")]
+		[SerializeField] private UiView[] m_additionalViews = Array.Empty<UiView>();
 
 		private readonly List<GameObject> m_hiddenTaggedGameObjects = new ();
 		private readonly Dictionary<string, UiView> m_scenes = new();
@@ -451,14 +455,29 @@ namespace GuiToolkit
 			requester.Requester(_onEvent, null, _title);
 		}
 
-		public T CreateView<T>(T _template) where T : UiView
+		public T CreateView<T>(T _template = null) where T : UiView
 		{
+			if (_template == null)
+			{
+				foreach (var view in m_additionalViews)
+				{
+					if (view is T)
+					{
+						_template = (T) view;
+						break;
+					}
+					
+					if (_template == null)
+						throw new UiViewNotFoundException(typeof(T));
+				}
+			}
+			
 			T result = _template.PoolInstantiate();
 			result.transform.SetParent(transform, false);
 			return result;
 		}
 		
-		public T CreateAndShowView<T>(T _template, Action<T> _initCode = null, bool _instant = false, Action _onFinish = null) where T : UiView
+		public T CreateAndShowView<T>(T _template = null, Action<T> _initCode = null, bool _instant = false, Action _onFinish = null) where T : UiView
 		{
 			T result = CreateView(_template);
 			_initCode?.Invoke(result);
