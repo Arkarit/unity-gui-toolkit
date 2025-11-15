@@ -461,15 +461,15 @@ namespace GuiToolkit
 			{
 				foreach (var view in m_additionalViews)
 				{
-					if (view is T)
+					if (view is T uiView)
 					{
-						_template = (T) view;
+						_template = uiView;
 						break;
 					}
-					
-					if (_template == null)
-						throw new UiViewNotFoundException(typeof(T));
 				}
+					
+				if (_template == null)
+					throw new UiViewNotFoundException(typeof(T));
 			}
 			
 			T result = _template.PoolInstantiate();
