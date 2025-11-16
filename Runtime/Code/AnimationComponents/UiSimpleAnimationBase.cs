@@ -107,6 +107,16 @@ namespace GuiToolkit
 			}
 		}
 		
+		public float Speed
+		{
+			get => m_animationSpeed;
+			set
+			{
+				Reset(); 
+				m_animationSpeed = value;
+			}
+		}
+		
 		public UiSimpleAnimationBase BackwardsAnimation
 		{
 			get => m_backwardsAnimation; 
@@ -131,6 +141,14 @@ namespace GuiToolkit
 				Reset();
 			
 			m_delay = _delay;
+		}
+		
+		public void SetSpeed(float _speed, bool _reset)
+		{
+			if (_reset)
+				Reset();
+			
+			m_animationSpeed = _speed;
 		}
 		
 		public void SetBackwardsAnimation(UiSimpleAnimationBase _backwardsAnimation, bool _reset)
