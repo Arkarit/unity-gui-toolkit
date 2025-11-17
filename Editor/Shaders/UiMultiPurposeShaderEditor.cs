@@ -55,6 +55,7 @@ namespace GuiToolkit.Editor
 				KeywordToggle("_UVRotation", () =>
 				{
 					DisplayProperty("_RotationSpeed");
+					DisplayProperty("_ManualRotationPhaseOffset");
 				});
 
 				SmallSpace();

@@ -41,7 +41,8 @@ Shader "UIToolkit/UI_MultiPurpose"
 
 		[Toggle(UVRotation)] _UVRotation("UV Rotation", Float) = 0
 		_RotationSpeed("Rotation Speed", Range(-10,10)) = 1
-
+		_ManualRotationPhaseOffset("Manual Rotation Phase Offset", Range(0,100)) = 0
+		
 		[Toggle(Scrolling)] _Scrolling("Scrolling", Float) = 0
 		_ScrollingSpeedU("Speed U", Range(-1,1)) = .2
 		_ScrollingSpeedV("Speed V", Range(-1,1)) = .2
@@ -175,6 +176,7 @@ Shader "UIToolkit/UI_MultiPurpose"
 
 			#ifdef UVRotation
 				float _RotationSpeed;
+				float _ManualRotationPhaseOffset;
 			#endif
 
 			#ifdef Adjustments
@@ -184,7 +186,8 @@ Shader "UIToolkit/UI_MultiPurpose"
 
 			#ifdef SecondaryTexture
 				sampler2D _SecondaryTex;
-				float4 _SecondaryTex_ST;
+				// Fixme: This needs to be set from outside to make atlasing for secondary work
+				float4 _SecondaryTex_ST = float4(1,1,0,0);
 				half4 _SecondaryColor;
 				half _SecondaryTextureBlendModeSeparateAlpha;
 			#endif
@@ -258,12 +261,14 @@ Shader "UIToolkit/UI_MultiPurpose"
 				#endif
 
 				#ifdef UVRotation
-					float sinX = sin(_RotationSpeed * GetTime());
-					float cosX = cos(_RotationSpeed * GetTime());
-					float sinY = sinX;
-					float2x2 rotationMatrix = float2x2( cosX, -sinX, sinY, cosX);
-					float2 tcRot = o.texcoord.xy - float2(.5,.5);
-					o.texcoord.xy = mul(tcRot, rotationMatrix) + float2(.5,.5);
+				    // Time + per-position phase
+				    float angle = _RotationSpeed * (GetTime() + _ManualRotationPhaseOffset);
+				
+				    float s = sin(angle);
+				    float c = cos(angle);
+				    float2x2 rotationMatrix = float2x2(c, -s, s, c);
+				    float2 tcRot = o.texcoord.xy - float2(0.5, 0.5);
+				    o.texcoord.xy = mul(tcRot, rotationMatrix) + float2(0.5, 0.5);
 				#endif
 
 				#ifdef SecondaryTexture
