@@ -38,8 +38,8 @@ namespace GuiToolkit.Editor
 		[PathField(true)]
 		[SerializeField] private PathField m_outputFolder = new();
 
-
 		private const TextureFormat kTexFormat = TextureFormat.RGBA32;
+		private bool m_hasAlpha;
 
 		[MenuItem(StringConstants.GRADIENT_GENERATOR)]
 		public static void Open()
@@ -98,6 +98,8 @@ namespace GuiToolkit.Editor
 
 		private void Generate()
 		{
+			m_hasAlpha = m_colorA.a < 1 || m_colorB.a < 1;
+			
 			string folder = GetOutputFolderPath();
 			if (string.IsNullOrEmpty(folder))
 			{
@@ -112,7 +114,7 @@ namespace GuiToolkit.Editor
 				AssetDatabase.Refresh();
 			}
 
-			string endHex = ToHex6(m_colorB);
+			string endHex = ToHex6or8(m_colorB);
 
 			int created = 0;
 
@@ -121,7 +123,7 @@ namespace GuiToolkit.Editor
 				// Keep the last variation below pure B->B to match the "eeeeee->ffffff" pattern.
 				float t = (float)i / (float)m_gradientCount; // last < 1.0
 				Color start = Color.Lerp(m_colorA, m_colorB, t);
-				string startHex = ToHex6(start);
+				string startHex = ToHex6or8(start);
 
 				if (Has(m_directions, GradientDirections.Down))
 				{
@@ -178,7 +180,8 @@ namespace GuiToolkit.Editor
 				for (int x = 0; x < width; x++)
 				{
 					float t = (float)x / (width - 1);
-					if (_orientation == Orientation.HorizontalLeft) t = 1f - t;
+					if (_orientation == Orientation.HorizontalLeft)
+						t = 1f - t;
 					Color c = Color.Lerp(_a, _b, t);
 					tex.SetPixel(x, 0, c);
 				}
@@ -189,7 +192,8 @@ namespace GuiToolkit.Editor
 				for (int y = 0; y < height; y++)
 				{
 					float t = (float)y / (height - 1);
-					if (_orientation == Orientation.VerticalUp) t = 1f - t;
+					if (_orientation == Orientation.VerticalUp)
+						t = 1f - t;
 					Color c = Color.Lerp(_a, _b, t);
 					tex.SetPixel(0, y, c);
 				}
@@ -211,7 +215,8 @@ namespace GuiToolkit.Editor
 		{
 			AssetDatabase.ImportAsset(_assetPath, ImportAssetOptions.ForceUpdate);
 			TextureImporter importer = (TextureImporter)AssetImporter.GetAtPath(_assetPath);
-			if (importer == null) return;
+			if (importer == null)
+				return;
 
 			bool changed = false;
 			if (importer.textureType != TextureImporterType.Sprite)
@@ -243,12 +248,16 @@ namespace GuiToolkit.Editor
 			return (_mask & _flag) == _flag;
 		}
 
-		private static string ToHex6( Color _c )
+		private string ToHex6or8( Color _c )
 		{
 			int r = Mathf.Clamp(Mathf.RoundToInt(_c.r * 255f), 0, 255);
 			int g = Mathf.Clamp(Mathf.RoundToInt(_c.g * 255f), 0, 255);
 			int b = Mathf.Clamp(Mathf.RoundToInt(_c.b * 255f), 0, 255);
-			return r.ToString("x2") + g.ToString("x2") + b.ToString("x2");
+			if (!m_hasAlpha)
+				return r.ToString("x2") + g.ToString("x2") + b.ToString("x2");
+			
+			int a = Mathf.Clamp(Mathf.RoundToInt(_c.a * 255f), 0, 255);
+			return r.ToString("x2") + g.ToString("x2") + b.ToString("x2") + a.ToString("x2");
 		}
 
 		private static string SanitizeFileName( string _name )
