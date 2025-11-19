@@ -423,34 +423,17 @@ namespace GuiToolkit
 	[CustomPropertyDrawer(typeof(OptionalAttribute))]
 	public sealed class OptionalDrawer : PropertyDrawer
 	{
-		public override float GetPropertyHeight( SerializedProperty _property, GUIContent _label )
-		{
-			float h = EditorGUI.GetPropertyHeight(_property, _label, true);
-			if (_property.propertyType == SerializedPropertyType.ObjectReference &&
-				_property.objectReferenceValue == null)
-			{
-				h += EditorGUIUtility.singleLineHeight + 4f;
-			}
-			return h;
-		}
-
 		public override void OnGUI( Rect _position, SerializedProperty _property, GUIContent _label )
 		{
 			EditorGUI.BeginProperty(_position, _label, _property);
 
-			var attr = (OptionalAttribute)attribute;
-			Rect fieldRect = _position;
-
-			if (_property.propertyType == SerializedPropertyType.ObjectReference &&
-				_property.objectReferenceValue == null)
-			{
-				var helpRect = new Rect(_position.x, _position.y, _position.width, EditorGUIUtility.singleLineHeight);
-				string ctx = string.IsNullOrEmpty(attr.ContextNameHint) ? "optional" : attr.ContextNameHint;
-				EditorGUI.HelpBox(helpRect, $"Field '{_label.text}' is optional (currently not assigned, {ctx}).", MessageType.Info);
-				fieldRect.y += helpRect.height + 2f;
-			}
-
-			EditorGUI.PropertyField(fieldRect, _property, _label, true);
+			Vector2 labelSize = EditorStyles.label.CalcSize(_label);
+			EditorGUI.LabelField(_position, _label);
+			var optionalRect = _position;
+			optionalRect.x += labelSize.x;
+			optionalRect.width -= labelSize.x;
+			EditorGUI.LabelField(optionalRect, new GUIContent("(optional)"), EditorStyles.miniLabel);
+			EditorGUI.PropertyField(_position, _property, new GUIContent(" "), true);
 
 			EditorGUI.EndProperty();
 		}
