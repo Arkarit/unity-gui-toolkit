@@ -139,12 +139,22 @@ namespace GuiToolkit
 
 		private void OnEnable()
 		{
+#if UNITY_EDITOR
+			EditorBuildSettings.sceneListChanged += InitScenesByName;
+#endif
 			InitScenesByName();
 			if (m_uiMainStyleConfig != null)
 				UiMainStyleConfig.Instance = m_uiMainStyleConfig;
 			if (m_uiAspectRatioDependentStyleConfig != null)
 				UiAspectRatioDependentStyleConfig.Instance = m_uiAspectRatioDependentStyleConfig;
 		}
+		
+#if UNITY_EDITOR
+		private void OnDisable()
+		{
+			EditorBuildSettings.sceneListChanged -= InitScenesByName;
+		}
+#endif
 
 		public UiMainStyleConfig UiMainStyleConfig => m_uiMainStyleConfig;
 		public UiAspectRatioDependentStyleConfig UiAspectRatioDependentStyleConfig => m_uiAspectRatioDependentStyleConfig;
@@ -173,10 +183,10 @@ namespace GuiToolkit
 		private void InitScenesByName()
 		{
 			m_scenesByName.Clear();
-
+			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
 			if (m_sceneReferences == null)
 				return;
-
+			
 			foreach (var sceneReference in m_sceneReferences)
 			{
 				string name = Path.GetFileNameWithoutExtension(sceneReference.ScenePath);

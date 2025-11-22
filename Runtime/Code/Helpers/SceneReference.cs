@@ -51,9 +51,9 @@ namespace GuiToolkit
 				// In editor we always use the asset's path
 				return GetScenePathFromAsset();
 #else
-            // At runtime we rely on the stored path value which we assume was serialized correctly at build time.
-            // See OnBeforeSerialize and OnAfterDeserialize
-            return m_scenePath;
+				// At runtime we rely on the stored path value which we assume was serialized correctly at build time.
+				// See OnBeforeSerialize and OnAfterDeserialize
+				return m_scenePath;
 #endif
 			}
 			set
@@ -107,13 +107,12 @@ namespace GuiToolkit
 		private void HandleBeforeSerialize()
 		{
 			// Asset is invalid but have Path to try and recover from
-			if (IsValidSceneAsset == false && string.IsNullOrEmpty(m_scenePath) == false)
+			if (!IsValidSceneAsset && !string.IsNullOrEmpty(m_scenePath))
 			{
+				UiLog.LogError($"Scene '{m_scenePath}' is not valid, skipping!");
 				m_sceneAsset = GetSceneAssetFromPath();
 				if (m_sceneAsset == null)
 					m_scenePath = string.Empty;
-
-				UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
 			}
 			// Asset takes precendence and overwrites Path
 			else
@@ -130,15 +129,12 @@ namespace GuiToolkit
 				return;
 
 			// Asset is invalid but have path to try and recover from
-			if (string.IsNullOrEmpty(m_scenePath) == false)
+			if (!string.IsNullOrEmpty(m_scenePath))
 			{
 				m_sceneAsset = GetSceneAssetFromPath();
 				// No asset found, path was invalid. Make sure we don't carry over the old invalid path
 				if (m_sceneAsset == null)
 					m_scenePath = string.Empty;
-
-				if (Application.isPlaying == false)
-					UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
 			}
 		}
 #endif
