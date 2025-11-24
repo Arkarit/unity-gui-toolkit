@@ -187,7 +187,27 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 			// Always refresh scene references list, but only in editor mode
 			if (!Application.isPlaying)
-				m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
+			{
+				var sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
+				bool shouldStore = sceneReferences.Length != m_sceneReferences.Length;
+				if (!shouldStore)
+				{
+					for (int i = 0; i < sceneReferences.Length; i++) 
+					{
+						if (sceneReferences[i] != m_sceneReferences[i])
+						{
+							shouldStore = true;
+							break;
+						}
+					}
+				}
+				
+				if (shouldStore)
+				{
+					m_sceneReferences = sceneReferences;
+					EditorUtility.SetDirty(this);
+				}
+			}
 #endif
 			
 			foreach (var sceneReference in m_sceneReferences)
