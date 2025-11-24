@@ -35,6 +35,7 @@ namespace GuiToolkit
 			public string Text;
 			public UiButton Prefab;
 			public UnityAction OnClick;
+			public bool CloseRequester = true;
 		}
 
 		public class Options
@@ -59,6 +60,7 @@ namespace GuiToolkit
 		private UnityAction m_closeButtonAction;
 		private RequesterHandle m_requesterHandle;
 		private bool m_consumed;
+		private Options m_options;
 
 		public override bool AutoDestroyOnHide => true;
 		public override bool Poolable => true;
@@ -168,10 +170,13 @@ namespace GuiToolkit
 			m_listeners.Clear();
 			OnClickCatcher = null;
 			m_closeButtonAction = null;
+			m_options = null;
 		}
 
 		protected virtual void EvaluateOptions( Options _options )
 		{
+			m_options = _options;
+			
 			bool closable =
 				_options.AllowOutsideTap
 				|| (_options.ShowCloseButton && m_optionalCloseButton != null)
@@ -237,12 +242,17 @@ namespace GuiToolkit
 
 		private void HandleButtonClick( int _idx )
 		{
+			bool buttonClosesRequester = m_options.ButtonInfos[_idx].CloseRequester;
 			Debug.Assert(_idx < m_listeners.Count && _idx >= -1);
-			if (m_consumed)
-				return;
+			
+			if (buttonClosesRequester)
+			{
+				if (m_consumed)
+					return;
 
-			m_consumed = true;
-			SetAllButtonsInteractability(false);
+				m_consumed = true;
+				SetAllButtonsInteractability(false);
+			}
 
 			try
 			{
@@ -262,8 +272,11 @@ namespace GuiToolkit
 			}
 			finally
 			{
-				m_requesterHandle.MarkButton(_idx);
-				Hide(false, () => m_requesterHandle.MarkClosed());
+				if (buttonClosesRequester)
+				{
+					m_requesterHandle.MarkButton(_idx);
+					Hide(false, () => m_requesterHandle.MarkClosed());
+				}
 			}
 		}
 
