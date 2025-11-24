@@ -30,12 +30,21 @@ namespace GuiToolkit
 			}
 		}
 
+		public enum EInvalidButtonsHandling
+		{
+			None,
+			Hide,
+			SetNonActive
+		}
+		
 		public class ButtonInfo
 		{
 			public string Text;
 			public UiButton Prefab;
 			public UnityAction OnClick;
 			public bool CloseRequester = true;
+			public bool IsValid = true;
+			public EInvalidButtonsHandling InvalidButtonsHandling = EInvalidButtonsHandling.SetNonActive;
 		}
 
 		public class Options
@@ -200,6 +209,23 @@ namespace GuiToolkit
 				button.transform.SetParent(m_buttonContainer.transform, false);
 				button.transform.localScale = Vector3.one * m_buttonScale;
 
+				if (!bi.IsValid)
+				{
+					switch (bi.InvalidButtonsHandling)
+					{
+						case EInvalidButtonsHandling.None:
+							break;
+						case EInvalidButtonsHandling.Hide:
+							button.gameObject.SetActive(false);
+							break;
+						case EInvalidButtonsHandling.SetNonActive:
+							button.Button.interactable = false;
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
+				}
+				
 				m_buttons.Add(button);
 				m_listeners.Add(bi.OnClick);
 
