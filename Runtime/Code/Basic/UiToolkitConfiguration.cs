@@ -183,9 +183,12 @@ namespace GuiToolkit
 		private void InitScenesByName()
 		{
 			m_scenesByName.Clear();
-			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
-			if (m_sceneReferences == null)
-				return;
+
+#if UNITY_EDITOR
+			// Always refresh scene references list, but only in editor mode
+			if (!Application.isPlaying)
+				m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
+#endif
 			
 			foreach (var sceneReference in m_sceneReferences)
 			{
