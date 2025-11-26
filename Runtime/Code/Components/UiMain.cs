@@ -339,7 +339,7 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public void OkRequester
+		public UiRequester OkRequester
 		( 
 			string _title, 
 			string _text, 
@@ -351,7 +351,7 @@ namespace GuiToolkit
 		{
 			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
-			requester.OkRequester(_title, _text, _onOk, _okText, _allowOutsideTap, _modifyOptions);
+			return requester.OkRequester(_title, _text, _onOk, _okText, _allowOutsideTap, _modifyOptions);
 		}
 		
 		public async Task OkRequesterBlocking
@@ -369,7 +369,7 @@ namespace GuiToolkit
 			await requester.OkRequesterBlocking(_title, _text, _okText, _allowOutsideTap, _waitForClose, _modifyOptions);
 		}
 
-		public void YesNoRequester
+		public UiRequester YesNoRequester
 		( 
 			string _title, 
 			string _text, 
@@ -383,10 +383,10 @@ namespace GuiToolkit
 		{
 			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
-			requester.YesNoRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText, _modifyOptions);
+			return requester.YesNoRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText, _modifyOptions);
 		}
 		
-		public void TwoOptionsRequester
+		public UiRequester TwoOptionsRequester
 		( 
 			string _title, 
 			string _text, 
@@ -400,7 +400,7 @@ namespace GuiToolkit
 		{
 			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
-			requester.TwoOptionsRequester(_title, _text, _allowOutsideTap, _option1Text, _option2Text, _onOption1, _onOption2, _modifyOptions);
+			return requester.TwoOptionsRequester(_title, _text, _allowOutsideTap, _option1Text, _option2Text, _onOption1, _onOption2, _modifyOptions);
 		}
 		
 		public async Task<bool> YesNoRequesterBlocking
@@ -419,7 +419,7 @@ namespace GuiToolkit
 			return await requester.YesNoRequesterBlocking(_title, _text, _allowOutsideTap, _waitForClose, _yesText, _noText, _modifyOptions);
 		}
 
-		public void OkCancelInputRequester
+		public UiRequester OkCancelInputRequester
 		( 
 			string _title, 
 			string _text, 
@@ -435,7 +435,7 @@ namespace GuiToolkit
 		{
 			UiRequester requester = CreateView(m_requesterPrefab);
 			Debug.Assert(requester);
-			requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _placeholderText, _inputText, _yesText, _noText, _modifyOptions);
+			return requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _placeholderText, _inputText, _yesText, _noText, _modifyOptions);
 		}
 
 		// Blocking: returns input on OK, null on cancel/dismiss

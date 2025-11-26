@@ -25,14 +25,15 @@ namespace GuiToolkit
 
 		public void Requester( Options _options ) => DoDialog(_options, null);
 
-		public void Requester( string _title, string _text, Options _options, Func<Options, Options> _modifyOptions )
+		public UiRequester Requester( string _title, string _text, Options _options, Func<Options, Options> _modifyOptions )
 		{
 			_options.Title = _title;
 			_options.Text = _text;
-			DoDialog(_options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
+			var handle = DoDialog(_options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
+			return (UiRequester) handle.Requester;
 		}
 
-		public void OkRequester
+		public UiRequester OkRequester
 		(
 			string _title,
 			string _text,
@@ -58,7 +59,7 @@ namespace GuiToolkit
 				Text = _text,
 			};
 
-			Requester(_title, _text, options, _modifyOptions);
+			return Requester(_title, _text, options, _modifyOptions);
 		}
 
 		// Waits until dialog is done; no result returned.
@@ -95,7 +96,7 @@ namespace GuiToolkit
 				await DoDialogAwaitClickAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
 		}
 
-		public void YesNoRequester
+		public UiRequester YesNoRequester
 		(
 			string _title,
 			string _text,
@@ -130,10 +131,10 @@ namespace GuiToolkit
 				Text = _text,
 			};
 
-			Requester(_title, _text, options, _modifyOptions);
+			return Requester(_title, _text, options, _modifyOptions);
 		}
 
-		public void TwoOptionsRequester
+		public UiRequester TwoOptionsRequester
 		(
 			string _title,
 			string _text,
@@ -168,7 +169,7 @@ namespace GuiToolkit
 				Text = _text,
 			};
 
-			Requester(_title, _text, options, _modifyOptions);
+			return Requester(_title, _text, options, _modifyOptions);
 		}
 
 		public async Task<bool> YesNoRequesterBlocking
@@ -218,7 +219,7 @@ namespace GuiToolkit
 		
 		private bool IsOk(int _idx) => _idx == (m_cancelButtonsLeftSide ? 1 : 0); 
 
-		public void OkCancelInputRequester
+		public UiRequester OkCancelInputRequester
 		(
 			string _title,
 			string _text,
@@ -257,7 +258,7 @@ namespace GuiToolkit
 				InputText = _inputText,
 			};
 			
-			Requester(_title, _text, options, _modifyOptions);
+			return Requester(_title, _text, options, _modifyOptions);
 		}
 
 		// Blocking: returns input on OK, null on cancel/dismiss

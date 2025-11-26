@@ -14,9 +14,12 @@ namespace GuiToolkit
 		{
 			private readonly TaskCompletionSource<int> m_buttonTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
 			private readonly TaskCompletionSource<bool> m_closedTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+			private UiRequesterBase m_requester;
 
 			public Task<int> Clicked => m_buttonTcs.Task;
 			public Task Closed => m_closedTcs.Task;
+			
+			public UiRequesterBase Requester => m_requester;
 
 			// -1: X Button 0...n Buttons
 			public void MarkButton( int _buttonIdx )
@@ -27,6 +30,11 @@ namespace GuiToolkit
 			public void MarkClosed()
 			{
 				m_closedTcs.TrySetResult(true);
+			}
+			
+			public RequesterHandle(UiRequesterBase _uiRequester)
+			{
+				m_requester = _uiRequester;
 			}
 		}
 
@@ -174,7 +182,7 @@ namespace GuiToolkit
 				m_requesterHandle.MarkClosed();
 			}
 
-			m_requesterHandle = new RequesterHandle();
+			m_requesterHandle = new RequesterHandle(this);
 			m_consumed = false;
 			SetAllButtonsInteractability(true);
 
