@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using GuiToolkit.UiStateSystem;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -23,14 +24,16 @@ namespace GuiToolkit
 		[SerializeField] protected TextMeshProUGUI m_text;
 		[SerializeField] protected TMP_InputField m_inputField;
 
-		public void Requester( Options _options ) => DoDialog(_options, null);
+		public void Requester( Options _options ) => DoDialog(_options);
 
 		public UiRequester Requester( string _title, string _text, Options _options, Func<Options, Options> _modifyOptions )
 		{
 			_options.Title = _title;
 			_options.Text = _text;
-			var handle = DoDialog(_options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
-			return (UiRequester) handle.Requester;
+			ModifyOptionsIfNecessary(ref _options, _modifyOptions);
+			
+			DoDialog(_options);
+			return this;
 		}
 
 		public UiRequester OkRequester
@@ -90,10 +93,12 @@ namespace GuiToolkit
 				Title = _title
 			};
 
+			ModifyOptionsIfNecessary(ref options, _modifyOptions);
+			
 			if (_waitForClose)
-				await DoDialogAwaitCloseAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
+				await DoDialogAwaitCloseAsync(options);
 			else
-				await DoDialogAwaitClickAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
+				await DoDialogAwaitClickAsync(options);
 		}
 
 		public UiRequester YesNoRequester
@@ -207,12 +212,14 @@ namespace GuiToolkit
 				Title = _title
 			};
 
+			ModifyOptionsIfNecessary(ref options, _modifyOptions);
+
 			int idx;
 
 			if (_waitForClose)
-				idx = await DoDialogAwaitCloseAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
+				idx = await DoDialogAwaitCloseAsync(options);
 			else
-				idx = await DoDialogAwaitClickAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
+				idx = await DoDialogAwaitClickAsync(options);
 
 			return IsOk(idx);
 		}
@@ -301,11 +308,13 @@ namespace GuiToolkit
 				Title = _title
 			};
 
+			ModifyOptionsIfNecessary(ref options, _modifyOptions);
+
 			int idx;
 			if (_waitForClose)
-				idx = await DoDialogAwaitCloseAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
+				idx = await DoDialogAwaitCloseAsync(options);
 			else
-				idx = await DoDialogAwaitClickAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
+				idx = await DoDialogAwaitClickAsync(options);
 
 			if (IsOk(idx))
 				return GetInputText();
@@ -317,12 +326,11 @@ namespace GuiToolkit
 
 		public DateTime GetDateTime() => m_dateTimePanel.SelectedDateTime;
 
-		protected override void EvaluateOptions( UiRequesterBase.Options _options, Func<UiRequesterBase.Options, UiRequesterBase.Options> _modifyOptions )
-		{
-			base.EvaluateOptions(_options, _modifyOptions);
-
-			Options options = (Options)_options;
-
+		protected override void EvaluateOptions( UiRequesterBase.Options _options)
+		{		
+			base.EvaluateOptions(_options);
+			var options = (Options) _options;
+			
 			bool hasText = !string.IsNullOrEmpty(options.Text);
 			bool hasInput = !string.IsNullOrEmpty(options.PlaceholderText);
 			bool hasDateTime = options.DateTimeOptions != null;
@@ -351,6 +359,12 @@ namespace GuiToolkit
 			m_dateTimePanel.gameObject.SetActive(hasDateTime);
 			if (hasDateTime)
 				m_dateTimePanel.SetOptions(options.DateTimeOptions);
+		}
+		
+		private static void ModifyOptionsIfNecessary(ref Options _options, Func<Options, Options> _modifyOptions)
+		{
+			if (_modifyOptions != null )
+				_options = _modifyOptions(_options);
 		}
 	}
 }

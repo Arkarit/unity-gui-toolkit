@@ -14,13 +14,10 @@ namespace GuiToolkit
 		{
 			private readonly TaskCompletionSource<int> m_buttonTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
 			private readonly TaskCompletionSource<bool> m_closedTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
-			private UiRequesterBase m_requester;
 
 			public Task<int> Clicked => m_buttonTcs.Task;
 			public Task Closed => m_closedTcs.Task;
 			
-			public UiRequesterBase Requester => m_requester;
-
 			// -1: X Button 0...n Buttons
 			public void MarkButton( int _buttonIdx )
 			{
@@ -30,11 +27,6 @@ namespace GuiToolkit
 			public void MarkClosed()
 			{
 				m_closedTcs.TrySetResult(true);
-			}
-			
-			public RequesterHandle(UiRequesterBase _uiRequester)
-			{
-				m_requester = _uiRequester;
 			}
 		}
 
@@ -118,13 +110,13 @@ namespace GuiToolkit
 		public static ButtonInfo[] CreateButtonInfos( params (string text, UnityAction onClick)[] _buttons ) =>
 			CreateButtonInfos(true, _buttons);
 
-		protected RequesterHandle DoDialog( Options _options, Func<Options, Options> _modifyOptions)
+		protected RequesterHandle DoDialog( Options _options)
 		{
 			if (!string.IsNullOrEmpty(_options.Title))
 				m_title.text = _options.Title;
 
 			Clear();
-			EvaluateOptions(_options, _modifyOptions);
+			EvaluateOptions(_options);
 			UiMain.Instance.SortViews();
 			if (m_options.UseParent)
 				transform.SetParent(m_options.Parent);
@@ -141,17 +133,17 @@ namespace GuiToolkit
 		}
 
 		// Waits until a button is clicked; returns button index (-1 = dismissed).
-		protected Task<int> DoDialogAwaitClickAsync( Options _options, Func<Options, Options> _modifyOptions )
+		protected Task<int> DoDialogAwaitClickAsync( Options _options )
 		{
-			RequesterHandle handle = DoDialog(_options, _modifyOptions);
+			RequesterHandle handle = DoDialog(_options);
 			return handle.Clicked;
 		}
 
 		// Waits until the dialog is fully closed (outro finished),
 		// but still returns which button was clicked (-1 = dismissed).
-		protected async Task<int> DoDialogAwaitCloseAsync( Options _options, Func<Options, Options> _modifyOptions )
+		protected async Task<int> DoDialogAwaitCloseAsync( Options _options )
 		{
-			RequesterHandle handle = DoDialog(_options, _modifyOptions);
+			RequesterHandle handle = DoDialog(_options);
 
 			int idx = await handle.Clicked;
 			await handle.Closed;
@@ -182,7 +174,7 @@ namespace GuiToolkit
 				m_requesterHandle.MarkClosed();
 			}
 
-			m_requesterHandle = new RequesterHandle(this);
+			m_requesterHandle = new RequesterHandle();
 			m_consumed = false;
 			SetAllButtonsInteractability(true);
 
@@ -205,11 +197,8 @@ namespace GuiToolkit
 			m_options = null;
 		}
 
-		protected virtual void EvaluateOptions( Options _options, Func<Options, Options> _modifyOptions )
+		protected virtual void EvaluateOptions( Options _options )
 		{
-			if (_modifyOptions != null)
-				_options = _modifyOptions(_options);
-			
 			m_options = _options;
 			
 			bool closable =
