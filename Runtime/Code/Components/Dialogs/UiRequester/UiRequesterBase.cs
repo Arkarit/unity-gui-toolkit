@@ -119,7 +119,7 @@ namespace GuiToolkit
 			EvaluateOptions(_options);
 			UiMain.Instance.SortViews();
 			if (m_options.UseParent)
-				transform.SetParent(m_options.Parent);
+				transform.SetParent(m_options.Parent, false);
 			
 			if (m_options.UseCanvasSortingOrder)
 			{
