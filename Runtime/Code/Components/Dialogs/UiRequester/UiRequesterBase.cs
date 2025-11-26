@@ -118,8 +118,13 @@ namespace GuiToolkit
 			Clear();
 			EvaluateOptions(_options);
 			UiMain.Instance.SortViews();
+			
 			if (m_options.UseParent)
+			{
 				transform.SetParent(m_options.Parent, false);
+				Canvas.ForceUpdateCanvases();
+				UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(RectTransform);
+			}
 			
 			if (m_options.UseCanvasSortingOrder)
 			{
