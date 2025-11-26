@@ -31,7 +31,7 @@ namespace GuiToolkit
 			_options.Title = _title;
 			_options.Text = _text;
 			ModifyOptionsIfNecessary(ref _options, _modifyOptions);
-			
+
 			DoDialog(_options);
 			return this;
 		}
@@ -94,7 +94,7 @@ namespace GuiToolkit
 			};
 
 			ModifyOptionsIfNecessary(ref options, _modifyOptions);
-			
+
 			if (_waitForClose)
 				await DoDialogAwaitCloseAsync(options);
 			else
@@ -223,8 +223,8 @@ namespace GuiToolkit
 
 			return IsOk(idx);
 		}
-		
-		private bool IsOk(int _idx) => _idx == (m_cancelButtonsLeftSide ? 1 : 0); 
+
+		private bool IsOk( int _idx ) => _idx == (m_cancelButtonsLeftSide ? 1 : 0);
 
 		public UiRequester OkCancelInputRequester
 		(
@@ -264,7 +264,7 @@ namespace GuiToolkit
 				PlaceholderText = _placeholderText,
 				InputText = _inputText,
 			};
-			
+
 			return Requester(_title, _text, options, _modifyOptions);
 		}
 
@@ -326,13 +326,15 @@ namespace GuiToolkit
 
 		public DateTime GetDateTime() => m_dateTimePanel.SelectedDateTime;
 
-		protected override void EvaluateOptions( UiRequesterBase.Options _options)
-		{		
+		protected override void EvaluateOptions( UiRequesterBase.Options _options )
+		{
 			base.EvaluateOptions(_options);
-			var options = (Options) _options;
-			
+			var options = (Options)_options;
+
 			bool hasText = !string.IsNullOrEmpty(options.Text);
-			bool hasInput = !string.IsNullOrEmpty(options.PlaceholderText);
+			bool hasInput =
+				!string.IsNullOrEmpty(options.PlaceholderText)
+				|| !string.IsNullOrEmpty(options.InputText);
 			bool hasDateTime = options.DateTimeOptions != null;
 
 			m_textContainer.gameObject.SetActive(hasText);
@@ -360,10 +362,10 @@ namespace GuiToolkit
 			if (hasDateTime)
 				m_dateTimePanel.SetOptions(options.DateTimeOptions);
 		}
-		
-		private static void ModifyOptionsIfNecessary(ref Options _options, Func<Options, Options> _modifyOptions)
+
+		private static void ModifyOptionsIfNecessary( ref Options _options, Func<Options, Options> _modifyOptions )
 		{
-			if (_modifyOptions != null )
+			if (_modifyOptions != null)
 				_options = _modifyOptions(_options);
 		}
 	}
