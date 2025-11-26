@@ -121,9 +121,15 @@ namespace GuiToolkit
 			
 			if (m_options.UseParent)
 			{
-				transform.SetParent(m_options.Parent, false);
-				Canvas.ForceUpdateCanvases();
-				UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(RectTransform);
+				ExecuteFrameDelayed(() =>
+				{
+					if (RectTransform == null)
+						return;
+					
+					transform.SetParent(m_options.Parent, false);
+					Canvas.ForceUpdateCanvases();
+					UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(RectTransform);
+				});
 			}
 			
 			if (m_options.UseCanvasSortingOrder)
