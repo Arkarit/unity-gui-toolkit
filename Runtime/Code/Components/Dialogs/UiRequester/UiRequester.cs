@@ -133,6 +133,44 @@ namespace GuiToolkit
 			Requester(_title, _text, options, _modifyOptions);
 		}
 
+		public void TwoOptionsRequester
+		(
+			string _title,
+			string _text,
+			bool _allowOutsideTap,
+			string _option1Text,
+			string _option2Text,
+			UnityAction _onOption1,
+			UnityAction _onOption2,
+			Func<Options, Options> _modifyOptions = null
+		)
+		{
+			Options options = new Options
+			{
+				ButtonInfos = new ButtonInfo[]
+				{
+					new ButtonInfo
+					{
+						Text = _option1Text,
+						Prefab = UiMain.Instance.StandardButtonPrefab,
+						OnClick = _onOption1
+					},
+					new ButtonInfo
+					{
+						Text = _option2Text,
+						Prefab = UiMain.Instance.StandardButtonPrefab,
+						OnClick = _onOption2
+					}
+				},
+				AllowOutsideTap = _allowOutsideTap,
+				ShowCloseButton = _allowOutsideTap,
+				CloseButtonAction = _allowOutsideTap ? _onOption2 : null,
+				Text = _text,
+			};
+
+			Requester(_title, _text, options, _modifyOptions);
+		}
+
 		public async Task<bool> YesNoRequesterBlocking
 		(
 			string _title,
