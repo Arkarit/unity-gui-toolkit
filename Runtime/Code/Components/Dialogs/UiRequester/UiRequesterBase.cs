@@ -55,6 +55,7 @@ namespace GuiToolkit
 			public bool ShowCloseButton = true;
 			public UnityAction CloseButtonAction = null;
 			public EUiLayerDefinition Layer = EUiLayerDefinition.ModalStack;
+			public bool UseParent = false;
 			public RectTransform Parent = null;
 			public bool UseCanvasSortingOrder = false;
 			public int CanvasSortingOrder = 0;
@@ -117,7 +118,7 @@ namespace GuiToolkit
 			Clear();
 			EvaluateOptions(_options, _modifyOptions);
 			UiMain.Instance.SortViews();
-			if (m_options.Parent != null)
+			if (m_options.UseParent)
 				transform.SetParent(m_options.Parent);
 			
 			if (m_options.UseCanvasSortingOrder)
