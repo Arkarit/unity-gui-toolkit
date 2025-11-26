@@ -23,13 +23,13 @@ namespace GuiToolkit
 		[SerializeField] protected TextMeshProUGUI m_text;
 		[SerializeField] protected TMP_InputField m_inputField;
 
-		public void Requester( Options _options ) => DoDialog(_options);
+		public void Requester( Options _options ) => DoDialog(_options, null);
 
-		public void Requester( string _title, string _text, Options _options )
+		public void Requester( string _title, string _text, Options _options, Func<Options, Options> _modifyOptions )
 		{
 			_options.Title = _title;
 			_options.Text = _text;
-			DoDialog(_options);
+			DoDialog(_options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
 		}
 
 		public void OkRequester
@@ -38,7 +38,8 @@ namespace GuiToolkit
 			string _text,
 			UnityAction _onOk = null,
 			string _okText = null,
-			bool _allowOutsideTap = true
+			bool _allowOutsideTap = true,
+			Func<Options, Options> _modifyOptions = null
 		)
 		{
 			Options options = new Options
@@ -57,7 +58,7 @@ namespace GuiToolkit
 				Text = _text,
 			};
 
-			Requester(_title, _text, options);
+			Requester(_title, _text, options, _modifyOptions);
 		}
 
 		// Waits until dialog is done; no result returned.
@@ -67,19 +68,20 @@ namespace GuiToolkit
 			string _text,
 			string _okText = null,
 			bool _allowOutsideTap = true,
-			bool _waitForClose = true
+			bool _waitForClose = true,
+			Func<Options, Options> _modifyOptions = null
 		)
 		{
 			Options options = new Options
 			{
 				ButtonInfos = new ButtonInfo[]
 				{
-			new ButtonInfo
-			{
-				Text = string.IsNullOrEmpty(_okText) ? __("Ok") : _okText,
-				Prefab = UiMain.Instance.StandardButtonPrefab,
-				OnClick = null
-			}
+					new ButtonInfo
+					{
+						Text = string.IsNullOrEmpty(_okText) ? __("Ok") : _okText,
+						Prefab = UiMain.Instance.StandardButtonPrefab,
+						OnClick = null
+					}
 				},
 				AllowOutsideTap = _allowOutsideTap,
 				CloseButtonAction = null,
@@ -88,9 +90,9 @@ namespace GuiToolkit
 			};
 
 			if (_waitForClose)
-				await DoDialogAwaitCloseAsync(options);
+				await DoDialogAwaitCloseAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
 			else
-				await DoDialogAwaitClickAsync(options);
+				await DoDialogAwaitClickAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
 		}
 
 		public void YesNoRequester
@@ -101,7 +103,8 @@ namespace GuiToolkit
 			UnityAction _onOk,
 			UnityAction _onCancel = null,
 			string _yesText = null,
-			string _noText = null
+			string _noText = null,
+			Func<Options, Options> _modifyOptions = null
 		)
 		{
 			Options options = new Options
@@ -127,7 +130,7 @@ namespace GuiToolkit
 				Text = _text,
 			};
 
-			Requester(_title, _text, options);
+			Requester(_title, _text, options, _modifyOptions);
 		}
 
 		public async Task<bool> YesNoRequesterBlocking
@@ -137,7 +140,8 @@ namespace GuiToolkit
 			bool _allowOutsideTap = true,
 			bool _waitForClose = true,
 			string _yesText = null,
-			string _noText = null
+			string _noText = null,
+			Func<Options, Options> _modifyOptions = null
 		)
 		{
 			Options options = new Options
@@ -167,9 +171,9 @@ namespace GuiToolkit
 			int idx;
 
 			if (_waitForClose)
-				idx = await DoDialogAwaitCloseAsync(options);
+				idx = await DoDialogAwaitCloseAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
 			else
-				idx = await DoDialogAwaitClickAsync(options);
+				idx = await DoDialogAwaitClickAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
 
 			return IsOk(idx);
 		}
@@ -186,7 +190,8 @@ namespace GuiToolkit
 			string _placeholderText = null,
 			string _inputText = null,
 			string _yesText = null,
-			string _noText = null
+			string _noText = null,
+			Func<Options, Options> _modifyOptions = null
 		)
 		{
 			Options options = new Options
@@ -213,7 +218,8 @@ namespace GuiToolkit
 				PlaceholderText = _placeholderText,
 				InputText = _inputText,
 			};
-			Requester(_title, _text, options);
+			
+			Requester(_title, _text, options, _modifyOptions);
 		}
 
 		// Blocking: returns input on OK, null on cancel/dismiss
@@ -226,7 +232,8 @@ namespace GuiToolkit
 			string _placeholderText = null,
 			string _inputText = null,
 			string _yesText = null,
-			string _noText = null
+			string _noText = null,
+			Func<Options, Options> _modifyOptions = null
 		)
 		{
 			Options options = new Options
@@ -257,9 +264,9 @@ namespace GuiToolkit
 
 			int idx;
 			if (_waitForClose)
-				idx = await DoDialogAwaitCloseAsync(options);
+				idx = await DoDialogAwaitCloseAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
 			else
-				idx = await DoDialogAwaitClickAsync(options);
+				idx = await DoDialogAwaitClickAsync(options, (Func<UiRequesterBase.Options, UiRequesterBase.Options>) _modifyOptions);
 
 			if (IsOk(idx))
 				return GetInputText();
@@ -271,9 +278,9 @@ namespace GuiToolkit
 
 		public DateTime GetDateTime() => m_dateTimePanel.SelectedDateTime;
 
-		protected override void EvaluateOptions( UiRequesterBase.Options _options )
+		protected override void EvaluateOptions( UiRequesterBase.Options _options, Func<UiRequesterBase.Options, UiRequesterBase.Options> _modifyOptions )
 		{
-			base.EvaluateOptions(_options);
+			base.EvaluateOptions(_options, _modifyOptions);
 
 			Options options = (Options)_options;
 
