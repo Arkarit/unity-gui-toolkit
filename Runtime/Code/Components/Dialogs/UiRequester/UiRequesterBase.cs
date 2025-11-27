@@ -177,6 +177,7 @@ namespace GuiToolkit
 						$"Requested sibling index {m_options.SiblingIndex} for '{name}' is out of range [0..{maxIndex}] for parent '{RectTransform.parent.name}'.");
 
 				RectTransform.SetSiblingIndex(m_options.SiblingIndex);
+				Show();
 			}
 			else
 			{
