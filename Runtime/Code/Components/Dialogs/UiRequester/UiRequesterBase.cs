@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
-using System.Threading.Tasks;
 
 namespace GuiToolkit
 {
@@ -119,18 +121,10 @@ namespace GuiToolkit
 			EvaluateOptions(_options);
 			UiMain.Instance.SortViews();
 			
+			// We need the external CoRoutineRunner for the ChangeParentDelayed(),
+			// because we temporarily disable ourselves which breaks all coroutines running on ourselves
 			if (m_options.UseParent)
-			{
-				ExecuteFrameDelayed(() =>
-				{
-					if (RectTransform == null)
-						return;
-					
-					transform.SetParent(m_options.Parent, false);
-					Canvas.ForceUpdateCanvases();
-					UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(RectTransform);
-				});
-			}
+				CoRoutineRunner.Instance.StartCoroutine(ChangeParentDelayed());
 			
 			if (m_options.UseCanvasSortingOrder)
 			{
@@ -143,6 +137,20 @@ namespace GuiToolkit
 			return m_requesterHandle;
 		}
 
+		IEnumerator ChangeParentDelayed()
+		{
+			RectTransform.SetParent(null, false);
+			var activeScene = SceneManager.GetActiveScene();
+			SceneManager.MoveGameObjectToScene(gameObject, activeScene);
+			RectTransform.SetParent(m_options.Parent, false);
+			gameObject.SetActive(false);
+			yield return null;
+			if (RectTransform == null)
+				yield break;
+			
+			gameObject.SetActive(true);
+		}
+		
 		// Waits until a button is clicked; returns button index (-1 = dismissed).
 		protected Task<int> DoDialogAwaitClickAsync( Options _options )
 		{
