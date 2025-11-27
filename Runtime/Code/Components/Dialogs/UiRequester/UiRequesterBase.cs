@@ -19,7 +19,7 @@ namespace GuiToolkit
 
 			public Task<int> Clicked => m_buttonTcs.Task;
 			public Task Closed => m_closedTcs.Task;
-			
+
 			// -1: X Button 0...n Buttons
 			public void MarkButton( int _buttonIdx )
 			{
@@ -38,7 +38,7 @@ namespace GuiToolkit
 			Hide,
 			SetNonActive
 		}
-		
+
 		public class ButtonInfo
 		{
 			public string Text;
@@ -61,6 +61,8 @@ namespace GuiToolkit
 			public RectTransform Parent = null;
 			public bool UseCanvasSortingOrder = false;
 			public int CanvasSortingOrder = 0;
+			public bool UseSiblingIndex = false;
+			public int SiblingIndex = 0;
 		}
 
 		[SerializeField] protected TextMeshProUGUI m_title;
@@ -112,7 +114,7 @@ namespace GuiToolkit
 		public static ButtonInfo[] CreateButtonInfos( params (string text, UnityAction onClick)[] _buttons ) =>
 			CreateButtonInfos(true, _buttons);
 
-		protected RequesterHandle DoDialog( Options _options)
+		protected RequesterHandle DoDialog( Options _options )
 		{
 			if (!string.IsNullOrEmpty(_options.Title))
 				m_title.text = _options.Title;
@@ -120,20 +122,23 @@ namespace GuiToolkit
 			Clear();
 			EvaluateOptions(_options);
 			UiMain.Instance.SortViews();
-			
+
 			// We need the external CoRoutineRunner for the ChangeParentDelayed(),
 			// because we temporarily disable ourselves which breaks all coroutines running on ourselves
 			if (m_options.UseParent)
 				CoRoutineRunner.Instance.StartCoroutine(ChangeParentDelayed());
-			
+
 			if (m_options.UseCanvasSortingOrder)
 			{
 				Canvas.overrideSorting = true;
 				Canvas.sortingOrder = m_options.CanvasSortingOrder;
 			}
-			
+
 			gameObject.SetActive(true);
-			ShowTopmost();
+
+			if (!m_options.UseParent)
+				SetSiblingIndex();
+
 			return m_requesterHandle;
 		}
 
@@ -147,10 +152,38 @@ namespace GuiToolkit
 			yield return null;
 			if (RectTransform == null)
 				yield break;
-			
+
 			gameObject.SetActive(true);
+			SetSiblingIndex();
 		}
-		
+
+		private void SetSiblingIndex()
+		{
+			if (m_options.UseSiblingIndex)
+			{
+				if (RectTransform.parent == null)
+					throw new InvalidOperationException(
+						$"Cannot apply sibling index {m_options.SiblingIndex} to '{name}' because it has no parent.");
+
+				int childCount = RectTransform.parent.childCount;
+				if (childCount == 0)
+					throw new InvalidOperationException(
+						$"Cannot apply sibling index {m_options.SiblingIndex} to '{name}' because its parent '{RectTransform.parent.name}' has no children.");
+
+				int maxIndex = childCount - 1;
+				if (m_options.SiblingIndex < 0 || m_options.SiblingIndex > maxIndex)
+					throw new ArgumentOutOfRangeException(
+						nameof(m_options.SiblingIndex),
+						$"Requested sibling index {m_options.SiblingIndex} for '{name}' is out of range [0..{maxIndex}] for parent '{RectTransform.parent.name}'.");
+
+				RectTransform.SetSiblingIndex(m_options.SiblingIndex);
+			}
+			else
+			{
+				ShowTopmost();
+			}
+		}
+
 		// Waits until a button is clicked; returns button index (-1 = dismissed).
 		protected Task<int> DoDialogAwaitClickAsync( Options _options )
 		{
@@ -219,7 +252,7 @@ namespace GuiToolkit
 		protected virtual void EvaluateOptions( Options _options )
 		{
 			m_options = _options;
-			
+
 			bool closable =
 				_options.AllowOutsideTap
 				|| (_options.ShowCloseButton && m_optionalCloseButton != null)
@@ -260,7 +293,7 @@ namespace GuiToolkit
 							throw new ArgumentOutOfRangeException();
 					}
 				}
-				
+
 				m_buttons.Add(button);
 				m_listeners.Add(bi.OnClick);
 
@@ -306,7 +339,7 @@ namespace GuiToolkit
 			bool idxIsCloseButton = _idx == -1;
 			bool buttonClosesRequester = idxIsCloseButton || m_options.ButtonInfos[_idx].CloseRequester;
 			Debug.Assert(_idx < m_listeners.Count && _idx >= -1);
-			
+
 			if (buttonClosesRequester)
 			{
 				if (m_consumed)
