@@ -13,6 +13,8 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using static UnityEngine.GridBrushBase;
+
 #if UITK_USE_ROSLYN
 using ExcelDataReader;
 #endif
@@ -154,11 +156,15 @@ namespace GuiToolkit
 
 			for (int i = 1; i < tablesCount; i++)
 			{
-				if (ds.Tables[i].Columns.Count != colCount)
+				var xlsxColCount = ds.Tables[i].Columns.Count;
+				if ( xlsxColCount < colCount)
 				{
-					UiLog.LogError($"{nameof(LocaExcelBridge)}: Column count in work sheet differs!");
+					UiLog.LogError($"{nameof(LocaExcelBridge)}: Column count  ({ds.Tables[i].Columns.Count}) too small for defined columns ({colCount})");
 					return;
 				}
+				
+				if ( xlsxColCount > colCount)
+					UiLog.LogWarning($"{nameof(LocaExcelBridge)}: Column count  ({ds.Tables[i].Columns.Count}) too large for defined columns ({colCount}). Ignored.");
 			}
 
 			if (sheet.Rows.Count <= m_startRow)
