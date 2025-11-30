@@ -50,6 +50,8 @@ namespace GuiToolkit
 		[FormerlySerializedAs("m_finishInstantOnOrientationChange")]
 		[Tooltip("Finish animation instantly on screen resolution change. This is important to set for animations, which differ in landscape and portrait.")]
 		[SerializeField] protected bool m_finishInstantOnResolutionChange = false;
+		
+		[SerializeField] protected Behaviour[] m_behavioursToDisableWhilePlaying = new Behaviour[0];
 
 		// Slave animations
 
@@ -397,9 +399,9 @@ if (m_timingWorkaroundActive)
 			CalculateCompleteTimeRecursive(ref completeDuration, ref _, 0);
 			m_currentTime = _toEnd ? completeDuration : 0;
 			
-			OnBeginAnimate();
+			CallOnBeginAnimate();
 			OnAnimate(_toEnd ? 1 : 0);
-			OnEndAnimate();
+			CallOnEndAnimate();
 		}
 
 		protected virtual void Awake()
@@ -488,8 +490,8 @@ if (m_timingWorkaroundActive)
 			// tell the subclass, that now the real animation will begin.
 			if (!m_beginAnimateCalled)
 			{
-				Log("Call OnBeginAnimate()");
-				OnBeginAnimate();
+				Log("Call CallOnBeginAnimate()");
+				CallOnBeginAnimate();
 				m_beginAnimateCalled = true;
 			}
 
@@ -519,8 +521,8 @@ if (m_timingWorkaroundActive)
 				float time = m_backwards ? 0 : 1;
 				Log($"Duration exceeded, call OnAnimate({time})");
 				OnAnimate(time);
-				Log("Call OnEndAnimate()");
-				OnEndAnimate();
+				Log("Call CallOnEndAnimate()");
+				CallOnEndAnimate();
 				m_endAnimateCalled = true;
 			}
 
@@ -784,5 +786,22 @@ if (m_timingWorkaroundActive)
 			Update(_deltaTime);
 		}
 #endif
+		
+		private void CallOnBeginAnimate()
+		{
+			foreach (var component in m_behavioursToDisableWhilePlaying)
+				component.enabled = false;
+			
+			OnBeginAnimate();
+		}
+		
+		private void CallOnEndAnimate()
+		{
+			foreach (var component in m_behavioursToDisableWhilePlaying)
+				component.enabled = true;
+			
+			OnEndAnimate();
+		}
+
 	}
 }

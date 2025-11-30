@@ -24,6 +24,8 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_slaveAnimationsProp;
 		protected SerializedProperty m_setLoopsForSlavesProp;
 		protected SerializedProperty m_supportViewAnimationsProp;
+		protected SerializedProperty m_behavioursToDisableWhilePlayingProp;
+		
 // Workaround #95
 protected SerializedProperty m_timingWorkaroundActiveProp;
 protected SerializedProperty m_timingWorkaroundBackwardsBiasProp;
@@ -55,6 +57,7 @@ protected SerializedProperty m_timingWorkaroundBackwardsBiasProp;
 			m_slaveAnimationsProp = serializedObject.FindProperty("m_slaveAnimations");
 			m_setLoopsForSlavesProp = serializedObject.FindProperty("m_setLoopsForSlaves");
 			m_supportViewAnimationsProp = serializedObject.FindProperty("m_supportViewAnimations");
+			m_behavioursToDisableWhilePlayingProp = serializedObject.FindProperty("m_behavioursToDisableWhilePlaying");
 			
 // Workaround #95
 m_timingWorkaroundActiveProp = serializedObject.FindProperty("m_timingWorkaroundActive");
@@ -106,6 +109,9 @@ m_timingWorkaroundBackwardsBiasProp = serializedObject.FindProperty("m_timingWor
 			EditorGUI.BeginDisabledGroup(m_autoStartProp.boolValue || m_autoOnEnableProp.boolValue);
 			EditorGUILayout.PropertyField(m_setOnStartProp);
 			EditorGUI.EndDisabledGroup();
+			
+			EditorGUILayout.Space();
+			EditorGUILayout.PropertyField(m_behavioursToDisableWhilePlayingProp);
 			
 // Workaround #95
 EditorGUILayout.Space();
