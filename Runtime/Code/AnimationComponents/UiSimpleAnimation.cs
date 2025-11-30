@@ -571,7 +571,7 @@ namespace GuiToolkit
 		protected override void OnAnimate(float _normalizedTime)
 		{
 			Log($"OnAnimate({_normalizedTime}) m_support:{m_support} m_flagsSet: {m_flagsSet} m_target.gameObject:{(m_target == null ? "null" : m_target.gameObject.name) }");
-
+			
 			if (!m_flagsSet)
 				InitFlags();
 

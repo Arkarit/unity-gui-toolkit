@@ -8,7 +8,7 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
-	public class UiTextContainer : UiThing
+	public class UiTextContainer : UiThing, IPoolable
 	{
 		protected UiLocaComponent m_translator;
 		protected TextMeshProUGUI m_tmpText;
@@ -107,5 +107,9 @@ namespace GuiToolkit
 
 			m_initialized = true;
 		}
+
+		public void OnPoolCreated() {}
+
+		public void OnPoolReleased() => EnabledInHierarchy = true;
 	}
 }

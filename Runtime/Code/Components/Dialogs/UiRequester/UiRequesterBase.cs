@@ -32,10 +32,11 @@ namespace GuiToolkit
 			}
 		}
 
-		public enum EInvalidButtonsHandling
+		public enum EDisabledButtonsHandling
 		{
 			None,
 			Hide,
+			DisableInHierarchy,
 			SetNonActive
 		}
 
@@ -45,8 +46,8 @@ namespace GuiToolkit
 			public UiButton Prefab;
 			public UnityAction OnClick;
 			public bool CloseRequester = true;
-			public bool IsValid = true;
-			public EInvalidButtonsHandling InvalidButtonsHandling = EInvalidButtonsHandling.SetNonActive;
+			public bool EnabledInHierarchy = true;
+			public EDisabledButtonsHandling DisabledButtonsHandling = EDisabledButtonsHandling.SetNonActive;
 		}
 
 		public class Options
@@ -278,16 +279,19 @@ namespace GuiToolkit
 				button.transform.SetParent(m_buttonContainer.transform, false);
 				button.transform.localScale = Vector3.one * m_buttonScale;
 
-				if (!bi.IsValid)
+				if (!bi.EnabledInHierarchy)
 				{
-					switch (bi.InvalidButtonsHandling)
+					switch (bi.DisabledButtonsHandling)
 					{
-						case EInvalidButtonsHandling.None:
+						case EDisabledButtonsHandling.None:
 							break;
-						case EInvalidButtonsHandling.Hide:
+						case EDisabledButtonsHandling.Hide:
 							button.gameObject.SetActive(false);
 							break;
-						case EInvalidButtonsHandling.SetNonActive:
+						case EDisabledButtonsHandling.DisableInHierarchy:
+							button.EnabledInHierarchy = false;
+							break;
+						case EDisabledButtonsHandling.SetNonActive:
 							button.Button.interactable = false;
 							break;
 						default:
