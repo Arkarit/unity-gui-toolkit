@@ -672,7 +672,10 @@ namespace GuiToolkit
 			}
 
 			if (m_alphaCanvasGroup != null)
+			{
+				m_alphaCanvasGroup.interactable = !Mathf.Approximately(0, alpha);
 				m_alphaCanvasGroup.alpha = alpha;
+			}
 		}
 
 	}
