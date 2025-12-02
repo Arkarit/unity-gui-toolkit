@@ -155,7 +155,27 @@ namespace GuiToolkit
 				yield break;
 
 			gameObject.SetActive(true);
+			ResetTransform();
 			SetSiblingIndex();
+		}
+
+		private void ResetTransform()
+		{
+			// Anchors: Stretch (full)
+			RectTransform.anchorMin = Vector2.zero;     // (0,0)
+			RectTransform.anchorMax = Vector2.one;      // (1,1)
+
+			// Offsets: Left/Right/Top/Bottom = 0
+			RectTransform.offsetMin = Vector2.zero;
+			RectTransform.offsetMax = Vector2.zero;
+
+			// Pivot: Center
+			RectTransform.pivot = new Vector2(0.5f, 0.5f);
+
+			// Position / Rotation / Scale
+			RectTransform.anchoredPosition3D = Vector3.zero; // Pos X/Y/Z = 0
+			RectTransform.localRotation = Quaternion.identity; // Rotation = 0
+			RectTransform.localScale = Vector3.one; // Scale = 1,1,1
 		}
 
 		private void SetSiblingIndex()
@@ -249,6 +269,7 @@ namespace GuiToolkit
 			OnClickCatcher = null;
 			m_closeButtonAction = null;
 			m_options = null;
+			ResetTransform();
 		}
 
 		protected virtual void EvaluateOptions( Options _options )
