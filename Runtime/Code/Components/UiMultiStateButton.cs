@@ -181,8 +181,10 @@ namespace GuiToolkit
 			State state = m_states[m_currentIndex];
 
 			ApplySprite(state);
-			ApplyColor(m_uiImage, _instant, m_uiImage.Color, state.BackgroundColor, ref m_backgroundTween);
-			ApplyColor(m_stateImage, _instant, m_stateImage.Color, state.IconColor, ref m_iconTween);
+			if (m_uiImage != null)
+				ApplyColor(m_uiImage, _instant, m_uiImage.Color, state.BackgroundColor, ref m_backgroundTween);
+			if (m_stateImage != null)
+				ApplyColor(m_stateImage, _instant, m_stateImage.Color, state.IconColor, ref m_iconTween);
 
 			if (OnStateChanged != null)
 				OnStateChanged.Invoke();
