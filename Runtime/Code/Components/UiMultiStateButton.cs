@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DigitalRuby.Tween;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -15,12 +16,13 @@ namespace GuiToolkit
 			public string Name;
 			public Sprite Sprite;
 			public Color BackgroundColor = Color.white;
+			public Color IconColor = Color.white;
 		}
 
 		[Header("Multi State Button")]
 
 		[Tooltip("Optional foreground image for per-state sprites")]
-		[SerializeField][Optional] private Image m_stateImage;
+		[SerializeField][Optional] private UiImage m_stateImage;
 
 		[Tooltip("States (name, sprite, background color)")]
 		[SerializeField] private List<State> m_states = new List<State>();
@@ -29,16 +31,18 @@ namespace GuiToolkit
 		[SerializeField] private int m_initialStateIndex;
 
 		[Tooltip("Background color transition duration (seconds, 0 = instant)")]
-		[SerializeField] private float m_backgroundTransitionDuration = 0.15f;
+		[FormerlySerializedAs("m_backgroundTransitionDuration")]
+		[SerializeField] private float m_transitionDuration = 0.15f;
 
 		[Tooltip("Use unscaled time for background tween")]
 		[SerializeField] private bool m_useUnscaledTime;
 
 		[Tooltip("Invoked whenever the state changes")]
-		[SerializeField] public CEvent OnStateChanged;
+		public CEvent OnStateChanged = new();
 
 		private int m_currentIndex = -1;
 		private ITween<Color> m_backgroundTween;
+		private ITween<Color> m_iconTween;
 		private readonly Dictionary<string, int> m_StateDict = new();
 
 		/// <summary>
@@ -177,7 +181,8 @@ namespace GuiToolkit
 			State state = m_states[m_currentIndex];
 
 			ApplySprite(state);
-			ApplyBackgroundColor(state, _instant);
+			ApplyColor(m_uiImage, _instant, m_uiImage.Color, state.BackgroundColor, ref m_backgroundTween);
+			ApplyColor(m_stateImage, _instant, m_stateImage.Color, state.IconColor, ref m_iconTween);
 
 			if (OnStateChanged != null)
 				OnStateChanged.Invoke();
@@ -188,48 +193,45 @@ namespace GuiToolkit
 			if (m_stateImage == null)
 				return;
 
-			m_stateImage.sprite = _state.Sprite;
+			m_stateImage.Image.sprite = _state.Sprite;
 			m_stateImage.enabled = _state.Sprite != null;
 		}
 
-		private void ApplyBackgroundColor(State _state, bool _instant)
+		private void ApplyColor(UiImage _uiImage, bool _instant, Color _startColor, Color _targetColor, ref ITween<Color> _storedTween)
 		{
-			if (m_uiImage == null)
+			if (_uiImage == null)
 				return;
 
-			Color targetColor = _state.BackgroundColor;
-
-			if (_instant || m_backgroundTransitionDuration <= 0f)
+			if (_instant || m_transitionDuration <= 0f)
 			{
-				m_uiImage.Color = targetColor;
-				StopBackgroundTween();
+				_uiImage.Color = _targetColor;
+				StopTween(ref _storedTween);
 				return;
 			}
 				
-			Color startColor = m_uiImage.Color;
-			StopBackgroundTween();
+			StopTween(ref _storedTween);
 
-			m_backgroundTween = TweenFactory.Tween
+			_storedTween = TweenFactory.Tween
 			(
-				this,
-				startColor,
-				targetColor,
-				m_backgroundTransitionDuration,
+				_uiImage,
+				_startColor,
+				_targetColor,
+				m_transitionDuration,
 				TweenScaleFunctions.Linear,
-				t => m_uiImage.Color = t.CurrentValue
+				t => _uiImage.Color = t.CurrentValue
 			);
 
-			if (m_useUnscaledTime && m_backgroundTween != null)
-				m_backgroundTween.TimeFunc = TweenFactory.TimeFuncUnscaledDeltaTimeFunc;
+			if (m_useUnscaledTime && _storedTween != null)
+				_storedTween.TimeFunc = TweenFactory.TimeFuncUnscaledDeltaTimeFunc;
 		}
 
-		private void StopBackgroundTween()
+		private void StopTween(ref ITween<Color> _storedTween)
 		{
-			if (m_backgroundTween == null)
+			if (_storedTween == null)
 				return;
 
-			TweenFactory.RemoveTween(m_backgroundTween, TweenStopBehavior.DoNotModify);
-			m_backgroundTween = null;
+			TweenFactory.RemoveTween(_storedTween, TweenStopBehavior.DoNotModify);
+			_storedTween = null;
 		}
 
 #if UNITY_EDITOR
