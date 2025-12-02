@@ -4,8 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using GuiToolkit.Exceptions;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -13,8 +11,6 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
-using static UnityEngine.GridBrushBase;
-
 #if UITK_USE_ROSLYN
 using ExcelDataReader;
 #endif
