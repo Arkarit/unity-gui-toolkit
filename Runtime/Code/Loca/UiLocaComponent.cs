@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -59,6 +57,7 @@ namespace GuiToolkit
 
 				if (string.IsNullOrEmpty(m_locaKey))
 					m_locaKey = TextComponent.text;
+
 				return m_locaKey;
 			}
 		}
@@ -69,21 +68,19 @@ namespace GuiToolkit
 			{
 				if (m_locaManager == null)
 					m_locaManager = LocaManager.Instance;
+
 				return m_locaManager;
 			}
 		}
 
-		private TMP_Text TextComponent
+		public TMP_Text TextComponent
 		{
 			get
 			{
 				if (m_text == null)
 					m_text = GetComponent<TMP_Text>();
+				
 				return m_text;
-			}
-			set
-			{
-				m_text = value;
 			}
 		}
 
