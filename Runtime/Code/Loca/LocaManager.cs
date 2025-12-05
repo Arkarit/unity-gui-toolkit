@@ -13,7 +13,7 @@ namespace GuiToolkit
 			EmptyString,
 			Null,
 		}
-		
+
 		public const string PLAYER_PREFS_KEY = StringConstants.PLAYER_PREFS_PREFIX + "Language";
 
 		public abstract string Translate( string _key, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key );
@@ -22,6 +22,21 @@ namespace GuiToolkit
 		public abstract bool ChangeLanguageImpl( string _languageId );
 
 		public string Language { get; protected set; } = null;
+
+		// Hardcoded for now; extend if necessary.
+		public string GetOrdinal( string _languageId, int _number )
+		{
+			switch (_languageId)
+			{
+				default:
+					return $"{_number}.";
+
+				case "en":
+				case "en-us":
+				case "dev":
+					return GetEnglishOrdinal(_number);
+			}
+		}
 
 #if UNITY_EDITOR
 		public abstract string[] EdAvailableLanguages { get; }
@@ -138,6 +153,23 @@ namespace GuiToolkit
 				{
 					UiLog.LogError("Could not set default culture.");
 				}
+			}
+		}
+
+		private string GetEnglishOrdinal( int _number )
+		{
+			int n = _number < 0 ? -_number : _number;
+
+			int lastTwo = n % 100;
+			if (lastTwo >= 11 && lastTwo <= 13)
+				return _number.ToString() + "th";
+
+			switch (n % 10)
+			{
+				case 1: return _number.ToString() + "st";
+				case 2: return _number.ToString() + "nd";
+				case 3: return _number.ToString() + "rd";
+				default: return _number.ToString() + "th";
 			}
 		}
 	}

@@ -80,5 +80,10 @@ namespace GuiToolkit
 		{
 			return _s;
 		}
+		
+		protected static string GetOrdinal( string _languageId, int _number)
+		{
+			return LocaManager.Instance.GetOrdinal(_languageId, _number);
+		}
 	}
 }

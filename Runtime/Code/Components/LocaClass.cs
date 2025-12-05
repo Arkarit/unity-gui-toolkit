@@ -25,6 +25,11 @@ namespace GuiToolkit
 		{
 			return LocaManager.Instance.Translate(_singular, _plural, _n);
 		}
+		
+		protected static string GetOrdinal( string _languageId, int _number)
+		{
+			return LocaManager.Instance.GetOrdinal(_languageId, _number);
+		}
 
 		/// Not translated, only for POT creation
 		protected static string __(string _s)
