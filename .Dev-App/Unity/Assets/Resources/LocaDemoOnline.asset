@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 303a8e300958448438e13c3ef8724ce0, type: 3}
+  m_Name: LocaDemoOnline
+  m_EditorClassIdentifier: 
+  m_sourceType: 1
+  m_excelPath:
+    m_path: 
+  m_googleUrl: https://docs.google.com/spreadsheets/d/17R2Zdu-hcUb2YADfGmfGMt8fQs_3F9NOe7bzOY1k2EY/edit?gid=0#gid=0
+  m_group: 
+  m_columnDescriptions:
+  - Description: Master Key
+    ColumnType: 1
+    LanguageId: 
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: -1
+  - Description: en singular
+    ColumnType: 2
+    LanguageId: en
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: -1
+  - Description: de singular
+    ColumnType: 2
+    LanguageId: de
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: -1
+  - Description: lol singular
+    ColumnType: 2
+    LanguageId: lol
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: -1
+  m_startRow: 1
+  m_processedLoca:
+    Group: 
+    Entries:
+    - Key: my_online_key
+      LanguageId: de
+      Text: "Mein Online-Schl\xFCssel"
+      Forms: []
+    - Key: my_online_key
+      LanguageId: en
+      Text: My Online Key!
+      Forms: []
+    - Key: my_online_key
+      LanguageId: lol
+      Text: has teh online key
+      Forms: []
+    - Key: online_key00
+      LanguageId: de
+      Text: "Online-Schl\xFCssel 00"
+      Forms: []
+    - Key: online_key00
+      LanguageId: en
+      Text: Online Key 00
+      Forms: []
+    - Key: online_key00
+      LanguageId: lol
+      Text: teh online key 00
+      Forms: []
+    - Key: online_key01
+      LanguageId: de
+      Text: "Online-Schl\xFCssel 01"
+      Forms: []
+    - Key: online_key01
+      LanguageId: en
+      Text: Online Key 01
+      Forms: []
+    - Key: online_key01
+      LanguageId: lol
+      Text: teh online key 01
+      Forms: []
