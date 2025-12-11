@@ -15,6 +15,7 @@ using System.Text;
 using ExcelDataReader;
 #endif
 using UnityEditor;
+using UnityEngine.Networking;
 #endif
 
 namespace GuiToolkit
@@ -22,6 +23,12 @@ namespace GuiToolkit
 	[CreateAssetMenu(fileName = nameof(LocaExcelBridge), menuName = StringConstants.LOCA_EXCEL_BRIDGE)]
 	public class LocaExcelBridge : ScriptableObject, ILocaProvider
 	{
+		public enum SourceType
+		{
+			Local,
+			GoogleDocs,
+		}
+		
 		public enum EInColumnType
 		{
 			Ignore,
@@ -72,8 +79,10 @@ namespace GuiToolkit
 
 		[Header("Input")]
 		[Space]
+		[SerializeField] private SourceType m_sourceType;
 		[PathField(_isFolder: false, _relativeToPath: ".", _extensions: "xlsx")]
-		[SerializeField][Mandatory] private PathField m_excelPath;
+		[SerializeField][Optional] private PathField m_excelPath;
+		[SerializeField][Optional] private string m_googleUrl;
 		[SerializeField] private string m_group;
 		[SerializeField] private List<InColumnDescription> m_columnDescriptions = new();
 		[SerializeField] private int m_startRow = 0; // all rows before are ignored (0-based index)
@@ -122,13 +131,30 @@ namespace GuiToolkit
 #if UITK_USE_ROSLYN
 			m_processedLoca = null;
 
-			if (m_excelPath == null || string.IsNullOrEmpty(m_excelPath.Path))
+			string xlsxPath = string.Empty;
+			switch (m_sourceType)
 			{
-				UiLog.LogError($"{nameof(LocaExcelBridge)}: Excel path is not set.");
-				return;
+				case SourceType.Local:
+					if (m_excelPath == null || string.IsNullOrEmpty(m_excelPath.Path))
+					{
+						UiLog.LogError($"{nameof(LocaExcelBridge)}: Excel path is not set.");
+						return;
+					}
+					
+					xlsxPath = m_excelPath.Path;
+					break;
+				
+				case SourceType.GoogleDocs:
+					xlsxPath = ProcessGoogleDocsUrl();
+					if (string.IsNullOrEmpty(xlsxPath))
+						return;
+					
+					break;
+				
+				default:
+					throw new ArgumentOutOfRangeException();
 			}
 
-			string xlsxPath = m_excelPath.Path;
 			if (!File.Exists(xlsxPath))
 			{
 				UiLog.LogError($"{nameof(LocaExcelBridge)}: Excel file not found: {xlsxPath}");
@@ -153,13 +179,13 @@ namespace GuiToolkit
 			for (int i = 1; i < tablesCount; i++)
 			{
 				var xlsxColCount = ds.Tables[i].Columns.Count;
-				if ( xlsxColCount < colCount)
+				if (xlsxColCount < colCount)
 				{
 					UiLog.LogError($"{nameof(LocaExcelBridge)}: Column count  ({ds.Tables[i].Columns.Count}) too small for defined columns ({colCount})");
 					return;
 				}
-				
-				if ( xlsxColCount > colCount)
+
+				if (xlsxColCount > colCount)
 					UiLog.LogWarning($"{nameof(LocaExcelBridge)}: Column count  ({ds.Tables[i].Columns.Count}) too large for defined columns ({colCount}). Ignored.");
 			}
 
@@ -285,7 +311,82 @@ namespace GuiToolkit
 #endif
 		}
 
+
 #if UITK_USE_ROSLYN
+		private string ProcessGoogleDocsUrl()
+		{
+			string tempFile = Path.GetTempFileName();
+			string path = NormalizeXlsxPath(m_googleUrl);
+			if (string.IsNullOrWhiteSpace(path))
+				return null;
+			
+			using (UnityWebRequest www = UnityWebRequest.Get(path))
+			{
+				var op = www.SendWebRequest();
+				while (!op.isDone) { }
+
+				if (www.result != UnityWebRequest.Result.Success)
+				{
+					UiLog.LogError($"{nameof(LocaExcelBridge)}: Failed to download XLSX: {www.error}");
+					return null;
+				}
+
+				File.WriteAllBytes(tempFile, www.downloadHandler.data);
+				return tempFile;
+			}
+		}
+
+		private static string NormalizeXlsxPath( string _path )
+		{
+			// Empty -> fail
+			if (string.IsNullOrWhiteSpace(_path))
+			{
+				UiLog.LogError("Error: <empty> is not a valid path");
+				return null;
+			}
+
+			// Local or network path -> fail
+			if (!_path.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+			{
+				UiLog.LogError($"Error: '{_path}' is not a valid URL");
+				return null;
+			}
+
+			// Already an export URL with XLSX -> unchanged
+			if (_path.Contains("/export", StringComparison.OrdinalIgnoreCase)
+			    && _path.Contains("format=xlsx", StringComparison.OrdinalIgnoreCase))
+			{
+				return _path;
+			}
+
+			// Try to treat it as a normal Google Sheets "edit" URL.
+			const string marker = "/d/";
+			int markerIndex = _path.IndexOf(marker, StringComparison.Ordinal);
+			if (markerIndex < 0)
+			{
+				UiLog.LogError($"Error: {nameof(LocaExcelBridge)}: Google Sheets URL does not contain '/d/': {_path}");
+				return null;
+			}
+
+			int idStart = markerIndex + marker.Length;
+			int idEnd = _path.IndexOfAny(new[] { '/', '?', '#' }, idStart);
+
+			string docId;
+			if (idEnd >= 0)
+				docId = _path.Substring(idStart, idEnd - idStart);
+			else
+				docId = _path.Substring(idStart);
+
+			if (string.IsNullOrEmpty(docId))
+			{
+				UiLog.LogError($"Error: {nameof(LocaExcelBridge)}: Could not extract document id from Google Sheets URL: {_path}");
+				return null;
+			}
+
+			string exportUrl = $"https://docs.google.com/spreadsheets/d/{docId}/export?format=xlsx&id={docId}";
+			return exportUrl;
+		}
+
 		private static string ApplyKeyAffixes( string _key, InColumnDescription _desc )
 		{
 			if (_desc == null)

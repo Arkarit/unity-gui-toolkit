@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 303a8e300958448438e13c3ef8724ce0, type: 3}
   m_Name: LocaDemo
   m_EditorClassIdentifier: 
+  m_sourceType: 0
   m_excelPath:
     m_path: Assets/Resources/LocaDemo.xlsx
+  m_googleUrl: 
   m_group: 
   m_columnDescriptions:
   - Description: Master Key
@@ -76,7 +78,7 @@ MonoBehaviour:
     Entries:
     - Key: bla_excel_cat
       LanguageId: de
-      Text: Katzenbeschreibung
+      Text: Katzenbeschreibung!
       Forms: []
     - Key: bla_excel_key1
       LanguageId: de
@@ -104,7 +106,7 @@ MonoBehaviour:
       - 
     - Key: excel_cat_blupp
       LanguageId: de
-      Text: Noch ne Katzenbeschreibung
+      Text: "Noch ne Katzenbeschreibung\u2026"
       Forms: []
     - Key: excel_dog
       LanguageId: de
