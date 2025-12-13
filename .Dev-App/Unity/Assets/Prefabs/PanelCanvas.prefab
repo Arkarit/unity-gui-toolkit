@@ -775,6 +775,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 1
   m_delay: 0.5
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 0
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
@@ -783,9 +785,12 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 69888
   m_target: {fileID: 3265018062609709655}
   m_markTargetForLayoutRebuild: 0
@@ -911,6 +916,23 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 3265018062609709649}
   m_alphaCanvasGroup: {fileID: 0}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &3265018062697313386
 GameObject:
   m_ObjectHideFlags: 0
@@ -1017,6 +1039,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 514
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -1236,6 +1259,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.3
   m_delay: 0.2
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 1
@@ -1244,9 +1269,12 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 3
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 4096
   m_target: {fileID: 3265018062712379453}
   m_markTargetForLayoutRebuild: 0
@@ -1318,6 +1346,23 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &3265018062724108277
 GameObject:
   m_ObjectHideFlags: 0
@@ -1630,6 +1675,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.5
   m_delay: 0.5
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 1
@@ -1638,6 +1685,7 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations:
   - {fileID: 5197005156575208393}
   - {fileID: 5197005156502262068}
@@ -1646,6 +1694,8 @@ MonoBehaviour:
   - {fileID: 5197005156118319374}
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 65538
   m_target: {fileID: 3265018062745738774}
   m_markTargetForLayoutRebuild: 0
@@ -1762,6 +1812,23 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 3265018062745738775}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!225 &3265018062745738775
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -1878,6 +1945,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 258
   m_characterSpacing: -2.16
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -1926,6 +1994,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.3
   m_delay: 0.2
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 1
@@ -1934,9 +2004,12 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 3
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 1
   m_target: {fileID: 3265018062773664422}
   m_markTargetForLayoutRebuild: 0
@@ -2008,6 +2081,23 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &3265018062793859289
 GameObject:
   m_ObjectHideFlags: 0
@@ -2385,6 +2475,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.5
   m_delay: 0.5
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 1
@@ -2393,10 +2485,13 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations:
   - {fileID: 3265018064175675197}
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 65537
   m_target: {fileID: 3265018062850428443}
   m_markTargetForLayoutRebuild: 0
@@ -2495,6 +2590,23 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 3265018062850428437}
   m_alphaCanvasGroup: {fileID: 0}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &3265018062864857193
 GameObject:
   m_ObjectHideFlags: 0
@@ -3386,6 +3498,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 258
   m_characterSpacing: -2.16
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: -24.78
   m_lineSpacingMax: 0
@@ -3784,6 +3897,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 514
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -4089,6 +4203,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.3
   m_delay: 0
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 1
@@ -4097,11 +4213,14 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 3
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations:
   - {fileID: 3265018062773664423}
   - {fileID: 3265018062712379454}
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 2
   m_target: {fileID: 3265018063177636644}
   m_markTargetForLayoutRebuild: 0
@@ -4173,6 +4292,23 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &3265018063183642812
 GameObject:
   m_ObjectHideFlags: 0
@@ -4720,6 +4856,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 514
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -5404,6 +5541,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: -11.64
   m_lineSpacingMax: 0
@@ -6189,6 +6327,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 264
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: -3.03
   m_lineSpacingMax: 0
@@ -6636,6 +6775,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.5
   m_delay: 0.5
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 1
@@ -6644,10 +6785,13 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations:
   - {fileID: 3265018062745738768}
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 65538
   m_target: {fileID: 3265018064175675196}
   m_markTargetForLayoutRebuild: 0
@@ -6764,6 +6908,23 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 3265018064175675198}
   m_alphaCanvasGroup: {fileID: 0}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &3265018064372884948
 GameObject:
   m_ObjectHideFlags: 0
@@ -7087,6 +7248,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.5
   m_delay: 0
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 1
@@ -7095,10 +7258,13 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations:
   - {fileID: 3265018062850428436}
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 1
   m_target: {fileID: 3265018064413849194}
   m_markTargetForLayoutRebuild: 0
@@ -7170,6 +7336,23 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &3265018064418684138
 GameObject:
   m_ObjectHideFlags: 0
@@ -7357,6 +7540,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 514
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: -23.97
   m_lineSpacingMax: 0

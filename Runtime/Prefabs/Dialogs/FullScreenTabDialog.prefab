@@ -282,6 +282,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.2
   m_delay: 0
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
@@ -290,9 +292,12 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 65536
   m_target: {fileID: 2527186978423661638}
   m_markTargetForLayoutRebuild: 0
@@ -364,6 +369,23 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 2527186978423661634}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!225 &2527186978423661634
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -372,7 +394,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2527186978423661639}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -497,6 +519,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.3
   m_delay: 0
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
@@ -505,10 +529,13 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations:
   - {fileID: 2527186978423661633}
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 1
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 69632
   m_target: {fileID: 5968183751846801625}
   m_markTargetForLayoutRebuild: 0
@@ -607,6 +634,23 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &2527186978879140338
 MonoBehaviour:
   m_ObjectHideFlags: 0
