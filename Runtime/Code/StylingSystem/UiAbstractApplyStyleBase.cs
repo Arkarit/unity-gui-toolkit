@@ -188,7 +188,7 @@ namespace GuiToolkit.Style
 
 		private void ApplyInternal()
 		{
-			if (CheckCondition())
+			if (enabled && CheckCondition())
 			{
 				OnBeforeApplyStyle.Invoke(this);
 				ApplyImpl();
