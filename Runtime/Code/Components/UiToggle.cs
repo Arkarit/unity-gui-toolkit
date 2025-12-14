@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using GuiToolkit.Style;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
@@ -19,6 +20,10 @@ namespace GuiToolkit
 		[FormerlySerializedAs("m_animatedWhenSelected")] [SerializeField] protected bool m_playButtonAnimation;
 		[SerializeField][Optional] protected UiSimpleAnimation m_selectionAnimation;
 		[SerializeField] protected EToggleGroupHandling m_toggleGroupHandling = EToggleGroupHandling.Ignore;
+
+		[SerializeField][Optional] protected UiAbstractApplyStyleBase[] m_styleAppliers = new UiAbstractApplyStyleBase[0];
+		[SerializeField] protected string m_skinOn = "On";
+		[SerializeField] protected string m_skinOff = "Off";
 		
 		private Toggle m_toggle;
 		private Color m_savedColor;
@@ -66,6 +71,8 @@ namespace GuiToolkit
 			
 			PlaySelectionAnimationIfNecessary(Toggle.isOn, true);
 			Toggle.onValueChanged.AddListener(PlaySelectionAnimationIfNecessary);
+			if (m_styleAppliers != null && m_styleAppliers.Length > 0)
+				m_toggle.onValueChanged.AddListener(OnToggleValueChanged);
 		}
 
 		protected override void OnDisable()
@@ -75,6 +82,21 @@ namespace GuiToolkit
 			PlaySelectionAnimationIfNecessary(false, true);
 			if (!m_toggleGroupWasManuallySet && m_toggleGroupHandling != EToggleGroupHandling.Ignore)
 				Toggle.group = null;
+
+			if (m_styleAppliers != null && m_styleAppliers.Length > 0)
+				m_toggle.onValueChanged.RemoveListener(OnToggleValueChanged);
+		}
+
+		private void OnToggleValueChanged(bool _isOn)
+		{
+			string skin = _isOn ? m_skinOn : m_skinOff;
+			foreach (var styleApplier in m_styleAppliers)
+			{
+				if (!styleApplier)
+					continue;
+
+				styleApplier.FixedSkinName = skin;
+			}
 		}
 
 		public override void OnPointerDown(PointerEventData eventData)
