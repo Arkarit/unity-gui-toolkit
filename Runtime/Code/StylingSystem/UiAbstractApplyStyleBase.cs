@@ -190,10 +190,6 @@ namespace GuiToolkit.Style
 		{
 			if (enabled && CheckCondition())
 			{
-#if UNITY_EDITOR
-				if (EditorGeneralUtility.IsImmutable(this))
-					return;
-#endif
 				OnBeforeApplyStyle.Invoke(this);
 				ApplyImpl();
 				if (m_rebuildLayoutOnApply && transform is RectTransform targetRectTransform)
