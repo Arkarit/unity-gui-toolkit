@@ -337,12 +337,12 @@ namespace GuiToolkit
 			string path = Application.dataPath;
 			return new DirectoryInfo(Path.GetDirectoryName(path)).Name;
 		}
-		
-		public static string GetPlayerPrefsProjectKey(string _postfix, string _entryName)
+
+		public static string GetPlayerPrefsProjectKey( string _postfix, string _entryName )
 		{
 			return $"{StringConstants.PLAYER_PREFS_PREFIX}{GetProjectName()}_{_postfix}.{_entryName}";
 		}
-		
+
 		public static void DrawInspectorExceptField( SerializedObject _serializedObject, string _fieldToSkip = null, string _header = null )
 		{
 			if (string.IsNullOrEmpty(_fieldToSkip))
@@ -535,7 +535,7 @@ namespace GuiToolkit
 
 			return searchFilterMember.GetValue(sceneHierarchy);
 
-			ReflectionError:
+ReflectionError:
 			UiLog.LogError($"Unity internal API has changed, please fix!");
 			return null;
 		}
@@ -587,7 +587,7 @@ namespace GuiToolkit
 			SetSceneHierarchySearchFilter(savedSearchFilter, SearchableEditorWindow.SearchMode.Name);
 			return SearchList;
 
-			ReflectionError:
+ReflectionError:
 			UiLog.LogError($"Unity internal API has changed, please fix!");
 			return SearchList;
 		}
@@ -774,10 +774,39 @@ namespace GuiToolkit
 		public static void SetDirty( Object _obj )
 		{
 			// Never set package assets dirty; leads to "Saving Prefab to immutable folder is not allowed" errors
-			if (PrefabUtility.IsPartOfImmutablePrefab(_obj))
+			if (IsImmutable(_obj))
 				return;
 
 			EditorUtility.SetDirty(_obj);
+		}
+
+		public static bool IsImmutable( Object _obj )
+		{
+			if (_obj == null)
+				return false;
+
+			if (PrefabUtility.IsPartOfImmutablePrefab(_obj))
+				return true;
+
+			// 1) If we are in Prefab Mode, check the asset path.
+			PrefabStage stage = PrefabStageUtility.GetCurrentPrefabStage();
+			if (stage != null)
+			{
+				string assetPath = stage.assetPath;
+				if (!string.IsNullOrEmpty(assetPath) && assetPath.StartsWith("Packages/"))
+					return true;
+			}
+
+			// 2) If this object is part of a prefab ASSET (not an instance), check path.
+			GameObject go = _obj as GameObject;
+			if (go != null && PrefabUtility.IsPartOfPrefabAsset(go))
+			{
+				string assetPath = AssetDatabase.GetAssetPath(go);
+				if (!string.IsNullOrEmpty(assetPath) && assetPath.StartsWith("Packages/"))
+					return true;
+			}
+
+			return false;
 		}
 
 		private static bool ValidateListAndIndex( SerializedProperty _list, int _idx )
