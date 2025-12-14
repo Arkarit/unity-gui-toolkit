@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -60,15 +59,12 @@ namespace GuiToolkit.Style
 			foreach (var style in m_styles)
 				style.Init();
 
-			BuildDictionaries();
+			BuildDictionary();
 		}
 
 		public UiAbstractStyleBase StyleByName<T>(string _name) where T:Component
 		{
-#if UNITY_EDITOR
-			if (!Application.isPlaying)
-				BuildDictionaries();
-#endif
+			BuildDictionaryIfNecessary();
 
 			var key = UiStyleUtility.GetKey(typeof(T), _name);
 			return StyleByKey(key);
@@ -83,10 +79,7 @@ namespace GuiToolkit.Style
 
 		public UiAbstractStyleBase StyleByKey(int _key)
 		{
-#if UNITY_EDITOR
-			if (!Application.isPlaying)
-				BuildDictionaries();
-#endif
+			BuildDictionaryIfNecessary();
 
 			if (m_styleByKey.TryGetValue(_key, out UiAbstractStyleBase result))
 			{
@@ -107,7 +100,7 @@ namespace GuiToolkit.Style
 				}
 			}
 
-			BuildDictionaries();
+			BuildDictionary();
 		}
 
 		public void SetStyleAlias(UiAbstractStyleBase _style, string _newDisplayName)
@@ -121,10 +114,24 @@ namespace GuiToolkit.Style
 				}
 			}
 
-			BuildDictionaries();
+			BuildDictionary();
 		}
 
-		private void BuildDictionaries()
+		private void BuildDictionaryIfNecessary()
+		{
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+			{
+				BuildDictionary();
+				return;
+			}
+#endif
+
+			if (m_styleByKey == null)
+				BuildDictionary();
+		}
+
+		private void BuildDictionary()
 		{
 			if (m_styleByKey == null)
 				m_styleByKey = new Dictionary<int, UiAbstractStyleBase>(m_styles.Count);
