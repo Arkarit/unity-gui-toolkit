@@ -41,7 +41,41 @@ namespace GuiToolkit
 		[Tooltip("If this is checked, the 'Tabs Parent' object is hidden, if there is only one tab")]
 		[SerializeField] protected bool m_autoHideTabIfOnlyOne = true;
 
+		public readonly CEvent<int, int> EvOnWillChangeTabs = new ();
 		private int m_currentTabIdx;
+
+		public int CurrentTabIdx => m_currentTabIdx;
+
+		public int NumPages
+		{
+			get
+			{
+				if (m_tabInfos == null)
+					return 0;
+				return m_tabInfos.Count;
+			}
+		}
+
+		public UiTab CurrentTab => m_tabInfos[m_currentTabIdx].Tab;
+		public UiPanel CurrentPage => m_tabInfos[m_currentTabIdx].Page;
+
+		public UiTab GetTab(int _idx)
+		{
+			if (_idx < 0 || _idx >= NumPages)
+				return null;
+
+			return m_tabInfos[_idx].Tab;
+		}
+
+		public UiPanel GetPage(int _idx)
+		{
+			if (_idx < 0 || _idx >= NumPages)
+				return null;
+
+			return m_tabInfos[_idx].Page;
+		}
+
+		protected virtual void OnWillChangeTabs(int _currentTab, int _nextTab) {}
 
 		public override void Show( bool _instant = false, Action _onFinish = null )
 		{
@@ -62,6 +96,8 @@ namespace GuiToolkit
 			if (!_force && _idx == m_currentTabIdx)
 				return;
 
+			OnWillChangeTabs(m_currentTabIdx, _idx);
+			EvOnWillChangeTabs.Invoke(m_currentTabIdx, _idx);
 			m_tabInfos[m_currentTabIdx].Page.Hide(_instant);
 			m_tabInfos[_idx].Page.Show(_instant);
 			m_tabInfos[_idx].Tab.Toggle.isOn = true;
@@ -138,6 +174,9 @@ namespace GuiToolkit
 				return;
 
 			bool upOrLeft = _idx < m_currentTabIdx;
+
+			OnWillChangeTabs(m_currentTabIdx, _idx);
+			EvOnWillChangeTabs.Invoke(m_currentTabIdx, _idx);
 
 			UiPanel oldPanel = m_tabInfos[m_currentTabIdx].Page;
 			UiPanel newPanel = m_tabInfos[_idx].Page;
