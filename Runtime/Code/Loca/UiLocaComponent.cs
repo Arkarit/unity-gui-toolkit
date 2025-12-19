@@ -7,7 +7,7 @@ namespace GuiToolkit
 	[RequireComponent(typeof(TMP_Text))]
 	public class UiLocaComponent : UiThing, ILocaKeyProvider
 	{
-		[SerializeField] bool m_autoTranslate = true;
+		public const bool AutoTranslate = false;
 		[SerializeField] private string m_group = string.Empty;
 
 		private TMP_Text m_text;
@@ -16,12 +16,6 @@ namespace GuiToolkit
 		private bool m_keyHasBeenSet;
 
 		private LocaManager m_locaManager;
-
-		public bool AutoTranslate
-		{
-			get => m_autoTranslate;
-			set => m_autoTranslate = value;
-		}
 
 		public string Group
 		{
@@ -33,7 +27,7 @@ namespace GuiToolkit
 		protected override void OnLanguageChanged(string _languageId)
 		{
 			base.OnLanguageChanged(_languageId);
-			if (m_autoTranslate || m_keyHasBeenSet)
+			if (AutoTranslate || m_keyHasBeenSet)
 				Translate();
 		}
 
@@ -52,7 +46,7 @@ namespace GuiToolkit
 		{
 			get
 			{
-				if (!m_autoTranslate)
+				if (!AutoTranslate)
 					return null;
 
 				if (string.IsNullOrEmpty(m_locaKey))
@@ -97,7 +91,7 @@ namespace GuiToolkit
 			if (!Application.isPlaying)
 				return;
 
-			if (!m_autoTranslate && !m_keyHasBeenSet)
+			if (!AutoTranslate && !m_keyHasBeenSet)
 				return;
 
 			if (string.IsNullOrEmpty(m_locaKey))
