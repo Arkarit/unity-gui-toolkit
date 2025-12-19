@@ -7,7 +7,8 @@ namespace GuiToolkit
 	[RequireComponent(typeof(TMP_Text))]
 	public class UiLocaComponent : UiThing, ILocaKeyProvider
 	{
-		[SerializeField] bool m_autoTranslate = true;
+		// Auto translate completely disabled in this patch release
+		[HideInInspector][SerializeField] bool m_autoTranslate = true;
 		[SerializeField] private string m_group = string.Empty;
 
 		private TMP_Text m_text;
@@ -33,7 +34,7 @@ namespace GuiToolkit
 		protected override void OnLanguageChanged(string _languageId)
 		{
 			base.OnLanguageChanged(_languageId);
-			if (m_autoTranslate || m_keyHasBeenSet)
+			if (m_keyHasBeenSet)
 				Translate();
 		}
 
@@ -48,19 +49,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public string LocaKey
-		{
-			get
-			{
-				if (!m_autoTranslate)
-					return null;
-
-				if (string.IsNullOrEmpty(m_locaKey))
-					m_locaKey = TextComponent.text;
-
-				return m_locaKey;
-			}
-		}
+		public string LocaKey => null;
 
 		private LocaManager LocaManager
 		{
@@ -97,7 +86,7 @@ namespace GuiToolkit
 			if (!Application.isPlaying)
 				return;
 
-			if (!m_autoTranslate && !m_keyHasBeenSet)
+			if (!m_keyHasBeenSet)
 				return;
 
 			if (string.IsNullOrEmpty(m_locaKey))
