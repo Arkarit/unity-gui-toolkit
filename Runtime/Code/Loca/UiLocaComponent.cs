@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
@@ -12,8 +13,8 @@ namespace GuiToolkit
 
 		private TMP_Text m_text;
 		private string m_locaKey;
-		private string m_translatedText;
-		private bool m_keyHasBeenSet;
+		private bool m_keyDirty;
+		private string m_lastTranslation;
 
 		private LocaManager m_locaManager;
 
@@ -33,32 +34,27 @@ namespace GuiToolkit
 		protected override void OnLanguageChanged(string _languageId)
 		{
 			base.OnLanguageChanged(_languageId);
-			if (m_autoTranslate || m_keyHasBeenSet)
-				Translate();
+			Translate();
 		}
 
-		public string Text
-		{
-			get => TextComponent.text;
-			set
-			{
-				m_keyHasBeenSet = true;
-				m_locaKey = value;
-				Translate();
-			}
-		}
+		public string Text => TextComponent.text;
 
 		public string LocaKey
 		{
 			get
 			{
-				if (!m_autoTranslate)
-					return null;
-
-				if (string.IsNullOrEmpty(m_locaKey))
+				if (m_autoTranslate && string.IsNullOrEmpty(m_locaKey))
 					m_locaKey = TextComponent.text;
 
 				return m_locaKey;
+			}
+			
+			set
+			{
+				m_keyDirty = true;
+				m_autoTranslate = false;
+				m_locaKey = value;
+				Translate();
 			}
 		}
 
@@ -86,25 +82,34 @@ namespace GuiToolkit
 
 		private void Translate()
 		{
-			m_translatedText = LocaManager.Translate(m_locaKey, m_group);
-			TextComponent.text = m_translatedText;
+			if (!Application.isPlaying)
+				return;
+			
+			// Edge case: Text has already been already translated, but changed in the meantime
+			if (!string.IsNullOrEmpty(m_lastTranslation) && Text != m_lastTranslation)
+			{
+				m_locaKey = null;
+				m_keyDirty = true;
+			}
+			
+			if (!m_autoTranslate && !m_keyDirty)
+				return;
+			
+			
+			m_locaKey = LocaKey;
+			if (string.IsNullOrWhiteSpace(m_locaKey))
+				return;
+			
+			m_autoTranslate = false;
+			m_keyDirty = false;
+			
+			m_lastTranslation = TextComponent.text;
+			TextComponent.text = LocaManager.Translate(m_locaKey, m_group);
 		}
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-
-			if (!Application.isPlaying)
-				return;
-
-			if (!m_autoTranslate && !m_keyHasBeenSet)
-				return;
-
-			if (string.IsNullOrEmpty(m_locaKey))
-				m_locaKey = TextComponent.text;
-			if (string.IsNullOrEmpty(m_locaKey))
-				return;
-
 			Translate();
 		}
 

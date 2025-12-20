@@ -26,7 +26,7 @@ namespace GuiToolkit
 			set
 			{
 				if (m_isLocalized)
-					m_titleTranslator.Text = value;
+					m_titleTranslator.LocaKey = value;
 				else
 					m_text.text = value;
 			}

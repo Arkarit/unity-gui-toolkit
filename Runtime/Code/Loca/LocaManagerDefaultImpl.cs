@@ -287,7 +287,16 @@ namespace GuiToolkit
 
 			return result.ToArray();
 		}
-
+		
+		public override bool HasKey( string _key, string _group )
+		{
+			SetEffectiveGroup(ref _group);
+			if (!m_translationDict.TryGetValue(_group, out var entry))
+				return false;
+			
+			return entry.ContainsKey(_key);
+		}
+		
 		public override string Translate( string _s, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key )
 		{
 			SetEffectiveGroup(ref _group);

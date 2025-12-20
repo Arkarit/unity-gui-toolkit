@@ -35,7 +35,7 @@ namespace GuiToolkit
 					return;
 				InitIfNecessary();
 				if (m_translator && Application.isPlaying)
-					m_translator.Text = value;
+					m_translator.LocaKey = value;
 				else if (m_tmpText)
 					m_tmpText.text = value;
 				else if (m_text)
