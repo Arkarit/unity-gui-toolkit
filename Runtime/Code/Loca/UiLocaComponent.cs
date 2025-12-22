@@ -18,38 +18,14 @@ namespace GuiToolkit
 	[RequireComponent(typeof(TMP_Text))]
 	public class UiLocaComponent : UiThing, ILocaKeyProvider
 	{
-		[SerializeField] bool m_autoTranslate = true;
 		[SerializeField] private string m_group = string.Empty;
 
 		private TMP_Text m_text;
 		private string m_locaKey;
-		private bool m_translationDirty;
+		private bool m_translationDirty = true;
 		private string m_lastTranslation;
 
 		private LocaManager m_locaManager;
-
-		/// <summary>
-		/// Enables or disables automatic translation.
-		/// 
-		/// When enabled, the localization key is automatically derived from the
-		/// current TMP_Text content if no explicit key is set.
-		/// 
-		/// Changing this value marks the translation as dirty and immediately
-		/// triggers a re-translation.
-		/// </summary>
-		public bool AutoTranslate
-		{
-			get => m_autoTranslate;
-			set
-			{
-				if (m_autoTranslate == value)
-					return;
-
-				m_autoTranslate = value;
-				m_translationDirty = true;
-				Translate();
-			}
-		}
 
 		/// <summary>
 		/// Optional localization group used during translation.
@@ -93,7 +69,7 @@ namespace GuiToolkit
 		{
 			get
 			{
-				if (m_autoTranslate && string.IsNullOrEmpty(m_locaKey))
+				if (string.IsNullOrEmpty(m_locaKey))
 					m_locaKey = TextComponent.text;
 
 				return m_locaKey;
@@ -102,7 +78,8 @@ namespace GuiToolkit
 			set
 			{
 				m_translationDirty = true;
-				m_locaKey = value;
+				m_locaKey = null;
+				TextComponent.text = value;
 				Translate();
 			}
 		}
@@ -157,7 +134,7 @@ namespace GuiToolkit
 				m_translationDirty = true;
 			}
 			
-			if (!m_autoTranslate && !m_translationDirty)
+			if (!m_translationDirty)
 				return;
 			
 			// Intentionally trigger the LocaKey getter to ensure the key
@@ -171,9 +148,11 @@ namespace GuiToolkit
 			}
 
 			m_translationDirty = false;
-			
-			TextComponent.text = LocaManager.Translate(m_locaKey, m_group);
-			m_lastTranslation = TextComponent.text;
+
+			var translatedText = LocaManager.Translate(m_locaKey, m_group);
+			m_lastTranslation = translatedText;
+			TextComponent.text = translatedText;
+UiLog.Log($"---::: Lang:{LocaManager.Language} key:{m_locaKey} trans:{translatedText}");
 		}
 
 		/// <summary>
