@@ -13,7 +13,7 @@ namespace GuiToolkit
 
 		private TMP_Text m_text;
 		private string m_locaKey;
-		private bool m_keyDirty;
+		private bool m_translationDirty;
 		private string m_lastTranslation;
 
 		private LocaManager m_locaManager;
@@ -21,7 +21,14 @@ namespace GuiToolkit
 		public bool AutoTranslate
 		{
 			get => m_autoTranslate;
-			set => m_autoTranslate = value;
+			set
+			{
+				if (m_autoTranslate == value)
+					return;
+				m_autoTranslate = value;
+				m_translationDirty = true;
+				Translate();
+			}
 		}
 
 		public string Group
@@ -34,7 +41,7 @@ namespace GuiToolkit
 		protected override void OnLanguageChanged(string _languageId)
 		{
 			base.OnLanguageChanged(_languageId);
-			m_keyDirty = true;
+			m_translationDirty = true;
 			Translate();
 		}
 
@@ -52,7 +59,7 @@ namespace GuiToolkit
 			
 			set
 			{
-				m_keyDirty = true;
+				m_translationDirty = true;
 				m_locaKey = value;
 				Translate();
 			}
@@ -86,23 +93,23 @@ namespace GuiToolkit
 				return;
 			
 			// Edge case: Text has already been translated, but changed in the meantime
-			if (!m_keyDirty && !string.IsNullOrEmpty(m_lastTranslation) && Text != m_lastTranslation)
+			if (!m_translationDirty && !string.IsNullOrEmpty(m_lastTranslation) && Text != m_lastTranslation)
 			{
 				m_locaKey = null;
-				m_keyDirty = true;
+				m_translationDirty = true;
 			}
 			
-			if (!m_autoTranslate && !m_keyDirty)
+			if (!m_autoTranslate && !m_translationDirty)
 				return;
 			
-			m_locaKey = LocaKey;
+			var _ = LocaKey;
 			if (string.IsNullOrWhiteSpace(m_locaKey))
 			{
 				TextComponent.text = String.Empty;
 				return;
 			}
 
-			m_keyDirty = false;
+			m_translationDirty = false;
 			
 			TextComponent.text = LocaManager.Translate(m_locaKey, m_group);
 			m_lastTranslation = TextComponent.text;
