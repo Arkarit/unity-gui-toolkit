@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
@@ -34,6 +34,7 @@ namespace GuiToolkit
 		protected override void OnLanguageChanged(string _languageId)
 		{
 			base.OnLanguageChanged(_languageId);
+			m_keyDirty = true;
 			Translate();
 		}
 
@@ -52,7 +53,6 @@ namespace GuiToolkit
 			set
 			{
 				m_keyDirty = true;
-				m_autoTranslate = false;
 				m_locaKey = value;
 				Translate();
 			}
@@ -85,8 +85,8 @@ namespace GuiToolkit
 			if (!Application.isPlaying)
 				return;
 			
-			// Edge case: Text has already been already translated, but changed in the meantime
-			if (!string.IsNullOrEmpty(m_lastTranslation) && Text != m_lastTranslation)
+			// Edge case: Text has already been translated, but changed in the meantime
+			if (!m_keyDirty && !string.IsNullOrEmpty(m_lastTranslation) && Text != m_lastTranslation)
 			{
 				m_locaKey = null;
 				m_keyDirty = true;
@@ -95,16 +95,17 @@ namespace GuiToolkit
 			if (!m_autoTranslate && !m_keyDirty)
 				return;
 			
-			
 			m_locaKey = LocaKey;
 			if (string.IsNullOrWhiteSpace(m_locaKey))
+			{
+				TextComponent.text = String.Empty;
 				return;
-			
-			m_autoTranslate = false;
+			}
+
 			m_keyDirty = false;
 			
-			m_lastTranslation = TextComponent.text;
 			TextComponent.text = LocaManager.Translate(m_locaKey, m_group);
+			m_lastTranslation = TextComponent.text;
 		}
 
 		protected override void OnEnable()
