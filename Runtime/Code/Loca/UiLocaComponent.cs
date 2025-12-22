@@ -5,6 +5,16 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// Localization helper component for TMP_Text.
+	/// 
+	/// This component translates the associated TMP_Text using a localization key.
+	/// It supports automatic key derivation from the current text as well as
+	/// explicitly assigned localization keys.
+	/// 
+	/// External modifications of the TMP_Text are tolerated as a fallback,
+	/// but changing text via UiLocaComponent / LocaKey is the preferred API.
+	/// </summary>
 	[RequireComponent(typeof(TMP_Text))]
 	public class UiLocaComponent : UiThing, ILocaKeyProvider
 	{
@@ -18,6 +28,15 @@ namespace GuiToolkit
 
 		private LocaManager m_locaManager;
 
+		/// <summary>
+		/// Enables or disables automatic translation.
+		/// 
+		/// When enabled, the localization key is automatically derived from the
+		/// current TMP_Text content if no explicit key is set.
+		/// 
+		/// Changing this value marks the translation as dirty and immediately
+		/// triggers a re-translation.
+		/// </summary>
 		public bool AutoTranslate
 		{
 			get => m_autoTranslate;
@@ -25,19 +44,29 @@ namespace GuiToolkit
 			{
 				if (m_autoTranslate == value)
 					return;
+
 				m_autoTranslate = value;
 				m_translationDirty = true;
 				Translate();
 			}
 		}
 
+		/// <summary>
+		/// Optional localization group used during translation.
+		/// </summary>
 		public string Group
 		{
 			get => m_group;
 			set => m_group = value;
 		}
 
+		/// <inheritdoc/>
 		protected override bool NeedsLanguageChangeCallback => true;
+
+		/// <summary>
+		/// Called when the active language changes.
+		/// Forces a re-translation using the current localization key.
+		/// </summary>
 		protected override void OnLanguageChanged(string _languageId)
 		{
 			base.OnLanguageChanged(_languageId);
@@ -45,8 +74,21 @@ namespace GuiToolkit
 			Translate();
 		}
 
+		/// <summary>
+		/// Current text of the underlying TMP_Text component.
+		/// This property is read-only; prefer changing text via LocaKey instead.
+		/// </summary>
 		public string Text => TextComponent.text;
 
+		/// <summary>
+		/// Localization key used for translation.
+		/// 
+		/// When AutoTranslate is enabled and no explicit key is set,
+		/// the key is derived from the current TMP_Text content.
+		/// 
+		/// Note: This getter may have side effects by assigning the key
+		/// when auto-deriving it.
+		/// </summary>
 		public string LocaKey
 		{
 			get
@@ -65,6 +107,9 @@ namespace GuiToolkit
 			}
 		}
 
+		/// <summary>
+		/// Cached access to the global LocaManager instance.
+		/// </summary>
 		private LocaManager LocaManager
 		{
 			get
@@ -76,6 +121,9 @@ namespace GuiToolkit
 			}
 		}
 
+		/// <summary>
+		/// Cached access to the associated TMP_Text component.
+		/// </summary>
 		public TMP_Text TextComponent
 		{
 			get
@@ -87,12 +135,22 @@ namespace GuiToolkit
 			}
 		}
 
+		/// <summary>
+		/// Performs translation if required.
+		/// 
+		/// External modifications of the TMP_Text are detected and handled
+		/// as a fallback: if AutoTranslate is enabled, the modified text
+		/// is treated as a new localization key.
+		/// </summary>
 		private void Translate()
 		{
 			if (!Application.isPlaying)
 				return;
 			
-			// Edge case: Text has already been translated, but changed in the meantime
+			// Fallback:
+			// The text was translated previously, but has been modified externally
+			// in the meantime. When AutoTranslate is enabled, treat the new text
+			// as a new localization key.
 			if (!m_translationDirty && !string.IsNullOrEmpty(m_lastTranslation) && Text != m_lastTranslation)
 			{
 				m_locaKey = null;
@@ -102,7 +160,10 @@ namespace GuiToolkit
 			if (!m_autoTranslate && !m_translationDirty)
 				return;
 			
+			// Intentionally trigger the LocaKey getter to ensure the key
+			// is derived when AutoTranslate is enabled.
 			var _ = LocaKey;
+
 			if (string.IsNullOrWhiteSpace(m_locaKey))
 			{
 				TextComponent.text = String.Empty;
@@ -115,6 +176,9 @@ namespace GuiToolkit
 			m_lastTranslation = TextComponent.text;
 		}
 
+		/// <summary>
+		/// Ensures translation is applied when the component becomes enabled.
+		/// </summary>
 		protected override void OnEnable()
 		{
 			base.OnEnable();
@@ -122,7 +186,10 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
+		/// <inheritdoc/>
 		public bool UsesMultipleLocaKeys => false;
+
+		/// <inheritdoc/>
 		public List<string> LocaKeys => null;
 #endif
 	}
