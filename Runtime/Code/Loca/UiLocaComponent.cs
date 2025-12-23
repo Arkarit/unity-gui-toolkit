@@ -15,6 +15,8 @@ namespace GuiToolkit
 	/// External modifications of the TMP_Text are tolerated as a fallback,
 	/// but changing text via UiLocaComponent / LocaKey is the preferred API.
 	/// </summary>
+
+	[DisallowMultipleComponent]
 	[RequireComponent(typeof(TMP_Text))]
 	public class UiLocaComponent : UiThing, ILocaKeyProvider
 	{
@@ -22,7 +24,6 @@ namespace GuiToolkit
 
 		private TMP_Text m_text;
 		private string m_locaKey;
-		private bool m_translationDirty = true;
 		private string m_lastTranslation;
 
 		private LocaManager m_locaManager;
@@ -46,7 +47,6 @@ namespace GuiToolkit
 		protected override void OnLanguageChanged(string _languageId)
 		{
 			base.OnLanguageChanged(_languageId);
-			m_translationDirty = true;
 			Translate();
 		}
 
@@ -77,9 +77,8 @@ namespace GuiToolkit
 			
 			set
 			{
-				m_translationDirty = true;
-				m_locaKey = null;
-				TextComponent.text = value;
+				m_locaKey = value;
+				m_lastTranslation = null;
 				Translate();
 			}
 		}
@@ -128,26 +127,21 @@ namespace GuiToolkit
 			// The text was translated previously, but has been modified externally
 			// in the meantime. When AutoTranslate is enabled, treat the new text
 			// as a new localization key.
-			if (!m_translationDirty && !string.IsNullOrEmpty(m_lastTranslation) && Text != m_lastTranslation)
+			if (!string.IsNullOrEmpty(m_lastTranslation) && Text != m_lastTranslation)
 			{
+UiLog.Log($"---::: Invalidate loca key:{m_locaKey} Text:{Text} m_lastTranslation:{m_lastTranslation}");
 				m_locaKey = null;
-				m_translationDirty = true;
 			}
-			
-			if (!m_translationDirty)
-				return;
-			
+
 			// Intentionally trigger the LocaKey getter to ensure the key
 			// is derived when AutoTranslate is enabled.
 			var _ = LocaKey;
 
 			if (string.IsNullOrWhiteSpace(m_locaKey))
 			{
-				TextComponent.text = String.Empty;
+				TextComponent.text = string.Empty;
 				return;
 			}
-
-			m_translationDirty = false;
 
 			var translatedText = LocaManager.Translate(m_locaKey, m_group);
 			m_lastTranslation = translatedText;

@@ -306,7 +306,7 @@ namespace GuiToolkit
 				if (DebugLoca)
 					Log("Empty key - intentional?");
 
-				return "";
+				return string.Empty;
 			}
 
 			if (m_isDev)
