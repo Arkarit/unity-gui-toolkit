@@ -7,13 +7,13 @@ namespace GuiToolkit.Storage
 {
 	public sealed class DocumentStore : IDocumentStore
 	{
-		private readonly IByteStore _byteStore;
-		private readonly ISerializer _serializer;
+		private readonly IByteStore m_byteStore;
+		private readonly ISerializer m_serializer;
 
 		public DocumentStore( IByteStore _byteStore, ISerializer _serializer )
 		{
-			this._byteStore = _byteStore;
-			this._serializer = _serializer;
+			m_byteStore = _byteStore;
+			m_serializer = _serializer;
 		}
 
 		public async Task<bool> ExistsAsync(
@@ -22,7 +22,7 @@ namespace GuiToolkit.Storage
 			CancellationToken _cancellationToken = default )
 		{
 			string key = BuildDocKey(_collection, _id);
-			return await _byteStore.ExistsAsync(key, _cancellationToken);
+			return await m_byteStore.ExistsAsync(key, _cancellationToken);
 		}
 
 		public async Task<T?> LoadAsync<T>(
@@ -32,13 +32,13 @@ namespace GuiToolkit.Storage
 		{
 			string key = BuildDocKey(_collection, _id);
 
-			byte[]? data = await _byteStore.LoadAsync(key, _cancellationToken);
+			byte[]? data = await m_byteStore.LoadAsync(key, _cancellationToken);
 			if (data == null)
 			{
 				return default;
 			}
 
-			return _serializer.Deserialize<T>(data);
+			return m_serializer.Deserialize<T>(data);
 		}
 
 		public async Task SaveAsync<T>(
@@ -48,9 +48,9 @@ namespace GuiToolkit.Storage
 			CancellationToken _cancellationToken = default )
 		{
 			string docKey = BuildDocKey(_collection, _id);
-			byte[] data = _serializer.Serialize(_document);
+			byte[] data = m_serializer.Serialize(_document);
 
-			await _byteStore.SaveAsync(docKey, data, _cancellationToken);
+			await m_byteStore.SaveAsync(docKey, data, _cancellationToken);
 
 			await UpsertIndexAsync(_collection, _id, _cancellationToken);
 		}
@@ -62,7 +62,7 @@ namespace GuiToolkit.Storage
 		{
 			string docKey = BuildDocKey(_collection, _id);
 
-			await _byteStore.DeleteAsync(docKey, _cancellationToken);
+			await m_byteStore.DeleteAsync(docKey, _cancellationToken);
 			await RemoveFromIndexAsync(_collection, _id, _cancellationToken);
 		}
 
@@ -83,7 +83,7 @@ namespace GuiToolkit.Storage
 
 			// Fallback: list keys by prefix (works fine for local file store, may be slow for backend).
 			string prefix = BuildCollectionPrefix(_collection);
-			IReadOnlyList<string> keys = await _byteStore.ListKeysAsync(prefix, _cancellationToken);
+			IReadOnlyList<string> keys = await m_byteStore.ListKeysAsync(prefix, _cancellationToken);
 
 			List<string> fallbackIds = new List<string>();
 			for (int i = 0; i < keys.Count; i++)
@@ -135,13 +135,13 @@ namespace GuiToolkit.Storage
 			CancellationToken _cancellationToken )
 		{
 			string indexKey = BuildIndexKey(_collection);
-			byte[]? data = await _byteStore.LoadAsync(indexKey, _cancellationToken);
+			byte[]? data = await m_byteStore.LoadAsync(indexKey, _cancellationToken);
 			if (data == null)
 			{
 				return null;
 			}
 
-			return _serializer.Deserialize<CollectionIndex>(data);
+			return m_serializer.Deserialize<CollectionIndex>(data);
 		}
 
 		private async Task SaveIndexAsync(
@@ -150,8 +150,8 @@ namespace GuiToolkit.Storage
 			CancellationToken _cancellationToken )
 		{
 			string indexKey = BuildIndexKey(_collection);
-			byte[] data = _serializer.Serialize(_index);
-			await _byteStore.SaveAsync(indexKey, data, _cancellationToken);
+			byte[] data = m_serializer.Serialize(_index);
+			await m_byteStore.SaveAsync(indexKey, data, _cancellationToken);
 		}
 
 		private async Task UpsertIndexAsync(
