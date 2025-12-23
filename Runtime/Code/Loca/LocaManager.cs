@@ -18,6 +18,7 @@ namespace GuiToolkit
 
 		public abstract string Translate( string _key, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key );
 		public abstract string Translate( string _singularKey, string _pluralKey, int _n, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key );
+		public abstract bool HasKey(string _key, string _group);
 
 		public abstract bool ChangeLanguageImpl( string _languageId );
 

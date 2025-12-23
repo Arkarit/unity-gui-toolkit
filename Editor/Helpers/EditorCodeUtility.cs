@@ -648,18 +648,6 @@ namespace GuiToolkit.Editor
 					}
 				}
 
-				LogReplacement($"Adding additional components 'UiTMPTranslator' and '' to '{newComp.GetPath()}'");
-				var translator = go.GetComponent<UiLocaComponent>();
-				if (!translator)
-				{
-					translator = Undo.AddComponent<UiLocaComponent>(go);
-					translator.AutoTranslate = true;
-				}
-
-				var styleApplier = go.GetComponent<UiApplyStyleTMP_Text>();
-				if (!styleApplier)
-					Undo.AddComponent<UiApplyStyleTMP_Text>(go);
-
 				// 4) Apply captured data to TB
 
 				LogReplacement($"Applying captured text properties from '{oldComp.GetType().Name}' on '{oldComp.GetPath()}':\n{snapshot}");
