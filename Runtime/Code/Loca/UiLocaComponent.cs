@@ -128,10 +128,7 @@ namespace GuiToolkit
 			// in the meantime. When AutoTranslate is enabled, treat the new text
 			// as a new localization key.
 			if (!string.IsNullOrEmpty(m_lastTranslation) && Text != m_lastTranslation)
-			{
-UiLog.Log($"---::: Invalidate loca key:{m_locaKey} Text:{Text} m_lastTranslation:{m_lastTranslation}");
 				m_locaKey = null;
-			}
 
 			// Intentionally trigger the LocaKey getter to ensure the key
 			// is derived when AutoTranslate is enabled.
@@ -146,7 +143,6 @@ UiLog.Log($"---::: Invalidate loca key:{m_locaKey} Text:{Text} m_lastTranslation
 			var translatedText = LocaManager.Translate(m_locaKey, m_group);
 			m_lastTranslation = translatedText;
 			TextComponent.text = translatedText;
-UiLog.Log($"---::: Lang:{LocaManager.Language} key:{m_locaKey} trans:{translatedText}");
 		}
 
 		/// <summary>
