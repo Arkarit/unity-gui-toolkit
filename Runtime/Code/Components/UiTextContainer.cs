@@ -10,7 +10,7 @@ namespace GuiToolkit
 {
 	public class UiTextContainer : UiThing, IPoolable
 	{
-		protected UiLocaComponent m_translator;
+		protected UiAutoLocalize m_translator;
 		protected TextMeshProUGUI m_tmpText;
 		protected Text m_text;
 		protected bool m_initialized = false;
@@ -99,7 +99,7 @@ namespace GuiToolkit
 			if (m_initialized)
 				return;
 
-			m_translator = GetComponentInChildren<UiLocaComponent>();
+			m_translator = GetComponentInChildren<UiAutoLocalize>();
 			m_tmpText = GetComponentInChildren<TextMeshProUGUI>();
 			m_text = GetComponentInChildren<Text>();
 
