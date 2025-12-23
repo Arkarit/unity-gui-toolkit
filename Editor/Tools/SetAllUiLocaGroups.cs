@@ -38,12 +38,12 @@ namespace GuiToolkit.Editor
 			PrefabStage prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
 			bool isPrefabStage = prefabStage != null;
 
-			List<UiLocaComponent> targets = new List<UiLocaComponent>();
+			List<UiAutoLocalize> targets = new List<UiAutoLocalize>();
 			if (isPrefabStage)
 			{
 				GameObject root = prefabStage.prefabContentsRoot;
 				if (root != null)
-					targets.AddRange(root.GetComponentsInChildren<UiLocaComponent>(true));
+					targets.AddRange(root.GetComponentsInChildren<UiAutoLocalize>(true));
 			}
 			else
 			{
@@ -76,7 +76,7 @@ namespace GuiToolkit.Editor
 
 				for (int i = 0; i < count; i++)
 				{
-					UiLocaComponent comp = targets[i];
+					UiAutoLocalize comp = targets[i];
 					if (comp == null)
 						continue;
 
@@ -122,7 +122,7 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		private static void CollectFromScene( Scene _scene, List<UiLocaComponent> _results )
+		private static void CollectFromScene( Scene _scene, List<UiAutoLocalize> _results )
 		{
 			List<GameObject> roots = new List<GameObject>(64);
 			_scene.GetRootGameObjects(roots);
@@ -133,7 +133,7 @@ namespace GuiToolkit.Editor
 				if (root == null)
 					continue;
 
-				UiLocaComponent[] comps = root.GetComponentsInChildren<UiLocaComponent>(true);
+				UiAutoLocalize[] comps = root.GetComponentsInChildren<UiAutoLocalize>(true);
 				if (comps != null && comps.Length > 0)
 					_results.AddRange(comps);
 			}
