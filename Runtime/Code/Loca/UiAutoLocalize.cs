@@ -18,7 +18,7 @@ namespace GuiToolkit
 
 	[DisallowMultipleComponent]
 	[RequireComponent(typeof(TMP_Text))]
-	public class UiLocaComponent : UiThing, ILocaKeyProvider
+	public class UiAutoLocalize : UiThing, ILocaKeyProvider
 	{
 		[SerializeField] private string m_group = string.Empty;
 
