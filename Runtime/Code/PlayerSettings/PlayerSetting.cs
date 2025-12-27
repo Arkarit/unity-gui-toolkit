@@ -97,6 +97,7 @@ namespace GuiToolkit
 		public string Group => m_group;
 		public string Title => m_title;
 		public string Key => m_key;
+
 		public bool AllowInvokeEvents
 		{
 			get => m_allowInvokeEvents;
@@ -110,7 +111,6 @@ namespace GuiToolkit
 			{
 				CheckType(value?.GetType());
 				m_value = value;
-				SaveValue();
 				InvokeEvents();
 			}
 		}
@@ -129,8 +129,12 @@ namespace GuiToolkit
 		public List<string> Icons => m_icons;
 		public bool IsLocalized => m_isLocalized;
 
-		public PlayerSetting() { }
-		public PlayerSetting( string _category, string _group, string _title, object _defaultValue, PlayerSettingOptions _options = null )
+		public PlayerSetting()
+		{
+		}
+
+		public PlayerSetting(string _category, string _group, string _title, object _defaultValue,
+			PlayerSettingOptions _options = null)
 		{
 			m_mainThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			m_options = _options ?? new PlayerSettingOptions();
@@ -158,6 +162,12 @@ namespace GuiToolkit
 				UiEventDefinitions.EvLanguageChanged.RemoveListener(OnLanguageChanged);
 		}
 
+		public void SetValueSilent(object _value)
+		{
+			CheckType(_value?.GetType());
+			m_value = _value;
+		}
+
 		public T GetValue<T>()
 		{
 			return GetValue<T>(ref m_value);
@@ -169,6 +179,7 @@ namespace GuiToolkit
 		}
 
 		public void TempSaveValue() => m_savedValue = m_value;
+
 		public void TempRestoreValue()
 		{
 			m_value = m_savedValue;
@@ -186,7 +197,7 @@ namespace GuiToolkit
 			m_options.OnChanged?.Invoke(this);
 		}
 
-		protected T GetValue<T>( ref object _v )
+		protected T GetValue<T>(ref object _v)
 		{
 			CheckType(typeof(T));
 
@@ -196,7 +207,7 @@ namespace GuiToolkit
 			return (T)_v;
 		}
 
-		protected object GetValue( ref object _v )
+		protected object GetValue(ref object _v)
 		{
 			if (m_type == null)
 				return null;
@@ -225,7 +236,8 @@ namespace GuiToolkit
 			if (m_type == typeof(int) || m_type.IsEnum)
 				saveTask = Storage.Storage.Documents.SaveAsync(k_StorageCollection, Key, Convert.ToInt32(m_value));
 			else if (m_type == typeof(bool))
-				saveTask = Storage.Storage.Documents.SaveAsync(k_StorageCollection, Key, Convert.ToBoolean(m_value) ? 1 : 0);
+				saveTask = Storage.Storage.Documents.SaveAsync(k_StorageCollection, Key,
+					Convert.ToBoolean(m_value) ? 1 : 0);
 			else if (m_type == typeof(float))
 				saveTask = Storage.Storage.Documents.SaveAsync(k_StorageCollection, Key, Convert.ToSingle(m_value));
 			else if (m_type == typeof(string))
@@ -245,41 +257,41 @@ namespace GuiToolkit
 				m_mainThreadScheduler);
 		}
 
-		protected void CheckType( Type _t )
+		protected void CheckType(Type _t)
 		{
 			if (_t != m_type)
-				throw new ArgumentException($"Wrong value type in Player Setting '{m_key}': Should be '{m_type.Name}', is '{_t.Name}'");
+				throw new ArgumentException(
+					$"Wrong value type in Player Setting '{m_key}': Should be '{m_type.Name}', is '{_t.Name}'");
 		}
 
-		protected void OnLanguageChanged( string _language )
+		protected void OnLanguageChanged(string _language)
 		{
 			Value = _language;
 		}
 
-		protected static int InitValue( PlayerSettingOptions _options, string _key, int _defaultValue )
+		protected static int InitValue(PlayerSettingOptions _options, string _key, int _defaultValue)
 		{
 			var deflt = Convert.ToInt32(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetInt(_key, deflt) : deflt;
 		}
 
-		protected static float InitValue( PlayerSettingOptions _options, string _key, float _defaultValue )
+		protected static float InitValue(PlayerSettingOptions _options, string _key, float _defaultValue)
 		{
 			var deflt = Convert.ToSingle(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetFloat(_key, deflt) : deflt;
 		}
 
-		protected static string InitValue( PlayerSettingOptions _options, string _key, string _defaultValue )
+		protected static string InitValue(PlayerSettingOptions _options, string _key, string _defaultValue)
 		{
 			var deflt = Convert.ToString(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetString(_key, deflt) : deflt;
 		}
 
-		protected void InitValue( Type _type )
+		protected void InitValue(Type _type)
 		{
 			if (_type == null)
 				return;
 
-			// Always start with default immediately (no blocking).
 			if (_type == typeof(int) || _type.IsEnum)
 				m_value = Convert.ToInt32(DefaultValue);
 			else if (_type == typeof(bool))
@@ -288,123 +300,10 @@ namespace GuiToolkit
 				m_value = Convert.ToSingle(DefaultValue);
 			else if (_type == typeof(string))
 				m_value = Convert.ToString(DefaultValue);
+			else if (_type == typeof(KeyCode))
+				m_value = (KeyCode)DefaultValue;
 			else
-			{
 				UiLog.LogError($"Unknown type for player setting '{Key}': {_type.Name}");
-				return;
-			}
-
-			if (!Options.IsSaveable || IsButton)
-				return;
-
-			// If storage isn't ready yet, we just keep default.
-			if (Storage.Storage.Documents == null)
-				return;
-
-			if (_type == typeof(int) || _type.IsEnum)
-				LoadAndApplyInt();
-			else if (_type == typeof(bool))
-				LoadAndApplyBool();
-			else if (_type == typeof(float))
-				LoadAndApplyFloat();
-			else if (_type == typeof(string))
-				LoadAndApplyString();
-		}
-
-		private void LoadAndApplyInt()
-		{
-			Task<int?> t = Storage.Storage.Documents.LoadAsync<int?>(k_StorageCollection, Key);
-
-			t.ContinueWith(
-				_tt =>
-				{
-					if (_tt.Exception != null)
-					{
-						UiLog.LogError($"Failed loading player setting '{Key}': {_tt.Exception}");
-						return;
-					}
-
-					int? v = _tt.Result;
-					if (v == null)
-						return;
-
-					if (m_type.IsEnum)
-						m_value = System.Enum.ToObject(m_type, v.Value);
-					else
-						m_value = v.Value;
-
-					InvokeEvents();
-				},
-				m_mainThreadScheduler);
-		}
-
-		private void LoadAndApplyBool()
-		{
-			Task<int?> t = Storage.Storage.Documents.LoadAsync<int?>(k_StorageCollection, Key);
-
-			t.ContinueWith(
-				_tt =>
-				{
-					if (_tt.Exception != null)
-					{
-						UiLog.LogError($"Failed loading player setting '{Key}': {_tt.Exception}");
-						return;
-					}
-
-					int? v = _tt.Result;
-					if (v == null)
-						return;
-
-					m_value = v.Value != 0;
-					InvokeEvents();
-				},
-				m_mainThreadScheduler);
-		}
-
-		private void LoadAndApplyFloat()
-		{
-			Task<float?> t = Storage.Storage.Documents.LoadAsync<float?>(k_StorageCollection, Key);
-
-			t.ContinueWith(
-				_tt =>
-				{
-					if (_tt.Exception != null)
-					{
-						UiLog.LogError($"Failed loading player setting '{Key}': {_tt.Exception}");
-						return;
-					}
-
-					float? v = _tt.Result;
-					if (v == null)
-						return;
-
-					m_value = v.Value;
-					InvokeEvents();
-				},
-				m_mainThreadScheduler);
-		}
-
-		private void LoadAndApplyString()
-		{
-			Task<string?> t = Storage.Storage.Documents.LoadAsync<string>(k_StorageCollection, Key);
-
-			t.ContinueWith(
-				_tt =>
-				{
-					if (_tt.Exception != null)
-					{
-						UiLog.LogError($"Failed loading player setting '{Key}': {_tt.Exception}");
-						return;
-					}
-
-					string v = _tt.Result;
-					if (v == null)
-						return;
-
-					m_value = v;
-					InvokeEvents();
-				},
-				m_mainThreadScheduler);
 		}
 	}
 }
