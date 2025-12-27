@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,9 +13,9 @@ namespace GuiToolkit
 	/// </summary>
 	public enum EPlayerSettingType
 	{
-		Auto,		//!< Automatically determined
-		Language,	//!< Special case language type
-		Radio,		//!< Special case radio buttons
+		Auto,       //!< Automatically determined
+		Language,   //!< Special case language type
+		Radio,      //!< Special case radio buttons
 	}
 
 	/// <summary>
@@ -24,10 +25,10 @@ namespace GuiToolkit
 	/// </summary>
 	public class PlayerSettingOptions
 	{
-		public static readonly List<KeyCode> KeyCodeNoMouseList =		//!< Convenient filter list for all mouse keys forbidden or only mouse keys allowed, depending on KeyCodeFilterListIsWhitelist
-		new ()
+		public static readonly List<KeyCode> KeyCodeNoMouseList =       //!< Convenient filter list for all mouse keys forbidden or only mouse keys allowed, depending on KeyCodeFilterListIsWhitelist
+		new()
 		{
-			KeyCode.Mouse0, 
+			KeyCode.Mouse0,
 			KeyCode.Mouse1,
 			KeyCode.Mouse2,
 			KeyCode.Mouse3,
@@ -39,29 +40,29 @@ namespace GuiToolkit
 			KeyCode.WheelUp,
 #endif
 		};
-		
-		public EPlayerSettingType Type = EPlayerSettingType.Auto;			//!< Player setting type. Usually left default (Auto: automatically determined)
-		public string Key = null;											//!< Key. If left null or empty, player setting title is used as key.
-		public List<string> Icons;											//!< List of icons to be used, depending on player setting type
-		public List<string> Titles;											//!< Titles for UI display(optional, else string values are also used as titles)
-		public List<string> StringValues;									//!< String values for string based PlayerSettingOptions
-		public List<KeyCode> KeyCodeFilterList;								//!< Filter list for keycodes
-		public bool KeyCodeFilterListIsWhitelist;							//!< Set to true if you want the filter list to be whitelist instead of blacklist
-		public bool IsLocalized = true;										//!< Should usually be set to true; only set to false if you want to display languages (see TestMain language setting)
-		public UnityAction<PlayerSetting> OnChanged = null;					//!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
-		public bool IsSaveable = true;										//!< Is the option saved in player prefs? Obviously usually true, but can be set to false for cheats etc.
-		public object CustomData = null;									//!< Optional custom data to hand over to your handler
-		public Func<float, string> ValueToStringFn = null;					//!< Optional slider text conversion. If left null, no text is displayed.
-		public GameObject CustomPrefab = null;								//!< Custom prefab to be used in Ui
-		
-		public static PlayerSettingOptions NoMouseKeys => 
-			new ()
+
+		public EPlayerSettingType Type = EPlayerSettingType.Auto;           //!< Player setting type. Usually left default (Auto: automatically determined)
+		public string Key = null;                                           //!< Key. If left null or empty, player setting title is used as key.
+		public List<string> Icons;                                          //!< List of icons to be used, depending on player setting type
+		public List<string> Titles;                                         //!< Titles for UI display(optional, else string values are also used as titles)
+		public List<string> StringValues;                                   //!< String values for string based PlayerSettingOptions
+		public List<KeyCode> KeyCodeFilterList;                             //!< Filter list for keycodes
+		public bool KeyCodeFilterListIsWhitelist;                           //!< Set to true if you want the filter list to be whitelist instead of blacklist
+		public bool IsLocalized = true;                                     //!< Should usually be set to true; only set to false if you want to display languages (see TestMain language setting)
+		public UnityAction<PlayerSetting> OnChanged = null;                 //!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
+		public bool IsSaveable = true;                                      //!< Is the option saved in player prefs? Obviously usually true, but can be set to false for cheats etc.
+		public object CustomData = null;                                    //!< Optional custom data to hand over to your handler
+		public Func<float, string> ValueToStringFn = null;                  //!< Optional slider text conversion. If left null, no text is displayed.
+		public GameObject CustomPrefab = null;                              //!< Custom prefab to be used in Ui
+
+		public static PlayerSettingOptions NoMouseKeys =>
+			new()
 			{
 				KeyCodeFilterList = KeyCodeNoMouseList
 			};
-		
-		public static PlayerSettingOptions OnlyMouseKeys => 
-			new ()
+
+		public static PlayerSettingOptions OnlyMouseKeys =>
+			new()
 			{
 				KeyCodeFilterList = KeyCodeNoMouseList,
 				KeyCodeFilterListIsWhitelist = true,
@@ -71,6 +72,8 @@ namespace GuiToolkit
 	[Serializable]
 	public class PlayerSetting : LocaClass
 	{
+		private const string k_StorageCollection = "playerSettings";
+
 		[SerializeField] protected string m_category;
 		[SerializeField] protected string m_group;
 		[SerializeField] protected string m_title;
@@ -82,6 +85,8 @@ namespace GuiToolkit
 		[SerializeField] protected List<string> m_icons;
 		[SerializeField] protected bool m_isLocalized;
 
+
+		private TaskScheduler m_mainThreadScheduler;
 		protected object m_value;
 		protected object m_savedValue;
 		protected bool m_allowInvokeEvents = false;
@@ -124,9 +129,10 @@ namespace GuiToolkit
 		public List<string> Icons => m_icons;
 		public bool IsLocalized => m_isLocalized;
 
-		public PlayerSetting() {}
+		public PlayerSetting() { }
 		public PlayerSetting( string _category, string _group, string _title, object _defaultValue, PlayerSettingOptions _options = null )
 		{
+			m_mainThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			m_options = _options ?? new PlayerSettingOptions();
 			Type type = _defaultValue?.GetType();
 			m_category = _category;
@@ -168,7 +174,7 @@ namespace GuiToolkit
 			m_value = m_savedValue;
 			SaveValue();
 			if (m_options.Type == EPlayerSettingType.Language)
-				LocaManager.Instance.ChangeLanguage((string) m_value);
+				LocaManager.Instance.ChangeLanguage((string)m_value);
 		}
 
 		public void InvokeEvents()
@@ -180,7 +186,7 @@ namespace GuiToolkit
 			m_options.OnChanged?.Invoke(this);
 		}
 
-		protected T GetValue<T>(ref object _v)
+		protected T GetValue<T>( ref object _v )
 		{
 			CheckType(typeof(T));
 
@@ -190,7 +196,7 @@ namespace GuiToolkit
 			return (T)_v;
 		}
 
-		protected object GetValue(ref object _v)
+		protected object GetValue( ref object _v )
 		{
 			if (m_type == null)
 				return null;
@@ -205,19 +211,41 @@ namespace GuiToolkit
 		{
 			if (!Options.IsSaveable || IsButton)
 				return;
-			
+
 			PlayerSettings.Log(this, "Applying");
-			if (m_type == typeof(int) || m_type == typeof(bool) || m_type.IsEnum)
-				PlayerPrefs.SetInt(Key, Convert.ToInt32(m_value));
+
+			if (Storage.Storage.Documents == null)
+			{
+				UiLog.LogError("Storage.Documents is not initialized.");
+				return;
+			}
+
+			Task saveTask;
+
+			if (m_type == typeof(int) || m_type.IsEnum)
+				saveTask = Storage.Storage.Documents.SaveAsync(k_StorageCollection, Key, Convert.ToInt32(m_value));
+			else if (m_type == typeof(bool))
+				saveTask = Storage.Storage.Documents.SaveAsync(k_StorageCollection, Key, Convert.ToBoolean(m_value) ? 1 : 0);
 			else if (m_type == typeof(float))
-				PlayerPrefs.SetFloat(Key, Convert.ToSingle(m_value));
+				saveTask = Storage.Storage.Documents.SaveAsync(k_StorageCollection, Key, Convert.ToSingle(m_value));
 			else if (m_type == typeof(string))
-				PlayerPrefs.SetString(Key, Convert.ToString(m_value));
+				saveTask = Storage.Storage.Documents.SaveAsync(k_StorageCollection, Key, Convert.ToString(m_value));
 			else
+			{
 				UiLog.LogError($"Unknown type for player setting '{Key}': {m_type.Name}");
+				return;
+			}
+
+			saveTask.ContinueWith(
+				_t =>
+				{
+					if (_t.Exception != null)
+						UiLog.LogError($"Failed saving player setting '{Key}': {_t.Exception}");
+				},
+				m_mainThreadScheduler);
 		}
 
-		protected void CheckType(Type _t)
+		protected void CheckType( Type _t )
 		{
 			if (_t != m_type)
 				throw new ArgumentException($"Wrong value type in Player Setting '{m_key}': Should be '{m_type.Name}', is '{_t.Name}'");
@@ -227,38 +255,156 @@ namespace GuiToolkit
 		{
 			Value = _language;
 		}
-		
-		protected static int InitValue(PlayerSettingOptions _options, string _key, int _defaultValue) 
-		{ 
+
+		protected static int InitValue( PlayerSettingOptions _options, string _key, int _defaultValue )
+		{
 			var deflt = Convert.ToInt32(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetInt(_key, deflt) : deflt;
 		}
-		
-		protected static float InitValue(PlayerSettingOptions _options, string _key, float _defaultValue) 
-		{ 
+
+		protected static float InitValue( PlayerSettingOptions _options, string _key, float _defaultValue )
+		{
 			var deflt = Convert.ToSingle(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetFloat(_key, deflt) : deflt;
 		}
-		
-		protected static string InitValue(PlayerSettingOptions _options, string _key, string _defaultValue) 
-		{ 
+
+		protected static string InitValue( PlayerSettingOptions _options, string _key, string _defaultValue )
+		{
 			var deflt = Convert.ToString(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetString(_key, deflt) : deflt;
 		}
-		
-		protected void InitValue(Type _type)
+
+		protected void InitValue( Type _type )
 		{
 			if (_type == null)
 				return;
-			
-			if (_type == typeof(int) || _type == typeof(bool) || _type.IsEnum)
-				m_value = InitValue(Options, Key, Convert.ToInt32(DefaultValue));
+
+			// Always start with default immediately (no blocking).
+			if (_type == typeof(int) || _type.IsEnum)
+				m_value = Convert.ToInt32(DefaultValue);
+			else if (_type == typeof(bool))
+				m_value = Convert.ToBoolean(DefaultValue);
 			else if (_type == typeof(float))
-				m_value = InitValue(Options, Key, Convert.ToSingle(DefaultValue));
+				m_value = Convert.ToSingle(DefaultValue);
 			else if (_type == typeof(string))
-				m_value = InitValue(Options, Key, Convert.ToString(DefaultValue));
+				m_value = Convert.ToString(DefaultValue);
 			else
+			{
 				UiLog.LogError($"Unknown type for player setting '{Key}': {_type.Name}");
+				return;
+			}
+
+			if (!Options.IsSaveable || IsButton)
+				return;
+
+			// If storage isn't ready yet, we just keep default.
+			if (Storage.Storage.Documents == null)
+				return;
+
+			if (_type == typeof(int) || _type.IsEnum)
+				LoadAndApplyInt();
+			else if (_type == typeof(bool))
+				LoadAndApplyBool();
+			else if (_type == typeof(float))
+				LoadAndApplyFloat();
+			else if (_type == typeof(string))
+				LoadAndApplyString();
+		}
+
+		private void LoadAndApplyInt()
+		{
+			Task<int?> t = Storage.Storage.Documents.LoadAsync<int?>(k_StorageCollection, Key);
+
+			t.ContinueWith(
+				_tt =>
+				{
+					if (_tt.Exception != null)
+					{
+						UiLog.LogError($"Failed loading player setting '{Key}': {_tt.Exception}");
+						return;
+					}
+
+					int? v = _tt.Result;
+					if (v == null)
+						return;
+
+					if (m_type.IsEnum)
+						m_value = System.Enum.ToObject(m_type, v.Value);
+					else
+						m_value = v.Value;
+
+					InvokeEvents();
+				},
+				m_mainThreadScheduler);
+		}
+
+		private void LoadAndApplyBool()
+		{
+			Task<int?> t = Storage.Storage.Documents.LoadAsync<int?>(k_StorageCollection, Key);
+
+			t.ContinueWith(
+				_tt =>
+				{
+					if (_tt.Exception != null)
+					{
+						UiLog.LogError($"Failed loading player setting '{Key}': {_tt.Exception}");
+						return;
+					}
+
+					int? v = _tt.Result;
+					if (v == null)
+						return;
+
+					m_value = v.Value != 0;
+					InvokeEvents();
+				},
+				m_mainThreadScheduler);
+		}
+
+		private void LoadAndApplyFloat()
+		{
+			Task<float?> t = Storage.Storage.Documents.LoadAsync<float?>(k_StorageCollection, Key);
+
+			t.ContinueWith(
+				_tt =>
+				{
+					if (_tt.Exception != null)
+					{
+						UiLog.LogError($"Failed loading player setting '{Key}': {_tt.Exception}");
+						return;
+					}
+
+					float? v = _tt.Result;
+					if (v == null)
+						return;
+
+					m_value = v.Value;
+					InvokeEvents();
+				},
+				m_mainThreadScheduler);
+		}
+
+		private void LoadAndApplyString()
+		{
+			Task<string?> t = Storage.Storage.Documents.LoadAsync<string>(k_StorageCollection, Key);
+
+			t.ContinueWith(
+				_tt =>
+				{
+					if (_tt.Exception != null)
+					{
+						UiLog.LogError($"Failed loading player setting '{Key}': {_tt.Exception}");
+						return;
+					}
+
+					string v = _tt.Result;
+					if (v == null)
+						return;
+
+					m_value = v;
+					InvokeEvents();
+				},
+				m_mainThreadScheduler);
 		}
 	}
 }
