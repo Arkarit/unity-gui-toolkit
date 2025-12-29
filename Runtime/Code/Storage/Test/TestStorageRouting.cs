@@ -59,7 +59,7 @@ namespace GuiToolkit.Storage.Tests
 
 			Assert.Throws<InvalidOperationException>(() =>
 			{
-				StorageFactory.CreateDocumentStore(config);
+				StaticStorageFactory.CreateDocumentStore(config);
 			});
 		}
 

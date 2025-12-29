@@ -18,7 +18,7 @@ namespace GuiToolkit.Storage
 			serializer = _serializer ?? throw new ArgumentNullException(nameof(_serializer));
 		}
 
-		public StorageRoutingConfig SetPolicy( string _collection, StoragePolicy _policy )
+		public StorageRoutingConfig SetPolicy( string _collection, StoragePolicy _policy = StoragePolicy.LocalOnly )
 		{
 			if (string.IsNullOrWhiteSpace(_collection))
 			{

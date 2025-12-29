@@ -2,7 +2,7 @@ using System;
 
 namespace GuiToolkit.Storage
 {
-	public static class StorageFactory
+	public static class StaticStorageFactory
 	{
 		public static IDocumentStore CreateDocumentStore( StorageRoutingConfig _config )
 		{
