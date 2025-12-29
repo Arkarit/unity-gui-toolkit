@@ -240,6 +240,8 @@ namespace GuiToolkit
 		public const string SCENE_MENU_GENERATOR_HEADER = MENU_HEADER + "Scenes/";
 		public const string SCENE_MENU_GENERATOR = SCENE_MENU_GENERATOR_HEADER + "(Re)Generate List";
 		public const string LOCA_EXCEL_BRIDGE = LOCA_HEADER + "Loca Excel Bridge";
+
+		public const string PLAYER_SETTINGS_COLLECTION = "playerSettings";
 	}
 
 	/// \brief Builtin icon definitions

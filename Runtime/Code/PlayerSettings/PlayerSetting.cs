@@ -72,8 +72,6 @@ namespace GuiToolkit
 	[Serializable]
 	public class PlayerSetting : LocaClass
 	{
-		private const string k_StorageCollection = "playerSettings";
-
 		[SerializeField] protected string m_category;
 		[SerializeField] protected string m_group;
 		[SerializeField] protected string m_title;
@@ -234,14 +232,14 @@ namespace GuiToolkit
 			Task saveTask;
 
 			if (m_type == typeof(int) || m_type.IsEnum)
-				saveTask = Storage.Storage.Documents.SaveAsync(k_StorageCollection, Key, Convert.ToInt32(m_value));
+				saveTask = Storage.Storage.Documents.SaveAsync(StringConstants.PLAYER_SETTINGS_COLLECTION, Key, Convert.ToInt32(m_value));
 			else if (m_type == typeof(bool))
-				saveTask = Storage.Storage.Documents.SaveAsync(k_StorageCollection, Key,
+				saveTask = Storage.Storage.Documents.SaveAsync(StringConstants.PLAYER_SETTINGS_COLLECTION, Key,
 					Convert.ToBoolean(m_value) ? 1 : 0);
 			else if (m_type == typeof(float))
-				saveTask = Storage.Storage.Documents.SaveAsync(k_StorageCollection, Key, Convert.ToSingle(m_value));
+				saveTask = Storage.Storage.Documents.SaveAsync(StringConstants.PLAYER_SETTINGS_COLLECTION, Key, Convert.ToSingle(m_value));
 			else if (m_type == typeof(string))
-				saveTask = Storage.Storage.Documents.SaveAsync(k_StorageCollection, Key, Convert.ToString(m_value));
+				saveTask = Storage.Storage.Documents.SaveAsync(StringConstants.PLAYER_SETTINGS_COLLECTION, Key, Convert.ToString(m_value));
 			else
 			{
 				UiLog.LogError($"Unknown type for player setting '{Key}': {m_type.Name}");

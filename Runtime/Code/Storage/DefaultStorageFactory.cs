@@ -12,7 +12,7 @@ namespace GuiToolkit.Storage
 			IByteStore byteStore = new FileByteStore(Application.persistentDataPath);
 			ISerializer serializer = new NewtonsoftJsonSerializer();
 			var config = new StorageRoutingConfig(byteStore, serializer);
-			config.SetPolicy("myCollection", StoragePolicy.LocalOnly);
+			config.SetPolicy(StringConstants.PLAYER_SETTINGS_COLLECTION, StoragePolicy.LocalOnly);
 			routingConfigs.Add(config);
 
 			return routingConfigs;
