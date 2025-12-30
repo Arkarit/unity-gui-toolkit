@@ -28,5 +28,7 @@ namespace GuiToolkit.Storage
 			collectionPolicies[_collection] = _policy;
 			return this;
 		}
+
+		public bool HasCollection(string _collection) => collectionPolicies.ContainsKey(_collection);
 	}
 }

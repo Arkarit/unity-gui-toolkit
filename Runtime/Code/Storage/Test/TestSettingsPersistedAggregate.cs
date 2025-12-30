@@ -19,7 +19,7 @@ namespace GuiToolkit.Storage.Tests
 			IDocumentStore innerStore = new DocumentStore(byteStore, serializer);
 			CountingDocumentStore countingStore = new CountingDocumentStore(innerStore);
 
-			SettingsPersistedAggregate settings = new SettingsPersistedAggregate(countingStore);
+			SettingsPersistedAggregate settings = new SettingsPersistedAggregate(countingStore, "test", "user");
 
 			await settings.LoadAsync();
 
@@ -37,7 +37,7 @@ namespace GuiToolkit.Storage.Tests
 			Assert.That(countingStore.saveCount, Is.EqualTo(1));
 
 			// Reload via a new instance, proving persistence.
-			SettingsPersistedAggregate settingsReloaded = new SettingsPersistedAggregate(innerStore);
+			SettingsPersistedAggregate settingsReloaded = new SettingsPersistedAggregate(innerStore, "test", "user");
 			await settingsReloaded.LoadAsync();
 
 			Assert.That(settingsReloaded.GetInt("k0", -1), Is.EqualTo(0));

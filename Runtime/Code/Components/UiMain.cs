@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using GuiToolkit.Exceptions;
+using GuiToolkit.Storage;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using TMPro;
 using UnityEngine.Serialization;
 using Debug = UnityEngine.Debug;
+using GuiToolkit.Settings;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -23,10 +25,10 @@ namespace GuiToolkit
 	[RequireComponent(typeof(UiPool))]
 	public class UiMain : MonoBehaviour, IEditorAware
 	{
-		[Header("Canvas Settings")] 
+		[Header("Canvas Settings")]
 		[SerializeField] private RenderMode m_renderMode = RenderMode.ScreenSpaceCamera;
 		[SerializeField] private float m_layerDistance = 0.02f;
-		
+
 		[Header("Prefabs")]
 		// Be sure to end the naming with "Prefab" for making them available for creating variants!
 		// See UiMainEditor
@@ -41,36 +43,36 @@ namespace GuiToolkit
 		[SerializeField] private UiPlayerSettingsDialog m_settingsDialogPrefab;
 		[FormerlySerializedAs("m_splashMessagePrefab")]
 		[SerializeField] private UiToastMessageView m_toastMessageViewPrefab;
-		[FormerlySerializedAs("m_keyPressRequester")] 
+		[FormerlySerializedAs("m_keyPressRequester")]
 		[SerializeField] private UiKeyPressRequester m_keyPressRequesterPrefab;
-		[FormerlySerializedAs("m_gridPicker")] 
+		[FormerlySerializedAs("m_gridPicker")]
 		[SerializeField] private UiGridPicker m_gridPickerPrefab;
 
 		[Header("Stack Navigation Animation")]
 		[SerializeField] private EStackAnimationType m_stackAnimationType = EStackAnimationType.None;
 		[SerializeField] private AnimationCurve m_stackMovedInCurve;
 		[SerializeField] private AnimationCurve m_stackPushedOutCurve;
-		
+
 		[Header("Full Screen Dialogs")]
 		[Tooltip("Objects tagged with these tags are hidden when a fullscreen dialog is open. This is especially useful for main cameras. Note that the AdditionalTags component is NOT supported.")]
 		[SerializeField] protected TagField[] m_tagsToDisableWhenFullScreenView;
-		
+
 		[Header("Additional Views")]
 		[SerializeField] private UiView[] m_additionalViews = Array.Empty<UiView>();
 
-		private readonly List<GameObject> m_hiddenTaggedGameObjects = new ();
+		private readonly List<GameObject> m_hiddenTaggedGameObjects = new();
 		private readonly Dictionary<string, UiView> m_scenes = new();
 		private readonly Stack<UiView> m_stack = new();
 		private static UiMain s_instance;
 		private UiPlayerSettingsDialog m_playerSettingsDialog;
 		static ScreenResolution s_screenResolution = GuiToolkit.ScreenResolution.Empty;
-		
-		private readonly List<IExcludeFromFrustumCulling> m_excludedFromFrustumCulling = new ();
-		private readonly List<Bounds> m_excludedBounds = new ();
+
+		private readonly List<IExcludeFromFrustumCulling> m_excludedFromFrustumCulling = new();
+		private readonly List<Bounds> m_excludedBounds = new();
 		private const float LARGE_NUMBER = 999999999.0f;
-		private static readonly Bounds LARGE_BOUNDS = new (Vector3.zero, new Vector3(LARGE_NUMBER, LARGE_NUMBER, LARGE_NUMBER) );
+		private static readonly Bounds LARGE_BOUNDS = new(Vector3.zero, new Vector3(LARGE_NUMBER, LARGE_NUMBER, LARGE_NUMBER));
 		private bool m_isAwake;
-		
+
 #if UNITY_EDITOR
 		private static bool s_staticInitialized = false;
 #endif
@@ -87,7 +89,7 @@ namespace GuiToolkit
 		public RenderMode RenderMode => m_renderMode;
 		public Camera Camera { get; private set; }
 		public UiPool UiPool { get; private set; }
-		
+
 		/// <summary>
 		/// This getter is especially important for bootstrapping.
 		/// If you have a separate routine for setting up your application, there might be some state,
@@ -140,7 +142,7 @@ namespace GuiToolkit
 			{
 				if (!IsAwake)
 					return null;
-				
+
 				if (s_instance == null)
 					s_instance = FindAnyObjectByType<UiMain>();
 #if UNITY_EDITOR
@@ -158,7 +160,7 @@ namespace GuiToolkit
 		}
 
 		#region "Scene Loading"
-		public void LoadScene(string _sceneName, bool _show = true, bool _instant = false, Action<UiView> _whenLoaded = null)
+		public void LoadScene( string _sceneName, bool _show = true, bool _instant = false, Action<UiView> _whenLoaded = null )
 		{
 			if (CheckSceneValid(_sceneName))
 			{
@@ -167,29 +169,29 @@ namespace GuiToolkit
 
 				if (_whenLoaded != null)
 					_whenLoaded.Invoke(m_scenes[_sceneName]);
-				
+
 				return;
 			}
-			
+
 			StartCoroutine(LoadAsyncScene(_sceneName, _show, _instant, _whenLoaded));
 		}
 
-		public void HideScene(string _sceneName, bool _instant = false)
+		public void HideScene( string _sceneName, bool _instant = false )
 		{
 			if (CheckSceneValid(_sceneName))
-				m_scenes[_sceneName].Hide( _instant );
+				m_scenes[_sceneName].Hide(_instant);
 		}
 
-		public void ShowScene(string _sceneName, bool _instant = false)
+		public void ShowScene( string _sceneName, bool _instant = false )
 		{
 			LoadScene(_sceneName, true, _instant);
 		}
 
-		public void UnloadScene(string _sceneName, bool _instant = false)
+		public void UnloadScene( string _sceneName, bool _instant = false )
 		{
 			if (CheckSceneValid(_sceneName))
 			{
-				m_scenes[_sceneName].Hide( _instant, () => DestroyScene(_sceneName) );
+				m_scenes[_sceneName].Hide(_instant, () => DestroyScene(_sceneName));
 			}
 		}
 
@@ -202,7 +204,7 @@ namespace GuiToolkit
 			}
 		}
 
-		private IEnumerator LoadAsyncScene(string _name, bool _show, bool _instant, Action<UiView> _whenLoaded)
+		private IEnumerator LoadAsyncScene( string _name, bool _show, bool _instant, Action<UiView> _whenLoaded )
 		{
 			// The Application loads the Scene in the background as the current Scene runs.
 			// This is particularly good for creating loading screens.
@@ -210,13 +212,13 @@ namespace GuiToolkit
 			// a sceneBuildIndex of 1 as shown in Build Settings.
 
 			yield return new WaitUntil(() => AssetReadyGate.Ready);
-			
+
 			AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(UiToolkitConfiguration.Instance.GetScenePath(_name), LoadSceneMode.Additive);
 
 			if (asyncLoad == null)
 				yield break;
 
-			asyncLoad.completed += (AsyncOperation operation) => 
+			asyncLoad.completed += ( AsyncOperation operation ) =>
 			{
 				Scene scene = SceneManager.GetSceneByName(_name);
 				if (scene == null)
@@ -283,7 +285,7 @@ namespace GuiToolkit
 			currentShown.SetStackAnimationType(m_stackAnimationType, true, m_stackPushedOutCurve);
 			currentShown.Hide(_instant, _onFinishHide);
 
-			for (int i=0; i<_skip; i++)
+			for (int i = 0; i < _skip; i++)
 				m_stack.Pop();
 
 			if (m_stack.Count > 0)
@@ -304,7 +306,7 @@ namespace GuiToolkit
 		#endregion
 
 		#region "Builtin Dialogs"
-		public void ShowGridPicker(UiGridPicker.Options _options)
+		public void ShowGridPicker( UiGridPicker.Options _options )
 		{
 			UiGridPicker gridPicker = CreateView(m_gridPickerPrefab);
 			gridPicker.SetOptions(_options);
@@ -314,11 +316,11 @@ namespace GuiToolkit
 		public void ShowSettingsDialog()
 		{
 			m_playerSettingsDialog = CreateView(m_settingsDialogPrefab);
-			m_playerSettingsDialog.EvOnDestroyed.AddListener((UiPanel _) => m_playerSettingsDialog = null);
+			m_playerSettingsDialog.EvOnDestroyed.AddListener(( UiPanel _ ) => m_playerSettingsDialog = null);
 			m_playerSettingsDialog.Show();
 		}
 
-		public void ShowToastMessageView(string _message, float _duration = 2)
+		public void ShowToastMessageView( string _message, float _duration = 2 )
 		{
 			UiToastMessageView.HideAll(true);
 			UiToastMessageView message = m_toastMessageViewPrefab.PoolInstantiate();
@@ -326,7 +328,7 @@ namespace GuiToolkit
 			message.Show(_message, _duration);
 		}
 
-		public UiRequester CreateRequester(Func<UiRequester, UiRequester.Options> _setOptions, bool _show = true)
+		public UiRequester CreateRequester( Func<UiRequester, UiRequester.Options> _setOptions, bool _show = true )
 		{
 			UiRequester result = CreateView(m_requesterPrefab);
 			Debug.Assert(result);
@@ -340,11 +342,11 @@ namespace GuiToolkit
 		}
 
 		public UiRequester OkRequester
-		( 
-			string _title, 
-			string _text, 
-			UnityAction _onOk = null, 
-			string _okText = null, 
+		(
+			string _title,
+			string _text,
+			UnityAction _onOk = null,
+			string _okText = null,
 			bool _allowOutsideTap = true,
 			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null
 		)
@@ -353,7 +355,7 @@ namespace GuiToolkit
 			Debug.Assert(requester);
 			return requester.OkRequester(_title, _text, _onOk, _okText, _allowOutsideTap, _modifyOptions);
 		}
-		
+
 		public async Task OkRequesterBlocking
 		(
 			string _title,
@@ -370,13 +372,13 @@ namespace GuiToolkit
 		}
 
 		public UiRequester YesNoRequester
-		( 
-			string _title, 
-			string _text, 
-			bool _allowOutsideTap, 
+		(
+			string _title,
+			string _text,
+			bool _allowOutsideTap,
 			UnityAction _onOk,
-			UnityAction _onCancel = null, 
-			string _yesText = null, 
+			UnityAction _onCancel = null,
+			string _yesText = null,
 			string _noText = null,
 			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null
 		)
@@ -385,13 +387,13 @@ namespace GuiToolkit
 			Debug.Assert(requester);
 			return requester.YesNoRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText, _modifyOptions);
 		}
-		
+
 		public UiRequester TwoOptionsRequester
-		( 
-			string _title, 
-			string _text, 
-			bool _allowOutsideTap, 
-			string _option1Text, 
+		(
+			string _title,
+			string _text,
+			bool _allowOutsideTap,
+			string _option1Text,
 			string _option2Text,
 			UnityAction _onOption1,
 			UnityAction _onOption2,
@@ -402,7 +404,7 @@ namespace GuiToolkit
 			Debug.Assert(requester);
 			return requester.TwoOptionsRequester(_title, _text, _allowOutsideTap, _option1Text, _option2Text, _onOption1, _onOption2, _modifyOptions);
 		}
-		
+
 		public async Task<bool> YesNoRequesterBlocking
 		(
 			string _title,
@@ -420,15 +422,15 @@ namespace GuiToolkit
 		}
 
 		public UiRequester OkCancelInputRequester
-		( 
-			string _title, 
-			string _text, 
+		(
+			string _title,
+			string _text,
 			bool _allowOutsideTap,
-			UnityAction<string> _onOk, 
-			UnityAction _onCancel = null, 
-			string _placeholderText = null, 
-			string _inputText = null, 
-			string _yesText = null, 
+			UnityAction<string> _onOk,
+			UnityAction _onCancel = null,
+			string _placeholderText = null,
+			string _inputText = null,
+			string _yesText = null,
 			string _noText = null,
 			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null
 		)
@@ -456,7 +458,7 @@ namespace GuiToolkit
 			Debug.Assert(requester);
 			return await requester.OkCancelInputRequesterBlocking(_title, _text, _allowOutsideTap, _waitForClose, _placeholderText, _inputText, _yesText, _noText, _modifyOptions);
 		}
-		
+
 		public void KeyPressRequester( UnityAction<KeyCode> _onEvent )
 		{
 			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
@@ -485,7 +487,7 @@ namespace GuiToolkit
 			requester.Requester(_onEvent, null, _title);
 		}
 
-		public T CreateView<T>(T _template = null) where T : UiView
+		public T CreateView<T>( T _template = null ) where T : UiView
 		{
 			if (_template == null)
 			{
@@ -497,17 +499,17 @@ namespace GuiToolkit
 						break;
 					}
 				}
-					
+
 				if (_template == null)
 					throw new UiViewNotFoundException(typeof(T));
 			}
-			
+
 			T result = _template.PoolInstantiate();
 			result.transform.SetParent(transform, false);
 			return result;
 		}
-		
-		public T CreateAndShowView<T>(T _template = null, Action<T> _initCode = null, bool _instant = false, Action _onFinish = null) where T : UiView
+
+		public T CreateAndShowView<T>( T _template = null, Action<T> _initCode = null, bool _instant = false, Action _onFinish = null ) where T : UiView
 		{
 			T result = CreateView(_template);
 			_initCode?.Invoke(result);
@@ -518,9 +520,9 @@ namespace GuiToolkit
 
 		#region "General"
 
-		private void OnFullScreenView(UiView _, bool _show) => SetActivenessForTagged(_show);
-		
-		private void SetActivenessForTagged(bool _active)
+		private void OnFullScreenView( UiView _, bool _show ) => SetActivenessForTagged(_show);
+
+		private void SetActivenessForTagged( bool _active )
 		{
 			if (_active)
 			{
@@ -529,7 +531,7 @@ namespace GuiToolkit
 					string tag = m_tagsToDisableWhenFullScreenView[i];
 					if (string.IsNullOrEmpty(tag))
 						continue;
-	
+
 					var gameObjects = GameObject.FindGameObjectsWithTag(tag);
 					foreach (var go in gameObjects)
 					{
@@ -537,14 +539,14 @@ namespace GuiToolkit
 						m_hiddenTaggedGameObjects.Add(go);
 					}
 				}
-				
+
 				return;
 			}
 
 			foreach (var go in m_hiddenTaggedGameObjects)
 				if (go)
 					go.SetActive(true);
-			
+
 			m_hiddenTaggedGameObjects.Clear();
 		}
 
@@ -554,7 +556,7 @@ namespace GuiToolkit
 			SetSiblingIndicesByPlaneDistances();
 		}
 
-		public void SetAsLastSiblingOfLayer(UiView _view)
+		public void SetAsLastSiblingOfLayer( UiView _view )
 		{
 			_view.transform.SetAsLastSibling();
 			SortViews();
@@ -563,7 +565,7 @@ namespace GuiToolkit
 		private void SetPlaneDistancesBySiblingIndex()
 		{
 			var layers = EnumHelper.GetValues<EUiLayerDefinition>();
-			foreach(var layer in layers)
+			foreach (var layer in layers)
 			{
 				int layercount = 0;
 				foreach (Transform childTransform in transform)
@@ -573,8 +575,8 @@ namespace GuiToolkit
 						continue;
 
 					int planeIndex = (int)layer - layercount;
-					float planeDistance = LayerDistance * (float) planeIndex;
-					view.InitView(RenderMode, Camera, planeDistance, (int) EUiLayerDefinition.Back - planeIndex);
+					float planeDistance = LayerDistance * (float)planeIndex;
+					view.InitView(RenderMode, Camera, planeDistance, (int)EUiLayerDefinition.Back - planeIndex);
 
 					layercount++;
 				}
@@ -584,7 +586,7 @@ namespace GuiToolkit
 		private class PlaneDistanceComparer : IComparer<Transform>
 		{
 			// Call CaseInsensitiveComparer.Compare with the parameters reversed.
-			public int Compare(Transform a, Transform b)
+			public int Compare( Transform a, Transform b )
 			{
 				Canvas canvasA = a.GetComponent<Canvas>();
 				Canvas canvasB = b.GetComponent<Canvas>();
@@ -603,14 +605,14 @@ namespace GuiToolkit
 			Transform[] children = transform.GetChildrenArray();
 			PlaneDistanceComparer comparer = new PlaneDistanceComparer();
 			Array.Sort(children, comparer);
-			for (int i=0; i<children.Length; i++)
+			for (int i = 0; i < children.Length; i++)
 				children[i].SetSiblingIndex(i);
 		}
 
 		public void Quit()
 		{
 			IsAwake = false;
-			
+
 #if UNITY_EDITOR
 			EditorApplication.isPlaying = false;
 #else
@@ -626,10 +628,10 @@ namespace GuiToolkit
 			_inputField.ActivateInputField();
 			_inputField.StartCoroutine(SetCaretPositionDelayed(_inputField));
 		}
-		private IEnumerator SetCaretPositionDelayed(TMP_InputField _inputField)
+		private IEnumerator SetCaretPositionDelayed( TMP_InputField _inputField )
 		{
 			yield return new WaitForEndOfFrame();
-			_inputField.MoveToEndOfLine( false, true );
+			_inputField.MoveToEndOfLine(false, true);
 		}
 
 		#endregion
@@ -638,17 +640,36 @@ namespace GuiToolkit
 		protected virtual void Awake()
 		{
 			InitGetters();
-			
+
 			if (Application.isPlaying)
 				DontDestroyOnLoad(gameObject);
-			
+
 			Instance = this;
 			IsAwake = true;
 			UiEventDefinitions.EvFullScreenView.AddListener(OnFullScreenView);
 
-			Storage.Storage.InitializeOnMainThread();
-			var routingConfigs = UiToolkitConfiguration.Instance.StorageFactory.CreateRoutingConfigs();
+			IReadOnlyList<StorageRoutingConfig> routingConfigs =
+				UiToolkitConfiguration.Instance.StorageFactory.CreateRoutingConfigs();
+
+			bool hasPlayerSettingsCollection = false;
+
+			foreach (StorageRoutingConfig config in routingConfigs)
+			{
+				if (config.HasCollection(StringConstants.PLAYER_SETTINGS_COLLECTION))
+				{
+					hasPlayerSettingsCollection = true;
+					break;
+				}
+			}
+
+			if (!hasPlayerSettingsCollection)
+				throw new InvalidOperationException(
+					$"Custom storage factory needs to route '{StringConstants.PLAYER_SETTINGS_COLLECTION}'.");
+
 			Storage.Storage.Initialize(routingConfigs);
+
+			SettingsPersistedAggregate aggregate = new(Storage.Storage.Documents, StringConstants.PLAYER_SETTINGS_COLLECTION, "wtf");
+			PlayerSettings.Instance.Initialize(aggregate);
 		}
 
 		protected virtual void OnDestroy()
@@ -679,10 +700,10 @@ namespace GuiToolkit
 			SortViews();
 		}
 
-		private static void SetDefaultSceneVisibilities(GameObject _gameObject)
+		private static void SetDefaultSceneVisibilities( GameObject _gameObject )
 		{
 			MonoBehaviour[] monoBehaviours = _gameObject.GetComponentsInChildren<MonoBehaviour>(true);
-			foreach( MonoBehaviour monoBehaviour in monoBehaviours )
+			foreach (MonoBehaviour monoBehaviour in monoBehaviours)
 				if (monoBehaviour is ISetDefaultSceneVisibility)
 					((ISetDefaultSceneVisibility)monoBehaviour).SetDefaultSceneVisibility();
 		}
@@ -698,7 +719,7 @@ namespace GuiToolkit
 			s_screenResolution = resolution;
 		}
 
-		private bool CheckSceneValid(string _sceneName)
+		private bool CheckSceneValid( string _sceneName )
 		{
 			if (!m_scenes.ContainsKey(_sceneName))
 				return false;
@@ -757,7 +778,7 @@ namespace GuiToolkit
 
 					if (camera.depth >= uiCameraDepth)
 					{
-						UiLog.LogError($"UI Camera needs highest depth. Camera depth {camera.depth} detected on camera '{camera.gameObject.name}', which is >= Ui camera depth ({uiCameraDepth})" );
+						UiLog.LogError($"UI Camera needs highest depth. Camera depth {camera.depth} detected on camera '{camera.gameObject.name}', which is >= Ui camera depth ({uiCameraDepth})");
 					}
 				}
 			}
@@ -775,14 +796,14 @@ namespace GuiToolkit
 
 		#region "Exclude from frustum culling"
 		/// \brief Register an IExcludeFromFrustumCulling to be excluded from frustum culling
-		public void RegisterExcludeFrustumCulling(IExcludeFromFrustumCulling _toRegister)
+		public void RegisterExcludeFrustumCulling( IExcludeFromFrustumCulling _toRegister )
 		{
 			m_excludedFromFrustumCulling.Add(_toRegister);
 			m_excludedBounds.Add(new Bounds());
 		}
 
 		/// \brief Unregister an IExcludeFromFrustumCulling not to be excluded from frustum culling anymore
-		public void UnregisterExcludeFrustumCulling(IExcludeFromFrustumCulling _toRemove)
+		public void UnregisterExcludeFrustumCulling( IExcludeFromFrustumCulling _toRemove )
 		{
 			int idx = m_excludedFromFrustumCulling.IndexOf(_toRemove);
 			if (idx == -1)
@@ -796,7 +817,7 @@ namespace GuiToolkit
 
 		private void OnPreCull()
 		{
-			for (int i=0; i<m_excludedFromFrustumCulling.Count; i++)
+			for (int i = 0; i < m_excludedFromFrustumCulling.Count; i++)
 			{
 				m_excludedBounds[i] = m_excludedFromFrustumCulling[i].GetMesh().bounds;
 				m_excludedFromFrustumCulling[i].GetMesh().bounds = LARGE_BOUNDS;
@@ -805,7 +826,7 @@ namespace GuiToolkit
 
 		private void OnPostRender()
 		{
-			for (int i=0; i<m_excludedFromFrustumCulling.Count; i++)
+			for (int i = 0; i < m_excludedFromFrustumCulling.Count; i++)
 				m_excludedFromFrustumCulling[i].GetMesh().bounds = m_excludedBounds[i];
 		}
 		#endregion

@@ -7,12 +7,12 @@ namespace GuiToolkit.Settings
 	{
 		private readonly PersistedAggregate<SettingsData> m_aggregate;
 
-		public SettingsPersistedAggregate( IDocumentStore _store )
+		public SettingsPersistedAggregate( IDocumentStore _store, string _collection, string _id )
 		{
 			m_aggregate = new PersistedAggregate<SettingsData>(
 				_store,
-				_collection: "settings",
-				_id: "user",
+				_collection,
+				_id,
 				_initialState: new SettingsData()
 			);
 		}

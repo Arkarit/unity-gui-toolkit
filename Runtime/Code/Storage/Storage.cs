@@ -10,11 +10,6 @@ namespace GuiToolkit.Storage
 
 		private static SynchronizationContext? s_mainContext;
 
-		public static void InitializeOnMainThread()
-		{
-			s_mainContext = SynchronizationContext.Current;
-		}
-
 		public static void PostToMainThread( Action _action )
 		{
 			if (s_mainContext == null)
@@ -41,6 +36,11 @@ namespace GuiToolkit.Storage
 
 		public static void Initialize( IReadOnlyList<StorageRoutingConfig> _routingConfigs )
 		{
+			if (!GeneralUtility.InMainThread)
+				throw new InvalidOperationException("Storage.Initialize() must be called from the Unity main thread.");
+
+			s_mainContext = SynchronizationContext.Current;
+
 			if (_routingConfigs == null)
 			{
 				throw new ArgumentNullException(nameof(_routingConfigs));

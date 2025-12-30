@@ -226,9 +226,26 @@ namespace GuiToolkit
 		{
 			if (PlayerSettings.Instance.HasUnboundKeys())
 			{
-				UiMain.Instance.YesNoRequester(_("Unbound Keys"), _("Some keys remain unbound. Really continue?"), false, () => Hide() );
+				UiMain.Instance.YesNoRequester(_("Unbound Keys"), _("Some keys remain unbound. Really continue?"), false, SaveAndHide);
 				return;
 			}
+
+			SaveAndHide();
+		}
+
+		protected virtual void SaveAndHide()
+		{
+			m_playerSettings.Save(
+				() =>
+				{
+					UiLog.Log($"Player settings saved");
+				}, 
+				ex =>
+				{
+					UiLog.LogError($"Could not save player settings:{ex}");
+				}
+			);
+
 			Hide();
 		}
 

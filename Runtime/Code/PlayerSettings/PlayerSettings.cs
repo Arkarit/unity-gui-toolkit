@@ -20,9 +20,13 @@ namespace GuiToolkit
 		{
 			m_settings = _settings;
 			m_mainThreadScheduler = System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext();
+			Load(null, ex =>
+			{
+				UiLog.LogError($"Loading PlayerSettings failed:{ex}");
+			});
 		}
 
-		public void LoadAll( Action _onSuccess = null, Action<Exception> _onFail = null )
+		public void Load( Action _onSuccess = null, Action<Exception> _onFail = null )
 		{
 			if (m_settings == null)
 			{
@@ -46,10 +50,34 @@ namespace GuiToolkit
 				m_mainThreadScheduler);
 		}
 
+		public void Save( Action _onSuccess = null, Action<Exception> _onFail = null )
+		{
+			if (m_settings == null)
+			{
+				_onFail?.Invoke(new InvalidOperationException("PlayerSettings not initialized."));
+				return;
+			}
+
+			var t = m_settings.SaveAsync();
+			t.ContinueWith(
+				_tt =>
+				{
+					if (_tt.Exception != null)
+					{
+						_onFail?.Invoke(_tt.Exception);
+						return;
+					}
+
+					_onSuccess?.Invoke();
+				},
+				m_mainThreadScheduler);
+		}
+
 		protected PlayerSettings()
 		{
 			UiEventDefinitions.EvPlayerSettingChanged.AddListener(OnPlayerSettingChanged);
 		}
+
 		~PlayerSettings()
 		{
 			UiEventDefinitions.EvPlayerSettingChanged.RemoveListener(OnPlayerSettingChanged);
@@ -336,29 +364,6 @@ namespace GuiToolkit
 			}
 
 			m_isApplyingLoadedValues = false;
-		}
-
-		public void SaveAll( Action _onSuccess = null, Action<Exception> _onFail = null )
-		{
-			if (m_settings == null)
-			{
-				_onFail?.Invoke(new InvalidOperationException("PlayerSettings not initialized."));
-				return;
-			}
-
-			var t = m_settings.SaveAsync();
-			t.ContinueWith(
-				_tt =>
-				{
-					if (_tt.Exception != null)
-					{
-						_onFail?.Invoke(_tt.Exception);
-						return;
-					}
-
-					_onSuccess?.Invoke();
-				},
-				m_mainThreadScheduler);
 		}
 
 		private void RebuildKeyCodes()

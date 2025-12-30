@@ -181,7 +181,6 @@ namespace GuiToolkit
 		public void TempRestoreValue()
 		{
 			m_value = m_savedValue;
-			//TODO: Is it necessary to emit event?
 			if (m_options.Type == EPlayerSettingType.Language)
 				LocaManager.Instance.ChangeLanguage((string)m_value);
 		}
