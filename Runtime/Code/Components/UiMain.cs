@@ -646,7 +646,9 @@ namespace GuiToolkit
 			IsAwake = true;
 			UiEventDefinitions.EvFullScreenView.AddListener(OnFullScreenView);
 
+			Storage.Storage.InitializeOnMainThread();
 			var routingConfigs = UiToolkitConfiguration.Instance.StorageFactory.CreateRoutingConfigs();
+			Storage.Storage.Initialize(routingConfigs);
 		}
 
 		protected virtual void OnDestroy()

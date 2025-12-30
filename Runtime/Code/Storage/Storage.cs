@@ -1,5 +1,5 @@
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace GuiToolkit.Storage
@@ -39,27 +39,108 @@ namespace GuiToolkit.Storage
 			}
 		}
 
-		public static void InitializeLocal( string _rootDir )
+		public static void Initialize( IReadOnlyList<StorageRoutingConfig> _routingConfigs )
 		{
-			IByteStore byteStore = new FileByteStore(_rootDir);
-			ISerializer serializer = new NewtonsoftJsonSerializer();
-
-			s_documents = new DocumentStore(byteStore, serializer);
-		}
-
-		public static void InitializeLocalDefault( string _appName )
-		{
-			if (string.IsNullOrWhiteSpace(_appName))
+			if (_routingConfigs == null)
 			{
-				throw new ArgumentException("App name must not be null or whitespace.", nameof(_appName));
+				throw new ArgumentNullException(nameof(_routingConfigs));
 			}
 
-			string rootDir = Path.Combine(
-				Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-				_appName,
-				"storage");
+			if (_routingConfigs.Count == 0)
+			{
+				throw new ArgumentException("Routing configs must not be empty.", nameof(_routingConfigs));
+			}
 
-			InitializeLocal(rootDir);
+			if (s_documents != null)
+			{
+				throw new InvalidOperationException("Storage is already initialized.");
+			}
+
+			StorageRoutingConfig firstConfig = _routingConfigs[0];
+			if (firstConfig == null)
+			{
+				throw new ArgumentException("Routing configs must not contain null entries.", nameof(_routingConfigs));
+			}
+
+			ISerializer serializer = firstConfig.serializer ??
+				throw new InvalidOperationException("Routing config serializer must not be null.");
+
+			RoutingByteStore routingStore = new RoutingByteStore(firstConfig.localStore);
+
+			HashSet<string> seenCollections = new HashSet<string>(StringComparer.Ordinal);
+
+			for (int i = 0; i < _routingConfigs.Count; i++)
+			{
+				StorageRoutingConfig config = _routingConfigs[i];
+				if (config == null)
+				{
+					throw new ArgumentException("Routing configs must not contain null entries.", nameof(_routingConfigs));
+				}
+
+				if (config.serializer == null)
+				{
+					throw new InvalidOperationException("Routing config serializer must not be null.");
+				}
+
+				if (config.serializer.GetType() != serializer.GetType())
+				{
+					throw new InvalidOperationException(
+						"All routing configs must use the same serializer type.");
+				}
+
+				foreach (KeyValuePair<string, StoragePolicy> kv in config.collectionPolicies)
+				{
+					string collection = kv.Key;
+					StoragePolicy policy = kv.Value;
+
+					if (string.IsNullOrWhiteSpace(collection))
+					{
+						throw new InvalidOperationException("Collection id must not be null or whitespace.");
+					}
+
+					if (seenCollections.Add(collection) == false)
+					{
+						throw new InvalidOperationException(
+							$"Duplicate storage policy for collection '{collection}'.");
+					}
+
+					string prefix = $"doc/{collection}/";
+					IByteStore targetStore = ResolvePolicyStore(config, policy, collection);
+
+					routingStore.AddRoute(prefix, targetStore);
+				}
+			}
+
+			s_documents = new DocumentStore(routingStore, serializer);
+		}
+
+		private static IByteStore ResolvePolicyStore(
+			StorageRoutingConfig _config,
+			StoragePolicy _policy,
+			string _collection )
+		{
+			switch (_policy)
+			{
+				case StoragePolicy.LocalOnly:
+					return _config.localStore;
+
+				case StoragePolicy.BackendOnly:
+					if (_config.backendStore == null)
+					{
+						throw new InvalidOperationException(
+							$"Collection '{_collection}' uses BackendOnly but backendStore is null.");
+					}
+
+					return _config.backendStore;
+
+				case StoragePolicy.MirrorWrite:
+				case StoragePolicy.CacheReadThrough:
+					throw new NotSupportedException(
+						$"StoragePolicy '{_policy}' is not implemented yet.");
+
+				default:
+					throw new ArgumentOutOfRangeException(nameof(_policy), _policy, "Unknown StoragePolicy.");
+			}
 		}
 	}
 }
