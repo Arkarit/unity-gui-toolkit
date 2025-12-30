@@ -129,12 +129,12 @@ namespace GuiToolkit
 
 		public PlayerSetting()
 		{
+			m_mainThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 		}
 
 		public PlayerSetting(string _category, string _group, string _title, object _defaultValue,
-			PlayerSettingOptions _options = null)
+			PlayerSettingOptions _options = null) : this()
 		{
-			m_mainThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 			m_options = _options ?? new PlayerSettingOptions();
 			Type type = _defaultValue?.GetType();
 			m_category = _category;
@@ -181,7 +181,7 @@ namespace GuiToolkit
 		public void TempRestoreValue()
 		{
 			m_value = m_savedValue;
-			SaveValue();
+			//TODO: Is it necessary to emit event?
 			if (m_options.Type == EPlayerSettingType.Language)
 				LocaManager.Instance.ChangeLanguage((string)m_value);
 		}
@@ -214,45 +214,6 @@ namespace GuiToolkit
 			if (m_type.IsEnum)
 				return System.Enum.ToObject(m_type, _v);
 			return _v;
-		}
-
-		protected void SaveValue()
-		{
-			if (!Options.IsSaveable || IsButton)
-				return;
-
-			PlayerSettings.Log(this, "Applying");
-
-			if (Storage.Storage.Documents == null)
-			{
-				UiLog.LogError("Storage.Documents is not initialized.");
-				return;
-			}
-
-			Task saveTask;
-
-			if (m_type == typeof(int) || m_type.IsEnum)
-				saveTask = Storage.Storage.Documents.SaveAsync(StringConstants.PLAYER_SETTINGS_COLLECTION, Key, Convert.ToInt32(m_value));
-			else if (m_type == typeof(bool))
-				saveTask = Storage.Storage.Documents.SaveAsync(StringConstants.PLAYER_SETTINGS_COLLECTION, Key,
-					Convert.ToBoolean(m_value) ? 1 : 0);
-			else if (m_type == typeof(float))
-				saveTask = Storage.Storage.Documents.SaveAsync(StringConstants.PLAYER_SETTINGS_COLLECTION, Key, Convert.ToSingle(m_value));
-			else if (m_type == typeof(string))
-				saveTask = Storage.Storage.Documents.SaveAsync(StringConstants.PLAYER_SETTINGS_COLLECTION, Key, Convert.ToString(m_value));
-			else
-			{
-				UiLog.LogError($"Unknown type for player setting '{Key}': {m_type.Name}");
-				return;
-			}
-
-			saveTask.ContinueWith(
-				_t =>
-				{
-					if (_t.Exception != null)
-						UiLog.LogError($"Failed saving player setting '{Key}': {_t.Exception}");
-				},
-				m_mainThreadScheduler);
 		}
 
 		protected void CheckType(Type _t)
