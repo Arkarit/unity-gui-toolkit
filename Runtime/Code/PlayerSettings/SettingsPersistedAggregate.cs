@@ -15,8 +15,12 @@ namespace GuiToolkit.Settings
 		{
 			foreach (var kv in _settings)
 			{
+				var setting = kv.Value;
+				if (!setting.Options.IsSaveable)
+					continue;
+
 				var key = kv.Key;
-				var value = kv.Value.Value;
+				var value = setting.Value;
 
 				if (string.IsNullOrEmpty(key))
 				{
