@@ -12,7 +12,8 @@ namespace GuiToolkit.Storage
 		{
 			m_settings = _settings ?? new JsonSerializerSettings
 			{
-				TypeNameHandling = TypeNameHandling.None
+				TypeNameHandling = TypeNameHandling.None,
+				Formatting = Formatting.Indented
 			};
 		}
 

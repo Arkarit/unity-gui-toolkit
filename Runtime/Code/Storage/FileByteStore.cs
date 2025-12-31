@@ -131,7 +131,7 @@ namespace GuiToolkit.Storage
 			}
 
 			string fileName = HashKeyToFileName(_key);
-			var result = Path.Combine(m_rootDir, fileName + ".bin");
+			var result = Path.Combine(m_rootDir, fileName + ".json");
 			Storage.Log($"Storage Path for key {_key}: {result}");
 			return result;
 		}

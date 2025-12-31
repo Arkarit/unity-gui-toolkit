@@ -11,6 +11,45 @@ namespace GuiToolkit.Settings
 		{
 		}
 
+		public void Apply( Dictionary<string, PlayerSetting> _settings )
+		{
+			foreach (var kv in _settings)
+			{
+				var key = kv.Key;
+				var value = kv.Value.Value;
+
+				if (string.IsNullOrEmpty(key))
+				{
+					UiLog.LogError("Key is empty!");
+					continue;
+				}
+
+				switch (value)
+				{
+					case int i:
+						m_state.ints[key] = i;
+						break;
+					case float f:
+						m_state.floats[key] = f;
+						break;
+					case string s:
+						m_state.strings[key] = s;
+						break;
+					case bool b:
+						m_state.bools[key] = b;
+						break;
+					case System.Enum e:
+						m_state.ints[key] = System.Convert.ToInt32(e);
+						break;
+					default:
+						UiLog.LogError($"Can not apply value for key '{key}'; unsupported type '{value?.GetType()}'");
+						break;
+				}
+			}
+
+			m_isDirty = true;
+		}
+
 		public int GetInt( string _key, int _default )
 		{
 			if (!IsLoaded)

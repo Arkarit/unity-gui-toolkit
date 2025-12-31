@@ -58,6 +58,11 @@ namespace GuiToolkit
 				return;
 			}
 
+			if (!m_settings.IsDirty)
+				return;
+
+			m_settings.Apply(m_playerSettings);
+
 			var t = m_settings.SaveAsync();
 			t.ContinueWith(
 				_tt =>
