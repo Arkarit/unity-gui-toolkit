@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace GuiToolkit.Storage
@@ -141,6 +142,12 @@ namespace GuiToolkit.Storage
 				default:
 					throw new ArgumentOutOfRangeException(nameof(_policy), _policy, "Unknown StoragePolicy.");
 			}
+		}
+
+		[Conditional("DEBUG_STORAGE")]
+		public static void Log( string s )
+		{
+			UiLog.Log($"---::: DebugStorage: {s}");
 		}
 	}
 }

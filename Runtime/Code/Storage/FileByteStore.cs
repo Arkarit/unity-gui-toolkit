@@ -110,9 +110,11 @@ namespace GuiToolkit.Storage
 			return Task.CompletedTask;
 		}
 
-		public Task<IReadOnlyList<string>> ListKeysAsync(
+		public Task<IReadOnlyList<string>> ListKeysAsync
+		(
 			string _prefix,
-			CancellationToken _cancellationToken = default )
+			CancellationToken _cancellationToken = default 
+		)
 		{
 			// Note: This implementation stores files by hashed name.
 			// Listing by prefix is not possible without an additional key index.
@@ -129,7 +131,9 @@ namespace GuiToolkit.Storage
 			}
 
 			string fileName = HashKeyToFileName(_key);
-			return Path.Combine(m_rootDir, fileName + ".bin");
+			var result = Path.Combine(m_rootDir, fileName + ".bin");
+			Storage.Log($"Storage Path for key {_key}: {result}");
+			return result;
 		}
 
 		private static string HashKeyToFileName( string _key )

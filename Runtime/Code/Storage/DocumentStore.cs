@@ -32,12 +32,14 @@ namespace GuiToolkit.Storage
 		{
 			string key = BuildDocKey(_collection, _id);
 
+			Storage.Log($"Loading Key '{key}'");
 			byte[]? data = await m_byteStore.LoadAsync(key, _cancellationToken);
 			if (data == null)
 			{
 				return default;
 			}
 
+			Storage.Log($"Loaded");
 			return m_serializer.Deserialize<T>(data);
 		}
 
@@ -47,12 +49,15 @@ namespace GuiToolkit.Storage
 			T _document,
 			CancellationToken _cancellationToken = default )
 		{
-			string docKey = BuildDocKey(_collection, _id);
+			string key = BuildDocKey(_collection, _id);
+			Storage.Log($"Saving Key '{key}'");
 			byte[] data = m_serializer.Serialize(_document);
 
-			await m_byteStore.SaveAsync(docKey, data, _cancellationToken);
+			await m_byteStore.SaveAsync(key, data, _cancellationToken);
 
 			await UpsertIndexAsync(_collection, _id, _cancellationToken);
+
+			Storage.Log($"Loaded Key '{key}'");
 		}
 
 		public async Task DeleteAsync(
@@ -135,12 +140,12 @@ namespace GuiToolkit.Storage
 			CancellationToken _cancellationToken )
 		{
 			string indexKey = BuildIndexKey(_collection);
+			Storage.Log($"Loading index Key:'{indexKey}'");
 			byte[]? data = await m_byteStore.LoadAsync(indexKey, _cancellationToken);
 			if (data == null)
-			{
 				return null;
-			}
 
+			Storage.Log($"Loaded index Key");
 			return m_serializer.Deserialize<CollectionIndex>(data);
 		}
 
@@ -151,7 +156,9 @@ namespace GuiToolkit.Storage
 		{
 			string indexKey = BuildIndexKey(_collection);
 			byte[] data = m_serializer.Serialize(_index);
+			Storage.Log($"Saving index Key:'{indexKey}'");
 			await m_byteStore.SaveAsync(indexKey, data, _cancellationToken);
+			Storage.Log($"Saved index Key");
 		}
 
 		private async Task UpsertIndexAsync(
