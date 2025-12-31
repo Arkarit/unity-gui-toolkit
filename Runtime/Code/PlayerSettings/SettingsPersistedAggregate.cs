@@ -1,81 +1,105 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using GuiToolkit.Storage;
 
 namespace GuiToolkit.Settings
 {
-	public sealed class SettingsPersistedAggregate
+	public class SettingsPersistedAggregate : PersistedAggregate<SettingsData>
 	{
-		private readonly PersistedAggregate<SettingsData> m_aggregate;
-
-		public SettingsPersistedAggregate( IDocumentStore _store, string _collection, string _id )
+		public SettingsPersistedAggregate( IDocumentStore _store, string _collection, string _id ) :
+			base(_store, _collection, _id, new SettingsData())
 		{
-			m_aggregate = new PersistedAggregate<SettingsData>(
-				_store,
-				_collection,
-				_id,
-				_initialState: new SettingsData()
-			);
-		}
-
-		public Task LoadAsync()
-		{
-			return m_aggregate.LoadAsync();
-		}
-
-		public Task SaveAsync()
-		{
-			return m_aggregate.SaveAsync();
 		}
 
 		public int GetInt( string _key, int _default )
 		{
-			if (m_aggregate.State.ints.TryGetValue(_key, out int v))
+			if (!IsLoaded)
+				return _default;
+
+			if (State.ints.TryGetValue(_key, out int v))
 				return v;
+
 			return _default;
 		}
 
 		public void SetInt( string _key, int _value )
 		{
-			m_aggregate.Mutate(s => s.ints[_key] = _value);
+			Mutate(s => s.ints[_key] = _value);
 		}
 
 		public float GetFloat( string _key, float _default )
 		{
-			if (m_aggregate.State.floats.TryGetValue(_key, out float v))
+			if (!IsLoaded)
+				return _default;
+
+			if (State.floats.TryGetValue(_key, out float v))
 				return v;
+
 			return _default;
 		}
 
 		public void SetFloat( string _key, float _value )
 		{
-			m_aggregate.Mutate(s => s.floats[_key] = _value);
+			Mutate(s => s.floats[_key] = _value);
 		}
 
 		public bool GetBool( string _key, bool _default )
 		{
-			if (m_aggregate.State.bools.TryGetValue(_key, out bool v))
+			if (!IsLoaded)
+				return _default;
+
+			if (State.bools.TryGetValue(_key, out bool v))
 				return v;
+
 			return _default;
 		}
 
 		public void SetBool( string _key, bool _value )
 		{
-			m_aggregate.Mutate(s => s.bools[_key] = _value);
+			Mutate(s => s.bools[_key] = _value);
 		}
 
 		public string GetString( string _key, string _default )
 		{
-			if (m_aggregate.State.strings.TryGetValue(_key, out string v) && v != null)
+			if (!IsLoaded)
+				return _default;
+
+			if (State.strings.TryGetValue(_key, out string v) && v != null)
 				return v;
+
 			return _default;
 		}
 
 		public void SetString( string _key, string _value )
 		{
-			m_aggregate.Mutate(s => s.strings[_key] = _value ?? string.Empty);
+			Mutate(s => s.strings[_key] = _value ?? string.Empty);
 		}
 
 		public int GetEnumInt( string _key, int _default ) => GetInt(_key, _default);
 		public void SetEnumInt( string _key, int _value ) => SetInt(_key, _value);
+
+		protected override SettingsData Merge( SettingsData _incoming )
+		{
+			if (_incoming == null)
+				return m_state;
+
+			if (m_state == null)
+				return _incoming;
+
+			foreach (KeyValuePair<string, int> kv in _incoming.ints)
+				m_state.ints[kv.Key] = kv.Value;
+
+			foreach (KeyValuePair<string, float> kv in _incoming.floats)
+				m_state.floats[kv.Key] = kv.Value;
+
+			foreach (KeyValuePair<string, string> kv in _incoming.strings)
+				m_state.strings[kv.Key] = kv.Value ?? string.Empty;
+
+			foreach (KeyValuePair<string, bool> kv in _incoming.bools)
+				m_state.bools[kv.Key] = kv.Value;
+
+			return m_state;
+		}
+
 	}
 }
