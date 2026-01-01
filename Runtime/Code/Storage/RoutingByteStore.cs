@@ -5,6 +5,13 @@ using System.Threading.Tasks;
 
 namespace GuiToolkit.Storage
 {
+	/// <summary>
+	/// Byte store that routes keys to different underlying stores based on key prefixes.
+	/// </summary>
+	/// <remarks>
+	/// Routes are evaluated in the order they were added.
+	/// If no route matches, the fallback store is used.
+	/// </remarks>
 	public sealed class RoutingByteStore : IContextualByteStore
 	{
 		private readonly List<Route> m_routes = new List<Route>();
@@ -22,11 +29,22 @@ namespace GuiToolkit.Storage
 			}
 		}
 
+		/// <summary>
+		/// Creates a new routing byte store.
+		/// </summary>
+		/// <param name="_fallbackStore">Store used when no route matches.</param>
+		/// <exception cref="System.ArgumentNullException">Thrown if fallbackStore is null.</exception>
 		public RoutingByteStore( IByteStore _fallbackStore )
 		{
 			m_fallbackStore = _fallbackStore ?? throw new ArgumentNullException(nameof(_fallbackStore));
 		}
 
+		/// <summary>
+		/// Adds a prefix route to an underlying store.
+		/// </summary>
+		/// <param name="_prefix">Key prefix that should be handled by the routed store.</param>
+		/// <param name="_store">Store used for matching keys.</param>
+		/// <returns>This instance for fluent configuration.</returns>
 		public RoutingByteStore AddRoute( string _prefix, IByteStore _store )
 		{
 			if (string.IsNullOrWhiteSpace(_prefix))
@@ -43,24 +61,47 @@ namespace GuiToolkit.Storage
 			return this;
 		}
 
+		/// <summary>
+		/// Checks whether a key exists using the routed store selection.
+		/// </summary>
+		/// <param name="_key">Logical key.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
+		/// <returns>True if the key exists; otherwise false.</returns>
 		public Task<bool> ExistsAsync( string _key, CancellationToken _cancellationToken = default )
 		{
 			IByteStore store = ResolveStore(_key);
 			return store.ExistsAsync(_key, _cancellationToken);
 		}
 
+		/// <summary>
+		/// Loads the byte payload for a key using the routed store selection.
+		/// </summary>
+		/// <param name="_key">Logical key.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
+		/// <returns>The stored bytes, or null if the key does not exist.</returns>
 		public Task<byte[]?> LoadAsync( string _key, CancellationToken _cancellationToken = default )
 		{
 			IByteStore store = ResolveStore(_key);
 			return store.LoadAsync(_key, _cancellationToken);
 		}
 
+		/// <summary>
+		/// Saves bytes under a key using the routed store selection.
+		/// </summary>
+		/// <param name="_key">Logical key.</param>
+		/// <param name="_data">Payload bytes to store.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
 		public Task SaveAsync( string _key, byte[] _data, CancellationToken _cancellationToken = default )
 		{
 			IByteStore store = ResolveStore(_key);
 			return store.SaveAsync(_key, _data, _cancellationToken);
 		}
 
+		/// <summary>
+		/// Deletes bytes for a key using the routed store selection.
+		/// </summary>
+		/// <param name="_key">Logical key.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
 		public Task DeleteAsync( string _key, CancellationToken _cancellationToken = default )
 		{
 			IByteStore store = ResolveStore(_key);

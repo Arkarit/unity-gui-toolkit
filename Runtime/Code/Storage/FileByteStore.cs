@@ -8,10 +8,22 @@ using System.Threading.Tasks;
 
 namespace GuiToolkit.Storage
 {
+	/// <summary>
+	/// File system based byte store implementation.
+	/// </summary>
+	/// <remarks>
+	/// Keys are mapped to file paths below a configured root directory.
+	/// File names are derived from the key via hashing to avoid invalid characters and overly long paths.
+	/// </remarks>
 	public sealed class FileByteStore : IByteStore
 	{
 		private readonly string m_rootDir;
 
+		/// <summary>
+		/// Creates a new file byte store.
+		/// </summary>
+		/// <param name="_rootDir">Root directory used for all stored files.</param>
+		/// <exception cref="System.ArgumentException">Thrown if the root directory is null or whitespace.</exception>
 		public FileByteStore( string _rootDir )
 		{
 			if (string.IsNullOrWhiteSpace(_rootDir))
@@ -23,6 +35,12 @@ namespace GuiToolkit.Storage
 			Directory.CreateDirectory(m_rootDir);
 		}
 
+		/// <summary>
+		/// Checks whether a key exists.
+		/// </summary>
+		/// <param name="_key">Logical key.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
+		/// <returns>True if the key exists; otherwise false.</returns>
 		public Task<bool> ExistsAsync( string _key, CancellationToken _cancellationToken = default )
 		{
 			string path = GetPathForKey(_key);
@@ -30,6 +48,12 @@ namespace GuiToolkit.Storage
 			return Task.FromResult(exists);
 		}
 
+		/// <summary>
+		/// Loads the byte payload for a key.
+		/// </summary>
+		/// <param name="_key">Logical key.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
+		/// <returns>The stored bytes, or null if the key does not exist.</returns>
 		public async Task<byte[]?> LoadAsync( string _key, CancellationToken _cancellationToken = default )
 		{
 			string path = GetPathForKey(_key);
@@ -71,6 +95,15 @@ namespace GuiToolkit.Storage
 			return data;
 		}
 
+		/// <summary>
+		/// Saves the given bytes under a key.
+		/// </summary>
+		/// <param name="_key">Logical key.</param>
+		/// <param name="_data">Payload bytes to store.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
+		/// <remarks>
+		/// Uses a temporary file and atomic replace to reduce risk of corruption.
+		/// </remarks>
 		public async Task SaveAsync( string _key, byte[] _data, CancellationToken _cancellationToken = default )
 		{
 			if (_data == null)
@@ -98,6 +131,11 @@ namespace GuiToolkit.Storage
 			ReplaceFile(tmpPath, path);
 		}
 
+		/// <summary>
+		/// Deletes the data stored for a key.
+		/// </summary>
+		/// <param name="_key">Logical key.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
 		public Task DeleteAsync( string _key, CancellationToken _cancellationToken = default )
 		{
 			string path = GetPathForKey(_key);
@@ -110,6 +148,12 @@ namespace GuiToolkit.Storage
 			return Task.CompletedTask;
 		}
 
+		/// <summary>
+		/// Lists keys matching a prefix.
+		/// </summary>
+		/// <param name="_prefix">Key prefix to filter by.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
+		/// <returns>All keys starting with the specified prefix.</returns>
 		public Task<IReadOnlyList<string>> ListKeysAsync
 		(
 			string _prefix,

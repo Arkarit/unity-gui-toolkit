@@ -8,6 +8,12 @@ using NUnit.Framework;
 
 namespace GuiToolkit.Storage.Tests
 {
+	/// <summary>
+	/// Unit tests for settings persisted aggregate behavior.
+	/// </summary>
+	/// <remarks>
+	/// This file is part of the storage unit test suite.
+	/// </remarks>
 	public sealed class TestSettingsPersistedAggregate
 	{
 		[Test]

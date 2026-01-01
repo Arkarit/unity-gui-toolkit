@@ -2,8 +2,20 @@ using System;
 
 namespace GuiToolkit.Storage
 {
+	/// <summary>
+	/// Factory helpers for creating storage components from a routing config.
+	/// </summary>
+	/// <remarks>
+	/// This is primarily used in tests or when a ScriptableObject-based factory is not desired.
+	/// </remarks>
 	public static class StaticStorageFactory
 	{
+		/// <summary>
+		/// Creates a document store from the given routing config.
+		/// </summary>
+		/// <param name="_config">Routing configuration.</param>
+		/// <returns>A document store instance wired according to the config.</returns>
+		/// <exception cref="System.ArgumentNullException">Thrown if config is null.</exception>
 		public static IDocumentStore CreateDocumentStore( StorageRoutingConfig _config )
 		{
 			if (_config == null)
@@ -15,6 +27,11 @@ namespace GuiToolkit.Storage
 			return new DocumentStore(byteStore, _config.serializer);
 		}
 
+		/// <summary>
+		/// Creates a byte store from the given routing config.
+		/// </summary>
+		/// <param name="_config">Routing configuration.</param>
+		/// <returns>A byte store instance (possibly routing between local and backend stores).</returns>
 		public static IByteStore CreateByteStore( StorageRoutingConfig _config )
 		{
 			RoutingByteStore routing = new RoutingByteStore(_config.localStore);

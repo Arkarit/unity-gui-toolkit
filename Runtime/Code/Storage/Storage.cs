@@ -5,12 +5,26 @@ using System.Threading;
 
 namespace GuiToolkit.Storage
 {
+	/// <summary>
+	/// Global entry point for configuring and accessing the storage system.
+	/// </summary>
+	/// <remarks>
+	/// Call Initialize() once during application startup.
+	/// After initialization, access the configured document store via Documents.
+	/// </remarks>
 	public static class Storage
 	{
 		private static IDocumentStore? s_documents;
 
 		private static SynchronizationContext? s_mainContext;
 
+		/// <summary>
+		/// Posts an action to Unity's main thread synchronization context.
+		/// </summary>
+		/// <param name="_action">Action to execute on the main thread.</param>
+		/// <remarks>
+		/// Initialize() captures the current SynchronizationContext as the main thread context.
+		/// </remarks>
 		public static void PostToMainThread( Action _action )
 		{
 			if (s_mainContext == null)
@@ -22,6 +36,11 @@ namespace GuiToolkit.Storage
 			s_mainContext.Post(_ => _action(), null);
 		}
 
+		/// <summary>
+		/// Gets the configured document store.
+		/// </summary>
+		/// <returns>The initialized document store.</returns>
+		/// <exception cref="System.InvalidOperationException">Thrown if Initialize() has not been called yet.</exception>
 		public static IDocumentStore Documents
 		{
 			get
@@ -35,6 +54,15 @@ namespace GuiToolkit.Storage
 			}
 		}
 
+		/// <summary>
+		/// Initializes the storage system from routing configurations.
+		/// </summary>
+		/// <param name="_routingConfigs">Routing configurations describing stores, serializer and per-collection policies.</param>
+		/// <exception cref="System.ArgumentNullException">Thrown if routingConfigs is null.</exception>
+		/// <exception cref="System.ArgumentException">Thrown if routingConfigs is empty or invalid.</exception>
+		/// <remarks>
+		/// This method captures the current SynchronizationContext as the main thread context.
+		/// </remarks>
 		public static void Initialize( IReadOnlyList<StorageRoutingConfig> _routingConfigs )
 		{
 			if (!GeneralUtility.InMainThread)
@@ -145,6 +173,13 @@ namespace GuiToolkit.Storage
 		}
 
 		[Conditional("DEBUG_STORAGE")]
+		/// <summary>
+		/// Debug logging hook used when DEBUG_STORAGE is enabled.
+		/// </summary>
+		/// <param name="s">Message to log.</param>
+		/// <remarks>
+		/// This method is compiled only when the DEBUG_STORAGE symbol is defined.
+		/// </remarks>
 		public static void Log( string s )
 		{
 			UiLog.Log($"---::: DebugStorage: {s}");

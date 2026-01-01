@@ -4,6 +4,13 @@ using System.Threading.Tasks;
 
 namespace GuiToolkit.Storage
 {
+	/// <summary>
+	/// Byte store operations that accept a StorageRequestContext.
+	/// </summary>
+	/// <remarks>
+	/// This is used when a backend requires per-request metadata (for example auth, routing or diagnostics payloads).
+	/// </remarks>
+	/// <seealso cref="StorageRequestContext"/>
 	public interface IContextualByteStore : IByteStore
 	{
 		Task<bool> ExistsAsync(

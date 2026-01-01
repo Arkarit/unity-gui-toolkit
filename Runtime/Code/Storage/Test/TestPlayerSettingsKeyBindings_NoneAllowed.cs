@@ -5,6 +5,12 @@ using UnityEngine;
 
 namespace GuiToolkit.Tests
 {
+	/// <summary>
+	/// Unit tests for key binding validation (None not allowed).
+	/// </summary>
+	/// <remarks>
+	/// This file is part of the storage unit test suite.
+	/// </remarks>
 	public sealed class TestPlayerSettingsKeyBindings_NoneAllowed
 	{
 		[SetUp]

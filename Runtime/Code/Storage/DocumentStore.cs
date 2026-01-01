@@ -5,42 +5,98 @@ using System.Threading.Tasks;
 
 namespace GuiToolkit.Storage
 {
+	/// <summary>
+	/// High-level document storage implementation backed by an IByteStore and an ISerializer.
+	/// </summary>
+	/// <remarks>
+	/// Documents are addressed by collection name and document id.
+	/// This implementation also maintains an optional per-collection index to support listing and housekeeping.
+	/// </remarks>
 	public sealed class DocumentStore : IDocumentStore
 	{
 		private readonly IByteStore m_byteStore;
 		private readonly ISerializer m_serializer;
 
+		/// <summary>
+		/// Creates a new document store.
+		/// </summary>
+		/// <param name="_byteStore">Underlying byte store used for persistence.</param>
+		/// <param name="_serializer">Serializer used to convert documents to and from bytes.</param>
+		/// <exception cref="System.ArgumentNullException">Thrown if any argument is null.</exception>
 		public DocumentStore( IByteStore _byteStore, ISerializer _serializer )
 		{
 			m_byteStore = _byteStore;
 			m_serializer = _serializer;
 		}
 
+		/// <summary>
+		/// Checks whether a document exists using the default request context.
+		/// </summary>
+		/// <param name="_collection">Collection name.</param>
+		/// <param name="_id">Document id.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
+		/// <returns>True if the document exists; otherwise false.</returns>
 		public Task<bool> ExistsAsync( string _collection, string _id, CancellationToken _cancellationToken = default )
 		{
 			return ExistsAsync(_collection, _id, StorageRequestContext.Default, _cancellationToken);
 		}
 
+		/// <summary>
+		/// Loads a document using the default request context.
+		/// </summary>
+		/// <typeparam name="T">Document type.</typeparam>
+		/// <param name="_collection">Collection name.</param>
+		/// <param name="_id">Document id.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
+		/// <returns>The loaded document, or null if it does not exist.</returns>
 		public Task<T?> LoadAsync<T>( string _collection, string _id, CancellationToken _cancellationToken = default )
 		{
 			return LoadAsync<T>(_collection, _id, StorageRequestContext.Default, _cancellationToken);
 		}
 
+		/// <summary>
+		/// Saves a document using the default request context.
+		/// </summary>
+		/// <typeparam name="T">Document type.</typeparam>
+		/// <param name="_collection">Collection name.</param>
+		/// <param name="_id">Document id.</param>
+		/// <param name="_document">Document instance to save.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
 		public Task SaveAsync<T>( string _collection, string _id, T _document, CancellationToken _cancellationToken = default )
 		{
 			return SaveAsync(_collection, _id, _document, StorageRequestContext.Default, _cancellationToken);
 		}
 
+		/// <summary>
+		/// Deletes a document using the default request context.
+		/// </summary>
+		/// <param name="_collection">Collection name.</param>
+		/// <param name="_id">Document id.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
 		public Task DeleteAsync( string _collection, string _id, CancellationToken _cancellationToken = default )
 		{
 			return DeleteAsync(_collection, _id, StorageRequestContext.Default, _cancellationToken);
 		}
 
+		/// <summary>
+		/// Lists document ids in a collection using the default request context.
+		/// </summary>
+		/// <param name="_collection">Collection name.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
+		/// <returns>A list of document ids.</returns>
 		public Task<IReadOnlyList<string>> ListIdsAsync( string _collection, CancellationToken _cancellationToken = default )
 		{
 			return ListIdsAsync(_collection, StorageRequestContext.Default, _cancellationToken);
 		}
 
+		/// <summary>
+		/// Checks whether a document exists.
+		/// </summary>
+		/// <param name="_collection">Collection name.</param>
+		/// <param name="_id">Document id.</param>
+		/// <param name="_context">Request context passed through to underlying stores.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
+		/// <returns>True if the document exists; otherwise false.</returns>
 		public async Task<bool> ExistsAsync(
 			string _collection,
 			string _id,
@@ -51,6 +107,15 @@ namespace GuiToolkit.Storage
 			return await ExistsBytesAsync(key, _context, _cancellationToken);
 		}
 
+		/// <summary>
+		/// Loads a document.
+		/// </summary>
+		/// <typeparam name="T">Document type.</typeparam>
+		/// <param name="_collection">Collection name.</param>
+		/// <param name="_id">Document id.</param>
+		/// <param name="_context">Request context passed through to underlying stores.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
+		/// <returns>The loaded document, or null if it does not exist.</returns>
 		public async Task<T?> LoadAsync<T>(
 			string _collection,
 			string _id,
@@ -66,6 +131,15 @@ namespace GuiToolkit.Storage
 			return m_serializer.Deserialize<T>(data);
 		}
 
+		/// <summary>
+		/// Saves a document.
+		/// </summary>
+		/// <typeparam name="T">Document type.</typeparam>
+		/// <param name="_collection">Collection name.</param>
+		/// <param name="_id">Document id.</param>
+		/// <param name="_document">Document instance to save.</param>
+		/// <param name="_context">Request context passed through to underlying stores.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
 		public async Task SaveAsync<T>(
 			string _collection,
 			string _id,
@@ -80,6 +154,13 @@ namespace GuiToolkit.Storage
 			await UpsertIndexAsync(_collection, _id, _context, _cancellationToken);
 		}
 
+		/// <summary>
+		/// Deletes a document.
+		/// </summary>
+		/// <param name="_collection">Collection name.</param>
+		/// <param name="_id">Document id.</param>
+		/// <param name="_context">Request context passed through to underlying stores.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
 		public async Task DeleteAsync(
 			string _collection,
 			string _id,
@@ -92,6 +173,13 @@ namespace GuiToolkit.Storage
 			await RemoveFromIndexAsync(_collection, _id, _context, _cancellationToken);
 		}
 
+		/// <summary>
+		/// Lists document ids in a collection.
+		/// </summary>
+		/// <param name="_collection">Collection name.</param>
+		/// <param name="_context">Request context passed through to underlying stores.</param>
+		/// <param name="_cancellationToken">Cancellation token.</param>
+		/// <returns>A list of document ids.</returns>
 		public async Task<IReadOnlyList<string>> ListIdsAsync(
 			string _collection,
 			StorageRequestContext _context,

@@ -5,6 +5,12 @@ using UnityEngine;
 
 namespace GuiToolkit.Tests
 {
+	/// <summary>
+	/// Unit tests for player settings key binding persistence.
+	/// </summary>
+	/// <remarks>
+	/// This file is part of the storage unit test suite.
+	/// </remarks>
 	public sealed class TestPlayerSettingsKeyBindings
 	{
 		[SetUp]
