@@ -126,6 +126,7 @@ namespace GuiToolkit.Editor
 			
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_assetProviderFactories"));
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_storageFactory"));
 			
 
 			m_serializedSettingsObject.ApplyModifiedProperties();

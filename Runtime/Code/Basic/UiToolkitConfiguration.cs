@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 using GuiToolkit.AssetHandling;
+using GuiToolkit.Storage;
 using GuiToolkit.Style;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -88,6 +89,7 @@ namespace GuiToolkit
 			  "Several assets need to be generated. Choose your directory here for these files.";
 
 		public const string HELP_ASSET_PROVIDER_FACTORY = "An Optional Asset Provider Factory in case you want to use Addressables.";
+		public const string HELP_STORAGE_FACTORY = "Optional user defined Storage factory. If not set, a minimal builtin one is used";
 		
 		public const string HELP_TRANSITION_OVERLAY = "A transition overlay, which can cover the screen during level changes etc.";
 
@@ -129,13 +131,18 @@ namespace GuiToolkit
 		
 		[Tooltip(HELP_ASSET_PROVIDER_FACTORY)]
 		[SerializeField, Optional] private AbstractAssetProviderFactory[] m_assetProviderFactories = new AbstractAssetProviderFactory[0];
+
+		[Tooltip(HELP_STORAGE_FACTORY)]
+		[SerializeField, Optional] private AbstractStorageFactory m_storageFactory;
+
 		
 		[Tooltip(HELP_TRANSITION_OVERLAY)]
 		[SerializeField, Optional] private UiTransitionOverlay m_transitionOverlay = null;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 		private string m_rootDir;
-
+		private AbstractStorageFactory m_effectiveStorageFactory;
+		private AbstractStorageFactory m_defaultStorageFactory;
 
 		private void OnEnable()
 		{
@@ -155,6 +162,33 @@ namespace GuiToolkit
 			EditorBuildSettings.sceneListChanged -= InitScenesByName;
 		}
 #endif
+
+		public AbstractStorageFactory StorageFactory
+		{
+			get
+			{
+#if UNITY_EDITOR
+				if (!Application.isPlaying)
+					m_effectiveStorageFactory = null;
+#endif
+				if (m_effectiveStorageFactory == null)
+				{
+					m_effectiveStorageFactory = m_storageFactory;
+					if (m_effectiveStorageFactory == null)
+					{
+						if (m_defaultStorageFactory == null)
+						{
+							m_defaultStorageFactory = CreateInstance<DefaultStorageFactory>();
+							m_defaultStorageFactory.hideFlags = HideFlags.HideAndDontSave;
+						}
+
+						m_effectiveStorageFactory = m_defaultStorageFactory;
+					}
+				}
+
+				return m_effectiveStorageFactory;
+			}
+		}
 
 		public UiMainStyleConfig UiMainStyleConfig => m_uiMainStyleConfig;
 		public UiAspectRatioDependentStyleConfig UiAspectRatioDependentStyleConfig => m_uiAspectRatioDependentStyleConfig;

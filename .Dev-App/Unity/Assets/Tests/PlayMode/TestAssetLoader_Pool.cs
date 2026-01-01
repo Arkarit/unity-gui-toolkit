@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Text.RegularExpressions;
 using System.Threading;
 using GuiToolkit.AssetHandling;
 using NUnit.Framework;
@@ -156,20 +157,26 @@ namespace GuiToolkit.Test
 		[UnityTest]
 		public IEnumerator LoadAsync_Pool_Fails_When_Component_Missing_Calls_OnFail()
 		{
+			LogAssert.Expect(LogType.Error, new Regex("Panel load failed"));
+
 			var badProvider = new FakeProviderWithoutPanel();
 #if UNITY_INCLUDE_TESTS
 			AssetManager.OverrideProvidersForTests(badProvider);
 #endif
 
 			UiPanelLoadInfo received = null;
-			System.Exception receivedEx = null;
+			Exception receivedEx = null;
 
 			var info = new UiPanelLoadInfo
 			{
 				PanelType = typeof(TestPanel),
 				AssetProvider = badProvider,
 				InstantiationType = UiPanelLoadInfo.EInstantiationType.Pool,
-				OnFail = ( li, ex ) => { received = li; receivedEx = ex; }
+				OnFail = ( li, ex ) =>
+				{
+					received = li;
+					receivedEx = ex;
+				}
 			};
 
 			AssetLoader.Instance.LoadAsync(info);
