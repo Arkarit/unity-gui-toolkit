@@ -16,30 +16,53 @@ namespace GuiToolkit.Storage
 			m_serializer = _serializer;
 		}
 
+		public Task<bool> ExistsAsync( string _collection, string _id, CancellationToken _cancellationToken = default )
+		{
+			return ExistsAsync(_collection, _id, StorageRequestContext.Default, _cancellationToken);
+		}
+
+		public Task<T?> LoadAsync<T>( string _collection, string _id, CancellationToken _cancellationToken = default )
+		{
+			return LoadAsync<T>(_collection, _id, StorageRequestContext.Default, _cancellationToken);
+		}
+
+		public Task SaveAsync<T>( string _collection, string _id, T _document, CancellationToken _cancellationToken = default )
+		{
+			return SaveAsync(_collection, _id, _document, StorageRequestContext.Default, _cancellationToken);
+		}
+
+		public Task DeleteAsync( string _collection, string _id, CancellationToken _cancellationToken = default )
+		{
+			return DeleteAsync(_collection, _id, StorageRequestContext.Default, _cancellationToken);
+		}
+
+		public Task<IReadOnlyList<string>> ListIdsAsync( string _collection, CancellationToken _cancellationToken = default )
+		{
+			return ListIdsAsync(_collection, StorageRequestContext.Default, _cancellationToken);
+		}
+
 		public async Task<bool> ExistsAsync(
 			string _collection,
 			string _id,
+			StorageRequestContext _context,
 			CancellationToken _cancellationToken = default )
 		{
 			string key = BuildDocKey(_collection, _id);
-			return await m_byteStore.ExistsAsync(key, _cancellationToken);
+			return await ExistsBytesAsync(key, _context, _cancellationToken);
 		}
 
 		public async Task<T?> LoadAsync<T>(
 			string _collection,
 			string _id,
+			StorageRequestContext _context,
 			CancellationToken _cancellationToken = default )
 		{
 			string key = BuildDocKey(_collection, _id);
 
-			Storage.Log($"Loading Key '{key}'");
-			byte[]? data = await m_byteStore.LoadAsync(key, _cancellationToken);
+			byte[]? data = await LoadBytesAsync(key, _context, _cancellationToken);
 			if (data == null)
-			{
 				return default;
-			}
 
-			Storage.Log($"Loaded");
 			return m_serializer.Deserialize<T>(data);
 		}
 
@@ -47,60 +70,95 @@ namespace GuiToolkit.Storage
 			string _collection,
 			string _id,
 			T _document,
+			StorageRequestContext _context,
 			CancellationToken _cancellationToken = default )
 		{
-			string key = BuildDocKey(_collection, _id);
-			Storage.Log($"Saving Key '{key}'");
+			string docKey = BuildDocKey(_collection, _id);
 			byte[] data = m_serializer.Serialize(_document);
 
-			await m_byteStore.SaveAsync(key, data, _cancellationToken);
-
-			await UpsertIndexAsync(_collection, _id, _cancellationToken);
-
-			Storage.Log($"Loaded Key '{key}'");
+			await SaveBytesAsync(docKey, data, _context, _cancellationToken);
+			await UpsertIndexAsync(_collection, _id, _context, _cancellationToken);
 		}
 
 		public async Task DeleteAsync(
 			string _collection,
 			string _id,
+			StorageRequestContext _context,
 			CancellationToken _cancellationToken = default )
 		{
 			string docKey = BuildDocKey(_collection, _id);
 
-			await m_byteStore.DeleteAsync(docKey, _cancellationToken);
-			await RemoveFromIndexAsync(_collection, _id, _cancellationToken);
+			await DeleteBytesAsync(docKey, _context, _cancellationToken);
+			await RemoveFromIndexAsync(_collection, _id, _context, _cancellationToken);
 		}
 
 		public async Task<IReadOnlyList<string>> ListIdsAsync(
 			string _collection,
+			StorageRequestContext _context,
 			CancellationToken _cancellationToken = default )
 		{
-			CollectionIndex? index = await LoadIndexAsync(_collection, _cancellationToken);
+			CollectionIndex? index = await LoadIndexAsync(_collection, _context, _cancellationToken);
 			if (index != null)
 			{
 				List<string> ids = new List<string>(index.entries.Count);
 				for (int i = 0; i < index.entries.Count; i++)
-				{
 					ids.Add(index.entries[i].id);
-				}
+
 				return ids;
 			}
 
-			// Fallback: list keys by prefix (works fine for local file store, may be slow for backend).
 			string prefix = BuildCollectionPrefix(_collection);
-			IReadOnlyList<string> keys = await m_byteStore.ListKeysAsync(prefix, _cancellationToken);
+			IReadOnlyList<string> keys = await ListKeysAsync(prefix, _context, _cancellationToken);
 
 			List<string> fallbackIds = new List<string>();
 			for (int i = 0; i < keys.Count; i++)
 			{
 				string? id = TryExtractIdFromDocKey(_collection, keys[i]);
 				if (id != null)
-				{
 					fallbackIds.Add(id);
-				}
 			}
 
 			return fallbackIds;
+		}
+
+		private Task<bool> ExistsBytesAsync( string _key, StorageRequestContext _context, CancellationToken _ct )
+		{
+			if (m_byteStore is IContextualByteStore contextual)
+				return contextual.ExistsAsync(_key, _context, _ct);
+
+			return m_byteStore.ExistsAsync(_key, _ct);
+		}
+
+		private Task<byte[]?> LoadBytesAsync( string _key, StorageRequestContext _context, CancellationToken _ct )
+		{
+			if (m_byteStore is IContextualByteStore contextual)
+				return contextual.LoadAsync(_key, _context, _ct);
+
+			return m_byteStore.LoadAsync(_key, _ct);
+		}
+
+		private Task SaveBytesAsync( string _key, byte[] _data, StorageRequestContext _context, CancellationToken _ct )
+		{
+			if (m_byteStore is IContextualByteStore contextual)
+				return contextual.SaveAsync(_key, _data, _context, _ct);
+
+			return m_byteStore.SaveAsync(_key, _data, _ct);
+		}
+
+		private Task DeleteBytesAsync( string _key, StorageRequestContext _context, CancellationToken _ct )
+		{
+			if (m_byteStore is IContextualByteStore contextual)
+				return contextual.DeleteAsync(_key, _context, _ct);
+
+			return m_byteStore.DeleteAsync(_key, _ct);
+		}
+
+		private Task<IReadOnlyList<string>> ListKeysAsync( string _prefix, StorageRequestContext _context, CancellationToken _ct )
+		{
+			if (m_byteStore is IContextualByteStore contextual)
+				return contextual.ListKeysAsync(_prefix, _context, _ct);
+
+			return m_byteStore.ListKeysAsync(_prefix, _ct);
 		}
 
 		private static string BuildCollectionPrefix( string _collection )
@@ -137,47 +195,46 @@ namespace GuiToolkit.Storage
 
 		private async Task<CollectionIndex?> LoadIndexAsync(
 			string _collection,
+			StorageRequestContext _context,
 			CancellationToken _cancellationToken )
 		{
 			string indexKey = BuildIndexKey(_collection);
-			Storage.Log($"Loading index Key:'{indexKey}'");
-			byte[]? data = await m_byteStore.LoadAsync(indexKey, _cancellationToken);
+			byte[]? data = await LoadBytesAsync(indexKey, _context, _cancellationToken);
 			if (data == null)
 				return null;
 
-			Storage.Log($"Loaded index Key");
 			return m_serializer.Deserialize<CollectionIndex>(data);
 		}
 
 		private async Task SaveIndexAsync(
 			string _collection,
 			CollectionIndex _index,
+			StorageRequestContext _context,
 			CancellationToken _cancellationToken )
 		{
 			string indexKey = BuildIndexKey(_collection);
 			byte[] data = m_serializer.Serialize(_index);
-			Storage.Log($"Saving index Key:'{indexKey}'");
-			await m_byteStore.SaveAsync(indexKey, data, _cancellationToken);
-			Storage.Log($"Saved index Key");
+			await SaveBytesAsync(indexKey, data, _context, _cancellationToken);
 		}
 
 		private async Task UpsertIndexAsync(
 			string _collection,
 			string _id,
+			StorageRequestContext _context,
 			CancellationToken _cancellationToken )
 		{
 			CollectionIndex index =
-				await LoadIndexAsync(_collection, _cancellationToken) ??
+				await LoadIndexAsync(_collection, _context, _cancellationToken) ??
 				new CollectionIndex();
 
-			long nowUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+			long nowUnixMs = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
 			for (int i = 0; i < index.entries.Count; i++)
 			{
 				if (index.entries[i].id == _id)
 				{
 					index.entries[i].updatedUnixMs = nowUnixMs;
-					await SaveIndexAsync(_collection, index, _cancellationToken);
+					await SaveIndexAsync(_collection, index, _context, _cancellationToken);
 					return;
 				}
 			}
@@ -188,29 +245,26 @@ namespace GuiToolkit.Storage
 				updatedUnixMs = nowUnixMs
 			});
 
-			await SaveIndexAsync(_collection, index, _cancellationToken);
+			await SaveIndexAsync(_collection, index, _context, _cancellationToken);
 		}
 
 		private async Task RemoveFromIndexAsync(
 			string _collection,
 			string _id,
+			StorageRequestContext _context,
 			CancellationToken _cancellationToken )
 		{
-			CollectionIndex? index = await LoadIndexAsync(_collection, _cancellationToken);
+			CollectionIndex? index = await LoadIndexAsync(_collection, _context, _cancellationToken);
 			if (index == null)
-			{
 				return;
-			}
 
 			for (int i = index.entries.Count - 1; i >= 0; i--)
 			{
 				if (index.entries[i].id == _id)
-				{
 					index.entries.RemoveAt(i);
-				}
 			}
 
-			await SaveIndexAsync(_collection, index, _cancellationToken);
+			await SaveIndexAsync(_collection, index, _context, _cancellationToken);
 		}
 	}
 }

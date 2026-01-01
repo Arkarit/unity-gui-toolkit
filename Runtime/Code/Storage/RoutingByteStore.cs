@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GuiToolkit.Storage
 {
-	public sealed class RoutingByteStore : IByteStore
+	public sealed class RoutingByteStore : IContextualByteStore
 	{
 		private readonly List<Route> m_routes = new List<Route>();
 		private readonly IByteStore m_fallbackStore;
@@ -96,6 +96,98 @@ namespace GuiToolkit.Storage
 					{
 						merged.Add(keys[k]);
 					}
+				}
+			}
+
+			return merged;
+		}
+
+		public Task<bool> ExistsAsync(
+			string _key,
+			StorageRequestContext _context,
+			CancellationToken _cancellationToken = default )
+		{
+			IByteStore store = ResolveStore(_key);
+
+			if (store is IContextualByteStore contextual)
+				return contextual.ExistsAsync(_key, _context, _cancellationToken);
+
+			return store.ExistsAsync(_key, _cancellationToken);
+		}
+
+		public Task<byte[]?> LoadAsync(
+			string _key,
+			StorageRequestContext _context,
+			CancellationToken _cancellationToken = default )
+		{
+			IByteStore store = ResolveStore(_key);
+
+			if (store is IContextualByteStore contextual)
+				return contextual.LoadAsync(_key, _context, _cancellationToken);
+
+			return store.LoadAsync(_key, _cancellationToken);
+		}
+
+		public Task SaveAsync(
+			string _key,
+			byte[] _data,
+			StorageRequestContext _context,
+			CancellationToken _cancellationToken = default )
+		{
+			IByteStore store = ResolveStore(_key);
+
+			if (store is IContextualByteStore contextual)
+				return contextual.SaveAsync(_key, _data, _context, _cancellationToken);
+
+			return store.SaveAsync(_key, _data, _cancellationToken);
+		}
+
+		public Task DeleteAsync(
+			string _key,
+			StorageRequestContext _context,
+			CancellationToken _cancellationToken = default )
+		{
+			IByteStore store = ResolveStore(_key);
+
+			if (store is IContextualByteStore contextual)
+				return contextual.DeleteAsync(_key, _context, _cancellationToken);
+
+			return store.DeleteAsync(_key, _cancellationToken);
+		}
+
+		public async Task<IReadOnlyList<string>> ListKeysAsync(
+			string _prefix,
+			StorageRequestContext _context,
+			CancellationToken _cancellationToken = default )
+		{
+			if (string.IsNullOrEmpty(_prefix))
+				return System.Array.Empty<string>();
+
+			IByteStore? singleStore = TryResolveStoreForPrefix(_prefix);
+			if (singleStore != null)
+			{
+				if (singleStore is IContextualByteStore contextual)
+					return await contextual.ListKeysAsync(_prefix, _context, _cancellationToken);
+
+				return await singleStore.ListKeysAsync(_prefix, _cancellationToken);
+			}
+
+			List<IByteStore> stores = CollectUniqueStores();
+
+			List<string> merged = new List<string>();
+			for (int i = 0; i < stores.Count; i++)
+			{
+				IReadOnlyList<string> keys;
+
+				if (stores[i] is IContextualByteStore contextual)
+					keys = await contextual.ListKeysAsync(_prefix, _context, _cancellationToken);
+				else
+					keys = await stores[i].ListKeysAsync(_prefix, _cancellationToken);
+
+				for (int k = 0; k < keys.Count; k++)
+				{
+					if (keys[k].StartsWith(_prefix, System.StringComparison.Ordinal))
+						merged.Add(keys[k]);
 				}
 			}
 
