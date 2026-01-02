@@ -16,10 +16,19 @@ msgstr ""
 msgid "Are you really really sure you want to quit?"
 msgstr ""
 
+msgid "Button"
+msgstr ""
+
 msgid "Cancel"
 msgstr ""
 
 msgid "Cancel LOREM IPSUM dolor sit amet bla"
+msgstr ""
+
+msgid "Checkbox"
+msgstr ""
+
+msgid "Choose Day!\nLorem Ipsum"
 msgstr ""
 
 msgid "Date"
@@ -37,13 +46,25 @@ msgstr ""
 msgid "Dialog Stub"
 msgstr ""
 
+msgid "Dolor Sit"
+msgstr ""
+
 msgid "Dynamic Load"
+msgstr ""
+
+msgid "Dynamically Loaded"
+msgstr ""
+
+msgid "Dynamically Loaded With Addressables"
 msgstr ""
 
 msgid "Effect Volume"
 msgstr ""
 
 msgid "Enter text..."
+msgstr ""
+
+msgid "Execute"
 msgstr ""
 
 msgid "General"
@@ -61,6 +82,9 @@ msgstr ""
 msgid "Key '{0}' not supported"
 msgstr ""
 
+msgid "Key Binding"
+msgstr ""
+
 msgid "Key Bindings"
 msgstr ""
 
@@ -68,6 +92,9 @@ msgid "Language"
 msgstr ""
 
 msgid "Light"
+msgstr ""
+
+msgid "Lorem Ipsum Dolor"
 msgstr ""
 
 msgid "Max  FPS"
@@ -97,7 +124,13 @@ msgstr ""
 msgid "No Mouse Keys"
 msgstr ""
 
+msgid "NOW"
+msgstr ""
+
 msgid "Ok"
+msgstr ""
+
+msgid "OK"
 msgstr ""
 
 msgid "Only Mouse Keys"
@@ -113,6 +146,12 @@ msgid "or"
 msgstr ""
 
 msgid "Or 'Esc' to cancel"
+msgstr ""
+
+msgid "Play CHildren Animation"
+msgstr ""
+
+msgid "Play CHildren Animation Backwards"
 msgstr ""
 
 msgid "Press a key\nOr Mouse button!"
@@ -139,6 +178,12 @@ msgstr ""
 msgid "Quit"
 msgstr ""
 
+msgid "Radiobutton"
+msgstr ""
+
+msgid "Really Lorem?"
+msgstr ""
+
 msgid "Really Quit?"
 msgstr ""
 
@@ -149,6 +194,9 @@ msgid "Resolution Dependent Style Example"
 msgstr ""
 
 msgid "Restore Defaults"
+msgstr ""
+
+msgid "Retry"
 msgstr ""
 
 msgid "Settings"
@@ -193,7 +241,22 @@ msgstr ""
 msgid "Time:"
 msgstr ""
 
+msgid "Title"
+msgstr ""
+
 msgid "Title...	"
+msgstr ""
+
+msgid "Toggle Auto CHildren Animation"
+msgstr ""
+
+msgid "Toggle Style (0.5 Seconds)"
+msgstr ""
+
+msgid "Toggle Style (3 Seconds)"
+msgstr ""
+
+msgid "Toggle Style (Instant)"
 msgstr ""
 
 msgid "UI Skin"
@@ -203,6 +266,9 @@ msgid "Unbound Keys"
 msgstr ""
 
 msgid "Unlimited"
+msgstr ""
+
+msgid "Wirklich beenden?"
 msgstr ""
 
 msgid "Yes"
