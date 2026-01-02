@@ -67,15 +67,15 @@ public class DemoSettings : LocaClass
 			),
 
 			// Key bindings, all keys allowed except Esc
-			new PlayerSetting(__("Key Bindings"), "", __("Move Up"), KeyCode.W),
-			new PlayerSetting(__("Key Bindings"), "", __("Move Left"), KeyCode.A),
-			new PlayerSetting(__("Key Bindings"), "", __("Move Right"), KeyCode.S),
-			new PlayerSetting(__("Key Bindings"), "", __("Move Down"), KeyCode.D),
+			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("Move Up"), KeyCode.W),
+			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("Move Left"), KeyCode.A),
+			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("Move Right"), KeyCode.S),
+			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("Move Down"), KeyCode.D),
 			// An example for forbidden mouse keys
-			new PlayerSetting(__("Key Bindings"), "", __("No Mouse Keys"), KeyCode.Space, PlayerSettingOptions.NoMouseKeys),
-			new PlayerSetting(__("Key Bindings"), "", __("Only Mouse Keys"), KeyCode.Mouse1, PlayerSettingOptions.OnlyMouseKeys),
+			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("No Mouse Keys"), KeyCode.Space, PlayerSettingOptions.NoMouseKeys),
+			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("Only Mouse Keys"), KeyCode.Mouse1, PlayerSettingOptions.OnlyMouseKeys),
 			// An example for specified keys
-			new PlayerSetting(__("Key Bindings"), "", __("Only specified Keys allowed"), KeyCode.E, new PlayerSettingOptions()
+			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("Only specified Keys allowed"), KeyCode.E, new PlayerSettingOptions()
 			{
 				KeyCodeFilterList = new ()
 				{
@@ -86,7 +86,7 @@ public class DemoSettings : LocaClass
 				},
 				KeyCodeFilterListIsWhitelist = true
 			}),
-			new PlayerSetting(__("Key Bindings"), "", __("Only specified Keys forbidden"), KeyCode.Y, new PlayerSettingOptions()
+			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("Only specified Keys forbidden"), KeyCode.Y, new PlayerSettingOptions()
 			{
 				KeyCodeFilterList = new ()
 				{

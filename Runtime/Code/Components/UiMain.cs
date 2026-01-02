@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using GuiToolkit.Exceptions;
 using GuiToolkit.Storage;
@@ -23,7 +24,7 @@ namespace GuiToolkit
 	// changeable Members could be stored in config.
 	[RequireComponent(typeof(Camera))]
 	[RequireComponent(typeof(UiPool))]
-	public class UiMain : MonoBehaviour, IEditorAware
+	public class UiMain : MonoBehaviour, IEditorAware, ILocaKeyProvider
 	{
 		[Header("Canvas Settings")]
 		[SerializeField] private RenderMode m_renderMode = RenderMode.ScreenSpaceCamera;
@@ -829,6 +830,18 @@ namespace GuiToolkit
 			for (int i = 0; i < m_excludedFromFrustumCulling.Count; i++)
 				m_excludedFromFrustumCulling[i].GetMesh().bounds = m_excludedBounds[i];
 		}
+		#endregion
+
+		#region Loca
+
+		// Some general basic loca keys, e.g. Quality settings
+#if UNITY_EDITOR
+		public bool UsesMultipleLocaKeys => true;
+		public string LocaKey => string.Empty;
+		public List<string> LocaKeys => QualitySettings.names.ToList();
+		public string Group => string.Empty;
+#endif
+
 		#endregion
 	}
 

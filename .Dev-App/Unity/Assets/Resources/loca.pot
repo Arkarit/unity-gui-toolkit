@@ -79,6 +79,9 @@ msgstr ""
 msgid "Here you can test some of the capabilities of the GUI Toolkit"
 msgstr ""
 
+msgid "High"
+msgstr ""
+
 msgid "Key '{0}' not supported"
 msgstr ""
 
@@ -97,10 +100,16 @@ msgstr ""
 msgid "Lorem Ipsum Dolor"
 msgstr ""
 
+msgid "Low"
+msgstr ""
+
 msgid "Max  FPS"
 msgstr ""
 
 msgid "Max FPS"
+msgstr ""
+
+msgid "Medium"
 msgstr ""
 
 msgid "Move Down"
@@ -262,10 +271,19 @@ msgstr ""
 msgid "UI Skin"
 msgstr ""
 
+msgid "Ultra"
+msgstr ""
+
 msgid "Unbound Keys"
 msgstr ""
 
 msgid "Unlimited"
+msgstr ""
+
+msgid "Very High"
+msgstr ""
+
+msgid "Very Low"
 msgstr ""
 
 msgid "Wirklich beenden?"

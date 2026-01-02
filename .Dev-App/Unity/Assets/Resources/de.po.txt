@@ -18,18 +18,14 @@ msgstr "Umgebungs\\u00ADverdeckung"
 msgid "and"
 msgstr "und"
 
-#, fuzzy
-#| msgid "Animation Speed"
 msgid "Animation Example"
-msgstr "Animations\\u00ADgeschwindigkeit"
+msgstr "Animationsbeispiel"
 
 msgid "Animation Speed"
 msgstr "Animations\\u00ADgeschwindigkeit"
 
-#, fuzzy
-#| msgid "Animation Speed"
 msgid "Animations Example"
-msgstr "Animations\\u00ADgeschwindigkeit"
+msgstr "Animationsbeispiel"
 
 msgid "Are you really really sure you want to quit?"
 msgstr ""
@@ -61,10 +57,8 @@ msgstr "Datum"
 msgid "Date:"
 msgstr "Datum:"
 
-#, fuzzy
-#| msgid "Restore Defaults"
 msgid "Default"
-msgstr "Einstellungen zurücksetzen"
+msgstr "Standard"
 
 msgid "Details"
 msgstr "Details"
@@ -105,11 +99,12 @@ msgstr "Hallo Welt"
 msgid "Here you can test some of the capabilities of the GUI Toolkit"
 msgstr "Hier können Sie einige der Fähigkeiten des GUI Toolkit testen"
 
+msgid "High"
+msgstr "Hoch"
+
 msgid "Key '{0}' not supported"
 msgstr "Taste '{0}' nicht unterstützt"
 
-#, fuzzy
-#| msgid "Key Bindings"
 msgid "Key Binding"
 msgstr "Tasten\\u00ADzuordnung"
 
@@ -125,11 +120,17 @@ msgstr "Hell"
 msgid "Lorem Ipsum Dolor"
 msgstr "Lorem Ipsum Dolor"
 
+msgid "Low"
+msgstr "Niedrig"
+
 msgid "Max  FPS"
 msgstr "Max  FPS"
 
 msgid "Max FPS"
 msgstr "Max FPS"
+
+msgid "Medium"
+msgstr "Mittel"
 
 msgid "Move Down"
 msgstr "Nach unten bewegen"
@@ -225,16 +226,12 @@ msgstr "Beenden"
 msgid "Radiobutton"
 msgstr "Radio Button"
 
-#, fuzzy
-#| msgid "Really Quit?"
 msgid "Really Lorem?"
 msgstr "Wirklich beenden?"
 
 msgid "Really Quit?"
 msgstr "Wirklich beenden?"
 
-#, fuzzy
-#| msgid "Style Example"
 msgid "Res. Dep. Style Example"
 msgstr "Stylebeispiel"
 
@@ -289,8 +286,6 @@ msgstr "Text...\t"
 msgid "Time:"
 msgstr "Zeit:"
 
-#, fuzzy
-#| msgid "Title...\t"
 msgid "Title"
 msgstr "Titel...\t"
 
@@ -312,11 +307,20 @@ msgstr "Stil umschalten (sofort)"
 msgid "UI Skin"
 msgstr "UI Skin"
 
+msgid "Ultra"
+msgstr "Ultra"
+
 msgid "Unbound Keys"
 msgstr "Nicht zugewiesene Tasten"
 
 msgid "Unlimited"
 msgstr "Unbegrenzt"
+
+msgid "Very High"
+msgstr "Sehr hoch"
+
+msgid "Very Low"
+msgstr "Sehr niedrig"
 
 msgid "Wirklich beenden?"
 msgstr ""
@@ -328,15 +332,6 @@ msgid "{0} Tree, "
 msgid_plural "{0} Trees, "
 msgstr[0] "{0} Baum, "
 msgstr[1] "{0} Bäume, "
-
-#~ msgid "High"
-#~ msgstr "Hoch"
-
-#~ msgid "Low"
-#~ msgstr "Niedrig"
-
-#~ msgid "Medium"
-#~ msgstr "Mittel"
 
 #~ msgid "Overall"
 #~ msgstr "Generell"
@@ -352,9 +347,6 @@ msgstr[1] "{0} Bäume, "
 
 #~ msgid "Tab Dialog Demo"
 #~ msgstr "Tab Dialog Demo"
-
-#~ msgid "Ultra"
-#~ msgstr "Ultra"
 
 #~ msgid "Shoot"
 #~ msgstr "Feuerknopf"
