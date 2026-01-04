@@ -13,6 +13,10 @@ namespace GuiToolkit.Storage
 	[CreateAssetMenu]
 	public class DefaultStorageFactory : AbstractStorageFactory
 	{
+		public override IByteStore CreateDefaultByteStore() => new FileByteStore(Application.persistentDataPath);
+
+		public override ISerializer CreateDefaultSerializer() => new NewtonsoftJsonSerializer();
+
 		/// <summary>
 		/// Builds the routing configuration list for the storage system.
 		/// </summary>
@@ -20,9 +24,7 @@ namespace GuiToolkit.Storage
 		public override IReadOnlyList<StorageRoutingConfig> CreateRoutingConfigs()
 		{
 			List<StorageRoutingConfig> routingConfigs = new();
-			IByteStore byteStore = new FileByteStore(Application.persistentDataPath);
-			ISerializer serializer = new NewtonsoftJsonSerializer();
-			var config = new StorageRoutingConfig(byteStore, serializer);
+			var config = new StorageRoutingConfig(DefaultByteStore, DefaultSerializer);
 			config.SetPolicy(StringConstants.PLAYER_SETTINGS_COLLECTION, StoragePolicy.LocalOnly);
 			routingConfigs.Add(config);
 

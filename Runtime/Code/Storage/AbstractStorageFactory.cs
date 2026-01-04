@@ -14,6 +14,33 @@ namespace GuiToolkit.Storage
 	/// <seealso cref="Storage"/>
 	public abstract class AbstractStorageFactory : ScriptableObject
 	{
+		private IByteStore m_defaultByteStore;
+		private ISerializer m_defaultSerializer;
+
+		public IByteStore DefaultByteStore
+		{
+			get
+			{
+				if (m_defaultByteStore == null)
+					m_defaultByteStore = CreateDefaultByteStore();
+				return m_defaultByteStore;
+			}
+		}
+
+		public ISerializer DefaultSerializer
+		{
+			get
+			{
+				if (m_defaultSerializer == null)
+					m_defaultSerializer = CreateDefaultSerializer();
+
+				return m_defaultSerializer;
+			}
+		}
+
+		public abstract IByteStore CreateDefaultByteStore();
+		public abstract ISerializer CreateDefaultSerializer();
+
 		/// <summary>
 		/// Creates routing configurations used to initialize the storage system.
 		/// </summary>
