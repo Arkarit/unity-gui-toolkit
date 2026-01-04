@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -16,13 +14,36 @@ namespace GuiToolkit
 		public DateTime DateTime
 		{
 			get => m_dateTime;
-			set => m_dateTime = value;
+			set
+			{
+				if (value.Kind == DateTimeKind.Utc)
+				{
+					m_dateTime = value;
+				}
+				else if (value.Kind == DateTimeKind.Local)
+				{
+					m_dateTime = value.ToUniversalTime();
+				}
+				else // Unspecified
+				{
+					m_dateTime = DateTime.SpecifyKind(value, DateTimeKind.Utc);
+				}
+			}
 		}
 
 		public void OnBeforeSerialize() => m_ticks = m_dateTime.Ticks;
 
-		public void OnAfterDeserialize() => m_dateTime = new DateTime(m_ticks);
+		public void OnAfterDeserialize() => m_dateTime = new DateTime(m_ticks, DateTimeKind.Utc);
 
-		public int CompareTo(SerializableDateTime _other) => DateTime.CompareTo(_other.DateTime);
+		public int CompareTo( SerializableDateTime _other )
+		{
+			if (_other == null)
+				return 1;
+
+#if UNITY_EDITOR
+			Debug.Assert(DateTime.Kind == DateTimeKind.Utc && _other.DateTime.Kind == DateTimeKind.Utc, "Should be always UTC");
+#endif
+			return DateTime.CompareTo(_other.DateTime);
+		}
 	}
 }
