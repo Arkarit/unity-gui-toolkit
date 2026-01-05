@@ -96,7 +96,7 @@ namespace GuiToolkit
 
 		/// Scene references.
 		[Tooltip(HELP_SCENES)]
-		[SerializeField] private SceneReference[] m_sceneReferences;
+		[SerializeField] private SceneReference[] m_sceneReferences = new SceneReference[0];
 
 		[Tooltip(HELP_LOAD_VIEW_IN_EVERY_SCENE)]
 		[SerializeField] private bool m_loadViewInEveryScene = false;
@@ -183,29 +183,35 @@ namespace GuiToolkit
 		private void InitScenesByName()
 		{
 			m_scenesByName.Clear();
+			if (m_sceneReferences == null)
+				m_sceneReferences = new SceneReference[0];
 
 #if UNITY_EDITOR
 			// Always refresh scene references list, but only in editor mode
 			if (!Application.isPlaying)
 			{
 				var sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
-				bool shouldStore = sceneReferences.Length != m_sceneReferences.Length;
-				if (!shouldStore)
+				if (sceneReferences != null)
 				{
-					for (int i = 0; i < sceneReferences.Length; i++) 
+					bool shouldStore = sceneReferences.Length != m_sceneReferences.Length;
+					
+					if (!shouldStore)
 					{
-						if (sceneReferences[i] != m_sceneReferences[i])
+						for (int i = 0; i < sceneReferences.Length; i++) 
 						{
-							shouldStore = true;
-							break;
+							if (sceneReferences[i] != m_sceneReferences[i])
+							{
+								shouldStore = true;
+								break;
+							}
 						}
 					}
-				}
-				
-				if (shouldStore)
-				{
-					m_sceneReferences = sceneReferences;
-					EditorUtility.SetDirty(this);
+					
+					if (shouldStore)
+					{
+						m_sceneReferences = sceneReferences;
+						EditorUtility.SetDirty(this);
+					}
 				}
 			}
 #endif
