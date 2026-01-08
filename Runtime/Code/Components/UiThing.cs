@@ -130,6 +130,22 @@ namespace GuiToolkit
 		}
 
 		/// <summary>
+		/// Get the bottommost root, which still is a Rect Transform.
+		/// Note that this can't easily be cached, since hierarchy may change between calls.
+		/// </summary>
+		public RectTransform RectTransformRoot
+		{
+			get
+			{
+				var result = RectTransform;
+				while (result.parent != null && result.parent is RectTransform parentRt)
+					result = parentRt;
+
+				return result;
+			}
+		}
+
+		/// <summary>
 		/// Optional callback when application language changes.
 		/// Only active if NeedsLanguageChangeCallback returns true.
 		/// </summary>
