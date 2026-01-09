@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 using Object = UnityEngine.Object;
 using UnityEngine.Events;
 using System.Text.RegularExpressions;
-
+using TMPro;
 
 
 #if UNITY_EDITOR
@@ -1193,6 +1193,12 @@ namespace GuiToolkit
 			var runtimeCalls = callsField?.GetValue(calls) as System.Collections.ICollection;
 
 			return runtimeCalls != null && runtimeCalls.Count > 0;
+		}
+
+		public static void SetTextAndUpdateMesh(this TMP_Text _component, string _text)
+		{
+			_component.text = _text;
+			_component.ForceMeshUpdate();
 		}
 
 	}

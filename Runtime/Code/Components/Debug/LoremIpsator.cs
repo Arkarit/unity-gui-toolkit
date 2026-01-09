@@ -48,16 +48,7 @@ namespace GuiToolkit.Debugging
 		private void SetText()
 		{
 			var randomLength = Random.Range(30, LoremIpsum.Length);
-			m_text.text = LoremIpsum.Substring(randomLength);
-			m_text.ForceMeshUpdate();
-//			LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
-//			LayoutRebuilder.ForceRebuildLayoutImmediate(m_text.transform as RectTransform);
-//			var layoutGroup = GetComponentInParent<LayoutGroup>();
-//			if (layoutGroup == null)
-//				return;
-//			LayoutRebuilder.ForceRebuildLayoutImmediate(layoutGroup.transform as RectTransform);
-
-
+			m_text.SetTextAndUpdateMesh(LoremIpsum.Substring(randomLength));
 		}
 	}
 }

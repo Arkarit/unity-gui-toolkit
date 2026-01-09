@@ -376,26 +376,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_layoutPriority: 1
-  m_sourceRect: {fileID: 0}
   m_tmpText: {fileID: 3069327946745233331}
-  m_widthSource: 0
-  m_heightSource: 5
-  m_useManualMinWidth: 0
-  m_manualMinWidth: -1
-  m_useManualPreferredWidth: 0
-  m_manualPreferredWidth: -1
-  m_useManualFlexibleWidth: 0
-  m_manualFlexibleWidth: -1
-  m_useManualMinHeight: 0
-  m_manualMinHeight: -1
-  m_useManualPreferredHeight: 0
-  m_manualPreferredHeight: -1
-  m_useManualFlexibleHeight: 0
-  m_manualFlexibleHeight: -1
-  m_paddingLeft: 0
-  m_paddingRight: 0
-  m_paddingTop: 0
-  m_paddingBottom: 0
+  m_heightSource: 1
 --- !u!114 &2286963237929634366
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -461,26 +443,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_layoutPriority: 1
-  m_sourceRect: {fileID: 0}
   m_tmpText: {fileID: 7055271781582974752}
-  m_widthSource: 0
-  m_heightSource: 5
-  m_useManualMinWidth: 0
-  m_manualMinWidth: -1
-  m_useManualPreferredWidth: 0
-  m_manualPreferredWidth: -1
-  m_useManualFlexibleWidth: 0
-  m_manualFlexibleWidth: -1
-  m_useManualMinHeight: 0
-  m_manualMinHeight: -1
-  m_useManualPreferredHeight: 0
-  m_manualPreferredHeight: -1
-  m_useManualFlexibleHeight: 0
-  m_manualFlexibleHeight: -1
-  m_paddingLeft: 0
-  m_paddingRight: 0
-  m_paddingTop: 0
-  m_paddingBottom: 0
+  m_heightSource: 1
 --- !u!114 &3874642666554952660
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -546,26 +510,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_layoutPriority: 1
-  m_sourceRect: {fileID: 0}
   m_tmpText: {fileID: 1858355650330194983}
-  m_widthSource: 0
-  m_heightSource: 5
-  m_useManualMinWidth: 0
-  m_manualMinWidth: -1
-  m_useManualPreferredWidth: 0
-  m_manualPreferredWidth: -1
-  m_useManualFlexibleWidth: 0
-  m_manualFlexibleWidth: -1
-  m_useManualMinHeight: 0
-  m_manualMinHeight: -1
-  m_useManualPreferredHeight: 0
-  m_manualPreferredHeight: -1
-  m_useManualFlexibleHeight: 0
-  m_manualFlexibleHeight: -1
-  m_paddingLeft: 0
-  m_paddingRight: 0
-  m_paddingTop: 0
-  m_paddingBottom: 0
+  m_heightSource: 1
 --- !u!114 &5510763206257452898
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1046,26 +992,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_layoutPriority: 1
-  m_sourceRect: {fileID: 0}
   m_tmpText: {fileID: 4211300316013428856}
-  m_widthSource: 0
-  m_heightSource: 5
-  m_useManualMinWidth: 0
-  m_manualMinWidth: -1
-  m_useManualPreferredWidth: 0
-  m_manualPreferredWidth: -1
-  m_useManualFlexibleWidth: 0
-  m_manualFlexibleWidth: -1
-  m_useManualMinHeight: 0
-  m_manualMinHeight: -1
-  m_useManualPreferredHeight: 0
-  m_manualPreferredHeight: -1
-  m_useManualFlexibleHeight: 0
-  m_manualFlexibleHeight: -1
-  m_paddingLeft: 0
-  m_paddingRight: 0
-  m_paddingTop: 0
-  m_paddingBottom: 0
+  m_heightSource: 1
 --- !u!114 &7556974719320420323
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1481,7 +1409,7 @@ PrefabInstance:
     - target: {fileID: 8806163725296523091, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
         type: 3}
       propertyPath: m_PresetInfoIsWorld
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
