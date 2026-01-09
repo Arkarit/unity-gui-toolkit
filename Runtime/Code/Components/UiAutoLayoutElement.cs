@@ -22,6 +22,7 @@ namespace GuiToolkit
 		[SerializeField] private int m_layoutPriority = 1;
 
 		[SerializeField] private TMP_Text m_tmpText;
+		[SerializeField] private float m_extraHeight = 0;
 		[SerializeField] private SizeSource m_heightSource = SizeSource.Unspecified;
 
 		private bool m_isDirty = true;
@@ -161,7 +162,7 @@ namespace GuiToolkit
 			}
 
 			Vector2 preferred = m_tmpText.GetPreferredValues(width, 0f);
-			return preferred.y;
+			return preferred.y + m_extraHeight;
 		}
 	}
 }
