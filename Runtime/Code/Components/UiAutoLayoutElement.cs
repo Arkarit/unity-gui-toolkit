@@ -131,13 +131,30 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			base.OnEnable();
+			TMPro_EventManager.TEXT_CHANGED_EVENT.Add(OnTmpTextChanged);
 			SetDirty();
 		}
 
 		protected override void OnDisable()
 		{
+			TMPro_EventManager.TEXT_CHANGED_EVENT.Remove(OnTmpTextChanged);
 			SetDirty();
 			base.OnDisable();
+		}
+
+		private void OnTmpTextChanged( Object _obj )
+		{
+			if (m_tmpText == null)
+			{
+				return;
+			}
+
+			if (!ReferenceEquals(_obj, m_tmpText))
+			{
+				return;
+			}
+
+			SetDirty();
 		}
 
 		protected override void OnRectTransformDimensionsChange()
@@ -347,8 +364,6 @@ namespace GuiToolkit
 				return -1f;
 			}
 
-			m_tmpText.ForceMeshUpdate();
-
 			Vector2 preferred = m_tmpText.GetPreferredValues(float.PositiveInfinity, 0f);
 
 			if (_min)
@@ -366,16 +381,13 @@ namespace GuiToolkit
 				return -1f;
 			}
 
-			m_tmpText.ForceMeshUpdate();
-
-			float width = GetTmpConstraintWidth(m_tmpText);
-			Vector2 preferred = m_tmpText.GetPreferredValues(width, 0f);
-
-			if (_min)
+			float width = m_tmpText.rectTransform.rect.width;
+			if (width <= 0f)
 			{
-				return preferred.y;
+				return -1f;
 			}
 
+			Vector2 preferred = m_tmpText.GetPreferredValues(width, 0f);
 			return preferred.y;
 		}
 
