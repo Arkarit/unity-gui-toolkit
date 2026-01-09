@@ -20,12 +20,14 @@ public class TestDemoScene1 : UiView
 	public Button m_showDatePickerButton;
 	public Button m_loadByAddressablesButton;
 	public Button m_exampleResDepStylesButton;
+	public Button m_exampleLayoutButton;
 
 	public TMP_InputField m_splashMessageInput;
 	public TMP_InputField m_requesterTitleInput;
 	public TMP_InputField m_requesterTextInput;
 
 	public TMP_Text m_singularPluralTest;
+	public UiView m_exampleLayoutPrefab;
 
 	public ExampleDialogStyles m_exampleDialogStylesPrefab;
 	public ExampleAnimations m_exampleAnimationsPrefab;
@@ -46,6 +48,13 @@ public class TestDemoScene1 : UiView
 		m_showDatePickerButton.onClick.AddListener(OnShowDatePickerButton);
 		m_loadByAddressablesButton.onClick.AddListener(OnLoadByAddressablesClicked);
 		m_exampleResDepStylesButton.onClick.AddListener(OnResDepStylesClicked);
+		m_exampleLayoutButton.onClick.AddListener(OnExampleLayoutButtonClicked);
+	}
+
+	private void OnExampleLayoutButtonClicked()
+	{
+		var exampleLayout = UiMain.Instance.CreateView(m_exampleLayoutPrefab);
+		exampleLayout.Show();
 	}
 
 	private void OnResDepStylesClicked()
