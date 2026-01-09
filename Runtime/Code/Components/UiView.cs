@@ -61,6 +61,9 @@ namespace GuiToolkit
 		[Tooltip("When checked, the dialog is pooled instead of destroyed.")]
 		[SerializeField] protected bool m_poolable = true;
 
+		[Tooltip("Most UiViews need one or more close buttons. You can optionally define those here.")]
+		[SerializeField] protected Button[] m_closeButtons = new Button[0];
+
 		private UiModal m_uiModal;
 		private bool m_uiModalChecked;
 		private Canvas m_canvas;
@@ -181,6 +184,28 @@ namespace GuiToolkit
 			UiEventDefinitions.EvFullScreenView.RemoveListener(OnEvFullscreenView);
 			base.OnDestroy();
 		}
+
+		protected override void AddEventListeners()
+		{
+			base.AddEventListeners();
+			if (m_closeButtons == null)
+				return;
+
+			foreach (var closeButton in m_closeButtons)
+				closeButton.onClick.AddListener(DoHide);
+		}
+
+		protected override void RemoveEventListeners()
+		{
+			base.RemoveEventListeners();
+			if (m_closeButtons == null)
+				return;
+
+			foreach (var closeButton in m_closeButtons)
+				closeButton.onClick.RemoveListener(DoHide);
+		}
+
+		private void DoHide() => Hide();
 
 		/// <summary>
 		/// React to other fullscreen views showing/hiding.
