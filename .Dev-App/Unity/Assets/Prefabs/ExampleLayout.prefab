@@ -377,6 +377,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_layoutPriority: 1
   m_tmpText: {fileID: 3069327946745233331}
+  m_extraHeight: 0
   m_heightSource: 1
 --- !u!114 &2286963237929634366
 MonoBehaviour:
@@ -444,6 +445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_layoutPriority: 1
   m_tmpText: {fileID: 7055271781582974752}
+  m_extraHeight: 0
   m_heightSource: 1
 --- !u!114 &3874642666554952660
 MonoBehaviour:
@@ -511,6 +513,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_layoutPriority: 1
   m_tmpText: {fileID: 1858355650330194983}
+  m_extraHeight: 0
   m_heightSource: 1
 --- !u!114 &5510763206257452898
 MonoBehaviour:
@@ -993,6 +996,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_layoutPriority: 1
   m_tmpText: {fileID: 4211300316013428856}
+  m_extraHeight: 0
   m_heightSource: 1
 --- !u!114 &7556974719320420323
 MonoBehaviour:
@@ -1409,7 +1413,7 @@ PrefabInstance:
     - target: {fileID: 8806163725296523091, guid: a920957d6d03b5c4ca4b6d1d8dd9cafe,
         type: 3}
       propertyPath: m_PresetInfoIsWorld
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -37,13 +37,16 @@ namespace GuiToolkit
 			{
 				if (m_uiImage == null)
 				{
-					UiLog.LogError("Attempt to set button color, but UI image was not set");
+					UiLog.LogError("Attempt to set button color, but UI image was not set", this);
 					return;
 				}
 
 				m_uiImage.Color = value;
 			}
 		}
+
+		public UiImage UiImage => m_uiImage;
+		public Image Image => UiImage == null ? null : UiImage.Image;
 
 		public void SetSimpleGradientColors(Color _leftOrTop, Color _rightOrBottom)
 		{

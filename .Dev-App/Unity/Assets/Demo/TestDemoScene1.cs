@@ -21,6 +21,7 @@ public class TestDemoScene1 : UiView
 	public Button m_loadByAddressablesButton;
 	public Button m_exampleResDepStylesButton;
 	public Button m_exampleLayoutButton;
+	public Button m_exampleIconsButton;
 
 	public TMP_InputField m_splashMessageInput;
 	public TMP_InputField m_requesterTitleInput;
@@ -28,6 +29,7 @@ public class TestDemoScene1 : UiView
 
 	public TMP_Text m_singularPluralTest;
 	public UiView m_exampleLayoutPrefab;
+	public UiView m_exampleIconsPrefab;
 
 	public ExampleDialogStyles m_exampleDialogStylesPrefab;
 	public ExampleAnimations m_exampleAnimationsPrefab;
@@ -49,6 +51,13 @@ public class TestDemoScene1 : UiView
 		m_loadByAddressablesButton.onClick.AddListener(OnLoadByAddressablesClicked);
 		m_exampleResDepStylesButton.onClick.AddListener(OnResDepStylesClicked);
 		m_exampleLayoutButton.onClick.AddListener(OnExampleLayoutButtonClicked);
+		m_exampleIconsButton.onClick.AddListener(OnExampleIconsButtonClicked);
+	}
+
+	private void OnExampleIconsButtonClicked()
+	{
+		var exampleIcons = UiMain.Instance.CreateView(m_exampleIconsPrefab);
+		exampleIcons.Show();
 	}
 
 	private void OnExampleLayoutButtonClicked()
