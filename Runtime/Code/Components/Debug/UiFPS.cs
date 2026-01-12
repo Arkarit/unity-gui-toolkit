@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -20,7 +18,7 @@ namespace GuiToolkit
 
 		private void Update()
 		{
-			float dt = Time.deltaTime;
+			float dt = Time.unscaledDeltaTime;
 			m_samples[m_idx++] = dt;
 			if (m_idx >= NumSamples)
 				m_idx = 0;
