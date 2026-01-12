@@ -43,6 +43,7 @@ namespace GuiToolkit
 
 		public readonly CEvent<int, int> EvOnWillChangeTabs = new ();
 		private int m_currentTabIdx;
+		private bool m_tabInfosOnStartDone;
 
 		public int CurrentTabIdx => m_currentTabIdx;
 
@@ -55,8 +56,6 @@ namespace GuiToolkit
 				return m_tabInfos.Count;
 			}
 		}
-
-		public bool PagesInitialized => m_tabsParent.transform.childCount > 0;
 
 		public UiTab CurrentTab => m_tabInfos[m_currentTabIdx].Tab;
 		public UiPanel CurrentPage => m_tabInfos[m_currentTabIdx].Page;
@@ -81,8 +80,7 @@ namespace GuiToolkit
 
 		public override void Show( bool _instant = false, Action _onFinish = null )
 		{
-			if (!PagesInitialized)
-				InitPages();
+			InitPages();
 			base.Show(_instant, _onFinish);
 			if (m_tabInfos.Count > 0)
 				GotoPage(0, true, true);
@@ -132,11 +130,15 @@ namespace GuiToolkit
 
 		private void InitPages()
 		{
+			if (m_instantiateTabInfosOnStart && m_tabInfosOnStartDone)
+				return;
+
 			ToggleGroup tabToggleGroup = m_tabContentContainer.GetOrCreateComponent<ToggleGroup>();
 			tabToggleGroup.allowSwitchOff = false;
 
 			if (m_instantiateTabInfosOnStart)
 			{
+				m_tabInfosOnStartDone = true;
 				for (int i=0; i<m_tabInfos.Count; i++)
 				{
 					TabInfo tabInfo = m_tabInfos[i];
@@ -144,7 +146,7 @@ namespace GuiToolkit
 					tabInfo.Tab.Toggle.group = tabToggleGroup;
 					tabInfo.Tab.IsOn = i == 0;
 					tabInfo.Page = Instantiate(tabInfo.Page, m_pageContentContainer);
-					m_tabInfos[i] = tabInfo; // I hate C#
+					m_tabInfos[i] = tabInfo;
 				}
 			}
 
