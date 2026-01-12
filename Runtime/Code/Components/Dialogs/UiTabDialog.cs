@@ -56,6 +56,8 @@ namespace GuiToolkit
 			}
 		}
 
+		public bool PagesInitialized => m_tabsParent.transform.childCount > 0;
+
 		public UiTab CurrentTab => m_tabInfos[m_currentTabIdx].Tab;
 		public UiPanel CurrentPage => m_tabInfos[m_currentTabIdx].Page;
 
@@ -79,7 +81,8 @@ namespace GuiToolkit
 
 		public override void Show( bool _instant = false, Action _onFinish = null )
 		{
-			InitPages();
+			if (!PagesInitialized)
+				InitPages();
 			base.Show(_instant, _onFinish);
 			if (m_tabInfos.Count > 0)
 				GotoPage(0, true, true);
