@@ -248,37 +248,38 @@ namespace GuiToolkit
 			return false;
 		}
 
-		// We need to update our key code dict, when a key binding was changed
+		// We need to update the persisted aggregate.
+		// Also, we need to update our key code dict if a key binding was changed
 		private void OnPlayerSettingChanged( PlayerSetting _playerSetting )
 		{
-			if (!_playerSetting.IsKeyCode)
-				return;
-
-			// Enter the new key binding
-			KeyCode original = _playerSetting.GetDefaultValue<KeyCode>();
-			KeyCode bound = _playerSetting.GetValue<KeyCode>();
-			Debug.Assert(m_keyCodes.ContainsKey(original));
-			m_keyCodes[original] = bound;
-
-			// A "key binding" of "None" may occur multiple times, so we need not take care of other entries...
-			if (bound == KeyCode.None)
-				return;
-
-			// ... but all other entries can only exist once, so we need to find out if an entry already uses this and set it to "None"
-			foreach (var kv in m_playerSettings)
+			if (_playerSetting.IsKeyCode)
 			{
-				if (!kv.Value.IsKeyCode)
-					continue;
-
-				KeyCode currOriginal = kv.Value.GetDefaultValue<KeyCode>();
-				if (currOriginal == original)
-					continue;
-
-				KeyCode currBound = kv.Value.GetValue<KeyCode>();
-				if (currBound == bound)
+				// Enter the new key binding
+				KeyCode original = _playerSetting.GetDefaultValue<KeyCode>();
+				KeyCode bound = _playerSetting.GetValue<KeyCode>();
+				Debug.Assert(m_keyCodes.ContainsKey(original));
+				m_keyCodes[original] = bound;
+	
+				// A "key binding" of "None" may occur multiple times, so we need not take care of other entries...
+				if (bound == KeyCode.None)
+					return;
+	
+				// ... but all other entries can only exist once, so we need to find out if an entry already uses this and set it to "None"
+				foreach (var kv in m_playerSettings)
 				{
-					kv.Value.Value = KeyCode.None;
-					break;
+					if (!kv.Value.IsKeyCode)
+						continue;
+	
+					KeyCode currOriginal = kv.Value.GetDefaultValue<KeyCode>();
+					if (currOriginal == original)
+						continue;
+	
+					KeyCode currBound = kv.Value.GetValue<KeyCode>();
+					if (currBound == bound)
+					{
+						kv.Value.Value = KeyCode.None;
+						break;
+					}
 				}
 			}
 
