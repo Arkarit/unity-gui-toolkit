@@ -54,6 +54,11 @@ namespace GuiToolkit.Settings
 			m_isDirty = true;
 		}
 
+		public bool ContainsInt(string _key) => State.ints.ContainsKey(_key);
+		public bool ContainsFloat(string _key) => State.floats.ContainsKey(_key);
+		public bool ContainsString(string _key) => State.strings.ContainsKey(_key);
+		public bool ContainsBool(string _key) => State.bools.ContainsKey(_key);
+
 		public int GetInt( string _key, int _default )
 		{
 			if (!IsLoaded)

@@ -12,13 +12,13 @@ namespace GuiToolkit
 		private readonly Dictionary<string, PlayerSetting> m_playerSettings = new Dictionary<string, PlayerSetting>();
 		private Dictionary<KeyCode, KeyCode> m_keyCodes = new Dictionary<KeyCode, KeyCode>();
 
-		private SettingsPersistedAggregate m_settings;
+		private SettingsPersistedAggregate m_persistedAggregate;
 		private bool m_isApplyingLoadedValues;
 		private System.Threading.Tasks.TaskScheduler m_mainThreadScheduler;
 
 		public void Initialize( SettingsPersistedAggregate _settings )
 		{
-			m_settings = _settings;
+			m_persistedAggregate = _settings;
 			m_mainThreadScheduler = System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext();
 			Load(null, ex =>
 			{
@@ -28,13 +28,13 @@ namespace GuiToolkit
 
 		public void Load( Action _onSuccess = null, Action<Exception> _onFail = null )
 		{
-			if (m_settings == null)
+			if (m_persistedAggregate == null)
 			{
 				_onFail?.Invoke(new InvalidOperationException("PlayerSettings not initialized."));
 				return;
 			}
 
-			var t = m_settings.LoadAsync();
+			var t = m_persistedAggregate.LoadAsync();
 			t.ContinueWith(
 				_tt =>
 				{
@@ -52,17 +52,17 @@ namespace GuiToolkit
 
 		public void Save( Action _onSuccess = null, Action<Exception> _onFail = null )
 		{
-			if (m_settings == null)
+			if (m_persistedAggregate == null)
 			{
 				_onFail?.Invoke(new InvalidOperationException("PlayerSettings not initialized."));
 				return;
 			}
 
-			if (!m_settings.IsDirty)
+			if (!m_persistedAggregate.IsDirty)
 				return;
 
-			m_settings.Apply(m_playerSettings);
-			var t = m_settings.SaveAsync();
+			m_persistedAggregate.Apply(m_playerSettings);
+			var t = m_persistedAggregate.SaveAsync();
 			t.ContinueWith(
 				_tt =>
 				{
@@ -117,12 +117,15 @@ namespace GuiToolkit
 
 		public void Add( List<PlayerSetting> _playerSettings )
 		{
+			Debug.Assert(m_persistedAggregate != null, "PlayerSettings not initialized.");
+
 			foreach (PlayerSetting playerSetting in _playerSettings)
 			{
 				if (playerSetting == null)
 					continue;
 
 				m_playerSettings.Add(playerSetting.Key, playerSetting);
+				StoreInAggregate( playerSetting, false );
 				if (playerSetting.IsKeyCode)
 				{
 					if (m_keyCodes.TryGetValue(playerSetting.GetDefaultValue<KeyCode>(), out KeyCode existing))
@@ -279,7 +282,7 @@ namespace GuiToolkit
 				}
 			}
 
-			if (m_settings == null)
+			if (m_persistedAggregate == null)
 				return;
 
 			if (m_isApplyingLoadedValues)
@@ -288,59 +291,88 @@ namespace GuiToolkit
 			if (!_playerSetting.Options.IsSaveable || _playerSetting.IsButton)
 				return;
 
-			WriteToAggregate(_playerSetting);
+			StoreInAggregate(_playerSetting, true);
 		}
 
 		private object TryGetFromAggregate( PlayerSetting _ps )
 		{
 			if (_ps.Type == typeof(int))
-				return m_settings.GetInt(_ps.Key, _ps.GetDefaultValue<int>());
+				return m_persistedAggregate.GetInt(_ps.Key, _ps.GetDefaultValue<int>());
 
 			if (_ps.Type == typeof(float))
-				return m_settings.GetFloat(_ps.Key, _ps.GetDefaultValue<float>());
+				return m_persistedAggregate.GetFloat(_ps.Key, _ps.GetDefaultValue<float>());
 
 			if (_ps.Type == typeof(bool))
-				return m_settings.GetBool(_ps.Key, _ps.GetDefaultValue<bool>());
+				return m_persistedAggregate.GetBool(_ps.Key, _ps.GetDefaultValue<bool>());
 
 			if (_ps.Type == typeof(string))
-				return m_settings.GetString(_ps.Key, _ps.GetDefaultValue<string>());
+				return m_persistedAggregate.GetString(_ps.Key, _ps.GetDefaultValue<string>());
 
 			if (_ps.Type == typeof(KeyCode))
 			{
 				int deflt = (int)(object)_ps.GetDefaultValue<KeyCode>();
-				int v = m_settings.GetEnumInt(_ps.Key, deflt);
+				int v = m_persistedAggregate.GetEnumInt(_ps.Key, deflt);
 				return (KeyCode)(object)v;
 			}
 
 			if (_ps.Type != null && _ps.Type.IsEnum)
 			{
 				int deflt = Convert.ToInt32(_ps.DefaultValue);
-				int v = m_settings.GetEnumInt(_ps.Key, deflt);
+				int v = m_persistedAggregate.GetEnumInt(_ps.Key, deflt);
 				return Enum.ToObject(_ps.Type, v);
 			}
 
 			return null;
 		}
 
-		private void WriteToAggregate( PlayerSetting _ps )
+		private bool AggregateContains(PlayerSetting _ps)
 		{
-			if (_ps.Type == typeof(int))
-				m_settings.SetInt(_ps.Key, _ps.GetValue<int>());
-			else if (_ps.Type == typeof(float))
-				m_settings.SetFloat(_ps.Key, _ps.GetValue<float>());
-			else if (_ps.Type == typeof(bool))
-				m_settings.SetBool(_ps.Key, _ps.GetValue<bool>());
-			else if (_ps.Type == typeof(string))
-				m_settings.SetString(_ps.Key, _ps.GetValue<string>());
-			else if (_ps.Type == typeof(KeyCode))
-				m_settings.SetEnumInt(_ps.Key, (int)(object)_ps.GetValue<KeyCode>());
-			else if (_ps.Type != null && _ps.Type.IsEnum)
-				m_settings.SetEnumInt(_ps.Key, Convert.ToInt32(_ps.Value));
+			if (!m_persistedAggregate.IsLoaded)
+				return false;
+
+			var key = _ps.Key;
+			var type = _ps.Type;
+
+			if (type == typeof(int) || type == typeof(KeyCode) || type != null && type.IsEnum)
+				return m_persistedAggregate.ContainsInt(key);
+
+			if (type == typeof(float))
+				return m_persistedAggregate.ContainsFloat(key);
+
+			if (type == typeof(bool))
+				return m_persistedAggregate.ContainsBool(key);
+
+			if (type == typeof(string))
+				return m_persistedAggregate.ContainsString(key);
+
+			return false;
+		}
+
+		private void StoreInAggregate( PlayerSetting _ps, bool _overwrite )
+		{
+			if (!_overwrite && AggregateContains(_ps))
+				return;
+
+			var key = _ps.Key;
+			var type = _ps.Type;
+
+			if (type == typeof(int))
+				m_persistedAggregate.SetInt(key, _ps.GetValue<int>());
+			else if (type == typeof(float))
+				m_persistedAggregate.SetFloat(key, _ps.GetValue<float>());
+			else if (type == typeof(bool))
+				m_persistedAggregate.SetBool(key, _ps.GetValue<bool>());
+			else if (type == typeof(string))
+				m_persistedAggregate.SetString(key, _ps.GetValue<string>());
+			else if (type == typeof(KeyCode))
+				m_persistedAggregate.SetEnumInt(key, (int)(object)_ps.GetValue<KeyCode>());
+			else if (type != null && type.IsEnum)
+				m_persistedAggregate.SetEnumInt(key, Convert.ToInt32(_ps.Value));
 		}
 
 		private void ApplyLoadedValuesToAll()
 		{
-			if (m_settings == null)
+			if (m_persistedAggregate == null)
 				return;
 
 			m_isApplyingLoadedValues = true;
