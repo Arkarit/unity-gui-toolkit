@@ -13,13 +13,14 @@ namespace GuiToolkit
 		private const int Range = MaxValue - BaseValue;
 		private const float DefaultValue = 1; //unlimited
 		
-		public PlayerSettingFPS(string _category = null, string _group = null, string _title = null)
+		public PlayerSettingFPS(string _customPrefab = null, string _category = null, string _group = null, string _title = null)
 		{
+			_customPrefab ??= "PlayerSettingFPS";
 			m_options = new PlayerSettingOptions()
 			{
 				ValueToStringFn = GetText,
 				OnChanged = OnFpsChanged,
-				CustomPrefab = Resources.Load<GameObject>("PlayerSettingFPS")
+				CustomPrefab = Resources.Load<GameObject>(_customPrefab)
 			};
 			
 			Type type = typeof(float);
