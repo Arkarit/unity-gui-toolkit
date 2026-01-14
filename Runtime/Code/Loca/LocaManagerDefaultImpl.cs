@@ -581,10 +581,22 @@ namespace GuiToolkit
 		private string EdGetPotSystemPath( string _group )
 		{
 			var result = EditorFileUtility.GetApplicationDataDir() + UiToolkitConfiguration.Instance.m_potPath;
-			if (File.Exists(result))
+
+			if (result.EndsWith(".pot"))
 				result = Path.GetDirectoryName(result);
-			else if (!Directory.Exists(result))
-				return null;
+			
+			if (!Directory.Exists(result))
+			{
+				try
+				{
+					EditorFileUtility.EnsureFolderExists(result, true);
+				}
+				catch (Exception e)
+				{
+					UiLog.LogError($".pot file directory at '{result}' could not be created:\n{e}");
+					return null;
+				}
+			}
 
 			string groupAppendix = string.Empty;
 			if (!string.IsNullOrEmpty(_group) && _group != DEFAULT_LOCA_GROUP)

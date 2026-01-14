@@ -92,7 +92,7 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static bool EnsureUnityFolderExists( string _unityPath )
+		public static bool EnsureUnityFolderExists( string _unityPath, bool _throwOnFail = false )
 		{
 			try
 			{
@@ -120,11 +120,14 @@ namespace GuiToolkit
 			}
 			catch
 			{
+				if (_throwOnFail)
+					throw;
+
 				return false;
 			}
 		}
 
-		public static bool EnsureFolderExists( string _systemPath )
+		public static bool EnsureFolderExists( string _systemPath, bool _throwOnFail = false )
 		{
 			try
 			{
@@ -155,6 +158,9 @@ namespace GuiToolkit
 			}
 			catch
 			{
+				if (_throwOnFail)
+					throw;
+
 				return false;
 			}
 		}
