@@ -269,5 +269,7 @@ namespace GuiToolkit
 		public const string INFINITY = "Icons/UITK_Infinity";
 		public const string INVISIBLE = "Icons/UITK_Invisible";
 		public const string RELOAD = "Icons/UITK_Reload";
+		public const string PLUS = "Icons/UITK_Plus";
+		public const string MINUS = "Icons/UITK_Minus";
 	}
 }
