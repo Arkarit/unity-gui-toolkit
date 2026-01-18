@@ -16,6 +16,7 @@ using UnityEditor.SceneManagement;
 using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
 
@@ -337,12 +338,12 @@ namespace GuiToolkit
 			string path = Application.dataPath;
 			return new DirectoryInfo(Path.GetDirectoryName(path)).Name;
 		}
-		
-		public static string GetPlayerPrefsProjectKey(string _postfix, string _entryName)
+
+		public static string GetPlayerPrefsProjectKey( string _postfix, string _entryName )
 		{
 			return $"{StringConstants.PLAYER_PREFS_PREFIX}{GetProjectName()}_{_postfix}.{_entryName}";
 		}
-		
+
 		public static void DrawInspectorExceptField( SerializedObject _serializedObject, string _fieldToSkip = null, string _header = null )
 		{
 			if (string.IsNullOrEmpty(_fieldToSkip))
@@ -535,7 +536,7 @@ namespace GuiToolkit
 
 			return searchFilterMember.GetValue(sceneHierarchy);
 
-			ReflectionError:
+ReflectionError:
 			UiLog.LogError($"Unity internal API has changed, please fix!");
 			return null;
 		}
@@ -587,7 +588,7 @@ namespace GuiToolkit
 			SetSceneHierarchySearchFilter(savedSearchFilter, SearchableEditorWindow.SearchMode.Name);
 			return SearchList;
 
-			ReflectionError:
+ReflectionError:
 			UiLog.LogError($"Unity internal API has changed, please fix!");
 			return SearchList;
 		}
@@ -806,6 +807,36 @@ namespace GuiToolkit
 				return false;
 			}
 			return true;
+		}
+
+		public static void ForceRefreshEditorUi()
+		{
+			EditorApplication.QueuePlayerLoopUpdate();
+
+			SceneView.RepaintAll();
+			EditorApplication.RepaintHierarchyWindow();
+			EditorApplication.RepaintProjectWindow();
+
+			EditorWindow[] windows = Resources.FindObjectsOfTypeAll<EditorWindow>();
+			foreach (EditorWindow window in windows)
+			{
+				if (window == null)
+				{
+					continue;
+				}
+
+				VisualElement root = window.rootVisualElement;
+				if (root != null)
+					root.MarkDirtyRepaint();
+
+				window.Repaint();
+			}
+
+			EditorApplication.delayCall += () =>
+			{
+				SceneView.RepaintAll();
+				EditorApplication.QueuePlayerLoopUpdate();
+			};
 		}
 	}
 }

@@ -208,6 +208,11 @@ namespace GuiToolkit.Style
 					if (_emitEvent)
 						UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 
+#if UNITY_EDITOR
+					if (!Application.isPlaying)
+						EditorGeneralUtility.ForceRefreshEditorUi();
+#endif
+
 					return true;
 				}
 			}
