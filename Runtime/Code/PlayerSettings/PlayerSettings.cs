@@ -200,45 +200,25 @@ namespace GuiToolkit
 				kv.Value.Value = kv.Value.DefaultValue;
 		}
 
-		public bool GetKey( KeyCode _originalKeyCode )
+		public bool GetKey(KeyCode _originalKeyCode)
 		{
-			if (m_keyCodes.TryGetValue(_originalKeyCode, out KeyCode boundKeyCode))
-			{
-				if (boundKeyCode == KeyCode.None)
-					return false;
-
-				if (UiUtility.IsMouse(boundKeyCode))
-				{
-					int keyCodeInt = (int)(object)boundKeyCode;
-					int mouseNumber = keyCodeInt - FIRST_MOUSE_KEY;
-					return Input.GetMouseButton(mouseNumber);
-				}
-
-				return Input.GetKey(boundKeyCode);
-			}
-
-			return false;
+			KeyCode key = ResolveKey(_originalKeyCode);
+			return key != KeyCode.None && Input.GetKey(key);
 		}
-
-		public bool GetKeyDown( KeyCode _originalKeyCode )
+		
+		public bool GetKeyDown(KeyCode _originalKeyCode)
 		{
-			if (m_keyCodes.TryGetValue(_originalKeyCode, out KeyCode boundKeyCode))
-			{
-				if (boundKeyCode == KeyCode.None)
-					return false;
-
-				if (UiUtility.IsMouse(boundKeyCode))
-				{
-					int keyCodeInt = (int)(object)boundKeyCode;
-					int mouseNumber = keyCodeInt - FIRST_MOUSE_KEY;
-					return Input.GetMouseButton(mouseNumber);
-				}
-
-				return Input.GetKeyDown(boundKeyCode);
-			}
-
-			return false;
+			KeyCode key = ResolveKey(_originalKeyCode);
+			return key != KeyCode.None && Input.GetKeyDown(key);
 		}
+		
+		public bool GetKeyUp(KeyCode _originalKeyCode)
+		{
+			KeyCode key = ResolveKey(_originalKeyCode);
+			return key != KeyCode.None && Input.GetKeyUp(key);
+		}
+		
+		public KeyCode ResolveKey(KeyCode _originalKeyCode) => m_keyCodes.GetValueOrDefault(_originalKeyCode, _originalKeyCode);
 
 		public bool HasUnboundKeys()
 		{
