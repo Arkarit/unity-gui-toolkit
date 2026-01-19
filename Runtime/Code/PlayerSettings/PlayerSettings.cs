@@ -308,7 +308,7 @@ namespace GuiToolkit
 
 		private bool AggregateContains(PlayerSetting _ps)
 		{
-			if (!m_persistedAggregate.IsLoaded)
+			if (m_persistedAggregate == null || !m_persistedAggregate.IsLoaded)
 				return false;
 
 			var key = _ps.Key;
