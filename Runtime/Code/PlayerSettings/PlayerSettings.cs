@@ -1,6 +1,7 @@
 ﻿using GuiToolkit.Settings;
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -14,6 +15,16 @@ namespace GuiToolkit
 		private SettingsPersistedAggregate m_persistedAggregate;
 		private bool m_isApplyingLoadedValues;
 		private System.Threading.Tasks.TaskScheduler m_mainThreadScheduler;
+
+		public void Initialize( SettingsPersistedAggregate _settings )
+		{
+			m_persistedAggregate = _settings;
+			m_mainThreadScheduler = System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext();
+			Load(null, ex =>
+			{
+				UiLog.LogError($"Loading PlayerSettings failed:{ex}");
+			});
+		}
 
 		public void Load( Action _onSuccess = null, Action<Exception> _onFail = null )
 		{
@@ -82,12 +93,7 @@ namespace GuiToolkit
 			get
 			{
 				if (s_instance == null)
-				{
 					s_instance = new PlayerSettings();
-					SettingsPersistedAggregate aggregate = new(Storage.Storage.Documents, StringConstants.PLAYER_SETTINGS_COLLECTION, StringConstants.PLAYER_SETTINGS_ID);
-					s_instance.Initialize(aggregate);
-				}
-				
 				return s_instance;
 			}
 		}
@@ -221,17 +227,6 @@ namespace GuiToolkit
 					return true;
 			return false;
 		}
-
-		private void Initialize( SettingsPersistedAggregate _settings )
-		{
-			m_persistedAggregate = _settings;
-			m_mainThreadScheduler = System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext();
-			Load(null, ex =>
-			{
-				UiLog.LogError($"Loading PlayerSettings failed:{ex}");
-			});
-		}
-
 
 		// We need to update the persisted aggregate.
 		// Also, we need to update our key code dict if a key binding was changed

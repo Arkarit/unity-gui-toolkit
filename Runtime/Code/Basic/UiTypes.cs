@@ -242,7 +242,6 @@ namespace GuiToolkit
 		public const string LOCA_EXCEL_BRIDGE = LOCA_HEADER + "Loca Excel Bridge";
 
 		public const string PLAYER_SETTINGS_COLLECTION = "playerSettings";
-		public const string PLAYER_SETTINGS_ID = "playerSettings";
 	}
 
 	/// \brief Builtin icon definitions
