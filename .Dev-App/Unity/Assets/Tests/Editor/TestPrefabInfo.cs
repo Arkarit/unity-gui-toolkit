@@ -53,6 +53,7 @@ namespace GuiToolkit.Test
 		[Test]
 		public void TestRegular()
 		{
+			TestData.Initialize();
 			var go = TestData.Instance.RegularPrefabAsset.TryLoad<GameObject>();
 			var pi = PrefabInfo.Create(go);
 

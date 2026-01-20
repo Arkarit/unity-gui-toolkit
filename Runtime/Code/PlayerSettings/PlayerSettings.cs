@@ -1,7 +1,6 @@
 ﻿using GuiToolkit.Settings;
 using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -16,7 +15,7 @@ namespace GuiToolkit
 		private bool m_isApplyingLoadedValues;
 		private System.Threading.Tasks.TaskScheduler m_mainThreadScheduler;
 
-		public void Initialize( SettingsPersistedAggregate _settings )
+		internal void Initialize( SettingsPersistedAggregate _settings )
 		{
 			m_persistedAggregate = _settings;
 			m_mainThreadScheduler = System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext();
@@ -77,7 +76,7 @@ namespace GuiToolkit
 				m_mainThreadScheduler);
 		}
 
-		protected PlayerSettings()
+		internal PlayerSettings()
 		{
 			UiEventDefinitions.EvPlayerSettingChanged.AddListener(OnPlayerSettingChanged);
 		}
@@ -92,9 +91,13 @@ namespace GuiToolkit
 		{
 			get
 			{
-				if (s_instance == null)
-					s_instance = new PlayerSettings();
+				Bootstrap.ThrowIfNotInitialized();
 				return s_instance;
+			}
+			
+			internal set
+			{
+				s_instance = value;
 			}
 		}
 

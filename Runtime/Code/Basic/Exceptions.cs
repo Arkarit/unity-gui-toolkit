@@ -4,6 +4,16 @@ using GuiToolkit.AssetHandling;
 namespace GuiToolkit.Exceptions
 {
 	/// <summary>
+	/// Exception thrown when Toolkit is not initialized
+	/// </summary>
+	public sealed class ToolkitNotInitializedException : InvalidOperationException
+	{
+		public ToolkitNotInitializedException()
+			: base($"GuiToolkit is not initialized. Please call Bootstrap.Initialize() in an early phase of your project, before any other usage of GuiToolkit methods")
+		{ }
+	}
+	
+	/// <summary>
 	/// Exception thrown when a class or subsystem is used before it has been initialized.
 	/// Typically indicates a missing call to an initialization routine in the correct order.
 	/// </summary>

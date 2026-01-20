@@ -40,12 +40,12 @@ namespace GuiToolkit
 			;
 
 		public const string HELP_LOAD_VIEW_IN_EVERY_SCENE =
-			  "When a scene is loaded in editor, which is not the main scene, a view can be automatically loaded (e.g. a HUD).\n" 
+			  "When a scene is loaded in editor, which is not the main scene, a view can be automatically loaded (e.g. a HUD).\n"
 			+ "This is useful for editing scenes; you can start the scene directly and still have your HUD."
 			;
 
 		public const string HELP_LOAD_VIEW_IN_EVERY_SCENE_EXCEPT_UI_MAIN_EXISTS =
-			  "The loaded UiView needs a UiMain, which is automatically created in the loaded scene.\n" 
+			  "The loaded UiView needs a UiMain, which is automatically created in the loaded scene.\n"
 			+ "If checked, this UiMain is NOT created and the UiView is NOT created, if an UiMain already exists\n"
 			+ "This is useful to avoid duplication in your main scene (e.g. HUD)"
 			;
@@ -61,7 +61,7 @@ namespace GuiToolkit
 
 		public const string HELP_ADDITIONAL_SCENES_PATH =
 			"Additional scene path for scenes, which are not in the scene references list";
-		
+
 		public const string HELP_PREFAB_VARIANTS_PATH =
 			"Path for prefab variants of the builtin prefabs";
 
@@ -90,7 +90,7 @@ namespace GuiToolkit
 
 		public const string HELP_ASSET_PROVIDER_FACTORY = "An Optional Asset Provider Factory in case you want to use Addressables.";
 		public const string HELP_STORAGE_FACTORY = "Optional user defined Storage factory. If not set, a minimal builtin one is used";
-		
+
 		public const string HELP_TRANSITION_OVERLAY = "A transition overlay, which can cover the screen during level changes etc.";
 
 
@@ -122,20 +122,20 @@ namespace GuiToolkit
 		[FormerlySerializedAs("m_uiOrientationDependentStyleConfig")]
 		[Tooltip(HELP_STYLE_CONFIG_RESOLUTION_DEPENDENT)]
 		[SerializeField] private UiAspectRatioDependentStyleConfig m_uiAspectRatioDependentStyleConfig;
-		
+
 		[Tooltip(HELP_DEBUG_LOCA)]
 		[SerializeField] private bool m_debugLoca = false;
-		
+
 		[Tooltip(HELP_GLOBAL_CANVAS_SCALER_TEMPLATE)]
 		[SerializeField, Optional] private CanvasScaler m_globalCanvasScalerTemplate = null;
-		
+
 		[Tooltip(HELP_ASSET_PROVIDER_FACTORY)]
 		[SerializeField, Optional] private AbstractAssetProviderFactory[] m_assetProviderFactories = new AbstractAssetProviderFactory[0];
 
 		[Tooltip(HELP_STORAGE_FACTORY)]
 		[SerializeField, Optional] private AbstractStorageFactory m_storageFactory;
 
-		
+
 		[Tooltip(HELP_TRANSITION_OVERLAY)]
 		[SerializeField, Optional] private UiTransitionOverlay m_transitionOverlay = null;
 
@@ -155,7 +155,7 @@ namespace GuiToolkit
 			if (m_uiAspectRatioDependentStyleConfig != null)
 				UiAspectRatioDependentStyleConfig.Instance = m_uiAspectRatioDependentStyleConfig;
 		}
-		
+
 #if UNITY_EDITOR
 		private void OnDisable()
 		{
@@ -163,29 +163,39 @@ namespace GuiToolkit
 		}
 #endif
 
+		protected override void OnInitialized()
+		{
+			base.OnInitialized();
+			InitStorageFactory();
+		}
+
+		private void InitStorageFactory()
+		{
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				m_effectiveStorageFactory = null;
+#endif
+			if (m_effectiveStorageFactory == null)
+			{
+				m_effectiveStorageFactory = m_storageFactory;
+				if (m_effectiveStorageFactory == null)
+				{
+					if (m_defaultStorageFactory == null)
+					{
+						m_defaultStorageFactory = CreateInstance<DefaultStorageFactory>();
+						m_defaultStorageFactory.hideFlags = HideFlags.HideAndDontSave;
+					}
+
+					m_effectiveStorageFactory = m_defaultStorageFactory;
+				}
+			}
+		}
+
 		public AbstractStorageFactory StorageFactory
 		{
 			get
 			{
-#if UNITY_EDITOR
-				if (!Application.isPlaying)
-					m_effectiveStorageFactory = null;
-#endif
-				if (m_effectiveStorageFactory == null)
-				{
-					m_effectiveStorageFactory = m_storageFactory;
-					if (m_effectiveStorageFactory == null)
-					{
-						if (m_defaultStorageFactory == null)
-						{
-							m_defaultStorageFactory = CreateInstance<DefaultStorageFactory>();
-							m_defaultStorageFactory.hideFlags = HideFlags.HideAndDontSave;
-						}
-
-						m_effectiveStorageFactory = m_defaultStorageFactory;
-					}
-				}
-
+				InitStorageFactory();
 				return m_effectiveStorageFactory;
 			}
 		}
@@ -200,9 +210,9 @@ namespace GuiToolkit
 		public bool ExceptUiMainExists => m_exceptUiMainExists;
 		public AbstractAssetProviderFactory[] AssetProviderFactories => m_assetProviderFactories;
 		public UiAbstractTransitionOverlay TransitionOverlay => m_transitionOverlay;
-		
-	
-		public string GetScenePath(string _sceneName)
+
+
+		public string GetScenePath( string _sceneName )
 		{
 			if (m_scenesByName.ContainsKey(_sceneName))
 			{
@@ -230,7 +240,7 @@ namespace GuiToolkit
 					bool shouldStore = sceneReferences.Length != m_sceneReferences.Length;
 					if (!shouldStore)
 					{
-						for (int i = 0; i < sceneReferences.Length; i++) 
+						for (int i = 0; i < sceneReferences.Length; i++)
 						{
 							if (sceneReferences[i] != m_sceneReferences[i])
 							{
@@ -239,7 +249,7 @@ namespace GuiToolkit
 							}
 						}
 					}
-					
+
 					if (shouldStore)
 					{
 						m_sceneReferences = sceneReferences;
@@ -248,7 +258,7 @@ namespace GuiToolkit
 				}
 			}
 #endif
-			
+
 			foreach (var sceneReference in m_sceneReferences)
 			{
 				string name = Path.GetFileNameWithoutExtension(sceneReference.ScenePath);
@@ -278,7 +288,7 @@ namespace GuiToolkit
 				{
 					Directory.CreateDirectory(EditorFileUtility.GetApplicationDataDir() + m_generatedAssetsDir);
 				}
-				catch( Exception e )
+				catch (Exception e)
 				{
 					UiLog.LogError($"Could not create generated assets dir '{EditorFileUtility.GetApplicationDataDir() + m_generatedAssetsDir}': {e.Message}");
 				}
@@ -299,12 +309,12 @@ namespace GuiToolkit
 			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
 		}
 
-		public string GetProjectScenePath(string _sceneName)
+		public string GetProjectScenePath( string _sceneName )
 		{
 			InitScenesByName();
 			return "Assets/" + GetScenePath(_sceneName) + ".unity";
 		}
-		
+
 		public string GetUiToolkitRootProjectDir()
 		{
 			if (string.IsNullOrEmpty(m_rootDir))

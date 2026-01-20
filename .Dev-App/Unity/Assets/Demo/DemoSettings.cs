@@ -7,7 +7,9 @@ public class DemoSettings : LocaClass
 {
 	private const string KeyUiSkin = "UiSkin";
 
-	public static void Create()
+	public static void Create() => UiMain.AfterAwake(() => CreateInternal());
+
+	private static void CreateInternal()
 	{
 		PlayerSettings.Instance.Add( new List<PlayerSetting>
 		{
@@ -97,6 +99,5 @@ public class DemoSettings : LocaClass
 				}
 			}),
 		});
-
 	}
 }

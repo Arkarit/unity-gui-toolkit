@@ -648,29 +648,18 @@ namespace GuiToolkit
 			Instance = this;
 			IsAwake = true;
 			UiEventDefinitions.EvFullScreenView.AddListener(OnFullScreenView);
-
-			IReadOnlyList<StorageRoutingConfig> routingConfigs =
-				UiToolkitConfiguration.Instance.StorageFactory.CreateRoutingConfigs();
-
-			bool hasPlayerSettingsCollection = false;
-
-			foreach (StorageRoutingConfig config in routingConfigs)
+		}
+		
+		private static List<Action> s_afterAwakeActions;
+		public static void AfterAwake(Action _action)
+		{
+			if (s_instance != null && s_instance.m_isAwake)
 			{
-				if (config.HasCollection(StringConstants.PLAYER_SETTINGS_COLLECTION))
-				{
-					hasPlayerSettingsCollection = true;
-					break;
-				}
+				_action?.Invoke();
+				return;
 			}
-
-			if (!hasPlayerSettingsCollection)
-				throw new InvalidOperationException(
-					$"Custom storage factory needs to route '{StringConstants.PLAYER_SETTINGS_COLLECTION}'.");
-
-			Storage.Storage.Initialize(routingConfigs);
-
-			SettingsPersistedAggregate aggregate = new(Storage.Storage.Documents, StringConstants.PLAYER_SETTINGS_COLLECTION, "wtf");
-			PlayerSettings.Instance.Initialize(aggregate);
+			
+			s_afterAwakeActions.Add(_action);
 		}
 
 		protected virtual void OnDestroy()

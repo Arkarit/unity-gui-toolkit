@@ -1,15 +1,17 @@
 ﻿using GuiToolkit;
-using System.Collections.Generic;
-using System.Linq;
-using GuiToolkit.Style;
 using UnityEngine;
 
 public class DemoMain : LocaMonoBehaviour
 {
+	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+	private void Initialize()
+	{
+		Bootstrap.Initialize();
+	}
+	
 	protected void Start()
 	{
 		Application.targetFrameRate = 60;
-
 		DemoSettings.Create();
 		DemoCheats.Create();
 		
