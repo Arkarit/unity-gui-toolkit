@@ -668,9 +668,6 @@ namespace GuiToolkit
 					$"Custom storage factory needs to route '{StringConstants.PLAYER_SETTINGS_COLLECTION}'.");
 
 			Storage.Storage.Initialize(routingConfigs);
-
-			SettingsPersistedAggregate aggregate = new(Storage.Storage.Documents, StringConstants.PLAYER_SETTINGS_COLLECTION, "wtf");
-			PlayerSettings.Instance.Initialize(aggregate);
 		}
 
 		protected virtual void OnDestroy()
