@@ -17,11 +17,20 @@ namespace GuiToolkit
 		private static bool s_isInitialized;
 		public static bool IsInitialized => s_isInitialized;
 
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+		private static void RuntimeInitialize()
+		{
+			Initialize();
+		}
+
+
 #if UNITY_EDITOR
 		static Bootstrap()
 		{
 			EditorApplication.playModeStateChanged -= HandlePlayMode;
 			EditorApplication.playModeStateChanged += HandlePlayMode;
+			if (!Application.isPlaying)
+				HandlePlayMode(PlayModeStateChange.EnteredEditMode);
 		}
 
 		private static void HandlePlayMode(PlayModeStateChange _playMode)
@@ -29,7 +38,7 @@ namespace GuiToolkit
 			if (_playMode == PlayModeStateChange.EnteredEditMode)
 			{
 				s_isInitialized = false;
-				AssetReadyGate.WhenReady(() => Initialize(), false);
+				AssetReadyGate.WhenReady(() => Initialize(), false, 5, 300);
 			}
 		}
 

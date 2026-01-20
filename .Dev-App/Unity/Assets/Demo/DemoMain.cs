@@ -3,12 +3,6 @@ using UnityEngine;
 
 public class DemoMain : LocaMonoBehaviour
 {
-	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-	private static void Initialize()
-	{
-		Bootstrap.Initialize();
-	}
-	
 	protected void Start()
 	{
 		Application.targetFrameRate = 60;
