@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class DemoMain : LocaMonoBehaviour
 {
-	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-	private void Initialize()
+	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+	private static void Initialize()
 	{
 		Bootstrap.Initialize();
 	}

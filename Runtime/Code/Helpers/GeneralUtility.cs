@@ -7,7 +7,7 @@ namespace GuiToolkit
 		public static bool IsQuitting { get; private set; }
 		public static int MainThreadId { get; private set; }
 
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 		private static void Init()
 		{
 			Application.quitting += () => IsQuitting = true;

@@ -14,7 +14,7 @@ namespace GuiToolkit
 	[EditorAware]
 	public static class Bootstrap
 	{
-		private static bool s_isInitialized = false;
+		private static bool s_isInitialized;
 		public static bool IsInitialized => s_isInitialized;
 
 #if UNITY_EDITOR
@@ -26,9 +26,11 @@ namespace GuiToolkit
 
 		private static void HandlePlayMode(PlayModeStateChange _playMode)
 		{
-			s_isInitialized = false;
 			if (_playMode == PlayModeStateChange.EnteredEditMode)
-				AssetReadyGate.WhenReady(() => Initialize());
+			{
+				s_isInitialized = false;
+				AssetReadyGate.WhenReady(() => Initialize(), false);
+			}
 		}
 
 #endif
@@ -42,7 +44,7 @@ namespace GuiToolkit
 		{
 			if (IsInitialized)
 				return;
-			
+
 			// We need to set this early, because otherwise some modules will complain/throw because not initialized toolkit
 			s_isInitialized = true;
 
@@ -51,8 +53,7 @@ namespace GuiToolkit
 			if (Application.isPlaying)
 				InitializeRuntime();
 		}
-
-
+		
 		private static void InitializeRuntime()
 		{
 			IReadOnlyList<StorageRoutingConfig> routingConfigs = UiToolkitConfiguration.Instance.StorageFactory.CreateRoutingConfigs();
