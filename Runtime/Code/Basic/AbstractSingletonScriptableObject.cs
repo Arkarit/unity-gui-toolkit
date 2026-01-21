@@ -43,7 +43,7 @@ namespace GuiToolkit
 		{
 			get
 			{
-#if UNITY_EDITOR
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 				EditorCallerGate.ThrowIfNotEditorAware(ClassName);
 				Bootstrap.ThrowIfNotInitialized();
 				if (s_instance == null)

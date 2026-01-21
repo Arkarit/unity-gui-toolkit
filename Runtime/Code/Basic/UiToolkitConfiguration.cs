@@ -150,10 +150,6 @@ namespace GuiToolkit
 			EditorBuildSettings.sceneListChanged += InitScenesByName;
 #endif
 			InitScenesByName();
-			if (m_uiMainStyleConfig != null)
-				UiMainStyleConfig.Instance = m_uiMainStyleConfig;
-			if (m_uiAspectRatioDependentStyleConfig != null)
-				UiAspectRatioDependentStyleConfig.Instance = m_uiAspectRatioDependentStyleConfig;
 		}
 
 #if UNITY_EDITOR
