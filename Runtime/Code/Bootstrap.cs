@@ -3,6 +3,7 @@ using GuiToolkit.Settings;
 using GuiToolkit.Storage;
 using System;
 using System.Collections.Generic;
+using GuiToolkit.Style;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -57,7 +58,10 @@ namespace GuiToolkit
 			// We need to set this early, because otherwise some modules will complain/throw because not initialized toolkit
 			s_isInitialized = true;
 
+			// Config needs to be initialized first, because some other modules will need it for values.
 			UiToolkitConfiguration.Initialize();
+			UiMainStyleConfig.Initialize();
+			UiAspectRatioDependentStyleConfig.Initialize();
 
 			if (Application.isPlaying)
 				InitializeRuntime();
