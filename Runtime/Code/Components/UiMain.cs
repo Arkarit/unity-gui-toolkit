@@ -648,17 +648,22 @@ namespace GuiToolkit
 			Instance = this;
 			IsAwake = true;
 			UiEventDefinitions.EvFullScreenView.AddListener(OnFullScreenView);
+
+			foreach (var action in s_afterAwakeActions)
+				action?.Invoke();
+			
+			s_afterAwakeActions.Clear();
 		}
-		
-		private static List<Action> s_afterAwakeActions;
-		public static void AfterAwake(Action _action)
+
+		private static readonly List<Action> s_afterAwakeActions = new();
+		public static void AfterAwake( Action _action )
 		{
 			if (s_instance != null && s_instance.m_isAwake)
 			{
 				_action?.Invoke();
 				return;
 			}
-			
+
 			s_afterAwakeActions.Add(_action);
 		}
 
