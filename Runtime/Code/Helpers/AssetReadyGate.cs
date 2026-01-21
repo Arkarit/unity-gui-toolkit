@@ -56,7 +56,7 @@ namespace GuiToolkit
 		/// <summary>
 		/// Shorthand for AllScriptableObjectsReady.
 		/// </summary>
-		public static bool Ready => AllScriptableObjectsReady;
+		public static bool Ready => IsReady(true);
 
 
 		/// <summary>
@@ -89,47 +89,50 @@ namespace GuiToolkit
 		/// Also returns false if a player build is in progress.
 		/// In Play Mode this always returns true.
 		/// </summary>
-		public static bool AllScriptableObjectsReady
+		public static bool IsReady(bool _includeBootstrap)
 		{
-			get
-			{
-				if (Application.isPlaying || m_allScriptableObjectsReady)
-					return true;
-
-				if (BuildPipeline.isBuildingPlayer)
-					return false;
-
-				// Editor must be calm first.
-				if (ImportBusy)
-					return false;
-
-				for (int i = 0; i < ScriptableObjectGuids.Length; i++)
-				{
-					string guid = ScriptableObjectGuids[i];
-					string path = AssetDatabase.GUIDToAssetPath(guid);
-
-					// If path cannot be resolved (and editor is calm), treat as missing, not pending.
-					if (string.IsNullOrEmpty(path))
-						continue;
-
-					// Folders are not assets to wait for.
-					if (AssetDatabase.IsValidFolder(path))
-						continue;
-
-					// If file is not on disk (and editor is calm), treat as missing, not pending.
-					if (!File.Exists(path))
-						continue;
-
-					// Importer is done when the main type is known.
-					Type mainType = AssetDatabase.GetMainAssetTypeAtPath(path);
-					if (mainType == null)
-						return false; // Still pending.
-				}
-
-				// All checked paths are ready (or irrelevant).
-				m_allScriptableObjectsReady = true;
+			if (Application.isPlaying)
 				return true;
+
+			if (_includeBootstrap && !Bootstrap.IsInitialized)
+				return false;
+
+			if (m_allScriptableObjectsReady)
+				return true;
+
+			if (BuildPipeline.isBuildingPlayer)
+				return false;
+
+			// Editor must be calm first.
+			if (ImportBusy)
+				return false;
+
+			for (int i = 0; i < ScriptableObjectGuids.Length; i++)
+			{
+				string guid = ScriptableObjectGuids[i];
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+
+				// If path cannot be resolved (and editor is calm), treat as missing, not pending.
+				if (string.IsNullOrEmpty(path))
+					continue;
+
+				// Folders are not assets to wait for.
+				if (AssetDatabase.IsValidFolder(path))
+					continue;
+
+				// If file is not on disk (and editor is calm), treat as missing, not pending.
+				if (!File.Exists(path))
+					continue;
+
+				// Importer is done when the main type is known.
+				Type mainType = AssetDatabase.GetMainAssetTypeAtPath(path);
+				if (mainType == null)
+					return false; // Still pending.
 			}
+
+			// All checked paths are ready (or irrelevant).
+			m_allScriptableObjectsReady = true;
+			return true;
 		}
 
 		/// <summary>
@@ -140,8 +143,10 @@ namespace GuiToolkit
 		/// <param name="_callback">Action to invoke when ready.</param>
 		/// <param name="_quietFrames">Number of consecutive ready frames required before invoking.</param>
 		/// <param name="_maxFrames">Hard timeout in frames (0 disables timeout).</param>
-		public static void WhenReady(
+		public static void WhenReady
+		(
 			Action _callback,
+			bool _includeBootstrap = true,
 			int _quietFrames = 2,
 			int _maxFrames = 60 // 0 = no timeout
 		)
@@ -156,7 +161,7 @@ namespace GuiToolkit
 			}
 
 			// Immediate fast path
-			if (AllScriptableObjectsReady)
+			if (IsReady(_includeBootstrap))
 			{
 				_callback();
 				return;
@@ -188,7 +193,7 @@ namespace GuiToolkit
 				}
 
 				// Not ready yet; reset quiet countdown.
-				if (!AllScriptableObjectsReady)
+				if (!IsReady(_includeBootstrap))
 				{
 					countdown = _quietFrames;
 					return;

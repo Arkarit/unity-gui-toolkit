@@ -26,7 +26,7 @@ namespace GuiToolkit.Editor
 			}
 			
 			// This creates the config if it doesn't exist
-			_ = DoxygenConfig.Instance;
+			DoxygenConfig.Initialize();
 
 			string excludePatterns = string.Empty;
 			for (int i = 0; i < DoxygenConfig.Instance.ExcludePatterns.Count; i++)

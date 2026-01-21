@@ -1,7 +1,4 @@
 ﻿using GuiToolkit;
-using System.Collections.Generic;
-using System.Linq;
-using GuiToolkit.Style;
 using UnityEngine;
 
 public class DemoMain : LocaMonoBehaviour
@@ -9,7 +6,6 @@ public class DemoMain : LocaMonoBehaviour
 	protected void Start()
 	{
 		Application.targetFrameRate = 60;
-
 		DemoSettings.Create();
 		DemoCheats.Create();
 		

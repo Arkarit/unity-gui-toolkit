@@ -31,6 +31,7 @@ namespace GuiToolkit.Test
 			Assert.Throws<ArgumentException>(() => EditorAssetUtility.SortByPrefabHierarchy(new List<GameObject>() {notAPrefab} ));
 			UnityEngine.Object.DestroyImmediate(notAPrefab );
 
+			TestData.Initialize();
 			var paths = TestData.Instance.SortByPrefabHierarchyPaths;
 
 
