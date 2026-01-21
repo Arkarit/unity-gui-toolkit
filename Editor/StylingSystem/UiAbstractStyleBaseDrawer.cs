@@ -182,7 +182,7 @@ namespace GuiToolkit.Style.Editor
 			
 			if (string.IsNullOrEmpty(prefabPaths) && string.IsNullOrEmpty(scenePaths))
 			{
-				UiLog.Log($"No Appliers of type {type.FullName} found");
+				UiLog.LogInternal($"No Appliers of type {type.FullName} found");
 				return;
 			}
 			
@@ -197,7 +197,7 @@ namespace GuiToolkit.Style.Editor
 			GUIUtility.systemCopyBuffer = s;
 			
 			s += "\nA copy of this has been pasted to clipboard.";
-			UiLog.Log(s);
+			UiLog.LogInternal(s);
 		}
 
 		protected override float GetPropertyHeight(SerializedProperty _property)

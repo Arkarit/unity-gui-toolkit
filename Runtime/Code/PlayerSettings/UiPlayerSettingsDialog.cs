@@ -238,7 +238,7 @@ namespace GuiToolkit
 			m_playerSettings.Save(
 				() =>
 				{
-					UiLog.Log($"Player settings saved");
+					UiLog.LogInternal($"Player settings saved");
 				}, 
 				ex =>
 				{

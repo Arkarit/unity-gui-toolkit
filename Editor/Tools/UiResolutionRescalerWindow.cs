@@ -138,7 +138,7 @@ namespace GuiToolkit.Editor
 					}
 
 					string src = scaler != null ? $"scaler {scaler.name}" : "fallback settings";
-					UiLog.Log(
+					UiLog.LogInternal(
 						$"--- Scaling for root {root.name}, {src} by factor '{u.ToString(CultureInfo.InvariantCulture)}' done. ---\n" +
 						"If you need to rescale unsupported items, use the factor shown here.");
 				}

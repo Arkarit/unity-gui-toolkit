@@ -777,7 +777,7 @@ if (m_timingWorkaroundActive)
 				if (!m_debug)
 					return;
 #endif
-			UiLog.Log($"{GetType().Name} {gameObject.name}:{_s}\n{gameObject.GetPath()}");
+			UiLog.LogInternal($"{GetType().Name} {gameObject.name}:{_s}\n{gameObject.GetPath()}");
 		}
 
 #if UNITY_EDITOR

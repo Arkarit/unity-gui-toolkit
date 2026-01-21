@@ -775,7 +775,7 @@ namespace GuiToolkit
 
 			while (!_excludedTypes.Contains(type))
 			{
-				//UiLog.Log($"type: {type}");
+				//UiLog.LogInternal($"type: {type}");
 				_other.GetInstanceID();
 				BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
@@ -786,7 +786,7 @@ namespace GuiToolkit
 					{
 						try
 						{
-							//UiLog.Log($"finfo {finfo.Name}");
+							//UiLog.LogInternal($"finfo {finfo.Name}");
 							finfo.SetValue(_other, finfo.GetValue(_self));
 						}
 						catch { }
@@ -800,7 +800,7 @@ namespace GuiToolkit
 					{
 						try
 						{
-							//UiLog.Log($"pinfo {pinfo.Name}");
+							//UiLog.LogInternal($"pinfo {pinfo.Name}");
 							pinfo.SetValue(_other, pinfo.GetValue(_self, null), null);
 						}
 						catch { }

@@ -387,7 +387,7 @@ namespace GuiToolkit
 
 		private void Log( string _s )
 		{
-			UiLog.Log($"Debug Loca:{_s}");
+			UiLog.LogInternal($"Debug Loca:{_s}");
 		}
 
 		private string Escape( string _s )

@@ -25,7 +25,7 @@ namespace GuiToolkit.Editor
 			string path = GetFilePath(scenePath);
 			string line = $"[{System.DateTime.Now:yyyy-MM-dd HH:mm:ss}] {_message}";
 			File.AppendAllText(path, line + "\n");
-			UiLog.Log(line);
+			UiLog.LogInternal(line);
 		}
 		
 		public static void LogCr(int _howMany)

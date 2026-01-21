@@ -56,7 +56,7 @@ namespace GuiToolkit.Editor
 			if (hasFocus) 
 				return;
 
-			UiLog.Log($"{LogPrefix}Lost focus, saving assets");
+			UiLog.LogInternal($"{LogPrefix}Lost focus, saving assets");
 			AssetDatabase.SaveAssets();
 		}
 	}

@@ -113,7 +113,7 @@ namespace GuiToolkit.Editor
 			}
 
 			// Done
-			UiLog.Log($"Screenshot overlay created ({m_width}x{m_height}) at 50% opacity.");
+			UiLog.LogInternal($"Screenshot overlay created ({m_width}x{m_height}) at 50% opacity.");
 		}
 
 		private static void CreateTempScene()
@@ -380,7 +380,7 @@ namespace GuiToolkit.Editor
 		private static void Log( string _s, float _progress )
 		{
 			EditorUtility.DisplayProgressBar($"Creating GUI Screenshot overlay", _s, _progress);
-			UiLog.Log(_s);
+			UiLog.LogInternal(_s);
 		}
 	}
 }

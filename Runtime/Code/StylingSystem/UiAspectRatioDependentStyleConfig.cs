@@ -19,7 +19,6 @@ namespace GuiToolkit.Style
 
 		protected static UiAspectRatioDependentStyleConfig s_instance;
 		public static string ClassName => typeof(UiAspectRatioDependentStyleConfig).Name;
-		public static void ResetInstance() => s_instance = null;
 
 		protected override void OnEnable()
 		{
@@ -80,12 +79,15 @@ namespace GuiToolkit.Style
 
 		internal static void Initialize()
 		{
+			if (s_instance != null)
+				return;
+			
 			var effectiveStyleConfig = UiToolkitConfiguration.Instance.UiAspectRatioDependentStyleConfig;
 			if (effectiveStyleConfig != null)
 			{
 				s_instance = effectiveStyleConfig;
 #if UNITY_EDITOR
-				UiLog.Log($"Using user UiAspectRatioDependentStyleConfig at {AssetDatabase.GetAssetPath(s_instance)}");
+				UiLog.LogInternal($"Using user UiAspectRatioDependentStyleConfig at {AssetDatabase.GetAssetPath(s_instance)}");
 #endif
 				return;
 			}
@@ -95,7 +97,7 @@ namespace GuiToolkit.Style
 #if UNITY_EDITOR
 			s += $", asset path:{AssetDatabase.GetAssetPath(s_instance)}, wasCreated:{wasCreated}";
 #endif
-			UiLog.Log(s);
+			UiLog.LogInternal(s);
 #if UNITY_EDITOR
 			if (wasCreated)
 				s_instance.OnEditorCreatedAsset();

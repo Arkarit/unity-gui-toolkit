@@ -16,7 +16,8 @@ namespace GuiToolkit
 	public static class Bootstrap
 	{
 		private static bool s_isInitialized;
-		public static bool IsInitialized => s_isInitialized;
+		private static bool s_isInitializing;
+		public static bool IsInitialized => s_isInitialized || s_isInitializing;
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void RuntimeInitialize()
@@ -28,8 +29,14 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 		static Bootstrap()
 		{
+			UiLog.LogInternal("Static Ctor");
 			EditorApplication.playModeStateChanged -= HandlePlayMode;
 			EditorApplication.playModeStateChanged += HandlePlayMode;
+			EditorApplication.delayCall += Delayed;
+		}
+
+		private static void Delayed()
+		{
 			if (!Application.isPlaying)
 				HandlePlayMode(PlayModeStateChange.EnteredEditMode);
 		}
@@ -38,6 +45,7 @@ namespace GuiToolkit
 		{
 			if (_playMode == PlayModeStateChange.EnteredEditMode)
 			{
+				UiLog.LogInternal("Entered Edit Mode");
 				s_isInitialized = false;
 				AssetReadyGate.WhenReady(() => Initialize(), false, 5, 300);
 			}
@@ -53,22 +61,34 @@ namespace GuiToolkit
 		public static void Initialize()
 		{
 			if (IsInitialized)
+			{
+				Log("Attempt to initialize, but is already initialized");
 				return;
+			}
 
-			// We need to set this early, because otherwise some modules will complain/throw because not initialized toolkit
-			s_isInitialized = true;
-
+			Log("Starting initialization");
+			s_isInitializing = true;
 			// Config needs to be initialized first, because some other modules will need it for values.
+			Log("Initialize UiToolkitConfiguration");
 			UiToolkitConfiguration.Initialize();
+			Log("Initialize UiMainStyleConfig");
 			UiMainStyleConfig.Initialize();
+			Log("Initialize UiAspectRatioDependentStyleConfig");
 			UiAspectRatioDependentStyleConfig.Initialize();
 
 			if (Application.isPlaying)
 				InitializeRuntime();
+			
+			Log("Mark as initialized");
+			s_isInitialized = true;
+			s_isInitializing = false;
 		}
 		
 		private static void InitializeRuntime()
 		{
+			Log("Initialize Runtime Parts");
+			
+			Log("Create Routing configs");
 			IReadOnlyList<StorageRoutingConfig> routingConfigs = UiToolkitConfiguration.Instance.StorageFactory.CreateRoutingConfigs();
 
 			bool hasPlayerSettingsCollection = false;
@@ -86,11 +106,16 @@ namespace GuiToolkit
 				throw new InvalidOperationException(
 					$"Custom storage factory needs to route '{StringConstants.PLAYER_SETTINGS_COLLECTION}'.");
 
+			Log("Initializing storage");
 			Storage.Storage.Initialize(routingConfigs);
 
+			Log("Initialize settings aggregate");
 			SettingsPersistedAggregate aggregate = new(Storage.Storage.Documents, StringConstants.PLAYER_SETTINGS_COLLECTION, StringConstants.PLAYER_SETTINGS_ID);
+			Log("Initialize player settings");
 			PlayerSettings.Instance = new PlayerSettings();
 			PlayerSettings.Instance.Initialize(aggregate);
 		}
+		
+		private static void Log(string _s) => UiLog.LogInternal(_s, "Bootstrap");
 	}
 }

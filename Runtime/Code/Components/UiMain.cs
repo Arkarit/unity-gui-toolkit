@@ -132,7 +132,7 @@ namespace GuiToolkit
 
 				EditorApplication.update += FireOnScreenResolutionChangedEventIfNecessary;
 				FireOnScreenResolutionChangedEventIfNecessary();
-				UiLog.Log("UIMain static initialized");
+				UiLog.LogInternal("UIMain static initialized");
 			}
 		}
 #endif

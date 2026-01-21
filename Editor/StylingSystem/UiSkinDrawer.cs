@@ -293,14 +293,14 @@ namespace GuiToolkit.Style.Editor
 			public void Dump() => Dump(string.Empty);
 			private void Dump(string tabStr)
 			{
-				UiLog.Log($"{tabStr}{Name}");
+				UiLog.LogInternal($"{tabStr}{Name}");
 				foreach (var kv in Children)
 				{
 					var current = kv.Value;
 					current.Dump(tabStr + "\t");
 					foreach (var property in current.Properties)
 					{
-						UiLog.Log($"{tabStr}\t\t->{property.boxedValue.GetType()}");
+						UiLog.LogInternal($"{tabStr}\t\t->{property.boxedValue.GetType()}");
 					}
 				}
 			}

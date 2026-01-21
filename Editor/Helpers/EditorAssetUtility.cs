@@ -701,7 +701,7 @@ exitLoop:
 		{
 			string s = $"---::: Fix {_clone.name}\n";
 			FixReferencesInCloneInternal(_original, _clone, 1, ref s);
-			UiLog.Log(s);
+			UiLog.LogInternal(s);
 		}
 
 		private static void FixReferencesInCloneInternal( GameObject _original, GameObject _clone, int _numTabs, ref string _s )

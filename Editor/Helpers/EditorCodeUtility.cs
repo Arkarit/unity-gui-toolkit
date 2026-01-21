@@ -705,11 +705,11 @@ namespace GuiToolkit.Editor
 				AssetDatabase.SaveAssets();
 				AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
 				CompilationPipeline.RequestScriptCompilation();
-				UiLog.Log($"[Code Replace Text->TMP] Changed {changed} files, requested compilation.");
+				UiLog.LogInternal($"[Code Replace Text->TMP] Changed {changed} files, requested compilation.");
 			}
 			else
 			{
-				UiLog.Log("[Code Replace Text->TMP] No changes in scripts.");
+				UiLog.LogInternal("[Code Replace Text->TMP] No changes in scripts.");
 			}
 
 			return changed;
@@ -846,11 +846,11 @@ namespace GuiToolkit.Editor
 			if (count > 0)
 			{
 				EditorSceneManager.MarkSceneDirty(scene);
-				UiLog.Log($"[Prepare Text->TMP] Recorded {count} references in context '{scene.path}'.");
+				UiLog.LogInternal($"[Prepare Text->TMP] Recorded {count} references in context '{scene.path}'.");
 			}
 			else
 			{
-				UiLog.Log("[Prepare Text->TMP] No references found in current context.");
+				UiLog.LogInternal("[Prepare Text->TMP] No references found in current context.");
 			}
 
 			return count;

@@ -29,7 +29,7 @@ namespace GuiToolkit
 #if UNITY_EDITOR
 			s += $" asset path:{AssetDatabase.GetAssetPath(s_instance)}, wasCreated:{wasCreated}";
 #endif
-			UiLog.Log(s);
+			UiLog.LogInternal(s);
 			
 #if UNITY_EDITOR
 			if (wasCreated)

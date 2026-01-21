@@ -179,7 +179,7 @@ namespace GuiToolkit
 
 			List<KerningPair> newKerningPairs = new List<KerningPair>();
 
-			UiLog.Log($"Pairs before: {oldKerningPairs.Count}");
+			UiLog.LogInternal($"Pairs before: {oldKerningPairs.Count}");
 
 			foreach (KerningPair record in oldKerningPairs)
 			{
@@ -223,7 +223,7 @@ namespace GuiToolkit
 				LogPair(a, b);
 			}
 
-			UiLog.Log($"Pairs after: {newKerningPairs.Count}");
+			UiLog.LogInternal($"Pairs after: {newKerningPairs.Count}");
 
 			if (!m_dryRun)
 				AssetKerningPairs = newKerningPairs;
@@ -433,7 +433,7 @@ namespace GuiToolkit
 			string pair = _a + "/" + _b;
 			string start = _skipped ? "Skipping " : "Adding ";
 			reason = string.IsNullOrEmpty(reason) ? "" : $": {reason}";
-			UiLog.Log($"{start} pair '{pair}'{reason}");
+			UiLog.LogInternal($"{start} pair '{pair}'{reason}");
 		}
 
 
