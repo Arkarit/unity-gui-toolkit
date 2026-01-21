@@ -360,9 +360,9 @@ namespace GuiToolkit
 			if (_logToConsole)
 			{
 				if (violations == 0)
-					UiLog.Log("ExternalRequired: No violations found in open scenes.");
+					UiLog.LogInternal("ExternalRequired: No violations found in open scenes.");
 				else
-					UiLog.Log($"ExternalRequired: Found {violations} violation(s) in open scenes.");
+					UiLog.LogInternal($"ExternalRequired: Found {violations} violation(s) in open scenes.");
 			}
 
 			return violations;

@@ -154,6 +154,7 @@ namespace GuiToolkit
 			if (_callback == null)
 				return;
 
+			UiLog.LogInternal("WhenReady called");
 			if (Application.isPlaying)
 			{
 				_callback();
@@ -335,7 +336,7 @@ namespace GuiToolkit
 			EditorFileUtility.EnsureUnityFolderExists(System.IO.Path.GetDirectoryName(assetPath).Replace('\\', '/'));
 			var inst = ScriptableObject.CreateInstance(_type);
 			inst.name = _type.Name;
-			UiLog.Log($"Create scriptable object instance '{inst.name}' of type '{_type.Name}' at '{assetPath}'");
+			UiLog.LogInternal($"Create scriptable object instance '{inst.name}' of type '{_type.Name}' at '{assetPath}'");
 			AssetDatabase.CreateAsset(inst, assetPath);
 			AssetDatabase.SaveAssets();
 			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);

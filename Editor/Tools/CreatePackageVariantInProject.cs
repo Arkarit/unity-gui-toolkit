@@ -185,7 +185,7 @@ namespace GuiToolkit.Editor
 				PrefabUtility.SaveAsPrefabAsset(instance, targetPath, out bool success);
 				if (success)
 				{
-					UiLog.Log($"Prefab Variant saved to: {targetPath}");
+					UiLog.LogInternal($"Prefab Variant saved to: {targetPath}");
 					onCreated?.Invoke(targetPath);
 				}
 				else

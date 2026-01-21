@@ -415,7 +415,7 @@ namespace GuiToolkit
 
 			string json = JsonUtility.ToJson(_data, true);
 			File.WriteAllText(outPath, json, new UTF8Encoding(false));
-			UiLog.Log($"{nameof(LocaExcelBridge)}: Wrote JSON -> {outPath}");
+			UiLog.LogInternal($"{nameof(LocaExcelBridge)}: Wrote JSON -> {outPath}");
 		}
 #endif
 #endif

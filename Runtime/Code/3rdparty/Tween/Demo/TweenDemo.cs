@@ -35,7 +35,7 @@ namespace DigitalRuby.Tween
 
             System.Action<ITween<Vector3>> circleMoveCompleted = (t) =>
             {
-                UiLog.Log("Circle move completed");
+                UiLog.LogInternal("Circle move completed");
             };
 
             Vector3 currentPos = Circle.transform.position;

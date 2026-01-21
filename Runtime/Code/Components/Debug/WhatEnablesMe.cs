@@ -54,7 +54,7 @@ namespace GuiToolkit.Debugging
 			string children = "Children:";
 			foreach (Transform child in transform)
 				children += $"'{child.GetPath(1)}' ";
-			UiLog.Log($"{m_prefix} '{gameObject.GetPath(1)}' {_feature}\n" + 
+			UiLog.LogInternal($"{m_prefix} '{gameObject.GetPath(1)}' {_feature}\n" + 
 			          $"Path: '{gameObject.GetPath()}'\n" + 
 			          $"Parent: '{transform.parent.GetPath()}'\n" +
 			          $"{children}\n" +

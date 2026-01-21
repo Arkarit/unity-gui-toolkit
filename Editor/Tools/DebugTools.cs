@@ -22,7 +22,7 @@ namespace GuiToolkit.Editor.Tools
 
 			foreach (var prefabVariant in prefabVariants)
 			{
-				UiLog.Log(DebugUtility.DumpOverridesString(prefabVariant, prefabVariant.GetPath(1)));
+				UiLog.LogInternal(DebugUtility.DumpOverridesString(prefabVariant, prefabVariant.GetPath(1)));
 			}
 		}
 

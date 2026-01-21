@@ -339,10 +339,10 @@ namespace GuiToolkit.AssetHandling
 
 		private static void InitProviders()
 		{
-			UiLog.Log("Initializing AssetProviders");
+			UiLog.LogInternal("Initializing AssetProviders");
 			if (s_assetProviders != null && s_assetProviders.Length > 0)
 			{
-				UiLog.Log("AssetProviderFactories already created, doing nothing");
+				UiLog.LogInternal("AssetProviderFactories already created, doing nothing");
 				return;
 			}
 
@@ -355,7 +355,7 @@ namespace GuiToolkit.AssetHandling
 			}
 
 			var factories = config.AssetProviderFactories;
-			UiLog.Log(factories == null || factories.Length == 0 ?
+			UiLog.LogInternal(factories == null || factories.Length == 0 ?
 				"No AssetProviderFactories configured." :
 				$"Found {factories.Length} AssetProviderFactories.");
 
@@ -377,7 +377,7 @@ namespace GuiToolkit.AssetHandling
 						var provider = factory.CreateProvider();
 						provider.Init();
 						providers.Add(provider);
-						UiLog.Log($"Created and initialized provider {i}: '{provider.Name}'");
+						UiLog.LogInternal($"Created and initialized provider {i}: '{provider.Name}'");
 					}
 					catch (Exception ex)
 					{
@@ -386,11 +386,11 @@ namespace GuiToolkit.AssetHandling
 				}
 			}
 
-			UiLog.Log("Creating DefaultAssetProvider");
+			UiLog.LogInternal("Creating DefaultAssetProvider");
 			var defaultProvider = new DefaultAssetProvider();
 			defaultProvider.Init();
 			providers.Add(defaultProvider);
-			UiLog.Log("Done creating DefaultAssetProvider, finished initializing AssetProviders");
+			UiLog.LogInternal("Done creating DefaultAssetProvider, finished initializing AssetProviders");
 
 			s_assetProviders = providers.ToArray();
 		}

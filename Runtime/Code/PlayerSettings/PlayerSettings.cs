@@ -414,7 +414,7 @@ namespace GuiToolkit
 		[System.Diagnostics.Conditional("DEBUG_PLAYER_SETTINGS")]
 		public static void Log( PlayerSetting _playerSetting, string _performedAction )
 		{
-			UiLog.Log($"{_performedAction} player Setting '{_playerSetting.Key}' : {_playerSetting.Value}");
+			UiLog.LogInternal($"{_performedAction} player Setting '{_playerSetting.Key}' : {_playerSetting.Value}");
 		}
 
 	}

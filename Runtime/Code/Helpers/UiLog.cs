@@ -54,14 +54,33 @@ namespace GuiToolkit
 			}
 		}
 
-		public static void LogVerbose( string _s, Object _context = null ) => Log(_s, _context, LogMode.Verbose);
-		public static void Log( string _s, Object _context = null ) => Log(_s, _context, LogMode.Default);
-		public static void LogWarning( string _s, Object _context = null ) => Log(_s, _context, LogMode.Warning);
-		public static void LogError( string _s, Object _context = null ) => Log(_s, _context, LogMode.Error);
-		public static bool LogVerboseOnce( string _s, Object _context = null ) => Log(_s, _context, LogMode.VerboseOnce);
-		public static bool LogOnce( string _s, Object _context = null ) => Log(_s, _context, LogMode.DefaultOnce);
-		public static bool LogWarningOnce( string _s, Object _context = null ) => Log(_s, _context, LogMode.WarningOnce);
-		public static bool LogErrorOnce( string _s, Object _context = null ) => Log(_s, _context, LogMode.ErrorOnce);
+		public static void LogVerbose( string _s, Object _context, string _prefix = null ) => Log(_s, _context, LogMode.Verbose, _prefix);
+		public static void LogVerbose( string _s, string _prefix = null ) => Log(_s, null, LogMode.Verbose, _prefix);
+		public static void Log( string _s, Object _context, string _prefix = null ) => Log(_s, _context, LogMode.Default, _prefix);
+		public static void Log( string _s, string _prefix = null ) => Log(_s, null, LogMode.Default, _prefix);
+		public static void LogWarning( string _s, Object _context, string _prefix = null ) => Log(_s, _context, LogMode.Warning, _prefix);
+		public static void LogWarning( string _s, string _prefix = null ) => Log(_s, null, LogMode.Warning, _prefix);
+		public static void LogError( string _s, Object _context, string _prefix = null ) => Log(_s, _context, LogMode.Error, _prefix);
+		public static void LogError( string _s, string _prefix = null ) => Log(_s, null, LogMode.Error, _prefix);
+		public static bool LogVerboseOnce( string _s, Object _context, string _prefix = null ) => Log(_s, _context, LogMode.VerboseOnce, _prefix);
+		public static bool LogVerboseOnce( string _s, string _prefix = null ) => Log(_s, null, LogMode.VerboseOnce, _prefix);
+		public static bool LogOnce( string _s, Object _context, string _prefix = null ) => Log(_s, _context, LogMode.DefaultOnce, _prefix);
+		public static bool LogOnce( string _s, string _prefix = null ) => Log(_s, null, LogMode.DefaultOnce, _prefix);
+		public static bool LogWarningOnce( string _s, Object _context, string _prefix = null ) => Log(_s, _context, LogMode.WarningOnce, _prefix);
+		public static bool LogWarningOnce( string _s, string _prefix = null ) => Log(_s, null, LogMode.WarningOnce, _prefix);
+		public static bool LogErrorOnce( string _s, Object _context, string _prefix = null ) => Log(_s, _context, LogMode.ErrorOnce, _prefix);
+		public static bool LogErrorOnce( string _s, string _prefix = null ) => Log(_s, null, LogMode.ErrorOnce, _prefix);
+		
+		internal static void LogInternal(string _s, Object _context, string _prefix = null )
+		{
+			var prefix = "::GuiToolkit::";
+			if (!string.IsNullOrEmpty(_prefix))
+				prefix = $"{prefix}{_prefix}::";
+			
+			Log(_s, _context, LogMode.Default, prefix);
+		}
+		
+		internal static void LogInternal(string _s, string _prefix = null ) => LogInternal(_s, null, _prefix);
 
 		/// <summary>
 		/// Core logger. For "Once" modes, the message is emitted only once per callsite (file:line) per editor/runtime session.
@@ -69,7 +88,7 @@ namespace GuiToolkit
 		/// Use sparingly and handle with care.
 		/// Returns true if the text was actually logged (important for "Once" modes, where you can detect the first occurrence of the logging)
 		/// </summary>
-		public static bool Log( string _s, Object _context, LogMode _logMode )
+		public static bool Log( string _s, Object _context, LogMode _logMode, string _prefix = null )
 		{
 			// Release player: only warnings and errors
 #if !UNITY_EDITOR && !DEVELOPMENT_BUILD
@@ -82,6 +101,8 @@ namespace GuiToolkit
 
 			string ts = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 			string msg = "[" + ts + "] " + _s;
+			if (!string.IsNullOrEmpty(_prefix))
+				msg = _prefix + msg;
 
 			if (IsOnce(_logMode))
 			{

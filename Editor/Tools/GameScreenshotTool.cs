@@ -82,7 +82,7 @@ namespace GuiToolkit.Editor
 					File.WriteAllBytes(m_Path, jpg);
 //					EditorUtility.RevealInFinder(m_Path);
 //					EditorUtility.DisplayDialog("Capture Game Screenshot", $"Saved:\n{m_Path}", "OK");
-					UiLog.Log($"Saved Screenshot:\n{m_Path}");
+					UiLog.LogInternal($"Saved Screenshot:\n{m_Path}");
 				}
 				catch (Exception ex)
 				{

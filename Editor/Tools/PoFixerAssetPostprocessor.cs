@@ -53,7 +53,7 @@ namespace GuiToolkit.Editor
 			s_lastWritten.Add(_pathToSave.ToLowerInvariant());
 			File.Copy(_pathToLoad, _pathToSave, true);
 			AssetDatabase.ImportAsset(_pathToSave);
-			UiLog.Log($"Copied '{_pathToLoad}' to '{_pathToSave}'");
+			UiLog.LogInternal($"Copied '{_pathToLoad}' to '{_pathToSave}'");
 		}
 	}
 }

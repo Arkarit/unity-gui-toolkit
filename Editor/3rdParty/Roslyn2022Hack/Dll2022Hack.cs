@@ -101,7 +101,7 @@ namespace GuiToolkit.Editor
 			}
 
 			AssetDatabase.Refresh();
-			UiLog.Log("Roslyn bridge removed: define cleared, DLLs deleted, folder cleaned up.");
+			UiLog.LogInternal("Roslyn bridge removed: define cleared, DLLs deleted, folder cleaned up.");
 		}
 
 		private static void EnsureBridgeInstalled( bool force, bool showConfirm )
@@ -198,7 +198,7 @@ namespace GuiToolkit.Editor
 			// Add global define to all target groups
 			AddDefineToAllBuildTargetGroups(GlobalDefine);
 
-			UiLog.Log("Installed Roslyn bridge (Unity < 6000) and set scripting define '" + GlobalDefine + "'.");
+			UiLog.LogInternal("Installed Roslyn bridge (Unity < 6000) and set scripting define '" + GlobalDefine + "'.");
 		}
 
 		private static void AddDefineToAllBuildTargetGroups( string define )

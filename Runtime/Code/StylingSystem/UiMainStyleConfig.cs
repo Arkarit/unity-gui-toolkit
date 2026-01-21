@@ -23,7 +23,7 @@ namespace GuiToolkit.Style
 			{
 				s_instance = effectiveStyleConfig;
 #if UNITY_EDITOR
-				UiLog.Log($"Using user UiMainStyleConfig at {AssetDatabase.GetAssetPath(s_instance)}");
+				UiLog.LogInternal($"Using user UiMainStyleConfig at {AssetDatabase.GetAssetPath(s_instance)}");
 #endif
 				return;
 			}
@@ -33,7 +33,7 @@ namespace GuiToolkit.Style
 #if UNITY_EDITOR
 			s += $", asset path:{AssetDatabase.GetAssetPath(s_instance)}, wasCreated:{wasCreated}";
 #endif
-			UiLog.Log(s);
+			UiLog.LogInternal(s);
 #if UNITY_EDITOR
 			if (wasCreated)
 				s_instance.OnEditorCreatedAsset();

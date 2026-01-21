@@ -182,7 +182,7 @@ namespace GuiToolkit.Storage
 		/// </remarks>
 		public static void Log( string s )
 		{
-			UiLog.Log($"---::: DebugStorage: {s}");
+			UiLog.LogInternal($"---::: DebugStorage: {s}");
 		}
 	}
 }

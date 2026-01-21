@@ -32,13 +32,13 @@ namespace GuiToolkit.Debugging
 		}
 
 		public static void Log( string _text, GameObject _gameObject, DumpFeatures _features = DumpFeatures.Default ) =>
-			UiLog.Log(GetLogString(_text, _gameObject, _features));
+			UiLog.LogInternal(GetLogString(_text, _gameObject, _features));
 
 		public static void Log( string _text, List<GameObject> _gameObjects, DumpFeatures _features = DumpFeatures.Default ) =>
-			UiLog.Log(GetLogString(_text, _gameObjects, _features));
+			UiLog.LogInternal(GetLogString(_text, _gameObjects, _features));
 
 		public static void Log( string _text, GameObject[] _gameObjects, DumpFeatures _features = DumpFeatures.Default ) =>
-			UiLog.Log(GetLogString(_text, _gameObjects.ToList(), _features));
+			UiLog.LogInternal(GetLogString(_text, _gameObjects.ToList(), _features));
 
 		public static string GetLogString( string _text, List<GameObject> _gameObjects, DumpFeatures _features = DumpFeatures.Default )
 		{

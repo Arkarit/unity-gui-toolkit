@@ -57,7 +57,7 @@ namespace GuiToolkit
 					Iterate(component, go, _flags);
 			}
 
-			UiLog.Log(DumpDependencyCache());
+			UiLog.LogInternal(DumpDependencyCache());
 		}
 		
 		public static List<GameObject> QueryGameObjectSceneReferences(GameObject _gameObject, SearchableEditorWindow.SearchMode _searchMode = SearchableEditorWindow.SearchMode.All, bool _excludeSelf = true)
@@ -225,7 +225,7 @@ namespace GuiToolkit
 			if ((currentFlags & _flags) != _flags)
 			{
 				if (_log)
-					UiLog.Log($"Setting static editor Flags '{_flags}'\n'{_transform.GetPath()}'\ncurrent flags:{currentFlags}");
+					UiLog.LogInternal($"Setting static editor Flags '{_flags}'\n'{_transform.GetPath()}'\ncurrent flags:{currentFlags}");
 
 				if (_replace)
 					GameObjectUtility.SetStaticEditorFlags(go, _flags);
@@ -254,7 +254,7 @@ namespace GuiToolkit
 			if ((currentFlags & _flags) != 0)
 			{
 				if (_log)
-					UiLog.Log($"Clearing static editor Flags '{_flags}'\n'{_transform.GetPath()}'\ncurrent flags:{currentFlags}");
+					UiLog.LogInternal($"Clearing static editor Flags '{_flags}'\n'{_transform.GetPath()}'\ncurrent flags:{currentFlags}");
 
 				GameObjectUtility.SetStaticEditorFlags(_transform.gameObject, currentFlags & ~_flags);
 				EditorGeneralUtility.SetDirty(_transform.gameObject);

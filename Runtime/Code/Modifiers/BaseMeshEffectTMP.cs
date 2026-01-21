@@ -344,7 +344,7 @@ namespace GuiToolkit
 // 			{
 // 				if (mods[i] == this)
 // 				{
-// 					UiLog.Log($"{this} Mod {i} {_s} enabled: {enabled} m_initialized: {m_initialized}");
+// 					UiLog.LogInternal($"{this} Mod {i} {_s} enabled: {enabled} m_initialized: {m_initialized}");
 // 				}
 // 			}
 

@@ -553,13 +553,13 @@ namespace GuiToolkit
 		[Conditional("DEBUG_UI")]
 		public static void DebugLogStatic( string s )
 		{
-			UiLog.Log($"UiLogging: {s}");
+			UiLog.LogInternal($"UiLogging: {s}");
 		}
 
 		[Conditional("DEBUG_UI")]
 		public void DebugLog( string s )
 		{
-			UiLog.Log($"UiLogging: {s}\n{this.GetPath()}");
+			UiLog.LogInternal($"UiLogging: {s}\n{this.GetPath()}");
 		}
 
 
