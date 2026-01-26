@@ -159,13 +159,13 @@ namespace GuiToolkit.Editor
 			GUILayout.EndVertical();
 		}
 
-		private void HandleStyleConfig<T>(string _memberName, string _searchString) where T : UiStyleConfig
+		private void HandleStyleConfig<T>(string _memberName, string _name) where T : UiStyleConfig
 		{
 			var styleConfigProp = m_serializedSettingsObject.FindProperty(_memberName);
 			var currentStyleConfig = styleConfigProp.objectReferenceValue as T;
 			if (currentStyleConfig == null)
 			{
-				currentStyleConfig = FindStyleConfig<T>(_searchString);
+				currentStyleConfig = FindStyleConfig<T>(_name);
 				styleConfigProp.objectReferenceValue = currentStyleConfig;
 			}
 
@@ -175,7 +175,7 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.BeginHorizontal();
 				EditorGUILayout.PropertyField(styleConfigProp);
 				if (GUILayout.Button("Clone", GUILayout.Width(100)))
-					CloneStyleConfig(ref currentStyleConfig, _memberName);
+					CloneStyleConfig(ref currentStyleConfig, _memberName, _name);
 				EditorGUILayout.EndHorizontal();
 				return;
 			}
@@ -183,11 +183,11 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(styleConfigProp);
 		}
 
-		private void CloneStyleConfig<T>(ref T currentStyleConfig, string _memberName) where T : UiStyleConfig
+		private void CloneStyleConfig<T>(ref T currentStyleConfig, string _memberName, string _name) where T : UiStyleConfig
 		{
 			string resourceDir = "Assets/Resources";
 			EditorFileUtility.EnsureUnityFolderExists(resourceDir);
-			var newConfigPath = $"{resourceDir}/{currentStyleConfig.GetType().Name}.asset";
+			var newConfigPath = $"{resourceDir}/{_name}.asset";
 			if (File.Exists(EditorFileUtility.GetNativePath(newConfigPath)))
 				if (!EditorUtility.DisplayDialog("Overwrite Configuration?", $"A config file at '{newConfigPath}' already exists. Should it be overwritten? (Not undoable)", "OK", "Cancel"))
 					return;
