@@ -100,8 +100,8 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_STYLE_CONFIG, MessageType.Info);
 			}
 
-			HandleStyleConfig<UiStyleConfig>("m_uiMainStyleConfig");
-			HandleStyleConfig<UiAspectRatioDependentStyleConfig>("m_uiAspectRatioDependentStyleConfig");
+			HandleStyleConfig<UiStyleConfig>("m_uiMainStyleConfig", "UiMainStyleConfig");
+			HandleStyleConfig<UiAspectRatioDependentStyleConfig>("m_uiAspectRatioDependentStyleConfig", "UiAspectRatioDependentStyleConfig");
 
 			if (m_firstTimeInit)
 			{
@@ -159,13 +159,13 @@ namespace GuiToolkit.Editor
 			GUILayout.EndVertical();
 		}
 
-		private void HandleStyleConfig<T>(string _memberName) where T : UiStyleConfig
+		private void HandleStyleConfig<T>(string _memberName, string _searchString) where T : UiStyleConfig
 		{
 			var styleConfigProp = m_serializedSettingsObject.FindProperty(_memberName);
 			var currentStyleConfig = styleConfigProp.objectReferenceValue as T;
 			if (currentStyleConfig == null)
 			{
-				currentStyleConfig = FindStyleConfig<T>();
+				currentStyleConfig = FindStyleConfig<T>(_searchString);
 				styleConfigProp.objectReferenceValue = currentStyleConfig;
 			}
 
@@ -210,12 +210,13 @@ namespace GuiToolkit.Editor
 		}
 
 
-		private T FindStyleConfig<T>() where T:UiStyleConfig
+		private T FindStyleConfig<T>(string _searchString) where T:UiStyleConfig
 		{
 			return EditorAssetUtility.FindScriptableObject<T>(
 				new EditorAssetUtility.AssetSearchOptions()
 				{
-					Folders = new []{"Assets", "Packages"}
+					Folders = new []{"Assets", "Packages"},
+					SearchString = _searchString,
 				});
 		}
 
