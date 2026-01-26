@@ -117,11 +117,11 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_STYLE_CONFIG)]
 		[FormerlySerializedAs("m_styleConfig")]
-		[SerializeField] private UiMainStyleConfig m_uiMainStyleConfig;
+		[SerializeField][Mandatory]  private UiMainStyleConfig m_uiMainStyleConfig;
 
 		[FormerlySerializedAs("m_uiOrientationDependentStyleConfig")]
 		[Tooltip(HELP_STYLE_CONFIG_RESOLUTION_DEPENDENT)]
-		[SerializeField] private UiAspectRatioDependentStyleConfig m_uiAspectRatioDependentStyleConfig;
+		[SerializeField][Mandatory]  private UiAspectRatioDependentStyleConfig m_uiAspectRatioDependentStyleConfig;
 
 		[Tooltip(HELP_DEBUG_LOCA)]
 		[SerializeField] private bool m_debugLoca = false;
@@ -196,7 +196,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public UiMainStyleConfig UiMainStyleConfig => m_uiMainStyleConfig;
+		public UiStyleConfig UiMainStyleConfig => m_uiMainStyleConfig;
 		public UiAspectRatioDependentStyleConfig UiAspectRatioDependentStyleConfig => m_uiAspectRatioDependentStyleConfig;
 		public CanvasScaler GlobalCanvasScalerTemplate => m_globalCanvasScalerTemplate;
 		public bool DebugLoca => m_debugLoca;

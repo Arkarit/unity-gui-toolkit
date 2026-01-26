@@ -12,10 +12,23 @@ namespace GuiToolkit.Style
 	[ExecuteAlways]
 	public class UiStyleConfig : ScriptableObject
 	{
+		public static string ClassName => typeof(UiMainStyleConfig).Name;
 		[NonReorderable][SerializeField] private List<UiSkin> m_skins = new();
 
 		[SerializeField] private int m_currentSkinIdx = 0;
 
+		public static UiStyleConfig Instance
+		{
+			get
+			{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+				EditorCallerGate.ThrowIfNotEditorAware(ClassName);
+				Bootstrap.ThrowIfNotInitialized();
+#endif				
+				return UiToolkitConfiguration.Instance.UiMainStyleConfig;
+			}
+		}
+		
 		public List<UiSkin> Skins
 		{
 			get => m_skins;

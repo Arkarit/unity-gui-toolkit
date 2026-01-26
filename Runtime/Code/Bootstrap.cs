@@ -71,10 +71,6 @@ namespace GuiToolkit
 			// Config needs to be initialized first, because some other modules will need it for values.
 			Log("Initialize UiToolkitConfiguration");
 			UiToolkitConfiguration.Initialize();
-			Log("Initialize UiMainStyleConfig");
-			UiMainStyleConfig.Initialize();
-			Log("Initialize UiAspectRatioDependentStyleConfig");
-			UiAspectRatioDependentStyleConfig.Initialize();
 
 			if (Application.isPlaying)
 				InitializeRuntime();
