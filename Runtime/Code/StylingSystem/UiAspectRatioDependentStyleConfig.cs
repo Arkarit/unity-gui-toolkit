@@ -46,12 +46,15 @@ namespace GuiToolkit.Style
 
 		private void OnScreenResolutionChange( ScreenResolution _before, ScreenResolution _after )
 		{
-			var bestMatchingSkin = FindBestMatchingSkin(_after);
-			if ( bestMatchingSkin == null )
-				return;
-
-			if (bestMatchingSkin != Instance.CurrentSkin )
-				CurrentSkinName = bestMatchingSkin.Name;
+			AssetReadyGate.WhenReady(()=>
+			{
+				var bestMatchingSkin = FindBestMatchingSkin(_after);
+				if ( bestMatchingSkin == null )
+					return;
+	
+				if (bestMatchingSkin != Instance.CurrentSkin )
+					CurrentSkinName = bestMatchingSkin.Name;
+			});
 		}
 
 		private UiSkin FindBestMatchingSkin(ScreenResolution _screenResolution)
