@@ -1,12 +1,4 @@
-using System.IO;
 using UnityEngine;
-using UnityEngine.UI;
-using System;
-
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace GuiToolkit.Style
 {
@@ -18,14 +10,13 @@ namespace GuiToolkit.Style
 		public const string Portrait = "Portrait";
 
 		protected static UiAspectRatioDependentStyleConfig s_instance;
-		public static string ClassName => typeof(UiAspectRatioDependentStyleConfig).Name;
+		public static string ClassName => nameof(UiAspectRatioDependentStyleConfig);
 
 		protected override void OnEnable()
 		{
 			AssetReadyGate.WhenReady(() =>
 			{
-				var instance = Instance;
-				if (instance.NumSkins == 0)
+				if (NumSkins == 0)
 				{
 					var skins = s_instance.Skins;
 					skins.Add(new UiSkin(s_instance, Landscape, 1));
@@ -58,8 +49,8 @@ namespace GuiToolkit.Style
 			var bestMatchingSkin = FindBestMatchingSkin(_after);
 			if ( bestMatchingSkin == null )
 				return;
-
-			if (bestMatchingSkin != Instance.CurrentSkin )
+	
+			if (bestMatchingSkin != CurrentSkin )
 				CurrentSkinName = bestMatchingSkin.Name;
 		}
 
@@ -77,52 +68,16 @@ namespace GuiToolkit.Style
 			return Skins[0];
 		}
 
-		internal static void Initialize()
-		{
-			if (s_instance != null)
-				return;
-			
-			var effectiveStyleConfig = UiToolkitConfiguration.Instance.UiAspectRatioDependentStyleConfig;
-			if (effectiveStyleConfig != null)
-			{
-				s_instance = effectiveStyleConfig;
-#if UNITY_EDITOR
-				UiLog.LogInternal($"Using user UiAspectRatioDependentStyleConfig at {AssetDatabase.GetAssetPath(s_instance)}");
-#endif
-				return;
-			}
-
-			s_instance = (UiAspectRatioDependentStyleConfig)AssetReadyGate.LoadOrCreateScriptableObject(typeof(UiAspectRatioDependentStyleConfig), out bool wasCreated);
-			string s = $"Loaded {ClassName}";
-#if UNITY_EDITOR
-			s += $", asset path:{AssetDatabase.GetAssetPath(s_instance)}, wasCreated:{wasCreated}";
-#endif
-			UiLog.LogInternal(s);
-#if UNITY_EDITOR
-			if (wasCreated)
-				s_instance.OnEditorCreatedAsset();
-#endif
-
-		}
-		
-		public static UiAspectRatioDependentStyleConfig Instance
+		public new static UiAspectRatioDependentStyleConfig Instance
 		{
 			get
 			{
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 				EditorCallerGate.ThrowIfNotEditorAware(ClassName);
 				Bootstrap.ThrowIfNotInitialized();
-				if (s_instance == null)
-					throw new InvalidOperationException($"UiAspectRatioDependentStyleConfig should be initialized by Bootstrap.Initialize() or another place, but isn't.");
 #endif				
-				return s_instance;
+				return UiToolkitConfiguration.Instance.UiAspectRatioDependentStyleConfig;
 			}
 		}
-
-#if UNITY_EDITOR
-		public virtual void OnEditorCreatedAsset() { }
-
-#endif
-
 	}
 }

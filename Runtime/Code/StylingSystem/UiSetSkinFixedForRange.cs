@@ -24,7 +24,7 @@ namespace GuiToolkit.Style
 		private readonly Dictionary<UiAbstractApplyStyleBase, string> m_savedSkinSettings = new ();
 		private bool m_isActive;
 		
-		public UiStyleConfig StyleConfig => m_optionalStyleConfig != null ? m_optionalStyleConfig : UiMainStyleConfig.Instance;
+		public UiStyleConfig StyleConfig => m_optionalStyleConfig != null ? m_optionalStyleConfig : UiStyleConfig.Instance;
 
 		public List<UiAbstractApplyStyleBase> StyleAppliers
 		{

@@ -9,19 +9,6 @@ namespace GuiToolkit.Editor
 	[CustomEditor(typeof(LocaExcelBridge), true)]
 	public class LocaExcelBridgeEditor : UnityEditor.Editor
 	{
-		private static readonly	EditorAssetUtility.AssetSearchOptions s_options = new()
-		{
-			Folders = new[]
-			{
-				"Assets", 
-				"Packages/de.phoenixgrafik.ui-toolkit"
-			},
-			ExcludeFolders = new []
-			{
-				"Assets/Test"
-			}
-		};
-
 		private SerializedProperty m_sourceType;
 		private SerializedProperty m_excelPath;
 		private SerializedProperty m_googleUrl;
@@ -66,10 +53,7 @@ namespace GuiToolkit.Editor
 
 			EditorGUILayout.Space(10);
 			if (GUILayout.Button("Process"))
-			{
 				thisLocaProvider.CollectData();
-				WriteLocaProviderList();
-			}
 
 			EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
 
@@ -78,18 +62,5 @@ namespace GuiToolkit.Editor
 
 			serializedObject.ApplyModifiedProperties();
 		}
-
-		private static void WriteLocaProviderList()
-		{
-
-			LocaProviderList locaProviderList = new();
-			EditorAssetUtility.FindAllScriptableObjects<ILocaProvider>(locaProvider =>
-			{
-				var so = (ScriptableObject) locaProvider;
-				locaProviderList.Paths.Add(so.name);
-			}, s_options);
-			locaProviderList.Save();
-		}
-
 	}
 }

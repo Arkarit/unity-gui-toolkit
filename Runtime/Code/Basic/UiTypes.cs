@@ -230,6 +230,7 @@ namespace GuiToolkit
 		public const string GRADIENT_GENERATOR = MISC_TOOLS_MENU_HEADER + "Gradient Generator";
 		public const string SCREENSHOT_TO_DESKTOP = MISC_TOOLS_MENU_HEADER + "Screenshot to desktop";
 		public const string CREATE_GUI_SCREENSHOT_OVERLAY = MISC_TOOLS_MENU_HEADER + "Create GUI Screenshot overlay";
+		public const string CONVERT_MAIN_STYLE_CONFIG = MISC_TOOLS_MENU_HEADER + "Convert selected UiMainStyleConfig to UiStyleConfig";
 		public const string RESOLUTION_RESCALER = MISC_TOOLS_MENU_HEADER + "Resolution Rescaler (PREVIEW!)";
 
 		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";                                                                         ///< Prefix for all player prefs entries
