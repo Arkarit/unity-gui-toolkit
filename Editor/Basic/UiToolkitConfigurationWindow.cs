@@ -100,7 +100,7 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_STYLE_CONFIG, MessageType.Info);
 			}
 
-			HandleStyleConfig<UiMainStyleConfig>("m_uiMainStyleConfig");
+			HandleStyleConfig<UiStyleConfig>("m_uiMainStyleConfig");
 			HandleStyleConfig<UiAspectRatioDependentStyleConfig>("m_uiAspectRatioDependentStyleConfig");
 
 			if (m_firstTimeInit)

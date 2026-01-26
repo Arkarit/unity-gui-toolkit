@@ -12,7 +12,7 @@ namespace GuiToolkit.Style
 	[ExecuteAlways]
 	public class UiStyleConfig : ScriptableObject
 	{
-		public static string ClassName => typeof(UiMainStyleConfig).Name;
+		public static string ClassName => typeof(UiStyleConfig).Name;
 		[NonReorderable][SerializeField] private List<UiSkin> m_skins = new();
 
 		[SerializeField] private int m_currentSkinIdx = 0;

@@ -117,7 +117,7 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_STYLE_CONFIG)]
 		[FormerlySerializedAs("m_styleConfig")]
-		[SerializeField][Mandatory]  private UiMainStyleConfig m_uiMainStyleConfig;
+		[SerializeField][Mandatory]  private UiStyleConfig m_uiMainStyleConfig;
 
 		[FormerlySerializedAs("m_uiOrientationDependentStyleConfig")]
 		[Tooltip(HELP_STYLE_CONFIG_RESOLUTION_DEPENDENT)]

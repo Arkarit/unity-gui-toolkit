@@ -80,7 +80,7 @@ namespace GuiToolkit.Style
 							return m_effectiveStyleConfig;
 					}
 
-					m_effectiveStyleConfig = UiMainStyleConfig.Instance;
+					m_effectiveStyleConfig = UiStyleConfig.Instance;
 					m_effectiveStyleConfigInitialized = true;
 				}
 

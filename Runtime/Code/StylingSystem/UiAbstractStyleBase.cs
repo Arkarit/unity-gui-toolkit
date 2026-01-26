@@ -23,7 +23,7 @@ namespace GuiToolkit.Style
 			protected set => m_styleConfig = value;
 		}
 
-		public UiStyleConfig EffectiveStyleConfig => StyleConfig ? StyleConfig : UiMainStyleConfig.Instance;
+		public UiStyleConfig EffectiveStyleConfig => StyleConfig ? StyleConfig : UiStyleConfig.Instance;
 		
 		public string Name
 		{

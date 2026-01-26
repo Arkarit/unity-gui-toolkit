@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1234a3a70f483ab46967744e75259593, type: 3}
+  m_Script: {fileID: 11500000, guid: dbdbaab720f53f84293195e6725a8406, type: 3}
   m_Name: UiMainStyleConfig
   m_EditorClassIdentifier: 
   m_skins:
@@ -81,6 +81,7 @@ MonoBehaviour:
     - rid: 8590990584682382111
     - rid: 8590990584708334134
     - rid: 2290798622902845884
+    m_aspectRatioGreaterEqual: 0
   - m_config: {fileID: 11400000}
     m_name: Light
     m_alias: 
@@ -149,6 +150,7 @@ MonoBehaviour:
     - rid: 8590990584682382113
     - rid: 8590990584708334135
     - rid: 2290798622902845885
+    m_aspectRatioGreaterEqual: 0
   m_currentSkinIdx: 0
   references:
     version: 2
@@ -156,10 +158,9 @@ MonoBehaviour:
     - rid: 107647809050902620
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107647809050902621
         m_ColorRightOrBottom:
@@ -191,10 +192,9 @@ MonoBehaviour:
     - rid: 107647812302274828
       type: {class: UiStyleUiDistort, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_IsAbsolute:
           rid: 107647812302274829
         m_Mirror:
@@ -248,10 +248,9 @@ MonoBehaviour:
     - rid: 107647812451434802
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/Text
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107647812451434803
         m_font:
@@ -367,8 +366,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107647812451434810
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -430,10 +427,9 @@ MonoBehaviour:
     - rid: 107647817848455455
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647817848455456
         m_color:
@@ -453,10 +449,9 @@ MonoBehaviour:
     - rid: 107647817848455840
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107647817848455841
         m_ColorRightOrBottom:
@@ -488,10 +483,9 @@ MonoBehaviour:
     - rid: 107647817848455861
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647817848455862
         m_color:
@@ -511,10 +505,9 @@ MonoBehaviour:
     - rid: 107647817848455882
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/Text
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107647817848455883
         m_font:
@@ -632,8 +625,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107647817848455890
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -695,10 +686,9 @@ MonoBehaviour:
     - rid: 107647819454087334
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647819454087335
         m_color:
@@ -718,10 +708,9 @@ MonoBehaviour:
     - rid: 107647820208014230
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107647820208014232
         m_ColorRightOrBottom:
@@ -735,10 +724,9 @@ MonoBehaviour:
     - rid: 107647820208014231
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647820208014235
         m_color:
@@ -776,10 +764,9 @@ MonoBehaviour:
     - rid: 107647820282200350
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647820282200352
         m_color:
@@ -789,10 +776,9 @@ MonoBehaviour:
     - rid: 107647820282200351
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107647820282200354
         m_ColorRightOrBottom:
@@ -834,10 +820,9 @@ MonoBehaviour:
     - rid: 107647820282200389
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/Text
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107647820282200390
         m_font:
@@ -953,8 +938,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107647820282200397
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -1016,10 +999,9 @@ MonoBehaviour:
     - rid: 107647820282200444
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Headline
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107647820282200462
         m_font:
@@ -1135,8 +1117,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107647820282200469
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -1198,32 +1178,31 @@ MonoBehaviour:
     - rid: 107647820282200851
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Backgrounds/PanelHeadline
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 107647820282200852
-        m_anchorMax:
-          rid: 107647820282200853
         m_anchoredPosition:
           rid: 107647820282200854
-        m_sizeDelta:
-          rid: 107647820282200855
-        m_pivot:
-          rid: 107647820282200856
-        m_offsetMin:
-          rid: 107647820282200857
-        m_offsetMax:
-          rid: 107647820282200858
-        m_localPosition:
-          rid: 107647820282200859
+        m_anchorMax:
+          rid: 107647820282200853
+        m_anchorMin:
+          rid: 107647820282200852
         m_localEulerAngles:
           rid: 107647820282200860
+        m_localPosition:
+          rid: 107647820282200859
         m_localRotation:
           rid: 107647820282200862
         m_localScale:
           rid: 107647820282200863
+        m_offsetMax:
+          rid: 107647820282200858
+        m_offsetMin:
+          rid: 107647820282200857
+        m_pivot:
+          rid: 107647820282200856
+        m_sizeDelta:
+          rid: 107647820282200855
     - rid: 107647820282200852
       type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -1293,10 +1272,9 @@ MonoBehaviour:
     - rid: 107647820282200920
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Backgrounds/Panel
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107647820282200921
         m_ColorRightOrBottom:
@@ -1328,10 +1306,9 @@ MonoBehaviour:
     - rid: 107647864378229377
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Backgrounds/PanelHeadline
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647864378229378
         m_color:
@@ -1351,10 +1328,9 @@ MonoBehaviour:
     - rid: 107647864497242687
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Backgrounds/PanelFrame
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647864497242688
         m_color:
@@ -1374,10 +1350,9 @@ MonoBehaviour:
     - rid: 107647865073959500
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/BackgroundOk
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107647865073959502
         m_ColorRightOrBottom:
@@ -1391,10 +1366,9 @@ MonoBehaviour:
     - rid: 107647865073959501
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/BackgroundCancel
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107647865073959505
         m_ColorRightOrBottom:
@@ -1781,10 +1755,9 @@ MonoBehaviour:
     - rid: 107647876395958398
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/LanguageToggle/Selection
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107647876395958399
         m_ColorRightOrBottom:
@@ -1816,10 +1789,9 @@ MonoBehaviour:
     - rid: 107647876395958406
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Icon
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107647876395958407
         m_ColorRightOrBottom:
@@ -1851,10 +1823,9 @@ MonoBehaviour:
     - rid: 107647880796570226
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107647880796570242
         m_ColorRightOrBottom:
@@ -1868,10 +1839,9 @@ MonoBehaviour:
     - rid: 107647880796570227
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647880796570246
         m_color:
@@ -1997,39 +1967,37 @@ MonoBehaviour:
     - rid: 107647880834318954
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Background
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 107647880834318956
-        m_anchorMax:
-          rid: 107647880834318957
         m_anchoredPosition:
           rid: 107647880834318958
-        m_sizeDelta:
-          rid: 107647880834318959
-        m_pivot:
-          rid: 107647880834318960
-        m_offsetMin:
-          rid: 107647880834318961
-        m_offsetMax:
-          rid: 107647880834318962
-        m_localPosition:
-          rid: 107647880834318963
+        m_anchorMax:
+          rid: 107647880834318957
+        m_anchorMin:
+          rid: 107647880834318956
         m_localEulerAngles:
           rid: 107647880834318964
+        m_localPosition:
+          rid: 107647880834318963
         m_localRotation:
           rid: 107647880834318965
         m_localScale:
           rid: 107647880834318966
+        m_offsetMax:
+          rid: 107647880834318962
+        m_offsetMin:
+          rid: 107647880834318961
+        m_pivot:
+          rid: 107647880834318960
+        m_sizeDelta:
+          rid: 107647880834318959
     - rid: 107647880834318955
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Icon
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107647880834318967
         m_color:
@@ -2120,32 +2088,31 @@ MonoBehaviour:
     - rid: 107647889286365204
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Icon
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 107647889286365205
-        m_anchorMax:
-          rid: 107647889286365206
         m_anchoredPosition:
           rid: 107647889286365207
-        m_sizeDelta:
-          rid: 107647889286365208
-        m_pivot:
-          rid: 107647889286365209
-        m_offsetMin:
-          rid: 107647889286365210
-        m_offsetMax:
-          rid: 107647889286365211
-        m_localPosition:
-          rid: 107647889286365212
+        m_anchorMax:
+          rid: 107647889286365206
+        m_anchorMin:
+          rid: 107647889286365205
         m_localEulerAngles:
           rid: 107647889286365213
+        m_localPosition:
+          rid: 107647889286365212
         m_localRotation:
           rid: 107647889286365214
         m_localScale:
           rid: 107647889286365215
+        m_offsetMax:
+          rid: 107647889286365211
+        m_offsetMin:
+          rid: 107647889286365210
+        m_pivot:
+          rid: 107647889286365209
+        m_sizeDelta:
+          rid: 107647889286365208
     - rid: 107647889286365205
       type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -2215,10 +2182,9 @@ MonoBehaviour:
     - rid: 107647889286366017
       type: {class: UiStyleUiGradientEx, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Deco/Line/Horizontal
         m_alias: 
-        m_screenOrientationCondition: -1
         m_Gradient:
           rid: 107647889286366019
         m_enabled:
@@ -2297,10 +2263,9 @@ MonoBehaviour:
     - rid: 107648059087520160
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Headline/Large
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648059087520161
         m_font:
@@ -2447,8 +2412,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648059087520173
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -2570,10 +2533,9 @@ MonoBehaviour:
     - rid: 107648060340568338
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Headline/Medium
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648060340568340
         m_font:
@@ -2643,10 +2605,9 @@ MonoBehaviour:
     - rid: 107648060340568339
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Headline/Small
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648060340568373
         m_font:
@@ -2793,8 +2754,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648060340568352
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -2993,8 +2952,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648060340568385
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -3116,10 +3073,9 @@ MonoBehaviour:
     - rid: 107648060340568644
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Flowing
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648060340568645
         m_font:
@@ -3266,8 +3222,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648060340568657
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -3389,10 +3343,9 @@ MonoBehaviour:
     - rid: 107648067824779858
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Flowing/Large
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648067824779861
         m_font:
@@ -3462,10 +3415,9 @@ MonoBehaviour:
     - rid: 107648067824779859
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Flowing/Medium
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648067824779894
         m_font:
@@ -3535,10 +3487,9 @@ MonoBehaviour:
     - rid: 107648067824779860
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Flowing/Small
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648067824779927
         m_font:
@@ -3685,8 +3636,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648067824779873
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -3885,8 +3834,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648067824779906
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -4085,8 +4032,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648067824779939
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -4208,10 +4153,9 @@ MonoBehaviour:
     - rid: 107648068343038725
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/InputField/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648068343038726
         m_ColorRightOrBottom:
@@ -4249,10 +4193,9 @@ MonoBehaviour:
     - rid: 107648068819353767
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/InputField/Placeholder
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648068819353769
         m_font:
@@ -4322,10 +4265,9 @@ MonoBehaviour:
     - rid: 107648068819353768
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/InputField/Text
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648068819353802
         m_font:
@@ -4472,8 +4414,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648068819353781
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -4672,8 +4612,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648068819353814
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -4795,10 +4733,9 @@ MonoBehaviour:
     - rid: 107648080256959054
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648080256959093
         m_ColorRightOrBottom:
@@ -4812,10 +4749,9 @@ MonoBehaviour:
     - rid: 107648080256959055
       type: {class: UiStyleUiDistort, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_IsAbsolute:
           rid: 107648080256959097
         m_Mirror:
@@ -4833,10 +4769,9 @@ MonoBehaviour:
     - rid: 107648080256959056
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/Text
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959104
         m_font:
@@ -4906,10 +4841,9 @@ MonoBehaviour:
     - rid: 107648080256959057
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648080256959137
         m_color:
@@ -4919,10 +4853,9 @@ MonoBehaviour:
     - rid: 107648080256959058
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648080256959140
         m_ColorRightOrBottom:
@@ -4936,10 +4869,9 @@ MonoBehaviour:
     - rid: 107648080256959059
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648080256959144
         m_color:
@@ -4949,10 +4881,9 @@ MonoBehaviour:
     - rid: 107648080256959060
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/Text
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959147
         m_font:
@@ -5022,10 +4953,9 @@ MonoBehaviour:
     - rid: 107648080256959061
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648080256959180
         m_color:
@@ -5035,10 +4965,9 @@ MonoBehaviour:
     - rid: 107648080256959062
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648080256959183
         m_ColorRightOrBottom:
@@ -5052,10 +4981,9 @@ MonoBehaviour:
     - rid: 107648080256959063
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648080256959187
         m_color:
@@ -5065,10 +4993,9 @@ MonoBehaviour:
     - rid: 107648080256959064
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648080256959190
         m_color:
@@ -5078,10 +5005,9 @@ MonoBehaviour:
     - rid: 107648080256959065
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648080256959193
         m_ColorRightOrBottom:
@@ -5095,10 +5021,9 @@ MonoBehaviour:
     - rid: 107648080256959066
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/Text
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959197
         m_font:
@@ -5168,10 +5093,9 @@ MonoBehaviour:
     - rid: 107648080256959067
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Headline
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959230
         m_font:
@@ -5241,39 +5165,37 @@ MonoBehaviour:
     - rid: 107648080256959068
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Backgrounds/PanelHeadline
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 107648080256959263
-        m_anchorMax:
-          rid: 107648080256959264
         m_anchoredPosition:
           rid: 107648080256959265
-        m_sizeDelta:
-          rid: 107648080256959266
-        m_pivot:
-          rid: 107648080256959267
-        m_offsetMin:
-          rid: 107648080256959268
-        m_offsetMax:
-          rid: 107648080256959269
-        m_localPosition:
-          rid: 107648080256959270
+        m_anchorMax:
+          rid: 107648080256959264
+        m_anchorMin:
+          rid: 107648080256959263
         m_localEulerAngles:
           rid: 107648080256959271
+        m_localPosition:
+          rid: 107648080256959270
         m_localRotation:
           rid: 107648080256959272
         m_localScale:
           rid: 107648080256959273
+        m_offsetMax:
+          rid: 107648080256959269
+        m_offsetMin:
+          rid: 107648080256959268
+        m_pivot:
+          rid: 107648080256959267
+        m_sizeDelta:
+          rid: 107648080256959266
     - rid: 107648080256959069
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Backgrounds/Panel
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648080256959274
         m_ColorRightOrBottom:
@@ -5287,10 +5209,9 @@ MonoBehaviour:
     - rid: 107648080256959070
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Backgrounds/PanelHeadline
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648080256959278
         m_color:
@@ -5300,10 +5221,9 @@ MonoBehaviour:
     - rid: 107648080256959071
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Backgrounds/PanelFrame
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648080256959281
         m_color:
@@ -5313,10 +5233,9 @@ MonoBehaviour:
     - rid: 107648080256959072
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/BackgroundOk
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648080256959284
         m_ColorRightOrBottom:
@@ -5330,10 +5249,9 @@ MonoBehaviour:
     - rid: 107648080256959073
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/BackgroundCancel
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648080256959287
         m_ColorRightOrBottom:
@@ -5347,10 +5265,9 @@ MonoBehaviour:
     - rid: 107648080256959074
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/LanguageToggle/Selection
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648080256959290
         m_ColorRightOrBottom:
@@ -5364,10 +5281,9 @@ MonoBehaviour:
     - rid: 107648080256959075
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Icon
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648080256959294
         m_ColorRightOrBottom:
@@ -5381,10 +5297,9 @@ MonoBehaviour:
     - rid: 107648080256959076
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648080256959298
         m_ColorRightOrBottom:
@@ -5398,10 +5313,9 @@ MonoBehaviour:
     - rid: 107648080256959077
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648080256959302
         m_color:
@@ -5411,39 +5325,37 @@ MonoBehaviour:
     - rid: 107648080256959078
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Background
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 107648080256959305
-        m_anchorMax:
-          rid: 107648080256959306
         m_anchoredPosition:
           rid: 107648080256959307
-        m_sizeDelta:
-          rid: 107648080256959308
-        m_pivot:
-          rid: 107648080256959309
-        m_offsetMin:
-          rid: 107648080256959310
-        m_offsetMax:
-          rid: 107648080256959311
-        m_localPosition:
-          rid: 107648080256959312
+        m_anchorMax:
+          rid: 107648080256959306
+        m_anchorMin:
+          rid: 107648080256959305
         m_localEulerAngles:
           rid: 107648080256959313
+        m_localPosition:
+          rid: 107648080256959312
         m_localRotation:
           rid: 107648080256959314
         m_localScale:
           rid: 107648080256959315
+        m_offsetMax:
+          rid: 107648080256959311
+        m_offsetMin:
+          rid: 107648080256959310
+        m_pivot:
+          rid: 107648080256959309
+        m_sizeDelta:
+          rid: 107648080256959308
     - rid: 107648080256959079
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Icon
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648080256959316
         m_color:
@@ -5453,39 +5365,37 @@ MonoBehaviour:
     - rid: 107648080256959080
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Icon
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 107648080256959319
-        m_anchorMax:
-          rid: 107648080256959320
         m_anchoredPosition:
           rid: 107648080256959321
-        m_sizeDelta:
-          rid: 107648080256959322
-        m_pivot:
-          rid: 107648080256959323
-        m_offsetMin:
-          rid: 107648080256959324
-        m_offsetMax:
-          rid: 107648080256959325
-        m_localPosition:
-          rid: 107648080256959326
+        m_anchorMax:
+          rid: 107648080256959320
+        m_anchorMin:
+          rid: 107648080256959319
         m_localEulerAngles:
           rid: 107648080256959327
+        m_localPosition:
+          rid: 107648080256959326
         m_localRotation:
           rid: 107648080256959328
         m_localScale:
           rid: 107648080256959329
+        m_offsetMax:
+          rid: 107648080256959325
+        m_offsetMin:
+          rid: 107648080256959324
+        m_pivot:
+          rid: 107648080256959323
+        m_sizeDelta:
+          rid: 107648080256959322
     - rid: 107648080256959081
       type: {class: UiStyleUiGradientEx, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Deco/Line/Horizontal
         m_alias: 
-        m_screenOrientationCondition: -1
         m_Gradient:
           rid: 107648080256959330
         m_enabled:
@@ -5493,10 +5403,9 @@ MonoBehaviour:
     - rid: 107648080256959083
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Headline/Large
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959343
         m_font:
@@ -5566,10 +5475,9 @@ MonoBehaviour:
     - rid: 107648080256959084
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Headline/Medium
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959376
         m_font:
@@ -5639,10 +5547,9 @@ MonoBehaviour:
     - rid: 107648080256959085
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Headline/Small
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959409
         m_font:
@@ -5712,10 +5619,9 @@ MonoBehaviour:
     - rid: 107648080256959086
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Flowing
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959442
         m_font:
@@ -5785,10 +5691,9 @@ MonoBehaviour:
     - rid: 107648080256959087
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Flowing/Large
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959475
         m_font:
@@ -5858,10 +5763,9 @@ MonoBehaviour:
     - rid: 107648080256959088
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Flowing/Medium
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959508
         m_font:
@@ -5931,10 +5835,9 @@ MonoBehaviour:
     - rid: 107648080256959089
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Flowing/Small
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959541
         m_font:
@@ -6004,10 +5907,9 @@ MonoBehaviour:
     - rid: 107648080256959090
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/InputField/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648080256959574
         m_ColorRightOrBottom:
@@ -6021,10 +5923,9 @@ MonoBehaviour:
     - rid: 107648080256959091
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/InputField/Placeholder
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959578
         m_font:
@@ -6094,10 +5995,9 @@ MonoBehaviour:
     - rid: 107648080256959092
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/InputField/Text
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 107648080256959611
         m_font:
@@ -6309,8 +6209,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959116
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -6564,8 +6462,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959159
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -6856,8 +6752,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959209
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -7055,8 +6949,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959242
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -7686,8 +7578,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959355
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -7886,8 +7776,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959388
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -8086,8 +7974,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959421
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -8286,8 +8172,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959454
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -8486,8 +8370,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959487
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -8686,8 +8568,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959520
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -8886,8 +8766,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959553
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -9110,8 +8988,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959590
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -9310,8 +9186,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 107648080256959623
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -9433,61 +9307,59 @@ MonoBehaviour:
     - rid: 107648081515250581
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/Background
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 107648081515250583
-        m_anchorMax:
-          rid: 107648081515250584
         m_anchoredPosition:
           rid: 107648081515250585
-        m_sizeDelta:
-          rid: 107648081515250586
-        m_pivot:
-          rid: 107648081515250587
-        m_offsetMin:
-          rid: 107648081515250588
-        m_offsetMax:
-          rid: 107648081515250589
-        m_localPosition:
-          rid: 107648081515250590
+        m_anchorMax:
+          rid: 107648081515250584
+        m_anchorMin:
+          rid: 107648081515250583
         m_localEulerAngles:
           rid: 107648081515250591
+        m_localPosition:
+          rid: 107648081515250590
         m_localRotation:
           rid: 107648081515250592
         m_localScale:
           rid: 107648081515250593
+        m_offsetMax:
+          rid: 107648081515250589
+        m_offsetMin:
+          rid: 107648081515250588
+        m_pivot:
+          rid: 107648081515250587
+        m_sizeDelta:
+          rid: 107648081515250586
     - rid: 107648081515250582
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/Background
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 107648081515250594
-        m_anchorMax:
-          rid: 107648081515250595
         m_anchoredPosition:
           rid: 107648081515250596
-        m_sizeDelta:
-          rid: 107648081515250597
-        m_pivot:
-          rid: 107648081515250598
-        m_offsetMin:
-          rid: 107648081515250599
-        m_offsetMax:
-          rid: 107648081515250600
-        m_localPosition:
-          rid: 107648081515250601
+        m_anchorMax:
+          rid: 107648081515250595
+        m_anchorMin:
+          rid: 107648081515250594
         m_localEulerAngles:
           rid: 107648081515250602
+        m_localPosition:
+          rid: 107648081515250601
         m_localRotation:
           rid: 107648081515250603
         m_localScale:
           rid: 107648081515250604
+        m_offsetMax:
+          rid: 107648081515250600
+        m_offsetMin:
+          rid: 107648081515250599
+        m_pivot:
+          rid: 107648081515250598
+        m_sizeDelta:
+          rid: 107648081515250597
     - rid: 107648081515250583
       type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -9623,10 +9495,9 @@ MonoBehaviour:
     - rid: 107648081670177472
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Backgrounds/Panel
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648081670177474
         m_color:
@@ -9636,10 +9507,9 @@ MonoBehaviour:
     - rid: 107648081670177473
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Backgrounds/Panel
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648081670177477
         m_color:
@@ -9691,10 +9561,9 @@ MonoBehaviour:
     - rid: 107648091838218518
       type: {class: UiStyleShadow, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Icon
         m_alias: 
-        m_screenOrientationCondition: -1
         m_effectColor:
           rid: 107648091838218520
         m_effectDistance:
@@ -9704,10 +9573,9 @@ MonoBehaviour:
     - rid: 107648091838218519
       type: {class: UiStyleShadow, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Icon/Icon
         m_alias: 
-        m_screenOrientationCondition: -1
         m_effectColor:
           rid: 107648091838218524
         m_effectDistance:
@@ -9747,10 +9615,9 @@ MonoBehaviour:
     - rid: 107648216986550289
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Deco/Line/Horizontal
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648216986550291
         m_color:
@@ -9760,10 +9627,9 @@ MonoBehaviour:
     - rid: 107648216986550290
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Deco/Line/Horizontal
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 107648216986550294
         m_color:
@@ -9803,61 +9669,59 @@ MonoBehaviour:
     - rid: 107648227356967933
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/Background
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 107648227356967935
-        m_anchorMax:
-          rid: 107648227364831232
         m_anchoredPosition:
           rid: 107648227364831233
-        m_sizeDelta:
-          rid: 107648227364831234
-        m_pivot:
-          rid: 107648227364831235
-        m_offsetMin:
-          rid: 107648227364831236
-        m_offsetMax:
-          rid: 107648227364831237
-        m_localPosition:
-          rid: 107648227364831238
+        m_anchorMax:
+          rid: 107648227364831232
+        m_anchorMin:
+          rid: 107648227356967935
         m_localEulerAngles:
           rid: 107648227364831239
+        m_localPosition:
+          rid: 107648227364831238
         m_localRotation:
           rid: 107648227364831240
         m_localScale:
           rid: 107648227364831241
+        m_offsetMax:
+          rid: 107648227364831237
+        m_offsetMin:
+          rid: 107648227364831236
+        m_pivot:
+          rid: 107648227364831235
+        m_sizeDelta:
+          rid: 107648227364831234
     - rid: 107648227356967934
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/Background
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 107648227364831242
-        m_anchorMax:
-          rid: 107648227364831243
         m_anchoredPosition:
           rid: 107648227364831244
-        m_sizeDelta:
-          rid: 107648227364831245
-        m_pivot:
-          rid: 107648227364831246
-        m_offsetMin:
-          rid: 107648227364831247
-        m_offsetMax:
-          rid: 107648227364831248
-        m_localPosition:
-          rid: 107648227364831249
+        m_anchorMax:
+          rid: 107648227364831243
+        m_anchorMin:
+          rid: 107648227364831242
         m_localEulerAngles:
           rid: 107648227364831250
+        m_localPosition:
+          rid: 107648227364831249
         m_localRotation:
           rid: 107648227364831251
         m_localScale:
           rid: 107648227364831252
+        m_offsetMax:
+          rid: 107648227364831248
+        m_offsetMin:
+          rid: 107648227364831247
+        m_pivot:
+          rid: 107648227364831246
+        m_sizeDelta:
+          rid: 107648227364831245
     - rid: 107648227356967935
       type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -9993,10 +9857,9 @@ MonoBehaviour:
     - rid: 107648373083079571
       type: {class: UiStyleShadow, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_effectColor:
           rid: 107648373083079573
         m_effectDistance:
@@ -10006,10 +9869,9 @@ MonoBehaviour:
     - rid: 107648373083079572
       type: {class: UiStyleShadow, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Standard/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_effectColor:
           rid: 107648373083079576
         m_effectDistance:
@@ -10049,10 +9911,9 @@ MonoBehaviour:
     - rid: 107648373821014416
       type: {class: UiStyleShadow, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
         m_effectColor:
           rid: 107648373821014418
         m_effectDistance:
@@ -10062,10 +9923,9 @@ MonoBehaviour:
     - rid: 107648373821014417
       type: {class: UiStyleShadow, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Checkbox/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
         m_effectColor:
           rid: 107648373821014421
         m_effectDistance:
@@ -10105,10 +9965,9 @@ MonoBehaviour:
     - rid: 107648374073459394
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648374073459396
         m_ColorRightOrBottom:
@@ -10122,10 +9981,9 @@ MonoBehaviour:
     - rid: 107648374073459395
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 107648374073459400
         m_ColorRightOrBottom:
@@ -10187,10 +10045,9 @@ MonoBehaviour:
     - rid: 2290798622902845884
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Headline/VerySmall
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 2290798622902845886
         m_font:
@@ -10260,10 +10117,9 @@ MonoBehaviour:
     - rid: 2290798622902845885
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Text/Headline/VerySmall
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 2290798622902845919
         m_font:
@@ -10410,8 +10266,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 2290798622902845898
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -10610,8 +10464,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 2290798622902845931
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -10733,10 +10585,9 @@ MonoBehaviour:
     - rid: 8590990167029842940
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 8590990167029842942
         m_ColorRightOrBottom:
@@ -10750,10 +10601,9 @@ MonoBehaviour:
     - rid: 8590990167029842941
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 8590990167041114114
         m_ColorRightOrBottom:
@@ -10815,10 +10665,9 @@ MonoBehaviour:
     - rid: 8590990167158555095
       type: {class: UiStyleShadow, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
         m_effectColor:
           rid: 8590990167158555099
         m_effectDistance:
@@ -10828,39 +10677,37 @@ MonoBehaviour:
     - rid: 8590990167158555096
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 8590990167158555102
-        m_anchorMax:
-          rid: 8590990167158555103
         m_anchoredPosition:
           rid: 8590990167158555104
-        m_sizeDelta:
-          rid: 8590990167158555105
-        m_pivot:
-          rid: 8590990167158555106
-        m_offsetMin:
-          rid: 8590990167158555107
-        m_offsetMax:
-          rid: 8590990167158555108
-        m_localPosition:
-          rid: 8590990167158555109
+        m_anchorMax:
+          rid: 8590990167158555103
+        m_anchorMin:
+          rid: 8590990167158555102
         m_localEulerAngles:
           rid: 8590990167158555110
+        m_localPosition:
+          rid: 8590990167158555109
         m_localRotation:
           rid: 8590990167158555111
         m_localScale:
           rid: 8590990167158555112
+        m_offsetMax:
+          rid: 8590990167158555108
+        m_offsetMin:
+          rid: 8590990167158555107
+        m_pivot:
+          rid: 8590990167158555106
+        m_sizeDelta:
+          rid: 8590990167158555105
     - rid: 8590990167158555097
       type: {class: UiStyleShadow, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
         m_effectColor:
           rid: 8590990167158555113
         m_effectDistance:
@@ -10870,32 +10717,31 @@ MonoBehaviour:
     - rid: 8590990167158555098
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/SelectionMarker
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 8590990167158555116
-        m_anchorMax:
-          rid: 8590990167158555117
         m_anchoredPosition:
           rid: 8590990167158555118
-        m_sizeDelta:
-          rid: 8590990167158555119
-        m_pivot:
-          rid: 8590990167158555120
-        m_offsetMin:
-          rid: 8590990167158555121
-        m_offsetMax:
-          rid: 8590990167158555122
-        m_localPosition:
-          rid: 8590990167158555123
+        m_anchorMax:
+          rid: 8590990167158555117
+        m_anchorMin:
+          rid: 8590990167158555116
         m_localEulerAngles:
           rid: 8590990167158555124
+        m_localPosition:
+          rid: 8590990167158555123
         m_localRotation:
           rid: 8590990167158555125
         m_localScale:
           rid: 8590990167158555126
+        m_offsetMax:
+          rid: 8590990167158555122
+        m_offsetMin:
+          rid: 8590990167158555121
+        m_pivot:
+          rid: 8590990167158555120
+        m_sizeDelta:
+          rid: 8590990167158555119
     - rid: 8590990167158555099
       type: {class: UiStyleShadow/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -11061,61 +10907,59 @@ MonoBehaviour:
     - rid: 8590990167364076322
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/Background
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 8590990167364076324
-        m_anchorMax:
-          rid: 8590990167364076325
         m_anchoredPosition:
           rid: 8590990167364076326
-        m_sizeDelta:
-          rid: 8590990167364076327
-        m_pivot:
-          rid: 8590990167364076328
-        m_offsetMin:
-          rid: 8590990167364076329
-        m_offsetMax:
-          rid: 8590990167364076330
-        m_localPosition:
-          rid: 8590990167364076331
+        m_anchorMax:
+          rid: 8590990167364076325
+        m_anchorMin:
+          rid: 8590990167364076324
         m_localEulerAngles:
           rid: 8590990167364076332
+        m_localPosition:
+          rid: 8590990167364076331
         m_localRotation:
           rid: 8590990167364076333
         m_localScale:
           rid: 8590990167364076334
+        m_offsetMax:
+          rid: 8590990167364076330
+        m_offsetMin:
+          rid: 8590990167364076329
+        m_pivot:
+          rid: 8590990167364076328
+        m_sizeDelta:
+          rid: 8590990167364076327
     - rid: 8590990167364076323
       type: {class: UiStyleRectTransform, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Buttons/Radio/Background
         m_alias: 
-        m_screenOrientationCondition: -1
-        m_anchorMin:
-          rid: 8590990167364076335
-        m_anchorMax:
-          rid: 8590990167364076336
         m_anchoredPosition:
           rid: 8590990167364076337
-        m_sizeDelta:
-          rid: 8590990167364076338
-        m_pivot:
-          rid: 8590990167364076339
-        m_offsetMin:
-          rid: 8590990167364076340
-        m_offsetMax:
-          rid: 8590990167364076341
-        m_localPosition:
-          rid: 8590990167364076342
+        m_anchorMax:
+          rid: 8590990167364076336
+        m_anchorMin:
+          rid: 8590990167364076335
         m_localEulerAngles:
           rid: 8590990167364076343
+        m_localPosition:
+          rid: 8590990167364076342
         m_localRotation:
           rid: 8590990167364076344
         m_localScale:
           rid: 8590990167364076345
+        m_offsetMax:
+          rid: 8590990167364076341
+        m_offsetMin:
+          rid: 8590990167364076340
+        m_pivot:
+          rid: 8590990167364076339
+        m_sizeDelta:
+          rid: 8590990167364076338
     - rid: 8590990167364076324
       type: {class: UiStyleRectTransform/ApplicableValueVector2, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -11329,10 +11173,9 @@ MonoBehaviour:
     - rid: 8590990470691423102
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: FullScreenTabDialog/TabBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990470691423104
         m_color:
@@ -11342,10 +11185,9 @@ MonoBehaviour:
     - rid: 8590990470691423103
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: FullScreenTabDialog/TabBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990470691423107
         m_color:
@@ -11439,10 +11281,9 @@ MonoBehaviour:
     - rid: 8590990472912044137
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: FullScreenTabDialog/HeadlineBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990472912044139
         m_color:
@@ -11452,10 +11293,9 @@ MonoBehaviour:
     - rid: 8590990472912044138
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: FullScreenTabDialog/HeadlineBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990472912044142
         m_color:
@@ -11495,10 +11335,9 @@ MonoBehaviour:
     - rid: 8590990472912044787
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: FullScreenTabDialog/PageBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990472912044791
         m_color:
@@ -11508,10 +11347,9 @@ MonoBehaviour:
     - rid: 8590990472912044788
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: FullScreenTabDialog/PageBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 8590990472912044794
         m_ColorRightOrBottom:
@@ -11525,10 +11363,9 @@ MonoBehaviour:
     - rid: 8590990472912044789
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: FullScreenTabDialog/PageBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990472912044799
         m_color:
@@ -11538,10 +11375,9 @@ MonoBehaviour:
     - rid: 8590990472912044790
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: FullScreenTabDialog/PageBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 8590990472912044802
         m_ColorRightOrBottom:
@@ -11645,10 +11481,9 @@ MonoBehaviour:
     - rid: 8590990473043902627
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Backgrounds/Tab
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990473043902629
         m_color:
@@ -11658,10 +11493,9 @@ MonoBehaviour:
     - rid: 8590990473043902628
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: Backgrounds/Tab
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990473043902632
         m_color:
@@ -11737,10 +11571,9 @@ MonoBehaviour:
     - rid: 8590990473187295906
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: FullScreenTabDialog/ButtonBarBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990473187295908
         m_color:
@@ -11750,10 +11583,9 @@ MonoBehaviour:
     - rid: 8590990473187295907
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: FullScreenTabDialog/ButtonBarBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990473187295911
         m_color:
@@ -11793,10 +11625,9 @@ MonoBehaviour:
     - rid: 8590990473187296030
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 8590990473187296032
         m_ColorRightOrBottom:
@@ -11810,10 +11641,9 @@ MonoBehaviour:
     - rid: 8590990473187296031
       type: {class: UiStyleUiGradientSimple, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_ColorLeftOrTop:
           rid: 8590990473187296037
         m_ColorRightOrBottom:
@@ -11887,10 +11717,9 @@ MonoBehaviour:
     - rid: 8590990473695068306
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990473695068308
         m_color:
@@ -11900,10 +11729,9 @@ MonoBehaviour:
     - rid: 8590990473695068307
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/Background
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990473695068311
         m_color:
@@ -11943,10 +11771,9 @@ MonoBehaviour:
     - rid: 8590990482352112430
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/EntryText
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 8590990482352112432
         m_font:
@@ -12016,10 +11843,9 @@ MonoBehaviour:
     - rid: 8590990482352112431
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/EntryText
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 8590990482352112465
         m_font:
@@ -12166,8 +11992,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 8590990482352112444
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -12366,8 +12190,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 8590990482352112477
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -12489,10 +12311,9 @@ MonoBehaviour:
     - rid: 8590990584444092890
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/KeyText
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 8590990584444092892
         m_font:
@@ -12562,10 +12383,9 @@ MonoBehaviour:
     - rid: 8590990584444092891
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/KeyText
         m_alias: 
-        m_screenOrientationCondition: -1
         m_text:
           rid: 8590990584444092925
         m_font:
@@ -12712,8 +12532,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 8590990584444092904
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -12912,8 +12730,6 @@ MonoBehaviour:
           m_ClosingDefinition: 
           m_OpeningTagArray: 
           m_ClosingTagArray: 
-          m_OpeningTagUnicodeArray: 
-          m_ClosingTagUnicodeArray: 
     - rid: 8590990584444092937
       type: {class: UiStyleTMP_Text/ApplicableValueColor32, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
@@ -13035,10 +12851,9 @@ MonoBehaviour:
     - rid: 8590990584682382110
       type: {class: UiStyleUiGradientEx, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/KeyBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_Gradient:
           rid: 8590990584682382114
         m_enabled:
@@ -13046,10 +12861,9 @@ MonoBehaviour:
     - rid: 8590990584682382111
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/KeyBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990584682382116
         m_color:
@@ -13059,10 +12873,9 @@ MonoBehaviour:
     - rid: 8590990584682382112
       type: {class: UiStyleUiGradientEx, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/KeyBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_Gradient:
           rid: 8590990584682382119
         m_enabled:
@@ -13070,10 +12883,9 @@ MonoBehaviour:
     - rid: 8590990584682382113
       type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/KeyBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_sprite:
           rid: 8590990584682382121
         m_color:
@@ -13195,10 +13007,9 @@ MonoBehaviour:
     - rid: 8590990584708334134
       type: {class: UiStyleShadow, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/KeyBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_effectColor:
           rid: 8590990584708334136
         m_effectDistance:
@@ -13208,10 +13019,9 @@ MonoBehaviour:
     - rid: 8590990584708334135
       type: {class: UiStyleShadow, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        m_styleConfig: {fileID: 11400000}
+        m_styleConfig: {fileID: 0}
         m_name: PlayerSetting/KeyBackground
         m_alias: 
-        m_screenOrientationCondition: -1
         m_effectColor:
           rid: 8590990584708334139
         m_effectDistance:

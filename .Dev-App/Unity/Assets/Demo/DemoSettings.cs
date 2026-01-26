@@ -63,7 +63,7 @@ public class DemoSettings : LocaClass
 					OnChanged = playerSetting =>
 					{
 						var val = playerSetting.GetValue<string>();
-						UiMainStyleConfig.Instance.CurrentSkinName = val;
+						UiStyleConfig.Instance.CurrentSkinName = val;
 					}
 				}
 			),

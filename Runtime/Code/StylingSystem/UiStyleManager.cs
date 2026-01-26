@@ -8,11 +8,11 @@ namespace GuiToolkit.Style
 		private static float s_currentTime;
 		private static float s_tweenDuration;
 
-		public static bool SetSkin(string _skinName, float _tweenDuration = 0) => SetSkin(UiMainStyleConfig.Instance, _skinName, _tweenDuration);
+		public static bool SetSkin(string _skinName, float _tweenDuration = 0) => SetSkin(UiStyleConfig.Instance, _skinName, _tweenDuration);
 		public static bool SetSkin(UiStyleConfig _styleConfig, string _skinName, float _tweenDuration = 0)
 		{
 			if (_styleConfig == null)
-				_styleConfig = UiMainStyleConfig.Instance;
+				_styleConfig = UiStyleConfig.Instance;
 
 			var previousSkin = _styleConfig.CurrentSkin;
 			if (previousSkin != null && previousSkin.Name == _skinName)

@@ -43,7 +43,7 @@ public class ExampleDialogStyles : UiView
 		UiStyleManager.SetSkin(m_exampleStyleConfig, nextSkin, _duration);
 	}
 	
-	private void DisplayCurrentSkin() => m_txtCurrentSkin.text = $"Current Skin: {UiMainStyleConfig.Instance.CurrentSkinAlias}";
+	private void DisplayCurrentSkin() => m_txtCurrentSkin.text = $"Current Skin: {m_exampleStyleConfig.CurrentSkinAlias}";
 
 	private void OnBtClose()
 	{
