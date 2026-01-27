@@ -215,6 +215,12 @@ namespace GuiToolkit
 				kv.Value.Value = kv.Value.DefaultValue;
 		}
 
+		public bool GetKey( KeyCode _originalKeyCode ) => GetKey(new KeyBinding(_originalKeyCode));
+
+		public bool GetKeyDown( KeyCode _originalKeyCode ) => GetKeyDown(new KeyBinding(_originalKeyCode));
+
+		public bool GetKeyUp( KeyCode _originalKeyCode ) => GetKeyUp(new KeyBinding(_originalKeyCode));
+		
 		public bool GetKey( KeyBinding _originalKeyBinding )
 		{
 			KeyBinding binding = ResolveKey(_originalKeyBinding);
