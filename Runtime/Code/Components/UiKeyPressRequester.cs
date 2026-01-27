@@ -115,15 +115,16 @@ namespace GuiToolkit
 		private void OnGUI()
 		{
 			Event e = Event.current;
+			bool isSingleKey = m_playerSettingOptions.KeyPolicy == EKeyPolicy.SingleKey;
 
 			KeyCode keyCode = UiUtility.EventToKeyCode(e, true);
-			if (m_onEvent == null || keyCode == KeyCode.None || GeneralUtility.IsModifierKey(keyCode))
+			if (m_onEvent == null || keyCode == KeyCode.None || (GeneralUtility.IsModifierKey(keyCode) && !isSingleKey))
 				return;
 
 			KeyBinding.EModifiers modifiers = GetCurrentModifiers();
 			KeyBinding keyBinding = new KeyBinding(keyCode, modifiers);
 
-			if (m_playerSettingOptions != null && m_playerSettingOptions.KeyPolicy == EKeyPolicy.SingleKey)
+			if (m_playerSettingOptions != null && isSingleKey)
 				keyBinding = new KeyBinding(keyCode);
 
 			bool isSuppressed = IsSuppressed(keyBinding);
@@ -175,9 +176,12 @@ namespace GuiToolkit
 			return isWhiteList ? !containsKeyCode : containsKeyCode;
 		}
 
-		private static KeyBinding.EModifiers GetCurrentModifiers()
+		private KeyBinding.EModifiers GetCurrentModifiers()
 		{
 			KeyBinding.EModifiers mods = KeyBinding.EModifiers.None;
+			
+			if (m_playerSettingOptions.KeyPolicy == EKeyPolicy.SingleKey)
+				return mods;
 
 			if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
 				mods |= KeyBinding.EModifiers.Shift;
