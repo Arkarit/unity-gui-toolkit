@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -9,21 +10,16 @@ namespace GuiToolkit
 {
 	public class UiKeyPressRequester : UiView
 	{
+		[SerializeField][Mandatory] private UiPointerDownUpHelper m_pointerDownUpHelper;
 		[FormerlySerializedAs("m_title")]
-		[SerializeField]
-		private TMP_Text m_textFieldTitle;
-
-		[SerializeField]
-		private TMP_Text m_textFieldNotSupportedWarning;
-
-		[SerializeField]
-		private UiPointerDownUpHelper m_pointerDownUpHelper;
-
-		[SerializeField]
-		private UiSimpleAnimationBase m_wiggleAnimation;
-
-		[SerializeField]
-		private UiSimpleAnimationBase m_warningAnimation;
+		[SerializeField][Optional] private TMP_Text m_textFieldTitle;
+		[SerializeField][Optional] private TMP_Text m_textFieldNotSupportedWarning;
+		[SerializeField][Optional] private UiSimpleAnimationBase m_wiggleAnimation;
+		[SerializeField][Optional] private UiSimpleAnimationBase m_warningAnimation;
+		[SerializeField][Optional] private GameObject m_indicatorsContainer;
+		[SerializeField][Optional] private UiTextContainerDisableable m_shiftIndicator;
+		[SerializeField][Optional] private UiTextContainerDisableable m_ctrlIndicator;
+		[SerializeField][Optional] private UiTextContainerDisableable m_altIndicator;
 
 		public virtual string TitleMouseAndKeyboard => _("Press a Key\nOr Mouse button!");
 		public virtual string TitleMouse => _("Press a Mouse button!");
@@ -109,6 +105,8 @@ namespace GuiToolkit
 			m_playerSettingOptions = _options;
 			SetTitle(_title);
 			m_onEvent = _onEvent;
+			if (m_indicatorsContainer != null)
+				m_indicatorsContainer.SetActive(_options.KeyPolicy != EKeyPolicy.SingleKey);
 			ShowTopmost();
 		}
 
@@ -156,6 +154,24 @@ namespace GuiToolkit
 
 			if (!UiUtility.IsMouse(keyCode))
 				Hide();
+		}
+
+		private void Update()
+		{
+			KeyBinding.EModifiers modifiers = GetCurrentModifiers();
+			SetModifierIndicators(modifiers);
+		}
+
+		private void SetModifierIndicators(KeyBinding.EModifiers _modifiers)
+		{
+			if (m_shiftIndicator != null)
+				m_shiftIndicator.EnabledInHierarchy = _modifiers.HasFlag(KeyBinding.EModifiers.Shift);
+				
+			if (m_ctrlIndicator != null)
+				m_ctrlIndicator.EnabledInHierarchy = _modifiers.HasFlag(KeyBinding.EModifiers.Ctrl);
+				
+			if (m_altIndicator != null)
+				m_altIndicator.EnabledInHierarchy = _modifiers.HasFlag(KeyBinding.EModifiers.Alt);
 		}
 
 		private bool IsSuppressed( KeyBinding _keyBinding )
