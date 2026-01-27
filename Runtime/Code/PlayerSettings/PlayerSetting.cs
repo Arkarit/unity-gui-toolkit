@@ -2,73 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace GuiToolkit
 {
-	/// <summary>
-	/// Player setting type enum.
-	/// Usually default (Auto) can be used for int, float, bool and string.
-	/// Only if the player setting needs special handling (e.g. radio buttons), the type needs to be explicitly defined
-	/// </summary>
-	public enum EPlayerSettingType
-	{
-		Auto,       //!< Automatically determined
-		Language,   //!< Special case language type
-		Radio,      //!< Special case radio buttons
-	}
-
-	/// <summary>
-	/// Additional options for player settings.
-	/// Used to keep PlayerSetting ctor small and clear.
-	/// Also, we keep all options for all PlayerSetting flavors in one simple class without hierarchy to keep things simple
-	/// </summary>
-	public class PlayerSettingOptions
-	{
-		public static readonly List<KeyCode> KeyCodeNoMouseList =       //!< Convenient filter list for all mouse keys forbidden or only mouse keys allowed, depending on KeyCodeFilterListIsWhitelist
-		new()
-		{
-			KeyCode.Mouse0,
-			KeyCode.Mouse1,
-			KeyCode.Mouse2,
-			KeyCode.Mouse3,
-			KeyCode.Mouse4,
-			KeyCode.Mouse5,
-			KeyCode.Mouse6,
-#if UNITY_2023_1_OR_NEWER
-			KeyCode.WheelDown,
-			KeyCode.WheelUp,
-#endif
-		};
-
-		public EPlayerSettingType Type = EPlayerSettingType.Auto;           //!< Player setting type. Usually left default (Auto: automatically determined)
-		public string Key = null;                                           //!< Key. If left null or empty, player setting title is used as key.
-		public List<string> Icons;                                          //!< List of icons to be used, depending on player setting type
-		public List<string> Titles;                                         //!< Titles for UI display(optional, else string values are also used as titles)
-		public List<string> StringValues;                                   //!< String values for string based PlayerSettingOptions
-		public List<KeyCode> KeyCodeFilterList;                             //!< Filter list for keycodes
-		public bool KeyCodeFilterListIsWhitelist;                           //!< Set to true if you want the filter list to be whitelist instead of blacklist
-		public bool IsLocalized = true;                                     //!< Should usually be set to true; only set to false if you want to display languages (see TestMain language setting)
-		public UnityAction<PlayerSetting> OnChanged = null;                 //!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
-		public bool IsSaveable = true;                                      //!< Is the option saved in player prefs? Obviously usually true, but can be set to false for cheats etc.
-		public object CustomData = null;                                    //!< Optional custom data to hand over to your handler
-		public Func<float, string> ValueToStringFn = null;                  //!< Optional slider text conversion. If left null, no text is displayed.
-		public GameObject CustomPrefab = null;                              //!< Custom prefab to be used in Ui
-
-		public static PlayerSettingOptions NoMouseKeys =>
-			new()
-			{
-				KeyCodeFilterList = KeyCodeNoMouseList
-			};
-
-		public static PlayerSettingOptions OnlyMouseKeys =>
-			new()
-			{
-				KeyCodeFilterList = KeyCodeNoMouseList,
-				KeyCodeFilterListIsWhitelist = true,
-			};
-	}
-
 	[Serializable]
 	public class PlayerSetting : LocaClass
 	{
@@ -107,7 +43,10 @@ namespace GuiToolkit
 			get => GetValue(ref m_value);
 			set
 			{
-				CheckType(value?.GetType());
+				if (value == null)
+					throw new ArgumentNullException(nameof(value));
+
+				CheckType(value.GetType());
 				m_value = value;
 				InvokeEvents();
 			}
@@ -116,8 +55,8 @@ namespace GuiToolkit
 		public object DefaultValue => GetValue(ref m_defaultValue);
 
 		public System.Type Type => m_type;
-		public bool IsKeyCode => m_type == typeof(KeyCode);
-		public bool IsRadio => m_isRadio;
+		public bool IsKeyBinding => m_type == typeof(KeyBinding);
+		public bool IsRadio => m_isRadio; // is single-choice selection UI (incl. Language)
 		public bool IsLanguage => m_isLanguage;
 		public bool IsFloat => m_type == typeof(float);
 		public bool IsBool => m_type == typeof(bool);
@@ -132,11 +71,20 @@ namespace GuiToolkit
 			m_mainThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 		}
 
-		public PlayerSetting(string _category, string _group, string _title, object _defaultValue,
-			PlayerSettingOptions _options = null) : this()
+		public PlayerSetting( string _category, string _group, string _title, object _defaultValue,
+			PlayerSettingOptions _options = null ) : this()
 		{
 			m_options = _options ?? new PlayerSettingOptions();
+
+			// We accept a single key code as a Key Binding without modifiers, but we convert it to KeyBinding
 			Type type = _defaultValue?.GetType();
+			if (type == typeof(KeyCode))
+			{
+				type = typeof(KeyBinding);
+				KeyCode kc = (KeyCode)_defaultValue;
+				_defaultValue = new KeyBinding(kc);
+			}
+
 			m_category = _category;
 			m_group = _group;
 			m_isRadio = m_options.Type == EPlayerSettingType.Radio || m_options.Type == EPlayerSettingType.Language;
@@ -154,13 +102,14 @@ namespace GuiToolkit
 				UiEventDefinitions.EvLanguageChanged.AddListener(OnLanguageChanged);
 		}
 
+		//TODO: Make dtor an explicit Dispose
 		~PlayerSetting()
 		{
 			if (IsLanguage)
 				UiEventDefinitions.EvLanguageChanged.RemoveListener(OnLanguageChanged);
 		}
 
-		public void SetValueSilent(object _value)
+		public void SetValueSilent( object _value )
 		{
 			CheckType(_value?.GetType());
 			m_value = _value;
@@ -194,7 +143,7 @@ namespace GuiToolkit
 			m_options.OnChanged?.Invoke(this);
 		}
 
-		protected T GetValue<T>(ref object _v)
+		protected T GetValue<T>( ref object _v )
 		{
 			CheckType(typeof(T));
 
@@ -204,7 +153,7 @@ namespace GuiToolkit
 			return (T)_v;
 		}
 
-		protected object GetValue(ref object _v)
+		protected object GetValue( ref object _v )
 		{
 			if (m_type == null)
 				return null;
@@ -215,37 +164,40 @@ namespace GuiToolkit
 			return _v;
 		}
 
-		protected void CheckType(Type _t)
+		protected void CheckType( Type _t )
 		{
+			if (_t == null)
+				throw new ArgumentNullException(nameof(_t));
+
 			if (_t != m_type)
 				throw new ArgumentException(
 					$"Wrong value type in Player Setting '{m_key}': Should be '{m_type.Name}', is '{_t.Name}'");
 		}
 
-		protected void OnLanguageChanged(string _language)
+		protected void OnLanguageChanged( string _language )
 		{
 			Value = _language;
 		}
 
-		protected static int InitValue(PlayerSettingOptions _options, string _key, int _defaultValue)
+		protected static int InitValue( PlayerSettingOptions _options, string _key, int _defaultValue )
 		{
 			var deflt = Convert.ToInt32(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetInt(_key, deflt) : deflt;
 		}
 
-		protected static float InitValue(PlayerSettingOptions _options, string _key, float _defaultValue)
+		protected static float InitValue( PlayerSettingOptions _options, string _key, float _defaultValue )
 		{
 			var deflt = Convert.ToSingle(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetFloat(_key, deflt) : deflt;
 		}
 
-		protected static string InitValue(PlayerSettingOptions _options, string _key, string _defaultValue)
+		protected static string InitValue( PlayerSettingOptions _options, string _key, string _defaultValue )
 		{
 			var deflt = Convert.ToString(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetString(_key, deflt) : deflt;
 		}
 
-		protected void InitValue(Type _type)
+		protected void InitValue( Type _type )
 		{
 			if (_type == null)
 				return;
@@ -258,8 +210,11 @@ namespace GuiToolkit
 				m_value = Convert.ToSingle(DefaultValue);
 			else if (_type == typeof(string))
 				m_value = Convert.ToString(DefaultValue);
-			else if (_type == typeof(KeyCode))
-				m_value = (KeyCode)DefaultValue;
+			else if (_type == typeof(KeyBinding))
+			{
+				var def = (KeyBinding)DefaultValue;
+				m_value = new KeyBinding(def.Encoded);
+			}
 			else
 				UiLog.LogError($"Unknown type for player setting '{Key}': {_type.Name}");
 		}

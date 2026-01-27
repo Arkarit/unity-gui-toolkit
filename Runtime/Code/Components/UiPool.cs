@@ -24,6 +24,7 @@ namespace GuiToolkit
 		private readonly Dictionary<GameObject, UiPoolPrefabInstances> m_instancesByInstance = new();
 		private readonly Dictionary<CanonicalAssetKey, UiPoolCanonicalInstances> m_canonicalByKey = new();
 		private readonly Dictionary<GameObject, UiPoolCanonicalInstances> m_canonicalByInstance = new();
+		private readonly List<GameObject> m_poolChildren = new();
 
 		/// <summary>
 		/// Global singleton instance of the UI pool.
@@ -33,36 +34,38 @@ namespace GuiToolkit
 
 		protected void OnDestroy() => Clear();
 
-		[Obsolete("Use Get() instead")]
-		public GameObject DoInstantiate( GameObject _prefab ) => Get(_prefab);
 
 		/// <summary>
 		/// Retrieves an instance of the given prefab from the pool.
 		/// If no pooled instance is available, a new one is instantiated.
 		/// </summary>
-		public GameObject Get( GameObject _prefab )
+		public GameObject Get( GameObject _prefab, Transform _parent = null )
 		{
 			if (!m_instancesByPrefab.ContainsKey(_prefab))
 				m_instancesByPrefab.Add(_prefab, new UiPoolPrefabInstances(_prefab, m_poolContainer, m_instancesByInstance));
 
 			var instances = m_instancesByPrefab[_prefab];
 			var result = instances.Get();
+			result.transform.SetParent(_parent, false);
 			return result;
 		}
-
-		[Obsolete("Use Get() instead")]
-		public T DoInstantiate<T>( T _componentOnPrefabRoot ) where T : Component => Get<T>(_componentOnPrefabRoot);
 
 		/// <summary>
 		/// Retrieves a pooled instance based on a prefab component.
 		/// Triggers OnPoolCreated() if the component implements IPoolable.
 		/// </summary>
-		public T Get<T>( T _componentOnPrefabRoot ) where T : Component
+		public T Get<T>( T _componentOnPrefabRoot, Transform _parent = null ) where T : Component
 		{
-			T result = Get(_componentOnPrefabRoot.gameObject).GetComponent<T>();
+			T result = Get(_componentOnPrefabRoot.gameObject, _parent).GetComponent<T>();
 			if (result is IPoolable poolable)
 				poolable.OnPoolCreated();
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			var comps = result.GetComponents<T>();
+			if (comps.Length != 1)
+				UiLog.Log($"Expected exactly one {typeof(T).Name} on '{result.name}', found {comps.Length}.");
+#endif
+			
 			return result;
 		}
 
@@ -89,7 +92,6 @@ namespace GuiToolkit
 			return result;
 		}
 
-
 		public bool HasPrefab<T>( T _componentOnPrefabRoot ) where T : Component => HasPrefab(_componentOnPrefabRoot.gameObject);
 
 		public bool HasPrefab( GameObject _prefab )
@@ -100,13 +102,15 @@ namespace GuiToolkit
 			return m_instancesByPrefab[_prefab].HasInstances;
 		}
 
-		[Obsolete("Use Release() instead")]
-		public void DoDestroy( GameObject _instance ) => Release(_instance);
-
 		/// <summary>
 		/// Releases a pooled GameObject back to the pool, or destroys it if unknown.
 		/// </summary>
 		public void Release( GameObject _instance )
+		{
+			ReleaseInternal(_instance, true);
+		}
+
+		private void ReleaseInternal(GameObject _instance, bool _releaseChildren)
 		{
 			if (_instance == null)
 			{
@@ -118,7 +122,10 @@ namespace GuiToolkit
 			if (!m_instancesByInstance.ContainsKey(_instance) && !m_canonicalByInstance.ContainsKey(_instance))
 				UiLog.LogWarning($"[UiPool] Releasing object '{_instance.GetPath()}', which was not created by the pool.");
 #endif
-
+			
+			if (_releaseChildren)
+				ReleasePooledChildren(_instance);
+				
 			if (m_instancesByInstance.TryGetValue(_instance, out UiPoolPrefabInstances prefabGroup))
 			{
 				prefabGroup.Release(_instance);
@@ -133,9 +140,6 @@ namespace GuiToolkit
 
 			_instance.SafeDestroy();
 		}
-
-		[Obsolete("Use Release() instead")]
-		public void DoDestroy<T>( T _component ) where T : Component => Release<T>(_component);
 
 		/// <summary>
 		/// Releases a pooled component's GameObject. 
@@ -186,6 +190,42 @@ namespace GuiToolkit
 			}
 			return group;
 		}
+		
+		private void ReleasePooledChildren( GameObject _root )
+		{
+			if (_root == null)
+				return;
 
+			Transform root = _root.transform;
+
+			// Post-order: gather targets bottom-up.
+			CollectPooledInstancesPostOrder(root, _includeRoot: false);
+
+			for (int i = 0; i < m_poolChildren.Count; i++)
+				ReleaseInternal(m_poolChildren[i], false);
+			
+			m_poolChildren.Clear();
+		}
+
+		private void CollectPooledInstancesPostOrder( Transform _node, bool _includeRoot )
+		{
+			if (_node == null)
+				return;
+
+			for (int i = _node.childCount - 1; i >= 0; i--)
+			{
+				Transform child = _node.GetChild(i);
+				CollectPooledInstancesPostOrder(child, _includeRoot: true);
+			}
+
+			if (!_includeRoot)
+				return;
+
+			GameObject go = _node.gameObject;
+
+			// "is pooled instance?" (created by this pool)
+			if (m_instancesByInstance.ContainsKey(go) || m_canonicalByInstance.ContainsKey(go))
+				m_poolChildren.Add(go);
+		}
 	}
 }

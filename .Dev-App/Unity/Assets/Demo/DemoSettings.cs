@@ -69,6 +69,10 @@ public class DemoSettings : LocaClass
 			),
 
 			// Key bindings, all keys allowed except Esc
+			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("Test Direct Key"), KeyCode.Z, new PlayerSettingOptions()
+			{
+				KeyPolicy = EKeyPolicy.SingleKey
+			}),
 			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("Move Up"), KeyCode.W),
 			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("Move Left"), KeyCode.A),
 			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("Move Right"), KeyCode.S),

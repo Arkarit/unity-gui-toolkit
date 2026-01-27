@@ -45,6 +45,9 @@ namespace GuiToolkit.Settings
 					case System.Enum e:
 						m_state.ints[key] = System.Convert.ToInt32(e);
 						break;
+					case KeyBinding kb:
+						m_state.ints[key] = kb.Encoded;
+						break;
 					default:
 						UiLog.LogError($"Can not apply value for key '{key}'; unsupported type '{value?.GetType()}'");
 						break;

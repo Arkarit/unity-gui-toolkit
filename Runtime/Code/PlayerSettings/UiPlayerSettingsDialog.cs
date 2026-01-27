@@ -71,13 +71,12 @@ namespace GuiToolkit
 
 			foreach (var category in categorized)
 			{
-				UiTab tab = Instantiate(m_tabPrefab, m_tabContentContainer);
+				UiTab tab = UiPool.Instance.Get(m_tabPrefab, m_tabContentContainer);
 				tab.Text = category.Key;
 				tab.Toggle.group = tabToggleGroup;
 				tab.gameObject.name = "Tab_" + category.Key;
-				// TODO translate
 
-				UiPanel page = Instantiate(m_tabPagePrefab, m_pageContentContainer);
+				UiPanel page = UiPool.Instance.Get(m_tabPagePrefab, m_pageContentContainer);
 				RectTransform pageContainer = page.RectTransform;
 				UiContentContainer contentContainer = pageContainer.GetComponent<UiContentContainer>();
 				if (contentContainer != null)
@@ -88,7 +87,7 @@ namespace GuiToolkit
 
 				foreach (var group in category.Value)
 				{
-					UiTextContainer textContainer = Instantiate(m_groupPrefab, pageContainer);
+					UiTextContainer textContainer = UiPool.Instance.Get(m_groupPrefab, pageContainer);
 					textContainer.Text = group.Key;
 					textContainer.gameObject.name = "TextContainer_" + group.Key;
 
@@ -139,7 +138,7 @@ namespace GuiToolkit
 				InstantiateMatchingEntry(_playerSetting, m_sliderPrefab, _parent, null, "PlayerSettingSlider_");
 			else if (_playerSetting.IsBool)
 				InstantiateMatchingEntry(_playerSetting, m_togglePrefab, _parent, null, "PlayerSettingCheck_");
-			else if (_playerSetting.IsKeyCode)
+			else if (_playerSetting.IsKeyBinding)
 				InstantiateMatchingEntry(_playerSetting, m_keyBindingsPrefab, _parent, null, "PlayerSettingKeyBinding_");
 			else if (_playerSetting.IsButton)
 				InstantiateMatchingEntry(_playerSetting, m_buttonPrefab, _parent, null, "PlayerSettingButton_");
@@ -169,7 +168,7 @@ namespace GuiToolkit
 				return null;
 			}
 			
-			return Instantiate(playerSettingBase, _parent);
+			return UiPool.Instance.Get(playerSettingBase, _parent);
 		}
 		
 		private void InstantiateMatchingEntry
@@ -193,7 +192,7 @@ namespace GuiToolkit
 				}
 			}
 			
-			UiPlayerSettingBase entry = _preInstantiated ? _prefab : Instantiate(_prefab, _parent);
+			UiPlayerSettingBase entry = _preInstantiated ? _prefab : UiPool.Instance.Get(_prefab, _parent);
 			entry.SetData(_gameObjectNamePrefix, _playerSetting, _subKey );
 			if (_toggleGroup && entry.Toggle != null)
 				entry.Toggle.group = _toggleGroup;

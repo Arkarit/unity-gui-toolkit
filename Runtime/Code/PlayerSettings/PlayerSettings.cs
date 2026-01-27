@@ -7,9 +7,8 @@ namespace GuiToolkit
 {
 	public class PlayerSettings
 	{
-		private readonly int FIRST_MOUSE_KEY = (int)(object)KeyCode.Mouse0;
-		private readonly Dictionary<string, PlayerSetting> m_playerSettings = new Dictionary<string, PlayerSetting>();
-		private Dictionary<KeyCode, KeyCode> m_keyCodes = new Dictionary<KeyCode, KeyCode>();
+		private readonly Dictionary<string, PlayerSetting> m_playerSettings = new();
+		private Dictionary<KeyBinding, KeyBinding> m_keyBindings = new();
 
 		private SettingsPersistedAggregate m_persistedAggregate;
 		private bool m_isApplyingLoadedValues;
@@ -19,10 +18,12 @@ namespace GuiToolkit
 		{
 			m_persistedAggregate = _settings;
 			m_mainThreadScheduler = System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext();
-			Load(null, ex =>
-			{
-				UiLog.LogError($"Loading PlayerSettings failed:{ex}");
-			});
+			Load(
+				null,
+				ex =>
+				{
+					UiLog.LogError($"Loading PlayerSettings failed:{ex}");
+				});
 		}
 
 		public void Load( Action _onSuccess = null, Action<Exception> _onFail = null )
@@ -94,7 +95,7 @@ namespace GuiToolkit
 				Bootstrap.ThrowIfNotInitialized();
 				return s_instance;
 			}
-			
+
 			internal set
 			{
 				s_instance = value;
@@ -128,24 +129,29 @@ namespace GuiToolkit
 					continue;
 
 				m_playerSettings.Add(playerSetting.Key, playerSetting);
-				StoreInAggregate( playerSetting, false );
-				if (playerSetting.IsKeyCode)
+				StoreInAggregate(playerSetting, false);
+
+				if (playerSetting.IsKeyBinding)
 				{
-					if (m_keyCodes.TryGetValue(playerSetting.GetDefaultValue<KeyCode>(), out KeyCode existing))
+					KeyBinding original = playerSetting.GetDefaultValue<KeyBinding>();
+					KeyBinding bound = playerSetting.GetValue<KeyBinding>();
+
+					if (m_keyBindings.TryGetValue(original, out KeyBinding existing))
 					{
-						UiLog.LogError($"Default Key code '{existing}' of player setting '{playerSetting.Key}' already exists. Each default key code has to be unique.");
+						UiLog.LogError(
+							$"Default KeyBinding '{existing}' of player setting '{playerSetting.Key}' already exists. " +
+							"Each default key binding has to be unique.");
 						continue;
 					}
 
-					m_keyCodes.Add(playerSetting.GetDefaultValue<KeyCode>(), playerSetting.GetValue<KeyCode>());
+					m_keyBindings.Add(original, bound);
 				}
 			}
 
-			// We want to only invoke the player settings changed event once after all player settings have been added.
-			// Thus second iteration.
 			foreach (PlayerSetting playerSetting in _playerSettings)
 			{
 				playerSetting.AllowInvokeEvents = true;
+
 				if (!playerSetting.IsButton)
 					playerSetting.InvokeEvents();
 			}
@@ -154,7 +160,7 @@ namespace GuiToolkit
 		public void Clear()
 		{
 			m_playerSettings.Clear();
-			m_keyCodes.Clear();
+			m_keyBindings.Clear();
 		}
 
 		public void TempSaveValues()
@@ -173,6 +179,7 @@ namespace GuiToolkit
 			{
 				var playerSetting = kv.Value;
 				playerSetting.TempRestoreValue();
+
 				if (!playerSetting.IsButton)
 					playerSetting.InvokeEvents();
 
@@ -187,13 +194,18 @@ namespace GuiToolkit
 			foreach (var kv in m_playerSettings)
 			{
 				PlayerSetting playerSetting = kv.Value;
+
 				if (!result.ContainsKey(playerSetting.Category))
 					result.Add(playerSetting.Category, new Dictionary<string, List<PlayerSetting>>());
+
 				Dictionary<string, List<PlayerSetting>> groupDict = result[playerSetting.Category];
+
 				if (!groupDict.ContainsKey(playerSetting.Group))
 					groupDict.Add(playerSetting.Group, new List<PlayerSetting>());
+
 				groupDict[playerSetting.Group].Add(playerSetting);
 			}
+
 			return result;
 		}
 
@@ -203,65 +215,80 @@ namespace GuiToolkit
 				kv.Value.Value = kv.Value.DefaultValue;
 		}
 
-		public bool GetKey(KeyCode _originalKeyCode)
+		public bool GetKey( KeyBinding _originalKeyBinding )
 		{
-			KeyCode key = ResolveKey(_originalKeyCode);
-			return key != KeyCode.None && Input.GetKey(key);
+			KeyBinding binding = ResolveKey(_originalKeyBinding);
+			return IsPressed(binding);
 		}
-		
-		public bool GetKeyDown(KeyCode _originalKeyCode)
+
+		public bool GetKeyDown( KeyBinding _originalKeyBinding )
 		{
-			KeyCode key = ResolveKey(_originalKeyCode);
-			return key != KeyCode.None && Input.GetKeyDown(key);
+			KeyBinding binding = ResolveKey(_originalKeyBinding);
+			return IsPressedDown(binding);
 		}
-		
-		public bool GetKeyUp(KeyCode _originalKeyCode)
+
+		public bool GetKeyUp( KeyBinding _originalKeyBinding )
 		{
-			KeyCode key = ResolveKey(_originalKeyCode);
-			return key != KeyCode.None && Input.GetKeyUp(key);
+			KeyBinding binding = ResolveKey(_originalKeyBinding);
+			return IsPressedUp(binding);
 		}
-		
-		public KeyCode ResolveKey(KeyCode _originalKeyCode) => m_keyCodes.GetValueOrDefault(_originalKeyCode, _originalKeyCode);
+
+		public KeyBinding ResolveKey( KeyBinding _originalKeyBinding ) =>
+			m_keyBindings.GetValueOrDefault(_originalKeyBinding, _originalKeyBinding);
 
 		public bool HasUnboundKeys()
 		{
-			foreach (var kv in m_keyCodes)
-				if (kv.Value == KeyCode.None)
+			foreach (var kv in m_keyBindings)
+				if (kv.Value.KeyCode == KeyCode.None)
 					return true;
+
 			return false;
 		}
 
-		// We need to update the persisted aggregate.
-		// Also, we need to update our key code dict if a key binding was changed
 		private void OnPlayerSettingChanged( PlayerSetting _playerSetting )
 		{
-			if (_playerSetting.IsKeyCode)
+			if (_playerSetting.IsKeyBinding)
 			{
-				// Enter the new key binding
-				KeyCode original = _playerSetting.GetDefaultValue<KeyCode>();
-				KeyCode bound = _playerSetting.GetValue<KeyCode>();
-				Debug.Assert(m_keyCodes.ContainsKey(original));
-				m_keyCodes[original] = bound;
-	
-				// A "key binding" of "None" may occur multiple times, so we need not take care of other entries...
-				if (bound == KeyCode.None)
+				KeyBinding original = _playerSetting.GetDefaultValue<KeyBinding>();
+				KeyBinding bound = _playerSetting.GetValue<KeyBinding>();
+
+				Debug.Assert(m_keyBindings.ContainsKey(original));
+				m_keyBindings[original] = bound;
+
+				if (bound.KeyCode == KeyCode.None)
 					return;
-	
-				// ... but all other entries can only exist once, so we need to find out if an entry already uses this and set it to "None"
+
 				foreach (var kv in m_playerSettings)
 				{
-					if (!kv.Value.IsKeyCode)
+					PlayerSetting ps = kv.Value;
+					if (!ps.IsKeyBinding)
 						continue;
-	
-					KeyCode currOriginal = kv.Value.GetDefaultValue<KeyCode>();
+
+					KeyBinding currOriginal = ps.GetDefaultValue<KeyBinding>();
 					if (currOriginal == original)
 						continue;
-	
-					KeyCode currBound = kv.Value.GetValue<KeyCode>();
+
+					KeyBinding currBound = ps.GetValue<KeyBinding>();
+
+					// A) Exact conflict: same key+mods already used
 					if (currBound == bound)
 					{
-						kv.Value.Value = KeyCode.None;
-						break;
+						ps.Value = new KeyBinding(KeyCode.None);
+						continue;
+					}
+
+					// B) New binding uses modifiers -> kick out single-key bindings that use modifier keys as primary
+					if (bound.HasKeycodeAsModifier(currBound.KeyCode))
+					{
+						ps.Value = new KeyBinding(KeyCode.None);
+						continue;
+					}
+					
+					// C) New binding is a standalone modifier key -> kick out all bindings which use it as a modifier key
+					if (currBound.HasKeycodeAsModifier(bound.KeyCode))
+					{
+						ps.Value = new KeyBinding(KeyCode.None);
+						continue;
 					}
 				}
 			}
@@ -292,11 +319,11 @@ namespace GuiToolkit
 			if (_ps.Type == typeof(string))
 				return m_persistedAggregate.GetString(_ps.Key, _ps.GetDefaultValue<string>());
 
-			if (_ps.Type == typeof(KeyCode))
+			if (_ps.Type == typeof(KeyBinding))
 			{
-				int deflt = (int)(object)_ps.GetDefaultValue<KeyCode>();
-				int v = m_persistedAggregate.GetEnumInt(_ps.Key, deflt);
-				return (KeyCode)(object)v;
+				int deflt = _ps.GetDefaultValue<KeyBinding>().Encoded;
+				int v = m_persistedAggregate.GetInt(_ps.Key, deflt);
+				return new KeyBinding(v);
 			}
 
 			if (_ps.Type != null && _ps.Type.IsEnum)
@@ -309,7 +336,7 @@ namespace GuiToolkit
 			return null;
 		}
 
-		private bool AggregateContains(PlayerSetting _ps)
+		private bool AggregateContains( PlayerSetting _ps )
 		{
 			if (m_persistedAggregate == null || !m_persistedAggregate.IsLoaded)
 				return false;
@@ -317,7 +344,7 @@ namespace GuiToolkit
 			var key = _ps.Key;
 			var type = _ps.Type;
 
-			if (type == typeof(int) || type == typeof(KeyCode) || type != null && type.IsEnum)
+			if (type == typeof(int) || type == typeof(KeyBinding) || type != null && type.IsEnum)
 				return m_persistedAggregate.ContainsInt(key);
 
 			if (type == typeof(float))
@@ -348,8 +375,8 @@ namespace GuiToolkit
 				m_persistedAggregate.SetBool(key, _ps.GetValue<bool>());
 			else if (type == typeof(string))
 				m_persistedAggregate.SetString(key, _ps.GetValue<string>());
-			else if (type == typeof(KeyCode))
-				m_persistedAggregate.SetEnumInt(key, (int)(object)_ps.GetValue<KeyCode>());
+			else if (type == typeof(KeyBinding))
+				m_persistedAggregate.SetInt(key, _ps.GetValue<KeyBinding>().Encoded);
 			else if (type != null && type.IsEnum)
 				m_persistedAggregate.SetEnumInt(key, Convert.ToInt32(_ps.Value));
 		}
@@ -372,7 +399,7 @@ namespace GuiToolkit
 					ps.SetValueSilent(loaded);
 			}
 
-			RebuildKeyCodes();
+			RebuildKeyBindings();
 
 			foreach (var kv in m_playerSettings)
 			{
@@ -386,29 +413,85 @@ namespace GuiToolkit
 			m_isApplyingLoadedValues = false;
 		}
 
-		private void RebuildKeyCodes()
+		private void RebuildKeyBindings()
 		{
-			m_keyCodes.Clear();
+			m_keyBindings.Clear();
 
 			foreach (var kv in m_playerSettings)
 			{
 				PlayerSetting ps = kv.Value;
-				if (!ps.IsKeyCode)
+				if (!ps.IsKeyBinding)
 					continue;
 
-				KeyCode original = ps.GetDefaultValue<KeyCode>();
+				KeyBinding original = ps.GetDefaultValue<KeyBinding>();
 
-				if (m_keyCodes.ContainsKey(original))
+				if (m_keyBindings.ContainsKey(original))
 				{
 					UiLog.LogError(
-						$"Default Key code '{original}' of player setting '{ps.Key}' already exists. " +
-						"Each default key code has to be unique.");
+						$"Default KeyBinding '{original}' of player setting '{ps.Key}' already exists. " +
+						"Each default key binding has to be unique.");
 					continue;
 				}
 
-				KeyCode bound = ps.GetValue<KeyCode>();
-				m_keyCodes.Add(original, bound);
+				KeyBinding bound = ps.GetValue<KeyBinding>();
+				m_keyBindings.Add(original, bound);
 			}
+		}
+
+		private static bool IsModifierDown( KeyBinding.EModifiers _mod )
+		{
+			if ((_mod & KeyBinding.EModifiers.Shift) != 0)
+			{
+				if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift))
+					return false;
+			}
+
+			if ((_mod & KeyBinding.EModifiers.Ctrl) != 0)
+			{
+				if (!Input.GetKey(KeyCode.LeftControl) && !Input.GetKey(KeyCode.RightControl))
+					return false;
+			}
+
+			if ((_mod & KeyBinding.EModifiers.Alt) != 0)
+			{
+				if (!Input.GetKey(KeyCode.LeftAlt) && !Input.GetKey(KeyCode.RightAlt))
+					return false;
+			}
+
+			return true;
+		}
+
+		private static bool IsPressed( KeyBinding _binding )
+		{
+			if (_binding.KeyCode == KeyCode.None)
+				return false;
+
+			if (!IsModifierDown(_binding.Modifiers))
+				return false;
+
+			return Input.GetKey(_binding.KeyCode);
+		}
+
+		private static bool IsPressedDown( KeyBinding _binding )
+		{
+			if (_binding.KeyCode == KeyCode.None)
+				return false;
+
+			if (!IsModifierDown(_binding.Modifiers))
+				return false;
+
+			return Input.GetKeyDown(_binding.KeyCode);
+		}
+
+		private static bool IsPressedUp( KeyBinding _binding )
+		{
+			if (_binding.KeyCode == KeyCode.None)
+				return false;
+
+			if (!IsModifierDown(_binding.Modifiers))
+				return false;
+
+			return Input.GetKeyUp(_binding.KeyCode);
 		}
 
 		[System.Diagnostics.Conditional("DEBUG_PLAYER_SETTINGS")]
@@ -416,6 +499,5 @@ namespace GuiToolkit
 		{
 			UiLog.LogInternal($"{_performedAction} player Setting '{_playerSetting.Key}' : {_playerSetting.Value}");
 		}
-
 	}
 }

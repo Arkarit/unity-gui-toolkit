@@ -9,16 +9,10 @@ namespace GuiToolkit
 	{
 		[SerializeField] protected TMP_Text m_keyDisplay;
 		[SerializeField] protected bool m_markIfNone = true;
-		[SerializeField] protected Color m_backgroundColorIfNone = new Color(0x80/255.0f, 0x19/255.0f, 0x00/255.0f);
+		[SerializeField] protected Color m_backgroundColorIfNone = new Color(0x80 / 255.0f, 0x19 / 255.0f, 0x00 / 255.0f);
 		[SerializeField] protected Color m_textColorIfNone = Color.red;
 		[SerializeField] protected Image m_optionalBackgroundImage;
 		[SerializeField] protected UiGradientSimple m_optionalBackgroundGradient;
-		
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-			
-		}
 
 		public override object Value
 		{
@@ -26,26 +20,44 @@ namespace GuiToolkit
 			set
 			{
 				base.Value = value;
-				m_keyDisplay.text = value.ToString();
+
+				if (m_keyDisplay == null)
+					return;
+
+				if (value is KeyBinding keyBinding)
+				{
+					m_keyDisplay.text = keyBinding.ToString();
+					if (m_markIfNone)
+						MarkIfNone(keyBinding);
+					return;
+				}
+
+				m_keyDisplay.text = value != null ? value.ToString() : "<Null>";
 			}
 		}
 
 		protected override void OnClick()
 		{
-			UiMain.Instance.KeyPressRequester(m_playerSetting.Options, (KeyCode _keyCode) =>
-			{
-				if (m_markIfNone)
-					MarkIfNone(_keyCode);
-				Value = _keyCode;
-			});
+			UiMain.Instance.KeyPressRequester(
+				m_playerSetting.Options,
+				( KeyBinding _keyBinding ) =>
+				{
+					if (m_markIfNone)
+						MarkIfNone(_keyBinding);
+
+					Value = _keyBinding;
+				});
 		}
 
-		private void MarkIfNone(KeyCode _keyCode)
+		private void MarkIfNone( KeyBinding _keyBinding )
 		{
-			bool mark = _keyCode == KeyCode.None;
+			bool mark = _keyBinding == null || _keyBinding.KeyCode == KeyCode.None;
+
 			m_keyDisplay.color = mark ? m_textColorIfNone : Color.white;
+
 			if (m_optionalBackgroundImage != null)
 				m_optionalBackgroundImage.color = mark ? m_backgroundColorIfNone : Color.white;
+
 			if (m_optionalBackgroundGradient)
 				m_optionalBackgroundGradient.enabled = !mark;
 		}
@@ -53,11 +65,14 @@ namespace GuiToolkit
 		protected override void OnPlayerSettingChanged( PlayerSetting _playerSetting )
 		{
 			base.OnPlayerSettingChanged(_playerSetting);
-			if (!Initialized || !m_markIfNone || !_playerSetting.IsKeyCode)
+
+			if (!Initialized || !m_markIfNone || !_playerSetting.IsKeyBinding)
 				return;
-			if (m_playerSetting.GetDefaultValue<KeyCode>() != _playerSetting.GetDefaultValue<KeyCode>())
+
+			if (m_playerSetting.GetDefaultValue<KeyBinding>() != _playerSetting.GetDefaultValue<KeyBinding>())
 				return;
-			MarkIfNone(_playerSetting.GetValue<KeyCode>());
+
+			MarkIfNone(_playerSetting.GetValue<KeyBinding>());
 		}
 	}
 }

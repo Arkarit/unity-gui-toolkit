@@ -5,6 +5,7 @@ using UnityEngine.Events;
 namespace GuiToolkit.Style.Editor
 {
 	[CustomEditor(typeof(UiAbstractApplyStyleBase), true)]
+	[EditorAware]
 	public class UiAbstractApplyStyleBaseEditor : UnityEditor.Editor
 	{
 		private UiAbstractApplyStyleBase m_thisAbstractApplyStyleBase;
