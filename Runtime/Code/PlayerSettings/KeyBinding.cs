@@ -23,15 +23,15 @@ namespace GuiToolkit
 
 		[SerializeField] private int m_encoded;
 
-		public KeyBinding(KeyCode _keyCode = KeyCode.None, EModifiers _modifiers = EModifiers.None)
+		public KeyBinding( KeyCode _keyCode = KeyCode.None, EModifiers _modifiers = EModifiers.None )
 		{
 			m_encoded = Encode(_keyCode, _modifiers);
 		}
-		public KeyBinding(int _encoded)
+		public KeyBinding( int _encoded )
 		{
 			m_encoded = _encoded;
 		}
-		
+
 		public int Encoded
 		{
 			get => m_encoded;
@@ -90,22 +90,47 @@ namespace GuiToolkit
 		{
 			if (ReferenceEquals(_other, null))
 				return false;
-			
+
 			if (ReferenceEquals(this, _other))
 				return true;
-			
+
 			return m_encoded == _other.Encoded;
 		}
 
-		public static bool operator == (KeyBinding _a, KeyBinding _b)
+		public bool HasKeycodeAsModifier( KeyCode _kc )
+		{
+			return (KeyCodeToModifiers(_kc) & Modifiers) != 0;
+		}
+
+		public static EModifiers KeyCodeToModifiers( KeyCode _keyCode )
+		{
+			switch (_keyCode)
+			{
+				case KeyCode.LeftShift:
+				case KeyCode.RightShift:
+					return EModifiers.Shift;
+
+				case KeyCode.LeftControl:
+				case KeyCode.RightControl:
+					return EModifiers.Ctrl;
+
+				case KeyCode.LeftAlt:
+				case KeyCode.RightAlt:
+					return EModifiers.Alt;
+
+				default: return EModifiers.None;
+			}
+		}
+		
+		public static bool operator ==( KeyBinding _a, KeyBinding _b )
 		{
 			if (ReferenceEquals(_a, null))
 				return ReferenceEquals(_b, null);
-			
+
 			return _a.Equals(_b);
 		}
 
-		public static bool operator != (KeyBinding _a, KeyBinding _b)
+		public static bool operator !=( KeyBinding _a, KeyBinding _b )
 		{
 			return !(_a == _b);
 		}

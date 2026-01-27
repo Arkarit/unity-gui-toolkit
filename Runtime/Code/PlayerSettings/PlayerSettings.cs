@@ -300,6 +300,13 @@ namespace GuiToolkit
 						ps.Value = new KeyBinding(KeyCode.None);
 						continue;
 					}
+					
+					// C) New binding is a standalone modifier key -> kick out all bindings which use it as a modifier key
+					if (currBound.HasKeycodeAsModifier(bound.KeyCode))
+					{
+						ps.Value = new KeyBinding(KeyCode.None);
+						continue;
+					}
 				}
 			}
 
