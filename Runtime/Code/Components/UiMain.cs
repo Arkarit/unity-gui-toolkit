@@ -460,28 +460,28 @@ namespace GuiToolkit
 			return await requester.OkCancelInputRequesterBlocking(_title, _text, _allowOutsideTap, _waitForClose, _placeholderText, _inputText, _yesText, _noText, _modifyOptions);
 		}
 
-		public void KeyPressRequester( UnityAction<KeyCode> _onEvent )
+		public void KeyPressRequester( UnityAction<KeyBinding> _onEvent )
 		{
 			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
 			Debug.Assert(requester);
 			requester.Requester(_onEvent, null, null);
 		}
 
-		public void KeyPressRequester( PlayerSettingOptions _options, UnityAction<KeyCode> _onEvent )
+		public void KeyPressRequester( PlayerSettingOptions _options, UnityAction<KeyBinding> _onEvent )
 		{
 			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
 			Debug.Assert(requester);
 			requester.Requester(_onEvent, _options, null);
 		}
 
-		public void KeyPressRequester( PlayerSettingOptions _options, string _title, UnityAction<KeyCode> _onEvent )
+		public void KeyPressRequester( PlayerSettingOptions _options, string _title, UnityAction<KeyBinding> _onEvent )
 		{
 			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
 			Debug.Assert(requester);
 			requester.Requester(_onEvent, _options, _title);
 		}
 
-		public void KeyPressRequester( string _title, UnityAction<KeyCode> _onEvent )
+		public void KeyPressRequester( string _title, UnityAction<KeyBinding> _onEvent )
 		{
 			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
 			Debug.Assert(requester);
