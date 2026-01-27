@@ -77,21 +77,23 @@ namespace GuiToolkit.Editor
 			LocaManager.Instance.EdWriteKeyData();
 		}
 		
-#if UITK_USE_ROSLYN
 		[MenuItem(StringConstants.LOCA_PROCESSOR_MENU_NAME_PROVIDERS, priority = Constants.LOCA_PROCESSOR_MENU_PRIORITY + 1)]
-		private static void ProcessLocaProviders()
+		public static void ProcessLocaProviders()
 		{
+#if UITK_USE_ROSLYN
 
 			LocaProviderList locaProviderList = new();
 			EditorAssetUtility.FindAllScriptableObjects<ILocaProvider>(locaProvider =>
 			{
 				var so = (ScriptableObject) locaProvider;
+				UiLog.Log($"Processing Loca Provider {AssetDatabase.GetAssetPath(so)}");
 				locaProviderList.Paths.Add(so.name);
 				locaProvider.CollectData();
 			}, s_options);
 			locaProviderList.Save();
-		}
 #endif
+		}
+
 		private static void FoundComponent( ILocaKeyProvider _component )
 		{
 			if (_component.UsesMultipleLocaKeys)
