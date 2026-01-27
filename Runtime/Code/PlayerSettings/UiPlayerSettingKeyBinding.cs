@@ -47,7 +47,7 @@ namespace GuiToolkit
 		protected override void OnPlayerSettingChanged( PlayerSetting _playerSetting )
 		{
 			base.OnPlayerSettingChanged(_playerSetting);
-			if (!Initialized || !m_markIfNone || !_playerSetting.IsKeyCode)
+			if (!Initialized || !m_markIfNone || !_playerSetting.IsKeyBinding)
 				return;
 			if (m_playerSetting.GetDefaultValue<KeyCode>() != _playerSetting.GetDefaultValue<KeyCode>())
 				return;

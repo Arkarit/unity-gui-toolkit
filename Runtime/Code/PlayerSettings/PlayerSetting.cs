@@ -107,7 +107,10 @@ namespace GuiToolkit
 			get => GetValue(ref m_value);
 			set
 			{
-				CheckType(value?.GetType());
+				if (value == null)
+					throw new ArgumentNullException(nameof(value));
+
+				CheckType(value.GetType());
 				m_value = value;
 				InvokeEvents();
 			}
@@ -116,8 +119,8 @@ namespace GuiToolkit
 		public object DefaultValue => GetValue(ref m_defaultValue);
 
 		public System.Type Type => m_type;
-		public bool IsKeyCode => m_type == typeof(KeyCode);
-		public bool IsRadio => m_isRadio;
+		public bool IsKeyBinding => m_type == typeof(KeyBinding);
+		public bool IsRadio => m_isRadio; // is single-choice selection UI (incl. Language)
 		public bool IsLanguage => m_isLanguage;
 		public bool IsFloat => m_type == typeof(float);
 		public bool IsBool => m_type == typeof(bool);
@@ -132,11 +135,20 @@ namespace GuiToolkit
 			m_mainThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 		}
 
-		public PlayerSetting(string _category, string _group, string _title, object _defaultValue,
-			PlayerSettingOptions _options = null) : this()
+		public PlayerSetting( string _category, string _group, string _title, object _defaultValue,
+			PlayerSettingOptions _options = null ) : this()
 		{
 			m_options = _options ?? new PlayerSettingOptions();
+
+			// We accept a single key code as a Key Binding without modifiers, but we convert it to KeyBinding
 			Type type = _defaultValue?.GetType();
+			if (type == typeof(KeyCode))
+			{
+				type = typeof(KeyBinding);
+				KeyCode kc = (KeyCode)_defaultValue;
+				_defaultValue = new KeyBinding(kc);
+			}
+
 			m_category = _category;
 			m_group = _group;
 			m_isRadio = m_options.Type == EPlayerSettingType.Radio || m_options.Type == EPlayerSettingType.Language;
@@ -154,13 +166,14 @@ namespace GuiToolkit
 				UiEventDefinitions.EvLanguageChanged.AddListener(OnLanguageChanged);
 		}
 
+		//TODO: Make dtor an explicit Dispose
 		~PlayerSetting()
 		{
 			if (IsLanguage)
 				UiEventDefinitions.EvLanguageChanged.RemoveListener(OnLanguageChanged);
 		}
 
-		public void SetValueSilent(object _value)
+		public void SetValueSilent( object _value )
 		{
 			CheckType(_value?.GetType());
 			m_value = _value;
@@ -194,7 +207,7 @@ namespace GuiToolkit
 			m_options.OnChanged?.Invoke(this);
 		}
 
-		protected T GetValue<T>(ref object _v)
+		protected T GetValue<T>( ref object _v )
 		{
 			CheckType(typeof(T));
 
@@ -204,7 +217,7 @@ namespace GuiToolkit
 			return (T)_v;
 		}
 
-		protected object GetValue(ref object _v)
+		protected object GetValue( ref object _v )
 		{
 			if (m_type == null)
 				return null;
@@ -215,37 +228,40 @@ namespace GuiToolkit
 			return _v;
 		}
 
-		protected void CheckType(Type _t)
+		protected void CheckType( Type _t )
 		{
+			if (_t == null)
+				throw new ArgumentNullException(nameof(_t));
+
 			if (_t != m_type)
 				throw new ArgumentException(
 					$"Wrong value type in Player Setting '{m_key}': Should be '{m_type.Name}', is '{_t.Name}'");
 		}
 
-		protected void OnLanguageChanged(string _language)
+		protected void OnLanguageChanged( string _language )
 		{
 			Value = _language;
 		}
 
-		protected static int InitValue(PlayerSettingOptions _options, string _key, int _defaultValue)
+		protected static int InitValue( PlayerSettingOptions _options, string _key, int _defaultValue )
 		{
 			var deflt = Convert.ToInt32(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetInt(_key, deflt) : deflt;
 		}
 
-		protected static float InitValue(PlayerSettingOptions _options, string _key, float _defaultValue)
+		protected static float InitValue( PlayerSettingOptions _options, string _key, float _defaultValue )
 		{
 			var deflt = Convert.ToSingle(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetFloat(_key, deflt) : deflt;
 		}
 
-		protected static string InitValue(PlayerSettingOptions _options, string _key, string _defaultValue)
+		protected static string InitValue( PlayerSettingOptions _options, string _key, string _defaultValue )
 		{
 			var deflt = Convert.ToString(_defaultValue);
 			return _options.IsSaveable ? PlayerPrefs.GetString(_key, deflt) : deflt;
 		}
 
-		protected void InitValue(Type _type)
+		protected void InitValue( Type _type )
 		{
 			if (_type == null)
 				return;
@@ -258,8 +274,11 @@ namespace GuiToolkit
 				m_value = Convert.ToSingle(DefaultValue);
 			else if (_type == typeof(string))
 				m_value = Convert.ToString(DefaultValue);
-			else if (_type == typeof(KeyCode))
-				m_value = (KeyCode)DefaultValue;
+			else if (_type == typeof(KeyBinding))
+			{
+				var def = (KeyBinding)DefaultValue;
+				m_value = new KeyBinding(def.Encoded);
+			}
 			else
 				UiLog.LogError($"Unknown type for player setting '{Key}': {_type.Name}");
 		}

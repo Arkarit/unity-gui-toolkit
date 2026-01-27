@@ -139,7 +139,7 @@ namespace GuiToolkit
 				InstantiateMatchingEntry(_playerSetting, m_sliderPrefab, _parent, null, "PlayerSettingSlider_");
 			else if (_playerSetting.IsBool)
 				InstantiateMatchingEntry(_playerSetting, m_togglePrefab, _parent, null, "PlayerSettingCheck_");
-			else if (_playerSetting.IsKeyCode)
+			else if (_playerSetting.IsKeyBinding)
 				InstantiateMatchingEntry(_playerSetting, m_keyBindingsPrefab, _parent, null, "PlayerSettingKeyBinding_");
 			else if (_playerSetting.IsButton)
 				InstantiateMatchingEntry(_playerSetting, m_buttonPrefab, _parent, null, "PlayerSettingButton_");
