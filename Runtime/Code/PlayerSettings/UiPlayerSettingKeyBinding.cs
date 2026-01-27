@@ -14,12 +14,6 @@ namespace GuiToolkit
 		[SerializeField] protected Image m_optionalBackgroundImage;
 		[SerializeField] protected UiGradientSimple m_optionalBackgroundGradient;
 		
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-			
-		}
-
 		public override object Value
 		{
 			get => base.Value;
