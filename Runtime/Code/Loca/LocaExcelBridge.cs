@@ -16,6 +16,10 @@ using ExcelDataReader;
 #endif
 using UnityEditor;
 using UnityEngine.Networking;
+using System.Threading;
+using System.Diagnostics;
+
+
 #endif
 
 namespace GuiToolkit
@@ -28,7 +32,7 @@ namespace GuiToolkit
 			Local,
 			GoogleDocs,
 		}
-		
+
 		public enum EInColumnType
 		{
 			Ignore,
@@ -140,17 +144,17 @@ namespace GuiToolkit
 						UiLog.LogError($"{nameof(LocaExcelBridge)}: Excel path is not set.");
 						return;
 					}
-					
+
 					xlsxPath = m_excelPath.Path;
 					break;
-				
+
 				case SourceType.GoogleDocs:
 					xlsxPath = ProcessGoogleDocsUrl();
 					if (string.IsNullOrEmpty(xlsxPath))
 						return;
-					
+
 					break;
-				
+
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
@@ -319,11 +323,25 @@ namespace GuiToolkit
 			string path = NormalizeXlsxPath(m_googleUrl);
 			if (string.IsNullOrWhiteSpace(path))
 				return null;
-			
+
 			using (UnityWebRequest www = UnityWebRequest.Get(path))
 			{
 				var op = www.SendWebRequest();
-				while (!op.isDone) { }
+				var sw = Stopwatch.StartNew();
+				const int timeoutMs = 60000;
+
+				while (!op.isDone)
+				{
+					if (sw.ElapsedMilliseconds > timeoutMs)
+					{
+						www.Abort();
+						UiLog.LogError($"{nameof(LocaExcelBridge)}: Download timeout for XLSX:{path}");
+						return null;
+					}
+
+					EditorApplication.QueuePlayerLoopUpdate();
+					Thread.Sleep(10);
+				}
 
 				if (www.result != UnityWebRequest.Result.Success)
 				{
@@ -354,7 +372,7 @@ namespace GuiToolkit
 
 			// Already an export URL with XLSX -> unchanged
 			if (_path.Contains("/export", StringComparison.OrdinalIgnoreCase)
-			    && _path.Contains("format=xlsx", StringComparison.OrdinalIgnoreCase))
+				&& _path.Contains("format=xlsx", StringComparison.OrdinalIgnoreCase))
 			{
 				return _path;
 			}
