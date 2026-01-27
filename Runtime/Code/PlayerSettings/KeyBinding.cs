@@ -89,18 +89,27 @@ namespace GuiToolkit
 		public bool Equals( KeyBinding _other )
 		{
 			if (ReferenceEquals(_other, null))
-			{
 				return false;
-			}
-
+			
 			if (ReferenceEquals(this, _other))
-			{
 				return true;
-			}
-
-			return m_encoded == _other.m_encoded;
+			
+			return m_encoded == _other.Encoded;
 		}
-		
+
+		public static bool operator == (KeyBinding _a, KeyBinding _b)
+		{
+			if (ReferenceEquals(_a, null))
+				return ReferenceEquals(_b, null);
+			
+			return _a.Equals(_b);
+		}
+
+		public static bool operator != (KeyBinding _a, KeyBinding _b)
+		{
+			return !(_a == _b);
+		}
+
 		public override string ToString()
 		{
 			Decode(m_encoded, out KeyCode keyCode, out EModifiers modifiers);

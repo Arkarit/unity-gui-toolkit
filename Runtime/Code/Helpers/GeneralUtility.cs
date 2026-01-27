@@ -15,5 +15,16 @@ namespace GuiToolkit
 		}
 
 		public static bool InMainThread => MainThreadId == System.Threading.Thread.CurrentThread.ManagedThreadId;
+
+
+		public static bool IsModifierKey( KeyCode _keyCode )
+		{
+			return _keyCode == KeyCode.LeftShift
+			       || _keyCode == KeyCode.RightShift
+			       || _keyCode == KeyCode.LeftControl
+			       || _keyCode == KeyCode.RightControl
+			       || _keyCode == KeyCode.LeftAlt
+			       || _keyCode == KeyCode.RightAlt;
+		}
 	}
 }

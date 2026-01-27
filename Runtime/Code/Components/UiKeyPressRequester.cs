@@ -70,9 +70,6 @@ namespace GuiToolkit
 				var formatStr = isWhiteList ? TitleWhitelist : TitleBlacklist;
 				var sb = new StringBuilder();
 
-				//FIXME Interpolated strings are not detected in LocaProcessor
-				// https://github.com/Arkarit/unity-gui-toolkit/issues/6
-				// When closed, these strings could be written inline
 				var orStr = _("or");
 				var andStr = _("and");
 
@@ -120,7 +117,7 @@ namespace GuiToolkit
 			Event e = Event.current;
 
 			KeyCode keyCode = UiUtility.EventToKeyCode(e, true);
-			if (m_onEvent == null || keyCode == KeyCode.None || IsModifierKey(keyCode))
+			if (m_onEvent == null || keyCode == KeyCode.None || GeneralUtility.IsModifierKey(keyCode))
 				return;
 
 			KeyBinding.EModifiers modifiers = GetCurrentModifiers();
@@ -158,16 +155,6 @@ namespace GuiToolkit
 
 			if (!UiUtility.IsMouse(keyCode))
 				Hide();
-		}
-
-		private static bool IsModifierKey( KeyCode _kc )
-		{
-			return _kc == KeyCode.LeftShift
-				|| _kc == KeyCode.RightShift
-				|| _kc == KeyCode.LeftControl
-				|| _kc == KeyCode.RightControl
-				|| _kc == KeyCode.LeftAlt
-				|| _kc == KeyCode.RightAlt;
 		}
 
 		private bool IsSuppressed( KeyBinding _keyBinding )
