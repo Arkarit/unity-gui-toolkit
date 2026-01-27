@@ -273,8 +273,6 @@ namespace GuiToolkit
 				if (bound.KeyCode == KeyCode.None)
 					return;
 
-				bool usesModifiers = bound.Modifiers != KeyBinding.EModifiers.None;
-
 				foreach (var kv in m_playerSettings)
 				{
 					PlayerSetting ps = kv.Value;
@@ -295,7 +293,7 @@ namespace GuiToolkit
 					}
 
 					// B) New binding uses modifiers -> kick out single-key bindings that use modifier keys as primary
-					if (usesModifiers && GeneralUtility.IsModifierKey(currBound.KeyCode))
+					if (bound.HasKeycodeAsModifier(currBound.KeyCode))
 					{
 						ps.Value = new KeyBinding(KeyCode.None);
 						continue;
