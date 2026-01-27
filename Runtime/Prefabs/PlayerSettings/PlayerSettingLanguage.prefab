@@ -484,6 +484,7 @@ PrefabInstance:
       objectReference: {fileID: 8033325158025953634}
     m_RemovedComponents:
     - {fileID: 4606715671786783818, guid: dffc64cfb8c59a8459afe98bfcb33b78, type: 3}
+    - {fileID: 2345699468765808628, guid: dffc64cfb8c59a8459afe98bfcb33b78, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 2736179958217608873, guid: dffc64cfb8c59a8459afe98bfcb33b78,
@@ -560,5 +561,7 @@ MonoBehaviour:
   m_titleTranslator: {fileID: 4586315474807833319}
   m_text: {fileID: 3334138465322678360}
   m_isLocalized: 1
+  m_additionalMouseOver: {fileID: 0}
+  m_additionalMouseOverDuration: 0.2
   m_toggle: {fileID: 2567634577800260833}
   m_flagImage: {fileID: 116768819028621784}

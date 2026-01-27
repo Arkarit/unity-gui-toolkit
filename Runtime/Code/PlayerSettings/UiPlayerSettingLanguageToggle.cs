@@ -38,7 +38,10 @@ namespace GuiToolkit
 				UiLog.LogError($"{GetType().Name} can only have one icon!");
 				return;
 			}
-			m_flagImage.sprite = Resources.Load<Sprite>(_assetPaths[0]);
+			
+			var spritePath = _assetPaths[0];
+			m_flagImage.sprite = Resources.Load<Sprite>(spritePath);
+			
 			if (m_flagImage.sprite == null)
 				UiLog.LogError($"Sprite '{_assetPaths[0]}' not found!");
 		}

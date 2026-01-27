@@ -91,6 +91,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.15
   m_delay: 0
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
@@ -98,10 +100,13 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 4096
   m_target: {fileID: 3634717699323316868}
   m_markTargetForLayoutRebuild: 0
@@ -173,6 +178,23 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &137001839888021303
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,6 +328,15 @@ MonoBehaviour:
   m_simpleAnimation: {fileID: 4611171743553401831}
   m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 0}
+  m_additionalMouseOver: {fileID: 0}
+  m_additionalMouseOverDuration: 0.2
+  m_forwardButton: {fileID: 0}
+  m_playButtonAnimation: 0
+  m_selectionAnimation: {fileID: 0}
+  m_toggleGroupHandling: 0
+  m_styleAppliers: []
+  m_skinOn: On
+  m_skinOff: Off
   m_flagImage: {fileID: 2747425840158135338}
   m_languageToken: dev
 --- !u!1 &5242773852886969493
@@ -414,11 +445,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Buttons/LanguageToggle/Selection
   m_fixedSkinName: 
   m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []

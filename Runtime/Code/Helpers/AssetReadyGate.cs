@@ -154,7 +154,6 @@ namespace GuiToolkit
 			if (_callback == null)
 				return;
 
-			UiLog.LogInternal("WhenReady called");
 			if (Application.isPlaying)
 			{
 				_callback();
