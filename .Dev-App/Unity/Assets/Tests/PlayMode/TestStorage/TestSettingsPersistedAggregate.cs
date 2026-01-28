@@ -86,7 +86,7 @@ namespace GuiToolkit.Storage.Tests
 				System.Threading.CancellationToken _cancellationToken = default )
 			{
 				// Count only the aggregate document itself (not other collections).
-				if (_collection == "settings" && _id == "user")
+				if (_collection == "test" && _id == "user")
 				{
 					saveCount++;
 				}
