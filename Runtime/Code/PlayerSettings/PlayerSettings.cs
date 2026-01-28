@@ -8,7 +8,7 @@ namespace GuiToolkit
 	public class PlayerSettings
 	{
 		private readonly Dictionary<string, PlayerSetting> m_playerSettings = new();
-		private Dictionary<KeyBinding, KeyBinding> m_keyBindings = new();
+		private Dictionary<int, KeyBinding> m_keyBindings = new();
 
 		private SettingsPersistedAggregate m_persistedAggregate;
 		private bool m_isApplyingLoadedValues;
@@ -136,7 +136,7 @@ namespace GuiToolkit
 					KeyBinding original = playerSetting.GetDefaultValue<KeyBinding>();
 					KeyBinding bound = playerSetting.GetValue<KeyBinding>();
 
-					if (m_keyBindings.TryGetValue(original, out KeyBinding existing))
+					if (m_keyBindings.TryGetValue(original.Encoded, out KeyBinding existing))
 					{
 						UiLog.LogError(
 							$"Default KeyBinding '{existing}' of player setting '{playerSetting.Key}' already exists. " +
@@ -144,7 +144,7 @@ namespace GuiToolkit
 						continue;
 					}
 
-					m_keyBindings.Add(original, bound);
+					m_keyBindings.Add(original.Encoded, bound);
 				}
 			}
 
@@ -240,7 +240,7 @@ namespace GuiToolkit
 		}
 
 		public KeyBinding ResolveKey( KeyBinding _originalKeyBinding ) =>
-			m_keyBindings.GetValueOrDefault(_originalKeyBinding, _originalKeyBinding);
+			m_keyBindings.GetValueOrDefault(_originalKeyBinding.Encoded, _originalKeyBinding);
 
 		public bool HasUnboundKeys()
 		{
@@ -258,8 +258,8 @@ namespace GuiToolkit
 				KeyBinding original = _playerSetting.GetDefaultValue<KeyBinding>();
 				KeyBinding bound = _playerSetting.GetValue<KeyBinding>();
 
-				Debug.Assert(m_keyBindings.ContainsKey(original));
-				m_keyBindings[original] = bound;
+				Debug.Assert(m_keyBindings.ContainsKey(original.Encoded));
+				m_keyBindings[original.Encoded] = bound;
 
 				if (bound.KeyCode == KeyCode.None)
 					return;
@@ -431,7 +431,7 @@ namespace GuiToolkit
 
 				KeyBinding original = ps.GetDefaultValue<KeyBinding>();
 
-				if (m_keyBindings.ContainsKey(original))
+				if (m_keyBindings.ContainsKey(original.Encoded))
 				{
 					UiLog.LogError(
 						$"Default KeyBinding '{original}' of player setting '{ps.Key}' already exists. " +
@@ -440,7 +440,7 @@ namespace GuiToolkit
 				}
 
 				KeyBinding bound = ps.GetValue<KeyBinding>();
-				m_keyBindings.Add(original, bound);
+				m_keyBindings.Add(original.Encoded, bound);
 			}
 		}
 

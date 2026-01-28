@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	[Serializable]
-	public sealed class KeyBinding : LocaClass
+	public sealed class KeyBinding : LocaClass, IEquatable<KeyBinding>
 	{
 		[Flags]
 		public enum EModifiers
@@ -18,8 +18,8 @@ namespace GuiToolkit
 		private const int KeyCodeBits = 24;
 		private const int ModifiersShift = KeyCodeBits;
 
-		private const uint KeyCodeMask = (1u << KeyCodeBits) - 1u; // 0x00FFFFFF
-		private const uint ModifiersMask = 0xFFu;                  // plenty (we use only 3 bits)
+		private const uint KeyCodeMask = (1u << KeyCodeBits) - 1u;
+		private const uint ModifiersMask = 0xFFu;
 
 		[SerializeField] private int m_encoded;
 
@@ -27,6 +27,7 @@ namespace GuiToolkit
 		{
 			m_encoded = Encode(_keyCode, _modifiers);
 		}
+
 		public KeyBinding( int _encoded )
 		{
 			m_encoded = _encoded;
@@ -94,7 +95,30 @@ namespace GuiToolkit
 			if (ReferenceEquals(this, _other))
 				return true;
 
-			return m_encoded == _other.Encoded;
+			return m_encoded == _other.m_encoded;
+		}
+
+		public override bool Equals( object _obj )
+		{
+			return _obj is KeyBinding other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			return m_encoded;
+		}
+
+		public static bool operator ==( KeyBinding _a, KeyBinding _b )
+		{
+			if (ReferenceEquals(_a, null))
+				return ReferenceEquals(_b, null);
+
+			return _a.Equals(_b);
+		}
+
+		public static bool operator !=( KeyBinding _a, KeyBinding _b )
+		{
+			return !(_a == _b);
 		}
 
 		public bool HasKeycodeAsModifier( KeyCode _kc )
@@ -118,21 +142,9 @@ namespace GuiToolkit
 				case KeyCode.RightAlt:
 					return EModifiers.Alt;
 
-				default: return EModifiers.None;
+				default:
+					return EModifiers.None;
 			}
-		}
-		
-		public static bool operator ==( KeyBinding _a, KeyBinding _b )
-		{
-			if (ReferenceEquals(_a, null))
-				return ReferenceEquals(_b, null);
-
-			return _a.Equals(_b);
-		}
-
-		public static bool operator !=( KeyBinding _a, KeyBinding _b )
-		{
-			return !(_a == _b);
 		}
 
 		public override string ToString()
@@ -140,14 +152,10 @@ namespace GuiToolkit
 			Decode(m_encoded, out KeyCode keyCode, out EModifiers modifiers);
 
 			if (keyCode == KeyCode.None)
-			{
 				return _("None");
-			}
 
 			if (modifiers == EModifiers.None)
-			{
 				return keyCode.ToString();
-			}
 
 			return $"{modifiers}+{keyCode}";
 		}
