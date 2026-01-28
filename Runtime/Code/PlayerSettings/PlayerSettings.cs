@@ -7,13 +7,17 @@ namespace GuiToolkit
 {
 	public class PlayerSettings
 	{
+		
 		private readonly Dictionary<string, PlayerSetting> m_playerSettings = new();
 		private Dictionary<int, KeyBinding> m_keyBindings = new();
+		private readonly HashSet<int> m_activeBindings = new();
 
 		private SettingsPersistedAggregate m_persistedAggregate;
 		private bool m_isApplyingLoadedValues;
 		private System.Threading.Tasks.TaskScheduler m_mainThreadScheduler;
 
+		public IInputProxy InputProxy = new UnityInputProxy();
+		
 		internal void Initialize( SettingsPersistedAggregate _settings )
 		{
 			m_persistedAggregate = _settings;
@@ -221,25 +225,43 @@ namespace GuiToolkit
 		public bool GetKeyDown( KeyCode _originalKeyCode ) => GetKeyDown(new KeyBinding(_originalKeyCode));
 
 		public bool GetKeyUp( KeyCode _originalKeyCode ) => GetKeyUp(new KeyBinding(_originalKeyCode));
-		
+
 		public bool GetKey( KeyBinding _originalKeyBinding )
 		{
 			KeyBinding binding = ResolveKey(_originalKeyBinding);
 			return IsPressed(binding);
 		}
 
-		public bool GetKeyDown( KeyBinding _originalKeyBinding )
+		public bool GetKeyDown( KeyBinding _original )
 		{
-			KeyBinding binding = ResolveKey(_originalKeyBinding);
-			return IsPressedDown(binding);
+			KeyBinding resolved = ResolveKey(_original);
+			bool isPressed = IsPressedDown(resolved);
+			bool wasActive = m_activeBindings.Contains(resolved.Encoded);
+
+			if (isPressed && !wasActive)
+			{
+				m_activeBindings.Add(resolved.Encoded);
+				return true;
+			}
+
+			return false;
 		}
 
-		public bool GetKeyUp( KeyBinding _originalKeyBinding )
+		public bool GetKeyUp( KeyBinding _original )
 		{
-			KeyBinding binding = ResolveKey(_originalKeyBinding);
-			return IsPressedUp(binding);
-		}
+			KeyBinding resolved = ResolveKey(_original);
+			bool isPressed = IsPressedUp(resolved);
+			bool wasActive = m_activeBindings.Contains(resolved.Encoded);
 
+			if (wasActive && !isPressed)
+			{
+				m_activeBindings.Remove(resolved.Encoded);
+				return true;
+			}
+
+			return false;
+		}
+		
 		public KeyBinding ResolveKey( KeyBinding _originalKeyBinding ) =>
 			m_keyBindings.GetValueOrDefault(_originalKeyBinding.Encoded, _originalKeyBinding);
 
@@ -290,7 +312,7 @@ namespace GuiToolkit
 						ps.Value = new KeyBinding(KeyCode.None);
 						continue;
 					}
-					
+
 					// C) New binding is a standalone modifier key -> kick out all bindings which use it as a modifier key
 					if (currBound.HasKeycodeAsModifier(bound.KeyCode))
 					{
@@ -445,60 +467,77 @@ namespace GuiToolkit
 			}
 		}
 
-		private static bool IsModifierDown( KeyBinding.EModifiers _mod )
+		private bool IsModifierActive( KeyBinding.EModifiers _mod )
 		{
 			if ((_mod & KeyBinding.EModifiers.Shift) != 0)
 			{
-				if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.RightShift))
+				if (!InputProxy.GetKey(KeyCode.LeftShift) && !InputProxy.GetKey(KeyCode.RightShift))
 					return false;
 			}
 
 			if ((_mod & KeyBinding.EModifiers.Ctrl) != 0)
 			{
-				if (!Input.GetKey(KeyCode.LeftControl) && !Input.GetKey(KeyCode.RightControl))
+				if (!InputProxy.GetKey(KeyCode.LeftControl) && !InputProxy.GetKey(KeyCode.RightControl))
 					return false;
 			}
 
 			if ((_mod & KeyBinding.EModifiers.Alt) != 0)
 			{
-				if (!Input.GetKey(KeyCode.LeftAlt) && !Input.GetKey(KeyCode.RightAlt))
+				if (!InputProxy.GetKey(KeyCode.LeftAlt) && !InputProxy.GetKey(KeyCode.RightAlt))
 					return false;
 			}
 
 			return true;
 		}
 
-		private static bool IsPressed( KeyBinding _binding )
+		private bool IsPressed( KeyBinding _binding )
 		{
 			if (_binding.KeyCode == KeyCode.None)
 				return false;
 
-			if (!IsModifierDown(_binding.Modifiers))
+			if (!IsModifierActive(_binding.Modifiers))
 				return false;
 
-			return Input.GetKey(_binding.KeyCode);
+			return InputProxy.GetKey(_binding.KeyCode);
 		}
 
-		private static bool IsPressedDown( KeyBinding _binding )
+		private bool IsPressedDown( KeyBinding _binding )
 		{
 			if (_binding.KeyCode == KeyCode.None)
 				return false;
 
-			if (!IsModifierDown(_binding.Modifiers))
+			if (!IsModifierActive(_binding.Modifiers))
 				return false;
 
-			return Input.GetKeyDown(_binding.KeyCode);
+			return InputProxy.GetKeyDown(_binding.KeyCode);
 		}
 
-		private static bool IsPressedUp( KeyBinding _binding )
+		private bool IsPressedUp( KeyBinding _binding )
 		{
 			if (_binding.KeyCode == KeyCode.None)
 				return false;
 
-			if (!IsModifierDown(_binding.Modifiers))
+			if (!m_activeBindings.Contains(_binding.Encoded))
 				return false;
+			
+			// Key went up?
+			if (InputProxy.GetKeyUp(_binding.KeyCode))
+				return true;
+			
+			// Modifier went up?
+			if ((_binding.Modifiers & KeyBinding.EModifiers.Shift) != 0)
+				if (InputProxy.GetKeyUp(KeyCode.LeftShift) || InputProxy.GetKeyUp(KeyCode.RightShift))
+					return true;
 
-			return Input.GetKeyUp(_binding.KeyCode);
+			if ((_binding.Modifiers & KeyBinding.EModifiers.Ctrl) != 0)
+				if (InputProxy.GetKeyUp(KeyCode.LeftControl) || InputProxy.GetKeyUp(KeyCode.RightControl))
+					return true;
+
+			if ((_binding.Modifiers & KeyBinding.EModifiers.Alt) != 0)
+				if (InputProxy.GetKeyUp(KeyCode.LeftAlt) || InputProxy.GetKeyUp(KeyCode.RightAlt))
+					return true;
+
+			return false;
 		}
 
 		[System.Diagnostics.Conditional("DEBUG_PLAYER_SETTINGS")]

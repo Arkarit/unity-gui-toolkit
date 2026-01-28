@@ -241,5 +241,78 @@ namespace GuiToolkit.Tests
 			Assert.That(resolved, Is.EqualTo(unknown));
 		}
 
+		[Test]
+		public void GetKey_SingleKey_Works()
+		{
+			PlayerSettings mgr = PlayerSettings.Instance;
+			var input = new MockInputProxy();
+			mgr.InputProxy = input;
+
+			var options = new PlayerSettingOptions { IsSaveable = false };
+			PlayerSetting ps =
+				new PlayerSetting("cat", "grp", "A", KeyCode.A, options);
+
+			mgr.Add(new List<PlayerSetting> { ps });
+
+			input.Press(KeyCode.A);
+
+			Assert.That(mgr.GetKey(ps.GetDefaultValue<KeyBinding>()), Is.True);
+		}
+
+		[Test]
+		public void GetKey_ModifierBinding_RequiresModifier()
+		{
+			PlayerSettings mgr = PlayerSettings.Instance;
+			var input = new MockInputProxy();
+			mgr.InputProxy = input;
+
+			var options = new PlayerSettingOptions
+			{
+				IsSaveable = false,
+				KeyPolicy = EKeyPolicy.KeyWithModifiers
+			};
+
+			PlayerSetting ps =
+				new PlayerSetting("cat", "grp", "Shift+A", KeyCode.A, options);
+
+			mgr.Add(new List<PlayerSetting> { ps });
+
+			ps.Value = new KeyBinding(KeyCode.A, KeyBinding.EModifiers.Shift);
+
+			input.Press(KeyCode.A); // Shift NOT pressed
+
+			Assert.That(
+				mgr.GetKey(ps.GetDefaultValue<KeyBinding>()),
+				Is.False,
+				"Shift+A must not fire without Shift");
+		}
+
+		[Test]
+		public void GetKey_ModifierBinding_WithModifier_Works()
+		{
+			PlayerSettings mgr = PlayerSettings.Instance;
+			var input = new MockInputProxy();
+			mgr.InputProxy = input;
+
+			var options = new PlayerSettingOptions
+			{
+				IsSaveable = false,
+				KeyPolicy = EKeyPolicy.KeyWithModifiers
+			};
+
+			PlayerSetting ps =
+				new PlayerSetting("cat", "grp", "Shift+A", KeyCode.A, options);
+
+			mgr.Add(new List<PlayerSetting> { ps });
+
+			ps.Value = new KeyBinding(KeyCode.A, KeyBinding.EModifiers.Shift);
+
+			input.Press(KeyCode.LeftShift);
+			input.Press(KeyCode.A);
+
+			Assert.That(mgr.GetKey(ps.GetDefaultValue<KeyBinding>()), Is.True);
+		}
+
+
 	}
 }
