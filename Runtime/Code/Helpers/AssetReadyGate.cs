@@ -147,8 +147,8 @@ namespace GuiToolkit
 		(
 			Action _callback,
 			bool _includeBootstrap = true,
-			int _quietFrames = 2,
-			int _maxFrames = 60 // 0 = no timeout
+			int _quietFrames = 5,
+			int _maxFrames = 600 // 0 = no timeout
 		)
 		{
 			if (_callback == null)

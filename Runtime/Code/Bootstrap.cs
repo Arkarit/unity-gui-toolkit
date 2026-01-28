@@ -47,7 +47,7 @@ namespace GuiToolkit
 			{
 				UiLog.LogInternal("Entered Edit Mode");
 				s_isInitialized = false;
-				AssetReadyGate.WhenReady(() => Initialize(), false, 5, 300);
+				AssetReadyGate.WhenReady(() => Initialize(), false);
 			}
 		}
 
