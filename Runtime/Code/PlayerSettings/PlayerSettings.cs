@@ -212,7 +212,8 @@ namespace GuiToolkit
 		public void RestoreDefaults()
 		{
 			foreach (var kv in m_playerSettings)
-				kv.Value.Value = kv.Value.DefaultValue;
+				if (kv.Value.DefaultValue != null)
+					kv.Value.Value = kv.Value.DefaultValue;
 		}
 
 		public bool GetKey( KeyCode _originalKeyCode ) => GetKey(new KeyBinding(_originalKeyCode));
