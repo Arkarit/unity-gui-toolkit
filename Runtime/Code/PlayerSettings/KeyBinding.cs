@@ -66,7 +66,7 @@ namespace GuiToolkit
 				m_encoded = Encode(keyCode, value);
 			}
 		}
-
+		
 		public static int Encode( KeyCode _keyCode, EModifiers _modifiers )
 		{
 			uint keyPart = (uint)(int)_keyCode & KeyCodeMask;

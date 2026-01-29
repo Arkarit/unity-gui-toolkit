@@ -20,17 +20,24 @@ namespace GuiToolkit
 		[SerializeField] protected bool m_isLocalized;
 
 
-		private TaskScheduler m_mainThreadScheduler;
 		protected object m_value;
 		protected object m_savedValue;
 		protected bool m_allowInvokeEvents = false;
 		protected PlayerSettingOptions m_options;
+		
+		// Note: These events are only data types. They are handled in PlayerSettings, but not here.
+		[NonSerialized] public CEvent m_onDown = new();
+		[NonSerialized] public CEvent m_onUp = new();
+		[NonSerialized] public CEvent m_whilePressed = new();
 
 		public PlayerSettingOptions Options => m_options;
 		public string Category => m_category;
 		public string Group => m_group;
 		public string Title => m_title;
 		public string Key => m_key;
+		public CEvent OnDown => m_onDown;
+		public CEvent OnUp => m_onUp;
+		public CEvent WhilePressed => m_whilePressed;
 
 		public bool AllowInvokeEvents
 		{
@@ -68,7 +75,6 @@ namespace GuiToolkit
 
 		public PlayerSetting()
 		{
-			m_mainThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
 		}
 
 		public PlayerSetting( string _category, string _group, string _title, object _defaultValue,
@@ -102,9 +108,12 @@ namespace GuiToolkit
 				UiEventDefinitions.EvLanguageChanged.AddListener(OnLanguageChanged);
 		}
 
-		//TODO: Make dtor an explicit Dispose
-		~PlayerSetting()
+
+		public void Clear()
 		{
+			OnDown.RemoveAllListeners();
+			OnUp.RemoveAllListeners();
+			WhilePressed.RemoveAllListeners();
 			if (IsLanguage)
 				UiEventDefinitions.EvLanguageChanged.RemoveListener(OnLanguageChanged);
 		}

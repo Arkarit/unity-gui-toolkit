@@ -7,9 +7,9 @@ namespace GuiToolkit
 {
 	public class PlayerSettings
 	{
-		
 		private readonly Dictionary<string, PlayerSetting> m_playerSettings = new();
-		private Dictionary<int, KeyBinding> m_keyBindings = new();
+		private readonly Dictionary<int, KeyBinding> m_keyBindings = new();
+		private readonly Dictionary<int, PlayerSetting> m_keyBindingPlayerSettings = new();
 		private readonly HashSet<int> m_activeBindings = new();
 
 		private SettingsPersistedAggregate m_persistedAggregate;
@@ -17,17 +17,68 @@ namespace GuiToolkit
 		private System.Threading.Tasks.TaskScheduler m_mainThreadScheduler;
 
 		public IInputProxy InputProxy = new UnityInputProxy();
-		
+
 		internal void Initialize( SettingsPersistedAggregate _settings )
 		{
 			m_persistedAggregate = _settings;
 			m_mainThreadScheduler = System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext();
-			Load(
-				null,
-				ex =>
+			UiEventDefinitions.OnTickPerFrame.AddListener(Update);
+			Load(null, ex =>
+			{
+				UiLog.LogError($"Loading PlayerSettings failed:{ex}");
+			});
+		}
+
+		private readonly HashSet<PlayerSetting> m_activeKeyBindingSettings = new();
+		
+		private void Update( int _ )
+		{
+			if (!m_persistedAggregate.IsLoaded)
+				return;
+			
+			Event e = Event.current;
+			KeyCode keyCode = UiUtility.EventToKeyCode(e);
+			KeyBinding.EModifiers modifiers = GetCurrentModifiers();
+			var currentKey = new KeyBinding(keyCode, modifiers);
+			
+			bool foundKey = m_keyBindingPlayerSettings.TryGetValue(currentKey.Encoded, out PlayerSetting playerSetting);
+			
+			if (foundKey)
+			{
+				if (IsPressedUp(currentKey))
 				{
-					UiLog.LogError($"Loading PlayerSettings failed:{ex}");
-				});
+					m_activeKeyBindingSettings.Remove(playerSetting);
+					playerSetting.OnUp.Invoke();
+				}
+			}
+
+			foreach (var activePlayerSetting in m_activeKeyBindingSettings)
+				activePlayerSetting.WhilePressed.Invoke();
+			
+			if (foundKey)
+			{
+				if (IsPressedDown(currentKey))
+				{
+					m_activeKeyBindingSettings.Add(playerSetting);
+					playerSetting.OnDown.Invoke();
+				}
+			}
+		}
+		
+		private KeyBinding.EModifiers GetCurrentModifiers()
+		{
+			KeyBinding.EModifiers mods = KeyBinding.EModifiers.None;
+
+			if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+				mods |= KeyBinding.EModifiers.Shift;
+
+			if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+				mods |= KeyBinding.EModifiers.Ctrl;
+
+			if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+				mods |= KeyBinding.EModifiers.Alt;
+
+			return mods;
 		}
 
 		public void Load( Action _onSuccess = null, Action<Exception> _onFail = null )
@@ -135,21 +186,22 @@ namespace GuiToolkit
 				m_playerSettings.Add(playerSetting.Key, playerSetting);
 				StoreInAggregate(playerSetting, false);
 
-				if (playerSetting.IsKeyBinding)
+				if (!playerSetting.IsKeyBinding) 
+					continue;
+				
+				KeyBinding original = playerSetting.GetDefaultValue<KeyBinding>();
+				KeyBinding bound = playerSetting.GetValue<KeyBinding>();
+
+				if (m_keyBindings.TryGetValue(original.Encoded, out KeyBinding existing))
 				{
-					KeyBinding original = playerSetting.GetDefaultValue<KeyBinding>();
-					KeyBinding bound = playerSetting.GetValue<KeyBinding>();
-
-					if (m_keyBindings.TryGetValue(original.Encoded, out KeyBinding existing))
-					{
-						UiLog.LogError(
-							$"Default KeyBinding '{existing}' of player setting '{playerSetting.Key}' already exists. " +
-							"Each default key binding has to be unique.");
-						continue;
-					}
-
-					m_keyBindings.Add(original.Encoded, bound);
+					UiLog.LogError(
+						$"Default KeyBinding '{existing}' of player setting '{playerSetting.Key}' already exists. " +
+						"Each default key binding has to be unique.");
+					continue;
 				}
+
+				m_keyBindings.Add(original.Encoded, bound);
+				m_keyBindingPlayerSettings.Add(original.Encoded, playerSetting);
 			}
 
 			foreach (PlayerSetting playerSetting in _playerSettings)
@@ -163,8 +215,14 @@ namespace GuiToolkit
 
 		public void Clear()
 		{
+			foreach (var kv in m_playerSettings)
+				kv.Value.Clear();
+			
 			m_playerSettings.Clear();
+			m_keyBindingPlayerSettings.Clear();
+			
 			m_keyBindings.Clear();
+			m_activeBindings.Clear();
 		}
 
 		public void TempSaveValues()
@@ -261,7 +319,7 @@ namespace GuiToolkit
 
 			return false;
 		}
-		
+
 		public KeyBinding ResolveKey( KeyBinding _originalKeyBinding ) =>
 			m_keyBindings.GetValueOrDefault(_originalKeyBinding.Encoded, _originalKeyBinding);
 
@@ -519,11 +577,11 @@ namespace GuiToolkit
 
 			if (!m_activeBindings.Contains(_binding.Encoded))
 				return false;
-			
+
 			// Key went up?
 			if (InputProxy.GetKeyUp(_binding.KeyCode))
 				return true;
-			
+
 			// Modifier went up?
 			if ((_binding.Modifiers & KeyBinding.EModifiers.Shift) != 0)
 				if (InputProxy.GetKeyUp(KeyCode.LeftShift) || InputProxy.GetKeyUp(KeyCode.RightShift))
