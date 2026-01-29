@@ -29,56 +29,25 @@ namespace GuiToolkit
 			});
 		}
 
-		private readonly HashSet<PlayerSetting> m_activeKeyBindingSettings = new();
-		
 		private void Update( int _ )
 		{
 			if (!m_persistedAggregate.IsLoaded)
 				return;
-			
-			Event e = Event.current;
-			KeyCode keyCode = UiUtility.EventToKeyCode(e);
-			KeyBinding.EModifiers modifiers = GetCurrentModifiers();
-			var currentKey = new KeyBinding(keyCode, modifiers);
-			
-			bool foundKey = m_keyBindingPlayerSettings.TryGetValue(currentKey.Encoded, out PlayerSetting playerSetting);
-			
-			if (foundKey)
-			{
-				if (IsPressedUp(currentKey))
-				{
-					m_activeKeyBindingSettings.Remove(playerSetting);
-					playerSetting.OnUp.Invoke();
-				}
-			}
 
-			foreach (var activePlayerSetting in m_activeKeyBindingSettings)
-				activePlayerSetting.WhilePressed.Invoke();
-			
-			if (foundKey)
+			foreach (var kv in m_keyBindingPlayerSettings)
 			{
-				if (IsPressedDown(currentKey))
-				{
-					m_activeKeyBindingSettings.Add(playerSetting);
+				var playerSetting = kv.Value;
+				KeyBinding binding = playerSetting.GetValue<KeyBinding>();
+
+				if (IsPressedDown(binding))
 					playerSetting.OnDown.Invoke();
-				}
+
+				if (IsPressed(binding))
+					playerSetting.WhilePressed.Invoke();
+
+				if (IsPressedUp(binding))
+					playerSetting.OnUp.Invoke();
 			}
-		}
-		
-		private KeyBinding.EModifiers GetCurrentModifiers()
-		{
-			KeyBinding.EModifiers mods = KeyBinding.EModifiers.None;
-
-			if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-				mods |= KeyBinding.EModifiers.Shift;
-
-			if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-				mods |= KeyBinding.EModifiers.Ctrl;
-
-			if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
-				mods |= KeyBinding.EModifiers.Alt;
-
-			return mods;
 		}
 
 		public void Load( Action _onSuccess = null, Action<Exception> _onFail = null )
@@ -186,9 +155,9 @@ namespace GuiToolkit
 				m_playerSettings.Add(playerSetting.Key, playerSetting);
 				StoreInAggregate(playerSetting, false);
 
-				if (!playerSetting.IsKeyBinding) 
+				if (!playerSetting.IsKeyBinding)
 					continue;
-				
+
 				KeyBinding original = playerSetting.GetDefaultValue<KeyBinding>();
 				KeyBinding bound = playerSetting.GetValue<KeyBinding>();
 
@@ -217,10 +186,10 @@ namespace GuiToolkit
 		{
 			foreach (var kv in m_playerSettings)
 				kv.Value.Clear();
-			
+
 			m_playerSettings.Clear();
 			m_keyBindingPlayerSettings.Clear();
-			
+
 			m_keyBindings.Clear();
 			m_activeBindings.Clear();
 		}
