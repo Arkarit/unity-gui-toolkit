@@ -26,18 +26,18 @@ namespace GuiToolkit
 		protected PlayerSettingOptions m_options;
 		
 		// Note: These events are only data types. They are handled in PlayerSettings, but not here.
-		[NonSerialized] public CEvent m_onDown = new();
-		[NonSerialized] public CEvent m_onUp = new();
-		[NonSerialized] public CEvent m_whilePressed = new();
+		[NonSerialized] public CEvent m_onKeyDown = new();
+		[NonSerialized] public CEvent m_onKeyUp = new();
+		[NonSerialized] public CEvent m_whileKeyPressed = new();
 
 		public PlayerSettingOptions Options => m_options;
 		public string Category => m_category;
 		public string Group => m_group;
 		public string Title => m_title;
 		public string Key => m_key;
-		public CEvent OnDown => m_onDown;
-		public CEvent OnUp => m_onUp;
-		public CEvent WhilePressed => m_whilePressed;
+		public CEvent OnKeyDown => m_onKeyDown;
+		public CEvent OnKeyUp => m_onKeyUp;
+		public CEvent WhileKeyPressed => m_whileKeyPressed;
 
 		public bool AllowInvokeEvents
 		{
@@ -111,9 +111,9 @@ namespace GuiToolkit
 
 		public void Clear()
 		{
-			OnDown.RemoveAllListeners();
-			OnUp.RemoveAllListeners();
-			WhilePressed.RemoveAllListeners();
+			OnKeyDown.RemoveAllListeners();
+			OnKeyUp.RemoveAllListeners();
+			WhileKeyPressed.RemoveAllListeners();
 			if (IsLanguage)
 				UiEventDefinitions.EvLanguageChanged.RemoveListener(OnLanguageChanged);
 		}
