@@ -19,12 +19,16 @@ namespace GuiToolkit
 		private System.Threading.Tasks.TaskScheduler m_mainThreadScheduler;
 
 		public IInputProxy InputProxy = new UnityInputProxy();
+		
+		internal bool ManualUpdate;
 
 		internal void Initialize( SettingsPersistedAggregate _settings )
 		{
 			m_persistedAggregate = _settings;
 			m_mainThreadScheduler = System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext();
-			UiEventDefinitions.OnTickPerFrame.AddListener(Update);
+			if (!ManualUpdate)
+				UiEventDefinitions.OnTickPerFrame.AddListener(Update);
+			
 			Load(null, ex =>
 			{
 				UiLog.LogError($"Loading PlayerSettings failed:{ex}");
@@ -32,7 +36,7 @@ namespace GuiToolkit
 		}
 
 		
-		private void Update( int _ )
+		internal void Update( int _ )
 		{
 			if (!m_persistedAggregate.IsLoaded)
 				return;

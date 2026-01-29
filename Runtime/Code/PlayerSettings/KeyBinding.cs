@@ -121,6 +121,12 @@ namespace GuiToolkit
 			return !(_a == _b);
 		}
 
+		public static implicit operator KeyCode(KeyBinding _val) => _val.KeyCode;
+		public static implicit operator EModifiers(KeyBinding _val) => _val.Modifiers;
+		public static implicit operator int(KeyBinding _val) => _val.Encoded;
+		public static implicit operator KeyBinding(int _val) => new KeyBinding(_val);
+		public static implicit operator KeyBinding(KeyCode _val) => new KeyBinding(_val);
+		
 		public bool HasKeycodeAsModifier( KeyCode _kc )
 		{
 			return (KeyCodeToModifiers(_kc) & Modifiers) != 0;
