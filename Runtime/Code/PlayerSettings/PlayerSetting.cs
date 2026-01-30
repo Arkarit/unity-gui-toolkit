@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -19,25 +18,36 @@ namespace GuiToolkit
 		[SerializeField] protected List<string> m_icons;
 		[SerializeField] protected bool m_isLocalized;
 
-
 		protected object m_value;
 		protected object m_savedValue;
 		protected bool m_allowInvokeEvents = false;
 		protected PlayerSettingOptions m_options;
 		
 		// Note: These events are only data types. They are handled in PlayerSettings, but not here.
+		////////////////////////////////////////////////////////////////////////////////////////////
 		[NonSerialized] public CEvent m_onKeyDown = new();
 		[NonSerialized] public CEvent m_onKeyUp = new();
-		[NonSerialized] public CEvent m_whileKeyPressed = new();
+		[NonSerialized] public CEvent m_whileKey = new();
+		[NonSerialized] public CEvent m_onClick = new();
+		
+		[NonSerialized] public CEvent<Vector3, Vector3> m_onBeginDrag = new();
+		[NonSerialized] public CEvent<Vector3, Vector3> m_whileDrag = new();
+		[NonSerialized] public CEvent<Vector3, Vector3> m_onEndDrag = new();
 
 		public PlayerSettingOptions Options => m_options;
 		public string Category => m_category;
 		public string Group => m_group;
 		public string Title => m_title;
 		public string Key => m_key;
+		
 		public CEvent OnKeyDown => m_onKeyDown;
 		public CEvent OnKeyUp => m_onKeyUp;
-		public CEvent WhileKeyPressed => m_whileKeyPressed;
+		public CEvent WhileKey => m_whileKey;
+		public CEvent OnClick => m_onClick;
+		
+		public CEvent<Vector3, Vector3> OnBeginDrag => m_onBeginDrag;
+		public CEvent<Vector3, Vector3> WhileDrag => m_whileDrag;
+		public CEvent<Vector3, Vector3> OnEndDrag => m_onBeginDrag;
 
 		public bool AllowInvokeEvents
 		{
@@ -113,7 +123,7 @@ namespace GuiToolkit
 		{
 			OnKeyDown.RemoveAllListeners();
 			OnKeyUp.RemoveAllListeners();
-			WhileKeyPressed.RemoveAllListeners();
+			WhileKey.RemoveAllListeners();
 			if (IsLanguage)
 				UiEventDefinitions.EvLanguageChanged.RemoveListener(OnLanguageChanged);
 		}

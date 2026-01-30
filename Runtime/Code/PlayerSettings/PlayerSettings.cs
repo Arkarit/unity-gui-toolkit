@@ -3,12 +3,14 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UIElements;
 
 namespace GuiToolkit
 {
 	public class PlayerSettings
 	{
+		//TODO Getter/setter
+		private readonly float m_dragDetectionDistance = Mathf.Sqrt(10);
+		
 		private readonly Dictionary<string, PlayerSetting> m_playerSettings = new();
 		private readonly Dictionary<int, KeyBinding> m_keyBindings = new();
 		private readonly Dictionary<int, PlayerSetting> m_keyBindingPlayerSettings = new();
@@ -19,13 +21,31 @@ namespace GuiToolkit
 		private System.Threading.Tasks.TaskScheduler m_mainThreadScheduler;
 
 		public IInputProxy InputProxy = new UnityInputProxy();
+
+		private bool m_isPotentialDrag;
+		private bool m_inDrag;
+		private Vector3 m_dragStartPosition;
 		
-		internal bool ManualUpdate;
+		private bool m_manualUpdate;
+		internal bool ManualUpdate
+		{
+			get => m_manualUpdate;
+			set
+			{
+				m_manualUpdate = value;
+				if (value)
+					UiEventDefinitions.OnTickPerFrame.RemoveListener(Update);
+				else
+					UiEventDefinitions.OnTickPerFrame.AddListener(Update);
+			}
+		}
 
 		internal void Initialize( SettingsPersistedAggregate _settings )
 		{
 			m_persistedAggregate = _settings;
 			m_mainThreadScheduler = System.Threading.Tasks.TaskScheduler.FromCurrentSynchronizationContext();
+			
+			UiEventDefinitions.OnTickPerFrame.RemoveListener(Update);
 			if (!ManualUpdate)
 				UiEventDefinitions.OnTickPerFrame.AddListener(Update);
 			
@@ -34,16 +54,31 @@ namespace GuiToolkit
 				UiLog.LogError($"Loading PlayerSettings failed:{ex}");
 			});
 		}
-
 		
 		internal void Update( int _ )
 		{
 			if (!m_persistedAggregate.IsLoaded)
 				return;
 
+			Vector3 currMousePosition = Input.mousePosition;
+			bool isStartingDrag = false;
+			bool isStoppingDrag = false;
+			
+			if (m_isPotentialDrag)
+			{
+				var distance = (m_dragStartPosition - currMousePosition).sqrMagnitude;
+				if (distance > m_dragDetectionDistance)
+				{
+					isStartingDrag = true;
+					m_isPotentialDrag = false;
+					m_inDrag = true;
+				}
+			}
+					
 			foreach (var kv in m_keyBindingPlayerSettings)
 			{
 				var playerSetting = kv.Value;
+				
 				KeyBinding binding = playerSetting.GetValue<KeyBinding>();
 
 				if (IsActive(binding))
@@ -51,11 +86,22 @@ namespace GuiToolkit
 					if (IsPressedUp(binding))
 					{
 						playerSetting.OnKeyUp.Invoke();
+						if (m_inDrag)
+							playerSetting.OnEndDrag.Invoke(m_dragStartPosition, currMousePosition);
+						else
+							playerSetting.OnClick.Invoke();
+						
+						isStoppingDrag = true;
 						m_activeKeyBindings.Remove(binding.Encoded);
 						continue;
 					}
 					
-					playerSetting.WhileKeyPressed.Invoke();
+					if (isStartingDrag)
+					{
+						playerSetting.OnBeginDrag.Invoke(m_dragStartPosition, currMousePosition);
+					}
+					
+					playerSetting.WhileKey.Invoke();
 					continue;
 				}
 
@@ -63,7 +109,19 @@ namespace GuiToolkit
 				{
 					playerSetting.OnKeyDown.Invoke();
 					m_activeKeyBindings.Add(binding.Encoded);
+					
+					if (!m_inDrag && !m_isPotentialDrag)
+					{
+						m_isPotentialDrag = true;
+						m_dragStartPosition = Input.mousePosition;
+					}
 				}
+			}
+			
+			if (isStoppingDrag)
+			{
+				m_isPotentialDrag = false;
+				m_inDrag = false;
 			}
 			
 			bool IsActive(KeyBinding _binding) => m_activeKeyBindings.Contains(_binding.Encoded);
@@ -355,7 +413,7 @@ namespace GuiToolkit
 					playerSetting.OnKeyDown.AddListener(_callback);
 					break;
 				case KeyListenerType.Pressed:
-					playerSetting.WhileKeyPressed.AddListener(_callback);
+					playerSetting.WhileKey.AddListener(_callback);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(_type), _type, null);
@@ -381,7 +439,7 @@ namespace GuiToolkit
 					playerSetting.OnKeyDown.RemoveListener(_callback);
 					break;
 				case KeyListenerType.Pressed:
-					playerSetting.WhileKeyPressed.RemoveListener(_callback);
+					playerSetting.WhileKey.RemoveListener(_callback);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(_type), _type, null);
