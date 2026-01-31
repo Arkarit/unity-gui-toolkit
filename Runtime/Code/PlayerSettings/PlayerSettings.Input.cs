@@ -8,6 +8,13 @@ namespace GuiToolkit
 {
 	public partial class PlayerSettings
 	{
+		public enum KeyListenerType
+		{
+			Up,
+			Down,
+			Pressed,
+		}
+
 		public class DragInfo
 		{
 			public bool MeasuringDistance;
@@ -46,11 +53,18 @@ namespace GuiToolkit
 				m_dragTresholdSqr = value * value;
 			}
 		}
-		public bool GetKey( KeyCode _originalKeyCode ) => GetKey(new KeyBinding(_originalKeyCode));
 
-		public bool GetKeyDown( KeyCode _originalKeyCode ) => GetKeyDown(new KeyBinding(_originalKeyCode));
+		public bool HasUnboundKeys
+		{
+			get
+			{
+				foreach (var kv in m_keyBindings)
+					if (kv.Value.KeyCode == KeyCode.None)
+						return true;
 
-		public bool GetKeyUp( KeyCode _originalKeyCode ) => GetKeyUp(new KeyBinding(_originalKeyCode));
+				return false;
+			}
+		}
 
 		public bool GetKey( KeyBinding _originalKeyBinding )
 		{
@@ -72,22 +86,6 @@ namespace GuiToolkit
 
 		public KeyBinding ResolveKey( KeyBinding _originalKeyBinding ) =>
 			m_keyBindings.GetValueOrDefault(_originalKeyBinding.Encoded, _originalKeyBinding);
-
-		public bool HasUnboundKeys()
-		{
-			foreach (var kv in m_keyBindings)
-				if (kv.Value.KeyCode == KeyCode.None)
-					return true;
-
-			return false;
-		}
-
-		public enum KeyListenerType
-		{
-			Up,
-			Down,
-			Pressed,
-		}
 
 		public void AddKeyUpListener( KeyBinding _originalKeyBinding, UnityAction _callback ) =>
 			AddKeyListener(_originalKeyBinding, KeyListenerType.Up, _callback);

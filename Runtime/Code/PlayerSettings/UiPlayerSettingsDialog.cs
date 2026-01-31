@@ -223,7 +223,7 @@ namespace GuiToolkit
 
 		protected virtual void OnOkButton()
 		{
-			if (PlayerSettings.Instance.HasUnboundKeys())
+			if (PlayerSettings.Instance.HasUnboundKeys)
 			{
 				UiMain.Instance.YesNoRequester(_("Unbound Keys"), _("Some keys remain unbound. Really continue?"), false, SaveAndHide);
 				return;
