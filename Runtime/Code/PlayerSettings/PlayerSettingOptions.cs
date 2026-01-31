@@ -62,6 +62,7 @@ namespace GuiToolkit
 		public bool KeyCodeFilterListIsWhitelist;                           //!< Set to true if you want the filter list to be whitelist instead of blacklist
 		public List<KeyCode> KeyCodeFilterList;                             //!< Filter list for keycodes
 		public EKeyPolicy KeyPolicy = EKeyPolicy.KeyWithModifiers;			//!< Determines, if modifiers are allowed for this key
+		public bool SupportDrag;											//!< Support Drag
 
 		public static PlayerSettingOptions NoMouseKeys =>
 			new()

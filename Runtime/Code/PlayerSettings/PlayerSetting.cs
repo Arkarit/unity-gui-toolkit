@@ -47,7 +47,8 @@ namespace GuiToolkit
 		
 		public CEvent<Vector3, Vector3> OnBeginDrag => m_onBeginDrag;
 		public CEvent<Vector3, Vector3> WhileDrag => m_whileDrag;
-		public CEvent<Vector3, Vector3> OnEndDrag => m_onBeginDrag;
+		public CEvent<Vector3, Vector3> OnEndDrag => m_onEndDrag;
+		public bool SupportDrag => m_options.SupportDrag;
 
 		public bool AllowInvokeEvents
 		{

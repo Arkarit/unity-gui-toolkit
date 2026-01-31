@@ -7,6 +7,13 @@ namespace GuiToolkit.Tests
 	public sealed class MockInputProxy : IInputProxy
 	{
 		private readonly HashSet<KeyCode> m_keys = new();
+		private Vector3 m_mousePosition;
+
+		public Vector3 MousePosition
+		{
+			get => m_mousePosition;
+			set => m_mousePosition = value;
+		}
 
 		public void Press( KeyCode _key ) => m_keys.Add(_key);
 		public void Release( KeyCode _key ) => m_keys.Remove(_key);

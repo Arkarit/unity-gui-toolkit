@@ -8,13 +8,23 @@ namespace GuiToolkit
 {
 	public class PlayerSettings
 	{
+		public class DragInfo
+		{
+			public bool MeasuringDistance;
+			public bool Active;
+			public Vector3 StartPosition;
+			public PlayerSetting PlayerSetting;
+		}
+		
 		//TODO Getter/setter
-		private readonly float m_dragDetectionDistance = Mathf.Sqrt(10);
+		private static readonly float m_dragDetectionDistanceVal = 5;
+		private static readonly float m_dragDetectionDistance = m_dragDetectionDistanceVal * m_dragDetectionDistanceVal;
 		
 		private readonly Dictionary<string, PlayerSetting> m_playerSettings = new();
 		private readonly Dictionary<int, KeyBinding> m_keyBindings = new();
 		private readonly Dictionary<int, PlayerSetting> m_keyBindingPlayerSettings = new();
 		private readonly HashSet<int> m_activeKeyBindings = new();
+		private readonly Dictionary<int, DragInfo> m_dragInfos = new();
 
 		private SettingsPersistedAggregate m_persistedAggregate;
 		private bool m_isApplyingLoadedValues;
@@ -22,10 +32,6 @@ namespace GuiToolkit
 
 		public IInputProxy InputProxy = new UnityInputProxy();
 
-		private bool m_isPotentialDrag;
-		private bool m_inDrag;
-		private Vector3 m_dragStartPosition;
-		
 		private bool m_manualUpdate;
 		internal bool ManualUpdate
 		{
@@ -60,48 +66,52 @@ namespace GuiToolkit
 			if (!m_persistedAggregate.IsLoaded)
 				return;
 
-			Vector3 currMousePosition = Input.mousePosition;
-			bool isStartingDrag = false;
-			bool isStoppingDrag = false;
-			
-			if (m_isPotentialDrag)
+			Vector3 currMousePosition = InputProxy.MousePosition;
+
+			foreach (var kv in m_dragInfos)
 			{
-				var distance = (m_dragStartPosition - currMousePosition).sqrMagnitude;
+				DragInfo dragInfo = kv.Value;
+
+				if (!dragInfo.MeasuringDistance)
+					continue;
+
+				var distance = (dragInfo.StartPosition - currMousePosition).sqrMagnitude;
 				if (distance > m_dragDetectionDistance)
 				{
-					isStartingDrag = true;
-					m_isPotentialDrag = false;
-					m_inDrag = true;
+					dragInfo.MeasuringDistance = false;
+					dragInfo.Active = true;
+					dragInfo.PlayerSetting.OnBeginDrag.Invoke(dragInfo.StartPosition, currMousePosition);
 				}
 			}
 					
 			foreach (var kv in m_keyBindingPlayerSettings)
 			{
 				var playerSetting = kv.Value;
-				
 				KeyBinding binding = playerSetting.GetValue<KeyBinding>();
+				int bindingKey = binding.Encoded;
+				m_dragInfos.TryGetValue(bindingKey, out DragInfo dragInfo);
+				bool isDragging = dragInfo?.Active ?? false;
 
-				if (IsActive(binding))
+				if (m_activeKeyBindings.Contains(bindingKey))
 				{
 					if (IsPressedUp(binding))
 					{
 						playerSetting.OnKeyUp.Invoke();
-						if (m_inDrag)
-							playerSetting.OnEndDrag.Invoke(m_dragStartPosition, currMousePosition);
+
+						if (isDragging)
+							playerSetting.OnEndDrag.Invoke(dragInfo.StartPosition, currMousePosition);
 						else
 							playerSetting.OnClick.Invoke();
-						
-						isStoppingDrag = true;
-						m_activeKeyBindings.Remove(binding.Encoded);
+
+						m_dragInfos.Remove(bindingKey);
+						m_activeKeyBindings.Remove(bindingKey);
 						continue;
 					}
 					
-					if (isStartingDrag)
-					{
-						playerSetting.OnBeginDrag.Invoke(m_dragStartPosition, currMousePosition);
-					}
-					
 					playerSetting.WhileKey.Invoke();
+					if (isDragging)
+						playerSetting.WhileDrag.Invoke(dragInfo.StartPosition, currMousePosition);
+
 					continue;
 				}
 
@@ -109,22 +119,19 @@ namespace GuiToolkit
 				{
 					playerSetting.OnKeyDown.Invoke();
 					m_activeKeyBindings.Add(binding.Encoded);
-					
-					if (!m_inDrag && !m_isPotentialDrag)
+
+					if (playerSetting.SupportDrag)
 					{
-						m_isPotentialDrag = true;
-						m_dragStartPosition = Input.mousePosition;
+						m_dragInfos.Add(bindingKey, new DragInfo()
+						{
+							MeasuringDistance = true,
+							Active = false,
+							PlayerSetting = playerSetting,
+							StartPosition = currMousePosition
+						});
 					}
 				}
 			}
-			
-			if (isStoppingDrag)
-			{
-				m_isPotentialDrag = false;
-				m_inDrag = false;
-			}
-			
-			bool IsActive(KeyBinding _binding) => m_activeKeyBindings.Contains(_binding.Encoded);
 		}
 
 		public void Load( Action _onSuccess = null, Action<Exception> _onFail = null )
