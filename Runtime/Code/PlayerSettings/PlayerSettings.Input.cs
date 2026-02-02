@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 namespace GuiToolkit
 {
@@ -264,6 +265,15 @@ namespace GuiToolkit
 				UiEventDefinitions.OnTickPerFrame.AddListener(Update);
 		}
 
+		private static bool IsMouseOverUi
+		{
+			get
+			{
+				var eventSystem = EventSystem.current;
+				return eventSystem && eventSystem.IsPointerOverGameObject();
+			}
+		}
+		
 		private void ClearInput()
 		{
 			m_keyBindingPlayerSettings.Clear();
@@ -454,7 +464,10 @@ namespace GuiToolkit
 						if (isDragging)
 							playerSetting.OnEndDrag.Invoke(dragInfo.StartPosition, dragInfo.LastPosition, currMousePosition);
 						else
-							playerSetting.OnClick.Invoke();
+						{
+							if (!IsMouseOverUi)
+								playerSetting.OnClick.Invoke();
+						}
 
 						m_dragInfos.Remove(bindingKey);
 						m_activeKeyBindings.Remove(bindingKey);
