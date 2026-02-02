@@ -23,13 +23,13 @@ namespace GuiToolkit
 
 		// Note: These events are only data types. They are handled in PlayerSettings, but not here.
 		////////////////////////////////////////////////////////////////////////////////////////////
-		protected CEvent m_onKeyDown = new();
-		protected CEvent m_onKeyUp = new();
-		protected CEvent m_whileKey = new();
-		protected CEvent m_onClick = new();
-		protected CEvent<Vector3, Vector3, Vector3> m_onBeginDrag = new();
-		protected CEvent<Vector3, Vector3, Vector3> m_whileDrag = new();
-		protected CEvent<Vector3, Vector3, Vector3> m_onEndDrag = new();
+		protected CEvent<PlayerSetting> m_onKeyDown = new();
+		protected CEvent<PlayerSetting> m_onKeyUp = new();
+		protected CEvent<PlayerSetting> m_whileKey = new();
+		protected CEvent<PlayerSetting> m_onClick = new();
+		protected CEvent<PlayerSetting, Vector3, Vector3, Vector3> m_onBeginDrag = new();
+		protected CEvent<PlayerSetting, Vector3, Vector3, Vector3> m_whileDrag = new();
+		protected CEvent<PlayerSetting, Vector3, Vector3, Vector3> m_onEndDrag = new();
 
 		public PlayerSettingOptions Options => m_options;
 		public string Category => m_category;
@@ -37,14 +37,14 @@ namespace GuiToolkit
 		public string Title => m_title;
 		public string Key => m_key;
 
-		public CEvent OnKeyDown => m_onKeyDown;
-		public CEvent OnKeyUp => m_onKeyUp;
-		public CEvent WhileKey => m_whileKey;
-		public CEvent OnClick => m_onClick;
+		public CEvent<PlayerSetting> OnKeyDown => m_onKeyDown;
+		public CEvent<PlayerSetting> OnKeyUp => m_onKeyUp;
+		public CEvent<PlayerSetting> WhileKey => m_whileKey;
+		public CEvent<PlayerSetting> OnClick => m_onClick;
 
-		public CEvent<Vector3, Vector3, Vector3> OnBeginDrag => m_onBeginDrag;
-		public CEvent<Vector3, Vector3, Vector3> WhileDrag => m_whileDrag;
-		public CEvent<Vector3, Vector3, Vector3> OnEndDrag => m_onEndDrag;
+		public CEvent<PlayerSetting, Vector3, Vector3, Vector3> OnBeginDrag => m_onBeginDrag;
+		public CEvent<PlayerSetting, Vector3, Vector3, Vector3> WhileDrag => m_whileDrag;
+		public CEvent<PlayerSetting, Vector3, Vector3, Vector3> OnEndDrag => m_onEndDrag;
 		public bool SupportDrag => m_options.SupportDrag;
 
 		public bool AllowInvokeEvents

@@ -60,14 +60,14 @@ namespace GuiToolkit.Tests
 			int whileDragCount = 0;
 			int endDragCount = 0;
 
-			mgr.AddKeyDownListener(KeyCode.A, () => downCount++);
-			mgr.AddKeyUpListener(KeyCode.A, () => upCount++);
-			mgr.AddKeyPressedListener(KeyCode.A, () => whileCount++);
+			mgr.AddKeyDownListener(KeyCode.A, (_) => downCount++);
+			mgr.AddKeyUpListener(KeyCode.A, (_) => upCount++);
+			mgr.AddKeyPressedListener(KeyCode.A, (_) => whileCount++);
 
-			ps.OnClick.AddListener(() => clickCount++);
-			ps.OnBeginDrag.AddListener((_, _, _) => beginDragCount++);
-			ps.WhileDrag.AddListener((_, _, _) => whileDragCount++);
-			ps.OnEndDrag.AddListener((_, _, _) => endDragCount++);
+			ps.OnClick.AddListener((_) => clickCount++);
+			ps.OnBeginDrag.AddListener((_, _, _, _) => beginDragCount++);
+			ps.WhileDrag.AddListener((_, _, _, _) => whileDragCount++);
+			ps.OnEndDrag.AddListener((_, _, _, _) => endDragCount++);
 
 			// Frame 1: press A at mouse pos (0,0,0)
 			m_input.MousePosition = Vector3.zero;
@@ -119,24 +119,24 @@ namespace GuiToolkit.Tests
 			int whileDragCount = 0;
 			int endDragCount = 0;
 
-			mgr.AddKeyDownListener(KeyCode.A, () => downCount++);
-			mgr.AddKeyUpListener(KeyCode.A, () => upCount++);
-			mgr.AddKeyPressedListener(KeyCode.A, () => whileCount++);
+			mgr.AddKeyDownListener(KeyCode.A, (_) => downCount++);
+			mgr.AddKeyUpListener(KeyCode.A, (_) => upCount++);
+			mgr.AddKeyPressedListener(KeyCode.A, (_) => whileCount++);
 
 			Vector3 beginStart = default;
 			Vector3 beginCurr = default;
 			Vector3 endStart = default;
 			Vector3 endCurr = default;
 
-			ps.OnClick.AddListener(() => clickCount++);
-			ps.OnBeginDrag.AddListener((_start, _, _curr) =>
+			ps.OnClick.AddListener((_) => clickCount++);
+			ps.OnBeginDrag.AddListener((_, _start, _, _curr) =>
 			{
 				beginDragCount++;
 				beginStart = _start;
 				beginCurr = _curr;
 			});
-			ps.WhileDrag.AddListener((_, _, _) => whileDragCount++);
-			ps.OnEndDrag.AddListener((_start, _, _curr) =>
+			ps.WhileDrag.AddListener((_, _, _, _) => whileDragCount++);
+			ps.OnEndDrag.AddListener((_, _start, _, _curr) =>
 			{
 				endDragCount++;
 				endStart = _start;
@@ -199,10 +199,10 @@ namespace GuiToolkit.Tests
 			int whileDragCount = 0;
 			int endDragCount = 0;
 
-			ps.OnClick.AddListener(() => clickCount++);
-			ps.OnBeginDrag.AddListener((_, _, _) => beginDragCount++);
-			ps.WhileDrag.AddListener((_, _, _) => whileDragCount++);
-			ps.OnEndDrag.AddListener((_, _, _) => endDragCount++);
+			ps.OnClick.AddListener((_) => clickCount++);
+			ps.OnBeginDrag.AddListener((_, _, _, _) => beginDragCount++);
+			ps.WhileDrag.AddListener((_, _, _, _) => whileDragCount++);
+			ps.OnEndDrag.AddListener((_, _, _, _) => endDragCount++);
 
 			// Frame 1: press at (0,0,0)
 			m_input.MousePosition = Vector3.zero;
@@ -245,8 +245,8 @@ namespace GuiToolkit.Tests
 			int beginDragCount = 0;
 			int whileDragCount = 0;
 
-			ps.OnBeginDrag.AddListener((_, _, _) => beginDragCount++);
-			ps.WhileDrag.AddListener((_, _, _) => whileDragCount++);
+			ps.OnBeginDrag.AddListener((_, _, _, _) => beginDragCount++);
+			ps.WhileDrag.AddListener((_, _, _, _) => whileDragCount++);
 
 			// Frame 1: press at (0,0,0) and update -> must NOT drag yet
 			m_input.MousePosition = Vector3.zero;

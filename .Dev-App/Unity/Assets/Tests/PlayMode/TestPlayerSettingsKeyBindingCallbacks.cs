@@ -45,7 +45,7 @@ namespace GuiToolkit.Tests
 			mgr.Add(new List<PlayerSetting> { ps });
 
 			int downCount = 0;
-			mgr.AddKeyDownListener(KeyCode.A, () => downCount++);
+			mgr.AddKeyDownListener(KeyCode.A, (_) => downCount++);
 
 			// Frame 1: press A
 			m_input.Press(KeyCode.A);
@@ -74,7 +74,7 @@ namespace GuiToolkit.Tests
 			mgr.Add(new List<PlayerSetting> { ps });
 
 			int pressedCount = 0;
-			mgr.AddKeyPressedListener(KeyCode.A, () => pressedCount++);
+			mgr.AddKeyPressedListener(KeyCode.A, (_) => pressedCount++);
 
 			// Frame 1: press. This doesn't invoke the WhilePressed callback, which is only called in frame 2 and 3
 			m_input.Press(KeyCode.A);
@@ -106,7 +106,7 @@ namespace GuiToolkit.Tests
 			mgr.Add(new List<PlayerSetting> { ps });
 
 			int upCount = 0;
-			mgr.AddKeyUpListener(KeyCode.A, () => upCount++);
+			mgr.AddKeyUpListener(KeyCode.A, (_) => upCount++);
 
 			// Frame 1: press
 			m_input.Press(KeyCode.A);
@@ -148,7 +148,7 @@ namespace GuiToolkit.Tests
 			mgr.Add(new List<PlayerSetting> { ps });
 
 			int upCount = 0;
-			mgr.AddKeyUpListener(new KeyBinding(KeyCode.A, KeyBinding.EModifiers.Shift), () => upCount++);
+			mgr.AddKeyUpListener(new KeyBinding(KeyCode.A, KeyBinding.EModifiers.Shift), (_) => upCount++);
 
 			// Frame 1: press Shift + A
 			m_input.Press(KeyCode.LeftShift);
@@ -179,7 +179,7 @@ namespace GuiToolkit.Tests
 			mgr.Add(new List<PlayerSetting> { ps });
 
 			int upCount = 0;
-			mgr.AddKeyUpListener(KeyCode.A, () => upCount++);
+			mgr.AddKeyUpListener(KeyCode.A, (_) => upCount++);
 
 			// Frame 1: release A without ever pressing
 			m_input.Release(KeyCode.A);

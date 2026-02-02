@@ -63,13 +63,13 @@ namespace GuiToolkit
 		public List<KeyCode> KeyCodeFilterList;                             //!< Filter list for keycodes
 		public EKeyPolicy KeyPolicy = EKeyPolicy.KeyWithModifiers;			//!< Determines, if modifiers are allowed for this key
 		public bool SupportDrag;											//!< Support Drag
-		public UnityAction OnKeyDown;
-		public UnityAction OnKeyUp;
-		public UnityAction WhileKey;
-		public UnityAction OnClick;
-		public UnityAction<Vector3, Vector3, Vector3> OnBeginDrag;
-		public UnityAction<Vector3, Vector3, Vector3> WhileDrag;
-		public UnityAction<Vector3, Vector3, Vector3> OnEndDrag;
+		public UnityAction<PlayerSetting> OnKeyDown;
+		public UnityAction<PlayerSetting> OnKeyUp;
+		public UnityAction<PlayerSetting> WhileKey;
+		public UnityAction<PlayerSetting> OnClick;
+		public UnityAction<PlayerSetting, Vector3, Vector3, Vector3> OnBeginDrag;
+		public UnityAction<PlayerSetting, Vector3, Vector3, Vector3> WhileDrag;
+		public UnityAction<PlayerSetting, Vector3, Vector3, Vector3> OnEndDrag;
 
 		public static PlayerSettingOptions NoMouseKeys =>
 			new()

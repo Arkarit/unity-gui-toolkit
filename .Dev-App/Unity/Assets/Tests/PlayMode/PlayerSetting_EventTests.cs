@@ -26,15 +26,15 @@ namespace GuiToolkit.Tests
 			int whileKeyCount = 0;
 			int clickCount = 0;
 
-			setting.OnKeyDown.AddListener(() => keyDownCount++);
-			setting.OnKeyUp.AddListener(() => keyUpCount++);
-			setting.WhileKey.AddListener(() => whileKeyCount++);
-			setting.OnClick.AddListener(() => clickCount++);
+			setting.OnKeyDown.AddListener((_) => keyDownCount++);
+			setting.OnKeyUp.AddListener((_) => keyUpCount++);
+			setting.WhileKey.AddListener((_) => whileKeyCount++);
+			setting.OnClick.AddListener((_) => clickCount++);
 
-			setting.OnKeyDown.Invoke();
-			setting.OnKeyUp.Invoke();
-			setting.WhileKey.Invoke();
-			setting.OnClick.Invoke();
+			setting.OnKeyDown.Invoke(setting);
+			setting.OnKeyUp.Invoke(setting);
+			setting.WhileKey.Invoke(setting);
+			setting.OnClick.Invoke(setting);
 
 			Assert.AreEqual(1, keyDownCount);
 			Assert.AreEqual(1, keyUpCount);
@@ -54,13 +54,13 @@ namespace GuiToolkit.Tests
 			Vector3 start = Vector3.zero;
 			Vector3 current = Vector3.one;
 
-			setting.OnBeginDrag.AddListener((_, _, _) => beginDragCount++);
-			setting.WhileDrag.AddListener((_, _, _) => whileDragCount++);
-			setting.OnEndDrag.AddListener((_, _, _) => endDragCount++);
+			setting.OnBeginDrag.AddListener((_, _, _, _) => beginDragCount++);
+			setting.WhileDrag.AddListener((_, _, _, _) => whileDragCount++);
+			setting.OnEndDrag.AddListener((_, _, _, _) => endDragCount++);
 
-			setting.OnBeginDrag.Invoke(start, Vector3.zero, current);
-			setting.WhileDrag.Invoke(start, Vector3.zero, current);
-			setting.OnEndDrag.Invoke(start, Vector3.zero, current);
+			setting.OnBeginDrag.Invoke(setting, start, Vector3.zero, current);
+			setting.WhileDrag.Invoke(setting, start, Vector3.zero, current);
+			setting.OnEndDrag.Invoke(setting, start, Vector3.zero, current);
 
 			Assert.AreEqual(1, beginDragCount);
 			Assert.AreEqual(1, whileDragCount);
@@ -74,15 +74,15 @@ namespace GuiToolkit.Tests
 
 			int callCount = 0;
 
-			setting.OnKeyDown.AddListener(() => callCount++);
-			setting.OnClick.AddListener(() => callCount++);
-			setting.OnBeginDrag.AddListener((_, _, _) => callCount++);
+			setting.OnKeyDown.AddListener((_) => callCount++);
+			setting.OnClick.AddListener((_) => callCount++);
+			setting.OnBeginDrag.AddListener((_, _, _, _) => callCount++);
 
 			setting.Clear();
 
-			setting.OnKeyDown.Invoke();
-			setting.OnClick.Invoke();
-			setting.OnBeginDrag.Invoke(Vector3.zero, Vector3.zero, Vector3.zero);
+			setting.OnKeyDown.Invoke(setting);
+			setting.OnClick.Invoke(setting);
+			setting.OnBeginDrag.Invoke(setting, Vector3.zero, Vector3.zero, Vector3.zero);
 
 			Assert.AreEqual(0, callCount);
 		}
