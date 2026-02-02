@@ -23,11 +23,12 @@ namespace GuiToolkit
 			EndDrag,
 		}
 
-		public class DragInfo
+		private class DragInfo
 		{
 			public bool MeasuringDistance;
 			public bool Active;
 			public Vector3 StartPosition;
+			public Vector3 LastPosition;
 			public PlayerSetting PlayerSetting;
 		}
 
@@ -111,11 +112,11 @@ namespace GuiToolkit
 			AddKeyListener(_originalKeyBinding, KeyListenerType.Pressed, _callback);
 		public void AddKeyClickListener( KeyBinding _originalKeyBinding, UnityAction _callback ) =>
 			AddKeyListener(_originalKeyBinding, KeyListenerType.Click, _callback);
-		public void AddBeginDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3> _callback ) =>
+		public void AddBeginDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3, Vector3> _callback ) =>
 			AddDragListener(_originalKeyBinding, DragType.BeginDrag, _callback);
-		public void AddDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3> _callback ) =>
+		public void AddDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3, Vector3> _callback ) =>
 			AddDragListener(_originalKeyBinding, DragType.Drag, _callback);
-		public void AddEndDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3> _callback ) =>
+		public void AddEndDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3, Vector3> _callback ) =>
 			AddDragListener(_originalKeyBinding, DragType.EndDrag, _callback);
 
 		public void RemoveKeyUpListener( KeyBinding _originalKeyBinding, UnityAction _callback ) =>
@@ -126,11 +127,11 @@ namespace GuiToolkit
 			RemoveKeyListener(_originalKeyBinding, KeyListenerType.Pressed, _callback);
 		public void RemoveKeyClickListener( KeyBinding _originalKeyBinding, UnityAction _callback ) =>
 			RemoveKeyListener(_originalKeyBinding, KeyListenerType.Click, _callback);
-		public void RemoveBeginDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3> _callback ) =>
+		public void RemoveBeginDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3, Vector3> _callback ) =>
 			RemoveDragListener(_originalKeyBinding, DragType.BeginDrag, _callback);
-		public void RemoveDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3> _callback ) =>
+		public void RemoveDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3, Vector3> _callback ) =>
 			RemoveDragListener(_originalKeyBinding, DragType.Drag, _callback);
-		public void RemoveEndDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3> _callback ) =>
+		public void RemoveEndDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3, Vector3> _callback ) =>
 			RemoveDragListener(_originalKeyBinding, DragType.EndDrag, _callback);
 
 		public bool AddKeyListener( KeyBinding _originalKeyBinding, KeyListenerType _type, UnityAction _callback )
@@ -189,7 +190,7 @@ namespace GuiToolkit
 			}
 		}
 		
-		public bool AddDragListener( KeyBinding _originalKeyBinding, DragType _type, UnityAction<Vector3, Vector3> _callback )
+		public bool AddDragListener( KeyBinding _originalKeyBinding, DragType _type, UnityAction<Vector3, Vector3, Vector3> _callback )
 		{
 			if (!m_keyBindingPlayerSettings.TryGetValue(_originalKeyBinding.Encoded, out var playerSetting))
 			{
@@ -215,7 +216,7 @@ namespace GuiToolkit
 			return true;
 		}
 
-		public void RemoveDragListener( KeyBinding _originalKeyBinding, DragType _type, UnityAction<Vector3, Vector3> _callback )
+		public void RemoveDragListener( KeyBinding _originalKeyBinding, DragType _type, UnityAction<Vector3, Vector3, Vector3> _callback )
 		{
 			if (!m_keyBindingPlayerSettings.TryGetValue(_originalKeyBinding.Encoded, out var playerSetting))
 			{
@@ -431,7 +432,8 @@ namespace GuiToolkit
 				{
 					dragInfo.MeasuringDistance = false;
 					dragInfo.Active = true;
-					dragInfo.PlayerSetting.OnBeginDrag.Invoke(dragInfo.StartPosition, currMousePosition);
+					dragInfo.PlayerSetting.OnBeginDrag.Invoke(dragInfo.StartPosition, dragInfo.LastPosition, currMousePosition);
+					dragInfo.LastPosition = currMousePosition;
 				}
 			}
 
@@ -450,7 +452,7 @@ namespace GuiToolkit
 						playerSetting.OnKeyUp.Invoke();
 
 						if (isDragging)
-							playerSetting.OnEndDrag.Invoke(dragInfo.StartPosition, currMousePosition);
+							playerSetting.OnEndDrag.Invoke(dragInfo.StartPosition, dragInfo.LastPosition, currMousePosition);
 						else
 							playerSetting.OnClick.Invoke();
 
@@ -461,7 +463,10 @@ namespace GuiToolkit
 
 					playerSetting.WhileKey.Invoke();
 					if (isDragging)
-						playerSetting.WhileDrag.Invoke(dragInfo.StartPosition, currMousePosition);
+					{
+						playerSetting.WhileDrag.Invoke(dragInfo.StartPosition, dragInfo.LastPosition, currMousePosition);
+						dragInfo.LastPosition = currMousePosition;
+					}
 
 					continue;
 				}

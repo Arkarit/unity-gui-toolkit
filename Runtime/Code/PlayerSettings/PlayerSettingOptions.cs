@@ -67,9 +67,9 @@ namespace GuiToolkit
 		public UnityAction OnKeyUp;
 		public UnityAction WhileKey;
 		public UnityAction OnClick;
-		public UnityAction<Vector3, Vector3> OnBeginDrag;
-		public UnityAction<Vector3, Vector3> WhileDrag;
-		public UnityAction<Vector3, Vector3> OnEndDrag;
+		public UnityAction<Vector3, Vector3, Vector3> OnBeginDrag;
+		public UnityAction<Vector3, Vector3, Vector3> WhileDrag;
+		public UnityAction<Vector3, Vector3, Vector3> OnEndDrag;
 
 		public static PlayerSettingOptions NoMouseKeys =>
 			new()

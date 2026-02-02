@@ -65,9 +65,9 @@ namespace GuiToolkit.Tests
 			mgr.AddKeyPressedListener(KeyCode.A, () => whileCount++);
 
 			ps.OnClick.AddListener(() => clickCount++);
-			ps.OnBeginDrag.AddListener((_, _) => beginDragCount++);
-			ps.WhileDrag.AddListener((_, _) => whileDragCount++);
-			ps.OnEndDrag.AddListener((_, _) => endDragCount++);
+			ps.OnBeginDrag.AddListener((_, _, _) => beginDragCount++);
+			ps.WhileDrag.AddListener((_, _, _) => whileDragCount++);
+			ps.OnEndDrag.AddListener((_, _, _) => endDragCount++);
 
 			// Frame 1: press A at mouse pos (0,0,0)
 			m_input.MousePosition = Vector3.zero;
@@ -129,14 +129,14 @@ namespace GuiToolkit.Tests
 			Vector3 endCurr = default;
 
 			ps.OnClick.AddListener(() => clickCount++);
-			ps.OnBeginDrag.AddListener((_start, _curr) =>
+			ps.OnBeginDrag.AddListener((_start, _, _curr) =>
 			{
 				beginDragCount++;
 				beginStart = _start;
 				beginCurr = _curr;
 			});
-			ps.WhileDrag.AddListener((_, _) => whileDragCount++);
-			ps.OnEndDrag.AddListener((_start, _curr) =>
+			ps.WhileDrag.AddListener((_, _, _) => whileDragCount++);
+			ps.OnEndDrag.AddListener((_start, _, _curr) =>
 			{
 				endDragCount++;
 				endStart = _start;
@@ -200,9 +200,9 @@ namespace GuiToolkit.Tests
 			int endDragCount = 0;
 
 			ps.OnClick.AddListener(() => clickCount++);
-			ps.OnBeginDrag.AddListener((_, _) => beginDragCount++);
-			ps.WhileDrag.AddListener((_, _) => whileDragCount++);
-			ps.OnEndDrag.AddListener((_, _) => endDragCount++);
+			ps.OnBeginDrag.AddListener((_, _, _) => beginDragCount++);
+			ps.WhileDrag.AddListener((_, _, _) => whileDragCount++);
+			ps.OnEndDrag.AddListener((_, _, _) => endDragCount++);
 
 			// Frame 1: press at (0,0,0)
 			m_input.MousePosition = Vector3.zero;
@@ -245,8 +245,8 @@ namespace GuiToolkit.Tests
 			int beginDragCount = 0;
 			int whileDragCount = 0;
 
-			ps.OnBeginDrag.AddListener((_, _) => beginDragCount++);
-			ps.WhileDrag.AddListener((_, _) => whileDragCount++);
+			ps.OnBeginDrag.AddListener((_, _, _) => beginDragCount++);
+			ps.WhileDrag.AddListener((_, _, _) => whileDragCount++);
 
 			// Frame 1: press at (0,0,0) and update -> must NOT drag yet
 			m_input.MousePosition = Vector3.zero;

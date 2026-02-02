@@ -54,13 +54,13 @@ namespace GuiToolkit.Tests
 			Vector3 start = Vector3.zero;
 			Vector3 current = Vector3.one;
 
-			setting.OnBeginDrag.AddListener((_, _) => beginDragCount++);
-			setting.WhileDrag.AddListener((_, _) => whileDragCount++);
-			setting.OnEndDrag.AddListener((_, _) => endDragCount++);
+			setting.OnBeginDrag.AddListener((_, _, _) => beginDragCount++);
+			setting.WhileDrag.AddListener((_, _, _) => whileDragCount++);
+			setting.OnEndDrag.AddListener((_, _, _) => endDragCount++);
 
-			setting.OnBeginDrag.Invoke(start, current);
-			setting.WhileDrag.Invoke(start, current);
-			setting.OnEndDrag.Invoke(start, current);
+			setting.OnBeginDrag.Invoke(start, Vector3.zero, current);
+			setting.WhileDrag.Invoke(start, Vector3.zero, current);
+			setting.OnEndDrag.Invoke(start, Vector3.zero, current);
 
 			Assert.AreEqual(1, beginDragCount);
 			Assert.AreEqual(1, whileDragCount);
@@ -76,13 +76,13 @@ namespace GuiToolkit.Tests
 
 			setting.OnKeyDown.AddListener(() => callCount++);
 			setting.OnClick.AddListener(() => callCount++);
-			setting.OnBeginDrag.AddListener((_, _) => callCount++);
+			setting.OnBeginDrag.AddListener((_, _, _) => callCount++);
 
 			setting.Clear();
 
 			setting.OnKeyDown.Invoke();
 			setting.OnClick.Invoke();
-			setting.OnBeginDrag.Invoke(Vector3.zero, Vector3.zero);
+			setting.OnBeginDrag.Invoke(Vector3.zero, Vector3.zero, Vector3.zero);
 
 			Assert.AreEqual(0, callCount);
 		}
