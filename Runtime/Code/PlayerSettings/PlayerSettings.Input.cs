@@ -180,6 +180,7 @@ namespace GuiToolkit
 			m_keyBindingPlayerSettings.Clear();
 			m_keyBindings.Clear();
 			m_activeKeyBindings.Clear();
+			m_dragInfos.Clear();
 		}
 
 		private void RebuildKeyBindings()
