@@ -15,6 +15,13 @@ namespace GuiToolkit
 			Pressed,
 			Click,
 		}
+		
+		public enum DragType
+		{
+			BeginDrag,
+			Drag,
+			EndDrag,
+		}
 
 		public class DragInfo
 		{
@@ -104,6 +111,12 @@ namespace GuiToolkit
 			AddKeyListener(_originalKeyBinding, KeyListenerType.Pressed, _callback);
 		public void AddKeyClickListener( KeyBinding _originalKeyBinding, UnityAction _callback ) =>
 			AddKeyListener(_originalKeyBinding, KeyListenerType.Click, _callback);
+		public void AddBeginDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3> _callback ) =>
+			AddDragListener(_originalKeyBinding, DragType.BeginDrag, _callback);
+		public void AddDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3> _callback ) =>
+			AddDragListener(_originalKeyBinding, DragType.Drag, _callback);
+		public void AddEndDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3> _callback ) =>
+			AddDragListener(_originalKeyBinding, DragType.EndDrag, _callback);
 
 		public void RemoveKeyUpListener( KeyBinding _originalKeyBinding, UnityAction _callback ) =>
 			RemoveKeyListener(_originalKeyBinding, KeyListenerType.Up, _callback);
@@ -113,21 +126,12 @@ namespace GuiToolkit
 			RemoveKeyListener(_originalKeyBinding, KeyListenerType.Pressed, _callback);
 		public void RemoveKeyClickListener( KeyBinding _originalKeyBinding, UnityAction _callback ) =>
 			RemoveKeyListener(_originalKeyBinding, KeyListenerType.Click, _callback);
-
-		public (KeyBinding originalKeyBinding, KeyListenerType type, UnityAction callback)[]
-			AddKeyListeners( params (KeyBinding originalKeyBinding, KeyListenerType type, UnityAction callback)[] _listenerDefinitions )
-		{
-			foreach (var listenerDefinition in _listenerDefinitions)
-				AddKeyListener(listenerDefinition.originalKeyBinding, listenerDefinition.type, listenerDefinition.callback);
-
-			return _listenerDefinitions;
-		}
-
-		public void RemoveKeyListeners( params (KeyBinding originalKeyBinding, KeyListenerType type, UnityAction callback)[] _listenerDefinitions )
-		{
-			foreach (var listenerDefinition in _listenerDefinitions)
-				RemoveKeyListener(listenerDefinition.originalKeyBinding, listenerDefinition.type, listenerDefinition.callback);
-		}
+		public void RemoveBeginDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3> _callback ) =>
+			RemoveDragListener(_originalKeyBinding, DragType.BeginDrag, _callback);
+		public void RemoveDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3> _callback ) =>
+			RemoveDragListener(_originalKeyBinding, DragType.Drag, _callback);
+		public void RemoveEndDragListener( KeyBinding _originalKeyBinding, UnityAction<Vector3, Vector3> _callback ) =>
+			RemoveDragListener(_originalKeyBinding, DragType.EndDrag, _callback);
 
 		public bool AddKeyListener( KeyBinding _originalKeyBinding, KeyListenerType _type, UnityAction _callback )
 		{
@@ -182,6 +186,71 @@ namespace GuiToolkit
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(_type), _type, null);
+			}
+		}
+		
+		public bool AddDragListener( KeyBinding _originalKeyBinding, DragType _type, UnityAction<Vector3, Vector3> _callback )
+		{
+			if (!m_keyBindingPlayerSettings.TryGetValue(_originalKeyBinding.Encoded, out var playerSetting))
+			{
+				UiLog.LogWarning($"Attempt to add listener to unknown key binding {_originalKeyBinding}");
+				return false;
+			}
+
+			switch (_type)
+			{
+				case DragType.BeginDrag:
+					playerSetting.OnBeginDrag.AddListener(_callback);
+					break;
+				case DragType.Drag:
+					playerSetting.WhileDrag.AddListener(_callback);
+					break;
+				case DragType.EndDrag:
+					playerSetting.OnEndDrag.AddListener(_callback);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(_type), _type, null);
+			}
+
+			return true;
+		}
+
+		public void RemoveDragListener( KeyBinding _originalKeyBinding, DragType _type, UnityAction<Vector3, Vector3> _callback )
+		{
+			if (!m_keyBindingPlayerSettings.TryGetValue(_originalKeyBinding.Encoded, out var playerSetting))
+			{
+				UiLog.LogWarning($"Attempt to add listener to unknown key binding {_originalKeyBinding}");
+				return;
+			}
+
+			switch (_type)
+			{
+				case DragType.BeginDrag:
+					playerSetting.OnBeginDrag.RemoveListener(_callback);
+					break;
+				case DragType.Drag:
+					playerSetting.WhileDrag.RemoveListener(_callback);
+					break;
+				case DragType.EndDrag:
+					playerSetting.OnEndDrag.RemoveListener(_callback);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(_type), _type, null);
+			}
+		}
+		
+		public void RemoveAllInputListeners()
+		{
+			foreach (var kv in m_keyBindingPlayerSettings)
+			{
+				var setting = kv.Value;
+				setting.OnClick.RemoveAllListeners();
+				setting.OnKeyUp.RemoveAllListeners();
+				setting.WhileKey.RemoveAllListeners();
+				setting.OnKeyDown.RemoveAllListeners();
+				setting.OnBeginDrag.RemoveAllListeners();
+				setting.WhileDrag.RemoveAllListeners();
+				setting.OnEndDrag.RemoveAllListeners();
 			}
 		}
 
