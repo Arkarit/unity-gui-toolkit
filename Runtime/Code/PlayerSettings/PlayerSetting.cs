@@ -1,36 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace GuiToolkit
 {
-	[Serializable]
 	public class PlayerSetting : LocaClass
 	{
-		[SerializeField] protected string m_category;
-		[SerializeField] protected string m_group;
-		[SerializeField] protected string m_title;
-		[SerializeField] protected string m_key;
-		[SerializeField] protected object m_defaultValue;
-		[SerializeField] protected System.Type m_type;
-		[SerializeField] protected bool m_isRadio;
-		[SerializeField] protected bool m_isLanguage;
-		[SerializeField] protected List<string> m_icons;
-		[SerializeField] protected bool m_isLocalized;
-
-
-		private TaskScheduler m_mainThreadScheduler;
+		protected string m_category;
+		protected string m_group;
+		protected string m_title;
+		protected string m_key;
+		protected bool m_isRadio;
+		protected bool m_isLanguage;
+		protected List<string> m_icons;
+		protected bool m_isLocalized;
 		protected object m_value;
+		protected object m_defaultValue;
+		protected Type m_type;
 		protected object m_savedValue;
 		protected bool m_allowInvokeEvents = false;
 		protected PlayerSettingOptions m_options;
+
+		// Note: These events are only data types. They are handled in PlayerSettings, but not here.
+		////////////////////////////////////////////////////////////////////////////////////////////
+		protected CEvent m_onKeyDown = new();
+		protected CEvent m_onKeyUp = new();
+		protected CEvent m_whileKey = new();
+		protected CEvent m_onClick = new();
+		protected CEvent<Vector3, Vector3> m_onBeginDrag = new();
+		protected CEvent<Vector3, Vector3> m_whileDrag = new();
+		protected CEvent<Vector3, Vector3> m_onEndDrag = new();
 
 		public PlayerSettingOptions Options => m_options;
 		public string Category => m_category;
 		public string Group => m_group;
 		public string Title => m_title;
 		public string Key => m_key;
+
+		public CEvent OnKeyDown => m_onKeyDown;
+		public CEvent OnKeyUp => m_onKeyUp;
+		public CEvent WhileKey => m_whileKey;
+		public CEvent OnClick => m_onClick;
+
+		public CEvent<Vector3, Vector3> OnBeginDrag => m_onBeginDrag;
+		public CEvent<Vector3, Vector3> WhileDrag => m_whileDrag;
+		public CEvent<Vector3, Vector3> OnEndDrag => m_onEndDrag;
+		public bool SupportDrag => m_options.SupportDrag;
 
 		public bool AllowInvokeEvents
 		{
@@ -43,10 +58,7 @@ namespace GuiToolkit
 			get => GetValue(ref m_value);
 			set
 			{
-				if (value == null)
-					throw new ArgumentNullException(nameof(value));
-
-				CheckType(value.GetType());
+				CheckType(value?.GetType());
 				m_value = value;
 				InvokeEvents();
 			}
@@ -54,7 +66,7 @@ namespace GuiToolkit
 
 		public object DefaultValue => GetValue(ref m_defaultValue);
 
-		public System.Type Type => m_type;
+		public Type Type => m_type;
 		public bool IsKeyBinding => m_type == typeof(KeyBinding);
 		public bool IsRadio => m_isRadio; // is single-choice selection UI (incl. Language)
 		public bool IsLanguage => m_isLanguage;
@@ -66,13 +78,10 @@ namespace GuiToolkit
 		public List<string> Icons => m_icons;
 		public bool IsLocalized => m_isLocalized;
 
-		public PlayerSetting()
-		{
-			m_mainThreadScheduler = TaskScheduler.FromCurrentSynchronizationContext();
-		}
+		protected PlayerSetting() { }
 
 		public PlayerSetting( string _category, string _group, string _title, object _defaultValue,
-			PlayerSettingOptions _options = null ) : this()
+			PlayerSettingOptions _options = null )
 		{
 			m_options = _options ?? new PlayerSettingOptions();
 
@@ -96,15 +105,38 @@ namespace GuiToolkit
 			m_type = type;
 			m_isLocalized = m_options.IsLocalized;
 
+			if (m_options.OnKeyDown != null)
+				OnKeyDown.AddListener(m_options.OnKeyDown);
+			if (m_options.OnKeyUp != null)
+				OnKeyUp.AddListener(m_options.OnKeyUp);
+			if (m_options.WhileKey != null)
+				WhileKey.AddListener(m_options.WhileKey);
+			if (m_options.OnClick != null)
+				OnClick.AddListener(m_options.OnClick);
+			if (m_options.OnBeginDrag != null)
+				OnBeginDrag.AddListener(m_options.OnBeginDrag);
+			if (m_options.WhileDrag != null)
+				WhileDrag.AddListener(m_options.WhileDrag);
+			if (m_options.OnEndDrag != null)
+				OnEndDrag.AddListener(m_options.OnEndDrag);
+
 			InitValue(type);
 
 			if (IsLanguage)
 				UiEventDefinitions.EvLanguageChanged.AddListener(OnLanguageChanged);
 		}
 
-		//TODO: Make dtor an explicit Dispose
-		~PlayerSetting()
+		public void Clear()
 		{
+			OnKeyDown.RemoveAllListeners();
+			OnKeyUp.RemoveAllListeners();
+			WhileKey.RemoveAllListeners();
+			OnClick.RemoveAllListeners();
+
+			OnBeginDrag.RemoveAllListeners();
+			WhileDrag.RemoveAllListeners();
+			OnEndDrag.RemoveAllListeners();
+
 			if (IsLanguage)
 				UiEventDefinitions.EvLanguageChanged.RemoveListener(OnLanguageChanged);
 		}
@@ -150,6 +182,9 @@ namespace GuiToolkit
 			if (m_type == typeof(bool))
 				return (T)(object)(Convert.ToBoolean(_v));
 
+			if (m_type.IsEnum)
+				return (T)System.Enum.ToObject(m_type, _v);
+
 			return (T)_v;
 		}
 
@@ -164,37 +199,20 @@ namespace GuiToolkit
 			return _v;
 		}
 
-		protected void CheckType( Type _t )
+		protected void CheckType( Type _type )
 		{
-			if (_t == null)
-				throw new ArgumentNullException(nameof(_t));
-
-			if (_t != m_type)
+			if (_type != m_type)
+			{
+				var wantedStr = m_type != null ? m_type.Name : "<null>";
+				var isStr = _type != null ? _type.Name : "<null>";
 				throw new ArgumentException(
-					$"Wrong value type in Player Setting '{m_key}': Should be '{m_type.Name}', is '{_t.Name}'");
+					$"Wrong value type in Player Setting '{m_key}': Should be '{wantedStr}', is '{isStr}'");
+			}
 		}
 
 		protected void OnLanguageChanged( string _language )
 		{
 			Value = _language;
-		}
-
-		protected static int InitValue( PlayerSettingOptions _options, string _key, int _defaultValue )
-		{
-			var deflt = Convert.ToInt32(_defaultValue);
-			return _options.IsSaveable ? PlayerPrefs.GetInt(_key, deflt) : deflt;
-		}
-
-		protected static float InitValue( PlayerSettingOptions _options, string _key, float _defaultValue )
-		{
-			var deflt = Convert.ToSingle(_defaultValue);
-			return _options.IsSaveable ? PlayerPrefs.GetFloat(_key, deflt) : deflt;
-		}
-
-		protected static string InitValue( PlayerSettingOptions _options, string _key, string _defaultValue )
-		{
-			var deflt = Convert.ToString(_defaultValue);
-			return _options.IsSaveable ? PlayerPrefs.GetString(_key, deflt) : deflt;
 		}
 
 		protected void InitValue( Type _type )

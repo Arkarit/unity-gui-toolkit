@@ -1,5 +1,5 @@
 {
-    "name": "TestsPlayMode",
+    "name": "de.phoenixgrafik.ui-toolkit.Test.PlayMode",
     "rootNamespace": "",
     "references": [
         "de.phoenixgrafik.ui-toolkit",

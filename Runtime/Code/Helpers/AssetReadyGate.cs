@@ -184,11 +184,16 @@ namespace GuiToolkit
 					return;
 				}
 
+				// We need to check if the editor is in background;
+				// since it is slower in background, we often get a timeout
+				if (!EditorApplication.isFocused)
+					return;
+
 				// Timeout guard to avoid dangling subscriptions.
 				if (_maxFrames > 0 && ++frames > _maxFrames)
 				{
 					EditorApplication.update -= Tick;
-					UiLog.LogError($"WhenReady(assets) timeout after {_maxFrames} frames. Caller: {DebugUtility.GetCallingClassAndMethod()}");
+					UiLog.LogErrorOnce($"WhenReady(assets) timeout after {_maxFrames} frames. Caller: {DebugUtility.GetCallingClassAndMethod()}");
 					return;
 				}
 

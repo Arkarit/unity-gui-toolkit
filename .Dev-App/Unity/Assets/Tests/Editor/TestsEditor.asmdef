@@ -1,5 +1,5 @@
 {
-    "name": "Tests",
+    "name": "de.phoenixgrafik.ui-toolkit.Test.Editor",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",

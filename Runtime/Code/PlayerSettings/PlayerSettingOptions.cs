@@ -51,15 +51,25 @@ namespace GuiToolkit
 		public List<string> Icons;                                          //!< List of icons to be used, depending on player setting type
 		public List<string> Titles;                                         //!< Titles for UI display(optional, else string values are also used as titles)
 		public List<string> StringValues;                                   //!< String values for string based PlayerSettingOptions
-		public List<KeyCode> KeyCodeFilterList;                             //!< Filter list for keycodes
-		public bool KeyCodeFilterListIsWhitelist;                           //!< Set to true if you want the filter list to be whitelist instead of blacklist
 		public bool IsLocalized = true;                                     //!< Should usually be set to true; only set to false if you want to display languages (see TestMain language setting)
 		public UnityAction<PlayerSetting> OnChanged = null;                 //!< Optional callback. To react to player setting changes, you may either use this or the global event UiEventDefinitions.EvPlayerSettingChanged
 		public bool IsSaveable = true;                                      //!< Is the option saved in player prefs? Obviously usually true, but can be set to false for cheats etc.
 		public object CustomData = null;                                    //!< Optional custom data to hand over to your handler
 		public Func<float, string> ValueToStringFn = null;                  //!< Optional slider text conversion. If left null, no text is displayed.
 		public GameObject CustomPrefab = null;                              //!< Custom prefab to be used in Ui
+		
+		// Only for key bindings
+		public bool KeyCodeFilterListIsWhitelist;                           //!< Set to true if you want the filter list to be whitelist instead of blacklist
+		public List<KeyCode> KeyCodeFilterList;                             //!< Filter list for keycodes
 		public EKeyPolicy KeyPolicy = EKeyPolicy.KeyWithModifiers;			//!< Determines, if modifiers are allowed for this key
+		public bool SupportDrag;											//!< Support Drag
+		public UnityAction OnKeyDown;
+		public UnityAction OnKeyUp;
+		public UnityAction WhileKey;
+		public UnityAction OnClick;
+		public UnityAction<Vector3, Vector3> OnBeginDrag;
+		public UnityAction<Vector3, Vector3> WhileDrag;
+		public UnityAction<Vector3, Vector3> OnEndDrag;
 
 		public static PlayerSettingOptions NoMouseKeys =>
 			new()
