@@ -13,6 +13,7 @@ namespace GuiToolkit
 			Up,
 			Down,
 			Pressed,
+			Click,
 		}
 
 		public class DragInfo
@@ -65,6 +66,14 @@ namespace GuiToolkit
 				return false;
 			}
 		}
+		
+		public PlayerSetting GetKeyBindingPlayerSetting( int _encoded )
+		{
+			if (m_keyBindingPlayerSettings.TryGetValue(_encoded, out PlayerSetting result))
+				return result;
+
+			return null;
+		}
 
 		public bool GetKey( KeyBinding _originalKeyBinding )
 		{
@@ -93,6 +102,8 @@ namespace GuiToolkit
 			AddKeyListener(_originalKeyBinding, KeyListenerType.Down, _callback);
 		public void AddKeyPressedListener( KeyBinding _originalKeyBinding, UnityAction _callback ) =>
 			AddKeyListener(_originalKeyBinding, KeyListenerType.Pressed, _callback);
+		public void AddKeyClickListener( KeyBinding _originalKeyBinding, UnityAction _callback ) =>
+			AddKeyListener(_originalKeyBinding, KeyListenerType.Click, _callback);
 
 		public void RemoveKeyUpListener( KeyBinding _originalKeyBinding, UnityAction _callback ) =>
 			RemoveKeyListener(_originalKeyBinding, KeyListenerType.Up, _callback);
@@ -100,6 +111,8 @@ namespace GuiToolkit
 			RemoveKeyListener(_originalKeyBinding, KeyListenerType.Down, _callback);
 		public void RemoveKeyPressedListener( KeyBinding _originalKeyBinding, UnityAction _callback ) =>
 			RemoveKeyListener(_originalKeyBinding, KeyListenerType.Pressed, _callback);
+		public void RemoveKeyClickListener( KeyBinding _originalKeyBinding, UnityAction _callback ) =>
+			RemoveKeyListener(_originalKeyBinding, KeyListenerType.Click, _callback);
 
 		public (KeyBinding originalKeyBinding, KeyListenerType type, UnityAction callback)[]
 			AddKeyListeners( params (KeyBinding originalKeyBinding, KeyListenerType type, UnityAction callback)[] _listenerDefinitions )
@@ -135,6 +148,9 @@ namespace GuiToolkit
 				case KeyListenerType.Pressed:
 					playerSetting.WhileKey.AddListener(_callback);
 					break;
+				case KeyListenerType.Click:
+					playerSetting.OnClick.AddListener(_callback);
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(_type), _type, null);
 			}
@@ -160,6 +176,9 @@ namespace GuiToolkit
 					break;
 				case KeyListenerType.Pressed:
 					playerSetting.WhileKey.RemoveListener(_callback);
+					break;
+				case KeyListenerType.Click:
+					playerSetting.OnClick.RemoveListener(_callback);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(_type), _type, null);
