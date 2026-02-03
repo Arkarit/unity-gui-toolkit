@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using NUnit.Framework;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,6 +8,11 @@ namespace GuiToolkit
 	public class UiTextMeshProWebLink : MonoBehaviour, IPointerClickHandler
 	{
 		private TMP_Text m_text;
+		
+		private void Awake()
+		{
+			m_text = GetComponent<TMP_Text>();
+		}
 
 		public void OnPointerClick( PointerEventData _eventData )
 		{
@@ -30,9 +32,5 @@ namespace GuiToolkit
 			Application.OpenURL(linkId);
 		}
 
-		private void Awake()
-		{
-			m_text = GetComponent<TMP_Text>();
-		}
 	}
 }
