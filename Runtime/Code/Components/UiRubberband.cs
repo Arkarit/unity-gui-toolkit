@@ -18,39 +18,9 @@ namespace GuiToolkit
 		private KeyBinding m_keyBinding;
 		private PlayerSetting m_playerSetting;
 		private CanvasGroup m_canvasGroup;
-		private Canvas m_canvas;
 
 		private PlayerSettings PlayerSettings => PlayerSettings.Instance;
 
-		public Canvas Canvas
-		{
-			get
-			{
-				if (m_canvas == null)
-					m_canvas = GetComponentInParent<Canvas>();
-				return m_canvas;
-			}
-
-			set => m_canvas = value;
-		}
-
-		private Camera UiCamera
-		{
-			get
-			{
-				Canvas canvas = Canvas;
-				if (canvas == null)
-					return null;
-
-				if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
-					return null;
-
-				if (canvas.worldCamera != null)
-					return canvas.worldCamera;
-
-				return Camera.main;
-			}
-		}
 
 		protected override void Awake()
 		{
@@ -69,8 +39,9 @@ namespace GuiToolkit
 			if (m_playerSetting == null)
 				throw new InvalidOperationException($"No player setting defined. Please ensure to create a player setting which matches your key binding.");
 			if (!m_playerSetting.IsKeyBinding)
-				throw new InvalidOperationException($"Player setting is not a key binding");
-			//TODO: throw if doesn't support drag
+				throw new InvalidOperationException($"Player setting '{m_playerSetting.Key}' is not a key binding");
+			if (!m_playerSetting.SupportDrag)
+				throw new InvalidOperationException($"Player setting '{m_playerSetting.Key}' does not support drag");
 		}
 
 		protected override void OnEnable()

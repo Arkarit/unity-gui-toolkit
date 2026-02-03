@@ -34,6 +34,8 @@ namespace GuiToolkit
 
 		[HideInInspector] // Only editable via custom inspectors or helpers.
 		[SerializeField] private bool m_enabledInHierarchy = true;
+		
+		private Canvas m_canvas;
 
 		/// <summary>
 		/// If true, event listeners are installed in Awake even when the component
@@ -51,6 +53,36 @@ namespace GuiToolkit
 		/// If true, subscribes to UiEventDefinitions.EvScreenresolutionChange on enable.
 		/// </summary>
 		protected virtual bool NeedsOnScreenResolutionChangedCallback => false;
+		
+		public Canvas Canvas
+		{
+			get
+			{
+				if (m_canvas == null)
+					m_canvas = GetComponentInParent<Canvas>();
+				return m_canvas;
+			}
+
+			set => m_canvas = value;
+		}
+
+		public Camera UiCamera
+		{
+			get
+			{
+				Canvas canvas = Canvas;
+				if (canvas == null)
+					return null;
+
+				if (canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+					return null;
+
+				if (canvas.worldCamera != null)
+					return canvas.worldCamera;
+
+				return Camera.main;
+			}
+		}
 
 		#region IEnableableInHierarchy
 
