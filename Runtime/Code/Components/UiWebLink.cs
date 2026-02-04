@@ -19,7 +19,7 @@ public class UiWebLink : UiThing, IPointerClickHandler
 
 	[SerializeField] private WebLink[] m_links = new WebLink[0];
 	[SerializeField] private bool m_isLocalized = false;
-	[SerializeField] private WebLink m_link;
+	[SerializeField] private string m_link;
 
 	protected override bool NeedsLanguageChangeCallback => m_isLocalized;
 
@@ -46,13 +46,13 @@ public class UiWebLink : UiThing, IPointerClickHandler
 			return;
 		}
 
-		if (string.IsNullOrWhiteSpace(m_link.Url))
+		if (string.IsNullOrWhiteSpace(m_link))
 		{
 			UiLog.LogError($"Current link has no URL: {m_link}", this);
 			return;
 		}
 
-		Application.OpenURL(m_link.Url);
+		Application.OpenURL(m_link);
 	}
 
 	private void SetCurrentLink()
@@ -77,12 +77,12 @@ public class UiWebLink : UiThing, IPointerClickHandler
 
 			if (string.Equals(webLink.LanguageId, languageId, StringComparison.OrdinalIgnoreCase))
 			{
-				m_link = webLink;
+				m_link = webLink.Url;
 				return;
 			}
 		}
 
 		UiLog.LogWarning($"Current language not found, using fallback link {m_links[0]}", this);
-		m_link = m_links[0];
+		m_link = m_links[0].Url;
 	}
 }
