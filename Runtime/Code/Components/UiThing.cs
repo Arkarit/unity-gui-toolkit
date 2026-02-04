@@ -35,7 +35,7 @@ namespace GuiToolkit
 		[HideInInspector] // Only editable via custom inspectors or helpers.
 		[SerializeField] private bool m_enabledInHierarchy = true;
 		
-		private Canvas m_canvas;
+		private Canvas m_canvasInParent;
 
 		/// <summary>
 		/// If true, event listeners are installed in Awake even when the component
@@ -54,23 +54,23 @@ namespace GuiToolkit
 		/// </summary>
 		protected virtual bool NeedsOnScreenResolutionChangedCallback => false;
 		
-		public Canvas Canvas
+		public Canvas CanvasInParent
 		{
 			get
 			{
-				if (m_canvas == null)
-					m_canvas = GetComponentInParent<Canvas>();
-				return m_canvas;
+				if (m_canvasInParent == null)
+					m_canvasInParent = GetComponentInParent<Canvas>();
+				return m_canvasInParent;
 			}
 
-			set => m_canvas = value;
+			set => m_canvasInParent = value;
 		}
 
 		public Camera UiCamera
 		{
 			get
 			{
-				Canvas canvas = Canvas;
+				Canvas canvas = CanvasInParent;
 				if (canvas == null)
 					return null;
 
