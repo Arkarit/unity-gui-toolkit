@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 namespace GuiToolkit
 {
 	[RequireComponent(typeof(TMP_Text))]
-	public class UiTextMeshProWebLink : MonoBehaviour, IPointerClickHandler
+	public class UiWebLinkTextMeshPro : MonoBehaviour, IPointerClickHandler
 	{
 		private TMP_Text m_text;
 		
