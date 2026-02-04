@@ -329,9 +329,9 @@ namespace GuiToolkit
 			message.Show(_message, _duration);
 		}
 
-		public UiRequester CreateRequester( Func<UiRequester, UiRequester.Options> _setOptions, bool _show = true )
+		public UiRequester CreateRequester( Func<UiRequester, UiRequester.Options> _setOptions, bool _show = true, UiRequester _customPrefab = null )
 		{
-			UiRequester result = CreateView(m_requesterPrefab);
+			UiRequester result = CreateRequesterView(_customPrefab);
 			Debug.Assert(result);
 
 			result.Requester(_setOptions?.Invoke(result));
@@ -349,10 +349,11 @@ namespace GuiToolkit
 			UnityAction _onOk = null,
 			string _okText = null,
 			bool _allowOutsideTap = true,
-			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null
+			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null,
+			UiRequester _customPrefab = null
 		)
 		{
-			UiRequester requester = CreateView(m_requesterPrefab);
+			UiRequester requester = CreateRequesterView(_customPrefab);
 			Debug.Assert(requester);
 			return requester.OkRequester(_title, _text, _onOk, _okText, _allowOutsideTap, _modifyOptions);
 		}
@@ -364,10 +365,11 @@ namespace GuiToolkit
 			string _okText = null,
 			bool _allowOutsideTap = true,
 			bool _waitForClose = true,
-			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null
+			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null,
+			UiRequester _customPrefab = null		
 		)
 		{
-			UiRequester requester = CreateView(m_requesterPrefab);
+			UiRequester requester = CreateRequesterView(_customPrefab);
 			Debug.Assert(requester);
 			await requester.OkRequesterBlocking(_title, _text, _okText, _allowOutsideTap, _waitForClose, _modifyOptions);
 		}
@@ -381,10 +383,11 @@ namespace GuiToolkit
 			UnityAction _onCancel = null,
 			string _yesText = null,
 			string _noText = null,
-			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null
+			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null, 
+			UiRequester _customPrefab = null
 		)
 		{
-			UiRequester requester = CreateView(m_requesterPrefab);
+			UiRequester requester = CreateRequesterView(_customPrefab);
 			Debug.Assert(requester);
 			return requester.YesNoRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _yesText, _noText, _modifyOptions);
 		}
@@ -398,10 +401,11 @@ namespace GuiToolkit
 			string _option2Text,
 			UnityAction _onOption1,
 			UnityAction _onOption2,
-			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null
+			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null,
+			UiRequester _customPrefab = null
 		)
 		{
-			UiRequester requester = CreateView(m_requesterPrefab);
+			UiRequester requester = CreateRequesterView(_customPrefab);
 			Debug.Assert(requester);
 			return requester.TwoOptionsRequester(_title, _text, _allowOutsideTap, _option1Text, _option2Text, _onOption1, _onOption2, _modifyOptions);
 		}
@@ -414,10 +418,11 @@ namespace GuiToolkit
 			bool _waitForClose = true,
 			string _yesText = null,
 			string _noText = null,
-			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null
+			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null,
+			UiRequester _customPrefab = null		
 		)
 		{
-			UiRequester requester = CreateView(m_requesterPrefab);
+			UiRequester requester = CreateRequesterView(_customPrefab);
 			Debug.Assert(requester);
 			return await requester.YesNoRequesterBlocking(_title, _text, _allowOutsideTap, _waitForClose, _yesText, _noText, _modifyOptions);
 		}
@@ -433,10 +438,11 @@ namespace GuiToolkit
 			string _inputText = null,
 			string _yesText = null,
 			string _noText = null,
-			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null
+			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null,
+			UiRequester _customPrefab = null
 		)
 		{
-			UiRequester requester = CreateView(m_requesterPrefab);
+			UiRequester requester = CreateRequesterView(_customPrefab);
 			Debug.Assert(requester);
 			return requester.OkCancelInputRequester(_title, _text, _allowOutsideTap, _onOk, _onCancel, _placeholderText, _inputText, _yesText, _noText, _modifyOptions);
 		}
@@ -452,10 +458,11 @@ namespace GuiToolkit
 			string _inputText = null,
 			string _yesText = null,
 			string _noText = null,
-			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null
+			Func<UiRequester.Options, UiRequester.Options> _modifyOptions = null,
+			UiRequester _customPrefab = null
 		)
 		{
-			UiRequester requester = CreateView(m_requesterPrefab);
+			UiRequester requester = CreateRequesterView(_customPrefab);
 			Debug.Assert(requester);
 			return await requester.OkCancelInputRequesterBlocking(_title, _text, _allowOutsideTap, _waitForClose, _placeholderText, _inputText, _yesText, _noText, _modifyOptions);
 		}
@@ -486,6 +493,11 @@ namespace GuiToolkit
 			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
 			Debug.Assert(requester);
 			requester.Requester(_onEvent, null, _title);
+		}
+
+		public UiRequester CreateRequesterView(UiRequester _optionalCustomPrefab)
+		{
+			return CreateView(_optionalCustomPrefab != null ? _optionalCustomPrefab : m_requesterPrefab);
 		}
 
 		public T CreateView<T>( T _template = null ) where T : UiView
