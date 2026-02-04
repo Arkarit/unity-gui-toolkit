@@ -10,17 +10,24 @@ public class UiWebLink : UiThing, IPointerClickHandler
 	{
 		public string LanguageId;
 		public string Url;
+
 		public override string ToString()
 		{
 			return $"'{LanguageId}' -> '{Url}'";
 		}
 	}
 
-	[SerializeField] private WebLink[] m_links;
+	[SerializeField] private WebLink[] m_links = new WebLink[0];
+	[SerializeField] private bool m_isLocalized = false;
+	[SerializeField] private WebLink m_link;
 
-	private WebLink m_currentLink = new();
+	protected override bool NeedsLanguageChangeCallback => m_isLocalized;
 
-	protected override bool NeedsLanguageChangeCallback => true;
+	protected override void OnEnable()
+	{
+		base.OnEnable();
+		SetCurrentLink();
+	}
 
 	protected override void OnLanguageChanged( string _languageId )
 	{
@@ -30,30 +37,52 @@ public class UiWebLink : UiThing, IPointerClickHandler
 
 	public void OnPointerClick( PointerEventData _eventData )
 	{
-		if (m_currentLink != null )
-			Application.OpenURL(m_currentLink.Url);
+		if (_eventData.button != PointerEventData.InputButton.Left)
+			return;
+
+		if (m_link == null)
+		{
+			UiLog.LogWarning("No link selected", this);
+			return;
+		}
+
+		if (string.IsNullOrWhiteSpace(m_link.Url))
+		{
+			UiLog.LogError($"Current link has no URL: {m_link}", this);
+			return;
+		}
+
+		Application.OpenURL(m_link.Url);
 	}
 
 	private void SetCurrentLink()
 	{
-		m_currentLink = null;
-		var languageId = LocaManager.Instance.Language;
-		foreach (var webLink in m_links)
+		if (!m_isLocalized)
+			return;
+
+		m_link = null;
+
+		if (m_links == null || m_links.Length == 0)
 		{
-			if (webLink.LanguageId == languageId)
+			UiLog.LogError("No Web links defined", this);
+			return;
+		}
+
+		string languageId = LocaManager.Instance.Language;
+
+		foreach (WebLink webLink in m_links)
+		{
+			if (webLink == null)
+				continue;
+
+			if (string.Equals(webLink.LanguageId, languageId, StringComparison.OrdinalIgnoreCase))
 			{
-				m_currentLink = webLink;
+				m_link = webLink;
 				return;
 			}
 		}
 
-		if (m_links.Length == 0)
-		{
-			UiLog.LogError($"No Web links defined", this);
-			return;
-		}
-
-		UiLog.LogWarning($"Current language not found, using fallback link {m_links[0]}");
-		m_currentLink = m_links[0];
+		UiLog.LogWarning($"Current language not found, using fallback link {m_links[0]}", this);
+		m_link = m_links[0];
 	}
 }
