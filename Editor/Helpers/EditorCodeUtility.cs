@@ -428,9 +428,9 @@ namespace GuiToolkit.Editor
 		/// <param name="_extraTypes">Optional extra runtime types whose assemblies should be referenced.</param>
 		/// <returns>Rewritten C# source code.</returns>
 		/// <exception cref="RoslynUnavailableException">Thrown when Roslyn is not available.</exception>
-		public static string ReplaceComponent<TA, TB>( string _sourceCode, bool _addUsing = true, params Type[] _extraTypes )
-			where TA : Component
-			where TB : Component
+		public static string ReplaceMonoBehaviour<TA, TB>( string _sourceCode, bool _addUsing = true, params Type[] _extraTypes )
+			where TA : MonoBehaviour
+			where TB : MonoBehaviour
 		{
 #if UITK_USE_ROSLYN
 			var refs = new List<MetadataReference>
@@ -480,7 +480,7 @@ namespace GuiToolkit.Editor
 			// collect all object-reference properties that currently point to Text
 			var refGroups = CollectRefGroupsToTextInActiveScene();
 
-			return ReplaceComponentsInActiveSceneWithMapping(
+			return ReplaceMonoBehavioursInActiveSceneWithMapping(
 				_capture: ( Text t ) => new TextSnapshot
 				{
 					Text = t.text,
@@ -566,14 +566,14 @@ namespace GuiToolkit.Editor
 		/// <param name="_apply">Delegate that applies captured state to TB.</param>
 		/// <returns>List of tuples (captured snapshot, new component).</returns>
 		/// <exception cref="RoslynUnavailableException">Thrown when Roslyn-related compilation guards are required.</exception>
-		public static List<(TSnapshot Snapshot, TB NewComp)> ReplaceComponentsInActiveSceneWithMapping
+		public static List<(TSnapshot Snapshot, TB NewComp)> ReplaceMonoBehavioursInActiveSceneWithMapping
 		<TA, TB, TSnapshot>
 		(
 			Func<TA, TSnapshot> _capture,
 			Action<TSnapshot, TB> _apply
 		)
-		where TA : Component
-		where TB : Component
+		where TA : MonoBehaviour
+		where TB : MonoBehaviour
 		{
 #if UITK_USE_ROSLYN
 			var scene = GetCurrentContextScene(out bool isPrefab);
@@ -605,7 +605,7 @@ namespace GuiToolkit.Editor
 				var go = oldComp.gameObject;
 
 				// 1a) Remove blockers that Require Graphic (e.g., Outline/Shadow/custom effects)
-				var blockers = CaptureAndRemoveGraphicBlockers(go, oldComp);
+				var blockers = CaptureAndRemoveBlockers(go, oldComp);
 
 				// 2) Remove TA (Graphic) now that no blockers are enforcing it
 				if (!oldComp.CanBeDestroyed(out string reasons))
@@ -618,8 +618,8 @@ namespace GuiToolkit.Editor
 					continue;
 				}
 
-				LogReplacement($"Removing old component '{oldComp.GetType().Name}' on '{oldComp.GetPath()}'");
-				Undo.RegisterCompleteObjectUndo(go, "Remove Source Component");
+				LogReplacement($"Removing old MonoBehaviour '{oldComp.GetType().Name}' on '{oldComp.GetPath()}'");
+				Undo.RegisterCompleteObjectUndo(go, "Remove Source MonoBehaviour");
 				Undo.DestroyObjectImmediate(oldComp);
 
 				// 3) Ensure TB exists (reuse if already present; otherwise add)
@@ -673,10 +673,12 @@ namespace GuiToolkit.Editor
 		/// and uses the Roslyn rewriter to replace usages with TMP, saving and requesting recompilation if needed.
 		/// </summary>
 		/// <returns>Number of source files that were modified.</returns>
-		public static int ReplaceTextInContextSceneWithTextMeshPro()
+		public static int ReplaceMonoBehavioursInContextScene<T1, T2>()
+		where T1 : MonoBehaviour
+		where T2 : MonoBehaviour
 		{
 #if UITK_USE_ROSLYN
-			var scriptPaths = CollectScriptPathsInContextSceneReferencing<Text>();
+			var scriptPaths = CollectScriptPathsInContextSceneReferencing<T1>();
 			if (scriptPaths == null || scriptPaths.Count == 0)
 			{
 				LogReplacement("No referring scripts found");
@@ -691,7 +693,7 @@ namespace GuiToolkit.Editor
 
 				LogReplacement($"Replace Text component references in '{path}' with Text Mesh Pro references");
 				var src = System.IO.File.ReadAllText(path);
-				var dst = ReplaceComponent<Text, TMP_Text>(src, _addUsing: true);
+				var dst = ReplaceMonoBehaviour<T1, T2>(src, _addUsing: true);
 
 				if (!string.Equals(src, dst, StringComparison.Ordinal))
 				{
@@ -737,8 +739,8 @@ namespace GuiToolkit.Editor
 
 			ComponentReplaceLog.LogCr(2);
 			LogReplacement($"___ Starting replacement of scene '{ComponentReplaceLog.GetLogScenePath()}' ___");
-			int prepared = PrepareUITextToTMPInContextScene();
-			int replacedReferences = ReplaceTextInContextSceneWithTextMeshPro();
+			int prepared = PrepareRewiring<Text, TextMeshProUGUI>();
+			int replacedReferences = ReplaceMonoBehavioursInContextScene<Text, TextMeshProUGUI>();
 
 			if (prepared == 0 && replacedReferences == 0)
 			{
@@ -785,7 +787,9 @@ namespace GuiToolkit.Editor
 		/// the scene so the data survives domain reload and can be applied afterward.
 		/// </summary>
 		/// <returns>Number of collected references recorded into the registry.</returns>
-		public static int PrepareUITextToTMPInContextScene()
+		public static int PrepareRewiring<T1,T2>()
+		where T1:MonoBehaviour
+		where T2:MonoBehaviour
 		{
 #if UITK_USE_ROSLYN
 			var scene = GetCurrentContextScene();
@@ -827,17 +831,17 @@ namespace GuiToolkit.Editor
 						continue;
 
 					var obj = it.objectReferenceValue;
-					Text txt = obj as Text;
-					if (!txt)
+					var monoBehaviour = obj as MonoBehaviour;
+					if (!monoBehaviour)
 						continue;
 
 					reg.Entries.Add(new ReferencesRewireRegistry.Entry
 					{
 						Owner = comp,
 						PropertyPath = it.propertyPath,
-						TargetGameObject = txt.gameObject,
-						OldType = typeof(Text),
-						NewType = typeof(TextMeshProUGUI)
+						TargetGameObject = monoBehaviour.gameObject,
+						OldType = typeof(T1),
+						NewType = typeof(T2)
 					});
 					count++;
 				}
@@ -846,11 +850,11 @@ namespace GuiToolkit.Editor
 			if (count > 0)
 			{
 				EditorSceneManager.MarkSceneDirty(scene);
-				UiLog.LogInternal($"[Prepare Text->TMP] Recorded {count} references in context '{scene.path}'.");
+				UiLog.LogInternal($"[Prepare {typeof(T1).Name} -> {typeof(T2).Name}] Recorded {count} references in context '{scene.path}'.");
 			}
 			else
 			{
-				UiLog.LogInternal("[Prepare Text->TMP] No references found in current context.");
+				UiLog.LogInternal($"[Prepare {typeof(T1).Name} -> {typeof(T2).Name}] No references found in current context.");
 			}
 
 			return count;
@@ -872,7 +876,7 @@ namespace GuiToolkit.Editor
 		{
 			var result = new OwnerAndPathListById();
 
-			var allComponents = EditorAssetUtility.FindObjectsInCurrentEditedPrefabOrScene<Component>(); ;
+			var allComponents = EditorAssetUtility.FindObjectsInCurrentEditedPrefabOrScene<MonoBehaviour>();
 
 			foreach (var comp in allComponents)
 			{
@@ -988,31 +992,29 @@ namespace GuiToolkit.Editor
 			public string Json;   // EditorJsonUtility snapshot
 		}
 
-		private static List<BlockerSnapshot> CaptureAndRemoveGraphicBlockers( GameObject go, Component graphicToKeep )
+		private static List<BlockerSnapshot> CaptureAndRemoveBlockers( GameObject go, MonoBehaviour savedMonoBehaviour )
 		{
 			var blockers = new List<BlockerSnapshot>();
-			var components = go.GetComponents<Component>();
+			var monoBehaviours = go.GetComponents<MonoBehaviour>();
 
-			foreach (var component in components)
+			foreach (var monoBehaviour in monoBehaviours)
 			{
-				if (!component)
+				if (!monoBehaviour)
 					continue;
-				if (component == graphicToKeep)
-					continue;
-				if (component is Transform)
+				if (monoBehaviour == savedMonoBehaviour)
 					continue;
 
-				var ct = component.GetType();
+				var ct = monoBehaviour.GetType();
 				if (!RequiresGraphic(ct))
 					continue;
 
 				// serialize state
-				string json = EditorJsonUtility.ToJson(component, true);
+				string json = EditorJsonUtility.ToJson(monoBehaviour, true);
 				blockers.Add(new BlockerSnapshot { Type = ct, Json = json });
 
-				LogReplacement($"Temporarily delete '{component.GetType().Name}' on '{component.GetPath()}' due to Graphics dependencies");
+				LogReplacement($"Temporarily delete '{monoBehaviour.GetType().Name}' on '{monoBehaviour.GetPath()}' due to dependencies");
 				// remove now (so Text can be removed without failing RequireComponent)
-				Undo.DestroyObjectImmediate(component);
+				Undo.DestroyObjectImmediate(monoBehaviour);
 			}
 
 			return blockers;

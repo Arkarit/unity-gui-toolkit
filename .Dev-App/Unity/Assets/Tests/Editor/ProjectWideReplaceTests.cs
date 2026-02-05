@@ -54,7 +54,7 @@ namespace GuiToolkit.Test
 				
 				var newline = DetectNewline(src);
 
-				var dst = GuiToolkit.Editor.EditorCodeUtility.ReplaceComponent<Text,TMP_Text>(src, _addUsing: true);
+				var dst = GuiToolkit.Editor.EditorCodeUtility.ReplaceMonoBehaviour<Text,TMP_Text>(src, _addUsing: true);
 				dst = NormalizeNewlines(dst, newline);
 
 				if (src == dst)

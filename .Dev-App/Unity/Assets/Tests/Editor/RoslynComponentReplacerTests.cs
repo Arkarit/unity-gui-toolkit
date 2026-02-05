@@ -35,7 +35,7 @@ public class Foo : MonoBehaviour
     }
 }
 ";
-			var output = EditorCodeUtility.ReplaceComponent<Text,TMP_Text>(input);
+			var output = EditorCodeUtility.ReplaceMonoBehaviour<Text,TMP_Text>(input);
 
 			// Expectations; without order
 			StringAssert.Contains("using TMPro;", output);
@@ -79,7 +79,7 @@ public class Foo : MonoBehaviour
     public UI.Text label;
 }
 ";
-			var output = EditorCodeUtility.ReplaceComponent<Text,TMP_Text>(input);
+			var output = EditorCodeUtility.ReplaceMonoBehaviour<Text,TMP_Text>(input);
 
 			StringAssert.Contains("TMP_Text label;", output);
 			StringAssert.Contains("using TMPro;", output);
@@ -95,7 +95,7 @@ public class Foo : MonoBehaviour
     public int x;
 }
 ";
-			var output = EditorCodeUtility.ReplaceComponent<Text,TMP_Text>(input);
+			var output = EditorCodeUtility.ReplaceMonoBehaviour<Text,TMP_Text>(input);
 			Assert.AreEqual(Normalize(input), Normalize(output));
 		}
 
@@ -110,7 +110,7 @@ public class Foo : MonoBehaviour
     public TMP_Text label;
 }
 ";
-			var output = EditorCodeUtility.ReplaceComponent<Text,TMP_Text>(input);
+			var output = EditorCodeUtility.ReplaceMonoBehaviour<Text,TMP_Text>(input);
 			Assert.AreEqual(Normalize(input), Normalize(output));
 		}
 

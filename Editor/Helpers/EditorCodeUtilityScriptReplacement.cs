@@ -24,7 +24,7 @@ namespace GuiToolkit.Editor
 			foreach (var root in roots)
 			{
 				var components = root.GetComponentsInChildren<MonoBehaviour>();
-				hashSet.UnionWith(FilterReferencingType<T>(components));
+				hashSet.UnionWith(FilterReferencingType<MonoBehaviour>(components));
 			}
 
 			return hashSet.ToList();

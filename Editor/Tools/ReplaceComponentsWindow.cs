@@ -11,9 +11,9 @@ namespace GuiToolkit.Editor
 		private enum ScriptReplacementHandling
 		{
 			None,
-			TextMeshPro,
 			GenericRelated,
-			Generic,
+			GenericUnrelated,
+			TextMeshPro,
 		}
 
 		private MonoScript m_sourceScript;
@@ -72,9 +72,9 @@ namespace GuiToolkit.Editor
 							EditorCodeUtility.ReplaceTextWithTextMeshProInCurrentContext();
 							break;
 						case ScriptReplacementHandling.GenericRelated:
-							//TODO
+							//TODO replace components
 							break;
-						case ScriptReplacementHandling.Generic:
+						case ScriptReplacementHandling.GenericUnrelated:
 							//TODO
 							break;
 						default:
@@ -100,10 +100,10 @@ namespace GuiToolkit.Editor
 			if (typeof(Text).IsAssignableFrom(srcType) && typeof(TMP_Text).IsAssignableFrom(dstType))
 				return ScriptReplacementHandling.TextMeshPro;
 
-			if (dstType.IsAssignableFrom(srcType))
+			if (dstType.IsAssignableFrom(srcType) || srcType.IsAssignableFrom(dstType))
 				return ScriptReplacementHandling.GenericRelated;
 
-			return ScriptReplacementHandling.Generic;
+			return ScriptReplacementHandling.GenericUnrelated;
 		}
 		private static bool IsValidComponentScript( MonoScript _ms )
 		{
