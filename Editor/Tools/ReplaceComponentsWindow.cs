@@ -45,26 +45,15 @@ namespace GuiToolkit.Editor
 
 			EditorGUILayout.Space();
 
-			var handling = AreValidComponentScripts(m_sourceScript, m_targetScript);
+			var handling = AreValidComponentScripts(m_sourceScript, m_targetScript, out string buttonMessage);
+			UiLog.Log($"Handling:{handling}");
 
 			using (new EditorGUI.DisabledScope(handling == ScriptReplacementHandling.None))
 			{
-				if (GUILayout.Button("Replace Now"))
+				if (GUILayout.Button("Replace" + buttonMessage))
 				{
 					var srcType = m_sourceScript.GetClass();
 					var dstType = m_targetScript.GetClass();
-
-					if (srcType.IsAbstract || dstType.IsAbstract)
-					{
-						UiLog.LogError("Source and target must be non-abstract Component types.");
-						return;
-					}
-					if (!typeof(Component).IsAssignableFrom(srcType) ||
-						!typeof(Component).IsAssignableFrom(dstType))
-					{
-						UiLog.LogError("Both source and target must inherit from UnityEngine.Component.");
-						return;
-					}
 
 					switch (handling)
 					{
@@ -80,34 +69,65 @@ namespace GuiToolkit.Editor
 						default:
 							throw new ArgumentOutOfRangeException();
 					}
-					
+
 				}
 			}
 		}
 
-		private static ScriptReplacementHandling AreValidComponentScripts(MonoScript _src, MonoScript _dst)
+		private static ScriptReplacementHandling AreValidComponentScripts( MonoScript _src, MonoScript _dst, out string _message )
 		{
-			if (!IsValidComponentScript(_src) || !IsValidComponentScript(_dst))
+			_message = string.Empty;
+
+			if (!IsValidComponentScript(_src))
+			{
+				_message = $" (Can not replace; Source {_src.GetClass()} is not a valid Monobehaviour)";
 				return ScriptReplacementHandling.None;
+			}
 
-			var srcType = _src.GetType();
-			var dstType = _dst.GetType();
+			if (!IsValidComponentScript(_dst))
+			{
+				_message = $" (Can not replace; Destination {_dst.GetClass()} is not a valid Monobehaviour)";
+				return ScriptReplacementHandling.None;
+			}
 
-			// Works, but makes no sense
+			Type srcType = _src.GetClass();
+			Type dstType = _dst.GetClass();
+
+			if (srcType == null || dstType == null)
+			{
+				_message = $" (Can not replace; one of the script types is null)";
+				return ScriptReplacementHandling.None;
+			}
+
 			if (srcType == dstType)
+			{
+				_message = $" (Nothing to replace; source and destination type are equal)";
 				return ScriptReplacementHandling.None;
+			}
 
-			if (typeof(Text).IsAssignableFrom(srcType) && typeof(TMP_Text).IsAssignableFrom(dstType))
+			if (typeof(Text).IsAssignableFrom(srcType) &&
+			    typeof(TextMeshProUGUI).IsAssignableFrom(dstType))
+			{
+				_message = $" Text -> TextMeshProUGUI";
 				return ScriptReplacementHandling.TextMeshPro;
+			}
 
 			if (dstType.IsAssignableFrom(srcType) || srcType.IsAssignableFrom(dstType))
 				return ScriptReplacementHandling.GenericRelated;
 
 			return ScriptReplacementHandling.GenericUnrelated;
 		}
+
 		private static bool IsValidComponentScript( MonoScript _ms )
 		{
-			return _ms != null && typeof(Component).IsAssignableFrom(_ms.GetClass()) && !_ms.GetClass().IsAbstract;
+			if (_ms == null)
+				return false;
+
+			Type type = _ms.GetClass();
+
+			return type != null &&
+				typeof(MonoBehaviour).IsAssignableFrom(type) &&
+				!type.IsAbstract;
 		}
 
 		private static MonoScript GetMonoScriptForClass( Type _t )
