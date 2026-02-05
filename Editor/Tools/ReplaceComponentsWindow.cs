@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using TMPro;
 using UnityEngine.UI;
+using System.Reflection;
 
 namespace GuiToolkit.Editor
 {
@@ -11,8 +12,7 @@ namespace GuiToolkit.Editor
 		private enum ScriptReplacementHandling
 		{
 			None,
-			GenericRelated,
-			GenericUnrelated,
+			Generic,
 			TextMeshPro,
 		}
 
@@ -60,17 +60,49 @@ namespace GuiToolkit.Editor
 						case ScriptReplacementHandling.TextMeshPro:
 							EditorCodeUtility.ReplaceTextWithTextMeshProInCurrentContext();
 							break;
-						case ScriptReplacementHandling.GenericRelated:
-							//TODO replace components
-							break;
-						case ScriptReplacementHandling.GenericUnrelated:
-							//TODO
+						case ScriptReplacementHandling.Generic:
+							InvokeReplaceMonoBehaviourInCurrentContext(srcType, dstType);
 							break;
 						default:
 							throw new ArgumentOutOfRangeException();
 					}
-
 				}
+			}
+		}
+
+		private static void InvokeReplaceMonoBehaviourInCurrentContext( Type _srcType, Type _dstType )
+		{
+			if (_srcType == null)
+				throw new ArgumentNullException(nameof(_srcType));
+			if (_dstType == null)
+				throw new ArgumentNullException(nameof(_dstType));
+
+			if (!typeof(MonoBehaviour).IsAssignableFrom(_srcType))
+				throw new ArgumentException($"Source type '{_srcType.FullName}' is not a MonoBehaviour.", nameof(_srcType));
+
+			if (!typeof(MonoBehaviour).IsAssignableFrom(_dstType))
+				throw new ArgumentException($"Target type '{_dstType.FullName}' is not a MonoBehaviour.", nameof(_dstType));
+
+			const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+
+			MethodInfo method = typeof(GuiToolkit.Editor.EditorCodeUtility).GetMethod(
+				"ReplaceMonoBehaviourInCurrentContext",
+				flags
+			);
+
+			if (method == null)
+				throw new MissingMethodException("EditorCodeUtility.ReplaceMonoBehaviourInCurrentContext<T1,T2>() not found.");
+
+			MethodInfo closed = method.MakeGenericMethod(_srcType, _dstType);
+
+			try
+			{
+				closed.Invoke(null, null);
+			}
+			catch (TargetInvocationException ex)
+			{
+				// unwrap to show the real error in console
+				throw ex.InnerException ?? ex;
 			}
 		}
 
@@ -106,16 +138,13 @@ namespace GuiToolkit.Editor
 			}
 
 			if (typeof(Text).IsAssignableFrom(srcType) &&
-			    typeof(TextMeshProUGUI).IsAssignableFrom(dstType))
+				typeof(TextMeshProUGUI).IsAssignableFrom(dstType))
 			{
 				_message = $" Text -> TextMeshProUGUI";
 				return ScriptReplacementHandling.TextMeshPro;
 			}
 
-			if (dstType.IsAssignableFrom(srcType) || srcType.IsAssignableFrom(dstType))
-				return ScriptReplacementHandling.GenericRelated;
-
-			return ScriptReplacementHandling.GenericUnrelated;
+			return ScriptReplacementHandling.Generic;
 		}
 
 		private static bool IsValidComponentScript( MonoScript _ms )
