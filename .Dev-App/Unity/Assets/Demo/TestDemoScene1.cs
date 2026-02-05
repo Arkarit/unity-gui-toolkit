@@ -106,20 +106,21 @@ public class TestDemoScene1 : UiView
 		{
 			return new UiRequester.Options()
 			{
-				Title = "Enter Time and Date",
+				Title = _("Enter Time and Date"),
 				ButtonInfos = UiRequester.CreateButtonInfos
 				(
 					("Ok", () =>
 					{
-						UiLog.Log($"Selected date / time: {requester.GetDateTime()}");
+						UiLog.Log($"Selected date / time: {requester.GetDateTime()} Text: '{requester.GetInputText()}'");
 					}
 				),
 					("Cancel", null)
 				),
 				DateTimeOptions = new UiDateTimePanel.Options()
 				{
-					//					ShowTime = false,
-				}
+				},
+				PlaceholderText = _("Enter Milestone Title"),
+				Text = null
 			};
 		});
 	}

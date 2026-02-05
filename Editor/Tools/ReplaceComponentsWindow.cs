@@ -8,8 +8,16 @@ namespace GuiToolkit.Editor
 {
 	public class ReplaceComponentsWindow : EditorWindow
 	{
-		private MonoScript sourceScript;
-		private MonoScript targetScript;
+		private enum ScriptReplacementHandling
+		{
+			None,
+			TextMeshPro,
+			GenericRelated,
+			Generic,
+		}
+
+		private MonoScript m_sourceScript;
+		private MonoScript m_targetScript;
 
 		[MenuItem(StringConstants.REPLACE_COMPONENTS_WINDOW)]
 		public static void ShowWindow()
@@ -21,28 +29,30 @@ namespace GuiToolkit.Editor
 		private void OnEnable()
 		{
 			// Defaults: Text -> TextMeshProUGUI (NOT TMP_Text -> abstract)
-			sourceScript = GetMonoScriptForClass(typeof(Text));
-			targetScript = GetMonoScriptForClass(typeof(TextMeshProUGUI));
+			m_sourceScript = GetMonoScriptForClass(typeof(Text));
+			m_targetScript = GetMonoScriptForClass(typeof(TextMeshProUGUI));
 		}
 
 		private void OnGUI()
 		{
 			EditorGUILayout.LabelField("Replace in Active Scene", EditorStyles.boldLabel);
 
-			sourceScript = (MonoScript)EditorGUILayout.ObjectField(
-				"Source Component", sourceScript, typeof(MonoScript), false);
+			m_sourceScript = (MonoScript)EditorGUILayout.ObjectField(
+				"Source Component", m_sourceScript, typeof(MonoScript), false);
 
-			targetScript = (MonoScript)EditorGUILayout.ObjectField(
-				"Target Component", targetScript, typeof(MonoScript), false);
+			m_targetScript = (MonoScript)EditorGUILayout.ObjectField(
+				"Target Component", m_targetScript, typeof(MonoScript), false);
 
 			EditorGUILayout.Space();
 
-			using (new EditorGUI.DisabledScope(!IsValidComponentScript(sourceScript) || !IsValidComponentScript(targetScript)))
+			var handling = AreValidComponentScripts(m_sourceScript, m_targetScript);
+
+			using (new EditorGUI.DisabledScope(handling == ScriptReplacementHandling.None))
 			{
 				if (GUILayout.Button("Replace Now"))
 				{
-					var srcType = sourceScript.GetClass();
-					var dstType = targetScript.GetClass();
+					var srcType = m_sourceScript.GetClass();
+					var dstType = m_targetScript.GetClass();
 
 					if (srcType.IsAbstract || dstType.IsAbstract)
 					{
@@ -56,20 +66,56 @@ namespace GuiToolkit.Editor
 						return;
 					}
 
-					EditorCodeUtility.ReplaceTextWithTextMeshProInCurrentContext();
+					switch (handling)
+					{
+						case ScriptReplacementHandling.TextMeshPro:
+							EditorCodeUtility.ReplaceTextWithTextMeshProInCurrentContext();
+							break;
+						case ScriptReplacementHandling.GenericRelated:
+							//TODO
+							break;
+						case ScriptReplacementHandling.Generic:
+							//TODO
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
+					
 				}
 			}
 		}
 
-		private static bool IsValidComponentScript( MonoScript ms )
-			=> ms != null && typeof(Component).IsAssignableFrom(ms.GetClass()) && !ms.GetClass().IsAbstract;
+		private static ScriptReplacementHandling AreValidComponentScripts(MonoScript _src, MonoScript _dst)
+		{
+			if (!IsValidComponentScript(_src) || !IsValidComponentScript(_dst))
+				return ScriptReplacementHandling.None;
 
-		private static MonoScript GetMonoScriptForClass( Type t )
+			var srcType = _src.GetType();
+			var dstType = _dst.GetType();
+
+			// Works, but makes no sense
+			if (srcType == dstType)
+				return ScriptReplacementHandling.None;
+
+			if (typeof(Text).IsAssignableFrom(srcType) && typeof(TMP_Text).IsAssignableFrom(dstType))
+				return ScriptReplacementHandling.TextMeshPro;
+
+			if (dstType.IsAssignableFrom(srcType))
+				return ScriptReplacementHandling.GenericRelated;
+
+			return ScriptReplacementHandling.Generic;
+		}
+		private static bool IsValidComponentScript( MonoScript _ms )
+		{
+			return _ms != null && typeof(Component).IsAssignableFrom(_ms.GetClass()) && !_ms.GetClass().IsAbstract;
+		}
+
+		private static MonoScript GetMonoScriptForClass( Type _t )
 		{
 			var go = new GameObject("__tmp__");
 			try
 			{
-				var comp = go.AddComponent(t) as MonoBehaviour;
+				var comp = go.AddComponent(_t) as MonoBehaviour;
 				return MonoScript.FromMonoBehaviour(comp);
 			}
 			finally { GameObject.DestroyImmediate(go); }

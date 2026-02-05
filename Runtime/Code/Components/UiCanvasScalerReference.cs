@@ -28,7 +28,6 @@ namespace GuiToolkit
 
 				if (m_coroutine == null)
 					m_coroutine = StartCoroutine(ForceRefresh());
-
 			}
 
 			base.OnEnable();
