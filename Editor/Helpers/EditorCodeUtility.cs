@@ -364,7 +364,6 @@ namespace GuiToolkit.Editor
 			LogReplacement("Apply Rewire Registry");
 
 			// 1) Replace components for each (OldType -> NewType) pair found in registry.
-			// This must not be hardcoded to Text -> TextMeshProUGUI anymore.
 			var pairs = new List<(Type OldType, Type NewType)>();
 
 			for (int i = 0; i < reg.Entries.Count; i++)
@@ -901,7 +900,7 @@ namespace GuiToolkit.Editor
 
 			reg.Entries.Clear();
 
-			var components = CollectMonoBehavioursInContextSceneReferencing<Text>();
+			var components = CollectMonoBehavioursInContextSceneReferencing<T1>();
 
 			if (components == null || components.Count == 0)
 			{

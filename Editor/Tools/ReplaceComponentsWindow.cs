@@ -16,6 +16,9 @@ namespace GuiToolkit.Editor
 			TextMeshPro,
 		}
 
+		private const string PREF_SRC_GUID = "GuiToolkit.ReplaceComponentsWindow.SourceGuid";
+		private const string PREF_DST_GUID = "GuiToolkit.ReplaceComponentsWindow.TargetGuid";
+
 		private MonoScript m_sourceScript;
 		private MonoScript m_targetScript;
 
@@ -28,9 +31,69 @@ namespace GuiToolkit.Editor
 
 		private void OnEnable()
 		{
-			// Defaults: Text -> TextMeshProUGUI (NOT TMP_Text -> abstract)
-			m_sourceScript = GetMonoScriptForClass(typeof(Text));
-			m_targetScript = GetMonoScriptForClass(typeof(TextMeshProUGUI));
+			// Try restore from prefs first
+			m_sourceScript = LoadMonoScriptFromPrefs(PREF_SRC_GUID);
+			m_targetScript = LoadMonoScriptFromPrefs(PREF_DST_GUID);
+
+			// Fallback defaults
+			if (m_sourceScript == null)
+				m_sourceScript = GetMonoScriptForClass(typeof(Text));
+
+			if (m_targetScript == null)
+				m_targetScript = GetMonoScriptForClass(typeof(TextMeshProUGUI));
+		}
+
+		private void OnDisable()
+		{
+			SaveMonoScriptToPrefs(PREF_SRC_GUID, m_sourceScript);
+			SaveMonoScriptToPrefs(PREF_DST_GUID, m_targetScript);
+		}
+
+		private static void SaveMonoScriptToPrefs( string _prefKey, MonoScript _script )
+		{
+			if (string.IsNullOrEmpty(_prefKey))
+				return;
+
+			if (_script == null)
+			{
+				EditorPrefs.DeleteKey(_prefKey);
+				return;
+			}
+
+			string path = AssetDatabase.GetAssetPath(_script);
+			if (string.IsNullOrEmpty(path))
+			{
+				EditorPrefs.DeleteKey(_prefKey);
+				return;
+			}
+
+			string guid = AssetDatabase.AssetPathToGUID(path);
+			if (string.IsNullOrEmpty(guid))
+			{
+				EditorPrefs.DeleteKey(_prefKey);
+				return;
+			}
+
+			EditorPrefs.SetString(_prefKey, guid);
+		}
+
+		private static MonoScript LoadMonoScriptFromPrefs( string _prefKey )
+		{
+			if (string.IsNullOrEmpty(_prefKey))
+				return null;
+
+			if (!EditorPrefs.HasKey(_prefKey))
+				return null;
+
+			string guid = EditorPrefs.GetString(_prefKey, "");
+			if (string.IsNullOrEmpty(guid))
+				return null;
+
+			string path = AssetDatabase.GUIDToAssetPath(guid);
+			if (string.IsNullOrEmpty(path))
+				return null;
+
+			return AssetDatabase.LoadAssetAtPath<MonoScript>(path);
 		}
 
 		private void OnGUI()
