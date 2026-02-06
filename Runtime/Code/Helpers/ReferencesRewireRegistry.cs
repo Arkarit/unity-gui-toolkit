@@ -18,7 +18,7 @@ namespace GuiToolkit.Editor
 		/// Name of the hidden GameObject that stores the registry in a scene.
 		/// </summary>
 		public const string RegistryName = "__ReferencesRewireRegistry__";
-		
+
 		/// <summary>
 		/// A single rewiring entry that describes how to update a reference
 		/// from an old component (e.g. UnityEngine.UI.Text) to a new one (e.g. TextMeshProUGUI).
@@ -26,30 +26,24 @@ namespace GuiToolkit.Editor
 		[Serializable]
 		public class Entry
 		{
-			/// <summary>
-			/// Object (usually a MonoBehaviour) that holds the serialized reference.
-			/// </summary>
 			public UnityEngine.Object Owner;
-
-			/// <summary>
-			/// SerializedProperty path on the Owner object pointing to the old reference.
-			/// </summary>
 			public string PropertyPath;
-
-			/// <summary>
-			/// GameObject that contains the old component and will receive the new one.
-			/// </summary>
 			public GameObject TargetGameObject;
 
-			/// <summary>
-			/// Type of the original (old) component.
-			/// </summary>
-			public Type OldType;
+			public string OldTypeName;
+			public string NewTypeName;
 
-			/// <summary>
-			/// Type of the new component that replaces the old one.
-			/// </summary>
-			public Type NewType;
+			[NonSerialized] public Type OldType;
+			[NonSerialized] public Type NewType;
+
+			public void ResolveTypes()
+			{
+				if (OldType == null && !string.IsNullOrEmpty(OldTypeName))
+					OldType = Type.GetType(OldTypeName, false);
+
+				if (NewType == null && !string.IsNullOrEmpty(NewTypeName))
+					NewType = Type.GetType(NewTypeName, false);
+			}
 		}
 
 		/// <summary>

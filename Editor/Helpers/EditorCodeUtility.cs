@@ -365,10 +365,11 @@ namespace GuiToolkit.Editor
 
 			// 1) Replace components for each (OldType -> NewType) pair found in registry.
 			var pairs = new List<(Type OldType, Type NewType)>();
-
 			for (int i = 0; i < reg.Entries.Count; i++)
 			{
 				var e = reg.Entries[i];
+					e.ResolveTypes();
+
 				if (e.OldType == null || e.NewType == null)
 					continue;
 
@@ -938,7 +939,9 @@ namespace GuiToolkit.Editor
 						PropertyPath = it.propertyPath,
 						TargetGameObject = monoBehaviour.gameObject,
 						OldType = typeof(T1),
-						NewType = typeof(T2)
+						NewType = typeof(T2),
+						OldTypeName = typeof(T1).AssemblyQualifiedName,
+						NewTypeName = typeof(T2).AssemblyQualifiedName
 					});
 					count++;
 				}
