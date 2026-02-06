@@ -604,64 +604,58 @@ namespace GuiToolkit.Editor
 
 				var go = oldComp.gameObject;
 
-				// 1a) Remove blockers ...
+				// 1a) Remove blockers that Require Graphic (e.g., Outline/Shadow/custom effects)
 				var blockers = CaptureAndRemoveBlockers(go, oldComp);
 
-				// 1b) Ensure TB exists early, so we can deep-copy shared serialized data before destroying TA
-				var newComp = go.GetComponent<TB>();
-				bool createdNow = false;
-
-				if (!newComp)
-				{
-					newComp = Undo.AddComponent<TB>(go);
-					createdNow = true;
-
-					if (!go.activeInHierarchy)
-					{
-						var tmpGO = new GameObject("__tmp_defaults__", typeof(RectTransform));
-						var def = tmpGO.AddComponent<TB>();
-						UnityEditorInternal.ComponentUtility.CopyComponent(def);
-						UnityEditorInternal.ComponentUtility.PasteComponentValues(newComp);
-						UnityEngine.Object.DestroyImmediate(tmpGO);
-					}
-				}
-
-				if (!newComp)
-				{
-					RestoreBlockers(go, blockers);
-					UiLog.LogError($"Failed to add target component {typeof(TB).Name} to '{go.GetPath()}'.", go);
-					continue;
-				}
-
-				// 1c) Deep copy shared serialized properties while oldComp still exists
-				int sharedCopied = CopySharedSerializedPropertiesImmediate(oldComp, newComp);
-				LogReplacement($"Copied {sharedCopied} shared serialized properties TA->TB on '{go.GetPath()}'");
-
-				// 2) Now remove TA safely
+				// 2) Remove TA (Graphic) now that no blockers are enforcing it
 				if (!oldComp.CanBeDestroyed(out string reasons))
 				{
 					string s = $"Can not replace '{go.GetPath()}'\nReason(s): {reasons}";
 					UiLog.LogError(s, oldComp);
 					LogReplacement($"Error:{s}");
-
-					// rollback created TB if we created it now
-					if (createdNow && newComp)
-						Undo.DestroyObjectImmediate(newComp);
-
+					// try to restore blockers before continuing
 					RestoreBlockers(go, blockers);
 					continue;
 				}
 
+				LogReplacement($"Removing old MonoBehaviour '{oldComp.GetType().Name}' on '{oldComp.GetPath()}'");
 				Undo.RegisterCompleteObjectUndo(go, "Remove Source MonoBehaviour");
 				Undo.DestroyObjectImmediate(oldComp);
 
-				// 4) Apply captured data / special mapping
+				// 3) Ensure TB exists (reuse if already present; otherwise add)
+				var newComp = go.GetComponent<TB>();
+				if (!newComp)
+				{
+					newComp = Undo.AddComponent<TB>(go);
+					if (!go.activeInHierarchy)
+					{
+						var tmpGO = new GameObject("__tmp_tmpro_defaults__", typeof(RectTransform));
+						var def = tmpGO.AddComponent<TextMeshProUGUI>();
+						UnityEditorInternal.ComponentUtility.CopyComponent(def);
+						UnityEditorInternal.ComponentUtility.PasteComponentValues(newComp);
+						UnityEngine.Object.DestroyImmediate(tmpGO);
+					}
+
+					LogReplacement($"Created new component '{newComp.GetType().Name}' on '{newComp.GetPath()}'");
+					if (!newComp)
+					{
+						// catastrophic: restore original situation as best as possible
+						// (re-add TA and blockers)
+						var restoredTA = Undo.AddComponent(go, typeof(TA)) as TA;
+						RestoreBlockers(go, blockers);
+						UiLog.LogError($"Failed to add target component {typeof(TB).Name} to '{go.GetPath()}'. Rolled back.", go);
+						continue;
+					}
+				}
+
+				// 4) Apply captured data to TB
+
+				LogReplacement($"Applying captured text properties from '{oldComp.GetType().Name}' on '{oldComp.GetPath()}':\n{snapshot}");
 				_apply?.Invoke(snapshot, newComp);
 
-				// 5) Restore blockers
+				// 5) Restore previously removed blockers (Outline/Shadow/etc.)
 				RestoreBlockers(go, blockers);
 
-				results.Add((snapshot, newComp));
 				results.Add((snapshot, newComp));
 			}
 
