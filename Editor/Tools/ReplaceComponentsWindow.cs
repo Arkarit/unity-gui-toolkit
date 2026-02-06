@@ -83,21 +83,9 @@ namespace GuiToolkit.Editor
 			if (!typeof(MonoBehaviour).IsAssignableFrom(_dstType))
 				throw new ArgumentException($"Target type '{_dstType.FullName}' is not a MonoBehaviour.", nameof(_dstType));
 
-			const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
-
-			MethodInfo method = typeof(GuiToolkit.Editor.EditorCodeUtility).GetMethod(
-				"ReplaceMonoBehaviourInCurrentContext",
-				flags
-			);
-
-			if (method == null)
-				throw new MissingMethodException("EditorCodeUtility.ReplaceMonoBehaviourInCurrentContext<T1,T2>() not found.");
-
-			MethodInfo closed = method.MakeGenericMethod(_srcType, _dstType);
-
 			try
 			{
-				closed.Invoke(null, null);
+				typeof(EditorCodeUtility).CallStaticMethod(_srcType, _dstType, "ReplaceMonoBehaviourInCurrentContext", out bool _);
 			}
 			catch (TargetInvocationException ex)
 			{
@@ -144,6 +132,7 @@ namespace GuiToolkit.Editor
 				return ScriptReplacementHandling.TextMeshPro;
 			}
 
+			_message = $" {srcType.Name} -> {dstType.Name}";
 			return ScriptReplacementHandling.Generic;
 		}
 

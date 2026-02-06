@@ -27,6 +27,7 @@ using GuiToolkit.Style;
 using OwnerAndPathList = System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>;
 using OwnerAndPathListById = System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<(UnityEngine.Object owner, string propertyPath)>>;
 using TextSnapshotList = System.Collections.Generic.List<(GuiToolkit.Editor.EditorCodeUtility.TextSnapshot Snapshot, TMPro.TextMeshProUGUI NewComp)>;
+using System.Reflection;
 
 namespace GuiToolkit.Editor
 {
@@ -361,13 +362,51 @@ namespace GuiToolkit.Editor
 				return false;
 
 			LogReplacement("Apply Rewire Registry");
-			// 1) Replace components (mapping only; no SerializedProperty writes in this step)
-			var replacedList = ReplaceUITextWithTMPInActiveScene();
-			_replaced = replacedList.Count;
 
-			// Rewire from registry
-			foreach (var e in reg.Entries)
+			// 1) Replace components for each (OldType -> NewType) pair found in registry.
+			// This must not be hardcoded to Text -> TextMeshProUGUI anymore.
+			var pairs = new List<(Type OldType, Type NewType)>();
+
+			for (int i = 0; i < reg.Entries.Count; i++)
 			{
+				var e = reg.Entries[i];
+				if (e.OldType == null || e.NewType == null)
+					continue;
+
+				bool exists = false;
+				for (int j = 0; j < pairs.Count; j++)
+				{
+					if (pairs[j].OldType == e.OldType && pairs[j].NewType == e.NewType)
+					{
+						exists = true;
+						break;
+					}
+				}
+
+				if (!exists)
+					pairs.Add((e.OldType, e.NewType));
+			}
+
+			for (int i = 0; i < pairs.Count; i++)
+			{
+				var (oldType, newType) = pairs[i];
+
+				try
+				{
+					_replaced += ReplaceMonoBehavioursInActiveSceneGenericByType(oldType, newType);
+				}
+				catch (Exception ex)
+				{
+					UiLog.LogError($"Failed to replace '{oldType?.Name}' -> '{newType?.Name}'. {ex.Message}");
+					LogReplacement($"Error: Failed to replace '{oldType?.Name}' -> '{newType?.Name}'. {ex}");
+				}
+			}
+
+			// 2) Rewire from registry
+			for (int i = 0; i < reg.Entries.Count; i++)
+			{
+				var e = reg.Entries[i];
+
 				if (!e.Owner || !e.TargetGameObject)
 				{
 					UiLog.LogError($"Missing: No owner or target game object found for property path '{e.PropertyPath}'");
@@ -375,16 +414,20 @@ namespace GuiToolkit.Editor
 					continue;
 				}
 
-				var tmp = e.TargetGameObject.GetComponent<TextMeshProUGUI>();
-				if (!tmp)
+				if (e.NewType == null)
 				{
-					tmp = e.TargetGameObject.GetComponent<TMP_Text>() as TextMeshProUGUI;
-					if (tmp == null)
-					{
-						UiLog.LogError($"Missing: No {nameof(TextMeshProUGUI)} found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'", e.TargetGameObject);
-						_missing++;
-						continue;
-					}
+					UiLog.LogError($"Missing: NewType is null for property path '{e.PropertyPath}'");
+					_missing++;
+					continue;
+				}
+
+				// Find the new component of the requested type on the target GO
+				var newComp = e.TargetGameObject.GetComponent(e.NewType);
+				if (!newComp)
+				{
+					UiLog.LogError($"Missing: No '{e.NewType.Name}' found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'", e.TargetGameObject);
+					_missing++;
+					continue;
 				}
 
 				EditorUtility.SetDirty(e.TargetGameObject);
@@ -393,22 +436,22 @@ namespace GuiToolkit.Editor
 				var sp = so.FindProperty(e.PropertyPath);
 				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
 				{
-					UiLog.LogError($"Missing: No property found for property path '{e.PropertyPath}' on target object:'{e.TargetGameObject}'", e.TargetGameObject);
+					UiLog.LogError($"Missing: No property found for property path '{e.PropertyPath}' on owner:'{e.Owner}'", e.Owner);
 					_missing++;
 					continue;
 				}
 
-				if (sp.objectReferenceValue != tmp)
+				if (sp.objectReferenceValue != (UnityEngine.Object)newComp)
 				{
-					Undo.RecordObject(e.Owner, "Rewire TMP reference");
-					sp.objectReferenceValue = tmp;
+					Undo.RecordObject(e.Owner, "Rewire reference");
+					sp.objectReferenceValue = (UnityEngine.Object)newComp;
 					so.ApplyModifiedProperties();
 					EditorUtility.SetDirty(e.Owner);
 					_rewired++;
 				}
 			}
 
-			// Remove registry GO
+			// 3) Remove registry GO
 			Undo.DestroyObjectImmediate(reg.gameObject);
 			EditorSceneManager.MarkSceneDirty(scene);
 			return true;
@@ -416,6 +459,33 @@ namespace GuiToolkit.Editor
 			throw new RoslynUnavailableException();
 #endif
 		}
+
+#if UITK_USE_ROSLYN
+		private static int ReplaceMonoBehavioursInActiveSceneGenericByType( Type _oldType, Type _newType )
+		{
+			if (_oldType == null)
+				throw new ArgumentNullException(nameof(_oldType));
+			if (_newType == null)
+				throw new ArgumentNullException(nameof(_newType));
+
+
+			object result = typeof(EditorCodeUtility).CallStaticMethod(_newType, _oldType, "ReplaceMonoBehavioursInActiveSceneGeneric", out bool success);
+			if (!success)
+				return 0;
+
+			// We don't want to depend on the return type too much:
+			// - if it returns a list, count it
+			// - if it returns an int, use it
+			// - otherwise return 0
+			if (result is int countInt)
+				return countInt;
+
+			if (result is System.Collections.ICollection coll)
+				return coll.Count;
+
+			return 0;
+		}
+#endif
 
 		/// <summary>
 		/// Roslyn-backed C# source rewriter that replaces all usages of TA with TB.
@@ -815,9 +885,9 @@ namespace GuiToolkit.Editor
 		/// the scene so the data survives domain reload and can be applied afterward.
 		/// </summary>
 		/// <returns>Number of collected references recorded into the registry.</returns>
-		public static int PrepareRewiring<T1,T2>()
-		where T1:MonoBehaviour
-		where T2:MonoBehaviour
+		public static int PrepareRewiring<T1, T2>()
+		where T1 : MonoBehaviour
+		where T2 : MonoBehaviour
 		{
 #if UITK_USE_ROSLYN
 			var scene = GetCurrentContextScene();

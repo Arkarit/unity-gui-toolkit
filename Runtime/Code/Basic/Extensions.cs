@@ -32,7 +32,7 @@ namespace GuiToolkit
 
 		public static bool IsQuitting( this Application _ ) => s_isQuitting;
 
-		public static string ToCaps(this string _s) => Regex.Replace(_s, @"(^\w)|(\s\w)", m => m.Value.ToUpper());
+		public static string ToCaps( this string _s ) => Regex.Replace(_s, @"(^\w)|(\s\w)", m => m.Value.ToUpper());
 
 		public static string RemoveWhitespace( this string _s )
 		{
@@ -361,7 +361,7 @@ namespace GuiToolkit
 		}
 
 		public static bool CanBeDestroyed( this Object _self ) => CanBeDestroyed(_self, out var _);
-		public static MethodInfo GetPublicOrNonPublicStaticMethod( this Type _type, string _name, bool _logError = true )
+		public static MethodInfo GetStaticMethod( this Type _type, string _name, bool _logError = true )
 		{
 			// We also find public methods in case a method has been made public in an update
 			var result = _type.GetMethod(_name, BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
@@ -372,10 +372,37 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static object CallPublicOrNonPublicStaticMethod( this Type _type, string _name, out bool _success, bool _catchExceptions = false, bool _logError = true, params object[] _params )
+		public static object CallStaticMethod( this Type _type, string _name, out bool _success, bool _catchExceptions = false, bool _logError = true, params object[] _params ) =>
+			CallStaticMethodInternal(_type, null, null, null, null, _name, out _success, _catchExceptions, _logError, _params);
+
+		public static object CallStaticMethod( this Type _type, Type _generic0, string _name, out bool _success, bool _catchExceptions = false, bool _logError = true, params object[] _params ) =>
+			CallStaticMethodInternal(_type, _generic0, null, null, null, _name, out _success, _catchExceptions, _logError, _params);
+
+		public static object CallStaticMethod( this Type _type, Type _generic0, Type _generic1, string _name, out bool _success, bool _catchExceptions = false, bool _logError = true, params object[] _params ) =>
+			CallStaticMethodInternal(_type, _generic0, _generic1, null, null, _name, out _success, _catchExceptions, _logError, _params);
+
+		public static object CallStaticMethod( this Type _type, Type _generic0, Type _generic1, Type _generic2, string _name, out bool _success, bool _catchExceptions = false, bool _logError = true, params object[] _params ) =>
+			CallStaticMethodInternal(_type, _generic0, _generic1, _generic2, null, _name, out _success, _catchExceptions, _logError, _params);
+
+		public static object CallStaticMethod( this Type _type, Type _generic0, Type _generic1, Type _generic2, Type _generic3, string _name, out bool _success, bool _catchExceptions = false, bool _logError = true, params object[] _params ) =>
+			CallStaticMethodInternal(_type, _generic0, _generic1, _generic2, _generic3, _name, out _success, _catchExceptions, _logError, _params);
+
+		private static object CallStaticMethodInternal(
+			Type _type,
+			Type _generic0,
+			Type _generic1,
+			Type _generic2,
+			Type _generic3,
+			string _name,
+			out bool _success,
+			bool _catchExceptions = false,
+			bool _logError = true,
+			params object[] _params
+		)
 		{
 			_success = true;
-			MethodInfo mi = GetPublicOrNonPublicStaticMethod(_type, _name, _logError);
+
+			MethodInfo mi = GetStaticMethod(_type, _name, _logError);
 			if (mi == null)
 			{
 				_success = false;
@@ -384,23 +411,174 @@ namespace GuiToolkit
 
 			try
 			{
-				return mi.Invoke(null, _params);
+				// Close generic method if requested
+				MethodInfo closed = CloseGenericMethodIfRequested(mi, _generic0, _generic1, _generic2, _generic3, _type, _name, _logError, out bool ok);
+				if (!ok)
+				{
+					_success = false;
+					return null;
+				}
+
+				return closed.Invoke(null, _params);
 			}
 			catch (Exception e)
 			{
 				_success = false;
+
 				if (!_catchExceptions)
 					throw;
 
 				if (_logError)
-					UiLog.LogError($"Exception: Internal API for private static method '{_type.Name}.{_name}()' has changed, or other (parameter) error, please fix!\n{e.Message}");
+					UiLog.LogError(
+						$"Exception: Internal API for private static method '{_type.Name}.{_name}()' has changed, or other (parameter) error, please fix!\n{e}"
+					);
 
 				return null;
 			}
 		}
 
-		public static object CallPublicOrNonPublicStaticMethod( this Type _type, string _name, params object[] _params ) =>
-			CallPublicOrNonPublicStaticMethod(_type, _name, out bool _, _catchExceptions: false, _logError: true, _params);
+		private static MethodInfo CloseGenericMethodIfRequested(
+			MethodInfo _mi,
+			Type _generic0,
+			Type _generic1,
+			Type _generic2,
+			Type _generic3,
+			Type _declaringType,
+			string _name,
+			bool _logError,
+			out bool _success
+		)
+		{
+			_success = true;
+
+			// Collect generics left-to-right; allow all null; forbid holes.
+			Type[] gens = BuildGenericArguments(_generic0, _generic1, _generic2, _generic3, _declaringType, _name, _logError, out bool ok);
+			if (!ok)
+			{
+				_success = false;
+				return null;
+			}
+
+			if (gens.Length == 0)
+				return _mi;
+
+			if (!_mi.IsGenericMethodDefinition)
+			{
+				_success = false;
+				if (_logError)
+					UiLog.LogError($"Method '{_declaringType.Name}.{_name}()' is not a generic method definition, but generic arguments were provided.");
+				return null;
+			}
+
+			int expected = _mi.GetGenericArguments().Length;
+			if (expected != gens.Length)
+			{
+				_success = false;
+				if (_logError)
+				{
+					UiLog.LogError(
+						$"Generic argument count mismatch for '{_declaringType.Name}.{_name}()': expected {expected}, got {gens.Length}."
+					);
+				}
+				return null;
+			}
+
+			MethodInfo closed;
+			try
+			{
+				closed = _mi.MakeGenericMethod(gens);
+			}
+			catch (Exception e)
+			{
+				_success = false;
+				if (_logError)
+				{
+					UiLog.LogError(
+						$"Failed to close generic method '{_declaringType.Name}.{_name}()' with arguments [{FormatTypeList(gens)}].\n{e}"
+					);
+				}
+				return null;
+			}
+
+			return closed;
+		}
+
+		private static Type[] BuildGenericArguments(
+			Type _generic0,
+			Type _generic1,
+			Type _generic2,
+			Type _generic3,
+			Type _declaringType,
+			string _name,
+			bool _logError,
+			out bool _success
+		)
+		{
+			_success = true;
+
+			// left-to-right, no holes
+			if (_generic0 == null)
+			{
+				if (_generic1 != null || _generic2 != null || _generic3 != null)
+				{
+					_success = false;
+					if (_logError)
+						UiLog.LogError($"Generic argument hole for '{_declaringType.Name}.{_name}()': generic0 is null but later generic arguments are not null.");
+					return Array.Empty<Type>();
+				}
+
+				return Array.Empty<Type>();
+			}
+
+			if (_generic1 == null)
+			{
+				if (_generic2 != null || _generic3 != null)
+				{
+					_success = false;
+					if (_logError)
+						UiLog.LogError($"Generic argument hole for '{_declaringType.Name}.{_name}()': generic1 is null but later generic arguments are not null.");
+					return Array.Empty<Type>();
+				}
+
+				return new[] { _generic0 };
+			}
+
+			if (_generic2 == null)
+			{
+				if (_generic3 != null)
+				{
+					_success = false;
+					if (_logError)
+						UiLog.LogError($"Generic argument hole for '{_declaringType.Name}.{_name}()': generic2 is null but later generic arguments are not null.");
+					return Array.Empty<Type>();
+				}
+
+				return new[] { _generic0, _generic1 };
+			}
+
+			if (_generic3 == null)
+				return new[] { _generic0, _generic1, _generic2 };
+
+			return new[] { _generic0, _generic1, _generic2, _generic3 };
+		}
+
+		private static string FormatTypeList( Type[] _types )
+		{
+			if (_types == null || _types.Length == 0)
+				return "";
+
+			var sb = new System.Text.StringBuilder();
+			for (int i = 0; i < _types.Length; i++)
+			{
+				if (i > 0)
+					sb.Append(", ");
+				sb.Append(_types[i] != null ? _types[i].FullName : "<null>");
+			}
+			return sb.ToString();
+		}
+
+		public static object CallStaticMethod( this Type _type, string _name, params object[] _params ) =>
+			CallStaticMethod(_type, _name, out bool _, _catchExceptions: false, _logError: true, _params);
 
 		public static List<T> ToList<T>( this HashSet<T> _self )
 		{
@@ -937,7 +1115,7 @@ namespace GuiToolkit
 
 		public static bool IsEven( this int _self ) => (_self & 1) == 0;
 		public static bool IsOdd( this int _self ) => (_self & 1) != 0;
-		public static bool IsInRange(this int _self, int _minInclusive, int _maxExclusive) => _self >= _minInclusive && _self < _maxExclusive;
+		public static bool IsInRange( this int _self, int _minInclusive, int _maxExclusive ) => _self >= _minInclusive && _self < _maxExclusive;
 
 		/// <summary>
 		/// Clone a single game object without its children.
@@ -1195,7 +1373,7 @@ namespace GuiToolkit
 			return runtimeCalls != null && runtimeCalls.Count > 0;
 		}
 
-		public static void SetTextAndUpdateMesh(this TMP_Text _component, string _text)
+		public static void SetTextAndUpdateMesh( this TMP_Text _component, string _text )
 		{
 			_component.text = _text;
 			_component.ForceMeshUpdate();
