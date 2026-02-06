@@ -163,31 +163,226 @@ namespace GuiToolkit.Editor
 
 				if (it.propertyType == SerializedPropertyType.Generic && it.isArray)
 				{
-					if (it.propertyPath.EndsWith(".Array"))
+					if (it.propertyPath.EndsWith(".Array", StringComparison.Ordinal))
 						continue;
 
-					switch (it.arrayElementType)
+					if (it.propertyType == SerializedPropertyType.Generic && it.isArray)
 					{
-						case "int":
-							snapshot.Arrays.Add(GenericArraySnapshot.Capture(it, 
-							(property) =>
-							{
-								return property.intValue;
-							}, (property, o) =>
-							{
-								property.intValue = (int) o;
-							} ));
-							break;
-						case "string":
-							snapshot.Arrays.Add(GenericArraySnapshot.Capture(it, 
-							(property) =>
-							{
-								return property.stringValue;
-							}, (property, o) =>
-							{
-								property.stringValue = (string) o;
-							} ));
-							break;
+						if (it.propertyPath.EndsWith(".Array", StringComparison.Ordinal))
+							continue;
+
+						switch (it.arrayElementType)
+						{
+							case "int":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.intValue,
+									( property, o ) => property.intValue = (int)o));
+								break;
+
+							// long: Unity kann hier verschiedene Strings liefern, je nach Version/Backend
+							case "long":
+							case "Int64":
+							case "SInt64":
+							case "UInt64":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.longValue,
+									( property, o ) => property.longValue = (long)o));
+								break;
+
+							case "float":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.floatValue,
+									( property, o ) => property.floatValue = (float)o));
+								break;
+
+							// double: dito, Strings koennen variieren
+							case "double":
+							case "Double":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.doubleValue,
+									( property, o ) => property.doubleValue = (double)o));
+								break;
+
+							case "bool":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.boolValue,
+									( property, o ) => property.boolValue = (bool)o));
+								break;
+
+							case "string":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.stringValue,
+									( property, o ) => property.stringValue = (string)o));
+								break;
+
+							// Unity-intern
+							case "ColorRGBA":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.colorValue,
+									( property, o ) => property.colorValue = (Color)o));
+								break;
+
+							case "Vector2f":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.vector2Value,
+									( property, o ) => property.vector2Value = (Vector2)o));
+								break;
+
+							case "Vector3f":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.vector3Value,
+									( property, o ) => property.vector3Value = (Vector3)o));
+								break;
+
+							case "Vector4f":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.vector4Value,
+									( property, o ) => property.vector4Value = (Vector4)o));
+								break;
+
+							case "Rectf":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.rectValue,
+									( property, o ) => property.rectValue = (Rect)o));
+								break;
+
+							case "Quaternionf":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.quaternionValue,
+									( property, o ) => property.quaternionValue = (Quaternion)o));
+								break;
+
+							// Diese Strings sind ebenfalls Unity-abhängig; je nach Version können sie anders heißen.
+							case "Vector2Int":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.vector2IntValue,
+									( property, o ) => property.vector2IntValue = (Vector2Int)o));
+								break;
+
+							case "Vector3Int":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.vector3IntValue,
+									( property, o ) => property.vector3IntValue = (Vector3Int)o));
+								break;
+
+							case "RectInt":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.rectIntValue,
+									( property, o ) => property.rectIntValue = (RectInt)o));
+								break;
+
+							case "Bounds":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.boundsValue,
+									( property, o ) => property.boundsValue = (Bounds)o));
+								break;
+
+							case "BoundsInt":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.boundsIntValue,
+									( property, o ) => property.boundsIntValue = (BoundsInt)o));
+								break;
+
+							case "AnimationCurve":
+								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+									( property ) => property.animationCurveValue,
+									( property, o ) => property.animationCurveValue = (AnimationCurve)o));
+								break;
+
+							default:
+								{
+									SerializedProperty firstElem = it.arraySize > 0 ? it.GetArrayElementAtIndex(0) : null;
+									if (firstElem == null)
+										break;
+
+									switch (firstElem.propertyType)
+									{
+										case SerializedPropertyType.ObjectReference:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.objectReferenceValue,
+												( property, o ) => property.objectReferenceValue = (UnityEngine.Object)o));
+											break;
+
+										case SerializedPropertyType.Enum:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.enumValueIndex,
+												( property, o ) => property.enumValueIndex = (int)o));
+											break;
+
+										case SerializedPropertyType.Vector3:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.vector3Value,
+												( property, o ) => property.vector3Value = (Vector3)o));
+											break;
+
+										case SerializedPropertyType.Color:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.colorValue,
+												( property, o ) => property.colorValue = (Color)o));
+											break;
+
+										case SerializedPropertyType.Vector2:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.vector2Value,
+												( property, o ) => property.vector2Value = (Vector2)o));
+											break;
+
+										case SerializedPropertyType.Vector4:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.vector4Value,
+												( property, o ) => property.vector4Value = (Vector4)o));
+											break;
+
+										case SerializedPropertyType.Rect:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.rectValue,
+												( property, o ) => property.rectValue = (Rect)o));
+											break;
+
+										case SerializedPropertyType.Quaternion:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.quaternionValue,
+												( property, o ) => property.quaternionValue = (Quaternion)o));
+											break;
+
+										case SerializedPropertyType.Vector2Int:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.vector2IntValue,
+												( property, o ) => property.vector2IntValue = (Vector2Int)o));
+											break;
+
+										case SerializedPropertyType.Vector3Int:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.vector3IntValue,
+												( property, o ) => property.vector3IntValue = (Vector3Int)o));
+											break;
+
+										case SerializedPropertyType.Bounds:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.boundsValue,
+												( property, o ) => property.boundsValue = (Bounds)o));
+											break;
+
+										case SerializedPropertyType.BoundsInt:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.boundsIntValue,
+												( property, o ) => property.boundsIntValue = (BoundsInt)o));
+											break;
+
+										case SerializedPropertyType.AnimationCurve:
+											snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
+												( property ) => property.animationCurveValue,
+												( property, o ) => property.animationCurveValue = (AnimationCurve)o));
+											break;
+
+										default:
+											// UiLog.LogInternal($"Array element type not supported: '{it.arrayElementType}' ({firstElem.propertyType}) at '{it.propertyPath}'");
+											break;
+									}
+
+									break;
+								}
+						}
 					}
 				}
 
