@@ -1,6 +1,7 @@
 #if UNITY_6000_0_OR_NEWER
 #define UITK_USE_ROSLYN
 #endif
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -13,10 +14,53 @@ namespace GuiToolkit.Editor
 	public static partial class EditorCodeUtility
 	{
 #if UITK_USE_ROSLYN
-		public struct GenericSnapshot
+
+		public class GenericArraySnapshot
+		{
+			public Type Type;
+			public readonly Dictionary<string, object[]> Dict = new();
+			private Action<SerializedProperty, object> m_applyFn;
+			private string m_propertyPath;
+			private object[] m_elements;
+
+			private void Capture( SerializedProperty _property, Func<SerializedProperty, int, object> _captureFn, Action<SerializedProperty, object> _applyFn)
+			{
+				m_propertyPath = _property.propertyPath;
+				m_applyFn = _applyFn;
+				int size = _property.arraySize;
+				var arr = new object[size];
+				for (int i = 0; i < size; i++)
+					arr[i] = _captureFn(_property, i);
+
+				m_elements = arr;
+			}
+
+
+			public bool Apply(SerializedObject dstSo)
+			{
+				var p = dstSo.FindProperty(m_propertyPath);
+				if (p == null || !p.isArray)
+					return false;
+
+				if (m_elements.Length == 0) 
+					return false;
+
+				p.arraySize = m_elements.Length;
+				for (int i = 0; i < m_elements.Length; i++)
+					m_applyFn.Invoke(p.GetArrayElementAtIndex(i), m_elements[i]);
+
+				return true;
+			}
+		}
+
+		public class GenericSnapshot
 		{
 			public int OldId;
-			public List<SerializedPropertyRecord> Records;
+			public readonly List<SerializedPropertyRecord> Records = new();
+			public readonly Dictionary<string, int[]> IntArrays = new();
+			public readonly Dictionary<string, string[]> StringArrays = new();
+
+			public GenericSnapshot( int _oldId ) => OldId = _oldId;
 
 			public override string ToString()
 			{
@@ -82,22 +126,40 @@ namespace GuiToolkit.Editor
 			if (!_src)
 				return default;
 
-			var snapshot = new GenericSnapshot
-			{
-				OldId = _src.GetInstanceID(),
-				Records = new List<SerializedPropertyRecord>(64)
-			};
+			var snapshot = new GenericSnapshot(_src.GetInstanceID());
 
 			var so = new SerializedObject(_src);
 			var it = so.GetIterator();
-			var enterChildren = true;
 
-			while (it.NextVisible(enterChildren))
+			while (it.NextVisible(true))
 			{
-				enterChildren = false;
-
 				if (ShouldSkipPropertyPath(it.propertyPath))
 					continue;
+
+				if (it.propertyType == SerializedPropertyType.Generic && it.isArray)
+				{
+					if (it.propertyPath.EndsWith(".Array"))
+						continue;
+
+					if (it.arrayElementType == "int")
+					{
+						int size = it.arraySize;
+						var arr = new int[size];
+						for (int i = 0; i < size; i++)
+							arr[i] = it.GetArrayElementAtIndex(i).intValue;
+
+						snapshot.IntArrays[it.propertyPath] = arr;
+					}
+					else if (it.arrayElementType == "string")
+					{
+						int size = it.arraySize;
+						var arr = new string[size];
+						for (int i = 0; i < size; i++)
+							arr[i] = it.GetArrayElementAtIndex(i).stringValue;
+
+						snapshot.StringArrays[it.propertyPath] = arr;
+					}
+				}
 
 				// We'll record only "leaf-ish" values; for complex types, we still attempt CopyFrom on apply,
 				// but we also keep typed data for the common primitives.
@@ -289,6 +351,18 @@ namespace GuiToolkit.Editor
 			var dstSo = new SerializedObject(_dst);
 
 			int applied = 0;
+
+			foreach (var kv in _snapshot.IntArrays)
+			{
+				var p = dstSo.FindProperty(kv.Key);
+				if (p == null || !p.isArray)
+					continue;
+
+				applied++;
+				p.arraySize = kv.Value.Length;
+				for (int i = 0; i < kv.Value.Length; i++)
+					p.GetArrayElementAtIndex(i).intValue = kv.Value[i];
+			}
 
 			for (int i = 0; i < _snapshot.Records.Count; i++)
 			{
