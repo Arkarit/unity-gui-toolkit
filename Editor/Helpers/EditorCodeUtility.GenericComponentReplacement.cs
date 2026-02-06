@@ -15,39 +15,65 @@ namespace GuiToolkit.Editor
 	{
 #if UITK_USE_ROSLYN
 
-		public class GenericArraySnapshot
+		public sealed class GenericArraySnapshot
 		{
-			public Type Type;
-			public readonly Dictionary<string, object[]> Dict = new();
-			private Action<SerializedProperty, object> m_applyFn;
-			private string m_propertyPath;
-			private object[] m_elements;
+			public string PropertyPath;
+			private readonly object[] m_elements;
+			private readonly Action<SerializedProperty, object> m_applyElement;
 
-			private void Capture( SerializedProperty _property, Func<SerializedProperty, int, object> _captureFn, Action<SerializedProperty, object> _applyFn)
+			private GenericArraySnapshot
+			(
+				string _propertyPath,
+				object[] _elements,
+				Action<SerializedProperty, object> _applyElement
+			)
 			{
-				m_propertyPath = _property.propertyPath;
-				m_applyFn = _applyFn;
-				int size = _property.arraySize;
-				var arr = new object[size];
-				for (int i = 0; i < size; i++)
-					arr[i] = _captureFn(_property, i);
-
-				m_elements = arr;
+				PropertyPath = _propertyPath;
+				m_elements = _elements ?? Array.Empty<object>();
+				m_applyElement = _applyElement;
 			}
 
-
-			public bool Apply(SerializedObject dstSo)
+			public static GenericArraySnapshot Capture(
+				SerializedProperty _arrayProp,
+				Func<SerializedProperty, object> _captureElement,
+				Action<SerializedProperty, object> _applyElement
+			)
 			{
-				var p = dstSo.FindProperty(m_propertyPath);
+				if (_arrayProp == null)
+					throw new ArgumentNullException(nameof(_arrayProp));
+				if (!_arrayProp.isArray)
+					throw new ArgumentException($"Property '{_arrayProp.propertyPath}' is not an array.", nameof(_arrayProp));
+				if (_captureElement == null)
+					throw new ArgumentNullException(nameof(_captureElement));
+				if (_applyElement == null)
+					throw new ArgumentNullException(nameof(_applyElement));
+
+				int size = _arrayProp.arraySize;
+				var elements = new object[size];
+
+				for (int i = 0; i < size; i++)
+					elements[i] = _captureElement(_arrayProp.GetArrayElementAtIndex(i));
+
+				return new GenericArraySnapshot(_arrayProp.propertyPath, elements, _applyElement);
+			}
+
+			public bool Apply( SerializedObject _dstSo )
+			{
+				if (_dstSo == null)
+					return false;
+
+				var p = _dstSo.FindProperty(PropertyPath);
 				if (p == null || !p.isArray)
 					return false;
 
-				if (m_elements.Length == 0) 
-					return false;
-
+				// important: empty array is valid and should be applied
 				p.arraySize = m_elements.Length;
+
 				for (int i = 0; i < m_elements.Length; i++)
-					m_applyFn.Invoke(p.GetArrayElementAtIndex(i), m_elements[i]);
+				{
+					var elem = p.GetArrayElementAtIndex(i);
+					m_applyElement(elem, m_elements[i]);
+				}
 
 				return true;
 			}
@@ -57,8 +83,7 @@ namespace GuiToolkit.Editor
 		{
 			public int OldId;
 			public readonly List<SerializedPropertyRecord> Records = new();
-			public readonly Dictionary<string, int[]> IntArrays = new();
-			public readonly Dictionary<string, string[]> StringArrays = new();
+			public readonly List<GenericArraySnapshot> Arrays = new();
 
 			public GenericSnapshot( int _oldId ) => OldId = _oldId;
 
@@ -141,23 +166,28 @@ namespace GuiToolkit.Editor
 					if (it.propertyPath.EndsWith(".Array"))
 						continue;
 
-					if (it.arrayElementType == "int")
+					switch (it.arrayElementType)
 					{
-						int size = it.arraySize;
-						var arr = new int[size];
-						for (int i = 0; i < size; i++)
-							arr[i] = it.GetArrayElementAtIndex(i).intValue;
-
-						snapshot.IntArrays[it.propertyPath] = arr;
-					}
-					else if (it.arrayElementType == "string")
-					{
-						int size = it.arraySize;
-						var arr = new string[size];
-						for (int i = 0; i < size; i++)
-							arr[i] = it.GetArrayElementAtIndex(i).stringValue;
-
-						snapshot.StringArrays[it.propertyPath] = arr;
+						case "int":
+							snapshot.Arrays.Add(GenericArraySnapshot.Capture(it, 
+							(property) =>
+							{
+								return property.intValue;
+							}, (property, o) =>
+							{
+								property.intValue = (int) o;
+							} ));
+							break;
+						case "string":
+							snapshot.Arrays.Add(GenericArraySnapshot.Capture(it, 
+							(property) =>
+							{
+								return property.stringValue;
+							}, (property, o) =>
+							{
+								property.stringValue = (string) o;
+							} ));
+							break;
 					}
 				}
 
@@ -339,30 +369,21 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		private static int ApplyGenericSnapshot
+		private static void ApplyGenericSnapshot
 		(
 			GenericSnapshot _snapshot,
 			MonoBehaviour _dst
 		)
 		{
 			if (!_dst || _snapshot.Records == null || _snapshot.Records.Count == 0)
-				return 0;
+				return;
 
 			var dstSo = new SerializedObject(_dst);
 
-			int applied = 0;
+			int applied = _snapshot.Arrays.Count;
 
-			foreach (var kv in _snapshot.IntArrays)
-			{
-				var p = dstSo.FindProperty(kv.Key);
-				if (p == null || !p.isArray)
-					continue;
-
-				applied++;
-				p.arraySize = kv.Value.Length;
-				for (int i = 0; i < kv.Value.Length; i++)
-					p.GetArrayElementAtIndex(i).intValue = kv.Value[i];
-			}
+			foreach (var genericArraySnapshot in _snapshot.Arrays)
+				genericArraySnapshot.Apply(dstSo);
 
 			for (int i = 0; i < _snapshot.Records.Count; i++)
 			{
@@ -387,8 +408,6 @@ namespace GuiToolkit.Editor
 				dstSo.ApplyModifiedProperties();
 				EditorUtility.SetDirty(_dst);
 			}
-
-			return applied;
 		}
 
 		// Better version: deep copy using CopyFromSerializedProperty BEFORE you destroy the source component.
