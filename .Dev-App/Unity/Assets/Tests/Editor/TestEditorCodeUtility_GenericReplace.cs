@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -9,6 +10,13 @@ namespace GuiToolkit.Test
 {
 	public sealed class TestEditorCodeUtility_GenericReplace
 	{
+		private enum TestEnum
+		{
+			Zero,
+			One,
+			Two
+		}
+
 		[Serializable]
 		private sealed class SourceComp : MonoBehaviour
 		{
@@ -31,6 +39,12 @@ namespace GuiToolkit.Test
 			[SerializeField] public Color[] ColorArray;
 
 			[SerializeField] public UnityEngine.Object[] ObjectArray;
+			[SerializeField] public TestEnum[] EnumArray;
+			[SerializeField] public List<int> IntList;
+			[SerializeField] public List<Vector3> Vector3List;
+			[SerializeField] public int[] EmptyIntArray = new int[0];
+			[SerializeField] public string[] EmptyStringArray = new string[0];
+			[SerializeField] public Vector3[] EmptyVector3Array;
 		}
 
 		[Serializable]
@@ -55,6 +69,12 @@ namespace GuiToolkit.Test
 			[SerializeField] public Color[] ColorArray;
 
 			[SerializeField] public UnityEngine.Object[] ObjectArray;
+			[SerializeField] public TestEnum[] EnumArray;
+			[SerializeField] public List<int> IntList;
+			[SerializeField] public List<Vector3> Vector3List;
+			[SerializeField] public int[] EmptyIntArray = new int[0];
+			[SerializeField] public string[] EmptyStringArray = new string[0];
+			[SerializeField] public Vector3[] EmptyVector3Array;
 		}
 
 		[Serializable]
@@ -152,8 +172,18 @@ namespace GuiToolkit.Test
 			var refGo1 = new GameObject("Ref1");
 			var refGo2 = new GameObject("Ref2");
 			src.ObjectArray = new UnityEngine.Object[] { refGo1, refGo2 };
+			src.EnumArray = new[] { TestEnum.Zero, TestEnum.Two, TestEnum.One };
+			src.IntList = new List<int> { 9, 8, 7 };
+			src.Vector3List = new List<Vector3>
+			{
+				new Vector3(1, 1, 1),
+				new Vector3(2, 2, 2)
+			};
+			src.EmptyIntArray = Array.Empty<int>();
+			src.EmptyStringArray = Array.Empty<string>();
+			src.EmptyVector3Array = Array.Empty<Vector3>();
 
-			var results = GuiToolkit.Editor.EditorCodeUtility
+			var results = Editor.EditorCodeUtility
 				.ReplaceMonoBehavioursInActiveSceneGeneric<SourceComp, TargetComp>();
 
 			Assert.That(results.Count, Is.EqualTo(1));
@@ -208,6 +238,27 @@ namespace GuiToolkit.Test
 			Assert.That(dst.ObjectArray.Length, Is.EqualTo(2));
 			Assert.That(dst.ObjectArray[0], Is.SameAs(refGo1));
 			Assert.That(dst.ObjectArray[1], Is.SameAs(refGo2));
+
+			Assert.That(dst.EnumArray.Length, Is.EqualTo(3));
+			Assert.That(dst.EnumArray[0], Is.EqualTo(TestEnum.Zero));
+			Assert.That(dst.EnumArray[1], Is.EqualTo(TestEnum.Two));
+			Assert.That(dst.EnumArray[2], Is.EqualTo(TestEnum.One));
+
+			Assert.That(dst.IntList, Is.Not.Null);
+			Assert.That(dst.IntList.Count, Is.EqualTo(3));
+			Assert.That(dst.IntList[0], Is.EqualTo(9));
+			Assert.That(dst.IntList[2], Is.EqualTo(7));
+
+			Assert.That(dst.Vector3List.Count, Is.EqualTo(2));
+			Assert.That(dst.Vector3List[0], Is.EqualTo(new Vector3(1, 1, 1)));
+			Assert.That(dst.Vector3List[1], Is.EqualTo(new Vector3(2, 2, 2)));
+
+			Assert.That(dst.EmptyIntArray, Is.Not.Null);
+			Assert.That(dst.EmptyIntArray.Length, Is.EqualTo(0));
+			Assert.That(dst.EmptyStringArray, Is.Not.Null);
+			Assert.That(dst.EmptyStringArray.Length, Is.EqualTo(0));
+			Assert.That(dst.EmptyVector3Array, Is.Not.Null);
+			Assert.That(dst.EmptyVector3Array.Length, Is.EqualTo(0));
 		}
 
 		[Test]
