@@ -786,6 +786,7 @@ MonoBehaviour:
   m_Text: {fileID: 6155470891473829754}
   m_OtherText: {fileID: 3557434938939665080}
   m_NonDestructableText: {fileID: 1167434023133200587}
+  m_CanvasScaler: {fileID: 9042454814421614987}
 --- !u!1 &6713272941501009496
 GameObject:
   m_ObjectHideFlags: 0

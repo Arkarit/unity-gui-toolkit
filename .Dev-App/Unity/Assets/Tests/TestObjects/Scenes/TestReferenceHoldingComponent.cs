@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TestTextHoldingComponent : MonoBehaviour
+public class TestReferenceHoldingComponent : MonoBehaviour
 {
 	[SerializeField] private Text m_Text;
 	[SerializeField] private Text m_OtherText;
 	[SerializeField] private Text m_NonDestructableText;
+	[SerializeField] private CanvasScaler m_CanvasScaler;
 
 	private void OnEnable()
 	{
