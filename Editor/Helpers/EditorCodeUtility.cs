@@ -469,7 +469,7 @@ namespace GuiToolkit.Editor
 				throw new ArgumentNullException(nameof(_newType));
 
 
-			object result = typeof(EditorCodeUtility).CallStaticMethod(_newType, _oldType, "ReplaceMonoBehavioursInActiveSceneGeneric", out bool success);
+			object result = typeof(EditorCodeUtility).CallStaticMethod(_oldType, _newType, "ReplaceMonoBehavioursInActiveSceneGeneric", out bool success);
 			if (!success)
 				return 0;
 
@@ -900,6 +900,7 @@ namespace GuiToolkit.Editor
 				throw new Exception("Unexpected: could not create Registry object");
 
 			reg.Entries.Clear();
+			UiLog.LogInternal("Prepare Rewiring for component replacement");
 
 			var components = CollectMonoBehavioursInContextSceneReferencing<T1>();
 
@@ -915,7 +916,8 @@ namespace GuiToolkit.Editor
 			// Iterate all components in the context scene only
 			foreach (var comp in components)
 			{
-				if (!comp) continue;
+				if (!comp) 
+					continue;
 
 				var so = new SerializedObject(comp);
 				var it = so.GetIterator();
@@ -929,9 +931,10 @@ namespace GuiToolkit.Editor
 						continue;
 
 					var obj = it.objectReferenceValue;
-					var monoBehaviour = obj as MonoBehaviour;
-					if (!monoBehaviour)
+					if (!obj || obj.GetType() != typeof(T1))
 						continue;
+
+					var monoBehaviour = obj as MonoBehaviour;
 
 					reg.Entries.Add(new ReferencesRewireRegistry.Entry
 					{

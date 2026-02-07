@@ -109,7 +109,6 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.Space();
 
 			var handling = AreValidComponentScripts(m_sourceScript, m_targetScript, out string buttonMessage);
-			UiLog.Log($"Handling:{handling}");
 
 			using (new EditorGUI.DisabledScope(handling == ScriptReplacementHandling.None))
 			{

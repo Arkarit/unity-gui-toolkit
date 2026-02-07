@@ -151,6 +151,7 @@ namespace GuiToolkit.Editor
 			if (!_src)
 				return default;
 
+			UiLog.LogInternal("Capture Generic Snapshot");
 			var snapshot = new GenericSnapshot(_src.GetInstanceID());
 
 			var so = new SerializedObject(_src);
@@ -179,7 +180,6 @@ namespace GuiToolkit.Editor
 									( property, o ) => property.intValue = (int)o));
 								break;
 
-							// long: Unity kann hier verschiedene Strings liefern, je nach Version/Backend
 							case "long":
 							case "Int64":
 							case "SInt64":
@@ -195,7 +195,6 @@ namespace GuiToolkit.Editor
 									( property, o ) => property.floatValue = (float)o));
 								break;
 
-							// double: dito, Strings koennen variieren
 							case "double":
 							case "Double":
 								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
@@ -215,7 +214,6 @@ namespace GuiToolkit.Editor
 									( property, o ) => property.stringValue = (string)o));
 								break;
 
-							// Unity-intern
 							case "ColorRGBA":
 								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
 									( property ) => property.colorValue,
@@ -252,7 +250,6 @@ namespace GuiToolkit.Editor
 									( property, o ) => property.quaternionValue = (Quaternion)o));
 								break;
 
-							// Diese Strings sind ebenfalls Unity-abhängig; je nach Version können sie anders heißen.
 							case "Vector2Int":
 								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
 									( property ) => property.vector2IntValue,
@@ -478,6 +475,7 @@ namespace GuiToolkit.Editor
 			if (_dst == null)
 				return false;
 
+			UiLog.LogInternal("TryApplyRecordToProperty");
 			// For most types, require exact propertyType match.
 			// Exception: ObjectReference can be assignable in runtime even if "type" differs.
 			if (_dst.propertyType != _r.Type)
@@ -850,6 +848,7 @@ namespace GuiToolkit.Editor
 			where TA : MonoBehaviour
 			where TB : MonoBehaviour
 		{
+			UiLog.LogInternal($"ReplaceMonoBehavioursInActiveSceneGeneric<{typeof(TA).Name}, {typeof(TB).Name}>");
 			// collect all object-reference properties that currently point to TA
 			var refGroups = CollectRefGroupsToComponentInActiveScene<TA>();
 
