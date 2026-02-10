@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
-    public static class CaptureComponentUtility
-    {
+	public static class CaptureComponentUtility
+	{
 		// Helper: capture, destroy, later restore "blocker" components
 		public struct BlockerSnapshot
 		{
@@ -32,71 +32,65 @@ namespace GuiToolkit.Editor
 			if (_go == null)
 				return blockers;
 
-			var comps = _go.GetComponents<MonoBehaviour>();
-			if (comps == null || comps.Length == 0)
+			var presentComponents = _go.GetComponents<Component>();
+			if (presentComponents == null || presentComponents.Length == 0)
+				return blockers;
+
+			var removable = _go.GetComponents<MonoBehaviour>();
+			if (removable == null || removable.Length == 0)
 				return blockers;
 
 			// Build initial "present types" multiset after the planned removal/replacement.
-			// We model presence by concrete runtime type counts; requirements are satisfied by assignability.
+			// Presence includes ALL Components (including non-MonoBehaviours) so RequireComponent checks are correct.
+			// Removal applies only to MonoBehaviours.
 			var presentTypeCounts = new Dictionary<Type, int>();
 
-			for (int i = 0; i < comps.Length; i++)
+			for (int i = 0; i < presentComponents.Length; i++)
 			{
-				var c = comps[i];
+				var c = presentComponents[i];
 				if (!c)
 					continue;
 
+				// The component we are about to remove should be considered "not present"
 				if (c == _savedMonoBehaviour)
 					continue;
 
-				var t = c.GetType();
-				Increment(presentTypeCounts, t);
+				Increment(presentTypeCounts, c.GetType());
 			}
 
 			if (_replacementType != null)
 				Increment(presentTypeCounts, _replacementType);
 
-			// Determine blocker instances iteratively until stable:
-			// Remove any component whose RequireComponent cannot be satisfied by current "present" set.
 			var toRemove = new List<MonoBehaviour>();
 
 			bool changed = true;
 			while (changed)
 			{
 				changed = false;
-
 				toRemove.Clear();
 
-				for (int i = 0; i < comps.Length; i++)
+				for (int i = 0; i < removable.Length; i++)
 				{
-					var c = comps[i];
-					if (!c)
+					var mb = removable[i];
+					if (!mb)
 						continue;
 
-					if (c == _savedMonoBehaviour)
+					if (mb == _savedMonoBehaviour)
 						continue;
 
-					// already scheduled/removed?
-					if (IsInBlockerList(blockers, c.GetType()) == false && c != null)
-					{
-						// ok - but we still need to detect if it is invalid under current presence
-					}
+					var mt = mb.GetType();
 
-					var ct = c.GetType();
-
-					// Skip components that were already removed earlier in the loop
-					// (Undo.DestroyObjectImmediate will null them, but be defensive)
-					if (!IsPresentInstanceType(presentTypeCounts, ct))
+					// If this instance type is no longer modeled as present, it has been removed already.
+					if (!IsPresentType(presentTypeCounts, mt))
 						continue;
 
-					if (!AreRequirementsSatisfied(ct, presentTypeCounts))
-						toRemove.Add(c);
+					if (!AreRequirementsSatisfied(mt, presentTypeCounts))
+						toRemove.Add(mb);
 				}
 
 				if (toRemove.Count == 0)
 					break;
 
-				// Remove all newly detected blockers from the modeled set, then loop again.
 				for (int i = 0; i < toRemove.Count; i++)
 				{
 					var b = toRemove[i];
@@ -105,22 +99,36 @@ namespace GuiToolkit.Editor
 
 					var bt = b.GetType();
 
-					// snapshot
 					string json = EditorJsonUtility.ToJson(b, true);
 					blockers.Add(new BlockerSnapshot { Type = bt, Json = json });
 
-//					LogReplacement($"Temporarily delete '{bt.Name}' on '{b.GetPath()}' due to RequireComponent dependencies");
-
-					// Update modeled presence BEFORE destroying (so subsequent checks see it missing)
 					Decrement(presentTypeCounts, bt);
 
 					Undo.DestroyObjectImmediate(b);
 					changed = true;
 				}
 
-				// Refresh comps array because Unity may reorder / null entries; but keep it cheap:
-				// We can just re-fetch each iteration, that's still tiny per GO.
-				comps = _go.GetComponents<MonoBehaviour>();
+				// Refresh arrays - Unity can reorder / null out destroyed entries.
+				presentComponents = _go.GetComponents<Component>();
+				removable = _go.GetComponents<MonoBehaviour>();
+
+				// Rebuild presence model from scratch to stay correct (cheap per GO, avoids edge cases)
+				presentTypeCounts.Clear();
+
+				for (int i = 0; i < presentComponents.Length; i++)
+				{
+					var c = presentComponents[i];
+					if (!c)
+						continue;
+
+					if (c == _savedMonoBehaviour)
+						continue;
+
+					Increment(presentTypeCounts, c.GetType());
+				}
+
+				if (_replacementType != null)
+					Increment(presentTypeCounts, _replacementType);
 			}
 
 			return blockers;
@@ -151,23 +159,12 @@ namespace GuiToolkit.Editor
 					_dict[_t] = n;
 			}
 
-			static bool IsPresentInstanceType( Dictionary<Type, int> _dict, Type _t )
+			static bool IsPresentType( Dictionary<Type, int> _dict, Type _t )
 			{
 				if (_t == null)
 					return false;
 
 				return _dict.TryGetValue(_t, out int n) && n > 0;
-			}
-
-			static bool IsInBlockerList( List<BlockerSnapshot> _blockers, Type _t )
-			{
-				// Not strictly needed for correctness; keep as a cheap guard against duplicates by type.
-				// If you may have multiple components of same type with different data, you should remove this guard.
-				for (int i = 0; i < _blockers.Count; i++)
-					if (_blockers[i].Type == _t)
-						return true;
-
-				return false;
 			}
 		}
 
@@ -175,9 +172,12 @@ namespace GuiToolkit.Editor
 		{
 			if (_blockers == null) return;
 
-			foreach (var blocker in _blockers)
+			for (int i = _blockers.Count - 1; i >= 0; i--)
 			{
+				var blocker = _blockers[i];
+
 				if (blocker.Type == null) continue;
+
 				var restored = Undo.AddComponent(_go, blocker.Type);
 				if (restored == null)
 				{
@@ -185,11 +185,8 @@ namespace GuiToolkit.Editor
 					continue;
 				}
 
-//				LogReplacement($"Restored '{blocker.Type.Name}' on '{_go.GetPath()}'");
 				if (!string.IsNullOrEmpty(blocker.Json))
 				{
-					// restore serialized values
-//					LogReplacement($"Restoreding properties for '{blocker.Type.Name}' on '{_go.GetPath()}':\n{blocker.Json}");
 					EditorJsonUtility.FromJsonOverwrite(blocker.Json, restored);
 					EditorUtility.SetDirty(restored);
 				}
@@ -270,5 +267,5 @@ namespace GuiToolkit.Editor
 					list.Add(_req);
 			}
 		}
-    }
+	}
 }
