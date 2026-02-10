@@ -132,22 +132,22 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		private static void InvokeReplaceMonoBehaviourInCurrentContext( Type _srcType, Type _dstType )
+		private static void InvokeReplaceMonoBehaviourInCurrentContext( Type _old, Type _new )
 		{
-			if (_srcType == null)
-				throw new ArgumentNullException(nameof(_srcType));
-			if (_dstType == null)
-				throw new ArgumentNullException(nameof(_dstType));
+			if (_old == null)
+				throw new ArgumentNullException(nameof(_old));
+			if (_new == null)
+				throw new ArgumentNullException(nameof(_new));
 
-			if (!typeof(MonoBehaviour).IsAssignableFrom(_srcType))
-				throw new ArgumentException($"Source type '{_srcType.FullName}' is not a MonoBehaviour.", nameof(_srcType));
+			if (!typeof(MonoBehaviour).IsAssignableFrom(_old))
+				throw new ArgumentException($"Source type '{_old.FullName}' is not a MonoBehaviour.", nameof(_old));
 
-			if (!typeof(MonoBehaviour).IsAssignableFrom(_dstType))
-				throw new ArgumentException($"Target type '{_dstType.FullName}' is not a MonoBehaviour.", nameof(_dstType));
+			if (!typeof(MonoBehaviour).IsAssignableFrom(_new))
+				throw new ArgumentException($"Target type '{_new.FullName}' is not a MonoBehaviour.", nameof(_new));
 
 			try
 			{
-				typeof(EditorCodeUtility).CallStaticMethod(_srcType, _dstType, "ReplaceMonoBehaviourInCurrentContext", out bool _);
+				typeof(EditorCodeUtility).CallStaticMethod(_old, _new, "ReplaceMonoBehaviourInCurrentContext", out bool _);
 			}
 			catch (TargetInvocationException ex)
 			{

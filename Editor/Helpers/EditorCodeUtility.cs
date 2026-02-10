@@ -368,7 +368,7 @@ namespace GuiToolkit.Editor
 			for (int i = 0; i < reg.Entries.Count; i++)
 			{
 				var e = reg.Entries[i];
-					e.ResolveTypes();
+				e.ResolveTypes();
 
 				if (e.OldType == null || e.NewType == null)
 					continue;
@@ -675,7 +675,7 @@ namespace GuiToolkit.Editor
 				var go = oldComp.gameObject;
 
 				// 1a) Remove blockers that Require Graphic (e.g., Outline/Shadow/custom effects)
-				var blockers = CaptureAndRemoveBlockers(go, oldComp);
+				var blockers = CaptureComponentUtility.CaptureAndRemoveBlockers(go, oldComp);
 
 				// 2) Remove TA (Graphic) now that no blockers are enforcing it
 				if (!oldComp.CanBeDestroyed(out string reasons))
@@ -684,7 +684,7 @@ namespace GuiToolkit.Editor
 					UiLog.LogError(s, oldComp);
 					LogReplacement($"Error:{s}");
 					// try to restore blockers before continuing
-					RestoreBlockers(go, blockers);
+					CaptureComponentUtility.RestoreBlockers(go, blockers);
 					continue;
 				}
 
@@ -712,7 +712,7 @@ namespace GuiToolkit.Editor
 						// catastrophic: restore original situation as best as possible
 						// (re-add TA and blockers)
 						var restoredTA = Undo.AddComponent(go, typeof(TA)) as TA;
-						RestoreBlockers(go, blockers);
+						CaptureComponentUtility.RestoreBlockers(go, blockers);
 						UiLog.LogError($"Failed to add target component {typeof(TB).Name} to '{go.GetPath()}'. Rolled back.", go);
 						continue;
 					}
@@ -724,7 +724,7 @@ namespace GuiToolkit.Editor
 				_apply?.Invoke(snapshot, newComp);
 
 				// 5) Restore previously removed blockers (Outline/Shadow/etc.)
-				RestoreBlockers(go, blockers);
+				CaptureComponentUtility.RestoreBlockers(go, blockers);
 
 				results.Add((snapshot, newComp));
 			}
@@ -823,9 +823,9 @@ namespace GuiToolkit.Editor
 
 		}
 
-		public static void ReplaceMonoBehaviourInCurrentContext<T1, T2>()
-			where T1 : MonoBehaviour
-			where T2 : MonoBehaviour
+		public static void ReplaceMonoBehaviourInCurrentContext<TOld, TNew>()
+			where TOld : MonoBehaviour
+			where TNew : MonoBehaviour
 		{
 #if UITK_USE_ROSLYN
 			var scene = GetCurrentContextScene(out bool isPrefab);
@@ -838,13 +838,13 @@ namespace GuiToolkit.Editor
 			ComponentReplaceLog.LogCr(2);
 			LogReplacement($"___ Starting replacement of scene '{ComponentReplaceLog.GetLogScenePath()}' ___");
 
-			int prepared = PrepareRewiring<T1, T2>();
-			int replacedReferences = ReplaceMonoBehavioursInContextScene<T1, T2>();
+			int prepared = PrepareRewiring<TOld, TNew>();
+			int replacedReferences = ReplaceMonoBehavioursInContextScene<TOld, TNew>();
 
 			if (prepared == 0 && replacedReferences == 0)
 			{
 				LogReplacement("No code references found; replacing components directly in scene/prefab context");
-				ReplaceMonoBehavioursInActiveSceneGeneric<T1, T2>();
+				ReplaceMonoBehavioursInActiveSceneGeneric<TOld, TNew>();
 			}
 #else
 			throw new RoslynUnavailableException();
@@ -885,9 +885,9 @@ namespace GuiToolkit.Editor
 		/// the scene so the data survives domain reload and can be applied afterward.
 		/// </summary>
 		/// <returns>Number of collected references recorded into the registry.</returns>
-		public static int PrepareRewiring<T1, T2>()
-		where T1 : MonoBehaviour
-		where T2 : MonoBehaviour
+		public static int PrepareRewiring<TOld, TNew>()
+		where TOld : MonoBehaviour
+		where TNew : MonoBehaviour
 		{
 #if UITK_USE_ROSLYN
 			var scene = GetCurrentContextScene();
@@ -902,7 +902,7 @@ namespace GuiToolkit.Editor
 			reg.Entries.Clear();
 			UiLog.LogInternal("Prepare Rewiring for component replacement");
 
-			var components = CollectMonoBehavioursInContextSceneReferencing<T1>();
+			var components = CollectMonoBehavioursInContextSceneReferencing<TOld>();
 
 			if (components == null || components.Count == 0)
 			{
@@ -916,7 +916,7 @@ namespace GuiToolkit.Editor
 			// Iterate all components in the context scene only
 			foreach (var comp in components)
 			{
-				if (!comp) 
+				if (!comp)
 					continue;
 
 				var so = new SerializedObject(comp);
@@ -931,7 +931,7 @@ namespace GuiToolkit.Editor
 						continue;
 
 					var obj = it.objectReferenceValue;
-					if (!obj || obj.GetType() != typeof(T1))
+					if (!obj || obj.GetType() != typeof(TOld))
 						continue;
 
 					var monoBehaviour = obj as MonoBehaviour;
@@ -941,10 +941,10 @@ namespace GuiToolkit.Editor
 						Owner = comp,
 						PropertyPath = it.propertyPath,
 						TargetGameObject = monoBehaviour.gameObject,
-						OldType = typeof(T1),
-						NewType = typeof(T2),
-						OldTypeName = typeof(T1).AssemblyQualifiedName,
-						NewTypeName = typeof(T2).AssemblyQualifiedName
+						OldType = typeof(TOld),
+						NewType = typeof(TNew),
+						OldTypeName = typeof(TOld).AssemblyQualifiedName,
+						NewTypeName = typeof(TNew).AssemblyQualifiedName
 					});
 					count++;
 				}
@@ -953,11 +953,11 @@ namespace GuiToolkit.Editor
 			if (count > 0)
 			{
 				EditorSceneManager.MarkSceneDirty(scene);
-				UiLog.LogInternal($"[Prepare {typeof(T1).Name} -> {typeof(T2).Name}] Recorded {count} references in context '{scene.path}'.");
+				UiLog.LogInternal($"[Prepare {typeof(TOld).Name} -> {typeof(TNew).Name}] Recorded {count} references in context '{scene.path}'.");
 			}
 			else
 			{
-				UiLog.LogInternal($"[Prepare {typeof(T1).Name} -> {typeof(T2).Name}] No references found in current context.");
+				UiLog.LogInternal($"[Prepare {typeof(TOld).Name} -> {typeof(TNew).Name}] No references found in current context.");
 			}
 
 			return count;
@@ -1070,83 +1070,6 @@ namespace GuiToolkit.Editor
 			return (_legacyMultiplier - 1f) * 100f;
 		}
 
-		// Helper: detect components that require a Graphic on the same GameObject
-		private static bool RequiresGraphic( Type t )
-		{
-			// Walk [RequireComponent] attributes (can be multiple)
-			var reqs = (RequireComponent[])Attribute.GetCustomAttributes(t, typeof(RequireComponent), inherit: true);
-			if (reqs == null || reqs.Length == 0) return false;
-
-			foreach (var r in reqs)
-			{
-				if (IsGraphic(r.m_Type0) || IsGraphic(r.m_Type1) || IsGraphic(r.m_Type2))
-					return true;
-			}
-
-			return false;
-
-			bool IsGraphic( Type x ) => x != null && (x == typeof(Graphic) || x == typeof(MaskableGraphic));
-		}
-
-		// Helper: capture, destroy, later restore "blocker" components
-		private struct BlockerSnapshot
-		{
-			public Type Type;
-			public string Json;   // EditorJsonUtility snapshot
-		}
-
-		private static List<BlockerSnapshot> CaptureAndRemoveBlockers( GameObject go, MonoBehaviour savedMonoBehaviour )
-		{
-			var blockers = new List<BlockerSnapshot>();
-			var monoBehaviours = go.GetComponents<MonoBehaviour>();
-
-			foreach (var monoBehaviour in monoBehaviours)
-			{
-				if (!monoBehaviour)
-					continue;
-				if (monoBehaviour == savedMonoBehaviour)
-					continue;
-
-				var ct = monoBehaviour.GetType();
-				if (!RequiresGraphic(ct))
-					continue;
-
-				// serialize state
-				string json = EditorJsonUtility.ToJson(monoBehaviour, true);
-				blockers.Add(new BlockerSnapshot { Type = ct, Json = json });
-
-				LogReplacement($"Temporarily delete '{monoBehaviour.GetType().Name}' on '{monoBehaviour.GetPath()}' due to dependencies");
-				// remove now (so Text can be removed without failing RequireComponent)
-				Undo.DestroyObjectImmediate(monoBehaviour);
-			}
-
-			return blockers;
-		}
-
-		private static void RestoreBlockers( GameObject _go, List<BlockerSnapshot> _blockers )
-		{
-			if (_blockers == null) return;
-
-			foreach (var blocker in _blockers)
-			{
-				if (blocker.Type == null) continue;
-				var restored = Undo.AddComponent(_go, blocker.Type);
-				if (restored == null)
-				{
-					LogReplacement($"Error: Can not restore '{blocker.Type.Name}' on '{_go.GetPath()}'");
-					continue;
-				}
-
-				LogReplacement($"Restored '{blocker.Type.Name}' on '{_go.GetPath()}'");
-				if (!string.IsNullOrEmpty(blocker.Json))
-				{
-					// restore serialized values
-					LogReplacement($"Restoreding properties for '{blocker.Type.Name}' on '{_go.GetPath()}':\n{blocker.Json}");
-					EditorJsonUtility.FromJsonOverwrite(blocker.Json, restored);
-					EditorUtility.SetDirty(restored);
-				}
-			}
-		}
 
 		/// <summary>
 		/// Recursively walks the syntax tree to build alternating code and string segments.
