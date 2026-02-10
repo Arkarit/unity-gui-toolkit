@@ -11,7 +11,8 @@ namespace GuiToolkit.Editor
 		public struct BlockerSnapshot
 		{
 			public Type Type;
-			public string Json;   // EditorJsonUtility snapshot
+			public Component Template;
+			public GameObject TemplateOwner;
 		}
 
 		/// <summary>
@@ -98,9 +99,7 @@ namespace GuiToolkit.Editor
 						continue;
 
 					var bt = b.GetType();
-
-					string json = EditorJsonUtility.ToJson(b, true);
-					blockers.Add(new BlockerSnapshot { Type = bt, Json = json });
+					blockers.Add(CaptureBlocker(b));
 
 					Decrement(presentTypeCounts, bt);
 
@@ -175,21 +174,23 @@ namespace GuiToolkit.Editor
 			for (int i = _blockers.Count - 1; i >= 0; i--)
 			{
 				var blocker = _blockers[i];
-
 				if (blocker.Type == null) continue;
 
-				var restored = Undo.AddComponent(_go, blocker.Type);
+				var restored = Undo.AddComponent(_go, blocker.Type) as Component;
 				if (restored == null)
 				{
 					UiLog.LogError($"Error: Can not restore '{blocker.Type.Name}' on '{_go.GetPath()}'");
 					continue;
 				}
 
-				if (!string.IsNullOrEmpty(blocker.Json))
+				if (blocker.Template)
 				{
-					EditorJsonUtility.FromJsonOverwrite(blocker.Json, restored);
+					EditorUtility.CopySerialized(blocker.Template, restored);
 					EditorUtility.SetDirty(restored);
 				}
+
+				if (blocker.TemplateOwner)
+					UnityEngine.Object.DestroyImmediate(blocker.TemplateOwner);
 			}
 		}
 
@@ -266,6 +267,22 @@ namespace GuiToolkit.Editor
 				if (set.Add(_req))
 					list.Add(_req);
 			}
+		}
+
+		private static BlockerSnapshot CaptureBlocker( Component _src )
+		{
+			var tmpGo = new GameObject("__tmp_blocker_snapshot__");
+//			tmpGo.hideFlags = HideFlags.HideAndDontSave;
+
+			var tmp = tmpGo.AddComponent(_src.GetType());
+			EditorUtility.CopySerialized(_src, tmp);
+
+			return new BlockerSnapshot
+			{
+				Type = _src.GetType(),
+				Template = tmp,
+				TemplateOwner = tmpGo
+			};
 		}
 	}
 }
