@@ -4,8 +4,17 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
+	/// <summary>
+	/// Utilities for finding and rewiring references to Unity Objects across the project.
+	/// Uses EditorAssetUtility for consistent asset iteration.
+	/// </summary>
 	public static class ProjectReferrerUtility
 	{
+		/// <summary>
+		/// Collects all references to a target object across ScriptableObjects and Prefabs in the project.
+		/// </summary>
+		/// <param name="_target">The Unity Object to find references to.</param>
+		/// <returns>List of (owner, propertyPath) tuples pointing to the target.</returns>
 		public static List<(UnityEngine.Object owner, string propertyPath)> CollectReferrersInProject( UnityEngine.Object _target )
 		{
 			var result = new List<(UnityEngine.Object owner, string propertyPath)>();
@@ -17,11 +26,17 @@ namespace GuiToolkit.Editor
 			CollectReferrersInAllPrefabs(_target, result);
 
 			// Optional (expensive / intrusive): scenes on disk
-			//CollectReferrersInAllScenesOnDisk(_target, result);
+			// Uncommenting this will scan ALL scenes in the project, which loads/unloads them
+			// CollectReferrersInAllScenesOnDisk(_target, result);
 
 			return result;
 		}
 
+		/// <summary>
+		/// Rewires all collected references to point to a new target object.
+		/// </summary>
+		/// <param name="_referrers">List of (owner, propertyPath) collected earlier.</param>
+		/// <param name="_newTarget">The new Unity Object to rewire references to.</param>
 		public static void RewireReferrers
 		(
 			List<(UnityEngine.Object owner, string propertyPath)> _referrers,
@@ -52,55 +67,66 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		private static void CollectReferrersInAllScriptableObjects( UnityEngine.Object _target, List<(UnityEngine.Object owner, string propertyPath)> _out )
+		/// <summary>
+		/// Collects references in all ScriptableObject assets.
+		/// </summary>
+		private static void CollectReferrersInAllScriptableObjects
+		(
+			UnityEngine.Object _target,
+			List<(UnityEngine.Object owner, string propertyPath)> _out
+		)
 		{
-			var guids = AssetDatabase.FindAssets("t:ScriptableObject");
-
-			for (int i = 0; i < guids.Length; i++)
+			EditorAssetUtility.FindAllScriptableObjects<ScriptableObject>(soAsset =>
 			{
-				var path = AssetDatabase.GUIDToAssetPath(guids[i]);
-				var soAsset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
 				if (!soAsset)
-					continue;
+					return;
 
 				ScanSerializedObjectForTarget(soAsset, _target, _out);
-			}
+			});
 		}
 
-		private static void CollectReferrersInAllPrefabs( UnityEngine.Object _target, List<(UnityEngine.Object owner, string propertyPath)> _out )
+		/// <summary>
+		/// Collects references in all Prefab assets by loading their contents.
+		/// </summary>
+		private static void CollectReferrersInAllPrefabs
+		(
+			UnityEngine.Object _target,
+			List<(UnityEngine.Object owner, string propertyPath)> _out
+		)
 		{
-			var guids = AssetDatabase.FindAssets("t:Prefab");
-
-			for (int i = 0; i < guids.Length; i++)
+			EditorAssetUtility.FindAllComponentsInAllPrefabs<Component>(( comp, prefabAsset, assetPath ) =>
 			{
-				var path = AssetDatabase.GUIDToAssetPath(guids[i]);
-				if (string.IsNullOrEmpty(path))
-					continue;
+				if (!comp)
+					return true;
 
-				// Load a temporary editable prefab instance to get real Component owners.
-				var root = PrefabUtility.LoadPrefabContents(path);
-				if (!root)
-					continue;
-
-				try
-				{
-					var comps = root.GetComponentsInChildren<Component>(true);
-					for (int c = 0; c < comps.Length; c++)
-					{
-						var owner = comps[c];
-						if (!owner)
-							continue;
-
-						ScanSerializedObjectForTarget(owner, _target, _out);
-					}
-				}
-				finally
-				{
-					PrefabUtility.UnloadPrefabContents(root);
-				}
-			}
+				ScanSerializedObjectForTarget(comp, _target, _out);
+				return true;
+			}, new EditorAssetUtility.AssetSearchOptions { ShowProgressBar = false });
 		}
 
+		/// <summary>
+		/// Optional: Collects references in all Scene assets (expensive - loads each scene).
+		/// Uncomment the call in CollectReferrersInProject if needed.
+		/// </summary>
+		private static void CollectReferrersInAllScenesOnDisk
+		(
+			UnityEngine.Object _target,
+			List<(UnityEngine.Object owner, string propertyPath)> _out
+		)
+		{
+			EditorAssetUtility.FindAllComponentsInAllScenes<Component>(( comp, scene, scenePath ) =>
+			{
+				if (!comp)
+					return true;
+
+				ScanSerializedObjectForTarget(comp, _target, _out);
+				return true;
+			}, new EditorAssetUtility.AssetSearchOptions { ShowProgressBar = false });
+		}
+
+		/// <summary>
+		/// Scans all serialized properties of an owner object to find references to the target.
+		/// </summary>
 		private static void ScanSerializedObjectForTarget
 		(
 			UnityEngine.Object _owner,
@@ -125,6 +151,5 @@ namespace GuiToolkit.Editor
 				_out.Add((_owner, it.propertyPath));
 			}
 		}
-
 	}
 }
