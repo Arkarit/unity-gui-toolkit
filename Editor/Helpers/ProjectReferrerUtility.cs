@@ -11,7 +11,36 @@ namespace GuiToolkit.Editor
 	public static class ProjectReferrerUtility
 	{
 		/// <summary>
-		/// Collects all references to a target object across ScriptableObjects and Prefabs in the project.
+		/// Collects all references to a target object in the current scene/prefab context.
+		/// This is faster than CollectReferrersInProject as it only scans the active context.
+		/// </summary>
+		/// <param name="_target">The Unity Object to find references to.</param>
+		/// <returns>List of (owner, propertyPath) tuples pointing to the target.</returns>
+		public static List<(UnityEngine.Object owner, string propertyPath)> CollectReferrersInCurrentContext( UnityEngine.Object _target )
+		{
+			var result = new List<(UnityEngine.Object owner, string propertyPath)>();
+
+			if (!_target)
+				return result;
+
+			var allComponents = EditorAssetUtility.FindObjectsInCurrentEditedPrefabOrScene<MonoBehaviour>();
+			if (allComponents == null || allComponents.Length == 0)
+				return result;
+
+			foreach (var comp in allComponents)
+			{
+				if (!comp)
+					continue;
+
+				ScanSerializedObjectForTarget(comp, _target, result);
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Collects all references to a target object across the current context, ScriptableObjects and Prefabs in the project.
+		/// This is more comprehensive but slower than CollectReferrersInCurrentContext.
 		/// </summary>
 		/// <param name="_target">The Unity Object to find references to.</param>
 		/// <returns>List of (owner, propertyPath) tuples pointing to the target.</returns>
@@ -21,6 +50,11 @@ namespace GuiToolkit.Editor
 
 			if (!_target)
 				return result;
+
+			// Scan current context first (most common case for component replacement)
+			var contextRefs = CollectReferrersInCurrentContext(_target);
+			if (contextRefs != null && contextRefs.Count > 0)
+				result.AddRange(contextRefs);
 
 			CollectReferrersInAllScriptableObjects(_target, result);
 			CollectReferrersInAllPrefabs(_target, result);

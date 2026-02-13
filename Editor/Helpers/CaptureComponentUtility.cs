@@ -27,11 +27,20 @@ namespace GuiToolkit.Editor
 		/// <param name="_replacementType">
 		/// Optional: the component type that will exist after replacement (TB). If null, assume no replacement.
 		/// </param>
-		/// <param name="_scanProject">
-		/// If true, scans entire project for references to blocking components before removal.
-		/// More expensive but ensures prefab/scene references are preserved across removal/restore.
+		/// <param name="_preserveReferences">
+		/// If true, scans current context (and optionally entire project) for references to blocking components before removal.
+		/// More expensive but ensures references are preserved across removal/restore.
 		/// </param>
-		public static List<BlockerSnapshot> CaptureAndRemoveBlockers( GameObject _go, MonoBehaviour _savedMonoBehaviour, Type _replacementType = null, bool _scanProject = true )
+		/// <param name="_scanEntireProject">
+		/// If true (and _preserveReferences is true), scans entire project including prefabs and ScriptableObjects.
+		/// If false, only scans current scene/prefab context (much faster).
+		/// </param>
+		public static List<BlockerSnapshot> CaptureAndRemoveBlockers( 
+			GameObject _go, 
+			MonoBehaviour _savedMonoBehaviour, 
+			Type _replacementType = null, 
+			bool _preserveReferences = true,
+			bool _scanEntireProject = false )
 		{
 			var blockers = new List<BlockerSnapshot>();
 
@@ -104,7 +113,7 @@ namespace GuiToolkit.Editor
 						continue;
 
 					var bt = b.GetType();
-					blockers.Add(CaptureBlocker(b, _scanProject));
+					blockers.Add(CaptureBlocker(b, _preserveReferences, _scanEntireProject));
 
 					Decrement(presentTypeCounts, bt);
 
@@ -280,7 +289,7 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		private static BlockerSnapshot CaptureBlocker( Component _src, bool _scanProject )
+		private static BlockerSnapshot CaptureBlocker( Component _src, bool _preserveReferences, bool _scanEntireProject )
 		{
 			var tmpGo = new GameObject("__tmp_blocker_snapshot__");
 //			tmpGo.hideFlags = HideFlags.HideAndDontSave;
@@ -288,11 +297,13 @@ namespace GuiToolkit.Editor
 			var tmp = tmpGo.AddComponent(_src.GetType());
 			EditorUtility.CopySerialized(_src, tmp);
 
-			// Optionally capture all project references to this component before removal
+			// Optionally capture all references to this component before removal
 			List<(UnityEngine.Object owner, string propertyPath)> referrers = null;
-			if (_scanProject)
+			if (_preserveReferences)
 			{
-				referrers = ProjectReferrerUtility.CollectReferrersInProject(_src);
+				referrers = _scanEntireProject 
+					? ProjectReferrerUtility.CollectReferrersInProject(_src)
+					: ProjectReferrerUtility.CollectReferrersInCurrentContext(_src);
 			}
 
 			return new BlockerSnapshot

@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+	#if UNITY_EDITOR
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor;
@@ -30,7 +30,7 @@ namespace GuiToolkit.Test
 			var holder = referrerGo.AddComponent<TestReferenceHolder>();
 			holder.OutlineRef = targetComp;
 
-			var referrers = Editor.ProjectReferrerUtility.CollectReferrersInProject(targetComp);
+			var referrers = Editor.ProjectReferrerUtility.CollectReferrersInCurrentContext(targetComp);
 
 			Assert.That(referrers, Is.Not.Null);
 			Assert.That(referrers.Count, Is.EqualTo(1));
@@ -79,12 +79,13 @@ namespace GuiToolkit.Test
 			// Verify setup
 			Assert.That(holder.OutlineRef, Is.SameAs(outline));
 
-			// Capture and remove blockers WITH project scanning
+			// Capture and remove blockers WITH reference preservation
 			var blockers = Editor.CaptureComponentUtility.CaptureAndRemoveBlockers(
 				go, 
 				txt, 
 				_replacementType: null, 
-				_scanProject: true
+				_preserveReferences: true,
+				_scanEntireProject: false  // Only scan current context for performance
 			);
 
 			// Outline should be removed
@@ -121,12 +122,12 @@ namespace GuiToolkit.Test
 			// Verify setup
 			Assert.That(holder.OutlineRef, Is.SameAs(outline));
 
-			// Capture and remove blockers WITHOUT project scanning
+			// Capture and remove blockers WITHOUT reference preservation
 			var blockers = Editor.CaptureComponentUtility.CaptureAndRemoveBlockers(
 				go, 
 				txt, 
 				_replacementType: null, 
-				_scanProject: false
+				_preserveReferences: false
 			);
 
 			// Outline should be removed
@@ -140,7 +141,7 @@ namespace GuiToolkit.Test
 			var restoredOutline = go.GetComponent<Outline>();
 			Assert.That(restoredOutline, Is.Not.Null);
 
-			// Reference should still be null (no project scan was done)
+			// Reference should still be null (no reference preservation was done)
 			Assert.That(holder.OutlineRef, Is.Null);
 		}
 
@@ -170,7 +171,8 @@ namespace GuiToolkit.Test
 				go, 
 				txt, 
 				_replacementType: null, 
-				_scanProject: true
+				_preserveReferences: true,
+				_scanEntireProject: false
 			);
 
 			Assert.That(go.GetComponent<Outline>(), Is.Null);
@@ -213,7 +215,8 @@ namespace GuiToolkit.Test
 				go, 
 				txt, 
 				_replacementType: null, 
-				_scanProject: true
+				_preserveReferences: true,
+				_scanEntireProject: false
 			);
 
 			// Both blockers should be removed
