@@ -1,6 +1,10 @@
 using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace GuiToolkit.Editor
 {
@@ -22,6 +26,16 @@ namespace GuiToolkit.Editor
 
 			if (!_target)
 				return result;
+
+			var scene = SceneManager.GetActiveScene();
+			
+			// Force serialization if scene has unsaved changes
+			if (scene.IsValid() && scene.isDirty)
+			{
+				// Save assets to ensure all SerializedObject data is up-to-date
+				AssetDatabase.SaveAssets();
+				AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+			}
 
 			var allComponents = EditorAssetUtility.FindObjectsInCurrentEditedPrefabOrScene<MonoBehaviour>();
 			if (allComponents == null || allComponents.Length == 0)
@@ -87,6 +101,8 @@ namespace GuiToolkit.Editor
 					continue;
 
 				var so = new SerializedObject(owner);
+				so.Update();
+				
 				var sp = so.FindProperty(path);
 				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
 					continue;
@@ -168,7 +184,12 @@ namespace GuiToolkit.Editor
 			List<(UnityEngine.Object owner, string propertyPath)> _out
 		)
 		{
+			if (!_owner || !_target)
+				return;
+
 			var so = new SerializedObject(_owner);
+			so.Update();
+			
 			var it = so.GetIterator();
 			bool enterChildren = true;
 
@@ -179,7 +200,8 @@ namespace GuiToolkit.Editor
 				if (it.propertyType != SerializedPropertyType.ObjectReference)
 					continue;
 
-				if (it.objectReferenceValue != _target)
+				var refValue = it.objectReferenceValue;
+				if (!refValue || refValue != _target)
 					continue;
 
 				_out.Add((_owner, it.propertyPath));

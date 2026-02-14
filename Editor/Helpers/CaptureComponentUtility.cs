@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GuiToolkit.Editor
 {
@@ -76,6 +78,15 @@ namespace GuiToolkit.Editor
 			if (_replacementType != null)
 				Increment(presentTypeCounts, _replacementType);
 
+			// DEBUG: Log what we have
+			UiLog.LogInternal($"[CaptureAndRemoveBlockers] Saved component: {_savedMonoBehaviour?.GetType().Name}");
+			UiLog.LogInternal($"[CaptureAndRemoveBlockers] Replacement type: {_replacementType?.Name ?? "null"}");
+			UiLog.LogInternal($"[CaptureAndRemoveBlockers] Present types after planned removal:");
+			foreach (var kv in presentTypeCounts)
+			{
+				UiLog.LogInternal($"  - {kv.Key.Name}: {kv.Value}");
+			}
+
 			var toRemove = new List<MonoBehaviour>();
 
 			bool changed = true;
@@ -99,13 +110,20 @@ namespace GuiToolkit.Editor
 					if (!IsPresentType(presentTypeCounts, mt))
 						continue;
 
+					var required = GetRequiredComponentTypes(mt);
+					UiLog.LogInternal($"[CaptureAndRemoveBlockers] Checking {mt.Name}, requires: {string.Join(", ", required.ConvertAll(t => t?.Name ?? "null"))}");
+
 					if (!AreRequirementsSatisfied(mt, presentTypeCounts))
+					{
+						UiLog.LogInternal($"  -> {mt.Name} WILL BE REMOVED (requirements not satisfied)");
 						toRemove.Add(mb);
+					}
 				}
 
 				if (toRemove.Count == 0)
 					break;
 
+				UiLog.LogInternal($"[CaptureAndRemoveBlockers] Removing {toRemove.Count} blockers:");
 				for (int i = 0; i < toRemove.Count; i++)
 				{
 					var b = toRemove[i];
@@ -113,6 +131,7 @@ namespace GuiToolkit.Editor
 						continue;
 
 					var bt = b.GetType();
+					UiLog.LogInternal($"  - Removing {bt.Name}");
 					blockers.Add(CaptureBlocker(b, _preserveReferences, _scanEntireProject));
 
 					Decrement(presentTypeCounts, bt);
@@ -144,6 +163,7 @@ namespace GuiToolkit.Editor
 					Increment(presentTypeCounts, _replacementType);
 			}
 
+			UiLog.LogInternal($"[CaptureAndRemoveBlockers] Final: {blockers.Count} blockers captured");
 			return blockers;
 
 			static void Increment( Dictionary<Type, int> _dict, Type _t )
@@ -185,10 +205,14 @@ namespace GuiToolkit.Editor
 		{
 			if (_blockers == null) return;
 
+			UiLog.LogInternal($"[RestoreBlockers] Restoring {_blockers.Count} blockers");
+
 			for (int i = _blockers.Count - 1; i >= 0; i--)
 			{
 				var blocker = _blockers[i];
 				if (blocker.Type == null) continue;
+
+				UiLog.LogInternal($"  - Restoring {blocker.Type.Name}, has {blocker.Referrers?.Count ?? 0} referrers");
 
 				var restored = Undo.AddComponent(_go, blocker.Type) as Component;
 				if (restored == null)
@@ -206,6 +230,7 @@ namespace GuiToolkit.Editor
 				// Restore references to the restored component
 				if (blocker.Referrers != null && blocker.Referrers.Count > 0)
 				{
+					UiLog.LogInternal($"    Rewiring {blocker.Referrers.Count} references");
 					ProjectReferrerUtility.RewireReferrers(blocker.Referrers, restored);
 				}
 
@@ -259,22 +284,72 @@ namespace GuiToolkit.Editor
 		/// <summary>
 		/// Collects all required component types declared via [RequireComponent] on <paramref name="_t"/> (including inherited).
 		/// Duplicates are removed.
+		/// Uses Unity's internal ComponentUtility for better reliability.
 		/// </summary>
 		private static List<Type> GetRequiredComponentTypes( Type _t )
 		{
 			var list = new List<Type>();
 			var set = new HashSet<Type>();
 
-			var reqs = (RequireComponent[])Attribute.GetCustomAttributes(_t, typeof(RequireComponent), inherit: true);
-			if (reqs == null || reqs.Length == 0)
+			if (_t == null)
 				return list;
 
-			for (int i = 0; i < reqs.Length; i++)
+			// Method 1: Try reflection (works for most cases)
+			try
 			{
-				var r = reqs[i];
-				Add(r.m_Type0);
-				Add(r.m_Type1);
-				Add(r.m_Type2);
+
+				// Use GetCustomAttributes on the type and all base types explicitly
+				var currentType = _t;
+				while (currentType != null && currentType != typeof(object))
+				{
+					var attrs = currentType.GetCustomAttributes(typeof(RequireComponent), false);
+					if (attrs != null && attrs.Length > 0)
+					{
+						foreach (RequireComponent req in attrs)
+						{
+							Add(req.m_Type0);
+							Add(req.m_Type1);
+							Add(req.m_Type2);
+						}
+					}
+					currentType = currentType.BaseType;
+				}
+			}
+			catch (Exception ex)
+			{
+				UiLog.LogInternal($"[GetRequiredComponentTypes] Reflection failed for {_t.Name}: {ex}");
+			}
+
+			// Method 2: Unity-specific fallback for built-in types
+			if (list.Count == 0)
+			{
+				// Check if the type implements IMeshModifier
+				if (typeof(UnityEngine.UI.IMeshModifier).IsAssignableFrom(_t))
+				{
+					Add(typeof(UnityEngine.UI.Graphic));
+					UiLog.LogInternal($"[GetRequiredComponentTypes] Applied rule: {_t.Name} (IMeshModifier) requires Graphic");
+				}
+
+				// Check for UI components requiring RectTransform
+				if (typeof(UnityEngine.UI.Graphic).IsAssignableFrom(_t) || typeof(UnityEngine.EventSystems.UIBehaviour).IsAssignableFrom(_t))
+				{
+					Add(typeof(UnityEngine.RectTransform));
+					UiLog.LogInternal($"[GetRequiredComponentTypes] Applied rule: {_t.Name} (UI Component) requires RectTransform");
+				}
+
+				// Check for CanvasRenderer dependency
+				if (typeof(UnityEngine.UI.Graphic).IsAssignableFrom(_t))
+				{
+					Add(typeof(UnityEngine.CanvasRenderer));
+					UiLog.LogInternal($"[GetRequiredComponentTypes] Applied rule: {_t.Name} (UI Graphic) requires CanvasRenderer");
+				}
+
+				// Check for ParticleSystemRenderer dependency
+				if (_t == typeof(UnityEngine.ParticleSystem))
+				{
+					Add(typeof(UnityEngine.ParticleSystemRenderer));
+					UiLog.LogInternal($"[GetRequiredComponentTypes] Applied rule: {_t.Name} (ParticleSystem) requires ParticleSystemRenderer");
+				}
 			}
 
 			return list;
@@ -301,9 +376,11 @@ namespace GuiToolkit.Editor
 			List<(UnityEngine.Object owner, string propertyPath)> referrers = null;
 			if (_preserveReferences)
 			{
+				UiLog.LogInternal($"    Collecting referrers for {_src.GetType().Name} (scanProject: {_scanEntireProject})");
 				referrers = _scanEntireProject 
 					? ProjectReferrerUtility.CollectReferrersInProject(_src)
 					: ProjectReferrerUtility.CollectReferrersInCurrentContext(_src);
+				UiLog.LogInternal($"    Found {referrers?.Count ?? 0} referrers");
 			}
 
 			return new BlockerSnapshot
