@@ -72,10 +72,7 @@ namespace GuiToolkit.Editor
 
 			CollectReferrersInAllScriptableObjects(_target, result);
 			CollectReferrersInAllPrefabs(_target, result);
-
-			// Optional (expensive / intrusive): scenes on disk
-			// Uncommenting this will scan ALL scenes in the project, which loads/unloads them
-			// CollectReferrersInAllScenesOnDisk(_target, result);
+			CollectReferrersInAllScenesOnDisk(_target, result);
 
 			return result;
 		}

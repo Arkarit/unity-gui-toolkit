@@ -367,7 +367,7 @@ namespace GuiToolkit.Editor
 		private static BlockerSnapshot CaptureBlocker( Component _src, bool _preserveReferences, bool _scanEntireProject )
 		{
 			var tmpGo = new GameObject("__tmp_blocker_snapshot__");
-//			tmpGo.hideFlags = HideFlags.HideAndDontSave;
+			tmpGo.hideFlags = HideFlags.HideAndDontSave;
 
 			var tmp = tmpGo.AddComponent(_src.GetType());
 			EditorUtility.CopySerialized(_src, tmp);

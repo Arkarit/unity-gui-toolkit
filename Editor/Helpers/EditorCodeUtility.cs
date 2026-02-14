@@ -675,7 +675,7 @@ namespace GuiToolkit.Editor
 				var go = oldComp.gameObject;
 
 				// 1a) Remove blockers that Require Graphic (e.g., Outline/Shadow/custom effects)
-				var blockers = CaptureComponentUtility.CaptureAndRemoveBlockers(go, oldComp);
+				var blockers = CaptureComponentUtility.CaptureAndRemoveBlockers(go, oldComp, null, true, true);
 
 				// 2) Remove TA (Graphic) now that no blockers are enforcing it
 				if (!oldComp.CanBeDestroyed(out string reasons))
