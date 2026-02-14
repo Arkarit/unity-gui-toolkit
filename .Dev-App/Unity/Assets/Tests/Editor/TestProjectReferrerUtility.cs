@@ -113,7 +113,7 @@ namespace GuiToolkit.Test
 			Assert.That(blockers.Count, Is.EqualTo(1));
 
 			// Reference should now be null (component was destroyed)
-			Assert.That(holder.OutlineRef, Is.Null);
+			Assert.That(holder.OutlineRef == null, Is.True);
 
 			// Restore blockers
 			Editor.CaptureComponentUtility.RestoreBlockers(go, blockers);
@@ -123,7 +123,7 @@ namespace GuiToolkit.Test
 			Assert.That(restoredOutline, Is.Not.Null);
 
 			// Reference should be rewired to the restored component
-			Assert.That(holder.OutlineRef, Is.Not.Null);
+			Assert.That(holder.OutlineRef == null, Is.False);
 			Assert.That(holder.OutlineRef, Is.SameAs(restoredOutline));
 		}
 
@@ -165,7 +165,7 @@ namespace GuiToolkit.Test
 			Assert.That(restoredOutline, Is.Not.Null);
 
 			// Reference should still be null (no reference preservation was done)
-			Assert.That(holder.OutlineRef, Is.Null);
+			Assert.That(holder.OutlineRef == null, Is.True);
 		}
 
 		[Test]
@@ -256,8 +256,8 @@ namespace GuiToolkit.Test
 			// Restore blockers
 			Editor.CaptureComponentUtility.RestoreBlockers(go, blockers);
 
-			var restoredOutline = go.GetComponent<Outline>();
-			var restoredShadow = go.GetComponent<Shadow>();
+			var restoredOutline = SafeGetComponent<Outline>(go);
+			var restoredShadow = SafeGetComponent<Shadow>(go);
 
 			Assert.That(restoredOutline, Is.Not.Null);
 			Assert.That(restoredShadow, Is.Not.Null);
@@ -265,6 +265,18 @@ namespace GuiToolkit.Test
 			// Both references should be rewired
 			Assert.That(holder.OutlineRef, Is.SameAs(restoredOutline));
 			Assert.That(holder.ShadowRef, Is.SameAs(restoredShadow));
+		}
+
+		private T SafeGetComponent<T>(GameObject _go) where T : Component
+		{
+			var components = _go.GetComponents<T>();
+			foreach (var component in components)
+			{
+				if (component.GetType() == typeof(T))
+					return (T)component;
+			}
+
+			return null;
 		}
 
 		[Test]
