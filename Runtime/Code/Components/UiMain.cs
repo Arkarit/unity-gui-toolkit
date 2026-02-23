@@ -48,6 +48,7 @@ namespace GuiToolkit
 		[SerializeField] private UiKeyPressRequester m_keyPressRequesterPrefab;
 		[FormerlySerializedAs("m_gridPicker")]
 		[SerializeField] private UiGridPicker m_gridPickerPrefab;
+		[SerializeField] private UiPopupMenu m_popupMenuPrefab;
 
 		[Header("Stack Navigation Animation")]
 		[SerializeField] private EStackAnimationType m_stackAnimationType = EStackAnimationType.None;
@@ -312,6 +313,21 @@ namespace GuiToolkit
 			UiGridPicker gridPicker = CreateView(m_gridPickerPrefab);
 			gridPicker.SetOptions(_options);
 			gridPicker.Show();
+		}
+
+		public UiPopupMenu ShowPopupMenu( UiPopupMenu.Options _options )
+		{
+			Canvas parentCanvas = _options?.AnchorElement != null
+				? _options.AnchorElement.GetComponentInParent<Canvas>()
+				: null;
+
+			Transform parent = parentCanvas != null ? parentCanvas.transform : transform;
+
+			UiPopupMenu popup = m_popupMenuPrefab.PoolInstantiate();
+			popup.transform.SetParent(parent, false);
+			popup.SetOptions(_options);
+			popup.Show();
+			return popup;
 		}
 
 		public void ShowSettingsDialog()
