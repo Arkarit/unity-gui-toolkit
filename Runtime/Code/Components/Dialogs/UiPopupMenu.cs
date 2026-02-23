@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GuiToolkit.Style;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -217,6 +218,18 @@ namespace GuiToolkit
 			tmp.text = _label;
 			var button = go.AddComponent<Button>();
 			button.targetGraphic = tmp;
+			button.colors = new ColorBlock()
+			{
+				disabledColor = new Color(.5f, .5f, .5f, .5f),
+				normalColor = new Color(.8f, .8f, .8f, 1f),
+				colorMultiplier = 1,
+				fadeDuration = .3f,
+				highlightedColor = Color.white,
+				selectedColor = Color.yellow,
+				pressedColor = Color.white
+			};
+			var styleApplier = go.AddComponent<UiApplyStyleTMP_Text>();
+			styleApplier.Name = "Text/Flowing";
 			go.transform.SetParent(m_contentContainer, false);
 
 			int index = m_spawnedItems.Count;
