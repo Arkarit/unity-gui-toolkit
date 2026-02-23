@@ -273,5 +273,7 @@ namespace GuiToolkit
 		public const string RELOAD = "Icons/UITK_Reload";
 		public const string PLUS = "Icons/UITK_Plus";
 		public const string MINUS = "Icons/UITK_Minus";
+		public const string BURGER = "Icons/UITK_Burger";
+		public const string FILTER = "Icons/UITK_Filter";
 	}
 }
