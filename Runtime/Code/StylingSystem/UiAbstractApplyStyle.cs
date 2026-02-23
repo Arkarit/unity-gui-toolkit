@@ -43,6 +43,8 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		public override void ResetKey() => m_key = 0;
+
 		public CO SpecificComponent => Component as CO;
 		public ST SpecificStyle => Style as ST;
 	}
