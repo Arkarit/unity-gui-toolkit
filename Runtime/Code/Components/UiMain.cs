@@ -317,14 +317,7 @@ namespace GuiToolkit
 
 		public UiPopupMenu ShowPopupMenu( UiPopupMenu.Options _options )
 		{
-			Canvas parentCanvas = _options?.AnchorElement != null
-				? _options.AnchorElement.GetComponentInParent<Canvas>()
-				: null;
-
-			Transform parent = parentCanvas != null ? parentCanvas.transform : transform;
-
-			UiPopupMenu popup = m_popupMenuPrefab.PoolInstantiate();
-			popup.transform.SetParent(parent, false);
+			UiPopupMenu popup = CreateView(m_popupMenuPrefab);
 			popup.SetOptions(_options);
 			popup.Show();
 			return popup;
