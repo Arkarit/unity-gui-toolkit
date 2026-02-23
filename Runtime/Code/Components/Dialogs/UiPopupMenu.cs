@@ -65,6 +65,9 @@ namespace GuiToolkit
 
 			/// <summary>Called when the popup menu finishes closing.</summary>
 			public Action OnClose = null;
+
+			/// <summary>Additional offset applied to the final popup position in canvas local space.</summary>
+			public Vector2 Offset = Vector2.zero;
 		}
 
 		[Tooltip("The panel that is repositioned near the anchor element.")]
@@ -319,7 +322,7 @@ namespace GuiToolkit
 			Rect canvasBounds = canvasRect.rect;
 
 			// Default: popup's top-left sits at anchor's bottom-left (popup below anchor).
-			Vector2 pos = anchorBL;
+			Vector2 pos = anchorBL + (m_options?.Offset ?? Vector2.zero);
 
 			// Flip above anchor when the popup would overflow the canvas bottom.
 			if (pos.y - popupSize.y < canvasBounds.yMin)

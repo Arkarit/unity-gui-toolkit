@@ -62,6 +62,7 @@ public class TestDemoScene1 : UiView
 		{
 			AnchorElement = (RectTransform)m_popupButton.transform,
 			StringItems = new[] { "Entry 1", "Entry 2", "Entry 3", "Entry 4" },
+			Offset = new Vector2(0, 20),
 			OnItemClicked = (go, index) =>
 			{
 				UiMain.Instance.ShowToastMessageView(go.name);
