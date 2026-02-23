@@ -459,11 +459,13 @@ namespace GuiToolkit
 			PlayShowHideAnimation(true, _onFinish);
 		}
 
+		public void Hide() => Hide(false);
+		
 		/// <summary>
 		/// Hide the panel. Optionally instant, with an optional on-finish callback.
 		/// If no animation is available, forces instant mode.
 		/// </summary>
-		public virtual void Hide( bool _instant = false, Action _onFinish = null )
+		public virtual void Hide( bool _instant, Action _onFinish = null )
 		{
 			if (SimpleShowHideAnimation == null)
 				_instant = true;
