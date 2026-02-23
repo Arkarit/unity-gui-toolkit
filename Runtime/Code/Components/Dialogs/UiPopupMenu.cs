@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -58,6 +59,12 @@ namespace GuiToolkit
 			/// </summary>
 			public Action<GameObject, int> OnItemClicked = null;
 
+			/// <summary>
+			/// Plain-text labels to turn into simple TMP entries (no prefab needed).
+			/// Spawned after <see cref="Items"/> prefabs, in array order.
+			/// </summary>
+			public string[] StringItems = null;
+
 			/// <summary>Called when the popup menu finishes closing.</summary>
 			public Action OnClose = null;
 		}
@@ -106,6 +113,20 @@ namespace GuiToolkit
 			m_spawnedItems.Add(go);
 			m_options?.OnItemAdded?.Invoke(go, index);
 			WireItemClick(go, index);
+		}
+
+		/// <summary>
+		/// Create and add a plain-text item with no background.
+		/// A <see cref="TextMeshProUGUI"/> component provides the label;
+		/// a <see cref="Button"/> makes it clickable.
+		/// Can be called after <see cref="UiPanel.Show"/> to add items dynamically.
+		/// </summary>
+		public void AddStringItem( string _label )
+		{
+			if (m_contentContainer == null)
+				return;
+
+			SpawnStringItem(_label);
 		}
 
 		/// <summary>
@@ -166,6 +187,30 @@ namespace GuiToolkit
 				foreach (var prefab in m_options.Items)
 					SpawnItem(prefab);
 			}
+
+			if (m_options?.StringItems != null)
+			{
+				foreach (var label in m_options.StringItems)
+					SpawnStringItem(label);
+			}
+		}
+
+		private void SpawnStringItem( string _label )
+		{
+			if (m_contentContainer == null)
+				return;
+
+			var go = new GameObject(_label, typeof(RectTransform));
+			var tmp = go.AddComponent<TextMeshProUGUI>();
+			tmp.text = _label;
+			var button = go.AddComponent<Button>();
+			button.targetGraphic = tmp;
+			go.transform.SetParent(m_contentContainer, false);
+
+			int index = m_spawnedItems.Count;
+			m_spawnedItems.Add(go);
+			m_options?.OnItemAdded?.Invoke(go, index);
+			WireItemClick(go, index);
 		}
 
 		private void SpawnItem( GameObject prefab )
