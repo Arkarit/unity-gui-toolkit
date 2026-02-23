@@ -12,9 +12,9 @@ namespace GuiToolkit
 	/// or added at runtime via <see cref="SetOptions"/> / <see cref="AddItem"/>.
 	/// Closes on tap outside via the <see cref="UiModal"/> click-catcher pattern.
 	///
-	/// Required prefab hierarchy (create in Unity Editor — place inside an existing UiView):
+	/// Required prefab hierarchy (create in Unity Editor):
 	/// <code>
-	///   UiPopupMenu (UiModal, UiPopupMenu)
+	///   UiPopupMenu (Canvas, CanvasScaler, GraphicRaycaster, UiModal, UiPopupMenu)
 	///   ├── ClickCatcher  (RectTransform stretch-fill, UiClickCatcher, Button) ← UiModal.m_clickCatcher
 	///   └── PopupContainer (RectTransform, manually sized or via LayoutGroup)  ← m_popupContainer
 	///       ├── Background (Image – optional visual)
@@ -22,12 +22,10 @@ namespace GuiToolkit
 	///           └── Viewport (RectTransform, Mask)
 	///               └── Content (RectTransform, VerticalLayoutGroup)           ← m_contentContainer
 	/// </code>
+	/// Set the <c>Layer</c> field on this component to <see cref="EUiLayerDefinition.Popup"/> in the prefab.
 	/// </summary>
-	public class UiPopupMenu : UiPanel
+	public class UiPopupMenu : UiView
 	{
-		private UiModal m_uiModal;
-		private UiModal UiModal => m_uiModal != null ? m_uiModal : m_uiModal = GetComponent<UiModal>();
-
 		/// <summary>Configuration for a single popup menu invocation.</summary>
 		public class Options
 		{
@@ -150,8 +148,7 @@ namespace GuiToolkit
 			if (m_options == null)
 				m_options = new Options();
 
-			if (UiModal != null)
-				UiModal.OnClickCatcher = m_options.AllowOutsideTap ? (Action)Hide : null;
+			OnClickCatcher = m_options.AllowOutsideTap ? (Action)Hide : null;
 
 			SpawnItems();
 
@@ -272,7 +269,7 @@ namespace GuiToolkit
 			if (m_popupContainer == null || anchor == null)
 				return;
 
-			Canvas canvas = GetComponentInParent<Canvas>();
+			Canvas canvas = Canvas;
 			if (canvas == null)
 				return;
 
