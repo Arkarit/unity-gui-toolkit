@@ -153,7 +153,19 @@ namespace GuiToolkit
 			SpawnItems();
 
 			if (m_options.AnchorElement != null)
-				PositionAtAnchor(m_options.AnchorElement);
+			{
+				// Delay by one frame: UiView applies the CanvasScaler template one frame after
+				// OnEnable, so coordinates are wrong if we position on the very first show.
+				m_popupContainer.gameObject.SetActive(false);
+				var anchor = m_options.AnchorElement;
+				ExecuteFrameDelayed(() =>
+				{
+					if (m_popupContainer == null)
+						return;
+					PositionAtAnchor(anchor);
+					m_popupContainer.gameObject.SetActive(true);
+				});
+			}
 		}
 
 		public override void OnEndHide()
@@ -297,8 +309,10 @@ namespace GuiToolkit
 				out Vector2 anchorTL);
 
 			// Use top-left pivot so anchoredPosition represents the popup's top-left corner.
-			m_popupContainer.anchorMin = Vector2.zero;
-			m_popupContainer.anchorMax = Vector2.zero;
+			// anchorMin/Max (0.5, 0.5) centres the anchor on the canvas, matching the
+			// canvas-centred local-space coordinates returned by ScreenPointToLocalPointInRectangle.
+			m_popupContainer.anchorMin = new Vector2(0.5f, 0.5f);
+			m_popupContainer.anchorMax = new Vector2(0.5f, 0.5f);
 			m_popupContainer.pivot = new Vector2(0f, 1f);
 
 			Vector2 popupSize = m_popupContainer.rect.size;
