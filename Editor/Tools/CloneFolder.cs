@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using GuiToolkit;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -38,7 +37,7 @@ namespace GuiToolkit.Editor
 			bool renameAssets = false;
 			string input = EditorInputDialog.Show(
 				"Clone Folder",
-				$"Enter a name for the clone of '{folderName}':\n(Leave empty for auto-name)",
+				$"Enter name: (Leave empty for auto-name)",
 				"",
 				_ => { renameAssets = UnityEditor.EditorGUILayout.ToggleLeft("Rename assets containing the folder name", renameAssets); });
 
@@ -68,8 +67,8 @@ namespace GuiToolkit.Editor
 				return;
 
 			// --- Optionally rename files that contain the original folder name ---
-			if (renameAssets && !string.IsNullOrWhiteSpace(input))
-				RenameMatchingAssets(destFolder, folderName, input.Trim());
+			if (renameAssets)
+				RenameMatchingAssets(destFolder, folderName, Path.GetFileName(destFolder));
 
 			// Ping & select the new folder
 			var folderObj = AssetDatabase.LoadAssetAtPath<Object>(destFolder);
