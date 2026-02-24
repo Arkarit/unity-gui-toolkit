@@ -27,8 +27,12 @@ namespace GuiToolkit.Test
 		private const string SrcFolder = TempRoot + "/SourceFolder";
 		private const string DstFolder = TempRoot + "/ClonedFolder";
 		private const string ExternalAssetPath = TempRoot + "/ExternalAsset.asset";
-		private const string AssetAPath = SrcFolder + "/AssetA.asset";
-		private const string AssetBPath = SrcFolder + "/AssetB.asset";
+		private const string AssetAPath        = SrcFolder + "/AssetA.asset";
+		private const string AssetBPath        = SrcFolder + "/AssetB.asset";
+		// Asset whose name matches the folder name – used in rename tests
+		private const string SourceFolderName  = "SourceFolder";
+		private const string AssetMatchedPath  = SrcFolder + "/SourceFolder_extra.asset";
+		private const string AssetNoMatchPath  = SrcFolder + "/Unrelated.asset";
 
 		// -------------------------------------------------------------------------
 		// Setup / TearDown
@@ -66,6 +70,14 @@ namespace GuiToolkit.Test
 			AssetDatabase.ImportAsset(AssetBPath, ImportAssetOptions.ForceSynchronousImport);
 			AssetDatabase.ImportAsset(ExternalAssetPath, ImportAssetOptions.ForceSynchronousImport);
 			AssetDatabase.ImportAsset(AssetAPath, ImportAssetOptions.ForceSynchronousImport);
+
+			// Extra assets for rename tests: one whose name contains the folder name, one that doesn't
+			var matched   = ScriptableObject.CreateInstance<CloneFolderTestAsset>();
+			var unrelated = ScriptableObject.CreateInstance<CloneFolderTestAsset>();
+			AssetDatabase.CreateAsset(matched,   AssetMatchedPath);
+			AssetDatabase.CreateAsset(unrelated, AssetNoMatchPath);
+			AssetDatabase.ImportAsset(AssetMatchedPath, ImportAssetOptions.ForceSynchronousImport);
+			AssetDatabase.ImportAsset(AssetNoMatchPath, ImportAssetOptions.ForceSynchronousImport);
 		}
 
 		[TearDown]
@@ -169,6 +181,30 @@ namespace GuiToolkit.Test
 			Assert.IsFalse(string.IsNullOrEmpty(guidCloneB), "Cloned AssetB must have a GUID");
 			Assert.AreNotEqual(guidOrigA, guidCloneA, "Cloned AssetA should have a new GUID");
 			Assert.AreNotEqual(guidOrigB, guidCloneB, "Cloned AssetB should have a new GUID");
+		}
+
+		[Test]
+		public void RenameMatchingAssets_RenamesFilesContainingFolderName()
+		{
+			CloneFolder.Clone(SrcFolder, DstFolder);
+			CloneFolder.RenameMatchingAssets(DstFolder, SourceFolderName, "ClonedFolder");
+
+			// The matched asset should have been renamed
+			RequireAsset(DstFolder + "/ClonedFolder_extra.asset", "Renamed asset should exist at new path");
+			Assert.IsNull(AssetDatabase.LoadAssetAtPath<Object>(DstFolder + "/SourceFolder_extra.asset"),
+				"Original-named asset should no longer exist after rename");
+		}
+
+		[Test]
+		public void RenameMatchingAssets_DoesNotRenameNonMatchingFiles()
+		{
+			CloneFolder.Clone(SrcFolder, DstFolder);
+			CloneFolder.RenameMatchingAssets(DstFolder, SourceFolderName, "ClonedFolder");
+
+			// Assets whose names do not contain the folder name must be unchanged
+			RequireAsset(DstFolder + "/Unrelated.asset", "Non-matching asset should still exist unchanged");
+			RequireAsset(DstFolder + "/AssetA.asset",    "AssetA should still exist unchanged");
+			RequireAsset(DstFolder + "/AssetB.asset",    "AssetB should still exist unchanged");
 		}
 	}
 }

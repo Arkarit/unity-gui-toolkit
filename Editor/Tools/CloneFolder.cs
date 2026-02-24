@@ -30,11 +30,13 @@ namespace GuiToolkit.Editor
 			string parentFolder = Path.GetDirectoryName(srcFolder)?.Replace('\\', '/') ?? "Assets";
 			string folderName   = Path.GetFileName(srcFolder);
 
-			// --- Ask for name ---
+			// --- Ask for name (with optional rename-assets toggle) ---
+			bool renameAssets = false;
 			string input = EditorInputDialog.Show(
 				"Clone Folder",
 				$"Enter a name for the clone of '{folderName}':\n(Leave empty for auto-name)",
-				"");
+				"",
+				_ => { renameAssets = UnityEditor.EditorGUILayout.ToggleLeft("Rename assets containing the folder name", renameAssets); });
 
 			if (input == null)   // user cancelled
 				return;
@@ -58,7 +60,12 @@ namespace GuiToolkit.Editor
 			}
 
 			// --- Copy + rewire ---
-			Clone(srcFolder, destFolder);
+			if (!Clone(srcFolder, destFolder))
+				return;
+
+			// --- Optionally rename files that contain the original folder name ---
+			if (renameAssets && !string.IsNullOrWhiteSpace(input))
+				RenameMatchingAssets(destFolder, folderName, input.Trim());
 
 			// Ping & select the new folder
 			var folderObj = AssetDatabase.LoadAssetAtPath<Object>(destFolder);
@@ -96,6 +103,33 @@ namespace GuiToolkit.Editor
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
 			return true;
+		}
+
+		/// <summary>
+		/// Renames every file asset inside <paramref name="folder"/> whose filename (without
+		/// extension) contains <paramref name="oldName"/> as a substring, replacing it with
+		/// <paramref name="newName"/>.  Sub-folder names are not changed.
+		/// </summary>
+		public static void RenameMatchingAssets(string folder, string oldName, string newName)
+		{
+			string[] guids = AssetDatabase.FindAssets("", new[] { folder });
+			foreach (string guid in guids)
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				if (AssetDatabase.IsValidFolder(path))
+					continue;
+
+				string baseName = Path.GetFileNameWithoutExtension(path);
+				if (!baseName.Contains(oldName))
+					continue;
+
+				string renamed = baseName.Replace(oldName, newName);
+				string error   = AssetDatabase.RenameAsset(path, renamed);
+				if (!string.IsNullOrEmpty(error))
+					Debug.LogWarning($"[CloneFolder] Could not rename '{path}': {error}");
+			}
+
+			AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
 		}
 
 		// -------------------------------------------------------------------------
