@@ -14,14 +14,13 @@ namespace GuiToolkit.Editor
 	/// </summary>
 	public static class CloneFolder
 	{
-		private const string MenuPath = "Assets/Clone Folder";
 		private const int MenuPriority = -850;
 
 		// -------------------------------------------------------------------------
 		// Menu item
 		// -------------------------------------------------------------------------
 
-		[MenuItem(MenuPath, false, MenuPriority)]
+		[MenuItem(StringConstants.CLONE_FOLDER, false, MenuPriority)]
 		private static void Execute()
 		{
 			string srcFolder = GetSelectedFolderPath();
@@ -59,19 +58,7 @@ namespace GuiToolkit.Editor
 			}
 
 			// --- Copy + rewire ---
-			try
-			{
-				var guidRemap = CopyFolderRecursive(srcFolder, destFolder);
-				if (guidRemap != null)
-					RewireInternalReferences(destFolder, guidRemap);
-			}
-			finally
-			{
-				EditorUtility.ClearProgressBar();
-			}
-
-			AssetDatabase.SaveAssets();
-			AssetDatabase.Refresh();
+			Clone(srcFolder, destFolder);
 
 			// Ping & select the new folder
 			var folderObj = AssetDatabase.LoadAssetAtPath<Object>(destFolder);
@@ -82,11 +69,37 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		[MenuItem(MenuPath, true, MenuPriority)]
+		[MenuItem(StringConstants.CLONE_FOLDER, true, MenuPriority)]
 		private static bool Validate() => GetSelectedFolderPath() != null;
 
+		/// <summary>
+		/// Clones <paramref name="srcFolder"/> to <paramref name="destFolder"/>,
+		/// rewiring internal cross-references and leaving external references intact.
+		/// Shows a cancellable progress bar during the operation.
+		/// </summary>
+		/// <returns>True on success, false if the user cancelled during copy.</returns>
+		public static bool Clone(string srcFolder, string destFolder)
+		{
+			try
+			{
+				var guidRemap = CopyFolderRecursive(srcFolder, destFolder);
+				if (guidRemap == null)
+					return false;
+
+				RewireInternalReferences(destFolder, guidRemap);
+			}
+			finally
+			{
+				EditorUtility.ClearProgressBar();
+			}
+
+			AssetDatabase.SaveAssets();
+			AssetDatabase.Refresh();
+			return true;
+		}
+
 		// -------------------------------------------------------------------------
-		// Step 1 – recursive copy; returns old→new GUID map, or null on cancel
+		// Step 1– recursive copy; returns old→new GUID map, or null on cancel
 		// -------------------------------------------------------------------------
 
 		/// <summary>
