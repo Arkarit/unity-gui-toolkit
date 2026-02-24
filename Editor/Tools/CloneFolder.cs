@@ -94,7 +94,7 @@ namespace GuiToolkit.Editor
 			}
 
 			AssetDatabase.SaveAssets();
-			AssetDatabase.Refresh();
+			AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
 			return true;
 		}
 
@@ -149,6 +149,8 @@ namespace GuiToolkit.Editor
 					Debug.LogWarning($"[CloneFolder] Failed to copy '{origPath}' → '{clonePath}'");
 					continue;
 				}
+
+				AssetDatabase.ImportAsset(clonePath, ImportAssetOptions.ForceSynchronousImport);
 
 				string newGuid = AssetDatabase.AssetPathToGUID(clonePath);
 				if (!string.IsNullOrEmpty(newGuid))
@@ -223,7 +225,10 @@ namespace GuiToolkit.Editor
 					}
 
 					if (changed)
+					{
 						so.ApplyModifiedPropertiesWithoutUndo();
+						AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
+					}
 				}
 			}
 		}

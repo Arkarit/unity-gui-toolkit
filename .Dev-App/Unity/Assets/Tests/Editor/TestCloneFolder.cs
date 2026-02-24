@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using GuiToolkit;
@@ -13,7 +13,7 @@ namespace GuiToolkit.Test
 	///   SourceFolder/
 	///     AssetA.asset   (has an internal reference to AssetB, and an external reference to ExternalAsset)
 	///     AssetB.asset
-	///   ExternalAsset.asset  (sibling of SourceFolder – outside it)
+	///   ExternalAsset.asset  (sibling of SourceFolder - outside it)
 	///
 	/// After Clone(SourceFolder, DestFolder):
 	///   - DestFolder/AssetA and DestFolder/AssetB must exist
@@ -23,7 +23,7 @@ namespace GuiToolkit.Test
 	public class TestCloneFolder
 	{
 		// All temp assets live under this folder so TearDown can delete them in one call.
-		private const string TempRoot  = "Assets/Tests/TestObjects/Temp/CloneFolderTest";
+		private const string TempRoot = "Assets/Tests/TestObjects/Temp/CloneFolderTest";
 		private const string SrcFolder = TempRoot + "/SourceFolder";
 		private const string DstFolder = TempRoot + "/ClonedFolder";
 		private const string ExternalAssetPath = TempRoot + "/ExternalAsset.asset";
@@ -43,27 +43,29 @@ namespace GuiToolkit.Test
 			// Create the temp hierarchy
 			EditorFileUtility.EnsureUnityFolderExists(SrcFolder);
 
-			// AssetB – just a plain scriptable object (no references)
+			// AssetB - just a plain scriptable object (no references)
 			var assetB = ScriptableObject.CreateInstance<CloneFolderTestAsset>();
 			AssetDatabase.CreateAsset(assetB, AssetBPath);
 
-			// ExternalAsset – lives OUTSIDE the source folder
-			EditorFileUtility.EnsureUnityFolderExists(TempRoot);
+			// ExternalAsset - lives OUTSIDE the source folder
 			var external = ScriptableObject.CreateInstance<CloneFolderTestAsset>();
 			AssetDatabase.CreateAsset(external, ExternalAssetPath);
 
-			// AssetA – references both AssetB (internal) and ExternalAsset (external)
+			// AssetA - references both AssetB (internal) and ExternalAsset (external)
 			var assetA = ScriptableObject.CreateInstance<CloneFolderTestAsset>();
 			AssetDatabase.CreateAsset(assetA, AssetAPath);
 
 			// Wire references via SerializedObject so they are persisted to disk
 			var so = new SerializedObject(assetA);
-			so.FindProperty(nameof(CloneFolderTestAsset.InternalRef)).objectReferenceValue  = assetB;
-			so.FindProperty(nameof(CloneFolderTestAsset.ExternalRef)).objectReferenceValue  = external;
+			so.FindProperty(nameof(CloneFolderTestAsset.InternalRef)).objectReferenceValue = assetB;
+			so.FindProperty(nameof(CloneFolderTestAsset.ExternalRef)).objectReferenceValue = external;
 			so.ApplyModifiedPropertiesWithoutUndo();
 
 			AssetDatabase.SaveAssets();
-			AssetDatabase.Refresh();
+			// Force synchronous re-import so FindAssets picks up the new assets immediately.
+			AssetDatabase.ImportAsset(AssetBPath, ImportAssetOptions.ForceSynchronousImport);
+			AssetDatabase.ImportAsset(ExternalAssetPath, ImportAssetOptions.ForceSynchronousImport);
+			AssetDatabase.ImportAsset(AssetAPath, ImportAssetOptions.ForceSynchronousImport);
 		}
 
 		[TearDown]
@@ -76,21 +78,37 @@ namespace GuiToolkit.Test
 		}
 
 		// -------------------------------------------------------------------------
+		// Helpers
+		// -------------------------------------------------------------------------
+
+		/// <summary>
+		/// Loads an asset from <paramref name="path"/> and asserts it is non-null.
+		/// Uses base <see cref="Object"/> so type-resolution issues don't obscure existence failures.
+		/// </summary>
+		private static Object RequireAsset( string path, string label )
+		{
+			var obj = AssetDatabase.LoadAssetAtPath<Object>(path);
+			Assert.IsNotNull(obj, $"{label} (path: '{path}')");
+			return obj;
+		}
+
+		// -------------------------------------------------------------------------
 		// Tests
 		// -------------------------------------------------------------------------
 
 		[Test]
 		public void Clone_CreatesFolderAndAssets()
 		{
+			// Sanity: source must be set up correctly before we clone
+			RequireAsset(AssetAPath, "Source AssetA must exist before clone");
+			RequireAsset(AssetBPath, "Source AssetB must exist before clone");
+
 			bool success = CloneFolder.Clone(SrcFolder, DstFolder);
 
 			Assert.IsTrue(success, "Clone() should return true");
 			Assert.IsTrue(AssetDatabase.IsValidFolder(DstFolder), "Destination folder should exist");
-
-			string cloneA = DstFolder + "/AssetA.asset";
-			string cloneB = DstFolder + "/AssetB.asset";
-			Assert.IsNotNull(AssetDatabase.LoadAssetAtPath<CloneFolderTestAsset>(cloneA), "Cloned AssetA should exist");
-			Assert.IsNotNull(AssetDatabase.LoadAssetAtPath<CloneFolderTestAsset>(cloneB), "Cloned AssetB should exist");
+			RequireAsset(DstFolder + "/AssetA.asset", "Cloned AssetA should exist");
+			RequireAsset(DstFolder + "/AssetB.asset", "Cloned AssetB should exist");
 		}
 
 		[Test]
@@ -98,16 +116,15 @@ namespace GuiToolkit.Test
 		{
 			CloneFolder.Clone(SrcFolder, DstFolder);
 
-			var cloneA = AssetDatabase.LoadAssetAtPath<CloneFolderTestAsset>(DstFolder + "/AssetA.asset");
-			var cloneB = AssetDatabase.LoadAssetAtPath<CloneFolderTestAsset>(DstFolder + "/AssetB.asset");
-			var origB  = AssetDatabase.LoadAssetAtPath<CloneFolderTestAsset>(AssetBPath);
+			var cloneASO = new SerializedObject(RequireAsset(DstFolder + "/AssetA.asset", "Cloned AssetA must exist"));
+			var cloneB = RequireAsset(DstFolder + "/AssetB.asset", "Cloned AssetB must exist");
+			var origB = RequireAsset(AssetBPath, "Original AssetB must exist");
 
-			Assert.IsNotNull(cloneA, "Cloned AssetA must exist");
-			Assert.IsNotNull(cloneB, "Cloned AssetB must exist");
-			Assert.AreEqual(cloneB, cloneA.InternalRef,
-				"Internal reference should point to the cloned AssetB, not the original");
-			Assert.AreNotEqual(origB, cloneA.InternalRef,
-				"Internal reference must NOT point to the original AssetB");
+			var internalRef = cloneASO.FindProperty(nameof(CloneFolderTestAsset.InternalRef)).objectReferenceValue;
+			Assert.AreEqual(cloneB, internalRef,
+			"Internal reference should point to the cloned AssetB, not the original");
+			Assert.AreNotEqual(origB, internalRef,
+			"Internal reference must NOT point to the original AssetB");
 		}
 
 		[Test]
@@ -115,12 +132,12 @@ namespace GuiToolkit.Test
 		{
 			CloneFolder.Clone(SrcFolder, DstFolder);
 
-			var cloneA   = AssetDatabase.LoadAssetAtPath<CloneFolderTestAsset>(DstFolder + "/AssetA.asset");
-			var external = AssetDatabase.LoadAssetAtPath<CloneFolderTestAsset>(ExternalAssetPath);
+			var cloneASO = new SerializedObject(RequireAsset(DstFolder + "/AssetA.asset", "Cloned AssetA must exist"));
+			var external = RequireAsset(ExternalAssetPath, "ExternalAsset must exist");
 
-			Assert.IsNotNull(cloneA, "Cloned AssetA must exist");
-			Assert.AreEqual(external, cloneA.ExternalRef,
-				"External reference should still point to the original ExternalAsset");
+			var externalRef = cloneASO.FindProperty(nameof(CloneFolderTestAsset.ExternalRef)).objectReferenceValue;
+			Assert.AreEqual(external, externalRef,
+			"External reference should still point to the original ExternalAsset");
 		}
 
 		[Test]
@@ -128,12 +145,14 @@ namespace GuiToolkit.Test
 		{
 			CloneFolder.Clone(SrcFolder, DstFolder);
 
-			var origA    = AssetDatabase.LoadAssetAtPath<CloneFolderTestAsset>(AssetAPath);
-			var origB    = AssetDatabase.LoadAssetAtPath<CloneFolderTestAsset>(AssetBPath);
-			var external = AssetDatabase.LoadAssetAtPath<CloneFolderTestAsset>(ExternalAssetPath);
+			var origASO = new SerializedObject(RequireAsset(AssetAPath, "Original AssetA must exist"));
+			var origB = RequireAsset(AssetBPath, "Original AssetB must exist");
+			var external = RequireAsset(ExternalAssetPath, "ExternalAsset must exist");
 
-			Assert.AreEqual(origB,    origA.InternalRef, "Original AssetA.InternalRef should still point to original AssetB");
-			Assert.AreEqual(external, origA.ExternalRef, "Original AssetA.ExternalRef should still point to ExternalAsset");
+			Assert.AreEqual(origB, origASO.FindProperty(nameof(CloneFolderTestAsset.InternalRef)).objectReferenceValue,
+			"Original AssetA.InternalRef should still point to original AssetB");
+			Assert.AreEqual(external, origASO.FindProperty(nameof(CloneFolderTestAsset.ExternalRef)).objectReferenceValue,
+			"Original AssetA.ExternalRef should still point to ExternalAsset");
 		}
 
 		[Test]
@@ -141,22 +160,15 @@ namespace GuiToolkit.Test
 		{
 			CloneFolder.Clone(SrcFolder, DstFolder);
 
-			string guidOrigA  = AssetDatabase.AssetPathToGUID(AssetAPath);
-			string guidOrigB  = AssetDatabase.AssetPathToGUID(AssetBPath);
+			string guidOrigA = AssetDatabase.AssetPathToGUID(AssetAPath);
+			string guidOrigB = AssetDatabase.AssetPathToGUID(AssetBPath);
 			string guidCloneA = AssetDatabase.AssetPathToGUID(DstFolder + "/AssetA.asset");
 			string guidCloneB = AssetDatabase.AssetPathToGUID(DstFolder + "/AssetB.asset");
 
+			Assert.IsFalse(string.IsNullOrEmpty(guidCloneA), "Cloned AssetA must have a GUID");
+			Assert.IsFalse(string.IsNullOrEmpty(guidCloneB), "Cloned AssetB must have a GUID");
 			Assert.AreNotEqual(guidOrigA, guidCloneA, "Cloned AssetA should have a new GUID");
 			Assert.AreNotEqual(guidOrigB, guidCloneB, "Cloned AssetB should have a new GUID");
 		}
-	}
-
-	/// <summary>
-	/// Minimal ScriptableObject used as a test asset for <see cref="TestCloneFolder"/>.
-	/// </summary>
-	public class CloneFolderTestAsset : ScriptableObject
-	{
-		public CloneFolderTestAsset InternalRef;
-		public Object               ExternalRef;
 	}
 }
