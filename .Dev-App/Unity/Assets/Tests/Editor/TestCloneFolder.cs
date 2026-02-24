@@ -29,6 +29,7 @@ namespace GuiToolkit.Test
 		private const string ExternalAssetPath = TempRoot + "/ExternalAsset.asset";
 		private const string AssetAPath        = SrcFolder + "/AssetA.asset";
 		private const string AssetBPath        = SrcFolder + "/AssetB.asset";
+		private const string PrefabPath        = SrcFolder + "/TestPrefab.prefab";
 		// Asset whose name matches the folder name – used in rename tests
 		private const string SourceFolderName  = "SourceFolder";
 		private const string AssetMatchedPath  = SrcFolder + "/SourceFolder_extra.asset";
@@ -205,6 +206,51 @@ namespace GuiToolkit.Test
 			RequireAsset(DstFolder + "/Unrelated.asset", "Non-matching asset should still exist unchanged");
 			RequireAsset(DstFolder + "/AssetA.asset",    "AssetA should still exist unchanged");
 			RequireAsset(DstFolder + "/AssetB.asset",    "AssetB should still exist unchanged");
+		}
+
+		[Test]
+		public void Clone_MonoBehaviourReferenceIsRewired()
+		{
+			// Ensure CloneFolderTestBehaviour's MonoScript is imported before AddComponent.
+			// AddComponent in edit mode requires the MonoScript asset to be registered;
+			// a Refresh() here covers the case where the .cs file was just created.
+			AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+
+			// Build a prefab with the behaviour wired to internal + external refs
+			var assetBFresh   = AssetDatabase.LoadAssetAtPath<CloneFolderTestAsset>(AssetBPath);
+			var externalFresh = AssetDatabase.LoadAssetAtPath<CloneFolderTestAsset>(ExternalAssetPath);
+
+			var go   = new GameObject("TestObject");
+			var comp = go.AddComponent<CloneFolderTestBehaviour>();
+			Assert.IsNotNull(comp, "AddComponent<CloneFolderTestBehaviour> failed – MonoScript may not be imported yet");
+			comp.InternalRef = assetBFresh;
+			comp.ExternalRef = externalFresh;
+			PrefabUtility.SaveAsPrefabAsset(go, PrefabPath);
+			Object.DestroyImmediate(go);
+			AssetDatabase.ImportAsset(PrefabPath, ImportAssetOptions.ForceSynchronousImport);
+
+			CloneFolder.Clone(SrcFolder, DstFolder);
+
+			var clonedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(DstFolder + "/TestPrefab.prefab");
+			Assert.IsNotNull(clonedPrefab, "Cloned prefab should exist");
+
+			var clonedComp = clonedPrefab.GetComponent<CloneFolderTestBehaviour>();
+			Assert.IsNotNull(clonedComp, "Cloned prefab should have CloneFolderTestBehaviour");
+
+			var so = new SerializedObject(clonedComp);
+			var cloneB   = RequireAsset(DstFolder + "/AssetB.asset", "Cloned AssetB must exist");
+			var external = RequireAsset(ExternalAssetPath, "ExternalAsset must exist");
+			var origB    = RequireAsset(AssetBPath, "Original AssetB must exist");
+
+			var internalRef = so.FindProperty(nameof(CloneFolderTestBehaviour.InternalRef)).objectReferenceValue;
+			Assert.AreEqual(cloneB, internalRef,
+				"MonoBehaviour InternalRef should point to the cloned AssetB");
+			Assert.AreNotEqual(origB, internalRef,
+				"MonoBehaviour InternalRef must NOT point to the original AssetB");
+
+			var externalRef = so.FindProperty(nameof(CloneFolderTestBehaviour.ExternalRef)).objectReferenceValue;
+			Assert.AreEqual(external, externalRef,
+				"MonoBehaviour ExternalRef should still point to the original ExternalAsset");
 		}
 	}
 }

@@ -34,7 +34,7 @@ namespace GuiToolkit.Editor
 			string folderName   = Path.GetFileName(srcFolder);
 
 			// --- Ask for name (with optional rename-assets toggle) ---
-			bool renameAssets = false;
+			bool renameAssets = true;
 			string input = EditorInputDialog.Show(
 				"Clone Folder",
 				$"Enter name: (Leave empty for auto-name)",
@@ -264,7 +264,7 @@ namespace GuiToolkit.Editor
 					if (changed)
 					{
 						so.ApplyModifiedPropertiesWithoutUndo();
-						AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
+						EditorUtility.SetDirty(asset);  // ensures prefab sub-objects are flushed by SaveAssets
 					}
 				}
 			}
