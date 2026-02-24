@@ -25,7 +25,11 @@ namespace GuiToolkit.Editor
 		{
 			string srcFolder = GetSelectedFolderPath();
 			if (srcFolder == null)
+			{
+				EditorUtility.DisplayDialog("Clone Folder",
+					"Please select a single folder in the Project window first.", "OK");
 				return;
+			}
 
 			string parentFolder = Path.GetDirectoryName(srcFolder)?.Replace('\\', '/') ?? "Assets";
 			string folderName   = Path.GetFileName(srcFolder);
@@ -77,7 +81,7 @@ namespace GuiToolkit.Editor
 		}
 
 		[MenuItem(StringConstants.CLONE_FOLDER, true, MenuPriority)]
-		private static bool Validate() => GetSelectedFolderPath() != null;
+		private static bool Validate() => true;
 
 		/// <summary>
 		/// Clones <paramref name="srcFolder"/> to <paramref name="destFolder"/>,
@@ -293,13 +297,27 @@ namespace GuiToolkit.Editor
 			return all[0];
 		}
 
-		/// <summary>Returns the asset path of the single selected folder, or null.</summary>
+		/// <summary>Returns the asset path of the selected folder, or null if none.</summary>
 		private static string GetSelectedFolderPath()
 		{
-			if (Selection.objects == null || Selection.objects.Length != 1)
+			// activeObject is null when right-clicking the tree view without a prior left-click.
+			// Fall through all available selection APIs as fallbacks.
+			Object obj = Selection.activeObject;
+
+			if (obj == null)
+			{
+				var guids = Selection.assetGUIDs;
+				if (guids != null && guids.Length > 0)
+					obj = AssetDatabase.LoadAssetAtPath<Object>(AssetDatabase.GUIDToAssetPath(guids[0]));
+			}
+
+			if (obj == null && Selection.objects != null && Selection.objects.Length > 0)
+				obj = Selection.objects[0];
+
+			if (obj == null)
 				return null;
 
-			string path = AssetDatabase.GetAssetPath(Selection.objects[0]);
+			string path = AssetDatabase.GetAssetPath(obj);
 			return AssetDatabase.IsValidFolder(path) ? path : null;
 		}
 	}
