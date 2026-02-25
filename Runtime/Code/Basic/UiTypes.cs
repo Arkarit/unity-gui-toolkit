@@ -234,6 +234,7 @@ namespace GuiToolkit
 		public const string RESOLUTION_RESCALER = MISC_TOOLS_MENU_HEADER + "Resolution Rescaler (PREVIEW!)";
 		
 		public const string CLONE_FOLDER = "Assets/Clone Folder (rewire references)";
+		public const string RENAME_FOLDER = "Assets/Rename Folder (rename contents)";
 
 		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";                                                                         ///< Prefix for all player prefs entries
 		public const string CREATE_TEST_DATA = MENU_HEADER + "Test Data";
