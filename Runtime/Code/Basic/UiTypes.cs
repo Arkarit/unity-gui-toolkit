@@ -232,6 +232,9 @@ namespace GuiToolkit
 		public const string CREATE_GUI_SCREENSHOT_OVERLAY = MISC_TOOLS_MENU_HEADER + "Create GUI Screenshot overlay";
 		public const string CONVERT_MAIN_STYLE_CONFIG = MISC_TOOLS_MENU_HEADER + "Convert selected UiMainStyleConfig to UiStyleConfig";
 		public const string RESOLUTION_RESCALER = MISC_TOOLS_MENU_HEADER + "Resolution Rescaler (PREVIEW!)";
+		
+		public const string CLONE_FOLDER = "Assets/Clone Folder (rewire references)";
+		public const string RENAME_FOLDER = "Assets/Rename Folder (rename contents)";
 
 		public const string PLAYER_PREFS_PREFIX = "UiToolkit_";                                                                         ///< Prefix for all player prefs entries
 		public const string CREATE_TEST_DATA = MENU_HEADER + "Test Data";
@@ -273,5 +276,7 @@ namespace GuiToolkit
 		public const string RELOAD = "Icons/UITK_Reload";
 		public const string PLUS = "Icons/UITK_Plus";
 		public const string MINUS = "Icons/UITK_Minus";
+		public const string BURGER = "Icons/UITK_Burger";
+		public const string FILTER = "Icons/UITK_Filter";
 	}
 }

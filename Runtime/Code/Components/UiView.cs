@@ -269,10 +269,12 @@ namespace GuiToolkit
 			base.Show(_instant, _onFinish);
 		}
 
+		public void Hide() => Hide(false);
+		
 		/// <summary>
 		/// Hide override: broadcasts fullscreen visibility if applicable, then proceeds with base Hide.
 		/// </summary>
-		public override void Hide( bool _instant = false, Action _onFinish = null )
+		public override void Hide( bool _instant, Action _onFinish = null )
 		{
 			if (m_isFullScreen)
 				UiEventDefinitions.EvFullScreenView.Invoke(this, false);
