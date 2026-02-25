@@ -27,12 +27,10 @@ namespace GuiToolkit.Editor
 			string parentFolder = Path.GetDirectoryName(srcFolder)?.Replace('\\', '/') ?? "Assets";
 			string oldName      = Path.GetFileName(srcFolder);
 
-			bool renameAssets = true;
 			string input = EditorInputDialog.Show(
 				"Rename Folder",
 				"Enter new name:",
-				oldName,
-				_ => { renameAssets = EditorGUILayout.ToggleLeft("Rename assets containing the folder name", renameAssets); });
+				oldName);
 
 			if (input == null)   // user cancelled
 				return;
@@ -65,8 +63,7 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			if (renameAssets)
-				CloneFolder.RenameMatchingAssets(destFolder, oldName, newName);
+			CloneFolder.RenameMatchingAssets(destFolder, oldName, newName);
 
 			// Ping & select the renamed folder
 			var folderObj = AssetDatabase.LoadAssetAtPath<Object>(destFolder);
