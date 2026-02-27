@@ -167,12 +167,7 @@ namespace GuiToolkit.Editor
 					if (it.propertyPath.EndsWith(".Array", StringComparison.Ordinal))
 						continue;
 
-					if (it.propertyType == SerializedPropertyType.Generic && it.isArray)
-					{
-						if (it.propertyPath.EndsWith(".Array", StringComparison.Ordinal))
-							continue;
-
-						switch (it.arrayElementType)
+					switch (it.arrayElementType)
 						{
 							case "int":
 								snapshot.Arrays.Add(GenericArraySnapshot.Capture(it,
@@ -380,7 +375,6 @@ namespace GuiToolkit.Editor
 									break;
 								}
 						}
-					}
 				}
 
 				// We'll record only "leaf-ish" values; for complex types, we still attempt CopyFrom on apply,

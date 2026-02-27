@@ -675,7 +675,7 @@ namespace GuiToolkit.Editor
 				var go = oldComp.gameObject;
 
 				// 1a) Remove blockers that Require Graphic (e.g., Outline/Shadow/custom effects)
-				var blockers = CaptureComponentUtility.CaptureAndRemoveBlockers(go, oldComp, null, true, true);
+				var blockers = CaptureComponentUtility.CaptureAndRemoveBlockers(go, oldComp, typeof(TNew), true, true);
 
 				// 2) Remove TA (Graphic) now that no blockers are enforcing it
 				if (!oldComp.CanBeDestroyed(out string reasons))
@@ -697,7 +697,7 @@ namespace GuiToolkit.Editor
 				if (!newComp)
 				{
 					newComp = Undo.AddComponent<TNew>(go);
-					if (!go.activeInHierarchy)
+					if (!go.activeInHierarchy && typeof(TNew) == typeof(TextMeshProUGUI))
 					{
 						var tmpGO = new GameObject("__tmp_tmpro_defaults__", typeof(RectTransform));
 						var def = tmpGO.AddComponent<TextMeshProUGUI>();

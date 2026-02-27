@@ -1,11 +1,8 @@
 using System.Collections.Generic;
-using ExcelDataReader.Log;
-using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace GuiToolkit.Editor
 {
@@ -156,10 +153,6 @@ namespace GuiToolkit.Editor
 				if (!comp)
 					return true;
 				UiLog.LogInternal($"Scanning prefab for '{comp.GetType().Name}': '{assetPath}'");
-if (comp.GetType().Name == "UiMain")
-{
-UiLog.Log("Found");
-}
 				ScanSerializedObjectForTarget(comp, _target, _out);
 				return true;
 			});
@@ -210,7 +203,6 @@ UiLog.Log("Found");
 
 				if (ReferenceEquals(refValue, _target))
 				{
-					Debug.Log($"Found reference in {_owner.name}, Property: {it.propertyPath}");
 					_out.Add((_owner, it.propertyPath));
 					continue;
 				}
@@ -219,31 +211,24 @@ UiLog.Log("Found");
 				var refSource = PrefabUtility.GetCorrespondingObjectFromSource(refValue);
 				var targetSource = PrefabUtility.GetCorrespondingObjectFromSource(_target);
 
-if (_owner.GetType() == typeof(UiMain))
-{
-UiLog.Log($"---::: " 
-+ $"refSource:{refSource?.GetType().Name ?? "<null>"}:{refSource?.GetInstanceID() ?? 0} "
-+ $"targetSource:{targetSource?.GetType().Name ?? "<null>"}:{targetSource?.GetInstanceID() ?? 0} "
-+ $"refValue:{refValue?.GetType().Name ?? "<null>"}:{refValue?.GetInstanceID() ?? 0} "
-+ $"_target:{_target?.GetType().Name ?? "<null>"}:{_target?.GetInstanceID() ?? 0} "
-);
-}
 				var root = PrefabUtility.GetNearestPrefabInstanceRoot(_target);
 				if (!root)
 					continue;
 
+				bool found = false;
 				var components = root.GetComponentsInChildren(_target.GetType());
 				foreach (var component in components)
 				{
 					if (ReferenceEquals(refValue, component))
-						goto found;
+					{
+						found = true;
+						break;
+					}
 				}
 
-				if (!refSource || !targetSource || !ReferenceEquals(refSource, targetSource))
+				if (!found && (!refSource || !targetSource || !ReferenceEquals(refSource, targetSource)))
 					continue;
 
-found:
-				Debug.Log($"Found logical match for {_target.name} via prefab source");
 				_out.Add((_owner, it.propertyPath));
 			}
 		}
