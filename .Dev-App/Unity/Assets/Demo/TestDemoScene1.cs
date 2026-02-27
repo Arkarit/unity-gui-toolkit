@@ -22,6 +22,7 @@ public class TestDemoScene1 : UiView
 	public Button m_exampleResDepStylesButton;
 	public Button m_exampleLayoutButton;
 	public Button m_exampleIconsButton;
+	public Button m_popupButton;
 
 	public TMP_InputField m_splashMessageInput;
 	public TMP_InputField m_requesterTitleInput;
@@ -52,6 +53,21 @@ public class TestDemoScene1 : UiView
 		m_exampleResDepStylesButton.onClick.AddListener(OnResDepStylesClicked);
 		m_exampleLayoutButton.onClick.AddListener(OnExampleLayoutButtonClicked);
 		m_exampleIconsButton.onClick.AddListener(OnExampleIconsButtonClicked);
+		m_popupButton.onClick.AddListener(OnPopupButtonClicked);
+	}
+
+	private void OnPopupButtonClicked()
+	{
+		UiMain.Instance.ShowPopupMenu(new UiPopupMenu.Options
+		{
+			AnchorElement = (RectTransform)m_popupButton.transform,
+			StringItems = new[] { "Entry 1", "Entry 2", "Entry 3", "Entry 4" },
+			Offset = new Vector2(20, 20),
+			OnItemClicked = (go, index) =>
+			{
+				UiMain.Instance.ShowToastMessageView(go.name);
+			}
+		});
 	}
 
 	private void OnExampleIconsButtonClicked()

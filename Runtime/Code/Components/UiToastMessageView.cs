@@ -72,6 +72,12 @@ namespace GuiToolkit
 
 		private void OnEvHide(bool _instant)
 		{
+			// Guard: ignore HideAll events when this instance is inactive in the pool.
+			// Without this, a pooled toast would call DestroyIfNecessary() on an already-
+			// released object, causing SafeDestroy() to be called and corrupting the pool.
+			if (!Visible)
+				return;
+
 			Hide(_instant);
 		}
 

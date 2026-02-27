@@ -39,6 +39,8 @@ namespace GuiToolkit.Style
 		public abstract Type SupportedStyleType { get; }
 		public abstract Component Component { get; }
 		public abstract int Key { get; }
+		public abstract void ResetKey();
+		
 		public bool Tweenable
 		{
 			get => m_tweenable && !SkinIsFixed;
@@ -165,6 +167,7 @@ namespace GuiToolkit.Style
 			m_name = null;
 			m_style = null;
 			m_fixedSkinName = null;
+			ResetKey();
 		}
 		
 		public void Apply()
@@ -226,6 +229,7 @@ namespace GuiToolkit.Style
 				if (m_name == value)
 					return;
 
+				ResetKey();
 				m_name = value;
 				SetStyle();
 			}
