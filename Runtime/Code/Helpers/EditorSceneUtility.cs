@@ -1,9 +1,10 @@
 // Note: don't move this file to an Editor folder, since it needs to be available
 // for inplace editor code
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
-using UnityEditor.SceneManagement;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -20,12 +21,12 @@ namespace GuiToolkit
 
 		public static ESceneUnloadChoice DoDirtyEditorScenesCloseDialog()
 		{
-			return (ESceneUnloadChoice) EditorUtility.DisplayDialogComplex("Pending Scene changes", "Some scenes have been changed. How should we continue?", "Save", "Ignore", "Cancel" );
+			return (ESceneUnloadChoice)EditorUtility.DisplayDialogComplex("Pending Scene changes", "Some scenes have been changed. How should we continue?", "Save", "Ignore", "Cancel");
 		}
 
-		public static ESceneUnloadChoice DoDirtyEditorSceneCloseDialog(string _sceneName)
+		public static ESceneUnloadChoice DoDirtyEditorSceneCloseDialog( string _sceneName )
 		{
-			return (ESceneUnloadChoice) EditorUtility.DisplayDialogComplex("Pending Scene changes", $"Scene '{_sceneName}' has been changed. How should we continue?", "Save", "Ignore", "Cancel");
+			return (ESceneUnloadChoice)EditorUtility.DisplayDialogComplex("Pending Scene changes", $"Scene '{_sceneName}' has been changed. How should we continue?", "Save", "Ignore", "Cancel");
 		}
 
 		public static bool CheckBeforeCloseEditorScenes()
@@ -34,7 +35,7 @@ namespace GuiToolkit
 			int numScenes = SceneManager.loadedSceneCount;
 			bool saveScene = false;
 
-			for (int i=0; i<numScenes; i++)
+			for (int i = 0; i < numScenes; i++)
 			{
 				Scene scene = EditorSceneManager.GetSceneAt(i);
 				if (scene != mainScene && scene.isDirty)
@@ -109,8 +110,8 @@ namespace GuiToolkit
 
 			if (_scene.isDirty)
 			{
-				ESceneUnloadChoice choice = DoDirtyEditorSceneCloseDialog( _scene.name );
-				switch( choice )
+				ESceneUnloadChoice choice = DoDirtyEditorSceneCloseDialog(_scene.name);
+				switch (choice)
 				{
 					case ESceneUnloadChoice.Ignore:
 						break;
@@ -127,6 +128,83 @@ namespace GuiToolkit
 
 			EditorSceneManager.CloseScene(_scene, true);
 		}
+
+		public static Scene LoadScene(
+			string _scenePath,
+			OpenSceneMode _loadMode = OpenSceneMode.Single,
+			bool _keepEditingPrefab = true,
+			Action<Scene> _preLoadAction = null,
+			Action<Scene> _postLoadAction = null )
+		{
+			// Save all dirty assets
+			SaveAllDirtyAssets();
+
+			// Check if we're in Prefab Mode
+			var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+			string prefabPath = null;
+
+			if (prefabStage != null)
+			{
+				// Save the currently edited prefab if dirty
+				SaveCurrentlyEditedPrefabIfDirty();
+
+				if (_keepEditingPrefab)
+				{
+					// Store the prefab path to restore later
+					prefabPath = prefabStage.assetPath;
+				}
+
+				// Explicitly close the prefab scene to avoid "Do you want to save" dialog
+				EditorSceneManager.CloseScene(prefabStage.scene, true);
+			}
+
+			// Execute pre-load action
+			var currentScene = SceneManager.GetActiveScene();
+			_preLoadAction?.Invoke(currentScene);
+
+			// Load the scene
+			var loadedScene = EditorSceneManager.OpenScene(_scenePath, _loadMode);
+
+			// Restore Prefab Mode if needed
+			if (_keepEditingPrefab && prefabPath != null)
+			{
+				PrefabStageUtility.OpenPrefab(prefabPath);
+			}
+
+			// Execute post-load action
+			_postLoadAction?.Invoke(loadedScene);
+			return loadedScene;
+		}
+
+		private static void SaveAllDirtyAssets()
+		{
+			// Save dirty prefab
+			var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+			if (prefabStage != null && prefabStage.scene.isDirty)
+			{
+				EditorSceneManager.SaveScene(prefabStage.scene);
+			}
+
+			// Save all open scenes
+			EditorSceneManager.SaveOpenScenes();
+
+			// Save other assets
+			AssetDatabase.SaveAssets();
+		}
+
+		private static void SaveCurrentlyEditedPrefabIfDirty()
+		{
+			// Check if we're in Prefab Mode
+			var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+			if (prefabStage != null && prefabStage.scene.isDirty)
+			{
+				// Save the prefab stage
+				EditorSceneManager.SaveScene(prefabStage.scene);
+				AssetDatabase.SaveAssets(); // Ensure all assets are saved
+				UiLog.Log($"Saved dirty prefab: {prefabStage.assetPath}");
+			}
+		}
+
 	}
 }
 #endif

@@ -41,6 +41,7 @@ namespace GuiToolkit.Editor
 			public string SearchString = string.Empty;
 			public bool ShowProgressBar = true;
 			public bool IncludeInactive = true;
+			public bool SaveScenes = false;
 			public EErrorCondition ErrorCondition = EErrorCondition.NoError;
 			public EErrorType ErrorType = EErrorType.LogError;
 			public string[] Folders = new[] { "Assets" };
@@ -78,6 +79,9 @@ namespace GuiToolkit.Editor
 		{
 			if (_options == null)
 				_options = DefaultSearchOptions;
+
+			if (_options.SaveScenes)
+				SaveScenes();
 
 			var searchString = _options.SearchString;
 			var showProgressBar = _options.ShowProgressBar;
@@ -300,6 +304,9 @@ namespace GuiToolkit.Editor
 			if (_options == null)
 				_options = DefaultSearchOptions;
 
+			if (_options.SaveScenes)
+				SaveScenes();
+
 			string[] allAssetPathGuids = AssetDatabase.FindAssets($"t:ScriptableObject {_options.SearchString}", _options.Folders);
 			int numFound = 0;
 			foreach (string guid in allAssetPathGuids)
@@ -388,6 +395,9 @@ namespace GuiToolkit.Editor
 			if (_options == null)
 				_options = DefaultSearchOptions;
 
+			if (_options.SaveScenes)
+				SaveScenes();
+
 			var searchString = _options.SearchString == null ? string.Empty : _options.SearchString;
 			var showProgressBar = _options.ShowProgressBar;
 			var includeInactive = _options.IncludeInactive;
@@ -410,7 +420,8 @@ namespace GuiToolkit.Editor
 					if (showProgressBar)
 					{
 						float done = (float)(i + 1) / allAssetPathGuids.Length;
-						EditorUtility.DisplayProgressBar($"Searching scenes for components of type {typeof(T).Name}", $"Searching _scene '{Path.GetFileName(assetPath)}' ", done);
+						EditorUtility.DisplayProgressBar($"Searching scenes for components of type {typeof(T).Name}",
+							$"Searching _scene '{Path.GetFileName(assetPath)}' ", done);
 					}
 
 					// Avoid dreaded "It is not allowed..." 
@@ -423,10 +434,11 @@ namespace GuiToolkit.Editor
 
 					try
 					{
+						UiLog.LogInternal($"Loading scene '{assetPath}'");
 						scene = EditorSceneManager.GetSceneByPath(assetPath);
 						wasLoaded = scene.isLoaded;
 						if (!wasLoaded)
-							scene = EditorSceneManager.OpenScene(assetPath, OpenSceneMode.Additive);
+							scene = EditorSceneUtility.LoadScene(assetPath, OpenSceneMode.Additive);
 					}
 					catch
 					{
@@ -448,13 +460,18 @@ namespace GuiToolkit.Editor
 						}
 					}
 
-exitLoop:
+					exitLoop:
 
 					if (!wasLoaded)
 						EditorSceneManager.CloseScene(scene, true);
 				}
 
 				ShowErrorIfNecessary<T>(objectsFound, _options);
+			}
+			catch (Exception e)
+			{
+				Debug.LogException(e);
+				throw;
 			}
 			finally
 			{
@@ -490,6 +507,9 @@ exitLoop:
 		{
 			if (_options == null)
 				_options = DefaultSearchOptions;
+
+			if (_options.SaveScenes)
+				SaveScenes();
 
 			string[] allAssetPathGuids = AssetDatabase.FindAssets("t:Script", _options.Folders);
 			int objectsFound = 0;
@@ -837,6 +857,12 @@ exitLoop:
 		}
 
 		private static string GetCacheKey<T>( string _searchString ) => CachePrefix + typeof(T).FullName + (string.IsNullOrEmpty(_searchString) ? "" : _searchString);
+
+		private static void SaveScenes()
+		{
+			EditorSceneManager.SaveOpenScenes();
+			AssetDatabase.SaveAssets(); // Ensure all assets are saved as well
+		}
 
 		private static bool ShowErrorIfNecessary<T>( int numFound, AssetSearchOptions _options )
 		{

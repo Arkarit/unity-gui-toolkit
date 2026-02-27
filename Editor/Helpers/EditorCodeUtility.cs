@@ -629,39 +629,39 @@ namespace GuiToolkit.Editor
 		/// 3) apply(snapshot, TB) runs to apply migrated data.
 		/// This avoids conflicts (e.g., multiple Graphics on the same object).
 		/// </summary>
-		/// <typeparam name="TA">Old component type to remove.</typeparam>
-		/// <typeparam name="TB">New component type to add or reuse.</typeparam>
+		/// <typeparam name="TOld">Old component type to remove.</typeparam>
+		/// <typeparam name="TNew">New component type to add or reuse.</typeparam>
 		/// <typeparam name="TSnapshot">Type holding captured state from TA.</typeparam>
 		/// <param name="_capture">Delegate that captures TA state before removal.</param>
 		/// <param name="_apply">Delegate that applies captured state to TB.</param>
 		/// <returns>List of tuples (captured snapshot, new component).</returns>
 		/// <exception cref="RoslynUnavailableException">Thrown when Roslyn-related compilation guards are required.</exception>
-		public static List<(TSnapshot Snapshot, TB NewComp)> ReplaceMonoBehavioursInActiveSceneWithMapping
-		<TA, TB, TSnapshot>
+		public static List<(TSnapshot Snapshot, TNew NewComp)> ReplaceMonoBehavioursInActiveSceneWithMapping
+		<TOld, TNew, TSnapshot>
 		(
-			Func<TA, TSnapshot> _capture,
-			Action<TSnapshot, TB> _apply
+			Func<TOld, TSnapshot> _capture,
+			Action<TSnapshot, TNew> _apply
 		)
-		where TA : MonoBehaviour
-		where TB : MonoBehaviour
+		where TOld : MonoBehaviour
+		where TNew : MonoBehaviour
 		{
 #if UITK_USE_ROSLYN
 			var scene = GetCurrentContextScene(out bool isPrefab);
 			if (!scene.IsValid())
 				throw new ArgumentException($"No scene found.");
-			if (typeof(TA).IsAbstract)
-				throw new ArgumentException($"{typeof(TA).Name} is abstract.");
-			if (typeof(TB).IsAbstract)
-				throw new ArgumentException($"{typeof(TB).Name} is abstract.");
+			if (typeof(TOld).IsAbstract)
+				throw new ArgumentException($"{typeof(TOld).Name} is abstract.");
+			if (typeof(TNew).IsAbstract)
+				throw new ArgumentException($"{typeof(TNew).Name} is abstract.");
 
-			var results = new List<(TSnapshot, TB)>();
+			var results = new List<(TSnapshot, TNew)>();
 
-			var targets = EditorAssetUtility.FindObjectsInCurrentEditedPrefabOrScene<TA>();
+			var targets = EditorAssetUtility.FindObjectsInCurrentEditedPrefabOrScene<TOld>();
 			if (targets == null || targets.Length == 0)
 				return results;
 
 			Undo.IncrementCurrentGroup();
-			Undo.SetCurrentGroupName($"Replace {typeof(TA).Name} with {typeof(TB).Name}");
+			Undo.SetCurrentGroupName($"Replace {typeof(TOld).Name} with {typeof(TNew).Name}");
 
 			foreach (var oldComp in targets)
 			{
@@ -693,10 +693,10 @@ namespace GuiToolkit.Editor
 				Undo.DestroyObjectImmediate(oldComp);
 
 				// 3) Ensure TB exists (reuse if already present; otherwise add)
-				var newComp = go.GetComponent<TB>();
+				var newComp = go.GetComponent<TNew>();
 				if (!newComp)
 				{
-					newComp = Undo.AddComponent<TB>(go);
+					newComp = Undo.AddComponent<TNew>(go);
 					if (!go.activeInHierarchy)
 					{
 						var tmpGO = new GameObject("__tmp_tmpro_defaults__", typeof(RectTransform));
@@ -711,9 +711,9 @@ namespace GuiToolkit.Editor
 					{
 						// catastrophic: restore original situation as best as possible
 						// (re-add TA and blockers)
-						var restoredTA = Undo.AddComponent(go, typeof(TA)) as TA;
+						var restoredTA = Undo.AddComponent(go, typeof(TOld)) as TOld;
 						CaptureComponentUtility.RestoreBlockers(go, blockers);
-						UiLog.LogError($"Failed to add target component {typeof(TB).Name} to '{go.GetPath()}'. Rolled back.", go);
+						UiLog.LogError($"Failed to add target component {typeof(TNew).Name} to '{go.GetPath()}'. Rolled back.", go);
 						continue;
 					}
 				}

@@ -126,17 +126,20 @@ namespace GuiToolkit.Editor
 				UiLog.LogInternal($"[CaptureAndRemoveBlockers] Removing {toRemove.Count} blockers:");
 				for (int i = 0; i < toRemove.Count; i++)
 				{
-					var b = toRemove[i];
-					if (!b)
+					var blockerInstance = toRemove[i];
+					if (!blockerInstance)
 						continue;
 
-					var bt = b.GetType();
-					UiLog.LogInternal($"  - Removing {bt.Name}");
-					blockers.Add(CaptureBlocker(b, _preserveReferences, _scanEntireProject));
+					var blockerType = blockerInstance.GetType();
+					UiLog.LogInternal($"Capture blockers for removing {blockerType.Name}");
+					var snapshot = CaptureBlocker(blockerInstance, _preserveReferences, _scanEntireProject);
+					UiLog.LogInternal($"Found {(snapshot.Referrers?.Count ?? 0)} referrers for {blockerType.Name}");
+					blockers.Add(snapshot);
 
-					Decrement(presentTypeCounts, bt);
+					Decrement(presentTypeCounts, blockerType);
 
-					Undo.DestroyObjectImmediate(b);
+					UiLog.LogInternal($"Destroying {blockerType.Name} instance on '{blockerInstance.GetPath()}'");
+					Undo.DestroyObjectImmediate(blockerInstance);
 					changed = true;
 				}
 

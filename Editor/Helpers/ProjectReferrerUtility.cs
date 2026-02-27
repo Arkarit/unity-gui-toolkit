@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ExcelDataReader.Log;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -28,7 +29,7 @@ namespace GuiToolkit.Editor
 				return result;
 
 			var scene = SceneManager.GetActiveScene();
-			
+
 			// Force serialization if scene has unsaved changes
 			if (scene.IsValid() && scene.isDirty)
 			{
@@ -65,14 +66,23 @@ namespace GuiToolkit.Editor
 			if (!_target)
 				return result;
 
+			UiLog.LogInternal($"CollectReferrersInProject for {_target.GetType().Name}: saving active scenes");
+			EditorSceneManager.SaveOpenScenes();
+			AssetDatabase.SaveAssets();
+
 			// Scan current context first (most common case for component replacement)
+			UiLog.LogInternal($"CollectReferrersInProject for {_target.GetType().Name}: scan current context");
 			var contextRefs = CollectReferrersInCurrentContext(_target);
 			if (contextRefs != null && contextRefs.Count > 0)
 				result.AddRange(contextRefs);
 
+			UiLog.LogInternal($"CollectReferrersInProject for {_target.GetType().Name}: scan scriptable objects");
 			CollectReferrersInAllScriptableObjects(_target, result);
+			UiLog.LogInternal($"CollectReferrersInProject for {_target.GetType().Name}: scan prefabs");
 			CollectReferrersInAllPrefabs(_target, result);
+			UiLog.LogInternal($"CollectReferrersInProject for {_target.GetType().Name}: scan scenes");
 			CollectReferrersInAllScenesOnDisk(_target, result);
+			UiLog.LogInternal($"CollectReferrersInProject for {_target.GetType().Name}: found {result.Count} referrers");
 
 			return result;
 		}
@@ -99,7 +109,7 @@ namespace GuiToolkit.Editor
 
 				var so = new SerializedObject(owner);
 				so.Update();
-				
+
 				var sp = so.FindProperty(path);
 				if (sp == null || sp.propertyType != SerializedPropertyType.ObjectReference)
 					continue;
@@ -145,10 +155,14 @@ namespace GuiToolkit.Editor
 			{
 				if (!comp)
 					return true;
-
+				UiLog.LogInternal($"Scanning prefab for '{comp.GetType().Name}': '{assetPath}'");
+if (comp.GetType().Name == "UiMain")
+{
+UiLog.Log("Found");
+}
 				ScanSerializedObjectForTarget(comp, _target, _out);
 				return true;
-			}, new EditorAssetUtility.AssetSearchOptions { ShowProgressBar = false });
+			});
 		}
 
 		/// <summary>
@@ -168,39 +182,68 @@ namespace GuiToolkit.Editor
 
 				ScanSerializedObjectForTarget(comp, _target, _out);
 				return true;
-			}, new EditorAssetUtility.AssetSearchOptions { ShowProgressBar = false });
+			});
 		}
 
-		/// <summary>
-		/// Scans all serialized properties of an owner object to find references to the target.
-		/// </summary>
-		private static void ScanSerializedObjectForTarget
-		(
+		private static void ScanSerializedObjectForTarget(
 			UnityEngine.Object _owner,
 			UnityEngine.Object _target,
-			List<(UnityEngine.Object owner, string propertyPath)> _out
-		)
+			List<(UnityEngine.Object owner, string propertyPath)> _out )
 		{
 			if (!_owner || !_target)
 				return;
 
 			var so = new SerializedObject(_owner);
 			so.Update();
-			
-			var it = so.GetIterator();
-			bool enterChildren = true;
 
-			while (it.NextVisible(enterChildren))
+			var it = so.GetIterator();
+
+			while (it.Next(true)) // Include hidden properties
 			{
-				enterChildren = false;
 
 				if (it.propertyType != SerializedPropertyType.ObjectReference)
 					continue;
 
 				var refValue = it.objectReferenceValue;
-				if (!refValue || refValue != _target)
+				if (!refValue)
 					continue;
 
+				if (ReferenceEquals(refValue, _target))
+				{
+					Debug.Log($"Found reference in {_owner.name}, Property: {it.propertyPath}");
+					_out.Add((_owner, it.propertyPath));
+					continue;
+				}
+
+				// Check if they are logically the same (e.g., prefab asset vs. instance)
+				var refSource = PrefabUtility.GetCorrespondingObjectFromSource(refValue);
+				var targetSource = PrefabUtility.GetCorrespondingObjectFromSource(_target);
+
+if (_owner.GetType() == typeof(UiMain))
+{
+UiLog.Log($"---::: " 
++ $"refSource:{refSource?.GetType().Name ?? "<null>"}:{refSource?.GetInstanceID() ?? 0} "
++ $"targetSource:{targetSource?.GetType().Name ?? "<null>"}:{targetSource?.GetInstanceID() ?? 0} "
++ $"refValue:{refValue?.GetType().Name ?? "<null>"}:{refValue?.GetInstanceID() ?? 0} "
++ $"_target:{_target?.GetType().Name ?? "<null>"}:{_target?.GetInstanceID() ?? 0} "
+);
+}
+				var root = PrefabUtility.GetNearestPrefabInstanceRoot(_target);
+				if (!root)
+					continue;
+
+				var components = root.GetComponentsInChildren(_target.GetType());
+				foreach (var component in components)
+				{
+					if (ReferenceEquals(refValue, component))
+						goto found;
+				}
+
+				if (!refSource || !targetSource || !ReferenceEquals(refSource, targetSource))
+					continue;
+
+found:
+				Debug.Log($"Found logical match for {_target.name} via prefab source");
 				_out.Add((_owner, it.propertyPath));
 			}
 		}
