@@ -278,5 +278,7 @@ namespace GuiToolkit
 		public const string MINUS = "Icons/UITK_Minus";
 		public const string BURGER = "Icons/UITK_Burger";
 		public const string FILTER = "Icons/UITK_Filter";
+		public const string EDIT = "Icons/UITK_Edit";
+		public const string TRASH = "Icons/UITK_Trash";
 	}
 }
