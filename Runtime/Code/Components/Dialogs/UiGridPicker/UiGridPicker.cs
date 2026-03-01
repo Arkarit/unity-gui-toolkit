@@ -121,6 +121,8 @@ namespace GuiToolkit
 				cell.PoolDestroy();
 			}
 
+			m_cells.Clear();
+
 			m_closeButton.OnClick.RemoveAllListeners();
 			EvOnPopulateCell.RemoveAllListeners();
 			EvOnDestroyCell.RemoveAllListeners();
