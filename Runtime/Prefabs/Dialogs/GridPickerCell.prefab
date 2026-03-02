@@ -89,6 +89,7 @@ GameObject:
   - component: {fileID: 6972270565477909619}
   - component: {fileID: -5688480096085123237}
   - component: {fileID: -5720706734647159353}
+  - component: {fileID: 5887295399827540744}
   m_Layer: 5
   m_Name: GridPickerCell
   m_TagString: Untagged
@@ -216,6 +217,7 @@ MonoBehaviour:
   m_uiImage: {fileID: 0}
   m_additionalMouseOver: {fileID: 7820881698772016694}
   m_additionalMouseOverDuration: 0.1
+  m_forwardButton: {fileID: 0}
   m_simpleWiggleAnimation: {fileID: 0}
 --- !u!114 &-5720706734647159353
 MonoBehaviour:
@@ -231,3 +233,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_optionalText: {fileID: 0}
+--- !u!114 &5887295399827540744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6471957410138887581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 952ebb2e93aaf9a42aeb70411f059805, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_executeInEditor: 0
+  m_autoNumerateOnAwake: 0
+  m_features: 10
+  m_prefix: '---:::'

@@ -46,9 +46,17 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			m_isLocalizable = true;
+			bool firstInit = m_strings.Count == 0;
+			int savedIndex = m_index;
+
 			m_strings.Clear();
 			m_strings.AddRange(Months);
-			SetMonthByName(m_currentMonth);
+
+			// Preserve a previously set month; only default to the inspector value on first activation.
+			if (firstInit)
+				SetMonthByName(m_currentMonth);
+			else
+				m_index = savedIndex;
 
 			base.OnEnable();
 		}

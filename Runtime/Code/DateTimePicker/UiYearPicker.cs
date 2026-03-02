@@ -54,17 +54,17 @@ namespace GuiToolkit
 		protected override void OnEnable()
 		{
 			m_isLocalizable = false;
+
+			// Preserve a previously set year; only default to today on first activation.
+			int savedYear = m_strings.Count > 0 ? Year : DateTime.Today.Year;
+
 			m_strings.Clear();
 
 			int endIdx = m_endYear - m_startYear;
 			for (int i = 0; i <= endIdx; i++)
-			{
-				int year = i + m_startYear;
-				if (year == DateTime.Today.Year)
-					m_index = i;
+				m_strings.Add((i + m_startYear).ToString());
 
-				m_strings.Add(year.ToString());
-			}
+			m_index = Mathf.Clamp(savedYear, m_startYear, m_endYear) - m_startYear;
 
 			base.OnEnable();
 		}
