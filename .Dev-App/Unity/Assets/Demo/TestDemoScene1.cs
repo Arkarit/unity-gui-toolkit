@@ -116,6 +116,8 @@ public class TestDemoScene1 : UiView
 		});
 	}
 
+	private DateTime? m_lastSelectedDateTime;
+
 	private void OnShowDatePickerButton()
 	{
 		UiMain.Instance.CreateRequester(requester =>
@@ -127,13 +129,18 @@ public class TestDemoScene1 : UiView
 				(
 					("Ok", () =>
 					{
-						UiLog.Log($"Selected date / time: {requester.GetDateTime()}");
+						m_lastSelectedDateTime = requester.GetDateTime();
+						UiLog.Log($"Selected date / time: {m_lastSelectedDateTime}");
 					}
 				),
-					("Cancel", null)
+					("Cancel", () =>
+					{
+						m_lastSelectedDateTime = null;
+					})
 				),
 				DateTimeOptions = new UiDateTimePanel.Options()
 				{
+					StartDateTime = m_lastSelectedDateTime ?? DateTime.Now,
 					//					ShowTime = false,
 				}
 			};

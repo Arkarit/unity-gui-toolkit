@@ -24,6 +24,8 @@ namespace GuiToolkit
 				}
 
 				m_index = year;
+				if (m_strings.Count > 0)
+					UpdateText();
 			}
 		}
 
