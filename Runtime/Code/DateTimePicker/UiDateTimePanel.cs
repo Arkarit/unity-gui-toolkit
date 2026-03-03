@@ -80,11 +80,11 @@ namespace GuiToolkit
 			SelectedDateTime = m_options.StartDateTime;
 		}
 
-		private void OnDateTimeChanged(DateTime _value)
+		private void OnDateTimeChanged(DateTime _)
 		{
-			SelectedDateTime = _value;
-			OnValueChanged.InvokeOnce(_value);
-			m_options.OnDateTimeChanged?.Invoke(_value);
+			var combined = SelectedDateTime;
+			OnValueChanged.InvokeOnce(combined);
+			m_options.OnDateTimeChanged?.Invoke(combined);
 		}
 
 		private void OnNowButton() => SelectedDateTime = DateTime.Now;

@@ -98,12 +98,12 @@ namespace GuiToolkit
 			int idx = _x + _y * numColumns;
 			bool isEmptyCell = idx >= m_strings.Count;
 
-			if (isEmptyCell)
-				return;
-
-			m_index = idx;
-			OnValueChanged.InvokeOnce(m_strings[idx], idx);
-			UpdateText();
+			if (!isEmptyCell)
+			{
+				m_index = idx;
+				OnValueChanged.InvokeOnce(m_strings[idx], idx);
+				UpdateText();
+			}
 
 			_gridPicker.Hide();
 		}

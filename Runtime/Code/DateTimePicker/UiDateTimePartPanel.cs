@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -7,6 +7,7 @@ namespace GuiToolkit
 {
 	public class UiDateTimePartPanel : UiPanel
 	{
+		public CEvent<int> OnValueChanged = new();
 		[SerializeField] protected DateTimeHelpers.EDateTimeType m_type;
 		[SerializeField] protected TMP_Text m_text;
 		[FormerlySerializedAs("m_Caption")] 
@@ -29,6 +30,7 @@ namespace GuiToolkit
 
 				m_value = value;
 				m_text.text = GetContentString(Value);
+				OnValueChanged.InvokeOnce(m_value);
 			}
 		}
 

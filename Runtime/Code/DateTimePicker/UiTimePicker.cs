@@ -18,6 +18,9 @@ namespace GuiToolkit
 			base.OnEnable();
 			if (m_optionalNowButton)
 				m_optionalNowButton.OnClick.AddListener(OnNowClicked);
+			m_hourPicker.OnValueChanged.AddListener(OnPartChanged);
+			m_minutePicker.OnValueChanged.AddListener(OnPartChanged);
+			m_secondPicker.OnValueChanged.AddListener(OnPartChanged);
 		}
 
 		protected override void OnDisable()
@@ -25,7 +28,12 @@ namespace GuiToolkit
 			base.OnDisable();
 			if (m_optionalNowButton)
 				m_optionalNowButton.OnClick.RemoveListener(OnNowClicked);
+			m_hourPicker.OnValueChanged.RemoveListener(OnPartChanged);
+			m_minutePicker.OnValueChanged.RemoveListener(OnPartChanged);
+			m_secondPicker.OnValueChanged.RemoveListener(OnPartChanged);
 		}
+
+		private void OnPartChanged(int _) => OnValueChanged.InvokeOnce(SelectedTime);
 
 		public DateTime SelectedTime
 		{
