@@ -1,0 +1,125 @@
+---
+---
+
+@import "minima";
+
+// ── Hero section ────────────────────────────────────────────────────────────
+
+.hero {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #fff;
+  padding: 64px 24px 56px;
+  text-align: center;
+  margin-bottom: 48px;
+
+  h1 {
+    font-size: 2.6rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #fff;
+  }
+
+  p {
+    font-size: 1.15rem;
+    max-width: 640px;
+    margin: 0 auto 32px;
+    color: #c8d6e5;
+    line-height: 1.7;
+  }
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  a {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: opacity 0.2s;
+
+    &:hover { opacity: 0.85; }
+  }
+
+  .btn-primary {
+    background: #e94560;
+    color: #fff;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.5);
+  }
+}
+
+// ── Feature cards ────────────────────────────────────────────────────────────
+
+.features-section {
+  max-width: 960px;
+  margin: 0 auto 56px;
+  padding: 0 24px;
+
+  h2 {
+    text-align: center;
+    font-size: 1.6rem;
+    margin-bottom: 32px;
+    color: #2d3748;
+  }
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.feature-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+
+  .card-icon {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1a202c;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: #718096;
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+// ── Notice banner ────────────────────────────────────────────────────────────
+
+.notice {
+  background: #fffbeb;
+  border-left: 4px solid #f6ad55;
+  padding: 14px 20px;
+  border-radius: 4px;
+  max-width: 760px;
+  margin: 0 auto 40px;
+  font-size: 0.9rem;
+  color: #744210;
+}
