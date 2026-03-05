@@ -1,0 +1,35 @@
+name: Deploy Documentation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: 'Documentation~'
+
+      - name: Build Jekyll site
+        working-directory: 'Documentation~'
+        run: bundle exec jekyll build --destination ../_site
+
+      - name: Copy Doxygen API reference
+        run: cp -r "Documentation~/Code/html" "_site/api"
+
+      - name: Deploy to documentation branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          publish_branch: documentation
