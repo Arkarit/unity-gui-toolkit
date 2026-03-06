@@ -16,11 +16,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
+
 	/// <summary> 
 	/// <para>A small data structure class hold values for making Doxygen config files </para>
 	/// </summary>
@@ -28,6 +28,7 @@ namespace GuiToolkit.Editor
 	[CreateAssetMenu(fileName = nameof(DoxygenConfig), menuName = StringConstants.CREATE_DOXYGEN_CONFIG)]
 	public class DoxygenConfig : AbstractSingletonScriptableObject<DoxygenConfig>
 	{
+#if UNITY_EDITOR
 		public enum EVersionSource
 		{
 			Manual,
@@ -110,5 +111,6 @@ namespace GuiToolkit.Editor
 
 			return result;
 		}
+#endif
 	}
 }

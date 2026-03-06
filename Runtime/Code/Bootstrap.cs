@@ -71,6 +71,7 @@ namespace GuiToolkit
 			// Config needs to be initialized first, because some other modules will need it for values.
 			Log("Initialize UiToolkitConfiguration");
 			UiToolkitConfiguration.Initialize();
+			DoxygenConfig.Initialize();
 
 			if (Application.isPlaying)
 				InitializeRuntime();
