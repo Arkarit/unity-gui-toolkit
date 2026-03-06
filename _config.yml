@@ -1,0 +1,19 @@
+title: "UI Toolkit"
+description: "Unity GUI Toolkit — Runtime UI library for Unity 2022.3+"
+theme: minima
+url: "https://arkarit.github.io"
+baseurl: "/unity-gui-toolkit"
+
+author:
+  name: "Heiko Achilles"
+  url: "https://www.phoenixgrafik.de"
+
+header_pages:
+  - index.md
+  - setup.md
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - Code/
+  - Legal/
