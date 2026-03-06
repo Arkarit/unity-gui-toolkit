@@ -3,10 +3,10 @@ using GuiToolkit.Settings;
 using GuiToolkit.Storage;
 using System;
 using System.Collections.Generic;
-using GuiToolkit.Style;
 using UnityEngine;
 
 #if UNITY_EDITOR
+using GuiToolkit.Editor;
 using UnityEditor;
 #endif
 
