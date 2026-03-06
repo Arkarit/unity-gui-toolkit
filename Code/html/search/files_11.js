@@ -1,0 +1,24 @@
+var searchData=
+[
+  ['safedeletewindow_2ecs_0',['SafeDeleteWindow.cs',['../_safe_delete_window_8cs.html',1,'']]],
+  ['saveprojectonlosefocus_2ecs_1',['SaveProjectOnLoseFocus.cs',['../_save_project_on_lose_focus_8cs.html',1,'']]],
+  ['scenechangetracker_2ecs_2',['SceneChangeTracker.cs',['../_scene_change_tracker_8cs.html',1,'']]],
+  ['scenemenugenerator_2ecs_3',['SceneMenuGenerator.cs',['../_scene_menu_generator_8cs.html',1,'']]],
+  ['scenemenugeneratortemplate_2ecs_4',['SceneMenuGeneratorTemplate.cs',['../_scene_menu_generator_template_8cs.html',1,'']]],
+  ['scenereference_2ecs_5',['SceneReference.cs',['../_scene_reference_8cs.html',1,'']]],
+  ['screenshotoverlaytool_2ecs_6',['ScreenshotOverlayTool.cs',['../_screenshot_overlay_tool_8cs.html',1,'']]],
+  ['serializabledatetime_2ecs_7',['SerializableDateTime.cs',['../_serializable_date_time_8cs.html',1,'']]],
+  ['setalluilocagroups_2ecs_8',['SetAllUiLocaGroups.cs',['../_set_all_ui_loca_groups_8cs.html',1,'']]],
+  ['settingsdata_2ecs_9',['SettingsData.cs',['../_settings_data_8cs.html',1,'']]],
+  ['settingspersistedaggregate_2ecs_10',['SettingsPersistedAggregate.cs',['../_settings_persisted_aggregate_8cs.html',1,'']]],
+  ['shadereditorbase_2ecs_11',['ShaderEditorBase.cs',['../_shader_editor_base_8cs.html',1,'']]],
+  ['skipsavinginpackagefolder_2ecs_12',['SkipSavingInPackageFolder.cs',['../_skip_saving_in_package_folder_8cs.html',1,'']]],
+  ['staticstoragefactory_2ecs_13',['StaticStorageFactory.cs',['../_static_storage_factory_8cs.html',1,'']]],
+  ['storage_2ecs_14',['Storage.cs',['../_storage_8cs.html',1,'']]],
+  ['storageerror_2ecs_15',['StorageError.cs',['../_storage_error_8cs.html',1,'']]],
+  ['storagehelper_2ecs_16',['StorageHelper.cs',['../_storage_helper_8cs.html',1,'']]],
+  ['storagepolicy_2ecs_17',['StoragePolicy.cs',['../_storage_policy_8cs.html',1,'']]],
+  ['storagerequestcontext_2ecs_18',['StorageRequestContext.cs',['../_storage_request_context_8cs.html',1,'']]],
+  ['storageroutingconfig_2ecs_19',['StorageRoutingConfig.cs',['../_storage_routing_config_8cs.html',1,'']]],
+  ['symlinkresolver_2ecs_20',['SymlinkResolver.cs',['../_symlink_resolver_8cs.html',1,'']]]
+];

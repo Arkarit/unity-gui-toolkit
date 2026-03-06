@@ -1,0 +1,26 @@
+var class_gui_toolkit_1_1_style_1_1_ui_style_text =
+[
+    [ "UiStyleText", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#a8546aa2f1630f4e0cf1d10fe0b345d1d", null ],
+    [ "GetValueList", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#a5ab8ad37e7827354de90f770e092597d", null ],
+    [ "AlignByGeometry", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#adf9c43084e9f686d77e8af4e67ac8704", null ],
+    [ "Alignment", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#aa16715425c9094e5407caa92b90103cd", null ],
+    [ "Color", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#a9fdc7063f263220c933c1df90e42549c", null ],
+    [ "Enabled", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#abee1dc73c109659db931ab477ff73a8e", null ],
+    [ "Font", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#a256ef6cc2c8c8dcbb6d43b8529d8b959", null ],
+    [ "FontSize", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#af0b0485e59713fe15a776914c8c8ba77", null ],
+    [ "FontStyle", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#a895a25d656a6a7762f3d5680012499c7", null ],
+    [ "HorizontalOverflow", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#ab9db5ff841ffc627fd14c8adf22b490e", null ],
+    [ "IsMaskingGraphic", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#a3b6ee152c059fe1684d42520540c13fc", null ],
+    [ "LineSpacing", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#ab74070f2d197512f9f041fe26697b13c", null ],
+    [ "Maskable", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#a68be349776adaa41bdd83f5da2807356", null ],
+    [ "Material", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#a58e2ec70c7602d9e02177d4e2ad923f7", null ],
+    [ "OnCullStateChanged", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#aa5b23a083efd0dae20db37857c64eb6a", null ],
+    [ "RaycastPadding", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#ab412a8bbffd6c4b4b4e6aa77274dbc5c", null ],
+    [ "RaycastTarget", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#a6f56325b3c1a672c763efda7b2dc6c0b", null ],
+    [ "ResizeTextForBestFit", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#a0deb5852dc9c171f269842e610438bc7", null ],
+    [ "ResizeTextMaxSize", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#ae87b270e0dcc2969b270379c346719c7", null ],
+    [ "ResizeTextMinSize", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#a4769161afe42ce053c14c67deefc7e3d", null ],
+    [ "SupportRichText", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#aefd3f45c5f74b98d0c99da58706f0847", null ],
+    [ "Text", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#a91376a971066471269d42adcb7a7a4c2", null ],
+    [ "VerticalOverflow", "class_gui_toolkit_1_1_style_1_1_ui_style_text.html#adb57dc155038ed5f2bc50aaf234a97b7", null ]
+];
