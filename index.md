@@ -12,7 +12,7 @@ title: UI Toolkit
   </p>
   <div class="hero-buttons">
     <a class="btn-primary" href="setup">Get Started</a>
-    <a class="btn-secondary" href="api/index.html">API Reference</a>
+    <a class="btn-secondary" href="Code/html/index.html">API Reference</a>
   </div>
 </div>
 
