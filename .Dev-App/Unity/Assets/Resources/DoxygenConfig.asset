@@ -17,7 +17,7 @@ MonoBehaviour:
   VersionSource: 1
   m_version: 
   OutputDirectory:
-    m_path: ../../Documentation~/Code
+    m_path: ../../../unity-gui-toolkit-gh-pages/Code
   OptionalMainPage:
     m_path: ../../README.md
   InputDirectories:
