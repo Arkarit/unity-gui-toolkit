@@ -87,9 +87,7 @@
       if exist "%TEMP%\src_origin.txt" set /p SRC_ORIGIN=<"%TEMP%\src_origin.txt"
       if exist "%TEMP%\src_origin.txt" del "%TEMP%\src_origin.txt"
       if "%SRC_ORIGIN%"=="" set "SRC_ORIGIN=git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git"
-      git remote | findstr /R /C:"^origin$" >nul
-      if errorlevel 1 git remote add origin %SRC_ORIGIN%
-      if not errorlevel 1 git remote set-url origin %SRC_ORIGIN%
+      git remote set-url origin "%SRC_ORIGIN%"
       git checkout gh-pages 2>nul
       if errorlevel 1 git checkout -b gh-pages
       popd
