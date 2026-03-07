@@ -3,7 +3,7 @@
 :: Automatically check & get admin rights
 :: see "https://stackoverflow.com/a/12264592/1016343" for description
 ::::::::::::::::::::::::::::::::::::::::
-@echo off
+rem @echo off
  CLS
  ECHO.
  ECHO =============================
@@ -84,7 +84,12 @@
       pushd "%GHPAGES_DIR%"
       REM try to copy origin URL from the source repo so credentials/remote match
       set "SRC_ORIGIN="
-      for /f "usebackq delims=" %%U in (`git -C "%REPO_ROOT%" remote get-url origin 2^>nul`) do set "SRC_ORIGIN=%%U"
+      REM write origin URL to a temp file to avoid FOR/backquote parsing inside parenthesis
+      git -C "%REPO_ROOT%" remote get-url origin 2>nul > "%TEMP%\src_origin.txt" || (echo)
+      if exist "%TEMP%\src_origin.txt" (
+        set /p SRC_ORIGIN=<"%TEMP%\src_origin.txt"
+        del "%TEMP%\src_origin.txt"
+      )
       if "%SRC_ORIGIN%"=="" (
         set "SRC_ORIGIN=git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git"
         ECHO No origin found in source repo, using fallback: %SRC_ORIGIN%
@@ -118,4 +123,4 @@
  
  ECHO done
  REM pause
- exit
+ rem exit
