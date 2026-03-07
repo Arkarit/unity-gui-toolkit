@@ -17,7 +17,7 @@ title: UI Toolkit
 </div>
 
 <div class="notice">
-  ⚠️ <b>This toolkit is work in progress. APIs may change between versions.</b>
+  ⚠️ <b>This toolkit is a work in progress. APIs may change between versions.</b>
 </div>
 
 <div class="features-section">
