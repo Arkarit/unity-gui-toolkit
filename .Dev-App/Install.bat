@@ -77,21 +77,18 @@
    ECHO gh-pages repo already exists at "%GHPAGES_DIR%"
  ) else (
    ECHO Creating gh-pages working copy at "%GHPAGES_DIR%"
-    git clone "%REPO_ROOT%" "%GHPAGES_DIR%"
-    if errorlevel 1 (
-      ECHO Git clone failed. Skipping gh-pages setup.
-    ) else (
-      pushd "%GHPAGES_DIR%"
-      set "SRC_ORIGIN="
-      git -C "%REPO_ROOT%" remote get-url origin > "%TEMP%\src_origin.txt" 2>nul
-      if exist "%TEMP%\src_origin.txt" set /p SRC_ORIGIN=<"%TEMP%\src_origin.txt"
-      if exist "%TEMP%\src_origin.txt" del "%TEMP%\src_origin.txt"
-      if "%SRC_ORIGIN%"=="" set "SRC_ORIGIN=git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git"
-      git remote set-url origin "%SRC_ORIGIN%"
-      git checkout gh-pages 2>nul
-      if errorlevel 1 git checkout -b gh-pages
-      popd
-    )
+   mkdir "%GHPAGES_DIR%" 2>nul
+   ECHO Copying .git directory to preserve credentials...
+   xcopy /E /I /H /Y "%REPO_ROOT%\.git" "%GHPAGES_DIR%\.git" >nul
+   if errorlevel 1 (
+     ECHO Failed to copy .git directory. Skipping gh-pages setup.
+   ) else (
+     pushd "%GHPAGES_DIR%"
+     ECHO Checking out gh-pages branch...
+     git checkout -f gh-pages 2>nul
+     if errorlevel 1 git checkout -b gh-pages
+     popd
+   )
  )
 
  ECHO Creating symlinks...
@@ -108,4 +105,4 @@
  
  ECHO done
  REM pause
- rem exit
+ exit
