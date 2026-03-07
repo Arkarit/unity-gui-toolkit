@@ -77,14 +77,23 @@
    ECHO gh-pages repo already exists at "%GHPAGES_DIR%"
  ) else (
    ECHO Creating gh-pages working copy at "%GHPAGES_DIR%"
-   git clone "%REPO_ROOT%" "%GHPAGES_DIR%"
-   if errorlevel 1 (
-     ECHO Git clone failed. Skipping gh-pages setup.
-   ) else (
-     pushd "%GHPAGES_DIR%"
-     git checkout gh-pages 2>nul || git checkout -b gh-pages
-     popd
-   )
+    git clone "%REPO_ROOT%" "%GHPAGES_DIR%"
+    if errorlevel 1 (
+      ECHO Git clone failed. Skipping gh-pages setup.
+    ) else (
+      pushd "%GHPAGES_DIR%"
+      REM ensure origin remote points to GitHub SSH so pushes use your credentials
+      git remote | findstr /R /C:"^origin$" >nul
+      if errorlevel 1 (
+        git remote add origin git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git
+        ECHO Added origin -> git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git
+      ) else (
+        git remote set-url origin git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git
+        ECHO Set origin URL -> git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git
+      )
+      git checkout gh-pages 2>nul || git checkout -b gh-pages
+      popd
+    )
  )
 
  ECHO Creating symlinks...
