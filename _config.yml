@@ -17,3 +17,6 @@ exclude:
   - Gemfile.lock
   - Code/
   - Legal/
+
+keep_files:
+  - Code/
