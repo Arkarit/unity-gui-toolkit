@@ -3,7 +3,7 @@
 :: Automatically check & get admin rights
 :: see "https://stackoverflow.com/a/12264592/1016343" for description
 ::::::::::::::::::::::::::::::::::::::::
-rem @echo off
+@echo off
  CLS
  ECHO.
  ECHO =============================
