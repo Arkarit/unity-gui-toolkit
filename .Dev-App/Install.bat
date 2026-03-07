@@ -82,29 +82,16 @@
       ECHO Git clone failed. Skipping gh-pages setup.
     ) else (
       pushd "%GHPAGES_DIR%"
-      REM try to copy origin URL from the source repo so credentials/remote match
       set "SRC_ORIGIN="
-      REM write origin URL to a temp file to avoid FOR/backquote parsing inside parenthesis
-      git -C "%REPO_ROOT%" remote get-url origin 2>nul > "%TEMP%\src_origin.txt" || (echo)
-      if exist "%TEMP%\src_origin.txt" (
-        set /p SRC_ORIGIN=<"%TEMP%\src_origin.txt"
-        del "%TEMP%\src_origin.txt"
-      )
-      if "%SRC_ORIGIN%"=="" (
-        set "SRC_ORIGIN=git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git"
-        ECHO No origin found in source repo, using fallback: %SRC_ORIGIN%
-      ) else (
-        ECHO Using source repo origin: %SRC_ORIGIN%
-      )
+      git -C "%REPO_ROOT%" remote get-url origin > "%TEMP%\src_origin.txt" 2>nul
+      if exist "%TEMP%\src_origin.txt" set /p SRC_ORIGIN=<"%TEMP%\src_origin.txt"
+      if exist "%TEMP%\src_origin.txt" del "%TEMP%\src_origin.txt"
+      if "%SRC_ORIGIN%"=="" set "SRC_ORIGIN=git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git"
       git remote | findstr /R /C:"^origin$" >nul
-      if errorlevel 1 (
-        git remote add origin %SRC_ORIGIN%
-        ECHO Added origin -> %SRC_ORIGIN%
-      ) else (
-        git remote set-url origin %SRC_ORIGIN%
-        ECHO Set origin URL -> %SRC_ORIGIN%
-      )
-      git checkout gh-pages 2>nul || git checkout -b gh-pages
+      if errorlevel 1 git remote add origin %SRC_ORIGIN%
+      if not errorlevel 1 git remote set-url origin %SRC_ORIGIN%
+      git checkout gh-pages 2>nul
+      if errorlevel 1 git checkout -b gh-pages
       popd
     )
  )
