@@ -3,7 +3,7 @@
 :: Automatically check & get admin rights
 :: see "https://stackoverflow.com/a/12264592/1016343" for description
 ::::::::::::::::::::::::::::::::::::::::
- @echo off
+@echo off
  CLS
  ECHO.
  ECHO =============================
@@ -59,29 +59,46 @@
  ::START
  ::::::::::::::::::::::::::::
  REM Run shell as admin (example) - put here code as you like
- ECHO Creating symlinks...
  ECHO Dir: "%batchDir%"
 
- mklink /D "%batchDir%\Unity\Assets\External\unity-gui-toolkit" "%batchDir%..\Runtime"
- mklink /D "%batchDir%\Unity\Assets\External\unity-gui-toolkit-editor" "%batchDir%..\Editor"
-
- ECHO done
- REM Setup optional gh-pages working copy
- set "GHPAGES_DIR=%batchDir%..\unity-gui-toolkit-gh-pages"
+ REM Resolve repo root (parent of .Dev-App)
+ pushd "%batchDir%.."
+ set "REPO_ROOT=%CD%"
+ popd
+ 
+ REM Resolve parent directory
+ pushd "%REPO_ROOT%\.."
+ set "REPO_PARENT=%CD%"
+ popd
+ 
+ set "GHPAGES_DIR=%REPO_PARENT%\unity-gui-toolkit-gh-pages"
+ 
  if exist "%GHPAGES_DIR%\.git" (
    ECHO gh-pages repo already exists at "%GHPAGES_DIR%"
  ) else (
    ECHO Creating gh-pages working copy at "%GHPAGES_DIR%"
-   pushd "%batchDir%.."
-   git clone "%batchDir%.." "%GHPAGES_DIR%"
+   git clone "%REPO_ROOT%" "%GHPAGES_DIR%"
    if errorlevel 1 (
-     ECHO Git clone failed (is git installed?). Skipping gh-pages setup.
+     ECHO Git clone failed. Skipping gh-pages setup.
    ) else (
      pushd "%GHPAGES_DIR%"
      git checkout gh-pages 2>nul || git checkout -b gh-pages
      popd
    )
-   popd
  )
- pause
+
+ ECHO Creating symlinks...
+ if not exist "%batchDir%\Unity\Assets\External\unity-gui-toolkit" (
+   mklink /D "%batchDir%\Unity\Assets\External\unity-gui-toolkit" "%batchDir%..\Runtime"
+ ) else (
+   ECHO Symlink already exists: unity-gui-toolkit
+ )
+ if not exist "%batchDir%\Unity\Assets\External\unity-gui-toolkit-editor" (
+   mklink /D "%batchDir%\Unity\Assets\External\unity-gui-toolkit-editor" "%batchDir%..\Editor"
+ ) else (
+   ECHO Symlink already exists: unity-gui-toolkit-editor
+ )
+ 
+ ECHO done
+ REM pause
  exit
