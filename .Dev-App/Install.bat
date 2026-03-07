@@ -82,14 +82,22 @@
       ECHO Git clone failed. Skipping gh-pages setup.
     ) else (
       pushd "%GHPAGES_DIR%"
-      REM ensure origin remote points to GitHub SSH so pushes use your credentials
+      REM try to copy origin URL from the source repo so credentials/remote match
+      set "SRC_ORIGIN="
+      for /f "usebackq delims=" %%U in (`git -C "%REPO_ROOT%" remote get-url origin 2^>nul`) do set "SRC_ORIGIN=%%U"
+      if "%SRC_ORIGIN%"=="" (
+        set "SRC_ORIGIN=git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git"
+        ECHO No origin found in source repo, using fallback: %SRC_ORIGIN%
+      ) else (
+        ECHO Using source repo origin: %SRC_ORIGIN%
+      )
       git remote | findstr /R /C:"^origin$" >nul
       if errorlevel 1 (
-        git remote add origin git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git
-        ECHO Added origin -> git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git
+        git remote add origin %SRC_ORIGIN%
+        ECHO Added origin -> %SRC_ORIGIN%
       ) else (
-        git remote set-url origin git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git
-        ECHO Set origin URL -> git@github.com:Arkarit/unity-gui-toolkit-gh-pages.git
+        git remote set-url origin %SRC_ORIGIN%
+        ECHO Set origin URL -> %SRC_ORIGIN%
       )
       git checkout gh-pages 2>nul || git checkout -b gh-pages
       popd
