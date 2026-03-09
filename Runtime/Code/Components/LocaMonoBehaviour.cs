@@ -52,7 +52,7 @@ namespace GuiToolkit
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		protected static string gettext( string _s, string _group = null )
 		{
-			return LocaManager.Instance.Translate(_s, _group);
+			return LocaManager.Instance.Translate(_s, _group: _group);
 		}
 
 		/// <summary>

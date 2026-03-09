@@ -101,7 +101,7 @@ namespace GuiToolkit
 			m_isSettingInternally = true;
 			try
 			{
-				base.text = manager.Translate(m_locaKey, m_group);
+				base.text = manager.Translate(m_locaKey, _group: m_group);
 			}
 			finally
 			{

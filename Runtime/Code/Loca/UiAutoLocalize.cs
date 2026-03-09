@@ -140,7 +140,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			var translatedText = LocaManager.Translate(m_locaKey, m_group);
+			var translatedText = LocaManager.Instance.Translate(m_locaKey, _group: m_group);
 			m_lastTranslation = translatedText;
 			TextComponent.text = translatedText;
 		}

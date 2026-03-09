@@ -51,7 +51,7 @@ namespace GuiToolkit
 			}
 			catch (Exception ex)
 			{
-				Debug.LogError($"GoogleServiceAccountAuth: {ex.Message}");
+				UnityEngine.Debug.LogError($"GoogleServiceAccountAuth: {ex.Message}");
 				return null;
 			}
 		}
@@ -173,7 +173,7 @@ namespace GuiToolkit
 					if (sw.ElapsedMilliseconds > timeoutMs)
 					{
 						www.Abort();
-						Debug.LogError("GoogleServiceAccountAuth: Token request timed out");
+						UnityEngine.Debug.LogError("GoogleServiceAccountAuth: Token request timed out");
 						return null;
 					}
 					EditorApplication.QueuePlayerLoopUpdate();
@@ -182,7 +182,7 @@ namespace GuiToolkit
 
 				if (www.result != UnityWebRequest.Result.Success)
 				{
-					Debug.LogError($"GoogleServiceAccountAuth: Token request failed: {www.error}\n{www.downloadHandler.text}");
+					UnityEngine.Debug.LogError($"GoogleServiceAccountAuth: Token request failed: {www.error}\n{www.downloadHandler.text}");
 					return null;
 				}
 
