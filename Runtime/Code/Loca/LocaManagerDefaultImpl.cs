@@ -151,10 +151,31 @@ namespace GuiToolkit
 		private void ParsePoLines( string[] _lines, string _group )
 		{
 			string currentContext = null;
+			bool currentIsFuzzy = false;
+			string currentTranslatorComment = null;
+			string currentSourceRef = null;
 
 			for (int i = 0; i < _lines.Length; i++)
 			{
 				string line1 = _lines[i];
+
+				// Metadata comment lines preserved by CleanUpLines()
+				if (line1.StartsWith("#,"))
+				{
+					if (line1.Contains("fuzzy"))
+						currentIsFuzzy = true;
+					continue;
+				}
+				if (line1.StartsWith("#."))
+				{
+					currentTranslatorComment = line1.Substring(2).Trim();
+					continue;
+				}
+				if (line1.StartsWith("#:"))
+				{
+					currentSourceRef = line1.Substring(2).Trim();
+					continue;
+				}
 
 				// msgctxt "context" — precedes the next msgid entry
 				if (line1.StartsWith("msgctxt "))
@@ -167,7 +188,13 @@ namespace GuiToolkit
 				if (line1.StartsWith("msgid"))
 				{
 					string capturedContext = currentContext;
+					bool capturedIsFuzzy = currentIsFuzzy;
+
+					// Reset per-entry state
 					currentContext = null;
+					currentIsFuzzy = false;
+					currentTranslatorComment = null;
+					currentSourceRef = null;
 
 					if (i >= _lines.Length - 1)
 					{
@@ -181,6 +208,10 @@ namespace GuiToolkit
 						string rawKey = Unescape(line1.Substring(7, line1.Length - 8));
 						string composedKey = ComposeContextKey(capturedContext, rawKey);
 						string cleanValue = Unescape(line2.Substring(8, line2.Length - 9));
+
+						if (capturedIsFuzzy)
+							UiLog.LogWarning($"[Loca] Fuzzy translation for key '{composedKey}' in group '{_group}' — needs review.");
+
 						Add(_group, composedKey, cleanValue);
 						i++;
 						continue;
@@ -194,6 +225,9 @@ namespace GuiToolkit
 					string composedKeySingular = ComposeContextKey(capturedContext, cleanKeySingular);
 					string cleanKeyPlural = Unescape(line2.Substring(14, line2.Length - 15));
 					string composedKeyPlural = ComposeContextKey(capturedContext, cleanKeyPlural);
+
+					if (capturedIsFuzzy)
+						UiLog.LogWarning($"[Loca] Fuzzy translation for key '{composedKeySingular}' (plural) in group '{_group}' — needs review.");
 
 					i += 1;
 					if (i >= _lines.Length - 1)
@@ -284,6 +318,8 @@ namespace GuiToolkit
 		}
 
 		// removes empty lines, concatenates strings
+		// Preserves #, #. and #: comment lines (fuzzy flags, extracted comments, source refs).
+		// Strips plain translator # comments and #| previous-entry lines.
 		private string[] CleanUpLines( string[] _lines )
 		{
 			List<string> result = new List<string>();
@@ -292,12 +328,26 @@ namespace GuiToolkit
 			for (int i = 0; i < _lines.Length; i++)
 			{
 				string line = _lines[i].Trim();
-				if (line.StartsWith("#")
-					|| line.Length <= 2)
+
+				if (line.Length <= 2)
 				{
 					_lines[i] = null;
 					continue;
 				}
+
+				if (line.StartsWith("#"))
+				{
+					// Keep #, (flags), #. (extracted comment), #: (source ref) — they feed into entry metadata.
+					// Strip plain # translator comments and #| previous-entry lines.
+					bool keep = line.StartsWith("#,") || line.StartsWith("#.") || line.StartsWith("#:");
+					if (!keep)
+					{
+						_lines[i] = null;
+					}
+					// kept comment lines are never a keyword continuation target
+					continue;
+				}
+
 				if (line.StartsWith("\""))
 				{
 					if (lastKeyword == -1)

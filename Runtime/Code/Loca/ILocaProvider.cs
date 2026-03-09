@@ -50,15 +50,32 @@ namespace GuiToolkit
 	public sealed class ProcessedLocaEntry
 	{
 		public string Key;
-		public string Context;    // optional — null/empty means no context
+		public string Context;           // optional — null/empty means no context
 		public string LanguageId;
-		public string Text;       // optional
-		public string[] Forms;    // optional, length up to 6
+		public string Text;              // optional
+		public string[] Forms;           // optional, length up to 6
+		public bool IsFuzzy;             // #, fuzzy flag from PO
+		public string TranslatorComment; // #. extracted comment from PO
+		public string SourceRef;         // #: source reference from PO
 	}
 
 	public interface ILocaProvider
 	{
 		public ProcessedLoca Localization { get; }
+
+		/// <summary>
+		/// Called when this provider should load data for <paramref name="_language"/>.
+		/// Invoked on <see cref="LocaManager.RegisterProvider"/> (with the current language) and
+		/// whenever the language changes while the provider is registered.
+		/// Default implementation is a no-op.
+		/// </summary>
+		public void Load(string _language) { }
+
+		/// <summary>
+		/// Called when this provider is unregistered via <see cref="LocaManager.UnregisterProvider"/>.
+		/// Default implementation is a no-op.
+		/// </summary>
+		public void Unload() { }
 
 #if UNITY_EDITOR
 		public void CollectData();
