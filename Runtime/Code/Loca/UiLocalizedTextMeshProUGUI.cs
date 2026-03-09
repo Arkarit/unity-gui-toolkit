@@ -99,8 +99,14 @@ namespace GuiToolkit
 				return;
 
 			m_isSettingInternally = true;
-			base.text = manager.Translate(m_locaKey, m_group);
-			m_isSettingInternally = false;
+			try
+			{
+				base.text = manager.Translate(m_locaKey, m_group);
+			}
+			finally
+			{
+				m_isSettingInternally = false;
+			}
 		}
 	}
 }

@@ -200,23 +200,33 @@ namespace GuiToolkit
 		// For SEQUENCE (0x30) and OCTET STRING (0x04): leaves offset at start of content.
 		private static void ReadDerTag(byte[] _data, ref int _offset, byte _expectedTag)
 		{
+			if (_offset >= _data.Length)
+				throw new InvalidOperationException($"Unexpected end of DER data at offset {_offset} (expected tag 0x{_expectedTag:X2})");
 			if (_data[_offset] != _expectedTag)
 				throw new InvalidOperationException(
 					$"Expected DER tag 0x{_expectedTag:X2} at offset {_offset}, got 0x{_data[_offset]:X2}");
 			_offset++;
 			int length = ReadDerLength(_data, ref _offset);
 			if (_expectedTag == 0x02)
+			{
+				if (_offset + length > _data.Length)
+					throw new InvalidOperationException("DER INTEGER length exceeds data");
 				_offset += length; // skip INTEGER value (version = 0)
+			}
 			// SEQUENCE and OCTET STRING: offset is now at content start
 		}
 
 		private static byte[] ReadDerInteger(byte[] _data, ref int _offset)
 		{
+			if (_offset >= _data.Length)
+				throw new InvalidOperationException($"Unexpected end of DER data at offset {_offset} (expected INTEGER)");
 			if (_data[_offset] != 0x02)
 				throw new InvalidOperationException(
 					$"Expected INTEGER tag (0x02) at offset {_offset}, got 0x{_data[_offset]:X2}");
 			_offset++;
 			int length = ReadDerLength(_data, ref _offset);
+			if (_offset + length > _data.Length)
+				throw new InvalidOperationException("DER INTEGER length exceeds data");
 			byte[] value = new byte[length];
 			Array.Copy(_data, _offset, value, 0, length);
 			_offset += length;

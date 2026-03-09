@@ -77,6 +77,9 @@ namespace GuiToolkit
 
 			foreach (var entry in providerList.Providers)
 			{
+				if (entry == null)
+					continue;
+
 				Type providerType = Type.GetType(entry.TypeName);
 				if (providerType == null)
 				{
