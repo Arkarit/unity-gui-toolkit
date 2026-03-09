@@ -23,6 +23,8 @@ namespace GuiToolkit
 		private readonly Dictionary<string, Dictionary<string, List<string>>> m_translationDictPlural = new();
 		private List<string> m_groups;
 
+		private readonly List<ILocaProvider> m_registeredProviders = new();
+
 		public override bool ChangeLanguageImpl( string _language )
 		{
 			if (string.IsNullOrEmpty(_language))
@@ -57,6 +59,7 @@ namespace GuiToolkit
 				result |= ReadTranslation(group);
 
 			ReadLocaProviders();
+			ApplyRegisteredProviders();
 
 #if UNITY_EDITOR
 			//DebugDump();
@@ -123,6 +126,63 @@ namespace GuiToolkit
 						IntegratePlural(group, key, e.Forms);
 					}
 				}
+			}
+		}
+
+		public override void RegisterProvider( ILocaProvider _provider )
+		{
+			if (m_registeredProviders.Contains(_provider))
+				return;
+
+			m_registeredProviders.Add(_provider);
+
+			if (!string.IsNullOrEmpty(Language))
+				ApplySingleProvider(_provider);
+		}
+
+		public override void UnregisterProvider( ILocaProvider _provider )
+		{
+			if (!m_registeredProviders.Remove(_provider))
+				return;
+
+			_provider.Unload();
+			UiLog.LogWarning("UnregisterProvider: already-loaded translations are not removed. Call ChangeLanguage() to refresh if needed.");
+		}
+
+		private void ApplyRegisteredProviders()
+		{
+			foreach (var provider in m_registeredProviders)
+				ApplySingleProvider(provider);
+		}
+
+		private void ApplySingleProvider( ILocaProvider _provider )
+		{
+			_provider.Load(Language);
+
+			var data = _provider.Localization;
+			if (data == null || data.Entries == null)
+				return;
+
+			string currentLang = NormalizeLang(Language);
+			string group = data.Group;
+			SetEffectiveGroup(ref group);
+
+			foreach (var e in data.Entries)
+			{
+				if (e == null)
+					continue;
+
+				string lang = NormalizeLang(e.LanguageId);
+				if (string.IsNullOrEmpty(lang) || lang != currentLang)
+					continue;
+
+				string key = string.IsNullOrEmpty(e.Context) ? e.Key : $"{e.Context}\u0004{e.Key}";
+
+				if (!string.IsNullOrEmpty(e.Text))
+					Add(group, key, e.Text);
+
+				if (e.Forms != null && e.Forms.Length > 0)
+					IntegratePlural(group, key, e.Forms);
 			}
 		}
 

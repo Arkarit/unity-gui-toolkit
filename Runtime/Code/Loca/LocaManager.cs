@@ -34,6 +34,20 @@ namespace GuiToolkit
 
 		public abstract bool ChangeLanguageImpl( string _languageId );
 
+		/// <summary>
+		/// Registers a dynamic <see cref="ILocaProvider"/> (e.g. a DLC language pack).
+		/// If a language is already active the provider is applied immediately.
+		/// </summary>
+		public virtual void RegisterProvider( ILocaProvider _provider ) { }
+
+		/// <summary>
+		/// Unregisters a previously registered dynamic provider.
+		/// The provider's <see cref="ILocaProvider.Unload"/> method is called.
+		/// Already-loaded translations are not removed; call
+		/// <see cref="ChangeLanguage(string)"/> afterwards to refresh if needed.
+		/// </summary>
+		public virtual void UnregisterProvider( ILocaProvider _provider ) { }
+
 		public string Language { get; protected set; } = null;
 
 		// Hardcoded for now; extend if necessary.
