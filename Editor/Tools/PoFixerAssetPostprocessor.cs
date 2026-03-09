@@ -30,6 +30,9 @@ namespace GuiToolkit.Editor
 				return;
 			}
 			
+			if (assetPathLower.StartsWith("packages/"))
+				return;
+			
 			bool isPoTxt = assetPath.EndsWith(".po.txt", StringComparison.OrdinalIgnoreCase);
 			bool isPo = assetPath.EndsWith(".po", StringComparison.OrdinalIgnoreCase);
 			if (!isPoTxt && !isPo)
