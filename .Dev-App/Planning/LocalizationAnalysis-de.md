@@ -171,7 +171,116 @@ if (Language == null)
 
 ---
 
-## Zusammenfassung
+## Fehlende Implementierungen
+
+Diese Funktionen sind entweder architektonisch vorgesehen, teilweise aufgebaut oder vom Standard impliziert — aber nicht tatsächlich implementiert.
+
+### MI1 — Google-Sheets-Authentifizierung ❌ Kritisch
+
+**Ort:** `Runtime/Code/Loca/LocaExcelBridge.cs`
+
+Der Google-Sheets-Download verwendet ein einfaches `UnityWebRequest.Get(url)` ohne jede Authentifizierung. Es gibt weder einen OAuth2-Flow noch Unterstützung für Service-Account-JSON oder API-Keys. Die Integration funktioniert stillschweigend nur für öffentlich freigegebene Tabellen. Jede private oder organisationsgebundene Tabelle schlägt ohne hilfreiche Fehlermeldung fehl.
+
+**Folgen:**
+- Nicht nutzbar für private Daten (was bei realen Projektübersetzungen die Regel ist)
+- Sicherheitsanforderungen (OAuth2 oder Service Account) sind nicht erfüllt
+- Nicht produktionstauglich für Teams mit Google-Workspace-Zugangsbeschränkungen
+
+**Was fehlt:** Ein OAuth2-Device-Flow oder Service-Account-Authentifizierungsschritt vor dem Download, mit Credential-Speicherung in den Editor-Einstellungen.
+
+---
+
+### MI2 — PO-Kontext (`msgctxt`) wird nicht geparst ❌ Kritisch
+
+**Ort:** `Runtime/Code/Loca/LocaManagerDefaultImpl.cs` (PO-Parser-Abschnitt)
+
+Der PO-Standard definiert `msgctxt` zur Disambiguierung identischer Quellstrings, die unterschiedliche Übersetzungen benötigen (z. B. „Speichern" als Verb vs. Substantiv in manchen Sprachen). Der Parser überspringt `msgctxt`-Zeilen vollständig. `ProcessedLocaEntry` hat kein Kontext-Feld; das Übersetzungs-Dictionary verwendet nur den Schlüssel. Zwei PO-Einträge mit gleichem `msgid`, aber unterschiedlichem `msgctxt`, kollabieren stillschweigend zu einem einzigen Eintrag.
+
+**Folgen:**
+- Keine kontextbewussten Übersetzungen möglich
+- Homograph-Disambiguierung (z. B. „Bank" — Finanzinstitut / Flussufer) erfordert manuelle Schlüssel-Präfixe
+- Standard-PO-Dateien professioneller Übersetzungswerkzeuge mit `msgctxt` werden falsch geparst
+
+**Was fehlt:** Parsen von `msgctxt` in `ProcessedLocaEntry`; Kontext im Dictionary-Schlüssel einschließen (z. B. `"kontext\u0004schlüssel"`); `Translate(key, context, group)`-Überladung bereitstellen.
+
+---
+
+### MI4— `LocaPlurals` ohne Fallback-Regel für unbekannte Sprachen ❌ Hoch
+
+**Ort:** `Assets/Generated/LocaPlurals.cs` (generierte Datei)
+
+Die generierte `switch`-Anweisung deckt nur die Sprachen ab, die beim letzten Ausführen von „Process Loca" vorhanden waren (`dev`, `de`, `en_us`, `lol`, `ru` in der Demo-App). Für jede nicht aufgeführte Sprache verbleiben `nplurals` und `pluralIdx` bei `0`, wodurch jede Plural-Abfrage stillschweigend die Singularform zurückgibt — ohne jede Warnung.
+
+**Folgen:**
+- Das Hinzufügen einer neuen Sprache in einer Excel-Tabelle fügt ihre Pluralregeln nicht automatisch hinzu
+- Stiller Datenverlust: Pluralübersetzungen werden geladen, aber nie ausgewählt
+- Entwickler müssen nach jeder neuen Sprache manuell „Process Loca" ausführen
+
+**Was fehlt:** Ein `default`-Case mit englischähnlichen Regeln (`nplurals=2; plural=(n!=1)`) als sicherer Fallback, sowie ein `LogWarning` bei nicht registrierter Sprache.
+
+---
+
+### MI5 — `ILocaProvider`-Laufzeitladen auf `LocaExcelBridge` hardcodiert ❌ Mittel
+
+**Ort:** `Runtime/Code/Loca/LocaManagerDefaultImpl.cs`
+
+`ReadLocaProviders()` ruft `Resources.Load<LocaExcelBridge>(path)` mit hartkodiertem konkretem Typ auf. Das `ILocaProvider`-Interface ist für Erweiterbarkeit ausgelegt, aber jeder neue Provider-Typ (JSON, REST-API, Datenbank) kann nicht registriert werden, ohne `LocaManagerDefaultImpl` zu ändern. Der JSON-Ausgabepfad existiert bereits (`WriteJson()`), JSON wird jedoch nie als Provider zur Laufzeit eingelesen.
+
+**Was fehlt:** Entweder den Provider-Typ zusammen mit dem Pfad in `LocaProviderList` speichern oder ein Factory-/Registry-Muster verwenden, damit neue `ILocaProvider`-Implementierungen ohne Kerncode-Änderungen hinzugefügt werden können.
+
+---
+
+### MI6 — `LocaPreBuildProcessor` ohne Fehlerbehandlung und Validierung ❌ Mittel
+
+**Ort:** `Assets/Demo/Editor/LocaPreBuildProcessor.cs`
+
+Der Pre-Build-Prozessor besteht aus zwei Log-Zeilen um einen einzigen `LocaProcessor.ProcessLocaProviders()`-Aufruf. Er:
+- behandelt oder meldet Download-Fehler von Google Sheets nicht
+- prüft nicht, ob alle erwarteten Sprachen nach dem Sync vorhanden sind
+- prüft nicht, ob Schlüssel unübersetzt sind
+- erkennt veraltete Übersetzungsdaten nicht
+- bietet keinen Rollback-Mechanismus bei fehlgeschlagenem Sync
+
+Ein Build kann daher stillschweigend mit fehlenden oder leeren Übersetzungen erfolgreich abschließen.
+
+**Was fehlt:** Rückgabe-/Throw-bei-Fehler, Sprachabdeckungs-Check und eine Option, unübersetzte Schlüssel als Build-Warnungen oder -Fehler zu behandeln.
+
+---
+
+### MI7 — Kein Laufzeit-Provider-Switching ❌ Niedrig
+
+Der Editor unterstützt mehrere `LocaExcelBridge`-Assets und eine `LocaProviderList`-Registry. Zur Laufzeit werden jedoch alle Provider einmalig in `ChangeLanguageImpl()` geladen. Es gibt keine API, um Provider dynamisch hinzuzufügen, zu entfernen oder auszutauschen (z. B. für DLC-Sprachpakete oder Live-Update-Szenarien). Das `ILocaProvider`-Interface hat keinen Laufzeit-`Load`/`Unload`-Lebenszyklus.
+
+---
+
+### MI8 — PO-Übersetzerkommentare werden nicht an den Editor weitergeleitet ❌ Niedrig
+
+PO-Dateien unterstützen `#.` (Übersetzerkommentar), `#:` (Quellenreferenz) und `#,` (Flags wie `fuzzy`). Der PO-Parser verwirft alle Kommentarzeilen. Insbesondere werden `fuzzy`-Einträge — die Übersetzer verwenden, um Strings nach einer Quelländerung als überprüfungsbedürftig zu markieren — stillschweigend als gültige Übersetzungen akzeptiert. Es gibt keinen Editor-Indikator für unsichere oder ungeprüfte Strings.
+
+---
+
+### MI9 — `UiLocalizedTextMeshProUGUI`: TMP-Unterklasse mit integrierter Lokalisierung ❌ Hoch
+
+**Ort:** `Runtime/Code/Loca/UiAutoLocalize.cs` (wird abgelöst)
+
+`UiAutoLocalize` ist eine separate MonoBehaviour-Komponente neben `TextMeshProUGUI`, die bei Sprachwechseln `Translate()` aufruft. Dieses Zwei-Komponenten-Design ist fragil: Nichts verhindert, dass anderer Code direkt auf `TMP_Text.text` schreibt und damit die Lokalisierung still überschreibt oder von ihr überschrieben wird.
+
+**Vorgeschlagene Architektur:** Eine Unterklasse `UiLocalizedTextMeshProUGUI : TextMeshProUGUI`, die:
+- Den `text`-Setter überschreibt: Bei `m_autoLocalize = true` wird der Rohwert als `m_locaKey` gespeichert und sofort die übersetzte Version angezeigt
+- Ein `m_isSettingInternally`-Guard-Flag verhindert Endlosschleifen im überschriebenen Setter
+- Den Sprachenwechsel-Callback implementiert und `m_locaKey` automatisch neu übersetzt
+- In `#if UNITY_EDITOR`: Externe Schreibzugriffe bei aktiviertem Auto-Localize erkennt und ein `Debug.LogWarning` ausgibt
+- Bei `m_autoLocalize = false`: Verhält sich exakt wie `TextMeshProUGUI` ohne jeglichen Overhead
+
+**Migrationspfad:**
+- `UiAutoLocalize` wird mit `[Obsolete]` und einem Migrationshinweis in `Awake()` markiert
+- Ein Editor-Menü-Tool scannt alle Scenes und Prefabs nach `UiAutoLocalize + TMP_Text`-Paaren und ersetzt sie durch `UiLocalizedTextMeshProUGUI`
+
+**Was fehlt:** `Runtime/Code/Loca/UiLocalizedTextMeshProUGUI.cs` (neu), `UiAutoLocalize.cs` deprecaten, `Editor/Loca/UiLocalizedTextMigrationTool.cs` (neues Migrations-Tool).
+
+---
+
+
 
 Das System ist **gut strukturiert und produktionstauglich**. Es integriert erfolgreich Gettext-Workflows, Excel-basierte Übersetzung, Pluralregeln und dynamischen Laufzeit-Sprachwechsel. Die wirkungsvollsten Verbesserungen sind:
 
@@ -180,3 +289,16 @@ Das System ist **gut strukturiert und produktionstauglich**. Es integriert erfol
 3. **Sprachkennung-Normalisierung** (Zuverlässigkeit)
 4. **Gruppen-Fallback-Kette** (Benutzerfreundlichkeit)
 5. **Asynchrones Laden** (Performance)
+
+**Dringendste fehlende Implementierungen:**
+
+| ID | Funktion | Schweregrad |
+|---|---|---|
+| MI1 | Google-Sheets-Authentifizierung (OAuth2 / Service Account) | 🔴 Kritisch |
+| MI2 | PO-`msgctxt`-Parsing und kontextbewusste Übersetzung | 🔴 Kritisch |
+| MI4 | `LocaPlurals` Default-/Fallback-Regel für unbekannte Sprachen | 🟠 Hoch |
+| MI5 | `ILocaProvider`-Laufzeit-Erweiterbarkeit (Typ nicht hardcodiert) | 🟡 Mittel |
+| MI6 | `LocaPreBuildProcessor` Fehlerbehandlung und Abdeckungsvalidierung | 🟡 Mittel |
+| MI7 | Laufzeit-Provider-Switching (DLC / Live-Update) | 🔵 Niedrig |
+| MI8 | PO-`fuzzy`-Flag / Übersetzerkommentare im Editor anzeigen | 🔵 Niedrig |
+| MI9 | `UiLocalizedTextMeshProUGUI` TMP-Unterklasse + Migrations-Tool | 🟠 Hoch |
