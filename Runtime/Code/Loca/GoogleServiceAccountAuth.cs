@@ -17,6 +17,9 @@ namespace GuiToolkit
 
 		public static string GetAccessToken(string _serviceAccountJsonPath)
 		{
+			if (string.IsNullOrEmpty(_serviceAccountJsonPath))
+				return null;
+
 			string cachedToken = SessionState.GetString(SESSION_TOKEN_KEY, null);
 			string cachedExpiry = SessionState.GetString(SESSION_EXPIRY_KEY, null);
 
