@@ -1,10 +1,12 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using GuiToolkit;
 
 namespace GuiToolkit.Test
 {
 	/// <summary>
-	/// Editor tests for msgctxt (message context) support in the PO parser.
+	/// Editor tests for msgctxt (message context) support in the PO parser,
+	/// PO metadata comment handling (MI8), and runtime provider registration (MI7).
 	/// </summary>
 	public class TestLocaManager
 	{
@@ -21,6 +23,25 @@ namespace GuiToolkit.Test
 			var impl = new LocaManagerDefaultImpl();
 			impl.ParsePoContentForTest(_poContent, _group);
 			return impl;
+		}
+
+		/// <summary>
+		/// Subclass that exposes the protected <c>Language</c> setter so tests can
+		/// set a language without triggering the full <c>ReadTranslation()</c> pipeline
+		/// (which relies on Unity Resources files that are not available in editor unit tests).
+		/// </summary>
+		private class TestableLocaManager : LocaManagerDefaultImpl
+		{
+			public void SetLanguage(string _lang) => Language = _lang;
+		}
+
+		/// <summary>Minimal <see cref="ILocaProvider"/> that returns a pre-built <see cref="ProcessedLoca"/>.</summary>
+		private class MockLocaProvider : ILocaProvider
+		{
+			public ProcessedLoca Localization { get; set; }
+#if UNITY_EDITOR
+			public void CollectData() { }
+#endif
 		}
 
 		// -------------------------------------------------------------------------
@@ -219,6 +240,50 @@ namespace GuiToolkit.Test
 
 			Assert.AreEqual("Hallo", impl.Translate("Hello"),
 				"Plain comment lines (# ...) must be silently ignored");
+		}
+
+		// -------------------------------------------------------------------------
+		// MI7 — runtime provider registration
+		// -------------------------------------------------------------------------
+
+		[Test]
+		public void RegisterProvider_TranslationsFromProviderAreAvailable()
+		{
+			// Set up a manager with a language and a base translation.
+			var impl = new TestableLocaManager();
+			impl.SetLanguage("de");
+			impl.ParsePoContentForTest("msgid \"Hello\"\nmsgstr \"Hallo\"\n");
+
+			// Build a mock provider that supplies an extra key for the same language.
+			var mock = new MockLocaProvider
+			{
+				Localization = new ProcessedLoca
+				{
+					Group = string.Empty,
+					Entries = new List<ProcessedLocaEntry>
+					{
+						new ProcessedLocaEntry { Key = "Greeting", LanguageId = "de", Text = "Guten Tag" },
+					},
+				},
+			};
+
+			impl.RegisterProvider(mock);
+
+			Assert.AreEqual("Guten Tag", impl.Translate("Greeting"),
+				"Translations from a registered provider must be immediately accessible");
+		}
+
+		[Test]
+		public void UnregisterProvider_DoesNotThrow()
+		{
+			var impl = new TestableLocaManager();
+			impl.SetLanguage("de");
+
+			var mock = new MockLocaProvider { Localization = new ProcessedLoca() };
+			impl.RegisterProvider(mock);
+
+			Assert.DoesNotThrow(() => impl.UnregisterProvider(mock),
+				"UnregisterProvider must not throw for a previously registered provider");
 		}
 	}
 }
