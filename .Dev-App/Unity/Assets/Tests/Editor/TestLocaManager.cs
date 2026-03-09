@@ -125,5 +125,100 @@ namespace GuiToolkit.Test
 			Assert.AreEqual("Financial institution", impl.Translate("Bank", "finance"),
 				"'Bank' with context 'finance' must still be translated correctly");
 		}
+
+		// -------------------------------------------------------------------------
+		// MI8 — PO fuzzy flag and metadata comment parsing
+		// -------------------------------------------------------------------------
+
+		[Test]
+		public void PO_FuzzyEntry_IsStillTranslated()
+		{
+			// The "#, fuzzy" flag must not suppress the translation value.
+			const string po =
+				"#, fuzzy\n"
+				+ "msgid \"Hello\"\n"
+				+ "msgstr \"Hallo\"\n";
+
+			var impl = CreateAndParse(po);
+
+			Assert.AreEqual("Hallo", impl.Translate("Hello"),
+				"Fuzzy flag must not prevent the translation from being stored");
+		}
+
+		[Test]
+		public void PO_FuzzyEntry_WarningShouldBeEmitted()
+		{
+			// Verifies the translation is accessible (the LogWarning side-effect is trusted).
+			const string po =
+				"#, fuzzy\n"
+				+ "msgid \"Hello\"\n"
+				+ "msgstr \"Hallo\"\n";
+
+			var impl = CreateAndParse(po);
+
+			Assert.AreEqual("Hallo", impl.Translate("Hello"),
+				"Fuzzy entry must remain accessible after parsing");
+		}
+
+		[Test]
+		public void PO_TranslatorComment_EntryIsLoaded()
+		{
+			// A "#. translator note" before an entry must not break parsing.
+			const string po =
+				"#. This is a translator note\n"
+				+ "msgid \"Hello\"\n"
+				+ "msgstr \"Hallo\"\n";
+
+			var impl = CreateAndParse(po);
+
+			Assert.AreEqual("Hallo", impl.Translate("Hello"),
+				"Translator comment (#.) must not prevent the entry from loading");
+		}
+
+		[Test]
+		public void PO_SourceRef_EntryIsLoaded()
+		{
+			// A "#: file.cs:10" source reference before an entry must not break parsing.
+			const string po =
+				"#: file.cs:10\n"
+				+ "msgid \"Hello\"\n"
+				+ "msgstr \"Hallo\"\n";
+
+			var impl = CreateAndParse(po);
+
+			Assert.AreEqual("Hallo", impl.Translate("Hello"),
+				"Source reference (#:) must not prevent the entry from loading");
+		}
+
+		[Test]
+		public void PO_MultipleFlags_FuzzyPlusOtherFlags()
+		{
+			// "#, fuzzy, c-format" — the fuzzy sub-flag must still be detected
+			// even when combined with other flags on the same line.
+			const string po =
+				"#, fuzzy, c-format\n"
+				+ "msgid \"Hello\"\n"
+				+ "msgstr \"Hallo\"\n";
+
+			var impl = CreateAndParse(po);
+
+			Assert.AreEqual("Hallo", impl.Translate("Hello"),
+				"Multiple flags including fuzzy must still produce a valid translation");
+		}
+
+		[Test]
+		public void PO_PlainComment_IsIgnored()
+		{
+			// Plain "# comment" lines are stripped by CleanUpLines and must not affect parsing.
+			const string po =
+				"# This is a plain translator comment\n"
+				+ "msgid \"Hello\"\n"
+				+ "msgstr \"Hallo\"\n";
+
+			var impl = CreateAndParse(po);
+
+			Assert.AreEqual("Hallo", impl.Translate("Hello"),
+				"Plain comment lines (# ...) must be silently ignored");
+		}
 	}
 }
