@@ -101,6 +101,9 @@ namespace GuiToolkit
 					if (string.IsNullOrEmpty(key))
 						continue;
 
+					if (!string.IsNullOrEmpty(e.Context))
+						key = $"{e.Context}\u0004{key}";
+
 					// Singular
 					if (!string.IsNullOrEmpty(e.Text))
 					{
@@ -134,24 +137,44 @@ namespace GuiToolkit
 				return false;
 			}
 
-			for (int i = 0; i < lines.Length; i++)
+			ParsePoLines(lines, _group);
+			return true;
+		}
+
+		private void ParsePoLines( string[] _lines, string _group )
+		{
+			string currentContext = null;
+
+			for (int i = 0; i < _lines.Length; i++)
 			{
-				string line1 = lines[i];
+				string line1 = _lines[i];
+
+				// msgctxt "context" — precedes the next msgid entry
+				if (line1.StartsWith("msgctxt "))
+				{
+					string raw = Unescape(line1.Substring(9, line1.Length - 10));
+					currentContext = string.IsNullOrEmpty(raw) ? null : raw;
+					continue;
+				}
 
 				if (line1.StartsWith("msgid"))
 				{
-					if (i >= lines.Length - 1)
+					string capturedContext = currentContext;
+					currentContext = null;
+
+					if (i >= _lines.Length - 1)
 					{
 						UiLog.LogError("Malformed PO file");
 						break;
 					}
 
-					string line2 = lines[i + 1];
+					string line2 = _lines[i + 1];
 					if (line2.StartsWith("msgstr"))
 					{
-						string cleanKey = Unescape(line1.Substring(7, line1.Length - 8));
+						string rawKey = Unescape(line1.Substring(7, line1.Length - 8));
+						string composedKey = ComposeContextKey(capturedContext, rawKey);
 						string cleanValue = Unescape(line2.Substring(8, line2.Length - 9));
-						Add(_group, cleanKey, cleanValue);
+						Add(_group, composedKey, cleanValue);
 						i++;
 						continue;
 					}
@@ -161,19 +184,21 @@ namespace GuiToolkit
 						continue;
 
 					string cleanKeySingular = Unescape(line1.Substring(7, line1.Length - 8));
+					string composedKeySingular = ComposeContextKey(capturedContext, cleanKeySingular);
 					string cleanKeyPlural = Unescape(line2.Substring(14, line2.Length - 15));
+					string composedKeyPlural = ComposeContextKey(capturedContext, cleanKeyPlural);
 
 					i += 1;
-					if (i >= lines.Length - 1)
+					if (i >= _lines.Length - 1)
 					{
 						UiLog.LogError("Malformed PO file");
 						break;
 					}
 
 					List<string> currentPlurals = new List<string>();
-					while (i + 1 < lines.Length && lines[i + 1].StartsWith("msgstr["))
+					while (i + 1 < _lines.Length && _lines[i + 1].StartsWith("msgstr["))
 					{
-						currentPlurals.Add(Unescape(lines[i + 1].Substring(11, lines[i + 1].Length - 12)));
+						currentPlurals.Add(Unescape(_lines[i + 1].Substring(11, _lines[i + 1].Length - 12)));
 						i++;
 					}
 
@@ -183,12 +208,15 @@ namespace GuiToolkit
 						continue;
 					}
 
-					Add(_group, cleanKeySingular, currentPlurals[0], cleanKeyPlural, currentPlurals);
+					Add(_group, composedKeySingular, currentPlurals[0], composedKeyPlural, currentPlurals);
 				}
 			}
-
-			return true;
 		}
+
+		// Composes "context\u0004key" per the GNU gettext convention.
+		// Returns key unmodified when context is null or empty.
+		private static string ComposeContextKey( string _context, string _key )
+			=> string.IsNullOrEmpty(_context) ? _key : $"{_context}\u0004{_key}";
 
 
 		private void Add( string _group, string _key, string _value, string _keyPlural = null, List<string> _plurals = null )
@@ -497,6 +525,19 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
+		/// <summary>
+		/// Test helper: parse raw PO content directly into the translation dictionaries.
+		/// Sets the instance into non-dev mode so Translate() performs real lookups.
+		/// </summary>
+		internal void ParsePoContentForTest( string _content, string _group = null )
+		{
+			m_isDev = false;
+			string[] lines = _content.Split(new[] { '\r', '\n' });
+			lines = CleanUpLines(lines);
+			SetEffectiveGroup(ref _group);
+			ParsePoLines(lines, _group);
+		}
+
 		private readonly SortedDictionary<string, SortedSet<string>> m_keys = new();
 		private readonly SortedDictionary<string, SortedDictionary<string, string>> m_pluralKeys = new();
 

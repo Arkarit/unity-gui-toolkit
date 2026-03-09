@@ -30,6 +30,20 @@ namespace GuiToolkit
 		}
 
 		/// <summary>
+		/// Context-aware translation shortcut (pgettext convention).
+		/// Composes the lookup key as "context\u0004msgid".
+		/// </summary>
+		/// <param name="_s">Source string (msgid) to translate.</param>
+		/// <param name="_context">Disambiguation context (msgctxt).</param>
+		/// <param name="_group">Optional localization group.</param>
+		/// <returns>Localized string.</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		protected static string _( string _s, string _context, string _group )
+		{
+			return pgettext(_s, _context, _group);
+		}
+
+		/// <summary>
 		/// Translate a single string (singular form).
 		/// This is the long-form version of "_".
 		/// </summary>
@@ -39,6 +53,16 @@ namespace GuiToolkit
 		protected static string gettext( string _s, string _group = null )
 		{
 			return LocaManager.Instance.Translate(_s, _group);
+		}
+
+		/// <summary>
+		/// Context-aware translation (pgettext convention).
+		/// Composes the lookup key as "context\u0004msgid".
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		protected static string pgettext( string _s, string _context, string _group = null )
+		{
+			return LocaManager.Instance.Translate(_s, _context, _group);
 		}
 
 		/// <summary>

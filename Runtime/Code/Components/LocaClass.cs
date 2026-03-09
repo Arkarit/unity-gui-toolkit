@@ -11,6 +11,11 @@ namespace GuiToolkit
 			return gettext(_s);
 		}
 
+		protected static string pgettext(string _s, string _context, string _group = null)
+		{
+			return LocaManager.Instance.Translate(_s, _context, _group);
+		}
+
 		protected static string gettext(string _s)
 		{
 			return LocaManager.Instance.Translate(_s);

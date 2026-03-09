@@ -50,6 +50,7 @@ namespace GuiToolkit
 	public sealed class ProcessedLocaEntry
 	{
 		public string Key;
+		public string Context;    // optional — null/empty means no context
 		public string LanguageId;
 		public string Text;       // optional
 		public string[] Forms;    // optional, length up to 6

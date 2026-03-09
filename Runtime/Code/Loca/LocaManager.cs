@@ -20,6 +20,18 @@ namespace GuiToolkit
 		public abstract string Translate( string _singularKey, string _pluralKey, int _n, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key );
 		public abstract bool HasKey(string _key, string _group);
 
+		/// <summary>
+		/// Translates <paramref name="_key"/> disambiguated by <paramref name="_context"/>.
+		/// The composed lookup key follows the GNU gettext convention: "context\u0004msgid".
+		/// Pass null or empty <paramref name="_context"/> to behave identically to
+		/// <see cref="Translate(string,string,RetValIfNotFound)"/>.
+		/// </summary>
+		public string Translate( string _key, string _context, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key )
+		{
+			string composedKey = string.IsNullOrEmpty(_context) ? _key : $"{_context}\u0004{_key}";
+			return Translate(composedKey, _group, _retValIfNotFound);
+		}
+
 		public abstract bool ChangeLanguageImpl( string _languageId );
 
 		public string Language { get; protected set; } = null;
