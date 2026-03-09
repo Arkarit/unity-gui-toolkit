@@ -9,6 +9,12 @@ namespace GuiToolkit
 	{
 		public static (int numPluralForms, int pluralIdx) GetPluralIdx(string _languageId, int _number)
 		{
+			if (string.IsNullOrEmpty(_languageId))
+			{
+				UnityEngine.Debug.LogWarning("[Loca] GetPluralIdx called with null/empty language. Using English fallback.");
+				return (2, _number != 1 ? 1 : 0);
+			}
+
 			int numPluralForms = 0;
 			int pluralIdx = 0;
 

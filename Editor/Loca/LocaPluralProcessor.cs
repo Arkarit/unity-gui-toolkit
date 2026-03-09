@@ -27,8 +27,12 @@ namespace GuiToolkit.Editor
 		+ "					break;\n";
 
 		private const string FILE_FOOTER =
-		  "			}\n"
-		+ "\n"	
+		  "				default:\n"
+		+ "					nplurals=2; plural=(n != 1);\n"
+		+ "					UnityEngine.Debug.LogWarning($\"[Loca] No plural rules for language \\\"{_languageId}\\\". Using English fallback.\");\n"
+		+ "					break;\n"
+		+ "			}\n"
+		+ "\n"
 		+ "			_numPluralForms = nplurals;\n"
 		+ "			_pluralIdx = plural;\n"
 		+ "		}\n"

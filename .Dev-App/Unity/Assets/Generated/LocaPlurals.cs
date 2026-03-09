@@ -26,6 +26,10 @@ namespace GuiToolkit
 				case "ru":
 					nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 &&n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);
 					break;
+				default:
+					nplurals=2; plural=(n != 1);
+					UnityEngine.Debug.LogWarning($"[Loca] No plural rules for language \"{_languageId}\". Using English fallback.");
+					break;
 			}
 
 			_numPluralForms = nplurals;
