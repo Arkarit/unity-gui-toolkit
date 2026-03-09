@@ -87,6 +87,8 @@ namespace GuiToolkit
 		[PathField(_isFolder: false, _relativeToPath: ".", _extensions: "xlsx")]
 		[SerializeField][Optional] private PathField m_excelPath;
 		[SerializeField][Optional] private string m_googleUrl;
+		[SerializeField][Optional] private bool m_useGoogleAuth = false;
+		[SerializeField][Optional] private string m_serviceAccountJsonPath = string.Empty;
 		[SerializeField] private string m_group;
 		[SerializeField] private List<InColumnDescription> m_columnDescriptions = new();
 		[SerializeField] private int m_startRow = 0; // all rows before are ignored (0-based index)
@@ -324,8 +326,22 @@ namespace GuiToolkit
 			if (string.IsNullOrWhiteSpace(path))
 				return null;
 
+			string bearerToken = null;
+			if (m_useGoogleAuth && !string.IsNullOrEmpty(m_serviceAccountJsonPath))
+			{
+				bearerToken = GoogleServiceAccountAuth.GetAccessToken(m_serviceAccountJsonPath);
+				if (bearerToken == null)
+				{
+					UiLog.LogError($"{nameof(LocaExcelBridge)}: Failed to obtain Google auth token");
+					return null;
+				}
+			}
+
 			using (UnityWebRequest www = UnityWebRequest.Get(path))
 			{
+				if (bearerToken != null)
+					www.SetRequestHeader("Authorization", $"Bearer {bearerToken}");
+
 				var op = www.SendWebRequest();
 				var sw = Stopwatch.StartNew();
 				const int timeoutMs = 60000;
