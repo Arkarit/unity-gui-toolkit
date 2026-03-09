@@ -72,12 +72,19 @@ namespace GuiToolkit
 
 			string currentLang = NormalizeLang(Language);
 
-			foreach (var path in providerList.Paths)
+			foreach (var entry in providerList.Providers)
 			{
-				var locaProvider = Resources.Load<LocaExcelBridge>(path);
+				Type providerType = Type.GetType(entry.TypeName);
+				if (providerType == null)
+				{
+					UiLog.LogError($"Could not resolve ILocaProvider type '{entry.TypeName}'");
+					continue;
+				}
+
+				var locaProvider = Resources.Load(entry.Path, providerType) as ILocaProvider;
 				if (locaProvider == null)
 				{
-					UiLog.LogError($"Could not load Loca Provider at path '{path}'");
+					UiLog.LogError($"Could not load Loca Provider at path '{entry.Path}' as type '{entry.TypeName}'");
 					continue;
 				}
 
