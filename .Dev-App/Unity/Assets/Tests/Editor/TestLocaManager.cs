@@ -81,8 +81,9 @@ namespace GuiToolkit.Test
 
 			var impl = CreateAndParse(po);
 
-			string financeTranslation = impl.Translate("Bank", "finance");
-			string natureTranslation  = impl.Translate("Bank", "nature");
+			// Use the context-aware overload explicitly (_context arg, then _group=null)
+			string financeTranslation = impl.Translate("Bank", "finance", null);
+			string natureTranslation  = impl.Translate("Bank", "nature",  null);
 
 			Assert.AreEqual("Financial institution", financeTranslation,
 				"'Bank' with context 'finance' should translate to 'Financial institution'");
@@ -104,7 +105,7 @@ namespace GuiToolkit.Test
 				"Plain key without context must still be translated");
 
 			// Translating with null/empty context must also return the plain translation.
-			Assert.AreEqual("Hallo", impl.Translate("Hello", (string)null),
+			Assert.AreEqual("Hallo", impl.Translate("Hello", _group: (string)null),
 				"Null context must fall back to the plain key translation");
 		}
 
@@ -143,7 +144,7 @@ namespace GuiToolkit.Test
 				"'River' has no context and must be translated as a plain key");
 
 			// Ensure the finance-Bank entry is still correct.
-			Assert.AreEqual("Financial institution", impl.Translate("Bank", "finance"),
+			Assert.AreEqual("Financial institution", impl.Translate("Bank", "finance", null),
 				"'Bank' with context 'finance' must still be translated correctly");
 		}
 
