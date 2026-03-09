@@ -119,6 +119,7 @@ namespace GuiToolkit.Editor
 
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_debugLoca"));
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_autoTranslateDisabled"));
 
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_globalCanvasScalerTemplate"));

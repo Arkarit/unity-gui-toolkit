@@ -74,6 +74,9 @@ namespace GuiToolkit
 		public const string HELP_DEBUG_LOCA =
 			"This switches loca debugging on or off";
 
+		public const string HELP_AUTO_TRANSLATE_DISABLED =
+			"When enabled, UiAutoLocalize components will not translate text. Useful to disable auto-translation globally (e.g. when using a different localization system).";
+
 		public const string HELP_GLOBAL_CANVAS_SCALER_TEMPLATE =
 			"An optional global canvas scaler template, which is applied to every UiView";
 
@@ -125,6 +128,9 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_DEBUG_LOCA)]
 		[SerializeField] private bool m_debugLoca = false;
+
+		[Tooltip(HELP_AUTO_TRANSLATE_DISABLED)]
+		[SerializeField] private bool m_autoTranslateDisabled = false;
 
 		[Tooltip(HELP_GLOBAL_CANVAS_SCALER_TEMPLATE)]
 		[SerializeField, Optional] private CanvasScaler m_globalCanvasScalerTemplate = null;
@@ -200,6 +206,7 @@ namespace GuiToolkit
 		public UiAspectRatioDependentStyleConfig UiAspectRatioDependentStyleConfig => m_uiAspectRatioDependentStyleConfig;
 		public CanvasScaler GlobalCanvasScalerTemplate => m_globalCanvasScalerTemplate;
 		public bool DebugLoca => m_debugLoca;
+		public bool AutoTranslateDisabled => m_autoTranslateDisabled;
 		public bool LoadViewInEveryScene => m_loadViewInEveryScene;
 		public UiMain UiMainPrefab => m_uiMainPrefab;
 		public UiView UiViewPrefab => m_uiViewPrefab;
