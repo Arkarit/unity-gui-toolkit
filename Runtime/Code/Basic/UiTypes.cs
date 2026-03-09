@@ -247,6 +247,9 @@ namespace GuiToolkit
 
 		public const string PLAYER_SETTINGS_COLLECTION = "playerSettings";
 		public const string PLAYER_SETTINGS_ID = "playerSettings";
+		
+		public const string ONE_TIME_HEADER = MISC_TOOLS_MENU_HEADER + "One-Time Tools/";
+		public const string DISABLE_OR_REMOVE_UI_AUTO_LOCALIZE = ONE_TIME_HEADER + "Remove or disable UiAutoLocalize";
 	}
 
 	/// \brief Builtin icon definitions

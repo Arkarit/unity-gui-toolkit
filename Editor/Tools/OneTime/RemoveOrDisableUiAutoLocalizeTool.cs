@@ -6,21 +6,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using GuiToolkit;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Funatics.Editor
+namespace GuiToolkit.Editor
 {
-	public static class DisableUiAutoLocalizeTool
+	public static class RemoveOrDisableUiAutoLocalizeTool
 	{
 		private enum Mode { Disable, Remove }
 
 		private const string MenuPath = "AssetFixing/[One-Time] Disable or Remove All UiAutoLocalize";
 
-		[MenuItem(MenuPath)]
+		[MenuItem(StringConstants.DISABLE_OR_REMOVE_UI_AUTO_LOCALIZE)]
 		public static void Run()
 		{
 			// DisplayDialogComplex returns: 0 = ok ("Disable"), 1 = cancel ("Cancel"), 2 = alt ("Remove")
