@@ -124,6 +124,13 @@ namespace GuiToolkit
 			if (!Application.isPlaying)
 				return;
 
+			if (UiToolkitConfiguration.Instance != null && UiToolkitConfiguration.Instance.AutoTranslateDisabled)
+			{
+				// Intentionally trigger the LocaKey getter to ensure a key is derived when none is set.
+				TextComponent.text = LocaKey;
+				return;
+			}
+
 			// Fallback:
 			// The text was translated previously, but has been modified externally in the meantime.
 			// Treat the modified text as a new localization key.
