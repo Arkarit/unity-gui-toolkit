@@ -1,6 +1,10 @@
 var namespace_gui_toolkit_1_1_style =
 [
     [ "Editor", "namespace_gui_toolkit_1_1_style_1_1_editor.html", "namespace_gui_toolkit_1_1_style_1_1_editor" ],
+    [ "UiAbstractApplyStyle< CO, ST >", "class_gui_toolkit_1_1_style_1_1_ui_abstract_apply_style-2-g.html", "class_gui_toolkit_1_1_style_1_1_ui_abstract_apply_style-2-g" ],
+    [ "UiAbstractApplyStyleBase", "class_gui_toolkit_1_1_style_1_1_ui_abstract_apply_style_base.html", "class_gui_toolkit_1_1_style_1_1_ui_abstract_apply_style_base" ],
+    [ "UiAbstractStyle< CO >", "class_gui_toolkit_1_1_style_1_1_ui_abstract_style-1-g.html", "class_gui_toolkit_1_1_style_1_1_ui_abstract_style-1-g" ],
+    [ "UiAbstractStyleBase", "class_gui_toolkit_1_1_style_1_1_ui_abstract_style_base.html", "class_gui_toolkit_1_1_style_1_1_ui_abstract_style_base" ],
     [ "UiApplyStyleContentSizeFitter", "class_gui_toolkit_1_1_style_1_1_ui_apply_style_content_size_fitter.html", "class_gui_toolkit_1_1_style_1_1_ui_apply_style_content_size_fitter" ],
     [ "UiApplyStyleGraphic", "class_gui_toolkit_1_1_style_1_1_ui_apply_style_graphic.html", "class_gui_toolkit_1_1_style_1_1_ui_apply_style_graphic" ],
     [ "UiApplyStyleGridLayoutGroup", "class_gui_toolkit_1_1_style_1_1_ui_apply_style_grid_layout_group.html", "class_gui_toolkit_1_1_style_1_1_ui_apply_style_grid_layout_group" ],
@@ -17,7 +21,13 @@ var namespace_gui_toolkit_1_1_style =
     [ "UiApplyStyleUiHorizontalOrVerticalLayoutGroup", "class_gui_toolkit_1_1_style_1_1_ui_apply_style_ui_horizontal_or_vertical_layout_group.html", "class_gui_toolkit_1_1_style_1_1_ui_apply_style_ui_horizontal_or_vertical_layout_group" ],
     [ "UiApplyStyleUiRoundedImage", "class_gui_toolkit_1_1_style_1_1_ui_apply_style_ui_rounded_image.html", "class_gui_toolkit_1_1_style_1_1_ui_apply_style_ui_rounded_image" ],
     [ "UiApplyStyleUiSimpleAnimation", "class_gui_toolkit_1_1_style_1_1_ui_apply_style_ui_simple_animation.html", "class_gui_toolkit_1_1_style_1_1_ui_apply_style_ui_simple_animation" ],
+    [ "UiAspectRatioDependentStyleConfig", "class_gui_toolkit_1_1_style_1_1_ui_aspect_ratio_dependent_style_config.html", "class_gui_toolkit_1_1_style_1_1_ui_aspect_ratio_dependent_style_config" ],
+    [ "UiMainStyleConfig", "class_gui_toolkit_1_1_style_1_1_ui_main_style_config.html", "class_gui_toolkit_1_1_style_1_1_ui_main_style_config" ],
+    [ "UiSetSkinFixedForRange", "class_gui_toolkit_1_1_style_1_1_ui_set_skin_fixed_for_range.html", "class_gui_toolkit_1_1_style_1_1_ui_set_skin_fixed_for_range" ],
+    [ "UiSkin", "class_gui_toolkit_1_1_style_1_1_ui_skin.html", "class_gui_toolkit_1_1_style_1_1_ui_skin" ],
+    [ "UiStyleConfig", "class_gui_toolkit_1_1_style_1_1_ui_style_config.html", "class_gui_toolkit_1_1_style_1_1_ui_style_config" ],
     [ "UiStyleContentSizeFitter", "class_gui_toolkit_1_1_style_1_1_ui_style_content_size_fitter.html", "class_gui_toolkit_1_1_style_1_1_ui_style_content_size_fitter" ],
+    [ "UiStyleFader", "class_gui_toolkit_1_1_style_1_1_ui_style_fader.html", "class_gui_toolkit_1_1_style_1_1_ui_style_fader" ],
     [ "UiStyleGraphic", "class_gui_toolkit_1_1_style_1_1_ui_style_graphic.html", "class_gui_toolkit_1_1_style_1_1_ui_style_graphic" ],
     [ "UiStyleGridLayoutGroup", "class_gui_toolkit_1_1_style_1_1_ui_style_grid_layout_group.html", "class_gui_toolkit_1_1_style_1_1_ui_style_grid_layout_group" ],
     [ "UiStyleImage", "class_gui_toolkit_1_1_style_1_1_ui_style_image.html", "class_gui_toolkit_1_1_style_1_1_ui_style_image" ],
@@ -32,15 +42,5 @@ var namespace_gui_toolkit_1_1_style =
     [ "UiStyleUiGradientSimple", "class_gui_toolkit_1_1_style_1_1_ui_style_ui_gradient_simple.html", "class_gui_toolkit_1_1_style_1_1_ui_style_ui_gradient_simple" ],
     [ "UiStyleUiHorizontalOrVerticalLayoutGroup", "class_gui_toolkit_1_1_style_1_1_ui_style_ui_horizontal_or_vertical_layout_group.html", "class_gui_toolkit_1_1_style_1_1_ui_style_ui_horizontal_or_vertical_layout_group" ],
     [ "UiStyleUiRoundedImage", "class_gui_toolkit_1_1_style_1_1_ui_style_ui_rounded_image.html", "class_gui_toolkit_1_1_style_1_1_ui_style_ui_rounded_image" ],
-    [ "UiStyleUiSimpleAnimation", "class_gui_toolkit_1_1_style_1_1_ui_style_ui_simple_animation.html", "class_gui_toolkit_1_1_style_1_1_ui_style_ui_simple_animation" ],
-    [ "UiAbstractApplyStyle&lt; CO, ST &gt;", "class_gui_toolkit_1_1_style_1_1_ui_abstract_apply_style-2-g.html", "class_gui_toolkit_1_1_style_1_1_ui_abstract_apply_style-2-g" ],
-    [ "UiAbstractApplyStyleBase", "class_gui_toolkit_1_1_style_1_1_ui_abstract_apply_style_base.html", "class_gui_toolkit_1_1_style_1_1_ui_abstract_apply_style_base" ],
-    [ "UiAbstractStyle&lt; CO &gt;", "class_gui_toolkit_1_1_style_1_1_ui_abstract_style-1-g.html", "class_gui_toolkit_1_1_style_1_1_ui_abstract_style-1-g" ],
-    [ "UiAbstractStyleBase", "class_gui_toolkit_1_1_style_1_1_ui_abstract_style_base.html", "class_gui_toolkit_1_1_style_1_1_ui_abstract_style_base" ],
-    [ "UiAspectRatioDependentStyleConfig", "class_gui_toolkit_1_1_style_1_1_ui_aspect_ratio_dependent_style_config.html", "class_gui_toolkit_1_1_style_1_1_ui_aspect_ratio_dependent_style_config" ],
-    [ "UiMainStyleConfig", "class_gui_toolkit_1_1_style_1_1_ui_main_style_config.html", "class_gui_toolkit_1_1_style_1_1_ui_main_style_config" ],
-    [ "UiSetSkinFixedForRange", "class_gui_toolkit_1_1_style_1_1_ui_set_skin_fixed_for_range.html", "class_gui_toolkit_1_1_style_1_1_ui_set_skin_fixed_for_range" ],
-    [ "UiSkin", "class_gui_toolkit_1_1_style_1_1_ui_skin.html", "class_gui_toolkit_1_1_style_1_1_ui_skin" ],
-    [ "UiStyleConfig", "class_gui_toolkit_1_1_style_1_1_ui_style_config.html", "class_gui_toolkit_1_1_style_1_1_ui_style_config" ],
-    [ "UiStyleFader", "class_gui_toolkit_1_1_style_1_1_ui_style_fader.html", "class_gui_toolkit_1_1_style_1_1_ui_style_fader" ]
+    [ "UiStyleUiSimpleAnimation", "class_gui_toolkit_1_1_style_1_1_ui_style_ui_simple_animation.html", "class_gui_toolkit_1_1_style_1_1_ui_style_ui_simple_animation" ]
 ];

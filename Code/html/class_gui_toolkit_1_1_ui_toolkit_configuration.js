@@ -8,6 +8,7 @@ var class_gui_toolkit_1_1_ui_toolkit_configuration =
     [ "m_generatedAssetsDir", "class_gui_toolkit_1_1_ui_toolkit_configuration.html#af86c840a41db335444878d949b1afc5b", null ],
     [ "m_potPath", "class_gui_toolkit_1_1_ui_toolkit_configuration.html#a1d5e3d5f65ef3450d132f5455339461e", null ],
     [ "AssetProviderFactories", "class_gui_toolkit_1_1_ui_toolkit_configuration.html#a70eec33c893d91b08d6e6cd916ae92d4", null ],
+    [ "AutoTranslateDisabled", "class_gui_toolkit_1_1_ui_toolkit_configuration.html#aaa58b6a02b38efa40d8270e71c77606a", null ],
     [ "DebugLoca", "class_gui_toolkit_1_1_ui_toolkit_configuration.html#a554dd62465bd899f072417cb2dcaa180", null ],
     [ "ExceptUiMainExists", "class_gui_toolkit_1_1_ui_toolkit_configuration.html#a946b44a0159e8312dbe0126c9941fbd6", null ],
     [ "GeneratedAssetsDir", "class_gui_toolkit_1_1_ui_toolkit_configuration.html#aad422b0eecdeda2e37e15d745cc37394", null ],

@@ -1,8 +1,8 @@
 var class_gui_toolkit_1_1_ui_requester_base =
 [
-    [ "RequesterHandle", "class_gui_toolkit_1_1_ui_requester_base_1_1_requester_handle.html", "class_gui_toolkit_1_1_ui_requester_base_1_1_requester_handle" ],
     [ "ButtonInfo", "class_gui_toolkit_1_1_ui_requester_base_1_1_button_info.html", "class_gui_toolkit_1_1_ui_requester_base_1_1_button_info" ],
     [ "Options", "class_gui_toolkit_1_1_ui_requester_base_1_1_options.html", "class_gui_toolkit_1_1_ui_requester_base_1_1_options" ],
+    [ "RequesterHandle", "class_gui_toolkit_1_1_ui_requester_base_1_1_requester_handle.html", "class_gui_toolkit_1_1_ui_requester_base_1_1_requester_handle" ],
     [ "EDisabledButtonsHandling", "class_gui_toolkit_1_1_ui_requester_base.html#a40312b241acc64591788143d683ef1b5", [
       [ "None", "class_gui_toolkit_1_1_ui_requester_base.html#a40312b241acc64591788143d683ef1b5a6adf97f83acf6453d4a6a4b1070f3754", null ],
       [ "Hide", "class_gui_toolkit_1_1_ui_requester_base.html#a40312b241acc64591788143d683ef1b5a62a5e490880a92eef74f167d9dc6dca0", null ],

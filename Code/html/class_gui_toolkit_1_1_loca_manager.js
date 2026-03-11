@@ -14,8 +14,11 @@ var class_gui_toolkit_1_1_loca_manager =
     [ "EdWriteKeyData", "class_gui_toolkit_1_1_loca_manager.html#a6b6a19fbfea914debfc70b699b640eb0", null ],
     [ "GetOrdinal", "class_gui_toolkit_1_1_loca_manager.html#a933462d89ac3d94f49c75f6cf521f2b4", null ],
     [ "HasKey", "class_gui_toolkit_1_1_loca_manager.html#a03f481385a86873d646ed85f3f553598", null ],
+    [ "RegisterProvider", "class_gui_toolkit_1_1_loca_manager.html#aa69c457b9529fae87bdeecff6907144c", null ],
+    [ "Translate", "class_gui_toolkit_1_1_loca_manager.html#aa5a1b2938c02caa6155cf2909f2f3b07", null ],
     [ "Translate", "class_gui_toolkit_1_1_loca_manager.html#a5a2d5dc0fe6b833968098c4f5886e491", null ],
     [ "Translate", "class_gui_toolkit_1_1_loca_manager.html#a41ac91a651fdea1aac1b938f81a070f6", null ],
+    [ "UnregisterProvider", "class_gui_toolkit_1_1_loca_manager.html#a712b02a7ae17d15bbb2df6201591ca8b", null ],
     [ "DebugLoca", "class_gui_toolkit_1_1_loca_manager.html#a3cfe4545302b450b3a047495b2a4b357", null ],
     [ "EdAvailableLanguages", "class_gui_toolkit_1_1_loca_manager.html#abc03f5e97ee82584c0b3e466827aa738", null ],
     [ "Language", "class_gui_toolkit_1_1_loca_manager.html#a67b568e1a9bf658aa6ba01b30b418673", null ]

@@ -14,12 +14,13 @@ var searchData=
   ['ints_11',['ints',['../class_settings_data.html#a7dc5745b666a3c47d482e1ac524f72b4',1,'SettingsData']]],
   ['isapplicable_12',['IsApplicable',['../class_gui_toolkit_1_1_applicable_value_base.html#a1dd00b534d7b58cc47e98d913c99cc9d',1,'GuiToolkit::ApplicableValueBase']]],
   ['isfolder_13',['IsFolder',['../class_gui_toolkit_1_1_path_field_attribute.html#aa45a0c57cc864f561156092b8099c9b3',1,'GuiToolkit::PathFieldAttribute']]],
-  ['isinpackages_14',['IsInPackages',['../class_gui_toolkit_1_1_editor_1_1_dependency_node.html#a831fefb4009e09edfe5e4e881821cb1a',1,'GuiToolkit::Editor::DependencyNode']]],
-  ['isinresources_15',['IsInResources',['../class_gui_toolkit_1_1_editor_1_1_dependency_node.html#aa01d851fde2440cf683a1a4b75e37536',1,'GuiToolkit::Editor::DependencyNode']]],
-  ['islocalized_16',['IsLocalized',['../class_gui_toolkit_1_1_player_setting_options.html#afdba8486a426f7a713e6a2c9d1696b97',1,'GuiToolkit::PlayerSettingOptions']]],
-  ['isprefab_17',['IsPrefab',['../class_gui_toolkit_1_1_editor_1_1_prefab_info_1_1_c_override_info.html#acdc667c4a10fa2aec94947adce000510',1,'GuiToolkit::Editor::PrefabInfo::COverrideInfo']]],
-  ['issaveable_18',['IsSaveable',['../class_gui_toolkit_1_1_player_setting_options.html#a4aa575ae321c98d3f225e1260ad6d54b',1,'GuiToolkit::PlayerSettingOptions']]],
-  ['issceneobject_19',['IsSceneObject',['../class_gui_toolkit_1_1_editor_1_1_dependency_node.html#aeef702fefc62674109fd25e8ee8c98ad',1,'GuiToolkit::Editor::DependencyNode']]],
-  ['isscript_20',['IsScript',['../class_gui_toolkit_1_1_editor_1_1_dependency_node.html#a0b4e8541b9269c904cd6163e6c57338c',1,'GuiToolkit::Editor::DependencyNode']]],
-  ['items_21',['Items',['../class_gui_toolkit_1_1_ui_popup_menu_1_1_options.html#a73160b472aa15e53f510fd527eabd191',1,'GuiToolkit::UiPopupMenu::Options']]]
+  ['isfuzzy_14',['IsFuzzy',['../class_gui_toolkit_1_1_processed_loca_entry.html#a8df2410a86e1d4091d1d9b2f5ea2f6a8',1,'GuiToolkit::ProcessedLocaEntry']]],
+  ['isinpackages_15',['IsInPackages',['../class_gui_toolkit_1_1_editor_1_1_dependency_node.html#a831fefb4009e09edfe5e4e881821cb1a',1,'GuiToolkit::Editor::DependencyNode']]],
+  ['isinresources_16',['IsInResources',['../class_gui_toolkit_1_1_editor_1_1_dependency_node.html#aa01d851fde2440cf683a1a4b75e37536',1,'GuiToolkit::Editor::DependencyNode']]],
+  ['islocalized_17',['IsLocalized',['../class_gui_toolkit_1_1_player_setting_options.html#afdba8486a426f7a713e6a2c9d1696b97',1,'GuiToolkit::PlayerSettingOptions']]],
+  ['isprefab_18',['IsPrefab',['../class_gui_toolkit_1_1_editor_1_1_prefab_info_1_1_c_override_info.html#acdc667c4a10fa2aec94947adce000510',1,'GuiToolkit::Editor::PrefabInfo::COverrideInfo']]],
+  ['issaveable_19',['IsSaveable',['../class_gui_toolkit_1_1_player_setting_options.html#a4aa575ae321c98d3f225e1260ad6d54b',1,'GuiToolkit::PlayerSettingOptions']]],
+  ['issceneobject_20',['IsSceneObject',['../class_gui_toolkit_1_1_editor_1_1_dependency_node.html#aeef702fefc62674109fd25e8ee8c98ad',1,'GuiToolkit::Editor::DependencyNode']]],
+  ['isscript_21',['IsScript',['../class_gui_toolkit_1_1_editor_1_1_dependency_node.html#a0b4e8541b9269c904cd6163e6c57338c',1,'GuiToolkit::Editor::DependencyNode']]],
+  ['items_22',['Items',['../class_gui_toolkit_1_1_ui_popup_menu_1_1_options.html#a73160b472aa15e53f510fd527eabd191',1,'GuiToolkit::UiPopupMenu::Options']]]
 ];

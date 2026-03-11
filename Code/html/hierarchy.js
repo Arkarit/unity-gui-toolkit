@@ -119,7 +119,7 @@ var hierarchy =
     [ "HorizontalOrVerticalLayoutGroupEditor", null, [
       [ "GuiToolkit.Editor.UiHorizontalOrVerticalLayoutGroupEditor", "class_gui_toolkit_1_1_editor_1_1_ui_horizontal_or_vertical_layout_group_editor.html", null ]
     ] ],
-    [ "GuiToolkit.AssetHandling.IAssetHandle&lt; T &gt;", "interface_gui_toolkit_1_1_asset_handling_1_1_i_asset_handle-1-g.html", [
+    [ "GuiToolkit.AssetHandling.IAssetHandle< T >", "interface_gui_toolkit_1_1_asset_handling_1_1_i_asset_handle-1-g.html", [
       [ "GuiToolkit.AssetHandling.DefaultAssetHandle< T >", "class_gui_toolkit_1_1_asset_handling_1_1_default_asset_handle-1-g.html", null ]
     ] ],
     [ "GuiToolkit.AssetHandling.IAssetProvider", "interface_gui_toolkit_1_1_asset_handling_1_1_i_asset_provider.html", [
@@ -364,6 +364,7 @@ var hierarchy =
         [ "GuiToolkit.PlayerSettingQuality", "class_gui_toolkit_1_1_player_setting_quality.html", null ]
       ] ]
     ] ],
+    [ "GuiToolkit.LocaProviderEntry", "class_gui_toolkit_1_1_loca_provider_entry.html", null ],
     [ "GuiToolkit.LocaProviderList", "class_gui_toolkit_1_1_loca_provider_list.html", null ],
     [ "MonoBehaviour", null, [
       [ "GuiToolkit.AbstractEditorAwareMonoBehaviour", "class_gui_toolkit_1_1_abstract_editor_aware_mono_behaviour.html", null ],
@@ -415,7 +416,7 @@ var hierarchy =
     [ "NotSupportedException", null, [
       [ "GuiToolkit.Exceptions.RoslynUnavailableException", "class_gui_toolkit_1_1_exceptions_1_1_roslyn_unavailable_exception.html", null ]
     ] ],
-    [ "GuiToolkit.NullObject&lt; T &gt;", "struct_gui_toolkit_1_1_null_object-1-g.html", null ],
+    [ "GuiToolkit.NullObject< T >", "struct_gui_toolkit_1_1_null_object-1-g.html", null ],
     [ "GuiToolkit.UiDateTimeDisplay.Options", "class_gui_toolkit_1_1_ui_date_time_display_1_1_options.html", null ],
     [ "GuiToolkit.UiDateTimePanel.Options", "class_gui_toolkit_1_1_ui_date_time_panel_1_1_options.html", null ],
     [ "GuiToolkit.UiGridPicker.Options", "class_gui_toolkit_1_1_ui_grid_picker_1_1_options.html", null ],
@@ -424,7 +425,7 @@ var hierarchy =
       [ "GuiToolkit.UiRequester.Options", "class_gui_toolkit_1_1_ui_requester_1_1_options.html", null ]
     ] ],
     [ "GuiToolkit.PathField", "struct_gui_toolkit_1_1_path_field.html", null ],
-    [ "GuiToolkit.Storage.PersistedAggregate&lt; T &gt;", "class_gui_toolkit_1_1_storage_1_1_persisted_aggregate-1-g.html", [
+    [ "GuiToolkit.Storage.PersistedAggregate< T >", "class_gui_toolkit_1_1_storage_1_1_persisted_aggregate-1-g.html", [
       [ "GuiToolkit.Settings.SettingsPersistedAggregate", "class_gui_toolkit_1_1_settings_1_1_settings_persisted_aggregate.html", null ]
     ] ],
     [ "GuiToolkit.PlayerSettingOptions", "class_gui_toolkit_1_1_player_setting_options.html", null ],
@@ -483,6 +484,9 @@ var hierarchy =
     [ "GuiToolkit.Storage.StorageRoutingConfig", "class_gui_toolkit_1_1_storage_1_1_storage_routing_config.html", null ],
     [ "GuiToolkit.TabInfo", "struct_gui_toolkit_1_1_tab_info.html", null ],
     [ "GuiToolkit.TagField", "struct_gui_toolkit_1_1_tag_field.html", null ],
+    [ "TextMeshProUGUI", null, [
+      [ "GuiToolkit.UiLocalizedTextMeshProUGUI", "class_gui_toolkit_1_1_ui_localized_text_mesh_pro_u_g_u_i.html", null ]
+    ] ],
     [ "GuiToolkit.Editor.EditorCodeUtility.TextSnapshot", "struct_gui_toolkit_1_1_editor_1_1_editor_code_utility_1_1_text_snapshot.html", null ],
     [ "Toggle", null, [
       [ "GuiToolkit.DayToggle", "class_gui_toolkit_1_1_day_toggle.html", null ]
