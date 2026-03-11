@@ -12,6 +12,12 @@ using UnityEngine.SceneManagement;
 
 namespace GuiToolkit.Editor
 {
+	/// <summary>
+	/// Editor tool to bulk-set the localization group on all <see cref="UiAutoLocalize"/> components
+	/// in the currently active scene or open prefab stage.
+	/// Invoked via Unity menu defined in <see cref="StringConstants.SET_ALL_UI_LOCA_GROUPS"/>.
+	/// Supports full Undo and marks assets dirty for saving.
+	/// </summary>
 	public static class SetAllUiLocaGroups
 	{
 		[MenuItem(StringConstants.SET_ALL_UI_LOCA_GROUPS)]

@@ -27,6 +27,41 @@
 
 :getPrivileges
   if '%1'=='ELEV' (echo ELEV & shift /1 & goto gotPrivileges)
+  
+  REM ::::::::::::::::::::::::::::
+  REM NON-ADMIN SECTION (before elevation)
+  REM ::::::::::::::::::::::::::::
+  
+  REM Resolve repo root (parent of .Dev-App)
+  pushd "%batchDir%.."
+  set "REPO_ROOT=%CD%"
+  popd
+  
+  REM Resolve parent directory
+  pushd "%REPO_ROOT%\.."
+  set "REPO_PARENT=%CD%"
+  popd
+  
+  set "GHPAGES_DIR=%REPO_PARENT%\unity-gui-toolkit-gh-pages"
+  
+  if exist "%GHPAGES_DIR%\.git" (
+    ECHO gh-pages repo already exists at "%GHPAGES_DIR%"
+  ) else (
+    ECHO Creating gh-pages working copy at "%GHPAGES_DIR%" ^(as current user^)
+    mkdir "%GHPAGES_DIR%" 2>nul
+    ECHO Copying .git directory to preserve credentials...
+    xcopy /E /I /H /Y "%REPO_ROOT%\.git" "%GHPAGES_DIR%\.git" >nul
+    if errorlevel 1 (
+      ECHO Failed to copy .git directory. Skipping gh-pages setup.
+    ) else (
+      pushd "%GHPAGES_DIR%"
+      ECHO Checking out gh-pages branch...
+      git checkout -f gh-pages 2>nul
+      if errorlevel 1 git checkout -b gh-pages
+      popd
+    )
+  )
+  
   ECHO.
   ECHO **************************************
   ECHO Invoking UAC for Privilege Escalation
@@ -56,40 +91,10 @@
  if '%1'=='ELEV' (del "%vbsGetPrivileges%" 1>nul 2>nul  &  shift /1)
 
  ::::::::::::::::::::::::::::
- ::START
+ ::START (Admin section - symlinks only)
  ::::::::::::::::::::::::::::
  REM Run shell as admin (example) - put here code as you like
  ECHO Dir: "%batchDir%"
-
- REM Resolve repo root (parent of .Dev-App)
- pushd "%batchDir%.."
- set "REPO_ROOT=%CD%"
- popd
- 
- REM Resolve parent directory
- pushd "%REPO_ROOT%\.."
- set "REPO_PARENT=%CD%"
- popd
- 
- set "GHPAGES_DIR=%REPO_PARENT%\unity-gui-toolkit-gh-pages"
- 
- if exist "%GHPAGES_DIR%\.git" (
-   ECHO gh-pages repo already exists at "%GHPAGES_DIR%"
- ) else (
-   ECHO Creating gh-pages working copy at "%GHPAGES_DIR%"
-   mkdir "%GHPAGES_DIR%" 2>nul
-   ECHO Copying .git directory to preserve credentials...
-   xcopy /E /I /H /Y "%REPO_ROOT%\.git" "%GHPAGES_DIR%\.git" >nul
-   if errorlevel 1 (
-     ECHO Failed to copy .git directory. Skipping gh-pages setup.
-   ) else (
-     pushd "%GHPAGES_DIR%"
-     ECHO Checking out gh-pages branch...
-     git checkout -f gh-pages 2>nul
-     if errorlevel 1 git checkout -b gh-pages
-     popd
-   )
- )
 
  ECHO Creating symlinks...
  if not exist "%batchDir%\Unity\Assets\External\unity-gui-toolkit" (

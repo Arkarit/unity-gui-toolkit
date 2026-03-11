@@ -6,6 +6,10 @@ using static GuiToolkit.LocaExcelBridge;
 
 namespace GuiToolkit.Editor
 {
+	/// <summary>
+	/// Custom inspector for <see cref="LocaExcelBridge"/> ScriptableObjects.
+	/// Displays configuration fields and provides a "Process" button to trigger <see cref="ILocaProvider.CollectData"/>.
+	/// </summary>
 	[CustomEditor(typeof(LocaExcelBridge), true)]
 	public class LocaExcelBridgeEditor : UnityEditor.Editor
 	{
@@ -17,6 +21,9 @@ namespace GuiToolkit.Editor
 		private SerializedProperty m_startRow;
 		private SerializedProperty m_processedLoca;
 
+		/// <summary>
+		/// Caches SerializedProperty references for efficient inspector rendering.
+		/// </summary>
 		protected void OnEnable()
 		{
 			m_sourceType = serializedObject.FindProperty("m_sourceType");
@@ -28,6 +35,11 @@ namespace GuiToolkit.Editor
 			m_processedLoca = serializedObject.FindProperty("m_processedLoca");
 		}
 
+		/// <summary>
+		/// Renders the custom inspector GUI.
+		/// Shows source type, Excel path or Google URL, group, column descriptions, start row,
+		/// a "Process" button to collect data, and the resulting ProcessedLoca output.
+		/// </summary>
 		public override void OnInspectorGUI()
 		{
 			var thisLocaProvider = (ILocaProvider)target;

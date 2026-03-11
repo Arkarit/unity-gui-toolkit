@@ -20,6 +20,7 @@ namespace GuiToolkit
 	/// instead of writing to TMP_Text directly.
 	/// </summary>
 
+	[Obsolete("Use UiLocalizedTextMeshProUGUI instead. See 'Tools > Loca > Migrate UiAutoLocalize (Find candidates)' to locate usages.")]
 	[DisallowMultipleComponent]
 	[RequireComponent(typeof(TMP_Text))]
 	public class UiAutoLocalize : UiThing, ILocaKeyProvider
@@ -33,7 +34,8 @@ namespace GuiToolkit
 		private LocaManager m_locaManager;
 
 		/// <summary>
-		/// Optional localization group used during translation.
+		/// Gets or sets the optional localization group used during translation.
+		/// Changing this triggers re-translation on the next <see cref="Translate"/> call.
 		/// </summary>
 		public string Group
 		{
@@ -61,11 +63,12 @@ namespace GuiToolkit
 		public string Text => TextComponent.text;
 
 		/// <summary>
-		/// Localization key used for translation.
+		/// Gets or sets the localization key used for translation.
 		/// 
-		/// If no explicit key is set, the key is derived from the current TMP_Text content.
+		/// If no explicit key is set, the key is derived from the current TMP_Text content on first access.
+		/// Setting this property triggers immediate re-translation.
 		/// 
-		/// Note: This getter may have side effects by assigning the derived key.
+		/// Note: The getter may have side effects by deriving and caching the key from the text component.
 		/// </summary>
 		public string LocaKey
 		{
@@ -146,7 +149,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			var translatedText = LocaManager.Translate(m_locaKey, m_group);
+			var translatedText = LocaManager.Instance.Translate(m_locaKey, _group: m_group);
 			m_lastTranslation = translatedText;
 			TextComponent.text = translatedText;
 		}

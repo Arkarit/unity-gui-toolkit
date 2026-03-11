@@ -10,6 +10,11 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
+	/// <summary>
+	/// Editor tool that scans scenes, prefabs, and C# scripts for localization keys and generates POT template files.
+	/// Invoked via Unity menu: Tools > Loca > Process Loca Keys.
+	/// Also processes <see cref="ILocaProvider"/> assets to generate the provider registry JSON.
+	/// </summary>
 	[EditorAware]
 	public static class LocaProcessor
 	{
@@ -29,6 +34,12 @@ namespace GuiToolkit.Editor
 		};
 
 		
+		/// <summary>
+		/// Main entry point for the Loca processor.
+		/// Scans all scenes, prefabs, ScriptableObjects, and C# scripts for localization keys,
+		/// then writes POT template files and processes localization providers.
+		/// Displays a progress bar during execution.
+		/// </summary>
 		[MenuItem(StringConstants.LOCA_PROCESSOR_MENU_NAME, priority = Constants.LOCA_PROCESSOR_MENU_PRIORITY)]
 		public static void Process()
 		{
@@ -77,6 +88,12 @@ namespace GuiToolkit.Editor
 			LocaManager.Instance.EdWriteKeyData();
 		}
 		
+		/// <summary>
+		/// Processes all <see cref="ILocaProvider"/> ScriptableObjects in the project.
+		/// Calls <see cref="ILocaProvider.CollectData"/> on each and writes a provider registry JSON
+		/// so that <see cref="LocaManagerDefaultImpl"/> can load them at runtime.
+		/// Invoked via Unity menu: Tools > Loca > Process Loca Providers.
+		/// </summary>
 		[MenuItem(StringConstants.LOCA_PROCESSOR_MENU_NAME_PROVIDERS, priority = Constants.LOCA_PROCESSOR_MENU_PRIORITY + 1)]
 		public static void ProcessLocaProviders()
 		{
@@ -87,7 +104,9 @@ namespace GuiToolkit.Editor
 			{
 				var so = (ScriptableObject) locaProvider;
 				UiLog.Log($"Processing Loca Provider {AssetDatabase.GetAssetPath(so)}");
-				locaProviderList.Paths.Add(so.name);
+				var providerType = locaProvider.GetType();
+				var typeName = providerType.AssemblyQualifiedName ?? providerType.FullName;
+				locaProviderList.Providers.Add(new LocaProviderEntry { Path = so.name, TypeName = typeName });
 				locaProvider.CollectData();
 			}, s_options);
 			locaProviderList.Save();

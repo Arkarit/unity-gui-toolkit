@@ -30,6 +30,20 @@ namespace GuiToolkit
 		}
 
 		/// <summary>
+		/// Context-aware translation shortcut (pgettext convention).
+		/// Composes the lookup key as "context\u0004msgid".
+		/// </summary>
+		/// <param name="_s">Source string (msgid) to translate.</param>
+		/// <param name="_context">Disambiguation context (msgctxt).</param>
+		/// <param name="_group">Optional localization group.</param>
+		/// <returns>Localized string.</returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		protected static string _( string _s, string _context, string _group )
+		{
+			return pgettext(_s, _context, _group);
+		}
+
+		/// <summary>
 		/// Translate a single string (singular form).
 		/// This is the long-form version of "_".
 		/// </summary>
@@ -38,7 +52,17 @@ namespace GuiToolkit
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		protected static string gettext( string _s, string _group = null )
 		{
-			return LocaManager.Instance.Translate(_s, _group);
+			return LocaManager.Instance.Translate(_s, _group: _group);
+		}
+
+		/// <summary>
+		/// Context-aware translation (pgettext convention).
+		/// Composes the lookup key as "context\u0004msgid".
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		protected static string pgettext( string _s, string _context, string _group = null )
+		{
+			return LocaManager.Instance.Translate(_s, _context, _group);
 		}
 
 		/// <summary>
@@ -81,6 +105,13 @@ namespace GuiToolkit
 			return _s;
 		}
 		
+		/// <summary>
+		/// Returns a language-appropriate ordinal suffix for a given number.
+		/// Delegates to <see cref="LocaManager.GetOrdinal"/>.
+		/// </summary>
+		/// <param name="_languageId">The language identifier.</param>
+		/// <param name="_number">The number to format.</param>
+		/// <returns>Formatted ordinal string.</returns>
 		protected static string GetOrdinal( string _languageId, int _number)
 		{
 			return LocaManager.Instance.GetOrdinal(_languageId, _number);

@@ -13,12 +13,24 @@ using UnityEngine.SceneManagement;
 
 namespace GuiToolkit.Editor
 {
+	/// <summary>
+	/// One-time editor tool to disable or remove all <see cref="UiAutoLocalize"/> components in the project.
+	/// Processes all prefabs and scenes in the Assets folder.
+	/// Useful for migrating away from the deprecated component to <see cref="UiLocalizedTextMeshProUGUI"/>.
+	/// Run once per action, verify results, then delete this file.
+	/// Invoked via menu defined in <see cref="StringConstants.DISABLE_OR_REMOVE_UI_AUTO_LOCALIZE"/>.
+	/// </summary>
 	public static class RemoveOrDisableUiAutoLocalizeTool
 	{
 		private enum Mode { Disable, Remove }
 
 		private const string MenuPath = "AssetFixing/[One-Time] Disable or Remove All UiAutoLocalize";
 
+		/// <summary>
+		/// Displays a dialog prompting the user to disable or remove all <see cref="UiAutoLocalize"/> components.
+		/// Processes all prefabs and scenes, updating the components in place and marking assets dirty.
+		/// Shows progress bars during execution and a summary dialog on completion.
+		/// </summary>
 		[MenuItem(StringConstants.DISABLE_OR_REMOVE_UI_AUTO_LOCALIZE)]
 		public static void Run()
 		{

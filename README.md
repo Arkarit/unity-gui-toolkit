@@ -17,6 +17,8 @@ It is however usable at least partially.
 
 ### Work in the repo itself:
 - Pull the repo (https://github.com/Arkarit/unity-gui-toolkit.git)
-- Execute the batch file .Dev-App/Install.bat. This will create some symlinks which are necessary to edit the demo application.
+- Execute the batch file .Dev-App/Install.bat **as a normal user** (do not run as administrator — the script will request elevation only when needed)
 - In Unity hub, open the folder .Dev-App\Unity
+
+**Important:** Do not run Install.bat with administrator privileges manually. The script handles privilege elevation automatically and running it as admin will cause the gh-pages documentation repository to be created with incorrect ownership, preventing Git operations.
 

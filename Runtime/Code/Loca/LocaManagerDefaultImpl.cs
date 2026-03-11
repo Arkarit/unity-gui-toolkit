@@ -12,6 +12,11 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// Default implementation of <see cref="LocaManager"/> using GNU gettext-style PO files.
+	/// Loads translation data from Resources, supports localization groups, handles plural forms,
+	/// and integrates dynamic <see cref="ILocaProvider"/> sources.
+	/// </summary>
 	public class LocaManagerDefaultImpl : LocaManager
 	{
 		private const string GROUPS_RESOURCE_NAME = "uitk_loca_groups";
@@ -23,6 +28,15 @@ namespace GuiToolkit
 		private readonly Dictionary<string, Dictionary<string, List<string>>> m_translationDictPlural = new();
 		private List<string> m_groups;
 
+		private readonly List<ILocaProvider> m_registeredProviders = new();
+
+		/// <summary>
+		/// Implements language switching by loading PO files for the specified language.
+		/// In "dev" mode, clears all translations and returns keys unchanged.
+		/// Otherwise loads PO files from Resources, reads registered providers, and populates the translation dictionaries.
+		/// </summary>
+		/// <param name="_language">The target language identifier.</param>
+		/// <returns>True if the language was successfully loaded (or is "dev"), false otherwise.</returns>
 		public override bool ChangeLanguageImpl( string _language )
 		{
 			if (string.IsNullOrEmpty(_language))
@@ -57,6 +71,7 @@ namespace GuiToolkit
 				result |= ReadTranslation(group);
 
 			ReadLocaProviders();
+			ApplyRegisteredProviders();
 
 #if UNITY_EDITOR
 			//DebugDump();
@@ -72,12 +87,29 @@ namespace GuiToolkit
 
 			string currentLang = NormalizeLang(Language);
 
-			foreach (var path in providerList.Paths)
+			foreach (var entry in providerList.Providers)
 			{
-				var locaProvider = Resources.Load<LocaExcelBridge>(path);
+				if (entry == null)
+					continue;
+
+				// Try assembly-qualified name first, fall back to short name for runtime types
+				Type providerType = Type.GetType(entry.TypeName);
+				if (providerType == null && !entry.TypeName.Contains(","))
+				{
+					// Retry with GuiToolkit assembly for backward compat
+					providerType = Type.GetType($"{entry.TypeName}, de.phoenixgrafik.ui-toolkit");
+				}
+
+				if (providerType == null)
+				{
+					UiLog.LogError($"Could not resolve ILocaProvider type '{entry.TypeName}'");
+					continue;
+				}
+
+				var locaProvider = Resources.Load(entry.Path, providerType) as ILocaProvider;
 				if (locaProvider == null)
 				{
-					UiLog.LogError($"Could not load Loca Provider at path '{path}'");
+					UiLog.LogError($"Could not load Loca Provider at path '{entry.Path}' as type '{entry.TypeName}'");
 					continue;
 				}
 
@@ -101,6 +133,9 @@ namespace GuiToolkit
 					if (string.IsNullOrEmpty(key))
 						continue;
 
+					if (!string.IsNullOrEmpty(e.Context))
+						key = $"{e.Context}\u0004{key}";
+
 					// Singular
 					if (!string.IsNullOrEmpty(e.Text))
 					{
@@ -113,6 +148,75 @@ namespace GuiToolkit
 						IntegratePlural(group, key, e.Forms);
 					}
 				}
+			}
+		}
+
+		public override void RegisterProvider( ILocaProvider _provider )
+		{
+			if (_provider == null)
+			{
+				UiLog.LogWarning("RegisterProvider called with null provider; ignoring.");
+				return;
+			}
+
+			if (m_registeredProviders.Contains(_provider))
+				return;
+
+			m_registeredProviders.Add(_provider);
+
+			if (!string.IsNullOrEmpty(Language))
+				ApplySingleProvider(_provider);
+		}
+
+		public override void UnregisterProvider( ILocaProvider _provider )
+		{
+			if (_provider == null)
+			{
+				UiLog.LogWarning("UnregisterProvider called with null provider; ignoring.");
+				return;
+			}
+
+			if (!m_registeredProviders.Remove(_provider))
+				return;
+
+			_provider.Unload();
+			UiLog.LogWarning("UnregisterProvider: already-loaded translations are not removed. Call ChangeLanguage() to refresh if needed.");
+		}
+
+		private void ApplyRegisteredProviders()
+		{
+			foreach (var provider in m_registeredProviders)
+				ApplySingleProvider(provider);
+		}
+
+		private void ApplySingleProvider( ILocaProvider _provider )
+		{
+			_provider.Load(Language);
+
+			var data = _provider.Localization;
+			if (data == null || data.Entries == null)
+				return;
+
+			string currentLang = NormalizeLang(Language);
+			string group = data.Group;
+			SetEffectiveGroup(ref group);
+
+			foreach (var e in data.Entries)
+			{
+				if (e == null)
+					continue;
+
+				string lang = NormalizeLang(e.LanguageId);
+				if (string.IsNullOrEmpty(lang) || lang != currentLang)
+					continue;
+
+				string key = string.IsNullOrEmpty(e.Context) ? e.Key : $"{e.Context}\u0004{e.Key}";
+
+				if (!string.IsNullOrEmpty(e.Text))
+					Add(group, key, e.Text);
+
+				if (e.Forms != null && e.Forms.Length > 0)
+					IntegratePlural(group, key, e.Forms);
 			}
 		}
 
@@ -134,24 +238,71 @@ namespace GuiToolkit
 				return false;
 			}
 
-			for (int i = 0; i < lines.Length; i++)
+			ParsePoLines(lines, _group);
+			return true;
+		}
+
+		private void ParsePoLines( string[] _lines, string _group )
+		{
+			string currentContext = null;
+			bool currentIsFuzzy = false;
+
+			for (int i = 0; i < _lines.Length; i++)
 			{
-				string line1 = lines[i];
+				string line1 = _lines[i];
+
+				// Metadata comment lines preserved by CleanUpLines()
+				if (line1.StartsWith("#,"))
+				{
+					if (line1.Contains("fuzzy"))
+						currentIsFuzzy = true;
+					continue;
+				}
+				if (line1.StartsWith("#."))
+				{
+					// Translator comment — unused, skip
+					continue;
+				}
+				if (line1.StartsWith("#:"))
+				{
+					// Source reference — unused, skip
+					continue;
+				}
+
+				// msgctxt "context" — precedes the next msgid entry
+				if (line1.StartsWith("msgctxt "))
+				{
+					string raw = Unescape(line1.Substring(9, line1.Length - 10));
+					currentContext = string.IsNullOrEmpty(raw) ? null : raw;
+					continue;
+				}
 
 				if (line1.StartsWith("msgid"))
 				{
-					if (i >= lines.Length - 1)
+					string capturedContext = currentContext;
+					bool capturedIsFuzzy = currentIsFuzzy;
+
+					// Reset per-entry state
+					currentContext = null;
+					currentIsFuzzy = false;
+
+					if (i >= _lines.Length - 1)
 					{
 						UiLog.LogError("Malformed PO file");
 						break;
 					}
 
-					string line2 = lines[i + 1];
+					string line2 = _lines[i + 1];
 					if (line2.StartsWith("msgstr"))
 					{
-						string cleanKey = Unescape(line1.Substring(7, line1.Length - 8));
+						string rawKey = Unescape(line1.Substring(7, line1.Length - 8));
+						string composedKey = ComposeContextKey(capturedContext, rawKey);
 						string cleanValue = Unescape(line2.Substring(8, line2.Length - 9));
-						Add(_group, cleanKey, cleanValue);
+
+						if (capturedIsFuzzy)
+							UiLog.LogWarning($"[Loca] Fuzzy translation for key '{composedKey}' in group '{_group}' — needs review.");
+
+						Add(_group, composedKey, cleanValue);
 						i++;
 						continue;
 					}
@@ -161,19 +312,24 @@ namespace GuiToolkit
 						continue;
 
 					string cleanKeySingular = Unescape(line1.Substring(7, line1.Length - 8));
+					string composedKeySingular = ComposeContextKey(capturedContext, cleanKeySingular);
 					string cleanKeyPlural = Unescape(line2.Substring(14, line2.Length - 15));
+					string composedKeyPlural = ComposeContextKey(capturedContext, cleanKeyPlural);
+
+					if (capturedIsFuzzy)
+						UiLog.LogWarning($"[Loca] Fuzzy translation for key '{composedKeySingular}' (plural) in group '{_group}' — needs review.");
 
 					i += 1;
-					if (i >= lines.Length - 1)
+					if (i >= _lines.Length - 1)
 					{
 						UiLog.LogError("Malformed PO file");
 						break;
 					}
 
 					List<string> currentPlurals = new List<string>();
-					while (i + 1 < lines.Length && lines[i + 1].StartsWith("msgstr["))
+					while (i + 1 < _lines.Length && _lines[i + 1].StartsWith("msgstr["))
 					{
-						currentPlurals.Add(Unescape(lines[i + 1].Substring(11, lines[i + 1].Length - 12)));
+						currentPlurals.Add(Unescape(_lines[i + 1].Substring(11, _lines[i + 1].Length - 12)));
 						i++;
 					}
 
@@ -183,12 +339,15 @@ namespace GuiToolkit
 						continue;
 					}
 
-					Add(_group, cleanKeySingular, currentPlurals[0], cleanKeyPlural, currentPlurals);
+					Add(_group, composedKeySingular, currentPlurals[0], composedKeyPlural, currentPlurals);
 				}
 			}
-
-			return true;
 		}
+
+		// Composes "context\u0004key" per the GNU gettext convention.
+		// Returns key unmodified when context is null or empty.
+		private static string ComposeContextKey( string _context, string _key )
+			=> string.IsNullOrEmpty(_context) ? _key : $"{_context}\u0004{_key}";
 
 
 		private void Add( string _group, string _key, string _value, string _keyPlural = null, List<string> _plurals = null )
@@ -249,6 +408,8 @@ namespace GuiToolkit
 		}
 
 		// removes empty lines, concatenates strings
+		// Preserves #, #. and #: comment lines (fuzzy flags, extracted comments, source refs).
+		// Strips plain translator # comments and #| previous-entry lines.
 		private string[] CleanUpLines( string[] _lines )
 		{
 			List<string> result = new List<string>();
@@ -257,12 +418,30 @@ namespace GuiToolkit
 			for (int i = 0; i < _lines.Length; i++)
 			{
 				string line = _lines[i].Trim();
-				if (line.StartsWith("#")
-					|| line.Length <= 2)
+
+				if (line.Length <= 2)
 				{
 					_lines[i] = null;
 					continue;
 				}
+
+				if (line.StartsWith("#"))
+				{
+					// Currently only "#, fuzzy" is consumed (triggers LogWarning in ParsePoLines).
+					// Other comment lines (#. #:) are stripped silently as they are not used by the runtime.
+					if (line.StartsWith("#,") && line.Contains("fuzzy"))
+					{
+						// Preserve the fuzzy line so ParsePoLines can detect it
+						// (all other comment lines are discarded)
+					}
+					else
+					{
+						_lines[i] = null;
+					}
+					// Comment lines are never a keyword continuation target
+					continue;
+				}
+
 				if (line.StartsWith("\""))
 				{
 					if (lastKeyword == -1)
@@ -288,6 +467,12 @@ namespace GuiToolkit
 			return result.ToArray();
 		}
 		
+		/// <summary>
+		/// Checks whether a translation key exists in the specified group for the current language.
+		/// </summary>
+		/// <param name="_key">The localization key to check.</param>
+		/// <param name="_group">The group namespace to search in.</param>
+		/// <returns>True if the key exists in the group's translation dictionary, false otherwise.</returns>
 		public override bool HasKey( string _key, string _group )
 		{
 			SetEffectiveGroup(ref _group);
@@ -297,6 +482,16 @@ namespace GuiToolkit
 			return entry.ContainsKey(_key);
 		}
 		
+		/// <summary>
+		/// Translates a singular string key to the currently active language.
+		/// In "dev" mode, returns the key unchanged. Otherwise looks up the key in the translation dictionary.
+		/// If not found, behavior is controlled by <paramref name="_retValIfNotFound"/>.
+		/// Debug mode prefixes missing keys with "*" and empty translations with "#".
+		/// </summary>
+		/// <param name="_s">The localization key (msgid).</param>
+		/// <param name="_group">Optional group namespace for disambiguation. Null uses the default group.</param>
+		/// <param name="_retValIfNotFound">Behavior when the key is not found.</param>
+		/// <returns>Translated string, or a fallback based on <paramref name="_retValIfNotFound"/>.</returns>
 		public override string Translate( string _s, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key )
 		{
 			SetEffectiveGroup(ref _group);
@@ -342,6 +537,18 @@ namespace GuiToolkit
 			return entry.TryGetValue(_key, out _result);
 		}
 
+		/// <summary>
+		/// Translates a pluralized string key according to the active language's plural rules.
+		/// Uses <see cref="LocaPlurals.GetPluralIdx"/> to determine which form to select based on <paramref name="_n"/>.
+		/// If plural index is 0, delegates to the singular <see cref="Translate(string, string, RetValIfNotFound)"/> overload.
+		/// In "dev" mode, returns the plural key unchanged. Otherwise looks up the plural forms in the translation dictionary.
+		/// </summary>
+		/// <param name="_singularKey">The singular form key (msgid).</param>
+		/// <param name="_pluralKey">The plural form key (msgid_plural).</param>
+		/// <param name="_n">The number determining which plural form to use.</param>
+		/// <param name="_group">Optional group namespace for disambiguation.</param>
+		/// <param name="_retValIfNotFound">Behavior when the key is not found.</param>
+		/// <returns>Translated string in the appropriate plural form.</returns>
 		public override string Translate( string _singularKey, string _pluralKey, int _n, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key )
 		{
 			SetEffectiveGroup(ref _group);
@@ -497,6 +704,22 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
+		/// <summary>
+		/// (Editor-only) Test helper: parse raw PO content directly into the translation dictionaries.
+		/// Sets the instance into non-dev mode so <see cref="Translate(string, string, RetValIfNotFound)"/> performs real lookups.
+		/// Used by unit tests to inject PO data without requiring actual PO files in Resources.
+		/// </summary>
+		/// <param name="_content">Raw PO file content.</param>
+		/// <param name="_group">Optional group namespace. Null uses the default group.</param>
+		internal void ParsePoContentForTest( string _content, string _group = null )
+		{
+			m_isDev = false;
+			string[] lines = _content.Split(new[] { '\r', '\n' });
+			lines = CleanUpLines(lines);
+			SetEffectiveGroup(ref _group);
+			ParsePoLines(lines, _group);
+		}
+
 		private readonly SortedDictionary<string, SortedSet<string>> m_keys = new();
 		private readonly SortedDictionary<string, SortedDictionary<string, string>> m_pluralKeys = new();
 
