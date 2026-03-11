@@ -56,8 +56,8 @@ title: UI Toolkit
 
     <div class="feature-card">
       <div class="card-icon">🌍</div>
-      <h3>Localization</h3>
-      <p>A lightweight localization layer with a provider interface, plural support, and per-component language-change callbacks keeps your UI text in sync with the active language.</p>
+      <h3><a href="Code/localization-overview">Localization</a></h3>
+      <p>GNU gettext-based localization with PO files, Excel/Google Sheets integration, plural forms, and custom providers. <a href="Code/localization-overview">Learn more →</a></p>
     </div>
 
     <div class="feature-card">
@@ -74,3 +74,17 @@ title: UI Toolkit
 
   </div>
 </div>
+
+---
+
+## Documentation
+
+### Localization System
+
+Comprehensive translation support with multiple workflow options:
+
+- **[Overview & Quick Start](Code/localization-overview)** — Architecture, gettext compatibility, getting started
+- **[General Workflow](Code/localization-workflow)** — Setup, key extraction, runtime language switching
+- **[PO Files (gettext)](Code/localization-gettext)** — Traditional workflow with POT/PO files and version control
+- **[Excel Integration](Code/localization-excel)** — Offline editing with local spreadsheets
+- **[Google Sheets](Code/localization-google-sheets)** — Cloud collaboration for distributed teams
