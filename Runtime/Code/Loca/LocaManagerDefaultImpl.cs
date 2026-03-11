@@ -92,7 +92,14 @@ namespace GuiToolkit
 				if (entry == null)
 					continue;
 
+				// Try assembly-qualified name first, fall back to short name for runtime types
 				Type providerType = Type.GetType(entry.TypeName);
+				if (providerType == null && !entry.TypeName.Contains(","))
+				{
+					// Retry with GuiToolkit assembly for backward compat
+					providerType = Type.GetType($"{entry.TypeName}, de.phoenixgrafik.ui-toolkit");
+				}
+
 				if (providerType == null)
 				{
 					UiLog.LogError($"Could not resolve ILocaProvider type '{entry.TypeName}'");
@@ -146,6 +153,12 @@ namespace GuiToolkit
 
 		public override void RegisterProvider( ILocaProvider _provider )
 		{
+			if (_provider == null)
+			{
+				UiLog.LogWarning("RegisterProvider called with null provider; ignoring.");
+				return;
+			}
+
 			if (m_registeredProviders.Contains(_provider))
 				return;
 
@@ -157,6 +170,12 @@ namespace GuiToolkit
 
 		public override void UnregisterProvider( ILocaProvider _provider )
 		{
+			if (_provider == null)
+			{
+				UiLog.LogWarning("UnregisterProvider called with null provider; ignoring.");
+				return;
+			}
+
 			if (!m_registeredProviders.Remove(_provider))
 				return;
 
@@ -227,8 +246,6 @@ namespace GuiToolkit
 		{
 			string currentContext = null;
 			bool currentIsFuzzy = false;
-			string currentTranslatorComment = null;
-			string currentSourceRef = null;
 
 			for (int i = 0; i < _lines.Length; i++)
 			{
@@ -243,12 +260,12 @@ namespace GuiToolkit
 				}
 				if (line1.StartsWith("#."))
 				{
-					currentTranslatorComment = line1.Substring(2).Trim();
+					// Translator comment — unused, skip
 					continue;
 				}
 				if (line1.StartsWith("#:"))
 				{
-					currentSourceRef = line1.Substring(2).Trim();
+					// Source reference — unused, skip
 					continue;
 				}
 
@@ -268,8 +285,6 @@ namespace GuiToolkit
 					// Reset per-entry state
 					currentContext = null;
 					currentIsFuzzy = false;
-					currentTranslatorComment = null;
-					currentSourceRef = null;
 
 					if (i >= _lines.Length - 1)
 					{
@@ -412,14 +427,18 @@ namespace GuiToolkit
 
 				if (line.StartsWith("#"))
 				{
-					// Keep #, (flags), #. (extracted comment), #: (source ref) — they feed into entry metadata.
-					// Strip plain # translator comments and #| previous-entry lines.
-					bool keep = line.StartsWith("#,") || line.StartsWith("#.") || line.StartsWith("#:");
-					if (!keep)
+					// Currently only "#, fuzzy" is consumed (triggers LogWarning in ParsePoLines).
+					// Other comment lines (#. #:) are stripped silently as they are not used by the runtime.
+					if (line.StartsWith("#,") && line.Contains("fuzzy"))
+					{
+						// Preserve the fuzzy line so ParsePoLines can detect it
+						// (all other comment lines are discarded)
+					}
+					else
 					{
 						_lines[i] = null;
 					}
-					// kept comment lines are never a keyword continuation target
+					// Comment lines are never a keyword continuation target
 					continue;
 				}
 

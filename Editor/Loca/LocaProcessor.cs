@@ -104,7 +104,9 @@ namespace GuiToolkit.Editor
 			{
 				var so = (ScriptableObject) locaProvider;
 				UiLog.Log($"Processing Loca Provider {AssetDatabase.GetAssetPath(so)}");
-				locaProviderList.Providers.Add(new LocaProviderEntry { Path = so.name, TypeName = locaProvider.GetType().FullName });
+				var providerType = locaProvider.GetType();
+				var typeName = providerType.AssemblyQualifiedName ?? providerType.FullName;
+				locaProviderList.Providers.Add(new LocaProviderEntry { Path = so.name, TypeName = typeName });
 				locaProvider.CollectData();
 			}, s_options);
 			locaProviderList.Save();

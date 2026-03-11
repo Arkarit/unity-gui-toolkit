@@ -20,7 +20,7 @@ namespace GuiToolkit
 	/// instead of writing to TMP_Text directly.
 	/// </summary>
 
-	[Obsolete("Use UiLocalizedTextMeshProUGUI instead. Run 'Tools > Loca > Migrate UiAutoLocalize' to migrate automatically.")]
+	[Obsolete("Use UiLocalizedTextMeshProUGUI instead. See 'Tools > Loca > Migrate UiAutoLocalize (Find candidates)' to locate usages.")]
 	[DisallowMultipleComponent]
 	[RequireComponent(typeof(TMP_Text))]
 	public class UiAutoLocalize : UiThing, ILocaKeyProvider

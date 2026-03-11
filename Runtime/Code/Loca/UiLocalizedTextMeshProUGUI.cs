@@ -114,8 +114,16 @@ namespace GuiToolkit
 
 		private void ApplyTranslation()
 		{
-			if (!m_autoLocalize || !Application.isPlaying || string.IsNullOrEmpty(m_locaKey))
+			if (!m_autoLocalize || !Application.isPlaying)
 				return;
+
+			if (string.IsNullOrEmpty(m_locaKey))
+			{
+				m_isSettingInternally = true;
+				try { base.text = string.Empty; }
+				finally { m_isSettingInternally = false; }
+				return;
+			}
 
 			var manager = LocaManager.Instance;
 			if (manager == null)

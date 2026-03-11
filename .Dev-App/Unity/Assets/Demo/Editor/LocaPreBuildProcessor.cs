@@ -20,7 +20,8 @@ public class LocaPreBuildProcessor : IPreprocessBuildWithReport
 		}
 		catch (Exception e)
 		{
-			throw new BuildFailedException(e.Message);
+			// BuildFailedException only accepts a string message, so include full exception details
+			throw new BuildFailedException($"Loca pre-build failed: {e}");
 		}
 
 		UiLog.Log("Loca Pre Build Step done");

@@ -64,6 +64,12 @@ namespace GuiToolkit
 			string json = text.text;
 			var result = JsonUtility.FromJson<LocaProviderList>(json);
 
+			if (result == null)
+			{
+				UiLog.LogError($"Failed to deserialize {PATH}.json — JSON may be corrupt.");
+				return new LocaProviderList();
+			}
+
 			// Migrate old string-only entries to LocaProviderEntry
 			if (result.Providers.Count == 0 && result.Paths.Count > 0)
 			{
