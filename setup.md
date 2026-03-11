@@ -32,6 +32,8 @@ Choose a branch or tag. Note that `master` may occasionally be unstable.
 If you want to contribute or work on the toolkit itself:
 
 1. Clone the repository
-2. Run `.Dev-App/Install.bat` (Windows) or `.Dev-App/install.sh` (macOS/Linux)
+2. Run `.Dev-App/Install.bat` (Windows) or `.Dev-App/install.sh` (macOS/Linux) **as a normal user**
    — this creates symlinks linking `Runtime/` and `Editor/` into the dev Unity project
 3. Open `.Dev-App/Unity` in Unity Hub
+
+**Important (Windows):** Do not run `Install.bat` with administrator privileges manually. The script handles UAC elevation automatically. Running it as admin will cause the gh-pages documentation repository to be created with incorrect ownership, preventing Git operations.
