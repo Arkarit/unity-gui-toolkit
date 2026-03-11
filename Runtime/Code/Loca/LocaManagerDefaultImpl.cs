@@ -12,6 +12,11 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// Default implementation of <see cref="LocaManager"/> using GNU gettext-style PO files.
+	/// Loads translation data from Resources, supports localization groups, handles plural forms,
+	/// and integrates dynamic <see cref="ILocaProvider"/> sources.
+	/// </summary>
 	public class LocaManagerDefaultImpl : LocaManager
 	{
 		private const string GROUPS_RESOURCE_NAME = "uitk_loca_groups";
@@ -25,6 +30,13 @@ namespace GuiToolkit
 
 		private readonly List<ILocaProvider> m_registeredProviders = new();
 
+		/// <summary>
+		/// Implements language switching by loading PO files for the specified language.
+		/// In "dev" mode, clears all translations and returns keys unchanged.
+		/// Otherwise loads PO files from Resources, reads registered providers, and populates the translation dictionaries.
+		/// </summary>
+		/// <param name="_language">The target language identifier.</param>
+		/// <returns>True if the language was successfully loaded (or is "dev"), false otherwise.</returns>
 		public override bool ChangeLanguageImpl( string _language )
 		{
 			if (string.IsNullOrEmpty(_language))
@@ -436,6 +448,12 @@ namespace GuiToolkit
 			return result.ToArray();
 		}
 		
+		/// <summary>
+		/// Checks whether a translation key exists in the specified group for the current language.
+		/// </summary>
+		/// <param name="_key">The localization key to check.</param>
+		/// <param name="_group">The group namespace to search in.</param>
+		/// <returns>True if the key exists in the group's translation dictionary, false otherwise.</returns>
 		public override bool HasKey( string _key, string _group )
 		{
 			SetEffectiveGroup(ref _group);
@@ -445,6 +463,16 @@ namespace GuiToolkit
 			return entry.ContainsKey(_key);
 		}
 		
+		/// <summary>
+		/// Translates a singular string key to the currently active language.
+		/// In "dev" mode, returns the key unchanged. Otherwise looks up the key in the translation dictionary.
+		/// If not found, behavior is controlled by <paramref name="_retValIfNotFound"/>.
+		/// Debug mode prefixes missing keys with "*" and empty translations with "#".
+		/// </summary>
+		/// <param name="_s">The localization key (msgid).</param>
+		/// <param name="_group">Optional group namespace for disambiguation. Null uses the default group.</param>
+		/// <param name="_retValIfNotFound">Behavior when the key is not found.</param>
+		/// <returns>Translated string, or a fallback based on <paramref name="_retValIfNotFound"/>.</returns>
 		public override string Translate( string _s, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key )
 		{
 			SetEffectiveGroup(ref _group);
@@ -490,6 +518,18 @@ namespace GuiToolkit
 			return entry.TryGetValue(_key, out _result);
 		}
 
+		/// <summary>
+		/// Translates a pluralized string key according to the active language's plural rules.
+		/// Uses <see cref="LocaPlurals.GetPluralIdx"/> to determine which form to select based on <paramref name="_n"/>.
+		/// If plural index is 0, delegates to the singular <see cref="Translate(string, string, RetValIfNotFound)"/> overload.
+		/// In "dev" mode, returns the plural key unchanged. Otherwise looks up the plural forms in the translation dictionary.
+		/// </summary>
+		/// <param name="_singularKey">The singular form key (msgid).</param>
+		/// <param name="_pluralKey">The plural form key (msgid_plural).</param>
+		/// <param name="_n">The number determining which plural form to use.</param>
+		/// <param name="_group">Optional group namespace for disambiguation.</param>
+		/// <param name="_retValIfNotFound">Behavior when the key is not found.</param>
+		/// <returns>Translated string in the appropriate plural form.</returns>
 		public override string Translate( string _singularKey, string _pluralKey, int _n, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key )
 		{
 			SetEffectiveGroup(ref _group);
@@ -646,9 +686,12 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 		/// <summary>
-		/// Test helper: parse raw PO content directly into the translation dictionaries.
-		/// Sets the instance into non-dev mode so Translate() performs real lookups.
+		/// (Editor-only) Test helper: parse raw PO content directly into the translation dictionaries.
+		/// Sets the instance into non-dev mode so <see cref="Translate(string, string, RetValIfNotFound)"/> performs real lookups.
+		/// Used by unit tests to inject PO data without requiring actual PO files in Resources.
 		/// </summary>
+		/// <param name="_content">Raw PO file content.</param>
+		/// <param name="_group">Optional group namespace. Null uses the default group.</param>
 		internal void ParsePoContentForTest( string _content, string _group = null )
 		{
 			m_isDev = false;

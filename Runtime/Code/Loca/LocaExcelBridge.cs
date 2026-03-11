@@ -24,31 +24,75 @@ using System.Diagnostics;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// ScriptableObject-based localization provider that imports translations from Excel (.xlsx) files.
+	/// Supports both local files and Google Sheets URLs (with optional service account authentication).
+	/// Maps Excel columns to localization keys and language translations, with support for plural forms.
+	/// </summary>
 	[CreateAssetMenu(fileName = nameof(LocaExcelBridge), menuName = StringConstants.LOCA_EXCEL_BRIDGE)]
 	public class LocaExcelBridge : ScriptableObject, ILocaProvider
 	{
+		/// <summary>
+		/// Specifies whether the Excel source is a local file or a Google Sheets document.
+		/// </summary>
 		public enum SourceType
 		{
+			/// <summary>Excel file located on disk.</summary>
 			Local,
+			/// <summary>Excel file hosted on Google Sheets (requires URL).</summary>
 			GoogleDocs,
 		}
 
+		/// <summary>
+		/// Defines how an Excel column should be interpreted during import.
+		/// </summary>
 		public enum EInColumnType
 		{
+			/// <summary>Column is not processed.</summary>
 			Ignore,
+			/// <summary>Column contains the master localization key (msgid).</summary>
 			Key,
+			/// <summary>Column contains translated text for a specific language.</summary>
 			LanguageTranslation,
 		}
 
+		/// <summary>
+		/// Describes how a single Excel column maps to localization data.
+		/// Configures language, key affixes, and plural form index per column.
+		/// </summary>
 		[Serializable]
 		public class InColumnDescription
 		{
-			[ReadOnly] public string Description; // only purpose is making better readable tables in editor
+			/// <summary>
+			/// (Read-only) Human-readable description auto-generated from other fields.
+			/// Displayed in the inspector for easier configuration review.
+			/// </summary>
+			[ReadOnly] public string Description;
+			
+			/// <summary>How this column should be interpreted.</summary>
 			public EInColumnType ColumnType;
-			public string LanguageId;   // manually assigned per language column
+			
+			/// <summary>
+			/// The language identifier for this column (e.g., "en", "de").
+			/// Only used when <see cref="ColumnType"/> is <see cref="EInColumnType.LanguageTranslation"/>.
+			/// </summary>
+			public string LanguageId;
+			
+			/// <summary>
+			/// Optional prefix prepended to keys from this column.
+			/// Useful for namespacing keys from shared Excel sheets.
+			/// </summary>
 			public string KeyPrefix;
+			
+			/// <summary>
+			/// Optional suffix appended to keys from this column.
+			/// </summary>
 			public string KeyPostfix;
-			// -1: singular (no plurals); 0..5: plural form index
+			
+			/// <summary>
+			/// Plural form index for this column: -1 for singular (no plurals), 0-5 for plural forms.
+			/// Allows Excel columns to map to specific msgstr[N] plural slots.
+			/// </summary>
 			public int PluralForm = -1;
 
 			public void UpdateDescriptionField()
@@ -97,10 +141,24 @@ namespace GuiToolkit
 		[Space]
 		[GuiToolkit.ReadOnly][SerializeField] private ProcessedLoca m_processedLoca;
 
+		/// <summary>
+		/// Gets the processed localization data imported from the Excel source.
+		/// Returns an empty <see cref="ProcessedLoca"/> if not yet collected.
+		/// </summary>
 		public ProcessedLoca Localization => m_processedLoca != null ? m_processedLoca : new ProcessedLoca();
 
+		/// <summary>
+		/// Gets the number of configured columns.
+		/// </summary>
 		public int NumColumns => m_columnDescriptions.Count;
 
+		/// <summary>
+		/// Composes the full localization key for a given base key and column index.
+		/// Applies the column's <see cref="InColumnDescription.KeyPrefix"/> and <see cref="InColumnDescription.KeyPostfix"/>.
+		/// </summary>
+		/// <param name="_key">The base key from the Key column.</param>
+		/// <param name="_column">The column index.</param>
+		/// <returns>The composed key with affixes applied, or null if the column is invalid or not a language translation column.</returns>
 		public string GetKey( string _key, int _column )
 		{
 			if (!_column.IsInRange(0, NumColumns))
@@ -113,6 +171,11 @@ namespace GuiToolkit
 			return $"{description.KeyPrefix}{_key}{description.KeyPostfix}";
 		}
 
+		/// <summary>
+		/// Gets the column description for a given column index.
+		/// </summary>
+		/// <param name="_column">The zero-based column index.</param>
+		/// <returns>The <see cref="InColumnDescription"/> for that column, or null if the index is out of range.</returns>
 		public InColumnDescription GetColumnDescription( int _column )
 		{
 			if (_column < 0 || _column >= m_columnDescriptions.Count)

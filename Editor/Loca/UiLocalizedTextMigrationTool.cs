@@ -4,8 +4,18 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
+	/// <summary>
+	/// Editor tool to help migrate from deprecated <see cref="UiAutoLocalize"/> to <see cref="UiLocalizedTextMeshProUGUI"/>.
+	/// Scans all prefabs for UiAutoLocalize components and reports their locations.
+	/// Invoked via Unity menu: Tools > Loca > Migrate UiAutoLocalize (Find candidates).
+	/// </summary>
 	public static class UiLocalizedTextMigrationTool
 	{
+		/// <summary>
+		/// Finds all prefabs containing <see cref="UiAutoLocalize"/> components.
+		/// Reports findings to the console and displays a summary dialog.
+		/// Manual migration is required (replace TextMeshProUGUI with UiLocalizedTextMeshProUGUI on each GameObject).
+		/// </summary>
 		[MenuItem("Tools/Loca/Migrate UiAutoLocalize (Find candidates)")]
 		public static void FindMigrationCandidates()
 		{

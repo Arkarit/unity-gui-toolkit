@@ -3,6 +3,12 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// TextMeshProUGUI subclass with automatic localization support.
+	/// When <see cref="AutoLocalize"/> is enabled, setting the <see cref="LocaKey"/> property
+	/// immediately applies the translated text. Re-translates on language changes.
+	/// Replaces the deprecated <see cref="UiAutoLocalize"/> component.
+	/// </summary>
 	[AddComponentMenu("UI/Localized Text Mesh Pro UGUI")]
 	public class UiLocalizedTextMeshProUGUI : TextMeshProUGUI
 	{
@@ -12,6 +18,11 @@ namespace GuiToolkit
 		private string m_locaKey;
 		private bool m_isSettingInternally;
 
+		/// <summary>
+		/// Gets or sets whether automatic localization is enabled.
+		/// When enabled, changing <see cref="LocaKey"/> immediately applies the translation.
+		/// When disabled, text must be set manually via the <see cref="text"/> property.
+		/// </summary>
 		public bool AutoLocalize
 		{
 			get => m_autoLocalize;
@@ -23,6 +34,10 @@ namespace GuiToolkit
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the localization group namespace.
+		/// Changing this triggers immediate re-translation if <see cref="AutoLocalize"/> is enabled.
+		/// </summary>
 		public string Group
 		{
 			get => m_group;
@@ -30,7 +45,8 @@ namespace GuiToolkit
 		}
 
 		/// <summary>
-		/// The localization key. Setting this re-translates immediately.
+		/// Gets or sets the localization key.
+		/// Setting this immediately re-translates the text if <see cref="AutoLocalize"/> is enabled.
 		/// </summary>
 		public string LocaKey
 		{
@@ -42,6 +58,13 @@ namespace GuiToolkit
 			}
 		}
 
+		/// <summary>
+		/// Overrides the base <see cref="TextMeshProUGUI.text"/> property to intercept external writes.
+		/// When <see cref="AutoLocalize"/> is enabled:
+		/// - Writes from outside this class are treated as new <see cref="LocaKey"/> assignments and trigger translation.
+		/// - A warning is logged in the editor if a key is already set (suggests using <see cref="LocaKey"/> instead).
+		/// When disabled, behaves identically to the base property.
+		/// </summary>
 		public override string text
 		{
 			get => base.text;

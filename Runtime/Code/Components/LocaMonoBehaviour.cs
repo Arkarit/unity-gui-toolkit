@@ -105,6 +105,13 @@ namespace GuiToolkit
 			return _s;
 		}
 		
+		/// <summary>
+		/// Returns a language-appropriate ordinal suffix for a given number.
+		/// Delegates to <see cref="LocaManager.GetOrdinal"/>.
+		/// </summary>
+		/// <param name="_languageId">The language identifier.</param>
+		/// <param name="_number">The number to format.</param>
+		/// <returns>Formatted ordinal string.</returns>
 		protected static string GetOrdinal( string _languageId, int _number)
 		{
 			return LocaManager.Instance.GetOrdinal(_languageId, _number);

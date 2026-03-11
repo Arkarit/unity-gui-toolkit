@@ -5,6 +5,12 @@ using UnityEngine;
 
 namespace GuiToolkit.Editor
 {
+	/// <summary>
+	/// Editor tool that generates the language-specific plural rules implementation for <see cref="LocaPlurals"/>.
+	/// Scans all PO files in the project, extracts "Plural-Forms:" headers, and generates a C# partial class
+	/// with switch-case logic for each language's plural evaluation.
+	/// Invoked via Unity menu: Tools > Loca > Generate Plural Rules.
+	/// </summary>
 	[EditorAware]
 	public static class LocaPluralProcessor
 	{
@@ -48,6 +54,12 @@ namespace GuiToolkit.Editor
 			);
 		}
 		
+		/// <summary>
+		/// Performs the plural rules generation.
+		/// Scans all ".po" TextAssets, extracts "Plural-Forms:" headers, generates the C# switch statement,
+		/// and writes the LocaPlurals.cs partial class to the configured generated assets directory.
+		/// Triggers script recompilation after writing.
+		/// </summary>
 		public static void SafeProcess()
 		{
 			string internalClassProjectPath = UiToolkitConfiguration.Instance.GetUiToolkitRootProjectDir() + "Code/Loca/LocaPlurals.cs";
