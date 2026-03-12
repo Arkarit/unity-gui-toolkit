@@ -160,17 +160,34 @@ namespace GuiToolkit.Editor
 
 		private static bool IsHeaderBlock(List<string> _block)
 		{
-			foreach (var line in _block)
+			int i = 0;
+			// Skip leading comment lines
+			while (i < _block.Count && _block[i].TrimStart().StartsWith("#"))
+				i++;
+
+			if (i >= _block.Count)
+				return false;
+
+			string trimmed = _block[i].TrimStart();
+			if (!trimmed.StartsWith("msgid"))
+				return false;
+
+			string afterKeyword = trimmed.Substring(5).TrimStart();
+			if (afterKeyword != "\"\"")
+				return false;
+
+			i++;
+
+			// If there are non-empty continuation lines the msgid is NOT empty → not a header
+			while (i < _block.Count && _block[i].TrimStart().StartsWith("\""))
 			{
-				string trimmed = line.TrimStart();
-				if (trimmed.StartsWith("#"))
-					continue;
-				if (!trimmed.StartsWith("msgid"))
+				string cont = _block[i].Trim();
+				if (cont != "\"\"" && cont.Length > 2)
 					return false;
-				string afterKeyword = trimmed.Substring(5).TrimStart();
-				return afterKeyword == "\"\"";
+				i++;
 			}
-			return false;
+
+			return true;
 		}
 
 		private static bool IsObsoleteBlock(List<string> _block)
