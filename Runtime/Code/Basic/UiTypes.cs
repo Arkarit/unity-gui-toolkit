@@ -190,6 +190,8 @@ namespace GuiToolkit
 		public const int LOCA_PROCESSOR_MENU_PRIORITY = 100;
 		public const int LOCA_PLURAL_PROCESSOR_MENU_PRIORITY = 110;
 		public const int LOCA_PO_FIXER_MENU_PRIORITY = 120;
+		public const int LOCA_MERGE_POT_MENU_PRIORITY = 130;
+		public const int LOCA_BACKUP_MENU_PRIORITY = 140;
 
 		public const int CONFIG_MANAGER_MENU_PRIORITY = 0;
 		public const int SAVE_PROJECT_ON_LOSE_FOCUS_MENU_PRIORITY = 1000;
@@ -244,6 +246,8 @@ namespace GuiToolkit
 		public const string SCENE_MENU_GENERATOR_HEADER = MENU_HEADER + "Scenes/";
 		public const string SCENE_MENU_GENERATOR = SCENE_MENU_GENERATOR_HEADER + "(Re)Generate List";
 		public const string LOCA_EXCEL_BRIDGE = LOCA_HEADER + "Loca Excel Bridge";
+		public const string LOCA_MERGE_POT_MENU_NAME = LOCA_HEADER + "Merge POT into PO files";
+		public const string LOCA_BACKUP_MENU_NAME = LOCA_HEADER + "Manage PO Backups";
 
 		public const string PLAYER_SETTINGS_COLLECTION = "playerSettings";
 		public const string PLAYER_SETTINGS_ID = "playerSettings";

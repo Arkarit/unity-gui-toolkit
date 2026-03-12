@@ -88,6 +88,9 @@ namespace GuiToolkit
 		public const string HELP_POT_PATH =
 			"Project location of the POT file (translation template containing keys, editor only). This is only necessary if you actually use translation.";
 
+		public const string HELP_AUTO_MERGE_POT_TO_PO =
+			"When enabled, automatically merges POT files into all matching PO files after 'Process Loca' runs.";
+
 		public const string HELP_GENERATED_ASSETS_DIR =
 			  "Several assets need to be generated. Choose your directory here for these files.";
 
@@ -278,6 +281,11 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_POT_PATH)]
 		public string m_potPath;
+
+		[Tooltip(HELP_AUTO_MERGE_POT_TO_PO)]
+		public bool m_autoMergePotToPo = false;
+
+		public bool AutoMergePotToPo => m_autoMergePotToPo;
 
 		[Tooltip(HELP_GENERATED_ASSETS_DIR)]
 		[SerializeField]

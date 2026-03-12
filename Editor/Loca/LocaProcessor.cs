@@ -86,6 +86,9 @@ namespace GuiToolkit.Editor
 			}
 
 			LocaManager.Instance.EdWriteKeyData();
+
+			if (UiToolkitConfiguration.Instance.AutoMergePotToPo)
+				LocaPoMerger.MergeAfterProcessing();
 		}
 		
 		/// <summary>
