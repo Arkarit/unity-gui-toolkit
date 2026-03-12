@@ -152,6 +152,64 @@ namespace GuiToolkit
 		/// </summary>
 		public int NumColumns => m_columnDescriptions.Count;
 
+#if UNITY_EDITOR
+		// Editor-accessible properties (public so the editor assembly can read them).
+
+		/// <summary>(Editor) The configured source type.</summary>
+		public SourceType EdSourceType => m_sourceType;
+
+		/// <summary>(Editor) The Google Sheets URL, if configured.</summary>
+		public string EdGoogleUrl => m_googleUrl;
+
+		/// <summary>(Editor) The local Excel file path, if configured.</summary>
+		public string EdExcelPath => m_excelPath?.Path;
+
+		/// <summary>(Editor) The localization group name.</summary>
+		public string EdGroup => m_group;
+
+		/// <summary>(Editor) Whether Google service-account authentication is enabled.</summary>
+		public bool EdUseGoogleAuth => m_useGoogleAuth;
+
+		/// <summary>(Editor) Path to the service account JSON key file.</summary>
+		public string EdServiceAccountJsonPath => m_serviceAccountJsonPath;
+
+		/// <summary>(Editor) Zero-based row index where translation data starts.</summary>
+		public int EdStartRow => m_startRow;
+
+		/// <summary>
+		/// (Editor) Delegate invoked by <see cref="PushToSpreadsheet"/>.
+		/// Registered by <c>LocaExcelBridgePusher</c> via <c>[InitializeOnLoad]</c>.
+		/// </summary>
+		internal static Action<LocaExcelBridge> s_pushCallback;
+
+		/// <summary>
+		/// Returns <c>true</c> when the current configuration supports pushing translations
+		/// back to the source spreadsheet or exporting them as a CSV file.
+		/// </summary>
+		public bool CanPush =>
+			m_sourceType == SourceType.Local
+				? (m_excelPath != null && !string.IsNullOrEmpty(m_excelPath.Path))
+				: (!string.IsNullOrEmpty(m_googleUrl) && m_useGoogleAuth && !string.IsNullOrEmpty(m_serviceAccountJsonPath));
+
+		/// <summary>
+		/// Pushes the current PO translations back to the configured spreadsheet source.
+		/// For Google Sheets: writes via the Sheets API v4 (requires write-scope auth).
+		/// For local XLSX: exports a CSV file alongside the XLSX with the same base name.
+		/// Actual work is delegated to <c>LocaExcelBridgePusher</c> in the editor assembly.
+		/// </summary>
+		[ContextMenu("Push to Spreadsheet")]
+		public void PushToSpreadsheet()
+		{
+			if (s_pushCallback == null)
+			{
+				UiLog.LogError($"{nameof(LocaExcelBridge)}: Push callback not registered. Ensure the editor assembly is loaded.");
+				return;
+			}
+
+			s_pushCallback.Invoke(this);
+		}
+#endif
+
 		/// <summary>
 		/// Composes the full localization key for a given base key and column index.
 		/// Applies the column's <see cref="InColumnDescription.KeyPrefix"/> and <see cref="InColumnDescription.KeyPostfix"/>.

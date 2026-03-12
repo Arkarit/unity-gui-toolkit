@@ -13,15 +13,32 @@ namespace GuiToolkit
 	internal static class GoogleServiceAccountAuth
 	{
 		private const string SESSION_TOKEN_KEY = "GoogleAuth_Token";
+		private const string SESSION_TOKEN_WRITE_KEY = "GoogleAuth_Token_Write";
 		private const string SESSION_EXPIRY_KEY = "GoogleAuth_Expiry";
+		private const string SESSION_EXPIRY_WRITE_KEY = "GoogleAuth_Expiry_Write";
 
-		public static string GetAccessToken(string _serviceAccountJsonPath)
+		/// <summary>
+		/// Obtains a valid Google OAuth2 access token for the given service account.
+		/// Tokens are cached in <see cref="SessionState"/> for the remainder of the editor session.
+		/// </summary>
+		/// <param name="_serviceAccountJsonPath">Absolute path to the service account JSON key file.</param>
+		/// <param name="_writeAccess">
+		/// When <c>true</c>, requests the read/write Sheets scope
+		/// (<c>https://www.googleapis.com/auth/spreadsheets</c>).
+		/// When <c>false</c> (default), requests read-only Sheets and Drive scopes.
+		/// Read and write tokens are cached independently.
+		/// </param>
+		/// <returns>The bearer token string, or <c>null</c> on failure.</returns>
+		public static string GetAccessToken(string _serviceAccountJsonPath, bool _writeAccess = false)
 		{
 			if (string.IsNullOrEmpty(_serviceAccountJsonPath))
 				return null;
 
-			string cachedToken = SessionState.GetString(SESSION_TOKEN_KEY, null);
-			string cachedExpiry = SessionState.GetString(SESSION_EXPIRY_KEY, null);
+			string tokenKey  = _writeAccess ? SESSION_TOKEN_WRITE_KEY  : SESSION_TOKEN_KEY;
+			string expiryKey = _writeAccess ? SESSION_EXPIRY_WRITE_KEY : SESSION_EXPIRY_KEY;
+
+			string cachedToken  = SessionState.GetString(tokenKey,  null);
+			string cachedExpiry = SessionState.GetString(expiryKey, null);
 
 			if (!string.IsNullOrEmpty(cachedToken) && !string.IsNullOrEmpty(cachedExpiry))
 			{
@@ -38,14 +55,14 @@ namespace GuiToolkit
 				(string clientEmail, string privateKey) = ParseServiceAccountJson(_serviceAccountJsonPath);
 				using (RSACryptoServiceProvider rsa = ImportPkcs8PrivateKey(privateKey))
 				{
-					string jwt = BuildJwt(clientEmail, rsa);
+					string jwt   = BuildJwt(clientEmail, rsa, _writeAccess);
 					string token = FetchAccessToken(jwt);
 					if (token == null)
 						return null;
 
 					long expiry = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3300;
-					SessionState.SetString(SESSION_TOKEN_KEY, token);
-					SessionState.SetString(SESSION_EXPIRY_KEY, expiry.ToString());
+					SessionState.SetString(tokenKey,  token);
+					SessionState.SetString(expiryKey, expiry.ToString());
 					return token;
 				}
 			}
@@ -138,13 +155,16 @@ namespace GuiToolkit
 			return rsa;
 		}
 
-		private static string BuildJwt(string _clientEmail, RSACryptoServiceProvider _rsa)
+		private static string BuildJwt(string _clientEmail, RSACryptoServiceProvider _rsa, bool _writeAccess)
 		{
 			string header = Base64UrlEncode(Encoding.UTF8.GetBytes("{\"alg\":\"RS256\",\"typ\":\"JWT\"}"));
 			long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+			string scope = _writeAccess
+				? "https://www.googleapis.com/auth/spreadsheets"
+				: "https://www.googleapis.com/auth/spreadsheets.readonly https://www.googleapis.com/auth/drive.readonly";
 			string payloadJson =
 				$"{{\"iss\":\"{_clientEmail}\"," +
-				$"\"scope\":\"https://www.googleapis.com/auth/spreadsheets.readonly https://www.googleapis.com/auth/drive.readonly\"," +
+				$"\"scope\":\"{scope}\"," +
 				$"\"aud\":\"https://oauth2.googleapis.com/token\"," +
 				$"\"iat\":{now},\"exp\":{now + 3600}}}";
 			string payload = Base64UrlEncode(Encoding.UTF8.GetBytes(payloadJson));
