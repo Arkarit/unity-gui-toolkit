@@ -52,7 +52,7 @@ namespace GuiToolkit.Editor
 						$"{lang} / {group ?? "default"}",
 						(float)done / toMerge.Count);
 
-					MergeGroupForLanguage(lang, group, dryRun: false);
+					MergeGroupForLanguage(lang, group, _dryRun: false);
 					done++;
 				}
 				AssetDatabase.Refresh();
@@ -172,7 +172,7 @@ namespace GuiToolkit.Editor
 			var total = new PoMergeResult();
 			foreach (var (lang, group) in toMerge)
 			{
-				var r = MergeGroupForLanguage(lang, group, dryRun: true);
+				var r = MergeGroupForLanguage(lang, group, _dryRun: true);
 				if (r == null)
 					continue;
 				total.AddedKeys     += r.AddedKeys;
@@ -201,7 +201,7 @@ namespace GuiToolkit.Editor
 						$"{lang} / {group ?? "default"}",
 						(float)done / toMerge.Count);
 
-					MergeGroupForLanguage(lang, group, dryRun: false);
+					MergeGroupForLanguage(lang, group, _dryRun: false);
 					done++;
 				}
 
