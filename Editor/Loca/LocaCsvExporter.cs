@@ -86,13 +86,46 @@ namespace GuiToolkit.Editor
 				return null;
 			}
 
-			var languages = langEntries.Keys
+			return BuildCsvFromLangEntries(langEntries);
+		}
+
+		/// <summary>
+		/// Builds CSV content from pre-parsed PO data, bypassing file discovery.
+		/// Intended for tests and in-process callers that already hold parsed <see cref="PoFile"/> instances.
+		/// </summary>
+		/// <param name="_data">Sequence of (languageId, parsed PO file) pairs.</param>
+		/// <param name="_group">Ignored; present for API symmetry with <see cref="BuildCsv"/>.</param>
+		/// <returns>The CSV text, or <c>null</c> if <paramref name="_data"/> is empty or null.</returns>
+		internal static string BuildCsvFromData(IList<(string lang, PoFile file)> _data, string _group = null)
+		{
+			if (_data == null || _data.Count == 0)
+				return null;
+
+			var langEntries = new Dictionary<string, List<PoEntry>>(StringComparer.OrdinalIgnoreCase);
+			foreach (var (lang, poFile) in _data)
+			{
+				if (!langEntries.TryGetValue(lang, out var list))
+				{
+					list = new List<PoEntry>();
+					langEntries[lang] = list;
+				}
+				list.AddRange(poFile.Entries.Where(e => !e.IsObsolete));
+			}
+
+			return BuildCsvFromLangEntries(langEntries);
+		}
+
+		private static string BuildCsvFromLangEntries(Dictionary<string, List<PoEntry>> _langEntries)
+		{
+			if (_langEntries.Count == 0)
+				return null;
+
+			var languages = _langEntries.Keys
 				.OrderBy(l => l, StringComparer.OrdinalIgnoreCase)
 				.ToList();
 
-			// Build per-language lookup: ComposedKey -> PoEntry (first occurrence wins).
 			var langLookup = new Dictionary<string, Dictionary<string, PoEntry>>(StringComparer.OrdinalIgnoreCase);
-			foreach (var (lang, entries) in langEntries)
+			foreach (var (lang, entries) in _langEntries)
 			{
 				var lookup = new Dictionary<string, PoEntry>(StringComparer.Ordinal);
 				foreach (var entry in entries)
@@ -103,7 +136,6 @@ namespace GuiToolkit.Editor
 				langLookup[lang] = lookup;
 			}
 
-			// Collect all unique ComposedKeys across all languages; determine max plural form count.
 			var keyOrder = new List<string>();
 			var keySet = new HashSet<string>(StringComparer.Ordinal);
 			var keyInfo = new Dictionary<string, (string msgId, string csvContext)>(StringComparer.Ordinal);
@@ -111,7 +143,7 @@ namespace GuiToolkit.Editor
 
 			foreach (string lang in languages)
 			{
-				foreach (var entry in langEntries[lang])
+				foreach (var entry in _langEntries[lang])
 				{
 					string composed = entry.ComposedKey;
 					if (keySet.Add(composed))
@@ -130,7 +162,6 @@ namespace GuiToolkit.Editor
 
 			keyOrder.Sort(StringComparer.Ordinal);
 
-			// Header row.
 			var header = new List<string> { "Key", "Context" };
 			foreach (string lang in languages)
 			{
@@ -142,7 +173,6 @@ namespace GuiToolkit.Editor
 			var sb = new StringBuilder();
 			sb.AppendLine(ToCsvRow(header));
 
-			// Data rows.
 			foreach (string composed in keyOrder)
 			{
 				var (msgId, csvCtx) = keyInfo[composed];
