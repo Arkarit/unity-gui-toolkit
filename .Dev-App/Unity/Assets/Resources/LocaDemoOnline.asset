@@ -16,6 +16,8 @@ MonoBehaviour:
   m_excelPath:
     m_path: 
   m_googleUrl: https://docs.google.com/spreadsheets/d/17R2Zdu-hcUb2YADfGmfGMt8fQs_3F9NOe7bzOY1k2EY/edit?gid=0#gid=0
+  m_useGoogleAuth: 0
+  m_serviceAccountJsonPath: 
   m_group: 
   m_columnDescriptions:
   - Description: Master Key
@@ -47,38 +49,74 @@ MonoBehaviour:
     Group: 
     Entries:
     - Key: my_online_key
+      Context: 
       LanguageId: de
       Text: "Mein Online-Schl\xFCssel"
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: my_online_key
+      Context: 
       LanguageId: en
       Text: My Online Key!
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: my_online_key
+      Context: 
       LanguageId: lol
       Text: has teh online key
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: online_key00
+      Context: 
       LanguageId: de
       Text: "Online-Schl\xFCssel 00"
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: online_key00
+      Context: 
       LanguageId: en
       Text: Online Key 00
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: online_key00
+      Context: 
       LanguageId: lol
       Text: teh online key 00
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: online_key01
+      Context: 
       LanguageId: de
       Text: "Online-Schl\xFCssel 01"
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: online_key01
+      Context: 
       LanguageId: en
       Text: Online Key 01
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: online_key01
+      Context: 
       LanguageId: lol
       Text: teh online key 01
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 

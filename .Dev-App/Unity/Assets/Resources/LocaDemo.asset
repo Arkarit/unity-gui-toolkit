@@ -16,6 +16,8 @@ MonoBehaviour:
   m_excelPath:
     m_path: Assets/Resources/LocaDemo.xlsx
   m_googleUrl: 
+  m_useGoogleAuth: 0
+  m_serviceAccountJsonPath: 
   m_group: 
   m_columnDescriptions:
   - Description: Master Key
@@ -77,14 +79,23 @@ MonoBehaviour:
     Group: 
     Entries:
     - Key: bla_excel_cat
+      Context: 
       LanguageId: de
       Text: Katzenbeschreibung!
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: bla_excel_key1
+      Context: 
       LanguageId: de
       Text: Bla
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: excel_cat
+      Context: 
       LanguageId: de
       Text: Katze
       Forms:
@@ -94,7 +105,11 @@ MonoBehaviour:
       - 
       - 
       - 
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: excel_cat
+      Context: 
       LanguageId: en_us
       Text: cat
       Forms:
@@ -104,11 +119,19 @@ MonoBehaviour:
       - 
       - 
       - 
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: excel_cat_blupp
+      Context: 
       LanguageId: de
       Text: "Noch ne Katzenbeschreibung\u2026"
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: excel_dog
+      Context: 
       LanguageId: de
       Text: 
       Forms:
@@ -118,7 +141,11 @@ MonoBehaviour:
       - 
       - 
       - 
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: excel_dog
+      Context: 
       LanguageId: en_us
       Text: 
       Forms:
@@ -128,15 +155,30 @@ MonoBehaviour:
       - 
       - 
       - 
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: excel_key1
+      Context: 
       LanguageId: de
       Text: "Excel Schl\xFCssel 1"
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: excel_key1
+      Context: 
       LanguageId: en_us
       Text: Excel Key 1
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 
     - Key: excel_key1_blupp
+      Context: 
       LanguageId: de
       Text: Blupp
       Forms: []
+      IsFuzzy: 0
+      TranslatorComment: 
+      SourceRef: 

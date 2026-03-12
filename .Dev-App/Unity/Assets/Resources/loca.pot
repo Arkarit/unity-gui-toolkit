@@ -1,3 +1,6 @@
+msgid "Alt"
+msgstr ""
+
 msgid "Ambient Occlusion"
 msgstr ""
 
@@ -29,6 +32,9 @@ msgid "Checkbox"
 msgstr ""
 
 msgid "Choose Day!\nLorem Ipsum"
+msgstr ""
+
+msgid "Ctrl"
 msgstr ""
 
 msgid "Date"
@@ -82,6 +88,12 @@ msgstr ""
 msgid "High"
 msgstr ""
 
+msgid "Icons"
+msgstr ""
+
+msgid "Icons Example"
+msgstr ""
+
 msgid "Key '{0}' not supported"
 msgstr ""
 
@@ -92,6 +104,9 @@ msgid "Key Bindings"
 msgstr ""
 
 msgid "Language"
+msgstr ""
+
+msgid "Layout Example"
 msgstr ""
 
 msgid "Light"
@@ -131,6 +146,9 @@ msgid "No"
 msgstr ""
 
 msgid "No Mouse Keys"
+msgstr ""
+
+msgid "None"
 msgstr ""
 
 msgid "NOW"
@@ -211,6 +229,9 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
+msgid "Shift"
+msgstr ""
+
 msgid "Show Full screen tabs dialog"
 msgstr ""
 
@@ -227,6 +248,9 @@ msgid "Sound"
 msgstr ""
 
 msgid "Style Example"
+msgstr ""
+
+msgid "Test Direct Key"
 msgstr ""
 
 msgid "Test Loca Key 1"

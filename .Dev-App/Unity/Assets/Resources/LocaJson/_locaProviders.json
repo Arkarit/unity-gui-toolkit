@@ -1,6 +1,13 @@
 {
-    "Paths": [
-        "LocaDemo",
-        "LocaDemoOnline"
+    "Paths": [],
+    "Providers": [
+        {
+            "Path": "LocaDemo",
+            "TypeName": "GuiToolkit.LocaExcelBridge, de.phoenixgrafik.ui-toolkit, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"
+        },
+        {
+            "Path": "LocaDemoOnline",
+            "TypeName": "GuiToolkit.LocaExcelBridge, de.phoenixgrafik.ui-toolkit, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"
+        }
     ]
 }
