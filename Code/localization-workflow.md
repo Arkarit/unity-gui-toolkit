@@ -243,6 +243,43 @@ Use `LocaExcelBridge` to import from spreadsheets. See:
 
 ---
 
+## Merging POT Changes into PO Files
+
+As your project evolves, new strings are added and old ones are removed. The **merge pipeline** keeps your PO translation files in sync with the POT template without losing existing translations.
+
+### What the Merge Does
+
+When you merge a POT into a PO file, the engine:
+
+1. **Adds new keys** — Keys present in the POT but missing from the PO are added with an empty `msgstr`, ready for translation.
+2. **Preserves existing translations** — Keys found in both files keep their current `msgstr` value intact.
+3. **Marks removed keys as obsolete** — Keys in the PO that are no longer in the POT are prefixed with `#~` (obsolete) rather than deleted outright. Obsolete entries can be reviewed and cleaned up later.
+
+### Auto-Merge
+
+Enable **Auto-Merge** in **Edit > Project Settings > UI Toolkit** (`UiToolkitConfiguration.AutoMergePotToPo`). When enabled, the merge runs automatically every time the POT files are regenerated (e.g., after **`Tools > Loca > Process Loca Keys`**), keeping all PO files up to date with no extra steps.
+
+### Manual Merge
+
+**Menu:** `Gui Toolkit > Localization > Merge POT into PO Files`
+
+This merges every POT file (from the configured **POT Path**) into each matching PO file found in `Assets/Resources/`.
+
+### SSoT Protection
+
+PO files generated from a linked spreadsheet carry an **SSoT (Single Source of Truth) header**:
+
+```
+# Generated from Spreadsheet SSoT
+# Bridge: MyBridge (GUID: ...)
+# Source: https://...
+# DO NOT EDIT MANUALLY — Changes will be overwritten.
+```
+
+Files with this header are **protected**: the merge pipeline skips them to avoid overwriting spreadsheet-managed content. To edit such a file manually, use the **"Make Local Copy"** action in the bridge inspector, which strips the SSoT header and detaches the file from the spreadsheet ("detached" state). A detached file can be freely edited and will participate in future merges normally.
+
+---
+
 ## Runtime Language Switching
 
 ### Changing Language

@@ -223,6 +223,34 @@ Now **`Tools > Loca > Process Loca Providers`** will authenticate and download t
 
 ---
 
+## Pushing Translations to Google Sheets
+
+In addition to pulling translations **from** a Google Sheet, the toolkit can write translations back to the sheet. This is useful when you've made edits locally (e.g., to the PO files) and want to sync them back to the sheet for your translators.
+
+### Prerequisites
+
+- The Service Account must have **Editor** permission on the sheet (not just Viewer).
+- **Use Authentication** must be enabled in the `LocaExcelBridge` inspector.
+
+### Enabling Write Access
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), the **Google Sheets API** must be enabled with the `spreadsheets` scope (not `spreadsheets.readonly`).
+2. In your Google Sheet, re-share with the service account email and set the permission to **Editor**.
+3. In the `LocaExcelBridge` inspector, tick **Use Authentication** and set the **Service Account JSON Path**.
+
+### Using the Push Button
+
+Once authentication is configured and the service account has Editor access, a **Push** button becomes available in the `LocaExcelBridge` inspector (the `CanPush` condition is satisfied). Clicking it:
+
+1. Serializes the current in-memory translation data to a sheet-compatible format.
+2. Writes the data directly to the linked Google Sheet, overwriting its contents.
+
+> **Warning:** Pushing **overwrites** the sheet content. Make sure translators have saved their work or that you are pushing intentionally. Consider using Google Sheets' revision history to recover from unintended overwrites.
+
+> **Note on OAuth scope:** The standard read-only import uses the `spreadsheets.readonly` scope. Push operations require the full `spreadsheets` scope. The toolkit automatically requests the correct scope based on whether write operations are needed.
+
+---
+
 ## Advanced Configuration
 
 ### Multiple Sheets in One Document

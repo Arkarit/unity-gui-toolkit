@@ -15,6 +15,8 @@ The system supports:
 - **Custom providers**: Extensible architecture for DLC, databases, or other data sources
 - **Runtime language switching**: Change languages on-the-fly without restarting
 - **Automatic UI updates**: Components automatically refresh when language changes
+- **Push/pull synchronization**: Pull translations from Google Sheets or push local changes back; merge POT template changes into PO files while preserving existing translations
+- **CSV export**: Export all translations to a spreadsheet-compatible CSV for review or offline editing
 
 ![Localization System Architecture](../assets/loca-architecture.png)
 *The localization system connects translation sources to UI components via the LocaManager*

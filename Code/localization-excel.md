@@ -243,6 +243,40 @@ string translation = _(key);
 
 ---
 
+## Exporting Translations to CSV
+
+The toolkit can export all PO translation files to a single CSV file compatible with the `LocaExcelBridge` column layout. This is useful for sharing translations with non-Unity tools, creating a snapshot for review, or importing back via `LocaExcelBridge`.
+
+### Running the Export
+
+**Menu:** `Gui Toolkit > Localization > Export to CSV`
+
+A save dialog opens; choose a destination path and file name (default: `translations.csv`). All PO files in `Assets/Resources/` are merged into the output.
+
+To export only a specific group, call `LocaCsvExporter.Export(path, groupName)` from an editor script.
+
+### CSV Format
+
+| Key | Context | en | de | de[0] | de[1] |
+|-----|---------|----|----|-------|-------|
+| hello | | Hello | Hallo | | |
+| apple | PLURAL:apples | | | Apfel | Äpfel |
+| open | verb | Open | Öffnen | | |
+
+- **Key** — The `msgid` value (English source string).
+- **Context** — The `msgctxt` value, or `PLURAL:{msgid_plural}` for plural entries.
+- **`{lang}`** — Singular translation for that language.
+- **`{lang}[N]`** — Plural form N for that language (only present when any entry has plural forms).
+
+Empty cells indicate a missing translation for that key in that language.
+
+### Using the CSV with Excel or LocaExcelBridge
+
+- **Open in Excel/LibreOffice**: The UTF-8 CSV opens directly. Use it for review, translation, or sharing with non-programmers.
+- **Re-import via LocaExcelBridge**: Save the edited file as `.xlsx` and configure a `LocaExcelBridge` with the matching column layout (Key column, one `LanguageTranslation` column per language, plural form columns as needed).
+
+---
+
 ## Workflow Tips
 
 ### Editing Workflow
