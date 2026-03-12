@@ -162,7 +162,7 @@ namespace GuiToolkit
 		public string EdGoogleUrl => m_googleUrl;
 
 		/// <summary>(Editor) The local Excel file path, if configured.</summary>
-		public string EdExcelPath => m_excelPath?.Path;
+		public string EdExcelPath => m_excelPath.Path;
 
 		/// <summary>(Editor) The localization group name.</summary>
 		public string EdGroup => m_group;
