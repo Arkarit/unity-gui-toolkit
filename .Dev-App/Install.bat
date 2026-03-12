@@ -30,26 +30,41 @@
   
   REM ::::::::::::::::::::::::::::
   REM NON-ADMIN SECTION (before elevation)
+  REM This section runs as the normal (non-admin) user and handles the gh-pages
+  REM working copy. It must run BEFORE elevation because symlinks created by an
+  REM elevated process are owned by the admin account, which causes Git to treat
+  REM the cloned repo as an "unsafe directory" for the normal user.
   REM ::::::::::::::::::::::::::::
-  
-  REM Resolve repo root (parent of .Dev-App)
+
+  REM Check that git is available before doing anything git-related.
+  where git >nul 2>nul
+  if errorlevel 1 (
+    ECHO ERROR: 'git' was not found in PATH. Please install Git and re-run this script.
+    pause
+    exit /B 1
+  )
+
+  REM Resolve repo root (parent of .Dev-App, i.e. the package root).
   pushd "%batchDir%.."
   set "REPO_ROOT=%CD%"
   popd
-  
-  REM Resolve parent directory
+
+  REM The gh-pages working copy is placed NEXT TO the package repo (not inside it)
+  REM so it does not appear as an untracked subfolder in the main repo's git status.
   pushd "%REPO_ROOT%\.."
   set "REPO_PARENT=%CD%"
   popd
-  
+
   set "GHPAGES_DIR=%REPO_PARENT%\unity-gui-toolkit-gh-pages"
-  
+
   if exist "%GHPAGES_DIR%\.git" (
     ECHO gh-pages repo already exists at "%GHPAGES_DIR%"
   ) else (
     ECHO Creating gh-pages working copy at "%GHPAGES_DIR%" ^(as current user^)
     mkdir "%GHPAGES_DIR%" 2>nul
-    ECHO Copying .git directory to preserve credentials...
+    REM Copy the .git metadata from the main repo so the new working copy shares
+    REM the same remote URL and stored credentials without needing a fresh clone.
+    ECHO Copying .git directory to share remote and credentials...
     xcopy /E /I /H /Y "%REPO_ROOT%\.git" "%GHPAGES_DIR%\.git" >nul
     if errorlevel 1 (
       ECHO Failed to copy .git directory. Skipping gh-pages setup.

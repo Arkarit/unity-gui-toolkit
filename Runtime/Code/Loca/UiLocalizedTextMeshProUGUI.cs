@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -16,6 +17,11 @@ namespace GuiToolkit
 		[SerializeField] private string m_group = string.Empty;
 
 		private string m_locaKey;
+
+		// TMP's text setter does not fire an event we can filter; it is a plain property.
+		// Overriding it (see below) creates a direct re-entry path: ApplyTranslation() calls
+		// base.text = …, which would call our override again and loop forever.
+		// This flag breaks the cycle so only the outermost call reaches base.text.
 		private bool m_isSettingInternally;
 
 		/// <summary>
@@ -65,6 +71,11 @@ namespace GuiToolkit
 		/// - A warning is logged in the editor if a key is already set (suggests using <see cref="LocaKey"/> instead).
 		/// When disabled, behaves identically to the base property.
 		/// </summary>
+		/// <remarks>
+		/// The re-entry guard (<c>m_isSettingInternally</c>) is required because <c>ApplyTranslation</c>
+		/// writes through <c>base.text</c>, which routes back into this same override. Without the guard
+		/// that call would be misidentified as an external write and loop indefinitely.
+		/// </remarks>
 		public override string text
 		{
 			get => base.text;
@@ -127,7 +138,12 @@ namespace GuiToolkit
 
 			var manager = LocaManager.Instance;
 			if (manager == null)
+			{
+				// LocaManager is not yet initialized (e.g. Bootstrap still running at scene load).
+				// Retry next frame so the translation is applied as soon as the manager is ready.
+				StartCoroutine(RetryNextFrame());
 				return;
+			}
 
 			m_isSettingInternally = true;
 			try
@@ -138,6 +154,12 @@ namespace GuiToolkit
 			{
 				m_isSettingInternally = false;
 			}
+		}
+
+		private IEnumerator RetryNextFrame()
+		{
+			yield return null;
+			ApplyTranslation();
 		}
 	}
 }
