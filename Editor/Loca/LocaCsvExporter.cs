@@ -96,7 +96,7 @@ namespace GuiToolkit.Editor
 		/// <param name="_data">Sequence of (languageId, parsed PO file) pairs.</param>
 		/// <param name="_group">Ignored; present for API symmetry with <see cref="BuildCsv"/>.</param>
 		/// <returns>The CSV text, or <c>null</c> if <paramref name="_data"/> is empty or null.</returns>
-		internal static string BuildCsvFromData(IList<(string lang, PoFile file)> _data, string _group = null)
+		public static string BuildCsvFromData(IList<(string lang, PoFile file)> _data, string _group = null)
 		{
 			if (_data == null || _data.Count == 0)
 				return null;
