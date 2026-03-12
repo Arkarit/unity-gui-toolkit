@@ -250,23 +250,34 @@ namespace GuiToolkit.Editor
 		private static List<(string lang, string group)> FindAllLocaFiles()
 		{
 			var result = new List<(string, string)>();
+			var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 			string[] guids = AssetDatabase.FindAssets("t:textasset");
 
 			foreach (string guid in guids)
 			{
 				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-				if (!assetPath.EndsWith(".po.txt", StringComparison.OrdinalIgnoreCase))
+
+				// Accept both "de.po.txt" (Unity TextAsset convention) and bare "de.po"
+				string baseName;
+				if (assetPath.EndsWith(".po.txt", StringComparison.OrdinalIgnoreCase))
+					baseName = Path.GetFileName(assetPath.Substring(0, assetPath.Length - ".txt".Length)); // → "de.po"
+				else if (assetPath.EndsWith(".po", StringComparison.OrdinalIgnoreCase))
+					baseName = Path.GetFileName(assetPath); // → "de.po"
+				else
 					continue;
 
-				// Strip .po.txt → base name like "en" or "en_mygroup"
-				string baseName = Path.GetFileName(assetPath);
-				baseName = baseName.Substring(0, baseName.Length - ".po.txt".Length);
+				// Strip trailing ".po" to get the language/group base name
+				string key = baseName.Substring(0, baseName.Length - ".po".Length);
 
-				int underscoreIdx = baseName.IndexOf('_');
+				// Prefer .po.txt — skip if we already registered this key from that extension
+				if (!seen.Add(key))
+					continue;
+
+				int underscoreIdx = key.IndexOf('_');
 				if (underscoreIdx < 0)
-					result.Add((baseName, null));
+					result.Add((key, null));
 				else
-					result.Add((baseName.Substring(0, underscoreIdx), baseName.Substring(underscoreIdx + 1)));
+					result.Add((key.Substring(0, underscoreIdx), key.Substring(underscoreIdx + 1)));
 			}
 
 			return result;
@@ -301,7 +312,22 @@ namespace GuiToolkit.Editor
 		private static string GetPoPhysicalPath(string _languageId, string _group)
 		{
 			string groupAppendix = string.IsNullOrEmpty(_group) ? string.Empty : $"_{_group}";
-			return Path.Combine(Application.dataPath, "Resources", $"{_languageId}{groupAppendix}.po");
+			string resourcesDir = Path.Combine(Application.dataPath, "Resources");
+			string baseName = $"{_languageId}{groupAppendix}.po";
+
+			// Unity loads PO files via Resources.Load<TextAsset>("{lang}.po") which maps to
+			// "{lang}.po.txt" on disk (Unity strips the last .txt extension for TextAssets).
+			// Prefer the .po.txt canonical form; fall back to bare .po if that already exists.
+			string txtPath = Path.Combine(resourcesDir, baseName + ".txt");
+			if (File.Exists(txtPath))
+				return txtPath;
+
+			string poPath = Path.Combine(resourcesDir, baseName);
+			if (File.Exists(poPath))
+				return poPath;
+
+			// Neither exists yet — create as .po.txt (the canonical Unity TextAsset form)
+			return txtPath;
 		}
 
 		private static PoFile CreateEmptyPoFile(string _languageId)

@@ -214,9 +214,12 @@ namespace GuiToolkit.Editor
 			if (!Directory.Exists(resourcesPath))
 				return result;
 
+			// Collect both .po and .po.txt; .po.txt takes precedence (Unity TextAsset canonical form).
 			IEnumerable<string> allFiles =
-				Directory.GetFiles(resourcesPath, "*.po", SearchOption.TopDirectoryOnly)
-				.Concat(Directory.GetFiles(resourcesPath, "*.po.txt", SearchOption.TopDirectoryOnly));
+				Directory.GetFiles(resourcesPath, "*.po.txt", SearchOption.TopDirectoryOnly)
+				.Concat(Directory.GetFiles(resourcesPath, "*.po", SearchOption.TopDirectoryOnly));
+
+			var seenKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
 			foreach (string filePath in allFiles)
 			{
@@ -230,6 +233,10 @@ namespace GuiToolkit.Editor
 					continue;
 
 				if (string.IsNullOrEmpty(baseName))
+					continue;
+
+				// Skip duplicate keys — .po.txt already handled because it comes first.
+				if (!seenKeys.Add(baseName))
 					continue;
 
 				// Filename format: {lang} or {lang}_{group}.
