@@ -266,14 +266,14 @@ namespace GuiToolkit
 
 
 			// Infer column config only if not yet configured (never overwrite existing user configuration)
-			if (m_columnDescriptions == null || m_columnDescriptions.Count == 0)
+			if (m_columnDescriptions == null || m_columnDescriptions.Count < colCount)
 			{
-				m_columnDescriptions = new List<InColumnDescription>(colCount);
-				for (int c = 0; c < colCount; c++)
+				m_columnDescriptions ??= new List<InColumnDescription>(colCount);
+				for (int c = m_columnDescriptions.Count; c < colCount; c++)
 				{
 					m_columnDescriptions.Add(new InColumnDescription
 					{
-						ColumnType = (c == 0) ? EInColumnType.Key : EInColumnType.LanguageTranslation,
+						ColumnType = (c == 0) ? EInColumnType.Key : EInColumnType.Ignore,
 						KeyPrefix = string.Empty,
 						KeyPostfix = string.Empty,
 						LanguageId = string.Empty,
