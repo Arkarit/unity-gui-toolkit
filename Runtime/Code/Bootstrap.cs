@@ -71,7 +71,10 @@ namespace GuiToolkit
 			// Config needs to be initialized first, because some other modules will need it for values.
 			Log("Initialize UiToolkitConfiguration");
 			UiToolkitConfiguration.Initialize();
+			
+#if UNITY_EDITOR
 			DoxygenConfig.Initialize();
+#endif
 
 			if (Application.isPlaying)
 				InitializeRuntime();
