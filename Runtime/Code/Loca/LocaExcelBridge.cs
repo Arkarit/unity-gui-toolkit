@@ -337,8 +337,8 @@ namespace GuiToolkit
 			}
 
 
-			// Infer column config if not matching column count
-			if (m_columnDescriptions == null || m_columnDescriptions.Count != colCount)
+			// Infer column config only if not yet configured (never overwrite existing user configuration)
+			if (m_columnDescriptions == null || m_columnDescriptions.Count == 0)
 			{
 				m_columnDescriptions = new List<InColumnDescription>(colCount);
 				for (int c = 0; c < colCount; c++)
