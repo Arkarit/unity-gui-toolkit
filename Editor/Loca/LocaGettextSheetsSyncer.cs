@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using GuiToolkit;
 
 namespace GuiToolkit.Editor
 {
@@ -52,76 +53,14 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			// Collect languages and their maximum plural-form counts.
-			var langMaxPluralForms = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-			var langOrder = new List<string>();
-
+			var poData = new List<(string lang, PoFile file)>(poFiles.Count);
 			foreach (var (lang, _, filePath) in poFiles)
 			{
-				string normLang = lang.Trim().ToLowerInvariant();
-				if (!langMaxPluralForms.ContainsKey(normLang))
-				{
-					langMaxPluralForms[normLang] = 0;
-					langOrder.Add(normLang);
-				}
-
 				string content = File.ReadAllText(filePath, Encoding.UTF8);
-				var poFile = PoFile.Parse(content);
-
-				int maxForms = langMaxPluralForms[normLang];
-				foreach (var entry in poFile.Entries)
-				{
-					if (entry.IsObsolete || !entry.IsPlural || entry.MsgStrForms == null)
-						continue;
-					maxForms = Math.Max(maxForms, entry.MsgStrForms.Length);
-				}
-				langMaxPluralForms[normLang] = maxForms;
+				poData.Add((lang, PoFile.Parse(content)));
 			}
 
-			langOrder.Sort(StringComparer.OrdinalIgnoreCase);
-
-			// Build the desired column list from PO data.
-			var newColumns = new List<LocaExcelBridge.InColumnDescription>();
-
-			var keyCol = new LocaExcelBridge.InColumnDescription
-			{
-				ColumnType = LocaExcelBridge.EInColumnType.Key,
-				LanguageId = string.Empty,
-				KeyPrefix   = string.Empty,
-				KeyPostfix  = string.Empty,
-				PluralForm  = -1,
-			};
-			keyCol.UpdateDescriptionField();
-			newColumns.Add(keyCol);
-
-			foreach (string lang in langOrder)
-			{
-				var singularCol = new LocaExcelBridge.InColumnDescription
-				{
-					ColumnType = LocaExcelBridge.EInColumnType.LanguageTranslation,
-					LanguageId = lang,
-					KeyPrefix   = string.Empty,
-					KeyPostfix  = string.Empty,
-					PluralForm  = -1,
-				};
-				singularCol.UpdateDescriptionField();
-				newColumns.Add(singularCol);
-
-				int maxForms = langMaxPluralForms[lang];
-				for (int i = 0; i < maxForms; i++)
-				{
-					var pluralCol = new LocaExcelBridge.InColumnDescription
-					{
-						ColumnType = LocaExcelBridge.EInColumnType.LanguageTranslation,
-						LanguageId = lang,
-						KeyPrefix   = string.Empty,
-						KeyPostfix  = string.Empty,
-						PluralForm  = i,
-					};
-					pluralCol.UpdateDescriptionField();
-					newColumns.Add(pluralCol);
-				}
-			}
+			var newColumns = BuildColumnsFromPoData(poData);
 
 			// Merge with existing columns, keeping existing entries for matches.
 			var existingColumns = _bridge.EdColumnDescriptions;
@@ -303,37 +242,7 @@ namespace GuiToolkit.Editor
 					if (!lookup.TryGetValue(composedKey, out var poEntry))
 						continue;
 
-					bool entryModified = false;
-
-					// Merge singular translation (conservative).
-					if (!string.IsNullOrEmpty(entry.Text) && string.IsNullOrEmpty(poEntry.MsgStr))
-					{
-						poEntry.MsgStr = entry.Text;
-						entryModified  = true;
-					}
-
-					// Merge plural forms (conservative).
-					if (entry.Forms != null)
-					{
-						for (int i = 0; i < entry.Forms.Length; i++)
-						{
-							if (string.IsNullOrEmpty(entry.Forms[i]))
-								continue;
-
-							if (poEntry.MsgStrForms == null)
-								poEntry.MsgStrForms = new string[Math.Max(2, i + 1)];
-							else if (poEntry.MsgStrForms.Length <= i)
-								Array.Resize(ref poEntry.MsgStrForms, i + 1);
-
-							if (string.IsNullOrEmpty(poEntry.MsgStrForms[i]))
-							{
-								poEntry.MsgStrForms[i] = entry.Forms[i];
-								entryModified = true;
-							}
-						}
-					}
-
-					if (entryModified)
+					if (MergeTranslationIntoPoEntry(entry, poEntry))
 					{
 						dirtyFiles.Add(filePath);
 						updatedCount++;
@@ -465,7 +374,7 @@ namespace GuiToolkit.Editor
 
 			msgIdOrder.Sort(StringComparer.Ordinal);
 
-			var newKeys = msgIdOrder.Where(k => !existingKeys.Contains(k)).ToList();
+			var newKeys = FindNewKeys(existingKeys, msgIdOrder);
 
 			if (newKeys.Count == 0)
 			{
@@ -503,6 +412,140 @@ namespace GuiToolkit.Editor
 			EditorUtility.DisplayDialog("Push new keys",
 				$"Successfully appended {newKeys.Count} new key(s) to the sheet.", "OK");
 			UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Pushed {newKeys.Count} new key(s) to sheet '{spreadsheetId}'.");
+		}
+
+		// -----------------------------------------------------------------------
+		// Internal helpers exposed for testing
+		// -----------------------------------------------------------------------
+
+		/// <summary>
+		/// Builds a canonical column list from parsed PO file data.
+		/// Produces one Key column followed by, for each language (sorted alphabetically),
+		/// a singular column and one column per plural form used in any entry.
+		/// </summary>
+		internal static List<LocaExcelBridge.InColumnDescription> BuildColumnsFromPoData(
+			IList<(string lang, PoFile file)> _poData)
+		{
+			var langMaxPluralForms = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+			var langOrder = new List<string>();
+
+			foreach (var (lang, poFile) in _poData)
+			{
+				string normLang = lang.Trim().ToLowerInvariant();
+				if (!langMaxPluralForms.ContainsKey(normLang))
+				{
+					langMaxPluralForms[normLang] = 0;
+					langOrder.Add(normLang);
+				}
+
+				int maxForms = langMaxPluralForms[normLang];
+				foreach (var entry in poFile.Entries)
+				{
+					if (entry.IsObsolete || !entry.IsPlural || entry.MsgStrForms == null)
+						continue;
+					maxForms = Math.Max(maxForms, entry.MsgStrForms.Length);
+				}
+				langMaxPluralForms[normLang] = maxForms;
+			}
+
+			langOrder.Sort(StringComparer.OrdinalIgnoreCase);
+
+			var columns = new List<LocaExcelBridge.InColumnDescription>();
+
+			var keyCol = new LocaExcelBridge.InColumnDescription
+			{
+				ColumnType = LocaExcelBridge.EInColumnType.Key,
+				LanguageId = string.Empty,
+				KeyPrefix  = string.Empty,
+				KeyPostfix = string.Empty,
+				PluralForm = -1,
+			};
+			keyCol.UpdateDescriptionField();
+			columns.Add(keyCol);
+
+			foreach (string lang in langOrder)
+			{
+				var singularCol = new LocaExcelBridge.InColumnDescription
+				{
+					ColumnType = LocaExcelBridge.EInColumnType.LanguageTranslation,
+					LanguageId = lang,
+					KeyPrefix  = string.Empty,
+					KeyPostfix = string.Empty,
+					PluralForm = -1,
+				};
+				singularCol.UpdateDescriptionField();
+				columns.Add(singularCol);
+
+				int maxForms = langMaxPluralForms[lang];
+				for (int i = 0; i < maxForms; i++)
+				{
+					var pluralCol = new LocaExcelBridge.InColumnDescription
+					{
+						ColumnType = LocaExcelBridge.EInColumnType.LanguageTranslation,
+						LanguageId = lang,
+						KeyPrefix  = string.Empty,
+						KeyPostfix = string.Empty,
+						PluralForm = i,
+					};
+					pluralCol.UpdateDescriptionField();
+					columns.Add(pluralCol);
+				}
+			}
+
+			return columns;
+		}
+
+		/// <summary>
+		/// Conservatively merges a <see cref="ProcessedLocaEntry"/> into a <see cref="PoEntry"/>.
+		/// Only fills cells that are currently empty — existing translations are preserved.
+		/// </summary>
+		/// <returns><c>true</c> if any field was updated; <c>false</c> if nothing changed.</returns>
+		internal static bool MergeTranslationIntoPoEntry(ProcessedLocaEntry _entry, PoEntry _poEntry)
+		{
+			bool modified = false;
+
+			if (!string.IsNullOrEmpty(_entry.Text) && string.IsNullOrEmpty(_poEntry.MsgStr))
+			{
+				_poEntry.MsgStr = _entry.Text;
+				modified = true;
+			}
+
+			if (_entry.Forms != null)
+			{
+				for (int i = 0; i < _entry.Forms.Length; i++)
+				{
+					if (string.IsNullOrEmpty(_entry.Forms[i]))
+						continue;
+
+					if (_poEntry.MsgStrForms == null)
+						_poEntry.MsgStrForms = new string[Math.Max(2, i + 1)];
+					else if (_poEntry.MsgStrForms.Length <= i)
+						Array.Resize(ref _poEntry.MsgStrForms, i + 1);
+
+					if (string.IsNullOrEmpty(_poEntry.MsgStrForms[i]))
+					{
+						_poEntry.MsgStrForms[i] = _entry.Forms[i];
+						modified = true;
+					}
+				}
+			}
+
+			return modified;
+		}
+
+		/// <summary>
+		/// Returns the subset of <paramref name="_allMsgIds"/> that is not present in
+		/// <paramref name="_existingKeys"/>, preserving the order of <paramref name="_allMsgIds"/>.
+		/// </summary>
+		internal static List<string> FindNewKeys(ICollection<string> _existingKeys, IEnumerable<string> _allMsgIds)
+		{
+			var result = new List<string>();
+			foreach (string key in _allMsgIds)
+			{
+				if (!_existingKeys.Contains(key))
+					result.Add(key);
+			}
+			return result;
 		}
 
 		// -----------------------------------------------------------------------
@@ -548,7 +591,7 @@ namespace GuiToolkit.Editor
 		// JSON builders and parsers
 		// -----------------------------------------------------------------------
 
-		private static string BuildValuesJson(List<List<string>> _rows)
+		internal static string BuildValuesJson(List<List<string>> _rows)
 		{
 			var sb = new StringBuilder();
 			sb.Append("{\"values\":[");
@@ -573,7 +616,7 @@ namespace GuiToolkit.Editor
 			return sb.ToString();
 		}
 
-		private static List<List<string>> ParseSheetValues(string _json)
+		internal static List<List<string>> ParseSheetValues(string _json)
 		{
 			var result = new List<List<string>>();
 			if (string.IsNullOrEmpty(_json))
@@ -712,7 +755,7 @@ namespace GuiToolkit.Editor
 			return ReverseKeyAffixes(_key, _desc.KeyPrefix, _desc.KeyPostfix);
 		}
 
-		private static string ReverseKeyAffixes(string _key, string _prefix, string _postfix)
+		internal static string ReverseKeyAffixes(string _key, string _prefix, string _postfix)
 		{
 			string result  = _key     ?? string.Empty;
 			string prefix  = _prefix  ?? string.Empty;
@@ -726,7 +769,7 @@ namespace GuiToolkit.Editor
 			return result;
 		}
 
-		private static string ExtractSpreadsheetId(string _url)
+		internal static string ExtractSpreadsheetId(string _url)
 		{
 			if (string.IsNullOrEmpty(_url))
 				return null;
