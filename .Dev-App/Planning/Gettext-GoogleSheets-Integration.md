@@ -1,114 +1,115 @@
 # Gettext ↔ Google Sheets Integration
 
-## Ziel
+## Goal
 
-Entwickler definieren Lokalisierungskeys direkt im Code (`_()`, `gettext()`, etc.).
-Diese Keys finden automatisch den Weg in Google Sheets, sodass Übersetzer in ihrer
-gewohnten Umgebung arbeiten können. Übersetzungen kommen dann zurück ins Projekt.
+Developers define localization keys directly in code (`_()`, `gettext()`, etc.).
+Those keys automatically flow into Google Sheets so that translators can work in
+their familiar environment. Translations then flow back into the project.
 
 ---
 
-## Angedachter Datenfluss
+## Proposed Data Flow
 
 ```
 Code (_(), gettext(), …)
         │
         ▼
-  LocaProcessor          ← bereits implementiert
-        │ POT-Datei(en)
+  LocaProcessor          ← already implemented
+        │ POT file(s)
         ▼
-  PoMergeEngine          ← bereits implementiert
-        │ PO-Datei(en) (neue Keys leer, bestehende Übersetzungen erhalten)
+  PoMergeEngine          ← already implemented
+        │ PO file(s) (new keys empty, existing translations preserved)
         ▼
-  [PUSH] Google Sheets   ← NEU: nur neue Zeilen hinzufügen, nie überschreiben
+  [PUSH] Google Sheets   ← NEW: append new rows only, never overwrite
         │
-  Übersetzer füllen Sheets aus
+  Translators fill in Sheets
         │
         ▼
-  [PULL] PO-Dateien      ← teilweise implementiert (LocaExcelBridge liest bereits)
+  [PULL] PO files        ← partially implemented (LocaExcelBridge already reads)
         │
         ▼
      Runtime
 ```
 
-### Push-Richtung (PO → Sheets)
-- **Konservativ**: nur neue Zeilen (Keys) anhängen, die noch nicht in Sheets existieren
-- Bestehende Übersetzungen werden **niemals** überschrieben
-- Leere `msgstr`-Felder werden als leere Zellen eingefügt (Übersetzer füllen aus)
-- Wenn Sheets noch leer ist: Header-Zeile anlegen, dann Keys einfügen
+### Push direction (PO → Sheets)
+- **Conservative**: only append rows for keys that do not yet exist in Sheets
+- Existing translations are **never** overwritten
+- Empty `msgstr` fields are written as empty cells (translators fill them in)
+- If the sheet is empty: write the header row first, then append keys
 
-### Pull-Richtung (Sheets → PO)
-- **Autoritativ**: Sheets ist SSoT für Übersetzungen
-- Aktualisiert `msgstr` in PO-Dateien für alle Keys die in Sheets einen Wert haben
-- Keys die im PO aber nicht in Sheets existieren → bleiben unberührt (merge, nicht ersetzen)
-- SSoT-Protection (`PoSsotProtector`) greift falls jemand PO-Dateien manuell bearbeitet
-
----
-
-## PO als sinnvoller Zwischenschritt
-
-Obwohl ein direkter Code→Sheets-Weg möglich wäre, lohnt der PO-Zwischenschritt:
-- **Lokaler Cache**: Projekt funktioniert offline
-- **Git-History**: Übersetzungsänderungen sind nachvollziehbar
-- **Plural-Handling**: PO-Format verwaltet Pluralformen sauber; Mapping zu Sheets-Spalten ist bereits in LocaExcelBridge implementiert
-- **Bereits implementiert**: LocaProcessor, PoMergeEngine, PO-Parser sind alle vorhanden; nur die Brücke Richtung Sheets fehlt
+### Pull direction (Sheets → PO)
+- **Authoritative**: Sheets is the SSoT for translations
+- Updates `msgstr` in PO files for every key that has a value in Sheets
+- Keys present in PO but absent from Sheets → left untouched (merge, not replace)
+- SSoT protection (`PoSsotProtector`) triggers if someone edits PO files manually
 
 ---
 
-## Offene Designentscheidungen
+## Why PO as an Intermediate Step
 
-### 1. msgctxt → Sheets-Spalten
-PO kennt `msgctxt`; Sheets kennt `KeyPrefix`/`KeyPostfix` in der Bridge-Konfiguration.
+A direct Code→Sheets path would be possible, but the PO intermediate pays off:
+- **Local cache**: project works offline
+- **Git history**: translation changes are traceable
+- **Plural handling**: PO format manages plural forms cleanly; column mapping to Sheets is already implemented in `LocaExcelBridge`
+- **Already implemented**: `LocaProcessor`, `PoMergeEngine`, and the PO parser are all in place — only the bridge toward Sheets is missing
 
-**Empfehlung**: msgctxt → KeyPrefix mappen (ist in Bridge-Config bereits vorhanden, keine neue Spalte nötig).
+---
 
-### 2. Plural-Formen
+## Open Design Decisions
+
+### 1. msgctxt → Sheets columns
+PO has `msgctxt`; Sheets uses `KeyPrefix`/`KeyPostfix` in the bridge configuration.
+
+**Recommendation**: map msgctxt → KeyPrefix (already present in bridge config, no new column needed).
+
+### 2. Plural forms
 PO: `msgstr[0]`, `msgstr[1]`, …  
-Sheets: separate Spalten mit `PluralForm = 0, 1, …` (bereits in LocaExcelBridge implementiert)
+Sheets: separate columns with `PluralForm = 0, 1, …` (already in `LocaExcelBridge`)
 
-Das Mapping existiert für die Pull-Richtung. Für Push muss die Umkehrung implementiert werden.
+The mapping exists for the pull direction. The reverse must be implemented for push.
 
-### 3. Bridge-Konfiguration: 1:1 oder n:m?
-**Frage noch offen**: Soll eine Bridge alle PO-Gruppen abdecken, oder soll man
-mehrere Bridges mit unterschiedlichen Gruppen verknüpfen können?
+### 3. Bridge configuration: 1:1 or n:m?
+**Still open**: should one bridge cover all PO groups, or should it be possible to
+link multiple bridges to different groups?
 
-Möglichkeiten:
-- **1:1** (einfach): Eine Bridge = ein Sheets = alle Keys aller Gruppen
-- **n:m** (flexibel): Pro Gruppe eine Bridge, damit z.B. UI-Texte und Systemtexte in separaten Sheets liegen können
+Options:
+- **1:1** (simple): one bridge = one sheet = all keys from all groups
+- **n:m** (flexible): one bridge per group, so e.g. UI strings and system strings can live in separate sheets
 
-### 4. Spaltenformat beim ersten Push
-Wenn das Sheets noch leer ist, müssen wir:
-1. Header-Zeile anlegen: `Key | [Context] | {lang1} | {lang1}[0] | {lang1}[1] | {lang2} | …`
-2. Keys aus PO-Dateien als Zeilen anhängen
+### 4. Column format on first push
+When the sheet is empty we need to:
+1. Write the header row: `Key | [Context] | {lang1} | {lang1}[0] | {lang1}[1] | {lang2} | …`
+2. Append keys from the PO files as rows
 
-Welche Sprachen dabei angelegt werden, ergibt sich aus den vorhandenen PO-Dateien.
-
----
-
-## Was wegfällt
-
-- **XLSX-Schreiben**: macht keinen Sinn (wer PO→Excel will, nutzt ein externes Tool)
-- `LocaExcelBridgePusher` für XLSX-Pfad kann vereinfacht oder entfernt werden
-- Push-Logik als eigenständige "Sync"-Aktion implementieren, **nicht** als Teil des allgemeinen Bridge-Mechanismus
+Which languages are included is determined by the PO files present in the project.
 
 ---
 
-## Geplante neue Komponenten / Änderungen
+## What Is Dropped
 
-| Was | Wo | Beschreibung |
+- **XLSX writing**: makes no sense (anyone who wants PO→Excel can use an external tool)
+- `LocaExcelBridgePusher`'s XLSX path can be simplified or removed
+- Push logic should be implemented as a standalone "sync" action, **not** as part of the generic bridge mechanism
+
+---
+
+## Planned New Components / Changes
+
+| What | Where | Description |
 |---|---|---|
-| `LocaGettextSheetsSyncer` | `Editor/Loca/` | Sync-Logik PO↔Sheets (Push + Pull) |
-| `LocaGettextSheetsSyncerEditor` | `Editor/Components/` | Inspector-UI / Menüpunkte für Sync |
-| Erweiterung `LocaExcelBridge` | `Runtime/Code/Loca/` | Methoden für Pull mit Merge-Semantik |
-| Erweiterung `LocaProcessor` | `Editor/Loca/` | Optionaler Auto-Sync nach POT-Extraktion |
-| Erweiterung `GoogleServiceAccountAuth` | `Runtime/Code/Loca/` | Write-Scope bereits implementiert ✓ |
+| `LocaGettextSheetsSyncer` | `Editor/Loca/` | Sync logic PO↔Sheets (push + pull) |
+| `LocaGettextSheetsSyncerEditor` | `Editor/Components/` | Inspector UI / menu items for sync |
+| Extend `LocaExcelBridge` | `Runtime/Code/Loca/` | Pull methods with merge semantics |
+| Extend `LocaProcessor` | `Editor/Loca/` | Optional auto-sync after POT extraction |
+| Extend `GoogleServiceAccountAuth` | `Runtime/Code/Loca/` | Write scope already implemented ✓ |
 
 ---
 
-## Nächste Schritte (für morgen)
+## Next Steps
 
-1. Designentscheidung klären: 1:1 oder n:m Bridge-Gruppen?
-2. Sheets-Spaltenformat für Push festlegen (insb. Context-Spalte und Plural-Spalten)
-3. Implementierung `LocaGettextSheetsSyncer` (Push + Pull)
-4. Integration in `LocaProcessor` (Auto-Sync-Option)
-5. Dokumentation in gh-pages aktualisieren
+1. Clarify design decision: 1:1 or n:m bridge groups?
+2. Finalise column format for push (especially context column and plural columns)
+3. Implement `LocaGettextSheetsSyncer` (push + pull)
+4. Integrate into `LocaProcessor` (auto-sync option)
+5. Update gh-pages documentation
+
