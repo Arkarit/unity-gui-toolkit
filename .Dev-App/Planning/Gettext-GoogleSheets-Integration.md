@@ -57,31 +57,31 @@ A direct Code→Sheets path would be possible, but the PO intermediate pays off:
 
 ## Open Design Decisions
 
-### 1. msgctxt → Sheets columns
-PO has `msgctxt`; Sheets uses `KeyPrefix`/`KeyPostfix` in the bridge configuration.
+All decisions resolved:
 
-**Recommendation**: map msgctxt → KeyPrefix (already present in bridge config, no new column needed).
+### 1. msgctxt → Sheets columns ✅
+Map `msgctxt` → `KeyPrefix` (already present in bridge config, no new column needed).
 
-### 2. Plural forms
-PO: `msgstr[0]`, `msgstr[1]`, …  
-Sheets: separate columns with `PluralForm = 0, 1, …` (already in `LocaExcelBridge`)
+### 2. Plural forms ✅
+Use the existing mapping from `LocaExcelBridge.CollectData()` in reverse for push.
+No new design work required — implementation only.
 
-The mapping exists for the pull direction. The reverse must be implemented for push.
+### 3. Bridge configuration: 1:1 or n:m? ✅
+**n:m**: multiple `LocaExcelBridge` instances can each cover a different PO group,
+pointing to separate sheets. One bridge per group.
 
-### 3. Bridge configuration: 1:1 or n:m?
-**Still open**: should one bridge cover all PO groups, or should it be possible to
-link multiple bridges to different groups?
+### 4. Column format on first push ✅
+**Source: bridge configuration** (`m_columnDescriptions`), not PO files.
 
-Options:
-- **1:1** (simple): one bridge = one sheet = all keys from all groups
-- **n:m** (flexible): one bridge per group, so e.g. UI strings and system strings can live in separate sheets
+A **[Create by PO]** button in the inspector generates/updates the bridge column
+configuration from the PO files currently in the project:
+- If the bridge already has columns: show a confirmation dialog ("Sync columns from PO files? OK / Cancel")
+- **Keep** existing columns that are already configured
+- **Ignore** PO languages that would conflict with existing columns in an unexpected way
+- **Append** new languages found in PO files to the end
 
-### 4. Column format on first push
-When the sheet is empty we need to:
-1. Write the header row: `Key | [Context] | {lang1} | {lang1}[0] | {lang1}[1] | {lang2} | …`
-2. Append keys from the PO files as rows
-
-Which languages are included is determined by the PO files present in the project.
+This keeps the configuration explicit and predictable while still offering a
+zero-effort starting point.
 
 ---
 

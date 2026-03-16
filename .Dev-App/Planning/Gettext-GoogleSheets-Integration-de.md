@@ -57,31 +57,31 @@ Obwohl ein direkter Code→Sheets-Weg möglich wäre, lohnt der PO-Zwischenschri
 
 ## Offene Designentscheidungen
 
-### 1. msgctxt → Sheets-Spalten
-PO kennt `msgctxt`; Sheets kennt `KeyPrefix`/`KeyPostfix` in der Bridge-Konfiguration.
+Alle Entscheidungen getroffen:
 
-**Empfehlung**: msgctxt → KeyPrefix mappen (ist in Bridge-Config bereits vorhanden, keine neue Spalte nötig).
+### 1. msgctxt → Sheets-Spalten ✅
+`msgctxt` → `KeyPrefix` mappen (in Bridge-Config bereits vorhanden, keine neue Spalte nötig).
 
-### 2. Plural-Formen
-PO: `msgstr[0]`, `msgstr[1]`, …  
-Sheets: separate Spalten mit `PluralForm = 0, 1, …` (bereits in `LocaExcelBridge` implementiert)
+### 2. Plural-Formen ✅
+Das bestehende Mapping aus `LocaExcelBridge.CollectData()` für Push einfach umkehren.
+Kein neues Design erforderlich — nur Implementierung.
 
-Das Mapping existiert für die Pull-Richtung. Für Push muss die Umkehrung implementiert werden.
+### 3. Bridge-Konfiguration: 1:1 oder n:m? ✅
+**n:m**: Mehrere `LocaExcelBridge`-Instanzen können jeweils eine andere PO-Gruppe abdecken
+und auf separate Sheets zeigen. Eine Bridge pro Gruppe.
 
-### 3. Bridge-Konfiguration: 1:1 oder n:m?
-**Frage noch offen**: Soll eine Bridge alle PO-Gruppen abdecken, oder soll man
-mehrere Bridges mit unterschiedlichen Gruppen verknüpfen können?
+### 4. Spaltenformat beim ersten Push ✅
+**Quelle: Bridge-Konfiguration** (`m_columnDescriptions`), nicht die PO-Dateien.
 
-Möglichkeiten:
-- **1:1** (einfach): Eine Bridge = ein Sheets = alle Keys aller Gruppen
-- **n:m** (flexibel): Pro Gruppe eine Bridge, damit z.B. UI-Texte und Systemtexte in separaten Sheets liegen können
+Ein **[Create by PO]**-Button im Inspector erzeugt/aktualisiert die Bridge-Spaltenkonfiguration
+aus den aktuell im Projekt vorhandenen PO-Dateien:
+- Falls die Bridge bereits Spalten hat: Bestätigungsdialog ("Spalten aus PO-Dateien synchronisieren? OK / Abbrechen")
+- **Bestehende** Spalten beibehalten
+- **Unbekannte** Sprachen (nicht in PO-Dateien) ignorieren
+- **Neue** Sprachen aus PO-Dateien ans Ende anhängen
 
-### 4. Spaltenformat beim ersten Push
-Wenn das Sheets noch leer ist, müssen wir:
-1. Header-Zeile anlegen: `Key | [Context] | {lang1} | {lang1}[0] | {lang1}[1] | {lang2} | …`
-2. Keys aus PO-Dateien als Zeilen anhängen
-
-Welche Sprachen dabei angelegt werden, ergibt sich aus den vorhandenen PO-Dateien.
+Das hält die Konfiguration explizit und vorhersehbar, bietet aber trotzdem einen
+unkomplizierten Einstieg.
 
 ---
 
