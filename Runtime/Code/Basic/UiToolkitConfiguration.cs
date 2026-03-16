@@ -91,6 +91,9 @@ namespace GuiToolkit
 		public const string HELP_AUTO_MERGE_POT_TO_PO =
 			"When enabled, automatically merges POT files into all matching PO files after 'Process Loca' runs.";
 
+		public const string HELP_AUTO_SYNC_AFTER_MERGE =
+			"When enabled, automatically pushes new PO keys to configured Google Sheets bridges after merging.";
+
 		public const string HELP_GENERATED_ASSETS_DIR =
 			  "Several assets need to be generated. Choose your directory here for these files.";
 
@@ -286,6 +289,11 @@ namespace GuiToolkit
 		public bool m_autoMergePotToPo = false;
 
 		public bool AutoMergePotToPo => m_autoMergePotToPo;
+
+		[Tooltip(HELP_AUTO_SYNC_AFTER_MERGE)]
+		public bool m_autoSyncAfterMerge = false;
+
+		public bool AutoSyncAfterMerge => m_autoSyncAfterMerge;
 
 		[Tooltip(HELP_GENERATED_ASSETS_DIR)]
 		[SerializeField]

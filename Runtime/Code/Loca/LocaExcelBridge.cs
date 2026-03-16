@@ -176,6 +176,20 @@ namespace GuiToolkit
 		/// <summary>(Editor) Zero-based row index where translation data starts.</summary>
 		public int EdStartRow => m_startRow;
 
+		/// <summary>(Editor) Returns a shallow copy of the configured column descriptions.</summary>
+		public List<InColumnDescription> EdColumnDescriptions =>
+			new List<InColumnDescription>(m_columnDescriptions ?? new List<InColumnDescription>());
+
+		/// <summary>
+		/// (Editor) Replaces the column description list and marks the asset dirty.
+		/// </summary>
+		/// <param name="_columns">The new column list to set.</param>
+		public void EdSetColumnDescriptions(List<InColumnDescription> _columns)
+		{
+			m_columnDescriptions = _columns ?? new List<InColumnDescription>();
+			EditorUtility.SetDirty(this);
+		}
+
 		/// <summary>
 		/// (Editor) Delegate invoked by <see cref="PushToSpreadsheet"/>.
 		/// Registered by <c>LocaExcelBridgePusher</c> via <c>[InitializeOnLoad]</c>.

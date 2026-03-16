@@ -43,12 +43,12 @@ namespace GuiToolkit.Editor
 		/// <summary>
 		/// Renders the custom inspector GUI.
 		/// Shows source type, Excel path or Google URL (with optional auth fields), group,
-		/// column descriptions, start row, a "Process" button, a "Push to Spreadsheet" button,
-		/// and the resulting ProcessedLoca output.
+		/// column descriptions, start row, a "Process" button, Gettext–Sheets sync buttons,
+		/// a "Push to Spreadsheet" button, and the resulting ProcessedLoca output.
 		/// </summary>
 		public override void OnInspectorGUI()
 		{
-			var bridge = (LocaExcelBridge)target;
+			var bridge           = (LocaExcelBridge)target;
 			var thisLocaProvider = (ILocaProvider)target;
 			serializedObject.Update();
 
@@ -74,16 +74,58 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_columnDescriptions);
 			EditorGUILayout.PropertyField(m_startRow);
 
+			// -- Columns -------------------------------------------------------
+			EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
+			EditorGUILayout.LabelField("Columns", EditorStyles.boldLabel);
+
+			if (GUILayout.Button("Create by PO"))
+				LocaGettextSheetsSyncer.SyncColumnsFromPo(bridge);
+
+			EditorGUILayout.HelpBox(
+				"Builds column configuration from the PO files on disk for this group.",
+				MessageType.Info);
+
 			// -- Process -------------------------------------------------------
 			EditorGUILayout.Space(10);
 			if (GUILayout.Button("Process"))
 				thisLocaProvider.CollectData();
 
-			// -- Push ----------------------------------------------------------
+			// -- Sync (Gettext ↔ Sheets) ----------------------------------------
 			EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
-			EditorGUILayout.LabelField("Push", EditorStyles.boldLabel);
+			EditorGUILayout.LabelField("Sync", EditorStyles.boldLabel);
 
 			serializedObject.ApplyModifiedProperties();
+
+			bool syncEnabled = sourceType == SourceType.GoogleDocs && bridge.CanPush;
+			using (new EditorGUI.DisabledScope(!syncEnabled))
+			{
+				if (GUILayout.Button("Pull from Sheets"))
+					LocaGettextSheetsSyncer.PullFromSheets(bridge);
+			}
+			EditorGUILayout.HelpBox(
+				"Downloads translations from the sheet into local PO files. Existing translations are not overwritten.",
+				syncEnabled ? MessageType.Info : MessageType.Warning);
+
+			using (new EditorGUI.DisabledScope(!syncEnabled))
+			{
+				if (GUILayout.Button("Push new keys"))
+					LocaGettextSheetsSyncer.PushToSheets(bridge);
+			}
+			EditorGUILayout.HelpBox(
+				"Appends keys from PO files that are not yet in the sheet. Never overwrites existing cells.",
+				syncEnabled ? MessageType.Info : MessageType.Warning);
+
+			if (!syncEnabled)
+			{
+				string hint = sourceType == SourceType.GoogleDocs
+					? "Enable authentication and provide a service account JSON path to use sync."
+					: "Sync requires GoogleDocs source type with authentication configured.";
+				EditorGUILayout.HelpBox(hint, MessageType.Info);
+			}
+
+			// -- Push (legacy) -------------------------------------------------
+			EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
+			EditorGUILayout.LabelField("Push", EditorStyles.boldLabel);
 
 			using (new EditorGUI.DisabledScope(!bridge.CanPush))
 			{

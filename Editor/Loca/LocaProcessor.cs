@@ -89,8 +89,28 @@ namespace GuiToolkit.Editor
 
 			if (UiToolkitConfiguration.Instance.AutoMergePotToPo)
 				LocaPoMerger.MergeAfterProcessing();
+
+			if (UiToolkitConfiguration.Instance.AutoSyncAfterMerge)
+				AutoSyncBridges();
 		}
-		
+
+		private static void AutoSyncBridges()
+		{
+			string[] guids = AssetDatabase.FindAssets("t:LocaExcelBridge");
+			foreach (string guid in guids)
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				var bridge  = AssetDatabase.LoadAssetAtPath<LocaExcelBridge>(path);
+				if (bridge == null)
+					continue;
+
+				if (bridge.EdSourceType != LocaExcelBridge.SourceType.GoogleDocs || !bridge.CanPush)
+					continue;
+
+				LocaGettextSheetsSyncer.PushToSheets(bridge);
+			}
+		}
+
 		/// <summary>
 		/// Processes all <see cref="ILocaProvider"/> ScriptableObjects in the project.
 		/// Calls <see cref="ILocaProvider.CollectData"/> on each and writes a provider registry JSON
