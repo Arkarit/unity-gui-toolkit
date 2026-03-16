@@ -237,7 +237,7 @@ See [PO Files Workflow](localization-gettext.html) for details.
 
 ### Method 2: Excel/Google Sheets
 
-Use `LocaExcelBridge` to import from spreadsheets. See:
+Use `LocaExcelBridge` to import from spreadsheets. Google Sheets also supports a code-driven workflow where new keys are pushed directly from PO files and translations are pulled back once filled in. See:
 - [Excel Integration](localization-excel.html)
 - [Google Sheets](localization-google-sheets.html)
 
@@ -258,6 +258,8 @@ When you merge a POT into a PO file, the engine:
 ### Auto-Merge
 
 Enable **Auto-Merge** in **Edit > Project Settings > UI Toolkit** (`UiToolkitConfiguration.AutoMergePotToPo`). When enabled, the merge runs automatically every time the POT files are regenerated (e.g., after **`Tools > Loca > Process Loca Keys`**), keeping all PO files up to date with no extra steps.
+
+**Auto-Sync to Google Sheets:** Enable **Auto-Sync After Merge** (`UiToolkitConfiguration.AutoSyncAfterMerge`) in the same settings panel. When enabled, every `LocaExcelBridge` with GoogleDocs + authentication configured will automatically have its new keys pushed to the linked Google Sheet immediately after the merge. Translators always see the latest keys without any manual step.
 
 ### Manual Merge
 

@@ -16,6 +16,7 @@ The system supports:
 - **Runtime language switching**: Change languages on-the-fly without restarting
 - **Automatic UI updates**: Components automatically refresh when language changes
 - **Push/pull synchronization**: Pull translations from Google Sheets or push local changes back; merge POT template changes into PO files while preserving existing translations
+- **Gettext-Sheets sync**: Push new translation keys from code directly to Google Sheets; pull translations back into PO files
 - **CSV export**: Export all translations to a spreadsheet-compatible CSV for review or offline editing
 
 ![Localization System Architecture](../assets/loca-architecture.png)
@@ -41,6 +42,7 @@ Three built-in methods for providing translations:
 ### Editor Tools
 - **LocaProcessor** — Extracts localization keys from code and scenes
 - **LocaPluralProcessor** — Generates plural form rules from PO headers
+- **LocaGettextSheetsSyncer** — Syncs PO file keys to/from Google Sheets (push new keys, pull translations, auto-build column config)
 
 ---
 
@@ -78,7 +80,7 @@ public class MyMenu : LocaMonoBehaviour
 |--------|----------|----------------|
 | **PO Files** | Traditional gettext workflow, version control friendly | Both |
 | **Excel (Local)** | Non-programmers, offline editing, batch updates | Editor only |
-| **Google Sheets** | Team collaboration, translators without Unity access | Editor only |
+| **Google Sheets** | Team collaboration, translators without Unity access; supports code-driven workflow (Code → PO → Sheets → PO) via `[Push new keys]` / `[Pull from Sheets]` | Editor only |
 | **Custom Provider** | Dynamic content (DLC, user mods, server-based) | Runtime |
 
 ---

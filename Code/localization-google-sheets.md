@@ -107,6 +107,8 @@ Configure columns exactly as you would for [local Excel files](localization-exce
 | 2 | LanguageTranslation | `de` | -1 |
 | 3 | LanguageTranslation | `fr` | -1 |
 
+> **Tip:** Instead of configuring columns manually, use the **`[Create by PO]`** button in the **Columns** section of the bridge inspector. It reads the PO files on disk for the bridge's group and sets up columns automatically — including the Key column and per-language singular/plural columns. If a configuration already exists you will be asked to confirm before any new columns are appended.
+
 ### Step 5: Import Data
 
 **Menu**: `Tools > Loca > Process Loca Providers`
@@ -223,7 +225,9 @@ Now **`Tools > Loca > Process Loca Providers`** will authenticate and download t
 
 ---
 
-## Pushing Translations to Google Sheets
+## Legacy Push (Overwrite)
+
+> **Warning:** This section describes the **legacy full-overwrite push**. It replaces the entire sheet with the current in-memory translation data. For a safer, additive workflow that only appends missing keys without touching existing cells, see [Gettext-Driven Workflow (Code → Sheets)](#gettext-driven-workflow-code--sheets) below.
 
 In addition to pulling translations **from** a Google Sheet, the toolkit can write translations back to the sheet. This is useful when you've made edits locally (e.g., to the PO files) and want to sync them back to the sheet for your translators.
 
@@ -240,14 +244,113 @@ In addition to pulling translations **from** a Google Sheet, the toolkit can wri
 
 ### Using the Push Button
 
-Once authentication is configured and the service account has Editor access, a **Push** button becomes available in the `LocaExcelBridge` inspector (the `CanPush` condition is satisfied). Clicking it:
+Once authentication is configured and the service account has Editor access, a **Push** button becomes available in the **Push** section of the `LocaExcelBridge` inspector. Clicking it:
 
 1. Serializes the current in-memory translation data to a sheet-compatible format.
-2. Writes the data directly to the linked Google Sheet, overwriting its contents.
+2. Writes the data directly to the linked Google Sheet, **overwriting its entire contents**.
 
 > **Warning:** Pushing **overwrites** the sheet content. Make sure translators have saved their work or that you are pushing intentionally. Consider using Google Sheets' revision history to recover from unintended overwrites.
 
 > **Note on OAuth scope:** The standard read-only import uses the `spreadsheets.readonly` scope. Push operations require the full `spreadsheets` scope. The toolkit automatically requests the correct scope based on whether write operations are needed.
+
+---
+
+## Gettext-Driven Workflow (Code → Sheets)
+
+This workflow connects code-level gettext strings directly to Google Sheets, letting developers and translators collaborate without any manual file transfers. Keys flow from code → PO files → Google Sheet; finished translations flow back from the sheet → PO files → runtime.
+
+```
+Developer writes _("key")
+       ↓
+Tools > Loca > Process Loca Keys   (generates POT → merges into PO)
+       ↓
+[Push new keys]  ───────────────→  Google Sheet  (translators fill in)
+                                        ↓
+[Pull from Sheets] ←────────────  Translations ready
+       ↓
+PO files updated  →  Runtime loads translations
+```
+
+### Requirements
+
+All three of the following must be true for the **`[Push new keys]`** and **`[Pull from Sheets]`** buttons to be active:
+
+- **Source Type** is set to **GoogleDocs**
+- **Use Authentication** is enabled
+- **Service Account JSON Path** is configured
+
+### Step 1: Set Up PO Files
+
+Make sure PO files for the bridge's group already exist in `Assets/Resources/`. If none exist yet, create stub files (even empty ones) for each language you support:
+
+```
+Assets/Resources/
+├── en.po
+├── de.po
+└── fr.po
+```
+
+See [PO Files Workflow](localization-gettext.html) for details on PO file conventions.
+
+### Step 2: Auto-Build Column Configuration
+
+In the bridge inspector, click **`[Create by PO]`** in the **Columns** section. The tool:
+
+- Reads all PO files on disk for the bridge's group
+- Creates the **Key** column entry
+- Adds a **LanguageTranslation** column for each language it finds (singular and plural forms where applicable)
+
+If a column configuration already exists, a confirmation dialog lets you choose whether to keep existing columns and append new ones.
+
+> **Note:** You only need to do this once per bridge (or when you add a new language).
+
+### Step 3: Enable Auto-Sync (Optional but Recommended)
+
+In **Edit > Project Settings > UI Toolkit**, enable **Auto-Sync After Merge** (`UiToolkitConfiguration.AutoSyncAfterMerge`).
+
+When enabled, every `LocaExcelBridge` with GoogleDocs + authentication configured will automatically push new keys to its linked Google Sheet immediately after the POT→PO merge — so translators always see the latest keys with no extra steps.
+
+### Step 4: Extract Keys and Push
+
+Run **`Tools > Loca > Process Loca Keys`**. This:
+
+1. Scans code and scenes, writes POT files
+2. Merges POT → PO (if `AutoMergePotToPo` is enabled)
+3. Pushes new keys to Google Sheets (if `AutoSyncAfterMerge` is enabled)
+
+To push manually without running the full extraction, click **`[Push new keys]`** in the **Sync** section of the bridge inspector. The button:
+
+- Reads all PO files for the bridge's group
+- Fetches the current sheet content via the Sheets API
+- **Appends only the rows whose keys are not already in the sheet** — existing rows are never touched
+
+### Step 5: Translators Fill In the Sheet
+
+Translators open the Google Sheet and fill in the translation columns. The key column is pre-populated; translation cells are left blank by the push step so translators know exactly what needs their attention.
+
+### Step 6: Pull Translations Back
+
+Click **`[Pull from Sheets]`** in the **Sync** section of the bridge inspector. The tool:
+
+1. Downloads the spreadsheet (same path as the regular import)
+2. Iterates over every row and every language column
+3. For each `msgstr` that is **currently empty** in the local PO file, copies the sheet value in
+4. **Never overwrites** a translation that already has content
+5. Creates a timestamped backup of each PO file before writing
+
+> **Note:** Only **Viewer** permission on the sheet is needed for `[Pull from Sheets]`. **Editor** permission is required for `[Push new keys]` (and the legacy full-overwrite push).
+
+### Complete Workflow Summary
+
+| Step | Action | Who |
+|------|--------|-----|
+| 1 | Write `_("key")` in C# | Developer |
+| 2 | `Tools > Loca > Process Loca Keys` | Developer |
+| 3 | (Auto) POT merged into PO files | Toolkit |
+| 4 | (Auto) New keys pushed to Google Sheet | Toolkit |
+| 5 | Fill in translations in Google Sheet | Translator |
+| 6 | Click `[Pull from Sheets]` in bridge inspector | Developer |
+| 7 | PO files updated, runtime loads translations | Toolkit |
 
 ---
 
@@ -371,6 +474,21 @@ unity -batchmode -buildWindows64Player build/game.exe -quit
 
 ## Troubleshooting
 
+### Sync Buttons Greyed Out
+
+**Problem**: The `[Push new keys]` or `[Pull from Sheets]` buttons are disabled.
+
+**Solutions**:
+- **Source Type** — Must be set to **GoogleDocs** (not Local or other)
+- **Use Authentication** — Must be ticked in the bridge inspector
+- **Service Account JSON Path** — Must point to a valid service account JSON file
+
+### Push Succeeds but No New Rows Appear
+
+**Problem**: `[Push new keys]` completes without errors but the sheet looks unchanged.
+
+**Solution**: This is expected behaviour — all keys from the PO files were already present in the sheet. No duplicate rows are appended. If you expected new rows, verify that the PO files contain entries not yet in the sheet.
+
 ### Download Fails
 
 **Problem**: Error: `Failed to download Google Sheets`
@@ -434,14 +552,16 @@ unity -batchmode -buildWindows64Player build/game.exe -quit
 - **Use Service Accounts** for private sheets
 - **Add JSON to `.gitignore`** — Never commit to public repos
 - **Use CI secrets** for JSON in automated builds
-- **Restrict Service Account permissions** — Grant only Viewer access, not Editor
+- **Restrict Service Account permissions** — Grant only **Viewer** access when you only need to pull translations or run the regular import; upgrade to **Editor** only when you need `[Push new keys]` or the legacy full-overwrite push
 - **Rotate keys periodically** — Delete old keys and create new ones
+
+> **Note:** `[Pull from Sheets]` and the standard import (`Tools > Loca > Process Loca Providers`) require only **Viewer** permission. `[Push new keys]` and the legacy **Push** button require **Editor** permission.
 
 ### ❌ DON'T:
 - **Store secrets in sheets** — No passwords, API keys, etc.
 - **Commit Service Account JSON** to version control
 - **Share JSON files** via email or chat
-- **Grant Editor access** unless necessary — Viewer is sufficient for import
+- **Grant Editor access** unless necessary — Viewer is sufficient for import and pull operations
 - **Use personal Google accounts** for automation — Use Service Accounts
 
 ---
