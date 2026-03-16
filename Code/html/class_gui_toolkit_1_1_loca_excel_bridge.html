@@ -124,6 +124,10 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a1221ba22da793ca8198f828544d35857" id="r_a1221ba22da793ca8198f828544d35857"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1221ba22da793ca8198f828544d35857">EdSetColumnDescriptions</a> (List&lt; <a class="el" href="class_gui_toolkit_1_1_loca_excel_bridge_1_1_in_column_description.html">InColumnDescription</a> &gt; _columns)</td></tr>
+<tr class="memdesc:a1221ba22da793ca8198f828544d35857"><td class="mdescLeft">&#160;</td><td class="mdescRight">(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) Replaces the column description list and marks the asset dirty.  <br /></td></tr>
+<tr class="memitem:a2f0ad6140d7ebc9da590dc9cb5b0be61" id="r_a2f0ad6140d7ebc9da590dc9cb5b0be61"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2f0ad6140d7ebc9da590dc9cb5b0be61">PushToSpreadsheet</a> ()</td></tr>
+<tr class="memdesc:a2f0ad6140d7ebc9da590dc9cb5b0be61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pushes the current PO translations back to the configured spreadsheet source. For Google Sheets: writes via the Sheets API v4 (requires write-scope auth). For local XLSX: exports a CSV file alongside the XLSX with the same base name. Actual work is delegated to <code>LocaExcelBridgePusher</code> in the editor assembly.  <br /></td></tr>
 <tr class="memitem:acbddb55b9d4e0d2436ae0ec0be52d4a7" id="r_acbddb55b9d4e0d2436ae0ec0be52d4a7"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acbddb55b9d4e0d2436ae0ec0be52d4a7">GetKey</a> (string _key, int _column)</td></tr>
 <tr class="memdesc:acbddb55b9d4e0d2436ae0ec0be52d4a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Composes the full localization key for a given base key and column index. Applies the column's <a class="el" href="class_gui_toolkit_1_1_loca_excel_bridge_1_1_in_column_description.html#a6909f2dd39ded53eb42cca3c2e6df424" title="Optional prefix prepended to keys from this column. Useful for namespacing keys from shared Excel she...">InColumnDescription.KeyPrefix</a> and <a class="el" href="class_gui_toolkit_1_1_loca_excel_bridge_1_1_in_column_description.html#a730dacdce484b85606a164043bb4e4c3" title="Optional suffix appended to keys from this column.">InColumnDescription.KeyPostfix</a>.  <br /></td></tr>
 <tr class="memitem:a382017689cdd33254f7ffe37110b79fa" id="r_a382017689cdd33254f7ffe37110b79fa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_gui_toolkit_1_1_loca_excel_bridge_1_1_in_column_description.html">InColumnDescription</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a382017689cdd33254f7ffe37110b79fa">GetColumnDescription</a> (int _column)</td></tr>
@@ -142,6 +146,24 @@ Properties</h2></td></tr>
 <tr class="memdesc:af33ee71f165ce232a850705791a3478c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the processed localization data imported from the Excel source. Returns an empty <a class="el" href="class_gui_toolkit_1_1_processed_loca.html" title="Container for processed localization data from a single source (e.g., an Excel sheet or PO file set)....">ProcessedLoca</a> if not yet collected.  <br /></td></tr>
 <tr class="memitem:adf5b1b8727a73184a01536f0b07b27e7" id="r_adf5b1b8727a73184a01536f0b07b27e7"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adf5b1b8727a73184a01536f0b07b27e7">NumColumns</a><code> [get]</code></td></tr>
 <tr class="memdesc:adf5b1b8727a73184a01536f0b07b27e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the number of configured columns.  <br /></td></tr>
+<tr class="memitem:a0f31730f7a68a82d0cad2187a552362b" id="r_a0f31730f7a68a82d0cad2187a552362b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="#a71301ab0e8af2a52a5a96779054787a3">SourceType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0f31730f7a68a82d0cad2187a552362b">EdSourceType</a><code> [get]</code></td></tr>
+<tr class="memdesc:a0f31730f7a68a82d0cad2187a552362b"><td class="mdescLeft">&#160;</td><td class="mdescRight">(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) The configured source type.  <br /></td></tr>
+<tr class="memitem:a956b36e3fc7d5591fe060596c13856fc" id="r_a956b36e3fc7d5591fe060596c13856fc"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a956b36e3fc7d5591fe060596c13856fc">EdGoogleUrl</a><code> [get]</code></td></tr>
+<tr class="memdesc:a956b36e3fc7d5591fe060596c13856fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) The Google Sheets URL, if configured.  <br /></td></tr>
+<tr class="memitem:a5122581c0c96a6c180168755bd9cc47d" id="r_a5122581c0c96a6c180168755bd9cc47d"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5122581c0c96a6c180168755bd9cc47d">EdExcelPath</a><code> [get]</code></td></tr>
+<tr class="memdesc:a5122581c0c96a6c180168755bd9cc47d"><td class="mdescLeft">&#160;</td><td class="mdescRight">(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) The local Excel file path, if configured.  <br /></td></tr>
+<tr class="memitem:ac24bc67c9d54e11009ee39a2b5b7bf17" id="r_ac24bc67c9d54e11009ee39a2b5b7bf17"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac24bc67c9d54e11009ee39a2b5b7bf17">EdGroup</a><code> [get]</code></td></tr>
+<tr class="memdesc:ac24bc67c9d54e11009ee39a2b5b7bf17"><td class="mdescLeft">&#160;</td><td class="mdescRight">(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) The localization group name.  <br /></td></tr>
+<tr class="memitem:a46149f65d2db87d2af867bb2d693745a" id="r_a46149f65d2db87d2af867bb2d693745a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a46149f65d2db87d2af867bb2d693745a">EdUseGoogleAuth</a><code> [get]</code></td></tr>
+<tr class="memdesc:a46149f65d2db87d2af867bb2d693745a"><td class="mdescLeft">&#160;</td><td class="mdescRight">(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) Whether Google service-account authentication is enabled.  <br /></td></tr>
+<tr class="memitem:a7b2f0551ce821c460bfc3e17154d5976" id="r_a7b2f0551ce821c460bfc3e17154d5976"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7b2f0551ce821c460bfc3e17154d5976">EdServiceAccountJsonPath</a><code> [get]</code></td></tr>
+<tr class="memdesc:a7b2f0551ce821c460bfc3e17154d5976"><td class="mdescLeft">&#160;</td><td class="mdescRight">(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) Path to the service account JSON key file.  <br /></td></tr>
+<tr class="memitem:a8b0f1dddb75af151555475bc08969b7b" id="r_a8b0f1dddb75af151555475bc08969b7b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8b0f1dddb75af151555475bc08969b7b">EdStartRow</a><code> [get]</code></td></tr>
+<tr class="memdesc:a8b0f1dddb75af151555475bc08969b7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) Zero-based row index where translation data starts.  <br /></td></tr>
+<tr class="memitem:a8bb87254638cd719851987c9f6063507" id="r_a8bb87254638cd719851987c9f6063507"><td class="memItemLeft" align="right" valign="top">List&lt; <a class="el" href="class_gui_toolkit_1_1_loca_excel_bridge_1_1_in_column_description.html">InColumnDescription</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8bb87254638cd719851987c9f6063507">EdColumnDescriptions</a><code> [get]</code></td></tr>
+<tr class="memdesc:a8bb87254638cd719851987c9f6063507"><td class="mdescLeft">&#160;</td><td class="mdescRight">(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) Returns a shallow copy of the configured column descriptions.  <br /></td></tr>
+<tr class="memitem:a6d5bc0632acc367454fccb96b2722e78" id="r_a6d5bc0632acc367454fccb96b2722e78"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6d5bc0632acc367454fccb96b2722e78">CanPush</a><code> [get]</code></td></tr>
+<tr class="memdesc:a6d5bc0632acc367454fccb96b2722e78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns <code>true</code> when the current configuration supports pushing translations back to the source spreadsheet or exporting them as a CSV file.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>ScriptableObject-based localization provider that imports translations from Excel (.xlsx) files. Supports both local files and Google Sheets URLs (with optional service account authentication). Maps Excel columns to localization keys and language translations, with support for plural forms. </p>
@@ -218,7 +240,34 @@ Properties</h2></td></tr>
 
 <p>Implements <a class="el" href="interface_gui_toolkit_1_1_i_loca_provider.html#a20cad464a1d89f0d3a3250f593dab929">GuiToolkit.ILocaProvider</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00198">198</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00270">270</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+
+</div>
+</div>
+<a id="a1221ba22da793ca8198f828544d35857" name="a1221ba22da793ca8198f828544d35857"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1221ba22da793ca8198f828544d35857">&#9670;&#160;</a></span>EdSetColumnDescriptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GuiToolkit.LocaExcelBridge.EdSetColumnDescriptions </td>
+          <td>(</td>
+          <td class="paramtype">List&lt; <a class="el" href="class_gui_toolkit_1_1_loca_excel_bridge_1_1_in_column_description.html">InColumnDescription</a> &gt;</td>          <td class="paramname"><span class="paramname"><em>_columns</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) Replaces the column description list and marks the asset dirty. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">_columns</td><td>The new column list to set.</td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00187">187</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
 
 </div>
 </div>
@@ -246,7 +295,7 @@ Properties</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The <a class="el" href="class_gui_toolkit_1_1_loca_excel_bridge_1_1_in_column_description.html" title="Describes how a single Excel column maps to localization data. Configures language,...">InColumnDescription</a> for that column, or null if the index is out of range.</dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00179">179</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00251">251</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
 
 </div>
 </div>
@@ -279,11 +328,266 @@ Properties</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The composed key with affixes applied, or null if the column is invalid or not a language translation column.</dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00162">162</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00234">234</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+
+</div>
+</div>
+<a id="a2f0ad6140d7ebc9da590dc9cb5b0be61" name="a2f0ad6140d7ebc9da590dc9cb5b0be61"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f0ad6140d7ebc9da590dc9cb5b0be61">&#9670;&#160;</a></span>PushToSpreadsheet()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GuiToolkit.LocaExcelBridge.PushToSpreadsheet </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pushes the current PO translations back to the configured spreadsheet source. For Google Sheets: writes via the Sheets API v4 (requires write-scope auth). For local XLSX: exports a CSV file alongside the XLSX with the same base name. Actual work is delegated to <code>LocaExcelBridgePusher</code> in the editor assembly. </p>
+
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00215">215</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
 
 </div>
 </div>
 <a name="doc-property-members" id="doc-property-members"></a><h2 id="header-doc-property-members" class="groupheader">Property Documentation</h2>
+<a id="a6d5bc0632acc367454fccb96b2722e78" name="a6d5bc0632acc367454fccb96b2722e78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d5bc0632acc367454fccb96b2722e78">&#9670;&#160;</a></span>CanPush</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool GuiToolkit.LocaExcelBridge.CanPush</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns <code>true</code> when the current configuration supports pushing translations back to the source spreadsheet or exporting them as a CSV file. </p>
+
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00203">203</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+
+</div>
+</div>
+<a id="a8bb87254638cd719851987c9f6063507" name="a8bb87254638cd719851987c9f6063507"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8bb87254638cd719851987c9f6063507">&#9670;&#160;</a></span>EdColumnDescriptions</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">List&lt;<a class="el" href="class_gui_toolkit_1_1_loca_excel_bridge_1_1_in_column_description.html">InColumnDescription</a>&gt; GuiToolkit.LocaExcelBridge.EdColumnDescriptions</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) Returns a shallow copy of the configured column descriptions. </p>
+
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00180">180</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+
+</div>
+</div>
+<a id="a5122581c0c96a6c180168755bd9cc47d" name="a5122581c0c96a6c180168755bd9cc47d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5122581c0c96a6c180168755bd9cc47d">&#9670;&#160;</a></span>EdExcelPath</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string GuiToolkit.LocaExcelBridge.EdExcelPath</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) The local Excel file path, if configured. </p>
+
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00165">165</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+
+</div>
+</div>
+<a id="a956b36e3fc7d5591fe060596c13856fc" name="a956b36e3fc7d5591fe060596c13856fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a956b36e3fc7d5591fe060596c13856fc">&#9670;&#160;</a></span>EdGoogleUrl</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string GuiToolkit.LocaExcelBridge.EdGoogleUrl</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) The Google Sheets URL, if configured. </p>
+
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00162">162</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+
+</div>
+</div>
+<a id="ac24bc67c9d54e11009ee39a2b5b7bf17" name="ac24bc67c9d54e11009ee39a2b5b7bf17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac24bc67c9d54e11009ee39a2b5b7bf17">&#9670;&#160;</a></span>EdGroup</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string GuiToolkit.LocaExcelBridge.EdGroup</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) The localization group name. </p>
+
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00168">168</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+
+</div>
+</div>
+<a id="a7b2f0551ce821c460bfc3e17154d5976" name="a7b2f0551ce821c460bfc3e17154d5976"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b2f0551ce821c460bfc3e17154d5976">&#9670;&#160;</a></span>EdServiceAccountJsonPath</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string GuiToolkit.LocaExcelBridge.EdServiceAccountJsonPath</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) Path to the service account JSON key file. </p>
+
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00174">174</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+
+</div>
+</div>
+<a id="a0f31730f7a68a82d0cad2187a552362b" name="a0f31730f7a68a82d0cad2187a552362b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f31730f7a68a82d0cad2187a552362b">&#9670;&#160;</a></span>EdSourceType</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="#a71301ab0e8af2a52a5a96779054787a3">SourceType</a> GuiToolkit.LocaExcelBridge.EdSourceType</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) The configured source type. </p>
+
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00159">159</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+
+</div>
+</div>
+<a id="a8b0f1dddb75af151555475bc08969b7b" name="a8b0f1dddb75af151555475bc08969b7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b0f1dddb75af151555475bc08969b7b">&#9670;&#160;</a></span>EdStartRow</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int GuiToolkit.LocaExcelBridge.EdStartRow</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) Zero-based row index where translation data starts. </p>
+
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00177">177</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+
+</div>
+</div>
+<a id="a46149f65d2db87d2af867bb2d693745a" name="a46149f65d2db87d2af867bb2d693745a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46149f65d2db87d2af867bb2d693745a">&#9670;&#160;</a></span>EdUseGoogleAuth</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool GuiToolkit.LocaExcelBridge.EdUseGoogleAuth</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>(<a class="el" href="namespace_gui_toolkit_1_1_editor.html">Editor</a>) Whether Google service-account authentication is enabled. </p>
+
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_8cs_source.html#l00171">171</a> of file <a class="el" href="_loca_excel_bridge_8cs_source.html">LocaExcelBridge.cs</a>.</p>
+
+</div>
+</div>
 <a id="af33ee71f165ce232a850705791a3478c" name="af33ee71f165ce232a850705791a3478c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af33ee71f165ce232a850705791a3478c">&#9670;&#160;</a></span>Localization</h2>
 

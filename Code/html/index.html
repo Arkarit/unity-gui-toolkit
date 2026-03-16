@@ -113,9 +113,10 @@ As a Sub repo:</h2>
 Work in the repo itself:</h2>
 <ul>
 <li>Pull the repo (<a href="https://github.com/Arkarit/unity-gui-toolkit.git">https://github.com/Arkarit/unity-gui-toolkit.git</a>)</li>
-<li>Execute the batch file .Dev-App/Install.bat. This will create some symlinks which are necessary to edit the demo application.</li>
-<li>In Unity hub, open the folder .Dev-App\Unity </li>
+<li>Execute the batch file .Dev-App/Install.bat <b>as a normal user</b> (do not run as administrator — the script will request elevation only when needed)</li>
+<li>In Unity hub, open the folder .Dev-App\Unity</li>
 </ul>
+<p><b>Important:</b> Do not run Install.bat with administrator privileges manually. The script handles privilege elevation automatically and running it as admin will cause the gh-pages documentation repository to be created with incorrect ownership, preventing Git operations. </p>
 </div></div><!-- PageDoc -->
 <a href="doxygen_crawl.html"></a>
 </div><!-- contents -->

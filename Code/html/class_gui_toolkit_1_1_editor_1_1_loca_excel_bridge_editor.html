@@ -93,7 +93,7 @@ $(function(){initNavTree('class_gui_toolkit_1_1_editor_1_1_loca_excel_bridge_edi
 </div><!--header-->
 <div class="contents">
 
-<p>Custom inspector for <a class="el" href="class_gui_toolkit_1_1_loca_excel_bridge.html" title="ScriptableObject-based localization provider that imports translations from Excel (....">LocaExcelBridge</a> ScriptableObjects. Displays configuration fields and provides a "Process" button to trigger <a class="el" href="interface_gui_toolkit_1_1_i_loca_provider.html#a20cad464a1d89f0d3a3250f593dab929" title="(Editor-only) Collects or refreshes localization data from the provider&#39;s source (e....">ILocaProvider.CollectData</a>.  
+<p>Custom inspector for <a class="el" href="class_gui_toolkit_1_1_loca_excel_bridge.html" title="ScriptableObject-based localization provider that imports translations from Excel (....">LocaExcelBridge</a> ScriptableObjects. Displays configuration fields and provides a "Process" button to trigger <a class="el" href="interface_gui_toolkit_1_1_i_loca_provider.html#a20cad464a1d89f0d3a3250f593dab929" title="(Editor-only) Collects or refreshes localization data from the provider&#39;s source (e....">ILocaProvider.CollectData</a>, and a "Push to Spreadsheet" button to write local PO translations back to the source.  
  <a href="#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for GuiToolkit.Editor.LocaExcelBridgeEditor:</div>
@@ -105,7 +105,7 @@ Inheritance diagram for GuiToolkit.Editor.LocaExcelBridgeEditor:</div>
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a1d97a187eef6d99af47ebd6684be0ebc" id="r_a1d97a187eef6d99af47ebd6684be0ebc"><td class="memItemLeft" align="right" valign="top">override void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1d97a187eef6d99af47ebd6684be0ebc">OnInspectorGUI</a> ()</td></tr>
-<tr class="memdesc:a1d97a187eef6d99af47ebd6684be0ebc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Renders the custom inspector GUI. Shows source type, Excel path or Google URL, group, column descriptions, start row, a "Process" button to collect data, and the resulting <a class="el" href="class_gui_toolkit_1_1_processed_loca.html" title="Container for processed localization data from a single source (e.g., an Excel sheet or PO file set)....">ProcessedLoca</a> output.  <br /></td></tr>
+<tr class="memdesc:a1d97a187eef6d99af47ebd6684be0ebc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Renders the custom inspector GUI. Shows source type, Excel path or Google URL (with optional auth fields), group, column descriptions, start row, a "Process" button, Gettext–Sheets sync buttons, a "Push to Spreadsheet" button, and the resulting <a class="el" href="class_gui_toolkit_1_1_processed_loca.html" title="Container for processed localization data from a single source (e.g., an Excel sheet or PO file set)....">ProcessedLoca</a> output.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pro-methods" class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -113,9 +113,9 @@ Protected Member Functions</h2></td></tr>
 <tr class="memdesc:a5a4145517f0cac3d2d4ac36af9b4d2e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caches SerializedProperty references for efficient inspector rendering.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Custom inspector for <a class="el" href="class_gui_toolkit_1_1_loca_excel_bridge.html" title="ScriptableObject-based localization provider that imports translations from Excel (....">LocaExcelBridge</a> ScriptableObjects. Displays configuration fields and provides a "Process" button to trigger <a class="el" href="interface_gui_toolkit_1_1_i_loca_provider.html#a20cad464a1d89f0d3a3250f593dab929" title="(Editor-only) Collects or refreshes localization data from the provider&#39;s source (e....">ILocaProvider.CollectData</a>. </p>
+<div class="textblock"><p>Custom inspector for <a class="el" href="class_gui_toolkit_1_1_loca_excel_bridge.html" title="ScriptableObject-based localization provider that imports translations from Excel (....">LocaExcelBridge</a> ScriptableObjects. Displays configuration fields and provides a "Process" button to trigger <a class="el" href="interface_gui_toolkit_1_1_i_loca_provider.html#a20cad464a1d89f0d3a3250f593dab929" title="(Editor-only) Collects or refreshes localization data from the provider&#39;s source (e....">ILocaProvider.CollectData</a>, and a "Push to Spreadsheet" button to write local PO translations back to the source. </p>
 
-<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_editor_8cs_source.html#l00014">14</a> of file <a class="el" href="_loca_excel_bridge_editor_8cs_source.html">LocaExcelBridgeEditor.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_editor_8cs_source.html#l00015">15</a> of file <a class="el" href="_loca_excel_bridge_editor_8cs_source.html">LocaExcelBridgeEditor.cs</a>.</p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
 <a id="a5a4145517f0cac3d2d4ac36af9b4d2e0" name="a5a4145517f0cac3d2d4ac36af9b4d2e0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5a4145517f0cac3d2d4ac36af9b4d2e0">&#9670;&#160;</a></span>OnEnable()</h2>
@@ -142,7 +142,7 @@ Protected Member Functions</h2></td></tr>
 
 <p>Caches SerializedProperty references for efficient inspector rendering. </p>
 
-<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_editor_8cs_source.html#l00027">27</a> of file <a class="el" href="_loca_excel_bridge_editor_8cs_source.html">LocaExcelBridgeEditor.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_editor_8cs_source.html#l00030">30</a> of file <a class="el" href="_loca_excel_bridge_editor_8cs_source.html">LocaExcelBridgeEditor.cs</a>.</p>
 
 </div>
 </div>
@@ -161,9 +161,9 @@ Protected Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Renders the custom inspector GUI. Shows source type, Excel path or Google URL, group, column descriptions, start row, a "Process" button to collect data, and the resulting <a class="el" href="class_gui_toolkit_1_1_processed_loca.html" title="Container for processed localization data from a single source (e.g., an Excel sheet or PO file set)....">ProcessedLoca</a> output. </p>
+<p>Renders the custom inspector GUI. Shows source type, Excel path or Google URL (with optional auth fields), group, column descriptions, start row, a "Process" button, Gettext–Sheets sync buttons, a "Push to Spreadsheet" button, and the resulting <a class="el" href="class_gui_toolkit_1_1_processed_loca.html" title="Container for processed localization data from a single source (e.g., an Excel sheet or PO file set)....">ProcessedLoca</a> output. </p>
 
-<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_editor_8cs_source.html#l00043">43</a> of file <a class="el" href="_loca_excel_bridge_editor_8cs_source.html">LocaExcelBridgeEditor.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_loca_excel_bridge_editor_8cs_source.html#l00049">49</a> of file <a class="el" href="_loca_excel_bridge_editor_8cs_source.html">LocaExcelBridgeEditor.cs</a>.</p>
 
 </div>
 </div>

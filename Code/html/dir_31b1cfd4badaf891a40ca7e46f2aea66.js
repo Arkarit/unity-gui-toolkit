@@ -11,5 +11,6 @@ var dir_31b1cfd4badaf891a40ca7e46f2aea66 =
     [ "Shaders", "dir_60623cfa5fbd86ea4a89e461672650b0.html", "dir_60623cfa5fbd86ea4a89e461672650b0" ],
     [ "StateSystem", "dir_0ad53883cf30bcdf3d15045714e5bc0c.html", "dir_0ad53883cf30bcdf3d15045714e5bc0c" ],
     [ "StylingSystem", "dir_cfc5e4c3e27fa5adcd6bea679a8afbde.html", "dir_cfc5e4c3e27fa5adcd6bea679a8afbde" ],
-    [ "Tools", "dir_870dba6ac0d3672b928395fe1e1be64f.html", "dir_870dba6ac0d3672b928395fe1e1be64f" ]
+    [ "Tools", "dir_870dba6ac0d3672b928395fe1e1be64f.html", "dir_870dba6ac0d3672b928395fe1e1be64f" ],
+    [ "AssemblyInfo.cs", "_editor_2_assembly_info_8cs.html", null ]
 ];

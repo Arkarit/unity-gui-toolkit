@@ -9,8 +9,14 @@ var searchData=
   ['playersettingoptions_6',['PlayerSettingOptions',['../class_gui_toolkit_1_1_player_setting_options.html',1,'GuiToolkit']]],
   ['playersettingquality_7',['PlayerSettingQuality',['../class_gui_toolkit_1_1_player_setting_quality.html',1,'GuiToolkit']]],
   ['playersettings_8',['PlayerSettings',['../class_gui_toolkit_1_1_player_settings.html',1,'GuiToolkit']]],
-  ['pofixerassetpostprocessor_9',['PoFixerAssetPostprocessor',['../class_gui_toolkit_1_1_editor_1_1_po_fixer_asset_postprocessor.html',1,'GuiToolkit::Editor']]],
-  ['prefabinfo_10',['PrefabInfo',['../class_gui_toolkit_1_1_editor_1_1_prefab_info.html',1,'GuiToolkit::Editor']]],
-  ['processedloca_11',['ProcessedLoca',['../class_gui_toolkit_1_1_processed_loca.html',1,'GuiToolkit']]],
-  ['processedlocaentry_12',['ProcessedLocaEntry',['../class_gui_toolkit_1_1_processed_loca_entry.html',1,'GuiToolkit']]]
+  ['pobackupmanagerwindow_9',['PoBackupManagerWindow',['../class_gui_toolkit_1_1_editor_1_1_po_backup_manager_window.html',1,'GuiToolkit::Editor']]],
+  ['poentry_10',['PoEntry',['../class_gui_toolkit_1_1_editor_1_1_po_entry.html',1,'GuiToolkit::Editor']]],
+  ['pofile_11',['PoFile',['../class_gui_toolkit_1_1_editor_1_1_po_file.html',1,'GuiToolkit::Editor']]],
+  ['pofixerassetpostprocessor_12',['PoFixerAssetPostprocessor',['../class_gui_toolkit_1_1_editor_1_1_po_fixer_asset_postprocessor.html',1,'GuiToolkit::Editor']]],
+  ['pomergeresult_13',['PoMergeResult',['../class_gui_toolkit_1_1_editor_1_1_po_merge_result.html',1,'GuiToolkit::Editor']]],
+  ['possotinfo_14',['PoSsotInfo',['../class_gui_toolkit_1_1_editor_1_1_po_ssot_info.html',1,'GuiToolkit::Editor']]],
+  ['possotprotector_15',['PoSsotProtector',['../class_gui_toolkit_1_1_editor_1_1_po_ssot_protector.html',1,'GuiToolkit::Editor']]],
+  ['prefabinfo_16',['PrefabInfo',['../class_gui_toolkit_1_1_editor_1_1_prefab_info.html',1,'GuiToolkit::Editor']]],
+  ['processedloca_17',['ProcessedLoca',['../class_gui_toolkit_1_1_processed_loca.html',1,'GuiToolkit']]],
+  ['processedlocaentry_18',['ProcessedLocaEntry',['../class_gui_toolkit_1_1_processed_loca_entry.html',1,'GuiToolkit']]]
 ];

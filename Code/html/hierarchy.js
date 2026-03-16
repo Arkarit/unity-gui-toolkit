@@ -4,7 +4,8 @@ var hierarchy =
       [ "GuiToolkit.ApplicableValue< T >", "class_gui_toolkit_1_1_applicable_value-1-g.html", null ]
     ] ],
     [ "GuiToolkit.AssetHandling.AssetLoader", "class_gui_toolkit_1_1_asset_handling_1_1_asset_loader.html", null ],
-    [ "AssetModificationProcessor", null, [
+    [ "UnityEditor.AssetModificationProcessor", null, [
+      [ "GuiToolkit.Editor.PoSsotProtector", "class_gui_toolkit_1_1_editor_1_1_po_ssot_protector.html", null ],
       [ "GuiToolkit.Editor.SkipSavingInPackageFolder", "class_gui_toolkit_1_1_editor_1_1_skip_saving_in_package_folder.html", null ]
     ] ],
     [ "AssetPostprocessor", null, [
@@ -100,6 +101,7 @@ var hierarchy =
       [ "GuiToolkit.Editor.ConfigManagerWindow", "class_gui_toolkit_1_1_editor_1_1_config_manager_window.html", null ],
       [ "GuiToolkit.Editor.DoxygenWindow", "class_gui_toolkit_1_1_editor_1_1_doxygen_window.html", null ],
       [ "GuiToolkit.Editor.GradientSpriteGeneratorWindow", "class_gui_toolkit_1_1_editor_1_1_gradient_sprite_generator_window.html", null ],
+      [ "GuiToolkit.Editor.PoBackupManagerWindow", "class_gui_toolkit_1_1_editor_1_1_po_backup_manager_window.html", null ],
       [ "GuiToolkit.Editor.ReplaceComponentsWindow", "class_gui_toolkit_1_1_editor_1_1_replace_components_window.html", null ],
       [ "GuiToolkit.Editor.SafeDeleteWindow", "class_gui_toolkit_1_1_editor_1_1_safe_delete_window.html", null ],
       [ "GuiToolkit.Editor.UiResolutionRescalerWindow", "class_gui_toolkit_1_1_editor_1_1_ui_resolution_rescaler_window.html", null ],
@@ -430,6 +432,10 @@ var hierarchy =
     ] ],
     [ "GuiToolkit.PlayerSettingOptions", "class_gui_toolkit_1_1_player_setting_options.html", null ],
     [ "GuiToolkit.PlayerSettings", "class_gui_toolkit_1_1_player_settings.html", null ],
+    [ "GuiToolkit.Editor.PoEntry", "class_gui_toolkit_1_1_editor_1_1_po_entry.html", null ],
+    [ "GuiToolkit.Editor.PoFile", "class_gui_toolkit_1_1_editor_1_1_po_file.html", null ],
+    [ "GuiToolkit.Editor.PoMergeResult", "class_gui_toolkit_1_1_editor_1_1_po_merge_result.html", null ],
+    [ "GuiToolkit.Editor.PoSsotInfo", "class_gui_toolkit_1_1_editor_1_1_po_ssot_info.html", null ],
     [ "GuiToolkit.Editor.PrefabInfo", "class_gui_toolkit_1_1_editor_1_1_prefab_info.html", null ],
     [ "GuiToolkit.ProcessedLoca", "class_gui_toolkit_1_1_processed_loca.html", null ],
     [ "GuiToolkit.ProcessedLocaEntry", "class_gui_toolkit_1_1_processed_loca_entry.html", null ],

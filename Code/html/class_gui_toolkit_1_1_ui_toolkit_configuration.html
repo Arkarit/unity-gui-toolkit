@@ -115,6 +115,8 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a1d5e3d5f65ef3450d132f5455339461e" id="r_a1d5e3d5f65ef3450d132f5455339461e"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1d5e3d5f65ef3450d132f5455339461e">m_potPath</a></td></tr>
+<tr class="memitem:ac9338f885a3a42eed0e7a116260d1206" id="r_ac9338f885a3a42eed0e7a116260d1206"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac9338f885a3a42eed0e7a116260d1206">m_autoMergePotToPo</a> = false</td></tr>
+<tr class="memitem:a8eae3112f655780ab1bdf798a52afd20" id="r_a8eae3112f655780ab1bdf798a52afd20"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8eae3112f655780ab1bdf798a52afd20">m_autoSyncAfterMerge</a> = false</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pro-methods" class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -138,6 +140,8 @@ Properties</h2></td></tr>
 <tr class="memitem:a946b44a0159e8312dbe0126c9941fbd6" id="r_a946b44a0159e8312dbe0126c9941fbd6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a946b44a0159e8312dbe0126c9941fbd6">ExceptUiMainExists</a><code> [get]</code></td></tr>
 <tr class="memitem:a70eec33c893d91b08d6e6cd916ae92d4" id="r_a70eec33c893d91b08d6e6cd916ae92d4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_gui_toolkit_1_1_asset_handling_1_1_abstract_asset_provider_factory.html">AbstractAssetProviderFactory</a>[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a70eec33c893d91b08d6e6cd916ae92d4">AssetProviderFactories</a><code> [get]</code></td></tr>
 <tr class="memitem:a391307faecb0d663f427e1a40e70b04e" id="r_a391307faecb0d663f427e1a40e70b04e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_gui_toolkit_1_1_ui_abstract_transition_overlay.html">UiAbstractTransitionOverlay</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a391307faecb0d663f427e1a40e70b04e">TransitionOverlay</a><code> [get]</code></td></tr>
+<tr class="memitem:aa3d03844ba5e5fe5320052d65d2bd4f3" id="r_aa3d03844ba5e5fe5320052d65d2bd4f3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa3d03844ba5e5fe5320052d65d2bd4f3">AutoMergePotToPo</a><code> [get]</code></td></tr>
+<tr class="memitem:a0b33a8ceecaa82cf75b02b99d5aabea1" id="r_a0b33a8ceecaa82cf75b02b99d5aabea1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0b33a8ceecaa82cf75b02b99d5aabea1">AutoSyncAfterMerge</a><code> [get]</code></td></tr>
 <tr class="memitem:aad422b0eecdeda2e37e15d745cc37394" id="r_aad422b0eecdeda2e37e15d745cc37394"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aad422b0eecdeda2e37e15d745cc37394">GeneratedAssetsDir</a><code> [get]</code></td></tr>
 <tr class="memitem:ab788eee885e50f5bdcf02a2dd2e304ab" id="r_ab788eee885e50f5bdcf02a2dd2e304ab"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab788eee885e50f5bdcf02a2dd2e304ab">InternalGeneratedAssetsDir</a><code> [get]</code></td></tr>
 <tr class="inherit_header properties_class_gui_toolkit_1_1_abstract_singleton_scriptable_object-1-g"><td colspan="2" onclick="javascript:dynsection.toggleInherit('properties_class_gui_toolkit_1_1_abstract_singleton_scriptable_object-1-g')"><span class="dynarrow"><span class="arrowhead closed"></span></span>Properties inherited from <a class="el" href="class_gui_toolkit_1_1_abstract_singleton_scriptable_object-1-g.html">GuiToolkit.AbstractSingletonScriptableObject&lt; T &gt;</a></td></tr>
@@ -170,7 +174,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00315">315</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00331">331</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -189,7 +193,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00218">218</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00224">224</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -208,7 +212,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00321">321</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00337">337</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -237,7 +241,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="class_gui_toolkit_1_1_abstract_singleton_scriptable_object-1-g.html#a2b3788396c0ac8f2b7b5dd10efdbee45">GuiToolkit.AbstractSingletonScriptableObject&lt; T &gt;</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00310">310</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00326">326</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -266,11 +270,43 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Reimplemented from <a class="el" href="class_gui_toolkit_1_1_abstract_singleton_scriptable_object-1-g.html#a29a01391a52fde350935c91d975d9796">GuiToolkit.AbstractSingletonScriptableObject&lt; T &gt;</a>.</p>
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00168">168</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00174">174</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
 <a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
+<a id="ac9338f885a3a42eed0e7a116260d1206" name="ac9338f885a3a42eed0e7a116260d1206"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac9338f885a3a42eed0e7a116260d1206">&#9670;&#160;</a></span>m_autoMergePotToPo</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool GuiToolkit.UiToolkitConfiguration.m_autoMergePotToPo = false</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00289">289</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+
+</div>
+</div>
+<a id="a8eae3112f655780ab1bdf798a52afd20" name="a8eae3112f655780ab1bdf798a52afd20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8eae3112f655780ab1bdf798a52afd20">&#9670;&#160;</a></span>m_autoSyncAfterMerge</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool GuiToolkit.UiToolkitConfiguration.m_autoSyncAfterMerge = false</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00294">294</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+
+</div>
+</div>
 <a id="af86c840a41db335444878d949b1afc5b" name="af86c840a41db335444878d949b1afc5b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af86c840a41db335444878d949b1afc5b">&#9670;&#160;</a></span>m_generatedAssetsDir</h2>
 
@@ -291,7 +327,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00284">284</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00300">300</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -307,7 +343,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00280">280</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00286">286</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -332,7 +368,55 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00214">214</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00220">220</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+
+</div>
+</div>
+<a id="aa3d03844ba5e5fe5320052d65d2bd4f3" name="aa3d03844ba5e5fe5320052d65d2bd4f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa3d03844ba5e5fe5320052d65d2bd4f3">&#9670;&#160;</a></span>AutoMergePotToPo</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool GuiToolkit.UiToolkitConfiguration.AutoMergePotToPo</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00291">291</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+
+</div>
+</div>
+<a id="a0b33a8ceecaa82cf75b02b99d5aabea1" name="a0b33a8ceecaa82cf75b02b99d5aabea1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b33a8ceecaa82cf75b02b99d5aabea1">&#9670;&#160;</a></span>AutoSyncAfterMerge</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool GuiToolkit.UiToolkitConfiguration.AutoSyncAfterMerge</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel get">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00296">296</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -356,7 +440,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00209">209</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00215">215</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -380,7 +464,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00208">208</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00214">214</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -404,7 +488,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00213">213</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00219">219</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -428,7 +512,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00286">286</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00302">302</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -452,7 +536,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00207">207</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00213">213</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -476,7 +560,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00302">302</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00318">318</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -500,7 +584,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00210">210</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00216">216</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -524,7 +608,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00196">196</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00202">202</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -548,7 +632,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00215">215</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00221">221</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -572,7 +656,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00206">206</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00212">212</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -596,7 +680,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00211">211</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00217">217</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -620,7 +704,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00205">205</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00211">211</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>
@@ -644,7 +728,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00212">212</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
+<p class="definition">Definition at line <a class="el" href="_ui_toolkit_configuration_8cs_source.html#l00218">218</a> of file <a class="el" href="_ui_toolkit_configuration_8cs_source.html">UiToolkitConfiguration.cs</a>.</p>
 
 </div>
 </div>

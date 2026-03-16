@@ -20,11 +20,13 @@ var searchData=
   ['showtime_17',['ShowTime',['../class_gui_toolkit_1_1_ui_date_time_display_1_1_options.html#ad0188e8949a6c1f5ca2bed297444c3ba',1,'GuiToolkit.UiDateTimeDisplay.Options.ShowTime'],['../class_gui_toolkit_1_1_ui_date_time_panel_1_1_options.html#a45d9d3cab2d9a22abdf41cbdd9ecf814',1,'GuiToolkit.UiDateTimePanel.Options.ShowTime']]],
   ['siblingindex_18',['SiblingIndex',['../class_gui_toolkit_1_1_ui_requester_base_1_1_options.html#a51daa4540182d3868c4b6bf975aebe1f',1,'GuiToolkit::UiRequesterBase::Options']]],
   ['sourceref_19',['SourceRef',['../class_gui_toolkit_1_1_processed_loca_entry.html#ac7268422e91a087b2b0c2896c96d2946',1,'GuiToolkit::ProcessedLocaEntry']]],
-  ['sprite_20',['Sprite',['../class_gui_toolkit_1_1_ui_multi_state_button_1_1_state.html#a3f3a4b6c88a800c3c81470fc9cdd0bcb',1,'GuiToolkit::UiMultiStateButton::State']]],
-  ['startdatetime_21',['StartDateTime',['../class_gui_toolkit_1_1_ui_date_time_panel_1_1_options.html#a2907f05212c2efdf5eaf4d85a5798ff3',1,'GuiToolkit::UiDateTimePanel::Options']]],
-  ['stringitems_22',['StringItems',['../class_gui_toolkit_1_1_ui_popup_menu_1_1_options.html#ad2ff2e285fc3265ba476c0acd5ba0e32',1,'GuiToolkit::UiPopupMenu::Options']]],
-  ['strings_23',['strings',['../class_settings_data.html#afcb131896524a3c1f3ffdeeb35774377',1,'SettingsData']]],
-  ['stringvalues_24',['StringValues',['../class_gui_toolkit_1_1_player_setting_options.html#a878a725cce2198acfcaa4757c36a4901',1,'GuiToolkit::PlayerSettingOptions']]],
-  ['supportdrag_25',['SupportDrag',['../class_gui_toolkit_1_1_player_setting_options.html#a775bcc0505f99af07a8113180564a6bb',1,'GuiToolkit::PlayerSettingOptions']]],
-  ['synopsis_26',['Synopsis',['../class_gui_toolkit_1_1_editor_1_1_doxygen_config.html#aa370981b7657d76f9e6d3dd35f383d18',1,'GuiToolkit::Editor::DoxygenConfig']]]
+  ['sourcereferences_20',['SourceReferences',['../class_gui_toolkit_1_1_editor_1_1_po_entry.html#a73e7b30409497c7b8c386df260ead45a',1,'GuiToolkit::Editor::PoEntry']]],
+  ['sourceurl_21',['SourceUrl',['../class_gui_toolkit_1_1_editor_1_1_po_ssot_info.html#ad5f9b14603a2c6ef66117d11eb1af31d',1,'GuiToolkit::Editor::PoSsotInfo']]],
+  ['sprite_22',['Sprite',['../class_gui_toolkit_1_1_ui_multi_state_button_1_1_state.html#a3f3a4b6c88a800c3c81470fc9cdd0bcb',1,'GuiToolkit::UiMultiStateButton::State']]],
+  ['startdatetime_23',['StartDateTime',['../class_gui_toolkit_1_1_ui_date_time_panel_1_1_options.html#a2907f05212c2efdf5eaf4d85a5798ff3',1,'GuiToolkit::UiDateTimePanel::Options']]],
+  ['stringitems_24',['StringItems',['../class_gui_toolkit_1_1_ui_popup_menu_1_1_options.html#ad2ff2e285fc3265ba476c0acd5ba0e32',1,'GuiToolkit::UiPopupMenu::Options']]],
+  ['strings_25',['strings',['../class_settings_data.html#afcb131896524a3c1f3ffdeeb35774377',1,'SettingsData']]],
+  ['stringvalues_26',['StringValues',['../class_gui_toolkit_1_1_player_setting_options.html#a878a725cce2198acfcaa4757c36a4901',1,'GuiToolkit::PlayerSettingOptions']]],
+  ['supportdrag_27',['SupportDrag',['../class_gui_toolkit_1_1_player_setting_options.html#a775bcc0505f99af07a8113180564a6bb',1,'GuiToolkit::PlayerSettingOptions']]],
+  ['synopsis_28',['Synopsis',['../class_gui_toolkit_1_1_editor_1_1_doxygen_config.html#aa370981b7657d76f9e6d3dd35f383d18',1,'GuiToolkit::Editor::DoxygenConfig']]]
 ];

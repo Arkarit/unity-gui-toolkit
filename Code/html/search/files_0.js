@@ -10,7 +10,7 @@ var searchData=
   ['applicablevalue_2ecs_7',['ApplicableValue.cs',['../_applicable_value_8cs.html',1,'']]],
   ['applicablevaluebasedrawer_2ecs_8',['ApplicableValueBaseDrawer.cs',['../_applicable_value_base_drawer_8cs.html',1,'']]],
   ['applyrewireregistryhook_2ecs_9',['ApplyRewireRegistryHook.cs',['../_apply_rewire_registry_hook_8cs.html',1,'']]],
-  ['assemblyinfo_2ecs_10',['AssemblyInfo.cs',['../_assembly_info_8cs.html',1,'']]],
+  ['assemblyinfo_2ecs_10',['AssemblyInfo.cs',['../_editor_2_assembly_info_8cs.html',1,'(Global Namespace)'],['../_runtime_2_assembly_info_8cs.html',1,'(Global Namespace)']]],
   ['assetloader_2ecs_11',['AssetLoader.cs',['../_asset_loader_8cs.html',1,'']]],
   ['assetmanager_2ecs_12',['AssetManager.cs',['../_asset_manager_8cs.html',1,'']]],
   ['assetreadygate_2ecs_13',['AssetReadyGate.cs',['../_asset_ready_gate_8cs.html',1,'']]],

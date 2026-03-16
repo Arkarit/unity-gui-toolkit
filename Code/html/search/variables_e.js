@@ -12,9 +12,10 @@ var searchData=
   ['portrait_9',['Portrait',['../class_gui_toolkit_1_1_style_1_1_ui_aspect_ratio_dependent_style_config.html#a5c6df8bf242ac17196b9e460e1de3de6',1,'GuiToolkit::Style::UiAspectRatioDependentStyleConfig']]],
   ['potxtextension_10',['PoTxtExtension',['../class_gui_toolkit_1_1_editor_1_1_po_fixer_asset_postprocessor.html#af98e3fe70c07e8a6979302f23844884e',1,'GuiToolkit::Editor::PoFixerAssetPostprocessor']]],
   ['prefab_11',['Prefab',['../class_gui_toolkit_1_1_ui_grid_picker_1_1_options.html#a7128dbe9a9a3f17f1c2238306e0c33af',1,'GuiToolkit.UiGridPicker.Options.Prefab'],['../class_gui_toolkit_1_1_ui_requester_base_1_1_button_info.html#ad79bf33784905fc0fe2647df6b29ecd5',1,'GuiToolkit.UiRequesterBase.ButtonInfo.Prefab']]],
-  ['project_12',['Project',['../class_gui_toolkit_1_1_editor_1_1_doxygen_config.html#a61ad9dc27f7e25cccb855604f1a8d616',1,'GuiToolkit::Editor::DoxygenConfig']]],
-  ['propertymodifications_13',['PropertyModifications',['../class_gui_toolkit_1_1_editor_1_1_prefab_info_1_1_c_override_info.html#ad7d9f6f6b7ccc096df9d1cfd3e073e4e',1,'GuiToolkit::Editor::PrefabInfo::COverrideInfo']]],
-  ['propertypath_14',['PropertyPath',['../class_gui_toolkit_1_1_editor_1_1_references_rewire_registry_1_1_entry.html#a5be6be9c365a5ac86903bcedc09b122d',1,'GuiToolkit::Editor::ReferencesRewireRegistry::Entry']]],
-  ['provider_15',['Provider',['../struct_gui_toolkit_1_1_asset_handling_1_1_canonical_asset_key.html#ae2e5f1844a802e2dcd530f7fcb202893',1,'GuiToolkit::AssetHandling::CanonicalAssetKey']]],
-  ['providers_16',['Providers',['../class_gui_toolkit_1_1_loca_provider_list.html#a961811f413e56e48187f277449493958',1,'GuiToolkit::LocaProviderList']]]
+  ['preservedkeys_12',['PreservedKeys',['../class_gui_toolkit_1_1_editor_1_1_po_merge_result.html#a2245df4f7bb272c2c0ccc26a40ae020b',1,'GuiToolkit::Editor::PoMergeResult']]],
+  ['project_13',['Project',['../class_gui_toolkit_1_1_editor_1_1_doxygen_config.html#a61ad9dc27f7e25cccb855604f1a8d616',1,'GuiToolkit::Editor::DoxygenConfig']]],
+  ['propertymodifications_14',['PropertyModifications',['../class_gui_toolkit_1_1_editor_1_1_prefab_info_1_1_c_override_info.html#ad7d9f6f6b7ccc096df9d1cfd3e073e4e',1,'GuiToolkit::Editor::PrefabInfo::COverrideInfo']]],
+  ['propertypath_15',['PropertyPath',['../class_gui_toolkit_1_1_editor_1_1_references_rewire_registry_1_1_entry.html#a5be6be9c365a5ac86903bcedc09b122d',1,'GuiToolkit::Editor::ReferencesRewireRegistry::Entry']]],
+  ['provider_16',['Provider',['../struct_gui_toolkit_1_1_asset_handling_1_1_canonical_asset_key.html#ae2e5f1844a802e2dcd530f7fcb202893',1,'GuiToolkit::AssetHandling::CanonicalAssetKey']]],
+  ['providers_17',['Providers',['../class_gui_toolkit_1_1_loca_provider_list.html#a961811f413e56e48187f277449493958',1,'GuiToolkit::LocaProviderList']]]
 ];
