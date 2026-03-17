@@ -155,14 +155,23 @@ Every project using the toolkit needs a **UiMain** instance in its bootstrap sce
 
 1. In the **Project** window, navigate to  
    `Packages / UI Toolkit / Runtime / Prefabs / UIMain`
-2. Right-click the `UIMain` prefab → **Create → Prefab Variant**
-3. Move the new variant (e.g., `Assets/Prefabs/UIMain.prefab`) into your project's `Assets/` folder
-4. Drag the variant into your bootstrap scene
+2. Select the `UIMain` prefab, then right-click it → **Create Variant** → choose a placement option:
+
+   | Option | Where the variant is saved |
+   |---|---|
+   | **Mirror Package Hierarchy** | `Assets/PackageVariants/de.phoenixgrafik.ui-toolkit/Runtime/Prefabs/UIMain Variant.prefab` — mirrors the package folder structure; keeps things tidy when you have variants from multiple packages |
+   | **Flat in Assets** | `Assets/UIMain Variant.prefab` — quick and simple |
+   | **Select common Path** | Prompts for a folder once — use this for batches |
+   | **Select each Path** | Prompts for each prefab individually |
+
+   > **Note:** Unity disables the standard *Create → Prefab Variant* option for read-only package folders. The **Create Variant** submenu is a toolkit-provided workaround that creates a proper Prefab Variant in your `Assets/` folder.
+
+3. Drag the newly created `UIMain Variant` into your bootstrap scene.
 
 All standard element slots (buttons, requesters, toast view, settings dialog, popup menu, …) are already wired inside the variant. `UiMain` is immediately usable.
 
 > **Why Variants for standard elements?**  
-> Prefabs inside a UPM package are read-only — you cannot edit them directly. Creating a Prefab Variant in your `Assets/` folder lets you override any property (color, font, animation, prefab reference) while inheriting everything else from the original. This also means package updates automatically propagate to anything you have *not* overridden in the variant. Apply this same pattern to any standard element (buttons, dialogs, etc.) you want to customise.
+> Prefabs inside a UPM package are read-only — you cannot edit them directly (Unity even greys out the normal *Create → Prefab Variant* option for package folders). Creating a Prefab Variant via the **Create Variant** right-click menu places an editable copy in your `Assets/` folder. You can override any property (color, font, animation, prefab reference) while inheriting everything else from the original. Package updates automatically propagate to anything you have *not* overridden. Apply the same pattern to any standard element (buttons, dialogs, etc.) you want to customise.
 
 ### Customising the Variant
 
