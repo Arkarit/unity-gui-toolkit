@@ -52,14 +52,6 @@ namespace GuiToolkit
 		public abstract string Translate( string _singularKey, string _pluralKey, int _n, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key );
 		
 		/// <summary>
-		/// Checks whether a translation key exists in the specified group for the current language.
-		/// </summary>
-		/// <param name="_key">The localization key to check.</param>
-		/// <param name="_group">The group namespace to search in.</param>
-		/// <returns>True if the key exists, false otherwise.</returns>
-		public abstract bool HasKey(string _key, string _group);
-
-		/// <summary>
 		/// Translates <paramref name="_key"/> disambiguated by <paramref name="_context"/>.
 		/// The composed lookup key follows the GNU gettext convention: "context\u0004msgid".
 		/// Pass null or empty <paramref name="_context"/> to behave identically to
@@ -67,14 +59,22 @@ namespace GuiToolkit
 		/// </summary>
 		/// <param name="_key">The localization key (msgid).</param>
 		/// <param name="_context">The disambiguation context (msgctxt). Empty/null for no context.</param>
-		/// <param name="_group">Optional group namespace.</param>
+		/// <param name="_group">Group namespace.</param>
 		/// <param name="_retValIfNotFound">Behavior when the key is not found.</param>
 		/// <returns>Translated string.</returns>
-		public string Translate( string _key, string _context, string _group = null, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key )
+		public string Translate( string _key, string _context, string _group, RetValIfNotFound _retValIfNotFound = RetValIfNotFound.Key )
 		{
 			string composedKey = string.IsNullOrEmpty(_context) ? _key : $"{_context}\u0004{_key}";
 			return Translate(composedKey, _group, _retValIfNotFound);
 		}
+		
+		/// <summary>
+		/// Checks whether a translation key exists in the specified group for the current language.
+		/// </summary>
+		/// <param name="_key">The localization key to check.</param>
+		/// <param name="_group">The group namespace to search in.</param>
+		/// <returns>True if the key exists, false otherwise.</returns>
+		public abstract bool HasKey(string _key, string _group);
 
 		/// <summary>
 		/// Implementation-specific language change logic.
