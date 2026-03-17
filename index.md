@@ -83,6 +83,7 @@ title: UI Toolkit
 
 - **[Setup & Installation](setup)** — Requirements, package install, dependencies, DLL setup for Unity &lt; 6
 - **[Creating a Dialog](Code/creating-a-dialog)** — Step-by-step: UiPanel, localized TMP text, and two buttons
+- **[Contributing](contributing)** — Local dev environment setup, repository structure, running tests
 
 ### Localization System
 

@@ -11,6 +11,7 @@ author:
 header_pages:
   - index.md
   - setup.md
+  - contributing.md
 
 exclude:
   - Gemfile

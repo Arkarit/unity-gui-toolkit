@@ -149,12 +149,46 @@ This deletes all copied DLLs, removes the `Roslyn2022Hack.asmdef`, and clears th
 
 ## Step 5: Add UiMain to Your Scene
 
-Every project using the toolkit needs a **UiMain** instance in its bootstrap scene. `UiMain` is the central singleton that manages views, dialogs, pooling, and navigation.
+Every project using the toolkit needs a **UiMain** instance in its bootstrap scene. `UiMain` is the central singleton that manages views, dialogs, pooling, and navigation. It ships pre-configured with references to 13 standard prefabs (buttons, requesters, toast messages, settings dialog, popup menu, …). Wiring all of these by hand from scratch is tedious — **the recommended way is to start from a Prefab Variant**.
 
-1. Create an empty GameObject in your bootstrap / main scene (e.g., named `UiMain`)
-2. Add the `UiMain` component: **Add Component > Gui Toolkit > UiMain**
-3. Assign the scene's main **Camera** reference in the inspector
-4. `UiMain` marks itself persistent (`DontDestroyOnLoad`) automatically
+### Option A: Prefab Variant (Recommended)
+
+1. In the **Project** window, navigate to  
+   `Packages / UI Toolkit / Runtime / Prefabs / UIMain`
+2. Right-click the `UIMain` prefab → **Create → Prefab Variant**
+3. Move the new variant (e.g., `Assets/Prefabs/UIMain.prefab`) into your project's `Assets/` folder
+4. Drag the variant into your bootstrap scene
+
+All standard element slots (buttons, requesters, toast view, settings dialog, popup menu, …) are already wired inside the variant. `UiMain` is immediately usable.
+
+> **Why Variants for standard elements?**  
+> Prefabs inside a UPM package are read-only — you cannot edit them directly. Creating a Prefab Variant in your `Assets/` folder lets you override any property (color, font, animation, prefab reference) while inheriting everything else from the original. This also means package updates automatically propagate to anything you have *not* overridden in the variant. Apply this same pattern to any standard element (buttons, dialogs, etc.) you want to customise.
+
+### Customising the Variant
+
+Open your `UIMain` variant and override only the slots you need:
+
+| Field | Description |
+|---|---|
+| `m_standardButtonPrefab` | Default button used by factory methods |
+| `m_okButtonPrefab` / `m_cancelButtonPrefab` | Buttons used in requesters |
+| `m_requesterPrefab` | OK / Yes-No dialog |
+| `m_toastMessageViewPrefab` | Toast notification overlay |
+| `m_settingsDialogPrefab` | Player settings dialog |
+| `m_popupMenuPrefab` | Context/popup menu |
+| `m_gridPickerPrefab` | Grid picker dialog |
+| `m_additionalViews` | Register your own `UiView` prefabs for use with `CreateView<T>()` |
+
+To replace a standard element with your own look, create a Prefab Variant of that element (e.g., of `StandardButton`) and assign the variant to the corresponding slot in your `UIMain` variant.
+
+### Option B: From Scratch
+
+If you prefer full manual control:
+
+1. Create an empty GameObject in your bootstrap scene (e.g., named `UiMain`)
+2. Add the `UiMain` component: **Add Component → Gui Toolkit → Ui Main**
+3. Assign a **Camera** reference
+4. Manually assign every prefab slot listed in the table above
 
 > **Tip:** If you access `UiMain.Instance` at startup, always guard with `UiMain.IsAwake` first, or use `UiMain.AfterAwake(action)` to defer until the singleton is ready.
 
@@ -183,16 +217,4 @@ The project should compile cleanly. If you see errors, use the table below:
 
 ---
 
-## Contributing
-
-If you want to contribute to or experiment with the toolkit source:
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Arkarit/unity-gui-toolkit.git
-   ```
-2. Run `.Dev-App/Install.bat` (Windows) or `.Dev-App/install.sh` (macOS/Linux) **as a normal user**
-   — this creates symlinks linking `Runtime/` and `Editor/` into the dev Unity project
-3. Open `.Dev-App/Unity` in Unity Hub
-
-> **Important (Windows):** Do not run `Install.bat` with administrator privileges manually. The script handles UAC elevation automatically. Running it as admin will cause the gh-pages documentation repository to be created with incorrect ownership, preventing Git operations.
+See also: [Contributing](contributing.html)
