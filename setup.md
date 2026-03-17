@@ -183,7 +183,7 @@ The project should compile cleanly. If you see errors, use the table below:
 
 ---
 
-## Working in the Repository
+## Contributing
 
 If you want to contribute to or experiment with the toolkit source:
 
