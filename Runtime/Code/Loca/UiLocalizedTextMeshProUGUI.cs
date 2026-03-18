@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ namespace GuiToolkit
 	/// Replaces the deprecated <see cref="UiAutoLocalize"/> component.
 	/// </summary>
 	[AddComponentMenu("UI/Localized Text Mesh Pro UGUI")]
-	public class UiLocalizedTextMeshProUGUI : TextMeshProUGUI
+	public class UiLocalizedTextMeshProUGUI : TextMeshProUGUI, ILocaKeyProvider
 	{
 		[SerializeField] private bool m_autoLocalize = true;
 		[SerializeField] private string m_group = string.Empty;
@@ -49,13 +50,24 @@ namespace GuiToolkit
 			set { m_group = value; ApplyTranslation(); }
 		}
 
+#if UNITY_EDITOR
+		bool ILocaKeyProvider.UsesMultipleLocaKeys => false;
+		List<string> ILocaKeyProvider.LocaKeys => null;
+		// LocaKey and Group are already public properties; they satisfy the interface implicitly.
+#endif
+
 		/// <summary>
 		/// Gets or sets the localization key.
 		/// Setting this immediately re-translates the text if <see cref="AutoLocalize"/> is enabled.
 		/// </summary>
 		public string LocaKey
 		{
-			get => m_locaKey;
+			get
+			{
+				if (m_autoLocalize && string.IsNullOrEmpty(m_locaKey))
+					return base.text;
+				return m_locaKey;
+			}
 			set
 			{
 				m_locaKey = value;
