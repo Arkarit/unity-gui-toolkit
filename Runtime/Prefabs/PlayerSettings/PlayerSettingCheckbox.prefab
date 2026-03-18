@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 7078460649309468663}
   - component: {fileID: 3088002875102225747}
   - component: {fileID: 3962353340145202642}
-  - component: {fileID: 2818685492728794989}
   - component: {fileID: 3833328305056371703}
   m_Layer: 5
   m_Name: Name
@@ -56,7 +55,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3157229933018028451}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Script: {fileID: 11500000, guid: bc4a859b73555df43976e85a587ffe79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -106,6 +105,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: -25
   m_lineSpacingMax: 0
@@ -139,20 +139,9 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &2818685492728794989
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3157229933018028451}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 674c9e59151164345b581302232e337c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_enabledInHierarchy: 1
-  m_autoTranslate: 0
+  m_autoLocalize: 1
+  m_group: 
+  m_locaKey: 
 --- !u!114 &3833328305056371703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,11 +154,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: PlayerSetting/EntryText
   m_fixedSkinName: 
   m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []
@@ -311,7 +302,13 @@ MonoBehaviour:
   m_uiImage: {fileID: 8148534925401460499}
   m_additionalMouseOver: {fileID: 5848099051524279674}
   m_additionalMouseOverDuration: 0.1
-  m_animatedWhenSelected: 1
+  m_forwardButton: {fileID: 0}
+  m_playButtonAnimation: 1
+  m_selectionAnimation: {fileID: 0}
+  m_toggleGroupHandling: 0
+  m_styleAppliers: []
+  m_skinOn: On
+  m_skinOff: Off
 --- !u!114 &7396573769442143020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,9 +322,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
-  m_titleTranslator: {fileID: 2818685492728794989}
+  m_titleTranslator: {fileID: 0}
   m_text: {fileID: 3962353340145202642}
   m_isLocalized: 1
+  m_additionalMouseOver: {fileID: 0}
+  m_additionalMouseOverDuration: 0.2
   m_toggle: {fileID: 4258773645563961707}
 --- !u!1001 &1367024461867091307
 PrefabInstance:

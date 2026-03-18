@@ -56,7 +56,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6981956699718695645}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Script: {fileID: 11500000, guid: bc4a859b73555df43976e85a587ffe79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -105,6 +105,7 @@ MonoBehaviour:
   m_VerticalAlignment: 4096
   m_textAlignment: 65535
   m_characterSpacing: -3
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: -61
   m_lineSpacingMax: 0
@@ -150,11 +151,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Text/Headline
   m_fixedSkinName: 
   m_tweenable: 0
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []
@@ -176,6 +179,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.3
   m_delay: 0
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
@@ -183,10 +188,13 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 65536
   m_target: {fileID: 9165425482187452183}
   m_markTargetForLayoutRebuild: 0
@@ -258,6 +266,23 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 6525790309460745264}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &6758924293676004245
 PrefabInstance:
   m_ObjectHideFlags: 0

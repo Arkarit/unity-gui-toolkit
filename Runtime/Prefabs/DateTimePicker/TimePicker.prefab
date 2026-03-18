@@ -141,6 +141,9 @@ MonoBehaviour:
   m_minutePicker: {fileID: 6295061222214562017}
   m_secondPicker: {fileID: 4194126209756637684}
   m_optionalNowButton: {fileID: 0}
+  OnValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4892670726746104846
 GameObject:
   m_ObjectHideFlags: 0
@@ -153,7 +156,6 @@ GameObject:
   - component: {fileID: 5930691210922427646}
   - component: {fileID: 4728233024067161805}
   - component: {fileID: 3309832836578948172}
-  - component: {fileID: 5964604703377168453}
   - component: {fileID: 7448510203979048992}
   m_Layer: 5
   m_Name: Text (TMP)
@@ -198,7 +200,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4892670726746104846}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Script: {fileID: 11500000, guid: bc4a859b73555df43976e85a587ffe79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -247,20 +249,23 @@ MonoBehaviour:
   m_VerticalAlignment: 4096
   m_textAlignment: 65535
   m_characterSpacing: -3
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: -61
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
+  m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
+  m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
   m_isOrthographic: 1
   m_isCullingEnabled: 0
@@ -290,31 +295,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Text/Headline
   m_fixedSkinName: 
   m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []
   OnAfterApplyStyle:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &5964604703377168453
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4892670726746104846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 674c9e59151164345b581302232e337c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_enabledInHierarchy: 1
-  m_autoTranslate: 1
 --- !u!114 &7448510203979048992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -497,6 +490,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_EffectDistance.y
       value: -6.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 9180212406838493636, guid: 74f44088a940fad44b274128f337ac9b,
+        type: 3}
+      propertyPath: m_locaKey
+      value: 00
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -684,6 +682,11 @@ PrefabInstance:
       propertyPath: m_EffectDistance.y
       value: -6.03
       objectReference: {fileID: 0}
+    - target: {fileID: 9180212406838493636, guid: 74f44088a940fad44b274128f337ac9b,
+        type: 3}
+      propertyPath: m_locaKey
+      value: 00
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -839,6 +842,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_EffectDistance.y
       value: -6.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 9180212406838493636, guid: 74f44088a940fad44b274128f337ac9b,
+        type: 3}
+      propertyPath: m_locaKey
+      value: 00
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

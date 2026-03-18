@@ -83,6 +83,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_defaultSceneVisibility: 0
+  m_simpleShowHideAnimation: {fileID: 0}
   EvOnBeginShow:
     m_PersistentCalls:
       m_Calls: []
@@ -98,9 +99,11 @@ MonoBehaviour:
   EvOnDestroyed:
     m_PersistentCalls:
       m_Calls: []
+  m_autoLoadResources: 0
   m_yearPicker: {fileID: 1797890594456206593}
   m_monthPicker: {fileID: 4549469326922681685}
   m_dayPicker: {fileID: 3944982842142625897}
+  m_optionalTimePicker: {fileID: 0}
   OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -340,7 +343,6 @@ GameObject:
   - component: {fileID: 1923159097043840607}
   - component: {fileID: 2876791149522986233}
   - component: {fileID: 2494975870923187623}
-  - component: {fileID: 1330506460582514208}
   - component: {fileID: 8960689528645550463}
   m_Layer: 5
   m_Name: Text (TMP) (1)
@@ -385,7 +387,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6016273396698605293}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Script: {fileID: 11500000, guid: bc4a859b73555df43976e85a587ffe79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -434,20 +436,23 @@ MonoBehaviour:
   m_VerticalAlignment: 4096
   m_textAlignment: 65535
   m_characterSpacing: -3
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: -61
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
+  m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
+  m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
   m_isOrthographic: 1
   m_isCullingEnabled: 0
@@ -477,31 +482,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff158a751908b54890330e9b2c4e05e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Text/Headline
   m_fixedSkinName: 
   m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []
   OnAfterApplyStyle:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &1330506460582514208
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6016273396698605293}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 674c9e59151164345b581302232e337c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_enabledInHierarchy: 1
-  m_autoTranslate: 1
 --- !u!114 &8960689528645550463
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -761,6 +754,11 @@ PrefabInstance:
       propertyPath: m_enableVertexGradient
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1445342045220404980, guid: 9cf18d83d2a886241ba20c9f99e9f43d,
+        type: 3}
+      propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
+      value: 1801810542
+      objectReference: {fileID: 0}
     - target: {fileID: 2187667492278180654, guid: 9cf18d83d2a886241ba20c9f99e9f43d,
         type: 3}
       propertyPath: m_colorLeftOrTop.a
@@ -905,6 +903,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_defaultSceneVisibility: 0
+  m_simpleShowHideAnimation: {fileID: 0}
   EvOnBeginShow:
     m_PersistentCalls:
       m_Calls: []
@@ -920,6 +919,7 @@ MonoBehaviour:
   EvOnDestroyed:
     m_PersistentCalls:
       m_Calls: []
+  m_autoLoadResources: 0
   m_increaseButton: {fileID: 7036667883209082740}
   m_decreaseButton: {fileID: 1413090725791342549}
   m_button: {fileID: 7494437178095241037}
@@ -1128,6 +1128,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: DayPicker
       objectReference: {fileID: 0}
+    - target: {fileID: 1445342045220404980, guid: 9cf18d83d2a886241ba20c9f99e9f43d,
+        type: 3}
+      propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
+      value: 1801810542
+      objectReference: {fileID: 0}
     - target: {fileID: 7645155902574072503, guid: 9cf18d83d2a886241ba20c9f99e9f43d,
         type: 3}
       propertyPath: m_PresetInfoIsWorld
@@ -1181,6 +1186,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_defaultSceneVisibility: 0
+  m_simpleShowHideAnimation: {fileID: 0}
   EvOnBeginShow:
     m_PersistentCalls:
       m_Calls: []
@@ -1196,6 +1202,7 @@ MonoBehaviour:
   EvOnDestroyed:
     m_PersistentCalls:
       m_Calls: []
+  m_autoLoadResources: 0
   m_increaseButton: {fileID: 5938586042439433171}
   m_decreaseButton: {fileID: 2328662436486521714}
   m_button: {fileID: 6614884351299238890}
@@ -1496,6 +1503,11 @@ PrefabInstance:
       propertyPath: m_enableVertexGradient
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1445342045220404980, guid: 9cf18d83d2a886241ba20c9f99e9f43d,
+        type: 3}
+      propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
+      value: 1801810542
+      objectReference: {fileID: 0}
     - target: {fileID: 2187667492278180654, guid: 9cf18d83d2a886241ba20c9f99e9f43d,
         type: 3}
       propertyPath: m_colorLeftOrTop.a
@@ -1666,6 +1678,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_defaultSceneVisibility: 0
+  m_simpleShowHideAnimation: {fileID: 0}
   EvOnBeginShow:
     m_PersistentCalls:
       m_Calls: []
@@ -1681,6 +1694,7 @@ MonoBehaviour:
   EvOnDestroyed:
     m_PersistentCalls:
       m_Calls: []
+  m_autoLoadResources: 0
   m_increaseButton: {fileID: 3112687210011306873}
   m_decreaseButton: {fileID: 6415789066096407512}
   m_button: {fileID: 2491808122590128960}
