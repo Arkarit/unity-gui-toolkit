@@ -60,9 +60,9 @@ In the Unity Editor, inside an existing Canvas in your scene (or in a Prefabs fo
 
 For each button, add a child text object:
 1. Right-click the button → *UI → Text - TextMeshPro*, name it `Label`.
-2. **Remove** the `TextMeshProUGUI` component.
-3. **Add** a `UiLocalizedTextMeshProUGUI` component: *Add Component → UI → Localized Text Mesh Pro UGUI*.
-4. In the inspector, set **Loca Key** to `"ok"` (or `"cancel"` for the second button). Leave **Group** empty to use the default group.
+2. Right-click the `TextMeshProUGUI` component header → **Replace with Localized Text**.  
+   This swaps the component for `UiLocalizedTextMeshProUGUI` while keeping all text settings (font, size, color, alignment).
+3. In the inspector, set **Loca Key** to `"ok"` (or `"cancel"` for the second button). Leave **Group** empty to use the default group.
 
 ---
 
@@ -70,9 +70,8 @@ For each button, add a child text object:
 
 Do the same for the `Title` and `Message` objects created in Step 1:
 
-1. **Remove** the `TextMeshProUGUI` component.
-2. **Add** `UiLocalizedTextMeshProUGUI`.
-3. Set **Loca Key**:
+1. Right-click the `TextMeshProUGUI` component header → **Replace with Localized Text**.
+2. Set **Loca Key**:
    - Title: `"my_dialog.title"`
    - Message: `"my_dialog.message"`
 
