@@ -6,8 +6,8 @@ namespace GuiToolkit.Editor
 {
 	/// <summary>
 	/// Adds a "Replace with Localized Text" entry to the TextMeshProUGUI component context menu.
-	/// Replaces the component with UiLocalizedTextMeshProUGUI while preserving all TMP settings
-	/// (font, size, color, alignment, text, etc.).
+	/// Swaps the component's script type to <see cref="UiLocalizedTextMeshProUGUI"/> in the
+	/// YAML asset file, preserving all serialized TMP settings and all external references.
 	/// </summary>
 	internal static class ReplaceWithLocalizedText
 	{
@@ -22,26 +22,97 @@ namespace GuiToolkit.Editor
 
 			var go = tmp.gameObject;
 
-			// Capture all serialized TMP state before destroying the component.
-			// EditorJsonUtility serializes by field name, so all TMP fields that exist
-			// in the subclass (by inheritance) will be restored correctly.
-			string json = EditorJsonUtility.ToJson(tmp);
+			// Refuse on prefab instances — the component data lives in the source prefab,
+			// not in the currently open scene file.
+			if (YamlUtility.IsPartOfPrefabInstance(go))
+			{
+				EditorUtility.DisplayDialog(
+					"Replace with Localized Text",
+					"This GameObject is part of a prefab instance.\n\n" +
+					"Open the source prefab directly (double-click it in the Project window) " +
+					"and run this command there instead.",
+					"OK");
+				return;
+			}
 
-			Undo.IncrementCurrentGroup();
-			int group = Undo.GetCurrentGroup();
+			// Refuse if the containing scene/prefab has never been saved.
+			string assetPath = YamlUtility.GetEditedAssetPath(go);
+			if (string.IsNullOrEmpty(assetPath))
+			{
+				EditorUtility.DisplayDialog(
+					"Replace with Localized Text",
+					"The current scene has not been saved yet.\n\n" +
+					"Save the scene first (Ctrl+S / Cmd+S) and try again.",
+					"OK");
+				return;
+			}
 
-			Undo.DestroyObjectImmediate(tmp);
-			var localized = Undo.AddComponent<UiLocalizedTextMeshProUGUI>(go);
+			// Handle a co-existing (deprecated) UiAutoLocalize component.
+#pragma warning disable CS0618
+			var autoLocalize = go.GetComponent<UiAutoLocalize>();
+#pragma warning restore CS0618
+			if (autoLocalize != null)
+			{
+				int choice = EditorUtility.DisplayDialogComplex(
+					"UiAutoLocalize Found",
+					"This GameObject also has a UiAutoLocalize component, which conflicts with " +
+					"UiLocalizedTextMeshProUGUI. It should be removed.",
+					"Remove", "Cancel", "Ignore");
 
-			// Restore TMP settings onto the new component.
-			// UiLocalizedTextMeshProUGUI-specific fields (LocaKey, Group, AutoLocalize)
-			// are not present in the JSON and keep their defaults.
-			EditorJsonUtility.FromJsonOverwrite(json, localized);
+				if (choice == 1) return;                     // Cancel
+				if (choice == 0) Undo.DestroyObjectImmediate(autoLocalize); // Remove
+				// choice == 2: Ignore → continue
+			}
 
-			Undo.SetCurrentGroupName("Replace with Localized Text");
-			Undo.CollapseUndoOperations(group);
+			// Collect GUIDs before any file operations (component is still alive here).
+			string oldGuid = YamlUtility.GetMonoScriptGuid(tmp);
+			if (string.IsNullOrEmpty(oldGuid))
+			{
+				EditorUtility.DisplayDialog("Replace with Localized Text",
+					"Could not determine the MonoScript GUID for TextMeshProUGUI.", "OK");
+				return;
+			}
 
-			EditorUtility.SetDirty(go);
+			string newGuid = YamlUtility.FindMonoScriptGuid(typeof(UiLocalizedTextMeshProUGUI));
+			if (string.IsNullOrEmpty(newGuid))
+			{
+				EditorUtility.DisplayDialog("Replace with Localized Text",
+					"Could not find UiLocalizedTextMeshProUGUI in the project.\n\n" +
+					"Make sure the UI Toolkit package is imported correctly.", "OK");
+				return;
+			}
+
+			if (!YamlUtility.TryGetLocalFileId(tmp, out long localId))
+			{
+				EditorUtility.DisplayDialog("Replace with Localized Text",
+					"Could not determine the component's local file identifier.", "OK");
+				return;
+			}
+
+			// Confirm save — this is the point of no return (no Undo after file write).
+			if (!EditorUtility.DisplayDialog(
+				    "Replace with Localized Text",
+				    "This operation will:\n" +
+				    "  1. Save the current scene / prefab\n" +
+				    "  2. Patch the YAML file directly\n" +
+				    "  3. Reimport the asset\n\n" +
+				    "All TMP settings and external references are preserved. " +
+				    "The operation cannot be undone.\n\nContinue?",
+				    "Save and Replace", "Cancel"))
+				return;
+
+			if (!YamlUtility.SaveCurrentSceneOrPrefab())
+			{
+				EditorUtility.DisplayDialog("Replace with Localized Text",
+					"Could not save the scene / prefab.", "OK");
+				return;
+			}
+
+			if (!YamlUtility.SwapComponentScript(assetPath, localId, oldGuid, newGuid))
+			{
+				EditorUtility.DisplayDialog("Replace with Localized Text",
+					"Failed to patch the asset file. See the Console for details.", "OK");
+			}
 		}
 
 		[MenuItem(MenuPath, true)]

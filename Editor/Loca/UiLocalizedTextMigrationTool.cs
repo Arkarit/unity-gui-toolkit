@@ -7,6 +7,9 @@ namespace GuiToolkit.Editor
 	/// <summary>
 	/// Editor tool to help migrate from deprecated <see cref="UiAutoLocalize"/> to <see cref="UiLocalizedTextMeshProUGUI"/>.
 	/// Scans all prefabs for UiAutoLocalize components and reports their locations.
+	/// To migrate each candidate: open the prefab, right-click the TextMeshProUGUI component header
+	/// and choose <b>Replace with Localized Text</b>. This swaps the script type in-place via YAML,
+	/// preserving all TMP settings and external references.
 	/// Invoked via Unity menu: Tools > Loca > Migrate UiAutoLocalize (Find candidates).
 	/// </summary>
 	public static class UiLocalizedTextMigrationTool
@@ -44,7 +47,8 @@ namespace GuiToolkit.Editor
 
 			string report = $"Found {candidates.Count} UiAutoLocalize component(s):\n\n" +
 			                string.Join("\n", candidates) +
-			                "\n\nReplace TextMeshProUGUI with UiLocalizedTextMeshProUGUI manually on each.";
+			                "\n\nTo migrate each one: open the prefab in Prefab Mode, then right-click " +
+			                "the TextMeshProUGUI component header and choose 'Replace with Localized Text'.";
 
 			Debug.Log("[Loca Migration] " + report);
 			EditorUtility.DisplayDialog("Loca Migration Candidates",
