@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace GuiToolkit.Editor
@@ -47,6 +48,8 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
+			bool isInPrefabStage = PrefabStageUtility.GetCurrentPrefabStage() != null;
+
 			// Handle a co-existing (deprecated) UiAutoLocalize component.
 #pragma warning disable CS0618
 			var autoLocalize = go.GetComponent<UiAutoLocalize>();
@@ -55,7 +58,7 @@ namespace GuiToolkit.Editor
 			{
 				int choice = EditorUtility.DisplayDialogComplex(
 					"UiAutoLocalize Found",
-					"This GameObject also has a UiAutoLocalize component, which conflicts with " +
+					"This GameObject also has a deprecated UiAutoLocalize component, which conflicts with " +
 					"UiLocalizedTextMeshProUGUI. It should be removed.",
 					"Remove", "Cancel", "Ignore");
 
@@ -95,7 +98,7 @@ namespace GuiToolkit.Editor
 				    "This operation will:\n" +
 				    "  1. Save the current scene / prefab\n" +
 				    "  2. Patch the YAML file directly\n" +
-				    "  3. Reimport the asset\n\n" +
+				    "  3. Reload the scene / prefab\n\n" +
 				    "All TMP settings and external references are preserved. " +
 				    "The operation cannot be undone.\n\nContinue?",
 				    "Save and Replace", "Cancel"))
@@ -112,6 +115,21 @@ namespace GuiToolkit.Editor
 			{
 				EditorUtility.DisplayDialog("Replace with Localized Text",
 					"Failed to patch the asset file. See the Console for details.", "OK");
+				return;
+			}
+
+			// Reload to pick up the new component type from disk.
+			// SaveCurrentSceneOrPrefab() was called just before the patch, so isDirty is false
+			// and no "save changes?" dialog will appear.
+			if (isInPrefabStage)
+			{
+				StageUtility.GoBackToPreviousStage();
+				EditorApplication.delayCall += () =>
+					AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath<GameObject>(assetPath));
+			}
+			else
+			{
+				EditorSceneManager.OpenScene(assetPath, OpenSceneMode.Single);
 			}
 		}
 

@@ -1,7 +1,7 @@
 #if UNITY_EDITOR
 using System;
 using System.IO;
-using TMPro;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -47,8 +47,40 @@ namespace GuiToolkit
 		/// Gets the local file identifier of a Unity object within its containing scene or prefab.
 		/// This corresponds to the YAML anchor (<c>&amp;localId</c>) that heads the object's block.
 		/// </summary>
+		/// <remarks>
+		/// <c>AssetDatabase.TryGetGUIDAndLocalFileIdentifier</c> is unreliable for scene objects.
+		/// This method falls back to reading the in-memory <c>m_LocalIdentfierInFile</c> field via
+		/// reflection, which is the standard workaround used by many Unity editor tools.
+		/// </remarks>
 		public static bool TryGetLocalFileId(UnityEngine.Object obj, out long localId)
-			=> AssetDatabase.TryGetGUIDAndLocalFileIdentifier(obj, out _, out localId);
+		{
+			// Official API — reliable for asset objects (prefabs, ScriptableObjects, etc.).
+			if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(obj, out _, out localId) && localId != 0)
+				return true;
+
+			// Fallback via reflection — works for scene objects where the official API returns 0.
+			// Sets inspectorMode to Debug to expose the hidden m_LocalIdentfierInFile property.
+			try
+			{
+				var so = new SerializedObject(obj);
+				var inspectorModeProp = typeof(SerializedObject)
+					.GetProperty("inspectorMode", BindingFlags.NonPublic | BindingFlags.Instance);
+				inspectorModeProp?.SetValue(so, InspectorMode.Debug);
+				var idProp = so.FindProperty("m_LocalIdentfierInFile");
+				if (idProp != null)
+				{
+					localId = idProp.longValue;
+					return localId != 0;
+				}
+			}
+			catch (Exception ex)
+			{
+				UiLog.LogWarning($"[YamlUtility] TryGetLocalFileId reflection fallback failed: {ex.Message}");
+			}
+
+			localId = 0;
+			return false;
+		}
 
 		/// <summary>
 		/// Returns the MonoScript asset GUID for the script attached to a live MonoBehaviour instance.
@@ -118,40 +150,56 @@ namespace GuiToolkit
 			}
 
 			string yaml = File.ReadAllText(fullPath);
-
-			// Locate the MonoBehaviour block by its YAML anchor, e.g. "--- !u!114 &1234567890"
-			string blockMarker = $"--- !u!{MonoBehaviourClassId} &{localFileId}";
-			int blockStart = yaml.IndexOf(blockMarker, StringComparison.Ordinal);
-			if (blockStart < 0)
+			string result = PatchYaml(yaml, localFileId, oldScriptGuid, newScriptGuid);
+			if (result == null)
 			{
-				UiLog.LogError($"YamlUtility: YAML block &{localFileId} not found in {assetPath}");
+				UiLog.LogError($"YamlUtility: Could not patch block &{localFileId} (script guid '{oldScriptGuid}') in {assetPath}");
 				return false;
 			}
 
-			// Find the end of this block (start of the next YAML document)
+			File.WriteAllText(fullPath, result);
+			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+			return true;
+		}
+
+		/// <summary>
+		/// Replaces the <c>m_Script</c> GUID inside a MonoBehaviour YAML block identified by its
+		/// local file ID (YAML anchor). Pure string operation — no file I/O.
+		/// </summary>
+		/// <param name="yaml">The full YAML text to search.</param>
+		/// <param name="localFileId">YAML anchor value of the target MonoBehaviour block.</param>
+		/// <param name="oldScriptGuid">GUID string to replace (must match exactly).</param>
+		/// <param name="newScriptGuid">Replacement GUID string.</param>
+		/// <returns>
+		/// Modified YAML string if successful; <c>null</c> if the block was not found or the
+		/// expected script GUID was not present in the block.
+		/// </returns>
+		internal static string PatchYaml(string yaml, long localFileId,
+		                                 string oldScriptGuid, string newScriptGuid)
+		{
+			string blockMarker = $"--- !u!{MonoBehaviourClassId} &{localFileId}";
+			int blockStart = yaml.IndexOf(blockMarker, StringComparison.Ordinal);
+			if (blockStart < 0)
+				return null;
+
+			// Find the end of this block (start of the next YAML document separator).
 			int searchFrom = blockStart + blockMarker.Length;
 			int nextBlock = yaml.IndexOf("\n---", searchFrom, StringComparison.Ordinal);
 			int blockEnd = nextBlock < 0 ? yaml.Length : nextBlock;
 
-			// Build the token to match — include ", type:" so we only touch the m_Script line
-			// and not any other guid that might appear elsewhere in the block.
+			// Include ", type:" in the token to ensure we only touch the m_Script line and not
+			// any other guid values that may appear elsewhere in the block.
 			string oldToken = $"guid: {oldScriptGuid}, type:";
 			string newToken = $"guid: {newScriptGuid}, type:";
 
 			string block = yaml.Substring(blockStart, blockEnd - blockStart);
 			int tokenIdx = block.IndexOf(oldToken, StringComparison.Ordinal);
 			if (tokenIdx < 0)
-			{
-				UiLog.LogError($"YamlUtility: Expected m_Script guid '{oldScriptGuid}' not found in block &{localFileId} in {assetPath}");
-				return false;
-			}
+				return null;
 
-			string modifiedBlock = block.Substring(0, tokenIdx) + newToken + block.Substring(tokenIdx + oldToken.Length);
-			string result = yaml.Substring(0, blockStart) + modifiedBlock + yaml.Substring(blockEnd);
-
-			File.WriteAllText(fullPath, result);
-			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
-			return true;
+			string modifiedBlock = block.Substring(0, tokenIdx) + newToken +
+			                       block.Substring(tokenIdx + oldToken.Length);
+			return yaml.Substring(0, blockStart) + modifiedBlock + yaml.Substring(blockEnd);
 		}
 
 		/// <summary>

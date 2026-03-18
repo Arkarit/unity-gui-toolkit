@@ -15,8 +15,7 @@ namespace GuiToolkit
 	{
 		[SerializeField] private bool m_autoLocalize = true;
 		[SerializeField] private string m_group = string.Empty;
-
-		private string m_locaKey;
+		[SerializeField] private string m_locaKey = string.Empty;
 
 		// TMP's text setter does not fire an event we can filter; it is a plain property.
 		// Overriding it (see below) creates a direct re-entry path: ApplyTranslation() calls
@@ -105,6 +104,16 @@ namespace GuiToolkit
 			}
 		}
 
+		protected override void Awake()
+		{
+			base.Awake();
+			// After a "Replace with Localized Text" YAML swap the m_locaKey field will be empty
+			// because the original TextMeshProUGUI did not have it. In that case, seed the key
+			// from the existing TMP text so the component behaves correctly immediately.
+			if (m_autoLocalize && string.IsNullOrEmpty(m_locaKey) && !string.IsNullOrEmpty(base.text))
+				m_locaKey = base.text;
+		}
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();
@@ -129,12 +138,7 @@ namespace GuiToolkit
 				return;
 
 			if (string.IsNullOrEmpty(m_locaKey))
-			{
-				m_isSettingInternally = true;
-				try { base.text = string.Empty; }
-				finally { m_isSettingInternally = false; }
-				return;
-			}
+				return; // No key set — leave the existing displayed text unchanged.
 
 			var manager = LocaManager.Instance;
 			if (manager == null)
