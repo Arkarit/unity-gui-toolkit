@@ -44,6 +44,12 @@ MonoBehaviour:
     KeyPrefix: 
     KeyPostfix: 
     PluralForm: -1
+  - Description: Ignored
+    ColumnType: 0
+    LanguageId: 
+    KeyPrefix: 
+    KeyPostfix: 
+    PluralForm: -1
   m_startRow: 1
   m_processedLoca:
     Group: 
