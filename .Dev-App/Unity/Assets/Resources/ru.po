@@ -1,61 +1,55 @@
-﻿msgid ""
+#
+msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: ru\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
-"X-Generator: Poedit 3.6\n"
 
 msgid "Alt"
-msgstr ""
+msgstr "Alt"
 
 msgid "Ambient Occlusion"
 msgstr "Общие технические"
 
 msgid "and"
-msgstr ""
+msgstr "и"
 
 msgid "Animation Example"
-msgstr ""
+msgstr "Пример анимации"
 
 msgid "Animation Speed"
 msgstr "России указывают"
 
 msgid "Animations Example"
-msgstr ""
+msgstr "Пример анимаций"
 
 msgid "Are you really really sure you want to quit?"
 msgstr "однако номера цветов по атласам при этом не?"
 
 msgid "Button"
-msgstr ""
+msgstr "Кнопка"
 
 msgid "Cancel"
 msgstr "трав"
 
 msgid "Cancel LOREM IPSUM dolor sit amet bla"
-msgstr ""
+msgstr "Отмена LOREM IPSUM dolor sit amet bla"
 
 msgid "Checkbox"
-msgstr ""
+msgstr "Флажок"
 
-msgid "Choose Day!\nLorem Ipsum"
+msgid ""
+"Choose Day!\n"
+"Lorem Ipsum"
 msgstr ""
+"Выберите день!\n"
+"Lorem Ipsum"
 
 msgid "Ctrl"
-msgstr ""
+msgstr "Ctrl"
 
 msgid "Date"
-msgstr ""
+msgstr "Дата"
 
 msgid "Date:"
-msgstr ""
+msgstr "Дата:"
 
 #, fuzzy
 msgid "Default"
@@ -65,19 +59,19 @@ msgid "Details"
 msgstr "корабельных"
 
 msgid "Dialog Stub"
-msgstr ""
+msgstr "Заглушка диалога"
 
 msgid "Dolor Sit"
-msgstr ""
+msgstr "Dolor Sit"
 
 msgid "Dynamic Load"
-msgstr ""
+msgstr "Динамическая загрузка"
 
 msgid "Dynamically Loaded"
-msgstr ""
+msgstr "Динамически загружено"
 
 msgid "Dynamically Loaded With Addressables"
-msgstr ""
+msgstr "Динамически загружено с Addressables"
 
 msgid "Effect Volume"
 msgstr "царский указом"
@@ -86,7 +80,7 @@ msgid "Enter text..."
 msgstr "стали называть..."
 
 msgid "Execute"
-msgstr ""
+msgstr "Выполнить"
 
 msgid "General"
 msgstr "России"
@@ -104,16 +98,16 @@ msgid "High"
 msgstr "на"
 
 msgid "Icons"
-msgstr ""
+msgstr "Иконки"
 
 msgid "Icons Example"
-msgstr ""
+msgstr "Пример иконок"
 
 msgid "Key '{0}' not supported"
-msgstr ""
+msgstr "Клавиша '{0}' не поддерживается"
 
 msgid "Key Binding"
-msgstr ""
+msgstr "Привязка клавиши"
 
 msgid "Key Bindings"
 msgstr "герба России"
@@ -122,22 +116,22 @@ msgid "Language"
 msgstr "положило"
 
 msgid "Layout Example"
-msgstr ""
+msgstr "Пример макета"
 
 msgid "Light"
-msgstr ""
+msgstr "Светло"
 
 msgid "Lorem Ipsum Dolor"
-msgstr ""
+msgstr "Lorem Ipsum Dolor"
 
 msgid "Low"
 msgstr "Оно"
 
 msgid "Max  FPS"
-msgstr ""
+msgstr "Макс.  FPS"
 
 msgid "Max FPS"
-msgstr ""
+msgstr "Макс. FPS"
 
 msgid "Medium"
 msgstr "небесного"
@@ -161,94 +155,112 @@ msgid "No"
 msgstr "Нет"
 
 msgid "No Mouse Keys"
-msgstr ""
+msgstr "Без клавиш мыши"
 
 msgid "None"
-msgstr ""
+msgstr "Нет"
 
 msgid "NOW"
-msgstr ""
+msgstr "СЕЙЧАС"
 
 msgid "Ok"
 msgstr "Ок"
 
 msgid "OK"
-msgstr ""
+msgstr "ОК"
 
 msgid "Only Mouse Keys"
-msgstr ""
+msgstr "Только клавиши мыши"
 
 msgid "Only specified Keys allowed"
-msgstr ""
+msgstr "Разрешены только указанные клавиши"
 
 msgid "Only specified Keys forbidden"
-msgstr ""
+msgstr "Запрещены только указанные клавиши"
 
 msgid "or"
-msgstr ""
+msgstr "или"
 
 #, fuzzy
 msgid "Or 'Esc' to cancel"
 msgstr "трав"
 
 msgid "Play CHildren Animation"
-msgstr ""
+msgstr "Воспроизвести анимацию дочерних"
 
 msgid "Play CHildren Animation Backwards"
-msgstr ""
-
-msgid "Press a key\nOr Mouse button!"
-msgstr "Нажмите клавишу\nИли кнопку мыши!"
-
-#, fuzzy
-msgid "Press a Key\nOr Mouse button!"
-msgstr "Нажмите клавишу\nИли кнопку мыши!"
+msgstr "Воспроизвести анимацию дочерних назад"
 
 msgid "Press a Key!"
+msgstr "Нажмите клавишу!"
+
+msgid ""
+"Press a key\n"
+"Or Mouse button!"
 msgstr ""
+"Нажмите клавишу\n"
+"Или кнопку мыши!"
+
+#, fuzzy
+msgid ""
+"Press a Key\n"
+"Or Mouse button!"
+msgstr ""
+"Нажмите клавишу\n"
+"Или кнопку мыши!"
 
 #, fuzzy
 msgid "Press a Mouse button!"
-msgstr "Нажмите клавишу\nИли кнопку мыши!"
-
-msgid "Press any key except\n{0}"
 msgstr ""
+"Нажмите клавишу\n"
+"Или кнопку мыши!"
 
-msgid "Press one of the keys\n{0}"
+msgid ""
+"Press any key except\n"
+"{0}"
 msgstr ""
+"Нажмите любую клавишу, кроме\n"
+"{0}"
+
+msgid ""
+"Press one of the keys\n"
+"{0}"
+msgstr ""
+"Нажмите одну из клавиш\n"
+"{0}"
 
 msgid "Quality"
-msgstr ""
+msgstr "Качество"
 
 msgid "Quit"
 msgstr "Уйти"
 
 msgid "Radiobutton"
-msgstr ""
+msgstr "Переключатель"
 
 msgid "Really Lorem?"
-msgstr ""
+msgstr "Серьёзно, Lorem?"
 
 msgid "Really Quit?"
 msgstr "Правда бросить?"
 
 msgid "Res. Dep. Style Example"
-msgstr ""
+msgstr "Пример стиля (завис. от разрешения)"
 
 msgid "Resolution Dependent Style Example"
-msgstr ""
+msgstr "Пример стиля, зависящего от разрешения"
 
 msgid "Restore Defaults"
 msgstr "Восстановить значения по умолчанию"
 
 msgid "Retry"
-msgstr ""
+msgstr "Повторить"
 
 msgid "Settings"
 msgstr "Настройки"
 
 msgid "Shift"
-msgstr ""
+msgstr "Shift"
 
 msgid "Show Full screen tabs dialog"
 msgstr "Показать полноэкранный диалог вкладок"
@@ -266,10 +278,10 @@ msgid "Sound"
 msgstr "Звук"
 
 msgid "Style Example"
-msgstr ""
+msgstr "Пример стиля"
 
 msgid "Test Direct Key"
-msgstr ""
+msgstr "Тест прямой клавиши"
 
 #, fuzzy
 msgid "Test Loca Key 1"
@@ -296,29 +308,29 @@ msgid "Text...\t"
 msgstr "стали называть..."
 
 msgid "Time:"
-msgstr ""
+msgstr "Время:"
 
 msgid "Title"
-msgstr ""
+msgstr "Заголовок"
 
 #, fuzzy
 msgid "Title...\t"
 msgstr "Название…"
 
 msgid "Toggle Auto CHildren Animation"
-msgstr ""
+msgstr "Переключить авто-анимацию дочерних"
 
 msgid "Toggle Style (0.5 Seconds)"
-msgstr ""
+msgstr "Переключить стиль (0,5 с)"
 
 msgid "Toggle Style (3 Seconds)"
-msgstr ""
+msgstr "Переключить стиль (3 с)"
 
 msgid "Toggle Style (Instant)"
-msgstr ""
+msgstr "Переключить стиль (мгновенно)"
 
 msgid "UI Skin"
-msgstr ""
+msgstr "Скин UI"
 
 msgid "Ultra"
 msgstr "Ультра"
@@ -328,38 +340,19 @@ msgid "Unbound Keys"
 msgstr "Непривязанные ключи"
 
 msgid "Unlimited"
-msgstr ""
+msgstr "Без ограничений"
 
 msgid "Very High"
-msgstr ""
+msgstr "Очень высокое"
 
 msgid "Very Low"
-msgstr ""
+msgstr "Очень низкое"
 
 msgid "Wirklich beenden?"
-msgstr ""
+msgstr "Вы действительно хотите выйти?"
 
 msgid "Yes"
 msgstr "Да"
 
 msgid "{0} Tree, "
-msgid_plural "{0} Trees, "
-msgstr[0] "{0} Дерево 1, "
-msgstr[1] "{0} Дерево 2, "
-msgstr[2] "{0} Дерево 3, "
-
-#~ msgid "Overall"
-#~ msgstr "Общий"
-
-#~ msgid "Page 1"
-#~ msgstr "Страница 1"
-
-#~ msgid "Page 2"
-#~ msgstr "Страница 2"
-
-#~ msgid "Page 3"
-#~ msgstr "Страница 3"
-
-#~ msgid "Tab Dialog Demo"
-#~ msgstr "Демонстрация диалогового окна вкладок"
-
+msgstr "{0} дерево/деревьев, "

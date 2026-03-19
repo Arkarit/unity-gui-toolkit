@@ -1,34 +1,71 @@
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
+"\n"
 "POT-Creation-Date: \n"
+"\n"
 "PO-Revision-Date: \n"
+"\n"
 "Last-Translator: \n"
+"\n"
 "Language-Team: \n"
+"\n"
 "Language: en_GB\n"
+"\n"
 "MIME-Version: 1.0\n"
+"\n"
 "Content-Type: text/plain; charset=UTF-8\n"
+"\n"
 "Content-Transfer-Encoding: 8bit\n"
+"\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"\n"
 "X-Generator: Poedit 3.6\n"
+"\n"
+
+msgid "Alt"
+msgstr "Alt"
 
 msgid "Ambient Occlusion"
 msgstr "Ambient Occlusion"
 
 msgid "and"
-msgstr ""
+msgstr "and"
+
+msgid "Animation Example"
+msgstr "Animation Example"
 
 msgid "Animation Speed"
 msgstr "Animation Speed"
 
+msgid "Animations Example"
+msgstr "Animations Example"
+
 msgid "Are you really really sure you want to quit?"
 msgstr "Are you really really sure you want to quit?"
+
+msgid "Button"
+msgstr "Button"
 
 msgid "Cancel"
 msgstr "Cancel"
 
 msgid "Cancel LOREM IPSUM dolor sit amet bla"
 msgstr "Cancel LOREM IPSUM dolor sit amet bla"
+
+msgid "Checkbox"
+msgstr "Checkbox"
+
+msgid ""
+"Choose Day!\n"
+"Lorem Ipsum"
+msgstr ""
+"Choose Day!\n"
+"Lorem Ipsum\n"
+
+msgid "Ctrl"
+msgstr "Ctrl"
 
 msgid "Date"
 msgstr "Date"
@@ -47,11 +84,26 @@ msgstr "Details"
 msgid "Dialog Stub"
 msgstr "Dialog Stub"
 
+msgid "Dolor Sit"
+msgstr "Dolor Sit"
+
+msgid "Dynamic Load"
+msgstr "Dynamic Load"
+
+msgid "Dynamically Loaded"
+msgstr "Dynamically Loaded"
+
+msgid "Dynamically Loaded With Addressables"
+msgstr "Dynamically Loaded With Addressables"
+
 msgid "Effect Volume"
 msgstr "Effect Volume"
 
 msgid "Enter text..."
 msgstr "Enter text..."
+
+msgid "Execute"
+msgstr "Execute"
 
 msgid "General"
 msgstr "General"
@@ -68,8 +120,17 @@ msgstr "Here you can test some of the capabilities of the GUI Toolkit"
 msgid "High"
 msgstr "High"
 
+msgid "Icons"
+msgstr "Icons"
+
+msgid "Icons Example"
+msgstr "Icons Example"
+
 msgid "Key '{0}' not supported"
 msgstr "Key '{0}' not supported"
+
+msgid "Key Binding"
+msgstr "Key Binding"
 
 msgid "Key Bindings"
 msgstr "Key Bindings"
@@ -77,11 +138,23 @@ msgstr "Key Bindings"
 msgid "Language"
 msgstr "Language"
 
+msgid "Layout Example"
+msgstr "Layout Example"
+
 msgid "Light"
 msgstr "Light"
 
+msgid "Lorem Ipsum Dolor"
+msgstr "Lorem Ipsum Dolor"
+
 msgid "Low"
 msgstr "Low"
+
+msgid "Max  FPS"
+msgstr "Max  FPS"
+
+msgid "Max FPS"
+msgstr "Max FPS"
 
 msgid "Medium"
 msgstr "Medium"
@@ -106,6 +179,12 @@ msgstr "No"
 
 msgid "No Mouse Keys"
 msgstr "No Mouse Keys"
+
+msgid "None"
+msgstr "None"
+
+msgid "NOW"
+msgstr "NOW"
 
 msgid "Ok"
 msgstr "Ok"
@@ -137,22 +216,39 @@ msgstr "Page 2"
 msgid "Page 3"
 msgstr "Page 3"
 
+msgid "Play CHildren Animation"
+msgstr "Play Children Animation"
+
+msgid "Play CHildren Animation Backwards"
+msgstr "Play Children Animation Backwards"
+
 msgid ""
 "Press a key\n"
 "Or Mouse button!"
 msgstr ""
 "Press a key\n"
-"Or Mouse button!"
+"Or Mouse button!\n"
 
 msgid "Press a Key!"
 msgstr "Press a Key!"
 
 msgid ""
+"Press a key\n"
+"Or Mouse button!"
+msgstr ""
+"\n"
+"Press a key\n"
+"\n"
+"Or Mouse button!\n"
+
+msgid ""
 "Press a Key\n"
 "Or Mouse button!"
 msgstr ""
+"\n"
 "Press a key\n"
-"Or Mouse button!"
+"\n"
+"Or Mouse button!\n"
 
 msgid "Press a Mouse button!"
 msgstr "Press a Mouse button!"
@@ -162,26 +258,65 @@ msgid ""
 "{0}"
 msgstr ""
 "Press any key except\n"
+"{0}\n"
+
+msgid ""
+"Press any key except\n"
 "{0}"
+msgstr ""
+"\n"
+"Press any key except\n"
+"\n"
+"{0}\n"
 
 msgid ""
 "Press one of the keys\n"
 "{0}"
 msgstr ""
 "Press one of the keys\n"
+"{0}\n"
+
+msgid ""
+"Press one of the keys\n"
 "{0}"
+msgstr ""
+"\n"
+"Press one of the keys\n"
+"\n"
+"{0}\n"
+
+msgid "Quality"
+msgstr "Quality"
 
 msgid "Quit"
 msgstr "Quit"
 
+msgid "Radiobutton"
+msgstr "Radiobutton"
+
+msgid "Really Lorem?"
+msgstr "Really Lorem?"
+
 msgid "Really Quit?"
 msgstr "Really Quit?"
+
+msgid "Res. Dep. Style Example"
+msgstr "Res. Dep. Style Example"
+
+msgid "Resolution Dependent Style Example"
+msgstr "Resolution Dependent Style Example"
 
 msgid "Restore Defaults"
 msgstr "Restore Defaults"
 
+msgid "Retry"
+msgstr "Retry"
+
 msgid "Settings"
 msgstr "Settings"
+
+msgid "Shift"
+msgstr "Shift"
 
 msgid "Show Full screen tabs dialog"
 msgstr "Show Full screen tabs dialog"
@@ -204,6 +339,9 @@ msgstr "Style Example"
 msgid "Tab Dialog Demo"
 msgstr "Tab Dialog Demo"
 
+msgid "Test Direct Key"
+msgstr "Test Direct Key"
+
 msgid "Test Loca Key 1"
 msgstr "Test Loca Key 1"
 
@@ -225,8 +363,23 @@ msgstr "Text...\t"
 msgid "Time:"
 msgstr "Time:"
 
+msgid "Title"
+msgstr "Title"
+
 msgid "Title...\t"
 msgstr "Title...\t"
+
+msgid "Toggle Auto CHildren Animation"
+msgstr "Toggle Auto Children Animation"
+
+msgid "Toggle Style (0.5 Seconds)"
+msgstr "Toggle Style (0.5 Seconds)"
+
+msgid "Toggle Style (3 Seconds)"
+msgstr "Toggle Style (3 Seconds)"
+
+msgid "Toggle Style (Instant)"
+msgstr "Toggle Style (Instant)"
 
 msgid "UI Skin"
 msgstr "UI Skin"
@@ -237,10 +390,20 @@ msgstr "Ultra"
 msgid "Unbound Keys"
 msgstr "Unbound Keys"
 
+msgid "Unlimited"
+msgstr "Unlimited"
+
+msgid "Very High"
+msgstr "Very High"
+
+msgid "Very Low"
+msgstr "Very Low"
+
+msgid "Wirklich beenden?"
+msgstr "Really quit?"
+
 msgid "Yes"
 msgstr "Yes"
 
 msgid "{0} Tree, "
-msgid_plural "{0} Trees, "
-msgstr[0] "{0} Tree, "
-msgstr[1] "{0} Trees, "
+msgstr "{0} Tree/Trees, "

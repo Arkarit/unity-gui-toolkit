@@ -1,19 +1,9 @@
-﻿msgid ""
+#
+msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: lolcode\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.6\n"
 
 msgid "Alt"
-msgstr ""
+msgstr "Alt"
 
 msgid "Ambient Occlusion"
 msgstr "Make teh cornerz dim"
@@ -22,34 +12,38 @@ msgid "and"
 msgstr "and"
 
 msgid "Animation Example"
-msgstr ""
+msgstr "Animashun Exampl"
 
 msgid "Animation Speed"
 msgstr "Teh wiggly speedz"
 
 msgid "Animations Example"
-msgstr ""
+msgstr "Animashunz Exampl"
 
 msgid "Are you really really sure you want to quit?"
 msgstr "Iz u reeeeeely sure u want to fuk of?"
 
 msgid "Button"
-msgstr ""
+msgstr "Buttonz"
 
 msgid "Cancel"
 msgstr "No wai"
 
 msgid "Cancel LOREM IPSUM dolor sit amet bla"
-msgstr ""
+msgstr "No wai LOREM IPSUM dolor sit amet bla"
 
 msgid "Checkbox"
-msgstr ""
+msgstr "Chekkbox"
 
-msgid "Choose Day!\nLorem Ipsum"
+msgid ""
+"Choose Day!\n"
+"Lorem Ipsum"
 msgstr ""
+"Choooze dai!\n"
+"Lorem Ipsum"
 
 msgid "Ctrl"
-msgstr ""
+msgstr "Ctrl"
 
 msgid "Date"
 msgstr "Date"
@@ -67,16 +61,16 @@ msgid "Dialog Stub"
 msgstr "Dialog Stub"
 
 msgid "Dolor Sit"
-msgstr ""
+msgstr "Dolor Sit"
 
 msgid "Dynamic Load"
-msgstr ""
+msgstr "Dynami loadzzzz"
 
 msgid "Dynamically Loaded"
-msgstr ""
+msgstr "Dynami loadz!"
 
 msgid "Dynamically Loaded With Addressables"
-msgstr ""
+msgstr "Dynami loadz wit Addressablz!"
 
 msgid "Effect Volume"
 msgstr "Teh noize when prez buttonz"
@@ -85,7 +79,7 @@ msgid "Enter text..."
 msgstr "Can haz text?"
 
 msgid "Execute"
-msgstr ""
+msgstr "Do it nao!"
 
 msgid "General"
 msgstr "Generel"
@@ -103,16 +97,16 @@ msgid "High"
 msgstr "Hai"
 
 msgid "Icons"
-msgstr ""
+msgstr "Picchurez"
 
 msgid "Icons Example"
-msgstr ""
+msgstr "Picchurez Exampl"
 
 msgid "Key '{0}' not supported"
 msgstr "Nah! Teh key '{0}' pooh!"
 
 msgid "Key Binding"
-msgstr ""
+msgstr "Tap da kei!"
 
 msgid "Key Bindings"
 msgstr "Tap teh kei plz!"
@@ -121,22 +115,22 @@ msgid "Language"
 msgstr "Teh meeowz"
 
 msgid "Layout Example"
-msgstr ""
+msgstr "Layout Exampl"
 
 msgid "Light"
 msgstr "Lite"
 
 msgid "Lorem Ipsum Dolor"
-msgstr ""
+msgstr "Lorem Ipsum Dolor"
 
 msgid "Low"
 msgstr "Meh"
 
 msgid "Max  FPS"
-msgstr ""
+msgstr "Maks  FPS"
 
 msgid "Max FPS"
-msgstr ""
+msgstr "Maks FPS"
 
 msgid "Medium"
 msgstr "Okeh"
@@ -163,16 +157,16 @@ msgid "No Mouse Keys"
 msgstr "No Mouse plz!"
 
 msgid "None"
-msgstr ""
+msgstr "Nuthing"
 
 msgid "NOW"
-msgstr ""
+msgstr "NAOW!"
 
 msgid "Ok"
 msgstr "Ya rly"
 
 msgid "OK"
-msgstr ""
+msgstr "OK kthx"
 
 msgid "Only Mouse Keys"
 msgstr "Only mouse plz!"
@@ -190,62 +184,78 @@ msgid "Or 'Esc' to cancel"
 msgstr "Or prez 'Esc' to "
 
 msgid "Play CHildren Animation"
-msgstr ""
+msgstr "Play chiledren anim!"
 
 msgid "Play CHildren Animation Backwards"
-msgstr ""
-
-msgid "Press a key\nOr Mouse button!"
-msgstr "Prez a kei\nor squeeeeze a mouze!"
-
-#, fuzzy
-msgid "Press a Key\nOr Mouse button!"
-msgstr "Prez a kei\nor squeeeeze a mouze!"
+msgstr "Play chiledren anim bakwrdz!"
 
 msgid "Press a Key!"
 msgstr "Prez a kei!"
 
+msgid ""
+"Press a key\n"
+"Or Mouse button!"
+msgstr ""
+"Prez a kei\n"
+"or squeeeeze a mouze!"
+
+#, fuzzy
+msgid ""
+"Press a Key\n"
+"Or Mouse button!"
+msgstr ""
+"Prez a kei\n"
+"or squeeeeze a mouze!"
+
 msgid "Press a Mouse button!"
 msgstr "Squeeeze a mouze!"
 
-msgid "Press any key except\n{0}"
+msgid ""
+"Press any key except\n"
+"{0}"
 msgstr ""
+"Prez NEthing but\n"
+"{0}!"
 
-msgid "Press one of the keys\n{0}"
+msgid ""
+"Press one of the keys\n"
+"{0}"
 msgstr ""
+"Prez one of teh keyz\n"
+"{0}"
 
 msgid "Quality"
-msgstr ""
+msgstr "Qualiteh"
 
 msgid "Quit"
 msgstr "Kthxbye"
 
 msgid "Radiobutton"
-msgstr ""
+msgstr "Radiobuttonz"
 
 msgid "Really Lorem?"
-msgstr ""
+msgstr "O rly Lorem?"
 
 msgid "Really Quit?"
 msgstr "O rly?"
 
 msgid "Res. Dep. Style Example"
-msgstr ""
+msgstr "Res-dep styleez"
 
 msgid "Resolution Dependent Style Example"
-msgstr ""
+msgstr "Styleez dat depend on ur screen!"
 
 msgid "Restore Defaults"
 msgstr "Mek all like was "
 
 msgid "Retry"
-msgstr ""
+msgstr "Tri agin!"
 
 msgid "Settings"
 msgstr "Settingz"
 
 msgid "Shift"
-msgstr ""
+msgstr "Shift"
 
 msgid "Show Full screen tabs dialog"
 msgstr "Can haz Fullscreen Tabz?"
@@ -257,16 +267,16 @@ msgid "Show Splash Message"
 msgstr "Can haz Splasssh!"
 
 msgid "Some keys remain unbound. Really continue?"
-msgstr ""
+msgstr "sum keyz r still loze, rly continue?"
 
 msgid "Sound"
 msgstr "Teh noize"
 
 msgid "Style Example"
-msgstr ""
+msgstr "Style exampl"
 
 msgid "Test Direct Key"
-msgstr ""
+msgstr "Test direkit kei"
 
 msgid "Test Loca Key 1"
 msgstr "Test Loca Key 1"
@@ -289,72 +299,50 @@ msgid "Text...\t"
 msgstr "Can haz text?"
 
 msgid "Time:"
-msgstr ""
+msgstr "Tiem:"
 
 msgid "Title"
-msgstr ""
+msgstr "Titol"
 
 #, fuzzy
 msgid "Title...\t"
 msgstr "Can haz titleh?"
 
 msgid "Toggle Auto CHildren Animation"
-msgstr ""
+msgstr "Toggel auto chiledren anim"
 
 msgid "Toggle Style (0.5 Seconds)"
-msgstr ""
+msgstr "Toggel style (0.5 sek)"
 
 msgid "Toggle Style (3 Seconds)"
-msgstr ""
+msgstr "Toggel style (3 sek)"
 
 msgid "Toggle Style (Instant)"
-msgstr ""
+msgstr "Toggel style (rite nao!)"
 
 msgid "UI Skin"
-msgstr ""
+msgstr "UI Skin lol"
 
 msgid "Ultra"
 msgstr "Awsum"
 
 msgid "Unbound Keys"
-msgstr ""
+msgstr "Loze keyz"
 
 msgid "Unlimited"
-msgstr ""
+msgstr "NO LIMITZ!"
 
 msgid "Very High"
-msgstr ""
+msgstr "Omg so hai"
 
 msgid "Very Low"
-msgstr ""
+msgstr "So meh low"
 
 msgid "Wirklich beenden?"
-msgstr ""
+msgstr "Rly quit nao?"
 
 msgid "Yes"
 msgstr "Ya rly!"
 
 msgid "{0} Tree, "
-msgid_plural "{0} Trees, "
-msgstr[0] "{0} teh tree, "
-
-#~ msgid "Overall"
-#~ msgstr "Overalz"
-
-#~ msgid "Page 1"
-#~ msgstr "Teh page 1"
-
-#~ msgid "Page 2"
-#~ msgstr "Teh page 2"
-
-#~ msgid "Page 3"
-#~ msgstr "Teh page 3"
-
-#~ msgid "Tab Dialog Demo"
-#~ msgstr "Teh dialogz wizz tabz"
-
-#~ msgid "Tree"
-#~ msgid_plural "Trees"
-#~ msgstr[0] "Baum"
-#~ msgstr[1] "Bäume"
-
+msgstr "{0} Treez, "
