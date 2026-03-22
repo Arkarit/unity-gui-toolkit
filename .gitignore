@@ -53,3 +53,5 @@ bin/win/
 # Office temp files (Excel/Word/PowerPoint)
 ~$*
 *.tmp
+
+gui-toolkit-test-tables-a34ee54c90b1.json

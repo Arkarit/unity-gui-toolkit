@@ -103,7 +103,7 @@ namespace GuiToolkit.Editor
 					LocaGettextSheetsSyncer.PullFromSheets(bridge);
 			}
 			EditorGUILayout.HelpBox(
-				"Downloads translations from the sheet into local PO files. Existing translations are not overwritten.",
+				"Downloads translations from the sheet into local PO files. Sheet values overwrite local translations; empty sheet cells are ignored.",
 				syncEnabled ? MessageType.Info : MessageType.Warning);
 
 			using (new EditorGUI.DisabledScope(!syncEnabled))

@@ -522,15 +522,15 @@ namespace GuiToolkit.Editor
 		}
 
 		/// <summary>
-		/// Conservatively merges a <see cref="ProcessedLocaEntry"/> into a <see cref="PoEntry"/>.
-		/// Only fills cells that are currently empty — existing translations are preserved.
+		/// Merges a <see cref="ProcessedLocaEntry"/> into a <see cref="PoEntry"/>.
+		/// Sheet values overwrite local translations; empty sheet cells leave the local value untouched.
 		/// </summary>
 		/// <returns><c>true</c> if any field was updated; <c>false</c> if nothing changed.</returns>
 		internal static bool MergeTranslationIntoPoEntry(ProcessedLocaEntry _entry, PoEntry _poEntry)
 		{
 			bool modified = false;
 
-			if (!string.IsNullOrEmpty(_entry.Text) && string.IsNullOrEmpty(_poEntry.MsgStr))
+			if (!string.IsNullOrEmpty(_entry.Text) && _entry.Text != _poEntry.MsgStr)
 			{
 				_poEntry.MsgStr = _entry.Text;
 				modified = true;
@@ -548,7 +548,7 @@ namespace GuiToolkit.Editor
 					else if (_poEntry.MsgStrForms.Length <= i)
 						Array.Resize(ref _poEntry.MsgStrForms, i + 1);
 
-					if (string.IsNullOrEmpty(_poEntry.MsgStrForms[i]))
+					if (_entry.Forms[i] != _poEntry.MsgStrForms[i])
 					{
 						_poEntry.MsgStrForms[i] = _entry.Forms[i];
 						modified = true;
