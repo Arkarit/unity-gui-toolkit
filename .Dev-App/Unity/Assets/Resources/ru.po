@@ -355,4 +355,7 @@ msgid "Yes"
 msgstr "Да"
 
 msgid "{0} Tree, "
-msgstr "{0} дерево/деревьев, "
+msgid_plural "{0} Trees, "
+msgstr[0] "{0} Дерево 1, "
+msgstr[1] "{0} Дерево 2, "
+msgstr[2] "{0} Дерево 3, "

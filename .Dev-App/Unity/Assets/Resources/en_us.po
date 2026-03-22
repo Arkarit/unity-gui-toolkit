@@ -406,4 +406,6 @@ msgid "Yes"
 msgstr "Yes"
 
 msgid "{0} Tree, "
-msgstr "{0} Tree/Trees, "
+msgid_plural "{0} Trees, "
+msgstr[0] "{0} Tree, "
+msgstr[1] "{0} Trees, "
