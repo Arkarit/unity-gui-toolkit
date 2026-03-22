@@ -131,12 +131,12 @@ namespace GuiToolkit
 			byte[] der = Convert.FromBase64String(base64);
 
 			int offset = 0;
-			ReadDerTag(der, ref offset, 0x30); // outer SEQUENCE
-			ReadDerTag(der, ref offset, 0x02); // INTEGER 0 (version)
-			ReadDerTag(der, ref offset, 0x30); // SEQUENCE { OID rsaEncryption, NULL }
-			ReadDerTag(der, ref offset, 0x04); // OCTET STRING (inner PKCS#1 key)
-			ReadDerTag(der, ref offset, 0x30); // inner SEQUENCE
-			ReadDerTag(der, ref offset, 0x02); // INTEGER 0 (version)
+			ReadDerTag(der, ref offset, 0x30);  // outer SEQUENCE — enter it
+			ReadDerTag(der, ref offset, 0x02);  // INTEGER 0 (version) — skip value
+			SkipDerValue(der, ref offset);       // AlgorithmIdentifier SEQUENCE — skip entirely (OID + NULL inside)
+			ReadDerTag(der, ref offset, 0x04);  // OCTET STRING containing the PKCS#1 key — enter it
+			ReadDerTag(der, ref offset, 0x30);  // inner RSAPrivateKey SEQUENCE — enter it
+			ReadDerTag(der, ref offset, 0x02);  // INTEGER 0 (version) — skip value
 
 			var p = new RSAParameters
 			{
@@ -216,6 +216,18 @@ namespace GuiToolkit
 				.TrimEnd('=')
 				.Replace('+', '-')
 				.Replace('/', '_');
+		}
+
+		// Advances past an entire DER value (tag byte + length bytes + content bytes).
+		private static void SkipDerValue(byte[] _data, ref int _offset)
+		{
+			if (_offset >= _data.Length)
+				throw new InvalidOperationException($"Unexpected end of DER data at offset {_offset} (SkipDerValue)");
+			_offset++; // skip tag
+			int length = ReadDerLength(_data, ref _offset);
+			if (_offset + length > _data.Length)
+				throw new InvalidOperationException("DER value length exceeds data (SkipDerValue)");
+			_offset += length;
 		}
 
 		// Advances past the DER tag and length header.
