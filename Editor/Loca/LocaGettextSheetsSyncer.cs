@@ -22,7 +22,8 @@ namespace GuiToolkit.Editor
 	/// </summary>
 	public static class LocaGettextSheetsSyncer
 	{
-		private const string SHEET_NAME = "Sheet1";
+		// Fallback only; overridden at runtime by querying spreadsheet metadata.
+		private const string DEFAULT_SHEET_NAME = "Sheet1";
 
 		// -----------------------------------------------------------------------
 		// Public API
@@ -328,10 +329,23 @@ namespace GuiToolkit.Editor
 			}
 
 			// Download current sheet content to discover existing keys.
+			string sheetName;
+			try
+			{
+				sheetName = GetFirstSheetName(spreadsheetId, token);
+			}
+			catch (Exception ex)
+			{
+				EditorUtility.DisplayDialog("Push new keys – Error",
+					$"Failed to read spreadsheet metadata:\n{ex.Message}", "OK");
+				UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)}: Failed to GET spreadsheet metadata: {ex}");
+				return;
+			}
+
 			List<List<string>> sheetValues;
 			try
 			{
-				sheetValues = GetSheetValues(spreadsheetId, token);
+				sheetValues = GetSheetValues(spreadsheetId, token, sheetName);
 			}
 			catch (Exception ex)
 			{
@@ -399,7 +413,19 @@ namespace GuiToolkit.Editor
 
 			try
 			{
-				AppendSheetRows(spreadsheetId, token, newRows);
+				// If the sheet has no header row yet, create it from the bridge column definitions.
+				if (sheetValues.Count == 0 || (sheetValues.Count == 1 && sheetValues[0].All(string.IsNullOrEmpty)))
+				{
+					var header = new List<string>(_bridge.NumColumns);
+					for (int c = 0; c < _bridge.NumColumns; c++)
+					{
+						var d = _bridge.GetColumnDescription(c);
+						header.Add(d?.Description ?? string.Empty);
+					}
+					AppendSheetRows(spreadsheetId, token, sheetName, new List<List<string>> { header });
+				}
+
+				AppendSheetRows(spreadsheetId, token, sheetName, newRows);
 			}
 			catch (Exception ex)
 			{
@@ -552,9 +578,43 @@ namespace GuiToolkit.Editor
 		// Sheets API helpers
 		// -----------------------------------------------------------------------
 
-		private static List<List<string>> GetSheetValues(string _spreadsheetId, string _token)
+		/// <summary>
+		/// Returns the title of the first sheet in the spreadsheet by querying its metadata.
+		/// Falls back to <see cref="DEFAULT_SHEET_NAME"/> if the title cannot be determined.
+		/// </summary>
+		private static string GetFirstSheetName(string _spreadsheetId, string _token)
 		{
-			string url = $"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}/values/{SHEET_NAME}";
+			string url = $"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}?fields=sheets.properties.title";
+
+			using var client = new HttpClient();
+			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+
+			var response = client.GetAsync(url).GetAwaiter().GetResult();
+			string body  = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+			if (!response.IsSuccessStatusCode)
+				throw new InvalidOperationException($"Sheets API GET metadata error {(int)response.StatusCode}: {body}");
+
+			// Body looks like: {"sheets":[{"properties":{"title":"Tabelle1"}},...]}
+			int titleIdx = body.IndexOf("\"title\"", StringComparison.Ordinal);
+			if (titleIdx < 0)
+				return DEFAULT_SHEET_NAME;
+
+			int colonIdx = body.IndexOf(':', titleIdx);
+			if (colonIdx < 0)
+				return DEFAULT_SHEET_NAME;
+
+			int quoteStart = body.IndexOf('"', colonIdx + 1);
+			if (quoteStart < 0)
+				return DEFAULT_SHEET_NAME;
+
+			int pos = quoteStart;
+			return ParseJsonString(body, ref pos);
+		}
+
+		private static List<List<string>> GetSheetValues(string _spreadsheetId, string _token, string _sheetName)
+		{
+			string url = $"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}/values/{Uri.EscapeDataString(_sheetName)}";
 
 			using var client = new HttpClient();
 			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
@@ -568,10 +628,10 @@ namespace GuiToolkit.Editor
 			return ParseSheetValues(body);
 		}
 
-		private static void AppendSheetRows(string _spreadsheetId, string _token, List<List<string>> _rows)
+		private static void AppendSheetRows(string _spreadsheetId, string _token, string _sheetName, List<List<string>> _rows)
 		{
 			string url =
-				$"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}/values/{SHEET_NAME}:append" +
+				$"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}/values/{Uri.EscapeDataString(_sheetName)}:append" +
 				"?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS";
 
 			string json = BuildValuesJson(_rows);
