@@ -250,11 +250,16 @@ namespace GuiToolkit.Editor
 						// Singular column.
 						row[colIdx] = entry.MsgStr ?? string.Empty;
 					}
-					else
+					else if (entry.MsgStrForms != null && pluralForm < entry.MsgStrForms.Length)
 					{
-						// Plural-form column.
-						if (entry.MsgStrForms != null && pluralForm < entry.MsgStrForms.Length)
-							row[colIdx] = entry.MsgStrForms[pluralForm] ?? string.Empty;
+						// Plural-form column — explicit plural forms present.
+						row[colIdx] = entry.MsgStrForms[pluralForm] ?? string.Empty;
+					}
+					else if (pluralForm == 0)
+					{
+						// Plural-form[0] requested but entry has no plural forms (singular-only PO entry).
+						// Fall back to the singular msgstr so that non-pluralised translations are not lost.
+						row[colIdx] = entry.MsgStr ?? string.Empty;
 					}
 				}
 
