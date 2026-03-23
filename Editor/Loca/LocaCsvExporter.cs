@@ -204,20 +204,22 @@ namespace GuiToolkit.Editor
 		// -----------------------------------------------------------------------
 
 		/// <summary>
-		/// Finds all *.po / *.po.txt files in the project's Resources folder,
+		/// Finds all *.po / *.po.txt files in the project's Resources folder(s),
 		/// optionally filtered to a specific group.
+		/// Searches all Resources directories under Assets (supports sub-folders like __Funatics/Resources/).
 		/// </summary>
 		internal static List<(string lang, string group, string filePath)> FindPoFiles(string _group)
 		{
 			var result = new List<(string, string, string)>();
-			string resourcesPath = Path.Combine(Application.dataPath, "Resources");
-			if (!Directory.Exists(resourcesPath))
-				return result;
 
-			// Collect both .po and .po.txt; .po.txt takes precedence (Unity TextAsset canonical form).
-			IEnumerable<string> allFiles =
-				Directory.GetFiles(resourcesPath, "*.po.txt", SearchOption.TopDirectoryOnly)
-				.Concat(Directory.GetFiles(resourcesPath, "*.po", SearchOption.TopDirectoryOnly));
+			// Collect from all Resources directories; .po.txt takes precedence over bare .po.
+			IEnumerable<string> allFiles = Enumerable.Empty<string>();
+			foreach (string resourcesPath in FindResourcesDirectories())
+			{
+				allFiles = allFiles
+					.Concat(Directory.GetFiles(resourcesPath, "*.po.txt", SearchOption.TopDirectoryOnly))
+					.Concat(Directory.GetFiles(resourcesPath, "*.po",     SearchOption.TopDirectoryOnly));
+			}
 
 			var seenKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -285,6 +287,29 @@ namespace GuiToolkit.Editor
 				return _value;
 
 			return "\"" + _value.Replace("\"", "\"\"") + "\"";
+		}
+
+		/// <summary>
+		/// Enumerates all "Resources" directories under <see cref="Application.dataPath"/>,
+		/// yielding the root <c>Assets/Resources</c> first for backward compatibility,
+		/// followed by all nested ones (e.g. <c>Assets/__Funatics/Resources</c>).
+		/// </summary>
+		private static IEnumerable<string> FindResourcesDirectories()
+		{
+			string dataPath = Application.dataPath;
+			string root     = Path.Combine(dataPath, "Resources");
+
+			if (Directory.Exists(root))
+				yield return root;
+
+			if (Directory.Exists(dataPath))
+			{
+				foreach (string dir in Directory.GetDirectories(dataPath, "Resources", SearchOption.AllDirectories))
+				{
+					if (!string.Equals(dir, root, StringComparison.OrdinalIgnoreCase))
+						yield return dir;
+				}
+			}
 		}
 	}
 }

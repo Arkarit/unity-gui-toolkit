@@ -270,31 +270,61 @@ namespace GuiToolkit.Editor
 
 		private static Dictionary<string, PoEntry> LoadPoLookup(string _lang, string _group)
 		{
-			string resourcesPath = Path.Combine(Application.dataPath, "Resources");
-			string groupSuffix   = string.IsNullOrEmpty(_group) ? string.Empty : $"_{_group}";
-			string baseName      = $"{_lang}{groupSuffix}";
+			string groupSuffix = string.IsNullOrEmpty(_group) ? string.Empty : $"_{_group}";
+			string baseName    = $"{_lang}{groupSuffix}";
 
-			// Try .po.txt first (preferred Unity TextAsset import), then .po.
-			string path = Path.Combine(resourcesPath, baseName + ".po.txt");
-			if (!File.Exists(path))
-				path = Path.Combine(resourcesPath, baseName + ".po");
-			if (!File.Exists(path))
-				return null;
-
-			string content = File.ReadAllText(path, Encoding.UTF8);
-			var poFile = PoFile.Parse(content);
-
-			var lookup = new Dictionary<string, PoEntry>(StringComparer.Ordinal);
-			foreach (var entry in poFile.Entries)
+			// Search all Resources directories under Assets (supports sub-folders like __Funatics/Resources/).
+			foreach (string resourcesPath in FindResourcesDirectories())
 			{
-				if (entry.IsObsolete)
+				// Try .po.txt first (preferred Unity TextAsset import), then .po.
+				string path = Path.Combine(resourcesPath, baseName + ".po.txt");
+				if (!File.Exists(path))
+					path = Path.Combine(resourcesPath, baseName + ".po");
+				if (!File.Exists(path))
 					continue;
-				// Key by MsgId (LocaExcelBridge does not use msgctxt).
-				if (!lookup.ContainsKey(entry.MsgId))
-					lookup[entry.MsgId] = entry;
+
+				string content = File.ReadAllText(path, Encoding.UTF8);
+				var poFile = PoFile.Parse(content);
+
+				var lookup = new Dictionary<string, PoEntry>(StringComparer.Ordinal);
+				foreach (var entry in poFile.Entries)
+				{
+					if (entry.IsObsolete)
+						continue;
+					// Key by MsgId (LocaExcelBridge does not use msgctxt).
+					if (!lookup.ContainsKey(entry.MsgId))
+						lookup[entry.MsgId] = entry;
+				}
+
+				return lookup;
 			}
 
-			return lookup;
+			return null;
+		}
+
+		/// <summary>
+		/// Enumerates all "Resources" directories under <see cref="Application.dataPath"/>,
+		/// yielding the root <c>Assets/Resources</c> first for backward compatibility,
+		/// followed by all nested ones (e.g. <c>Assets/__Funatics/Resources</c>).
+		/// </summary>
+		private static IEnumerable<string> FindResourcesDirectories()
+		{
+			string dataPath = Application.dataPath;
+			string root     = Path.Combine(dataPath, "Resources");
+
+			// Root first (backward compat).
+			if (Directory.Exists(root))
+				yield return root;
+
+			// Then all nested Resources folders.
+			if (Directory.Exists(dataPath))
+			{
+				foreach (string dir in Directory.GetDirectories(dataPath, "Resources", SearchOption.AllDirectories))
+				{
+					if (!string.Equals(dir, root, StringComparison.OrdinalIgnoreCase))
+						yield return dir;
+				}
+			}
 		}
 
 		// -----------------------------------------------------------------------

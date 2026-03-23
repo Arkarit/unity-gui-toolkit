@@ -312,22 +312,49 @@ namespace GuiToolkit.Editor
 		private static string GetPoPhysicalPath(string _languageId, string _group)
 		{
 			string groupAppendix = string.IsNullOrEmpty(_group) ? string.Empty : $"_{_group}";
-			string resourcesDir = Path.Combine(Application.dataPath, "Resources");
 			string baseName = $"{_languageId}{groupAppendix}.po";
 
 			// Unity loads PO files via Resources.Load<TextAsset>("{lang}.po") which maps to
 			// "{lang}.po.txt" on disk (Unity strips the last .txt extension for TextAssets).
 			// Prefer the .po.txt canonical form; fall back to bare .po if that already exists.
-			string txtPath = Path.Combine(resourcesDir, baseName + ".txt");
-			if (File.Exists(txtPath))
-				return txtPath;
+			// Search all Resources directories (supports sub-folders like __Funatics/Resources/).
+			foreach (string resourcesDir in FindResourcesDirectories())
+			{
+				string txtPath = Path.Combine(resourcesDir, baseName + ".txt");
+				if (File.Exists(txtPath))
+					return txtPath;
 
-			string poPath = Path.Combine(resourcesDir, baseName);
-			if (File.Exists(poPath))
-				return poPath;
+				string poPath = Path.Combine(resourcesDir, baseName);
+				if (File.Exists(poPath))
+					return poPath;
+			}
 
-			// Neither exists yet — create as .po.txt (the canonical Unity TextAsset form)
-			return txtPath;
+			// Neither exists yet — create as .po.txt in the first (root) Resources directory.
+			string defaultResourcesDir = Path.Combine(Application.dataPath, "Resources");
+			return Path.Combine(defaultResourcesDir, baseName + ".txt");
+		}
+
+		/// <summary>
+		/// Enumerates all "Resources" directories under <see cref="Application.dataPath"/>,
+		/// yielding the root <c>Assets/Resources</c> first for backward compatibility,
+		/// followed by all nested ones (e.g. <c>Assets/__Funatics/Resources</c>).
+		/// </summary>
+		private static IEnumerable<string> FindResourcesDirectories()
+		{
+			string dataPath = Application.dataPath;
+			string root     = Path.Combine(dataPath, "Resources");
+
+			if (Directory.Exists(root))
+				yield return root;
+
+			if (Directory.Exists(dataPath))
+			{
+				foreach (string dir in Directory.GetDirectories(dataPath, "Resources", SearchOption.AllDirectories))
+				{
+					if (!string.Equals(dir, root, StringComparison.OrdinalIgnoreCase))
+						yield return dir;
+				}
+			}
 		}
 
 		private static PoFile CreateEmptyPoFile(string _languageId)
