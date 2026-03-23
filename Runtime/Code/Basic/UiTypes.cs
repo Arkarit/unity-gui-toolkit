@@ -192,6 +192,9 @@ namespace GuiToolkit
 		public const int LOCA_PO_FIXER_MENU_PRIORITY = 120;
 		public const int LOCA_MERGE_POT_MENU_PRIORITY = 130;
 		public const int LOCA_BACKUP_MENU_PRIORITY = 140;
+		public const int LOCA_MISC_BATCH_REPLACE_SCENE_MENU_PRIORITY = 10;
+		public const int LOCA_MISC_BATCH_REPLACE_PROJECT_MENU_PRIORITY = 20;
+		public const int LOCA_MISC_MIGRATE_CANDIDATES_MENU_PRIORITY = 30;
 
 		public const int CONFIG_MANAGER_MENU_PRIORITY = 0;
 		public const int SAVE_PROJECT_ON_LOSE_FOCUS_MENU_PRIORITY = 1000;
@@ -207,6 +210,7 @@ namespace GuiToolkit
 		public const string STYLES_HEADER = MENU_HEADER + "Styles/";
 		public const string MISC_TOOLS_MENU_HEADER = MENU_HEADER + "Miscellaneous Tools/";                                              ///< Menu header for miscellaneous tools
 		public const string LOCA_HEADER = MENU_HEADER + "Localization/";
+		public const string LOCA_MISC_HEADER = LOCA_HEADER + "Misc/";
 
 		public const string CONFIGURATION_NAME = "Ui Toolkit Configuration...";
 		public const string CONFIGURATION_MENU_NAME = MENU_HEADER + CONFIGURATION_NAME;
@@ -248,6 +252,9 @@ namespace GuiToolkit
 		public const string LOCA_EXCEL_BRIDGE = LOCA_HEADER + "Loca Excel Bridge";
 		public const string LOCA_MERGE_POT_MENU_NAME = LOCA_HEADER + "Merge POT into PO files";
 		public const string LOCA_BACKUP_MENU_NAME = LOCA_HEADER + "Manage PO Backups";
+		public const string LOCA_MISC_BATCH_REPLACE_SCENE_MENU_NAME = LOCA_MISC_HEADER + "Replace All TMP \u2192 Localized (Current Scene or Prefab)";
+		public const string LOCA_MISC_BATCH_REPLACE_PROJECT_MENU_NAME = LOCA_MISC_HEADER + "Replace All TMP \u2192 Localized (Entire Project)";
+		public const string LOCA_MISC_MIGRATE_CANDIDATES_MENU_NAME = LOCA_MISC_HEADER + "Migrate UiAutoLocalize (Find candidates)";
 
 		public const string PLAYER_SETTINGS_COLLECTION = "playerSettings";
 		public const string PLAYER_SETTINGS_ID = "playerSettings";

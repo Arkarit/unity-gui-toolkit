@@ -10,7 +10,7 @@ namespace GuiToolkit.Editor
 	/// To migrate each candidate: open the prefab, right-click the TextMeshProUGUI component header
 	/// and choose <b>Replace with Localized Text</b>. This swaps the script type in-place via YAML,
 	/// preserving all TMP settings and external references.
-	/// Invoked via Unity menu: Tools > Loca > Migrate UiAutoLocalize (Find candidates).
+	/// Invoked via Unity menu: Gui Toolkit > Localization > Misc > Migrate UiAutoLocalize (Find candidates).
 	/// </summary>
 	public static class UiLocalizedTextMigrationTool
 	{
@@ -19,7 +19,7 @@ namespace GuiToolkit.Editor
 		/// Reports findings to the console and displays a summary dialog.
 		/// Manual migration is required (replace TextMeshProUGUI with UiLocalizedTextMeshProUGUI on each GameObject).
 		/// </summary>
-		[MenuItem("Tools/Loca/Migrate UiAutoLocalize (Find candidates)")]
+		[MenuItem(StringConstants.LOCA_MISC_MIGRATE_CANDIDATES_MENU_NAME, priority = Constants.LOCA_MISC_MIGRATE_CANDIDATES_MENU_PRIORITY)]
 		public static void FindMigrationCandidates()
 		{
 			var candidates = new List<string>();

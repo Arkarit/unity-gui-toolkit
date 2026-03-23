@@ -25,7 +25,15 @@ namespace GuiToolkit.Editor
 	/// </summary>
 	internal static class BatchReplaceLocalizedText
 	{
-		private const string MenuBase = "Tools/Loca/";
+		// -----------------------------------------------------------------------
+		// Menu items
+		// -----------------------------------------------------------------------
+
+		[MenuItem(StringConstants.LOCA_MISC_BATCH_REPLACE_SCENE_MENU_NAME, priority = Constants.LOCA_MISC_BATCH_REPLACE_SCENE_MENU_PRIORITY)]
+		private static void ReplaceInCurrentScene() => RunBatch(entireProject: false);
+
+		[MenuItem(StringConstants.LOCA_MISC_BATCH_REPLACE_PROJECT_MENU_NAME, priority = Constants.LOCA_MISC_BATCH_REPLACE_PROJECT_MENU_PRIORITY)]
+		private static void ReplaceInProject() => RunBatch(entireProject: true);
 
 		private struct Stats
 		{
@@ -35,15 +43,6 @@ namespace GuiToolkit.Editor
 			public int errors;
 		}
 
-		// -----------------------------------------------------------------------
-		// Menu items
-		// -----------------------------------------------------------------------
-
-		[MenuItem(MenuBase + "Replace All TMP → Localized (Current Scene or Prefab)")]
-		private static void ReplaceInCurrentScene() => RunBatch(entireProject: false);
-
-		[MenuItem(MenuBase + "Replace All TMP → Localized (Entire Project)")]
-		private static void ReplaceInProject() => RunBatch(entireProject: true);
 
 		// -----------------------------------------------------------------------
 		// Core batch logic
