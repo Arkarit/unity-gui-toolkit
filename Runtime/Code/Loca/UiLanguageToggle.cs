@@ -18,13 +18,14 @@ namespace GuiToolkit
 		public string Language
 		{
 			get => m_languageToken;
-#if UNITY_EDITOR
 			set
 			{
 				m_languageToken = value;
-				OnValidate();
+				if (m_flagImage != null)
+					SetNationalFlag();
+				if (isActiveAndEnabled && LocaManager.Instance.Language == m_languageToken)
+					SetDelayed(true);
 			}
-#endif
 		}
 
 		protected override void OnEnable()
