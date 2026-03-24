@@ -32,8 +32,7 @@ namespace GuiToolkit
 		{
 			base.OnEnable();
 			bool isActive = LocaManager.Instance.Language == Language;
-			if (isActive)
-				SetDelayed(true);
+			SetDelayed(isActive);
 
 			base.OnValueChanged.AddListener(this.OnValueChanged);
 		}
