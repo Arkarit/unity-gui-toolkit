@@ -12,6 +12,8 @@ namespace GuiToolkit
 		[SerializeField]
 		[HideInInspector]
 		private string m_languageToken;
+		
+		[SerializeField] private bool m_displayEnAsEnUs;
 
 		public string Language
 		{
@@ -57,7 +59,8 @@ namespace GuiToolkit
 #endif
 		private void SetNationalFlag()
 		{
-			m_flagImage.sprite = Resources.Load<Sprite>("Flags/" + m_languageToken );
+			var lang = m_displayEnAsEnUs && m_languageToken.Equals("en") ? "en_us" : m_languageToken;
+			m_flagImage.sprite = Resources.Load<Sprite>("Flags/" + lang );
 		}
 
 	}
