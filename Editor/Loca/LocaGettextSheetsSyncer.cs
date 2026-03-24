@@ -364,17 +364,21 @@ namespace GuiToolkit.Editor
 					existingKeys.Add(row[keyColIdx]);
 			}
 
-			// Collect all active msgids from PO files.
-			string group   = _bridge.EdGroup;
-			var poFiles = LocaCsvExporter.FindPoFiles(group);
+			// Collect all active msgids from PO files and build per-language translation lookups.
+			string group    = _bridge.EdGroup;
+			var poFiles     = LocaCsvExporter.FindPoFiles(group);
 
-			var allMsgIds  = new HashSet<string>(StringComparer.Ordinal);
-			var msgIdOrder = new List<string>();
+			var allMsgIds   = new HashSet<string>(StringComparer.Ordinal);
+			var msgIdOrder  = new List<string>();
+			var langLookups = new Dictionary<string, Dictionary<string, PoEntry>>(StringComparer.OrdinalIgnoreCase);
 
-			foreach (var (_, _, filePath) in poFiles)
+			foreach (var (fileLang, _, filePath) in poFiles)
 			{
 				string fileContent = File.ReadAllText(filePath, Encoding.UTF8);
 				var poFile = PoFile.Parse(fileContent);
+
+				if (!langLookups.TryGetValue(fileLang, out var lookup))
+					langLookups[fileLang] = lookup = new Dictionary<string, PoEntry>(StringComparer.Ordinal);
 
 				foreach (var entry in poFile.Entries)
 				{
@@ -383,6 +387,9 @@ namespace GuiToolkit.Editor
 
 					if (allMsgIds.Add(entry.MsgId))
 						msgIdOrder.Add(entry.MsgId);
+
+					if (!lookup.ContainsKey(entry.MsgId))
+						lookup[entry.MsgId] = entry;
 				}
 			}
 
@@ -397,9 +404,9 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			// Build rows: key cell = msgid, all other cells empty.
-			int numCols  = _bridge.NumColumns;
-			var newRows  = new List<List<string>>(newKeys.Count);
+			// Build rows: key cell = msgid, translation cells populated from PO where available.
+			int numCols = _bridge.NumColumns;
+			var newRows = new List<List<string>>(newKeys.Count);
 
 			foreach (string msgId in newKeys)
 			{
@@ -408,6 +415,24 @@ namespace GuiToolkit.Editor
 					row.Add(string.Empty);
 
 				row[keyColIdx] = msgId;
+
+				for (int c = 0; c < numCols; c++)
+				{
+					if (c == keyColIdx) continue;
+					var d = _bridge.GetColumnDescription(c);
+					if (d?.ColumnType != LocaExcelBridge.EInColumnType.LanguageTranslation) continue;
+					if (string.IsNullOrWhiteSpace(d.LanguageId)) continue;
+
+					string lang = d.LanguageId.Trim().ToLowerInvariant();
+					if (!langLookups.TryGetValue(lang, out var lookup)) continue;
+					if (!lookup.TryGetValue(msgId, out var entry)) continue;
+
+					if (d.PluralForm < 0)
+						row[c] = entry.MsgStr ?? string.Empty;
+					else if (entry.MsgStrForms != null && d.PluralForm < entry.MsgStrForms.Length)
+						row[c] = entry.MsgStrForms[d.PluralForm] ?? string.Empty;
+				}
+
 				newRows.Add(row);
 			}
 

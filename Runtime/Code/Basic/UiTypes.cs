@@ -192,6 +192,7 @@ namespace GuiToolkit
 		public const int LOCA_PO_FIXER_MENU_PRIORITY = 120;
 		public const int LOCA_MERGE_POT_MENU_PRIORITY = 130;
 		public const int LOCA_BACKUP_MENU_PRIORITY = 140;
+		public const int LOCA_REMOVE_OBSOLETE_MENU_PRIORITY = 150;
 		public const int LOCA_MISC_BATCH_REPLACE_SCENE_MENU_PRIORITY = 10;
 		public const int LOCA_MISC_BATCH_REPLACE_PROJECT_MENU_PRIORITY = 20;
 		public const int LOCA_MISC_MIGRATE_CANDIDATES_MENU_PRIORITY = 30;
@@ -252,6 +253,7 @@ namespace GuiToolkit
 		public const string LOCA_EXCEL_BRIDGE = LOCA_HEADER + "Loca Excel Bridge";
 		public const string LOCA_MERGE_POT_MENU_NAME = LOCA_HEADER + "Merge POT into PO files";
 		public const string LOCA_BACKUP_MENU_NAME = LOCA_HEADER + "Manage PO Backups";
+		public const string LOCA_REMOVE_OBSOLETE_MENU_NAME = LOCA_HEADER + "Remove Obsolete PO Keys";
 		public const string LOCA_MISC_BATCH_REPLACE_SCENE_MENU_NAME = LOCA_MISC_HEADER + "Replace All TMP \u2192 Localized (Current Scene or Prefab)";
 		public const string LOCA_MISC_BATCH_REPLACE_PROJECT_MENU_NAME = LOCA_MISC_HEADER + "Replace All TMP \u2192 Localized (Entire Project)";
 		public const string LOCA_MISC_MIGRATE_CANDIDATES_MENU_NAME = LOCA_MISC_HEADER + "Migrate UiAutoLocalize (Find candidates)";
