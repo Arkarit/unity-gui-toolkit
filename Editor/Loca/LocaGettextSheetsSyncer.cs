@@ -330,9 +330,10 @@ namespace GuiToolkit.Editor
 
 			// Download current sheet content to discover existing keys.
 			string sheetName;
+			int sheetId;
 			try
 			{
-				sheetName = GetFirstSheetName(spreadsheetId, token);
+				(sheetName, sheetId) = GetFirstSheetInfo(spreadsheetId, token);
 			}
 			catch (Exception ex)
 			{
@@ -450,7 +451,24 @@ namespace GuiToolkit.Editor
 					AppendSheetRows(spreadsheetId, token, sheetName, new List<List<string>> { header });
 				}
 
-				AppendSheetRows(spreadsheetId, token, sheetName, newRows);
+				string appendedRange = AppendSheetRows(spreadsheetId, token, sheetName, newRows);
+
+				// Highlight the key cell of every new row in yellow so translators can spot them easily.
+				if (!string.IsNullOrEmpty(appendedRange) &&
+				    TryParseRangeStartRow(appendedRange, out int startRowIndex))
+				{
+					try
+					{
+						ApplyColumnBackground(spreadsheetId, token, sheetId,
+							startRowIndex, newRows.Count, keyColIdx,
+							_r: 1.0f, _g: 0.95f, _b: 0.2f);
+					}
+					catch (Exception ex)
+					{
+						// Non-fatal — data was pushed successfully, formatting is best-effort.
+						UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: Could not apply key-cell highlight: {ex.Message}");
+					}
+				}
 			}
 			catch (Exception ex)
 			{
@@ -604,12 +622,12 @@ namespace GuiToolkit.Editor
 		// -----------------------------------------------------------------------
 
 		/// <summary>
-		/// Returns the title of the first sheet in the spreadsheet by querying its metadata.
-		/// Falls back to <see cref="DEFAULT_SHEET_NAME"/> if the title cannot be determined.
+		/// Returns the title and numeric sheet ID of the first sheet in the spreadsheet.
+		/// Falls back to <see cref="DEFAULT_SHEET_NAME"/> and sheetId 0 if values cannot be determined.
 		/// </summary>
-		private static string GetFirstSheetName(string _spreadsheetId, string _token)
+		private static (string name, int sheetId) GetFirstSheetInfo(string _spreadsheetId, string _token)
 		{
-			string url = $"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}?fields=sheets.properties.title";
+			string url = $"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}?fields=sheets.properties";
 
 			using var client = new HttpClient();
 			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
@@ -620,21 +638,42 @@ namespace GuiToolkit.Editor
 			if (!response.IsSuccessStatusCode)
 				throw new InvalidOperationException($"Sheets API GET metadata error {(int)response.StatusCode}: {body}");
 
-			// Body looks like: {"sheets":[{"properties":{"title":"Tabelle1"}},...]}
+			string name = DEFAULT_SHEET_NAME;
+			int sheetId = 0;
+
+			// Parse title
 			int titleIdx = body.IndexOf("\"title\"", StringComparison.Ordinal);
-			if (titleIdx < 0)
-				return DEFAULT_SHEET_NAME;
+			if (titleIdx >= 0)
+			{
+				int colonIdx = body.IndexOf(':', titleIdx);
+				if (colonIdx >= 0)
+				{
+					int quoteStart = body.IndexOf('"', colonIdx + 1);
+					if (quoteStart >= 0)
+					{
+						int pos = quoteStart;
+						name = ParseJsonString(body, ref pos);
+					}
+				}
+			}
 
-			int colonIdx = body.IndexOf(':', titleIdx);
-			if (colonIdx < 0)
-				return DEFAULT_SHEET_NAME;
+			// Parse sheetId
+			int idIdx = body.IndexOf("\"sheetId\"", StringComparison.Ordinal);
+			if (idIdx >= 0)
+			{
+				int colonIdx = body.IndexOf(':', idIdx);
+				if (colonIdx >= 0)
+				{
+					int numStart = colonIdx + 1;
+					while (numStart < body.Length && char.IsWhiteSpace(body[numStart])) numStart++;
+					int numEnd = numStart;
+					while (numEnd < body.Length && char.IsDigit(body[numEnd])) numEnd++;
+					if (numEnd > numStart)
+						int.TryParse(body.Substring(numStart, numEnd - numStart), out sheetId);
+				}
+			}
 
-			int quoteStart = body.IndexOf('"', colonIdx + 1);
-			if (quoteStart < 0)
-				return DEFAULT_SHEET_NAME;
-
-			int pos = quoteStart;
-			return ParseJsonString(body, ref pos);
+			return (name, sheetId);
 		}
 
 		private static List<List<string>> GetSheetValues(string _spreadsheetId, string _token, string _sheetName)
@@ -653,7 +692,7 @@ namespace GuiToolkit.Editor
 			return ParseSheetValues(body);
 		}
 
-		private static void AppendSheetRows(string _spreadsheetId, string _token, string _sheetName, List<List<string>> _rows)
+		private static string AppendSheetRows(string _spreadsheetId, string _token, string _sheetName, List<List<string>> _rows)
 		{
 			string url =
 				$"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}/values/{Uri.EscapeDataString(_sheetName)}:append" +
@@ -670,6 +709,94 @@ namespace GuiToolkit.Editor
 
 			if (!response.IsSuccessStatusCode)
 				throw new InvalidOperationException($"Sheets API append error {(int)response.StatusCode}: {body}");
+
+			return ParseJsonStringValue(body, "updatedRange");
+		}
+
+		/// <summary>
+		/// Applies a solid background colour to a single column of consecutive rows
+		/// using the Sheets spreadsheets:batchUpdate (formatting) endpoint.
+		/// </summary>
+		private static void ApplyColumnBackground(
+			string _spreadsheetId, string _token, int _sheetId,
+			int _startRowIndex, int _rowCount, int _colIndex,
+			float _r, float _g, float _b)
+		{
+			string url = $"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}:batchUpdate";
+
+			string json =
+				"{\"requests\":[{\"repeatCell\":{" +
+				"\"range\":{" +
+				$"\"sheetId\":{_sheetId}," +
+				$"\"startRowIndex\":{_startRowIndex}," +
+				$"\"endRowIndex\":{_startRowIndex + _rowCount}," +
+				$"\"startColumnIndex\":{_colIndex}," +
+				$"\"endColumnIndex\":{_colIndex + 1}" +
+				"}," +
+				"\"cell\":{\"userEnteredFormat\":{\"backgroundColor\":{" +
+				$"\"red\":{_r.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}," +
+				$"\"green\":{_g.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}," +
+				$"\"blue\":{_b.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}" +
+				"}}}," +
+				"\"fields\":\"userEnteredFormat.backgroundColor\"" +
+				"}}]}";
+
+			using var client = new HttpClient();
+			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+
+			var content  = new StringContent(json, Encoding.UTF8, "application/json");
+			var response = client.PostAsync(url, content).GetAwaiter().GetResult();
+			string body  = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+			if (!response.IsSuccessStatusCode)
+				throw new InvalidOperationException($"Sheets API batchUpdate (format) error {(int)response.StatusCode}: {body}");
+		}
+
+		/// <summary>
+		/// Parses the 0-based start row index from a Sheets range string such as
+		/// <c>"Sheet1!A6:D8"</c> or <c>"Sheet1!A6"</c>.
+		/// Returns true on success; the out value is 0-based (Sheets API uses 0-based row indices).
+		/// </summary>
+		private static bool TryParseRangeStartRow(string _range, out int _startRowIndex0Based)
+		{
+			_startRowIndex0Based = 0;
+			if (string.IsNullOrEmpty(_range)) return false;
+
+			// Strip optional sheet-name prefix ("Sheet1!A6:D8" → "A6:D8").
+			int exclamIdx = _range.IndexOf('!');
+			string cellPart = exclamIdx >= 0 ? _range.Substring(exclamIdx + 1) : _range;
+
+			// Take the first cell reference only ("A6:D8" → "A6").
+			int colonIdx = cellPart.IndexOf(':');
+			string firstCell = colonIdx >= 0 ? cellPart.Substring(0, colonIdx) : cellPart;
+
+			// Strip leading column letters to get the 1-based row number.
+			int i = 0;
+			while (i < firstCell.Length && char.IsLetter(firstCell[i])) i++;
+			if (i >= firstCell.Length) return false;
+
+			if (!int.TryParse(firstCell.Substring(i), out int row1Based) || row1Based < 1)
+				return false;
+
+			_startRowIndex0Based = row1Based - 1;
+			return true;
+		}
+
+		/// <summary>Extracts the string value of a simple JSON key from a flat JSON object.</summary>
+		private static string ParseJsonStringValue(string _json, string _key)
+		{
+			string search = $"\"{_key}\"";
+			int idx = _json.IndexOf(search, StringComparison.Ordinal);
+			if (idx < 0) return null;
+
+			int colonIdx = _json.IndexOf(':', idx + search.Length);
+			if (colonIdx < 0) return null;
+
+			int quoteStart = _json.IndexOf('"', colonIdx + 1);
+			if (quoteStart < 0) return null;
+
+			int pos = quoteStart;
+			return ParseJsonString(_json, ref pos);
 		}
 
 		// -----------------------------------------------------------------------
