@@ -64,8 +64,7 @@ namespace GuiToolkit.Test
 				FontAssetLocalId  = fontLocalId,
 				MaterialGuid      = matGuid,
 				MaterialLocalId   = matLocalId,
-				CompanionLocalIds = null,
-			};
+				};
 		}
 
 		// -----------------------------------------------------------------------

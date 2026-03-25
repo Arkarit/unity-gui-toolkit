@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -73,15 +74,13 @@ namespace GuiToolkit.Editor
 			public long FontAssetLocalId;
 			public string MaterialGuid;
 			public long MaterialLocalId;
-
-			/// <summary>Local file IDs of companion components to remove (e.g. LegacyTextLineGapNormalizer).</summary>
-			public List<long> CompanionLocalIds;
 		}
 
 		private struct Stats
 		{
 			public int textConverted;
-			public int companionsRemoved;
+			public int textSkippedDueToCompanion;
+			public int scriptsUpdated;
 			public int filesProcessed;
 			public int errors;
 		}
@@ -138,7 +137,9 @@ namespace GuiToolkit.Editor
 			string msg = $"Convert all Legacy Text → UiLocalizedTextMeshProUGUI in {scope}.\n\n" +
 			             $"Prefabs to process: {prefabPaths.Count}\n" +
 			             $"Plain scene objects: {scenePlainTexts.Count}\n\n" +
-			             "Companion components requiring Text (e.g. LegacyTextLineGapNormalizer) will also be removed.\n" +
+			             "Text components that have [RequireComponent(typeof(Text))] companions will be skipped " +
+			             "with an error message — fix those manually first.\n" +
+			             "Dependent C# scripts with Text field references will be updated automatically.\n" +
 			             "This operation cannot be undone.\n\nContinue?";
 
 			if (!EditorUtility.DisplayDialog("Convert Legacy Text", msg, "Convert", "Cancel"))
@@ -196,7 +197,8 @@ namespace GuiToolkit.Editor
 
 			string summary =
 				$"Converted:  {stats.textConverted} Legacy Text component(s)\n" +
-				$"Removed:    {stats.companionsRemoved} companion component(s)\n" +
+				$"Skipped:    {stats.textSkippedDueToCompanion} (RequireComponent companions — see Console)\n" +
+				$"Scripts:    {stats.scriptsUpdated} C# script(s) updated\n" +
 				$"Files:      {stats.filesProcessed} modified";
 			if (stats.errors > 0)
 				summary += $"\nErrors:     {stats.errors} (see Console for details)";
@@ -220,10 +222,13 @@ namespace GuiToolkit.Editor
 					if (PrefabUtility.IsPartOfPrefabInstance(text.gameObject))
 						continue;
 
-					if (!TryCaptureTextData(text, out var data))
+					if (!TryCaptureTextData(text, out var data, out bool companionSkip))
 					{
-						Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] Could not capture data from " +
-						                 $"'{text.gameObject.name}' in {assetPath} — skipped.");
+						if (companionSkip)
+							stats.textSkippedDueToCompanion++;
+						else
+							Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] Could not capture data from " +
+							                 $"'{text.gameObject.name}' in {assetPath} — skipped.");
 						continue;
 					}
 
@@ -253,10 +258,13 @@ namespace GuiToolkit.Editor
 
 			foreach (var text in texts)
 			{
-				if (!TryCaptureTextData(text, out var data))
+				if (!TryCaptureTextData(text, out var data, out bool companionSkip))
 				{
-					Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] Could not capture data from " +
-					                 $"'{text.gameObject.name}' in scene — skipped.");
+					if (companionSkip)
+						stats.textSkippedDueToCompanion++;
+					else
+						Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] Could not capture data from " +
+						                 $"'{text.gameObject.name}' in scene — skipped.");
 					continue;
 				}
 				entries.Add(data);
@@ -288,6 +296,14 @@ namespace GuiToolkit.Editor
 			string yaml    = File.ReadAllText(fullPath);
 			bool   changed = false;
 
+			// Before modifying, scan the YAML for MonoBehaviour blocks that reference any of the
+			// Text component IDs we are about to convert. Those scripts need their field types updated.
+			var convertedIds = new HashSet<long>();
+			foreach (var e in entries)
+				convertedIds.Add(e.ComponentLocalId);
+
+			var scriptFieldMap = FindReferencingScriptFields(yaml, convertedIds);
+
 			foreach (var data in entries)
 			{
 				string newBlock = BuildTmpYamlBlock(data, scriptGuid);
@@ -304,25 +320,6 @@ namespace GuiToolkit.Editor
 				yaml    = patched;
 				changed = true;
 				stats.textConverted++;
-
-				// Remove companion components (e.g. LegacyTextLineGapNormalizer).
-				if (data.CompanionLocalIds != null)
-				{
-					foreach (long companionId in data.CompanionLocalIds)
-					{
-						string removed = YamlUtility.RemoveMonoBehaviourBlock(yaml, companionId);
-						if (removed != null)
-						{
-							yaml = removed;
-							stats.companionsRemoved++;
-						}
-						else
-						{
-							Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] Could not remove companion block " +
-							                 $"localId={companionId} in {assetPath}.");
-						}
-					}
-				}
 			}
 
 			if (!changed)
@@ -331,15 +328,23 @@ namespace GuiToolkit.Editor
 			File.WriteAllText(fullPath, yaml);
 			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
 			stats.filesProcessed++;
+
+			// Update dependent C# scripts: change field types from Text → TMP_Text.
+			foreach (var kvp in scriptFieldMap)
+			{
+				if (TryUpdateCSharpScriptFields(kvp.Key, kvp.Value))
+					stats.scriptsUpdated++;
+			}
 		}
 
 		// -----------------------------------------------------------------------
 		// Data capture
 		// -----------------------------------------------------------------------
 
-		private static bool TryCaptureTextData(Text text, out LegacyTextData data)
+		private static bool TryCaptureTextData(Text text, out LegacyTextData data, out bool skippedDueToCompanion)
 		{
 			data = default;
+			skippedDueToCompanion = false;
 
 			if (!YamlUtility.TryGetLocalFileId(text, out long componentId))
 				return false;
@@ -363,7 +368,6 @@ namespace GuiToolkit.Editor
 			}
 
 			// Companion components (anything with [RequireComponent(typeof(Text))]).
-			var companionIds = new List<long>();
 			foreach (var comp in text.GetComponents<Component>())
 			{
 				if (comp == null || comp == text)
@@ -373,9 +377,12 @@ namespace GuiToolkit.Editor
 				{
 					if (rc.m_Type0 == typeof(Text) || rc.m_Type1 == typeof(Text) || rc.m_Type2 == typeof(Text))
 					{
-						if (YamlUtility.TryGetLocalFileId(comp, out long compId))
-							companionIds.Add(compId);
-						break;
+						Debug.LogError($"[LegacyTextToLocalizedTmpConverter] Skipping Text on '{text.gameObject.name}' " +
+						               $"because companion '{comp.GetType().Name}' requires Text. Remove or fix the " +
+						               $"companion first, then convert again.");
+						data = default;
+						skippedDueToCompanion = true;
+						return false;
 					}
 				}
 			}
@@ -403,7 +410,6 @@ namespace GuiToolkit.Editor
 				FontAssetLocalId  = fontAssetLocal,
 				MaterialGuid      = matGuid,
 				MaterialLocalId   = matLocal,
-				CompanionLocalIds = companionIds.Count > 0 ? companionIds : null,
 			};
 			return true;
 		}
@@ -618,8 +624,118 @@ namespace GuiToolkit.Editor
 		}
 
 		// -----------------------------------------------------------------------
-		// String helpers
+		// C# script field updating
 		// -----------------------------------------------------------------------
+
+		/// <summary>
+		/// Scans a prefab/scene YAML string and returns, for each MonoBehaviour script that has
+		/// field references pointing to any of the given <paramref name="convertedIds"/>, the
+		/// script GUID mapped to the set of field names that need their C# type changed from
+		/// <c>Text</c> to <c>TMP_Text</c>.
+		/// </summary>
+		private static Dictionary<string, HashSet<string>> FindReferencingScriptFields(
+			string yaml, HashSet<long> convertedIds)
+		{
+			var result = new Dictionary<string, HashSet<string>>();
+
+			// Split on MonoBehaviour block headers.
+			var blockSplit = Regex.Split(yaml, @"(?=^--- !u!114 &)", RegexOptions.Multiline);
+
+			// Matches:  m_Script: {fileID: 11500000, guid: XXXX, type: 3}
+			var scriptGuidRx = new Regex(@"m_Script:\s*\{[^}]*\bguid:\s*([a-fA-F0-9]+)[^}]*\}",
+				RegexOptions.Compiled);
+
+			// Matches:  someFieldName: {fileID: 1234567890123456789}
+			var fieldRefRx = new Regex(@"^\s+(\w+):\s*\{fileID:\s*(-?\d+)\}",
+				RegexOptions.Compiled | RegexOptions.Multiline);
+
+			foreach (var block in blockSplit)
+			{
+				if (!block.StartsWith("--- !u!114 &", StringComparison.Ordinal))
+					continue;
+
+				var scriptMatch = scriptGuidRx.Match(block);
+				if (!scriptMatch.Success)
+					continue;
+
+				string scriptGuid = scriptMatch.Groups[1].Value;
+
+				foreach (Match fm in fieldRefRx.Matches(block))
+				{
+					if (!long.TryParse(fm.Groups[2].Value, out long fileId))
+						continue;
+					if (!convertedIds.Contains(fileId))
+						continue;
+
+					string fieldName = fm.Groups[1].Value;
+
+				if (!result.TryGetValue(scriptGuid, out var set))
+					{
+						set = new HashSet<string>();
+						result[scriptGuid] = set;
+					}
+					set.Add(fieldName);
+				}
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Opens the C# source file identified by <paramref name="scriptGuid"/> and replaces all
+		/// <c>Text fieldName</c> field-type occurrences (for the given <paramref name="fieldNames"/>)
+		/// with <c>TMP_Text fieldName</c>. Also ensures <c>using TMPro;</c> is present.
+		/// </summary>
+		/// <returns><c>true</c> when the file was actually modified.</returns>
+		private static bool TryUpdateCSharpScriptFields(string scriptGuid, IEnumerable<string> fieldNames)
+		{
+			string assetPath = AssetDatabase.GUIDToAssetPath(scriptGuid);
+			if (string.IsNullOrEmpty(assetPath) || !assetPath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+			{
+				Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] Cannot resolve script for guid={scriptGuid}");
+				return false;
+			}
+
+			string fullPath = YamlUtility.AssetPathToFullPath(assetPath);
+			if (!File.Exists(fullPath))
+			{
+				Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] Script not found: {fullPath}");
+				return false;
+			}
+
+			string source  = File.ReadAllText(fullPath);
+			string updated = source;
+
+			foreach (string fieldName in fieldNames)
+			{
+				// Match "Text fieldName" where Text is a standalone word (not UnityEngine.UI.Text etc.)
+				// and fieldName is followed by a non-word char.
+				updated = Regex.Replace(
+					updated,
+					$@"(?<!\w)Text(\s+{Regex.Escape(fieldName)}(?!\w))",
+					"TMP_Text$1");
+			}
+
+			if (updated == source)
+				return false;
+
+			// Ensure "using TMPro;" is present.
+			if (!Regex.IsMatch(updated, @"^\s*using\s+TMPro\s*;", RegexOptions.Multiline))
+			{
+				// Insert after the last "using" directive line.
+				updated = Regex.Replace(
+					updated,
+					@"((?:^\s*using\s+[^\r\n]+[\r\n]+)+)",
+					m => m.Value + "using TMPro;\n",
+					RegexOptions.Multiline);
+			}
+
+			File.WriteAllText(fullPath, updated);
+			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+			Debug.Log($"[LegacyTextToLocalizedTmpConverter] Updated C# field types in {assetPath}");
+			return true;
+		}
+
+		
 
 		/// <summary>Float → YAML string with up to 6 significant digits, invariant culture.</summary>
 		private static string F(float v) => v.ToString("G6", CultureInfo.InvariantCulture);

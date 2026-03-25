@@ -1,0 +1,349 @@
+#
+msgid ""
+msgstr ""
+
+msgid "Alt"
+msgstr "Alt"
+
+msgid "Ambient Occlusion"
+msgstr "Make teh cornerz dim"
+
+msgid "and"
+msgstr "and"
+
+msgid "Animation Example"
+msgstr "Animashun Exampl"
+
+msgid "Animation Speed"
+msgstr "Teh wiggly speedz"
+
+msgid "Animations Example"
+msgstr "Animashunz Exampl"
+
+msgid "Are you really really sure you want to quit?"
+msgstr "Iz u reeeeeely sure u want to fuk of?"
+
+msgid "Button"
+msgstr "Buttonz"
+
+msgid "Cancel"
+msgstr "No wai"
+
+msgid "Cancel LOREM IPSUM dolor sit amet bla"
+msgstr "No wai LOREM IPSUM dolor sit amet bla"
+
+msgid "Checkbox"
+msgstr "Chekkbox"
+
+msgid ""
+"Choose Day!\n"
+"Lorem Ipsum"
+msgstr ""
+"Choooze dai!\n"
+"Lorem Ipsum"
+
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Date:"
+msgstr "Date:"
+
+msgid "Default"
+msgstr "Mek all like was "
+
+msgid "Details"
+msgstr "Deetailz plz?"
+
+msgid "Dialog Stub"
+msgstr "Dialog Stub"
+
+msgid "Dolor Sit"
+msgstr "Dolor Sit"
+
+msgid "Dynamic Load"
+msgstr "Dynami loadzzzz"
+
+msgid "Dynamically Loaded"
+msgstr "Dynami loadz!"
+
+msgid "Dynamically Loaded With Addressables"
+msgstr "Dynami loadz wit Addressablz!"
+
+msgid "Effect Volume"
+msgstr "Teh noize when prez buttonz"
+
+msgid "Enter text..."
+msgstr "Can haz text?"
+
+msgid "Execute"
+msgstr "Do it nao!"
+
+msgid "General"
+msgstr "Generel"
+
+msgid "Graphics"
+msgstr "Teh colorz"
+
+msgid "Hello World"
+msgstr "Hai Wurld"
+
+msgid "Here you can test some of the capabilities of the GUI Toolkit"
+msgstr "her u can plai some for teh capabiliTIez for teh gUI tolkit plZ?"
+
+msgid "High"
+msgstr "Hai"
+
+msgid "Icons"
+msgstr "Picchurez"
+
+msgid "Icons Example"
+msgstr "Picchurez Exampl"
+
+msgid "Key '{0}' not supported"
+msgstr "Nah! Teh key '{0}' pooh!"
+
+msgid "Key Binding"
+msgstr "Tap da kei!"
+
+msgid "Key Bindings"
+msgstr "Tap teh kei plz!"
+
+msgid "Language"
+msgstr "Teh meeowz"
+
+msgid "Layout Example"
+msgstr "Layout Exampl"
+
+msgid "Light"
+msgstr "Lite"
+
+msgid "Lorem Ipsum Dolor"
+msgstr "Lorem Ipsum Dolor"
+
+msgid "Low"
+msgstr "Meh"
+
+msgid "Max  FPS"
+msgstr "Maks  FPS"
+
+msgid "Max FPS"
+msgstr "Maks FPS"
+
+msgid "Medium"
+msgstr "Okeh"
+
+msgid "Move Down"
+msgstr "Move downe"
+
+msgid "Move Left"
+msgstr "Move left"
+
+msgid "Move Right"
+msgstr "Move rait"
+
+msgid "Move Up"
+msgstr "Move app"
+
+msgid "Music Volume"
+msgstr "Teh noize when Lala"
+
+msgid "No"
+msgstr "No wai"
+
+msgid "No Mouse Keys"
+msgstr "No Mouse plz!"
+
+msgid "None"
+msgstr "Nuthing"
+
+msgid "NOW"
+msgstr "NAOW!"
+
+msgid "Ok"
+msgstr "Ya rly"
+
+msgid "OK"
+msgstr "OK kthx"
+
+msgid "Only Mouse Keys"
+msgstr "Only mouse plz!"
+
+msgid "Only specified Keys allowed"
+msgstr "Only some of da key"
+
+msgid "Only specified Keys forbidden"
+msgstr "Not some of da key"
+
+msgid "or"
+msgstr "or"
+
+msgid "Or 'Esc' to cancel"
+msgstr "Or prez 'Esc' to "
+
+msgid "Play CHildren Animation"
+msgstr "Play chiledren anim!"
+
+msgid "Play CHildren Animation Backwards"
+msgstr "Play chiledren anim bakwrdz!"
+
+msgid "Press a Key!"
+msgstr "Prez a kei!"
+
+msgid ""
+"Press a key\n"
+"Or Mouse button!"
+msgstr ""
+"Prez a kei\n"
+"or squeeeeze a mouze!"
+
+#, fuzzy
+msgid ""
+"Press a Key\n"
+"Or Mouse button!"
+msgstr ""
+"Prez a kei\n"
+"or squeeeeze a mouze!"
+
+msgid "Press a Mouse button!"
+msgstr "Squeeeze a mouze!"
+
+msgid ""
+"Press any key except\n"
+"{0}"
+msgstr ""
+"Prez NEthing but\n"
+"{0}!"
+
+msgid ""
+"Press one of the keys\n"
+"{0}"
+msgstr ""
+"Prez one of teh keyz\n"
+"{0}"
+
+msgid "Quality"
+msgstr "Qualiteh"
+
+msgid "Quit"
+msgstr "Kthxbye"
+
+msgid "Radiobutton"
+msgstr "Radiobuttonz"
+
+msgid "Really Lorem?"
+msgstr "O rly Lorem?"
+
+msgid "Really Quit?"
+msgstr "O rly?"
+
+msgid "Res. Dep. Style Example"
+msgstr "Res-dep styleez"
+
+msgid "Resolution Dependent Style Example"
+msgstr "Styleez dat depend on ur screen!"
+
+msgid "Restore Defaults"
+msgstr "Mek all like was "
+
+msgid "Retry"
+msgstr "Tri agin!"
+
+msgid "Settings"
+msgstr "Settingz"
+
+msgid "Shift"
+msgstr "Shift"
+
+msgid "Show Full screen tabs dialog"
+msgstr "Can haz Fullscreen Tabz?"
+
+msgid "Show Requester"
+msgstr "Can haz Requezter?"
+
+msgid "Show Splash Message"
+msgstr "Can haz Splasssh!"
+
+msgid "Some keys remain unbound. Really continue?"
+msgstr "sum keyz r still loze, rly continue?"
+
+msgid "Sound"
+msgstr "Teh noize"
+
+msgid "Style Example"
+msgstr "Style exampl"
+
+msgid "Test Direct Key"
+msgstr "Test direkit kei"
+
+msgid "Test Loca Key 1"
+msgstr "Test Loca Key 1"
+
+msgid "Test Loca Key 2"
+msgstr "Test Loca Key 2"
+
+msgid "Test Requester"
+msgstr "Can haz Requezter?"
+
+msgid "Test Scene"
+msgstr "Teh Play szenez"
+
+#, fuzzy
+msgid "TestKey"
+msgstr "Test Loca Key 1"
+
+#, fuzzy
+msgid "Text...\t"
+msgstr "Can haz text?"
+
+msgid "Time:"
+msgstr "Tiem:"
+
+msgid "Title"
+msgstr "Titol"
+
+#, fuzzy
+msgid "Title...\t"
+msgstr "Can haz titleh?"
+
+msgid "Toggle Auto CHildren Animation"
+msgstr "Toggel auto chiledren anim"
+
+msgid "Toggle Style (0.5 Seconds)"
+msgstr "Toggel style (0.5 sek)"
+
+msgid "Toggle Style (3 Seconds)"
+msgstr "Toggel style (3 sek)"
+
+msgid "Toggle Style (Instant)"
+msgstr "Toggel style (rite nao!)"
+
+msgid "UI Skin"
+msgstr "UI Skin lol"
+
+msgid "Ultra"
+msgstr "Awsum"
+
+msgid "Unbound Keys"
+msgstr "Loze keyz"
+
+msgid "Unlimited"
+msgstr "NO LIMITZ!"
+
+msgid "Very High"
+msgstr "Omg so hai"
+
+msgid "Very Low"
+msgstr "So meh low"
+
+msgid "Wirklich beenden?"
+msgstr "Rly quit nao?"
+
+msgid "Yes"
+msgstr "Ya rly!"
+
+msgid "{0} Tree, "
+msgid_plural "{0} Trees, "
+msgstr[0] "{0} teh tree, "
