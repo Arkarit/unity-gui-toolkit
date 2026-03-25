@@ -132,6 +132,7 @@ namespace GuiToolkit.Editor
 						string newYaml = yaml.Replace(searchPattern, replaceWith);
 
 						File.WriteAllText(fullPath, newYaml);
+						AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
 
 						componentsReplaced += count;
 						filesModified++;
