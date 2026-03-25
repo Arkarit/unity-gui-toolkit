@@ -108,6 +108,10 @@ namespace GuiToolkit.Editor
 			int componentsReplaced = 0;
 			int errors             = 0;
 
+			// Batch all file writes behind StartAssetEditing so Unity does not try to reimport
+			// and re-serialize individual assets mid-loop (which causes SerializedProperty
+			// iterator errors because script GUIDs change under open inspectors).
+			AssetDatabase.StartAssetEditing();
 			try
 			{
 				for (int i = 0; i < assetPaths.Count; i++)
@@ -124,11 +128,10 @@ namespace GuiToolkit.Editor
 						if (!yaml.Contains(searchPattern))
 							continue;
 
-						int count   = CountOccurrences(yaml, searchPattern);
+						int count      = CountOccurrences(yaml, searchPattern);
 						string newYaml = yaml.Replace(searchPattern, replaceWith);
 
 						File.WriteAllText(fullPath, newYaml);
-						AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
 
 						componentsReplaced += count;
 						filesModified++;
@@ -143,6 +146,7 @@ namespace GuiToolkit.Editor
 			finally
 			{
 				EditorUtility.ClearProgressBar();
+				AssetDatabase.StopAssetEditing(); // triggers all pending reimports at once
 			}
 
 			string summary = $"Replaced: {componentsReplaced} '{srcType.Name}' component(s) → '{dstType.Name}'\n" +
@@ -151,6 +155,35 @@ namespace GuiToolkit.Editor
 				summary += $"\nErrors:  {errors} (see Console for details)";
 
 			EditorUtility.DisplayDialog("Replace Components – Done", summary, "OK");
+
+			// Force-reload the current scene or prefab so the editor's in-memory
+			// representation matches the rewritten YAML and no stale state remains.
+			ReloadCurrentContext();
+		}
+
+		/// <summary>
+		/// Reloads the currently open scene or prefab stage so the editor's in-memory
+		/// serialized data reflects the rewritten YAML files.
+		/// </summary>
+		private static void ReloadCurrentContext()
+		{
+			EditorApplication.delayCall += () =>
+			{
+				var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+				if (prefabStage != null)
+				{
+					string assetPath = prefabStage.assetPath;
+					StageUtility.GoBackToPreviousStage();
+					EditorApplication.delayCall +=
+						() => AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath<GameObject>(assetPath));
+				}
+				else
+				{
+					var scene = SceneManager.GetActiveScene();
+					if (scene.IsValid() && !string.IsNullOrEmpty(scene.path))
+						EditorSceneManager.OpenScene(scene.path, OpenSceneMode.Single);
+				}
+			};
 		}
 
 		/// <summary>
