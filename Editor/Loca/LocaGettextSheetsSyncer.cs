@@ -718,6 +718,7 @@ namespace GuiToolkit.Editor
 		{
 			bool modified = false;
 
+			// Text comes from PluralForm=-1 bridge columns and maps directly to MsgStr.
 			if (!string.IsNullOrEmpty(_entry.Text) && _entry.Text != _poEntry.MsgStr)
 			{
 				_poEntry.MsgStr = _entry.Text;
@@ -726,20 +727,38 @@ namespace GuiToolkit.Editor
 
 			if (_entry.Forms != null)
 			{
-				for (int i = 0; i < _entry.Forms.Length; i++)
+				if (!_poEntry.IsPlural)
 				{
-					if (string.IsNullOrEmpty(_entry.Forms[i]))
-						continue;
-
-					if (_poEntry.MsgStrForms == null)
-						_poEntry.MsgStrForms = new string[Math.Max(2, i + 1)];
-					else if (_poEntry.MsgStrForms.Length <= i)
-						Array.Resize(ref _poEntry.MsgStrForms, i + 1);
-
-					if (_entry.Forms[i] != _poEntry.MsgStrForms[i])
+					// Non-plural PO entry: bridge PluralForm=0 columns store the singular translation
+					// in Forms[0], but it must land in MsgStr (not MsgStrForms, which Serialize ignores
+					// for non-plural entries).  Only apply when Text hasn't already set MsgStr.
+					if (string.IsNullOrEmpty(_entry.Text) &&
+						_entry.Forms.Length > 0 &&
+						!string.IsNullOrEmpty(_entry.Forms[0]) &&
+						_entry.Forms[0] != _poEntry.MsgStr)
 					{
-						_poEntry.MsgStrForms[i] = _entry.Forms[i];
+						_poEntry.MsgStr = _entry.Forms[0];
 						modified = true;
+					}
+				}
+				else
+				{
+					// Plural PO entry (has msgid_plural): write each form to MsgStrForms.
+					for (int i = 0; i < _entry.Forms.Length; i++)
+					{
+						if (string.IsNullOrEmpty(_entry.Forms[i]))
+							continue;
+
+						if (_poEntry.MsgStrForms == null)
+							_poEntry.MsgStrForms = new string[Math.Max(2, i + 1)];
+						else if (_poEntry.MsgStrForms.Length <= i)
+							Array.Resize(ref _poEntry.MsgStrForms, i + 1);
+
+						if (_entry.Forms[i] != _poEntry.MsgStrForms[i])
+						{
+							_poEntry.MsgStrForms[i] = _entry.Forms[i];
+							modified = true;
+						}
 					}
 				}
 			}
