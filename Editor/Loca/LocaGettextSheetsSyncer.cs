@@ -262,7 +262,7 @@ namespace GuiToolkit.Editor
 			{
 				PoBackupManager.CreateBackup(filePath);
 				string serialized = parsedPoFiles[filePath].Serialize();
-				File.WriteAllText(filePath, serialized, new UTF8Encoding(false));
+				WritePoFilePair(filePath, serialized);
 			}
 
 			AssetDatabase.Refresh();
@@ -684,6 +684,29 @@ namespace GuiToolkit.Editor
 			}
 
 			return columns;
+		}
+
+		/// <summary>
+		/// Writes <paramref name="_content"/> to <paramref name="_filePath"/> and, if a companion
+		/// file with the other extension (<c>.po</c> ↔ <c>.po.txt</c>) exists, to that file too.
+		/// This keeps both copies byte-identical, as required by the Unity TextAsset import convention.
+		/// </summary>
+		private static void WritePoFilePair(string _filePath, string _content)
+		{
+			var enc = new UTF8Encoding(false);
+			File.WriteAllText(_filePath, _content, enc);
+
+			// Write companion file when it exists.
+			string companion;
+			if (_filePath.EndsWith(".po.txt", StringComparison.OrdinalIgnoreCase))
+				companion = _filePath.Substring(0, _filePath.Length - 4); // strip ".txt"
+			else if (_filePath.EndsWith(".po", StringComparison.OrdinalIgnoreCase))
+				companion = _filePath + ".txt";
+			else
+				return;
+
+			if (File.Exists(companion))
+				File.WriteAllText(companion, _content, enc);
 		}
 
 		/// <summary>
