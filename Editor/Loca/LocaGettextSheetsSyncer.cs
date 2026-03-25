@@ -419,9 +419,9 @@ namespace GuiToolkit.Editor
 					if (!langLookups.TryGetValue(lang, out var lookup)) continue;
 					if (!lookup.TryGetValue(msgId, out var entry)) continue;
 
-					if (d.PluralForm < 0)
+					if (!entry.IsPlural)
 						row[c] = entry.MsgStr ?? string.Empty;
-					else if (entry.MsgStrForms != null && d.PluralForm < entry.MsgStrForms.Length)
+					else if (d.PluralForm >= 0 && entry.MsgStrForms != null && d.PluralForm < entry.MsgStrForms.Length)
 						row[c] = entry.MsgStrForms[d.PluralForm] ?? string.Empty;
 				}
 
