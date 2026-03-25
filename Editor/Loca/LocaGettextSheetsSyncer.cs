@@ -453,20 +453,28 @@ namespace GuiToolkit.Editor
 
 				string appendedRange = AppendSheetRows(spreadsheetId, token, sheetName, newRows);
 
-				// Highlight the key cell of every new row in yellow so translators can spot them easily.
+				// Highlight the key cell of every new row so translators can spot them easily.
+				// Highlighting is skipped when the configured colour has zero alpha.
 				if (!string.IsNullOrEmpty(appendedRange) &&
 				    TryParseRangeStartRow(appendedRange, out int startRowIndex))
 				{
-					try
+					var highlightColor = UiToolkitConfiguration.Instance != null
+						? UiToolkitConfiguration.Instance.NewKeyHighlightColor
+						: new UnityEngine.Color(1.0f, 0.95f, 0.2f, 1.0f);
+
+					if (highlightColor.a > 0f)
 					{
-						ApplyColumnBackground(spreadsheetId, token, sheetId,
-							startRowIndex, newRows.Count, keyColIdx,
-							_r: 1.0f, _g: 0.95f, _b: 0.2f);
-					}
-					catch (Exception ex)
-					{
-						// Non-fatal — data was pushed successfully, formatting is best-effort.
-						UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: Could not apply key-cell highlight: {ex.Message}");
+						try
+						{
+							ApplyColumnBackground(spreadsheetId, token, sheetId,
+								startRowIndex, newRows.Count, keyColIdx,
+								highlightColor.r, highlightColor.g, highlightColor.b);
+						}
+						catch (Exception ex)
+						{
+							// Non-fatal — data was pushed successfully, formatting is best-effort.
+							UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: Could not apply key-cell highlight: {ex.Message}");
+						}
 					}
 				}
 			}

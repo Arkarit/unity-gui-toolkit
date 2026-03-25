@@ -94,6 +94,9 @@ namespace GuiToolkit
 		public const string HELP_AUTO_SYNC_AFTER_MERGE =
 			"When enabled, automatically pushes new PO keys to configured Google Sheets bridges after merging.";
 
+		public const string HELP_NEW_KEY_HIGHLIGHT_COLOR =
+			"Background colour applied to the key cell of newly pushed rows in Google Sheets. Set alpha to 0 to disable highlighting.";
+
 		public const string HELP_GENERATED_ASSETS_DIR =
 			  "Several assets need to be generated. Choose your directory here for these files.";
 
@@ -294,6 +297,11 @@ namespace GuiToolkit
 		public bool m_autoSyncAfterMerge = false;
 
 		public bool AutoSyncAfterMerge => m_autoSyncAfterMerge;
+
+		[Tooltip(HELP_NEW_KEY_HIGHLIGHT_COLOR)]
+		public Color m_newKeyHighlightColor = new Color(1.0f, 0.95f, 0.2f, 1.0f);
+
+		public Color NewKeyHighlightColor => m_newKeyHighlightColor;
 
 		[Tooltip(HELP_GENERATED_ASSETS_DIR)]
 		[SerializeField]
