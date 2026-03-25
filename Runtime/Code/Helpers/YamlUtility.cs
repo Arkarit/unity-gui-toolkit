@@ -203,6 +203,63 @@ namespace GuiToolkit
 		}
 
 		/// <summary>
+		/// Replaces an entire MonoBehaviour block in Unity YAML, identified by its local file ID.
+		/// The separator line (<c>--- !u!114 &amp;{localFileId}</c>) is preserved; everything after
+		/// it up to the next separator is replaced with <paramref name="newBlockContent"/>.
+		/// </summary>
+		/// <param name="yaml">The full YAML text.</param>
+		/// <param name="localFileId">YAML anchor of the block to replace.</param>
+		/// <param name="newBlockContent">
+		/// Replacement content starting with <c>MonoBehaviour:\n</c> (i.e. everything AFTER the
+		/// <c>--- !u!114 &amp;ID\n</c> header line). Must end without a trailing newline.
+		/// </param>
+		/// <returns>Modified YAML string, or <c>null</c> if the block was not found.</returns>
+		public static string ReplaceMonoBehaviourBlock(string yaml, long localFileId, string newBlockContent)
+		{
+			string blockMarker = $"--- !u!{MonoBehaviourClassId} &{localFileId}";
+			int blockStart = yaml.IndexOf(blockMarker, StringComparison.Ordinal);
+			if (blockStart < 0)
+				return null;
+
+			int searchFrom = blockStart + blockMarker.Length;
+			int nextBlock  = yaml.IndexOf("\n---", searchFrom, StringComparison.Ordinal);
+			int blockEnd   = nextBlock < 0 ? yaml.Length : nextBlock;
+
+			// Advance past the header line to find where content begins.
+			int afterHeader = yaml.IndexOf('\n', blockStart);
+			if (afterHeader < 0 || afterHeader >= blockEnd)
+				return null;
+			afterHeader++; // move past the '\n'
+
+			return yaml.Substring(0, afterHeader) + newBlockContent + yaml.Substring(blockEnd);
+		}
+
+		/// <summary>
+		/// Removes an entire MonoBehaviour block from Unity YAML, identified by its local file ID.
+		/// The separator line and all block content are removed. The newline immediately preceding
+		/// the separator (if any) is also consumed to avoid leaving stray blank lines.
+		/// </summary>
+		/// <param name="yaml">The full YAML text.</param>
+		/// <param name="localFileId">YAML anchor of the block to remove.</param>
+		/// <returns>Modified YAML string, or <c>null</c> if the block was not found.</returns>
+		public static string RemoveMonoBehaviourBlock(string yaml, long localFileId)
+		{
+			string blockMarker = $"--- !u!{MonoBehaviourClassId} &{localFileId}";
+			int blockStart = yaml.IndexOf(blockMarker, StringComparison.Ordinal);
+			if (blockStart < 0)
+				return null;
+
+			int searchFrom = blockStart + blockMarker.Length;
+			int nextBlock  = yaml.IndexOf("\n---", searchFrom, StringComparison.Ordinal);
+			int blockEnd   = nextBlock < 0 ? yaml.Length : nextBlock;
+
+			// Also consume the newline that precedes the separator so we don't leave a blank line.
+			int removeFrom = (blockStart > 0 && yaml[blockStart - 1] == '\n') ? blockStart - 1 : blockStart;
+
+			return yaml.Substring(0, removeFrom) + yaml.Substring(blockEnd);
+		}
+
+		/// <summary>
 		/// Converts a Unity-relative asset path to an absolute file-system path.
 		/// </summary>
 		public static string AssetPathToFullPath(string assetPath)

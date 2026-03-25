@@ -167,5 +167,152 @@ namespace GuiToolkit.Test
 			string result = YamlUtility.PatchYaml(string.Empty, TargetId, OldGuid, NewGuid);
 			Assert.IsNull(result);
 		}
+
+		// -----------------------------------------------------------------------
+		// ReplaceMonoBehaviourBlock
+		// -----------------------------------------------------------------------
+
+		private static string BuildNewBlockContent(string marker = "REPLACED")
+			=> $"MonoBehaviour:\n  m_marker: {marker}\n";
+
+		[Test]
+		public void ReplaceMonoBehaviourBlock_ValidBlock_ReplacesContent()
+		{
+			string yaml   = BuildYaml(TargetId, OldGuid);
+			string result = YamlUtility.ReplaceMonoBehaviourBlock(yaml, TargetId, BuildNewBlockContent());
+
+			Assert.IsNotNull(result, "Must return a non-null string on success");
+			StringAssert.Contains("m_marker: REPLACED", result, "New content must appear in result");
+			StringAssert.DoesNotContain($"guid: {OldGuid}", result, "Old block content must be gone");
+		}
+
+		[Test]
+		public void ReplaceMonoBehaviourBlock_PreservesHeaderAnchor()
+		{
+			string yaml   = BuildYaml(TargetId, OldGuid);
+			string result = YamlUtility.ReplaceMonoBehaviourBlock(yaml, TargetId, BuildNewBlockContent());
+
+			StringAssert.Contains($"--- !u!114 &{TargetId}", result,
+				"The separator line / anchor must be preserved");
+		}
+
+		[Test]
+		public void ReplaceMonoBehaviourBlock_PreservesBlocksBefore()
+		{
+			string yaml   = BuildYaml(TargetId, OldGuid);
+			string result = YamlUtility.ReplaceMonoBehaviourBlock(yaml, TargetId, BuildNewBlockContent());
+
+			StringAssert.Contains("OcclusionCullingSettings:", result, "Block before target must be preserved");
+		}
+
+		[Test]
+		public void ReplaceMonoBehaviourBlock_PreservesBlocksAfter()
+		{
+			string yaml   = BuildYaml(TargetId, OldGuid);
+			string result = YamlUtility.ReplaceMonoBehaviourBlock(yaml, TargetId, BuildNewBlockContent());
+
+			StringAssert.Contains("m_Name: MyObject", result, "Block after target must be preserved");
+		}
+
+		[Test]
+		public void ReplaceMonoBehaviourBlock_WrongId_ReturnsNull()
+		{
+			string yaml   = BuildYaml(TargetId, OldGuid);
+			string result = YamlUtility.ReplaceMonoBehaviourBlock(yaml, 9999999999L, BuildNewBlockContent());
+
+			Assert.IsNull(result, "Must return null when the block is not found");
+		}
+
+		[Test]
+		public void ReplaceMonoBehaviourBlock_TargetIsLastBlock_Replaces()
+		{
+			string yaml   = $"--- !u!114 &{TargetId}\nMonoBehaviour:\n  m_Script: old\n";
+			string result = YamlUtility.ReplaceMonoBehaviourBlock(yaml, TargetId, BuildNewBlockContent());
+
+			Assert.IsNotNull(result);
+			StringAssert.Contains("m_marker: REPLACED", result);
+		}
+
+		[Test]
+		public void ReplaceMonoBehaviourBlock_OnlyTargetBlockAffected()
+		{
+			const long otherId = 9876543210L;
+			string yaml = BuildYaml(TargetId, OldGuid) +
+			              $"--- !u!114 &{otherId}\nMonoBehaviour:\n  m_Name: OtherBlock\n";
+
+			string result = YamlUtility.ReplaceMonoBehaviourBlock(yaml, TargetId, BuildNewBlockContent());
+
+			Assert.IsNotNull(result);
+			StringAssert.Contains("m_Name: OtherBlock", result, "Non-target block must be untouched");
+			StringAssert.DoesNotContain($"guid: {OldGuid}", result, "Target block must be replaced");
+		}
+
+		// -----------------------------------------------------------------------
+		// RemoveMonoBehaviourBlock
+		// -----------------------------------------------------------------------
+
+		[Test]
+		public void RemoveMonoBehaviourBlock_ValidBlock_RemovesBlock()
+		{
+			string yaml   = BuildYaml(TargetId, OldGuid);
+			string result = YamlUtility.RemoveMonoBehaviourBlock(yaml, TargetId);
+
+			Assert.IsNotNull(result, "Must return a non-null string on success");
+			StringAssert.DoesNotContain($"--- !u!114 &{TargetId}", result, "Separator must be removed");
+			StringAssert.DoesNotContain($"guid: {OldGuid}", result, "Block content must be removed");
+		}
+
+		[Test]
+		public void RemoveMonoBehaviourBlock_PreservesBlocksBefore()
+		{
+			string yaml   = BuildYaml(TargetId, OldGuid);
+			string result = YamlUtility.RemoveMonoBehaviourBlock(yaml, TargetId);
+
+			StringAssert.Contains("OcclusionCullingSettings:", result, "Block before target must be preserved");
+		}
+
+		[Test]
+		public void RemoveMonoBehaviourBlock_PreservesBlocksAfter()
+		{
+			string yaml   = BuildYaml(TargetId, OldGuid);
+			string result = YamlUtility.RemoveMonoBehaviourBlock(yaml, TargetId);
+
+			StringAssert.Contains("m_Name: MyObject", result, "Block after target must be preserved");
+		}
+
+		[Test]
+		public void RemoveMonoBehaviourBlock_WrongId_ReturnsNull()
+		{
+			string yaml   = BuildYaml(TargetId, OldGuid);
+			string result = YamlUtility.RemoveMonoBehaviourBlock(yaml, 9999999999L);
+
+			Assert.IsNull(result, "Must return null when the block is not found");
+		}
+
+		[Test]
+		public void RemoveMonoBehaviourBlock_OnlyTargetRemoved()
+		{
+			const long otherId = 9876543210L;
+			string yaml = BuildYaml(TargetId, OldGuid) +
+			              $"--- !u!114 &{otherId}\nMonoBehaviour:\n  m_Name: Keeper\n";
+
+			string result = YamlUtility.RemoveMonoBehaviourBlock(yaml, TargetId);
+
+			Assert.IsNotNull(result);
+			StringAssert.Contains($"--- !u!114 &{otherId}", result, "Non-target block must remain");
+			StringAssert.Contains("m_Name: Keeper", result, "Non-target block content must remain");
+		}
+
+		[Test]
+		public void RemoveMonoBehaviourBlock_TargetIsLastBlock_RemovesBlock()
+		{
+			string yaml   = $"--- !u!29 &1\nOcclusionCullingSettings:\n  a: 1\n" +
+			                $"--- !u!114 &{TargetId}\nMonoBehaviour:\n  m_Name: Last\n";
+			string result = YamlUtility.RemoveMonoBehaviourBlock(yaml, TargetId);
+
+			Assert.IsNotNull(result);
+			StringAssert.Contains("OcclusionCullingSettings:", result);
+			StringAssert.DoesNotContain($"&{TargetId}", result);
+		}
 	}
 }

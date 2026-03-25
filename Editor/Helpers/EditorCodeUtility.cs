@@ -130,7 +130,7 @@ namespace GuiToolkit.Editor
 			return key;
 		}
 
-		private static (TMP_FontAsset font, Material mat) FindMatchingTMPFontAndMaterial( string legacyFontName )
+		internal static (TMP_FontAsset font, Material mat) FindMatchingTMPFontAndMaterial( string legacyFontName )
 		{
 			if (string.IsNullOrEmpty(legacyFontName))
 				return (null, null);
@@ -271,7 +271,7 @@ namespace GuiToolkit.Editor
 			return result;
 		}
 
-		private static TMPro.FontStyles MapFontStyle( FontStyle fs )
+		internal static TMPro.FontStyles MapFontStyle( FontStyle fs )
 		{
 			// Legacy FontStyle has bitwise Bold/Italic, others are Normal/Bold/Italic/BoldAndItalic
 			switch (fs)
@@ -956,7 +956,7 @@ namespace GuiToolkit.Editor
 		}
 
 		// Convert legacy uGUI lineSpacing (multiplier) to TMP (percent of font size)
-		private static float ConvertLineSpacingFromTextToTmp( float _legacyMultiplier )
+		internal static float ConvertLineSpacingFromTextToTmp( float _legacyMultiplier )
 		{
 			// uGUI: 1.0 = normal, 1.2 = +20%
 			// TMP:  0   = normal, 20   = +20% (in % of point size)

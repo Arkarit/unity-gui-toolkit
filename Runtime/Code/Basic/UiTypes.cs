@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using UnityEngine;
 
@@ -196,6 +196,8 @@ namespace GuiToolkit
 		public const int LOCA_MISC_BATCH_REPLACE_SCENE_MENU_PRIORITY = 10;
 		public const int LOCA_MISC_BATCH_REPLACE_PROJECT_MENU_PRIORITY = 20;
 		public const int LOCA_MISC_MIGRATE_CANDIDATES_MENU_PRIORITY = 30;
+public const int LOCA_MISC_CONVERT_LEGACY_TEXT_SCENE_MENU_PRIORITY  = 40;
+public const int LOCA_MISC_CONVERT_LEGACY_TEXT_PROJECT_MENU_PRIORITY = 50;
 
 		public const int CONFIG_MANAGER_MENU_PRIORITY = 0;
 		public const int SAVE_PROJECT_ON_LOSE_FOCUS_MENU_PRIORITY = 1000;
@@ -257,6 +259,8 @@ namespace GuiToolkit
 		public const string LOCA_MISC_BATCH_REPLACE_SCENE_MENU_NAME = LOCA_MISC_HEADER + "Replace All TMP \u2192 Localized (Current Scene or Prefab)";
 		public const string LOCA_MISC_BATCH_REPLACE_PROJECT_MENU_NAME = LOCA_MISC_HEADER + "Replace All TMP \u2192 Localized (Entire Project)";
 		public const string LOCA_MISC_MIGRATE_CANDIDATES_MENU_NAME = LOCA_MISC_HEADER + "Migrate UiAutoLocalize (Find candidates)";
+public const string LOCA_MISC_CONVERT_LEGACY_TEXT_SCENE_MENU_NAME   = LOCA_MISC_HEADER + "Convert Legacy Text → Localized TMP (Current Scene or Prefab)";
+public const string LOCA_MISC_CONVERT_LEGACY_TEXT_PROJECT_MENU_NAME = LOCA_MISC_HEADER + "Convert Legacy Text → Localized TMP (Entire Project)";
 
 		public const string PLAYER_SETTINGS_COLLECTION = "playerSettings";
 		public const string PLAYER_SETTINGS_ID = "playerSettings";
