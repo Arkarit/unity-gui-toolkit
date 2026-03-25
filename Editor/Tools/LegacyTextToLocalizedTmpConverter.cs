@@ -574,7 +574,7 @@ namespace GuiToolkit.Editor
 			sb.Append("  m_charWidthMaxAdj: 0\n");
 			sb.Append($"  m_enableWordWrapping: {(data.HorizontalOverflow == HorizontalWrapMode.Wrap ? 1 : 0)}\n");
 			sb.Append("  m_wordWrappingRatios: 0.4\n");
-			sb.Append($"  m_overflowMode: {(data.VerticalOverflow == VerticalWrapMode.Overflow ? 1 : 0)}\n");
+			sb.Append($"  m_overflowMode: {(data.VerticalOverflow == VerticalWrapMode.Overflow ? 0 : 3)}\n");
 			sb.Append("  m_linkedTextComponent: {fileID: 0}\n");
 			sb.Append("  parentLinkedComponent: {fileID: 0}\n");
 			sb.Append("  m_enableKerning: 1\n");
