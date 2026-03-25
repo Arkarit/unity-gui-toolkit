@@ -20,6 +20,7 @@ namespace GuiToolkit.Editor
 	///   <item><see cref="PushToSheets"/> — appends keys that exist in PO files but are missing from the sheet.</item>
 	/// </list>
 	/// </summary>
+	[EditorAware]
 	public static class LocaGettextSheetsSyncer
 	{
 		// Fallback only; overridden at runtime by querying spreadsheet metadata.
