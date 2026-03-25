@@ -310,17 +310,7 @@ namespace GuiToolkit.Editor
 			}
 
 			// Find the key column index in the bridge config.
-			int keyColIdx = -1;
-			for (int i = 0; i < _bridge.NumColumns; i++)
-			{
-				var d = _bridge.GetColumnDescription(i);
-				if (d?.ColumnType == LocaExcelBridge.EInColumnType.Key)
-				{
-					keyColIdx = i;
-					break;
-				}
-			}
-
+			int keyColIdx = GetKeyColIdx(_bridge);
 			if (keyColIdx < 0)
 			{
 				EditorUtility.DisplayDialog("Push new keys",
@@ -491,12 +481,136 @@ namespace GuiToolkit.Editor
 			UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Pushed {newKeys.Count} new key(s) to sheet '{spreadsheetId}'.");
 		}
 
+		/// <summary>
+		/// Finds rows in the Google Sheet whose key is not present in any active (non-obsolete) PO entry
+		/// for the bridge's group — i.e. keys that have been removed from the project but linger in the sheet.
+		/// </summary>
+		/// <param name="_bridge">The bridge to query.</param>
+		/// <returns>
+		/// A list of (0-based row index, key string) pairs for obsolete sheet rows,
+		/// an empty list when none are found, or <c>null</c> when the operation cannot proceed
+		/// (wrong source type, missing auth, API error, etc.).
+		/// </returns>
+		public static List<(int rowIndex0, string key)> FindObsoleteInSheets(LocaExcelBridge _bridge)
+		{
+			if (_bridge == null || _bridge.EdSourceType != LocaExcelBridge.SourceType.GoogleDocs || !_bridge.CanPush)
+				return null;
+
+			string spreadsheetId = ExtractSpreadsheetId(_bridge.EdGoogleUrl);
+			if (string.IsNullOrEmpty(spreadsheetId))
+				return null;
+
+			string token = GoogleServiceAccountAuth.GetAccessToken(_bridge.EdServiceAccountJsonPath, _writeAccess: false);
+			if (token == null)
+			{
+				UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)}: FindObsoleteInSheets: failed to obtain auth token.");
+				return null;
+			}
+
+			int keyColIdx = GetKeyColIdx(_bridge);
+			if (keyColIdx < 0)
+				return null;
+
+			List<List<string>> sheetValues;
+			try
+			{
+				string sheetName = GetFirstSheetInfo(spreadsheetId, token).name;
+				sheetValues = GetSheetValues(spreadsheetId, token, sheetName);
+			}
+			catch (Exception ex)
+			{
+				UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)}: FindObsoleteInSheets: failed to read sheet: {ex.Message}");
+				return null;
+			}
+
+			var activeMsgIds = LoadAllActiveMsgIds(_bridge.EdGroup);
+
+			var result = new List<(int, string)>();
+			int startRow = _bridge.EdStartRow;
+			for (int r = startRow; r < sheetValues.Count; r++)
+			{
+				var row = sheetValues[r];
+				if (keyColIdx >= row.Count) continue;
+
+				string key = row[keyColIdx];
+				if (string.IsNullOrEmpty(key)) continue;
+
+				if (!activeMsgIds.Contains(key))
+					result.Add((r, key));
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Marks the given sheet rows as obsolete by applying a pale-red background and
+		/// a "Obsolete" note to the key cell of each row.
+		/// </summary>
+		/// <param name="_bridge">The bridge identifying the spreadsheet.</param>
+		/// <param name="_obsoleteRows">Pre-computed list from <see cref="FindObsoleteInSheets"/>.</param>
+		public static void MarkObsoleteInSheets(LocaExcelBridge _bridge, List<(int rowIndex0, string key)> _obsoleteRows)
+		{
+			if (_bridge == null || _obsoleteRows == null || _obsoleteRows.Count == 0)
+				return;
+
+			string spreadsheetId = ExtractSpreadsheetId(_bridge.EdGoogleUrl);
+			if (string.IsNullOrEmpty(spreadsheetId))
+			{
+				EditorUtility.DisplayDialog("Mark obsolete – Error",
+					$"Could not extract spreadsheet ID from URL:\n{_bridge.EdGoogleUrl}", "OK");
+				return;
+			}
+
+			string token = GoogleServiceAccountAuth.GetAccessToken(_bridge.EdServiceAccountJsonPath, _writeAccess: true);
+			if (token == null)
+			{
+				EditorUtility.DisplayDialog("Mark obsolete – Error",
+					"Failed to obtain a Google auth token.", "OK");
+				return;
+			}
+
+			int keyColIdx = GetKeyColIdx(_bridge);
+			if (keyColIdx < 0)
+			{
+				EditorUtility.DisplayDialog("Mark obsolete – Error",
+					"No Key column configured in the bridge.", "OK");
+				return;
+			}
+
+			(_, int sheetId) = GetFirstSheetInfo(spreadsheetId, token);
+
+			try
+			{
+				string json = BuildMarkObsoleteJson(sheetId, keyColIdx, _obsoleteRows);
+				string url  = $"https://sheets.googleapis.com/v4/spreadsheets/{spreadsheetId}:batchUpdate";
+
+				using var client = new HttpClient();
+				client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+				var content  = new StringContent(json, Encoding.UTF8, "application/json");
+				var response = client.PostAsync(url, content).GetAwaiter().GetResult();
+				string body  = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+				if (!response.IsSuccessStatusCode)
+					throw new InvalidOperationException($"Sheets API batchUpdate error {(int)response.StatusCode}: {body}");
+			}
+			catch (Exception ex)
+			{
+				EditorUtility.DisplayDialog("Mark obsolete – Error",
+					$"Failed to mark obsolete rows:\n{ex.Message}", "OK");
+				UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)}: MarkObsoleteInSheets failed: {ex}");
+				return;
+			}
+
+			EditorUtility.DisplayDialog("Mark obsolete",
+				$"Marked {_obsoleteRows.Count} key(s) as obsolete in the sheet.", "OK");
+			UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Marked {_obsoleteRows.Count} obsolete key(s) in '{spreadsheetId}'.");
+		}
+
 		// -----------------------------------------------------------------------
 		// Internal helpers exposed for testing
 		// -----------------------------------------------------------------------
 
-		/// <summary>
-		/// Builds a canonical column list from parsed PO file data.
+		/// <summary>Builds a canonical column list from parsed PO file data.</summary>
 		/// Produces one Key column followed by, for each language (sorted alphabetically),
 		/// a singular column and one column per plural form used in any entry.
 		/// </summary>
@@ -623,6 +737,84 @@ namespace GuiToolkit.Editor
 					result.Add(key);
 			}
 			return result;
+		}
+
+		// -----------------------------------------------------------------------
+		// Private helpers shared by PushToSheets / FindObsoleteInSheets
+		// -----------------------------------------------------------------------
+
+		private static int GetKeyColIdx(LocaExcelBridge _bridge)
+		{
+			for (int i = 0; i < _bridge.NumColumns; i++)
+			{
+				var d = _bridge.GetColumnDescription(i);
+				if (d?.ColumnType == LocaExcelBridge.EInColumnType.Key)
+					return i;
+			}
+			return -1;
+		}
+
+		/// <summary>
+		/// Loads all active (non-obsolete) msgids from every PO file for the given group.
+		/// </summary>
+		private static HashSet<string> LoadAllActiveMsgIds(string _group)
+		{
+			var result  = new HashSet<string>(StringComparer.Ordinal);
+			var poFiles = LocaCsvExporter.FindPoFiles(_group);
+
+			foreach (var (_, _, filePath) in poFiles)
+			{
+				string content = File.ReadAllText(filePath, Encoding.UTF8);
+				var poFile = PoFile.Parse(content);
+				foreach (var entry in poFile.Entries)
+				{
+					if (!entry.IsObsolete && !string.IsNullOrEmpty(entry.MsgId))
+						result.Add(entry.MsgId);
+				}
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Builds the JSON body for a Sheets <c>spreadsheets:batchUpdate</c> request that
+		/// applies a pale-red background and an "Obsolete" note to the key cell of each given row.
+		/// </summary>
+		private static string BuildMarkObsoleteJson(int _sheetId, int _keyColIdx, List<(int rowIndex0, string key)> _rows)
+		{
+			var sb = new StringBuilder();
+			sb.Append("{\"requests\":[");
+
+			bool first = true;
+			foreach (var (rowIdx, _) in _rows)
+			{
+				if (!first) sb.Append(',');
+				first = false;
+
+				string range =
+					$"\"sheetId\":{_sheetId}," +
+					$"\"startRowIndex\":{rowIdx}," +
+					$"\"endRowIndex\":{rowIdx + 1}," +
+					$"\"startColumnIndex\":{_keyColIdx}," +
+					$"\"endColumnIndex\":{_keyColIdx + 1}";
+
+				// Pale-red background
+				sb.Append("{\"repeatCell\":{\"range\":{");
+				sb.Append(range);
+				sb.Append("},\"cell\":{\"userEnteredFormat\":{\"backgroundColor\":{");
+				sb.Append("\"red\":1.0,\"green\":0.6,\"blue\":0.6");
+				sb.Append("}}},\"fields\":\"userEnteredFormat.backgroundColor\"}}");
+
+				sb.Append(',');
+
+				// "Obsolete" note
+				sb.Append("{\"updateCells\":{\"range\":{");
+				sb.Append(range);
+				sb.Append("},\"rows\":[{\"values\":[{\"note\":\"Obsolete\"}]}],\"fields\":\"note\"}}");
+			}
+
+			sb.Append("]}");
+			return sb.ToString();
 		}
 
 		// -----------------------------------------------------------------------

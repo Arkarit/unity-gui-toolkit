@@ -24,6 +24,9 @@ namespace GuiToolkit.Editor
 		private SerializedProperty m_startRow;
 		private SerializedProperty m_processedLoca;
 
+		// Cached result from FindObsoleteInSheets; null = not checked yet.
+		private List<(int rowIndex0, string key)> m_obsoleteCache = null;
+
 		/// <summary>
 		/// Caches SerializedProperty references for efficient inspector rendering.
 		/// </summary>
@@ -113,6 +116,49 @@ namespace GuiToolkit.Editor
 			}
 			EditorGUILayout.HelpBox(
 				"Appends keys from PO files that are not yet in the sheet. Never overwrites existing cells.",
+				syncEnabled ? MessageType.Info : MessageType.Warning);
+
+			// Obsolete key marking
+			using (new EditorGUI.DisabledScope(!syncEnabled))
+			{
+				string countLabel = m_obsoleteCache == null
+					? "?"
+					: m_obsoleteCache.Count.ToString();
+				string markLabel = $"Mark obsolete in Sheets ({countLabel} found)";
+
+				EditorGUILayout.BeginHorizontal();
+
+				if (GUILayout.Button("↺", GUILayout.Width(28)))
+				{
+					m_obsoleteCache = LocaGettextSheetsSyncer.FindObsoleteInSheets(bridge);
+					Repaint();
+				}
+
+				bool canMark = syncEnabled && m_obsoleteCache != null && m_obsoleteCache.Count > 0;
+				using (new EditorGUI.DisabledScope(!canMark))
+				{
+					if (GUILayout.Button(markLabel))
+					{
+						if (m_obsoleteCache == null)
+							m_obsoleteCache = LocaGettextSheetsSyncer.FindObsoleteInSheets(bridge);
+
+						if (m_obsoleteCache != null && m_obsoleteCache.Count > 0 &&
+							EditorUtility.DisplayDialog(
+								"Mark obsolete in Sheets",
+								$"Apply pale-red background and 'Obsolete' note to {m_obsoleteCache.Count} key(s) in the sheet?",
+								"Mark", "Cancel"))
+						{
+							LocaGettextSheetsSyncer.MarkObsoleteInSheets(bridge, m_obsoleteCache);
+							m_obsoleteCache = null;
+						}
+					}
+				}
+
+				EditorGUILayout.EndHorizontal();
+			}
+			EditorGUILayout.HelpBox(
+				"↺ refreshes the count. Marks sheet rows whose key no longer exists in any PO file " +
+				"with a pale-red background and an 'Obsolete' note.",
 				syncEnabled ? MessageType.Info : MessageType.Warning);
 
 			if (!syncEnabled)
