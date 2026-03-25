@@ -379,7 +379,7 @@ namespace GuiToolkit.Editor
 					{
 						Debug.LogError($"[LegacyTextToLocalizedTmpConverter] Skipping Text on '{text.gameObject.name}' " +
 						               $"because companion '{comp.GetType().Name}' requires Text. Remove or fix the " +
-						               $"companion first, then convert again.");
+						               $"companion first, then convert again.", text);
 						data = default;
 						skippedDueToCompanion = true;
 						return false;

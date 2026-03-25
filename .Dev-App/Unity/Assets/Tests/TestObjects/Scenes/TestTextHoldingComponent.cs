@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+using TMPro;
 public class TestTextHoldingComponent : MonoBehaviour
 {
-	[SerializeField] private Text m_Text;
-	[SerializeField] private Text m_OtherText;
+	[SerializeField] private TMP_Text m_Text;
+	[SerializeField] private TMP_Text m_OtherText;
 	[SerializeField] private Text m_NonDestructableText;
 
 	private void OnEnable()
