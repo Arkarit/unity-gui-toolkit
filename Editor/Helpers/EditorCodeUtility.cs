@@ -200,12 +200,14 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		// Convert legacy uGUI lineSpacing (multiplier) to TMP (percent of font size)
-		internal static float ConvertLineSpacingFromTextToTmp( float _legacyMultiplier )
+		// Convert legacy uGUI lineSpacing (multiplier) to TMP m_lineSpacing (em units).
+		// TMP adds m_lineSpacing * fontSize * 0.01f pixels per line (currentEmScale = fontSize * 0.01f).
+		// Legacy lineSpacing multiplies the font's natural line height (≈ lineHeightRatio * fontSize).
+		// Equating the extra pixels: m_lineSpacing * 0.01 = (mult - 1) * lineHeightRatio
+		// → m_lineSpacing = (mult - 1) * lineHeightRatio * 100
+		internal static float ConvertLineSpacingFromTextToTmp( float _legacyMultiplier, float _lineHeightRatio = 1.15f )
 		{
-			// uGUI: 1.0 = normal, 1.2 = +20%
-			// TMP:  0   = normal, 20   = +20% (in % of point size)
-			return (_legacyMultiplier - 1f) * 100f;
+			return (_legacyMultiplier - 1f) * _lineHeightRatio * 100f;
 		}
 
 		/// <summary>

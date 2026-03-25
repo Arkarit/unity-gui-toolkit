@@ -33,6 +33,7 @@ namespace GuiToolkit.Test
 			bool    maskable       = true,
 			bool    enabled        = true,
 			float   lineSpacing    = 1f,
+			float   lineHeightRatio = 1.15f,
 			FontStyle fontStyle    = FontStyle.Normal,
 			HorizontalWrapMode hOverflow = HorizontalWrapMode.Wrap,
 			VerticalWrapMode   vOverflow = VerticalWrapMode.Truncate,
@@ -57,6 +58,7 @@ namespace GuiToolkit.Test
 				Maskable          = maskable,
 				Enabled           = enabled,
 				LineSpacing       = lineSpacing,
+				LineHeightRatio   = lineHeightRatio,
 				FontStyle         = fontStyle,
 				HorizontalOverflow = hOverflow,
 				VerticalOverflow   = vOverflow,
@@ -64,7 +66,7 @@ namespace GuiToolkit.Test
 				FontAssetLocalId  = fontLocalId,
 				MaterialGuid      = matGuid,
 				MaterialLocalId   = matLocalId,
-				};
+			};
 		}
 
 		// -----------------------------------------------------------------------

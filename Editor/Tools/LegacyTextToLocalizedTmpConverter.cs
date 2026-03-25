@@ -74,6 +74,10 @@ namespace GuiToolkit.Editor
 			public long FontAssetLocalId;
 			public string MaterialGuid;
 			public long MaterialLocalId;
+
+			// Line height ratio of the source legacy font (font.lineHeight / font.fontSize).
+			// Used to compute an accurate TMP m_lineSpacing value.
+			public float LineHeightRatio;
 		}
 
 		private struct Stats
@@ -357,7 +361,27 @@ namespace GuiToolkit.Editor
 			string matGuid        = "";
 			long   matLocal       = 0;
 
-			var (fontAsset, mat) = EditorCodeUtility.FindMatchingTMPFontAndMaterial(text.font?.name);
+			string legacyFontName = text.font?.name;
+			var (fontAsset, mat) = EditorCodeUtility.FindMatchingTMPFontAndMaterial(legacyFontName);
+
+			if (fontAsset == null)
+			{
+				// No matching TMP font found by name — fall back to the TMP Settings default font so the
+				// converted component always references a valid asset rather than relying on TMP's implicit
+				// dynamic-atlas callback chain (which can leave text invisible in the Editor).
+				var defaultFont = TMP_Settings.defaultFontAsset;
+				if (defaultFont != null)
+				{
+					fontAsset = defaultFont;
+					mat = defaultFont.material;
+					Debug.LogWarning(
+						$"[LegacyTextToLocalizedTmpConverter] No matching TMP font found for " +
+						$"'{(string.IsNullOrEmpty(legacyFontName) ? "(none)" : legacyFontName)}' " +
+						$"on '{text.gameObject.name}'. Using TMP default font '{defaultFont.name}' as fallback.",
+						text.gameObject);
+				}
+			}
+
 			if (fontAsset != null)
 			{
 				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(fontAsset, out fontAssetGuid, out fontAssetLocal);
@@ -365,6 +389,18 @@ namespace GuiToolkit.Editor
 			if (mat != null)
 			{
 				AssetDatabase.TryGetGUIDAndLocalFileIdentifier(mat, out matGuid, out matLocal);
+			}
+
+			// Compute the legacy font's line-height ratio (lineHeight / fontSize).
+			// This is used for an accurate TMP m_lineSpacing conversion because the legacy lineSpacing
+			// multiplier operates on the font's natural line height, which is font-specific.
+			const float k_DefaultLineHeightRatio = 1.15f; // Good approximation for Arial and most Latin fonts.
+			float lineHeightRatio = k_DefaultLineHeightRatio;
+			if (text.font != null && text.font.fontSize > 0)
+			{
+				float ratio = (float)text.font.lineHeight / text.font.fontSize;
+				if (ratio > 0.5f && ratio < 3.0f)
+					lineHeightRatio = ratio;
 			}
 
 			// Companion components (anything with [RequireComponent(typeof(Text))]).
@@ -410,6 +446,7 @@ namespace GuiToolkit.Editor
 				FontAssetLocalId  = fontAssetLocal,
 				MaterialGuid      = matGuid,
 				MaterialLocalId   = matLocal,
+				LineHeightRatio   = lineHeightRatio,
 			};
 			return true;
 		}
@@ -453,7 +490,7 @@ namespace GuiToolkit.Editor
 			string fontSizeStr    = F(data.FontSize);
 			string autoSizeMinStr = F(data.AutoSizeMin);
 			string autoSizeMaxStr = F(data.AutoSizeMax);
-			string lineSpacingStr = F(EditorCodeUtility.ConvertLineSpacingFromTextToTmp(data.LineSpacing));
+			string lineSpacingStr = F(EditorCodeUtility.ConvertLineSpacingFromTextToTmp(data.LineSpacing, data.LineHeightRatio));
 			int    fontStyleInt   = (int)EditorCodeUtility.MapFontStyle(data.FontStyle);
 
 			// Font YAML refs.
