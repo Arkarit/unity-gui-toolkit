@@ -117,7 +117,7 @@ namespace GuiToolkit
 								$"[Loca] '.text' was set to '{value}' while AutoLocalize is active, " +
 								$"but '{value}' is not a valid loca key. " +
 								$"Use the LocaKey property instead of setting .text directly, or disable AutoLocalize.\n" +
-								$"Path: {this.GetPath()}",
+								$"Path: {this.GetAssetPathAndPath()}",
 								this);
 						}
 						return;
