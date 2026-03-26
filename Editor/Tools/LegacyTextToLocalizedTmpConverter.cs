@@ -306,11 +306,13 @@ namespace GuiToolkit.Editor
 			foreach (var e in entries)
 				convertedIds.Add(e.ComponentLocalId);
 
-			var scriptFieldMap = FindReferencingScriptFields(yaml, convertedIds);
+			var perComponentMap = FindReferencingScriptFieldsPerComponent(yaml, convertedIds);
+			var scriptFieldMap  = AggregateScriptFieldMap(perComponentMap);
 
 			foreach (var data in entries)
 			{
-				string newBlock = BuildTmpYamlBlock(data, scriptGuid);
+				bool autoLocalize = !CheckForTextPropertySetters(data.ComponentLocalId, perComponentMap);
+				string newBlock = BuildTmpYamlBlock(data, scriptGuid, autoLocalize);
 				string patched  = YamlUtility.ReplaceMonoBehaviourBlock(yaml, data.ComponentLocalId, newBlock);
 
 				if (patched == null)
@@ -461,7 +463,7 @@ namespace GuiToolkit.Editor
 		/// <c>MonoBehaviour:\n</c> and ends without a trailing newline, ready to be passed to
 		/// <see cref="YamlUtility.ReplaceMonoBehaviourBlock"/>.
 		/// </summary>
-		internal static string BuildTmpYamlBlock(LegacyTextData data, string scriptGuid)
+		internal static string BuildTmpYamlBlock(LegacyTextData data, string scriptGuid, bool autoLocalize = true)
 		{
 			// Alignment mapping: TextAnchor → TMP horizontal + vertical alignment flags.
 			int hAlign, vAlign;
@@ -594,7 +596,7 @@ namespace GuiToolkit.Editor
 			sb.Append("  m_hasFontAssetChanged: 0\n");
 			sb.Append("  m_baseMaterial: {fileID: 0}\n");
 			sb.Append("  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}\n");
-			sb.Append("  m_autoLocalize: 1\n");
+			sb.Append($"  m_autoLocalize: {(autoLocalize ? 1 : 0)}\n");
 			sb.Append("  m_group: \n");
 			sb.Append("  m_locaKey: ");
 
@@ -665,15 +667,16 @@ namespace GuiToolkit.Editor
 		// -----------------------------------------------------------------------
 
 		/// <summary>
-		/// Scans a prefab/scene YAML string and returns, for each MonoBehaviour script that has
-		/// field references pointing to any of the given <paramref name="convertedIds"/>, the
-		/// script GUID mapped to the set of field names that need their C# type changed from
-		/// <c>Text</c> to <c>TMP_Text</c>.
+		/// Scans the YAML for MonoBehaviour blocks that hold field references to any of the
+		/// <paramref name="convertedIds"/> and returns a two-level map:<br/>
+		/// <c>componentId → (scriptGuid → set of field names that reference that component)</c><br/>
+		/// This lets callers both determine per-component dependency info and derive the aggregate
+		/// <c>scriptGuid → fieldNames</c> view needed for C# field-type updates.
 		/// </summary>
-		private static Dictionary<string, HashSet<string>> FindReferencingScriptFields(
+		private static Dictionary<long, Dictionary<string, HashSet<string>>> FindReferencingScriptFieldsPerComponent(
 			string yaml, HashSet<long> convertedIds)
 		{
-			var result = new Dictionary<string, HashSet<string>>();
+			var result = new Dictionary<long, Dictionary<string, HashSet<string>>>();
 
 			// Split on MonoBehaviour block headers.
 			var blockSplit = Regex.Split(yaml, @"(?=^--- !u!114 &)", RegexOptions.Multiline);
@@ -706,10 +709,15 @@ namespace GuiToolkit.Editor
 
 					string fieldName = fm.Groups[1].Value;
 
-				if (!result.TryGetValue(scriptGuid, out var set))
+					if (!result.TryGetValue(fileId, out var scriptMap))
+					{
+						scriptMap = new Dictionary<string, HashSet<string>>();
+						result[fileId] = scriptMap;
+					}
+					if (!scriptMap.TryGetValue(scriptGuid, out var set))
 					{
 						set = new HashSet<string>();
-						result[scriptGuid] = set;
+						scriptMap[scriptGuid] = set;
 					}
 					set.Add(fieldName);
 				}
@@ -718,12 +726,71 @@ namespace GuiToolkit.Editor
 		}
 
 		/// <summary>
-		/// Opens the C# source file identified by <paramref name="scriptGuid"/> and replaces all
-		/// <c>Text fieldName</c> field-type occurrences (for the given <paramref name="fieldNames"/>)
-		/// with <c>TMP_Text fieldName</c>. Also ensures <c>using TMPro;</c> is present.
+		/// Derives the aggregate <c>scriptGuid → fieldNames</c> map from the per-component map,
+		/// which is the form required by <see cref="TryUpdateCSharpScriptFields"/>.
 		/// </summary>
-		/// <returns><c>true</c> when the file was actually modified.</returns>
-		private static bool TryUpdateCSharpScriptFields(string scriptGuid, IEnumerable<string> fieldNames)
+		private static Dictionary<string, HashSet<string>> AggregateScriptFieldMap(
+			Dictionary<long, Dictionary<string, HashSet<string>>> perComponentMap)
+		{
+			var aggregate = new Dictionary<string, HashSet<string>>();
+			foreach (var scriptMap in perComponentMap.Values)
+			{
+				foreach (var kvp in scriptMap)
+				{
+					if (!aggregate.TryGetValue(kvp.Key, out var set))
+					{
+						set = new HashSet<string>();
+						aggregate[kvp.Key] = set;
+					}
+					foreach (var fn in kvp.Value)
+						set.Add(fn);
+				}
+			}
+			return aggregate;
+		}
+
+		/// <summary>
+		/// Checks whether any C# script that references <paramref name="componentId"/> sets
+		/// <c>.text</c> directly on the referencing field.  When found, a warning is logged
+		/// for each offending script+field combination.
+		/// </summary>
+		/// <returns><c>true</c> if at least one direct <c>.text</c> setter was found.</returns>
+		private static bool CheckForTextPropertySetters(
+			long componentId,
+			Dictionary<long, Dictionary<string, HashSet<string>>> perComponentMap)
+		{
+			if (!perComponentMap.TryGetValue(componentId, out var scriptMap))
+				return false;
+
+			bool found = false;
+			foreach (var kvp in scriptMap)
+			{
+				string scriptAssetPath = AssetDatabase.GUIDToAssetPath(kvp.Key);
+				if (string.IsNullOrEmpty(scriptAssetPath))
+					continue;
+
+				string fullPath = YamlUtility.AssetPathToFullPath(scriptAssetPath);
+				if (!File.Exists(fullPath))
+					continue;
+
+				string source = File.ReadAllText(fullPath);
+				foreach (string fieldName in kvp.Value)
+				{
+					var rx = new Regex($@"\b{Regex.Escape(fieldName)}\.text\s*=");
+					if (!rx.IsMatch(source))
+						continue;
+
+					Debug.LogWarning(
+						$"[LegacyTextToLocalizedTmpConverter] '{scriptAssetPath}' sets '{fieldName}.text' directly. " +
+						$"AutoLocalize has been disabled on the converted component. " +
+						$"To enable localization, set LocaKey and re-enable AutoLocalize on the component.");
+					found = true;
+				}
+			}
+			return found;
+		}
+
+
 		{
 			string assetPath = AssetDatabase.GUIDToAssetPath(scriptGuid);
 			if (string.IsNullOrEmpty(assetPath) || !assetPath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))

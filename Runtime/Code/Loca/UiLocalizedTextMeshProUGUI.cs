@@ -119,7 +119,11 @@ namespace GuiToolkit
 								$"Use the LocaKey property instead of setting .text directly, or disable AutoLocalize.\n" +
 								$"Path: {this.GetAssetPathAndPath()}",
 								this);
+							
+							base.text = value; // Still apply the text so the user sees the result of their action, even if it's not a valid key.
+							m_autoLocalize = false; // Disable auto-localization to prevent further confusion until the user explicitly re-enables it.
 						}
+						
 						return;
 					}
 #endif
