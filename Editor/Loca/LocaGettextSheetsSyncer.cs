@@ -719,8 +719,10 @@ namespace GuiToolkit.Editor
 		{
 			bool modified = false;
 
+			// Only fill in missing translations — never overwrite what a human translator already entered.
+
 			// Text comes from PluralForm=-1 bridge columns and maps directly to MsgStr.
-			if (!string.IsNullOrEmpty(_entry.Text) && _entry.Text != _poEntry.MsgStr)
+			if (!string.IsNullOrEmpty(_entry.Text) && string.IsNullOrEmpty(_poEntry.MsgStr))
 			{
 				_poEntry.MsgStr = _entry.Text;
 				modified = true;
@@ -736,7 +738,7 @@ namespace GuiToolkit.Editor
 					if (string.IsNullOrEmpty(_entry.Text) &&
 						_entry.Forms.Length > 0 &&
 						!string.IsNullOrEmpty(_entry.Forms[0]) &&
-						_entry.Forms[0] != _poEntry.MsgStr)
+						string.IsNullOrEmpty(_poEntry.MsgStr))
 					{
 						_poEntry.MsgStr = _entry.Forms[0];
 						modified = true;
@@ -744,7 +746,7 @@ namespace GuiToolkit.Editor
 				}
 				else
 				{
-					// Plural PO entry (has msgid_plural): write each form to MsgStrForms.
+					// Plural PO entry (has msgid_plural): fill in only empty forms.
 					for (int i = 0; i < _entry.Forms.Length; i++)
 					{
 						if (string.IsNullOrEmpty(_entry.Forms[i]))
@@ -755,7 +757,7 @@ namespace GuiToolkit.Editor
 						else if (_poEntry.MsgStrForms.Length <= i)
 							Array.Resize(ref _poEntry.MsgStrForms, i + 1);
 
-						if (_entry.Forms[i] != _poEntry.MsgStrForms[i])
+						if (string.IsNullOrEmpty(_poEntry.MsgStrForms[i]))
 						{
 							_poEntry.MsgStrForms[i] = _entry.Forms[i];
 							modified = true;

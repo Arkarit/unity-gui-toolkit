@@ -288,7 +288,7 @@ namespace GuiToolkit.Test
 		{
 			string block = LegacyTextToLocalizedTmpConverter.BuildTmpYamlBlock(
 				MakeData(vOverflow: VerticalWrapMode.Truncate), FakeScriptGuid);
-			StringAssert.Contains("m_overflowMode: 0", block);
+			StringAssert.Contains("m_overflowMode: 3", block);
 		}
 
 		[Test]
@@ -296,7 +296,7 @@ namespace GuiToolkit.Test
 		{
 			string block = LegacyTextToLocalizedTmpConverter.BuildTmpYamlBlock(
 				MakeData(vOverflow: VerticalWrapMode.Overflow), FakeScriptGuid);
-			StringAssert.Contains("m_overflowMode: 1", block);
+			StringAssert.Contains("m_overflowMode: 0", block);
 		}
 
 		// -----------------------------------------------------------------------
