@@ -139,6 +139,9 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_autoLocalize: 0
+  m_group: 
+  m_locaKey: Button
 --- !u!114 &3833328305056371703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -246,7 +249,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
-  m_titleTranslator: {fileID: 0}
   m_text: {fileID: 3962353340145202642}
   m_isLocalized: 1
   m_additionalMouseOver: {fileID: 5848099051524279674}
@@ -773,6 +775,11 @@ PrefabInstance:
     - target: {fileID: 5270523797533349594, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_text
+      value: Execute
+      objectReference: {fileID: 0}
+    - target: {fileID: 5270523797533349594, guid: 21a8687b0161cb048a99736c000f6da3,
+        type: 3}
+      propertyPath: m_locaKey
       value: Execute
       objectReference: {fileID: 0}
     - target: {fileID: 5270523797533349594, guid: 21a8687b0161cb048a99736c000f6da3,

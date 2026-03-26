@@ -556,6 +556,9 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_autoLocalize: 0
+  m_group: 
+  m_locaKey: W
 --- !u!114 &6807244625806320091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -739,6 +742,9 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_autoLocalize: 0
+  m_group: 
+  m_locaKey: Key Binding
 --- !u!114 &8202786363071359637
 MonoBehaviour:
   m_ObjectHideFlags: 0

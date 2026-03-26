@@ -8,7 +8,6 @@ namespace GuiToolkit
 {
 	public abstract class UiPlayerSettingBase : UiThing, IPointerEnterHandler, IPointerExitHandler
 	{
-		[SerializeField] protected UiAutoLocalize m_titleTranslator;
 		[SerializeField] protected TMP_Text m_text;
 		[SerializeField] protected bool m_isLocalized = true;
 		
@@ -22,14 +21,8 @@ namespace GuiToolkit
 
 		protected string Text
 		{
-			get => m_isLocalized ? m_titleTranslator.Text : m_text.text;
-			set
-			{
-				if (m_isLocalized)
-					m_titleTranslator.LocaKey = value;
-				else
-					m_text.text = value;
-			}
+			get => m_text.text;
+			set => m_text.text = value;
 		}
 
 		public bool Initialized => m_playerSetting != null;
@@ -111,6 +104,9 @@ namespace GuiToolkit
 			m_subKey = _subKey;
 			m_playerSetting = _playerSetting;
 			m_isLocalized = _playerSetting.IsLocalized;
+			if (m_text is UiLocalizedTextMeshProUGUI localizedText)
+				localizedText.AutoLocalize = m_isLocalized;
+			
 			string key = string.Empty;
 
 			if (string.IsNullOrEmpty(_subKey))
