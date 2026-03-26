@@ -321,7 +321,7 @@ namespace GuiToolkit.Editor
 					continue;
 				}
 
-				yaml    = patched;
+				yaml    = StripLegacyNameSuffix(patched, data.GameObjectLocalId);
 				changed = true;
 				stats.textConverted++;
 			}
@@ -801,5 +801,37 @@ namespace GuiToolkit.Editor
 			}
 			return sb.ToString();
 		}
+		/// <summary>
+		/// Scans <paramref name="yaml"/> for the <c>--- !u!1 &amp;{gameObjectLocalId}</c> anchor and
+		/// strips a trailing <c> (Legacy)</c> suffix from its <c>m_Name</c> field, if present.
+		/// </summary>
+		private static string StripLegacyNameSuffix(string yaml, long gameObjectLocalId)
+		{
+			const string legacySuffix = " (Legacy)";
+			string anchor = $"--- !u!1 &{gameObjectLocalId}";
+			int anchorIdx = yaml.IndexOf(anchor, StringComparison.Ordinal);
+			if (anchorIdx < 0)
+				return yaml;
+
+			// Bound search to the current YAML document block (up to the next document separator).
+			int nextDoc = yaml.IndexOf("\n---", anchorIdx + anchor.Length, StringComparison.Ordinal);
+			int searchEnd = nextDoc < 0 ? yaml.Length : nextDoc;
+
+			int mNameIdx = yaml.IndexOf("  m_Name: ", anchorIdx, searchEnd - anchorIdx, StringComparison.Ordinal);
+			if (mNameIdx < 0)
+				return yaml;
+
+			int lineEnd = yaml.IndexOf('\n', mNameIdx);
+			if (lineEnd < 0)
+				lineEnd = yaml.Length;
+
+			string line = yaml.Substring(mNameIdx, lineEnd - mNameIdx);
+			if (!line.EndsWith(legacySuffix, StringComparison.Ordinal))
+				return yaml;
+
+			string newLine = line.Substring(0, line.Length - legacySuffix.Length);
+			return yaml.Remove(mNameIdx, lineEnd - mNameIdx).Insert(mNameIdx, newLine);
+		}
+
 	}
 }

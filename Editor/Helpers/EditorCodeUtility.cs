@@ -97,16 +97,15 @@ namespace GuiToolkit.Editor
 				}
 			}
 
-			// 2) prefer the font asset's own (default) material; override only if a clearly better neutral preset exists
+			// 2) find the most neutral material for this font (prefer SDF/atlas materials, penalise effect presets)
 			Material mat = null;
 
 			if (best)
 			{
-				// always start with the asset's own material (usually effect-free)
 				var defaultMat = best.material;
 				mat = defaultMat;
 
-				// search for neutral presets in the same folder; avoid effecty ones like Outline/Shadow/Glow/Underlay
+				// search for presets in the same folder; avoid effecty ones like Outline/Shadow/Glow/Underlay
 				var folder = System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(best)).Replace("\\", "/");
 				if (!string.IsNullOrEmpty(folder))
 				{
@@ -150,8 +149,11 @@ namespace GuiToolkit.Editor
 						NormalizeFontKey(best.sourceFontFile ? best.sourceFontFile.name : null)
 					};
 
+					// Seed with the font's own material as the baseline competitor.
+					// All materials in the folder (including defaultMat) are scored; the highest wins.
+					// Effect materials receive a large penalty so they never win over neutral ones.
 					var bestPreset = defaultMat;
-					int bestPresetScore = -1;
+					int bestPresetScore = ScoreMaterialName(defaultMat?.name, keysToTry);
 
 					foreach (var mg in matGuids)
 					{
@@ -172,13 +174,7 @@ namespace GuiToolkit.Editor
 						}
 					}
 
-					// Only override the default if the preset is clearly better AND not an "effect" (penalties enforce that)
-					// Threshold keeps us conservative; tweak if you like.
-					const int OVERRIDE_THRESHOLD = 95;
-					if (bestPreset != null && bestPreset != defaultMat && bestPresetScore >= OVERRIDE_THRESHOLD)
-						mat = bestPreset;
-					else
-						mat = defaultMat; // stick to the asset's own material
+					mat = bestPreset ?? defaultMat;
 				}
 			}
 

@@ -98,14 +98,29 @@ namespace GuiToolkit
 					return;
 				}
 
-#if UNITY_EDITOR
-				if (m_autoLocalize && Application.isPlaying && !string.IsNullOrEmpty(m_locaKey))
-					UnityEngine.Debug.LogWarning($"[Loca] External write to '{(gameObject != null ? gameObject.name : "?")}' " +
-						$"while Auto Localize is active. Use LocaKey property instead.");
-#endif
-
 				if (m_autoLocalize)
 				{
+#if UNITY_EDITOR
+					if (Application.isPlaying)
+					{
+						var mgr = LocaManager.Instance;
+						if (mgr != null && mgr.HasKey(value, m_group))
+						{
+							// Valid loca key — accept as a new key assignment and translate.
+							m_locaKey = value;
+							ApplyTranslation();
+						}
+						else
+						{
+							UnityEngine.Debug.LogError(
+								$"[Loca] '{(gameObject != null ? gameObject.name : "?")}'.text was set to '{value}' " +
+								$"while AutoLocalize is active, but '{value}' is not a valid loca key. " +
+								$"Use the LocaKey property instead of setting .text directly, or disable AutoLocalize.",
+								this);
+						}
+						return;
+					}
+#endif
 					m_locaKey = value;
 					ApplyTranslation();
 				}
