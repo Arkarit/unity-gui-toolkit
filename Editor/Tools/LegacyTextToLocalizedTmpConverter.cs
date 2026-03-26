@@ -791,6 +791,13 @@ namespace GuiToolkit.Editor
 		}
 
 
+		/// <summary>
+		/// Opens the C# source file identified by <paramref name="scriptGuid"/> and replaces all
+		/// <c>Text fieldName</c> field-type occurrences (for the given <paramref name="fieldNames"/>)
+		/// with <c>TMP_Text fieldName</c>. Also ensures <c>using TMPro;</c> is present.
+		/// </summary>
+		/// <returns><c>true</c> when the file was actually modified.</returns>
+		private static bool TryUpdateCSharpScriptFields(string scriptGuid, IEnumerable<string> fieldNames)
 		{
 			string assetPath = AssetDatabase.GUIDToAssetPath(scriptGuid);
 			if (string.IsNullOrEmpty(assetPath) || !assetPath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
