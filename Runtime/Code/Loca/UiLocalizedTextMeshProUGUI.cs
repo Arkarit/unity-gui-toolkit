@@ -116,7 +116,7 @@ namespace GuiToolkit
 								$"[Loca] '.text' was set to '{value}' while AutoLocalize is active, " +
 								$"but '{value}' is not a valid loca key. " +
 								$"Use the LocaKey property instead of setting .text directly, or disable AutoLocalize.\n" +
-								$"Path: {GetFullHierarchyPath()}",
+								$"Path: {this.GetPath()}",
 								this);
 						}
 						return;
@@ -194,20 +194,5 @@ namespace GuiToolkit
 			ApplyTranslation();
 		}
 
-#if UNITY_EDITOR
-		private string GetFullHierarchyPath()
-		{
-			if (gameObject == null) return "?";
-			var sb = new System.Text.StringBuilder(gameObject.name);
-			var t = gameObject.transform.parent;
-			while (t != null)
-			{
-				sb.Insert(0, '/');
-				sb.Insert(0, t.name);
-				t = t.parent;
-			}
-			return sb.ToString();
-		}
-#endif
 	}
 }
