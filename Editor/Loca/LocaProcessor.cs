@@ -138,6 +138,9 @@ namespace GuiToolkit.Editor
 
 		private static void FoundComponent( ILocaKeyProvider _component )
 		{
+			if (!_component.UsesLocaKey)
+				return;
+
 			if (_component.UsesMultipleLocaKeys)
 			{
 				var keys = _component.LocaKeys;

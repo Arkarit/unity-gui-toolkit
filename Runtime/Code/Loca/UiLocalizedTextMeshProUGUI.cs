@@ -51,6 +51,7 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
+		bool ILocaKeyProvider.UsesLocaKey => m_autoLocalize;
 		bool ILocaKeyProvider.UsesMultipleLocaKeys => false;
 		List<string> ILocaKeyProvider.LocaKeys => null;
 		// LocaKey and Group are already public properties; they satisfy the interface implicitly.

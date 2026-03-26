@@ -11,6 +11,14 @@ namespace GuiToolkit
 	{
 #if UNITY_EDITOR
 		/// <summary>
+		/// Returns true if this provider actively participates in key collection.
+		/// When false, the Loca processor skips this component entirely.
+		/// For example, <see cref="UiLocalizedTextMeshProUGUI"/> returns <c>m_autoLocalize</c>
+		/// so that non-localizing text components don't pollute the key database.
+		/// </summary>
+		bool UsesLocaKey {get;}
+
+		/// <summary>
 		/// Returns true if this provider supplies multiple keys via <see cref="LocaKeys"/>,
 		/// false if it supplies a single key via <see cref="LocaKey"/>.
 		/// </summary>

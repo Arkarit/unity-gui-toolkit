@@ -851,6 +851,7 @@ namespace GuiToolkit
 
 		// Some general basic loca keys, e.g. Quality settings
 #if UNITY_EDITOR
+		public bool UsesLocaKey => true;
 		public bool UsesMultipleLocaKeys => true;
 		public string LocaKey => string.Empty;
 		public List<string> LocaKeys => QualitySettings.names.ToList();
