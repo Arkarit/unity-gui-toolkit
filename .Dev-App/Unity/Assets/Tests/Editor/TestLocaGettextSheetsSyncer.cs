@@ -338,15 +338,15 @@ namespace GuiToolkit.Test
 		}
 
 		[Test]
-		public void MergeEntry_ExistingTranslation_NotOverwritten()
+		public void MergeEntry_ExistingTranslation_Overwritten()
 		{
 			var sheetEntry = new ProcessedLocaEntry { Key = "hello", LanguageId = "de", Text = "Neu" };
 			var poEntry    = new PoEntry { MsgId = "hello", MsgStr = "Alt" };
 
 			bool changed = LocaGettextSheetsSyncer.MergeTranslationIntoPoEntry(sheetEntry, poEntry);
 
-			Assert.That(changed, Is.False);
-			Assert.That(poEntry.MsgStr, Is.EqualTo("Alt"));
+			Assert.That(changed, Is.True);
+			Assert.That(poEntry.MsgStr, Is.EqualTo("Neu"));
 		}
 
 		[Test]
@@ -383,7 +383,7 @@ namespace GuiToolkit.Test
 		}
 
 		[Test]
-		public void MergeEntry_PluralFormsAlreadyTranslated_NotOverwritten()
+		public void MergeEntry_PluralFormsAlreadyTranslated_Overwritten()
 		{
 			var sheetEntry = new ProcessedLocaEntry
 			{
@@ -398,9 +398,9 @@ namespace GuiToolkit.Test
 
 			bool changed = LocaGettextSheetsSyncer.MergeTranslationIntoPoEntry(sheetEntry, poEntry);
 
-			Assert.That(changed, Is.False);
-			Assert.That(poEntry.MsgStrForms[0], Is.EqualTo("Apfel"));
-			Assert.That(poEntry.MsgStrForms[1], Is.EqualTo("Äpfel"));
+			Assert.That(changed, Is.True);
+			Assert.That(poEntry.MsgStrForms[0], Is.EqualTo("NeuApfel"));
+			Assert.That(poEntry.MsgStrForms[1], Is.EqualTo("NeuÄpfel"));
 		}
 
 		[Test]
