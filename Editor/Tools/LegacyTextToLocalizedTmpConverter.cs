@@ -830,6 +830,13 @@ namespace GuiToolkit.Editor
 
 			foreach (string fieldName in fieldNames)
 			{
+				// Skip fields decorated with [KeepLegacyText] (alone or inside an attribute list).
+				if (HasKeepLegacyTextAttribute(source, fieldName))
+				{
+					Debug.Log($"[LegacyTextToLocalizedTmpConverter] Skipping field '{fieldName}' in {assetPath} — marked [KeepLegacyText].");
+					continue;
+				}
+
 				// Match "Text fieldName" where Text is a standalone word (not UnityEngine.UI.Text etc.)
 				// and fieldName is followed by a non-word char.
 				updated = Regex.Replace(
@@ -876,6 +883,55 @@ namespace GuiToolkit.Editor
 
 			// Everything else (Library/PackageCache, Packages/<built-in>, etc.) is read-only.
 			return true;
+		}
+
+		/// <summary>
+		/// Returns true if <paramref name="fieldName"/> is preceded by a <c>[KeepLegacyText]</c>
+		/// attribute in <paramref name="source"/> (either alone or as part of an attribute list such as
+		/// <c>[SerializeField, KeepLegacyText]</c>).
+		/// The check looks at the attribute lines that appear directly before the field declaration
+		/// (<c>Text fieldName</c>), skipping blank lines, comments and other attribute blocks.
+		/// </summary>
+		private static bool HasKeepLegacyTextAttribute(string source, string fieldName)
+		{
+			// Find the field declaration: "Text <fieldName>" as standalone tokens.
+			var fieldDeclMatch = Regex.Match(
+				source,
+				$@"(?<!\w)Text\s+{Regex.Escape(fieldName)}(?!\w)",
+				RegexOptions.Multiline);
+
+			if (!fieldDeclMatch.Success)
+				return false;
+
+			// Grab all text before the field declaration and scan backwards for attribute lines.
+			string before = source.Substring(0, fieldDeclMatch.Index);
+			string[] lines = before.Split('\n');
+
+			// Walk backwards through lines, collecting attribute lines.
+			// Stop when we hit a line that is not a blank/comment/attribute.
+			for (int i = lines.Length - 1; i >= 0; i--)
+			{
+				string trimmed = lines[i].Trim();
+
+				if (trimmed.Length == 0)
+					continue; // blank line — keep looking
+
+				if (trimmed.StartsWith("//") || trimmed.StartsWith("/*") || trimmed.StartsWith("*"))
+					continue; // comment — keep looking
+
+				if (trimmed.StartsWith("[") && trimmed.EndsWith("]"))
+				{
+					// Attribute line — check for KeepLegacyText token.
+					if (Regex.IsMatch(trimmed, @"\bKeepLegacyText\b"))
+						return true;
+					continue; // other attribute — keep looking
+				}
+
+				// Any other content means we've passed the attribute block.
+				break;
+			}
+
+			return false;
 		}
 
 		/// <summary>Float → YAML string with up to 6 significant digits, invariant culture.</summary>
