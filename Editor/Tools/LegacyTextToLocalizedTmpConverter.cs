@@ -317,7 +317,8 @@ namespace GuiToolkit.Editor
 
 			foreach (var data in entries)
 			{
-				bool autoLocalize = !CheckForTextPropertySetters(data.ComponentLocalId, perComponentMap);
+				bool autoLocalize = !CheckForTextPropertySetters(data.ComponentLocalId, perComponentMap)
+			                    && !IsObviouslyRuntimeValue(data.Text);
 				string newBlock = BuildTmpYamlBlock(data, scriptGuid, autoLocalize);
 				string patched  = YamlUtility.ReplaceMonoBehaviourBlock(yaml, data.ComponentLocalId, newBlock);
 
@@ -794,6 +795,40 @@ namespace GuiToolkit.Editor
 				}
 			}
 			return found;
+		}
+
+		/// <summary>
+		/// Heuristic: returns <c>true</c> when <paramref name="text"/> is clearly a runtime-generated
+		/// value (numeric placeholder, icon character, rich-text-wrapped number) rather than a
+		/// static translatable string.  When true, <c>autoLocalize</c> is disabled on the converted
+		/// component so the placeholder is not harvested as a loca key.
+		/// </summary>
+		private static bool IsObviouslyRuntimeValue(string text)
+		{
+			if (string.IsNullOrEmpty(text))
+				return false;
+
+			// Pure numeric / format placeholder: "0", "100", "00/000", "0:00", "1/2"
+			if (Regex.IsMatch(text, @"^[\d\s/:.%\-\n\r]+$"))
+				return true;
+
+			// Runtime format marker prefix convention (e.g. "#Level 2", "#Score: 100")
+			if (text.StartsWith("#", StringComparison.Ordinal))
+				return true;
+
+			// Private-use-area Unicode characters (icon fonts, e.g. Font Awesome \uF03D)
+			foreach (char c in text)
+			{
+				if (c >= '\uE000' && c <= '\uF8FF')
+					return true;
+			}
+
+			// Rich-text tags wrapping only numeric/whitespace content (e.g. "<color=...>9</color>\n1")
+			string stripped = Regex.Replace(text, @"<[^>]+>", string.Empty);
+			if (!string.IsNullOrWhiteSpace(stripped) && Regex.IsMatch(stripped, @"^[\d\s/:.%\-\n\r]+$"))
+				return true;
+
+			return false;
 		}
 
 

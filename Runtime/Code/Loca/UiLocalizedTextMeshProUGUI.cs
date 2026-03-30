@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 
@@ -51,10 +52,43 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		bool ILocaKeyProvider.UsesLocaKey => m_autoLocalize;
+		bool ILocaKeyProvider.UsesLocaKey => m_autoLocalize && !IsObviouslyRuntimeValue(LocaKey);
 		bool ILocaKeyProvider.UsesMultipleLocaKeys => false;
 		List<string> ILocaKeyProvider.LocaKeys => null;
 		// LocaKey and Group are already public properties; they satisfy the interface implicitly.
+
+		/// <summary>
+		/// Heuristic: returns true when the candidate key is clearly a runtime-generated value
+		/// (numeric placeholder, icon character, format string) rather than a translatable string.
+		/// Used to suppress false positives during loca key extraction.
+		/// </summary>
+		private static bool IsObviouslyRuntimeValue(string key)
+		{
+			if (string.IsNullOrEmpty(key))
+				return false;
+
+			// Pure numeric / format placeholder: "0", "100", "00/000", "0:00", "1/2"
+			if (Regex.IsMatch(key, @"^[\d\s/:.%\-\n\r]+$"))
+				return true;
+
+			// Runtime format marker prefix convention (e.g. "#Level 2", "#Score: 100")
+			if (key.StartsWith("#"))
+				return true;
+
+			// Private-use-area Unicode characters (icon fonts, e.g. Font Awesome \uF03D)
+			foreach (char c in key)
+			{
+				if (c >= '\uE000' && c <= '\uF8FF')
+					return true;
+			}
+
+			// Rich-text tags wrapping only numeric/whitespace content (e.g. "<color=...>9</color>\n1")
+			string stripped = Regex.Replace(key, @"<[^>]+>", string.Empty);
+			if (!string.IsNullOrWhiteSpace(stripped) && Regex.IsMatch(stripped, @"^[\d\s/:.%\-\n\r]+$"))
+				return true;
+
+			return false;
+		}
 #endif
 
 		/// <summary>
