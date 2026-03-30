@@ -290,6 +290,12 @@ namespace GuiToolkit.Editor
 		private static void ApplyYamlConversions(string assetPath, IList<LegacyTextData> entries,
 		                                          string scriptGuid, ref Stats stats)
 		{
+			if (IsReadOnlyPackagePath(assetPath))
+			{
+				Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] Skipping read-only package asset: {assetPath}");
+				return;
+			}
+
 			string fullPath = YamlUtility.AssetPathToFullPath(assetPath);
 			if (!File.Exists(fullPath))
 			{
@@ -806,6 +812,12 @@ namespace GuiToolkit.Editor
 				return false;
 			}
 
+			if (IsReadOnlyPackagePath(assetPath))
+			{
+				Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] Skipping read-only package script: {assetPath}");
+				return false;
+			}
+
 			string fullPath = YamlUtility.AssetPathToFullPath(assetPath);
 			if (!File.Exists(fullPath))
 			{
@@ -847,6 +859,24 @@ namespace GuiToolkit.Editor
 		}
 
 		
+
+		/// <summary>
+		/// Returns true if <paramref name="assetPath"/> is inside a read-only Unity package location
+		/// (PackageCache, built-in packages, or any path not under Assets/).
+		/// These paths must never be written to.
+		/// </summary>
+		private static bool IsReadOnlyPackagePath(string assetPath)
+		{
+			if (string.IsNullOrEmpty(assetPath))
+				return true;
+
+			// Any path under Assets/ is writable project content.
+			if (assetPath.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
+				return false;
+
+			// Everything else (Library/PackageCache, Packages/<built-in>, etc.) is read-only.
+			return true;
+		}
 
 		/// <summary>Float → YAML string with up to 6 significant digits, invariant culture.</summary>
 		private static string F(float v) => v.ToString("G6", CultureInfo.InvariantCulture);
