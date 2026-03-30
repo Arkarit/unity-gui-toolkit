@@ -887,10 +887,9 @@ namespace GuiToolkit.Editor
 
 		/// <summary>
 		/// Returns true if <paramref name="fieldName"/> is preceded by a <c>[KeepLegacyText]</c>
-		/// attribute in <paramref name="source"/> (either alone or as part of an attribute list such as
-		/// <c>[SerializeField, KeepLegacyText]</c>).
-		/// The check looks at the attribute lines that appear directly before the field declaration
-		/// (<c>Text fieldName</c>), skipping blank lines, comments and other attribute blocks.
+		/// attribute in <paramref name="source"/> — whether on the same line as the field or on
+		/// preceding attribute lines (e.g. <c>[SerializeField][KeepLegacyText] private Text f;</c>
+		/// or <c>[KeepLegacyText]\nprivate Text f;</c>).
 		/// </summary>
 		private static bool HasKeepLegacyTextAttribute(string source, string fieldName)
 		{
@@ -903,35 +902,20 @@ namespace GuiToolkit.Editor
 			if (!fieldDeclMatch.Success)
 				return false;
 
-			// Grab all text before the field declaration and scan backwards for attribute lines.
-			string before = source.Substring(0, fieldDeclMatch.Index);
-			string[] lines = before.Split('\n');
-
-			// Walk backwards through lines, collecting attribute lines.
-			// Stop when we hit a line that is not a blank/comment/attribute.
-			for (int i = lines.Length - 1; i >= 0; i--)
+			// Extract up to 10 lines worth of text ending at the field declaration.
+			// This covers both same-line attributes and attributes on preceding lines.
+			int end = fieldDeclMatch.Index;
+			int start = end;
+			int newlines = 0;
+			while (start > 0)
 			{
-				string trimmed = lines[i].Trim();
-
-				if (trimmed.Length == 0)
-					continue; // blank line — keep looking
-
-				if (trimmed.StartsWith("//") || trimmed.StartsWith("/*") || trimmed.StartsWith("*"))
-					continue; // comment — keep looking
-
-				if (trimmed.StartsWith("[") && trimmed.EndsWith("]"))
-				{
-					// Attribute line — check for KeepLegacyText token.
-					if (Regex.IsMatch(trimmed, @"\bKeepLegacyText\b"))
-						return true;
-					continue; // other attribute — keep looking
-				}
-
-				// Any other content means we've passed the attribute block.
-				break;
+				start--;
+				if (source[start] == '\n' && ++newlines == 10)
+					break;
 			}
 
-			return false;
+			string window = source.Substring(start, end - start);
+			return Regex.IsMatch(window, @"\bKeepLegacyText\b");
 		}
 
 		/// <summary>Float → YAML string with up to 6 significant digits, invariant culture.</summary>
