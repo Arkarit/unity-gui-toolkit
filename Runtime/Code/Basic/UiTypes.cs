@@ -200,6 +200,8 @@ public const int LOCA_MISC_CONVERT_LEGACY_TEXT_SCENE_MENU_PRIORITY  = 40;
 public const int LOCA_MISC_CONVERT_LEGACY_TEXT_PROJECT_MENU_PRIORITY = 50;
 public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
 
+		public const int MISSING_REFERENCES_FINDER_MENU_PRIORITY = 0;
+
 		public const int CONFIG_MANAGER_MENU_PRIORITY = 0;
 		public const int SAVE_PROJECT_ON_LOSE_FOCUS_MENU_PRIORITY = 1000;
 		public const int SCENE_CHANGE_TRACKER_MENU_PRIORITY = 1010;
@@ -215,6 +217,7 @@ public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
 		public const string MISC_TOOLS_MENU_HEADER = MENU_HEADER + "Miscellaneous Tools/";                                              ///< Menu header for miscellaneous tools
 		public const string LOCA_HEADER = MENU_HEADER + "Localization/";
 		public const string LOCA_MISC_HEADER = LOCA_HEADER + "Misc/";
+		public const string DIAGNOSTICS_HEADER = MENU_HEADER + "Diagnostics/";
 
 		public const string CONFIGURATION_NAME = "Ui Toolkit Configuration...";
 		public const string CONFIGURATION_MENU_NAME = MENU_HEADER + CONFIGURATION_NAME;
@@ -263,6 +266,7 @@ public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
 public const string LOCA_MISC_CONVERT_LEGACY_TEXT_SCENE_MENU_NAME   = LOCA_MISC_HEADER + "Convert Legacy Text → Localized TMP (Current Scene or Prefab)";
 public const string LOCA_MISC_CONVERT_LEGACY_TEXT_PROJECT_MENU_NAME = LOCA_MISC_HEADER + "Convert Legacy Text → Localized TMP (Entire Project)";
 public const string LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_NAME           = LOCA_MISC_HEADER + "Fix AutoLocalize on Runtime-Set Components (Entire Project)";
+		public const string MISSING_REFERENCES_FINDER_MENU_NAME = DIAGNOSTICS_HEADER + "Missing Component References\u2026";
 
 		public const string PLAYER_SETTINGS_COLLECTION = "playerSettings";
 		public const string PLAYER_SETTINGS_ID = "playerSettings";

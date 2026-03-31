@@ -152,6 +152,7 @@ namespace GuiToolkit.Editor
 			if (!string.IsNullOrEmpty(currentAssetPath))
 				YamlUtility.SaveCurrentSceneOrPrefab();
 
+			var crossFileIndex = BuildProjectWideCrossFileIndex();
 			var stats = new Stats();
 
 			try
@@ -169,7 +170,7 @@ namespace GuiToolkit.Editor
 
 					try
 					{
-						ProcessPrefabFile(prefabPath, newGuid, ref stats);
+						ProcessPrefabFile(prefabPath, newGuid, crossFileIndex, ref stats);
 					}
 					catch (Exception ex)
 					{
@@ -183,7 +184,7 @@ namespace GuiToolkit.Editor
 					EditorUtility.DisplayProgressBar("Convert Legacy Text", "Processing plain scene objects…", 1f);
 					try
 					{
-						ProcessScenePlainObjects(currentAssetPath, scenePlainTexts, newGuid, ref stats);
+						ProcessScenePlainObjects(currentAssetPath, scenePlainTexts, newGuid, crossFileIndex, ref stats);
 					}
 					catch (Exception ex)
 					{
@@ -214,7 +215,7 @@ namespace GuiToolkit.Editor
 		// Prefab processing
 		// -----------------------------------------------------------------------
 
-		private static void ProcessPrefabFile(string assetPath, string scriptGuid, ref Stats stats)
+		private static void ProcessPrefabFile(string assetPath, string scriptGuid, Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex, ref Stats stats)
 		{
 			var prefabContents = PrefabUtility.LoadPrefabContents(assetPath);
 			var entries = new List<LegacyTextData>();
@@ -248,7 +249,7 @@ namespace GuiToolkit.Editor
 			if (entries.Count == 0)
 				return;
 
-			ApplyYamlConversions(assetPath, entries, scriptGuid, ref stats);
+			ApplyYamlConversions(assetPath, entries, scriptGuid, crossFileIndex, ref stats);
 		}
 
 		// -----------------------------------------------------------------------
@@ -256,7 +257,7 @@ namespace GuiToolkit.Editor
 		// -----------------------------------------------------------------------
 
 		private static void ProcessScenePlainObjects(string scenePath, List<Text> texts,
-		                                              string scriptGuid, ref Stats stats)
+		                                              string scriptGuid, Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex, ref Stats stats)
 		{
 			var entries = new List<LegacyTextData>();
 
@@ -280,7 +281,7 @@ namespace GuiToolkit.Editor
 			// Save to ensure the scene YAML reflects in-memory state.
 			EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
 
-			ApplyYamlConversions(scenePath, entries, scriptGuid, ref stats);
+			ApplyYamlConversions(scenePath, entries, scriptGuid, crossFileIndex, ref stats);
 		}
 
 		// -----------------------------------------------------------------------
@@ -288,7 +289,7 @@ namespace GuiToolkit.Editor
 		// -----------------------------------------------------------------------
 
 		private static void ApplyYamlConversions(string assetPath, IList<LegacyTextData> entries,
-		                                          string scriptGuid, ref Stats stats)
+		                                          string scriptGuid, Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex, ref Stats stats)
 		{
 			if (IsReadOnlyPackagePath(assetPath))
 			{
@@ -313,6 +314,7 @@ namespace GuiToolkit.Editor
 				convertedIds.Add(e.ComponentLocalId);
 
 			var perComponentMap = FindReferencingScriptFieldsPerComponent(yaml, convertedIds);
+			MergeCrossFileRefs(assetPath, convertedIds, crossFileIndex, perComponentMap);
 			var scriptFieldMap  = AggregateScriptFieldMap(perComponentMap);
 
 			foreach (var data in entries)
@@ -1010,6 +1012,148 @@ namespace GuiToolkit.Editor
 
 			string newLine = line.Substring(0, line.Length - legacySuffix.Length);
 			return yaml.Remove(mNameIdx, lineEnd - mNameIdx).Insert(mNameIdx, newLine);
+		}
+
+		// -----------------------------------------------------------------------
+		// Cross-file reference index
+		// -----------------------------------------------------------------------
+
+		/// <summary>
+		/// Scans all prefabs and scenes under <c>Assets/</c> and builds an index of cross-file
+		/// serialized field references pointing to components in OTHER assets.<br/>
+		/// Key: (targetAssetGuid, targetLocalId) — the component being referenced.<br/>
+		/// Value: scriptGuid → set of field names that hold the reference.
+		/// </summary>
+		private static Dictionary<(string, long), Dictionary<string, HashSet<string>>> BuildProjectWideCrossFileIndex()
+		{
+			var index = new Dictionary<(string, long), Dictionary<string, HashSet<string>>>();
+
+			string[] guids = AssetDatabase.FindAssets("t:Prefab t:Scene");
+			int total = guids.Length;
+
+			var scriptGuidRx = new Regex(@"m_Script:\s*\{[^}]*\bguid:\s*([a-fA-F0-9]+)[^}]*\}",
+				RegexOptions.Compiled);
+
+			// Matches cross-file refs: fieldName: {fileID: 123, guid: abc, type: 3}
+			var crossRefRx = new Regex(@"^\s+(\w+):\s*\{\s*fileID:\s*(-?\d+)\s*,\s*guid:\s*([a-fA-F0-9]+)",
+				RegexOptions.Compiled | RegexOptions.Multiline);
+
+			try
+			{
+				for (int i = 0; i < total; i++)
+				{
+					string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
+					if (i % 20 == 0)
+					{
+						EditorUtility.DisplayProgressBar(
+							"Convert Legacy Text",
+							$"Building cross-file reference index… ({i + 1}/{total})",
+							(float)i / Math.Max(total, 1));
+					}
+
+					if (IsReadOnlyPackagePath(assetPath))
+						continue;
+
+					string fullPath = YamlUtility.AssetPathToFullPath(assetPath);
+					if (!File.Exists(fullPath))
+						continue;
+
+					string yaml;
+					try
+					{
+						yaml = File.ReadAllText(fullPath);
+					}
+					catch (Exception ex)
+					{
+						Debug.LogWarning(
+							$"[LegacyTextToLocalizedTmpConverter] Could not read '{assetPath}' for cross-file index: {ex.Message}");
+						continue;
+					}
+
+					var blocks = Regex.Split(yaml, @"(?=^--- !u!114 &)", RegexOptions.Multiline);
+					foreach (var block in blocks)
+					{
+						if (!block.StartsWith("--- !u!114 &", StringComparison.Ordinal))
+							continue;
+
+						var scriptMatch = scriptGuidRx.Match(block);
+						if (!scriptMatch.Success)
+							continue;
+
+						string scriptGuid = scriptMatch.Groups[1].Value;
+
+						foreach (Match m in crossRefRx.Matches(block))
+						{
+							string fieldName  = m.Groups[1].Value;
+							string fileIdStr  = m.Groups[2].Value;
+							string targetGuid = m.Groups[3].Value;
+
+							if (!long.TryParse(fileIdStr, out long fileId))
+								continue;
+
+							var key = (targetGuid, fileId);
+							if (!index.TryGetValue(key, out var scriptMap))
+							{
+								scriptMap  = new Dictionary<string, HashSet<string>>();
+								index[key] = scriptMap;
+							}
+							if (!scriptMap.TryGetValue(scriptGuid, out var fieldSet))
+							{
+								fieldSet              = new HashSet<string>();
+								scriptMap[scriptGuid] = fieldSet;
+							}
+							fieldSet.Add(fieldName);
+						}
+					}
+				}
+			}
+			finally
+			{
+				EditorUtility.ClearProgressBar();
+			}
+
+			return index;
+		}
+
+		/// <summary>
+		/// Merges cross-file references from <paramref name="crossFileIndex"/> that target any of
+		/// the <paramref name="convertedIds"/> in <paramref name="assetPath"/> into
+		/// <paramref name="perComponentMap"/>, so that scripts in other prefabs/scenes that hold
+		/// a reference to the converted components are also discovered for field-type updates.
+		/// </summary>
+		private static void MergeCrossFileRefs(
+			string assetPath,
+			HashSet<long> convertedIds,
+			Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex,
+			Dictionary<long, Dictionary<string, HashSet<string>>> perComponentMap)
+		{
+			string assetGuid = AssetDatabase.AssetPathToGUID(assetPath);
+			if (string.IsNullOrEmpty(assetGuid))
+				return;
+
+			foreach (long localId in convertedIds)
+			{
+				var key = (assetGuid, localId);
+				if (!crossFileIndex.TryGetValue(key, out var scriptMap))
+					continue;
+
+				if (!perComponentMap.TryGetValue(localId, out var existing))
+				{
+					existing                 = new Dictionary<string, HashSet<string>>();
+					perComponentMap[localId] = existing;
+				}
+
+				foreach (var kvp in scriptMap)
+				{
+					if (!existing.TryGetValue(kvp.Key, out var fieldSet))
+					{
+						fieldSet          = new HashSet<string>();
+						existing[kvp.Key] = fieldSet;
+					}
+					foreach (string fieldName in kvp.Value)
+						fieldSet.Add(fieldName);
+				}
+			}
 		}
 
 	}
