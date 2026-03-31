@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -27,6 +27,8 @@ namespace GuiToolkit.Editor
 		[SerializeField] private MonoScript m_FieldTypeScript;
 		[SerializeField] private bool       m_IncludeNull;
 		[SerializeField] private bool       m_IncludeOpenScenes;
+		[SerializeField] private bool       m_IgnoreDisabledGameObjects;
+		[SerializeField] private bool       m_IgnoreDisabledComponents = true;
 
 		private readonly List<Finding> m_Findings = new();
 		private Vector2 m_Scroll;
@@ -105,6 +107,16 @@ namespace GuiToolkit.Editor
 				new GUIContent("Also scan currently open scenes",
 					"Scans GameObjects in all scenes that are currently loaded in the editor."),
 				m_IncludeOpenScenes);
+
+			m_IgnoreDisabledGameObjects = EditorGUILayout.ToggleLeft(
+				new GUIContent("Ignore disabled GameObjects",
+					"Skip components on GameObjects that are inactive in the hierarchy."),
+				m_IgnoreDisabledGameObjects);
+
+			m_IgnoreDisabledComponents = EditorGUILayout.ToggleLeft(
+				new GUIContent("Ignore disabled Components",
+					"Skip Behaviour components (e.g. scripts, renderers) that are disabled."),
+				m_IgnoreDisabledComponents);
 
 			EditorGUILayout.Space(8);
 
@@ -252,6 +264,10 @@ namespace GuiToolkit.Editor
 				{
 					if (comp == null)
 						continue;
+					if (m_IgnoreDisabledGameObjects && !comp.gameObject.activeInHierarchy)
+						continue;
+					if (m_IgnoreDisabledComponents && comp is Behaviour beh1 && !beh1.enabled)
+						continue;
 					CheckComponent(comp, assetPath, GetHierarchyPath(comp.transform), filterType, prefabAsset);
 				}
 			}
@@ -273,6 +289,10 @@ namespace GuiToolkit.Editor
 				foreach (var comp in root.GetComponentsInChildren<Component>(true))
 				{
 					if (comp == null)
+						continue;
+					if (m_IgnoreDisabledGameObjects && !comp.gameObject.activeInHierarchy)
+						continue;
+					if (m_IgnoreDisabledComponents && comp is Behaviour beh2 && !beh2.enabled)
 						continue;
 					CheckComponent(comp, scene.path, GetHierarchyPath(comp.transform), filterType, null);
 				}
