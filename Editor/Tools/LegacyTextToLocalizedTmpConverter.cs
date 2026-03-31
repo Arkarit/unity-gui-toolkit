@@ -803,7 +803,7 @@ namespace GuiToolkit.Editor
 		/// static translatable string.  When true, <c>autoLocalize</c> is disabled on the converted
 		/// component so the placeholder is not harvested as a loca key.
 		/// </summary>
-		private static bool IsObviouslyRuntimeValue(string text)
+		internal static bool IsObviouslyRuntimeValue(string text)
 		{
 			if (string.IsNullOrEmpty(text))
 				return false;
