@@ -12,9 +12,18 @@ namespace GuiToolkit.Editor
 	[EditorAware]
 	public class ReplaceComponentsWindow : EditorWindow
 	{
+		[Serializable]
+		private struct FieldMapping
+		{
+			public string SourceField;
+			public string TargetField;
+		}
+
 		private MonoScript m_SourceScript;
 		private MonoScript m_TargetScript;
 		private bool m_EntireProject = false;
+		[SerializeField] private List<FieldMapping> m_FieldMappings = new List<FieldMapping>();
+		private Vector2 m_MappingScroll;
 
 		[MenuItem(StringConstants.REPLACE_COMPONENTS_WINDOW)]
 		public static void ShowWindow()
@@ -42,12 +51,63 @@ namespace GuiToolkit.Editor
 				MessageType.Info);
 
 			EditorGUILayout.Space();
+			DrawFieldMappings();
+
+			EditorGUILayout.Space();
 
 			using (new EditorGUI.DisabledScope(!IsValidComponentScript(m_SourceScript) ||
 			                                   !IsValidComponentScript(m_TargetScript)))
 			{
 				if (GUILayout.Button("Replace Now"))
 					DoReplace();
+			}
+		}
+
+		// -----------------------------------------------------------------------
+
+		private void DrawFieldMappings()
+		{
+			EditorGUILayout.LabelField("Field Mappings  (Source → Target)", EditorStyles.boldLabel);
+
+			// Column headers
+			using (new EditorGUILayout.HorizontalScope())
+			{
+				EditorGUILayout.LabelField("Source Field", EditorStyles.miniLabel, GUILayout.MinWidth(80));
+				EditorGUILayout.LabelField("Target Field", EditorStyles.miniLabel, GUILayout.MinWidth(80));
+				GUILayout.Space(26); // reserved for remove button
+			}
+
+			// Scrollable rows
+			int removeIndex = -1;
+			float rowH     = EditorGUIUtility.singleLineHeight + 2;
+			float listH    = m_FieldMappings.Count == 0 ? rowH : rowH * m_FieldMappings.Count;
+			m_MappingScroll = EditorGUILayout.BeginScrollView(
+				m_MappingScroll, GUILayout.Height(Math.Min(listH, rowH * 5)));
+
+			for (int i = 0; i < m_FieldMappings.Count; i++)
+			{
+				var mapping = m_FieldMappings[i];
+				using (new EditorGUILayout.HorizontalScope())
+				{
+					mapping.SourceField = EditorGUILayout.TextField(mapping.SourceField ?? "", GUILayout.MinWidth(80));
+					EditorGUILayout.LabelField("→", GUILayout.Width(18));
+					mapping.TargetField = EditorGUILayout.TextField(mapping.TargetField ?? "", GUILayout.MinWidth(80));
+					if (GUILayout.Button("−", GUILayout.Width(24)))
+						removeIndex = i;
+				}
+				m_FieldMappings[i] = mapping;
+			}
+
+			EditorGUILayout.EndScrollView();
+
+			if (removeIndex >= 0)
+				m_FieldMappings.RemoveAt(removeIndex);
+
+			using (new EditorGUILayout.HorizontalScope())
+			{
+				GUILayout.FlexibleSpace();
+				if (GUILayout.Button("+ Add Mapping", GUILayout.Width(120)))
+					m_FieldMappings.Add(new FieldMapping());
 			}
 		}
 
@@ -82,12 +142,22 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
+			int validMappings = 0;
+			foreach (var m in m_FieldMappings)
+			{
+				if (!string.IsNullOrWhiteSpace(m.SourceField) && !string.IsNullOrWhiteSpace(m.TargetField))
+					validMappings++;
+			}
+
 			string scope = m_EntireProject ? "entire project" : "current scene/prefab";
-			string msg = $"Replace all '{srcType.Name}' → '{dstType.Name}' in {scope}.\n\n" +
-			             "Fields with matching name and type are transferred automatically by Unity.\n" +
-			             "Non-matching fields will use the target component's default values.\n\n" +
-			             "This operation modifies YAML files directly and cannot be undone. " +
-			             "Make sure you have a clean working copy.\n\nContinue?";
+			string mappingNote = validMappings > 0
+				? $"Field mappings: {validMappings} rename(s) will be applied within each replaced component block.\n"
+				: "Fields with matching name and type are transferred automatically by Unity.\n" +
+					"Non-matching fields will use the target component's default values.\n";
+			string msg = $"Replace all '{srcType.Name}' → '{dstType.Name}' in {scope}.\n" +
+				mappingNote + "\n" +
+				"This operation modifies YAML files directly and cannot be undone. " +
+				"Make sure you have a clean working copy.\n\nContinue?";
 
 			if (!EditorUtility.DisplayDialog("Replace Components", msg, "Replace", "Cancel"))
 				return;
@@ -129,7 +199,10 @@ namespace GuiToolkit.Editor
 							continue;
 
 						int count      = CountOccurrences(yaml, searchPattern);
-						string newYaml = yaml.Replace(searchPattern, replaceWith);
+						// Apply field renames inside the src-component blocks first (src GUID still present),
+						// then swap the GUID.
+						string newYaml = ApplyFieldMappings(yaml, srcGuid, m_FieldMappings);
+						newYaml        = newYaml.Replace(searchPattern, replaceWith);
 
 						File.WriteAllText(fullPath, newYaml);
 						AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
@@ -152,6 +225,8 @@ namespace GuiToolkit.Editor
 
 			string summary = $"Replaced: {componentsReplaced} '{srcType.Name}' component(s) → '{dstType.Name}'\n" +
 			                 $"Files:    {filesModified} modified";
+			if (validMappings > 0)
+			summary += $"\nField renames: {validMappings} mapping(s) applied per component block";
 			if (errors > 0)
 				summary += $"\nErrors:  {errors} (see Console for details)";
 
@@ -265,6 +340,70 @@ namespace GuiToolkit.Editor
 			if (ms == null) return false;
 			var t = ms.GetClass();
 			return t != null && typeof(Component).IsAssignableFrom(t) && !t.IsAbstract;
+		}
+
+		// -----------------------------------------------------------------------
+		// YAML helpers
+		// -----------------------------------------------------------------------
+
+		/// <summary>
+		/// Renames top-level serialized fields (2-space indent) within every YAML document
+		/// block that contains the given source script GUID. Field renames are applied
+		/// <em>before</em> the GUID is swapped so the src GUID still identifies the blocks.
+		/// </summary>
+		private static string ApplyFieldMappings(string yaml, string srcGuid,
+		                                          IReadOnlyList<FieldMapping> mappings)
+		{
+			if (mappings == null || mappings.Count == 0)
+				return yaml;
+
+			// Normalise to LF for block splitting; restore CRLF at the end if needed.
+			bool hasCRLF = yaml.Contains("\r\n");
+			if (hasCRLF)
+				yaml = yaml.Replace("\r\n", "\n");
+
+			var blocks = SplitYamlDocuments(yaml);
+
+			for (int i = 0; i < blocks.Count; i++)
+			{
+				if (!blocks[i].Contains($"guid: {srcGuid}, type: 3"))
+					continue;
+
+				string block = blocks[i];
+				foreach (var m in mappings)
+				{
+					if (string.IsNullOrWhiteSpace(m.SourceField) || string.IsNullOrWhiteSpace(m.TargetField))
+						continue;
+					// Top-level MonoBehaviour fields are indented with exactly 2 spaces in Unity YAML.
+					block = block.Replace($"\n  {m.SourceField}:", $"\n  {m.TargetField}:");
+				}
+				blocks[i] = block;
+			}
+
+			string result = string.Join("", blocks);
+			if (hasCRLF)
+				result = result.Replace("\n", "\r\n");
+			return result;
+		}
+
+		/// <summary>
+		/// Splits a Unity YAML string into individual document blocks at "---" separators.
+		/// Reassembling with <c>string.Join("", blocks)</c> reproduces the original exactly.
+		/// </summary>
+		private static List<string> SplitYamlDocuments(string yaml)
+		{
+			var result = new List<string>();
+			int start  = 0;
+			while (true)
+			{
+				int pos = yaml.IndexOf("\n---", start);
+				if (pos < 0)
+					break;
+				result.Add(yaml.Substring(start, pos - start + 1)); // keep the '\n' before "---"
+				start = pos + 1;                                     // next block starts at "---"
+			}
+			result.Add(yaml.Substring(start));
+			return result;
 		}
 	}
 }

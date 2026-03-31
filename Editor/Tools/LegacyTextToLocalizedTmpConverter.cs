@@ -1043,13 +1043,10 @@ namespace GuiToolkit.Editor
 				for (int i = 0; i < total; i++)
 				{
 					string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
-					if (i % 20 == 0)
-					{
-						EditorUtility.DisplayProgressBar(
-							"Convert Legacy Text",
-							$"Building cross-file reference index… ({i + 1}/{total})",
-							(float)i / Math.Max(total, 1));
-					}
+					EditorUtility.DisplayProgressBar(
+						"Convert Legacy Text",
+						$"Building cross-file reference index… ({i + 1}/{total})",
+						(float)i / Math.Max(total, 1));
 
 					if (IsReadOnlyPackagePath(assetPath))
 						continue;
@@ -1065,8 +1062,7 @@ namespace GuiToolkit.Editor
 					}
 					catch (Exception ex)
 					{
-						Debug.LogWarning(
-							$"[LegacyTextToLocalizedTmpConverter] Could not read '{assetPath}' for cross-file index: {ex.Message}");
+						Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] Could not read '{assetPath}' for cross-file index: {ex.Message}");
 						continue;
 					}
 
@@ -1151,7 +1147,9 @@ namespace GuiToolkit.Editor
 						existing[kvp.Key] = fieldSet;
 					}
 					foreach (string fieldName in kvp.Value)
+					{
 						fieldSet.Add(fieldName);
+					}
 				}
 			}
 		}
