@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -211,6 +211,37 @@ namespace GuiToolkit.Editor
 
 			Debug.Log($"[AssetDependencyLogger] GUID index built: {total} files scanned, " +
 			          $"{index.Count} unique GUIDs indexed.");
+		}
+
+		// -----------------------------------------------------------------------
+		// Shared API used by other editor tools
+		// -----------------------------------------------------------------------
+
+		/// <summary>
+		/// Ensures the reverse GUID index is built. Builds it now if not already cached.
+		/// Returns <c>true</c> if the index is ready; <c>false</c> if the user cancelled.
+		/// </summary>
+		internal static bool EnsureIndex()
+		{
+			if (s_ReverseIndex != null)
+				return true;
+			BuildReverseIndex();
+			return s_ReverseIndex != null;
+		}
+
+		/// <summary>
+		/// Returns <c>true</c> if <paramref name="assetPath"/> is referenced by at least one
+		/// other asset in the project according to the cached index.
+		/// Always returns <c>true</c> when the index has not been built (safe default).
+		/// </summary>
+		internal static bool HasDependents(string assetPath)
+		{
+			if (s_ReverseIndex == null)
+				return true;
+			string guid = AssetDatabase.AssetPathToGUID(assetPath);
+			return !string.IsNullOrEmpty(guid)
+				&& s_ReverseIndex.TryGetValue(guid, out var list)
+				&& list.Count > 0;
 		}
 
 		// -----------------------------------------------------------------------

@@ -29,6 +29,7 @@ namespace GuiToolkit.Editor
 		[SerializeField] private bool       m_IncludeOpenScenes;
 		[SerializeField] private bool       m_IgnoreDisabledGameObjects;
 		[SerializeField] private bool       m_IgnoreDisabledComponents = true;
+		[SerializeField] private bool       m_IgnoreUnused             = true;
 
 		private readonly List<Finding> m_Findings = new();
 		private Vector2 m_Scroll;
@@ -118,6 +119,11 @@ namespace GuiToolkit.Editor
 					"Skip Behaviour components (e.g. scripts, renderers) that are disabled."),
 				m_IgnoreDisabledComponents);
 
+			m_IgnoreUnused = EditorGUILayout.ToggleLeft(
+				new GUIContent("Ignore unused assets",
+					"Skip prefabs not referenced by any other asset. Index is built automatically if needed."),
+				m_IgnoreUnused);
+
 			EditorGUILayout.Space(8);
 
 			Type filterType = m_FieldTypeScript?.GetClass();
@@ -174,6 +180,13 @@ namespace GuiToolkit.Editor
 		{
 			m_Findings.Clear();
 			m_HasScanned = false;
+
+			if (m_IgnoreUnused && !AssetDependencyLogger.EnsureIndex())
+			{
+				m_StatusLine = "Scan cancelled (dependency index build cancelled).";
+				m_HasScanned = true;
+				return;
+			}
 
 			int prefabCount = 0;
 
@@ -254,6 +267,8 @@ namespace GuiToolkit.Editor
 		{
 			var prefabAsset = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
 			if (prefabAsset == null)
+				return;
+			if (m_IgnoreUnused && !AssetDependencyLogger.HasDependents(assetPath))
 				return;
 
 			GameObject contents = null;
