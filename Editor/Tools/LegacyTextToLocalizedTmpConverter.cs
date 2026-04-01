@@ -159,9 +159,14 @@ namespace GuiToolkit.Editor
 			var crossFileIndex = BuildProjectWideCrossFileIndex();
 			var stats = new Stats();
 
-			// Suspend asset database refreshing for the duration of all file writes.
-			// Without this, Unity calls ImportAsset hundreds of times consecutively which
-			// causes a SIGSEGV crash in MonoBehaviour::Transfer / TypeTreeCache::GetTypeTree.
+			// Collect pending C# script writes separately from YAML writes.
+			// Writing C# files inside StartAssetEditing() causes StopAssetEditing() to batch-import
+			// scripts AND prefabs simultaneously, triggering a SIGSEGV in
+			// MonoBehaviour::Transfer<GenerateTypeTreeTransfer> / TypeTreeCache::GetTypeTree.
+			// Decoupling: YAML batch first (in StartAssetEditing), C# files written after.
+			var pendingCsWrites = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+			// Suspend asset database refreshing so all YAML file writes form a single import batch.
 			AssetDatabase.StartAssetEditing();
 			try
 			{
@@ -178,7 +183,7 @@ namespace GuiToolkit.Editor
 
 					try
 					{
-						ProcessPrefabFile(prefabPath, newGuid, inputFieldGuid, tmpInputFieldGuid, crossFileIndex, ref stats);
+						ProcessPrefabFile(prefabPath, newGuid, inputFieldGuid, tmpInputFieldGuid, crossFileIndex, pendingCsWrites, ref stats);
 					}
 					catch (Exception ex)
 					{
@@ -192,7 +197,7 @@ namespace GuiToolkit.Editor
 					EditorUtility.DisplayProgressBar("Convert Legacy Text", "Processing plain scene objects…", 1f);
 					try
 					{
-						ProcessScenePlainObjects(currentAssetPath, scenePlainTexts, newGuid, inputFieldGuid, tmpInputFieldGuid, crossFileIndex, ref stats);
+						ProcessScenePlainObjects(currentAssetPath, scenePlainTexts, newGuid, inputFieldGuid, tmpInputFieldGuid, crossFileIndex, pendingCsWrites, ref stats);
 					}
 					catch (Exception ex)
 					{
@@ -204,11 +209,17 @@ namespace GuiToolkit.Editor
 			finally
 			{
 				EditorUtility.ClearProgressBar();
+				// Imports all deferred YAML changes — no C# files in this batch.
 				AssetDatabase.StopAssetEditing();
 			}
 
-			// Single batch refresh — imports all modified prefabs and C# scripts at once.
-			AssetDatabase.Refresh();
+			// Write C# script changes after YAML imports are complete.
+			// Unity detects these on the next refresh cycle: compile — domain reload — prefab reimport.
+			foreach (var kvp in pendingCsWrites)
+			{
+				File.WriteAllText(kvp.Key, kvp.Value);
+				stats.scriptsUpdated++;
+			}
 
 			ReloadCurrentAsset(isInPrefabStage, currentAssetPath);
 
@@ -230,7 +241,8 @@ namespace GuiToolkit.Editor
 
 		private static void ProcessPrefabFile(string assetPath, string scriptGuid,
 		                                       string inputFieldGuid, string tmpInputFieldGuid,
-		                                       Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex, ref Stats stats)
+		                                       Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex,
+		                                       Dictionary<string, string> pendingCsWrites, ref Stats stats)
 		{
 			var prefabContents = PrefabUtility.LoadPrefabContents(assetPath);
 			var entries = new List<LegacyTextData>();
@@ -264,7 +276,7 @@ namespace GuiToolkit.Editor
 			if (entries.Count == 0)
 				return;
 
-			ApplyYamlConversions(assetPath, entries, scriptGuid, inputFieldGuid, tmpInputFieldGuid, crossFileIndex, ref stats);
+			ApplyYamlConversions(assetPath, entries, scriptGuid, inputFieldGuid, tmpInputFieldGuid, crossFileIndex, pendingCsWrites, ref stats);
 		}
 
 		// -----------------------------------------------------------------------
@@ -274,7 +286,8 @@ namespace GuiToolkit.Editor
 		private static void ProcessScenePlainObjects(string scenePath, List<Text> texts,
 		                                              string scriptGuid,
 		                                              string inputFieldGuid, string tmpInputFieldGuid,
-		                                              Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex, ref Stats stats)
+		                                              Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex,
+		                                              Dictionary<string, string> pendingCsWrites, ref Stats stats)
 		{
 			var entries = new List<LegacyTextData>();
 
@@ -298,7 +311,7 @@ namespace GuiToolkit.Editor
 			// Save to ensure the scene YAML reflects in-memory state.
 			EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
 
-			ApplyYamlConversions(scenePath, entries, scriptGuid, inputFieldGuid, tmpInputFieldGuid, crossFileIndex, ref stats);
+			ApplyYamlConversions(scenePath, entries, scriptGuid, inputFieldGuid, tmpInputFieldGuid, crossFileIndex, pendingCsWrites, ref stats);
 		}
 
 		// -----------------------------------------------------------------------
@@ -308,7 +321,8 @@ namespace GuiToolkit.Editor
 		private static void ApplyYamlConversions(string assetPath, IList<LegacyTextData> entries,
 		                                          string scriptGuid,
 		                                          string inputFieldGuid, string tmpInputFieldGuid,
-		                                          Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex, ref Stats stats)
+		                                          Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex,
+		                                          Dictionary<string, string> pendingCsWrites, ref Stats stats)
 		{
 			if (IsReadOnlyPackagePath(assetPath))
 			{
@@ -385,14 +399,12 @@ namespace GuiToolkit.Editor
 			File.WriteAllText(fullPath, yaml);
 			stats.filesProcessed++;
 
-			// Update dependent C# scripts: change field types from Text → TMP_Text.
+			// Queue dependent C# script changes (field types Text → TMP_Text).
+			// Actual file writes happen in RunConversion after StopAssetEditing().
 			foreach (var kvp in scriptFieldMap)
-			{
-				if (TryUpdateCSharpScriptFields(kvp.Key, kvp.Value))
-					stats.scriptsUpdated++;
-			}
+				TryUpdateCSharpScriptFields(kvp.Key, kvp.Value, pendingCsWrites);
 
-			// Update dependent C# scripts: change field types from InputField → TMP_InputField.
+			// Queue dependent C# script changes (InputField → TMP_InputField).
 			if (inputFieldIds.Count > 0)
 			{
 				var ifPerComponentMap = FindReferencingScriptFieldsPerComponent(yaml, inputFieldIds);
@@ -401,12 +413,9 @@ namespace GuiToolkit.Editor
 
 				foreach (var kvp in ifScriptFieldMap)
 				{
-					if (TryUpdateCSharpScriptFields(kvp.Key, kvp.Value,
+					TryUpdateCSharpScriptFields(kvp.Key, kvp.Value, pendingCsWrites,
 					    srcTypeName: "InputField", dstTypeName: "TMP_InputField",
-					    dstNamespace: "TMPro", checkKeepLegacy: false))
-					{
-						stats.scriptsUpdated++;
-					}
+					    dstNamespace: "TMPro", checkKeepLegacy: false);
 				}
 			}
 		}
@@ -907,6 +916,7 @@ namespace GuiToolkit.Editor
 		private static bool TryUpdateCSharpScriptFields(
 			string scriptGuid,
 			IEnumerable<string> fieldNames,
+			Dictionary<string, string> pendingCsWrites,
 			string srcTypeName    = "Text",
 			string dstTypeName    = "TMP_Text",
 			string dstNamespace   = "TMPro",
@@ -932,7 +942,10 @@ namespace GuiToolkit.Editor
 				return false;
 			}
 
-			string source  = File.ReadAllText(fullPath);
+			// Start from already-queued content if this script was touched by a previous prefab.
+			string source  = pendingCsWrites.TryGetValue(fullPath, out string queued)
+			              ? queued
+			              : File.ReadAllText(fullPath);
 			string updated = source;
 
 			foreach (string fieldName in fieldNames)
@@ -967,8 +980,9 @@ namespace GuiToolkit.Editor
 					RegexOptions.Multiline);
 			}
 
-			File.WriteAllText(fullPath, updated);
-			Debug.Log($"[LegacyTextToLocalizedTmpConverter] Updated C# field types in {assetPath}");
+			// Defer the actual write — RunConversion writes all C# files after StopAssetEditing().
+			pendingCsWrites[fullPath] = updated;
+			Debug.Log($"[LegacyTextToLocalizedTmpConverter] Queued C# field type update: {assetPath}");
 			return true;
 		}
 
