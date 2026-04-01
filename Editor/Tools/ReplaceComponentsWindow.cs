@@ -314,6 +314,10 @@ namespace GuiToolkit.Editor
 			}
 		}
 
+		// Only these file types can contain !u!114 MonoBehaviour blocks with serialized component refs.
+		private static readonly HashSet<string> s_ComponentBearingExtensions =
+			new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".prefab", ".unity", ".asset" };
+
 		/// <summary>
 		/// Builds an index of cross-file serialized field references to MonoBehaviours in
 		/// <paramref name="targetAssetPaths"/>. Uses the <see cref="AssetDependencyLogger"/> cached
@@ -355,6 +359,9 @@ namespace GuiToolkit.Editor
 						candidates.Add(path);
 				}
 			}
+
+			// Keep only file types that can actually contain MonoBehaviour serialized field refs.
+			candidates.RemoveAll(p => !s_ComponentBearingExtensions.Contains(Path.GetExtension(p)));
 
 			int total = candidates.Count;
 			var scriptGuidRx = new Regex(@"m_Script:\s*\{[^}]*\bguid:\s*([a-fA-F0-9]+)[^}]*\}", RegexOptions.Compiled);
