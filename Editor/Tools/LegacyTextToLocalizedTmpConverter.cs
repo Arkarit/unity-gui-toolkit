@@ -84,6 +84,7 @@ namespace GuiToolkit.Editor
 		{
 			public int textConverted;
 			public int textSkippedDueToCompanion;
+			public int inputFieldsConverted;
 			public int scriptsUpdated;
 			public int filesProcessed;
 			public int errors;
@@ -103,6 +104,9 @@ namespace GuiToolkit.Editor
 					"Make sure the UI Toolkit package is imported correctly.", "OK");
 				return;
 			}
+
+			string inputFieldGuid    = YamlUtility.FindMonoScriptGuid(typeof(InputField));
+			string tmpInputFieldGuid = YamlUtility.FindMonoScriptGuid(typeof(TMP_InputField));
 
 			bool isInPrefabStage = PrefabStageUtility.GetCurrentPrefabStage() != null;
 			string currentAssetPath = isInPrefabStage
@@ -170,7 +174,7 @@ namespace GuiToolkit.Editor
 
 					try
 					{
-						ProcessPrefabFile(prefabPath, newGuid, crossFileIndex, ref stats);
+						ProcessPrefabFile(prefabPath, newGuid, inputFieldGuid, tmpInputFieldGuid, crossFileIndex, ref stats);
 					}
 					catch (Exception ex)
 					{
@@ -184,7 +188,7 @@ namespace GuiToolkit.Editor
 					EditorUtility.DisplayProgressBar("Convert Legacy Text", "Processing plain scene objects…", 1f);
 					try
 					{
-						ProcessScenePlainObjects(currentAssetPath, scenePlainTexts, newGuid, crossFileIndex, ref stats);
+						ProcessScenePlainObjects(currentAssetPath, scenePlainTexts, newGuid, inputFieldGuid, tmpInputFieldGuid, crossFileIndex, ref stats);
 					}
 					catch (Exception ex)
 					{
@@ -203,6 +207,7 @@ namespace GuiToolkit.Editor
 			string summary =
 				$"Converted:  {stats.textConverted} Legacy Text component(s)\n" +
 				$"Skipped:    {stats.textSkippedDueToCompanion} (RequireComponent companions — see Console)\n" +
+				$"InputFields:{stats.inputFieldsConverted} InputField → TMP_InputField\n" +
 				$"Scripts:    {stats.scriptsUpdated} C# script(s) updated\n" +
 				$"Files:      {stats.filesProcessed} modified";
 			if (stats.errors > 0)
@@ -215,7 +220,9 @@ namespace GuiToolkit.Editor
 		// Prefab processing
 		// -----------------------------------------------------------------------
 
-		private static void ProcessPrefabFile(string assetPath, string scriptGuid, Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex, ref Stats stats)
+		private static void ProcessPrefabFile(string assetPath, string scriptGuid,
+		                                       string inputFieldGuid, string tmpInputFieldGuid,
+		                                       Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex, ref Stats stats)
 		{
 			var prefabContents = PrefabUtility.LoadPrefabContents(assetPath);
 			var entries = new List<LegacyTextData>();
@@ -249,7 +256,7 @@ namespace GuiToolkit.Editor
 			if (entries.Count == 0)
 				return;
 
-			ApplyYamlConversions(assetPath, entries, scriptGuid, crossFileIndex, ref stats);
+			ApplyYamlConversions(assetPath, entries, scriptGuid, inputFieldGuid, tmpInputFieldGuid, crossFileIndex, ref stats);
 		}
 
 		// -----------------------------------------------------------------------
@@ -257,7 +264,9 @@ namespace GuiToolkit.Editor
 		// -----------------------------------------------------------------------
 
 		private static void ProcessScenePlainObjects(string scenePath, List<Text> texts,
-		                                              string scriptGuid, Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex, ref Stats stats)
+		                                              string scriptGuid,
+		                                              string inputFieldGuid, string tmpInputFieldGuid,
+		                                              Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex, ref Stats stats)
 		{
 			var entries = new List<LegacyTextData>();
 
@@ -281,7 +290,7 @@ namespace GuiToolkit.Editor
 			// Save to ensure the scene YAML reflects in-memory state.
 			EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
 
-			ApplyYamlConversions(scenePath, entries, scriptGuid, crossFileIndex, ref stats);
+			ApplyYamlConversions(scenePath, entries, scriptGuid, inputFieldGuid, tmpInputFieldGuid, crossFileIndex, ref stats);
 		}
 
 		// -----------------------------------------------------------------------
@@ -289,7 +298,9 @@ namespace GuiToolkit.Editor
 		// -----------------------------------------------------------------------
 
 		private static void ApplyYamlConversions(string assetPath, IList<LegacyTextData> entries,
-		                                          string scriptGuid, Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex, ref Stats stats)
+		                                          string scriptGuid,
+		                                          string inputFieldGuid, string tmpInputFieldGuid,
+		                                          Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex, ref Stats stats)
 		{
 			if (IsReadOnlyPackagePath(assetPath))
 			{
@@ -317,6 +328,7 @@ namespace GuiToolkit.Editor
 			MergeCrossFileRefs(assetPath, convertedIds, crossFileIndex, perComponentMap);
 			var scriptFieldMap  = AggregateScriptFieldMap(perComponentMap);
 
+			// Phase 1: Replace each Text block with its TMP equivalent.
 			foreach (var data in entries)
 			{
 				bool autoLocalize = !CheckForTextPropertySetters(data.ComponentLocalId, perComponentMap)
@@ -340,6 +352,28 @@ namespace GuiToolkit.Editor
 			if (!changed)
 				return;
 
+			// Phase 2: Auto-convert InputField → TMP_InputField for any InputFields whose
+			// m_TextComponent or m_Placeholder pointed at one of the just-converted Text components.
+			var inputFieldIds = new HashSet<long>();
+			if (!string.IsNullOrEmpty(inputFieldGuid) && !string.IsNullOrEmpty(tmpInputFieldGuid))
+			{
+				inputFieldIds = FindInputFieldsReferencingIds(yaml, convertedIds, inputFieldGuid);
+				foreach (long ifId in inputFieldIds)
+				{
+					string patched = SwapMonoBehaviourScriptGuid(yaml, ifId, inputFieldGuid, tmpInputFieldGuid);
+					if (patched == null)
+					{
+						Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] Could not swap InputField GUID for " +
+						                 $"localId={ifId} in {assetPath}.");
+						stats.errors++;
+						continue;
+					}
+					yaml = patched;
+					stats.inputFieldsConverted++;
+				}
+			}
+
+			// Single write — both Text and InputField changes committed together.
 			File.WriteAllText(fullPath, yaml);
 			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
 			stats.filesProcessed++;
@@ -349,6 +383,24 @@ namespace GuiToolkit.Editor
 			{
 				if (TryUpdateCSharpScriptFields(kvp.Key, kvp.Value))
 					stats.scriptsUpdated++;
+			}
+
+			// Update dependent C# scripts: change field types from InputField → TMP_InputField.
+			if (inputFieldIds.Count > 0)
+			{
+				var ifPerComponentMap = FindReferencingScriptFieldsPerComponent(yaml, inputFieldIds);
+				MergeCrossFileRefs(assetPath, inputFieldIds, crossFileIndex, ifPerComponentMap);
+				var ifScriptFieldMap  = AggregateScriptFieldMap(ifPerComponentMap);
+
+				foreach (var kvp in ifScriptFieldMap)
+				{
+					if (TryUpdateCSharpScriptFields(kvp.Key, kvp.Value,
+					    srcTypeName: "InputField", dstTypeName: "TMP_InputField",
+					    dstNamespace: "TMPro", checkKeepLegacy: false))
+					{
+						stats.scriptsUpdated++;
+					}
+				}
 			}
 		}
 
@@ -836,11 +888,22 @@ namespace GuiToolkit.Editor
 
 		/// <summary>
 		/// Opens the C# source file identified by <paramref name="scriptGuid"/> and replaces all
-		/// <c>Text fieldName</c> field-type occurrences (for the given <paramref name="fieldNames"/>)
-		/// with <c>TMP_Text fieldName</c>. Also ensures <c>using TMPro;</c> is present.
+		/// <c><paramref name="srcTypeName"/> fieldName</c> field-type occurrences (for the given
+		/// <paramref name="fieldNames"/>) with <c><paramref name="dstTypeName"/> fieldName</c>.
+		/// Also ensures <c>using <paramref name="dstNamespace"/>;</c> is present.
+		/// <para>
+		/// Default behaviour (no type name arguments): replaces <c>Text</c> → <c>TMP_Text</c> and
+		/// adds <c>using TMPro;</c>, matching the legacy-Text conversion use case.
+		/// </para>
 		/// </summary>
 		/// <returns><c>true</c> when the file was actually modified.</returns>
-		private static bool TryUpdateCSharpScriptFields(string scriptGuid, IEnumerable<string> fieldNames)
+		private static bool TryUpdateCSharpScriptFields(
+			string scriptGuid,
+			IEnumerable<string> fieldNames,
+			string srcTypeName    = "Text",
+			string dstTypeName    = "TMP_Text",
+			string dstNamespace   = "TMPro",
+			bool   checkKeepLegacy = true)
 		{
 			string assetPath = AssetDatabase.GUIDToAssetPath(scriptGuid);
 			if (string.IsNullOrEmpty(assetPath) || !assetPath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
@@ -867,32 +930,33 @@ namespace GuiToolkit.Editor
 
 			foreach (string fieldName in fieldNames)
 			{
-				// Skip fields decorated with [KeepLegacyText] (alone or inside an attribute list).
-				if (HasKeepLegacyTextAttribute(source, fieldName))
+				// Skip fields decorated with [KeepLegacyText] (Text-conversion-only guard).
+				if (checkKeepLegacy && HasKeepLegacyTextAttribute(source, fieldName))
 				{
 					Debug.Log($"[LegacyTextToLocalizedTmpConverter] Skipping field '{fieldName}' in {assetPath} — marked [KeepLegacyText].");
 					continue;
 				}
 
-				// Match "Text fieldName" where Text is a standalone word (not UnityEngine.UI.Text etc.)
-				// and fieldName is followed by a non-word char.
+				// Match "SrcType fieldName" where SrcType is a standalone word and fieldName is
+				// followed by a non-word char.
 				updated = Regex.Replace(
 					updated,
-					$@"(?<!\w)Text(\s+{Regex.Escape(fieldName)}(?!\w))",
-					"TMP_Text$1");
+					$@"(?<!\w){Regex.Escape(srcTypeName)}(\s+{Regex.Escape(fieldName)}(?!\w))",
+					$"{dstTypeName}$1");
 			}
 
 			if (updated == source)
 				return false;
 
-			// Ensure "using TMPro;" is present.
-			if (!Regex.IsMatch(updated, @"^\s*using\s+TMPro\s*;", RegexOptions.Multiline))
+			// Ensure "using <dstNamespace>;" is present.
+			string usingDirective = $"using {dstNamespace};";
+			if (!Regex.IsMatch(updated, $@"^\s*using\s+{Regex.Escape(dstNamespace)}\s*;", RegexOptions.Multiline))
 			{
 				// Insert after the last "using" directive line.
 				updated = Regex.Replace(
 					updated,
 					@"((?:^\s*using\s+[^\r\n]+[\r\n]+)+)",
-					m => m.Value + "using TMPro;\n",
+					m => m.Value + usingDirective + "\n",
 					RegexOptions.Multiline);
 			}
 
@@ -1109,6 +1173,88 @@ namespace GuiToolkit.Editor
 			}
 
 			return index;
+		}
+
+		/// <summary>
+		/// Scans all <c>!u!114</c> (MonoBehaviour) blocks in <paramref name="yaml"/> and returns
+		/// the local IDs of any <see cref="InputField"/> components whose <c>m_TextComponent</c> or
+		/// <c>m_Placeholder</c> field points to one of the supplied <paramref name="textIds"/>.
+		/// These InputFields must also be converted to <c>TMP_InputField</c> because their text
+		/// children are being converted to TMP components.
+		/// </summary>
+		private static HashSet<long> FindInputFieldsReferencingIds(
+			string yaml, HashSet<long> textIds, string inputFieldGuid)
+		{
+			var result = new HashSet<long>();
+
+			var blocks = Regex.Split(yaml, @"(?=^--- !u!114 &)", RegexOptions.Multiline);
+
+			var anchorRx = new Regex(@"^--- !u!114 &(-?\d+)", RegexOptions.Multiline);
+			var scriptRx = new Regex(
+				@"m_Script:\s*\{[^}]*\bguid:\s*" + Regex.Escape(inputFieldGuid) + @"[^}]*\}",
+				RegexOptions.Compiled);
+			// Matches m_TextComponent or m_Placeholder referencing a same-file component (no guid).
+			var fieldRefRx = new Regex(
+				@"^\s+(?:m_TextComponent|m_Placeholder):\s*\{fileID:\s*(-?\d+)\}",
+				RegexOptions.Compiled | RegexOptions.Multiline);
+
+			foreach (string block in blocks)
+			{
+				if (!block.StartsWith("--- !u!114 &", StringComparison.Ordinal))
+					continue;
+				if (!scriptRx.IsMatch(block))
+					continue;
+
+				bool references = false;
+				foreach (Match m in fieldRefRx.Matches(block))
+				{
+					if (long.TryParse(m.Groups[1].Value, out long refId) && textIds.Contains(refId))
+					{
+						references = true;
+						break;
+					}
+				}
+				if (!references)
+					continue;
+
+				var anchorMatch = anchorRx.Match(block);
+				if (anchorMatch.Success && long.TryParse(anchorMatch.Groups[1].Value, out long localId))
+					result.Add(localId);
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Locates the <c>!u!114 &amp;{localId}</c> MonoBehaviour block in <paramref name="yaml"/>
+		/// and replaces the <c>m_Script</c> GUID from <paramref name="oldGuid"/> to
+		/// <paramref name="newGuid"/>. Returns the modified YAML string, or <c>null</c> if the
+		/// block or GUID was not found.
+		/// </summary>
+		private static string SwapMonoBehaviourScriptGuid(
+			string yaml, long localId, string oldGuid, string newGuid)
+		{
+			string anchor   = $"--- !u!114 &{localId}";
+			int    blockStart = yaml.IndexOf(anchor, StringComparison.Ordinal);
+			if (blockStart < 0)
+				return null;
+
+			// Scope the replacement to this block only (up to the next document separator).
+			int nextDoc  = yaml.IndexOf("\n---", blockStart + anchor.Length, StringComparison.Ordinal);
+			int blockEnd = nextDoc < 0 ? yaml.Length : nextDoc;
+
+			string block = yaml.Substring(blockStart, blockEnd - blockStart);
+
+			// Replace only the m_Script GUID to avoid touching other GUIDs in the block.
+			string newBlock = Regex.Replace(
+				block,
+				@"(m_Script:\s*\{[^}]*\bguid:\s*)" + Regex.Escape(oldGuid),
+				"$1" + newGuid);
+
+			if (newBlock == block)
+				return null; // GUID not found in this block
+
+			return yaml.Substring(0, blockStart) + newBlock + yaml.Substring(blockEnd);
 		}
 
 		/// <summary>
