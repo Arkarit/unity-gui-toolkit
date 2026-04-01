@@ -181,7 +181,7 @@ namespace GuiToolkit.Editor
 			m_Findings.Clear();
 			m_HasScanned = false;
 
-			if (m_IgnoreUnused && !AssetDependencyLogger.EnsureIndex())
+			if (m_IgnoreUnused && !AssetDependencyLogger.EnsureIndex(true))
 			{
 				m_StatusLine = "Scan cancelled (dependency index build cancelled).";
 				m_HasScanned = true;
