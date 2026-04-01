@@ -314,15 +314,10 @@ namespace GuiToolkit.Editor
 			}
 		}
 
-		// Only these file types can contain !u!114 MonoBehaviour blocks with serialized component refs.
-		private static readonly HashSet<string> s_ComponentBearingExtensions =
-			new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".prefab", ".unity", ".asset" };
-
 		/// <summary>
 		/// Builds an index of cross-file serialized field references to MonoBehaviours in
 		/// <paramref name="targetAssetPaths"/>. Uses the <see cref="AssetDependencyLogger"/> cached
-		/// reverse-GUID index to scan only the files that actually reference the targets, instead of
-		/// every prefab and scene in the project.
+		/// scripts-only reverse-GUID index to scan only the files that actually reference the targets.
 		/// Key: (targetAssetGuid, targetLocalId). Value: scriptGuid -> field names.
 		/// </summary>
 		private static Dictionary<(string, long), Dictionary<string, HashSet<string>>> BuildProjectWideCrossFileIndex(
@@ -334,14 +329,14 @@ namespace GuiToolkit.Editor
 			var targetPathSet = new HashSet<string>(targetAssetPaths, StringComparer.OrdinalIgnoreCase);
 			var candidates    = new List<string>();
 
-			if (AssetDependencyLogger.EnsureIndex())
+			if (AssetDependencyLogger.EnsureIndex(scriptsOnly: true))
 			{
 				var candidateSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 				foreach (string assetPath in targetAssetPaths)
 				{
 					string assetGuid = AssetDatabase.AssetPathToGUID(assetPath);
 					if (string.IsNullOrEmpty(assetGuid)) continue;
-					foreach (string dep in AssetDependencyLogger.GetDependents(assetGuid))
+					foreach (string dep in AssetDependencyLogger.GetDependents(assetGuid, scriptsOnly: true))
 					{
 						if (!targetPathSet.Contains(dep))
 							candidateSet.Add(dep);
@@ -351,17 +346,14 @@ namespace GuiToolkit.Editor
 			}
 			else
 			{
-				// Fallback: scan all prefabs + scenes under Assets/
-				foreach (string guid in AssetDatabase.FindAssets("t:Prefab t:Scene"))
+				// Fallback (user cancelled index build): scan prefabs + scenes + ScriptableObjects.
+				foreach (string guid in AssetDatabase.FindAssets("t:Prefab t:Scene t:ScriptableObject"))
 				{
 					string path = AssetDatabase.GUIDToAssetPath(guid);
 					if (path.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase) && !targetPathSet.Contains(path))
 						candidates.Add(path);
 				}
 			}
-
-			// Keep only file types that can actually contain MonoBehaviour serialized field refs.
-			candidates.RemoveAll(p => !s_ComponentBearingExtensions.Contains(Path.GetExtension(p)));
 
 			int total = candidates.Count;
 			var scriptGuidRx = new Regex(@"m_Script:\s*\{[^}]*\bguid:\s*([a-fA-F0-9]+)[^}]*\}", RegexOptions.Compiled);

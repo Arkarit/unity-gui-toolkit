@@ -24,12 +24,13 @@ namespace GuiToolkit.Editor
 	[EditorAware]
 	internal static class AssetDependencyLogger
 	{
-		private const string MENU_DEPS_DIRECT          = "Assets/Log Direct Dependencies";
-		private const string MENU_DEPS_DIRECT_NO_PKG   = "Assets/Log Direct Dependencies (Project only)";
-		private const string MENU_DEPENDENTS_CACHED    = "Assets/Log Direct Dependents";
-		private const string MENU_DEPENDENTS_REBUILD   = "Assets/Log Direct Dependents (Rebuild Cache)";
+		private const string MENU_DEPS_DIRECT               = "Assets/Log Direct Dependencies";
+		private const string MENU_DEPS_DIRECT_NO_PKG        = "Assets/Log Direct Dependencies (Project only)";
+		private const string MENU_DEPENDENTS_CACHED         = "Assets/Log Direct Dependents";
+		private const string MENU_DEPENDENTS_REBUILD        = "Assets/Log Direct Dependents (Rebuild Full Cache)";
+		private const string MENU_DEPENDENTS_REBUILD_SCRIPTS = "Assets/Log Direct Dependents (Rebuild Scripts-Only Cache)";
 
-		// Unity YAML file extensions that can contain serialized GUID references.
+		// All Unity YAML file extensions that can contain serialized GUID references.
 		private static readonly HashSet<string> s_YamlExtensions =
 			new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 			{
@@ -39,19 +40,28 @@ namespace GuiToolkit.Editor
 				".physicMaterial", ".physicsMaterial2D", ".lighting",
 			};
 
+		// Subset: only file types that can contain !u!114 MonoBehaviour blocks.
+		// Used by tools that query component/script references (e.g. ReplaceComponentsWindow).
+		private static readonly HashSet<string> s_ScriptBearingExtensions =
+			new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".prefab", ".unity", ".asset" };
+
 		// Matches any 32-hex-char GUID value after "guid:" in Unity YAML.
 		private static readonly Regex s_GuidPattern =
 			new Regex(@"\bguid:\s*([0-9a-fA-F]{32})\b", RegexOptions.Compiled);
 
 		// -----------------------------------------------------------------------
-		// Reverse-GUID index cache
-		// Key:   GUID string (lowercase)
-		// Value: sorted list of asset paths (under Assets/) that reference that GUID
+		// Reverse-GUID index cache — full (all YAML types)
+		// Key:   GUID string  |  Value: sorted list of asset paths that reference it
 		// null means "not yet built"
 		// -----------------------------------------------------------------------
 		private static Dictionary<string, List<string>> s_ReverseIndex;
 		private static int    s_IndexedFileCount;
 		private static string s_IndexTimestamp;
+
+		// Reverse-GUID index cache — scripts-only (.prefab / .unity / .asset)
+		private static Dictionary<string, List<string>> s_ScriptBearingIndex;
+		private static int    s_ScriptBearingFileCount;
+		private static string s_ScriptBearingTimestamp;
 
 		// -----------------------------------------------------------------------
 		// Menu: Dependencies (no caching needed — fast by nature)
@@ -76,14 +86,19 @@ namespace GuiToolkit.Editor
 
 		[MenuItem(MENU_DEPENDENTS_CACHED, priority = 2100)]
 		private static void LogDirectDependentsCached() =>
-			LogDirectDependentsInternal(rebuildCache: false);
+			LogDirectDependentsInternal(rebuildCache: false, scriptsOnly: false);
 
 		[MenuItem(MENU_DEPENDENTS_REBUILD, priority = 2101)]
 		private static void LogDirectDependentsRebuild() =>
-			LogDirectDependentsInternal(rebuildCache: true);
+			LogDirectDependentsInternal(rebuildCache: true, scriptsOnly: false);
+
+		[MenuItem(MENU_DEPENDENTS_REBUILD_SCRIPTS, priority = 2102)]
+		private static void LogDirectDependentsRebuildScripts() =>
+			LogDirectDependentsInternal(rebuildCache: true, scriptsOnly: true);
 
 		[MenuItem(MENU_DEPENDENTS_CACHED, validate = true)]
 		[MenuItem(MENU_DEPENDENTS_REBUILD, validate = true)]
+		[MenuItem(MENU_DEPENDENTS_REBUILD_SCRIPTS, validate = true)]
 		private static bool Validate_Dependents() =>
 			Selection.assetGUIDs != null && Selection.assetGUIDs.Length > 0;
 
@@ -91,7 +106,7 @@ namespace GuiToolkit.Editor
 		// Implementation: Dependents
 		// -----------------------------------------------------------------------
 
-		private static void LogDirectDependentsInternal(bool rebuildCache)
+		private static void LogDirectDependentsInternal(bool rebuildCache, bool scriptsOnly)
 		{
 			var selected = GetSelectedAssetPaths();
 			if (selected.Count == 0)
@@ -100,12 +115,22 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
+			var index = scriptsOnly ? s_ScriptBearingIndex : s_ReverseIndex;
+
 			// Ensure index is ready.
-			if (rebuildCache || s_ReverseIndex == null)
-				BuildReverseIndex();
+			if (rebuildCache || index == null)
+			{
+				BuildReverseIndex(scriptsOnly);
+				index = scriptsOnly ? s_ScriptBearingIndex : s_ReverseIndex;
+			}
 			else
-				Debug.Log($"[AssetDependencyLogger] Using cached GUID index " +
-				          $"({s_IndexedFileCount} files indexed at {s_IndexTimestamp}).");
+			{
+				string label = scriptsOnly ? "scripts-only" : "full";
+				int    count = scriptsOnly ? s_ScriptBearingFileCount : s_IndexedFileCount;
+				string ts    = scriptsOnly ? s_ScriptBearingTimestamp  : s_IndexTimestamp;
+				Debug.Log($"[AssetDependencyLogger] Using cached GUID index ({label}, " +
+				          $"{count} files indexed at {ts}).");
+			}
 
 			// Query index for each selected asset.
 			foreach (var path in selected)
@@ -118,7 +143,7 @@ namespace GuiToolkit.Editor
 				}
 
 				List<string> dependents;
-				if (s_ReverseIndex != null && s_ReverseIndex.TryGetValue(guid, out var refs))
+				if (index != null && index.TryGetValue(guid, out var refs))
 					dependents = new List<string>(refs);
 				else
 					dependents = new List<string>();
@@ -136,17 +161,20 @@ namespace GuiToolkit.Editor
 		// Index building
 		// -----------------------------------------------------------------------
 
-		private static void BuildReverseIndex()
+		private static void BuildReverseIndex(bool scriptsOnly = false)
 		{
+			HashSet<string> extensions = scriptsOnly ? s_ScriptBearingExtensions : s_YamlExtensions;
+			string label = scriptsOnly ? "Scripts-Only" : "Full";
+
 			var index = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
 			string[] candidates = AssetDatabase.GetAllAssetPaths()
 				.Where(p =>
 					p.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase) &&
-					s_YamlExtensions.Contains(Path.GetExtension(p)))
+					extensions.Contains(Path.GetExtension(p)))
 				.ToArray();
 
-			int total     = candidates.Length;
+			int total      = candidates.Length;
 			bool cancelled = false;
 
 			try
@@ -156,7 +184,7 @@ namespace GuiToolkit.Editor
 					if (i % 50 == 0)
 					{
 						cancelled = EditorUtility.DisplayCancelableProgressBar(
-							"Building GUID Index",
+							$"Building GUID Index ({label})",
 							$"Scanning {Path.GetFileName(candidates[i])}… ({i}/{total})",
 							(float)i / total);
 						if (cancelled)
@@ -197,7 +225,7 @@ namespace GuiToolkit.Editor
 
 			if (cancelled)
 			{
-				Debug.LogWarning("[AssetDependencyLogger] GUID index build cancelled — cache not updated.");
+				Debug.LogWarning($"[AssetDependencyLogger] GUID index ({label}) build cancelled — cache not updated.");
 				return;
 			}
 
@@ -205,11 +233,20 @@ namespace GuiToolkit.Editor
 			foreach (var list in index.Values)
 				list.Sort(StringComparer.OrdinalIgnoreCase);
 
-			s_ReverseIndex     = index;
-			s_IndexedFileCount = total;
-			s_IndexTimestamp   = DateTime.Now.ToString("HH:mm:ss");
+			if (scriptsOnly)
+			{
+				s_ScriptBearingIndex     = index;
+				s_ScriptBearingFileCount = total;
+				s_ScriptBearingTimestamp = DateTime.Now.ToString("HH:mm:ss");
+			}
+			else
+			{
+				s_ReverseIndex     = index;
+				s_IndexedFileCount = total;
+				s_IndexTimestamp   = DateTime.Now.ToString("HH:mm:ss");
+			}
 
-			Debug.Log($"[AssetDependencyLogger] GUID index built: {total} files scanned, " +
+			Debug.Log($"[AssetDependencyLogger] GUID index ({label}) built: {total} files scanned, " +
 			          $"{index.Count} unique GUIDs indexed.");
 		}
 
@@ -219,14 +256,17 @@ namespace GuiToolkit.Editor
 
 		/// <summary>
 		/// Ensures the reverse GUID index is built. Builds it now if not already cached.
+		/// Pass <paramref name="scriptsOnly"/> = <c>true</c> to use the faster scripts-only index
+		/// (prefabs, scenes, ScriptableObjects) when only MonoBehaviour references are needed.
 		/// Returns <c>true</c> if the index is ready; <c>false</c> if the user cancelled.
 		/// </summary>
-		internal static bool EnsureIndex()
+		internal static bool EnsureIndex(bool scriptsOnly = false)
 		{
-			if (s_ReverseIndex != null)
+			var index = scriptsOnly ? s_ScriptBearingIndex : s_ReverseIndex;
+			if (index != null)
 				return true;
-			BuildReverseIndex();
-			return s_ReverseIndex != null;
+			BuildReverseIndex(scriptsOnly);
+			return (scriptsOnly ? s_ScriptBearingIndex : s_ReverseIndex) != null;
 		}
 
 		/// <summary>
@@ -234,13 +274,14 @@ namespace GuiToolkit.Editor
 		/// other asset in the project according to the cached index.
 		/// Always returns <c>true</c> when the index has not been built (safe default).
 		/// </summary>
-		internal static bool HasDependents(string assetPath)
+		internal static bool HasDependents(string assetPath, bool scriptsOnly = false)
 		{
-			if (s_ReverseIndex == null)
+			var index = scriptsOnly ? s_ScriptBearingIndex : s_ReverseIndex;
+			if (index == null)
 				return true;
 			string guid = AssetDatabase.AssetPathToGUID(assetPath);
 			return !string.IsNullOrEmpty(guid)
-				&& s_ReverseIndex.TryGetValue(guid, out var list)
+				&& index.TryGetValue(guid, out var list)
 				&& list.Count > 0;
 		}
 
@@ -248,11 +289,12 @@ namespace GuiToolkit.Editor
 		/// Returns all asset paths that directly reference the asset identified by <paramref name="guid"/>.
 		/// Returns an empty collection if the index has not been built or the GUID has no dependents.
 		/// </summary>
-		internal static IReadOnlyList<string> GetDependents(string guid)
+		internal static IReadOnlyList<string> GetDependents(string guid, bool scriptsOnly = false)
 		{
-			if (s_ReverseIndex == null || string.IsNullOrEmpty(guid))
+			var index = scriptsOnly ? s_ScriptBearingIndex : s_ReverseIndex;
+			if (index == null || string.IsNullOrEmpty(guid))
 				return Array.Empty<string>();
-			return s_ReverseIndex.TryGetValue(guid, out var list)
+			return index.TryGetValue(guid, out var list)
 				? (IReadOnlyList<string>)list
 				: Array.Empty<string>();
 		}
