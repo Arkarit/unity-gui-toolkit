@@ -159,6 +159,10 @@ namespace GuiToolkit.Editor
 			var crossFileIndex = BuildProjectWideCrossFileIndex();
 			var stats = new Stats();
 
+			// Suspend asset database refreshing for the duration of all file writes.
+			// Without this, Unity calls ImportAsset hundreds of times consecutively which
+			// causes a SIGSEGV crash in MonoBehaviour::Transfer / TypeTreeCache::GetTypeTree.
+			AssetDatabase.StartAssetEditing();
 			try
 			{
 				int total = prefabPaths.Count + (hasSceneWork ? 1 : 0);
@@ -200,7 +204,11 @@ namespace GuiToolkit.Editor
 			finally
 			{
 				EditorUtility.ClearProgressBar();
+				AssetDatabase.StopAssetEditing();
 			}
+
+			// Single batch refresh — imports all modified prefabs and C# scripts at once.
+			AssetDatabase.Refresh();
 
 			ReloadCurrentAsset(isInPrefabStage, currentAssetPath);
 
@@ -375,7 +383,6 @@ namespace GuiToolkit.Editor
 
 			// Single write — both Text and InputField changes committed together.
 			File.WriteAllText(fullPath, yaml);
-			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
 			stats.filesProcessed++;
 
 			// Update dependent C# scripts: change field types from Text → TMP_Text.
@@ -961,7 +968,6 @@ namespace GuiToolkit.Editor
 			}
 
 			File.WriteAllText(fullPath, updated);
-			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
 			Debug.Log($"[LegacyTextToLocalizedTmpConverter] Updated C# field types in {assetPath}");
 			return true;
 		}
