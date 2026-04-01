@@ -31,13 +31,14 @@ namespace GuiToolkit.Editor
 		[SerializeField] private bool       m_IgnoreDisabledComponents = true;
 		[SerializeField] private bool       m_IgnoreUnused             = true;
 
-		private readonly List<Finding> m_Findings = new();
+		[SerializeField] private List<Finding> m_Findings = new();
 		private Vector2 m_Scroll;
-		private string  m_StatusLine = "Press \"Scan\" to start.";
-		private bool    m_HasScanned;
+		[SerializeField] private string m_StatusLine = "Press \"Scan\" to start.";
+		[SerializeField] private bool   m_HasScanned;
 
 		// -----------------------------------------------------------------------
 
+		[Serializable]
 		private struct Finding
 		{
 			public string AssetPath;
