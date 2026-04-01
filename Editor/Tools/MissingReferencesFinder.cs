@@ -192,7 +192,7 @@ namespace GuiToolkit.Editor
 
 			try
 			{
-				string[] prefabGuids = AssetDatabase.FindAssets("t:Prefab");
+				string[] prefabGuids = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets" });
 				int total = prefabGuids.Length;
 
 				for (int i = 0; i < total; i++)
