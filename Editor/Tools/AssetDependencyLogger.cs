@@ -244,6 +244,19 @@ namespace GuiToolkit.Editor
 				&& list.Count > 0;
 		}
 
+		/// <summary>
+		/// Returns all asset paths that directly reference the asset identified by <paramref name="guid"/>.
+		/// Returns an empty collection if the index has not been built or the GUID has no dependents.
+		/// </summary>
+		internal static IReadOnlyList<string> GetDependents(string guid)
+		{
+			if (s_ReverseIndex == null || string.IsNullOrEmpty(guid))
+				return Array.Empty<string>();
+			return s_ReverseIndex.TryGetValue(guid, out var list)
+				? (IReadOnlyList<string>)list
+				: Array.Empty<string>();
+		}
+
 		// -----------------------------------------------------------------------
 		// Implementation: Dependencies
 		// -----------------------------------------------------------------------

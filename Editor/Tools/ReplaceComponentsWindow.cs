@@ -13,6 +13,9 @@ namespace GuiToolkit.Editor
 	[EditorAware]
 	public class ReplaceComponentsWindow : EditorWindow
 	{
+		private const string k_PendingReloadPath    = "GuiToolkit.ReplaceComponents.PendingReloadPath";
+		private const string k_PendingReloadIsScene = "GuiToolkit.ReplaceComponents.PendingReloadIsScene";
+
 		private MonoScript m_SourceScript;
 		private MonoScript m_TargetScript;
 		private bool m_EntireProject = false;
@@ -103,7 +106,7 @@ namespace GuiToolkit.Editor
 			}
 
 			// --- Phase 1: build cross-file reference index ---
-			var crossFileIndex = BuildProjectWideCrossFileIndex("Replace Components");
+			var crossFileIndex = BuildProjectWideCrossFileIndex("Replace Components", assetPaths);
 
 			string searchPattern = $"guid: {srcGuid}, type: 3";
 			string replaceWith   = $"guid: {dstGuid}, type: 3";
@@ -196,7 +199,7 @@ namespace GuiToolkit.Editor
 				summary += $"\nErrors:  {errors} (see Console for details)";
 
 			EditorUtility.DisplayDialog("Replace Components – Done", summary, "OK");
-			ReloadCurrentContext();
+			ReloadCurrentContext(csFilesModified > 0);
 		}
 
 		// -----------------------------------------------------------------------
@@ -312,15 +315,48 @@ namespace GuiToolkit.Editor
 		}
 
 		/// <summary>
-		/// Builds a project-wide index of cross-file serialized field references to MonoBehaviours.
+		/// Builds an index of cross-file serialized field references to MonoBehaviours in
+		/// <paramref name="targetAssetPaths"/>. Uses the <see cref="AssetDependencyLogger"/> cached
+		/// reverse-GUID index to scan only the files that actually reference the targets, instead of
+		/// every prefab and scene in the project.
 		/// Key: (targetAssetGuid, targetLocalId). Value: scriptGuid -> field names.
 		/// </summary>
 		private static Dictionary<(string, long), Dictionary<string, HashSet<string>>> BuildProjectWideCrossFileIndex(
-			string progressTitle)
+			string progressTitle, IReadOnlyList<string> targetAssetPaths)
 		{
 			var index = new Dictionary<(string, long), Dictionary<string, HashSet<string>>>();
-			string[] guids = AssetDatabase.FindAssets("t:Prefab t:Scene");
-			int total = guids.Length;
+
+			// Resolve only the files that actually reference our target assets.
+			var targetPathSet = new HashSet<string>(targetAssetPaths, StringComparer.OrdinalIgnoreCase);
+			var candidates    = new List<string>();
+
+			if (AssetDependencyLogger.EnsureIndex())
+			{
+				var candidateSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+				foreach (string assetPath in targetAssetPaths)
+				{
+					string assetGuid = AssetDatabase.AssetPathToGUID(assetPath);
+					if (string.IsNullOrEmpty(assetGuid)) continue;
+					foreach (string dep in AssetDependencyLogger.GetDependents(assetGuid))
+					{
+						if (!targetPathSet.Contains(dep))
+							candidateSet.Add(dep);
+					}
+				}
+				candidates.AddRange(candidateSet);
+			}
+			else
+			{
+				// Fallback: scan all prefabs + scenes under Assets/
+				foreach (string guid in AssetDatabase.FindAssets("t:Prefab t:Scene"))
+				{
+					string path = AssetDatabase.GUIDToAssetPath(guid);
+					if (path.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase) && !targetPathSet.Contains(path))
+						candidates.Add(path);
+				}
+			}
+
+			int total = candidates.Count;
 			var scriptGuidRx = new Regex(@"m_Script:\s*\{[^}]*\bguid:\s*([a-fA-F0-9]+)[^}]*\}", RegexOptions.Compiled);
 			var crossRefRx   = new Regex(@"^\s+(\w+):\s*\{\s*fileID:\s*(-?\d+)\s*,\s*guid:\s*([a-fA-F0-9]+)",
 				RegexOptions.Compiled | RegexOptions.Multiline);
@@ -328,7 +364,7 @@ namespace GuiToolkit.Editor
 			{
 				for (int i = 0; i < total; i++)
 				{
-					string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
+					string assetPath = candidates[i];
 					EditorUtility.DisplayProgressBar(progressTitle,
 						$"Building cross-file index… ({i + 1}/{total})",
 						(float)i / Math.Max(total, 1));
@@ -427,28 +463,84 @@ namespace GuiToolkit.Editor
 		// -----------------------------------------------------------------------
 
 		/// <summary>
-		/// Reloads the currently open scene or prefab stage so the editor's in-memory
-		/// serialized data reflects the rewritten YAML files.
+		/// Schedules a reload of the currently open scene or prefab stage after all pending
+		/// asset imports and (if <paramref name="expectDomainReload"/> is <c>true</c>) the
+		/// upcoming domain reload have completed.
 		/// </summary>
-		private static void ReloadCurrentContext()
+		private static void ReloadCurrentContext(bool expectDomainReload)
 		{
-			EditorApplication.delayCall += () =>
+			var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+			if (prefabStage != null)
 			{
-				var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
-				if (prefabStage != null)
+				string path = prefabStage.assetPath;
+				if (expectDomainReload)
 				{
-					string assetPath = prefabStage.assetPath;
-					StageUtility.GoBackToPreviousStage();
-					EditorApplication.delayCall +=
-						() => AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath<GameObject>(assetPath));
+					// Persist across domain reload; [InitializeOnLoadMethod] fires the reload after.
+					SessionState.SetString(k_PendingReloadPath, path);
+					SessionState.SetBool(k_PendingReloadIsScene, false);
 				}
 				else
 				{
-					var scene = SceneManager.GetActiveScene();
-					if (scene.IsValid() && !string.IsNullOrEmpty(scene.path))
-						EditorSceneManager.OpenScene(scene.path, OpenSceneMode.Single);
+					EditorApplication.delayCall += () => ApplyPendingContextReload(path, false);
 				}
-			};
+				return;
+			}
+
+			var scene = SceneManager.GetActiveScene();
+			if (scene.IsValid() && !string.IsNullOrEmpty(scene.path))
+			{
+				string path = scene.path;
+				if (expectDomainReload)
+				{
+					SessionState.SetString(k_PendingReloadPath, path);
+					SessionState.SetBool(k_PendingReloadIsScene, true);
+				}
+				else
+				{
+					EditorApplication.delayCall += () => ApplyPendingContextReload(path, true);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Called automatically after every domain reload via <see cref="InitializeOnLoadMethodAttribute"/>.
+		/// Checks if a context reload was deferred before the domain reload and executes it now.
+		/// </summary>
+		[InitializeOnLoadMethod]
+		private static void OnAfterDomainReload()
+		{
+			string path = SessionState.GetString(k_PendingReloadPath, null);
+			if (string.IsNullOrEmpty(path))
+				return;
+			SessionState.EraseString(k_PendingReloadPath);
+			bool isScene = SessionState.GetBool(k_PendingReloadIsScene, false);
+			SessionState.EraseBool(k_PendingReloadIsScene);
+			EditorApplication.delayCall += () => ApplyPendingContextReload(path, isScene);
+		}
+
+		/// <summary>
+		/// Forces Unity to re-read <paramref name="assetPath"/> from disk and then reopens the
+		/// active prefab stage or scene so the Inspector reflects the rewritten YAML.
+		/// </summary>
+		private static void ApplyPendingContextReload(string assetPath, bool isScene)
+		{
+			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+			if (isScene)
+			{
+				EditorSceneManager.OpenScene(assetPath, OpenSceneMode.Single);
+			}
+			else
+			{
+				var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+				if (prefabStage != null)
+					StageUtility.GoBackToPreviousStage();
+				EditorApplication.delayCall += () =>
+				{
+					var go = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+					if (go != null)
+						AssetDatabase.OpenAsset(go);
+				};
+			}
 		}
 
 		/// <summary>
