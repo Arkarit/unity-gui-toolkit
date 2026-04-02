@@ -39,6 +39,9 @@ namespace GuiToolkit.Editor
 		[PathField(true)]
 		[SerializeField] private List<PathField> m_excludePaths = new();
 
+		// Survives domain reloads via EditorWindow serialization.
+		[SerializeField] private List<string> m_cachedFiles = new();
+
 		private SerializedObject   m_so;
 		private SerializedProperty m_includeProp;
 		private SerializedProperty m_excludeProp;
@@ -80,6 +83,25 @@ namespace GuiToolkit.Editor
 			DrawPathList(m_excludeProp);
 
 			m_so.ApplyModifiedProperties();
+
+			EditorGUILayout.Space();
+			EditorGUILayout.LabelField("File Cache", EditorStyles.boldLabel);
+			string cacheStatus = m_cachedFiles.Count == 0
+				? "Not built"
+				: $"{m_cachedFiles.Count} prefab(s) cached";
+			EditorGUILayout.LabelField(cacheStatus, EditorStyles.miniLabel);
+
+			using (new GUILayout.HorizontalScope())
+			{
+				if (GUILayout.Button("Build Cache"))
+					BuildCache();
+
+				using (new EditorGUI.DisabledScope(m_cachedFiles.Count == 0))
+				{
+					if (GUILayout.Button("Clear Cache"))
+						ClearCache();
+				}
+			}
 
 			EditorGUILayout.Space();
 			using (new GUILayout.HorizontalScope())
@@ -126,10 +148,10 @@ namespace GuiToolkit.Editor
 
 		private void RunDryRun()
 		{
-			var files = CollectFiles();
+			var files = GetFiles();
 			var log   = new List<string>();
 			log.Add($"=== Dry Run — {ActionLabel()} ===");
-			log.Add($"Prefabs found: {files.Count}");
+			log.Add($"Prefabs: {files.Count}");
 
 			if (files.Count == 0)
 			{
@@ -147,7 +169,7 @@ namespace GuiToolkit.Editor
 
 		private void RunExecute()
 		{
-			var files = CollectFiles();
+			var files = GetFiles();
 
 			if (files.Count == 0)
 			{
@@ -179,6 +201,34 @@ namespace GuiToolkit.Editor
 			ConversionAction.TmpToUiLocalizedTmp  => "TextMeshProUGUI → UiLocalizedTextMeshProUGUI",
 			_                                     => m_action.ToString(),
 		};
+
+		// -----------------------------------------------------------------------
+		// File cache
+		// -----------------------------------------------------------------------
+
+		private IReadOnlyList<string> GetFiles()
+		{
+			if (m_cachedFiles.Count == 0)
+				BuildCache();
+			return m_cachedFiles;
+		}
+
+		private void BuildCache()
+		{
+			var files = CollectFiles();
+			m_cachedFiles.Clear();
+			m_cachedFiles.AddRange(files);
+			EditorUtility.SetDirty(this);
+			Repaint();
+			Debug.Log($"[LocalizedTmpConverterWindow] Cache built: {m_cachedFiles.Count} prefab(s).");
+		}
+
+		private void ClearCache()
+		{
+			m_cachedFiles.Clear();
+			EditorUtility.SetDirty(this);
+			Repaint();
+		}
 
 		// -----------------------------------------------------------------------
 		// File collection
