@@ -1189,6 +1189,24 @@ namespace GuiToolkit
 
 		public static bool GetPasswordDisplay( this InputField _inputField ) => _inputField.contentType == InputField.ContentType.Password;
 
+		public static void SetPasswordDisplay
+		(
+			this TMP_InputField _inputField,
+			bool _isPassword,
+			TMP_InputField.ContentType _nonPasswordType = TMP_InputField.ContentType.Standard,
+			bool _activate = true
+		)
+		{
+			_inputField.contentType = _isPassword ?
+				TMP_InputField.ContentType.Password :
+				_nonPasswordType;
+
+			if (_activate)
+				_inputField.ActivateInputField();
+		}
+
+		public static bool GetPasswordDisplay( this TMP_InputField _inputField ) => _inputField.contentType == TMP_InputField.ContentType.Password;
+
 		public static void InvokeDelayed( this Action _action )
 		{
 			if (_action == null)
