@@ -389,6 +389,10 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
+			// Build cross-file reference index once for the whole batch so we can correctly
+			// determine whether a TMP component has its .text set from another file's script.
+			var crossFileIndex = LegacyTextToLocalizedTmpConverter.BuildProjectWideCrossFileIndex();
+
 			int fileCount      = 0;
 			int componentCount = 0;
 			int errors         = 0;
@@ -406,7 +410,7 @@ namespace GuiToolkit.Editor
 
 					try
 					{
-						int converted = ProcessTmpPrefab(path, oldGuid, newGuid);
+						int converted = ProcessTmpPrefab(path, oldGuid, newGuid, crossFileIndex);
 						if (converted > 0)
 						{
 							log?.Add($"  {path} ({converted} converted)");
@@ -436,11 +440,17 @@ namespace GuiToolkit.Editor
 		/// Loads the prefab at <paramref name="assetPath"/>, collects all non-nested
 		/// <see cref="TextMeshProUGUI"/> component local IDs, saves the prefab (so YAML is current),
 		/// then YAML-patches the <c>m_Script</c> GUID and injects the three extra fields that
-		/// <see cref="UiLocalizedTextMeshProUGUI"/> declares.
+		/// <see cref="UiLocalizedTextMeshProUGUI"/> declares.  The <c>m_autoLocalize</c> value is
+		/// determined per-component: it is disabled when any C# script sets <c>.text</c> directly
+		/// on the component, or when the current text value looks like a runtime-generated value.
 		/// </summary>
-		private static int ProcessTmpPrefab(string assetPath, string oldGuid, string newGuid)
+		private static int ProcessTmpPrefab(string assetPath, string oldGuid, string newGuid,
+		                                     Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex)
 		{
-			var patchIds       = new List<long>();
+			// localId → text content at time of conversion (needed for IsObviouslyRuntimeValue check).
+			var patchIds   = new List<long>();
+			var textValues = new Dictionary<long, string>();
+
 			var prefabContents = PrefabUtility.LoadPrefabContents(assetPath);
 
 			try
@@ -455,6 +465,7 @@ namespace GuiToolkit.Editor
 					if (YamlUtility.TryGetLocalFileId(tmp, out long localId))
 					{
 						patchIds.Add(localId);
+						textValues[localId] = tmp.text ?? "";
 						needsSave = true;
 					}
 					else
@@ -484,11 +495,22 @@ namespace GuiToolkit.Editor
 			}
 
 			string yaml    = File.ReadAllText(fullPath);
-			bool   changed = false;
+
+			// Build the same-file referencing-script map, then merge cross-file refs.
+			var convertedIds    = new HashSet<long>(patchIds);
+			var perComponentMap = LegacyTextToLocalizedTmpConverter.FindReferencingScriptFieldsPerComponent(yaml, convertedIds);
+			LegacyTextToLocalizedTmpConverter.MergeCrossFileRefs(assetPath, convertedIds, crossFileIndex, perComponentMap);
+
+			bool changed = false;
 
 			foreach (long localId in patchIds)
 			{
-				string patched = PatchYamlAndInjectFields(yaml, localId, oldGuid, newGuid);
+				bool hasSetter     = LegacyTextToLocalizedTmpConverter.CheckForTextPropertySetters(localId, perComponentMap);
+				bool obviousRuntime = LegacyTextToLocalizedTmpConverter.IsObviouslyRuntimeValue(
+					textValues.TryGetValue(localId, out string tv) ? tv : "");
+				bool autoLocalize  = !hasSetter && !obviousRuntime;
+
+				string patched = PatchYamlAndInjectFields(yaml, localId, oldGuid, newGuid, autoLocalize);
 				if (patched != null)
 				{
 					yaml    = patched;
@@ -517,7 +539,7 @@ namespace GuiToolkit.Editor
 		/// Returns <c>null</c> if the block or the old GUID was not found.
 		/// </summary>
 		private static string PatchYamlAndInjectFields(string yaml, long localFileId,
-		                                               string oldGuid, string newGuid)
+		                                               string oldGuid, string newGuid, bool autoLocalize)
 		{
 			const int monoBehaviourClassId = 114;
 			string blockMarker = $"--- !u!{monoBehaviourClassId} &{localFileId}";
@@ -541,7 +563,8 @@ namespace GuiToolkit.Editor
 			block = block.Replace(oldToken, newToken);
 
 			// Append the three UiLocalizedTextMeshProUGUI-specific fields at the end of the block.
-			block = block.TrimEnd('\n') + "\n  m_autoLocalize: 1\n  m_group: \n  m_locaKey: \n";
+			int autoLocalizeValue = autoLocalize ? 1 : 0;
+			block = block.TrimEnd('\n') + $"\n  m_autoLocalize: {autoLocalizeValue}\n  m_group: \n  m_locaKey: \n";
 
 			return yaml.Substring(0, blockStart) + block + yaml.Substring(blockEnd);
 		}

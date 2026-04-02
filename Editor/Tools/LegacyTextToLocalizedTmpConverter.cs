@@ -877,7 +877,7 @@ namespace GuiToolkit.Editor
 		/// This lets callers both determine per-component dependency info and derive the aggregate
 		/// <c>scriptGuid → fieldNames</c> view needed for C# field-type updates.
 		/// </summary>
-		private static Dictionary<long, Dictionary<string, HashSet<string>>> FindReferencingScriptFieldsPerComponent(
+		internal static Dictionary<long, Dictionary<string, HashSet<string>>> FindReferencingScriptFieldsPerComponent(
 			string yaml, HashSet<long> convertedIds)
 		{
 			var result = new Dictionary<long, Dictionary<string, HashSet<string>>>();
@@ -959,7 +959,7 @@ namespace GuiToolkit.Editor
 		/// for each offending script+field combination.
 		/// </summary>
 		/// <returns><c>true</c> if at least one direct <c>.text</c> setter was found.</returns>
-		private static bool CheckForTextPropertySetters(
+		internal static bool CheckForTextPropertySetters(
 			long componentId,
 			Dictionary<long, Dictionary<string, HashSet<string>>> perComponentMap)
 		{
@@ -1235,7 +1235,7 @@ namespace GuiToolkit.Editor
 		/// Key: (targetAssetGuid, targetLocalId) — the component being referenced.<br/>
 		/// Value: scriptGuid → set of field names that hold the reference.
 		/// </summary>
-		private static Dictionary<(string, long), Dictionary<string, HashSet<string>>> BuildProjectWideCrossFileIndex()
+		internal static Dictionary<(string, long), Dictionary<string, HashSet<string>>> BuildProjectWideCrossFileIndex()
 		{
 			var index = new Dictionary<(string, long), Dictionary<string, HashSet<string>>>();
 
@@ -1410,7 +1410,7 @@ namespace GuiToolkit.Editor
 		/// <paramref name="perComponentMap"/>, so that scripts in other prefabs/scenes that hold
 		/// a reference to the converted components are also discovered for field-type updates.
 		/// </summary>
-		private static void MergeCrossFileRefs(
+		internal static void MergeCrossFileRefs(
 			string assetPath,
 			HashSet<long> convertedIds,
 			Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex,
