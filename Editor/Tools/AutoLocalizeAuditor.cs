@@ -203,10 +203,6 @@ namespace GuiToolkit.Editor
 			new Regex(@"^\s+m_locaKey:\s*(.*)",
 				RegexOptions.Multiline | RegexOptions.Compiled);
 
-		// Same-file field reference: someField: {fileID: 123}
-		private static readonly Regex s_sameFileRefRx =
-			new Regex(@"^\s+(\w+):\s*\{\s*fileID:\s*(-?\d+)\s*\}$",
-				RegexOptions.Multiline | RegexOptions.Compiled);
 
 		// Cross-file field reference: someField: {fileID: 123, guid: abc..., type: N}
 		private static readonly Regex s_crossFileRefRx =
@@ -287,13 +283,11 @@ namespace GuiToolkit.Editor
 				}
 
 				// ── Part B: record all field references for the reverse-ref index ─────
-				// Same-file: {fileID: X}
-				foreach (Match m in s_sameFileRefRx.Matches(block))
+				// Same-file: direct refs and array/list elements.
+				foreach (var (fieldName, refId) in LegacyTextToLocalizedTmpConverter.ExtractSameFileFieldRefs(block))
 				{
-					if (!long.TryParse(m.Groups[2].Value, out long refId))
-						continue;
 					AddRef(reverseRefs, (assetGuid, refId),
-						new RefEntry { ScriptGuid = scriptGuid, FieldName = m.Groups[1].Value });
+						new RefEntry { ScriptGuid = scriptGuid, FieldName = fieldName });
 				}
 
 				// Cross-file: {fileID: X, guid: Y, …}
@@ -365,7 +359,7 @@ namespace GuiToolkit.Editor
 				s_scriptSourceCache[assetPath] = source;
 			}
 
-			return new Regex($@"\b{Regex.Escape(fieldName)}\.text\s*=").IsMatch(source);
+			return LegacyTextToLocalizedTmpConverter.ScriptSetsTextViaField(source, fieldName);
 		}
 
 		/// <summary>

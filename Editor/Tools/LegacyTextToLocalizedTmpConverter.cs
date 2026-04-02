@@ -889,10 +889,6 @@ namespace GuiToolkit.Editor
 			var scriptGuidRx = new Regex(@"m_Script:\s*\{[^}]*\bguid:\s*([a-fA-F0-9]+)[^}]*\}",
 				RegexOptions.Compiled);
 
-			// Matches:  someFieldName: {fileID: 1234567890123456789}
-			var fieldRefRx = new Regex(@"^\s+(\w+):\s*\{fileID:\s*(-?\d+)\}",
-				RegexOptions.Compiled | RegexOptions.Multiline);
-
 			foreach (var block in blockSplit)
 			{
 				if (!block.StartsWith("--- !u!114 &", StringComparison.Ordinal))
@@ -904,14 +900,10 @@ namespace GuiToolkit.Editor
 
 				string scriptGuid = scriptMatch.Groups[1].Value;
 
-				foreach (Match fm in fieldRefRx.Matches(block))
+				foreach (var (fieldName, fileId) in ExtractSameFileFieldRefs(block))
 				{
-					if (!long.TryParse(fm.Groups[2].Value, out long fileId))
-						continue;
 					if (!convertedIds.Contains(fileId))
 						continue;
-
-					string fieldName = fm.Groups[1].Value;
 
 					if (!result.TryGetValue(fileId, out var scriptMap))
 					{
@@ -927,6 +919,66 @@ namespace GuiToolkit.Editor
 				}
 			}
 			return result;
+		}
+
+		/// <summary>
+		/// Extracts all same-file serialized field references from a single MonoBehaviour YAML
+		/// block, handling both direct references (<c>fieldName: {fileID: N}</c>) and array/list
+		/// references (<c>fieldName:\n  - {fileID: N}</c>).
+		/// Returns <c>(fieldName, fileId)</c> pairs; the field name for array elements is the
+		/// enclosing list field name.
+		/// </summary>
+		internal static IEnumerable<(string fieldName, long fileId)> ExtractSameFileFieldRefs(string block)
+		{
+			// Direct same-file ref:  "  field: {fileID: N}"  (no guid)
+			var directRx     = new Regex(@"^\s+(\w+):\s*\{\s*fileID:\s*(-?\d+)\s*\}",     RegexOptions.Compiled);
+			// Array/list field start:  "  field:"  (no value on same line)
+			var arrayStartRx = new Regex(@"^(\s+)(\w+):\s*$",                              RegexOptions.Compiled);
+			// Array element:  "  - {fileID: N}"  (same-file)
+			var arrayElemRx  = new Regex(@"^\s+-\s*\{\s*fileID:\s*(-?\d+)\s*\}",           RegexOptions.Compiled);
+
+			string currentArrayField = null;
+			int    currentIndent     = -1;
+
+			foreach (string line in block.Split('\n'))
+			{
+				// Direct ref — also resets any open array context.
+				var dm = directRx.Match(line);
+				if (dm.Success)
+				{
+					currentArrayField = null;
+					if (long.TryParse(dm.Groups[2].Value, out long id))
+						yield return (dm.Groups[1].Value, id);
+					continue;
+				}
+
+				// Array/list element.
+				var aem = arrayElemRx.Match(line);
+				if (aem.Success)
+				{
+					if (currentArrayField != null && long.TryParse(aem.Groups[1].Value, out long elemId))
+						yield return (currentArrayField, elemId);
+					continue;
+				}
+
+				// Array/list field declaration: "  field:"
+				var afm = arrayStartRx.Match(line);
+				if (afm.Success)
+				{
+					currentArrayField = afm.Groups[2].Value;
+					currentIndent     = afm.Groups[1].Value.Length;
+					continue;
+				}
+
+				// Any non-list, non-empty line at same or lower indent ends the current array context.
+				if (currentArrayField != null && !string.IsNullOrWhiteSpace(line))
+				{
+					int  lineIndent    = line.Length - line.TrimStart().Length;
+					bool isListElement = line.TrimStart().StartsWith("-");
+					if (!isListElement && lineIndent <= currentIndent)
+						currentArrayField = null;
+				}
+			}
 		}
 
 		/// <summary>
@@ -980,8 +1032,7 @@ namespace GuiToolkit.Editor
 				string source = File.ReadAllText(fullPath);
 				foreach (string fieldName in kvp.Value)
 				{
-					var rx = new Regex($@"\b{Regex.Escape(fieldName)}\.text\s*=");
-					if (!rx.IsMatch(source))
+					if (!ScriptSetsTextViaField(source, fieldName))
 						continue;
 
 					Debug.LogWarning(
@@ -992,6 +1043,36 @@ namespace GuiToolkit.Editor
 				}
 			}
 			return found;
+		}
+
+		/// <summary>
+		/// Returns <c>true</c> when <paramref name="source"/> contains any of the common patterns
+		/// that assign <c>.text</c> to a component referenced via <paramref name="fieldName"/>:
+		/// <list type="bullet">
+		///   <item><c>fieldName.text =</c>  (direct field)</item>
+		///   <item><c>fieldName[…].text =</c>  (array/list indexer)</item>
+		///   <item><c>in fieldName</c> (foreach/LINQ iteration) combined with <c>.text =</c>
+		///   anywhere in the script</item>
+		/// </list>
+		/// </summary>
+		internal static bool ScriptSetsTextViaField(string source, string fieldName)
+		{
+			string esc = Regex.Escape(fieldName);
+
+			// Direct: m_Field.text =
+			if (Regex.IsMatch(source, $@"\b{esc}\.text\s*="))
+				return true;
+
+			// Array indexer: m_Field[...].text =
+			if (Regex.IsMatch(source, $@"\b{esc}\s*\[.*?\]\.text\s*=", RegexOptions.Singleline))
+				return true;
+
+			// Foreach / LINQ iteration: "in m_Field" combined with any ".text =" in the file.
+			// This is a conservative heuristic; a false positive is acceptable (disables autoLocalize).
+			if (Regex.IsMatch(source, $@"\bin\s+{esc}\b") && Regex.IsMatch(source, @"\.text\s*="))
+				return true;
+
+			return false;
 		}
 
 		/// <summary>
