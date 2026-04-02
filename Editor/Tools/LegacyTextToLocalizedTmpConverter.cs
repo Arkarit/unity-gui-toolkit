@@ -1083,8 +1083,10 @@ namespace GuiToolkit.Editor
 		/// </summary>
 		internal static bool IsObviouslyRuntimeValue(string text)
 		{
+			// Null or empty text can never be a meaningful localization key.
+			// A TMP component with no text content is almost certainly runtime-populated.
 			if (string.IsNullOrEmpty(text))
-				return false;
+				return true;
 
 			// Pure numeric / format placeholder: "0", "100", "00/000", "0:00", "1/2"
 			if (Regex.IsMatch(text, @"^[\d\s/:.%\-\n\r]+$"))

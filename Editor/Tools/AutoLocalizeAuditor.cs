@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEditor;
@@ -33,6 +33,8 @@ namespace GuiToolkit.Editor
 		          priority = Constants.LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY)]
 		public static void RunAuditAndFix()
 		{
+			s_scriptSourceCache.Clear();
+
 			string scriptGuid = YamlUtility.FindMonoScriptGuid(typeof(UiLocalizedTextMeshProUGUI));
 			if (string.IsNullOrEmpty(scriptGuid))
 			{
@@ -76,8 +78,14 @@ namespace GuiToolkit.Editor
 				// ── Phase 3: detect components that should have autoLocalize=0 ─────────
 				EditorUtility.DisplayProgressBar("AutoLocalize Auditor", "Analysing components…", 0.75f);
 
-				var fixMap = new Dictionary<string, List<long>>(); // assetPath → list of localIds to fix
+				var fixMap = new Dictionary<string, List<long>>(); // assetPath -> list of localIds to fix
 				int total = 0;
+
+				// Diagnostic counters (written to console summary at end)
+				int diagNoRef         = 0;
+				int diagScriptMissing = 0;
+				int diagNoSetter      = 0;
+				var diagDetails       = new System.Text.StringBuilder();
 
 				foreach (var comp in components)
 				{
@@ -105,7 +113,28 @@ namespace GuiToolkit.Editor
 									reason = $"'{r.FieldName}.text =' in {AssetDatabase.GUIDToAssetPath(r.ScriptGuid)}";
 									break;
 								}
+								else
+								{
+									// Diagnose why this ref did not trigger a fix
+									string scriptPath = AssetDatabase.GUIDToAssetPath(r.ScriptGuid);
+									bool scriptResolvable = !string.IsNullOrEmpty(scriptPath)
+										&& scriptPath.EndsWith(".cs", System.StringComparison.OrdinalIgnoreCase);
+									if (scriptResolvable)
+									{
+										diagNoSetter++;
+										diagDetails.AppendLine($"  SKIP [no text-setter ] {comp.AssetPath} id={comp.LocalId} field=\"{r.FieldName}\" script={scriptPath}");
+									}
+									else
+									{
+										diagScriptMissing++;
+										diagDetails.AppendLine($"  SKIP [missing script ] {comp.AssetPath} id={comp.LocalId} field=\"{r.FieldName}\" scriptGuid={r.ScriptGuid}");
+									}
+								}
 							}
+						}
+						else
+						{
+							diagNoRef++;
 						}
 					}
 
@@ -121,6 +150,19 @@ namespace GuiToolkit.Editor
 					}
 					ids.Add(comp.LocalId);
 					total++;
+				}
+
+				// ── Diagnostic summary ────────────────────────────────────────────────
+				int diagTotal = diagNoRef + diagScriptMissing + diagNoSetter;
+				if (diagTotal > 0)
+				{
+					string diagSummary = TOOL_TAG + " Skipped " + diagTotal + " component(s) not auto-detected as runtime-set:\n"
+						+ "  " + diagNoRef + " -- no C# serialized field ref (likely set via GetComponent)\n"
+						+ "  " + diagScriptMissing + " -- C# script GUID unresolvable (script renamed/deleted)\n"
+						+ "  " + diagNoSetter + " -- field ref found but no '.text =' assignment in script";
+					if (diagDetails.Length > 0)
+						diagSummary += "\nDetails:\n" + diagDetails.ToString().TrimEnd();
+					Debug.Log(diagSummary);
 				}
 
 				// ── Phase 4: apply fixes ───────────────────────────────────────────────
