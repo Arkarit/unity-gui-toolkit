@@ -332,7 +332,8 @@ namespace GuiToolkit.Editor
 						int count = 0;
 						foreach (var text in go.GetComponentsInChildren<Text>(true))
 						{
-							if (!PrefabUtility.IsPartOfPrefabInstance(text.gameObject))
+							if (!PrefabUtility.IsPartOfPrefabInstance(text.gameObject)
+							    && text.GetComponent<UiForceLegacyText>() == null)
 								count++;
 						}
 						if (count > 0)
@@ -375,6 +376,8 @@ namespace GuiToolkit.Editor
 				{
 					if (PrefabUtility.IsPartOfPrefabInstance(text.gameObject))
 						continue;
+					if (text.GetComponent<UiForceLegacyText>() != null)
+						continue;
 
 					if (!TryCaptureTextData(text, out var data, out bool companionSkip))
 					{
@@ -415,6 +418,8 @@ namespace GuiToolkit.Editor
 
 			foreach (var text in texts)
 			{
+				if (text.GetComponent<UiForceLegacyText>() != null)
+					continue;
 				if (!TryCaptureTextData(text, out var data, out bool companionSkip))
 				{
 					if (companionSkip)
