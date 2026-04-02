@@ -236,6 +236,128 @@ namespace GuiToolkit.Editor
 		}
 
 		// -----------------------------------------------------------------------
+		// Window API — called by LocalizedTmpConverterWindow
+		// -----------------------------------------------------------------------
+
+		/// <summary>
+		/// Converts all Legacy <see cref="Text"/> components in the given prefab/scene files
+		/// to <see cref="UiLocalizedTextMeshProUGUI"/>.
+		/// Intended for use by <c>LocalizedTmpConverterWindow</c>; does not show any dialogs.
+		/// Lines are appended to <paramref name="log"/> (file paths + summary).
+		/// </summary>
+		internal static void ConvertFiles(IReadOnlyList<string> prefabFiles, List<string> log)
+		{
+			string newGuid = YamlUtility.FindMonoScriptGuid(typeof(UiLocalizedTextMeshProUGUI));
+			if (string.IsNullOrEmpty(newGuid))
+			{
+				log?.Add("ERROR: Could not locate UiLocalizedTextMeshProUGUI GUID.");
+				return;
+			}
+
+			string inputFieldGuid    = YamlUtility.FindMonoScriptGuid(typeof(InputField));
+			string tmpInputFieldGuid = YamlUtility.FindMonoScriptGuid(typeof(TMP_InputField));
+
+			var crossFileIndex  = BuildProjectWideCrossFileIndex();
+			var stats           = new Stats();
+			var pendingCsWrites = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+			AssetDatabase.StartAssetEditing();
+			try
+			{
+				for (int i = 0; i < prefabFiles.Count; i++)
+				{
+					string prefabPath = prefabFiles[i];
+					EditorUtility.DisplayProgressBar(
+						"Convert Legacy Text",
+						$"Processing {Path.GetFileName(prefabPath)}…",
+						(float)i / Math.Max(prefabFiles.Count, 1));
+
+					int filesBefore = stats.filesProcessed;
+					try
+					{
+						ProcessPrefabFile(prefabPath, newGuid, inputFieldGuid, tmpInputFieldGuid,
+						                  crossFileIndex, pendingCsWrites, ref stats);
+					}
+					catch (Exception ex)
+					{
+						Debug.LogError($"[LegacyTextToLocalizedTmpConverter] Error processing {prefabPath}: {ex}");
+						log?.Add($"  ERROR: {prefabPath}: {ex.Message}");
+						stats.errors++;
+					}
+
+					if (stats.filesProcessed > filesBefore)
+						log?.Add($"  {prefabPath}");
+				}
+			}
+			finally
+			{
+				EditorUtility.ClearProgressBar();
+				AssetDatabase.StopAssetEditing();
+			}
+
+			foreach (var kvp in pendingCsWrites)
+			{
+				File.WriteAllText(kvp.Key, kvp.Value);
+				stats.scriptsUpdated++;
+			}
+
+			log?.Add($"Converted: {stats.textConverted} Text, "
+			       + $"{stats.inputFieldsConverted} InputField, "
+			       + $"{stats.scriptsUpdated} C# script(s), "
+			       + $"{stats.filesProcessed} file(s) modified"
+			       + (stats.errors > 0 ? $", {stats.errors} error(s) -- see Console" : ""));
+		}
+
+		/// <summary>
+		/// Quick scan (no file writes): reports which files contain Legacy <see cref="Text"/>
+		/// components. Used for the Dry Run mode of <c>LocalizedTmpConverterWindow</c>.
+		/// </summary>
+		internal static void ScanForTextComponents(IReadOnlyList<string> files, List<string> log)
+		{
+			int fileCount = 0;
+			int componentCount = 0;
+
+			for (int i = 0; i < files.Count; i++)
+			{
+				string path = files[i];
+				EditorUtility.DisplayProgressBar(
+					"Scanning for Legacy Text",
+					$"Scanning {Path.GetFileName(path)}…",
+					(float)i / Math.Max(files.Count, 1));
+				try
+				{
+					var go = PrefabUtility.LoadPrefabContents(path);
+					try
+					{
+						int count = 0;
+						foreach (var text in go.GetComponentsInChildren<Text>(true))
+						{
+							if (!PrefabUtility.IsPartOfPrefabInstance(text.gameObject))
+								count++;
+						}
+						if (count > 0)
+						{
+							log?.Add($"  {path} ({count} Text)");
+							fileCount++;
+							componentCount += count;
+						}
+					}
+					finally
+					{
+						PrefabUtility.UnloadPrefabContents(go);
+					}
+				}
+				catch (Exception ex)
+				{
+					log?.Add($"  ERROR: {path}: {ex.Message}");
+				}
+			}
+
+			EditorUtility.ClearProgressBar();
+			log?.Add($"Dry Run: {fileCount} file(s) contain {componentCount} Legacy Text component(s)");
+		}
+
+		// -----------------------------------------------------------------------
 		// Prefab processing
 		// -----------------------------------------------------------------------
 
