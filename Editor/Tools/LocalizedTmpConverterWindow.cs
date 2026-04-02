@@ -483,7 +483,7 @@ namespace GuiToolkit.Editor
 			foreach (string line in log)
 				Debug.Log($"[LocalizedTmpConverterWindow] {line}");
 
-			string outputPath = Path.Combine(Application.temporaryCachePath, "conversion.txt");
+			string outputPath = Path.Combine(Application.dataPath, "../Temp/conversion.txt");
 			File.WriteAllLines(outputPath, log);
 			Debug.Log($"[LocalizedTmpConverterWindow] Log written to: {outputPath}");
 		}
