@@ -40,7 +40,8 @@ namespace GuiToolkit.Editor
 		[SerializeField] private List<PathField> m_excludePaths = new();
 
 		// Survives domain reloads via EditorWindow serialization.
-		[SerializeField] private List<string> m_cachedFiles = new();
+		[SerializeField] private List<string> m_cachedFiles   = new();
+		[SerializeField] private string       m_cachedPathsKey = "";
 
 		private SerializedObject   m_so;
 		private SerializedProperty m_includeProp;
@@ -86,9 +87,12 @@ namespace GuiToolkit.Editor
 
 			EditorGUILayout.Space();
 			EditorGUILayout.LabelField("File Cache", EditorStyles.boldLabel);
-			string cacheStatus = m_cachedFiles.Count == 0
+			bool   cacheStale   = m_cachedFiles.Count > 0 && m_cachedPathsKey != ComputePathsKey();
+			string cacheStatus  = m_cachedFiles.Count == 0
 				? "Not built"
-				: $"{m_cachedFiles.Count} prefab(s) cached";
+				: cacheStale
+					? $"{m_cachedFiles.Count} prefab(s) cached  [paths changed — will rebuild]"
+					: $"{m_cachedFiles.Count} prefab(s) cached";
 			EditorGUILayout.LabelField(cacheStatus, EditorStyles.miniLabel);
 
 			using (new GUILayout.HorizontalScope())
@@ -208,7 +212,8 @@ namespace GuiToolkit.Editor
 
 		private IReadOnlyList<string> GetFiles()
 		{
-			if (m_cachedFiles.Count == 0)
+			string currentKey = ComputePathsKey();
+			if (m_cachedFiles.Count == 0 || m_cachedPathsKey != currentKey)
 				BuildCache();
 			return m_cachedFiles;
 		}
@@ -218,6 +223,7 @@ namespace GuiToolkit.Editor
 			var files = CollectFiles();
 			m_cachedFiles.Clear();
 			m_cachedFiles.AddRange(files);
+			m_cachedPathsKey = ComputePathsKey();
 			EditorUtility.SetDirty(this);
 			Repaint();
 			Debug.Log($"[LocalizedTmpConverterWindow] Cache built: {m_cachedFiles.Count} prefab(s).");
@@ -226,8 +232,20 @@ namespace GuiToolkit.Editor
 		private void ClearCache()
 		{
 			m_cachedFiles.Clear();
+			m_cachedPathsKey = "";
 			EditorUtility.SetDirty(this);
 			Repaint();
+		}
+
+		private string ComputePathsKey()
+		{
+			var sb = new System.Text.StringBuilder();
+			foreach (var p in m_includePaths)
+				sb.Append(p.Path ?? "").Append('|');
+			sb.Append("||");
+			foreach (var p in m_excludePaths)
+				sb.Append(p.Path ?? "").Append('|');
+			return sb.ToString();
 		}
 
 		// -----------------------------------------------------------------------
@@ -284,20 +302,24 @@ namespace GuiToolkit.Editor
 
 		private static string ToAssetPath(PathField p)
 		{
-			if (!p.IsFolder) return null;
-
-			string fullPath = p.FullPath?.Replace('\\', '/');
-			if (string.IsNullOrEmpty(fullPath)) return null;
+			string raw = p.Path?.Replace('\\', '/');
+			if (string.IsNullOrWhiteSpace(raw))
+				return null;
 
 			// Convert absolute path to Unity asset path (relative to project root).
 			string projectRoot = Application.dataPath.Replace("/Assets", "");
 			if (!projectRoot.EndsWith("/"))
 				projectRoot += "/";
 
-			if (fullPath.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
-				fullPath = fullPath.Substring(projectRoot.Length);
+			string result = raw.TrimEnd('/');
+			if (result.StartsWith(projectRoot, StringComparison.OrdinalIgnoreCase))
+				result = result.Substring(projectRoot.Length);
 
-			return fullPath.TrimEnd('/');
+			// Must start with "Assets" to be a valid Unity path.
+			if (!result.StartsWith("Assets", StringComparison.OrdinalIgnoreCase))
+				return null;
+
+			return result;
 		}
 
 		// -----------------------------------------------------------------------
