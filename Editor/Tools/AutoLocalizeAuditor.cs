@@ -237,8 +237,15 @@ namespace GuiToolkit.Editor
 		private static readonly Regex s_autoLocalizeRx =
 			new Regex(@"\bm_autoLocalize:\s*(\d)", RegexOptions.Compiled);
 
-		private static readonly Regex s_textFieldRx =
-			new Regex(@"^\s+m_text:\s*""((?:[^""\\]|\\.)*)""",
+		// Double-quoted m_text (needs escape processing): m_text: "hello\"world"
+		private static readonly Regex s_textFieldDoubleQuotedRx =
+			new Regex(@"^\s+m_text:\s*""((?:[^""\\]|\\.)*)""\s*$",
+				RegexOptions.Multiline | RegexOptions.Compiled);
+
+		// Unquoted or single-quoted m_text: m_text: BOWS  /  m_text: <color=…>  /  m_text: 'text'
+		// Only matches when there is at least one non-whitespace character after the colon.
+		private static readonly Regex s_textFieldUnquotedRx =
+			new Regex(@"^\s+m_text:[ \t]+(\S.*?)[ \t]*$",
 				RegexOptions.Multiline | RegexOptions.Compiled);
 
 		private static readonly Regex s_locaKeyRx =
@@ -318,7 +325,7 @@ namespace GuiToolkit.Editor
 							AssetPath = assetPath,
 							AssetGuid = assetGuid,
 							LocalId   = localId,
-							Text      = ExtractQuotedField(block, s_textFieldRx),
+							Text      = ExtractTextField(block),
 							LocaKey   = ExtractSimpleField(block, s_locaKeyRx),
 						});
 					}
@@ -358,18 +365,6 @@ namespace GuiToolkit.Editor
 
 		// ── Helpers ───────────────────────────────────────────────────────────────────
 
-		private static string ExtractQuotedField(string block, Regex rx)
-		{
-			var m = rx.Match(block);
-			if (!m.Success)
-				return string.Empty;
-			return m.Groups[1].Value
-				.Replace("\\n",  "\n")
-				.Replace("\\r",  "\r")
-				.Replace("\\\"", "\"")
-				.Replace("\\\\", "\\");
-		}
-
 		private static string ExtractSimpleField(string block, Regex rx)
 		{
 			var m = rx.Match(block);
@@ -378,6 +373,40 @@ namespace GuiToolkit.Editor
 			string val = m.Groups[1].Value.Trim();
 			if (val.Length >= 2 && val[0] == '"' && val[val.Length - 1] == '"')
 				val = val.Substring(1, val.Length - 2);
+			return val;
+		}
+
+		/// <summary>
+		/// Extracts the <c>m_text</c> value from a YAML block, handling all Unity YAML formats:
+		/// double-quoted (with escapes), single-quoted, and unquoted (including rich text).
+		/// Returns <see cref="string.Empty"/> only when the field is genuinely empty (no content
+		/// after the colon), so callers can distinguish "empty" from "has content".
+		/// </summary>
+		private static string ExtractTextField(string block)
+		{
+			// 1. Double-quoted: m_text: "hello\"world\n"  — needs escape processing
+			var m = s_textFieldDoubleQuotedRx.Match(block);
+			if (m.Success)
+			{
+				return m.Groups[1].Value
+					.Replace("\\n",  "\n")
+					.Replace("\\r",  "\r")
+					.Replace("\\\"", "\"")
+					.Replace("\\\\", "\\");
+			}
+
+			// 2. Unquoted or single-quoted: m_text: BOWS  /  m_text: <color=…>text</color>  /  m_text: 'foo'
+			// Only fires when there is at least one non-whitespace character after the colon.
+			m = s_textFieldUnquotedRx.Match(block);
+			if (!m.Success)
+				return string.Empty; // genuinely empty (m_text: with nothing after)
+
+			string val = m.Groups[1].Value.Trim();
+
+			// Unwrap YAML single-quote scalar: 'content'  ('' is escaped single-quote inside)
+			if (val.Length >= 2 && val[0] == '\'' && val[val.Length - 1] == '\'')
+				val = val.Substring(1, val.Length - 2).Replace("''", "'");
+
 			return val;
 		}
 
