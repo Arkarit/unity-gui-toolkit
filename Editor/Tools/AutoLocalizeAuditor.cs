@@ -217,8 +217,9 @@ namespace GuiToolkit.Editor
 			public string AssetPath;  // Assets/… path
 			public string AssetGuid;
 			public long   LocalId;
-			public string Text;       // m_text (TMP base text field)
-			public string LocaKey;    // m_locaKey (our custom field; usually empty after conversion)
+			public string Text;         // m_text (TMP base text field)
+			public string LocaKey;      // m_locaKey (our custom field; usually empty after conversion)
+			public bool   MissingField; // true when m_autoLocalize was absent (default true used)
 		}
 
 		private struct RefEntry
@@ -323,15 +324,18 @@ namespace GuiToolkit.Editor
 				if (scriptGuid == targetScriptGuid)
 				{
 					var alM = s_autoLocalizeRx.Match(block);
-					if (alM.Success && alM.Groups[1].Value == "1")
+					// A missing m_autoLocalize field means the C# default (true) is in effect.
+					bool autoLocalizeOn = !alM.Success || alM.Groups[1].Value == "1";
+					if (autoLocalizeOn)
 					{
 						components.Add(new ComponentEntry
 						{
-							AssetPath = assetPath,
-							AssetGuid = assetGuid,
-							LocalId   = localId,
-							Text      = ExtractTextField(block),
-							LocaKey   = ExtractSimpleField(block, s_locaKeyRx),
+							AssetPath    = assetPath,
+							AssetGuid    = assetGuid,
+							LocalId      = localId,
+							Text         = ExtractTextField(block),
+							LocaKey      = ExtractSimpleField(block, s_locaKeyRx),
+							MissingField = !alM.Success,
 						});
 					}
 				}
@@ -544,10 +548,22 @@ namespace GuiToolkit.Editor
 			string from  = enable ? "  m_autoLocalize: 0\n" : "  m_autoLocalize: 1\n";
 			string to    = enable ? "  m_autoLocalize: 1\n" : "  m_autoLocalize: 0\n";
 
-			if (!block.Contains(from))
+			if (block.Contains(from))
+				return yaml.Substring(0, blockStart) + block.Replace(from, to) + yaml.Substring(blockEnd);
+
+			// Field already has the desired value → nothing to do.
+			string desired = enable ? "  m_autoLocalize: 1\n" : "  m_autoLocalize: 0\n";
+			if (block.Contains(desired))
 				return null;
 
-			return yaml.Substring(0, blockStart) + block.Replace(from, to) + yaml.Substring(blockEnd);
+			// Field is absent (default = true). When turning off, append it to the block.
+			if (!enable)
+			{
+				string newBlock = block + "  m_autoLocalize: 0\n";
+				return yaml.Substring(0, blockStart) + newBlock + yaml.Substring(blockEnd);
+			}
+
+			return null;
 		}
 
 		private static string Truncate(string s, int max) =>
