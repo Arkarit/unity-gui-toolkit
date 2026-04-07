@@ -158,6 +158,14 @@ namespace GuiToolkit
 		/// Called after the scanning pass completes.
 		/// </summary>
 		public abstract void EdWriteKeyData();
+
+		/// <summary>
+		/// (Editor-only) Returns the active localization keys accumulated for the given group.
+		/// Call after <see cref="EdWriteKeyData"/> to enumerate the current POT keys.
+		/// </summary>
+		/// <param name="_group">The group to query. Null or empty uses the default group.</param>
+		/// <returns>All active keys for the group, or an empty array if none.</returns>
+		public abstract string[] EdGetActiveKeys(string _group = null);
 #endif
 
 		private bool m_debugLoca = false;

@@ -86,12 +86,28 @@ namespace GuiToolkit.Editor
 			}
 
 			LocaManager.Instance.EdWriteKeyData();
+			MarkObsoleteInBridges();
 
 			if (UiToolkitConfiguration.Instance.AutoMergePotToPo)
 				LocaPoMerger.MergeAfterProcessing();
 
 			if (UiToolkitConfiguration.Instance.AutoSyncAfterMerge)
 				AutoSyncBridges();
+		}
+
+		private static void MarkObsoleteInBridges()
+		{
+			string[] guids = AssetDatabase.FindAssets("t:LocaExcelBridge");
+			foreach (string guid in guids)
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				var bridge = AssetDatabase.LoadAssetAtPath<LocaExcelBridge>(path);
+				if (bridge == null)
+					continue;
+
+				var activeKeys = new HashSet<string>(LocaManager.Instance.EdGetActiveKeys(bridge.EdGroup));
+				bridge.EdMarkObsolete(activeKeys);
+			}
 		}
 
 		private static void AutoSyncBridges()
