@@ -267,6 +267,7 @@ namespace GuiToolkit.Editor
 				for (int i = 0; i < prefabFiles.Count; i++)
 				{
 					string prefabPath = prefabFiles[i];
+					if (!prefabPath.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase)) continue;
 					EditorUtility.DisplayProgressBar(
 						"Convert Legacy Text",
 						$"Processing {Path.GetFileName(prefabPath)}…",
@@ -320,6 +321,7 @@ namespace GuiToolkit.Editor
 			for (int i = 0; i < files.Count; i++)
 			{
 				string path = files[i];
+				if (!path.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase)) continue;
 				EditorUtility.DisplayProgressBar(
 					"Scanning for Legacy Text",
 					$"Scanning {Path.GetFileName(path)}…",

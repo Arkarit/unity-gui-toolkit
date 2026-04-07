@@ -6,6 +6,7 @@ using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace GuiToolkit.Editor
@@ -91,7 +92,7 @@ namespace GuiToolkit.Editor
 			string cacheStatus  = m_cachedFiles.Count == 0
 				? "Not built"
 				: cacheStale
-					? $"{m_cachedFiles.Count} prefab(s) cached  [paths changed — will rebuild]"
+					? $"{m_cachedFiles.Count} file(s) cached  [paths changed — will rebuild]"
 					: $"{m_cachedFiles.Count} prefab(s) cached";
 			EditorGUILayout.LabelField(cacheStatus, EditorStyles.miniLabel);
 
@@ -155,7 +156,7 @@ namespace GuiToolkit.Editor
 			var files = GetFiles();
 			var log   = new List<string>();
 			log.Add($"=== Dry Run — {ActionLabel()} ===");
-			log.Add($"Prefabs: {files.Count}");
+			log.Add($"Files: {files.Count}");
 
 			if (files.Count == 0)
 			{
@@ -189,7 +190,7 @@ namespace GuiToolkit.Editor
 
 			var log = new List<string>();
 			log.Add($"=== Execute — {ActionLabel()} ===");
-			log.Add($"Prefabs: {files.Count}");
+			log.Add($"Files: {files.Count}");
 
 			if (m_action == ConversionAction.TextToUiLocalizedTmp)
 				LegacyTextToLocalizedTmpConverter.ConvertFiles(files, log);
@@ -226,7 +227,7 @@ namespace GuiToolkit.Editor
 			m_cachedPathsKey = ComputePathsKey();
 			EditorUtility.SetDirty(this);
 			Repaint();
-			Debug.Log($"[LocalizedTmpConverterWindow] Cache built: {m_cachedFiles.Count} prefab(s).");
+			Debug.Log($"[LocalizedTmpConverterWindow] Cache built: {m_cachedFiles.Count} file(s).");
 		}
 
 		private void ClearCache()
@@ -274,15 +275,23 @@ namespace GuiToolkit.Editor
 					excludePaths.Add(ap.TrimEnd('/'));
 			}
 
-			// Prefabs only — scenes have complex open/close requirements that the
-			// existing menu-item tools handle.
-			var guids  = AssetDatabase.FindAssets("t:Prefab", includeFolders.ToArray());
-			var result = new List<string>(guids.Length);
+			var result = new List<string>();
 
-			foreach (string guid in guids)
+			// Prefabs
+			foreach (string guid in AssetDatabase.FindAssets("t:Prefab", includeFolders.ToArray()))
 			{
 				string path = AssetDatabase.GUIDToAssetPath(guid);
 				if (string.IsNullOrEmpty(path)) continue;
+				if (IsExcluded(path, excludePaths)) continue;
+				result.Add(path);
+			}
+
+			// Scenes (TMP -> UiLocalizedTMP supports scene objects)
+			foreach (string guid in AssetDatabase.FindAssets("t:Scene", includeFolders.ToArray()))
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				if (string.IsNullOrEmpty(path)) continue;
+				if (!path.EndsWith(".unity", StringComparison.OrdinalIgnoreCase)) continue;
 				if (IsExcluded(path, excludePaths)) continue;
 				result.Add(path);
 			}
@@ -341,27 +350,14 @@ namespace GuiToolkit.Editor
 
 				try
 				{
-					var go = PrefabUtility.LoadPrefabContents(path);
-					try
+					int count = IsScenePath(path)
+						? ScanSceneForTmpCount(path)
+						: ScanPrefabForTmpCount(path);
+					if (count > 0)
 					{
-						int count = 0;
-						foreach (var tmp in go.GetComponentsInChildren<TextMeshProUGUI>(true))
-						{
-							if (tmp is UiLocalizedTextMeshProUGUI) continue;
-							if (!PrefabUtility.IsPartOfPrefabInstance(tmp.gameObject))
-								count++;
-						}
-
-						if (count > 0)
-						{
-							log?.Add($"  {path} ({count} TextMeshProUGUI)");
-							totalFiles++;
-							totalComponents += count;
-						}
-					}
-					finally
-					{
-						PrefabUtility.UnloadPrefabContents(go);
+						log?.Add($"  {path} ({count} TextMeshProUGUI)");
+						totalFiles++;
+						totalComponents += count;
 					}
 				}
 				catch (Exception ex)
@@ -397,12 +393,15 @@ namespace GuiToolkit.Editor
 			int componentCount = 0;
 			int errors         = 0;
 
+			// Process prefabs in a batch (fast import deferral).
 			AssetDatabase.StartAssetEditing();
 			try
 			{
 				for (int i = 0; i < files.Count; i++)
 				{
 					string path = files[i];
+					if (IsScenePath(path)) continue;
+
 					EditorUtility.DisplayProgressBar(
 						"Convert TextMeshProUGUI \u2192 UiLocalizedTextMeshProUGUI",
 						$"Processing {Path.GetFileName(path)}\u2026",
@@ -432,6 +431,36 @@ namespace GuiToolkit.Editor
 				AssetDatabase.StopAssetEditing();
 			}
 
+			// Process scenes outside the batch (scene open/save must not overlap with StartAssetEditing).
+			for (int i = 0; i < files.Count; i++)
+			{
+				string path = files[i];
+				if (!IsScenePath(path)) continue;
+
+				EditorUtility.DisplayProgressBar(
+					"Convert TextMeshProUGUI \u2192 UiLocalizedTextMeshProUGUI",
+					$"Processing scene {Path.GetFileName(path)}\u2026",
+					(float)i / Math.Max(files.Count, 1));
+
+				try
+				{
+					int converted = ProcessTmpScene(path, oldGuid, newGuid, crossFileIndex);
+					if (converted > 0)
+					{
+						log?.Add($"  {path} ({converted} converted)");
+						fileCount++;
+						componentCount += converted;
+					}
+				}
+				catch (Exception ex)
+				{
+					Debug.LogError($"[LocalizedTmpConverterWindow] Error in {path}: {ex}");
+					log?.Add($"  ERROR: {path}: {ex.Message}");
+					errors++;
+				}
+			}
+
+			EditorUtility.ClearProgressBar();
 			log?.Add($"Converted: {componentCount} component(s) in {fileCount} file(s)"
 			       + (errors > 0 ? $", {errors} error(s) — see Console" : ""));
 		}
@@ -582,5 +611,156 @@ namespace GuiToolkit.Editor
 			File.WriteAllLines(outputPath, log);
 			Debug.Log($"[LocalizedTmpConverterWindow] Log written to: {outputPath}");
 		}
+
+		// -----------------------------------------------------------------------
+		// Scene helpers
+		// -----------------------------------------------------------------------
+
+		private static bool IsScenePath(string path)
+			=> path.EndsWith(".unity", StringComparison.OrdinalIgnoreCase);
+
+		/// <summary>Opens a scene additively if not already loaded. Returns the scene and whether it was newly opened.</summary>
+		private static (Scene scene, bool opened) OpenSceneForProcessing(string assetPath)
+		{
+			var existing = EditorSceneManager.GetSceneByPath(assetPath);
+			if (existing.IsValid() && existing.isLoaded)
+				return (existing, false);
+			return (EditorSceneManager.OpenScene(assetPath, OpenSceneMode.Additive), true);
+		}
+
+		private static int ScanPrefabForTmpCount(string path)
+		{
+			var go = PrefabUtility.LoadPrefabContents(path);
+			try
+			{
+				int count = 0;
+				foreach (var tmp in go.GetComponentsInChildren<TextMeshProUGUI>(true))
+				{
+					if (tmp is UiLocalizedTextMeshProUGUI) continue;
+					if (!PrefabUtility.IsPartOfPrefabInstance(tmp.gameObject))
+						count++;
+				}
+				return count;
+			}
+			finally
+			{
+				PrefabUtility.UnloadPrefabContents(go);
+			}
+		}
+
+		private static int ScanSceneForTmpCount(string assetPath)
+		{
+			var (scene, opened) = OpenSceneForProcessing(assetPath);
+			try
+			{
+				if (!scene.IsValid() || !scene.isLoaded) return 0;
+				int count = 0;
+				foreach (var root in scene.GetRootGameObjects())
+				{
+					foreach (var tmp in root.GetComponentsInChildren<TextMeshProUGUI>(true))
+					{
+						if (tmp is UiLocalizedTextMeshProUGUI) continue;
+						if (!PrefabUtility.IsPartOfPrefabInstance(tmp.gameObject))
+							count++;
+					}
+				}
+				return count;
+			}
+			finally
+			{
+				if (opened && scene.IsValid())
+					EditorSceneManager.CloseScene(scene, true);
+			}
+		}
+
+		/// <summary>
+		/// Scene equivalent of <see cref="ProcessTmpPrefab"/>: opens the scene additively,
+		/// collects non-nested TextMeshProUGUI components, saves the scene, then YAML-patches
+		/// the m_Script GUID and injects the UiLocalizedTextMeshProUGUI fields.
+		/// </summary>
+		private static int ProcessTmpScene(string assetPath, string oldGuid, string newGuid,
+		                                    Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex)
+		{
+			var patchIds   = new List<long>();
+			var textValues = new Dictionary<long, string>();
+
+			var (scene, opened) = OpenSceneForProcessing(assetPath);
+			try
+			{
+				if (!scene.IsValid() || !scene.isLoaded) return 0;
+
+				foreach (var root in scene.GetRootGameObjects())
+				{
+					foreach (var tmp in root.GetComponentsInChildren<TextMeshProUGUI>(true))
+					{
+						if (tmp is UiLocalizedTextMeshProUGUI) continue;
+						if (PrefabUtility.IsPartOfPrefabInstance(tmp.gameObject)) continue;
+
+						if (YamlUtility.TryGetLocalFileId(tmp, out long localId))
+						{
+							patchIds.Add(localId);
+							textValues[localId] = tmp.text ?? "";
+						}
+						else
+						{
+							Debug.LogWarning($"[LocalizedTmpConverterWindow] Could not get local file ID for " +
+							                 $"'{tmp.gameObject.name}' in {assetPath} — skipped.");
+						}
+					}
+				}
+
+				if (patchIds.Count > 0)
+					EditorSceneManager.SaveScene(scene);
+			}
+			finally
+			{
+				if (opened && scene.IsValid())
+					EditorSceneManager.CloseScene(scene, true);
+			}
+
+			if (patchIds.Count == 0)
+				return 0;
+
+			string fullPath = YamlUtility.AssetPathToFullPath(assetPath);
+			if (!File.Exists(fullPath))
+			{
+				Debug.LogWarning($"[LocalizedTmpConverterWindow] File not found after save: {fullPath}");
+				return 0;
+			}
+
+			string yaml = File.ReadAllText(fullPath);
+			var convertedIds    = new HashSet<long>(patchIds);
+			var perComponentMap = LegacyTextToLocalizedTmpConverter.FindReferencingScriptFieldsPerComponent(yaml, convertedIds);
+			LegacyTextToLocalizedTmpConverter.MergeCrossFileRefs(assetPath, convertedIds, crossFileIndex, perComponentMap);
+
+			bool changed = false;
+			foreach (long localId in patchIds)
+			{
+				bool hasSetter      = LegacyTextToLocalizedTmpConverter.CheckForTextPropertySetters(localId, perComponentMap);
+				bool obviousRuntime = LegacyTextToLocalizedTmpConverter.IsObviouslyRuntimeValue(
+					textValues.TryGetValue(localId, out string tv) ? tv : "");
+				bool autoLocalize   = !hasSetter && !obviousRuntime;
+
+				string patched = PatchYamlAndInjectFields(yaml, localId, oldGuid, newGuid, autoLocalize);
+				if (patched != null)
+				{
+					yaml    = patched;
+					changed = true;
+				}
+				else
+				{
+					Debug.LogWarning($"[LocalizedTmpConverterWindow] YAML patch failed for id={localId} in {assetPath}.");
+				}
+			}
+
+			if (changed)
+			{
+				File.WriteAllText(fullPath, yaml);
+				AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+			}
+
+			return patchIds.Count;
+		}
+
 	}
 }
