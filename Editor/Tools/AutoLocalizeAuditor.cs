@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEditor;
@@ -62,6 +62,9 @@ namespace GuiToolkit.Editor
 				// Key: (assetGuid of the referenced component's file, component localId)
 				// Value: all MonoBehaviours that hold a serialized field pointing to that component
 				var reverseRefs = new Dictionary<(string, long), List<RefEntry>>();
+				// Stripped-block indirection map: (assetGuid, strippedLocalId) -> (sourceGuid, sourceLocalId)
+				// Scripts may hold same-file refs to stripped blocks; we resolve them via this map.
+				var stripMap = new Dictionary<(string, long), (string, long)>();
 
 				for (int i = 0; i < allAssetPaths.Count; i++)
 				{
@@ -70,7 +73,17 @@ namespace GuiToolkit.Editor
 					EditorUtility.DisplayProgressBar("AutoLocalize Auditor",
 						$"Scanning {Path.GetFileName(ap)}…", progress * 0.75f);
 
-					ScanYamlFile(ap, scriptGuid, components, reverseRefs);
+					ScanYamlFile(ap, scriptGuid, components, reverseRefs, stripMap);
+				}
+
+				// Post-process: forward refs from stripped block keys to their source component keys.
+				foreach (var kvp in stripMap)
+				{
+					if (reverseRefs.TryGetValue(kvp.Key, out var strippedRefs))
+					{
+						foreach (var r in strippedRefs)
+							AddRef(reverseRefs, kvp.Value, r);
+					}
 				}
 
 				// ── Phase 3: detect components that should have autoLocalize=0 ─────────
@@ -264,6 +277,11 @@ namespace GuiToolkit.Editor
 			new Regex(@"^\s+(\w+):\s*\{\s*fileID:\s*(-?\d+)\s*,\s*guid:\s*([a-fA-F0-9]+)",
 				RegexOptions.Multiline | RegexOptions.Compiled);
 
+		// Stripped block source: m_CorrespondingSourceObject: {fileID: N, guid: X, type: 3}
+		private static readonly Regex s_correspondingSourceRx =
+			new Regex(@"m_CorrespondingSourceObject:\s*\{fileID:\s*(-?\d+),\s*guid:\s*([a-fA-F0-9]+)",
+				RegexOptions.Compiled);
+
 		// ── Scanning ─────────────────────────────────────────────────────────────────
 
 		private static List<string> CollectProjectYamlAssetPaths()
@@ -292,7 +310,8 @@ namespace GuiToolkit.Editor
 			string assetPath,
 			string targetScriptGuid,
 			List<ComponentEntry> components,
-			Dictionary<(string, long), List<RefEntry>> reverseRefs)
+			Dictionary<(string, long), List<RefEntry>> reverseRefs,
+			Dictionary<(string, long), (string, long)> stripMap)
 		{
 			string fullPath = YamlUtility.AssetPathToFullPath(assetPath);
 			if (!File.Exists(fullPath))
@@ -319,6 +338,18 @@ namespace GuiToolkit.Editor
 				if (!scriptM.Success)
 					continue;
 				string scriptGuid = scriptM.Groups[1].Value;
+
+				// ── Stripped block check ─────────────────────────────────────────────
+				// A stripped block is a placeholder for a component in a nested prefab; it has
+				// no own serialized fields — record the source mapping and skip Part A/B.
+				bool isStripped = block.Length > headerM.Length && block[headerM.Length] == ' ';
+				if (isStripped)
+				{
+					var srcM = s_correspondingSourceRx.Match(block);
+					if (srcM.Success && long.TryParse(srcM.Groups[1].Value, out long srcId))
+						stripMap[(assetGuid, localId)] = (srcM.Groups[2].Value, srcId);
+					continue;
+				}
 
 				// ── Part A: collect UiLocalizedTextMeshProUGUI components ─────────────
 				if (scriptGuid == targetScriptGuid)
