@@ -34,6 +34,7 @@ namespace GuiToolkit.Editor
 		public static void RunAuditAndFix()
 		{
 			s_scriptSourceCache.Clear();
+			s_baseClassGuidCache.Clear();
 
 			string scriptGuid = YamlUtility.FindMonoScriptGuid(typeof(UiLocalizedTextMeshProUGUI));
 			if (string.IsNullOrEmpty(scriptGuid))
@@ -421,8 +422,26 @@ namespace GuiToolkit.Editor
 		private static readonly Dictionary<string, string> s_scriptSourceCache
 			= new Dictionary<string, string>();
 
+		// Cache: base class name → GUID of the script that declares it (string.Empty = not found).
+		private static readonly Dictionary<string, string> s_baseClassGuidCache
+			= new Dictionary<string, string>();
+
+		// Extracts the first inheritance list after ': ' in a class declaration.
+		// Handles generics, multiple bases, constraints: "class Foo<T> : Bar<T>, IFace where T…"
+		private static readonly Regex s_baseClassRx =
+			new Regex(@"\bclass\s+\w[\w<>, ]*\s*:\s*([\w<>, ]+?)(?:\s+where\b|\s*\{|$)",
+				RegexOptions.Compiled | RegexOptions.Multiline);
+
 		private static bool HasTextSetter(string scriptGuid, string fieldName)
 		{
+			return HasTextSetterInChain(scriptGuid, fieldName, 0);
+		}
+
+		private static bool HasTextSetterInChain(string scriptGuid, string fieldName, int depth)
+		{
+			if (depth > 8)
+				return false;
+
 			string assetPath = AssetDatabase.GUIDToAssetPath(scriptGuid);
 			if (string.IsNullOrEmpty(assetPath)
 			    || !assetPath.EndsWith(".cs", System.StringComparison.OrdinalIgnoreCase))
@@ -437,7 +456,71 @@ namespace GuiToolkit.Editor
 				s_scriptSourceCache[assetPath] = source;
 			}
 
-			return LegacyTextToLocalizedTmpConverter.ScriptSetsTextViaField(source, fieldName);
+			if (LegacyTextToLocalizedTmpConverter.ScriptSetsTextViaField(source, fieldName))
+				return true;
+
+			// Walk up the inheritance chain.
+			foreach (string baseName in ExtractBaseClassNames(source))
+			{
+				if (!s_baseClassGuidCache.TryGetValue(baseName, out string baseGuid))
+				{
+					baseGuid = FindScriptGuidByClassName(baseName) ?? string.Empty;
+					s_baseClassGuidCache[baseName] = baseGuid;
+				}
+
+				if (!string.IsNullOrEmpty(baseGuid)
+				    && HasTextSetterInChain(baseGuid, fieldName, depth + 1))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Returns the names of direct base classes/interfaces declared in <paramref name="source"/>,
+		/// with generic parameters stripped (e.g. "DesignLabPanelBase&lt;T&gt;" → "DesignLabPanelBase").
+		/// </summary>
+		private static System.Collections.Generic.IEnumerable<string> ExtractBaseClassNames(string source)
+		{
+			var m = s_baseClassRx.Match(source);
+			if (!m.Success)
+				yield break;
+
+			foreach (string part in m.Groups[1].Value.Split(','))
+			{
+				string name = part.Trim();
+				int genIdx = name.IndexOf('<');
+				if (genIdx > 0)
+					name = name.Substring(0, genIdx).Trim();
+				if (!string.IsNullOrEmpty(name))
+					yield return name;
+			}
+		}
+
+		/// <summary>
+		/// Finds the asset GUID of a .cs script in Assets/ that declares a class named
+		/// <paramref name="className"/>.  Returns <c>null</c> when not found.
+		/// </summary>
+		private static string FindScriptGuidByClassName(string className)
+		{
+			// Fast path: Unity convention is that the file is named after the class.
+			foreach (string g in AssetDatabase.FindAssets($"{className} t:Script", new[] { "Assets" }))
+			{
+				string ap = AssetDatabase.GUIDToAssetPath(g);
+				if (!s_scriptSourceCache.TryGetValue(ap, out string src))
+				{
+					string fp = YamlUtility.AssetPathToFullPath(ap);
+					src = File.Exists(fp) ? File.ReadAllText(fp) : string.Empty;
+					s_scriptSourceCache[ap] = src;
+				}
+
+				if (Regex.IsMatch(src, $@"\bclass\s+{Regex.Escape(className)}\b"))
+					return g;
+			}
+
+			return null;
 		}
 
 		/// <summary>
