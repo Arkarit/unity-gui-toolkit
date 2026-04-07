@@ -788,17 +788,6 @@ namespace GuiToolkit
 			groupEntry.Add(_singularKey);
 		}
 
-		public override string[] EdGetActiveKeys(string _group = null)
-		{
-			SetEffectiveGroup(ref _group);
-			if (!m_keys.TryGetValue(_group, out var set) || set.Count == 0)
-				return Array.Empty<string>();
-
-			string[] result = new string[set.Count];
-			set.CopyTo(result);
-			return result;
-		}
-
 		public override void EdReadKeyData()
 		{
 			if (DebugLoca)

@@ -142,10 +142,10 @@ namespace GuiToolkit
 		[GuiToolkit.ReadOnly][SerializeField] private ProcessedLoca m_processedLoca;
 
 		/// <summary>
-		/// Gets the processed localization data imported from the Excel source, with obsolete entries excluded.
+		/// Gets the processed localization data imported from the Excel source.
 		/// Returns an empty <see cref="ProcessedLoca"/> if not yet collected.
 		/// </summary>
-		public ProcessedLoca Localization => m_processedLoca != null ? m_processedLoca.WithoutObsolete() : new ProcessedLoca();
+		public ProcessedLoca Localization => m_processedLoca != null ? m_processedLoca : new ProcessedLoca();
 
 		/// <summary>
 		/// Gets the number of configured columns.
@@ -221,36 +221,6 @@ namespace GuiToolkit
 			}
 
 			s_pushCallback.Invoke(this);
-		}
-
-		/// <summary>
-		/// Compares the cached entries in <see cref="m_processedLoca"/> against the given set of active POT keys
-		/// and sets <see cref="ProcessedLocaEntry.IsObsolete"/> on any entry whose key is absent.
-		/// Call this after the Loca processor has written the POT so the active-key set is current.
-		/// Marks the asset dirty if any entry changes.
-		/// </summary>
-		/// <param name="_activeKeys">Keys currently present in the POT for this bridge's group.</param>
-		public void EdMarkObsolete(HashSet<string> _activeKeys)
-		{
-			if (m_processedLoca?.Entries == null)
-				return;
-
-			bool dirty = false;
-			foreach (var entry in m_processedLoca.Entries)
-			{
-				if (entry == null)
-					continue;
-
-				bool shouldBeObsolete = !_activeKeys.Contains(entry.Key);
-				if (entry.IsObsolete != shouldBeObsolete)
-				{
-					entry.IsObsolete = shouldBeObsolete;
-					dirty = true;
-				}
-			}
-
-			if (dirty)
-				EditorUtility.SetDirty(this);
 		}
 #endif
 

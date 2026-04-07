@@ -28,37 +28,6 @@ namespace GuiToolkit
 			SortByKey();
 		}
 
-		/// <summary>
-		/// Returns a copy of this <see cref="ProcessedLoca"/> with all <see cref="ProcessedLocaEntry.IsObsolete"/> entries removed.
-		/// Returns the same instance if no entries are marked obsolete (fast path).
-		/// </summary>
-		public ProcessedLoca WithoutObsolete()
-		{
-			if (Entries == null || Entries.Count == 0)
-				return this;
-
-			bool hasObsolete = false;
-			for (int i = 0; i < Entries.Count; i++)
-			{
-				if (Entries[i] != null && Entries[i].IsObsolete)
-				{
-					hasObsolete = true;
-					break;
-				}
-			}
-
-			if (!hasObsolete)
-				return this;
-
-			var filtered = new List<ProcessedLocaEntry>(Entries.Count);
-			for (int i = 0; i < Entries.Count; i++)
-			{
-				if (Entries[i] == null || !Entries[i].IsObsolete)
-					filtered.Add(Entries[i]);
-			}
-			return new ProcessedLoca(Group, filtered);
-		}
-
 		private void SortByKey()
 		{
 			if (Entries == null || Entries.Count <= 1)
@@ -133,13 +102,6 @@ namespace GuiToolkit
 		/// Typically file:line pairs indicating where this key is used in source code.
 		/// </summary>
 		public string SourceRef;
-
-		/// <summary>
-		/// True if this entry's key is no longer present in the current POT (no active component uses it).
-		/// Obsolete entries are excluded from runtime translation loading and from push-back to the spreadsheet.
-		/// Set automatically by the Loca processor after writing the POT.
-		/// </summary>
-		public bool IsObsolete;
 	}
 
 	/// <summary>
