@@ -72,9 +72,6 @@ namespace GuiToolkit.Editor
 					ScanYamlFile(ap, scriptGuid, components, reverseRefs);
 				}
 
-				Debug.Log($"{TOOL_TAG} Found {components.Count} autoLocalize=1 components. " +
-				          $"Cross-reference index has {reverseRefs.Count} entries.");
-
 				// ── Phase 3: detect components that should have autoLocalize=0 ─────────
 				EditorUtility.DisplayProgressBar("AutoLocalize Auditor", "Analysing components…", 0.75f);
 
@@ -86,6 +83,7 @@ namespace GuiToolkit.Editor
 				int diagScriptMissing = 0;
 				int diagNoSetter      = 0;
 				var diagDetails       = new System.Text.StringBuilder();
+				const int DIAG_MAX_NO_REF = 50; // log at most this many "no ref" entries
 
 				foreach (var comp in components)
 				{
@@ -135,6 +133,15 @@ namespace GuiToolkit.Editor
 						else
 						{
 							diagNoRef++;
+							if (diagNoRef <= DIAG_MAX_NO_REF)
+							{
+								string textPreview = Truncate(string.IsNullOrEmpty(comp.LocaKey) ? comp.Text : comp.LocaKey, 60);
+								diagDetails.AppendLine($"  SKIP [no field ref ] {comp.AssetPath} id={comp.LocalId} text=\"{textPreview}\"");
+							}
+							else if (diagNoRef == DIAG_MAX_NO_REF + 1)
+							{
+								diagDetails.AppendLine($"  SKIP [no field ref ] … (further entries suppressed)");
+							}
 						}
 					}
 
@@ -154,16 +161,13 @@ namespace GuiToolkit.Editor
 
 				// ── Diagnostic summary ────────────────────────────────────────────────
 				int diagTotal = diagNoRef + diagScriptMissing + diagNoSetter;
-				if (diagTotal > 0)
-				{
-					string diagSummary = TOOL_TAG + " Skipped " + diagTotal + " component(s) not auto-detected as runtime-set:\n"
-						+ "  " + diagNoRef + " -- no C# serialized field ref (likely set via GetComponent)\n"
-						+ "  " + diagScriptMissing + " -- C# script GUID unresolvable (script renamed/deleted)\n"
-						+ "  " + diagNoSetter + " -- field ref found but no '.text =' assignment in script";
-					if (diagDetails.Length > 0)
-						diagSummary += "\nDetails:\n" + diagDetails.ToString().TrimEnd();
-					Debug.Log(diagSummary);
-				}
+				string diagSummary = TOOL_TAG + $" Found {components.Count} autoLocalize=1 component(s). Auto-fixed: {total}. Skipped: {diagTotal}.\n"
+					+ $"  {diagNoRef} -- no C# serialized field ref (likely set via GetComponent; fix manually)\n"
+					+ $"  {diagScriptMissing} -- C# script GUID unresolvable (script renamed/deleted)\n"
+					+ $"  {diagNoSetter} -- field ref found but no '.text =' assignment in script";
+				if (diagDetails.Length > 0)
+					diagSummary += "\nDetails:\n" + diagDetails.ToString().TrimEnd();
+				Debug.Log(diagSummary);
 
 				// ── Phase 4: apply fixes ───────────────────────────────────────────────
 				EditorUtility.DisplayProgressBar("AutoLocalize Auditor", "Applying fixes…", 0.9f);
@@ -340,8 +344,11 @@ namespace GuiToolkit.Editor
 				}
 
 				// Cross-file: {fileID: X, guid: Y, …}
+				// Skip m_Script entries — they point to script assets, not scene/prefab components.
 				foreach (Match m in s_crossFileRefRx.Matches(block))
 				{
+					if (m.Groups[1].Value == "m_Script")
+						continue;
 					if (!long.TryParse(m.Groups[2].Value, out long refId))
 						continue;
 					AddRef(reverseRefs, (m.Groups[3].Value, refId),
