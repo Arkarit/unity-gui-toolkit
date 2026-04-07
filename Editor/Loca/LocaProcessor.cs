@@ -102,7 +102,7 @@ namespace GuiToolkit.Editor
 			{
 				string path = AssetDatabase.GUIDToAssetPath(guid);
 				var bridge = AssetDatabase.LoadAssetAtPath<LocaExcelBridge>(path);
-				if (bridge == null)
+				if (bridge == null || !bridge.CanPush)
 					continue;
 
 				var activeKeys = new HashSet<string>(LocaManager.Instance.EdGetActiveKeys(bridge.EdGroup));
