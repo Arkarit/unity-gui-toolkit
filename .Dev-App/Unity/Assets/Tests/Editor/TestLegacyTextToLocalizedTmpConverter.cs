@@ -127,14 +127,13 @@ namespace GuiToolkit.Test
 		}
 
 		// -----------------------------------------------------------------------
-		// m_autoLocalize extras
+		// Loca extras
 		// -----------------------------------------------------------------------
 
 		[Test]
-		public void BuildTmpBlock_ContainsAutoLocalizeFields()
+		public void BuildTmpBlock_ContainsLocaFields()
 		{
 			string block = LegacyTextToLocalizedTmpConverter.BuildTmpYamlBlock(MakeData(), FakeScriptGuid);
-			StringAssert.Contains("m_autoLocalize: 1", block);
 			StringAssert.Contains("m_group: ", block);
 			StringAssert.Contains("m_locaKey: ", block);
 		}

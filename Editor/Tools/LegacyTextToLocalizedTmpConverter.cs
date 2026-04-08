@@ -482,9 +482,7 @@ namespace GuiToolkit.Editor
 			// Phase 1: Replace each Text block with its TMP equivalent.
 			foreach (var data in entries)
 			{
-				bool autoLocalize = !CheckForTextPropertySetters(data.ComponentLocalId, perComponentMap)
-			                    && !IsObviouslyRuntimeValue(data.Text);
-				string newBlock = BuildTmpYamlBlock(data, scriptGuid, autoLocalize);
+				string newBlock = BuildTmpYamlBlock(data, scriptGuid);
 				string patched  = YamlUtility.ReplaceMonoBehaviourBlock(yaml, data.ComponentLocalId, newBlock);
 
 				if (patched == null)
@@ -669,7 +667,7 @@ namespace GuiToolkit.Editor
 		/// <c>MonoBehaviour:\n</c> and ends without a trailing newline, ready to be passed to
 		/// <see cref="YamlUtility.ReplaceMonoBehaviourBlock"/>.
 		/// </summary>
-		internal static string BuildTmpYamlBlock(LegacyTextData data, string scriptGuid, bool autoLocalize = true)
+		internal static string BuildTmpYamlBlock(LegacyTextData data, string scriptGuid)
 		{
 			// Alignment mapping: TextAnchor → TMP horizontal + vertical alignment flags.
 			int hAlign, vAlign;
@@ -802,7 +800,6 @@ namespace GuiToolkit.Editor
 			sb.Append("  m_hasFontAssetChanged: 0\n");
 			sb.Append("  m_baseMaterial: {fileID: 0}\n");
 			sb.Append("  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}\n");
-			sb.Append($"  m_autoLocalize: {(autoLocalize ? 1 : 0)}\n");
 			sb.Append("  m_group: \n");
 			sb.Append("  m_locaKey: ");
 

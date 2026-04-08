@@ -8,14 +8,18 @@ namespace GuiToolkit
 {
 	/// <summary>
 	/// TextMeshProUGUI subclass with automatic localization support.
-	/// When <see cref="AutoLocalize"/> is enabled, setting the <see cref="LocaKey"/> property
-	/// immediately applies the translated text. Re-translates on language changes.
+	/// Setting the <see cref="LocaKey"/> property immediately applies the translated text.
+	/// Re-translates on language changes.
 	/// Replaces the deprecated <see cref="UiAutoLocalize"/> component.
+	/// <para>
+	/// A component is considered "not translatable" when its effective key is empty or a
+	/// placeholder of the form <c>[AnyText]</c> (square brackets).  In that case
+	/// <see cref="LocaKey"/> returns an empty string and no translation is applied.
+	/// </para>
 	/// </summary>
 	[AddComponentMenu("UI/Localized Text Mesh Pro UGUI")]
 	public class UiLocalizedTextMeshProUGUI : TextMeshProUGUI, ILocaKeyProvider
 	{
-		[SerializeField] private bool m_autoLocalize = true;
 		[SerializeField] private string m_group = string.Empty;
 		[SerializeField] private string m_locaKey = string.Empty;
 
@@ -26,24 +30,15 @@ namespace GuiToolkit
 		private bool m_isSettingInternally;
 
 		/// <summary>
-		/// Gets or sets whether automatic localization is enabled.
-		/// When enabled, changing <see cref="LocaKey"/> immediately applies the translation.
-		/// When disabled, text must be set manually via the <see cref="text"/> property.
+		/// Returns <c>true</c> when <paramref name="s"/> is empty or has the placeholder form
+		/// <c>[AnyText]</c>, meaning it should not be used as a localization key.
 		/// </summary>
-		public bool AutoLocalize
-		{
-			get => m_autoLocalize;
-			set
-			{
-				m_autoLocalize = value;
-				if (m_autoLocalize && !string.IsNullOrEmpty(m_locaKey))
-					ApplyTranslation();
-			}
-		}
+		private static bool IsPlaceholderText(string s)
+			=> string.IsNullOrEmpty(s) || (s.Length >= 2 && s[0] == '[' && s[s.Length - 1] == ']');
 
 		/// <summary>
 		/// Gets or sets the localization group namespace.
-		/// Changing this triggers immediate re-translation if <see cref="AutoLocalize"/> is enabled.
+		/// Changing this triggers immediate re-translation.
 		/// </summary>
 		public string Group
 		{
@@ -52,7 +47,7 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		bool ILocaKeyProvider.UsesLocaKey => m_autoLocalize && !IsObviouslyRuntimeValue(LocaKey);
+		bool ILocaKeyProvider.UsesLocaKey => !IsPlaceholderText(LocaKey) && !IsObviouslyRuntimeValue(LocaKey);
 		bool ILocaKeyProvider.UsesMultipleLocaKeys => false;
 		List<string> ILocaKeyProvider.LocaKeys => null;
 		// LocaKey and Group are already public properties; they satisfy the interface implicitly.
@@ -93,15 +88,18 @@ namespace GuiToolkit
 
 		/// <summary>
 		/// Gets or sets the localization key.
-		/// Setting this immediately re-translates the text if <see cref="AutoLocalize"/> is enabled.
+		/// Setting this immediately re-translates the text.
+		/// Returns an empty string when no key is set or the effective key is a placeholder
+		/// (<c>[AnyText]</c> form), in which case the raw <see cref="TextMeshProUGUI.text"/>
+		/// is displayed unchanged.
 		/// </summary>
 		public string LocaKey
 		{
 			get
 			{
-				if (string.IsNullOrEmpty(m_locaKey))
-					return base.text;
-				return m_locaKey;
+				// Prefer explicit stored key; fall back to the raw TMP text.
+				string effectiveKey = string.IsNullOrEmpty(m_locaKey) ? base.text : m_locaKey;
+				return IsPlaceholderText(effectiveKey) ? string.Empty : effectiveKey;
 			}
 			set
 			{
@@ -112,10 +110,8 @@ namespace GuiToolkit
 
 		/// <summary>
 		/// Overrides the base <see cref="TextMeshProUGUI.text"/> property to intercept external writes.
-		/// When <see cref="AutoLocalize"/> is enabled:
-		/// - Writes from outside this class are treated as new <see cref="LocaKey"/> assignments and trigger translation.
-		/// - A warning is logged in the editor if a key is already set (suggests using <see cref="LocaKey"/> instead).
-		/// When disabled, behaves identically to the base property.
+		/// External writes are treated as new <see cref="LocaKey"/> assignments and trigger translation.
+		/// In the Editor during play mode a verbose log is written when the value is not a registered key.
 		/// </summary>
 		/// <remarks>
 		/// The re-entry guard (<c>m_isSettingInternally</c>) is required because <c>ApplyTranslation</c>
@@ -133,51 +129,31 @@ namespace GuiToolkit
 					return;
 				}
 
-				if (m_autoLocalize)
-				{
 #if UNITY_EDITOR
-					if (Application.isPlaying)
-					{
-						var mgr = LocaManager.Instance;
-						if (mgr != null && mgr.HasKey(value, m_group))
-						{
-							// Valid loca key — accept as a new key assignment and translate.
-							m_locaKey = value;
-							ApplyTranslation();
-						}
-						else
-						{
-							UnityEngine.Debug.LogError(
-								$"[Loca] '.text' was set to '{value}' while AutoLocalize is active, " +
-								$"but '{value}' is not a valid loca key. " +
-								$"Use the LocaKey property instead of setting .text directly, or disable AutoLocalize.\n" +
-								$"Path: {this.GetAssetPathAndPath()}",
-								this);
-							
-							base.text = value; // Still apply the text so the user sees the result of their action, even if it's not a valid key.
-							m_autoLocalize = false; // Disable auto-localization to prevent further confusion until the user explicitly re-enables it.
-						}
-						
-						return;
-					}
-#endif
-					m_locaKey = value;
-					ApplyTranslation();
-				}
-				else
+				if (Application.isPlaying)
 				{
-					base.text = value;
+					var mgr = LocaManager.Instance;
+					if (mgr != null && !mgr.HasKey(value, m_group))
+					{
+						UnityEngine.Debug.Log(
+							$"[Loca] '.text' was set to '{value}' but '{value}' is not a registered loca key. " +
+							$"Use the LocaKey property for key assignments.\n" +
+							$"Path: {this.GetAssetPathAndPath()}",
+							this);
+					}
 				}
+#endif
+				m_locaKey = value;
+				ApplyTranslation();
 			}
 		}
 
 		protected override void Awake()
 		{
 			base.Awake();
-			// After a "Replace with Localized Text" YAML swap the m_locaKey field will be empty
-			// because the original TextMeshProUGUI did not have it. In that case, seed the key
-			// from the existing TMP text so the component behaves correctly immediately.
-			if (m_autoLocalize && string.IsNullOrEmpty(m_locaKey) && !string.IsNullOrEmpty(base.text))
+			// After a YAML swap the m_locaKey field may be empty while base.text still holds
+			// the design-time placeholder. Seed m_locaKey from base.text unless it is a placeholder.
+			if (string.IsNullOrEmpty(m_locaKey) && !IsPlaceholderText(base.text))
 				m_locaKey = base.text;
 		}
 
@@ -201,11 +177,11 @@ namespace GuiToolkit
 
 		private void ApplyTranslation()
 		{
-			if (!m_autoLocalize || !Application.isPlaying)
+			if (!Application.isPlaying)
 				return;
 
-			if (string.IsNullOrEmpty(m_locaKey))
-				return; // No key set — leave the existing displayed text unchanged.
+			if (IsPlaceholderText(m_locaKey))
+				return; // Placeholder or empty — leave the existing displayed text unchanged.
 
 			var manager = LocaManager.Instance;
 			if (manager == null)
