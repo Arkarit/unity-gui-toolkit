@@ -239,4 +239,6 @@ namespace GuiToolkit
 		/// Has no effect outside play mode or when no localization key is set.
 		/// </summary>
 		public void Translate() => ApplyTranslation();
+
+	}
 }
