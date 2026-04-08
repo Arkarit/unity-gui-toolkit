@@ -104,8 +104,6 @@ namespace GuiToolkit
 			m_subKey = _subKey;
 			m_playerSetting = _playerSetting;
 			m_isLocalized = _playerSetting.IsLocalized;
-			if (m_text is UiLocalizedTextMeshProUGUI localizedText)
-				localizedText.AutoLocalize = m_isLocalized;
 			
 			string key = string.Empty;
 

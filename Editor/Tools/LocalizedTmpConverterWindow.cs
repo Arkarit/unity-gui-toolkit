@@ -468,10 +468,8 @@ namespace GuiToolkit.Editor
 		/// <summary>
 		/// Loads the prefab at <paramref name="assetPath"/>, collects all non-nested
 		/// <see cref="TextMeshProUGUI"/> component local IDs, saves the prefab (so YAML is current),
-		/// then YAML-patches the <c>m_Script</c> GUID and injects the three extra fields that
-		/// <see cref="UiLocalizedTextMeshProUGUI"/> declares.  The <c>m_autoLocalize</c> value is
-		/// determined per-component: it is disabled when any C# script sets <c>.text</c> directly
-		/// on the component, or when the current text value looks like a runtime-generated value.
+		/// then YAML-patches the <c>m_Script</c> GUID and injects the extra fields that
+		/// <see cref="UiLocalizedTextMeshProUGUI"/> declares: <c>m_group</c> and <c>m_locaKey</c>.
 		/// </summary>
 		private static int ProcessTmpPrefab(string assetPath, string oldGuid, string newGuid,
 		                                     Dictionary<(string, long), Dictionary<string, HashSet<string>>> crossFileIndex)
@@ -562,9 +560,9 @@ namespace GuiToolkit.Editor
 
 		/// <summary>
 		/// Swaps the <c>m_Script</c> GUID in the MonoBehaviour block identified by
-		/// <paramref name="localFileId"/> and appends the three fields that
+		/// <paramref name="localFileId"/> and appends the two fields that
 		/// <see cref="UiLocalizedTextMeshProUGUI"/> adds on top of <see cref="TextMeshProUGUI"/>:
-		/// <c>m_autoLocalize</c>, <c>m_group</c>, and <c>m_locaKey</c>.
+		/// <c>m_group</c> and <c>m_locaKey</c>.
 		/// Returns <c>null</c> if the block or the old GUID was not found.
 		/// </summary>
 		private static string PatchYamlAndInjectFields(string yaml, long localFileId,
@@ -591,9 +589,8 @@ namespace GuiToolkit.Editor
 
 			block = block.Replace(oldToken, newToken);
 
-			// Append the three UiLocalizedTextMeshProUGUI-specific fields at the end of the block.
-			int autoLocalizeValue = autoLocalize ? 1 : 0;
-			block = block.TrimEnd('\n') + $"\n  m_autoLocalize: {autoLocalizeValue}\n  m_group: \n  m_locaKey: \n";
+			// Append the UiLocalizedTextMeshProUGUI-specific fields at the end of the block.
+			block = block.TrimEnd('\n') + $"\n  m_group: \n  m_locaKey: \n";
 
 			return yaml.Substring(0, blockStart) + block + yaml.Substring(blockEnd);
 		}

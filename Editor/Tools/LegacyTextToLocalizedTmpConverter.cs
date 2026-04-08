@@ -1036,8 +1036,7 @@ namespace GuiToolkit.Editor
 
 					Debug.LogWarning(
 						$"[LegacyTextToLocalizedTmpConverter] '{scriptAssetPath}' sets '{fieldName}.text' directly. " +
-						$"AutoLocalize has been disabled on the converted component. " +
-						$"To enable localization, set LocaKey and re-enable AutoLocalize on the component.");
+						$"Consider assigning via the LocaKey property instead of .text for proper localization support.");
 					found = true;
 				}
 			}

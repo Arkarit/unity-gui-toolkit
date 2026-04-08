@@ -7,21 +7,19 @@ namespace GuiToolkit.Editor
 	/// <summary>
 	/// Custom Inspector for <see cref="UiLocalizedTextMeshProUGUI"/>.
 	/// Draws a "Localization" section above the standard TMP UI inspector, exposing
-	/// <see cref="UiLocalizedTextMeshProUGUI.AutoLocalize"/>, <see cref="UiLocalizedTextMeshProUGUI.Group"/>,
-	/// and <see cref="UiLocalizedTextMeshProUGUI.LocaKey"/> as editable fields.
-	/// All TMP-native fields below are rendered by the base <see cref="TMP_EditorPanelUI"/> editor.
+	/// <see cref="UiLocalizedTextMeshProUGUI.Group"/> and <see cref="UiLocalizedTextMeshProUGUI.LocaKey"/>
+	/// as editable fields. All TMP-native fields below are rendered by the base
+	/// <see cref="TMP_EditorPanelUI"/> editor.
 	/// </summary>
 	[CustomEditor(typeof(UiLocalizedTextMeshProUGUI), true), CanEditMultipleObjects]
 	public class UiLocalizedTextMeshProUGUIEditor : TMP_EditorPanelUI
 	{
-		private SerializedProperty m_autoLocalizeProp;
 		private SerializedProperty m_groupProp;
 		private SerializedProperty m_locaKeyProp;
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			m_autoLocalizeProp = serializedObject.FindProperty("m_autoLocalize");
 			m_groupProp = serializedObject.FindProperty("m_group");
 			m_locaKeyProp = serializedObject.FindProperty("m_locaKey");
 		}
@@ -32,19 +30,13 @@ namespace GuiToolkit.Editor
 
 			EditorGUILayout.LabelField("Localization", EditorStyles.boldLabel);
 
-			EditorGUILayout.PropertyField(m_autoLocalizeProp, new GUIContent("Auto Localize",
-				"When enabled, the Loca Key is translated at runtime and re-applied on language changes."));
+			EditorGUILayout.PropertyField(m_locaKeyProp, new GUIContent("Loca Key",
+				"The localization key passed to LocaManager.Translate(). " +
+				"Leave empty to initialize from the current TMP text at runtime. " +
+				"Use [Text] placeholder form to mark as non-translatable."));
 
-			bool autoLocalize = m_autoLocalizeProp.boolValue;
-			using (new EditorGUI.DisabledScope(!autoLocalize))
-			{
-				EditorGUILayout.PropertyField(m_locaKeyProp, new GUIContent("Loca Key",
-					"The localization key passed to LocaManager.Translate(). " +
-					"Leave empty to initialize from the current TMP text at runtime."));
-
-				EditorGUILayout.PropertyField(m_groupProp, new GUIContent("Group",
-					"Optional localization group / namespace for the key."));
-			}
+			EditorGUILayout.PropertyField(m_groupProp, new GUIContent("Group",
+				"Optional localization group / namespace for the key."));
 
 			serializedObject.ApplyModifiedProperties();
 
