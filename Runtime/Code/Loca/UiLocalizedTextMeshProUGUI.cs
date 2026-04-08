@@ -99,7 +99,7 @@ namespace GuiToolkit
 		{
 			get
 			{
-				if (m_autoLocalize && string.IsNullOrEmpty(m_locaKey))
+				if (string.IsNullOrEmpty(m_locaKey))
 					return base.text;
 				return m_locaKey;
 			}
@@ -233,5 +233,10 @@ namespace GuiToolkit
 			ApplyTranslation();
 		}
 
-	}
+		/// <summary>
+		/// Triggers a translation immediately. Useful for non-auto-localized components that
+		/// need their initial translation applied by an external controller (e.g. UiTextContainer).
+		/// Has no effect outside play mode or when no localization key is set.
+		/// </summary>
+		public void Translate() => ApplyTranslation();
 }

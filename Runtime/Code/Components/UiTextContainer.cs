@@ -2,15 +2,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace GuiToolkit
 {
 	public class UiTextContainer : UiThing, IPoolable
 	{
-		protected UiAutoLocalize m_translator;
 		protected TextMeshProUGUI m_tmpText;
 		protected Text m_text;
 		protected bool m_initialized = false;
@@ -20,8 +15,8 @@ namespace GuiToolkit
 			get
 			{
 				InitIfNecessary();
-				if (m_translator && Application.isPlaying)
-					return m_translator.Text;
+				if (m_tmpText is UiLocalizedTextMeshProUGUI localizable)
+					return localizable.LocaKey;
 				if (m_tmpText)
 					return m_tmpText.text;
 				if (m_text)
@@ -34,8 +29,8 @@ namespace GuiToolkit
 				if (value == null)
 					return;
 				InitIfNecessary();
-				if (m_translator && Application.isPlaying)
-					m_translator.LocaKey = value;
+				if (m_tmpText is UiLocalizedTextMeshProUGUI localizable)
+					localizable.LocaKey = value;
 				else if (m_tmpText)
 					m_tmpText.text = value;
 				else if (m_text)
@@ -76,8 +71,6 @@ namespace GuiToolkit
 			get
 			{
 				InitIfNecessary();
-				if (m_translator && Application.isPlaying)
-					return m_translator;
 				if (m_tmpText)
 					return m_tmpText;
 				if (m_text)
@@ -90,6 +83,8 @@ namespace GuiToolkit
 		{
 			base.Awake();
 			InitIfNecessary();
+			if (m_tmpText is UiLocalizedTextMeshProUGUI localizable)
+				localizable.Translate();
 		}
 
 		protected virtual void Init() { }
@@ -99,7 +94,6 @@ namespace GuiToolkit
 			if (m_initialized)
 				return;
 
-			m_translator = GetComponentInChildren<UiAutoLocalize>();
 			m_tmpText = GetComponentInChildren<TextMeshProUGUI>();
 			m_text = GetComponentInChildren<Text>();
 
