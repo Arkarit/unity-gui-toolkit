@@ -1477,7 +1477,7 @@ namespace GuiToolkit.Editor
 			string newBlock = Regex.Replace(
 				block,
 				@"(m_Script:\s*\{[^}]*\bguid:\s*)" + Regex.Escape(oldGuid),
-				"$1" + newGuid);
+				"${1}" + newGuid);
 
 			if (newBlock == block)
 				return null; // GUID not found in this block
