@@ -88,10 +88,29 @@ namespace GuiToolkit.Editor
 				"Builds column configuration from the PO files on disk for this group.",
 				MessageType.Info);
 
-			// -- Process -------------------------------------------------------
+			// -- Process / Clear / Reset -------------------------------------------
 			EditorGUILayout.Space(10);
 			if (GUILayout.Button("Process"))
 				thisLocaProvider.CollectData();
+
+			EditorGUILayout.BeginHorizontal();
+			if (GUILayout.Button("Clear"))
+			{
+				bridge.EdClear();
+				serializedObject.Update();
+			}
+			if (GUILayout.Button("Reset"))
+			{
+				if (EditorUtility.DisplayDialog(
+						"Reset LocaExcelBridge",
+						"This will permanently clear ALL configuration and translation data on this asset.\nContinue?",
+						"Reset", "Cancel"))
+				{
+					bridge.EdReset();
+					serializedObject.Update();
+				}
+			}
+			EditorGUILayout.EndHorizontal();
 
 			// -- Sync (Gettext ↔ Sheets) ----------------------------------------
 			EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);

@@ -191,6 +191,33 @@ namespace GuiToolkit
 		}
 
 		/// <summary>
+		/// (Editor) Clears only the processed loca data (imported translations).
+		/// Configuration fields (source, columns, group, etc.) are left untouched.
+		/// </summary>
+		public void EdClear()
+		{
+			m_processedLoca = null;
+			EditorUtility.SetDirty(this);
+		}
+
+		/// <summary>
+		/// (Editor) Resets the entire asset to defaults — clears both configuration and processed loca data.
+		/// </summary>
+		public void EdReset()
+		{
+			m_sourceType            = SourceType.Local;
+			m_excelPath             = null;
+			m_googleUrl             = string.Empty;
+			m_useGoogleAuth         = false;
+			m_serviceAccountJsonPath = string.Empty;
+			m_group                 = string.Empty;
+			m_columnDescriptions    = new List<InColumnDescription>();
+			m_startRow              = 0;
+			m_processedLoca         = null;
+			EditorUtility.SetDirty(this);
+		}
+
+		/// <summary>
 		/// (Editor) Delegate invoked by <see cref="PushToSpreadsheet"/>.
 		/// Registered by <c>LocaExcelBridgePusher</c> via <c>[InitializeOnLoad]</c>.
 		/// </summary>
