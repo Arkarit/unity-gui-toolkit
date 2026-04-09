@@ -206,7 +206,7 @@ namespace GuiToolkit
 		public void EdReset()
 		{
 			m_sourceType            = SourceType.Local;
-			m_excelPath             = null;
+			m_excelPath             = default;
 			m_googleUrl             = string.Empty;
 			m_useGoogleAuth         = false;
 			m_serviceAccountJsonPath = string.Empty;
