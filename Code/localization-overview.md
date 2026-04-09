@@ -34,6 +34,7 @@ Three built-in methods for providing translations:
 1. **PO Files** — Standard GNU gettext files stored in Unity Resources
 2. **Excel/Google Sheets** — Tabular data imported via `LocaExcelBridge`
 3. **Custom Providers** — Implement `ILocaProvider` for any data source
+4. **JSON Key Provider** — Editor-only `LocaJsonKeyProvider` ScriptableObject that harvests keys from JSON data files
 
 ### UI Components
 - **UiLocalizedTextMeshProUGUI** — Modern component for automatic text localization
@@ -43,6 +44,7 @@ Three built-in methods for providing translations:
 - **LocaProcessor** — Extracts localization keys from code and scenes
 - **LocaPluralProcessor** — Generates plural form rules from PO headers
 - **LocaGettextSheetsSyncer** — Syncs PO file keys to/from Google Sheets (push new keys, pull translations, auto-build column config)
+- **LocaJsonKeyProvider** — ScriptableObject that extracts translatable strings from JSON files by field name. Editor-only; participates in key harvesting during `Process Loca Keys`. See [JSON Key Provider](localization-json-provider.html).
 
 ---
 
@@ -114,11 +116,11 @@ public class MyMenu : LocaMonoBehaviour
 YourProject/
 ├── Assets/
 │   └── Resources/
-│       ├── en.po              ← English translations (default group)
-│       ├── en_ui.po           ← English UI group
-│       ├── de.po              ← German translations
-│       ├── de_ui.po           ← German UI group
-│       └── uitk_loca_groups   ← List of group names
+│       ├── en.po                  ← English translations (default group)
+│       ├── en_Json.po             ← English "Json" group
+│       ├── de.po                  ← German translations
+│       ├── de_Json.po             ← German "Json" group
+│       └── uitk_loca_groups.txt   ← Auto-generated list of non-default groups
 │
 └── Packages/
     └── de.phoenixgrafik.ui-toolkit/
@@ -127,6 +129,8 @@ YourProject/
         └── Runtime/Code/Loca/
             └── LocaManager.cs       ← Core localization API
 ```
+
+**`uitk_loca_groups.txt`** is a plain-text file (one group name per line) that tells the runtime which non-default translation groups to load. It is placed in any `Resources/` folder and is **auto-generated** when you run `Tools > Loca > Process Loca Keys` — you never need to edit it manually. If you add PO files for a new group without running the processor, create or update this file manually.
 
 ---
 

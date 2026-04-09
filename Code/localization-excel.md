@@ -117,6 +117,18 @@ This reads the Excel file and stores the parsed translations in the `LocaExcelBr
 LocaExcelBridge: Loaded 3 entries from Assets/Localization/MyTranslations.xlsx
 ```
 
+### Inspector Buttons: Clear and Reset
+
+The LocaExcelBridge Inspector provides three action buttons:
+
+| Button | Behaviour | Confirmation |
+|--------|-----------|--------------|
+| **Process** | Reads the source (Excel file or Google Sheet) and stores parsed translations in the asset | No |
+| **Clear** | Removes only the cached translation data (the processed keys), leaving all configuration intact | No |
+| **Reset** | Erases **all** configuration and translation data on the asset, returning it to a blank state | Yes (confirmation dialog) |
+
+Use **Clear** when you want to force a re-import without changing any settings. Use **Reset** if you need to completely reconfigure the bridge from scratch.
+
 ### Step 5: Register the Provider (Editor)
 
 The `LocaExcelBridge` asset must be in a **Resources** folder to be loaded at runtime:

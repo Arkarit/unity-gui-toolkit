@@ -143,7 +143,7 @@ After marking strings in code and UI components:
 This scans:
 - All C# scripts for `_()`, `__()`, `gettext()`, `pgettext()`, `ngettext()` calls
 - Scene files and prefabs for `UiLocalizedTextMeshProUGUI` components
-- ScriptableObjects implementing `ILocaKeyProvider`
+- All ScriptableObjects implementing `ILocaKeyProvider` (including `LocaJsonKeyProvider`)
 
 **Output:** POT (Portable Object Template) files in your configured **POT Path**:
 ```
@@ -184,6 +184,26 @@ msgstr[1] ""
 ```
 
 > **Note:** POT files are **templates**. They contain the source keys but empty translations (`msgstr ""`). You'll create `.po` files from these for each language.
+
+---
+
+## Harvesting JSON File Keys
+
+If your game loads data from JSON files at runtime and displays string values from them, use a **`LocaJsonKeyProvider`** to harvest those strings into a POT file.
+
+1. **Right-click in Project window** → **Create > Loca > JSON Key Provider**
+2. Name it descriptively (e.g., `TutorialJsonKeys`)
+3. In the Inspector:
+   - Add one or more **Entries**: each entry has a **JSON File** (TextAsset) and a list of **Field Names** to search for (e.g., `tutorialText`, `title`, `taskName`)
+   - Set the **Group** (e.g., `Json`) — this determines which POT/PO file the keys go into
+4. **Run `Tools > Loca > Process Loca Keys`** — keys are extracted into `loca_Json.pot`
+5. Create corresponding PO files (`en_Json.po`, `de_Json.po`, etc.) and add translations
+6. In your runtime code, pass the JSON values through `_()` with the matching group:
+   ```csharp
+   label.text = _(jsonData.tutorialText, "Json");
+   ```
+
+> **Note:** The `LocaJsonKeyProvider` is editor-only — it is compiled away in builds. The PO files it generates are what the runtime uses.
 
 ---
 

@@ -94,3 +94,4 @@ Comprehensive translation support with multiple workflow options:
 - **[PO Files (gettext)](Code/localization-gettext)** — Traditional workflow with POT/PO files and version control
 - **[Excel Integration](Code/localization-excel)** — Offline editing with local spreadsheets
 - **[Google Sheets](Code/localization-google-sheets)** — Cloud collaboration for distributed teams
+- **[JSON Key Provider](Code/localization-json-provider)** — Harvest keys from runtime JSON data files
