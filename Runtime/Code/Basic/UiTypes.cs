@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using UnityEngine;
 
@@ -190,6 +190,18 @@ namespace GuiToolkit
 		public const int LOCA_PROCESSOR_MENU_PRIORITY = 100;
 		public const int LOCA_PLURAL_PROCESSOR_MENU_PRIORITY = 110;
 		public const int LOCA_PO_FIXER_MENU_PRIORITY = 120;
+		public const int LOCA_MERGE_POT_MENU_PRIORITY = 130;
+		public const int LOCA_BACKUP_MENU_PRIORITY = 140;
+		public const int LOCA_REMOVE_OBSOLETE_MENU_PRIORITY = 150;
+		public const int LOCA_MISC_BATCH_REPLACE_SCENE_MENU_PRIORITY    = 10;
+		public const int LOCA_MISC_BATCH_REPLACE_PROJECT_MENU_PRIORITY  = 20;
+		public const int LOCA_MISC_MIGRATE_CANDIDATES_MENU_PRIORITY     = 30;
+		public const int LOCA_MISC_CONVERTER_WINDOW_MENU_PRIORITY       = 35;
+public const int LOCA_MISC_CONVERT_LEGACY_TEXT_SCENE_MENU_PRIORITY  = 40;
+public const int LOCA_MISC_CONVERT_LEGACY_TEXT_PROJECT_MENU_PRIORITY = 50;
+public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
+
+		public const int MISSING_REFERENCES_FINDER_MENU_PRIORITY = 0;
 
 		public const int CONFIG_MANAGER_MENU_PRIORITY = 0;
 		public const int SAVE_PROJECT_ON_LOSE_FOCUS_MENU_PRIORITY = 1000;
@@ -205,6 +217,8 @@ namespace GuiToolkit
 		public const string STYLES_HEADER = MENU_HEADER + "Styles/";
 		public const string MISC_TOOLS_MENU_HEADER = MENU_HEADER + "Miscellaneous Tools/";                                              ///< Menu header for miscellaneous tools
 		public const string LOCA_HEADER = MENU_HEADER + "Localization/";
+		public const string LOCA_MISC_HEADER = LOCA_HEADER + "Misc/";
+		public const string DIAGNOSTICS_HEADER = MENU_HEADER + "Diagnostics/";
 
 		public const string CONFIGURATION_NAME = "Ui Toolkit Configuration...";
 		public const string CONFIGURATION_MENU_NAME = MENU_HEADER + CONFIGURATION_NAME;
@@ -244,6 +258,17 @@ namespace GuiToolkit
 		public const string SCENE_MENU_GENERATOR_HEADER = MENU_HEADER + "Scenes/";
 		public const string SCENE_MENU_GENERATOR = SCENE_MENU_GENERATOR_HEADER + "(Re)Generate List";
 		public const string LOCA_EXCEL_BRIDGE = LOCA_HEADER + "Loca Excel Bridge";
+		public const string LOCA_MERGE_POT_MENU_NAME = LOCA_HEADER + "Merge POT into PO files";
+		public const string LOCA_BACKUP_MENU_NAME = LOCA_HEADER + "Manage PO Backups";
+		public const string LOCA_REMOVE_OBSOLETE_MENU_NAME = LOCA_HEADER + "Remove Obsolete PO Keys";
+		public const string LOCA_MISC_BATCH_REPLACE_SCENE_MENU_NAME = LOCA_MISC_HEADER + "Replace All TMP \u2192 Localized (Current Scene or Prefab)";
+		public const string LOCA_MISC_BATCH_REPLACE_PROJECT_MENU_NAME = LOCA_MISC_HEADER + "Replace All TMP \u2192 Localized (Entire Project)";
+		public const string LOCA_MISC_MIGRATE_CANDIDATES_MENU_NAME = LOCA_MISC_HEADER + "Migrate UiAutoLocalize (Find candidates)";
+		public const string LOCA_MISC_CONVERTER_WINDOW_MENU_NAME = LOCA_MISC_HEADER + "Localized TMP Converter\u2026";
+public const string LOCA_MISC_CONVERT_LEGACY_TEXT_SCENE_MENU_NAME   = LOCA_MISC_HEADER + "Convert Legacy Text → Localized TMP (Current Scene or Prefab)";
+public const string LOCA_MISC_CONVERT_LEGACY_TEXT_PROJECT_MENU_NAME = LOCA_MISC_HEADER + "Convert Legacy Text → Localized TMP (Entire Project)";
+public const string LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_NAME           = LOCA_MISC_HEADER + "Fix AutoLocalize on Runtime-Set Components (Entire Project)";
+		public const string MISSING_REFERENCES_FINDER_MENU_NAME = DIAGNOSTICS_HEADER + "Missing Component References\u2026";
 
 		public const string PLAYER_SETTINGS_COLLECTION = "playerSettings";
 		public const string PLAYER_SETTINGS_ID = "playerSettings";

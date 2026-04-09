@@ -145,7 +145,8 @@ namespace GuiToolkit
 		/// <param name="_singularKey">The singular key (msgid).</param>
 		/// <param name="_pluralKey">Optional plural key (msgid_plural). Null for singular-only entries.</param>
 		/// <param name="_group">Optional group namespace. Null uses the default group.</param>
-		public abstract void EdAddKey( string _singularKey, string _pluralKey = null, string _group = null );
+		/// <param name="_sourceRef">Optional source reference (e.g. "Assets/Prefabs/Foo.prefab") written as a #: comment in the POT file.</param>
+		public abstract void EdAddKey( string _singularKey, string _pluralKey = null, string _group = null, string _sourceRef = null );
 		
 		/// <summary>
 		/// (Editor-only) Reads existing POT files to preserve keys that may not be found in the current scan.

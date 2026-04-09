@@ -109,6 +109,7 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_POT_PATH, MessageType.Info);
 			}
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_potPath"), true);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_newKeyHighlightColor"), true);
 
 			if (m_firstTimeInit)
 			{

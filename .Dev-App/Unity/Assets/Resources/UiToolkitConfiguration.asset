@@ -38,4 +38,7 @@ MonoBehaviour:
   m_storageFactory: {fileID: 0}
   m_transitionOverlay: {fileID: 0}
   m_potPath: Assets/Resources/loca.pot
+  m_autoMergePotToPo: 0
+  m_autoSyncAfterMerge: 0
+  m_newKeyHighlightColor: {r: 1, g: 0.95, b: 0.2, a: 1}
   m_generatedAssetsDir: Assets/Generated/

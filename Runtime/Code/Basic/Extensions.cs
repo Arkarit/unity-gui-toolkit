@@ -162,6 +162,44 @@ namespace GuiToolkit
 
 		public static int GetPathDepth( this Component _self ) => _self == null ? 0 : GetPathDepth(_self.transform);
 
+#if UNITY_EDITOR
+		/// <summary>
+		/// Returns a combined path of the form <c>assetPath//hierarchyPath</c>, where
+		/// <c>assetPath</c> is the project-relative path of the containing scene or prefab asset,
+		/// and <c>hierarchyPath</c> is the full transform hierarchy path of <paramref name="_self"/>.
+		/// If no asset path can be determined (e.g. DontDestroyOnLoad), only the hierarchy path is returned.
+		/// </summary>
+		public static string GetAssetPathAndPath( this Transform _self )
+		{
+			if (_self == null)
+				return "<null>";
+
+			string hierarchyPath = _self.GetPath();
+			string assetPath = UnityEditor.PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(_self.gameObject);
+			if (string.IsNullOrEmpty(assetPath))
+				assetPath = _self.gameObject.scene.path;
+			if (string.IsNullOrEmpty(assetPath))
+				return hierarchyPath;
+			return assetPath + "//" + hierarchyPath;
+		}
+
+		/// <inheritdoc cref="GetAssetPathAndPath(Transform)"/>
+		public static string GetAssetPathAndPath( this GameObject _self )
+		{
+			if (_self == null)
+				return "<null>";
+			return _self.transform.GetAssetPathAndPath();
+		}
+
+		/// <inheritdoc cref="GetAssetPathAndPath(Transform)"/>
+		public static string GetAssetPathAndPath( this Component _self )
+		{
+			if (_self == null)
+				return "<null>";
+			return _self.transform.GetAssetPathAndPath();
+		}
+#endif
+
 		public static string GetRelativePathOfDescendant( this Transform _self, Transform _descendant, char _separator = '/' )
 		{
 			if (_descendant == null)
@@ -1150,6 +1188,24 @@ namespace GuiToolkit
 		}
 
 		public static bool GetPasswordDisplay( this InputField _inputField ) => _inputField.contentType == InputField.ContentType.Password;
+
+		public static void SetPasswordDisplay
+		(
+			this TMP_InputField _inputField,
+			bool _isPassword,
+			TMP_InputField.ContentType _nonPasswordType = TMP_InputField.ContentType.Standard,
+			bool _activate = true
+		)
+		{
+			_inputField.contentType = _isPassword ?
+				TMP_InputField.ContentType.Password :
+				_nonPasswordType;
+
+			if (_activate)
+				_inputField.ActivateInputField();
+		}
+
+		public static bool GetPasswordDisplay( this TMP_InputField _inputField ) => _inputField.contentType == TMP_InputField.ContentType.Password;
 
 		public static void InvokeDelayed( this Action _action )
 		{

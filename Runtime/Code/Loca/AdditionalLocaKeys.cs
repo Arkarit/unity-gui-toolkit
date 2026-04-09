@@ -19,6 +19,11 @@ namespace GuiToolkit
 		[SerializeField] private string m_group;
 
 		/// <summary>
+		/// Returns true; this ScriptableObject always provides keys for the Loca processor.
+		/// </summary>
+		public bool UsesLocaKey => true;
+
+		/// <summary>
 		/// Returns true, indicating this provider supplies multiple keys.
 		/// </summary>
 		public bool UsesMultipleLocaKeys => true;

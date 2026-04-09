@@ -722,6 +722,7 @@ namespace GuiToolkit
 
 		private readonly SortedDictionary<string, SortedSet<string>> m_keys = new();
 		private readonly SortedDictionary<string, SortedDictionary<string, string>> m_pluralKeys = new();
+		private readonly Dictionary<string, Dictionary<string, SortedSet<string>>> m_keySources = new();
 
 		private string[] m_availableLanguages = null;
 
@@ -753,14 +754,27 @@ namespace GuiToolkit
 		{
 			m_keys.Clear();
 			m_pluralKeys.Clear();
+			m_keySources.Clear();
 		}
 
-		public override void EdAddKey( string _singularKey, string _pluralKey = null, string _group = null )
+		public override void EdAddKey( string _singularKey, string _pluralKey = null, string _group = null, string _sourceRef = null )
 		{
 			SetEffectiveGroup(ref _group);
 
 			if (string.IsNullOrEmpty(_singularKey))
 				return;
+
+			if (!string.IsNullOrEmpty(_sourceRef))
+			{
+				if (!m_keySources.ContainsKey(_group))
+					m_keySources.Add(_group, new Dictionary<string, SortedSet<string>>());
+
+				var groupSources = m_keySources[_group];
+				if (!groupSources.ContainsKey(_singularKey))
+					groupSources.Add(_singularKey, new SortedSet<string>());
+
+				groupSources[_singularKey].Add(_sourceRef);
+			}
 
 			if (_pluralKey != null)
 			{
@@ -894,20 +908,62 @@ namespace GuiToolkit
 
 		public override void EdWriteKeyData()
 		{
-			string groups = string.Empty;
+			var nonDefaultGroups = new List<string>();
 
 			foreach (var kv in m_keys)
 			{
 				var path = EdGetPotSystemPath(kv.Key);
 				m_keys.TryGetValue(kv.Key, out var keys);
 				m_pluralKeys.TryGetValue(kv.Key, out var pluralKeys);
-				WriteKeyData(path, keys, pluralKeys);
+				m_keySources.TryGetValue(kv.Key, out var sources);
+				WriteKeyData(path, keys, pluralKeys, sources);
 				if (kv.Key != DEFAULT_LOCA_GROUP)
-					groups += $"{kv.Key}\n";
+					nonDefaultGroups.Add(kv.Key);
+			}
+
+			EdWriteGroupsFile(string.Join("\n", nonDefaultGroups));
+		}
+
+		private void EdWriteGroupsFile( string _groups )
+		{
+			// Find Resources directory that already contains PO files; fall back to Assets/Resources.
+			string appDataDir = EditorFileUtility.GetApplicationDataDir();
+			string resourcesDir = null;
+
+			foreach (string guid in AssetDatabase.FindAssets("t:textasset"))
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				if ((assetPath.EndsWith(".po") || assetPath.EndsWith(".po.txt"))
+					&& assetPath.Contains("/Resources/"))
+				{
+					string dirRelative = Path.GetDirectoryName(assetPath)?.Replace("\\", "/");
+					if (dirRelative != null && dirRelative.StartsWith("Assets/"))
+					{
+						resourcesDir = appDataDir + dirRelative;
+						break;
+					}
+				}
+			}
+
+			if (string.IsNullOrEmpty(resourcesDir))
+				resourcesDir = appDataDir + "Assets/Resources";
+
+			Directory.CreateDirectory(resourcesDir);
+			string filePath = EditorFileUtility.GetSafePath(Path.Combine(resourcesDir, GROUPS_RESOURCE_NAME + ".txt"));
+
+			try
+			{
+				File.WriteAllText(filePath, _groups, Encoding.UTF8);
+				string unityPath = filePath.Replace("\\", "/").Substring(appDataDir.Length);
+				AssetDatabase.ImportAsset(unityPath);
+			}
+			catch (Exception e)
+			{
+				UiLog.LogError($"Could not write '{GROUPS_RESOURCE_NAME}' file at '{filePath}': {e.Message}");
 			}
 		}
 
-		private void WriteKeyData( string _path, SortedSet<string> _keys, SortedDictionary<string, string> _pluralKeys )
+		private void WriteKeyData( string _path, SortedSet<string> _keys, SortedDictionary<string, string> _pluralKeys, Dictionary<string, SortedSet<string>> _sources )
 		{
 			if (DebugLoca)
 				Log($"Write POT file at '{_path}'");
@@ -924,6 +980,11 @@ namespace GuiToolkit
 					foreach (string key in _keys)
 					{
 						string cleanKey = Escape(key);
+						if (_sources != null && _sources.TryGetValue(key, out var refs))
+						{
+							foreach (var r in refs)
+								s += $"#: {r}\n";
+						}
 						s +=
 							$"msgid \"{cleanKey}\"\n"
 							+ $"msgstr \"\"\n\n";
@@ -936,6 +997,11 @@ namespace GuiToolkit
 					{
 						string cleanSingular = Escape(kv.Key);
 						string cleanPlural = Escape(kv.Value);
+						if (_sources != null && _sources.TryGetValue(kv.Key, out var refs))
+						{
+							foreach (var r in refs)
+								s += $"#: {r}\n";
+						}
 						s +=
 							$"msgid \"{cleanSingular}\"\n"
 							+ $"msgid_plural \"{cleanPlural}\"\n";

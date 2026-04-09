@@ -88,6 +88,15 @@ namespace GuiToolkit
 		public const string HELP_POT_PATH =
 			"Project location of the POT file (translation template containing keys, editor only). This is only necessary if you actually use translation.";
 
+		public const string HELP_AUTO_MERGE_POT_TO_PO =
+			"When enabled, automatically merges POT files into all matching PO files after 'Process Loca' runs.";
+
+		public const string HELP_AUTO_SYNC_AFTER_MERGE =
+			"When enabled, automatically pushes new PO keys to configured Google Sheets bridges after merging.";
+
+		public const string HELP_NEW_KEY_HIGHLIGHT_COLOR =
+			"Background colour applied to the key cell of newly pushed rows in Google Sheets. Set alpha to 0 to disable highlighting.";
+
 		public const string HELP_GENERATED_ASSETS_DIR =
 			  "Several assets need to be generated. Choose your directory here for these files.";
 
@@ -278,6 +287,21 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_POT_PATH)]
 		public string m_potPath;
+
+		[Tooltip(HELP_AUTO_MERGE_POT_TO_PO)]
+		public bool m_autoMergePotToPo = false;
+
+		public bool AutoMergePotToPo => m_autoMergePotToPo;
+
+		[Tooltip(HELP_AUTO_SYNC_AFTER_MERGE)]
+		public bool m_autoSyncAfterMerge = false;
+
+		public bool AutoSyncAfterMerge => m_autoSyncAfterMerge;
+
+		[Tooltip(HELP_NEW_KEY_HIGHLIGHT_COLOR)]
+		public Color m_newKeyHighlightColor = new Color(1.0f, 0.95f, 0.2f, 1.0f);
+
+		public Color NewKeyHighlightColor => m_newKeyHighlightColor;
 
 		[Tooltip(HELP_GENERATED_ASSETS_DIR)]
 		[SerializeField]

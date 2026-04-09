@@ -40,6 +40,7 @@ SpriteAtlas:
     packedSpriteRenderDataKeys:
     - 54091d3000ff59241813e30376792025: 21300000
     - 55485470caed2b64d80fddbd44f03e74: 21300000
+    - 6d6046f1f9894fc418bd6668a3d53989: 21300000
     - da53dd620fd299344845401301190ff9: 21300000
     - 96b0c7d200fe89b4196d5f82c7a161e5: 21300000
     - 78941cf264923c9488229fa3b6e029b2: 21300000
@@ -59,6 +60,7 @@ SpriteAtlas:
     - a8432e59ffb1d5d499f68fff7e51269f: 21300000
     - f2b415696283cc6489a4055bec718d5a: 21300000
     - cbabdbe91b89aef42a5c7b5e3b124938: 21300000
+    - c000f8aaea580194eab9a33a4d138ead: 21300000
     - 5c9796daa467b4d418c510983dd13468: 21300000
     - 55d7b8da0aa29924d887a4678135649f: 21300000
     - 12a73a0b8b1f97d4cb1fd226f806f989: 21300000
@@ -77,6 +79,7 @@ SpriteAtlas:
   m_PackedSprites:
   - {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
   - {fileID: 21300000, guid: 55485470caed2b64d80fddbd44f03e74, type: 3}
+  - {fileID: 21300000, guid: 6d6046f1f9894fc418bd6668a3d53989, type: 3}
   - {fileID: 21300000, guid: da53dd620fd299344845401301190ff9, type: 3}
   - {fileID: 21300000, guid: 96b0c7d200fe89b4196d5f82c7a161e5, type: 3}
   - {fileID: 21300000, guid: 78941cf264923c9488229fa3b6e029b2, type: 3}
@@ -96,6 +99,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: a8432e59ffb1d5d499f68fff7e51269f, type: 3}
   - {fileID: 21300000, guid: f2b415696283cc6489a4055bec718d5a, type: 3}
   - {fileID: 21300000, guid: cbabdbe91b89aef42a5c7b5e3b124938, type: 3}
+  - {fileID: 21300000, guid: c000f8aaea580194eab9a33a4d138ead, type: 3}
   - {fileID: 21300000, guid: 5c9796daa467b4d418c510983dd13468, type: 3}
   - {fileID: 21300000, guid: 55d7b8da0aa29924d887a4678135649f, type: 3}
   - {fileID: 21300000, guid: 12a73a0b8b1f97d4cb1fd226f806f989, type: 3}
@@ -113,6 +117,7 @@ SpriteAtlas:
   m_PackedSpriteNamesToIndex:
   - UITK_RGB_Panel_r50_f07
   - UITK_RGB_Panel_r25_f07
+  - fr
   - de
   - UITK_Simple_Rectangle_r25
   - UITK_Frame_r00_f07
@@ -132,6 +137,7 @@ SpriteAtlas:
   - ru
   - UITK_RGB_Panel_r00_f07
   - UITK_Panel_r00
+  - es
   - UITK_Simple_Rectangle_r20
   - UITK_Simple_Rectangle_r05
   - UITK_Sunken_r50

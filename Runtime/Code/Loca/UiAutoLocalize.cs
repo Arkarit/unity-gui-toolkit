@@ -165,6 +165,9 @@ namespace GuiToolkit
 
 #if UNITY_EDITOR
 		/// <inheritdoc/>
+		public bool UsesLocaKey => true;
+
+		/// <inheritdoc/>
 		public bool UsesMultipleLocaKeys => false;
 
 		/// <inheritdoc/>

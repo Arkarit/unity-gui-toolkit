@@ -65,11 +65,17 @@ namespace GuiToolkit.Editor
 			try
 			{
 				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scenes", 0);
-				EditorAssetUtility.FindAllComponentsInAllScenes<ILocaKeyProvider>(FoundComponent, s_options);
+				EditorAssetUtility.FindAllComponentsInAllScenes<ILocaKeyProvider>(
+					(_component, _scene, _scenePath) => { FoundComponent(_component, _scenePath); return true; },
+					s_options);
 				EditorUtility.DisplayProgressBar("Processing Loca", "Processing prefabs", 0.1f);
-				EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaKeyProvider>(FoundComponent, s_options);
+				EditorAssetUtility.FindAllComponentsInAllPrefabs<ILocaKeyProvider>(
+					(_component, _asset, _assetPath) => { FoundComponent(_component, _assetPath); return true; },
+					s_options);
 				EditorUtility.DisplayProgressBar("Processing Loca", "Processing scripts", 0.2f);
-				EditorAssetUtility.FindAllScriptableObjects<ILocaKeyProvider>(FoundComponent, s_options);
+				EditorAssetUtility.FindAllScriptableObjects<ILocaKeyProvider>(
+					_component => FoundComponent(_component, AssetDatabase.GetAssetPath((ScriptableObject)(object)_component)),
+					s_options);
 
 				m_numScripts = EditorAssetUtility.FindAllScriptsCount();
 				m_currentScriptIdx = 0;
@@ -86,8 +92,31 @@ namespace GuiToolkit.Editor
 			}
 
 			LocaManager.Instance.EdWriteKeyData();
+
+			if (UiToolkitConfiguration.Instance.AutoMergePotToPo)
+				LocaPoMerger.MergeAfterProcessing();
+
+			if (UiToolkitConfiguration.Instance.AutoSyncAfterMerge)
+				AutoSyncBridges();
 		}
-		
+
+		private static void AutoSyncBridges()
+		{
+			string[] guids = AssetDatabase.FindAssets("t:LocaExcelBridge");
+			foreach (string guid in guids)
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				var bridge  = AssetDatabase.LoadAssetAtPath<LocaExcelBridge>(path);
+				if (bridge == null)
+					continue;
+
+				if (bridge.EdSourceType != LocaExcelBridge.SourceType.GoogleDocs || !bridge.CanPush)
+					continue;
+
+				LocaGettextSheetsSyncer.PushToSheets(bridge);
+			}
+		}
+
 		/// <summary>
 		/// Processes all <see cref="ILocaProvider"/> ScriptableObjects in the project.
 		/// Calls <see cref="ILocaProvider.CollectData"/> on each and writes a provider registry JSON
@@ -113,13 +142,16 @@ namespace GuiToolkit.Editor
 #endif
 		}
 
-		private static void FoundComponent( ILocaKeyProvider _component )
+		private static void FoundComponent( ILocaKeyProvider _component, string _sourcePath = null )
 		{
+			if (!_component.UsesLocaKey)
+				return;
+
 			if (_component.UsesMultipleLocaKeys)
 			{
 				var keys = _component.LocaKeys;
 				foreach (var key in keys)
-					LocaManager.Instance.EdAddKey(key, null, _component.Group);
+					LocaManager.Instance.EdAddKey(key, null, _component.Group, _sourcePath);
 
 				return;
 			}
@@ -127,7 +159,7 @@ namespace GuiToolkit.Editor
 			string locaKey = _component.LocaKey;
 			string group = _component.Group;
 			if (!string.IsNullOrEmpty(locaKey))
-				LocaManager.Instance.EdAddKey(locaKey, null, group);
+				LocaManager.Instance.EdAddKey(locaKey, null, group, _sourcePath);
 		}
 
 		private static void FoundScript( string _path, string _content )
@@ -220,7 +252,7 @@ namespace GuiToolkit.Editor
 				}
 			}
 
-			LocaManager.Instance.EdAddKey(locaKey, locaKeyPlural, groupKey);
+			LocaManager.Instance.EdAddKey(locaKey, locaKeyPlural, groupKey, _path);
 
 			// Found and added Key
 			return true;

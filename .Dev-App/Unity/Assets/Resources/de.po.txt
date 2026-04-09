@@ -1,16 +1,9 @@
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: de\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.2\n"
+
+msgid "Alt"
+msgstr "Alt"
 
 msgid "Ambient Occlusion"
 msgstr "Umgebungs\\u00ADverdeckung"
@@ -28,9 +21,7 @@ msgid "Animations Example"
 msgstr "Animationsbeispiel"
 
 msgid "Are you really really sure you want to quit?"
-msgstr ""
-"Sind Sie wirklich ganz sicher, dass Sie die Anwendung beenden wollen? Echt "
-"jetzt?"
+msgstr "Sind Sie wirklich ganz sicher, dass Sie die Anwendung beenden wollen? Echt jetzt?"
 
 msgid "Button"
 msgstr "Button"
@@ -44,12 +35,11 @@ msgstr "Cancel LOREM IPSUM dolor sit amet bla"
 msgid "Checkbox"
 msgstr "Checkbox"
 
-msgid ""
-"Choose Day!\n"
-"Lorem Ipsum"
-msgstr ""
-"Wähle Tag!\n"
-"Lorem Ipsum"
+msgid "Choose Day!\nLorem Ipsum"
+msgstr "Wähle Tag!\nLorem Ipsum"
+
+msgid "Ctrl"
+msgstr "Strg"
 
 msgid "Date"
 msgstr "Datum"
@@ -102,6 +92,12 @@ msgstr "Hier können Sie einige der Fähigkeiten des GUI Toolkit testen"
 msgid "High"
 msgstr "Hoch"
 
+msgid "Icons"
+msgstr "Symbole"
+
+msgid "Icons Example"
+msgstr "Symbolbeispiel"
+
 msgid "Key '{0}' not supported"
 msgstr "Taste '{0}' nicht unterstützt"
 
@@ -113,6 +109,9 @@ msgstr "Tasten\\u00ADzuordnung"
 
 msgid "Language"
 msgstr "Sprache"
+
+msgid "Layout Example"
+msgstr "Layout-Beispiel"
 
 msgid "Light"
 msgstr "Hell"
@@ -153,6 +152,9 @@ msgstr "Nein"
 msgid "No Mouse Keys"
 msgstr "Keine Maustasten"
 
+msgid "None"
+msgstr "Keine"
+
 msgid "NOW"
 msgstr "Jetzt"
 
@@ -183,39 +185,23 @@ msgstr "Spiele Children Animation"
 msgid "Play CHildren Animation Backwards"
 msgstr "Spiele Children Animation rückwärts"
 
-msgid ""
-"Press a key\n"
-"Or Mouse button!"
-msgstr ""
-"Drücken Sie eine Taste\n"
-"oder eine Maustaste!"
-
-msgid ""
-"Press a Key\n"
-"Or Mouse button!"
-msgstr ""
-"Drücken Sie eine Taste\n"
-"oder eine Maustaste!"
-
 msgid "Press a Key!"
 msgstr "Drücken Sie eine Taste auf der Tastatur!"
+
+msgid "Press a key\nOr Mouse button!"
+msgstr "Drücken Sie eine Taste\noder eine Maustaste!"
+
+msgid "Press a Key\nOr Mouse button!"
+msgstr "Drücken Sie eine Taste\noder eine Maustaste!"
 
 msgid "Press a Mouse button!"
 msgstr "Drücken Sie eine Maustaste!"
 
-msgid ""
-"Press any key except\n"
-"{0}"
-msgstr ""
-"Drücken Sie eine Taste außer\n"
-"{0}"
+msgid "Press any key except\n{0}"
+msgstr "Drücken Sie eine Taste außer\n{0}"
 
-msgid ""
-"Press one of the keys\n"
-"{0}"
-msgstr ""
-"Drücken Sie eine der Tasten\n"
-"{0}"
+msgid "Press one of the keys\n{0}"
+msgstr "Drücken Sie eine der Tasten\n{0}"
 
 msgid "Quality"
 msgstr "Qualität"
@@ -247,6 +233,9 @@ msgstr "Wiederholen"
 msgid "Settings"
 msgstr "Einstellungen"
 
+msgid "Shift"
+msgstr "Umschalt"
+
 msgid "Show Full screen tabs dialog"
 msgstr "Zeige Fullscreen Tabs Dialog"
 
@@ -264,6 +253,9 @@ msgstr "Sound"
 
 msgid "Style Example"
 msgstr "Stylebeispiel"
+
+msgid "Test Direct Key"
+msgstr "Direkttaste testen"
 
 msgid "Test Loca Key 1"
 msgstr "Test Loca Key 1"
@@ -287,7 +279,7 @@ msgid "Time:"
 msgstr "Zeit:"
 
 msgid "Title"
-msgstr "Titel...\t"
+msgstr "Titel..."
 
 msgid "Title...\t"
 msgstr "Titel...\t"
@@ -323,7 +315,7 @@ msgid "Very Low"
 msgstr "Sehr niedrig"
 
 msgid "Wirklich beenden?"
-msgstr ""
+msgstr "Wirklich beenden?"
 
 msgid "Yes"
 msgstr "Ja"
@@ -333,25 +325,3 @@ msgid_plural "{0} Trees, "
 msgstr[0] "{0} Baum, "
 msgstr[1] "{0} Bäume, "
 
-#~ msgid "Overall"
-#~ msgstr "Generell"
-
-#~ msgid "Page 1"
-#~ msgstr "Seite 1"
-
-#~ msgid "Page 2"
-#~ msgstr "Seite 2"
-
-#~ msgid "Page 3"
-#~ msgstr "Seite 3"
-
-#~ msgid "Tab Dialog Demo"
-#~ msgstr "Tab Dialog Demo"
-
-#~ msgid "Shoot"
-#~ msgstr "Feuerknopf"
-
-#~ msgid "Tree"
-#~ msgid_plural "Trees"
-#~ msgstr[0] "Baum"
-#~ msgstr[1] "Bäume"
