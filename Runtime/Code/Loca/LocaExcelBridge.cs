@@ -358,10 +358,7 @@ namespace GuiToolkit
 			}
 
 			if (sheet.Rows.Count <= m_startRow)
-			{
-				UiLog.LogError($"{nameof(LocaExcelBridge)}: Worksheet has no data rows after start row {m_startRow}.");
-				return;
-			}
+				UiLog.LogWarning($"{nameof(LocaExcelBridge)}: Worksheet has no data rows after start row {m_startRow}. Resulting translation table will be empty.");
 
 
 			// Infer column config only if not yet configured (never overwrite existing user configuration)
