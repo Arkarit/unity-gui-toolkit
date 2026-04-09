@@ -53,7 +53,7 @@ namespace GuiToolkit
 		// -----------------------------------------------------------------------
 
 		/// <inheritdoc/>
-		public bool UsesLocaKey => false;
+		public bool UsesLocaKey => true;
 
 		/// <inheritdoc/>
 		public bool UsesMultipleLocaKeys => true;
