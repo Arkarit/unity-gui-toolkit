@@ -908,7 +908,7 @@ namespace GuiToolkit
 
 		public override void EdWriteKeyData()
 		{
-			string groups = string.Empty;
+			var nonDefaultGroups = new List<string>();
 
 			foreach (var kv in m_keys)
 			{
@@ -918,7 +918,48 @@ namespace GuiToolkit
 				m_keySources.TryGetValue(kv.Key, out var sources);
 				WriteKeyData(path, keys, pluralKeys, sources);
 				if (kv.Key != DEFAULT_LOCA_GROUP)
-					groups += $"{kv.Key}\n";
+					nonDefaultGroups.Add(kv.Key);
+			}
+
+			EdWriteGroupsFile(string.Join("\n", nonDefaultGroups));
+		}
+
+		private void EdWriteGroupsFile( string _groups )
+		{
+			// Find Resources directory that already contains PO files; fall back to Assets/Resources.
+			string appDataDir = EditorFileUtility.GetApplicationDataDir();
+			string resourcesDir = null;
+
+			foreach (string guid in AssetDatabase.FindAssets("t:textasset"))
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				if ((assetPath.EndsWith(".po") || assetPath.EndsWith(".po.txt"))
+					&& assetPath.Contains("/Resources/"))
+				{
+					string dirRelative = Path.GetDirectoryName(assetPath)?.Replace("\\", "/");
+					if (dirRelative != null && dirRelative.StartsWith("Assets/"))
+					{
+						resourcesDir = appDataDir + dirRelative;
+						break;
+					}
+				}
+			}
+
+			if (string.IsNullOrEmpty(resourcesDir))
+				resourcesDir = appDataDir + "Assets/Resources";
+
+			Directory.CreateDirectory(resourcesDir);
+			string filePath = EditorFileUtility.GetSafePath(Path.Combine(resourcesDir, GROUPS_RESOURCE_NAME + ".txt"));
+
+			try
+			{
+				File.WriteAllText(filePath, _groups, Encoding.UTF8);
+				string unityPath = filePath.Replace("\\", "/").Substring(appDataDir.Length);
+				AssetDatabase.ImportAsset(unityPath);
+			}
+			catch (Exception e)
+			{
+				UiLog.LogError($"Could not write '{GROUPS_RESOURCE_NAME}' file at '{filePath}': {e.Message}");
 			}
 		}
 
