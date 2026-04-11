@@ -99,6 +99,13 @@ namespace GuiToolkit
 				return false;
 #endif
 
+			// Verbose: only when explicitly enabled in configuration
+			if (_logMode == LogMode.Verbose || _logMode == LogMode.VerboseOnce)
+			{
+				if (!UiToolkitConfiguration.IsInitialized || !UiToolkitConfiguration.Instance.VerboseLogging)
+					return false;
+			}
+
 			string ts = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 			string msg = "[" + ts + "] " + _s;
 			if (!string.IsNullOrEmpty(_prefix))
