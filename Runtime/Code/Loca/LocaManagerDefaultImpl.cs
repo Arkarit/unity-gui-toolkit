@@ -352,6 +352,12 @@ namespace GuiToolkit
 
 		private void Add( string _group, string _key, string _value, string _keyPlural = null, List<string> _plurals = null )
 		{
+			if (_key == null)
+			{
+				UiLog.LogWarning("Null key provided; skipping entry.");
+				return;
+			}
+			
 			SetEffectiveGroup(ref _group);
 
 			if (!m_translationDict.ContainsKey(_group))
@@ -475,7 +481,12 @@ namespace GuiToolkit
 		/// <returns>True if the key exists in the group's translation dictionary, false otherwise.</returns>
 		public override bool HasKey( string _key, string _group )
 		{
+			if (_key == null)
+				return false;
+
 			SetEffectiveGroup(ref _group);
+			Debug.Assert(!string.IsNullOrEmpty(_group));
+			
 			if (!m_translationDict.TryGetValue(_group, out var entry))
 				return false;
 			
@@ -531,6 +542,9 @@ namespace GuiToolkit
 		private bool TryGetTranslation( string _group, string _key, out string _result )
 		{
 			_result = string.Empty;
+			if (_key == null || _group == null)
+				return false;
+
 			if (!m_translationDict.TryGetValue(_group, out var entry))
 				return false;
 
