@@ -162,7 +162,7 @@ namespace GuiToolkit
 
 		public static int GetPathDepth( this Component _self ) => _self == null ? 0 : GetPathDepth(_self.transform);
 
-		private static bool TryGetSupportedTextComponent( this Component _self, out TextMeshProUGUI _tmpText, out Text _legacyText )
+		private static bool TryGetSupportedTextComponent( this Component _self, out TMP_Text _tmpText, out Text _legacyText )
 		{
 			_tmpText = null;
 			_legacyText = null;
@@ -172,7 +172,7 @@ namespace GuiToolkit
 				return false;
 			}
 
-			_tmpText = _self.GetComponentInChildren<TextMeshProUGUI>();
+			_tmpText = _self.GetComponentInChildren<TMP_Text>();
 			if (_tmpText != null)
 			{
 				return true;
@@ -196,7 +196,7 @@ namespace GuiToolkit
 				return true;
 			}
 
-			Debug.LogWarning($"No supported child text component found below '{_self.GetPath()}'. Expected TextMeshProUGUI or Text.", _self);
+			Debug.LogWarning($"No supported child text component found below '{_self.GetPath()}'. Expected TMP_Text or Text.", _self);
 			return false;
 		}
 
@@ -212,7 +212,7 @@ namespace GuiToolkit
 				return legacyText.text;
 			}
 
-			Debug.LogWarning($"No supported child text component found below '{_self.GetPath()}'. Expected TextMeshProUGUI or Text.", _self);
+			Debug.LogWarning($"No supported child text component found below '{_self.GetPath()}'. Expected TMP_Text or Text.", _self);
 			return string.Empty;
 		}
 
