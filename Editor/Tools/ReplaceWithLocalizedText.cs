@@ -67,6 +67,18 @@ namespace GuiToolkit.Editor
 				// choice == 2: Ignore → continue
 			}
 
+			var forceUnlocalized = go.GetComponent<UiForceUnlocalizedText>();
+			if (forceUnlocalized != null)
+			{
+				if (!EditorUtility.DisplayDialog(
+					    "UiForceUnlocalizedText Found",
+					    "This GameObject has a UiForceUnlocalizedText marker, which prevents auto-conversion.\n\n" +
+					    "It will be removed to allow this conversion.",
+					    "Remove and Continue", "Cancel"))
+					return;
+				Undo.DestroyObjectImmediate(forceUnlocalized);
+			}
+
 			// Collect GUIDs before any file operations (component is still alive here).
 			string oldGuid = YamlUtility.GetMonoScriptGuid(tmp);
 			if (string.IsNullOrEmpty(oldGuid))

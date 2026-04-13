@@ -487,6 +487,7 @@ namespace GuiToolkit.Editor
 				foreach (var tmp in prefabContents.GetComponentsInChildren<TextMeshProUGUI>(true))
 				{
 					if (tmp is UiLocalizedTextMeshProUGUI) continue;
+					if (tmp.GetComponent<UiForceUnlocalizedText>() != null) continue;
 					if (PrefabUtility.IsPartOfPrefabInstance(tmp.gameObject)) continue;
 
 					if (YamlUtility.TryGetLocalFileId(tmp, out long localId))
@@ -634,6 +635,7 @@ namespace GuiToolkit.Editor
 				foreach (var tmp in go.GetComponentsInChildren<TextMeshProUGUI>(true))
 				{
 					if (tmp is UiLocalizedTextMeshProUGUI) continue;
+					if (tmp.GetComponent<UiForceUnlocalizedText>() != null) continue;
 					if (!PrefabUtility.IsPartOfPrefabInstance(tmp.gameObject))
 						count++;
 				}
@@ -657,6 +659,7 @@ namespace GuiToolkit.Editor
 					foreach (var tmp in root.GetComponentsInChildren<TextMeshProUGUI>(true))
 					{
 						if (tmp is UiLocalizedTextMeshProUGUI) continue;
+						if (tmp.GetComponent<UiForceUnlocalizedText>() != null) continue;
 						if (!PrefabUtility.IsPartOfPrefabInstance(tmp.gameObject))
 							count++;
 					}
@@ -691,6 +694,7 @@ namespace GuiToolkit.Editor
 					foreach (var tmp in root.GetComponentsInChildren<TextMeshProUGUI>(true))
 					{
 						if (tmp is UiLocalizedTextMeshProUGUI) continue;
+						if (tmp.GetComponent<UiForceUnlocalizedText>() != null) continue;
 						if (PrefabUtility.IsPartOfPrefabInstance(tmp.gameObject)) continue;
 
 						if (YamlUtility.TryGetLocalFileId(tmp, out long localId))
