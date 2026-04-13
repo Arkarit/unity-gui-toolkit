@@ -9,6 +9,7 @@ using System.IO;
 using GuiToolkit.Exceptions;
 using Object = UnityEngine.Object;
 using System.Runtime.InteropServices;
+//
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -22,7 +23,6 @@ namespace GuiToolkit
 	/// or while a player build is in progress. Provides simple runtime loading
 	/// via Resources in Play Mode.
 	/// </summary>
-	[EditorAware]
 	public static class AssetReadyGate
 	{
 		/// <summary>

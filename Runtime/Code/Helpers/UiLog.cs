@@ -23,6 +23,7 @@ namespace GuiToolkit
 	/// - In non-development player builds, only warnings and errors are logged.
 	///   Verbose and default messages are stripped at compile time.
 	/// </summary>
+	[EditorAware]
 	public static class UiLog
 	{
 		public enum LogMode
@@ -102,7 +103,7 @@ namespace GuiToolkit
 			// Verbose: only when explicitly enabled in configuration
 			if (_logMode == LogMode.Verbose || _logMode == LogMode.VerboseOnce)
 			{
-				if (!UiToolkitConfiguration.IsInitialized || !UiToolkitConfiguration.Instance.VerboseLogging)
+				if (!AssetReadyGate.IsReady(true) || !UiToolkitConfiguration.IsInitialized || !UiToolkitConfiguration.Instance.VerboseLogging)
 					return false;
 			}
 
