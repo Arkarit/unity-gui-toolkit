@@ -89,10 +89,10 @@ namespace GuiToolkit
 		}
 
 		/// <summary>
-		/// Walks the call stack and returns the fully-qualified name of the first method whose
-		/// declaring type is neither infrastructure (EditorCallerGate, skip-list) nor IEditorAware.
-		/// This is the class that should implement <see cref="IEditorAware"/> or use
-		/// <see cref="EditorAwareAttribute"/>.
+		/// Walks the call stack from outermost to innermost and returns the fully-qualified name
+		/// of the first method whose declaring type is neither Unity infrastructure nor IEditorAware.
+		/// Walking outer-to-inner finds the real instigator (the high-level code that started the
+		/// chain) rather than the infrastructure getter that triggered the check.
 		/// </summary>
 		private static string FindFirstOffendingCaller( Type[] _skipTypes )
 		{
@@ -100,8 +100,9 @@ namespace GuiToolkit
 			if (frames == null)
 				return null;
 
-			foreach (var f in frames)
+			for (int i = frames.Length - 1; i >= 0; i--)
 			{
+				var f = frames[i];
 				var m = f.GetMethod();
 				var t = m?.DeclaringType;
 				if (t == null)
@@ -110,11 +111,9 @@ namespace GuiToolkit
 					continue;
 				if (_skipTypes != null && _skipTypes.Contains(t))
 					continue;
-				// Skip known infrastructure base types
 				if (IsKnownInfrastructure(t))
 					continue;
 
-				// First non-infra, non-aware type is the offender
 				if (!IsOrHasOuterEditorAware(t))
 					return $"{t.FullName}.{m.Name}";
 			}
