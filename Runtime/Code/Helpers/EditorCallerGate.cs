@@ -89,10 +89,10 @@ namespace GuiToolkit
 		}
 
 		/// <summary>
-		/// Walks the call stack from outermost to innermost and returns the fully-qualified name
+		/// Walks the call stack from innermost to outermost and returns the fully-qualified name
 		/// of the first method whose declaring type is neither Unity infrastructure nor IEditorAware.
-		/// Walking outer-to-inner finds the real instigator (the high-level code that started the
-		/// chain) rather than the infrastructure getter that triggered the check.
+		/// Walking inner-to-outer surfaces the immediate infrastructure entry point (e.g. the
+		/// singleton getter) whose generic type argument clearly names the offending singleton.
 		/// </summary>
 		private static string FindFirstOffendingCaller( Type[] _skipTypes )
 		{
@@ -100,7 +100,7 @@ namespace GuiToolkit
 			if (frames == null)
 				return null;
 
-			for (int i = frames.Length - 1; i >= 0; i--)
+			for (int i = 0; i < frames.Length; i++)
 			{
 				var f = frames[i];
 				var m = f.GetMethod();

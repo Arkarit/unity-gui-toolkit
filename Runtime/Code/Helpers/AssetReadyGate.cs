@@ -22,6 +22,7 @@ namespace GuiToolkit
 	/// or while a player build is in progress. Provides simple runtime loading
 	/// via Resources in Play Mode.
 	/// </summary>
+	[EditorAware]
 	public static class AssetReadyGate
 	{
 		/// <summary>
