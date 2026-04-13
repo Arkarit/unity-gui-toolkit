@@ -162,7 +162,27 @@ namespace GuiToolkit
 
 		public static int GetPathDepth( this Component _self ) => _self == null ? 0 : GetPathDepth(_self.transform);
 
-		private static bool TryGetSupportedTextComponent( this Component _self, out TMP_Text _tmpText, out Text _legacyText )
+		private static bool TryGetSupportedTextOnSelf( this Component _self, out TMP_Text _tmpText, out Text _legacyText )
+		{
+			_tmpText = null;
+			_legacyText = null;
+
+			if (_self == null)
+			{
+				return false;
+			}
+
+			_tmpText = _self.GetComponent<TMP_Text>();
+			if (_tmpText != null)
+			{
+				return true;
+			}
+
+			_legacyText = _self.GetComponent<Text>();
+			return _legacyText != null;
+		}
+
+		private static bool TryGetSupportedTextInChildren( this Component _self, out TMP_Text _tmpText, out Text _legacyText )
 		{
 			_tmpText = null;
 			_legacyText = null;
@@ -184,7 +204,7 @@ namespace GuiToolkit
 
 		public static bool SetText( this Component _self, string _text )
 		{
-			if (_self.TryGetSupportedTextComponent(out var tmpText, out var legacyText))
+			if (_self.TryGetSupportedTextOnSelf(out var tmpText, out var legacyText))
 			{
 				if (tmpText != null)
 				{
@@ -196,13 +216,13 @@ namespace GuiToolkit
 				return true;
 			}
 
-			Debug.LogWarning($"No supported child text component found below '{_self.GetPath()}'. Expected TMP_Text or Text.", _self);
+			Debug.LogWarning($"No supported text component found on '{_self.GetPath()}'. Expected TMP_Text or Text.", _self);
 			return false;
 		}
 
 		public static string GetText( this Component _self )
 		{
-			if (_self.TryGetSupportedTextComponent(out var tmpText, out var legacyText))
+			if (_self.TryGetSupportedTextOnSelf(out var tmpText, out var legacyText))
 			{
 				if (tmpText != null)
 				{
@@ -212,7 +232,41 @@ namespace GuiToolkit
 				return legacyText.text;
 			}
 
-			Debug.LogWarning($"No supported child text component found below '{_self.GetPath()}'. Expected TMP_Text or Text.", _self);
+			Debug.LogWarning($"No supported text component found on '{_self.GetPath()}'. Expected TMP_Text or Text.", _self);
+			return string.Empty;
+		}
+
+		public static bool SetTextInFirstFoundChild( this Component _self, string _text )
+		{
+			if (_self.TryGetSupportedTextInChildren(out var tmpText, out var legacyText))
+			{
+				if (tmpText != null)
+				{
+					tmpText.text = _text;
+					return true;
+				}
+
+				legacyText.text = _text;
+				return true;
+			}
+
+			Debug.LogWarning($"No supported text component found in children of '{_self.GetPath()}'. Expected TMP_Text or Text.", _self);
+			return false;
+		}
+
+		public static string GetTextInFirstFoundChild( this Component _self )
+		{
+			if (_self.TryGetSupportedTextInChildren(out var tmpText, out var legacyText))
+			{
+				if (tmpText != null)
+				{
+					return tmpText.text;
+				}
+
+				return legacyText.text;
+			}
+
+			Debug.LogWarning($"No supported text component found in children of '{_self.GetPath()}'. Expected TMP_Text or Text.", _self);
 			return string.Empty;
 		}
 
