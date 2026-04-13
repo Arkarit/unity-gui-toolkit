@@ -162,6 +162,60 @@ namespace GuiToolkit
 
 		public static int GetPathDepth( this Component _self ) => _self == null ? 0 : GetPathDepth(_self.transform);
 
+		private static bool TryGetSupportedTextComponent( this Component _self, out TextMeshProUGUI _tmpText, out Text _legacyText )
+		{
+			_tmpText = null;
+			_legacyText = null;
+
+			if (_self == null)
+			{
+				return false;
+			}
+
+			_tmpText = _self.GetComponentInChildren<TextMeshProUGUI>();
+			if (_tmpText != null)
+			{
+				return true;
+			}
+
+			_legacyText = _self.GetComponentInChildren<Text>();
+			return _legacyText != null;
+		}
+
+		public static bool SetText( this Component _self, string _text )
+		{
+			if (_self.TryGetSupportedTextComponent(out var tmpText, out var legacyText))
+			{
+				if (tmpText != null)
+				{
+					tmpText.text = _text;
+					return true;
+				}
+
+				legacyText.text = _text;
+				return true;
+			}
+
+			Debug.LogWarning($"No supported child text component found below '{_self.GetPath()}'. Expected TextMeshProUGUI or Text.", _self);
+			return false;
+		}
+
+		public static string GetText( this Component _self )
+		{
+			if (_self.TryGetSupportedTextComponent(out var tmpText, out var legacyText))
+			{
+				if (tmpText != null)
+				{
+					return tmpText.text;
+				}
+
+				return legacyText.text;
+			}
+
+			Debug.LogWarning($"No supported child text component found below '{_self.GetPath()}'. Expected TextMeshProUGUI or Text.", _self);
+			return string.Empty;
+		}
+
 #if UNITY_EDITOR
 		/// <summary>
 		/// Returns a combined path of the form <c>assetPath//hierarchyPath</c>, where
