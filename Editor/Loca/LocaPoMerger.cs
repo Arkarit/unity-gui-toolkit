@@ -119,6 +119,15 @@ namespace GuiToolkit.Editor
 
 			var (merged, result) = PoMergeEngine.Merge(existingPo, pot);
 
+			// Always ensure the header is populated. If the existing file had an empty header
+			// (e.g. was hand-written without one, or pre-dates this requirement) we fill it in
+			// now so that every written PO file is well-formed.
+			if (string.IsNullOrEmpty(merged.HeaderMsgStr))
+			{
+				merged.HasHeader    = true;
+				merged.HeaderMsgStr = DefaultHeaderMsgStr(_languageId);
+			}
+
 			if (!_dryRun)
 			{
 				try
@@ -362,10 +371,13 @@ namespace GuiToolkit.Editor
 			return new PoFile
 			{
 				HasHeader    = true,
-				HeaderMsgStr = $"Language: {_languageId}\\nContent-Type: text/plain; charset=UTF-8\\nContent-Transfer-Encoding: 8bit\\n",
+				HeaderMsgStr = DefaultHeaderMsgStr(_languageId),
 				Entries      = new List<PoEntry>()
 			};
 		}
+
+		private static string DefaultHeaderMsgStr(string _languageId)
+			=> $"Language: {_languageId}\\nContent-Type: text/plain; charset=UTF-8\\nContent-Transfer-Encoding: 8bit\\n";
 
 		private static string ConvertToUnityPath(string _absolutePath)
 		{

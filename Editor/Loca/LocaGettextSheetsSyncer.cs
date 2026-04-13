@@ -209,6 +209,12 @@ namespace GuiToolkit.Editor
 				{
 					string fileContent = File.ReadAllText(filePath, Encoding.UTF8);
 					var poFile = PoFile.Parse(fileContent);
+					// Ensure the header is present; old or hand-edited files may have an empty one.
+					if (string.IsNullOrEmpty(poFile.HeaderMsgStr))
+					{
+						poFile.HasHeader    = true;
+						poFile.HeaderMsgStr = $"Language: {normLang}\\nContent-Type: text/plain; charset=UTF-8\\nContent-Transfer-Encoding: 8bit\\n";
+					}
 					parsedPoFiles[filePath] = poFile;
 					poLookups[filePath]     = poFile.BuildLookup();
 				}
