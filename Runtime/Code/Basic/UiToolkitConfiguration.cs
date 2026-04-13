@@ -74,6 +74,9 @@ namespace GuiToolkit
 		public const string HELP_DEBUG_LOCA =
 			"This switches loca debugging on or off";
 
+		public const string HELP_VERBOSE_LOGGING =
+			"When enabled, UiLog.LogVerbose() calls are printed to the console. Has no effect in release player builds (verbose is always stripped there).";
+
 		public const string HELP_AUTO_TRANSLATE_DISABLED =
 			"When enabled, UiAutoLocalize components will not translate text. Useful to disable auto-translation globally (e.g. when using a different localization system).";
 
@@ -137,6 +140,9 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_DEBUG_LOCA)]
 		[SerializeField] private bool m_debugLoca = false;
+
+		[Tooltip(HELP_VERBOSE_LOGGING)]
+		[SerializeField] private bool m_verboseLogging = false;
 
 		[Tooltip(HELP_AUTO_TRANSLATE_DISABLED)]
 		[SerializeField] private bool m_autoTranslateDisabled = false;
@@ -215,6 +221,7 @@ namespace GuiToolkit
 		public UiAspectRatioDependentStyleConfig UiAspectRatioDependentStyleConfig => m_uiAspectRatioDependentStyleConfig;
 		public CanvasScaler GlobalCanvasScalerTemplate => m_globalCanvasScalerTemplate;
 		public bool DebugLoca => m_debugLoca;
+		public bool VerboseLogging => m_verboseLogging;
 		public bool AutoTranslateDisabled => m_autoTranslateDisabled;
 		public bool LoadViewInEveryScene => m_loadViewInEveryScene;
 		public UiMain UiMainPrefab => m_uiMainPrefab;

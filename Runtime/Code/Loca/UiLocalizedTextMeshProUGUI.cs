@@ -135,7 +135,7 @@ namespace GuiToolkit
 					var mgr = LocaManager.Instance;
 					if (mgr != null && !mgr.HasKey(value, m_group))
 					{
-						UnityEngine.Debug.Log(
+						UiLog.LogVerbose(
 							$"[Loca] '.text' was set to '{value}' but '{value}' is not a registered loca key. " +
 							$"Use the LocaKey property for key assignments.\n" +
 							$"Path: {this.GetAssetPathAndPath()}",
