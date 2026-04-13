@@ -465,6 +465,8 @@ namespace GuiToolkit
 					!string.IsNullOrEmpty(e.Text) ||
 					(e.Forms != null && e.Forms.Any(s => !string.IsNullOrEmpty(s)))
 				)
+				.OrderBy(e => e.Key, StringComparer.OrdinalIgnoreCase)
+				.ThenBy(e => e.LanguageId, StringComparer.OrdinalIgnoreCase)
 				.ToList();
 
 			m_processedLoca = new ProcessedLoca(m_group, pruned);
