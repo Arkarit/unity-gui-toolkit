@@ -1317,16 +1317,12 @@ namespace GuiToolkit.Editor
 		/// </summary>
 		internal static void SaveSheetXlsxBackup(LocaExcelBridge _bridge, string _spreadsheetId, string _token)
 		{
-			string assetPath = AssetDatabase.GetAssetPath(_bridge);
-			if (string.IsNullOrEmpty(assetPath))
+			string backupPath = GetBackupPath(_bridge);
+			if (backupPath == null)
 			{
 				UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: Cannot save backup — asset path unknown.");
 				return;
 			}
-
-			string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-			string assetDir    = Path.GetDirectoryName(assetPath) ?? string.Empty;
-			string backupPath  = Path.GetFullPath(Path.Combine(projectRoot, assetDir, $".bak_{_bridge.name}.xlsx"));
 
 			string exportUrl = $"https://docs.google.com/spreadsheets/d/{_spreadsheetId}/export?format=xlsx";
 
@@ -1350,6 +1346,20 @@ namespace GuiToolkit.Editor
 			{
 				UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: Sheet backup failed: {ex.Message}");
 			}
+		}
+
+		/// <summary>Returns the full path of the local xlsx backup for <paramref name="_bridge"/>,
+		/// or <c>null</c> if the asset path cannot be determined.</summary>
+		public static string GetBackupPath(LocaExcelBridge _bridge)
+		{
+			if (_bridge == null)
+				return null;
+			string assetPath = AssetDatabase.GetAssetPath(_bridge);
+			if (string.IsNullOrEmpty(assetPath))
+				return null;
+			string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+			string assetDir    = Path.GetDirectoryName(assetPath) ?? string.Empty;
+			return Path.GetFullPath(Path.Combine(projectRoot, assetDir, $".bak_{_bridge.name}.xlsx"));
 		}
 
 		internal static string ExtractSpreadsheetId(string _url)
