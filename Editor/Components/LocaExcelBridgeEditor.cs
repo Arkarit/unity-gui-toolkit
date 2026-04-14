@@ -143,7 +143,7 @@ namespace GuiToolkit.Editor
 					LocaGettextSheetsSyncer.BackupSheets(bridge);
 			}
 			EditorGUILayout.HelpBox(
-				"Downloads the current sheet as a local xlsx backup file (bak_{name}.xlsx) alongside this asset.",
+				"Downloads the current sheet as a local xlsx backup file (.bak_{name}.xlsx) alongside this asset.",
 				syncEnabled ? MessageType.Info : MessageType.Warning);
 
 			// Obsolete key marking

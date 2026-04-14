@@ -1311,7 +1311,7 @@ namespace GuiToolkit.Editor
 		}
 
 		/// <summary>
-		/// Downloads the spreadsheet as an xlsx file and saves it as <c>bak_{bridge.name}.xlsx</c>
+		/// Downloads the spreadsheet as an xlsx file and saves it as <c>.bak_{bridge.name}.xlsx</c>
 		/// alongside the bridge asset.
 		/// Non-fatal — failures are logged as warnings only.
 		/// </summary>
@@ -1326,7 +1326,7 @@ namespace GuiToolkit.Editor
 
 			string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
 			string assetDir    = Path.GetDirectoryName(assetPath) ?? string.Empty;
-			string backupPath  = Path.GetFullPath(Path.Combine(projectRoot, assetDir, $"bak_{_bridge.name}.xlsx"));
+			string backupPath  = Path.GetFullPath(Path.Combine(projectRoot, assetDir, $".bak_{_bridge.name}.xlsx"));
 
 			string exportUrl = $"https://docs.google.com/spreadsheets/d/{_spreadsheetId}/export?format=xlsx";
 
