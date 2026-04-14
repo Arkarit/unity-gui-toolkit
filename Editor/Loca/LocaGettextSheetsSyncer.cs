@@ -17,7 +17,7 @@ namespace GuiToolkit.Editor
 	/// <list type="bullet">
 	///   <item><see cref="SyncColumnsFromPo"/> — derives column configuration from PO files on disk.</item>
 	///   <item><see cref="PullFromSheets"/> — downloads translations from the sheet and merges them into PO files.</item>
-	///   <item><see cref="PushToSheets"/> — appends keys that exist in PO files but are missing from the sheet.</item>
+	///   <item><see cref="PushNewKeysToSheets"/> — appends keys that exist in PO files but are missing from the sheet.</item>
 	/// </list>
 	/// </summary>
 	[EditorAware]
@@ -286,7 +286,7 @@ namespace GuiToolkit.Editor
 		/// Only runs when <see cref="LocaExcelBridge.CanPush"/> is <c>true</c> and the source type is GoogleDocs.
 		/// </summary>
 		/// <param name="_bridge">The bridge asset to push new keys to.</param>
-		public static void PushToSheets(LocaExcelBridge _bridge)
+		public static void PushNewKeysToSheets(LocaExcelBridge _bridge)
 		{
 			if (_bridge == null)
 				return;
@@ -791,7 +791,7 @@ namespace GuiToolkit.Editor
 		}
 
 		// -----------------------------------------------------------------------
-		// Private helpers shared by PushToSheets / FindObsoleteInSheets
+		// Private helpers shared by PushNewKeysToSheets / FindObsoleteInSheets
 		// -----------------------------------------------------------------------
 
 		private static int GetKeyColIdx(LocaExcelBridge _bridge)
@@ -1282,8 +1282,37 @@ namespace GuiToolkit.Editor
 		}
 
 		/// <summary>
-		/// Downloads the spreadsheet as an xlsx file and saves it as a dot-prefixed (Unity-ignored)
-		/// backup alongside the bridge asset: <c>.{bridge.name}.xlsx</c>.
+		/// Public entry point for the [Backup Sheets] button.
+		/// Obtains a fresh read-scope token and delegates to <see cref="SaveSheetXlsxBackup"/>.
+		/// </summary>
+		public static void BackupSheets(LocaExcelBridge _bridge)
+		{
+			if (_bridge == null)
+				return;
+
+			if (_bridge.EdSourceType != LocaExcelBridge.SourceType.GoogleDocs)
+				return;
+
+			string spreadsheetId = ExtractSpreadsheetId(_bridge.EdGoogleUrl);
+			if (string.IsNullOrEmpty(spreadsheetId))
+			{
+				UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)}: Could not extract spreadsheet ID from URL: {_bridge.EdGoogleUrl}");
+				return;
+			}
+
+			string token = GoogleServiceAccountAuth.GetAccessToken(_bridge.EdServiceAccountJsonPath, _writeAccess: false);
+			if (token == null)
+			{
+				UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)}: Failed to obtain auth token for backup.");
+				return;
+			}
+
+			SaveSheetXlsxBackup(_bridge, spreadsheetId, token);
+		}
+
+		/// <summary>
+		/// Downloads the spreadsheet as an xlsx file and saves it as <c>bak_{bridge.name}.xlsx</c>
+		/// alongside the bridge asset.
 		/// Non-fatal — failures are logged as warnings only.
 		/// </summary>
 		internal static void SaveSheetXlsxBackup(LocaExcelBridge _bridge, string _spreadsheetId, string _token)
@@ -1297,7 +1326,7 @@ namespace GuiToolkit.Editor
 
 			string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
 			string assetDir    = Path.GetDirectoryName(assetPath) ?? string.Empty;
-			string backupPath  = Path.GetFullPath(Path.Combine(projectRoot, assetDir, $".{_bridge.name}.xlsx"));
+			string backupPath  = Path.GetFullPath(Path.Combine(projectRoot, assetDir, $"bak_{_bridge.name}.xlsx"));
 
 			string exportUrl = $"https://docs.google.com/spreadsheets/d/{_spreadsheetId}/export?format=xlsx";
 

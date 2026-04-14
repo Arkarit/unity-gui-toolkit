@@ -113,7 +113,7 @@ namespace GuiToolkit.Editor
 				if (bridge.EdSourceType != LocaExcelBridge.SourceType.GoogleDocs || !bridge.CanPush)
 					continue;
 
-				LocaGettextSheetsSyncer.PushToSheets(bridge);
+				LocaGettextSheetsSyncer.PushNewKeysToSheets(bridge);
 			}
 		}
 
