@@ -273,6 +273,7 @@ public const string LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_NAME           = LOCA_MISC_
 		public const string PLAYER_SETTINGS_COLLECTION = "playerSettings";
 		public const string PLAYER_SETTINGS_ID = "playerSettings";
 		
+		public const string REMOVE_MISSING_COMPONENTS = MISC_TOOLS_MENU_HEADER + "Remove Missing Components...";
 		public const string ONE_TIME_HEADER = MISC_TOOLS_MENU_HEADER + "One-Time Tools/";
 		public const string DISABLE_OR_REMOVE_UI_AUTO_LOCALIZE = ONE_TIME_HEADER + "Remove or disable UiAutoLocalize";
 	}
