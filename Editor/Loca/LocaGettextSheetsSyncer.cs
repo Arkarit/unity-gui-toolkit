@@ -330,7 +330,7 @@ namespace GuiToolkit.Editor
 			int sheetId;
 			try
 			{
-				(sheetName, sheetId) = GetFirstSheetInfo(spreadsheetId, token);
+				(sheetName, sheetId, _) = GetFirstSheetInfo(spreadsheetId, token);
 			}
 			catch (Exception ex)
 			{
@@ -486,6 +486,8 @@ namespace GuiToolkit.Editor
 			EditorUtility.DisplayDialog("Push new keys",
 				$"Successfully appended {newKeys.Count} new key(s) to the sheet.", "OK");
 			UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Pushed {newKeys.Count} new key(s) to sheet '{spreadsheetId}'.");
+
+			SaveSheetXlsxBackup(_bridge, spreadsheetId, token);
 		}
 
 		/// <summary>
@@ -584,7 +586,7 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			(_, int sheetId) = GetFirstSheetInfo(spreadsheetId, token);
+			(_, int sheetId, _) = GetFirstSheetInfo(spreadsheetId, token);
 
 			try
 			{
@@ -874,7 +876,7 @@ namespace GuiToolkit.Editor
 		/// Returns the title and numeric sheet ID of the first sheet in the spreadsheet.
 		/// Falls back to <see cref="DEFAULT_SHEET_NAME"/> and sheetId 0 if values cannot be determined.
 		/// </summary>
-		private static (string name, int sheetId) GetFirstSheetInfo(string _spreadsheetId, string _token)
+		internal static (string name, int sheetId, int rowCount) GetFirstSheetInfo(string _spreadsheetId, string _token)
 		{
 			string url = $"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}?fields=sheets.properties";
 
@@ -887,8 +889,9 @@ namespace GuiToolkit.Editor
 			if (!response.IsSuccessStatusCode)
 				throw new InvalidOperationException($"Sheets API GET metadata error {(int)response.StatusCode}: {body}");
 
-			string name = DEFAULT_SHEET_NAME;
-			int sheetId = 0;
+			string name   = DEFAULT_SHEET_NAME;
+			int sheetId   = 0;
+			int rowCount  = 0;
 
 			// Parse title
 			int titleIdx = body.IndexOf("\"title\"", StringComparison.Ordinal);
@@ -922,10 +925,26 @@ namespace GuiToolkit.Editor
 				}
 			}
 
-			return (name, sheetId);
+			// Parse rowCount from gridProperties
+			int rcIdx = body.IndexOf("\"rowCount\"", StringComparison.Ordinal);
+			if (rcIdx >= 0)
+			{
+				int colonIdx = body.IndexOf(':', rcIdx);
+				if (colonIdx >= 0)
+				{
+					int numStart = colonIdx + 1;
+					while (numStart < body.Length && char.IsWhiteSpace(body[numStart])) numStart++;
+					int numEnd = numStart;
+					while (numEnd < body.Length && char.IsDigit(body[numEnd])) numEnd++;
+					if (numEnd > numStart)
+						int.TryParse(body.Substring(numStart, numEnd - numStart), out rowCount);
+				}
+			}
+
+			return (name, sheetId, rowCount);
 		}
 
-		private static List<List<string>> GetSheetValues(string _spreadsheetId, string _token, string _sheetName)
+		internal static List<List<string>> GetSheetValues(string _spreadsheetId, string _token, string _sheetName)
 		{
 			string url = $"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}/values/{Uri.EscapeDataString(_sheetName)}";
 
@@ -941,7 +960,7 @@ namespace GuiToolkit.Editor
 			return ParseSheetValues(body);
 		}
 
-		private static string AppendSheetRows(string _spreadsheetId, string _token, string _sheetName, List<List<string>> _rows)
+		internal static string AppendSheetRows(string _spreadsheetId, string _token, string _sheetName, List<List<string>> _rows)
 		{
 			string url =
 				$"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}/values/{Uri.EscapeDataString(_sheetName)}:append" +
@@ -1228,6 +1247,80 @@ namespace GuiToolkit.Editor
 				result = result.Substring(0, result.Length - postfix.Length);
 
 			return result;
+		}
+
+		/// <summary>
+		/// Deletes rows <paramref name="_fromRow0Based"/> (inclusive) through <paramref name="_toRow0Based"/> (exclusive)
+		/// from the given sheet using the Sheets <c>spreadsheets:batchUpdate</c> endpoint.
+		/// </summary>
+		internal static void DeleteSheetRows(string _spreadsheetId, string _token, int _sheetId, int _fromRow0Based, int _toRow0Based)
+		{
+			if (_fromRow0Based >= _toRow0Based)
+				return;
+
+			string url = $"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}:batchUpdate";
+
+			string json =
+				"{\"requests\":[{\"deleteDimension\":{" +
+				"\"range\":{" +
+				$"\"sheetId\":{_sheetId}," +
+				"\"dimension\":\"ROWS\"," +
+				$"\"startIndex\":{_fromRow0Based}," +
+				$"\"endIndex\":{_toRow0Based}" +
+				"}}}]}";
+
+			using var client = new HttpClient();
+			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+			var content  = new StringContent(json, Encoding.UTF8, "application/json");
+			var response = client.PostAsync(url, content).GetAwaiter().GetResult();
+			string body  = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+			if (!response.IsSuccessStatusCode)
+				throw new InvalidOperationException($"Sheets API delete rows error {(int)response.StatusCode}: {body}");
+
+			UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Deleted {_toRow0Based - _fromRow0Based} excess row(s) from sheet.");
+		}
+
+		/// <summary>
+		/// Downloads the spreadsheet as an xlsx file and saves it as a dot-prefixed (Unity-ignored)
+		/// backup alongside the bridge asset: <c>.{bridge.name}.xlsx</c>.
+		/// Non-fatal — failures are logged as warnings only.
+		/// </summary>
+		internal static void SaveSheetXlsxBackup(LocaExcelBridge _bridge, string _spreadsheetId, string _token)
+		{
+			string assetPath = AssetDatabase.GetAssetPath(_bridge);
+			if (string.IsNullOrEmpty(assetPath))
+			{
+				UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: Cannot save backup — asset path unknown.");
+				return;
+			}
+
+			string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+			string assetDir    = Path.GetDirectoryName(assetPath) ?? string.Empty;
+			string backupPath  = Path.GetFullPath(Path.Combine(projectRoot, assetDir, $".{_bridge.name}.xlsx"));
+
+			string exportUrl = $"https://docs.google.com/spreadsheets/d/{_spreadsheetId}/export?format=xlsx";
+
+			try
+			{
+				using var client = new HttpClient();
+				client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+				var response = client.GetAsync(exportUrl).GetAwaiter().GetResult();
+
+				if (!response.IsSuccessStatusCode)
+				{
+					UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: Backup download failed ({(int)response.StatusCode}).");
+					return;
+				}
+
+				byte[] bytes = response.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+				File.WriteAllBytes(backupPath, bytes);
+				UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Sheet backup saved → '{backupPath}'.");
+			}
+			catch (Exception ex)
+			{
+				UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: Sheet backup failed: {ex.Message}");
+			}
 		}
 
 		internal static string ExtractSpreadsheetId(string _url)

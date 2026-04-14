@@ -63,6 +63,19 @@ namespace GuiToolkit.Editor
 				return;
 
 			int startRow = _bridge.EdStartRow; // 0-based; Sheets API uses 1-based rows
+
+			// Fetch sheet metadata so we can clean up any excess rows after writing.
+			int prevRowCount = 0;
+			int sheetId      = 0;
+			try
+			{
+				(_, sheetId, prevRowCount) = LocaGettextSheetsSyncer.GetFirstSheetInfo(spreadsheetId, token);
+			}
+			catch (Exception ex)
+			{
+				UiLog.LogWarning($"{nameof(LocaExcelBridgePusher)}: Could not read sheet metadata (excess-row cleanup will be skipped): {ex.Message}");
+			}
+
 			string rangeStart = $"A{startRow + 1}";
 			string rangeEnd   = $"{ColToLetter(rows[0].Count - 1)}{startRow + rows.Count}";
 			string range      = $"{rangeStart}:{rangeEnd}";
@@ -85,6 +98,23 @@ namespace GuiToolkit.Editor
 				}
 
 				UiLog.Log($"{nameof(LocaExcelBridgePusher)}: Successfully pushed {rows.Count} row(s) to spreadsheet '{spreadsheetId}'.");
+
+				// Delete any rows that were left over beyond the written range.
+				int writtenUpTo = startRow + rows.Count; // 0-based exclusive end
+				if (prevRowCount > writtenUpTo)
+				{
+					try
+					{
+						LocaGettextSheetsSyncer.DeleteSheetRows(spreadsheetId, token, sheetId, writtenUpTo, prevRowCount);
+					}
+					catch (Exception ex)
+					{
+						UiLog.LogWarning($"{nameof(LocaExcelBridgePusher)}: Could not delete excess rows: {ex.Message}");
+					}
+				}
+
+				LocaGettextSheetsSyncer.SaveSheetXlsxBackup(_bridge, spreadsheetId, token);
+
 				EditorUtility.DisplayDialog("Push Complete",
 					$"Successfully pushed {rows.Count} row(s) to Google Sheets.", "OK");
 			}
