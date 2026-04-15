@@ -290,6 +290,18 @@ namespace GuiToolkit
 				return hierarchyPath;
 			return assetPath + "//" + hierarchyPath;
 		}
+#else
+		/// <summary>
+		/// Returns the full transform hierarchy path of <paramref name="_self"/>.
+		/// (Runtime build: asset path is unavailable, hierarchy path only.)
+		/// </summary>
+		public static string GetAssetPathAndPath( this Transform _self )
+		{
+			if (_self == null)
+				return "<null>";
+			return _self.GetPath();
+		}
+#endif
 
 		/// <inheritdoc cref="GetAssetPathAndPath(Transform)"/>
 		public static string GetAssetPathAndPath( this GameObject _self )
@@ -306,7 +318,6 @@ namespace GuiToolkit
 				return "<null>";
 			return _self.transform.GetAssetPathAndPath();
 		}
-#endif
 
 		public static string GetRelativePathOfDescendant( this Transform _self, Transform _descendant, char _separator = '/' )
 		{
