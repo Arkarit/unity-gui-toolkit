@@ -265,10 +265,11 @@ public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
 		public const string LOCA_MISC_BATCH_REPLACE_PROJECT_MENU_NAME = LOCA_MISC_HEADER + "Replace All TMP \u2192 Localized (Entire Project)";
 		public const string LOCA_MISC_MIGRATE_CANDIDATES_MENU_NAME = LOCA_MISC_HEADER + "Migrate UiAutoLocalize (Find candidates)";
 		public const string LOCA_MISC_CONVERTER_WINDOW_MENU_NAME = LOCA_MISC_HEADER + "Localized TMP Converter\u2026";
-public const string LOCA_MISC_CONVERT_LEGACY_TEXT_SCENE_MENU_NAME   = LOCA_MISC_HEADER + "Convert Legacy Text → Localized TMP (Current Scene or Prefab)";
-public const string LOCA_MISC_CONVERT_LEGACY_TEXT_PROJECT_MENU_NAME = LOCA_MISC_HEADER + "Convert Legacy Text → Localized TMP (Entire Project)";
-public const string LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_NAME           = LOCA_MISC_HEADER + "Fix AutoLocalize on Runtime-Set Components (Entire Project)";
+		public const string LOCA_MISC_CONVERT_LEGACY_TEXT_SCENE_MENU_NAME   = LOCA_MISC_HEADER + "Convert Legacy Text → Localized TMP (Current Scene or Prefab)";
+		public const string LOCA_MISC_CONVERT_LEGACY_TEXT_PROJECT_MENU_NAME = LOCA_MISC_HEADER + "Convert Legacy Text → Localized TMP (Entire Project)";
+		public const string LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_NAME           = LOCA_MISC_HEADER + "Fix AutoLocalize on Runtime-Set Components (Entire Project)";
 		public const string MISSING_REFERENCES_FINDER_MENU_NAME = DIAGNOSTICS_HEADER + "Missing Component References\u2026";
+		public const string MISC_TOOLS_RESERIALIZE_COMPONENT = MISC_TOOLS_MENU_HEADER + "Reserialize Component Window...";
 
 		public const string PLAYER_SETTINGS_COLLECTION = "playerSettings";
 		public const string PLAYER_SETTINGS_ID = "playerSettings";
