@@ -20,6 +20,7 @@ namespace GuiToolkit
 	[AddComponentMenu("UI/Localized Text Mesh Pro UGUI")]
 	public class UiLocalizedTextMeshProUGUI : TextMeshProUGUI, ILocaKeyProvider
 	{
+		[SerializeField] private bool m_isTranslated = true;
 		[SerializeField] private string m_group = string.Empty;
 		[SerializeField] private string m_locaKey = string.Empty;
 
@@ -28,6 +29,14 @@ namespace GuiToolkit
 		// base.text = …, which would call our override again and loop forever.
 		// This flag breaks the cycle so only the outermost call reaches base.text.
 		private bool m_isSettingInternally;
+
+		/// <summary>
+		/// When <c>true</c> (default), the component automatically translates its key via <see cref="LocaManager"/>.
+		/// When <c>false</c>, the component behaves exactly like a plain <see cref="TextMeshProUGUI"/>;
+		/// no translation is applied and any attempt to set <see cref="LocaKey"/> is rejected with an error.
+		/// Can only be changed in the Inspector (no public setter).
+		/// </summary>
+		public bool IsTranslated => m_isTranslated;
 
 		/// <summary>
 		/// Returns <c>true</c> when <paramref name="s"/> is empty or has the placeholder form
@@ -47,7 +56,7 @@ namespace GuiToolkit
 		}
 
 #if UNITY_EDITOR
-		bool ILocaKeyProvider.UsesLocaKey => !IsPlaceholderText(LocaKey) && !IsObviouslyRuntimeValue(LocaKey);
+		bool ILocaKeyProvider.UsesLocaKey => m_isTranslated && !IsPlaceholderText(LocaKey) && !IsObviouslyRuntimeValue(LocaKey);
 		bool ILocaKeyProvider.UsesMultipleLocaKeys => false;
 		List<string> ILocaKeyProvider.LocaKeys => null;
 		// LocaKey and Group are already public properties; they satisfy the interface implicitly.
@@ -103,6 +112,14 @@ namespace GuiToolkit
 			}
 			set
 			{
+				if (!m_isTranslated)
+				{
+					UiLog.LogError(
+						$"[Loca] Attempted to set LocaKey on '{this.GetAssetPathAndPath()}' " +
+						$"but m_isTranslated is false. Key assignment ignored.",
+						this);
+					return;
+				}
 				m_locaKey = value;
 				ApplyTranslation();
 			}
@@ -123,6 +140,13 @@ namespace GuiToolkit
 			get => base.text;
 			set
 			{
+				// When translation is disabled behave exactly like plain TextMeshProUGUI.
+				if (!m_isTranslated)
+				{
+					base.text = value;
+					return;
+				}
+
 				if (m_isSettingInternally)
 				{
 					base.text = value;
@@ -151,6 +175,12 @@ namespace GuiToolkit
 		protected override void Awake()
 		{
 			base.Awake();
+			if (!m_isTranslated)
+			{
+				// Clear any stored key so the component is fully inert.
+				m_locaKey = string.Empty;
+				return;
+			}
 			// After a YAML swap the m_locaKey field may be empty while base.text still holds
 			// the design-time placeholder. Seed m_locaKey from base.text unless it is a placeholder.
 			if (string.IsNullOrEmpty(m_locaKey) && !IsPlaceholderText(base.text))
@@ -177,6 +207,9 @@ namespace GuiToolkit
 
 		private void ApplyTranslation()
 		{
+			if (!m_isTranslated)
+				return;
+
 			if (!Application.isPlaying)
 				return;
 

@@ -14,12 +14,14 @@ namespace GuiToolkit.Editor
 	[CustomEditor(typeof(UiLocalizedTextMeshProUGUI), true), CanEditMultipleObjects]
 	public class UiLocalizedTextMeshProUGUIEditor : TMP_EditorPanelUI
 	{
+		private SerializedProperty m_isTranslatedProp;
 		private SerializedProperty m_groupProp;
 		private SerializedProperty m_locaKeyProp;
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
+			m_isTranslatedProp = serializedObject.FindProperty("m_isTranslated");
 			m_groupProp = serializedObject.FindProperty("m_group");
 			m_locaKeyProp = serializedObject.FindProperty("m_locaKey");
 		}
@@ -30,13 +32,20 @@ namespace GuiToolkit.Editor
 
 			EditorGUILayout.LabelField("Localization", EditorStyles.boldLabel);
 
-			EditorGUILayout.PropertyField(m_locaKeyProp, new GUIContent("Loca Key",
-				"The localization key passed to LocaManager.Translate(). " +
-				"Leave empty to initialize from the current TMP text at runtime. " +
-				"Use [Text] placeholder form to mark as non-translatable."));
+			EditorGUILayout.PropertyField(m_isTranslatedProp, new GUIContent("Is Translated",
+				"When enabled, the component automatically translates its key via LocaManager. " +
+				"When disabled, the component behaves exactly like a plain TextMeshProUGUI."));
 
-			EditorGUILayout.PropertyField(m_groupProp, new GUIContent("Group",
-				"Optional localization group / namespace for the key."));
+			if (m_isTranslatedProp.boolValue)
+			{
+				EditorGUILayout.PropertyField(m_locaKeyProp, new GUIContent("Loca Key",
+					"The localization key passed to LocaManager.Translate(). " +
+					"Leave empty to initialize from the current TMP text at runtime. " +
+					"Use [Text] placeholder form to mark as non-translatable."));
+
+				EditorGUILayout.PropertyField(m_groupProp, new GUIContent("Group",
+					"Optional localization group / namespace for the key."));
+			}
 
 			serializedObject.ApplyModifiedProperties();
 
