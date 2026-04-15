@@ -479,11 +479,25 @@ namespace GuiToolkit.Editor
 				return string.Empty;
 
 			var sb = new StringBuilder(_s.Length + 8);
-			foreach (char c in _s)
+			for (int i = 0; i < _s.Length; i++)
 			{
+				char c = _s[i];
 				switch (c)
 				{
-					case '\\': sb.Append("\\\\"); break;
+					case '\\':
+						// Preserve \uXXXX app-specific unicode escapes (not standard PO but used
+						// by the game runtime for icon/special characters in PUA range).
+						if (i + 5 < _s.Length && _s[i + 1] == 'u' &&
+							IsHexChar(_s[i + 2]) && IsHexChar(_s[i + 3]) &&
+							IsHexChar(_s[i + 4]) && IsHexChar(_s[i + 5]))
+						{
+							sb.Append('\\');
+						}
+						else
+						{
+							sb.Append("\\\\");
+						}
+						break;
 					case '"':  sb.Append("\\\""); break;
 					case '\n': sb.Append("\\n");  break;
 					case '\r': sb.Append("\\r");  break;
@@ -493,6 +507,9 @@ namespace GuiToolkit.Editor
 			}
 			return sb.ToString();
 		}
+
+		private static bool IsHexChar(char _c) =>
+			(_c >= '0' && _c <= '9') || (_c >= 'a' && _c <= 'f') || (_c >= 'A' && _c <= 'F');
 
 		private static void AppendEntry(StringBuilder _sb, PoEntry _entry)
 		{

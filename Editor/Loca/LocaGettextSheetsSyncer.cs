@@ -216,24 +216,66 @@ namespace GuiToolkit.Editor
 						poFile.HeaderMsgStr = $"Language: {normLang}\\nContent-Type: text/plain; charset=UTF-8\\nContent-Transfer-Encoding: 8bit\\n";
 					}
 					parsedPoFiles[filePath] = poFile;
-					poLookups[filePath]     = poFile.BuildLookup();
+					// Build lookup with CRLF-normalized keys so that sheet keys (always \n)
+					// match PO keys that were originally imported with \r\n line endings.
+					var rawLookup        = poFile.BuildLookup();
+					var normalizedLookup = new Dictionary<string, PoEntry>(StringComparer.Ordinal);
+					foreach (var kv in rawLookup)
+						normalizedLookup[NormalizeCrlf(kv.Key)] = kv.Value;
+					poLookups[filePath] = normalizedLookup;
 				}
 			}
 
 			// Walk every processed entry and update the corresponding PO entries.
+			// Entries not found in the PO are collected for creation as new entries.
 			var dirtyFiles   = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-			int updatedCount = 0;
+			int updatedCount  = 0;
+			int createdCount  = 0;
+			// Track newly created entries (by composedKey) for the POT update — only the first
+			// language that creates a key is recorded; the POT is language-independent.
+			var newPotEntries = new Dictionary<string, PoEntry>(StringComparer.Ordinal);
+
+			// Build trimmed-key fallback lookups so that trailing whitespace differences
+			// between sheet keys and PO keys don't cause false "new entry" creations.
+			var trimmedLookups = new Dictionary<string, Dictionary<string, PoEntry>>(StringComparer.OrdinalIgnoreCase);
+			foreach (var kv in poLookups)
+			{
+				var trimmed = new Dictionary<string, PoEntry>(StringComparer.Ordinal);
+				foreach (var pair in kv.Value)
+				{
+					string trimmedKey = pair.Key.Trim();
+					if (!trimmed.ContainsKey(trimmedKey))
+						trimmed[trimmedKey] = pair.Value;
+				}
+				trimmedLookups[kv.Key] = trimmed;
+			}
+
+			int totalEntries     = 0;
+			int skippedNoLang    = 0;
+			int skippedNoFile    = 0;
+			int exactMatchCount  = 0;
+			int trimmedSkipCount = 0;
+			int emptyTextCount   = 0;
 
 			foreach (var entry in processedLoca.Entries)
 			{
+				totalEntries++;
+
 				if (string.IsNullOrEmpty(entry.LanguageId))
+				{
+					skippedNoLang++;
 					continue;
+				}
 
 				string lang = entry.LanguageId.Trim().ToLowerInvariant();
 				if (!langToFilePath.TryGetValue(lang, out string filePath))
+				{
+					skippedNoFile++;
 					continue;
+				}
 
-				var lookup = poLookups[filePath];
+				var lookup        = poLookups[filePath];
+				var trimmedLookup = trimmedLookups[filePath];
 
 				foreach (var (ctxLang, ctxPrefix, ctxPostfix) in langContextKeys)
 				{
@@ -243,26 +285,120 @@ namespace GuiToolkit.Editor
 					string baseEffectiveKey = ReverseKeyAffixes(entry.Key, ctxPrefix, ctxPostfix);
 					string rawMsgId         = ReverseKeyAffixes(baseEffectiveKey, keyColDesc);
 					string msgctxt          = string.IsNullOrEmpty(ctxPrefix) ? null : ctxPrefix;
-					string composedKey      = string.IsNullOrEmpty(msgctxt)
+					// Normalize CRLF so sheet keys (\n) match PO keys that may have \r\n.
+					string composedKey      = NormalizeCrlf(string.IsNullOrEmpty(msgctxt)
 						? rawMsgId
-						: $"{msgctxt}\u0004{rawMsgId}";
+						: $"{msgctxt}\u0004{rawMsgId}");
 
-					if (!lookup.TryGetValue(composedKey, out var poEntry))
-						continue;
-
-					if (MergeTranslationIntoPoEntry(entry, poEntry))
+					if (lookup.TryGetValue(composedKey, out var poEntry))
 					{
-						dirtyFiles.Add(filePath);
-						updatedCount++;
+						exactMatchCount++;
+						// Exact key match — merge the translation.
+						if (MergeTranslationIntoPoEntry(entry, poEntry))
+						{
+							dirtyFiles.Add(filePath);
+							updatedCount++;
+						}
+					}
+					else if (trimmedLookup.TryGetValue(composedKey.Trim(), out _))
+					{
+						trimmedSkipCount++;
+						// Key exists with different whitespace — skip to avoid overwriting
+						// intentional trailing spaces/newlines in the PO entry.
+					}
+					else
+					{
+						// Determine the effective singular text: Text field (PluralForm=-1 columns)
+						// or Forms[0] (PluralForm=0 columns used as singular).
+						string singularText = entry.Text;
+						if (string.IsNullOrEmpty(singularText) && entry.Forms is { Length: > 0 })
+							singularText = entry.Forms[0];
+
+						if (!string.IsNullOrEmpty(singularText))
+						{
+							// Genuinely new key from sheet — create a singular PO entry.
+							UiLog.Log($"[PullFromSheets] NEW key: lang={lang} composedKey=[{composedKey}] text=[{singularText}]");
+							var newEntry = new PoEntry
+							{
+								MsgId   = rawMsgId,
+								Context = msgctxt,
+								MsgStr  = singularText,
+							};
+
+							parsedPoFiles[filePath].Entries.Add(newEntry);
+							lookup[composedKey] = newEntry;
+							dirtyFiles.Add(filePath);
+							createdCount++;
+							if (!newPotEntries.ContainsKey(composedKey))
+								newPotEntries[composedKey] = newEntry;
+						}
+						else
+						{
+							emptyTextCount++;
+							UiLog.Log($"[PullFromSheets] Unmatched but empty text: lang={lang} composedKey=[{composedKey}]");
+						}
 					}
 				}
 			}
 
+			UiLog.Log($"[PullFromSheets] Summary: total={totalEntries} noLang={skippedNoLang} noFile={skippedNoFile} " +
+			          $"exactMatch={exactMatchCount} trimmedSkip={trimmedSkipCount} updated={updatedCount} " +
+			          $"created={createdCount} emptyText={emptyTextCount}");
+			UiLog.Log($"[PullFromSheets] Languages in PO: {string.Join(", ", langToFilePath.Keys)}");
+			UiLog.Log($"[PullFromSheets] Lang contexts: {string.Join(", ", langContextKeys.Select(x => $"{x.lang}|{x.prefix}|{x.postfix}"))}");
+
 			if (dirtyFiles.Count == 0)
 			{
 				EditorUtility.DisplayDialog("Pull from Sheets",
-					"No new translations found to merge. All PO entries already have translations.", "OK");
+					$"No new translations found.\n\n" +
+					$"Entries processed: {totalEntries}\n" +
+					$"Exact matches: {exactMatchCount}\n" +
+					$"Trimmed skips: {trimmedSkipCount}\n" +
+					$"Empty text (no match): {emptyTextCount}\n" +
+					$"Skipped (no lang): {skippedNoLang}\n" +
+					$"Skipped (no PO file): {skippedNoFile}", "OK");
 				return;
+			}
+
+			// If new keys were created, also add them to the POT template so the next
+			// "Process Loca" merge does not mark them obsolete.
+			if (createdCount > 0)
+			{
+				string potPath = LocaPoMerger.GetPotPath(group);
+				if (!string.IsNullOrEmpty(potPath) && File.Exists(potPath))
+				{
+					var pot       = PoFile.Parse(File.ReadAllText(potPath, Encoding.UTF8));
+					var potLookup = pot.BuildLookup();
+					int potAdded  = 0;
+
+					// Only add entries that were just created by this Pull operation.
+				foreach (var kvp in newPotEntries)
+				{
+					string key = kvp.Key;
+					if (potLookup.ContainsKey(NormalizeCrlf(key)))
+						continue;
+
+					var src      = kvp.Value;
+					var potEntry = new PoEntry
+					{
+						MsgId       = src.MsgId,
+						Context     = src.Context,
+						MsgIdPlural = src.MsgIdPlural,
+						MsgStr      = string.Empty,
+					};
+
+					pot.Entries.Add(potEntry);
+					potLookup[key] = potEntry;
+					potAdded++;
+				}
+
+					if (potAdded > 0)
+					{
+						PoBackupManager.CreateBackup(potPath);
+						File.WriteAllText(potPath, pot.Serialize(), new System.Text.UTF8Encoding(false));
+						UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Added {potAdded} new key(s) to POT '{potPath}'.");
+					}
+				}
 			}
 
 			foreach (string filePath in dirtyFiles)
@@ -274,9 +410,11 @@ namespace GuiToolkit.Editor
 
 			AssetDatabase.Refresh();
 
-			EditorUtility.DisplayDialog("Pull from Sheets",
-				$"Merged {updatedCount} translation(s) from the sheet into {dirtyFiles.Count} PO file(s).", "OK");
-			UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Pulled {updatedCount} translation(s) into {dirtyFiles.Count} PO file(s).");
+			string msg = createdCount > 0
+				? $"Updated {updatedCount} and created {createdCount} translation(s) in {dirtyFiles.Count} PO file(s)."
+				: $"Merged {updatedCount} translation(s) from the sheet into {dirtyFiles.Count} PO file(s).";
+			EditorUtility.DisplayDialog("Pull from Sheets", msg, "OK");
+			UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Pulled {updatedCount} updated, {createdCount} new translation(s) into {dirtyFiles.Count} PO file(s).");
 		}
 
 		/// <summary>
@@ -728,7 +866,8 @@ namespace GuiToolkit.Editor
 			bool modified = false;
 
 			// Text comes from PluralForm=-1 bridge columns and maps directly to MsgStr.
-			if (!string.IsNullOrEmpty(_entry.Text) && _entry.Text != _poEntry.MsgStr)
+			// Update only when content meaningfully differs; ignore trailing-whitespace noise from sheet cells.
+			if (!string.IsNullOrEmpty(_entry.Text) && _entry.Text.Trim() != (_poEntry.MsgStr ?? string.Empty).Trim())
 			{
 				_poEntry.MsgStr = _entry.Text;
 				modified = true;
@@ -1226,6 +1365,15 @@ namespace GuiToolkit.Editor
 		// -----------------------------------------------------------------------
 		// Key-affix helpers
 		// -----------------------------------------------------------------------
+
+		/// <summary>Normalizes CR+LF and lone CR to LF so that PO keys (which may
+		/// have been imported with Windows line endings) match sheet keys (always LF).</summary>
+		private static string NormalizeCrlf(string _s)
+		{
+			if (_s == null || !_s.Contains('\r'))
+				return _s ?? string.Empty;
+			return _s.Replace("\r\n", "\n").Replace('\r', '\n');
+		}
 
 		private static string ReverseKeyAffixes(string _key, LocaExcelBridge.InColumnDescription _desc)
 		{

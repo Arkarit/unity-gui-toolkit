@@ -292,7 +292,7 @@ namespace GuiToolkit.Editor
 			return result;
 		}
 
-		private static string GetPotDirectory()
+		internal static string GetPotDirectory()
 		{
 			if (UiToolkitConfiguration.Instance == null)
 				return null;
@@ -308,7 +308,7 @@ namespace GuiToolkit.Editor
 			return result;
 		}
 
-		private static string GetPotPath(string _group)
+		internal static string GetPotPath(string _group)
 		{
 			string dir = GetPotDirectory();
 			if (string.IsNullOrEmpty(dir))

@@ -1074,6 +1074,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_isTranslated: 1
   m_group: 
   m_locaKey: 
 --- !u!114 &3265018062697313381
@@ -1982,6 +1983,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_isTranslated: 1
   m_group: 
   m_locaKey: 
 --- !u!114 &3265018062773664423
@@ -3537,6 +3539,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_isTranslated: 1
   m_group: 
   m_locaKey: 
 --- !u!114 &3265018063050125500
@@ -3938,6 +3941,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_isTranslated: 1
   m_group: 
   m_locaKey: 
 --- !u!114 &3265018063110455024
@@ -4899,6 +4903,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_isTranslated: 1
   m_group: 
   m_locaKey: 
 --- !u!114 &3265018063577273673
@@ -5586,6 +5591,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_isTranslated: 1
   m_group: 
   m_locaKey: 
 --- !u!114 &6879250022099740477
@@ -6375,6 +6381,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_isTranslated: 1
   m_group: 
   m_locaKey: 
 --- !u!1 &3265018064082705785
@@ -7590,6 +7597,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_isTranslated: 1
   m_group: 
   m_locaKey: 
 --- !u!114 &3265018064445370578

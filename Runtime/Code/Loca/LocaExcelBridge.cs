@@ -430,12 +430,12 @@ namespace GuiToolkit
 					{
 						string lang = lc.lang;
 						string cell = sheet.Rows[r][lc.col]?.ToString();
-						cell = cell != null ? cell.Trim() : string.Empty;
 
 						int plural = lc.desc?.PluralForm ?? -1;
 
-						// skip empty cells
-						if (string.IsNullOrEmpty(cell))
+						// Skip cells that are null or entirely whitespace.
+						// Do NOT trim — trailing spaces/newlines in values are intentional.
+						if (string.IsNullOrWhiteSpace(cell))
 							continue;
 
 						string effectiveKey = ApplyKeyAffixes(baseEffectiveKey, lc.desc);
