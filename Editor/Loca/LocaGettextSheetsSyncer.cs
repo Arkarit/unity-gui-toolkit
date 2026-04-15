@@ -964,7 +964,7 @@ namespace GuiToolkit.Editor
 		{
 			string url =
 				$"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}/values/{Uri.EscapeDataString(_sheetName)}:append" +
-				"?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS";
+				"?valueInputOption=RAW&insertDataOption=INSERT_ROWS";
 
 			string json = BuildValuesJson(_rows);
 
