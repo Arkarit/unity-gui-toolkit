@@ -421,7 +421,7 @@ namespace GuiToolkit.Editor
 		private static string BuildBatchUpdateJson(string _range, List<List<string>> _rows)
 		{
 			var sb = new StringBuilder();
-			sb.Append("{\"valueInputOption\":\"USER_ENTERED\",\"data\":[{\"range\":\"");
+			sb.Append("{\"valueInputOption\":\"RAW\",\"data\":[{\"range\":\"");
 			sb.Append(JsonEscape(_range));
 			sb.Append("\",\"majorDimension\":\"ROWS\",\"values\":[");
 
