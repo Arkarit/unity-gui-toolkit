@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,12 @@ namespace GuiToolkit
 		protected override void OnLanguageChanged( string _languageId )
 		{
 			base.OnLanguageChanged(_languageId);
+			StartCoroutine(RefreshNextFrame());
+		}
+
+		private IEnumerator RefreshNextFrame()
+		{
+			yield return null;
 
 			var layoutGroups = GetComponentsInChildren<LayoutGroup>(true);
 			foreach (var layoutGroup in layoutGroups)
