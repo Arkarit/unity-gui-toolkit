@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -147,11 +148,19 @@ namespace GuiToolkit.Editor
 			if (!_component.UsesLocaKey)
 				return;
 
+			string sourceRef = _sourcePath;
+			if (_component is MonoBehaviour mb)
+			{
+				string goPath = GetTransformPath(mb.transform);
+				if (!string.IsNullOrEmpty(goPath))
+					sourceRef = $"{_sourcePath} ({goPath})";
+			}
+
 			if (_component.UsesMultipleLocaKeys)
 			{
 				var keys = _component.LocaKeys;
 				foreach (var key in keys)
-					LocaManager.Instance.EdAddKey(key, null, _component.Group, _sourcePath);
+					LocaManager.Instance.EdAddKey(key, null, _component.Group, sourceRef);
 
 				return;
 			}
@@ -159,7 +168,20 @@ namespace GuiToolkit.Editor
 			string locaKey = _component.LocaKey;
 			string group = _component.Group;
 			if (!string.IsNullOrEmpty(locaKey))
-				LocaManager.Instance.EdAddKey(locaKey, null, group, _sourcePath);
+				LocaManager.Instance.EdAddKey(locaKey, null, group, sourceRef);
+		}
+
+		private static string GetTransformPath( Transform _t )
+		{
+			var parts = new StringBuilder();
+			while (_t != null)
+			{
+				if (parts.Length > 0)
+					parts.Insert(0, '/');
+				parts.Insert(0, _t.name);
+				_t = _t.parent;
+			}
+			return parts.ToString();
 		}
 
 		private static void FoundScript( string _path, string _content )
@@ -171,22 +193,24 @@ namespace GuiToolkit.Editor
 			List<string> strings = EditorCodeUtility.SeparateCodeAndStrings(_content);
 			//DebugDump(_path, strings);
 
+			string[] lines = _content.Split('\n');
+
 			int numStrings = strings.Count;
 			for (int i = 0; i < numStrings; )
 			{
 				bool found =
-					Evaluate(_path, strings, ref i, "__(", false) ||
-					Evaluate(_path, strings, ref i, "_(", false) ||
-					Evaluate(_path, strings, ref i, "gettext(", false) ||
-					Evaluate(_path, strings, ref i, "_n(", true) ||
-					Evaluate(_path, strings, ref i, "ngettext(", true);
+					Evaluate(_path, strings, lines, ref i, "__(", false) ||
+					Evaluate(_path, strings, lines, ref i, "_(", false) ||
+					Evaluate(_path, strings, lines, ref i, "gettext(", false) ||
+					Evaluate(_path, strings, lines, ref i, "_n(", true) ||
+					Evaluate(_path, strings, lines, ref i, "ngettext(", true);
 
 				if (!found)
 					i += 2;
 			}
 		}
 
-		private static bool Evaluate( string _path, List<string> _strings, ref int _idx, string _expectedKeyword, bool _expectsPlural )
+		private static bool Evaluate( string _path, List<string> _strings, string[] _lines, ref int _idx, string _expectedKeyword, bool _expectsPlural )
 		{
 			// Peek helpers
 			bool AreTwoTokensLeft( int _idx ) => _idx <= _strings.Count - 2;
@@ -252,10 +276,31 @@ namespace GuiToolkit.Editor
 				}
 			}
 
-			LocaManager.Instance.EdAddKey(locaKey, locaKeyPlural, groupKey, _path);
+			LocaManager.Instance.EdAddKey(locaKey, locaKeyPlural, groupKey, GetSourceRefForScript(_path, _lines, locaKey));
 
 			// Found and added Key
 			return true;
+		}
+
+		private static string GetSourceRefForScript( string _path, string[] _lines, string _key )
+		{
+			if (_lines == null || string.IsNullOrEmpty(_key))
+				return _path;
+
+			// Search for a line containing the key as a quoted string literal
+			string keyStart = _key.Length > 20 ? _key.Substring(0, 20) : _key;
+			string searchTerm = "\"" + keyStart;
+			foreach (string line in _lines)
+			{
+				string trimmed = line.TrimStart();
+				if (trimmed.Contains(searchTerm))
+				{
+					string snippet = trimmed.Length > 30 ? trimmed.Substring(0, 30) : trimmed;
+					return $"{_path} ({snippet})";
+				}
+			}
+
+			return _path;
 		}
 
 		private static void DebugDump( string _path, List<string> _strings )
