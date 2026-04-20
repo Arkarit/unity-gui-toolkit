@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using static GuiToolkit.LocaExcelBridge;
@@ -131,10 +132,32 @@ namespace GuiToolkit.Editor
 			using (new EditorGUI.DisabledScope(!syncEnabled))
 			{
 				if (GUILayout.Button("Push new keys"))
-					LocaGettextSheetsSyncer.PushToSheets(bridge);
+					LocaGettextSheetsSyncer.PushNewKeysToSheets(bridge);
 			}
 			EditorGUILayout.HelpBox(
 				"Appends keys from PO files that are not yet in the sheet. Never overwrites existing cells.",
+				syncEnabled ? MessageType.Info : MessageType.Warning);
+
+			using (new EditorGUI.DisabledScope(!syncEnabled))
+			{
+				string backupPath   = LocaGettextSheetsSyncer.GetBackupPath(bridge);
+				bool   backupExists = backupPath != null && File.Exists(backupPath);
+
+				EditorGUILayout.BeginHorizontal();
+
+				if (GUILayout.Button("Backup Sheets"))
+					LocaGettextSheetsSyncer.BackupSheets(bridge);
+
+				using (new EditorGUI.DisabledScope(!backupExists))
+				{
+					if (GUILayout.Button("Open Backup"))
+						System.Diagnostics.Process.Start(backupPath);
+				}
+
+				EditorGUILayout.EndHorizontal();
+			}
+			EditorGUILayout.HelpBox(
+				"Downloads the current sheet as a local xlsx backup file (.bak_{name}.xlsx) alongside this asset.",
 				syncEnabled ? MessageType.Info : MessageType.Warning);
 
 			// Obsolete key marking

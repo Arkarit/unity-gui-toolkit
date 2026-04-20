@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using UnityEditor;
+using System.Collections.Generic;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -257,6 +258,91 @@ namespace GuiToolkit
 			int removeFrom = (blockStart > 0 && yaml[blockStart - 1] == '\n') ? blockStart - 1 : blockStart;
 
 			return yaml.Substring(0, removeFrom) + yaml.Substring(blockEnd);
+		}
+
+		/// <summary>
+		/// Replaces the <c>m_Script</c> GUID of a single MonoBehaviour block and removes specific
+		/// named fields from that block, all in a single file pass.
+		/// </summary>
+		/// <param name="assetPath">Unity-relative path, e.g. <c>"Assets/Scenes/MyScene.unity"</c>.</param>
+		/// <param name="localFileId">Local file ID from <see cref="TryGetLocalFileId"/>.</param>
+		/// <param name="oldScriptGuid">GUID of the script to replace.</param>
+		/// <param name="newScriptGuid">GUID of the replacement script.</param>
+		/// <param name="fieldNamesToStrip">
+		/// YAML field names (without leading spaces or colon) to remove from the block,
+		/// e.g. <c>"m_group"</c>, <c>"m_locaKey"</c>. Matches the exact indented form
+		/// <c>"  fieldName: ..."</c>.
+		/// </param>
+		/// <returns><c>true</c> if the replacement was written successfully.</returns>
+		public static bool SwapComponentScriptAndStripFields(string assetPath, long localFileId,
+		                                                     string oldScriptGuid, string newScriptGuid,
+		                                                     params string[] fieldNamesToStrip)
+		{
+			string fullPath = AssetPathToFullPath(assetPath);
+			if (!File.Exists(fullPath))
+			{
+				UiLog.LogError($"YamlUtility: File not found: {fullPath}");
+				return false;
+			}
+
+			string yaml = File.ReadAllText(fullPath);
+			string result = PatchYaml(yaml, localFileId, oldScriptGuid, newScriptGuid);
+			if (result == null)
+			{
+				UiLog.LogError($"YamlUtility: Could not patch block &{localFileId} (script guid '{oldScriptGuid}') in {assetPath}");
+				return false;
+			}
+
+			if (fieldNamesToStrip != null && fieldNamesToStrip.Length > 0)
+				result = StripFieldsFromBlock(result, localFileId, fieldNamesToStrip);
+
+			File.WriteAllText(fullPath, result);
+			AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+			return true;
+		}
+
+		/// <summary>
+		/// Removes specific named fields from a MonoBehaviour block in YAML text.
+		/// Matches lines of the form <c>"  fieldName: ..."</c> (two-space indent, as Unity serializes).
+		/// </summary>
+		/// <param name="yaml">The full YAML text.</param>
+		/// <param name="localFileId">YAML anchor of the target block.</param>
+		/// <param name="fieldNames">Field names to remove (without leading spaces or colon).</param>
+		/// <returns>Modified YAML string; the original string if the block is not found.</returns>
+		internal static string StripFieldsFromBlock(string yaml, long localFileId, IReadOnlyList<string> fieldNames)
+		{
+			string blockMarker = $"--- !u!{MonoBehaviourClassId} &{localFileId}";
+			int blockStart = yaml.IndexOf(blockMarker, StringComparison.Ordinal);
+			if (blockStart < 0)
+				return yaml;
+
+			int searchFrom = blockStart + blockMarker.Length;
+			int nextBlock  = yaml.IndexOf("\n---", searchFrom, StringComparison.Ordinal);
+			int blockEnd   = nextBlock < 0 ? yaml.Length : nextBlock;
+
+			string before = yaml.Substring(0, blockStart);
+			string block  = yaml.Substring(blockStart, blockEnd - blockStart);
+			string after  = yaml.Substring(blockEnd);
+
+			foreach (string fieldName in fieldNames)
+			{
+				string lineStart = "\n  " + fieldName + ":";
+				int idx = 0;
+				while (idx < block.Length)
+				{
+					int pos = block.IndexOf(lineStart, idx, StringComparison.Ordinal);
+					if (pos < 0)
+						break;
+
+					int lineEnd = block.IndexOf('\n', pos + 1);
+					if (lineEnd < 0)
+						lineEnd = block.Length;
+
+					block = block.Substring(0, pos) + block.Substring(lineEnd);
+				}
+			}
+
+			return before + block + after;
 		}
 
 		/// <summary>

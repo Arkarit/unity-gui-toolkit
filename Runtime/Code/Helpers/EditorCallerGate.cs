@@ -77,9 +77,61 @@ namespace GuiToolkit
 		{
 			if (Application.isPlaying || IsAnyCallerEditorAware(_skipTypes))
 				return;
-			
-			throw new InvalidOperationException($"{DebugUtility.GetCallingClassAndMethod(false, true, 1)} needs to be called with\n" +
-												"at least one caller in the stack trace to implement IEditorAware (and of course implement Editor awareness)");
+
+			string offender = FindFirstOffendingCaller(_skipTypes);
+			string offenderHint = string.IsNullOrEmpty(offender)
+				? string.Empty
+				: $"\nOffending caller: {offender}";
+
+			throw new InvalidOperationException(
+				$"{DebugUtility.GetCallingClassAndMethod(false, true, 1)} needs to be called with\n" +
+				$"at least one caller in the stack trace to implement IEditorAware (and of course implement Editor awareness){offenderHint}");
+		}
+
+		/// <summary>
+		/// Walks the call stack from innermost to outermost and returns the fully-qualified name
+		/// of the first method whose declaring type is neither Unity infrastructure nor IEditorAware.
+		/// Walking inner-to-outer surfaces the immediate infrastructure entry point (e.g. the
+		/// singleton getter) whose generic type argument clearly names the offending singleton.
+		/// </summary>
+		private static string FindFirstOffendingCaller( Type[] _skipTypes )
+		{
+			var frames = new StackTrace(1, false).GetFrames();
+			if (frames == null)
+				return null;
+
+			for (int i = 0; i < frames.Length; i++)
+			{
+				var f = frames[i];
+				var m = f.GetMethod();
+				var t = m?.DeclaringType;
+				if (t == null)
+					continue;
+				if (t == typeof(EditorCallerGate))
+					continue;
+				if (_skipTypes != null && _skipTypes.Contains(t))
+					continue;
+				if (IsKnownInfrastructure(t))
+					continue;
+
+				if (!IsOrHasOuterEditorAware(t))
+					return $"{t.FullName}.{m.Name}";
+			}
+
+			return null;
+		}
+
+		private static bool IsKnownInfrastructure( Type _type )
+		{
+			// Walk outer classes as well (handles compiler-generated nested types)
+			for (var cur = _type; cur != null; cur = cur.DeclaringType)
+			{
+				var ns = cur.Namespace ?? string.Empty;
+				if (ns.StartsWith("UnityEngine", StringComparison.Ordinal)
+					|| ns.StartsWith("UnityEditor", StringComparison.Ordinal))
+					return true;
+			}
+			return false;
 		}
 
 #else

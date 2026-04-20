@@ -95,7 +95,7 @@ namespace GuiToolkit
 
 		public void SetText(string _text)
 		{
-			GetComponentInChildren<Text>().text = _text;
+			this.SetTextInFirstFoundChild(_text);
 		}
 
 		public void ClearText()

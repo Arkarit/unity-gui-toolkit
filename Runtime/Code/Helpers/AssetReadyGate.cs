@@ -9,6 +9,7 @@ using System.IO;
 using GuiToolkit.Exceptions;
 using Object = UnityEngine.Object;
 using System.Runtime.InteropServices;
+//
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -379,10 +380,16 @@ namespace GuiToolkit
 		public static bool AllScriptableObjectsReady => true;
 
 		/// <summary>
+		/// Always true in player builds.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsReady( bool _includeBootstrap = true ) => true;
+
+		/// <summary>
 		/// In player builds, invoke immediately.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void WhenReady(Action _callback, Func<bool> _0 = null, int _1 = 0, int _2 = 0) => _callback?.Invoke();
+		public static void WhenReady(Action _callback, bool _0 = true, int _1 = 0, int _2 = 0) => _callback?.Invoke();
 
 		/// <summary>
 		/// No-op in player builds.
