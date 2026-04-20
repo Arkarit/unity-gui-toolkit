@@ -155,7 +155,10 @@ Assets/Localization/
 
 ### 2. Review Extracted Keys
 
-Open the `.pot` files in a text editor:
+Open the `.pot` files in a text editor. Each key has one or more `#:` source reference comments that show exactly where it comes from:
+
+- **Prefabs & Scenes**: include the full **GameObject path** within the prefab/scene (e.g. `Canvas/Header/TitleLabel`)
+- **C# scripts**: include the **first 30 characters of the source line** (stripped of indentation) so you can quickly find the call site
 
 ```pot
 # SOME DESCRIPTIVE TITLE.
@@ -167,16 +170,16 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
-#: Assets/Scripts/MainMenu.cs:15
+#: Assets/Scripts/MainMenu.cs | string title = _("Main
 msgid "Main Menu"
 msgstr ""
 
-#: Assets/Scripts/FileDialog.cs:23
+#: Assets/Prefabs/HUD.prefab | Canvas/Header/TitleLabel
 msgctxt "verb"
 msgid "Open"
 msgstr ""
 
-#: Assets/Scripts/StatusBar.cs:45
+#: Assets/Scripts/StatusBar.cs | scoreText = _n("You have
 msgid "You have %d point"
 msgid_plural "You have %d points"
 msgstr[0] ""

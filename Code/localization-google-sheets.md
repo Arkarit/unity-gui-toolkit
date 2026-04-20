@@ -332,10 +332,10 @@ Translators open the Google Sheet and fill in the translation columns. The key c
 
 Click **`[Pull from Sheets]`** in the **Sync** section of the bridge inspector. The tool:
 
-1. Downloads the spreadsheet (same path as the regular import)
+1. Downloads the spreadsheet using `UNFORMATTED_VALUE` rendering, which preserves leading/trailing whitespace and tab characters exactly as stored
 2. Iterates over every row and every language column
-3. For each `msgstr` that is **currently empty** in the local PO file, copies the sheet value in
-4. **Never overwrites** a translation that already has content
+3. **Overwrites** the local PO translation with the sheet value — this is intentional so translator corrections always win
+4. Entries that differ only in insignificant whitespace (e.g. a trailing newline) are treated as identical and not marked as changed
 5. Creates a timestamped backup of each PO file before writing
 
 > **Note:** Only **Viewer** permission on the sheet is needed for `[Pull from Sheets]`. **Editor** permission is required for `[Push new keys]` (and the legacy full-overwrite push).
