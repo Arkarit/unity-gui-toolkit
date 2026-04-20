@@ -16,6 +16,12 @@ The localization system is a production-grade implementation built around the **
 | `UiAutoLocalize` | Component that auto-translates a `TMP_Text` based on a localization key |
 | `UiLanguageToggle` | UI control for runtime language switching |
 | `LocaPlurals` (partial, generated) | Auto-generated plural rules per language (CLDR standard) |
+| `UiLocalizedTextMeshProUGUI` | TMP subclass with integrated localization; supersedes `UiAutoLocalize` |
+| `UiRefreshOnLocaChange` | Lightweight component triggering `OnLanguageChanged` without `UiThing` inheritance |
+| `UiAbstractLocalizedTextByPlayerLevel` | Abstract base class; shows different localized text per player level |
+| `LocaJsonKeyProvider` | Editor-only ScriptableObject harvesting translation keys from JSON data files by field name |
+| `UiForceUnlocalizedText` / `UiForceLegacyText` | Migration helper components for intentionally unlocalized or legacy text |
+| `LocaGettextSheetsSyncer` | Editor tool for the gettext push/pull workflow with Google Sheets |
 
 ### Data Flow
 
@@ -76,6 +82,27 @@ Requested language → "dev" language → key itself (configurable)
 - `SetAllUiLocaGroups` for batch group assignment
 - Progress bars for long operations; full undo support
 
+### S8 — Gettext-Sheets Sync Workflow
+- `LocaGettextSheetsSyncer` provides a dedicated push/pull workflow: push new keys to a Google Sheet, pull translator corrections back into PO files
+- Push is additive: only rows not yet present in the sheet are appended; existing translator work is never overwritten on push
+- Pull always overwrites local PO entries so translator corrections win; uses `UNFORMATTED_VALUE` to avoid Google Sheets formatting artifacts
+- Timestamped backups are created before any pull overwrites local PO files
+- `AutoSyncAfterMerge` flag in `UiToolkitConfiguration` enables automatic sync after a merge operation
+
+### S9 — Rich POT Source References
+- `LocaProcessor` now emits full GameObject paths within prefabs and scenes (e.g. `Canvas/Header/TitleLabel`) as `#:` source references
+- For C# scripts, the first 30 characters of the source line (stripped of leading whitespace) are included as context
+- Translators and reviewers can locate the exact usage site of every key directly from the POT file
+
+### S10 — JSON Key Harvesting
+- `LocaJsonKeyProvider` is an editor-only ScriptableObject that extracts translation keys from JSON data files by configurable field name
+- Enables data-driven content (item names, descriptions, quest texts) to participate in the standard POT extraction workflow without manual key lists
+
+### S11 — Level-Based Localized Text
+- `UiAbstractLocalizedTextByPlayerLevel` provides an abstract base class for UI components that display different localized strings depending on the player's current level
+- Implements `ILocaKeyProvider` so all level-variant keys are automatically included in POT extraction
+- Concrete implementations wire to the game's level-change event (e.g. `EventsManager.UpdateLevel`)
+
 ---
 
 ## Weaknesses
@@ -83,8 +110,9 @@ Requested language → "dev" language → key itself (configurable)
 ### W1 — No Thread Safety ⚠️
 `m_translationDict` is accessed without locks. If a background coroutine calls `Translate()` during `ChangeLanguage()`, a race condition is possible. `Thread.CurrentThread` culture updates also affect all code on that thread globally.
 
-### W2 — No Context-Aware Translations
-The PO standard supports `msgctxt` for disambiguating identical source strings; the system ignores it. Workaround is manual key prefixing, which clutters the key namespace.
+### W2 — No Context-Aware Translations ✅ RESOLVED
+
+`msgctxt` parsing is now fully implemented in `LocaManagerDefaultImpl`. Context-aware lookups use the GNU gettext `"context\u0004key"` convention (`ComposeContextKey()`), and a `LocaManager.Translate(key, context, group)` overload is available. See MI2.
 
 ### W3 — Silent Missing-Key Fallback in Production
 `DebugLoca` mode must be enabled manually. Missing translations silently return the key name. There is no built-in collection or reporting of untranslated strings, making completeness impossible to measure at a glance.
@@ -104,8 +132,8 @@ All PO files for a language are loaded synchronously inside `ChangeLanguageImpl(
 ### W8 — Format-String Placeholder Blindness
 The system does not track `{0}`, `{1}` placeholders in keys. Translators cannot see what the placeholders represent, and a translator accidentally reordering them causes silent runtime errors.
 
-### W9 — TextAsset Memory Not Released
-PO files loaded as `TextAsset` are never unloaded on language change. Applications supporting many languages simultaneously may accumulate significant memory.
+### W9 — ~~TextAsset Memory Not Released~~ ✅ NOT AN ISSUE
+`TryLoadPoText()` loads the PO file as a `TextAsset` only to read its `.text` string into a local `string[]`. The `TextAsset` reference is a local variable and is not stored as a member field, so it can be garbage-collected immediately after loading. There is no memory accumulation across language switches.
 
 ### W10 — Rigid Excel Column Configuration
 Plural form columns must be manually designated. There is no auto-detection of language columns from header names, and no CSV/TSV support.
@@ -139,7 +167,7 @@ The extraction regex does not handle escaped quotes, multi-line strings, or stri
 | M3 | **Excel column auto-detection** — recognize language codes in column headers without manual config | Medium | Low |
 | M4 | **Plural form validation** — warn when a language has fewer plural forms than expected | Low | Low |
 | M5 | **`EvLanguageChanging` event** — notify UI before the switch so loading indicators can appear | Low | Low |
-| M6 | **Language cache eviction** — unload previous language's `TextAsset`s to reduce memory | Medium | Medium |
+| M6 | ~~**Language cache eviction** — unload previous language's `TextAsset`s to reduce memory~~ ✅ Not needed — `TextAsset` is not retained | — | — |
 | M7 | **Improved key-extraction regex** — handle escaped quotes, trailing comma, and `__()` lookbehind correctly | Medium | Medium |
 
 ### Priority: Low
@@ -173,33 +201,24 @@ if (Language == null)
 
 These are features that are either architecturally planned, partially scaffolded, or implied by the standard — but not actually implemented.
 
-### MI1 — Google Sheets Authentication ❌ Critical
+### MI1 — Google Sheets Authentication ✅ IMPLEMENTED
 
-**Location:** `Runtime/Code/Loca/LocaExcelBridge.cs`
+**Location:** `Runtime/Code/Loca/GoogleServiceAccountAuth.cs`, `Runtime/Code/Loca/LocaGettextSheetsSyncer.cs`
 
-The Google Sheets download uses a plain `UnityWebRequest.Get(url)` with no authentication whatsoever. There is no OAuth2 flow, no service account JSON, and no API key support. The integration silently works only for sheets that are publicly shared with "Anyone with the link". Any private or organisation-restricted sheet fails without any useful error message.
+OAuth2 authentication using a Google service account JSON credential is fully implemented via `GoogleServiceAccountAuth.cs`.
 
-**Consequences:**
-- Cannot be used with private data (which most real project translation sheets are)
-- Security best practice requires OAuth2 or service account credentials
-- Not production-ready for teams using Google Workspace with access restrictions
-
-**What is needed:** An OAuth2 device-flow or service account authentication step before the download, with credential storage in editor preferences.
+**What was done:**
+- `[Push new keys]` button appends only rows not yet present in the sheet, leaving existing translator work untouched
+- `[Pull from Sheets]` button overwrites local PO files with sheet values (translator corrections win); uses `UNFORMATTED_VALUE` for raw cell content; creates timestamped backups before overwriting
+- `AutoSyncAfterMerge` flag in `UiToolkitConfiguration` enables automatic sync after a merge operation
 
 ---
 
-### MI2 — PO Context (`msgctxt`) Not Parsed ❌ Critical
+### MI2 — PO Context (`msgctxt`) Not Parsed ✅ IMPLEMENTED
 
-**Location:** `Runtime/Code/Loca/LocaManagerDefaultImpl.cs` (PO parser section)
+**Location:** `Runtime/Code/Loca/LocaManagerDefaultImpl.cs`
 
-The PO file standard defines `msgctxt` to disambiguate identical source strings that need different translations (e.g. "Save" as a verb vs. "Save" as a noun in certain languages). The parser skips `msgctxt` lines entirely. `ProcessedLocaEntry` has no context field and the translation dictionary uses the key alone, so two PO entries with the same `msgid` but different `msgctxt` silently collapse into one.
-
-**Consequences:**
-- No context-aware translations possible
-- Homograph disambiguation (e.g. "Bank" — financial / river) requires manual key prefixing
-- Standard PO files from professional translation tools that include `msgctxt` are parsed incorrectly
-
-**What is needed:** Parse `msgctxt` into `ProcessedLocaEntry`; include context in the dictionary key (e.g. `"context\u0004key"`); expose a `Translate(key, context, group)` overload.
+`msgctxt` lines are now fully parsed by the PO parser. Context is incorporated into dictionary keys using the GNU gettext convention `"context\u0004key"` via `ComposeContextKey()`. A `LocaManager.Translate(key, context, group)` overload is available for context-aware lookups. This resolves W2.
 
 ---
 
@@ -257,24 +276,15 @@ PO files support `#.` (translator comment), `#:` (source reference), and `#,` (f
 
 ---
 
-### MI9 — `UiLocalizedTextMeshProUGUI`: TMP Subclass with Integrated Localization ❌ High
+### MI9 — `UiLocalizedTextMeshProUGUI`: TMP Subclass with Integrated Localization ✅ IMPLEMENTED
 
-**Location:** `Runtime/Code/Loca/UiAutoLocalize.cs` (to be superseded)
+**Location:** `Runtime/Code/Loca/UiLocalizedTextMeshProUGUI.cs`
 
-`UiAutoLocalize` is a separate MonoBehaviour that sits alongside a `TextMeshProUGUI` component and calls `Translate()` on language changes. This two-component design is fragile: nothing prevents other code from writing to `TMP_Text.text` directly, silently overriding or being overridden by the localization system.
+`UiLocalizedTextMeshProUGUI` is implemented as a `TextMeshProUGUI` subclass with fully integrated localization.
 
-**Proposed architecture:** A subclass `UiLocalizedTextMeshProUGUI : TextMeshProUGUI` that:
-- Overrides the `text` setter: if `m_autoLocalize = true`, stores the raw value as `m_locaKey` and immediately displays the translated text
-- Uses a `m_isSettingInternally` guard to prevent infinite loops in the overridden setter
-- Implements the language-change callback to re-translate `m_locaKey` automatically
-- In `#if UNITY_EDITOR`: detects external writes while auto-localize is on and fires `Debug.LogWarning`
-- When `m_autoLocalize = false`: behaves exactly like `TextMeshProUGUI` with zero overhead
-
-**Migration path:**
-- `UiAutoLocalize` marked `[Obsolete]` with a migration hint in `Awake()`
-- An editor menu tool scans all scenes and prefabs for `UiAutoLocalize + TMP_Text` pairs and replaces them with `UiLocalizedTextMeshProUGUI`
-
-**What is needed:** `Runtime/Code/Loca/UiLocalizedTextMeshProUGUI.cs` (new), deprecate `UiAutoLocalize.cs`, `Editor/Loca/UiLocalizedTextMigrationTool.cs` (new migration tool).
+**What was done:**
+- `UiAutoLocalize.cs` is kept for legacy compatibility but is superseded by `UiLocalizedTextMeshProUGUI`
+- `ReplaceComponentsWindow` editor tool handles component swaps and YAML reference updates across all scenes and prefabs
 
 ---
 
@@ -292,11 +302,70 @@ The system is **well-structured and production-capable**, successfully combining
 
 | ID | Feature | Severity |
 |---|---|---|
-| MI1 | Google Sheets authentication (OAuth2 / service account) | 🔴 Critical |
-| MI2 | PO `msgctxt` parsing and context-aware translation | 🔴 Critical |
+| MI1 | Google Sheets authentication (OAuth2 / service account) | ✅ Implemented |
+| MI2 | PO `msgctxt` parsing and context-aware translation | ✅ Implemented |
 | MI4 | `LocaPlurals` default/fallback rule for unknown languages | 🟠 High |
 | MI5 | `ILocaProvider` runtime extensibility (type not hardcoded) | 🟡 Medium |
 | MI6 | `LocaPreBuildProcessor` error handling and coverage validation | 🟡 Medium |
 | MI7 | Runtime provider switching (DLC / live update) | 🔵 Low |
 | MI8 | PO `fuzzy` flag / translator comments forwarded to editor | 🔵 Low |
-| MI9 | `UiLocalizedTextMeshProUGUI` TMP subclass + migration tool | 🟠 High |
+| MI9 | `UiLocalizedTextMeshProUGUI` TMP subclass + migration tool | ✅ Implemented |
+
+---
+
+## Comparison with Unity Localization Package
+
+### Unity Built-in Advantages over GUI Toolkit
+
+| Feature | Unity Built-in | GUI Toolkit |
+|---|---|---|
+| Asset localization (Sprites, AudioClips, Prefabs) | ✅ Full | ❌ Text only |
+| Smart Strings (ICU-based variable substitution) | ✅ | ❌ |
+| Locale auto-detection (OS language) | ✅ | ❌ (W5, requires project code) |
+| Async locale switching | ✅ Fully async | ❌ Synchronous (W7) |
+| Preloading groups | ✅ | ❌ |
+| Pseudo-localization | ✅ Built-in | Partial (`dev` language) |
+| Visual table editor | ✅ StringTable editor | ❌ External PO editor |
+| Metadata/comments per entry | ✅ | ❌ Discarded (MI8) |
+| XLIFF import/export | ✅ | ❌ |
+| Play mode preview without build | ✅ | ✅ (works in edit mode too) |
+| Thread safety | ✅ | ❌ (W1) |
+| Fuzzy entry support | ✅ | ❌ (MI8) |
+| Variable tracking in translations | ✅ (Smart Strings) | ❌ |
+| Locale fallback chain | ✅ Configurable | Partial (dev → key fallback only) |
+| Per-entry comment forwarded to translators | ✅ | ❌ |
+
+### GUI Toolkit Advantages over Unity Built-in
+
+| Feature | Unity Built-in | GUI Toolkit |
+|---|---|---|
+| Gettext PO/POT standard | ❌ No PO support | ✅ Full PO/POT |
+| Crowdin / Weblate / Lokalise integration | Limited (CSV/XLIFF) | ✅ Direct via PO |
+| Google Sheets push/pull workflow | Via extension package | ✅ Built-in, code-driven |
+| Excel XLSX import | Via extension package | ✅ Built-in |
+| Developer-friendly API | `GetLocalizedString(table, key)` verbose | ✅ `_("key")` clean |
+| Version control friendly | ❌ Binary `.asset` tables | ✅ Text PO files, diffable |
+| Automatic key extraction from C# | ❌ Manual only | ✅ Regex scan + `ILocaKeyProvider` |
+| Source references in templates | ❌ | ✅ GO path + line snippet |
+| Groups / namespaces | Via tables | ✅ Group parameter |
+| No Addressables dependency | Requires Addressables | ✅ Resources-based (optional) |
+| JSON key harvesting | ❌ | ✅ `LocaJsonKeyProvider` |
+| Level-based localized text | ❌ | ✅ `UiAbstractLocalizedTextByPlayerLevel` |
+| Context-aware translations (msgctxt) | ❌ No PO context | ✅ `ComposeContextKey()` |
+
+---
+
+## Missing Features vs Unity Built-in
+
+| Priority | Feature | Notes |
+|---|---|---|
+| 🔴 High | Asset localization (Sprites, Audio, Prefabs) | Unity supports any asset type per locale |
+| 🔴 High | Async locale switching | Frame drop on large catalogs (W7) |
+| 🟠 Medium | Smart Strings / ICU variable substitution | Unity's `{count, plural, …}` syntax |
+| 🟠 Medium | Pseudo-localization tool | Stress-test layouts with expanded strings |
+| 🟠 Medium | Locale auto-detection (OS language) | Requires project-side code currently (W5) |
+| 🟡 Low | XLIFF import/export | Industry standard for CAT tools |
+| 🟡 Low | Fuzzy entry support / translator comments in editor | PO metadata currently discarded (MI8) |
+| 🟡 Low | Visual table editor | Unity has a rich StringTable editor |
+| 🟡 Low | Per-entry metadata (notes, author, completion) | Unity supports rich per-entry metadata |
+| 🔵 Minimal | Preloading groups | Unity can preload specific locale groups |
