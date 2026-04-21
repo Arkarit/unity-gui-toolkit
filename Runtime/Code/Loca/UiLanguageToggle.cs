@@ -35,12 +35,14 @@ namespace GuiToolkit
 			SetDelayed(isActive);
 
 			base.OnValueChanged.AddListener(this.OnValueChanged);
+			UiEventDefinitions.EvLanguageChanged.AddListener(OnLanguageChanged);
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
 			base.OnValueChanged.RemoveListener(this.OnValueChanged);
+			UiEventDefinitions.EvLanguageChanged.RemoveListener(OnLanguageChanged);
 		}
 
 		private void OnValueChanged( bool _active )
@@ -49,6 +51,11 @@ namespace GuiToolkit
 			{
 				LocaManager.Instance.ChangeLanguage(m_languageToken);
 			}
+		}
+
+		private void OnLanguageChanged( string _languageId )
+		{
+			SetDelayed(LocaManager.NormalizeLanguageId(_languageId) == LocaManager.NormalizeLanguageId(m_languageToken));
 		}
 
 #if UNITY_EDITOR
