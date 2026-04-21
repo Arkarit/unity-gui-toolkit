@@ -555,9 +555,9 @@ namespace GuiToolkit
 					int halfLen = Mathf.Max(2, _s.Length / 2);
 					return _s.Substring(0, halfLen);
 				case EDebugLocaLength.Double:
-					return _s + _s;
+					return _s + " " + _s;
 				case EDebugLocaLength.Triple:
-					return _s + _s + _s;
+					return _s + " " + _s + " " + _s;
 				default:
 					return _s;
 			}
