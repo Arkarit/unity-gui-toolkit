@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace GuiToolkit
 {
@@ -16,7 +17,7 @@ namespace GuiToolkit
 	/// included so developers can verify un-translated keys.
 	/// </summary>
 	[RequireComponent(typeof(TMP_Dropdown))]
-	public class UiLanguageSelectDropdown : MonoBehaviour
+	public class UiLanguageSelectDropdown : MonoBehaviour, IPointerClickHandler
 	{
 		private TMP_Dropdown m_dropdown;
 		private readonly List<string> m_languageIds = new List<string>();
@@ -101,6 +102,27 @@ namespace GuiToolkit
 		private void OnLanguageChanged( string _languageId )
 		{
 			SyncSelectionToCurrentLanguage();
+		}
+
+		/// <summary>
+		/// TMP_Dropdown is earlier in the component list, so its OnPointerClick (which calls Show())
+		/// runs before ours. By the time we execute, the "Dropdown List" popup already exists and has
+		/// its Canvas set to sortingOrder 30000 (hardcoded by TMP_Dropdown). We bump it to the maximum
+		/// value so the popup always renders on top of any other Override-Sorting Canvas in the scene.
+		/// </summary>
+		public void OnPointerClick( PointerEventData _ )
+		{
+			EnsurePopupOnTop();
+		}
+
+		private void EnsurePopupOnTop()
+		{
+			Transform popup = m_dropdown.transform.Find("Dropdown List");
+			if (popup == null)
+				return;
+			Canvas popupCanvas = popup.GetComponent<Canvas>();
+			if (popupCanvas != null)
+				popupCanvas.sortingOrder = short.MaxValue;
 		}
 	}
 }
