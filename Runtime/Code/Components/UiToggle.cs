@@ -56,6 +56,16 @@ namespace GuiToolkit
 
 		public void SetDelayed(bool _value) => CoRoutineRunner.Instance.StartCoroutine(SetDelayedCoroutine(_value));
 
+		/// <summary>
+		/// Sets the toggle state without firing <see cref="Toggle.onValueChanged"/>, avoiding feedback loops.
+		/// The selection animation and color are updated instantly.
+		/// </summary>
+		public void SetIsOnWithoutNotify(bool _value)
+		{
+			Toggle.SetIsOnWithoutNotify(_value);
+			PlaySelectionAnimationIfNecessary(_value, true);
+		}
+
 		protected override void Awake()
 		{
 			base.Awake();
@@ -141,9 +151,9 @@ namespace GuiToolkit
 			Toggle.group = transform.parent.gameObject.AddComponent<ToggleGroup>();
 		}
 
-		private void PlaySelectionAnimationIfNecessary(bool _active) => PlaySelectionAnimationIfNecessary(_active, false);
+		protected void PlaySelectionAnimationIfNecessary(bool _active) => PlaySelectionAnimationIfNecessary(_active, false);
 
-		private void PlaySelectionAnimationIfNecessary(bool _active, bool _instant)
+		protected void PlaySelectionAnimationIfNecessary(bool _active, bool _instant)
 		{
 			// Workaround for Unity issue
 			var colors = Toggle.colors;

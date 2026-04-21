@@ -54,7 +54,7 @@ namespace GuiToolkit
 
 		private void OnLanguageChanged( string _languageId )
 		{
-			SetDelayed(LocaManager.NormalizeLanguageId(_languageId) == LocaManager.NormalizeLanguageId(m_languageToken));
+			SetIsOnWithoutNotify(LocaManager.NormalizeLanguageId(_languageId) == LocaManager.NormalizeLanguageId(m_languageToken));
 		}
 
 #if UNITY_EDITOR
