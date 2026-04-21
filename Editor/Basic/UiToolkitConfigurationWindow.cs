@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using GuiToolkit.Style;
 using UnityEditor;
@@ -124,6 +124,14 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_debugForceRtl"));
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_autoTranslateDisabled"));
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_verboseLogging"));
+
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_languageWhitelistEnabled"), new GUIContent("Language Whitelist", UiToolkitConfiguration.HELP_LANGUAGE_WHITELIST_ENABLED));
+			if (m_serializedSettingsObject.FindProperty("m_languageWhitelistEnabled").boolValue)
+			{
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_LANGUAGE_WHITELIST, MessageType.Info);
+				EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_languageWhitelist"), new GUIContent("Whitelisted Languages"), true);
+			}
 
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_globalCanvasScalerTemplate"));

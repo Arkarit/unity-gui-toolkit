@@ -80,6 +80,12 @@ namespace GuiToolkit
 		public const string HELP_DEBUG_FORCE_RTL =
 			"In Editor and Development builds, forces right-to-left text direction on all localized TMP components. Always false in release builds.";
 
+		public const string HELP_LANGUAGE_WHITELIST_ENABLED =
+			"When enabled, only languages listed in the whitelist are offered in the language selector. Useful to hide unfinished languages that already have a PO file but are not yet ready for release.";
+
+		public const string HELP_LANGUAGE_WHITELIST =
+			"Canonical language IDs (e.g. 'en', 'de', 'zh-tw') that are publicly available. Only used when the whitelist is enabled. 'dev' is always available in Editor and Development builds regardless of this list.";
+
 		public const string HELP_VERBOSE_LOGGING =
 			"When enabled, UiLog.LogVerbose() calls are printed to the console. Has no effect in release player builds (verbose is always stripped there).";
 
@@ -152,6 +158,12 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_DEBUG_FORCE_RTL)]
 		[SerializeField] private bool m_debugForceRtl = false;
+
+		[Tooltip(HELP_LANGUAGE_WHITELIST_ENABLED)]
+		[SerializeField] private bool m_languageWhitelistEnabled = false;
+
+		[Tooltip(HELP_LANGUAGE_WHITELIST)]
+		[SerializeField] private string[] m_languageWhitelist = new string[0];
 
 		[Tooltip(HELP_VERBOSE_LOGGING)]
 		[SerializeField] private bool m_verboseLogging = false;
@@ -235,6 +247,8 @@ namespace GuiToolkit
 		public bool DebugLoca => m_debugLoca;
 		public EDebugLocaLength DebugLocaLength => m_debugLocaLength;
 		public bool DebugForceRtl => m_debugForceRtl;
+		public bool LanguageWhitelistEnabled => m_languageWhitelistEnabled;
+		public string[] LanguageWhitelist => m_languageWhitelist;
 		public bool VerboseLogging => m_verboseLogging;
 		public bool AutoTranslateDisabled => m_autoTranslateDisabled;
 		public bool LoadViewInEveryScene => m_loadViewInEveryScene;

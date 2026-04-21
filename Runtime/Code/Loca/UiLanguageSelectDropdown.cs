@@ -47,12 +47,20 @@ namespace GuiToolkit
 			string[] available = LocaManager.Instance.GetAvailableLanguages();
 			var options = new List<TMP_Dropdown.OptionData>();
 
+			var config = UiToolkitConfiguration.Instance;
+			bool useWhitelist = config != null && config.LanguageWhitelistEnabled;
+			HashSet<string> whitelist = useWhitelist ? new HashSet<string>(config.LanguageWhitelist) : null;
+
 			foreach (string langId in available)
 			{
 #if !UNITY_EDITOR && !DEVELOPMENT_BUILD
 				if (langId == "dev")
 					continue;
 #endif
+				// Apply whitelist filter; "dev" is always exempt
+				if (useWhitelist && langId != "dev" && !whitelist.Contains(langId))
+					continue;
+
 				m_languageIds.Add(langId);
 				options.Add(new TMP_Dropdown.OptionData(LocaLanguageNames.GetNativeName(langId)));
 			}
