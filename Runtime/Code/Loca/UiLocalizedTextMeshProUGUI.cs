@@ -234,6 +234,12 @@ namespace GuiToolkit
 			{
 				m_isSettingInternally = false;
 			}
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+			var cfg = UiToolkitConfiguration.Instance;
+			if (cfg != null && cfg.DebugForceRtl)
+				isRightToLeftText = true;
+#endif
 		}
 
 		private IEnumerator RetryNextFrame()

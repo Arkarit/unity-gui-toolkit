@@ -150,6 +150,16 @@ namespace GuiToolkit
 		Indeterminate,
 	}
 
+	/// \brief Debug localization length modifier for testing UI text overflow and underflow.
+	/// Only evaluated in Editor and Development builds; always treated as Default in release builds.
+	public enum EDebugLocaLength
+	{
+		Default,    ///< Normal translation output (always used in release builds)
+		Half,       ///< First half of the translated string, minimum 2 characters
+		Double,     ///< Translated string repeated twice
+		Triple,     ///< Translated string repeated three times
+	}
+
 	/// \brief Panel animation types
 	public enum EPanelAnimationType
 	{

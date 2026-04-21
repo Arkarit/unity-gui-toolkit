@@ -120,6 +120,8 @@ namespace GuiToolkit.Editor
 
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_debugLoca"));
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_debugLocaLength"));
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_debugForceRtl"));
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_autoTranslateDisabled"));
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_verboseLogging"));
 

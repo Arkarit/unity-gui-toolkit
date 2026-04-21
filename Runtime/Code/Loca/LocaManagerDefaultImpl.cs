@@ -516,20 +516,20 @@ namespace GuiToolkit
 			}
 
 			if (m_isDev)
-				return _s;
+				return ApplyDebugLocaLength(_s);
 
 			if (TryGetTranslation(_group, _s, out string result))
 			{
 				if (string.IsNullOrEmpty(result))
 					result = DebugLoca ? $"#{_s}" : _s;
 
-				return Regex.Unescape(result);
+				return ApplyDebugLocaLength(Regex.Unescape(result));
 			}
 
 			switch (_retValIfNotFound)
 			{
 				case RetValIfNotFound.Key:
-					return DebugLoca ? $"*{_s}" : _s;
+					return ApplyDebugLocaLength(DebugLoca ? $"*{_s}" : _s);
 				case RetValIfNotFound.EmptyString:
 					return string.Empty;
 				case RetValIfNotFound.Null:
@@ -538,6 +538,33 @@ namespace GuiToolkit
 					throw new ArgumentOutOfRangeException(nameof(_retValIfNotFound), _retValIfNotFound, null);
 			}
 		}
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+		private static string ApplyDebugLocaLength( string _s )
+		{
+			if (string.IsNullOrEmpty(_s))
+				return _s;
+
+			var cfg = UiToolkitConfiguration.Instance;
+			if (cfg == null)
+				return _s;
+
+			switch (cfg.DebugLocaLength)
+			{
+				case EDebugLocaLength.Half:
+					int halfLen = Mathf.Max(2, _s.Length / 2);
+					return _s.Substring(0, halfLen);
+				case EDebugLocaLength.Double:
+					return _s + _s;
+				case EDebugLocaLength.Triple:
+					return _s + _s + _s;
+				default:
+					return _s;
+			}
+		}
+#else
+		private static string ApplyDebugLocaLength( string _s ) => _s;
+#endif
 
 		private bool TryGetTranslation( string _group, string _key, out string _result )
 		{
@@ -572,7 +599,7 @@ namespace GuiToolkit
 				return Translate(_singularKey, _group, _retValIfNotFound);
 
 			if (m_isDev)
-				return _pluralKey;
+				return ApplyDebugLocaLength(_pluralKey);
 
 			if (TryGetTranslation(_group, _pluralKey, out List<string> plurals))
 			{
@@ -580,14 +607,14 @@ namespace GuiToolkit
 				{
 					var result = plurals[pluralIdx];
 					if (!string.IsNullOrEmpty(result))
-						return result;
+						return ApplyDebugLocaLength(result);
 				}
 			}
 
 			switch (_retValIfNotFound)
 			{
 				case RetValIfNotFound.Key:
-					return DebugLoca ? $"*{_pluralKey}" : _pluralKey;
+					return ApplyDebugLocaLength(DebugLoca ? $"*{_pluralKey}" : _pluralKey);
 				case RetValIfNotFound.EmptyString:
 					return string.Empty;
 				case RetValIfNotFound.Null:

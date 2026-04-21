@@ -74,6 +74,12 @@ namespace GuiToolkit
 		public const string HELP_DEBUG_LOCA =
 			"This switches loca debugging on or off";
 
+		public const string HELP_DEBUG_LOCA_LENGTH =
+			"In Editor and Development builds, manipulates the length of translated strings to test UI layout. Default = normal, Half = first half (min 2 chars), Double/Triple = string repeated. Always Default in release builds.";
+
+		public const string HELP_DEBUG_FORCE_RTL =
+			"In Editor and Development builds, forces right-to-left text direction on all localized TMP components. Always false in release builds.";
+
 		public const string HELP_VERBOSE_LOGGING =
 			"When enabled, UiLog.LogVerbose() calls are printed to the console. Has no effect in release player builds (verbose is always stripped there).";
 
@@ -140,6 +146,12 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_DEBUG_LOCA)]
 		[SerializeField] private bool m_debugLoca = false;
+
+		[Tooltip(HELP_DEBUG_LOCA_LENGTH)]
+		[SerializeField] private EDebugLocaLength m_debugLocaLength = EDebugLocaLength.Default;
+
+		[Tooltip(HELP_DEBUG_FORCE_RTL)]
+		[SerializeField] private bool m_debugForceRtl = false;
 
 		[Tooltip(HELP_VERBOSE_LOGGING)]
 		[SerializeField] private bool m_verboseLogging = false;
@@ -221,6 +233,8 @@ namespace GuiToolkit
 		public UiAspectRatioDependentStyleConfig UiAspectRatioDependentStyleConfig => m_uiAspectRatioDependentStyleConfig;
 		public CanvasScaler GlobalCanvasScalerTemplate => m_globalCanvasScalerTemplate;
 		public bool DebugLoca => m_debugLoca;
+		public EDebugLocaLength DebugLocaLength => m_debugLocaLength;
+		public bool DebugForceRtl => m_debugForceRtl;
 		public bool VerboseLogging => m_verboseLogging;
 		public bool AutoTranslateDisabled => m_autoTranslateDisabled;
 		public bool LoadViewInEveryScene => m_loadViewInEveryScene;
