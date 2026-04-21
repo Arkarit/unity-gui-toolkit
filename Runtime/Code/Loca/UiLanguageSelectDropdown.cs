@@ -44,7 +44,14 @@ namespace GuiToolkit
 			m_dropdown.onValueChanged.RemoveListener(OnDropdownValueChanged);
 			m_dropdown.ClearOptions();
 
-			string[] available = LocaManager.Instance.GetAvailableLanguages();
+			string[] available = LocaManager.Instance?.GetAvailableLanguages();
+			if (available == null || available.Length == 0)
+			{
+				Debug.LogWarning("[UiLanguageSelectDropdown] No available languages found. " +
+					"Run 'Gui Toolkit > Localization > Process Loca' to generate the language list.");
+				return;
+			}
+
 			var options = new List<TMP_Dropdown.OptionData>();
 
 			var config = UiToolkitConfiguration.Instance;
@@ -53,16 +60,19 @@ namespace GuiToolkit
 
 			foreach (string langId in available)
 			{
+				// Always normalize IDs so lookups work regardless of resource file age
+				string normalized = LocaManager.NormalizeLanguageId(langId);
+
 #if !UNITY_EDITOR && !DEVELOPMENT_BUILD
-				if (langId == "dev")
+				if (normalized == "dev")
 					continue;
 #endif
 				// Apply whitelist filter; "dev" is always exempt
-				if (useWhitelist && langId != "dev" && !whitelist.Contains(langId))
+				if (useWhitelist && normalized != "dev" && !whitelist.Contains(normalized))
 					continue;
 
-				m_languageIds.Add(langId);
-				options.Add(new TMP_Dropdown.OptionData(LocaLanguageNames.GetNativeName(langId)));
+				m_languageIds.Add(normalized);
+				options.Add(new TMP_Dropdown.OptionData(LocaLanguageNames.GetNativeName(normalized)));
 			}
 
 			m_dropdown.AddOptions(options);
@@ -72,7 +82,11 @@ namespace GuiToolkit
 
 		private void SyncSelectionToCurrentLanguage()
 		{
-			string current = LocaManager.Instance.Language;
+			string language = LocaManager.Instance?.Language;
+			if (string.IsNullOrEmpty(language))
+				return;
+
+			string current = LocaManager.NormalizeLanguageId(language);
 			int index = m_languageIds.IndexOf(current);
 			if (index >= 0)
 				m_dropdown.SetValueWithoutNotify(index);
