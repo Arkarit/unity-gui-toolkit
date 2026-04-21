@@ -963,6 +963,7 @@ namespace GuiToolkit
 			}
 
 			EdWriteGroupsFile(string.Join("\n", nonDefaultGroups));
+			EdWriteAvailableLanguagesFile(nonDefaultGroups);
 		}
 
 		private void EdWriteGroupsFile( string _groups )
@@ -1001,6 +1002,78 @@ namespace GuiToolkit
 			catch (Exception e)
 			{
 				UiLog.LogError($"Could not write '{GROUPS_RESOURCE_NAME}' file at '{filePath}': {e.Message}");
+			}
+		}
+
+		private void EdWriteAvailableLanguagesFile( List<string> _nonDefaultGroups )
+		{
+			// Collect unique base language IDs from all PO files, stripping group suffixes.
+			var languages = new SortedSet<string> { "dev" };
+
+			string[] guids = AssetDatabase.FindAssets("t:textasset");
+			foreach (string guid in guids)
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				if (!assetPath.Contains("/Resources/"))
+					continue;
+
+				string filename;
+				if (assetPath.EndsWith(".po"))
+					filename = Path.GetFileNameWithoutExtension(assetPath);
+				else if (assetPath.EndsWith(".po.txt"))
+					filename = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(assetPath));
+				else
+					continue;
+
+				string langId = filename;
+				foreach (string group in _nonDefaultGroups)
+				{
+					string suffix = "_" + group;
+					if (filename.EndsWith(suffix))
+					{
+						langId = filename.Substring(0, filename.Length - suffix.Length);
+						break;
+					}
+				}
+
+				if (!string.IsNullOrEmpty(langId))
+					languages.Add(langId);
+			}
+
+			// Find the Resources directory containing the PO files (same logic as EdWriteGroupsFile).
+			string appDataDir = EditorFileUtility.GetApplicationDataDir();
+			string resourcesDir = null;
+
+			foreach (string guid in guids)
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				if ((assetPath.EndsWith(".po") || assetPath.EndsWith(".po.txt"))
+					&& assetPath.Contains("/Resources/"))
+				{
+					string dirRelative = Path.GetDirectoryName(assetPath)?.Replace("\\", "/");
+					if (dirRelative != null && dirRelative.StartsWith("Assets/"))
+					{
+						resourcesDir = appDataDir + dirRelative;
+						break;
+					}
+				}
+			}
+
+			if (string.IsNullOrEmpty(resourcesDir))
+				resourcesDir = appDataDir + "Assets/Resources";
+
+			Directory.CreateDirectory(resourcesDir);
+			string filePath = EditorFileUtility.GetSafePath(Path.Combine(resourcesDir, AVAILABLE_LANGUAGES_RESOURCE + ".txt"));
+
+			try
+			{
+				File.WriteAllText(filePath, string.Join("\n", languages), Encoding.UTF8);
+				string unityPath = filePath.Replace("\\", "/").Substring(appDataDir.Length);
+				AssetDatabase.ImportAsset(unityPath);
+			}
+			catch (Exception e)
+			{
+				UiLog.LogError($"Could not write '{AVAILABLE_LANGUAGES_RESOURCE}' file at '{filePath}': {e.Message}");
 			}
 		}
 
