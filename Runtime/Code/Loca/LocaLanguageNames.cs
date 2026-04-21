@@ -100,7 +100,9 @@ namespace GuiToolkit
 			if (string.IsNullOrEmpty(_languageId))
 				return _languageId;
 
-			if (s_nativeNames.TryGetValue(_languageId.ToLowerInvariant(), out string name))
+			// Normalize silently for display — warnings are emitted at ChangeLanguage() time.
+			string normalized = _languageId.Replace('_', '-').ToLowerInvariant();
+			if (s_nativeNames.TryGetValue(normalized, out string name))
 				return name;
 
 			return _languageId;

@@ -38,6 +38,27 @@ namespace GuiToolkit
 		public const string AVAILABLE_LANGUAGES_RESOURCE = "uitk_available_languages";
 
 		/// <summary>
+		/// Converts a language identifier to the canonical BCP 47 form used throughout the toolkit:
+		/// all-lowercase with hyphens as subtag separators (e.g. <c>zh-tw</c>, <c>pt-br</c>).
+		/// Underscores are replaced with hyphens and the string is lowercased.
+		/// A warning is logged when the input is not already in canonical form, so that callers
+		/// (PO file names, Excel column headers, code) can be corrected at the source.
+		/// </summary>
+		/// <param name="_languageId">The raw language identifier to normalize.</param>
+		/// <returns>Canonical lowercase-hyphen language ID.</returns>
+		public static string NormalizeLanguageId( string _languageId )
+		{
+			if (string.IsNullOrEmpty(_languageId))
+				return _languageId;
+
+			string normalized = _languageId.Replace('_', '-').ToLowerInvariant();
+			if (normalized != _languageId)
+				UiLog.LogWarning($"Language ID '{_languageId}' is not in canonical form. Use '{normalized}' instead (lowercase, hyphens as separators).");
+
+			return normalized;
+		}
+
+		/// <summary>
 		/// Translates a singular string key to the currently active language.
 		/// </summary>
 		/// <param name="_key">The localization key (msgid).</param>
@@ -241,6 +262,10 @@ namespace GuiToolkit
 			if (string.IsNullOrWhiteSpace(_languageId))
 			{
 				_languageId = "dev";
+			}
+			else
+			{
+				_languageId = NormalizeLanguageId(_languageId);
 			}
 
 			if (Language == _languageId)

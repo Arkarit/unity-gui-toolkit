@@ -117,8 +117,9 @@ Requested language → "dev" language → key itself (configurable)
 ### W3 — Silent Missing-Key Fallback in Production
 `DebugLoca` mode must be enabled manually. Missing translations silently return the key name. There is no built-in collection or reporting of untranslated strings, making completeness impossible to measure at a glance.
 
-### W4 — Language Code Inconsistency
+### W4 — Language Code Inconsistency ✅
 Language IDs are case-sensitive in lookups but normalized to lowercase at runtime. A mismatch between Excel column headers and PO file names (e.g. `en-US` vs `en_us`) causes silent load failures.
+**Fixed**: `LocaManager.NormalizeLanguageId()` converts any ID to canonical BCP 47 lowercase-hyphen form (`zh-tw`, `pt-br`) and logs a warning when the input needed normalizing, so mismatches are visible in the console without breaking the game.
 
 ### W5 — No System Locale Auto-Detection
 On first launch the system always defaults to `"dev"`. The OS language (`CultureInfo.CurrentCulture`) is never consulted, requiring every integrating project to implement its own first-run logic.
@@ -153,7 +154,7 @@ The extraction regex does not handle escaped quotes, multi-line strings, or stri
 | ID | Improvement | Effort | Risk |
 |---|---|---|---|
 | H1 | **Thread safety** — add `lock(m_lockObject)` around `Translate()` and `ChangeLanguageImpl()` | Low | Low |
-| H2 | **Language code normalization** — central `NormalizeLanguageId()` replacing `-` with `_`, lowercasing everywhere | Low | Low |
+| H2 | **Language code normalization** — central `NormalizeLanguageId()`, canonical form: lowercase + hyphens (BCP 47), warns on deviation ✅ | Low | Low |
 | H3 | **Missing-key reporting** — collect missing keys in a `HashSet`; expose an editor dump method | Medium | Low |
 | H4 | **Group fallback chain** — if key not in requested group, fall through to default group automatically | Low | Low |
 | H5 | **Async language loading** — `Task.Run()` wrapper for `ChangeLanguageImpl()` to prevent frame drops | Medium | Medium |

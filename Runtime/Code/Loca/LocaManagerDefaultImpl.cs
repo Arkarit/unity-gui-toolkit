@@ -775,13 +775,34 @@ namespace GuiToolkit
 				{
 					var availableLanguages = new HashSet<string> { "dev" };
 
-					string[] guids = AssetDatabase.FindAssets(".po t:textasset");
-					for (int i = 0; i < guids.Length; i++)
+					string[] guids = AssetDatabase.FindAssets("t:textasset");
+					foreach (string guid in guids)
 					{
-						string guid = guids[i];
 						string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-						string language = Path.GetFileNameWithoutExtension(assetPath);
-						availableLanguages.Add(language.Substring(0, language.Length - 3));
+
+						string filename;
+						if (assetPath.EndsWith(".po"))
+							filename = Path.GetFileNameWithoutExtension(assetPath);
+						else if (assetPath.EndsWith(".po.txt"))
+							filename = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(assetPath));
+						else
+							continue;
+
+						// Strip known group suffixes (e.g. "de_Json" → "de").
+						string langId = filename;
+						var groups = AssetUtility.ReadLines(GROUPS_RESOURCE_NAME, _removeEmpty: true);
+						foreach (string group in groups)
+						{
+							string suffix = "_" + group;
+							if (filename.EndsWith(suffix))
+							{
+								langId = filename.Substring(0, filename.Length - suffix.Length);
+								break;
+							}
+						}
+
+						if (!string.IsNullOrEmpty(langId))
+							availableLanguages.Add(NormalizeLanguageId(langId));
 					}
 
 					m_availableLanguages = availableLanguages.ToArray();
@@ -1037,7 +1058,7 @@ namespace GuiToolkit
 				}
 
 				if (!string.IsNullOrEmpty(langId))
-					languages.Add(langId);
+					languages.Add(NormalizeLanguageId(langId));
 			}
 
 			// Find the Resources directory containing the PO files (same logic as EdWriteGroupsFile).

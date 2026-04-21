@@ -119,8 +119,9 @@ Angeforderte Sprache → „dev"-Sprache → Schlüssel selbst (konfigurierbar)
 ### W3 — Stille Fallbacks bei fehlenden Schlüsseln in der Produktion
 Der `DebugLoca`-Modus muss manuell aktiviert werden. Fehlende Übersetzungen geben stillschweigend den Schlüsselnamen zurück. Es gibt keine eingebaute Sammlung oder Auswertung nicht übersetzter Strings, sodass Vollständigkeit auf Anhieb nicht messbar ist.
 
-### W4 — Inkonsistente Sprachkennungen
+### W4 — Inkonsistente Sprachkennungen ✅
 Sprach-IDs sind bei Lookups case-sensitiv, werden aber zur Laufzeit auf Kleinbuchstaben normiert. Eine Nichtübereinstimmung zwischen Excel-Spalten-Headern und PO-Dateinamen (z. B. `en-US` vs. `en_us`) führt zu stillem Ladefehler.
+**Behoben**: `LocaManager.NormalizeLanguageId()` konvertiert jede ID in die kanonische BCP-47-Form mit Kleinbuchstaben und Bindestrichen (`zh-tw`, `pt-br`) und gibt eine Warnung aus, wenn die Eingabe normalisiert werden musste – Abweichungen sind sofort in der Konsole sichtbar, ohne das Spiel zu unterbrechen.
 
 ### W5 — Keine automatische Systemspracherkennung
 Beim ersten Start fällt das System immer auf `"dev"` zurück. Die OS-Sprache (`CultureInfo.CurrentCulture`) wird nie berücksichtigt; jedes integrierende Projekt muss eigene Erststart-Logik implementieren.
@@ -155,7 +156,7 @@ Die Extraktions-Regex unterstützt keine Escape-Zeichen in Anführungszeichen, m
 | ID | Verbesserung | Aufwand | Risiko |
 |---|---|---|---|
 | H1 | **Thread-Sicherheit** — `lock(m_lockObject)` in `Translate()` und `ChangeLanguageImpl()` | Gering | Gering |
-| H2 | **Sprachkennungen normalisieren** — zentrale `NormalizeLanguageId()`-Methode (Ersetze `-` durch `_`, Kleinbuchstaben) | Gering | Gering |
+| H2 | **Sprachkennungen normalisieren** — zentrale `NormalizeLanguageId()`-Methode, kanonische Form: Kleinbuchstaben + Bindestriche (BCP 47), warnt bei Abweichung ✅ | Gering | Gering |
 | H3 | **Fehlende-Schlüssel-Reporting** — fehlende Schlüssel in einem `HashSet` sammeln; Editor-Dump-Methode anbieten | Mittel | Gering |
 | H4 | **Gruppen-Fallback-Kette** — bei nicht gefundenem Schlüssel in der Gruppe automatisch auf Standardgruppe zurückfallen | Gering | Gering |
 | H5 | **Asynchrones Laden** — `Task.Run()`-Wrapper für `ChangeLanguageImpl()` zur Vermeidung von Frame-Drops | Mittel | Mittel |
