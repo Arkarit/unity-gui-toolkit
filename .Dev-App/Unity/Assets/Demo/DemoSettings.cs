@@ -16,13 +16,13 @@ public class DemoSettings : LocaClass
 			// Language
 			new PlayerSetting
 			(
-				__("General"), __("Language"), "", "en_us", 
+				__("General"), __("Language"), "", "en", 
 				new PlayerSettingOptions
 				{
 					Type = EPlayerSettingType.Language,
 					Key = LocaManager.PLAYER_PREFS_KEY,
 					Titles = new List<string> {"Dev", "English", "Deutsch", "русский", "Lolspeak"},
-					StringValues = new List<string> {"dev", "en_us", "de", "ru", "lol" },
+					StringValues = new List<string> {"dev", "en", "de", "ru", "lol" },
 					IsLocalized = false,
 				}
 			),

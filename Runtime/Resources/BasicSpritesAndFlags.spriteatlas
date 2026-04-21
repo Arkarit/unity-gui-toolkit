@@ -129,7 +129,7 @@ SpriteAtlas:
   - UITK_Panel_r25
   - UITK_Sunken_r25
   - UITK_Panel_r20
-  - en
+  - en-gb
   - UITK_Simple_Circle
   - UITK_Panel_Circle
   - UITK_Triangle
@@ -150,8 +150,8 @@ SpriteAtlas:
   - UITK_Simple_Rectangle_r15
   - UITK_Sunken_r00
   - UITK_Panel_r15
-  - us
-  - en_us
+  - en-us
+  - en
   m_RenderDataMap: {}
   m_Tag: BasicSpritesAndFlags
   m_IsVariant: 0
