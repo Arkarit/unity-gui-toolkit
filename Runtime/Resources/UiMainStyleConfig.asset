@@ -83,6 +83,9 @@ MonoBehaviour:
     - rid: 2290798622902845884
     - rid: 8192552902913163874
     - rid: 8192552903844823117
+    - rid: 8192552905232875537
+    - rid: 8192552905232875549
+    - rid: 8192552905601974753
     m_aspectRatioGreaterEqual: 0
   - m_config: {fileID: 11400000}
     m_name: Light
@@ -154,6 +157,9 @@ MonoBehaviour:
     - rid: 2290798622902845885
     - rid: 8192552902913163875
     - rid: 8192552903844823118
+    - rid: 8192552905232875538
+    - rid: 8192552905232875550
+    - rid: 8192552905601974754
     m_aspectRatioGreaterEqual: 0
   m_currentSkinIdx: 0
   references:
@@ -11214,6 +11220,168 @@ MonoBehaviour:
     - rid: 8192552903844823128
       type: {class: UiStyleUiGradientSimple/ApplicableValueBoolean, ns: GuiToolkit.Style,
         asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 8192552905232875537
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollBar/Background
+        m_alias: 
+        m_sprite:
+          rid: 8192552905232875539
+        m_color:
+          rid: 8192552905232875540
+        m_enabled:
+          rid: 8192552905232875541
+    - rid: 8192552905232875538
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollBar/Background
+        m_alias: 
+        m_sprite:
+          rid: 8192552905232875542
+        m_color:
+          rid: 8192552905232875543
+        m_enabled:
+          rid: 8192552905232875544
+    - rid: 8192552905232875539
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+    - rid: 8192552905232875540
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 1}
+    - rid: 8192552905232875541
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8192552905232875542
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+    - rid: 8192552905232875543
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 1, b: 1, a: 1}
+    - rid: 8192552905232875544
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8192552905232875549
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollBar/Handle
+        m_alias: 
+        m_sprite:
+          rid: 8192552905232875551
+        m_color:
+          rid: 8192552905232875552
+        m_enabled:
+          rid: 8192552905232875553
+    - rid: 8192552905232875550
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: ScrollBar/Handle
+        m_alias: 
+        m_sprite:
+          rid: 8192552905232875554
+        m_color:
+          rid: 8192552905232875555
+        m_enabled:
+          rid: 8192552905232875556
+    - rid: 8192552905232875551
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {fileID: 21300000, guid: 32ba0b6c7552e3b44968b32ae2b1c722, type: 3}
+    - rid: 8192552905232875552
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 0.7372549, b: 0, a: 1}
+    - rid: 8192552905232875553
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8192552905232875554
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+    - rid: 8192552905232875555
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0, g: 0, b: 0, a: 1}
+    - rid: 8192552905232875556
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 1
+    - rid: 8192552905601974753
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: Backgrounds/PopupEntry
+        m_alias: 
+        m_sprite:
+          rid: 8192552905601974755
+        m_color:
+          rid: 8192552905601974756
+        m_enabled:
+          rid: 8192552905601974757
+    - rid: 8192552905601974754
+      type: {class: UiStyleImage, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        m_styleConfig: {fileID: 11400000}
+        m_name: Backgrounds/PopupEntry
+        m_alias: 
+        m_sprite:
+          rid: 8192552905601974758
+        m_color:
+          rid: 8192552905601974759
+        m_enabled:
+          rid: 8192552905601974760
+    - rid: 8192552905601974755
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {fileID: 0}
+    - rid: 8192552905601974756
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 1, g: 0.7960785, b: 0, a: 0.2}
+    - rid: 8192552905601974757
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 8192552905601974758
+      type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {fileID: 0}
+    - rid: 8192552905601974759
+      type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 1
+        m_value: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 0.69411767}
+    - rid: 8192552905601974760
+      type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0
