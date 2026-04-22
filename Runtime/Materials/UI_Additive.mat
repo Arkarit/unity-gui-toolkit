@@ -8,10 +8,13 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: UI_Additive
-  m_Shader: {fileID: 4800000, guid: b074fa270a8eb594ea703c0d1a9c7dbf, type: 3}
+  m_Shader: {fileID: 4800000, guid: 8ed695e87135c33439dcfe379f0ddcf7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - MultiplyRGBWithAlpha
+  - _SECONDARYTEXTUREBLENDMODE_TRANSPARENT
+  - _TEXTUREBLENDMODE_TRANSPARENT
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -59,10 +62,17 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SecondaryTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Adjustments: 0
+    - _Brightness: 0
     - _BumpScale: 1
     - _ColorMask: 15
+    - _Contrast: 1
     - _Cull: 0
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -71,16 +81,37 @@ Material:
     - _DisabledBrightness: 0.7
     - _DisabledDesaturateStrength: 0.8
     - _DstBlend: 1
+    - _FoldoutBlendMode: 1
+    - _FoldoutFeatures: 1
+    - _FoldoutStencil: 0
+    - _FoldoutTextures: 1
     - _FrameRate: 20
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _ManualRotationPhaseOffset: 0
     - _Metallic: 0
     - _Mode: 0
+    - _MultiplyRGBWithAlpha: 1
+    - _NoVertexColor: 0
     - _NumSpritesX: 1
     - _NumSpritesY: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _RotationSpeed: 1
+    - _Scrolling: 0
+    - _ScrollingSpeedU: 0.2
+    - _ScrollingSpeedV: 0.2
+    - _SecondaryAdjustments: 0
+    - _SecondaryBrightness: 0
+    - _SecondaryContrast: 1
+    - _SecondaryTexture: 0
+    - _SecondaryTextureBlendMode: 0
+    - _SecondaryTextureBlendModeSeparateAlpha: 0
+    - _SecondaryTextureScrolling: 0
+    - _SecondaryTextureScrollingSpeedU: 0.2
+    - _SecondaryTextureScrollingSpeedV: 0.2
+    - _SecondaryUseAdditionalTransformation: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SpriteSheetAnimation: 0
@@ -90,10 +121,19 @@ Material:
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
+    - _TextureBlendMode: 0
+    - _UVRotation: 0
     - _UVSec: 0
+    - _UnscaledTime: 0
+    - _UseAdditionalTransformation: 0
     - _UseUIAlphaClip: 0
+    - _ZTest: 4
     - _ZWrite: 0
     m_Colors:
+    - _AdditionalTransformation: {r: 0, g: 0, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _SecondaryAdditionalTransformation: {r: 0, g: 0, b: 1, a: 1}
+    - _SecondaryColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
