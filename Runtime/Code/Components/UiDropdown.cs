@@ -27,6 +27,11 @@ namespace GuiToolkit
 		[Tooltip("Optional animation played forwards when the dropdown opens and backwards when it closes.")]
 		[SerializeField][Optional] protected UiSimpleAnimationBase m_statusAnimation;
 
+		[Tooltip("Optional hover animation. When the popup is open the blocker canvas swallows pointer-exit " +
+		         "events, which would otherwise reset the hover animation. Assign it here so UiDropdown can " +
+		         "keep it visible while the popup is open and reset it cleanly when it closes.")]
+		[SerializeField][Optional] private UiSimpleAnimationMouseOver m_hoverAnimation;
+
 		public CEvent<int> EvOnDropdownValueChanged = new();
 		public CEvent<bool> EvOnStatusChanged = new();
 
@@ -79,6 +84,25 @@ namespace GuiToolkit
 			EvOnStatusChanged.Invoke(_isOpen);
 			if (m_statusAnimation != null)
 				m_statusAnimation.Play(!_isOpen); // false=forwards on open, true=backwards on close
+
+			if (m_hoverAnimation != null)
+			{
+				if (_isOpen)
+				{
+					// The blocker canvas created by TMP_Dropdown swallows pointer-exit events, so
+					// OnPointerExit already fired and played the animation backwards. Pause the
+					// mouse-over detection and force the animation forwards (hover visible).
+					m_hoverAnimation.PauseMouseOverAnimation = true;
+					m_hoverAnimation.Play(false);
+				}
+				else
+				{
+					// Popup closed: reset the hover animation to the off-state and re-enable
+					// mouse-over detection so normal hover works again.
+					m_hoverAnimation.Reset();
+					m_hoverAnimation.PauseMouseOverAnimation = false;
+				}
+			}
 		}
 
 		/// <summary>

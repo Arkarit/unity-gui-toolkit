@@ -1119,7 +1119,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_AlphaFadeSpeed: 0
+  m_AlphaFadeSpeed: 0.2
 --- !u!114 &4980241409771627134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1134,6 +1134,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_statusAnimation: {fileID: 106147381958487231}
+  m_hoverAnimation: {fileID: 4640185323754651072}
   EvOnDropdownValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1150,6 +1151,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1607276658239783134}
   - component: {fileID: 106147381958487231}
+  - component: {fileID: 4640185323754651072}
   m_Layer: 5
   m_Name: VisualButton
   m_TagString: Untagged
@@ -1299,6 +1301,127 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4640185323754651072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3267950006588052125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e648cb0e256bbb54f9e6435c243fc537, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_enabledInHierarchy: 1
+  m_duration: 0.2
+  m_delay: 0
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
+  m_backwardsPlayable: 1
+  m_backwardsAnimation: {fileID: 0}
+  m_gotoStartOnBackwards: 0
+  m_autoStart: 0
+  m_autoOnEnable: 0
+  m_setOnStart: 1
+  m_numberOfLoops: 0
+  m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
+  m_slaveAnimations: []
+  m_setLoopsForSlaves: 1
+  m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
+  m_support: 65536
+  m_target: {fileID: 1607276658239783134}
+  m_markTargetForLayoutRebuild: 0
+  m_scaleByCanvasScaler: 1
+  m_posXStart: 0
+  m_posXEnd: 0
+  m_posXCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_posYStart: 0
+  m_posYEnd: 0
+  m_posYCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_rotZStart: 0
+  m_rotZEnd: 0
+  m_rotZCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_scaleXStart: 0
+  m_scaleXEnd: 0
+  m_scaleXCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_scaleYStart: 0
+  m_scaleYEnd: 0
+  m_scaleYCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_scaleLocked: 0
+  m_alphaCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_alphaGraphic: {fileID: 3546432129651356025}
+  m_alphaCanvasGroup: {fileID: 0}
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_optionalMouseOverSlaveAnimation: {fileID: 0}
+  m_optionalMouseOverSlaveAnimationReset: 1
 --- !u!1 &4256412331441570546
 GameObject:
   m_ObjectHideFlags: 0
@@ -1517,7 +1640,6 @@ GameObject:
   - component: {fileID: 3546432129651356025}
   - component: {fileID: 3829576170860643402}
   - component: {fileID: 4784844609057731230}
-  - component: {fileID: 6845400180377219979}
   m_Layer: 5
   m_Name: BackgroundHighlight
   m_TagString: Untagged
@@ -1566,7 +1688,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: e06d31420bf1a2b44826c59f084884b9, type: 2}
   m_Color: {r: 0.1254902, g: 0.1254902, b: 0.1254902, a: 0}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1625,127 +1747,6 @@ MonoBehaviour:
   OnAfterApplyStyle:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &6845400180377219979
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5121955316568819461}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e648cb0e256bbb54f9e6435c243fc537, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_enabledInHierarchy: 1
-  m_duration: 0.2
-  m_delay: 0
-  m_animationSpeed: 1
-  m_setSpeedForSlaves: 0
-  m_backwardsPlayable: 1
-  m_backwardsAnimation: {fileID: 0}
-  m_gotoStartOnBackwards: 0
-  m_autoStart: 0
-  m_autoOnEnable: 0
-  m_setOnStart: 1
-  m_numberOfLoops: 0
-  m_finishInstantOnResolutionChange: 0
-  m_behavioursToDisableWhilePlaying: []
-  m_slaveAnimations: []
-  m_setLoopsForSlaves: 1
-  m_supportViewAnimations: 1
-  m_timingWorkaroundActive: 0
-  m_timingWorkaroundBackwardsBias: 0
-  m_support: 65536
-  m_target: {fileID: 1607276658239783134}
-  m_markTargetForLayoutRebuild: 0
-  m_scaleByCanvasScaler: 1
-  m_posXStart: 0
-  m_posXEnd: 0
-  m_posXCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  m_posYStart: 0
-  m_posYEnd: 0
-  m_posYCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  m_rotZStart: 0
-  m_rotZEnd: 0
-  m_rotZCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  m_scaleXStart: 0
-  m_scaleXEnd: 0
-  m_scaleXCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  m_scaleYStart: 0
-  m_scaleYEnd: 0
-  m_scaleYCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  m_scaleLocked: 0
-  m_alphaCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  m_alphaGraphic: {fileID: 3546432129651356025}
-  m_alphaCanvasGroup: {fileID: 0}
-  m_uiSkew: {fileID: 0}
-  m_skewMinHorizontal: 0
-  m_skewMaxHorizontal: 0
-  m_skewMinVertical: 0
-  m_skewMaxVertical: 0
-  m_skewCurveHorizontal:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  m_skewCurveVertical:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  m_optionalMouseOverSlaveAnimation: {fileID: 0}
-  m_optionalMouseOverSlaveAnimationReset: 1
 --- !u!1 &5277862002993995473
 GameObject:
   m_ObjectHideFlags: 0
