@@ -22,7 +22,7 @@ namespace GuiToolkit
 	/// Derive from this class and override the virtual methods as needed.
 	/// </summary>
 	[RequireComponent(typeof(TMP_Dropdown))]
-	public class UiDropdown : UiThing, IPointerClickHandler
+	public class UiDropdown : UiThing, IPointerClickHandler, IPointerDownHandler
 	{
 		[Tooltip("Optional animation played forwards when the dropdown opens and backwards when it closes.")]
 		[SerializeField][Optional] protected UiSimpleAnimationBase m_statusAnimation;
@@ -103,6 +103,19 @@ namespace GuiToolkit
 					m_hoverAnimation.PauseMouseOverAnimation = false;
 				}
 			}
+		}
+
+		/// <summary>
+		/// Fires before TMP_Dropdown.OnPointerClick (and thus before Show() creates the Blocker).
+		/// We pause hover-animation events here so the Blocker's pointer-exit cannot reset the
+		/// animation before we get a chance to restore it in OnStatusChanged.
+		/// </summary>
+		public void OnPointerDown( PointerEventData _ )
+		{
+			if (m_hoverAnimation == null || m_isOpen)
+				return;
+
+			m_hoverAnimation.PauseMouseOverAnimation = true;
 		}
 
 		/// <summary>
