@@ -1,82 +1,81 @@
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 namespace GuiToolkit
 {
 	/// <summary>
-	/// Reusable base class for TMP_Dropdown-based components.
+	/// Reusable base class for dropdown-style UI components backed by <see cref="UiPopup"/>.
 	///
 	/// Responsibilities:
-	/// - Populates the dropdown via the virtual <see cref="PopulateDropdown"/>.
-	/// - Ensures the popup Canvas renders on top of all other Override-Sorting canvases
-	///   (TMP_Dropdown 3.0.7 hardcodes sortingOrder=30000; we bump it to <see cref="short.MaxValue"/>).
+	/// - Manages open/close state via an explicit <see cref="UiButton"/> toggle.
+	/// - Populates the popup via the virtual <see cref="PopulatePopup"/> method.
 	/// - Fires <see cref="EvOnDropdownValueChanged"/> and calls the virtual
 	///   <see cref="OnDropdownValueChanged"/> when the user picks an item.
 	/// - Detects open/close transitions and fires <see cref="EvOnStatusChanged"/> and
 	///   calls the virtual <see cref="OnStatusChanged"/>.
 	/// - Plays an optional <see cref="UiSimpleAnimationBase"/> forwards on open and
 	///   backwards on close.
+	/// - Pauses an optional <see cref="UiSimpleAnimationMouseOver"/> while the popup is
+	///   open so the UiPopup ClickCatcher cannot reset the hover animation.
 	///
 	/// Derive from this class and override the virtual methods as needed.
 	/// </summary>
-	[RequireComponent(typeof(TMP_Dropdown))]
-	public class UiDropdown : UiThing, IPointerClickHandler, IPointerDownHandler
+	public class UiDropdown : UiThing
 	{
+		[Tooltip("Button that toggles the popup open and closed.")]
+		[SerializeField] protected UiButton m_toggleButton;
+
+		[Tooltip("Prefab for the popup menu shown when the dropdown opens.")]
+		[SerializeField] private UiPopup m_popupMenuPrefab;
+
+		[Tooltip("Label that shows the currently selected item. Optional.")]
+		[SerializeField][Optional] protected TextMeshProUGUI m_selectedLabel;
+
 		[Tooltip("Optional animation played forwards when the dropdown opens and backwards when it closes.")]
 		[SerializeField][Optional] protected UiSimpleAnimationBase m_statusAnimation;
 
-		[Tooltip("Optional hover animation. When the popup is open the blocker canvas swallows pointer-exit " +
-		         "events, which would otherwise reset the hover animation. Assign it here so UiDropdown can " +
-		         "keep it visible while the popup is open and reset it cleanly when it closes.")]
+		[Tooltip("Optional hover animation. Paused while the popup is open so the UiPopup ClickCatcher " +
+		         "cannot fire pointer-exit events that would reset the hover state.")]
 		[SerializeField][Optional] private UiSimpleAnimationMouseOver m_hoverAnimation;
 
 		public CEvent<int> EvOnDropdownValueChanged = new();
 		public CEvent<bool> EvOnStatusChanged = new();
 
-		protected TMP_Dropdown m_dropdown;
+		protected int m_selectedIndex = -1;
 		private bool m_isOpen;
+		private UiPopup m_activePopup;
 
 		protected override void Awake()
 		{
+			AddOnEnableButtonListeners((m_toggleButton, OnToggleButtonClicked));
 			base.Awake();
-			m_dropdown = GetComponent<TMP_Dropdown>();
-		}
-
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-			PopulateDropdown();
-			m_dropdown.onValueChanged.AddListener(OnDropdownValueChangedInternal);
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			m_dropdown.onValueChanged.RemoveListener(OnDropdownValueChangedInternal);
 			if (m_isOpen)
-			{
-				m_isOpen = false;
-				OnStatusChanged(false);
-			}
+				ClosePopup();
 		}
 
-		/// <summary>
-		/// Override to fill the dropdown with options. Called in OnEnable.
-		/// </summary>
-		protected virtual void PopulateDropdown() { }
+		/// <summary>Override to fill the popup with items via <paramref name="options"/>.</summary>
+		protected virtual void PopulatePopup( UiPopup.Options options ) { }
 
 		/// <summary>
-		/// Called when the user selects an item. Also fires <see cref="EvOnDropdownValueChanged"/>.
+		/// Called when the user selects an item. Base implementation fires
+		/// <see cref="EvOnDropdownValueChanged"/> and calls <see cref="UpdateLabel"/>.
 		/// </summary>
 		protected virtual void OnDropdownValueChanged( int _index )
 		{
+			m_selectedIndex = _index;
 			EvOnDropdownValueChanged.Invoke(_index);
+			UpdateLabel();
 		}
 
 		/// <summary>
-		/// Called when the popup opens (_isOpen=true) or closes (_isOpen=false).
+		/// Called when the popup opens (<paramref name="_isOpen"/>=true) or closes (=false).
 		/// Also fires <see cref="EvOnStatusChanged"/> and plays <see cref="m_statusAnimation"/>.
 		/// </summary>
 		protected virtual void OnStatusChanged( bool _isOpen )
@@ -89,93 +88,99 @@ namespace GuiToolkit
 			{
 				if (_isOpen)
 				{
-					// The blocker canvas created by TMP_Dropdown swallows pointer-exit events, so
-					// OnPointerExit already fired and played the animation backwards. Pause the
-					// mouse-over detection and force the animation forwards (hover visible).
+					// Pause mouse-over detection and force hover state visible while popup is open.
 					m_hoverAnimation.PauseMouseOverAnimation = true;
 					m_hoverAnimation.Play(false);
 				}
 				else
 				{
-					// Popup closed: reset the hover animation to the off-state and re-enable
-					// mouse-over detection so normal hover works again.
+					// Popup closed: reset hover to off-state and re-enable mouse-over detection.
 					m_hoverAnimation.Reset();
 					m_hoverAnimation.PauseMouseOverAnimation = false;
 				}
 			}
 		}
 
+		/// <summary>Override to refresh the selected-item label text.</summary>
+		protected virtual void UpdateLabel() { }
+
 		/// <summary>
-		/// Fires before TMP_Dropdown.OnPointerClick (and thus before Show() creates the Blocker).
-		/// We pause hover-animation events here so the Blocker's pointer-exit cannot reset the
-		/// animation before we get a chance to restore it in OnStatusChanged.
+		/// Apply a visual selection indicator to a spawned popup item.
+		/// Default implementation tints the item's <see cref="TextMeshProUGUI"/> yellow when selected.
 		/// </summary>
-		public void OnPointerDown( PointerEventData _ )
+		protected virtual void ApplyItemSelectionVisual( GameObject item, bool selected )
 		{
-			if (m_hoverAnimation == null || m_isOpen)
+			if (item == null)
 				return;
 
-			m_hoverAnimation.PauseMouseOverAnimation = true;
+			var tmp = item.GetComponentInChildren<TextMeshProUGUI>();
+			if (tmp != null)
+				tmp.color = selected ? Color.yellow : Color.white;
 		}
 
-		/// <summary>
-		/// TMP_Dropdown.OnPointerClick (earlier in component order) already called Show() by the
-		/// time this runs. We bump the popup Canvas sortingOrder to the maximum value so it always
-		/// renders above any Override-Sorting Canvas in the scene, then detect the open/close transition.
-		/// </summary>
-		public void OnPointerClick( PointerEventData _ )
+		private void OnToggleButtonClicked()
 		{
-			Transform popup = m_dropdown.transform.Find("Dropdown List");
-			bool isNowOpen = popup != null;
+			if (m_isOpen)
+				ClosePopup();
+			else
+				OpenPopup();
+		}
 
-			if (isNowOpen)
-				EnsurePopupOnTop(popup);
-
-			if (isNowOpen == m_isOpen)
+		private void OpenPopup()
+		{
+			if (m_activePopup != null || m_popupMenuPrefab == null)
 				return;
 
-			m_isOpen = isNowOpen;
-			OnStatusChanged(isNowOpen);
-
-			if (isNowOpen)
+			var options = new UiPopup.Options
 			{
-				var watcher = popup.gameObject.AddComponent<DropdownListWatcher>();
-				watcher.Init(OnDropdownClosed);
-			}
+				AnchorElement = (RectTransform)transform,
+				CloseOnItemClick = true,
+				AllowOutsideTap = true,
+			};
+
+			// Let subclasses (and this class) fill items and wire callbacks before we show.
+			options.OnItemClicked = (go, index) => OnDropdownValueChanged(index);
+			options.OnClose = OnPopupClosed;
+
+			PopulatePopup(options);
+
+			// Wrap OnItemAdded to also apply selection visual.
+			var subclassOnItemAdded = options.OnItemAdded;
+			options.OnItemAdded = (go, index) =>
+			{
+				subclassOnItemAdded?.Invoke(go, index);
+				ApplyItemSelectionVisual(go, index == m_selectedIndex);
+			};
+
+			m_activePopup = UiMain.Instance.ShowPopupMenu(options);
+			m_isOpen = true;
+			OnStatusChanged(true);
 		}
 
-		protected void OnDropdownValueChangedInternal( int _index )
-		{
-			OnDropdownValueChanged(_index);
-		}
-
-		private void OnDropdownClosed()
+		private void ClosePopup()
 		{
 			if (!m_isOpen)
 				return;
+
+			if (m_activePopup != null)
+			{
+				m_activePopup.Hide();
+				m_activePopup = null;
+			}
 
 			m_isOpen = false;
 			OnStatusChanged(false);
 		}
 
-		private static void EnsurePopupOnTop( Transform _popup )
+		private void OnPopupClosed()
 		{
-			Canvas canvas = _popup.GetComponent<Canvas>();
-			if (canvas != null)
-				canvas.sortingOrder = short.MaxValue;
-		}
-
-		/// <summary>
-		/// Monitors the "Dropdown List" GameObject and notifies the parent <see cref="UiDropdown"/>
-		/// when it is destroyed (i.e. the dropdown closes).
-		/// </summary>
-		private class DropdownListWatcher : MonoBehaviour
-		{
-			private Action m_onDestroyed;
-
-			public void Init( Action _onDestroyed ) => m_onDestroyed = _onDestroyed;
-
-			private void OnDestroy() => m_onDestroyed?.Invoke();
+			m_activePopup = null;
+			if (m_isOpen)
+			{
+				m_isOpen = false;
+				OnStatusChanged(false);
+			}
 		}
 	}
 }
+

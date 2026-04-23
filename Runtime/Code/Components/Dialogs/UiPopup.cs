@@ -25,7 +25,7 @@ namespace GuiToolkit
 	/// </code>
 	/// Set the <c>Layer</c> field on this component to <see cref="EUiLayerDefinition.Popup"/> in the prefab.
 	/// </summary>
-	public class UiPopupMenu : UiView
+	public class UiPopup : UiView
 	{
 		/// <summary>Configuration for a single popup menu invocation.</summary>
 		public class Options

@@ -5,8 +5,8 @@ using UnityEngine;
 namespace GuiToolkit
 {
 	/// <summary>
-	/// Populates a <see cref="TMP_Dropdown"/> with all available languages and keeps it in sync with
-	/// the active language. Add this component to a GameObject that also has a <see cref="TMP_Dropdown"/>.
+	/// Populates a <see cref="UiDropdown"/> with all available languages and keeps it in sync with
+	/// the active language.
 	///
 	/// Available languages are discovered from the pre-generated <c>uitk_available_languages.txt</c>
 	/// resource file (written by the editor's Loca processing pass). Native (endonym) display names
@@ -18,6 +18,7 @@ namespace GuiToolkit
 	public class UiLanguageSelectDropdown : UiDropdown
 	{
 		private readonly List<string> m_languageIds = new List<string>();
+		private readonly List<string> m_languageDisplayNames = new List<string>();
 
 		protected override bool NeedsLanguageChangeCallback => true;
 
@@ -26,10 +27,16 @@ namespace GuiToolkit
 			SyncSelectionToCurrentLanguage();
 		}
 
-		protected override void PopulateDropdown()
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			PopulateLanguageData();
+		}
+
+		private void PopulateLanguageData()
 		{
 			m_languageIds.Clear();
-			m_dropdown.ClearOptions();
+			m_languageDisplayNames.Clear();
 
 			string[] available = LocaManager.Instance?.GetAvailableLanguages();
 			if (available == null || available.Length == 0)
@@ -38,8 +45,6 @@ namespace GuiToolkit
 					"Run 'Gui Toolkit > Localization > Process Loca' to generate the language list.");
 				return;
 			}
-
-			var options = new List<TMP_Dropdown.OptionData>();
 
 			var config = UiToolkitConfiguration.Instance;
 			bool useWhitelist = config != null && config.LanguageWhitelistEnabled;
@@ -57,11 +62,15 @@ namespace GuiToolkit
 					continue;
 
 				m_languageIds.Add(normalized);
-				options.Add(new TMP_Dropdown.OptionData(LocaLanguageNames.GetNativeName(normalized)));
+				m_languageDisplayNames.Add(LocaLanguageNames.GetNativeName(normalized));
 			}
 
-			m_dropdown.AddOptions(options);
 			SyncSelectionToCurrentLanguage();
+		}
+
+		protected override void PopulatePopup( UiPopup.Options options )
+		{
+			options.StringItems = m_languageDisplayNames.ToArray();
 		}
 
 		protected override void OnDropdownValueChanged( int _index )
@@ -69,6 +78,15 @@ namespace GuiToolkit
 			base.OnDropdownValueChanged(_index);
 			if (_index >= 0 && _index < m_languageIds.Count)
 				LocaManager.Instance.ChangeLanguage(m_languageIds[_index]);
+		}
+
+		protected override void UpdateLabel()
+		{
+			if (m_selectedLabel == null)
+				return;
+
+			if (m_selectedIndex >= 0 && m_selectedIndex < m_languageDisplayNames.Count)
+				m_selectedLabel.text = m_languageDisplayNames[m_selectedIndex];
 		}
 
 		private void SyncSelectionToCurrentLanguage()
@@ -80,7 +98,10 @@ namespace GuiToolkit
 			string current = LocaManager.NormalizeLanguageId(language);
 			int index = m_languageIds.IndexOf(current);
 			if (index >= 0)
-				m_dropdown.SetValueWithoutNotify(index);
+			{
+				m_selectedIndex = index;
+				UpdateLabel();
+			}
 		}
 	}
 }

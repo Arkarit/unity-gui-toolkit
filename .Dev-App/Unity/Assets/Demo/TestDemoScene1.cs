@@ -58,7 +58,7 @@ public class TestDemoScene1 : UiView
 
 	private void OnPopupButtonClicked()
 	{
-		UiMain.Instance.ShowPopupMenu(new UiPopupMenu.Options
+		UiMain.Instance.ShowPopupMenu(new UiPopup.Options
 		{
 			AnchorElement = (RectTransform)m_popupButton.transform,
 			StringItems = new[] { "Entry 1", "Entry 2", "Entry 3", "Entry 4" },
