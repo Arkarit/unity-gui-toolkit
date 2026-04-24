@@ -299,7 +299,6 @@ namespace GuiToolkit
 		/// <summary>
 		/// Caps the popup container height at <see cref="m_maxPopupHeight"/> (or <c>Options.MaxHeight</c>)
 		/// and resets the scroll position to the top.
-		/// Must be called after a layout pass so <c>m_scrollRect.content.rect.height</c> is valid.
 		/// </summary>
 		private void UpdateScrollViewHeight()
 		{
@@ -320,8 +319,8 @@ namespace GuiToolkit
 
 		/// <summary>
 		/// Shows the popup container and applies scroll height + anchor positioning.
-		/// If the content height cannot be read yet (TMP not yet initialized on first
-		/// activation), hides the container again and retries on the next frame.
+		/// A second pass is scheduled for the following frame to silently correct any
+		/// zero-height quirk that may occur on the very first TMP activation.
 		/// </summary>
 		private void FinalizeLayout( RectTransform anchor )
 		{
@@ -331,21 +330,24 @@ namespace GuiToolkit
 			m_popupContainer.gameObject.SetActive(true);
 
 			if (m_scrollRect != null)
-			{
-				LayoutRebuilder.ForceRebuildLayoutImmediate(m_popupContainer);
-				if (m_scrollRect.content.rect.height <= 0f)
-				{
-					// TMP preferred height is not available yet (first activation).
-					// Hide and retry next frame so the layout pass returns correct values.
-					m_popupContainer.gameObject.SetActive(false);
-					ExecuteFrameDelayed(() => FinalizeLayout(anchor));
-					return;
-				}
 				UpdateScrollViewHeight();
-			}
 
 			if (anchor != null)
 				PositionAtAnchor(anchor);
+
+			// TMP text items may not report their true preferred height on the very first
+			// layout pass (first-ever activation of this font / style combination).
+			// Re-apply size and position one frame later so any zero-height quirk is
+			// silently corrected long before the show animation becomes visible.
+			ExecuteFrameDelayed(() =>
+			{
+				if (m_popupContainer == null || !Visible)
+					return;
+				if (m_scrollRect != null)
+					UpdateScrollViewHeight();
+				if (anchor != null)
+					PositionAtAnchor(anchor);
+			});
 		}
 		/// <summary>
 		/// Position <see cref="m_popupContainer"/> near the anchor element.
