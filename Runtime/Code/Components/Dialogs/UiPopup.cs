@@ -69,6 +69,12 @@ namespace GuiToolkit
 
 			/// <summary>Additional offset applied to the final popup position in canvas local space.</summary>
 			public Vector2 Offset = Vector2.zero;
+
+			/// <summary>
+			/// Overrides the inspector <c>Max Popup Height</c> for this call (canvas pixels).
+			/// Values ≤ 0 fall back to the inspector default.
+			/// </summary>
+			public float MaxHeight = 0f;
 		}
 
 		[Tooltip("The panel that is repositioned near the anchor element.")]
@@ -76,6 +82,14 @@ namespace GuiToolkit
 
 		[Tooltip("The scroll content parent. Items are instantiated here.")]
 		[SerializeField] private RectTransform m_contentContainer;
+
+		[Tooltip("ScrollRect used to scroll the item list. When assigned, popup height is computed " +
+		         "automatically and capped at Max Popup Height.")]
+		[SerializeField] private ScrollRect m_scrollRect;
+
+		[Tooltip("Maximum popup height in canvas pixels. If the content is taller, a vertical " +
+		         "scrollbar appears. Can be overridden per-call via Options.MaxHeight.")]
+		[SerializeField] private float m_maxPopupHeight = 600f;
 
 		[Tooltip("Item prefabs instantiated into the menu when it opens (inspector pre-fill). " +
 		         "Items are instantiated in array order before any code-provided items.")]
@@ -156,19 +170,15 @@ namespace GuiToolkit
 
 			SpawnItems();
 
-			if (m_options.AnchorElement != null)
+			var anchor = m_options.AnchorElement;
+
+			if (m_scrollRect != null || anchor != null)
 			{
 				// Delay by one frame: UiView applies the CanvasScaler template one frame after
 				// OnEnable, so coordinates are wrong if we position on the very first show.
+				// We also need the frame delay to let layout groups compute content height.
 				m_popupContainer.gameObject.SetActive(false);
-				var anchor = m_options.AnchorElement;
-				ExecuteFrameDelayed(() =>
-				{
-					if (m_popupContainer == null)
-						return;
-					PositionAtAnchor(anchor);
-					m_popupContainer.gameObject.SetActive(true);
-				});
+				ExecuteFrameDelayed(() => FinalizeLayout(anchor));
 			}
 		}
 
@@ -286,6 +296,57 @@ namespace GuiToolkit
 				Hide();
 		}
 
+		/// <summary>
+		/// Caps the popup container height at <see cref="m_maxPopupHeight"/> (or <c>Options.MaxHeight</c>)
+		/// and resets the scroll position to the top.
+		/// Must be called after a layout pass so <c>m_scrollRect.content.rect.height</c> is valid.
+		/// </summary>
+		private void UpdateScrollViewHeight()
+		{
+			if (m_scrollRect == null || m_popupContainer == null)
+				return;
+
+			LayoutRebuilder.ForceRebuildLayoutImmediate(m_popupContainer);
+
+			float contentHeight = m_scrollRect.content.rect.height;
+			float maxHeight = (m_options?.MaxHeight > 0f) ? m_options.MaxHeight : m_maxPopupHeight;
+			float targetHeight = Mathf.Min(contentHeight, maxHeight);
+
+			var size = m_popupContainer.sizeDelta;
+			m_popupContainer.sizeDelta = new Vector2(size.x, targetHeight);
+
+			m_scrollRect.verticalNormalizedPosition = 1f;
+		}
+
+		/// <summary>
+		/// Shows the popup container and applies scroll height + anchor positioning.
+		/// If the content height cannot be read yet (TMP not yet initialized on first
+		/// activation), hides the container again and retries on the next frame.
+		/// </summary>
+		private void FinalizeLayout( RectTransform anchor )
+		{
+			if (m_popupContainer == null)
+				return;
+
+			m_popupContainer.gameObject.SetActive(true);
+
+			if (m_scrollRect != null)
+			{
+				LayoutRebuilder.ForceRebuildLayoutImmediate(m_popupContainer);
+				if (m_scrollRect.content.rect.height <= 0f)
+				{
+					// TMP preferred height is not available yet (first activation).
+					// Hide and retry next frame so the layout pass returns correct values.
+					m_popupContainer.gameObject.SetActive(false);
+					ExecuteFrameDelayed(() => FinalizeLayout(anchor));
+					return;
+				}
+				UpdateScrollViewHeight();
+			}
+
+			if (anchor != null)
+				PositionAtAnchor(anchor);
+		}
 		/// <summary>
 		/// Position <see cref="m_popupContainer"/> near the anchor element.
 		/// Default: popup appears directly below the anchor, left-aligned.
