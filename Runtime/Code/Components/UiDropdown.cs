@@ -40,8 +40,18 @@ namespace GuiToolkit
 		         "cannot fire pointer-exit events that would reset the hover state.")]
 		[SerializeField][Optional] private UiSimpleAnimationMouseOver m_hoverAnimation;
 
+		[Tooltip("Maximum popup height in canvas pixels. If the content is taller a vertical scrollbar appears. Values <= 0 use the popup prefab's own default.")]
+		[SerializeField] private float m_maxPopupHeight = 600f;
+
 		public CEvent<int> EvOnDropdownValueChanged = new();
 		public CEvent<bool> EvOnStatusChanged = new();
+
+		/// <summary>Maximum popup height in canvas pixels. If the content is taller a vertical scrollbar appears.</summary>
+		public float MaxPopupHeight
+		{
+			get => m_maxPopupHeight;
+			set => m_maxPopupHeight = value;
+		}
 
 		protected int m_selectedIndex = -1;
 		private bool m_isOpen;
@@ -136,6 +146,7 @@ namespace GuiToolkit
 				AnchorElement = (RectTransform)transform,
 				CloseOnItemClick = true,
 				AllowOutsideTap = true,
+				MaxHeight = m_maxPopupHeight,
 			};
 
 			// Let subclasses (and this class) fill items and wire callbacks before we show.
