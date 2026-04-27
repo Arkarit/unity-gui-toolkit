@@ -2,7 +2,6 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -180,11 +179,11 @@ namespace GuiToolkit
 
 		private void OnToggleButtonClicked()
 		{
-			// Ignore taps that land during scroll-rect inertia (e.g. the user touching the panel
-			// to stop momentum). The threshold of ~50 canvas units/s is generous enough to avoid
-			// false positives on deliberate clicks while still filtering out inertia taps.
-			var scrollRect = GetComponentInParent<ScrollRect>();
-			if (scrollRect != null && scrollRect.velocity.sqrMagnitude > 2500f)
+			// Suppress clicks that land during scroll-rect inertia (user tapping to stop momentum).
+			// Velocity is captured at PointerDown time (before any deceleration that occurs between
+			// PointerDown and PointerClick), making the check far more reliable than querying
+			// velocity at click time.
+			if (m_toggleButton != null && m_toggleButton.ScrollVelocitySqrMagAtPointerDown > 2500f)
 				return;
 
 			if (m_isOpen)
