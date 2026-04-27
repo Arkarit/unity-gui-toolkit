@@ -163,9 +163,6 @@ namespace GuiToolkit
 			}
 		}
 
-		/// <summary>Override to refresh the selected-item label text.</summary>
-		protected virtual void UpdateLabel() { }
-
 		/// <summary>
 		/// Apply a visual selection indicator to a spawned popup item.
 		/// Default implementation tints the item's <see cref="TextMeshProUGUI"/> yellow when selected.
