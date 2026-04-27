@@ -67,6 +67,30 @@ public class DemoSettings : LocaClass
 					}
 				}
 			),
+			new PlayerSetting
+			(
+				__("Graphics"), __("Render Pipeline"), "", "Built-in",
+				new PlayerSettingOptions
+				{
+					Type = EPlayerSettingType.Dropdown,
+					StringValues = new List<string> { "Built-in", "URP", "HDRP" },
+					IsLocalized = false,
+				}
+			),
+
+			// Language (dropdown alternative)
+			new PlayerSetting
+			(
+				__("General"), __("Language (Dropdown)"), "", "en",
+				new PlayerSettingOptions
+				{
+					Type = EPlayerSettingType.LanguageDropdown,
+					Key = LocaManager.PLAYER_PREFS_KEY + "_dropdown",
+					Titles = null, // uses native language names from LocaLanguageNames
+					StringValues = new List<string> {"dev", "en", "de", "ru", "lol" },
+					IsLocalized = false,
+				}
+			),
 
 			// Key bindings, all keys allowed except Esc
 			new PlayerSetting(__("Key Bindings"), __("Key Bindings"), __("Test Direct Key"), KeyCode.Z, new PlayerSettingOptions()

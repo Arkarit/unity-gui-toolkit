@@ -49,6 +49,29 @@ namespace GuiToolkit
 		public CEvent<int> EvOnDropdownValueChanged = new();
 		public CEvent<bool> EvOnStatusChanged = new();
 
+		private string[] m_presetStringItems;
+
+		/// <summary>
+		/// Optional string items to inject into the popup without subclassing.
+		/// When set, <see cref="UpdateLabel"/> automatically uses these for the selected-item label.
+		/// </summary>
+		public string[] PresetStringItems
+		{
+			get => m_presetStringItems;
+			set => m_presetStringItems = value;
+		}
+
+		/// <summary>
+		/// Gets or sets the selected index.
+		/// The setter is <b>silent</b>: it updates the internal index and refreshes the label
+		/// but does <b>not</b> fire <see cref="EvOnDropdownValueChanged"/>.
+		/// </summary>
+		public int SelectedIndex
+		{
+			get => m_selectedIndex;
+			set { m_selectedIndex = value; UpdateLabel(); }
+		}
+
 		/// <summary>Maximum popup height in canvas pixels. If the content is taller a vertical scrollbar appears.</summary>
 		public float MaxPopupHeight
 		{
@@ -87,7 +110,20 @@ namespace GuiToolkit
 		}
 
 		/// <summary>Override to fill the popup with items via <paramref name="options"/>.</summary>
-		protected virtual void PopulatePopup( UiPopup.Options options ) { }
+		protected virtual void PopulatePopup( UiPopup.Options options )
+		{
+			if (m_presetStringItems != null)
+				options.StringItems = m_presetStringItems;
+		}
+
+		/// <summary>Override to refresh the selected-item label text.</summary>
+		protected virtual void UpdateLabel()
+		{
+			if (m_selectedLabel == null || m_presetStringItems == null)
+				return;
+			if (m_selectedIndex >= 0 && m_selectedIndex < m_presetStringItems.Length)
+				m_selectedLabel.text = m_presetStringItems[m_selectedIndex];
+		}
 
 		/// <summary>
 		/// Called when the user selects an item. Base implementation fires
