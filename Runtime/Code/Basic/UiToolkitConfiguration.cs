@@ -109,6 +109,10 @@ namespace GuiToolkit
 		public const string HELP_AUTO_SYNC_AFTER_MERGE =
 			"When enabled, automatically pushes new PO keys to configured Google Sheets bridges after merging.";
 
+		public const string HELP_AUTO_PULL_FROM_SHEETS_ON_BUILD =
+			"When enabled, automatically pulls the latest translations from all configured Google Sheets bridges before every player build. " +
+			"Requires Unity 6000 or newer (ExcelDataReader / Roslyn). Dialogs are suppressed; results are written to the console.";
+
 		public const string HELP_NEW_KEY_HIGHLIGHT_COLOR =
 			"Background colour applied to the key cell of newly pushed rows in Google Sheets. Set alpha to 0 to disable highlighting.";
 
@@ -332,6 +336,11 @@ namespace GuiToolkit
 		public bool m_autoSyncAfterMerge = false;
 
 		public bool AutoSyncAfterMerge => m_autoSyncAfterMerge;
+
+		[Tooltip(HELP_AUTO_PULL_FROM_SHEETS_ON_BUILD)]
+		public bool m_autoPullFromSheetsOnBuild = false;
+
+		public bool AutoPullFromSheetsOnBuild => m_autoPullFromSheetsOnBuild;
 
 		[Tooltip(HELP_NEW_KEY_HIGHLIGHT_COLOR)]
 		public Color m_newKeyHighlightColor = new Color(1.0f, 0.95f, 0.2f, 1.0f);

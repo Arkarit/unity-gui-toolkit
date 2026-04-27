@@ -122,15 +122,22 @@ namespace GuiToolkit.Editor
 		/// Creates a backup of every modified PO file before writing.
 		/// </summary>
 		/// <param name="_bridge">The bridge asset to pull translations from.</param>
-		public static void PullFromSheets(LocaExcelBridge _bridge)
+		/// <param name="_suppressDialogs">
+		/// When <c>true</c>, all user-facing dialogs are suppressed and results are written to the
+		/// console instead. Use this for headless/build-preprocessor contexts.
+		/// </param>
+		public static void PullFromSheets(LocaExcelBridge _bridge, bool _suppressDialogs = false)
 		{
 			if (_bridge == null)
 				return;
 
 			if (_bridge.EdSourceType != LocaExcelBridge.SourceType.GoogleDocs)
 			{
-				EditorUtility.DisplayDialog("Pull from Sheets",
-					"Bridge source type must be GoogleDocs.", "OK");
+				const string msg = "Bridge source type must be GoogleDocs.";
+				if (_suppressDialogs)
+					UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)} [{_bridge.name}]: {msg}");
+				else
+					EditorUtility.DisplayDialog("Pull from Sheets", msg, "OK");
 				return;
 			}
 
@@ -141,9 +148,12 @@ namespace GuiToolkit.Editor
 			}
 			catch (Exception ex)
 			{
-				EditorUtility.DisplayDialog("Pull from Sheets – Error",
-					$"CollectData failed: {ex.Message}\n\n" +
-					"Note: This feature requires Unity 6000 or newer (ExcelDataReader / Roslyn).", "OK");
+				string msg = $"CollectData failed: {ex.Message}\n\n" +
+					"Note: This feature requires Unity 6000 or newer (ExcelDataReader / Roslyn).";
+				if (_suppressDialogs)
+					UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)} [{_bridge.name}]: {msg}");
+				else
+					EditorUtility.DisplayDialog("Pull from Sheets – Error", msg, "OK");
 				UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)}: CollectData failed: {ex}");
 				return;
 			}
@@ -151,8 +161,11 @@ namespace GuiToolkit.Editor
 			var processedLoca = _bridge.Localization;
 			if (processedLoca?.Entries == null || processedLoca.Entries.Count == 0)
 			{
-				EditorUtility.DisplayDialog("Pull from Sheets",
-					"No entries found after collecting data. Nothing to pull.", "OK");
+				const string msg = "No entries found after collecting data. Nothing to pull.";
+				if (_suppressDialogs)
+					UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)} [{_bridge.name}]: {msg}");
+				else
+					EditorUtility.DisplayDialog("Pull from Sheets", msg, "OK");
 				return;
 			}
 
@@ -190,8 +203,11 @@ namespace GuiToolkit.Editor
 
 			if (poFiles.Count == 0)
 			{
-				EditorUtility.DisplayDialog("Pull from Sheets",
-					$"No PO files found for group '{group}'.", "OK");
+				string msg = $"No PO files found for group '{group}'.";
+				if (_suppressDialogs)
+					UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)} [{_bridge.name}]: {msg}");
+				else
+					EditorUtility.DisplayDialog("Pull from Sheets", msg, "OK");
 				return;
 			}
 
@@ -349,14 +365,17 @@ namespace GuiToolkit.Editor
 
 			if (dirtyFiles.Count == 0)
 			{
-				EditorUtility.DisplayDialog("Pull from Sheets",
-					$"No new translations found.\n\n" +
+				string msg = $"No new translations found.\n\n" +
 					$"Entries processed: {totalEntries}\n" +
 					$"Exact matches: {exactMatchCount}\n" +
 					$"Trimmed skips: {trimmedSkipCount}\n" +
 					$"Empty text (no match): {emptyTextCount}\n" +
 					$"Skipped (no lang): {skippedNoLang}\n" +
-					$"Skipped (no PO file): {skippedNoFile}", "OK");
+					$"Skipped (no PO file): {skippedNoFile}";
+				if (_suppressDialogs)
+					UiLog.Log($"{nameof(LocaGettextSheetsSyncer)} [{_bridge.name}]: {msg}");
+				else
+					EditorUtility.DisplayDialog("Pull from Sheets", msg, "OK");
 				return;
 			}
 
@@ -410,11 +429,47 @@ namespace GuiToolkit.Editor
 
 			AssetDatabase.Refresh();
 
-			string msg = createdCount > 0
+			string msg2 = createdCount > 0
 				? $"Updated {updatedCount} and created {createdCount} translation(s) in {dirtyFiles.Count} PO file(s)."
 				: $"Merged {updatedCount} translation(s) from the sheet into {dirtyFiles.Count} PO file(s).";
-			EditorUtility.DisplayDialog("Pull from Sheets", msg, "OK");
+			if (!_suppressDialogs)
+				EditorUtility.DisplayDialog("Pull from Sheets", msg2, "OK");
 			UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Pulled {updatedCount} updated, {createdCount} new translation(s) into {dirtyFiles.Count} PO file(s).");
+		}
+
+		/// <summary>
+		/// Pulls the latest translations from <b>all</b> configured <see cref="LocaExcelBridge"/> assets
+		/// whose source type is <see cref="LocaExcelBridge.SourceType.GoogleDocs"/>.
+		/// Intended for use in build-preprocessor contexts where dialogs must not be shown.
+		/// Results are written to the console log.
+		/// </summary>
+		/// <param name="_suppressDialogs">
+		/// When <c>true</c> (the default for build use), all user-facing dialogs are suppressed.
+		/// Pass <c>false</c> to show dialogs (same as calling <see cref="PullFromSheets"/> individually).
+		/// </param>
+		public static void PullAllFromSheets(bool _suppressDialogs = true)
+		{
+			string[] guids = AssetDatabase.FindAssets("t:LocaExcelBridge");
+			if (guids.Length == 0)
+			{
+				UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: No LocaExcelBridge assets found — skipping pull.");
+				return;
+			}
+
+			int pulled = 0;
+			foreach (string guid in guids)
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				var bridge = AssetDatabase.LoadAssetAtPath<LocaExcelBridge>(path);
+				if (bridge == null || bridge.EdSourceType != LocaExcelBridge.SourceType.GoogleDocs)
+					continue;
+
+				UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Pulling from Sheets for bridge '{bridge.name}' ({path})…");
+				PullFromSheets(bridge, _suppressDialogs);
+				pulled++;
+			}
+
+			UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: PullAllFromSheets complete — {pulled} bridge(s) processed.");
 		}
 
 		/// <summary>
