@@ -111,6 +111,17 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_potPath"), true);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_newKeyHighlightColor"), true);
 
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+			if (m_firstTimeInit)
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_AUTO_MERGE_POT_TO_PO, MessageType.Info);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_autoMergePotToPo"), true);
+			if (m_firstTimeInit)
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_AUTO_SYNC_AFTER_MERGE, MessageType.Info);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_autoSyncAfterMerge"), true);
+			if (m_firstTimeInit)
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_AUTO_PULL_FROM_SHEETS_ON_BUILD, MessageType.Info);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_autoPullFromSheetsOnBuild"), true);
+
 			if (m_firstTimeInit)
 			{
 				GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
