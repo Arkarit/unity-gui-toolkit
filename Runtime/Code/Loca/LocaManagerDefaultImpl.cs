@@ -1026,6 +1026,17 @@ namespace GuiToolkit
 			}
 		}
 
+		/// <summary>
+		/// Regenerates the <c>uitk_available_languages.txt</c> resource file from the .po files
+		/// currently present in Resources. Safe to call standalone (does not touch .pot key files).
+		/// Reads the non-default group list from the already-written <c>uitk_loca_groups.txt</c> file.
+		/// </summary>
+		public void EdWriteAvailableLanguagesFile()
+		{
+			var groups = AssetUtility.ReadLines(GROUPS_RESOURCE_NAME, _removeEmpty: true) ?? new List<string>();
+			EdWriteAvailableLanguagesFile(groups);
+		}
+
 		private void EdWriteAvailableLanguagesFile( List<string> _nonDefaultGroups )
 		{
 			// Collect unique base language IDs from all PO files, stripping group suffixes.
