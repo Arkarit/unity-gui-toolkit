@@ -142,32 +142,32 @@ namespace GuiToolkit.Editor
 			}
 
 			// Collect data from the spreadsheet.
+			bool collectDataFailed = false;
 			try
 			{
 				_bridge.CollectData();
 			}
 			catch (Exception ex)
 			{
-				string msg = $"CollectData failed: {ex.Message}\n\n" +
-					"Note: This feature requires Unity 6000 or newer (ExcelDataReader / Roslyn).";
-				if (_suppressDialogs)
-					UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)} [{_bridge.name}]: {msg}");
-				else
-					EditorUtility.DisplayDialog("Pull from Sheets – Error", msg, "OK");
-				UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)}: CollectData failed: {ex}");
-				return;
+				collectDataFailed = true;
+				UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)} [{_bridge.name}]: CollectData failed ({ex.Message}). Falling back to cached data.");
 			}
 
 			var processedLoca = _bridge.Localization;
 			if (processedLoca?.Entries == null || processedLoca.Entries.Count == 0)
 			{
-				const string msg = "No entries found after collecting data. Nothing to pull.";
+				string msg = collectDataFailed
+					? "CollectData failed and no cached data is available.\n\nNote: Live download requires Unity 6000 or newer. Run 'Pull from Sheets' manually in Unity 6 and commit the bridge asset to cache the data."
+					: "No entries found after collecting data. Nothing to pull.";
 				if (_suppressDialogs)
 					UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)} [{_bridge.name}]: {msg}");
 				else
-					EditorUtility.DisplayDialog("Pull from Sheets", msg, "OK");
+					EditorUtility.DisplayDialog("Pull from Sheets – Error", msg, "OK");
 				return;
 			}
+
+			if (collectDataFailed)
+				UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)} [{_bridge.name}]: Using {processedLoca.Entries.Count} cached entries (live download unavailable in this Unity version).");
 
 			// Find the key-column descriptor for affix reversal.
 			LocaExcelBridge.InColumnDescription keyColDesc = null;

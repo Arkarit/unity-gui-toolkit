@@ -11,13 +11,16 @@ namespace GuiToolkit.Editor
 	/// When <see cref="UiToolkitConfiguration.AutoPullFromSheetsOnBuild"/> is enabled, pulls the
 	/// latest translations from all configured Google Sheets bridges before the build.
 	/// Dialogs are suppressed; results appear in the console log.
-	/// Requires Unity 6000 or newer for the actual download to work.
+	/// In Unity 6000+, data is downloaded live from Google Sheets. In older versions, the last
+	/// cached data from the bridge asset (committed to git) is used.
 	/// </description></item>
 	/// </list>
+	/// callbackOrder is -1 to ensure this preprocessor runs before client-side preprocessors (order 0)
+	/// so PO files are up-to-date before any loca processing.
 	/// </summary>
 	class LocaBuildPreprocessor : IPreprocessBuildWithReport
 	{
-		public int callbackOrder => 0;
+		public int callbackOrder => -1;
 
 		public void OnPreprocessBuild( BuildReport _report )
 		{
