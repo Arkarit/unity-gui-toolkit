@@ -567,6 +567,7 @@ MonoBehaviour:
   m_statusAnimation: {fileID: 106147381958487231}
   m_hoverAnimation: {fileID: 4640185323754651072}
   m_maxPopupHeight: 300
+  m_offset: {x: -23, y: 2}
   EvOnDropdownValueChanged:
     m_PersistentCalls:
       m_Calls: []
