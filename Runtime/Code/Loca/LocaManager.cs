@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using UnityEngine;
 
@@ -29,6 +30,33 @@ namespace GuiToolkit
 		/// PlayerPrefs key used to persist the user's selected language across sessions.
 		/// </summary>
 		public const string PLAYER_PREFS_KEY = StringConstants.PLAYER_PREFS_PREFIX + "Language";
+
+		/// <summary>
+		/// Resource name for the generated file that lists available language IDs (one per line).
+		/// Written by the editor tools, read at runtime by <see cref="GetAvailableLanguages"/>.
+		/// </summary>
+		public const string AVAILABLE_LANGUAGES_RESOURCE = "uitk_available_languages";
+
+		/// <summary>
+		/// Converts a language identifier to the canonical BCP 47 form used throughout the toolkit:
+		/// all-lowercase with hyphens as subtag separators (e.g. <c>zh-tw</c>, <c>pt-br</c>).
+		/// Underscores are replaced with hyphens and the string is lowercased.
+		/// A warning is logged when the input is not already in canonical form, so that callers
+		/// (PO file names, Excel column headers, code) can be corrected at the source.
+		/// </summary>
+		/// <param name="_languageId">The raw language identifier to normalize.</param>
+		/// <returns>Canonical lowercase-hyphen language ID.</returns>
+		public static string NormalizeLanguageId( string _languageId )
+		{
+			if (string.IsNullOrEmpty(_languageId))
+				return _languageId;
+
+			string normalized = _languageId.Replace('_', '-').ToLowerInvariant();
+			if (normalized != _languageId)
+				UiLog.LogWarning($"Language ID '{_languageId}' is not in canonical form. Use '{normalized}' instead (lowercase, hyphens as separators).");
+
+			return normalized;
+		}
 
 		/// <summary>
 		/// Translates a singular string key to the currently active language.
@@ -126,6 +154,24 @@ namespace GuiToolkit
 			}
 		}
 
+		/// <summary>
+		/// Returns the list of available language IDs (e.g. "en", "de", "fr").
+		/// At runtime, reads the pre-generated <c>uitk_available_languages.txt</c> resource file.
+		/// In the Unity Editor, falls back to scanning project assets when the file is not yet present.
+		/// </summary>
+		public string[] GetAvailableLanguages()
+		{
+			var lines = AssetUtility.ReadLines(AVAILABLE_LANGUAGES_RESOURCE, _removeEmpty: true);
+			if (lines != null && lines.Count > 0)
+				return lines.ToArray();
+
+#if UNITY_EDITOR
+			return EdAvailableLanguages;
+#else
+			return System.Array.Empty<string>();
+#endif
+		}
+
 #if UNITY_EDITOR
 		/// <summary>
 		/// (Editor-only) Gets the list of available language identifiers found in the project's PO assets.
@@ -216,6 +262,10 @@ namespace GuiToolkit
 			if (string.IsNullOrWhiteSpace(_languageId))
 			{
 				_languageId = "dev";
+			}
+			else
+			{
+				_languageId = NormalizeLanguageId(_languageId);
 			}
 
 			if (Language == _languageId)

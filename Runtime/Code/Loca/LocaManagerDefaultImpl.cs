@@ -516,20 +516,20 @@ namespace GuiToolkit
 			}
 
 			if (m_isDev)
-				return _s;
+				return ApplyDebugLocaLength(_s);
 
 			if (TryGetTranslation(_group, _s, out string result))
 			{
 				if (string.IsNullOrEmpty(result))
 					result = DebugLoca ? $"#{_s}" : _s;
 
-				return Regex.Unescape(result);
+				return ApplyDebugLocaLength(Regex.Unescape(result));
 			}
 
 			switch (_retValIfNotFound)
 			{
 				case RetValIfNotFound.Key:
-					return DebugLoca ? $"*{_s}" : _s;
+					return ApplyDebugLocaLength(DebugLoca ? $"*{_s}" : _s);
 				case RetValIfNotFound.EmptyString:
 					return string.Empty;
 				case RetValIfNotFound.Null:
@@ -538,6 +538,33 @@ namespace GuiToolkit
 					throw new ArgumentOutOfRangeException(nameof(_retValIfNotFound), _retValIfNotFound, null);
 			}
 		}
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+		private static string ApplyDebugLocaLength( string _s )
+		{
+			if (string.IsNullOrEmpty(_s))
+				return _s;
+
+			var cfg = UiToolkitConfiguration.Instance;
+			if (cfg == null)
+				return _s;
+
+			switch (cfg.DebugLocaLength)
+			{
+				case EDebugLocaLength.Half:
+					int halfLen = Mathf.Max(2, _s.Length / 2);
+					return _s.Substring(0, halfLen);
+				case EDebugLocaLength.Double:
+					return _s + " " + _s;
+				case EDebugLocaLength.Triple:
+					return _s + " " + _s + " " + _s;
+				default:
+					return _s;
+			}
+		}
+#else
+		private static string ApplyDebugLocaLength( string _s ) => _s;
+#endif
 
 		private bool TryGetTranslation( string _group, string _key, out string _result )
 		{
@@ -572,7 +599,7 @@ namespace GuiToolkit
 				return Translate(_singularKey, _group, _retValIfNotFound);
 
 			if (m_isDev)
-				return _pluralKey;
+				return ApplyDebugLocaLength(_pluralKey);
 
 			if (TryGetTranslation(_group, _pluralKey, out List<string> plurals))
 			{
@@ -580,14 +607,14 @@ namespace GuiToolkit
 				{
 					var result = plurals[pluralIdx];
 					if (!string.IsNullOrEmpty(result))
-						return result;
+						return ApplyDebugLocaLength(result);
 				}
 			}
 
 			switch (_retValIfNotFound)
 			{
 				case RetValIfNotFound.Key:
-					return DebugLoca ? $"*{_pluralKey}" : _pluralKey;
+					return ApplyDebugLocaLength(DebugLoca ? $"*{_pluralKey}" : _pluralKey);
 				case RetValIfNotFound.EmptyString:
 					return string.Empty;
 				case RetValIfNotFound.Null:
@@ -748,13 +775,34 @@ namespace GuiToolkit
 				{
 					var availableLanguages = new HashSet<string> { "dev" };
 
-					string[] guids = AssetDatabase.FindAssets(".po t:textasset");
-					for (int i = 0; i < guids.Length; i++)
+					string[] guids = AssetDatabase.FindAssets("t:textasset");
+					foreach (string guid in guids)
 					{
-						string guid = guids[i];
 						string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-						string language = Path.GetFileNameWithoutExtension(assetPath);
-						availableLanguages.Add(language.Substring(0, language.Length - 3));
+
+						string filename;
+						if (assetPath.EndsWith(".po"))
+							filename = Path.GetFileNameWithoutExtension(assetPath);
+						else if (assetPath.EndsWith(".po.txt"))
+							filename = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(assetPath));
+						else
+							continue;
+
+						// Strip known group suffixes (e.g. "de_Json" → "de").
+						string langId = filename;
+						var groups = AssetUtility.ReadLines(GROUPS_RESOURCE_NAME, _removeEmpty: true);
+						foreach (string group in groups)
+						{
+							string suffix = "_" + group;
+							if (filename.EndsWith(suffix))
+							{
+								langId = filename.Substring(0, filename.Length - suffix.Length);
+								break;
+							}
+						}
+
+						if (!string.IsNullOrEmpty(langId))
+							availableLanguages.Add(NormalizeLanguageId(langId));
 					}
 
 					m_availableLanguages = availableLanguages.ToArray();
@@ -936,6 +984,7 @@ namespace GuiToolkit
 			}
 
 			EdWriteGroupsFile(string.Join("\n", nonDefaultGroups));
+			EdWriteAvailableLanguagesFile(nonDefaultGroups);
 		}
 
 		private void EdWriteGroupsFile( string _groups )
@@ -974,6 +1023,89 @@ namespace GuiToolkit
 			catch (Exception e)
 			{
 				UiLog.LogError($"Could not write '{GROUPS_RESOURCE_NAME}' file at '{filePath}': {e.Message}");
+			}
+		}
+
+		/// <summary>
+		/// Regenerates the <c>uitk_available_languages.txt</c> resource file from the .po files
+		/// currently present in Resources. Safe to call standalone (does not touch .pot key files).
+		/// Reads the non-default group list from the already-written <c>uitk_loca_groups.txt</c> file.
+		/// </summary>
+		public void EdWriteAvailableLanguagesFile()
+		{
+			var groups = AssetUtility.ReadLines(GROUPS_RESOURCE_NAME, _removeEmpty: true) ?? new List<string>();
+			EdWriteAvailableLanguagesFile(groups);
+		}
+
+		private void EdWriteAvailableLanguagesFile( List<string> _nonDefaultGroups )
+		{
+			// Collect unique base language IDs from all PO files, stripping group suffixes.
+			var languages = new SortedSet<string> { "dev" };
+
+			string[] guids = AssetDatabase.FindAssets("t:textasset");
+			foreach (string guid in guids)
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				if (!assetPath.Contains("/Resources/"))
+					continue;
+
+				string filename;
+				if (assetPath.EndsWith(".po"))
+					filename = Path.GetFileNameWithoutExtension(assetPath);
+				else if (assetPath.EndsWith(".po.txt"))
+					filename = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(assetPath));
+				else
+					continue;
+
+				string langId = filename;
+				foreach (string group in _nonDefaultGroups)
+				{
+					string suffix = "_" + group;
+					if (filename.EndsWith(suffix))
+					{
+						langId = filename.Substring(0, filename.Length - suffix.Length);
+						break;
+					}
+				}
+
+				if (!string.IsNullOrEmpty(langId))
+					languages.Add(NormalizeLanguageId(langId));
+			}
+
+			// Find the Resources directory containing the PO files (same logic as EdWriteGroupsFile).
+			string appDataDir = EditorFileUtility.GetApplicationDataDir();
+			string resourcesDir = null;
+
+			foreach (string guid in guids)
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				if ((assetPath.EndsWith(".po") || assetPath.EndsWith(".po.txt"))
+					&& assetPath.Contains("/Resources/"))
+				{
+					string dirRelative = Path.GetDirectoryName(assetPath)?.Replace("\\", "/");
+					if (dirRelative != null && dirRelative.StartsWith("Assets/"))
+					{
+						resourcesDir = appDataDir + dirRelative;
+						break;
+					}
+				}
+			}
+
+			if (string.IsNullOrEmpty(resourcesDir))
+				resourcesDir = appDataDir + "Assets/Resources";
+
+			Directory.CreateDirectory(resourcesDir);
+			string filePath = EditorFileUtility.GetSafePath(Path.Combine(resourcesDir, AVAILABLE_LANGUAGES_RESOURCE + ".txt"));
+
+			try
+			{
+				File.WriteAllText(filePath, string.Join("\n", languages), Encoding.UTF8);
+				string unityPath = filePath.Replace("\\", "/").Substring(appDataDir.Length);
+				AssetDatabase.ImportAsset(unityPath);
+			}
+			catch (Exception e)
+			{
+				UiLog.LogError($"Could not write '{AVAILABLE_LANGUAGES_RESOURCE}' file at '{filePath}': {e.Message}");
 			}
 		}
 

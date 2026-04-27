@@ -84,8 +84,17 @@ namespace GuiToolkit
 				m_simpleAnimation.Stop(false);
 		}
 
-		public virtual void OnPointerDown( PointerEventData _ )
+		/// <summary>
+		/// Squared magnitude of the parent <see cref="ScrollRect"/> velocity captured at the last
+		/// pointer-down event. Useful for suppressing accidental clicks that occur while the parent
+		/// scroll rect is still decelerating (inertia tap).
+		/// </summary>
+		public float ScrollVelocitySqrMagAtPointerDown { get; private set; }
+
+		public virtual void OnPointerDown( PointerEventData _eventData )
 		{
+			var sr = GetComponentInParent<ScrollRect>();
+			ScrollVelocitySqrMagAtPointerDown = sr != null ? sr.velocity.sqrMagnitude : 0f;
 			EvaluateButton(false);
 		}
 

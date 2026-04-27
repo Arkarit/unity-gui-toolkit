@@ -12,6 +12,8 @@ namespace GuiToolkit
 		protected string m_key;
 		protected bool m_isRadio;
 		protected bool m_isLanguage;
+		protected bool m_isDropdown;
+		protected bool m_isLanguageDropdown;
 		protected List<string> m_icons;
 		protected bool m_isLocalized;
 		protected object m_value;
@@ -70,6 +72,8 @@ namespace GuiToolkit
 		public bool IsKeyBinding => m_type == typeof(KeyBinding);
 		public bool IsRadio => m_isRadio; // is single-choice selection UI (incl. Language)
 		public bool IsLanguage => m_isLanguage;
+		public bool IsDropdown => m_isDropdown;
+		public bool IsLanguageDropdown => m_isLanguageDropdown;
 		public bool IsFloat => m_type == typeof(float);
 		public bool IsBool => m_type == typeof(bool);
 		public bool IsString => m_type == typeof(string);
@@ -97,7 +101,9 @@ namespace GuiToolkit
 			m_category = _category;
 			m_group = _group;
 			m_isRadio = m_options.Type == EPlayerSettingType.Radio || m_options.Type == EPlayerSettingType.Language;
-			m_isLanguage = m_options.Type == EPlayerSettingType.Language;
+			m_isLanguage = m_options.Type == EPlayerSettingType.Language || m_options.Type == EPlayerSettingType.LanguageDropdown;
+			m_isDropdown = m_options.Type == EPlayerSettingType.Dropdown || m_options.Type == EPlayerSettingType.LanguageDropdown;
+			m_isLanguageDropdown = m_options.Type == EPlayerSettingType.LanguageDropdown;
 			m_title = _title;
 			m_key = string.IsNullOrEmpty(m_options.Key) ? _title : m_options.Key;
 			m_defaultValue = _defaultValue;
@@ -162,7 +168,7 @@ namespace GuiToolkit
 		public void TempRestoreValue()
 		{
 			m_value = m_savedValue;
-			if (m_options.Type == EPlayerSettingType.Language)
+			if (m_isLanguage)
 				LocaManager.Instance.ChangeLanguage((string)m_value);
 		}
 

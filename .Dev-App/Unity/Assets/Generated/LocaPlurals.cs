@@ -17,7 +17,7 @@ namespace GuiToolkit
 				case "de":
 					nplurals=2; plural=(n != 1);
 					break;
-				case "en_us":
+				case "en":
 					nplurals=2; plural=(n != 1);
 					break;
 				case "lol":

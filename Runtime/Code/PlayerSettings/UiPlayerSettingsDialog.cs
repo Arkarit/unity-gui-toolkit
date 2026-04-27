@@ -20,6 +20,8 @@ namespace GuiToolkit
 		[SerializeField] protected UiPlayerSettingToggle m_togglePrefab;
 		[SerializeField] protected UiPlayerSettingRadio m_radioPrefab;
 		[SerializeField] protected UiPlayerSettingButton m_buttonPrefab;
+		[SerializeField] protected UiPlayerSettingDropdown m_dropdownPrefab;
+		[SerializeField] protected UiPlayerSettingLanguageDropdown m_languageDropdownPrefab;
 
 		protected PlayerSettings m_playerSettings;
 		protected readonly Dictionary<string,List<UiPlayerSettingBase>> m_uiPlayerSettings = new Dictionary<string, List<UiPlayerSettingBase>>();
@@ -134,6 +136,10 @@ namespace GuiToolkit
 						InstantiateMatchingEntry(_playerSetting, m_radioPrefab, _parent, _toggleGroup, "PlayerSettingRadio_", s);
 				}
 			}
+			else if (_playerSetting.IsLanguageDropdown)
+				InstantiateMatchingEntry(_playerSetting, m_languageDropdownPrefab, _parent, null, "PlayerSettingLanguageDropdown_");
+			else if (_playerSetting.IsDropdown)
+				InstantiateMatchingEntry(_playerSetting, m_dropdownPrefab, _parent, null, "PlayerSettingDropdown_");
 			else if (_playerSetting.IsFloat)
 				InstantiateMatchingEntry(_playerSetting, m_sliderPrefab, _parent, null, "PlayerSettingSlider_");
 			else if (_playerSetting.IsBool)

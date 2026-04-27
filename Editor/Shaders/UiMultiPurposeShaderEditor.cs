@@ -62,6 +62,9 @@ namespace GuiToolkit.Editor
 				KeywordToggle("_NoVertexColor");
 				
 				SmallSpace();
+				KeywordToggle("_MultiplyRGBWithAlpha");
+				
+				SmallSpace();
 				KeywordToggle("_Scrolling", m_RadioList, () =>
 				{
 					WarnIfImageClamped("_MainTex");

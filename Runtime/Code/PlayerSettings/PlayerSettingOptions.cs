@@ -12,9 +12,11 @@ namespace GuiToolkit
 	/// </summary>
 	public enum EPlayerSettingType
 	{
-		Auto,       //!< Automatically determined
-		Language,   //!< Special case language type
-		Radio,      //!< Special case radio buttons
+		Auto,               //!< Automatically determined
+		Language,           //!< Special case language type (radio-button style, one flag per language)
+		Radio,              //!< Special case radio buttons
+		Dropdown,           //!< Single dropdown control for all string options
+		LanguageDropdown,   //!< Language selection via dropdown (alternative to Language)
 	}
 	
 	public enum EKeyPolicy

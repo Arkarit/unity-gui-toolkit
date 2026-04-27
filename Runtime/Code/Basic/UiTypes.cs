@@ -150,6 +150,16 @@ namespace GuiToolkit
 		Indeterminate,
 	}
 
+	/// \brief Debug localization length modifier for testing UI text overflow and underflow.
+	/// Only evaluated in Editor and Development builds; always treated as Default in release builds.
+	public enum EDebugLocaLength
+	{
+		Default,    ///< Normal translation output (always used in release builds)
+		Half,       ///< First half of the translated string, minimum 2 characters
+		Double,     ///< Translated string repeated twice
+		Triple,     ///< Translated string repeated three times
+	}
+
 	/// \brief Panel animation types
 	public enum EPanelAnimationType
 	{
@@ -200,6 +210,7 @@ namespace GuiToolkit
 public const int LOCA_MISC_CONVERT_LEGACY_TEXT_SCENE_MENU_PRIORITY  = 40;
 public const int LOCA_MISC_CONVERT_LEGACY_TEXT_PROJECT_MENU_PRIORITY = 50;
 public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
+		public const int LOCA_MISC_CREATE_LANGUAGE_DROPDOWN_MENU_PRIORITY   = 70;
 
 		public const int MISSING_REFERENCES_FINDER_MENU_PRIORITY = 0;
 
@@ -268,6 +279,7 @@ public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
 		public const string LOCA_MISC_CONVERT_LEGACY_TEXT_SCENE_MENU_NAME   = LOCA_MISC_HEADER + "Convert Legacy Text → Localized TMP (Current Scene or Prefab)";
 		public const string LOCA_MISC_CONVERT_LEGACY_TEXT_PROJECT_MENU_NAME = LOCA_MISC_HEADER + "Convert Legacy Text → Localized TMP (Entire Project)";
 		public const string LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_NAME           = LOCA_MISC_HEADER + "Fix AutoLocalize on Runtime-Set Components (Entire Project)";
+		public const string LOCA_MISC_CREATE_LANGUAGE_DROPDOWN_MENU_NAME   = LOCA_MISC_HEADER + "Create Language Select Dropdown Prefab\u2026";
 		public const string MISSING_REFERENCES_FINDER_MENU_NAME = DIAGNOSTICS_HEADER + "Missing Component References\u2026";
 		public const string MISC_TOOLS_RESERIALIZE_COMPONENT = MISC_TOOLS_MENU_HEADER + "Reserialize Component Window...";
 

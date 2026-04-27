@@ -29,6 +29,8 @@ Shader "UIToolkit/UI_MultiPurpose"
 
 		[Toggle(NoVertexColor)] _NoVertexColor("No Vertex Color", Float) = 0
 
+		[Toggle(MultiplyRGBWithAlpha)] _MultiplyRGBWithAlpha("Multiply RGB With Alpha", Float) = 0
+
 		[Toggle(Disabled)] _Disabled("Disabled", Float) = 0
 		_DisabledAlpha("Disabled Alpha", Range(0,1)) = 0.7
 		_DisabledDesaturateStrength("Disabled Desaturate Strength", Range(0,1)) = 0.8
@@ -120,6 +122,7 @@ Shader "UIToolkit/UI_MultiPurpose"
 			#pragma shader_feature_local __ UseAdditionalTransformation
 			#pragma shader_feature_local __ SecondaryUseAdditionalTransformation
 			#pragma shader_feature_local __ UnscaledTime
+			#pragma shader_feature_local __ MultiplyRGBWithAlpha
 
 			#ifdef SecondaryTexture
 				#pragma shader_feature_local __ _SECONDARYTEXTUREBLENDMODE_TRANSPARENT _SECONDARYTEXTUREBLENDMODE_ADDITIVE _SECONDARYTEXTUREBLENDMODE_MULTIPLICATIVE
@@ -371,6 +374,10 @@ Shader "UIToolkit/UI_MultiPurpose"
 					color.rgb *= i.color.a * color.a;
 				#elif defined(_TEXTUREBLENDMODE_MULTIPLICATIVE)
 					color.rgb = lerp(fixed3(1,1,1), color.rgb, i.color.a);
+				#endif
+
+				#ifdef MultiplyRGBWithAlpha
+					color.rgb *= color.a;
 				#endif
 
 				#ifdef UNITY_UI_CLIP_RECT
