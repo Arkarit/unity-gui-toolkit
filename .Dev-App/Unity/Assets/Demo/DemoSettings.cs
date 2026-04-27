@@ -27,6 +27,20 @@ public class DemoSettings : LocaClass
 				}
 			),
 
+			// Language (dropdown alternative)
+			new PlayerSetting
+			(
+				__("General"), __("Language (Dropdown)"), __("Language"), "en",
+				new PlayerSettingOptions
+				{
+					Type = EPlayerSettingType.LanguageDropdown,
+					Key = LocaManager.PLAYER_PREFS_KEY + "_dropdown",
+					Titles = null, // uses native language names from LocaLanguageNames
+//					StringValues = new List<string> {"dev", "en", "de", "ru", "lol" },
+					IsLocalized = false,
+				}
+			),
+
 			// Sound
 			new PlayerSetting(__("General"), __("Sound"), __("Music Volume"), .5f),
  			new PlayerSetting
@@ -74,20 +88,6 @@ public class DemoSettings : LocaClass
 				{
 					Type = EPlayerSettingType.Dropdown,
 					StringValues = new List<string> { "Built-in", "URP", "HDRP" },
-					IsLocalized = false,
-				}
-			),
-
-			// Language (dropdown alternative)
-			new PlayerSetting
-			(
-				__("General"), __("Language (Dropdown)"), "", "en",
-				new PlayerSettingOptions
-				{
-					Type = EPlayerSettingType.LanguageDropdown,
-					Key = LocaManager.PLAYER_PREFS_KEY + "_dropdown",
-					Titles = null, // uses native language names from LocaLanguageNames
-					StringValues = new List<string> {"dev", "en", "de", "ru", "lol" },
 					IsLocalized = false,
 				}
 			),
