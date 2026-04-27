@@ -131,7 +131,7 @@ MonoBehaviour:
   m_uiImage: {fileID: 0}
   m_additionalMouseOver: {fileID: 9215669243280579961}
   m_additionalMouseOverDuration: 0.2
-  m_forwardButton: {fileID: 4659844288067301062}
+  m_forwardButton: {fileID: 0}
   m_simpleWiggleAnimation: {fileID: 0}
 --- !u!114 &3001
 MonoBehaviour:
@@ -148,7 +148,7 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_text: {fileID: 8336158291741777830}
   m_isLocalized: 1
-  m_additionalMouseOver: {fileID: 0}
+  m_additionalMouseOver: {fileID: 9215669243280579961}
   m_additionalMouseOverDuration: 0.2
   m_dropdown: {fileID: 7550585933630821313}
 --- !u!1 &6962479321397432511
@@ -482,11 +482,11 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7081954314956334383, guid: 22cd3de1e0c6eee408ea4d260812d2b9,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8257235332059812056}
+      addedObject: {fileID: 2826685828647421761}
     - targetCorrespondingSourceObject: {fileID: 7081954314956334383, guid: 22cd3de1e0c6eee408ea4d260812d2b9,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2826685828647421761}
+      addedObject: {fileID: 8257235332059812056}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 22cd3de1e0c6eee408ea4d260812d2b9, type: 3}
 --- !u!114 &4545372005176423448 stripped
@@ -625,18 +625,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3790a03321393fa48a3d0278035b02d6, type: 3}
---- !u!114 &4659844288067301062 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7890123456789012345, guid: 3790a03321393fa48a3d0278035b02d6,
-    type: 3}
-  m_PrefabInstance: {fileID: 3302351056679252415}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9df890b72f8e7864d8f1c8540cec85a8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &7550585933630821313 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4980241409771627134, guid: 3790a03321393fa48a3d0278035b02d6,
