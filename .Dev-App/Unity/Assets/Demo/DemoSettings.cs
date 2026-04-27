@@ -36,7 +36,7 @@ public class DemoSettings : LocaClass
 					Type = EPlayerSettingType.LanguageDropdown,
 					Key = LocaManager.PLAYER_PREFS_KEY + "_dropdown",
 					Titles = null, // uses native language names from LocaLanguageNames
-//					StringValues = new List<string> {"dev", "en", "de", "ru", "lol" },
+					StringValues = new List<string> {"dev", "en", "de", "ru", "lol" },
 					IsLocalized = false,
 				}
 			),
@@ -83,10 +83,11 @@ public class DemoSettings : LocaClass
 			),
 			new PlayerSetting
 			(
-				__("Graphics"), __("Render Pipeline"), "", "Built-in",
+				__("Graphics"), __("Render Pipeline"), __("Render Pipeline"), "Built-in",
 				new PlayerSettingOptions
 				{
 					Type = EPlayerSettingType.Dropdown,
+					Key = "RenderPipeline",
 					StringValues = new List<string> { "Built-in", "URP", "HDRP" },
 					IsLocalized = false,
 				}
