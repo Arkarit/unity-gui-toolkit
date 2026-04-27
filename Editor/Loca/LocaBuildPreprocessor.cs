@@ -18,6 +18,7 @@ namespace GuiToolkit.Editor
 	/// callbackOrder is -1 to ensure this preprocessor runs before client-side preprocessors (order 0)
 	/// so PO files are up-to-date before any loca processing.
 	/// </summary>
+	[EditorAware]
 	class LocaBuildPreprocessor : IPreprocessBuildWithReport
 	{
 		public int callbackOrder => -1;
