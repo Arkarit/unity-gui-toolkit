@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &1374996035530823227
 GameObject:
@@ -501,26 +501,6 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_optionalMouseOverSlaveAnimation: {fileID: 0}
   m_optionalMouseOverSlaveAnimationReset: 1
---- !u!114 &7890123456789012345
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3267950006588052125}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9df890b72f8e7864d8f1c8540cec85a8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_enabledInHierarchy: 1
-  m_simpleAnimation: {fileID: 0}
-  m_audioSource: {fileID: 0}
-  m_uiImage: {fileID: 0}
-  m_additionalMouseOver: {fileID: 0}
-  m_additionalMouseOverDuration: 0.2
-  m_forwardButton: {fileID: 0}
-  m_simpleWiggleAnimation: {fileID: 0}
 --- !u!1 &2288422001686355911
 GameObject:
   m_ObjectHideFlags: 0
@@ -581,10 +561,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_toggleButton: {fileID: 7890123456789012345}
-  m_popupMenuPrefab: {fileID: 611610854391750694, guid: a8a96ffc99045024aac10073d1f4aad2, type: 3}
+  m_popupMenuPrefab: {fileID: 611610854391750694, guid: a8a96ffc99045024aac10073d1f4aad2,
+    type: 3}
   m_selectedLabel: {fileID: 2914287495621512343}
   m_statusAnimation: {fileID: 106147381958487231}
   m_hoverAnimation: {fileID: 4640185323754651072}
+  m_maxPopupHeight: 300
   EvOnDropdownValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -603,6 +585,7 @@ GameObject:
   - component: {fileID: 106147381958487231}
   - component: {fileID: 4640185323754651072}
   - component: {fileID: 7890123456789012345}
+  - component: {fileID: 102193131080930700}
   m_Layer: 5
   m_Name: VisualButton
   m_TagString: Untagged
@@ -873,6 +856,70 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_optionalMouseOverSlaveAnimation: {fileID: 0}
   m_optionalMouseOverSlaveAnimationReset: 1
+--- !u!114 &7890123456789012345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3267950006588052125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9df890b72f8e7864d8f1c8540cec85a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_enabledInHierarchy: 1
+  m_simpleAnimation: {fileID: 0}
+  m_audioSource: {fileID: 0}
+  m_uiImage: {fileID: 0}
+  m_additionalMouseOver: {fileID: 0}
+  m_additionalMouseOverDuration: 0.2
+  m_forwardButton: {fileID: 0}
+  m_simpleWiggleAnimation: {fileID: 0}
+--- !u!114 &102193131080930700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3267950006588052125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 0}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4680477594225516174
 GameObject:
   m_ObjectHideFlags: 0
