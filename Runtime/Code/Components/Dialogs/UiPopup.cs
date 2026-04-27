@@ -350,6 +350,18 @@ namespace GuiToolkit
 			});
 		}
 		/// <summary>
+		/// Updates the positioning offset and immediately repositions the popup.
+		/// Has no effect if the popup is not currently visible or has no anchor.
+		/// </summary>
+		public void UpdateOffset( Vector2 _offset )
+		{
+			if (m_options == null || m_options.AnchorElement == null)
+				return;
+			m_options.Offset = _offset;
+			PositionAtAnchor(m_options.AnchorElement);
+		}
+
+		/// <summary>
 		/// Position <see cref="m_popupContainer"/> near the anchor element.
 		/// Default: popup appears directly below the anchor, left-aligned.
 		/// Flips above the anchor when the popup would overflow the canvas bottom.

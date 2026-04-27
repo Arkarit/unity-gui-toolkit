@@ -43,6 +43,9 @@ namespace GuiToolkit
 		[Tooltip("Maximum popup height in canvas pixels. If the content is taller a vertical scrollbar appears. Values <= 0 use the popup prefab's own default.")]
 		[SerializeField] private float m_maxPopupHeight = 600f;
 
+		[Tooltip("Fine-positioning offset applied to the popup relative to the anchor (canvas pixels).")]
+		[SerializeField] private Vector2 m_offset = Vector2.zero;
+
 		public CEvent<int> EvOnDropdownValueChanged = new();
 		public CEvent<bool> EvOnStatusChanged = new();
 
@@ -51,6 +54,13 @@ namespace GuiToolkit
 		{
 			get => m_maxPopupHeight;
 			set => m_maxPopupHeight = value;
+		}
+
+		/// <summary>Fine-positioning offset applied to the popup relative to the anchor (canvas pixels).</summary>
+		public Vector2 Offset
+		{
+			get => m_offset;
+			set => m_offset = value;
 		}
 
 		protected int m_selectedIndex = -1;
@@ -68,6 +78,12 @@ namespace GuiToolkit
 			base.OnDisable();
 			if (m_isOpen)
 				ClosePopup();
+		}
+
+		private void OnValidate()
+		{
+			if (m_activePopup != null)
+				m_activePopup.UpdateOffset(m_offset);
 		}
 
 		/// <summary>Override to fill the popup with items via <paramref name="options"/>.</summary>
@@ -147,6 +163,7 @@ namespace GuiToolkit
 				CloseOnItemClick = true,
 				AllowOutsideTap = true,
 				MaxHeight = m_maxPopupHeight,
+				Offset = m_offset,
 			};
 
 			// Let subclasses (and this class) fill items and wire callbacks before we show.
