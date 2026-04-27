@@ -45,6 +45,7 @@ SpriteAtlas:
     - 96b0c7d200fe89b4196d5f82c7a161e5: 21300000
     - 78941cf264923c9488229fa3b6e029b2: 21300000
     - 3f1a78240ed8aab4bbe610645986c92a: 21300000
+    - 23556284ba8fcc948b7cfc553ea0ae93: 21300000
     - 08b5759456cd7534185f825acb45ccde: 21300000
     - a13d7a258751b14499b8b99390ed5ed1: 21300000
     - f4a6c635596536c4ebdca0c03698945d: 21300000
@@ -74,7 +75,6 @@ SpriteAtlas:
     - f01f116e4e6c3a943b43c4fc06c9abd9: 21300000
     - d60477ce43c68f94d92820a4d9acab07: 21300000
     - a36afbce993aae5499d2ee825b906b06: 21300000
-    - 2a67d82f37fd88a45b7617ad7b8e3ea2: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 54091d3000ff59241813e30376792025, type: 3}
@@ -84,6 +84,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 96b0c7d200fe89b4196d5f82c7a161e5, type: 3}
   - {fileID: 21300000, guid: 78941cf264923c9488229fa3b6e029b2, type: 3}
   - {fileID: 21300000, guid: 3f1a78240ed8aab4bbe610645986c92a, type: 3}
+  - {fileID: 21300000, guid: 23556284ba8fcc948b7cfc553ea0ae93, type: 3}
   - {fileID: 21300000, guid: 08b5759456cd7534185f825acb45ccde, type: 3}
   - {fileID: 21300000, guid: a13d7a258751b14499b8b99390ed5ed1, type: 3}
   - {fileID: 21300000, guid: f4a6c635596536c4ebdca0c03698945d, type: 3}
@@ -113,7 +114,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: f01f116e4e6c3a943b43c4fc06c9abd9, type: 3}
   - {fileID: 21300000, guid: d60477ce43c68f94d92820a4d9acab07, type: 3}
   - {fileID: 21300000, guid: a36afbce993aae5499d2ee825b906b06, type: 3}
-  - {fileID: 21300000, guid: 2a67d82f37fd88a45b7617ad7b8e3ea2, type: 3}
   m_PackedSpriteNamesToIndex:
   - UITK_RGB_Panel_r50_f07
   - UITK_RGB_Panel_r25_f07
@@ -122,6 +122,7 @@ SpriteAtlas:
   - UITK_Simple_Rectangle_r25
   - UITK_Frame_r00_f07
   - UITK_Panel_r05
+  - en-gb
   - UITK_Simple_Rectangle_r50
   - UITK_Panel_r00_flat
   - UITK_Frame_r50_f07
@@ -129,7 +130,7 @@ SpriteAtlas:
   - UITK_Panel_r25
   - UITK_Sunken_r25
   - UITK_Panel_r20
-  - en-gb
+  - en
   - UITK_Simple_Circle
   - UITK_Panel_Circle
   - UITK_Triangle
@@ -151,7 +152,6 @@ SpriteAtlas:
   - UITK_Sunken_r00
   - UITK_Panel_r15
   - en-us
-  - en
   m_RenderDataMap: {}
   m_Tag: BasicSpritesAndFlags
   m_IsVariant: 0
