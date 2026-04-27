@@ -36,7 +36,6 @@ public class DemoSettings : LocaClass
 					Type = EPlayerSettingType.LanguageDropdown,
 					Key = LocaManager.PLAYER_PREFS_KEY + "_dropdown",
 					Titles = null, // uses native language names from LocaLanguageNames
-					StringValues = new List<string> {"dev", "en", "de", "ru", "lol" },
 					IsLocalized = false,
 				}
 			),
