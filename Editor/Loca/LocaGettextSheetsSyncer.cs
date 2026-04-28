@@ -734,10 +734,28 @@ namespace GuiToolkit.Editor
 			string groupSuffix = string.IsNullOrEmpty(_group) ? string.Empty : $"_{_group}";
 			string filePath    = Path.Combine(tempDir, $"PushKeysDryRun{groupSuffix}.txt");
 
+			int numCols = _bridge.NumColumns;
+			int keyColIdx = GetKeyColIdx(_bridge);
+
 			var sb = new StringBuilder();
 
-			// Header row from bridge column descriptions.
-			int numCols = _bridge.NumColumns;
+			// --- Section 1: plain key list (one per line, capped at 40 chars) ---
+			const int KeyPreviewLen = 40;
+			foreach (var row in _newRows)
+			{
+				string key = keyColIdx >= 0 && keyColIdx < row.Count ? row[keyColIdx] : string.Empty;
+				string escaped = EscapeControlChars(key);
+				if (escaped.Length > KeyPreviewLen)
+					escaped = escaped.Substring(0, KeyPreviewLen - 1) + "…"; // ellipsis
+				sb.AppendLine(escaped);
+			}
+
+			// Three blank separator lines.
+			sb.AppendLine();
+			sb.AppendLine();
+			sb.AppendLine();
+
+			// --- Section 2: full TSV table ---
 			var headerParts = new string[numCols];
 			for (int c = 0; c < numCols; c++)
 			{
@@ -746,7 +764,6 @@ namespace GuiToolkit.Editor
 			}
 			sb.AppendLine(string.Join("\t", headerParts));
 
-			// Data rows.
 			foreach (var row in _newRows)
 			{
 				var parts = new string[numCols];
@@ -765,6 +782,32 @@ namespace GuiToolkit.Editor
 
 			if (open)
 				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(filePath) { UseShellExecute = true });
+		}
+
+		/// <summary>Replaces control characters with C-style escape sequences (\n, \t, \r, \0, \xNN).</summary>
+		private static string EscapeControlChars(string _s)
+		{
+			if (string.IsNullOrEmpty(_s))
+				return _s;
+
+			var sb = new StringBuilder(_s.Length);
+			foreach (char c in _s)
+			{
+				switch (c)
+				{
+					case '\n': sb.Append("\\n");  break;
+					case '\r': sb.Append("\\r");  break;
+					case '\t': sb.Append("\\t");  break;
+					case '\0': sb.Append("\\0");  break;
+					default:
+						if (c < 0x20 || c == 0x7F)
+							sb.Append($"\\x{(int)c:X2}");
+						else
+							sb.Append(c);
+						break;
+				}
+			}
+			return sb.ToString();
 		}
 
 		/// <summary>
