@@ -559,6 +559,8 @@ namespace GuiToolkit.Editor
 					existingKeys.Add(NormalizeMsgId(row[keyColIdx]));
 			}
 
+			UiLog.Log($"[PushNewKeys] startRow={startRow} keyColIdx={keyColIdx} sheetRows={sheetValues.Count} existingKeys={existingKeys.Count}");
+
 			// Collect all active msgids from PO files and build per-language translation lookups.
 			// Only msgids that appear in the corresponding POT file are eligible for pushing;
 			// this prevents stale/debug keys that linger in PO files from polluting the sheet.
@@ -617,6 +619,8 @@ namespace GuiToolkit.Editor
 			msgIdOrder.Sort(StringComparer.Ordinal);
 
 			var newKeys = FindNewKeys(existingKeys, msgIdOrder);
+
+			UiLog.Log($"[PushNewKeys] potWhitelist={potWhitelist.Count} allMsgIds={allMsgIds.Count} newKeys={newKeys.Count}");
 
 			if (newKeys.Count == 0)
 			{
@@ -1281,7 +1285,7 @@ namespace GuiToolkit.Editor
 
 		internal static List<List<string>> GetSheetValues(string _spreadsheetId, string _token, string _sheetName)
 		{
-			string url = $"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}/values/{Uri.EscapeDataString(_sheetName)}";
+			string url = $"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}/values/{Uri.EscapeDataString(_sheetName)}?valueRenderOption=UNFORMATTED_VALUE";
 
 			using var client = new HttpClient();
 			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
