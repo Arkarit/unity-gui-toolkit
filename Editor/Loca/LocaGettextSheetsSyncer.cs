@@ -561,7 +561,24 @@ namespace GuiToolkit.Editor
 
 			UiLog.Log($"[PushNewKeys] startRow={startRow} keyColIdx={keyColIdx} sheetRows={sheetValues.Count} existingKeys={existingKeys.Count}");
 
-			// Collect all active msgids from PO files and build per-language translation lookups.
+			// Targeted debug: check whether "Locked" key exists with/without leading space.
+			{
+				string withSpace = " <b>Locked</b>";
+				string noSpace   = "<b>Locked</b>";
+				UiLog.Log($"[PushNewKeys] existingKeys has '{withSpace}': {existingKeys.Contains(withSpace)}  has '{noSpace}': {existingKeys.Contains(noSpace)}");
+				// Log the first ~5 existingKeys that contain "Locked" for reference.
+				int dbgCnt = 0;
+				foreach (var k in existingKeys)
+				{
+					if (k.Contains("Locked") && dbgCnt++ < 5)
+					{
+						var esc = k.Replace("\n", "\\n").Replace("\r", "\\r").Replace(" ", "\u00B7");
+						UiLog.Log($"[PushNewKeys] existingKey with 'Locked': [{esc}]");
+					}
+				}
+			}
+
+
 			// Only msgids that appear in the corresponding POT file are eligible for pushing;
 			// this prevents stale/debug keys that linger in PO files from polluting the sheet.
 			string group    = _bridge.EdGroup;
@@ -621,6 +638,18 @@ namespace GuiToolkit.Editor
 			var newKeys = FindNewKeys(existingKeys, msgIdOrder);
 
 			UiLog.Log($"[PushNewKeys] potWhitelist={potWhitelist.Count} allMsgIds={allMsgIds.Count} newKeys={newKeys.Count}");
+
+			// Targeted debug: check whether "Locked" key is in msgIdOrder and whether it matches existingKeys.
+			{
+				foreach (var k in msgIdOrder)
+				{
+					if (k.Contains("Locked"))
+					{
+						var esc = k.Replace("\n", "\\n").Replace("\r", "\\r").Replace(" ", "\u00B7");
+						UiLog.Log($"[PushNewKeys] msgIdOrder key with 'Locked': [{esc}]  inExisting={existingKeys.Contains(k)}  inNewKeys={newKeys.Contains(k)}");
+					}
+				}
+			}
 
 			if (newKeys.Count == 0)
 			{
