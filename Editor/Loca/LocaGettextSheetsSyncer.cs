@@ -556,8 +556,28 @@ namespace GuiToolkit.Editor
 			}
 
 			// Collect all active msgids from PO files and build per-language translation lookups.
+			// Only msgids that appear in the corresponding POT file are eligible for pushing;
+			// this prevents stale/debug keys that linger in PO files from polluting the sheet.
 			string group    = _bridge.EdGroup;
 			var poFiles     = LocaCsvExporter.FindPoFiles(group);
+
+			// Build POT whitelist so stale PO-only keys are never pushed.
+			var potWhitelist = new HashSet<string>(StringComparer.Ordinal);
+			string potPath = LocaPoMerger.GetPotPath(group);
+			if (!string.IsNullOrEmpty(potPath) && File.Exists(potPath))
+			{
+				var potFile = PoFile.Parse(File.ReadAllText(potPath, Encoding.UTF8));
+				foreach (var e in potFile.Entries)
+				{
+					if (!e.IsObsolete && !string.IsNullOrEmpty(e.MsgId))
+						potWhitelist.Add(e.MsgId);
+				}
+				UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: POT whitelist loaded — {potWhitelist.Count} keys from '{Path.GetFileName(potPath)}'.");
+			}
+			else
+			{
+				UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: No POT file found for group '{group}' — pushing all PO keys without filtering.");
+			}
 
 			var allMsgIds   = new HashSet<string>(StringComparer.Ordinal);
 			var msgIdOrder  = new List<string>();
@@ -574,6 +594,10 @@ namespace GuiToolkit.Editor
 				foreach (var entry in poFile.Entries)
 				{
 					if (entry.IsObsolete || string.IsNullOrEmpty(entry.MsgId))
+						continue;
+
+					// Skip keys not in the POT (stale debug/test entries).
+					if (potWhitelist.Count > 0 && !potWhitelist.Contains(entry.MsgId))
 						continue;
 
 					if (allMsgIds.Add(entry.MsgId))
