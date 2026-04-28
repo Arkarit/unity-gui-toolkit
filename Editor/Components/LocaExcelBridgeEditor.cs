@@ -131,11 +131,16 @@ namespace GuiToolkit.Editor
 
 			using (new EditorGUI.DisabledScope(!syncEnabled))
 			{
-				if (GUILayout.Button("Push new keys"))
-					LocaGettextSheetsSyncer.PushNewKeysToSheets(bridge);
+				using (new GUILayout.HorizontalScope())
+				{
+					if (GUILayout.Button("Push new keys"))
+						LocaGettextSheetsSyncer.PushNewKeysToSheets(bridge);
+					if (GUILayout.Button("Dry Run", GUILayout.ExpandWidth(false)))
+						LocaGettextSheetsSyncer.PushNewKeysToSheets(bridge, _dryRun: true);
+				}
 			}
 			EditorGUILayout.HelpBox(
-				"Appends keys from PO files that are not yet in the sheet. Never overwrites existing cells.",
+				"Appends keys from PO files that are not yet in the sheet. Never overwrites existing cells.\nDry Run previews what would be pushed and writes a TSV to ./Temp/.",
 				syncEnabled ? MessageType.Info : MessageType.Warning);
 
 			using (new EditorGUI.DisabledScope(!syncEnabled))

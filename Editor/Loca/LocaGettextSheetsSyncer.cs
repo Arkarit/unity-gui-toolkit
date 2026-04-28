@@ -479,7 +479,11 @@ namespace GuiToolkit.Editor
 		/// Only runs when <see cref="LocaExcelBridge.CanPush"/> is <c>true</c> and the source type is GoogleDocs.
 		/// </summary>
 		/// <param name="_bridge">The bridge asset to push new keys to.</param>
-		public static void PushNewKeysToSheets(LocaExcelBridge _bridge)
+		/// <param name="_dryRun">
+		/// When <c>true</c>, no data is written to the sheet. Instead a TSV preview file is written
+		/// to <c>./Temp/PushKeysDryRun[_group].txt</c> so the new keys can be reviewed before pushing.
+		/// </param>
+		public static void PushNewKeysToSheets(LocaExcelBridge _bridge, bool _dryRun = false)
 		{
 			if (_bridge == null)
 				return;
@@ -501,7 +505,7 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			string token = GoogleServiceAccountAuth.GetAccessToken(_bridge.EdServiceAccountJsonPath, _writeAccess: true);
+			string token = GoogleServiceAccountAuth.GetAccessToken(_bridge.EdServiceAccountJsonPath, _writeAccess: !_dryRun);
 			if (token == null)
 			{
 				EditorUtility.DisplayDialog("Push new keys",
@@ -651,6 +655,13 @@ namespace GuiToolkit.Editor
 				newRows.Add(row);
 			}
 
+			// Dry-run: write preview file and return without touching the sheet.
+			if (_dryRun)
+			{
+				WritePushDryRunFile(_bridge, group, newRows);
+				return;
+			}
+
 			try
 			{
 				// If the sheet has no header row yet, create it from the bridge column definitions.
@@ -705,6 +716,55 @@ namespace GuiToolkit.Editor
 			UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Pushed {newKeys.Count} new key(s) to sheet '{spreadsheetId}'.");
 
 			SaveSheetXlsxBackup(_bridge, spreadsheetId, token);
+		}
+
+		// -----------------------------------------------------------------------
+		// Dry-run helper
+		// -----------------------------------------------------------------------
+
+		/// <summary>
+		/// Writes a TSV preview of the keys that <see cref="PushNewKeysToSheets"/> would append,
+		/// saved to <c>./Temp/PushKeysDryRun[_group].txt</c>. Opens the file when the user clicks OK.
+		/// </summary>
+		private static void WritePushDryRunFile(LocaExcelBridge _bridge, string _group, List<List<string>> _newRows)
+		{
+			string tempDir = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Temp"));
+			Directory.CreateDirectory(tempDir);
+
+			string groupSuffix = string.IsNullOrEmpty(_group) ? string.Empty : $"_{_group}";
+			string filePath    = Path.Combine(tempDir, $"PushKeysDryRun{groupSuffix}.txt");
+
+			var sb = new StringBuilder();
+
+			// Header row from bridge column descriptions.
+			int numCols = _bridge.NumColumns;
+			var headerParts = new string[numCols];
+			for (int c = 0; c < numCols; c++)
+			{
+				var d = _bridge.GetColumnDescription(c);
+				headerParts[c] = d?.Description ?? $"Col{c}";
+			}
+			sb.AppendLine(string.Join("\t", headerParts));
+
+			// Data rows.
+			foreach (var row in _newRows)
+			{
+				var parts = new string[numCols];
+				for (int c = 0; c < numCols; c++)
+					parts[c] = c < row.Count ? row[c] : string.Empty;
+				sb.AppendLine(string.Join("\t", parts));
+			}
+
+			File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+			UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Dry-run preview written to '{filePath}'.");
+
+			bool open = EditorUtility.DisplayDialog(
+				"Push new keys – Dry Run",
+				$"{_newRows.Count} key(s) would be pushed to the sheet.\n\nPreview saved to:\n{filePath}",
+				"Open file", "Close");
+
+			if (open)
+				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(filePath) { UseShellExecute = true });
 		}
 
 		/// <summary>
