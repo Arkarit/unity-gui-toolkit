@@ -787,13 +787,16 @@ namespace GuiToolkit.Editor
 				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(filePath) { UseShellExecute = true });
 		}
 
-		/// <summary>Normalizes line endings in a msgid so that <c>\r\n</c> and bare <c>\r</c> become <c>\n</c>.</summary>
+		/// <summary>Normalizes line endings in a msgid so that <c>\r\n</c> and bare <c>\r</c> become <c>\n</c>,
+		/// and strips any trailing line-break characters.</summary>
 		/// <remarks>
-		/// Google Sheets normalizes cell content to LF-only. PO files may contain <c>\r\n</c> sequences
-		/// in keys with embedded Windows-style line breaks. Without normalization those keys would
-		/// appear "new" on every push because <see cref="StringComparer.Ordinal"/> treats them as different.
+		/// Google Sheets normalizes cell content to LF-only AND strips trailing newlines when storing/returning
+		/// values. PO files may contain <c>\r\n</c> sequences or trailing <c>\n</c> in keys (from how C# string
+		/// literals were written). Without normalization those keys would appear "new" on every push because
+		/// <see cref="StringComparer.Ordinal"/> treats them as different strings.
 		/// </remarks>
-		private static string NormalizeMsgId(string _s) => _s?.Replace("\r\n", "\n").Replace("\r", "\n");
+		private static string NormalizeMsgId(string _s) =>
+			_s?.Replace("\r\n", "\n").Replace("\r", "\n").TrimEnd('\n');
 
 		/// <summary>Replaces control characters with C-style escape sequences (\n, \t, \r, \0, \xNN).</summary>
 		private static string EscapeControlChars(string _s)
