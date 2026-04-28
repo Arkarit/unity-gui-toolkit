@@ -556,7 +556,7 @@ namespace GuiToolkit.Editor
 			{
 				var row = sheetValues[r];
 				if (keyColIdx < row.Count && !string.IsNullOrEmpty(row[keyColIdx]))
-					existingKeys.Add(row[keyColIdx]);
+					existingKeys.Add(NormalizeMsgId(row[keyColIdx]));
 			}
 
 			// Collect all active msgids from PO files and build per-language translation lookups.
@@ -574,7 +574,7 @@ namespace GuiToolkit.Editor
 				foreach (var e in potFile.Entries)
 				{
 					if (!e.IsObsolete && !string.IsNullOrEmpty(e.MsgId))
-						potWhitelist.Add(e.MsgId);
+						potWhitelist.Add(NormalizeMsgId(e.MsgId));
 				}
 				UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: POT whitelist loaded — {potWhitelist.Count} keys from '{Path.GetFileName(potPath)}'.");
 			}
@@ -600,15 +600,17 @@ namespace GuiToolkit.Editor
 					if (entry.IsObsolete || string.IsNullOrEmpty(entry.MsgId))
 						continue;
 
+					string normId = NormalizeMsgId(entry.MsgId);
+
 					// Skip keys not in the POT (stale debug/test entries).
-					if (potWhitelist.Count > 0 && !potWhitelist.Contains(entry.MsgId))
+					if (potWhitelist.Count > 0 && !potWhitelist.Contains(normId))
 						continue;
 
-					if (allMsgIds.Add(entry.MsgId))
-						msgIdOrder.Add(entry.MsgId);
+					if (allMsgIds.Add(normId))
+						msgIdOrder.Add(normId);
 
-					if (!lookup.ContainsKey(entry.MsgId))
-						lookup[entry.MsgId] = entry;
+					if (!lookup.ContainsKey(normId))
+						lookup[normId] = entry;
 				}
 			}
 
@@ -692,13 +694,14 @@ namespace GuiToolkit.Editor
 						try
 						{
 							ApplyColumnBackground(spreadsheetId, token, sheetId,
-								startRowIndex, newRows.Count, keyColIdx,
+								startRowIndex, newRows.Count, 0, numCols,
 								highlightColor.r, highlightColor.g, highlightColor.b);
 						}
 						catch (Exception ex)
 						{
 							// Non-fatal — data was pushed successfully, formatting is best-effort.
-							UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: Could not apply key-cell highlight: {ex.Message}");
+							UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: Could not apply row highlight " +
+								$"(sheetId={sheetId}, rows={startRowIndex}..{startRowIndex + newRows.Count}, cols=0..{numCols}, range='{appendedRange}'): {ex}");
 						}
 					}
 				}
@@ -772,7 +775,7 @@ namespace GuiToolkit.Editor
 				sb.AppendLine(string.Join("\t", parts));
 			}
 
-			File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+			File.WriteAllText(filePath, sb.ToString(), new UTF8Encoding(false));
 			UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: Dry-run preview written to '{filePath}'.");
 
 			bool open = EditorUtility.DisplayDialog(
@@ -783,6 +786,14 @@ namespace GuiToolkit.Editor
 			if (open)
 				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(filePath) { UseShellExecute = true });
 		}
+
+		/// <summary>Normalizes line endings in a msgid so that <c>\r\n</c> and bare <c>\r</c> become <c>\n</c>.</summary>
+		/// <remarks>
+		/// Google Sheets normalizes cell content to LF-only. PO files may contain <c>\r\n</c> sequences
+		/// in keys with embedded Windows-style line breaks. Without normalization those keys would
+		/// appear "new" on every push because <see cref="StringComparer.Ordinal"/> treats them as different.
+		/// </remarks>
+		private static string NormalizeMsgId(string _s) => _s?.Replace("\r\n", "\n").Replace("\r", "\n");
 
 		/// <summary>Replaces control characters with C-style escape sequences (\n, \t, \r, \0, \xNN).</summary>
 		private static string EscapeControlChars(string _s)
@@ -1303,12 +1314,12 @@ namespace GuiToolkit.Editor
 		}
 
 		/// <summary>
-		/// Applies a solid background colour to a single column of consecutive rows
+		/// Applies a solid background colour to a column range of consecutive rows
 		/// using the Sheets spreadsheets:batchUpdate (formatting) endpoint.
 		/// </summary>
 		private static void ApplyColumnBackground(
 			string _spreadsheetId, string _token, int _sheetId,
-			int _startRowIndex, int _rowCount, int _colIndex,
+			int _startRowIndex, int _rowCount, int _startColIndex, int _endColIndex,
 			float _r, float _g, float _b)
 		{
 			string url = $"https://sheets.googleapis.com/v4/spreadsheets/{_spreadsheetId}:batchUpdate";
@@ -1319,8 +1330,8 @@ namespace GuiToolkit.Editor
 				$"\"sheetId\":{_sheetId}," +
 				$"\"startRowIndex\":{_startRowIndex}," +
 				$"\"endRowIndex\":{_startRowIndex + _rowCount}," +
-				$"\"startColumnIndex\":{_colIndex}," +
-				$"\"endColumnIndex\":{_colIndex + 1}" +
+				$"\"startColumnIndex\":{_startColIndex}," +
+				$"\"endColumnIndex\":{_endColIndex}" +
 				"}," +
 				"\"cell\":{\"userEnteredFormat\":{\"backgroundColor\":{" +
 				$"\"red\":{_r.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}," +
