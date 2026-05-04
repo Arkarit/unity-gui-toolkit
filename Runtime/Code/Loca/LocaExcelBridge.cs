@@ -420,8 +420,8 @@ namespace GuiToolkit
 				sheet = ds.Tables[i];
 				for (int r = m_startRow; r < sheet.Rows.Count; r++)
 				{
-					string baseKey = sheet.Rows[r][keyCol]?.ToString()?.Trim();
-					if (string.IsNullOrEmpty(baseKey))
+					string baseKey = NormalizeImportedKey(sheet.Rows[r][keyCol]?.ToString());
+					if (string.IsNullOrWhiteSpace(baseKey))
 						continue;
 
 					string baseEffectiveKey = ApplyKeyAffixes(baseKey, keyColDesc);
@@ -591,6 +591,14 @@ namespace GuiToolkit
 			string postfix = _desc.KeyPostfix ?? string.Empty;
 
 			return string.Concat(prefix, _key ?? string.Empty, postfix);
+		}
+
+		internal static string NormalizeImportedKey( string _key )
+		{
+			if (_key == null)
+				return null;
+
+			return _key.Replace("\r\n", "\n").Replace("\r", "\n");
 		}
 
 		private static string NormalizeLang( string _lang )

@@ -322,6 +322,26 @@ namespace GuiToolkit.Test
 		}
 
 		// -----------------------------------------------------------------------
+		// LocaExcelBridge key import
+		// -----------------------------------------------------------------------
+
+		[Test]
+		public void NormalizeImportedKey_PreservesLeadingWhitespace()
+		{
+			string result = LocaExcelBridge.NormalizeImportedKey(" <color=grey>By tapping continue</color>");
+
+			Assert.That(result, Is.EqualTo(" <color=grey>By tapping continue</color>"));
+		}
+
+		[Test]
+		public void NormalizeImportedKey_NormalizesCrlfWithoutTrimming()
+		{
+			string result = LocaExcelBridge.NormalizeImportedKey(" line1\r\nline2 ");
+
+			Assert.That(result, Is.EqualTo(" line1\nline2 "));
+		}
+
+		// -----------------------------------------------------------------------
 		// MergeTranslationIntoPoEntry
 		// -----------------------------------------------------------------------
 
