@@ -572,11 +572,10 @@ namespace GuiToolkit.Editor
 			{
 				// The Font asset referenced by Text.font has been destroyed (non-null C# reference,
 				// but Unity reports it as missing). Accessing .name would throw MissingReferenceException.
+				// Fall through with legacyFontName = null so the default-font fallback below applies.
 				Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] '{text.gameObject.name}': " +
-				                 $"{nameof(Text)}.{nameof(Text.font)} references a destroyed Font asset — skipping.");
-				data = default;
-				skippedDueToCompanion = false;
-				return false;
+				                 $"{nameof(Text)}.{nameof(Text.font)} references a destroyed Font asset — using TMP default font.",
+				                 text.gameObject);
 			}
 			string legacyFontName = font != null ? font.name : null;
 			var (fontAsset, mat) = EditorCodeUtility.FindMatchingTMPFontAndMaterial(legacyFontName);
