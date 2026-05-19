@@ -46,6 +46,10 @@ namespace GuiToolkit
 		[Tooltip("Fine-positioning offset applied to the popup relative to the anchor (canvas pixels).")]
 		[SerializeField] private Vector2 m_offset = Vector2.zero;
 
+		[Tooltip("Optional prefab used for string items in the popup. Must contain a TMP_Text component. " +
+		         "When null, items are created procedurally.")]
+		[SerializeField][Optional] private GameObject m_stringItemPrefab;
+
 		public CEvent<int> EvOnDropdownValueChanged = new();
 		public CEvent<bool> EvOnStatusChanged = new();
 
@@ -204,6 +208,7 @@ namespace GuiToolkit
 				AllowOutsideTap = true,
 				MaxHeight = m_maxPopupHeight,
 				Offset = m_offset,
+				StringItemPrefab = m_stringItemPrefab,
 			};
 
 			// Let subclasses (and this class) fill items and wire callbacks before we show.

@@ -59,10 +59,21 @@ namespace GuiToolkit
 			public Action<GameObject, int> OnItemClicked = null;
 
 			/// <summary>
-			/// Plain-text labels to turn into simple TMP entries (no prefab needed).
+			/// Plain-text labels to turn into simple TMP entries.
 			/// Spawned after <see cref="Items"/> prefabs, in array order.
+			/// When <see cref="StringItemPrefab"/> is set, each label is applied to the
+			/// <see cref="TMP_Text"/> found in an instantiated copy of that prefab.
+			/// Otherwise a plain <see cref="TextMeshProUGUI"/> item is created procedurally.
 			/// </summary>
 			public string[] StringItems = null;
+
+			/// <summary>
+			/// Optional prefab used when spawning <see cref="StringItems"/>.
+			/// The prefab must contain a <see cref="TMP_Text"/> component (or subclass) anywhere
+			/// in its hierarchy — the first one found receives the label text.
+			/// When null, items are created procedurally (legacy behaviour).
+			/// </summary>
+			public GameObject StringItemPrefab = null;
 
 			/// <summary>Called when the popup menu finishes closing.</summary>
 			public Action OnClose = null;
@@ -223,24 +234,36 @@ namespace GuiToolkit
 			if (m_contentContainer == null)
 				return;
 
-			var go = new GameObject(_label, typeof(RectTransform));
-			var tmp = go.AddComponent<TextMeshProUGUI>();
-			tmp.text = _label;
-			var button = go.AddComponent<Button>();
-			button.targetGraphic = tmp;
-			button.colors = new ColorBlock()
+			GameObject go;
+
+			if (m_options?.StringItemPrefab != null)
 			{
-				disabledColor = new Color(.5f, .5f, .5f, .5f),
-				normalColor = new Color(.8f, .8f, .8f, 1f),
-				colorMultiplier = 1,
-				fadeDuration = .3f,
-				highlightedColor = Color.white,
-				selectedColor = Color.yellow,
-				pressedColor = Color.white
-			};
-			var styleApplier = go.AddComponent<UiApplyStyleTMP_Text>();
-			styleApplier.Name = "Text/Flowing";
-			go.transform.SetParent(m_contentContainer, false);
+				go = Instantiate(m_options.StringItemPrefab, m_contentContainer);
+				var tmp = go.GetComponentInChildren<TMP_Text>();
+				if (tmp != null)
+					tmp.text = _label;
+			}
+			else
+			{
+				go = new GameObject(_label, typeof(RectTransform));
+				var tmp = go.AddComponent<TextMeshProUGUI>();
+				tmp.text = _label;
+				var button = go.AddComponent<Button>();
+				button.targetGraphic = tmp;
+				button.colors = new ColorBlock()
+				{
+					disabledColor = new Color(.5f, .5f, .5f, .5f),
+					normalColor = new Color(.8f, .8f, .8f, 1f),
+					colorMultiplier = 1,
+					fadeDuration = .3f,
+					highlightedColor = Color.white,
+					selectedColor = Color.yellow,
+					pressedColor = Color.white
+				};
+				var styleApplier = go.AddComponent<UiApplyStyleTMP_Text>();
+				styleApplier.Name = "Text/Flowing";
+				go.transform.SetParent(m_contentContainer, false);
+			}
 
 			int index = m_spawnedItems.Count;
 			m_spawnedItems.Add(go);
