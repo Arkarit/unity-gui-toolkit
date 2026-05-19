@@ -50,6 +50,12 @@ namespace GuiToolkit
 		         "When null, items are created procedurally.")]
 		[SerializeField][Optional] private GameObject m_stringItemPrefab;
 
+		[Tooltip("Text color applied to the selected item in the popup.")]
+		[SerializeField] private Color m_selectedItemColor = Color.yellow;
+
+		[Tooltip("Text color applied to unselected items in the popup.")]
+		[SerializeField] private Color m_deselectedItemColor = Color.white;
+
 		public CEvent<int> EvOnDropdownValueChanged = new();
 		public CEvent<bool> EvOnStatusChanged = new();
 
@@ -178,7 +184,7 @@ namespace GuiToolkit
 
 			var tmp = item.GetComponentInChildren<TextMeshProUGUI>();
 			if (tmp != null)
-				tmp.color = selected ? Color.yellow : Color.white;
+				tmp.color = selected ? m_selectedItemColor : m_deselectedItemColor;
 		}
 
 		private void OnToggleButtonClicked()
