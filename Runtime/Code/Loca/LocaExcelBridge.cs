@@ -349,7 +349,7 @@ namespace GuiToolkit
 				var xlsxColCount = ds.Tables[i].Columns.Count;
 				if (xlsxColCount < colCount)
 				{
-					UiLog.LogError($"{nameof(LocaExcelBridge)}: Column count  ({ds.Tables[i].Columns.Count}) too small for defined columns ({colCount})");
+					UiLog.LogError($"{nameof(LocaExcelBridge)}: Column count  ({ds.Tables[i].Columns.Count}) too small for defined columns ({colCount}) of table {ds.Tables[i].TableName} ({i})");
 					return;
 				}
 

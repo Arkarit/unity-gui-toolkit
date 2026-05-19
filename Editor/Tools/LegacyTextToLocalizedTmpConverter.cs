@@ -567,7 +567,18 @@ namespace GuiToolkit.Editor
 			string matGuid        = "";
 			long   matLocal       = 0;
 
-			string legacyFontName = text.font?.name;
+			Font font = text.font;
+			if ((object)font != null && font == null)
+			{
+				// The Font asset referenced by Text.font has been destroyed (non-null C# reference,
+				// but Unity reports it as missing). Accessing .name would throw MissingReferenceException.
+				Debug.LogWarning($"[LegacyTextToLocalizedTmpConverter] '{text.gameObject.name}': " +
+				                 $"{nameof(Text)}.{nameof(Text.font)} references a destroyed Font asset — skipping.");
+				data = default;
+				skippedDueToCompanion = false;
+				return false;
+			}
+			string legacyFontName = font != null ? font.name : null;
 			var (fontAsset, mat) = EditorCodeUtility.FindMatchingTMPFontAndMaterial(legacyFontName);
 
 			if (fontAsset == null)
