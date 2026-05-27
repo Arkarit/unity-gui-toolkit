@@ -374,6 +374,8 @@ MonoBehaviour:
   m_dateTimePanel: {fileID: 2505186392463848046}
   m_text: {fileID: 2126843346123710391}
   m_inputField: {fileID: 6621722925866764208}
+  m_dialogPanel: {fileID: 2126843345544139567}
+  m_minBodyFontSize: 8
 --- !u!114 &2126843345544139562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1448,6 +1450,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
+      propertyPath: m_locaKey
+      value: Wirklich beenden?
+      objectReference: {fileID: 0}
+    - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
+        type: 3}
       propertyPath: m_fontSize
       value: 46
       objectReference: {fileID: 0}
@@ -1561,7 +1568,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Script: {fileID: 11500000, guid: bc4a859b73555df43976e85a587ffe79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &2126843346133770541 stripped
@@ -2183,6 +2190,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7249587948117305888, guid: 2829a0567e1343941861bb61e7fd3afe,
         type: 3}
+      propertyPath: m_locaKey
+      value: Enter text...
+      objectReference: {fileID: 0}
+    - target: {fileID: 7249587948117305888, guid: 2829a0567e1343941861bb61e7fd3afe,
+        type: 3}
       propertyPath: m_fontColor.a
       value: 0.5
       objectReference: {fileID: 0}
@@ -2225,6 +2237,11 @@ PrefabInstance:
         type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
       value: 1801810542
+      objectReference: {fileID: 0}
+    - target: {fileID: 7249587948417890336, guid: 2829a0567e1343941861bb61e7fd3afe,
+        type: 3}
+      propertyPath: m_locaKey
+      value: "\u200B"
       objectReference: {fileID: 0}
     - target: {fileID: 7249587948417890336, guid: 2829a0567e1343941861bb61e7fd3afe,
         type: 3}
@@ -2460,6 +2477,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 553515568007766868, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
+      propertyPath: m_locaKey
+      value: 'Time:'
+      objectReference: {fileID: 0}
+    - target: {fileID: 553515568007766868, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
       value: 1801810542
       objectReference: {fileID: 0}
@@ -2660,8 +2682,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2522500702191618132, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
+      propertyPath: m_locaKey
+      value: 'Samstag, 99. Monatsname 9999
+
+        15:22:33'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2522500702191618132, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
       value: 1801810542
+      objectReference: {fileID: 0}
+    - target: {fileID: 2748487262014995479, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
+      propertyPath: m_locaKey
+      value: January
       objectReference: {fileID: 0}
     - target: {fileID: 2748487262014995479, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
@@ -2742,6 +2776,16 @@ PrefabInstance:
         type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
       value: 1801810542
+      objectReference: {fileID: 0}
+    - target: {fileID: 4819929356704947578, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
+      propertyPath: m_locaKey
+      value: NOW
+      objectReference: {fileID: 0}
+    - target: {fileID: 4904508812759795195, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
+      propertyPath: m_locaKey
+      value: 'Date:'
       objectReference: {fileID: 0}
     - target: {fileID: 4904508812759795195, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
@@ -2880,6 +2924,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6880641058720918717, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
+      propertyPath: m_locaKey
+      value: one
+      objectReference: {fileID: 0}
+    - target: {fileID: 6880641058720918717, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
       value: 1801810542
       objectReference: {fileID: 0}
@@ -3002,6 +3051,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7832232768534024218, guid: 4336d22136dbf0a4baf1ef01c37442c7,
+        type: 3}
+      propertyPath: m_locaKey
+      value: 2000
       objectReference: {fileID: 0}
     - target: {fileID: 7832232768534024218, guid: 4336d22136dbf0a4baf1ef01c37442c7,
         type: 3}
@@ -3561,6 +3615,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3382483355835541296, guid: f0b4f07e8e2f38d4e923e31881f94c44,
         type: 3}
+      propertyPath: m_locaKey
+      value: X
+      objectReference: {fileID: 0}
+    - target: {fileID: 3382483355835541296, guid: f0b4f07e8e2f38d4e923e31881f94c44,
+        type: 3}
       propertyPath: m_fontSize
       value: 30
       objectReference: {fileID: 0}
@@ -3677,6 +3736,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2126843345276090714}
     m_Modifications:
+    - target: {fileID: 7494938938897100992, guid: 9d3b6bdd5a611474f98dec479689c68f,
+        type: 3}
+      propertyPath: m_locaKey
+      value: 'Are you really sure to  <b>Lorem ipsum? Are you really sure to  <b>Lorem
+        ipsum? Are you really sure to  <b>Lorem ipsum? '
+      objectReference: {fileID: 0}
     - target: {fileID: 7494938938897100992, guid: 9d3b6bdd5a611474f98dec479689c68f,
         type: 3}
       propertyPath: m_fontAsset
@@ -3853,7 +3918,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Script: {fileID: 11500000, guid: bc4a859b73555df43976e85a587ffe79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &9183843987192630809
