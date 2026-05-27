@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -23,12 +24,13 @@ namespace GuiToolkit
 		[SerializeField] protected UiDateTimePanel m_dateTimePanel;
 		[SerializeField] protected TextMeshProUGUI m_text;
 		[SerializeField] protected TMP_InputField m_inputField;
-		[SerializeField] private RectTransform m_dialogPanel;
+		[FormerlySerializedAs("m_dialogPanel")] 
+		[SerializeField] protected RectTransform m_measureRectTransform;
 		[SerializeField][Min(1f)] private float m_minBodyFontSize = 8f;
 
 		private float m_originalBodyFontSize;
 		private bool m_originalBodyAutoSizing;
-		private bool m_pendingFit;
+		private bool m_pendingFit = true;
 
 		protected override void Awake()
 		{
@@ -46,20 +48,50 @@ namespace GuiToolkit
 			if (m_pendingFit)
 			{
 				m_pendingFit = false;
-				if (m_dialogPanel != null && m_text != null)
+				if (m_measureRectTransform != null && m_text != null)
 					StartCoroutine(FitTextToScreen());
 			}
 		}
 
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+			m_pendingFit = true;
+		}
+
+		private RectTransform GetDialogPanel()
+		{
+			// Use explicitly assigned reference if available
+			if (m_measureRectTransform != null)
+				return m_measureRectTransform;
+
+			// Fallback: first direct child that has a ContentSizeFitter (e.g. StandardPanelBackground)
+			for (int i = 0; i < transform.childCount; i++)
+			{
+				var csf = transform.GetChild(i).GetComponent<ContentSizeFitter>();
+				if (csf != null)
+					return csf.GetComponent<RectTransform>();
+			}
+			return null;
+		}
+
 		private IEnumerator FitTextToScreen()
 		{
-			// WaitForEndOfFrame ensures the canvas layout pass has fully completed
+			// WaitForEndOfFrame ensures rendering of the current frame is complete
 			yield return new WaitForEndOfFrame();
 
-			if (IsDialogInsideScreen())
+			RectTransform panel = GetDialogPanel();
+			if (panel == null)
 				yield break;
 
-			// Capture the actual rendered font size (works for both auto-sizing and fixed-size text)
+			// Force the layout to compute panel dimensions BEFORE the first bounds check.
+			// Without this the ContentSizeFitter hasn't run yet → panel.rect is (0,0) → false positive.
+			LayoutRebuilder.ForceRebuildLayoutImmediate(panel);
+
+			if (IsDialogInsideScreen(panel))
+				yield break;
+
+			// Capture the actual rendered font size (handles both auto-sizing and fixed-size text)
 			float fontSize = m_text.fontSize;
 			if (fontSize <= 0)
 				fontSize = m_originalBodyFontSize;
@@ -69,17 +101,17 @@ namespace GuiToolkit
 			// Dialog extends outside screen — reduce body font size until it fits or minimum is reached
 			m_text.enableAutoSizing = false;
 			m_text.fontSize = fontSize;
-			LayoutRebuilder.ForceRebuildLayoutImmediate(m_dialogPanel);
+			LayoutRebuilder.ForceRebuildLayoutImmediate(panel);
 
-			while (!IsDialogInsideScreen() && fontSize > m_minBodyFontSize)
+			while (!IsDialogInsideScreen(panel) && fontSize > m_minBodyFontSize)
 			{
 				fontSize = Mathf.Max(fontSize - 1f, m_minBodyFontSize);
 				m_text.fontSize = fontSize;
-				LayoutRebuilder.ForceRebuildLayoutImmediate(m_dialogPanel);
+				LayoutRebuilder.ForceRebuildLayoutImmediate(panel);
 			}
 		}
 
-		private bool IsDialogInsideScreen()
+		private bool IsDialogInsideScreen( RectTransform panel )
 		{
 			Canvas rootCanvas = GetComponentInParent<Canvas>();
 			if (rootCanvas != null)
@@ -97,7 +129,7 @@ namespace GuiToolkit
 			float maxY = canvasCorners[2].y;
 
 			var dialogCorners = new Vector3[4];
-			m_dialogPanel.GetWorldCorners(dialogCorners);
+			panel.GetWorldCorners(dialogCorners);
 
 			foreach (var corner in dialogCorners)
 			{
@@ -417,7 +449,7 @@ namespace GuiToolkit
 				m_text.enableAutoSizing = m_originalBodyAutoSizing;
 				m_text.fontSize = m_originalBodyFontSize;
 			}
-			m_pendingFit = m_dialogPanel != null && m_text != null;
+			m_pendingFit = m_measureRectTransform != null && m_text != null;
 
 			base.EvaluateOptions(_options);
 			var options = (Options)_options;
