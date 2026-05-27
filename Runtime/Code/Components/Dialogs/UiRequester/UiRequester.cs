@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace GuiToolkit
 {
@@ -52,23 +53,29 @@ namespace GuiToolkit
 
 		private IEnumerator FitTextToScreen()
 		{
-			yield return null;
-			Canvas.ForceUpdateCanvases();
+			// WaitForEndOfFrame ensures the canvas layout pass has fully completed
+			yield return new WaitForEndOfFrame();
 
 			if (IsDialogInsideScreen())
 				yield break;
 
+			// Capture the actual rendered font size (works for both auto-sizing and fixed-size text)
+			float fontSize = m_text.fontSize;
+			if (fontSize <= 0)
+				fontSize = m_originalBodyFontSize;
+			if (fontSize <= 0)
+				yield break;
+
 			// Dialog extends outside screen — reduce body font size until it fits or minimum is reached
 			m_text.enableAutoSizing = false;
-			float fontSize = m_originalBodyFontSize;
 			m_text.fontSize = fontSize;
-			Canvas.ForceUpdateCanvases();
+			LayoutRebuilder.ForceRebuildLayoutImmediate(m_dialogPanel);
 
 			while (!IsDialogInsideScreen() && fontSize > m_minBodyFontSize)
 			{
 				fontSize = Mathf.Max(fontSize - 1f, m_minBodyFontSize);
 				m_text.fontSize = fontSize;
-				Canvas.ForceUpdateCanvases();
+				LayoutRebuilder.ForceRebuildLayoutImmediate(m_dialogPanel);
 			}
 		}
 
@@ -77,21 +84,24 @@ namespace GuiToolkit
 			Canvas rootCanvas = GetComponentInParent<Canvas>();
 			if (rootCanvas != null)
 				rootCanvas = rootCanvas.rootCanvas;
+			if (rootCanvas == null)
+				return true;
 
-			Camera cam = rootCanvas != null && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay
-				? rootCanvas.worldCamera
-				: null;
+			// Compare dialog corners against canvas corners — both in world space.
+			// This avoids any Screen.width/height vs CanvasScaler coordinate mismatch.
+			var canvasCorners = new Vector3[4];
+			rootCanvas.GetComponent<RectTransform>().GetWorldCorners(canvasCorners);
+			float minX = canvasCorners[0].x;
+			float minY = canvasCorners[0].y;
+			float maxX = canvasCorners[2].x;
+			float maxY = canvasCorners[2].y;
 
-			var corners = new Vector3[4];
-			m_dialogPanel.GetWorldCorners(corners);
+			var dialogCorners = new Vector3[4];
+			m_dialogPanel.GetWorldCorners(dialogCorners);
 
-			float screenW = Screen.width;
-			float screenH = Screen.height;
-
-			foreach (var corner in corners)
+			foreach (var corner in dialogCorners)
 			{
-				Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(cam, corner);
-				if (screenPoint.x < 0 || screenPoint.x > screenW || screenPoint.y < 0 || screenPoint.y > screenH)
+				if (corner.x < minX || corner.x > maxX || corner.y < minY || corner.y > maxY)
 					return false;
 			}
 			return true;
