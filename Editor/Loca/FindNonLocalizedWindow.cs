@@ -87,6 +87,10 @@ namespace GuiToolkit.Editor
 				}
 
 				EditorGUILayout.LabelField(entry.MsgId, EditorStyles.wordWrappedLabel);
+				EditorGUILayout.Space(2);
+				var lineRect = EditorGUILayout.GetControlRect(false, 1f);
+				EditorGUI.DrawRect(lineRect, new Color(0.5f, 0.5f, 0.5f, 0.4f));
+				EditorGUILayout.Space(4);
 			}
 
 			EditorGUILayout.EndScrollView();
