@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -21,6 +22,80 @@ namespace GuiToolkit
 		[SerializeField] protected UiDateTimePanel m_dateTimePanel;
 		[SerializeField] protected TextMeshProUGUI m_text;
 		[SerializeField] protected TMP_InputField m_inputField;
+		[SerializeField] private RectTransform m_dialogPanel;
+		[SerializeField][Min(1f)] private float m_minBodyFontSize = 8f;
+
+		private float m_originalBodyFontSize;
+		private bool m_originalBodyAutoSizing;
+		private bool m_pendingFit;
+
+		protected override void Awake()
+		{
+			base.Awake();
+			if (m_text != null)
+			{
+				m_originalBodyFontSize = m_text.fontSize;
+				m_originalBodyAutoSizing = m_text.enableAutoSizing;
+			}
+		}
+
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			if (m_pendingFit)
+			{
+				m_pendingFit = false;
+				if (m_dialogPanel != null && m_text != null)
+					StartCoroutine(FitTextToScreen());
+			}
+		}
+
+		private IEnumerator FitTextToScreen()
+		{
+			yield return null;
+			Canvas.ForceUpdateCanvases();
+
+			if (IsDialogInsideScreen())
+				yield break;
+
+			// Dialog extends outside screen — reduce body font size until it fits or minimum is reached
+			m_text.enableAutoSizing = false;
+			float fontSize = m_originalBodyFontSize;
+			m_text.fontSize = fontSize;
+			Canvas.ForceUpdateCanvases();
+
+			while (!IsDialogInsideScreen() && fontSize > m_minBodyFontSize)
+			{
+				fontSize = Mathf.Max(fontSize - 1f, m_minBodyFontSize);
+				m_text.fontSize = fontSize;
+				Canvas.ForceUpdateCanvases();
+			}
+		}
+
+		private bool IsDialogInsideScreen()
+		{
+			Canvas rootCanvas = GetComponentInParent<Canvas>();
+			if (rootCanvas != null)
+				rootCanvas = rootCanvas.rootCanvas;
+
+			Camera cam = rootCanvas != null && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+				? rootCanvas.worldCamera
+				: null;
+
+			var corners = new Vector3[4];
+			m_dialogPanel.GetWorldCorners(corners);
+
+			float screenW = Screen.width;
+			float screenH = Screen.height;
+
+			foreach (var corner in corners)
+			{
+				Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(cam, corner);
+				if (screenPoint.x < 0 || screenPoint.x > screenW || screenPoint.y < 0 || screenPoint.y > screenH)
+					return false;
+			}
+			return true;
+		}
 
 		public void Requester( Options _options ) => DoDialog(_options);
 
@@ -326,6 +401,14 @@ namespace GuiToolkit
 
 		protected override void EvaluateOptions( UiRequesterBase.Options _options )
 		{
+			// Restore original font settings before each use (pool-reuse safety)
+			if (m_text != null)
+			{
+				m_text.enableAutoSizing = m_originalBodyAutoSizing;
+				m_text.fontSize = m_originalBodyFontSize;
+			}
+			m_pendingFit = m_dialogPanel != null && m_text != null;
+
 			base.EvaluateOptions(_options);
 			var options = (Options)_options;
 
