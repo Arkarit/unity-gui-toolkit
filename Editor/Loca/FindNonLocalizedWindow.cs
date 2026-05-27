@@ -14,6 +14,7 @@ namespace GuiToolkit.Editor
 		private Vector2 m_scroll;
 		private List<MissingEntry> m_results = new List<MissingEntry>();
 		private bool m_hasResults;
+		private string m_outputPath;
 
 		private struct MissingEntry
 		{
@@ -58,6 +59,15 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.Space();
 			EditorGUILayout.LabelField($"Results: {m_results.Count} missing key(s)", EditorStyles.boldLabel);
 
+			if (!string.IsNullOrEmpty(m_outputPath))
+			{
+				EditorGUILayout.BeginHorizontal();
+				EditorGUILayout.LabelField(m_outputPath, EditorStyles.miniLabel);
+				if (GUILayout.Button("Show", GUILayout.Width(50)))
+					EditorUtility.RevealInFinder(m_outputPath);
+				EditorGUILayout.EndHorizontal();
+			}
+
 			if (m_results.Count == 0)
 			{
 				EditorGUILayout.HelpBox("No missing keys found.", MessageType.Info);
@@ -76,7 +86,7 @@ namespace GuiToolkit.Editor
 					EditorGUILayout.LabelField(Path.GetFileName(currentFile), EditorStyles.boldLabel);
 				}
 
-				EditorGUILayout.LabelField("  " + entry.MsgId);
+				EditorGUILayout.LabelField(entry.MsgId, EditorStyles.wordWrappedLabel);
 			}
 
 			EditorGUILayout.EndScrollView();
@@ -235,7 +245,7 @@ namespace GuiToolkit.Editor
 
 		private void WriteResultsToFile()
 		{
-			string outputPath = Path.Combine(Application.temporaryCachePath, "MissingLoca.txt");
+			m_outputPath = Path.Combine(Application.temporaryCachePath, "MissingLoca.txt");
 			try
 			{
 				var sb = new StringBuilder();
@@ -254,12 +264,13 @@ namespace GuiToolkit.Editor
 					sb.AppendLine($"  {entry.MsgId}");
 				}
 
-				File.WriteAllText(outputPath, sb.ToString(), Encoding.UTF8);
-				Debug.Log($"FindNonLocalizedWindow: results written to {outputPath}");
+				File.WriteAllText(m_outputPath, sb.ToString(), Encoding.UTF8);
+				Debug.Log($"FindNonLocalizedWindow: results written to {m_outputPath}");
 			}
 			catch (Exception e)
 			{
 				Debug.LogError($"FindNonLocalizedWindow: failed to write results file: {e.Message}");
+				m_outputPath = null;
 			}
 		}
 	}
