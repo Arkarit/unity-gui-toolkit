@@ -266,6 +266,7 @@ namespace GuiToolkit.Editor
 						sb.AppendLine($"=== {Path.GetFileName(currentFile)} ===");
 					}
 					sb.AppendLine($"  {entry.MsgId}");
+					sb.AppendLine("  " + new string('-', 60));
 				}
 
 				File.WriteAllText(m_outputPath, sb.ToString(), Encoding.UTF8);
