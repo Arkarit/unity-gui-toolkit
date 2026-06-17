@@ -41,25 +41,84 @@ namespace GuiToolkit
 				m_points = new Vector2[m_pointsHorizontal * m_pointsVertical];
 		}
 
+		/// <summary>
+		/// Pure displacement math in local coordinates. Uses the most recently cached <see cref="Bounding"/>.
+		/// Returns the input unchanged if bounding is degenerate.
+		/// </summary>
+		public Vector2 DisplacePointLocal(Vector2 _point)
+		{
+			if (Bounding.width <= 0 || Bounding.height <= 0 || m_points == null || m_points.Length == 0)
+				return _point;
+
+			Vector2 normalized = new Vector2
+			(
+				(_point.x - Bounding.x) / Bounding.width,
+				(_point.y - Bounding.y) / Bounding.height
+			);
+			Vector2 offset = UiMathUtility.InterpPoint(m_points, m_pointsHorizontal, m_pointsVertical, normalized, false, true) * Bounding.size;
+			return _point + offset;
+		}
+
 		public override void ModifyMesh( VertexHelper _vertexHelper )
 		{
 			if (!IsActive())
 				return;
 
+			if (IsFollowing)
+			{
+				ModifyMeshFollowing(_vertexHelper, FollowSource);
+				return;
+			}
+
 			_vertexHelper.GetUIVertexStream(s_verts);
 
 			Bounding = UiMeshModifierUtility.GetBounds(s_verts);
+
+			DirtyFollowers();
+
 			for (int i = 0; i < _vertexHelper.currentVertCount; ++i)
 			{
 				_vertexHelper.PopulateUIVertex(ref s_vertex, i);
 
-				Vector2 pointNormalized = s_vertex.position.GetNormalizedPointInRect(Bounding);
-				Vector2 point = s_vertex.position.Xy() + UiMathUtility.InterpPoint(m_points, m_pointsHorizontal, m_pointsVertical, pointNormalized, false, true) * Bounding.size;
-				s_vertex.position = new Vector3(point.x, point.y, s_vertex.position.z);
+				Vector3 pos = s_vertex.position;
+				Vector2 displaced = DisplacePointLocal(new Vector2(pos.x, pos.y));
+				s_vertex.position = new Vector3(displaced.x, displaced.y, pos.z);
 
 				_vertexHelper.SetUIVertex(s_vertex, i);
 			}
 
+		}
+
+		/// <summary>
+		/// Replicates the source UiFFD's displacement in world space. Per vertex:
+		/// follower-local → world → source-local → displace (using source points + source bounds)
+		/// → world → follower-local.
+		/// </summary>
+		protected override void ModifyMeshFollowing(VertexHelper _vertexHelper, BaseMeshEffectTMP _source)
+		{
+			UiFFD src = _source as UiFFD;
+			if (src == null || !src.IsActive())
+				return;
+
+			Transform followerTr = transform;
+			Transform sourceTr = src.transform;
+
+			for (int i = 0; i < _vertexHelper.currentVertCount; ++i)
+			{
+				_vertexHelper.PopulateUIVertex(ref s_vertex, i);
+
+				Vector3 pFollowerLoc = s_vertex.position;
+				Vector3 pWorld = followerTr.TransformPoint(pFollowerLoc);
+				Vector3 pSourceLoc = sourceTr.InverseTransformPoint(pWorld);
+
+				Vector2 displacedSourceLoc = src.DisplacePointLocal(new Vector2(pSourceLoc.x, pSourceLoc.y));
+
+				Vector3 displacedWorld = sourceTr.TransformPoint(new Vector3(displacedSourceLoc.x, displacedSourceLoc.y, pSourceLoc.z));
+				Vector3 displacedFollowerLoc = followerTr.InverseTransformPoint(displacedWorld);
+
+				s_vertex.position = displacedFollowerLoc;
+				_vertexHelper.SetUIVertex(s_vertex, i);
+			}
 		}
 
 		private void Get( int _x, int _y, ref Vector2 _v )
@@ -87,6 +146,7 @@ namespace GuiToolkit
 		protected SerializedProperty m_pointsVerticalProp;
 		protected SerializedProperty m_pointsProp;
 		protected SerializedProperty m_absoluteValuesProp;
+		protected SerializedProperty m_followSourceProp;
 
 		static private bool m_toolsVisible;
 
@@ -96,11 +156,34 @@ namespace GuiToolkit
 			m_pointsVerticalProp = serializedObject.FindProperty("m_pointsVertical");
 			m_pointsProp = serializedObject.FindProperty("m_points");
 			m_absoluteValuesProp = serializedObject.FindProperty("m_absoluteValues");
+			m_followSourceProp = serializedObject.FindProperty("m_followSource");
 		}
 
 		public override void OnInspectorGUI()
 		{
 			UiFFD thisUiFFD = (UiFFD)target;
+
+			serializedObject.Update();
+
+			// Type-filtered field: only allow UiFFD references.
+			var currentSrc = (UiFFD)m_followSourceProp.objectReferenceValue;
+			var newSrc = (UiFFD)EditorGUILayout.ObjectField("Follow Source", currentSrc, typeof(UiFFD), true);
+			if (newSrc != currentSrc)
+				m_followSourceProp.objectReferenceValue = newSrc;
+
+			if (thisUiFFD.IsFollowing)
+			{
+				EditorGUILayout.HelpBox("This UiFFD follows another UiFFD in world space. Local parameters are ignored.", MessageType.Info);
+				if (GUILayout.Button("Select Source"))
+				{
+					var src = thisUiFFD.FollowSource;
+					if (src != null)
+						Selection.activeObject = src.gameObject;
+				}
+				if (serializedObject.ApplyModifiedProperties())
+					thisUiFFD.SetDirty();
+				return;
+			}
 
 			EditorGUILayout.PropertyField(m_pointsHorizontalProp);
 			EditorGUILayout.PropertyField(m_pointsVerticalProp);
@@ -171,7 +254,7 @@ namespace GuiToolkit
 		protected virtual void OnSceneGUI()
 		{
 			UiFFD thisUiFFD = (UiFFD)target;
-			if (!thisUiFFD.IsActive())
+			if (!thisUiFFD.IsActive() || thisUiFFD.IsFollowing)
 				return;
 
 			RectTransform rt = (RectTransform) thisUiFFD.transform;
