@@ -18,12 +18,12 @@ namespace GuiToolkit
 		public const int CORNERS_TR_IDX = 2;
 		public const int CORNERS_BR_IDX = 3;
 
-		private static readonly List<float> s_zeroOneList = new List<float>() {0.0f, 1.0f};
 		private static readonly List<UIVertex> s_oldVerts = new List<UIVertex>();
 		private static readonly List<UIVertex> s_newVerts = new List<UIVertex>();
 		private static readonly List<int> s_newIndices = new List<int>();
-		private static readonly List<float> s_splitsH = new List<float>();
-		private static readonly List<float> s_splitsV = new List<float>();
+		private static List<UIVertex> s_clipWorkA = new List<UIVertex>();
+		private static List<UIVertex> s_clipWorkB = new List<UIVertex>();
+		private static readonly List<UIVertex> s_clipPoly = new List<UIVertex>(8);
 
 		public static void RemoveZeroQuads( VertexHelper _vertexHelper )
 		{
@@ -81,8 +81,8 @@ namespace GuiToolkit
 			_vertexHelper.AddUIVertexStream(s_newVerts, s_newIndices);
 		}
 
-		// Note that the Tessellate() and Subdivide() functions for now only support regular rectangles.
-		// Any kind of irregular shaped forms give wrong results.
+		// Tessellate() assumes the input is a regular rectangle (axis-aligned BL/TL/TR/BR quads).
+		// Subdivide() works on arbitrary triangle topology via per-triangle iso-line clipping.
 
 		public static bool Tessellate( VertexHelper _vertexHelper, float _sizeH, float _sizeV )
 		{
@@ -196,99 +196,193 @@ namespace GuiToolkit
 			return true;
 		}
 
-		// split lists left to right, bottom to top
-		public static bool Subdivide( VertexHelper _vertexHelper, List<float> _normalizedSplitsH, List<float> _normalizedSplitsV )
+		/// <summary>
+		/// Splits the mesh in the given <see cref="VertexHelper"/> along axis-aligned iso-lines
+		/// expressed as normalized positions (0..1) within the mesh's overall axis-aligned bounding box.
+		///
+		/// <paramref name="_normalizedSplitsH"/> defines vertical iso-lines at x = t * width  + xMin.
+		/// <paramref name="_normalizedSplitsV"/> defines horizontal iso-lines at y = t * height + yMin.
+		///
+		/// The algorithm clips every input triangle independently against each iso-line using
+		/// Sutherland-Hodgman half-plane clipping, fan-triangulating the resulting polygons.
+		/// It is topology-agnostic: works for axis-aligned single quads, 9-sliced images,
+		/// tessellated grids, radial-filled images, TMP glyphs, sheared/rotated quads, and arbitrary
+		/// triangle soups. Splits at t&lt;=0 or t&gt;=1 are ignored.
+		///
+		/// Triangles in the output do not share vertices; each triangle owns its three vertices.
+		/// </summary>
+		public static void Subdivide( VertexHelper _vertexHelper, List<float> _normalizedSplitsH, List<float> _normalizedSplitsV )
 		{
+			bool hasH = _normalizedSplitsH != null && _normalizedSplitsH.Count > 0;
+			bool hasV = _normalizedSplitsV != null && _normalizedSplitsV.Count > 0;
+			if (!hasH && !hasV)
+				return;
+
 			s_oldVerts.Clear();
-			s_newVerts.Clear();
-			s_newIndices.Clear();
+			_vertexHelper.GetUIVertexStream(s_oldVerts);
 
-			bool result = true;
-				
-			if (_normalizedSplitsH != null && _normalizedSplitsH.Count > 0 || _normalizedSplitsV != null && _normalizedSplitsV.Count > 0)
+			if (s_oldVerts.Count < 3)
+				return;
+
+			Rect bounds = GetBounds(s_oldVerts);
+			if (bounds.width <= 0f || bounds.height <= 0f)
+				return;
+
+			s_clipWorkA.Clear();
+			s_clipWorkB.Clear();
+			s_clipWorkA.AddRange(s_oldVerts);
+
+			bool changed = false;
+
+			if (hasH)
 			{
-				_vertexHelper.GetUIVertexStream(s_oldVerts);
-
-				if (_normalizedSplitsH == null || _normalizedSplitsH.Count < 2)
-					_normalizedSplitsH = s_zeroOneList;
-				if (_normalizedSplitsV == null || _normalizedSplitsV.Count < 2)
-					_normalizedSplitsV = s_zeroOneList;
-
-				result = Subdivide(s_oldVerts, s_newVerts, s_newIndices, _normalizedSplitsH, _normalizedSplitsV);
-
-				_vertexHelper.Clear();
-				_vertexHelper.AddUIVertexStream(s_newVerts, s_newIndices);
-			}
-
-			return result;
-		}
-
-		public static bool Subdivide( List<UIVertex> _inTriangleList, List<UIVertex> _outVertices, List<int> _outIndices, List<float> _normalizedSplitsH, List<float> _normalizedSplitsV )
-		{
-			Rect minMaxRect = GetBounds( _inTriangleList );
-
-			int startingVertexCount = _inTriangleList.Count;
-			for (int i = 0; i < startingVertexCount; i += 6)
-			{
-				if (!SubdivideQuad(_inTriangleList, _outVertices, _outIndices, i, minMaxRect, _normalizedSplitsH, _normalizedSplitsV))
-					return false;
-			}
-
-			return true;
-		}
-
-		public static bool SubdivideQuad( List<UIVertex> _inTriangleList, List<UIVertex> _outVertices, List<int> _outIndices, int _startIdx, Rect _minMaxRect, List<float> _normalizedSplitsH, List<float> _normalizedSplitsV )
-		{
-			UIVertex bl = _inTriangleList[_startIdx + QUAD_BL_IDX_OFFSET];
-			UIVertex tl = _inTriangleList[_startIdx + QUAD_TL_IDX_OFFSET];
-			UIVertex tr = _inTriangleList[_startIdx + QUAD_TR_IDX_OFFSET];
-			UIVertex br = _inTriangleList[_startIdx + QUAD_BR_IDX_OFFSET];
-
-			if (!IsQuadValid(ref bl, ref tl, ref tr, ref br))
-				return false;
-
-			Rect normalizedRect = GetNormalizedRect( _inTriangleList, _startIdx, _minMaxRect );
-
-			s_splitsH.Clear();
-			s_splitsV.Clear();
-			GetNormalizedSplits(normalizedRect, _normalizedSplitsH, _normalizedSplitsV, s_splitsH, s_splitsV);
-
-			int currentOutIndex = _outVertices.Count;
-
-			int numH = s_splitsH.Count;
-			int numV = s_splitsV.Count;
-
-			int[] lastBl = new int[numH];
-			int[] lastTl = new int[numH];
-			int[] lastTr = new int[numH];
-			int[] lastBr = new int[numH];
-
-			for (int iY = 0; iY < numV-1; iY++)
-			{
-				float bottomSplit = s_splitsV[iY]; 
-				float topSplit = s_splitsV[iY+1];
-
-				for (int iX = 0; iX < numH-1; iX++)
+				int n = _normalizedSplitsH.Count;
+				for (int i = 0; i < n; i++)
 				{
-					if (currentOutIndex >= 64996)
-						return false;
-
-					float leftSplit = s_splitsH[iX]; 
-					float rightSplit = s_splitsH[iX+1];
-
-					Split( 
-						iX, iY, 
-						ref bl, ref tl, ref tr, ref br,
-						leftSplit, rightSplit, bottomSplit, topSplit,
-						ref lastBl, ref lastTl, ref lastTr, ref lastBr,
-						ref currentOutIndex,
-						ref _outVertices,
-						ref _outIndices
-					);
+					float t = _normalizedSplitsH[i];
+					if (t <= 0f || t >= 1f)
+						continue;
+					float line = t * bounds.width + bounds.xMin;
+					s_clipWorkB.Clear();
+					SplitTrianglesAlongAxis(s_clipWorkA, s_clipWorkB, line, 0);
+					var tmp = s_clipWorkA;
+					s_clipWorkA = s_clipWorkB;
+					s_clipWorkB = tmp;
+					changed = true;
 				}
 			}
 
-			return true;
+			if (hasV)
+			{
+				int n = _normalizedSplitsV.Count;
+				for (int i = 0; i < n; i++)
+				{
+					float t = _normalizedSplitsV[i];
+					if (t <= 0f || t >= 1f)
+						continue;
+					float line = t * bounds.height + bounds.yMin;
+					s_clipWorkB.Clear();
+					SplitTrianglesAlongAxis(s_clipWorkA, s_clipWorkB, line, 1);
+					var tmp = s_clipWorkA;
+					s_clipWorkA = s_clipWorkB;
+					s_clipWorkB = tmp;
+					changed = true;
+				}
+			}
+
+			if (!changed)
+			{
+				s_clipWorkA.Clear();
+				s_clipWorkB.Clear();
+				return;
+			}
+
+			s_newIndices.Clear();
+			int outCount = s_clipWorkA.Count;
+			if (outCount >= 65000)
+			{
+				Debug.LogWarning($"[UiMeshModifierUtility.Subdivide] Output exceeds Unity's 65k-vertex limit ({outCount} verts); mesh will be truncated.");
+				outCount = 65000 - (65000 % 3);
+			}
+			for (int i = 0; i < outCount; i++)
+				s_newIndices.Add(i);
+
+			_vertexHelper.Clear();
+			if (outCount == s_clipWorkA.Count)
+			{
+				_vertexHelper.AddUIVertexStream(s_clipWorkA, s_newIndices);
+			}
+			else
+			{
+				s_newVerts.Clear();
+				for (int i = 0; i < outCount; i++)
+					s_newVerts.Add(s_clipWorkA[i]);
+				_vertexHelper.AddUIVertexStream(s_newVerts, s_newIndices);
+				s_newVerts.Clear();
+			}
+
+			s_clipWorkA.Clear();
+			s_clipWorkB.Clear();
+		}
+
+		// Splits each triangle in _in against the iso-line "axis-coord = _lineConstant",
+		// emitting the resulting sub-triangles to _out.
+		// _axis: 0 = X (vertical iso-line), 1 = Y (horizontal iso-line).
+		private static void SplitTrianglesAlongAxis(List<UIVertex> _in, List<UIVertex> _out, float _lineConstant, int _axis)
+		{
+			int n = _in.Count;
+			for (int i = 0; i + 2 < n; i += 3)
+			{
+				UIVertex v0 = _in[i];
+				UIVertex v1 = _in[i + 1];
+				UIVertex v2 = _in[i + 2];
+				ClipTriangleToHalfPlane(ref v0, ref v1, ref v2, _lineConstant, _axis, _out, true);
+				ClipTriangleToHalfPlane(ref v0, ref v1, ref v2, _lineConstant, _axis, _out, false);
+			}
+		}
+
+		// Sutherland-Hodgman: clips triangle (_v0,_v1,_v2) against a half-plane.
+		// _keepPositive=true keeps the (coord >= _lineConstant) side including the line itself;
+		// _keepPositive=false keeps the (coord < _lineConstant) side strictly, so vertices exactly
+		// on the line are not duplicated between the two output sides.
+		private static void ClipTriangleToHalfPlane(ref UIVertex _v0, ref UIVertex _v1, ref UIVertex _v2, float _lineConstant, int _axis, List<UIVertex> _out, bool _keepPositive)
+		{
+			s_clipPoly.Clear();
+			ClipEdge(ref _v0, ref _v1, _lineConstant, _axis, _keepPositive);
+			ClipEdge(ref _v1, ref _v2, _lineConstant, _axis, _keepPositive);
+			ClipEdge(ref _v2, ref _v0, _lineConstant, _axis, _keepPositive);
+
+			int polyCount = s_clipPoly.Count;
+			if (polyCount < 3)
+				return;
+
+			UIVertex anchor = s_clipPoly[0];
+			for (int i = 1; i < polyCount - 1; i++)
+			{
+				_out.Add(anchor);
+				_out.Add(s_clipPoly[i]);
+				_out.Add(s_clipPoly[i + 1]);
+			}
+		}
+
+		private static void ClipEdge(ref UIVertex _curr, ref UIVertex _next, float _lineConstant, int _axis, bool _keepPositive)
+		{
+			float dCurr = (_axis == 0 ? _curr.position.x : _curr.position.y) - _lineConstant;
+			float dNext = (_axis == 0 ? _next.position.x : _next.position.y) - _lineConstant;
+
+			bool currIn = _keepPositive ? (dCurr >= 0f) : (dCurr < 0f);
+			bool nextIn = _keepPositive ? (dNext >= 0f) : (dNext < 0f);
+
+			if (currIn)
+			{
+				if (nextIn)
+				{
+					s_clipPoly.Add(_next);
+				}
+				else
+				{
+					float t = dCurr / (dCurr - dNext);
+					s_clipPoly.Add(LerpVertex(ref _curr, ref _next, t));
+				}
+			}
+			else if (nextIn)
+			{
+				float t = dCurr / (dCurr - dNext);
+				s_clipPoly.Add(LerpVertex(ref _curr, ref _next, t));
+				s_clipPoly.Add(_next);
+			}
+		}
+
+		// Mirrors UiMathUtility.Bilerp: only position, color and uv0 are interpolated.
+		// uv1-3, normal and tangent come from _a unchanged - matches existing behavior of the
+		// quad-based subdivision path and the UI gradient/distortion modifiers that consume it.
+		private static UIVertex LerpVertex(ref UIVertex _a, ref UIVertex _b, float _t)
+		{
+			UIVertex r = _a;
+			r.position = Vector3.Lerp(_a.position, _b.position, _t);
+			r.color = Color.Lerp(_a.color, _b.color, _t);
+			r.uv0 = Vector2.Lerp(_a.uv0, _b.uv0, _t);
+			return r;
 		}
 
 		public static Rect GetBounds( List<UIVertex> _inTriangleList )
@@ -334,19 +428,6 @@ namespace GuiToolkit
 			return result;
 		}
 
-		public static Rect GetNormalizedRect( List<UIVertex> _inTriangleList, int _startIdx, Rect _minMaxRect )
-		{
-			UIVertex bl = _inTriangleList[_startIdx + QUAD_BL_IDX_OFFSET];
-			UIVertex tr = _inTriangleList[_startIdx + QUAD_TR_IDX_OFFSET];
-
-			float xMin = (bl.position.x - _minMaxRect.xMin) / _minMaxRect.width;
-			float yMin = (bl.position.y - _minMaxRect.yMin) / _minMaxRect.height;
-			float xMax = (tr.position.x - _minMaxRect.xMin) / _minMaxRect.width;
-			float yMax = (tr.position.y - _minMaxRect.yMin) / _minMaxRect.height;
-
-			return new Rect(xMin, yMin, xMax-xMin, yMax-yMin);
-		}
-
 		public static Vector2 GetNormalizedPointInRect( this Vector2 _this, Rect _rt)
 		{
 			return new Vector2(_this.x / _rt.width, _this.y / _rt.height);
@@ -377,49 +458,6 @@ namespace GuiToolkit
 			return result;
 		}
 
-
-		private static void GetNormalizedSplits( Rect _nrmRect, List<float> _inAllNrmSplitsH, List<float> _inAllNrmSplitsV, List<float> _outNrmSplitsH, List<float> _outNrmSplitsV )
-		{
-			_outNrmSplitsH.Add(0);
-			if (_inAllNrmSplitsH != null)
-			{
-				int count = _inAllNrmSplitsH.Count;
-				for (int i=0; i<count; i++)
-				{
-					float split = _inAllNrmSplitsH[i];
-					if (split > _nrmRect.xMin && split < _nrmRect.xMax)
-						_outNrmSplitsH.Add((split - _nrmRect.xMin) / _nrmRect.width);
-				}
-			}
-			_outNrmSplitsH.Add(1);
-
-			_outNrmSplitsV.Add(0);
-			if (_inAllNrmSplitsV != null)
-			{
-				int count = _inAllNrmSplitsV.Count;
-				for (int i=0; i<count; i++)
-				{
-					float split = _inAllNrmSplitsV[i];
-					if (split > _nrmRect.yMin && split < _nrmRect.yMax)
-					{
-						split = 1.0f - (1.0f - split - (1.0f - _nrmRect.yMax)) / _nrmRect.height;
-						_outNrmSplitsV.Add( split );
-					}
-				}
-			}
-			_outNrmSplitsV.Add(1);
-
-		}
-
-		private static void GetRectSplits( Rect _rect, List<float> _splitsH, List<float> _splitsV )
-		{
-			int numH = _splitsH.Count;
-			for (int i=0; i<numH; i++)
-				_splitsH[i] = _splitsH[i] * _rect.width + _rect.x;
-			int numV = _splitsV.Count;
-			for (int i=0; i<numV; i++)
-				_splitsV[i] = _splitsV[i] * _rect.height + _rect.y;
-		}
 
 		private static void Split
 		( 

@@ -20,6 +20,12 @@ namespace GuiToolkit
 		[SerializeField]
 		protected bool m_splitAtKeys = true;
 
+		// Width of the duplicated-vertex sliver used to render hard color steps in GradientMode.Fixed.
+		// Each Fixed-mode key time t becomes two iso-lines at (t - eps) and (t + eps) so that
+		// vertex-position-based color sampling produces the desired step (instead of GPU-smoothing
+		// across the key). Picked to be well below sub-pixel size at any plausible UI resolution.
+		private const float FIXED_MODE_EPSILON = 1e-4f;
+
 		private static readonly SortedSet<float> s_KeyTimesSet = new();
 		private static readonly List<float> s_KeyTimesList = new();
 
@@ -41,26 +47,47 @@ namespace GuiToolkit
 			if (!m_splitAtKeys)
 				return;
 
-			GradientColorKey[] colorKeys = m_gradient.colorKeys;
-			GradientAlphaKey[] alphaKeys = m_gradient.alphaKeys;
+			try
+			{
+				bool isFixed = m_gradient.mode == GradientMode.Fixed;
+				foreach (var key in m_gradient.colorKeys)
+					AddKey(key.time, isFixed);
+				foreach (var key in m_gradient.alphaKeys)
+					AddKey(key.time, isFixed);
 
-			foreach( var key in colorKeys )
-				s_KeyTimesSet.Add( m_type == Type.Horizontal ? key.time : 1.0f - key.time );
-			foreach( var key in alphaKeys )
-				s_KeyTimesSet.Add( m_type == Type.Horizontal ? key.time : 1.0f - key.time );
+				if (s_KeyTimesSet.Count == 0)
+					return;
 
-			if (s_KeyTimesSet.Count <= 2)
-				return;
+				s_KeyTimesSet.ToList(s_KeyTimesList);
 
-			s_KeyTimesSet.ToList(s_KeyTimesList);
+				if (m_type == Type.Horizontal)
+					UiMeshModifierUtility.Subdivide(_vh, s_KeyTimesList, null);
+				else
+					UiMeshModifierUtility.Subdivide(_vh, null, s_KeyTimesList);
+			}
+			finally
+			{
+				s_KeyTimesSet.Clear();
+				s_KeyTimesList.Clear();
+			}
+		}
 
-			if (m_type == Type.Horizontal)
-				UiMeshModifierUtility.Subdivide( _vh, s_KeyTimesList, null);
-			else
-				UiMeshModifierUtility.Subdivide( _vh, null, s_KeyTimesList);
-
-			s_KeyTimesSet.Clear();
-			s_KeyTimesList.Clear();
+		private void AddKey(float _keyTime, bool _isFixed)
+		{
+			float t = m_type == Type.Horizontal ? _keyTime : 1.0f - _keyTime;
+			if (_isFixed)
+			{
+				float a = t - FIXED_MODE_EPSILON;
+				float b = t + FIXED_MODE_EPSILON;
+				if (a > 0f && a < 1f)
+					s_KeyTimesSet.Add(a);
+				if (b > 0f && b < 1f)
+					s_KeyTimesSet.Add(b);
+			}
+			else if (t > 0f && t < 1f)
+			{
+				s_KeyTimesSet.Add(t);
+			}
 		}
 
 	}
