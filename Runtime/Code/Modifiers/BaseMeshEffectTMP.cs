@@ -154,20 +154,56 @@ namespace GuiToolkit
 			}
 		}
 
+		// Followers must NOT be SetDirty'd while we're inside Unity's graphic rebuild loop
+		// (Canvas would throw "Trying to add ... for graphic rebuild while we are already inside a graphic rebuild loop").
+		// Instead, queue them here and drain on the next Canvas.willRenderCanvases call.
+		private static readonly HashSet<BaseMeshEffectTMP> s_pendingDirty = new HashSet<BaseMeshEffectTMP>();
+		private static readonly List<BaseMeshEffectTMP> s_pendingDirtySnapshot = new List<BaseMeshEffectTMP>();
+		private static bool s_canvasHookInstalled;
+
+		private static void EnsureCanvasHookInstalled()
+		{
+			if (s_canvasHookInstalled)
+				return;
+			s_canvasHookInstalled = true;
+			Canvas.willRenderCanvases += FlushPendingDirty;
+		}
+
+		private static void FlushPendingDirty()
+		{
+			if (s_pendingDirty.Count == 0)
+				return;
+
+			s_pendingDirtySnapshot.Clear();
+			s_pendingDirtySnapshot.AddRange(s_pendingDirty);
+			s_pendingDirty.Clear();
+
+			foreach (var follower in s_pendingDirtySnapshot)
+			{
+				if (follower != null)
+					follower.SetDirty();
+			}
+			s_pendingDirtySnapshot.Clear();
+		}
+
 		/// <summary>
 		/// Mark followers dirty without re-rendering this modifier.
 		/// Subclasses call this from inside <see cref="ModifyMesh"/> after their cached state
 		/// (Bounding, derived parameters) updates, so followers refresh on the next canvas pass.
+		/// The actual SetDirty is deferred to the next <see cref="Canvas.willRenderCanvases"/> call
+		/// to avoid triggering a graphic-rebuild registration while we are still inside one.
 		/// </summary>
 		protected void DirtyFollowers()
 		{
 			if (m_followers == null || m_followers.Count == 0)
 				return;
 
+			EnsureCanvasHookInstalled();
+
 			foreach (var follower in m_followers)
 			{
 				if (follower != null && follower != this)
-					follower.SetDirty();
+					s_pendingDirty.Add(follower);
 			}
 		}
 
@@ -447,14 +483,10 @@ namespace GuiToolkit
 			}
 
 			// Propagate to followers so banner/text/etc. stay in sync with their source.
-			if (m_followers != null && m_followers.Count > 0)
-			{
-				foreach (var follower in m_followers)
-				{
-					if (follower != null && follower != this)
-						follower.SetDirty();
-				}
-			}
+			// Deferred via DirtyFollowers to avoid triggering graphic rebuild registration
+			// while we are inside Unity's rebuild loop (e.g., SetDirty called from a setter
+			// in response to OnValidate during edit, or chained from another DirtyFollowers).
+			DirtyFollowers();
 		}
 
 		/// <summary>
