@@ -42,9 +42,134 @@ namespace GuiToolkit
 		private float m_lossyScaleY;
 
 		/// <summary>
+		/// Optional reference to another modifier of the same concrete type whose effect should be replicated in world space.
+		/// When set, this modifier's own parameters are ignored; it pulls bounds and parameters from the source instead.
+		/// </summary>
+		[SerializeField] private BaseMeshEffectTMP m_followSource;
+
+		private HashSet<BaseMeshEffectTMP> m_followers;
+		private BaseMeshEffectTMP m_registeredAtSource;
+
+		/// <summary>
+		/// Reference to another modifier of the same concrete type whose effect this modifier should follow in world space.
+		/// Setter validates same-type and rejects cycles.
+		/// </summary>
+		public BaseMeshEffectTMP FollowSource
+		{
+			get => m_followSource;
+			set
+			{
+				if (m_followSource == value)
+					return;
+				if (value != null)
+				{
+					if (value == this)
+					{
+						UiLog.LogWarning($"{GetType().Name} can not follow itself", this);
+						return;
+					}
+					if (value.GetType() != GetType())
+					{
+						UiLog.LogWarning($"FollowSource must be of same type ({GetType().Name}); got {value.GetType().Name}", this);
+						return;
+					}
+					if (WouldCreateCycle(value))
+					{
+						UiLog.LogWarning($"FollowSource assignment would create a cycle; rejected", this);
+						return;
+					}
+				}
+
+				UnregisterFromCurrentSource();
+				m_followSource = value;
+				RegisterAtCurrentSource();
+				SetDirty();
+			}
+		}
+
+		public bool IsFollowing => m_followSource != null && m_followSource != this;
+
+		/// <summary>
 		/// Return true if your modifier adds or removes any elements to/from the mesh
 		/// </summary>
 		protected virtual bool ChangesTopology { get {return false;} }
+
+		/// <summary>
+		/// Subclasses override this to replicate the source's effect in world space.
+		/// Default logs a warning to flag missing implementation. Called from <see cref="ModifyMesh"/> when <see cref="IsFollowing"/>.
+		/// </summary>
+		protected virtual void ModifyMeshFollowing(VertexHelper _vertexHelper, BaseMeshEffectTMP _source)
+		{
+			UiLog.LogWarning($"{GetType().Name} does not implement ModifyMeshFollowing; follow source ignored", this);
+		}
+
+		private bool WouldCreateCycle(BaseMeshEffectTMP _candidate)
+		{
+			var cur = _candidate;
+			for (int i = 0; cur != null && i < 16; i++)
+			{
+				if (cur == this)
+					return true;
+				cur = cur.m_followSource;
+			}
+			return false;
+		}
+
+		private void RegisterFollower(BaseMeshEffectTMP _follower)
+		{
+			if (m_followers == null)
+				m_followers = new HashSet<BaseMeshEffectTMP>();
+			m_followers.Add(_follower);
+		}
+
+		private void UnregisterFollower(BaseMeshEffectTMP _follower)
+		{
+			if (m_followers != null)
+				m_followers.Remove(_follower);
+		}
+
+		private void RegisterAtCurrentSource()
+		{
+			if (m_followSource == null || m_followSource == this)
+				return;
+
+			// Hard runtime guard against serialized cycles (Editor's OnValidate catches them too, but built games rely on this).
+			if (WouldCreateCycle(m_followSource))
+			{
+				UiLog.LogWarning($"FollowSource on {GetType().Name} forms a cycle; ignoring at runtime", this);
+				m_followSource = null;
+				return;
+			}
+
+			m_followSource.RegisterFollower(this);
+			m_registeredAtSource = m_followSource;
+		}
+
+		private void UnregisterFromCurrentSource()
+		{
+			if (m_registeredAtSource != null)
+			{
+				m_registeredAtSource.UnregisterFollower(this);
+				m_registeredAtSource = null;
+			}
+		}
+
+		/// <summary>
+		/// Mark followers dirty without re-rendering this modifier.
+		/// Subclasses call this from inside <see cref="ModifyMesh"/> after their cached state
+		/// (Bounding, derived parameters) updates, so followers refresh on the next canvas pass.
+		/// </summary>
+		protected void DirtyFollowers()
+		{
+			if (m_followers == null || m_followers.Count == 0)
+				return;
+
+			foreach (var follower in m_followers)
+			{
+				if (follower != null && follower != this)
+					follower.SetDirty();
+			}
+		}
 
 		/// <summary>
 		/// Callback when any TextMeshPro changes.
@@ -175,6 +300,7 @@ namespace GuiToolkit
 			InitCanvas();
 			m_aboutToBeDisabled = false;
 			UpdateTMPCallback();
+			RegisterAtCurrentSource();
 			SetDirty(true);
 
 #if UNITY_EDITOR
@@ -197,6 +323,7 @@ namespace GuiToolkit
 			m_aboutToBeDisabled = true;
 
 			UpdateTMPCallback();
+			UnregisterFromCurrentSource();
 			SetDirty(true);
 
 #if UNITY_EDITOR
@@ -318,6 +445,16 @@ namespace GuiToolkit
 			{
 				graphic.SetVerticesDirty ();
 			}
+
+			// Propagate to followers so banner/text/etc. stay in sync with their source.
+			if (m_followers != null && m_followers.Count > 0)
+			{
+				foreach (var follower in m_followers)
+				{
+					if (follower != null && follower != this)
+						follower.SetDirty();
+				}
+			}
 		}
 
 		/// <summary>
@@ -352,6 +489,22 @@ namespace GuiToolkit
 		protected override void OnValidate()
 		{
 			base.OnValidate();
+
+			// Re-validate FollowSource if it was changed in the inspector.
+			// We bypass the property to avoid the no-op early-out on equal values, then re-apply via the property
+			// so type/cycle checks and registration housekeeping happen consistently.
+			if (m_followSource != null && (m_followSource == this || m_followSource.GetType() != GetType() || WouldCreateCycle(m_followSource)))
+			{
+				UiLog.LogWarning($"Invalid FollowSource on {GetType().Name}; clearing", this);
+				m_followSource = null;
+			}
+
+			if (m_registeredAtSource != m_followSource)
+			{
+				UnregisterFromCurrentSource();
+				RegisterAtCurrentSource();
+			}
+
 			SetDirty();
 		}
 
