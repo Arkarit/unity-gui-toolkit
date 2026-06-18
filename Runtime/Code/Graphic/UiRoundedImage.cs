@@ -1,55 +1,36 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 namespace GuiToolkit
 {
 	/// <summary>
-	/// Create rounded and antialiased images
+	/// Create rounded and antialiased images.
 	///
 	/// In nearly every project, there's a need for rounded images and frames.
-	/// This class handles this by creating an image with rounded corners of an arbitrary radius, and optional frame (hole) functionality and antialiasing.
+	/// This class handles this by creating an image with rounded corners of an arbitrary radius,
+	/// and optional frame (hole) functionality and antialiasing.
 	/// It works nearly like the original UnityEngine.UI.Image, where it's based on.
 	/// You can add a sprite and set a color for the image.
 	/// UV coordinates however are always 0/1 and there is no support for sliced, tiled, preserve aspect etc.
 	///
 	/// It also has some other improvements compared to UnityEngine.UI.Image; it can be disabled etc.
-	/// 
+	///
 	/// Unfortunately we can not make it an UiThing in C#, which would be a very simple task in a real programming language: just inherit from UiThing and Image.
 	/// We also can't handle the improvements via composition. Thus this class is a bit outside of the common UiThing class hierarchy.
+	///
+	/// Shape-agnostic infrastructure (frame, fade, material handling, UV mapping, IEnableableInHierarchy)
+	/// lives in the abstract UiShapeImage base; this class adds the rounded-rectangle geometry.
 	/// </summary>
 	[ExecuteAlways]
 	[RequireComponent(typeof(CanvasRenderer))]
-	public class UiRoundedImage : Image, IEnableableInHierarchy
+	public class UiRoundedImage : UiShapeImage
 	{
 		public const int MinCornerSegments = 1;
 		public const int MaxCornerSegments = 30;
 
 		public const float MinRadius = 0;
 		public const float MaxRadius = 200;
-
-		public const float MinFrameSize = 0;
-		public const float MaxFrameSize = 200;
-
-		public const float MinFadeSize = 0;
-		public const float MaxFadeSize = 200;
-
-		[Flags]
-		protected enum MaterialFlags
-		{
-			Enabled = 0x01,
-			InvertMask = 0x02,
-			Maskable = 0x04,
-		}
-
-		private enum Fade
-		{
-			None,
-			Inner,
-			Outer,
-		}
 
 		private enum QuadFade
 		{
@@ -60,17 +41,6 @@ namespace GuiToolkit
 			Bottom,
 		}
 
-		private class Vertex
-		{
-			public Vector2 Position;
-			public Vector2 Uv;
-			public Color Color;
-		}
-
-		[SerializeField] protected bool m_enabledInHierarchy;
-
-		[SerializeField] protected Material m_disabledMaterial;
-
 		[Tooltip("Corner segments. The more, the rounder. But keep an eye on performance; "
 				 + "more corner segments mean more triangles and longer creation time. "
 				 + "Between 5 and 10 should be sufficient for most tasks.")]
@@ -80,41 +50,6 @@ namespace GuiToolkit
 		[Tooltip("Corner radius. To work properly, this should always be greater than frame size (when used with frame)")]
 		[UnityEngine.Range(MinRadius, MaxRadius)]
 		[SerializeField] protected float m_radius = 10;
-
-		[Tooltip("Frame size. When set to 0, the image is completely filled. To work properly, this should always be less than corner radius (when used with frame)")]
-		[UnityEngine.Range(MinFrameSize, MaxFrameSize)]
-		[SerializeField] protected float m_frameSize = 0;
-
-		[Tooltip("Fades out the edges of the image. Very useful for antialiasing, but can also be used for other purposes (e.g. soft shadow)")]
-		[UnityEngine.Range(MinFadeSize, MaxFadeSize)]
-		[SerializeField] protected float m_fadeSize = 0;
-
-		[Tooltip("The Transparent color")]
-		[SerializeField] protected Color m_fadeColor = Color.clear;
-
-		[Tooltip("Invert stencil mask. Useful for cutouts.")]
-		[SerializeField] protected bool m_invertMask;
-
-		[Tooltip("Use padding. This is most useful for adjusting stretchable masks.")]
-		[SerializeField] protected bool m_usePadding;
-
-		[Tooltip("Padding")]
-		[SerializeField] protected RectOffset m_padding;
-
-		[Tooltip("Assign a fixed size instead of using rect transform boundaries. The fixed size is centered to the pivot. This is most useful for adjusting stretchable masks. X and y are offsets.")]
-		[SerializeField] protected bool m_useFixedSize;
-
-		[Tooltip("Fixed size")]
-		[SerializeField] protected Rect m_fixedSize = new Rect(-10, -10, 20, 20);
-
-		[Tooltip("Ui Simple Gradient component. Mandatory if you want to use the 'SimpleGradientColors' getters+setters.")]
-		[SerializeField] protected UiGradientSimple m_gradientSimple;
-
-
-		private static readonly List<Vertex> s_vertices = new();
-		private static readonly List<int[]> s_triangles = new();
-
-		protected Material m_clonedMaterial;
 
 		public int CornerSegments
 		{
@@ -138,297 +73,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public float FrameSize
-		{
-			get => m_frameSize;
-			set
-			{
-				CheckSetterRange(nameof(FrameSize), value, MinFrameSize, MaxFrameSize);
-				m_frameSize = value;
-				SetVerticesDirty();
-			}
-		}
-
-		public float FadeSize
-		{
-			get => m_fadeSize;
-			set
-			{
-				CheckSetterRange(nameof(FadeSize), value, MinFadeSize, MaxFadeSize);
-				m_fadeSize = value;
-				SetVerticesDirty();
-			}
-		}
-
-		public bool InvertMask
-		{
-			get => m_invertMask;
-			set
-			{
-				if (m_invertMask == value)
-					return;
-
-				m_invertMask = value;
-				SetMaterialDirty();
-			}
-		}
-
-		public Color FadeColor
-		{
-			get => m_fadeColor;
-			set
-			{
-				if (m_fadeColor == value)
-					return;
-
-				m_fadeColor = value;
-				SetVerticesDirty();
-			}
-		}
-
-		public RectOffset Padding
-		{
-			get => m_padding;
-			set => m_padding = value;
-		}
-
-		public Rect Rect
-		{
-			get
-			{
-				var result = rectTransform.rect;
-
-				if (m_useFixedSize)
-				{
-					var pivot = rectTransform.pivot;
-					result.x += result.width * pivot.x + m_fixedSize.x - m_fixedSize.width / 2;
-					result.y += result.height * pivot.y + m_fixedSize.y - m_fixedSize.height / 2;
-					result.width = m_fixedSize.width;
-					result.height = m_fixedSize.height;
-				}
-
-				if (m_usePadding)
-				{
-					result.x += m_padding.left;
-					result.width -= m_padding.horizontal;
-					result.y += m_padding.bottom;
-					result.height -= m_padding.vertical;
-				}
-
-				return result;
-			}
-		}
-
-		public void SetSimpleGradientColors( Color _leftOrTop, Color _rightOrBottom )
-		{
-			if (m_gradientSimple == null)
-			{
-				UiLog.LogError("Attempt to set simple gradient colors, but simple gradient was not set");
-				return;
-			}
-			m_gradientSimple.SetColors(_leftOrTop, _rightOrBottom);
-		}
-
-		public (Color leftOrTop, Color rightOrBottom) GetSimpleGradientColors()
-		{
-			if (m_gradientSimple == null)
-				return (leftOrTop: Color.white, rightOrBottom: Color.white);
-			return m_gradientSimple.GetColors();
-		}
-
-
-		#region IEnableableInHierarchy
-		public bool IsEnableableInHierarchy => m_disabledMaterial;
-		bool IEnableableInHierarchy.StoreEnabledInHierarchy
-		{
-			get => m_enabledInHierarchy;
-			set => m_enabledInHierarchy = value;
-		}
-		public bool EnabledInHierarchy
-		{
-			get => EnableableInHierarchyUtility.GetEnabledInHierarchy(this);
-			set => EnableableInHierarchyUtility.SetEnabledInHierarchy(this, value);
-		}
-		public IEnableableInHierarchy[] Children => GetComponentsInChildren<IEnableableInHierarchy>();
-		public void OnEnabledInHierarchyChanged( bool _enabled ) => SetMaterialDirty();
-		#endregion
-
-		protected override void OnDisable()
-		{
-			base.OnDisable();
-			if (GeneralUtility.IsQuitting)
-				return;
-
-			m_clonedMaterial.SafeDestroyDelayed();
-			m_clonedMaterial = null;
-		}
-
-		private Material m_lastMaterial;
-
-		public override Material materialForRendering
-		{
-			get
-			{
-				var currentMaterialFlags = CurrentMaterialFlags;
-				var actualMaterial = (m_disabledMaterial && (currentMaterialFlags & MaterialFlags.Enabled) == 0) ?
-					m_disabledMaterial :
-					material;
-
-				if (m_lastMaterial != actualMaterial)
-				{
-					m_clonedMaterial.SafeDestroyDelayed();
-					m_clonedMaterial = null;
-					m_lastMaterial = actualMaterial;
-				}
-
-				Material result;
-
-				bool needsClone = (currentMaterialFlags & MaterialFlags.InvertMask) != 0;
-				if (needsClone)
-				{
-					if (!m_clonedMaterial)
-						m_clonedMaterial = Instantiate(actualMaterial);
-					actualMaterial = m_clonedMaterial;
-				}
-
-				var savedMaterial = m_Material;
-				m_Material = actualMaterial;
-				result = base.materialForRendering;
-				m_Material = savedMaterial;
-
-				if (result == null)
-					result = material;
-
-				if (!maskable)
-					result.SetInt("_StencilComp", (int)CompareFunction.Always);
-				else if (m_invertMask)
-					result.SetInt("_StencilComp", (int)CompareFunction.NotEqual);
-				else
-					result.SetInt("_StencilComp", (int)CompareFunction.Equal);
-
-				return result;
-			}
-		}
-
-
-		protected override void OnPopulateMesh( Mesh _mesh )
-		{
-			if (m_frameSize > 0)
-			{
-				GenerateFrame();
-				ApplyToMesh(_mesh);
-				return;
-			}
-
-			GenerateFilled();
-			ApplyToMesh(_mesh);
-		}
-
-		protected override void OnPopulateMesh( VertexHelper _vh )
-		{
-			if (m_frameSize > 0)
-			{
-				GenerateFrame();
-				ApplyToVertexHelper(_vh);
-				return;
-			}
-
-			GenerateFilled();
-			ApplyToVertexHelper(_vh);
-		}
-
-		protected override void UpdateGeometry()
-		{
-			workerMesh.Clear(false);
-			if (rectTransform == null || Rect.width < 0 || Rect.height < 0)
-				return;
-
-			var components = GetComponents<IMeshModifier>();
-			bool hasComponents = components.Length > 0;
-
-			if (hasComponents)
-			{
-				using (VertexHelper vertexHelper = new VertexHelper())
-				{
-					OnPopulateMesh(vertexHelper);
-					foreach (var component in components)
-						component.ModifyMesh(vertexHelper);
-					vertexHelper.FillMesh(workerMesh);
-				}
-
-				canvasRenderer.SetMesh(workerMesh);
-				return;
-			}
-
-			OnPopulateMesh(workerMesh);
-			canvasRenderer.SetMesh(workerMesh);
-		}
-
-		private MaterialFlags CurrentMaterialFlags
-		{
-			get
-			{
-				return
-					(EnabledInHierarchy ? MaterialFlags.Enabled : 0) |
-					(InvertMask ? MaterialFlags.InvertMask : 0) |
-					(maskable ? MaterialFlags.Maskable : 0);
-			}
-		}
-
-		private void ApplyToMesh( Mesh _mesh )
-		{
-			var vertexCount = s_vertices.Count;
-
-			var vertices = new Vector3[vertexCount];
-			var colors = new Color[vertexCount];
-			var uv = new Vector2[vertexCount];
-
-			for (int i = 0; i < vertexCount; i++)
-			{
-				var vertex = s_vertices[i];
-				vertices[i] = vertex.Position;
-				colors[i] = vertex.Color;
-				uv[i] = vertex.Uv;
-			}
-
-			var triangleCount = s_triangles.Count;
-			var triangles = new int[triangleCount * 3];
-			int it = 0;
-			for (int i = 0; i < triangleCount; i++)
-			{
-				var triangle = s_triangles[i];
-				triangles[it++] = triangle[0];
-				triangles[it++] = triangle[1];
-				triangles[it++] = triangle[2];
-			}
-
-			_mesh.vertices = vertices;
-			_mesh.colors = colors;
-			_mesh.uv = uv;
-			_mesh.triangles = triangles;
-
-			s_vertices.Clear();
-			s_triangles.Clear();
-		}
-
-		private static void ApplyToVertexHelper( VertexHelper _vh )
-		{
-			_vh.Clear();
-
-			foreach (var vertex in s_vertices)
-				_vh.AddVert(vertex.Position, vertex.Color, vertex.Uv);
-
-			for (int i = 0; i < s_triangles.Count; i++)
-			{
-				var tri = s_triangles[i];
-				_vh.AddTriangle(tri[0], tri[1], tri[2]);
-			}
-
-			s_vertices.Clear();
-			s_triangles.Clear();
-		}
-
-		private void GenerateFrame()
+		protected override void GenerateFrame()
 		{
 			if (Mathf.Approximately(0, m_radius))
 			{
@@ -439,7 +84,7 @@ namespace GuiToolkit
 			GenerateFrameRounded();
 		}
 
-		private void GenerateFilled()
+		protected override void GenerateFilled()
 		{
 			if (Mathf.Approximately(0, m_radius))
 			{
@@ -762,17 +407,6 @@ namespace GuiToolkit
 			}
 		}
 
-		private void AddTriangle( float _ax, float _ay, float _bx, float _by, float _cx, float _cy )
-		{
-			int startIndex = s_vertices.Count;
-
-			AddVert(_ax, _ay, color);
-			AddVert(_bx, _by, color);
-			AddVert(_cx, _cy, color);
-
-			s_triangles.Add(new[] { startIndex, startIndex + 1, startIndex + 2 });
-		}
-
 		private void AddQuad( Rect _rect, QuadFade _fade = QuadFade.None, bool _left = false ) => AddQuad(_rect.min, _rect.max, _fade, _left);
 
 		private void AddQuad( Vector2 _posMin, Vector2 _posMax, QuadFade _fade = QuadFade.None, bool _left = false )
@@ -842,47 +476,6 @@ namespace GuiToolkit
 
 			s_triangles.Add(new[] { startIndex + 3, startIndex + 1, startIndex });
 			s_triangles.Add(new[] { startIndex + 2, startIndex + 3, startIndex });
-		}
-
-		private void AddVert( float _x, float _y, Color32 _color )
-		{
-			s_vertices.Add(new Vertex() { Position = new Vector2(_x, _y), Uv = GetUv(_x, _y), Color = _color });
-		}
-
-		private Vector2 GetUv( float _x, float _y )
-		{
-			if (sprite == null)
-				return Vector2.zero;
-
-			// Base Rect for Mesh
-			Rect r = Rect;
-
-			// UV-Rect within texture
-			Rect uvRect = sprite.textureRect;
-			Rect fullTex = sprite.textureRect;
-
-			if (sprite.packed && sprite.associatedAlphaSplitTexture == null)
-				fullTex = new Rect(0, 0, sprite.texture.width, sprite.texture.height);
-
-			float u = Mathf.Lerp(
-				uvRect.x / fullTex.width,
-				(uvRect.x + uvRect.width) / fullTex.width,
-				(_x - r.xMin) / r.width
-			);
-
-			float v = Mathf.Lerp(
-				uvRect.y / fullTex.height,
-				(uvRect.y + uvRect.height) / fullTex.height,
-				(_y - r.yMin) / r.height
-			);
-
-			return new Vector2(u, v);
-		}
-
-		private void CheckSetterRange( string _name, float _value, float _min, float _max )
-		{
-			if (_value < _min || _value > _max)
-				throw new ArgumentOutOfRangeException($"{_name} is out of range; should be in the range of {_min}..{_max}, but is {_value}");
 		}
 	}
 }
