@@ -249,6 +249,7 @@ public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
 		public const string CREATE_ASPECT_RATIO_DEPENDENT_STYLE_CONFIG = STYLES_HEADER + "Aspect Ratio Dependent Style Config";
 		public const string CREATE_STYLE_CONFIG = STYLES_HEADER + "Style Config";
 		public const string CREATE_DOXYGEN_CONFIG = MENU_HEADER + "Doxygen Config";
+		public const string CREATE_IMAGEMAGICK_CONFIG = MENU_HEADER + "ImageMagick Config";
 		public const string DLLS_HEADER = MENU_HEADER + "Dlls/";
 		public const string DLL_INSTALL_HACK = DLLS_HEADER + "Install Dll Hack for Unity Version < 6";
 		public const string DLL_REMOVE_HACK = DLLS_HEADER + "Remove Dll Hack for Unity Version < 6";

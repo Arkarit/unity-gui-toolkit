@@ -74,6 +74,7 @@ namespace GuiToolkit
 			
 #if UNITY_EDITOR
 			DoxygenConfig.Initialize();
+			ImageMagickConfig.Initialize();
 #endif
 
 			if (Application.isPlaying)
