@@ -32,6 +32,8 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_enabledInHierarchyProp;
 		protected SerializedProperty m_gradientSimpleProp;
 		protected SerializedProperty m_fadeColorProp;
+		protected SerializedProperty m_uniformSizeOffsetProp;
+		protected SerializedProperty m_sizeOffsetProp;
 
 		protected virtual void OnEnable()
 		{
@@ -53,6 +55,8 @@ namespace GuiToolkit.Editor
 			m_enabledInHierarchyProp = serializedObject.FindProperty("m_enabledInHierarchy");
 			m_gradientSimpleProp = serializedObject.FindProperty("m_gradientSimple");
 			m_fadeColorProp = serializedObject.FindProperty("m_fadeColor");
+			m_uniformSizeOffsetProp = serializedObject.FindProperty("m_uniformSizeOffset");
+			m_sizeOffsetProp = serializedObject.FindProperty("m_sizeOffset");
 		}
 
 		protected void DrawImageProperties()
@@ -85,6 +89,22 @@ namespace GuiToolkit.Editor
 			GUILayout.Label("Size", EditorStyles.boldLabel);
 			EditorUiUtility.DisplayPropertyConditionally(m_useFixedSizeProp, m_fixedSizeProp);
 			EditorUiUtility.DisplayPropertyConditionally(m_usePaddingProp, m_paddingProp);
+
+			EditorGUILayout.PropertyField(m_uniformSizeOffsetProp);
+			if (m_uniformSizeOffsetProp.boolValue)
+			{
+				var xProp = m_sizeOffsetProp.FindPropertyRelative("x");
+				var yProp = m_sizeOffsetProp.FindPropertyRelative("y");
+				EditorGUI.BeginChangeCheck();
+				EditorGUILayout.PropertyField(xProp, new GUIContent("Size Offset"));
+				if (EditorGUI.EndChangeCheck())
+					yProp.floatValue = xProp.floatValue;
+			}
+			else
+			{
+				EditorGUILayout.PropertyField(m_sizeOffsetProp, new GUIContent("Size Offset"));
+			}
+
 			GUILayout.Space(10);
 
 			GUILayout.Label("Visual Enabledness", EditorStyles.boldLabel);

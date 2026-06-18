@@ -90,6 +90,15 @@ namespace GuiToolkit
 		[Tooltip("Ui Simple Gradient component. Mandatory if you want to use the 'SimpleGradientColors' getters+setters.")]
 		[SerializeField] protected UiGradientSimple m_gradientSimple;
 
+		[Tooltip("If true, a single size offset value is applied to both width and height. "
+		         + "If false, X and Y are independent.")]
+		[SerializeField] protected bool m_uniformSizeOffset = true;
+
+		[Tooltip("Offset added to the rect's width / height, applied symmetrically around the rect center. "
+		         + "Positive values grow the shape, negative values shrink it. "
+		         + "When m_uniformSizeOffset is true, only the X component is used for both axes.")]
+		[SerializeField] protected Vector2 m_sizeOffset;
+
 		protected static readonly List<Vertex> s_vertices = new();
 		protected static readonly List<int[]> s_triangles = new();
 
@@ -150,6 +159,36 @@ namespace GuiToolkit
 			set => m_padding = value;
 		}
 
+		public bool UniformSizeOffset
+		{
+			get => m_uniformSizeOffset;
+			set
+			{
+				if (m_uniformSizeOffset == value)
+					return;
+
+				m_uniformSizeOffset = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>
+		/// Raw size offset as stored. When UniformSizeOffset is true, only the X component is used
+		/// (it is applied to both axes); the Y component is preserved but ignored.
+		/// </summary>
+		public Vector2 SizeOffset
+		{
+			get => m_sizeOffset;
+			set
+			{
+				if (m_sizeOffset == value)
+					return;
+
+				m_sizeOffset = value;
+				SetVerticesDirty();
+			}
+		}
+
 		public Rect Rect
 		{
 			get
@@ -172,6 +211,13 @@ namespace GuiToolkit
 					result.y += m_padding.bottom;
 					result.height -= m_padding.vertical;
 				}
+
+				float offX = m_sizeOffset.x;
+				float offY = m_uniformSizeOffset ? m_sizeOffset.x : m_sizeOffset.y;
+				result.x -= offX * 0.5f;
+				result.y -= offY * 0.5f;
+				result.width += offX;
+				result.height += offY;
 
 				return result;
 			}
