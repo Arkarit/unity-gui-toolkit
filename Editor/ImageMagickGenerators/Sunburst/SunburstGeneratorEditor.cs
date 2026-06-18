@@ -21,6 +21,7 @@ namespace GuiToolkit.Editor
 		private SerializedProperty m_rotationProp;
 		private SerializedProperty m_rayColorProp;
 		private SerializedProperty m_backgroundColorProp;
+		private SerializedProperty m_rayGradientProp;
 		private SerializedProperty m_edgeSoftnessProp;
 		private SerializedProperty m_supersamplingProp;
 		private SerializedProperty m_outputSizeProp;
@@ -47,6 +48,7 @@ namespace GuiToolkit.Editor
 			m_rotationProp = serializedObject.FindProperty(nameof(SunburstGenerator.Rotation));
 			m_rayColorProp = serializedObject.FindProperty(nameof(SunburstGenerator.RayColor));
 			m_backgroundColorProp = serializedObject.FindProperty(nameof(SunburstGenerator.BackgroundColor));
+			m_rayGradientProp = serializedObject.FindProperty(nameof(SunburstGenerator.RayGradient));
 			m_edgeSoftnessProp = serializedObject.FindProperty(nameof(SunburstGenerator.EdgeSoftness));
 			m_supersamplingProp = serializedObject.FindProperty(nameof(SunburstGenerator.Supersampling));
 			m_outputSizeProp = serializedObject.FindProperty(nameof(SunburstGenerator.OutputSize));
@@ -115,6 +117,7 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.PropertyField(m_rotationProp);
 				EditorGUILayout.PropertyField(m_rayColorProp);
 				EditorGUILayout.PropertyField(m_backgroundColorProp);
+				EditorGUILayout.PropertyField(m_rayGradientProp);
 				EditorGUILayout.PropertyField(m_randomnessProp);
 				using (new EditorGUI.DisabledScope(m_randomnessProp.floatValue <= 0.0001f))
 				{

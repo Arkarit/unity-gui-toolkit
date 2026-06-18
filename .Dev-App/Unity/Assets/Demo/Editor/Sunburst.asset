@@ -12,20 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a264cd5e077e19040bf30bb51b88830f, type: 3}
   m_Name: Sunburst
   m_EditorClassIdentifier: 
-  RayCount: 26
+  RayCount: 18
   DutyCycle: 0.45
   InnerRadiusRatio: 0.199
   FillInnerCircle: 1
   OuterRadiusRatio: 1
-  RayBaseWidth: 0.5
+  RayBaseWidth: 1.14
   RayBaseWidthOffset: 16.1
   RayTipWidth: 0.587
   Rotation: -56.3
   RayColor: {r: 1, g: 1, b: 1, a: 1}
   BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
-  Randomness: 0.904
+  RayGradient: 0.786
+  Randomness: 0.74
   Seed: 3
-  EdgeSoftness: 0
+  EdgeSoftness: 3.97
   Supersampling: 6
   OutputSize: {x: 512, y: 512}
   LivePreview: 1

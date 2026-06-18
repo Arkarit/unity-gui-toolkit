@@ -33,6 +33,7 @@ namespace GuiToolkit.Editor
 			Color rayColor,
 			Color backgroundColor,
 			bool fillInnerCircle,
+			float rayGradient,
 			float randomness,
 			int seed,
 			int svgWidth,
@@ -48,10 +49,33 @@ namespace GuiToolkit.Editor
 			var gapWidths = new float[n];
 			ComputeWidths(n, totalRayAngle, totalGapAngle, randomness, seed, rayWidths, gapWidths);
 
+			float outerR = Mathf.Clamp01(outerRadiusRatio);
+			float innerR = Mathf.Clamp(innerRadiusRatio, 0f, outerR);
+			float gradT = Mathf.Clamp01(rayGradient);
+			bool useGradient = gradT > 1e-4f && outerR > 1e-5f;
+
 			// We render into a viewBox of (-1,-1)..(1,1); the actual pixel canvas is svgWidth × svgHeight.
 			var sb = new StringBuilder(2048);
 			sb.Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 			sb.Append($"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{svgWidth}\" height=\"{svgHeight}\" viewBox=\"-1 -1 2 2\" preserveAspectRatio=\"none\">\n");
+
+			const string gradientId = "sunburstGradient";
+			if (useGradient)
+			{
+				// Inner-stop SVG offset: 1.0 at gradT=0 (stop at outer rim, no visible fade),
+				// innerR/outerR at gradT=1 (stop at the inner edge of the rays, full fade across the ray).
+				float innerStopOffset = 1f - gradT * (1f - innerR / outerR);
+				sb.Append("  <defs>\n");
+				sb.Append($"    <radialGradient id=\"{gradientId}\" cx=\"0\" cy=\"0\" r=\"{F(outerR)}\" gradientUnits=\"userSpaceOnUse\">\n");
+				sb.Append("      <stop offset=\""); sb.Append(F(innerStopOffset)); sb.Append("\" ");
+				AppendStopColor(sb, rayColor);
+				sb.Append("/>\n");
+				sb.Append("      <stop offset=\"1\" ");
+				AppendStopColor(sb, backgroundColor);
+				sb.Append("/>\n");
+				sb.Append("    </radialGradient>\n");
+				sb.Append("  </defs>\n");
+			}
 
 			if (backgroundColor.a > 0.001f)
 			{
@@ -60,15 +84,15 @@ namespace GuiToolkit.Editor
 				sb.Append("/>\n");
 			}
 
-			float outerR = Mathf.Clamp01(outerRadiusRatio);
-			float innerR = Mathf.Clamp(innerRadiusRatio, 0f, outerR);
-
 			// Inner disc fill (rotation-invariant, so emit outside the rotate group).
 			// When fillInnerCircle is false the inner area shows whatever is behind (background, or transparent).
 			if (fillInnerCircle && innerR > 1e-5f && rayColor.a > 0.001f)
 			{
 				sb.Append($"  <circle cx=\"0\" cy=\"0\" r=\"{F(innerR)}\" ");
-				AppendFill(sb, rayColor);
+				if (useGradient)
+					sb.Append($"fill=\"url(#{gradientId})\"");
+				else
+					AppendFill(sb, rayColor);
 				sb.Append("/>\n");
 			}
 
@@ -76,7 +100,7 @@ namespace GuiToolkit.Editor
 			float baseW = Mathf.Max(0f, rayBaseWidth);
 			float tipW = Mathf.Clamp01(rayTipWidth);
 			float baseOffsetHalfRad = Mathf.Max(0f, rayBaseWidthOffsetDegrees) * Mathf.Deg2Rad * 0.5f;
-			string rayFill = BuildFillAttrs(rayColor);
+			string rayFill = useGradient ? $"fill=\"url(#{gradientId})\"" : BuildFillAttrs(rayColor);
 
 			// Lay rays out starting with ray 0 centered on angle 0 (top); subsequent rays clockwise.
 			//
@@ -190,6 +214,15 @@ namespace GuiToolkit.Editor
 			int b = Mathf.Clamp(Mathf.RoundToInt(c.b * 255f), 0, 255);
 			sb.Append("fill=\"rgb("); sb.Append(r); sb.Append(','); sb.Append(g); sb.Append(','); sb.Append(b); sb.Append(")\" ");
 			sb.Append("fill-opacity=\""); sb.Append(F(Mathf.Clamp01(c.a))); sb.Append("\"");
+		}
+
+		private static void AppendStopColor(StringBuilder sb, Color c)
+		{
+			int r = Mathf.Clamp(Mathf.RoundToInt(c.r * 255f), 0, 255);
+			int g = Mathf.Clamp(Mathf.RoundToInt(c.g * 255f), 0, 255);
+			int b = Mathf.Clamp(Mathf.RoundToInt(c.b * 255f), 0, 255);
+			sb.Append("stop-color=\"rgb("); sb.Append(r); sb.Append(','); sb.Append(g); sb.Append(','); sb.Append(b); sb.Append(")\" ");
+			sb.Append("stop-opacity=\""); sb.Append(F(Mathf.Clamp01(c.a))); sb.Append("\"");
 		}
 
 		private static string BuildFillAttrs(Color c)

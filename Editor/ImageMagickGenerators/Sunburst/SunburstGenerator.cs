@@ -71,6 +71,12 @@ namespace GuiToolkit.Editor
 		[Tooltip("Background fill. Set alpha to 0 for transparent background.")]
 		public Color BackgroundColor = new Color(0f, 0f, 0f, 0f);
 
+		[Tooltip("Radial gradient amount across each ray (and the inner-circle fill, if enabled). "
+		         + "0 = no gradient, rays are solid RayColor. "
+		         + "1 = full radial gradient from RayColor at the inner edge to BackgroundColor at the outer rim. "
+		         + "Intermediate values keep an inner band solid and fade the rest.")]
+		[Range(0f, 1f)] public float RayGradient = 0f;
+
 		[Tooltip("Random variation of individual ray and gap widths. 0 = perfectly uniform. "
 		         + "Each ray and gap is independently weighted in [1-r, 1+r] (clamped to ≥0) and rescaled "
 		         + "so that the overall duty cycle is preserved.")]
@@ -146,7 +152,8 @@ namespace GuiToolkit.Editor
 
 				string svg = SunburstSvg.Build(
 					RayCount, DutyCycle, InnerRadiusRatio, OuterRadiusRatio, RayBaseWidth, RayBaseWidthOffset,
-					RayTipWidth, Rotation, RayColor, BackgroundColor, FillInnerCircle, Randomness, Seed, svgW, svgH);
+					RayTipWidth, Rotation, RayColor, BackgroundColor, FillInnerCircle, RayGradient,
+					Randomness, Seed, svgW, svgH);
 
 				string id = Guid.NewGuid().ToString("N");
 				tempSvg = Path.Combine(Path.GetTempPath(), $"sunburst_{id}.svg").Replace('\\', '/');
