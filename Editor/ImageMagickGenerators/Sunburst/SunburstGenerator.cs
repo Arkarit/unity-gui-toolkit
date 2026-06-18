@@ -51,6 +51,15 @@ namespace GuiToolkit.Editor
 		[Tooltip("Background fill. Set alpha to 0 for transparent background.")]
 		public Color BackgroundColor = new Color(0f, 0f, 0f, 0f);
 
+		[Tooltip("Random variation of individual ray and gap widths. 0 = perfectly uniform. "
+		         + "Each ray and gap is independently weighted in [1-r, 1+r] (clamped to ≥0) and rescaled "
+		         + "so that the overall duty cycle is preserved.")]
+		[Range(0f, 1f)] public float Randomness = 0f;
+
+		[Tooltip("Seed for the randomness PRNG. -1 = use a deterministic default seed (still reproducible). "
+		         + "Change this to a different non-negative value to get a different random pattern.")]
+		public int Seed = -1;
+
 		[Tooltip("Gaussian blur sigma (in output pixels) applied after the supersample downsample. 0 = sharp edges.")]
 		[Range(0f, 20f)] public float EdgeSoftness = 0f;
 
@@ -117,7 +126,7 @@ namespace GuiToolkit.Editor
 
 				string svg = SunburstSvg.Build(
 					RayCount, DutyCycle, InnerRadiusRatio, OuterRadiusRatio, Rotation,
-					RayColor, BackgroundColor, svgW, svgH);
+					RayColor, BackgroundColor, Randomness, Seed, svgW, svgH);
 
 				string id = Guid.NewGuid().ToString("N");
 				tempSvg = Path.Combine(Path.GetTempPath(), $"sunburst_{id}.svg").Replace('\\', '/');

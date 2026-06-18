@@ -21,6 +21,8 @@ namespace GuiToolkit.Editor
 		private SerializedProperty m_supersamplingProp;
 		private SerializedProperty m_outputSizeProp;
 		private SerializedProperty m_livePreviewProp;
+		private SerializedProperty m_randomnessProp;
+		private SerializedProperty m_seedProp;
 
 		private Texture2D m_previewTex;
 		private string m_lastError;
@@ -41,6 +43,8 @@ namespace GuiToolkit.Editor
 			m_supersamplingProp = serializedObject.FindProperty(nameof(SunburstGenerator.Supersampling));
 			m_outputSizeProp = serializedObject.FindProperty(nameof(SunburstGenerator.OutputSize));
 			m_livePreviewProp = serializedObject.FindProperty(nameof(SunburstGenerator.LivePreview));
+			m_randomnessProp = serializedObject.FindProperty(nameof(SunburstGenerator.Randomness));
+			m_seedProp = serializedObject.FindProperty(nameof(SunburstGenerator.Seed));
 
 			EditorApplication.update += OnEditorUpdate;
 			m_needsInitialPreview = true;
@@ -96,6 +100,11 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.PropertyField(m_rotationProp);
 				EditorGUILayout.PropertyField(m_rayColorProp);
 				EditorGUILayout.PropertyField(m_backgroundColorProp);
+				EditorGUILayout.PropertyField(m_randomnessProp);
+				using (new EditorGUI.DisabledScope(m_randomnessProp.floatValue <= 0.0001f))
+				{
+					EditorGUILayout.PropertyField(m_seedProp);
+				}
 				EditorGUILayout.PropertyField(m_edgeSoftnessProp);
 				EditorGUILayout.PropertyField(m_supersamplingProp);
 				EditorGUILayout.PropertyField(m_outputSizeProp);
