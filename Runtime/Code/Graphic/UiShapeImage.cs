@@ -102,6 +102,12 @@ namespace GuiToolkit
 		protected static readonly List<Vertex> s_vertices = new();
 		protected static readonly List<int[]> s_triangles = new();
 
+		// Scratch buffers for perimeter-based shape subclasses (UiStar, UiCircle, ...).
+		// Two are provided so a subclass can ping-pong between "current outer" and "next inner"
+		// when building the fade-ring sandwich.
+		protected static readonly List<Vector2> s_perimA = new();
+		protected static readonly List<Vector2> s_perimB = new();
+
 		protected Material m_clonedMaterial;
 		private Material m_lastMaterial;
 
@@ -415,6 +421,68 @@ namespace GuiToolkit
 		{
 			if (_value < _min || _value > _max)
 				throw new ArgumentOutOfRangeException($"{_name} is out of range; should be in the range of {_min}..{_max}, but is {_value}");
+		}
+
+		/// <summary>
+		/// Fan-triangulate a perimeter ring from a center vertex. Triangle winding matches
+		/// UiRoundedImage.AddSector (later, center, earlier).
+		/// </summary>
+		protected void EmitFilledFromPerimeter( Vector2 _center, List<Vector2> _perim, Color _color )
+		{
+			int n = _perim.Count;
+			if (n < 3)
+				return;
+
+			int centerIdx = s_vertices.Count;
+			AddVert(_center.x, _center.y, _color);
+
+			int firstPerim = s_vertices.Count;
+			for (int i = 0; i < n; i++)
+				AddVert(_perim[i].x, _perim[i].y, _color);
+
+			for (int i = 0; i < n; i++)
+			{
+				int a = firstPerim + i;
+				int b = firstPerim + (i + 1) % n;
+				s_triangles.Add(new[] { b, centerIdx, a });
+			}
+		}
+
+		/// <summary>
+		/// Emit a quad strip between two paired perimeter rings (outer + inner, same vertex count).
+		/// Triangle winding matches UiRoundedImage.AddIrregularQuad.
+		/// </summary>
+		protected void EmitFrameStripFromPerimeters( List<Vector2> _outer, List<Vector2> _inner, Color _outerColor, Color _innerColor )
+		{
+			int n = _outer.Count;
+			if (n < 3 || _inner.Count != n)
+				return;
+
+			int outerStart = s_vertices.Count;
+			for (int i = 0; i < n; i++)
+				AddVert(_outer[i].x, _outer[i].y, _outerColor);
+
+			int innerStart = s_vertices.Count;
+			for (int i = 0; i < n; i++)
+				AddVert(_inner[i].x, _inner[i].y, _innerColor);
+
+			for (int i = 0; i < n; i++)
+			{
+				int oE = outerStart + i;
+				int oL = outerStart + (i + 1) % n;
+				int iE = innerStart + i;
+				int iL = innerStart + (i + 1) % n;
+
+				s_triangles.Add(new[] { iE, oE, oL });
+				s_triangles.Add(new[] { iL, iE, oL });
+			}
+		}
+
+		protected static void CopyPerimeter( List<Vector2> _src, List<Vector2> _dst )
+		{
+			_dst.Clear();
+			for (int i = 0; i < _src.Count; i++)
+				_dst.Add(_src[i]);
 		}
 
 		private MaterialFlags CurrentMaterialFlags

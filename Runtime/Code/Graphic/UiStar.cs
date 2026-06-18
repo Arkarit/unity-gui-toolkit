@@ -75,9 +75,6 @@ namespace GuiToolkit
 		[UnityEngine.Range(MinMiterLimit, MaxMiterLimit)]
 		[SerializeField] protected float m_miterLimit = 4f;
 
-		private static readonly List<Vector2> s_perimA = new();
-		private static readonly List<Vector2> s_perimB = new();
-
 		public int SpikeCount
 		{
 			get => m_spikeCount;
@@ -299,60 +296,5 @@ namespace GuiToolkit
 			}
 		}
 
-		private void EmitFilledFromPerimeter( Vector2 _center, List<Vector2> _perim, Color _color )
-		{
-			int n = _perim.Count;
-			if (n < 3)
-				return;
-
-			int centerIdx = s_vertices.Count;
-			AddVert(_center.x, _center.y, _color);
-
-			int firstPerim = s_vertices.Count;
-			for (int i = 0; i < n; i++)
-				AddVert(_perim[i].x, _perim[i].y, _color);
-
-			for (int i = 0; i < n; i++)
-			{
-				int a = firstPerim + i;
-				int b = firstPerim + (i + 1) % n;
-				// Triangle (later, center, earlier) matches UiRoundedImage's AddSector winding.
-				s_triangles.Add(new[] { b, centerIdx, a });
-			}
-		}
-
-		private void EmitFrameStripFromPerimeters( List<Vector2> _outer, List<Vector2> _inner, Color _outerColor, Color _innerColor )
-		{
-			int n = _outer.Count;
-			if (n < 3 || _inner.Count != n)
-				return;
-
-			int outerStart = s_vertices.Count;
-			for (int i = 0; i < n; i++)
-				AddVert(_outer[i].x, _outer[i].y, _outerColor);
-
-			int innerStart = s_vertices.Count;
-			for (int i = 0; i < n; i++)
-				AddVert(_inner[i].x, _inner[i].y, _innerColor);
-
-			for (int i = 0; i < n; i++)
-			{
-				int oE = outerStart + i;
-				int oL = outerStart + (i + 1) % n;
-				int iE = innerStart + i;
-				int iL = innerStart + (i + 1) % n;
-
-				// Same winding pattern as UiRoundedImage.AddIrregularQuad.
-				s_triangles.Add(new[] { iE, oE, oL });
-				s_triangles.Add(new[] { iL, iE, oL });
-			}
-		}
-
-		private static void CopyPerimeter( List<Vector2> _src, List<Vector2> _dst )
-		{
-			_dst.Clear();
-			for (int i = 0; i < _src.Count; i++)
-				_dst.Add(_src[i]);
-		}
 	}
 }
