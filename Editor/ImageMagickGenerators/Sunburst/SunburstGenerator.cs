@@ -40,10 +40,25 @@ namespace GuiToolkit.Editor
 		[Tooltip("Inner radius as fraction of canvas half-size. 0 = rays start at center; >0 = donut sunburst.")]
 		[Range(0f, 0.95f)] public float InnerRadiusRatio = 0f;
 
+		[Tooltip("Fill the disc inside InnerRadius with ray color (true) instead of background color (false). "
+		         + "Only visible when InnerRadius > 0. Turns a donut sunburst into a solid-center one.")]
+		public bool FillInnerCircle = false;
+
 		[Tooltip("Outer radius as fraction of canvas half-size. 1 = fill canvas; <1 leaves margin.")]
 		[Range(0.1f, 1f)] public float OuterRadiusRatio = 1f;
 
-		[Tooltip("Angular width of the ray tip at the outer perimeter, as a factor of the base width. "
+		[Tooltip("Angular width of the ray base at the inner perimeter, as a factor of the ray's slot. "
+		         + "1 = base spans the full slot in angular terms (rays just touch at the inner perimeter when InnerRadius > 0). "
+		         + "Note: visual width ≈ angular width × radius, so for visually parallel sides you need "
+		         + "RayBaseWidth ≈ OuterRadius / InnerRadius. Larger values produce rays that widen toward the center.")]
+		[Range(0f, 10f)] public float RayBaseWidth = 1f;
+
+		[Tooltip("Constant angular width (in degrees) added to each ray's base, on top of the RayBaseWidth factor. "
+		         + "Equalizes ray base widths under Randomness: narrow rays gain the same absolute boost as wide ones, "
+		         + "so their relative width disparity at the inner perimeter shrinks.")]
+		[Range(0f, 60f)] public float RayBaseWidthOffset = 0f;
+
+		[Tooltip("Angular width of the ray tip at the outer perimeter, as a factor of the ray's slot. "
 		         + "1 = parallel sides (default); 0 = ray tapers to a single point at the rim; "
 		         + "values in between yield tapered rays.")]
 		[Range(0f, 1f)] public float RayTipWidth = 1f;
@@ -130,8 +145,8 @@ namespace GuiToolkit.Editor
 				int svgH = Mathf.Max(1, size.y * ss);
 
 				string svg = SunburstSvg.Build(
-					RayCount, DutyCycle, InnerRadiusRatio, OuterRadiusRatio, RayTipWidth, Rotation,
-					RayColor, BackgroundColor, Randomness, Seed, svgW, svgH);
+					RayCount, DutyCycle, InnerRadiusRatio, OuterRadiusRatio, RayBaseWidth, RayBaseWidthOffset,
+					RayTipWidth, Rotation, RayColor, BackgroundColor, FillInnerCircle, Randomness, Seed, svgW, svgH);
 
 				string id = Guid.NewGuid().ToString("N");
 				tempSvg = Path.Combine(Path.GetTempPath(), $"sunburst_{id}.svg").Replace('\\', '/');

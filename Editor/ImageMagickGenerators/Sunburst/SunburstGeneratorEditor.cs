@@ -13,7 +13,10 @@ namespace GuiToolkit.Editor
 		private SerializedProperty m_rayCountProp;
 		private SerializedProperty m_dutyCycleProp;
 		private SerializedProperty m_innerRadiusProp;
+		private SerializedProperty m_fillInnerCircleProp;
 		private SerializedProperty m_outerRadiusProp;
+		private SerializedProperty m_rayBaseWidthProp;
+		private SerializedProperty m_rayBaseWidthOffsetProp;
 		private SerializedProperty m_rayTipWidthProp;
 		private SerializedProperty m_rotationProp;
 		private SerializedProperty m_rayColorProp;
@@ -36,7 +39,10 @@ namespace GuiToolkit.Editor
 			m_rayCountProp = serializedObject.FindProperty(nameof(SunburstGenerator.RayCount));
 			m_dutyCycleProp = serializedObject.FindProperty(nameof(SunburstGenerator.DutyCycle));
 			m_innerRadiusProp = serializedObject.FindProperty(nameof(SunburstGenerator.InnerRadiusRatio));
+			m_fillInnerCircleProp = serializedObject.FindProperty(nameof(SunburstGenerator.FillInnerCircle));
 			m_outerRadiusProp = serializedObject.FindProperty(nameof(SunburstGenerator.OuterRadiusRatio));
+			m_rayBaseWidthProp = serializedObject.FindProperty(nameof(SunburstGenerator.RayBaseWidth));
+			m_rayBaseWidthOffsetProp = serializedObject.FindProperty(nameof(SunburstGenerator.RayBaseWidthOffset));
 			m_rayTipWidthProp = serializedObject.FindProperty(nameof(SunburstGenerator.RayTipWidth));
 			m_rotationProp = serializedObject.FindProperty(nameof(SunburstGenerator.Rotation));
 			m_rayColorProp = serializedObject.FindProperty(nameof(SunburstGenerator.RayColor));
@@ -98,7 +104,13 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.PropertyField(m_rayCountProp);
 				EditorGUILayout.PropertyField(m_dutyCycleProp);
 				EditorGUILayout.PropertyField(m_innerRadiusProp);
+				using (new EditorGUI.DisabledScope(m_innerRadiusProp.floatValue <= 1e-5f))
+				{
+					EditorGUILayout.PropertyField(m_fillInnerCircleProp);
+				}
 				EditorGUILayout.PropertyField(m_outerRadiusProp);
+				EditorGUILayout.PropertyField(m_rayBaseWidthProp);
+				EditorGUILayout.PropertyField(m_rayBaseWidthOffsetProp);
 				EditorGUILayout.PropertyField(m_rayTipWidthProp);
 				EditorGUILayout.PropertyField(m_rotationProp);
 				EditorGUILayout.PropertyField(m_rayColorProp);

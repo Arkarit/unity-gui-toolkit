@@ -14,15 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RayCount: 26
   DutyCycle: 0.45
-  InnerRadiusRatio: 0
+  InnerRadiusRatio: 0.199
+  FillInnerCircle: 1
   OuterRadiusRatio: 1
-  RayTipWidth: 1
-  Rotation: 0
+  RayBaseWidth: 0.5
+  RayBaseWidthOffset: 16.1
+  RayTipWidth: 0.587
+  Rotation: -56.3
   RayColor: {r: 1, g: 1, b: 1, a: 1}
   BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
   Randomness: 0.904
   Seed: 3
-  EdgeSoftness: 3.74
+  EdgeSoftness: 0
   Supersampling: 6
   OutputSize: {x: 512, y: 512}
   LivePreview: 1

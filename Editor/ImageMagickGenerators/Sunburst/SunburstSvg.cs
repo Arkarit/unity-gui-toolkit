@@ -26,10 +26,13 @@ namespace GuiToolkit.Editor
 			float dutyCycle,
 			float innerRadiusRatio,
 			float outerRadiusRatio,
+			float rayBaseWidth,
+			float rayBaseWidthOffsetDegrees,
 			float rayTipWidth,
 			float rotationDegrees,
 			Color rayColor,
 			Color backgroundColor,
+			bool fillInnerCircle,
 			float randomness,
 			int seed,
 			int svgWidth,
@@ -57,14 +60,37 @@ namespace GuiToolkit.Editor
 				sb.Append("/>\n");
 			}
 
-			sb.Append($"  <g transform=\"rotate({F(rotationDegrees)})\">\n");
-
 			float outerR = Mathf.Clamp01(outerRadiusRatio);
 			float innerR = Mathf.Clamp(innerRadiusRatio, 0f, outerR);
-			float tip = Mathf.Clamp01(rayTipWidth);
+
+			// Inner disc fill (rotation-invariant, so emit outside the rotate group).
+			// When fillInnerCircle is false the inner area shows whatever is behind (background, or transparent).
+			if (fillInnerCircle && innerR > 1e-5f && rayColor.a > 0.001f)
+			{
+				sb.Append($"  <circle cx=\"0\" cy=\"0\" r=\"{F(innerR)}\" ");
+				AppendFill(sb, rayColor);
+				sb.Append("/>\n");
+			}
+
+			sb.Append($"  <g transform=\"rotate({F(rotationDegrees)})\">\n");
+			float baseW = Mathf.Max(0f, rayBaseWidth);
+			float tipW = Mathf.Clamp01(rayTipWidth);
+			float baseOffsetHalfRad = Mathf.Max(0f, rayBaseWidthOffsetDegrees) * Mathf.Deg2Rad * 0.5f;
 			string rayFill = BuildFillAttrs(rayColor);
 
 			// Lay rays out starting with ray 0 centered on angle 0 (top); subsequent rays clockwise.
+			//
+			// Each ray is bounded by:
+			//   - inner arc along the inner circle from ai1 to ai2 (sweep=1, CW)
+			//   - line from inner-right to outer-right
+			//   - outer arc along the outer circle from ao2 back to ao1 (sweep=0, CCW)
+			//   - line back to inner-left (closes via Z)
+			//
+			// Using arcs (rather than chords) keeps the ray edges *on* the inner/outer circles even
+			// at large RayBaseWidth: overlapping inner arcs of adjacent rays just fill the inner
+			// disc cleanly instead of producing chord-polygons.
+			string innerRadiusStr = F(innerR);
+			string outerRadiusStr = F(outerR);
 			float angle = -rayWidths[0] * 0.5f;
 			for (int i = 0; i < n; i++)
 			{
@@ -73,25 +99,39 @@ namespace GuiToolkit.Editor
 					float a1 = angle;
 					float a2 = angle + rayWidths[i];
 					float center = (a1 + a2) * 0.5f;
-					float outerHalf = (a2 - a1) * 0.5f * tip;
+					float halfSlot = (a2 - a1) * 0.5f;
+					float innerHalf = halfSlot * baseW + baseOffsetHalfRad;
+					float outerHalf = halfSlot * tipW;
+					float ai1 = center - innerHalf;
+					float ai2 = center + innerHalf;
 					float ao1 = center - outerHalf;
 					float ao2 = center + outerHalf;
 
-					float si1 = Mathf.Sin(a1), ci1 = Mathf.Cos(a1);
-					float si2 = Mathf.Sin(a2), ci2 = Mathf.Cos(a2);
-					float so1 = Mathf.Sin(ao1), co1 = Mathf.Cos(ao1);
-					float so2 = Mathf.Sin(ao2), co2 = Mathf.Cos(ao2);
+					float ix1 = innerR * Mathf.Sin(ai1), iy1 = -innerR * Mathf.Cos(ai1);
+					float ix2 = innerR * Mathf.Sin(ai2), iy2 = -innerR * Mathf.Cos(ai2);
+					float ox1 = outerR * Mathf.Sin(ao1), oy1 = -outerR * Mathf.Cos(ao1);
+					float ox2 = outerR * Mathf.Sin(ao2), oy2 = -outerR * Mathf.Cos(ao2);
 
-					float ix1 = innerR * si1, iy1 = -innerR * ci1;
-					float ox1 = outerR * so1, oy1 = -outerR * co1;
-					float ox2 = outerR * so2, oy2 = -outerR * co2;
-					float ix2 = innerR * si2, iy2 = -innerR * ci2;
+					int innerLargeArc = (ai2 - ai1) > Mathf.PI ? 1 : 0;
+					int outerLargeArc = (ao2 - ao1) > Mathf.PI ? 1 : 0;
 
 					sb.Append("    <path d=\"M ");
-					sb.Append(F(ix1)); sb.Append(' '); sb.Append(F(iy1));
-					sb.Append(" L "); sb.Append(F(ox1)); sb.Append(' '); sb.Append(F(oy1));
+					if (innerR > 1e-5f)
+					{
+						sb.Append(F(ix1)); sb.Append(' '); sb.Append(F(iy1));
+						sb.Append(" A "); sb.Append(innerRadiusStr); sb.Append(' '); sb.Append(innerRadiusStr);
+						sb.Append(" 0 "); sb.Append(innerLargeArc); sb.Append(" 1 ");
+						sb.Append(F(ix2)); sb.Append(' '); sb.Append(F(iy2));
+					}
+					else
+					{
+						// innerR ≈ 0: collapse inner edge to the origin (no inner arc).
+						sb.Append("0 0");
+					}
 					sb.Append(" L "); sb.Append(F(ox2)); sb.Append(' '); sb.Append(F(oy2));
-					sb.Append(" L "); sb.Append(F(ix2)); sb.Append(' '); sb.Append(F(iy2));
+					sb.Append(" A "); sb.Append(outerRadiusStr); sb.Append(' '); sb.Append(outerRadiusStr);
+					sb.Append(" 0 "); sb.Append(outerLargeArc); sb.Append(" 0 ");
+					sb.Append(F(ox1)); sb.Append(' '); sb.Append(F(oy1));
 					sb.Append(" Z\" ");
 					sb.Append(rayFill);
 					sb.Append("/>\n");
