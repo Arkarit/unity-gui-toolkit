@@ -43,6 +43,11 @@ namespace GuiToolkit.Editor
 		[Tooltip("Outer radius as fraction of canvas half-size. 1 = fill canvas; <1 leaves margin.")]
 		[Range(0.1f, 1f)] public float OuterRadiusRatio = 1f;
 
+		[Tooltip("Angular width of the ray tip at the outer perimeter, as a factor of the base width. "
+		         + "1 = parallel sides (default); 0 = ray tapers to a single point at the rim; "
+		         + "values in between yield tapered rays.")]
+		[Range(0f, 1f)] public float RayTipWidth = 1f;
+
 		[Tooltip("Rotation around center, in degrees. 0 = first ray center points up.")]
 		[Range(-180f, 180f)] public float Rotation = 0f;
 
@@ -125,7 +130,7 @@ namespace GuiToolkit.Editor
 				int svgH = Mathf.Max(1, size.y * ss);
 
 				string svg = SunburstSvg.Build(
-					RayCount, DutyCycle, InnerRadiusRatio, OuterRadiusRatio, Rotation,
+					RayCount, DutyCycle, InnerRadiusRatio, OuterRadiusRatio, RayTipWidth, Rotation,
 					RayColor, BackgroundColor, Randomness, Seed, svgW, svgH);
 
 				string id = Guid.NewGuid().ToString("N");

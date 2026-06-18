@@ -26,6 +26,7 @@ namespace GuiToolkit.Editor
 			float dutyCycle,
 			float innerRadiusRatio,
 			float outerRadiusRatio,
+			float rayTipWidth,
 			float rotationDegrees,
 			Color rayColor,
 			Color backgroundColor,
@@ -60,24 +61,31 @@ namespace GuiToolkit.Editor
 
 			float outerR = Mathf.Clamp01(outerRadiusRatio);
 			float innerR = Mathf.Clamp(innerRadiusRatio, 0f, outerR);
+			float tip = Mathf.Clamp01(rayTipWidth);
 			string rayFill = BuildFillAttrs(rayColor);
 
 			// Lay rays out starting with ray 0 centered on angle 0 (top); subsequent rays clockwise.
 			float angle = -rayWidths[0] * 0.5f;
 			for (int i = 0; i < n; i++)
 			{
-				float a1 = angle;
-				float a2 = angle + rayWidths[i];
-
 				if (rayWidths[i] > 1e-5f)
 				{
-					float s1 = Mathf.Sin(a1), c1 = Mathf.Cos(a1);
-					float s2 = Mathf.Sin(a2), c2 = Mathf.Cos(a2);
+					float a1 = angle;
+					float a2 = angle + rayWidths[i];
+					float center = (a1 + a2) * 0.5f;
+					float outerHalf = (a2 - a1) * 0.5f * tip;
+					float ao1 = center - outerHalf;
+					float ao2 = center + outerHalf;
 
-					float ix1 = innerR * s1, iy1 = -innerR * c1;
-					float ox1 = outerR * s1, oy1 = -outerR * c1;
-					float ox2 = outerR * s2, oy2 = -outerR * c2;
-					float ix2 = innerR * s2, iy2 = -innerR * c2;
+					float si1 = Mathf.Sin(a1), ci1 = Mathf.Cos(a1);
+					float si2 = Mathf.Sin(a2), ci2 = Mathf.Cos(a2);
+					float so1 = Mathf.Sin(ao1), co1 = Mathf.Cos(ao1);
+					float so2 = Mathf.Sin(ao2), co2 = Mathf.Cos(ao2);
+
+					float ix1 = innerR * si1, iy1 = -innerR * ci1;
+					float ox1 = outerR * so1, oy1 = -outerR * co1;
+					float ox2 = outerR * so2, oy2 = -outerR * co2;
+					float ix2 = innerR * si2, iy2 = -innerR * ci2;
 
 					sb.Append("    <path d=\"M ");
 					sb.Append(F(ix1)); sb.Append(' '); sb.Append(F(iy1));
