@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,18 +14,20 @@ namespace GuiToolkit.Editor
 	/// <para>
 	/// Holds the sunburst parameters, builds an SVG from them, calls ImageMagick to rasterize
 	/// (with supersampling and optional gaussian edge softening), and writes the result to
-	/// <c>Assets/Resources/Generated/Sunburst/{name}.png</c>, configured as a Sprite.
+	/// <see cref="OutputPath"/>, configured as a Sprite.
 	/// </para>
 	/// <para>
-	/// One ScriptableObject = one output asset. The asset's filename matches the SO's name; rename
-	/// the SO and Generate again to produce a new PNG (the old one is left alone — clean it up by hand
-	/// if needed).
+	/// One ScriptableObject = one output (or one numbered series, when <see cref="Incremental"/>
+	/// is enabled).
 	/// </para>
 	/// </summary>
 	[CreateAssetMenu(fileName = "Sunburst", menuName = StringConstants.CREATE_SUNBURST_GENERATOR)]
 	public class SunburstGenerator : ScriptableObject
 	{
-		public const string OutputFolderRelative = "Assets/Resources/Generated/Sunburst";
+		public const string DefaultOutputFolder = "Assets/Resources/Generated/Sunburst";
+
+		private const int IncrementalDigits = 4;
+		private static readonly Regex s_trailingNumberRegex = new(@"^(.*?)_(\d+)$", RegexOptions.Compiled);
 
 		public const int MinRays = 3;
 		public const int MaxRays = 200;
@@ -98,33 +101,117 @@ namespace GuiToolkit.Editor
 		[Tooltip("Re-render the inspector preview automatically when parameters change.")]
 		public bool LivePreview = true;
 
-		public string OutputAssetPath => $"{OutputFolderRelative}/{name}.png";
-		public string OutputAssetPathAbsolute => Path.Combine(Directory.GetCurrentDirectory(), OutputAssetPath).Replace('\\', '/');
+		[Tooltip("Target file for Generate. Pre-filled with " + DefaultOutputFolder + "/{name}.png on create. "
+		         + "Must live under Assets/ for Unity to pick it up as a Sprite.")]
+		[PathField(_isFolder: false, _relativeToPath: ".", _extensions: "png")]
+		public PathField OutputPath;
+
+		[Tooltip("When enabled, each Generate writes a new file with an incremented 4-digit suffix "
+		         + "(MyFile_0001.png, MyFile_0002.png, ...). The suffix is computed by scanning the "
+		         + "output directory for existing files matching the pattern and picking max + 1. "
+		         + "When disabled, Generate overwrites OutputPath each time.")]
+		public bool Incremental = false;
+
+		private void Reset() => EnsureDefaultOutputPath();
+
+		private void EnsureDefaultOutputPath()
+		{
+			if (string.IsNullOrEmpty(OutputPath.Path))
+			{
+				string fileName = !string.IsNullOrEmpty(name) ? name : "Sunburst";
+				OutputPath = new PathField($"{DefaultOutputFolder}/{fileName}.png");
+			}
+		}
 
 		/// <summary>
-		/// Renders the sunburst at full quality and writes it to the output asset path.
-		/// Returns true on success; populates <paramref name="error"/> on failure.
+		/// Resolved relative target path for the next Generate call. With Incremental, this scans the
+		/// output directory and returns the next available numbered filename.
 		/// </summary>
-		public bool Generate(out string error)
+		public string ResolveTargetPath()
 		{
+			string raw = OutputPath.Path;
+			if (string.IsNullOrEmpty(raw))
+				return null;
+
+			raw = raw.Replace('\\', '/');
+			string dir = Path.GetDirectoryName(raw)?.Replace('\\', '/') ?? string.Empty;
+			string stem = Path.GetFileNameWithoutExtension(raw);
+			string ext = Path.GetExtension(raw);
+			if (string.IsNullOrEmpty(ext))
+				ext = ".png";
+
+			if (!Incremental)
+				return string.IsNullOrEmpty(dir) ? $"{stem}{ext}" : $"{dir}/{stem}{ext}";
+
+			// Strip an existing _NNNN suffix so the base stem is stable across regenerations.
+			var suffixMatch = s_trailingNumberRegex.Match(stem);
+			string baseStem = suffixMatch.Success ? suffixMatch.Groups[1].Value : stem;
+
+			int maxN = 0;
+			string absDir = string.IsNullOrEmpty(dir)
+				? Directory.GetCurrentDirectory()
+				: Path.Combine(Directory.GetCurrentDirectory(), dir);
+			if (Directory.Exists(absDir))
+			{
+				var scan = new Regex(
+					$@"^{Regex.Escape(baseStem)}_(\d{{{IncrementalDigits}}}){Regex.Escape(ext)}$",
+					RegexOptions.IgnoreCase);
+				foreach (var f in Directory.GetFiles(absDir))
+				{
+					var m = scan.Match(Path.GetFileName(f));
+					if (m.Success && int.TryParse(m.Groups[1].Value, out int n) && n > maxN)
+						maxN = n;
+				}
+			}
+
+			string nextName = $"{baseStem}_{(maxN + 1).ToString("D" + IncrementalDigits, CultureInfo.InvariantCulture)}{ext}";
+			return string.IsNullOrEmpty(dir) ? nextName : $"{dir}/{nextName}";
+		}
+
+		/// <summary>
+		/// Renders the sunburst at full quality and writes it to the resolved target path.
+		/// Returns true on success and populates <paramref name="writtenPath"/> with the relative
+		/// path that was actually written; populates <paramref name="error"/> on failure.
+		/// </summary>
+		public bool Generate(out string writtenPath, out string error)
+		{
+			writtenPath = null;
+
+			string targetRelative = ResolveTargetPath();
+			if (string.IsNullOrEmpty(targetRelative))
+			{
+				error = "Output path is empty. Set OutputPath before generating.";
+				return false;
+			}
+
 			var bytes = RenderToBytes(OutputSize, Supersampling, EdgeSoftness, out error);
 			if (bytes == null)
 				return false;
 
+			string targetAbsolute = Path.Combine(Directory.GetCurrentDirectory(), targetRelative).Replace('\\', '/');
+
 			try
 			{
-				Directory.CreateDirectory(Path.GetDirectoryName(OutputAssetPathAbsolute) ?? string.Empty);
-				File.WriteAllBytes(OutputAssetPathAbsolute, bytes);
+				Directory.CreateDirectory(Path.GetDirectoryName(targetAbsolute) ?? string.Empty);
+				File.WriteAllBytes(targetAbsolute, bytes);
 			}
 			catch (Exception e)
 			{
-				error = $"Could not write output PNG to '{OutputAssetPath}': {e.Message}";
+				error = $"Could not write output PNG to '{targetRelative}': {e.Message}";
 				return false;
 			}
 
-			AssetDatabase.ImportAsset(OutputAssetPath, ImportAssetOptions.ForceUpdate);
-			ConfigureSpriteImport(OutputAssetPath);
+			if (targetRelative.StartsWith("Assets/", StringComparison.Ordinal))
+			{
+				AssetDatabase.ImportAsset(targetRelative, ImportAssetOptions.ForceUpdate);
+				ConfigureSpriteImport(targetRelative);
+			}
+			else
+			{
+				UiLog.LogWarning($"Sunburst written to '{targetRelative}' (outside Assets/), so Unity won't import it as a Sprite. Move OutputPath under Assets/ for asset-database integration.");
+			}
 
+			writtenPath = targetRelative;
 			error = null;
 			return true;
 		}

@@ -26,6 +26,8 @@ namespace GuiToolkit.Editor
 		private SerializedProperty m_supersamplingProp;
 		private SerializedProperty m_outputSizeProp;
 		private SerializedProperty m_livePreviewProp;
+		private SerializedProperty m_outputPathProp;
+		private SerializedProperty m_incrementalProp;
 		private SerializedProperty m_randomnessProp;
 		private SerializedProperty m_seedProp;
 
@@ -53,6 +55,8 @@ namespace GuiToolkit.Editor
 			m_supersamplingProp = serializedObject.FindProperty(nameof(SunburstGenerator.Supersampling));
 			m_outputSizeProp = serializedObject.FindProperty(nameof(SunburstGenerator.OutputSize));
 			m_livePreviewProp = serializedObject.FindProperty(nameof(SunburstGenerator.LivePreview));
+			m_outputPathProp = serializedObject.FindProperty(nameof(SunburstGenerator.OutputPath));
+			m_incrementalProp = serializedObject.FindProperty(nameof(SunburstGenerator.Incremental));
 			m_randomnessProp = serializedObject.FindProperty(nameof(SunburstGenerator.Randomness));
 			m_seedProp = serializedObject.FindProperty(nameof(SunburstGenerator.Seed));
 
@@ -161,7 +165,15 @@ namespace GuiToolkit.Editor
 
 			EditorUiUtility.WithHeadline("Output", () =>
 			{
-				EditorGUILayout.LabelField("Asset Path", generator.OutputAssetPath);
+				EditorGUILayout.PropertyField(m_outputPathProp);
+				EditorGUILayout.PropertyField(m_incrementalProp);
+
+				if (m_incrementalProp.boolValue)
+				{
+					string nextPath = generator.ResolveTargetPath();
+					if (!string.IsNullOrEmpty(nextPath))
+						EditorGUILayout.LabelField("Next file", nextPath, EditorStyles.miniLabel);
+				}
 
 				GUILayout.Space(6);
 
@@ -170,7 +182,7 @@ namespace GuiToolkit.Editor
 					EditorUiUtility.Centered(() =>
 					{
 						if (GUILayout.Button(new GUIContent("   Generate   ",
-							    "Render at full quality and write to the output asset path."),
+							    "Render at full quality and write to the resolved target path."),
 							    GUILayout.Height(40)))
 						{
 							GenerateFull();
@@ -255,10 +267,10 @@ namespace GuiToolkit.Editor
 			if (generator == null)
 				return;
 
-			if (generator.Generate(out string error))
+			if (generator.Generate(out string writtenPath, out string error))
 			{
 				m_lastError = null;
-				UiLog.Log($"Sunburst written to {generator.OutputAssetPath}");
+				UiLog.Log($"Sunburst written to {writtenPath}");
 			}
 			else
 			{
