@@ -1,0 +1,221 @@
+Shader "UIToolkit/UI_Glitter"
+{
+	Properties
+	{
+		_MainTex ("Mask Texture (alpha)", 2D) = "white" {}
+		_Color ("Tint", color) = (1,1,1,1)
+
+		_Density ("Density (cells per UV)", Float) = 8
+		_Coverage ("Coverage (0..1)", Range(0,1)) = 0.5
+		_Speed ("Twinkle Speed", Float) = 1
+		_Size ("Sparkle Size", Range(0.05, 2.0)) = 0.5
+		_SpikeSharpness ("Spike Sharpness", Range(1, 32)) = 8
+		_Brightness ("Brightness", Float) = 1
+
+		[Toggle(ColorVariation)] _UseColorVariation("Color Variation", Float) = 0
+		_ColorVariation ("Color Variation Amount", Range(0,1)) = 0.5
+
+		_FoldoutStencil ("Stencil", Float) = 0
+		_StencilComp ("Stencil Comparison", Float) = 8
+		_Stencil ("Stencil ID", Float) = 0
+		_StencilOp ("Stencil Operation", Float) = 0
+		_StencilWriteMask ("Stencil Write Mask", Float) = 255
+		_StencilReadMask ("Stencil Read Mask", Float) = 255
+		_ColorMask ("Color Mask", Float) = 15
+		[Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
+
+		_FoldoutBlendMode ("Blend Mode, Culling, ZTest, ZWrite, Render Queue", Float) = 1
+		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("BlendSource", Float) = 5
+		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("BlendDestination", Float) = 10
+		[Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 0
+		[Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("ZTest", Float) = 4
+		[Toggle] _ZWrite ("ZWrite", Float) = 0
+	}
+
+	SubShader
+	{
+		LOD 100
+
+		Tags
+		{
+			"Queue" = "Transparent"
+			"IgnoreProjector" = "True"
+			"RenderType" = "Transparent"
+			"PreviewType" = "Plane"
+		}
+
+		Stencil
+		{
+			Ref [_Stencil]
+			Comp [_StencilComp]
+			Pass [_StencilOp]
+			ReadMask [_StencilReadMask]
+			WriteMask [_StencilWriteMask]
+		}
+
+		Cull [_Cull]
+		Lighting Off
+		ZWrite [_ZWrite]
+		ZTest [_ZTest]
+		Blend [_SrcBlend] [_DstBlend]
+		ColorMask [_ColorMask]
+
+		Pass
+		{
+		CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+			#include "UnityUI.cginc"
+
+			#pragma multi_compile_local __ UNITY_UI_CLIP_RECT
+			#pragma multi_compile_local __ UNITY_UI_ALPHACLIP
+			#pragma shader_feature_local __ ColorVariation
+
+			struct appdata_t
+			{
+				float4 vertex   : POSITION;
+				float2 texcoord : TEXCOORD0;
+				half4  color    : COLOR;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+			};
+
+			struct v2f
+			{
+				float4 vertex        : SV_POSITION;
+				float2 texcoord      : TEXCOORD0;
+				float4 worldPosition : TEXCOORD1;
+				half4  color         : COLOR;
+				UNITY_VERTEX_OUTPUT_STEREO
+			};
+
+			sampler2D _MainTex;
+			float4    _MainTex_ST;
+			half4     _Color;
+			float     _Density;
+			float     _Coverage;
+			float     _Speed;
+			float     _Size;
+			float     _SpikeSharpness;
+			float     _Brightness;
+
+			#ifdef ColorVariation
+				float _ColorVariation;
+			#endif
+
+			float4 _ClipRect;
+
+			// Pseudo-random hash, returns 0..1 from a 2D seed.
+			float hash21(float2 p)
+			{
+				p = frac(p * float2(123.34, 456.21));
+				p += dot(p, p + 45.32);
+				return frac(p.x * p.y);
+			}
+
+			// 4-pointed star: horizontal spike + vertical spike + center bulb.
+			// p is the cell-local sample position, scaled so |p|<=1 is visible.
+			float starShape(float2 p, float spikeSharp)
+			{
+				float2 ap = abs(p);
+				float horiz = pow(max(0.0, 1.0 - ap.x), 2.0) * pow(max(0.0, 1.0 - ap.y * spikeSharp), 2.0);
+				float vert  = pow(max(0.0, 1.0 - ap.y), 2.0) * pow(max(0.0, 1.0 - ap.x * spikeSharp), 2.0);
+				float bulb  = pow(max(0.0, 1.0 - length(p)), 4.0);
+				return horiz + vert + bulb;
+			}
+
+			v2f vert(appdata_t v)
+			{
+				v2f o;
+				UNITY_SETUP_INSTANCE_ID(v);
+				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+				o.worldPosition = v.vertex;
+				o.vertex = UnityObjectToClipPos(o.worldPosition);
+				o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+				o.color = v.color;
+				return o;
+			}
+
+			half4 frag(v2f i) : COLOR
+			{
+				half maskA = tex2D(_MainTex, i.texcoord).a;
+
+				float2 gridUV  = i.texcoord * _Density;
+				float2 cellBase = floor(gridUV);
+				float2 localUV  = frac(gridUV);
+
+				float invSize = 1.0 / max(_Size, 0.01);
+				half3 colorAcc = half3(0,0,0);
+				float intensityAcc = 0.0;
+
+				// 3x3 neighborhood so spikes can cross cell borders cleanly.
+				[unroll]
+				for (int dy = -1; dy <= 1; dy++)
+				{
+					[unroll]
+					for (int dx = -1; dx <= 1; dx++)
+					{
+						float2 cellId = cellBase + float2(dx, dy);
+						float h1 = hash21(cellId);
+						float h2 = hash21(cellId + float2(17.3,  9.7));
+						float h3 = hash21(cellId + float2(31.7, 53.1));
+
+						// Branchless cell activation.
+						float active = step(h1, _Coverage);
+
+						// Jitter inside the cell so sparkles aren't on a regular grid.
+						float2 cellOffset = float2(dx, dy) + 0.2 + float2(h2, h3) * 0.6;
+						float2 p = (localUV - cellOffset) * invSize;
+
+						// Phase + variable period per cell.
+						float lifeT = frac(_Time.y * _Speed * (0.5 + h2) + h1);
+						// Sine pulse, shifted so each cycle has a dark gap.
+						float pulse = sin(lifeT * UNITY_PI);
+						float fade  = saturate(pulse * 1.5 - 0.5);
+
+						float shape = starShape(p, _SpikeSharpness);
+						float contrib = saturate(shape) * fade * active;
+
+						#ifdef ColorVariation
+							float angle = h3 * 6.2831853;
+							half3 rainbow = half3(
+								0.5 + 0.5 * sin(angle),
+								0.5 + 0.5 * sin(angle + 2.0944),
+								0.5 + 0.5 * sin(angle + 4.1888)
+							);
+							half3 tinted = lerp(_Color.rgb, rainbow, _ColorVariation);
+							colorAcc += tinted * contrib;
+						#else
+							colorAcc += _Color.rgb * contrib;
+						#endif
+
+						intensityAcc += contrib;
+					}
+				}
+
+				half4 color;
+				color.rgb = colorAcc * _Brightness;
+				color.a   = saturate(intensityAcc * _Brightness) * _Color.a;
+
+				color *= i.color;
+				color.a *= maskA;
+
+				#ifdef UNITY_UI_CLIP_RECT
+					color.a *= UnityGet2DClipping(i.worldPosition.xy, _ClipRect);
+				#endif
+
+				#ifdef UNITY_UI_ALPHACLIP
+					clip(color.a - 0.001);
+				#endif
+
+				return color;
+			}
+		ENDCG
+
+		}
+	}
+
+	CustomEditor "GuiToolkit.Editor.UiGlitterShaderEditor"
+	FallBack "UI/Default"
+}
