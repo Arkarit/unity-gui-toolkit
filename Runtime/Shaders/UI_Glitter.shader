@@ -8,7 +8,8 @@ Shader "UIToolkit/UI_Glitter"
 		_Density ("Density (cells per UV)", Float) = 8
 		_Coverage ("Coverage (0..1)", Range(0,1)) = 0.5
 		_Speed ("Twinkle Speed", Float) = 1
-		_Size ("Sparkle Size", Range(0.05, 2.0)) = 0.5
+		_SizeMin ("Sparkle Size Min", Range(0.05, 2.0)) = 0.3
+		_SizeMax ("Sparkle Size Max", Range(0.05, 2.0)) = 0.6
 		_SpikeSharpness ("Spike Sharpness", Range(1, 32)) = 8
 		_Brightness ("Brightness", Float) = 1
 
@@ -96,7 +97,8 @@ Shader "UIToolkit/UI_Glitter"
 			float     _Density;
 			float     _Coverage;
 			float     _Speed;
-			float     _Size;
+			float     _SizeMin;
+			float     _SizeMax;
 			float     _SpikeSharpness;
 			float     _Brightness;
 
@@ -145,7 +147,6 @@ Shader "UIToolkit/UI_Glitter"
 				float2 cellBase = floor(gridUV);
 				float2 localUV  = frac(gridUV);
 
-				float invSize = 1.0 / max(_Size, 0.01);
 				half3 colorAcc = half3(0,0,0);
 				float intensityAcc = 0.0;
 
@@ -160,9 +161,14 @@ Shader "UIToolkit/UI_Glitter"
 						float h1 = hash21(cellId);
 						float h2 = hash21(cellId + float2(17.3,  9.7));
 						float h3 = hash21(cellId + float2(31.7, 53.1));
+						float h4 = hash21(cellId + float2(91.7,  7.3));
 
 						// Branchless cell activation.
 						float active = step(h1, _Coverage);
+
+						// Per-cell randomized size.
+						float size = lerp(_SizeMin, _SizeMax, h4);
+						float invSize = 1.0 / max(size, 0.01);
 
 						// Jitter inside the cell so sparkles aren't on a regular grid.
 						float2 cellOffset = float2(dx, dy) + 0.2 + float2(h2, h3) * 0.6;

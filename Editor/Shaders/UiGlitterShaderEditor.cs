@@ -13,7 +13,8 @@ namespace GuiToolkit.Editor
 			DisplayProperty("_Density", "Cells per UV unit. Higher = more (and smaller) sparkles. Try 4..32.");
 			DisplayProperty("_Coverage", "Fraction of cells that actually contain a sparkle. 0 = none, 1 = every cell.");
 			DisplayProperty("_Speed", "Twinkle speed in cycles per second. Each cell has its own randomized period multiplier on top of this.");
-			DisplayProperty("_Size", "Sparkle size relative to a cell. <1 = sparkle fits inside its cell; >1 = sparkle bleeds into neighbors (3x3 sampling handles this).");
+			DisplayProperty("_SizeMin", "Minimum sparkle size, relative to a cell. Each sparkle picks a random size between min and max.");
+			DisplayProperty("_SizeMax", "Maximum sparkle size, relative to a cell. Set equal to min for uniform size.");
 			DisplayProperty("_SpikeSharpness", "How thin the cross spikes are. 1 = round blob, 32 = needle-thin star.");
 			DisplayProperty("_Brightness", "Output multiplier. With additive blending you can dial this above 1.");
 

@@ -67,10 +67,10 @@ Material:
     - _BumpScale: 1
     - _ColorMask: 15
     - _ColorVariation: 1
-    - _Coverage: 0.109
+    - _Coverage: 1
     - _Cull: 0
     - _Cutoff: 0.5
-    - _Density: 20
+    - _Density: 98.58
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
     - _FoldoutBlendMode: 1
@@ -82,7 +82,9 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Size: 0.5
+    - _Size: 0.461
+    - _SizeMax: 2
+    - _SizeMin: 0.05
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _Speed: 1
