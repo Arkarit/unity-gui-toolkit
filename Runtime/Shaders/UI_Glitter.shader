@@ -3,7 +3,14 @@ Shader "UIToolkit/UI_Glitter"
 	Properties
 	{
 		_MainTex ("Mask Texture (alpha)", 2D) = "white" {}
-		_Color ("Tint", color) = (1,1,1,1)
+
+		[KeywordEnum(Off, Rainbow, TwoColor, ThreeColor, DualRender)] _ColorMode("Color Mode", Float) = 0
+		_Color ("Tint / Color 1", color) = (1,1,1,1)
+		_Color2 ("Color 2", color) = (1,1,1,1)
+		_Color3 ("Color 3", color) = (1,1,1,1)
+		_ColorVariation ("Rainbow Variation Amount", Range(0,1)) = 0.5
+		_RainbowFloor ("Rainbow Brightness Floor", Range(0,1)) = 0.4
+		_DualScale ("Dual Render Inner Scale", Range(0.05, 1.0)) = 0.5
 
 		_Density ("Density (cells per UV)", Float) = 8
 		_Coverage ("Coverage (0..1)", Range(0,1)) = 0.5
@@ -12,9 +19,6 @@ Shader "UIToolkit/UI_Glitter"
 		_SizeMax ("Sparkle Size Max", Range(0.05, 2.0)) = 0.6
 		_SpikeSharpness ("Spike Sharpness", Range(1, 32)) = 8
 		_Brightness ("Brightness", Float) = 1
-
-		[Toggle(ColorVariation)] _UseColorVariation("Color Variation", Float) = 0
-		_ColorVariation ("Color Variation Amount", Range(0,1)) = 0.5
 
 		_FoldoutStencil ("Stencil", Float) = 0
 		_StencilComp ("Stencil Comparison", Float) = 8
@@ -72,7 +76,7 @@ Shader "UIToolkit/UI_Glitter"
 
 			#pragma multi_compile_local __ UNITY_UI_CLIP_RECT
 			#pragma multi_compile_local __ UNITY_UI_ALPHACLIP
-			#pragma shader_feature_local __ ColorVariation
+			#pragma shader_feature_local __ _COLORMODE_OFF _COLORMODE_RAINBOW _COLORMODE_TWOCOLOR _COLORMODE_THREECOLOR _COLORMODE_DUALRENDER
 
 			struct appdata_t
 			{
@@ -102,8 +106,18 @@ Shader "UIToolkit/UI_Glitter"
 			float     _SpikeSharpness;
 			float     _Brightness;
 
-			#ifdef ColorVariation
+			#if defined(_COLORMODE_RAINBOW)
 				float _ColorVariation;
+				float _RainbowFloor;
+			#endif
+			#if defined(_COLORMODE_TWOCOLOR) || defined(_COLORMODE_THREECOLOR) || defined(_COLORMODE_DUALRENDER)
+				half4 _Color2;
+			#endif
+			#if defined(_COLORMODE_THREECOLOR)
+				half4 _Color3;
+			#endif
+			#if defined(_COLORMODE_DUALRENDER)
+				float _DualScale;
 			#endif
 
 			float4 _ClipRect;
@@ -162,6 +176,7 @@ Shader "UIToolkit/UI_Glitter"
 						float h2 = hash21(cellId + float2(17.3,  9.7));
 						float h3 = hash21(cellId + float2(31.7, 53.1));
 						float h4 = hash21(cellId + float2(91.7,  7.3));
+						float h5 = hash21(cellId + float2(73.1, 41.9));
 
 						// Branchless cell activation.
 						float active = step(h1, _Coverage);
@@ -183,18 +198,43 @@ Shader "UIToolkit/UI_Glitter"
 						float shape = starShape(p, _SpikeSharpness);
 						float contrib = saturate(shape) * fade * active;
 
-						#ifdef ColorVariation
-							float angle = h3 * 6.2831853;
-							half3 rainbow = half3(
+						half3 tinted;
+						#if defined(_COLORMODE_RAINBOW)
+							float angle = h5 * 6.2831853;
+							half3 rawHue = half3(
 								0.5 + 0.5 * sin(angle),
 								0.5 + 0.5 * sin(angle + 2.0944),
 								0.5 + 0.5 * sin(angle + 4.1888)
 							);
-							half3 tinted = lerp(_Color.rgb, rainbow, _ColorVariation);
-							colorAcc += tinted * contrib;
+							// Lift dark channels so no hue drops below _RainbowFloor.
+							half3 rainbow = _RainbowFloor + (1.0 - _RainbowFloor) * rawHue;
+							tinted = lerp(_Color.rgb, rainbow, _ColorVariation);
+						#elif defined(_COLORMODE_TWOCOLOR)
+							tinted = lerp(_Color.rgb, _Color2.rgb, step(0.5, h5));
+						#elif defined(_COLORMODE_THREECOLOR)
+							float t3 = h5 * 3.0;
+							if (t3 < 1.0)
+							{
+								tinted = _Color.rgb;
+							}
+							else if (t3 < 2.0)
+							{
+								tinted = _Color2.rgb;
+							}
+							else
+							{
+								tinted = _Color3.rgb;
+							}
+						#elif defined(_COLORMODE_DUALRENDER)
+							// Inner star uses the same shape at a smaller absolute radius.
+							// Its falloff naturally produces the two-color gradient inside the outer star.
+							float2 pInner = p / max(_DualScale, 0.01);
+							float innerShape = starShape(pInner, _SpikeSharpness);
+							tinted = lerp(_Color.rgb, _Color2.rgb, saturate(innerShape));
 						#else
-							colorAcc += _Color.rgb * contrib;
+							tinted = _Color.rgb;
 						#endif
+						colorAcc += tinted * contrib;
 
 						intensityAcc += contrib;
 					}
