@@ -14,17 +14,27 @@ namespace GuiToolkit.Editor
 			bool hasPathFieldAttribute = _property.TryGetCustomAttribute(out PathFieldAttribute pathFieldAttr, true);
 			bool hasTooltipAttribute   = _property.TryGetCustomAttribute(out TooltipAttribute tooltipAttr, true);
 
-			bool   isFolder      = !hasPathFieldAttribute || pathFieldAttr.IsFolder;
-			string relativeTo    = hasPathFieldAttribute ? pathFieldAttr.RelativeToPath : null;
-			string extensionsCsv = hasPathFieldAttribute ? pathFieldAttr.Extensions     : null;
-			string tooltip       = hasTooltipAttribute   ? tooltipAttr.tooltip          : null;
+			bool   isFolder         = !hasPathFieldAttribute || pathFieldAttr.IsFolder;
+			string relativeTo       = hasPathFieldAttribute ? pathFieldAttr.RelativeToPath : null;
+			string extensionsCsv    = hasPathFieldAttribute ? pathFieldAttr.Extensions     : null;
+			bool   allowNonExistent = hasPathFieldAttribute && pathFieldAttr.AllowNonExistent;
+			string tooltip          = hasTooltipAttribute   ? tooltipAttr.tooltip          : null;
+			string label            = ObjectNames.NicifyVariableName(_property.name);
 
 			// Draw the regular path UI -----------------------------------------------------
-			string path = isFolder
-				? EditorFileUtility.PathFieldReadFolder(_rect, ObjectNames.NicifyVariableName(_property.name),
-				                                        pathProp.stringValue, tooltip)
-				: EditorFileUtility.PathFieldReadFile(_rect, ObjectNames.NicifyVariableName(_property.name),
-				                                      pathProp.stringValue, extensionsCsv, tooltip);
+			string path;
+			if (isFolder)
+			{
+				path = allowNonExistent
+					? EditorFileUtility.PathFieldSaveFolder(_rect, label, pathProp.stringValue, tooltip)
+					: EditorFileUtility.PathFieldReadFolder(_rect, label, pathProp.stringValue, tooltip);
+			}
+			else
+			{
+				path = allowNonExistent
+					? EditorFileUtility.PathFieldSaveFile(_rect, label, pathProp.stringValue, extensionsCsv, tooltip)
+					: EditorFileUtility.PathFieldReadFile(_rect, label, pathProp.stringValue, extensionsCsv, tooltip);
+			}
 
 			// Post-process for relative paths
 			if (!string.IsNullOrEmpty(relativeTo) && !string.IsNullOrEmpty(path))
@@ -85,7 +95,7 @@ namespace GuiToolkit.Editor
 					return;
 			}
 
-			// All good – show copy cursor
+			// All good ï¿½ show copy cursor
 			DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
 
 			if (evt.type == EventType.DragPerform)

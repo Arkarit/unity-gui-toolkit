@@ -103,7 +103,7 @@ namespace GuiToolkit.Editor
 
 		[Tooltip("Target file for Generate. Pre-filled with " + DefaultOutputFolder + "/{name}.png on create. "
 		         + "Must live under Assets/ for Unity to pick it up as a Sprite.")]
-		[PathField(_isFolder: false, _relativeToPath: ".", _extensions: "png")]
+		[PathField(_isFolder: false, _relativeToPath: ".", _extensions: "png", _allowNonExistent: true)]
 		public PathField OutputPath;
 
 		[Tooltip("When enabled, each Generate writes a new file with an incremented 4-digit suffix "
@@ -203,6 +203,9 @@ namespace GuiToolkit.Editor
 
 			if (targetRelative.StartsWith("Assets/", StringComparison.Ordinal))
 			{
+				// Refresh first so Unity discovers the new file on disk and generates the .meta;
+				// importing/configuring before refresh leaves the asset unknown to AssetDatabase.
+				AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
 				AssetDatabase.ImportAsset(targetRelative, ImportAssetOptions.ForceUpdate);
 				ConfigureSpriteImport(targetRelative);
 			}
