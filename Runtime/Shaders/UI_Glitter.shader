@@ -15,6 +15,8 @@ Shader "UIToolkit/UI_Glitter"
 		_Density ("Density (cells per UV)", Float) = 8
 		_Coverage ("Coverage (0..1)", Range(0,1)) = 0.5
 		_Speed ("Twinkle Speed", Float) = 1
+		_ScrollSpeedX ("Scroll Speed X (UV/s)", Float) = 0
+		_ScrollSpeedY ("Scroll Speed Y (UV/s)", Float) = 0
 		_SizeMin ("Sparkle Size Min", Range(0.05, 2.0)) = 0.3
 		_SizeMax ("Sparkle Size Max", Range(0.05, 2.0)) = 0.6
 		_SpikeSharpness ("Spike Sharpness", Range(1, 32)) = 8
@@ -101,6 +103,8 @@ Shader "UIToolkit/UI_Glitter"
 			float     _Density;
 			float     _Coverage;
 			float     _Speed;
+			float     _ScrollSpeedX;
+			float     _ScrollSpeedY;
 			float     _SizeMin;
 			float     _SizeMax;
 			float     _SpikeSharpness;
@@ -157,7 +161,9 @@ Shader "UIToolkit/UI_Glitter"
 			{
 				half maskA = tex2D(_MainTex, i.texcoord).a;
 
-				float2 gridUV  = i.texcoord * _Density;
+				// Scroll the cell grid; the mask sample below stays on the unscrolled UV.
+				float2 scrollOffset = float2(_ScrollSpeedX, _ScrollSpeedY) * _Time.y;
+				float2 gridUV  = (i.texcoord + scrollOffset) * _Density;
 				float2 cellBase = floor(gridUV);
 				float2 localUV  = frac(gridUV);
 
