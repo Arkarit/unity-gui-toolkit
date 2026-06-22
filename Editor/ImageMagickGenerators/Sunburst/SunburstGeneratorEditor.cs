@@ -28,7 +28,9 @@ namespace GuiToolkit.Editor
 		private SerializedProperty m_livePreviewProp;
 		private SerializedProperty m_outputPathProp;
 		private SerializedProperty m_incrementalProp;
-		private SerializedProperty m_randomnessProp;
+		private SerializedProperty m_incrementSeedProp;
+		private SerializedProperty m_randomnessRayWidthProp;
+		private SerializedProperty m_randomnessRayDistributionProp;
 		private SerializedProperty m_seedProp;
 
 		private Texture2D m_previewTex;
@@ -57,7 +59,9 @@ namespace GuiToolkit.Editor
 			m_livePreviewProp = serializedObject.FindProperty(nameof(SunburstGenerator.LivePreview));
 			m_outputPathProp = serializedObject.FindProperty(nameof(SunburstGenerator.OutputPath));
 			m_incrementalProp = serializedObject.FindProperty(nameof(SunburstGenerator.Incremental));
-			m_randomnessProp = serializedObject.FindProperty(nameof(SunburstGenerator.Randomness));
+			m_incrementSeedProp = serializedObject.FindProperty(nameof(SunburstGenerator.IncrementSeed));
+			m_randomnessRayWidthProp = serializedObject.FindProperty(nameof(SunburstGenerator.RandomnessRayWidth));
+			m_randomnessRayDistributionProp = serializedObject.FindProperty(nameof(SunburstGenerator.RandomnessRayDistribution));
 			m_seedProp = serializedObject.FindProperty(nameof(SunburstGenerator.Seed));
 
 			EditorApplication.update += OnEditorUpdate;
@@ -122,8 +126,12 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.PropertyField(m_rayColorProp);
 				EditorGUILayout.PropertyField(m_backgroundColorProp);
 				EditorGUILayout.PropertyField(m_rayGradientProp);
-				EditorGUILayout.PropertyField(m_randomnessProp);
-				using (new EditorGUI.DisabledScope(m_randomnessProp.floatValue <= 0.0001f))
+				EditorGUILayout.PropertyField(m_randomnessRayWidthProp);
+				EditorGUILayout.PropertyField(m_randomnessRayDistributionProp);
+				bool anyRandomness =
+					m_randomnessRayWidthProp.floatValue > 0.0001f ||
+					m_randomnessRayDistributionProp.floatValue > 0.0001f;
+				using (new EditorGUI.DisabledScope(!anyRandomness))
 				{
 					EditorGUILayout.PropertyField(m_seedProp);
 				}
@@ -167,6 +175,7 @@ namespace GuiToolkit.Editor
 			{
 				EditorGUILayout.PropertyField(m_outputPathProp);
 				EditorGUILayout.PropertyField(m_incrementalProp);
+				EditorGUILayout.PropertyField(m_incrementSeedProp);
 
 				if (m_incrementalProp.boolValue)
 				{
@@ -177,9 +186,9 @@ namespace GuiToolkit.Editor
 
 				GUILayout.Space(6);
 
-				using (new EditorGUI.DisabledScope(!ImageMagickRunner.MagickExecutableFound))
+				EditorUiUtility.Centered(() =>
 				{
-					EditorUiUtility.Centered(() =>
+					using (new EditorGUI.DisabledScope(!ImageMagickRunner.MagickExecutableFound))
 					{
 						if (GUILayout.Button(new GUIContent("   Generate   ",
 							    "Render at full quality and write to the resolved target path."),
@@ -187,8 +196,18 @@ namespace GuiToolkit.Editor
 						{
 							GenerateFull();
 						}
-					});
-				}
+					}
+
+					if (m_incrementSeedProp.boolValue)
+					{
+						if (GUILayout.Button(new GUIContent("   Skip   ",
+							    "Bump Seed by 1 without generating an output file. Useful for skipping over patterns you don't like when stepping through seeds."),
+							    GUILayout.Height(40)))
+						{
+							SkipSeed();
+						}
+					}
+				});
 
 				if (!string.IsNullOrEmpty(m_lastError))
 				{
@@ -261,11 +280,31 @@ namespace GuiToolkit.Editor
 			}
 		}
 
+		private void SkipSeed()
+		{
+			var generator = target as SunburstGenerator;
+			if (generator == null)
+				return;
+
+			serializedObject.ApplyModifiedProperties();
+			generator.Seed = generator.Seed < 0 ? 0 : generator.Seed + 1;
+			EditorUtility.SetDirty(generator);
+			serializedObject.Update();
+
+			if (generator.LivePreview)
+				m_lastChangeTime = EditorApplication.timeSinceStartup;
+
+			Repaint();
+		}
+
 		private void GenerateFull()
 		{
 			var generator = target as SunburstGenerator;
 			if (generator == null)
 				return;
+
+			// Flush any pending inspector edits to the SO before Generate reads field values.
+			serializedObject.ApplyModifiedProperties();
 
 			if (generator.Generate(out string writtenPath, out string error))
 			{
@@ -277,6 +316,14 @@ namespace GuiToolkit.Editor
 				m_lastError = error;
 				UiLog.LogError($"Sunburst generation failed: {error}");
 			}
+
+			// Generate may have bumped Seed (when IncrementSeed is on) — pull the new value into
+			// the SerializedObject and request a preview re-render so the inspector reflects it.
+			serializedObject.Update();
+			if (generator.IncrementSeed && generator.LivePreview)
+				m_lastChangeTime = EditorApplication.timeSinceStartup;
+
+			Repaint();
 		}
 	}
 }

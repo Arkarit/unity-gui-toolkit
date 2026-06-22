@@ -5,7 +5,9 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
+using UnityEditor.PackageManager;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GuiToolkit.Editor
 {
@@ -80,10 +82,15 @@ namespace GuiToolkit.Editor
 		         + "Intermediate values keep an inner band solid and fade the rest.")]
 		[Range(0f, 1f)] public float RayGradient = 0f;
 
-		[Tooltip("Random variation of individual ray and gap widths. 0 = perfectly uniform. "
-		         + "Each ray and gap is independently weighted in [1-r, 1+r] (clamped to ≥0) and rescaled "
-		         + "so that the overall duty cycle is preserved.")]
-		[Range(0f, 1f)] public float Randomness = 0f;
+		[Tooltip("Random variation of individual ray widths (centers stay equidistant). 0 = uniform. "
+		         + "Each ray is weighted in [1-r, 1+r] (clamped to ≥0) and rescaled so the average duty "
+		         + "cycle is preserved exactly.")]
+		[FormerlySerializedAs("Randomness")]
+		[Range(0f, 1f)] public float RandomnessRayWidth = 0f;
+
+		[Tooltip("Random jitter of individual ray centers (widths stay uniform). 0 = equidistant. "
+		         + "Each ray center is shifted by ±(slot/2) × r. At 1, adjacent rays may swap positions or overlap.")]
+		[Range(0f, 1f)] public float RandomnessRayDistribution = 0f;
 
 		[Tooltip("Seed for the randomness PRNG. -1 = use a deterministic default seed (still reproducible). "
 		         + "Change this to a different non-negative value to get a different random pattern.")]
@@ -111,6 +118,10 @@ namespace GuiToolkit.Editor
 		         + "output directory for existing files matching the pattern and picking max + 1. "
 		         + "When disabled, Generate overwrites OutputPath each time.")]
 		public bool Incremental = false;
+
+		[Tooltip("When enabled, the Seed is bumped by 1 after each successful Generate so the next call "
+		         + "produces a different random pattern. Pairs well with Incremental for batches of varied outputs.")]
+		public bool IncrementSeed = false;
 
 		private void Reset() => EnsureDefaultOutputPath();
 
@@ -188,7 +199,9 @@ namespace GuiToolkit.Editor
 			if (bytes == null)
 				return false;
 
-			string targetAbsolute = Path.Combine(Directory.GetCurrentDirectory(), targetRelative).Replace('\\', '/');
+			// Normalize to a clean absolute path so '..' segments (from relative OutputPath values)
+			// don't break later prefix-comparisons against Application.dataPath / package roots.
+			string targetAbsolute = Path.GetFullPath(targetRelative).Replace('\\', '/');
 
 			try
 			{
@@ -201,22 +214,63 @@ namespace GuiToolkit.Editor
 				return false;
 			}
 
-			if (targetRelative.StartsWith("Assets/", StringComparison.Ordinal))
+			// Refresh unconditionally — Unity tracks files anywhere under known locations
+			// (Assets/, embedded packages, local UPM packages), and skipping refresh here was the
+			// reason new files sometimes lacked .meta entries.
+			AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+
+			string unityAssetPath = TryResolveUnityAssetPath(targetAbsolute);
+			if (!string.IsNullOrEmpty(unityAssetPath))
 			{
-				// Refresh first so Unity discovers the new file on disk and generates the .meta;
-				// importing/configuring before refresh leaves the asset unknown to AssetDatabase.
-				AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
-				AssetDatabase.ImportAsset(targetRelative, ImportAssetOptions.ForceUpdate);
-				ConfigureSpriteImport(targetRelative);
+				AssetDatabase.ImportAsset(unityAssetPath, ImportAssetOptions.ForceUpdate);
+				ConfigureSpriteImport(unityAssetPath);
+				writtenPath = unityAssetPath;
 			}
 			else
 			{
-				UiLog.LogWarning($"Sunburst written to '{targetRelative}' (outside Assets/), so Unity won't import it as a Sprite. Move OutputPath under Assets/ for asset-database integration.");
+				UiLog.LogWarning($"Sunburst written to '{targetAbsolute}' but the path is not under Assets/ or any registered package — Unity can't see it as an asset, so Sprite import settings were not applied.");
+				writtenPath = targetAbsolute;
 			}
 
-			writtenPath = targetRelative;
+			if (IncrementSeed)
+			{
+				// -1 is the "no explicit seed" sentinel; first bump lands on 0, then 1, 2, ...
+				Seed = Seed < 0 ? 0 : Seed + 1;
+				EditorUtility.SetDirty(this);
+			}
+
 			error = null;
 			return true;
+		}
+
+		/// <summary>
+		/// Converts an absolute filesystem path to a Unity asset path
+		/// (<c>Assets/...</c> or <c>Packages/{packageName}/...</c>), or returns null if the path
+		/// is not visible to the AssetDatabase.
+		/// </summary>
+		private static string TryResolveUnityAssetPath(string normalizedAbsolutePath)
+		{
+			// Assets/ first — most common case.
+			string dataPath = Application.dataPath.Replace('\\', '/').TrimEnd('/');
+			if (normalizedAbsolutePath.StartsWith(dataPath + "/", StringComparison.OrdinalIgnoreCase))
+				return "Assets/" + normalizedAbsolutePath.Substring(dataPath.Length + 1);
+
+			// Inside a registered UPM package (embedded, local file:, or git checkout).
+			var packages = PackageInfo.GetAllRegisteredPackages();
+			if (packages != null)
+			{
+				foreach (var pkg in packages)
+				{
+					if (pkg == null || string.IsNullOrEmpty(pkg.resolvedPath))
+						continue;
+
+					string pkgPath = Path.GetFullPath(pkg.resolvedPath).Replace('\\', '/').TrimEnd('/');
+					if (normalizedAbsolutePath.StartsWith(pkgPath + "/", StringComparison.OrdinalIgnoreCase))
+						return $"Packages/{pkg.name}/{normalizedAbsolutePath.Substring(pkgPath.Length + 1)}";
+				}
+			}
+
+			return null;
 		}
 
 		/// <summary>
@@ -243,7 +297,7 @@ namespace GuiToolkit.Editor
 				string svg = SunburstSvg.Build(
 					RayCount, DutyCycle, InnerRadiusRatio, OuterRadiusRatio, RayBaseWidth, RayBaseWidthOffset,
 					RayTipWidth, Rotation, RayColor, BackgroundColor, FillInnerCircle, RayGradient,
-					Randomness, Seed, svgW, svgH);
+					RandomnessRayWidth, RandomnessRayDistribution, Seed, svgW, svgH);
 
 				string id = Guid.NewGuid().ToString("N");
 				tempSvg = Path.Combine(Path.GetTempPath(), $"sunburst_{id}.svg").Replace('\\', '/');

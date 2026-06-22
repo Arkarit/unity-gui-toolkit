@@ -7,12 +7,12 @@ namespace GuiToolkit.Editor
 	/// <summary>
 	/// Composes the SVG string for a parametric sunburst.
 	///
-	/// Geometry: N rays distributed around the canvas center. Each ray is a quad with two inner
-	/// corners (at innerRadius) and two outer corners (at outerRadius). Without randomness, rays
-	/// and gaps have uniform angular width derived from <c>dutyCycle</c>. With randomness, each
-	/// individual ray and gap gets a weight in <c>[1-r, 1+r]</c> (clamped to non-negative) and
-	/// widths are scaled so that the total ray-angle and total gap-angle are preserved — i.e.
-	/// the overall duty cycle stays exactly as set even though individual widths vary.
+	/// Geometry: N rays distributed around the canvas center. Each ray has an angular *center*
+	/// and an angular *width*; the two are now decoupled, so the two randomness parameters are
+	/// fully orthogonal:
+	///   - <c>randomnessRayWidth</c>: per-ray width multiplier in [1-r, 1+r] (clamped ≥0), then
+	///     widths are rescaled to preserve the average set by <c>dutyCycle</c>.
+	///   - <c>randomnessRayDistribution</c>: per-ray center jitter in [-1, +1] * (slot/2) * r.
 	///
 	/// Coordinate system: SVG y-down, so we use (sin a, -cos a) to place rotation 0 at the top
 	/// (compass convention) and positive rotation clockwise.
@@ -34,7 +34,8 @@ namespace GuiToolkit.Editor
 			Color backgroundColor,
 			bool fillInnerCircle,
 			float rayGradient,
-			float randomness,
+			float randomnessRayWidth,
+			float randomnessRayDistribution,
 			int seed,
 			int svgWidth,
 			int svgHeight
@@ -42,12 +43,12 @@ namespace GuiToolkit.Editor
 		{
 			int n = Mathf.Max(3, rayCount);
 			float twoPi = 2f * Mathf.PI;
-			float totalRayAngle = Mathf.Clamp(dutyCycle, 0.001f, 0.999f) * twoPi;
-			float totalGapAngle = twoPi - totalRayAngle;
+			float slot = twoPi / n;
+			float baseRayWidth = Mathf.Clamp(dutyCycle, 0.001f, 0.999f) * slot;
 
 			var rayWidths = new float[n];
-			var gapWidths = new float[n];
-			ComputeWidths(n, totalRayAngle, totalGapAngle, randomness, seed, rayWidths, gapWidths);
+			var rayCenters = new float[n];
+			ComputeRayLayout(n, slot, baseRayWidth, randomnessRayWidth, randomnessRayDistribution, seed, rayCenters, rayWidths);
 
 			float outerR = Mathf.Clamp01(outerRadiusRatio);
 			float innerR = Mathf.Clamp(innerRadiusRatio, 0f, outerR);
@@ -102,108 +103,118 @@ namespace GuiToolkit.Editor
 			float baseOffsetHalfRad = Mathf.Max(0f, rayBaseWidthOffsetDegrees) * Mathf.Deg2Rad * 0.5f;
 			string rayFill = useGradient ? $"fill=\"url(#{gradientId})\"" : BuildFillAttrs(rayColor);
 
-			// Lay rays out starting with ray 0 centered on angle 0 (top); subsequent rays clockwise.
+			// Each ray is independently placed at its center with its width (no sequential layout,
+			// no gap arithmetic). Adjacent rays can overlap when widths + distribution jitter push
+			// them together; SVG fill handles that naturally.
 			//
-			// Each ray is bounded by:
+			// Path per ray:
 			//   - inner arc along the inner circle from ai1 to ai2 (sweep=1, CW)
 			//   - line from inner-right to outer-right
 			//   - outer arc along the outer circle from ao2 back to ao1 (sweep=0, CCW)
 			//   - line back to inner-left (closes via Z)
 			//
-			// Using arcs (rather than chords) keeps the ray edges *on* the inner/outer circles even
-			// at large RayBaseWidth: overlapping inner arcs of adjacent rays just fill the inner
-			// disc cleanly instead of producing chord-polygons.
+			// Arcs (not chords) keep the edges on the inner/outer circles even at large RayBaseWidth.
 			string innerRadiusStr = F(innerR);
 			string outerRadiusStr = F(outerR);
-			float angle = -rayWidths[0] * 0.5f;
 			for (int i = 0; i < n; i++)
 			{
-				if (rayWidths[i] > 1e-5f)
+				if (rayWidths[i] <= 1e-5f)
+					continue;
+
+				float center = rayCenters[i];
+				float halfSlot = rayWidths[i] * 0.5f;
+				float innerHalf = halfSlot * baseW + baseOffsetHalfRad;
+				float outerHalf = halfSlot * tipW;
+				float ai1 = center - innerHalf;
+				float ai2 = center + innerHalf;
+				float ao1 = center - outerHalf;
+				float ao2 = center + outerHalf;
+
+				float ix1 = innerR * Mathf.Sin(ai1), iy1 = -innerR * Mathf.Cos(ai1);
+				float ix2 = innerR * Mathf.Sin(ai2), iy2 = -innerR * Mathf.Cos(ai2);
+				float ox1 = outerR * Mathf.Sin(ao1), oy1 = -outerR * Mathf.Cos(ao1);
+				float ox2 = outerR * Mathf.Sin(ao2), oy2 = -outerR * Mathf.Cos(ao2);
+
+				int innerLargeArc = (ai2 - ai1) > Mathf.PI ? 1 : 0;
+				int outerLargeArc = (ao2 - ao1) > Mathf.PI ? 1 : 0;
+
+				sb.Append("    <path d=\"M ");
+				if (innerR > 1e-5f)
 				{
-					float a1 = angle;
-					float a2 = angle + rayWidths[i];
-					float center = (a1 + a2) * 0.5f;
-					float halfSlot = (a2 - a1) * 0.5f;
-					float innerHalf = halfSlot * baseW + baseOffsetHalfRad;
-					float outerHalf = halfSlot * tipW;
-					float ai1 = center - innerHalf;
-					float ai2 = center + innerHalf;
-					float ao1 = center - outerHalf;
-					float ao2 = center + outerHalf;
-
-					float ix1 = innerR * Mathf.Sin(ai1), iy1 = -innerR * Mathf.Cos(ai1);
-					float ix2 = innerR * Mathf.Sin(ai2), iy2 = -innerR * Mathf.Cos(ai2);
-					float ox1 = outerR * Mathf.Sin(ao1), oy1 = -outerR * Mathf.Cos(ao1);
-					float ox2 = outerR * Mathf.Sin(ao2), oy2 = -outerR * Mathf.Cos(ao2);
-
-					int innerLargeArc = (ai2 - ai1) > Mathf.PI ? 1 : 0;
-					int outerLargeArc = (ao2 - ao1) > Mathf.PI ? 1 : 0;
-
-					sb.Append("    <path d=\"M ");
-					if (innerR > 1e-5f)
-					{
-						sb.Append(F(ix1)); sb.Append(' '); sb.Append(F(iy1));
-						sb.Append(" A "); sb.Append(innerRadiusStr); sb.Append(' '); sb.Append(innerRadiusStr);
-						sb.Append(" 0 "); sb.Append(innerLargeArc); sb.Append(" 1 ");
-						sb.Append(F(ix2)); sb.Append(' '); sb.Append(F(iy2));
-					}
-					else
-					{
-						// innerR ≈ 0: collapse inner edge to the origin (no inner arc).
-						sb.Append("0 0");
-					}
-					sb.Append(" L "); sb.Append(F(ox2)); sb.Append(' '); sb.Append(F(oy2));
-					sb.Append(" A "); sb.Append(outerRadiusStr); sb.Append(' '); sb.Append(outerRadiusStr);
-					sb.Append(" 0 "); sb.Append(outerLargeArc); sb.Append(" 0 ");
-					sb.Append(F(ox1)); sb.Append(' '); sb.Append(F(oy1));
-					sb.Append(" Z\" ");
-					sb.Append(rayFill);
-					sb.Append("/>\n");
+					sb.Append(F(ix1)); sb.Append(' '); sb.Append(F(iy1));
+					sb.Append(" A "); sb.Append(innerRadiusStr); sb.Append(' '); sb.Append(innerRadiusStr);
+					sb.Append(" 0 "); sb.Append(innerLargeArc); sb.Append(" 1 ");
+					sb.Append(F(ix2)); sb.Append(' '); sb.Append(F(iy2));
 				}
-
-				angle += rayWidths[i] + gapWidths[i];
+				else
+				{
+					// innerR ≈ 0: collapse inner edge to the origin (no inner arc).
+					sb.Append("0 0");
+				}
+				sb.Append(" L "); sb.Append(F(ox2)); sb.Append(' '); sb.Append(F(oy2));
+				sb.Append(" A "); sb.Append(outerRadiusStr); sb.Append(' '); sb.Append(outerRadiusStr);
+				sb.Append(" 0 "); sb.Append(outerLargeArc); sb.Append(" 0 ");
+				sb.Append(F(ox1)); sb.Append(' '); sb.Append(F(oy1));
+				sb.Append(" Z\" ");
+				sb.Append(rayFill);
+				sb.Append("/>\n");
 			}
 
 			sb.Append("  </g>\n</svg>\n");
 			return sb.ToString();
 		}
 
-		private static void ComputeWidths(int n, float totalRayAngle, float totalGapAngle, float randomness, int seed, float[] rayWidths, float[] gapWidths)
+		private static void ComputeRayLayout(
+			int n,
+			float slot,
+			float baseRayWidth,
+			float randomnessRayWidth,
+			float randomnessRayDistribution,
+			int seed,
+			float[] rayCenters,
+			float[] rayWidths
+		)
 		{
-			if (randomness <= 1e-4f)
+			float rW = Mathf.Clamp01(randomnessRayWidth);
+			float rD = Mathf.Clamp01(randomnessRayDistribution);
+			bool needRng = rW > 1e-4f || rD > 1e-4f;
+
+			System.Random rng = null;
+			if (needRng)
 			{
-				float uniformRay = totalRayAngle / n;
-				float uniformGap = totalGapAngle / n;
+				// seed == -1 is a sentinel for "no explicit seed"; map to a deterministic default so that
+				// untouched generators still produce a stable, reproducible result.
+				int effectiveSeed = seed < 0 ? 0 : seed;
+				rng = new System.Random(effectiveSeed);
+			}
+
+			// Phase 1: widths. Compute per-ray weights, then rescale so the average width equals baseRayWidth
+			// (i.e. the average duty cycle remains exactly as set even though individual rays vary).
+			if (rW > 1e-4f)
+			{
+				float weightSum = 0f;
 				for (int i = 0; i < n; i++)
 				{
-					rayWidths[i] = uniformRay;
-					gapWidths[i] = uniformGap;
+					float w = Mathf.Max(0f, 1f + rW * ((float)rng.NextDouble() * 2f - 1f));
+					rayWidths[i] = w;
+					weightSum += w;
 				}
-				return;
+				float scale = weightSum > 1e-6f ? (baseRayWidth * n) / weightSum : 0f;
+				for (int i = 0; i < n; i++)
+					rayWidths[i] *= scale;
+			}
+			else
+			{
+				for (int i = 0; i < n; i++)
+					rayWidths[i] = baseRayWidth;
 			}
 
-			// seed == -1 is a sentinel for "no explicit seed"; map to a deterministic default so that
-			// untouched generators still produce a stable, reproducible result.
-			int effectiveSeed = seed < 0 ? 0 : seed;
-			var rng = new System.Random(effectiveSeed);
-
-			float r = Mathf.Clamp01(randomness);
-			float rayWeightSum = 0f;
-			float gapWeightSum = 0f;
+			// Phase 2: centers. Uniform positions, optionally jittered by up to ±slot/2 * rD.
+			float maxJitter = slot * 0.5f * rD;
 			for (int i = 0; i < n; i++)
 			{
-				rayWidths[i] = Mathf.Max(0f, 1f + r * ((float)rng.NextDouble() * 2f - 1f));
-				gapWidths[i] = Mathf.Max(0f, 1f + r * ((float)rng.NextDouble() * 2f - 1f));
-				rayWeightSum += rayWidths[i];
-				gapWeightSum += gapWidths[i];
-			}
-
-			float rayScale = rayWeightSum > 1e-6f ? totalRayAngle / rayWeightSum : 0f;
-			float gapScale = gapWeightSum > 1e-6f ? totalGapAngle / gapWeightSum : 0f;
-			for (int i = 0; i < n; i++)
-			{
-				rayWidths[i] *= rayScale;
-				gapWidths[i] *= gapScale;
+				float jitter = rD > 1e-4f ? maxJitter * ((float)rng.NextDouble() * 2f - 1f) : 0f;
+				rayCenters[i] = i * slot + jitter;
 			}
 		}
 

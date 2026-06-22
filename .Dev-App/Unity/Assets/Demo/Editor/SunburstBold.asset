@@ -10,28 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a264cd5e077e19040bf30bb51b88830f, type: 3}
-  m_Name: SunburstMedium
+  m_Name: SunburstBold
   m_EditorClassIdentifier: 
-  RayCount: 18
+  RayCount: 8
   DutyCycle: 0.45
   InnerRadiusRatio: 0.101
   FillInnerCircle: 1
   OuterRadiusRatio: 1
-  RayBaseWidth: 1.14
-  RayBaseWidthOffset: 16.1
-  RayTipWidth: 0.587
+  RayBaseWidth: 3.09
+  RayBaseWidthOffset: 20.6
+  RayTipWidth: 0.683
   Rotation: -56.3
   RayColor: {r: 1, g: 1, b: 1, a: 1}
   BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
-  RayGradient: 0.641
-  RandomnessRayWidth: 1
-  RandomnessRayDistribution: 0.714
-  Seed: 8
+  RayGradient: 0.786
+  RandomnessRayWidth: 0.485
+  RandomnessRayDistribution: 0.402
+  Seed: 11
   EdgeSoftness: 3.97
   Supersampling: 6
   OutputSize: {x: 512, y: 512}
   LivePreview: 1
   OutputPath:
-    m_path: ../../Runtime/Resources/Sunbursts/Medium
+    m_path: ../../Runtime/Resources/Sunbursts/Bold
   Incremental: 1
   IncrementSeed: 1
