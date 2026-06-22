@@ -5,7 +5,6 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -256,7 +255,7 @@ namespace GuiToolkit.Editor
 				return "Assets/" + normalizedAbsolutePath.Substring(dataPath.Length + 1);
 
 			// Inside a registered UPM package (embedded, local file:, or git checkout).
-			var packages = PackageInfo.GetAllRegisteredPackages();
+			var packages = UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages();
 			if (packages != null)
 			{
 				foreach (var pkg in packages)
