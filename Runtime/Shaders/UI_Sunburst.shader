@@ -9,6 +9,7 @@ Shader "UIToolkit/UI_Sunburst"
 		_Tex2 ("Texture 2 (RGB,A)", 2D) = "white" {}
 		_Rotation2 ("Rotation 2 (deg)", Float) = 0
 		[KeywordEnum(Multiply,Add,Screen,Min,Max)] _Combine ("Combine Mode", Float) = 0
+		_GlobalRotation ("Global Rotation (deg)", Float) = 0
 
 		_Color ("Tint", color) = (1,1,1,1)
 		[Toggle(PerLayerTint)] _UsePerLayerTint("Per-Layer Tint", Float) = 0
@@ -17,6 +18,7 @@ Shader "UIToolkit/UI_Sunburst"
 		[Toggle(AnimRotation)] _UseAnimRotation("Animate Rotation", Float) = 0
 		_RotationSpeed ("Rotation Speed 1 (deg/s)", Float) = 30
 		_Rotation2Speed ("Rotation Speed 2 (deg/s)", Float) = -30
+		_GlobalRotationSpeed ("Global Rotation Speed (deg/s)", Float) = 0
 
 		_FoldoutStencil ("Stencil", Float) = 0
 		_StencilComp ("Stencil Comparison", Float) = 8
@@ -109,12 +111,14 @@ Shader "UIToolkit/UI_Sunburst"
 				float4    _Tex2_ST;
 				half4     _Color2;
 				float     _Rotation2;
+				float     _GlobalRotation;
 			#endif
 
 			#ifdef AnimRotation
 				float _RotationSpeed;
 				#ifdef UseTex2
 					float _Rotation2Speed;
+					float _GlobalRotationSpeed;
 				#endif
 			#endif
 
@@ -138,9 +142,21 @@ Shader "UIToolkit/UI_Sunburst"
 				o.worldPosition = v.vertex;
 				o.vertex = UnityObjectToClipPos(o.worldPosition);
 
+				// Global rotation only makes sense when both textures are present
+				// (otherwise it would be a redundant duplicate of _Rotation).
+				#ifdef UseTex2
+					float globalAngle = _GlobalRotation * UNITY_PI / 180.0;
+					#ifdef AnimRotation
+						globalAngle += _GlobalRotationSpeed * _Time.y * UNITY_PI / 180.0;
+					#endif
+				#endif
+
 				float angle1 = _Rotation * UNITY_PI / 180.0;
 				#ifdef AnimRotation
 					angle1 += _RotationSpeed * _Time.y * UNITY_PI / 180.0;
+				#endif
+				#ifdef UseTex2
+					angle1 += globalAngle;
 				#endif
 				float2 uv1 = RotateUV(v.texcoord, angle1);
 				o.texcoord = TRANSFORM_TEX(uv1, _MainTex);
@@ -150,6 +166,7 @@ Shader "UIToolkit/UI_Sunburst"
 					#ifdef AnimRotation
 						angle2 += _Rotation2Speed * _Time.y * UNITY_PI / 180.0;
 					#endif
+					angle2 += globalAngle;
 					float2 uv2 = RotateUV(v.texcoord, angle2);
 					o.texcoord2 = TRANSFORM_TEX(uv2, _Tex2);
 				#endif

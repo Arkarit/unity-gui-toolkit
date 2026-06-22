@@ -94,6 +94,8 @@ Material:
     - _FoldoutStencil: 0
     - _FoldoutTextures: 1
     - _FrameRate: 20
+    - _GlobalRotation: 0
+    - _GlobalRotationSpeed: 4
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1

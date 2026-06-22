@@ -15,6 +15,7 @@ namespace GuiToolkit.Editor
 				DisplayProperty("_Tex2", "Second texture, layered on top of the first via the Combine mode below.");
 				DisplayProperty("_Rotation2", "Static rotation of texture 2 in degrees.");
 				DisplayProperty("_Combine", "How texture 1 and texture 2 are combined.");
+				DisplayProperty("_GlobalRotation", "Additional rotation applied to the combined result (i.e. on top of Rotation 1 and Rotation 2).");
 			});
 
 			bool tex2On = FindProperty("_UseTex2", MaterialProperties).floatValue != 0;
@@ -36,6 +37,7 @@ namespace GuiToolkit.Editor
 				if (tex2On)
 				{
 					DisplayProperty("_Rotation2Speed", "Rotation speed for texture 2 in degrees per second. Opposite sign to 'Speed 1' creates the classic counter-rotating sunburst effect.");
+					DisplayProperty("_GlobalRotationSpeed", "Rotation speed of the combined result in degrees per second.");
 				}
 			});
 
