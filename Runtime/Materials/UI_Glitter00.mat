@@ -64,7 +64,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Brightness: 0.97
+    - _Brightness: 1.05
     - _BumpScale: 1
     - _ColorMask: 15
     - _ColorMode: 4
@@ -86,8 +86,8 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _RainbowFloor: 0
-    - _ScrollSpeedX: 0.2
-    - _ScrollSpeedY: 0.2
+    - _ScrollSpeedX: 0.01
+    - _ScrollSpeedY: 0.02
     - _Size: 0.461
     - _SizeMax: 2
     - _SizeMin: 0.333

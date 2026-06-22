@@ -127,11 +127,12 @@ Shader "UIToolkit/UI_Glitter"
 			float4 _ClipRect;
 
 			// Pseudo-random hash, returns 0..1 from a 2D seed.
+			// Classic sine-based hash — robustly decorrelates along both axes, which
+			// the old multiply/dot version did not (similar X gave similar outputs for
+			// varying Y, causing visible column-aligned artifacts under UV scrolling).
 			float hash21(float2 p)
 			{
-				p = frac(p * float2(123.34, 456.21));
-				p += dot(p, p + 45.32);
-				return frac(p.x * p.y);
+				return frac(sin(dot(p, float2(12.9898, 78.233))) * 43758.5453);
 			}
 
 			// 4-pointed star: horizontal spike + vertical spike + center bulb.
