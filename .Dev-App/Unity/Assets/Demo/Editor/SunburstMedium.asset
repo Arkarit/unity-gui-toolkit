@@ -22,11 +22,11 @@ MonoBehaviour:
   RayTipWidth: 0.587
   Rotation: -56.3
   RayColor: {r: 1, g: 1, b: 1, a: 1}
-  BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
+  BackgroundColor: {r: 1, g: 1, b: 1, a: 0}
   RayGradient: 0.641
   RandomnessRayWidth: 1
   RandomnessRayDistribution: 0.714
-  Seed: 8
+  Seed: 17
   EdgeSoftness: 3.97
   Supersampling: 6
   OutputSize: {x: 512, y: 512}
