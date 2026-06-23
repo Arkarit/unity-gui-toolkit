@@ -22,7 +22,7 @@ namespace GuiToolkit
 	{
 		[SerializeField] private bool m_isTranslated = true;
 		[SerializeField] private string m_group = string.Empty;
-		[SerializeField] private string m_locaKey = string.Empty;
+		[TextArea][SerializeField] private string m_locaKey = string.Empty;
 
 		// TMP's text setter does not fire an event we can filter; it is a plain property.
 		// Overriding it (see below) creates a direct re-entry path: ApplyTranslation() calls
