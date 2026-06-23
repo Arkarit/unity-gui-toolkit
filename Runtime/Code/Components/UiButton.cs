@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace GuiToolkit
@@ -8,6 +9,9 @@ namespace GuiToolkit
 	{
 		[Tooltip("Simple wiggle animation (optional)")]
 		public UiSimpleAnimation m_simpleWiggleAnimation;
+
+		[Tooltip("Other buttons whose Wiggle() is triggered when this button is clicked.")]
+		public List<UiButton> m_wiggleButtons = new();
 
 		private Button m_button;
 
@@ -26,6 +30,18 @@ namespace GuiToolkit
 		{
 			if (m_simpleWiggleAnimation)
 				m_simpleWiggleAnimation.Play();
+		}
+
+		private void WiggleLinkedButtons()
+		{
+			if (m_wiggleButtons == null)
+				return;
+
+			foreach (var btn in m_wiggleButtons)
+			{
+				if (btn != null)
+					btn.Wiggle();
+			}
 		}
 
 		public override void OnEnabledInHierarchyChanged(bool _enabled)
@@ -48,6 +64,8 @@ namespace GuiToolkit
 			base.Init();
 
 			m_button = GetComponent<Button>();
+			m_button.onClick.RemoveListener(WiggleLinkedButtons);
+			m_button.onClick.AddListener(WiggleLinkedButtons);
 		}
 
 		protected override bool ForwardClick()
