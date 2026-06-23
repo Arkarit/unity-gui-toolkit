@@ -6,6 +6,13 @@ namespace GuiToolkit.Editor
 	{
 		protected override void OnGUI()
 		{
+			EditorGUILayout.HelpBox(
+				"Do not use sprites that are packed into a Sprite Atlas. " +
+				"This shader rotates UVs around the sprite center, which assumes the UVs cover [0,1]. " +
+				"Atlas-packed sprites have a sub-rect of the atlas as UVs, so the rotation pivot ends up wrong " +
+				"and rays bleed into neighboring atlas sprites. Exclude affected sprites from any Sprite Atlas.",
+				MessageType.Warning);
+
 			DisplayProperty("_MainTex", "Primary sunburst texture. Note that this is overwritten by CanvasRenderer when used in UI context.");
 			DisplayProperty("_Rotation", "Static rotation of texture 1 in degrees.");
 
