@@ -562,32 +562,36 @@ namespace GuiToolkit.Editor
 			UiLog.Log($"[PushNewKeys] startRow={startRow} keyColIdx={keyColIdx} sheetRows={sheetValues.Count} existingKeys={existingKeys.Count}");
 
 
-			// Only msgids that appear in the corresponding POT file are eligible for pushing;
-			// this prevents stale/debug keys that linger in PO files from polluting the sheet.
+			// The POT file is the authoritative list of pushable keys. PO files contribute
+			// translations as a bonus — a key with no translations anywhere is still pushable
+			// as long as it is in the POT. Stale PO-only keys (e.g. debug entries) are filtered out.
 			string group    = _bridge.EdGroup;
 			var poFiles     = LocaCsvExporter.FindPoFiles(group);
-
-			// Build POT whitelist so stale PO-only keys are never pushed.
-			var potWhitelist = new HashSet<string>(StringComparer.Ordinal);
-			string potPath = LocaPoMerger.GetPotPath(group);
-			if (!string.IsNullOrEmpty(potPath) && File.Exists(potPath))
-			{
-				var potFile = PoFile.Parse(File.ReadAllText(potPath, Encoding.UTF8));
-				foreach (var e in potFile.Entries)
-				{
-					if (!e.IsObsolete && !string.IsNullOrEmpty(e.MsgId))
-						potWhitelist.Add(NormalizeMsgId(e.MsgId));
-				}
-				UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: POT whitelist loaded — {potWhitelist.Count} keys from '{Path.GetFileName(potPath)}'.");
-			}
-			else
-			{
-				UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: No POT file found for group '{group}' — pushing all PO keys without filtering.");
-			}
+			string potPath  = LocaPoMerger.GetPotPath(group);
+			bool hasPot     = !string.IsNullOrEmpty(potPath) && File.Exists(potPath);
 
 			var allMsgIds   = new HashSet<string>(StringComparer.Ordinal);
 			var msgIdOrder  = new List<string>();
 			var langLookups = new Dictionary<string, Dictionary<string, PoEntry>>(StringComparer.OrdinalIgnoreCase);
+
+			if (hasPot)
+			{
+				var potFile = PoFile.Parse(File.ReadAllText(potPath, Encoding.UTF8));
+				foreach (var e in potFile.Entries)
+				{
+					if (e.IsObsolete || string.IsNullOrEmpty(e.MsgId))
+						continue;
+
+					string normId = NormalizeMsgId(e.MsgId);
+					if (allMsgIds.Add(normId))
+						msgIdOrder.Add(normId);
+				}
+				UiLog.Log($"{nameof(LocaGettextSheetsSyncer)}: POT seed loaded — {allMsgIds.Count} keys from '{Path.GetFileName(potPath)}'.");
+			}
+			else
+			{
+				UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)}: No POT file found for group '{group}' — falling back to PO file keys without filtering.");
+			}
 
 			foreach (var (fileLang, _, filePath) in poFiles)
 			{
@@ -604,12 +608,18 @@ namespace GuiToolkit.Editor
 
 					string normId = NormalizeMsgId(entry.MsgId);
 
-					// Skip keys not in the POT (stale debug/test entries).
-					if (potWhitelist.Count > 0 && !potWhitelist.Contains(normId))
-						continue;
-
-					if (allMsgIds.Add(normId))
-						msgIdOrder.Add(normId);
+					if (hasPot)
+					{
+						// POT mode: skip PO keys that are not in the POT (stale debug/test entries).
+						if (!allMsgIds.Contains(normId))
+							continue;
+					}
+					else
+					{
+						// Fallback (no POT): PO files seed the key list.
+						if (allMsgIds.Add(normId))
+							msgIdOrder.Add(normId);
+					}
 
 					if (!lookup.ContainsKey(normId))
 						lookup[normId] = entry;
@@ -620,7 +630,7 @@ namespace GuiToolkit.Editor
 
 			var newKeys = FindNewKeys(existingKeys, msgIdOrder);
 
-			UiLog.Log($"[PushNewKeys] potWhitelist={potWhitelist.Count} allMsgIds={allMsgIds.Count} newKeys={newKeys.Count}");
+			UiLog.Log($"[PushNewKeys] hasPot={hasPot} allMsgIds={allMsgIds.Count} newKeys={newKeys.Count}");
 
 			if (newKeys.Count == 0)
 			{
