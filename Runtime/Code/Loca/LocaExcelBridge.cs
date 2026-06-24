@@ -134,6 +134,10 @@ namespace GuiToolkit
 		[SerializeField][Optional] private bool m_useGoogleAuth = false;
 		[SerializeField][Optional] private string m_serviceAccountJsonPath = string.Empty;
 		[SerializeField] private string m_group;
+		[Tooltip("Standalone tables have no gettext PO files backing them — the sheet is the only source of truth. " +
+			"When checked, the inspector hides PO-related sync buttons (Push new keys, Mark obsolete, Push to Spreadsheet) " +
+			"and routes Pull from Sheets to Process(). Default off: PO-backed behavior.")]
+		[SerializeField] private bool m_standalone = false;
 		[SerializeField] private List<InColumnDescription> m_columnDescriptions = new();
 		[SerializeField] private int m_startRow = 0; // all rows before are ignored (0-based index)
 
@@ -166,6 +170,9 @@ namespace GuiToolkit
 
 		/// <summary>(Editor) The localization group name.</summary>
 		public string EdGroup => m_group;
+
+		/// <summary>(Editor) Whether this table is standalone (no PO files behind it).</summary>
+		public bool EdStandalone => m_standalone;
 
 		/// <summary>(Editor) Whether Google service-account authentication is enabled.</summary>
 		public bool EdUseGoogleAuth => m_useGoogleAuth;
@@ -211,6 +218,7 @@ namespace GuiToolkit
 			m_useGoogleAuth         = false;
 			m_serviceAccountJsonPath = string.Empty;
 			m_group                 = string.Empty;
+			m_standalone            = false;
 			m_columnDescriptions    = new List<InColumnDescription>();
 			m_startRow              = 0;
 			m_processedLoca         = null;

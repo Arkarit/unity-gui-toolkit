@@ -1674,11 +1674,17 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
-			string token = GoogleServiceAccountAuth.GetAccessToken(_bridge.EdServiceAccountJsonPath, _writeAccess: false);
-			if (token == null)
+			// Public sheets export anonymously via the docs.google.com export URL — skip auth if the
+			// bridge has it disabled (e.g. standalone tables against a publicly-readable sheet).
+			string token = null;
+			if (_bridge.EdUseGoogleAuth && !string.IsNullOrEmpty(_bridge.EdServiceAccountJsonPath))
 			{
-				UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)}: Failed to obtain auth token for backup.");
-				return;
+				token = GoogleServiceAccountAuth.GetAccessToken(_bridge.EdServiceAccountJsonPath, _writeAccess: false);
+				if (token == null)
+				{
+					UiLog.LogError($"{nameof(LocaGettextSheetsSyncer)}: Failed to obtain auth token for backup.");
+					return;
+				}
 			}
 
 			SaveSheetXlsxBackup(_bridge, spreadsheetId, token);
@@ -1703,7 +1709,8 @@ namespace GuiToolkit.Editor
 			try
 			{
 				using var client = new HttpClient();
-				client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+				if (!string.IsNullOrEmpty(_token))
+					client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
 				var response = client.GetAsync(exportUrl).GetAwaiter().GetResult();
 
 				if (!response.IsSuccessStatusCode)

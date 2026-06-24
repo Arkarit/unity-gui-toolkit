@@ -19,6 +19,7 @@ MonoBehaviour:
   m_useGoogleAuth: 0
   m_serviceAccountJsonPath: 
   m_group: 
+  m_standalone: 1
   m_columnDescriptions:
   - Description: Master Key
     ColumnType: 1
