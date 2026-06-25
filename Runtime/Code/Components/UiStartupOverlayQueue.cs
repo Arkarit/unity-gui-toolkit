@@ -17,19 +17,22 @@ namespace GuiToolkit
 	///
 	/// Late-registration tolerance: the queue does NOT snapshot the registered list when
 	/// <see cref="Run"/> is called. Instead it re-scans the live registry after every
-	/// overlay completes, looking for the next lowest-priority entry that hasn't already
-	/// been shown this run. This is important because overlay GameObjects driven by chained
-	/// <see cref="UiInitialActiveState"/> components or async asset loading can come online
-	/// well after the first <c>Run</c> tick — by re-scanning, a slot that priority-wise
-	/// would have run earlier still gets its turn if it shows up in time.
+	/// overlay completes, looking for the next lowest-priority entry whose
+	/// <see cref="IUiStartupOverlay.OverlayId"/> hasn't been processed yet this session.
 	///
-	/// Once the scan finds nothing left, the run is complete; overlays that register after
-	/// that point would need a fresh <see cref="Run"/> call to be processed.
+	/// Session tracking by id: each overlay declares a stable <see cref="IUiStartupOverlay.OverlayId"/>.
+	/// The queue records that id when an overlay's <c>Show</c> is invoked and skips any
+	/// future registrations with the same id for the remainder of the app session. This is
+	/// crucial because UI scenes typically destroy and re-create their overlays — the new
+	/// instances report the same id and get skipped.
+	///
+	/// Use <see cref="ResetSession"/> to clear the shown-id set (e.g., for QA / cheats /
+	/// editor menu items that want to replay the sequence within one play session).
 	/// </summary>
 	public static class UiStartupOverlayQueue
 	{
 		private static readonly List<IUiStartupOverlay> s_registered = new();
-		private static readonly HashSet<IUiStartupOverlay> s_shownThisRun = new();
+		private static readonly HashSet<string> s_shownIdsThisSession = new();
 		private static bool s_running;
 		private static Action s_onAllDone;
 
@@ -40,9 +43,10 @@ namespace GuiToolkit
 		public static bool EnableLogging = false;
 
 		/// <summary>
-		/// Add an overlay to the registry. Safe to call multiple times — duplicate registrations
-		/// are ignored. If a run is currently in progress and this overlay has a higher priority
-		/// than the next-to-be-shown entry, it will be picked up on the next rescan.
+		/// Add an overlay to the registry. Safe to call multiple times — duplicate instances
+		/// are ignored. Overlays whose <see cref="IUiStartupOverlay.OverlayId"/> has already
+		/// been processed this session will be picked up by <see cref="Next"/> but immediately
+		/// skipped.
 		/// </summary>
 		public static void Register( IUiStartupOverlay _overlay )
 		{
@@ -53,7 +57,7 @@ namespace GuiToolkit
 			s_registered.Add(_overlay);
 
 			if (EnableLogging)
-				Debug.Log($"[UiStartupOverlayQueue] Registered overlay '{Describe(_overlay)}' with priority {_overlay.Priority}");
+				Debug.Log($"[UiStartupOverlayQueue] Registered overlay '{Describe(_overlay)}' id='{_overlay.OverlayId}' priority={_overlay.Priority}");
 		}
 
 		public static void Unregister( IUiStartupOverlay _overlay )
@@ -62,13 +66,23 @@ namespace GuiToolkit
 		}
 
 		/// <summary>
-		/// Test/diagnostic hook. Clears every registration. Production code should rely on
-		/// per-overlay Unregister in OnDestroy.
+		/// Forget every overlay that's been processed this session. Subsequent <see cref="Run"/>
+		/// calls will re-process all registered overlays from scratch. Useful for cheat /
+		/// QA workflows that need to replay the startup sequence without restarting the app.
+		/// </summary>
+		public static void ResetSession()
+		{
+			s_shownIdsThisSession.Clear();
+		}
+
+		/// <summary>
+		/// Test/diagnostic hook. Clears every registration AND the session-shown set.
+		/// Production code should rely on per-overlay Unregister in OnDestroy.
 		/// </summary>
 		public static void Clear()
 		{
 			s_registered.Clear();
-			s_shownThisRun.Clear();
+			s_shownIdsThisSession.Clear();
 			s_running = false;
 			s_onAllDone = null;
 		}
@@ -87,7 +101,6 @@ namespace GuiToolkit
 				return;
 			}
 
-			s_shownThisRun.Clear();
 			s_running = true;
 			s_onAllDone = _onAllDone;
 			Next();
@@ -95,8 +108,8 @@ namespace GuiToolkit
 
 		private static void Next()
 		{
-			// Live rescan of the registered list. Pick the lowest-priority entry that hasn't
-			// been shown this run, skipping destroyed Unity objects.
+			// Live rescan of the registered list. Pick the lowest-priority entry whose
+			// OverlayId hasn't been processed this session, skipping destroyed Unity objects.
 			IUiStartupOverlay candidate = null;
 			int bestPriority = int.MaxValue;
 			foreach (var entry in s_registered)
@@ -105,7 +118,12 @@ namespace GuiToolkit
 					continue;
 				if (entry is UnityEngine.Object obj && obj == null)
 					continue;
-				if (s_shownThisRun.Contains(entry))
+				if (string.IsNullOrEmpty(entry.OverlayId))
+				{
+					Debug.LogWarning($"[UiStartupOverlayQueue] Overlay '{Describe(entry)}' has empty OverlayId — skipped");
+					continue;
+				}
+				if (s_shownIdsThisSession.Contains(entry.OverlayId))
 					continue;
 				if (entry.Priority < bestPriority)
 				{
@@ -125,10 +143,13 @@ namespace GuiToolkit
 				return;
 			}
 
-			s_shownThisRun.Add(candidate);
+			// Mark as processed BEFORE Show. An overlay that decides to skip (e.g. wrong season)
+			// still counts as processed for the session — its decision wouldn't change on the
+			// next dashboard revisit.
+			s_shownIdsThisSession.Add(candidate.OverlayId);
 
 			if (EnableLogging)
-				Debug.Log($"[UiStartupOverlayQueue] Showing overlay '{Describe(candidate)}' with priority {candidate.Priority}");
+				Debug.Log($"[UiStartupOverlayQueue] Showing overlay '{Describe(candidate)}' id='{candidate.OverlayId}' priority={candidate.Priority}");
 
 			bool advanced = false;
 			candidate.Show(() =>

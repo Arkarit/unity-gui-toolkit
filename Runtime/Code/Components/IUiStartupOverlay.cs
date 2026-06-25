@@ -15,6 +15,17 @@ namespace GuiToolkit
 	public interface IUiStartupOverlay
 	{
 		/// <summary>
+		/// Stable identifier used by the queue to track which overlays have already been
+		/// processed this app session. MUST be unique across all overlays and stable across
+		/// instance re-creation — when the player navigates away and returns, the new
+		/// MonoBehaviour instance reports the same id and the queue skips it.
+		///
+		/// Implementations typically expose this as a serialized field per prefab, or as a
+		/// constant for single-instance overlays.
+		/// </summary>
+		string OverlayId { get; }
+
+		/// <summary>
 		/// Sort key. Lower values run first. Ties run in registration order.
 		/// </summary>
 		int Priority { get; }
