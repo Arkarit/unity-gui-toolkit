@@ -36,6 +36,8 @@ namespace GuiToolkit
 		private static readonly HashSet<string> s_shownIdsThisSession = new();
 		private static bool s_running;
 		private static Action s_onAllDone;
+		private static Coroutine s_coroutine;
+		private static IUiStartupOverlay s_currentCandidate;
 
 		/// <summary>
 		/// Enable verbose Debug.Log output for each add / advance / completion event.
@@ -90,6 +92,43 @@ namespace GuiToolkit
 			s_shownIdsThisSession.Clear();
 			s_running = false;
 			s_onAllDone = null;
+			s_currentCandidate = null;
+			if (s_coroutine != null && CoRoutineRunner.Instance != null)
+				CoRoutineRunner.Instance.StopCoroutine(s_coroutine);
+			s_coroutine = null;
+		}
+
+		/// <summary>
+		/// Halt the running coroutine without invoking <c>onAllDone</c>. The currently-displaying
+		/// overlay (if any) is marked as shown so it won't repeat next session; pending overlays
+		/// remain pending so the next <see cref="Run"/> call resumes from where this one left off.
+		///
+		/// Call this BEFORE triggering a scene change from inside an overlay's action — otherwise
+		/// the queue would advance to the next overlay during the scene transition (its
+		/// <c>Show</c> would fire while the user is no longer on the dashboard, marking it as
+		/// shown but never letting them actually see it).
+		/// </summary>
+		public static void Stop()
+		{
+			if (!s_running)
+				return;
+
+			if (s_currentCandidate != null && !string.IsNullOrEmpty(s_currentCandidate.OverlayId))
+			{
+				s_shownIdsThisSession.Add(s_currentCandidate.OverlayId);
+				s_pending.Remove(s_currentCandidate);
+			}
+
+			if (s_coroutine != null && CoRoutineRunner.Instance != null)
+				CoRoutineRunner.Instance.StopCoroutine(s_coroutine);
+
+			if (EnableLogging)
+				Debug.Log($"[UiStartupOverlayQueue] Stopped — current='{Describe(s_currentCandidate)}' marked shown, {s_pending.Count} remain pending");
+
+			s_coroutine = null;
+			s_currentCandidate = null;
+			s_running = false;
+			s_onAllDone = null;
 		}
 
 		/// <summary>
@@ -118,7 +157,7 @@ namespace GuiToolkit
 				return;
 			}
 
-			runner.StartCoroutine(RunCoroutine());
+			s_coroutine = runner.StartCoroutine(RunCoroutine());
 		}
 
 		private static IEnumerator RunCoroutine()
@@ -127,24 +166,27 @@ namespace GuiToolkit
 			{
 				PurgeDestroyed();
 
-				IUiStartupOverlay candidate = FindLowestPriority();
-				if (candidate == null)
+				s_currentCandidate = FindLowestPriority();
+				if (s_currentCandidate == null)
 					break;
 
 				if (EnableLogging)
-					Debug.Log($"[UiStartupOverlayQueue] Showing '{Describe(candidate)}' id='{candidate.OverlayId}' priority={candidate.Priority}");
+					Debug.Log($"[UiStartupOverlayQueue] Showing '{Describe(s_currentCandidate)}' id='{s_currentCandidate.OverlayId}' priority={s_currentCandidate.Priority}");
 
 				bool done = false;
-				candidate.Show(() => done = true);
+				s_currentCandidate.Show(() => done = true);
 				yield return new WaitUntil(() => done);
 
-				s_shownIdsThisSession.Add(candidate.OverlayId);
-				s_pending.Remove(candidate);
+				s_shownIdsThisSession.Add(s_currentCandidate.OverlayId);
+				s_pending.Remove(s_currentCandidate);
+				s_currentCandidate = null;
 			}
 
 			if (EnableLogging)
 				Debug.Log("[UiStartupOverlayQueue] All overlays completed");
 
+			s_coroutine = null;
+			s_currentCandidate = null;
 			s_running = false;
 			var cb = s_onAllDone;
 			s_onAllDone = null;
