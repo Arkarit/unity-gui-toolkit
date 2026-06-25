@@ -19,6 +19,13 @@ namespace GuiToolkit
 	/// Forces a set of target GameObjects active or inactive at runtime, regardless of how
 	/// they were stored in the scene/prefab. Useful when authoring requires the opposite
 	/// state in the editor (e.g. visible for layout, hidden at runtime — or vice versa).
+	///
+	/// Optionally also feeds the targets into <see cref="UiStartupOverlayQueue"/>: when
+	/// <c>m_addToStartupOverlay</c> is enabled (only available alongside
+	/// <see cref="EInitialActiveState.Active"/>), every target whose GameObject carries a
+	/// component implementing <see cref="IUiStartupOverlay"/> is queued for the startup
+	/// overlay sequence. This couples activation and queue-registration into one step, so
+	/// there's no timing gap between "the prefab is alive" and "the queue knows about it".
 	/// </summary>
 	/// <remarks>
 	/// <para>Uses <see cref="DefaultExecutionOrderAttribute"/> with <see cref="int.MinValue"/>
@@ -40,9 +47,15 @@ namespace GuiToolkit
 		[Tooltip("Targets to apply the state to. Used only when Target is List.")]
 		[SerializeField] private List<GameObject> m_objects = new();
 
+		[Tooltip("When on and State is Active, every target whose GameObject carries an " +
+			"IUiStartupOverlay component is enqueued in UiStartupOverlayQueue. Only " +
+			"meaningful in the Active path — disabled targets wouldn't be alive to show.")]
+		[SerializeField] private bool m_addToStartupOverlay;
+
 		private void Awake()
 		{
 			bool desired = m_state == EInitialActiveState.Active;
+			bool addToQueue = desired && m_addToStartupOverlay;
 
 			switch (m_target)
 			{
@@ -51,24 +64,33 @@ namespace GuiToolkit
 					var t = transform;
 					int n = t.childCount;
 					for (int i = 0; i < n; i++)
-					{
-						var child = t.GetChild(i).gameObject;
-						if (child.activeSelf != desired)
-							child.SetActive(desired);
-					}
+						Process(t.GetChild(i).gameObject, desired, addToQueue);
 					break;
 				}
 
 				case EInitialActiveTarget.List:
 				{
 					foreach (var go in m_objects)
-					{
-						if (go != null && go.activeSelf != desired)
-							go.SetActive(desired);
-					}
+						Process(go, desired, addToQueue);
 					break;
 				}
 			}
+		}
+
+		private static void Process( GameObject _go, bool _desired, bool _addToQueue )
+		{
+			if (_go == null)
+				return;
+
+			if (_go.activeSelf != _desired)
+				_go.SetActive(_desired);
+
+			if (!_addToQueue)
+				return;
+
+			var overlay = _go.GetComponent<IUiStartupOverlay>();
+			if (overlay != null)
+				UiStartupOverlayQueue.Add(overlay);
 		}
 	}
 }
