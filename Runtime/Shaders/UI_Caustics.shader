@@ -10,26 +10,24 @@ Shader "UIToolkit/UI_Caustics"
 		_GradientAngle ("Gradient Angle (deg)", Float) = 0
 		_GradientPower ("Gradient Power", Range(0.1, 10)) = 1.4
 
-		_HighlightColor ("Highlight Color", color) = (0.7, 0.95, 1.0, 0.7)
+		_HighlightColor ("Highlight Color", color) = (0.85, 0.97, 1.0, 0.7)
 
-		_Scale ("Scale (cells per UV)", Float) = 4
-		_Speed ("Speed", Float) = 0.4
+		_Scale ("Scale", Float) = 1
+		_Speed ("Animation Speed", Float) = 0.5
+		_Iterations ("Iterations", Range(1, 7)) = 5
 
-		[Toggle(UseSecondOctave)] _UseSecondOctave ("Use Second Octave", Float) = 1
-		_Scale2 ("Scale 2 (cells per UV)", Float) = 7
-		_Speed2 ("Speed 2", Float) = -0.3
-		[KeywordEnum(Multiply,Screen,Add,Max)] _Combine ("Combine Mode", Float) = 1
+		_Density ("Line Density", Range(0.0005, 0.05)) = 0.005
+		_Brightness ("Brightness Offset", Range(0.5, 2)) = 1.17
+		_Sharpness ("Sharpness Curve", Range(0.5, 4)) = 1.4
+		_Contrast ("Contrast (final exponent)", Range(1, 30)) = 8
+		_Intensity ("Intensity", Range(0, 3)) = 1.0
 
-		_Threshold ("Line Core Thickness", Range(0, 0.3)) = 0.0
-		_EdgeWidth ("Line Halo Width", Range(0.005, 0.3)) = 0.09
-		_Contrast ("Contrast", Range(0.5, 4)) = 1.8
-		_Intensity ("Intensity", Range(0, 3)) = 1.4
+		[Toggle(UseTileBreak)] _UseTileBreak ("Use Tile Break", Float) = 1
+		_TileBreak ("Tile Break Amount", Range(0, 20)) = 6
+		_TileBreakFreq ("Tile Break Frequency", Range(0.1, 5)) = 1
 
-		[Toggle(UseEdgeVariation)] _UseEdgeVariation ("Use Edge Variation", Float) = 1
-		_EdgeVariation ("Edge Variation Amount", Range(0, 1)) = 0.7
-
-		[Toggle(UseDistortion)] _UseDistortion ("Use Distortion", Float) = 1
-		_Distortion ("Distortion Amount", Range(0, 0.3)) = 0.04
+		[Toggle(UseDistortion)] _UseDistortion ("Use Distortion", Float) = 0
+		_Distortion ("Distortion Amount", Range(0, 0.3)) = 0.02
 		_DistortionFreq ("Distortion Frequency", Float) = 3
 		_DistortionSpeed ("Distortion Speed", Float) = 1
 
@@ -89,11 +87,11 @@ Shader "UIToolkit/UI_Caustics"
 
 			#pragma multi_compile_local __ UNITY_UI_CLIP_RECT
 			#pragma multi_compile_local __ UNITY_UI_ALPHACLIP
-			#pragma shader_feature_local __ UseSecondOctave
-			#pragma shader_feature_local __ UseDistortion
 			#pragma shader_feature_local __ UseGradient
-			#pragma shader_feature_local __ UseEdgeVariation
-			#pragma shader_feature_local __ _COMBINE_MULTIPLY _COMBINE_SCREEN _COMBINE_ADD _COMBINE_MAX
+			#pragma shader_feature_local __ UseDistortion
+			#pragma shader_feature_local __ UseTileBreak
+
+			#define TAU 6.28318530718
 
 			struct appdata_t
 			{
@@ -117,27 +115,19 @@ Shader "UIToolkit/UI_Caustics"
 
 			half4 _BaseColor;
 			half4 _HighlightColor;
+			float _Scale;
+			float _Speed;
+			float _Iterations;
+			float _Density;
+			float _Brightness;
+			float _Sharpness;
+			float _Contrast;
+			float _Intensity;
 
 			#ifdef UseGradient
 				half4 _BaseColor2;
 				float _GradientAngle;
 				float _GradientPower;
-			#endif
-
-			#ifdef UseEdgeVariation
-				float _EdgeVariation;
-			#endif
-
-			float _Scale;
-			float _Speed;
-			float _Threshold;
-			float _EdgeWidth;
-			float _Contrast;
-			float _Intensity;
-
-			#ifdef UseSecondOctave
-				float _Scale2;
-				float _Speed2;
 			#endif
 
 			#ifdef UseDistortion
@@ -146,86 +136,82 @@ Shader "UIToolkit/UI_Caustics"
 				float _DistortionSpeed;
 			#endif
 
+			#ifdef UseTileBreak
+				float _TileBreak;
+				float _TileBreakFreq;
+			#endif
+
 			float4 _ClipRect;
 
-			// Same sine-based hash family used elsewhere in the toolkit (see UI_Glitter).
-			// Decorrelates well along both axes; cheap on mobile.
-			float2 hash22(float2 p)
-			{
-				p = float2(dot(p, float2(127.1, 311.7)),
-				           dot(p, float2(269.5, 183.3)));
-				return frac(sin(p) * 43758.5453);
-			}
-
-			// Worley/Voronoi F1+F2: distance to the nearest and second-nearest jittered
-			// cell point in a 3x3 neighborhood. Returns x=sqrt(F1²), y=sqrt(F2²).
-			// When UseEdgeVariation is on, z carries a per-edge variation factor — a hash
-			// of (cellId1 + cellId2), which is commutative so both sides of any cell-cell
-			// edge see the SAME value (no abrupt step at the line peak).
-			float3 voronoiF1F2(float2 uv)
-			{
-				float2 i_uv = floor(uv);
-				float2 f_uv = frac(uv);
-				float  f1 = 1.0;
-				float  f2 = 1.0;
-				#ifdef UseEdgeVariation
-					float2 id1 = float2(0, 0);
-					float2 id2 = float2(0, 0);
-				#endif
-
-				[unroll]
-				for (int dy = -1; dy <= 1; dy++)
+			#ifdef UseTileBreak
+				// Scalar hash + bilinear value noise. Non-periodic (hash22-based) so it
+				// breaks the intrinsic sin/cos periodicity of the iterative caustic.
+				float hash21(float2 p)
 				{
-					[unroll]
-					for (int dx = -1; dx <= 1; dx++)
-					{
-						float2 neighbor  = float2(dx, dy);
-						float2 cellId    = i_uv + neighbor;
-						float2 cellPoint = hash22(cellId);
-						float2 diff      = neighbor + cellPoint - f_uv;
-						float  dSq       = dot(diff, diff);
-
-						#ifdef UseEdgeVariation
-							// Branchless top-2 with ID tracking.
-							bool   beatF1   = dSq < f1;
-							bool   beatF2   = dSq < f2;
-							float  prevF1   = f1;
-							float2 prevId1  = id1;
-							f1 = beatF1 ? dSq : f1;
-							id1 = beatF1 ? cellId : id1;
-							float  candF2  = beatF1 ? prevF1 : dSq;
-							float2 candId2 = beatF1 ? prevId1 : cellId;
-							f2  = beatF2 ? candF2  : f2;
-							id2 = beatF2 ? candId2 : id2;
-						#else
-							float newF1 = min(f1, dSq);
-							float newF2 = min(f2, max(f1, dSq));
-							f1 = newF1;
-							f2 = newF2;
-						#endif
-					}
+					return frac(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
 				}
 
-				#ifdef UseEdgeVariation
-					float edgeVar = hash22(id1 + id2).x;
-				#else
-					float edgeVar = 1.0;
-				#endif
-				return float3(sqrt(f1), sqrt(f2), edgeVar);
-			}
+				float valueNoise(float2 uv)
+				{
+					float2 ip = floor(uv);
+					float2 fp = frac(uv);
+					fp = fp * fp * (3.0 - 2.0 * fp);  // smoothstep curve
+					return lerp(
+						lerp(hash21(ip),                hash21(ip + float2(1, 0)), fp.x),
+						lerp(hash21(ip + float2(0, 1)), hash21(ip + float2(1, 1)), fp.x),
+						fp.y);
+				}
+			#endif
 
-			// F2-F1 is the perpendicular-bisector distance — exactly 0 along the boundary
-			// between two cells, growing toward cell interiors. Combined with a Gaussian-
-			// style falloff this gives a peaked-not-plateaued bell shape: every pixel on
-			// the line has its own intensity, so the lines themselves have soft inner
-			// gradients (no "flat top"). _Threshold sets a small flat core (set 0 for
-			// pure gaussian); _EdgeWidth is the σ of the halo falloff.
-			float causticShape(float2 f1f2)
+			// Drift-style iterative caustic — descendant of the famous ShaderToy
+			// procedural caustic (vintage ~2014). The cos/sin self-feedback in the
+			// loop produces organic dendrite-like patterns; 1/length(...) creates
+			// the bright convergence lines where the iterated field collapses.
+			// The hard-coded -250.0 shift puts p in a region where the trig
+			// interplay yields the most visually interesting caustic behaviour
+			// — it's not arbitrary, it's tuned for the look.
+			float driftCaustic(float2 uv, float t)
 			{
-				float d = f1f2.y - f1f2.x;
-				float beyondCore = max(0.0, d - _Threshold);
-				float sigma = max(_EdgeWidth, 0.0001);
-				return exp(-(beyondCore * beyondCore) / (sigma * sigma));
+				// Original ShaderToy uses fmod here, but the wraparound creates visible
+				// tiling at _Scale > 1. Trig precision is fine without it for the magnitudes
+				// we deal with in UI (|p| stays well below 10⁴ even at large _Scale).
+				float2 p = uv * TAU - 250.0;
+
+				// Even without fmod, sin/cos has intrinsic 2π period, so the pattern
+				// still tiles at _Scale > 1. A non-periodic value-noise warp on p breaks
+				// that periodicity — adjacent "tiles" see different starting positions
+				// and produce uncorrelated caustic patterns. Roughly 2π in p-space ≈
+				// one full caustic period, so _TileBreak ~6 gives strong decorrelation.
+				#ifdef UseTileBreak
+					float2 noiseWarp = float2(
+						valueNoise(uv * _TileBreakFreq + 1.7),
+						valueNoise(uv * _TileBreakFreq + 9.1)
+					) - 0.5;
+					p += noiseWarp * _TileBreak;
+				#endif
+				float2 i = p;
+				float  c = 1.0;
+				float  inten = max(_Density, 0.0001);
+				int    iters = clamp((int)_Iterations, 1, 7);
+
+				[loop]
+				for (int n = 0; n < 7; n++)
+				{
+					if (n >= iters)
+						break;
+					float t_ = t * (1.0 - (3.5 / (float(n) + 1.0)));
+					i = p + float2(
+						cos(t_ - i.x) + sin(t_ + i.y),
+						sin(t_ - i.y) + cos(t_ + i.x)
+					);
+					c += 1.0 / length(float2(
+						p.x / (sin(i.x + t_) / inten),
+						p.y / (cos(i.y + t_) / inten)
+					));
+				}
+				c /= (float)iters;
+				c = _Brightness - pow(abs(c), _Sharpness);
+				return pow(abs(c), _Contrast);
 			}
 
 			v2f vert(appdata_t v)
@@ -244,59 +230,20 @@ Shader "UIToolkit/UI_Caustics"
 			{
 				half maskA = tex2D(_MainTex, i.texcoord).a;
 
-				float t = _Time.y;
-				float2 uv = i.texcoord;
+				float  t  = _Time.y * _Speed;
+				float2 uv = i.texcoord * _Scale;
 
-				// Optional sinusoidal UV swim — gives the wavering refraction feel.
-				// Two perpendicular sines so the field warps in both directions.
 				#ifdef UseDistortion
-					float dt = t * _DistortionSpeed;
+					float dt = _Time.y * _DistortionSpeed;
 					float2 swim = float2(
-						sin(uv.y * _DistortionFreq * 6.2831853 + dt * 1.3),
-						sin(uv.x * _DistortionFreq * 6.2831853 + dt)
+						sin(uv.y * _DistortionFreq + dt * 1.3),
+						sin(uv.x * _DistortionFreq + dt)
 					) * _Distortion;
 					uv += swim;
 				#endif
 
-				// First octave: drifts diagonally with _Speed.
-				float2 uv1 = uv * _Scale + float2(t * _Speed * 0.5, t * _Speed * 0.25);
-				float3 v1  = voronoiF1F2(uv1);
-				float  c1  = causticShape(v1.xy);
-				#ifdef UseEdgeVariation
-					c1 *= lerp(1.0 - _EdgeVariation, 1.0, v1.z);
-				#endif
+				float caustic = saturate(driftCaustic(uv, t) * _Intensity);
 
-				// Second octave: typically opposite direction + higher frequency.
-				// Combined via the selected blend keyword to get interference patterns.
-				#ifdef UseSecondOctave
-					float2 uv2 = uv * _Scale2 + float2(-t * _Speed2 * 0.4, t * _Speed2 * 0.3);
-					float3 v2  = voronoiF1F2(uv2);
-					float  c2  = causticShape(v2.xy);
-					#ifdef UseEdgeVariation
-						c2 *= lerp(1.0 - _EdgeVariation, 1.0, v2.z);
-					#endif
-
-					float caustic;
-					#if defined(_COMBINE_MULTIPLY)
-						caustic = c1 * c2;
-					#elif defined(_COMBINE_ADD)
-						caustic = saturate(c1 + c2);
-					#elif defined(_COMBINE_MAX)
-						caustic = max(c1, c2);
-					#else
-						// _COMBINE_SCREEN (default, also the fallback when no keyword set)
-						caustic = 1.0 - (1.0 - c1) * (1.0 - c2);
-					#endif
-				#else
-					float caustic = c1;
-				#endif
-
-				caustic = pow(saturate(caustic), _Contrast);
-				caustic = saturate(caustic * _Intensity);
-
-				// Optional linear base-color gradient — simulates water depth (shallow at the
-				// start of the gradient axis, deep at the end). Angle 0 = top→bottom; gradient
-				// runs in the same UV space as the caustics so material UV tiling affects it too.
 				#ifdef UseGradient
 					float angleRad = _GradientAngle * UNITY_PI / 180.0;
 					float2 gradDir = float2(sin(angleRad), -cos(angleRad));
@@ -307,8 +254,6 @@ Shader "UIToolkit/UI_Caustics"
 					half4 baseCol = _BaseColor;
 				#endif
 
-				// Blend base→highlight per-channel and per-alpha so the user can choose
-				// uniform dimming (matching alphas) or "punch-through" (highlight alpha higher).
 				half4 color;
 				color.rgb = lerp(baseCol.rgb, _HighlightColor.rgb, caustic);
 				color.a   = lerp(baseCol.a,   _HighlightColor.a,   caustic);
