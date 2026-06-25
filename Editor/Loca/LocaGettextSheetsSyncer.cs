@@ -141,6 +141,23 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
+			// Standalone tables have no PO backing — the sheet IS the source of truth and the
+			// processed data lives directly on the bridge asset. The inspector's Pull button
+			// calls CollectData() for them; do the same here so the build preprocessor doesn't
+			// trip over the gettext-sync path below (which would error on the missing PO files).
+			if (_bridge.EdStandalone)
+			{
+				try
+				{
+					_bridge.CollectData();
+				}
+				catch (Exception ex)
+				{
+					UiLog.LogWarning($"{nameof(LocaGettextSheetsSyncer)} [{_bridge.name}]: CollectData failed for standalone bridge ({ex.Message}). Cached data on the asset will be used.");
+				}
+				return;
+			}
+
 			// Collect data from the spreadsheet.
 			bool collectDataFailed = false;
 			try
