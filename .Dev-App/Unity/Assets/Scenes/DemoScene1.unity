@@ -689,8 +689,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_followSource: {fileID: 0}
-  m_amplitude: 0.0202
-  m_frequency: {x: 3, y: 3}
+  m_staticAmplitude: 0.0329
+  m_staticFrequency: {x: 6.24, y: 1.11}
+  m_animate: 0
+  m_dynamicAmplitude: 0.0294
+  m_dynamicFrequency: {x: 3, y: 3}
   m_speed: -2.26
   m_useUnscaledTime: 0
 --- !u!114 &98658468
@@ -723,8 +726,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_followSource: {fileID: 0}
   m_mode: 3
-  m_sizeHorizontal: 10
-  m_sizeVertical: 10
+  m_sizeHorizontal: 100
+  m_sizeVertical: 100
 --- !u!1 &115596803
 GameObject:
   m_ObjectHideFlags: 0
