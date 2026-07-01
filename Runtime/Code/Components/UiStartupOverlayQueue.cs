@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace GuiToolkit
 {
@@ -44,6 +45,36 @@ namespace GuiToolkit
 		/// Off by default — flip on from your bootstrap code while diagnosing ordering issues.
 		/// </summary>
 		public static bool EnableLogging = false;
+
+		/// <summary>
+		/// Full-screen input blocker, kept active for the ENTIRE duration of a <see cref="Run"/>
+		/// sequence. The queue activates it synchronously when the run starts and deactivates it
+		/// once every overlay has been processed (or the run is stopped / cleared / throws).
+		///
+		/// This closes the input gaps that exist <i>before</i> the first overlay's own
+		/// click-catcher appears and <i>between</i> consecutive overlays. The integrator MUST
+		/// place this GameObject in the scene hierarchy ABOVE the screen(s) to block but BELOW
+		/// the overlays themselves, so the overlays stay interactive while everything behind them
+		/// is blocked — no canvas sorting is involved. It should start inactive.
+		///
+		/// MUST be assigned before <see cref="Run"/>; an unassigned blocker is asserted in
+		/// development builds (and the sequence then runs unblocked, as before).
+		/// </summary>
+		public static GameObject Blocker { get; set; }
+
+		/// <summary>
+		/// Failsafe timeout (unscaled seconds): the longest the queue waits for a single overlay's
+		/// onClosed callback before logging an error and forcibly advancing. Guards against an
+		/// overlay that shows but never reports closed, which would otherwise leave the
+		/// <see cref="Blocker"/> active forever.
+		///
+		/// This is a last-resort recovery for a <i>broken</i> overlay, NOT a UX dismissal timer:
+		/// these overlays are usually closed by a user tap, so the value must comfortably exceed
+		/// the longest plausible time a user dwells on one (reading a changelog, etc.). Firing it
+		/// while an overlay is legitimately open force-advances the queue. Set &lt;= 0 to wait
+		/// indefinitely.
+		/// </summary>
+		public static float OverlayTimeoutSeconds = 120f;
 
 		/// <summary>
 		/// Queue an overlay for the next (or currently running) <see cref="Run"/>. Silently
@@ -96,6 +127,10 @@ namespace GuiToolkit
 			if (s_coroutine != null && CoRoutineRunner.Instance != null)
 				CoRoutineRunner.Instance.StopCoroutine(s_coroutine);
 			s_coroutine = null;
+
+			// StopCoroutine does not unwind the iterator's finally, so release the blocker here.
+			SetBlockerActive(false);
+			SceneManager.activeSceneChanged -= OnActiveSceneChanged;
 		}
 
 		/// <summary>
@@ -110,6 +145,9 @@ namespace GuiToolkit
 		/// </summary>
 		public static void Stop()
 		{
+			// Always drop the scene hook, even on the early-out below, so it can't outlive the run.
+			SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+
 			if (!s_running)
 				return;
 
@@ -129,6 +167,9 @@ namespace GuiToolkit
 			s_currentCandidate = null;
 			s_running = false;
 			s_onAllDone = null;
+
+			// StopCoroutine does not unwind the iterator's finally, so release the blocker here.
+			SetBlockerActive(false);
 		}
 
 		/// <summary>
@@ -157,29 +198,65 @@ namespace GuiToolkit
 				return;
 			}
 
+			// Raise the input blocker synchronously, before the first overlay shows, so the gap
+			// before its own click-catcher appears is covered. Only do so once we're committed to
+			// starting the coroutine (which owns lowering it again via its finally block).
+			Debug.Assert(Blocker != null, "[UiStartupOverlayQueue] Blocker must be assigned before Run() — UI behind the overlays will not be blocked");
+			SetBlockerActive(true);
+
+			// Auto-teardown if the active scene changes mid-sequence (two of the event dialogs load
+			// another scene). Guarantees the blocker is released and the coroutine stopped even if a
+			// caller forgets Stop(). Defensive '-=' first so a stray subscription can't accumulate.
+			SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+			SceneManager.activeSceneChanged += OnActiveSceneChanged;
+
 			s_coroutine = runner.StartCoroutine(RunCoroutine());
 		}
 
 		private static IEnumerator RunCoroutine()
 		{
-			while (true)
+			// finally runs on normal completion AND on exceptions thrown inside the loop, so the
+			// blocker can never be stranded on those paths. (The manual Stop()/Clear() abort paths
+			// release it themselves, since Unity's StopCoroutine does not unwind this finally.)
+			try
 			{
-				PurgeDestroyed();
+				while (true)
+				{
+					PurgeDestroyed();
 
-				s_currentCandidate = FindLowestPriority();
-				if (s_currentCandidate == null)
-					break;
+					s_currentCandidate = FindLowestPriority();
+					if (s_currentCandidate == null)
+						break;
 
-				if (EnableLogging)
-					Debug.Log($"[UiStartupOverlayQueue] Showing '{Describe(s_currentCandidate)}' id='{s_currentCandidate.OverlayId}' priority={s_currentCandidate.Priority}");
+					if (EnableLogging)
+						Debug.Log($"[UiStartupOverlayQueue] Showing '{Describe(s_currentCandidate)}' id='{s_currentCandidate.OverlayId}' priority={s_currentCandidate.Priority}");
 
-				bool done = false;
-				s_currentCandidate.Show(() => done = true);
-				yield return new WaitUntil(() => done);
+					bool done = false;
+					s_currentCandidate.Show(() => done = true);
 
-				s_shownIdsThisSession.Add(s_currentCandidate.OverlayId);
-				s_pending.Remove(s_currentCandidate);
-				s_currentCandidate = null;
+					float elapsed = 0f;
+					yield return new WaitUntil(() =>
+					{
+						if (done)
+							return true;
+						if (OverlayTimeoutSeconds <= 0f)
+							return false;
+						elapsed += Time.unscaledDeltaTime;
+						return elapsed >= OverlayTimeoutSeconds;
+					});
+
+					if (!done)
+						Debug.LogError($"[UiStartupOverlayQueue] '{Describe(s_currentCandidate)}' did not invoke its onClosed within {OverlayTimeoutSeconds}s — forcing advance");
+
+					s_shownIdsThisSession.Add(s_currentCandidate.OverlayId);
+					s_pending.Remove(s_currentCandidate);
+					s_currentCandidate = null;
+				}
+			}
+			finally
+			{
+				SetBlockerActive(false);
+				SceneManager.activeSceneChanged -= OnActiveSceneChanged;
 			}
 
 			if (EnableLogging)
@@ -191,6 +268,23 @@ namespace GuiToolkit
 			var cb = s_onAllDone;
 			s_onAllDone = null;
 			cb?.Invoke();
+		}
+
+		private static void SetBlockerActive( bool _active )
+		{
+			// UnityEngine.Object '!= null' correctly treats a destroyed (e.g. scene-unloaded)
+			// blocker as null, so a stale reference after a scene change can't throw here.
+			if (Blocker != null)
+				Blocker.SetActive(_active);
+		}
+
+		private static void OnActiveSceneChanged( Scene _from, Scene _to )
+		{
+			// We left the scene mid-sequence. Stop() releases the blocker, stops the coroutine,
+			// marks the current overlay as shown and keeps the rest pending for the next Run() on
+			// return — and removes this handler itself. The blocker GameObject lives in the
+			// unloaded scene, so releasing it here (before it is destroyed) is the clean path.
+			Stop();
 		}
 
 		private static void PurgeDestroyed()
