@@ -50,6 +50,19 @@ namespace GuiToolkit
 		[SerializeField] private UiGridPicker m_gridPickerPrefab;
 		[SerializeField] private UiPopup m_popupMenuPrefab;
 
+		[Tooltip("Optional. When set, this startup-overlay host view is created automatically on " +
+			"startup (under UiMain, on its own layer) so the startup-overlay sequence has a place " +
+			"to live and a full-screen click-catcher. Leave empty to disable the startup overlays.")]
+		[SerializeField] private UiStartupOverlayView m_startupOverlayViewPrefab;
+
+		private UiStartupOverlayView m_startupOverlayView;
+
+		/// <summary>
+		/// The auto-created startup-overlay host (null if no prefab is configured). Trigger the
+		/// sequence via <c>UiMain.Instance.StartupOverlayView?.Run()</c>.
+		/// </summary>
+		public UiStartupOverlayView StartupOverlayView => m_startupOverlayView;
+
 		[Header("Stack Navigation Animation")]
 		[SerializeField] private EStackAnimationType m_stackAnimationType = EStackAnimationType.None;
 		[SerializeField] private AnimationCurve m_stackMovedInCurve;
@@ -705,6 +718,16 @@ namespace GuiToolkit
 #endif
 			SetDefaultSceneVisibilities(gameObject);
 			FireOnScreenResolutionChangedEventIfNecessary();
+
+			// Create the persistent startup-overlay host once (if configured). It parents under
+			// UiMain, so it is DontDestroyOnLoad and picks up its layer sorting via SortViews. It
+			// sequences its own child UiPanels; trigger it via UiMain.Instance.StartupOverlayView.
+			if (m_startupOverlayViewPrefab != null && m_startupOverlayView == null)
+			{
+				m_startupOverlayView = CreateView(m_startupOverlayViewPrefab);
+				if (m_startupOverlayView != null && !m_startupOverlayView.gameObject.activeSelf)
+					m_startupOverlayView.gameObject.SetActive(true);
+			}
 		}
 
 		//FIXME: performance. Need some "dirty" stuff.
