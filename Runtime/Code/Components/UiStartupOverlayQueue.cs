@@ -47,20 +47,19 @@ namespace GuiToolkit
 		public static bool EnableLogging = false;
 
 		/// <summary>
-		/// Full-screen input blocker, kept active for the ENTIRE duration of a <see cref="Run"/>
-		/// sequence. The queue activates it synchronously when the run starts and deactivates it
-		/// once every overlay has been processed (or the run is stopped / cleared / throws).
+		/// Full-screen input blocker, kept blocking for the ENTIRE duration of a <see cref="Run"/>
+		/// sequence. The queue engages it synchronously when the run starts and releases it once
+		/// every overlay has been processed (or the run is stopped / cleared / throws).
 		///
 		/// This closes the input gaps that exist <i>before</i> the first overlay's own
-		/// click-catcher appears and <i>between</i> consecutive overlays. The integrator MUST
-		/// place this GameObject in the scene hierarchy ABOVE the screen(s) to block but BELOW
-		/// the overlays themselves, so the overlays stay interactive while everything behind them
-		/// is blocked — no canvas sorting is involved. It should start inactive.
+		/// click-catcher appears and <i>between</i> consecutive overlays. Normally assigned
+		/// automatically by <see cref="UiStartupOverlayBlocker"/> from its Awake — see that
+		/// component for the required scene setup.
 		///
-		/// MUST be assigned before <see cref="Run"/>; an unassigned blocker is asserted in
-		/// development builds (and the sequence then runs unblocked, as before).
+		/// SHOULD be assigned before <see cref="Run"/>; an unassigned blocker is asserted in
+		/// development builds (and the sequence then runs unblocked, as before — never dead-locked).
 		/// </summary>
-		public static GameObject Blocker { get; set; }
+		public static UiStartupOverlayBlocker Blocker { get; set; }
 
 		/// <summary>
 		/// Failsafe timeout (unscaled seconds): the longest the queue waits for a single overlay's
@@ -129,7 +128,7 @@ namespace GuiToolkit
 			s_coroutine = null;
 
 			// StopCoroutine does not unwind the iterator's finally, so release the blocker here.
-			SetBlockerActive(false);
+			SetBlocking(false);
 			SceneManager.activeSceneChanged -= OnActiveSceneChanged;
 		}
 
@@ -169,7 +168,7 @@ namespace GuiToolkit
 			s_onAllDone = null;
 
 			// StopCoroutine does not unwind the iterator's finally, so release the blocker here.
-			SetBlockerActive(false);
+			SetBlocking(false);
 		}
 
 		/// <summary>
@@ -202,7 +201,7 @@ namespace GuiToolkit
 			// before its own click-catcher appears is covered. Only do so once we're committed to
 			// starting the coroutine (which owns lowering it again via its finally block).
 			Debug.Assert(Blocker != null, "[UiStartupOverlayQueue] Blocker must be assigned before Run() — UI behind the overlays will not be blocked");
-			SetBlockerActive(true);
+			SetBlocking(true);
 
 			// Auto-teardown if the active scene changes mid-sequence (two of the event dialogs load
 			// another scene). Guarantees the blocker is released and the coroutine stopped even if a
@@ -255,7 +254,7 @@ namespace GuiToolkit
 			}
 			finally
 			{
-				SetBlockerActive(false);
+				SetBlocking(false);
 				SceneManager.activeSceneChanged -= OnActiveSceneChanged;
 			}
 
@@ -270,12 +269,12 @@ namespace GuiToolkit
 			cb?.Invoke();
 		}
 
-		private static void SetBlockerActive( bool _active )
+		private static void SetBlocking( bool _blocking )
 		{
 			// UnityEngine.Object '!= null' correctly treats a destroyed (e.g. scene-unloaded)
 			// blocker as null, so a stale reference after a scene change can't throw here.
 			if (Blocker != null)
-				Blocker.SetActive(_active);
+				Blocker.SetBlocking(_blocking);
 		}
 
 		private static void OnActiveSceneChanged( Scene _from, Scene _to )
