@@ -62,8 +62,8 @@ namespace GuiToolkit
 		protected override void Awake()
 		{
 			base.Awake();
-			SetBlocking(false);
 			CachePanels();
+			SetLive(false); // start dormant; Run() switches the view live
 		}
 
 		protected override void Start()
@@ -107,9 +107,9 @@ namespace GuiToolkit
 			m_running = true;
 			m_onAllDone = _onAllDone;
 
-			// Block synchronously (covers the gap before the first panel) and watch for scene
+			// Go live synchronously (covers the gap before the first panel) and watch for scene
 			// changes so a panel that navigates away pauses the run instead of advancing blindly.
-			SetBlocking(true);
+			SetLive(true);
 			SubscribeSceneChange();
 
 			m_coroutine = StartCoroutine(RunCoroutine());
@@ -139,8 +139,8 @@ namespace GuiToolkit
 				m_coroutine = null;
 			}
 
-			// StopCoroutine does not unwind RunCoroutine's finally, so release the blocker here.
-			SetBlocking(false);
+			// StopCoroutine does not unwind RunCoroutine's finally, so go dormant here.
+			SetLive(false);
 			m_running = false;
 			m_onAllDone = null;
 		}
@@ -162,7 +162,7 @@ namespace GuiToolkit
 			}
 			finally
 			{
-				SetBlocking(false);
+				SetLive(false);
 				UnsubscribeSceneChange();
 				m_running = false;
 				m_coroutine = null;
@@ -242,10 +242,15 @@ namespace GuiToolkit
 			}
 		}
 
-		private void SetBlocking( bool _blocking )
+		// Dormant when idle, live only for the duration of a run. Disabling the Canvas makes the
+		// whole view render nothing and receive no input, so its full-screen click-catcher can't
+		// overlay or block other scenes while the persistent view just sits around waiting.
+		private void SetLive( bool _live )
 		{
+			if (Canvas != null)
+				Canvas.enabled = _live;
 			if (m_clickCatcher != null)
-				m_clickCatcher.blocksRaycasts = _blocking;
+				m_clickCatcher.blocksRaycasts = _live;
 		}
 
 		private void OnActiveSceneChanged( Scene _from, Scene _to ) => Stop();
