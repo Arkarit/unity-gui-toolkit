@@ -110,10 +110,11 @@ namespace GuiToolkit
 			m_running = true;
 			m_onAllDone = _onAllDone;
 
-			// Go live synchronously (covers the gap before the first panel) and watch for scene
-			// changes so a panel that navigates away pauses the run instead of advancing blindly.
+			// Go live synchronously so the click-catcher covers the gap before the first panel.
+			// The scene-change safety net is armed later (inside the coroutine, one frame in) so the
+			// active-scene-change that finalizes the dashboard's OWN load — fired right after Run() —
+			// isn't mistaken for a departure.
 			SetLive(true);
-			SubscribeSceneChange();
 
 			m_coroutine = StartCoroutine(RunCoroutine());
 		}
@@ -152,6 +153,12 @@ namespace GuiToolkit
 
 		private IEnumerator RunCoroutine()
 		{
+			// Wait one frame before arming the scene-change safety net, so a scene activation that
+			// is still finalizing the dashboard's own load (fired shortly after Run()) is ignored.
+			yield return null;
+			SubscribeSceneChange();
+			Log("scene-change watch armed");
+
 			// finally covers normal completion AND exceptions; the Stop() abort path releases the
 			// blocker itself (StopCoroutine does not unwind this finally).
 			try
