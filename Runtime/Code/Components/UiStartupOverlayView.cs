@@ -56,6 +56,9 @@ namespace GuiToolkit
 		private Coroutine m_coroutine;
 		private Action m_onAllDone;
 
+		/// <summary>True while a sequence is running (between <see cref="Run"/> and completion/stop).</summary>
+		public bool IsRunning => m_running;
+
 		protected override void Awake()
 		{
 			base.Awake();
@@ -184,7 +187,24 @@ namespace GuiToolkit
 			// EvOnEndHide is the sole "this panel is done" signal — raised on user-dismiss and,
 			// by convention, immediately by a panel that declines to show.
 			_panel.EvOnEndHide.AddListener(OnHidden);
-			_panel.Show();
+
+			// A panel that throws from Show() must not take the whole sequence down — log and
+			// advance to the next one instead. (yield break is kept out of the catch to stay within
+			// the C# rules for yield in try/catch.)
+			bool threw = false;
+			try
+			{
+				_panel.Show();
+			}
+			catch (Exception e)
+			{
+				threw = true;
+				_panel.EvOnEndHide.RemoveListener(OnHidden);
+				Debug.LogError($"[UiStartupOverlayView] '{_panel.name}' threw from Show() — skipping: {e}");
+			}
+
+			if (threw)
+				yield break;
 
 			float elapsed = 0f;
 			yield return new WaitUntil(() =>

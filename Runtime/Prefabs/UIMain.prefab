@@ -141,6 +141,7 @@ MonoBehaviour:
     type: 3}
   m_popupMenuPrefab: {fileID: 611610854391750694, guid: a8a96ffc99045024aac10073d1f4aad2,
     type: 3}
+  m_startupOverlayViewPrefab: {fileID: 0}
   m_stackAnimationType: 2
   m_stackMovedInCurve:
     serializedVersion: 2
