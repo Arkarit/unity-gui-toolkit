@@ -47,7 +47,7 @@ namespace GuiToolkit
 			"the longest plausible user dwell (reading a changelog). <= 0 waits indefinitely.")]
 		[SerializeField] private float m_overlayTimeoutSeconds = 120f;
 
-		[Tooltip("Verbose Debug.Log for each show / advance / completion.")]
+		[Tooltip("Verbose UiLog output for each show / advance / completion / state change.")]
 		[SerializeField] private bool m_enableLogging;
 
 		private readonly List<UiPanel> m_panels = new();
@@ -92,14 +92,17 @@ namespace GuiToolkit
 		/// </summary>
 		public void Run( Action _onAllDone = null )
 		{
+			Log($"Run() — index {m_index}/{m_panels.Count}, running={m_running}");
+
 			if (m_running)
 			{
-				Debug.LogWarning("[UiStartupOverlayView] Run() called while already running — ignored");
+				UiLog.LogWarning("[UiStartupOverlayView] Run() called while already running — ignored");
 				return;
 			}
 
 			if (m_index >= m_panels.Count)
 			{
+				Log("Run() — nothing pending, invoking onAllDone immediately");
 				_onAllDone?.Invoke();
 				return;
 			}
@@ -123,6 +126,8 @@ namespace GuiToolkit
 		/// </summary>
 		public void Stop()
 		{
+			Log($"Stop() — index {m_index}/{m_panels.Count}, running={m_running}");
+
 			UnsubscribeSceneChange();
 
 			if (!m_running)
@@ -168,8 +173,7 @@ namespace GuiToolkit
 				m_coroutine = null;
 			}
 
-			if (m_enableLogging)
-				Debug.Log("[UiStartupOverlayView] All overlays completed");
+			Log("All overlays completed");
 
 			var cb = m_onAllDone;
 			m_onAllDone = null;
@@ -178,8 +182,7 @@ namespace GuiToolkit
 
 		private IEnumerator ShowPanel( UiPanel _panel )
 		{
-			if (m_enableLogging)
-				Debug.Log($"[UiStartupOverlayView] Showing '{_panel.name}' ({m_index + 1}/{m_panels.Count})");
+			Log($"Showing '{_panel.name}' ({m_index + 1}/{m_panels.Count})");
 
 			bool done = false;
 			void OnHidden( UiPanel _ ) => done = true;
@@ -200,7 +203,7 @@ namespace GuiToolkit
 			{
 				threw = true;
 				_panel.EvOnEndHide.RemoveListener(OnHidden);
-				Debug.LogError($"[UiStartupOverlayView] '{_panel.name}' threw from Show() — skipping: {e}");
+				UiLog.LogError($"[UiStartupOverlayView] '{_panel.name}' threw from Show() — skipping: {e}");
 			}
 
 			if (threw)
@@ -219,8 +222,10 @@ namespace GuiToolkit
 
 			_panel.EvOnEndHide.RemoveListener(OnHidden);
 
-			if (!done)
-				Debug.LogError($"[UiStartupOverlayView] '{_panel.name}' did not raise EvOnEndHide within {m_overlayTimeoutSeconds}s — forcing advance");
+			if (done)
+				Log($"'{_panel.name}' done");
+			else
+				UiLog.LogError($"[UiStartupOverlayView] '{_panel.name}' did not raise EvOnEndHide within {m_overlayTimeoutSeconds}s — forcing advance");
 		}
 
 		private void CachePanels()
@@ -240,6 +245,9 @@ namespace GuiToolkit
 				if (panel != null)
 					m_panels.Add(panel);
 			}
+
+			Log($"CachePanels() — found {m_panels.Count} overlay panel(s) among {n} child(ren)" +
+				(m_clickCatcher == null ? " (no click-catcher assigned!)" : ""));
 		}
 
 		// Dormant when idle, live only for the duration of a run. Disabling the Canvas makes the
@@ -247,13 +255,19 @@ namespace GuiToolkit
 		// overlay or block other scenes while the persistent view just sits around waiting.
 		private void SetLive( bool _live )
 		{
+			Log($"SetLive({_live}) — canvas + click-catcher blocking {(_live ? "ON" : "OFF")}");
+
 			if (Canvas != null)
 				Canvas.enabled = _live;
 			if (m_clickCatcher != null)
 				m_clickCatcher.blocksRaycasts = _live;
 		}
 
-		private void OnActiveSceneChanged( Scene _from, Scene _to ) => Stop();
+		private void OnActiveSceneChanged( Scene _from, Scene _to )
+		{
+			Log($"activeSceneChanged '{_from.name}' -> '{_to.name}' — pausing run");
+			Stop();
+		}
 
 		private void SubscribeSceneChange()
 		{
@@ -264,6 +278,12 @@ namespace GuiToolkit
 		private void UnsubscribeSceneChange()
 		{
 			SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+		}
+
+		private void Log( string _message )
+		{
+			if (m_enableLogging)
+				UiLog.Log($"[UiStartupOverlayView] {_message}");
 		}
 	}
 }
