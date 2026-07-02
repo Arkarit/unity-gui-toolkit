@@ -184,6 +184,18 @@ namespace GuiToolkit
 		/// </summary>
 		public virtual void OnEndHide() { }
 
+		/// <summary>
+		/// Override to let a panel decline a <see cref="Show"/> at call time (e.g. a startup overlay
+		/// that isn't applicable this session). When this returns <c>true</c>, <see cref="Show"/>
+		/// does NOT make the panel visible; instead it resolves the show transparently — calling
+		/// <see cref="OnEndShow"/> and raising <see cref="EvOnEndHide"/> (plus the show's on-finish
+		/// callback) — so orchestrators like <c>UiStartupOverlayView</c> treat the panel as done and
+		/// advance, exactly as if it had shown and closed. Evaluated at the start of every
+		/// <see cref="Show"/> call, so an async decision can be resolved by loading first and then
+		/// calling <c>base.Show()</c>.
+		/// </summary>
+		protected virtual bool ShouldCancelShow => false;
+
 		public float UnscaledWidth => RectTransform.rect.width;
 		public float UnscaledHeight => RectTransform.rect.height;
 
@@ -430,6 +442,18 @@ namespace GuiToolkit
 		/// </summary>
 		public virtual void Show( bool _instant = false, Action _onFinish = null )
 		{
+			// The panel may decline to show (see ShouldCancelShow). Resolve the request transparently
+			// without ever becoming visible: run the show-end hook and raise the end-hide event (and
+			// the on-finish callback) so callers/orchestrators treat it as shown-and-done. Checked
+			// before SetActive so a declined panel never activates or renders.
+			if (ShouldCancelShow)
+			{
+				OnEndShow();
+				EvOnEndHide.Invoke(this);
+				_onFinish?.Invoke();
+				return;
+			}
+
 			if (SimpleShowHideAnimation == null)
 				_instant = true;
 

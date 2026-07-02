@@ -230,9 +230,26 @@ namespace GuiToolkit
 			_panel.EvOnEndHide.RemoveListener(OnHidden);
 
 			if (done)
+			{
 				Log($"'{_panel.name}' done");
-			else
-				UiLog.LogError($"[UiStartupOverlayView] '{_panel.name}' did not raise EvOnEndHide within {m_overlayTimeoutSeconds}s — forcing advance");
+				yield break;
+			}
+
+			// Timed out: the panel never reported done and is likely still on screen. Force it away
+			// so it doesn't linger — instant Hide first, then a hard SetActive(false) as a backstop
+			// in case Hide() itself misbehaves.
+			UiLog.LogError($"[UiStartupOverlayView] '{_panel.name}' did not raise EvOnEndHide within {m_overlayTimeoutSeconds}s — forcing it closed and advancing");
+			try
+			{
+				_panel.Hide(true);
+			}
+			catch (Exception e)
+			{
+				UiLog.LogError($"[UiStartupOverlayView] '{_panel.name}' Hide() also threw during timeout recovery: {e}");
+			}
+
+			if (_panel != null && _panel.gameObject.activeSelf)
+				_panel.gameObject.SetActive(false);
 		}
 
 		private void CachePanels()
