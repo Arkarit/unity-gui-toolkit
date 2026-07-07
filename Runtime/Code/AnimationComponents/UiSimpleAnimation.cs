@@ -260,10 +260,15 @@ namespace GuiToolkit
 		[SerializeField]
 		protected AnimationCurve m_alphaCurve;
 		[SerializeField]
-		[FormerlySerializedAs("m_alphaImage")] 
+		[FormerlySerializedAs("m_alphaImage")]
 		protected Graphic m_alphaGraphic;
 		[SerializeField]
 		protected CanvasGroup m_alphaCanvasGroup;
+		[SerializeField]
+		[Tooltip("If set, the raycast blocking of the alpha target is switched off while the alpha value is (near) zero, and on otherwise. " +
+		         "This prevents a fully faded-out element (e.g. a blocker) from still catching input. " +
+		         "Toggles Graphic.raycastTarget and/or CanvasGroup.blocksRaycasts. Only relevant for the alpha animation.")]
+		protected bool m_setBlocksRaycasts = false;
 
 		public AnimationCurve AlphaCurve
 		{
@@ -281,6 +286,12 @@ namespace GuiToolkit
 		{
 			get => m_alphaCanvasGroup;
 			set { Stop(); m_alphaCanvasGroup = value; }
+		}
+
+		public bool SetBlocksRaycasts
+		{
+			get => m_setBlocksRaycasts;
+			set { Stop(); m_setBlocksRaycasts = value; }
 		}
 		#endregion
 
@@ -664,17 +675,26 @@ namespace GuiToolkit
 
 			Log($"AnimateAlpha({_normalizedTime}), alpha:{alpha}");
 
+			// When m_setBlocksRaycasts is set, an (near) invisible target must no longer block/catch input.
+			bool visible = !Mathf.Approximately(0, alpha);
+
 			if (m_alphaGraphic != null)
 			{
 				Color c = m_alphaGraphic.color;
 				c.a = alpha;
 				m_alphaGraphic.color = c;
+
+				if (m_setBlocksRaycasts)
+					m_alphaGraphic.raycastTarget = visible;
 			}
 
 			if (m_alphaCanvasGroup != null)
 			{
-				m_alphaCanvasGroup.interactable = !Mathf.Approximately(0, alpha);
+				m_alphaCanvasGroup.interactable = visible;
 				m_alphaCanvasGroup.alpha = alpha;
+
+				if (m_setBlocksRaycasts)
+					m_alphaCanvasGroup.blocksRaycasts = visible;
 			}
 		}
 

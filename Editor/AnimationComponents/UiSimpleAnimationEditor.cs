@@ -31,6 +31,7 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_alphaCurveProp;
 		protected SerializedProperty m_alphaGraphicProp;
 		protected SerializedProperty m_alphaCanvasGroupProp;
+		protected SerializedProperty m_setBlocksRaycastsProp;
 		protected SerializedProperty m_uiSkewProp;
 		protected SerializedProperty m_skewMinHorizontalProp;
 		protected SerializedProperty m_skewMaxHorizontalProp;
@@ -73,6 +74,7 @@ namespace GuiToolkit.Editor
 			m_alphaCurveProp = serializedObject.FindProperty("m_alphaCurve");
 			m_alphaGraphicProp = serializedObject.FindProperty("m_alphaGraphic");
 			m_alphaCanvasGroupProp = serializedObject.FindProperty("m_alphaCanvasGroup");
+			m_setBlocksRaycastsProp = serializedObject.FindProperty("m_setBlocksRaycasts");
 			m_uiSkewProp = serializedObject.FindProperty("m_uiSkew");
 			m_skewMinHorizontalProp = serializedObject.FindProperty("m_skewMinHorizontal");
 			m_skewMaxHorizontalProp = serializedObject.FindProperty("m_skewMaxHorizontal");
@@ -192,6 +194,7 @@ namespace GuiToolkit.Editor
 				EditorGUILayout.PropertyField(m_alphaGraphicProp);
 				EditorGUILayout.PropertyField(m_alphaCanvasGroupProp);
 				EditorGUILayout.PropertyField(m_alphaCurveProp, new GUIContent("Norm. Curve"));
+				EditorGUILayout.PropertyField(m_setBlocksRaycastsProp, new GUIContent("Set Blocks Raycasts"));
 				EditorGUILayout.Space();
 			}
 			else
