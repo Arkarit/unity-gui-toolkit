@@ -16,4 +16,7 @@ MonoBehaviour:
   m_entries:
   - Type: 1
     Clip: {fileID: 8300000, guid: 253ac96a060b6684c8bc8ca63bda0758, type: 3}
-    Volume: 0.774
+    Volume: 0.619
+  - Type: 2
+    Clip: {fileID: 8300000, guid: 253ac96a060b6684c8bc8ca63bda0758, type: 3}
+    Volume: 0.619

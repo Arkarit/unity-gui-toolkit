@@ -12,6 +12,7 @@ namespace GuiToolkit
 	{
 		None = 0,
 		Click,
+		Toggle,
 	}
 
 	/// <summary>

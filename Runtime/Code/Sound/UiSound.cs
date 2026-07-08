@@ -8,15 +8,17 @@ namespace GuiToolkit
 {
 	/// <summary>
 	/// Global UI sound. A single, self-bootstrapping listener that plays the
-	/// configured UI sounds. Currently it plays the <see cref="EUiSoundType.Click"/>
-	/// sound whenever the user presses any button — both GuiToolkit
-	/// <see cref="UiButtonBase"/>s and plain UGUI <see cref="Button"/>s — with zero
-	/// per-button setup. Further sound types (hover, ...) can be added to
+	/// configured UI sounds when the user presses a control — the
+	/// <see cref="EUiSoundType.Click"/> sound for buttons (GuiToolkit
+	/// <see cref="UiButtonBase"/>s and plain UGUI <see cref="Button"/>s) and the
+	/// <see cref="EUiSoundType.Toggle"/> sound for toggles (GuiToolkit
+	/// <see cref="UiToggle"/>s and plain UGUI <see cref="Toggle"/>s) — with zero
+	/// per-control setup. Further sound types (hover, ...) can be added to
 	/// <see cref="EUiSoundType"/> / <see cref="UiSoundConfig"/> and triggered here.
 	///
 	/// Detection: on pointer-down we raycast the UI at the pointer position via the
 	/// current <see cref="EventSystem"/> and, if the frontmost hit resolves to an
-	/// interactable button, play the click sound. We fire on pointer-DOWN because
+	/// interactable control, play the matching sound. We fire on pointer-DOWN because
 	/// <see cref="UiButtonBase"/> triggers its own action on PointerDown, which
 	/// keeps the sound in sync with the toolkit's buttons. The detector is
 	/// independent of the active UI input module.
@@ -112,8 +114,12 @@ namespace GuiToolkit
 				return;
 
 			var hit = RaycastTopObject(eventSystem, InputProxy.MousePosition);
-			if (hit != null && IsInteractableButton(hit))
-				PlayInternal(EUiSoundType.Click);
+			if (hit == null)
+				return;
+
+			var soundType = ResolveSoundType(hit);
+			if (soundType != EUiSoundType.None)
+				PlayInternal(soundType);
 		}
 
 		private GameObject RaycastTopObject( EventSystem _eventSystem, Vector2 _screenPosition )
@@ -127,21 +133,34 @@ namespace GuiToolkit
 			return m_raycastResults.Count > 0 ? m_raycastResults[0].gameObject : null;
 		}
 
-		// Recognizes both button families and honors their respective enabled /
-		// interactable state so disabled buttons stay silent. UiButtonBase is NOT a
-		// UGUI Selectable, so it has to be probed separately.
-		private static bool IsInteractableButton( GameObject _hit )
+		// Classifies the pressed control into a sound type, honoring each family's
+		// enabled/interactable state so disabled controls stay silent. Order matters:
+		// UiToggle is-a UiButtonBase (and carries a UGUI Toggle), so toggles are
+		// resolved before the generic button checks. UiButtonBase is NOT a UGUI
+		// Selectable, so it is probed separately from Button / Toggle.
+		private static EUiSoundType ResolveSoundType( GameObject _hit )
 		{
+			var uiToggle = _hit.GetComponentInParent<UiToggle>();
+			if (uiToggle != null)
+				return IsEnabled(uiToggle) ? EUiSoundType.Toggle : EUiSoundType.None;
+
+			var toggle = _hit.GetComponentInParent<Toggle>();
+			if (toggle != null)
+				return toggle.IsInteractable() ? EUiSoundType.Toggle : EUiSoundType.None;
+
 			var uiButton = _hit.GetComponentInParent<UiButtonBase>();
 			if (uiButton != null)
-				return uiButton.EnabledInHierarchy && uiButton.isActiveAndEnabled;
+				return IsEnabled(uiButton) ? EUiSoundType.Click : EUiSoundType.None;
 
 			var button = _hit.GetComponentInParent<Button>();
 			if (button != null)
-				return button.IsInteractable();
+				return button.IsInteractable() ? EUiSoundType.Click : EUiSoundType.None;
 
-			return false;
+			return EUiSoundType.None;
 		}
+
+		private static bool IsEnabled( UiButtonBase _uiButton ) =>
+			_uiButton.EnabledInHierarchy && _uiButton.isActiveAndEnabled;
 
 		private void PlayInternal( EUiSoundType _type )
 		{
