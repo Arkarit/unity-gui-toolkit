@@ -7,22 +7,26 @@ using UnityEngine.UI;
 namespace GuiToolkit
 {
 	/// <summary>
-	/// Global UI sound. A single, self-bootstrapping listener that plays a
-	/// configurable click sound whenever the user presses any button — both
-	/// GuiToolkit <see cref="UiButtonBase"/>s and plain UGUI <see cref="Button"/>s —
-	/// with zero per-button setup.
+	/// Global UI sound. A single, self-bootstrapping listener that plays the
+	/// configured UI sounds. Currently it plays the <see cref="EUiSoundType.Click"/>
+	/// sound whenever the user presses any button — both GuiToolkit
+	/// <see cref="UiButtonBase"/>s and plain UGUI <see cref="Button"/>s — with zero
+	/// per-button setup. Further sound types (hover, ...) can be added to
+	/// <see cref="EUiSoundType"/> / <see cref="UiSoundConfig"/> and triggered here.
 	///
-	/// Detection: on pointer-down we raycast the UI at the pointer position via
-	/// the current <see cref="EventSystem"/> and, if the frontmost hit resolves to
-	/// an interactable button, play the click clip. We fire on pointer-DOWN because
+	/// Detection: on pointer-down we raycast the UI at the pointer position via the
+	/// current <see cref="EventSystem"/> and, if the frontmost hit resolves to an
+	/// interactable button, play the click sound. We fire on pointer-DOWN because
 	/// <see cref="UiButtonBase"/> triggers its own action on PointerDown, which
 	/// keeps the sound in sync with the toolkit's buttons. The detector is
 	/// independent of the active UI input module.
 	///
-	/// The host application stays the owner of mute/volume: assign
-	/// <see cref="MutedProvider"/> and/or <see cref="VolumeProvider"/> to route the
-	/// toolkit click sound through the game's own sound settings. Both are optional
-	/// — when unset, the sound is audible at the configured base volume.
+	/// Content lives in a <see cref="UiSoundConfig"/> asset supplied by the host
+	/// (referenced from <see cref="UiToolkitConfiguration"/>). The host also owns
+	/// mute/volume: assign <see cref="MutedProvider"/> and/or
+	/// <see cref="VolumeProvider"/> to route UI sound through the game's own sound
+	/// settings. Both are optional — when unset, sounds play at the configured
+	/// volume.
 	/// </summary>
 	public class UiSound : MonoBehaviour
 	{
@@ -36,8 +40,7 @@ namespace GuiToolkit
 		private static readonly IInputProxy s_fallbackInput = new UnityInputProxy();
 
 		private AudioSource m_audioSource;
-		private AudioClip m_clickClip;
-		private float m_baseVolume = 1f;
+		private UiSoundConfig m_config;
 		private readonly List<RaycastResult> m_raycastResults = new List<RaycastResult>();
 
 		// Prefer the host-configured proxy (so games swapping input backends stay
@@ -56,18 +59,21 @@ namespace GuiToolkit
 			go.AddComponent<UiSound>();
 		}
 
-		/// <summary>Overrides the click clip at runtime (otherwise taken from UiToolkitConfiguration).</summary>
-		public static void SetClickClip( AudioClip _clip )
+		/// <summary>Overrides the sound set at runtime (otherwise taken from UiToolkitConfiguration).</summary>
+		public static void SetConfig( UiSoundConfig _config )
 		{
 			if (s_instance != null)
-				s_instance.m_clickClip = _clip;
+				s_instance.m_config = _config;
 		}
 
-		/// <summary>Plays the configured click sound on demand, honoring mute/volume.</summary>
-		public static void PlayClick()
+		/// <summary>Plays the configured button-click sound on demand, honoring mute/volume.</summary>
+		public static void PlayClick() => Play(EUiSoundType.Click);
+
+		/// <summary>Plays a configured UI sound on demand, honoring mute/volume.</summary>
+		public static void Play( EUiSoundType _type )
 		{
 			if (s_instance != null)
-				s_instance.PlayClickInternal();
+				s_instance.PlayInternal(_type);
 		}
 
 		private void Awake()
@@ -84,10 +90,7 @@ namespace GuiToolkit
 
 			var config = UiToolkitConfiguration.Instance;
 			if (config != null)
-			{
-				m_clickClip = config.UiClickSound;
-				m_baseVolume = config.UiSoundVolume;
-			}
+				m_config = config.UiSoundConfig;
 		}
 
 		private void OnDestroy()
@@ -110,7 +113,7 @@ namespace GuiToolkit
 
 			var hit = RaycastTopObject(eventSystem, InputProxy.MousePosition);
 			if (hit != null && IsInteractableButton(hit))
-				PlayClickInternal();
+				PlayInternal(EUiSoundType.Click);
 		}
 
 		private GameObject RaycastTopObject( EventSystem _eventSystem, Vector2 _screenPosition )
@@ -140,15 +143,19 @@ namespace GuiToolkit
 			return false;
 		}
 
-		private void PlayClickInternal()
+		private void PlayInternal( EUiSoundType _type )
 		{
-			if (m_clickClip == null)
+			if (m_config == null)
+				return;
+
+			var clip = m_config.GetClip(_type);
+			if (clip == null)
 				return;
 
 			if (MutedProvider != null && MutedProvider())
 				return;
 
-			var volume = m_baseVolume;
+			var volume = m_config.GetVolume(_type);
 			if (VolumeProvider != null)
 				volume *= VolumeProvider();
 
@@ -156,7 +163,7 @@ namespace GuiToolkit
 			if (volume <= 0f)
 				return;
 
-			m_audioSource.PlayOneShot(m_clickClip, volume);
+			m_audioSource.PlayOneShot(clip, volume);
 		}
 	}
 }

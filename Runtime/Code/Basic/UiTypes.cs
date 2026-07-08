@@ -250,6 +250,7 @@ public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
 		public const string CREATE_STYLE_CONFIG = STYLES_HEADER + "Style Config";
 		public const string CREATE_DOXYGEN_CONFIG = MENU_HEADER + "Doxygen Config";
 		public const string CREATE_IMAGEMAGICK_CONFIG = MENU_HEADER + "ImageMagick Config";
+		public const string CREATE_SOUND_CONFIG = MENU_HEADER + "Ui Sound Config";
 		public const string CREATE_SUNBURST_GENERATOR = MENU_HEADER + "Generators/Sunburst";
 		public const string DLLS_HEADER = MENU_HEADER + "Dlls/";
 		public const string DLL_INSTALL_HACK = DLLS_HEADER + "Install Dll Hack for Unity Version < 6";
