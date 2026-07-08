@@ -40,9 +40,13 @@ namespace GuiToolkit
 		[Tooltip("One entry per UI sound. The first entry for a given type wins; entries with type None or no clip are ignored.")]
 		[SerializeField] private Entry[] m_entries = new Entry[0];
 
+		[Tooltip("When enabled, UiSound logs every decision to the console: which sound played, how loud, when, what triggered it, and why a sound was skipped.")]
+		[SerializeField] private bool m_debugLog = false;
+
 		private Dictionary<EUiSoundType, Entry> m_lookup;
 
 		public float MasterVolume => m_masterVolume;
+		public bool DebugLog => m_debugLog;
 
 		/// <summary>The clip mapped to <paramref name="_type"/>, or null if unmapped.</summary>
 		public AudioClip GetClip( EUiSoundType _type )

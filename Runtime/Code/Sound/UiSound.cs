@@ -75,7 +75,7 @@ namespace GuiToolkit
 		public static void Play( EUiSoundType _type )
 		{
 			if (s_instance != null)
-				s_instance.PlayInternal(_type);
+				s_instance.PlayInternal(_type, "Play() call");
 		}
 
 		private void Awake()
@@ -117,9 +117,18 @@ namespace GuiToolkit
 			if (hit == null)
 				return;
 
-			var soundType = ResolveSoundType(hit);
-			if (soundType != EUiSoundType.None)
-				PlayInternal(soundType);
+			var soundType = ResolveSoundType(hit, out bool interactable, out string trigger);
+			if (soundType == EUiSoundType.None)
+				return;
+
+			if (!interactable)
+			{
+				if (m_config != null && m_config.DebugLog)
+					UiLog.Log($"{soundType} suppressed — control not interactable (trigger: {trigger})", this, nameof(UiSound));
+				return;
+			}
+
+			PlayInternal(soundType, trigger);
 		}
 
 		private GameObject RaycastTopObject( EventSystem _eventSystem, Vector2 _screenPosition )
@@ -133,46 +142,74 @@ namespace GuiToolkit
 			return m_raycastResults.Count > 0 ? m_raycastResults[0].gameObject : null;
 		}
 
-		// Classifies the pressed control into a sound type, honoring each family's
-		// enabled/interactable state so disabled controls stay silent. Order matters:
-		// UiToggle is-a UiButtonBase (and carries a UGUI Toggle), so toggles are
-		// resolved before the generic button checks. UiButtonBase is NOT a UGUI
-		// Selectable, so it is probed separately from Button / Toggle.
-		private static EUiSoundType ResolveSoundType( GameObject _hit )
+		// Classifies the pressed control into a sound type + trigger description, and
+		// reports whether it is currently interactable. Order matters: UiToggle is-a
+		// UiButtonBase (and carries a UGUI Toggle), so toggles are resolved before the
+		// generic button checks. UiButtonBase is NOT a UGUI Selectable, so it is
+		// probed separately from Button / Toggle.
+		private static EUiSoundType ResolveSoundType( GameObject _hit, out bool _interactable, out string _trigger )
 		{
 			var uiToggle = _hit.GetComponentInParent<UiToggle>();
 			if (uiToggle != null)
-				return IsEnabled(uiToggle) ? EUiSoundType.Toggle : EUiSoundType.None;
+			{
+				_trigger = nameof(UiToggle) + " found";
+				_interactable = IsEnabled(uiToggle);
+				return EUiSoundType.Toggle;
+			}
 
 			var toggle = _hit.GetComponentInParent<Toggle>();
 			if (toggle != null)
-				return toggle.IsInteractable() ? EUiSoundType.Toggle : EUiSoundType.None;
+			{
+				_trigger = nameof(Toggle) + " found";
+				_interactable = toggle.IsInteractable();
+				return EUiSoundType.Toggle;
+			}
 
 			var uiButton = _hit.GetComponentInParent<UiButtonBase>();
 			if (uiButton != null)
-				return IsEnabled(uiButton) ? EUiSoundType.Click : EUiSoundType.None;
+			{
+				_trigger = nameof(UiButtonBase) + " found";
+				_interactable = IsEnabled(uiButton);
+				return EUiSoundType.Click;
+			}
 
 			var button = _hit.GetComponentInParent<Button>();
 			if (button != null)
-				return button.IsInteractable() ? EUiSoundType.Click : EUiSoundType.None;
+			{
+				_trigger = nameof(Button) + " found";
+				_interactable = button.IsInteractable();
+				return EUiSoundType.Click;
+			}
 
+			_trigger = null;
+			_interactable = false;
 			return EUiSoundType.None;
 		}
 
 		private static bool IsEnabled( UiButtonBase _uiButton ) =>
 			_uiButton.EnabledInHierarchy && _uiButton.isActiveAndEnabled;
 
-		private void PlayInternal( EUiSoundType _type )
+		private void PlayInternal( EUiSoundType _type, string _trigger )
 		{
 			if (m_config == null)
 				return;
 
+			bool debug = m_config.DebugLog;
+
 			var clip = m_config.GetClip(_type);
 			if (clip == null)
+			{
+				if (debug)
+					UiLog.Log($"{_type} skipped — no clip configured (trigger: {_trigger})", this, nameof(UiSound));
 				return;
+			}
 
 			if (MutedProvider != null && MutedProvider())
+			{
+				if (debug)
+					UiLog.Log($"{_type} skipped — muted (trigger: {_trigger}, clip '{clip.name}')", this, nameof(UiSound));
 				return;
+			}
 
 			var volume = m_config.GetVolume(_type);
 			if (VolumeProvider != null)
@@ -180,9 +217,16 @@ namespace GuiToolkit
 
 			volume = Mathf.Clamp01(volume);
 			if (volume <= 0f)
+			{
+				if (debug)
+					UiLog.Log($"{_type} skipped — volume 0 (trigger: {_trigger}, clip '{clip.name}')", this, nameof(UiSound));
 				return;
+			}
 
 			m_audioSource.PlayOneShot(clip, volume);
+
+			if (debug)
+				UiLog.Log($"{_type} played — clip '{clip.name}', volume {volume:F2}, t={Time.unscaledTime:F2}s frame {Time.frameCount} (trigger: {_trigger})", this, nameof(UiSound));
 		}
 	}
 }
