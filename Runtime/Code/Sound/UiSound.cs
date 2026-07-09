@@ -75,7 +75,7 @@ namespace GuiToolkit
 		public static void Play( EUiSoundType _type )
 		{
 			if (s_instance != null)
-				s_instance.PlayInternal(_type, "Play() call");
+				s_instance.PlayType(_type, "Play() call");
 		}
 
 		private void Awake()
@@ -128,7 +128,27 @@ namespace GuiToolkit
 				return;
 			}
 
-			PlayInternal(soundType, trigger);
+			// A per-control override (on the hit or any parent) can mute, redirect, or
+			// replace the automatic sound.
+			var over = hit.GetComponentInParent<UiSoundOverride>();
+			if (over != null)
+			{
+				switch (over.Mode)
+				{
+					case UiSoundOverride.EMode.Suppress:
+						if (m_config != null && m_config.DebugLog)
+							UiLog.Log($"{soundType} suppressed — UiSoundOverride on '{over.name}' (trigger: {trigger})", this, nameof(UiSound));
+						return;
+					case UiSoundOverride.EMode.Redirect:
+						PlayType(over.RedirectType, $"{trigger} → redirected by '{over.name}'");
+						return;
+					case UiSoundOverride.EMode.Custom:
+						PlaySound(over.CustomSound, "Custom", $"{trigger} → custom on '{over.name}'");
+						return;
+				}
+			}
+
+			PlayType(soundType, trigger);
 		}
 
 		private GameObject RaycastTopObject( EventSystem _eventSystem, Vector2 _screenPosition )
@@ -189,29 +209,47 @@ namespace GuiToolkit
 		private static bool IsEnabled( UiButtonBase _uiButton ) =>
 			_uiButton.EnabledInHierarchy && _uiButton.isActiveAndEnabled;
 
-		private void PlayInternal( EUiSoundType _type, string _trigger )
+		// Resolves one entry for the type from the config (weighted-random when several
+		// share it) and plays it. A single resolution per call keeps clip, volume and
+		// pitch consistent — they all come from the same chosen entry.
+		private void PlayType( EUiSoundType _type, string _trigger )
 		{
 			if (m_config == null)
 				return;
 
-			bool debug = m_config.DebugLog;
+			var def = m_config.Resolve(_type);
+			if (def == null)
+			{
+				if (m_config.DebugLog)
+					UiLog.Log($"{_type} skipped — no entry configured (trigger: {_trigger})", this, nameof(UiSound));
+				return;
+			}
 
-			var clip = m_config.GetClip(_type);
-			if (clip == null)
+			PlaySound(def, _type.ToString(), _trigger);
+		}
+
+		// Plays a single sound definition, honoring master volume + mute/volume
+		// providers. Used for both config entries and custom overrides.
+		private void PlaySound( UiSoundConfig.SoundDef _def, string _what, string _trigger )
+		{
+			bool debug = m_config != null && m_config.DebugLog;
+
+			if (_def == null || _def.Clip == null)
 			{
 				if (debug)
-					UiLog.Log($"{_type} skipped — no clip configured (trigger: {_trigger})", this, nameof(UiSound));
+					UiLog.Log($"{_what} skipped — no clip (trigger: {_trigger})", this, nameof(UiSound));
 				return;
 			}
 
 			if (MutedProvider != null && MutedProvider())
 			{
 				if (debug)
-					UiLog.Log($"{_type} skipped — muted (trigger: {_trigger}, clip '{clip.name}')", this, nameof(UiSound));
+					UiLog.Log($"{_what} skipped — muted (trigger: {_trigger}, clip '{_def.Clip.name}')", this, nameof(UiSound));
 				return;
 			}
 
-			var volume = m_config.GetVolume(_type);
+			float master = m_config != null ? m_config.MasterVolume : 1f;
+			var volume = _def.Volume * master;
 			if (VolumeProvider != null)
 				volume *= VolumeProvider();
 
@@ -219,20 +257,20 @@ namespace GuiToolkit
 			if (volume <= 0f)
 			{
 				if (debug)
-					UiLog.Log($"{_type} skipped — volume 0 (trigger: {_trigger}, clip '{clip.name}')", this, nameof(UiSound));
+					UiLog.Log($"{_what} skipped — volume 0 (trigger: {_trigger}, clip '{_def.Clip.name}')", this, nameof(UiSound));
 				return;
 			}
 
 			// Pitch is an AudioSource property (PlayOneShot takes no pitch), so set it
 			// on the shared source right before playing. Resolved per call so a
 			// randomized range yields a fresh value each time.
-			var pitch = m_config.GetPitch(_type);
+			var pitch = _def.ResolvePitch();
 			m_audioSource.pitch = pitch;
 
-			m_audioSource.PlayOneShot(clip, volume);
+			m_audioSource.PlayOneShot(_def.Clip, volume);
 
 			if (debug)
-				UiLog.Log($"{_type} played — clip '{clip.name}', volume {volume:F2}, pitch {pitch:F2}, t={Time.unscaledTime:F2}s frame {Time.frameCount} (trigger: {_trigger})", this, nameof(UiSound));
+				UiLog.Log($"{_what} played — clip '{_def.Clip.name}', volume {volume:F2}, pitch {pitch:F2}, t={Time.unscaledTime:F2}s frame {Time.frameCount} (trigger: {_trigger})", this, nameof(UiSound));
 		}
 	}
 }

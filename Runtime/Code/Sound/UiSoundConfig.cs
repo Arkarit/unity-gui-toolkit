@@ -16,20 +16,27 @@ namespace GuiToolkit
 	}
 
 	/// <summary>
-	/// A set of UI sound effects (clip + per-sound volume), referenced by
-	/// <see cref="UiToolkitConfiguration"/>. Kept as its own asset so each game can
-	/// supply its own content — the toolkit ships the playback mechanism
-	/// (<see cref="UiSound"/>), not the clips. To add a new sound, add a value to
-	/// <see cref="EUiSoundType"/> and an entry in the inspector; no code changes to
-	/// this class are required.
+	/// A set of UI sound effects, referenced by <see cref="UiToolkitConfiguration"/>.
+	/// Kept as its own asset so each game can supply its own content — the toolkit
+	/// ships the playback mechanism (<see cref="UiSound"/>), not the clips.
+	///
+	/// To add a new sound, add a value to <see cref="EUiSoundType"/> and an entry in
+	/// the inspector; no code changes to this class are required. Several entries may
+	/// share the same <see cref="Entry.Type"/> — one is then chosen per play, weighted
+	/// by <see cref="Entry.Weight"/>, to avoid repetitive "machine-gun" playback.
 	/// </summary>
 	[CreateAssetMenu(fileName = nameof(UiSoundConfig), menuName = StringConstants.CREATE_SOUND_CONFIG)]
 	public class UiSoundConfig : ScriptableObject
 	{
+		/// <summary>
+		/// A playable sound definition: a clip with its own volume and pitch (fixed or
+		/// randomized per play). Shared between the config table (see <see cref="Entry"/>)
+		/// and per-control overrides (<see cref="UiSoundOverride"/>) so both use the same
+		/// inspector and the same runtime pitch logic.
+		/// </summary>
 		[Serializable]
-		public class Entry
+		public class SoundDef
 		{
-			public EUiSoundType Type = EUiSoundType.None;
 			public AudioClip Clip;
 			[Range(0f, 1f)] public float Volume = 1f;
 
@@ -50,48 +57,76 @@ namespace GuiToolkit
 				RandomPitch ? UnityEngine.Random.Range(Mathf.Min(PitchMin, PitchMax), Mathf.Max(PitchMin, PitchMax)) : Pitch;
 		}
 
+		/// <summary>
+		/// A <see cref="SoundDef"/> tagged with a type (and weight) for the config table.
+		/// Several entries may share a <see cref="Type"/>; one is picked per play,
+		/// weighted by <see cref="Weight"/>.
+		/// </summary>
+		[Serializable]
+		public class Entry : SoundDef
+		{
+			public EUiSoundType Type = EUiSoundType.None;
+
+			[Tooltip("Relative likelihood of being chosen when several entries share the same Type. Ignored for a lone entry; must be > 0 to be pickable.")]
+			[Min(0f)] public float Weight = 1f;
+		}
+
 		[Tooltip("Master volume [0..1] applied on top of every entry's own volume.")]
 		[SerializeField, Range(0f, 1f)] private float m_masterVolume = 1f;
 
-		[Tooltip("One entry per UI sound. The first entry for a given type wins; entries with type None or no clip are ignored.")]
+		[Tooltip("One or more entries per UI sound. Entries sharing a Type are chosen at random (weighted by Weight). Entries with type None or no clip are ignored.")]
 		[SerializeField] private Entry[] m_entries = new Entry[0];
 
 		[Tooltip("When enabled, UiSound logs every decision to the console: which sound played, how loud, when, what triggered it, and why a sound was skipped.")]
 		[SerializeField] private bool m_debugLog = false;
 
-		private Dictionary<EUiSoundType, Entry> m_lookup;
+		private Dictionary<EUiSoundType, List<Entry>> m_lookup;
 
 		public float MasterVolume => m_masterVolume;
 		public bool DebugLog => m_debugLog;
 
-		/// <summary>The clip mapped to <paramref name="_type"/>, or null if unmapped.</summary>
-		public AudioClip GetClip( EUiSoundType _type )
-		{
-			var entry = GetEntry(_type);
-			return entry != null ? entry.Clip : null;
-		}
-
-		/// <summary>Effective volume for a type (entry volume × master volume), or 0 if unmapped.</summary>
-		public float GetVolume( EUiSoundType _type )
-		{
-			var entry = GetEntry(_type);
-			return entry != null ? Mathf.Clamp01(entry.Volume * m_masterVolume) : 0f;
-		}
-
-		/// <summary>Playback pitch for a type (fixed or freshly randomized per call), or 1 if unmapped.</summary>
-		public float GetPitch( EUiSoundType _type )
-		{
-			var entry = GetEntry(_type);
-			return entry != null ? entry.ResolvePitch() : 1f;
-		}
-
-		private Entry GetEntry( EUiSoundType _type )
+		/// <summary>
+		/// Picks one entry for <paramref name="_type"/> — the single mapped entry, or a
+		/// weighted-random one when several share the type — or null if unmapped.
+		/// </summary>
+		public Entry Resolve( EUiSoundType _type )
 		{
 			if (_type == EUiSoundType.None)
 				return null;
 
 			EnsureLookup();
-			return m_lookup.TryGetValue(_type, out var entry) ? entry : null;
+			if (!m_lookup.TryGetValue(_type, out var list) || list.Count == 0)
+				return null;
+
+			return list.Count == 1 ? list[0] : PickWeighted(list);
+		}
+
+		private static Entry PickWeighted( List<Entry> _list )
+		{
+			float total = 0f;
+			foreach (var entry in _list)
+				total += Mathf.Max(0f, entry.Weight);
+
+			// All weights non-positive → fall back to a uniform pick.
+			if (total <= 0f)
+				return _list[UnityEngine.Random.Range(0, _list.Count)];
+
+			float r = UnityEngine.Random.Range(0f, total);
+			Entry last = null;
+			foreach (var entry in _list)
+			{
+				float weight = Mathf.Max(0f, entry.Weight);
+				if (weight <= 0f)
+					continue;
+
+				last = entry;
+				r -= weight;
+				if (r < 0f)
+					return entry;
+			}
+
+			// Float rounding safety net: return the last positive-weight entry.
+			return last;
 		}
 
 		private void EnsureLookup()
@@ -99,13 +134,18 @@ namespace GuiToolkit
 			if (m_lookup != null)
 				return;
 
-			m_lookup = new Dictionary<EUiSoundType, Entry>();
+			m_lookup = new Dictionary<EUiSoundType, List<Entry>>();
 			foreach (var entry in m_entries)
 			{
 				if (entry == null || entry.Type == EUiSoundType.None || entry.Clip == null)
 					continue;
-				if (!m_lookup.ContainsKey(entry.Type))
-					m_lookup.Add(entry.Type, entry);
+
+				if (!m_lookup.TryGetValue(entry.Type, out var list))
+				{
+					list = new List<Entry>();
+					m_lookup.Add(entry.Type, list);
+				}
+				list.Add(entry);
 			}
 		}
 
