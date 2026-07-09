@@ -760,7 +760,7 @@ PrefabInstance:
     - target: {fileID: 6277798738488912815, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.0000009536743
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6277798738488912815, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
         type: 3}
@@ -1211,14 +1211,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1048301481}
   m_PrefabAsset: {fileID: 0}
---- !u!81 &136086978
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 136086969}
-  m_Enabled: 1
 --- !u!1 &241713385
 GameObject:
   m_ObjectHideFlags: 0
@@ -1630,12 +1622,8 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 7267538138393597003, guid: 86f601248f4e488478ddc915abbabf70,
         type: 3}
-      insertIndex: -1
+      insertIndex: 5
       addedObject: {fileID: 136086970}
-    - targetCorrespondingSourceObject: {fileID: 7267538138393597003, guid: 86f601248f4e488478ddc915abbabf70,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 136086978}
   m_SourcePrefab: {fileID: 100100000, guid: 86f601248f4e488478ddc915abbabf70, type: 3}
 --- !u!1 &1392832516
 GameObject:
