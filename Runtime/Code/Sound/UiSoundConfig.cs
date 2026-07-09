@@ -32,6 +32,22 @@ namespace GuiToolkit
 			public EUiSoundType Type = EUiSoundType.None;
 			public AudioClip Clip;
 			[Range(0f, 1f)] public float Volume = 1f;
+
+			[Tooltip("When enabled, the pitch is randomized in [PitchMin..PitchMax] on every play; otherwise the fixed Pitch is used. (Pitch is Unity's AudioSource pitch: 1 = original, <1 lower/slower, >1 higher/faster.)")]
+			public bool RandomPitch = false;
+
+			[Tooltip("Fixed playback pitch (used when RandomPitch is off). 1 = original pitch.")]
+			[Range(-3f, 3f)] public float Pitch = 1f;
+
+			[Tooltip("Lower bound of the randomized pitch (used when RandomPitch is on).")]
+			[Range(-3f, 3f)] public float PitchMin = 0.95f;
+
+			[Tooltip("Upper bound of the randomized pitch (used when RandomPitch is on).")]
+			[Range(-3f, 3f)] public float PitchMax = 1.05f;
+
+			/// <summary>Resolves the pitch for one play: a fresh random value in range, or the fixed pitch.</summary>
+			public float ResolvePitch() =>
+				RandomPitch ? UnityEngine.Random.Range(Mathf.Min(PitchMin, PitchMax), Mathf.Max(PitchMin, PitchMax)) : Pitch;
 		}
 
 		[Tooltip("Master volume [0..1] applied on top of every entry's own volume.")]
@@ -60,6 +76,13 @@ namespace GuiToolkit
 		{
 			var entry = GetEntry(_type);
 			return entry != null ? Mathf.Clamp01(entry.Volume * m_masterVolume) : 0f;
+		}
+
+		/// <summary>Playback pitch for a type (fixed or freshly randomized per call), or 1 if unmapped.</summary>
+		public float GetPitch( EUiSoundType _type )
+		{
+			var entry = GetEntry(_type);
+			return entry != null ? entry.ResolvePitch() : 1f;
 		}
 
 		private Entry GetEntry( EUiSoundType _type )

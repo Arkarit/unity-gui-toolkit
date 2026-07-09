@@ -223,10 +223,16 @@ namespace GuiToolkit
 				return;
 			}
 
+			// Pitch is an AudioSource property (PlayOneShot takes no pitch), so set it
+			// on the shared source right before playing. Resolved per call so a
+			// randomized range yields a fresh value each time.
+			var pitch = m_config.GetPitch(_type);
+			m_audioSource.pitch = pitch;
+
 			m_audioSource.PlayOneShot(clip, volume);
 
 			if (debug)
-				UiLog.Log($"{_type} played — clip '{clip.name}', volume {volume:F2}, t={Time.unscaledTime:F2}s frame {Time.frameCount} (trigger: {_trigger})", this, nameof(UiSound));
+				UiLog.Log($"{_type} played — clip '{clip.name}', volume {volume:F2}, pitch {pitch:F2}, t={Time.unscaledTime:F2}s frame {Time.frameCount} (trigger: {_trigger})", this, nameof(UiSound));
 		}
 	}
 }
