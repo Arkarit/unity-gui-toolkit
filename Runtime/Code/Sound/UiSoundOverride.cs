@@ -14,6 +14,7 @@ namespace GuiToolkit
 	/// / toggles and plain UGUI Buttons / Toggles). It does not make an otherwise
 	/// silent, non-standard control emit sound.
 	/// </summary>
+	[DisallowMultipleComponent]
 	public class UiSoundOverride : MonoBehaviour
 	{
 		public enum EMode
