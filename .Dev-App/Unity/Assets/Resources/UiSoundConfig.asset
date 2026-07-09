@@ -14,18 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_masterVolume: 1
   m_entries:
-  - Type: 1
-    Clip: {fileID: 8300000, guid: 253ac96a060b6684c8bc8ca63bda0758, type: 3}
+  - Clip: {fileID: 8300000, guid: 253ac96a060b6684c8bc8ca63bda0758, type: 3}
     Volume: 0.619
     RandomPitch: 0
     Pitch: 1
     PitchMin: 0.95
     PitchMax: 1.05
-  - Type: 2
-    Clip: {fileID: 8300000, guid: 253ac96a060b6684c8bc8ca63bda0758, type: 3}
+    Type: 1
+    Weight: 1
+  - Clip: {fileID: 8300000, guid: 253ac96a060b6684c8bc8ca63bda0758, type: 3}
     Volume: 0.619
     RandomPitch: 0
     Pitch: 1.66
     PitchMin: 0.95
     PitchMax: 1.05
-  m_debugLog: 1
+    Type: 2
+    Weight: 1
+  m_debugLog: 0
