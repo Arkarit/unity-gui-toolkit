@@ -18,9 +18,15 @@ namespace GuiToolkit.Editor
 	/// Diagnostic logging is gated by the project sound config's Debug flag.
 	/// </summary>
 	[InitializeOnLoad]
+	[EditorAware]
 	internal static class EditorAudioRecovery
 	{
 		static EditorAudioRecovery()
+		{
+			AssetReadyGate.WhenReady(Init);
+		}
+
+		private static void Init()
 		{
 			EditorApplication.focusChanged -= OnFocusChanged;
 			EditorApplication.focusChanged += OnFocusChanged;
