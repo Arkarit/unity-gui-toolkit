@@ -149,6 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}
@@ -374,7 +375,7 @@ MonoBehaviour:
   m_dateTimePanel: {fileID: 2505186392463848046}
   m_text: {fileID: 2126843346123710391}
   m_inputField: {fileID: 6621722925866764208}
-  m_dialogPanel: {fileID: 2126843345544139567}
+  m_measureRectTransform: {fileID: 2126843345544139567}
   m_minBodyFontSize: 8
 --- !u!114 &2126843345544139562
 MonoBehaviour:
@@ -507,6 +508,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -768,6 +770,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -878,6 +881,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}

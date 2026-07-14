@@ -30,4 +30,20 @@ MonoBehaviour:
     PitchMax: 1.05
     Type: 2
     Weight: 1
+  - Clip: {fileID: 8300000, guid: 2feeaa25941d3ec488ed20d954c93888, type: 3}
+    Volume: 0.1
+    RandomPitch: 0
+    Pitch: 1
+    PitchMin: 0.95
+    PitchMax: 1.05
+    Type: 3
+    Weight: 1
+  - Clip: {fileID: 8300000, guid: 0222b46d24601c3459687c9111723979, type: 3}
+    Volume: 0.1
+    RandomPitch: 0
+    Pitch: 1
+    PitchMin: 0.95
+    PitchMax: 1.05
+    Type: 4
+    Weight: 1
   m_debugLog: 0

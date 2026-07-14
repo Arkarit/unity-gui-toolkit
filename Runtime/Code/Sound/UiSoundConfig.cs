@@ -13,6 +13,8 @@ namespace GuiToolkit
 		None = 0,
 		Click,
 		Toggle,
+		PanelOpen,
+		PanelClose,
 	}
 
 	/// <summary>
