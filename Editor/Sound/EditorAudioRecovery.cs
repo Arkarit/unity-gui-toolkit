@@ -4,8 +4,11 @@ using UnityEngine;
 namespace GuiToolkit.Editor
 {
 	/// <summary>
-	/// Keeps the Unity editor's audio alive for sound previews. Handles two failure modes
-	/// seen after the editor loses audio focus:
+	/// Opt-in editor helper that keeps the editor's audio alive while working on sounds.
+	/// Toggle it via the menu (<see cref="StringConstants.EDITOR_AUDIO_RECOVERY_MENU_NAME"/>);
+	/// it is OFF by default and the choice is persisted per project in EditorPrefs.
+	///
+	/// When enabled it handles two failure modes seen after the editor loses audio focus:
 	/// <list type="number">
 	/// <item>Editor audio ends up muted (<see cref="EditorUtility.audioMasterMute"/>) —
 	/// un-muted on focus regain.</item>
@@ -15,23 +18,60 @@ namespace GuiToolkit.Editor
 	/// the device-changed callback and, as a fallback, on focus regain (edit mode only,
 	/// since a reset during play mode would restart all playing sounds).</item>
 	/// </list>
+	///
+	/// Why opt-in: un-muting on focus regain fights anyone who deliberately keeps the Game
+	/// view's "Mute Audio" on — their mute would silently clear itself after every task
+	/// switch. So unless you are actually working on sounds, leave it off (the default).
+	///
 	/// Diagnostic logging is gated by the project sound config's Debug flag.
 	/// </summary>
 	[InitializeOnLoad]
 	[EditorAware]
 	internal static class EditorAudioRecovery
 	{
+		private static bool s_enabled = false;
+
+		private static readonly string PrefsKey =
+			UnityEditor.PlayerSettings.productName + "." + nameof(EditorAudioRecovery) + ".active";
+
 		static EditorAudioRecovery()
 		{
-			AssetReadyGate.WhenReady(Init);
+			// Only EditorPrefs is touched at load; the audio/config side effects happen
+			// solely while enabled, in the event handlers.
+			IsEnabled = EditorPrefs.GetBool(PrefsKey);
 		}
 
-		private static void Init()
+		[MenuItem(StringConstants.EDITOR_AUDIO_RECOVERY_MENU_NAME, priority = Constants.EDITOR_AUDIO_RECOVERY_MENU_PRIORITY)]
+		private static void Toggle()
 		{
-			EditorApplication.focusChanged -= OnFocusChanged;
-			EditorApplication.focusChanged += OnFocusChanged;
-			AudioSettings.OnAudioConfigurationChanged -= OnAudioConfigurationChanged;
-			AudioSettings.OnAudioConfigurationChanged += OnAudioConfigurationChanged;
+			IsEnabled = !IsEnabled;
+		}
+
+		private static bool IsEnabled
+		{
+			get => s_enabled;
+			set
+			{
+				if (value == s_enabled)
+					return;
+
+				s_enabled = value;
+
+				Menu.SetChecked(StringConstants.EDITOR_AUDIO_RECOVERY_MENU_NAME, s_enabled);
+
+				if (s_enabled)
+				{
+					EditorApplication.focusChanged += OnFocusChanged;
+					AudioSettings.OnAudioConfigurationChanged += OnAudioConfigurationChanged;
+				}
+				else
+				{
+					EditorApplication.focusChanged -= OnFocusChanged;
+					AudioSettings.OnAudioConfigurationChanged -= OnAudioConfigurationChanged;
+				}
+
+				EditorPrefs.SetBool(PrefsKey, s_enabled);
+			}
 		}
 
 		private static void OnFocusChanged( bool _focused )
