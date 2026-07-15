@@ -14,6 +14,13 @@ namespace GuiToolkit
 
 		public IInputProxy InputProxy = new UnityInputProxy();
 
+		/// <summary>
+		/// Background music track id supplied via <see cref="PlayerSettingsOptions"/> to
+		/// <see cref="Add"/>. The player settings dialog reads this on show and crossfades
+		/// <see cref="UiMusic"/> to it. Null/empty means "leave the current music".
+		/// </summary>
+		public string BackgroundMusicId { get; private set; }
+
 		internal void Initialize( SettingsPersistedAggregate _settings, float _dragTreshold = 5 )
 		{
 			InitializePersistence(_settings);
@@ -61,9 +68,14 @@ namespace GuiToolkit
 			return default;
 		}
 
-		public void Add( List<PlayerSetting> _playerSettings )
+		public void Add( List<PlayerSetting> _playerSettings, PlayerSettingsOptions _options = null )
 		{
 			Debug.Assert(m_persistedAggregate != null, "PlayerSettings not initialized.");
+
+			// Only overwrite when the caller actually supplies an id, so a later Add() with
+			// no options does not clear a previously configured track.
+			if (_options != null && !string.IsNullOrEmpty(_options.BackgroundMusicId))
+				BackgroundMusicId = _options.BackgroundMusicId;
 
 			foreach (PlayerSetting playerSetting in _playerSettings)
 			{

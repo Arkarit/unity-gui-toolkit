@@ -9,8 +9,6 @@ namespace GuiToolkit
 	{
 		[Tooltip("Simple animation")]
 		[SerializeField][Optional] protected UiSimpleAnimation m_simpleAnimation;
-		[Tooltip("Audio source")]
-		[SerializeField][Optional] protected AudioSource m_audioSource;
 		[Tooltip("Button Image. Mandatory if you want to use the 'Color' property or the 'Enabled' property.")]
 		[SerializeField] protected UiImage m_uiImage;
 
@@ -115,10 +113,7 @@ namespace GuiToolkit
 				else
 					m_simpleAnimation.Play();
 			}
-			
-			if (m_audioSource != null)
-				m_audioSource.Play();
-			
+
 			return true;
 		}
 

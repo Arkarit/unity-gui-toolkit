@@ -760,7 +760,7 @@ PrefabInstance:
     - target: {fileID: 6277798738488912815, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 0.0000009536743
       objectReference: {fileID: 0}
     - target: {fileID: 6277798738488912815, guid: 14e5d609f5b90124cbdb7cc40e183fe0,
         type: 3}
@@ -1221,7 +1221,6 @@ GameObject:
   m_Component:
   - component: {fileID: 241713388}
   - component: {fileID: 241713387}
-  - component: {fileID: 241713386}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1229,14 +1228,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &241713386
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 241713385}
-  m_Enabled: 1
 --- !u!20 &241713387
 Camera:
   m_ObjectHideFlags: 0
@@ -1631,7 +1622,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 7267538138393597003, guid: 86f601248f4e488478ddc915abbabf70,
         type: 3}
-      insertIndex: -1
+      insertIndex: 5
       addedObject: {fileID: 136086970}
   m_SourcePrefab: {fileID: 100100000, guid: 86f601248f4e488478ddc915abbabf70, type: 3}
 --- !u!1 &1392832516

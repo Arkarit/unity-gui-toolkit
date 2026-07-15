@@ -58,6 +58,11 @@ namespace GuiToolkit
 		public override void Show( bool _instant = false, Action _onFinish = null )
 		{
 			m_playerSettings = PlayerSettings.Instance;
+
+			// Pass the background music id configured via PlayerSettings.Add(..., options)
+			// through to the view, so base.Show() crossfades UiMusic to it (see UiView.Show).
+			BackgroundMusicId = m_playerSettings.BackgroundMusicId;
+
 			m_playerSettings.TempSaveValues();
 			Build();
 			base.Show(_instant, _onFinish);

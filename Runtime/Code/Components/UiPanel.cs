@@ -486,6 +486,10 @@ namespace GuiToolkit
 				return;
 			}
 
+			// Only the animated open (this branch, i.e. not instant and with a show/hide
+			// animation) plays the panel sound — instant panels stay silent.
+			UiSound.Play(EUiSoundType.PanelOpen);
+
 			PlayShowHideAnimation(true, _onFinish);
 		}
 
@@ -523,6 +527,9 @@ namespace GuiToolkit
 				DestroyIfNecessary();
 				return;
 			}
+
+			// Mirror of Show: only the animated close plays the panel sound.
+			UiSound.Play(EUiSoundType.PanelClose);
 
 			PlayShowHideAnimation(false, _onFinish);
 		}

@@ -126,6 +126,9 @@ public class DemoSettings : LocaClass
 					KeyCode.Mouse1
 				}
 			}),
+		}, new PlayerSettingsOptions()
+		{
+			BackgroundMusicId = "2"
 		});
 	}
 }

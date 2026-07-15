@@ -124,6 +124,9 @@ namespace GuiToolkit
 
 		public const string HELP_TRANSITION_OVERLAY = "A transition overlay, which can cover the screen during level changes etc.";
 
+		public const string HELP_UI_SOUND_CONFIG =
+			"Optional set of UI sound effects (button click, and later hover etc.). Supply your own UiSoundConfig asset here; leave empty to disable UI sounds. The host app can additionally scale/mute at runtime via UiSound.VolumeProvider / UiSound.MutedProvider.";
+
 
 		/// \endcond
 
@@ -187,6 +190,9 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_TRANSITION_OVERLAY)]
 		[SerializeField, Optional] private UiTransitionOverlay m_transitionOverlay = null;
+
+		[Tooltip(HELP_UI_SOUND_CONFIG)]
+		[SerializeField, Optional] private UiSoundConfig m_uiSoundConfig = null;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 		private string m_rootDir;
@@ -261,6 +267,7 @@ namespace GuiToolkit
 		public bool ExceptUiMainExists => m_exceptUiMainExists;
 		public AbstractAssetProviderFactory[] AssetProviderFactories => m_assetProviderFactories;
 		public UiAbstractTransitionOverlay TransitionOverlay => m_transitionOverlay;
+		public UiSoundConfig UiSoundConfig => m_uiSoundConfig;
 
 
 		public string GetScenePath( string _sceneName )

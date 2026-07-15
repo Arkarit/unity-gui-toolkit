@@ -149,6 +149,11 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_transitionOverlay"));
 			
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+			if (m_firstTimeInit)
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_UI_SOUND_CONFIG, MessageType.Info);
+			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_uiSoundConfig"));
+
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_assetProviderFactories"));
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_storageFactory"));
 			
