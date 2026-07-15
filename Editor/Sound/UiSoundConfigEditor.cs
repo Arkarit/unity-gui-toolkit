@@ -20,6 +20,7 @@ namespace GuiToolkit.Editor
 		private SerializedProperty m_musicTracksProp;
 		private SerializedProperty m_musicMasterVolumeProp;
 		private SerializedProperty m_musicDefaultFadeProp;
+		private SerializedProperty m_musicOutputMixerGroupProp;
 		private SerializedProperty m_debugLogProp;
 		private ReorderableList m_list;
 		private ReorderableList m_musicList;
@@ -31,6 +32,7 @@ namespace GuiToolkit.Editor
 			m_musicTracksProp       = serializedObject.FindProperty("m_musicTracks");
 			m_musicMasterVolumeProp = serializedObject.FindProperty("m_musicMasterVolume");
 			m_musicDefaultFadeProp  = serializedObject.FindProperty("m_musicDefaultFade");
+			m_musicOutputMixerGroupProp = serializedObject.FindProperty("m_musicOutputMixerGroup");
 			m_debugLogProp          = serializedObject.FindProperty("m_debugLog");
 
 			m_list = new ReorderableList(serializedObject, m_entriesProp, true, true, true, true);
@@ -94,6 +96,7 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.LabelField("Background Music", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(m_musicMasterVolumeProp);
 			EditorGUILayout.PropertyField(m_musicDefaultFadeProp);
+			EditorGUILayout.PropertyField(m_musicOutputMixerGroupProp);
 			EditorGUILayout.Space();
 			m_musicList.DoLayoutList();
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 namespace GuiToolkit
 {
@@ -39,7 +40,7 @@ namespace GuiToolkit
 		[Serializable]
 		public class SoundDef
 		{
-			public AudioClip Clip;
+			[Mandatory] public AudioClip Clip;
 			[Range(0f, 1f)] public float Volume = 1f;
 
 			[Tooltip("When enabled, the pitch is randomized in [PitchMin..PitchMax] on every play; otherwise the fixed Pitch is used. (Pitch is Unity's AudioSource pitch: 1 = original, <1 lower/slower, >1 higher/faster.)")]
@@ -83,7 +84,7 @@ namespace GuiToolkit
 			[Tooltip("Identifier used to play this track via UiMusic.Play(id). Should be unique within the config.")]
 			public string Id;
 
-			public AudioClip Clip;
+			[Mandatory] public AudioClip Clip;
 
 			[Range(0f, 1f)] public float Volume = 1f;
 
@@ -120,6 +121,9 @@ namespace GuiToolkit
 		[Tooltip("Default crossfade duration (seconds) used by UiMusic.Play/Stop when no explicit fade is given. 0 = hard cut.")]
 		[SerializeField, Min(0f)] private float m_musicDefaultFade = 1f;
 
+		[Tooltip("Optional AudioMixerGroup that UiMusic routes background music through. Leave empty to play directly (no mixer group).")]
+		[SerializeField, Optional] private AudioMixerGroup m_musicOutputMixerGroup = null;
+
 		[Tooltip("When enabled, UiSound logs every decision to the console: which sound played, how loud, when, what triggered it, and why a sound was skipped.")]
 		[SerializeField] private bool m_debugLog = false;
 
@@ -131,6 +135,7 @@ namespace GuiToolkit
 
 		public float MusicMasterVolume => m_musicMasterVolume;
 		public float MusicDefaultFade => m_musicDefaultFade;
+		public AudioMixerGroup MusicOutputMixerGroup => m_musicOutputMixerGroup;
 
 		/// <summary>Returns the music track with the given id, or null if none matches.</summary>
 		public MusicTrack ResolveMusic( string _id )

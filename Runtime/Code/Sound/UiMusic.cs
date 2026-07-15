@@ -236,6 +236,9 @@ namespace GuiToolkit
 			incoming.Source.clip = track.Clip;
 			incoming.Source.loop = track.Loop;
 			incoming.Source.pitch = 1f;
+			// Route through the optional music mixer group (re-applied each play so a config
+			// swap via SetConfig takes effect); null routes directly to the AudioListener.
+			incoming.Source.outputAudioMixerGroup = m_config.MusicOutputMixerGroup;
 			incoming.BaseVolume = track.Volume * m_config.MusicMasterVolume;
 			incoming.Fade = 0f;
 			incoming.Target = 1f;
