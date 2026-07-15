@@ -31,6 +31,11 @@ namespace GuiToolkit.Editor
 			var pitchMinProp = Property.FindPropertyRelative(nameof(UiSoundConfig.SoundDef.PitchMin));
 			var pitchMaxProp = Property.FindPropertyRelative(nameof(UiSoundConfig.SoundDef.PitchMax));
 
+			var duckProp        = Property.FindPropertyRelative(nameof(UiSoundConfig.SoundDef.DuckMusic));
+			var duckVolumeProp  = Property.FindPropertyRelative(nameof(UiSoundConfig.SoundDef.DuckVolume));
+			var duckAttackProp  = Property.FindPropertyRelative(nameof(UiSoundConfig.SoundDef.DuckAttack));
+			var duckReleaseProp = Property.FindPropertyRelative(nameof(UiSoundConfig.SoundDef.DuckRelease));
+
 			if (typeProp != null)
 				PropertyField(typeProp);
 			if (weightProp != null)
@@ -49,6 +54,15 @@ namespace GuiToolkit.Editor
 			else
 			{
 				PropertyField(pitchProp);
+			}
+
+			// Music ducking — show the amount/timing only when enabled.
+			PropertyField(duckProp);
+			if (duckProp.boolValue)
+			{
+				PropertyField(duckVolumeProp);
+				PropertyField(duckAttackProp);
+				PropertyField(duckReleaseProp);
 			}
 
 			Space(Gap);

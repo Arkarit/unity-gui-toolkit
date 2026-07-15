@@ -269,6 +269,10 @@ namespace GuiToolkit
 
 			m_audioSource.PlayOneShot(_def.Clip, volume);
 
+			// Prominent UI sounds may duck the background music for their duration (no-op
+			// unless the def opts in via DuckMusic). Same entry point client SFX use.
+			UiMusic.Duck(_def, pitch);
+
 			if (debug)
 				UiLog.Log($"{_what} played — clip '{_def.Clip.name}', volume {volume:F2}, pitch {pitch:F2}, t={Time.unscaledTime:F2}s frame {Time.frameCount} (trigger: {_trigger})", this, nameof(UiSound));
 		}

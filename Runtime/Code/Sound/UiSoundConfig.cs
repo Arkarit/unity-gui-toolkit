@@ -54,9 +54,41 @@ namespace GuiToolkit
 			[Tooltip("Upper bound of the randomized pitch (used when RandomPitch is on).")]
 			[Range(-3f, 3f)] public float PitchMax = 1.05f;
 
+			[Tooltip("When enabled, playing this sound briefly ducks (lowers) the background music (UiMusic) for the sound's duration. Use for prominent one-shots such as jingles so they cut through the music.")]
+			public bool DuckMusic = false;
+
+			[Tooltip("Target music volume while ducked, as a fraction of its normal level (0 = music silenced, 1 = no ducking).")]
+			[Range(0f, 1f)] public float DuckVolume = 0.35f;
+
+			[Tooltip("Seconds to fade the music down to DuckVolume when the sound starts.")]
+			[Min(0f)] public float DuckAttack = 0.08f;
+
+			[Tooltip("Seconds to fade the music back up after the sound ends.")]
+			[Min(0f)] public float DuckRelease = 0.5f;
+
 			/// <summary>Resolves the pitch for one play: a fresh random value in range, or the fixed pitch.</summary>
 			public float ResolvePitch() =>
 				RandomPitch ? UnityEngine.Random.Range(Mathf.Min(PitchMin, PitchMax), Mathf.Max(PitchMin, PitchMax)) : Pitch;
+		}
+
+		/// <summary>
+		/// A background music track, addressed by <see cref="Id"/> and played / crossfaded
+		/// by <see cref="UiMusic"/>. Kept in this same asset so a project has a single sound
+		/// config for both UI SFX and music. The <see cref="Id"/> is a plain string so the
+		/// toolkit stays project-agnostic — the host maps its own track enum/names onto it.
+		/// </summary>
+		[Serializable]
+		public class MusicTrack
+		{
+			[Tooltip("Identifier used to play this track via UiMusic.Play(id). Should be unique within the config.")]
+			public string Id;
+
+			public AudioClip Clip;
+
+			[Range(0f, 1f)] public float Volume = 1f;
+
+			[Tooltip("When on, the track loops until stopped or replaced; when off, it plays through once.")]
+			public bool Loop = true;
 		}
 
 		/// <summary>
@@ -79,13 +111,36 @@ namespace GuiToolkit
 		[Tooltip("One or more entries per UI sound. Entries sharing a Type are chosen at random (weighted by Weight). Entries with type None or no clip are ignored.")]
 		[SerializeField] private Entry[] m_entries = new Entry[0];
 
+		[Tooltip("Background music tracks, addressed by Id and played / crossfaded via UiMusic.")]
+		[SerializeField] private MusicTrack[] m_musicTracks = new MusicTrack[0];
+
+		[Tooltip("Master volume [0..1] applied on top of every music track's own volume.")]
+		[SerializeField, Range(0f, 1f)] private float m_musicMasterVolume = 1f;
+
+		[Tooltip("Default crossfade duration (seconds) used by UiMusic.Play/Stop when no explicit fade is given. 0 = hard cut.")]
+		[SerializeField, Min(0f)] private float m_musicDefaultFade = 1f;
+
 		[Tooltip("When enabled, UiSound logs every decision to the console: which sound played, how loud, when, what triggered it, and why a sound was skipped.")]
 		[SerializeField] private bool m_debugLog = false;
 
 		private Dictionary<EUiSoundType, List<Entry>> m_lookup;
+		private Dictionary<string, MusicTrack> m_musicLookup;
 
 		public float MasterVolume => m_masterVolume;
 		public bool DebugLog => m_debugLog;
+
+		public float MusicMasterVolume => m_musicMasterVolume;
+		public float MusicDefaultFade => m_musicDefaultFade;
+
+		/// <summary>Returns the music track with the given id, or null if none matches.</summary>
+		public MusicTrack ResolveMusic( string _id )
+		{
+			if (string.IsNullOrEmpty(_id))
+				return null;
+
+			EnsureMusicLookup();
+			return m_musicLookup.TryGetValue(_id, out var track) ? track : null;
+		}
 
 		/// <summary>
 		/// Picks one entry for <paramref name="_type"/> — the single mapped entry, or a
@@ -151,8 +206,33 @@ namespace GuiToolkit
 			}
 		}
 
-		// Rebuild the lookup after inspector edits / domain reloads.
-		private void OnEnable() => m_lookup = null;
-		private void OnValidate() => m_lookup = null;
+		private void EnsureMusicLookup()
+		{
+			if (m_musicLookup != null)
+				return;
+
+			m_musicLookup = new Dictionary<string, MusicTrack>();
+			foreach (var track in m_musicTracks)
+			{
+				if (track == null || string.IsNullOrEmpty(track.Id) || track.Clip == null)
+					continue;
+
+				// Last entry wins on a duplicate id.
+				m_musicLookup[track.Id] = track;
+			}
+		}
+
+		// Rebuild the lookups after inspector edits / domain reloads.
+		private void OnEnable()
+		{
+			m_lookup = null;
+			m_musicLookup = null;
+		}
+
+		private void OnValidate()
+		{
+			m_lookup = null;
+			m_musicLookup = null;
+		}
 	}
 }
