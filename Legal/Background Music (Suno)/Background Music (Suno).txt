@@ -1,0 +1,14 @@
+Demo Background Music
+=====================
+
+The background music tracks in the demo project
+(.Dev-App/Unity/Assets/Music/) were generated with Suno (https://suno.com)
+under a Suno Pro plan (account: phoenix616).
+
+Under the Suno Pro plan the generating account holds the commercial-use rights
+to the generated songs. They may therefore be used commercially alongside this
+(commercially usable) library.
+
+Scope: These songs are part of the DEMO PROJECT only. They are NOT included in
+the distributed unity-gui-toolkit package. This note exists for provenance and
+to make the commercial-use situation explicit.
