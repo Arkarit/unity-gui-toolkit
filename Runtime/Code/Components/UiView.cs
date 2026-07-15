@@ -64,6 +64,9 @@ namespace GuiToolkit
 		[Tooltip("Most UiViews need one or more close buttons. You can optionally define those here.")]
 		[SerializeField] protected Button[] m_closeButtons = new Button[0];
 
+		[Tooltip("Optional background music track id (a MusicTrack Id from the UiSoundConfig). When this view is shown, UiMusic crossfades to that track. Leave empty to leave the current music unchanged.")]
+		[SerializeField] protected string m_backgroundMusicId;
+
 		private UiModal m_uiModal;
 		private bool m_uiModalChecked;
 		private Canvas m_canvas;
@@ -110,6 +113,18 @@ namespace GuiToolkit
 		/// The logical UI layer for this view. Used to resolve occlusion.
 		/// </summary>
 		public EUiLayerDefinition Layer => m_layer;
+
+		/// <summary>
+		/// Optional background music track id (a MusicTrack Id in the UiSoundConfig).
+		/// Showing this view crossfades <see cref="UiMusic"/> to that track; empty leaves
+		/// the current music unchanged. Settable so callers (e.g. the player settings
+		/// dialog) can supply the id at runtime before the view is shown.
+		/// </summary>
+		public string BackgroundMusicId
+		{
+			get => m_backgroundMusicId;
+			set => m_backgroundMusicId = value;
+		}
 
 		/// <summary>
 		/// Optional UiModal helper on the same GameObject (lazy discovery).
@@ -265,6 +280,13 @@ namespace GuiToolkit
 		{
 			if (m_isFullScreen)
 				UiEventDefinitions.EvFullScreenView.Invoke(this, true);
+
+			// A view can own the background music: showing it crossfades UiMusic to its
+			// track. UiMusic.Play is a no-op when that track is already current, so opening
+			// another view with the same id (or re-showing this one) won't restart it — the
+			// crossfade only happens on an actual id change. Empty id = leave music as is.
+			if (!string.IsNullOrEmpty(m_backgroundMusicId))
+				UiMusic.Play(m_backgroundMusicId);
 
 			base.Show(_instant, _onFinish);
 		}

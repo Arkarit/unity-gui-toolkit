@@ -20,6 +20,10 @@ MonoBehaviour:
     Pitch: 1
     PitchMin: 0.95
     PitchMax: 1.05
+    DuckMusic: 0
+    DuckVolume: 0.35
+    DuckAttack: 0.08
+    DuckRelease: 0.5
     Type: 1
     Weight: 1
   - Clip: {fileID: 8300000, guid: 253ac96a060b6684c8bc8ca63bda0758, type: 3}
@@ -28,6 +32,10 @@ MonoBehaviour:
     Pitch: 1.66
     PitchMin: 0.95
     PitchMax: 1.05
+    DuckMusic: 0
+    DuckVolume: 0.35
+    DuckAttack: 0.08
+    DuckRelease: 0.5
     Type: 2
     Weight: 1
   - Clip: {fileID: 8300000, guid: 2feeaa25941d3ec488ed20d954c93888, type: 3}
@@ -36,6 +44,10 @@ MonoBehaviour:
     Pitch: 1
     PitchMin: 0.95
     PitchMax: 1.05
+    DuckMusic: 0
+    DuckVolume: 0.35
+    DuckAttack: 0.08
+    DuckRelease: 0.5
     Type: 3
     Weight: 1
   - Clip: {fileID: 8300000, guid: 0222b46d24601c3459687c9111723979, type: 3}
@@ -44,6 +56,21 @@ MonoBehaviour:
     Pitch: 1
     PitchMin: 0.95
     PitchMax: 1.05
+    DuckMusic: 0
+    DuckVolume: 0.35
+    DuckAttack: 0.08
+    DuckRelease: 0.5
     Type: 4
     Weight: 1
+  m_musicTracks:
+  - Id: 1
+    Clip: {fileID: 8300000, guid: ce99a9163ab99ba449f12b5e93a1a7ef, type: 3}
+    Volume: 1
+    Loop: 1
+  - Id: 2
+    Clip: {fileID: 8300000, guid: 6bcb6a45725415a499e88e4f1547e349, type: 3}
+    Volume: 1
+    Loop: 1
+  m_musicMasterVolume: 1
+  m_musicDefaultFade: 1
   m_debugLog: 0

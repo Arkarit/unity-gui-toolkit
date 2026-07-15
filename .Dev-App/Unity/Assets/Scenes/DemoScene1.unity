@@ -1652,6 +1652,10 @@ MonoBehaviour:
     Pitch: 1
     PitchMin: 0.88
     PitchMax: 1.24
+    DuckMusic: 0
+    DuckVolume: 0.35
+    DuckAttack: 0.08
+    DuckRelease: 0.5
 --- !u!1001 &432587225
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5561,6 +5565,10 @@ MonoBehaviour:
     Pitch: 1
     PitchMin: 0.95
     PitchMax: 1.05
+    DuckMusic: 0
+    DuckVolume: 0.35
+    DuckAttack: 0.08
+    DuckRelease: 0.5
 --- !u!1 &1508985176
 GameObject:
   m_ObjectHideFlags: 0
@@ -6900,6 +6908,10 @@ MonoBehaviour:
     Pitch: 1
     PitchMin: 0.95
     PitchMax: 1.05
+    DuckMusic: 0
+    DuckVolume: 0.35
+    DuckAttack: 0.08
+    DuckRelease: 0.5
 --- !u!1 &1633771931
 GameObject:
   m_ObjectHideFlags: 0
@@ -7044,6 +7056,7 @@ MonoBehaviour:
   m_autoDestroyOnHide: 1
   m_poolable: 1
   m_closeButtons: []
+  m_backgroundMusicId: 1
   m_testRef:
     Type: 
     Id: 
@@ -10932,6 +10945,10 @@ MonoBehaviour:
     Pitch: 1
     PitchMin: 0.95
     PitchMax: 1.05
+    DuckMusic: 0
+    DuckVolume: 0.35
+    DuckAttack: 0.08
+    DuckRelease: 0.5
 --- !u!1001 &6424942819706839615
 PrefabInstance:
   m_ObjectHideFlags: 0

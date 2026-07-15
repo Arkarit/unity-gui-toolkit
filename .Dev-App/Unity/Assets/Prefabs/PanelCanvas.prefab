@@ -152,6 +152,7 @@ MonoBehaviour:
   m_autoDestroyOnHide: 1
   m_poolable: 1
   m_closeButtons: []
+  m_backgroundMusicId: 
 --- !u!1 &3265018062393157058
 GameObject:
   m_ObjectHideFlags: 0
@@ -6127,6 +6128,7 @@ MonoBehaviour:
   m_autoDestroyOnHide: 1
   m_poolable: 1
   m_closeButtons: []
+  m_backgroundMusicId: 
 --- !u!1 &3265018064055300057
 GameObject:
   m_ObjectHideFlags: 0
