@@ -24,3 +24,13 @@ Each component's full license text and source link live under
 
 Each row maps to the matching folder under `Documentation~/Legal/`, which contains
 the verbatim license text and, where applicable, a `.url` shortcut to the source.
+
+## Demo project assets
+
+These assets belong to the **demo project** (`.Dev-App/`) only and are **not**
+part of the distributed package. Listed here for provenance and commercial-use
+clarity.
+
+| Asset | Used for | Provenance | Source |
+|---|---|---|---|
+| Background music | Demo project background music (`.Dev-App/Unity/Assets/Music/`) | Generated with Suno under a Suno Pro plan (account `phoenix616`), which grants the generating account commercial-use rights | https://suno.com |
