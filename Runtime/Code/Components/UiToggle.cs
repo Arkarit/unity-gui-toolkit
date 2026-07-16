@@ -21,9 +21,18 @@ namespace GuiToolkit
 		[SerializeField][Optional] protected UiSimpleAnimation m_selectionAnimation;
 		[SerializeField] protected EToggleGroupHandling m_toggleGroupHandling = EToggleGroupHandling.Ignore;
 
+		[Tooltip("Style appliers whose skin is switched between 'On' and 'Off' to represent the toggle state.")]
 		[SerializeField][Optional] protected UiAbstractApplyStyleBase[] m_styleAppliers = new UiAbstractApplyStyleBase[0];
 		[SerializeField] protected string m_skinOn = "On";
 		[SerializeField] protected string m_skinOff = "Off";
+
+		[Tooltip("Optional game object which is set active while the toggle is on and inactive while it is off.")]
+		[SerializeField][Optional] protected GameObject m_gameObjectOn;
+		[Tooltip("Optional game object which is set active while the toggle is off and inactive while it is on.")]
+		[SerializeField][Optional] protected GameObject m_gameObjectOff;
+
+		[Tooltip("Optional animation which is played forwards to select (on) and backwards to deselect (off).")]
+		[SerializeField][Optional] protected UiSimpleAnimationBase m_stateAnimation;
 		
 		private Toggle m_toggle;
 		private Color m_savedColor;
@@ -41,6 +50,16 @@ namespace GuiToolkit
 		}
 
 		public Toggle.ToggleEvent OnValueChanged => Toggle.onValueChanged;
+
+		/// <summary>
+		/// True if any state representation (style, game object activation or state animation) is configured
+		/// and therefore needs to react to toggle value changes.
+		/// </summary>
+		protected bool HasToggleStateRepresentation =>
+			(m_styleAppliers != null && m_styleAppliers.Length > 0)
+			|| m_gameObjectOn != null
+			|| m_gameObjectOff != null
+			|| m_stateAnimation != null;
 
 		public bool IsOn
 		{
@@ -81,8 +100,10 @@ namespace GuiToolkit
 			
 			PlaySelectionAnimationIfNecessary(Toggle.isOn, true);
 			Toggle.onValueChanged.AddListener(PlaySelectionAnimationIfNecessary);
-			if (m_styleAppliers != null && m_styleAppliers.Length > 0)
-				m_toggle.onValueChanged.AddListener(OnToggleValueChanged);
+
+			ApplyToggleState(Toggle.isOn, true);
+			if (HasToggleStateRepresentation)
+				Toggle.onValueChanged.AddListener(OnToggleValueChanged);
 		}
 
 		protected override void OnDisable()
@@ -93,19 +114,46 @@ namespace GuiToolkit
 			if (!m_toggleGroupWasManuallySet && m_toggleGroupHandling != EToggleGroupHandling.Ignore)
 				Toggle.group = null;
 
-			if (m_styleAppliers != null && m_styleAppliers.Length > 0)
-				m_toggle.onValueChanged.RemoveListener(OnToggleValueChanged);
+			if (HasToggleStateRepresentation)
+				Toggle.onValueChanged.RemoveListener(OnToggleValueChanged);
 		}
 
-		private void OnToggleValueChanged(bool _isOn)
-		{
-			string skin = _isOn ? m_skinOn : m_skinOff;
-			foreach (var styleApplier in m_styleAppliers)
-			{
-				if (!styleApplier)
-					continue;
+		protected virtual void OnToggleValueChanged(bool _isOn) => ApplyToggleState(_isOn, false);
 
-				styleApplier.FixedSkinName = skin;
+		/// <summary>
+		/// Applies all configured state representations (style skin, game object activation and state animation)
+		/// for the given toggle state.
+		/// </summary>
+		/// <param name="_isOn">The toggle state to represent.</param>
+		/// <param name="_instant">If true, the state animation jumps to its final state instead of playing.</param>
+		protected virtual void ApplyToggleState(bool _isOn, bool _instant)
+		{
+			// Style system
+			if (m_styleAppliers != null)
+			{
+				string skin = _isOn ? m_skinOn : m_skinOff;
+				foreach (var styleApplier in m_styleAppliers)
+				{
+					if (!styleApplier)
+						continue;
+
+					styleApplier.FixedSkinName = skin;
+				}
+			}
+
+			// Hard game object activation
+			if (m_gameObjectOn != null)
+				m_gameObjectOn.SetActive(_isOn);
+			if (m_gameObjectOff != null)
+				m_gameObjectOff.SetActive(!_isOn);
+
+			// State animation (forwards to select, backwards to deselect)
+			if (m_stateAnimation != null)
+			{
+				if (_instant)
+					m_stateAnimation.Reset(_isOn);
+				else
+					m_stateAnimation.Play(!_isOn);
 			}
 		}
 
