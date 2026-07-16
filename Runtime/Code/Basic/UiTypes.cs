@@ -150,6 +150,18 @@ namespace GuiToolkit
 		Indeterminate,
 	}
 
+	/// \brief How a non-fatal problem should be reported by a called method.
+	///
+	/// Lets callers decide how loud a recoverable issue (e.g. an ambiguous or missing
+	/// lookup) should be, from silently ignoring it up to raising an exception.
+	public enum EErrorHandling
+	{
+		None,       ///< Ignore the problem silently.
+		Warning,    ///< Log a warning and continue.
+		Error,      ///< Log an error and continue.
+		Throw,      ///< Throw an exception.
+	}
+
 	/// \brief Debug localization length modifier for testing UI text overflow and underflow.
 	/// Only evaluated in Editor and Development builds; always treated as Default in release builds.
 	public enum EDebugLocaLength

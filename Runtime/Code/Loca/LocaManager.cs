@@ -172,6 +172,225 @@ namespace GuiToolkit
 #endif
 		}
 
+		/// <summary>
+		/// Maps every Unity <see cref="SystemLanguage"/> to its ISO 639-1 code, with a region subtag where
+		/// Unity is already specific (e.g. <see cref="SystemLanguage.ChineseSimplified"/> -&gt; "zh-cn").
+		/// This is intentionally the full enum, independent of which languages a given project ships;
+		/// <see cref="GetSupportedIsoCode"/> intersects it with the actually available languages.
+		/// <see cref="SystemLanguage.Unknown"/> is deliberately absent (treated as "no mapping").
+		/// </summary>
+		private static readonly Dictionary<SystemLanguage, string> s_systemLanguageToIso =
+			new Dictionary<SystemLanguage, string>
+			{
+				{ SystemLanguage.Afrikaans,          "af"    },
+				{ SystemLanguage.Arabic,             "ar"    },
+				{ SystemLanguage.Basque,             "eu"    },
+				{ SystemLanguage.Belarusian,         "be"    },
+				{ SystemLanguage.Bulgarian,          "bg"    },
+				{ SystemLanguage.Catalan,            "ca"    },
+				{ SystemLanguage.Chinese,            "zh"    },
+				{ SystemLanguage.ChineseSimplified,  "zh-cn" },
+				{ SystemLanguage.ChineseTraditional, "zh-tw" },
+				{ SystemLanguage.Czech,              "cs"    },
+				{ SystemLanguage.Danish,             "da"    },
+				{ SystemLanguage.Dutch,              "nl"    },
+				{ SystemLanguage.English,            "en"    },
+				{ SystemLanguage.Estonian,           "et"    },
+				{ SystemLanguage.Faroese,            "fo"    },
+				{ SystemLanguage.Finnish,            "fi"    },
+				{ SystemLanguage.French,             "fr"    },
+				{ SystemLanguage.German,             "de"    },
+				{ SystemLanguage.Greek,              "el"    },
+				{ SystemLanguage.Hebrew,             "he"    },
+				{ SystemLanguage.Hindi,              "hi"    },
+				{ SystemLanguage.Hungarian,          "hu"    },
+				{ SystemLanguage.Icelandic,          "is"    },
+				{ SystemLanguage.Indonesian,         "id"    },
+				{ SystemLanguage.Italian,            "it"    },
+				{ SystemLanguage.Japanese,           "ja"    },
+				{ SystemLanguage.Korean,             "ko"    },
+				{ SystemLanguage.Latvian,            "lv"    },
+				{ SystemLanguage.Lithuanian,         "lt"    },
+				{ SystemLanguage.Norwegian,          "no"    },
+				{ SystemLanguage.Polish,             "pl"    },
+				{ SystemLanguage.Portuguese,         "pt"    },
+				{ SystemLanguage.Romanian,           "ro"    },
+				{ SystemLanguage.Russian,            "ru"    },
+				{ SystemLanguage.SerboCroatian,      "sr"    },
+				{ SystemLanguage.Slovak,             "sk"    },
+				{ SystemLanguage.Slovenian,          "sl"    },
+				{ SystemLanguage.Spanish,            "es"    },
+				{ SystemLanguage.Swedish,            "sv"    },
+				{ SystemLanguage.Thai,               "th"    },
+				{ SystemLanguage.Turkish,            "tr"    },
+				{ SystemLanguage.Ukrainian,          "uk"    },
+				{ SystemLanguage.Vietnamese,         "vi"    },
+			};
+
+		// Cached grouping of the available languages by their base (primary) subtag, e.g.
+		// "pt" -> { "pt-br" }, "zh" -> { "zh-cn", "zh-tw" }. Built lazily from GetAvailableLanguages().
+		private static Dictionary<string, List<string>> s_availableByBase;
+
+		/// <summary>
+		/// Returns the primary (base) subtag of a language id, i.e. the part before the first hyphen.
+		/// "pt-br" -&gt; "pt", "en" -&gt; "en".
+		/// </summary>
+		public static string GetBaseLanguage( string _languageId )
+		{
+			if (string.IsNullOrEmpty(_languageId))
+				return _languageId;
+
+			int dash = _languageId.IndexOf('-');
+			return dash < 0 ? _languageId : _languageId.Substring(0, dash);
+		}
+
+		/// <summary>
+		/// Resolves a device <see cref="SystemLanguage"/> to the best-matching language id that this project
+		/// actually ships, based on the generated available-languages list (see <see cref="GetAvailableLanguages"/>).
+		///
+		/// For the base language the system language maps to (e.g. "pt" for <see cref="SystemLanguage.Portuguese"/>),
+		/// it looks at the available languages sharing that base and resolves in this order:
+		/// <list type="number">
+		/// <item><description>If <paramref name="_preferredLanguageSubtype"/> names a variant for this base that
+		/// is available, that variant wins.</description></item>
+		/// <item><description>Else, if the exact code the system reports is available (relevant when Unity is
+		/// region-specific, e.g. "zh-cn"), it is returned.</description></item>
+		/// <item><description>Else, if the main language itself is available, it is returned (a main language
+		/// together with one or more variants resolves to the main language).</description></item>
+		/// <item><description>Else, if exactly one variant is available, it is returned.</description></item>
+		/// <item><description>Else (several variants, none of them the main language) the result is ambiguous:
+		/// a variant is picked at random and <paramref name="_errorHandling"/> is applied.</description></item>
+		/// </list>
+		/// If the language is not shipped at all, "en" is returned and <paramref name="_errorHandling"/> is applied.
+		/// </summary>
+		/// <param name="_systemLanguage">The device system language to resolve.</param>
+		/// <param name="_errorHandling">How to report the "ambiguous" and "not found" cases.</param>
+		/// <param name="_preferredLanguageSubtype">Optional map of base language id -&gt; preferred variant id
+		/// (e.g. { "pt", "pt-br" }). Only honored when the preferred variant is actually available.</param>
+		/// <returns>An available language id, or "en" as a last resort.</returns>
+		public static string GetSupportedIsoCode(
+			SystemLanguage _systemLanguage,
+			EErrorHandling _errorHandling = EErrorHandling.None,
+			Dictionary<string, string> _preferredLanguageSubtype = null )
+		{
+			return GetSupportedIsoCode(_systemLanguage, GetAvailableByBase(), _errorHandling, _preferredLanguageSubtype);
+		}
+
+		/// <summary>
+		/// Overload of <see cref="GetSupportedIsoCode(SystemLanguage,EErrorHandling,Dictionary{string,string})"/>
+		/// that resolves against an explicitly supplied set of available language ids instead of the project's
+		/// generated list. Useful for callers that maintain their own set, and for unit tests (no Resources I/O).
+		/// </summary>
+		public static string GetSupportedIsoCode(
+			SystemLanguage _systemLanguage,
+			IEnumerable<string> _availableLanguages,
+			EErrorHandling _errorHandling = EErrorHandling.None,
+			Dictionary<string, string> _preferredLanguageSubtype = null )
+		{
+			return GetSupportedIsoCode(_systemLanguage, GroupByBase(_availableLanguages), _errorHandling, _preferredLanguageSubtype);
+		}
+
+		private static string GetSupportedIsoCode(
+			SystemLanguage _systemLanguage,
+			Dictionary<string, List<string>> _availableByBase,
+			EErrorHandling _errorHandling,
+			Dictionary<string, string> _preferredLanguageSubtype )
+		{
+			const string fallback = "en";
+
+			if (!s_systemLanguageToIso.TryGetValue(_systemLanguage, out string desired))
+			{
+				HandleError(_errorHandling, $"No ISO code mapping for system language '{_systemLanguage}'. Falling back to '{fallback}'.");
+				return fallback;
+			}
+
+			desired = NormalizeLanguageId(desired);
+			string baseId = GetBaseLanguage(desired);
+
+			if (!_availableByBase.TryGetValue(baseId, out var matches) || matches.Count == 0)
+			{
+				HandleError(_errorHandling, $"System language '{_systemLanguage}' ('{baseId}') is not among the available languages. Falling back to '{fallback}'.");
+				return fallback;
+			}
+
+			// 1) Explicit caller preference for this base language wins, if it is actually available.
+			if (_preferredLanguageSubtype != null
+				&& _preferredLanguageSubtype.TryGetValue(baseId, out string preferred))
+			{
+				string preferredNorm = NormalizeLanguageId(preferred);
+				if (matches.Contains(preferredNorm))
+					return preferredNorm;
+			}
+
+			// 2) The exact code the system reports (relevant when it is region-specific, e.g. "zh-cn").
+			if (matches.Contains(desired))
+				return desired;
+
+			// 3) The main/base language, if present (main language + variants -> main language).
+			if (matches.Contains(baseId))
+				return baseId;
+
+			// 4) A single variant, with no main language present.
+			if (matches.Count == 1)
+				return matches[0];
+
+			// 5) Several variants, none of them the main language: ambiguous.
+			string picked = matches[UnityEngine.Random.Range(0, matches.Count)];
+			HandleError(_errorHandling, $"Ambiguous language variants [{string.Join(", ", matches)}] for base '{baseId}' with no main language available. Picking '{picked}'.");
+			return picked;
+		}
+
+		private static Dictionary<string, List<string>> GroupByBase( IEnumerable<string> _languages )
+		{
+			var result = new Dictionary<string, List<string>>();
+			if (_languages == null)
+				return result;
+
+			foreach (string raw in _languages)
+			{
+				string id = NormalizeLanguageId(raw);
+				if (string.IsNullOrEmpty(id))
+					continue;
+
+				string baseId = GetBaseLanguage(id);
+				if (!result.TryGetValue(baseId, out var list))
+				{
+					list = new List<string>();
+					result[baseId] = list;
+				}
+
+				if (!list.Contains(id))
+					list.Add(id);
+			}
+
+			return result;
+		}
+
+		private static Dictionary<string, List<string>> GetAvailableByBase()
+		{
+			if (s_availableByBase == null)
+				s_availableByBase = GroupByBase(Instance.GetAvailableLanguages());
+
+			return s_availableByBase;
+		}
+
+		private static void HandleError( EErrorHandling _errorHandling, string _message )
+		{
+			switch (_errorHandling)
+			{
+				case EErrorHandling.None:
+					break;
+				case EErrorHandling.Warning:
+					UiLog.LogWarning(_message);
+					break;
+				case EErrorHandling.Error:
+					UiLog.LogError(_message);
+					break;
+				case EErrorHandling.Throw:
+					throw new System.InvalidOperationException(_message);
+			}
+		}
+
 #if UNITY_EDITOR
 		/// <summary>
 		/// (Editor-only) Gets the list of available language identifiers found in the project's PO assets.
