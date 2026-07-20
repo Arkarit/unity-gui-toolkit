@@ -77,12 +77,14 @@ namespace GuiToolkit
 
 		/// <summary>
 		/// Sets the toggle state without firing <see cref="Toggle.onValueChanged"/>, avoiding feedback loops.
-		/// The selection animation and color are updated instantly.
+		/// The selection animation, color and all state representations (style skin, game object
+		/// activation, state animation) are updated instantly.
 		/// </summary>
 		public void SetIsOnWithoutNotify(bool _value)
 		{
 			Toggle.SetIsOnWithoutNotify(_value);
 			PlaySelectionAnimationIfNecessary(_value, true);
+			ApplyToggleState(_value, true);
 		}
 
 		protected override void Awake()
