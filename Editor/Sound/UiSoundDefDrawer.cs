@@ -36,6 +36,10 @@ namespace GuiToolkit.Editor
 			var duckAttackProp  = Property.FindPropertyRelative(nameof(UiSoundConfig.SoundDef.DuckAttack));
 			var duckReleaseProp = Property.FindPropertyRelative(nameof(UiSoundConfig.SoundDef.DuckRelease));
 
+			var identifierProp = Property.FindPropertyRelative(nameof(UiSoundConfig.SoundDef.Identifier));
+			var priorityProp   = Property.FindPropertyRelative(nameof(UiSoundConfig.SoundDef.Priority));
+			var singleProp     = Property.FindPropertyRelative(nameof(UiSoundConfig.SoundDef.Single));
+
 			if (typeProp != null)
 				PropertyField(typeProp);
 			if (weightProp != null)
@@ -63,6 +67,14 @@ namespace GuiToolkit.Editor
 				PropertyField(duckVolumeProp);
 				PropertyField(duckAttackProp);
 				PropertyField(duckReleaseProp);
+			}
+
+			// Channel grouping — Priority/Single only mean something with an Identifier.
+			PropertyField(identifierProp);
+			if (!string.IsNullOrEmpty(identifierProp.stringValue))
+			{
+				PropertyField(priorityProp);
+				PropertyField(singleProp);
 			}
 
 			Space(Gap);

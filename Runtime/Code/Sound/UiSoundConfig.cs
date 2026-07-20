@@ -67,6 +67,15 @@ namespace GuiToolkit
 			[Tooltip("Seconds to fade the music back up after the sound ends.")]
 			[Min(0f)] public float DuckRelease = 0.5f;
 
+			[Tooltip("Optional group id. Sounds sharing a non-empty Identifier compete for one channel (the Priority / Single rules below apply between them). Empty = ungrouped: the sound always plays and never competes, i.e. the toolkit's classic behavior.")]
+			public string Identifier = "";
+
+			[Tooltip("Priority within the same Identifier. A higher-priority sound interrupts (quickly fades out) a running lower-priority one; a lower-priority sound is skipped while a higher-priority one of the same Identifier plays. Ignored when Identifier is empty.")]
+			public int Priority = 0;
+
+			[Tooltip("When enabled, this sound is skipped if another sound with the same Identifier and EQUAL priority is already playing. Collapses same-instant duplicates (e.g. a panel open + close firing together) to a single sound. Ignored when Identifier is empty.")]
+			public bool Single = false;
+
 			/// <summary>Resolves the pitch for one play: a fresh random value in range, or the fixed pitch.</summary>
 			public float ResolvePitch() =>
 				RandomPitch ? UnityEngine.Random.Range(Mathf.Min(PitchMin, PitchMax), Mathf.Max(PitchMin, PitchMax)) : Pitch;
@@ -124,6 +133,9 @@ namespace GuiToolkit
 		[Tooltip("Optional AudioMixerGroup that UiMusic routes background music through. Leave empty to play directly (no mixer group).")]
 		[SerializeField, Optional] private AudioMixerGroup m_musicOutputMixerGroup = null;
 
+		[Tooltip("Seconds to fade out a lower-priority sound when a higher-priority sound of the same Identifier interrupts it. 0 = hard stop.")]
+		[SerializeField, Min(0f)] private float m_interruptFade = 0.08f;
+
 		[Tooltip("When enabled, UiSound logs every decision to the console: which sound played, how loud, when, what triggered it, and why a sound was skipped.")]
 		[SerializeField] private bool m_debugLog = false;
 
@@ -131,6 +143,7 @@ namespace GuiToolkit
 		private Dictionary<string, MusicTrack> m_musicLookup;
 
 		public float MasterVolume => m_masterVolume;
+		public float InterruptFade => m_interruptFade;
 		public bool DebugLog => m_debugLog;
 
 		public float MusicMasterVolume => m_musicMasterVolume;

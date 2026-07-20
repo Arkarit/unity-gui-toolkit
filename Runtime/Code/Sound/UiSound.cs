@@ -41,7 +41,24 @@ namespace GuiToolkit
 		private static UiSound s_instance;
 		private static readonly IInputProxy s_fallbackInput = new UnityInputProxy();
 
-		private AudioSource m_audioSource;
+		// A single playing (or fading-out) sound on its own AudioSource. One sound per
+		// voice keeps each individually stoppable/fadeable, which PlayOneShot on a shared
+		// source cannot do — required for the interrupt-and-fade rule below.
+		private class Voice
+		{
+			public AudioSource Source;
+			public string Identifier;
+			public int Priority;
+
+			// While fading out (after being interrupted by a higher-priority sound), the
+			// voice no longer counts as "live" for the competition rules.
+			public bool FadingOut;
+			public float FadeElapsed;
+			public float FadeDuration;
+			public float FadeFromVolume;
+		}
+
+		private readonly List<Voice> m_voices = new List<Voice>();
 		private UiSoundConfig m_config;
 		private readonly List<RaycastResult> m_raycastResults = new List<RaycastResult>();
 
@@ -87,8 +104,8 @@ namespace GuiToolkit
 			}
 			s_instance = this;
 
-			m_audioSource = gameObject.AddComponent<AudioSource>();
-			m_audioSource.playOnAwake = false;
+			// Seed the pool with one voice; more are added on demand when sounds overlap.
+			AddVoice();
 
 			var config = UiToolkitConfiguration.Instance;
 			if (config != null)
@@ -103,6 +120,8 @@ namespace GuiToolkit
 
 		private void Update()
 		{
+			UpdateVoices();
+
 			var eventSystem = EventSystem.current;
 			if (eventSystem == null)
 				return;
@@ -261,20 +280,138 @@ namespace GuiToolkit
 				return;
 			}
 
-			// Pitch is an AudioSource property (PlayOneShot takes no pitch), so set it
-			// on the shared source right before playing. Resolved per call so a
-			// randomized range yields a fresh value each time.
-			var pitch = _def.ResolvePitch();
-			m_audioSource.pitch = pitch;
+			// Priority / Single competition, scoped to sounds sharing a (non-empty)
+			// Identifier. Ungrouped sounds (empty Identifier) skip this entirely and always
+			// play — the toolkit's classic overlapping behavior.
+			string identifier = _def.Identifier;
+			if (!string.IsNullOrEmpty(identifier))
+			{
+				int highestLivePriority = int.MinValue;
+				bool equalPriorityLive = false;
+				foreach (var voice in m_voices)
+				{
+					if (!IsLive(voice) || voice.Identifier != identifier)
+						continue;
+					if (voice.Priority > highestLivePriority)
+						highestLivePriority = voice.Priority;
+					if (voice.Priority == _def.Priority)
+						equalPriorityLive = true;
+				}
 
-			m_audioSource.PlayOneShot(_def.Clip, volume);
+				// Rule: a higher-priority sound of this Identifier is playing → skip this one.
+				if (highestLivePriority > _def.Priority)
+				{
+					if (debug)
+						UiLog.Log($"{_what} skipped — lower priority ({_def.Priority}) than a running '{identifier}' sound ({highestLivePriority}) (trigger: {_trigger})", this, nameof(UiSound));
+					return;
+				}
+
+				// Rule: Single skips this sound when an equal-priority one of this Identifier is playing.
+				if (_def.Single && equalPriorityLive)
+				{
+					if (debug)
+						UiLog.Log($"{_what} skipped — Single, equal-priority '{identifier}' sound already playing (trigger: {_trigger})", this, nameof(UiSound));
+					return;
+				}
+
+				// Rule: interrupt (fade out) any running lower-priority sound of this Identifier.
+				foreach (var voice in m_voices)
+				{
+					if (IsLive(voice) && voice.Identifier == identifier && voice.Priority < _def.Priority)
+						StartFadeOut(voice);
+				}
+			}
+
+			// Pitch is an AudioSource property, resolved per call so a randomized range
+			// yields a fresh value each time.
+			var pitch = _def.ResolvePitch();
+
+			var target = GetFreeVoice();
+			target.Identifier = identifier;
+			target.Priority = _def.Priority;
+			target.FadingOut = false;
+
+			var source = target.Source;
+			source.clip = _def.Clip;
+			source.loop = false;
+			source.pitch = pitch;
+			source.volume = volume;
+			source.Play();
 
 			// Prominent UI sounds may duck the background music for their duration (no-op
 			// unless the def opts in via DuckMusic). Same entry point client SFX use.
 			UiMusic.Duck(_def, pitch);
 
 			if (debug)
-				UiLog.Log($"{_what} played — clip '{_def.Clip.name}', volume {volume:F2}, pitch {pitch:F2}, t={Time.unscaledTime:F2}s frame {Time.frameCount} (trigger: {_trigger})", this, nameof(UiSound));
+				UiLog.Log($"{_what} played — clip '{_def.Clip.name}', volume {volume:F2}, pitch {pitch:F2}, id '{identifier}' prio {_def.Priority}, t={Time.unscaledTime:F2}s frame {Time.frameCount} (trigger: {_trigger})", this, nameof(UiSound));
+		}
+
+		// A voice is "live" (counts for the competition rules) while it is audibly playing
+		// and not already fading out after being interrupted.
+		private static bool IsLive( Voice _voice ) =>
+			_voice.Source != null && _voice.Source.isPlaying && !_voice.FadingOut;
+
+		// Returns an idle voice (finished and not fading), or grows the pool by one.
+		private Voice GetFreeVoice()
+		{
+			foreach (var voice in m_voices)
+			{
+				if (!voice.FadingOut && (voice.Source == null || !voice.Source.isPlaying))
+					return voice;
+			}
+			return AddVoice();
+		}
+
+		private Voice AddVoice()
+		{
+			var source = gameObject.AddComponent<AudioSource>();
+			source.playOnAwake = false;
+			var voice = new Voice { Source = source };
+			m_voices.Add(voice);
+			return voice;
+		}
+
+		// Begins a quick volume fade-out on a voice; when it reaches zero the source is
+		// stopped and the voice is freed for reuse. A zero (or negative) fade stops at once.
+		private void StartFadeOut( Voice _voice )
+		{
+			float fade = m_config != null ? m_config.InterruptFade : 0f;
+			if (fade <= 0f)
+			{
+				if (_voice.Source != null)
+					_voice.Source.Stop();
+				_voice.FadingOut = false;
+				return;
+			}
+
+			_voice.FadingOut = true;
+			_voice.FadeElapsed = 0f;
+			_voice.FadeDuration = fade;
+			_voice.FadeFromVolume = _voice.Source != null ? _voice.Source.volume : 0f;
+		}
+
+		// Advances active fade-outs on unscaled time (so a paused game still fades), and
+		// stops each voice once faded so it becomes reusable.
+		private void UpdateVoices()
+		{
+			foreach (var voice in m_voices)
+			{
+				if (!voice.FadingOut)
+					continue;
+
+				voice.FadeElapsed += Time.unscaledDeltaTime;
+				float t = voice.FadeDuration > 0f ? Mathf.Clamp01(voice.FadeElapsed / voice.FadeDuration) : 1f;
+
+				if (voice.Source != null)
+					voice.Source.volume = Mathf.Lerp(voice.FadeFromVolume, 0f, t);
+
+				if (t >= 1f)
+				{
+					if (voice.Source != null)
+						voice.Source.Stop();
+					voice.FadingOut = false;
+				}
+			}
 		}
 	}
 }

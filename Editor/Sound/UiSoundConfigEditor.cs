@@ -16,6 +16,7 @@ namespace GuiToolkit.Editor
 	public class UiSoundConfigEditor : UnityEditor.Editor
 	{
 		private SerializedProperty m_masterVolumeProp;
+		private SerializedProperty m_interruptFadeProp;
 		private SerializedProperty m_entriesProp;
 		private SerializedProperty m_musicTracksProp;
 		private SerializedProperty m_musicMasterVolumeProp;
@@ -28,6 +29,7 @@ namespace GuiToolkit.Editor
 		private void OnEnable()
 		{
 			m_masterVolumeProp      = serializedObject.FindProperty("m_masterVolume");
+			m_interruptFadeProp     = serializedObject.FindProperty("m_interruptFade");
 			m_entriesProp           = serializedObject.FindProperty("m_entries");
 			m_musicTracksProp       = serializedObject.FindProperty("m_musicTracks");
 			m_musicMasterVolumeProp = serializedObject.FindProperty("m_musicMasterVolume");
@@ -89,6 +91,7 @@ namespace GuiToolkit.Editor
 
 			EditorGUILayout.LabelField("UI Sounds", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(m_masterVolumeProp);
+			EditorGUILayout.PropertyField(m_interruptFadeProp);
 			EditorGUILayout.Space();
 			m_list.DoLayoutList();
 
