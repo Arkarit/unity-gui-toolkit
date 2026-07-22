@@ -27,6 +27,12 @@ namespace GuiToolkit.Editor.AiSupport
 		private const int CatalogVersion = 1;
 		private const string OutputFileName = "screen-catalog.json";
 
+		// Written into the currently-open (client) project. Assets/ always maps to that project.
+		private const string OutputDir = "Assets/AiSupport";
+
+		// The toolkit's own assembly (where UiThing lives); the base of the "authorable" universe.
+		private static Assembly s_toolkitAssembly;
+
 		// Force-excluded infrastructure/helper components (name-exact or by prefix below).
 		private static readonly HashSet<string> s_denyExactNames = new()
 		{
@@ -63,9 +69,8 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				var catalog = BuildCatalog();
 
-				string outputDir = ResolveOutputDir();
-				EditorFileUtility.EnsureUnityFolderExists(outputDir);
-				string path = $"{outputDir}/{OutputFileName}";
+				EditorFileUtility.EnsureUnityFolderExists(OutputDir);
+				string path = $"{OutputDir}/{OutputFileName}";
 
 				string json = JsonUtility.ToJson(catalog, true);
 				File.WriteAllText(path, json);
@@ -86,13 +91,14 @@ namespace GuiToolkit.Editor.AiSupport
 
 		private static UiScreenCatalog BuildCatalog()
 		{
-			var runtimeAssembly = typeof(UiThing).Assembly;
+			s_toolkitAssembly = typeof(UiThing).Assembly;
+			string toolkitName = s_toolkitAssembly.GetName().Name;
 
 			var catalog = new UiScreenCatalog
 			{
 				version = CatalogVersion,
 				generatedAtUtc = DateTime.UtcNow.ToString("o"),
-				toolkitAssembly = runtimeAssembly.GetName().Name,
+				toolkitAssembly = toolkitName,
 			};
 
 			s_styleConfigCache = LoadAllStyleConfigs();
@@ -100,7 +106,13 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				CollectStyles(catalog);
 
-				var types = runtimeAssembly.GetTypes()
+				// Scan the toolkit assembly plus every assembly that references it (client asmdefs,
+				// Assembly-CSharp). Client types are only kept if they subclass a toolkit component.
+				var assemblies = AppDomain.CurrentDomain.GetAssemblies()
+					.Where(ReferencesToolkit);
+
+				var types = assemblies
+					.SelectMany(SafeGetTypes)
 					.Where(IsAuthorable)
 					.OrderBy(t => t.FullName, StringComparer.Ordinal);
 
@@ -120,6 +132,38 @@ namespace GuiToolkit.Editor.AiSupport
 			return catalog;
 		}
 
+		private static bool ReferencesToolkit( Assembly _assembly )
+		{
+			try
+			{
+				if (_assembly == s_toolkitAssembly)
+					return true;
+
+				string toolkitName = s_toolkitAssembly.GetName().Name;
+				return _assembly.GetReferencedAssemblies().Any(r => r.Name == toolkitName);
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		private static IEnumerable<Type> SafeGetTypes( Assembly _assembly )
+		{
+			try
+			{
+				return _assembly.GetTypes();
+			}
+			catch (ReflectionTypeLoadException e)
+			{
+				return e.Types.Where(t => t != null);
+			}
+			catch
+			{
+				return Array.Empty<Type>();
+			}
+		}
+
 		private static bool IsAuthorable( Type _type )
 		{
 			if (_type.IsAbstract || _type.IsInterface || _type.IsGenericTypeDefinition)
@@ -129,11 +173,22 @@ namespace GuiToolkit.Editor.AiSupport
 
 			if (_type.GetCustomAttribute<UiNotAuthorableAttribute>(false) != null)
 				return false;
-
-			bool forced = _type.GetCustomAttribute<UiAuthorableAttribute>(false) != null;
-			if (forced)
+			if (_type.GetCustomAttribute<UiAuthorableAttribute>(false) != null)
 				return true;
 
+			// Toolkit-owned types are filtered by the naming/denylist heuristics (they carry the
+			// base classes and infrastructure we don't want listed as usable widgets).
+			if (_type.Assembly == s_toolkitAssembly)
+				return IsAuthorableToolkitType(_type);
+
+			// Client (or other referencing) types are authorable iff they derive from an
+			// authorable toolkit component — the naming rules above are toolkit-only and must
+			// NOT reject client subclasses like "SettingsScreen : UiView".
+			return HasAuthorableToolkitAncestor(_type);
+		}
+
+		private static bool IsAuthorableToolkitType( Type _type )
+		{
 			if (!_type.Name.StartsWith("Ui", StringComparison.Ordinal))
 				return false;
 			// Concrete-but-base classes (e.g. UiButtonBase, UiProgressBarBase) are meant to be
@@ -148,6 +203,27 @@ namespace GuiToolkit.Editor.AiSupport
 			return true;
 		}
 
+		private static bool HasAuthorableToolkitAncestor( Type _type )
+		{
+			for (var baseType = _type.BaseType; baseType != null && baseType != typeof(object); baseType = baseType.BaseType)
+			{
+				if (baseType.Assembly != s_toolkitAssembly)
+					continue;
+
+				// The nearest toolkit ancestor decides: deriving from infrastructure (pooling,
+				// style appliers, UiMain) is not an authorable screen element. Deriving from a
+				// real UI base (UiThing/UiView/UiButton/...) is — including UiThing itself.
+				if (baseType.Name == "UiMain" || baseType.Name == "UiCanvasScalerReference")
+					return false;
+				if (s_denyPrefixes.Any(p => baseType.Name.StartsWith(p, StringComparison.Ordinal)))
+					return false;
+
+				return true;
+			}
+
+			return false;
+		}
+
 		private static UiCatalogComponent BuildComponent( Type _type )
 		{
 			var authorable = _type.GetCustomAttribute<UiAuthorableAttribute>(false);
@@ -156,6 +232,7 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				type = _type.Name,
 				fullName = _type.FullName,
+				assembly = _type.Assembly.GetName().Name,
 				category = !string.IsNullOrEmpty(authorable?.Category) ? authorable.Category : ClassifyCategory(_type),
 				description = authorable?.Description ?? "",
 				isRoot = typeof(UiView).IsAssignableFrom(_type),
@@ -189,14 +266,13 @@ namespace GuiToolkit.Editor.AiSupport
 
 		private static void CollectFields( Type _type, UiCatalogComponent _component )
 		{
-			var runtimeAssembly = typeof(UiThing).Assembly;
-
-			// Walk the whole hierarchy but only keep fields declared inside the toolkit assembly,
-			// so Unity-internal serialized fields (Graphic, BaseMeshEffect, ...) are skipped —
-			// those are covered by the styling system, not by direct authoring.
+			// Walk the whole hierarchy but only keep fields declared in the toolkit assembly or in
+			// the component's own (client) assembly. Unity-internal serialized fields (Graphic,
+			// BaseMeshEffect, ...) are skipped — those are covered by the styling system, not by
+			// direct authoring.
 			for (var t = _type; t != null && t != typeof(object); t = t.BaseType)
 			{
-				if (t.Assembly != runtimeAssembly)
+				if (t.Assembly != s_toolkitAssembly && t.Assembly != _type.Assembly)
 					continue;
 
 				var declared = t.GetFields(BindingFlags.Instance | BindingFlags.Public |
@@ -495,25 +571,6 @@ namespace GuiToolkit.Editor.AiSupport
 				if (_name.IndexOf(n, StringComparison.Ordinal) >= 0)
 					return true;
 			return false;
-		}
-
-		private static string ResolveOutputDir()
-		{
-			// Locate this generator's own script so the catalog lands next to the package's
-			// Editor code regardless of package/symlink layout.
-			foreach (var guid in AssetDatabase.FindAssets($"{nameof(UiScreenCatalogGenerator)} t:MonoScript"))
-			{
-				string path = AssetDatabase.GUIDToAssetPath(guid);
-				if (!path.EndsWith($"/{nameof(UiScreenCatalogGenerator)}.cs", StringComparison.Ordinal))
-					continue;
-
-				const string editorSegment = "/Editor/";
-				int idx = path.IndexOf(editorSegment, StringComparison.Ordinal);
-				if (idx >= 0)
-					return path.Substring(0, idx + editorSegment.Length) + "Generated/AiSupport";
-			}
-
-			return "Assets/Editor/Generated/AiSupport";
 		}
 
 		#endregion

@@ -56,6 +56,9 @@ namespace GuiToolkit.Editor.AiSupport
 		/// <summary>Namespace-qualified type name.</summary>
 		public string fullName = "";
 
+		/// <summary>Assembly the component is declared in — lets the agent tell toolkit from client types.</summary>
+		public string assembly = "";
+
 		/// <summary>Heuristic category (Root/Container/Layout/Input/Text/Graphic/Modifier/Loca/Widget/...).</summary>
 		public string category = "";
 
