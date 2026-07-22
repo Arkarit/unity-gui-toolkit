@@ -18,9 +18,9 @@ namespace GuiToolkit.Editor.AiSupport
 	/// thread (AssetDatabase / the catalog generator are main-thread only), marshalled via
 	/// <see cref="EditorApplication.update"/>.
 	///
-	/// Deliberately tiny: methods are ping / getCatalog / regenerateCatalog / bakeScreen. The
-	/// screenshot tool slots in as an additional method once it exists. Methods that need input
-	/// carry it in the envelope's <c>payload</c> string (raw JSON the handler parses itself).
+	/// Deliberately tiny: methods are ping / getCatalog / regenerateCatalog / bakeScreen /
+	/// screenshotView. Methods that need input carry it in the envelope's <c>payload</c> string
+	/// (raw JSON the handler parses itself).
 	/// </summary>
 	[InitializeOnLoad]
 	public static class UiScreenMcpBridge
@@ -223,6 +223,9 @@ namespace GuiToolkit.Editor.AiSupport
 					string bakedPath = UiScreenBaker.Bake(_payload);
 					return "{\"path\":" + JsonString(bakedPath) + "}";
 
+				case "screenshotView":
+					return Screenshot(_payload);
+
 				default:
 					throw new Exception($"Unknown method '{_method}'.");
 			}
@@ -234,6 +237,25 @@ namespace GuiToolkit.Editor.AiSupport
 			if (!File.Exists(path))
 				throw new FileNotFoundException($"Catalog not found at '{path}'. Run regenerateCatalog first.");
 			return File.ReadAllText(path);
+		}
+
+		[Serializable]
+		private class ScreenshotArgs { public string path; public int width; public int height; }
+
+		private static string Screenshot( string _payload )
+		{
+			if (string.IsNullOrWhiteSpace(_payload))
+				throw new Exception("screenshotView requires a 'payload' with at least a prefab path.");
+
+			var args = JsonUtility.FromJson<ScreenshotArgs>(_payload);
+			if (args == null || string.IsNullOrEmpty(args.path))
+				throw new Exception("screenshotView payload must contain a 'path' to the baked prefab.");
+
+			int width = args.width > 0 ? args.width : UiScreenPreview.DefaultWidth;
+			int height = args.height > 0 ? args.height : UiScreenPreview.DefaultHeight;
+
+			string base64 = UiScreenPreview.CaptureBase64(args.path, width, height);
+			return "{\"png\":" + JsonString(base64) + ",\"width\":" + width + ",\"height\":" + height + "}";
 		}
 
 		#endregion

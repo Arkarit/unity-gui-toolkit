@@ -39,8 +39,7 @@ Claude (MCP client) ──stdio──> mcp/server.mjs ──HTTP──> Unity Ed
 | `get_catalog` | Return the current screen-authoring catalog JSON (components, styles, skins, palette). |
 | `regenerate_catalog` | Re-run the generator in Unity, then return the fresh catalog. |
 | `bake_screen` | Bake a screen description (`{ name, root }`) into a real `.prefab`; returns its project path. |
-
-A screenshot tool for the AI preview loop is added next.
+| `screenshot_view` | Render a baked prefab to a PNG (Edit-Mode) and return the image — the AI preview loop. |
 
 ### Screen JSON shape (for `bake_screen`)
 

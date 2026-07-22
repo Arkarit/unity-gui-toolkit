@@ -253,6 +253,7 @@ public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
 		public const string AI_MCP_BRIDGE_START_MENU_NAME = AI_HEADER + "Start MCP Bridge";
 		public const string AI_MCP_BRIDGE_STOP_MENU_NAME = AI_HEADER + "Stop MCP Bridge";
 		public const string AI_BAKE_TEST_DIALOG_MENU_NAME = AI_HEADER + "Bake Test Dialog";
+		public const string AI_SCREENSHOT_SELECTED_MENU_NAME = AI_HEADER + "Screenshot Selected Prefab (Preview)";
 		public const string GAME_SPEED_MENU_NAME = MENU_HEADER + "Game speed...";
 		public const string KERNING_TABLE_TOOL_MENU_NAME = MENU_HEADER + "Kerning Table Tool...";
 		public const string LOCA_PROCESSOR_MENU_NAME = LOCA_HEADER + "Process Loca (Update pot file and Loca Providers)";

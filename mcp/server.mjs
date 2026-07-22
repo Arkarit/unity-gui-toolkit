@@ -89,5 +89,30 @@ server.tool(
 	}
 );
 
+server.tool(
+	"screenshot_view",
+	"Render a baked screen prefab to a PNG image (Edit-Mode, no Play Mode) so you can see the result " +
+	"and iterate. 'path' is the project-relative prefab path returned by bake_screen. Returns the image.",
+	{
+		path: z.string().describe("Project-relative path of the baked prefab (from bake_screen)."),
+		width: z.number().int().positive().optional().describe("Render width in px (default 1920)."),
+		height: z.number().int().positive().optional().describe("Render height in px (default 1080)."),
+	},
+	async ({ path, width, height }) => {
+		try {
+			const payload = JSON.stringify({ path, width: width ?? 0, height: height ?? 0 });
+			const text = await callBridge("screenshotView", payload);
+			const result = JSON.parse(text);
+			if (!result.png)
+				throw new Error("Bridge returned no image data.");
+			return {
+				content: [{ type: "image", data: result.png, mimeType: "image/png" }],
+			};
+		} catch (e) {
+			return fail(e);
+		}
+	}
+);
+
 const transport = new StdioServerTransport();
 await server.connect(transport);
