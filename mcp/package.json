@@ -1,0 +1,16 @@
+{
+  "name": "ui-toolkit-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Minimal MCP server bridging an external Claude to the GUI Toolkit Unity Editor (AI screen authoring).",
+  "type": "module",
+  "bin": {
+    "ui-toolkit-mcp": "server.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}

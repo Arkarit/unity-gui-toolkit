@@ -30,6 +30,9 @@ namespace GuiToolkit.Editor.AiSupport
 		// Written into the currently-open (client) project. Assets/ always maps to that project.
 		private const string OutputDir = "Assets/AiSupport";
 
+		/// <summary>Project-relative path of the generated catalog file.</summary>
+		public static string CatalogPath => $"{OutputDir}/{OutputFileName}";
+
 		// The toolkit's own assembly (where UiThing lives); the base of the "authorable" universe.
 		private static Assembly s_toolkitAssembly;
 
@@ -70,7 +73,7 @@ namespace GuiToolkit.Editor.AiSupport
 				var catalog = BuildCatalog();
 
 				EditorFileUtility.EnsureUnityFolderExists(OutputDir);
-				string path = $"{OutputDir}/{OutputFileName}";
+				string path = CatalogPath;
 
 				string json = JsonUtility.ToJson(catalog, true);
 				File.WriteAllText(path, json);
@@ -123,6 +126,8 @@ namespace GuiToolkit.Editor.AiSupport
 					.OrderBy(c => c.category, StringComparer.Ordinal)
 					.ThenBy(c => c.type, StringComparer.Ordinal)
 					.ToList();
+
+				CollectPalette(catalog);
 			}
 			finally
 			{
@@ -446,6 +451,150 @@ namespace GuiToolkit.Editor.AiSupport
 					break;
 				}
 			}
+		}
+
+		#endregion
+
+		#region Palette
+
+		// Built-in scan root: every prefab whose asset path contains this segment is a palette template.
+		private const string StandardElementsSegment = "/Prefabs/StandardElements/";
+
+		private static void CollectPalette( UiScreenCatalog _catalog )
+		{
+			var config = UiAuthorablePaletteConfig.FindFirst();
+
+			// Collect candidate prefab GUIDs: the built-in StandardElements scan plus any extra folders
+			// / individual prefabs configured on the override asset.
+			var guids = new List<string>();
+			void AddGuid( string _guid )
+			{
+				if (!string.IsNullOrEmpty(_guid) && !guids.Contains(_guid))
+					guids.Add(_guid);
+			}
+
+			foreach (var guid in AssetDatabase.FindAssets("t:Prefab"))
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				if (path.Replace('\\', '/').Contains(StandardElementsSegment))
+					AddGuid(guid);
+			}
+
+			if (config != null)
+			{
+				foreach (var folder in config.ExtraFolderPaths())
+					foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { folder }))
+						AddGuid(guid);
+
+				foreach (var prefab in config.ExtraPrefabs)
+				{
+					if (prefab == null)
+						continue;
+					string path = AssetDatabase.GetAssetPath(prefab);
+					AddGuid(AssetDatabase.AssetPathToGUID(path));
+				}
+			}
+
+			var entries = new List<UiPaletteEntry>();
+			foreach (var guid in guids)
+			{
+				var entry = BuildPaletteEntry(guid, config);
+				if (entry != null)
+					entries.Add(entry);
+			}
+
+			_catalog.palette = entries
+				.OrderBy(e => e.category, StringComparer.Ordinal)
+				.ThenBy(e => e.name, StringComparer.Ordinal)
+				.ToList();
+		}
+
+		private static UiPaletteEntry BuildPaletteEntry( string _guid, UiAuthorablePaletteConfig _config )
+		{
+			string path = AssetDatabase.GUIDToAssetPath(_guid);
+			var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+			if (prefab == null)
+				return null;
+
+			string name = prefab.name;
+			if (_config != null && _config.IsHidden(name))
+				return null;
+
+			Type primary = PrimaryComponentType(prefab);
+
+			var entry = new UiPaletteEntry
+			{
+				name = name,
+				prefabPath = path,
+				prefabGuid = _guid,
+				kind = primary?.Name ?? "",
+				category = primary != null ? ClassifyCategory(primary) : "Container",
+				acceptsChildren = primary != null && AcceptsChildren(primary),
+				slots = DerivePaletteSlots(prefab, primary),
+			};
+
+			var over = _config?.FindOverride(name);
+			if (over != null)
+			{
+				if (!string.IsNullOrEmpty(over.category)) entry.category = over.category;
+				if (!string.IsNullOrEmpty(over.description)) entry.description = over.description;
+				if (over.slots != null && over.slots.Count > 0) entry.slots = over.slots;
+			}
+
+			return entry;
+		}
+
+		// The most-derived toolkit UiThing on the prefab root — the component that "is" the widget.
+		private static Type PrimaryComponentType( GameObject _root )
+		{
+			Type best = null;
+			foreach (var component in _root.GetComponents<Component>())
+			{
+				if (component == null)
+					continue;
+				var type = component.GetType();
+				if (!typeof(UiThing).IsAssignableFrom(type))
+					continue;
+				if (best == null || best.IsAssignableFrom(type))
+					best = type;
+			}
+			return best;
+		}
+
+		private static bool AcceptsChildren( Type _type )
+		{
+			return typeof(UiView).IsAssignableFrom(_type)
+			    || typeof(UiPanel).IsAssignableFrom(_type)
+			    || typeof(UGUI.LayoutGroup).IsAssignableFrom(_type);
+		}
+
+		private static List<UiPaletteSlot> DerivePaletteSlots( GameObject _root, Type _primary )
+		{
+			var slots = new List<UiPaletteSlot>();
+
+			if (_root.GetComponentInChildren<TMPro.TMP_Text>(true) != null)
+			{
+				bool localized = _root.GetComponentInChildren<UiLocalizedTextMeshProUGUI>(true) != null;
+				slots.Add(new UiPaletteSlot
+				{
+					name = "text",
+					kind = localized ? "loca" : "text",
+					note = localized
+						? "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+						: "Set the display text.",
+				});
+			}
+
+			if (_primary != null)
+			{
+				if (typeof(UiButtonBase).IsAssignableFrom(_primary) || _root.GetComponent<UGUI.Button>() != null)
+					slots.Add(new UiPaletteSlot { name = "onClick", kind = "event", note = "Click handler (wired later)." });
+
+				if (typeof(UiToggle).IsAssignableFrom(_primary))
+					slots.Add(new UiPaletteSlot { name = "onValueChanged", kind = "event", note = "Toggle change handler (wired later)." });
+			}
+
+			return slots;
 		}
 
 		#endregion

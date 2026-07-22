@@ -35,6 +35,55 @@ namespace GuiToolkit.Editor.AiSupport
 
 		/// <summary>All authorable components.</summary>
 		public List<UiCatalogComponent> components = new();
+
+		/// <summary>
+		/// Ready-made prefab building blocks (StandardButton, StandardCheckbox, panel backgrounds, ...).
+		/// The toolkit's widgets are not self-contained — a "button" is a hand-built prefab (background,
+		/// label, animation). The baker composes screens from these templates; an author references one
+		/// by <see cref="UiPaletteEntry.name"/> in a screen node's <c>"template"</c> field.
+		/// </summary>
+		public List<UiPaletteEntry> palette = new();
+	}
+
+	[Serializable]
+	public class UiPaletteEntry
+	{
+		/// <summary>Authoring key — the value that goes into a screen node's "template".</summary>
+		public string name = "";
+
+		/// <summary>Project-relative asset path of the source prefab.</summary>
+		public string prefabPath = "";
+
+		/// <summary>Stable asset GUID (survives moves/renames; the baker resolves the prefab by this).</summary>
+		public string prefabGuid = "";
+
+		/// <summary>Short name of the primary Ui* component on the prefab root (e.g. "UiButton"); may be empty.</summary>
+		public string kind = "";
+
+		/// <summary>Heuristic category (Button/Toggle/Slider/Panel/Text/Container/...).</summary>
+		public string category = "";
+
+		/// <summary>Human-readable description (from the override config); may be empty.</summary>
+		public string description = "";
+
+		/// <summary>True if the template is a container children may be placed under.</summary>
+		public bool acceptsChildren;
+
+		/// <summary>Authorable slots this template exposes (text, style, onClick, icon, ...).</summary>
+		public List<UiPaletteSlot> slots = new();
+	}
+
+	[Serializable]
+	public class UiPaletteSlot
+	{
+		/// <summary>Slot key used in a screen node (e.g. "text", "style", "onClick").</summary>
+		public string name = "";
+
+		/// <summary>Slot kind: text, loca, style, event, sprite.</summary>
+		public string kind = "";
+
+		/// <summary>Optional hint about what this slot controls.</summary>
+		public string note = "";
 	}
 
 	[Serializable]
