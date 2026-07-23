@@ -161,6 +161,8 @@ namespace GuiToolkit.Editor.AiSupport
 				WarnMissingDescriptions(catalog);
 
 				CollectPalette(catalog);
+
+				WarnMissingPaletteDescriptions(catalog);
 			}
 			finally
 			{
@@ -422,6 +424,22 @@ namespace GuiToolkit.Editor.AiSupport
 
 			UiLog.LogWarning($"AI catalog: {missing.Count}/{_catalog.components.Count} authorable components have no " +
 			                 $"/// <summary> doc comment (no description for the authoring AI):\n  {string.Join(", ", missing)}");
+		}
+
+		/// <summary>Logs which palette prefabs still lack a root <see cref="UiComment"/> (their flavor description).</summary>
+		private static void WarnMissingPaletteDescriptions( UiScreenCatalog _catalog )
+		{
+			var missing = _catalog.palette
+				.Where(e => string.IsNullOrEmpty(e.description))
+				.Select(e => e.name)
+				.OrderBy(n => n, StringComparer.Ordinal)
+				.ToList();
+
+			if (missing.Count == 0)
+				return;
+
+			UiLog.LogWarning($"AI catalog: {missing.Count}/{_catalog.palette.Count} palette prefabs have no root " +
+			                 $"UiComment (no flavor description for the authoring AI):\n  {string.Join(", ", missing)}");
 		}
 
 		#endregion
@@ -700,6 +718,10 @@ namespace GuiToolkit.Editor.AiSupport
 				prefabGuid = _guid,
 				kind = primary?.Name ?? "",
 				category = primary != null ? ClassifyCategory(primary) : "Container",
+				// Instance/"flavor" description: a UiComment on the prefab root. Curated per prefab (and
+				// travels with a client variant), so OkButton and CancelButton can read differently even
+				// though both are UiButtons. The per-type description lives on the component entry.
+				description = RootCommentText(prefab),
 				slots = DerivePaletteSlots(prefab, primary),
 			};
 
@@ -707,11 +729,19 @@ namespace GuiToolkit.Editor.AiSupport
 			if (over != null)
 			{
 				if (!string.IsNullOrEmpty(over.category)) entry.category = over.category;
-				if (!string.IsNullOrEmpty(over.description)) entry.description = over.description;
 				if (over.slots != null && over.slots.Count > 0) entry.slots = over.slots;
 			}
 
 			return entry;
+		}
+
+		/// <summary>Text of a <see cref="UiComment"/> on the prefab root (whitespace-collapsed), or "" if none.</summary>
+		private static string RootCommentText( GameObject _prefab )
+		{
+			var comment = _prefab.GetComponent<UiComment>();
+			if (comment == null || string.IsNullOrWhiteSpace(comment.Text))
+				return "";
+			return Regex.Replace(comment.Text, "\\s+", " ").Trim();
 		}
 
 		// The most-derived toolkit UiThing on the prefab root — the component that "is" the widget.

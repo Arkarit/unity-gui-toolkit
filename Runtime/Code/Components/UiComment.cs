@@ -17,6 +17,7 @@ namespace GuiToolkit
 	///
 	/// The text is compiled only in the editor, so it never ships in a player build.
 	/// </summary>
+	[UiNotAuthorable] // annotation/metadata, not a placeable screen widget — keep it out of the catalog
 	public class UiComment : MonoBehaviour
 	{
 #if UNITY_EDITOR
