@@ -4,6 +4,11 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// Exposes a text label that lives in a child object (TextMeshPro or legacy Text) through its
+	/// <see cref="Text"/> and <see cref="TextColor"/>. If the child is a localized TMP text, the Text
+	/// property transparently reads/writes its localization key instead of the raw string.
+	/// </summary>
 	public class UiTextContainer : UiThing, IPoolable
 	{
 		protected TextMeshProUGUI m_tmpText;

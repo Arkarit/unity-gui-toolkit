@@ -7,6 +7,10 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// An invisible full-rect graphic that renders nothing but always catches raycasts — use it to
+	/// block clicks to whatever is behind it (e.g. a modal background or an interaction guard).
+	/// </summary>
 	[RequireComponent(typeof(CanvasRenderer))]
 	public class UiClickCatcher : Graphic
 	{

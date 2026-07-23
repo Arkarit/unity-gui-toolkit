@@ -9,6 +9,11 @@ using static UnityEngine.UI.Slider;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A value slider that drives a referenced Unity <see cref="Slider"/> (value normalized 0..1). Optionally shows
+	/// the current value as text (always, or briefly while moving), swaps icons, and supports an
+	/// on/off toggle or min/max buttons — geared toward settings such as volume.
+	/// </summary>
 	public class UiSlider : UiThing
 	{
 		public enum ETextMode

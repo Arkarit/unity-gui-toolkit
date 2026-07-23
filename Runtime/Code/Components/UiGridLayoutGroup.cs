@@ -3,7 +3,11 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	// Improved version of builtin GridLayoutGroup
+	/// <summary>
+	/// An improved grid layout group: arranges children in a grid by cell size and spacing with a
+	/// configurable start corner/axis and a flexible or fixed column/row count. Unlike Unity's
+	/// built-in GridLayoutGroup it can center the elements of a partially filled final row/column.
+	/// </summary>
 	public class UiGridLayoutGroup : LayoutGroup
 	{
 		public enum ECorner
