@@ -33,6 +33,24 @@ async function callBridge(method, payload) {
 	return text;
 }
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Like callBridge but never throws — returns the parsed JSON, or null when the bridge is
+// unreachable (e.g. the HTTP listener is briefly down during a domain reload).
+async function tryBridge(method) {
+	try {
+		const res = await fetch(BRIDGE_URL, {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ method }),
+		});
+		if (!res.ok) return null;
+		return JSON.parse(await res.text());
+	} catch {
+		return null;
+	}
+}
+
 function ok(text) {
 	return { content: [{ type: "text", text }] };
 }
@@ -50,6 +68,64 @@ server.tool(
 	async () => {
 		try { return ok(await callBridge("ping")); }
 		catch (e) { return fail(e); }
+	}
+);
+
+server.tool(
+	"status",
+	"Report whether the Unity Editor is currently compiling scripts or importing assets. " +
+	"Returns { running, compiling, updating }.",
+	{},
+	async () => {
+		try { return ok(await callBridge("status")); }
+		catch (e) { return fail(e); }
+	}
+);
+
+server.tool(
+	"recompile",
+	"Force Unity to pick up and recompile changed editor/runtime C# scripts, then WAIT until the " +
+	"compilation and the following domain reload have finished. Use this after editing toolkit C# so " +
+	"you don't have to ask a human to click into the Unity window. Returns when the editor is idle again.",
+	{},
+	async () => {
+		try {
+			const started = await callBridge("recompile"); // returns immediately: {"recompiling":true}
+			void started;
+
+			const TIMEOUT_MS = 180000;
+			const t0 = Date.now();
+			let sawActivity = false;   // compiling/updating seen, or the bridge went down for a reload
+			let reloaded = false;
+
+			await sleep(1500); // let Unity begin compiling (RequestScriptCompilation runs next tick)
+
+			while (Date.now() - t0 < TIMEOUT_MS) {
+				const st = await tryBridge("status");
+				if (st === null) {
+					// Bridge unreachable — almost certainly the domain reload window. Keep waiting.
+					sawActivity = true;
+					reloaded = true;
+					await sleep(1000);
+					continue;
+				}
+				if (st.compiling || st.updating) {
+					sawActivity = true;
+					await sleep(1000);
+					continue;
+				}
+				// Editor is idle.
+				if (sawActivity)
+					return ok(JSON.stringify({ recompiled: true, reloaded, ms: Date.now() - t0 }));
+				// Idle but never saw activity yet — compile may not have kicked in; give it a short grace.
+				if (Date.now() - t0 > 12000)
+					return ok(JSON.stringify({ recompiled: true, reloaded, note: "no compilation activity detected", ms: Date.now() - t0 }));
+				await sleep(1000);
+			}
+			return ok(JSON.stringify({ recompiled: false, reloaded, note: "timed out waiting for the editor to go idle", ms: Date.now() - t0 }));
+		} catch (e) {
+			return fail(e);
+		}
 	}
 );
 

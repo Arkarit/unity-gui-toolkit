@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
+using UnityEditor.Compilation;
 using UnityEngine;
 
 namespace GuiToolkit.Editor.AiSupport
@@ -19,9 +20,9 @@ namespace GuiToolkit.Editor.AiSupport
 	/// thread (AssetDatabase / the catalog generator are main-thread only), marshalled via
 	/// <see cref="EditorApplication.update"/>.
 	///
-	/// Deliberately tiny: methods are ping / getCatalog / regenerateCatalog / bakeScreen /
-	/// screenshotView. Methods that need input carry it in the envelope's <c>payload</c> string
-	/// (raw JSON the handler parses itself).
+	/// Deliberately tiny: methods are ping / status / recompile / getCatalog / regenerateCatalog /
+	/// bakeScreen / screenshotView. Methods that need input carry it in the envelope's <c>payload</c>
+	/// string (raw JSON the handler parses itself).
 	/// </summary>
 	[InitializeOnLoad]
 	public static class UiScreenMcpBridge
@@ -34,6 +35,7 @@ namespace GuiToolkit.Editor.AiSupport
 		private static HttpListener s_listener;
 		private static Thread s_acceptThread;
 		private static volatile bool s_running;
+		private static volatile bool s_recompileRequested;
 		private static readonly ConcurrentQueue<Action> s_mainThreadQueue = new();
 
 		public static bool IsRunning => s_running;
@@ -132,6 +134,20 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				try { job(); } catch (Exception e) { UiLog.LogError($"MCP bridge job failed: {e.Message}"); }
 			}
+
+			// Handled here (not in the request handler) so the recompile's domain reload happens on a
+			// clean editor tick after the HTTP response was already sent — and because this update path
+			// keeps ticking while the window is unfocused, which is the whole point of the feature.
+			if (s_recompileRequested)
+			{
+				s_recompileRequested = false;
+				try
+				{
+					AssetDatabase.Refresh();
+					CompilationPipeline.RequestScriptCompilation();
+				}
+				catch (Exception e) { UiLog.LogError($"MCP bridge recompile failed: {e.Message}"); }
+			}
 		}
 
 		private static void AcceptLoop()
@@ -208,6 +224,19 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				case "ping":
 					return "{\"unity\":true,\"toolkit\":" + JsonString(typeof(UiThing).Assembly.GetName().Name) + "}";
+
+				case "status":
+					return "{\"running\":true,\"compiling\":" + (EditorApplication.isCompiling ? "true" : "false") +
+					       ",\"updating\":" + (EditorApplication.isUpdating ? "true" : "false") + "}";
+
+				case "recompile":
+					// Trigger the refresh from Pump() (the EditorApplication.update path, which provably
+					// ticks even while the window is unfocused) rather than here: doing it inline would
+					// let the compilation's domain reload tear down this request's HTTP response, and
+					// EditorApplication.delayCall fires unreliably while Unity is in the background.
+					// Refresh() imports new/changed scripts; RequestScriptCompilation() forces the rebuild.
+					s_recompileRequested = true;
+					return "{\"recompiling\":true}";
 
 				case "getCatalog":
 					return CatalogSummaryJson();
