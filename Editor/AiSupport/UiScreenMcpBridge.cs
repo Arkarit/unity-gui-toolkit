@@ -14,7 +14,7 @@ namespace GuiToolkit.Editor.AiSupport
 	/// <summary>
 	/// Minimal "Mini-DAL" bridge for the AI screen-authoring MCP. Runs a loopback-only
 	/// <see cref="HttpListener"/> inside the Unity Editor and answers a tiny JSON protocol
-	/// (<c>{"method":"..."}</c>) used by the Node MCP proxy (mcp/server.mjs).
+	/// (<c>{"method":"..."}</c>) used by the Node MCP proxy (mcp~/server.mjs).
 	///
 	/// Requests are accepted on background threads but every handler runs on the Editor main
 	/// thread (AssetDatabase / the catalog generator are main-thread only), marshalled via
