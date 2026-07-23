@@ -55,7 +55,11 @@ server.tool(
 
 server.tool(
 	"get_catalog",
-	"Return the current GUI Toolkit screen-authoring catalog (the machine-readable vocabulary of authorable components, props, styles and skins) as JSON.",
+	"Locate the GUI Toolkit screen-authoring catalog (the machine-readable vocabulary of authorable " +
+	"components, props, styles and skins). Returns a small JSON summary — { path, absolutePath, version, " +
+	"generatedAtUtc, byteSize, counts } — NOT the catalog body: the catalog is large (~750 KB) and this " +
+	"server runs on your machine, so read the file at 'absolutePath' yourself with your own file tools " +
+	"(offset/limit/search or a JSON query) instead of loading it all at once.",
 	{},
 	async () => {
 		try { return ok(await callBridge("getCatalog")); }
@@ -65,7 +69,9 @@ server.tool(
 
 server.tool(
 	"regenerate_catalog",
-	"Re-run the catalog generator inside Unity (reflects the latest components), then return the fresh catalog JSON.",
+	"Re-run the catalog generator inside Unity (reflects the latest components), then return the same " +
+	"summary envelope as get_catalog ({ path, absolutePath, counts, ... }). Read the file at 'absolutePath' " +
+	"yourself for the full vocabulary — the body is not returned inline.",
 	{},
 	async () => {
 		try { return ok(await callBridge("regenerateCatalog")); }

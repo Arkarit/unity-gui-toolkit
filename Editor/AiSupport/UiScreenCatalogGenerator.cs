@@ -52,6 +52,26 @@ namespace GuiToolkit.Editor.AiSupport
 			"UiStyle",
 		};
 
+		// Client (non-toolkit) types with these name prefixes are demo/sample/test content, not
+		// production screen elements. Toolkit types can't match (they must start with "Ui").
+		// [UiAuthorable] overrides this (checked earlier in IsAuthorable).
+		private static readonly string[] s_denyClientNamePrefixes =
+		{
+			"Demo",
+			"Example",
+			"Sample",
+			"Test",
+		};
+
+		// Assembly name segments that mark a test/playmode/editmode assembly (never authorable).
+		private static readonly string[] s_testAssemblySegments =
+		{
+			"Test",
+			"Tests",
+			"PlayMode",
+			"EditMode",
+		};
+
 		// Loaded once per Generate() run so style lookups don't re-scan the AssetDatabase per component.
 		private static List<UiStyleConfig> s_styleConfigCache;
 
@@ -110,9 +130,11 @@ namespace GuiToolkit.Editor.AiSupport
 				CollectStyles(catalog);
 
 				// Scan the toolkit assembly plus every assembly that references it (client asmdefs,
-				// Assembly-CSharp). Client types are only kept if they subclass a toolkit component.
+				// Assembly-CSharp), minus test/playmode assemblies. Client types are only kept if
+				// they subclass a toolkit component.
 				var assemblies = AppDomain.CurrentDomain.GetAssemblies()
-					.Where(ReferencesToolkit);
+					.Where(ReferencesToolkit)
+					.Where(a => !IsTestAssembly(a));
 
 				var types = assemblies
 					.SelectMany(SafeGetTypes)
@@ -153,6 +175,22 @@ namespace GuiToolkit.Editor.AiSupport
 			}
 		}
 
+		// The toolkit's own test assembly (…​.Test.PlayMode) references the toolkit and its test
+		// components subclass real widgets, so they'd otherwise be catalogued. Match by dotted-name
+		// segment so a legitimately-named client assembly isn't caught by a substring.
+		private static bool IsTestAssembly( Assembly _assembly )
+		{
+			if (_assembly == s_toolkitAssembly)
+				return false;
+
+			string name;
+			try { name = _assembly.GetName().Name; }
+			catch { return false; }
+
+			var segments = name.Split('.');
+			return segments.Any(s => s_testAssemblySegments.Any(t => string.Equals(s, t, StringComparison.OrdinalIgnoreCase)));
+		}
+
 		private static IEnumerable<Type> SafeGetTypes( Assembly _assembly )
 		{
 			try
@@ -185,6 +223,11 @@ namespace GuiToolkit.Editor.AiSupport
 			// base classes and infrastructure we don't want listed as usable widgets).
 			if (_type.Assembly == s_toolkitAssembly)
 				return IsAuthorableToolkitType(_type);
+
+			// Client (or other referencing) types named like demo/sample/test content are not
+			// production screen elements. [UiAuthorable] (checked above) overrides this.
+			if (s_denyClientNamePrefixes.Any(p => _type.Name.StartsWith(p, StringComparison.Ordinal)))
+				return false;
 
 			// Client (or other referencing) types are authorable iff they derive from an
 			// authorable toolkit component — the naming rules above are toolkit-only and must

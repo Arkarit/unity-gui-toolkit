@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -209,13 +210,13 @@ namespace GuiToolkit.Editor.AiSupport
 					return "{\"unity\":true,\"toolkit\":" + JsonString(typeof(UiThing).Assembly.GetName().Name) + "}";
 
 				case "getCatalog":
-					return ReadCatalogOrThrow();
+					return CatalogSummaryJson();
 
 				case "regenerateCatalog":
 					string path = UiScreenCatalogGenerator.Generate();
 					if (string.IsNullOrEmpty(path))
 						throw new Exception("Catalog generation failed — see the Unity console.");
-					return ReadCatalogOrThrow();
+					return CatalogSummaryJson();
 
 				case "bakeScreen":
 					if (string.IsNullOrWhiteSpace(_payload))
@@ -231,12 +232,43 @@ namespace GuiToolkit.Editor.AiSupport
 			}
 		}
 
-		private static string ReadCatalogOrThrow()
+		/// <summary>
+		/// Returns a small JSON envelope describing the catalog file (path + cheap metadata) rather
+		/// than its full body. The MCP client runs on the same machine (loopback bridge), so it reads
+		/// the file itself with its own file tools — piping ~750 KB of JSON through the tool result
+		/// would blow the client's context budget for no reason.
+		/// </summary>
+		private static string CatalogSummaryJson()
 		{
-			string path = UiScreenCatalogGenerator.CatalogPath;
-			if (!File.Exists(path))
-				throw new FileNotFoundException($"Catalog not found at '{path}'. Run regenerateCatalog first.");
-			return File.ReadAllText(path);
+			string relPath = UiScreenCatalogGenerator.CatalogPath;
+			if (!File.Exists(relPath))
+				throw new FileNotFoundException($"Catalog not found at '{relPath}'. Run regenerateCatalog first.");
+
+			string absPath = Path.GetFullPath(relPath).Replace('\\', '/');
+			var fileInfo = new FileInfo(absPath);
+
+			int Count(JObject o, string key) => o[key] is JArray a ? a.Count : 0;
+
+			var catalog = JObject.Parse(File.ReadAllText(relPath));
+			var summary = new JObject
+			{
+				["path"]           = relPath,
+				["absolutePath"]   = absPath,
+				["version"]        = catalog["version"],
+				["generatedAtUtc"] = catalog["generatedAtUtc"],
+				["toolkitAssembly"] = catalog["toolkitAssembly"],
+				["byteSize"]       = fileInfo.Length,
+				["counts"] = new JObject
+				{
+					["components"]  = Count(catalog, "components"),
+					["palette"]     = Count(catalog, "palette"),
+					["skins"]       = Count(catalog, "skins"),
+					["styleGroups"] = Count(catalog, "styleGroups"),
+				},
+				["hint"] = "This is a summary, not the catalog itself. Read the file at 'absolutePath' " +
+					"with your own file tools (offset/limit/search or a JSON query) — the full catalog is large.",
+			};
+			return summary.ToString(Newtonsoft.Json.Formatting.None);
 		}
 
 		[Serializable]
