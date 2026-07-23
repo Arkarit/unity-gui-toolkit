@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using Codice.CM.SEIDInfo;
 using UnityEngine;
 using UnityEditor;
 
@@ -9,110 +8,96 @@ namespace GuiToolkit.Editor
 	[CustomEditor(typeof(UiMain))]
 	public class UiMainEditor : UnityEditor.Editor
 	{
-		private const string DefaultClonePath = "Assets/Prefabs/ui-toolkit-variants";
-		
-		private readonly List<SerializedProperty> m_prefabProperties = new();
-		private string m_clonePath = DefaultClonePath;
-		
+		private const string DefaultConfigPath = "Assets/Prefabs/ui-toolkit-variants";
+
+		private readonly List<SerializedProperty> m_inlinePrefabProperties = new();
+		private string[] m_inlinePrefabNames = System.Array.Empty<string>();
+		private SerializedProperty m_prefabConfigProperty;
+		private string m_configPath = DefaultConfigPath;
+
 		private void OnEnable()
 		{
-			m_prefabProperties.Clear();
+			m_inlinePrefabProperties.Clear();
+			m_prefabConfigProperty = serializedObject.FindProperty("m_prefabConfig");
+			var names = new List<string>();
 			EditorGeneralUtility.ForeachProperty(serializedObject, property =>
 			{
 				if (property.name.EndsWith("Prefab"))
-					m_prefabProperties.Add(property);
+				{
+					m_inlinePrefabProperties.Add(property.Copy());
+					names.Add(property.name);
+				}
 			});
-		}
-		
-		private void FindProperty(ref SerializedProperty _property, string _name)
-		{
-			_property = serializedObject.FindProperty(_name);
-			m_prefabProperties.Add(_property);
+			m_inlinePrefabNames = names.ToArray();
 		}
 
 		public override void OnInspectorGUI()
 		{
-			DrawDefaultInspector();
-			EditorGUILayout.Space();
-			EditorGUILayout.LabelField("Prefabs", EditorStyles.boldLabel);
-			if (IsAnyPrefabCloned())
+			serializedObject.Update();
+
+			// Everything except the deprecated inline prefab fields (drawn conditionally below).
+			DrawPropertiesExcluding(serializedObject, m_inlinePrefabNames);
+
+			var assigned = m_inlinePrefabProperties.FindAll(p => p != null && p.objectReferenceValue != null);
+			if (assigned.Count > 0)
 			{
-				m_clonePath = EditorFileUtility.PathFieldReadFolder("Prefab Path", m_clonePath);
-				if (GUILayout.Button("Create Default Prefabs Variants"))
-					CloneDefaultPrefabs();
+				// Only shown while inline fields still hold values; hidden entirely once migrated/empty.
+				EditorGUILayout.Space();
+				EditorGUILayout.LabelField("Prefabs (DEPRECATED — migrate to UiPrefabConfig)", EditorStyles.boldLabel);
+				foreach (var property in assigned)
+					EditorGUILayout.PropertyField(property, true);
+
+				EditorGUILayout.Space();
+				EditorGUILayout.HelpBox(
+					"The inline prefab fields are deprecated. Migrate them into a UiPrefabConfig asset — " +
+					"UiMain then sources its built-in prefabs (and their variants) from that config.",
+					MessageType.Warning);
+
+				m_configPath = EditorFileUtility.PathFieldReadFolder("Config Path", m_configPath);
+				if (GUILayout.Button("Migrate Prefabs to UiPrefabConfig"))
+					MigrateToConfig();
 			}
 
 			serializedObject.ApplyModifiedProperties();
 		}
 
-		private bool IsAnyPrefabCloned()
+		private void MigrateToConfig()
 		{
-			foreach (var property in m_prefabProperties)
+			// Use the already-assigned config, or create a fresh asset.
+			var config = m_prefabConfigProperty.objectReferenceValue as UiPrefabConfig;
+			if (config == null)
 			{
-				if (EditorAssetUtility.IsPackagesOrInternalAsset(property.objectReferenceValue))
-					return true;
+				EditorFileUtility.EnsureUnityFolderExists(m_configPath);
+				string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{m_configPath}/UiPrefabConfig.asset");
+				config = ScriptableObject.CreateInstance<UiPrefabConfig>();
+				AssetDatabase.CreateAsset(config, assetPath);
 			}
-			
-			return false;
-		}
-		
-		private void CloneDefaultPrefabs()
-		{
-			for (int i=0; i<m_prefabProperties.Count; i++)
-			{
-				var property = m_prefabProperties[i];
-				if (EditorAssetUtility.IsPackagesOrInternalAsset(property.objectReferenceValue))
-					Clone(ref property);
-			}
-		}
 
-		private void Clone(ref SerializedProperty _property)
-		{
-			var obj = _property.objectReferenceValue;
-			if (!obj)
-				return;
-			
-			var component = obj as Component;
-			if (!component)
-				return;
-			
-			if (!EditorAssetUtility.IsPackagesOrInternalAsset(component))
-				return;
-			
-			var assetPath = AssetDatabase.GetAssetPath(component);
-			if (string.IsNullOrEmpty(assetPath))
-				return;
-			
-			var asset = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-			if (!asset)
-				return;
-			
-			var filename = Path.GetFileNameWithoutExtension(assetPath);
-			var extension = Path.GetExtension(assetPath);
-			var newAssetPath = $"{m_clonePath}/{filename}{extension}";
-			var variantName = $"{filename}Variant{extension}";
-			var variantPath = $"{m_clonePath}/{variantName}";
-			
-			if (File.Exists(variantPath))
+			// Copy each inline value into the config, but only where the config entry is still empty,
+			// so an already-curated config (e.g. with variants) is never clobbered.
+			var configSo = new SerializedObject(config);
+			foreach (var inline in m_inlinePrefabProperties)
 			{
-				var existing = AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
-				_property.objectReferenceValue = existing;
-				return;
+				if (inline == null || inline.objectReferenceValue == null)
+					continue;
+				var target = configSo.FindProperty(inline.name);
+				if (target != null && target.objectReferenceValue == null)
+					target.objectReferenceValue = inline.objectReferenceValue;
 			}
-			
-			var prefab = PrefabUtility.InstantiatePrefab(asset) as GameObject;
-			if (!prefab)
-				return;
-			
-			EditorFileUtility.EnsureUnityFolderExists(m_clonePath);
-			var variant = PrefabUtility.SaveAsPrefabAsset(prefab, newAssetPath);
-			
-			var componentInClone = EditorGeneralUtility.FindMatchingChildInPrefab(variant, component.gameObject);
-			_property.objectReferenceValue = componentInClone;
-			
-			AssetDatabase.RenameAsset(newAssetPath, variantName);
-			
-			prefab.SafeDestroy();
+			configSo.ApplyModifiedProperties();
+			EditorUtility.SetDirty(config);
+
+			// Point UiMain at the config and clear the (now migrated) inline fields.
+			m_prefabConfigProperty.objectReferenceValue = config;
+			foreach (var inline in m_inlinePrefabProperties)
+				inline.objectReferenceValue = null;
+
+			serializedObject.ApplyModifiedProperties();
+			AssetDatabase.SaveAssets();
+
+			EditorGUIUtility.PingObject(config);
+			UiLog.LogInternal($"Migrated UiMain prefabs into '{AssetDatabase.GetAssetPath(config)}'. " +
+				"Inline fields cleared; UiMain now sources prefabs from the config.");
 		}
 	}
 }

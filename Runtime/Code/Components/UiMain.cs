@@ -30,9 +30,15 @@ namespace GuiToolkit
 		[SerializeField] private RenderMode m_renderMode = RenderMode.ScreenSpaceCamera;
 		[SerializeField] private float m_layerDistance = 0.02f;
 
-		[Header("Prefabs")]
-		// Be sure to end the naming with "Prefab" for making them available for creating variants!
-		// See UiMainEditor
+		[Header("Prefab Config")]
+		[Tooltip("Assign a UiPrefabConfig to source the built-in prefabs (and their client variants) from. " +
+			"When set, its entries take precedence over the deprecated inline fields below. Use the " +
+			"'Migrate Prefabs to UiPrefabConfig' button in the inspector to move the inline fields into an asset.")]
+		[SerializeField][Optional] private UiPrefabConfig m_prefabConfig;
+
+		// DEPRECATED: these inline prefab fields are kept only as a fallback. Migrate them into a
+		// UiPrefabConfig asset (inspector button) — the config takes precedence via the getters below.
+		// The custom editor (UiMainEditor) hides these when empty and draws their header itself.
 		[SerializeField] private UiButton m_standardButtonPrefab;
 		[SerializeField] private UiButton m_okButtonPrefab;
 		[SerializeField] private UiButton m_cancelButtonPrefab;
@@ -92,13 +98,26 @@ namespace GuiToolkit
 		private static bool s_staticInitialized = false;
 #endif
 
-		public UiButton StandardButtonPrefab => m_standardButtonPrefab;
-		public UiButton OkButtonPrefab => m_okButtonPrefab;
-		public UiButton CancelButtonPrefab => m_cancelButtonPrefab;
-		public UiButton StandardButtonSmallPrefab => m_standardButtonSmallPrefab;
-		public UiLanguageToggle LanguageTogglePrefab => m_languageTogglePrefab;
-		public UiButton CloseButtonPrefab => m_closeButtonPrefab;
-		public UiButton StandardIconButtonPrefab => m_standardIconButtonPrefab;
+		// Prefab accessors: prefer the assigned UiPrefabConfig, fall back to the (deprecated) inline field.
+		private static T Pick<T>( T _fromConfig, T _fallback ) where T : UnityEngine.Object
+			=> _fromConfig != null ? _fromConfig : _fallback;
+
+		public UiButton StandardButtonPrefab => Pick(m_prefabConfig ? m_prefabConfig.StandardButtonPrefab : null, m_standardButtonPrefab);
+		public UiButton OkButtonPrefab => Pick(m_prefabConfig ? m_prefabConfig.OkButtonPrefab : null, m_okButtonPrefab);
+		public UiButton CancelButtonPrefab => Pick(m_prefabConfig ? m_prefabConfig.CancelButtonPrefab : null, m_cancelButtonPrefab);
+		public UiButton StandardButtonSmallPrefab => Pick(m_prefabConfig ? m_prefabConfig.StandardButtonSmallPrefab : null, m_standardButtonSmallPrefab);
+		public UiLanguageToggle LanguageTogglePrefab => Pick(m_prefabConfig ? m_prefabConfig.LanguageTogglePrefab : null, m_languageTogglePrefab);
+		public UiButton CloseButtonPrefab => Pick(m_prefabConfig ? m_prefabConfig.CloseButtonPrefab : null, m_closeButtonPrefab);
+		public UiButton StandardIconButtonPrefab => Pick(m_prefabConfig ? m_prefabConfig.StandardIconButtonPrefab : null, m_standardIconButtonPrefab);
+
+		// Internal-only accessors for the prefabs UiMain creates itself (same config-first fallback).
+		private UiRequester RequesterPrefab => Pick(m_prefabConfig ? m_prefabConfig.RequesterPrefab : null, m_requesterPrefab);
+		private UiPlayerSettingsDialog SettingsDialogPrefab => Pick(m_prefabConfig ? m_prefabConfig.SettingsDialogPrefab : null, m_settingsDialogPrefab);
+		private UiToastMessageView ToastMessageViewPrefab => Pick(m_prefabConfig ? m_prefabConfig.ToastMessageViewPrefab : null, m_toastMessageViewPrefab);
+		private UiKeyPressRequester KeyPressRequesterPrefab => Pick(m_prefabConfig ? m_prefabConfig.KeyPressRequesterPrefab : null, m_keyPressRequesterPrefab);
+		private UiGridPicker GridPickerPrefab => Pick(m_prefabConfig ? m_prefabConfig.GridPickerPrefab : null, m_gridPickerPrefab);
+		private UiPopup PopupMenuPrefab => Pick(m_prefabConfig ? m_prefabConfig.PopupMenuPrefab : null, m_popupMenuPrefab);
+		private UiStartupOverlayView StartupOverlayViewPrefab => Pick(m_prefabConfig ? m_prefabConfig.StartupOverlayViewPrefab : null, m_startupOverlayViewPrefab);
 		public UiPlayerSettingsDialog PlayerSettingsDialog => m_playerSettingsDialog;
 		public float LayerDistance => m_layerDistance;
 		public RenderMode RenderMode => m_renderMode;
@@ -323,14 +342,14 @@ namespace GuiToolkit
 		#region "Builtin Dialogs"
 		public void ShowGridPicker( UiGridPicker.Options _options )
 		{
-			UiGridPicker gridPicker = CreateView(m_gridPickerPrefab);
+			UiGridPicker gridPicker = CreateView(GridPickerPrefab);
 			gridPicker.SetOptions(_options);
 			gridPicker.Show();
 		}
 
 		public UiPopup ShowPopupMenu( UiPopup.Options _options )
 		{
-			UiPopup popup = CreateView(m_popupMenuPrefab);
+			UiPopup popup = CreateView(PopupMenuPrefab);
 			popup.SetOptions(_options);
 			popup.Show();
 			return popup;
@@ -338,7 +357,7 @@ namespace GuiToolkit
 
 		public void ShowSettingsDialog()
 		{
-			m_playerSettingsDialog = CreateView(m_settingsDialogPrefab);
+			m_playerSettingsDialog = CreateView(SettingsDialogPrefab);
 			m_playerSettingsDialog.EvOnDestroyed.AddListener(( UiPanel _ ) => m_playerSettingsDialog = null);
 			m_playerSettingsDialog.Show();
 		}
@@ -346,7 +365,7 @@ namespace GuiToolkit
 		public void ShowToastMessageView( string _message, float _duration = 2 )
 		{
 			UiToastMessageView.HideAll(true);
-			UiToastMessageView message = m_toastMessageViewPrefab.PoolInstantiate();
+			UiToastMessageView message = ToastMessageViewPrefab.PoolInstantiate();
 			message.transform.SetParent(transform, false);
 			message.Show(_message, _duration);
 		}
@@ -491,35 +510,35 @@ namespace GuiToolkit
 
 		public void KeyPressRequester( UnityAction<KeyBinding> _onEvent )
 		{
-			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
+			UiKeyPressRequester requester = CreateView(KeyPressRequesterPrefab);
 			Debug.Assert(requester);
 			requester.Requester(_onEvent, null, null);
 		}
 
 		public void KeyPressRequester( PlayerSettingOptions _options, UnityAction<KeyBinding> _onEvent )
 		{
-			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
+			UiKeyPressRequester requester = CreateView(KeyPressRequesterPrefab);
 			Debug.Assert(requester);
 			requester.Requester(_onEvent, _options, null);
 		}
 
 		public void KeyPressRequester( PlayerSettingOptions _options, string _title, UnityAction<KeyBinding> _onEvent )
 		{
-			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
+			UiKeyPressRequester requester = CreateView(KeyPressRequesterPrefab);
 			Debug.Assert(requester);
 			requester.Requester(_onEvent, _options, _title);
 		}
 
 		public void KeyPressRequester( string _title, UnityAction<KeyBinding> _onEvent )
 		{
-			UiKeyPressRequester requester = CreateView(m_keyPressRequesterPrefab);
+			UiKeyPressRequester requester = CreateView(KeyPressRequesterPrefab);
 			Debug.Assert(requester);
 			requester.Requester(_onEvent, null, _title);
 		}
 
 		public UiRequester CreateRequesterView(UiRequester _optionalCustomPrefab)
 		{
-			return CreateView(_optionalCustomPrefab != null ? _optionalCustomPrefab : m_requesterPrefab);
+			return CreateView(_optionalCustomPrefab != null ? _optionalCustomPrefab : RequesterPrefab);
 		}
 
 		public T CreateView<T>( T _template = null ) where T : UiView
@@ -722,9 +741,9 @@ namespace GuiToolkit
 			// Create the persistent startup-overlay host once (if configured). It parents under
 			// UiMain, so it is DontDestroyOnLoad and picks up its layer sorting via SortViews. It
 			// sequences its own child UiPanels; trigger it via UiMain.Instance.StartupOverlayView.
-			if (m_startupOverlayViewPrefab != null && m_startupOverlayView == null)
+			if (StartupOverlayViewPrefab != null && m_startupOverlayView == null)
 			{
-				m_startupOverlayView = CreateView(m_startupOverlayViewPrefab);
+				m_startupOverlayView = CreateView(StartupOverlayViewPrefab);
 				if (m_startupOverlayView != null && !m_startupOverlayView.gameObject.activeSelf)
 					m_startupOverlayView.gameObject.SetActive(true);
 			}
