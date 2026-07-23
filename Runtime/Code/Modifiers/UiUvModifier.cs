@@ -3,6 +3,10 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A mesh-effect modifier (BaseMeshEffectTMP) that remaps the UV coordinates of the Graphic or TextMeshPro text on
+	/// the same GameObject into a target UV rect (min/max), with an option to swap the U and V axes.
+	/// </summary>
 	[ExecuteAlways]
 	public class UiUvModifier : BaseMeshEffectTMP
 	{

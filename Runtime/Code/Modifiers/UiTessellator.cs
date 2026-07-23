@@ -7,6 +7,11 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A topology-changing mesh-effect modifier (BaseMeshEffectTMP) that subdivides (tessellates) the mesh of the
+	/// Graphic or TextMeshPro text on the same GameObject horizontally, vertically or both at a configurable cell
+	/// size, useful as a prerequisite for other modifiers that need denser geometry.
+	/// </summary>
 	[ExecuteAlways]
 	public class UiTessellator : BaseMeshEffectTMP
 	{

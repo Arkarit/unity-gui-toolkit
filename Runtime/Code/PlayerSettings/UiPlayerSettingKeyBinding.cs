@@ -5,6 +5,11 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiPlayerSettingButton for a key-binding setting: it shows the current KeyBinding as text and, when clicked,
+	/// opens the key-press requester to rebind it. It can optionally highlight the text and background color when the
+	/// binding is unset.
+	/// </summary>
 	public class UiPlayerSettingKeyBinding : UiPlayerSettingButton
 	{
 		[SerializeField] protected TMP_Text m_keyDisplay;

@@ -8,6 +8,11 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A modal UiView that prompts the user to press a key or mouse button and reports the resulting KeyBinding (with
+	/// modifiers) through a callback. It shows a localized title based on the PlayerSettingOptions filter/whitelist,
+	/// warns on unsupported keys with an animation, and displays live shift/ctrl/alt indicators.
+	/// </summary>
 	public class UiKeyPressRequester : UiView
 	{
 		[SerializeField][Mandatory] private UiPointerDownUpHelper m_pointerDownUpHelper;

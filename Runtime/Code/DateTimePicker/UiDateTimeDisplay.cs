@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiPanel read-out that formats the date/time from a referenced UiDateTimePanel into a TextMeshPro label (long
+	/// or short date and/or time per its Options), refreshing on value changes and language changes.
+	/// </summary>
 	public class UiDateTimeDisplay : UiPanel
 	{
 		[Serializable]

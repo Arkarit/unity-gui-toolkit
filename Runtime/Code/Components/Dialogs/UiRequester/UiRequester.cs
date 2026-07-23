@@ -9,6 +9,11 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// The general-purpose message/dialog requester (UiRequesterBase) supporting a title, body text, an optional input
+	/// field and an optional UiDateTimePanel, with helper methods for Ok, YesNo, TwoOptions and input dialogs including
+	/// async blocking variants. It also auto-shrinks the body font size so the dialog fits within the screen.
+	/// </summary>
 	public class UiRequester : UiRequesterBase
 	{
 		public new class Options : UiRequesterBase.Options

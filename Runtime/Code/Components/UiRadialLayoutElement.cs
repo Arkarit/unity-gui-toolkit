@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A per-child MonoBehaviour companion for UiRadialLayoutGroup that supplies an individual Angle used in the
+	/// group's per-element-angle mode, marking the parent layout group dirty when the angle changes.
+	/// </summary>
 	public class UiRadialLayoutElement : MonoBehaviour
 	{
 		[SerializeField] protected float m_angle = 10;

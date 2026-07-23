@@ -4,6 +4,11 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiToggle representing a single language: it shows the matching national flag sprite (loaded from
+	/// Resources/Flags) and, when switched on, changes the active language via LocaManager. It stays in sync with the
+	/// current language through the EvLanguageChanged event.
+	/// </summary>
 	public class UiLanguageToggle : UiToggle
 	{
 		[SerializeField]

@@ -5,6 +5,11 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiPanel picker for a single date/time component (hour, minute, day, etc., per its EDateTimeType) that shows
+	/// the current value as text and opens a UiGridPicker to choose a new value when tapped. Exposes an int Value and
+	/// fires OnValueChanged.
+	/// </summary>
 	public class UiDateTimePartPanel : UiPanel
 	{
 		public CEvent<int> OnValueChanged = new();

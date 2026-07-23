@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A sealed UiThing (requires a CanvasGroup) that draws a rubber-band selection rectangle driven by a drag-enabled
+	/// key-binding PlayerSetting, positioning and sizing its own RectTransform to the dragged area and firing
+	/// screen-space and local-space rect events during and at the end of the drag.
+	/// </summary>
 	[DisallowMultipleComponent]
 	[RequireComponent(typeof(CanvasGroup))]
 	public sealed class UiRubberband : UiThing

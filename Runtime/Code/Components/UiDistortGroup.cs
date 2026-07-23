@@ -10,6 +10,11 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// An ExecuteAlways MonoBehaviour that collects the UiDistortBase modifiers among its children and coordinates
+	/// them as a group, enabling only the first and last and mirroring them along a configured axis (optionally
+	/// inverted) so a distortion continues seamlessly across the row. It re-initializes on child changes and skin changes.
+	/// </summary>
 	[ExecuteAlways]
 	public class UiDistortGroup : MonoBehaviour
 	{

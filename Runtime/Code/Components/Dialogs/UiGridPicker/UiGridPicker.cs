@@ -7,6 +7,11 @@ using TMPro;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A pooled UiView popup that lays out a grid of UiGridPickerCell buttons according to an Options object
+	/// (column/row counts, cell size, caption, cell prefab) and invokes populate and click callbacks per cell. It can
+	/// close on an outside tap or via a close button.
+	/// </summary>
 	public class UiGridPicker : UiView
 	{
 		public class Options

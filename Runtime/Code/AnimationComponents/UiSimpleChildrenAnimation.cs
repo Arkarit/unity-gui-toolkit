@@ -4,6 +4,11 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiAbstractSimpleChildrenAnimation that plays its child UiSimpleAnimations as a staggered group, adding a
+	/// configurable base and per-child delay and duration (negative values reverse child order/direction). It collects
+	/// the child animations automatically and can auto-play on enable.
+	/// </summary>
 	public class UiSimpleChildrenAnimation : UiAbstractSimpleChildrenAnimation
 	{
 		[Tooltip("A delay, which is added to every child")]

@@ -11,6 +11,11 @@ using UnityEditor;
 
 namespace GuiToolkit.UiStateSystem
 {
+	/// <summary>
+	/// A MonoBehaviour (one per GameObject) that records per-GameObject property snapshots for named states and
+	/// animates between them via UiTransition when its State is set. It supports nested sub-state-machines, forced
+	/// layout rebuilds, an optional auto-set state on enable, and editor recording/preview.
+	/// </summary>
 	[DisallowMultipleComponent]
 	public class UiStateMachine : MonoBehaviour, IEditorUpdateable
 	{

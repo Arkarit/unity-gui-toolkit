@@ -4,6 +4,10 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiThing time selector composed of three UiDateTimePartPanel pickers for hour, minute and second, with an
+	/// optional 'now' button. Exposes SelectedTime and fires OnValueChanged when any part changes.
+	/// </summary>
 	public class UiTimePicker : UiThing
 	{
 		[SerializeField] private UiDateTimePartPanel m_hourPicker;

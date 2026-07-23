@@ -7,6 +7,11 @@ using UnityEngine.Events;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A self-dismissing UiPanel toast that shows a message in its TextMeshPro text for a given duration and then
+	/// hides (returning to the pool since it is poolable and auto-destroys on hide). It can drive an optional
+	/// while-visible UiSimpleAnimation instead of a plain timed close.
+	/// </summary>
 	public class UiToastMessagePanel : UiPanel
 	{
 		public float m_duration;

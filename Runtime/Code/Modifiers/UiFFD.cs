@@ -7,6 +7,11 @@ using System.Collections.Generic;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A free-form-deformation mesh-effect modifier (BaseMeshEffectTMP) that warps the mesh of the Graphic or
+	/// TextMeshPro text on the same GameObject through a configurable grid of control points. It can also replicate
+	/// another UiFFD's deformation in world space via a follow-source reference.
+	/// </summary>
 	[ExecuteAlways]
 	public class UiFFD : BaseMeshEffectTMP
 	{

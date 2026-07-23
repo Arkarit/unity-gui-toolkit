@@ -6,8 +6,10 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
-	// A modal component
-	// Can be used for an overlay or full screen dialog.
+	/// <summary>
+	/// A MonoBehaviour modal helper for overlays or full-screen dialogs that wires a referenced click-catcher Button
+	/// so clicks outside the content invoke the OnClickCatcher callback.
+	/// </summary>
 	public class UiModal : MonoBehaviour
 	{
 		[SerializeField]

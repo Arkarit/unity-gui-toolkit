@@ -8,6 +8,11 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiThing that builds a grid of selectable color swatches (UiColorPatch instances) by combining up to three
+	/// HSV channels plus optional black-and-white steps, parented into a container and grouped by a ToggleGroup.
+	/// Selecting a patch reports its color via OnColorChanged, and colors can also be selected programmatically or at random.
+	/// </summary>
 	public class UiColorGridSelect : UiThing
 	{
 		public enum Mode

@@ -7,6 +7,10 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A player-settings-dialog entry (UiPlayerSettingBase) that drives a referenced UiToggle as one option of a radio
+	/// group, mapping the toggle's on-state to a string sub-key value of the bound PlayerSetting.
+	/// </summary>
 	public class UiPlayerSettingRadio : UiPlayerSettingBase
 	{
 

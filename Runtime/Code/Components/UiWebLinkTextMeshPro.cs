@@ -4,6 +4,10 @@ using UnityEngine.EventSystems;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// Sits next to a TMP_Text on the same GameObject (added via RequireComponent) and, on click, opens the URL of
+	/// the clicked TextMeshPro link tag via Application.OpenURL.
+	/// </summary>
 	[RequireComponent(typeof(TMP_Text))]
 	public class UiWebLinkTextMeshPro : MonoBehaviour, IPointerClickHandler
 	{

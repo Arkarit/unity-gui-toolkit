@@ -5,6 +5,11 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiPanel composite date/time editor combining a UiDateTimeDisplay, UiDatePicker and UiTimePicker, configured
+	/// via an Options object (show date/time, long/short formats, change callback). Exposes SelectedDateTime and fires
+	/// OnValueChanged, with an optional 'now' button that resets to the current time.
+	/// </summary>
 	public class UiDateTimePanel : UiPanel
 	{
 		[Serializable]

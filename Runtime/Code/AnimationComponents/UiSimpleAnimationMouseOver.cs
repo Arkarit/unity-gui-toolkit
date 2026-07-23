@@ -4,6 +4,10 @@ using UnityEngine.EventSystems;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiSimpleAnimation (IPointerEnter/ExitHandler) that plays forward on pointer enter and backward on pointer
+	/// exit (ref-counted so nested hovers behave), optionally driving a second slave animation on hover.
+	/// </summary>
 	public class UiSimpleAnimationMouseOver : UiSimpleAnimation, IPointerEnterHandler, IPointerExitHandler
 	{
 		// We have a separate slave animation for hover to avoid circular referencing

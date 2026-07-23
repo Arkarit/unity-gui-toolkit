@@ -3,6 +3,10 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiTextContainer used as a section heading: when its Text is set it adjusts a referenced VerticalLayoutGroup's
+	/// top padding and toggles two sets of GameObjects depending on whether the heading currently has text.
+	/// </summary>
 	public class UiTabChapter : UiTextContainer
 	{
 		[SerializeField] protected VerticalLayoutGroup m_verticalLayoutGroup;

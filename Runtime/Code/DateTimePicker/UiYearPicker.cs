@@ -4,6 +4,10 @@ using UnityEngine.Events;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiIncDecGridPicker populated with a configurable start-to-end year range. Exposes a Year property and an
+	/// optional 'now' button that jumps to the current year.
+	/// </summary>
 	public class UiYearPicker : UiIncDecGridPicker
 	{
 		[SerializeField] private int m_startYear = 1950;

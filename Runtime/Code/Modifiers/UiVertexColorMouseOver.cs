@@ -5,6 +5,10 @@ using UnityEngine.EventSystems;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A mesh-effect modifier (UiGradientBase, IPointerEnter/ExitHandler) that flat-colors the vertices of the Graphic
+	/// or TextMeshPro text on the same GameObject, switching between a normal color and a hover color on pointer enter and exit.
+	/// </summary>
 	public class UiVertexColorMouseOver : UiGradientBase, IPointerEnterHandler, IPointerExitHandler
 	{
 		[SerializeField] protected Color m_color;

@@ -3,6 +3,10 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A mesh-effect modifier (UiGradientBase) that applies a two-color linear gradient (horizontal or vertical, and
+	/// swappable) across the mesh of the Graphic or TextMeshPro text on the same GameObject.
+	/// </summary>
 	[ExecuteAlways]
 	public class UiGradientSimple : UiGradientBase
 	{

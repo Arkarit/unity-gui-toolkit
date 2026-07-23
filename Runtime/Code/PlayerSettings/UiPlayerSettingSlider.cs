@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A player-settings-dialog entry (UiPlayerSettingBase) that drives a referenced UiSlider bound to a float
+	/// PlayerSetting, syncing the value both ways and applying the setting's value-to-string formatting and optional icons.
+	/// </summary>
 	public class UiPlayerSettingSlider : UiPlayerSettingBase
 	{
 		[SerializeField] protected UiSlider m_slider;

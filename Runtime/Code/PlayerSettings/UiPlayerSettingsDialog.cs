@@ -6,6 +6,12 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A pooled tabbed dialog (UiTabDialog) that builds the entire player-settings UI from PlayerSettings, creating
+	/// one tab per category and instantiating the matching entry prefab (slider, toggle, radio, dropdown, key binding,
+	/// button, language or custom) for each setting. It provides OK, Cancel and Restore-Defaults buttons with
+	/// temp-save and temp-restore semantics.
+	/// </summary>
 	public class UiPlayerSettingsDialog : UiTabDialog
 	{
 		[SerializeField] protected UiButton m_okButton;

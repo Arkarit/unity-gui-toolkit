@@ -4,6 +4,11 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A topology-changing mesh-effect modifier (UiGradientBase) that applies a Unity Gradient across the mesh of the
+	/// Graphic or TextMeshPro text on the same GameObject, horizontally or vertically, optionally subdividing the mesh
+	/// at the gradient's keys (including hard steps for Fixed-mode gradients).
+	/// </summary>
 	[ExecuteAlways]
 	public class UiGradientEx : UiGradientBase
 	{

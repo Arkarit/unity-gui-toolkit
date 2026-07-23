@@ -3,6 +3,10 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A MonoBehaviour that fades a referenced (or parent) CanvasGroup's alpha in and out in response to a Toggle's
+	/// on/off state, optionally disabling interaction and raycasts once fully faded out.
+	/// </summary>
 	public class UiToggleFader : MonoBehaviour
 	{
 		[SerializeField] protected CanvasGroup m_canvasGroup;

@@ -7,6 +7,11 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiPanel value picker that shows the current entry as text with increase/decrease buttons plus a main button
+	/// that opens a UiGridPicker popup to choose from a list of strings. Entries may be localized; it fires
+	/// OnValueChanged (changed string and index) when the selection changes.
+	/// </summary>
 	public class UiIncDecGridPicker : UiPanel
 	{
 		[SerializeField] protected UiButton m_increaseButton;
