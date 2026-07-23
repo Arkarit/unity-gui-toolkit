@@ -7,9 +7,13 @@ namespace GuiToolkit
 	///
 	/// The catalog generator works opt-out: every non-abstract <c>Ui*</c> component in the
 	/// runtime assembly is included automatically. This attribute is therefore NOT required.
-	/// Add it only to <b>enrich</b> a component's catalog entry (give it an explicit category
-	/// or a human-readable description) or to <b>force-include</b> a component that the default
-	/// name/denylist heuristics would otherwise skip.
+	/// Add it only to <b>enrich</b> a component's catalog entry (give it an explicit category)
+	/// or to <b>force-include</b> a component that the default name/denylist heuristics would
+	/// otherwise skip.
+	///
+	/// The catalog's human-readable description is NOT set here: it is harvested from the
+	/// component's <c>/// &lt;summary&gt;</c> XML doc comment, so the same comment serves Doxygen,
+	/// IntelliSense and the authoring AI (one source of truth). Document the class to describe it.
 	///
 	/// To force-<i>exclude</i> a component, use <see cref="UiNotAuthorableAttribute"/> instead.
 	/// </summary>
@@ -22,15 +26,9 @@ namespace GuiToolkit
 		/// </summary>
 		public readonly string Category;
 
-		/// <summary>
-		/// Human-readable description surfaced to the authoring AI. Null/empty leaves it blank.
-		/// </summary>
-		public readonly string Description;
-
-		public UiAuthorableAttribute( string _category = null, string _description = null )
+		public UiAuthorableAttribute( string _category = null )
 		{
 			Category = _category;
-			Description = _description;
 		}
 	}
 

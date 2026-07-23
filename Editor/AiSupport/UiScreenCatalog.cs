@@ -111,7 +111,7 @@ namespace GuiToolkit.Editor.AiSupport
 		/// <summary>Heuristic category (Root/Container/Layout/Input/Text/Graphic/Modifier/Loca/Widget/...).</summary>
 		public string category = "";
 
-		/// <summary>Human-readable description (from [UiAuthorable]); may be empty.</summary>
+		/// <summary>Human-readable description, harvested from the class /// &lt;summary&gt; doc comment; may be empty.</summary>
 		public string description = "";
 
 		/// <summary>True if this component can be the top-level node of a screen (a UiView).</summary>

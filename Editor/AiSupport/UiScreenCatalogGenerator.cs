@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using GuiToolkit.Style;
 using UnityEditor;
 using UnityEngine;
@@ -75,6 +76,9 @@ namespace GuiToolkit.Editor.AiSupport
 		// Loaded once per Generate() run so style lookups don't re-scan the AssetDatabase per component.
 		private static List<UiStyleConfig> s_styleConfigCache;
 
+		// FullName -> class /// <summary> text, harvested once per Generate() run (see BuildDocSummaryMap).
+		private static Dictionary<string, string> s_docSummaries;
+
 		[MenuItem(StringConstants.AI_GENERATE_SCREEN_CATALOG_MENU_NAME)]
 		public static void GenerateMenu()
 		{
@@ -139,7 +143,12 @@ namespace GuiToolkit.Editor.AiSupport
 				var types = assemblies
 					.SelectMany(SafeGetTypes)
 					.Where(IsAuthorable)
-					.OrderBy(t => t.FullName, StringComparer.Ordinal);
+					.OrderBy(t => t.FullName, StringComparer.Ordinal)
+					.ToList();
+
+				// Harvest class descriptions from /// <summary> doc comments (single source of truth,
+				// shared with Doxygen/IntelliSense). Restricted to the types we actually catalogue.
+				s_docSummaries = BuildDocSummaryMap(new HashSet<string>(types.Select(t => t.FullName)));
 
 				foreach (var type in types)
 					catalog.components.Add(BuildComponent(type));
@@ -149,11 +158,14 @@ namespace GuiToolkit.Editor.AiSupport
 					.ThenBy(c => c.type, StringComparer.Ordinal)
 					.ToList();
 
+				WarnMissingDescriptions(catalog);
+
 				CollectPalette(catalog);
 			}
 			finally
 			{
 				s_styleConfigCache = null;
+				s_docSummaries = null;
 			}
 
 			return catalog;
@@ -282,7 +294,7 @@ namespace GuiToolkit.Editor.AiSupport
 				fullName = _type.FullName,
 				assembly = _type.Assembly.GetName().Name,
 				category = !string.IsNullOrEmpty(authorable?.Category) ? authorable.Category : ClassifyCategory(_type),
-				description = authorable?.Description ?? "",
+				description = s_docSummaries != null && s_docSummaries.TryGetValue(_type.FullName, out var summary) ? summary : "",
 				isRoot = typeof(UiView).IsAssignableFrom(_type),
 				requiresComponents = CollectRequiredComponents(_type),
 				styles = SafeStyleNames(_type),
@@ -293,6 +305,126 @@ namespace GuiToolkit.Editor.AiSupport
 
 			return component;
 		}
+
+		#region Doc-comment harvesting
+
+		/// <summary>
+		/// Builds a FullName → class-summary map for the given types by locating each type's source
+		/// file via its <see cref="MonoScript"/> and extracting the <c>/// &lt;summary&gt;</c> block
+		/// above the class declaration. Deliberately Roslyn-free (a plain text scan) so it runs on
+		/// every Unity version, including old ones where the Roslyn bridge (Dll2022Hack) is absent.
+		/// </summary>
+		private static Dictionary<string, string> BuildDocSummaryMap( HashSet<string> _wantedFullNames )
+		{
+			var map = new Dictionary<string, string>();
+			if (_wantedFullNames.Count == 0)
+				return map;
+
+			foreach (var guid in AssetDatabase.FindAssets("t:MonoScript"))
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				var script = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
+				var type = script != null ? script.GetClass() : null;
+				if (type?.FullName == null || map.ContainsKey(type.FullName) || !_wantedFullNames.Contains(type.FullName))
+					continue;
+
+				try
+				{
+					string summary = ExtractClassSummary(File.ReadAllText(path), type.Name);
+					if (!string.IsNullOrEmpty(summary))
+						map[type.FullName] = summary;
+				}
+				catch (Exception e)
+				{
+					UiLog.LogWarning($"AI catalog: could not read doc comment from '{path}': {e.Message}");
+				}
+			}
+
+			return map;
+		}
+
+		/// <summary>
+		/// Extracts the plain text of the <c>/// &lt;summary&gt;</c> doc comment immediately preceding
+		/// a declaration of <paramref name="_className"/>. Skips attribute/blank lines between the
+		/// comment and the class, and ignores comment lines that merely mention the name. Handles
+		/// partial classes by taking the first declaration that actually carries a summary. Null if none.
+		/// </summary>
+		private static string ExtractClassSummary( string _source, string _className )
+		{
+			var lines = _source.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+			var declRegex = new Regex($@"\b(class|struct)\s+{Regex.Escape(_className)}\b");
+
+			for (int i = 0; i < lines.Length; i++)
+			{
+				string lead = lines[i].TrimStart();
+				if (lead.StartsWith("//"))            // a comment merely mentioning the name — not a declaration
+					continue;
+				if (!declRegex.IsMatch(lines[i]))
+					continue;
+
+				// Walk upward past attributes/blank lines, then collect the contiguous /// block.
+				int j = i - 1;
+				while (j >= 0)
+				{
+					string t = lines[j].Trim();
+					if (t.Length == 0 || t.StartsWith("["))
+					{
+						j--;
+						continue;
+					}
+					break;
+				}
+
+				var doc = new List<string>();
+				while (j >= 0 && lines[j].TrimStart().StartsWith("///"))
+				{
+					doc.Add(lines[j].TrimStart().Substring(3));
+					j--;
+				}
+				if (doc.Count == 0)
+					continue;                          // this declaration has no doc — try another (partial classes)
+				doc.Reverse();
+
+				string xml = string.Join("\n", doc);
+				var m = Regex.Match(xml, @"<summary>(.*?)</summary>", RegexOptions.Singleline);
+				string text = CleanDocText(m.Success ? m.Groups[1].Value : xml);
+				if (!string.IsNullOrEmpty(text))
+					return text;
+			}
+
+			return null;
+		}
+
+		/// <summary>Strips inner XML doc tags, unescapes entities, collapses whitespace to single spaces.</summary>
+		private static string CleanDocText( string _raw )
+		{
+			if (string.IsNullOrEmpty(_raw))
+				return "";
+			// Keep the referenced short name from <see cref="X.Y"/>, then drop all remaining tags.
+			string s = Regex.Replace(_raw, "<see\\s+cref=\"[^\"]*?([A-Za-z0-9_]+)\"\\s*/>", "$1");
+			s = Regex.Replace(s, "<[^>]+>", " ");
+			s = s.Replace("&lt;", "<").Replace("&gt;", ">").Replace("&amp;", "&");
+			s = Regex.Replace(s, "\\s+", " ").Trim();
+			return s;
+		}
+
+		/// <summary>Logs which authorable components still lack a <c>/// &lt;summary&gt;</c>, to nudge documentation.</summary>
+		private static void WarnMissingDescriptions( UiScreenCatalog _catalog )
+		{
+			var missing = _catalog.components
+				.Where(c => string.IsNullOrEmpty(c.description))
+				.Select(c => c.type)
+				.OrderBy(t => t, StringComparer.Ordinal)
+				.ToList();
+
+			if (missing.Count == 0)
+				return;
+
+			UiLog.LogWarning($"AI catalog: {missing.Count}/{_catalog.components.Count} authorable components have no " +
+			                 $"/// <summary> doc comment (no description for the authoring AI):\n  {string.Join(", ", missing)}");
+		}
+
+		#endregion
 
 		private static List<string> CollectRequiredComponents( Type _type )
 		{
