@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 221534388866511751}
   - component: {fileID: 221534388866511752}
   - component: {fileID: 221534388866511749}
+  - component: {fileID: 9100000000000000001}
   m_Layer: 5
   m_Name: ButtonBar
   m_TagString: Untagged
@@ -108,5 +109,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d211c238befa6d4cb41532cdc72ed8d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
+--- !u!114 &9100000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221534388866511754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  m_comment: Horizontal bar that lays out a dialog's action buttons (e.g. OK/Cancel) along the bottom.
