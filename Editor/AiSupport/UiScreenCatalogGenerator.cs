@@ -572,7 +572,7 @@ namespace GuiToolkit.Editor.AiSupport
 				prefabGuid = _guid,
 				kind = primary?.Name ?? "",
 				category = primary != null ? ClassifyCategory(primary) : "Container",
-				acceptsChildren = primary != null && AcceptsChildren(primary),
+				acceptsChildren = PaletteAcceptsChildren(prefab, primary),
 				slots = DerivePaletteSlots(prefab, primary),
 			};
 
@@ -609,6 +609,17 @@ namespace GuiToolkit.Editor.AiSupport
 			return typeof(UiView).IsAssignableFrom(_type)
 			    || typeof(UiPanel).IsAssignableFrom(_type)
 			    || typeof(UGUI.LayoutGroup).IsAssignableFrom(_type);
+		}
+
+		// Palette templates are prefabs, so the primary-type test alone misses containers whose root
+		// carries no UiThing (e.g. StandardButtonBar = a bare RectTransform + HorizontalLayoutGroup).
+		// Such a root still arranges children, so it IS an authoring container. Matches how the baker
+		// nests children (it parents them straight under the node root — see UiScreenBaker.BuildNode).
+		private static bool PaletteAcceptsChildren( GameObject _root, Type _primary )
+		{
+			if (_primary != null && AcceptsChildren(_primary))
+				return true;
+			return _root.GetComponent(typeof(UGUI.LayoutGroup)) != null;
 		}
 
 		private static List<UiPaletteSlot> DerivePaletteSlots( GameObject _root, Type _primary )
