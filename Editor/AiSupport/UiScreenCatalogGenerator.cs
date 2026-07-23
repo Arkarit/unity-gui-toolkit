@@ -301,7 +301,7 @@ namespace GuiToolkit.Editor.AiSupport
 			};
 
 			CollectFields(_type, component);
-			ResolveChildrenCapability(_type, component);
+			ResolveContentField(_type, component);
 
 			return component;
 		}
@@ -601,16 +601,13 @@ namespace GuiToolkit.Editor.AiSupport
 			return "Widget";
 		}
 
-		private static void ResolveChildrenCapability( Type _type, UiCatalogComponent _component )
+		// Best-effort detection of an explicit content-container field (the transform under which
+		// children are placed). NOTE: a boolean "acceptsChildren" was intentionally dropped — in UGUI
+		// anything can parent anything, so it added no information the category+description don't already
+		// convey, and a hard "false" was simply wrong. contentField is a different, non-redundant hint
+		// (WHERE children go) kept for a future baker use.
+		private static void ResolveContentField( Type _type, UiCatalogComponent _component )
 		{
-			if (typeof(UiView).IsAssignableFrom(_type)
-			    || typeof(UiPanel).IsAssignableFrom(_type)
-			    || typeof(UGUI.LayoutGroup).IsAssignableFrom(_type))
-			{
-				_component.acceptsChildren = true;
-			}
-
-			// Best-effort detection of an explicit content container field.
 			foreach (var prop in _component.props)
 			{
 				bool looksLikeContainer =
@@ -622,7 +619,6 @@ namespace GuiToolkit.Editor.AiSupport
 				if (looksLikeContainer)
 				{
 					_component.contentField = prop.field;
-					_component.acceptsChildren = true;
 					break;
 				}
 			}
@@ -704,7 +700,6 @@ namespace GuiToolkit.Editor.AiSupport
 				prefabGuid = _guid,
 				kind = primary?.Name ?? "",
 				category = primary != null ? ClassifyCategory(primary) : "Container",
-				acceptsChildren = PaletteAcceptsChildren(prefab, primary),
 				slots = DerivePaletteSlots(prefab, primary),
 			};
 
@@ -734,24 +729,6 @@ namespace GuiToolkit.Editor.AiSupport
 					best = type;
 			}
 			return best;
-		}
-
-		private static bool AcceptsChildren( Type _type )
-		{
-			return typeof(UiView).IsAssignableFrom(_type)
-			    || typeof(UiPanel).IsAssignableFrom(_type)
-			    || typeof(UGUI.LayoutGroup).IsAssignableFrom(_type);
-		}
-
-		// Palette templates are prefabs, so the primary-type test alone misses containers whose root
-		// carries no UiThing (e.g. StandardButtonBar = a bare RectTransform + HorizontalLayoutGroup).
-		// Such a root still arranges children, so it IS an authoring container. Matches how the baker
-		// nests children (it parents them straight under the node root — see UiScreenBaker.BuildNode).
-		private static bool PaletteAcceptsChildren( GameObject _root, Type _primary )
-		{
-			if (_primary != null && AcceptsChildren(_primary))
-				return true;
-			return _root.GetComponent(typeof(UGUI.LayoutGroup)) != null;
 		}
 
 		private static List<UiPaletteSlot> DerivePaletteSlots( GameObject _root, Type _primary )

@@ -63,11 +63,8 @@ namespace GuiToolkit.Editor.AiSupport
 		/// <summary>Heuristic category (Button/Toggle/Slider/Panel/Text/Container/...).</summary>
 		public string category = "";
 
-		/// <summary>Human-readable description (from the override config); may be empty.</summary>
+		/// <summary>Instance/"flavor" description harvested from a UiComment on the prefab root; may be empty.</summary>
 		public string description = "";
-
-		/// <summary>True if the template is a container children may be placed under.</summary>
-		public bool acceptsChildren;
 
 		/// <summary>Authorable slots this template exposes (text, style, onClick, icon, ...).</summary>
 		public List<UiPaletteSlot> slots = new();
@@ -116,9 +113,6 @@ namespace GuiToolkit.Editor.AiSupport
 
 		/// <summary>True if this component can be the top-level node of a screen (a UiView).</summary>
 		public bool isRoot;
-
-		/// <summary>True if this component may contain child element nodes.</summary>
-		public bool acceptsChildren;
 
 		/// <summary>
 		/// When known, the serialized field / transform under which children are placed
