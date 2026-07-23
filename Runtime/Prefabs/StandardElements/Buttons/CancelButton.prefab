@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5071951565202241129, guid: 21a8687b0161cb048a99736c000f6da3, type: 3}
+      propertyPath: m_comment
+      value: Standard 'Cancel' button that dismisses a dialog without applying changes.
+      objectReference: {fileID: 0}
     - target: {fileID: 3884329841504999785, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_name

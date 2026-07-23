@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3275512599774014285}
     m_Modifications:
+    - target: {fileID: 6115423764121676767, guid: 600b043a1570d17488917991ef0e5ba0, type: 3}
+      propertyPath: m_comment
+      value: Panel background with a built-in headline bar across the top.
+      objectReference: {fileID: 0}
     - target: {fileID: 543856192576488051, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
       propertyPath: m_Pivot.x

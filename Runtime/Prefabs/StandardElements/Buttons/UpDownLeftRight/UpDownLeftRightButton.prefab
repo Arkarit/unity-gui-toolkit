@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6048610610961203981, guid: 54842dad725d4fd40b556224ec94438d, type: 3}
+      propertyPath: m_comment
+      value: Directional arrow button that forms the basis of the up/down/left/right button set.
+      objectReference: {fileID: 0}
     - target: {fileID: 5270523796987331484, guid: 54842dad725d4fd40b556224ec94438d,
         type: 3}
       propertyPath: m_Name

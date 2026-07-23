@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 9217491740424402781, guid: 63f736e16f52f304c843e61997a25b21, type: 3}
+      propertyPath: m_comment
+      value: Directional 'right' arrow button, part of the up/down/left/right set.
+      objectReference: {fileID: 0}
     - target: {fileID: 6244504615721601663, guid: 63f736e16f52f304c843e61997a25b21,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z

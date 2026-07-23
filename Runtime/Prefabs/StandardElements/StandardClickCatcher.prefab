@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6269061962827281558}
   - component: {fileID: 6269061962827281556}
   - component: {fileID: 6269061962827281559}
+  - component: {fileID: 641227869714236039}
   m_Layer: 5
   m_Name: StandardClickCatcher
   m_TagString: Untagged
@@ -233,3 +234,16 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &641227869714236039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6269061962827281554}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  m_comment: Full-area overlay placed behind a modal or popup; fades in to dim the screen and swallows clicks to everything underneath.

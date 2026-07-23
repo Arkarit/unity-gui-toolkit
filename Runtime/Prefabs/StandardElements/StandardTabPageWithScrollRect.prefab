@@ -336,6 +336,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 725556521774130449, guid: a0a87ab866650e740bfa98880579d91b, type: 3}
+      propertyPath: m_comment
+      value: A tab page whose content scrolls, for pages longer than the available height.
+      objectReference: {fileID: 0}
     - target: {fileID: 1036399696315602249, guid: a0a87ab866650e740bfa98880579d91b,
         type: 3}
       propertyPath: m_Name

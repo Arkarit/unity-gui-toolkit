@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2413389246626170092, guid: 3790a03321393fa48a3d0278035b02d6, type: 3}
+      propertyPath: m_comment
+      value: A dropdown listing all available languages, kept in sync with the active one.
+      objectReference: {fileID: 0}
     - target: {fileID: 2288422001686355911, guid: 3790a03321393fa48a3d0278035b02d6,
         type: 3}
       propertyPath: m_Name

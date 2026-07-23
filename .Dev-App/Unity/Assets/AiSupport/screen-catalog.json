@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "generatedAtUtc": "2026-07-22T10:08:45.1679661Z",
+    "generatedAtUtc": "2026-07-23T06:50:51.8122382Z",
     "toolkitAssembly": "de.phoenixgrafik.ui-toolkit",
     "skins": [
         "Landscape",
@@ -165,9 +165,8 @@
             "fullName": "GuiToolkit.UiSimpleAnimation",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Animation",
-            "description": "",
+            "description": "A curve-driven procedural animation (UiSimpleAnimationBase, requires a RectTransform) that tweens a target RectTransform's position, rotation, scale, alpha (via a Graphic or CanvasGroup) and skew (via a referenced UiSkew) over a normalized timeline, with the active channels chosen by a Support flag mask. It includes slide-in/out helpers and optional canvas-scaler-relative distances.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -977,9 +976,8 @@
             "fullName": "GuiToolkit.UiSimpleAnimationMouseOver",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Animation",
-            "description": "",
+            "description": "A UiSimpleAnimation (IPointerEnter/ExitHandler) that plays forward on pointer enter and backward on pointer exit (ref-counted so nested hovers behave), optionally driving a second slave animation on hover.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -1819,9 +1817,8 @@
             "fullName": "GuiToolkit.UiSimpleChildrenAnimation",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Animation",
-            "description": "",
+            "description": "A UiAbstractSimpleChildrenAnimation that plays its child UiSimpleAnimations as a staggered group, adding a configurable base and per-child delay and duration (negative values reverse child order/direction). It collects the child animations automatically and can auto-play on enable.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "m_container",
             "requiresComponents": [
                 "RectTransform"
@@ -2232,376 +2229,12 @@
             "events": []
         },
         {
-            "type": "TestPanel",
-            "fullName": "GuiToolkit.Test.TestAssetLoader+TestPanel",
-            "assembly": "de.phoenixgrafik.ui-toolkit.Test.PlayMode",
-            "category": "Container",
-            "description": "",
-            "isRoot": false,
-            "acceptsChildren": true,
-            "contentField": "",
-            "requiresComponents": [
-                "RectTransform"
-            ],
-            "styles": [],
-            "props": [
-                {
-                    "name": "defaultSceneVisibility",
-                    "field": "m_defaultSceneVisibility",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EDefaultSceneVisibility",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "DontCare",
-                        "Visible",
-                        "Invisible",
-                        "Legacy",
-                        "VisibleInDevBuild",
-                        "VisibleWhen_DEFAULT_SCENE_VISIBLE_defined"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "simpleShowHideAnimation",
-                    "field": "m_simpleShowHideAnimation",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiSimpleAnimationBase",
-                    "elementKind": "",
-                    "refType": "UiSimpleAnimationBase",
-                    "enumValues": [],
-                    "optional": true,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "autoLoadResources",
-                    "field": "m_autoLoadResources",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "If enabled, this panel automatically loads its declared resources during Awake(). Use only for panels with static resources. Do NOT enable for dialogs or panels that compute resources dynamically at runtime."
-                }
-            ],
-            "events": [
-                {
-                    "name": "EvOnBeginShow",
-                    "field": "EvOnBeginShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndShow",
-                    "field": "EvOnEndShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnBeginHide",
-                    "field": "EvOnBeginHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndHide",
-                    "field": "EvOnEndHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnDestroyed",
-                    "field": "EvOnDestroyed",
-                    "type": "CEvent`1"
-                }
-            ]
-        },
-        {
-            "type": "TestPanel",
-            "fullName": "GuiToolkit.Test.TestAssetLoader_Pool+TestPanel",
-            "assembly": "de.phoenixgrafik.ui-toolkit.Test.PlayMode",
-            "category": "Container",
-            "description": "",
-            "isRoot": false,
-            "acceptsChildren": true,
-            "contentField": "",
-            "requiresComponents": [
-                "RectTransform"
-            ],
-            "styles": [],
-            "props": [
-                {
-                    "name": "defaultSceneVisibility",
-                    "field": "m_defaultSceneVisibility",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EDefaultSceneVisibility",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "DontCare",
-                        "Visible",
-                        "Invisible",
-                        "Legacy",
-                        "VisibleInDevBuild",
-                        "VisibleWhen_DEFAULT_SCENE_VISIBLE_defined"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "simpleShowHideAnimation",
-                    "field": "m_simpleShowHideAnimation",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiSimpleAnimationBase",
-                    "elementKind": "",
-                    "refType": "UiSimpleAnimationBase",
-                    "enumValues": [],
-                    "optional": true,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "autoLoadResources",
-                    "field": "m_autoLoadResources",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "If enabled, this panel automatically loads its declared resources during Awake(). Use only for panels with static resources. Do NOT enable for dialogs or panels that compute resources dynamically at runtime."
-                }
-            ],
-            "events": [
-                {
-                    "name": "EvOnBeginShow",
-                    "field": "EvOnBeginShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndShow",
-                    "field": "EvOnEndShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnBeginHide",
-                    "field": "EvOnBeginHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndHide",
-                    "field": "EvOnEndHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnDestroyed",
-                    "field": "EvOnDestroyed",
-                    "type": "CEvent`1"
-                }
-            ]
-        },
-        {
-            "type": "TestPanel",
-            "fullName": "GuiToolkit.Tests.UiStartupOverlayViewTests+TestPanel",
-            "assembly": "de.phoenixgrafik.ui-toolkit.Test.PlayMode",
-            "category": "Container",
-            "description": "",
-            "isRoot": false,
-            "acceptsChildren": true,
-            "contentField": "",
-            "requiresComponents": [
-                "RectTransform"
-            ],
-            "styles": [],
-            "props": [
-                {
-                    "name": "PanelMode",
-                    "field": "PanelMode",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.Tests.UiStartupOverlayViewTests+TestPanel+Mode",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "Normal",
-                        "Skip",
-                        "ThrowOnShow",
-                        "NeverClose"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "ShowOrder",
-                    "field": "ShowOrder",
-                    "kind": "int",
-                    "valueType": "System.Int32",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "ShowCalls",
-                    "field": "ShowCalls",
-                    "kind": "int",
-                    "valueType": "System.Int32",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "WasActuallyShown",
-                    "field": "WasActuallyShown",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "defaultSceneVisibility",
-                    "field": "m_defaultSceneVisibility",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EDefaultSceneVisibility",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "DontCare",
-                        "Visible",
-                        "Invisible",
-                        "Legacy",
-                        "VisibleInDevBuild",
-                        "VisibleWhen_DEFAULT_SCENE_VISIBLE_defined"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "simpleShowHideAnimation",
-                    "field": "m_simpleShowHideAnimation",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiSimpleAnimationBase",
-                    "elementKind": "",
-                    "refType": "UiSimpleAnimationBase",
-                    "enumValues": [],
-                    "optional": true,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "autoLoadResources",
-                    "field": "m_autoLoadResources",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "If enabled, this panel automatically loads its declared resources during Awake(). Use only for panels with static resources. Do NOT enable for dialogs or panels that compute resources dynamically at runtime."
-                }
-            ],
-            "events": [
-                {
-                    "name": "EvOnBeginShow",
-                    "field": "EvOnBeginShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndShow",
-                    "field": "EvOnEndShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnBeginHide",
-                    "field": "EvOnBeginHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndHide",
-                    "field": "EvOnEndHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnDestroyed",
-                    "field": "EvOnDestroyed",
-                    "type": "CEvent`1"
-                }
-            ]
-        },
-        {
             "type": "UiContentContainer",
             "fullName": "GuiToolkit.UiContentContainer",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Container",
-            "description": "",
+            "description": "A simple MonoBehaviour that exposes a designated child RectTransform as ContentContainer (and its own RectTransform as RectTransform), serving as the insertion point where other code parents dynamically created content.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "m_contentContainer",
             "requiresComponents": [],
             "styles": [],
@@ -2630,9 +2263,8 @@
             "fullName": "GuiToolkit.UiDateTimePanel",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Container",
-            "description": "",
+            "description": "A UiPanel composite date/time editor combining a UiDateTimeDisplay, UiDatePicker and UiTimePicker, configured via an Options object (show date/time, long/short formats, change callback). Exposes SelectedDateTime and fires OnValueChanged, with an optional 'now' button that resets to the current time.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -2797,9 +2429,8 @@
             "fullName": "GuiToolkit.UiDateTimePartPanel",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Container",
-            "description": "",
+            "description": "A UiPanel picker for a single date/time component (hour, minute, day, etc., per its EDateTimeType) that shows the current value as text and opens a UiGridPicker to choose a new value when tapped. Exposes an int Value and fires OnValueChanged.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -3035,9 +2666,8 @@
             "fullName": "GuiToolkit.UiModal",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Container",
-            "description": "",
+            "description": "A MonoBehaviour modal helper for overlays or full-screen dialogs that wires a referenced click-catcher Button so clicks outside the content invoke the OnClickCatcher callback.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -3082,9 +2712,8 @@
             "fullName": "GuiToolkit.UiPanel",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Container",
-            "description": "",
+            "description": "Base panel view with show/hide lifecycle, optional animations, and events. Features: - Show/Hide API with optional instant mode and completion callbacks. - Optional animation integration via IShowHidePanelAnimation found on the same GameObject. - Visibility events (begin/end show/hide) and destroyed event. - Optional auto-destroy or pool-return on hide. - Default scene visibility policy applied once at runtime. Notes: - IsVisible and IsVisibleInHierarchy reflect GameObject active states. - The property Visible is the panel's intended visibility as managed by this class. - If you override lifecycle methods, always call base.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -3180,9 +2809,8 @@
             "fullName": "GuiToolkit.UiToastMessageContainer",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Container",
-            "description": "",
+            "description": "A MonoBehaviour spawner for transient toast messages: its Show(message, duration) pool-instantiates a UiToastMessagePanel into a container RectTransform and displays it.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "m_containerTransform",
             "requiresComponents": [],
             "styles": [],
@@ -3227,9 +2855,8 @@
             "fullName": "GuiToolkit.UiToastMessagePanel",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Container",
-            "description": "",
+            "description": "A self-dismissing UiPanel toast that shows a message in its TextMeshPro text for a given duration and then hides (returning to the pool since it is poolable and auto-destroys on hide). It can drive an optional while-visible UiSimpleAnimation instead of a plain timed close.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -3389,9 +3016,8 @@
             "fullName": "GuiToolkit.UiCircle",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Graphic",
-            "description": "",
+            "description": "Circular UI image (variable segment count, optional frame and fade). The circle is inscribed in the (padded / fixed-sized / size-offset) RectTransform's rect: its radius is min(rect.width, rect.height) / 2 and it is centered on rect.center. It is approximated by a regular N-gon with N = m_segments. Because the underlying polygon is regular and convex, mitered and uniform-scale inset are equivalent here, so a single radial shrink is used for frame and fade rings (no strategy selection needed).",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "CanvasRenderer",
@@ -3631,9 +3257,8 @@
             "fullName": "GuiToolkit.UiClickCatcher",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Graphic",
-            "description": "",
+            "description": "An invisible full-rect graphic that renders nothing but always catches raycasts — use it to block clicks to whatever is behind it (e.g. a modal background or an interaction guard).",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "CanvasRenderer",
@@ -3648,9 +3273,8 @@
             "fullName": "GuiToolkit.UiImage",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Graphic",
-            "description": "",
+            "description": "Augments a referenced Unity Image with a settable color, an optional simple two-color gradient, and automatic normal/disabled material swapping as the hierarchy is enabled or disabled.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -3745,9 +3369,8 @@
             "fullName": "GuiToolkit.UiLocalizedTextMeshProUGUI",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Graphic",
-            "description": "",
+            "description": "TextMeshProUGUI subclass with automatic localization support. Setting the LocaKey property immediately applies the translated text. Re-translates on language changes. Replaces the deprecated UiAutoLocalize component. A component is considered \"not translatable\" when its effective key is empty or a placeholder of the form [AnyText] (square brackets). In that case LocaKey returns an empty string and no translation is applied.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform",
@@ -3811,9 +3434,8 @@
             "fullName": "GuiToolkit.UiRoundedImage",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Graphic",
-            "description": "",
+            "description": "Create rounded and antialiased images. In nearly every project, there's a need for rounded images and frames. This class handles this by creating an image with rounded corners of an arbitrary radius, and optional frame (hole) functionality and antialiasing. It works nearly like the original UnityEngine.UI.Image, where it's based on. You can add a sprite and set a color for the image. UV coordinates however are always 0/1 and there is no support for sliced, tiled, preserve aspect etc. It also has some other improvements compared to UnityEngine.UI.Image; it can be disabled etc. Unfortunately we can not make it an UiThing in C#, which would be a very simple task in a real programming language: just inherit from UiThing and Image. We also can't handle the improvements via composition. Thus this class is a bit outside of the common UiThing class hierarchy. Shape-agnostic infrastructure (frame, fade, material handling, UV mapping, IEnableableInHierarchy) lives in the abstract UiShapeImage base; this class adds the rounded-rectangle geometry.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "CanvasRenderer",
@@ -4069,9 +3691,8 @@
             "fullName": "GuiToolkit.UiSpriteHolder",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Graphic",
-            "description": "",
+            "description": "An ExecuteAlways MonoBehaviour that stores a sprite as serialized PNG bytes and rebuilds a runtime Texture2D and Sprite from them on load (in edit mode, play mode and the Prefab Stage), auto-assigning the sprite to a sibling Image. It can capture its content from a RenderTexture or an existing Texture2D.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -4083,9 +3704,8 @@
             "fullName": "GuiToolkit.UiStar",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Graphic",
-            "description": "",
+            "description": "Star-shaped UI image (variable spike count, configurable notch depth, optional frame and fade). The star is inscribed in the (padded / fixed-sized) RectTransform's rect: its outer radius is min(rect.width, rect.height) / 2 and it is centered on rect.center. The shape is a 2N-vertex polygon alternating between outer-radius spike tips and inner-radius notches. Frame and fade are produced by computing inset copies of the perimeter. Two strategies are available (see InsetStrategy): Miter (constant perpendicular frame thickness, clamped by m_miterLimit at sharp tips) and UniformScale (always robust, but frame appears thinner at notches than at tips). Miter is the default and matches what users typically expect. UV mapping uses the inherited GetUv: each vertex's position is linearly mapped to the rect-aligned sprite UV. A rotated star therefore keeps its sprite oriented to the rect, not to the star — i.e. the spikes move under a fixed sprite. To rotate sprite-with-star, rotate the RectTransform instead.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "CanvasRenderer",
@@ -4392,9 +4012,8 @@
             "fullName": "GuiToolkit.UiButton",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A clickable button that sits next to a Unity Button on the same GameObject (added via RequireComponent). Adds an optional wiggle animation on click and can trigger the wiggle of other linked buttons; disables the underlying Button when the hierarchy is disabled. Subscribe to clicks via OnClick.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "Button",
@@ -4522,9 +4141,8 @@
             "fullName": "GuiToolkit.UiColorGridSelect",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A UiThing that builds a grid of selectable color swatches (UiColorPatch instances) by combining up to three HSV channels plus optional black-and-white steps, parented into a container and grouped by a ToggleGroup. Selecting a patch reports its color via OnColorChanged, and colors can also be selected programmatically or at random.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "m_colorPatchContainer",
             "requiresComponents": [
                 "RectTransform"
@@ -4715,9 +4333,8 @@
             "fullName": "GuiToolkit.UiDatePicker",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A UiPanel that combines a UiYearPicker, UiMonthPicker and UiDayPicker (plus an optional UiTimePicker) into a single date selector. Exposes SelectedDate and fires OnValueChanged whenever a part changes, keeping the day count valid for the chosen month and year.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -4882,9 +4499,8 @@
             "fullName": "GuiToolkit.UiDayPicker",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A UiIncDecGridPicker specialized for days of the month: it populates its cells with the valid days for the year/month of the linked UiYearPicker and UiMonthPicker, clamping and refreshing when they change. Exposes a 1-based Day property and an optional 'now' button.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -5241,9 +4857,8 @@
             "fullName": "GuiToolkit.UiDropdown",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "Reusable base class for dropdown-style UI components backed by UiPopup. Responsibilities: - Manages open/close state via an explicit UiButton toggle. - Populates the popup via the virtual PopulatePopup method. - Fires EvOnDropdownValueChanged and calls the virtual OnDropdownValueChanged when the user picks an item. - Detects open/close transitions and fires EvOnStatusChanged and calls the virtual OnStatusChanged. - Plays an optional UiSimpleAnimationBase forwards on open and backwards on close. - Pauses an optional UiSimpleAnimationMouseOver while the popup is open so the UiPopup ClickCatcher cannot reset the hover animation. Derive from this class and override the virtual methods as needed.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -5429,9 +5044,8 @@
             "fullName": "GuiToolkit.UiGridPickerCell",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A single grid cell for UiGridPicker that sits next to a UiButton on the same GameObject (added via RequireComponent) and exposes it through Button. Has an optional TextMeshPro caption exposed via OptionalCaption.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "UiButton",
@@ -5463,9 +5077,8 @@
             "fullName": "GuiToolkit.UiIncDecGridPicker",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A UiPanel value picker that shows the current entry as text with increase/decrease buttons plus a main button that opens a UiGridPicker popup to choose from a list of strings. Entries may be localized; it fires OnValueChanged (changed string and index) when the selection changes.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -5774,9 +5387,8 @@
             "fullName": "GuiToolkit.UiLanguageSelectDropdown",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "Populates a UiDropdown with all available languages and keeps it in sync with the active language. Available languages are discovered from the pre-generated uitk_available_languages.txt resource file (written by the editor's Loca processing pass). Native (endonym) display names are sourced from LocaLanguageNames. In release builds \"dev\" is never shown. In the Unity Editor and Development Builds it is included so developers can verify un-translated keys.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -5962,9 +5574,8 @@
             "fullName": "GuiToolkit.UiLanguageToggle",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A UiToggle representing a single language: it shows the matching national flag sprite (loaded from Resources/Flags) and, when switched on, changes the active language via LocaManager. It stays in sync with the current language through the EvLanguageChanged event.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "Toggle",
@@ -6208,9 +5819,8 @@
             "fullName": "GuiToolkit.UiMonthPicker",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A UiIncDecGridPicker preloaded with the twelve localized month names. Exposes a 1-based Month property and an optional 'now' button that jumps to the current month.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -6551,9 +6161,8 @@
             "fullName": "GuiToolkit.UiMultiStateButton",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A UiButtonBase that cycles through a configured list of named states, each with its own sprite, background color and icon color; a click advances to the next state. It applies the state colors with an optional tween and fires OnStateChanged, and the current state can be read or set by index or by name.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -6734,9 +6343,8 @@
             "fullName": "GuiToolkit.UiPlayerSettingButton",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A player-settings-dialog entry (UiPlayerSettingBase) that presents a button, plus an optional secondary visual button, and invokes the bound PlayerSetting's events when clicked. Its titles come from the setting's options.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -6847,9 +6455,8 @@
             "fullName": "GuiToolkit.UiPlayerSettingDropdown",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "Player-setting UI element that presents all string options in a single UiDropdown. Expects a UiDropdown on the same GameObject (auto-discovered via GetComponent if not explicitly assigned). The dropdown is populated from Options.Titles (or Options.StringValues as a fallback) and the current player-setting value is kept in sync via the silent SelectedIndex setter to avoid circular event loops.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -6944,9 +6551,8 @@
             "fullName": "GuiToolkit.UiPlayerSettingLanguageDropdown",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "Player-setting UI element for language selection via a dropdown. An alternative to UiPlayerSettingLanguageToggle: instead of one flag-button per language it shows all languages in a single UiDropdown using native (endonym) display names sourced from LocaLanguageNames. Configure the corresponding PlayerSetting with: Type = EPlayerSettingType.LanguageDropdown StringValues = list of language IDs (\"en\", \"de\", …) Optionally provide Titles to override the display names.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -7041,9 +6647,8 @@
             "fullName": "GuiToolkit.UiPlayerSettingLanguageToggle",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A UiPlayerSettingRadio specialized for language selection: each entry represents one language, shows its flag sprite (a built-in Flags/... sprite or a supplied icon), and switches the active language via LocaManager when chosen.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -7154,9 +6759,8 @@
             "fullName": "GuiToolkit.UiPlayerSettingRadio",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A player-settings-dialog entry (UiPlayerSettingBase) that drives a referenced UiToggle as one option of a radio group, mapping the toggle's on-state to a string sub-key value of the bound PlayerSetting.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -7251,9 +6855,8 @@
             "fullName": "GuiToolkit.UiPlayerSettingSlider",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A player-settings-dialog entry (UiPlayerSettingBase) that drives a referenced UiSlider bound to a float PlayerSetting, syncing the value both ways and applying the setting's value-to-string formatting and optional icons.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -7348,9 +6951,8 @@
             "fullName": "GuiToolkit.UiPlayerSettingToggle",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A player-settings-dialog entry (UiPlayerSettingBase) that drives a referenced UiToggle bound to a bool PlayerSetting, keeping the toggle and the setting value in sync.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -7445,9 +7047,8 @@
             "fullName": "GuiToolkit.UiSlider",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A value slider that drives a referenced Unity Slider (value normalized 0..1). Optionally shows the current value as text (always, or briefly while moving), swaps icons, and supports an on/off toggle or min/max buttons — geared toward settings such as volume.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -7802,9 +7403,8 @@
             "fullName": "GuiToolkit.UiSliderInScrollRect",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "\\brief Helper component for horizontal sliders in vertical scroll rects and vice versa. Split version based on UiDragRouterBase.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -7849,9 +7449,8 @@
             "fullName": "GuiToolkit.UiTab",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A tab button — a UiToggle used to select one page of a tabbed dialog. When selected it can scroll itself into view inside a surrounding UiScrollRect.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "Toggle",
@@ -8111,9 +7710,8 @@
             "fullName": "GuiToolkit.UiTabChapter",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A UiTextContainer used as a section heading: when its Text is set it adjusts a referenced VerticalLayoutGroup's top padding and toggles two sets of GameObjects depending on whether the heading currently has text.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -8208,9 +7806,8 @@
             "fullName": "GuiToolkit.UiTimePicker",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A UiThing time selector composed of three UiDateTimePartPanel pickers for hour, minute and second, with an optional 'now' button. Exposes SelectedTime and fires OnValueChanged when any part changes.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -8295,9 +7892,8 @@
             "fullName": "GuiToolkit.UiToggle",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A two-state toggle that sits next to a Unity Toggle on the same GameObject. Beyond on/off it can drive several state representations — a style skin (\"On\"/\"Off\"), activating/deactivating GameObjects, and a state animation — and optionally auto-joins or creates a ToggleGroup. Subscribe via OnValueChanged.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "Toggle",
@@ -8541,9 +8137,8 @@
             "fullName": "GuiToolkit.UiToggleFader",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A MonoBehaviour that fades a referenced (or parent) CanvasGroup's alpha in and out in response to a Toggle's on/off state, optionally disabling interaction and raycasts once fully faded out.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -8620,9 +8215,8 @@
             "fullName": "GuiToolkit.UiYearPicker",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Input",
-            "description": "",
+            "description": "A UiIncDecGridPicker populated with a configurable start-to-end year range. Exposes a Year property and an optional 'now' button that jumps to the current year.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -8995,9 +8589,8 @@
             "fullName": "GuiToolkit.UiAutoLayoutElement",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Layout",
-            "description": "",
+            "description": "Work in progress. Generic auto layout element. Currently only supports TMP vertical preferred height. Extended functionality is added only when backed by real use cases.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -9077,9 +8670,8 @@
             "fullName": "GuiToolkit.UiGridLayoutGroup",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Layout",
-            "description": "",
+            "description": "An improved grid layout group: arranges children in a grid by cell size and spacing with a configurable start corner/axis and a flexible or fixed column/row count. Unlike Unity's built-in GridLayoutGroup it can center the elements of a partially filled final row/column.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -9218,9 +8810,8 @@
             "fullName": "GuiToolkit.UiHorizontalOrVerticalLayoutGroup",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Layout",
-            "description": "",
+            "description": "Layout group which can be switched between horizontal and vertical",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -9270,9 +8861,8 @@
             "fullName": "GuiToolkit.UiRadialLayoutElement",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Layout",
-            "description": "",
+            "description": "A per-child MonoBehaviour companion for UiRadialLayoutGroup that supplies an individual Angle used in the group's per-element-angle mode, marking the parent layout group dirty when the angle changes.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -9301,9 +8891,8 @@
             "fullName": "GuiToolkit.UiRadialLayoutGroup",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Layout",
-            "description": "",
+            "description": "A LayoutGroup that arranges its children around a circle by radius and angle, with modes for a fixed overall arc, a fixed per-element angle, or per-element angles taken from UiRadialLayoutElement children. It can optionally rotate elements to follow the arc and apply a per-element Z increment.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -9466,9 +9055,8 @@
             "fullName": "GuiToolkit.UiAutoLocalize",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Loca",
-            "description": "",
+            "description": "Automatic localization component for TMP_Text. This component owns the associated TMP_Text content at runtime and replaces it with the localized translation of a key. The localization key is derived from the current TMP_Text content when no explicit key was provided. An explicit key can be assigned via LocaKey. External modifications of TMP_Text are tolerated as a fallback: if the text differs from the last translation applied by this component, the new text is treated as a new key on the next Translate() call. Prefer updating localization via UiAutoLocalize / LocaKey instead of writing to TMP_Text directly.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "TMP_Text",
@@ -9500,9 +9088,8 @@
             "fullName": "GuiToolkit.UiOnLocaChange",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Loca",
-            "description": "",
+            "description": "A UiThing that fires its EvOnLanguageChanged event a configurable number of frames after enable and after each language change, and can force a rebuild of child LayoutGroups so localized text re-lays out.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -9555,9 +9142,8 @@
             "fullName": "GuiToolkit.UiBend",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "Bends the mesh of a UI Graphic (Image / RawImage / TextMeshPro) along a circular arc. Angle — total arc (in degrees) the bounding-box width is bent into. Positive values bend upwards (arc center above the pivot), negative downwards. Rotation — Z rotation (in degrees) applied to the whole bent result around the pivot. Pivot — normalized position inside the bounding rect (0..1, 0.5/0.5 = center). The pivot is the fixed point of the bend and the rotation center; it is editable via a scene-view handle. Vertex-based modifier: for Images, combine with UiTessellator to get a smooth arc; TextMeshPro provides enough vertices per glyph for the effect to look smooth out of the box. Set FollowSource to another UiBend to mirror its effect in world space, so a banner / underlay curves identically to the text it follows, regardless of its own mesh size.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -9636,9 +9222,8 @@
             "fullName": "GuiToolkit.UiDistort",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "A mesh-effect modifier (UiDistortBase / BaseMeshEffectTMP) that distorts the generated mesh of the Graphic or TextMeshPro text on the same GameObject by offsetting its four corners, with the corner values interpreted as either relative to the bounds or absolute.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -9771,9 +9356,8 @@
             "fullName": "GuiToolkit.UiFFD",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "A free-form-deformation mesh-effect modifier (BaseMeshEffectTMP) that warps the mesh of the Graphic or TextMeshPro text on the same GameObject through a configurable grid of control points. It can also replicate another UiFFD's deformation in world space via a follow-source reference.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -9868,9 +9452,8 @@
             "fullName": "GuiToolkit.UiFixTMPMesh",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "A topology-changing mesh-effect modifier (BaseMeshEffectTMP) that removes degenerate zero-area quads from the mesh of the (TextMeshPro) text on the same GameObject.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -9901,9 +9484,8 @@
             "fullName": "GuiToolkit.UiGradientEx",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "A topology-changing mesh-effect modifier (UiGradientBase) that applies a Unity Gradient across the mesh of the Graphic or TextMeshPro text on the same GameObject, horizontally or vertically, optionally subdividing the mesh at the gradient's keys (including hard steps for Fixed-mode gradients).",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -10008,9 +9590,8 @@
             "fullName": "GuiToolkit.UiGradientSimple",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "A mesh-effect modifier (UiGradientBase) that applies a two-color linear gradient (horizontal or vertical, and swappable) across the mesh of the Graphic or TextMeshPro text on the same GameObject.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -10146,9 +9727,8 @@
             "fullName": "GuiToolkit.UiPerspectiveSemi",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "A mesh-effect modifier (UiDistortBase) that applies a one-sided perspective distortion to the mesh of the Graphic or TextMeshPro text on the same GameObject, computed from a referenced vanishing-point transform and a locked side, updating automatically as either transform moves.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -10316,9 +9896,8 @@
             "fullName": "GuiToolkit.UiSkew",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "A mesh-effect modifier (UiDistortBase) that skews the mesh of the Graphic or TextMeshPro text on the same GameObject by a horizontal and/or vertical angle, applied only to the selected corners; the corner offsets are derived from the angles rather than set directly.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -10486,9 +10065,8 @@
             "fullName": "GuiToolkit.UiTessellator",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "A topology-changing mesh-effect modifier (BaseMeshEffectTMP) that subdivides (tessellates) the mesh of the Graphic or TextMeshPro text on the same GameObject horizontally, vertically or both at a configurable cell size, useful as a prerequisite for other modifiers that need denser geometry.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -10572,9 +10150,8 @@
             "fullName": "GuiToolkit.UiUvModifier",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "A mesh-effect modifier (BaseMeshEffectTMP) that remaps the UV coordinates of the Graphic or TextMeshPro text on the same GameObject into a target UV rect (min/max), with an option to swap the U and V axes.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -10653,9 +10230,8 @@
             "fullName": "GuiToolkit.UiUvWobble",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "Per-vertex UV wobble. Distorts UV0 with a layered sinusoidal wave to break periodicity in UV-driven shaders (caustics, water, fog, etc.) at vertex cost instead of fragment cost. The deformation splits into two independent components: Static : a fixed, time-independent base distortion. Always applied, free at runtime (one mesh rebuild on parameter change). Dynamic : an animated layer added on top of the static one. Costs a SetDirty per frame while enabled — toggle off to make the modifier completely passive (static only). Requires sufficient vertex density — combine with UiTessellator on Image/RawImage so the wobble interpolates smoothly across the surface. TextMeshPro provides enough vertices per glyph by default. Both layers use an irrational frequency ratio (≈√3) so the combined wave has no perceivable period — useful for hiding visible tiling in periodic procedural shaders (e.g. the iterative caustic shader at high Scale).",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -10798,9 +10374,8 @@
             "fullName": "GuiToolkit.UiVertexColor",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "A mesh-effect modifier (UiGradientBase) that applies a single flat color to the vertices of the Graphic or TextMeshPro text on the same GameObject, combined via multiply, replace or add.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -10867,9 +10442,8 @@
             "fullName": "GuiToolkit.UiVertexColorMouseOver",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Modifier",
-            "description": "",
+            "description": "A mesh-effect modifier (UiGradientBase, IPointerEnter/ExitHandler) that flat-colors the vertices of the Graphic or TextMeshPro text on the same GameObject, switching between a normal color and a hover color on pointer enter and exit.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -10948,2161 +10522,12 @@
             "events": []
         },
         {
-            "type": "DemoDynamicLoaded",
-            "fullName": "DemoDynamicLoaded",
-            "assembly": "Assembly-CSharp",
-            "category": "Root",
-            "description": "",
-            "isRoot": true,
-            "acceptsChildren": true,
-            "contentField": "",
-            "requiresComponents": [
-                "Canvas",
-                "CanvasScaler",
-                "GraphicRaycaster",
-                "RectTransform"
-            ],
-            "styles": [],
-            "props": [
-                {
-                    "name": "closeButton",
-                    "field": "m_closeButton",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "layer",
-                    "field": "m_layer",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EUiLayerDefinition",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "Top",
-                        "Tooltip",
-                        "ModalStack",
-                        "Popup",
-                        "Dialog",
-                        "Hud",
-                        "Background",
-                        "Back"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "The layer in which the view is shown."
-                },
-                {
-                    "name": "isFullScreen",
-                    "field": "m_isFullScreen",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When full screen, all other layers below are hidden."
-                },
-                {
-                    "name": "hideOnOccludedByFullScreen",
-                    "field": "m_hideOnOccludedByFullScreen",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Dialog is hidden when occluded by a full screen dialog."
-                },
-                {
-                    "name": "hideOnOccludedByFullScreenInstant",
-                    "field": "m_hideOnOccludedByFullScreenInstant",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Dialog is hidden instantly when occluded by a full screen dialog."
-                },
-                {
-                    "name": "useGlobalCanvasScalerTemplate",
-                    "field": "m_useGlobalCanvasScalerTemplate",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Uses the global canvas scaler template in Ui toolkit configuration (if it is set)."
-                },
-                {
-                    "name": "autoDestroyOnHide",
-                    "field": "m_autoDestroyOnHide",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When the view is closed via Hide(), the view is automatically destroyed or pooled."
-                },
-                {
-                    "name": "poolable",
-                    "field": "m_poolable",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When checked, the dialog is pooled instead of destroyed."
-                },
-                {
-                    "name": "closeButtons",
-                    "field": "m_closeButtons",
-                    "kind": "list",
-                    "valueType": "UnityEngine.UI.Button[]",
-                    "elementKind": "componentRef",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Most UiViews need one or more close buttons. You can optionally define those here."
-                },
-                {
-                    "name": "backgroundMusicId",
-                    "field": "m_backgroundMusicId",
-                    "kind": "string",
-                    "valueType": "System.String",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Optional background music track id (a MusicTrack Id from the UiSoundConfig). When this view is shown, UiMusic crossfades to that track. Leave empty to leave the current music unchanged."
-                },
-                {
-                    "name": "defaultSceneVisibility",
-                    "field": "m_defaultSceneVisibility",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EDefaultSceneVisibility",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "DontCare",
-                        "Visible",
-                        "Invisible",
-                        "Legacy",
-                        "VisibleInDevBuild",
-                        "VisibleWhen_DEFAULT_SCENE_VISIBLE_defined"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "simpleShowHideAnimation",
-                    "field": "m_simpleShowHideAnimation",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiSimpleAnimationBase",
-                    "elementKind": "",
-                    "refType": "UiSimpleAnimationBase",
-                    "enumValues": [],
-                    "optional": true,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "autoLoadResources",
-                    "field": "m_autoLoadResources",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "If enabled, this panel automatically loads its declared resources during Awake(). Use only for panels with static resources. Do NOT enable for dialogs or panels that compute resources dynamically at runtime."
-                }
-            ],
-            "events": [
-                {
-                    "name": "EvOnBeginShow",
-                    "field": "EvOnBeginShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndShow",
-                    "field": "EvOnEndShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnBeginHide",
-                    "field": "EvOnBeginHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndHide",
-                    "field": "EvOnEndHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnDestroyed",
-                    "field": "EvOnDestroyed",
-                    "type": "CEvent`1"
-                }
-            ]
-        },
-        {
-            "type": "DemoHud",
-            "fullName": "DemoHud",
-            "assembly": "Assembly-CSharp",
-            "category": "Root",
-            "description": "",
-            "isRoot": true,
-            "acceptsChildren": true,
-            "contentField": "",
-            "requiresComponents": [
-                "Canvas",
-                "CanvasScaler",
-                "GraphicRaycaster",
-                "RectTransform"
-            ],
-            "styles": [],
-            "props": [
-                {
-                    "name": "showSettings",
-                    "field": "m_showSettings",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiButton",
-                    "elementKind": "",
-                    "refType": "UiButton",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "layer",
-                    "field": "m_layer",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EUiLayerDefinition",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "Top",
-                        "Tooltip",
-                        "ModalStack",
-                        "Popup",
-                        "Dialog",
-                        "Hud",
-                        "Background",
-                        "Back"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "The layer in which the view is shown."
-                },
-                {
-                    "name": "isFullScreen",
-                    "field": "m_isFullScreen",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When full screen, all other layers below are hidden."
-                },
-                {
-                    "name": "hideOnOccludedByFullScreen",
-                    "field": "m_hideOnOccludedByFullScreen",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Dialog is hidden when occluded by a full screen dialog."
-                },
-                {
-                    "name": "hideOnOccludedByFullScreenInstant",
-                    "field": "m_hideOnOccludedByFullScreenInstant",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Dialog is hidden instantly when occluded by a full screen dialog."
-                },
-                {
-                    "name": "useGlobalCanvasScalerTemplate",
-                    "field": "m_useGlobalCanvasScalerTemplate",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Uses the global canvas scaler template in Ui toolkit configuration (if it is set)."
-                },
-                {
-                    "name": "autoDestroyOnHide",
-                    "field": "m_autoDestroyOnHide",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When the view is closed via Hide(), the view is automatically destroyed or pooled."
-                },
-                {
-                    "name": "poolable",
-                    "field": "m_poolable",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When checked, the dialog is pooled instead of destroyed."
-                },
-                {
-                    "name": "closeButtons",
-                    "field": "m_closeButtons",
-                    "kind": "list",
-                    "valueType": "UnityEngine.UI.Button[]",
-                    "elementKind": "componentRef",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Most UiViews need one or more close buttons. You can optionally define those here."
-                },
-                {
-                    "name": "backgroundMusicId",
-                    "field": "m_backgroundMusicId",
-                    "kind": "string",
-                    "valueType": "System.String",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Optional background music track id (a MusicTrack Id from the UiSoundConfig). When this view is shown, UiMusic crossfades to that track. Leave empty to leave the current music unchanged."
-                },
-                {
-                    "name": "defaultSceneVisibility",
-                    "field": "m_defaultSceneVisibility",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EDefaultSceneVisibility",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "DontCare",
-                        "Visible",
-                        "Invisible",
-                        "Legacy",
-                        "VisibleInDevBuild",
-                        "VisibleWhen_DEFAULT_SCENE_VISIBLE_defined"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "simpleShowHideAnimation",
-                    "field": "m_simpleShowHideAnimation",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiSimpleAnimationBase",
-                    "elementKind": "",
-                    "refType": "UiSimpleAnimationBase",
-                    "enumValues": [],
-                    "optional": true,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "autoLoadResources",
-                    "field": "m_autoLoadResources",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "If enabled, this panel automatically loads its declared resources during Awake(). Use only for panels with static resources. Do NOT enable for dialogs or panels that compute resources dynamically at runtime."
-                }
-            ],
-            "events": [
-                {
-                    "name": "EvOnBeginShow",
-                    "field": "EvOnBeginShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndShow",
-                    "field": "EvOnEndShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnBeginHide",
-                    "field": "EvOnBeginHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndHide",
-                    "field": "EvOnEndHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnDestroyed",
-                    "field": "EvOnDestroyed",
-                    "type": "CEvent`1"
-                }
-            ]
-        },
-        {
-            "type": "ExampleAnimations",
-            "fullName": "ExampleAnimations",
-            "assembly": "Assembly-CSharp",
-            "category": "Root",
-            "description": "",
-            "isRoot": true,
-            "acceptsChildren": true,
-            "contentField": "",
-            "requiresComponents": [
-                "Canvas",
-                "CanvasScaler",
-                "GraphicRaycaster",
-                "RectTransform"
-            ],
-            "styles": [],
-            "props": [
-                {
-                    "name": "closeButton",
-                    "field": "m_closeButton",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiButton",
-                    "elementKind": "",
-                    "refType": "UiButton",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "btPlayChildrenAnimation",
-                    "field": "m_btPlayChildrenAnimation",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiButton",
-                    "elementKind": "",
-                    "refType": "UiButton",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "btPlayChildrenAnimationBackwards",
-                    "field": "m_btPlayChildrenAnimationBackwards",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiButton",
-                    "elementKind": "",
-                    "refType": "UiButton",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "btToggleAutoChildrenAnimation",
-                    "field": "m_btToggleAutoChildrenAnimation",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiButton",
-                    "elementKind": "",
-                    "refType": "UiButton",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "childrenAnimation",
-                    "field": "m_childrenAnimation",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiSimpleAnimationBase",
-                    "elementKind": "",
-                    "refType": "UiSimpleAnimationBase",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "autoChildrenParent",
-                    "field": "m_autoChildrenParent",
-                    "kind": "objectRef",
-                    "valueType": "UnityEngine.GameObject",
-                    "elementKind": "",
-                    "refType": "GameObject",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "layer",
-                    "field": "m_layer",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EUiLayerDefinition",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "Top",
-                        "Tooltip",
-                        "ModalStack",
-                        "Popup",
-                        "Dialog",
-                        "Hud",
-                        "Background",
-                        "Back"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "The layer in which the view is shown."
-                },
-                {
-                    "name": "isFullScreen",
-                    "field": "m_isFullScreen",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When full screen, all other layers below are hidden."
-                },
-                {
-                    "name": "hideOnOccludedByFullScreen",
-                    "field": "m_hideOnOccludedByFullScreen",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Dialog is hidden when occluded by a full screen dialog."
-                },
-                {
-                    "name": "hideOnOccludedByFullScreenInstant",
-                    "field": "m_hideOnOccludedByFullScreenInstant",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Dialog is hidden instantly when occluded by a full screen dialog."
-                },
-                {
-                    "name": "useGlobalCanvasScalerTemplate",
-                    "field": "m_useGlobalCanvasScalerTemplate",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Uses the global canvas scaler template in Ui toolkit configuration (if it is set)."
-                },
-                {
-                    "name": "autoDestroyOnHide",
-                    "field": "m_autoDestroyOnHide",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When the view is closed via Hide(), the view is automatically destroyed or pooled."
-                },
-                {
-                    "name": "poolable",
-                    "field": "m_poolable",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When checked, the dialog is pooled instead of destroyed."
-                },
-                {
-                    "name": "closeButtons",
-                    "field": "m_closeButtons",
-                    "kind": "list",
-                    "valueType": "UnityEngine.UI.Button[]",
-                    "elementKind": "componentRef",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Most UiViews need one or more close buttons. You can optionally define those here."
-                },
-                {
-                    "name": "backgroundMusicId",
-                    "field": "m_backgroundMusicId",
-                    "kind": "string",
-                    "valueType": "System.String",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Optional background music track id (a MusicTrack Id from the UiSoundConfig). When this view is shown, UiMusic crossfades to that track. Leave empty to leave the current music unchanged."
-                },
-                {
-                    "name": "defaultSceneVisibility",
-                    "field": "m_defaultSceneVisibility",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EDefaultSceneVisibility",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "DontCare",
-                        "Visible",
-                        "Invisible",
-                        "Legacy",
-                        "VisibleInDevBuild",
-                        "VisibleWhen_DEFAULT_SCENE_VISIBLE_defined"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "simpleShowHideAnimation",
-                    "field": "m_simpleShowHideAnimation",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiSimpleAnimationBase",
-                    "elementKind": "",
-                    "refType": "UiSimpleAnimationBase",
-                    "enumValues": [],
-                    "optional": true,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "autoLoadResources",
-                    "field": "m_autoLoadResources",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "If enabled, this panel automatically loads its declared resources during Awake(). Use only for panels with static resources. Do NOT enable for dialogs or panels that compute resources dynamically at runtime."
-                }
-            ],
-            "events": [
-                {
-                    "name": "EvOnBeginShow",
-                    "field": "EvOnBeginShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndShow",
-                    "field": "EvOnEndShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnBeginHide",
-                    "field": "EvOnBeginHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndHide",
-                    "field": "EvOnEndHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnDestroyed",
-                    "field": "EvOnDestroyed",
-                    "type": "CEvent`1"
-                }
-            ]
-        },
-        {
-            "type": "ExampleDialogStyles",
-            "fullName": "ExampleDialogStyles",
-            "assembly": "Assembly-CSharp",
-            "category": "Root",
-            "description": "",
-            "isRoot": true,
-            "acceptsChildren": true,
-            "contentField": "",
-            "requiresComponents": [
-                "Canvas",
-                "CanvasScaler",
-                "GraphicRaycaster",
-                "RectTransform"
-            ],
-            "styles": [],
-            "props": [
-                {
-                    "name": "exampleStyleConfig",
-                    "field": "m_exampleStyleConfig",
-                    "kind": "objectRef",
-                    "valueType": "GuiToolkit.Style.UiStyleConfig",
-                    "elementKind": "",
-                    "refType": "UiStyleConfig",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "closeButton",
-                    "field": "m_closeButton",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiButton",
-                    "elementKind": "",
-                    "refType": "UiButton",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "btToggleSkinInstant",
-                    "field": "m_btToggleSkinInstant",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiButton",
-                    "elementKind": "",
-                    "refType": "UiButton",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "btToggleSkinHalfSecond",
-                    "field": "m_btToggleSkinHalfSecond",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiButton",
-                    "elementKind": "",
-                    "refType": "UiButton",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "btToggleSkinThreeSeconds",
-                    "field": "m_btToggleSkinThreeSeconds",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiButton",
-                    "elementKind": "",
-                    "refType": "UiButton",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "txtCurrentSkin",
-                    "field": "m_txtCurrentSkin",
-                    "kind": "componentRef",
-                    "valueType": "TMPro.TMP_Text",
-                    "elementKind": "",
-                    "refType": "TMP_Text",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "layer",
-                    "field": "m_layer",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EUiLayerDefinition",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "Top",
-                        "Tooltip",
-                        "ModalStack",
-                        "Popup",
-                        "Dialog",
-                        "Hud",
-                        "Background",
-                        "Back"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "The layer in which the view is shown."
-                },
-                {
-                    "name": "isFullScreen",
-                    "field": "m_isFullScreen",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When full screen, all other layers below are hidden."
-                },
-                {
-                    "name": "hideOnOccludedByFullScreen",
-                    "field": "m_hideOnOccludedByFullScreen",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Dialog is hidden when occluded by a full screen dialog."
-                },
-                {
-                    "name": "hideOnOccludedByFullScreenInstant",
-                    "field": "m_hideOnOccludedByFullScreenInstant",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Dialog is hidden instantly when occluded by a full screen dialog."
-                },
-                {
-                    "name": "useGlobalCanvasScalerTemplate",
-                    "field": "m_useGlobalCanvasScalerTemplate",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Uses the global canvas scaler template in Ui toolkit configuration (if it is set)."
-                },
-                {
-                    "name": "autoDestroyOnHide",
-                    "field": "m_autoDestroyOnHide",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When the view is closed via Hide(), the view is automatically destroyed or pooled."
-                },
-                {
-                    "name": "poolable",
-                    "field": "m_poolable",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When checked, the dialog is pooled instead of destroyed."
-                },
-                {
-                    "name": "closeButtons",
-                    "field": "m_closeButtons",
-                    "kind": "list",
-                    "valueType": "UnityEngine.UI.Button[]",
-                    "elementKind": "componentRef",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Most UiViews need one or more close buttons. You can optionally define those here."
-                },
-                {
-                    "name": "backgroundMusicId",
-                    "field": "m_backgroundMusicId",
-                    "kind": "string",
-                    "valueType": "System.String",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Optional background music track id (a MusicTrack Id from the UiSoundConfig). When this view is shown, UiMusic crossfades to that track. Leave empty to leave the current music unchanged."
-                },
-                {
-                    "name": "defaultSceneVisibility",
-                    "field": "m_defaultSceneVisibility",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EDefaultSceneVisibility",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "DontCare",
-                        "Visible",
-                        "Invisible",
-                        "Legacy",
-                        "VisibleInDevBuild",
-                        "VisibleWhen_DEFAULT_SCENE_VISIBLE_defined"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "simpleShowHideAnimation",
-                    "field": "m_simpleShowHideAnimation",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiSimpleAnimationBase",
-                    "elementKind": "",
-                    "refType": "UiSimpleAnimationBase",
-                    "enumValues": [],
-                    "optional": true,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "autoLoadResources",
-                    "field": "m_autoLoadResources",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "If enabled, this panel automatically loads its declared resources during Awake(). Use only for panels with static resources. Do NOT enable for dialogs or panels that compute resources dynamically at runtime."
-                }
-            ],
-            "events": [
-                {
-                    "name": "EvOnBeginShow",
-                    "field": "EvOnBeginShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndShow",
-                    "field": "EvOnEndShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnBeginHide",
-                    "field": "EvOnBeginHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndHide",
-                    "field": "EvOnEndHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnDestroyed",
-                    "field": "EvOnDestroyed",
-                    "type": "CEvent`1"
-                }
-            ]
-        },
-        {
-            "type": "ExampleResDepStyles",
-            "fullName": "ExampleResDepStyles",
-            "assembly": "Assembly-CSharp",
-            "category": "Root",
-            "description": "",
-            "isRoot": true,
-            "acceptsChildren": true,
-            "contentField": "",
-            "requiresComponents": [
-                "Canvas",
-                "CanvasScaler",
-                "GraphicRaycaster",
-                "RectTransform"
-            ],
-            "styles": [],
-            "props": [
-                {
-                    "name": "closeButton",
-                    "field": "m_closeButton",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiButton",
-                    "elementKind": "",
-                    "refType": "UiButton",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "aspectRatioText",
-                    "field": "m_aspectRatioText",
-                    "kind": "componentRef",
-                    "valueType": "TMPro.TMP_Text",
-                    "elementKind": "",
-                    "refType": "TMP_Text",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "styleConfig",
-                    "field": "m_styleConfig",
-                    "kind": "objectRef",
-                    "valueType": "GuiToolkit.Style.UiAspectRatioDependentStyleConfig",
-                    "elementKind": "",
-                    "refType": "UiAspectRatioDependentStyleConfig",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "layer",
-                    "field": "m_layer",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EUiLayerDefinition",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "Top",
-                        "Tooltip",
-                        "ModalStack",
-                        "Popup",
-                        "Dialog",
-                        "Hud",
-                        "Background",
-                        "Back"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "The layer in which the view is shown."
-                },
-                {
-                    "name": "isFullScreen",
-                    "field": "m_isFullScreen",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When full screen, all other layers below are hidden."
-                },
-                {
-                    "name": "hideOnOccludedByFullScreen",
-                    "field": "m_hideOnOccludedByFullScreen",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Dialog is hidden when occluded by a full screen dialog."
-                },
-                {
-                    "name": "hideOnOccludedByFullScreenInstant",
-                    "field": "m_hideOnOccludedByFullScreenInstant",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Dialog is hidden instantly when occluded by a full screen dialog."
-                },
-                {
-                    "name": "useGlobalCanvasScalerTemplate",
-                    "field": "m_useGlobalCanvasScalerTemplate",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Uses the global canvas scaler template in Ui toolkit configuration (if it is set)."
-                },
-                {
-                    "name": "autoDestroyOnHide",
-                    "field": "m_autoDestroyOnHide",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When the view is closed via Hide(), the view is automatically destroyed or pooled."
-                },
-                {
-                    "name": "poolable",
-                    "field": "m_poolable",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When checked, the dialog is pooled instead of destroyed."
-                },
-                {
-                    "name": "closeButtons",
-                    "field": "m_closeButtons",
-                    "kind": "list",
-                    "valueType": "UnityEngine.UI.Button[]",
-                    "elementKind": "componentRef",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Most UiViews need one or more close buttons. You can optionally define those here."
-                },
-                {
-                    "name": "backgroundMusicId",
-                    "field": "m_backgroundMusicId",
-                    "kind": "string",
-                    "valueType": "System.String",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Optional background music track id (a MusicTrack Id from the UiSoundConfig). When this view is shown, UiMusic crossfades to that track. Leave empty to leave the current music unchanged."
-                },
-                {
-                    "name": "defaultSceneVisibility",
-                    "field": "m_defaultSceneVisibility",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EDefaultSceneVisibility",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "DontCare",
-                        "Visible",
-                        "Invisible",
-                        "Legacy",
-                        "VisibleInDevBuild",
-                        "VisibleWhen_DEFAULT_SCENE_VISIBLE_defined"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "simpleShowHideAnimation",
-                    "field": "m_simpleShowHideAnimation",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiSimpleAnimationBase",
-                    "elementKind": "",
-                    "refType": "UiSimpleAnimationBase",
-                    "enumValues": [],
-                    "optional": true,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "autoLoadResources",
-                    "field": "m_autoLoadResources",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "If enabled, this panel automatically loads its declared resources during Awake(). Use only for panels with static resources. Do NOT enable for dialogs or panels that compute resources dynamically at runtime."
-                }
-            ],
-            "events": [
-                {
-                    "name": "EvOnBeginShow",
-                    "field": "EvOnBeginShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndShow",
-                    "field": "EvOnEndShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnBeginHide",
-                    "field": "EvOnBeginHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndHide",
-                    "field": "EvOnEndHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnDestroyed",
-                    "field": "EvOnDestroyed",
-                    "type": "CEvent`1"
-                }
-            ]
-        },
-        {
-            "type": "TestDemoScene1",
-            "fullName": "TestDemoScene1",
-            "assembly": "Assembly-CSharp",
-            "category": "Root",
-            "description": "",
-            "isRoot": true,
-            "acceptsChildren": true,
-            "contentField": "",
-            "requiresComponents": [
-                "Canvas",
-                "CanvasScaler",
-                "GraphicRaycaster",
-                "RectTransform"
-            ],
-            "styles": [],
-            "props": [
-                {
-                    "name": "testRef",
-                    "field": "m_testRef",
-                    "kind": "struct",
-                    "valueType": "GuiToolkit.AssetHandling.CanonicalAssetRef",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "closeButton",
-                    "field": "m_closeButton",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "showSplashMessageButton",
-                    "field": "m_showSplashMessageButton",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "showRequesterButton",
-                    "field": "m_showRequesterButton",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "showSettings",
-                    "field": "m_showSettings",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "exampleDialogStylesButton",
-                    "field": "m_exampleDialogStylesButton",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "exampleAnimationButton",
-                    "field": "m_exampleAnimationButton",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "showDatePickerButton",
-                    "field": "m_showDatePickerButton",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "loadByAddressablesButton",
-                    "field": "m_loadByAddressablesButton",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "exampleResDepStylesButton",
-                    "field": "m_exampleResDepStylesButton",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "exampleLayoutButton",
-                    "field": "m_exampleLayoutButton",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "exampleIconsButton",
-                    "field": "m_exampleIconsButton",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "popupButton",
-                    "field": "m_popupButton",
-                    "kind": "componentRef",
-                    "valueType": "UnityEngine.UI.Button",
-                    "elementKind": "",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "splashMessageInput",
-                    "field": "m_splashMessageInput",
-                    "kind": "componentRef",
-                    "valueType": "TMPro.TMP_InputField",
-                    "elementKind": "",
-                    "refType": "TMP_InputField",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "requesterTitleInput",
-                    "field": "m_requesterTitleInput",
-                    "kind": "componentRef",
-                    "valueType": "TMPro.TMP_InputField",
-                    "elementKind": "",
-                    "refType": "TMP_InputField",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "requesterTextInput",
-                    "field": "m_requesterTextInput",
-                    "kind": "componentRef",
-                    "valueType": "TMPro.TMP_InputField",
-                    "elementKind": "",
-                    "refType": "TMP_InputField",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "singularPluralTest",
-                    "field": "m_singularPluralTest",
-                    "kind": "componentRef",
-                    "valueType": "TMPro.TMP_Text",
-                    "elementKind": "",
-                    "refType": "TMP_Text",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "exampleLayoutPrefab",
-                    "field": "m_exampleLayoutPrefab",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiView",
-                    "elementKind": "",
-                    "refType": "UiView",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "exampleIconsPrefab",
-                    "field": "m_exampleIconsPrefab",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiView",
-                    "elementKind": "",
-                    "refType": "UiView",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "exampleDialogStylesPrefab",
-                    "field": "m_exampleDialogStylesPrefab",
-                    "kind": "componentRef",
-                    "valueType": "ExampleDialogStyles",
-                    "elementKind": "",
-                    "refType": "ExampleDialogStyles",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "exampleAnimationsPrefab",
-                    "field": "m_exampleAnimationsPrefab",
-                    "kind": "componentRef",
-                    "valueType": "ExampleAnimations",
-                    "elementKind": "",
-                    "refType": "ExampleAnimations",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "exampleResDepStylesPrefab",
-                    "field": "m_exampleResDepStylesPrefab",
-                    "kind": "componentRef",
-                    "valueType": "ExampleResDepStyles",
-                    "elementKind": "",
-                    "refType": "ExampleResDepStyles",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "layer",
-                    "field": "m_layer",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EUiLayerDefinition",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "Top",
-                        "Tooltip",
-                        "ModalStack",
-                        "Popup",
-                        "Dialog",
-                        "Hud",
-                        "Background",
-                        "Back"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "The layer in which the view is shown."
-                },
-                {
-                    "name": "isFullScreen",
-                    "field": "m_isFullScreen",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When full screen, all other layers below are hidden."
-                },
-                {
-                    "name": "hideOnOccludedByFullScreen",
-                    "field": "m_hideOnOccludedByFullScreen",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Dialog is hidden when occluded by a full screen dialog."
-                },
-                {
-                    "name": "hideOnOccludedByFullScreenInstant",
-                    "field": "m_hideOnOccludedByFullScreenInstant",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Dialog is hidden instantly when occluded by a full screen dialog."
-                },
-                {
-                    "name": "useGlobalCanvasScalerTemplate",
-                    "field": "m_useGlobalCanvasScalerTemplate",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Uses the global canvas scaler template in Ui toolkit configuration (if it is set)."
-                },
-                {
-                    "name": "autoDestroyOnHide",
-                    "field": "m_autoDestroyOnHide",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When the view is closed via Hide(), the view is automatically destroyed or pooled."
-                },
-                {
-                    "name": "poolable",
-                    "field": "m_poolable",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "When checked, the dialog is pooled instead of destroyed."
-                },
-                {
-                    "name": "closeButtons",
-                    "field": "m_closeButtons",
-                    "kind": "list",
-                    "valueType": "UnityEngine.UI.Button[]",
-                    "elementKind": "componentRef",
-                    "refType": "Button",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Most UiViews need one or more close buttons. You can optionally define those here."
-                },
-                {
-                    "name": "backgroundMusicId",
-                    "field": "m_backgroundMusicId",
-                    "kind": "string",
-                    "valueType": "System.String",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "Optional background music track id (a MusicTrack Id from the UiSoundConfig). When this view is shown, UiMusic crossfades to that track. Leave empty to leave the current music unchanged."
-                },
-                {
-                    "name": "defaultSceneVisibility",
-                    "field": "m_defaultSceneVisibility",
-                    "kind": "enum",
-                    "valueType": "GuiToolkit.EDefaultSceneVisibility",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [
-                        "DontCare",
-                        "Visible",
-                        "Invisible",
-                        "Legacy",
-                        "VisibleInDevBuild",
-                        "VisibleWhen_DEFAULT_SCENE_VISIBLE_defined"
-                    ],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "simpleShowHideAnimation",
-                    "field": "m_simpleShowHideAnimation",
-                    "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiSimpleAnimationBase",
-                    "elementKind": "",
-                    "refType": "UiSimpleAnimationBase",
-                    "enumValues": [],
-                    "optional": true,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": ""
-                },
-                {
-                    "name": "autoLoadResources",
-                    "field": "m_autoLoadResources",
-                    "kind": "bool",
-                    "valueType": "System.Boolean",
-                    "elementKind": "",
-                    "refType": "",
-                    "enumValues": [],
-                    "optional": false,
-                    "mandatory": false,
-                    "mandatoryExternal": false,
-                    "hasRange": false,
-                    "rangeMin": 0.0,
-                    "rangeMax": 0.0,
-                    "tooltip": "If enabled, this panel automatically loads its declared resources during Awake(). Use only for panels with static resources. Do NOT enable for dialogs or panels that compute resources dynamically at runtime."
-                }
-            ],
-            "events": [
-                {
-                    "name": "EvOnBeginShow",
-                    "field": "EvOnBeginShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndShow",
-                    "field": "EvOnEndShow",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnBeginHide",
-                    "field": "EvOnBeginHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnEndHide",
-                    "field": "EvOnEndHide",
-                    "type": "CEvent`1"
-                },
-                {
-                    "name": "EvOnDestroyed",
-                    "field": "EvOnDestroyed",
-                    "type": "CEvent`1"
-                }
-            ]
-        },
-        {
             "type": "UiGridPicker",
             "fullName": "GuiToolkit.UiGridPicker",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Root",
-            "description": "",
+            "description": "A pooled UiView popup that lays out a grid of UiGridPickerCell buttons according to an Options object (column/row counts, cell size, caption, cell prefab) and invokes populate and click callbacks per cell. It can close on an outside tap or via a close button.",
             "isRoot": true,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "Canvas",
@@ -13418,9 +10843,8 @@
             "fullName": "GuiToolkit.UiKeyPressRequester",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Root",
-            "description": "",
+            "description": "A modal UiView that prompts the user to press a key or mouse button and reports the resulting KeyBinding (with modifiers) through a callback. It shows a localized title based on the PlayerSettingOptions filter/whitelist, warns on unsupported keys with an animation, and displays live shift/ctrl/alt indicators.",
             "isRoot": true,
-            "acceptsChildren": true,
             "contentField": "m_indicatorsContainer",
             "requiresComponents": [
                 "Canvas",
@@ -13816,9 +11240,8 @@
             "fullName": "GuiToolkit.UiPlayerSettingsDialog",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Root",
-            "description": "",
+            "description": "A pooled tabbed dialog (UiTabDialog) that builds the entire player-settings UI from PlayerSettings, creating one tab per category and instantiating the matching entry prefab (slider, toggle, radio, dropdown, key binding, button, language or custom) for each setting. It provides OK, Cancel and Restore-Defaults buttons with temp-save and temp-restore semantics.",
             "isRoot": true,
-            "acceptsChildren": true,
             "contentField": "m_tabContentContainer",
             "requiresComponents": [
                 "Canvas",
@@ -14406,9 +11829,8 @@
             "fullName": "GuiToolkit.UiPopup",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Root",
-            "description": "",
+            "description": "A runtime popup menu anchored near a triggering UI element (context-menu / dropdown style). Scrollable content area supports any arbitrary item prefabs, set either in the Inspector or added at runtime via SetOptions / AddItem. Closes on tap outside via the UiModal click-catcher pattern. Required prefab hierarchy (create in Unity Editor): UiPopupMenu (Canvas, CanvasScaler, GraphicRaycaster, UiModal, UiPopupMenu) ├── ClickCatcher (RectTransform stretch-fill, UiClickCatcher, Button) ← UiModal.m_clickCatcher └── PopupContainer (RectTransform, manually sized or via LayoutGroup) ← m_popupContainer ├── Background (Image – optional visual) └── ScrollView (ScrollRect) └── Viewport (RectTransform, Mask) └── Content (RectTransform, VerticalLayoutGroup) ← m_contentContainer Set the Layer field on this component to Popup in the prefab.",
             "isRoot": true,
-            "acceptsChildren": true,
             "contentField": "m_popupContainer",
             "requiresComponents": [
                 "Canvas",
@@ -14740,9 +12162,8 @@
             "fullName": "GuiToolkit.UiRequester",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Root",
-            "description": "",
+            "description": "The general-purpose message/dialog requester (UiRequesterBase) supporting a title, body text, an optional input field and an optional UiDateTimePanel, with helper methods for Ok, YesNo, TwoOptions and input dialogs including async blocking variants. It also auto-shrinks the body font size so the dialog fits within the screen.",
             "isRoot": true,
-            "acceptsChildren": true,
             "contentField": "m_inputFieldContainer",
             "requiresComponents": [
                 "Canvas",
@@ -15202,9 +12623,8 @@
             "fullName": "GuiToolkit.UiStartupOverlayView",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Root",
-            "description": "",
+            "description": "Dynamically-created host AND sequencer for the startup-overlay sequence (changelog, sale / event popups, …). Instantiated by UiMain from its optional prefab reference ( m_startupOverlayViewPrefab ), so it lives on its own layered canvas above the blocked screens and — being parented under the DontDestroyOnLoad UiMain — survives scene changes and keeps its identity (and its position in the sequence) across them. Prefab layout — the click-catcher must come BEFORE the overlay panels so the panels render above it on this shared canvas: UiStartupOverlayView (Canvas + this component, Layer = Top) ├ ClickCatcher (full-screen; its CanvasGroup wired into m_clickCatcher) ├ ChangeLog (UiPanel) ├ SalePanel (UiPanel) └ EventPanel … (UiPanel) Sequencing model: Run walks the child UiPanels in sibling order (non-UiPanel children and the click-catcher are ignored). Each panel is shown via Show; the queue advances when the panel raises EvOnEndHide. That single event is the contract for BOTH \"the user dismissed me\" and \"I decline to show\" — a panel that shouldn't appear simply raises EvOnEndHide without ever showing itself (no interface required; documented limitation). The full-screen click-catcher blocks everything behind this canvas for the whole run, closing the input gaps before the first panel and between panels; the panels, above it, stay interactive. On a scene change (a panel navigating away) the run pauses and resumes from the next panel when Run is called again — the persistent object keeps the index.",
             "isRoot": true,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "Canvas",
@@ -15504,9 +12924,8 @@
             "fullName": "GuiToolkit.UiTabDialog",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Root",
-            "description": "",
+            "description": "A dialog with tabs. Note: Regarding animation, currently only vertical tabs is supported.",
             "isRoot": true,
-            "acceptsChildren": true,
             "contentField": "m_tabContentContainer",
             "requiresComponents": [
                 "Canvas",
@@ -15870,9 +13289,8 @@
             "fullName": "GuiToolkit.UiToastMessageView",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Root",
-            "description": "",
+            "description": "A standalone toast message. It is created within the \"View\" system. Once fired, requires no further action. UiToastMessageView's can however overlap, if multiple at the same time are visible, since they are hierarchically independent. If you need multiple toast messages at the same time, consider setting up/using UiToastMessageContainer.",
             "isRoot": true,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "Canvas",
@@ -16188,9 +13606,8 @@
             "fullName": "GuiToolkit.UiView",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Root",
-            "description": "",
+            "description": "Top-level UI container built on UiPanel. Provides: - Canvas, CanvasScaler and Raycaster requirements (2D UI rendering). - Layering and fullscreen-occlusion behavior across views. - Optional use of a global CanvasScaler template from configuration. - Integration with UiMain navigation (push/pop, bring-to-front). - Auto-destroy or pooling on hide, configurable per view. Notes: - Show/Hide raise a global \"fullscreen view\" event if this view is fullscreen. Other views can hide themselves when occluded. - The occlusion logic relies on layer ordering: ensure EUiLayerDefinition reflects your intended z-order semantics. - Canvas and CanvasScaler are lazily fetched and cached per instance.",
             "isRoot": true,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "Canvas",
@@ -16442,9 +13859,8 @@
             "fullName": "GuiToolkit.UiForceLegacyText",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Text",
-            "description": "",
+            "description": "Marker component that prevents the Text component on the same GameObject from being converted by LegacyTextToLocalizedTmpConverter (both Dry Run and Execute). Attach this to any UI element that must keep its legacy Text component — e.g. components whose text is set exclusively at runtime via TMP-incompatible paths, or UI elements intentionally kept as legacy widgets.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "Text"
@@ -16458,9 +13874,8 @@
             "fullName": "GuiToolkit.UiForceUnlocalizedText",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Text",
-            "description": "",
+            "description": "Marker component that prevents the TextMeshProUGUI component on the same GameObject from being converted to UiLocalizedTextMeshProUGUI by batch conversion routines (both Dry Run and Execute) in LocalizedTmpConverterWindow . This component is automatically removed when you convert via the component context menu (\"Replace with Localized Text\"). When converting UiLocalizedTextMeshProUGUI back to TextMeshProUGUI via \"Replace with Plain TMP Text\", you are asked whether to add this component (default: yes).",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "TextMeshProUGUI"
@@ -16474,9 +13889,8 @@
             "fullName": "GuiToolkit.UiTextContainer",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Text",
-            "description": "",
+            "description": "Exposes a text label that lives in a child object (TextMeshPro or legacy Text) through its Text and TextColor. If the child is a localized TMP text, the Text property transparently reads/writes its localization key instead of the raw string.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -16490,9 +13904,8 @@
             "fullName": "GuiToolkit.UiTextContainerDisableable",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Text",
-            "description": "",
+            "description": "A UiTextContainer that, in addition to its text, computes and applies a dimmed and desaturated 'disabled' color (and TMP color gradient) versus the normal color, switching between them whenever its enabled-in-hierarchy state changes.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -16635,9 +14048,8 @@
             "fullName": "GuiToolkit.UiWebLinkTextMeshPro",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Text",
-            "description": "",
+            "description": "Sits next to a TMP_Text on the same GameObject (added via RequireComponent) and, on click, opens the URL of the clicked TextMeshPro link tag via Application.OpenURL.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "TMP_Text"
@@ -16647,27 +14059,12 @@
             "events": []
         },
         {
-            "type": "DemoMain",
-            "fullName": "DemoMain",
-            "assembly": "Assembly-CSharp",
-            "category": "Widget",
-            "description": "",
-            "isRoot": false,
-            "acceptsChildren": false,
-            "contentField": "",
-            "requiresComponents": [],
-            "styles": [],
-            "props": [],
-            "events": []
-        },
-        {
             "type": "Ui3DObject",
             "fullName": "GuiToolkit.Ui3DObject",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "\\brief Integrate 3D objects into GUI Unity allows a mix of UI and 3D objects, in a manner that 3D objects get a RectTransform applied when they are in an UI hierarchy. The support for 3D in the UI however is quite bad; Changing the size of the rect transform does not affect the 3D object at all. Here's a simple and fast solution to overcome this. It is done via a cheap vertex shader. In that shader, the mesh is transformed in a way that it matches the RectTransform bounds in X and Y direction perfectly. The Z mesh scale can be either left untouched, or determined by the x, y or the average of the x and y scale. The cool thing with this is that the normals are completely unimpaired. You can have an object which is very flat in the Z axis, but due to its normals looks as if it is a regular 3D object. However, if you want to rotate the object in the x or y axis, you should choose one of the other options. Note that the scale of the RectTransform is unimpaired; the whole scaling and transforming is done in the shader. The downside of this approach is obviously, that you need a special shader for this. The provided UI_3D.mat provides this functionality; if you want to use it in your own shader it's quite simple to implement. See the provided Ui3D.shader for an example; examine USE_UI3D, _Offset and _Scale.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "MeshRenderer",
@@ -16722,9 +14119,8 @@
             "fullName": "GuiToolkit.UiColorPatch",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "An ExecuteAlways UiThing selectable color swatch that tints a referenced Graphic to its Color and uses a referenced Toggle to drive selection, showing a selection frame and firing OnSelected/OnDeselected callbacks.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -16835,9 +14231,8 @@
             "fullName": "GuiToolkit.UiDateTimeDisplay",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "A UiPanel read-out that formats the date/time from a referenced UiDateTimePanel into a TextMeshPro label (long or short date and/or time per its Options), refreshing on value changes and language changes.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -16997,9 +14392,8 @@
             "fullName": "GuiToolkit.UiDistortGroup",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "An ExecuteAlways MonoBehaviour that collects the UiDistortBase modifiers among its children and coordinates them as a group, enabling only the first and last and mirroring them along a configured axis (optionally inverted) so a distortion continues seamlessly across the row. It re-initializes on child changes and skin changes.",
             "isRoot": false,
-            "acceptsChildren": true,
             "contentField": "m_container",
             "requiresComponents": [],
             "styles": [],
@@ -17064,9 +14458,8 @@
             "fullName": "GuiToolkit.UiFPS",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "A debug MonoBehaviour that averages unscaled delta time over a sample window and writes the resulting frames-per-second value into a referenced legacy Text.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -17111,9 +14504,8 @@
             "fullName": "GuiToolkit.UiInitialActiveState",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "Forces a set of target GameObjects active or inactive at runtime, regardless of how they were stored in the scene/prefab. Useful when authoring requires the opposite state in the editor (e.g. visible for layout, hidden at runtime — or vice versa).",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -17180,9 +14572,8 @@
             "fullName": "GuiToolkit.UiMultiPurposeShaderHelper",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "This component allows easy access to UiMultiPurposeShader.shader features from C#",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "Graphic"
@@ -17213,9 +14604,8 @@
             "fullName": "GuiToolkit.UiMusic",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "Global background music with crossfading — the music counterpart to UiSound. A single, self-bootstrapping instance plays the looping (or one-shot) tracks defined in the project's UiSoundConfig (its music section), addressed by a plain string id. Switching tracks crossfades over a configurable duration. Content lives in the same UiSoundConfig asset the host supplies via UiToolkitConfiguration. The host owns mute/volume through MutedProvider / VolumeProvider — the same contract as UiSound, so the game's music setting drives it. Both are optional. Ducking: a prominent one-shot (typically a jingle) can briefly lower the music while it plays. Any SoundDef with DuckMusic enabled attenuates the music for the clip's duration. Both UiSound and game SFX code route through , so library UI sounds and client SFX duck the music the same way.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -17227,9 +14617,8 @@
             "fullName": "GuiToolkit.UiPlayerSettingKeyBinding",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "A UiPlayerSettingButton for a key-binding setting: it shows the current KeyBinding as text and, when clicked, opens the key-press requester to rebind it. It can optionally highlight the text and background color when the binding is unset.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -17436,9 +14825,8 @@
             "fullName": "GuiToolkit.UiPointerDownUpHelper",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "A helper for components, which reside on a bottommost canvas game object and still have to listen for pointer down/up on a higher level",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -17483,9 +14871,8 @@
             "fullName": "GuiToolkit.UiProgressBarRectTransform",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "A progress bar (UiProgressBarBase) that visualizes progress by scaling a bar RectTransform's size along one axis (horizontal or vertical) relative to a reference RectTransform's size.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -17629,9 +15016,8 @@
             "fullName": "GuiToolkit.UiRubberband",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "A sealed UiThing (requires a CanvasGroup) that draws a rubber-band selection rectangle driven by a drag-enabled key-binding PlayerSetting, positioning and sizing its own RectTransform to the dragged area and firing screen-space and local-space rect events during and at the end of the drag.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "CanvasGroup",
@@ -18024,9 +15410,8 @@
             "fullName": "GuiToolkit.UiScrollRect",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "A UiThing that sits next to a Unity ScrollRect on the same GameObject (added via RequireComponent) and adds convenience behavior: EnsureChildVisibility scrolls (optionally tweened, with neighbor padding) so a given child comes into view, plus an optional initial normalized scroll position applied on enable.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "ScrollRect",
@@ -18106,9 +15491,8 @@
             "fullName": "GuiToolkit.UiScrollRectInScrollRect",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "\\brief Routes drag events between an inner ScrollRect and an outer (parent) ScrollRect based on drag orientation. If the drag orientation matches the inner's main axis, the inner ScrollRect receives the events; otherwise the parent ScrollRect does.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -18153,9 +15537,8 @@
             "fullName": "GuiToolkit.UiSetSizeByElementList",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "\\brief Set vertical and / or horizontal size of a rect transform by the sum of a list of RectTransforms This is handy in cases where nested layout groups get too complicated. \\attention This can only be done via Update(), which is expensive. So don't overuse please.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -18250,9 +15633,8 @@
             "fullName": "GuiToolkit.Style.UiSetSkinFixedForRange",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "This component is intended to suppress skin changes in a range of UiAbstractApplyStyleBase instances. It can be handy if you want varying skins in one screen, but a fixed skin in another. In case of nested UISetSkinFixedForRange, the outer one does not collect the children of the inner one.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -18345,9 +15727,8 @@
             "fullName": "GuiToolkit.UiSound",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "Global UI sound. A single, self-bootstrapping listener that plays the configured UI sounds when the user presses a control — the Click sound for buttons (GuiToolkit UiButtonBases and plain UGUI Buttons) and the Toggle sound for toggles (GuiToolkit UiToggles and plain UGUI Toggles) — with zero per-control setup. Further sound types (hover, ...) can be added to EUiSoundType / UiSoundConfig and triggered here. Detection: on pointer-down we raycast the UI at the pointer position via the current EventSystem and, if the frontmost hit resolves to an interactable control, play the matching sound. We fire on pointer-DOWN because UiButtonBase triggers its own action on PointerDown, which keeps the sound in sync with the toolkit's buttons. The detector is independent of the active UI input module. Content lives in a UiSoundConfig asset supplied by the host (referenced from UiToolkitConfiguration). The host also owns mute/volume: assign MutedProvider and/or VolumeProvider to route UI sound through the game's own sound settings. Both are optional — when unset, sounds play at the configured volume.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -18359,9 +15740,8 @@
             "fullName": "GuiToolkit.UiSoundOverride",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "Per-control override for the global UiSound detector. Place it on (or anywhere above) a button/toggle to change what the automatic UI sound does for that control: suppress it, redirect it to a different configured sound type, or play a custom clip. UiSound finds it via GetComponentInParent , so an override on a panel applies to every control beneath it. Note: this refines controls the detector already recognizes (GuiToolkit buttons / toggles and plain UGUI Buttons / Toggles). It does not make an otherwise silent, non-standard control emit sound.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -18432,9 +15812,8 @@
             "fullName": "GuiToolkit.UiStateSystem.UiStateMachine",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "A MonoBehaviour (one per GameObject) that records per-GameObject property snapshots for named states and animates between them via UiTransition when its State is set. It supports nested sub-state-machines, forced layout rebuilds, an optional auto-set state on enable, and editor recording/preview.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -18629,9 +16008,8 @@
             "fullName": "GuiToolkit.UiTransitionOverlay",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "A singleton full-screen fade overlay (UiAbstractTransitionOverlay) built from a black Image and a CanvasGroup driven by a UiSimpleAnimation, used to cover screen transitions. FadeInOverlay and FadeOutOverlay fade it in and out and optionally block input, and a fallback overlay is built if none is configured.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [],
             "styles": [],
@@ -18692,9 +16070,8 @@
             "fullName": "UiWebLink",
             "assembly": "de.phoenixgrafik.ui-toolkit",
             "category": "Widget",
-            "description": "",
+            "description": "A UiThing (IPointerClickHandler) that opens a URL on click via Application.OpenURL; it can use a single fixed link or, when localized, pick the URL matching the current language from a list.",
             "isRoot": false,
-            "acceptsChildren": false,
             "contentField": "",
             "requiresComponents": [
                 "RectTransform"
@@ -18751,6 +16128,464 @@
                 }
             ],
             "events": []
+        }
+    ],
+    "palette": [
+        {
+            "name": "StandardClickCatcher",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardClickCatcher.prefab",
+            "prefabGuid": "445786f719e154d4db109676021f00a3",
+            "kind": "UiSimpleAnimation",
+            "category": "Animation",
+            "description": "Full-area overlay placed behind a modal or popup; fades in to dim the screen and swallows clicks to everything underneath.",
+            "slots": [
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "StandardButtonBar",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardButtonBar.prefab",
+            "prefabGuid": "a83a296a9f385cf438eda8d72559d078",
+            "kind": "",
+            "category": "Container",
+            "description": "Horizontal bar that lays out a dialog's action buttons (e.g. OK/Cancel) along the bottom.",
+            "slots": []
+        },
+        {
+            "name": "StandardCheckboxCheckmark",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardCheckboxCheckmark.prefab",
+            "prefabGuid": "f0d5594a0c80b89438de6761afc5d59a",
+            "kind": "",
+            "category": "Container",
+            "description": "The checkmark graphic shown inside a checkbox while it is on.",
+            "slots": []
+        },
+        {
+            "name": "StandardHeadlineBackground",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardHeadlineBackground.prefab",
+            "prefabGuid": "6420af34ac7a50e44bfdbc8c17fb384a",
+            "kind": "",
+            "category": "Container",
+            "description": "Decorative background strip that sits behind a panel's headline text.",
+            "slots": []
+        },
+        {
+            "name": "StandardPanelBackground",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardPanelBackground.prefab",
+            "prefabGuid": "600b043a1570d17488917991ef0e5ba0",
+            "kind": "",
+            "category": "Container",
+            "description": "The default framed panel surface - the standard rounded background for dialog and panel content.",
+            "slots": []
+        },
+        {
+            "name": "StandardPanelBackgroundWithHeadline",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardPanelBackgroundWithHeadline.prefab",
+            "prefabGuid": "2e29e8334442f624d94237f9c2eacc7a",
+            "kind": "",
+            "category": "Container",
+            "description": "The default framed panel surface - the standard rounded background for dialog and panel content.",
+            "slots": []
+        },
+        {
+            "name": "StandardTabPage",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardTabPage.prefab",
+            "prefabGuid": "a0a87ab866650e740bfa98880579d91b",
+            "kind": "UiPanel",
+            "category": "Container",
+            "description": "One page of a tabbed dialog: the content container shown while its tab is selected.",
+            "slots": []
+        },
+        {
+            "name": "StandardTabPageWithScrollRect",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardTabPageWithScrollRect.prefab",
+            "prefabGuid": "723bc1e72c0b35f499f0f9b47558783e",
+            "kind": "UiPanel",
+            "category": "Container",
+            "description": "A tab page whose content scrolls, for pages longer than the available height.",
+            "slots": []
+        },
+        {
+            "name": "CancelButton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/CancelButton.prefab",
+            "prefabGuid": "e1923f16e8be62c4aaba24e33fec90d9",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "Standard 'Cancel' button that dismisses a dialog without applying changes.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "CloseButton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/CloseButton.prefab",
+            "prefabGuid": "f0b4f07e8e2f38d4e923e31881f94c44",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "Small close (X) button, typically pinned in a panel's top corner.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "DownButton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/UpDownLeftRight/DownButton.prefab",
+            "prefabGuid": "af32eb4bc80b16d4eab381ac8514c583",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "Directional 'down' arrow button, part of the up/down/left/right set.",
+            "slots": [
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "LanguageToggle",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/LanguageToggle.prefab",
+            "prefabGuid": "93821341ca46b35428a5456e78afe467",
+            "kind": "UiLanguageToggle",
+            "category": "Input",
+            "description": "Flag toggle for a single language; switches the active language when turned on.",
+            "slots": [
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                },
+                {
+                    "name": "onValueChanged",
+                    "kind": "event",
+                    "note": "Toggle change handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "LeftButton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/UpDownLeftRight/LeftButton.prefab",
+            "prefabGuid": "e989a572b3286724a8443550de77ba5f",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "Directional 'left' arrow button, part of the up/down/left/right set.",
+            "slots": [
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "OkButton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/OkButton.prefab",
+            "prefabGuid": "ffe5dd8cf41b8e140b7de326263eedd8",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "Standard 'OK' / confirm button that accepts a dialog.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "RightButton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/UpDownLeftRight/RightButton.prefab",
+            "prefabGuid": "5913f47b0ff631940a0ad172620a18a2",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "Directional 'right' arrow button, part of the up/down/left/right set.",
+            "slots": [
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "StandardButton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/StandardButton.prefab",
+            "prefabGuid": "21a8687b0161cb048a99736c000f6da3",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "The default labeled text button - the go-to button for most actions.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "StandardButtonSmall",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/StandardButtonSmall.prefab",
+            "prefabGuid": "33b0a351658c4a4478a2fcddcd137c0f",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "Compact variant of the standard text button for tight layouts.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "StandardCheckbox",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardCheckbox.prefab",
+            "prefabGuid": "937768391efe18040b14fc35df1aef28",
+            "kind": "UiToggle",
+            "category": "Input",
+            "description": "A labeled checkbox for a single on/off setting.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                },
+                {
+                    "name": "onValueChanged",
+                    "kind": "event",
+                    "note": "Toggle change handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "StandardIconButton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/StandardIconButton.prefab",
+            "prefabGuid": "54842dad725d4fd40b556224ec94438d",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "Square button showing an icon instead of a text label.",
+            "slots": [
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "StandardRadio",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardRadio.prefab",
+            "prefabGuid": "f57319b89fdea7c43b2af92768b57c9c",
+            "kind": "UiToggle",
+            "category": "Input",
+            "description": "A labeled radio button for mutually-exclusive choices within a toggle group.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                },
+                {
+                    "name": "onValueChanged",
+                    "kind": "event",
+                    "note": "Toggle change handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "StandardSliderHor",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardSliderHor.prefab",
+            "prefabGuid": "53f923c19928fa04dbd39d8a4a6a510c",
+            "kind": "UiSlider",
+            "category": "Input",
+            "description": "A horizontal slider for a continuous value such as volume; can show its value as text.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "StandardTab",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardTab.prefab",
+            "prefabGuid": "a6fb32f71c0641f489a7bf2a64e8f9a9",
+            "kind": "UiTab",
+            "category": "Input",
+            "description": "A single tab header that selects its page; part of a tab strip.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                },
+                {
+                    "name": "onValueChanged",
+                    "kind": "event",
+                    "note": "Toggle change handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "StandardTabChapter",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardTabChapter.prefab",
+            "prefabGuid": "464f0989723c94047b2c82ba05fef61f",
+            "kind": "UiTabChapter",
+            "category": "Input",
+            "description": "A section heading within a tab strip that groups the tabs listed under it.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "UiDropdown",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/UiDropdown.prefab",
+            "prefabGuid": "3790a03321393fa48a3d0278035b02d6",
+            "kind": "UiDropdown",
+            "category": "Input",
+            "description": "A dropdown (combo box) for picking one option from a list.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "text",
+                    "note": "Set the display text."
+                }
+            ]
+        },
+        {
+            "name": "UiLanguageSelectDropdown",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/UiLanguageSelectDropdown.prefab",
+            "prefabGuid": "6ceb832910d9e0d4489b5db17b167745",
+            "kind": "UiLanguageSelectDropdown",
+            "category": "Input",
+            "description": "A dropdown listing all available languages, kept in sync with the active one.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "text",
+                    "note": "Set the display text."
+                }
+            ]
+        },
+        {
+            "name": "UpButton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/UpDownLeftRight/UpButton.prefab",
+            "prefabGuid": "ff23286387af98b45a8602075905be71",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "Directional 'up' arrow button, part of the up/down/left/right set.",
+            "slots": [
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "UpDownLeftRightButton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/UpDownLeftRight/UpDownLeftRightButton.prefab",
+            "prefabGuid": "63f736e16f52f304c843e61997a25b21",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "Directional arrow button that forms the basis of the up/down/left/right button set.",
+            "slots": [
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "StandardToastMessageView",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardToastMessageView.prefab",
+            "prefabGuid": "f2f503a7e51d1b04b97312941698d8e1",
+            "kind": "UiToastMessageView",
+            "category": "Root",
+            "description": "A transient toast notification that pops in, shows a short message, and disappears on its own.",
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "UiPopup",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/UiPopup.prefab",
+            "prefabGuid": "a8a96ffc99045024aac10073d1f4aad2",
+            "kind": "UiPopup",
+            "category": "Root",
+            "description": "A popup / context menu anchored near a triggering element; scrollable, closes on tap outside.",
+            "slots": []
+        },
+        {
+            "name": "StandardColorPatch",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardColorPatch.prefab",
+            "prefabGuid": "19c0d783fc245d54b8eed1a995780a3a",
+            "kind": "UiColorPatch",
+            "category": "Widget",
+            "description": "A selectable color swatch that displays a single color and can be picked within a group.",
+            "slots": []
         }
     ]
 }

@@ -191,6 +191,7 @@ GameObject:
   - component: {fileID: 68166162642888206}
   - component: {fileID: 1096241201578635205}
   - component: {fileID: 7798774558951581679}
+  - component: {fileID: 8027856606432814324}
   m_Layer: 5
   m_Name: StandardSliderHor
   m_TagString: Untagged
@@ -1683,3 +1684,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 0
+--- !u!114 &8027856606432814324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2355603376497938119}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  m_comment: A horizontal slider for a continuous value such as volume; can show its value as text.

@@ -1125,6 +1125,7 @@ GameObject:
   - component: {fileID: 4324539424823709721}
   - component: {fileID: 385302864968983922}
   - component: {fileID: 3758956072327778183}
+  - component: {fileID: 2970126824475849531}
   m_Layer: 5
   m_Name: UiPopup
   m_TagString: Untagged
@@ -1261,3 +1262,16 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &2970126824475849531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8299146863627252471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  m_comment: A popup / context menu anchored near a triggering element; scrollable, closes on tap outside.
