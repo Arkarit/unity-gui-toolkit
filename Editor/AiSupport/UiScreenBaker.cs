@@ -175,10 +175,17 @@ namespace GuiToolkit.Editor.AiSupport
 			else if (_parent == null)
 				ApplyFullStretch(go);
 
+			// A ScrollRect needs a Viewport/Content structure to clip and scroll its children; a bare
+			// UiScrollRect element (RequireComponent(ScrollRect)) has none, so build it here.
+			ScaffoldScrollRectIfPresent(go);
+
 			if (_node["children"] is JArray children)
 			{
+				// Children go into the node's content container (a ScrollRect's Content, or a component's
+				// serialized content/container transform), falling back to the node's own transform.
+				Transform contentParent = ResolveContentParent(go);
 				foreach (var child in children.OfType<JObject>())
-					BuildNode(child, go.transform);
+					BuildNode(child, contentParent);
 			}
 
 			return go;
@@ -332,6 +339,104 @@ namespace GuiToolkit.Editor.AiSupport
 			if (_arr.Count > 0) v.x = (float)_arr[0];
 			if (_arr.Count > 1) v.y = (float)_arr[1];
 			return v;
+		}
+
+		// Resolves where a node's children should be parented: a ScrollRect's Content, else a component's
+		// serialized content/container transform (same heuristic the catalog generator exposes as
+		// "contentField"), else the node's own transform.
+		private static Transform ResolveContentParent( GameObject _go )
+		{
+			var scrollRect = _go.GetComponent<ScrollRect>();
+			if (scrollRect != null && scrollRect.content != null)
+				return scrollRect.content;
+
+			var contentTransform = FindContentReference(_go);
+			if (contentTransform != null)
+				return contentTransform;
+
+			return _go.transform;
+		}
+
+		// Mirrors UiScreenCatalogGenerator.ResolveContentField: a serialized Transform/GameObject field
+		// whose name mentions "content"/"container" and that already points at a child of this node
+		// (the case for template prefabs that carry a real content area). Most-derived declarations win.
+		private static Transform FindContentReference( GameObject _go )
+		{
+			foreach (var component in _go.GetComponents<Component>())
+			{
+				if (component == null)
+					continue;
+
+				for (var t = component.GetType(); t != null && t != typeof(object); t = t.BaseType)
+				{
+					var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public |
+					                         BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+					foreach (var f in fields)
+					{
+						bool contenty = f.Name.IndexOf("content", StringComparison.OrdinalIgnoreCase) >= 0
+						             || f.Name.IndexOf("container", StringComparison.OrdinalIgnoreCase) >= 0;
+						if (!contenty)
+							continue;
+						if (!typeof(Transform).IsAssignableFrom(f.FieldType) && !typeof(GameObject).IsAssignableFrom(f.FieldType))
+							continue;
+
+						Transform tr = f.GetValue(component) switch
+						{
+							Transform x  => x,
+							GameObject g => g.transform,
+							_            => null,
+						};
+						if (tr != null && tr != _go.transform && tr.IsChildOf(_go.transform))
+							return tr;
+					}
+				}
+			}
+			return null;
+		}
+
+		// Builds the standard Viewport→Content structure for a ScrollRect that has none (a bare
+		// UiScrollRect element), and wires the ScrollRect's viewport/content refs. A template prefab that
+		// already ships a Content is left untouched. Scroll direction / a layout group + ContentSizeFitter
+		// on the Content are deliberately left to the author (or a later milestone).
+		private static void ScaffoldScrollRectIfPresent( GameObject _go )
+		{
+			var scrollRect = _go.GetComponent<ScrollRect>();
+			if (scrollRect == null || scrollRect.content != null)
+				return;
+
+			if (_go.transform is not RectTransform rootRt)
+				return;
+
+			// Viewport: clips the content (RectMask2D) and, via an invisible Image, is a raycast target so
+			// drag-to-scroll works over empty areas too.
+			var viewportGo = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D), typeof(Image));
+			var viewportRt = (RectTransform)viewportGo.transform;
+			viewportRt.SetParent(rootRt, false);
+			FullStretch(viewportRt);
+			viewportRt.pivot = new Vector2(0f, 1f);
+			viewportGo.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+
+			// Content: anchored to the top edge, width follows the viewport, height free to grow.
+			var contentGo = new GameObject("Content", typeof(RectTransform));
+			var contentRt = (RectTransform)contentGo.transform;
+			contentRt.SetParent(viewportRt, false);
+			contentRt.anchorMin = new Vector2(0f, 1f);
+			contentRt.anchorMax = new Vector2(1f, 1f);
+			contentRt.pivot = new Vector2(0.5f, 1f);
+			contentRt.anchoredPosition = Vector2.zero;
+			contentRt.sizeDelta = Vector2.zero;
+
+			scrollRect.viewport = viewportRt;
+			scrollRect.content = contentRt;
+			EditorGeneralUtility.SetDirty(scrollRect);
+		}
+
+		private static void FullStretch( RectTransform _rt )
+		{
+			_rt.anchorMin = Vector2.zero;
+			_rt.anchorMax = Vector2.one;
+			_rt.offsetMin = Vector2.zero;
+			_rt.offsetMax = Vector2.zero;
 		}
 
 		#endregion
