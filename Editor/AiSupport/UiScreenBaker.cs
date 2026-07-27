@@ -44,7 +44,26 @@ namespace GuiToolkit.Editor.AiSupport
 		private static Dictionary<string, Type> s_componentTypesByName;
 		private static Dictionary<Type, Type> s_applierByTargetType;
 
-		/// <summary>Project-relative folder the baked prefabs are written to.</summary>
+		// Non-fatal issues collected during a single bake (dropped props, redirected/short-of-ideal
+		// templates, unresolved text, …) so the caller can surface them instead of the author having to
+		// grep the Editor log. Reset at the start of each Bake; the main-thread single-caller model makes
+		// a plain static safe.
+		private static List<string> s_warnings;
+
+		private static void Warn( string _message )
+		{
+			s_warnings?.Add(_message);
+			UiLog.LogWarning(_message);
+		}
+
+		/// <summary>Result of a bake: the written prefab path plus any non-fatal warnings.</summary>
+		public class BakeResult
+		{
+			public string path;
+			public List<string> warnings = new();
+		}
+
+		/// <summary>Project-relative folder the baked prefabs are written to by default.</summary>
 		public static string GeneratedDir => OutputDir;
 
 		#region Public API
@@ -54,7 +73,7 @@ namespace GuiToolkit.Editor.AiSupport
 		/// its project-relative path. Throws on malformed input so the caller (menu / MCP bridge) can
 		/// surface a precise message.
 		/// </summary>
-		public static string Bake( string _screenJson )
+		public static BakeResult Bake( string _screenJson )
 		{
 			if (string.IsNullOrWhiteSpace(_screenJson))
 				throw new ArgumentException("Empty screen JSON.");
@@ -78,23 +97,24 @@ namespace GuiToolkit.Editor.AiSupport
 				throw new ArgumentException("Screen JSON must have a \"root\" node object.");
 
 			ResetCaches();
+			s_warnings = new List<string>();
 
 			GameObject rootGo = null;
 			try
 			{
 				rootGo = BuildNode(rootNode, null);
 
-				EditorFileUtility.EnsureUnityFolderExists(OutputDir);
-				string safeName = EditorFileUtility.GetSafeFileName(name);
-				string path = $"{OutputDir}/{safeName}.prefab";
+				string path = ResolveOutputPath(screen, name);
+				EditorFileUtility.EnsureUnityFolderExists(ParentFolder(path));
 
 				var saved = PrefabUtility.SaveAsPrefabAsset(rootGo, path, out bool success);
 				if (!success || saved == null)
 					throw new Exception($"PrefabUtility.SaveAsPrefabAsset failed for '{path}'.");
 
 				AssetDatabase.Refresh();
-				UiLog.LogInternal($"Baked screen '{name}' → '{path}'.");
-				return path;
+				UiLog.LogInternal($"Baked screen '{name}' → '{path}'" +
+					(s_warnings.Count > 0 ? $" ({s_warnings.Count} warning(s))." : "."));
+				return new BakeResult { path = path, warnings = s_warnings };
 			}
 			finally
 			{
@@ -103,12 +123,33 @@ namespace GuiToolkit.Editor.AiSupport
 			}
 		}
 
+		// The output prefab path: an explicit "outputPath" on the screen (a full ".prefab" path used
+		// verbatim, or a folder the screen name is appended to) wins over the default Generated folder.
+		// Letting the author pin the path keeps the "edit → re-bake" loop intact after a prefab is moved.
+		private static string ResolveOutputPath( JObject _screen, string _name )
+		{
+			string safeName = EditorFileUtility.GetSafeFileName(_name);
+			string outputPath = ((string)_screen["outputPath"])?.Replace('\\', '/').TrimEnd('/');
+
+			if (string.IsNullOrEmpty(outputPath))
+				return $"{OutputDir}/{safeName}.prefab";
+			if (outputPath.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase))
+				return outputPath;
+			return $"{outputPath}/{safeName}.prefab";
+		}
+
+		private static string ParentFolder( string _assetPath )
+		{
+			int slash = _assetPath.LastIndexOf('/');
+			return slash > 0 ? _assetPath.Substring(0, slash) : "Assets";
+		}
+
 		[MenuItem(StringConstants.AI_BAKE_TEST_DIALOG_MENU_NAME)]
 		private static void BakeTestDialogMenu()
 		{
 			try
 			{
-				string path = Bake(TestDialogJson);
+				string path = Bake(TestDialogJson).path;
 				var asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
 				EditorGUIUtility.PingObject(asset);
 				Selection.activeObject = asset;
@@ -269,7 +310,7 @@ namespace GuiToolkit.Editor.AiSupport
 		{
 			if (_go.transform is not RectTransform rt)
 			{
-				UiLog.LogWarning($"'rect' set on '{_go.name}' but it has no RectTransform; skipped.");
+				Warn($"'rect' set on '{_go.name}' but it has no RectTransform; skipped.");
 				return;
 			}
 
@@ -325,7 +366,7 @@ namespace GuiToolkit.Editor.AiSupport
 			if (preset == null)
 			{
 				_min = _max = _pivot = new Vector2(0.5f, 0.5f);
-				UiLog.LogWarning($"Unknown anchor preset '{_name}'; ignored.");
+				Warn($"Unknown anchor preset '{_name}'; ignored.");
 				return false;
 			}
 
@@ -453,13 +494,13 @@ namespace GuiToolkit.Editor.AiSupport
 				var (component, field) = FindSerializedField(_go, key);
 				if (field == null)
 				{
-					UiLog.LogWarning($"Prop '{key}' not found on '{_go.name}'; skipped.");
+					Warn($"Prop '{key}' not found on '{_go.name}'; skipped.");
 					continue;
 				}
 
 				if (!TryConvert(value, field.FieldType, out object converted))
 				{
-					UiLog.LogWarning($"Prop '{key}' on '{_go.name}': cannot convert value to {field.FieldType.Name}; skipped.");
+					Warn($"Prop '{key}' on '{_go.name}': cannot convert value to {field.FieldType.Name}; skipped.");
 					continue;
 				}
 
@@ -598,7 +639,7 @@ namespace GuiToolkit.Editor.AiSupport
 			}
 
 			if (!applied)
-				UiLog.LogWarning($"Style '{_styleName}' matched no component on '{_go.name}'; skipped.");
+				Warn($"Style '{_styleName}' matched no component on '{_go.name}'; skipped.");
 		}
 
 		#endregion
@@ -623,6 +664,18 @@ namespace GuiToolkit.Editor.AiSupport
 						: _text;
 					SetPrivateField(localized, "m_isTranslated", true);
 					SetPrivateField(localized, "m_locaKey", key);
+
+					// Also seed the visible TMP text with the key so the bake/preview shows something
+					// meaningful instead of the template's leftover placeholder (LocaManager overwrites it
+					// at runtime). The .text property re-asserts the placeholder on a localized component, so
+					// write the backing m_text field via SerializedObject — that is what sticks.
+					var so = new SerializedObject(localized);
+					var textProp = so.FindProperty("m_text");
+					if (textProp != null)
+					{
+						textProp.stringValue = key;
+						so.ApplyModifiedPropertiesWithoutUndo();
+					}
 				}
 				EditorGeneralUtility.SetDirty(localized);
 				return;
@@ -636,7 +689,7 @@ namespace GuiToolkit.Editor.AiSupport
 				return;
 			}
 
-			UiLog.LogWarning($"Text set requested on '{_go.name}' but no TMP text component was found; skipped.");
+			Warn($"Text set requested on '{_go.name}' but no TMP text component was found; skipped.");
 		}
 
 		private static string StripPrefix( string _value, string _prefix )
@@ -667,29 +720,23 @@ namespace GuiToolkit.Editor.AiSupport
 
 		private static GameObject ResolveTemplatePrefab( string _name )
 		{
-			var named = FindPrefabByName(_name);
-			if (named == null)
-				return null;
+			// Variant resolution — ONLY when the template name is a standard-element IDENTITY (a registry
+			// key, e.g. "OkButton"): resolve it to the winning prefab, so the registry's client-over-library
+			// ranking builds the screen with a client variant when one exists. Falls back to a name search
+			// when the registry is absent (bakes still work before the catalog is generated).
+			var registry = UiToolkitConfiguration.Instance != null
+				? UiToolkitConfiguration.Instance.StandardElementRegistry
+				: null;
+			var byKey = registry != null ? registry.Resolve(_name) : null;
+			if (byKey != null)
+				return byKey;
 
-			// Variant resolution: if the template is a tagged standard element, re-resolve its identity
-			// through the generated registry so a client's prefab VARIANT out-ranks the toolkit default.
-			// Authored screens then build with the client's look, not the library original. It does not
-			// matter whether the name search above hit the library or the client prefab first — both carry
-			// the same standard-element key (a variant inherits its base's marker), and the registry's
-			// client-over-library ranking picks the winner. Falls back to the named prefab when the element
-			// is untagged or the registry has not been generated yet (no regression to the old behaviour).
-			var marker = named.GetComponent<UiStandardElement>();
-			if (marker != null && marker.Element != EStandardElement.None)
-			{
-				var registry = UiToolkitConfiguration.Instance != null
-					? UiToolkitConfiguration.Instance.StandardElementRegistry
-					: null;
-				var winner = registry != null ? registry.Resolve(marker.Key) : null;
-				if (winner != null)
-					return winner;
-			}
-
-			return named;
+			// Otherwise the author named a SPECIFIC prefab (a particular variant, a client widget, a
+			// non-standard palette entry) — honour it exactly. We deliberately do NOT re-resolve it through
+			// its inherited marker: several distinct client prefabs can inherit the same key (e.g. ButtonOk
+			// and ButtonCancel both inherit StandardButton), so re-resolving would silently swap the named
+			// prefab for the key's single winner. Naming a specific prefab means that prefab.
+			return FindPrefabByName(_name);
 		}
 
 		private static GameObject FindPrefabByName( string _name )

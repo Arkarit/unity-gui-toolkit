@@ -159,11 +159,25 @@ server.tool(
 	"bake_screen",
 	"Bake a screen description into a real Unity .prefab asset. 'screen' is the screen JSON " +
 	"(see get_catalog for the component/template vocabulary): { name, root: { type|template, id, " +
-	"props, style, text, children[] } }. Returns the project-relative path of the baked prefab.",
-	{ screen: z.union([z.string(), z.record(z.any())]).describe("The screen description (JSON object or JSON string).") },
-	async ({ screen }) => {
+	"props, style, text, children[] } }. Returns { path, warnings }: 'warnings' lists non-fatal issues " +
+	"(dropped props, templates that resolved to a different prefab, unresolved text) — read it to fix the " +
+	"screen without having to screenshot and guess. Optionally pin 'outputPath' (a full .prefab path, or a " +
+	"folder the screen name is appended to) so 'edit → re-bake' keeps hitting the same asset after you move " +
+	"it; it can also be a top-level field in the screen JSON.",
+	{
+		screen: z.union([z.string(), z.record(z.any())]).describe("The screen description (JSON object or JSON string)."),
+		outputPath: z.string().optional().describe("Where to write the prefab (full .prefab path or a folder). Overrides the default Generated folder."),
+	},
+	async ({ screen, outputPath }) => {
 		try {
-			const payload = typeof screen === "string" ? screen : JSON.stringify(screen);
+			let payload;
+			if (outputPath) {
+				const obj = typeof screen === "string" ? JSON.parse(screen) : screen;
+				obj.outputPath = outputPath;
+				payload = JSON.stringify(obj);
+			} else {
+				payload = typeof screen === "string" ? screen : JSON.stringify(screen);
+			}
 			return ok(await callBridge("bakeScreen", payload));
 		} catch (e) {
 			return fail(e);

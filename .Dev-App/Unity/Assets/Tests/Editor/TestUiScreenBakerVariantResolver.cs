@@ -78,7 +78,7 @@ namespace GuiToolkit.Test
 
 			// 4. Bake a screen using the OkButton template — the baker must pick the client variant.
 			m_bakedPath = UiScreenBaker.Bake(
-				"{\"name\":\"VariantResolverBakeTest\",\"root\":{\"template\":\"OkButton\",\"id\":\"root\",\"text\":\"@text:OK\"}}");
+				"{\"name\":\"VariantResolverBakeTest\",\"root\":{\"template\":\"OkButton\",\"id\":\"root\",\"text\":\"@text:OK\"}}").path;
 			Assert.IsFalse(string.IsNullOrEmpty(m_bakedPath), "Bake should return a path.");
 
 			var bakedRoot = AssetDatabase.LoadAssetAtPath<GameObject>(m_bakedPath);

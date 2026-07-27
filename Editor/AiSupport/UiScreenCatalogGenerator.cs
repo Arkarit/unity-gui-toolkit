@@ -711,9 +711,21 @@ namespace GuiToolkit.Editor.AiSupport
 			// here (the variant-creation tool writes here), so they are discovered and out-rank the library
 			// defaults. Client-writable and works whether the toolkit is symlinked or in read-only Packages.
 			string variantsPath = UiToolkitConfiguration.Instance.PrefabVariantsPath?.TrimEnd('/');
-			if (!string.IsNullOrEmpty(variantsPath) && AssetDatabase.IsValidFolder(variantsPath))
-				foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { variantsPath }))
-					AddGuid(guid);
+			if (!string.IsNullOrEmpty(variantsPath))
+			{
+				if (AssetDatabase.IsValidFolder(variantsPath))
+				{
+					foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { variantsPath }))
+						AddGuid(guid);
+				}
+				else
+				{
+					UiLog.LogWarning($"AI catalog: prefabVariantsPath '{variantsPath}' does not exist — client " +
+						"prefab variants placed there won't be discovered, so standard elements (and thus UiMain " +
+						"and authored screens) resolve to the LIBRARY defaults. Create the folder or fix the path " +
+						"in Ui Toolkit Configuration.");
+				}
+			}
 
 			if (_config != null)
 			{

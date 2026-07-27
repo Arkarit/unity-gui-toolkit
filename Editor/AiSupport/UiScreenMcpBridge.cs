@@ -254,8 +254,12 @@ namespace GuiToolkit.Editor.AiSupport
 				case "bakeScreen":
 					if (string.IsNullOrWhiteSpace(_payload))
 						throw new Exception("bakeScreen requires a 'payload' holding the screen JSON.");
-					string bakedPath = UiScreenBaker.Bake(_payload);
-					return "{\"path\":" + JsonString(bakedPath) + "}";
+					var bakeResult = UiScreenBaker.Bake(_payload);
+					var warnings = new JArray();
+					foreach (var w in bakeResult.warnings)
+						warnings.Add(w);
+					return new JObject { ["path"] = bakeResult.path, ["warnings"] = warnings }
+						.ToString(Newtonsoft.Json.Formatting.None);
 
 				case "screenshotView":
 					return Screenshot(_payload);
