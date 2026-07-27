@@ -50,6 +50,19 @@ namespace GuiToolkit.Editor.AiSupport
 		// a plain static safe.
 		private static List<string> s_warnings;
 
+		// Two-pass wiring state (reset per bake): id -> the node's GameObject, and the "#id" reference
+		// props deferred until the whole tree exists (references can point forward to later nodes).
+		private static Dictionary<string, GameObject> s_nodesById;
+		private static List<DeferredRef> s_deferredRefs;
+
+		private struct DeferredRef
+		{
+			public Component component;
+			public FieldInfo field;
+			public JToken value;
+			public string ownerName;
+		}
+
 		private static void Warn( string _message )
 		{
 			s_warnings?.Add(_message);
@@ -98,11 +111,14 @@ namespace GuiToolkit.Editor.AiSupport
 
 			ResetCaches();
 			s_warnings = new List<string>();
+			s_nodesById = new Dictionary<string, GameObject>(StringComparer.Ordinal);
+			s_deferredRefs = new List<DeferredRef>();
 
 			GameObject rootGo = null;
 			try
 			{
 				rootGo = BuildNode(rootNode, null);
+				ResolveDeferredRefs();
 
 				string path = ResolveOutputPath(screen, name);
 				EditorFileUtility.EnsureUnityFolderExists(ParentFolder(path));
@@ -181,6 +197,15 @@ namespace GuiToolkit.Editor.AiSupport
 			string id = (string)_node["id"];
 			string displayName = (string)_node["name"] ?? id ?? go.name;
 			go.name = displayName;
+
+			// Register the id so later "#id" reference props (resolved after the whole tree is built) can
+			// find this node's GameObject.
+			if (!string.IsNullOrEmpty(id))
+			{
+				if (s_nodesById.ContainsKey(id))
+					Warn($"Duplicate node id '{id}'; the later node wins for '#{id}' references.");
+				s_nodesById[id] = go;
+			}
 
 			// Parent before configuring so [ExecuteAlways] style appliers resolve against the hierarchy.
 			if (_parent != null)
@@ -498,6 +523,20 @@ namespace GuiToolkit.Editor.AiSupport
 					continue;
 				}
 
+				// A "#id" value (or an array of them) is a reference to another node's component/GameObject.
+				// Those are resolved in a second pass once every node exists, so defer them here.
+				if (IsRefToken(value))
+				{
+					s_deferredRefs.Add(new DeferredRef
+					{
+						component = component,
+						field = field,
+						value = value,
+						ownerName = _go.name,
+					});
+					continue;
+				}
+
 				if (!TryConvert(value, field.FieldType, out object converted))
 				{
 					Warn($"Prop '{key}' on '{_go.name}': cannot convert value to {field.FieldType.Name}; skipped.");
@@ -507,6 +546,105 @@ namespace GuiToolkit.Editor.AiSupport
 				field.SetValue(component, converted);
 				EditorGeneralUtility.SetDirty(component);
 			}
+		}
+
+		// A "#id" string (or an array whose elements are all "#id" strings) denotes a reference to another
+		// node's component/GameObject, resolved in the second pass.
+		private static bool IsRefToken( JToken _token )
+		{
+			if (_token.Type == JTokenType.String)
+				return ((string)_token).StartsWith("#", StringComparison.Ordinal);
+			if (_token is JArray arr && arr.Count > 0)
+				return arr.All(e => e.Type == JTokenType.String && ((string)e).StartsWith("#", StringComparison.Ordinal));
+			return false;
+		}
+
+		// Second pass: every node now exists in s_nodesById, so resolve the deferred "#id" reference props
+		// into real object references (single, or an array / List<T> of them).
+		private static void ResolveDeferredRefs()
+		{
+			foreach (var deferred in s_deferredRefs)
+			{
+				if (deferred.value is JArray arr)
+					ResolveRefList(deferred, arr);
+				else
+					ResolveSingleRef(deferred, (string)deferred.value);
+			}
+		}
+
+		private static void ResolveSingleRef( DeferredRef _deferred, string _ref )
+		{
+			var resolved = ResolveRef(_ref, _deferred.field.FieldType, _deferred.ownerName);
+			if (resolved == null)
+				return;
+			_deferred.field.SetValue(_deferred.component, resolved);
+			EditorGeneralUtility.SetDirty(_deferred.component);
+		}
+
+		private static void ResolveRefList( DeferredRef _deferred, JArray _refs )
+		{
+			Type fieldType = _deferred.field.FieldType;
+			Type elementType =
+				fieldType.IsArray ? fieldType.GetElementType() :
+				fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(List<>) ? fieldType.GetGenericArguments()[0] :
+				null;
+
+			if (elementType == null)
+			{
+				Warn($"Reference list on '{_deferred.ownerName}.{_deferred.field.Name}' skipped: field is not an array or List<>.");
+				return;
+			}
+
+			var resolved = new List<UnityEngine.Object>();
+			foreach (var token in _refs)
+			{
+				var obj = ResolveRef((string)token, elementType, _deferred.ownerName);
+				if (obj != null)
+					resolved.Add(obj);
+			}
+
+			if (fieldType.IsArray)
+			{
+				var array = Array.CreateInstance(elementType, resolved.Count);
+				for (int i = 0; i < resolved.Count; i++)
+					array.SetValue(resolved[i], i);
+				_deferred.field.SetValue(_deferred.component, array);
+			}
+			else
+			{
+				var list = (System.Collections.IList)Activator.CreateInstance(fieldType);
+				foreach (var obj in resolved)
+					list.Add(obj);
+				_deferred.field.SetValue(_deferred.component, list);
+			}
+			EditorGeneralUtility.SetDirty(_deferred.component);
+		}
+
+		// Resolves a single "#id" reference to the target node's GameObject or a component on it, matching
+		// the requested field/element type. Warns (and returns null) when the id or the component is missing.
+		private static UnityEngine.Object ResolveRef( string _ref, Type _wantType, string _ownerName )
+		{
+			string id = _ref.StartsWith("#", StringComparison.Ordinal) ? _ref.Substring(1) : _ref;
+
+			if (!s_nodesById.TryGetValue(id, out var target) || target == null)
+			{
+				Warn($"Reference '#{id}' on '{_ownerName}': no node with that id; skipped.");
+				return null;
+			}
+
+			if (typeof(GameObject).IsAssignableFrom(_wantType))
+				return target;
+
+			if (typeof(Component).IsAssignableFrom(_wantType))
+			{
+				var component = target.GetComponent(_wantType);
+				if (component == null)
+					Warn($"Reference '#{id}' on '{_ownerName}': node '{target.name}' has no {_wantType.Name}; skipped.");
+				return component;
+			}
+
+			Warn($"Reference '#{id}' on '{_ownerName}': field type {_wantType.Name} is not a GameObject/Component reference; skipped.");
+			return null;
 		}
 
 		// Resolves an authoring name ("layer") or raw field name ("m_layer") to a serialized field on
