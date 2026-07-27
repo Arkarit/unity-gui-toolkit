@@ -31,7 +31,10 @@ namespace GuiToolkit.Editor.AiSupport
 		public const int Port = 17632;
 		private const string UrlPrefix = "http://127.0.0.1:17632/";
 		private const string EnabledPrefKey = "GuiToolkit.AiSupport.McpBridge.Enabled";
-		private const int HandlerTimeoutMs = 20000;
+		// Max time to wait for a handler on the main thread. Generous because batch operations
+		// (e.g. tagging many prefabs in one call) re-serialize each asset and can take a while;
+		// fast handlers (ping/status) still return immediately — this is only an upper bound.
+		private const int HandlerTimeoutMs = 300000;
 
 		private static HttpListener s_listener;
 		private static Thread s_acceptThread;

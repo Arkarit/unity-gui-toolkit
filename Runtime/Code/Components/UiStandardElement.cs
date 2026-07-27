@@ -20,8 +20,11 @@ namespace GuiToolkit
 		None = 0,
 		Custom = 1,
 
-		// --- Toolkit built-ins (currently UiMain's functional prefab set). Palette standards get
-		//     appended below as they are tagged. APPEND-ONLY — never insert or reorder. ---
+		// --- Toolkit built-ins. APPEND-ONLY — never insert or reorder (serialized indices must stay
+		//     stable). A value's name matches its prefab; whether it is a standalone authoring building
+		//     block or an internal sub-part is NOT encoded here — that is the per-prefab m_internal flag. ---
+
+		// UiMain's functional prefab set (the original built-ins).
 		StandardButton,
 		OkButton,
 		CancelButton,
@@ -36,6 +39,76 @@ namespace GuiToolkit
 		GridPicker,
 		PopupMenu,
 		StartupOverlayView,
+
+		// Containers / panels / decoration / overlays.
+		StandardButtonBar,
+		StandardPanelBackground,
+		StandardPanelBackgroundWithHeadline,
+		StandardHeadlineBackground,
+		StandardColorPatch,
+		HorizontalDecoLine,
+		StandardClickCatcher,
+
+		// Inputs.
+		StandardCheckbox,
+		StandardRadio,
+		StandardSliderHor,
+		UiDropdown,
+		UiLanguageSelectDropdown,
+		StandardInputField,
+
+		// Tabs.
+		StandardTab,
+		StandardTabChapter,
+		StandardTabPage,
+		StandardTabPageWithScrollRect,
+
+		// Directional buttons (variants of UpDownLeftRightButton).
+		UpButton,
+		DownButton,
+		LeftButton,
+		RightButton,
+
+		// Text.
+		StandardHeadline,
+		StandardHeadline2ndOrder,
+		StandardHeadline3rdOrder,
+		StandardText,
+		StandardTextSmall,
+
+		// Dialogs.
+		FullScreenTabDialog,
+
+		// Date / time pickers.
+		DatePicker,
+		TimePicker,
+		DateTimePanel,
+
+		// Player-setting rows.
+		PlayerSettingButton,
+		PlayerSettingCheckbox,
+		PlayerSettingDropdown,
+		PlayerSettingKeyBinding,
+		PlayerSettingLanguage,
+		PlayerSettingLanguageDropdown,
+		PlayerSettingRadiobutton,
+		PlayerSettingSlider,
+		PlayerSettingFPS,
+		PlayerSettingText,
+		BackgroundPlayerSetting,
+		HoverPlayerSettings,
+
+		// Internal sub-parts (tagged with m_internal = true; resolve but hidden from the vocabulary).
+		StandardCheckboxCheckmark,
+		UpDownLeftRightButton,
+		GridPickerCell,
+		GridPickerCellText,
+		DialogStub,
+		CalenderUI,
+		DateDisplay,
+		DateTimePartPanel,
+		IncDecPickPicker,
+		WiggleAnimation,
 	}
 
 	/// <summary>

@@ -29,6 +29,9 @@ namespace GuiToolkit
 			[Tooltip("True when the winning prefab is a toolkit/library asset (no client override exists).")]
 			public bool fromLibrary;
 
+			[Tooltip("True for an internal sub-part (resolvable, but hidden from the screen-authoring vocabulary).")]
+			public bool isInternal;
+
 			/// <summary>The lookup key: the enum name, or the custom id when element == Custom.</summary>
 			public string Key => element == EStandardElement.Custom ? customId : element.ToString();
 		}

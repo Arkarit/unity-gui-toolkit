@@ -689,6 +689,41 @@ namespace GuiToolkit.Editor.AiSupport
 			return guids;
 		}
 
+		// The scan scope for standard-element MARKERS is wider than the palette: markers live on prefabs
+		// across the whole toolkit /Prefabs/ tree (buttons, dialogs, player-settings, pickers, text, …),
+		// not just the StandardElements folder. Bounded to the toolkit root (plus client folders/prefabs),
+		// so it stays cheap even in a large host project — never a whole-project prefab load.
+		private static List<string> CollectStandardElementCandidateGuids( UiAuthorablePaletteConfig _config )
+		{
+			var guids = new List<string>();
+			void AddGuid( string _guid )
+			{
+				if (!string.IsNullOrEmpty(_guid) && !guids.Contains(_guid))
+					guids.Add(_guid);
+			}
+
+			string toolkitRoot = UiToolkitConfiguration.Instance.GetUiToolkitRootProjectDir()?.TrimEnd('/');
+			if (!string.IsNullOrEmpty(toolkitRoot) && AssetDatabase.IsValidFolder(toolkitRoot))
+				foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { toolkitRoot }))
+					AddGuid(guid);
+
+			if (_config != null)
+			{
+				foreach (var folder in _config.ExtraFolderPaths())
+					foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { folder }))
+						AddGuid(guid);
+
+				foreach (var prefab in _config.ExtraPrefabs)
+				{
+					if (prefab == null)
+						continue;
+					AddGuid(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(prefab)));
+				}
+			}
+
+			return guids;
+		}
+
 		private static void CollectPalette( UiScreenCatalog _catalog )
 		{
 			var config = UiAuthorablePaletteConfig.FindFirst();
@@ -717,6 +752,12 @@ namespace GuiToolkit.Editor.AiSupport
 
 			string name = prefab.name;
 			if (_config != null && _config.IsHidden(name))
+				return null;
+
+			// Internal sub-parts carry a standard-element identity (for the registry) but are deliberately
+			// excluded from the authoring palette — they are not building blocks a screen author composes.
+			var marker = prefab.GetComponent<UiStandardElement>();
+			if (marker != null && marker.IsInternal)
 				return null;
 
 			Type primary = PrimaryComponentType(prefab);
@@ -821,6 +862,7 @@ namespace GuiToolkit.Editor.AiSupport
 			public GameObject prefab;
 			public string path;
 			public bool fromLibrary;
+			public bool isInternal;
 		}
 
 		/// <summary>
@@ -834,7 +876,7 @@ namespace GuiToolkit.Editor.AiSupport
 			var config = UiAuthorablePaletteConfig.FindFirst();
 			var byKey = new Dictionary<string, List<StandardElementCandidate>>(StringComparer.Ordinal);
 
-			foreach (var guid in CollectCandidatePrefabGuids(config))
+			foreach (var guid in CollectStandardElementCandidateGuids(config))
 			{
 				string path = AssetDatabase.GUIDToAssetPath(guid);
 				var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
@@ -859,6 +901,7 @@ namespace GuiToolkit.Editor.AiSupport
 					prefab = prefab,
 					path = path,
 					fromLibrary = EditorAssetUtility.IsPackagesOrInternalAsset(prefab),
+					isInternal = marker.IsInternal,
 				});
 			}
 
@@ -883,6 +926,7 @@ namespace GuiToolkit.Editor.AiSupport
 					customId = winner.customId,
 					prefab = winner.prefab,
 					fromLibrary = winner.fromLibrary,
+					isInternal = winner.isInternal,
 				});
 			}
 
