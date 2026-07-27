@@ -58,8 +58,19 @@ namespace GuiToolkit
 		[Tooltip("Identity string used only when Element == Custom (project-specific standard elements).")]
 		[SerializeField] private string m_customId = "";
 
+		[Tooltip("Internal building block: a sub-part of a larger prefab, not a standalone screen element. " +
+			"Still gets a registry identity (for library-internal use and variant resolution), but is excluded " +
+			"from the screen-authoring vocabulary the AI composes from.")]
+		[SerializeField] private bool m_internal = false;
+
 		public EStandardElement Element => m_element;
 		public string CustomId => m_customId;
+
+		/// <summary>
+		/// True for a sub-part of a larger prefab (e.g. a checkbox checkmark, a picker cell). Such elements
+		/// still resolve through the registry but are hidden from the screen-authoring palette/catalog.
+		/// </summary>
+		public bool IsInternal => m_internal;
 
 		/// <summary>The effective identity key: the enum name, or the custom id when Element == Custom.</summary>
 		public string Key => m_element == EStandardElement.Custom ? m_customId : m_element.ToString();
