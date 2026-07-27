@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -25,6 +26,7 @@ namespace GuiToolkit.Editor.AiSupport
 	/// bakeScreen / screenshotView / tagStandardElement / untagStandardElement. Methods that need input
 	/// carry it in the envelope's <c>payload</c> string (raw JSON the handler parses itself).
 	/// </summary>
+	[EditorAware]
 	[InitializeOnLoad]
 	public static class UiScreenMcpBridge
 	{
@@ -242,6 +244,9 @@ namespace GuiToolkit.Editor.AiSupport
 					s_recompileRequested = true;
 					return "{\"recompiling\":true}";
 
+				case "setupStatus":
+					return SetupStatusJson();
+
 				case "getCatalog":
 					return CatalogSummaryJson();
 
@@ -381,6 +386,92 @@ namespace GuiToolkit.Editor.AiSupport
 			}
 
 			return new JObject { ["results"] = arr }.ToString(Newtonsoft.Json.Formatting.None);
+		}
+
+		/// <summary>
+		/// A one-shot project-state health check for the authoring AI: why does everything resolve to the
+		/// library look, is the catalog stale, is the variants folder real, etc. Answering this from a
+		/// snapshot is far cheaper than reconstructing it, which was the single biggest cost the first time
+		/// a fresh instance drove the loop.
+		/// </summary>
+		private static string SetupStatusJson()
+		{
+			var config = UiToolkitConfiguration.Instance;
+			var registry = config != null ? config.StandardElementRegistry : null;
+
+			int client = 0, library = 0;
+			var registryKeys = new HashSet<string>(StringComparer.Ordinal);
+			if (registry != null)
+			{
+				foreach (var e in registry.Entries)
+				{
+					if (e == null)
+						continue;
+					if (e.fromLibrary) library++; else client++;
+					if (!string.IsNullOrEmpty(e.Key)) registryKeys.Add(e.Key);
+				}
+			}
+
+			string variantsPath = config != null ? config.PrefabVariantsPath : null;
+			string variantsTrim = variantsPath?.TrimEnd('/');
+			bool variantsExists = !string.IsNullOrEmpty(variantsTrim) && AssetDatabase.IsValidFolder(variantsTrim);
+
+			var paletteConfig = UiAuthorablePaletteConfig.FindFirst();
+			string palettePath = paletteConfig != null ? AssetDatabase.GetAssetPath(paletteConfig) : null;
+
+			string catalogPath = UiScreenCatalogGenerator.CatalogPath;
+			bool catalogExists = File.Exists(catalogPath);
+			JToken catalogAge = JValue.CreateNull();
+			if (catalogExists)
+			{
+				try
+				{
+					var generatedAt = (string)JObject.Parse(File.ReadAllText(catalogPath))["generatedAtUtc"];
+					if (DateTime.TryParse(generatedAt, CultureInfo.InvariantCulture,
+						    DateTimeStyles.RoundtripKind, out var genUtc))
+						catalogAge = (int)(DateTime.UtcNow - genUtc.ToUniversalTime()).TotalMinutes;
+				}
+				catch { /* leave null */ }
+			}
+
+			var missing = new JArray();
+			foreach (EStandardElement v in Enum.GetValues(typeof(EStandardElement)))
+			{
+				if (v == EStandardElement.None || v == EStandardElement.Custom)
+					continue;
+				if (!registryKeys.Contains(v.ToString()))
+					missing.Add(v.ToString());
+			}
+
+			var status = new JObject
+			{
+				["registry"] = new JObject
+				{
+					["assigned"] = registry != null,
+					["path"] = registry != null ? AssetDatabase.GetAssetPath(registry) : null,
+					["entries"] = client + library,
+					["client"] = client,
+					["library"] = library,
+				},
+				["prefabVariantsPath"] = new JObject
+				{
+					["value"] = variantsPath,
+					["exists"] = variantsExists,
+				},
+				["paletteConfig"] = palettePath,
+				["catalog"] = new JObject
+				{
+					["path"] = catalogPath,
+					["exists"] = catalogExists,
+					["ageMinutes"] = catalogAge,
+				},
+				["missingStandardElements"] = missing,
+				["hint"] = "Screens or UiMain resolving to the LIBRARY look usually means registry.client == 0 " +
+					"(no client variants discovered) and/or prefabVariantsPath.exists == false. Fix the path or " +
+					"tag the client prefabs, then regenerate_catalog. A large catalog.ageMinutes means the " +
+					"vocabulary may be stale — regenerate.",
+			};
+			return status.ToString(Newtonsoft.Json.Formatting.None);
 		}
 
 		[Serializable]

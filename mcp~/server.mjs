@@ -83,6 +83,21 @@ server.tool(
 );
 
 server.tool(
+	"setup_status",
+	"One-shot health check of this project's screen-authoring setup — call it FIRST when authored screens " +
+	"come out looking wrong, or to check whether the catalog is stale. Returns { registry:{assigned, path, " +
+	"entries, client, library}, prefabVariantsPath:{value, exists}, paletteConfig, catalog:{path, exists, " +
+	"ageMinutes}, missingStandardElements[] }. The usual 'everything looks like the library' cause is " +
+	"registry.client == 0 together with prefabVariantsPath.exists == false. Far cheaper than reconstructing " +
+	"the project state by hand.",
+	{},
+	async () => {
+		try { return ok(await callBridge("setupStatus")); }
+		catch (e) { return fail(e); }
+	}
+);
+
+server.tool(
 	"recompile",
 	"Force Unity to pick up and recompile changed editor/runtime C# scripts, then WAIT until the " +
 	"compilation and the following domain reload have finished. Use this after editing toolkit C# so " +
@@ -163,7 +178,11 @@ server.tool(
 	"(dropped props, templates that resolved to a different prefab, unresolved text) — read it to fix the " +
 	"screen without having to screenshot and guess. Optionally pin 'outputPath' (a full .prefab path, or a " +
 	"folder the screen name is appended to) so 'edit → re-bake' keeps hitting the same asset after you move " +
-	"it; it can also be a top-level field in the screen JSON.",
+	"it; it can also be a top-level field in the screen JSON. " +
+	"WORKFLOW: finish the visual layout first, THEN wire references — a re-bake rebuilds the prefab and " +
+	"drops anything you set by hand. The baker does NOT yet set component references (m_target, " +
+	"m_closeButtons, animation slaves), AnimationCurves, or a ScrollRect's Content height — do those in a " +
+	"separate step after the layout is final. Call setup_status first if screens come out looking wrong.",
 	{
 		screen: z.union([z.string(), z.record(z.any())]).describe("The screen description (JSON object or JSON string)."),
 		outputPath: z.string().optional().describe("Where to write the prefab (full .prefab path or a folder). Overrides the default Generated folder."),
