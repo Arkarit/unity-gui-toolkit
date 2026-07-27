@@ -30,15 +30,10 @@ namespace GuiToolkit
 		[SerializeField] private RenderMode m_renderMode = RenderMode.ScreenSpaceCamera;
 		[SerializeField] private float m_layerDistance = 0.02f;
 
-		[Header("Prefab Config")]
-		[Tooltip("Assign a UiPrefabConfig to source the built-in prefabs (and their client variants) from. " +
-			"When set, its entries take precedence over the deprecated inline fields below. Use the " +
-			"'Migrate Prefabs to UiPrefabConfig' button in the inspector to move the inline fields into an asset.")]
-		[SerializeField][Optional] private UiPrefabConfig m_prefabConfig;
-
-		// DEPRECATED: these inline prefab fields are kept only as a fallback. Migrate them into a
-		// UiPrefabConfig asset (inspector button) — the config takes precedence via the getters below.
-		// The custom editor (UiMainEditor) hides these when empty and draws their header itself.
+		[Header("Prefabs")]
+		// Fallback prefab set, used when the generated UiStandardElementRegistry has no entry for a
+		// standard element (see the accessors below). Be sure to end each field name with "Prefab" so
+		// the variant-creation tool (UiMainEditor) can discover it.
 		[SerializeField] private UiButton m_standardButtonPrefab;
 		[SerializeField] private UiButton m_okButtonPrefab;
 		[SerializeField] private UiButton m_cancelButtonPrefab;
@@ -98,26 +93,33 @@ namespace GuiToolkit
 		private static bool s_staticInitialized = false;
 #endif
 
-		// Prefab accessors: prefer the assigned UiPrefabConfig, fall back to the (deprecated) inline field.
-		private static T Pick<T>( T _fromConfig, T _fallback ) where T : UnityEngine.Object
-			=> _fromConfig != null ? _fromConfig : _fallback;
+		// Prefab accessors: resolve through the generated UiStandardElementRegistry (which prefers a
+		// client's prefab variant over the toolkit default), falling back to the inline field when the
+		// registry has no entry for that standard element (e.g. before it has been generated).
+		private static T ResolveStandard<T>( EStandardElement _element, T _fallback ) where T : Component
+		{
+			var config = UiToolkitConfiguration.Instance;
+			var registry = config != null ? config.StandardElementRegistry : null;
+			var resolved = registry != null ? registry.Resolve<T>(_element) : null;
+			return resolved != null ? resolved : _fallback;
+		}
 
-		public UiButton StandardButtonPrefab => Pick(m_prefabConfig ? m_prefabConfig.StandardButtonPrefab : null, m_standardButtonPrefab);
-		public UiButton OkButtonPrefab => Pick(m_prefabConfig ? m_prefabConfig.OkButtonPrefab : null, m_okButtonPrefab);
-		public UiButton CancelButtonPrefab => Pick(m_prefabConfig ? m_prefabConfig.CancelButtonPrefab : null, m_cancelButtonPrefab);
-		public UiButton StandardButtonSmallPrefab => Pick(m_prefabConfig ? m_prefabConfig.StandardButtonSmallPrefab : null, m_standardButtonSmallPrefab);
-		public UiLanguageToggle LanguageTogglePrefab => Pick(m_prefabConfig ? m_prefabConfig.LanguageTogglePrefab : null, m_languageTogglePrefab);
-		public UiButton CloseButtonPrefab => Pick(m_prefabConfig ? m_prefabConfig.CloseButtonPrefab : null, m_closeButtonPrefab);
-		public UiButton StandardIconButtonPrefab => Pick(m_prefabConfig ? m_prefabConfig.StandardIconButtonPrefab : null, m_standardIconButtonPrefab);
+		public UiButton StandardButtonPrefab => ResolveStandard(EStandardElement.StandardButton, m_standardButtonPrefab);
+		public UiButton OkButtonPrefab => ResolveStandard(EStandardElement.OkButton, m_okButtonPrefab);
+		public UiButton CancelButtonPrefab => ResolveStandard(EStandardElement.CancelButton, m_cancelButtonPrefab);
+		public UiButton StandardButtonSmallPrefab => ResolveStandard(EStandardElement.StandardButtonSmall, m_standardButtonSmallPrefab);
+		public UiLanguageToggle LanguageTogglePrefab => ResolveStandard(EStandardElement.LanguageToggle, m_languageTogglePrefab);
+		public UiButton CloseButtonPrefab => ResolveStandard(EStandardElement.CloseButton, m_closeButtonPrefab);
+		public UiButton StandardIconButtonPrefab => ResolveStandard(EStandardElement.StandardIconButton, m_standardIconButtonPrefab);
 
-		// Internal-only accessors for the prefabs UiMain creates itself (same config-first fallback).
-		private UiRequester RequesterPrefab => Pick(m_prefabConfig ? m_prefabConfig.RequesterPrefab : null, m_requesterPrefab);
-		private UiPlayerSettingsDialog SettingsDialogPrefab => Pick(m_prefabConfig ? m_prefabConfig.SettingsDialogPrefab : null, m_settingsDialogPrefab);
-		private UiToastMessageView ToastMessageViewPrefab => Pick(m_prefabConfig ? m_prefabConfig.ToastMessageViewPrefab : null, m_toastMessageViewPrefab);
-		private UiKeyPressRequester KeyPressRequesterPrefab => Pick(m_prefabConfig ? m_prefabConfig.KeyPressRequesterPrefab : null, m_keyPressRequesterPrefab);
-		private UiGridPicker GridPickerPrefab => Pick(m_prefabConfig ? m_prefabConfig.GridPickerPrefab : null, m_gridPickerPrefab);
-		private UiPopup PopupMenuPrefab => Pick(m_prefabConfig ? m_prefabConfig.PopupMenuPrefab : null, m_popupMenuPrefab);
-		private UiStartupOverlayView StartupOverlayViewPrefab => Pick(m_prefabConfig ? m_prefabConfig.StartupOverlayViewPrefab : null, m_startupOverlayViewPrefab);
+		// Internal-only accessors for the prefabs UiMain creates itself (same registry-first fallback).
+		private UiRequester RequesterPrefab => ResolveStandard(EStandardElement.Requester, m_requesterPrefab);
+		private UiPlayerSettingsDialog SettingsDialogPrefab => ResolveStandard(EStandardElement.SettingsDialog, m_settingsDialogPrefab);
+		private UiToastMessageView ToastMessageViewPrefab => ResolveStandard(EStandardElement.ToastMessageView, m_toastMessageViewPrefab);
+		private UiKeyPressRequester KeyPressRequesterPrefab => ResolveStandard(EStandardElement.KeyPressRequester, m_keyPressRequesterPrefab);
+		private UiGridPicker GridPickerPrefab => ResolveStandard(EStandardElement.GridPicker, m_gridPickerPrefab);
+		private UiPopup PopupMenuPrefab => ResolveStandard(EStandardElement.PopupMenu, m_popupMenuPrefab);
+		private UiStartupOverlayView StartupOverlayViewPrefab => ResolveStandard(EStandardElement.StartupOverlayView, m_startupOverlayViewPrefab);
 		public UiPlayerSettingsDialog PlayerSettingsDialog => m_playerSettingsDialog;
 		public float LayerDistance => m_layerDistance;
 		public RenderMode RenderMode => m_renderMode;
