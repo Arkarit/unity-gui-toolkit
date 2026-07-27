@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "generatedAtUtc": "2026-07-23T06:50:51.8122382Z",
+    "generatedAtUtc": "2026-07-27T06:28:37.2626126Z",
     "toolkitAssembly": "de.phoenixgrafik.ui-toolkit",
     "skins": [
         "Landscape",
@@ -16138,6 +16138,7 @@
             "kind": "UiSimpleAnimation",
             "category": "Animation",
             "description": "Full-area overlay placed behind a modal or popup; fades in to dim the screen and swallows clicks to everything underneath.",
+            "standardElement": "StandardClickCatcher",
             "slots": [
                 {
                     "name": "onClick",
@@ -16153,15 +16154,7 @@
             "kind": "",
             "category": "Container",
             "description": "Horizontal bar that lays out a dialog's action buttons (e.g. OK/Cancel) along the bottom.",
-            "slots": []
-        },
-        {
-            "name": "StandardCheckboxCheckmark",
-            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardCheckboxCheckmark.prefab",
-            "prefabGuid": "f0d5594a0c80b89438de6761afc5d59a",
-            "kind": "",
-            "category": "Container",
-            "description": "The checkmark graphic shown inside a checkbox while it is on.",
+            "standardElement": "StandardButtonBar",
             "slots": []
         },
         {
@@ -16171,6 +16164,7 @@
             "kind": "",
             "category": "Container",
             "description": "Decorative background strip that sits behind a panel's headline text.",
+            "standardElement": "StandardHeadlineBackground",
             "slots": []
         },
         {
@@ -16180,6 +16174,7 @@
             "kind": "",
             "category": "Container",
             "description": "The default framed panel surface - the standard rounded background for dialog and panel content.",
+            "standardElement": "StandardPanelBackground",
             "slots": []
         },
         {
@@ -16189,6 +16184,7 @@
             "kind": "",
             "category": "Container",
             "description": "The default framed panel surface - the standard rounded background for dialog and panel content.",
+            "standardElement": "StandardPanelBackgroundWithHeadline",
             "slots": []
         },
         {
@@ -16198,6 +16194,7 @@
             "kind": "UiPanel",
             "category": "Container",
             "description": "One page of a tabbed dialog: the content container shown while its tab is selected.",
+            "standardElement": "StandardTabPage",
             "slots": []
         },
         {
@@ -16207,6 +16204,7 @@
             "kind": "UiPanel",
             "category": "Container",
             "description": "A tab page whose content scrolls, for pages longer than the available height.",
+            "standardElement": "StandardTabPageWithScrollRect",
             "slots": []
         },
         {
@@ -16216,6 +16214,7 @@
             "kind": "UiButton",
             "category": "Input",
             "description": "Standard 'Cancel' button that dismisses a dialog without applying changes.",
+            "standardElement": "CancelButton",
             "slots": [
                 {
                     "name": "text",
@@ -16236,6 +16235,7 @@
             "kind": "UiButton",
             "category": "Input",
             "description": "Small close (X) button, typically pinned in a panel's top corner.",
+            "standardElement": "CloseButton",
             "slots": [
                 {
                     "name": "text",
@@ -16256,6 +16256,7 @@
             "kind": "UiButton",
             "category": "Input",
             "description": "Directional 'down' arrow button, part of the up/down/left/right set.",
+            "standardElement": "DownButton",
             "slots": [
                 {
                     "name": "onClick",
@@ -16271,6 +16272,7 @@
             "kind": "UiLanguageToggle",
             "category": "Input",
             "description": "Flag toggle for a single language; switches the active language when turned on.",
+            "standardElement": "LanguageToggle",
             "slots": [
                 {
                     "name": "onClick",
@@ -16291,6 +16293,7 @@
             "kind": "UiButton",
             "category": "Input",
             "description": "Directional 'left' arrow button, part of the up/down/left/right set.",
+            "standardElement": "LeftButton",
             "slots": [
                 {
                     "name": "onClick",
@@ -16306,6 +16309,7 @@
             "kind": "UiButton",
             "category": "Input",
             "description": "Standard 'OK' / confirm button that accepts a dialog.",
+            "standardElement": "OkButton",
             "slots": [
                 {
                     "name": "text",
@@ -16326,6 +16330,7 @@
             "kind": "UiButton",
             "category": "Input",
             "description": "Directional 'right' arrow button, part of the up/down/left/right set.",
+            "standardElement": "RightButton",
             "slots": [
                 {
                     "name": "onClick",
@@ -16341,6 +16346,7 @@
             "kind": "UiButton",
             "category": "Input",
             "description": "The default labeled text button - the go-to button for most actions.",
+            "standardElement": "StandardButton",
             "slots": [
                 {
                     "name": "text",
@@ -16361,6 +16367,7 @@
             "kind": "UiButton",
             "category": "Input",
             "description": "Compact variant of the standard text button for tight layouts.",
+            "standardElement": "StandardButtonSmall",
             "slots": [
                 {
                     "name": "text",
@@ -16381,6 +16388,7 @@
             "kind": "UiToggle",
             "category": "Input",
             "description": "A labeled checkbox for a single on/off setting.",
+            "standardElement": "StandardCheckbox",
             "slots": [
                 {
                     "name": "text",
@@ -16406,6 +16414,7 @@
             "kind": "UiButton",
             "category": "Input",
             "description": "Square button showing an icon instead of a text label.",
+            "standardElement": "StandardIconButton",
             "slots": [
                 {
                     "name": "onClick",
@@ -16421,6 +16430,7 @@
             "kind": "UiToggle",
             "category": "Input",
             "description": "A labeled radio button for mutually-exclusive choices within a toggle group.",
+            "standardElement": "StandardRadio",
             "slots": [
                 {
                     "name": "text",
@@ -16446,6 +16456,7 @@
             "kind": "UiSlider",
             "category": "Input",
             "description": "A horizontal slider for a continuous value such as volume; can show its value as text.",
+            "standardElement": "StandardSliderHor",
             "slots": [
                 {
                     "name": "text",
@@ -16461,6 +16472,7 @@
             "kind": "UiTab",
             "category": "Input",
             "description": "A single tab header that selects its page; part of a tab strip.",
+            "standardElement": "StandardTab",
             "slots": [
                 {
                     "name": "text",
@@ -16486,6 +16498,7 @@
             "kind": "UiTabChapter",
             "category": "Input",
             "description": "A section heading within a tab strip that groups the tabs listed under it.",
+            "standardElement": "StandardTabChapter",
             "slots": [
                 {
                     "name": "text",
@@ -16501,6 +16514,7 @@
             "kind": "UiDropdown",
             "category": "Input",
             "description": "A dropdown (combo box) for picking one option from a list.",
+            "standardElement": "UiDropdown",
             "slots": [
                 {
                     "name": "text",
@@ -16516,6 +16530,7 @@
             "kind": "UiLanguageSelectDropdown",
             "category": "Input",
             "description": "A dropdown listing all available languages, kept in sync with the active one.",
+            "standardElement": "UiLanguageSelectDropdown",
             "slots": [
                 {
                     "name": "text",
@@ -16531,21 +16546,7 @@
             "kind": "UiButton",
             "category": "Input",
             "description": "Directional 'up' arrow button, part of the up/down/left/right set.",
-            "slots": [
-                {
-                    "name": "onClick",
-                    "kind": "event",
-                    "note": "Click handler (wired later)."
-                }
-            ]
-        },
-        {
-            "name": "UpDownLeftRightButton",
-            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/UpDownLeftRight/UpDownLeftRightButton.prefab",
-            "prefabGuid": "63f736e16f52f304c843e61997a25b21",
-            "kind": "UiButton",
-            "category": "Input",
-            "description": "Directional arrow button that forms the basis of the up/down/left/right button set.",
+            "standardElement": "UpButton",
             "slots": [
                 {
                     "name": "onClick",
@@ -16561,6 +16562,7 @@
             "kind": "UiToastMessageView",
             "category": "Root",
             "description": "A transient toast notification that pops in, shows a short message, and disappears on its own.",
+            "standardElement": "ToastMessageView",
             "slots": [
                 {
                     "name": "text",
@@ -16576,6 +16578,7 @@
             "kind": "UiPopup",
             "category": "Root",
             "description": "A popup / context menu anchored near a triggering element; scrollable, closes on tap outside.",
+            "standardElement": "PopupMenu",
             "slots": []
         },
         {
@@ -16585,6 +16588,7 @@
             "kind": "UiColorPatch",
             "category": "Widget",
             "description": "A selectable color swatch that displays a single color and can be picked within a group.",
+            "standardElement": "StandardColorPatch",
             "slots": []
         }
     ]
