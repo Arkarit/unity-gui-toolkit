@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -21,8 +22,8 @@ namespace GuiToolkit.Editor.AiSupport
 	/// <see cref="EditorApplication.update"/>.
 	///
 	/// Deliberately tiny: methods are ping / status / recompile / getCatalog / regenerateCatalog /
-	/// bakeScreen / screenshotView. Methods that need input carry it in the envelope's <c>payload</c>
-	/// string (raw JSON the handler parses itself).
+	/// bakeScreen / screenshotView / tagStandardElement / untagStandardElement. Methods that need input
+	/// carry it in the envelope's <c>payload</c> string (raw JSON the handler parses itself).
 	/// </summary>
 	[InitializeOnLoad]
 	public static class UiScreenMcpBridge
@@ -256,6 +257,12 @@ namespace GuiToolkit.Editor.AiSupport
 				case "screenshotView":
 					return Screenshot(_payload);
 
+				case "tagStandardElement":
+					return TagStandardElement(_payload);
+
+				case "untagStandardElement":
+					return UntagStandardElement(_payload);
+
 				default:
 					throw new Exception($"Unknown method '{_method}'.");
 			}
@@ -298,6 +305,75 @@ namespace GuiToolkit.Editor.AiSupport
 					"with your own file tools (offset/limit/search or a JSON query) — the full catalog is large.",
 			};
 			return summary.ToString(Newtonsoft.Json.Formatting.None);
+		}
+
+		/// <summary>
+		/// Stamps the UiStandardElement marker onto one or more prefab roots. Payload:
+		/// <c>{ "elements": [ { "prefabPath": "Assets/.../X.prefab", "key": "OkButton", "internal": false }, ... ] }</c>.
+		/// <c>key</c> is an EStandardElement name (toolkit built-in) or any custom id (client element).
+		/// The batch is tagged base-before-variant internally, so a client can safely pass a whole set.
+		/// </summary>
+		private static string TagStandardElement( string _payload )
+		{
+			if (string.IsNullOrWhiteSpace(_payload))
+				throw new Exception("tagStandardElement requires a 'payload' with an 'elements' array.");
+
+			if (JObject.Parse(_payload)["elements"] is not JArray elements || elements.Count == 0)
+				throw new Exception("tagStandardElement payload must contain a non-empty 'elements' array.");
+
+			var requests = new List<UiStandardElementTagger.TagRequest>();
+			foreach (var e in elements)
+			{
+				string prefabPath = (string) e["prefabPath"];
+				if (string.IsNullOrEmpty(prefabPath))
+					throw new Exception("Each entry in 'elements' needs a 'prefabPath'.");
+
+				requests.Add(new UiStandardElementTagger.TagRequest
+				{
+					PrefabPath = prefabPath,
+					Key = (string) e["key"] ?? "",
+					Internal = (bool?) e["internal"] ?? false,
+				});
+			}
+
+			return ResultsJson(UiStandardElementTagger.Tag(requests));
+		}
+
+		/// <summary>Removes the marker from prefabs. Payload: <c>{ "paths": [ "Assets/.../X.prefab", ... ] }</c>.</summary>
+		private static string UntagStandardElement( string _payload )
+		{
+			if (string.IsNullOrWhiteSpace(_payload))
+				throw new Exception("untagStandardElement requires a 'payload' with a 'paths' array.");
+
+			if (JObject.Parse(_payload)["paths"] is not JArray pathsArray || pathsArray.Count == 0)
+				throw new Exception("untagStandardElement payload must contain a non-empty 'paths' array.");
+
+			var paths = new List<string>();
+			foreach (var p in pathsArray)
+			{
+				string s = (string) p;
+				if (!string.IsNullOrEmpty(s))
+					paths.Add(s);
+			}
+
+			return ResultsJson(UiStandardElementTagger.Untag(paths));
+		}
+
+		private static string ResultsJson( List<UiStandardElementTagger.TagResult> _results )
+		{
+			var arr = new JArray();
+			foreach (var r in _results)
+			{
+				arr.Add(new JObject
+				{
+					["prefabPath"]  = r.PrefabPath,
+					["resolvedKey"] = r.ResolvedKey,
+					["ok"]          = r.Ok,
+					["message"]     = r.Message,
+				});
+			}
+
+			return new JObject { ["results"] = arr }.ToString(Newtonsoft.Json.Formatting.None);
 		}
 
 		[Serializable]

@@ -196,5 +196,41 @@ server.tool(
 	}
 );
 
+server.tool(
+	"tag_standard_element",
+	"Tag one or more prefab roots with a standard-element identity (the UiStandardElement marker) so " +
+	"they enter the toolkit's registry and screen-authoring palette. Use this after creating a prefab or " +
+	"variant you want the toolkit/AI to recognise as a named standard element. 'key' is either a built-in " +
+	"EStandardElement name (see the catalog) or any custom id for a project-specific element; a client " +
+	"variant that reuses a built-in key out-ranks the toolkit default. Set 'internal' for sub-parts that " +
+	"should resolve but stay out of the authoring vocabulary. A mixed base+variant batch is safe — it is " +
+	"tagged base-before-variant internally. Returns one result per prefab. For large batches, send in " +
+	"chunks so the bridge request does not time out.",
+	{
+		elements: z.array(z.object({
+			prefabPath: z.string().describe("Project-relative prefab path, e.g. 'Assets/.../OkButton.prefab'."),
+			key: z.string().describe("EStandardElement name (built-in) or a custom id (client element)."),
+			internal: z.boolean().optional().describe("True for an internal sub-part (hidden from the authoring vocabulary)."),
+		})).min(1).describe("The prefabs to tag."),
+	},
+	async ({ elements }) => {
+		try { return ok(await callBridge("tagStandardElement", JSON.stringify({ elements }))); }
+		catch (e) { return fail(e); }
+	}
+);
+
+server.tool(
+	"untag_standard_element",
+	"Remove the UiStandardElement marker from one or more prefabs (no-op where none is present). " +
+	"Returns one result per prefab.",
+	{
+		paths: z.array(z.string()).min(1).describe("Project-relative prefab paths to untag."),
+	},
+	async ({ paths }) => {
+		try { return ok(await callBridge("untagStandardElement", JSON.stringify({ paths }))); }
+		catch (e) { return fail(e); }
+	}
+);
+
 const transport = new StdioServerTransport();
 await server.connect(transport);
