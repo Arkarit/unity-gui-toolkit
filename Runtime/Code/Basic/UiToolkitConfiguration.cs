@@ -278,6 +278,12 @@ namespace GuiToolkit
 		public UiSoundConfig UiSoundConfig => m_uiSoundConfig;
 		public UiStandardElementRegistry StandardElementRegistry => m_standardElementRegistry;
 
+		/// <summary>Canonical project folder for client prefab VARIANTS of toolkit standard elements —
+		/// the catalog generator scans it for standard-element markers, and the variant-creation tool
+		/// writes here. Client-writable (under Assets/), so it works whether the toolkit is symlinked
+		/// (library dev) or in read-only Packages (a consuming project).</summary>
+		public string PrefabVariantsPath => m_prefabVariantsPath;
+
 
 		public string GetScenePath( string _sceneName )
 		{

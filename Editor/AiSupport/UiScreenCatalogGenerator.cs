@@ -707,6 +707,14 @@ namespace GuiToolkit.Editor.AiSupport
 				foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { toolkitRoot }))
 					AddGuid(guid);
 
+			// The canonical client prefab-variants folder: client variants of tagged standard elements live
+			// here (the variant-creation tool writes here), so they are discovered and out-rank the library
+			// defaults. Client-writable and works whether the toolkit is symlinked or in read-only Packages.
+			string variantsPath = UiToolkitConfiguration.Instance.PrefabVariantsPath?.TrimEnd('/');
+			if (!string.IsNullOrEmpty(variantsPath) && AssetDatabase.IsValidFolder(variantsPath))
+				foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { variantsPath }))
+					AddGuid(guid);
+
 			if (_config != null)
 			{
 				foreach (var folder in _config.ExtraFolderPaths())

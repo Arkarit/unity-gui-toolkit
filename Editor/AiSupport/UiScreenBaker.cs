@@ -667,8 +667,36 @@ namespace GuiToolkit.Editor.AiSupport
 
 		private static GameObject ResolveTemplatePrefab( string _name )
 		{
-			// Prefer the catalog's palette (authoritative, honors the override asset). Fall back to a
-			// direct StandardElements name match so baking works even before the catalog is regenerated.
+			var named = FindPrefabByName(_name);
+			if (named == null)
+				return null;
+
+			// Variant resolution: if the template is a tagged standard element, re-resolve its identity
+			// through the generated registry so a client's prefab VARIANT out-ranks the toolkit default.
+			// Authored screens then build with the client's look, not the library original. It does not
+			// matter whether the name search above hit the library or the client prefab first — both carry
+			// the same standard-element key (a variant inherits its base's marker), and the registry's
+			// client-over-library ranking picks the winner. Falls back to the named prefab when the element
+			// is untagged or the registry has not been generated yet (no regression to the old behaviour).
+			var marker = named.GetComponent<UiStandardElement>();
+			if (marker != null && marker.Element != EStandardElement.None)
+			{
+				var registry = UiToolkitConfiguration.Instance != null
+					? UiToolkitConfiguration.Instance.StandardElementRegistry
+					: null;
+				var winner = registry != null ? registry.Resolve(marker.Key) : null;
+				if (winner != null)
+					return winner;
+			}
+
+			return named;
+		}
+
+		private static GameObject FindPrefabByName( string _name )
+		{
+			// Prefer a StandardElements match (the library anchor) so a name resolves deterministically even
+			// before the catalog/registry exist; the registry re-resolution above then upgrades to a client
+			// variant when one is registered.
 			foreach (var guid in AssetDatabase.FindAssets($"{_name} t:Prefab"))
 			{
 				string path = AssetDatabase.GUIDToAssetPath(guid);

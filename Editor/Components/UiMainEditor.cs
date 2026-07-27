@@ -5,6 +5,7 @@ using UnityEditor;
 
 namespace GuiToolkit.Editor
 {
+	[EditorAware]
 	[CustomEditor(typeof(UiMain))]
 	public class UiMainEditor : UnityEditor.Editor
 	{
@@ -12,6 +13,7 @@ namespace GuiToolkit.Editor
 
 		private readonly List<SerializedProperty> m_prefabProperties = new();
 		private string m_clonePath = DefaultClonePath;
+		private bool m_clonePathInitialized;
 
 		private void OnEnable()
 		{
@@ -36,6 +38,17 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.LabelField("Prefabs", EditorStyles.boldLabel);
 			if (IsAnyPrefabCloned())
 			{
+				// Default the clone target to the project's canonical prefab-variants folder (what the
+				// catalog generator scans), so freshly created variants are discovered automatically.
+				// Initialized once; the user can still override it via the field below.
+				if (!m_clonePathInitialized)
+				{
+					string configPath = UiToolkitConfiguration.Instance.PrefabVariantsPath;
+					if (!string.IsNullOrEmpty(configPath))
+						m_clonePath = configPath;
+					m_clonePathInitialized = true;
+				}
+
 				m_clonePath = EditorFileUtility.PathFieldReadFolder("Prefab Path", m_clonePath);
 				if (GUILayout.Button("Create Default Prefabs Variants"))
 					CloneDefaultPrefabs();
