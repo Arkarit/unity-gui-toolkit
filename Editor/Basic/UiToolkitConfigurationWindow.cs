@@ -154,6 +154,13 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_uiSoundConfig"));
 
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+			if (m_firstTimeInit)
+				EditorGUILayout.HelpBox(UiToolkitConfiguration.HELP_STANDARD_ELEMENT_REGISTRY, MessageType.Info);
+			using (new EditorGUI.DisabledScope(true))
+				EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_standardElementRegistry"),
+					new GUIContent("Standard Element Registry", UiToolkitConfiguration.HELP_STANDARD_ELEMENT_REGISTRY));
+
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_assetProviderFactories"));
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_storageFactory"));
 			

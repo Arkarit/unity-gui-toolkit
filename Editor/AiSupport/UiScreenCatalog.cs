@@ -66,6 +66,9 @@ namespace GuiToolkit.Editor.AiSupport
 		/// <summary>Instance/"flavor" description harvested from a UiComment on the prefab root; may be empty.</summary>
 		public string description = "";
 
+		/// <summary>Standard-element identity from a root UiStandardElement marker (enum name or Custom id); "" if untagged.</summary>
+		public string standardElement = "";
+
 		/// <summary>Authorable slots this template exposes (text, style, onClick, icon, ...).</summary>
 		public List<UiPaletteSlot> slots = new();
 	}

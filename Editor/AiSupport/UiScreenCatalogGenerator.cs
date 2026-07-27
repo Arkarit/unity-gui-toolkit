@@ -23,6 +23,7 @@ namespace GuiToolkit.Editor.AiSupport
 	///
 	/// Reflection only — no components are instantiated, so [ExecuteAlways] side effects never run.
 	/// </summary>
+	[EditorAware]
 	public static class UiScreenCatalogGenerator
 	{
 		private const int CatalogVersion = 1;
@@ -163,6 +164,8 @@ namespace GuiToolkit.Editor.AiSupport
 				CollectPalette(catalog);
 
 				WarnMissingPaletteDescriptions(catalog);
+
+				CollectStandardElements(catalog);
 			}
 			finally
 			{
@@ -649,12 +652,11 @@ namespace GuiToolkit.Editor.AiSupport
 		// Built-in scan root: every prefab whose asset path contains this segment is a palette template.
 		private const string StandardElementsSegment = "/Prefabs/StandardElements/";
 
-		private static void CollectPalette( UiScreenCatalog _catalog )
+		// The prefab GUIDs that make up the authoring palette (and the scan scope for standard-element
+		// markers): the built-in StandardElements folder plus any extra folders / individual prefabs
+		// configured on the override asset. Deduped, order-preserving.
+		private static List<string> CollectCandidatePrefabGuids( UiAuthorablePaletteConfig _config )
 		{
-			var config = UiAuthorablePaletteConfig.FindFirst();
-
-			// Collect candidate prefab GUIDs: the built-in StandardElements scan plus any extra folders
-			// / individual prefabs configured on the override asset.
 			var guids = new List<string>();
 			void AddGuid( string _guid )
 			{
@@ -669,13 +671,13 @@ namespace GuiToolkit.Editor.AiSupport
 					AddGuid(guid);
 			}
 
-			if (config != null)
+			if (_config != null)
 			{
-				foreach (var folder in config.ExtraFolderPaths())
+				foreach (var folder in _config.ExtraFolderPaths())
 					foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { folder }))
 						AddGuid(guid);
 
-				foreach (var prefab in config.ExtraPrefabs)
+				foreach (var prefab in _config.ExtraPrefabs)
 				{
 					if (prefab == null)
 						continue;
@@ -683,6 +685,14 @@ namespace GuiToolkit.Editor.AiSupport
 					AddGuid(AssetDatabase.AssetPathToGUID(path));
 				}
 			}
+
+			return guids;
+		}
+
+		private static void CollectPalette( UiScreenCatalog _catalog )
+		{
+			var config = UiAuthorablePaletteConfig.FindFirst();
+			var guids = CollectCandidatePrefabGuids(config);
 
 			var entries = new List<UiPaletteEntry>();
 			foreach (var guid in guids)
@@ -722,6 +732,7 @@ namespace GuiToolkit.Editor.AiSupport
 				// travels with a client variant), so OkButton and CancelButton can read differently even
 				// though both are UiButtons. The per-type description lives on the component entry.
 				description = RootCommentText(prefab),
+				standardElement = StandardElementKey(prefab),
 				slots = DerivePaletteSlots(prefab, primary),
 			};
 
@@ -788,6 +799,157 @@ namespace GuiToolkit.Editor.AiSupport
 			}
 
 			return slots;
+		}
+
+		/// <summary>The standard-element key from a root <see cref="UiStandardElement"/> marker, or "" if untagged.</summary>
+		private static string StandardElementKey( GameObject _prefab )
+		{
+			var marker = _prefab.GetComponent<UiStandardElement>();
+			if (marker == null || marker.Element == EStandardElement.None)
+				return "";
+			return marker.Key ?? "";
+		}
+
+		#endregion
+
+		#region Standard-element registry
+
+		private class StandardElementCandidate
+		{
+			public EStandardElement element;
+			public string customId;
+			public GameObject prefab;
+			public string path;
+			public bool fromLibrary;
+		}
+
+		/// <summary>
+		/// Scans the palette candidate prefabs for <see cref="UiStandardElement"/> markers, resolves the
+		/// winning prefab per identity (client prefabs/variants out-rank toolkit-library defaults; a
+		/// same-rank tie is an error), and writes the runtime <see cref="UiStandardElementRegistry"/>,
+		/// pointing <see cref="UiToolkitConfiguration"/> at it.
+		/// </summary>
+		private static void CollectStandardElements( UiScreenCatalog _catalog )
+		{
+			var config = UiAuthorablePaletteConfig.FindFirst();
+			var byKey = new Dictionary<string, List<StandardElementCandidate>>(StringComparer.Ordinal);
+
+			foreach (var guid in CollectCandidatePrefabGuids(config))
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+				var marker = prefab != null ? prefab.GetComponent<UiStandardElement>() : null;
+				if (marker == null || marker.Element == EStandardElement.None)
+					continue;
+
+				string key = marker.Key;
+				if (string.IsNullOrEmpty(key))
+				{
+					UiLog.LogWarning($"AI catalog: UiStandardElement on '{path}' is Custom with an empty Custom Id; skipped.");
+					continue;
+				}
+
+				if (!byKey.TryGetValue(key, out var list))
+					byKey[key] = list = new List<StandardElementCandidate>();
+
+				list.Add(new StandardElementCandidate
+				{
+					element = marker.Element,
+					customId = marker.CustomId,
+					prefab = prefab,
+					path = path,
+					fromLibrary = EditorAssetUtility.IsPackagesOrInternalAsset(prefab),
+				});
+			}
+
+			var entries = new List<UiStandardElementRegistry.Entry>();
+			foreach (var kv in byKey.OrderBy(k => k.Key, StringComparer.Ordinal))
+			{
+				// Client prefabs/variants out-rank library defaults; a tie within the winning rank is ambiguous.
+				var client = kv.Value.Where(c => !c.fromLibrary).OrderBy(c => c.path, StringComparer.Ordinal).ToList();
+				var winners = client.Count > 0
+					? client
+					: kv.Value.OrderBy(c => c.path, StringComparer.Ordinal).ToList();
+
+				if (winners.Count > 1)
+					UiLog.LogError($"AI catalog: standard element '{kv.Key}' is claimed by {winners.Count} " +
+					               $"{(client.Count > 0 ? "client" : "library")} prefabs — ambiguous:\n  " +
+					               $"{string.Join("\n  ", winners.Select(c => c.path))}\nUsing '{winners[0].path}'.");
+
+				var winner = winners[0];
+				entries.Add(new UiStandardElementRegistry.Entry
+				{
+					element = winner.element,
+					customId = winner.customId,
+					prefab = winner.prefab,
+					fromLibrary = winner.fromLibrary,
+				});
+			}
+
+			WarnMissingStandardElements(byKey);
+			WriteStandardElementRegistry(entries);
+		}
+
+		/// <summary>Warns which built-in <see cref="EStandardElement"/> values have no tagged prefab yet.</summary>
+		private static void WarnMissingStandardElements( Dictionary<string, List<StandardElementCandidate>> _byKey )
+		{
+			var missing = new List<string>();
+			int builtinCount = 0;
+			foreach (EStandardElement e in Enum.GetValues(typeof(EStandardElement)))
+			{
+				if (e == EStandardElement.None || e == EStandardElement.Custom)
+					continue;
+				builtinCount++;
+				if (!_byKey.ContainsKey(e.ToString()))
+					missing.Add(e.ToString());
+			}
+
+			if (missing.Count > 0)
+				UiLog.LogWarning($"AI catalog: {missing.Count}/{builtinCount} built-in standard elements have no prefab " +
+				                 $"tagged with a UiStandardElement marker yet (UiMain falls back to its inline/config prefabs " +
+				                 $"for these):\n  {string.Join(", ", missing)}");
+		}
+
+		private static void WriteStandardElementRegistry( List<UiStandardElementRegistry.Entry> _entries )
+		{
+			var config = UiToolkitConfiguration.Instance;
+
+			var registry = config != null ? config.StandardElementRegistry : null;
+			if (registry == null)
+				registry = FindExistingRegistry();
+
+			if (registry == null)
+			{
+				string dir = config != null ? config.GeneratedAssetsDir : "Assets/";
+				if (!dir.EndsWith("/"))
+					dir += "/";
+				string path = AssetDatabase.GenerateUniqueAssetPath($"{dir}UiStandardElementRegistry.asset");
+				registry = ScriptableObject.CreateInstance<UiStandardElementRegistry>();
+				AssetDatabase.CreateAsset(registry, path);
+				UiLog.LogInternal($"AI catalog: created standard-element registry at '{path}'.");
+			}
+
+			registry.EditorSetEntries(_entries);
+			EditorUtility.SetDirty(registry);
+
+			if (config != null)
+				config.EditorSetStandardElementRegistry(registry);
+
+			AssetDatabase.SaveAssets();
+			UiLog.LogInternal($"AI catalog: standard-element registry holds {_entries.Count} " +
+			                  $"entr{(_entries.Count == 1 ? "y" : "ies")}.");
+		}
+
+		private static UiStandardElementRegistry FindExistingRegistry()
+		{
+			foreach (var guid in AssetDatabase.FindAssets($"t:{nameof(UiStandardElementRegistry)}"))
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				var registry = AssetDatabase.LoadAssetAtPath<UiStandardElementRegistry>(path);
+				if (registry != null)
+					return registry;
+			}
+			return null;
 		}
 
 		#endregion
