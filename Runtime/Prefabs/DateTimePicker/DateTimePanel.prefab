@@ -77,6 +77,7 @@ GameObject:
   - component: {fileID: 6602331610673660376}
   - component: {fileID: 7019670484331035863}
   - component: {fileID: 9192088371052399603}
+  - component: {fileID: 5871954168834348441}
   m_Layer: 5
   m_Name: DateTimePanel
   m_TagString: Untagged
@@ -185,6 +186,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
+--- !u!114 &5871954168834348441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8621512087278283165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 45
+  m_customId: 
+  m_internal: 0
 --- !u!1001 &1185749796471135974
 PrefabInstance:
   m_ObjectHideFlags: 0

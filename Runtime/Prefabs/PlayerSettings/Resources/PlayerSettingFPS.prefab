@@ -139,7 +139,9 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-  m_autoLocalize: 0
+  m_isTranslated: 1
+  m_group: 
+  m_locaKey: 30
 --- !u!114 &4953657512903718010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -267,6 +269,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 6525790309460745264}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -321,6 +324,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: PlayerSettingFPS
+      objectReference: {fileID: 0}
+    - target: {fileID: 1517860443818268471, guid: 2b5fe23326d242a45b3a8b472f23df9c,
+        type: 3}
+      propertyPath: m_element
+      value: 54
       objectReference: {fileID: 0}
     - target: {fileID: 2592340946164359457, guid: 2b5fe23326d242a45b3a8b472f23df9c,
         type: 3}

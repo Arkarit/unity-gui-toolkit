@@ -139,7 +139,9 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-  m_autoLocalize: 0
+  m_isTranslated: 1
+  m_group: 
+  m_locaKey: 00
 --- !u!114 &3569392035202757502
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307,6 +309,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GridPickerCellText
+      objectReference: {fileID: 0}
+    - target: {fileID: 8337363378813485729, guid: 7a9c3392ee9f7ca4eb4c55f630cb42d4,
+        type: 3}
+      propertyPath: m_element
+      value: 61
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

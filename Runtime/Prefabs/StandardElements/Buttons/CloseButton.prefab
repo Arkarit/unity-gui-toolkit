@@ -8,6 +8,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1894801542386046341, guid: 21a8687b0161cb048a99736c000f6da3,
+        type: 3}
+      propertyPath: m_element
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3594388165116690286, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_IgnoreLayout

@@ -93,6 +93,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
   m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
@@ -200,6 +201,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -323,6 +325,7 @@ GameObject:
   - component: {fileID: 6944983982311379129}
   - component: {fileID: 3594388165116690286}
   - component: {fileID: 6048610610961203981}
+  - component: {fileID: 895579041904212044}
   m_Layer: 5
   m_Name: StandardIconButton
   m_TagString: Untagged
@@ -409,12 +412,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_simpleAnimation: {fileID: 8591811800190961484}
-  m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 7758758935192399221}
   m_additionalMouseOver: {fileID: 0}
   m_additionalMouseOverDuration: 0.2
   m_forwardButton: {fileID: 0}
   m_simpleWiggleAnimation: {fileID: 0}
+  m_wiggleButtons: []
 --- !u!114 &3594388165116690286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -435,6 +438,34 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &6048610610961203981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5270523796987331484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_comment: Square button showing an icon instead of a text label.
+--- !u!114 &895579041904212044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5270523796987331484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 7
+  m_customId: 
+  m_internal: 0
 --- !u!1 &5284302703580940865
 GameObject:
   m_ObjectHideFlags: 0
@@ -530,6 +561,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
   m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
@@ -652,6 +684,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -787,16 +820,3 @@ MonoBehaviour:
   OnAfterApplyStyle:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &6048610610961203981
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5270523796987331484}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_comment: Square button showing an icon instead of a text label.

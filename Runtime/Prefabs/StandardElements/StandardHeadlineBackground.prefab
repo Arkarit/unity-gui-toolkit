@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 6663229834221894913}
   - component: {fileID: 2600673651885175177}
   - component: {fileID: 8335964983121207404}
+  - component: {fileID: 4229940970950231836}
   m_Layer: 5
   m_Name: StandardHeadlineBackground
   m_TagString: Untagged
@@ -39,7 +40,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -53.926727}
-  m_SizeDelta: {x: -16, y: 104.51419}
+  m_SizeDelta: {x: -42, y: 104.51419}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &8410193489918663126
 CanvasRenderer:
@@ -62,7 +63,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 1}
+  m_Color: {r: 0.003921569, g: 0.44705883, b: 0.6117647, a: 0.69411767}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -91,10 +92,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57bc3011770ca1346a002a705abd54de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Backgrounds/PanelHeadline
   m_fixedSkinName: 
   m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []
@@ -133,10 +137,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Backgrounds/PanelHeadline
   m_fixedSkinName: 
   m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []
@@ -153,6 +160,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   m_comment: Decorative background strip that sits behind a panel's headline text.
+--- !u!114 &4229940970950231836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3662328687702500232}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 19
+  m_customId: 
+  m_internal: 0

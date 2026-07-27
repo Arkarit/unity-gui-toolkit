@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5288653625531685837}
   - component: {fileID: 8685692403383014205}
   - component: {fileID: 5785729664842419850}
+  - component: {fileID: 7204332644659028440}
   m_Layer: 5
   m_Name: PlayerSettingKeyBinding
   m_TagString: Untagged
@@ -127,12 +128,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_simpleAnimation: {fileID: 4579703867528108122}
-  m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 0}
   m_additionalMouseOver: {fileID: 7092691072609327096}
   m_additionalMouseOverDuration: 0.1
   m_forwardButton: {fileID: 0}
   m_simpleWiggleAnimation: {fileID: 0}
+  m_wiggleButtons: []
 --- !u!114 &5785729664842419850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -146,7 +147,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
-  m_titleTranslator: {fileID: 0}
   m_text: {fileID: 4854838333255709507}
   m_isLocalized: 1
   m_additionalMouseOver: {fileID: 0}
@@ -159,6 +159,21 @@ MonoBehaviour:
   m_textColorIfNone: {r: 1, g: 0, b: 0, a: 1}
   m_optionalBackgroundImage: {fileID: 8829137498230561094}
   m_optionalBackgroundGradient: {fileID: 8649237268712338575}
+--- !u!114 &7204332644659028440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1349318067806498858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 49
+  m_customId: 
+  m_internal: 0
 --- !u!1 &4859749554201328117
 GameObject:
   m_ObjectHideFlags: 0
@@ -254,6 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dd2ccc9659ef7a4bb93ab6ce92ba6e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_vertexColorMode: 0
   m_gradient:
     serializedVersion: 2
@@ -556,7 +572,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-  m_autoLocalize: 0
+  m_isTranslated: 1
   m_group: 
   m_locaKey: W
 --- !u!114 &6807244625806320091
@@ -742,7 +758,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-  m_autoLocalize: 0
+  m_isTranslated: 1
   m_group: 
   m_locaKey: Key Binding
 --- !u!114 &8202786363071359637

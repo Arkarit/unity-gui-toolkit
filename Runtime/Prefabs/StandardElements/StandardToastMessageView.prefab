@@ -61,9 +61,12 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 65537
   m_target: {fileID: 4628251920861205031}
   m_markTargetForLayoutRebuild: 0
@@ -162,6 +165,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 4628251920861205033}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -286,6 +290,7 @@ GameObject:
   - component: {fileID: 4628251921322500096}
   - component: {fileID: 4628251921322500097}
   - component: {fileID: 1707501341928402238}
+  - component: {fileID: 633877167110854835}
   m_Layer: 5
   m_Name: StandardToastMessageView
   m_TagString: Untagged
@@ -416,6 +421,8 @@ MonoBehaviour:
   m_useGlobalCanvasScalerTemplate: 1
   m_autoDestroyOnHide: 1
   m_poolable: 1
+  m_closeButtons: []
+  m_backgroundMusicId: 
   m_duration: 2
   m_textComponent: {fileID: 3393795978376780452}
   m_id: 0
@@ -445,9 +452,12 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 1
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 196609
   m_target: {fileID: 4628251920861205031}
   m_markTargetForLayoutRebuild: 0
@@ -555,6 +565,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 4628251920861205033}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 7720158472194757674}
   m_skewMinHorizontal: -10
   m_skewMaxHorizontal: 0
@@ -590,6 +601,35 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1707501341928402238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4628251921322500155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_comment: A transient toast notification that pops in, shows a short message,
+    and disappears on its own.
+--- !u!114 &633877167110854835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4628251921322500155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 11
+  m_customId: 
+  m_internal: 0
 --- !u!1 &6679602054023804013
 GameObject:
   m_ObjectHideFlags: 0
@@ -651,9 +691,12 @@ MonoBehaviour:
   m_setOnStart: 1
   m_numberOfLoops: 0
   m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 77824
   m_target: {fileID: 4628251920861205031}
   m_markTargetForLayoutRebuild: 0
@@ -770,6 +813,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 4628251920861205033}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -896,6 +940,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.89411765}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.49803922}
@@ -1067,7 +1112,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3393795978376780454}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Script: {fileID: 11500000, guid: bc4a859b73555df43976e85a587ffe79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &3393795978376780453 stripped
@@ -1094,6 +1139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ec3acfbcec7bd94b9247e9b7d6f8979, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_mirrorAxisFlags: 0
   m_topLeft: {x: -0.0000021407652, y: 0.000013592903}
   m_topRight: {x: -0.0000021407652, y: -0.000013592903}
@@ -1102,16 +1148,3 @@ MonoBehaviour:
   m_angleHorizontal: 0
   m_angleVertical: 0
   m_usedCorners: 15
---- !u!114 &1707501341928402238
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4628251921322500155}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_comment: A transient toast notification that pops in, shows a short message, and disappears on its own.

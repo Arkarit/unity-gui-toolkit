@@ -138,6 +138,9 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_isTranslated: 1
+  m_group: 
+  m_locaKey: Checkbox
 --- !u!114 &9187772501467361925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -177,6 +180,7 @@ GameObject:
   - component: {fileID: 4613490724362296225}
   - component: {fileID: 2900357233865207502}
   - component: {fileID: 6132188106729123055}
+  - component: {fileID: 3632716692652690858}
   m_Layer: 5
   m_Name: StandardCheckbox
   m_TagString: Untagged
@@ -267,7 +271,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_simpleAnimation: {fileID: 4613490724362296225}
-  m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 0}
   m_additionalMouseOver: {fileID: 2014809619835639440}
   m_additionalMouseOverDuration: 0.2
@@ -278,6 +281,9 @@ MonoBehaviour:
   m_styleAppliers: []
   m_skinOn: On
   m_skinOff: Off
+  m_gameObjectOn: {fileID: 0}
+  m_gameObjectOff: {fileID: 0}
+  m_stateAnimation: {fileID: 0}
 --- !u!114 &4613490724362296225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -380,6 +386,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -417,6 +424,34 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &6132188106729123055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4613490724362296237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_comment: A labeled checkbox for a single on/off setting.
+--- !u!114 &3632716692652690858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4613490724362296237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 23
+  m_customId: 
+  m_internal: 0
 --- !u!1001 &118879220242663066
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -605,16 +640,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6132188106729123055
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4613490724362296237}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  m_comment: A labeled checkbox for a single on/off setting.

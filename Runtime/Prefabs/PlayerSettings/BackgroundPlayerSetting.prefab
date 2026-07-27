@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 8688082354769386276}
   - component: {fileID: 5032935469238376379}
   - component: {fileID: 1391282682495828873}
+  - component: {fileID: 6150823440174260487}
   m_Layer: 5
   m_Name: BackgroundPlayerSetting
   m_TagString: Untagged
@@ -56,6 +57,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.15
   m_delay: 0
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
@@ -63,15 +66,16 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 4096
   m_target: {fileID: 7081954314956334383}
   m_markTargetForLayoutRebuild: 0
-  m_canvasScaler: {fileID: 0}
-  m_canvasRectTransform: {fileID: 0}
   m_scaleByCanvasScaler: 1
   m_posXStart: 0
   m_posXEnd: 0
@@ -138,8 +142,26 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_alphaImage: {fileID: 0}
+  m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!222 &4566540905937054491
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -168,7 +190,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 55d7b8da0aa29924d887a4678135649f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: cbabdbe91b89aef42a5c7b5e3b124938, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -190,9 +212,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_vertexColorMode: 0
-  m_colorLeftOrTop: {r: 0.48627454, g: 0.82745105, b: 0.9333334, a: 1}
-  m_colorRightOrBottom: {r: 0.61960787, g: 0.909804, b: 1, a: 1}
+  m_colorLeftOrTop: {r: 0.007843138, g: 0.30588236, b: 0.41960788, a: 1}
+  m_colorRightOrBottom: {r: 0, g: 0.38011953, b: 0.5283019, a: 1}
   m_orientation: 0
   m_swapped: 0
 --- !u!114 &5032935469238376379
@@ -207,11 +230,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43b94de32e32a764c9c58ac6ddde2b62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: PlayerSetting/Background
   m_fixedSkinName: 
   m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []
@@ -230,14 +255,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: PlayerSetting/Background
   m_fixedSkinName: 
   m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []
   OnAfterApplyStyle:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6150823440174260487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8257042493932380985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 56
+  m_customId: 
+  m_internal: 0

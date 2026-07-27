@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4131745113957411727}
   - component: {fileID: 5300456549591044956}
   - component: {fileID: 5452179425472489196}
+  - component: {fileID: 1517860443818268471}
   m_Layer: 5
   m_Name: PlayerSettingSlider
   m_TagString: Untagged
@@ -85,6 +86,21 @@ MonoBehaviour:
   m_additionalMouseOver: {fileID: 49031847006554514}
   m_additionalMouseOverDuration: 0.1
   m_slider: {fileID: 6676996271120638987}
+--- !u!114 &1517860443818268471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 742513094972162296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 53
+  m_customId: 
+  m_internal: 0
 --- !u!1001 &3500322339267625956
 PrefabInstance:
   m_ObjectHideFlags: 0

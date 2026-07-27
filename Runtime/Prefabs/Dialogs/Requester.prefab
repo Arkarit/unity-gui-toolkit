@@ -221,6 +221,7 @@ GameObject:
   - component: {fileID: 7759801690154820446}
   - component: {fileID: 2126843345544139566}
   - component: {fileID: 2126843345544139562}
+  - component: {fileID: 4170800126809620594}
   m_Layer: 5
   m_Name: Requester
   m_TagString: Untagged
@@ -364,6 +365,7 @@ MonoBehaviour:
   m_autoDestroyOnHide: 1
   m_poolable: 1
   m_closeButtons: []
+  m_backgroundMusicId: 
   m_title: {fileID: 2126843346133770540}
   m_optionalCloseButton: {fileID: 6780300717453316315}
   m_buttonContainer: {fileID: 2126843346294841186}
@@ -526,6 +528,21 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4170800126809620594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126843345544139552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 9
+  m_customId: 
+  m_internal: 0
 --- !u!1 &2126843345784116848
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3928842610757677613}
   - component: {fileID: 2264684150005039713}
+  - component: {fileID: 6780461237801705395}
   m_Layer: 5
   m_Name: WiggleAnimation
   m_TagString: Untagged
@@ -51,6 +52,8 @@ MonoBehaviour:
   m_enabledInHierarchy: 1
   m_duration: 0.7
   m_delay: 0
+  m_animationSpeed: 1
+  m_setSpeedForSlaves: 0
   m_backwardsPlayable: 1
   m_backwardsAnimation: {fileID: 0}
   m_gotoStartOnBackwards: 0
@@ -58,10 +61,13 @@ MonoBehaviour:
   m_autoOnEnable: 0
   m_setOnStart: 1
   m_numberOfLoops: 0
-  m_finishInstantOnOrientationChange: 0
+  m_finishInstantOnResolutionChange: 0
+  m_behavioursToDisableWhilePlaying: []
   m_slaveAnimations: []
   m_setLoopsForSlaves: 1
   m_supportViewAnimations: 0
+  m_timingWorkaroundActive: 0
+  m_timingWorkaroundBackwardsBias: 0
   m_support: 1
   m_target: {fileID: 3928842610757677613}
   m_markTargetForLayoutRebuild: 0
@@ -178,3 +184,36 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
+  m_uiSkew: {fileID: 0}
+  m_skewMinHorizontal: 0
+  m_skewMaxHorizontal: 0
+  m_skewMinVertical: 0
+  m_skewMaxVertical: 0
+  m_skewCurveHorizontal:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_skewCurveVertical:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &6780461237801705395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1615996077806704342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 67
+  m_customId: 
+  m_internal: 1

@@ -8,14 +8,20 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5071951565202241129, guid: 21a8687b0161cb048a99736c000f6da3, type: 3}
-      propertyPath: m_comment
-      value: Standard 'OK' / confirm button that accepts a dialog.
+    - target: {fileID: 1894801542386046341, guid: 21a8687b0161cb048a99736c000f6da3,
+        type: 3}
+      propertyPath: m_element
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3884329841504999785, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_name
       value: Buttons/Standard/BackgroundOk
+      objectReference: {fileID: 0}
+    - target: {fileID: 5071951565202241129, guid: 21a8687b0161cb048a99736c000f6da3,
+        type: 3}
+      propertyPath: m_comment
+      value: Standard 'OK' / confirm button that accepts a dialog.
       objectReference: {fileID: 0}
     - target: {fileID: 5270523796987331484, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
@@ -135,12 +141,22 @@ PrefabInstance:
     - target: {fileID: 5270523797533349594, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_fontSize
-      value: 46
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 5270523797533349594, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_textInfo.characterCount
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490390892350505658, guid: 21a8687b0161cb048a99736c000f6da3,
+        type: 3}
+      propertyPath: m_colorLeftOrTop.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7490390892350505658, guid: 21a8687b0161cb048a99736c000f6da3,
+        type: 3}
+      propertyPath: m_colorLeftOrTop.r
+      value: 0.57852554
       objectReference: {fileID: 0}
     - target: {fileID: 7490390892350505658, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
@@ -150,12 +166,12 @@ PrefabInstance:
     - target: {fileID: 7490390892350505658, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_colorRightOrBottom.g
-      value: 0.6431373
+      value: 0.7169812
       objectReference: {fileID: 0}
     - target: {fileID: 7490390892350505658, guid: 21a8687b0161cb048a99736c000f6da3,
         type: 3}
       propertyPath: m_colorRightOrBottom.r
-      value: 1
+      value: 0.4899372
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &4029534613750990895
 GameObject:
@@ -138,7 +138,9 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-  m_autoLocalize: 0
+  m_isTranslated: 1
+  m_group: 
+  m_locaKey: Dialog Stub
 --- !u!114 &6785427370325652711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -264,6 +266,7 @@ GameObject:
   - component: {fileID: 4742414467319694885}
   - component: {fileID: 8806163725296523091}
   - component: {fileID: 6919157337220859970}
+  - component: {fileID: 5414371800941768632}
   m_Layer: 5
   m_Name: DialogStub
   m_TagString: Untagged
@@ -475,6 +478,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 305640684362407}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -492,6 +496,21 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &5414371800941768632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7128859168729151332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 62
+  m_customId: 
+  m_internal: 1
 --- !u!1001 &6079340366796241969
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &7494938938897101021
 GameObject:
@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7494938938897100993}
   - component: {fileID: 7494938938897100992}
   - component: {fileID: 5474586863821234992}
+  - component: {fileID: 2907477192222125585}
   m_Layer: 5
   m_Name: StandardTextSmall
   m_TagString: Untagged
@@ -139,7 +140,10 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-  m_autoLocalize: 0
+  m_isTranslated: 1
+  m_group: 
+  m_locaKey: 'Are you really sure to  <b>Lorem ipsum? Are you really sure to  <b>Lorem
+    ipsum? Are you really sure to  <b>Lorem ipsum? '
 --- !u!114 &5474586863821234992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,3 +157,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
+--- !u!114 &2907477192222125585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7494938938897101021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 41
+  m_customId: 
+  m_internal: 0
