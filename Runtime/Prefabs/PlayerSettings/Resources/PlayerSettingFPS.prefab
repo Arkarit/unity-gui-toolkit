@@ -451,6 +451,12 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7026341339618420660, guid: 2b5fe23326d242a45b3a8b472f23df9c,
+        type: 3}
+      propertyPath: m_comment
+      value: A slider-row variant preset for the frame-rate-limit setting; loaded
+        by name from Resources.
+      objectReference: {fileID: 0}
     - target: {fileID: 7204353340381806732, guid: 2b5fe23326d242a45b3a8b472f23df9c,
         type: 3}
       propertyPath: m_Sprite

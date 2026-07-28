@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 5578382167326362832}
   - component: {fileID: 1314700995125046822}
   - component: {fileID: 8673508702321907753}
+  - component: {fileID: 7574482567810725493}
   m_Layer: 5
   m_Name: DatePicker
   m_TagString: Untagged
@@ -226,6 +227,20 @@ MonoBehaviour:
   m_element: 43
   m_customId: 
   m_internal: 0
+--- !u!114 &7574482567810725493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 576544408149345986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_comment: A composite date selector (year/month/day, with optional time) that
+    fires OnValueChanged as its parts change.
 --- !u!1 &1573645926737646195
 GameObject:
   m_ObjectHideFlags: 0

@@ -268,6 +268,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerSettingText
       objectReference: {fileID: 0}
+    - target: {fileID: 9078159527683305767, guid: 03d4f67c3b64d2748888fa210e48296b,
+        type: 3}
+      propertyPath: m_comment
+      value: A localized label used as caption/row text inside the player-settings
+        dialog.
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

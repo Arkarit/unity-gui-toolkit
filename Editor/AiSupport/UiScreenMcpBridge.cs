@@ -285,6 +285,9 @@ namespace GuiToolkit.Editor.AiSupport
 				case "untagStandardElement":
 					return UntagStandardElement(_payload);
 
+				case "setUiComment":
+					return SetUiComment(_payload);
+
 				default:
 					throw new Exception($"Unknown method '{_method}'.");
 			}
@@ -403,6 +406,45 @@ namespace GuiToolkit.Editor.AiSupport
 			}
 
 			return ResultsJson(UiStandardElementTagger.Untag(paths));
+		}
+
+		/// <summary>
+		/// Sets a root <see cref="UiComment"/> flavor description on prefabs. Payload:
+		/// <c>{ "comments": [ { "prefabPath": "...", "comment": "..." }, ... ] }</c>.
+		/// </summary>
+		private static string SetUiComment( string _payload )
+		{
+			if (string.IsNullOrWhiteSpace(_payload))
+				throw new Exception("setUiComment requires a 'payload' with a 'comments' array.");
+
+			if (JObject.Parse(_payload)["comments"] is not JArray comments || comments.Count == 0)
+				throw new Exception("setUiComment payload must contain a non-empty 'comments' array.");
+
+			var requests = new List<UiCommentSetter.CommentRequest>();
+			foreach (var c in comments)
+			{
+				string prefabPath = (string) c["prefabPath"];
+				if (string.IsNullOrEmpty(prefabPath))
+					throw new Exception("Each entry in 'comments' needs a 'prefabPath'.");
+
+				requests.Add(new UiCommentSetter.CommentRequest
+				{
+					PrefabPath = prefabPath,
+					Comment = (string) c["comment"] ?? "",
+				});
+			}
+
+			var arr = new JArray();
+			foreach (var r in UiCommentSetter.Set(requests))
+			{
+				arr.Add(new JObject
+				{
+					["prefabPath"] = r.PrefabPath,
+					["ok"] = r.Ok,
+					["message"] = r.Message,
+				});
+			}
+			return new JObject { ["results"] = arr }.ToString(Newtonsoft.Json.Formatting.None);
 		}
 
 		private static string ResultsJson( List<UiStandardElementTagger.TagResult> _results )

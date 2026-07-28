@@ -302,5 +302,24 @@ server.tool(
 	}
 );
 
+server.tool(
+	"set_ui_comment",
+	"Set a 'flavor' description (a UiComment) on one or more prefab ROOTS — the note humans read in the " +
+	"Inspector and, for a palette prefab, the description harvested into the screen-authoring catalog. Use it " +
+	"to document a prefab or variant you created (e.g. 'OkButton — green confirm button'). Idempotent (updates " +
+	"in place). A mixed base+variant batch is safe: written base-before-variant so a variant stores its own " +
+	"text as an override on the inherited component. Returns one result per prefab.",
+	{
+		comments: z.array(z.object({
+			prefabPath: z.string().describe("Project-relative prefab path."),
+			comment: z.string().describe("The flavor description to store on the root's UiComment."),
+		})).min(1).describe("The prefabs to describe."),
+	},
+	async ({ comments }) => {
+		try { return ok(await callBridge("setUiComment", JSON.stringify({ comments }))); }
+		catch (e) { return fail(e); }
+	}
+);
+
 const transport = new StdioServerTransport();
 await server.connect(transport);

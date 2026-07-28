@@ -31,7 +31,7 @@ PrefabInstance:
     - target: {fileID: 92612551104523122, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.000015258789
+      value: 0.000011444092
       objectReference: {fileID: 0}
     - target: {fileID: 92612551104523135, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
@@ -348,6 +348,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: ebfad9e774536ea4ba52588acabc7669,
         type: 3}
+    - target: {fileID: 4915200502176701155, guid: 2a99be027eca11f428bec269d3de1bf3,
+        type: 3}
+      propertyPath: m_comment
+      value: A settings-row variant that presents the toggle as a grouped radio button
+        instead of a checkbox.
+      objectReference: {fileID: 0}
     - target: {fileID: 5349384898972409608, guid: 2a99be027eca11f428bec269d3de1bf3,
         type: 3}
       propertyPath: m_name

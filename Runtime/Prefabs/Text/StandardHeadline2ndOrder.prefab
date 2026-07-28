@@ -13,6 +13,12 @@ PrefabInstance:
       propertyPath: m_name
       value: Text/Headline/Medium
       objectReference: {fileID: 0}
+    - target: {fileID: 357056501177215643, guid: f68e9574a6a461e4abc6267904590380,
+        type: 3}
+      propertyPath: m_comment
+      value: A second-level headline - same styling as StandardHeadline but smaller
+        (font size 46), for section titles.
+      objectReference: {fileID: 0}
     - target: {fileID: 1697113851281272724, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
       propertyPath: m_Pivot.x

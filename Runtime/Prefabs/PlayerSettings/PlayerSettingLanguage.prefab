@@ -184,6 +184,12 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2125121823205094789, guid: dffc64cfb8c59a8459afe98bfcb33b78,
+        type: 3}
+      propertyPath: m_comment
+      value: A settings-dialog row offering language selection as a set of radio
+        buttons.
+      objectReference: {fileID: 0}
     - target: {fileID: 3533372449996948442, guid: dffc64cfb8c59a8459afe98bfcb33b78,
         type: 3}
       propertyPath: m_element

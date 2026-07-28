@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5868774379322226606}
   - component: {fileID: 4886470033254696977}
   - component: {fileID: 5350508716347358727}
+  - component: {fileID: 2486210161249667808}
   m_Layer: 5
   m_Name: HoverPlayerSettings
   m_TagString: Untagged
@@ -91,3 +92,17 @@ MonoBehaviour:
   m_element: 57
   m_customId: 
   m_internal: 0
+--- !u!114 &2486210161249667808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5633543300800410596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_comment: Base template for settings-dialog rows with a hover background that
+    concrete PlayerSetting rows derive from.

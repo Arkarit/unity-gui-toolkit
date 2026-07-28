@@ -1093,6 +1093,12 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -18.948
       objectReference: {fileID: 0}
+    - target: {fileID: 2752970984273235499, guid: 0f6119b246c780b4195ff06650f0d15e,
+        type: 3}
+      propertyPath: m_comment
+      value: 'The concrete player-settings screen: a tabbed full-screen dialog wired
+        with Cancel, Restore-Defaults and OK.'
+      objectReference: {fileID: 0}
     - target: {fileID: 4016433083211000610, guid: 0f6119b246c780b4195ff06650f0d15e,
         type: 3}
       propertyPath: m_Enabled

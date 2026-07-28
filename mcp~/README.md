@@ -25,7 +25,7 @@ Claude (MCP client) ──stdio──> mcp~/server.mjs ──HTTP──> Unity E
 2. **Start the Editor bridge** in Unity: menu **`Gui Toolkit → AI → Start MCP Bridge`**
    (stays on across domain reloads until you pick *Stop MCP Bridge*).
 3. **Register the server** with your MCP client (see below), then restart the client and
-   approve the `ui-toolkit` server. Verify with `/mcp` — you should see 8 tools.
+   approve the `ui-toolkit` server. Verify with `/mcp` — you should see 12 tools.
 
 ### Registering with Claude Code — the easy way
 
@@ -69,11 +69,15 @@ Steps Claude follows:
 | `ping` | Verify the Editor bridge is reachable. |
 | `status` | Report whether the editor is compiling/importing (`{ running, compiling, updating }`). |
 | `recompile` | Force Unity to pick up changed C# and recompile, then wait until the editor is idle again (no manual window focus needed). |
+| `setup_status` | One-shot project-state health check (registry, prefab-variants path, catalog freshness, missing standard elements). |
 | `get_catalog` | Locate the screen-authoring catalog: returns a small summary (`{ path, absolutePath, counts, … }`), NOT the body — read the file yourself, it's large. |
 | `regenerate_catalog` | Re-run the generator in Unity, then return the same summary envelope as `get_catalog`. |
-| `bake_screen` | Bake a screen description (`{ name, root }`) into a real `.prefab`; returns `{ path, warnings }`. |
+| `bake_screen` | Bake a screen description (`{ name, root }`) into a real `.prefab`; returns `{ path, warnings }`. `preserveEdits` keeps hand edits on a re-bake. |
 | `read_screen` | Read a `.prefab` back into screen JSON (`{ screen, warnings }`) — inspect, tweak, re-bake. `source`: `auto` (sidecar if present, else structural) / `sidecar` / `structural`. |
 | `screenshot_view` | Render a baked prefab to a PNG (Edit-Mode) and return the image — the AI preview loop. |
+| `tag_standard_element` | Tag prefab roots with a standard-element identity so they enter the registry/palette (base+variant batch safe). |
+| `untag_standard_element` | Remove the standard-element marker from prefabs. |
+| `set_ui_comment` | Set a flavor description (UiComment) on prefab roots — Inspector doc, and palette description for palette prefabs. |
 
 ### Screen JSON shape (for `bake_screen`)
 

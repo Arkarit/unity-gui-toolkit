@@ -78,6 +78,7 @@ GameObject:
   - component: {fileID: 7019670484331035863}
   - component: {fileID: 9192088371052399603}
   - component: {fileID: 5871954168834348441}
+  - component: {fileID: 8018641052214940488}
   m_Layer: 5
   m_Name: DateTimePanel
   m_TagString: Untagged
@@ -201,6 +202,20 @@ MonoBehaviour:
   m_element: 45
   m_customId: 
   m_internal: 0
+--- !u!114 &8018641052214940488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8621512087278283165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_comment: The full date+time editor, combining a display, a date picker and a
+    time picker with an optional 'now' button.
 --- !u!1001 &1185749796471135974
 PrefabInstance:
   m_ObjectHideFlags: 0
