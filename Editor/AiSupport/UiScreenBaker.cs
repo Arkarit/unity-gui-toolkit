@@ -883,8 +883,10 @@ namespace GuiToolkit.Editor.AiSupport
 				}
 
 				// A "#id" value (or an array of them) is a reference to another node's component/GameObject.
-				// Those are resolved in a second pass once every node exists, so defer them here.
-				if (IsRefToken(value))
+				// Those are resolved in a second pass once every node exists, so defer them here — but ONLY
+				// when the target is actually a reference type. A "#" string bound to a value field is not a
+				// ref: e.g. an html color "#FF0000" on a Color field, or a literal on a string field.
+				if (IsRefToken(value) && IsReferenceMember(member.ValueType))
 				{
 					s_deferredRefs.Add(new DeferredRef
 					{
@@ -971,7 +973,7 @@ namespace GuiToolkit.Editor.AiSupport
 					continue;
 				}
 
-				if (IsRefToken(pair.Value))
+				if (IsRefToken(pair.Value) && IsReferenceMember(member.ValueType))
 				{
 					s_deferredRefs.Add(new DeferredRef
 					{
@@ -992,6 +994,20 @@ namespace GuiToolkit.Editor.AiSupport
 				member.SetValue(_component, converted);
 				EditorGeneralUtility.SetDirty(_component);
 			}
+		}
+
+		// True when a member holds a Unity object reference (GameObject/Component/Object) — or an array / List<>
+		// of them. Only such members participate in "#id" deferred wiring; value members (Color, string, ...)
+		// take a "#..." token as a literal instead.
+		private static bool IsReferenceMember( Type _type )
+		{
+			Type t = _type;
+			if (t.IsArray)
+				t = t.GetElementType();
+			else if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(List<>))
+				t = t.GetGenericArguments()[0];
+
+			return t != null && typeof(UnityEngine.Object).IsAssignableFrom(t);
 		}
 
 		// A "#id" string (or an array whose elements are all "#id" strings) denotes a reference to another
