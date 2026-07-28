@@ -190,17 +190,21 @@ server.tool(
 	"the Content (a bare ScrollRect defaults to a vertical list even without it). " +
 	"To stack several components on one node (e.g. a UiView that is also a UiSimpleAnimation) add a " +
 	"\"components\" array of type names (or { type, props } objects) — no wrapper node needed. " +
-	"Call setup_status first if screens come out looking wrong.",
+	"Set preserveEdits:true on a re-bake to keep hand edits made to the existing prefab since the last bake " +
+	"(props/text that differ from the baseline and that this JSON does not itself specify are folded back in; " +
+	"warnings list what was kept). Call setup_status first if screens come out looking wrong.",
 	{
 		screen: z.union([z.string(), z.record(z.any())]).describe("The screen description (JSON object or JSON string)."),
 		outputPath: z.string().optional().describe("Where to write the prefab (full .prefab path or a folder). Overrides the default Generated folder."),
+		preserveEdits: z.boolean().optional().describe("On a re-bake, fold hand edits from the existing prefab back in so they survive (default false)."),
 	},
-	async ({ screen, outputPath }) => {
+	async ({ screen, outputPath, preserveEdits }) => {
 		try {
 			let payload;
-			if (outputPath) {
+			if (outputPath || preserveEdits) {
 				const obj = typeof screen === "string" ? JSON.parse(screen) : screen;
-				obj.outputPath = outputPath;
+				if (outputPath) obj.outputPath = outputPath;
+				if (preserveEdits) obj.preserveEdits = true;
 				payload = JSON.stringify(obj);
 			} else {
 				payload = typeof screen === "string" ? screen : JSON.stringify(screen);

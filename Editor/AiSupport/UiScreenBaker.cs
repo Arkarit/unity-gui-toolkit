@@ -114,20 +114,29 @@ namespace GuiToolkit.Editor.AiSupport
 			s_nodesById = new Dictionary<string, GameObject>(StringComparer.Ordinal);
 			s_deferredRefs = new List<DeferredRef>();
 
+			string path = ResolveOutputPath(screen, name);
+
+			// Edit-preserving re-bake (opt-in): before rebuilding, fold hand edits made to the existing prefab
+			// since the last bake back into this screen JSON, so a re-bake doesn't clobber them. Done at the
+			// JSON level (then baked fresh) — no in-place prefab surgery, so no corruption risk.
+			bool preserveEdits = (bool?)screen["preserveEdits"] ?? false;
+			if (preserveEdits)
+				ApplyEditPreservation(rootNode, path);
+
 			GameObject rootGo = null;
 			try
 			{
 				rootGo = BuildNode(rootNode, null);
 				ResolveDeferredRefs();
 
-				string path = ResolveOutputPath(screen, name);
 				EditorFileUtility.EnsureUnityFolderExists(ParentFolder(path));
 
 				var saved = PrefabUtility.SaveAsPrefabAsset(rootGo, path, out bool success);
 				if (!success || saved == null)
 					throw new Exception($"PrefabUtility.SaveAsPrefabAsset failed for '{path}'.");
 
-				WriteSourceSidecar(path, _screenJson);
+				// Sidecar = the (possibly merged) screen we actually baked → the new baseline for next time.
+				WriteSourceSidecar(path, screen.ToString());
 
 				AssetDatabase.Refresh();
 				UiLog.LogInternal($"Baked screen '{name}' → '{path}'" +
@@ -200,6 +209,127 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				UiLog.LogError($"Bake Test Dialog failed: {e.Message}\n{e.StackTrace}");
 			}
+		}
+
+		#endregion
+
+		#region Edit-preserving re-bake
+
+		// Folds hand edits made to an existing baked prefab back into the new screen JSON before it is rebuilt.
+		// "Hand edit" = a prop/text on a node that differs from the sidecar baseline (what the baker last
+		// generated) and that the NEW JSON does not itself specify. Such edits are copied into the new JSON so
+		// the fresh bake keeps them; anything the new JSON specifies wins (the author's re-bake is authoritative).
+		// Matching is by node id. No-op on a first bake (no prefab / no sidecar yet).
+		private static void ApplyEditPreservation( JObject _newRoot, string _prefabPath )
+		{
+			try
+			{
+				if (AssetDatabase.LoadAssetAtPath<GameObject>(_prefabPath) == null)
+					return; // first bake — nothing to preserve
+
+				string sidecarPath = SidecarPathFor(_prefabPath);
+				if (!System.IO.File.Exists(System.IO.Path.GetFullPath(sidecarPath)))
+				{
+					Warn($"preserveEdits: no baseline sidecar for '{_prefabPath}'; cannot tell hand edits apart, skipping preservation.");
+					return;
+				}
+
+				var baselineRoot = JObject.Parse(System.IO.File.ReadAllText(System.IO.Path.GetFullPath(sidecarPath)))["root"] as JObject;
+				var currentRoot = UiScreenReader.Read(_prefabPath, "structural").screen["root"] as JObject;
+				if (baselineRoot == null || currentRoot == null)
+					return;
+
+				MergePreservedEdits(_newRoot, baselineRoot, currentRoot);
+			}
+			catch (Exception e)
+			{
+				Warn($"preserveEdits failed ('{e.Message}'); baking the screen as given without preservation.");
+			}
+		}
+
+		/// <summary>
+		/// The pure JSON merge behind <c>preserveEdits</c> (exposed for testing): folds hand edits — props/text/
+		/// style present in <paramref name="_currentRoot"/> that differ from <paramref name="_baselineRoot"/>
+		/// and that <paramref name="_newRoot"/> does not itself specify — into <paramref name="_newRoot"/>,
+		/// matching nodes by id. The new JSON always wins where it specifies a value.
+		/// </summary>
+		public static void MergePreservedEdits( JObject _newRoot, JObject _baselineRoot, JObject _currentRoot )
+		{
+			var baselineById = new Dictionary<string, JObject>(StringComparer.Ordinal);
+			var currentById = new Dictionary<string, JObject>(StringComparer.Ordinal);
+			IndexById(_baselineRoot, baselineById);
+			IndexById(_currentRoot, currentById);
+
+			MergeNode(_newRoot, baselineById, currentById);
+		}
+
+		private static void IndexById( JObject _node, Dictionary<string, JObject> _map )
+		{
+			string id = (string)_node["id"];
+			if (!string.IsNullOrEmpty(id))
+				_map[id] = _node;
+			if (_node["children"] is JArray children)
+				foreach (var child in children.OfType<JObject>())
+					IndexById(child, _map);
+		}
+
+		private static void MergeNode( JObject _newNode, Dictionary<string, JObject> _baselineById, Dictionary<string, JObject> _currentById )
+		{
+			string id = (string)_newNode["id"];
+			if (!string.IsNullOrEmpty(id) && _currentById.TryGetValue(id, out var current))
+			{
+				_baselineById.TryGetValue(id, out var baseline);
+				PreserveProps(_newNode, baseline, current, id);
+				PreserveScalar(_newNode, baseline, current, "text", id);
+				PreserveScalar(_newNode, baseline, current, "style", id);
+			}
+
+			if (_newNode["children"] is JArray children)
+				foreach (var child in children.OfType<JObject>())
+					MergeNode(child, _baselineById, _currentById);
+		}
+
+		// Copies props that were hand-edited (differ from baseline) and that the new node does not specify.
+		private static void PreserveProps( JObject _newNode, JObject _baseline, JObject _current, string _id )
+		{
+			if (_current["props"] is not JObject currentProps)
+				return;
+			var baselineProps = _baseline?["props"] as JObject;
+			var newProps = _newNode["props"] as JObject;
+
+			foreach (var pair in currentProps)
+			{
+				if (newProps != null && newProps.ContainsKey(pair.Key))
+					continue; // the re-bake specifies it — author wins
+
+				bool handEdited = baselineProps == null
+					|| !baselineProps.ContainsKey(pair.Key)
+					|| !JToken.DeepEquals(baselineProps[pair.Key], pair.Value);
+				if (!handEdited)
+					continue; // unchanged from what the baker generated — not a hand edit
+
+				if (newProps == null)
+				{
+					newProps = new JObject();
+					_newNode["props"] = newProps;
+				}
+				newProps[pair.Key] = pair.Value.DeepClone();
+				Warn($"preserveEdits: kept hand-edited prop '{pair.Key}' on node '{_id}'.");
+			}
+		}
+
+		private static void PreserveScalar( JObject _newNode, JObject _baseline, JObject _current, string _field, string _id )
+		{
+			var currentVal = _current[_field];
+			if (currentVal == null || currentVal.Type == JTokenType.Null)
+				return;
+			if (_newNode[_field] != null)
+				return; // author specified it — wins
+			if (_baseline != null && JToken.DeepEquals(_baseline[_field], currentVal))
+				return; // unchanged from baseline — generated, not hand-edited
+
+			_newNode[_field] = currentVal.DeepClone();
+			Warn($"preserveEdits: kept hand-edited '{_field}' on node '{_id}'.");
 		}
 
 		#endregion

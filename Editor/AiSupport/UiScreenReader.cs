@@ -390,32 +390,29 @@ namespace GuiToolkit.Editor.AiSupport
 		{
 			var props = new JObject();
 
-			if (_isTemplate)
+			// Authored props = fields whose value differs from a REFERENCE. For a template that reference is
+			// the instance's source component (so overrides = exactly what the author changed — robust, no
+			// dependence on PrefabUtility's modification-target matching); for an element it is a fresh default
+			// of the component type. Only the node's own root-GO components are considered (deep overrides are
+			// not re-bakeable as node props). Object-ref props are read only for elements — a template's
+			// internal refs are neither authored intent nor re-bakeable.
+			var components = _isTemplate
+				? _go.GetComponents<Component>().Where(c => c != null && IsAuthorableComponent(c)).ToList()
+				: _authorable;
+
+			foreach (var component in components)
 			{
-				// Authored props of a template = the instance's property overrides. Emit one entry per
-				// overridden serialized field (skipping the parts handled elsewhere: transform, text, style).
-				var overrides = OverriddenFieldsByComponent(_go);
-				foreach (var kv in overrides)
+				Component reference = _isTemplate
+					? PrefabUtility.GetCorrespondingObjectFromSource(component) as Component
+					: GetDefaultComponent(component.GetType());
+
+				foreach (var field in SerializedFields(component.GetType()))
 				{
-					var component = kv.Key as Component;
-					if (component == null || !IsAuthorableComponent(component))
+					if (_isTemplate && IsObjectRefType(field.FieldType))
 						continue;
-					foreach (var fieldName in kv.Value)
-						TryEmitField(component, fieldName, props);
-				}
-			}
-			else
-			{
-				// Authored props of an element = fields that differ from a fresh default of the component.
-				foreach (var component in _authorable)
-				{
-					var def = GetDefaultComponent(component.GetType());
-					foreach (var field in SerializedFields(component.GetType()))
-					{
-						if (def != null && ValuesEqual(field.GetValue(component), field.GetValue(def)))
-							continue;
-						TryEmitField(component, field.Name, props);
-					}
+					if (reference != null && ValuesEqual(field.GetValue(component), field.GetValue(reference)))
+						continue;
+					TryEmitField(component, field.Name, props);
 				}
 			}
 
@@ -600,8 +597,12 @@ namespace GuiToolkit.Editor.AiSupport
 				return null;
 
 			// On a template node only report the style if it was overridden (else it is the template's own).
-			if (_isTemplate && !HasAnyOverride(_go, applier))
-				return null;
+			if (_isTemplate)
+			{
+				var src = PrefabUtility.GetCorrespondingObjectFromSource(applier) as UiAbstractApplyStyleBase;
+				if (src != null && src.Name == applier.Name)
+					return null;
+			}
 
 			return string.IsNullOrEmpty(applier.Name) ? null : applier.Name;
 		}
@@ -612,8 +613,10 @@ namespace GuiToolkit.Editor.AiSupport
 			if (localized == null)
 				return null;
 
-			// On a template only report text that was overridden (else it is the template default).
-			if (_isTemplate && !HasAnyOverride(_go, localized))
+			// On a template only report text that was overridden (else it is the template default). Detect the
+			// override by comparing the instance's text/loca fields to its source component — robust across
+			// nested prefabs, unlike matching PrefabUtility modification targets by reference.
+			if (_isTemplate && !TextIsOverridden(localized))
 				return null;
 
 			bool isTranslated = GetPrivate<bool>(localized, "m_isTranslated");
@@ -622,6 +625,17 @@ namespace GuiToolkit.Editor.AiSupport
 
 			string key = GetPrivate<string>(localized, "m_locaKey");
 			return string.IsNullOrEmpty(key) ? null : "@loca:" + key;
+		}
+
+		private static bool TextIsOverridden( UiLocalizedTextMeshProUGUI _instance )
+		{
+			var src = PrefabUtility.GetCorrespondingObjectFromSource(_instance) as UiLocalizedTextMeshProUGUI;
+			if (src == null)
+				return true; // not from a template source → authored
+
+			return GetPrivate<bool>(_instance, "m_isTranslated") != GetPrivate<bool>(src, "m_isTranslated")
+			    || GetPrivate<string>(_instance, "m_locaKey") != GetPrivate<string>(src, "m_locaKey")
+			    || (_instance.text ?? "") != (src.text ?? "");
 		}
 
 		// The text component that belongs to THIS node's own scope — i.e. not inside a descendant authored
@@ -675,44 +689,6 @@ namespace GuiToolkit.Editor.AiSupport
 
 			scroll["fit"] = content.GetComponent<ContentSizeFitter>() != null;
 			return scroll;
-		}
-
-		#endregion
-
-		#region Override helpers
-
-		// field-name set per overridden component of a template instance.
-		private static Dictionary<UnityEngine.Object, HashSet<string>> OverriddenFieldsByComponent( GameObject _instanceRoot )
-		{
-			var result = new Dictionary<UnityEngine.Object, HashSet<string>>();
-			var mods = PrefabUtility.GetPropertyModifications(_instanceRoot);
-			if (mods == null)
-				return result;
-
-			foreach (var mod in mods)
-			{
-				if (mod?.target == null || string.IsNullOrEmpty(mod.propertyPath))
-					continue;
-
-				// propertyPath is e.g. "m_locaKey" or "m_someArray.Array.data[0]" — take the leading field.
-				string field = mod.propertyPath;
-				int dot = field.IndexOf('.');
-				if (dot > 0)
-					field = field.Substring(0, dot);
-
-				if (!result.TryGetValue(mod.target, out var set))
-					result[mod.target] = set = new HashSet<string>(StringComparer.Ordinal);
-				set.Add(field);
-			}
-			return result;
-		}
-
-		private static bool HasAnyOverride( GameObject _instanceRoot, UnityEngine.Object _target )
-		{
-			var mods = PrefabUtility.GetPropertyModifications(_instanceRoot);
-			if (mods == null)
-				return false;
-			return mods.Any(m => m?.target == _target);
 		}
 
 		#endregion
