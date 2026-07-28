@@ -180,9 +180,12 @@ server.tool(
 	"folder the screen name is appended to) so 'edit → re-bake' keeps hitting the same asset after you move " +
 	"it; it can also be a top-level field in the screen JSON. " +
 	"WORKFLOW: finish the visual layout first, THEN wire references — a re-bake rebuilds the prefab and " +
-	"drops anything you set by hand. The baker does NOT yet set component references (m_target, " +
-	"m_closeButtons, animation slaves), AnimationCurves, or a ScrollRect's Content height — do those in a " +
-	"separate step after the layout is final. Call setup_status first if screens come out looking wrong.",
+	"drops anything you set by hand. The baker DOES resolve component references via \"#id\" props " +
+	"(m_target, m_closeButtons, animation slaves — a \"#nodeId\" string, or an array of them for a list/array " +
+	"field) and AnimationCurve props (a preset name \"linear\"/\"easeInOut\"/\"constant\", an object " +
+	"{ preset, from:[time,value], to:[time,value] }, or a keyframe list [ { time, value, inTangent?, outTangent? } ]). " +
+	"Still NOT automatic: a ScrollRect's Content height (add a ContentSizeFitter/layout yourself) and putting more " +
+	"than one component on a single node (use a wrapper node). Call setup_status first if screens come out looking wrong.",
 	{
 		screen: z.union([z.string(), z.record(z.any())]).describe("The screen description (JSON object or JSON string)."),
 		outputPath: z.string().optional().describe("Where to write the prefab (full .prefab path or a folder). Overrides the default Generated folder."),

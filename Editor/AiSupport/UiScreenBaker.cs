@@ -700,6 +700,8 @@ namespace GuiToolkit.Editor.AiSupport
 				if (_type == typeof(Vector3)) { var v = Floats(_token, 3); _result = new Vector3(v[0], v[1], v[2]); return true; }
 				if (_type == typeof(Vector4)) { var v = Floats(_token, 4); _result = new Vector4(v[0], v[1], v[2], v[3]); return true; }
 
+				if (_type == typeof(AnimationCurve)) { _result = ParseAnimationCurve(_token); return _result != null; }
+
 				if (typeof(Sprite).IsAssignableFrom(_type))
 				{
 					_result = AssetDatabase.LoadAssetAtPath<Sprite>((string)_token);
@@ -742,6 +744,88 @@ namespace GuiToolkit.Editor.AiSupport
 				return result;
 			}
 			throw new FormatException("Expected a JSON array of numbers.");
+		}
+
+		// Parses an AnimationCurve from one of three author-friendly shapes:
+		//   • a preset name string: "linear" / "easeInOut" / "constant" (default over the 0→1 range);
+		//   • an object { "preset": "...", "from": [time, value], "to": [time, value], "preWrapMode"?, "postWrapMode"? };
+		//   • a keyframe list — a bare array [ { "time", "value", "inTangent"?, "outTangent"? }, … ],
+		//     or an object { "keys": [ … ], "preWrapMode"?, "postWrapMode"? } for full control.
+		// [time, value] pairs map x→time, y→value. Throws (→ non-fatal "cannot convert" warning) on
+		// malformed input, matching the other TryConvert helpers.
+		private static AnimationCurve ParseAnimationCurve( JToken _token )
+		{
+			if (_token.Type == JTokenType.String)
+				return PresetCurve((string)_token, new Vector2(0f, 0f), new Vector2(1f, 1f));
+
+			if (_token is JArray keyArray)
+				return CurveFromKeys(keyArray);
+
+			if (_token is JObject obj)
+			{
+				if (obj["keys"] is JArray keys)
+				{
+					var byKeys = CurveFromKeys(keys);
+					ApplyWrapModes(byKeys, obj);
+					return byKeys;
+				}
+
+				string preset = (string)obj["preset"];
+				if (!string.IsNullOrEmpty(preset))
+				{
+					Vector2 from = obj["from"] is JArray f ? Vec2(f, new Vector2(0f, 0f)) : new Vector2(0f, 0f);
+					Vector2 to = obj["to"] is JArray t ? Vec2(t, new Vector2(1f, 1f)) : new Vector2(1f, 1f);
+					var byPreset = PresetCurve(preset, from, to);
+					ApplyWrapModes(byPreset, obj);
+					return byPreset;
+				}
+			}
+
+			throw new FormatException("AnimationCurve must be a preset name, a { preset, from, to } object, or a keyframe list.");
+		}
+
+		private static AnimationCurve PresetCurve( string _preset, Vector2 _from, Vector2 _to )
+		{
+			string p = new string(_preset.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+			return p switch
+			{
+				"linear"                          => AnimationCurve.Linear(_from.x, _from.y, _to.x, _to.y),
+				"easeinout" or "ease" or "smooth" => AnimationCurve.EaseInOut(_from.x, _from.y, _to.x, _to.y),
+				"constant"                        => AnimationCurve.Constant(_from.x, _to.x, _to.y),
+				_ => throw new FormatException($"Unknown AnimationCurve preset '{_preset}' (use linear / easeInOut / constant)."),
+			};
+		}
+
+		private static AnimationCurve CurveFromKeys( JArray _keys )
+		{
+			var frames = new List<Keyframe>();
+			foreach (var k in _keys.OfType<JObject>())
+			{
+				float time = k["time"] != null ? (float)k["time"] : 0f;
+				float value = k["value"] != null ? (float)k["value"] : 0f;
+				float inTangent = k["inTangent"] != null ? (float)k["inTangent"] : 0f;
+				float outTangent = k["outTangent"] != null ? (float)k["outTangent"] : 0f;
+				frames.Add(new Keyframe(time, value, inTangent, outTangent));
+			}
+
+			if (frames.Count == 0)
+				throw new FormatException("AnimationCurve keyframe list is empty.");
+
+			return new AnimationCurve(frames.ToArray());
+		}
+
+		private static void ApplyWrapModes( AnimationCurve _curve, JObject _obj )
+		{
+			if (TryParseWrapMode((string)_obj["preWrapMode"], out var pre))
+				_curve.preWrapMode = pre;
+			if (TryParseWrapMode((string)_obj["postWrapMode"], out var post))
+				_curve.postWrapMode = post;
+		}
+
+		private static bool TryParseWrapMode( string _value, out WrapMode _mode )
+		{
+			_mode = WrapMode.Default;
+			return !string.IsNullOrEmpty(_value) && Enum.TryParse(_value, true, out _mode);
 		}
 
 		#endregion
