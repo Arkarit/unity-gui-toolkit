@@ -58,9 +58,33 @@ namespace GuiToolkit.Editor.AiSupport
 		private struct DeferredRef
 		{
 			public Component component;
-			public FieldInfo field;
+			public MemberRef member;
 			public JToken value;
 			public string ownerName;
+		}
+
+		// A settable member on a component — either a serialized field (the overwhelming majority) or a C#
+		// property (native components like CanvasGroup have no reflectable fields, only properties). Lets the
+		// baker write both through one path.
+		private readonly struct MemberRef
+		{
+			public readonly FieldInfo Field;
+			public readonly PropertyInfo Property;
+
+			public MemberRef( FieldInfo _field ) { Field = _field; Property = null; }
+			public MemberRef( PropertyInfo _property ) { Field = null; Property = _property; }
+
+			public bool IsValid => Field != null || Property != null;
+			public Type ValueType => Field != null ? Field.FieldType : Property.PropertyType;
+			public string Name => Field != null ? Field.Name : Property.Name;
+
+			public void SetValue( object _target, object _value )
+			{
+				if (Field != null)
+					Field.SetValue(_target, _value);
+				else
+					Property.SetValue(_target, _value);
+			}
 		}
 
 		private static void Warn( string _message )
@@ -851,8 +875,8 @@ namespace GuiToolkit.Editor.AiSupport
 				string key = pair.Key;
 				JToken value = pair.Value;
 
-				var (component, field) = FindSerializedField(_go, key);
-				if (field == null)
+				var (component, member) = FindSerializedField(_go, key);
+				if (!member.IsValid)
 				{
 					Warn($"Prop '{key}' not found on '{_go.name}'; skipped.");
 					continue;
@@ -865,20 +889,20 @@ namespace GuiToolkit.Editor.AiSupport
 					s_deferredRefs.Add(new DeferredRef
 					{
 						component = component,
-						field = field,
+						member = member,
 						value = value,
 						ownerName = _go.name,
 					});
 					continue;
 				}
 
-				if (!TryConvert(value, field.FieldType, out object converted))
+				if (!TryConvert(value, member.ValueType, out object converted))
 				{
-					Warn($"Prop '{key}' on '{_go.name}': cannot convert value to {field.FieldType.Name}; skipped.");
+					Warn($"Prop '{key}' on '{_go.name}': cannot convert value to {member.ValueType.Name}; skipped.");
 					continue;
 				}
 
-				field.SetValue(component, converted);
+				member.SetValue(component, converted);
 				EditorGeneralUtility.SetDirty(component);
 			}
 		}
@@ -940,8 +964,8 @@ namespace GuiToolkit.Editor.AiSupport
 		{
 			foreach (var pair in _props)
 			{
-				var field = FindFieldOnComponent(_component, pair.Key);
-				if (field == null)
+				var member = FindMemberOnComponent(_component, pair.Key);
+				if (!member.IsValid)
 				{
 					Warn($"Prop '{pair.Key}' not found on {_component.GetType().Name} ('{_component.gameObject.name}'); skipped.");
 					continue;
@@ -952,20 +976,20 @@ namespace GuiToolkit.Editor.AiSupport
 					s_deferredRefs.Add(new DeferredRef
 					{
 						component = _component,
-						field = field,
+						member = member,
 						value = pair.Value,
 						ownerName = _component.gameObject.name,
 					});
 					continue;
 				}
 
-				if (!TryConvert(pair.Value, field.FieldType, out object converted))
+				if (!TryConvert(pair.Value, member.ValueType, out object converted))
 				{
-					Warn($"Prop '{pair.Key}' on {_component.GetType().Name} ('{_component.gameObject.name}'): cannot convert value to {field.FieldType.Name}; skipped.");
+					Warn($"Prop '{pair.Key}' on {_component.GetType().Name} ('{_component.gameObject.name}'): cannot convert value to {member.ValueType.Name}; skipped.");
 					continue;
 				}
 
-				field.SetValue(_component, converted);
+				member.SetValue(_component, converted);
 				EditorGeneralUtility.SetDirty(_component);
 			}
 		}
@@ -996,16 +1020,16 @@ namespace GuiToolkit.Editor.AiSupport
 
 		private static void ResolveSingleRef( DeferredRef _deferred, string _ref )
 		{
-			var resolved = ResolveRef(_ref, _deferred.field.FieldType, _deferred.ownerName);
+			var resolved = ResolveRef(_ref, _deferred.member.ValueType, _deferred.ownerName);
 			if (resolved == null)
 				return;
-			_deferred.field.SetValue(_deferred.component, resolved);
+			_deferred.member.SetValue(_deferred.component, resolved);
 			EditorGeneralUtility.SetDirty(_deferred.component);
 		}
 
 		private static void ResolveRefList( DeferredRef _deferred, JArray _refs )
 		{
-			Type fieldType = _deferred.field.FieldType;
+			Type fieldType = _deferred.member.ValueType;
 			Type elementType =
 				fieldType.IsArray ? fieldType.GetElementType() :
 				fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(List<>) ? fieldType.GetGenericArguments()[0] :
@@ -1013,7 +1037,7 @@ namespace GuiToolkit.Editor.AiSupport
 
 			if (elementType == null)
 			{
-				Warn($"Reference list on '{_deferred.ownerName}.{_deferred.field.Name}' skipped: field is not an array or List<>.");
+				Warn($"Reference list on '{_deferred.ownerName}.{_deferred.member.Name}' skipped: field is not an array or List<>.");
 				return;
 			}
 
@@ -1030,14 +1054,14 @@ namespace GuiToolkit.Editor.AiSupport
 				var array = Array.CreateInstance(elementType, resolved.Count);
 				for (int i = 0; i < resolved.Count; i++)
 					array.SetValue(resolved[i], i);
-				_deferred.field.SetValue(_deferred.component, array);
+				_deferred.member.SetValue(_deferred.component, array);
 			}
 			else
 			{
 				var list = (System.Collections.IList)Activator.CreateInstance(fieldType);
 				foreach (var obj in resolved)
 					list.Add(obj);
-				_deferred.field.SetValue(_deferred.component, list);
+				_deferred.member.SetValue(_deferred.component, list);
 			}
 			EditorGeneralUtility.SetDirty(_deferred.component);
 		}
@@ -1069,25 +1093,26 @@ namespace GuiToolkit.Editor.AiSupport
 			return null;
 		}
 
-		// Resolves an authoring name ("layer") or raw field name ("m_layer") to a serialized field on
-		// any component of the GameObject, searching the most-derived declarations first.
-		private static (Component, FieldInfo) FindSerializedField( GameObject _go, string _key )
+		// Resolves an authoring name ("layer") or raw field name ("m_layer") to a settable member (serialized
+		// field or property) on any component of the GameObject, searching the most-derived declarations first.
+		private static (Component, MemberRef) FindSerializedField( GameObject _go, string _key )
 		{
 			foreach (var component in _go.GetComponents<Component>())
 			{
 				if (component == null)
 					continue;
 
-				var field = FindFieldOnComponent(component, _key);
-				if (field != null)
-					return (component, field);
+				var member = FindMemberOnComponent(component, _key);
+				if (member.IsValid)
+					return (component, member);
 			}
-			return (null, null);
+			return (null, default);
 		}
 
 		// The single-component half of FindSerializedField: resolves an authoring name ("layer") or raw
-		// field name ("m_layer") to a serialized field on this one component, most-derived declaration first.
-		private static FieldInfo FindFieldOnComponent( Component _component, string _key )
+		// field name ("m_layer") to a settable member on this one component, most-derived declaration first.
+		// A serialized field is preferred; a C# property is the fallback for native components (CanvasGroup).
+		private static MemberRef FindMemberOnComponent( Component _component, string _key )
 		{
 			string mKey = _key.StartsWith("m_", StringComparison.Ordinal) ? _key : "m_" + _key;
 
@@ -1098,10 +1123,26 @@ namespace GuiToolkit.Editor.AiSupport
 				foreach (var f in fields)
 				{
 					if (f.Name == _key || f.Name == mKey)
-						return f;
+						return new MemberRef(f);
 				}
 			}
-			return null;
+
+			// Property fallback: match the authoring name directly (properties carry no "m_" prefix), e.g.
+			// CanvasGroup.alpha / interactable / blocksRaycasts. Only writable, non-indexed properties.
+			for (var t = _component.GetType(); t != null && t != typeof(object); t = t.BaseType)
+			{
+				var properties = t.GetProperties(BindingFlags.Instance | BindingFlags.Public |
+				                                 BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+				foreach (var p in properties)
+				{
+					if (!p.CanWrite || p.GetIndexParameters().Length > 0)
+						continue;
+					if (string.Equals(p.Name, _key, StringComparison.Ordinal))
+						return new MemberRef(p);
+				}
+			}
+
+			return default;
 		}
 
 		private static bool TryConvert( JToken _token, Type _type, out object _result )

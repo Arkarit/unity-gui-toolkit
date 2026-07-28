@@ -154,6 +154,10 @@ namespace GuiToolkit.Editor.AiSupport
 				foreach (var type in types)
 					catalog.components.Add(BuildComponent(type));
 
+				// Raw UGUI/Unity building blocks (Image, ScrollRect, CanvasGroup, ...) via the allow-list —
+				// they don't start with "Ui" so the reflection scan above never sees them.
+				CollectUnityTypes(catalog);
+
 				catalog.components = catalog.components
 					.OrderBy(c => c.category, StringComparer.Ordinal)
 					.ThenBy(c => c.type, StringComparer.Ordinal)
@@ -416,7 +420,9 @@ namespace GuiToolkit.Editor.AiSupport
 		/// <summary>Logs which authorable components still lack a <c>/// &lt;summary&gt;</c>, to nudge documentation.</summary>
 		private static void WarnMissingDescriptions( UiScreenCatalog _catalog )
 		{
-			var missing = _catalog.components
+			// Raw UGUI/Unity types (unityType set) never have a toolkit /// <summary>, so don't nag about them.
+			var toolkitComponents = _catalog.components.Where(c => string.IsNullOrEmpty(c.unityType)).ToList();
+			var missing = toolkitComponents
 				.Where(c => string.IsNullOrEmpty(c.description))
 				.Select(c => c.type)
 				.OrderBy(t => t, StringComparer.Ordinal)
@@ -425,7 +431,7 @@ namespace GuiToolkit.Editor.AiSupport
 			if (missing.Count == 0)
 				return;
 
-			UiLog.LogWarning($"AI catalog: {missing.Count}/{_catalog.components.Count} authorable components have no " +
+			UiLog.LogWarning($"AI catalog: {missing.Count}/{toolkitComponents.Count} authorable components have no " +
 			                 $"/// <summary> doc comment (no description for the authoring AI):\n  {string.Join(", ", missing)}");
 		}
 
@@ -643,6 +649,131 @@ namespace GuiToolkit.Editor.AiSupport
 					break;
 				}
 			}
+		}
+
+		#endregion
+
+		#region UnityTypes
+
+		/// <summary>
+		/// Adds the raw UGUI/Unity building blocks from the allow-list (<see cref="UiAuthorableUnityTypesConfig"/>)
+		/// as authorable components. These don't start with "Ui" so the reflection scan skips them, yet the baker
+		/// can build them (element type → AddComponent). Each carries a <c>unityType</c> and an optional
+		/// <c>prefer</c> wrapper hint.
+		/// </summary>
+		private static void CollectUnityTypes( UiScreenCatalog _catalog )
+		{
+			var seen = new HashSet<string>(_catalog.components.Select(c => c.fullName), StringComparer.Ordinal);
+
+			foreach (var entry in UiAuthorableUnityTypesConfig.EffectiveEntries())
+			{
+				if (entry == null || entry.hidden || string.IsNullOrEmpty(entry.unityType))
+					continue;
+
+				var type = ResolveUnityType(entry.unityType);
+				if (type == null)
+				{
+					UiLog.LogWarning($"AI catalog: authorable Unity type '{entry.unityType}' could not be resolved; skipped.");
+					continue;
+				}
+				if (!typeof(Component).IsAssignableFrom(type))
+				{
+					UiLog.LogWarning($"AI catalog: authorable Unity type '{entry.unityType}' ({type.FullName}) is not a Component; skipped.");
+					continue;
+				}
+				if (!seen.Add(type.FullName))
+					continue; // already catalogued — don't duplicate
+
+				_catalog.components.Add(BuildUnityTypeComponent(type, entry));
+			}
+		}
+
+		// Resolves a config entry's type name — full name preferred (e.g. "UnityEngine.UI.Image"),
+		// with a short-name fallback ("Image") for convenience.
+		private static Type ResolveUnityType( string _name )
+		{
+			if (string.IsNullOrEmpty(_name))
+				return null;
+
+			foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+			{
+				Type t;
+				try { t = asm.GetType(_name, false); }
+				catch { t = null; }
+				if (t != null)
+					return t;
+			}
+
+			foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+				foreach (var t in SafeGetTypes(asm))
+					if (t.Name == _name)
+						return t;
+
+			return null;
+		}
+
+		private static UiCatalogComponent BuildUnityTypeComponent( Type _type, UiAuthorableUnityTypesConfig.Entry _entry )
+		{
+			var component = new UiCatalogComponent
+			{
+				type = _type.Name,
+				fullName = _type.FullName,
+				assembly = _type.Assembly.GetName().Name,
+				category = !string.IsNullOrEmpty(_entry.category) ? _entry.category : ClassifyCategory(_type),
+				unityType = _type.FullName,
+				prefer = _entry.prefer ?? "",
+				isRoot = false,
+				requiresComponents = CollectRequiredComponents(_type),
+				styles = SafeStyleNames(_type),
+			};
+
+			CollectFields(_type, component);
+
+			// Native Unity components (CanvasGroup, ...) have no reflectable serialized fields — their
+			// authorable data lives on C# properties. Fall back to public read/write properties so they
+			// still expose a usable vocabulary (props are tagged member="property" for the baker).
+			if (component.props.Count == 0 && component.events.Count == 0)
+				CollectProperties(_type, component);
+
+			ResolveContentField(_type, component);
+			return component;
+		}
+
+		// Public read/write instance properties declared on the type (up to, but excluding, the Unity
+		// framework base types). Used only as the field-reflection fallback for native components.
+		private static void CollectProperties( Type _type, UiCatalogComponent _component )
+		{
+			for (var t = _type; !IsFrameworkType(t); t = t.BaseType)
+			{
+				var properties = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+				foreach (var p in properties)
+				{
+					if (!p.CanRead || !p.CanWrite || p.GetIndexParameters().Length > 0)
+						continue;
+					if (p.GetCustomAttribute<ObsoleteAttribute>() != null)
+						continue;
+
+					var prop = new UiCatalogProp
+					{
+						name = p.Name,
+						field = p.Name,
+						member = "property",
+						tooltip = p.GetCustomAttribute<TooltipAttribute>()?.tooltip ?? "",
+					};
+					ClassifyValue(p.PropertyType, prop);
+					_component.props.Add(prop);
+				}
+			}
+		}
+
+		private static bool IsFrameworkType( Type _t )
+		{
+			return _t == null
+			    || _t == typeof(object)
+			    || _t == typeof(Component)
+			    || _t == typeof(Behaviour)
+			    || _t == typeof(MonoBehaviour)
+			    || _t == typeof(UnityEngine.Object);
 		}
 
 		#endregion

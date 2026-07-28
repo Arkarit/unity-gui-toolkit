@@ -108,6 +108,19 @@ namespace GuiToolkit.Editor.AiSupport
 		/// <summary>Assembly the component is declared in — lets the agent tell toolkit from client types.</summary>
 		public string assembly = "";
 
+		/// <summary>
+		/// For raw UGUI/Unity building blocks pulled in via the allow-list (Image, ScrollRect, CanvasGroup, ...):
+		/// the underlying Unity type's full name. Empty for the toolkit's own <c>Ui*</c> components.
+		/// </summary>
+		public string unityType = "";
+
+		/// <summary>
+		/// Optional steering hint: the name of a toolkit wrapper the author should usually prefer over this
+		/// raw type (e.g. <c>ScrollRect</c> → <c>UiScrollRect</c>). Advisory only — the raw type stays fully
+		/// authorable. Empty when there is no wrapper.
+		/// </summary>
+		public string prefer = "";
+
 		/// <summary>Heuristic category (Root/Container/Layout/Input/Text/Graphic/Modifier/Loca/Widget/...).</summary>
 		public string category = "";
 
@@ -142,8 +155,15 @@ namespace GuiToolkit.Editor.AiSupport
 		/// <summary>Authoring name (serialized field with a leading "m_" stripped).</summary>
 		public string name = "";
 
-		/// <summary>Actual serialized field name the baker writes to.</summary>
+		/// <summary>Actual serialized field / property name the baker writes to.</summary>
 		public string field = "";
+
+		/// <summary>
+		/// How the baker writes this prop: "field" (a serialized field, the default and overwhelming majority)
+		/// or "property" (a C# property setter — used for native Unity components like CanvasGroup that have no
+		/// reflectable serialized fields, only properties).
+		/// </summary>
+		public string member = "field";
 
 		/// <summary>
 		/// Value kind: string, bool, int, float, enum, color, vector2, vector3, vector4,

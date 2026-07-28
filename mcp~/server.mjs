@@ -174,7 +174,12 @@ server.tool(
 	"bake_screen",
 	"Bake a screen description into a real Unity .prefab asset. 'screen' is the screen JSON " +
 	"(see get_catalog for the component/template vocabulary): { name, root: { type|template, id, " +
-	"props, style, text, children[] } }. Returns { path, warnings }: 'warnings' lists non-fatal issues " +
+	"props, style, text, children[] } }. The 'type' vocabulary is both the toolkit's Ui* components AND " +
+		"raw UGUI/Unity building blocks exposed via an allow-list (Image, RawImage, Button, ScrollRect, Mask, " +
+		"RectMask2D, LayoutElement, ContentSizeFitter, AspectRatioFitter, the LayoutGroups, CanvasGroup, ...); " +
+		"their catalog entries carry a 'unityType' plus an optional 'prefer' hint naming a toolkit wrapper you " +
+		"should usually use instead (e.g. ScrollRect → UiScrollRect). CanvasGroup props (alpha/interactable/...) " +
+		"bake via property setters like any other prop. Returns { path, warnings }: 'warnings' lists non-fatal issues " +
 	"(dropped props, templates that resolved to a different prefab, unresolved text) — read it to fix the " +
 	"screen without having to screenshot and guess. Optionally pin 'outputPath' (a full .prefab path, or a " +
 	"folder the screen name is appended to) so 'edit → re-bake' keeps hitting the same asset after you move " +
