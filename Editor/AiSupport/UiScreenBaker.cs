@@ -127,6 +127,8 @@ namespace GuiToolkit.Editor.AiSupport
 				if (!success || saved == null)
 					throw new Exception($"PrefabUtility.SaveAsPrefabAsset failed for '{path}'.");
 
+				WriteSourceSidecar(path, _screenJson);
+
 				AssetDatabase.Refresh();
 				UiLog.LogInternal($"Baked screen '{name}' → '{path}'" +
 					(s_warnings.Count > 0 ? $" ({s_warnings.Count} warning(s))." : "."));
@@ -158,6 +160,30 @@ namespace GuiToolkit.Editor.AiSupport
 		{
 			int slash = _assetPath.LastIndexOf('/');
 			return slash > 0 ? _assetPath.Substring(0, slash) : "Assets";
+		}
+
+		// Project-relative suffix of the source-JSON sidecar written next to each baked prefab.
+		private const string SidecarSuffix = ".screen.src.json";
+
+		/// <summary>The source-JSON sidecar path for a baked prefab (e.g. Foo.prefab → Foo.screen.src.json).</summary>
+		public static string SidecarPathFor( string _prefabPath )
+			=> _prefabPath.Substring(0, _prefabPath.Length - ".prefab".Length) + SidecarSuffix;
+
+		// Writes the screen JSON next to the baked prefab. This is the authoritative "last generated" baseline
+		// the edit-preserving re-bake diffs against to tell hand edits apart from generated structure.
+		private static void WriteSourceSidecar( string _prefabPath, string _screenJson )
+		{
+			try
+			{
+				string content;
+				try { content = JObject.Parse(_screenJson).ToString(Newtonsoft.Json.Formatting.Indented); }
+				catch { content = _screenJson; }
+				System.IO.File.WriteAllText(System.IO.Path.GetFullPath(SidecarPathFor(_prefabPath)), content);
+			}
+			catch (Exception e)
+			{
+				Warn($"Could not write source sidecar for '{_prefabPath}': {e.Message}");
+			}
 		}
 
 		[MenuItem(StringConstants.AI_BAKE_TEST_DIALOG_MENU_NAME)]

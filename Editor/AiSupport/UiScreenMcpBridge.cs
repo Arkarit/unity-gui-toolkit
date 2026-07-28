@@ -266,6 +266,16 @@ namespace GuiToolkit.Editor.AiSupport
 					return new JObject { ["path"] = bakeResult.path, ["warnings"] = warnings }
 						.ToString(Newtonsoft.Json.Formatting.None);
 
+				case "readScreen":
+					if (string.IsNullOrWhiteSpace(_payload))
+						throw new Exception("readScreen requires a 'payload' holding the prefab path.");
+					var readResult = UiScreenReader.Read(ReadScreenPath(_payload), ReadScreenSource(_payload));
+					var readWarnings = new JArray();
+					foreach (var w in readResult.warnings)
+						readWarnings.Add(w);
+					return new JObject { ["screen"] = readResult.screen, ["warnings"] = readWarnings }
+						.ToString(Newtonsoft.Json.Formatting.None);
+
 				case "screenshotView":
 					return Screenshot(_payload);
 
@@ -325,6 +335,30 @@ namespace GuiToolkit.Editor.AiSupport
 		/// <c>key</c> is an EStandardElement name (toolkit built-in) or any custom id (client element).
 		/// The batch is tagged base-before-variant internally, so a client can safely pass a whole set.
 		/// </summary>
+		// readScreen's payload is either a bare prefab path or a small { "path": "..." } JSON envelope.
+		private static string ReadScreenPath( string _payload )
+		{
+			string trimmed = _payload.Trim();
+			if (trimmed.StartsWith("{"))
+			{
+				string path = (string) JObject.Parse(trimmed)["path"];
+				if (string.IsNullOrEmpty(path))
+					throw new Exception("readScreen payload object must contain a 'path'.");
+				return path;
+			}
+			return trimmed.Trim('"');
+		}
+
+		// Optional read source ("auto"/"sidecar"/"structural"); only meaningful when the payload is a JSON
+		// envelope. A bare path defaults to "auto".
+		private static string ReadScreenSource( string _payload )
+		{
+			string trimmed = _payload.Trim();
+			if (trimmed.StartsWith("{"))
+				return (string) JObject.Parse(trimmed)["source"] ?? "auto";
+			return "auto";
+		}
+
 		private static string TagStandardElement( string _payload )
 		{
 			if (string.IsNullOrWhiteSpace(_payload))

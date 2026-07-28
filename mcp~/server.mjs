@@ -213,6 +213,31 @@ server.tool(
 );
 
 server.tool(
+	"read_screen",
+	"Read an existing baked (or hand-built) .prefab back into screen JSON in the same shape bake_screen " +
+	"consumes — inspect what's in a prefab, tweak the JSON, and re-bake. Returns { screen, warnings }. " +
+	"Read-back is BEST-EFFORT/structural, not a byte-perfect inverse: template nodes come back with their " +
+	"standard-element key + the overridden props; element nodes with the primary component type + props that " +
+	"differ from its default; cross-node references are re-expressed as \"#id\" with synthesized ids " +
+	"(a reference into a template's internal part is dropped with a warning). Unsupported prop types are " +
+	"omitted (they still live in the prefab).",
+	{
+		path: z.string().describe("Project-relative path of the prefab to read (e.g. from bake_screen)."),
+		source: z.enum(["auto", "sidecar", "structural"]).optional().describe(
+			"Where the JSON comes from. auto (default): the clean source sidecar from bake time if present, " +
+			"else a structural read-back. sidecar: the sidecar only (errors if none). structural: always the " +
+			"prefab's current state, including later hand edits."),
+	},
+	async ({ path, source }) => {
+		try {
+			return ok(await callBridge("readScreen", JSON.stringify(source ? { path, source } : { path })));
+		} catch (e) {
+			return fail(e);
+		}
+	}
+);
+
+server.tool(
 	"screenshot_view",
 	"Render a baked screen prefab to a PNG image (Edit-Mode, no Play Mode) so you can see the result " +
 	"and iterate. 'path' is the project-relative prefab path returned by bake_screen. Returns the image.",
