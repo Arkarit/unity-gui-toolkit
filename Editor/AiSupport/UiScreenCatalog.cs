@@ -43,6 +43,30 @@ namespace GuiToolkit.Editor.AiSupport
 		/// by <see cref="UiPaletteEntry.name"/> in a screen node's <c>"template"</c> field.
 		/// </summary>
 		public List<UiPaletteEntry> palette = new();
+
+		/// <summary>
+		/// Standard-element keys claimed by more than one prefab of the winning rank. The generator picks
+		/// the alphabetically first candidate and logs an error, but the Unity console is not reachable
+		/// over MCP — so the collisions are persisted here and surfaced by <c>setup_status</c>. Silently
+		/// resolving to the wrong prefab is otherwise invisible until someone diffs the registry by hand.
+		/// </summary>
+		public List<UiCatalogStandardElementAmbiguity> standardElementAmbiguities = new();
+	}
+
+	[Serializable]
+	public class UiCatalogStandardElementAmbiguity
+	{
+		/// <summary>The contested standard-element key (EStandardElement name or custom id).</summary>
+		public string key = "";
+
+		/// <summary>Asset paths of all candidates of the winning rank, in the generator's tie-break order.</summary>
+		public List<string> candidates = new();
+
+		/// <summary>The candidate that won — <c>candidates[0]</c>, i.e. alphabetically first.</summary>
+		public string winner = "";
+
+		/// <summary>True when the contest was between client prefabs (rather than library defaults).</summary>
+		public bool client;
 	}
 
 	[Serializable]

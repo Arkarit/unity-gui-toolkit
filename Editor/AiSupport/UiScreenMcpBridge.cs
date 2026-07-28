@@ -498,14 +498,32 @@ namespace GuiToolkit.Editor.AiSupport
 			string catalogPath = UiScreenCatalogGenerator.CatalogPath;
 			bool catalogExists = File.Exists(catalogPath);
 			JToken catalogAge = JValue.CreateNull();
+			var ambiguities = new JArray();
 			if (catalogExists)
 			{
 				try
 				{
-					var generatedAt = (string)JObject.Parse(File.ReadAllText(catalogPath))["generatedAtUtc"];
-					if (DateTime.TryParse(generatedAt, CultureInfo.InvariantCulture,
-						    DateTimeStyles.RoundtripKind, out var genUtc))
-						catalogAge = (int)(DateTime.UtcNow - genUtc.ToUniversalTime()).TotalMinutes;
+					// JObject.Parse turns the ISO-8601 timestamp into a Date JValue; casting that back to
+					// string drops the "Z", so re-parsing it would yield Kind=Unspecified and be read as
+					// local time — the reported age was off by exactly the UTC offset. Take the DateTime
+					// directly, and only fall back to string parsing if date handling ever changes.
+					var catalogJson = JObject.Parse(File.ReadAllText(catalogPath));
+
+					// Standard-element key collisions: the generator logs them, but the Unity console is
+					// not reachable over MCP, so they travel in the catalog and get surfaced here.
+					if (catalogJson["standardElementAmbiguities"] is JArray fromCatalog)
+						ambiguities = fromCatalog;
+
+					var generatedAt = catalogJson["generatedAtUtc"];
+					DateTime genUtc = default;
+					if (generatedAt != null && generatedAt.Type == JTokenType.Date)
+						genUtc = generatedAt.Value<DateTime>().ToUniversalTime();
+					else if (generatedAt != null)
+						DateTime.TryParse((string)generatedAt, CultureInfo.InvariantCulture,
+							DateTimeStyles.RoundtripKind | DateTimeStyles.AdjustToUniversal, out genUtc);
+
+					if (genUtc != default)
+						catalogAge = (int)(DateTime.UtcNow - genUtc).TotalMinutes;
 				}
 				catch { /* leave null */ }
 			}
@@ -542,10 +560,13 @@ namespace GuiToolkit.Editor.AiSupport
 					["ageMinutes"] = catalogAge,
 				},
 				["missingStandardElements"] = missing,
+				["standardElementAmbiguities"] = ambiguities,
 				["hint"] = "Screens or UiMain resolving to the LIBRARY look usually means registry.client == 0 " +
 					"(no client variants discovered) and/or prefabVariantsPath.exists == false. Fix the path or " +
 					"tag the client prefabs, then regenerate_catalog. A large catalog.ageMinutes means the " +
-					"vocabulary may be stale — regenerate.",
+					"vocabulary may be stale — regenerate. A non-empty standardElementAmbiguities means a key " +
+					"is claimed by several prefabs and silently resolved to the alphabetically first one — " +
+					"give the losing candidates their own custom ids via tag_standard_element.",
 			};
 			return status.ToString(Newtonsoft.Json.Formatting.None);
 		}

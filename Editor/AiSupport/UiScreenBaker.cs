@@ -447,6 +447,10 @@ namespace GuiToolkit.Editor.AiSupport
 					BuildNode(child, contentParent);
 			}
 
+			// Only meaningful once the children exist.
+			if (_node["scroll"] is JObject || scaffoldedScroll)
+				WarnOnCollapsingScrollChildren(go);
+
 			return go;
 		}
 
@@ -705,7 +709,11 @@ namespace GuiToolkit.Editor.AiSupport
 		//   "spacing":   8,                       // number (or [x,y] for grid)
 		//   "padding":   [left, right, top, bottom],
 		//   "cellSize":  [w, h],                  // grid only
-		//   "childAlignment": "UpperCenter"       // TextAnchor name
+		//   "childAlignment": "UpperCenter",      // TextAnchor name
+		//   "childControlWidth": true,            // default true — see the note in ConfigureLinearLayout:
+		//   "childControlHeight": true,           //   children without a preferred size collapse to 0
+		//   "childForceExpandWidth": null,        // default: true for a vertical list
+		//   "childForceExpandHeight": null        // default: true for a horizontal list
 		// }
 		private static void ConfigureScrollContent( GameObject _go, JObject _scroll, bool _scaffolded )
 		{
@@ -802,10 +810,59 @@ namespace GuiToolkit.Editor.AiSupport
 				group.childAlignment = anchor;
 
 			// Items keep their preferred size on the scroll axis and stretch across the cross axis.
-			group.childControlWidth = true;
-			group.childControlHeight = true;
-			group.childForceExpandWidth = _vertical;
-			group.childForceExpandHeight = !_vertical;
+			// NOTE: with childControl on, a child that declares no preferred size (no LayoutElement and no
+			// ILayoutElement of its own) is driven to ZERO along that axis and all children end up stacked
+			// on one spot. Authors hit this constantly, so the flags are overridable and WarnOnCollapsing-
+			// ScrollChildren() reports it after the children exist.
+			group.childControlWidth = Bool(_scroll?["childControlWidth"], true);
+			group.childControlHeight = Bool(_scroll?["childControlHeight"], true);
+			group.childForceExpandWidth = Bool(_scroll?["childForceExpandWidth"], _vertical);
+			group.childForceExpandHeight = Bool(_scroll?["childForceExpandHeight"], !_vertical);
+
+			static bool Bool( JToken _t, bool _default )
+				=> _t == null || _t.Type == JTokenType.Null ? _default : (bool)_t;
+		}
+
+		/// <summary>
+		/// After the children exist: warn about children a childControl-driven layout group will collapse to
+		/// zero because they declare no preferred size. Silent collapse otherwise looks like "layout is
+		/// broken" and costs a long debugging detour.
+		/// </summary>
+		private static void WarnOnCollapsingScrollChildren( GameObject _go )
+		{
+			var scrollRect = _go.GetComponent<ScrollRect>();
+			var content = scrollRect != null ? scrollRect.content : null;
+			if (content == null)
+				return;
+
+			var group = content.GetComponent<HorizontalOrVerticalLayoutGroup>();
+			if (group == null)
+				return;
+
+			bool horizontal = group is HorizontalLayoutGroup;
+			bool controls = horizontal ? group.childControlWidth : group.childControlHeight;
+			if (!controls)
+				return;
+
+			var collapsing = new List<string>();
+			foreach (Transform childTransform in content)
+			{
+				// Not every child is guaranteed to be a RectTransform; don't throw on an odd one.
+				if (childTransform is not RectTransform child)
+					continue;
+				float preferred = horizontal
+					? LayoutUtility.GetPreferredWidth(child)
+					: LayoutUtility.GetPreferredHeight(child);
+				if (preferred <= 0f)
+					collapsing.Add(child.name);
+			}
+
+			if (collapsing.Count > 0)
+				Warn($"Scroll content of '{_go.name}': {collapsing.Count} child(ren) declare no preferred " +
+				     $"{(horizontal ? "width" : "height")} and will be collapsed to 0 by the layout group " +
+				     $"(they will all sit on the same spot): {string.Join(", ", collapsing)}. Give them a " +
+				     $"LayoutElement (preferredWidth/preferredHeight), or set " +
+				     $"\"{(horizontal ? "childControlWidth" : "childControlHeight")}\": false in \"scroll\".");
 		}
 
 		private static void ConfigureGridLayout( RectTransform _content, JObject _scroll )

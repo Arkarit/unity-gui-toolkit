@@ -1066,9 +1066,21 @@ namespace GuiToolkit.Editor.AiSupport
 					: kv.Value.OrderBy(c => c.path, StringComparer.Ordinal).ToList();
 
 				if (winners.Count > 1)
+				{
 					UiLog.LogError($"AI catalog: standard element '{kv.Key}' is claimed by {winners.Count} " +
 					               $"{(client.Count > 0 ? "client" : "library")} prefabs — ambiguous:\n  " +
 					               $"{string.Join("\n  ", winners.Select(c => c.path))}\nUsing '{winners[0].path}'.");
+
+					// Also persist it: the console is not reachable over MCP, so setup_status is the only
+					// place an external agent can learn that a key silently resolved to the wrong prefab.
+					_catalog.standardElementAmbiguities.Add(new UiCatalogStandardElementAmbiguity
+					{
+						key = kv.Key,
+						candidates = winners.Select(c => c.path).ToList(),
+						winner = winners[0].path,
+						client = client.Count > 0,
+					});
+				}
 
 				var winner = winners[0];
 				entries.Add(new UiStandardElementRegistry.Entry

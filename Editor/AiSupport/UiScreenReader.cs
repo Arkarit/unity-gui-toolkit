@@ -182,9 +182,20 @@ namespace GuiToolkit.Editor.AiSupport
 				var primary = PickPrimaryAndExtras(_go, out var extras);
 				if (primary == null)
 				{
-					// Nothing catalogable — still emit a bare node so structure is not lost.
-					Warn($"Node '{_go.name}': no catalogued component found; emitting a bare node.");
-					node["type"] = "RectTransform";
+					// A pure text node has no catalogued component of its own (TMP_Text is deliberately not
+					// authorable — text travels in the "text" field). Emit the text component as the type
+					// anyway, so a re-bake recreates something the "text" below can actually be applied to.
+					var tmpText = _go.GetComponent<TMPro.TMP_Text>();
+					if (tmpText != null)
+					{
+						node["type"] = tmpText.GetType().Name;
+					}
+					else
+					{
+						// Nothing catalogable — still emit a bare node so structure is not lost.
+						Warn($"Node '{_go.name}': no catalogued component found; emitting a bare node.");
+						node["type"] = "RectTransform";
+					}
 				}
 				else
 				{
@@ -342,6 +353,9 @@ namespace GuiToolkit.Editor.AiSupport
 		{
 			if (_c is Transform) return false;
 			if (_c is Canvas || _c is CanvasScaler || _c is GraphicRaycaster) return false;
+			// Pure render infrastructure, auto-added via Graphic's RequireComponent. Without this it becomes
+			// the sole candidate on a text node (TMP_Text is filtered below) and wins the primary pick.
+			if (_c is CanvasRenderer) return false;
 			if (_c is UiAbstractApplyStyleBase) return false;
 			if (_c is UiStandardElement) return false;
 			if (_c is TMPro.TMP_Text) return false;

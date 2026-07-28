@@ -39,6 +39,7 @@ namespace GuiToolkit.Editor.AiSupport
 			Scene previewScene = default;
 			GameObject instance = null;
 			GameObject camGo = null;
+			GameObject hostGo = null;
 			RenderTexture rt = null;
 			Texture2D tex = null;
 			var prevActiveRt = RenderTexture.active;
@@ -53,7 +54,40 @@ namespace GuiToolkit.Editor.AiSupport
 
 				var canvas = instance.GetComponent<Canvas>() ?? instance.GetComponentInChildren<Canvas>(true);
 				if (canvas == null)
-					throw new Exception($"Prefab '{prefab.name}' has no Canvas to render (expected a UiView root).");
+				{
+					// Panel prefabs carry no Canvas of their own — they are parented under a scene Canvas at
+					// runtime. In a host project that is the majority of screens, so refusing to render them
+					// would make the preview useless for exactly those. Do what the prefab stage does: put a
+					// Canvas underneath, configured from the project's global CanvasScaler template so the
+					// shot is to scale instead of depending on the requested pixel size.
+					hostGo = new GameObject("__UiScreenPreviewCanvas__",
+						typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
+					SceneManager.MoveGameObjectToScene(hostGo, previewScene);
+					canvas = hostGo.GetComponent<Canvas>();
+
+					var scaler = hostGo.GetComponent<CanvasScaler>();
+					var config = UiToolkitConfiguration.Instance;
+					var template = config != null ? config.GlobalCanvasScalerTemplate : null;
+					if (template != null)
+					{
+						template.CopyTo(scaler);
+					}
+					else
+					{
+						scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+						scaler.referenceResolution = new Vector2(_width, _height);
+						scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+						scaler.matchWidthOrHeight = 0.5f;
+					}
+
+					instance.transform.SetParent(hostGo.transform, false);
+					if (instance.transform is RectTransform instanceRt)
+					{
+						instanceRt.anchoredPosition3D = Vector3.zero;
+						instanceRt.localScale = Vector3.one;
+						instanceRt.localRotation = Quaternion.identity;
+					}
+				}
 
 				camGo = new GameObject("__UiScreenPreviewCamera__");
 				SceneManager.MoveGameObjectToScene(camGo, previewScene);
@@ -97,6 +131,8 @@ namespace GuiToolkit.Editor.AiSupport
 				if (tex != null) UnityEngine.Object.DestroyImmediate(tex);
 				if (rt != null) RenderTexture.ReleaseTemporary(rt);
 				if (camGo != null) UnityEngine.Object.DestroyImmediate(camGo);
+				// Destroys the instance with it when we had to wrap it; the check below then no-ops.
+				if (hostGo != null) UnityEngine.Object.DestroyImmediate(hostGo);
 				if (instance != null) UnityEngine.Object.DestroyImmediate(instance);
 				if (previewScene.IsValid()) EditorSceneManager.ClosePreviewScene(previewScene);
 			}

@@ -87,9 +87,11 @@ server.tool(
 	"One-shot health check of this project's screen-authoring setup — call it FIRST when authored screens " +
 	"come out looking wrong, or to check whether the catalog is stale. Returns { registry:{assigned, path, " +
 	"entries, client, library}, prefabVariantsPath:{value, exists}, paletteConfig, catalog:{path, exists, " +
-	"ageMinutes}, missingStandardElements[] }. The usual 'everything looks like the library' cause is " +
-	"registry.client == 0 together with prefabVariantsPath.exists == false. Far cheaper than reconstructing " +
-	"the project state by hand.",
+	"ageMinutes}, missingStandardElements[], standardElementAmbiguities[] }. The usual 'everything looks " +
+	"like the library' cause is registry.client == 0 together with prefabVariantsPath.exists == false. " +
+	"standardElementAmbiguities lists keys claimed by several prefabs — the generator silently takes the " +
+	"alphabetically first, so a wrong-looking element is often hiding there (prefab variants inherit their " +
+	"base's marker, which is the usual source). Far cheaper than reconstructing the project state by hand.",
 	{},
 	async () => {
 		try { return ok(await callBridge("setupStatus")); }
