@@ -188,7 +188,8 @@ server.tool(
 	"{ direction:\"vertical\"|\"horizontal\"|\"both\", layout:\"vertical\"|\"horizontal\"|\"grid\"|\"none\", fit:true, " +
 	"spacing, padding:[l,r,t,b], cellSize:[w,h], childAlignment } — which adds a layout group + ContentSizeFitter to " +
 	"the Content (a bare ScrollRect defaults to a vertical list even without it). " +
-	"Still NOT automatic: putting more than one component on a single node (use a wrapper node). " +
+	"To stack several components on one node (e.g. a UiView that is also a UiSimpleAnimation) add a " +
+	"\"components\" array of type names (or { type, props } objects) — no wrapper node needed. " +
 	"Call setup_status first if screens come out looking wrong.",
 	{
 		screen: z.union([z.string(), z.record(z.any())]).describe("The screen description (JSON object or JSON string)."),

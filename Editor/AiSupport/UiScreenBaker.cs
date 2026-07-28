@@ -223,6 +223,11 @@ namespace GuiToolkit.Editor.AiSupport
 			// and every child renders at the wrong size.
 			ConfigureViewCanvasIfPresent(go);
 
+			// Extra components stacked on the same GameObject (e.g. a UiView that is also a UiSimpleAnimation),
+			// so no wrapper node is needed. Added before props so node-level props can target their fields too.
+			if (_node["components"] is JArray extraComponents)
+				AddExtraComponents(go, extraComponents);
+
 			if (_node["props"] is JObject props)
 				ApplyProps(go, props);
 
@@ -722,6 +727,93 @@ namespace GuiToolkit.Editor.AiSupport
 			}
 		}
 
+		// Stacks extra components on the SAME node's GameObject, so an author doesn't need a wrapper node
+		// just to combine behaviours (e.g. a UiView that is also a UiSimpleAnimation). Each entry is either
+		// a type-name string or an object { "type": "...", "props": { … } }; per-entry props are applied to
+		// that specific component (disambiguating a field name that several components share). Node-level
+		// props/style/text still search all components on the GameObject, so the common case needs no props
+		// here. A component already present (the primary type, a RequireComponent, or a duplicate entry) is
+		// reused, not added twice.
+		private static void AddExtraComponents( GameObject _go, JArray _components )
+		{
+			foreach (var token in _components)
+			{
+				string typeName;
+				JObject props = null;
+
+				if (token.Type == JTokenType.String)
+				{
+					typeName = (string)token;
+				}
+				else if (token is JObject obj)
+				{
+					typeName = (string)obj["type"];
+					props = obj["props"] as JObject;
+				}
+				else
+				{
+					Warn($"Extra component entry on '{_go.name}' is neither a type name nor a {{ type, props }} object; skipped.");
+					continue;
+				}
+
+				if (string.IsNullOrEmpty(typeName))
+				{
+					Warn($"Extra component entry on '{_go.name}' has no 'type'; skipped.");
+					continue;
+				}
+
+				Type type = ResolveComponentType(typeName);
+				if (type == null)
+				{
+					Warn($"Extra component '{typeName}' on '{_go.name}': unknown component type; skipped.");
+					continue;
+				}
+
+				var component = _go.GetComponent(type);
+				if (component == null)
+					component = _go.AddComponent(type);
+
+				if (props != null)
+					SetFieldsOnComponent(component, props);
+			}
+		}
+
+		// The single-component half of ApplyProps: sets props on ONE specific component (used by
+		// AddExtraComponents for per-entry props). Shares the deferred-ref + TryConvert machinery.
+		private static void SetFieldsOnComponent( Component _component, JObject _props )
+		{
+			foreach (var pair in _props)
+			{
+				var field = FindFieldOnComponent(_component, pair.Key);
+				if (field == null)
+				{
+					Warn($"Prop '{pair.Key}' not found on {_component.GetType().Name} ('{_component.gameObject.name}'); skipped.");
+					continue;
+				}
+
+				if (IsRefToken(pair.Value))
+				{
+					s_deferredRefs.Add(new DeferredRef
+					{
+						component = _component,
+						field = field,
+						value = pair.Value,
+						ownerName = _component.gameObject.name,
+					});
+					continue;
+				}
+
+				if (!TryConvert(pair.Value, field.FieldType, out object converted))
+				{
+					Warn($"Prop '{pair.Key}' on {_component.GetType().Name} ('{_component.gameObject.name}'): cannot convert value to {field.FieldType.Name}; skipped.");
+					continue;
+				}
+
+				field.SetValue(_component, converted);
+				EditorGeneralUtility.SetDirty(_component);
+			}
+		}
+
 		// A "#id" string (or an array whose elements are all "#id" strings) denotes a reference to another
 		// node's component/GameObject, resolved in the second pass.
 		private static bool IsRefToken( JToken _token )
@@ -825,25 +917,35 @@ namespace GuiToolkit.Editor.AiSupport
 		// any component of the GameObject, searching the most-derived declarations first.
 		private static (Component, FieldInfo) FindSerializedField( GameObject _go, string _key )
 		{
-			string mKey = _key.StartsWith("m_", StringComparison.Ordinal) ? _key : "m_" + _key;
-
 			foreach (var component in _go.GetComponents<Component>())
 			{
 				if (component == null)
 					continue;
 
-				for (var t = component.GetType(); t != null && t != typeof(object); t = t.BaseType)
-				{
-					var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public |
-					                         BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
-					foreach (var f in fields)
-					{
-						if (f.Name == _key || f.Name == mKey)
-							return (component, f);
-					}
-				}
+				var field = FindFieldOnComponent(component, _key);
+				if (field != null)
+					return (component, field);
 			}
 			return (null, null);
+		}
+
+		// The single-component half of FindSerializedField: resolves an authoring name ("layer") or raw
+		// field name ("m_layer") to a serialized field on this one component, most-derived declaration first.
+		private static FieldInfo FindFieldOnComponent( Component _component, string _key )
+		{
+			string mKey = _key.StartsWith("m_", StringComparison.Ordinal) ? _key : "m_" + _key;
+
+			for (var t = _component.GetType(); t != null && t != typeof(object); t = t.BaseType)
+			{
+				var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public |
+				                         BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+				foreach (var f in fields)
+				{
+					if (f.Name == _key || f.Name == mKey)
+						return f;
+				}
+			}
+			return null;
 		}
 
 		private static bool TryConvert( JToken _token, Type _type, out object _result )
