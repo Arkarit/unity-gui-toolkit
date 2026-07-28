@@ -243,7 +243,15 @@ namespace GuiToolkit.Editor.AiSupport
 
 			// A ScrollRect needs a Viewport/Content structure to clip and scroll its children; a bare
 			// UiScrollRect element (RequireComponent(ScrollRect)) has none, so build it here.
-			ScaffoldScrollRectIfPresent(go);
+			bool scaffoldedScroll = ScaffoldScrollRectIfPresent(go);
+
+			// Content sizing/layout so the ScrollRect actually scrolls — otherwise its Content stays 0-sized
+			// and nothing moves. An explicit "scroll" node configures direction + layout group + fitter; a
+			// bare (scaffolded) ScrollRect gets a sensible vertical-list default even without one.
+			if (_node["scroll"] is JObject scrollNode)
+				ConfigureScrollContent(go, scrollNode, scaffoldedScroll);
+			else if (scaffoldedScroll)
+				ConfigureScrollContent(go, null, true);
 
 			if (_node["children"] is JArray children)
 			{
@@ -462,16 +470,17 @@ namespace GuiToolkit.Editor.AiSupport
 
 		// Builds the standard Viewport→Content structure for a ScrollRect that has none (a bare
 		// UiScrollRect element), and wires the ScrollRect's viewport/content refs. A template prefab that
-		// already ships a Content is left untouched. Scroll direction / a layout group + ContentSizeFitter
-		// on the Content are deliberately left to the author (or a later milestone).
-		private static void ScaffoldScrollRectIfPresent( GameObject _go )
+		// already ships a Content is left untouched. Returns true iff it actually scaffolded a Content, so
+		// the caller can apply a default layout/fitter to a Content the baker fully owns. Layout group +
+		// ContentSizeFitter are added by ConfigureScrollContent.
+		private static bool ScaffoldScrollRectIfPresent( GameObject _go )
 		{
 			var scrollRect = _go.GetComponent<ScrollRect>();
 			if (scrollRect == null || scrollRect.content != null)
-				return;
+				return false;
 
 			if (_go.transform is not RectTransform rootRt)
-				return;
+				return false;
 
 			// Viewport: clips the content (RectMask2D) and, via an invisible Image, is a raycast target so
 			// drag-to-scroll works over empty areas too.
@@ -495,6 +504,171 @@ namespace GuiToolkit.Editor.AiSupport
 			scrollRect.viewport = viewportRt;
 			scrollRect.content = contentRt;
 			EditorGeneralUtility.SetDirty(scrollRect);
+			return true;
+		}
+
+		// Makes a ScrollRect's Content actually scroll: sets the horizontal/vertical flags, a layout group
+		// that arranges the children, and a ContentSizeFitter that grows the Content along the scroll axis
+		// (its Content otherwise stays 0-sized). For a scaffolded Content the baker also sets
+		// direction-appropriate anchors; an existing template Content's anchors are respected. `_scroll` may
+		// be null (defaults only, for a bare scaffolded ScrollRect).
+		//
+		// "scroll": {
+		//   "direction": "vertical" | "horizontal" | "both",   // default vertical; sets the scroll flags
+		//   "layout":    "vertical" | "horizontal" | "grid" | "none", // layout group on Content
+		//   "fit":       true,                    // ContentSizeFitter along the scroll axis (default true)
+		//   "spacing":   8,                       // number (or [x,y] for grid)
+		//   "padding":   [left, right, top, bottom],
+		//   "cellSize":  [w, h],                  // grid only
+		//   "childAlignment": "UpperCenter"       // TextAnchor name
+		// }
+		private static void ConfigureScrollContent( GameObject _go, JObject _scroll, bool _scaffolded )
+		{
+			var scrollRect = _go.GetComponent<ScrollRect>();
+			if (scrollRect == null || scrollRect.content == null)
+				return;
+
+			var content = scrollRect.content;
+
+			string direction = ((string)_scroll?["direction"])?.Trim().ToLowerInvariant() ?? "vertical";
+			if (direction != "vertical" && direction != "horizontal" && direction != "both")
+			{
+				Warn($"Unknown scroll direction '{direction}' on '{_go.name}'; using vertical.");
+				direction = "vertical";
+			}
+
+			scrollRect.horizontal = direction is "horizontal" or "both";
+			scrollRect.vertical = direction is "vertical" or "both";
+			EditorGeneralUtility.SetDirty(scrollRect);
+
+			if (_scaffolded)
+				ApplyScrollContentAnchors(content, direction);
+
+			string layout = ((string)_scroll?["layout"])?.Trim().ToLowerInvariant() ?? DefaultScrollLayout(direction);
+			ConfigureScrollLayoutGroup(content, layout, _scroll);
+
+			bool fit = _scroll?["fit"] == null || (bool)_scroll["fit"];
+			if (fit)
+				ConfigureContentFitter(content, direction);
+
+			EditorGeneralUtility.SetDirty(content);
+		}
+
+		// vertical → arrange top-to-bottom, width follows the viewport; horizontal → left-to-right, height
+		// follows the viewport; both → top-left origin (paired with a grid).
+		private static void ApplyScrollContentAnchors( RectTransform _content, string _direction )
+		{
+			switch (_direction)
+			{
+				case "horizontal":
+					_content.anchorMin = new Vector2(0f, 0f); _content.anchorMax = new Vector2(0f, 1f); _content.pivot = new Vector2(0f, 0.5f);
+					break;
+				case "both":
+					_content.anchorMin = new Vector2(0f, 1f); _content.anchorMax = new Vector2(0f, 1f); _content.pivot = new Vector2(0f, 1f);
+					break;
+				default: // vertical
+					_content.anchorMin = new Vector2(0f, 1f); _content.anchorMax = new Vector2(1f, 1f); _content.pivot = new Vector2(0.5f, 1f);
+					break;
+			}
+			_content.anchoredPosition = Vector2.zero;
+			_content.sizeDelta = Vector2.zero;
+		}
+
+		private static string DefaultScrollLayout( string _direction ) => _direction switch
+		{
+			"horizontal" => "horizontal",
+			"both"       => "grid",
+			_            => "vertical",
+		};
+
+		private static void ConfigureScrollLayoutGroup( RectTransform _content, string _layout, JObject _scroll )
+		{
+			switch (_layout)
+			{
+				case "none":
+					break;
+				case "grid":
+					ConfigureGridLayout(_content, _scroll);
+					break;
+				case "horizontal":
+					ConfigureLinearLayout(_content, false, _scroll);
+					break;
+				case "vertical":
+					ConfigureLinearLayout(_content, true, _scroll);
+					break;
+				default:
+					Warn($"Unknown scroll layout '{_layout}' on '{_content.name}'; skipped.");
+					break;
+			}
+		}
+
+		private static void ConfigureLinearLayout( RectTransform _content, bool _vertical, JObject _scroll )
+		{
+			var group = _vertical
+				? (HorizontalOrVerticalLayoutGroup)EnsureComponent<VerticalLayoutGroup>(_content.gameObject)
+				: EnsureComponent<HorizontalLayoutGroup>(_content.gameObject);
+
+			if (_scroll?["spacing"] != null && _scroll["spacing"].Type != JTokenType.Array)
+				group.spacing = (float)_scroll["spacing"];
+			var padding = ParsePadding(_scroll?["padding"]);
+			if (padding != null)
+				group.padding = padding;
+			if (TryParseTextAnchor((string)_scroll?["childAlignment"], out var anchor))
+				group.childAlignment = anchor;
+
+			// Items keep their preferred size on the scroll axis and stretch across the cross axis.
+			group.childControlWidth = true;
+			group.childControlHeight = true;
+			group.childForceExpandWidth = _vertical;
+			group.childForceExpandHeight = !_vertical;
+		}
+
+		private static void ConfigureGridLayout( RectTransform _content, JObject _scroll )
+		{
+			var grid = EnsureComponent<GridLayoutGroup>(_content.gameObject);
+			if (_scroll?["cellSize"] is JArray cell)
+				grid.cellSize = Vec2(cell, grid.cellSize);
+			if (_scroll?["spacing"] is JArray sp)
+				grid.spacing = Vec2(sp, grid.spacing);
+			else if (_scroll?["spacing"] != null)
+			{
+				float s = (float)_scroll["spacing"];
+				grid.spacing = new Vector2(s, s);
+			}
+			var padding = ParsePadding(_scroll?["padding"]);
+			if (padding != null)
+				grid.padding = padding;
+			if (TryParseTextAnchor((string)_scroll?["childAlignment"], out var anchor))
+				grid.childAlignment = anchor;
+		}
+
+		private static void ConfigureContentFitter( RectTransform _content, string _direction )
+		{
+			var fitter = EnsureComponent<ContentSizeFitter>(_content.gameObject);
+			fitter.horizontalFit = DirectionCoversAxis(_direction, "horizontal") ? ContentSizeFitter.FitMode.PreferredSize : ContentSizeFitter.FitMode.Unconstrained;
+			fitter.verticalFit   = DirectionCoversAxis(_direction, "vertical")   ? ContentSizeFitter.FitMode.PreferredSize : ContentSizeFitter.FitMode.Unconstrained;
+		}
+
+		private static bool DirectionCoversAxis( string _direction, string _axis ) => _direction == _axis || _direction == "both";
+
+		private static RectOffset ParsePadding( JToken _token )
+		{
+			if (_token is not JArray arr)
+				return null;
+			int Get( int i ) => arr.Count > i ? (int)arr[i] : 0;
+			return new RectOffset(Get(0), Get(1), Get(2), Get(3)); // left, right, top, bottom
+		}
+
+		private static bool TryParseTextAnchor( string _value, out TextAnchor _anchor )
+		{
+			_anchor = TextAnchor.UpperLeft;
+			return !string.IsNullOrEmpty(_value) && Enum.TryParse(_value, true, out _anchor);
+		}
+
+		private static T EnsureComponent<T>( GameObject _go ) where T : Component
+		{
+			var existing = _go.GetComponent<T>();
+			return existing != null ? existing : _go.AddComponent<T>();
 		}
 
 		private static void FullStretch( RectTransform _rt )

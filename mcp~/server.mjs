@@ -184,8 +184,12 @@ server.tool(
 	"(m_target, m_closeButtons, animation slaves — a \"#nodeId\" string, or an array of them for a list/array " +
 	"field) and AnimationCurve props (a preset name \"linear\"/\"easeInOut\"/\"constant\", an object " +
 	"{ preset, from:[time,value], to:[time,value] }, or a keyframe list [ { time, value, inTangent?, outTangent? } ]). " +
-	"Still NOT automatic: a ScrollRect's Content height (add a ContentSizeFitter/layout yourself) and putting more " +
-	"than one component on a single node (use a wrapper node). Call setup_status first if screens come out looking wrong.",
+	"A node with a ScrollRect can carry a \"scroll\" field to make it actually scroll — " +
+	"{ direction:\"vertical\"|\"horizontal\"|\"both\", layout:\"vertical\"|\"horizontal\"|\"grid\"|\"none\", fit:true, " +
+	"spacing, padding:[l,r,t,b], cellSize:[w,h], childAlignment } — which adds a layout group + ContentSizeFitter to " +
+	"the Content (a bare ScrollRect defaults to a vertical list even without it). " +
+	"Still NOT automatic: putting more than one component on a single node (use a wrapper node). " +
+	"Call setup_status first if screens come out looking wrong.",
 	{
 		screen: z.union([z.string(), z.record(z.any())]).describe("The screen description (JSON object or JSON string)."),
 		outputPath: z.string().optional().describe("Where to write the prefab (full .prefab path or a folder). Overrides the default Generated folder."),
