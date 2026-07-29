@@ -93,6 +93,13 @@ namespace GuiToolkit.Editor.AiSupport
 		/// <summary>Standard-element identity from a root UiStandardElement marker (enum name or Custom id); "" if untagged.</summary>
 		public string standardElement = "";
 
+		/// <summary>
+		/// True for an internal sub-part of a composed element (a marker with <c>IsInternal</c>): bakeable, but
+		/// not a building block a screen author composes — it only makes sense inside its parent. Listed rather
+		/// than hidden so an author can tell "not meant for me" apart from "does not exist".
+		/// </summary>
+		public bool isInternal;
+
 		/// <summary>Authorable slots this template exposes (text, style, onClick, icon, ...).</summary>
 		public List<UiPaletteSlot> slots = new();
 	}

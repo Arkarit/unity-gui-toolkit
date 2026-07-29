@@ -165,11 +165,13 @@ namespace GuiToolkit.Editor.AiSupport
 
 				WarnMissingDescriptions(catalog);
 
-				CollectPalette(catalog);
+				// Standard elements first: the resolved registry winners are part of the authoring palette
+				// (a registry key is always a valid "template"), so the palette needs them to be complete.
+				var standardElements = CollectStandardElements(catalog);
+
+				CollectPalette(catalog, standardElements);
 
 				WarnMissingPaletteDescriptions(catalog);
-
-				CollectStandardElements(catalog);
 			}
 			finally
 			{
@@ -439,7 +441,9 @@ namespace GuiToolkit.Editor.AiSupport
 		private static void WarnMissingPaletteDescriptions( UiScreenCatalog _catalog )
 		{
 			var missing = _catalog.palette
-				.Where(e => string.IsNullOrEmpty(e.description))
+				// Internal sub-parts are listed for completeness, not offered for composition — an author
+				// never picks one, so a missing flavor description is not worth reporting.
+				.Where(e => string.IsNullOrEmpty(e.description) && !e.isInternal)
 				.Select(e => e.name)
 				.OrderBy(n => n, StringComparer.Ordinal)
 				.ToList();
@@ -875,7 +879,16 @@ namespace GuiToolkit.Editor.AiSupport
 			return guids;
 		}
 
-		private static void CollectPalette( UiScreenCatalog _catalog )
+		/// <summary>
+		/// Builds the authoring palette: the prefabs under the built-in StandardElements folder plus the
+		/// configured extra folders/prefabs, UNION every standard-element identity the registry resolved.
+		/// The union is what makes the palette match what a screen may actually write into "template" —
+		/// a registry key resolves regardless of where its prefab lives, and shipped screens use keys
+		/// (StandardHeadline, StandardBackButton, ...) whose prefabs sit outside the StandardElements
+		/// folder. Listing only the folder scan made those look non-existent, so screens were authored by
+		/// hand-building what the palette already composes.
+		/// </summary>
+		private static void CollectPalette( UiScreenCatalog _catalog, List<ResolvedStandardElement> _standardElements )
 		{
 			var config = UiAuthorablePaletteConfig.FindFirst();
 			var guids = CollectCandidatePrefabGuids(config);
@@ -883,9 +896,31 @@ namespace GuiToolkit.Editor.AiSupport
 			var entries = new List<UiPaletteEntry>();
 			foreach (var guid in guids)
 			{
-				var entry = BuildPaletteEntry(guid, config);
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+				var entry = BuildPaletteEntry(prefab, path, guid, prefab != null ? prefab.name : null, config);
 				if (entry != null)
 					entries.Add(entry);
+			}
+
+			// Deduped by AUTHORING NAME, not by prefab: the folder scan lists a prefab under its own name,
+			// while a registry key is authored under the key. Both can point at the same asset (the key's
+			// winner may be a client variant of the scanned library prefab) — the folder entry wins, since
+			// naming a specific prefab and naming an identity are both legal and the entry already exists.
+			var byName = new HashSet<string>(entries.Select(e => e.name), StringComparer.Ordinal);
+			foreach (var resolved in _standardElements ?? new List<ResolvedStandardElement>())
+			{
+				if (string.IsNullOrEmpty(resolved.key) || byName.Contains(resolved.key))
+					continue;
+
+				string path = AssetDatabase.GetAssetPath(resolved.prefab);
+				var entry = BuildPaletteEntry(resolved.prefab, path, AssetDatabase.AssetPathToGUID(path),
+					resolved.key, config);
+				if (entry == null)
+					continue;
+
+				entries.Add(entry);
+				byName.Add(resolved.key);
 			}
 
 			_catalog.palette = entries
@@ -894,38 +929,39 @@ namespace GuiToolkit.Editor.AiSupport
 				.ToList();
 		}
 
-		private static UiPaletteEntry BuildPaletteEntry( string _guid, UiAuthorablePaletteConfig _config )
+		// _authoringName is the value a screen writes into "template": the prefab's own name for a folder-scan
+		// entry, the registry key for a resolved standard element.
+		private static UiPaletteEntry BuildPaletteEntry( GameObject _prefab, string _path, string _guid,
+			string _authoringName, UiAuthorablePaletteConfig _config )
 		{
-			string path = AssetDatabase.GUIDToAssetPath(_guid);
-			var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-			if (prefab == null)
+			if (_prefab == null || string.IsNullOrEmpty(_authoringName))
 				return null;
 
-			string name = prefab.name;
-			if (_config != null && _config.IsHidden(name))
+			string name = _authoringName;
+			if (_config != null && (_config.IsHidden(name) || _config.IsHidden(_prefab.name)))
 				return null;
 
-			// Internal sub-parts carry a standard-element identity (for the registry) but are deliberately
-			// excluded from the authoring palette — they are not building blocks a screen author composes.
-			var marker = prefab.GetComponent<UiStandardElement>();
-			if (marker != null && marker.IsInternal)
-				return null;
+			// Internal sub-parts of a composed element: bakeable, but only meaningful inside their parent.
+			// Listed with the flag rather than dropped — an author needs to tell "not for me" apart from
+			// "does not exist", and a silent omission is what sends them off hand-building a replacement.
+			var marker = _prefab.GetComponent<UiStandardElement>();
 
-			Type primary = PrimaryComponentType(prefab);
+			Type primary = PrimaryComponentType(_prefab);
 
 			var entry = new UiPaletteEntry
 			{
 				name = name,
-				prefabPath = path,
+				prefabPath = _path,
 				prefabGuid = _guid,
+				isInternal = marker != null && marker.IsInternal,
 				kind = primary?.Name ?? "",
 				category = primary != null ? ClassifyCategory(primary) : "Container",
 				// Instance/"flavor" description: a UiComment on the prefab root. Curated per prefab (and
 				// travels with a client variant), so OkButton and CancelButton can read differently even
 				// though both are UiButtons. The per-type description lives on the component entry.
-				description = RootCommentText(prefab),
-				standardElement = StandardElementKey(prefab),
-				slots = DerivePaletteSlots(prefab, primary),
+				description = RootCommentText(_prefab),
+				standardElement = StandardElementKey(_prefab),
+				slots = DerivePaletteSlots(_prefab, primary),
 			};
 
 			var over = _config?.FindOverride(name);
@@ -1016,13 +1052,21 @@ namespace GuiToolkit.Editor.AiSupport
 			public bool isInternal;
 		}
 
+		/// <summary>A standard-element identity and the prefab it resolved to — a valid "template" value.</summary>
+		private class ResolvedStandardElement
+		{
+			public string key;
+			public GameObject prefab;
+		}
+
 		/// <summary>
 		/// Scans the palette candidate prefabs for <see cref="UiStandardElement"/> markers, resolves the
 		/// winning prefab per identity (client prefabs/variants out-rank toolkit-library defaults; a
 		/// same-rank tie is an error), and writes the runtime <see cref="UiStandardElementRegistry"/>,
 		/// pointing <see cref="UiToolkitConfiguration"/> at it.
 		/// </summary>
-		private static void CollectStandardElements( UiScreenCatalog _catalog )
+		/// <returns>The resolved identities, so <see cref="CollectPalette"/> can list them as templates.</returns>
+		private static List<ResolvedStandardElement> CollectStandardElements( UiScreenCatalog _catalog )
 		{
 			var config = UiAuthorablePaletteConfig.FindFirst();
 			var byKey = new Dictionary<string, List<StandardElementCandidate>>(StringComparer.Ordinal);
@@ -1057,6 +1101,7 @@ namespace GuiToolkit.Editor.AiSupport
 			}
 
 			var entries = new List<UiStandardElementRegistry.Entry>();
+			var resolved = new List<ResolvedStandardElement>();
 			foreach (var kv in byKey.OrderBy(k => k.Key, StringComparer.Ordinal))
 			{
 				// Client prefabs/variants out-rank library defaults; a tie within the winning rank is ambiguous.
@@ -1091,10 +1136,13 @@ namespace GuiToolkit.Editor.AiSupport
 					fromLibrary = winner.fromLibrary,
 					isInternal = winner.isInternal,
 				});
+				resolved.Add(new ResolvedStandardElement { key = kv.Key, prefab = winner.prefab });
 			}
 
 			WarnMissingStandardElements(byKey);
 			WriteStandardElementRegistry(entries);
+
+			return resolved;
 		}
 
 		/// <summary>Warns which built-in <see cref="EStandardElement"/> values have no tagged prefab yet.</summary>

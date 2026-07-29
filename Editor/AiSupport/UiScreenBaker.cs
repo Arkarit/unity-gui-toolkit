@@ -458,8 +458,9 @@ namespace GuiToolkit.Editor.AiSupport
 		{
 			var prefab = ResolveTemplatePrefab(_templateName);
 			if (prefab == null)
-				throw new ArgumentException($"Unknown template '{_templateName}'. It must be a palette entry " +
-				                            $"(run Generate Screen Catalog to see available templates).");
+				throw new ArgumentException($"Unknown template '{_templateName}'. It must be a standard-element " +
+				                            $"identity from the registry or the name of an existing prefab — see the " +
+				                            $"catalog's 'palette' (run Generate Screen Catalog to refresh it).");
 
 			var instance = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
 			if (instance == null)
