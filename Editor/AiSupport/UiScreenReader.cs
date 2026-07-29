@@ -504,6 +504,12 @@ namespace GuiToolkit.Editor.AiSupport
 
 			if (_type == typeof(AnimationCurve)) { _token = CurveToJson((AnimationCurve)_value); return true; }
 			if (_type == typeof(Gradient)) { _token = GradientToJson((Gradient)_value); return true; }
+			if (_type == typeof(RectOffset))
+			{
+				var p = (RectOffset)_value;
+				_token = new JArray { p.left, p.right, p.top, p.bottom };
+				return true;
+			}
 
 			if (typeof(Sprite).IsAssignableFrom(_type))
 			{

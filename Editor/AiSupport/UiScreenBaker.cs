@@ -1830,6 +1830,10 @@ namespace GuiToolkit.Editor.AiSupport
 				if (_type == typeof(AnimationCurve)) { _result = ParseAnimationCurve(_token); return _result != null; }
 				if (_type == typeof(Gradient)) { _result = ParseGradient(_token); return _result != null; }
 
+				// [left, right, top, bottom] — the parser already existed for the "scroll" scaffolding's padding;
+				// without this hook a LayoutGroup's own padding was simply not settable as a prop.
+				if (_type == typeof(RectOffset)) { _result = ParsePadding(_token); return _result != null; }
+
 				if (typeof(Sprite).IsAssignableFrom(_type))
 				{
 					_result = AssetDatabase.LoadAssetAtPath<Sprite>((string)_token);
