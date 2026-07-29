@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using GuiToolkit.Style;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
@@ -98,6 +99,9 @@ namespace GuiToolkit.Editor.AiSupport
 		{
 			public string path;
 			public List<string> warnings = new();
+
+			/// <summary>Paths of the companion prefabs baked from the screen's "prefabs" array, in order.</summary>
+			public List<string> companions = new();
 		}
 
 		/// <summary>Project-relative folder the baked prefabs are written to by default.</summary>
@@ -133,8 +137,25 @@ namespace GuiToolkit.Editor.AiSupport
 			if (rootNode == null)
 				throw new ArgumentException("Screen JSON must have a \"root\" node object.");
 
+			// Companion prefabs, baked BEFORE this screen so it can reference them by name as templates:
+			// one authoring call produces the repeated part as its own asset plus the screen that uses it,
+			// instead of the screen carrying N copies of it. Each entry is a full screen description.
+			// Done before the per-bake state below is initialised, because a nested Bake resets it.
+			var companionPaths = new List<string>();
+			var companionWarnings = new List<string>();
+			if (screen["prefabs"] is JArray companions)
+			{
+				foreach (var companion in companions.OfType<JObject>())
+				{
+					var companionResult = Bake(companion.ToString());
+					companionPaths.Add(companionResult.path);
+					foreach (var w in companionResult.warnings)
+						companionWarnings.Add($"[{(string)companion["name"]}] {w}");
+				}
+			}
+
 			ResetCaches();
-			s_warnings = new List<string>();
+			s_warnings = new List<string>(companionWarnings);
 			s_nodesById = new Dictionary<string, GameObject>(StringComparer.Ordinal);
 			s_deferredRefs = new List<DeferredRef>();
 
@@ -146,6 +167,8 @@ namespace GuiToolkit.Editor.AiSupport
 			bool preserveEdits = (bool?)screen["preserveEdits"] ?? false;
 			if (preserveEdits)
 				ApplyEditPreservation(rootNode, path);
+
+			WarnOnRepeatedSubtrees(rootNode);
 
 			GameObject rootGo = null;
 			try
@@ -165,7 +188,7 @@ namespace GuiToolkit.Editor.AiSupport
 				AssetDatabase.Refresh();
 				UiLog.LogInternal($"Baked screen '{name}' → '{path}'" +
 					(s_warnings.Count > 0 ? $" ({s_warnings.Count} warning(s))." : "."));
-				return new BakeResult { path = path, warnings = s_warnings };
+				return new BakeResult { path = path, warnings = s_warnings, companions = companionPaths };
 			}
 			finally
 			{
@@ -173,6 +196,124 @@ namespace GuiToolkit.Editor.AiSupport
 					UnityEngine.Object.DestroyImmediate(rootGo);
 			}
 		}
+
+		#region Repeated-subtree detection
+
+		// Two siblings that look the same are already a copy — a human would have made the second one an
+		// instance of the first. Deliberately strict: redundancy of this kind is cheap to create, invisible
+		// afterwards, and a project drowns in it long before anyone decides to clean it up.
+		private const int RepeatedSubtreeThreshold = 2;
+
+		// Below this a "duplicate" is a bare graphic or label, where a prefab would cost more than it saves.
+		private const int RepeatedSubtreeMinNodes = 3;
+
+		/// <summary>
+		/// Warns when a node has siblings that are structurally and visually the same subtree (same component
+		/// or template, same styles, same prop keys, same child shape — only values differ), which means the
+		/// author copied a subtree instead of authoring it once and referencing it. Template nodes are exempt:
+		/// they already ARE references to one prefab, so repeating them is the intended pattern.
+		/// </summary>
+		private static void WarnOnRepeatedSubtrees( JObject _node )
+		{
+			if (_node["children"] is not JArray children)
+				return;
+
+			var groups = new Dictionary<string, List<JObject>>(StringComparer.Ordinal);
+			foreach (var child in children.OfType<JObject>())
+			{
+				if (!string.IsNullOrEmpty((string)child["template"]))
+					continue;
+
+				string signature = StructuralSignature(child);
+				if (!groups.TryGetValue(signature, out var list))
+					groups[signature] = list = new List<JObject>();
+				list.Add(child);
+			}
+
+			foreach (var kv in groups)
+			{
+				if (kv.Value.Count < RepeatedSubtreeThreshold)
+					continue;
+				if (CountNodes(kv.Value[0]) < RepeatedSubtreeMinNodes)
+					continue;
+
+				var names = kv.Value.Select(NodeLabel).ToList();
+				Warn($"Node '{NodeLabel(_node)}' has {kv.Value.Count} structurally identical children " +
+				     $"({string.Join(", ", names)}) — that is a copied subtree. Author it ONCE as its own prefab " +
+				     "(add it to the screen's \"prefabs\" array), then reference it per instance with " +
+				     "\"template\": \"<its name>\" and vary the parts via \"overrides\". Repeated rows/cards that " +
+				     "are filled from data at runtime need only ONE authored instance, or none plus a container.");
+			}
+
+			foreach (var child in children.OfType<JObject>())
+				WarnOnRepeatedSubtrees(child);
+		}
+
+		// Identity of a subtree's SHAPE and LOOK: component/template, stacked components, style, the set of
+		// prop keys (not their values) and the same recursively for children. Values are excluded on purpose —
+		// six cards differing only in title, icon and amount are exactly the case worth reporting.
+		private static string StructuralSignature( JObject _node )
+		{
+			var sb = new StringBuilder();
+
+			string template = (string)_node["template"];
+			sb.Append(!string.IsNullOrEmpty(template) ? $"T:{template}" : $"C:{(string)_node["type"]}");
+
+			if (_node["components"] is JArray components)
+			{
+				sb.Append('[');
+				sb.Append(string.Join(",", components.Select(c => c is JObject o ? (string)o["type"] : (string)c)));
+				sb.Append(']');
+			}
+
+			string style = (string)_node["style"];
+			if (!string.IsNullOrEmpty(style))
+				sb.Append("|s:").Append(style);
+
+			if (_node["props"] is JObject props)
+			{
+				sb.Append("|p:");
+				sb.Append(string.Join(",", props.Properties().Select(p => p.Name).OrderBy(n => n, StringComparer.Ordinal)));
+			}
+
+			if (_node["text"] != null)
+				sb.Append("|t");
+
+			if (_node["scroll"] != null)
+				sb.Append("|sc");
+
+			if (_node["children"] is JArray children)
+			{
+				sb.Append('(');
+				foreach (var child in children.OfType<JObject>())
+					sb.Append(StructuralSignature(child)).Append(';');
+				sb.Append(')');
+			}
+
+			return sb.ToString();
+		}
+
+		private static int CountNodes( JObject _node )
+		{
+			int count = 1;
+			if (_node["children"] is JArray children)
+				foreach (var child in children.OfType<JObject>())
+					count += CountNodes(child);
+			return count;
+		}
+
+		private static string NodeLabel( JObject _node )
+		{
+			string id = (string)_node["id"];
+			if (!string.IsNullOrEmpty(id))
+				return id;
+			string template = (string)_node["template"];
+			if (!string.IsNullOrEmpty(template))
+				return template;
+			return (string)_node["type"] ?? "?";
+		}
+
+		#endregion
 
 		// The output prefab path: an explicit "outputPath" on the screen (a full ".prefab" path used
 		// verbatim, or a folder the screen name is appended to) wins over the default Generated folder.
@@ -422,6 +563,12 @@ namespace GuiToolkit.Editor.AiSupport
 			if (text != null)
 				ApplyText(go, text);
 
+			// Per-instance variation of a TEMPLATE's internal parts. Without this, a template node can only
+			// be configured at its root, so anything that differs per instance (a card's title, icon, amount,
+			// state) forces the author to hand-copy the whole subtree instead of referencing one prefab.
+			if (_node["overrides"] is JObject overrides)
+				ApplyPartOverrides(go, overrides, !string.IsNullOrEmpty(template));
+
 			// Layout: an explicit "rect" wins; otherwise a root gets a sane full-stretch default so it
 			// isn't left at the 100x100 centered default of a fresh RectTransform.
 			if (_node["rect"] is JObject rect)
@@ -455,6 +602,67 @@ namespace GuiToolkit.Editor.AiSupport
 				WarnOnCollapsingScrollChildren(go);
 
 			return go;
+		}
+
+		/// <summary>
+		/// Applies per-part overrides to an instantiated node's internals: <c>{ "Header/Title": { props, style,
+		/// text, rect, id } }</c>, keyed by a child transform path relative to this node. On a template node
+		/// these become prefab-instance overrides, so the instance keeps its link to the source prefab —
+		/// the difference between referencing one prefab N times and copying a subtree N times.
+		/// An <c>id</c> registers the internal part for <c>"#id"</c> wiring, which is otherwise impossible
+		/// (a reference into a template's interior had no way to be addressed).
+		/// </summary>
+		private static void ApplyPartOverrides( GameObject _root, JObject _overrides, bool _isTemplate )
+		{
+			if (!_isTemplate)
+			{
+				Warn($"Node '{_root.name}' declares \"overrides\" but is not a template node — overrides address " +
+				     "the internals of an instantiated prefab; on an element node, author the children directly.");
+			}
+
+			foreach (var pair in _overrides)
+			{
+				string childPath = pair.Key;
+				if (pair.Value is not JObject spec)
+				{
+					Warn($"Override '{childPath}' on '{_root.name}' is not an object; skipped.");
+					continue;
+				}
+
+				var target = _root.transform.Find(childPath);
+				if (target == null)
+				{
+					Warn($"Override path '{childPath}' does not exist under '{_root.name}'; skipped. " +
+					     "Use read_screen on the template prefab to see its internal node names.");
+					continue;
+				}
+
+				var go = target.gameObject;
+
+				if (spec["props"] is JObject props)
+					ApplyProps(go, props);
+
+				string style = (string)spec["style"];
+				if (!string.IsNullOrEmpty(style))
+					ApplyStyle(go, style);
+
+				WarnOnStretchedSlicedSprite(go);
+
+				string text = (string)spec["text"];
+				if (text != null)
+					ApplyText(go, text);
+
+				if (spec["rect"] is JObject rect)
+					ApplyRect(go, rect);
+
+				string id = (string)spec["id"];
+				if (string.IsNullOrEmpty(id))
+					continue;
+
+				if (s_nodesById.ContainsKey(id))
+					Warn($"Duplicate node id '{id}' (override '{childPath}'); the later node wins for '#{id}'.");
+				s_nodesById[id] = go;
+			}
 		}
 
 		private static GameObject CreateTemplateNode( string _templateName )
@@ -1258,8 +1466,31 @@ namespace GuiToolkit.Editor.AiSupport
 					return _result != null;
 				}
 
-				// Component / object references (id-based wiring) and nested structs are not yet
-				// supported by the baker — handled in a later "logic wiring" milestone.
+				// Any other asset reference given as a project-relative path — most importantly a PREFAB
+				// reference (a container's item prefab, a spawner's template), which is how a screen points
+				// at the single prefab it instantiates per data row at runtime instead of holding N authored
+				// copies. "#id" tokens never reach here; those are node references resolved in a later pass.
+				if (typeof(UnityEngine.Object).IsAssignableFrom(_type) && _token.Type == JTokenType.String)
+				{
+					string assetPath = (string)_token;
+					if (assetPath.StartsWith("Assets/", StringComparison.Ordinal) ||
+					    assetPath.StartsWith("Packages/", StringComparison.Ordinal))
+					{
+						_result = AssetDatabase.LoadAssetAtPath(assetPath, _type);
+
+						// A Component-typed field pointed at a prefab path: take the component off its root,
+						// which is what the author means (e.g. an itemPrefab field typed as the item's class).
+						if (_result == null && typeof(Component).IsAssignableFrom(_type))
+						{
+							var go = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+							if (go != null)
+								_result = go.GetComponent(_type);
+						}
+						return _result != null;
+					}
+				}
+
+				// Nested structs are not supported by the baker.
 				return false;
 			}
 			catch

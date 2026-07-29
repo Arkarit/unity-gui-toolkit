@@ -233,6 +233,15 @@ server.tool(
 	"Set preserveEdits:true on a re-bake to keep hand edits made to the existing prefab since the last bake " +
 	"(props/text that differ from the baseline and that this JSON does not itself specify are folded back in; " +
 	"warnings list what was kept). Call setup_status first if screens come out looking wrong. " +
+	"NEVER COPY A SUBTREE. Two children that look the same are already redundancy — author the repeated " +
+	"part ONCE as its own prefab via the screen's \"prefabs\" array (each entry is a full screen description, " +
+	"baked before this screen; their paths come back as 'companions'), then instantiate it per row with " +
+	"\"template\": \"<its name>\" and vary the differing parts through \"overrides\": " +
+	"{ \"Child/Path\": { props, style, text, rect, id } }, keyed by transform path inside the template (an " +
+	"\"id\" there also makes an internal part addressable by \"#id\"). The baker warns when it sees identical " +
+	"sibling subtrees. Better still for a list: rows filled from data at runtime need ONE authored instance " +
+	"or none — author the container plus a prefab reference (a prefab-path string on a prefab-typed prop) and " +
+	"let the runtime spawn the rows, which is how shipped screens do it. " +
 	"LOOK: give text and panel nodes a \"style\" from the project's vocabulary (list_styles) instead of " +
 	"leaving TMP/Image at their defaults, and compose from the catalog's 'palette' templates rather than " +
 	"stacking raw Image + text nodes — a project ships ready-made headline/panel/button-bar/price-tag pieces, " +

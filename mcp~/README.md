@@ -105,7 +105,36 @@ Steps Claude follows:
 
 A node has **either** `type` (build a component from scratch) **or** `template` (instantiate a palette
 prefab). Optional per-node fields: `id`, `name`, `props` (serialized fields), `style` (style name),
-`text` (`@loca:` key or `@text:` literal), `rect` (layout), `children`.
+`text` (`@loca:` key or `@text:` literal), `rect` (layout), `overrides`, `children`.
+
+### Do not copy subtrees
+
+Two children with the same shape and look are already redundancy. Author the repeated part once as its
+own prefab through the screen's top-level **`prefabs`** array — each entry is a full screen description,
+baked before the screen itself, and their paths come back in `companions` — then instantiate it with
+`template` and vary the parts via **`overrides`**, keyed by transform path inside the template:
+
+```json
+{
+  "name": "RewardTrack",
+  "prefabs": [
+    { "name": "RewardCard", "outputPath": "Assets/…/RewardCard.prefab", "root": { … } }
+  ],
+  "root": { "type": "UiView", "children": [
+    { "template": "RewardCard", "overrides": {
+        "Title":  { "text": "@text:TIER 1" },
+        "Icon":   { "props": { "sprite": "Assets/…/Coin.png" } },
+        "Footer/Label": { "id": "claim1", "text": "@text:CLAIM" }
+      }}
+  ]}
+}
+```
+
+An `id` inside `overrides` also registers that internal part for `"#id"` wiring — the only way to
+reference something inside a template. The baker **warns** when it finds identical sibling subtrees.
+
+For a list whose rows come from data at runtime, author **one** instance or none: the container plus a
+prefab reference (give a prefab-typed prop the prefab's project path) is what shipped screens do.
 
 **`rect`** controls the RectTransform:
 

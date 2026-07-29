@@ -263,8 +263,13 @@ namespace GuiToolkit.Editor.AiSupport
 					var warnings = new JArray();
 					foreach (var w in bakeResult.warnings)
 						warnings.Add(w);
-					return new JObject { ["path"] = bakeResult.path, ["warnings"] = warnings }
-						.ToString(Newtonsoft.Json.Formatting.None);
+					var companions = new JArray();
+					foreach (var c in bakeResult.companions)
+						companions.Add(c);
+					var bakeJson = new JObject { ["path"] = bakeResult.path, ["warnings"] = warnings };
+					if (companions.Count > 0)
+						bakeJson["companions"] = companions;
+					return bakeJson.ToString(Newtonsoft.Json.Formatting.None);
 
 				case "readScreen":
 					if (string.IsNullOrWhiteSpace(_payload))
