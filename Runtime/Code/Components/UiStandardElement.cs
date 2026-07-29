@@ -119,10 +119,16 @@ namespace GuiToolkit
 	/// claim a DIFFERENT identity than its base.
 	///
 	/// Editor tooling scans these markers to generate the runtime <c>UiStandardElementRegistry</c> and to
-	/// enrich the authoring catalog's palette. The marker itself is not authorable into a screen.
+	/// enrich the authoring catalog's palette.
+	///
+	/// This marker IS authorable, and for a generated screen it has to be: a bake rebuilds its prefab from
+	/// the description, so a marker added to the asset afterwards is discarded on the next bake and the
+	/// registry entry silently disappears with it. A screen that wants to be resolvable by identity at
+	/// runtime therefore authors the marker on its root — <c>"components": ["UiStandardElement"]</c> plus
+	/// <c>"props": { "element": "Custom", "customId": "…" }</c>. Keeping it out of the vocabulary also blinded
+	/// read-back and edit preservation to markers, which is how they got lost unnoticed.
 	/// </summary>
 	[DisallowMultipleComponent]
-	[UiNotAuthorable]
 	public class UiStandardElement : MonoBehaviour
 	{
 		[Tooltip("Which standard element this prefab represents. Use Custom + Custom Id for project-specific elements.")]

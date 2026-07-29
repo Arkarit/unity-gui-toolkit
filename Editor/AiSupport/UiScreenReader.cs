@@ -321,8 +321,8 @@ namespace GuiToolkit.Editor.AiSupport
 		}
 
 		// Picks the primary catalogued component of an element node plus any extra stacked components,
-		// skipping infrastructure (Transform, the view Canvas trio, style appliers, the standard-element
-		// marker, text components) and RequireComponent dependencies of another candidate.
+		// skipping infrastructure (Transform, the view Canvas trio, style appliers, text components) and
+		// RequireComponent dependencies of another candidate.
 		private static Component PickPrimaryAndExtras( GameObject _go, out List<Component> _extras )
 		{
 			_extras = new List<Component>();
@@ -344,10 +344,20 @@ namespace GuiToolkit.Editor.AiSupport
 			if (top.Count == 0)
 				top = candidates; // all mutually required — keep them all rather than lose the node
 
-			var primary = top[0];
-			_extras = top.Skip(1).ToList();
+			// Annotations describe a node, they are never its identity: they must be read back (a screen has to
+			// author its own standard-element marker, or a re-bake drops it), but if one won the primary pick the
+			// node would come back typed as the annotation instead of as the widget it actually is.
+			var primaryCandidates = top.Where(c => !IsAnnotationComponent(c)).ToList();
+			if (primaryCandidates.Count == 0)
+				return null; // annotations only — nothing here that makes a node
+
+			var primary = primaryCandidates[0];
+			_extras = top.Where(c => c != primary).ToList();
 			return primary;
 		}
+
+		// Components that annotate a node rather than make one. Authorable and read back, but never a node's "type".
+		private static bool IsAnnotationComponent( Component _c ) => _c is UiStandardElement || _c is UiComment;
 
 		private static bool IsAuthorableComponent( Component _c )
 		{
@@ -357,7 +367,6 @@ namespace GuiToolkit.Editor.AiSupport
 			// the sole candidate on a text node (TMP_Text is filtered below) and wins the primary pick.
 			if (_c is CanvasRenderer) return false;
 			if (_c is UiAbstractApplyStyleBase) return false;
-			if (_c is UiStandardElement) return false;
 			if (_c is TMPro.TMP_Text) return false;
 			return true;
 		}

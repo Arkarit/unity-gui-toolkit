@@ -598,7 +598,10 @@ namespace GuiToolkit.Editor.AiSupport
 			IndexById(_baselineRoot, baselineById);
 			IndexById(_currentRoot, currentById);
 
-			MergeNode(_newRoot, baselineById, currentById);
+			// Saving a prefab renames its root GameObject to the asset file name, so the read-back root's id is
+			// the screen name and never matches the authored one. Roots are therefore matched positionally —
+			// without this, nothing on the root node was ever preserved.
+			MergeNode(_newRoot, baselineById, currentById, _baselineRoot, _currentRoot);
 		}
 
 		private static void IndexById( JObject _node, Dictionary<string, JObject> _map )
@@ -611,15 +614,25 @@ namespace GuiToolkit.Editor.AiSupport
 					IndexById(child, _map);
 		}
 
-		private static void MergeNode( JObject _newNode, Dictionary<string, JObject> _baselineById, Dictionary<string, JObject> _currentById )
+		private static void MergeNode( JObject _newNode, Dictionary<string, JObject> _baselineById,
+			Dictionary<string, JObject> _currentById, JObject _matchedBaseline = null, JObject _matchedCurrent = null )
 		{
 			string id = (string)_newNode["id"];
-			if (!string.IsNullOrEmpty(id) && _currentById.TryGetValue(id, out var current))
+			var current = _matchedCurrent;
+			var baseline = _matchedBaseline;
+			if (current == null && !string.IsNullOrEmpty(id))
+				_currentById.TryGetValue(id, out current);
+			if (baseline == null && !string.IsNullOrEmpty(id))
+				_baselineById.TryGetValue(id, out baseline);
+
+			if (current != null)
 			{
-				_baselineById.TryGetValue(id, out var baseline);
-				PreserveProps(_newNode, baseline, current, id);
-				PreserveScalar(_newNode, baseline, current, "text", id);
-				PreserveScalar(_newNode, baseline, current, "style", id);
+				string label = string.IsNullOrEmpty(id) ? (string)current["id"] : id;
+				PreserveProps(_newNode, baseline, current, label);
+				PreserveScalar(_newNode, baseline, current, "text", label);
+				PreserveScalar(_newNode, baseline, current, "style", label);
+				PreserveComponents(_newNode, baseline, current, label);
+				PreserveAddedChildren(_newNode, baseline, current, label);
 			}
 
 			if (_newNode["children"] is JArray children)
@@ -654,6 +667,105 @@ namespace GuiToolkit.Editor.AiSupport
 				newProps[pair.Key] = pair.Value.DeepClone();
 				Warn($"preserveEdits: kept hand-edited prop '{pair.Key}' on node '{_id}'.");
 			}
+		}
+
+		/// <summary>
+		/// Keeps components that were added to the prefab after it was baked. Without this a re-bake drops them,
+		/// which is how a hand-added <c>UiStandardElement</c> marker (and with it a registry entry) disappears.
+		/// A component the baseline already had but this bake no longer authors was removed on purpose and is
+		/// not resurrected — same rule the props merge follows.
+		/// </summary>
+		private static void PreserveComponents( JObject _newNode, JObject _baseline, JObject _current, string _id )
+		{
+			var currentNames = ComponentNames(_current);
+			if (currentNames.Count == 0)
+				return;
+
+			var baselineNames = ComponentNames(_baseline);
+			var newNames = ComponentNames(_newNode);
+			string newPrimary = (string)_newNode["type"];
+
+			foreach (string name in currentNames)
+			{
+				if (newNames.Contains(name) || baselineNames.Contains(name))
+					continue;
+				// The node's own "type" is its primary component and never appears in "components".
+				if (!string.IsNullOrEmpty(newPrimary) && string.Equals(name, newPrimary, StringComparison.Ordinal))
+					continue;
+
+				if (_newNode["components"] is not JArray components)
+				{
+					components = new JArray();
+					_newNode["components"] = components;
+				}
+				components.Add(name);
+				Warn($"preserveEdits: kept hand-added component '{name}' on node '{_id}' — author it in the screen " +
+				     "JSON so it no longer depends on preservation.");
+			}
+		}
+
+		/// <summary>
+		/// Keeps child nodes that were added to the prefab by hand. Skipped for nodes whose children the baker
+		/// owns — a template instance's interior belongs to its source prefab, and a scrolling node's
+		/// Viewport/Content are scaffolding, so "preserving" either would duplicate them on every bake.
+		/// </summary>
+		private static void PreserveAddedChildren( JObject _newNode, JObject _baseline, JObject _current, string _id )
+		{
+			if (_current?["children"] is not JArray currentChildren)
+				return;
+			if (!string.IsNullOrEmpty((string)_newNode["template"]) || _newNode["scroll"] != null)
+				return;
+
+			var baselineIds = ChildIds(_baseline);
+			var newIds = ChildIds(_newNode);
+
+			foreach (var child in currentChildren.OfType<JObject>())
+			{
+				string childId = (string)child["id"];
+				if (string.IsNullOrEmpty(childId))
+					continue; // no stable identity to match on — cannot tell an addition from a rename
+				if (newIds.Contains(childId) || baselineIds.Contains(childId))
+					continue;
+
+				if (_newNode["children"] is not JArray children)
+				{
+					children = new JArray();
+					_newNode["children"] = children;
+				}
+				children.Add(child.DeepClone());
+				Warn($"preserveEdits: kept hand-added node '{childId}' under '{_id}' (appended last) — author it in " +
+				     "the screen JSON to control where it sits.");
+			}
+		}
+
+		private static HashSet<string> ComponentNames( JObject _node )
+		{
+			var names = new HashSet<string>(StringComparer.Ordinal);
+			if (_node?["components"] is not JArray components)
+				return names;
+
+			foreach (var entry in components)
+			{
+				string name = entry is JObject obj ? (string)obj["type"] : (string)entry;
+				if (!string.IsNullOrEmpty(name))
+					names.Add(name);
+			}
+			return names;
+		}
+
+		private static HashSet<string> ChildIds( JObject _node )
+		{
+			var ids = new HashSet<string>(StringComparer.Ordinal);
+			if (_node?["children"] is not JArray children)
+				return ids;
+
+			foreach (var child in children.OfType<JObject>())
+			{
+				string id = (string)child["id"];
+				if (!string.IsNullOrEmpty(id))
+					ids.Add(id);
+			}
+			return ids;
 		}
 
 		private static void PreserveScalar( JObject _newNode, JObject _baseline, JObject _current, string _field, string _id )
