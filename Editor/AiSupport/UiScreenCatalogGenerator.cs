@@ -903,6 +903,30 @@ namespace GuiToolkit.Editor.AiSupport
 					entries.Add(entry);
 			}
 
+			// A folder-scan entry whose name IS a standard-element identity is authored through the registry,
+			// so it must advertise the prefab the registry actually resolves that identity to. Otherwise the
+			// catalog points at the scanned library prefab while a bake instantiates the client variant that
+			// out-ranks it — the entry would describe something other than what you get.
+			var winnerByKey = new Dictionary<string, GameObject>(StringComparer.Ordinal);
+			foreach (var resolved in _standardElements ?? new List<ResolvedStandardElement>())
+			{
+				if (!string.IsNullOrEmpty(resolved.key) && resolved.prefab != null)
+					winnerByKey[resolved.key] = resolved.prefab;
+			}
+
+			foreach (var entry in entries)
+			{
+				if (!winnerByKey.TryGetValue(entry.name, out var winner))
+					continue;
+
+				string winnerPath = AssetDatabase.GetAssetPath(winner);
+				if (string.IsNullOrEmpty(winnerPath) || winnerPath == entry.prefabPath)
+					continue;
+
+				entry.prefabPath = winnerPath;
+				entry.prefabGuid = AssetDatabase.AssetPathToGUID(winnerPath);
+			}
+
 			// Deduped by AUTHORING NAME, not by prefab: the folder scan lists a prefab under its own name,
 			// while a registry key is authored under the key. Both can point at the same asset (the key's
 			// winner may be a client variant of the scanned library prefab) — the folder entry wins, since
