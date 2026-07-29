@@ -503,6 +503,7 @@ namespace GuiToolkit.Editor.AiSupport
 			if (_type == typeof(Vector4)) { var v = (Vector4)_value; _token = new JArray { Round(v.x), Round(v.y), Round(v.z), Round(v.w) }; return true; }
 
 			if (_type == typeof(AnimationCurve)) { _token = CurveToJson((AnimationCurve)_value); return true; }
+			if (_type == typeof(Gradient)) { _token = GradientToJson((Gradient)_value); return true; }
 
 			if (typeof(Sprite).IsAssignableFrom(_type))
 			{
@@ -529,6 +530,29 @@ namespace GuiToolkit.Editor.AiSupport
 					["outTangent"] = Round(k.outTangent),
 				});
 			return new JObject { ["keys"] = keys };
+		}
+
+		// Colour and alpha keys are separate in a Gradient, so they stay separate here — collapsing them would
+		// lose stops that only one of the two tracks has.
+		private static JToken GradientToJson( Gradient _gradient )
+		{
+			if (_gradient == null)
+				return null;
+
+			var colorKeys = new JArray();
+			foreach (var k in _gradient.colorKeys)
+				colorKeys.Add(new JObject { ["time"] = Round(k.time), ["color"] = "#" + ColorUtility.ToHtmlStringRGB(k.color) });
+
+			var alphaKeys = new JArray();
+			foreach (var k in _gradient.alphaKeys)
+				alphaKeys.Add(new JObject { ["time"] = Round(k.time), ["alpha"] = Round(k.alpha) });
+
+			return new JObject
+			{
+				["colorKeys"] = colorKeys,
+				["alphaKeys"] = alphaKeys,
+				["mode"] = _gradient.mode.ToString(),
+			};
 		}
 
 		#endregion

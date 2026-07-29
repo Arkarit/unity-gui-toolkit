@@ -1828,6 +1828,7 @@ namespace GuiToolkit.Editor.AiSupport
 				if (_type == typeof(Vector4)) { var v = Floats(_token, 4); _result = new Vector4(v[0], v[1], v[2], v[3]); return true; }
 
 				if (_type == typeof(AnimationCurve)) { _result = ParseAnimationCurve(_token); return _result != null; }
+				if (_type == typeof(Gradient)) { _result = ParseGradient(_token); return _result != null; }
 
 				if (typeof(Sprite).IsAssignableFrom(_type))
 				{
@@ -1894,6 +1895,66 @@ namespace GuiToolkit.Editor.AiSupport
 				return result;
 			}
 			throw new FormatException("Expected a JSON array of numbers.");
+		}
+
+		// Parses a Gradient from one of three author-friendly shapes:
+		//   • a bare colour list [ "#RRGGBBAA", … ] — stops spread evenly over 0→1;
+		//   • an object { "from": "#…", "to": "#…" } — the two-stop case;
+		//   • an object { "colorKeys": [ { "time", "color" }, … ], "alphaKeys"?: [ { "time", "alpha" }, … ],
+		//     "mode"?: "Blend" | "Fixed" } for full control.
+		// Alpha is taken from the colours when no explicit alphaKeys are given, so an author who only cares about
+		// colour never has to write a second track. Throws on malformed input (→ "cannot convert" warning), like
+		// the other TryConvert helpers.
+		private static Gradient ParseGradient( JToken _token )
+		{
+			var colorKeys = new List<GradientColorKey>();
+			var alphaKeys = new List<GradientAlphaKey>();
+			var mode = GradientMode.Blend;
+
+			void AddStop( float _time, Color _color )
+			{
+				colorKeys.Add(new GradientColorKey(_color, _time));
+				alphaKeys.Add(new GradientAlphaKey(_color.a, _time));
+			}
+
+			if (_token is JArray colorList)
+			{
+				if (colorList.Count == 0)
+					return null;
+				for (int i = 0; i < colorList.Count; i++)
+					AddStop(colorList.Count == 1 ? 0f : i / (float)(colorList.Count - 1), ParseColor(colorList[i]));
+			}
+			else if (_token is JObject obj)
+			{
+				if (obj["mode"] != null)
+					mode = (GradientMode)Enum.Parse(typeof(GradientMode), (string)obj["mode"], true);
+
+				if (obj["colorKeys"] is JArray keys)
+				{
+					foreach (var key in keys.OfType<JObject>())
+						AddStop((float)key["time"], ParseColor(key["color"]));
+
+					// An explicit alpha track replaces the one derived from the colours above.
+					if (obj["alphaKeys"] is JArray alphas)
+					{
+						alphaKeys.Clear();
+						foreach (var key in alphas.OfType<JObject>())
+							alphaKeys.Add(new GradientAlphaKey((float)key["alpha"], (float)key["time"]));
+					}
+				}
+				else if (obj["from"] != null && obj["to"] != null)
+				{
+					AddStop(0f, ParseColor(obj["from"]));
+					AddStop(1f, ParseColor(obj["to"]));
+				}
+			}
+
+			if (colorKeys.Count == 0)
+				return null;
+
+			var gradient = new Gradient { mode = mode };
+			gradient.SetKeys(colorKeys.ToArray(), alphaKeys.ToArray());
+			return gradient;
 		}
 
 		// Parses an AnimationCurve from one of three author-friendly shapes:
