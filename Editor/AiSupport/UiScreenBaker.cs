@@ -56,6 +56,10 @@ namespace GuiToolkit.Editor.AiSupport
 		private static Dictionary<string, GameObject> s_nodesById;
 		private static List<DeferredRef> s_deferredRefs;
 
+		// The element nodes this bake built itself (template instances excluded) — the nodes whose wiring is
+		// this screen's responsibility, and therefore the scope of the mandatory-field check.
+		private static List<GameObject> s_authoredNodes;
+
 		private struct DeferredRef
 		{
 			public Component component;
@@ -158,6 +162,7 @@ namespace GuiToolkit.Editor.AiSupport
 			s_warnings = new List<string>(companionWarnings);
 			s_nodesById = new Dictionary<string, GameObject>(StringComparer.Ordinal);
 			s_deferredRefs = new List<DeferredRef>();
+			s_authoredNodes = new List<GameObject>();
 
 			string path = ResolveOutputPath(screen, name);
 
@@ -175,6 +180,7 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				rootGo = BuildNode(rootNode, null);
 				ResolveDeferredRefs();
+				WarnOnUnwiredMandatoryFields();
 
 				EditorFileUtility.EnsureUnityFolderExists(ParentFolder(path));
 
@@ -196,6 +202,78 @@ namespace GuiToolkit.Editor.AiSupport
 					UnityEngine.Object.DestroyImmediate(rootGo);
 			}
 		}
+
+		#region Wiring check
+
+		/// <summary>
+		/// Warns for every <see cref="MandatoryAttribute"/> object field on an authored node that is still null
+		/// after wiring. A screen whose controller fields are unassigned looks finished and does nothing when
+		/// clicked, and nothing else catches it: the attribute is only an Inspector decoration, so until now the
+		/// mistake was invisible until a human opened the prefab or ran the game.
+		///
+		/// Only element nodes are checked — the ones this screen is responsible for. Template instances carry
+		/// their source prefab's own wiring, and <see cref="MandatoryExternalAttribute"/> fields are assigned by
+		/// whoever instantiates the screen, so neither belongs to the author of this bake.
+		/// </summary>
+		private static void WarnOnUnwiredMandatoryFields()
+		{
+			foreach (var go in s_authoredNodes)
+			{
+				if (go == null)
+					continue;
+
+				foreach (var component in go.GetComponents<Component>())
+				{
+					if (component == null)
+						continue;
+
+					for (var t = component.GetType(); t != null && t != typeof(object); t = t.BaseType)
+					{
+						var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public |
+						                         BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+						foreach (var field in fields)
+							WarnIfMandatoryFieldUnwired(component, field, go.name);
+					}
+				}
+			}
+		}
+
+		private static void WarnIfMandatoryFieldUnwired( Component _component, FieldInfo _field, string _nodeName )
+		{
+			if (_field.GetCustomAttribute<MandatoryAttribute>() == null)
+				return;
+
+			Type type = _field.FieldType;
+			bool isCollection = type.IsArray ||
+				(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>));
+
+			// The attribute is meant for object references; it is occasionally put on value fields, where
+			// "unassigned" has no meaning (a float is always something).
+			Type elementType = type.IsArray
+				? type.GetElementType()
+				: isCollection ? type.GetGenericArguments()[0] : type;
+			if (elementType == null || !typeof(UnityEngine.Object).IsAssignableFrom(elementType))
+				return;
+
+			object value = _field.GetValue(_component);
+			bool unwired = isCollection
+				// An empty collection is left alone: plenty of prefabs legitimately ship one.
+				? value == null
+				: value as UnityEngine.Object == null;
+			if (!unwired)
+				return;
+
+			string propName = _field.Name.StartsWith("m_", StringComparison.Ordinal)
+				? _field.Name.Substring(2)
+				: _field.Name;
+
+			Warn($"Mandatory field '{_field.Name}' on {_component.GetType().Name} ('{_nodeName}') is not wired — " +
+			     $"the screen will look finished and do nothing. Set it via \"props\": {{ \"{propName}\": " +
+			     "\"#nodeId\" } (a node in this screen, including a template part given an \"id\" in " +
+			     "\"overrides\"), or an asset path for a prefab/sprite reference.");
+		}
+
+		#endregion
 
 		#region Repeated-subtree detection
 
@@ -511,9 +589,13 @@ namespace GuiToolkit.Editor.AiSupport
 			if (string.IsNullOrEmpty(template) && string.IsNullOrEmpty(type))
 				throw new ArgumentException("Node must declare either \"template\" or \"type\".");
 
-			GameObject go = !string.IsNullOrEmpty(template)
+			bool isTemplateNode = !string.IsNullOrEmpty(template);
+			GameObject go = isTemplateNode
 				? CreateTemplateNode(template)
 				: CreateElementNode(type);
+
+			if (!isTemplateNode)
+				s_authoredNodes.Add(go);
 
 			string id = (string)_node["id"];
 			string displayName = (string)_node["name"] ?? id ?? go.name;
@@ -567,7 +649,7 @@ namespace GuiToolkit.Editor.AiSupport
 			// be configured at its root, so anything that differs per instance (a card's title, icon, amount,
 			// state) forces the author to hand-copy the whole subtree instead of referencing one prefab.
 			if (_node["overrides"] is JObject overrides)
-				ApplyPartOverrides(go, overrides, !string.IsNullOrEmpty(template));
+				ApplyPartOverrides(go, overrides, isTemplateNode);
 
 			// Layout: an explicit "rect" wins; otherwise a root gets a sane full-stretch default so it
 			// isn't left at the 100x100 centered default of a fresh RectTransform.
