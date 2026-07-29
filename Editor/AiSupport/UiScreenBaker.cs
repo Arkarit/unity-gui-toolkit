@@ -1914,6 +1914,9 @@ namespace GuiToolkit.Editor.AiSupport
 			var colorKeys = new List<GradientColorKey>();
 			var alphaKeys = new List<GradientAlphaKey>();
 			var mode = GradientMode.Blend;
+			// A freshly constructed Gradient leaves colorSpace unset (serialized as -1), which is not what the
+			// Inspector produces; default to what a hand-made gradient has so authored and hand-made ones match.
+			var colorSpace = ColorSpace.Gamma;
 
 			void AddStop( float _time, Color _color )
 			{
@@ -1932,6 +1935,8 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				if (obj["mode"] != null)
 					mode = (GradientMode)Enum.Parse(typeof(GradientMode), (string)obj["mode"], true);
+				if (obj["colorSpace"] != null)
+					colorSpace = (ColorSpace)Enum.Parse(typeof(ColorSpace), (string)obj["colorSpace"], true);
 
 				if (obj["colorKeys"] is JArray keys)
 				{
@@ -1956,7 +1961,7 @@ namespace GuiToolkit.Editor.AiSupport
 			if (colorKeys.Count == 0)
 				return null;
 
-			var gradient = new Gradient { mode = mode };
+			var gradient = new Gradient { mode = mode, colorSpace = colorSpace };
 			gradient.SetKeys(colorKeys.ToArray(), alphaKeys.ToArray());
 			return gradient;
 		}

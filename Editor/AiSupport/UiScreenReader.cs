@@ -558,6 +558,7 @@ namespace GuiToolkit.Editor.AiSupport
 				["colorKeys"] = colorKeys,
 				["alphaKeys"] = alphaKeys,
 				["mode"] = _gradient.mode.ToString(),
+				["colorSpace"] = _gradient.colorSpace.ToString(),
 			};
 		}
 
