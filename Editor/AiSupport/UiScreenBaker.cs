@@ -572,7 +572,8 @@ namespace GuiToolkit.Editor.AiSupport
 					return;
 				}
 
-				var baselineRoot = JObject.Parse(System.IO.File.ReadAllText(System.IO.Path.GetFullPath(sidecarPath)))["root"] as JObject;
+				var sidecar = JObject.Parse(System.IO.File.ReadAllText(System.IO.Path.GetFullPath(sidecarPath)));
+				var baselineRoot = BakeBaselineAndReadBack(sidecar, _prefabPath) ?? sidecar["root"] as JObject;
 				var currentRoot = UiScreenReader.Read(_prefabPath, "structural").screen["root"] as JObject;
 				if (baselineRoot == null || currentRoot == null)
 					return;
@@ -582,6 +583,54 @@ namespace GuiToolkit.Editor.AiSupport
 			catch (Exception e)
 			{
 				Warn($"preserveEdits failed ('{e.Message}'); baking the screen as given without preservation.");
+			}
+		}
+
+		/// <summary>
+		/// Bakes the baseline description to a throwaway prefab and reads that back, so the baseline is expressed
+		/// in exactly the terms the current prefab is read in. Comparing against the raw source JSON instead makes
+		/// every value the BAKER produced look like a hand edit — above all the ones a <c>style</c> applies, since
+		/// a style overwrites the authored prop (authoring #062152 and reading back #000000 is normal). Those would
+		/// then be preserved as explicit props, a few more on every re-bake, until the style decides nothing
+		/// anymore. Returns null when the baseline cannot be baked; the caller falls back to the raw JSON.
+		/// </summary>
+		private static JObject BakeBaselineAndReadBack( JObject _sidecar, string _prefabPath )
+		{
+			string tempPath = $"{ParentFolder(_prefabPath)}/__preserveEditsBaseline.prefab";
+
+			var baseline = (JObject)_sidecar.DeepClone();
+			baseline["outputPath"] = tempPath;
+			baseline.Remove("preserveEdits");
+			// Companion prefabs already exist at their own paths; re-baking them here would rewrite those assets
+			// and their sidecars as a side effect of a preservation check.
+			baseline.Remove("prefabs");
+
+			// A nested Bake re-initialises the per-bake state, so hand it back afterwards. Its warnings belong to
+			// the throwaway bake and are deliberately dropped with it.
+			var outerWarnings = s_warnings;
+			var outerNodesById = s_nodesById;
+			var outerDeferredRefs = s_deferredRefs;
+			var outerAuthoredNodes = s_authoredNodes;
+			try
+			{
+				Bake(baseline.ToString());
+				return UiScreenReader.Read(tempPath, "structural").screen["root"] as JObject;
+			}
+			catch (Exception e)
+			{
+				UiLog.LogWarning($"preserveEdits: could not bake the baseline for comparison ({e.Message}); " +
+				                 "falling back to the source JSON, which can mistake style-applied values for hand edits.");
+				return null;
+			}
+			finally
+			{
+				s_warnings = outerWarnings;
+				s_nodesById = outerNodesById;
+				s_deferredRefs = outerDeferredRefs;
+				s_authoredNodes = outerAuthoredNodes;
+
+				AssetDatabase.DeleteAsset(tempPath);
+				AssetDatabase.DeleteAsset(SidecarPathFor(tempPath));
 			}
 		}
 
