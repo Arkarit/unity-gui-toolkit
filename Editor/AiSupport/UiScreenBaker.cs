@@ -573,12 +573,16 @@ namespace GuiToolkit.Editor.AiSupport
 				}
 
 				var sidecar = JObject.Parse(System.IO.File.ReadAllText(System.IO.Path.GetFullPath(sidecarPath)));
-				var baselineRoot = BakeBaselineAndReadBack(sidecar, _prefabPath) ?? sidecar["root"] as JObject;
+
+				// Two baselines, and they answer different questions: the previous DESCRIPTION tells whether the
+				// author changed their mind, the STATE it baked to tells whether a human touched the prefab.
+				var baselineDescriptionRoot = sidecar["root"] as JObject;
+				var baselineStateRoot = BakeBaselineAndReadBack(sidecar, _prefabPath) ?? baselineDescriptionRoot;
 				var currentRoot = UiScreenReader.Read(_prefabPath, "structural").screen["root"] as JObject;
-				if (baselineRoot == null || currentRoot == null)
+				if (baselineDescriptionRoot == null || baselineStateRoot == null || currentRoot == null)
 					return;
 
-				MergePreservedEdits(_newRoot, baselineRoot, currentRoot);
+				MergePreservedEdits(_newRoot, baselineDescriptionRoot, baselineStateRoot, currentRoot);
 			}
 			catch (Exception e)
 			{
@@ -635,23 +639,40 @@ namespace GuiToolkit.Editor.AiSupport
 		}
 
 		/// <summary>
-		/// The pure JSON merge behind <c>preserveEdits</c> (exposed for testing): folds hand edits — props/text/
-		/// style present in <paramref name="_currentRoot"/> that differ from <paramref name="_baselineRoot"/>
-		/// and that <paramref name="_newRoot"/> does not itself specify — into <paramref name="_newRoot"/>,
-		/// matching nodes by id. The new JSON always wins where it specifies a value.
+		/// The pure JSON merge behind <c>preserveEdits</c> (exposed for testing): folds hand edits from
+		/// <paramref name="_currentRoot"/> into <paramref name="_newRoot"/>, matching nodes by id.
+		///
+		/// Arbitration per value: it is a HAND EDIT when the prefab's state diverges from the state the baseline
+		/// description baked to, and the DESCRIPTION WINS only where the author actually changed their mind, i.e.
+		/// where the new description differs from the baseline description. A description that merely repeats what
+		/// it said last time does not overrule a human — otherwise nothing hand-adjusted could survive a re-bake,
+		/// since a description names a node's rect and most of its props every single time.
+		///
+		/// This needs TWO baselines, and they are not interchangeable: descriptions are compared against
+		/// descriptions (<paramref name="_baselineDescriptionRoot"/>, the previous source JSON) and states against
+		/// states (<paramref name="_baselineStateRoot"/>, that JSON baked and read back). Comparing across the two
+		/// would compare authored values with baker-produced ones — the very mismatch that made styles look like
+		/// hand edits.
 		/// </summary>
-		public static void MergePreservedEdits( JObject _newRoot, JObject _baselineRoot, JObject _currentRoot )
+		public static void MergePreservedEdits( JObject _newRoot, JObject _baselineDescriptionRoot,
+			JObject _baselineStateRoot, JObject _currentRoot )
 		{
-			var baselineById = new Dictionary<string, JObject>(StringComparer.Ordinal);
+			var descriptionById = new Dictionary<string, JObject>(StringComparer.Ordinal);
+			var stateById = new Dictionary<string, JObject>(StringComparer.Ordinal);
 			var currentById = new Dictionary<string, JObject>(StringComparer.Ordinal);
-			IndexById(_baselineRoot, baselineById);
+			IndexById(_baselineDescriptionRoot, descriptionById);
+			IndexById(_baselineStateRoot, stateById);
 			IndexById(_currentRoot, currentById);
 
 			// Saving a prefab renames its root GameObject to the asset file name, so the read-back root's id is
 			// the screen name and never matches the authored one. Roots are therefore matched positionally —
 			// without this, nothing on the root node was ever preserved.
-			MergeNode(_newRoot, baselineById, currentById, _baselineRoot, _currentRoot);
+			MergeNode(_newRoot, descriptionById, stateById, currentById,
+				_baselineDescriptionRoot, _baselineStateRoot, _currentRoot);
 		}
+
+		/// <summary>True when two values differ, treating "absent" (null) as a value of its own.</summary>
+		private static bool Differs( JToken _a, JToken _b ) => !JToken.DeepEquals(_a, _b);
 
 		private static void IndexById( JObject _node, Dictionary<string, JObject> _map )
 		{
@@ -663,50 +684,56 @@ namespace GuiToolkit.Editor.AiSupport
 					IndexById(child, _map);
 		}
 
-		private static void MergeNode( JObject _newNode, Dictionary<string, JObject> _baselineById,
-			Dictionary<string, JObject> _currentById, JObject _matchedBaseline = null, JObject _matchedCurrent = null )
+		private static void MergeNode( JObject _newNode, Dictionary<string, JObject> _descriptionById,
+			Dictionary<string, JObject> _stateById, Dictionary<string, JObject> _currentById,
+			JObject _matchedDescription = null, JObject _matchedState = null, JObject _matchedCurrent = null )
 		{
 			string id = (string)_newNode["id"];
 			var current = _matchedCurrent;
-			var baseline = _matchedBaseline;
+			var state = _matchedState;
+			var description = _matchedDescription;
 			if (current == null && !string.IsNullOrEmpty(id))
 				_currentById.TryGetValue(id, out current);
-			if (baseline == null && !string.IsNullOrEmpty(id))
-				_baselineById.TryGetValue(id, out baseline);
+			if (state == null && !string.IsNullOrEmpty(id))
+				_stateById.TryGetValue(id, out state);
+			if (description == null && !string.IsNullOrEmpty(id))
+				_descriptionById.TryGetValue(id, out description);
 
 			if (current != null)
 			{
 				string label = string.IsNullOrEmpty(id) ? (string)current["id"] : id;
-				PreserveProps(_newNode, baseline, current, label);
-				PreserveScalar(_newNode, baseline, current, "text", label);
-				PreserveScalar(_newNode, baseline, current, "style", label);
-				PreserveComponents(_newNode, baseline, current, label);
-				PreserveAddedChildren(_newNode, baseline, current, label);
+				PreserveProps(_newNode, description, state, current, label);
+				PreserveScalar(_newNode, description, state, current, "text", label);
+				PreserveScalar(_newNode, description, state, current, "style", label);
+				PreserveScalar(_newNode, description, state, current, "rect", label);
+				PreserveComponents(_newNode, state, current, label);
+				PreserveAddedChildren(_newNode, state, current, label);
 			}
 
 			if (_newNode["children"] is JArray children)
 				foreach (var child in children.OfType<JObject>())
-					MergeNode(child, _baselineById, _currentById);
+					MergeNode(child, _descriptionById, _stateById, _currentById);
 		}
 
-		// Copies props that were hand-edited (differ from baseline) and that the new node does not specify.
-		private static void PreserveProps( JObject _newNode, JObject _baseline, JObject _current, string _id )
+		// Copies props that were hand-edited (the prefab diverges from what the baseline description baked to) and
+		// that the author did not change in this re-bake.
+		private static void PreserveProps( JObject _newNode, JObject _description, JObject _state, JObject _current,
+			string _id )
 		{
 			if (_current["props"] is not JObject currentProps)
 				return;
-			var baselineProps = _baseline?["props"] as JObject;
+			var stateProps = _state?["props"] as JObject;
+			var descriptionProps = _description?["props"] as JObject;
 			var newProps = _newNode["props"] as JObject;
 
 			foreach (var pair in currentProps)
 			{
-				if (newProps != null && newProps.ContainsKey(pair.Key))
-					continue; // the re-bake specifies it — author wins
-
-				bool handEdited = baselineProps == null
-					|| !baselineProps.ContainsKey(pair.Key)
-					|| !JToken.DeepEquals(baselineProps[pair.Key], pair.Value);
+				bool handEdited = Differs(pair.Value, stateProps?[pair.Key]);
 				if (!handEdited)
-					continue; // unchanged from what the baker generated — not a hand edit
+					continue; // exactly what the baker produced — not a hand edit
+
+				if (Differs(newProps?[pair.Key], descriptionProps?[pair.Key]))
+					continue; // the author changed this value (or dropped it) — the description wins
 
 				if (newProps == null)
 				{
@@ -817,15 +844,19 @@ namespace GuiToolkit.Editor.AiSupport
 			return ids;
 		}
 
-		private static void PreserveScalar( JObject _newNode, JObject _baseline, JObject _current, string _field, string _id )
+		// One whole node-level value: "text", "style", or "rect" (an object — compared as a unit, so a node moved
+		// or resized by hand keeps the rect it has, rather than half of it).
+		private static void PreserveScalar( JObject _newNode, JObject _description, JObject _state, JObject _current,
+			string _field, string _id )
 		{
 			var currentVal = _current[_field];
 			if (currentVal == null || currentVal.Type == JTokenType.Null)
 				return;
-			if (_newNode[_field] != null)
-				return; // author specified it — wins
-			if (_baseline != null && JToken.DeepEquals(_baseline[_field], currentVal))
-				return; // unchanged from baseline — generated, not hand-edited
+
+			if (!Differs(currentVal, _state?[_field]))
+				return; // exactly what the baker produced — not a hand edit
+			if (Differs(_newNode[_field], _description?[_field]))
+				return; // the author changed it (or dropped it) — the description wins
 
 			_newNode[_field] = currentVal.DeepClone();
 			Warn($"preserveEdits: kept hand-edited '{_field}' on node '{_id}'.");
