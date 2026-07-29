@@ -72,6 +72,7 @@ Steps Claude follows:
 | `setup_status` | One-shot project-state health check (registry, prefab-variants path, catalog freshness, missing standard elements). |
 | `get_catalog` | Locate the screen-authoring catalog: returns a small summary (`{ path, absolutePath, counts, … }`), NOT the body — read the file yourself, it's large. |
 | `regenerate_catalog` | Re-run the generator in Unity, then return the same summary envelope as `get_catalog`. |
+| `list_styles` | List the project's style vocabulary (named looks per target component type), read off the catalog on disk. Call it before authoring text/panels; optional `targetType` filter. |
 | `bake_screen` | Bake a screen description (`{ name, root }`) into a real `.prefab`; returns `{ path, warnings }`. `preserveEdits` keeps hand edits on a re-bake. |
 | `read_screen` | Read a `.prefab` back into screen JSON (`{ screen, warnings }`) — inspect, tweak, re-bake. `source`: `auto` (sidecar if present, else structural) / `sidecar` / `structural`. |
 | `screenshot_view` | Render a baked prefab to a PNG (Edit-Mode) and return the image — the AI preview loop. |

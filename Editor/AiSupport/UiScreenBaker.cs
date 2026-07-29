@@ -415,6 +415,9 @@ namespace GuiToolkit.Editor.AiSupport
 			if (!string.IsNullOrEmpty(style))
 				ApplyStyle(go, style);
 
+			// Props run before styles and a style wins, so the draw mode can only be judged once both are in.
+			WarnOnStretchedSlicedSprite(go);
+
 			string text = (string)_node["text"];
 			if (text != null)
 				ApplyText(go, text);
@@ -1409,6 +1412,30 @@ namespace GuiToolkit.Editor.AiSupport
 
 			if (!applied)
 				Warn($"Style '{_styleName}' matched no component on '{_go.name}'; skipped.");
+		}
+
+		/// <summary>
+		/// Warns when an <see cref="Image"/> carries a 9-slice sprite (non-zero border) while its draw mode is
+		/// still <see cref="Image.Type.Simple"/>: the borders get stretched instead of sliced, which is the most
+		/// common "the authored screen looks broken" cause. It is invisible in the screen JSON, because a style
+		/// sets the sprite while the draw mode stays whatever the freshly added component defaulted to — a style
+		/// never sets it. Not an error: a 9-slice sprite drawn Simple is legal, just almost never intended.
+		/// </summary>
+		private static void WarnOnStretchedSlicedSprite( GameObject _go )
+		{
+			foreach (var image in _go.GetComponents<Image>())
+			{
+				if (image == null || image.type != Image.Type.Simple)
+					continue;
+
+				var sprite = image.sprite;
+				if (sprite == null || sprite.border == Vector4.zero)
+					continue;
+
+				Warn($"Image on '{_go.name}' has the 9-slice sprite '{sprite.name}' (border " +
+				     $"{sprite.border.x},{sprite.border.y},{sprite.border.z},{sprite.border.w}) but draw mode " +
+				     $"Simple, so its borders are stretched — add \"type\": \"Sliced\" (or \"Tiled\") to this node.");
+			}
 		}
 
 		#endregion

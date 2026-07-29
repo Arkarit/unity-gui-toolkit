@@ -9,6 +9,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { readFile } from "node:fs/promises";
 
 const BRIDGE_URL = process.env.UI_TOOLKIT_BRIDGE_URL ?? "http://127.0.0.1:17632/";
 
@@ -173,6 +174,38 @@ server.tool(
 );
 
 server.tool(
+	"list_styles",
+	"List this project's STYLE vocabulary — the named looks (fonts, colours, sprites, gradients) a screen " +
+	"node applies via its \"style\" field, grouped by the component type they target. Call this BEFORE " +
+	"authoring any text or panel: using a project style is what makes an authored screen look like the rest " +
+	"of the game, whereas leaving TMP/Image at their defaults is the single biggest reason a screen reads as " +
+	"'assembled by a machine'. Cheap — it reads the catalog off disk, no Unity round-trip beyond locating it. " +
+	"Style names carry NO reliable size/role semantics, and similar names can be unrelated looks (in BOTW, " +
+	"'Text/Headline' is the uppercase display font while 'Text/Headline/Large' is a plain sans), so do not " +
+	"infer the look from the name: bake a specimen screen — one text node per style, each labelled with its " +
+	"own name — and screenshot_view it once. Two further rules the names cannot tell you: a style sets a " +
+	"sprite but never the Image draw mode (add \"type\": \"Sliced\"/\"Tiled\" yourself), and props are applied " +
+	"BEFORE the style, so the style wins on colours and sprites — darken via a separate overlay, not a tint.",
+	{ targetType: z.string().optional().describe("Only return groups for this component type (e.g. \"TMP_Text\", \"Image\")."), },
+	async ({ targetType }) => {
+		try {
+			const summary = JSON.parse(await callBridge("getCatalog"));
+			const catalog = JSON.parse(await readFile(summary.absolutePath, "utf8"));
+			let groups = catalog.styleGroups ?? [];
+			if (targetType)
+				groups = groups.filter((g) => (g.componentType ?? "") === targetType);
+			return ok(JSON.stringify({
+				catalogPath: summary.path,
+				generatedAtUtc: summary.generatedAtUtc,
+				styleGroups: groups.map((g) => ({ componentType: g.componentType, styleNames: g.styleNames ?? [] })),
+			}, null, 1));
+		} catch (e) {
+			return fail(e);
+		}
+	}
+);
+
+server.tool(
 	"bake_screen",
 	"Bake a screen description into a real Unity .prefab asset. 'screen' is the screen JSON " +
 	"(see get_catalog for the component/template vocabulary): { name, root: { type|template, id, " +
@@ -199,7 +232,12 @@ server.tool(
 	"\"components\" array of type names (or { type, props } objects) — no wrapper node needed. " +
 	"Set preserveEdits:true on a re-bake to keep hand edits made to the existing prefab since the last bake " +
 	"(props/text that differ from the baseline and that this JSON does not itself specify are folded back in; " +
-	"warnings list what was kept). Call setup_status first if screens come out looking wrong.",
+	"warnings list what was kept). Call setup_status first if screens come out looking wrong. " +
+	"LOOK: give text and panel nodes a \"style\" from the project's vocabulary (list_styles) instead of " +
+	"leaving TMP/Image at their defaults, and compose from the catalog's 'palette' templates rather than " +
+	"stacking raw Image + text nodes — a project ships ready-made headline/panel/button-bar/price-tag pieces, " +
+	"and hand-building past them is what makes an authored screen look unfinished. Read a comparable shipped " +
+	"screen with read_screen first to see which templates and styles it actually uses.",
 	{
 		screen: z.union([z.string(), z.record(z.any())]).describe("The screen description (JSON object or JSON string)."),
 		outputPath: z.string().optional().describe("Where to write the prefab (full .prefab path or a folder). Overrides the default Generated folder."),
