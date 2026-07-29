@@ -181,6 +181,7 @@ namespace GuiToolkit.Editor.AiSupport
 				rootGo = BuildNode(rootNode, null);
 				ResolveDeferredRefs();
 				WarnOnUnwiredMandatoryFields();
+				WarnOnDroppedExistingContent(rootGo, path);
 
 				EditorFileUtility.EnsureUnityFolderExists(ParentFolder(path));
 
@@ -202,6 +203,100 @@ namespace GuiToolkit.Editor.AiSupport
 					UnityEngine.Object.DestroyImmediate(rootGo);
 			}
 		}
+
+		#region Re-bake loss check
+
+		/// <summary>
+		/// Warns about components and child nodes that exist in the prefab being overwritten but not in what
+		/// this bake produced — i.e. things a human (or an earlier tool run) added to the asset afterwards, which
+		/// a re-bake discards because it rebuilds the prefab from its description. That is how a hand-added
+		/// <c>UiStandardElement</c> marker or a hand-wired extra component silently disappears, and the symptom
+		/// shows up far away: a registry lookup that suddenly resolves to nothing.
+		///
+		/// The comparison is against the freshly built hierarchy rather than against the screen JSON, so
+		/// everything the baker adds by itself — style appliers, a UiView's Canvas, ScrollRect scaffolding,
+		/// RequireComponent additions — is present on both sides and cannot produce a false alarm.
+		/// </summary>
+		private static void WarnOnDroppedExistingContent( GameObject _newRoot, string _prefabPath )
+		{
+			var existing = AssetDatabase.LoadAssetAtPath<GameObject>(_prefabPath);
+			if (existing == null || _newRoot == null)
+				return; // first bake — nothing to lose
+
+			CompareForDroppedContent(existing.transform, _newRoot.transform, existing.name);
+		}
+
+		private static void CompareForDroppedContent( Transform _old, Transform _new, string _path )
+		{
+			WarnOnDroppedComponents(_old, _new, _path);
+
+			// Children are matched by name, positionally among same-named siblings, because that is the only
+			// stable identity a prefab asset offers — the baker's node ids do not survive into the asset.
+			var newByName = new Dictionary<string, List<Transform>>(StringComparer.Ordinal);
+			foreach (Transform child in _new)
+			{
+				if (!newByName.TryGetValue(child.name, out var list))
+					newByName[child.name] = list = new List<Transform>();
+				list.Add(child);
+			}
+
+			var used = new Dictionary<string, int>(StringComparer.Ordinal);
+			foreach (Transform oldChild in _old)
+			{
+				used.TryGetValue(oldChild.name, out int index);
+				used[oldChild.name] = index + 1;
+
+				Transform match = null;
+				if (newByName.TryGetValue(oldChild.name, out var candidates) && index < candidates.Count)
+					match = candidates[index];
+
+				string childPath = $"{_path}/{oldChild.name}";
+				if (match == null)
+				{
+					Warn($"Re-bake drops node '{childPath}', which exists in the prefab being overwritten but not " +
+					     "in this screen description. If it was added by hand, author it here — a re-bake always " +
+					     "rebuilds the prefab from the description.");
+					continue;
+				}
+
+				CompareForDroppedContent(oldChild, match, childPath);
+			}
+		}
+
+		private static void WarnOnDroppedComponents( Transform _old, Transform _new, string _path )
+		{
+			var newCounts = new Dictionary<Type, int>();
+			foreach (var component in _new.GetComponents<Component>())
+			{
+				if (component == null)
+					continue;
+				newCounts.TryGetValue(component.GetType(), out int count);
+				newCounts[component.GetType()] = count + 1;
+			}
+
+			var oldCounts = new Dictionary<Type, int>();
+			foreach (var component in _old.GetComponents<Component>())
+			{
+				if (component == null)
+					continue;
+				oldCounts.TryGetValue(component.GetType(), out int count);
+				oldCounts[component.GetType()] = count + 1;
+			}
+
+			foreach (var pair in oldCounts)
+			{
+				newCounts.TryGetValue(pair.Key, out int newCount);
+				if (newCount >= pair.Value)
+					continue;
+
+				Warn($"Re-bake drops {pair.Value - newCount}x {pair.Key.Name} from node '{_path}', present in the " +
+				     "prefab being overwritten but not authored here. Add it to the node's \"components\" (with the " +
+				     "props it needs) so it survives — hand-adding it to the asset again will not, the next bake " +
+				     "rebuilds the prefab.");
+			}
+		}
+
+		#endregion
 
 		#region Wiring check
 
