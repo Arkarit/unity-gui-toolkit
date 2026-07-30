@@ -281,6 +281,16 @@ namespace GuiToolkit.Editor.AiSupport
 					return new JObject { ["screen"] = readResult.screen, ["warnings"] = readWarnings }
 						.ToString(Newtonsoft.Json.Formatting.None);
 
+				case "resolvePackages":
+					// Unity only notices an externally edited manifest.json when the editor regains focus, which
+					// left an agent waiting on a human to alt-tab. Resolve() does it directly. It returns as soon
+					// as the resolve is triggered — the caller polls "status" for idle, like recompile does.
+					UnityEditor.PackageManager.Client.Resolve();
+					return new JObject { ["resolving"] = true }.ToString(Newtonsoft.Json.Formatting.None);
+
+				case "getConsole":
+					return ReadConsoleQuery(_payload).ToString(Newtonsoft.Json.Formatting.None);
+
 				case "capturePrefabValues":
 					if (string.IsNullOrWhiteSpace(_payload))
 						throw new Exception("capturePrefabValues requires a 'payload' holding the prefab path.");
@@ -350,6 +360,17 @@ namespace GuiToolkit.Editor.AiSupport
 		/// The batch is tagged base-before-variant internally, so a client can safely pass a whole set.
 		/// </summary>
 		// readScreen's payload is either a bare prefab path or a small { "path": "..." } JSON envelope.
+		private static JObject ReadConsoleQuery( string _payload )
+		{
+			var request = string.IsNullOrWhiteSpace(_payload) ? new JObject() : JObject.Parse(_payload);
+			return UiEditorConsoleLog.Query(
+				(string)request["severity"],
+				(string)request["contains"],
+				(long?)request["sinceSequence"] ?? 0,
+				(int?)request["limit"] ?? 0,
+				(bool?)request["withStackTraces"] ?? false);
+		}
+
 		private static string ReadScreenPath( string _payload )
 		{
 			string trimmed = _payload.Trim();

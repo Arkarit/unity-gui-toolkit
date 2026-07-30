@@ -174,6 +174,76 @@ server.tool(
 );
 
 server.tool(
+	"get_console",
+	"Read THIS editor session's console messages — what Unity actually said, with severities, instead of " +
+	"pattern-matching Editor.log from outside. Editor.log spans several sessions and readily serves a previous " +
+	"run's compiler errors as if they were current, which is a good way to reach a confident wrong conclusion. " +
+	"Filters: 'severity' ('error' | 'warning' meaning warning-and-worse | 'all'), 'contains' (case-insensitive " +
+	"substring of the message), 'limit' (newest N, default 100), 'withStackTraces'. The reliable way to ask " +
+	"\"what did that action produce\" is 'sinceSequence': note 'nextSequence' from a call, do the thing, then " +
+	"pass it back and get only what is new. 'bufferedTotals' counts everything still buffered, not just what " +
+	"was returned. The buffer holds the last 1000 messages and starts empty after a domain reload.",
+	{
+		severity: z.enum(["error", "warning", "log", "all"]).optional().describe("Narrow by severity; 'warning' includes errors."),
+		contains: z.string().optional().describe("Only messages containing this text (case-insensitive)."),
+		sinceSequence: z.number().optional().describe("Only messages newer than this sequence number (from a previous call's nextSequence)."),
+		limit: z.number().optional().describe("Return at most this many, newest kept (default 100)."),
+		withStackTraces: z.boolean().optional().describe("Include stack traces — verbose, so off by default."),
+	},
+	async (args) => {
+		try { return ok(await callBridge("getConsole", JSON.stringify(args ?? {}))); }
+		catch (e) { return fail(e); }
+	}
+);
+
+server.tool(
+	"resolve_packages",
+	"Make Unity pick up an edited Packages/manifest.json right now, then WAIT until the editor is idle again. " +
+	"Unity normally only notices an externally edited manifest when it regains focus, so changing a package " +
+	"version otherwise means waiting for a human to click into the editor. Use this straight after editing the " +
+	"manifest — for example to point the toolkit at a different tag, or at a local working copy while testing a " +
+	"fix. Expect a package re-resolve plus asset import, so it can take minutes on a large project, and the " +
+	"bridge goes down during the domain reload (that is normal and waited out here).",
+	{},
+	async () => {
+		try {
+			await callBridge("resolvePackages");
+
+			const TIMEOUT_MS = 600000;
+			const t0 = Date.now();
+			let sawActivity = false;
+			let reloaded = false;
+
+			await sleep(2000); // the resolve is queued, give it a moment to start
+
+			while (Date.now() - t0 < TIMEOUT_MS) {
+				const st = await tryBridge("status");
+				if (st === null) {
+					// Bridge unreachable: the import/domain-reload window. Keep waiting.
+					sawActivity = true;
+					reloaded = true;
+					await sleep(2000);
+					continue;
+				}
+				if (st.compiling || st.updating) {
+					sawActivity = true;
+					await sleep(2000);
+					continue;
+				}
+				if (sawActivity)
+					return ok(JSON.stringify({ resolved: true, reloaded, ms: Date.now() - t0 }));
+				if (Date.now() - t0 > 15000)
+					return ok(JSON.stringify({ resolved: true, reloaded, note: "no import activity detected — the manifest may already have been up to date", ms: Date.now() - t0 }));
+				await sleep(2000);
+			}
+			return ok(JSON.stringify({ resolved: false, reloaded, note: "timed out waiting for the editor to go idle", ms: Date.now() - t0 }));
+		} catch (e) {
+			return fail(e);
+		}
+	}
+);
+
+server.tool(
 	"capture_prefab_values",
 	"Capture EVERY serialized value of every component in a baked prefab into a temporary snapshot, keyed by " +
 	"node path and Unity's own propertyPath strings. Use it before re-baking a prefab a human has edited: the " +
