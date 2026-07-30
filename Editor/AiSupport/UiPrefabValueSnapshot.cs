@@ -1,0 +1,245 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using Newtonsoft.Json.Linq;
+using UnityEditor;
+using UnityEngine;
+
+namespace GuiToolkit.Editor.AiSupport
+{
+	/// <summary>
+	/// Captures every serialized value of every component in a baked prefab into a temporary intermediate
+	/// format, keyed by node path and Unity's own <c>propertyPath</c> strings.
+	///
+	/// Why this exists: the screen description is a curated vocabulary, so a human edit it cannot express is
+	/// invisible to <c>read_screen</c> and to edit preservation — a font size and a gradient direction were both
+	/// lost that way. A snapshot is complete by construction instead, which decouples "nothing gets lost" from
+	/// "the description can say it".
+	///
+	/// This is a CLIPBOARD, not a format: it belongs under Library/ (never version-controlled), because a second
+	/// place that describes a screen would compete with the description for being the source of truth.
+	///
+	/// Object references are recorded descriptively (asset path, or the node path they point at inside this
+	/// prefab) so they can be ANALYSED, but they are marked and must never be written back blindly: a re-bake
+	/// rebuilds the prefab with fresh object ids, and wiring belongs to the description via "#id".
+	/// </summary>
+	public static class UiPrefabValueSnapshot
+	{
+		private const string SnapshotDir = "Library/UiToolkit/ValueSnapshots";
+
+		/// <summary>Marks a captured value as an object reference rather than plain data.</summary>
+		public const string RefKey = "__ref";
+
+		// Identity and bookkeeping: never a human's edit, and meaningless once the prefab is rebuilt.
+		private static readonly HashSet<string> s_skippedPaths = new()
+		{
+			"m_ObjectHideFlags", "m_CorrespondingSourceObject", "m_PrefabInstance", "m_PrefabAsset",
+			"m_GameObject", "m_Script", "m_EditorClassIdentifier", "m_EditorHideFlags", "m_Name",
+			"m_Father", "m_Children", "m_RootOrder", "m_LocalEulerAnglesHint",
+		};
+
+		// Derived data a component recomputes for itself. TMP's text info alone holds per-character arrays, so
+		// capturing it would bury the real edits in noise and bloat the snapshot for nothing.
+		private static readonly string[] s_skippedPrefixes =
+		{
+			"m_textInfo", "m_mesh", "m_RenderedWidth", "m_RenderedHeight", "m_PreferredValues",
+			"m_TextComponent.", "m_SubTextObjects", "m_MaterialReferences", "m_FontFeatures",
+		};
+
+		public static string SnapshotPathFor( string _prefabPath ) =>
+			$"{SnapshotDir}/{Path.GetFileNameWithoutExtension(_prefabPath)}.values.json";
+
+		/// <summary>
+		/// Captures <paramref name="_prefabPath"/> and writes the snapshot next to the others under Library/.
+		/// Returns a summary: where it went plus what it holds, so a caller can judge the result without
+		/// reading the file.
+		/// </summary>
+		public static JObject Capture( string _prefabPath )
+		{
+			var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(_prefabPath);
+			if (prefab == null)
+				throw new ArgumentException($"No prefab at '{_prefabPath}'.");
+
+			var nodes = new JArray();
+			int componentCount = 0, valueCount = 0, refCount = 0;
+
+			foreach (var (path, gameObject) in Walk(prefab.transform, ""))
+			{
+				var components = new JArray();
+				foreach (var component in gameObject.GetComponents<Component>())
+				{
+					if (component == null)
+						continue; // a missing script — nothing to capture, and not this tool's business
+
+					var values = CaptureComponent(component, ref refCount);
+					if (values.Count == 0)
+						continue;
+
+					components.Add(new JObject
+					{
+						["type"] = component.GetType().Name,
+						["values"] = values,
+					});
+					componentCount++;
+					valueCount += values.Count;
+				}
+
+				if (components.Count > 0)
+					nodes.Add(new JObject { ["path"] = path, ["components"] = components });
+			}
+
+			var snapshot = new JObject
+			{
+				["prefab"] = _prefabPath,
+				["capturedAtUtc"] = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
+				["nodes"] = nodes,
+			};
+
+			string snapshotPath = SnapshotPathFor(_prefabPath);
+			Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(snapshotPath)));
+			File.WriteAllText(Path.GetFullPath(snapshotPath), snapshot.ToString(Newtonsoft.Json.Formatting.Indented));
+
+			return new JObject
+			{
+				["prefab"] = _prefabPath,
+				["snapshotPath"] = snapshotPath,
+				["nodes"] = nodes.Count,
+				["components"] = componentCount,
+				["values"] = valueCount,
+				["objectReferences"] = refCount,
+				["byteSize"] = new FileInfo(Path.GetFullPath(snapshotPath)).Length,
+			};
+		}
+
+		/// <summary>Node paths relative to the prefab root, the root itself being "".</summary>
+		private static IEnumerable<(string path, GameObject gameObject)> Walk( Transform _transform, string _path )
+		{
+			yield return (_path, _transform.gameObject);
+
+			foreach (Transform child in _transform)
+			{
+				string childPath = string.IsNullOrEmpty(_path) ? child.name : $"{_path}/{child.name}";
+				foreach (var entry in Walk(child, childPath))
+					yield return entry;
+			}
+		}
+
+		private static JObject CaptureComponent( Component _component, ref int _refCount )
+		{
+			var values = new JObject();
+			var serialized = new SerializedObject(_component);
+			var property = serialized.GetIterator();
+
+			// NextVisible(true) descends into structs and arrays, so nested values arrive as their own
+			// propertyPath entries ("m_gradient.key0.r") — no container handling needed.
+			bool enterChildren = true;
+			while (property.NextVisible(enterChildren))
+			{
+				enterChildren = true;
+				if (IsSkipped(property.propertyPath))
+				{
+					// Do not descend into a skipped container either; its children are just as derived.
+					enterChildren = false;
+					continue;
+				}
+
+				if (!TryReadValue(property, out var token, out bool isReference))
+					continue;
+
+				values[property.propertyPath] = token;
+				if (isReference)
+					_refCount++;
+			}
+
+			return values;
+		}
+
+		private static bool IsSkipped( string _propertyPath )
+		{
+			if (s_skippedPaths.Contains(_propertyPath))
+				return true;
+			foreach (string prefix in s_skippedPrefixes)
+			{
+				if (_propertyPath.StartsWith(prefix, StringComparison.Ordinal))
+					return true;
+			}
+			return false;
+		}
+
+		private static bool TryReadValue( SerializedProperty _property, out JToken _token, out bool _isReference )
+		{
+			_token = null;
+			_isReference = false;
+
+			switch (_property.propertyType)
+			{
+				case SerializedPropertyType.Integer: _token = _property.longValue; return true;
+				case SerializedPropertyType.Boolean: _token = _property.boolValue; return true;
+				case SerializedPropertyType.Float: _token = _property.doubleValue; return true;
+				case SerializedPropertyType.String: _token = _property.stringValue; return true;
+				case SerializedPropertyType.Character: _token = _property.intValue; return true;
+				case SerializedPropertyType.ArraySize: _token = _property.intValue; return true;
+				case SerializedPropertyType.LayerMask: _token = _property.intValue; return true;
+
+				// The name, not the index: an enum's numbering is an implementation detail, and a name survives
+				// a reordered enum whereas a 3 silently becomes something else.
+				case SerializedPropertyType.Enum:
+					_token = _property.enumValueIndex >= 0 && _property.enumValueIndex < _property.enumNames.Length
+						? _property.enumNames[_property.enumValueIndex]
+						: (JToken)_property.intValue;
+					return true;
+
+				case SerializedPropertyType.Color:
+					_token = "#" + ColorUtility.ToHtmlStringRGBA(_property.colorValue);
+					return true;
+
+				case SerializedPropertyType.Vector2: { var v = _property.vector2Value; _token = new JArray { v.x, v.y }; return true; }
+				case SerializedPropertyType.Vector3: { var v = _property.vector3Value; _token = new JArray { v.x, v.y, v.z }; return true; }
+				case SerializedPropertyType.Vector4: { var v = _property.vector4Value; _token = new JArray { v.x, v.y, v.z, v.w }; return true; }
+				case SerializedPropertyType.Vector2Int: { var v = _property.vector2IntValue; _token = new JArray { v.x, v.y }; return true; }
+				case SerializedPropertyType.Vector3Int: { var v = _property.vector3IntValue; _token = new JArray { v.x, v.y, v.z }; return true; }
+				case SerializedPropertyType.Rect: { var r = _property.rectValue; _token = new JArray { r.x, r.y, r.width, r.height }; return true; }
+
+				case SerializedPropertyType.ObjectReference:
+					_isReference = true;
+					_token = DescribeReference(_property.objectReferenceValue);
+					return true;
+
+				// Everything else (Generic containers, ManagedReference, gradients as a whole, ...) is either
+				// descended into by the iterator or not restorable as a value anyway.
+				default:
+					return false;
+			}
+		}
+
+		/// <summary>
+		/// Describes what a reference points at, for analysis only: an asset by path, an object inside the same
+		/// prefab by its node path, or the type alone when neither applies.
+		/// </summary>
+		private static JToken DescribeReference( UnityEngine.Object _value )
+		{
+			if (_value == null)
+				return new JObject { [RefKey] = null };
+
+			string assetPath = AssetDatabase.GetAssetPath(_value);
+			var asComponent = _value as Component;
+			var asGameObject = _value as GameObject ?? (asComponent != null ? asComponent.gameObject : null);
+
+			var result = new JObject { [RefKey] = _value.GetType().Name };
+			if (!string.IsNullOrEmpty(assetPath))
+				result["asset"] = assetPath;
+			if (asGameObject != null)
+				result["node"] = NodePathOf(asGameObject.transform);
+			return result;
+		}
+
+		private static string NodePathOf( Transform _transform )
+		{
+			var parts = new List<string>();
+			for (var t = _transform; t != null && t.parent != null; t = t.parent)
+				parts.Insert(0, t.name);
+			return string.Join("/", parts);
+		}
+	}
+}

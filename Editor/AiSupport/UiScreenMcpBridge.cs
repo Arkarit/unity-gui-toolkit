@@ -281,6 +281,12 @@ namespace GuiToolkit.Editor.AiSupport
 					return new JObject { ["screen"] = readResult.screen, ["warnings"] = readWarnings }
 						.ToString(Newtonsoft.Json.Formatting.None);
 
+				case "capturePrefabValues":
+					if (string.IsNullOrWhiteSpace(_payload))
+						throw new Exception("capturePrefabValues requires a 'payload' holding the prefab path.");
+					return UiPrefabValueSnapshot.Capture(ReadScreenPath(_payload))
+						.ToString(Newtonsoft.Json.Formatting.None);
+
 				case "screenshotView":
 					return Screenshot(_payload);
 

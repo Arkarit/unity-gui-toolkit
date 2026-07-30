@@ -174,6 +174,25 @@ server.tool(
 );
 
 server.tool(
+	"capture_prefab_values",
+	"Capture EVERY serialized value of every component in a baked prefab into a temporary snapshot, keyed by " +
+	"node path and Unity's own propertyPath strings. Use it before re-baking a prefab a human has edited: the " +
+	"screen description is a curated vocabulary, so an edit it cannot express (a font size, a gradient " +
+	"direction, a value on a template's internals) is invisible to read_screen and to preserveEdits — a " +
+	"snapshot is complete by construction instead. Returns a summary { snapshotPath, nodes, components, " +
+	"values, objectReferences, byteSize }; read the file itself for the values. The snapshot lands under " +
+	"Library/ and must stay uncommitted: it is a clipboard, not a second description competing to be the " +
+	"source of truth. Object references are recorded descriptively (asset path, or the node they point at) for " +
+	"ANALYSIS only — never write them back, since a re-bake makes fresh object ids and wiring belongs to the " +
+	"description via \"#id\". Derived data (TMP text info, meshes, cached sizes) is deliberately not captured.",
+	{ path: z.string().describe("Project-relative prefab path, e.g. 'Assets/.../MyScreen.prefab'.") },
+	async ({ path }) => {
+		try { return ok(await callBridge("capturePrefabValues", JSON.stringify({ path }))); }
+		catch (e) { return fail(e); }
+	}
+);
+
+server.tool(
 	"list_styles",
 	"List this project's STYLE vocabulary — the named looks (fonts, colours, sprites, gradients) a screen " +
 	"node applies via its \"style\" field, grouped by the component type they target. Call this BEFORE " +
