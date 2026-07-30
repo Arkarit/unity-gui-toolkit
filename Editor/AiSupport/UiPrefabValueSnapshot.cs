@@ -57,36 +57,54 @@ namespace GuiToolkit.Editor.AiSupport
 		/// </summary>
 		public static JObject Capture( string _prefabPath )
 		{
-			var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(_prefabPath);
-			if (prefab == null)
+			if (AssetDatabase.LoadAssetAtPath<GameObject>(_prefabPath) == null)
 				throw new ArgumentException($"No prefab at '{_prefabPath}'.");
 
 			var nodes = new JArray();
-			int componentCount = 0, valueCount = 0, refCount = 0;
+			int componentCount = 0, valueCount = 0, refCount = 0, emptyComponentCount = 0;
+			var missingScripts = new JArray();
 
-			foreach (var (path, gameObject) in Walk(prefab.transform, ""))
+			// LoadPrefabContents, not the asset object: loading the asset directly did not expose every component
+			// (a UiSimpleAnimation was simply absent from the walk), and this is the API the reader already uses to
+			// inspect a prefab. It realises the prefab in a temporary scene, so nested instances behave like
+			// ordinary objects — hence the finally.
+			GameObject prefab = PrefabUtility.LoadPrefabContents(_prefabPath);
+			try
 			{
-				var components = new JArray();
-				foreach (var component in gameObject.GetComponents<Component>())
+				foreach (var (path, gameObject) in Walk(prefab.transform, ""))
 				{
-					if (component == null)
-						continue; // a missing script — nothing to capture, and not this tool's business
-
-					var values = CaptureComponent(component, ref refCount);
-					if (values.Count == 0)
-						continue;
-
-					components.Add(new JObject
+					var components = new JArray();
+					foreach (var component in gameObject.GetComponents<Component>())
 					{
-						["type"] = component.GetType().Name,
-						["values"] = values,
-					});
-					componentCount++;
-					valueCount += values.Count;
-				}
+						if (component == null)
+						{
+							// A null entry means the script behind that component could not be loaded. Reported rather
+							// than skipped in silence: a snapshot that quietly omits components is exactly how a
+							// UiSimpleAnimation went missing without anyone noticing.
+							missingScripts.Add(string.IsNullOrEmpty(path) ? "<root>" : path);
+							continue;
+						}
 
-				if (components.Count > 0)
+						// Listed even when nothing was captured: that a component IS here is information of its own,
+						// and hiding the empty ones once made a whole UiSimpleAnimation look absent.
+						var values = CaptureComponent(component, ref refCount);
+						components.Add(new JObject
+						{
+							["type"] = component.GetType().Name,
+							["values"] = values,
+						});
+						componentCount++;
+						valueCount += values.Count;
+						if (values.Count == 0)
+							emptyComponentCount++;
+					}
+
 					nodes.Add(new JObject { ["path"] = path, ["components"] = components });
+				}
+			}
+			finally
+			{
+				PrefabUtility.UnloadPrefabContents(prefab);
 			}
 
 			var snapshot = new JObject
@@ -108,6 +126,10 @@ namespace GuiToolkit.Editor.AiSupport
 				["components"] = componentCount,
 				["values"] = valueCount,
 				["objectReferences"] = refCount,
+				// A component nothing could be read from is worth seeing, not hiding: it means the capture does
+				// not understand a type yet.
+				["componentsWithoutValues"] = emptyComponentCount,
+				["nodesWithUnloadableScripts"] = missingScripts,
 				["byteSize"] = new FileInfo(Path.GetFullPath(snapshotPath)).Length,
 			};
 		}
@@ -131,10 +153,12 @@ namespace GuiToolkit.Editor.AiSupport
 			var serialized = new SerializedObject(_component);
 			var property = serialized.GetIterator();
 
-			// NextVisible(true) descends into structs and arrays, so nested values arrive as their own
-			// propertyPath entries ("m_gradient.key0.r") — no container handling needed.
+			// Next(), not NextVisible(): the latter is tied to what the Inspector would show, which silently
+			// emptied whole components (a UiSimpleAnimation came back with nothing at all). A snapshot has to be
+			// complete regardless of drawers, foldout state or [HideInInspector]. Descending yields nested values
+			// as their own propertyPath entries ("m_gradient.key0.r"), so containers need no special handling.
 			bool enterChildren = true;
-			while (property.NextVisible(enterChildren))
+			while (property.Next(enterChildren))
 			{
 				enterChildren = true;
 				if (IsSkipped(property.propertyPath))
@@ -201,6 +225,20 @@ namespace GuiToolkit.Editor.AiSupport
 				case SerializedPropertyType.Vector3Int: { var v = _property.vector3IntValue; _token = new JArray { v.x, v.y, v.z }; return true; }
 				case SerializedPropertyType.Rect: { var r = _property.rectValue; _token = new JArray { r.x, r.y, r.width, r.height }; return true; }
 
+				case SerializedPropertyType.Quaternion: { var q = _property.quaternionValue; _token = new JArray { q.x, q.y, q.z, q.w }; return true; }
+				case SerializedPropertyType.Bounds: { var b = _property.boundsValue; _token = new JArray { b.center.x, b.center.y, b.center.z, b.size.x, b.size.y, b.size.z }; return true; }
+
+				// Curves and gradients are LEAF properties as far as the iterator is concerned: NextVisible never
+				// descends into them, so without an explicit case they vanish from the snapshot entirely — and
+				// they are among the main reasons it exists, being awkward to express in a description.
+				case SerializedPropertyType.AnimationCurve:
+					_token = CurveToJson(_property.animationCurveValue);
+					return _token != null;
+
+				case SerializedPropertyType.Gradient:
+					_token = GradientToJson(ReadGradient(_property));
+					return _token != null;
+
 				case SerializedPropertyType.ObjectReference:
 					_isReference = true;
 					_token = DescribeReference(_property.objectReferenceValue);
@@ -211,6 +249,65 @@ namespace GuiToolkit.Editor.AiSupport
 				default:
 					return false;
 			}
+		}
+
+		// SerializedProperty exposes gradientValue only internally, so it has to be reached by reflection. If a
+		// future Unity renames it, the gradient is simply left out of the snapshot rather than the capture failing.
+		private static readonly System.Reflection.PropertyInfo s_gradientValue =
+			typeof(SerializedProperty).GetProperty("gradientValue",
+				System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public |
+				System.Reflection.BindingFlags.NonPublic);
+
+		private static Gradient ReadGradient( SerializedProperty _property )
+		{
+			if (s_gradientValue == null)
+				return null;
+			try { return s_gradientValue.GetValue(_property) as Gradient; }
+			catch { return null; }
+		}
+
+		private static JToken CurveToJson( AnimationCurve _curve )
+		{
+			if (_curve == null)
+				return null;
+
+			var keys = new JArray();
+			foreach (var key in _curve.keys)
+			{
+				keys.Add(new JObject
+				{
+					["time"] = key.time, ["value"] = key.value,
+					["inTangent"] = key.inTangent, ["outTangent"] = key.outTangent,
+				});
+			}
+			return new JObject
+			{
+				["keys"] = keys,
+				["preWrapMode"] = _curve.preWrapMode.ToString(),
+				["postWrapMode"] = _curve.postWrapMode.ToString(),
+			};
+		}
+
+		private static JToken GradientToJson( Gradient _gradient )
+		{
+			if (_gradient == null)
+				return null;
+
+			var colorKeys = new JArray();
+			foreach (var key in _gradient.colorKeys)
+				colorKeys.Add(new JObject { ["time"] = key.time, ["color"] = "#" + ColorUtility.ToHtmlStringRGB(key.color) });
+
+			var alphaKeys = new JArray();
+			foreach (var key in _gradient.alphaKeys)
+				alphaKeys.Add(new JObject { ["time"] = key.time, ["alpha"] = key.alpha });
+
+			return new JObject
+			{
+				["colorKeys"] = colorKeys,
+				["alphaKeys"] = alphaKeys,
+				["mode"] = _gradient.mode.ToString(),
+				["colorSpace"] = _gradient.colorSpace.ToString(),
+			};
 		}
 
 		/// <summary>
