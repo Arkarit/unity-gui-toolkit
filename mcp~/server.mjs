@@ -207,7 +207,10 @@ server.tool(
 
 server.tool(
 	"bake_screen",
-	"Bake a screen description into a real Unity .prefab asset. 'screen' is the screen JSON " +
+	"Bake a screen description into a real Unity .prefab asset. Pass the description either inline via " +
+	"'screen' or, when it already exists on disk, via 'screenPath' — a baked screen writes its description to " +
+	"'<name>.screen.src.json' next to the prefab, so re-baking one is bake_screen({ screenPath: that file }) " +
+	"and never requires resending the description. 'screen' is the screen JSON " +
 	"(see get_catalog for the component/template vocabulary): { name, root: { type|template, id, " +
 	"props, style, text, children[] } }. The 'type' vocabulary is both the toolkit's Ui* components AND " +
 		"raw UGUI/Unity building blocks exposed via an allow-list (Image, RawImage, Button, ScrollRect, Mask, " +
@@ -248,14 +251,28 @@ server.tool(
 	"and hand-building past them is what makes an authored screen look unfinished. Read a comparable shipped " +
 	"screen with read_screen first to see which templates and styles it actually uses.",
 	{
-		screen: z.union([z.string(), z.record(z.any())]).describe("The screen description (JSON object or JSON string)."),
+		screen: z.union([z.string(), z.record(z.any())]).optional().describe("The screen description (JSON object or JSON string). Omit when using screenPath."),
+		screenPath: z.string().optional().describe("Path to a file holding the screen description instead of passing it inline — most usefully a baked screen's own '.screen.src.json' sidecar, to re-bake it unchanged or with outputPath/preserveEdits applied. Exactly one of 'screen' or 'screenPath'."),
 		outputPath: z.string().optional().describe("Where to write the prefab (full .prefab path or a folder). Overrides the default Generated folder."),
 		preserveEdits: z.boolean().optional().describe("On a re-bake, fold hand edits from the existing prefab back in so they survive (default false)."),
 	},
-	async ({ screen, outputPath, preserveEdits }) => {
+	async ({ screen, screenPath, outputPath, preserveEdits }) => {
 		try {
+			if (!screen && !screenPath)
+				return fail(new Error("Pass either 'screen' (inline) or 'screenPath' (a file holding it)."));
+			if (screen && screenPath)
+				return fail(new Error("Pass either 'screen' or 'screenPath', not both."));
+
 			let payload;
-			if (outputPath || preserveEdits) {
+			if (screenPath) {
+				// Read here rather than in Unity: the server is local, and this is the whole point of the
+				// parameter — a description that already exists on disk should not have to travel through the
+				// conversation again just to be re-baked.
+				const obj = JSON.parse(await readFile(screenPath, "utf8"));
+				if (outputPath) obj.outputPath = outputPath;
+				if (preserveEdits) obj.preserveEdits = true;
+				payload = JSON.stringify(obj);
+			} else if (outputPath || preserveEdits) {
 				const obj = typeof screen === "string" ? JSON.parse(screen) : screen;
 				if (outputPath) obj.outputPath = outputPath;
 				if (preserveEdits) obj.preserveEdits = true;
