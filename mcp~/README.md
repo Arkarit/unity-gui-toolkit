@@ -66,6 +66,33 @@ instead would reject a nested project's own bridge, i.e. this repo's.)
 
 Stale file after a crash: the proxy fails to connect, says so, and re-reads the file on the next call.
 
+### One session across several editors
+
+Each bridge also announces itself machine-wide, in `%LOCALAPPDATA%\UiToolkit\bridges\` (or
+`~/.local/share/UiToolkit/bridges/`), so **one** session can enumerate and reach all of them:
+
+- `list_projects` lists every project with a bridge — path, folder name, Unity product name, port,
+  and whether it still answers.
+- **every** tool takes an optional `project`: a full path, a folder name, or the Unity product name
+  (`botw-client` and `BOW` both work). Left out, it means the project the server was started for, so
+  ordinary work is unchanged.
+
+The point is not convenience. Working on the toolkit itself, a C# change can be compiled and tried in
+**this repo's own dev app** — which uses the working copy directly — instead of pointing a client's
+package reference at `file:` and back for every iteration. That round trip costs a package reimport
+plus a recompile each way.
+
+There is deliberately **no** "switch to project X" command. A mutable session target would make the
+answer to *which project does this call write to* invisible again, which is the exact failure the
+announcement mechanism exists to prevent. An argument is slightly more to type and always readable.
+
+Ports really do move: with two editors restarting at once, the client and the dev app swapped 17632 and
+17633 between them. Nothing needed adjusting, which is the whole idea — but it is also why a proxy from
+before this change must be reconnected rather than trusted.
+
+The registry is pruned by the editor on bridge start: entries whose process is gone are deleted, since
+the editor is the one participant that can cheaply tell whether a pid is still alive.
+
 ### Registering with Claude Code — the easy way
 
 The registration file (`.mcp.json`) holds a **machine-specific absolute path**, so it is

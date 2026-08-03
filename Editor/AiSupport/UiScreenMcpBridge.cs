@@ -46,6 +46,14 @@ namespace GuiToolkit.Editor.AiSupport
 		/// </summary>
 		private const string DiscoveryFile = "Library/UiToolkit/mcp-bridge.json";
 
+		/// <summary>
+		/// A machine-wide copy of the same announcement, so ONE proxy can enumerate every running bridge instead
+		/// of only the one in its own project. The per-project file stays the authority on where a project's
+		/// bridge is; this directory only answers "which projects are currently up".
+		/// </summary>
+		private static string RegistryDir => Path.Combine(
+			Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "UiToolkit", "bridges");
+
 		private const string EnabledPrefKey = "GuiToolkit.AiSupport.McpBridge.Enabled";
 		// Max time to wait for a handler on the main thread. Generous because batch operations
 		// (e.g. tagging many prefabs in one call) re-serialize each asset and can take a while;
@@ -167,40 +175,104 @@ namespace GuiToolkit.Editor.AiSupport
 		/// Announces this bridge to whoever opens this project. Deleted again on shutdown; a file left behind by a
 		/// crash is harmless because the proxy fails to connect and says so rather than talking to nothing.
 		/// </summary>
+		private static string RegistryFilePath =>
+			Path.Combine(RegistryDir, SanitiseForFileName(ProjectPath) + ".json");
+
+		private static string SanitiseForFileName( string _value )
+		{
+			var sb = new StringBuilder(_value.Length);
+			foreach (char c in _value.ToLowerInvariant())
+				sb.Append(char.IsLetterOrDigit(c) ? c : '_');
+			return sb.ToString();
+		}
+
 		private static void WriteDiscoveryFile()
+		{
+			var info = new JObject
+			{
+				["port"] = s_port,
+				["url"] = UrlPrefixFor(s_port),
+				["projectPath"] = ProjectPath,
+				// Both, because neither alone is a good handle: the folder name of a project nested in a repo can
+				// be as useless as "Unity", while a product name is author-chosen and says what the project IS.
+				["projectName"] = Path.GetFileName(ProjectPath),
+				["productName"] = Application.productName,
+				["unityVersion"] = Application.unityVersion,
+				["pid"] = System.Diagnostics.Process.GetCurrentProcess().Id,
+				["startedAtUtc"] = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
+			};
+			string body = info.ToString(Newtonsoft.Json.Formatting.Indented);
+
+			Write(DiscoveryFilePath, body, "discovery file");
+			PruneDeadRegistryEntries();
+			Write(RegistryFilePath, body, "registry entry");
+
+			static void Write( string _path, string _body, string _what )
+			{
+				try
+				{
+					Directory.CreateDirectory(Path.GetDirectoryName(_path));
+					File.WriteAllText(_path, _body);
+				}
+				catch (Exception e)
+				{
+					// Not fatal: the bridge still serves, it is just harder to find.
+					UiLog.LogError($"MCP bridge could not write its {_what}: {e.Message}");
+				}
+			}
+		}
+
+		/// <summary>
+		/// Drops registry entries whose editor is gone. A clean shutdown removes its own entry, but a crash
+		/// cannot — and the editor is the one process that can cheaply tell whether a pid is still alive, so it
+		/// tidies up on the way in rather than leaving the proxy to guess.
+		/// </summary>
+		private static void PruneDeadRegistryEntries()
 		{
 			try
 			{
-				string path = DiscoveryFilePath;
-				Directory.CreateDirectory(Path.GetDirectoryName(path));
+				if (!Directory.Exists(RegistryDir))
+					return;
 
-				var info = new JObject
+				foreach (string file in Directory.GetFiles(RegistryDir, "*.json"))
 				{
-					["port"] = s_port,
-					["url"] = UrlPrefixFor(s_port),
-					["projectPath"] = ProjectPath,
-					["unityVersion"] = Application.unityVersion,
-					["pid"] = System.Diagnostics.Process.GetCurrentProcess().Id,
-					["startedAtUtc"] = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
-				};
-				File.WriteAllText(path, info.ToString(Newtonsoft.Json.Formatting.Indented));
+					int pid;
+					try
+					{
+						var entry = JObject.Parse(File.ReadAllText(file));
+						pid = (int?)entry["pid"] ?? 0;
+					}
+					catch
+					{
+						// Unreadable entry: it can never be used, so it may as well go.
+						TryDelete(file);
+						continue;
+					}
+
+					if (pid == 0)
+						continue;
+
+					try { System.Diagnostics.Process.GetProcessById(pid); }
+					catch (ArgumentException) { TryDelete(file); }
+				}
 			}
-			catch (Exception e)
+			catch { /* enumeration problems are not worth failing a bridge start over */ }
+		}
+
+		private static void TryDelete( string _path )
+		{
+			try
 			{
-				// Not fatal: the bridge still serves, it is just harder to find.
-				UiLog.LogError($"MCP bridge could not write its discovery file: {e.Message}");
+				if (File.Exists(_path))
+					File.Delete(_path);
 			}
+			catch { /* a stale file is survivable; failing to start or stop is not */ }
 		}
 
 		private static void DeleteDiscoveryFile()
 		{
-			try
-			{
-				string path = DiscoveryFilePath;
-				if (File.Exists(path))
-					File.Delete(path);
-			}
-			catch { /* a stale file is survivable; failing to stop is not */ }
+			TryDelete(DiscoveryFilePath);
+			TryDelete(RegistryFilePath);
 		}
 
 		private static void StopInternal()

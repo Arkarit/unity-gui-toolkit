@@ -9,9 +9,10 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { readFile } from "node:fs/promises";
-import { readdir } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
+import { homedir } from "node:os";
+import { AsyncLocalStorage } from "node:async_hooks";
 
 // Where this proxy was launched. Claude Code uses the project directory; "--project <path>" overrides
 // it. This is only the STARTING POINT for finding a bridge, not the answer: a repo root and a Unity
@@ -30,11 +31,22 @@ const FORCED_URL = process.env.UI_TOOLKIT_BRIDGE_URL ?? null;
 const SKIP_DIRS = new Set(["node_modules", ".git", "Library", "Temp", "obj", "Build", "Logs", "Assets"]);
 const SCAN_DEPTH = 3;
 
-// Resolved lazily and re-resolved on failure: the editor may start, stop or move port at any time,
-// and a proxy that cached a dead URL forever would need a restart for no good reason.
-let g_bridgeUrl = null;
-let g_expectedProject = null;
-let g_verifiedUrl = null;
+/** Where every running bridge on this machine announces itself, mirroring the editor's own path. */
+const REGISTRY_DIR = join(process.env.LOCALAPPDATA ?? join(homedir(), ".local/share"),
+	"UiToolkit", "bridges").replace(/\\/g, "/");
+
+/**
+ * The target of the call in flight. Carried in async context rather than a module variable that a tool
+ * could switch: which project a call writes to must be readable from the call itself. A "switch project"
+ * command would put that back out of sight, which is the failure this whole mechanism exists to prevent.
+ */
+const g_callContext = new AsyncLocalStorage();
+
+/** Resolved bridges by target key ("" = the launch project). Re-resolved whenever one stops answering. */
+const g_bridges = new Map();
+
+const normalisePath = (p) => String(p ?? "").replace(/\\/g, "/").replace(/\/+$/, "");
+const sameProject = (a, b) => normalisePath(a).toLowerCase() === normalisePath(b).toLowerCase();
 
 async function readDiscoveryAt(dir) {
 	try {
@@ -116,100 +128,186 @@ async function scanDown(dir, depth, found, searched) {
 	}
 }
 
-async function resolveBridgeUrl() {
-	if (g_bridgeUrl)
-		return g_bridgeUrl;
+/** Every bridge this machine knows about, alive or not. */
+async function listRegistryEntries() {
+	let files;
+	try {
+		files = await readdir(REGISTRY_DIR);
+	} catch {
+		return [];
+	}
 
-	if (FORCED_URL) {
+	const entries = [];
+	for (const file of files) {
+		if (!file.endsWith(".json"))
+			continue;
+		try {
+			const info = JSON.parse(await readFile(join(REGISTRY_DIR, file), "utf8"));
+			if (info?.projectPath && (info.url || info.port))
+				entries.push(info);
+		} catch { /* an unreadable entry is simply not offered */ }
+	}
+	return entries;
+}
+
+/**
+ * Finds the bridge a "project" argument asks for. A full path or a bare folder name both work; an
+ * ambiguous name is an error naming the candidates, because picking one would mean writing into a
+ * project the caller did not name.
+ */
+async function findByProjectSpec(spec) {
+	const wanted = normalisePath(spec);
+	const entries = await listRegistryEntries();
+
+	const byPath = entries.filter((e) => sameProject(e.projectPath, wanted));
+	if (byPath.length === 1)
+		return { info: byPath[0], root: byPath[0].projectPath };
+
+	// Folder name OR Unity product name: "botw-client" and "BOW" should both find the same editor, and a
+	// project nested in a repo often has a useless folder name ("Unity") but a meaningful product name.
+	const short = wanted.split("/").filter(Boolean).pop()?.toLowerCase() ?? "";
+	const byName = entries.filter(
+		(e) => String(e.projectName ?? "").toLowerCase() === short ||
+		       String(e.productName ?? "").toLowerCase() === short ||
+		       normalisePath(e.projectPath).split("/").pop()?.toLowerCase() === short);
+
+	if (byName.length === 1)
+		return { info: byName[0], root: byName[0].projectPath };
+
+	if (byName.length > 1) {
+		throw new Error(
+			`'${spec}' matches several running bridges: ${byName.map((e) => e.projectPath).join(", ")}. ` +
+			`Pass the full project path instead.`
+		);
+	}
+
+	// Not announced machine-wide (an older bridge, or a registry that could not be written): fall back to
+	// reading the project's own file, which is the authority anyway.
+	const direct = await readDiscoveryAt(resolve(spec));
+	if (direct)
+		return { info: direct, root: normalisePath(resolve(spec)) };
+
+	throw new Error(
+		`No running bridge for project '${spec}'. Running: ` +
+		(entries.length ? entries.map((e) => `${e.projectName ?? "?"} (${e.projectPath})`).join(", ") : "none") +
+		`. Use list_projects to see what is available, and start a bridge with ` +
+		`'Gui Toolkit > AI > Start MCP Bridge' in the editor you mean.`
+	);
+}
+
+async function resolveBridge() {
+	const spec = g_callContext.getStore()?.project ?? null;
+	const key = spec ? normalisePath(spec).toLowerCase() : "";
+
+	const cached = g_bridges.get(key);
+	if (cached)
+		return cached;
+
+	let info;
+	let root;
+	if (spec) {
+		({ info, root } = await findByProjectSpec(spec));
+	} else if (FORCED_URL) {
 		// A forced URL replaces only the CONNECTING, not the checking. Discovery still runs to learn which
 		// project this launch directory belongs to — comparing against the launch directory itself would
 		// wrongly reject a nested project's own bridge, which is precisely the toolkit's own layout. If
 		// nothing is discoverable there is simply nothing to hold it to.
-		try {
-			const { info, root } = await findDiscovery();
-			g_expectedProject = String(info.projectPath ?? root).replace(/\\/g, "/");
-		} catch {
-			g_expectedProject = null;
-		}
-		g_bridgeUrl = FORCED_URL;
-		return g_bridgeUrl;
+		try { ({ info, root } = await findDiscovery()); }
+		catch { info = null; root = null; }
+	} else {
+		({ info, root } = await findDiscovery());
 	}
 
-	const { info, root } = await findDiscovery();
+	// Compare against what the ANNOUNCEMENT claims, not against the launch directory: the project may
+	// legitimately sit below it. This still catches the case that matters — an entry left behind by a crash
+	// whose port is now held by a different editor.
+	const bridge = {
+		url: (spec ? null : FORCED_URL) ?? info?.url ?? (info?.port ? `http://127.0.0.1:${info.port}/` : null),
+		expectedProject: info ? normalisePath(info.projectPath ?? root) : null,
+		verified: false,
+		key,
+	};
 
-	// Compare against what the FILE claims, not against the launch directory: the project may legitimately
-	// sit below it. This still catches the case that matters — a file left behind by a crash whose port is
-	// now held by a different editor.
-	g_expectedProject = String(info.projectPath ?? root).replace(/\\/g, "/");
-	g_bridgeUrl = info.url ?? `http://127.0.0.1:${info.port}/`;
-	return g_bridgeUrl;
+	g_bridges.set(key, bridge);
+	return bridge;
+}
+
+function forget(bridge) {
+	g_bridges.delete(bridge.key);
 }
 
 // The whole point of the discovery file: confirm the editor that answered is the one belonging to this
 // project. Cheap (one status call per URL) and it turns a silent catastrophe — baking into a different
 // project that merely happened to hold the port — into a refusal.
-async function verifyBridge(url) {
-	if (g_verifiedUrl === url)
+function unreachable(bridge, cause) {
+	forget(bridge);
+	return new Error(
+		`Cannot reach the Unity bridge at ${bridge.url} (expected project ` +
+		`'${bridge.expectedProject ?? LAUNCH_ROOT}'). Is that Editor open and ` +
+		`'Gui Toolkit > AI > Start MCP Bridge' enabled? (${cause})`
+	);
+}
+
+// The whole point of announcing a project: confirm the editor that answered is the one meant. Cheap (one
+// status call per target) and it turns a silent catastrophe — writing into a different project that merely
+// happened to hold the port — into a refusal.
+async function verifyBridge(bridge) {
+	if (bridge.verified)
 		return;
+
+	if (!bridge.url) {
+		forget(bridge);
+		throw new Error(`No bridge address could be resolved for '${bridge.expectedProject ?? LAUNCH_ROOT}'.`);
+	}
 
 	let res;
 	try {
-		res = await fetch(url, {
+		res = await fetch(bridge.url, {
 			method: "POST",
 			headers: { "content-type": "application/json" },
 			body: JSON.stringify({ method: "status" }),
 		});
 	} catch (e) {
-		g_bridgeUrl = null;
-		throw new Error(
-			`Cannot reach the Unity bridge at ${url} (expected project '${g_expectedProject ?? LAUNCH_ROOT}'). ` +
-			`Is the Editor open and 'Gui Toolkit > AI > Start MCP Bridge' enabled? (${e.message})`
-		);
+		throw unreachable(bridge, e.message);
 	}
 
 	const info = JSON.parse(await res.text());
-	const reported = String(info.projectPath ?? "").replace(/\\/g, "/");
+	const reported = normalisePath(info.projectPath);
 
 	// Nothing to hold it to: either an older bridge that does not report its project, or a hand-set URL
 	// with no project named. Allowed, because refusing would break setups that were fine before.
-	if (!reported || !g_expectedProject) {
-		g_verifiedUrl = url;
+	if (!reported || !bridge.expectedProject) {
+		bridge.verified = true;
 		return;
 	}
 
-	const normalise = (p) => p.toLowerCase().replace(/\/+$/, "");
-	if (normalise(reported) !== normalise(g_expectedProject)) {
-		g_bridgeUrl = null;
+	if (!sameProject(reported, bridge.expectedProject)) {
+		forget(bridge);
 		throw new Error(
-			`Refusing to use the bridge at ${url}: it serves '${reported}', but this MCP server expects ` +
-			`'${g_expectedProject}'. Writing through it would modify the wrong project. Start the bridge in the ` +
-			`right editor, or unset UI_TOOLKIT_BRIDGE_URL if you set it.`
+			`Refusing to use the bridge at ${bridge.url}: it serves '${reported}', but this call expects ` +
+			`'${bridge.expectedProject}'. Writing through it would modify the wrong project. The announcement ` +
+			`is probably stale — restart that bridge, or use list_projects to see what is actually running.`
 		);
 	}
 
-	g_verifiedUrl = url;
+	bridge.verified = true;
 }
 
 async function callBridge(method, payload) {
-	const url = await resolveBridgeUrl();
-	await verifyBridge(url);
+	const bridge = await resolveBridge();
+	await verifyBridge(bridge);
 
 	let res;
 	try {
-		res = await fetch(url, {
+		res = await fetch(bridge.url, {
 			method: "POST",
 			headers: { "content-type": "application/json" },
 			body: JSON.stringify(payload === undefined ? { method } : { method, payload }),
 		});
 	} catch (e) {
-		// Forget the URL so the next call re-reads the discovery file: the editor may have restarted on
-		// a different port, and a stale file would otherwise keep us pointed at nothing.
-		g_bridgeUrl = null;
-		g_verifiedUrl = null;
-		throw new Error(
-			`Cannot reach the Unity bridge at ${url} (expected project '${g_expectedProject ?? LAUNCH_ROOT}'). ` +
-			`Is the Editor open and 'Gui Toolkit > AI > Start MCP Bridge' enabled? (${e.message})`
-		);
+		// Forgotten so the next call re-resolves: the editor may have restarted on a different port, and a
+		// stale announcement would otherwise keep us pointed at nothing.
+		throw unreachable(bridge, e.message);
 	}
 
 	const text = await res.text();
@@ -223,9 +321,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // Like callBridge but never throws — returns the parsed JSON, or null when the bridge is
 // unreachable (e.g. the HTTP listener is briefly down during a domain reload).
 async function tryBridge(method) {
+	let bridge = null;
 	try {
-		const url = await resolveBridgeUrl();
-		const res = await fetch(url, {
+		bridge = await resolveBridge();
+		const res = await fetch(bridge.url, {
 			method: "POST",
 			headers: { "content-type": "application/json" },
 			body: JSON.stringify({ method }),
@@ -233,11 +332,11 @@ async function tryBridge(method) {
 		if (!res.ok) return null;
 		return JSON.parse(await res.text());
 	} catch {
-		// Forget the url here too. This is the polling path used while the editor reloads, and the bridge
-		// deletes its discovery file while it is down — so the next poll should re-read it rather than keep
-		// asking a port the editor may no longer hold.
-		g_bridgeUrl = null;
-		g_verifiedUrl = null;
+		// Forgotten here too. This is the polling path used while the editor reloads, and the bridge removes
+		// its announcement while it is down — so the next poll should re-resolve rather than keep asking a
+		// port the editor may no longer hold.
+		if (bridge)
+			forget(bridge);
 		return null;
 	}
 }
@@ -252,7 +351,79 @@ function fail(error) {
 
 const server = new McpServer({ name: "ui-toolkit", version: "0.1.0" });
 
-server.tool(
+const PROJECT_ARG = z.string().optional().describe(
+	"Which Unity project to act on — a full project path, or just its folder name. Defaults to the project " +
+	"this server was started for, so leave it out for ordinary work. Give it to reach ANOTHER editor that " +
+	"has a bridge running: several can run at once, one per project. Use list_projects to see them. Most " +
+	"useful for working on the toolkit itself, where a change can be tried in the toolkit's own dev app " +
+	"without switching the client's package reference back and forth.");
+
+/**
+ * Registers a tool with the project selector added, and puts the chosen target into async context for the
+ * duration of the call. Done here rather than in each tool so no tool can be forgotten — and as an argument
+ * rather than a switchable session state, so which project a call touches stays readable from the call.
+ */
+function tool(name, description, schema, handler) {
+	server.tool(name, description, { ...schema, project: PROJECT_ARG }, (args, extra) =>
+		g_callContext.run({ project: args?.project ?? null }, () => handler(args, extra)));
+}
+
+tool(
+	"list_projects",
+	"List every Unity project on this machine with a running toolkit bridge, so one session can work across " +
+	"several editors. Returns { projects: [{ projectPath, projectName, port, unityVersion, alive, isDefault, " +
+	"startedAtUtc }], registryDir }. Pass a 'projectName' or 'projectPath' from here as the 'project' " +
+	"argument of any other tool to act on that editor instead of the default one. 'alive:false' means the " +
+	"announcement is stale — that editor is gone, or is mid domain-reload. Especially useful when working on " +
+	"the toolkit itself: its own dev app can compile and test a C# change directly, with no need to point a " +
+	"client's package reference at the working copy and back.",
+	{},
+	async () => {
+		try {
+			const entries = await listRegistryEntries();
+
+			// The launch project may not be in the registry (older bridge, or an unwritable registry), and it is
+			// the one that matters most — so make sure it is listed either way.
+			let launch = null;
+			try { launch = (await findDiscovery()).info; } catch { /* none running here */ }
+			if (launch && !entries.some((e) => sameProject(e.projectPath, launch.projectPath)))
+				entries.push(launch);
+
+			const projects = [];
+			for (const e of entries) {
+				const url = e.url ?? `http://127.0.0.1:${e.port}/`;
+				let alive = false;
+				try {
+					const res = await fetch(url, {
+						method: "POST",
+						headers: { "content-type": "application/json" },
+						body: JSON.stringify({ method: "ping" }),
+					});
+					alive = res.ok;
+				} catch { /* stale */ }
+
+				projects.push({
+					projectPath: normalisePath(e.projectPath),
+					projectName: e.projectName ?? normalisePath(e.projectPath).split("/").pop(),
+					productName: e.productName ?? null,
+					port: e.port ?? null,
+					unityVersion: e.unityVersion ?? null,
+					startedAtUtc: e.startedAtUtc ?? null,
+					isDefault: launch ? sameProject(e.projectPath, launch.projectPath) : false,
+					alive,
+				});
+			}
+
+			projects.sort((a, b) => Number(b.isDefault) - Number(a.isDefault) ||
+				a.projectName.localeCompare(b.projectName));
+			return ok(JSON.stringify({ projects, registryDir: REGISTRY_DIR }));
+		} catch (e) {
+			return fail(e);
+		}
+	}
+);
+
+tool(
 	"ping",
 	"Check that the Unity Editor GUI Toolkit bridge is reachable.",
 	{},
@@ -262,7 +433,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"status",
 	"Report whether the Unity Editor is currently compiling scripts or importing assets. " +
 	"Returns { running, compiling, updating }.",
@@ -273,7 +444,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"setup_status",
 	"One-shot health check of this project's screen-authoring setup — call it FIRST when authored screens " +
 	"come out looking wrong, or to check whether the catalog is stale. Returns { registry:{assigned, path, " +
@@ -290,7 +461,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"recompile",
 	"Force Unity to pick up and recompile changed editor/runtime C# scripts, then WAIT until the " +
 	"compilation and the following domain reload have finished. Use this after editing toolkit C# so " +
@@ -337,7 +508,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"get_catalog",
 	"Locate the GUI Toolkit screen-authoring catalog (the machine-readable vocabulary of authorable " +
 	"components, props, styles and skins). Returns a small JSON summary — { path, absolutePath, version, " +
@@ -351,7 +522,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"regenerate_catalog",
 	"Re-run the catalog generator inside Unity (reflects the latest components), then return the same " +
 	"summary envelope as get_catalog ({ path, absolutePath, counts, ... }). Read the file at 'absolutePath' " +
@@ -363,7 +534,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"get_console",
 	"Read THIS editor session's console messages — what Unity actually said, with severities, instead of " +
 	"pattern-matching Editor.log from outside. Editor.log spans several sessions and readily serves a previous " +
@@ -386,7 +557,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"resolve_packages",
 	"Make Unity pick up an edited Packages/manifest.json right now, then WAIT until the editor is idle again. " +
 	"Unity normally only notices an externally edited manifest when it regains focus, so changing a package " +
@@ -433,7 +604,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"capture_prefab_values",
 	"Capture EVERY serialized value of every component in a baked prefab into a temporary snapshot, keyed by " +
 	"node path and Unity's own propertyPath strings. Use it before re-baking a prefab a human has edited: the " +
@@ -452,7 +623,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"apply_prefab_values",
 	"Restore values from a capture_prefab_values snapshot into a prefab that has since been re-baked — the " +
 	"second half of: capture -> adapt the description -> bake_screen -> apply. It compares the snapshot " +
@@ -485,7 +656,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"list_styles",
 	"List this project's STYLE vocabulary — the named looks (fonts, colours, sprites, gradients) a screen " +
 	"node applies via its \"style\" field, grouped by the component type they target. Call this BEFORE " +
@@ -517,7 +688,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"bake_screen",
 	"Bake a screen description into a real Unity .prefab asset. Pass the description either inline via " +
 	"'screen' or, when it already exists on disk, via 'screenPath' — a baked screen writes its description to " +
@@ -599,7 +770,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"read_screen",
 	"Read an existing baked (or hand-built) .prefab back into screen JSON in the same shape bake_screen " +
 	"consumes — inspect what's in a prefab, tweak the JSON, and re-bake. Returns { screen, warnings }. " +
@@ -624,7 +795,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"screenshot_view",
 	"Render a baked screen prefab to a PNG image (Edit-Mode, no Play Mode) so you can see the result " +
 	"and iterate. 'path' is the project-relative prefab path returned by bake_screen. Returns the image.",
@@ -649,7 +820,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"screenshot_motion",
 	"See an ANIMATION, not just a state: renders the prefab at several points along an animation's timeline " +
 	"and returns them composed into one contact sheet, read left to right, top to bottom. Each cell carries a " +
@@ -701,7 +872,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"tag_standard_element",
 	"Tag one or more prefab roots with a standard-element identity (the UiStandardElement marker) so " +
 	"they enter the toolkit's registry and screen-authoring palette. Use this after creating a prefab or " +
@@ -724,7 +895,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"untag_standard_element",
 	"Remove the UiStandardElement marker from one or more prefabs (no-op where none is present). " +
 	"Returns one result per prefab.",
@@ -737,7 +908,7 @@ server.tool(
 	}
 );
 
-server.tool(
+tool(
 	"set_ui_comment",
 	"Set a 'flavor' description (a UiComment) on one or more prefab ROOTS — the note humans read in the " +
 	"Inspector and, for a palette prefab, the description harvested into the screen-authoring catalog. Use it " +
