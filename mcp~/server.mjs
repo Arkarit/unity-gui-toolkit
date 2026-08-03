@@ -873,6 +873,30 @@ tool(
 );
 
 tool(
+	"harvest_motion",
+	"Read this project's EXISTING animations out of its prefabs and group them by how the motion looks, most " +
+	"used first. Call it before authoring any animation: a shape that many prefabs share has already had the " +
+	"one judgement you cannot make — whether it FEELS right — applied by whoever watched it, so reusing it " +
+	"beats inventing curves whose tangents you can only guess at. Returns { shapes: [{ type, count, summary, " +
+	"values, examples }] }, where 'summary' is a one-line reading (channels, duration, stagger, and ↗ for a " +
+	"curve that overshoots) and 'values' is the full field set ready to copy into a bake. Targets, slaves and " +
+	"callbacks are excluded from the grouping, so two animations differing only in what they drive count as " +
+	"one shape. 'examples' names prefabs and nodes to look at — pair it with screenshot_motion.",
+	{
+		folders: z.array(z.string()).optional().describe(
+			"Project-relative folders to scan (default ['Assets'])."),
+		minOccurrences: z.number().int().optional().describe(
+			"Only report shapes used at least this often (default 2). Set 1 to see one-offs too."),
+		maxExamples: z.number().int().optional().describe("Example locations per shape (default 3)."),
+	},
+	async ({ folders, minOccurrences, maxExamples }) => {
+		try {
+			return ok(await callBridge("harvestMotion", JSON.stringify({ folders, minOccurrences, maxExamples })));
+		} catch (e) { return fail(e); }
+	}
+);
+
+tool(
 	"tag_standard_element",
 	"Tag one or more prefab roots with a standard-element identity (the UiStandardElement marker) so " +
 	"they enter the toolkit's registry and screen-authoring palette. Use this after creating a prefab or " +

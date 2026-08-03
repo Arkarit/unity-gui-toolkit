@@ -159,6 +159,17 @@ namespace GuiToolkit.Editor.AiSupport
 			}
 		}
 
+		/// <summary>
+		/// One component's serialized values, in the same shapes the snapshot uses. Exposed so the motion
+		/// harvester reads animations through exactly this reader — a second one would drift, and then a
+		/// harvested preset would not compare equal to what a snapshot sees.
+		/// </summary>
+		internal static JObject CaptureComponentValues( Component _component )
+		{
+			int ignored = 0;
+			return CaptureComponent(_component, ref ignored);
+		}
+
 		private static JObject CaptureComponent( Component _component, ref int _refCount )
 		{
 			var values = new JObject();
@@ -227,10 +238,23 @@ namespace GuiToolkit.Editor.AiSupport
 				// The name, not the index: an enum's numbering is an implementation detail, and a name survives
 				// a reordered enum whereas a 3 silently becomes something else.
 				case SerializedPropertyType.Enum:
+				{
+					// Resolved through the real field type first, because a [Flags] COMBINATION has no single
+					// index — enumValueIndex gives nothing usable and the value came out as a bare 69632, which
+					// is both unreadable and not something the baker would accept back. Enum.ToString renders it
+					// as "ScaleX, Alpha", which is exactly the form authored descriptions use.
+					var enumType = ResolveFieldType(_property);
+					if (enumType != null && enumType.IsEnum)
+					{
+						_token = Enum.ToObject(enumType, _property.intValue).ToString();
+						return true;
+					}
+
 					_token = _property.enumValueIndex >= 0 && _property.enumValueIndex < _property.enumNames.Length
 						? _property.enumNames[_property.enumValueIndex]
 						: (JToken)_property.intValue;
 					return true;
+				}
 
 				case SerializedPropertyType.Color:
 					_token = ColorToJson(_property.colorValue);
@@ -267,6 +291,44 @@ namespace GuiToolkit.Editor.AiSupport
 				default:
 					return false;
 			}
+		}
+
+		/// <summary>
+		/// The declared type behind a property path, walked field by field. Needed because SerializedProperty
+		/// exposes an enum's NAMES but not its values, so a flags combination cannot be decoded from it alone.
+		/// Returns null for anything it cannot follow, and every caller has a fallback for that.
+		/// </summary>
+		private static Type ResolveFieldType( SerializedProperty _property )
+		{
+			Type type = _property.serializedObject.targetObject?.GetType();
+			if (type == null)
+				return null;
+
+			foreach (string segment in _property.propertyPath.Split('.'))
+			{
+				// Array plumbing ("Array", "data[3]") is not worth following: no enum of interest sits behind it.
+				if (segment == "Array" || segment.StartsWith("data[", StringComparison.Ordinal))
+					return null;
+
+				var field = FindFieldInHierarchy(type, segment);
+				if (field == null)
+					return null;
+				type = field.FieldType;
+			}
+			return type;
+		}
+
+		private static System.Reflection.FieldInfo FindFieldInHierarchy( Type _type, string _name )
+		{
+			for (var t = _type; t != null && t != typeof(object); t = t.BaseType)
+			{
+				var field = t.GetField(_name, System.Reflection.BindingFlags.Instance |
+					System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic |
+					System.Reflection.BindingFlags.DeclaredOnly);
+				if (field != null)
+					return field;
+			}
+			return null;
 		}
 
 		// SerializedProperty exposes gradientValue only internally, so it has to be reached by reflection. If a

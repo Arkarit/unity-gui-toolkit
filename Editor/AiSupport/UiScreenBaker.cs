@@ -181,6 +181,7 @@ namespace GuiToolkit.Editor.AiSupport
 				rootGo = BuildNode(rootNode, null);
 				ResolveDeferredRefs();
 				WarnOnUnwiredMandatoryFields();
+				WarnOnMotionDefects(rootGo);
 				WarnOnDroppedExistingContent(rootGo, path);
 
 				EditorFileUtility.EnsureUnityFolderExists(ParentFolder(path));
@@ -2098,6 +2099,155 @@ namespace GuiToolkit.Editor.AiSupport
 		/// sets the sprite while the draw mode stays whatever the freshly added component defaulted to — a style
 		/// never sets it. Not an error: a 9-slice sprite drawn Simple is legal, just almost never intended.
 		/// </summary>
+		/// <summary>
+		/// Reports animations that are configured but cannot do what they look like they do.
+		///
+		/// Motion has a failure mode the other checks miss: an animation with plausible values that leaves its
+		/// target in a wrong state PERMANENTLY, not just for a moment. A supported channel with no curve pins the
+		/// value at its start; an alpha curve ending at 0.4 leaves the element translucent forever; a channel with
+		/// no target drives nothing at all. None of that shows in a still, and a filmstrip only shows it if
+		/// somebody thinks to film that animation — so it is worth stating at bake time.
+		///
+		/// Runs over the FINISHED hierarchy, after the deferred "#id" references have been resolved. Checking per
+		/// node during the build reported every correctly wired animation as target-less, because at that moment
+		/// none of them had a target yet.
+		/// </summary>
+		private static void WarnOnMotionDefects( GameObject _root )
+		{
+			foreach (var animation in _root.GetComponentsInChildren<UiSimpleAnimation>(true))
+			{
+				if (animation == null)
+					continue;
+
+				string where = animation.gameObject.name;
+				var support = animation.Support;
+
+				if (animation.Duration <= 0f)
+					Warn($"Animation on '{where}' has duration {animation.Duration}; it can never play.");
+
+				bool animatesTransform =
+					Has(support, UiSimpleAnimation.ESupport.PositionX) ||
+					Has(support, UiSimpleAnimation.ESupport.PositionY) ||
+					Has(support, UiSimpleAnimation.ESupport.RotationZ) ||
+					Has(support, UiSimpleAnimation.ESupport.ScaleX) ||
+					Has(support, UiSimpleAnimation.ESupport.ScaleY);
+
+				if (animatesTransform && animation.Target == null)
+				{
+					Warn($"Animation on '{where}' animates {support} but has no target, so it drives nothing. " +
+					     "Set \"target\" to a \"#id\" (m_target carries no [Mandatory], so the wiring check " +
+					     "cannot catch this).");
+				}
+
+				CheckChannel(where, support, UiSimpleAnimation.ESupport.PositionX, "posX",
+					animation.PosXCurve, animation.PosXStart, animation.PosXEnd, animation.BackwardsPlayable);
+				CheckChannel(where, support, UiSimpleAnimation.ESupport.PositionY, "posY",
+					animation.PosYCurve, animation.PosYStart, animation.PosYEnd, animation.BackwardsPlayable);
+				CheckChannel(where, support, UiSimpleAnimation.ESupport.RotationZ, "rotZ",
+					animation.RotZCurve, animation.RotZStart, animation.RotZEnd, animation.BackwardsPlayable);
+				CheckChannel(where, support, UiSimpleAnimation.ESupport.ScaleX, "scaleX",
+					animation.ScaleXCurve, animation.ScaleXStart, animation.ScaleXEnd, animation.BackwardsPlayable);
+
+				// ScaleY follows ScaleX when locked, so it needs no curve of its own.
+				if (!animation.ScaleLocked)
+				{
+					CheckChannel(where, support, UiSimpleAnimation.ESupport.ScaleY, "scaleY",
+						animation.ScaleYCurve, animation.ScaleYStart, animation.ScaleYEnd, animation.BackwardsPlayable);
+				}
+
+				if (Has(support, UiSimpleAnimation.ESupport.Alpha))
+				{
+					if (animation.AlphaGraphic == null && animation.AlphaCanvasGroup == null)
+					{
+						Warn($"Animation on '{where}' supports Alpha but has neither alphaGraphic nor " +
+						     "alphaCanvasGroup, so there is nothing to fade.");
+					}
+
+					// Alpha is the curve value itself, not a lerp — so an empty curve means alpha 0, i.e. invisible.
+					if (IsEmpty(animation.AlphaCurve))
+					{
+						Warn($"Animation on '{where}' supports Alpha but its alphaCurve has no keys. Alpha is the " +
+						     "curve value directly, so the target stays fully transparent.");
+					}
+					else
+					{
+						float end = animation.AlphaCurve.keys[animation.AlphaCurve.keys.Length - 1].value;
+						if (!IsAboutZeroOrOne(end))
+						{
+							Warn($"Animation on '{where}': alphaCurve ends at {end}, so the target is left " +
+							     "permanently semi-transparent. End at 1 to finish visible, or 0 to finish hidden.");
+						}
+					}
+				}
+				else if (!IsEmpty(animation.AlphaCurve))
+				{
+					Warn($"Animation on '{where}' has an alphaCurve but does not support Alpha; it will not run. " +
+					     $"Add Alpha to \"support\" (currently {support}).");
+				}
+			}
+
+			static bool Has( UiSimpleAnimation.ESupport _support, UiSimpleAnimation.ESupport _flag ) =>
+				(_support & _flag) != 0;
+
+			static bool IsEmpty( AnimationCurve _curve ) => _curve == null || _curve.keys.Length == 0;
+
+			// Invariant: a warning that says "1,15" reads as a list of two numbers.
+			static string Num( float _value ) =>
+				_value.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture);
+
+			static bool IsAboutZeroOrOne( float _value ) =>
+				Mathf.Abs(_value) < 0.001f || Mathf.Abs(_value - 1f) < 0.001f;
+
+			static void CheckChannel( string _where, UiSimpleAnimation.ESupport _support,
+				UiSimpleAnimation.ESupport _flag, string _name, AnimationCurve _curve, float _start, float _end,
+				bool _backwardsPlayable )
+			{
+				bool supported = (_support & _flag) != 0;
+
+				if (!supported)
+				{
+					if (!IsEmpty(_curve))
+					{
+						Warn($"Animation on '{_where}' has a {_name}Curve but does not support {_flag}; it will " +
+						     $"not run. Add {_flag} to \"support\" (currently {_support}).");
+					}
+					return;
+				}
+
+				if (IsEmpty(_curve))
+				{
+					// An empty curve evaluates to 0, and the value is Lerp(start, end, 0) — so the target is
+					// pinned at its start value for the whole animation.
+					if (Mathf.Abs(_start - _end) > 0.001f)
+					{
+						Warn($"Animation on '{_where}' supports {_flag} but its {_name}Curve has no keys, so the " +
+						     $"target stays at {_name}Start ({_start}) instead of reaching {_end}.");
+					}
+					return;
+				}
+
+				// The value is Lerp(start, end, curve(t)) and the last key holds (ClampForever), so a curve ending
+				// at neither 0 nor 1 leaves the target between its two ends for good.
+				//
+				// Only suspicious for a ONE-SHOT, though. An animation that can be played backwards is a state
+				// animation — a hover grows to 1.15 and is meant to STAY there until it is reversed — and the
+				// project's most common animation by far is exactly that. Warning on those made the check five
+				// false alarms out of five on the first real screen.
+				if (!_backwardsPlayable)
+				{
+					float last = _curve.keys[_curve.keys.Length - 1].value;
+					if (!IsAboutZeroOrOne(last))
+					{
+						float resting = Mathf.LerpUnclamped(_start, _end, last);
+						Warn($"Animation on '{_where}': {_name}Curve ends at {Num(last)}, leaving {_name} at " +
+						     $"{Num(resting)} for good (between {Num(_start)} and {Num(_end)}). End at 1 to settle " +
+						     $"on {_name}End, or 0 to return to {_name}Start — or set backwardsPlayable if it is " +
+						     "meant to hold that state until reversed.");
+					}
+				}
+			}
+		}
+
 		private static void WarnOnStretchedSlicedSprite( GameObject _go )
 		{
 			foreach (var image in _go.GetComponents<Image>())

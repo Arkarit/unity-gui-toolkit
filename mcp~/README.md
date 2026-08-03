@@ -143,6 +143,7 @@ Steps Claude follows:
 | `read_screen` | Read a `.prefab` back into screen JSON (`{ screen, warnings }`) — inspect, tweak, re-bake. `source`: `auto` (sidecar if present, else structural) / `sidecar` / `structural`. |
 | `screenshot_view` | Render a baked prefab to a PNG (Edit-Mode) and return the image — the AI preview loop. |
 | `screenshot_motion` | See an ANIMATION: the prefab sampled at several points along its timeline, composed into one contact sheet. Edit-Mode, master **and** slaves. See below. |
+| `harvest_motion` | Read the project's existing animations out of its prefabs and group them by how the motion looks, most used first. Call it **before** authoring any animation. See below. |
 | `tag_standard_element` | Tag prefab roots with a standard-element identity so they enter the registry/palette (base+variant batch safe). |
 | `untag_standard_element` | Remove the standard-element marker from prefabs. |
 | `set_ui_comment` | Set a flavor description (UiComment) on prefab roots — Inspector doc, and palette description for palette prefabs. |
@@ -199,6 +200,45 @@ panel clipped, and a curve that ends anywhere other than its end value — which
 permanently wrong rather than briefly. What it cannot tell you is whether the motion *feels* good.
 Timing and easing are human judgements, so prefer curves already used elsewhere in the project over
 invented ones, and when a new curve matters, offer a couple of candidates and let a human pick.
+
+### Authoring animation: harvest before you invent
+
+Keyframes are computable. The **slope between them** is not — tangents are what decide whether motion
+feels snappy or rubbery, and they get set by someone watching it. So an animation shape that a project
+already uses many times has had the one judgement you cannot make applied to it.
+
+`harvest_motion` reads every animation out of the project's prefabs and groups them by how the motion
+looks, ignoring targets and slaves so two animations differing only in what they drive count as one.
+Each entry carries a count, a one-line `summary`, the full `values` ready to copy, and example
+locations to pair with `screenshot_motion`. In the `summary`:
+
+- `↗` — the curve leaves the 0..1 band, i.e. it overshoots or undershoots
+- `~` — the curve has **hand-set tangents**. Prefer these; a shape without them was probably typed,
+  not tuned
+
+It is worth trusting. A bump authored from scratch here — `1 → 1.1 → 1` over 0.32s — turned out to
+duplicate a shape the project already carried 18 times, at 0.3s, with tangents of 0.2 / 0 / -0.2 and
+the opposite encoding (`start 0 → end 1` with the curve holding absolute values). Same motion on paper,
+and the harvested one is the one that had been watched.
+
+### What the baker checks about motion
+
+Animation has a failure mode a still cannot show and a filmstrip only shows if someone thinks to film
+that particular animation: values that look plausible but leave the target **permanently** wrong. The
+baker now reports
+
+- a supported channel whose curve has no keys — the value is pinned at its start (for Alpha, at 0, i.e.
+  invisible, because alpha IS the curve value rather than a lerp)
+- a curve authored on a channel that `support` does not include, so it never runs
+- `Alpha` supported with neither `alphaGraphic` nor `alphaCanvasGroup` — nothing to fade
+- a transform channel with no `target` (`m_target` carries no `[Mandatory]`, so the wiring check cannot
+  see it)
+- `duration` of 0
+- a one-shot whose curve ends at neither 0 nor 1, leaving the target stuck between its two ends
+
+The last one only applies when `backwardsPlayable` is off. An animation that can be reversed is a state
+animation and is *meant* to hold its end — a hover grows to 1.15 and stays there until it is played
+back. Checking those too made the first run five false alarms out of five.
 
 ### Screen JSON shape (for `bake_screen`)
 

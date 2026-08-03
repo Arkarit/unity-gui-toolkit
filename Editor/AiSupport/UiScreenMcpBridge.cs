@@ -479,6 +479,15 @@ namespace GuiToolkit.Editor.AiSupport
 				case "screenshotMotion":
 					return MotionFilmstrip(_payload).ToString(Newtonsoft.Json.Formatting.None);
 
+				case "harvestMotion":
+				{
+					var request = string.IsNullOrWhiteSpace(_payload) ? new JObject() : JObject.Parse(_payload);
+					var folders = (request["folders"] as JArray)?.Select(_t => (string)_t).ToArray();
+					return UiMotionHarvester
+						.Harvest(folders, (int?)request["minOccurrences"] ?? 2, (int?)request["maxExamples"] ?? 3)
+						.ToString(Newtonsoft.Json.Formatting.None);
+				}
+
 				case "tagStandardElement":
 					return TagStandardElement(_payload);
 
