@@ -76,6 +76,7 @@ Steps Claude follows:
 | `bake_screen` | Bake a screen description (`{ name, root }`) into a real `.prefab`; returns `{ path, warnings }`. Pass it inline via `screen` or from disk via `screenPath` (a baked screen's `.screen.src.json` sidecar — re-baking never needs the description resent). `preserveEdits` keeps hand edits on a re-bake. |
 | `read_screen` | Read a `.prefab` back into screen JSON (`{ screen, warnings }`) — inspect, tweak, re-bake. `source`: `auto` (sidecar if present, else structural) / `sidecar` / `structural`. |
 | `screenshot_view` | Render a baked prefab to a PNG (Edit-Mode) and return the image — the AI preview loop. |
+| `screenshot_motion` | See an ANIMATION: the prefab sampled at several points along its timeline, composed into one contact sheet. Edit-Mode, master **and** slaves. See below. |
 | `tag_standard_element` | Tag prefab roots with a standard-element identity so they enter the registry/palette (base+variant batch safe). |
 | `untag_standard_element` | Remove the standard-element marker from prefabs. |
 | `set_ui_comment` | Set a flavor description (UiComment) on prefab roots — Inspector doc, and palette description for palette prefabs. |
@@ -109,6 +110,29 @@ your own decision). Hence dry run first, then apply with `include` narrowed to w
 Object references are reported, never written: wiring belongs to the description via `#id`. Read
 `propertyHistogram` as a roadmap — a property that keeps needing a restore is a gap worth closing in
 the baker itself.
+
+### Seeing an animation: `screenshot_motion`
+
+A single screenshot cannot show motion, so an authored animation could only be verified by reading its
+serialized numbers. This plays the animation in Edit Mode — through the same `EditorPlay` /
+`UpdateInEditor` the Inspector's test buttons use — and returns several points along the timeline as
+one contact sheet, read left to right, top to bottom, each cell carrying a progress strip at its
+bottom edge.
+
+It steps the master **and every animation the master drives**, slaves transitively. That matters:
+each animation advances through its own `Update`, which Unity calls in Play Mode but not here, so
+stepping only the master would show a panel popping while its click catcher never fades — and report
+half the motion as all of it. `drivenAnimations` in the response says what actually moved, so a slave
+you expected but do not see there is not wired as a slave.
+
+Duration is measured by playing it, not derived: the real length includes slaves and their delays and
+is not exposed anywhere.
+
+What it reliably catches: nothing moves at all, the wrong node moves, an overshoot that leaves the
+panel clipped, and a curve that ends anywhere other than its end value — which leaves the element
+permanently wrong rather than briefly. What it cannot tell you is whether the motion *feels* good.
+Timing and easing are human judgements, so prefer curves already used elsewhere in the project over
+invented ones, and when a new curve matters, offer a couple of candidates and let a human pick.
 
 ### Screen JSON shape (for `bake_screen`)
 

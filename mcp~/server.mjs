@@ -460,6 +460,49 @@ server.tool(
 );
 
 server.tool(
+	"screenshot_motion",
+	"See an ANIMATION, not just a state: renders the prefab at several points along an animation's timeline " +
+	"and returns them composed into one contact sheet, read left to right, top to bottom. Each cell carries a " +
+	"progress strip at its bottom edge showing where in the timeline it sits. Edit Mode only, no Play Mode. " +
+	"Use it after authoring or changing any UiSimpleAnimation. What it reliably catches: nothing moves at all " +
+	"(usually an unwired target, or no master animation driving a slave), the wrong node moves, an overshoot " +
+	"that leaves the panel clipped, and a curve that ends anywhere other than its end value — which leaves " +
+	"the element permanently wrong, not just briefly. What it CANNOT tell you is whether the motion feels " +
+	"good: timing and easing are human judgements, so prefer curves already used elsewhere in the project " +
+	"over invented ones, and when a new curve matters, offer a couple of candidates and let a human pick. " +
+	"Defaults to the animation on the prefab root, which is the one UiPanel plays on open and close; pass " +
+	"'animationNode' for any other. Duration is measured, so it includes slave animations and their delays.",
+	{
+		path: z.string().describe("Project-relative path of the baked prefab."),
+		animationNode: z.string().optional().describe(
+			"Node path of the animation to play, e.g. 'clickCatcher' or 'animated/Panel/buttonBand/claimAll/" +
+			"WiggleAnimation'. Omit for the root's animation. The error message lists what a prefab contains."),
+		frames: z.number().int().optional().describe("Samples along the timeline, 2-12 (default 5)."),
+		width: z.number().int().positive().optional().describe("Width of ONE frame in px (default 640)."),
+		height: z.number().int().positive().optional().describe("Height of ONE frame in px (default 360)."),
+		backwards: z.boolean().optional().describe(
+			"Play in reverse — how a panel closes. Default false."),
+	},
+	async ({ path, animationNode, frames, width, height, backwards }) => {
+		try {
+			const payload = JSON.stringify({ path, animationNode, frames, width, height, backwards });
+			const result = JSON.parse(await callBridge("screenshotMotion", payload));
+			if (!result.png)
+				throw new Error("Bridge returned no image data.");
+			const { png, ...meta } = result;
+			return {
+				content: [
+					{ type: "image", data: png, mimeType: "image/png" },
+					{ type: "text", text: JSON.stringify(meta) },
+				],
+			};
+		} catch (e) {
+			return fail(e);
+		}
+	}
+);
+
+server.tool(
 	"tag_standard_element",
 	"Tag one or more prefab roots with a standard-element identity (the UiStandardElement marker) so " +
 	"they enter the toolkit's registry and screen-authoring palette. Use this after creating a prefab or " +

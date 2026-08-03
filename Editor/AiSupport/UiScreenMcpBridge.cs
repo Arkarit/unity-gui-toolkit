@@ -306,6 +306,9 @@ namespace GuiToolkit.Editor.AiSupport
 				case "screenshotView":
 					return Screenshot(_payload);
 
+				case "screenshotMotion":
+					return MotionFilmstrip(_payload).ToString(Newtonsoft.Json.Formatting.None);
+
 				case "tagStandardElement":
 					return TagStandardElement(_payload);
 
@@ -375,6 +378,30 @@ namespace GuiToolkit.Editor.AiSupport
 				(long?)request["sinceSequence"] ?? 0,
 				(int?)request["limit"] ?? 0,
 				(bool?)request["withStackTraces"] ?? false);
+		}
+
+		/// <summary>
+		/// Frame size defaults small on purpose: a filmstrip is several images in one, and the point is the
+		/// sequence rather than the detail. A single shot is the tool for looking closely.
+		/// </summary>
+		private static JObject MotionFilmstrip( string _payload )
+		{
+			if (string.IsNullOrWhiteSpace(_payload))
+				throw new Exception("screenshotMotion requires a 'payload' with at least a prefab path.");
+
+			var request = JObject.Parse(_payload.Trim());
+
+			string path = (string)request["path"];
+			if (string.IsNullOrEmpty(path))
+				throw new Exception("screenshotMotion payload object must contain a 'path'.");
+
+			return UiScreenMotionPreview.Capture(
+				path,
+				(string)request["animationNode"],
+				(int?)request["frames"] ?? 5,
+				(int?)request["width"] ?? 640,
+				(int?)request["height"] ?? 360,
+				(bool?)request["backwards"] ?? false);
 		}
 
 		/// <summary>

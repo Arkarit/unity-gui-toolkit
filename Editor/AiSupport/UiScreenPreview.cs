@@ -26,30 +26,74 @@ namespace GuiToolkit.Editor.AiSupport
 		/// <summary>Renders the prefab at <paramref name="_prefabPath"/> and returns raw PNG bytes.</summary>
 		public static byte[] CapturePng( string _prefabPath, int _width = DefaultWidth, int _height = DefaultHeight )
 		{
-			if (string.IsNullOrEmpty(_prefabPath))
-				throw new ArgumentException("Empty prefab path.");
-
-			var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(_prefabPath);
-			if (prefab == null)
-				throw new ArgumentException($"No prefab found at '{_prefabPath}'.");
-
-			_width = Mathf.Clamp(_width, 64, 4096);
-			_height = Mathf.Clamp(_height, 64, 4096);
-
-			Scene previewScene = default;
-			GameObject instance = null;
-			GameObject camGo = null;
-			GameObject hostGo = null;
-			RenderTexture rt = null;
-			Texture2D tex = null;
-			var prevActiveRt = RenderTexture.active;
-
+			using var session = BeginSession(_prefabPath, _width, _height);
+			var texture = session.RenderFrame();
 			try
 			{
-				previewScene = EditorSceneManager.NewPreviewScene();
+				return texture.EncodeToPNG();
+			}
+			finally
+			{
+				UnityEngine.Object.DestroyImmediate(texture);
+			}
+		}
 
-				instance = UnityEngine.Object.Instantiate(prefab);
-				instance.name = prefab.name;
+		/// <summary>
+		/// A prepared preview: the prefab instantiated in its own scene with a canvas and camera, ready to be
+		/// rendered repeatedly. A single shot does not need this, but a motion filmstrip does — the instance has
+		/// to survive between frames so an animation can be stepped on it, and rebuilding the scene per frame
+		/// would reset whatever was being animated.
+		/// </summary>
+		internal static PreviewSession BeginSession( string _prefabPath, int _width, int _height )
+			=> new PreviewSession(_prefabPath, _width, _height);
+
+		internal sealed class PreviewSession : IDisposable
+		{
+			public GameObject Instance { get; private set; }
+
+			private readonly int m_width;
+			private readonly int m_height;
+			private readonly RenderTexture m_previousActive;
+			private Scene m_previewScene;
+			private GameObject m_camGo;
+			private GameObject m_hostGo;
+			private Camera m_camera;
+			private Canvas m_canvas;
+
+			internal PreviewSession( string _prefabPath, int _width, int _height )
+			{
+				if (string.IsNullOrEmpty(_prefabPath))
+					throw new ArgumentException("Empty prefab path.");
+
+				var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(_prefabPath);
+				if (prefab == null)
+					throw new ArgumentException($"No prefab found at '{_prefabPath}'.");
+
+				m_width = Mathf.Clamp(_width, 64, 4096);
+				m_height = Mathf.Clamp(_height, 64, 4096);
+				m_previousActive = RenderTexture.active;
+
+				try
+				{
+					Build(prefab);
+				}
+				catch
+				{
+					Dispose();
+					throw;
+				}
+			}
+
+			private void Build( GameObject _prefab )
+			{
+				int _width = m_width;
+				int _height = m_height;
+				m_previewScene = EditorSceneManager.NewPreviewScene();
+				var previewScene = m_previewScene;
+
+				var instance = UnityEngine.Object.Instantiate(_prefab);
+				Instance = instance;
+				instance.name = _prefab.name;
 				SceneManager.MoveGameObjectToScene(instance, previewScene);
 
 				var canvas = instance.GetComponent<Canvas>() ?? instance.GetComponentInChildren<Canvas>(true);
@@ -60,8 +104,9 @@ namespace GuiToolkit.Editor.AiSupport
 					// would make the preview useless for exactly those. Do what the prefab stage does: put a
 					// Canvas underneath, configured from the project's global CanvasScaler template so the
 					// shot is to scale instead of depending on the requested pixel size.
-					hostGo = new GameObject("__UiScreenPreviewCanvas__",
+					var hostGo = new GameObject("__UiScreenPreviewCanvas__",
 						typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
+					m_hostGo = hostGo;
 					SceneManager.MoveGameObjectToScene(hostGo, previewScene);
 					canvas = hostGo.GetComponent<Canvas>();
 
@@ -89,7 +134,8 @@ namespace GuiToolkit.Editor.AiSupport
 					}
 				}
 
-				camGo = new GameObject("__UiScreenPreviewCamera__");
+				var camGo = new GameObject("__UiScreenPreviewCamera__");
+				m_camGo = camGo;
 				SceneManager.MoveGameObjectToScene(camGo, previewScene);
 				var cam = camGo.AddComponent<Camera>();
 				cam.scene = previewScene;              // render ONLY the preview scene
@@ -109,32 +155,59 @@ namespace GuiToolkit.Editor.AiSupport
 				canvas.planeDistance = 100f;
 				canvas.overrideSorting = true;
 
-				// Rebuild layout so sizes/positions are final before the single render.
+				m_camera = cam;
+				m_canvas = canvas;
+			}
+
+			/// <summary>
+			/// Renders one frame of the current state. The caller owns the returned texture and must destroy it.
+			/// Layout is rebuilt each time, because between frames an animation may have moved or resized
+			/// something a layout depends on.
+			/// </summary>
+			public Texture2D RenderFrame()
+			{
 				Canvas.ForceUpdateCanvases();
-				if (canvas.transform is RectTransform canvasRt)
+				if (m_canvas != null && m_canvas.transform is RectTransform canvasRt)
 					LayoutRebuilder.ForceRebuildLayoutImmediate(canvasRt);
 
-				rt = RenderTexture.GetTemporary(_width, _height, 24, RenderTextureFormat.ARGB32);
-				cam.targetTexture = rt;
-				cam.Render();
+				RenderTexture rt = null;
+				var previousActive = RenderTexture.active;
+				try
+				{
+					rt = RenderTexture.GetTemporary(m_width, m_height, 24, RenderTextureFormat.ARGB32);
+					m_camera.targetTexture = rt;
+					m_camera.Render();
 
-				tex = new Texture2D(_width, _height, TextureFormat.RGBA32, false, false);
-				RenderTexture.active = rt;
-				tex.ReadPixels(new Rect(0, 0, _width, _height), 0, 0);
-				tex.Apply(false, false);
-
-				return tex.EncodeToPNG();
+					var texture = new Texture2D(m_width, m_height, TextureFormat.RGBA32, false, false);
+					RenderTexture.active = rt;
+					texture.ReadPixels(new Rect(0, 0, m_width, m_height), 0, 0);
+					texture.Apply(false, false);
+					return texture;
+				}
+				finally
+				{
+					RenderTexture.active = previousActive;
+					if (m_camera != null)
+						m_camera.targetTexture = null;
+					if (rt != null)
+						RenderTexture.ReleaseTemporary(rt);
+				}
 			}
-			finally
+
+			public void Dispose()
 			{
-				RenderTexture.active = prevActiveRt;
-				if (tex != null) UnityEngine.Object.DestroyImmediate(tex);
-				if (rt != null) RenderTexture.ReleaseTemporary(rt);
-				if (camGo != null) UnityEngine.Object.DestroyImmediate(camGo);
+				RenderTexture.active = m_previousActive;
+				if (m_camGo != null) UnityEngine.Object.DestroyImmediate(m_camGo);
 				// Destroys the instance with it when we had to wrap it; the check below then no-ops.
-				if (hostGo != null) UnityEngine.Object.DestroyImmediate(hostGo);
-				if (instance != null) UnityEngine.Object.DestroyImmediate(instance);
-				if (previewScene.IsValid()) EditorSceneManager.ClosePreviewScene(previewScene);
+				if (m_hostGo != null) UnityEngine.Object.DestroyImmediate(m_hostGo);
+				if (Instance != null) UnityEngine.Object.DestroyImmediate(Instance);
+				if (m_previewScene.IsValid()) EditorSceneManager.ClosePreviewScene(m_previewScene);
+
+				m_camGo = null;
+				m_hostGo = null;
+				Instance = null;
+				m_camera = null;
+				m_canvas = null;
 			}
 		}
 
