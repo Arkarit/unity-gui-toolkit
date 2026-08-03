@@ -37,10 +37,14 @@ found to `Library/UiToolkit/mcp-bridge.json` inside its own project:
   "unityVersion": "2022.3.62f2", "pid": 221928, "startedAtUtc": "..." }
 ```
 
-The proxy resolves its project (the working directory it was launched in, or `--project <path>`),
-reads **that project's** file, and connects to the port it names. So several editors can each serve
-their own bridge with no configuration to keep straight, and a library repo and a client repo can be
-worked on side by side.
+The proxy starts from the directory it was launched in (or `--project <path>`) and looks for that
+file: **upwards** first, in case it was started in a subfolder, then a bounded scan **downwards** —
+because a repo may *contain* a Unity project rather than be one. This repo is exactly that case: its
+dev app lives in `.Dev-App/Unity`, so a root-only lookup finds nothing. Several candidates are an
+error rather than a guess; pass `--project` to disambiguate.
+
+So several editors can each serve their own bridge with no configuration to keep straight, and this
+repo and a client repo can be worked on side by side.
 
 More importantly, the proxy then **verifies** that the bridge which answered reports the same project
 it was started for, and refuses otherwise:
@@ -55,8 +59,10 @@ for, but nothing used to say which editor it had actually reached — so a proxy
 different project that merely happened to hold the port, without a word. Which project answers now
 travels in every `ping` and `status`.
 
-`UI_TOOLKIT_BRIDGE_URL` still overrides discovery for unusual setups. It skips the file, **not** the
-verification.
+`UI_TOOLKIT_BRIDGE_URL` still overrides discovery for unusual setups. It replaces only the
+*connecting*: discovery still runs to learn which project the launch directory belongs to, so the
+check above still applies. (It has to work that way — holding the URL against the launch directory
+instead would reject a nested project's own bridge, i.e. this repo's.)
 
 Stale file after a crash: the proxy fails to connect, says so, and re-reads the file on the next call.
 

@@ -10,49 +10,137 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { readFile } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { readdir } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
 
-// Which project this proxy serves. One editor per project can run a bridge at the same time, so the
-// port cannot be assumed — it is looked up per project, and the answer is checked against this path
-// before anything is written. Claude Code launches the server with the project as its working
-// directory; "--project <path>" overrides that for anyone launching it differently.
-function resolveProjectRoot() {
+// Where this proxy was launched. Claude Code uses the project directory; "--project <path>" overrides
+// it. This is only the STARTING POINT for finding a bridge, not the answer: a repo root and a Unity
+// project root are not always the same directory.
+const LAUNCH_ROOT = (() => {
 	const flag = process.argv.indexOf("--project");
 	const raw = flag >= 0 && process.argv[flag + 1] ? process.argv[flag + 1] : process.cwd();
 	return resolve(raw).replace(/\\/g, "/");
-}
+})();
 
-const PROJECT_ROOT = resolveProjectRoot();
-const DISCOVERY_FILE = join(PROJECT_ROOT, "Library/UiToolkit/mcp-bridge.json").replace(/\\/g, "/");
+
+const DISCOVERY_RELATIVE = "Library/UiToolkit/mcp-bridge.json";
 const FORCED_URL = process.env.UI_TOOLKIT_BRIDGE_URL ?? null;
+
+/** Directories never worth descending into while looking for a Unity project. */
+const SKIP_DIRS = new Set(["node_modules", ".git", "Library", "Temp", "obj", "Build", "Logs", "Assets"]);
+const SCAN_DEPTH = 3;
 
 // Resolved lazily and re-resolved on failure: the editor may start, stop or move port at any time,
 // and a proxy that cached a dead URL forever would need a restart for no good reason.
 let g_bridgeUrl = null;
+let g_expectedProject = null;
 let g_verifiedUrl = null;
 
-async function readDiscovery() {
+async function readDiscoveryAt(dir) {
 	try {
-		return JSON.parse(await readFile(DISCOVERY_FILE, "utf8"));
+		const info = JSON.parse(await readFile(join(dir, DISCOVERY_RELATIVE), "utf8"));
+		return info?.url || info?.port ? info : null;
 	} catch {
 		return null;
 	}
 }
 
-async function resolveBridgeUrl() {
-	if (FORCED_URL)
-		return FORCED_URL;
-	if (g_bridgeUrl)
-		return g_bridgeUrl;
+/**
+ * Finds the bridge belonging to this launch directory. Upwards first, for being started in a
+ * subfolder; then a bounded scan downwards, because a repo may CONTAIN its Unity project rather than
+ * be one — the toolkit's own dev app lives in .Dev-App/Unity, which is exactly this case and which a
+ * root-only lookup missed. Several candidates are an error rather than a guess: picking the wrong one
+ * would mean writing into the wrong project.
+ */
+async function findDiscovery() {
+	const searched = [];
 
-	const info = await readDiscovery();
-	if (!info?.url && !info?.port) {
+	let dir = LAUNCH_ROOT;
+	for (let i = 0; i <= SCAN_DEPTH; i++) {
+		searched.push(dir);
+		const info = await readDiscoveryAt(dir);
+		if (info)
+			return { info, root: dir };
+
+		const parent = dirname(dir).replace(/\\/g, "/");
+		if (parent === dir)
+			break;
+		dir = parent;
+	}
+
+	const found = [];
+	await scanDown(LAUNCH_ROOT, 1, found, searched);
+	if (found.length === 1)
+		return found[0];
+
+	if (found.length > 1) {
 		throw new Error(
-			`No Unity bridge found for '${PROJECT_ROOT}'. Expected ${DISCOVERY_FILE}, which the editor writes ` +
-			`when the bridge starts. Open THIS project in Unity and enable 'Gui Toolkit > AI > Start MCP Bridge'.`
+			`Several Unity projects below '${LAUNCH_ROOT}' have a running bridge: ` +
+			found.map((f) => f.root).join(", ") +
+			`. Pass --project <path> in the MCP registration to say which one this server serves.`
 		);
 	}
 
+	throw new Error(
+		`No Unity bridge found for '${LAUNCH_ROOT}'. A running bridge writes ${DISCOVERY_RELATIVE} into its ` +
+		`own project; none was found in or below the directories searched (${searched.join(", ")}). Open the ` +
+		`project in Unity and enable 'Gui Toolkit > AI > Start MCP Bridge' — or pass --project <path> if the ` +
+		`Unity project lives somewhere this search does not reach.`
+	);
+}
+
+async function scanDown(dir, depth, found, searched) {
+	if (depth > SCAN_DEPTH)
+		return;
+
+	let entries;
+	try {
+		entries = await readdir(dir, { withFileTypes: true });
+	} catch {
+		return;
+	}
+
+	for (const entry of entries) {
+		if (!entry.isDirectory() || SKIP_DIRS.has(entry.name))
+			continue;
+
+		const child = join(dir, entry.name).replace(/\\/g, "/");
+		searched.push(child);
+
+		const info = await readDiscoveryAt(child);
+		if (info) {
+			found.push({ info, root: child });
+			continue; // a Unity project does not contain another
+		}
+		await scanDown(child, depth + 1, found, searched);
+	}
+}
+
+async function resolveBridgeUrl() {
+	if (g_bridgeUrl)
+		return g_bridgeUrl;
+
+	if (FORCED_URL) {
+		// A forced URL replaces only the CONNECTING, not the checking. Discovery still runs to learn which
+		// project this launch directory belongs to — comparing against the launch directory itself would
+		// wrongly reject a nested project's own bridge, which is precisely the toolkit's own layout. If
+		// nothing is discoverable there is simply nothing to hold it to.
+		try {
+			const { info, root } = await findDiscovery();
+			g_expectedProject = String(info.projectPath ?? root).replace(/\\/g, "/");
+		} catch {
+			g_expectedProject = null;
+		}
+		g_bridgeUrl = FORCED_URL;
+		return g_bridgeUrl;
+	}
+
+	const { info, root } = await findDiscovery();
+
+	// Compare against what the FILE claims, not against the launch directory: the project may legitimately
+	// sit below it. This still catches the case that matters — a file left behind by a crash whose port is
+	// now held by a different editor.
+	g_expectedProject = String(info.projectPath ?? root).replace(/\\/g, "/");
 	g_bridgeUrl = info.url ?? `http://127.0.0.1:${info.port}/`;
 	return g_bridgeUrl;
 }
@@ -74,7 +162,7 @@ async function verifyBridge(url) {
 	} catch (e) {
 		g_bridgeUrl = null;
 		throw new Error(
-			`Cannot reach the Unity bridge for '${PROJECT_ROOT}' at ${url}. ` +
+			`Cannot reach the Unity bridge at ${url} (expected project '${g_expectedProject ?? LAUNCH_ROOT}'). ` +
 			`Is the Editor open and 'Gui Toolkit > AI > Start MCP Bridge' enabled? (${e.message})`
 		);
 	}
@@ -82,18 +170,20 @@ async function verifyBridge(url) {
 	const info = JSON.parse(await res.text());
 	const reported = String(info.projectPath ?? "").replace(/\\/g, "/");
 
-	if (!reported) {
-		// An older bridge that does not report its project. Allowed, but it cannot be checked.
+	// Nothing to hold it to: either an older bridge that does not report its project, or a hand-set URL
+	// with no project named. Allowed, because refusing would break setups that were fine before.
+	if (!reported || !g_expectedProject) {
 		g_verifiedUrl = url;
 		return;
 	}
 
-	if (reported.toLowerCase().replace(/\/+$/, "") !== PROJECT_ROOT.toLowerCase().replace(/\/+$/, "")) {
+	const normalise = (p) => p.toLowerCase().replace(/\/+$/, "");
+	if (normalise(reported) !== normalise(g_expectedProject)) {
 		g_bridgeUrl = null;
 		throw new Error(
-			`Refusing to use the bridge at ${url}: it serves '${reported}', but this MCP server was started for ` +
-			`'${PROJECT_ROOT}'. Writing through it would modify the wrong project. Start the bridge in the right ` +
-			`editor, or unset UI_TOOLKIT_BRIDGE_URL if you set it.`
+			`Refusing to use the bridge at ${url}: it serves '${reported}', but this MCP server expects ` +
+			`'${g_expectedProject}'. Writing through it would modify the wrong project. Start the bridge in the ` +
+			`right editor, or unset UI_TOOLKIT_BRIDGE_URL if you set it.`
 		);
 	}
 
@@ -117,7 +207,7 @@ async function callBridge(method, payload) {
 		g_bridgeUrl = null;
 		g_verifiedUrl = null;
 		throw new Error(
-			`Cannot reach the Unity bridge for '${PROJECT_ROOT}' at ${url}. ` +
+			`Cannot reach the Unity bridge at ${url} (expected project '${g_expectedProject ?? LAUNCH_ROOT}'). ` +
 			`Is the Editor open and 'Gui Toolkit > AI > Start MCP Bridge' enabled? (${e.message})`
 		);
 	}
