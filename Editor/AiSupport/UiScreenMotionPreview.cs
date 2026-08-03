@@ -37,13 +37,15 @@ namespace GuiToolkit.Editor.AiSupport
 		private const int TimeBarHeight = 5;
 
 		public static JObject Capture( string _prefabPath, string _animationNode, int _frames, int _width,
-			int _height, bool _backwards )
+			int _height, bool _backwards, JObject _populate )
 		{
 			int frames = Mathf.Clamp(_frames > 0 ? _frames : 5, 2, 12);
 
 			// The session holds the instance between frames — the whole reason the single-shot path could not be
 			// reused: rebuilding the scene per frame would reset whatever is being animated.
 			using var session = UiScreenPreview.BeginSession(_prefabPath, _width, _height);
+
+			var populated = Populate(session.Instance, _populate);
 
 			var animation = FindAnimation(session.Instance, _animationNode, out string resolvedNode,
 				out var available);
@@ -62,6 +64,10 @@ namespace GuiToolkit.Editor.AiSupport
 				Debug.Log($"[UiScreenMotionPreview] '{resolvedNode}' has no separate backwards animation; " +
 					"reversing the forward one.");
 			}
+
+			// Reset first: a children animation fills its slave list from the container only when it collects,
+			// which Reset/Play do. Collecting before that found an empty list and filmed the orchestrator alone.
+			animation.Reset();
 
 			// The master and everything it drives. Each animation advances through its OWN Update, which Unity
 			// calls in Play Mode but not here — so stepping only the master would show the panel popping while
@@ -130,6 +136,7 @@ namespace GuiToolkit.Editor.AiSupport
 						// which is the difference between "the animation looks wrong" and "it was never driven".
 						["drivenAnimations"] = new JArray(
 							driven.Select(_a => (JToken)PathOf(session.Instance.transform, _a.transform))),
+						["populated"] = populated,
 						["times"] = times,
 						["readingOrder"] = "left to right, top to bottom; each cell carries a progress strip at " +
 							"its bottom edge showing where in the timeline it sits",
@@ -211,6 +218,49 @@ namespace GuiToolkit.Editor.AiSupport
 
 			Visit(_master);
 			return ordered;
+		}
+
+		/// <summary>
+		/// Fills a container with instances of a row prefab before filming.
+		///
+		/// Without this the tool is blind to the project's most common list pattern: a container plus a row
+		/// prefab spawned per item at runtime. Such a screen holds NO rows as an asset, so a staggered entrance
+		/// has nothing to collect at edit time and films as an empty strip — the animation would look absent
+		/// when it is merely unpopulated. The rows live in the throw-away preview scene only; the asset is
+		/// never touched.
+		/// </summary>
+		private static JObject Populate( GameObject _root, JObject _populate )
+		{
+			if (_populate == null)
+				return null;
+
+			string containerPath = (string)_populate["container"];
+			string rowPrefabPath = (string)_populate["prefab"];
+			int count = Mathf.Clamp((int?)_populate["count"] ?? 3, 1, 32);
+
+			if (string.IsNullOrEmpty(containerPath) || string.IsNullOrEmpty(rowPrefabPath))
+				throw new ArgumentException("'populate' needs both a 'container' node path and a 'prefab' path.");
+
+			var container = containerPath == "<root>" ? _root.transform : _root.transform.Find(containerPath);
+			if (container == null)
+				throw new ArgumentException($"populate: no node '{containerPath}' in the prefab.");
+
+			var rowPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(rowPrefabPath);
+			if (rowPrefab == null)
+				throw new ArgumentException($"populate: no prefab at '{rowPrefabPath}'.");
+
+			for (int i = 0; i < count; i++)
+			{
+				var row = (GameObject)PrefabUtility.InstantiatePrefab(rowPrefab, container);
+				row.name = $"{rowPrefab.name} ({i})";
+			}
+
+			return new JObject
+			{
+				["container"] = containerPath,
+				["prefab"] = rowPrefabPath,
+				["count"] = count,
+			};
 		}
 
 		private static UiSimpleAnimationBase FindAnimation( GameObject _root, string _nodePath,

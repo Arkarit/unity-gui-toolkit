@@ -401,7 +401,8 @@ namespace GuiToolkit.Editor.AiSupport
 				(int?)request["frames"] ?? 5,
 				(int?)request["width"] ?? 640,
 				(int?)request["height"] ?? 360,
-				(bool?)request["backwards"] ?? false);
+				(bool?)request["backwards"] ?? false,
+				request["populate"] as JObject);
 		}
 
 		/// <summary>

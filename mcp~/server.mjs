@@ -482,10 +482,19 @@ server.tool(
 		height: z.number().int().positive().optional().describe("Height of ONE frame in px (default 360)."),
 		backwards: z.boolean().optional().describe(
 			"Play in reverse — how a panel closes. Default false."),
+		populate: z.object({
+			container: z.string().describe("Node path of the container, e.g. 'animated/Panel/cardBand/cardStrip'."),
+			prefab: z.string().describe("Project-relative path of the row prefab to instantiate."),
+			count: z.number().int().optional().describe("How many rows, 1-32 (default 3)."),
+		}).optional().describe(
+			"Fill a container with rows before filming. REQUIRED to see a staggered list: a screen that spawns " +
+			"its rows at runtime holds none as an asset, so the entrance has nothing to collect and films as an " +
+			"empty container — the animation looks absent when it is merely unpopulated. Rows exist only in the " +
+			"throw-away preview scene; the asset is never touched."),
 	},
-	async ({ path, animationNode, frames, width, height, backwards }) => {
+	async ({ path, animationNode, frames, width, height, backwards, populate }) => {
 		try {
-			const payload = JSON.stringify({ path, animationNode, frames, width, height, backwards });
+			const payload = JSON.stringify({ path, animationNode, frames, width, height, backwards, populate });
 			const result = JSON.parse(await callBridge("screenshotMotion", payload));
 			if (!result.png)
 				throw new Error("Bridge returned no image data.");
