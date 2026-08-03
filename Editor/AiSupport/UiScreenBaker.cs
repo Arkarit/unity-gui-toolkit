@@ -1051,6 +1051,13 @@ namespace GuiToolkit.Editor.AiSupport
 
 		private static GameObject CreateElementNode( string _typeName )
 		{
+			// A node carrying nothing but its RectTransform. This is not an edge case: a shared transform for
+			// scale/position animations to act on — named "animated" throughout the BOTW client — is exactly
+			// such a node, and without this it could not be authored at all. It needs its own path because
+			// AddComponent(RectTransform) fails on an object that already has one.
+			if (_typeName == nameof(RectTransform))
+				return new GameObject(_typeName, typeof(RectTransform));
+
 			Type type = ResolveComponentType(_typeName);
 			if (type == null)
 				throw new ArgumentException($"Unknown component type '{_typeName}'. It must be a catalogued " +
