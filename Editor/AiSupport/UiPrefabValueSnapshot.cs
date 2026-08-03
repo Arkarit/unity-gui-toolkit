@@ -57,6 +57,25 @@ namespace GuiToolkit.Editor.AiSupport
 		/// </summary>
 		public static JObject Capture( string _prefabPath )
 		{
+			var snapshot = BuildSnapshot(_prefabPath, out var summary);
+
+			string snapshotPath = SnapshotPathFor(_prefabPath);
+			Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(snapshotPath)));
+			File.WriteAllText(Path.GetFullPath(snapshotPath), snapshot.ToString(Newtonsoft.Json.Formatting.Indented));
+
+			summary["prefab"] = _prefabPath;
+			summary["snapshotPath"] = snapshotPath;
+			summary["byteSize"] = new FileInfo(Path.GetFullPath(snapshotPath)).Length;
+			return summary;
+		}
+
+		/// <summary>
+		/// Builds a snapshot in memory without writing it. The restore side needs the prefab's CURRENT state as
+		/// its comparison baseline, and it must be expressed in exactly the same terms as the stored snapshot —
+		/// so both sides come from this one method rather than from two readers that could drift apart.
+		/// </summary>
+		internal static JObject BuildSnapshot( string _prefabPath, out JObject _summary )
+		{
 			if (AssetDatabase.LoadAssetAtPath<GameObject>(_prefabPath) == null)
 				throw new ArgumentException($"No prefab at '{_prefabPath}'.");
 
@@ -107,21 +126,8 @@ namespace GuiToolkit.Editor.AiSupport
 				PrefabUtility.UnloadPrefabContents(prefab);
 			}
 
-			var snapshot = new JObject
+			_summary = new JObject
 			{
-				["prefab"] = _prefabPath,
-				["capturedAtUtc"] = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
-				["nodes"] = nodes,
-			};
-
-			string snapshotPath = SnapshotPathFor(_prefabPath);
-			Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(snapshotPath)));
-			File.WriteAllText(Path.GetFullPath(snapshotPath), snapshot.ToString(Newtonsoft.Json.Formatting.Indented));
-
-			return new JObject
-			{
-				["prefab"] = _prefabPath,
-				["snapshotPath"] = snapshotPath,
 				["nodes"] = nodes.Count,
 				["components"] = componentCount,
 				["values"] = valueCount,
@@ -130,7 +136,13 @@ namespace GuiToolkit.Editor.AiSupport
 				// not understand a type yet.
 				["componentsWithoutValues"] = emptyComponentCount,
 				["nodesWithUnloadableScripts"] = missingScripts,
-				["byteSize"] = new FileInfo(Path.GetFullPath(snapshotPath)).Length,
+			};
+
+			return new JObject
+			{
+				["prefab"] = _prefabPath,
+				["capturedAtUtc"] = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
+				["nodes"] = nodes,
 			};
 		}
 
@@ -170,6 +182,12 @@ namespace GuiToolkit.Editor.AiSupport
 
 				if (!TryReadValue(property, out var token, out bool isReference))
 					continue;
+
+				// A value that could be read is complete, so do not also descend into how Unity happens to
+				// represent it. Descending captured every colour a second time as .r/.g/.b/.a and every vector as
+				// .x/.y/.z/.w — but above all it turned each object reference into a bare .m_FileID integer, which
+				// looks like ordinary data to anything downstream and would let raw object ids be written back.
+				enterChildren = false;
 
 				values[property.propertyPath] = token;
 				if (isReference)
@@ -215,7 +233,7 @@ namespace GuiToolkit.Editor.AiSupport
 					return true;
 
 				case SerializedPropertyType.Color:
-					_token = "#" + ColorUtility.ToHtmlStringRGBA(_property.colorValue);
+					_token = ColorToJson(_property.colorValue);
 					return true;
 
 				case SerializedPropertyType.Vector2: { var v = _property.vector2Value; _token = new JArray { v.x, v.y }; return true; }
@@ -253,17 +271,32 @@ namespace GuiToolkit.Editor.AiSupport
 
 		// SerializedProperty exposes gradientValue only internally, so it has to be reached by reflection. If a
 		// future Unity renames it, the gradient is simply left out of the snapshot rather than the capture failing.
-		private static readonly System.Reflection.PropertyInfo s_gradientValue =
+		// Internal because the restore side needs the very same handle to write one back — one place to break.
+		internal static readonly System.Reflection.PropertyInfo GradientValueProperty =
 			typeof(SerializedProperty).GetProperty("gradientValue",
 				System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public |
 				System.Reflection.BindingFlags.NonPublic);
 
 		private static Gradient ReadGradient( SerializedProperty _property )
 		{
-			if (s_gradientValue == null)
+			if (GradientValueProperty == null)
 				return null;
-			try { return s_gradientValue.GetValue(_property) as Gradient; }
+			try { return GradientValueProperty.GetValue(_property) as Gradient; }
 			catch { return null; }
+		}
+
+		/// <summary>
+		/// Hex while hex is exact, four floats when it is not. Hex reads well in a diff and covers virtually every
+		/// colour a human picks, but it is eight bits per channel — and since the walk no longer descends into a
+		/// colour's float components, hex alone would quietly round whatever it cannot represent.
+		/// </summary>
+		private static JToken ColorToJson( Color _color )
+		{
+			string hex = "#" + ColorUtility.ToHtmlStringRGBA(_color);
+			if (ColorUtility.TryParseHtmlString(hex, out var roundTripped) && roundTripped == _color)
+				return hex;
+
+			return new JArray { _color.r, _color.g, _color.b, _color.a };
 		}
 
 		private static JToken CurveToJson( AnimationCurve _curve )

@@ -79,6 +79,36 @@ Steps Claude follows:
 | `tag_standard_element` | Tag prefab roots with a standard-element identity so they enter the registry/palette (base+variant batch safe). |
 | `untag_standard_element` | Remove the standard-element marker from prefabs. |
 | `set_ui_comment` | Set a flavor description (UiComment) on prefab roots — Inspector doc, and palette description for palette prefabs. |
+| `capture_prefab_values` | Snapshot EVERY serialized value of a baked prefab (node path + Unity `propertyPath`) to `Library/`. Take it BEFORE re-baking something a human edited. |
+| `apply_prefab_values` | Restore that snapshot's residue into the re-baked prefab. Dry run by default — read the plan first. See below. |
+| `get_console` | Read this editor session's console (ring buffer), filterable by `severity`/`contains`, with `sinceSequence` for "what did that action produce". |
+| `resolve_packages` | Make Unity pick up an externally edited `manifest.json` without waiting for window focus, then wait for idle. |
+
+### Surviving a re-bake: `preserveEdits` vs. the snapshot pair
+
+Two mechanisms, and they answer different questions.
+
+`preserveEdits` works entirely in the description's vocabulary. It can only keep what `read_screen`
+can see, so a value the catalog does not advertise — an inherited TMP `fontSize`, a gradient
+direction — is invisible to it and gets overwritten.
+
+`capture_prefab_values` + `apply_prefab_values` is complete by construction instead: it reads through
+`SerializedObject`, so it holds everything Unity serializes whether or not the authoring vocabulary
+has a word for it. Use it for the edit workflow:
+
+```
+capture_prefab_values   →  adapt the description  →  bake_screen  →  apply_prefab_values (dry run)
+```
+
+The restore compares the snapshot against the prefab **as it is after the bake**, so anything the bake
+already reproduced is left alone and only the residue is proposed. That residue is ambiguous by
+nature, and no tool can resolve it: a difference means either "a human edit the description cannot
+carry" (restore it) or "a change you deliberately made to the description" (do not — you would undo
+your own decision). Hence dry run first, then apply with `include` narrowed to what you meant.
+
+Object references are reported, never written: wiring belongs to the description via `#id`. Read
+`propertyHistogram` as a roadmap — a property that keeps needing a restore is a gap worth closing in
+the baker itself.
 
 ### Screen JSON shape (for `bake_screen`)
 

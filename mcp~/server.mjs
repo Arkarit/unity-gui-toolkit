@@ -263,6 +263,39 @@ server.tool(
 );
 
 server.tool(
+	"apply_prefab_values",
+	"Restore values from a capture_prefab_values snapshot into a prefab that has since been re-baked — the " +
+	"second half of: capture -> adapt the description -> bake_screen -> apply. It compares the snapshot " +
+	"against the prefab AS IT IS NOW, so everything the bake already reproduced is left alone and only the " +
+	"RESIDUE is a candidate: exactly the edits the authoring vocabulary cannot express. DRY RUN IS THE " +
+	"DEFAULT and you should keep it for the first call: a difference can equally mean 'a human edit the " +
+	"description cannot carry' (restore it) or 'a change you deliberately made to the description' (do NOT " +
+	"restore it, you would undo your own decision), and no comparison can tell those apart — only you can, " +
+	"because you wrote the description. So: dry run, read the plan, then apply with 'include' narrowed to the " +
+	"entries you actually meant. Object references are REPORTED, never written: wiring belongs to the " +
+	"description via \"#id\". Read 'propertyHistogram' as a roadmap — a property that keeps needing a restore " +
+	"is a gap worth closing in the baker itself. The full plan is written to 'reportPath'; only the first " +
+	"entries travel back inline. Writing is refused outright while any script in the prefab fails to load, " +
+	"since saving would delete those components for good.",
+	{
+		path: z.string().describe("Project-relative prefab path, the same one that was captured and re-baked."),
+		dryRun: z.boolean().optional().describe(
+			"Default true: report the plan and write nothing. Pass false only after reading a dry-run plan."),
+		include: z.array(z.string()).optional().describe(
+			"Case-insensitive substrings matched against node path, component type or property path. Use this to " +
+			"apply the reviewed part of a plan, e.g. ['m_fontSize'] or ['progressCount']."),
+		snapshotPath: z.string().optional().describe(
+			"Defaults to the snapshot capture_prefab_values wrote for this prefab."),
+	},
+	async ({ path, dryRun, include, snapshotPath }) => {
+		try {
+			return ok(await callBridge("applyPrefabValues", JSON.stringify({ path, dryRun, include, snapshotPath })));
+		}
+		catch (e) { return fail(e); }
+	}
+);
+
+server.tool(
 	"list_styles",
 	"List this project's STYLE vocabulary — the named looks (fonts, colours, sprites, gradients) a screen " +
 	"node applies via its \"style\" field, grouped by the component type they target. Call this BEFORE " +

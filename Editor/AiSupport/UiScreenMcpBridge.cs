@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -297,6 +298,11 @@ namespace GuiToolkit.Editor.AiSupport
 					return UiPrefabValueSnapshot.Capture(ReadScreenPath(_payload))
 						.ToString(Newtonsoft.Json.Formatting.None);
 
+				case "applyPrefabValues":
+					if (string.IsNullOrWhiteSpace(_payload))
+						throw new Exception("applyPrefabValues requires a 'payload' holding the prefab path.");
+					return ApplyPrefabValues(_payload).ToString(Newtonsoft.Json.Formatting.None);
+
 				case "screenshotView":
 					return Screenshot(_payload);
 
@@ -369,6 +375,27 @@ namespace GuiToolkit.Editor.AiSupport
 				(long?)request["sinceSequence"] ?? 0,
 				(int?)request["limit"] ?? 0,
 				(bool?)request["withStackTraces"] ?? false);
+		}
+
+		/// <summary>
+		/// Dry run is the default here as well as in the tool description: the request has to ASK to write, so a
+		/// malformed payload can only ever produce a report.
+		/// </summary>
+		private static JObject ApplyPrefabValues( string _payload )
+		{
+			var request = JObject.Parse(_payload.Trim());
+
+			string path = (string)request["path"];
+			if (string.IsNullOrEmpty(path))
+				throw new Exception("applyPrefabValues payload object must contain a 'path'.");
+
+			var include = (request["include"] as JArray)?.Select(_t => (string)_t).ToArray();
+
+			return UiPrefabValueRestore.Apply(
+				path,
+				(string)request["snapshotPath"],
+				(bool?)request["dryRun"] ?? true,
+				include);
 		}
 
 		private static string ReadScreenPath( string _payload )
