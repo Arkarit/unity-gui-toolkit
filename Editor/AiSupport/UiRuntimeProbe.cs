@@ -160,6 +160,38 @@ namespace GuiToolkit.Editor.AiSupport
 		private static GameObject FindTarget( string _target )
 		{
 			var candidates = new List<GameObject>();
+			var similar = new List<string>();
+
+			foreach (var root in AllRoots())
+				Collect(root, _target, candidates, similar);
+
+			if (candidates.Count == 1)
+				return candidates[0];
+
+			if (candidates.Count == 0)
+			{
+				// The near-misses matter more than the failure: without them, finding the right name means asking
+				// a human to read it out of the hierarchy window.
+				string hint = similar.Count > 0
+					? " Did you mean: " + string.Join(", ", similar.Take(12)) + "?"
+					: "";
+				throw new Exception($"No object matching '{_target}'." + hint +
+				                    " Pass a node name, or a path ending in one, as it appears in the hierarchy.");
+			}
+
+			throw new Exception($"'{_target}' matches {candidates.Count} objects: " +
+			                    string.Join(", ", candidates.Take(8).Select(PathOf)) +
+			                    ". Pass more of the path to disambiguate.");
+		}
+
+		/// <summary>
+		/// Every root the running app has, INCLUDING DontDestroyOnLoad. SceneManager does not list that scene, and
+		/// leaving it out made the probe blind to exactly the objects worth probing: a UiMain that survives scene
+		/// changes lives there, and so does every view it creates.
+		/// </summary>
+		private static IEnumerable<GameObject> AllRoots()
+		{
+			var seen = new HashSet<GameObject>();
 
 			for (int i = 0; i < SceneManager.sceneCount; i++)
 			{
@@ -168,29 +200,50 @@ namespace GuiToolkit.Editor.AiSupport
 					continue;
 
 				foreach (var root in scene.GetRootGameObjects())
-					Collect(root.transform, _target, candidates);
+				{
+					if (seen.Add(root))
+						yield return root;
+				}
 			}
 
-			if (candidates.Count == 1)
-				return candidates[0];
+			// No API hands out the DontDestroyOnLoad scene, so it is reached through its objects. Transforms
+			// without a parent whose scene carries that name are its roots; prefab assets have no valid scene and
+			// drop out here.
+			foreach (var transform in Resources.FindObjectsOfTypeAll<Transform>())
+			{
+				if (transform == null || transform.parent != null)
+					continue;
+				if (transform.hideFlags != HideFlags.None)
+					continue;
 
-			if (candidates.Count == 0)
-				throw new Exception($"No active object matching '{_target}'. Pass a node name, or a path ending " +
-				                    "in one, exactly as it appears in the hierarchy.");
+				var scene = transform.gameObject.scene;
+				if (!scene.IsValid() || scene.name != "DontDestroyOnLoad")
+					continue;
 
-			throw new Exception($"'{_target}' matches {candidates.Count} objects: " +
-			                    string.Join(", ", candidates.Take(8).Select(PathOf)) +
-			                    ". Pass more of the path to disambiguate.");
+				if (seen.Add(transform.gameObject))
+					yield return transform.gameObject;
+			}
 		}
 
-		private static void Collect( Transform _transform, string _target, List<GameObject> _into )
+		private static void Collect( GameObject _root, string _target, List<GameObject> _into, List<string> _similar )
+			=> Collect(_root.transform, _target, _into, _similar);
+
+		private static void Collect( Transform _transform, string _target, List<GameObject> _into,
+			List<string> _similar )
 		{
 			string path = PathOf(_transform.gameObject);
 			if (_transform.name == _target || path == _target || path.EndsWith("/" + _target, StringComparison.Ordinal))
+			{
 				_into.Add(_transform.gameObject);
+			}
+			else if (_similar.Count < 40 &&
+			         _transform.name.IndexOf(_target, StringComparison.OrdinalIgnoreCase) >= 0)
+			{
+				_similar.Add(_transform.name);
+			}
 
 			foreach (Transform child in _transform)
-				Collect(child, _target, _into);
+				Collect(child, _target, _into, _similar);
 		}
 
 		private static bool IsSelfOrDescendant( GameObject _candidate, GameObject _of )
