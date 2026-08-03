@@ -10,20 +10,114 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { readFile } from "node:fs/promises";
+import { join, resolve } from "node:path";
 
-const BRIDGE_URL = process.env.UI_TOOLKIT_BRIDGE_URL ?? "http://127.0.0.1:17632/";
+// Which project this proxy serves. One editor per project can run a bridge at the same time, so the
+// port cannot be assumed — it is looked up per project, and the answer is checked against this path
+// before anything is written. Claude Code launches the server with the project as its working
+// directory; "--project <path>" overrides that for anyone launching it differently.
+function resolveProjectRoot() {
+	const flag = process.argv.indexOf("--project");
+	const raw = flag >= 0 && process.argv[flag + 1] ? process.argv[flag + 1] : process.cwd();
+	return resolve(raw).replace(/\\/g, "/");
+}
 
-async function callBridge(method, payload) {
+const PROJECT_ROOT = resolveProjectRoot();
+const DISCOVERY_FILE = join(PROJECT_ROOT, "Library/UiToolkit/mcp-bridge.json").replace(/\\/g, "/");
+const FORCED_URL = process.env.UI_TOOLKIT_BRIDGE_URL ?? null;
+
+// Resolved lazily and re-resolved on failure: the editor may start, stop or move port at any time,
+// and a proxy that cached a dead URL forever would need a restart for no good reason.
+let g_bridgeUrl = null;
+let g_verifiedUrl = null;
+
+async function readDiscovery() {
+	try {
+		return JSON.parse(await readFile(DISCOVERY_FILE, "utf8"));
+	} catch {
+		return null;
+	}
+}
+
+async function resolveBridgeUrl() {
+	if (FORCED_URL)
+		return FORCED_URL;
+	if (g_bridgeUrl)
+		return g_bridgeUrl;
+
+	const info = await readDiscovery();
+	if (!info?.url && !info?.port) {
+		throw new Error(
+			`No Unity bridge found for '${PROJECT_ROOT}'. Expected ${DISCOVERY_FILE}, which the editor writes ` +
+			`when the bridge starts. Open THIS project in Unity and enable 'Gui Toolkit > AI > Start MCP Bridge'.`
+		);
+	}
+
+	g_bridgeUrl = info.url ?? `http://127.0.0.1:${info.port}/`;
+	return g_bridgeUrl;
+}
+
+// The whole point of the discovery file: confirm the editor that answered is the one belonging to this
+// project. Cheap (one status call per URL) and it turns a silent catastrophe — baking into a different
+// project that merely happened to hold the port — into a refusal.
+async function verifyBridge(url) {
+	if (g_verifiedUrl === url)
+		return;
+
 	let res;
 	try {
-		res = await fetch(BRIDGE_URL, {
+		res = await fetch(url, {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ method: "status" }),
+		});
+	} catch (e) {
+		g_bridgeUrl = null;
+		throw new Error(
+			`Cannot reach the Unity bridge for '${PROJECT_ROOT}' at ${url}. ` +
+			`Is the Editor open and 'Gui Toolkit > AI > Start MCP Bridge' enabled? (${e.message})`
+		);
+	}
+
+	const info = JSON.parse(await res.text());
+	const reported = String(info.projectPath ?? "").replace(/\\/g, "/");
+
+	if (!reported) {
+		// An older bridge that does not report its project. Allowed, but it cannot be checked.
+		g_verifiedUrl = url;
+		return;
+	}
+
+	if (reported.toLowerCase().replace(/\/+$/, "") !== PROJECT_ROOT.toLowerCase().replace(/\/+$/, "")) {
+		g_bridgeUrl = null;
+		throw new Error(
+			`Refusing to use the bridge at ${url}: it serves '${reported}', but this MCP server was started for ` +
+			`'${PROJECT_ROOT}'. Writing through it would modify the wrong project. Start the bridge in the right ` +
+			`editor, or unset UI_TOOLKIT_BRIDGE_URL if you set it.`
+		);
+	}
+
+	g_verifiedUrl = url;
+}
+
+async function callBridge(method, payload) {
+	const url = await resolveBridgeUrl();
+	await verifyBridge(url);
+
+	let res;
+	try {
+		res = await fetch(url, {
 			method: "POST",
 			headers: { "content-type": "application/json" },
 			body: JSON.stringify(payload === undefined ? { method } : { method, payload }),
 		});
 	} catch (e) {
+		// Forget the URL so the next call re-reads the discovery file: the editor may have restarted on
+		// a different port, and a stale file would otherwise keep us pointed at nothing.
+		g_bridgeUrl = null;
+		g_verifiedUrl = null;
 		throw new Error(
-			`Cannot reach the Unity bridge at ${BRIDGE_URL}. ` +
+			`Cannot reach the Unity bridge for '${PROJECT_ROOT}' at ${url}. ` +
 			`Is the Editor open and 'Gui Toolkit > AI > Start MCP Bridge' enabled? (${e.message})`
 		);
 	}
@@ -40,7 +134,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // unreachable (e.g. the HTTP listener is briefly down during a domain reload).
 async function tryBridge(method) {
 	try {
-		const res = await fetch(BRIDGE_URL, {
+		const url = await resolveBridgeUrl();
+		const res = await fetch(url, {
 			method: "POST",
 			headers: { "content-type": "application/json" },
 			body: JSON.stringify({ method }),
@@ -48,6 +143,11 @@ async function tryBridge(method) {
 		if (!res.ok) return null;
 		return JSON.parse(await res.text());
 	} catch {
+		// Forget the url here too. This is the polling path used while the editor reloads, and the bridge
+		// deletes its discovery file while it is down — so the next poll should re-read it rather than keep
+		// asking a port the editor may no longer hold.
+		g_bridgeUrl = null;
+		g_verifiedUrl = null;
 		return null;
 	}
 }

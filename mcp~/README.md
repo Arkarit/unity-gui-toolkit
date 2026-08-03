@@ -25,7 +25,40 @@ Claude (MCP client) ──stdio──> mcp~/server.mjs ──HTTP──> Unity E
 2. **Start the Editor bridge** in Unity: menu **`Gui Toolkit → AI → Start MCP Bridge`**
    (stays on across domain reloads until you pick *Stop MCP Bridge*).
 3. **Register the server** with your MCP client (see below), then restart the client and
-   approve the `ui-toolkit` server. Verify with `/mcp` — you should see 12 tools.
+   approve the `ui-toolkit` server. Verify with `/mcp` — you should see the tool list.
+
+### One editor per project, at the same time
+
+The bridge no longer owns a fixed port. It **probes upward from 17632** and then writes what it
+found to `Library/UiToolkit/mcp-bridge.json` inside its own project:
+
+```json
+{ "port": 17633, "url": "http://127.0.0.1:17633/", "projectPath": "D:/_programming/botw-client",
+  "unityVersion": "2022.3.62f2", "pid": 221928, "startedAtUtc": "..." }
+```
+
+The proxy resolves its project (the working directory it was launched in, or `--project <path>`),
+reads **that project's** file, and connects to the port it names. So several editors can each serve
+their own bridge with no configuration to keep straight, and a library repo and a client repo can be
+worked on side by side.
+
+More importantly, the proxy then **verifies** that the bridge which answered reports the same project
+it was started for, and refuses otherwise:
+
+```
+Refusing to use the bridge at http://127.0.0.1:17633/: it serves 'D:/…/botw-client',
+but this MCP server was started for 'D:/…/unity-gui-toolkit'.
+```
+
+That check is the point of the whole mechanism. `/mcp` shows which project a server was *registered*
+for, but nothing used to say which editor it had actually reached — so a proxy could bake into a
+different project that merely happened to hold the port, without a word. Which project answers now
+travels in every `ping` and `status`.
+
+`UI_TOOLKIT_BRIDGE_URL` still overrides discovery for unusual setups. It skips the file, **not** the
+verification.
+
+Stale file after a crash: the proxy fails to connect, says so, and re-reads the file on the next call.
 
 ### Registering with Claude Code — the easy way
 

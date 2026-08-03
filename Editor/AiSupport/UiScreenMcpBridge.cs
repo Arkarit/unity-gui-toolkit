@@ -31,8 +31,21 @@ namespace GuiToolkit.Editor.AiSupport
 	[InitializeOnLoad]
 	public static class UiScreenMcpBridge
 	{
-		public const int Port = 17632;
-		private const string UrlPrefix = "http://127.0.0.1:17632/";
+		/// <summary>
+		/// Where the port search starts. It is no longer a fixed port: one editor per project has to be able to
+		/// serve its own bridge at the same time, and a fixed port allowed exactly one.
+		/// </summary>
+		public const int BasePort = 17632;
+
+		private const int PortProbeCount = 16;
+
+		/// <summary>
+		/// How the Node proxy finds THIS project's bridge. Written into the project's own Library folder, so the
+		/// mapping is project-local by construction — no port convention to keep straight, and no chance of a
+		/// proxy silently reaching a different project's editor and baking into it.
+		/// </summary>
+		private const string DiscoveryFile = "Library/UiToolkit/mcp-bridge.json";
+
 		private const string EnabledPrefKey = "GuiToolkit.AiSupport.McpBridge.Enabled";
 		// Max time to wait for a handler on the main thread. Generous because batch operations
 		// (e.g. tagging many prefabs in one call) re-serialize each asset and can take a while;
@@ -43,9 +56,21 @@ namespace GuiToolkit.Editor.AiSupport
 		private static Thread s_acceptThread;
 		private static volatile bool s_running;
 		private static volatile bool s_recompileRequested;
+		private static int s_port;
 		private static readonly ConcurrentQueue<Action> s_mainThreadQueue = new();
 
 		public static bool IsRunning => s_running;
+
+		/// <summary>The port actually bound, which is only known after the probe.</summary>
+		public static int Port => s_port;
+
+		/// <summary>
+		/// The project this bridge belongs to, forward-slashed. Reported in every status response: the proxy knows
+		/// which project IT was registered for, but until this crossed the socket nothing could check that the two
+		/// were the same, and a mismatch would have written into the wrong project without a word.
+		/// </summary>
+		public static string ProjectPath =>
+			Path.GetDirectoryName(Application.dataPath)?.Replace('\\', '/') ?? "";
 
 		static UiScreenMcpBridge()
 		{
@@ -90,16 +115,35 @@ namespace GuiToolkit.Editor.AiSupport
 			if (s_running)
 				return;
 
-			try
+			// Probe upward instead of insisting on one port: another project's editor may already hold the base
+			// port, and both should be able to serve at once. The proxy does not need to know which one we got —
+			// it reads that from the discovery file below.
+			Exception lastFailure = null;
+			for (int offset = 0; offset < PortProbeCount; offset++)
 			{
-				s_listener = new HttpListener();
-				s_listener.Prefixes.Add(UrlPrefix);
-				s_listener.Start();
+				int port = BasePort + offset;
+				var listener = new HttpListener();
+				listener.Prefixes.Add(UrlPrefixFor(port));
+				try
+				{
+					listener.Start();
+				}
+				catch (Exception e)
+				{
+					lastFailure = e;
+					try { listener.Close(); } catch { /* ignore */ }
+					continue;
+				}
+
+				s_listener = listener;
+				s_port = port;
+				break;
 			}
-			catch (Exception e)
+
+			if (s_listener == null)
 			{
-				UiLog.LogError($"MCP bridge could not start on {UrlPrefix}: {e.Message}");
-				s_listener = null;
+				UiLog.LogError($"MCP bridge could not start: ports {BasePort}-{BasePort + PortProbeCount - 1} are " +
+				               $"all unavailable. Last error: {lastFailure?.Message}");
 				return;
 			}
 
@@ -109,7 +153,54 @@ namespace GuiToolkit.Editor.AiSupport
 			s_acceptThread = new Thread(AcceptLoop) { IsBackground = true, Name = "UiScreenMcpBridge" };
 			s_acceptThread.Start();
 
-			UiLog.LogInternal($"MCP bridge listening on {UrlPrefix}");
+			WriteDiscoveryFile();
+
+			UiLog.LogInternal($"MCP bridge listening on {UrlPrefixFor(s_port)} for '{ProjectPath}'");
+		}
+
+		private static string UrlPrefixFor( int _port ) => $"http://127.0.0.1:{_port}/";
+
+		private static string DiscoveryFilePath =>
+			Path.Combine(Path.GetDirectoryName(Application.dataPath) ?? ".", DiscoveryFile);
+
+		/// <summary>
+		/// Announces this bridge to whoever opens this project. Deleted again on shutdown; a file left behind by a
+		/// crash is harmless because the proxy fails to connect and says so rather than talking to nothing.
+		/// </summary>
+		private static void WriteDiscoveryFile()
+		{
+			try
+			{
+				string path = DiscoveryFilePath;
+				Directory.CreateDirectory(Path.GetDirectoryName(path));
+
+				var info = new JObject
+				{
+					["port"] = s_port,
+					["url"] = UrlPrefixFor(s_port),
+					["projectPath"] = ProjectPath,
+					["unityVersion"] = Application.unityVersion,
+					["pid"] = System.Diagnostics.Process.GetCurrentProcess().Id,
+					["startedAtUtc"] = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
+				};
+				File.WriteAllText(path, info.ToString(Newtonsoft.Json.Formatting.Indented));
+			}
+			catch (Exception e)
+			{
+				// Not fatal: the bridge still serves, it is just harder to find.
+				UiLog.LogError($"MCP bridge could not write its discovery file: {e.Message}");
+			}
+		}
+
+		private static void DeleteDiscoveryFile()
+		{
+			try
+			{
+				string path = DiscoveryFilePath;
+				if (File.Exists(path))
+					File.Delete(path);
+			}
+			catch { /* a stale file is survivable; failing to stop is not */ }
 		}
 
 		private static void StopInternal()
@@ -119,6 +210,9 @@ namespace GuiToolkit.Editor.AiSupport
 
 			s_running = false;
 			EditorApplication.update -= Pump;
+
+			DeleteDiscoveryFile();
+			s_port = 0;
 
 			try { s_listener?.Stop(); } catch { /* ignore */ }
 			try { s_listener?.Close(); } catch { /* ignore */ }
@@ -230,11 +324,15 @@ namespace GuiToolkit.Editor.AiSupport
 			switch (_method)
 			{
 				case "ping":
-					return "{\"unity\":true,\"toolkit\":" + JsonString(typeof(UiThing).Assembly.GetName().Name) + "}";
+					return "{\"unity\":true,\"toolkit\":" + JsonString(typeof(UiThing).Assembly.GetName().Name) +
+					       ",\"projectPath\":" + JsonString(ProjectPath) + ",\"port\":" + s_port + "}";
 
+				// projectPath travels with every status: this is what the proxy compares against the project it was
+				// registered for, so reaching the wrong editor is caught before anything is written.
 				case "status":
 					return "{\"running\":true,\"compiling\":" + (EditorApplication.isCompiling ? "true" : "false") +
-					       ",\"updating\":" + (EditorApplication.isUpdating ? "true" : "false") + "}";
+					       ",\"updating\":" + (EditorApplication.isUpdating ? "true" : "false") +
+					       ",\"projectPath\":" + JsonString(ProjectPath) + ",\"port\":" + s_port + "}";
 
 				case "recompile":
 					// Trigger the refresh from Pump() (the EditorApplication.update path, which provably
