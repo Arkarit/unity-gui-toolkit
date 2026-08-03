@@ -873,6 +873,92 @@ tool(
 );
 
 tool(
+	"play_mode",
+	"Query, enter or leave Play Mode. 'action': 'status' (default), 'enter', 'exit'. Entering or leaving " +
+	"reloads the domain, which stops and restarts this bridge — so the call returns before the change has " +
+	"happened, and you must poll with 'status' until 'isPlaying' matches what you asked for. Expect the bridge " +
+	"to be unreachable for a few seconds in between; that is normal, not a failure. Note that entering Play " +
+	"Mode starts the app at its FIRST scene, which for a real game usually means splash, login and network — " +
+	"reaching a particular screen from there is often not something you can drive. The productive pattern is " +
+	"usually the other way round: ask the human to bring the app to the state in question, then use " +
+	"screenshot_game and probe_ui on it.",
+	{
+		action: z.enum(["status", "enter", "exit"]).optional().describe("Default 'status'."),
+	},
+	async ({ action }) => {
+		try { return ok(await callBridge("playMode", JSON.stringify({ action: action ?? "status" }))); }
+		catch (e) { return fail(e); }
+	}
+);
+
+tool(
+	"screenshot_game",
+	"Capture the Game View of the RUNNING app — real data, real resolution, real state. This is what the " +
+	"Edit-Mode tools cannot substitute: screenshot_view shows what was authored and screenshot_motion shows " +
+	"how it moves, but neither shows a screen the server filled in after a user navigated to it. Requires Play " +
+	"Mode and an open Game View window; a closed or fully occluded one renders no frames and the capture will " +
+	"time out. Also fails clearly while paused, since no further frame is produced. Returns the image plus the " +
+	"file it was also written to under Library/.",
+	{
+		superSize: z.number().int().optional().describe(
+			"Resolution multiplier, 1-4 (default 1). Above 1 costs render time and tokens; prefer 1."),
+	},
+	async ({ superSize }) => {
+		try {
+			await callBridge("screenshotGame", JSON.stringify({ action: "start", superSize }));
+
+			// Polled from HERE rather than waited for inside the editor: a handler that waits blocks the main
+			// thread, which is the thread that has to render the frame the capture is waiting for.
+			for (let attempt = 0; attempt < 80; attempt++) {
+				await sleep(150);
+				const result = JSON.parse(await callBridge("screenshotGame", JSON.stringify({ action: "fetch" })));
+				if (result.png) {
+					const { png, ...meta } = result;
+					return {
+						content: [
+							{ type: "image", data: png, mimeType: "image/png" },
+							{ type: "text", text: JSON.stringify(meta) },
+						],
+					};
+				}
+			}
+			throw new Error(
+				"The capture never completed. Is a Game View window open and visible? A Game View that is closed, " +
+				"or on a hidden tab, renders no frames."
+			);
+		} catch (e) { return fail(e); }
+	}
+);
+
+tool(
+	"probe_ui",
+	"Ask the running UI what a tap would actually hit, and optionally perform it. This answers what no " +
+	"screenshot can: whether a button is REACHABLE. A full-rect frame overlay with raycastTarget left on " +
+	"swallows every click beneath it while looking perfectly correct — so the answer is the whole raycast hit " +
+	"stack, topmost first. Name a 'target' (node name, or a path ending in one) and it is aimed at its centre, " +
+	"reporting 'targetReceivesInput' and, when something is in the way, 'blockedBy'. With 'click' the tap goes " +
+	"THROUGH the raycast as down/up/click on whatever is actually on top — deliberately not by invoking the " +
+	"button's event directly, because that would bypass the very thing worth testing. 'handledBy' names the " +
+	"node whose handler ran, or null if the click landed somewhere that ignores it. Requires Play Mode.",
+	{
+		target: z.string().optional().describe(
+			"Node to aim at, e.g. 'claimAll' or 'Panel/buttonBand/claimAll'. Ambiguous names are an error " +
+			"listing the candidates."),
+		x: z.number().optional().describe("Screen X, if aiming by position instead of target."),
+		y: z.number().optional().describe("Screen Y. Top-left origin by default, matching a captured image."),
+		origin: z.enum(["topLeft", "bottomLeft"]).optional().describe(
+			"Origin for x/y. Default 'topLeft' because that is how screenshots read; Unity's own is bottomLeft."),
+		click: z.boolean().optional().describe(
+			"Perform the tap as well as reporting it. Default false — look first."),
+	},
+	async ({ target, x, y, origin, click }) => {
+		try {
+			return ok(await callBridge("probeUi", JSON.stringify({ target, x, y, origin, click })));
+		} catch (e) { return fail(e); }
+	}
+);
+
+tool(
 	"harvest_motion",
 	"Read this project's EXISTING animations out of its prefabs and group them by how the motion looks, most " +
 	"used first. Call it before authoring any animation: a shape that many prefabs share has already had the " +

@@ -64,6 +64,15 @@ namespace GuiToolkit.Editor.AiSupport
 		private static Thread s_acceptThread;
 		private static volatile bool s_running;
 		private static volatile bool s_recompileRequested;
+
+		/// <summary>
+		/// 0 = nothing to do, 1 = enter Play Mode, -1 = leave it. An int rather than the nullable bool this wants
+		/// to be, because a nullable cannot be volatile — and it is written from a request thread.
+		///
+		/// Deferred like a recompile and for the same reason: entering Play Mode reloads the domain, which would
+		/// tear down the HTTP response mid-flight.
+		/// </summary>
+		private static volatile int s_playModeRequest;
 		private static int s_port;
 		private static readonly ConcurrentQueue<Action> s_mainThreadQueue = new();
 
@@ -321,6 +330,14 @@ namespace GuiToolkit.Editor.AiSupport
 				}
 				catch (Exception e) { UiLog.LogError($"MCP bridge recompile failed: {e.Message}"); }
 			}
+
+			if (s_playModeRequest != 0)
+			{
+				bool wanted = s_playModeRequest > 0;
+				s_playModeRequest = 0;
+				try { EditorApplication.isPlaying = wanted; }
+				catch (Exception e) { UiLog.LogError($"MCP bridge could not set Play Mode: {e.Message}"); }
+			}
 		}
 
 		private static void AcceptLoop()
@@ -479,6 +496,25 @@ namespace GuiToolkit.Editor.AiSupport
 				case "screenshotMotion":
 					return MotionFilmstrip(_payload).ToString(Newtonsoft.Json.Formatting.None);
 
+				case "playMode":
+				{
+					var request = string.IsNullOrWhiteSpace(_payload) ? new JObject() : JObject.Parse(_payload);
+					string action = ((string)request["action"] ?? "status").ToLowerInvariant();
+
+					if (action == "enter" && !EditorApplication.isPlayingOrWillChangePlaymode)
+						s_playModeRequest = 1;
+					else if (action == "exit" && EditorApplication.isPlaying)
+						s_playModeRequest = -1;
+
+					return PlayModeState(action).ToString(Newtonsoft.Json.Formatting.None);
+				}
+
+				case "screenshotGame":
+					return UiGameViewCapture.Capture(_payload).ToString(Newtonsoft.Json.Formatting.None);
+
+				case "probeUi":
+					return UiRuntimeProbe.Probe(_payload).ToString(Newtonsoft.Json.Formatting.None);
+
 				case "harvestMotion":
 				{
 					var request = string.IsNullOrWhiteSpace(_payload) ? new JObject() : JObject.Parse(_payload);
@@ -558,6 +594,18 @@ namespace GuiToolkit.Editor.AiSupport
 				(int?)request["limit"] ?? 0,
 				(bool?)request["withStackTraces"] ?? false);
 		}
+
+		private static JObject PlayModeState( string _action ) => new()
+		{
+			["action"] = _action,
+			["isPlaying"] = EditorApplication.isPlaying,
+			["isChanging"] = EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPlaying,
+			["isPaused"] = EditorApplication.isPaused,
+			// Entering Play Mode reloads the domain, which stops and restarts this bridge — so a caller has to
+			// poll rather than expect the change to be done when this returns.
+			["note"] = "Entering or leaving Play Mode reloads the domain and restarts the bridge. Poll 'playMode' " +
+				"with action 'status' until isPlaying matches what you asked for.",
+		};
 
 		/// <summary>
 		/// Frame size defaults small on purpose: a filmstrip is several images in one, and the point is the

@@ -144,6 +144,9 @@ Steps Claude follows:
 | `screenshot_view` | Render a baked prefab to a PNG (Edit-Mode) and return the image — the AI preview loop. |
 | `screenshot_motion` | See an ANIMATION: the prefab sampled at several points along its timeline, composed into one contact sheet. Edit-Mode, master **and** slaves. See below. |
 | `harvest_motion` | Read the project's existing animations out of its prefabs and group them by how the motion looks, most used first. Call it **before** authoring any animation. See below. |
+| `play_mode` | Query, enter or leave Play Mode. The bridge survives the domain reload; poll `status` until it matches. |
+| `screenshot_game` | Capture the Game View of the **running** app — real data, real resolution, real state. |
+| `probe_ui` | Ask the running UI what a tap would actually hit, and optionally perform it. See below. |
 | `tag_standard_element` | Tag prefab roots with a standard-element identity so they enter the registry/palette (base+variant batch safe). |
 | `untag_standard_element` | Remove the standard-element marker from prefabs. |
 | `set_ui_comment` | Set a flavor description (UiComment) on prefab roots — Inspector doc, and palette description for palette prefabs. |
@@ -239,6 +242,40 @@ baker now reports
 The last one only applies when `backwardsPlayable` is off. An animation that can be reversed is a state
 animation and is *meant* to hold its end — a hover grows to 1.15 and stays there until it is played
 back. Checking those too made the first run five false alarms out of five.
+
+### The running app: `play_mode`, `screenshot_game`, `probe_ui`
+
+The Edit-Mode tools cover what a screen *is* and how it *moves*. What they cannot show is a screen the
+server filled in, laid out at the device resolution, that a user reached by tapping — and above all,
+whether its buttons are actually **reachable**.
+
+`probe_ui` is the interesting one. "Is this clickable" is decided by the raycast, and a full-rect frame
+overlay with `raycastTarget` left on swallows every click beneath it while looking perfectly correct.
+That exact defect sat on a screen's tab bar here and could only be reasoned about. So:
+
+- name a `target` and it is aimed at that node's centre, answering `targetReceivesInput` and, when
+  something is in the way, `blockedBy`
+- the full raycast `hits` stack comes back, topmost first
+- with `click`, the tap goes **through** the raycast as down/up/click on whatever is actually on top —
+  deliberately not by invoking the button's own event, which would bypass the thing worth testing.
+  `handledBy` names the node whose handler ran, or null if it landed somewhere that ignores it
+
+`x`/`y` default to a **top-left** origin, because that is how a captured image reads; Unity's own screen
+space is bottom-left, so a coordinate taken off a screenshot would otherwise land mirrored.
+
+Two things worth knowing about `screenshot_game`. It is started and collected in separate bridge calls,
+because handlers run on the editor's main thread and the capture only completes once a frame has
+**rendered** — a handler that waits for the file blocks the very thread that would produce it. The first
+version deadlocked itself and blamed the Game View. And a Game View that is closed, or on a hidden tab,
+renders no frames at all, so nothing will ever arrive.
+
+Entering Play Mode reloads the domain, which stops and restarts the bridge. It comes back within a
+couple of seconds and answers from inside Play Mode; a call in between simply fails, which is normal.
+
+Note what this does **not** buy you: Play Mode starts the app at its first scene, so for a real game
+that means splash, login and network, and driving from there to a particular screen is usually not
+feasible. The productive pattern is the other way round — ask the human to bring the app to the state in
+question, then capture and probe it.
 
 ### Screen JSON shape (for `bake_screen`)
 
