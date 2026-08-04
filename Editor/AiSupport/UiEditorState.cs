@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -29,8 +30,81 @@ namespace GuiToolkit.Editor
 		/// <summary>How many offending GameObject names to name; enough to act on, not a dump.</summary>
 		private const int MaxNamedGameObjects = 5;
 
-		private static string s_busyWith;
-		private static DateTime s_busySinceUtc;
+		/// <summary>
+		/// How long after the last observed compile/import the editor still counts as busy.
+		///
+		/// This is the whole point of the class. A package resolve is not one continuous busy phase but a
+		/// CHAIN — resolve, copy, import batch, compile, domain reload, more imports — and between the links
+		/// both isCompiling and isUpdating are briefly false. Sampling once and calling that "idle" is how an
+		/// agent declares a resolve finished mid-chain and fires the next operation into it. Every symptom
+		/// that cost a session on 2026-08-04 sits downstream of that single wrong sample.
+		/// </summary>
+		private const double SettleSeconds = 5.0;
+
+		/// <summary>
+		/// How long a requested resolve may stay "pending" before we stop claiming it is about to start.
+		/// Generous on purpose: on a large project the resolve takes well over ten seconds to produce its
+		/// first observable activity, and the old 2s head start declared "no import activity" on a resolve
+		/// that demonstrably happened.
+		/// </summary>
+		private const double ResolveGraceSeconds = 90.0;
+
+		// Kept in SessionState, NOT in statics. The operations this tracks END in a domain reload, and a
+		// reload wipes statics — so a static tail is guaranteed to be gone exactly when it would matter.
+		// Measured, not assumed: with the tail in statics and a 60s window, status reported idle immediately
+		// after a recompile. SessionState survives the reload and is cleared on editor restart, which is
+		// precisely the lifetime this state should have.
+		private const string KeyBusyWith = "GuiToolkit.UiEditorState.BusyWith";
+		private const string KeyBusySince = "GuiToolkit.UiEditorState.BusySinceTicks";
+		private const string KeyLastActivity = "GuiToolkit.UiEditorState.LastActivityTicks";
+		private const string KeyResolvePending = "GuiToolkit.UiEditorState.ResolvePending";
+		private const string KeyResolveSawActivity = "GuiToolkit.UiEditorState.ResolveSawActivity";
+		private const string KeyResolveRequested = "GuiToolkit.UiEditorState.ResolveRequestedTicks";
+
+		private static string BusyWith
+		{
+			get { string v = SessionState.GetString(KeyBusyWith, string.Empty); return v.Length == 0 ? null : v; }
+			set => SessionState.SetString(KeyBusyWith, value ?? string.Empty);
+		}
+
+		private static bool ResolvePending
+		{
+			get => SessionState.GetBool(KeyResolvePending, false);
+			set => SessionState.SetBool(KeyResolvePending, value);
+		}
+
+		private static bool ResolveSawActivity
+		{
+			get => SessionState.GetBool(KeyResolveSawActivity, false);
+			set => SessionState.SetBool(KeyResolveSawActivity, value);
+		}
+
+		private static DateTime GetStamp( string _key )
+		{
+			string raw = SessionState.GetString(_key, string.Empty);
+			return long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out long ticks)
+				? new DateTime(ticks, DateTimeKind.Utc)
+				: default;
+		}
+
+		private static void SetStamp( string _key, DateTime _value )
+		{
+			SessionState.SetString(_key, _value == default
+				? string.Empty
+				: _value.Ticks.ToString(CultureInfo.InvariantCulture));
+		}
+
+		/// <summary>
+		/// Told by the bridge when a package resolve was triggered. Until the editor has actually been seen
+		/// working and settling afterwards, callers are told to keep waiting — otherwise the quiet moment
+		/// BEFORE the resolve starts is indistinguishable from the quiet AFTER it finished.
+		/// </summary>
+		internal static void MarkResolveRequested()
+		{
+			ResolvePending = true;
+			ResolveSawActivity = false;
+			SetStamp(KeyResolveRequested, DateTime.UtcNow);
+		}
 
 		/// <summary>
 		/// Called from the bridge's update pump. Tracking the transition rather than sampling on request is
@@ -39,16 +113,41 @@ namespace GuiToolkit.Editor
 		/// </summary>
 		internal static void Track()
 		{
-			string current = CurrentBusyLabel();
+			var now = DateTime.UtcNow;
+			string current = RawBusyLabel();
 
-			if (current == s_busyWith)
+			if (current != null)
+			{
+				SetStamp(KeyLastActivity, now);
+
+				if (BusyWith == null)
+					SetStamp(KeyBusySince, now);
+
+				BusyWith = current;
+
+				if (ResolvePending)
+					ResolveSawActivity = true;
+
+				return;
+			}
+
+			BusyWith = null;
+
+			if (!ResolvePending)
 				return;
 
-			s_busyWith = current;
-			s_busySinceUtc = current != null ? DateTime.UtcNow : default;
+			// Done once the work we were waiting for has been seen AND has stayed quiet long enough. If it was
+			// never seen at all, give up after the grace period rather than blocking callers forever.
+			bool settledAfterWork = ResolveSawActivity
+				&& (now - GetStamp(KeyLastActivity)).TotalSeconds > SettleSeconds;
+			bool neverStarted = !ResolveSawActivity
+				&& (now - GetStamp(KeyResolveRequested)).TotalSeconds > ResolveGraceSeconds;
+
+			if (settledAfterWork || neverStarted)
+				ResolvePending = false;
 		}
 
-		private static string CurrentBusyLabel()
+		private static string RawBusyLabel()
 		{
 			if (EditorApplication.isCompiling)
 				return "compiling";
@@ -60,17 +159,48 @@ namespace GuiToolkit.Editor
 		}
 
 		/// <summary>
-		/// True while the editor is doing something that a second heavy request would collide with. The
-		/// label is sampled live, so this stays right even if the pump has not ticked since.
+		/// True while the editor is doing something a second heavy request would collide with — including the
+		/// gaps BETWEEN the phases of one operation, which is what the hysteresis buys. The raw flags are
+		/// sampled live so this stays right even if the pump has not ticked since; the tail comes from the
+		/// last tick that saw activity.
 		/// </summary>
 		internal static bool IsBusy( out string _what, out double _sinceSeconds )
 		{
-			_what = CurrentBusyLabel();
-			_sinceSeconds = _what != null && _what == s_busyWith && s_busySinceUtc != default
-				? Math.Round((DateTime.UtcNow - s_busySinceUtc).TotalSeconds, 1)
-				: 0.0;
+			var now = DateTime.UtcNow;
 
-			return _what != null;
+			string raw = RawBusyLabel();
+			if (raw != null)
+			{
+				var since = GetStamp(KeyBusySince);
+				_what = raw;
+				_sinceSeconds = since != default ? Math.Round((now - since).TotalSeconds, 1) : 0.0;
+				return true;
+			}
+
+			var lastActivity = GetStamp(KeyLastActivity);
+			if (lastActivity != default)
+			{
+				double quiet = (now - lastActivity).TotalSeconds;
+				if (quiet <= SettleSeconds)
+				{
+					// Quiet, but not yet long enough to be sure this is the end and not a gap between phases.
+					_what = "settling";
+					_sinceSeconds = Math.Round(quiet, 1);
+					return true;
+				}
+			}
+
+			if (ResolvePending && !ResolveSawActivity)
+			{
+				// Triggered, not yet observably started. The dangerous window: it LOOKS idle.
+				_what = "resolveStarting";
+				_sinceSeconds = Math.Round((now - GetStamp(KeyResolveRequested)).TotalSeconds, 1);
+				return true;
+			}
+
+			_what = null;
+			_sinceSeconds = 0.0;
+			return false;
 		}
 
 		/// <summary>
@@ -168,15 +298,13 @@ namespace GuiToolkit.Editor
 				["port"] = _port,
 			};
 
+			result["busyWith"] = busyWith != null ? (JToken)busyWith : JValue.CreateNull();
 			if (busyWith != null)
-			{
-				result["busyWith"] = busyWith;
 				result["busySinceSeconds"] = busySince;
-			}
-			else
-			{
-				result["busyWith"] = null;
-			}
+
+			// Reported separately so a caller can wait on "the resolve I asked for is really over" without
+			// having to interpret labels.
+			result["resolvePending"] = ResolvePending;
 
 			return result;
 		}

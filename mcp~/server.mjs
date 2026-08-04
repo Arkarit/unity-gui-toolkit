@@ -341,6 +341,17 @@ async function tryBridge(method) {
 	}
 }
 
+// Whether a status payload means "do not start anything heavy". Prefers busyWith, because that carries the
+// bridge's hysteresis: a compile or import is a CHAIN of phases with brief quiet gaps between them, and
+// compiling/updating sampled on their own read false in those gaps. Believing such a gap is how a caller
+// declares an operation finished mid-chain and fires the next one into it. Falls back to the raw flags for
+// a bridge older than v-00-05-187, which is then only as good as it can be.
+function isEditorBusy(status) {
+	if (!status) return false;
+	if ("busyWith" in status) return status.busyWith !== null && status.busyWith !== undefined;
+	return Boolean(status.compiling || status.updating);
+}
+
 function ok(text) {
 	return { content: [{ type: "text", text }] };
 }
@@ -517,12 +528,12 @@ tool(
 					await sleep(1000);
 					continue;
 				}
-				if (st.compiling || st.updating) {
+				if (isEditorBusy(st)) {
 					sawActivity = true;
 					await sleep(1000);
 					continue;
 				}
-				// Editor is idle.
+				// Idle — and with a hysteresis-aware bridge, idle that has HELD, not a gap between phases.
 				if (sawActivity)
 					return ok(JSON.stringify({ recompiled: true, reloaded, ms: Date.now() - t0 }));
 				// Idle but never saw activity yet — compile may not have kicked in; give it a short grace.
@@ -600,11 +611,10 @@ tool(
 			await callBridge("resolvePackages");
 
 			const TIMEOUT_MS = 600000;
+			const NO_ACTIVITY_GRACE_MS = 120000;
 			const t0 = Date.now();
 			let sawActivity = false;
 			let reloaded = false;
-
-			await sleep(2000); // the resolve is queued, give it a moment to start
 
 			while (Date.now() - t0 < TIMEOUT_MS) {
 				const st = await tryBridge("status");
@@ -615,14 +625,20 @@ tool(
 					await sleep(2000);
 					continue;
 				}
-				if (st.compiling || st.updating) {
-					sawActivity = true;
+				// resolvePending covers the window between "triggered" and "observably started", which is the
+				// one that looks exactly like idle; isEditorBusy covers the gaps between the resolve's phases.
+				if (st.resolvePending || isEditorBusy(st)) {
+					if (isEditorBusy(st))
+						sawActivity = true;
 					await sleep(2000);
 					continue;
 				}
 				if (sawActivity)
 					return ok(JSON.stringify({ resolved: true, reloaded, ms: Date.now() - t0 }));
-				if (Date.now() - t0 > 15000)
+				// Never saw it start. On an old bridge (no resolvePending) this is the only stopping condition,
+				// so keep it generous: 15s used to declare "already up to date" on a resolve that had simply
+				// not begun yet, and the caller then worked straight into the import.
+				if (Date.now() - t0 > NO_ACTIVITY_GRACE_MS)
 					return ok(JSON.stringify({ resolved: true, reloaded, note: "no import activity detected — the manifest may already have been up to date", ms: Date.now() - t0 }));
 				await sleep(2000);
 			}
