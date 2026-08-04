@@ -133,7 +133,8 @@ Steps Claude follows:
 | Tool | Description |
 |------|-------------|
 | `ping` | Verify the Editor bridge is reachable. |
-| `status` | Report whether the editor is compiling/importing (`{ running, compiling, updating }`). |
+| `status` | What the editor is doing **and what it holds open**: compiling/importing with `busyWith` + `busySinceSeconds`, plus `isPlaying`, `hasFocus`, `openScenes[]` with dirty flags and `prefabStage`. See below. |
+| `asset_state` | Pre-flight for specific assets: is the editor holding this file, and would Unity even accept saving it (`missingScripts`)? See below. |
 | `recompile` | Force Unity to pick up changed C# and recompile, then wait until the editor is idle again (no manual window focus needed). |
 | `setup_status` | One-shot project-state health check (registry, prefab-variants path, catalog freshness, missing standard elements). |
 | `get_catalog` | Locate the screen-authoring catalog: returns a small summary (`{ path, absolutePath, counts, … }`), NOT the body — read the file yourself, it's large. |
@@ -154,6 +155,35 @@ Steps Claude follows:
 | `apply_prefab_values` | Restore that snapshot's residue into the re-baked prefab. Dry run by default — read the plan first. See below. |
 | `get_console` | Read this editor session's console (ring buffer), filterable by `severity`/`contains`, with `sinceSequence` for "what did that action produce". |
 | `resolve_packages` | Make Unity pick up an externally edited `manifest.json` without waiting for window focus, then wait for idle. |
+
+### Before you write or wait: `status` and `asset_state`
+
+The editor's own state is invisible from outside, and both blind spots cost a session:
+
+**What it holds open.** A scene or prefab that is open belongs to the editor's memory, not to the file on
+disk. Rewrite that file from a text tool and the in-memory copy wins — your change is silently undone, or
+worse, half-merged on the next save. Revert one underneath the editor and you get "Prefab instance data
+layout did not match" warnings and an editor that needs restarting. `status` reports `openScenes[]` with
+`isDirty` and the current `prefabStage`; `asset_state` answers it per path as `safeToWriteFromOutside`.
+When it is false, the honest options are: write through the editor, or ask a human to close the file.
+
+**Whether Unity would accept the save at all.** A prefab containing a component whose script cannot be
+loaded cannot be saved: Unity refuses and logs one error *per offending GameObject*. A prefab open in
+Prefab Mode with auto-save retries on every repaint, so a single asset can bury the console in hundreds of
+identical errors — and none of it says what the actual problem is. `asset_state` reports
+`savableByUnity: false` with `missingScripts.count` and the first few GameObject names. Cheap to ask, and
+it turns an avalanche into one sentence. Old projects tend to carry this quietly: prefabs whose scripts
+were deleted years ago sit there harmlessly until something tries to save them.
+
+**Not two heavy things at once.** `busyWith` is `"compiling"`, `"importing"` or `null`, with
+`busySinceSeconds` so a fresh import is distinguishable from one that has been running a minute. Heavy
+methods (`recompile`, `resolve_packages`, `bake_screen`, `apply_prefab_values`, `regenerate_catalog`,
+`screenshot_motion`, `harvest_motion`, the tagging/comment writers, entering or leaving Play Mode) are
+**refused** while the editor is busy, with a message saying what is running and for how long. That is
+deliberately a refusal rather than a queue: firing into a running import is what produces a timeout, and a
+timeout is the worst outcome — it takes away your view of the editor exactly when you need it most. Poll
+`status` until `busyWith` is null instead. Read-only calls (`status`, `asset_state`, `get_console`,
+`ping`, `read_screen`, `get_catalog`) always answer.
 
 ### Surviving a re-bake: `preserveEdits` vs. the snapshot pair
 

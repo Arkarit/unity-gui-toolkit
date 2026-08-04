@@ -435,11 +435,40 @@ tool(
 
 tool(
 	"status",
-	"Report whether the Unity Editor is currently compiling scripts or importing assets. " +
-	"Returns { running, compiling, updating }.",
+	"What the editor is doing AND what it currently holds open — check it before anything heavy or anything " +
+	"that writes an asset. Returns { running, compiling, updating, isPlaying, hasFocus, openScenes:[{path, " +
+	"name, isDirty, isLoaded}], prefabStage:{path, isDirty}|null, busyWith:'compiling'|'importing'|null, " +
+	"busySinceSeconds, projectPath, port }.\n\n" +
+	"Two things here are easy to get wrong from outside. 'busyWith' with 'busySinceSeconds' distinguishes an " +
+	"import that just started from one that has been running for a minute — fire a second heavy request into " +
+	"either and it is refused, so poll until busyWith is null instead. 'openScenes' and 'prefabStage' say which " +
+	"files the editor OWNS right now: rewriting one of those from a text tool loses against the in-memory copy, " +
+	"and a scene reverted underneath the editor is how a session ends up needing a restart.",
 	{},
 	async () => {
 		try { return ok(await callBridge("status")); }
+		catch (e) { return fail(e); }
+	}
+);
+
+tool(
+	"asset_state",
+	"Pre-flight check for writing or saving specific assets — ask this instead of finding out afterwards. " +
+	"Per path: { path, kind, exists, openInEditor, inPrefabStage, dirty, missingScripts:{count, gameObjects[]}, " +
+	"safeToWriteFromOutside, savableByUnity, why }.\n\n" +
+	"It answers two separate questions that are easy to conflate. 'safeToWriteFromOutside' is false when the " +
+	"editor has the file open — write it through the editor or ask for it to be closed, because otherwise the " +
+	"in-memory copy wins and your write is silently undone. 'savableByUnity' is false when the asset contains " +
+	"components whose script cannot be loaded: Unity then REFUSES to save it and logs one error per offending " +
+	"GameObject, which is how one prefab produces hundreds of console errors. Checking first turns that " +
+	"avalanche into an answer.",
+	{
+		paths: z.array(z.string()).min(1).describe(
+			"Project-relative asset paths (prefabs, scenes, anything else). Missing-script detection applies " +
+			"to prefabs."),
+	},
+	async ({ paths }) => {
+		try { return ok(await callBridge("assetState", JSON.stringify({ paths }))); }
 		catch (e) { return fail(e); }
 	}
 );

@@ -312,6 +312,10 @@ namespace GuiToolkit.Editor.AiSupport
 
 		private static void Pump()
 		{
+			// Cheap, and it has to happen on a tick rather than on request, so "busy since" measures the
+			// operation instead of the moment somebody asked about it.
+			UiEditorState.Track();
+
 			while (s_mainThreadQueue.TryDequeue(out var job))
 			{
 				try { job(); } catch (Exception e) { UiLog.LogError($"MCP bridge job failed: {e.Message}"); }
@@ -408,8 +412,40 @@ namespace GuiToolkit.Editor.AiSupport
 
 		#region Handlers
 
+		/// <summary>
+		/// Methods that change project state or occupy the editor for a while. Firing one of these into a
+		/// running compile or import is how an editor ends up in a state only a restart fixes, and the
+		/// failure mode is the worst kind: the request times out, so the caller loses sight of the editor
+		/// exactly when it most needs to look. Refusing with a reason keeps that visible.
+		/// </summary>
+		private static readonly HashSet<string> s_heavyMethods = new(StringComparer.Ordinal)
+		{
+			"recompile",
+			"resolvePackages",
+			"bakeScreen",
+			"applyPrefabValues",
+			"regenerateCatalog",
+			"screenshotMotion",
+			"harvestMotion",
+			"tagStandardElement",
+			"untagStandardElement",
+			"setUiComment",
+		};
+
+		private static void ThrowIfBusy( string _method )
+		{
+			if (!UiEditorState.IsBusy(out string what, out double since))
+				return;
+
+			throw new Exception($"Editor is busy ({what} for {since}s) — '{_method}' refused so it cannot "
+				+ "collide with that. Poll 'status' until busyWith is null, then retry.");
+		}
+
 		private static string Handle( string _method, string _payload )
 		{
+			if (s_heavyMethods.Contains(_method))
+				ThrowIfBusy(_method);
+
 			switch (_method)
 			{
 				case "ping":
@@ -419,9 +455,14 @@ namespace GuiToolkit.Editor.AiSupport
 				// projectPath travels with every status: this is what the proxy compares against the project it was
 				// registered for, so reaching the wrong editor is caught before anything is written.
 				case "status":
-					return "{\"running\":true,\"compiling\":" + (EditorApplication.isCompiling ? "true" : "false") +
-					       ",\"updating\":" + (EditorApplication.isUpdating ? "true" : "false") +
-					       ",\"projectPath\":" + JsonString(ProjectPath) + ",\"port\":" + s_port + "}";
+					return UiEditorState.StatusJson(ProjectPath, s_port)
+						.ToString(Newtonsoft.Json.Formatting.None);
+
+				case "assetState":
+					if (string.IsNullOrWhiteSpace(_payload))
+						throw new Exception("assetState requires a 'payload' holding { paths: [...] }.");
+					return UiEditorState.AssetStateJson(JObject.Parse(_payload))
+						.ToString(Newtonsoft.Json.Formatting.None);
 
 				case "recompile":
 					// Trigger the refresh from Pump() (the EditorApplication.update path, which provably
@@ -500,6 +541,10 @@ namespace GuiToolkit.Editor.AiSupport
 				{
 					var request = string.IsNullOrWhiteSpace(_payload) ? new JObject() : JObject.Parse(_payload);
 					string action = ((string)request["action"] ?? "status").ToLowerInvariant();
+
+					// Asking is always allowed; switching is not, while the editor is mid-compile or import.
+					if (action != "status")
+						ThrowIfBusy("playMode/" + action);
 
 					if (action == "enter" && !EditorApplication.isPlayingOrWillChangePlaymode)
 						s_playModeRequest = 1;
