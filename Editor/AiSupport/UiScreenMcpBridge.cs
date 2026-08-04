@@ -437,7 +437,10 @@ namespace GuiToolkit.Editor.AiSupport
 			if (!UiEditorState.IsBusy(out string what, out double since))
 				return;
 
-			throw new Exception($"Editor is busy ({what} for {since}s) — '{_method}' refused so it cannot "
+			// Invariant, because a machine reads this: under a German locale the interpolation produced
+			// "settling for 23,4s".
+			string seconds = since.ToString(CultureInfo.InvariantCulture);
+			throw new Exception($"Editor is busy ({what} for {seconds}s) — '{_method}' refused so it cannot "
 				+ "collide with that. Poll 'status' until busyWith is null, then retry.");
 		}
 
@@ -544,6 +547,10 @@ namespace GuiToolkit.Editor.AiSupport
 					// left an agent waiting on a human to alt-tab. Resolve() does it directly. It returns as soon
 					// as the resolve is triggered — the caller polls "status" for idle, like recompile does.
 					ThrowIfReloadUnsafe("resolvePackages");
+					// Marked BEFORE triggering, so the window between "asked" and "observably started" is
+					// already covered. That window looks exactly like idle, and mistaking it for idle is how
+					// the next request lands inside the resolve.
+					UiEditorState.MarkResolveRequested();
 					UnityEditor.PackageManager.Client.Resolve();
 					return new JObject { ["resolving"] = true }.ToString(Newtonsoft.Json.Formatting.None);
 
