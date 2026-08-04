@@ -72,6 +72,12 @@ title: UI Toolkit
       <p><code>UiMain</code> manages a view navigation stack and provides ready-made dialogs: OK/Yes-No requesters, toast messages, settings dialog, and tab dialogs.</p>
     </div>
 
+    <div class="feature-card">
+      <div class="card-icon">🤖</div>
+      <h3><a href="Code/ai-overview">AI Support</a></h3>
+      <p>An Editor bridge that lets an AI assistant author screens from a readable description, render them, and inspect the running app — using your project's own components and styles. <a href="Code/ai-overview">Learn more →</a></p>
+    </div>
+
   </div>
 </div>
 
@@ -84,6 +90,15 @@ title: UI Toolkit
 - **[Setup & Installation](setup)** — Requirements, package install, dependencies, DLL setup for Unity &lt; 6
 - **[Creating a Dialog](Code/creating-a-dialog)** — Step-by-step: UiPanel, localized TMP text, and two buttons
 - **[Contributing](contributing)** — Local dev environment setup, repository structure, running tests
+
+### AI Support
+
+Let an AI assistant build screens with your project's own vocabulary, look at the result, and inspect
+the running app:
+
+- **[Overview](Code/ai-overview)** — Architecture, what it is good at, where its limits are, several projects at once
+- **[Setup](Code/ai-setup)** — Five-minute install, registration, and the project-health check that decides whether screens look like *your* project
+- **[Working With It](Code/ai-workflow)** — Habits that pay off: asking for the loop, keeping files out of its way, reviewing the description
 
 ### Localization System
 
