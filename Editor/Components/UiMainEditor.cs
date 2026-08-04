@@ -11,7 +11,21 @@ namespace GuiToolkit.Editor
 	{
 		private const string DefaultClonePath = "Assets/Prefabs/ui-toolkit-variants";
 
+		/// <summary>Name suffix by which the fallback prefab fields on UiMain are discovered.</summary>
+		private const string FallbackSuffix = "PrefabFallback";
+
+		private const string FoldoutPrefKey = "GuiToolkit.UiMainEditor.PrefabFallbacksFoldout";
+
+		private const string FallbackHelp =
+			"Not needed in a properly set-up project. Standard elements are resolved through the generated "
+			+ "UiStandardElementRegistry, which prefers this project's prefab variants — these fields are "
+			+ "read ONLY when the registry has no entry for that element.\n\n"
+			+ "Assign something here to satisfy a legacy look the registry cannot express, as in a project "
+			+ "whose live prefabs predate it. Note that the registry still wins where it has an entry, so a "
+			+ "value set here can look like it is being ignored — because it is.";
+
 		private readonly List<SerializedProperty> m_prefabProperties = new();
+		private string[] m_prefabPropertyNames = System.Array.Empty<string>();
 		private string m_clonePath = DefaultClonePath;
 		private bool m_clonePathInitialized;
 
@@ -20,9 +34,15 @@ namespace GuiToolkit.Editor
 			m_prefabProperties.Clear();
 			EditorGeneralUtility.ForeachProperty(serializedObject, property =>
 			{
-				if (property.name.EndsWith("Prefab"))
+				if (property.name.EndsWith(FallbackSuffix))
 					m_prefabProperties.Add(property);
 			});
+
+			m_prefabPropertyNames = new string[m_prefabProperties.Count];
+			for (int i = 0; i < m_prefabProperties.Count; i++)
+			{
+				m_prefabPropertyNames[i] = m_prefabProperties[i].name;
+			}
 		}
 
 		private void FindProperty(ref SerializedProperty _property, string _name)
@@ -33,9 +53,36 @@ namespace GuiToolkit.Editor
 
 		public override void OnInspectorGUI()
 		{
-			DrawDefaultInspector();
+			serializedObject.Update();
+
+			// Everything EXCEPT the fallback fields, which get their own foldout below. Drawing the
+			// default inspector here would show them twice.
+			DrawPropertiesExcluding(serializedObject, m_prefabPropertyNames);
+
 			EditorGUILayout.Space();
-			EditorGUILayout.LabelField("Prefabs", EditorStyles.boldLabel);
+
+			bool foldout = EditorPrefs.GetBool(FoldoutPrefKey, false);
+			bool newFoldout = EditorGUILayout.Foldout(foldout, "Prefab Fallbacks", true);
+			if (newFoldout != foldout)
+				EditorPrefs.SetBool(FoldoutPrefKey, newFoldout);
+
+			if (newFoldout)
+			{
+				EditorGUILayout.HelpBox(FallbackHelp, MessageType.Info);
+
+				foreach (var property in m_prefabProperties)
+				{
+					EditorGUILayout.PropertyField(property);
+				}
+
+				DrawCloneTools();
+			}
+
+			serializedObject.ApplyModifiedProperties();
+		}
+
+		private void DrawCloneTools()
+		{
 			if (IsAnyPrefabCloned())
 			{
 				// Default the clone target to the project's canonical prefab-variants folder (what the
@@ -53,8 +100,6 @@ namespace GuiToolkit.Editor
 				if (GUILayout.Button("Create Default Prefabs Variants"))
 					CloneDefaultPrefabs();
 			}
-
-			serializedObject.ApplyModifiedProperties();
 		}
 
 		private bool IsAnyPrefabCloned()
