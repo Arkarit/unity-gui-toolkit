@@ -105,6 +105,12 @@ namespace GuiToolkit.Editor
 		// Gate diagnostics on the project sound config's Debug flag.
 		private static bool IsDebugLogEnabled()
 		{
+			// Both callers are editor callbacks that can fire before the toolkit is initialized — focus
+			// regain right after a domain reload is enough. The config singleton throws in that state, and
+			// an exception over whether to write a log line is a bad trade, so ask Bootstrap first.
+			if (!Bootstrap.IsInitialized)
+				return false;
+
 			var config = UiToolkitConfiguration.Instance;
 			return config != null && config.UiSoundConfig != null && config.UiSoundConfig.DebugLog;
 		}
