@@ -441,6 +441,32 @@ namespace GuiToolkit.Editor.AiSupport
 				+ "collide with that. Poll 'status' until busyWith is null, then retry.");
 		}
 
+		/// <summary>
+		/// Guards the operations that reload the domain. Nothing to confirm with a human while the editor
+		/// holds no unsaved state — that is the point: a package change should be an ordinary step, and only
+		/// the case that actually risks something should stop and say so.
+		/// </summary>
+		private static void ThrowIfReloadUnsafe( string _method )
+		{
+			var blockers = UiEditorState.ReloadBlockers();
+			if (blockers.Count == 0)
+				return;
+
+			throw new Exception($"'{_method}' refused: {string.Join("; ", blockers)}. A domain reload now "
+				+ "would put that at risk. Save or discard it in the editor (a human has to decide which), "
+				+ "then retry.");
+		}
+
+		/// <summary>Refuses to write a prefab or scene the editor currently has open.</summary>
+		private static void ThrowIfEditorOwns( string _method, string _path )
+		{
+			if (!UiEditorState.EditorOwns(_path, out string reason))
+				return;
+
+			throw new Exception($"'{_method}' refused: {reason}. Writing it from outside would lose against "
+				+ "the editor's in-memory copy. Close it in the editor, or make the change there.");
+		}
+
 		private static string Handle( string _method, string _payload )
 		{
 			if (s_heavyMethods.Contains(_method))
@@ -488,6 +514,9 @@ namespace GuiToolkit.Editor.AiSupport
 				case "bakeScreen":
 					if (string.IsNullOrWhiteSpace(_payload))
 						throw new Exception("bakeScreen requires a 'payload' holding the screen JSON.");
+					// Baking over a prefab that is open in Prefab Mode fights the editor's copy of it, which
+					// is the same failure as rewriting an open scene from a text tool.
+					ThrowIfEditorOwns("bakeScreen", (string)JObject.Parse(_payload)["outputPath"]);
 					var bakeResult = UiScreenBaker.Bake(_payload);
 					var warnings = new JArray();
 					foreach (var w in bakeResult.warnings)
@@ -514,6 +543,7 @@ namespace GuiToolkit.Editor.AiSupport
 					// Unity only notices an externally edited manifest.json when the editor regains focus, which
 					// left an agent waiting on a human to alt-tab. Resolve() does it directly. It returns as soon
 					// as the resolve is triggered — the caller polls "status" for idle, like recompile does.
+					ThrowIfReloadUnsafe("resolvePackages");
 					UnityEditor.PackageManager.Client.Resolve();
 					return new JObject { ["resolving"] = true }.ToString(Newtonsoft.Json.Formatting.None);
 
@@ -529,6 +559,7 @@ namespace GuiToolkit.Editor.AiSupport
 				case "applyPrefabValues":
 					if (string.IsNullOrWhiteSpace(_payload))
 						throw new Exception("applyPrefabValues requires a 'payload' holding the prefab path.");
+					ThrowIfEditorOwns("applyPrefabValues", ReadScreenPath(_payload));
 					return ApplyPrefabValues(_payload).ToString(Newtonsoft.Json.Formatting.None);
 
 				case "screenshotView":

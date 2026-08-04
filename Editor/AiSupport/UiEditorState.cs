@@ -73,6 +73,71 @@ namespace GuiToolkit.Editor
 			return _what != null;
 		}
 
+		/// <summary>
+		/// Reasons why a domain-reloading operation (a package resolve above all) must not start right now.
+		/// Empty means go ahead — deliberately so, because the alternative is asking a human before every
+		/// package change, and a question that is answered "yes" nine times out of ten trains everyone to
+		/// stop reading it. What actually needs a human is the tenth time, and these are those cases:
+		/// unsaved editor state that the reload would put at risk, or a running app it would kill.
+		/// </summary>
+		internal static List<string> ReloadBlockers()
+		{
+			var blockers = new List<string>();
+
+			if (EditorApplication.isPlayingOrWillChangePlaymode)
+				blockers.Add("Play Mode is running, and the domain reload would end it");
+
+			for (int i = 0; i < SceneManager.sceneCount; i++)
+			{
+				var scene = SceneManager.GetSceneAt(i);
+				if (scene.isDirty)
+					blockers.Add($"scene '{scene.path}' has unsaved changes");
+			}
+
+			var stage = PrefabStageUtility.GetCurrentPrefabStage();
+			if (stage != null && stage.scene.isDirty)
+				blockers.Add($"prefab '{stage.assetPath}' is open with unsaved changes");
+
+			return blockers;
+		}
+
+		/// <summary>
+		/// True when the editor is holding this exact asset in a stage or as an open scene — writing it from
+		/// outside would lose against the in-memory copy, and saving over it from a tool would fight it.
+		/// </summary>
+		internal static bool EditorOwns( string _path, out string _reason )
+		{
+			_reason = null;
+
+			if (string.IsNullOrWhiteSpace(_path))
+				return false;
+
+			string path = _path.Replace('\\', '/');
+
+			var stage = PrefabStageUtility.GetCurrentPrefabStage();
+			if (stage != null && string.Equals(stage.assetPath, path, StringComparison.OrdinalIgnoreCase))
+			{
+				_reason = stage.scene.isDirty
+					? $"'{path}' is open in Prefab Mode WITH UNSAVED CHANGES"
+					: $"'{path}' is open in Prefab Mode";
+				return true;
+			}
+
+			for (int i = 0; i < SceneManager.sceneCount; i++)
+			{
+				var scene = SceneManager.GetSceneAt(i);
+				if (!string.Equals(scene.path, path, StringComparison.OrdinalIgnoreCase))
+					continue;
+
+				_reason = scene.isDirty
+					? $"scene '{path}' is open WITH UNSAVED CHANGES"
+					: $"scene '{path}' is open in the editor";
+				return true;
+			}
+
+			return false;
+		}
+
 		internal static JObject StatusJson( string _projectPath, int _port )
 		{
 			IsBusy(out string busyWith, out double busySince);
@@ -227,7 +292,9 @@ namespace GuiToolkit.Editor
 
 			result["missingScripts"] = missing;
 			result["safeToWriteFromOutside"] = exists && !openInEditor;
-			result["savableByUnity"] = savable;
+			// A path that does not exist is not "savable" — reporting true there is formally defensible and
+			// practically an invitation to read it as a green light.
+			result["savableByUnity"] = exists && savable;
 
 			if (reasons.Count > 0)
 				result["why"] = string.Join("; ", reasons);

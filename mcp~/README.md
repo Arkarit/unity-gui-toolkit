@@ -175,6 +175,17 @@ identical errors — and none of it says what the actual problem is. `asset_stat
 it turns an avalanche into one sentence. Old projects tend to carry this quietly: prefabs whose scripts
 were deleted years ago sit there harmlessly until something tries to save them.
 
+**Both of those are refused, not merely reported.** A check that only an agent's good intentions enforce
+is worth little, so the bridge says no by itself:
+
+- `bake_screen` and `apply_prefab_values` refuse when the target is the asset the editor currently has open
+  (Prefab Mode, or an open scene), naming it.
+- `resolve_packages` refuses while a domain reload would put unsaved state at risk: Play Mode running, a
+  dirty scene, or a dirty prefab stage. With none of those present it just runs — a package change is an
+  ordinary step and should not need a human's blessing every time. A question answered "yes" nine times out
+  of ten trains everyone to stop reading it; what deserves a stop is the tenth time, and that is exactly
+  what these blockers are.
+
 **Not two heavy things at once.** `busyWith` is `"compiling"`, `"importing"` or `null`, with
 `busySinceSeconds` so a fresh import is distinguishable from one that has been running a minute. Heavy
 methods (`recompile`, `resolve_packages`, `bake_screen`, `apply_prefab_values`, `regenerate_catalog`,
