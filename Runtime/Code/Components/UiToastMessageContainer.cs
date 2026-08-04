@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A MonoBehaviour spawner for transient toast messages: its Show(message, duration) pool-instantiates a
+	/// UiToastMessagePanel into a container RectTransform and displays it.
+	/// </summary>
 	public class UiToastMessageContainer : MonoBehaviour
 	{
 		public UiToastMessagePanel m_panelPrefab;

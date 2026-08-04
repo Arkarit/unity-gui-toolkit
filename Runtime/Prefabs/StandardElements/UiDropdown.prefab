@@ -98,6 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5fca173f30741f479e58226a2509466, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_mirrorAxisFlags: 0
   m_topLeft: {x: -17.699999, y: 7.2}
   m_topRight: {x: 8.849999, y: 0}
@@ -116,6 +117,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
   m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
@@ -223,6 +225,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -482,6 +485,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -512,6 +516,8 @@ GameObject:
   - component: {fileID: 6864568864810361191}
   - component: {fileID: 4335308154391392681}
   - component: {fileID: 4980241409771627134}
+  - component: {fileID: 2413389246626170092}
+  - component: {fileID: 5982260485328963858}
   m_Layer: 5
   m_Name: UiDropdown
   m_TagString: Untagged
@@ -568,12 +574,43 @@ MonoBehaviour:
   m_hoverAnimation: {fileID: 4640185323754651072}
   m_maxPopupHeight: 300
   m_offset: {x: -23, y: 2}
+  m_stringItemPrefab: {fileID: 0}
+  m_selectedItemColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  m_deselectedItemColor: {r: 1, g: 1, b: 1, a: 1}
   EvOnDropdownValueChanged:
     m_PersistentCalls:
       m_Calls: []
   EvOnStatusChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2413389246626170092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2288422001686355911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_comment: A dropdown (combo box) for picking one option from a list.
+--- !u!114 &5982260485328963858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2288422001686355911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 26
+  m_customId: 
+  m_internal: 0
 --- !u!1 &3267950006588052125
 GameObject:
   m_ObjectHideFlags: 0
@@ -719,6 +756,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -838,6 +876,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 3546432129651356025}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -871,12 +910,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_simpleAnimation: {fileID: 0}
-  m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 0}
   m_additionalMouseOver: {fileID: 0}
   m_additionalMouseOverDuration: 0.2
   m_forwardButton: {fileID: 0}
   m_simpleWiggleAnimation: {fileID: 0}
+  m_wiggleButtons: []
 --- !u!114 &102193131080930700
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1009,6 +1048,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2490568ecfcc49d42a63765b23e65774, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_min: {x: 0, y: 1}
   m_max: {x: 1, y: 0}
   m_swapAxes: 0
@@ -1101,6 +1141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5fca173f30741f479e58226a2509466, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_mirrorAxisFlags: 0
   m_topLeft: {x: -17.699999, y: 7.2}
   m_topRight: {x: 8.849999, y: 0}

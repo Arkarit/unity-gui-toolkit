@@ -7,6 +7,13 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A two-state toggle that sits next to a Unity <see cref="Toggle"/> on the same GameObject.
+	/// Beyond on/off it can drive several
+	/// state representations — a style skin ("On"/"Off"), activating/deactivating GameObjects, and a
+	/// state animation — and optionally auto-joins or creates a ToggleGroup. Subscribe via
+	/// <see cref="OnValueChanged"/>.
+	/// </summary>
 	[RequireComponent(typeof(Toggle))]
 	public class UiToggle: UiButtonBase
 	{

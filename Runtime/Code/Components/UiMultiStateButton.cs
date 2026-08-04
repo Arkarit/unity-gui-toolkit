@@ -8,6 +8,11 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiButtonBase that cycles through a configured list of named states, each with its own sprite, background
+	/// color and icon color; a click advances to the next state. It applies the state colors with an optional tween
+	/// and fires OnStateChanged, and the current state can be read or set by index or by name.
+	/// </summary>
 	public class UiMultiStateButton : UiButtonBase
 	{
 		[Serializable]

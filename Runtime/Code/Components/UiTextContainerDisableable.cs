@@ -8,6 +8,10 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiTextContainer that, in addition to its text, computes and applies a dimmed and desaturated 'disabled' color
+	/// (and TMP color gradient) versus the normal color, switching between them whenever its enabled-in-hierarchy state changes.
+	/// </summary>
 	public class UiTextContainerDisableable : UiTextContainer
 	{
 		[Range(0f, 1f)][SerializeField] protected float m_disabledBrightness = 0.6f;

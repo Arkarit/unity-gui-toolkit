@@ -5,6 +5,11 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiPanel that combines a UiYearPicker, UiMonthPicker and UiDayPicker (plus an optional UiTimePicker) into a
+	/// single date selector. Exposes SelectedDate and fires OnValueChanged whenever a part changes, keeping the day
+	/// count valid for the chosen month and year.
+	/// </summary>
 	public class UiDatePicker : UiPanel
 	{
 		[SerializeField] protected UiYearPicker m_yearPicker;

@@ -8,6 +8,16 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2339159104014748700, guid: 63f736e16f52f304c843e61997a25b21,
+        type: 3}
+      propertyPath: m_element
+      value: 35
+      objectReference: {fileID: 0}
+    - target: {fileID: 2339159104014748700, guid: 63f736e16f52f304c843e61997a25b21,
+        type: 3}
+      propertyPath: m_internal
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6244504615721601663, guid: 63f736e16f52f304c843e61997a25b21,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -118,6 +128,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9217491740424402781, guid: 63f736e16f52f304c843e61997a25b21,
+        type: 3}
+      propertyPath: m_comment
+      value: Directional 'left' arrow button, part of the up/down/left/right set.
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -145,6 +160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2490568ecfcc49d42a63765b23e65774, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_min: {x: 0, y: 1}
   m_max: {x: 1, y: 0}
   m_swapAxes: 1

@@ -127,6 +127,11 @@ namespace GuiToolkit
 		public const string HELP_UI_SOUND_CONFIG =
 			"Optional set of UI sound effects (button click, and later hover etc.). Supply your own UiSoundConfig asset here; leave empty to disable UI sounds. The host app can additionally scale/mute at runtime via UiSound.VolumeProvider / UiSound.MutedProvider.";
 
+		public const string HELP_STANDARD_ELEMENT_REGISTRY =
+			"Generated registry mapping standard-element identities (see UiStandardElement) to the winning prefab, " +
+			"with client prefabs/variants out-ranking the toolkit defaults. Rebuilt by 'Gui Toolkit -> AI -> " +
+			"Generate Screen Catalog'; do not edit by hand.";
+
 
 		/// \endcond
 
@@ -193,6 +198,9 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_UI_SOUND_CONFIG)]
 		[SerializeField, Optional] private UiSoundConfig m_uiSoundConfig = null;
+
+		[Tooltip(HELP_STANDARD_ELEMENT_REGISTRY)]
+		[SerializeField, Optional] private UiStandardElementRegistry m_standardElementRegistry = null;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 		private string m_rootDir;
@@ -268,6 +276,13 @@ namespace GuiToolkit
 		public AbstractAssetProviderFactory[] AssetProviderFactories => m_assetProviderFactories;
 		public UiAbstractTransitionOverlay TransitionOverlay => m_transitionOverlay;
 		public UiSoundConfig UiSoundConfig => m_uiSoundConfig;
+		public UiStandardElementRegistry StandardElementRegistry => m_standardElementRegistry;
+
+		/// <summary>Canonical project folder for client prefab VARIANTS of toolkit standard elements —
+		/// the catalog generator scans it for standard-element markers, and the variant-creation tool
+		/// writes here. Client-writable (under Assets/), so it works whether the toolkit is symlinked
+		/// (library dev) or in read-only Packages (a consuming project).</summary>
+		public string PrefabVariantsPath => m_prefabVariantsPath;
 
 
 		public string GetScenePath( string _sceneName )
@@ -385,6 +400,15 @@ namespace GuiToolkit
 		public override void OnEditorCreatedAsset()
 		{
 			m_sceneReferences = BuildSettingsUtility.GetBuildSceneReferences();
+		}
+
+		/// <summary>Editor-only: points this config at the generated standard-element registry (used by the catalog generator).</summary>
+		public void EditorSetStandardElementRegistry( UiStandardElementRegistry _registry )
+		{
+			if (m_standardElementRegistry == _registry)
+				return;
+			m_standardElementRegistry = _registry;
+			EditorUtility.SetDirty(this);
 		}
 
 		public string GetProjectScenePath( string _sceneName )

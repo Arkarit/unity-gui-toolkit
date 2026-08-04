@@ -8,6 +8,11 @@ using UnityEditor;
 // Works in play mode, edit mode, and Prefab Stage (ExecuteAlways).
 namespace GuiToolkit
 {
+	/// <summary>
+	/// An ExecuteAlways MonoBehaviour that stores a sprite as serialized PNG bytes and rebuilds a runtime Texture2D
+	/// and Sprite from them on load (in edit mode, play mode and the Prefab Stage), auto-assigning the sprite to a
+	/// sibling Image. It can capture its content from a RenderTexture or an existing Texture2D.
+	/// </summary>
 	[ExecuteAlways]
 	public class UiSpriteHolder : MonoBehaviour, ISerializationCallbackReceiver
 	{

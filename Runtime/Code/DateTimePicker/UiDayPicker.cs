@@ -4,6 +4,11 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiIncDecGridPicker specialized for days of the month: it populates its cells with the valid days for the
+	/// year/month of the linked UiYearPicker and UiMonthPicker, clamping and refreshing when they change. Exposes a
+	/// 1-based Day property and an optional 'now' button.
+	/// </summary>
 	public class UiDayPicker : UiIncDecGridPicker
 	{
 		[SerializeField] private UiButton m_optionalNowButton;

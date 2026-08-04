@@ -2,6 +2,10 @@
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A tab button — a <see cref="UiToggle"/> used to select one page of a tabbed dialog. When
+	/// selected it can scroll itself into view inside a surrounding <see cref="UiScrollRect"/>.
+	/// </summary>
 	public class UiTab : UiToggle
 	{
 		[SerializeField] protected bool m_ensureVisibilityInScrollRect;

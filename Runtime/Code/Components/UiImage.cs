@@ -3,6 +3,11 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// Augments a referenced Unity <see cref="Image"/> with a settable color, an optional simple
+	/// two-color gradient, and automatic normal/disabled material swapping as the hierarchy is
+	/// enabled or disabled.
+	/// </summary>
 	public class UiImage : UiThing
 	{
 		[SerializeField] protected Image m_image;

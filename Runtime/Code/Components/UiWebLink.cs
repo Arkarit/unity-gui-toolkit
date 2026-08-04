@@ -3,6 +3,10 @@ using GuiToolkit;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// A UiThing (IPointerClickHandler) that opens a URL on click via Application.OpenURL; it can use a single fixed
+/// link or, when localized, pick the URL matching the current language from a list.
+/// </summary>
 public class UiWebLink : UiThing, IPointerClickHandler
 {
 	[Serializable]

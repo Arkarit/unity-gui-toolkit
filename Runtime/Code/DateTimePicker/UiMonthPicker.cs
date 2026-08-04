@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiIncDecGridPicker preloaded with the twelve localized month names. Exposes a 1-based Month property and an
+	/// optional 'now' button that jumps to the current month.
+	/// </summary>
 	public class UiMonthPicker : UiIncDecGridPicker
 	{
 		private static readonly string[] Months = new string[]

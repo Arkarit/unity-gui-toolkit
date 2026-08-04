@@ -74,6 +74,15 @@ namespace GuiToolkit
 		[SerializeField] protected int m_maxButtons = 3;
 		[SerializeField] protected bool m_cancelButtonsLeftSide = false;
 
+		// Per-requester button prefab overrides. Substituted in EvaluateOptions for whatever a caller
+		// asked for, so they beat every other route to a button prefab — including a ButtonInfo whose
+		// Prefab was set explicitly and the static CreateButtonInfos, which has no instance to ask.
+		// They exist for projects whose live button look predates the standard-element registry and
+		// cannot be expressed through it; see UiRequesterBaseEditor for the note shown in the inspector.
+		[SerializeField][Optional] protected UiButton m_standardButtonPrefabOverride;
+		[SerializeField][Optional] protected UiButton m_okButtonPrefabOverride;
+		[SerializeField][Optional] protected UiButton m_cancelButtonPrefabOverride;
+
 		private readonly List<UiButton> m_buttons = new();
 		private readonly List<UnityAction> m_listeners = new();
 		private UnityAction m_closeButtonAction;
@@ -114,6 +123,35 @@ namespace GuiToolkit
 
 		public static ButtonInfo[] CreateButtonInfos( params (string text, UnityAction onClick)[] _buttons ) =>
 			CreateButtonInfos(true, _buttons);
+
+		/// <summary>
+		/// Maps one of the three standard button prefabs onto this requester's override, if it has one.
+		/// Everything that ends up as a button goes through here, which is the point: a caller that hands
+		/// in a prefab explicitly gets substituted too, so the override really is the last word.
+		/// Anything that is not one of the three standard prefabs passes through untouched.
+		/// </summary>
+		protected virtual UiButton ResolveButtonPrefab( UiButton _prefab )
+		{
+			if (_prefab == null)
+				return null;
+
+			var main = UiMain.Instance;
+			if (main == null)
+				return _prefab;
+
+			// Checked in this order, because a project may well have the same prefab standing in for two
+			// of the three roles; then the first override that claims it wins, deterministically.
+			if (m_standardButtonPrefabOverride != null && _prefab == main.StandardButtonPrefab)
+				return m_standardButtonPrefabOverride;
+
+			if (m_okButtonPrefabOverride != null && _prefab == main.OkButtonPrefab)
+				return m_okButtonPrefabOverride;
+
+			if (m_cancelButtonPrefabOverride != null && _prefab == main.CancelButtonPrefab)
+				return m_cancelButtonPrefabOverride;
+
+			return _prefab;
+		}
 
 		protected RequesterHandle DoDialog( Options _options )
 		{
@@ -296,7 +334,7 @@ namespace GuiToolkit
 				if (string.IsNullOrEmpty(bi.Text) || bi.Prefab == null)
 					continue;
 
-				UiButton button = bi.Prefab.PoolInstantiate();
+				UiButton button = ResolveButtonPrefab(bi.Prefab).PoolInstantiate();
 				button.transform.SetParent(m_buttonContainer.transform, false);
 				button.transform.localScale = Vector3.one * m_buttonScale;
 

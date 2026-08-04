@@ -13,6 +13,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: UiLanguageSelectDropdown
       objectReference: {fileID: 0}
+    - target: {fileID: 2413389246626170092, guid: 3790a03321393fa48a3d0278035b02d6,
+        type: 3}
+      propertyPath: m_comment
+      value: A dropdown listing all available languages, kept in sync with the active
+        one.
+      objectReference: {fileID: 0}
     - target: {fileID: 2851002636169818515, guid: 3790a03321393fa48a3d0278035b02d6,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -27,6 +33,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5982260485328963858, guid: 3790a03321393fa48a3d0278035b02d6,
+        type: 3}
+      propertyPath: m_element
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 6864568864810361191, guid: 3790a03321393fa48a3d0278035b02d6,
         type: 3}
@@ -221,6 +232,9 @@ MonoBehaviour:
   m_hoverAnimation: {fileID: 729900525830764687}
   m_maxPopupHeight: 200
   m_offset: {x: -23, y: 2}
+  m_stringItemPrefab: {fileID: 0}
+  m_selectedItemColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  m_deselectedItemColor: {r: 1, g: 1, b: 1, a: 1}
   EvOnDropdownValueChanged:
     m_PersistentCalls:
       m_Calls: []

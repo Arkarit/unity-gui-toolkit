@@ -6,6 +6,11 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A mesh-effect modifier (UiDistortBase) that applies a one-sided perspective distortion to the mesh of the
+	/// Graphic or TextMeshPro text on the same GameObject, computed from a referenced vanishing-point transform and a
+	/// locked side, updating automatically as either transform moves.
+	/// </summary>
 	[ExecuteAlways]
 	public class UiPerspectiveSemi: UiDistortBase
 	{

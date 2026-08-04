@@ -4,6 +4,12 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A clickable button that sits next to a Unity <see cref="Button"/> on the same GameObject
+	/// (added via RequireComponent). Adds an optional wiggle animation on click and can trigger the
+	/// wiggle of other linked buttons; disables the underlying Button when the hierarchy is disabled.
+	/// Subscribe to clicks via <see cref="OnClick"/>.
+	/// </summary>
 	[RequireComponent(typeof(Button))]
 	public class UiButton : UiButtonBase
 	{

@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &5270523796987331484
 GameObject:
@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 5270523796987331456}
   - component: {fileID: 6944983982311379129}
   - component: {fileID: 3594388165116690286}
+  - component: {fileID: 5071951565202241129}
+  - component: {fileID: 1894801542386046341}
   m_Layer: 5
   m_Name: StandardButton
   m_TagString: Untagged
@@ -97,12 +99,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_simpleAnimation: {fileID: 8591811800190961484}
-  m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 8824944210132026731}
   m_additionalMouseOver: {fileID: 0}
   m_additionalMouseOverDuration: 0.2
   m_forwardButton: {fileID: 0}
   m_simpleWiggleAnimation: {fileID: 801667909262764775}
+  m_wiggleButtons: []
 --- !u!114 &3594388165116690286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,6 +125,34 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &5071951565202241129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5270523796987331484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_comment: The default labeled text button - the go-to button for most actions.
+--- !u!114 &1894801542386046341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5270523796987331484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 2
+  m_customId: 
+  m_internal: 0
 --- !u!1 &5270523797533349592
 GameObject:
   m_ObjectHideFlags: 0
@@ -262,7 +292,9 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-  m_autoLocalize: 0
+  m_isTranslated: 1
+  m_group: 
+  m_locaKey: Cancel LOREM IPSUM dolor sit amet bla
 --- !u!114 &6606596283206579105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -386,6 +418,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5fca173f30741f479e58226a2509466, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_mirrorAxisFlags: 0
   m_topLeft: {x: -17.699999, y: 7.2}
   m_topRight: {x: 8.849999, y: 0}
@@ -404,6 +437,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
   m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}
@@ -511,6 +545,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0

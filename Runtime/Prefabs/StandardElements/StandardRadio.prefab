@@ -23,6 +23,11 @@ PrefabInstance:
       propertyPath: m_name
       value: Buttons/Radio/Background
       objectReference: {fileID: 0}
+    - target: {fileID: 3632716692652690858, guid: 937768391efe18040b14fc35df1aef28,
+        type: 3}
+      propertyPath: m_element
+      value: 24
+      objectReference: {fileID: 0}
     - target: {fileID: 4157340311740861162, guid: 937768391efe18040b14fc35df1aef28,
         type: 3}
       propertyPath: m_name
@@ -265,6 +270,12 @@ PrefabInstance:
       propertyPath: m_name
       value: Buttons/Radio/SelectionMarker
       objectReference: {fileID: 0}
+    - target: {fileID: 6132188106729123055, guid: 937768391efe18040b14fc35df1aef28,
+        type: 3}
+      propertyPath: m_comment
+      value: A labeled radio button for mutually-exclusive choices within a toggle
+        group.
+      objectReference: {fileID: 0}
     - target: {fileID: 7022707259122065513, guid: 937768391efe18040b14fc35df1aef28,
         type: 3}
       propertyPath: m_name
@@ -317,11 +328,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57bc3011770ca1346a002a705abd54de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_isResolutionDependent: 0
+  m_isAspectRatioDependent: 0
   m_optionalStyleConfig: {fileID: 0}
   m_name: Buttons/Radio/SelectionMarker
   m_fixedSkinName: 
   m_tweenable: 1
+  m_rebuildLayoutOnApply: 0
+  m_frameDelay: 0
   OnBeforeApplyStyle:
     m_PersistentCalls:
       m_Calls: []

@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A single grid cell for UiGridPicker that sits next to a UiButton on the same GameObject (added via
+	/// RequireComponent) and exposes it through Button. Has an optional TextMeshPro caption exposed via OptionalCaption.
+	/// </summary>
 	[RequireComponent(typeof(UiButton))]
 	public class UiGridPickerCell : UiThing
 	{

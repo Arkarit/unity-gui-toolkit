@@ -113,6 +113,8 @@ GameObject:
   - component: {fileID: 6428330951011662472}
   - component: {fileID: 6428330951011662478}
   - component: {fileID: -3835968555130211470}
+  - component: {fileID: 4537299894641776329}
+  - component: {fileID: 4375894738789282492}
   m_Layer: 5
   m_Name: StandardTab
   m_TagString: Untagged
@@ -223,7 +225,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_simpleAnimation: {fileID: 0}
-  m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 0}
   m_additionalMouseOver: {fileID: 0}
   m_additionalMouseOverDuration: 0.2
@@ -234,7 +235,38 @@ MonoBehaviour:
   m_styleAppliers: []
   m_skinOn: On
   m_skinOff: Off
+  m_gameObjectOn: {fileID: 0}
+  m_gameObjectOff: {fileID: 0}
+  m_stateAnimation: {fileID: 0}
   m_ensureVisibilityInScrollRect: 1
+--- !u!114 &4537299894641776329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6428330951011662474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_comment: A single tab header that selects its page; part of a tab strip.
+--- !u!114 &4375894738789282492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6428330951011662474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 29
+  m_customId: 
+  m_internal: 0
 --- !u!1001 &6428330949595553073
 PrefabInstance:
   m_ObjectHideFlags: 0

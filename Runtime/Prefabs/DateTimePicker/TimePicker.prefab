@@ -67,6 +67,8 @@ GameObject:
   - component: {fileID: 3300015955173616263}
   - component: {fileID: 3300015955173616312}
   - component: {fileID: 3300015955173616313}
+  - component: {fileID: 3485068386437837175}
+  - component: {fileID: 8417582043775601519}
   m_Layer: 5
   m_Name: TimePicker
   m_TagString: Untagged
@@ -144,6 +146,35 @@ MonoBehaviour:
   OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3485068386437837175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3300015955173616262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 44
+  m_customId: 
+  m_internal: 0
+--- !u!114 &8417582043775601519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3300015955173616262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_comment: A time selector built from hour/minute/second part-pickers, with an
+    optional 'now' button.
 --- !u!1 &4892670726746104846
 GameObject:
   m_ObjectHideFlags: 0
@@ -283,6 +314,9 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+  m_isTranslated: 1
+  m_group: 
+  m_locaKey: 'Time:'
 --- !u!114 &3309832836578948172
 MonoBehaviour:
   m_ObjectHideFlags: 0

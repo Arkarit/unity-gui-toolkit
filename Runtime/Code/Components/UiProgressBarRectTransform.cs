@@ -5,6 +5,10 @@ using UnityEngine.Serialization;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A progress bar (UiProgressBarBase) that visualizes progress by scaling a bar RectTransform's size along one
+	/// axis (horizontal or vertical) relative to a reference RectTransform's size.
+	/// </summary>
 	public class UiProgressBarRectTransform : UiProgressBarBase
 	{
 		[SerializeField]

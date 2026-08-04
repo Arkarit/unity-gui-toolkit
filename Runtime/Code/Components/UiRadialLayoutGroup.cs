@@ -9,6 +9,11 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A LayoutGroup that arranges its children around a circle by radius and angle, with modes for a fixed overall
+	/// arc, a fixed per-element angle, or per-element angles taken from UiRadialLayoutElement children. It can
+	/// optionally rotate elements to follow the arc and apply a per-element Z increment.
+	/// </summary>
 	public class UiRadialLayoutGroup : LayoutGroup
 	{
 		public enum Mode

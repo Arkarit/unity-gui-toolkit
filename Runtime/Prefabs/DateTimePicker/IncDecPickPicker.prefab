@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 8162661490361855938}
   - component: {fileID: 8951111575693892313}
   - component: {fileID: 1094821840627075865}
+  - component: {fileID: 7815873658799812413}
   m_Layer: 5
   m_Name: IncDecPickPicker
   m_TagString: Untagged
@@ -187,6 +188,21 @@ MonoBehaviour:
   OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7815873658799812413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1388017187930862828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 66
+  m_customId: 
+  m_internal: 1
 --- !u!1 &5493595097746913074
 GameObject:
   m_ObjectHideFlags: 0
@@ -328,7 +344,9 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-  m_autoLocalize: 0
+  m_isTranslated: 1
+  m_group: 
+  m_locaKey: one
 --- !u!114 &3664609620594269729
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -437,12 +455,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_simpleAnimation: {fileID: 0}
-  m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 0}
   m_additionalMouseOver: {fileID: 0}
   m_additionalMouseOverDuration: 0.2
   m_forwardButton: {fileID: 0}
   m_simpleWiggleAnimation: {fileID: 0}
+  m_wiggleButtons: []
 --- !u!1 &5909874417111474207
 GameObject:
   m_ObjectHideFlags: 0
@@ -532,6 +550,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_vertexColorMode: 0
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}

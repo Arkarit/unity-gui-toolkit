@@ -2,6 +2,10 @@
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A player-settings-dialog entry (UiPlayerSettingBase) that presents a button, plus an optional secondary visual
+	/// button, and invokes the bound PlayerSetting's events when clicked. Its titles come from the setting's options.
+	/// </summary>
 	public class UiPlayerSettingButton : UiPlayerSettingBase
 	{
 		[SerializeField]

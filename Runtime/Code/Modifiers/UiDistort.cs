@@ -6,6 +6,11 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A mesh-effect modifier (UiDistortBase / BaseMeshEffectTMP) that distorts the generated mesh of the Graphic or
+	/// TextMeshPro text on the same GameObject by offsetting its four corners, with the corner values interpreted as
+	/// either relative to the bounds or absolute.
+	/// </summary>
 	[ExecuteAlways]
 	public class UiDistort : UiDistortBase
 	{

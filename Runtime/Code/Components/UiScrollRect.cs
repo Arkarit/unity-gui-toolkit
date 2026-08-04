@@ -5,6 +5,11 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiThing that sits next to a Unity ScrollRect on the same GameObject (added via RequireComponent) and adds
+	/// convenience behavior: EnsureChildVisibility scrolls (optionally tweened, with neighbor padding) so a given
+	/// child comes into view, plus an optional initial normalized scroll position applied on enable.
+	/// </summary>
 	[RequireComponent(typeof(ScrollRect))]
 	public class UiScrollRect : UiThing
 	{

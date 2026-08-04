@@ -92,6 +92,7 @@ GameObject:
   - component: {fileID: 6946848247582991229}
   - component: {fileID: 2967736087024248955}
   - component: {fileID: 2792390048152837516}
+  - component: {fileID: 270445797461702323}
   m_Layer: 5
   m_Name: CalenderUI
   m_TagString: Untagged
@@ -132,19 +133,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
-  m_defaultSceneVisibility: 0
-  m_layer: 1000
-  m_isFullScreen: 0
   m_dateFormat: dd-MM-yyyy
   m_monthFormat: MMMMM
   m_dayToggleTemplate: {fileID: 3022614603618618578}
   m_dayNameLabelTemplate: {fileID: 3022614604729766133}
   m_dayContainer: {fileID: 3022614603498639030}
   m_selectedDateText: {fileID: 3022614604641799466}
-  m_currentMonth: {fileID: 3022614604956549951}
   m_currentYear: {fileID: 3022614604792491213}
   m_forwardPickOnly: 1
   m_startDayOfWeek: 0
+  m_currentDateTime:
+    m_ticks: 0
 --- !u!223 &6946848247582991229
 Canvas:
   m_ObjectHideFlags: 0
@@ -208,6 +207,21 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &270445797461702323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3022614603219732402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 63
+  m_customId: 
+  m_internal: 1
 --- !u!1 &3022614603257610925
 GameObject:
   m_ObjectHideFlags: 0

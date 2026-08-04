@@ -7,6 +7,10 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A player-settings-dialog entry (UiPlayerSettingBase) that drives a referenced UiToggle bound to a bool
+	/// PlayerSetting, keeping the toggle and the setting value in sync.
+	/// </summary>
 	public class UiPlayerSettingToggle : UiPlayerSettingBase
 	{
 

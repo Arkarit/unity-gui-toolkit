@@ -7,6 +7,11 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A mesh-effect modifier (UiDistortBase) that skews the mesh of the Graphic or TextMeshPro text on the same
+	/// GameObject by a horizontal and/or vertical angle, applied only to the selected corners; the corner offsets are
+	/// derived from the angles rather than set directly.
+	/// </summary>
 	[ExecuteAlways]
 	public class UiSkew : UiDistortBase
 	{

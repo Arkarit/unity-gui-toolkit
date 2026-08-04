@@ -178,6 +178,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   m_alphaGraphic: {fileID: 0}
   m_alphaCanvasGroup: {fileID: 0}
+  m_setBlocksRaycasts: 0
   m_uiSkew: {fileID: 0}
   m_skewMinHorizontal: 0
   m_skewMaxHorizontal: 0
@@ -208,6 +209,8 @@ GameObject:
   - component: {fileID: 137001839888021298}
   - component: {fileID: 137001839888021301}
   - component: {fileID: 137001839888021300}
+  - component: {fileID: 8093801482773366656}
+  - component: {fileID: 1328065764963446105}
   m_Layer: 5
   m_Name: LanguageToggle
   m_TagString: Untagged
@@ -326,7 +329,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_simpleAnimation: {fileID: 4611171743553401831}
-  m_audioSource: {fileID: 0}
   m_uiImage: {fileID: 0}
   m_additionalMouseOver: {fileID: 0}
   m_additionalMouseOverDuration: 0.2
@@ -337,8 +339,40 @@ MonoBehaviour:
   m_styleAppliers: []
   m_skinOn: On
   m_skinOff: Off
+  m_gameObjectOn: {fileID: 0}
+  m_gameObjectOff: {fileID: 0}
+  m_stateAnimation: {fileID: 0}
   m_flagImage: {fileID: 2747425840158135338}
   m_languageToken: dev
+--- !u!114 &8093801482773366656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 137001839888021303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ca03eee67bf5c4aa0317c2ac637db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_comment: Flag toggle for a single language; switches the active language when
+    turned on.
+--- !u!114 &1328065764963446105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 137001839888021303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 8
+  m_customId: 
+  m_internal: 0
 --- !u!1 &5242773852886969493
 GameObject:
   m_ObjectHideFlags: 0
@@ -428,6 +462,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_vertexColorMode: 1
   m_colorLeftOrTop: {r: 1, g: 0.85882354, b: 0, a: 1}
   m_colorRightOrBottom: {r: 1, g: 0.6431373, b: 0, a: 1}

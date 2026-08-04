@@ -12,6 +12,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerSettingLanguageDropdown
       objectReference: {fileID: 0}
+    - target: {fileID: 3140385791757649966, guid: 99d75bf0a2fd4d7c87b16f0e48e9aaaf,
+        type: 3}
+      propertyPath: m_element
+      value: 51
+      objectReference: {fileID: 0}
+    - target: {fileID: 4583111171453297344, guid: 99d75bf0a2fd4d7c87b16f0e48e9aaaf,
+        type: 3}
+      propertyPath: m_comment
+      value: A settings-dialog row offering language selection via a dropdown.
+      objectReference: {fileID: 0}
     - target: {fileID: 6864568864810361486, guid: 99d75bf0a2fd4d7c87b16f0e48e9aaaf,
         type: 3}
       propertyPath: m_Pivot.x

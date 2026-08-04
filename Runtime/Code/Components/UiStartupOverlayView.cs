@@ -9,7 +9,7 @@ namespace GuiToolkit
 	/// <summary>
 	/// Dynamically-created host AND sequencer for the startup-overlay sequence (changelog, sale /
 	/// event popups, …). Instantiated by <see cref="UiMain"/> from its optional prefab reference
-	/// (<c>m_startupOverlayViewPrefab</c>), so it lives on its own layered canvas above the blocked
+	/// (<c>m_startupOverlayViewPrefabFallback</c>), so it lives on its own layered canvas above the blocked
 	/// screens and — being parented under the DontDestroyOnLoad <see cref="UiMain"/> — survives
 	/// scene changes and keeps its identity (and its position in the sequence) across them.
 	///

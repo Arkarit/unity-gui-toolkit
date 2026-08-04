@@ -110,6 +110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebe5a59ee36c19c43820c22ae4117369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_followSource: {fileID: 0}
   m_vertexColorMode: 0
   m_colorLeftOrTop: {r: 0, g: 0, b: 0, a: 0.7490196}
   m_colorRightOrBottom: {r: 0, g: 0, b: 0, a: 0.23529412}
@@ -280,7 +281,11 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
-  m_autoLocalize: 0
+  m_isTranslated: 1
+  m_group: 
+  m_locaKey: 'Samstag, 99. Monatsname 9999
+
+    15:22:33'
 --- !u!114 &3054521785757875714
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -318,6 +323,7 @@ GameObject:
   - component: {fileID: 6950760544300082562}
   - component: {fileID: 855903102428692040}
   - component: {fileID: 6515814304424236561}
+  - component: {fileID: 6320089739577727391}
   m_Layer: 5
   m_Name: DateDisplay
   m_TagString: Untagged
@@ -428,6 +434,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
   m_VerticalFit: 2
+--- !u!114 &6320089739577727391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3170993511148192814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4800a4eb207a90145a5aac304a8f4037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_element: 64
+  m_customId: 
+  m_internal: 1
 --- !u!1001 &543192803376991363
 PrefabInstance:
   m_ObjectHideFlags: 0

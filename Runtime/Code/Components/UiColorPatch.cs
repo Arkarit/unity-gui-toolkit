@@ -7,6 +7,10 @@ using UnityEngine.UI;
 namespace GuiToolkit
 {
 
+	/// <summary>
+	/// An ExecuteAlways UiThing selectable color swatch that tints a referenced Graphic to its Color and uses a
+	/// referenced Toggle to drive selection, showing a selection frame and firing OnSelected/OnDeselected callbacks.
+	/// </summary>
 	[ExecuteAlways]
 	public class UiColorPatch : UiThing
 	{

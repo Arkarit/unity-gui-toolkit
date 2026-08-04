@@ -3,6 +3,10 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A debug MonoBehaviour that averages unscaled delta time over a sample window and writes the resulting
+	/// frames-per-second value into a referenced legacy Text.
+	/// </summary>
 	public class UiFPS : MonoBehaviour
 	{
 		public int NumSamples = 20;

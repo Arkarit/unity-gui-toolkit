@@ -13,6 +13,12 @@ PrefabInstance:
       propertyPath: m_name
       value: Text/Headline/Small
       objectReference: {fileID: 0}
+    - target: {fileID: 357056501177215643, guid: f68e9574a6a461e4abc6267904590380,
+        type: 3}
+      propertyPath: m_comment
+      value: A third-level headline at the smallest heading size (font size 36),
+        for minor subsection titles.
+      objectReference: {fileID: 0}
     - target: {fileID: 1697113851281272724, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
       propertyPath: m_Pivot.x
@@ -121,7 +127,7 @@ PrefabInstance:
     - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
       propertyPath: m_fontSize
-      value: 42
+      value: 36
       objectReference: {fileID: 0}
     - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
@@ -131,7 +137,7 @@ PrefabInstance:
     - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
       propertyPath: m_fontSizeBase
-      value: 42
+      value: 36
       objectReference: {fileID: 0}
     - target: {fileID: 1697113851281272725, guid: f68e9574a6a461e4abc6267904590380,
         type: 3}
@@ -142,6 +148,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: StandardHeadline3rdOrder
+      objectReference: {fileID: 0}
+    - target: {fileID: 8830219092045869713, guid: f68e9574a6a461e4abc6267904590380,
+        type: 3}
+      propertyPath: m_element
+      value: 39
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

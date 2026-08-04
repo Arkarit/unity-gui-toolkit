@@ -5,6 +5,12 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A curve-driven procedural animation (UiSimpleAnimationBase, requires a RectTransform) that tweens a target
+	/// RectTransform's position, rotation, scale, alpha (via a Graphic or CanvasGroup) and skew (via a referenced
+	/// UiSkew) over a normalized timeline, with the active channels chosen by a Support flag mask. It includes
+	/// slide-in/out helpers and optional canvas-scaler-relative distances.
+	/// </summary>
 	[RequireComponent(typeof(RectTransform))]
 	public class UiSimpleAnimation : UiSimpleAnimationBase
 	{

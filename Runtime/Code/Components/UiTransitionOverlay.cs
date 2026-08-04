@@ -5,6 +5,11 @@ using UnityEngine.UI;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A singleton full-screen fade overlay (UiAbstractTransitionOverlay) built from a black Image and a CanvasGroup
+	/// driven by a UiSimpleAnimation, used to cover screen transitions. FadeInOverlay and FadeOutOverlay fade it in
+	/// and out and optionally block input, and a fallback overlay is built if none is configured.
+	/// </summary>
 	public class UiTransitionOverlay : UiAbstractTransitionOverlay
 	{
 		public enum EFading

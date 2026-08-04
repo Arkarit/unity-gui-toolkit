@@ -10,6 +10,10 @@ using UnityEditor;
 
 namespace GuiToolkit
 {
+	/// <summary>
+	/// A UiPlayerSettingRadio specialized for language selection: each entry represents one language, shows its flag
+	/// sprite (a built-in Flags/... sprite or a supplied icon), and switches the active language via LocaManager when chosen.
+	/// </summary>
 	public class UiPlayerSettingLanguageToggle : UiPlayerSettingRadio
 	{
 		[SerializeField]

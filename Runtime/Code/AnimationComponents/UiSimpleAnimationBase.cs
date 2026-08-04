@@ -89,6 +89,13 @@ namespace GuiToolkit
 		public bool IsAtBeginning => m_currentTime == 0;
 		public bool HasBackwardsAnimation => m_backwardsAnimation;
 
+		/// <summary>
+		/// Whether this animation may be run in reverse. Also the difference between a state animation, which is
+		/// meant to HOLD its end (a hover stays enlarged until it is reversed), and a one-shot, which has to come
+		/// back to rest by itself — so a validator can tell a deliberately held value from a stuck one.
+		/// </summary>
+		public bool BackwardsPlayable => m_backwardsPlayable;
+
 		public float Duration
 		{
 			get => m_duration; 
