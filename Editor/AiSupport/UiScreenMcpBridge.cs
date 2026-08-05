@@ -78,6 +78,42 @@ namespace GuiToolkit.Editor.AiSupport
 
 		public static bool IsRunning => s_running;
 
+		/// <summary>
+		/// True in a process that loads the editor assemblies but is not the editor a human is using —
+		/// above all Unity's asset import workers.
+		///
+		/// This is not a nicety. [InitializeOnLoad] runs in those processes, EditorPrefs is readable in
+		/// those processes, so the bridge started in every import worker and each one overwrote the
+		/// project's discovery file and the machine-wide registry entry with its own port and pid. The
+		/// proxy then talked to a worker: the port accepted the connection and nothing ever answered,
+		/// because a worker has no editor loop to run the handler on. From outside that is
+		/// indistinguishable from a hung editor.
+		///
+		/// When this was found, BOTH projects on the machine were announcing an import worker
+		/// (window handle 0, ports drifted to 17635 and 17637), and days of symptoms — "the bridge dies
+		/// on a domain reload", "the port is open but nothing answers", "it comes back when a human
+		/// clicks into the window" — were all this one cause. A reload spawns workers; a human clicking
+		/// in makes the real editor re-announce and take the file back.
+		/// </summary>
+		private static bool IsSecondaryProcess
+		{
+			get
+			{
+				if (Application.isBatchMode)
+					return true;
+
+				// Belt and braces: the worker also names itself on the command line, which does not
+				// depend on how a future Unity version chooses to report batch mode.
+				foreach (string arg in Environment.GetCommandLineArgs())
+				{
+					if (arg.IndexOf("AssetImportWorker", StringComparison.OrdinalIgnoreCase) >= 0)
+						return true;
+				}
+
+				return false;
+			}
+		}
+
 		/// <summary>The port actually bound, which is only known after the probe.</summary>
 		public static int Port => s_port;
 
@@ -91,6 +127,11 @@ namespace GuiToolkit.Editor.AiSupport
 
 		static UiScreenMcpBridge()
 		{
+			// Nothing at all in an import worker: no listener, no discovery file, and no subscription
+			// that could delete the real editor's announcement on ITS reload.
+			if (IsSecondaryProcess)
+				return;
+
 			// Restart across domain reloads if the user had it enabled.
 			//
 			// This hangs on afterAssemblyReload rather than on EditorApplication.delayCall.
@@ -123,12 +164,12 @@ namespace GuiToolkit.Editor.AiSupport
 
 			if (s_running)
 			{
-				// Listener up but the announcement gone: seen after a reload, and it looks exactly like a
-				// dead bridge from outside because the proxy finds nothing to connect to. Cheap to repair,
-				// so repair it rather than waiting for someone to notice.
-				if (!File.Exists(DiscoveryFilePath) || !File.Exists(RegistryFilePath))
+				// Listener up but the announcement missing, or describing somebody else: both look exactly
+				// like a dead bridge from outside, because the proxy has nothing — or the wrong thing — to
+				// connect to. Cheap to repair, so repair it instead of waiting for someone to notice.
+				if (!AnnouncementIsOurs())
 				{
-					UiLog.LogInternal("MCP bridge was running without its discovery file; re-announcing.");
+					UiLog.LogInternal("MCP bridge announcement was missing or belonged to another process; re-announcing.");
 					WriteDiscoveryFile();
 				}
 
@@ -148,12 +189,12 @@ namespace GuiToolkit.Editor.AiSupport
 		}
 
 		/// <summary>
-		/// Also enabled while running but unannounced, so "Start" doubles as a repair. Validating on
-		/// s_running alone greyed the item out in exactly the state a human needed it: the bridge counted
-		/// as up, the proxy could not find it, and the only offered action was "Stop".
+		/// Also enabled while running but not correctly announced, so "Start" doubles as a repair.
+		/// Validating on s_running alone greyed the item out in exactly the state a human needed it: the
+		/// bridge counted as up, the proxy could not reach it, and the only offered action was "Stop".
 		/// </summary>
 		[MenuItem(StringConstants.AI_MCP_BRIDGE_START_MENU_NAME, true)]
-		private static bool StartMenuValidate() => !s_running || !File.Exists(DiscoveryFilePath);
+		private static bool StartMenuValidate() => !s_running || !AnnouncementIsOurs();
 
 		[MenuItem(StringConstants.AI_MCP_BRIDGE_STOP_MENU_NAME)]
 		private static void StopMenu()
@@ -171,6 +212,9 @@ namespace GuiToolkit.Editor.AiSupport
 
 		public static void Start()
 		{
+			if (IsSecondaryProcess)
+				return;
+
 			if (s_running)
 			{
 				// Called on an already-running bridge: the only thing worth doing is making sure it is
@@ -325,6 +369,30 @@ namespace GuiToolkit.Editor.AiSupport
 			catch { /* a stale file is survivable; failing to start or stop is not */ }
 		}
 
+		/// <summary>
+		/// Whether the discovery file actually describes THIS bridge. A file left by a crashed editor, or
+		/// by an import worker before that was prevented, points the proxy at something that cannot
+		/// answer — and from outside that is indistinguishable from a dead bridge, which is exactly how
+		/// this cost a lot of time once.
+		/// </summary>
+		private static bool AnnouncementIsOurs()
+		{
+			try
+			{
+				if (!File.Exists(DiscoveryFilePath) || !File.Exists(RegistryFilePath))
+					return false;
+
+				var info = JObject.Parse(File.ReadAllText(DiscoveryFilePath));
+				return (int?)info["pid"] == System.Diagnostics.Process.GetCurrentProcess().Id
+					&& (int?)info["port"] == s_port;
+			}
+			catch
+			{
+				// Unreadable is as good as wrong: re-announcing costs a file write.
+				return false;
+			}
+		}
+
 		private static void DeleteDiscoveryFile()
 		{
 			TryDelete(DiscoveryFilePath);
@@ -447,7 +515,7 @@ namespace GuiToolkit.Editor.AiSupport
 			});
 
 			if (!done.Wait(HandlerTimeoutMs))
-				throw new TimeoutException("Editor did not process the request in time (is it compiling or unfocused?).");
+				throw new TimeoutException("Editor did not process the request in time (is it compiling?).");
 
 			if (error != null)
 				throw error;

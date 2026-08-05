@@ -100,3 +100,31 @@ Use `UiEventDefinitions` for cross-component communication (e.g., `EvLanguageCha
 - Use `ShowTopmost()` when the view should appear above siblings in its layer.
 - Views with `m_autoDestroyOnHide = true` and `m_poolable = true` return to the pool automatically after `Hide()` completes.
 - The `EvOnDestroyed` event fires before pool-return or destruction; remove listeners in its callback to avoid leaks.
+
+## Editor code and secondary Unity processes
+
+`[InitializeOnLoad]` does not only run in the editor a human is looking at. Unity spawns **asset
+import workers** — full editor processes (`-batchMode -name AssetImportWorker0 …`) that load the same
+editor assemblies, run the same static constructors, and can read `EditorPrefs`. They have no window
+and no editor loop serving `EditorApplication.update`.
+
+Any editor feature that claims a machine-wide resource must therefore check first. `UiScreenMcpBridge`
+does, via its `IsSecondaryProcess` guard — without it every import worker started its own HTTP
+listener and overwrote the project's discovery file and the machine-wide registry entry with its own
+port and pid. The MCP proxy then connected to a worker: the port accepted, nothing ever answered, and
+every request died in the handler timeout while the real editor sat there perfectly healthy.
+
+That one cause produced a whole family of misleading symptoms — "the bridge dies on a domain reload"
+(a reload spawns workers), "the port is open but nothing answers", "it comes back when a human clicks
+into the window" (the real editor re-announces and takes the file back). If a bridge ever seems dead
+again, **check the pid in `Library/UiToolkit/mcp-bridge.json` against the editor's own pid first**;
+`AnnouncementIsOurs()` exists for exactly that reason and the Start menu item doubles as the repair.
+
+A background wake thread posts that message while there is pending work (a queued request, a
+deferred recompile, a deferred Play Mode switch) and stays silent otherwise.
+
+On macOS and Linux the bridge behaves as it did before: correct while the editor ticks, stalled
+while it does not. That is a known gap, not an oversight — this project's users are on Windows, and
+anyone who needs the other platforms should add the equivalent nudge for them. The shape to copy is
+`WakeEditor()`: one platform call, guarded by the platform define, best-effort, with the handler
+timeout still in place as the backstop.
