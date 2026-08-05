@@ -5,7 +5,7 @@ title: Setup
 
 # Setup
 
-This guide walks through installing the UI Toolkit in a client Unity project, including all required dependencies and the one-time DLL setup needed for Unity versions before Unity 6.
+This guide walks through installing the UI Toolkit in a client Unity project: the required dependencies, the style configuration every styled element needs, the `UiMain` singleton, and the one-time DLL setup needed for Unity versions before Unity 6.
 
 ---
 
@@ -147,7 +147,34 @@ This deletes all copied DLLs, removes the `Roslyn2022Hack.asmdef`, and clears th
 
 ---
 
-## Step 5: Add UiMain to Your Scene
+## Step 5: Assign the Style Configuration
+
+The toolkit's look — fonts, colours, sprites, gradients — lives in a **`UiStyleConfig`** asset holding one or more named *skins*. Elements pick it up through their `UiApplyStyle*` components, and those need a config to resolve a style name against.
+
+> **Do not skip this step.** Until a style config is assigned, **every styled prefab reports an error the moment it is instantiated** — including the `UIMain` variant from [Step 6](#step-6-add-uimain-to-your-scene), which brings styled children of its own. This is the most common thing to trip over in a fresh project, because nothing else in the setup hints at it.
+
+The package ships a default config, and the configuration window wires it up for you:
+
+1. Open **`Gui Toolkit > Ui Toolkit Configuration...`**
+2. The window searches `Assets/` and `Packages/` for a style config. It finds the package default, assigns it, and — because the asset lives inside a read-only package — shows a **Clone** button next to the field.
+3. Click **Clone**. This writes a project-owned copy to `Assets/Resources/UiMainStyleConfig.asset` and assigns that one instead.
+
+There are two such fields, and both behave the same way:
+
+| Field | Type | Skins in the package default |
+|---|---|---|
+| **Ui Main Style Config** | `UiStyleConfig` | `Default`, `Light` |
+| **Ui Aspect Ratio Dependent Style Config** | `UiAspectRatioDependentStyleConfig` | `Landscape`, `Portrait` |
+
+The second one holds overrides that depend on the screen's aspect ratio, so a layout can differ between landscape and portrait without a second set of prefabs.
+
+**Why clone rather than just use the package default?** The package copy is read-only and is replaced whenever you update the package — any edit would be lost. The clone belongs to your project: add skins, retune colours and fonts, and switch between skins at runtime via `UiStyleManager.SetSkin(name, tweenDuration)`.
+
+Assigning the package default *without* cloning is fine for a first look; you can clone later, and the window will keep offering the button until you do.
+
+---
+
+## Step 6: Add UiMain to Your Scene
 
 Every project using the toolkit needs a **UiMain** instance in its bootstrap scene. `UiMain` is the central singleton that manages views, dialogs, pooling, and navigation. It ships pre-configured with references to 13 standard prefabs (buttons, requesters, toast messages, settings dialog, popup menu, …). Wiring all of these by hand from scratch is tedious — **the recommended way is to start from a Prefab Variant**.
 
@@ -203,7 +230,7 @@ If you prefer full manual control:
 
 ---
 
-## Step 6: Verify the Installation
+## Step 7: Verify the Installation
 
 After completing all steps, check that everything works:
 
@@ -219,10 +246,18 @@ The project should compile cleanly. If you see errors, use the table below:
 | Features requiring `UITK_USE_ROSLYN` are missing | DLL bridge not installed | Same as above |
 | `Roslyn2022Hack` assembly reference errors | DLL bridge partially installed | Run **Remove** then **Install** again |
 
+### Runtime / Editor Errors
+
+| Error message | Cause | Fix |
+|---------------|-------|-----|
+| `No UiStyleConfig is assigned, so no style can be resolved` | No style config assigned | See [Step 5](#step-5-assign-the-style-configuration) |
+| `NullReferenceException` in `UiAbstractApplyStyleBase.FindStyle` | Same cause, on toolkit versions before the guard was added | See [Step 5](#step-5-assign-the-style-configuration) |
+
 ### Smoke Test
 
 1. Enter Play Mode — check the **Console** for any errors
 2. Confirm `UiMain` appears in the scene hierarchy and logs no errors on startup
+3. Confirm that buttons and panels render with the skin's fonts and colours rather than plain Unity defaults — if they look unstyled, re-check [Step 5](#step-5-assign-the-style-configuration)
 
 ---
 
