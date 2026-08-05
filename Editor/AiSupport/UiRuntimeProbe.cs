@@ -42,6 +42,7 @@ namespace GuiToolkit.Editor.AiSupport
 
 			Vector2 screenPoint;
 			GameObject targetObject = null;
+			var gameViewSize = GameViewSize();
 
 			if (!string.IsNullOrEmpty(target))
 			{
@@ -63,7 +64,7 @@ namespace GuiToolkit.Editor.AiSupport
 				// bottom-left, so a position taken off a screenshot would otherwise land mirrored.
 				string origin = ((string)request["origin"] ?? "topLeft").ToLowerInvariant();
 				float py = (float)y;
-				screenPoint = new Vector2((float)x, origin == "bottomleft" ? py : Screen.height - py);
+				screenPoint = new Vector2((float)x, origin == "bottomleft" ? py : gameViewSize.y - py);
 			}
 
 			var pointer = new PointerEventData(eventSystem)
@@ -91,7 +92,7 @@ namespace GuiToolkit.Editor.AiSupport
 			var result = new JObject
 			{
 				["screenPoint"] = new JArray(screenPoint.x, screenPoint.y),
-				["screenSize"] = new JArray(Screen.width, Screen.height),
+				["screenSize"] = new JArray(gameViewSize.x, gameViewSize.y),
 				["target"] = targetObject != null ? PathOf(targetObject) : null,
 				["hits"] = stack,
 				["topmost"] = hits.Count > 0 ? PathOf(hits[0].gameObject) : null,
@@ -136,6 +137,29 @@ namespace GuiToolkit.Editor.AiSupport
 					}
 				}
 			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// The Game View's render size — deliberately NOT Screen.width/height.
+		///
+		/// Those report the size of the GUI context that was drawn last, and this code runs from
+		/// EditorApplication.update rather than from a Game View repaint, so they hand back whatever editor
+		/// window happened to draw before it: a docked console strip measured 2560x20 here. That number does not
+		/// merely look wrong in the response, it corrupts the probe. The top-left Y flip below subtracts from it,
+		/// so a perfectly reasonable y=400 became y=-380, the raycast landed off screen, and the empty hit stack
+		/// read exactly like "there is nothing there" — a wrong answer that looks like a finding.
+		/// </summary>
+		private static Vector2Int GameViewSize()
+		{
+			var size = Handles.GetMainGameViewSize();
+			var result = new Vector2Int(Mathf.RoundToInt(size.x), Mathf.RoundToInt(size.y));
+
+			// Only when there is no Game View at all: an approximation beats a zero, which would flip every
+			// top-left coordinate into the negative.
+			if (result.x <= 0 || result.y <= 0)
+				result = new Vector2Int(Screen.width, Screen.height);
 
 			return result;
 		}
