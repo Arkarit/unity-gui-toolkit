@@ -237,10 +237,31 @@ namespace GuiToolkit.Style
 
 		public UiAbstractStyleBase FindStyle()
 		{
-			UiSkin currentSkin = SkinIsFixed ? 
-				StyleConfig.GetSkinByName(m_fixedSkinName) : 
-				StyleConfig.CurrentSkin;
-			
+			var styleConfig = StyleConfig;
+
+			// A missing style config is a project setup problem, not a per-component one.
+			// Without this guard the two dereferences below throw a NullReferenceException
+			// for every styled element the moment it is instantiated, so one authored screen
+			// buries the console in stack traces that name the styling internals and never the
+			// actual cause. LogErrorOnce keeps it to a single actionable message per session.
+			if (styleConfig == null)
+			{
+				UiLog.LogErrorOnce(
+					$"No {nameof(UiStyleConfig)} is assigned, so no style can be resolved. " +
+					$"First affected: style '{m_name}' on GameObject '{name}'. " +
+					$"To fix, open '{StringConstants.CONFIGURATION_MENU_NAME}': it picks up the default " +
+					$"config shipped with the package, assigns it, and offers 'Clone' to create a " +
+					$"project-owned copy under 'Assets/Resources/'. Assigning the style config field on " +
+					$"the {nameof(UiToolkitConfiguration)} asset by hand works too, as does setting an " +
+					$"individual config on this component.",
+					this);
+				return null;
+			}
+
+			UiSkin currentSkin = SkinIsFixed ?
+				styleConfig.GetSkinByName(m_fixedSkinName) :
+				styleConfig.CurrentSkin;
+
 			if (currentSkin == null)
 				return null;
 
