@@ -92,13 +92,50 @@ namespace GuiToolkit.Editor.AiSupport
 		static UiScreenMcpBridge()
 		{
 			// Restart across domain reloads if the user had it enabled.
-			EditorApplication.delayCall += () =>
-			{
-				if (EditorPrefs.GetBool(EnabledPrefKey, false) && !s_running)
-					Start();
-			};
+			//
+			// This hangs on afterAssemblyReload rather than on EditorApplication.delayCall.
+			//
+			// Measured in a large client project, editor unfocused: after an ordinary Edit-Mode
+			// recompile the bridge stayed unreachable for 200 s and counting, and in one case for about
+			// eight minutes until a human clicked into the window. Entering Play Mode never showed it --
+			// the bridge was back within 1 to 8 s there. So the gap hits exactly the case that matters
+			// most for a remote-controlled editor: a code change with the window in the background.
+			//
+			// The precise cause of the delay is not settled -- the editor also reported itself busy for
+			// longer than three minutes in those windows, so it may be import work rather than a missing
+			// tick. Either way, delayCall only promises "some later tick", while afterAssemblyReload
+			// fires as soon as the reload is done. Depending on the weaker guarantee bought nothing.
+			AssemblyReloadEvents.afterAssemblyReload += RestartIfEnabled;
+
+			// Belt and braces for the very first load of a session, where the static constructor may run
+			// before this event is raised. Start() is a no-op when already running, so a double call is
+			// harmless.
+			EditorApplication.delayCall += RestartIfEnabled;
+
 			AssemblyReloadEvents.beforeAssemblyReload += StopInternal;
 			EditorApplication.quitting += StopInternal;
+		}
+
+		private static void RestartIfEnabled()
+		{
+			if (!EditorPrefs.GetBool(EnabledPrefKey, false))
+				return;
+
+			if (s_running)
+			{
+				// Listener up but the announcement gone: seen after a reload, and it looks exactly like a
+				// dead bridge from outside because the proxy finds nothing to connect to. Cheap to repair,
+				// so repair it rather than waiting for someone to notice.
+				if (!File.Exists(DiscoveryFilePath) || !File.Exists(RegistryFilePath))
+				{
+					UiLog.LogInternal("MCP bridge was running without its discovery file; re-announcing.");
+					WriteDiscoveryFile();
+				}
+
+				return;
+			}
+
+			Start();
 		}
 
 		#region Menu
@@ -110,8 +147,13 @@ namespace GuiToolkit.Editor.AiSupport
 			Start();
 		}
 
+		/// <summary>
+		/// Also enabled while running but unannounced, so "Start" doubles as a repair. Validating on
+		/// s_running alone greyed the item out in exactly the state a human needed it: the bridge counted
+		/// as up, the proxy could not find it, and the only offered action was "Stop".
+		/// </summary>
 		[MenuItem(StringConstants.AI_MCP_BRIDGE_START_MENU_NAME, true)]
-		private static bool StartMenuValidate() => !s_running;
+		private static bool StartMenuValidate() => !s_running || !File.Exists(DiscoveryFilePath);
 
 		[MenuItem(StringConstants.AI_MCP_BRIDGE_STOP_MENU_NAME)]
 		private static void StopMenu()
@@ -130,7 +172,12 @@ namespace GuiToolkit.Editor.AiSupport
 		public static void Start()
 		{
 			if (s_running)
+			{
+				// Called on an already-running bridge: the only thing worth doing is making sure it is
+				// findable. Silently returning is what made the menu item useless as a repair.
+				WriteDiscoveryFile();
 				return;
+			}
 
 			// Probe upward instead of insisting on one port: another project's editor may already hold the base
 			// port, and both should be able to serve at once. The proxy does not need to know which one we got —

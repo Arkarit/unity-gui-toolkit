@@ -505,7 +505,11 @@ tool(
 	"recompile",
 	"Force Unity to pick up and recompile changed editor/runtime C# scripts, then WAIT until the " +
 	"compilation and the following domain reload have finished. Use this after editing toolkit C# so " +
-	"you don't have to ask a human to click into the Unity window. Returns when the editor is idle again.",
+	"you don't have to ask a human to click into the Unity window. Returns when the editor is idle again — " +
+	"or, on a large project where the editor stays busy longer than the 180 s budget, with " +
+	"'timedOut': true. Read that as 'the wait ran out', not 'the compile failed': 'recompiled' then says " +
+	"whether compilation was seen to start, and the surest confirmation is the timestamp of " +
+	"Library/ScriptAssemblies/<assembly>.dll against your changed sources.",
 	{},
 	async () => {
 		try {
@@ -541,7 +545,23 @@ tool(
 					return ok(JSON.stringify({ recompiled: true, reloaded, note: "no compilation activity detected", ms: Date.now() - t0 }));
 				await sleep(1000);
 			}
-			return ok(JSON.stringify({ recompiled: false, reloaded, note: "timed out waiting for the editor to go idle", ms: Date.now() - t0 }));
+			// Timed out. "recompiled: false" was the old answer here and it was misleading: in a large
+			// project the compilation reliably HAD run (assembly rebuilt within seconds) while the editor
+			// stayed busy well past the timeout with import work. Reporting that as a failed compile sends
+			// the caller off to re-trigger it, or to ask a human for a focus click that changes nothing.
+			// So report what is actually known: whether compilation was seen to start, and that the wait —
+			// not the compile — ran out.
+			return ok(JSON.stringify({
+				recompiled: sawActivity,
+				reloaded,
+				timedOut: true,
+				note: sawActivity
+					? "Compilation started, but the editor was still busy when the wait ran out — it has most " +
+					  "likely finished. Confirm with the timestamp of Library/ScriptAssemblies/<assembly>.dll " +
+					  "against your changed sources, or poll status until busyWith is null."
+					: "No compilation activity was ever observed and the editor never went idle.",
+				ms: Date.now() - t0,
+			}));
 		} catch (e) {
 			return fail(e);
 		}
