@@ -45,6 +45,11 @@ All notable changes to this project will be documented in this file.
 
 
 ### Fixed
+- **`screenshot_view` returned a blurred, colour-fringed preview** in projects whose render pipeline
+  has post-processing in its DEFAULT volume profile — no Volume component anywhere is needed for that,
+  and one client's default had depth of field, chromatic aberration, lens distortion and film grain all
+  on. The preview camera now excludes every volume layer, so a preview shows the UI and nothing else.
+  Same cause as the runtime UI camera's HDRP blur, one camera further along
 - **`Bootstrap` never initialised in an unfocused editor.** Its editor-side start hung off
   `EditorApplication.delayCall`, which promises only "some later tick" — measured in a background editor,
   a delayCall had still not run after 20 seconds while `EditorApplication.update` ticked normally
