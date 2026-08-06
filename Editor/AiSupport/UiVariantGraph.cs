@@ -128,6 +128,17 @@ namespace GuiToolkit.Editor.AiSupport
 			var failed = new JArray();
 			var verification = new JArray();
 
+			bool Replaces( Node _node ) => _node.TargetExists
+				&& (replace == "all" || (replace == "dependents" && _node.Base != null));
+
+			// Delete everything that is being replaced FIRST, and bottom-up. A folder holding a variant chain
+			// cannot be taken apart in any order: remove a base while its dependents are still on disk and
+			// Unity re-imports them parentless, filling the console with "Missing Prefab Variant parent" —
+			// which reads like data loss and is only a half-demolished chain. Dependents go first, so nothing
+			// is ever orphaned, not even for one import.
+			foreach (var node in Enumerable.Reverse(ordered).Where(Replaces))
+				AssetDatabase.DeleteAsset(node.TargetPath);
+
 			// Deliberately NOT batched with StartAssetEditing: each dependent is built on the asset created
 			// one step earlier, and inside a batch that asset is not importable yet — every dependent then
 			// fails with "base is missing" while the roots look fine. The chain needs each write to land.
@@ -135,13 +146,8 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				foreach (var node in ordered)
 				{
-					if (node.TargetExists)
-					{
-						bool replaceThis = replace == "all" || (replace == "dependents" && node.Base != null);
-						if (!replaceThis)
-							continue;
-						AssetDatabase.DeleteAsset(node.TargetPath);
-					}
+					if (node.TargetExists && !Replaces(node))
+						continue;
 
 					try
 					{

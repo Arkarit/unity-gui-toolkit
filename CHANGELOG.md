@@ -13,7 +13,10 @@ All notable changes to this project will be documented in this file.
   PROJECT copy of its base, transplanting the library variant's overrides — property values, added objects,
   added and removed components, and the internal references re-aimed at the copy. Dry-runs by default, and
   verifies every rebuilt dependent against its original property for property. `replaceExisting` is
-  `none`/`dependents`/`all` so hand-edited roots survive a rebuild of what sits below them
+  `none`/`dependents`/`all` so hand-edited roots survive a rebuild of what sits below them. Replacements
+  are deleted bottom-up before anything is rebuilt: removing a base while its dependents are still on
+  disk makes Unity re-import them parentless and fill the console with "Missing Prefab Variant parent",
+  which reads like data loss and is only a half-demolished chain
 - **`variantOf` in the screen description** — a root node can declare `"variantOf": "StandardButton"` and
   the bake produces a prefab **variant** of it instead of a standalone asset, so the result follows its
   base. `overrides` changes inherited parts, `children` adds new ones. A root `template` node always did
