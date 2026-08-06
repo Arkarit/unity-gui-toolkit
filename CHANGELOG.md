@@ -13,7 +13,8 @@ All notable changes to this project will be documented in this file.
   - `read_skin` — the values behind the style names (colours, fonts, sizes, sprites), applicable ones by
     default, in the same notation the screen-authoring JSON uses for props
   - `write_skin` — write them, addressed by style name + target component type, with before/after per
-    value and a `dryRun` plan
+    value and a `dryRun` plan. All-or-nothing: everything is resolved and converted before anything is
+    written, so a rejected call leaves the config exactly as it found it
   - TMP `VertexGradient` is now a first-class value in the screen/style JSON (`{topLeft…}`, `[top, bottom]`
     or a single colour) — it is how a two-tone headline is made, and without it the only route was a
     hand-tinted material per prefab

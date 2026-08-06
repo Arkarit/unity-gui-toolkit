@@ -240,6 +240,12 @@ namespace GuiToolkit.Editor.AiSupport
 			var warnings = new JArray();
 			int changed = 0;
 
+			// Everything is resolved and converted BEFORE anything is written. The first version wrote as it
+			// went and threw on the first unreadable value — leaving the earlier styles changed and the later
+			// ones untouched, which is the one outcome a caller cannot reason about. A rejected call now
+			// leaves the config exactly as it found it.
+			var planned = new List<Planned>();
+
 			foreach (var entry in requestedStyles.OfType<JObject>())
 			{
 				string styleName = (string)entry["name"]
@@ -278,34 +284,19 @@ namespace GuiToolkit.Editor.AiSupport
 						["applicable"] = target.IsApplicable,
 					};
 
-					if (wanted != null && wanted.Type != JTokenType.Null)
-					{
-						if (!UiScreenBaker.TryConvert(wanted, valueType, out object converted))
-							throw new Exception($"Cannot read {wanted.ToString(Newtonsoft.Json.Formatting.None)} "
-								+ $"as {valueType.Name} for '{styleName}.{value.Key}'. Colours are \"#RRGGBBAA\", "
-								+ "assets are project-relative paths, enums are their name.");
-
-						if (!dryRun)
-							target.RawValueObj = converted;
-					}
+					bool hasValue = wanted != null && wanted.Type != JTokenType.Null;
+					object converted = null;
+					if (hasValue && !UiScreenBaker.TryConvert(wanted, valueType, out converted))
+						throw new Exception($"Cannot read {wanted.ToString(Newtonsoft.Json.Formatting.None)} "
+							+ $"as {valueType.Name} for '{styleName}.{value.Key}'. Colours are \"#RRGGBBAA\", "
+							+ "assets are project-relative paths, enums are their name.");
 
 					// A value that is written but not switched on changes nothing on screen, which is the most
 					// confusing possible outcome — so writing one switches it on unless told otherwise.
-					bool wantApplicable = applicable ?? (wanted != null && wanted.Type != JTokenType.Null);
-					if (!dryRun)
-						target.IsApplicable = wantApplicable;
+					bool wantApplicable = applicable ?? hasValue;
 
-					applied[value.Key] = new JObject
-					{
-						["before"] = before,
-						["after"] = new JObject
-						{
-							["value"] = dryRun
-								? (wanted ?? before["value"])
-								: ValueToken(target.RawValueObj, valueType),
-							["applicable"] = wantApplicable,
-						},
-					};
+					planned.Add(new Planned(target, hasValue, converted, wantApplicable, valueType, applied,
+						value.Key, before, wanted));
 					changed++;
 				}
 
@@ -315,6 +306,30 @@ namespace GuiToolkit.Editor.AiSupport
 					["componentType"] = style.SupportedComponentType?.Name,
 					["values"] = applied,
 				});
+			}
+
+			// Second pass: nothing above threw, so every planned change is applicable and the write can run to
+			// completion.
+			foreach (var change in planned)
+			{
+				if (!dryRun)
+				{
+					if (change.HasValue)
+						change.Target.RawValueObj = change.Value;
+					change.Target.IsApplicable = change.Applicable;
+				}
+
+				change.Report[change.Key] = new JObject
+				{
+					["before"] = change.Before,
+					["after"] = new JObject
+					{
+						["value"] = dryRun
+							? (change.Wanted ?? change.Before["value"])
+							: ValueToken(change.Target.RawValueObj, change.ValueType),
+						["applicable"] = change.Applicable,
+					},
+				};
 			}
 
 			if (!dryRun)
@@ -337,6 +352,34 @@ namespace GuiToolkit.Editor.AiSupport
 				["styles"] = changes,
 				["warnings"] = warnings,
 			};
+		}
+
+		/// <summary>One resolved, converted, not-yet-written value change plus where to report it.</summary>
+		private readonly struct Planned
+		{
+			public readonly ApplicableValueBase Target;
+			public readonly bool HasValue;
+			public readonly object Value;
+			public readonly bool Applicable;
+			public readonly Type ValueType;
+			public readonly JObject Report;
+			public readonly string Key;
+			public readonly JObject Before;
+			public readonly JToken Wanted;
+
+			public Planned( ApplicableValueBase _target, bool _hasValue, object _value, bool _applicable,
+				Type _valueType, JObject _report, string _key, JObject _before, JToken _wanted )
+			{
+				Target = _target;
+				HasValue = _hasValue;
+				Value = _value;
+				Applicable = _applicable;
+				ValueType = _valueType;
+				Report = _report;
+				Key = _key;
+				Before = _before;
+				Wanted = _wanted;
+			}
 		}
 
 		#endregion
@@ -476,6 +519,12 @@ namespace GuiToolkit.Editor.AiSupport
 			// and it is also what write_skin accepts back.
 			if (_value is UnityEngine.Object unityObject)
 			{
+				// A destroyed or never-assigned Unity object is not `null` to C# — the boxed reference is a
+				// real object whose overloaded operator reports it as null. Reaching for .name on one of
+				// those throws, which is how reading a whole skin died on a single stale reference.
+				if (!unityObject)
+					return JValue.CreateNull();
+
 				string path = AssetDatabase.GetAssetPath(unityObject);
 				return string.IsNullOrEmpty(path) ? unityObject.name : path;
 			}
