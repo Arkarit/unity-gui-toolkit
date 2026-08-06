@@ -230,6 +230,12 @@ namespace GuiToolkit.Editor
 
 			currentStyleConfig = Instantiate(currentStyleConfig);
 			AssetDatabase.CreateAsset(currentStyleConfig, newConfigPath);
+
+			// Instantiate() copies the skins' and styles' references back to the config they belong to, and
+			// those still name the ORIGINAL — so without this the clone's styles believe they live in the
+			// package asset, and the editor's cross-style synchronisation reacts to the wrong document.
+			AiSupport.UiStyleWriter.RepairBackReferences(currentStyleConfig);
+
 			var styleConfigProp = m_serializedSettingsObject.FindProperty(_memberName);
 			styleConfigProp.objectReferenceValue = currentStyleConfig;
 			m_serializedSettingsObject.ApplyModifiedProperties();

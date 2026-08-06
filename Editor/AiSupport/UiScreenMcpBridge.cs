@@ -545,6 +545,9 @@ namespace GuiToolkit.Editor.AiSupport
 			"tagStandardElement",
 			"untagStandardElement",
 			"setUiComment",
+			"executeCode",
+			"cloneStyleConfig",
+			"writeSkin",
 		};
 
 		private static void ThrowIfBusy( string _method )
@@ -731,6 +734,29 @@ namespace GuiToolkit.Editor.AiSupport
 				case "setUiComment":
 					return SetUiComment(_payload);
 
+				// The escape hatch. Every other method here is a narrow, named operation; this one exists so
+				// that the toolkit is fully reachable in a project that has no separate code-execution bridge
+				// installed, instead of being reachable only as far as someone has already built a tool for.
+				case "executeCode":
+					if (string.IsNullOrWhiteSpace(_payload))
+						throw new Exception("executeCode requires a 'payload' holding { code: \"...\" }.");
+					return UiCodeRunner.Execute(JObject.Parse(_payload))
+						.ToString(Newtonsoft.Json.Formatting.None);
+
+				case "cloneStyleConfig":
+					return UiStyleWriter.CloneConfig(Payload(_payload))
+						.ToString(Newtonsoft.Json.Formatting.None);
+
+				case "readSkin":
+					return UiStyleWriter.ReadSkin(Payload(_payload))
+						.ToString(Newtonsoft.Json.Formatting.None);
+
+				case "writeSkin":
+					if (string.IsNullOrWhiteSpace(_payload))
+						throw new Exception("writeSkin requires a 'payload' holding { styles: [...] }.");
+					return UiStyleWriter.WriteSkin(JObject.Parse(_payload))
+						.ToString(Newtonsoft.Json.Formatting.None);
+
 				default:
 					throw new Exception($"Unknown method '{_method}'.");
 			}
@@ -781,6 +807,10 @@ namespace GuiToolkit.Editor.AiSupport
 		/// <c>key</c> is an EStandardElement name (toolkit built-in) or any custom id (client element).
 		/// The batch is tagged base-before-variant internally, so a client can safely pass a whole set.
 		/// </summary>
+		/// <summary>An absent payload is an empty request, not an error, for methods whose fields are optional.</summary>
+		private static JObject Payload( string _payload ) =>
+			string.IsNullOrWhiteSpace(_payload) ? new JObject() : JObject.Parse(_payload);
+
 		// readScreen's payload is either a bare prefab path or a small { "path": "..." } JSON envelope.
 		private static JObject ReadConsoleQuery( string _payload )
 		{

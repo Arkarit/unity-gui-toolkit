@@ -1807,7 +1807,11 @@ namespace GuiToolkit.Editor.AiSupport
 			return default;
 		}
 
-		private static bool TryConvert( JToken _token, Type _type, out object _result )
+		/// <summary>
+		/// Internal rather than private because the styling writer addresses style values exactly the way a
+		/// screen description addresses props — one convention, one parser.
+		/// </summary>
+		internal static bool TryConvert( JToken _token, Type _type, out object _result )
 		{
 			_result = null;
 			try
@@ -1830,6 +1834,11 @@ namespace GuiToolkit.Editor.AiSupport
 					_result = _type == typeof(Color32) ? (object)(Color32)c : c;
 					return true;
 				}
+
+				// A TMP text gradient. Worth having as a first-class value because it is how a gold or metal
+				// headline is actually made — without it the only way to a two-tone text is a hand-tinted
+				// material per prefab, which is exactly what the styling system exists to avoid.
+				if (_type == typeof(TMPro.VertexGradient)) { _result = ParseVertexGradient(_token); return true; }
 
 				if (_type == typeof(Vector2)) { var v = Floats(_token, 2); _result = new Vector2(v[0], v[1]); return true; }
 				if (_type == typeof(Vector3)) { var v = Floats(_token, 3); _result = new Vector3(v[0], v[1], v[2]); return true; }
@@ -1879,6 +1888,48 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				return false;
 			}
+		}
+
+		/// <summary>
+		/// Accepts the three shapes an author reaches for: one colour (flat), two ("#top", "#bottom"), or the
+		/// four corners by name ({ topLeft, topRight, bottomLeft, bottomRight }).
+		/// </summary>
+		private static TMPro.VertexGradient ParseVertexGradient( JToken _token )
+		{
+			if (_token is JObject o)
+			{
+				Color Corner( string _key, string _fallbackKey )
+				{
+					var token = o[_key] ?? o[_fallbackKey];
+					if (token == null)
+						throw new FormatException($"A vertex gradient object needs '{_key}' (or '{_fallbackKey}').");
+					return ParseColor(token);
+				}
+
+				return new TMPro.VertexGradient(
+					Corner("topLeft", "top"), Corner("topRight", "top"),
+					Corner("bottomLeft", "bottom"), Corner("bottomRight", "bottom"));
+			}
+
+			if (_token is JArray array)
+			{
+				if (array.Count == 2)
+				{
+					var top = ParseColor(array[0]);
+					var bottom = ParseColor(array[1]);
+					return new TMPro.VertexGradient(top, top, bottom, bottom);
+				}
+
+				if (array.Count == 4)
+					return new TMPro.VertexGradient(ParseColor(array[0]), ParseColor(array[1]),
+						ParseColor(array[2]), ParseColor(array[3]));
+
+				throw new FormatException("A vertex gradient array holds 2 colours (top, bottom) or 4 "
+					+ "(topLeft, topRight, bottomLeft, bottomRight).");
+			}
+
+			var flat = ParseColor(_token);
+			return new TMPro.VertexGradient(flat, flat, flat, flat);
 		}
 
 		private static Color ParseColor( JToken _token )

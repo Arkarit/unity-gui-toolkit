@@ -46,6 +46,22 @@ Always check `UiMain.IsAwake` before accessing `UiMain.Instance`. Use `UiMain.Af
 - **`UiStyleManager.SetSkin(name, tweenDuration)`** — switches the active skin at runtime, optionally tweening between values.
 - **`UiAbstractApplyStyle`** / **`UiAbstractApplyStyleBase`** — components on GameObjects that subscribe to skin changes and apply style values to their target component (e.g., color, font size).
 
+A style is identified by its name **and** the component type it targets, not by name alone:
+`Buttons/Standard/Background` exists five times over — as an `Image`, a `UiGradientSimple`, a
+`UiDistort`, a `Shadow` and a `RectTransform` — because those are five aspects of one button's
+background. Any lookup that ignores the type is picking one of five at random.
+
+Each style holds one `ApplicableValue<T>` per serialized field of its target component, exposed as a
+public property named after the field (`Color`, `FontSize`, `Font`, `Radius`, …). `IsApplicable`
+decides whether the style has an opinion at all; a value that is written but not applicable changes
+nothing on screen, which is the most confusing possible outcome and therefore never the default.
+
+**A project must not theme the config that ships in the package.** It lives in the immutable package
+copy, so the edit is refused or silently lost at the next version bump. Clone it into the project first
+— `Gui Toolkit → Configuration → Clone`, or `clone_style_config` over the MCP bridge. Both repair the
+skins' and styles' back-references to their config, which `Instantiate` copies verbatim from the
+original and which nothing else fixes afterwards.
+
 ### State System (`GuiToolkit.UiStateSystem`)
 
 `UiStateMachine` records GameObject property snapshots per named state and animates between them via `UiTransition`. States are set via `stateMachine.State = "stateName"` or `SetState("stateName", useTransition)`. Supports nested sub-state-machines and can preview transitions in the editor.
@@ -120,11 +136,9 @@ into the window" (the real editor re-announces and takes the file back). If a br
 again, **check the pid in `Library/UiToolkit/mcp-bridge.json` against the editor's own pid first**;
 `AnnouncementIsOurs()` exists for exactly that reason and the Start menu item doubles as the repair.
 
-A background wake thread posts that message while there is pending work (a queued request, a
-deferred recompile, a deferred Play Mode switch) and stays silent otherwise.
-
-On macOS and Linux the bridge behaves as it did before: correct while the editor ticks, stalled
-while it does not. That is a known gap, not an oversight — this project's users are on Windows, and
-anyone who needs the other platforms should add the equivalent nudge for them. The shape to copy is
-`WakeEditor()`: one platform call, guarded by the platform define, best-effort, with the handler
-timeout still in place as the backstop.
+An earlier version of this file described a `WakeEditor()` nudge for unfocused editors and told you to
+copy it to other platforms. There is no such code, and there should not be: it was written for the
+theory that an idle unfocused editor stops ticking, and that theory was wrong. Measured after the real
+fix, with the editor idle and `hasFocus:false`, `ping` answered in 82 ms. The `EditorApplication.update`
+path keeps ticking; if the bridge ever seems not to, look for a secondary process holding the
+announcement, not for a sleeping editor.

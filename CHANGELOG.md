@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Theming over the MCP bridge** (`UiStyleWriter`) — the styling system was readable from outside but not
+  writable, so a project's look could only be changed in the Inspector:
+  - `clone_style_config` — copy the package's style config into the project and repoint the
+    `UiToolkitConfiguration` at it. Idempotent; `write_skin` refuses package-owned configs, so the order
+    cannot be got wrong by accident
+  - `read_skin` — the values behind the style names (colours, fonts, sizes, sprites), applicable ones by
+    default, in the same notation the screen-authoring JSON uses for props
+  - `write_skin` — write them, addressed by style name + target component type, with before/after per
+    value and a `dryRun` plan
+  - TMP `VertexGradient` is now a first-class value in the screen/style JSON (`{topLeft…}`, `[top, bottom]`
+    or a single colour) — it is how a two-tone headline is made, and without it the only route was a
+    hand-tinted material per prefab
+- **`execute_code`** (`UiCodeRunner`) — compile and run a C# snippet inside the editor over the bridge, so
+  the toolkit stays fully drivable in projects that have no separate code-execution bridge. Bare statements
+  are wrapped (common namespaces pre-imported); compile diagnostics carry line numbers in the caller's own
+  source. Not a sandbox — editor rights, main thread, real writes
 - **Gettext ↔ Google Sheets sync** (`LocaGettextSheetsSyncer`):
   - `[Create by PO]` inspector button — auto-generates column configuration from PO files on disk (language columns + plural forms)
   - `[Push new keys]` inspector button — appends keys from PO files that are missing in the Google Sheet; never overwrites existing cells
@@ -20,3 +36,11 @@ All notable changes to this project will be documented in this file.
 - **Google Sheets push** (`LocaExcelBridgePusher`) — write in-memory translations back to the linked Google Sheet
 - **CSV export** (`LocaCsvExporter`) — export all PO translations to CSV for offline review
 - **UiLocalizedTextMeshProUGUI** — `LocaManager` bootstrap race-condition fix via coroutine retry
+
+
+### Fixed
+- **Cloning a style config left its internal back-references pointing at the original.** Every skin
+  and every style holds a reference to the config it belongs to, and `Instantiate` copies those
+  verbatim — 128 of them in the default config — so a cloned config's styles believed they still
+  lived in the package asset and the editor's cross-style synchronisation reacted to the wrong
+  document. Repaired in both clone paths (the Configuration window's button and `clone_style_config`)
