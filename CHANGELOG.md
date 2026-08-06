@@ -39,6 +39,12 @@ All notable changes to this project will be documented in this file.
 
 
 ### Fixed
+- **`AssetReadyGate.WhenReady` stopped waiting while the editor was unfocused.** The focus check was meant
+  to keep a slower background editor from running out of its frame budget, but it skipped the whole tick —
+  so nothing was re-checked until a human clicked into the window. Everything gated on it waited for that
+  click, `Bootstrap` included, which left the toolkit reporting itself uninitialised to anything driving
+  the editor from outside. It now keeps checking while unfocused and only spends the frame budget while
+  focused
 - **Cloning a style config left its internal back-references pointing at the original.** Every skin
   and every style holds a reference to the config it belongs to, and `Instantiate` copies those
   verbatim — 128 of them in the default config — so a cloned config's styles believed they still
