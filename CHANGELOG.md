@@ -17,6 +17,9 @@ All notable changes to this project will be documented in this file.
   are deleted bottom-up before anything is rebuilt: removing a base while its dependents are still on
   disk makes Unity re-import them parentless and fill the console with "Missing Prefab Variant parent",
   which reads like data loss and is only a half-demolished chain
+  Mirrors the library's folder structure under the target by default, and MOVES an existing copy that sits
+  in the wrong folder instead of rebuilding it — a move keeps its GUID, its place in the chain and any hand
+  edits, so a flat set can be reorganised without losing them
 - **`variantOf` in the screen description** — a root node can declare `"variantOf": "StandardButton"` and
   the bake produces a prefab **variant** of it instead of a standalone asset, so the result follows its
   base. `overrides` changes inherited parts, `children` adds new ones. A root `template` node always did

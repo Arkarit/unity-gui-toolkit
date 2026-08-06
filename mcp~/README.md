@@ -237,6 +237,11 @@ It refuses to be trusted blindly, in three ways worth knowing:
   usually `dependents`: the roots are where a project's own work lives, the dependents are what wants
   rebuilding on top of it.
 
+The library's folder structure is recreated under the target by default — `StandardElements/Buttons/…`
+rather than 65 prefabs in one flat list. A copy that already exists in the wrong folder is **moved**,
+not rebuilt: moving keeps its GUID, its place in the variant chain and whatever a human has edited into
+it, so an existing flat set can be reorganised without losing any of that.
+
 Rebuilt assets get new GUIDs, so run it before anything references them, and regenerate the catalog
 afterwards.
 

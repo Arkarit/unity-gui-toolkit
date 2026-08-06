@@ -55,6 +55,8 @@ namespace GuiToolkit.Editor.AiSupport
 			public GameObject SourcePrefab;
 			public Node Base;                       // null for a root
 			public string TargetPath;
+			/// <summary>Where a copy of this prefab already sits, when that is not where it belongs.</summary>
+			public string MoveFrom;
 			public int PropertyMods;
 			public int AddedGameObjects;
 			public int AddedComponents;
@@ -79,6 +81,7 @@ namespace GuiToolkit.Editor.AiSupport
 			// standard button — while the dependents are exactly what this tool exists to rebuild on top of
 			// them. Throwing away the first to fix the second is the one outcome nobody wants.
 			string replace = ReplaceMode(_request["replaceExisting"]);
+			bool mirrorHierarchy = (bool?)_request["mirrorHierarchy"] ?? true;
 
 			if (string.IsNullOrWhiteSpace(targetFolder))
 				throw new Exception("No target folder: pass 'targetFolder', or set the Prefab Variants Path in "
@@ -87,8 +90,9 @@ namespace GuiToolkit.Editor.AiSupport
 			if (!targetFolder.StartsWith("Assets/", StringComparison.Ordinal))
 				throw new Exception($"'{targetFolder}' is not inside Assets/ — the project's own copies have to be.");
 
-			var nodes = BuildGraph(sourceFolder, targetFolder);
+			var nodes = BuildGraph(sourceFolder, targetFolder, mirrorHierarchy);
 			var ordered = TopologicalOrder(nodes);
+			var toMove = ordered.Where(_n => !string.IsNullOrEmpty(_n.MoveFrom)).ToList();
 
 			var result = new JObject
 			{
@@ -96,6 +100,12 @@ namespace GuiToolkit.Editor.AiSupport
 				["targetFolder"] = targetFolder,
 				["dryRun"] = dryRun,
 				["replaceExisting"] = replace,
+				["mirrorHierarchy"] = mirrorHierarchy,
+				["toMove"] = new JArray(toMove.Select(_n => (object)new JObject
+				{
+					["from"] = _n.MoveFrom,
+					["to"] = _n.TargetPath,
+				}).ToArray()),
 				["counts"] = new JObject
 				{
 					["total"] = ordered.Count,
@@ -118,15 +128,37 @@ namespace GuiToolkit.Editor.AiSupport
 			if (dryRun)
 			{
 				result["hint"] = "Nothing was written. Re-run with dryRun:false to create what is missing. "
-					+ "replaceExisting:'dependents' also rebuilds the ones that already exist AND have a base, "
-					+ "so hand-edited roots survive; 'all' rebuilds everything. A rebuilt asset gets a new GUID "
-					+ "— cheap now, expensive once anything references it.";
+					+ "Anything under 'toMove' is an existing copy that sits in the wrong folder; a real run "
+					+ "MOVES it (keeping its GUID, its place in the chain and any hand edits) rather than "
+					+ "rebuilding it. replaceExisting:'dependents' also rebuilds the ones that already exist AND "
+					+ "have a base, so hand-edited roots survive; 'all' rebuilds everything. A rebuilt asset "
+					+ "gets a new GUID — cheap now, expensive once anything references it.";
 				return result;
 			}
 
 			var written = new JArray();
 			var failed = new JArray();
 			var verification = new JArray();
+
+			// Relocate before anything else, so the rest of the run sees every existing copy where it belongs.
+			// MoveAsset keeps the GUID, which is what makes this a reorganisation rather than a rebuild:
+			// references survive, the variant chain survives, and so does whatever a human edited into them.
+			var moved = new JArray();
+			foreach (var node in toMove)
+			{
+				EnsureFolder(Path.GetDirectoryName(node.TargetPath)?.Replace('\\', '/'));
+				string error = AssetDatabase.MoveAsset(node.MoveFrom, node.TargetPath);
+				if (string.IsNullOrEmpty(error))
+					moved.Add(new JObject { ["from"] = node.MoveFrom, ["to"] = node.TargetPath });
+				else
+					failed.Add(new JObject { ["name"] = node.Name, ["error"] = $"move failed: {error}" });
+			}
+
+			if (moved.Count > 0)
+			{
+				AssetDatabase.SaveAssets();
+				AssetDatabase.Refresh();
+			}
 
 			bool Replaces( Node _node ) => _node.TargetExists
 				&& (replace == "all" || (replace == "dependents" && _node.Base != null));
@@ -182,6 +214,7 @@ namespace GuiToolkit.Editor.AiSupport
 			}
 
 			result["written"] = written;
+			result["moved"] = moved;
 			if (failed.Count > 0)
 				result["failed"] = failed;
 			result["verified"] = new JObject
@@ -220,7 +253,33 @@ namespace GuiToolkit.Editor.AiSupport
 
 		#region Graph
 
-		private static List<Node> BuildGraph( string _sourceFolder, string _targetFolder )
+		/// <summary>The prefab's folder path relative to the library's prefab root, or "" at the top.</summary>
+		private static string RelativeFolder( string _assetPath, string _sourceFolder )
+		{
+			string folder = Path.GetDirectoryName(_assetPath)?.Replace('\\', '/') ?? "";
+			if (!folder.StartsWith(_sourceFolder, StringComparison.Ordinal))
+				return "";
+
+			return folder.Substring(_sourceFolder.Length).Trim('/');
+		}
+
+		/// <summary>Finds a variant of this name anywhere under the target root, whatever folder it sits in.</summary>
+		private static string FindExisting( string _targetFolder, string _assetName )
+		{
+			if (!AssetDatabase.IsValidFolder(_targetFolder))
+				return null;
+
+			foreach (var guid in AssetDatabase.FindAssets($"\"{_assetName}\" t:Prefab", new[] { _targetFolder }))
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+				if (Path.GetFileNameWithoutExtension(path) == _assetName)
+					return path;
+			}
+
+			return null;
+		}
+
+		private static List<Node> BuildGraph( string _sourceFolder, string _targetFolder, bool _mirrorHierarchy )
 		{
 			var byPrefab = new Dictionary<GameObject, Node>();
 			var nodes = new List<Node>();
@@ -238,7 +297,13 @@ namespace GuiToolkit.Editor.AiSupport
 				if (prefab == null)
 					continue;
 
-				string targetPath = $"{_targetFolder}/{prefab.name}{VariantSuffix}.prefab";
+				// The library's own folders are carried over, because 65 prefabs in one flat folder is a list
+				// nobody can read: "Buttons/OkButton Variant" says what it is, "OkButton Variant" between 64
+				// neighbours does not.
+				string subFolder = _mirrorHierarchy ? RelativeFolder(path, _sourceFolder) : "";
+				string targetFolder = string.IsNullOrEmpty(subFolder) ? _targetFolder : $"{_targetFolder}/{subFolder}";
+				string targetPath = $"{targetFolder}/{prefab.name}{VariantSuffix}.prefab";
+
 				var node = new Node
 				{
 					SourcePath = path,
@@ -247,6 +312,20 @@ namespace GuiToolkit.Editor.AiSupport
 					TargetPath = targetPath,
 					TargetExists = AssetDatabase.LoadAssetAtPath<GameObject>(targetPath) != null,
 				};
+
+				// A copy that already exists SOMEWHERE ELSE under the target root is moved, never rebuilt:
+				// moving keeps its GUID, its place in the variant chain and whatever a human has since done
+				// to it. Rebuilding would quietly throw all three away — and the hand-made things are exactly
+				// what lives in these files.
+				if (!node.TargetExists)
+				{
+					string elsewhere = FindExisting(_targetFolder, prefab.name + VariantSuffix);
+					if (!string.IsNullOrEmpty(elsewhere))
+					{
+						node.MoveFrom = elsewhere;
+						node.TargetExists = true;
+					}
+				}
 
 				byPrefab[prefab] = node;
 				nodes.Add(node);

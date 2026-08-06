@@ -1158,6 +1158,10 @@ tool(
 			"and the toolkit's own dev app."),
 		targetFolder: z.string().optional().describe(
 			"Where the project's copies go. Defaults to the configured Prefab Variants Path."),
+		mirrorHierarchy: z.boolean().optional().describe(
+			"Default true: recreate the library's folder structure under the target, because 65 prefabs in " +
+			"one flat folder is a list nobody can read. An existing copy in the wrong folder is MOVED, never " +
+			"rebuilt — moving keeps its GUID, its place in the chain and any hand edits."),
 		dryRun: z.boolean().optional().describe("Default true — report the plan, write nothing."),
 		replaceExisting: z.enum(["none", "dependents", "all"]).optional().describe(
 			"What to do about copies that already exist. Default 'none'."),
