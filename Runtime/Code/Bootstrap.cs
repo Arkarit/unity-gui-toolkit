@@ -32,7 +32,21 @@ namespace GuiToolkit
 			UiLog.LogInternal("Static Ctor");
 			EditorApplication.playModeStateChanged -= HandlePlayMode;
 			EditorApplication.playModeStateChanged += HandlePlayMode;
-			EditorApplication.delayCall += Delayed;
+
+			// NOT EditorApplication.delayCall. It promises "some later tick" and in a background editor that
+			// tick may never come: measured in an unfocused editor, a delayCall scheduled from outside had
+			// still not run after 20 seconds, while EditorApplication.update was ticking the whole time
+			// (the MCP bridge is pumped from it and answered every request in milliseconds). Since the
+			// entire editor-side initialisation of the toolkit hangs off this one call, an unfocused editor
+			// answered "GuiToolkit is not initialized" to everything until a human clicked into the window.
+			// The update path fires on the next tick regardless of focus; one shot, unsubscribed immediately.
+			EditorApplication.update += InitializeOnNextTick;
+		}
+
+		private static void InitializeOnNextTick()
+		{
+			EditorApplication.update -= InitializeOnNextTick;
+			Delayed();
 		}
 
 		private static void Delayed()

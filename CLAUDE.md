@@ -136,6 +136,15 @@ into the window" (the real editor re-announces and takes the file back). If a br
 again, **check the pid in `Library/UiToolkit/mcp-bridge.json` against the editor's own pid first**;
 `AnnouncementIsOurs()` exists for exactly that reason and the Start menu item doubles as the repair.
 
+**Do not schedule editor work with `EditorApplication.delayCall` if anything but a human's next click
+depends on it.** It promises "some later tick" and in a background editor that tick may never arrive:
+measured here, a delayCall scheduled in an unfocused editor had still not run after 20 seconds while
+`EditorApplication.update` was ticking the whole time. That is how `Bootstrap` came to report the toolkit
+uninitialised to everything until someone focused the window. Use a one-shot on
+`EditorApplication.update` (fires regardless of focus, unsubscribe on the first tick), or
+`AssemblyReloadEvents.afterAssemblyReload` when the trigger really is the reload. delayCall is fine for
+Inspector code, where a human is by definition present and focused.
+
 An earlier version of this file described a `WakeEditor()` nudge for unfocused editors and told you to
 copy it to other platforms. There is no such code, and there should not be: it was written for the
 theory that an idle unfocused editor stops ticking, and that theory was wrong. Measured after the real

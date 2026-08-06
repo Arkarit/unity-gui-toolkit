@@ -39,6 +39,11 @@ All notable changes to this project will be documented in this file.
 
 
 ### Fixed
+- **`Bootstrap` never initialised in an unfocused editor.** Its editor-side start hung off
+  `EditorApplication.delayCall`, which promises only "some later tick" — measured in a background editor,
+  a delayCall had still not run after 20 seconds while `EditorApplication.update` ticked normally
+  throughout. Everything then reported "GuiToolkit is not initialized" until a human clicked into the
+  window. Now scheduled as a one-shot on `EditorApplication.update`, which fires regardless of focus
 - **`AssetReadyGate.WhenReady` stopped waiting while the editor was unfocused.** The focus check was meant
   to keep a slower background editor from running out of its frame budget, but it skipped the whole tick —
   so nothing was re-checked until a human clicked into the window. Everything gated on it waited for that
