@@ -408,6 +408,24 @@ A node has **either** `type` (build a component from scratch) **or** `template` 
 prefab). Optional per-node fields: `id`, `name`, `props` (serialized fields), `style` (style name),
 `text` (`@loca:` key or `@text:` literal), `rect` (layout), `overrides`, `children`.
 
+### Inheriting instead of copying: `variantOf`
+
+On the **root** node, `"variantOf": "StandardButton"` bakes the screen as a prefab **variant** of that
+prefab rather than as a standalone asset. The difference is invisible in the resulting file and decides
+everything about its future: a variant follows its base — later changes to the button reach it — while a
+standalone prefab never hears from it again.
+
+Inside a variant the three fields divide the work: `overrides` changes parts it **inherits** (addressed
+by path, e.g. `"Content/Title"`), `children` **adds** new parts on top, and `props`/`style`/`rect` apply
+to the root itself.
+
+Two things the field only makes explicit rather than new. A root `template` node has always produced a
+variant — the instance keeps its prefab connection and saving turns that into inheritance — it just did
+so silently, so the baker now warns and points here. And the result always reports what happened:
+`variantOf` comes back in the bake result when the saved asset inherits, and is absent when it does not.
+Read that rather than assuming, because it is the one property of a baked prefab you cannot see by
+looking at it.
+
 ### Do not copy subtrees
 
 Two children with the same shape and look are already redundancy. Author the repeated part once as its

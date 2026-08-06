@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **`variantOf` in the screen description** — a root node can declare `"variantOf": "StandardButton"` and
+  the bake produces a prefab **variant** of it instead of a standalone asset, so the result follows its
+  base. `overrides` changes inherited parts, `children` adds new ones. A root `template` node always did
+  this silently; it now warns and says so. The bake result reports `variantOf` when the saved asset
+  inherits — the one property of a baked prefab that cannot be seen by looking at it
 - **`BEST-PRACTICES.md`** — the three things a project should take ownership of on day one, because the
   default in each case is the library's own copy and the package is read-only: prefab variants of the
   standard elements (created in **one bulk run**, so the registry's client-over-library ranking makes

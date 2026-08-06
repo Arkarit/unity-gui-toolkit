@@ -648,6 +648,9 @@ namespace GuiToolkit.Editor.AiSupport
 					var bakeJson = new JObject { ["path"] = bakeResult.path, ["warnings"] = warnings };
 					if (companions.Count > 0)
 						bakeJson["companions"] = companions;
+					// Only present when the result inherits — silence means a standalone prefab.
+					if (!string.IsNullOrEmpty(bakeResult.variantOf))
+						bakeJson["variantOf"] = bakeResult.variantOf;
 					return bakeJson.ToString(Newtonsoft.Json.Formatting.None);
 
 				case "readScreen":

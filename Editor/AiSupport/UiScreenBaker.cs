@@ -106,6 +106,13 @@ namespace GuiToolkit.Editor.AiSupport
 
 			/// <summary>Paths of the companion prefabs baked from the screen's "prefabs" array, in order.</summary>
 			public List<string> companions = new();
+
+			/// <summary>
+			/// Name of the base prefab when this bake produced a prefab VARIANT, else null. Reported because
+			/// the difference is invisible in the resulting file but decides everything about its future: a
+			/// variant follows its base, a standalone prefab never hears from it again.
+			/// </summary>
+			public string variantOf;
 		}
 
 		/// <summary>Project-relative folder the baked prefabs are written to by default.</summary>
@@ -190,13 +197,34 @@ namespace GuiToolkit.Editor.AiSupport
 				if (!success || saved == null)
 					throw new Exception($"PrefabUtility.SaveAsPrefabAsset failed for '{path}'.");
 
+				// Read the inheritance back off the saved asset rather than trusting the description: whether
+				// the result is a variant is decided by Unity at save time, and it is the one property of a
+				// baked prefab that cannot be seen by looking at it.
+				string variantBase = null;
+				if (PrefabUtility.GetPrefabAssetType(saved) == PrefabAssetType.Variant)
+				{
+					var basePrefab = PrefabUtility.GetCorrespondingObjectFromSource(saved);
+					variantBase = basePrefab != null ? basePrefab.name : "?";
+				}
+				else if (!string.IsNullOrEmpty((string)rootNode["variantOf"]))
+				{
+					Warn($"\"variantOf\": \"{(string)rootNode["variantOf"]}\" was requested, but the saved asset "
+						+ "is not a variant. The base resolved to a prefab the instance lost its connection to.");
+				}
+
 				// Sidecar = the (possibly merged) screen we actually baked → the new baseline for next time.
 				WriteSourceSidecar(path, screen.ToString());
 
 				AssetDatabase.Refresh();
 				UiLog.LogInternal($"Baked screen '{name}' → '{path}'" +
 					(s_warnings.Count > 0 ? $" ({s_warnings.Count} warning(s))." : "."));
-				return new BakeResult { path = path, warnings = s_warnings, companions = companionPaths };
+				return new BakeResult
+				{
+					path = path,
+					warnings = s_warnings,
+					companions = companionPaths,
+					variantOf = variantBase,
+				};
 			}
 			finally
 			{
@@ -871,6 +899,23 @@ namespace GuiToolkit.Editor.AiSupport
 		{
 			string template = (string)_node["template"];
 			string type = (string)_node["type"];
+			string variantOf = (string)_node["variantOf"];
+
+			// "variantOf" is a template node with its intent spelled out, and it is only meaningful on the
+			// root: saving the built tree is what turns a live prefab instance into a variant ASSET, and only
+			// the root becomes the asset. On a child it would promise an inheritance that cannot happen there.
+			if (!string.IsNullOrEmpty(variantOf))
+			{
+				if (_parent != null)
+					throw new ArgumentException($"\"variantOf\" ('{variantOf}') is only allowed on the root node — "
+						+ "a child cannot become a variant asset. Use \"template\" for a child, and \"overrides\" "
+						+ "to change parts it inherits.");
+				if (!string.IsNullOrEmpty(template) || !string.IsNullOrEmpty(type))
+					throw new ArgumentException($"Root declares \"variantOf\" ('{variantOf}') together with "
+						+ $"\"{(string.IsNullOrEmpty(template) ? "type" : "template")}\"; pick one.");
+
+				template = variantOf;
+			}
 
 			if (!string.IsNullOrEmpty(template) && !string.IsNullOrEmpty(type))
 				throw new ArgumentException($"Node declares both \"template\" ('{template}') and \"type\" ('{type}'); pick one.");
@@ -878,6 +923,15 @@ namespace GuiToolkit.Editor.AiSupport
 				throw new ArgumentException("Node must declare either \"template\" or \"type\".");
 
 			bool isTemplateNode = !string.IsNullOrEmpty(template);
+
+			// A root template node without "variantOf" produces a variant too — the instance keeps its
+			// connection and SaveAsPrefabAsset turns that into inheritance. Silently, which is the problem:
+			// the author either wanted it and cannot tell that they got it, or did not and will find out when
+			// the base changes underneath them.
+			if (_parent == null && isTemplateNode && string.IsNullOrEmpty(variantOf))
+				Warn($"Root node uses \"template\": \"{template}\", so this bake produces a prefab VARIANT of "
+					+ $"'{template}' — it will follow that prefab's future changes. Say \"variantOf\" instead to "
+					+ "make that intentional and visible in the result.");
 			GameObject go = isTemplateNode
 				? CreateTemplateNode(template)
 				: CreateElementNode(type);
