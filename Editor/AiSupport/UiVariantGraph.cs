@@ -450,6 +450,7 @@ namespace GuiToolkit.Editor.AiSupport
 			try
 			{
 				var targetByPath = MapByPath(_instance);
+				var doomedComponents = new List<Component>();
 
 				foreach (var removed in PrefabUtility.GetRemovedComponents(source))
 				{
@@ -457,14 +458,67 @@ namespace GuiToolkit.Editor.AiSupport
 					if (component == null)
 						continue;
 
-					string path = PathOf(component.transform, source.transform);
+					// The path has to be read off the INSTANCE side. assetComponent lives in the base prefab,
+					// a different tree entirely, so walking up from it never reaches this source's root and
+					// the lookup quietly found nothing — every removal was skipped in silence. The visible
+					// result was a variant carrying both the component its base has and the one that replaces
+					// it: a radio row that still had the plain toggle underneath, writing a bool into a
+					// string setting the moment it was used.
+					var owner = removed.containingInstanceGameObject;
+					if (owner == null)
+						continue;
+
+					string path = PathOf(owner.transform, source.transform);
 					if (!targetByPath.TryGetValue(path, out var targetGo))
 						continue;
 
 					var counterpart = targetGo.GetComponent(component.GetType());
 					if (counterpart != null)
-						UnityEngine.Object.DestroyImmediate(counterpart, true);
+						doomedComponents.Add(counterpart);
 				}
+
+				// Removed in dependency order, and only what is actually removable: Unity refuses to delete a
+				// CanvasRenderer while an Image still needs it and logs an error for the attempt, so the
+				// naive loop filled the console with failures that were merely the wrong order.
+				for (int pass = 0; pass < 4 && doomedComponents.Count > 0; pass++)
+				{
+					for (int i = doomedComponents.Count - 1; i >= 0; i--)
+					{
+						var doomed = doomedComponents[i];
+						if (doomed == null)
+						{
+							doomedComponents.RemoveAt(i);
+							continue;
+						}
+
+						if (IsRequiredByAnotherComponent(doomed, doomedComponents))
+							continue;
+
+						UnityEngine.Object.DestroyImmediate(doomed, true);
+						doomedComponents.RemoveAt(i);
+					}
+				}
+
+				// A variant can also DELETE something its base has — the language dropdown replaces the plain
+				// dropdown its base carries rather than sitting next to it. Without this the copy keeps both,
+				// which the one-directional verification could not see either.
+				foreach (var removed in PrefabUtility.GetRemovedGameObjects(source))
+				{
+					var gameObject = removed.assetGameObject;
+					if (gameObject == null || removed.parentOfRemovedGameObjectInInstance == null)
+						continue;
+
+					string parentPath = PathOf(removed.parentOfRemovedGameObjectInInstance.transform, source.transform);
+					if (!targetByPath.TryGetValue(parentPath, out var parent))
+						continue;
+
+					var doomedObject = parent.transform.Find(gameObject.name);
+					if (doomedObject != null)
+						UnityEngine.Object.DestroyImmediate(doomedObject.gameObject, true);
+				}
+
+				// Re-map: the deletions changed which paths exist.
+				targetByPath = MapByPath(_instance);
 
 				foreach (var added in PrefabUtility.GetAddedGameObjects(source))
 				{
@@ -645,6 +699,11 @@ namespace GuiToolkit.Editor.AiSupport
 		/// Compares the created variant against the library original property for property. This is the part
 		/// that makes the operation reviewable rather than hopeful: a transplant that quietly dropped
 		/// something shows up here as a named property, not as a bug three weeks later.
+		///
+		/// It checks BOTH directions, which it did not at first: only asking "is everything from the original
+		/// present in the copy" passed a copy that carried components the original does not have. A variant
+		/// that replaces its base's toggle with a radio kept both, the extra one wrote a bool into a string
+		/// setting, and the verification reported no differences at all while it happened.
 		/// </summary>
 		private static List<string> Verify( Node _node )
 		{
@@ -655,6 +714,7 @@ namespace GuiToolkit.Editor.AiSupport
 			try
 			{
 				var createdByPath = MapByPath(created);
+				CompareExtras(original, created, differences);
 
 				foreach (var originalTransform in original.GetComponentsInChildren<Transform>(true))
 				{
@@ -698,6 +758,76 @@ namespace GuiToolkit.Editor.AiSupport
 			}
 
 			return differences;
+		}
+
+		/// <summary>
+		/// Whether some component that is STAYING declares it needs this one. Unity refuses the removal in
+		/// that case and logs it, so asking first turns a console full of failures into a later pass.
+		/// </summary>
+		/// <summary>
+		/// Components of EXACTLY this type. GetComponents(type) also counts subclasses, and that leniency
+		/// hides the very thing this comparison is for: a variant whose base class component was supposed to
+		/// be replaced by a derived one kept both, and the check saw the derived one and called it even.
+		/// </summary>
+		private static int CountExact( GameObject _gameObject, Type _type )
+		{
+			int count = 0;
+			foreach (var component in _gameObject.GetComponents<Component>())
+				if (component != null && component.GetType() == _type)
+					count++;
+
+			return count;
+		}
+
+		private static bool IsRequiredByAnotherComponent( Component _component, List<Component> _alsoGoing )
+		{
+			var type = _component.GetType();
+			foreach (var other in _component.gameObject.GetComponents<Component>())
+			{
+				if (other == null || other == _component || _alsoGoing.Contains(other))
+					continue;
+
+				foreach (RequireComponent requirement in other.GetType()
+					         .GetCustomAttributes(typeof(RequireComponent), true))
+				{
+					if (requirement.m_Type0 == type || requirement.m_Type1 == type || requirement.m_Type2 == type)
+						return true;
+				}
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// The other direction: objects and components the COPY has and the original does not.
+		/// </summary>
+		private static void CompareExtras( GameObject _original, GameObject _created, List<string> _differences )
+		{
+			var originalByPath = MapByPath(_original);
+
+			foreach (var transform in _created.GetComponentsInChildren<Transform>(true))
+			{
+				string path = PathOf(transform, _created.transform);
+				if (!originalByPath.TryGetValue(path, out var counterpart))
+				{
+					_differences.Add($"extra object: {path}");
+					continue;
+				}
+
+				var counted = new Dictionary<Type, int>();
+				foreach (var component in transform.GetComponents<Component>())
+				{
+					if (component == null)
+						continue;
+
+					var type = component.GetType();
+					counted.TryGetValue(type, out int index);
+					counted[type] = index + 1;
+
+					if (CountExact(counterpart, type) <= index)
+						_differences.Add($"extra component: {(path.Length == 0 ? "<root>" : path)} / {type.Name}");
+				}
+			}
 		}
 
 		private static void CompareSerialized( Component _original, Component _created, string _path,

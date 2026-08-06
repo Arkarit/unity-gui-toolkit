@@ -69,6 +69,15 @@ All notable changes to this project will be documented in this file.
 
 
 ### Fixed
+- **`mirror_variant_graph` produced variants that carried what their originals had REMOVED,** and the
+  verification pass reported them as identical. Three faults, each hiding the next: removed components were
+  looked up in the wrong tree (`assetComponent` belongs to the base, not to the source) so every removal was
+  skipped in silence; removed GameObjects were not handled at all; and the check only asked whether
+  everything in the original was present in the copy, never whether the copy had more. The visible result
+  was a radio row that still carried the plain toggle underneath it, writing a bool into a string setting the
+  moment the row was used. The comparison now runs both ways and counts EXACT types — `GetComponents(type)`
+  matches subclasses, which is precisely how a base component that should have been replaced by a derived
+  one passed as equal
 - **`screenshot_view` returned a blurred, colour-fringed preview** in projects whose render pipeline
   has post-processing in its DEFAULT volume profile — no Volume component anywhere is needed for that,
   and one client's default had depth of field, chromatic aberration, lens distortion and film grain all
