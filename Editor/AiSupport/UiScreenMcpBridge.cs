@@ -548,6 +548,7 @@ namespace GuiToolkit.Editor.AiSupport
 			"executeCode",
 			"cloneStyleConfig",
 			"writeSkin",
+			"mirrorVariantGraph",
 		};
 
 		private static void ThrowIfBusy( string _method )
@@ -752,6 +753,10 @@ namespace GuiToolkit.Editor.AiSupport
 
 				case "readSkin":
 					return UiStyleWriter.ReadSkin(Payload(_payload))
+						.ToString(Newtonsoft.Json.Formatting.None);
+
+				case "mirrorVariantGraph":
+					return UiVariantGraph.Mirror(Payload(_payload))
 						.ToString(Newtonsoft.Json.Formatting.None);
 
 				case "writeSkin":

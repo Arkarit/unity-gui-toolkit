@@ -1,0 +1,744 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Newtonsoft.Json.Linq;
+using UnityEditor;
+using UnityEngine;
+
+namespace GuiToolkit.Editor.AiSupport
+{
+	/// <summary>
+	/// Mirrors the library's prefab inheritance INTO the project, instead of flattening it.
+	///
+	/// The plain bulk run makes one variant per library prefab, each hanging off its own original. That
+	/// gives the project ownership but loses the shape: the library's OkButton is a variant of its
+	/// StandardButton, and the project's copies of the two are related to the package, not to each other.
+	/// Add a frame to the project's StandardButton and the project's OkButton does not get it — the
+	/// inheritance runs sideways into the package instead of down through the project.
+	///
+	/// So: create the roots as variants of the library prefab, then create each dependent as a variant of
+	/// the PROJECT copy of its base, and transplant the library variant's own overrides onto it. The result
+	/// is the same graph, one level lower, and a structural change to a project root reaches everything
+	/// below it.
+	///
+	/// What made this hard before is gone: the standard-element identity travels in the overrides, so the
+	/// rebuilt dependents keep their registry keys and every existing reference still resolves.
+	/// </summary>
+	public static class UiVariantGraph
+	{
+		private const string VariantSuffix = " Variant";
+
+		/// <summary>
+		/// Where the library's prefabs live, which is not one fixed path: installed as a package they sit
+		/// under Packages/, and in the toolkit's own dev app the same folders are symlinked into Assets/.
+		/// A hardcoded default silently finds nothing in one of the two.
+		/// </summary>
+		private static string DefaultSourceFolder()
+		{
+			var package = UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(UiThing).Assembly);
+			if (package != null && !string.IsNullOrEmpty(package.assetPath))
+				return package.assetPath + "/Runtime/Prefabs";
+
+			string root = UiToolkitConfiguration.Instance.GetUiToolkitRootProjectDir()?.TrimEnd('/');
+			foreach (var candidate in new[] { root + "/Runtime/Prefabs", root + "/Prefabs" })
+				if (AssetDatabase.IsValidFolder(candidate))
+					return candidate;
+
+			throw new Exception("Could not locate the toolkit's prefab folder — pass 'sourceFolder' explicitly.");
+		}
+
+		private class Node
+		{
+			public string SourcePath;
+			public string Name;
+			public GameObject SourcePrefab;
+			public Node Base;                       // null for a root
+			public string TargetPath;
+			public int PropertyMods;
+			public int AddedGameObjects;
+			public int AddedComponents;
+			public int RemovedComponents;
+			public bool TargetExists;
+			public string Error;
+		}
+
+		/// <summary>
+		/// Payload: <c>{ "sourceFolder", "targetFolder", "dryRun": true, "replaceExisting": false }</c>.
+		/// Returns the graph, what would be written, and — after a real run — a verification report.
+		/// </summary>
+		public static JObject Mirror( JObject _request )
+		{
+			string sourceFolder = (string)_request["sourceFolder"] ?? DefaultSourceFolder();
+			string targetFolder = (string)_request["targetFolder"]
+				?? UiToolkitConfiguration.Instance.PrefabVariantsPath?.TrimEnd('/');
+			bool dryRun = (bool?)_request["dryRun"] ?? true;
+
+			// Not a bool, because the useful answer is usually neither "keep everything" nor "replace
+			// everything": the roots are where a project puts its own work — the frame someone added to the
+			// standard button — while the dependents are exactly what this tool exists to rebuild on top of
+			// them. Throwing away the first to fix the second is the one outcome nobody wants.
+			string replace = ReplaceMode(_request["replaceExisting"]);
+
+			if (string.IsNullOrWhiteSpace(targetFolder))
+				throw new Exception("No target folder: pass 'targetFolder', or set the Prefab Variants Path in "
+					+ "Gui Toolkit -> Configuration.");
+			targetFolder = targetFolder.TrimEnd('/');
+			if (!targetFolder.StartsWith("Assets/", StringComparison.Ordinal))
+				throw new Exception($"'{targetFolder}' is not inside Assets/ — the project's own copies have to be.");
+
+			var nodes = BuildGraph(sourceFolder, targetFolder);
+			var ordered = TopologicalOrder(nodes);
+
+			var result = new JObject
+			{
+				["sourceFolder"] = sourceFolder,
+				["targetFolder"] = targetFolder,
+				["dryRun"] = dryRun,
+				["replaceExisting"] = replace,
+				["counts"] = new JObject
+				{
+					["total"] = ordered.Count,
+					["roots"] = ordered.Count(_n => _n.Base == null),
+					["dependents"] = ordered.Count(_n => _n.Base != null),
+					["alreadyPresent"] = ordered.Count(_n => _n.TargetExists),
+					["structural"] = ordered.Count(_n => _n.Base != null && _n.HasStructure()),
+				},
+				["graph"] = new JArray(ordered.Where(_n => _n.Base != null).Select(_n => (object)new JObject
+				{
+					["name"] = _n.Name,
+					["base"] = _n.Base.Name,
+					["propertyMods"] = _n.PropertyMods,
+					["addedGameObjects"] = _n.AddedGameObjects,
+					["addedComponents"] = _n.AddedComponents,
+					["removedComponents"] = _n.RemovedComponents,
+				}).ToArray()),
+			};
+
+			if (dryRun)
+			{
+				result["hint"] = "Nothing was written. Re-run with dryRun:false to create what is missing. "
+					+ "replaceExisting:'dependents' also rebuilds the ones that already exist AND have a base, "
+					+ "so hand-edited roots survive; 'all' rebuilds everything. A rebuilt asset gets a new GUID "
+					+ "— cheap now, expensive once anything references it.";
+				return result;
+			}
+
+			var written = new JArray();
+			var failed = new JArray();
+			var verification = new JArray();
+
+			// Deliberately NOT batched with StartAssetEditing: each dependent is built on the asset created
+			// one step earlier, and inside a batch that asset is not importable yet — every dependent then
+			// fails with "base is missing" while the roots look fine. The chain needs each write to land.
+			try
+			{
+				foreach (var node in ordered)
+				{
+					if (node.TargetExists)
+					{
+						bool replaceThis = replace == "all" || (replace == "dependents" && node.Base != null);
+						if (!replaceThis)
+							continue;
+						AssetDatabase.DeleteAsset(node.TargetPath);
+					}
+
+					try
+					{
+						Create(node);
+						written.Add(node.TargetPath);
+					}
+					catch (Exception e)
+					{
+						node.Error = e.Message;
+						failed.Add(new JObject { ["name"] = node.Name, ["error"] = e.Message });
+					}
+				}
+			}
+			finally
+			{
+				AssetDatabase.SaveAssets();
+				AssetDatabase.Refresh();
+			}
+
+			// Verify against the ORIGINAL, not against the plan: the plan is what we believed, the library
+			// prefab is what the project has to end up matching.
+			foreach (var node in ordered.Where(_n => _n.Base != null && _n.Error == null))
+			{
+				var differences = Verify(node);
+				if (differences.Count > 0)
+					verification.Add(new JObject
+					{
+						["name"] = node.Name,
+						["differences"] = differences.Count,
+						["examples"] = new JArray(differences.Take(8).Cast<object>().ToArray()),
+					});
+			}
+
+			result["written"] = written;
+			if (failed.Count > 0)
+				result["failed"] = failed;
+			result["verified"] = new JObject
+			{
+				["checked"] = ordered.Count(_n => _n.Base != null && _n.Error == null),
+				["withDifferences"] = verification.Count,
+				["details"] = verification,
+			};
+			result["hint"] = verification.Count == 0
+				? "Every rebuilt dependent matches its library original property for property."
+				: "Some rebuilt dependents differ from their library original — read 'verified.details'. "
+					+ "A difference is not automatically wrong (a project root may deliberately differ), but "
+					+ "anything unexpected there is a transplant that did not land.";
+			return result;
+		}
+
+		/// <summary>Accepts the string form and the older bool, so a caller cannot get "true" wrong.</summary>
+		private static string ReplaceMode( JToken _token )
+		{
+			if (_token == null)
+				return "none";
+
+			if (_token.Type == JTokenType.Boolean)
+				return (bool)_token ? "all" : "none";
+
+			string value = ((string)_token ?? "none").ToLowerInvariant();
+			return value switch
+			{
+				"none" or "dependents" or "all" => value,
+				_ => throw new Exception($"'replaceExisting' is 'none', 'dependents' or 'all', not '{value}'."),
+			};
+		}
+
+		private static bool HasStructure( this Node _node ) =>
+			_node.AddedGameObjects > 0 || _node.AddedComponents > 0 || _node.RemovedComponents > 0;
+
+		#region Graph
+
+		private static List<Node> BuildGraph( string _sourceFolder, string _targetFolder )
+		{
+			var byPrefab = new Dictionary<GameObject, Node>();
+			var nodes = new List<Node>();
+
+			foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { _sourceFolder }))
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guid);
+
+				// A prefab the library loads by name from its own Resources folder: a copy elsewhere is never
+				// found by that lookup, so it would be dead weight under a misleading name.
+				if (path.Contains("/Resources/"))
+					continue;
+
+				var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+				if (prefab == null)
+					continue;
+
+				string targetPath = $"{_targetFolder}/{prefab.name}{VariantSuffix}.prefab";
+				var node = new Node
+				{
+					SourcePath = path,
+					Name = prefab.name,
+					SourcePrefab = prefab,
+					TargetPath = targetPath,
+					TargetExists = AssetDatabase.LoadAssetAtPath<GameObject>(targetPath) != null,
+				};
+
+				byPrefab[prefab] = node;
+				nodes.Add(node);
+			}
+
+			foreach (var node in nodes)
+			{
+				if (PrefabUtility.GetPrefabAssetType(node.SourcePrefab) != PrefabAssetType.Variant)
+					continue;
+
+				var basePrefab = PrefabUtility.GetCorrespondingObjectFromSource(node.SourcePrefab);
+				if (basePrefab != null && byPrefab.TryGetValue(basePrefab, out var baseNode))
+					node.Base = baseNode;
+
+				Weigh(node);
+			}
+
+			return nodes;
+		}
+
+		private static void Weigh( Node _node )
+		{
+			var mods = PrefabUtility.GetPropertyModifications(_node.SourcePrefab);
+			_node.PropertyMods = mods?.Length ?? 0;
+
+			var contents = PrefabUtility.LoadPrefabContents(_node.SourcePath);
+			try
+			{
+				_node.AddedGameObjects = PrefabUtility.GetAddedGameObjects(contents).Count;
+				_node.AddedComponents = PrefabUtility.GetAddedComponents(contents).Count;
+				_node.RemovedComponents = PrefabUtility.GetRemovedComponents(contents).Count;
+			}
+			catch { /* counted as zero; the verification pass is what actually decides */ }
+			finally
+			{
+				PrefabUtility.UnloadPrefabContents(contents);
+			}
+		}
+
+		/// <summary>Bases before dependents, so a dependent can be built on the project copy of its base.</summary>
+		private static List<Node> TopologicalOrder( List<Node> _nodes )
+		{
+			var result = new List<Node>();
+			var placed = new HashSet<Node>();
+
+			void Place( Node _node, HashSet<Node> _onPath )
+			{
+				if (placed.Contains(_node))
+					return;
+				if (!_onPath.Add(_node))
+					throw new Exception($"Cyclic variant chain at '{_node.Name}'.");
+
+				if (_node.Base != null)
+					Place(_node.Base, _onPath);
+
+				placed.Add(_node);
+				result.Add(_node);
+			}
+
+			foreach (var node in _nodes)
+				Place(node, new HashSet<Node>());
+
+			return result;
+		}
+
+		#endregion
+
+		#region Create
+
+		private static void Create( Node _node )
+		{
+			EnsureFolder(Path.GetDirectoryName(_node.TargetPath)?.Replace('\\', '/'));
+
+			// A root hangs off the library prefab; a dependent hangs off the PROJECT copy of its base, which
+			// exists already because the nodes are processed bases-first.
+			GameObject baseAsset = _node.Base == null
+				? _node.SourcePrefab
+				: AssetDatabase.LoadAssetAtPath<GameObject>(_node.Base.TargetPath);
+
+			if (baseAsset == null)
+				throw new Exception($"Base '{_node.Base?.TargetPath}' is missing — it should have been created first.");
+
+			var instance = PrefabUtility.InstantiatePrefab(baseAsset) as GameObject;
+			if (instance == null)
+				throw new Exception($"Could not instantiate '{AssetDatabase.GetAssetPath(baseAsset)}'.");
+
+			try
+			{
+				if (_node.Base != null)
+					Transplant(_node, instance);
+
+				instance.name = _node.Name;
+				PrefabUtility.SaveAsPrefabAsset(instance, _node.TargetPath, out bool success);
+				if (!success)
+					throw new Exception($"SaveAsPrefabAsset failed for '{_node.TargetPath}'.");
+			}
+			finally
+			{
+				UnityEngine.Object.DestroyImmediate(instance);
+			}
+		}
+
+		/// <summary>
+		/// Copies what the library's variant adds to its base onto our instance: first structure (added
+		/// objects and components, removed components), then the property overrides — in that order, because
+		/// a modification can target something that only the structural pass creates.
+		/// </summary>
+		private static void Transplant( Node _node, GameObject _instance )
+		{
+			var source = PrefabUtility.LoadPrefabContents(_node.SourcePath);
+			try
+			{
+				var targetByPath = MapByPath(_instance);
+
+				foreach (var removed in PrefabUtility.GetRemovedComponents(source))
+				{
+					var component = removed.assetComponent;
+					if (component == null)
+						continue;
+
+					string path = PathOf(component.transform, source.transform);
+					if (!targetByPath.TryGetValue(path, out var targetGo))
+						continue;
+
+					var counterpart = targetGo.GetComponent(component.GetType());
+					if (counterpart != null)
+						UnityEngine.Object.DestroyImmediate(counterpart, true);
+				}
+
+				foreach (var added in PrefabUtility.GetAddedGameObjects(source))
+				{
+					var go = added.instanceGameObject;
+					if (go == null || go.transform.parent == null)
+						continue;
+
+					string parentPath = PathOf(go.transform.parent, source.transform);
+					if (!targetByPath.TryGetValue(parentPath, out var parent))
+						continue;
+
+					var copy = UnityEngine.Object.Instantiate(go, parent.transform, false);
+					copy.name = go.name;
+					copy.transform.SetSiblingIndex(go.transform.GetSiblingIndex());
+				}
+
+				// Re-map: the structural pass may have created new paths.
+				targetByPath = MapByPath(_instance);
+
+				foreach (var added in PrefabUtility.GetAddedComponents(source))
+				{
+					var component = added.instanceComponent;
+					if (component == null)
+						continue;
+
+					string path = PathOf(component.transform, source.transform);
+					if (!targetByPath.TryGetValue(path, out var targetGo))
+						continue;
+
+					// Counts, not presence: a variant can add a SECOND component of a type the base already
+					// has — two style appliers on one object is the library's own pattern — and "does it have
+					// one already" silently drops the addition.
+					var type = component.GetType();
+					if (targetGo.GetComponents(type).Length >= component.gameObject.GetComponents(type).Length)
+						continue;
+
+					UnityEditorInternal.ComponentUtility.CopyComponent(component);
+					UnityEditorInternal.ComponentUtility.PasteComponentAsNew(targetGo);
+				}
+
+				CopyPropertyValues(source, _instance);
+				RemapInternalReferences(source, _instance);
+			}
+			finally
+			{
+				PrefabUtility.UnloadPrefabContents(source);
+			}
+		}
+
+		/// <summary>
+		/// Copies every serialized value from the library variant onto our instance, object by object. Done
+		/// as a value copy rather than by re-targeting the library's PropertyModification list: those entries
+		/// point at objects inside the PACKAGE base, and every one of them would have to be re-aimed at the
+		/// corresponding object under our base. Copying the values leaves Unity to work out which of them
+		/// differ from our base and therefore deserve to be overrides — which is the same answer, arrived at
+		/// by the party that owns the definition of "differs".
+		/// </summary>
+		private static void CopyPropertyValues( GameObject _source, GameObject _target )
+		{
+			var targetByPath = MapByPath(_target);
+
+			foreach (var sourceTransform in _source.GetComponentsInChildren<Transform>(true))
+			{
+				string path = PathOf(sourceTransform, _source.transform);
+				if (!targetByPath.TryGetValue(path, out var targetGo))
+					continue;
+
+				var sourceGo = sourceTransform.gameObject;
+				targetGo.name = sourceGo.name;
+				targetGo.SetActive(sourceGo.activeSelf);
+				targetGo.layer = sourceGo.layer;
+				targetGo.tag = sourceGo.tag;
+
+				var counted = new Dictionary<Type, int>();
+				foreach (var sourceComponent in sourceGo.GetComponents<Component>())
+				{
+					if (sourceComponent == null)
+						continue;
+
+					var type = sourceComponent.GetType();
+					counted.TryGetValue(type, out int index);
+					counted[type] = index + 1;
+
+					var targetComponents = targetGo.GetComponents(type);
+					if (index >= targetComponents.Length)
+						continue;
+
+					EditorUtility.CopySerializedIfDifferent(sourceComponent, targetComponents[index]);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Re-aims every reference that points INSIDE the copied hierarchy at the corresponding object in our
+		/// copy. Without this the transplant looks like it worked and is quietly gutted: CopySerialized copies
+		/// an object reference verbatim, so a button's reference to its own Image still names the source
+		/// tree's Image, and saving the instance as an asset drops every reference that leads outside it. The
+		/// result is a prefab full of nulls — the animation with no target, the toggle with no checkmark —
+		/// and nothing says so until someone clicks it.
+		///
+		/// References to real assets (sprites, fonts, materials) are left alone: they are not part of the
+		/// hierarchy and are meant to point where they point.
+		/// </summary>
+		private static void RemapInternalReferences( GameObject _source, GameObject _target )
+		{
+			var targetByPath = MapByPath(_target);
+			var sourceRoot = _source.transform;
+
+			// Everything that belongs to the copied tree, so an external asset reference can be told apart
+			// from an internal wiring reference.
+			var internalObjects = new HashSet<UnityEngine.Object>();
+			foreach (var transform in _source.GetComponentsInChildren<Transform>(true))
+			{
+				internalObjects.Add(transform.gameObject);
+				foreach (var component in transform.GetComponents<Component>())
+					if (component != null)
+						internalObjects.Add(component);
+			}
+
+			UnityEngine.Object Corresponding( UnityEngine.Object _value )
+			{
+				var gameObject = _value as GameObject;
+				var component = _value as Component;
+				var transform = gameObject != null ? gameObject.transform : component?.transform;
+				if (transform == null)
+					return null;
+
+				string path = PathOf(transform, sourceRoot);
+				if (!targetByPath.TryGetValue(path, out var counterpart))
+					return null;
+
+				if (gameObject != null)
+					return counterpart;
+
+				// Index among same-typed components, so two appliers on one object stay distinguishable.
+				var type = component.GetType();
+				var sourceSiblings = component.gameObject.GetComponents(type);
+				int index = Array.IndexOf(sourceSiblings, component);
+				var targetSiblings = counterpart.GetComponents(type);
+				return index >= 0 && index < targetSiblings.Length ? targetSiblings[index] : null;
+			}
+
+			foreach (var transform in _target.GetComponentsInChildren<Transform>(true))
+			{
+				foreach (var component in transform.GetComponents<Component>())
+				{
+					if (component == null)
+						continue;
+
+					var serialized = new SerializedObject(component);
+					var iterator = serialized.GetIterator();
+					bool changed = false;
+
+					while (iterator.NextVisible(true))
+					{
+						if (iterator.propertyType != SerializedPropertyType.ObjectReference)
+							continue;
+
+						var value = iterator.objectReferenceValue;
+						if (value == null || !internalObjects.Contains(value))
+							continue;
+
+						iterator.objectReferenceValue = Corresponding(value);
+						changed = true;
+					}
+
+					if (changed)
+						serialized.ApplyModifiedPropertiesWithoutUndo();
+				}
+			}
+		}
+
+		#endregion
+
+		#region Verify
+
+		/// <summary>
+		/// Compares the created variant against the library original property for property. This is the part
+		/// that makes the operation reviewable rather than hopeful: a transplant that quietly dropped
+		/// something shows up here as a named property, not as a bug three weeks later.
+		/// </summary>
+		private static List<string> Verify( Node _node )
+		{
+			var differences = new List<string>();
+			var original = PrefabUtility.LoadPrefabContents(_node.SourcePath);
+			var created = PrefabUtility.LoadPrefabContents(_node.TargetPath);
+
+			try
+			{
+				var createdByPath = MapByPath(created);
+
+				foreach (var originalTransform in original.GetComponentsInChildren<Transform>(true))
+				{
+					string path = PathOf(originalTransform, original.transform);
+					if (!createdByPath.TryGetValue(path, out var createdGo))
+					{
+						differences.Add($"missing object: {path}");
+						continue;
+					}
+
+					var originalGo = originalTransform.gameObject;
+					var counted = new Dictionary<Type, int>();
+
+					foreach (var originalComponent in originalGo.GetComponents<Component>())
+					{
+						if (originalComponent == null)
+							continue;
+
+						var type = originalComponent.GetType();
+						counted.TryGetValue(type, out int index);
+						counted[type] = index + 1;
+
+						var createdComponents = createdGo.GetComponents(type);
+						if (index >= createdComponents.Length)
+						{
+							differences.Add($"missing component: {path} / {type.Name}");
+							continue;
+						}
+
+						CompareSerialized(originalComponent, createdComponents[index], path, differences,
+							original.transform, created.transform);
+						if (differences.Count > 200)
+							return differences;
+					}
+				}
+			}
+			finally
+			{
+				PrefabUtility.UnloadPrefabContents(original);
+				PrefabUtility.UnloadPrefabContents(created);
+			}
+
+			return differences;
+		}
+
+		private static void CompareSerialized( Component _original, Component _created, string _path,
+			List<string> _differences, Transform _originalRoot, Transform _createdRoot )
+		{
+			var a = new SerializedObject(_original).GetIterator();
+			var b = new SerializedObject(_created).GetIterator();
+
+			// Descends into children on purpose. A property that CONTAINS references — an array of slave
+			// animations, say — compares unequal as a whole no matter what, because the elements are
+			// different instances of the same thing; only its leaves can be judged by where they point.
+			while (a.NextVisible(true) && b.NextVisible(true))
+			{
+				// Identities differ by definition: they point at different assets and different instances.
+				if (a.propertyPath is "m_Script" or "m_GameObject" or "m_CorrespondingSourceObject"
+				    or "m_PrefabInstance" or "m_PrefabAsset" or "m_Father" or "m_Children")
+					continue;
+
+				// Containers are judged by their leaves, except an object reference, which is a leaf that
+				// happens to have children.
+				if (a.hasVisibleChildren && a.propertyType != SerializedPropertyType.ObjectReference)
+					continue;
+
+				if (SerializedProperty.DataEquals(a, b))
+					continue;
+
+				// An object reference into the prefab's own hierarchy is a different object here and there, so
+				// identity says nothing. Compare WHERE it points, not what it is called: a variant renames its
+				// root, and comparing names then reports every self-reference as a difference.
+				if (a.propertyType == SerializedPropertyType.ObjectReference)
+				{
+					string an = Describe(a.objectReferenceValue, _originalRoot);
+					string bn = Describe(b.objectReferenceValue, _createdRoot);
+					if (an == bn)
+						continue;
+					_differences.Add($"{_path} / {_original.GetType().Name}.{a.propertyPath}: {an} != {bn}");
+					continue;
+				}
+
+				_differences.Add($"{_path} / {_original.GetType().Name}.{a.propertyPath}");
+			}
+		}
+
+		/// <summary>
+		/// How a reference is compared across the two trees: a hierarchy path when it points inside, the
+		/// asset's own name when it points outside (a sprite, a font), "null" when it points nowhere.
+		/// </summary>
+		private static string Describe( UnityEngine.Object _value, Transform _root )
+		{
+			if (_value == null)
+				return "null";
+
+			var gameObject = _value as GameObject;
+			var component = _value as Component;
+			var transform = gameObject != null ? gameObject.transform : component?.transform;
+
+			if (transform == null || !transform.IsChildOf(_root))
+				return _value.name;
+
+			string path = PathOf(transform, _root);
+			string where = string.IsNullOrEmpty(path) ? "<root>" : path;
+			return component != null ? $"{where}:{component.GetType().Name}" : where;
+		}
+
+		#endregion
+
+		#region Helpers
+
+		private static Dictionary<string, GameObject> MapByPath( GameObject _root )
+		{
+			var result = new Dictionary<string, GameObject>(StringComparer.Ordinal);
+			foreach (var transform in _root.GetComponentsInChildren<Transform>(true))
+			{
+				string path = PathOf(transform, _root.transform);
+				if (!result.ContainsKey(path))
+					result[path] = transform.gameObject;
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Hierarchy path relative to the root, used to pair objects across two different instances. Names
+		/// rather than object identity, because the two trees have none in common — and the root is "" so a
+		/// renamed root (which every variant does) does not shift every path below it.
+		/// </summary>
+		private static string PathOf( Transform _transform, Transform _root )
+		{
+			if (_transform == _root)
+				return "";
+
+			var parts = new List<string>();
+			var current = _transform;
+			while (current != null && current != _root)
+			{
+				parts.Add(Segment(current));
+				current = current.parent;
+			}
+
+			parts.Reverse();
+			return string.Join("/", parts);
+		}
+
+		/// <summary>
+		/// A path segment, disambiguated when siblings share a name. Unity allows that, and the library uses
+		/// it — two children called "Image" under one parent. A plain name path then maps both to the first
+		/// one, and everything the second carries is silently dropped.
+		/// </summary>
+		private static string Segment( Transform _transform )
+		{
+			var parent = _transform.parent;
+			if (parent == null)
+				return _transform.name;
+
+			int ordinal = 0;
+			int sameName = 0;
+			foreach (Transform sibling in parent)
+			{
+				if (sibling == _transform)
+					ordinal = sameName;
+				if (sibling.name == _transform.name)
+					sameName++;
+			}
+
+			return sameName > 1 ? $"{_transform.name}#{ordinal}" : _transform.name;
+		}
+
+		private static void EnsureFolder( string _folder )
+		{
+			if (string.IsNullOrEmpty(_folder) || AssetDatabase.IsValidFolder(_folder))
+				return;
+
+			string parent = Path.GetDirectoryName(_folder)?.Replace('\\', '/');
+			EnsureFolder(parent);
+			AssetDatabase.CreateFolder(parent, Path.GetFileName(_folder));
+		}
+
+		#endregion
+	}
+}

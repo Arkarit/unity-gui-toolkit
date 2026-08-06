@@ -22,17 +22,29 @@ object you have to add, and you cannot add it to a package prefab.
 elements are the library's and some are yours, and where "why does this button ignore my change" has
 a different answer depending on which button you point at.
 
-Create variants of **all** library prefabs in one go, at project setup:
+Create variants of **all** library prefabs in one go, at project setup — and keep the inheritance
+between them, which is the part that is easy to lose.
 
-1. Select the prefab folder(s) under `Packages/de.phoenixgrafik.ui-toolkit/Runtime/Prefabs/`
-   (multi-select works, and folders are expanded for you).
-2. Right-click → **`Create Variant`**, and pick a placement:
-   - **Select common Path** — everything into one folder you choose. The usual choice.
-   - **Mirror Package Hierarchy** — mirrored under `Assets/PackageVariants/`, if you prefer the
-     package's own layout.
-   - **Select each Path** / **Flat in Assets** — for one-offs, not for a bulk run.
-3. Point `Gui Toolkit → Configuration → Prefab Variants Path` at that folder.
-4. Regenerate the screen-authoring catalog (`Gui Toolkit → AI → Regenerate Catalog`, or the
+Of the library's 66 prefabs, **22 are themselves variants**: `OkButton`, `CancelButton`, `CloseButton`
+and `StandardButtonSmall` are all variants of `StandardButton`, `FullScreenSettingsDialog` is one of
+`FullScreenTabDialog`. One variant per prefab, each hanging off its own original, gives the project
+ownership but flattens that shape — the copies end up related to the package rather than to each other,
+and a frame added to the project's `StandardButton` never reaches the project's `OkButton`.
+
+**The tool that does it properly:** `mirror_variant_graph` over the MCP bridge. It creates the roots as
+variants of the library prefab and each dependent as a variant of the *project copy* of its base,
+transplanting the library variant's own overrides. It dry-runs by default, and afterwards verifies each
+rebuilt dependent against its library original property for property.
+
+**By hand,** if you have no bridge: select the prefab folders under the package, right-click →
+**`Create Variant`** → *Select common Path*. That gives you the flat version — every copy owned by the
+project, but the inheritance between them lost. Fine as a starting point, and `mirror_variant_graph`
+with `replaceExisting: "dependents"` upgrades it later without touching roots you have edited.
+
+Either way, finish with:
+
+1. Point `Gui Toolkit → Configuration → Prefab Variants Path` at that folder.
+2. Regenerate the screen-authoring catalog (`Gui Toolkit → AI → Regenerate Catalog`, or the
    `regenerate_catalog` MCP tool).
 
 ### Why this is worth doing before you need it

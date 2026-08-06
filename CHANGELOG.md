@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **`mirror_variant_graph`** (`UiVariantGraph`) — copies the library's prefabs into the project **with the
+  inheritance between them**. 22 of the 66 library prefabs are themselves variants (`OkButton` and three
+  siblings all descend from `StandardButton`); a plain one-variant-per-prefab run owns them all but relates
+  them to the package rather than to each other, so a change to the project's `StandardButton` reaches none
+  of them. This creates roots as variants of the library prefab and each dependent as a variant of the
+  PROJECT copy of its base, transplanting the library variant's overrides — property values, added objects,
+  added and removed components, and the internal references re-aimed at the copy. Dry-runs by default, and
+  verifies every rebuilt dependent against its original property for property. `replaceExisting` is
+  `none`/`dependents`/`all` so hand-edited roots survive a rebuild of what sits below them
 - **`variantOf` in the screen description** — a root node can declare `"variantOf": "StandardButton"` and
   the bake produces a prefab **variant** of it instead of a standalone asset, so the result follows its
   base. `overrides` changes inherited parts, `children` adds new ones. A root `template` node always did

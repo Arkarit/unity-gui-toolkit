@@ -1135,6 +1135,40 @@ tool(
 );
 
 tool(
+	"mirror_variant_graph",
+	"Give the project its own copy of the library's prefabs AND of the inheritance between them. This is " +
+	"the setup step for a project that intends to change how standard elements look or are built.\n\n" +
+	"A plain one-variant-per-prefab run gives ownership but flattens the shape: the library's OkButton is a " +
+	"variant of its StandardButton, and two independent copies of those are related to the package, not to " +
+	"each other. Add a frame to the project's StandardButton and the project's OkButton does not get it — " +
+	"the inheritance runs sideways into the package instead of down through the project. This tool creates " +
+	"the roots as variants of the library prefab, then each dependent as a variant of the PROJECT copy of " +
+	"its base, transplanting the library variant's own overrides (property values, added objects, added and " +
+	"removed components, and the internal references re-aimed at the copy).\n\n" +
+	"Always dry-runs first by default: returns the graph with, per dependent, how much it overrides, so the " +
+	"work is visible before anything is written. After a real run it verifies every rebuilt dependent " +
+	"against its library original property for property and reports the differences — read that, it is what " +
+	"makes the operation reviewable instead of hopeful.\n\n" +
+	"replaceExisting: 'none' (default, only create what is missing), 'dependents' (rebuild those that have a " +
+	"base — hand-edited ROOTS survive, which is usually what you want), 'all'. A rebuilt asset gets a new " +
+	"GUID, so do this before anything references it. Regenerate the catalog afterwards.",
+	{
+		sourceFolder: z.string().optional().describe(
+			"Where the library's prefabs are. Derived by default, which differs between an installed package " +
+			"and the toolkit's own dev app."),
+		targetFolder: z.string().optional().describe(
+			"Where the project's copies go. Defaults to the configured Prefab Variants Path."),
+		dryRun: z.boolean().optional().describe("Default true — report the plan, write nothing."),
+		replaceExisting: z.enum(["none", "dependents", "all"]).optional().describe(
+			"What to do about copies that already exist. Default 'none'."),
+	},
+	async (args) => {
+		try { return ok(await callBridge("mirrorVariantGraph", JSON.stringify(args ?? {}))); }
+		catch (e) { return fail(e); }
+	}
+);
+
+tool(
 	"clone_style_config",
 	"Give the project its OWN style config, copied from the one that ships inside the package, and point " +
 	"the UiToolkitConfiguration at the copy. Do this before any theming: a fresh project uses the package's " +

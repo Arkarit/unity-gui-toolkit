@@ -155,6 +155,7 @@ Steps Claude follows:
 | `apply_prefab_values` | Restore that snapshot's residue into the re-baked prefab. Dry run by default — read the plan first. See below. |
 | `get_console` | Read this editor session's console (ring buffer), filterable by `severity`/`contains`, with `sinceSequence` for "what did that action produce". |
 | `resolve_packages` | Make Unity pick up an externally edited `manifest.json` without waiting for window focus, then wait for idle. |
+| `mirror_variant_graph` | Copy the library's prefabs into the project **with their inheritance intact**, so a change to a project root reaches everything below it. Dry-runs by default; verifies the result. See below. |
 | `clone_style_config` | Give the project its OWN style config, copied out of the package, and repoint the configuration at it. The first step of any theming. See below. |
 | `read_skin` | Read the VALUES behind the style names — colours, fonts, sizes, sprites. Applicable values only unless asked otherwise. See below. |
 | `write_skin` | Write those values. One edit reaches every prefab using the style. `dryRun` reports before/after without writing. See below. |
@@ -207,6 +208,37 @@ into it: variants of **all** library prefabs (one bulk run, not one at a time �
 client prefabs above library ones, so afterwards `"template": "StandardButton"` resolves to the
 project's variant with nothing rewired), a cloned style config, and the `IsApplicable` rule. Reading
 it once saves proposing a per-prefab variant to someone who needs a project-wide decision.
+
+### Owning the prefabs: `mirror_variant_graph`
+
+The library ships its standard elements as prefabs in a read-only package, so any structural change — a
+frame object on the button, an extra label — needs a project-side variant. Make them **all at once, at
+setup**: a variant inherits its base's standard-element marker, the registry ranks client prefabs above
+library ones, and every existing reference then resolves to the project's copy with nothing rewired.
+
+The part that is easy to get wrong is the inheritance *between* them. Of the library's 66 prefabs, 22 are
+themselves variants — `OkButton`, `CancelButton`, `CloseButton` and `StandardButtonSmall` are all
+variants of `StandardButton`. One variant per prefab, each hanging off its own original, gives ownership
+but flattens that: the project's copies are related to the package, not to each other, so a frame added
+to the project's `StandardButton` never reaches the project's `OkButton`.
+
+This tool mirrors the graph instead: roots become variants of the library prefab, and each dependent
+becomes a variant of the **project copy** of its base, with the library variant's own overrides
+transplanted onto it — property values, added objects, added and removed components, and the internal
+references re-aimed at the copy (without that last part the result is a prefab full of nulls that looks
+fine until something is clicked).
+
+It refuses to be trusted blindly, in three ways worth knowing:
+
+- **Dry run by default.** It returns the graph and, per dependent, how much it overrides.
+- **A verification pass** compares every rebuilt dependent against its library original property for
+  property and reports what differs. A difference is a place to look, not automatically a fault.
+- **`replaceExisting`** is `none` / `dependents` / `all` rather than a bool, because the useful answer is
+  usually `dependents`: the roots are where a project's own work lives, the dependents are what wants
+  rebuilding on top of it.
+
+Rebuilt assets get new GUIDs, so run it before anything references them, and regenerate the catalog
+afterwards.
 
 ### Theming: `clone_style_config`, `read_skin`, `write_skin`
 
