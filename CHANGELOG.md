@@ -20,6 +20,10 @@ All notable changes to this project will be documented in this file.
   Mirrors the library's folder structure under the target by default, and MOVES an existing copy that sits
   in the wrong folder instead of rebuilding it — a move keeps its GUID, its place in the chain and any hand
   edits, so a flat set can be reorganised without losing them
+  Works around a Unity quirk found while doing it: `AssetDatabase.CreateFolder(parent, "Dialogs")` returns
+  `parent/DialogS` when the parent already holds a file starting with that prefix in another case
+  (`DialogStub Variant.prefab`), so the requested name cannot be trusted — the folder is read back and
+  renamed, and all folders are created before any asset moves into them
 - **`variantOf` in the screen description** — a root node can declare `"variantOf": "StandardButton"` and
   the bake produces a prefab **variant** of it instead of a standalone asset, so the result follows its
   base. `overrides` changes inherited parts, `children` adds new ones. A root `template` node always did

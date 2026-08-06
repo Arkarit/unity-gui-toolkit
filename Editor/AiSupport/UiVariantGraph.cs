@@ -143,10 +143,20 @@ namespace GuiToolkit.Editor.AiSupport
 			// Relocate before anything else, so the rest of the run sees every existing copy where it belongs.
 			// MoveAsset keeps the GUID, which is what makes this a reorganisation rather than a rebuild:
 			// references survive, the variant chain survives, and so does whatever a human edited into them.
+			// Every folder first, while the target still looks the way it will look. Creating them one by one
+			// during the moves means creating a folder next to files that are on their way out of it, which
+			// is exactly the situation that makes Unity mangle the name.
+			foreach (var node in ordered)
+			{
+				string wanted = Path.GetDirectoryName(node.TargetPath)?.Replace('\\', '/');
+				string actual = EnsureFolder(wanted);
+				if (actual != wanted)
+					node.TargetPath = actual + "/" + Path.GetFileName(node.TargetPath);
+			}
+
 			var moved = new JArray();
 			foreach (var node in toMove)
 			{
-				EnsureFolder(Path.GetDirectoryName(node.TargetPath)?.Replace('\\', '/'));
 				string error = AssetDatabase.MoveAsset(node.MoveFrom, node.TargetPath);
 				if (string.IsNullOrEmpty(error))
 					moved.Add(new JObject { ["from"] = node.MoveFrom, ["to"] = node.TargetPath });
@@ -397,7 +407,8 @@ namespace GuiToolkit.Editor.AiSupport
 
 		private static void Create( Node _node )
 		{
-			EnsureFolder(Path.GetDirectoryName(_node.TargetPath)?.Replace('\\', '/'));
+			string folder = EnsureFolder(Path.GetDirectoryName(_node.TargetPath)?.Replace('\\', '/'));
+			_node.TargetPath = folder + "/" + Path.GetFileName(_node.TargetPath);
 
 			// A root hangs off the library prefab; a dependent hangs off the PROJECT copy of its base, which
 			// exists already because the nodes are processed bases-first.
@@ -814,14 +825,37 @@ namespace GuiToolkit.Editor.AiSupport
 			return sameName > 1 ? $"{_transform.name}#{ordinal}" : _transform.name;
 		}
 
-		private static void EnsureFolder( string _folder )
+		/// <summary>
+		/// Creates the folder and returns where it ACTUALLY ended up, which is not always what was asked for.
+		///
+		/// Measured, and reproducible: `AssetDatabase.CreateFolder(parent, "Dialogs")` returns
+		/// "parent/DialogS" when the parent already holds a file whose name starts with that same prefix in a
+		/// different case — here "DialogStub Variant.prefab". Unity resolves the new folder's casing against
+		/// the existing sibling and hands back a name nobody asked for. Without that sibling the same call is
+		/// correct. So the requested name cannot be trusted, and a caller that assumes it silently writes into
+		/// "DialogS" for the rest of the project's life.
+		///
+		/// Renaming afterwards does work, because it takes a different path through the asset database.
+		/// </summary>
+		private static string EnsureFolder( string _folder )
 		{
 			if (string.IsNullOrEmpty(_folder) || AssetDatabase.IsValidFolder(_folder))
-				return;
+				return _folder;
 
-			string parent = Path.GetDirectoryName(_folder)?.Replace('\\', '/');
-			EnsureFolder(parent);
-			AssetDatabase.CreateFolder(parent, Path.GetFileName(_folder));
+			string parent = EnsureFolder(Path.GetDirectoryName(_folder)?.Replace('\\', '/'));
+			string wanted = Path.GetFileName(_folder);
+
+			string guid = AssetDatabase.CreateFolder(parent, wanted);
+			string actual = AssetDatabase.GUIDToAssetPath(guid);
+			if (string.IsNullOrEmpty(actual) || actual == _folder)
+				return _folder;
+
+			string error = AssetDatabase.RenameAsset(actual, wanted);
+			if (string.IsNullOrEmpty(error) && AssetDatabase.IsValidFolder(_folder))
+				return _folder;
+
+			// Could not be corrected: return the truth rather than a path that does not exist.
+			return actual;
 		}
 
 		#endregion
