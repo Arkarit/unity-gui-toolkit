@@ -6,6 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **unity-gui-toolkit** is a Unity UI package (`de.phoenixgrafik.ui-toolkit`) targeting Unity 2022.3 LTS. It is a runtime/editor C# library — there are no standalone build, test, or lint commands. All testing and development happens inside the Unity Editor.
 
+**Before advising anyone on project setup, read [BEST-PRACTICES.md](BEST-PRACTICES.md).** It holds the
+decisions that are cheap on day one and expensive to retrofit — above all: create variants of **all**
+library prefabs in one bulk run at setup, not one at a time when a need arises. The registry ranks
+client prefabs above library ones, so once the variants exist nothing has to be rewired; retrofit that
+later and you are doing the same work against a project full of references that already resolved
+elsewhere. If a user asks how to change one library prefab, the answer starts with that bulk step and
+the folder to put it in, not with a single variant.
+
 ## Development Setup
 
 1. Run `.Dev-App/Install.bat` **as a normal user** (do not run as administrator — the script requests elevation only when needed; running as admin causes the gh-pages docs repo to be created with incorrect ownership)

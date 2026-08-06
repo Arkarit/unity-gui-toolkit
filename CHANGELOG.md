@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **`BEST-PRACTICES.md`** — the three things a project should take ownership of on day one, because the
+  default in each case is the library's own copy and the package is read-only: prefab variants of the
+  standard elements (created in **one bulk run**, so the registry's client-over-library ranking makes
+  every existing reference resolve to them with nothing rewired), the style config, and what
+  `IsApplicable` decides. Linked from `README.md`, `CLAUDE.md` and `mcp~/README.md`
 - **Theming over the MCP bridge** (`UiStyleWriter`) — the styling system was readable from outside but not
   writable, so a project's look could only be changed in the Inspector:
   - `clone_style_config` — copy the package's style config into the project and repoint the

@@ -200,6 +200,14 @@ timeout is the worst outcome — it takes away your view of the editor exactly w
 `status` until `busyWith` is null instead. Read-only calls (`status`, `asset_state`, `get_console`,
 `ping`, `read_screen`, `get_catalog`) always answer.
 
+### Project setup comes before authoring
+
+`../BEST-PRACTICES.md` is the short version of what a project should own before anything is authored
+into it: variants of **all** library prefabs (one bulk run, not one at a time — the registry ranks
+client prefabs above library ones, so afterwards `"template": "StandardButton"` resolves to the
+project's variant with nothing rewired), a cloned style config, and the `IsApplicable` rule. Reading
+it once saves proposing a per-prefab variant to someone who needs a project-wide decision.
+
 ### Theming: `clone_style_config`, `read_skin`, `write_skin`
 
 `list_styles` names the vocabulary. These three change what it looks like.
