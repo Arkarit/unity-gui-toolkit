@@ -102,6 +102,20 @@ Style *values* apply live, in Edit Mode too, through the `ExecuteAlways` applier
 reimport. The side effect is that changing a skin marks any open scene dirty, because the appliers
 write the new values into its instances. That dirt is not worth keeping.
 
+### Your own components can join the styling system
+
+A style is data; the component that reads it is the *applier* (`UiApplyStyleImage`,
+`UiApplyStyleTMP_Text`, …), and those pairs are **generated** — not only for the toolkit's own types.
+
+`Gui Toolkit → Styles → 'Ui Apply Style' Generator…` writes a `UiStyleX` + `UiApplyStyleX` pair for
+any component type you point it at, including your project's own MonoBehaviours, into the project's
+`Generated Assets Dir` (set in the configuration). After that your widget's properties are skinnable
+like everything else: same skins, same switching, same tweening.
+
+Worth knowing early, because the alternative is invisible: without it, a project's own components are
+the one part of the UI a skin change does not reach, and that is usually discovered late — when the
+second skin exists and half the screen fails to follow it.
+
 ---
 
 ## 4. Editor code: do not schedule real work on `delayCall`
