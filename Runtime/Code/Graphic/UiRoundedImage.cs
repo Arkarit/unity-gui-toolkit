@@ -50,19 +50,28 @@ namespace GuiToolkit
 		[Serializable]
 		public struct EdgeGap
 		{
-			[Tooltip("Interrupt this side of the frame.")]
+			[Tooltip("Switch this gap on.")]
 			public bool Active;
 
-			[Tooltip("Length of the interruption, as a fraction of this side's full length.")]
-			[UnityEngine.Range(0f, 1f)]
-			public float Width;
+			[Tooltip("Length of the gap. Read as a fraction of the side (0..1) or as pixels, depending "
+			         + "on Gap Unit.")]
+			public float Size;
 
-			[Tooltip("Position of the interruption along the side, measured from the side's centre, as a "
-			         + "fraction of the side's full length. 0 is centred.")]
-			[UnityEngine.Range(-0.5f, 0.5f)]
+			[Tooltip("Position of the gap, measured from the centre. Read as a fraction of the side "
+			         + "(-0.5..0.5) or as pixels, depending on Gap Unit.")]
 			public float Offset;
 
-			public static EdgeGap Centered( float _width ) => new EdgeGap { Active = true, Width = _width };
+			public static EdgeGap Centered( float _size ) => new EdgeGap { Active = true, Size = _size };
+		}
+
+		/// <summary>How a gap's Size and Offset are to be read.</summary>
+		public enum EGapUnit
+		{
+			/// <summary>Fraction of the side, so a gap keeps its proportion when the rect resizes.</summary>
+			Normalized,
+
+			/// <summary>Absolute pixels, so a gap keeps its measurement when the rect resizes.</summary>
+			Pixels,
 		}
 
 		private enum QuadFade
@@ -107,10 +116,19 @@ namespace GuiToolkit
 		[UnityEngine.Range(MinRadius, MaxRadius)]
 		[SerializeField] protected float m_radius = 10;
 
+		[Tooltip("Whether gap sizes and offsets are fractions of the side, or pixels.")]
+		[SerializeField] protected EGapUnit m_gapUnit = EGapUnit.Normalized;
+
+		// With a frame, a gap interrupts one SIDE of the outline, so there is one per side.
 		[SerializeField] protected EdgeGap m_gapLeft;
 		[SerializeField] protected EdgeGap m_gapRight;
 		[SerializeField] protected EdgeGap m_gapTop;
 		[SerializeField] protected EdgeGap m_gapBottom;
+
+		// Filled, there is no outline to interrupt, so a gap is a BAND cut right through the shape.
+		// Both bands at once leave the four corners standing.
+		[SerializeField] protected EdgeGap m_gapHorizontal;
+		[SerializeField] protected EdgeGap m_gapVertical;
 
 		// Resolved at the start of a frame generation and read by the edge emitters further down. Held as
 		// state rather than threaded through six call sites, of which four are recursive over the fade rings.
@@ -118,6 +136,14 @@ namespace GuiToolkit
 		private GapSpan m_spanRight;
 		private GapSpan m_spanTop;
 		private GapSpan m_spanBottom;
+
+		// The bands of the filled case, each along its own axis: m_bandX cuts x, m_bandY cuts y.
+		private GapSpan m_bandX;
+		private GapSpan m_bandY;
+
+		// Reused, because a rect is split against the bands several times per mesh rebuild.
+		private static readonly float[] s_xPieces = new float[4];
+		private static readonly float[] s_yPieces = new float[4];
 
 		public int CornerSegments
 		{
@@ -188,8 +214,39 @@ namespace GuiToolkit
 			SetVerticesDirty();
 		}
 
-		/// <summary>True when at least one side is interrupted; the frame is then not a closed ring.</summary>
-		public bool HasAnyGap => m_gapLeft.Active || m_gapRight.Active || m_gapTop.Active || m_gapBottom.Active;
+		public EdgeGap GapHorizontal
+		{
+			get => m_gapHorizontal;
+			set { m_gapHorizontal = value; SetVerticesDirty(); }
+		}
+
+		public EdgeGap GapVertical
+		{
+			get => m_gapVertical;
+			set { m_gapVertical = value; SetVerticesDirty(); }
+		}
+
+		public EGapUnit GapUnit
+		{
+			get => m_gapUnit;
+			set
+			{
+				if (m_gapUnit == value)
+					return;
+
+				m_gapUnit = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>True when at least one side of the frame is interrupted.</summary>
+		public bool HasAnySideGap => m_gapLeft.Active || m_gapRight.Active || m_gapTop.Active || m_gapBottom.Active;
+
+		/// <summary>True when at least one band cuts through the filled shape.</summary>
+		public bool HasAnyBandGap => m_gapHorizontal.Active || m_gapVertical.Active;
+
+		/// <summary>True when a gap is in effect for the mode this shape is currently in.</summary>
+		public bool HasAnyGap => m_frameSize > 0 ? HasAnySideGap : HasAnyBandGap;
 
 		protected override void GenerateFrame()
 		{
@@ -206,9 +263,9 @@ namespace GuiToolkit
 
 		protected override void GenerateFilled()
 		{
-			// A filled shape has no outline, so there is nothing for a gap to interrupt. Cutting a notch
-			// instead would need a depth, which the gap deliberately does not have.
-			ClearGapSpans();
+			// Filled, a gap cannot interrupt an outline -- there is none. It cuts straight through instead,
+			// which needs no depth: one band horizontally, one vertically, both together leave the corners.
+			ResolveBandSpans();
 
 			if (Mathf.Approximately(0, m_radius))
 			{
@@ -237,16 +294,103 @@ namespace GuiToolkit
 			m_spanRight = GapSpan.Inactive;
 			m_spanTop = GapSpan.Inactive;
 			m_spanBottom = GapSpan.Inactive;
+			m_bandX = GapSpan.Inactive;
+			m_bandY = GapSpan.Inactive;
 		}
 
-		private static GapSpan Resolve( EdgeGap _gap, float _sideCenter, float _sideLength )
+		/// <summary>
+		/// The two bands of the filled case, plus what they do to a ring the fade may have added.
+		///
+		/// Bands are clamped to the straight run of their axis, so a corner disc is never cut into. That
+		/// clamp is also what makes the maximum useful: at full size the two bands leave exactly the four
+		/// rounded corners standing.
+		/// </summary>
+		private void ResolveBandSpans()
 		{
-			if (!_gap.Active || _gap.Width <= 0f || _sideLength <= 0f)
+			ClearGapSpans();
+
+			var rect = Rect;
+			float r = Mathf.Max(0f, m_radius);
+
+			m_bandY = ClampSpan(Resolve(m_gapHorizontal, rect.center.y, rect.height), rect.yMin + r, rect.yMax - r);
+			m_bandX = ClampSpan(Resolve(m_gapVertical, rect.center.x, rect.width), rect.xMin + r, rect.xMax - r);
+
+			// A horizontal band crosses the LEFT and RIGHT sides of a ring, a vertical one TOP and BOTTOM.
+			// Saying it that way lets the existing side machinery cut the fade ring for free.
+			m_spanLeft = m_spanRight = m_bandY;
+			m_spanTop = m_spanBottom = m_bandX;
+		}
+
+		private GapSpan Resolve( EdgeGap _gap, float _sideCenter, float _sideLength )
+		{
+			if (!_gap.Active || _gap.Size <= 0f || _sideLength <= 0f)
 				return GapSpan.Inactive;
 
-			float half = _gap.Width * _sideLength * 0.5f;
-			float center = _sideCenter + _gap.Offset * _sideLength;
-			return new GapSpan(true, center - half, center + half);
+			// Normalized keeps its proportion when the rect resizes; pixels keep their measurement.
+			bool normalized = m_gapUnit == EGapUnit.Normalized;
+			float size = normalized ? _gap.Size * _sideLength : _gap.Size;
+			float offset = normalized ? _gap.Offset * _sideLength : _gap.Offset;
+
+			float center = _sideCenter + offset;
+			return new GapSpan(true, center - size * 0.5f, center + size * 0.5f);
+		}
+
+		private static GapSpan ClampSpan( GapSpan _span, float _min, float _max )
+		{
+			if (!_span.Active || _max <= _min)
+				return GapSpan.Inactive;
+
+			return new GapSpan(true, Mathf.Clamp(_span.From, _min, _max), Mathf.Clamp(_span.To, _min, _max));
+		}
+
+		/// <summary>
+		/// Writes the one or two ranges of [_min.._max] that survive _span, as from/to pairs, and returns
+		/// how many there are.
+		/// </summary>
+		private static int Pieces( float _min, float _max, GapSpan _span, float[] _out )
+		{
+			float from = Mathf.Clamp(_span.From, _min, _max);
+			float to = Mathf.Clamp(_span.To, _min, _max);
+
+			if (!_span.Active || to <= from)
+			{
+				_out[0] = _min;
+				_out[1] = _max;
+				return 1;
+			}
+
+			int n = 0;
+			if (from > _min)
+			{
+				_out[0] = _min;
+				_out[1] = from;
+				n++;
+			}
+
+			if (to < _max)
+			{
+				_out[n * 2] = to;
+				_out[n * 2 + 1] = _max;
+				n++;
+			}
+
+			return n;
+		}
+
+		/// <summary>A rectangle with both bands taken out of it: one, two or four pieces.</summary>
+		private void AddRectMinusBands( Rect _rect )
+		{
+			if (_rect.width <= 0.0001f || _rect.height <= 0.0001f)
+				return;
+
+			int nx = Pieces(_rect.xMin, _rect.xMax, m_bandX, s_xPieces);
+			int ny = Pieces(_rect.yMin, _rect.yMax, m_bandY, s_yPieces);
+
+			for (int i = 0; i < nx; i++)
+				for (int j = 0; j < ny; j++)
+					AddQuad(new Rect(s_xPieces[i * 2], s_yPieces[j * 2],
+						s_xPieces[i * 2 + 1] - s_xPieces[i * 2],
+						s_yPieces[j * 2 + 1] - s_yPieces[j * 2]));
 		}
 
 		private GapSpan SpanOf( ESide2D _side ) => _side switch
@@ -385,13 +529,13 @@ namespace GuiToolkit
 			var rect = Rect;
 			if (Mathf.Approximately(0, m_fadeSize))
 			{
-				AddQuad(rect);
+				AddRectMinusBands(rect);
 				return;
 			}
 
 			int startIndex = GenerateFrameRectSimple(rect, m_fadeSize);
 			FadeFrameRect(startIndex, rect, Fade.Outer);
-			AddQuad(Deflate(rect, m_fadeSize));
+			AddRectMinusBands(Deflate(rect, m_fadeSize));
 		}
 
 		// ------------------------------------------------------------------------------- rounded corners
@@ -462,22 +606,20 @@ namespace GuiToolkit
 			if (!Mathf.Approximately(0, m_fadeSize))
 				GenerateFrameRounded(ref rect, ref radius, m_fadeSize, Fade.Outer);
 
-			var x = rect.x;
-			var y = rect.y;
-			var w = rect.width;
-			var h = rect.height;
-			var cex = rect.center.x;
-			var cey = rect.center.y;
+			float r = Mathf.Max(0f, radius);
 
-			AddTriangle(x, y + radius, cex, cey, x, y + h - radius);
-			AddTriangle(x + radius, y + h, cex, cey, x + w - radius, y + h);
-			AddTriangle(x + w, y + radius, cex, cey, x + w, y + h - radius);
-			AddTriangle(x + radius, y, cex, cey, x + w - radius, y);
+			// A filled rounded rect tiles exactly as three rectangles plus four quarter discs. This used to
+			// be one fan from the centre, which cannot be cut -- a band through the middle would have to
+			// split every single triangle. Rectangles split against a band trivially, and the discs sit in
+			// the corners, which the bands are clamped away from.
+			AddRectMinusBands(new Rect(rect.x, rect.y + r, rect.width, rect.height - r * 2));
+			AddRectMinusBands(new Rect(rect.x + r, rect.yMax - r, rect.width - r * 2, r));
+			AddRectMinusBands(new Rect(rect.x + r, rect.y, rect.width - r * 2, r));
 
-			AddSector(rect, Corner.TopLeft, radius);
-			AddSector(rect, Corner.TopRight, radius);
-			AddSector(rect, Corner.BottomLeft, radius);
-			AddSector(rect, Corner.BottomRight, radius);
+			AddCornerDisc(rect, Corner.TopLeft, r);
+			AddCornerDisc(rect, Corner.TopRight, r);
+			AddCornerDisc(rect, Corner.BottomLeft, r);
+			AddCornerDisc(rect, Corner.BottomRight, r);
 		}
 
 		/// <summary>Centre of the arc that rounds this corner.</summary>
@@ -515,11 +657,19 @@ namespace GuiToolkit
 			}
 		}
 
-		private void AddSector( Rect _rect, Corner _corner, float _radius )
+		/// <summary>
+		/// One rounded corner as a quarter disc, fanned from the ARC's centre rather than the rect's.
+		///
+		/// Fanning from the rect centre, as before, made every corner triangle reach across the whole
+		/// shape -- which is exactly what made the filled mesh impossible to cut.
+		/// </summary>
+		private void AddCornerDisc( Rect _rect, Corner _corner, float _radius )
 		{
+			if (_radius <= 0f)
+				return;
+
 			var origin = CornerOrigin(_rect, _corner, _radius);
 			var (angle, increment) = CornerSweep(_corner);
-			var center = _rect.center;
 
 			for (int i = 0; i < m_cornerSegments; i++)
 			{
@@ -528,7 +678,7 @@ namespace GuiToolkit
 				angle += increment;
 				float x0 = Mathf.Sin(angle) * _radius + origin.x;
 				float y0 = Mathf.Cos(angle) * _radius + origin.y;
-				AddTriangle(x0, y0, center.x, center.y, x1, y1);
+				AddTriangle(x0, y0, origin.x, origin.y, x1, y1);
 			}
 		}
 

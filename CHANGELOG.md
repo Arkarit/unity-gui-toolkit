@@ -5,21 +5,35 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
-- **Edge gaps on `UiRoundedImage`** — each of the four sides can carry an interruption: `Active`, `Width`
-  and `Offset`, both measures as a fraction of that side's length so a gap keeps its proportions when the
-  rect resizes. `Offset` is measured from the side's CENTRE, so the common case (a gap in the middle) needs
-  no offset at all. Useful for a border broken by a heading, and four gaps at once give corner brackets
-  without any bitmap. Set from the inspector behind an `Edge Gaps` foldout — twelve controls is too much to
-  leave unfolded, and the collapsed header names the interrupted sides so it need not be opened to see.
-  Also readable and writable from code, per side (`GapTop`, `GetGap(ESide2D)`, `SetGap`).
-  Gaps interrupt the FRAME. A filled shape (`FrameSize` 0) has no outline to interrupt, and a notch would
-  need a depth the gap deliberately does not have, so they are ignored there — the inspector says so rather
-  than leaving someone wondering why the sliders do nothing.
-  The gap is resolved to absolute coordinates ONCE from the outer rect and then handed to every ring: a
-  frame with fade is three concentric rings of different size, and normalising per ring would cut each at a
-  slightly different place and leave the fade edges bridging the gap. It is clamped to each edge quad's own
-  extent, which is what keeps the corners intact in the square and the rounded case alike, with no special
-  handling for either
+- **Gaps on `UiRoundedImage`** — a shape can be interrupted, and what an interruption *is* depends on what
+  the shape is:
+  - **With a frame** there is an outline, and a gap interrupts one of its four **sides**. Four at once give
+    corner brackets with no bitmap involved.
+  - **Filled** there is no outline to interrupt, so a gap cuts a **band** right through instead: one
+    horizontal, one vertical. Both at maximum leave exactly the four rounded corners standing.
+
+  Each gap is `Active`, `Size` and `Offset`, with `Offset` measured from the centre so a centred gap needs
+  no offset at all. `Gap Unit` decides how the two numbers are read — **`Normalized`** as a fraction of the
+  side, so the gap keeps its proportion when the rect resizes, or **`Pixels`**, so it keeps its
+  measurement. Readable and writable from code as well (`GapTop`, `GapHorizontal`, `GetGap(ESide2D)`,
+  `SetGap`, `GapUnit`).
+
+  The inspector shows only the gaps that can do something in the current mode, behind a `Gaps` foldout
+  whose collapsed header names what is switched on. Each gap is one line until it is switched on, and only
+  then costs the two measurements — a slider each when normalized, a plain field when pixels, because no
+  pixel range would mean anything.
+
+  Two things in the geometry are worth knowing. A gap is resolved to absolute coordinates ONCE from the
+  outer rect and then handed to every ring: a frame with fade is three concentric rings of different size,
+  and normalising per ring would cut each at a slightly different place and leave the fade edges bridging
+  the gap. And every gap is clamped to the straight run of its axis, which is what keeps the corners intact
+  in the square and the rounded case alike, with no corner handling at all — and what makes the maximum
+  useful rather than destructive.
+
+  The filled mesh had to be re-triangulated for this. It was one fan from the rect's centre, in which every
+  corner triangle reaches across the whole shape, so a band through the middle would have had to split all
+  of them. A filled rounded rect tiles exactly as three rectangles plus four quarter discs, and rectangles
+  split against a band trivially. Same silhouette, different triangles
 - **`mirror_variant_graph`** (`UiVariantGraph`) — copies the library's prefabs into the project **with the
   inheritance between them**. 22 of the 66 library prefabs are themselves variants (`OkButton` and three
   siblings all descend from `StandardButton`); a plain one-variant-per-prefab run owns them all but relates
