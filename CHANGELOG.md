@@ -69,6 +69,14 @@ All notable changes to this project will be documented in this file.
 
 
 ### Fixed
+- **A localized label could not be cleared.** `UiLocalizedTextMeshProUGUI` overrides TMP's `text` setter and
+  routes the value into the loca KEY; `ApplyTranslation()` then returns early on an empty key, deliberately,
+  so a prefab's design-time placeholder survives when nothing has been assigned yet. Both halves are
+  reasonable, but together they made `text = ""` a no-op: the placeholder was promoted to real content
+  instead of being replaced. `UiPlayerSettingBase.SetData` assigns `Text = _playerSetting.Title`
+  unconditionally, so every setting WITHOUT a title displayed whatever its prefab happened to carry — the
+  language row in a settings dialog printed the word "Button". An explicit empty assignment now clears the
+  displayed text, while the passive path keeps the placeholder as before, so the Editor still shows it
 - **`mirror_variant_graph` produced variants that carried what their originals had REMOVED,** and the
   verification pass reported them as identical. Three faults, each hiding the next: removed components were
   looked up in the wrong tree (`assetComponent` belongs to the base, not to the source) so every removal was
