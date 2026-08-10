@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Edge gaps on `UiRoundedImage`** — each of the four sides can carry an interruption: `Active`, `Width`
+  and `Offset`, both measures as a fraction of that side's length so a gap keeps its proportions when the
+  rect resizes. `Offset` is measured from the side's CENTRE, so the common case (a gap in the middle) needs
+  no offset at all. Useful for a border broken by a heading, and four gaps at once give corner brackets
+  without any bitmap. Set from the inspector behind an `Edge Gaps` foldout — twelve controls is too much to
+  leave unfolded, and the collapsed header names the interrupted sides so it need not be opened to see.
+  Also readable and writable from code, per side (`GapTop`, `GetGap(ESide2D)`, `SetGap`).
+  Gaps interrupt the FRAME. A filled shape (`FrameSize` 0) has no outline to interrupt, and a notch would
+  need a depth the gap deliberately does not have, so they are ignored there — the inspector says so rather
+  than leaving someone wondering why the sliders do nothing.
+  The gap is resolved to absolute coordinates ONCE from the outer rect and then handed to every ring: a
+  frame with fade is three concentric rings of different size, and normalising per ring would cut each at a
+  slightly different place and leave the fade edges bridging the gap. It is clamped to each edge quad's own
+  extent, which is what keeps the corners intact in the square and the rounded case alike, with no special
+  handling for either
 - **`mirror_variant_graph`** (`UiVariantGraph`) — copies the library's prefabs into the project **with the
   inheritance between them**. 22 of the 66 library prefabs are themselves variants (`OkButton` and three
   siblings all descend from `StandardButton`); a plain one-variant-per-prefab run owns them all but relates
@@ -69,6 +84,11 @@ All notable changes to this project will be documented in this file.
 
 
 ### Fixed
+- **`UiRoundedImage`'s fade ring recoloured a fixed 32 vertices** — "the frame is 8 quads, 16 tris, 32
+  verts" — to find the ring it had just emitted. That held only as long as every side was exactly one quad.
+  It now takes the ring's first vertex index. Invisible before edge gaps existed, and immediately visible
+  with one: a single gap left 3 boundary vertices opaque, three gaps left 9, which reads as a hard edge
+  where the antialiasing should be
 - **A localized label could not be cleared.** `UiLocalizedTextMeshProUGUI` overrides TMP's `text` setter and
   routes the value into the loca KEY; `ApplyTranslation()` then returns early on an empty key, deliberately,
   so a prefab's design-time placeholder survives when nothing has been assigned yet. Both halves are

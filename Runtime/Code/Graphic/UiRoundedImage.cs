@@ -21,6 +21,11 @@ namespace GuiToolkit
 	///
 	/// Shape-agnostic infrastructure (frame, fade, material handling, UV mapping, IEnableableInHierarchy)
 	/// lives in the abstract UiShapeImage base; this class adds the rounded-rectangle geometry.
+	///
+	/// Each of the four sides can carry a GAP: a stretch of the frame that is simply not emitted, so the
+	/// outline is interrupted. Typical use is a border broken by a heading, or a frame that has to let
+	/// something through. Gaps interrupt the FRAME; a filled shape has no outline to interrupt, so they are
+	/// ignored when FrameSize is 0.
 	/// </summary>
 	[ExecuteAlways]
 	[RequireComponent(typeof(CanvasRenderer))]
@@ -32,6 +37,34 @@ namespace GuiToolkit
 		public const float MinRadius = 0;
 		public const float MaxRadius = 200;
 
+		/// <summary>
+		/// An interruption in one side of the frame.
+		///
+		/// Both measures are fractions of that side's full length, so a gap keeps its proportions when the
+		/// rect is resized. Width 0.3 is "three tenths of this side". Offset moves the gap along the side
+		/// from its CENTRE, so the common case — a gap in the middle — needs no offset at all.
+		///
+		/// The gap is clamped to the straight part of the side and can therefore never eat into a rounded
+		/// corner, however large it is set.
+		/// </summary>
+		[Serializable]
+		public struct EdgeGap
+		{
+			[Tooltip("Interrupt this side of the frame.")]
+			public bool Active;
+
+			[Tooltip("Length of the interruption, as a fraction of this side's full length.")]
+			[UnityEngine.Range(0f, 1f)]
+			public float Width;
+
+			[Tooltip("Position of the interruption along the side, measured from the side's centre, as a "
+			         + "fraction of the side's full length. 0 is centred.")]
+			[UnityEngine.Range(-0.5f, 0.5f)]
+			public float Offset;
+
+			public static EdgeGap Centered( float _width ) => new EdgeGap { Active = true, Width = _width };
+		}
+
 		private enum QuadFade
 		{
 			None,
@@ -39,6 +72,29 @@ namespace GuiToolkit
 			Right,
 			Top,
 			Bottom,
+		}
+
+		/// <summary>
+		/// A gap resolved to absolute local coordinates along its side's axis.
+		///
+		/// Resolved ONCE from the outer rect and then handed to every ring, because a frame with fade is
+		/// three concentric rings of different size: normalising per ring would cut each one at a slightly
+		/// different place and leave the fade edges bridging the gap.
+		/// </summary>
+		private readonly struct GapSpan
+		{
+			public readonly bool Active;
+			public readonly float From;
+			public readonly float To;
+
+			public GapSpan( bool _active, float _from, float _to )
+			{
+				Active = _active && _to > _from;
+				From = _from;
+				To = _to;
+			}
+
+			public static readonly GapSpan Inactive = new GapSpan(false, 0, 0);
 		}
 
 		[Tooltip("Corner segments. The more, the rounder. But keep an eye on performance; "
@@ -50,6 +106,18 @@ namespace GuiToolkit
 		[Tooltip("Corner radius. To work properly, this should always be greater than frame size (when used with frame)")]
 		[UnityEngine.Range(MinRadius, MaxRadius)]
 		[SerializeField] protected float m_radius = 10;
+
+		[SerializeField] protected EdgeGap m_gapLeft;
+		[SerializeField] protected EdgeGap m_gapRight;
+		[SerializeField] protected EdgeGap m_gapTop;
+		[SerializeField] protected EdgeGap m_gapBottom;
+
+		// Resolved at the start of a frame generation and read by the edge emitters further down. Held as
+		// state rather than threaded through six call sites, of which four are recursive over the fade rings.
+		private GapSpan m_spanLeft;
+		private GapSpan m_spanRight;
+		private GapSpan m_spanTop;
+		private GapSpan m_spanBottom;
 
 		public int CornerSegments
 		{
@@ -73,8 +141,60 @@ namespace GuiToolkit
 			}
 		}
 
+		public EdgeGap GapLeft
+		{
+			get => m_gapLeft;
+			set { m_gapLeft = value; SetVerticesDirty(); }
+		}
+
+		public EdgeGap GapRight
+		{
+			get => m_gapRight;
+			set { m_gapRight = value; SetVerticesDirty(); }
+		}
+
+		public EdgeGap GapTop
+		{
+			get => m_gapTop;
+			set { m_gapTop = value; SetVerticesDirty(); }
+		}
+
+		public EdgeGap GapBottom
+		{
+			get => m_gapBottom;
+			set { m_gapBottom = value; SetVerticesDirty(); }
+		}
+
+		public EdgeGap GetGap( ESide2D _side ) => _side switch
+		{
+			ESide2D.Left => m_gapLeft,
+			ESide2D.Right => m_gapRight,
+			ESide2D.Top => m_gapTop,
+			ESide2D.Bottom => m_gapBottom,
+			_ => throw new ArgumentOutOfRangeException(nameof(_side), _side, null),
+		};
+
+		public void SetGap( ESide2D _side, EdgeGap _gap )
+		{
+			switch (_side)
+			{
+				case ESide2D.Left: m_gapLeft = _gap; break;
+				case ESide2D.Right: m_gapRight = _gap; break;
+				case ESide2D.Top: m_gapTop = _gap; break;
+				case ESide2D.Bottom: m_gapBottom = _gap; break;
+				default: throw new ArgumentOutOfRangeException(nameof(_side), _side, null);
+			}
+
+			SetVerticesDirty();
+		}
+
+		/// <summary>True when at least one side is interrupted; the frame is then not a closed ring.</summary>
+		public bool HasAnyGap => m_gapLeft.Active || m_gapRight.Active || m_gapTop.Active || m_gapBottom.Active;
+
 		protected override void GenerateFrame()
 		{
+			ResolveGapSpans();
+
 			if (Mathf.Approximately(0, m_radius))
 			{
 				GenerateFrameRect();
@@ -86,6 +206,10 @@ namespace GuiToolkit
 
 		protected override void GenerateFilled()
 		{
+			// A filled shape has no outline, so there is nothing for a gap to interrupt. Cutting a notch
+			// instead would need a depth, which the gap deliberately does not have.
+			ClearGapSpans();
+
 			if (Mathf.Approximately(0, m_radius))
 			{
 				GenerateFilledRect();
@@ -95,59 +219,182 @@ namespace GuiToolkit
 			GenerateFilledRounded();
 		}
 
+		// ------------------------------------------------------------------------------------------ gaps
+
+		private void ResolveGapSpans()
+		{
+			var rect = Rect;
+
+			m_spanLeft = Resolve(m_gapLeft, rect.center.y, rect.height);
+			m_spanRight = Resolve(m_gapRight, rect.center.y, rect.height);
+			m_spanTop = Resolve(m_gapTop, rect.center.x, rect.width);
+			m_spanBottom = Resolve(m_gapBottom, rect.center.x, rect.width);
+		}
+
+		private void ClearGapSpans()
+		{
+			m_spanLeft = GapSpan.Inactive;
+			m_spanRight = GapSpan.Inactive;
+			m_spanTop = GapSpan.Inactive;
+			m_spanBottom = GapSpan.Inactive;
+		}
+
+		private static GapSpan Resolve( EdgeGap _gap, float _sideCenter, float _sideLength )
+		{
+			if (!_gap.Active || _gap.Width <= 0f || _sideLength <= 0f)
+				return GapSpan.Inactive;
+
+			float half = _gap.Width * _sideLength * 0.5f;
+			float center = _sideCenter + _gap.Offset * _sideLength;
+			return new GapSpan(true, center - half, center + half);
+		}
+
+		private GapSpan SpanOf( ESide2D _side ) => _side switch
+		{
+			ESide2D.Left => m_spanLeft,
+			ESide2D.Right => m_spanRight,
+			ESide2D.Top => m_spanTop,
+			ESide2D.Bottom => m_spanBottom,
+			_ => GapSpan.Inactive,
+		};
+
+		/// <summary>
+		/// One straight side of the frame, minus its gap.
+		///
+		/// The gap is clamped to this quad's own extent, which is what keeps corners intact: the quad
+		/// already stops where the corner begins, in the square case as well as the rounded one, so no
+		/// separate corner handling is needed.
+		/// </summary>
+		private void AddEdgeQuad( Rect _quad, ESide2D _side, QuadFade _fade = QuadFade.None )
+		{
+			var span = SpanOf(_side);
+			bool horizontal = _side is ESide2D.Top or ESide2D.Bottom;
+
+			float min = horizontal ? _quad.xMin : _quad.yMin;
+			float max = horizontal ? _quad.xMax : _quad.yMax;
+
+			float from = Mathf.Clamp(span.From, min, max);
+			float to = Mathf.Clamp(span.To, min, max);
+
+			if (!span.Active || to <= from)
+			{
+				AddQuad(_quad, _fade);
+				return;
+			}
+
+			// A gap that swallowed the whole side leaves nothing to emit.
+			bool hasBefore = from > min;
+			bool hasAfter = to < max;
+
+			if (hasBefore)
+				AddQuad(WithSpan(_quad, horizontal, min, from), _fade);
+
+			if (hasAfter)
+				AddQuad(WithSpan(_quad, horizontal, to, max), _fade);
+		}
+
+		private static Rect WithSpan( Rect _quad, bool _horizontal, float _from, float _to ) =>
+			_horizontal
+				? new Rect(_from, _quad.y, _to - _from, _quad.height)
+				: new Rect(_quad.x, _from, _quad.width, _to - _from);
+
+		// -------------------------------------------------------------------------------- square corners
+
 		private void GenerateFrameRect() => GenerateFrameRect(Rect, m_frameSize);
 
 		private void GenerateFrameRect( Rect _rect, float _frameSize )
 		{
-			if (!Mathf.Approximately(0, m_fadeSize))
+			if (Mathf.Approximately(0, m_fadeSize))
 			{
-				GenerateFrameRectSimple(_rect, m_fadeSize);
-				FadeFrameRect(_rect, Fade.Outer);
-				_rect.x += m_fadeSize;
-				_rect.y += m_fadeSize;
-				_rect.width -= m_fadeSize * 2;
-				_rect.height -= m_fadeSize * 2;
-				GenerateFrameRectSimple(_rect, _frameSize - m_fadeSize * 2);
-				_rect.x += _frameSize - m_fadeSize * 2;
-				_rect.y += _frameSize - m_fadeSize * 2;
-				_rect.width -= (_frameSize - m_fadeSize * 2) * 2;
-				_rect.height -= (_frameSize - m_fadeSize * 2) * 2;
-				GenerateFrameRectSimple(_rect, m_fadeSize);
-				FadeFrameRect(_rect, Fade.Inner);
-
+				GenerateFrameRectSimple(_rect, _frameSize);
 				return;
 			}
 
-			GenerateFrameRectSimple(_rect, _frameSize);
+			int startIndex = GenerateFrameRectSimple(_rect, m_fadeSize);
+			FadeFrameRect(startIndex, _rect, Fade.Outer);
+
+			_rect = Deflate(_rect, m_fadeSize);
+			GenerateFrameRectSimple(_rect, _frameSize - m_fadeSize * 2);
+
+			_rect = Deflate(_rect, _frameSize - m_fadeSize * 2);
+			startIndex = GenerateFrameRectSimple(_rect, m_fadeSize);
+			FadeFrameRect(startIndex, _rect, Fade.Inner);
 		}
 
-		private void GenerateFrameRectSimple( Rect _rect, float _frameWidth )
+		/// <summary>Emits one square ring and returns the index of its first vertex.</summary>
+		private int GenerateFrameRectSimple( Rect _rect, float _frameWidth )
 		{
+			int startIndex = s_vertices.Count;
+
 			var x = _rect.x;
 			var y = _rect.y;
 			var w = _rect.width;
 			var h = _rect.height;
 
-			Rect bl = new Rect(x, y, _frameWidth, _frameWidth);
-			Rect br = new Rect(w + x - _frameWidth, y, _frameWidth, _frameWidth);
-			Rect tl = new Rect(x, h + y - _frameWidth, _frameWidth, _frameWidth);
-			Rect tr = new Rect(w + x - _frameWidth, h + y - _frameWidth, _frameWidth, _frameWidth);
+			AddQuad(new Rect(x, y, _frameWidth, _frameWidth));                                   // bottom left
+			AddQuad(new Rect(w + x - _frameWidth, y, _frameWidth, _frameWidth), QuadFade.None, true);  // bottom right
+			AddQuad(new Rect(x, h + y - _frameWidth, _frameWidth, _frameWidth), QuadFade.None, true);  // top left
+			AddQuad(new Rect(w + x - _frameWidth, h + y - _frameWidth, _frameWidth, _frameWidth));     // top right
 
-			AddQuad(bl);
-			AddQuad(br, QuadFade.None, true);
-			AddQuad(tl, QuadFade.None, true);
-			AddQuad(tr);
+			AddEdgeQuad(new Rect(x, y + _frameWidth, _frameWidth, h - _frameWidth * 2), ESide2D.Left);
+			AddEdgeQuad(new Rect(w + x - _frameWidth, y + _frameWidth, _frameWidth, h - _frameWidth * 2), ESide2D.Right);
+			AddEdgeQuad(new Rect(x + _frameWidth, h + y - _frameWidth, w - _frameWidth * 2, _frameWidth), ESide2D.Top);
+			AddEdgeQuad(new Rect(x + _frameWidth, y, w - _frameWidth * 2, _frameWidth), ESide2D.Bottom);
 
-			Rect l = new Rect(x, y + _frameWidth, _frameWidth, h - _frameWidth * 2);
-			Rect r = new Rect(w + x - _frameWidth, y + _frameWidth, _frameWidth, h - _frameWidth * 2);
-			Rect t = new Rect(x + _frameWidth, h + y - _frameWidth, w - _frameWidth * 2, _frameWidth);
-			Rect b = new Rect(x + _frameWidth, y, w - _frameWidth * 2, _frameWidth);
-
-			AddQuad(l);
-			AddQuad(r);
-			AddQuad(t);
-			AddQuad(b);
+			return startIndex;
 		}
+
+		/// <summary>
+		/// Recolours the outer or inner boundary vertices of a ring that was just emitted.
+		///
+		/// Takes the ring's first vertex index rather than assuming a vertex count. It used to walk back a
+		/// fixed 32 ("the frame is 8 quads"), which stops being true the moment a gap splits a side into
+		/// two quads.
+		/// </summary>
+		private void FadeFrameRect( int _startIndex, Rect _rect, Fade _fade )
+		{
+			if (_fade == Fade.None)
+				return;
+
+			float top = _rect.yMin;
+			float bottom = _rect.yMax;
+			float left = _rect.xMin;
+			float right = _rect.xMax;
+
+			for (int i = _startIndex; i < s_vertices.Count; i++)
+			{
+				var vertex = s_vertices[i];
+				var position = vertex.Position;
+
+				bool onBoundary =
+					Mathf.Approximately(left, position.x) ||
+					Mathf.Approximately(right, position.x) ||
+					Mathf.Approximately(top, position.y) ||
+					Mathf.Approximately(bottom, position.y);
+
+				if (_fade == Fade.Inner)
+					onBoundary = !onBoundary;
+
+				if (onBoundary)
+					vertex.Color = m_fadeColor;
+			}
+		}
+
+		private void GenerateFilledRect()
+		{
+			var rect = Rect;
+			if (Mathf.Approximately(0, m_fadeSize))
+			{
+				AddQuad(rect);
+				return;
+			}
+
+			int startIndex = GenerateFrameRectSimple(rect, m_fadeSize);
+			FadeFrameRect(startIndex, rect, Fade.Outer);
+			AddQuad(Deflate(rect, m_fadeSize));
+		}
+
+		// ------------------------------------------------------------------------------- rounded corners
 
 		private void GenerateFrameRounded()
 		{
@@ -167,10 +414,7 @@ namespace GuiToolkit
 		private void GenerateFrameRounded( ref Rect _rect, ref float _radius, float _frameSize, Fade _fade )
 		{
 			GenerateFrameRounded(_rect, _radius, _frameSize, _fade);
-			_rect.x += _frameSize;
-			_rect.y += _frameSize;
-			_rect.width -= _frameSize * 2;
-			_rect.height -= _frameSize * 2;
+			_rect = Deflate(_rect, _frameSize);
 			_radius -= _frameSize;
 		}
 
@@ -181,34 +425,17 @@ namespace GuiToolkit
 			var w = _rect.width;
 			var h = _rect.height;
 
-			Rect l = new Rect(x, y + _radius, _frameSize, h - _radius * 2);
-			Rect r = new Rect(w + x - _frameSize, y + _radius, _frameSize, h - _radius * 2);
-			Rect t = new Rect(x + _radius, h + y - _frameSize, w - _radius * 2, _frameSize);
-			Rect b = new Rect(x + _radius, y, w - _radius * 2, _frameSize);
+			var left = new Rect(x, y + _radius, _frameSize, h - _radius * 2);
+			var right = new Rect(w + x - _frameSize, y + _radius, _frameSize, h - _radius * 2);
+			var top = new Rect(x + _radius, h + y - _frameSize, w - _radius * 2, _frameSize);
+			var bottom = new Rect(x + _radius, y, w - _radius * 2, _frameSize);
 
-			switch (_fade)
-			{
-				case Fade.None:
-					AddQuad(l);
-					AddQuad(r);
-					AddQuad(t);
-					AddQuad(b);
-					break;
-				case Fade.Inner:
-					AddQuad(l, QuadFade.Right);
-					AddQuad(r, QuadFade.Left);
-					AddQuad(t, QuadFade.Bottom);
-					AddQuad(b, QuadFade.Top);
-					break;
-				case Fade.Outer:
-					AddQuad(l, QuadFade.Left);
-					AddQuad(r, QuadFade.Right);
-					AddQuad(t, QuadFade.Top);
-					AddQuad(b, QuadFade.Bottom);
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(_fade), _fade, null);
-			}
+			var (fadeLeft, fadeRight, fadeTop, fadeBottom) = EdgeFades(_fade);
+
+			AddEdgeQuad(left, ESide2D.Left, fadeLeft);
+			AddEdgeQuad(right, ESide2D.Right, fadeRight);
+			AddEdgeQuad(top, ESide2D.Top, fadeTop);
+			AddEdgeQuad(bottom, ESide2D.Bottom, fadeBottom);
 
 			AddFrameSegment(_rect, Corner.TopLeft, _frameSize, _radius, _fade);
 			AddFrameSegment(_rect, Corner.TopRight, _frameSize, _radius, _fade);
@@ -216,55 +443,17 @@ namespace GuiToolkit
 			AddFrameSegment(_rect, Corner.BottomRight, _frameSize, _radius, _fade);
 		}
 
-		private void GenerateFilledRect()
+		/// <summary>
+		/// Which way each side's quad fades. Inner rings fade towards the middle of the shape, outer rings
+		/// away from it; the four cases used to be a switch repeated per side.
+		/// </summary>
+		private static (QuadFade left, QuadFade right, QuadFade top, QuadFade bottom) EdgeFades( Fade _fade ) => _fade switch
 		{
-			var rect = Rect;
-			if (Mathf.Approximately(0, m_fadeSize))
-			{
-				AddQuad(rect);
-				return;
-			}
-
-			GenerateFrameRectSimple(rect, m_fadeSize);
-			FadeFrameRect(rect, Fade.Outer);
-			rect.x += m_fadeSize;
-			rect.y += m_fadeSize;
-			rect.width -= m_fadeSize * 2;
-			rect.height -= m_fadeSize * 2;
-			AddQuad(rect);
-		}
-
-		private void FadeFrameRect( Rect _rect, Fade _fade )
-		{
-			if (_fade == Fade.None)
-				return;
-
-			float top = _rect.yMin;
-			float bottom = _rect.yMax;
-			float left = _rect.xMin;
-			float right = _rect.xMax;
-
-			// frame is 8 quads, 16 tris, 32 verts
-			for (int i = s_vertices.Count - 32; i < s_vertices.Count; i++)
-			{
-				var vertex = s_vertices[i];
-				var position = vertex.Position;
-
-				bool condition =
-					Mathf.Approximately(left, position.x) ||
-					Mathf.Approximately(right, position.x) ||
-					Mathf.Approximately(top, position.y) ||
-					Mathf.Approximately(bottom, position.y);
-
-				if (_fade == Fade.Inner)
-					condition = !condition;
-
-				if (condition)
-				{
-					vertex.Color = m_fadeColor;
-				}
-			}
-		}
+			Fade.None => (QuadFade.None, QuadFade.None, QuadFade.None, QuadFade.None),
+			Fade.Inner => (QuadFade.Right, QuadFade.Left, QuadFade.Bottom, QuadFade.Top),
+			Fade.Outer => (QuadFade.Left, QuadFade.Right, QuadFade.Top, QuadFade.Bottom),
+			_ => throw new ArgumentOutOfRangeException(nameof(_fade), _fade, null),
+		};
 
 		private void GenerateFilledRounded()
 		{
@@ -280,30 +469,10 @@ namespace GuiToolkit
 			var cex = rect.center.x;
 			var cey = rect.center.y;
 
-			AddTriangle
-			(
-				x, y + radius,
-				cex, cey,
-				x, y + h - radius
-			);
-			AddTriangle
-			(
-				x + radius, y + h,
-				cex, cey,
-				x + w - radius, y + h
-			);
-			AddTriangle
-			(
-				x + w, y + radius,
-				cex, cey,
-				x + w, y + h - radius
-			);
-			AddTriangle
-			(
-				x + radius, y,
-				cex, cey,
-				x + w - radius, y
-			);
+			AddTriangle(x, y + radius, cex, cey, x, y + h - radius);
+			AddTriangle(x + radius, y + h, cex, cey, x + w - radius, y + h);
+			AddTriangle(x + w, y + radius, cex, cey, x + w, y + h - radius);
+			AddTriangle(x + radius, y, cex, cey, x + w - radius, y);
 
 			AddSector(rect, Corner.TopLeft, radius);
 			AddSector(rect, Corner.TopRight, radius);
@@ -311,101 +480,62 @@ namespace GuiToolkit
 			AddSector(rect, Corner.BottomRight, radius);
 		}
 
+		/// <summary>Centre of the arc that rounds this corner.</summary>
+		private static Vector2 CornerOrigin( Rect _rect, Corner _corner, float _radius ) => _corner switch
+		{
+			Corner.TopLeft => new Vector2(_rect.x + _radius, _rect.yMax - _radius),
+			Corner.TopRight => new Vector2(_rect.xMax - _radius, _rect.yMax - _radius),
+			Corner.BottomRight => new Vector2(_rect.xMax - _radius, _rect.y + _radius),
+			Corner.BottomLeft => new Vector2(_rect.x + _radius, _rect.y + _radius),
+			_ => throw new ArgumentOutOfRangeException(nameof(_corner), _corner, null),
+		};
+
+		/// <summary>Angle at which a corner's arc starts, and the step per segment.</summary>
+		private (float angle, float increment) CornerSweep( Corner _corner ) =>
+			(((int)_corner + 3) * 90 * Mathf.Deg2Rad, 90f / m_cornerSegments * Mathf.Deg2Rad);
+
 		private void AddFrameSegment( Rect _rect, Corner _corner, float _frameSize, float _radius, Fade _fade )
 		{
-			var x = _rect.x;
-			var y = _rect.y;
-			var w = _rect.width;
-			var h = _rect.height;
-
-			float angle = ((int)_corner + 3) * 90 * Mathf.Deg2Rad;
-			float angleIncrement = 90f / m_cornerSegments * Mathf.Deg2Rad;
-
-			float ox, oy;
-			switch (_corner)
-			{
-				case Corner.TopLeft:
-					ox = x + _radius;
-					oy = y + h - _radius;
-					break;
-				case Corner.TopRight:
-					ox = x + w - _radius;
-					oy = y + h - _radius;
-					break;
-				case Corner.BottomRight:
-					ox = x + w - _radius;
-					oy = y + _radius;
-					break;
-				case Corner.BottomLeft:
-					ox = x + _radius;
-					oy = y + _radius;
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(_corner), _corner, null);
-			}
+			var origin = CornerOrigin(_rect, _corner, _radius);
+			var (angle, increment) = CornerSweep(_corner);
 
 			float radiusInner = _radius - _frameSize;
 			for (int i = 0; i < m_cornerSegments; i++)
 			{
-				float x1 = Mathf.Sin(angle) * _radius + ox;
-				float y1 = Mathf.Cos(angle) * _radius + oy;
-				float x3 = Mathf.Sin(angle) * radiusInner + ox;
-				float y3 = Mathf.Cos(angle) * radiusInner + oy;
-				angle += angleIncrement;
-				float x0 = Mathf.Sin(angle) * _radius + ox;
-				float y0 = Mathf.Cos(angle) * _radius + oy;
-				float x2 = Mathf.Sin(angle) * radiusInner + ox;
-				float y2 = Mathf.Cos(angle) * radiusInner + oy;
+				float x1 = Mathf.Sin(angle) * _radius + origin.x;
+				float y1 = Mathf.Cos(angle) * _radius + origin.y;
+				float x3 = Mathf.Sin(angle) * radiusInner + origin.x;
+				float y3 = Mathf.Cos(angle) * radiusInner + origin.y;
+				angle += increment;
+				float x0 = Mathf.Sin(angle) * _radius + origin.x;
+				float y0 = Mathf.Cos(angle) * _radius + origin.y;
+				float x2 = Mathf.Sin(angle) * radiusInner + origin.x;
+				float y2 = Mathf.Cos(angle) * radiusInner + origin.y;
 				AddIrregularQuad(x0, y0, x1, y1, x2, y2, x3, y3, _fade);
 			}
-
 		}
 
 		private void AddSector( Rect _rect, Corner _corner, float _radius )
 		{
-			var x = _rect.x;
-			var y = _rect.y;
-			var w = _rect.width;
-			var h = _rect.height;
-			var cex = _rect.center.x;
-			var cey = _rect.center.y;
-
-			float angle = ((int)_corner + 3) * 90 * Mathf.Deg2Rad;
-			float angleIncrement = 90f / m_cornerSegments * Mathf.Deg2Rad;
-
-			float ox, oy;
-			switch (_corner)
-			{
-				case Corner.TopLeft:
-					ox = x + _radius;
-					oy = y + h - _radius;
-					break;
-				case Corner.TopRight:
-					ox = x + w - _radius;
-					oy = y + h - _radius;
-					break;
-				case Corner.BottomRight:
-					ox = x + w - _radius;
-					oy = y + _radius;
-					break;
-				case Corner.BottomLeft:
-					ox = x + _radius;
-					oy = y + _radius;
-					break;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(_corner), _corner, null);
-			}
+			var origin = CornerOrigin(_rect, _corner, _radius);
+			var (angle, increment) = CornerSweep(_corner);
+			var center = _rect.center;
 
 			for (int i = 0; i < m_cornerSegments; i++)
 			{
-				float x1 = Mathf.Sin(angle) * _radius + ox;
-				float y1 = Mathf.Cos(angle) * _radius + oy;
-				angle += angleIncrement;
-				float x0 = Mathf.Sin(angle) * _radius + ox;
-				float y0 = Mathf.Cos(angle) * _radius + oy;
-				AddTriangle(x0, y0, cex, cey, x1, y1);
+				float x1 = Mathf.Sin(angle) * _radius + origin.x;
+				float y1 = Mathf.Cos(angle) * _radius + origin.y;
+				angle += increment;
+				float x0 = Mathf.Sin(angle) * _radius + origin.x;
+				float y0 = Mathf.Cos(angle) * _radius + origin.y;
+				AddTriangle(x0, y0, center.x, center.y, x1, y1);
 			}
 		}
+
+		// ------------------------------------------------------------------------------------ primitives
+
+		private static Rect Deflate( Rect _rect, float _amount ) =>
+			new Rect(_rect.x + _amount, _rect.y + _amount, _rect.width - _amount * 2, _rect.height - _amount * 2);
 
 		private void AddQuad( Rect _rect, QuadFade _fade = QuadFade.None, bool _left = false ) => AddQuad(_rect.min, _rect.max, _fade, _left);
 
@@ -413,6 +543,8 @@ namespace GuiToolkit
 		{
 			int startIndex = s_vertices.Count;
 
+			// Which of the four corners get the fade colour, in the order they are added below:
+			// min/min, min/max, max/max, max/min.
 			switch (_fade)
 			{
 				case QuadFade.None:
