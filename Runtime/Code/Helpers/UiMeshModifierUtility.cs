@@ -373,15 +373,23 @@ namespace GuiToolkit
 			}
 		}
 
-		// Mirrors UiMathUtility.Bilerp: only position, color and uv0 are interpolated.
-		// uv1-3, normal and tangent come from _a unchanged - matches existing behavior of the
-		// quad-based subdivision path and the UI gradient/distortion modifiers that consume it.
+		// Every per-vertex channel is interpolated, and the UVs as the Vector4 they actually are.
+		// UIVertex.uv0 is a Vector4; lerping it as a Vector2 silently zeroes z and w through the
+		// implicit conversions. TextMeshPro packs the SDF scale into uv0.w and its shaders compute
+		// "scale *= abs(texcoord0.w)", so a truncated uv0 leaves every vertex introduced by a split
+		// with scale 0 - the glyph edge loses its distance-field gradient and smears - and with
+		// "bold = step(texcoord0.w, 0)" turning true on top of it.
 		private static UIVertex LerpVertex(ref UIVertex _a, ref UIVertex _b, float _t)
 		{
 			UIVertex r = _a;
 			r.position = Vector3.Lerp(_a.position, _b.position, _t);
+			r.normal = Vector3.Lerp(_a.normal, _b.normal, _t);
+			r.tangent = Vector4.Lerp(_a.tangent, _b.tangent, _t);
 			r.color = Color.Lerp(_a.color, _b.color, _t);
-			r.uv0 = Vector2.Lerp(_a.uv0, _b.uv0, _t);
+			r.uv0 = Vector4.Lerp(_a.uv0, _b.uv0, _t);
+			r.uv1 = Vector4.Lerp(_a.uv1, _b.uv1, _t);
+			r.uv2 = Vector4.Lerp(_a.uv2, _b.uv2, _t);
+			r.uv3 = Vector4.Lerp(_a.uv3, _b.uv3, _t);
 			return r;
 		}
 
