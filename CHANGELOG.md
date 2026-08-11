@@ -98,6 +98,19 @@ All notable changes to this project will be documented in this file.
 
 
 ### Fixed
+- **`UiRoundedImage` folded through its own corners once the frame or fade exceeded the radius.** The
+  corner piece was drawn between an outer arc of `radius` and an inner arc of `radius - frameSize`, and
+  past the radius that inner radius goes NEGATIVE: the inner arc flips to the far side of the corner's
+  centre and the triangles cross, which showed as a fan of overlapping slivers in each corner. A frame
+  thicker than the radius simply has no rounded inner boundary — it is a plain rectangle inset by the
+  frame — so the corner piece is now a triangle fan onto that rectangle's corner, carried over the arc
+  AND over the straight run of each side between the tangent point and the inset rectangle (without those
+  two extra points the piece stops at the tangent and leaves a notch). A ring that used the radius up
+  leaves the next one square, and the radius no longer goes negative between rings; a frame thicker than
+  half the shape is clamped so the two inner corners cannot cross. Checked by winding: across nine
+  configurations spanning the switchover, every triangle now turns the same way and none has zero area —
+  at exactly frame == radius the apex coincides with the arc's centre, which used to add slivers whose
+  orientation was decided by rounding error
 - **`UiRoundedImage`'s fade ring recoloured a fixed 32 vertices** — "the frame is 8 quads, 16 tris, 32
   verts" — to find the ring it had just emitted. That held only as long as every side was exactly one quad.
   It now takes the ring's first vertex index. Invisible before edge gaps existed, and immediately visible

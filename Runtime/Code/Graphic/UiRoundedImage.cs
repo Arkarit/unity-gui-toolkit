@@ -411,6 +411,11 @@ namespace GuiToolkit
 		/// </summary>
 		private void AddEdgeQuad( Rect _quad, ESide2D _side, QuadFade _fade = QuadFade.None )
 		{
+			// A frame thick enough to swallow the side leaves no quad to draw, and a negative one would
+			// come out inside-out.
+			if (_quad.width <= 0.0001f || _quad.height <= 0.0001f)
+				return;
+
 			var span = SpanOf(_side);
 			bool horizontal = _side is ESide2D.Top or ESide2D.Bottom;
 
@@ -559,20 +564,40 @@ namespace GuiToolkit
 		{
 			GenerateFrameRounded(_rect, _radius, _frameSize, _fade);
 			_rect = Deflate(_rect, _frameSize);
-			_radius -= _frameSize;
+
+			// A ring thicker than the radius leaves nothing rounded behind it. Letting the radius go
+			// negative is what made the next ring fold through its own corners.
+			_radius = Mathf.Max(0f, _radius - _frameSize);
 		}
 
 		private void GenerateFrameRounded( Rect _rect, float _radius, float _frameSize, Fade _fade )
 		{
+			// An earlier ring already used the radius up, so this one has square corners and the plain
+			// rectangular ring draws it exactly.
+			if (_radius <= 0f)
+			{
+				int startIndex = GenerateFrameRectSimple(_rect, _frameSize);
+				FadeFrameRect(startIndex, _rect, _fade);
+				return;
+			}
+
+			// A frame thicker than half the shape would have its two inner corners cross each other.
+			float inner = Mathf.Min(_frameSize, Mathf.Min(_rect.width, _rect.height) * 0.5f);
+
+			// The straight sides stop where the corner piece starts: at the radius while the frame fits
+			// inside it, and at the frame itself once it does not -- because then the inner boundary is a
+			// plain rectangle inset by the frame.
+			float inset = Mathf.Max(_radius, inner);
+
 			var x = _rect.x;
 			var y = _rect.y;
 			var w = _rect.width;
 			var h = _rect.height;
 
-			var left = new Rect(x, y + _radius, _frameSize, h - _radius * 2);
-			var right = new Rect(w + x - _frameSize, y + _radius, _frameSize, h - _radius * 2);
-			var top = new Rect(x + _radius, h + y - _frameSize, w - _radius * 2, _frameSize);
-			var bottom = new Rect(x + _radius, y, w - _radius * 2, _frameSize);
+			var left = new Rect(x, y + inset, _frameSize, h - inset * 2);
+			var right = new Rect(w + x - _frameSize, y + inset, _frameSize, h - inset * 2);
+			var top = new Rect(x + inset, h + y - _frameSize, w - inset * 2, _frameSize);
+			var bottom = new Rect(x + inset, y, w - inset * 2, _frameSize);
 
 			var (fadeLeft, fadeRight, fadeTop, fadeBottom) = EdgeFades(_fade);
 
@@ -581,10 +606,91 @@ namespace GuiToolkit
 			AddEdgeQuad(top, ESide2D.Top, fadeTop);
 			AddEdgeQuad(bottom, ESide2D.Bottom, fadeBottom);
 
-			AddFrameSegment(_rect, Corner.TopLeft, _frameSize, _radius, _fade);
-			AddFrameSegment(_rect, Corner.TopRight, _frameSize, _radius, _fade);
-			AddFrameSegment(_rect, Corner.BottomLeft, _frameSize, _radius, _fade);
-			AddFrameSegment(_rect, Corner.BottomRight, _frameSize, _radius, _fade);
+			// Past the radius the inner arc would have a NEGATIVE radius and fold through the corner's own
+			// centre -- the overlapping fan of triangles this used to draw. Then the inner boundary is the
+			// corner of the inset rectangle, and the corner piece fans onto that single point.
+			bool collapsed = inner >= _radius;
+
+			AddCorner(_rect, Corner.TopLeft, inner, _radius, _fade, collapsed);
+			AddCorner(_rect, Corner.TopRight, inner, _radius, _fade, collapsed);
+			AddCorner(_rect, Corner.BottomLeft, inner, _radius, _fade, collapsed);
+			AddCorner(_rect, Corner.BottomRight, inner, _radius, _fade, collapsed);
+		}
+
+		private void AddCorner( Rect _rect, Corner _corner, float _frameSize, float _radius, Fade _fade, bool _collapsed )
+		{
+			if (_collapsed)
+				AddCollapsedCorner(_rect, _corner, _frameSize, _radius, _fade);
+			else
+				AddFrameSegment(_rect, _corner, _frameSize, _radius, _fade);
+		}
+
+		/// <summary>
+		/// The corner piece for a frame thicker than the radius: a triangle fan from the corner of the
+		/// inset rectangle out to the rounded outer boundary.
+		///
+		/// The fan runs over the arc AND over the straight bit of each side between the arc's tangent
+		/// point and the inset rectangle. Without those two extra points the piece would stop at the
+		/// tangent and leave a notch where it meets the straight sides.
+		/// </summary>
+		private void AddCollapsedCorner( Rect _rect, Corner _corner, float _frameSize, float _radius, Fade _fade )
+		{
+			// CornerOrigin with the frame size is precisely the corner of the inset rectangle.
+			var apex = CornerOrigin(_rect, _corner, _frameSize);
+			var origin = CornerOrigin(_rect, _corner, _radius);
+			var (angle, increment) = CornerSweep(_corner);
+
+			s_perimA.Clear();
+			for (int i = 0; i <= m_cornerSegments; i++)
+			{
+				s_perimA.Add(new Vector2(Mathf.Sin(angle) * _radius + origin.x,
+					Mathf.Cos(angle) * _radius + origin.y));
+				angle += increment;
+			}
+
+			// Exactly AT the radius the apex is the arc's own centre, so the extension points land on the
+			// arc's ends and would only add triangles of zero area -- whose winding is then decided by
+			// rounding error. Add them only where they are actually somewhere else.
+			AddIfDistinct(s_perimA, 0, ExtendAlongSide(s_perimA[0], apex, _rect));
+			AddIfDistinct(s_perimA, s_perimA.Count, ExtendAlongSide(s_perimA[s_perimA.Count - 1], apex, _rect));
+
+			var outerColor = _fade == Fade.Outer ? m_fadeColor : color;
+			var apexColor = _fade == Fade.Inner ? m_fadeColor : color;
+
+			// Winding matches AddCornerDisc: later point, apex, earlier point.
+			for (int i = 0; i < s_perimA.Count - 1; i++)
+				AddTriangle(s_perimA[i + 1], apex, s_perimA[i], outerColor, apexColor, outerColor);
+		}
+
+		private static void AddIfDistinct( System.Collections.Generic.List<Vector2> _list, int _index, Vector2 _point )
+		{
+			int neighbour = _index == 0 ? 0 : _list.Count - 1;
+			if ((_list[neighbour] - _point).sqrMagnitude < 0.000001f)
+				return;
+
+			_list.Insert(_index, _point);
+		}
+
+		/// <summary>
+		/// Slides a point that sits on one of the rect's sides along that side until it is level with the
+		/// inset corner.
+		/// </summary>
+		private static Vector2 ExtendAlongSide( Vector2 _onSide, Vector2 _apex, Rect _rect )
+		{
+			const float epsilon = 0.001f;
+			bool onVerticalSide = Mathf.Abs(_onSide.x - _rect.xMin) < epsilon
+			                      || Mathf.Abs(_onSide.x - _rect.xMax) < epsilon;
+
+			return onVerticalSide ? new Vector2(_onSide.x, _apex.y) : new Vector2(_apex.x, _onSide.y);
+		}
+
+		private void AddTriangle( Vector2 _a, Vector2 _b, Vector2 _c, Color _colorA, Color _colorB, Color _colorC )
+		{
+			int startIndex = s_vertices.Count;
+			AddVert(_a.x, _a.y, _colorA);
+			AddVert(_b.x, _b.y, _colorB);
+			AddVert(_c.x, _c.y, _colorC);
+			s_triangles.Add(new[] { startIndex, startIndex + 1, startIndex + 2 });
 		}
 
 		/// <summary>
