@@ -36,6 +36,13 @@ namespace GuiToolkit
 
 			Vector2 dist = m_max - m_min;
 
+			// A mesh with no extent along one axis (or none at all) would divide by zero below and
+			// write NaN into every vertex color. Map that axis to 0 instead.
+			if (dist.x == 0f)
+				dist.x = 1f;
+			if (dist.y == 0f)
+				dist.y = 1f;
+
 			for (int i = 0; i < _vh.currentVertCount; ++i)
 			{
 				_vh.PopulateUIVertex(ref s_vertex, i);
@@ -63,24 +70,15 @@ namespace GuiToolkit
 			}
 		}
 
-		// Well mesh bounds could be simply done by getting the mesh bounds. 
-		// If there only would be a mesh in the Vertex"Helper".
-		// So we have to iterate it manually. And let "PopulateUIVertex" fill each UiVertex with uv0, uv1, tangents and whatnot shit we don't need. Extremely inefficient.
-		// Well done as usual, Unity.
+		// Mesh bounds could simply be the mesh bounds. If there only would be a mesh in the Vertex"Helper".
+		// Well done as usual, Unity. UiMeshModifierUtility.GetBounds does the walking, and - unlike the
+		// straight per-vertex loop that used to live here - it skips the surplus quads TextMeshPro parks
+		// on (0,0,0). Counting those pulled the box to the origin and shifted the whole gradient with it.
 		private void CalcMeshBounds( VertexHelper _vh )
 		{
-			m_min = new Vector2( float.MaxValue, float.MaxValue );
-			m_max = new Vector2( float.MinValue, float.MinValue );
-
-			for (int i = 0; i < _vh.currentVertCount; ++i)
-			{
-				_vh.PopulateUIVertex(ref s_vertex, i);
-
-				m_min.x = Mathf.Min(m_min.x, s_vertex.position.x);
-				m_min.y = Mathf.Min(m_min.y, s_vertex.position.y);
-				m_max.x = Mathf.Max(m_max.x, s_vertex.position.x);
-				m_max.y = Mathf.Max(m_max.y, s_vertex.position.y);
-			}
+			Rect bounds = UiMeshModifierUtility.GetBounds(_vh);
+			m_min = bounds.min;
+			m_max = bounds.max;
 		}
 	}
 }
