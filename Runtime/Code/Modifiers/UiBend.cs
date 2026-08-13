@@ -129,6 +129,67 @@ namespace GuiToolkit
 			);
 		}
 
+		/// <summary>
+		/// Describes the arc this bend lays its mesh on, in this component's local space:
+		/// the centre it curves around, its radius, and the angles at which the mesh's left and right
+		/// edges sit, measured from the centre in the usual atan2 sense.
+		/// </summary>
+		/// <remarks>
+		/// The point of this method is that a bend states its arc in terms anything else can consume,
+		/// instead of only in terms that make sense to vertices. UiBend derives its radius from the mesh
+		/// (<c>width / angle</c>) and curves around a centre offset from a pivot inside the bounding box,
+		/// while a radial layout is told a radius and curves around its own origin — so neither the
+		/// radius, the centre, nor the zero angle line up, and matching them by hand means solving for
+		/// them anew after every change.
+		///
+		/// The angles are read back through <see cref="BendPointLocal"/> rather than derived a second
+		/// time, so they cannot drift from what is actually drawn — including the sign flip a negative
+		/// angle brings, and the effect of <see cref="Rotation"/>.
+		///
+		/// Returns false while there is nothing to describe: no mesh bounds yet, or an angle so small
+		/// that the "arc" is a straight line with an infinite radius.
+		/// </remarks>
+		public bool TryGetArc( out Vector2 _centerLocal, out float _radius, out float _startAngleDeg, out float _endAngleDeg )
+		{
+			_centerLocal = Vector2.zero;
+			_radius = 0f;
+			_startAngleDeg = 0f;
+			_endAngleDeg = 0f;
+
+			if (Bounding.width <= 0 || Bounding.height <= 0)
+				return false;
+
+			float angleRad = m_angle * Mathf.Deg2Rad;
+			if (Mathf.Abs(angleRad) <= 1e-5f)
+				return false;
+
+			Vector2 pivot = new Vector2
+			(
+				Bounding.x + m_pivot.x * Bounding.width,
+				Bounding.y + m_pivot.y * Bounding.height
+			);
+
+			// Signed: a negative angle puts the centre below the pivot, and that sign has to survive.
+			float r = Bounding.width / angleRad;
+
+			float rotationRad = m_rotation * Mathf.Deg2Rad;
+			float cosRot = Mathf.Cos(rotationRad);
+			float sinRot = Mathf.Sin(rotationRad);
+
+			// The pivot is the one point the bend leaves where it was, so it lies on the arc, and the
+			// centre is r away from it along the local up axis — carried round by Rotation like the rest.
+			_centerLocal = pivot + new Vector2(-r * sinRot, r * cosRot);
+			_radius = Mathf.Abs(r);
+
+			Vector2 left = BendPointLocal(new Vector2(Bounding.xMin, pivot.y));
+			Vector2 right = BendPointLocal(new Vector2(Bounding.xMax, pivot.y));
+
+			_startAngleDeg = Mathf.Atan2(left.y - _centerLocal.y, left.x - _centerLocal.x) * Mathf.Rad2Deg;
+			_endAngleDeg = Mathf.Atan2(right.y - _centerLocal.y, right.x - _centerLocal.x) * Mathf.Rad2Deg;
+
+			return true;
+		}
+
 		public override void ModifyMesh(VertexHelper _vertexHelper)
 		{
 			if (!IsActive())
