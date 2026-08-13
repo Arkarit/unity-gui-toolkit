@@ -548,11 +548,22 @@ namespace GuiToolkit
 		/// <summary>
 		/// Apply default scene visibility policy once at runtime.
 		/// </summary>
+		/// <remarks>
+		/// Skipped for a panel the API has already shown. UiMain runs this pass from its own Start over
+		/// every child including inactive ones, so anything opened from a Start() that happened to run
+		/// earlier — a dialog in the very first frame is the realistic case — would be closed again here,
+		/// with no log and no clue. One frame later the same call works, because this one-shot has since
+		/// been spent. The scene default describes the untouched case; <see cref="Visible"/> is exactly
+		/// the flag saying somebody decided otherwise.
+		/// </remarks>
 		public void SetDefaultSceneVisibility()
 		{
 			if (Application.isPlaying && (!m_defaultSceneVisibilityApplied))
 			{
 				m_defaultSceneVisibilityApplied = true;
+
+				if (Visible)
+					return;
 
 				switch (m_defaultSceneVisibility)
 				{
