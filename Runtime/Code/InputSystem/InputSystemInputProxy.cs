@@ -78,10 +78,14 @@ namespace GuiToolkit
 		/// </summary>
 		/// <remarks>
 		/// SubsystemRegistration is the earliest runtime hook there is, so this lands before any scene
-		/// loads and therefore before anything can ask for a proxy. Guarded by ENABLE_INPUT_SYSTEM
-		/// rather than by the assembly's own constraint: the package can be installed while Active Input
-		/// Handling is still "Input Manager (Old)", and then the legacy proxy is the correct answer.
-		/// With "Both", either works and the new backend is preferred.
+		/// loads and therefore before anything can ask for a proxy.
+		///
+		/// It takes over only where the legacy manager is genuinely gone. Under "Both" the legacy proxy
+		/// keeps working and has years of use behind it, so switching backends there would be an
+		/// unasked-for change of behaviour riding along with a bug fix — and this mapping, thorough as it
+		/// is, is still a mapping: a KeyCode nobody listed reads as "not pressed" where the legacy path
+		/// simply worked. A project on "Both" that wants this backend can say so by assigning
+		/// PlayerSettings.Instance.InputProxy.
 		///
 		/// InitializeOnLoadMethod as well, because RuntimeInitializeOnLoadMethod does not fire in Edit
 		/// Mode: without it an editor-side read falls through to <see cref="NullInputProxy"/> and reports
@@ -93,7 +97,7 @@ namespace GuiToolkit
 #endif
 		private static void Register()
 		{
-#if ENABLE_INPUT_SYSTEM
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
 			InputProxyFactory.Register(() => new InputSystemInputProxy());
 #endif
 		}
