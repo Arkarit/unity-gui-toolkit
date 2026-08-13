@@ -75,6 +75,17 @@ param(
 
     [switch] $ReportUsage,
 
+    # A Unity project is very often not a git repo yet, and `codex exec` then refuses outright:
+    # "Not inside a trusted directory and --skip-git-repo-check was not specified." The flag only
+    # waives the repo check -- the sandbox from -s still applies -- but it does waive the safety net
+    # that lets you undo Codex's edits with git, so it stays off by default.
+    [switch] $SkipGitRepoCheck,
+
+    # Escape hatch for anything this wrapper does not model. Passed through verbatim, ahead of the
+    # stdin marker. Exists because this file is installer-managed: editing it locally to add one flag
+    # would drift against the manifest hash and be overwritten on the next install.
+    [string[]] $ExtraArgs,
+
     [string] $LogPath,
 
     # JSON Schema file describing the shape of Codex's final answer. Worth using for anything a
@@ -179,12 +190,14 @@ end {
         '-m', $Model
         '-o', $fAnswer
     )
-    if (-not $KeepSession) { $codexArgs += '--ephemeral' }
-    if ($Json)             { $codexArgs += '--json' }
+    if (-not $KeepSession)   { $codexArgs += '--ephemeral' }
+    if ($Json)               { $codexArgs += '--json' }
+    if ($SkipGitRepoCheck)   { $codexArgs += '--skip-git-repo-check' }
     if ($OutputSchema) {
         if (-not (Test-Path -LiteralPath $OutputSchema)) { throw "OutputSchema file not found: $OutputSchema" }
         $codexArgs += @('--output-schema', (Resolve-Path -LiteralPath $OutputSchema).Path)
     }
+    if ($ExtraArgs)          { $codexArgs += $ExtraArgs }
     $codexArgs += '-'   # read the prompt from stdin
 
     Write-Verbose "$codex $($codexArgs -join ' ')"
