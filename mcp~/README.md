@@ -17,6 +17,18 @@ Claude (MCP client) ──stdio──> mcp~/server.mjs ──HTTP──> Unity E
 
 ## Setup
 
+**In a consuming project, use the installer instead of the steps below:** Unity menu
+**`Gui Toolkit → AI → Agent Tools → Install Into This Project`**, or from a terminal
+`node <package>/Editor/.mcp/install.mjs install`. It does steps 1 and 3 for you, and it has to
+exist because a package fetched from a git URL sits in `Library/PackageCache` under a *hashed*
+folder that is rewritten on every version bump — so its `mcp~` cannot be npm-installed durably
+and its path cannot be written into a config file. The installer copies the proxy into the
+project and installs it there instead. In a checkout of *this* repo it skips the copy and points
+at `mcp~` in place, so library edits stay live. See `Editor/.mcp/install.mjs` for the details;
+`… install.mjs status` reports what has drifted since.
+
+The manual steps, for this repo's own dev app or to see what the installer does:
+
 1. **Install the proxy deps** (once):
    ```
    cd mcp~
