@@ -12,7 +12,22 @@ namespace GuiToolkit
 
 		private static PlayerSettings s_instance;
 
-		public IInputProxy InputProxy = new UnityInputProxy();
+		private IInputProxy m_inputProxy;
+
+		/// <summary>
+		/// The proxy all toolkit input reads go through. Assign to override; leave alone to get
+		/// whatever <see cref="InputProxyFactory"/> decides fits this project's input backend.
+		/// </summary>
+		/// <remarks>
+		/// Resolved on read rather than at construction: the Input System integration registers itself
+		/// at SubsystemRegistration, and a value baked in here at field-initialisation time could
+		/// predate that — in the Editor it would then survive into play mode as a stale legacy proxy.
+		/// </remarks>
+		public IInputProxy InputProxy
+		{
+			get => m_inputProxy ?? InputProxyFactory.Default;
+			set => m_inputProxy = value;
+		}
 
 		/// <summary>
 		/// Background music track id supplied via <see cref="PlayerSettingsOptions"/> to
