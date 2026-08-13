@@ -320,10 +320,17 @@ function cmdInstall(args) {
 		if (!existsSync(template)) {
 			warn('Note: templates/codex-config.toml missing from the package; skipped.');
 		} else if (existsSync(target)) {
-			// Never clobber a hand-tuned allow list. Offer the new one alongside instead.
+			// Never clobber a hand-tuned allow list. Offer the new one alongside instead -- but only when
+			// it would actually say something different, or a routine re-install litters the project with
+			// a .new that is byte-identical to the file it claims to improve on.
+			const rendered = renderTemplate(template, serverPath, unityProject);
 			const proposal = `${target}.new`;
-			writeFileSync(proposal, renderTemplate(template, serverPath, unityProject), 'utf8');
-			say(`.codex      already exists -- wrote ${forward(relative(projectRoot, proposal))} for comparison`);
+			if (readFileSync(target, 'utf8') === rendered) {
+				say('.codex      already up to date');
+			} else {
+				writeFileSync(proposal, rendered, 'utf8');
+				say(`.codex      already exists -- wrote ${forward(relative(projectRoot, proposal))} for comparison`);
+			}
 		} else {
 			mkdirSync(dirname(target), { recursive: true });
 			writeFileSync(target, renderTemplate(template, serverPath, unityProject), 'utf8');
