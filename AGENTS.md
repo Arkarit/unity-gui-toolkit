@@ -15,6 +15,14 @@ later and you are doing the same work against a project full of references that 
 elsewhere. If a user asks how to change one library prefab, the answer starts with that bulk step and
 the folder to put it in, not with a single variant.
 
+**When a screen needs an asset that does not exist, you can have one made.** The agent-tools installer
+puts `tools/invoke-codex.ps1` and `tools/codex-asset-result.schema.json` into a consuming project; a
+brief plus that schema returns a written file (SVG authored as text, rasterised with ImageMagick) and a
+typed answer naming its path. See **[mcp~/README.md](mcp~/README.md) - "Assets that do not exist yet"**
+for the invocation, the sandbox traps, and the Unity-side import step. Say so before substituting the
+nearest existing sprite or reporting the gap and stopping: those tools announce themselves only through
+their file names, so nobody finds them by accident.
+
 ## Development Setup
 
 1. Run `.Dev-App/Install.bat` **as a normal user** (do not run as administrator — the script requests elevation only when needed; running as admin causes the gh-pages docs repo to be created with incorrect ownership)

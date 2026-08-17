@@ -308,6 +308,81 @@ the next reload, because .NET cannot unload one. Use `validateOnly` while you ar
 narrow tools where they exist: those refuse the unsafe cases (writing a file the editor holds open) that
 this one performs without comment.
 
+### Assets that do not exist yet: the Codex bridge
+
+Every tool above works with what the project already has, and the authoring rules push hard in that
+direction — *do not hand-build what the palette already composes*. That rule is about composition. It
+is easy to over-apply it to **assets**, and then a missing sprite reads as "not available" rather than
+"not drawn yet". The usual outcome is a screen wearing the nearest wrong icon, or a report that names
+the gap and stops. Neither is necessary: the installer already puts a way to make one into the project.
+
+`Gui Toolkit → AI → Agent Tools → Install` copies three files into `<project>/tools/`:
+
+| File | What it is for |
+|---|---|
+| `invoke-codex.ps1` | Runs Codex non-interactively and returns **only** its final answer. Prompt as argument, pipeline or stdin; `-OutputSchema` makes that answer typed. |
+| `codex-asset-result.schema.json` | The schema for a job that produces a file: `status / path / width / height / hasAlpha / notes`. A caller gets a path to act on instead of prose to parse. |
+| `codex-usage.ps1` | Quota and token usage, before/after a job. |
+
+```powershell
+Get-Content brief.md -Raw | ./tools/invoke-codex.ps1 `
+    -TimeoutSec 900 -OutputSchema ./tools/codex-asset-result.schema.json
+```
+
+Codex does not paint. It **writes the file** — typically SVG geometry authored as text and rasterised
+with ImageMagick, which is a good fit for flat UI glyphs and a poor one for anything painterly. Put the
+project's icon idiom in the brief (canvas size, silhouette colour, share of the canvas, shadow recipe)
+and name the smallest size the icon must survive; without that last number the result is drawn too fine
+to read. One job produces **one** file — the schema has a single `path` — so several icons are several
+jobs, and they run happily in parallel.
+
+**It is good at shapes and bad at proportions.** A trophy and a parasol landed in one or two rounds; a
+dumbbell took two and still came back as four blocks with no bar between them. The moment you find
+yourself about to dictate coordinates, author the SVG yourself and rasterise it with the same tools —
+seconds instead of minutes, and exact:
+
+```bash
+magick -background none icon.svg -resize 512x512 white.png
+magick white.png \( +clone -background black -shadow 55x14+6+6 \) +swap \
+       -background none -layers merge +repage -gravity center -extent 512x512 out.png
+magick out.png -colorspace sRGB -type TrueColorAlpha final.png   # else the PNG is 'graya'
+```
+
+⚠️ Those escaped parentheses are **bash**. PowerShell parses `(` `+clone` as an operator and dies
+before ImageMagick sees anything.
+
+Four things about the sandbox, all measured against Codex's `workspace-write` on Windows in
+August 2026 — check them again rather than trusting this list, but design the call so none of them
+can bite:
+
+1. **It does not create missing directories.** The job dies at the very end, after the work is done.
+   Create the target folder first.
+2. **It does not overwrite an existing file** (delete-then-create does work, and an agent may or may
+   not find that route on its own). Aim at a fresh filename and rename it yourself.
+3. **`status: "created"` is model prose, not a measurement.** One run reported `created` plus
+   "verified 512x512" without having touched the file — size and mtime unchanged. **Check mtime and
+   size yourself, then look at the image**, before believing any of it.
+4. **Whole subtrees can be denied** while the declared writable root says otherwise. In one project
+   every write under `Assets/<vendor>/**` failed at all four depths while `Assets/AiSupport/**`
+   worked — identical ACLs, no junction, not ignored by git. Probe with a throwaway text file, or
+   simply write into a folder you know works and move the result yourself.
+
+Finally, the step that has nothing to do with Codex and is missed anyway: **a new PNG is not a sprite.**
+Unity has not imported it at all until something refreshes, and the default importer then makes it
+`textureType: Default`, which is unusable as `Image.sprite`. Fix it through `execute_code` and verify
+that a `Sprite` really comes back:
+
+```csharp
+AssetDatabase.Refresh();
+var imp = (TextureImporter)AssetImporter.GetAtPath(path);
+imp.textureType = TextureImporterType.Sprite;
+imp.spriteImportMode = SpriteImportMode.Single;
+imp.alphaIsTransparency = true;
+imp.mipmapEnabled = false;
+imp.SaveAndReimport();
+return AssetDatabase.LoadAssetAtPath<Sprite>(path) != null;
+```
+
 ### Surviving a re-bake: `preserveEdits` vs. the snapshot pair
 
 Two mechanisms, and they answer different questions.
