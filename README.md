@@ -5,6 +5,10 @@ Please note that this gui toolkit for Unity is heavy work in progress.
 Especially, there is no documentation yet, except doxygen (but thats also very incomplete)
 It is however usable at least partially.
 
+**Setting the toolkit up in a project? Read [BEST-PRACTICES.md](BEST-PRACTICES.md) first.** It covers
+the three things a project should take ownership of on day one — prefab variants, the style config,
+and what `IsApplicable` decides — all of them cheap at setup and expensive to retrofit.
+
 ## Installation
 
 ### As a Unity package:

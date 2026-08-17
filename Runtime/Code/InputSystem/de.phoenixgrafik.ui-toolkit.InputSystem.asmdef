@@ -1,0 +1,25 @@
+{
+    "name": "de.phoenixgrafik.ui-toolkit.InputSystem",
+    "rootNamespace": "GuiToolkit",
+    "references": [
+        "de.phoenixgrafik.ui-toolkit",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "GUITOOLKIT_HAS_INPUTSYSTEM"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "1.0.0",
+            "define": "GUITOOLKIT_HAS_INPUTSYSTEM"
+        }
+    ],
+    "noEngineReferences": false
+}

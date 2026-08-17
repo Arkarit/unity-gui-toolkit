@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -24,6 +25,7 @@ namespace GuiToolkit
 		private static List<UIVertex> s_clipWorkA = new List<UIVertex>();
 		private static List<UIVertex> s_clipWorkB = new List<UIVertex>();
 		private static readonly List<UIVertex> s_clipPoly = new List<UIVertex>(8);
+		private static readonly List<UIVertex> s_boundsVerts = new List<UIVertex>();
 
 		public static void RemoveZeroQuads( VertexHelper _vertexHelper )
 		{
@@ -373,40 +375,69 @@ namespace GuiToolkit
 			}
 		}
 
-		// Mirrors UiMathUtility.Bilerp: only position, color and uv0 are interpolated.
-		// uv1-3, normal and tangent come from _a unchanged - matches existing behavior of the
-		// quad-based subdivision path and the UI gradient/distortion modifiers that consume it.
+		// Every per-vertex channel is interpolated, and the UVs as the Vector4 they actually are.
+		// UIVertex.uv0 is a Vector4; lerping it as a Vector2 silently zeroes z and w through the
+		// implicit conversions. TextMeshPro packs the SDF scale into uv0.w and its shaders compute
+		// "scale *= abs(texcoord0.w)", so a truncated uv0 leaves every vertex introduced by a split
+		// with scale 0 - the glyph edge loses its distance-field gradient and smears - and with
+		// "bold = step(texcoord0.w, 0)" turning true on top of it.
 		private static UIVertex LerpVertex(ref UIVertex _a, ref UIVertex _b, float _t)
 		{
 			UIVertex r = _a;
 			r.position = Vector3.Lerp(_a.position, _b.position, _t);
+			r.normal = Vector3.Lerp(_a.normal, _b.normal, _t);
+			r.tangent = Vector4.Lerp(_a.tangent, _b.tangent, _t);
 			r.color = Color.Lerp(_a.color, _b.color, _t);
-			r.uv0 = Vector2.Lerp(_a.uv0, _b.uv0, _t);
+			r.uv0 = Vector4.Lerp(_a.uv0, _b.uv0, _t);
+			r.uv1 = Vector4.Lerp(_a.uv1, _b.uv1, _t);
+			r.uv2 = Vector4.Lerp(_a.uv2, _b.uv2, _t);
+			r.uv3 = Vector4.Lerp(_a.uv3, _b.uv3, _t);
 			return r;
 		}
 
+		/// <summary>
+		/// Axis-aligned bounds of a UIVertex triangle stream, as returned by
+		/// <see cref="VertexHelper.GetUIVertexStream"/>.
+		///
+		/// Triangles collapsed onto the origin are skipped. TextMeshPro allocates more quads than it
+		/// draws and leaves the surplus ones at (0,0,0); counting them pulls the box to the origin,
+		/// which on an off-centre text can make it twice as wide as the glyphs are - and every share
+		/// derived from it (gradient colors, split iso-lines, distortion) lands in the wrong place.
+		/// Nothing visible can be lost by this: a triangle whose three corners share one point covers
+		/// no pixels.
+		///
+		/// Every corner of every triangle is inspected. The previous version stepped in sixes and
+		/// looked only at two of them, which holds for axis-aligned quads in BL/TL/TR order but not
+		/// for the sheared, rotated or already-subdivided meshes this is also called with.
+		/// </summary>
+		/// <returns>The bounds, or an empty Rect if the stream holds nothing but collapsed triangles.</returns>
 		public static Rect GetBounds( List<UIVertex> _inTriangleList )
 		{
-			float maxValue = float.MaxValue / 2.0f;
-			float xMin = maxValue;
-			float yMin = maxValue;
-			float xMax = -maxValue;
-			float yMax = -maxValue;
+			float xMin = float.MaxValue;
+			float yMin = float.MaxValue;
+			float xMax = float.MinValue;
+			float yMax = float.MinValue;
 
-			int numVertices = _inTriangleList.Count;
-			for (int i=0; i<numVertices; i+= 6)
+			int count = _inTriangleList.Count;
+			for (int i = 0; i + 2 < count; i += 3)
 			{
-				UIVertex bl = _inTriangleList[i + QUAD_BL_IDX_OFFSET];
-				UIVertex tr = _inTriangleList[i + QUAD_TR_IDX_OFFSET];
-				if (bl.position.x < xMin)
-					xMin = bl.position.x;
-				if (bl.position.y < yMin)
-					yMin = bl.position.y;
-				if (tr.position.x > xMax)
-					xMax = tr.position.x;
-				if (tr.position.y > yMax)
-					yMax = tr.position.y;
+				Vector3 a = _inTriangleList[i].position;
+				Vector3 b = _inTriangleList[i + 1].position;
+				Vector3 c = _inTriangleList[i + 2].position;
+
+				if (a == Vector3.zero && b == Vector3.zero && c == Vector3.zero)
+					continue;
+
+				Expand(ref xMin, ref xMax, a.x);
+				Expand(ref yMin, ref yMax, a.y);
+				Expand(ref xMin, ref xMax, b.x);
+				Expand(ref yMin, ref yMax, b.y);
+				Expand(ref xMin, ref xMax, c.x);
+				Expand(ref yMin, ref yMax, c.y);
 			}
+
+			if (xMin > xMax)
+				return new Rect();
 
 			Rect result = new Rect();
 			result.xMin = xMin;
@@ -414,6 +445,29 @@ namespace GuiToolkit
 			result.xMax = xMax;
 			result.yMax = yMax;
 			return result;
+		}
+
+		/// <summary>
+		/// Same as <see cref="GetBounds(List{UIVertex})"/>, for callers that hold a VertexHelper rather
+		/// than a stream. Uses its own scratch list, so it is safe to call from inside a modifier that
+		/// is already working on one.
+		/// </summary>
+		public static Rect GetBounds( VertexHelper _vertexHelper )
+		{
+			s_boundsVerts.Clear();
+			_vertexHelper.GetUIVertexStream(s_boundsVerts);
+			Rect result = GetBounds(s_boundsVerts);
+			s_boundsVerts.Clear();
+			return result;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static void Expand( ref float _min, ref float _max, float _value )
+		{
+			if (_value < _min)
+				_min = _value;
+			if (_value > _max)
+				_max = _value;
 		}
 
 		public static Rect GetRect( List<UIVertex> _inTriangleList, int _startIdx )
@@ -573,7 +627,7 @@ namespace GuiToolkit
 			return
 				_bl.position == Vector3.zero
 				&& _tl.position == Vector3.zero
-				&& _bl.position == Vector3.zero
+				&& _tr.position == Vector3.zero
 				&& _br.position == Vector3.zero;
 		}
 

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codex asset generation result",
+  "description": "Shape of Codex's final answer when it was asked to produce an asset file. Pass this to tools/invoke-codex.ps1 -OutputSchema so the caller gets a path to act on instead of prose to parse.",
+  "type": "object",
+  "additionalProperties": false,
+  "//": "EVERY key of properties must be listed in required: OpenAI's structured outputs reject a schema where they differ, and the job then dies with HTTP 400 invalid_json_schema before the first tool call rather than at the end. 'Optional' is expressed by a documented sentinel (0, empty string) instead.",
+  "required": ["status", "path", "width", "height", "hasAlpha", "notes"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["created", "failed"],
+      "description": "created only if the file exists on disk at 'path'."
+    },
+    "path": {
+      "type": "string",
+      "description": "Repository-relative path of the file that was written, or an empty string when status is failed."
+    },
+    "width": { "type": "integer", "description": "Pixel width of the written image, 0 if not applicable." },
+    "height": { "type": "integer", "description": "Pixel height of the written image, 0 if not applicable." },
+    "hasAlpha": { "type": "boolean", "description": "True if the image carries a real alpha channel." },
+    "notes": {
+      "type": "string",
+      "description": "Anything the caller needs to know: what was done, what was assumed, what went wrong when status is failed. Keep it short."
+    }
+  }
+}

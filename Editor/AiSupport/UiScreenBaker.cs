@@ -106,6 +106,13 @@ namespace GuiToolkit.Editor.AiSupport
 
 			/// <summary>Paths of the companion prefabs baked from the screen's "prefabs" array, in order.</summary>
 			public List<string> companions = new();
+
+			/// <summary>
+			/// Name of the base prefab when this bake produced a prefab VARIANT, else null. Reported because
+			/// the difference is invisible in the resulting file but decides everything about its future: a
+			/// variant follows its base, a standalone prefab never hears from it again.
+			/// </summary>
+			public string variantOf;
 		}
 
 		/// <summary>Project-relative folder the baked prefabs are written to by default.</summary>
@@ -190,13 +197,34 @@ namespace GuiToolkit.Editor.AiSupport
 				if (!success || saved == null)
 					throw new Exception($"PrefabUtility.SaveAsPrefabAsset failed for '{path}'.");
 
+				// Read the inheritance back off the saved asset rather than trusting the description: whether
+				// the result is a variant is decided by Unity at save time, and it is the one property of a
+				// baked prefab that cannot be seen by looking at it.
+				string variantBase = null;
+				if (PrefabUtility.GetPrefabAssetType(saved) == PrefabAssetType.Variant)
+				{
+					var basePrefab = PrefabUtility.GetCorrespondingObjectFromSource(saved);
+					variantBase = basePrefab != null ? basePrefab.name : "?";
+				}
+				else if (!string.IsNullOrEmpty((string)rootNode["variantOf"]))
+				{
+					Warn($"\"variantOf\": \"{(string)rootNode["variantOf"]}\" was requested, but the saved asset "
+						+ "is not a variant. The base resolved to a prefab the instance lost its connection to.");
+				}
+
 				// Sidecar = the (possibly merged) screen we actually baked → the new baseline for next time.
 				WriteSourceSidecar(path, screen.ToString());
 
 				AssetDatabase.Refresh();
 				UiLog.LogInternal($"Baked screen '{name}' → '{path}'" +
 					(s_warnings.Count > 0 ? $" ({s_warnings.Count} warning(s))." : "."));
-				return new BakeResult { path = path, warnings = s_warnings, companions = companionPaths };
+				return new BakeResult
+				{
+					path = path,
+					warnings = s_warnings,
+					companions = companionPaths,
+					variantOf = variantBase,
+				};
 			}
 			finally
 			{
@@ -871,6 +899,23 @@ namespace GuiToolkit.Editor.AiSupport
 		{
 			string template = (string)_node["template"];
 			string type = (string)_node["type"];
+			string variantOf = (string)_node["variantOf"];
+
+			// "variantOf" is a template node with its intent spelled out, and it is only meaningful on the
+			// root: saving the built tree is what turns a live prefab instance into a variant ASSET, and only
+			// the root becomes the asset. On a child it would promise an inheritance that cannot happen there.
+			if (!string.IsNullOrEmpty(variantOf))
+			{
+				if (_parent != null)
+					throw new ArgumentException($"\"variantOf\" ('{variantOf}') is only allowed on the root node — "
+						+ "a child cannot become a variant asset. Use \"template\" for a child, and \"overrides\" "
+						+ "to change parts it inherits.");
+				if (!string.IsNullOrEmpty(template) || !string.IsNullOrEmpty(type))
+					throw new ArgumentException($"Root declares \"variantOf\" ('{variantOf}') together with "
+						+ $"\"{(string.IsNullOrEmpty(template) ? "type" : "template")}\"; pick one.");
+
+				template = variantOf;
+			}
 
 			if (!string.IsNullOrEmpty(template) && !string.IsNullOrEmpty(type))
 				throw new ArgumentException($"Node declares both \"template\" ('{template}') and \"type\" ('{type}'); pick one.");
@@ -878,6 +923,15 @@ namespace GuiToolkit.Editor.AiSupport
 				throw new ArgumentException("Node must declare either \"template\" or \"type\".");
 
 			bool isTemplateNode = !string.IsNullOrEmpty(template);
+
+			// A root template node without "variantOf" produces a variant too — the instance keeps its
+			// connection and SaveAsPrefabAsset turns that into inheritance. Silently, which is the problem:
+			// the author either wanted it and cannot tell that they got it, or did not and will find out when
+			// the base changes underneath them.
+			if (_parent == null && isTemplateNode && string.IsNullOrEmpty(variantOf))
+				Warn($"Root node uses \"template\": \"{template}\", so this bake produces a prefab VARIANT of "
+					+ $"'{template}' — it will follow that prefab's future changes. Say \"variantOf\" instead to "
+					+ "make that intentional and visible in the result.");
 			GameObject go = isTemplateNode
 				? CreateTemplateNode(template)
 				: CreateElementNode(type);
@@ -1807,7 +1861,11 @@ namespace GuiToolkit.Editor.AiSupport
 			return default;
 		}
 
-		private static bool TryConvert( JToken _token, Type _type, out object _result )
+		/// <summary>
+		/// Internal rather than private because the styling writer addresses style values exactly the way a
+		/// screen description addresses props — one convention, one parser.
+		/// </summary>
+		internal static bool TryConvert( JToken _token, Type _type, out object _result )
 		{
 			_result = null;
 			try
@@ -1830,6 +1888,11 @@ namespace GuiToolkit.Editor.AiSupport
 					_result = _type == typeof(Color32) ? (object)(Color32)c : c;
 					return true;
 				}
+
+				// A TMP text gradient. Worth having as a first-class value because it is how a gold or metal
+				// headline is actually made — without it the only way to a two-tone text is a hand-tinted
+				// material per prefab, which is exactly what the styling system exists to avoid.
+				if (_type == typeof(TMPro.VertexGradient)) { _result = ParseVertexGradient(_token); return true; }
 
 				if (_type == typeof(Vector2)) { var v = Floats(_token, 2); _result = new Vector2(v[0], v[1]); return true; }
 				if (_type == typeof(Vector3)) { var v = Floats(_token, 3); _result = new Vector3(v[0], v[1], v[2]); return true; }
@@ -1879,6 +1942,48 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				return false;
 			}
+		}
+
+		/// <summary>
+		/// Accepts the three shapes an author reaches for: one colour (flat), two ("#top", "#bottom"), or the
+		/// four corners by name ({ topLeft, topRight, bottomLeft, bottomRight }).
+		/// </summary>
+		private static TMPro.VertexGradient ParseVertexGradient( JToken _token )
+		{
+			if (_token is JObject o)
+			{
+				Color Corner( string _key, string _fallbackKey )
+				{
+					var token = o[_key] ?? o[_fallbackKey];
+					if (token == null)
+						throw new FormatException($"A vertex gradient object needs '{_key}' (or '{_fallbackKey}').");
+					return ParseColor(token);
+				}
+
+				return new TMPro.VertexGradient(
+					Corner("topLeft", "top"), Corner("topRight", "top"),
+					Corner("bottomLeft", "bottom"), Corner("bottomRight", "bottom"));
+			}
+
+			if (_token is JArray array)
+			{
+				if (array.Count == 2)
+				{
+					var top = ParseColor(array[0]);
+					var bottom = ParseColor(array[1]);
+					return new TMPro.VertexGradient(top, top, bottom, bottom);
+				}
+
+				if (array.Count == 4)
+					return new TMPro.VertexGradient(ParseColor(array[0]), ParseColor(array[1]),
+						ParseColor(array[2]), ParseColor(array[3]));
+
+				throw new FormatException("A vertex gradient array holds 2 colours (top, bottom) or 4 "
+					+ "(topLeft, topRight, bottomLeft, bottomRight).");
+			}
+
+			var flat = ParseColor(_token);
+			return new TMPro.VertexGradient(flat, flat, flat, flat);
 		}
 
 		private static Color ParseColor( JToken _token )

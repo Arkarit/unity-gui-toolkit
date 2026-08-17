@@ -149,6 +149,7 @@ namespace GuiToolkit.Editor.AiSupport
 				cam.enabled = false;
 				cam.transform.position = new Vector3(0, 0, -100);
 				cam.transform.rotation = Quaternion.identity;
+				DetachFromSceneVolumes(camGo);
 
 				canvas.renderMode = RenderMode.ScreenSpaceCamera;
 				canvas.worldCamera = cam;
@@ -157,6 +158,47 @@ namespace GuiToolkit.Editor.AiSupport
 
 				m_camera = cam;
 				m_canvas = canvas;
+			}
+
+			/// <summary>
+			/// Takes the preview camera out of the project's post-processing.
+			///
+			/// A pipeline's default volume profile applies to every camera that does not exclude it, and no
+			/// Volume component has to exist anywhere for that — one client's default profile had depth of
+			/// field, chromatic aberration, lens distortion and film grain all switched on. The preview then
+			/// returns a blurred, colour-fringed image of a UI that is perfectly sharp in the editor, and the
+			/// author spends the next hour looking for the mistake in their screen instead of in the camera.
+			///
+			/// A preview is a document of what was authored, so it renders the UI and nothing else.
+			///
+			/// Done by reflection because the toolkit does not depend on HDRP: on any other pipeline the type
+			/// is absent and there is nothing to switch off.
+			/// </summary>
+			private static void DetachFromSceneVolumes( GameObject _cameraGo )
+			{
+				var type = Type.GetType("UnityEngine.Rendering.HighDefinition.HDAdditionalCameraData, " +
+					"Unity.RenderPipelines.HighDefinition.Runtime");
+				if (type == null)
+					return;
+
+				var data = _cameraGo.GetComponent(type) ?? _cameraGo.AddComponent(type);
+				if (data == null)
+					return;
+
+				// An empty mask means no volume anywhere reaches this camera. Deliberately NOT
+				// customRenderingSettings: that switches the camera to its own frame settings, and a freshly
+				// added component carries an empty set rather than a copy of the pipeline's defaults — which
+				// renders a black image, as one earlier attempt at this proved.
+				const int noLayers = 0;
+				var field = type.GetField("volumeLayerMask");
+				if (field != null)
+					field.SetValue(data, (LayerMask)noLayers);
+				else
+					type.GetProperty("volumeLayerMask")?.SetValue(data, (LayerMask)noLayers);
+
+				var anchor = type.GetField("volumeAnchorOverride");
+				if (anchor != null)
+					anchor.SetValue(data, null);
 			}
 
 			/// <summary>

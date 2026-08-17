@@ -17,6 +17,18 @@ Claude (MCP client) ──stdio──> mcp~/server.mjs ──HTTP──> Unity E
 
 ## Setup
 
+**In a consuming project, use the installer instead of the steps below:** Unity menu
+**`Gui Toolkit → AI → Agent Tools → Install Into This Project`**, or from a terminal
+`node <package>/Editor/.mcp/install.mjs install`. It does steps 1 and 3 for you, and it has to
+exist because a package fetched from a git URL sits in `Library/PackageCache` under a *hashed*
+folder that is rewritten on every version bump — so its `mcp~` cannot be npm-installed durably
+and its path cannot be written into a config file. The installer copies the proxy into the
+project and installs it there instead. In a checkout of *this* repo it skips the copy and points
+at `mcp~` in place, so library edits stay live. See `Editor/.mcp/install.mjs` for the details;
+`… install.mjs status` reports what has drifted since.
+
+The manual steps, for this repo's own dev app or to see what the installer does:
+
 1. **Install the proxy deps** (once):
    ```
    cd mcp~
@@ -155,6 +167,11 @@ Steps Claude follows:
 | `apply_prefab_values` | Restore that snapshot's residue into the re-baked prefab. Dry run by default — read the plan first. See below. |
 | `get_console` | Read this editor session's console (ring buffer), filterable by `severity`/`contains`, with `sinceSequence` for "what did that action produce". |
 | `resolve_packages` | Make Unity pick up an externally edited `manifest.json` without waiting for window focus, then wait for idle. |
+| `mirror_variant_graph` | Copy the library's prefabs into the project **with their inheritance intact**, so a change to a project root reaches everything below it. Dry-runs by default; verifies the result. See below. |
+| `clone_style_config` | Give the project its OWN style config, copied out of the package, and repoint the configuration at it. The first step of any theming. See below. |
+| `read_skin` | Read the VALUES behind the style names — colours, fonts, sizes, sprites. Applicable values only unless asked otherwise. See below. |
+| `write_skin` | Write those values. One edit reaches every prefab using the style. `dryRun` reports before/after without writing. See below. |
+| `execute_code` | Run a C# snippet inside the editor and get its return value. The escape hatch for everything with no tool of its own. See below. |
 
 ### Before you write or wait: `status` and `asset_state`
 
@@ -195,6 +212,101 @@ deliberately a refusal rather than a queue: firing into a running import is what
 timeout is the worst outcome — it takes away your view of the editor exactly when you need it most. Poll
 `status` until `busyWith` is null instead. Read-only calls (`status`, `asset_state`, `get_console`,
 `ping`, `read_screen`, `get_catalog`) always answer.
+
+### Project setup comes before authoring
+
+`../BEST-PRACTICES.md` is the short version of what a project should own before anything is authored
+into it: variants of **all** library prefabs (one bulk run, not one at a time — the registry ranks
+client prefabs above library ones, so afterwards `"template": "StandardButton"` resolves to the
+project's variant with nothing rewired), a cloned style config, and the `IsApplicable` rule. Reading
+it once saves proposing a per-prefab variant to someone who needs a project-wide decision.
+
+### Owning the prefabs: `mirror_variant_graph`
+
+The library ships its standard elements as prefabs in a read-only package, so any structural change — a
+frame object on the button, an extra label — needs a project-side variant. Make them **all at once, at
+setup**: a variant inherits its base's standard-element marker, the registry ranks client prefabs above
+library ones, and every existing reference then resolves to the project's copy with nothing rewired.
+
+The part that is easy to get wrong is the inheritance *between* them. Of the library's 66 prefabs, 22 are
+themselves variants — `OkButton`, `CancelButton`, `CloseButton` and `StandardButtonSmall` are all
+variants of `StandardButton`. One variant per prefab, each hanging off its own original, gives ownership
+but flattens that: the project's copies are related to the package, not to each other, so a frame added
+to the project's `StandardButton` never reaches the project's `OkButton`.
+
+This tool mirrors the graph instead: roots become variants of the library prefab, and each dependent
+becomes a variant of the **project copy** of its base, with the library variant's own overrides
+transplanted onto it — property values, added objects, added and removed components, and the internal
+references re-aimed at the copy (without that last part the result is a prefab full of nulls that looks
+fine until something is clicked).
+
+It refuses to be trusted blindly, in three ways worth knowing:
+
+- **Dry run by default.** It returns the graph and, per dependent, how much it overrides.
+- **A verification pass** compares every rebuilt dependent against its library original property for
+  property and reports what differs. A difference is a place to look, not automatically a fault.
+- **`replaceExisting`** is `none` / `dependents` / `all` rather than a bool, because the useful answer is
+  usually `dependents`: the roots are where a project's own work lives, the dependents are what wants
+  rebuilding on top of it.
+
+The library's folder structure is recreated under the target by default — `StandardElements/Buttons/…`
+rather than 65 prefabs in one flat list. A copy that already exists in the wrong folder is **moved**,
+not rebuilt: moving keeps its GUID, its place in the variant chain and whatever a human has edited into
+it, so an existing flat set can be reorganised without losing any of that.
+
+Rebuilt assets get new GUIDs, so run it before anything references them, and regenerate the catalog
+afterwards.
+
+### Theming: `clone_style_config`, `read_skin`, `write_skin`
+
+`list_styles` names the vocabulary. These three change what it looks like.
+
+**Clone first, and understand why.** A fresh project uses the style config that ships *inside the
+package*. Editing it is not a smaller version of theming, it is a mistake with a delay on it: the asset
+lives in the immutable package copy, so the edit is either refused or quietly discarded at the next
+version bump. `clone_style_config` copies it into the project and repoints the `UiToolkitConfiguration`
+at the copy. It is idempotent — on an already project-local config it reports that and changes nothing —
+and `write_skin` refuses to write a package-owned config, so the order cannot be got wrong by accident.
+
+The clone also repairs something a plain duplicate leaves broken: every skin and every style holds a
+reference back to the config it belongs to, and `Instantiate` copies those verbatim, still naming the
+original. In a 2-skin default config that is 128 references pointing into the package.
+
+**Read before you write, and read again after.** `read_skin` returns the values that are switched on
+(`applicable`) — a style carries an entry for every serialized field of its target component, and the
+handful that are on are the ones that define the look. Values use the same notation as screen props:
+colours `"#RRGGBBAA"`, assets as project-relative paths, enums by name, TMP text gradients as
+`{ topLeft, topRight, bottomLeft, bottomRight }` (or `[top, bottom]`, or one colour, when writing).
+
+**Write by name and component type.** A style name is not unique on its own:
+`Buttons/Standard/Background` exists as an `Image`, a `UiGradientSimple`, a `UiDistort`, a `Shadow` and
+a `RectTransform` — five different aspects of one button. Ambiguity is an error naming the candidates,
+never a guess. A bare value means "use this and switch it on"; `{ value, applicable: false }` hands the
+value back to whatever the component itself carries. The result reports before/after per value, and
+`dryRun: true` reports exactly that plan without writing.
+
+Appliers pick a change up immediately, in Edit Mode too — so `screenshot_view` shows the new look with
+no re-bake and no reimport. Style *values* need no catalog regeneration; renaming skins or styles does.
+
+### The escape hatch: `execute_code`
+
+Runs a C# snippet inside the editor and hands back its return value. It exists so the toolkit stays
+fully drivable in a project with no separate code-execution bridge installed — reachable as far as the
+editor's own API goes, rather than as far as someone has already built a tool.
+
+Bare statements are wrapped for you, with `System`, `UnityEngine`, `UnityEditor`, `TMPro`, `GuiToolkit`,
+`GuiToolkit.Style` and `Newtonsoft.Json.Linq` already imported, so
+`return UiStyleConfig.Instance.Skins.Count;` is a complete snippet. A full compilation unit is compiled
+as written and needs its own usings plus exactly one parameterless `public static Run()`. Compile errors
+come back as diagnostics with line numbers **in your source**, not in the generated wrapper; an
+exception comes back with its stack; anything the snippet logs is captured.
+
+It is **not** a sandbox, and the honest reading of that is: it runs with the editor's rights, on the
+main thread, and a write is a real write. An endless loop freezes the editor — the handler stops waiting
+for an answer, the loop does not stop running. Every compiled snippet stays loaded in the domain until
+the next reload, because .NET cannot unload one. Use `validateOnly` while you are unsure, and prefer the
+narrow tools where they exist: those refuse the unsafe cases (writing a file the editor holds open) that
+this one performs without comment.
 
 ### Surviving a re-bake: `preserveEdits` vs. the snapshot pair
 
@@ -344,6 +456,24 @@ question, then capture and probe it.
 A node has **either** `type` (build a component from scratch) **or** `template` (instantiate a palette
 prefab). Optional per-node fields: `id`, `name`, `props` (serialized fields), `style` (style name),
 `text` (`@loca:` key or `@text:` literal), `rect` (layout), `overrides`, `children`.
+
+### Inheriting instead of copying: `variantOf`
+
+On the **root** node, `"variantOf": "StandardButton"` bakes the screen as a prefab **variant** of that
+prefab rather than as a standalone asset. The difference is invisible in the resulting file and decides
+everything about its future: a variant follows its base — later changes to the button reach it — while a
+standalone prefab never hears from it again.
+
+Inside a variant the three fields divide the work: `overrides` changes parts it **inherits** (addressed
+by path, e.g. `"Content/Title"`), `children` **adds** new parts on top, and `props`/`style`/`rect` apply
+to the root itself.
+
+Two things the field only makes explicit rather than new. A root `template` node has always produced a
+variant — the instance keeps its prefab connection and saving turns that into inheritance — it just did
+so silently, so the baker now warns and points here. And the result always reports what happened:
+`variantOf` comes back in the bake result when the saved asset inherits, and is absent when it does not.
+Read that rather than assuming, because it is the one property of a baked prefab you cannot see by
+looking at it.
 
 ### Do not copy subtrees
 

@@ -481,7 +481,11 @@ namespace GuiToolkit.Editor.AiSupport
 			return false;
 		}
 
-		private static bool TryEmitSimple( object _value, Type _type, out JToken _token )
+		/// <summary>
+		/// Internal rather than private: the styling reader emits style values in the same shapes a screen
+		/// description uses for props, so both sides read the same way round.
+		/// </summary>
+		internal static bool TryEmitSimple( object _value, Type _type, out JToken _token )
 		{
 			_token = null;
 

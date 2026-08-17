@@ -67,3 +67,6 @@ gui-toolkit-test-tables-a34ee54c90b1.json.meta
 # Local MCP registration for AI screen authoring (machine-specific absolute paths).
 # Each developer generates their own — see mcp~/README.md ("Register the server").
 .mcp.json
+
+# Same story for Codex: .codex/config.toml points at an absolute server.mjs path.
+.codex/

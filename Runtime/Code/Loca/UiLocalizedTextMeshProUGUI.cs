@@ -129,6 +129,8 @@ namespace GuiToolkit
 		/// Overrides the base <see cref="TextMeshProUGUI.text"/> property to intercept external writes.
 		/// External writes are treated as new <see cref="LocaKey"/> assignments and trigger translation.
 		/// In the Editor during play mode a verbose log is written when the value is not a registered key.
+		/// Assigning an empty string is the exception: it clears the displayed text instead of assigning
+		/// a key, so callers that have nothing to show (a setting without a title, say) can say so.
 		/// </summary>
 		/// <remarks>
 		/// The re-entry guard (<c>m_isSettingInternally</c>) is required because <c>ApplyTranslation</c>
@@ -150,6 +152,26 @@ namespace GuiToolkit
 				if (m_isSettingInternally)
 				{
 					base.text = value;
+					return;
+				}
+
+				// An explicit empty assignment means "show nothing", and has to clear the displayed
+				// text. That is a different event from ApplyTranslation() finding no key: the passive
+				// path deliberately keeps whatever is displayed, so the design-time placeholder in a
+				// prefab survives. Without this branch the two cases were indistinguishable, and an
+				// empty value could never clear a label -- the placeholder was promoted to content.
+				if (string.IsNullOrEmpty(value))
+				{
+					m_locaKey = string.Empty;
+					m_isSettingInternally = true;
+					try
+					{
+						base.text = string.Empty;
+					}
+					finally
+					{
+						m_isSettingInternally = false;
+					}
 					return;
 				}
 

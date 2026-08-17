@@ -39,7 +39,6 @@ namespace GuiToolkit
 		public static Func<float> VolumeProvider;
 
 		private static UiSound s_instance;
-		private static readonly IInputProxy s_fallbackInput = new UnityInputProxy();
 
 		// A single playing (or fading-out) sound on its own AudioSource. One sound per
 		// voice keeps each individually stoppable/fadeable, which PlayOneShot on a shared
@@ -63,9 +62,9 @@ namespace GuiToolkit
 		private readonly List<RaycastResult> m_raycastResults = new List<RaycastResult>();
 
 		// Prefer the host-configured proxy (so games swapping input backends stay
-		// consistent), fall back to the plain Unity proxy before settings init.
+		// consistent), fall back to the backend-appropriate default before settings init.
 		private static IInputProxy InputProxy =>
-			PlayerSettings.Instance != null ? PlayerSettings.Instance.InputProxy : s_fallbackInput;
+			PlayerSettings.Instance != null ? PlayerSettings.Instance.InputProxy : InputProxyFactory.Default;
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 		private static void Bootstrap()

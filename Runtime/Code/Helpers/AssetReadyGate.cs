@@ -185,13 +185,17 @@ namespace GuiToolkit
 					return;
 				}
 
-				// We need to check if the editor is in background;
-				// since it is slower in background, we often get a timeout
-				if (!EditorApplication.isFocused)
-					return;
+				// A background editor runs slower, so a frame budget measured in the foreground runs out on
+				// it — that is what this guard was for. It used to skip the whole tick, which does not slow
+				// the timeout down, it stops the WAIT: nothing was ever checked again until a human clicked
+				// into the window. Everything gated on WhenReady then waited on that click, Bootstrap
+				// included, and an agent driving the editor over the MCP bridge sat in front of a toolkit
+				// that reported itself uninitialised for as long as nobody touched the mouse.
+				// So keep checking while unfocused, and only let the frame budget run while focused.
+				bool focused = EditorApplication.isFocused;
 
 				// Timeout guard to avoid dangling subscriptions.
-				if (_maxFrames > 0 && ++frames > _maxFrames)
+				if (focused && _maxFrames > 0 && ++frames > _maxFrames)
 				{
 					EditorApplication.update -= Tick;
 					UiLog.LogErrorOnce($"WhenReady(assets) timeout after {_maxFrames} frames. Caller: {DebugUtility.GetCallingClassAndMethod()}");

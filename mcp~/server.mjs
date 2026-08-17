@@ -505,7 +505,11 @@ tool(
 	"recompile",
 	"Force Unity to pick up and recompile changed editor/runtime C# scripts, then WAIT until the " +
 	"compilation and the following domain reload have finished. Use this after editing toolkit C# so " +
-	"you don't have to ask a human to click into the Unity window. Returns when the editor is idle again.",
+	"you don't have to ask a human to click into the Unity window. Returns when the editor is idle again — " +
+	"or, on a large project where the editor stays busy longer than the 180 s budget, with " +
+	"'timedOut': true. Read that as 'the wait ran out', not 'the compile failed': 'recompiled' then says " +
+	"whether compilation was seen to start, and the surest confirmation is the timestamp of " +
+	"Library/ScriptAssemblies/<assembly>.dll against your changed sources.",
 	{},
 	async () => {
 		try {
@@ -541,7 +545,23 @@ tool(
 					return ok(JSON.stringify({ recompiled: true, reloaded, note: "no compilation activity detected", ms: Date.now() - t0 }));
 				await sleep(1000);
 			}
-			return ok(JSON.stringify({ recompiled: false, reloaded, note: "timed out waiting for the editor to go idle", ms: Date.now() - t0 }));
+			// Timed out. "recompiled: false" was the old answer here and it was misleading: in a large
+			// project the compilation reliably HAD run (assembly rebuilt within seconds) while the editor
+			// stayed busy well past the timeout with import work. Reporting that as a failed compile sends
+			// the caller off to re-trigger it, or to ask a human for a focus click that changes nothing.
+			// So report what is actually known: whether compilation was seen to start, and that the wait —
+			// not the compile — ran out.
+			return ok(JSON.stringify({
+				recompiled: sawActivity,
+				reloaded,
+				timedOut: true,
+				note: sawActivity
+					? "Compilation started, but the editor was still busy when the wait ran out — it has most " +
+					  "likely finished. Confirm with the timestamp of Library/ScriptAssemblies/<assembly>.dll " +
+					  "against your changed sources, or poll status until busyWith is null."
+					: "No compilation activity was ever observed and the editor never went idle.",
+				ms: Date.now() - t0,
+			}));
 		} catch (e) {
 			return fail(e);
 		}
@@ -1078,6 +1098,157 @@ tool(
 	},
 	async ({ comments }) => {
 		try { return ok(await callBridge("setUiComment", JSON.stringify({ comments }))); }
+		catch (e) { return fail(e); }
+	}
+);
+
+tool(
+	"execute_code",
+	"Run a C# snippet INSIDE the running Editor and get its return value back. The escape hatch for " +
+	"everything the named tools do not cover: reading a serialized field nobody exposed, fixing up a batch " +
+	"of assets, answering a question about the project empirically instead of by guessing at its YAML.\n\n" +
+	"Two shapes are accepted. Bare statements are wrapped for you — 'return UiStyleConfig.Instance.Skins." +
+	"Count;' is a complete snippet, and System/UnityEngine/UnityEditor/TMPro/GuiToolkit/GuiToolkit.Style/" +
+	"Newtonsoft.Json.Linq are already imported. A full compilation unit is compiled as written, and then it " +
+	"needs exactly one parameterless 'public static' method named Run (override with 'entry'), plus its own " +
+	"using directives. Return whatever you want to read: a string, a number, or a JSON string you built.\n\n" +
+	"Returns { compiled, ran, result, logs, diagnostics, entryPoint, compilationsThisDomain }. Compile " +
+	"errors come back as diagnostics with line numbers in YOUR source, not the generated wrapper; an " +
+	"exception comes back as 'error' with its stack. Anything the snippet logs is captured in 'logs'.\n\n" +
+	"This is NOT a sandbox: the code runs with the Editor's rights, on the main thread, and can delete " +
+	"assets as easily as read them. Consequences worth knowing before the first call — an endless loop " +
+	"freezes the Editor (the handler stops waiting; the loop does not stop running), every snippet stays " +
+	"loaded in the domain until the next reload, and a write is a real write, so prefer 'validateOnly' or a " +
+	"read-only first pass when you are unsure. Use the narrow tools where they exist: they refuse the " +
+	"unsafe cases (writing a file the Editor holds open) that this one will happily perform.",
+	{
+		code: z.string().describe("C# source: bare statements, or a full compilation unit with a static Run()."),
+		validateOnly: z.boolean().optional().describe(
+			"Compile and report diagnostics without running anything. Default false."),
+		entry: z.string().optional().describe(
+			"Name of the parameterless static entry method. Default 'Run'."),
+	},
+	async ({ code, validateOnly, entry }) => {
+		try { return ok(await callBridge("executeCode", JSON.stringify({ code, validateOnly, entry }))); }
+		catch (e) { return fail(e); }
+	}
+);
+
+tool(
+	"mirror_variant_graph",
+	"Give the project its own copy of the library's prefabs AND of the inheritance between them. This is " +
+	"the setup step for a project that intends to change how standard elements look or are built.\n\n" +
+	"A plain one-variant-per-prefab run gives ownership but flattens the shape: the library's OkButton is a " +
+	"variant of its StandardButton, and two independent copies of those are related to the package, not to " +
+	"each other. Add a frame to the project's StandardButton and the project's OkButton does not get it — " +
+	"the inheritance runs sideways into the package instead of down through the project. This tool creates " +
+	"the roots as variants of the library prefab, then each dependent as a variant of the PROJECT copy of " +
+	"its base, transplanting the library variant's own overrides (property values, added objects, added and " +
+	"removed components, and the internal references re-aimed at the copy).\n\n" +
+	"Always dry-runs first by default: returns the graph with, per dependent, how much it overrides, so the " +
+	"work is visible before anything is written. After a real run it verifies every rebuilt dependent " +
+	"against its library original property for property and reports the differences — read that, it is what " +
+	"makes the operation reviewable instead of hopeful.\n\n" +
+	"replaceExisting: 'none' (default, only create what is missing), 'dependents' (rebuild those that have a " +
+	"base — hand-edited ROOTS survive, which is usually what you want), 'all'. A rebuilt asset gets a new " +
+	"GUID, so do this before anything references it. Regenerate the catalog afterwards.",
+	{
+		sourceFolder: z.string().optional().describe(
+			"Where the library's prefabs are. Derived by default, which differs between an installed package " +
+			"and the toolkit's own dev app."),
+		targetFolder: z.string().optional().describe(
+			"Where the project's copies go. Defaults to the configured Prefab Variants Path."),
+		mirrorHierarchy: z.boolean().optional().describe(
+			"Default true: recreate the library's folder structure under the target, because 65 prefabs in " +
+			"one flat folder is a list nobody can read. An existing copy in the wrong folder is MOVED, never " +
+			"rebuilt — moving keeps its GUID, its place in the chain and any hand edits."),
+		dryRun: z.boolean().optional().describe("Default true — report the plan, write nothing."),
+		replaceExisting: z.enum(["none", "dependents", "all"]).optional().describe(
+			"What to do about copies that already exist. Default 'none'."),
+	},
+	async (args) => {
+		try { return ok(await callBridge("mirrorVariantGraph", JSON.stringify(args ?? {}))); }
+		catch (e) { return fail(e); }
+	}
+);
+
+tool(
+	"clone_style_config",
+	"Give the project its OWN style config, copied from the one that ships inside the package, and point " +
+	"the UiToolkitConfiguration at the copy. Do this before any theming: a fresh project uses the package's " +
+	"config, which lives in the immutable package copy — edits there are refused or lost at the next " +
+	"version bump. Idempotent: if the config is already project-local it reports that and changes nothing. " +
+	"It also repairs the copy's internal back-references, which a plain duplicate leaves pointing at the " +
+	"original. Returns { cloned, path, clonedFrom, skins }.",
+	{
+		which: z.enum(["main", "aspectRatio"]).optional().describe(
+			"Which config to clone. 'main' (default) is colours/fonts/sprites; 'aspectRatio' holds the " +
+			"layout values that differ between landscape and portrait."),
+		path: z.string().optional().describe(
+			"Where to put the copy, project-relative and ending in .asset. Defaults into Assets/Resources/. " +
+			"Anywhere under Assets/ works — the config is referenced directly, not loaded by name."),
+	},
+	async (args) => {
+		try { return ok(await callBridge("cloneStyleConfig", JSON.stringify(args ?? {}))); }
+		catch (e) { return fail(e); }
+	}
+);
+
+tool(
+	"read_skin",
+	"Read the VALUES behind the style names — the actual colours, fonts, sizes and sprites of a skin. " +
+	"list_styles tells you a style exists; this tells you what it looks like, which is what you need before " +
+	"changing it and how you verify the change afterwards.\n\n" +
+	"By default it returns only the values that are switched ON ('applicable'), because a style carries an " +
+	"entry for every serialized field of its target component and the handful that are switched on are the " +
+	"ones that define the look. Pass applicableOnly:false to see the rest, each with its own flag. Values " +
+	"come back in the same notation write_skin accepts: colours as \"#RRGGBBAA\", assets as project-relative " +
+	"paths, enums by name.",
+	{
+		which: z.enum(["main", "aspectRatio"]).optional().describe("Default 'main'."),
+		skin: z.string().optional().describe("Skin name or alias. Defaults to the config's current skin."),
+		styles: z.array(z.string()).optional().describe(
+			"Only these style names. Omit for the whole skin."),
+		componentType: z.string().optional().describe(
+			"Only styles targeting this component type, e.g. 'TMP_Text' or 'Image'."),
+		applicableOnly: z.boolean().optional().describe("Default true."),
+	},
+	async (args) => {
+		try { return ok(await callBridge("readSkin", JSON.stringify(args ?? {}))); }
+		catch (e) { return fail(e); }
+	}
+);
+
+tool(
+	"write_skin",
+	"Change what the project LOOKS like: write colours, fonts, sizes and sprites into a skin's styles. This " +
+	"is the theming tool — one edit here reaches every prefab that uses the style, which is the whole point " +
+	"of the styling system and the reason a themed screen should never be a screen with hand-tinted props.\n\n" +
+	"Each entry names a style, the component type it targets, and the values to set. A style name can exist " +
+	"for several component types ('Buttons/Standard/Background' is an Image AND a gradient AND a shadow), so " +
+	"componentType is required whenever the name is not unique — the call says so rather than guessing. A " +
+	"bare value means 'use this and switch it on'; { value, applicable:false } hands the value back to " +
+	"whatever the component itself carries. Value names are the ones read_skin reports; an unknown name " +
+	"comes back with the full list for that style.\n\n" +
+	"Refuses to write the package's own config (run clone_style_config first). Returns before/after per " +
+	"value so the result can be verified, and dryRun:true reports exactly that without writing. Appliers " +
+	"pick the change up immediately, in Edit Mode too — no re-bake and no reimport, so screenshot_view " +
+	"shows the new look straight away.",
+	{
+		styles: z.array(z.object({
+			name: z.string().describe("Style name, e.g. 'Backgrounds/Panel'."),
+			componentType: z.string().optional().describe(
+				"Component type the style targets, e.g. 'Image'. Required when the name is ambiguous."),
+			values: z.record(z.any()).describe(
+				"Value name → value, or → { value, applicable }. Colours \"#RRGGBBAA\", assets as " +
+				"project-relative paths, enums by name, numbers as numbers."),
+		})).min(1).describe("The styles to change."),
+		which: z.enum(["main", "aspectRatio"]).optional().describe("Default 'main'."),
+		skin: z.string().optional().describe("Skin name or alias. Defaults to the config's current skin."),
+		dryRun: z.boolean().optional().describe("Report the before/after plan without writing. Default false."),
+	},
+	async (args) => {
+		try { return ok(await callBridge("writeSkin", JSON.stringify(args ?? {}))); }
 		catch (e) { return fail(e); }
 	}
 );

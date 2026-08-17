@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 3594388165116690286}
   - component: {fileID: 5071951565202241129}
   - component: {fileID: 1894801542386046341}
+  - component: {fileID: 5497056663794310341}
   m_Layer: 5
   m_Name: StandardButton
   m_TagString: Untagged
@@ -153,6 +154,28 @@ MonoBehaviour:
   m_element: 2
   m_customId: 
   m_internal: 0
+--- !u!114 &5497056663794310341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5270523796987331484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b7b22a9add97f34daba889b45fefb5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_reference: {fileID: 5270523797533349593}
+  m_horizontalFit: 0
+  m_verticalFit: 0
+  m_paddingLeft: 15
+  m_paddingRight: 15
+  m_paddingTop: 15
+  m_paddingBottom: 15
+  m_maxWidth: -1
+  m_maxHeight: -1
+  m_layoutPriority: 2
 --- !u!1 &5270523797533349592
 GameObject:
   m_ObjectHideFlags: 0

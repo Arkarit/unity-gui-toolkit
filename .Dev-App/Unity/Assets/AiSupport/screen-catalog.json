@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "generatedAtUtc": "2026-07-28T06:47:02.6291198Z",
+    "generatedAtUtc": "2026-08-04T08:39:31.7364883Z",
     "toolkitAssembly": "de.phoenixgrafik.ui-toolkit",
     "skins": [
         "Landscape",
@@ -16742,6 +16742,57 @@
                     "tooltip": ""
                 },
                 {
+                    "name": "standardButtonPrefabOverride",
+                    "field": "m_standardButtonPrefabOverride",
+                    "member": "field",
+                    "kind": "componentRef",
+                    "valueType": "GuiToolkit.UiButton",
+                    "elementKind": "",
+                    "refType": "UiButton",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": ""
+                },
+                {
+                    "name": "okButtonPrefabOverride",
+                    "field": "m_okButtonPrefabOverride",
+                    "member": "field",
+                    "kind": "componentRef",
+                    "valueType": "GuiToolkit.UiButton",
+                    "elementKind": "",
+                    "refType": "UiButton",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": ""
+                },
+                {
+                    "name": "cancelButtonPrefabOverride",
+                    "field": "m_cancelButtonPrefabOverride",
+                    "member": "field",
+                    "kind": "componentRef",
+                    "valueType": "GuiToolkit.UiButton",
+                    "elementKind": "",
+                    "refType": "UiButton",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": ""
+                },
+                {
                     "name": "layer",
                     "field": "m_layer",
                     "member": "field",
@@ -16997,7 +17048,7 @@
             "unityType": "",
             "prefer": "",
             "category": "Root",
-            "description": "Dynamically-created host AND sequencer for the startup-overlay sequence (changelog, sale / event popups, …). Instantiated by UiMain from its optional prefab reference ( m_startupOverlayViewPrefab ), so it lives on its own layered canvas above the blocked screens and — being parented under the DontDestroyOnLoad UiMain — survives scene changes and keeps its identity (and its position in the sequence) across them. Prefab layout — the click-catcher must come BEFORE the overlay panels so the panels render above it on this shared canvas: UiStartupOverlayView (Canvas + this component, Layer = Top) ├ ClickCatcher (full-screen; its CanvasGroup wired into m_clickCatcher) ├ ChangeLog (UiPanel) ├ SalePanel (UiPanel) └ EventPanel … (UiPanel) Sequencing model: Run walks the child UiPanels in sibling order (non-UiPanel children and the click-catcher are ignored). Each panel is shown via Show; the queue advances when the panel raises EvOnEndHide. That single event is the contract for BOTH \"the user dismissed me\" and \"I decline to show\" — a panel that shouldn't appear simply raises EvOnEndHide without ever showing itself (no interface required; documented limitation). The full-screen click-catcher blocks everything behind this canvas for the whole run, closing the input gaps before the first panel and between panels; the panels, above it, stay interactive. On a scene change (a panel navigating away) the run pauses and resumes from the next panel when Run is called again — the persistent object keeps the index.",
+            "description": "Dynamically-created host AND sequencer for the startup-overlay sequence (changelog, sale / event popups, …). Instantiated by UiMain from its optional prefab reference ( m_startupOverlayViewPrefabFallback ), so it lives on its own layered canvas above the blocked screens and — being parented under the DontDestroyOnLoad UiMain — survives scene changes and keeps its identity (and its position in the sequence) across them. Prefab layout — the click-catcher must come BEFORE the overlay panels so the panels render above it on this shared canvas: UiStartupOverlayView (Canvas + this component, Layer = Top) ├ ClickCatcher (full-screen; its CanvasGroup wired into m_clickCatcher) ├ ChangeLog (UiPanel) ├ SalePanel (UiPanel) └ EventPanel … (UiPanel) Sequencing model: Run walks the child UiPanels in sibling order (non-UiPanel children and the click-catcher are ignored). Each panel is shown via Show; the queue advances when the panel raises EvOnEndHide. That single event is the contract for BOTH \"the user dismissed me\" and \"I decline to show\" — a panel that shouldn't appear simply raises EvOnEndHide without ever showing itself (no interface required; documented limitation). The full-screen click-catcher blocks everything behind this canvas for the whole run, closing the input gaps before the first panel and between panels; the panels, above it, stay interactive. On a scene change (a panel navigating away) the run pauses and resumes from the next panel when Run is called again — the persistent object keeps the index.",
             "isRoot": true,
             "contentField": "",
             "requiresComponents": [
@@ -21605,6 +21656,142 @@
             "events": []
         },
         {
+            "type": "UiStandardElement",
+            "fullName": "GuiToolkit.UiStandardElement",
+            "assembly": "de.phoenixgrafik.ui-toolkit",
+            "unityType": "",
+            "prefer": "",
+            "category": "Widget",
+            "description": "Marks a prefab's root as a named EStandardElement — the single source of truth for \"this prefab IS the OkButton (etc.)\". A prefab variant inherits its base's tag automatically, so a client variant of a tagged toolkit prefab claims the same identity and, being a non-library asset, out-ranks the toolkit default when the registry is generated. Override the tag on a variant only to claim a DIFFERENT identity than its base. Editor tooling scans these markers to generate the runtime UiStandardElementRegistry and to enrich the authoring catalog's palette. This marker IS authorable, and for a generated screen it has to be: a bake rebuilds its prefab from the description, so a marker added to the asset afterwards is discarded on the next bake and the registry entry silently disappears with it. A screen that wants to be resolvable by identity at runtime therefore authors the marker on its root — \"components\": [\"UiStandardElement\"] plus \"props\": { \"element\": \"Custom\", \"customId\": \"…\" } . Keeping it out of the vocabulary also blinded read-back and edit preservation to markers, which is how they got lost unnoticed.",
+            "isRoot": false,
+            "contentField": "",
+            "requiresComponents": [],
+            "styles": [],
+            "props": [
+                {
+                    "name": "element",
+                    "field": "m_element",
+                    "member": "field",
+                    "kind": "enum",
+                    "valueType": "GuiToolkit.EStandardElement",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [
+                        "None",
+                        "Custom",
+                        "StandardButton",
+                        "OkButton",
+                        "CancelButton",
+                        "StandardButtonSmall",
+                        "CloseButton",
+                        "StandardIconButton",
+                        "LanguageToggle",
+                        "Requester",
+                        "SettingsDialog",
+                        "ToastMessageView",
+                        "KeyPressRequester",
+                        "GridPicker",
+                        "PopupMenu",
+                        "StartupOverlayView",
+                        "StandardButtonBar",
+                        "StandardPanelBackground",
+                        "StandardPanelBackgroundWithHeadline",
+                        "StandardHeadlineBackground",
+                        "StandardColorPatch",
+                        "HorizontalDecoLine",
+                        "StandardClickCatcher",
+                        "StandardCheckbox",
+                        "StandardRadio",
+                        "StandardSliderHor",
+                        "UiDropdown",
+                        "UiLanguageSelectDropdown",
+                        "StandardInputField",
+                        "StandardTab",
+                        "StandardTabChapter",
+                        "StandardTabPage",
+                        "StandardTabPageWithScrollRect",
+                        "UpButton",
+                        "DownButton",
+                        "LeftButton",
+                        "RightButton",
+                        "StandardHeadline",
+                        "StandardHeadline2ndOrder",
+                        "StandardHeadline3rdOrder",
+                        "StandardText",
+                        "StandardTextSmall",
+                        "FullScreenTabDialog",
+                        "DatePicker",
+                        "TimePicker",
+                        "DateTimePanel",
+                        "PlayerSettingButton",
+                        "PlayerSettingCheckbox",
+                        "PlayerSettingDropdown",
+                        "PlayerSettingKeyBinding",
+                        "PlayerSettingLanguage",
+                        "PlayerSettingLanguageDropdown",
+                        "PlayerSettingRadiobutton",
+                        "PlayerSettingSlider",
+                        "PlayerSettingFPS",
+                        "PlayerSettingText",
+                        "BackgroundPlayerSetting",
+                        "HoverPlayerSettings",
+                        "StandardCheckboxCheckmark",
+                        "UpDownLeftRightButton",
+                        "GridPickerCell",
+                        "GridPickerCellText",
+                        "DialogStub",
+                        "CalenderUI",
+                        "DateDisplay",
+                        "DateTimePartPanel",
+                        "IncDecPickPicker",
+                        "WiggleAnimation"
+                    ],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Which standard element this prefab represents. Use Custom + Custom Id for project-specific elements."
+                },
+                {
+                    "name": "customId",
+                    "field": "m_customId",
+                    "member": "field",
+                    "kind": "string",
+                    "valueType": "System.String",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Identity string used only when Element == Custom (project-specific standard elements)."
+                },
+                {
+                    "name": "internal",
+                    "field": "m_internal",
+                    "member": "field",
+                    "kind": "bool",
+                    "valueType": "System.Boolean",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Internal building block: a sub-part of a larger prefab, not a standalone screen element. Still gets a registry identity (for library-internal use and variant resolution), but is excluded from the screen-authoring vocabulary the AI composes from."
+                }
+            ],
+            "events": []
+        },
+        {
             "type": "UiStateMachine",
             "fullName": "GuiToolkit.UiStateSystem.UiStateMachine",
             "assembly": "de.phoenixgrafik.ui-toolkit",
@@ -21952,6 +22139,85 @@
     ],
     "palette": [
         {
+            "name": "BackgroundPlayerSetting",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/BackgroundPlayerSetting.prefab",
+            "prefabGuid": "22cd3de1e0c6eee408ea4d260812d2b9",
+            "kind": "UiSimpleAnimation",
+            "category": "Animation",
+            "description": "Base template for settings-dialog rows: a gradient/animated background that concrete PlayerSetting rows derive from; not used directly.",
+            "standardElement": "BackgroundPlayerSetting",
+            "isInternal": false,
+            "slots": []
+        },
+        {
+            "name": "DialogStub",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Dialogs/DialogStub.prefab",
+            "prefabGuid": "a920957d6d03b5c4ca4b6d1d8dd9cafe",
+            "kind": "UiSimpleAnimation",
+            "category": "Animation",
+            "description": "",
+            "standardElement": "DialogStub",
+            "isInternal": true,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "FullScreenTabDialog",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Dialogs/FullScreenTabDialog.prefab",
+            "prefabGuid": "0f6119b246c780b4195ff06650f0d15e",
+            "kind": "UiSimpleAnimation",
+            "category": "Animation",
+            "description": "A full-screen modal dialog with a tab bar for switching between content pages.",
+            "standardElement": "FullScreenTabDialog",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "GridPicker",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Dialogs/GridPicker.prefab",
+            "prefabGuid": "d2dd1f4973a72b5499327442b0b0d326",
+            "kind": "UiSimpleAnimation",
+            "category": "Animation",
+            "description": "A modal popup that lays out a grid of selectable cells for choosing a value; closes on outside tap or the close button.",
+            "standardElement": "GridPicker",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "SettingsDialog",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/FullScreenSettingsDialog.prefab",
+            "prefabGuid": "22c52cc36085977418a4df5a7eb83ca9",
+            "kind": "UiSimpleAnimation",
+            "category": "Animation",
+            "description": "The concrete player-settings screen: a tabbed full-screen dialog wired with Cancel, Restore-Defaults and OK.",
+            "standardElement": "SettingsDialog",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
             "name": "StandardClickCatcher",
             "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardClickCatcher.prefab",
             "prefabGuid": "445786f719e154d4db109676021f00a3",
@@ -21959,6 +22225,7 @@
             "category": "Animation",
             "description": "Full-area overlay placed behind a modal or popup; fades in to dim the screen and swallows clicks to everything underneath.",
             "standardElement": "StandardClickCatcher",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "onClick",
@@ -21968,6 +22235,78 @@
             ]
         },
         {
+            "name": "WiggleAnimation",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Animations/WiggleAnimation.prefab",
+            "prefabGuid": "182143fd3f7c6c1499da8cf0a20e902d",
+            "kind": "UiSimpleAnimation",
+            "category": "Animation",
+            "description": "",
+            "standardElement": "WiggleAnimation",
+            "isInternal": true,
+            "slots": []
+        },
+        {
+            "name": "DateTimePanel",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/DateTimePicker/DateTimePanel.prefab",
+            "prefabGuid": "4336d22136dbf0a4baf1ef01c37442c7",
+            "kind": "UiDateTimePanel",
+            "category": "Container",
+            "description": "The full date+time editor, combining a display, a date picker and a time picker with an optional 'now' button.",
+            "standardElement": "DateTimePanel",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "DateTimePartPanel",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/DateTimePicker/DateTimePartPanel.prefab",
+            "prefabGuid": "74f44088a940fad44b274128f337ac9b",
+            "kind": "UiDateTimePartPanel",
+            "category": "Container",
+            "description": "",
+            "standardElement": "DateTimePartPanel",
+            "isInternal": true,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "HorizontalDecoLine",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Deco/HorizontalDecoLine.prefab",
+            "prefabGuid": "13c8e561bf696c24ab8e6e52b4f3d122",
+            "kind": "",
+            "category": "Container",
+            "description": "A purely decorative horizontal divider line (a styled Image); no interactive behaviour.",
+            "standardElement": "HorizontalDecoLine",
+            "isInternal": false,
+            "slots": []
+        },
+        {
+            "name": "HoverPlayerSettings",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/HoverPlayerSettings.prefab",
+            "prefabGuid": "4388ce7fa9a2db943af6bdce043dcaaa",
+            "kind": "",
+            "category": "Container",
+            "description": "Base template for settings-dialog rows with a hover background that concrete PlayerSetting rows derive from.",
+            "standardElement": "HoverPlayerSettings",
+            "isInternal": false,
+            "slots": []
+        },
+        {
             "name": "StandardButtonBar",
             "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardButtonBar.prefab",
             "prefabGuid": "a83a296a9f385cf438eda8d72559d078",
@@ -21975,6 +22314,18 @@
             "category": "Container",
             "description": "Horizontal bar that lays out a dialog's action buttons (e.g. OK/Cancel) along the bottom.",
             "standardElement": "StandardButtonBar",
+            "isInternal": false,
+            "slots": []
+        },
+        {
+            "name": "StandardCheckboxCheckmark",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardCheckboxCheckmark.prefab",
+            "prefabGuid": "f0d5594a0c80b89438de6761afc5d59a",
+            "kind": "",
+            "category": "Container",
+            "description": "The checkmark graphic shown inside a checkbox while it is on.",
+            "standardElement": "StandardCheckboxCheckmark",
+            "isInternal": true,
             "slots": []
         },
         {
@@ -21985,7 +22336,25 @@
             "category": "Container",
             "description": "Decorative background strip that sits behind a panel's headline text.",
             "standardElement": "StandardHeadlineBackground",
+            "isInternal": false,
             "slots": []
+        },
+        {
+            "name": "StandardInputField",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Text/StandardInputField.prefab",
+            "prefabGuid": "2829a0567e1343941861bb61e7fd3afe",
+            "kind": "",
+            "category": "Container",
+            "description": "A standard single-line text input field (TMP) with the toolkit's gradient-styled background.",
+            "standardElement": "StandardInputField",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
         },
         {
             "name": "StandardPanelBackground",
@@ -21995,6 +22364,7 @@
             "category": "Container",
             "description": "The default framed panel surface - the standard rounded background for dialog and panel content.",
             "standardElement": "StandardPanelBackground",
+            "isInternal": false,
             "slots": []
         },
         {
@@ -22005,6 +22375,7 @@
             "category": "Container",
             "description": "The default framed panel surface - the standard rounded background for dialog and panel content.",
             "standardElement": "StandardPanelBackgroundWithHeadline",
+            "isInternal": false,
             "slots": []
         },
         {
@@ -22015,6 +22386,7 @@
             "category": "Container",
             "description": "One page of a tabbed dialog: the content container shown while its tab is selected.",
             "standardElement": "StandardTabPage",
+            "isInternal": false,
             "slots": []
         },
         {
@@ -22025,6 +22397,18 @@
             "category": "Container",
             "description": "A tab page whose content scrolls, for pages longer than the available height.",
             "standardElement": "StandardTabPageWithScrollRect",
+            "isInternal": false,
+            "slots": []
+        },
+        {
+            "name": "CalenderUI",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/DateTimePicker/CalenderUI.prefab",
+            "prefabGuid": "f66219bc890044a2aa23d7af2a14cc08",
+            "kind": "DatePickerDeprecated",
+            "category": "Input",
+            "description": "",
+            "standardElement": "CalenderUI",
+            "isInternal": true,
             "slots": []
         },
         {
@@ -22035,6 +22419,7 @@
             "category": "Input",
             "description": "Standard 'Cancel' button that dismisses a dialog without applying changes.",
             "standardElement": "CancelButton",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22056,6 +22441,7 @@
             "category": "Input",
             "description": "Small close (X) button, typically pinned in a panel's top corner.",
             "standardElement": "CloseButton",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22070,6 +22456,23 @@
             ]
         },
         {
+            "name": "DatePicker",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/DateTimePicker/DatePicker.prefab",
+            "prefabGuid": "b730cf9b032bf7047a05c856cd978e08",
+            "kind": "DatePickerDeprecated",
+            "category": "Input",
+            "description": "A composite date selector (year/month/day, with optional time) that fires OnValueChanged as its parts change.",
+            "standardElement": "DatePicker",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
             "name": "DownButton",
             "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/UpDownLeftRight/DownButton.prefab",
             "prefabGuid": "af32eb4bc80b16d4eab381ac8514c583",
@@ -22077,11 +22480,68 @@
             "category": "Input",
             "description": "Directional 'down' arrow button, part of the up/down/left/right set.",
             "standardElement": "DownButton",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "onClick",
                     "kind": "event",
                     "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "GridPickerCell",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Dialogs/GridPickerCell.prefab",
+            "prefabGuid": "7a9c3392ee9f7ca4eb4c55f630cb42d4",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "",
+            "standardElement": "GridPickerCell",
+            "isInternal": true,
+            "slots": [
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "GridPickerCellText",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Dialogs/GridPickerCellText.prefab",
+            "prefabGuid": "8722d14c7645aa04e8da616ab909355d",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "",
+            "standardElement": "GridPickerCellText",
+            "isInternal": true,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "IncDecPickPicker",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/DateTimePicker/IncDecPickPicker.prefab",
+            "prefabGuid": "9cf18d83d2a886241ba20c9f99e9f43d",
+            "kind": "UiIncDecGridPicker",
+            "category": "Input",
+            "description": "",
+            "standardElement": "IncDecPickPicker",
+            "isInternal": true,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
             ]
         },
@@ -22093,6 +22553,7 @@
             "category": "Input",
             "description": "Flag toggle for a single language; switches the active language when turned on.",
             "standardElement": "LanguageToggle",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "onClick",
@@ -22114,6 +22575,7 @@
             "category": "Input",
             "description": "Directional 'left' arrow button, part of the up/down/left/right set.",
             "standardElement": "LeftButton",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "onClick",
@@ -22130,6 +22592,7 @@
             "category": "Input",
             "description": "Standard 'OK' / confirm button that accepts a dialog.",
             "standardElement": "OkButton",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22144,6 +22607,209 @@
             ]
         },
         {
+            "name": "PlayerSettingButton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/PlayerSettingButton.prefab",
+            "prefabGuid": "67b50759f67bed34580a606fef654e50",
+            "kind": "UiPlayerSettingButton",
+            "category": "Input",
+            "description": "A settings-dialog row showing a button that fires the bound setting's action when clicked.",
+            "standardElement": "PlayerSettingButton",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "PlayerSettingCheckbox",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/PlayerSettingCheckbox.prefab",
+            "prefabGuid": "2a99be027eca11f428bec269d3de1bf3",
+            "kind": "UiToggle",
+            "category": "Input",
+            "description": "A settings-dialog row with a checkbox bound to a bool setting.",
+            "standardElement": "PlayerSettingCheckbox",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                },
+                {
+                    "name": "onValueChanged",
+                    "kind": "event",
+                    "note": "Toggle change handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "PlayerSettingDropdown",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/PlayerSettingDropdown.prefab",
+            "prefabGuid": "99d75bf0a2fd4d7c87b16f0e48e9aaaf",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "A settings-dialog row with a dropdown listing a string setting's options.",
+            "standardElement": "PlayerSettingDropdown",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "PlayerSettingFPS",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/Resources/PlayerSettingFPS.prefab",
+            "prefabGuid": "fdd1e5dd294d0114ab03f65a3494c1bb",
+            "kind": "UiPlayerSettingSlider",
+            "category": "Input",
+            "description": "A slider-row variant preset for the frame-rate-limit setting; loaded by name from Resources.",
+            "standardElement": "PlayerSettingFPS",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "PlayerSettingKeyBinding",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/PlayerSettingKeyBinding.prefab",
+            "prefabGuid": "50c1ef1f073be8948b834c7f7a796dcf",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "A settings-dialog row that shows a key binding as text and opens the key-press requester to rebind it.",
+            "standardElement": "PlayerSettingKeyBinding",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "PlayerSettingLanguage",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/PlayerSettingLanguage.prefab",
+            "prefabGuid": "adc5ed131e4fc8849a94c5a296498199",
+            "kind": "UiToggle",
+            "category": "Input",
+            "description": "A settings-dialog row offering language selection as a set of radio buttons.",
+            "standardElement": "PlayerSettingLanguage",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                },
+                {
+                    "name": "onValueChanged",
+                    "kind": "event",
+                    "note": "Toggle change handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "PlayerSettingLanguageDropdown",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/PlayerSettingLanguageDropdown.prefab",
+            "prefabGuid": "ab70e5ee45fcfbd4cb76cd70d524619a",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "A settings-dialog row offering language selection via a dropdown.",
+            "standardElement": "PlayerSettingLanguageDropdown",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "PlayerSettingRadiobutton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/PlayerSettingRadiobutton.prefab",
+            "prefabGuid": "dffc64cfb8c59a8459afe98bfcb33b78",
+            "kind": "UiToggle",
+            "category": "Input",
+            "description": "A settings-row variant that presents the toggle as a grouped radio button instead of a checkbox.",
+            "standardElement": "PlayerSettingRadiobutton",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                },
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                },
+                {
+                    "name": "onValueChanged",
+                    "kind": "event",
+                    "note": "Toggle change handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "PlayerSettingSlider",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/PlayerSettingSlider.prefab",
+            "prefabGuid": "2b5fe23326d242a45b3a8b472f23df9c",
+            "kind": "UiPlayerSettingSlider",
+            "category": "Input",
+            "description": "A settings-dialog row with a slider bound to a float setting, including value formatting.",
+            "standardElement": "PlayerSettingSlider",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
             "name": "RightButton",
             "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/UpDownLeftRight/RightButton.prefab",
             "prefabGuid": "5913f47b0ff631940a0ad172620a18a2",
@@ -22151,6 +22817,7 @@
             "category": "Input",
             "description": "Directional 'right' arrow button, part of the up/down/left/right set.",
             "standardElement": "RightButton",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "onClick",
@@ -22167,6 +22834,7 @@
             "category": "Input",
             "description": "The default labeled text button - the go-to button for most actions.",
             "standardElement": "StandardButton",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22188,6 +22856,7 @@
             "category": "Input",
             "description": "Compact variant of the standard text button for tight layouts.",
             "standardElement": "StandardButtonSmall",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22209,6 +22878,7 @@
             "category": "Input",
             "description": "A labeled checkbox for a single on/off setting.",
             "standardElement": "StandardCheckbox",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22235,6 +22905,7 @@
             "category": "Input",
             "description": "Square button showing an icon instead of a text label.",
             "standardElement": "StandardIconButton",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "onClick",
@@ -22251,6 +22922,7 @@
             "category": "Input",
             "description": "A labeled radio button for mutually-exclusive choices within a toggle group.",
             "standardElement": "StandardRadio",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22277,6 +22949,7 @@
             "category": "Input",
             "description": "A horizontal slider for a continuous value such as volume; can show its value as text.",
             "standardElement": "StandardSliderHor",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22293,6 +22966,7 @@
             "category": "Input",
             "description": "A single tab header that selects its page; part of a tab strip.",
             "standardElement": "StandardTab",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22319,6 +22993,24 @@
             "category": "Input",
             "description": "A section heading within a tab strip that groups the tabs listed under it.",
             "standardElement": "StandardTabChapter",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "TimePicker",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/DateTimePicker/TimePicker.prefab",
+            "prefabGuid": "915d7dea0435f9644881b10a990d2cc3",
+            "kind": "UiTimePicker",
+            "category": "Input",
+            "description": "A time selector built from hour/minute/second part-pickers, with an optional 'now' button.",
+            "standardElement": "TimePicker",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22335,6 +23027,7 @@
             "category": "Input",
             "description": "A dropdown (combo box) for picking one option from a list.",
             "standardElement": "UiDropdown",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22351,6 +23044,7 @@
             "category": "Input",
             "description": "A dropdown listing all available languages, kept in sync with the active one.",
             "standardElement": "UiLanguageSelectDropdown",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22367,11 +23061,74 @@
             "category": "Input",
             "description": "Directional 'up' arrow button, part of the up/down/left/right set.",
             "standardElement": "UpButton",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "onClick",
                     "kind": "event",
                     "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "UpDownLeftRightButton",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/Buttons/UpDownLeftRight/UpDownLeftRightButton.prefab",
+            "prefabGuid": "63f736e16f52f304c843e61997a25b21",
+            "kind": "UiButton",
+            "category": "Input",
+            "description": "Directional arrow button that forms the basis of the up/down/left/right button set.",
+            "standardElement": "UpDownLeftRightButton",
+            "isInternal": true,
+            "slots": [
+                {
+                    "name": "onClick",
+                    "kind": "event",
+                    "note": "Click handler (wired later)."
+                }
+            ]
+        },
+        {
+            "name": "KeyPressRequester",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/PlayerSettings/KeyPressRequester.prefab",
+            "prefabGuid": "637592a4cbdecd047a54ddf9d2be9da9",
+            "kind": "UiKeyPressRequester",
+            "category": "Root",
+            "description": "A modal that prompts for a key or mouse press and reports the resulting binding; used when rebinding controls.",
+            "standardElement": "KeyPressRequester",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "PopupMenu",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/UiPopup.prefab",
+            "prefabGuid": "a8a96ffc99045024aac10073d1f4aad2",
+            "kind": "UiPopup",
+            "category": "Root",
+            "description": "A popup / context menu anchored near a triggering element; scrollable, closes on tap outside.",
+            "standardElement": "PopupMenu",
+            "isInternal": false,
+            "slots": []
+        },
+        {
+            "name": "Requester",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Dialogs/Requester.prefab",
+            "prefabGuid": "d7b00544567b55d4c97d8eb3f48f4c44",
+            "kind": "UiRequester",
+            "category": "Root",
+            "description": "The general-purpose message dialog (Ok / YesNo / two-option / text-input) with auto-shrinking body text.",
+            "standardElement": "Requester",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
             ]
         },
@@ -22383,6 +23140,24 @@
             "category": "Root",
             "description": "A transient toast notification that pops in, shows a short message, and disappears on its own.",
             "standardElement": "ToastMessageView",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "ToastMessageView",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardToastMessageView.prefab",
+            "prefabGuid": "f2f503a7e51d1b04b97312941698d8e1",
+            "kind": "UiToastMessageView",
+            "category": "Root",
+            "description": "A transient toast notification that pops in, shows a short message, and disappears on its own.",
+            "standardElement": "ToastMessageView",
+            "isInternal": false,
             "slots": [
                 {
                     "name": "text",
@@ -22399,7 +23174,127 @@
             "category": "Root",
             "description": "A popup / context menu anchored near a triggering element; scrollable, closes on tap outside.",
             "standardElement": "PopupMenu",
+            "isInternal": false,
             "slots": []
+        },
+        {
+            "name": "PlayerSettingText",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Text/PlayerSettingText.prefab",
+            "prefabGuid": "4b3f5121e0eef79459174ab2bf3c0a75",
+            "kind": "UiTextContainerDisableable",
+            "category": "Text",
+            "description": "A localized label used as caption/row text inside the player-settings dialog.",
+            "standardElement": "PlayerSettingText",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "StandardHeadline",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Text/StandardHeadline.prefab",
+            "prefabGuid": "f68e9574a6a461e4abc6267904590380",
+            "kind": "UiTextContainerDisableable",
+            "category": "Text",
+            "description": "The largest standard localized headline, for the main title of a screen or dialog.",
+            "standardElement": "StandardHeadline",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "StandardHeadline2ndOrder",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Text/StandardHeadline2ndOrder.prefab",
+            "prefabGuid": "b3eb336f7588eed45887ef023e26a39d",
+            "kind": "UiTextContainerDisableable",
+            "category": "Text",
+            "description": "A second-level headline - same styling as StandardHeadline but smaller (font size 46), for section titles.",
+            "standardElement": "StandardHeadline2ndOrder",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "StandardHeadline3rdOrder",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Text/StandardHeadline3rdOrder.prefab",
+            "prefabGuid": "03d4f67c3b64d2748888fa210e48296b",
+            "kind": "UiTextContainerDisableable",
+            "category": "Text",
+            "description": "A third-level headline at the smallest heading size (font size 36), for minor subsection titles.",
+            "standardElement": "StandardHeadline3rdOrder",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "StandardText",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Text/StandardText.prefab",
+            "prefabGuid": "9d3b6bdd5a611474f98dec479689c68f",
+            "kind": "UiTextContainer",
+            "category": "Text",
+            "description": "Standard localized body text - the default paragraph/label style for screen content.",
+            "standardElement": "StandardText",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "StandardTextSmall",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/Text/StandardTextSmall.prefab",
+            "prefabGuid": "d017b70bec6377f4086c8642975882fa",
+            "kind": "UiTextContainer",
+            "category": "Text",
+            "description": "Standard localized body text at a smaller size, for secondary or dense content.",
+            "standardElement": "StandardTextSmall",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
+            "name": "DateDisplay",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/DateTimePicker/DateDisplay.prefab",
+            "prefabGuid": "a9594b549d75d4443b87fece4427b4fd",
+            "kind": "UiDateTimeDisplay",
+            "category": "Widget",
+            "description": "",
+            "standardElement": "DateDisplay",
+            "isInternal": true,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
         },
         {
             "name": "StandardColorPatch",
@@ -22409,7 +23304,9 @@
             "category": "Widget",
             "description": "A selectable color swatch that displays a single color and can be picked within a group.",
             "standardElement": "StandardColorPatch",
+            "isInternal": false,
             "slots": []
         }
-    ]
+    ],
+    "standardElementAmbiguities": []
 }
