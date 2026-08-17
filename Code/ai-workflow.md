@@ -100,6 +100,24 @@ Two related habits:
 
 ---
 
+## When an icon is missing, say so
+
+A screen usually needs one thing the project does not have yet — a trophy, a dumbbell, a parasol.
+The assistant can have it drawn: it writes a brief, Codex authors the shape as SVG and rasterises it
+into your repository as a real PNG, and the assistant then sets the Unity import settings and puts it
+into the screen. Flat single-colour glyphs in your existing icon idiom, nothing painterly.
+
+Three things make this go smoothly:
+
+- **Ask.** Left alone, an assistant reaches for the nearest existing sprite instead, because every
+  other rule it follows says *reuse what the project has*. "Draw the missing ones" is enough.
+- **Judge each icon, not the set.** Shapes land quickly; proportions do not. Expect one round of
+  "the plates need to be much heavier" — and say it about one icon at a time.
+- **It is a real file in your repository.** Review it like any other asset, and check where it was
+  written: a folder your own `.gitignore` covers is easy to overlook.
+
+---
+
 ## Localization
 
 Text the assistant authors goes through the normal gettext pipeline, so the usual rule applies: a

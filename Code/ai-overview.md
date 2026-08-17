@@ -43,6 +43,7 @@ AI assistant  ──stdio──>  mcp~/server.mjs  ──HTTP──>  Unity Edit
 | Matching your project's look | Reads a generated **catalog** of your components, styles and standard elements |
 | Checking the running app | Enters Play Mode, captures the Game View, asks what a tap would hit — and taps |
 | Diagnosing | Reads this editor session's console, with a "what did that last action produce" filter |
+| Drawing a missing icon | Writes a brief for Codex, which authors the shape as SVG and rasterises it into your project — flat UI glyphs, not painted artwork |
 
 The important part is the **description**, not the prefab. Every baked screen keeps its description
 next to it as `<Name>.screen.src.json`. That file is the thing to review, and re-baking from it is
@@ -58,9 +59,14 @@ Worth knowing up front, so nobody is surprised:
 - **It cannot drive your game.** Play Mode starts at your first scene — splash, login, network. It
   cannot log in for you. The productive pattern is: *you* bring the app to the interesting state,
   then the assistant looks and taps.
-- **It cannot invent your art direction.** It can only reuse what the catalog already names. If a
-  look is not a style, a standard element or a prefab in the project, it will approximate — and
-  approximation is exactly what looks off.
+- **It cannot invent your art direction.** For layout and look it can only reuse what the catalog
+  already names. If a look is not a style, a standard element or a prefab in the project, it will
+  approximate — and approximation is exactly what looks off. The one exception is a single missing
+  **icon**: describe your icon idiom once (canvas size, silhouette, shadow) and it can draw a flat
+  glyph that fits the set. Ask for it — left alone, an assistant tends to substitute the nearest
+  existing sprite instead, or to report the gap and stop.
+- **It cannot judge proportions it drew itself.** Shapes come out recognisable; the balance between
+  the parts often does not, and it takes a round or two of "the plates are too small" to land.
 - **Hand-tuned curves are beyond it.** It can author animations, but the shapes a human eyeballed
   (custom tangents) are not something it can reproduce from scratch. It can, however, *harvest* the
   animations your project already uses and reuse those.
