@@ -91,11 +91,15 @@ unverändert 0,9 us (`FindStyle`).
 - Gilt ebenso für `UiAspectRatioDependentStyleConfig`, da von derselben Basis abgeleitet.
 - Einen **effektiven Style-Satz** je Skin bereitstellen (eigene plus geerbte, eigene gewinnen) und die Vokabular-Abfragen sowie das Skin-Tweening in `UiStyleManager` darüber führen; Skins über den Key paaren, nicht über den Index.
 
-### Phase 2 — Copy-on-Write  ← als nächstes
+### Phase 2 — Copy-on-Write  ✅ erledigt (außer dem Drawer, den erst Phase 3 schafft)
 
 Ein Schreibzugriff auf einen geerbten Style muss diesen zuerst in der Child-Konfiguration materialisieren und dann schreiben. Ohne das verschwindet der Schreibvorgang stillschweigend — siehe Risiken.
 
-Betroffene Pfade: `UiAbstractApplyStyleBase.Record()`, die Wertänderungen im Skin-Drawer und `UiStyleWriter` (der Package-eigene Konfigurationen bereits ablehnt und nur den neuen Pfad lernen muss).
+Umgesetzt mit 8 Tests: `UiStyleUtility.CloneStyle` (eigenständige Kopie mit Werten und Applicableness, Asset-Referenzen geteilt statt dupliziert), `UiSkin.MaterializeStyle` / `OwnsStyle` als einzige Copy-on-Write-Stelle, `UiStyleConfig.IsPackageOwned` als Verweigerung (geprüft am symlinkten Package-Klon der Dev-App, wo der `Packages/`-Test allein nichts sagt), und `UiAbstractApplyStyleBase.MaterializeStyleForOverride` — public, weil die Override-Aktion aus Phase 3 genau das braucht. `Record()` läuft darüber. Ein Override gilt **je Skin**: Materialisieren in einem Skin lässt die anderen erben.
+
+`UiStyleWriter` liest jetzt den effektiven Satz (mit `inherited` je Style) und materialisiert vor dem Schreiben, außer im Dry-Run.
+
+Offen bleibt: die Wertänderungen im Skin-Drawer. Ein geerbter Style ist nicht Teil der serialisierten Daten des Childs, der Drawer kann ihn also noch gar nicht anzeigen oder editieren — dieser Pfad entsteht erst mit Phase 3 und wird dort verdrahtet.
 
 ### Phase 3 — Editor
 

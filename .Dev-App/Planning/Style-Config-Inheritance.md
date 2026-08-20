@@ -90,11 +90,15 @@ key via the pure `UiStyleManager.PairStylesByKey`. Resolution cost is unchanged 
 - Applies to `UiAspectRatioDependentStyleConfig` as well, since it derives from the same base.
 - Expose an **effective style set** per skin (own plus inherited, own wins) and route the vocabulary lookups and `UiStyleManager` skin tweening through it; pair skins by key, not by index.
 
-### Phase 2 — Copy-on-write  ← next
+### Phase 2 — Copy-on-write  ✅ done (except the drawer, which phase 3 creates)
 
 Writing to an inherited style must materialise it in the child config first, then write. Without this the write silently disappears — see Risk Summary.
 
-Affected paths: `UiAbstractApplyStyleBase.Record()`, the skin drawer's value edits, and `UiStyleWriter` (which already refuses package-owned configs and only needs to learn the new path).
+Implemented with 8 tests: `UiStyleUtility.CloneStyle` (an independent copy carrying values and applicableness, asset references shared rather than duplicated), `UiSkin.MaterializeStyle` / `OwnsStyle` as the single copy-on-write entry point, `UiStyleConfig.IsPackageOwned` as the refusal (verified against the dev app's symlinked package copy, where the `Packages/` test alone says nothing), and `UiAbstractApplyStyleBase.MaterializeStyleForOverride` — public, because phase 3's override action wants exactly that. `Record()` goes through it. An override is per skin: materialising in one skin leaves the others inheriting.
+
+`UiStyleWriter` now reads the effective set (reporting `inherited` per style) and materialises before writing, unless it is a dry run.
+
+Still open: the skin drawer's value edits. An inherited style is not part of the child's serialized data, so the drawer cannot show or edit one yet — that path comes into existence with phase 3 and is wired there.
 
 ### Phase 3 — Editor
 
