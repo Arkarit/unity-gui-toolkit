@@ -31,6 +31,24 @@ namespace GuiToolkit.Style
 		private bool m_skinListenersAdded = false;
 		private UiStyleConfig m_effectiveStyleConfig;
 		private bool m_effectiveStyleConfigInitialized;
+#if UNITY_EDITOR
+		private int m_effectiveStyleConfigGeneration = -1;
+		private static int s_styleConfigGeneration;
+
+		/// <summary>
+		/// Drops the resolved style config of every applier. Needed when something outside an applier
+		/// changes WHICH config it should use - assigning another main config in the toolkit configuration,
+		/// or cloning one into the project. Editing a config's contents does not need this; that is what
+		/// EvSkinChanged and EvSkinValuesChanged are for.
+		/// </summary>
+		public static void InvalidateEffectiveStyleConfigs() => s_styleConfigGeneration++;
+
+		/// <summary>
+		/// The config an applier resolves to is derived from two serialized fields of its own, so any
+		/// inspector edit, undo or prefab apply that touches them has to drop the cached result.
+		/// </summary>
+		protected virtual void OnValidate() => m_effectiveStyleConfigInitialized = false;
+#endif
 
 		public UnityEvent<UiAbstractApplyStyleBase> OnBeforeApplyStyle = new();
 		public UnityEvent<UiAbstractApplyStyleBase> OnAfterApplyStyle = new();
@@ -55,19 +73,37 @@ namespace GuiToolkit.Style
 
 		public bool IsAspectRatioDependent => m_isAspectRatioDependent;
 
+		/// <summary>
+		/// The config this applier resolves its style from.
+		///
+		/// This used to throw its cache away on every access while not playing, on the assumption that
+		/// anything may have changed in the editor. It made a single style resolution cost ~290 us, nearly
+		/// all of it spent walking back up the singleton chain (three editor-caller-gate stack walks and
+		/// two bootstrap checks per access) - and with one resolution per applier per skin change, a scene
+		/// with ~850 appliers spent a third of a second re-answering a question whose answer had not
+		/// changed. It is cached now and invalidated explicitly: OnValidate covers edits to this
+		/// component's own fields, and InvalidateEffectiveStyleConfigs covers a different config being
+		/// assigned project-wide.
+		///
+		/// The EditorCallerGate check that used to sit here was removed rather than cached: this class is
+		/// [EditorAware], so its own frame is on the stack for every access and the check could never
+		/// fail. The AssetReadyGate check stays - that one does fire, during import and compile.
+		/// </summary>
 		public UiStyleConfig StyleConfig
 		{
 			get
 			{
 				AssetReadyGate.ThrowIfNotReady();
-				EditorCallerGate.ThrowIfNotEditorAware(Name);
 #if UNITY_EDITOR
-				if (!Application.isPlaying)
+				if (!Application.isPlaying && m_effectiveStyleConfigGeneration != s_styleConfigGeneration)
 					m_effectiveStyleConfigInitialized = false;
 #endif
 				if (!m_effectiveStyleConfigInitialized)
 				{
 					m_effectiveStyleConfigInitialized = true;
+#if UNITY_EDITOR
+					m_effectiveStyleConfigGeneration = s_styleConfigGeneration;
+#endif
 
 					if (m_optionalStyleConfig != null)
 					{

@@ -260,6 +260,14 @@ namespace GuiToolkit
 		}
 
 		public UiStyleConfig UiMainStyleConfig => m_uiMainStyleConfig;
+
+#if UNITY_EDITOR
+		/// <summary>
+		/// Appliers cache which style config they resolve to, so a different config assigned here has to
+		/// reach them. Cheap and rare: this only runs when the asset itself is edited.
+		/// </summary>
+		private void OnValidate() => Style.UiAbstractApplyStyleBase.InvalidateEffectiveStyleConfigs();
+#endif
 		public UiAspectRatioDependentStyleConfig UiAspectRatioDependentStyleConfig => m_uiAspectRatioDependentStyleConfig;
 		public CanvasScaler GlobalCanvasScalerTemplate => m_globalCanvasScalerTemplate;
 		public bool DebugLoca => m_debugLoca;
