@@ -4,6 +4,10 @@
 [Bb]uild/
 [Bb]uilds/
 /.Dev-App/Unity/[Aa]ssets/AddressableAssetsData/
+# Bake output of the AI screen tools, including the sidecars the baker writes next to a prefab.
+# Regenerated on demand, and every baker test run leaves one here.
+/.Dev-App/Unity/[Aa]ssets/AiSupport/Generated/
+/.Dev-App/Unity/[Aa]ssets/AiSupport/Generated.meta
 /.Dev-App/Unity/[Ll]ibrary/com.unity.addressables/
 Assets/AssetStoreTools*
 

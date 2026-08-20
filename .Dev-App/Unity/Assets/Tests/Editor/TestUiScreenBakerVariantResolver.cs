@@ -48,6 +48,15 @@ namespace GuiToolkit.Test
 				m_bakedPath = null;
 			}
 			AssetDatabase.DeleteAsset(VariantPath);
+
+			// The test creates the variants folder, so it takes it away again - otherwise every run leaves
+			// an empty folder and its .meta behind. Only while empty: if the project really keeps client
+			// variants here one day, they are none of this test's business.
+			if (AssetDatabase.IsValidFolder(VariantsFolder)
+			    && AssetDatabase.FindAssets(string.Empty, new[] { VariantsFolder }).Length == 0)
+			{
+				AssetDatabase.DeleteAsset(VariantsFolder);
+			}
 		}
 
 		[Test]
