@@ -19,36 +19,69 @@ namespace GuiToolkit
 		private static readonly Dictionary<Type, bool> s_isAwareCache = new();
 
 		/// <summary>
+		/// Number of innermost frames probed one at a time before falling back to capturing the whole
+		/// stack. Small on purpose: the point is to decide the common case without a full capture.
+		/// </summary>
+		/// Kept short deliberately: when no near frame decides it, the cost is the probe PLUS the full
+		/// capture, so a long probe would tax the undecided case (an aware caller far up the stack, or the
+		/// error path that is about to throw anyway) to buy nothing.
+		private const int NearFrameProbeCount = 4;
+
+		/// <summary>
 		/// Returns true if ANY caller type on the stack implements IEditorAware.
 		/// skipTypes: optional infra types to skip early (e.g., your getters/helpers).
+		///
+		/// Capturing the whole stack is what costs here - measured at ~66 us against ~3 us for a single
+		/// frame, and the walk itself is free by comparison. Since the answer is almost always decided by
+		/// the innermost frames (an editor-aware type asking for a singleton, or the gate's own caller),
+		/// the near frames are probed one at a time and the full capture only happens when none of them
+		/// decides it. That is the failure path and the rare deep-infrastructure call, not the hot one.
+		/// This getter sits in front of every singleton in the toolkit, so it was the single most
+		/// expensive thing about resolving a style: three of these per resolution.
 		/// </summary>
 		[MethodImpl(MethodImplOptions.NoInlining)]
 		public static bool IsAnyCallerEditorAware( params Type[] _skipTypes )
 		{
+			// Frame 1 is this method's caller, matching what the full capture below sees first.
+			for (int i = 1; i <= NearFrameProbeCount; i++)
+			{
+				if (IsAwareFrame(new StackFrame(i, false).GetMethod(), _skipTypes))
+					return true;
+			}
+
 			var frames = new StackTrace(1, false).GetFrames();
 			if (frames == null) return false;
 
 			foreach (var f in frames)
 			{
-				var m = f.GetMethod();
-				var t = m?.DeclaringType;
-				if (t == null) 
-					continue;
-
-				if (_skipTypes != null && _skipTypes.Contains(t)) 
-					continue;
-				
-				if (t == typeof(EditorCallerGate)) 
-					continue;
-
-				if (IsOrHasOuterEditorAware(t)) 
-					return true;
-
-				if (m.IsDefined(typeof(EditorAwareAttribute), inherit: true)) 
+				if (IsAwareFrame(f.GetMethod(), _skipTypes))
 					return true;
 			}
 			
 			return false;
+		}
+
+		/// <summary>
+		/// The per-frame decision, shared by the near-frame probe and the full walk so the two can not
+		/// drift apart. A frame that says nothing (unknown, the gate itself, an explicitly skipped type,
+		/// or simply a type that is not aware) returns false and lets the caller keep looking.
+		/// </summary>
+		private static bool IsAwareFrame( System.Reflection.MethodBase _method, Type[] _skipTypes )
+		{
+			var t = _method?.DeclaringType;
+			if (t == null)
+				return false;
+
+			if (_skipTypes != null && _skipTypes.Contains(t))
+				return false;
+
+			if (t == typeof(EditorCallerGate))
+				return false;
+
+			if (IsOrHasOuterEditorAware(t))
+				return true;
+
+			return _method.IsDefined(typeof(EditorAwareAttribute), inherit: true);
 		}
 
 		private static bool IsOrHasOuterEditorAware( Type _type )
