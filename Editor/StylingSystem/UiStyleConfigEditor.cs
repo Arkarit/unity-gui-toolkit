@@ -112,7 +112,8 @@ namespace GuiToolkit.Style.Editor
 			(
 				$"Skin '{skin.Name}' resolves {effective} styles: {own} of its own, "
 				+ $"{effective - own} inherited from {sourceText}.\n"
-				+ "Inherited styles are listed read-only below, and can be overridden per skin.",
+				+ "Inherited styles are listed read-only below and can be overridden per skin. "
+				+ "Grey: this config's own. Blue: inherited. Yellow: inherited and overridden here.",
 				MessageType.Info
 			);
 		}

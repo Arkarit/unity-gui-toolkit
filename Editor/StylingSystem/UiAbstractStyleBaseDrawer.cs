@@ -36,8 +36,15 @@ namespace GuiToolkit.Style.Editor
 			var editedConfig = UiStyleConfigEditor.EditedConfig;
 			bool isInherited = owningConfig != null && editedConfig != null && owningConfig != editedConfig;
 
+			// Three states worth telling apart at a glance: plain grey for a style this config simply has,
+			// blue for one it inherits, yellow for one it inherits AND overrides - the last being the only
+			// one that carries a decision, and the only one that can drift from what it came from.
+			bool isOverride = !isInherited && CanRevert(thisStyle);
+
 			if (isInherited)
 				Background(InheritedTint, InheritedTint, -3, 0, 0, -10);
+			else if (isOverride)
+				Background(OverrideTint, OverrideTint, -3, 0, 0, -10);
 			else
 				Background(-3, 0, 0, -10);
 			Space(3);
@@ -49,7 +56,9 @@ namespace GuiToolkit.Style.Editor
 				(
 					isInherited
 						? $"Type: {thisStyle.SupportedComponentType.Name}   -  inherited from '{owningConfig.name}'"
-						: $"Type: {thisStyle.SupportedComponentType.Name}",
+						: isOverride
+							? $"Type: {thisStyle.SupportedComponentType.Name}   -  overrides '{OverriddenConfigName(thisStyle)}'"
+							: $"Type: {thisStyle.SupportedComponentType.Name}",
 					0,
 					EditorStyles.boldLabel
 				);
@@ -174,6 +183,10 @@ namespace GuiToolkit.Style.Editor
 		/// <summary>Subtle tint that sets an inherited entry apart without shouting.</summary>
 		private static readonly Color InheritedTint = new Color(0.35f, 0.55f, 0.75f, 0.10f);
 
+		/// <summary>And one for an entry that overrides what it inherits. Slightly stronger, because yellow
+		/// reads weaker than blue against the grey behind it.</summary>
+		private static readonly Color OverrideTint = new Color(0.85f, 0.70f, 0.20f, 0.13f);
+
 		/// <summary>
 		/// The skin this row belongs to, read from the property path of the object it lives in. An inherited
 		/// row comes from another asset, where the same skin may sit at a different index - the NAME is what
@@ -214,6 +227,16 @@ namespace GuiToolkit.Style.Editor
 				return null;
 
 			return editedConfig?.GetOwnSkinByNameOrAlias(skinName, false);
+		}
+
+		/// <summary>
+		/// The config an overriding entry diverges from - not necessarily the immediate parent.
+		/// </summary>
+		private string OverriddenConfigName( UiAbstractStyleBase _style )
+		{
+			var parentSkin = EditedSkinOfThisRow()?.ParentSkin;
+			var origin = parentSkin?.ConfigOwning(_style.Key);
+			return origin != null ? origin.name : "?";
 		}
 
 		private bool CanRevert( UiAbstractStyleBase _style )
