@@ -62,24 +62,34 @@ namespace GuiToolkit.Style.Editor
 					0,
 					EditorStyles.boldLabel
 				);
-				IncreaseX(-170);
+				// The header text runs underneath these buttons, so they are kept as narrow as they can be
+				// read: an abbreviated label with the sentence in its tooltip beats a wide button that
+				// covers the name of the config a row comes from.
+				bool showRevert = isOverride;
+				IncreaseX(showRevert ? -235 : -170);
 
 				if (isInherited)
 				{
-					IncreaseX(30);
-					if (Button("Override here", 140))
+					// Right-aligned in the same column as Delete, so the rows line up.
+					IncreaseX(-55);
+					if (Button(new GUIContent("Overr.", "Copy this inherited style into this config, so its "
+						+ "values can be changed here. It stops following the config it came from."), 55))
+					{
 						OverrideInherited(thisStyle);
+					}
 
 					return;
 				}
 
-				if (CanRevert(thisStyle))
+				if (showRevert)
 				{
-					IncreaseX(-70);
-					if (Button("Revert", 65))
+					if (Button(new GUIContent("Revert", "Drop this config's own copy and inherit the style "
+						+ "again. The values set here are lost."), 60))
+					{
 						RevertToInherited(thisStyle);
+					}
 
-					IncreaseX(70);
+					IncreaseX(65);
 				}
 
 				if (Button("Find", 35))
