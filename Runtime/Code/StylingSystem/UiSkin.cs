@@ -155,6 +155,74 @@ namespace GuiToolkit.Style
 		}
 
 		/// <summary>
+		/// The opposite of MaterializeStyle: drops this skin's own copy so the style is inherited again.
+		///
+		/// Refuses when there is nothing to fall back to. Removing the only copy of a style is a deletion,
+		/// not a revert, and it would silently take the style out of the config - DeleteStyle is the way to
+		/// say that on purpose.
+		///
+		/// Returns the style the skin resolves afterwards: the inherited one on success, the own one when
+		/// the revert was refused.
+		/// </summary>
+		public UiAbstractStyleBase RevertStyleToInherited(int _key)
+		{
+			var inherited = m_config?.InheritedStyleByKey(m_name, _key);
+			var own = OwnStyleByKey(_key);
+
+			if (own == null)
+				return inherited;   // already inherited (or unknown), nothing to drop
+
+			if (inherited == null)
+			{
+				UiLog.LogError($"Style '{own.Name}' is not inherited from anywhere, so it cannot be reverted - " +
+				               "dropping it would remove it from the config altogether. Delete it if that is " +
+				               "what you mean.");
+				return own;
+			}
+
+#if UNITY_EDITOR
+			if (m_config.IsPackageOwned)
+			{
+				UiLog.LogError($"Cannot change '{m_config.name}': that config ships inside the package and is " +
+				               "read-only, so the change would be lost on save.");
+				return own;
+			}
+#endif
+
+			m_styles.Remove(own);
+			InvalidateStyleLookup();
+
+#if UNITY_EDITOR
+			EditorGeneralUtility.SetDirty(m_config);
+#endif
+			return inherited;
+		}
+
+		/// <summary>
+		/// The config that actually holds the style behind this key - this skin's own config, or the
+		/// ancestor it is inherited from. Null if nothing resolves. What the editor needs in order to say
+		/// where a style comes from.
+		/// </summary>
+		public UiStyleConfig ConfigOwning(int _key)
+		{
+			if (OwnStyleByKey(_key) != null)
+				return m_config;
+
+			if (m_config == null)
+				return null;
+
+			var chain = m_config.SelfAndAncestors();
+			for (int i = 1; i < chain.Count; i++)
+			{
+				var skin = chain[i].GetOwnSkinByNameOrAlias(m_name, false);
+				if (skin?.OwnStyleByKey(_key) != null)
+					return chain[i];
+			}
+
+			return null;
+		}
+
+		/// <summary>
 		/// The style behind this key in THIS skin, ignoring any parent config.
 		/// </summary>
 		internal UiAbstractStyleBase OwnStyleByKey(int _key)

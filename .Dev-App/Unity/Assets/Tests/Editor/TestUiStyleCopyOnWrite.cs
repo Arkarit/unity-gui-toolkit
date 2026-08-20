@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using GuiToolkit.Style;
 using NUnit.Framework;
+using UnityEngine.TestTools;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -176,6 +177,109 @@ namespace GuiToolkit.Test
 
 			Assert.AreSame(ownBefore, own);
 			Assert.AreEqual(1, child.GetOwnSkinByNameOrAlias(SkinDefault, false).Styles.Count);
+		}
+
+		/// <summary>
+		/// Reverting is the other half of overriding: drop the own copy and let the style be inherited
+		/// again. The editor offers it on any entry the child owns while an ancestor has one too.
+		/// </summary>
+		[Test]
+		public void RevertingDropsTheOwnCopy_AndInheritsAgain()
+		{
+			var (parent, child) = CreatePair();
+			var inherited = AddStyle(parent, SkinDefault, InheritedStyle);
+			var skin = child.GetOwnSkinByNameOrAlias(SkinDefault, false);
+			var own = skin.MaterializeStyle(inherited.Key);
+
+			Assert.IsTrue(skin.OwnsStyle(inherited.Key), "sanity: overridden first");
+
+			var afterRevert = skin.RevertStyleToInherited(inherited.Key);
+
+			Assert.IsFalse(skin.OwnsStyle(inherited.Key));
+			Assert.AreSame(inherited, afterRevert);
+			Assert.AreSame(inherited, skin.StyleByKey(inherited.Key), "and it resolves through the parent again");
+			Assert.IsEmpty(skin.Styles, "the copy is gone, not just unlinked");
+			Assert.IsNotNull(own, "sanity: there was a copy to drop");
+		}
+
+		/// <summary>
+		/// A style nobody else has cannot be reverted - dropping it would remove it from the config
+		/// altogether, which is a deletion and has its own command.
+		/// </summary>
+		[Test]
+		public void RevertingWhatIsNotInherited_IsRefused()
+		{
+			LogAssert.ignoreFailingMessages = true;
+
+			var (parent, child) = CreatePair();
+			var childOnly = AddStyle(child, SkinDefault, "Test/ChildOnly");
+			var skin = child.GetOwnSkinByNameOrAlias(SkinDefault, false);
+
+			var result = skin.RevertStyleToInherited(childOnly.Key);
+
+			Assert.AreSame(childOnly, result, "the caller keeps the style it had");
+			Assert.IsTrue(skin.OwnsStyle(childOnly.Key), "and it is still there");
+			Assert.IsNotNull(parent, "sanity");
+		}
+
+		[Test]
+		public void RevertingAnAlreadyInheritedStyle_ChangesNothing()
+		{
+			var (parent, child) = CreatePair();
+			var inherited = AddStyle(parent, SkinDefault, InheritedStyle);
+			var skin = child.GetOwnSkinByNameOrAlias(SkinDefault, false);
+
+			var result = skin.RevertStyleToInherited(inherited.Key);
+
+			Assert.AreSame(inherited, result);
+			Assert.IsEmpty(skin.Styles);
+		}
+
+		[Test]
+		public void RevertingInOneSkin_LeavesTheOtherSkinsOverride()
+		{
+			var parent = CreateConfig(SkinDefault, SkinExtra);
+			var inDefault = AddStyle(parent, SkinDefault, InheritedStyle);
+			var inExtra = AddStyle(parent, SkinExtra, InheritedStyle);
+
+			var child = CreateConfig(SkinDefault, SkinExtra);
+			child.Parent = parent;
+
+			var defaultSkin = child.GetOwnSkinByNameOrAlias(SkinDefault, false);
+			var extraSkin = child.GetOwnSkinByNameOrAlias(SkinExtra, false);
+			defaultSkin.MaterializeStyle(inDefault.Key);
+			var extraOwn = extraSkin.MaterializeStyle(inExtra.Key);
+
+			defaultSkin.RevertStyleToInherited(inDefault.Key);
+
+			Assert.IsFalse(defaultSkin.OwnsStyle(inDefault.Key));
+			Assert.IsTrue(extraSkin.OwnsStyle(inExtra.Key), "the other skin keeps its override");
+			Assert.AreSame(extraOwn, extraSkin.StyleByKey(inExtra.Key));
+		}
+
+		/// <summary>
+		/// Where a style comes from is what the editor has to show next to it, and it is not always the
+		/// immediate parent.
+		/// </summary>
+		[Test]
+		public void TheOwningConfigIsReported_ThroughTheWholeChain()
+		{
+			var grandparent = CreateConfig(SkinDefault);
+			var inGrandparent = AddStyle(grandparent, SkinDefault, InheritedStyle);
+
+			var parent = CreateConfig(SkinDefault);
+			parent.Parent = grandparent;
+
+			var child = CreateConfig(SkinDefault);
+			child.Parent = parent;
+
+			var skin = child.GetOwnSkinByNameOrAlias(SkinDefault, false);
+			Assert.AreSame(grandparent, skin.ConfigOwning(inGrandparent.Key), "two levels up");
+
+			skin.MaterializeStyle(inGrandparent.Key);
+			Assert.AreSame(child, skin.ConfigOwning(inGrandparent.Key), "and the child once it overrides it");
+
+			Assert.IsNull(skin.ConfigOwning(UiStyleUtility.GetKey(typeof(Image), "Test/NobodyHasThis")));
 		}
 
 		private (UiStyleConfig parent, UiStyleConfig child) CreatePair()
