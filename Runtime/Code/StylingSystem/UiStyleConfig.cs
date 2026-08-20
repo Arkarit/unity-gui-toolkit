@@ -95,27 +95,6 @@ namespace GuiToolkit.Style
 		}
 
 		/// <summary>
-		/// The style behind this key in the skin of this name, looked up in the ancestors only - the caller
-		/// has already failed to find it in its own skin. Walks the chain by skin NAME, because two configs
-		/// are not required to list their skins in the same order.
-		/// </summary>
-		internal UiAbstractStyleBase InheritedStyleByKey( string _skinName, int _key )
-		{
-			var config = m_parent;
-			for (int depth = 1; config != null; depth++)
-			{
-				var skin = config.GetOwnSkinByNameOrAlias(_skinName, false);
-				var style = skin?.OwnStyleByKey(_key);
-				if (style != null)
-					return style;
-
-				config = config.StepToParent(this, depth);
-			}
-
-			return null;
-		}
-
-		/// <summary>
 		/// One step up the chain, or null at the end of it. Reports a cycle and a runaway chain rather than
 		/// recursing into either.
 		/// </summary>

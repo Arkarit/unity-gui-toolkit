@@ -194,16 +194,26 @@ namespace GuiToolkit.Style.Editor
 		}
 
 		/// <summary>
-		/// The OWN skin of the edited config that this row is shown under. Own, because materialising into a
-		/// skin that is itself inherited would write into the parent asset - the thing all of this prevents.
+		/// The skin of the edited config that this row is shown under.
+		///
+		/// Taken from the skin drawer that is drawing it, because the row itself cannot say: an inherited row
+		/// belongs to the parent asset, and its property path therefore names the PARENT's skin, which may be
+		/// called something else entirely. The path is only the fallback, for a style drawn outside a skin
+		/// drawer at all (an applier's inline style, say).
 		/// </summary>
 		private UiSkin EditedSkinOfThisRow()
 		{
+			var editedConfig = UiStyleConfigEditor.EditedConfig;
+
+			var drawnSkin = UiSkinDrawer.CurrentlyDrawnSkin;
+			if (drawnSkin != null && (editedConfig == null || drawnSkin.StyleConfig == editedConfig))
+				return drawnSkin;
+
 			var skinName = SkinNameOfThisRow();
 			if (string.IsNullOrEmpty(skinName))
 				return null;
 
-			return UiStyleConfigEditor.EditedConfig?.GetOwnSkinByNameOrAlias(skinName, false);
+			return editedConfig?.GetOwnSkinByNameOrAlias(skinName, false);
 		}
 
 		private bool CanRevert( UiAbstractStyleBase _style )

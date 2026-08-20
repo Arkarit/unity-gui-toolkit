@@ -103,12 +103,16 @@ namespace GuiToolkit.Style.Editor
 			int own = skin.Styles.Count;
 			int effective = skin.EffectiveStyles.Count;
 
+			var source = skin.ParentSkin;
+			var sourceText = source != null
+				? $"'{parent.name}' (skin '{source.Name}')"
+				: $"'{parent.name}' - which has no skin '{skin.EffectiveInheritFromSkinName}', so nothing is inherited";
+
 			EditorGUILayout.HelpBox
 			(
 				$"Skin '{skin.Name}' resolves {effective} styles: {own} of its own, "
-				+ $"{effective - own} inherited from '{parent.name}'.\n"
-				+ "The list below shows this config's own styles only. Inherited ones resolve at runtime "
-				+ "and are offered in the style dropdown of an applier.",
+				+ $"{effective - own} inherited from {sourceText}.\n"
+				+ "Inherited styles are listed read-only below, and can be overridden per skin.",
 				MessageType.Info
 			);
 		}

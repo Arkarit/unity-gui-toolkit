@@ -103,27 +103,27 @@ namespace GuiToolkit.Style.Editor
 			if (_skin?.StyleConfig?.Parent == null)
 				return result;
 
-			// One map per owning config, built once per call: the alternative is a linear search through the
-			// owner's style list for every inherited style, which is quadratic for no reason.
-			var mapsByOwner = new Dictionary<UiStyleConfig, Dictionary<int, SerializedProperty>>();
+			// Walked skin by skin, not config by config: a skin may inherit from a DIFFERENTLY NAMED skin of
+			// the parent, so which skin a style lives in is only knowable one hop at a time.
+			var chain = _skin.SelfAndInheritedSkins();
+			var seen = new HashSet<int>();
+			foreach (var own in _skin.Styles)
+				seen.Add(own.Key);
 
-			foreach (var style in _skin.EffectiveStyles)
+			for (int i = 1; i < chain.Count; i++)
 			{
-				if (style == null || _skin.OwnsStyle(style.Key))
-					continue;
+				var inheritedSkin = chain[i];
+				var map = StylePropertiesByKey(inheritedSkin.StyleConfig, inheritedSkin.Name);
 
-				var owner = _skin.ConfigOwning(style.Key);
-				if (owner == null)
-					continue;
-
-				if (!mapsByOwner.TryGetValue(owner, out var map))
+				foreach (var style in inheritedSkin.Styles)
 				{
-					map = StylePropertiesByKey(owner, _skin.Name);
-					mapsByOwner[owner] = map;
-				}
+					// Nearest wins, so a style already seen further down the chain is not added again.
+					if (!seen.Add(style.Key))
+						continue;
 
-				if (map.TryGetValue(style.Key, out var styleProp))
-					result.Add(styleProp);
+					if (map.TryGetValue(style.Key, out var styleProp))
+						result.Add(styleProp);
+				}
 			}
 
 			return result;

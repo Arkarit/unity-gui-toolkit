@@ -39,6 +39,16 @@ namespace GuiToolkit.Style.Editor
 		public string skinName => m_thisUiSkin != null ? m_thisUiSkin.Name : null;
 		public string skinAlias => m_thisUiSkin != null ? m_thisUiSkin.Alias : null;
 
+		/// <summary>
+		/// The skin whose rows are being drawn right now, always one of the edited config's own.
+		///
+		/// The style rows inside need it and cannot work it out themselves: an inherited row belongs to the
+		/// parent asset, so its property path names the PARENT's skin - which may well be called something
+		/// else than the skin it is shown under. Set here because skins are never nested, so during a row's
+		/// drawing this is unambiguous.
+		/// </summary>
+		internal static UiSkin CurrentlyDrawnSkin { get; private set; }
+
 		protected override void OnEnable()
 		{
 			// A style row's height is a recursive walk over all its values, and it is asked for twice per
@@ -50,6 +60,69 @@ namespace GuiToolkit.Style.Editor
 			m_thisUiSkin = FindRealSkin();
 			m_stylesProp = Property.FindPropertyRelative("m_styles");
 			m_aspectRatioGreaterEqualProp = Property.FindPropertyRelative("m_aspectRatioGreaterEqual");
+		}
+
+		/// <summary>
+		/// Lets a skin say which skin of the parent config it builds on.
+		///
+		/// Only shown when there is a parent, and only offering skins that parent actually has. The default
+		/// entry is "same name", which is right whenever the two configs agree on their skin names - and
+		/// wrong for a project's own skin, which is exactly the case this popup exists for: a client config
+		/// with Default and BOTW inheriting from a package config with Default and Light would leave BOTW
+		/// with nothing to inherit.
+		/// </summary>
+		private void DrawInheritFromSkinPopup()
+		{
+			if (m_thisUiSkin == null)
+				return;
+
+			var parentConfig = m_thisUiSkin.StyleConfig?.Parent;
+			if (parentConfig == null)
+				return;
+
+			var sameNameEntry = $"<same name ('{m_thisUiSkin.Name}')>";
+			var parentSkinNames = parentConfig.SkinNames;
+
+			var entries = new List<string> { sameNameEntry };
+			entries.AddRange(parentSkinNames);
+
+			var current = string.IsNullOrEmpty(m_thisUiSkin.InheritFromSkinName)
+				? sameNameEntry
+				: m_thisUiSkin.InheritFromSkinName;
+
+			// A name that the parent no longer has must stay visible, or the popup would silently show
+			// something else than what is stored.
+			if (!entries.Contains(current))
+				entries.Add($"{current}  (missing in '{parentConfig.name}')");
+
+			Space(2);
+			Horizontal(SingleLineHeight, () =>
+			{
+				IncreaseX(14);
+				LabelField($"Inherits skin from '{parentConfig.name}'", 0, EditorStyles.miniLabel);
+				IncreaseX(EditorGUIUtility.labelWidth + 18);
+
+				if (!StringPopupField(string.Empty, entries, current, out string chosen))
+					return;
+
+				m_thisUiSkin.InheritFromSkinName = chosen == sameNameEntry ? null : chosen;
+				PropertyDrawerView.ClearHeightCache();
+				EditorApplication.delayCall += () => UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+			});
+
+			var inheritedFrom = m_thisUiSkin.ParentSkin;
+			if (inheritedFrom == null)
+			{
+				Space(2);
+				Horizontal(SingleLineHeight, () =>
+				{
+					IncreaseX(14);
+					LabelField($"   inherits nothing - '{parentConfig.name}' has no skin " +
+					           $"'{m_thisUiSkin.EffectiveInheritFromSkinName}'", 0, EditorStyles.miniLabel);
+				});
+			}
+
+			Space(4);
 		}
 
 		/// <summary>
@@ -84,6 +157,8 @@ namespace GuiToolkit.Style.Editor
 				return;
 			}
 			
+			CurrentlyDrawnSkin = m_thisUiSkin;
+
 			var styleConfig = m_thisUiSkin.StyleConfig;
 			var currentSkin = styleConfig.CurrentSkin;
 			bool isCurrentSkin = skinName == currentSkin.Name;
@@ -219,6 +294,8 @@ namespace GuiToolkit.Style.Editor
 				}
 			});
 			
+			DrawInheritFromSkinPopup();
+
 			var foldoutTitleRect = CurrentRect;
 			foldoutTitleRect.height = SingleLineHeight;
 			var displayFilter = UiStyleConfigEditor.DisplayFilter;

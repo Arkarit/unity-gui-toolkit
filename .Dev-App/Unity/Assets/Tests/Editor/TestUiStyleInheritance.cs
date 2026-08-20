@@ -365,6 +365,115 @@ namespace GuiToolkit.Test
 			Assert.AreSame(inParentExtra, pairs[0].To);
 		}
 
+		/// <summary>
+		/// The case this exists for, taken from the real projects: the client config has the skins Default
+		/// and BOTW, the package config has Default and Light. Matching by name alone leaves BOTW with
+		/// nothing to inherit - half the config still a full copy. Naming a parent skin fixes that.
+		/// </summary>
+		[Test]
+		public void ASkinCanNameTheParentSkinItBuildsOn()
+		{
+			var package = CreateConfig("Default", "Light");
+			var inPackageDefault = AddStyle(package, "Default", ParentOnlyStyle);
+
+			var client = CreateConfig("Default", "BOTW");
+			client.Parent = package;
+
+			var botw = client.GetOwnSkinByNameOrAlias("BOTW", false);
+
+			// By name only: no counterpart, nothing inherited.
+			Assert.IsNull(botw.ParentSkin);
+			Assert.IsNull(botw.StyleByKey(inPackageDefault.Key));
+
+			botw.InheritFromSkinName = "Default";
+
+			Assert.AreSame(package.GetOwnSkinByNameOrAlias("Default", false), botw.ParentSkin);
+			Assert.AreSame(inPackageDefault, botw.StyleByKey(inPackageDefault.Key));
+			Assert.AreEqual(1, botw.EffectiveStyles.Count);
+		}
+
+		[Test]
+		public void AnEmptyMapping_MeansTheSameName()
+		{
+			var parent = CreateConfig(SkinDefault);
+			var inParent = AddStyle(parent, SkinDefault, ParentOnlyStyle);
+
+			var child = CreateConfig(SkinDefault);
+			child.Parent = parent;
+			var skin = child.GetOwnSkinByNameOrAlias(SkinDefault, false);
+
+			Assert.IsEmpty(skin.InheritFromSkinName ?? string.Empty);
+			Assert.AreEqual(SkinDefault, skin.EffectiveInheritFromSkinName);
+			Assert.AreSame(inParent, skin.StyleByKey(inParent.Key));
+
+			// Setting it back to nothing returns to matching by name.
+			skin.InheritFromSkinName = SkinExtra;
+			Assert.IsNull(skin.StyleByKey(inParent.Key));
+			skin.InheritFromSkinName = null;
+			Assert.AreSame(inParent, skin.StyleByKey(inParent.Key));
+		}
+
+		/// <summary>
+		/// Every level maps on its own, which is why the chain is walked skin by skin rather than
+		/// config by config.
+		/// </summary>
+		[Test]
+		public void EachLevelOfTheChain_MapsSeparately()
+		{
+			var grandparent = CreateConfig("Base");
+			var inGrandparent = AddStyle(grandparent, "Base", ParentOnlyStyle);
+
+			var parent = CreateConfig("House");
+			parent.Parent = grandparent;
+			parent.GetOwnSkinByNameOrAlias("House", false).InheritFromSkinName = "Base";
+
+			var child = CreateConfig("Project");
+			child.Parent = parent;
+			var projectSkin = child.GetOwnSkinByNameOrAlias("Project", false);
+			projectSkin.InheritFromSkinName = "House";
+
+			Assert.AreSame(inGrandparent, projectSkin.StyleByKey(inGrandparent.Key));
+			Assert.AreEqual(3, projectSkin.SelfAndInheritedSkins().Count);
+			Assert.AreSame(grandparent, projectSkin.ConfigOwning(inGrandparent.Key));
+		}
+
+		[Test]
+		public void AMappingToASkinTheParentDoesNotHave_InheritsNothing()
+		{
+			var parent = CreateConfig(SkinDefault);
+			var inParent = AddStyle(parent, SkinDefault, ParentOnlyStyle);
+
+			var child = CreateConfig(SkinDefault);
+			child.Parent = parent;
+			var skin = child.GetOwnSkinByNameOrAlias(SkinDefault, false);
+			skin.InheritFromSkinName = "NoSuchSkin";
+
+			Assert.IsNull(skin.ParentSkin);
+			Assert.IsNull(skin.StyleByKey(inParent.Key));
+			Assert.IsEmpty(skin.EffectiveStyles, "and nothing is silently inherited from elsewhere");
+		}
+
+		[Test]
+		public void OverridingWorksOnAMappedSkin()
+		{
+			var package = CreateConfig("Default");
+			var inPackage = AddStyle(package, "Default", ParentOnlyStyle);
+
+			var client = CreateConfig("BOTW");
+			client.Parent = package;
+			var botw = client.GetOwnSkinByNameOrAlias("BOTW", false);
+			botw.InheritFromSkinName = "Default";
+
+			var own = botw.MaterializeStyle(inPackage.Key);
+
+			Assert.IsNotNull(own);
+			Assert.AreNotSame(inPackage, own);
+			Assert.IsTrue(botw.OwnsStyle(inPackage.Key));
+
+			botw.RevertStyleToInherited(inPackage.Key);
+			Assert.AreSame(inPackage, botw.StyleByKey(inPackage.Key));
+		}
+
 		private static int KeyOf( string _styleName ) => UiStyleUtility.GetKey(typeof(Image), _styleName);
 
 		private static UiAbstractStyleBase Resolve( UiStyleConfig _config, string _skinName, string _styleName )

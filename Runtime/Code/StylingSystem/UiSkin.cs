@@ -21,6 +21,17 @@ namespace GuiToolkit.Style
 		[NonReorderable][SerializeReference] private List<UiAbstractStyleBase> m_styles = new();
 		[FormerlySerializedAs("m_aspectRatioGE")] [SerializeField] private float m_aspectRatioGreaterEqual = 0;
 
+		/// <summary>
+		/// Which skin of the parent config this one builds on. Empty means "the one with the same name",
+		/// which is what matches most of the time and needs saying nowhere.
+		///
+		/// It needs saying when the names differ, and that is the normal case for a project's own skin: a
+		/// client config with skins Default and BOTW inherits from a package config with Default and Light,
+		/// so BOTW would find no counterpart and inherit nothing at all. Naming Default here lets it build on
+		/// the package's Default like any other skin.
+		/// </summary>
+		[SerializeField] private string m_inheritFromSkinName;
+
 
 		private Dictionary<int, UiAbstractStyleBase> m_styleByKey;
 		// Shape of the style list the lookup was built from - see BuildDictionaryIfNecessary.
@@ -54,6 +65,46 @@ namespace GuiToolkit.Style
 
 		public List<UiAbstractStyleBase> Styles => m_styles;
 		public UiStyleConfig StyleConfig => m_config;
+
+		/// <summary>
+		/// Which skin of the parent this one inherits from. Empty (the default) means the same name.
+		/// </summary>
+		public string InheritFromSkinName
+		{
+			get => m_inheritFromSkinName;
+			set
+			{
+				var wanted = string.IsNullOrWhiteSpace(value) ? null : value;
+				if (m_inheritFromSkinName == wanted)
+					return;
+
+				m_inheritFromSkinName = wanted;
+				InvalidateStyleLookup();
+#if UNITY_EDITOR
+				if (m_config != null)
+					EditorGeneralUtility.SetDirty(m_config);
+#endif
+			}
+		}
+
+		/// <summary>
+		/// The name this skin looks for in the parent - its own unless told otherwise.
+		/// </summary>
+		public string EffectiveInheritFromSkinName =>
+			string.IsNullOrEmpty(m_inheritFromSkinName) ? m_name : m_inheritFromSkinName;
+
+		/// <summary>
+		/// The skin this one inherits from, or null if there is no parent config or it has no such skin.
+		/// Resolving one hop at a time is what lets every level of a chain map to a different name.
+		/// </summary>
+		public UiSkin ParentSkin
+		{
+			get
+			{
+				var parentConfig = m_config?.Parent;
+				return parentConfig?.GetOwnSkinByNameOrAlias(EffectiveInheritFromSkinName, false);
+			}
+		}
 		public bool IsAspectRatioDependent => m_config is UiAspectRatioDependentStyleConfig;
 		public float AspectRatioGreaterEqual => m_aspectRatioGreaterEqual;
 
@@ -87,16 +138,22 @@ namespace GuiToolkit.Style
 		/// runtime, which is what makes inheritance cheap - appliers store a name and a key, never a
 		/// reference, so nothing serialized has to change for a lookup to reach further.
 		/// </summary>
-		public UiAbstractStyleBase StyleByKey(int _key)
+		public UiAbstractStyleBase StyleByKey(int _key) => StyleByKey(_key, 0);
+
+		private UiAbstractStyleBase StyleByKey(int _key, int _depth)
 		{
 			var own = OwnStyleByKey(_key);
 			if (own != null)
 				return own;
 
-			if (m_config == null)
+			if (_depth + 1 >= UiStyleConfig.MaxInheritanceDepth)
+			{
+				UiLog.LogErrorOnce($"Skin '{m_name}' inherits more than {UiStyleConfig.MaxInheritanceDepth} " +
+				                   "levels deep, or the chain forms a cycle; anything beyond that is ignored.");
 				return null;
+			}
 
-			return m_config.InheritedStyleByKey(m_name, _key);
+			return ParentSkin?.StyleByKey(_key, _depth + 1);
 		}
 
 		/// <summary>
@@ -127,7 +184,7 @@ namespace GuiToolkit.Style
 			if (m_config == null)
 				return null;
 
-			var inherited = m_config.InheritedStyleByKey(m_name, _key);
+			var inherited = InheritedStyleByKey(_key);
 			if (inherited == null)
 				return null;
 
@@ -158,7 +215,7 @@ namespace GuiToolkit.Style
 		/// What this skin would inherit for this key, ignoring whatever it owns itself. Null when no
 		/// ancestor offers it - which is what tells an override apart from a style of one's own.
 		/// </summary>
-		public UiAbstractStyleBase InheritedStyleByKey(int _key) => m_config?.InheritedStyleByKey(m_name, _key);
+		public UiAbstractStyleBase InheritedStyleByKey(int _key) => ParentSkin?.StyleByKey(_key);
 
 		/// <summary>
 		/// The opposite of MaterializeStyle: drops this skin's own copy so the style is inherited again.
@@ -172,7 +229,7 @@ namespace GuiToolkit.Style
 		/// </summary>
 		public UiAbstractStyleBase RevertStyleToInherited(int _key)
 		{
-			var inherited = m_config?.InheritedStyleByKey(m_name, _key);
+			var inherited = InheritedStyleByKey(_key);
 			var own = OwnStyleByKey(_key);
 
 			if (own == null)
@@ -211,21 +268,33 @@ namespace GuiToolkit.Style
 		/// </summary>
 		public UiStyleConfig ConfigOwning(int _key)
 		{
-			if (OwnStyleByKey(_key) != null)
-				return m_config;
-
-			if (m_config == null)
-				return null;
-
-			var chain = m_config.SelfAndAncestors();
-			for (int i = 1; i < chain.Count; i++)
+			var skin = this;
+			for (int depth = 0; skin != null && depth < UiStyleConfig.MaxInheritanceDepth; depth++)
 			{
-				var skin = chain[i].GetOwnSkinByNameOrAlias(m_name, false);
-				if (skin?.OwnStyleByKey(_key) != null)
-					return chain[i];
+				if (skin.OwnStyleByKey(_key) != null)
+					return skin.StyleConfig;
+
+				skin = skin.ParentSkin;
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// This skin and the ones it inherits from, nearest first. Walking skins rather than configs is what
+		/// makes a per-level name mapping work at all.
+		/// </summary>
+		public List<UiSkin> SelfAndInheritedSkins()
+		{
+			var result = new List<UiSkin>();
+			var skin = this;
+			for (int depth = 0; skin != null && depth < UiStyleConfig.MaxInheritanceDepth; depth++)
+			{
+				result.Add(skin);
+				skin = skin.ParentSkin;
+			}
+
+			return result;
 		}
 
 		/// <summary>
@@ -261,14 +330,10 @@ namespace GuiToolkit.Style
 				foreach (var style in result)
 					seen.Add(style.Key);
 
-				var chain = m_config.SelfAndAncestors();
+				var chain = SelfAndInheritedSkins();
 				for (int i = 1; i < chain.Count; i++)
 				{
-					var inheritedSkin = chain[i].GetOwnSkinByNameOrAlias(m_name, false);
-					if (inheritedSkin == null)
-						continue;
-
-					foreach (var style in inheritedSkin.Styles)
+					foreach (var style in chain[i].Styles)
 					{
 						if (seen.Add(style.Key))
 							result.Add(style);
