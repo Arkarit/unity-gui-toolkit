@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,6 +12,119 @@ namespace GuiToolkit.Editor
 	/// Should simplify creating custom property drawers; no more dealing with awkward rects,
 	/// instead more like a custom Editor
 	/// </summary>
+	/// <summary>
+	/// State shared by every <see cref="AbstractPropertyDrawer{T}"/>, regardless of its type argument.
+	/// It has to live outside the generic class: a static field there exists once PER type argument, so a
+	/// nesting counter or an on/off switch would silently be one per drawer type - and a style drawer
+	/// nested inside a skin drawer would consider itself outermost.
+	/// </summary>
+	public static class PropertyDrawerView
+	{
+		/// <summary>
+		/// Off switch for visibility culling, in case a drawer somewhere turns out to depend on being
+		/// drawn while invisible. Nothing should, but a one-liner beats a rollback.
+		/// </summary>
+		public static bool CullingEnabled = true;
+
+		/// <summary>
+		/// How far outside the visible area a row is still drawn. Culling that reacted to every pixel of
+		/// scrolling would change the set of created controls between the events of a single frame, and
+		/// IMGUI hands out control IDs in creation order - so focus and hot control would move under the
+		/// user's hands. A generous margin keeps the set stable across small scroll deltas.
+		/// </summary>
+		public const float CullMargin = 500;
+
+		private static Func<Rect> s_visibleRectGetter;
+		private static bool s_visibleRectResolved;
+
+		// Only the outermost drawer call is timed; nested drawers are inside its measurement already.
+		internal static int NestingDepth;
+
+		// Row heights, keyed by property path plus whatever else the height depends on. Shared rather than
+		// per type argument, so one call clears it for every drawer.
+		internal static readonly Dictionary<string, float> HeightCache = new();
+
+		/// <summary>
+		/// Drops all remembered row heights. Anything that changes how tall a row draws has to call this,
+		/// or rows overlap: a foldout opening or closing, a filter change, a value becoming applicable.
+		/// </summary>
+		public static void ClearHeightCache() => HeightCache.Clear();
+
+		/// <summary>
+		/// The currently visible part of the GUI, in the same space as the rect handed to OnGUI. This is
+		/// UnityEngine.GUIClip.visibleRect, which is internal, so it is reached through a delegate bound
+		/// once. If that ever fails, the fallback is an infinite rect - i.e. no culling, as before.
+		///
+		/// Note for anyone tempted by GUIUtility.GUIToScreenPoint and Screen.height instead: Screen.height
+		/// is the display, not the inspector's viewport, so that comparison is off by however far the
+		/// window sits from the top of the screen and by whatever is docked around it. That is why an
+		/// earlier attempt at this "did not properly work".
+		/// </summary>
+		public static Rect VisibleRect
+		{
+			get
+			{
+				if (!s_visibleRectResolved)
+				{
+					s_visibleRectResolved = true;
+					var type = typeof(GUI).Assembly.GetType("UnityEngine.GUIClip");
+					var getter = type?.GetProperty("visibleRect",
+						BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)?.GetGetMethod(true);
+
+					if (getter != null)
+						s_visibleRectGetter = (Func<Rect>)Delegate.CreateDelegate(typeof(Func<Rect>), getter);
+					else
+						UiLog.LogWarning("GUIClip.visibleRect is unavailable, drawing every row without culling.");
+				}
+
+				if (s_visibleRectGetter == null)
+					return new Rect(-1e9f, -1e9f, 2e9f, 2e9f);
+
+				return s_visibleRectGetter();
+			}
+		}
+
+		public static bool IsFarOutsideView( Rect _rect )
+		{
+			if (!CullingEnabled)
+				return false;
+
+			var visible = VisibleRect;
+			return _rect.yMax < visible.yMin - CullMargin
+			    || _rect.yMin > visible.yMax + CullMargin;
+		}
+
+		/// <summary>
+		/// What the drawers spent, for measuring. Off by default and free while off.
+		/// </summary>
+		public static class Stats
+		{
+			public static bool Enabled;
+			public static long DrawTicks;
+			public static long HeightTicks;
+			public static int DrawCalls;
+			public static int HeightCalls;
+			public static int Culled;
+
+			public static void Reset()
+			{
+				DrawTicks = HeightTicks = 0;
+				DrawCalls = HeightCalls = Culled = 0;
+			}
+
+			public static string Report()
+			{
+				double draw = DrawTicks * 1000.0 / Stopwatch.Frequency;
+				double height = HeightTicks * 1000.0 / Stopwatch.Frequency;
+				return $"{DrawCalls} draw passes: {draw:F1} ms total" +
+				       (DrawCalls > 0 ? $" ({draw / DrawCalls:F1} ms each)" : "") +
+				       $" | {HeightCalls} height passes: {height:F1} ms total" +
+				       (HeightCalls > 0 ? $" ({height / HeightCalls:F1} ms each)" : "") +
+				       $" | {Culled} rows culled";
+			}
+		}
+	}
+
 	public abstract class AbstractPropertyDrawer<T> : PropertyDrawer where T : class
 	{
 		private const float FoldoutHeight = 16;
@@ -24,10 +139,8 @@ namespace GuiToolkit.Editor
 		private float m_height;
 		private SerializedProperty m_property;
 		private static readonly Dictionary<object, bool> s_foldouts = new ();
-		private static readonly Dictionary<string, float> s_heightCache = new();
 		private bool m_heightCacheEnabled;
 		private static readonly List<SerializedProperty> s_tempProperties = new();
-
 
 		protected virtual void OnEnable() {}
 
@@ -55,20 +168,27 @@ namespace GuiToolkit.Editor
 			m_height += _height;
 		}
 
+		/// <summary>
+		/// State beyond the property path and its expanded flag that this drawer's row heights depend on.
+		/// Anything a derived drawer switches on while measuring belongs here, or two different heights
+		/// end up sharing one cache entry - which is why the cache could not simply be turned on before.
+		/// </summary>
+		protected virtual string HeightCacheKeySuffix => string.Empty;
+
 		protected virtual float GetPropertyHeight(SerializedProperty _property)
 		{
 			if (!HeightCacheEnabled)
 				return EditorGUI.GetPropertyHeight(_property);
 			
-			string key = $"{_property.propertyPath}~{_property.isExpanded}";
-			if (s_heightCache.TryGetValue(key, out float result))
+			string key = $"{_property.propertyPath}~{_property.isExpanded}~{HeightCacheKeySuffix}";
+			if (PropertyDrawerView.HeightCache.TryGetValue(key, out float result))
 				return result;
 			
 			result = EditorGUI.GetPropertyHeight(_property);
 			if (result == 0)
 				return result;
 			
-			s_heightCache.Add(key, result);
+			PropertyDrawerView.HeightCache.Add(key, result);
 			
 			return result;
 		}
@@ -78,7 +198,7 @@ namespace GuiToolkit.Editor
 			get => m_heightCacheEnabled;
 			set => m_heightCacheEnabled = value;
 		}
-		protected void InvalidateHeightCache() => s_heightCache.Clear();
+		protected void InvalidateHeightCache() => PropertyDrawerView.ClearHeightCache();
 		
 		protected void PropertyField(SerializedProperty _property, bool _withChildren = true, float _gap = 0)
 		{
@@ -242,7 +362,15 @@ namespace GuiToolkit.Editor
 			var active = s_foldouts[_id];
 
 			if (!m_collectHeightMode)
+			{
+				bool wasActive = active;
 				active = EditorGUI.Foldout(foldoutRect, active, _title, true);
+
+				// Opening or closing a foldout changes how tall its owner draws, so remembered heights
+				// (this drawer's and everyone else's) are no longer valid.
+				if (active != wasActive)
+					PropertyDrawerView.ClearHeightCache();
+			}
 
 			m_currentRect.y += FoldoutHeight;
 			IncreaseHeight(FoldoutHeight);
@@ -447,29 +575,65 @@ namespace GuiToolkit.Editor
 
 		public override void OnGUI(Rect _rect, SerializedProperty _property, GUIContent _label)
 		{
-			// Disabled optimization; does not properly work
-//			var screenPos = GUIUtility.GUIToScreenPoint(_rect.position);
-//			if (screenPos.y > Screen.height || screenPos.y + _rect.height < 0)
-//				return;
+			// A row far outside the viewport is not drawn at all. Unity still asks for its height, so the
+			// layout stays correct and scrolling lands where it should - only the drawing, and with it
+			// every nested drawer of that row, is skipped.
+			if (PropertyDrawerView.IsFarOutsideView(_rect))
+			{
+				if (PropertyDrawerView.Stats.Enabled)
+					PropertyDrawerView.Stats.Culled++;
 
-			EditorGUI.BeginProperty(_rect, _label, _property);
-			m_property = _property;
-			m_currentRect = m_Rect = _rect;
-			OnEnable();
-			OnInspectorGUI();
-			
-			EditorGUI.EndProperty();
+				return;
+			}
+
+			bool outermost = PropertyDrawerView.NestingDepth++ == 0;
+			long startTicks = outermost && PropertyDrawerView.Stats.Enabled ? Stopwatch.GetTimestamp() : 0;
+
+			try
+			{
+				EditorGUI.BeginProperty(_rect, _label, _property);
+				m_property = _property;
+				m_currentRect = m_Rect = _rect;
+				OnEnable();
+				OnInspectorGUI();
+
+				EditorGUI.EndProperty();
+			}
+			finally
+			{
+				PropertyDrawerView.NestingDepth--;
+				if (outermost && PropertyDrawerView.Stats.Enabled)
+				{
+					PropertyDrawerView.Stats.DrawTicks += Stopwatch.GetTimestamp() - startTicks;
+					PropertyDrawerView.Stats.DrawCalls++;
+				}
+			}
 		}
 
 		public override float GetPropertyHeight(SerializedProperty _property, GUIContent _)
 		{
-			m_collectHeightMode = true;
-			m_height = 0;
-			m_property = _property;
-			OnEnable();
-			OnInspectorGUI();
-			m_collectHeightMode = false;
-			return m_height;
+			bool outermost = PropertyDrawerView.NestingDepth++ == 0;
+			long startTicks = outermost && PropertyDrawerView.Stats.Enabled ? Stopwatch.GetTimestamp() : 0;
+
+			try
+			{
+				m_collectHeightMode = true;
+				m_height = 0;
+				m_property = _property;
+				OnEnable();
+				OnInspectorGUI();
+				m_collectHeightMode = false;
+				return m_height;
+			}
+			finally
+			{
+				PropertyDrawerView.NestingDepth--;
+				if (outermost && PropertyDrawerView.Stats.Enabled)
+				{
+					PropertyDrawerView.Stats.HeightTicks += Stopwatch.GetTimestamp() - startTicks;
+					PropertyDrawerView.Stats.HeightCalls++;
+				}
+			}
 		}
 
 		protected delegate bool ChildPropertyDelegate(SerializedProperty childProperty);
