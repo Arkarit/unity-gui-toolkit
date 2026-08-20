@@ -1,7 +1,6 @@
 using GuiToolkit.Editor;
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -22,24 +21,23 @@ namespace GuiToolkit.Style.Editor
 			if (thisStyle == null)
 				return;
 			
-			// The config this row belongs to, taken from the property rather than from the style.
+			// Which config holds this style, and is it the one being edited?
 			//
-			// UiAbstractStyleBase.m_styleConfig looks like the obvious source and is not: it is set in the
-			// constructor and never maintained, and in the config shipped with the package 64 of 70 styles
-			// have it null (which is why UiAbstractStyleBase.EffectiveStyleConfig exists at all). Anything
-			// that trusts it does nothing at all for those styles - silently, because the config's event
-			// handlers filter on it. The SerializedProperty, by contrast, physically comes from the asset the
-			// style lives in and cannot be stale.
-			var owningConfig = Property.serializedObject.targetObject as UiStyleConfig ?? thisStyle.StyleConfig;
+			// Both come from the context the surrounding editor set, not from this property and not from
+			// UiAbstractStyleBase.m_styleConfig. That back-reference looks like the obvious source and is
+			// not: it is set in the constructor and never maintained, and in the config shipped with the
+			// package 64 of 70 styles have it null - which is why UiAbstractStyleBase.EffectiveStyleConfig
+			// exists at all, and why anything that trusts it silently does nothing for those styles.
+			var owningConfig = UiStyleRowContext.OwnerOf(thisStyle)
+			                ?? Property.serializedObject.targetObject as UiStyleConfig
+			                ?? thisStyle.StyleConfig;
 
-			// So a row is inherited exactly when it belongs to another config than the one being edited.
-			var editedConfig = UiStyleConfigEditor.EditedConfig;
-			bool isInherited = owningConfig != null && editedConfig != null && owningConfig != editedConfig;
+			bool isInherited = UiStyleRowContext.IsInherited(thisStyle);
 
 			// Three states worth telling apart at a glance: plain grey for a style this config simply has,
 			// blue for one it inherits, yellow for one it inherits AND overrides - the last being the only
 			// one that carries a decision, and the only one that can drift from what it came from.
-			bool isOverride = !isInherited && CanRevert(thisStyle);
+			bool isOverride = UiStyleRowContext.IsOverride(thisStyle);
 
 			if (isInherited)
 				Background(InheritedTint, InheritedTint, -3, 0, 0, -10);
@@ -198,61 +196,19 @@ namespace GuiToolkit.Style.Editor
 		private static readonly Color OverrideTint = new Color(0.85f, 0.70f, 0.20f, 0.13f);
 
 		/// <summary>
-		/// The skin this row belongs to, read from the property path of the object it lives in. An inherited
-		/// row comes from another asset, where the same skin may sit at a different index - the NAME is what
-		/// both sides agree on, which is exactly why inheritance matches skins by name.
+		/// The skin of the edited config this row is shown under, from the context the surrounding editor
+		/// set. Own by definition: materialising into a skin that is itself inherited would write into the
+		/// parent asset, the thing all of this prevents.
 		/// </summary>
-		private string SkinNameOfThisRow()
-		{
-			var match = Regex.Match(Property.propertyPath, @"^m_skins\.Array\.data\[(\d+)\]");
-			if (!match.Success)
-				return null;
-
-			int skinIndex = int.Parse(match.Groups[1].Value);
-			var skinsProp = Property.serializedObject.FindProperty("m_skins");
-			if (skinsProp == null || skinIndex >= skinsProp.arraySize)
-				return null;
-
-			return skinsProp.GetArrayElementAtIndex(skinIndex).FindPropertyRelative("m_name")?.stringValue;
-		}
-
-		/// <summary>
-		/// The skin of the edited config that this row is shown under.
-		///
-		/// Taken from the skin drawer that is drawing it, because the row itself cannot say: an inherited row
-		/// belongs to the parent asset, and its property path therefore names the PARENT's skin, which may be
-		/// called something else entirely. The path is only the fallback, for a style drawn outside a skin
-		/// drawer at all (an applier's inline style, say).
-		/// </summary>
-		private UiSkin EditedSkinOfThisRow()
-		{
-			var editedConfig = UiStyleConfigEditor.EditedConfig;
-
-			var drawnSkin = UiSkinDrawer.CurrentlyDrawnSkin;
-			if (drawnSkin != null && (editedConfig == null || drawnSkin.StyleConfig == editedConfig))
-				return drawnSkin;
-
-			var skinName = SkinNameOfThisRow();
-			if (string.IsNullOrEmpty(skinName))
-				return null;
-
-			return editedConfig?.GetOwnSkinByNameOrAlias(skinName, false);
-		}
+		private static UiSkin EditedSkinOfThisRow() => UiStyleRowContext.Skin;
 
 		/// <summary>
 		/// The config an overriding entry diverges from - not necessarily the immediate parent.
 		/// </summary>
-		private string OverriddenConfigName( UiAbstractStyleBase _style )
+		private static string OverriddenConfigName( UiAbstractStyleBase _style )
 		{
-			var parentSkin = EditedSkinOfThisRow()?.ParentSkin;
-			var origin = parentSkin?.ConfigOwning(_style.Key);
+			var origin = UiStyleRowContext.Skin?.ParentSkin?.ConfigOwning(_style.Key);
 			return origin != null ? origin.name : "?";
-		}
-
-		private bool CanRevert( UiAbstractStyleBase _style )
-		{
-			var skin = EditedSkinOfThisRow();
-			return skin != null && skin.OwnsStyle(_style.Key) && skin.InheritedStyleByKey(_style.Key) != null;
 		}
 
 		/// <summary>

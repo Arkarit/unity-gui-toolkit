@@ -259,6 +259,27 @@ namespace GuiToolkit.Style
 
 #if UNITY_EDITOR
 		/// <summary>
+		/// The skin this applier resolves through, as DECLARED by its own config.
+		///
+		/// Own, because it is the skin an override would be written into: materialising into a skin that
+		/// itself comes from the parent would write into the parent asset, the thing all of this prevents.
+		/// Null when the config does not declare that skin at all, which can only happen for a fixed skin.
+		/// </summary>
+		public UiSkin OwnSkin
+		{
+			get
+			{
+				var styleConfig = StyleConfig;
+				if (styleConfig == null)
+					return null;
+
+				return SkinIsFixed
+					? styleConfig.GetOwnSkinByNameOrAlias(FixedSkinName, false)
+					: styleConfig.CurrentSkin;
+			}
+		}
+
+		/// <summary>
 		/// Makes sure the style this applier resolves belongs to its own config, copying it out of the
 		/// parent if it does not, and re-resolves so Style points at that copy. Returns the style to write
 		/// to, or null if there is none at all.
@@ -272,12 +293,7 @@ namespace GuiToolkit.Style
 			if (styleConfig == null)
 				return null;
 
-			// The skin has to be one this config DECLARES: materialising into a skin that itself comes from
-			// the parent would write into the parent asset, which is the very thing this prevents.
-			var skin = SkinIsFixed
-				? styleConfig.GetOwnSkinByNameOrAlias(FixedSkinName, false)
-				: styleConfig.CurrentSkin;
-
+			var skin = OwnSkin;
 			if (skin == null)
 			{
 				UiLog.LogError($"'{styleConfig.name}' does not declare skin '{FixedSkinName}' itself, so style " +

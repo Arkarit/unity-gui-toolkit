@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using GuiToolkit.Editor;
 using UnityEditor;
+using UnityEngine;
 
 namespace GuiToolkit.Style.Editor
 {
@@ -79,11 +80,50 @@ namespace GuiToolkit.Style.Editor
 		}
 
 		// Draw a style in the inspector without the need to actually [SerializeReference] it (which totally bloats stuff)
+		/// <summary>
+		/// The style this applier currently resolves, drawn inline.
+		///
+		/// An inherited style is shown read-only here, for the same reason as in the config inspector: the
+		/// instance belongs to another asset, so editing it would change that config - and if that is the
+		/// copy inside the package, the save is dropped without a word. The button copies it into this
+		/// applier's own config first, which is what makes it editable.
+		/// </summary>
 		public static void DrawStyle( UiAbstractApplyStyleBase _applier, UiAbstractStyleBase _style )
 		{
 			_applier.SetSkinListeners(true);
-			EditorGUILayout.LabelField("Currently used Style:");
-			EditorDisplayHelper.Draw(_style, "No Style assigned yet");
+
+			var config = _applier.StyleConfig;
+			var skin = _applier.OwnSkin;
+
+			// The rows inside cannot tell whose style this is from their own property: the inline display
+			// wraps it in a throwaway helper object, so the property names that instead of a config.
+			using (UiStyleRowContext.Use(config, skin))
+			{
+				bool isInherited = UiStyleRowContext.IsInherited(_style);
+				var owner = UiStyleRowContext.OwnerOf(_style);
+
+				EditorGUILayout.LabelField(isInherited
+					? $"Currently used Style (inherited from '{owner.name}', read-only):"
+					: "Currently used Style:");
+
+				using (new EditorGUI.DisabledScope(isInherited))
+				{
+					EditorDisplayHelper.Draw(_style, "No Style assigned yet");
+				}
+
+				if (isInherited && config != null)
+				{
+					if (GUILayout.Button(new GUIContent($"Override in '{config.name}'",
+						    "Copy this inherited style into this applier's own config, so its values can be "
+						    + "changed here. It stops following the config it came from.")))
+					{
+						var materialized = _applier.MaterializeStyleForOverride();
+						if (materialized != null)
+							UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+					}
+				}
+			}
+
 			_applier.SetSkinListeners(!_applier.SkinIsFixed);
 		}
 

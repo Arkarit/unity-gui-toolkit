@@ -39,16 +39,6 @@ namespace GuiToolkit.Style.Editor
 		public string skinName => m_thisUiSkin != null ? m_thisUiSkin.Name : null;
 		public string skinAlias => m_thisUiSkin != null ? m_thisUiSkin.Alias : null;
 
-		/// <summary>
-		/// The skin whose rows are being drawn right now, always one of the edited config's own.
-		///
-		/// The style rows inside need it and cannot work it out themselves: an inherited row belongs to the
-		/// parent asset, so its property path names the PARENT's skin - which may well be called something
-		/// else than the skin it is shown under. Set here because skins are never nested, so during a row's
-		/// drawing this is unambiguous.
-		/// </summary>
-		internal static UiSkin CurrentlyDrawnSkin { get; private set; }
-
 		protected override void OnEnable()
 		{
 			// A style row's height is a recursive walk over all its values, and it is asked for twice per
@@ -159,10 +149,13 @@ namespace GuiToolkit.Style.Editor
 				return;
 			}
 			
-			CurrentlyDrawnSkin = m_thisUiSkin;
-
 			var styleConfig = m_thisUiSkin.StyleConfig;
 			var currentSkin = styleConfig.CurrentSkin;
+
+			// Everything drawn from here on belongs to this skin of this config, and the style rows inside
+			// need to know that - they cannot tell from their own property. Scoped, so it cannot leak into
+			// whatever is drawn after this drawer is done.
+			using var rowContext = UiStyleRowContext.Use(styleConfig, m_thisUiSkin);
 			bool isCurrentSkin = skinName == currentSkin.Name;
 			
 			BackgroundBox

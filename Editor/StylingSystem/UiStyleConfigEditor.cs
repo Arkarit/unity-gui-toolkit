@@ -31,14 +31,6 @@ namespace GuiToolkit.Style.Editor
 		private static ESortType s_sortType;
 
 
-		/// <summary>
-		/// The config currently being drawn. The drawers need it to tell an entry of the edited config apart
-		/// from one it inherits - and they cannot ask their own property, because an inherited entry belongs
-		/// to a different asset and would name that one. A static, like the sort order and the filter next
-		/// to it; two inspectors editing two configs at the same time would see the one drawn last.
-		/// </summary>
-		public static UiStyleConfig EditedConfig { get; private set; }
-
 		public static UiStyleEditorFilter DisplayFilter => s_filter;
 		public static bool SynchronizeFoldouts => s_synchronizeFoldouts;		
 		public static ESortType SortType => s_sortType;
@@ -120,7 +112,6 @@ namespace GuiToolkit.Style.Editor
 
 		public override void OnInspectorGUI()
 		{
-			EditedConfig = m_thisUiStyleConfig;
 			UiStyleEditorUtility.SelectSkinByPopup(m_thisUiStyleConfig);
 			serializedObject.Update();
 			DrawParentField();
