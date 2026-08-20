@@ -164,7 +164,10 @@ namespace GuiToolkit.Editor.AiSupport
 			string typeFilter = (string)_request["componentType"];
 
 			var styles = new JArray();
-			foreach (var style in skin.Styles)
+			// The effective set, so an inherited style is visible to a caller instead of looking absent.
+			// Each entry says where it comes from, because that decides what writing to it does: an
+			// inherited style is copied into this config first (see write_skin).
+			foreach (var style in skin.EffectiveStyles)
 			{
 				if (style == null)
 					continue;
@@ -193,6 +196,7 @@ namespace GuiToolkit.Editor.AiSupport
 				{
 					["name"] = style.Name,
 					["componentType"] = style.SupportedComponentType?.Name,
+					["inherited"] = !skin.OwnsStyle(style.Key),
 					["values"] = values,
 				});
 			}
@@ -250,7 +254,13 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				string styleName = (string)entry["name"]
 					?? throw new Exception("Every entry in 'styles' needs a 'name'.");
-				var style = ResolveStyle(skin, styleName, (string)entry["componentType"]);
+				var style = ResolveStyle(skin, styleName, (string)entry["componentType"], !dryRun, out bool materialized);
+				if (materialized)
+				{
+					warnings.Add($"Style '{styleName}' was inherited and has been copied into "
+						+ $"'{AssetDatabase.GetAssetPath(config)}' so it can be written to. It no longer follows "
+						+ "the config it came from.");
+				}
 
 				if (entry["values"] is not JObject requestedValues)
 					throw new Exception($"Style '{styleName}' has no 'values' object.");
@@ -433,15 +443,35 @@ namespace GuiToolkit.Editor.AiSupport
 		/// exists five times over, once per component that makes up a button's background. Naming only the
 		/// name is fine while it is unique and an error the moment it is not, rather than a coin flip.
 		/// </summary>
-		private static UiAbstractStyleBase ResolveStyle( UiSkin _skin, string _name, string _componentType )
+		private static UiAbstractStyleBase ResolveStyle
+		(
+			UiSkin _skin,
+			string _name,
+			string _componentType,
+			bool _materialize,
+			out bool _materialized
+		)
 		{
-			var matches = _skin.Styles
+			_materialized = false;
+
+			// The effective set, so an inherited style can be written to at all. Writing to the instance
+			// that comes back from inheritance would edit the config it belongs to, so it is copied into
+			// this one first - unless this is a dry run, which must leave everything exactly as it was.
+			var matches = _skin.EffectiveStyles
 				.Where(_s => _s != null && string.Equals(_s.Name, _name, StringComparison.Ordinal))
 				.Where(_s => string.IsNullOrEmpty(_componentType) || TypeMatches(_s, _componentType))
 				.ToList();
 
 			if (matches.Count == 1)
-				return matches[0];
+			{
+				var match = matches[0];
+				if (!_materialize || _skin.OwnsStyle(match.Key))
+					return match;
+
+				var own = _skin.MaterializeStyle(match.Key);
+				_materialized = own != null && !ReferenceEquals(own, match);
+				return own ?? match;
+			}
 
 			if (matches.Count == 0)
 				throw new Exception($"No style '{_name}'"
