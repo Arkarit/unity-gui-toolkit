@@ -95,14 +95,16 @@ namespace GuiToolkit.Style.Editor
 			if (!entries.Contains(current))
 				entries.Add($"{current}  (missing in '{parentConfig.name}')");
 
-			Space(2);
+			// The popup draws its own label and shifts the field by labelWidth itself, so a label of ours in
+			// front of it would push the field a second time - which left it narrow and hugging the right
+			// edge. Handing the label over instead gives it the whole remaining width, and there is no
+			// reason to save space here.
+			Space(10);
 			Horizontal(SingleLineHeight, () =>
 			{
 				IncreaseX(14);
-				LabelField($"Inherits skin from '{parentConfig.name}'", 0, EditorStyles.miniLabel);
-				IncreaseX(EditorGUIUtility.labelWidth + 18);
 
-				if (!StringPopupField(string.Empty, entries, current, out string chosen))
+				if (!StringPopupField("Inherits skin from", entries, current, out string chosen))
 					return;
 
 				m_thisUiSkin.InheritFromSkinName = chosen == sameNameEntry ? null : chosen;
@@ -113,16 +115,16 @@ namespace GuiToolkit.Style.Editor
 			var inheritedFrom = m_thisUiSkin.ParentSkin;
 			if (inheritedFrom == null)
 			{
-				Space(2);
+				Space(4);
 				Horizontal(SingleLineHeight, () =>
 				{
 					IncreaseX(14);
-					LabelField($"   inherits nothing - '{parentConfig.name}' has no skin " +
+					LabelField($"inherits nothing - '{parentConfig.name}' has no skin " +
 					           $"'{m_thisUiSkin.EffectiveInheritFromSkinName}'", 0, EditorStyles.miniLabel);
 				});
 			}
 
-			Space(4);
+			Space(8);
 		}
 
 		/// <summary>
