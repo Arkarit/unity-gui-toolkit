@@ -133,7 +133,7 @@ The report is useful on its own, before any conversion: it answers a question no
 
 ## Key Decisions (resolve before starting Phase 1)
 
-1. **Does a child skin inherit styles from a parent skin of the same name only, or may a skin itself be inherited whole?** Recommendation: skin-name match only; a child that defines no skin of that name falls back to the parent's skin entirely.
+1. ~~**Does a child skin inherit styles from a parent skin of the same name only?**~~ **Answered by the projects rather than by this plan.** Name matching alone is not enough: the client config has the skins Default and BOTW, the package config Default and Light - so BOTW would have found no counterpart and inherited nothing, leaving half the config a full copy. A skin therefore carries an optional `m_inheritFromSkinName` (empty = same name), offered in the editor as a popup over the parent's skins. Each level of a chain maps on its own, which is why resolution walks skin by skin rather than config by config.
 2. **Chain depth.** One level (project → package) covers every known case. Allowing longer chains costs nothing in the lookup but widens the failure surface.
 3. **Conversion policy for the existing clone**: convert everything identical to inherited, or pin selected areas? This is a look-and-feel decision, not a technical one.
 4. ~~**The unexplained skin identity issue.**~~ **Resolved — see "Skin identity" below.** No longer blocks Phase 1.

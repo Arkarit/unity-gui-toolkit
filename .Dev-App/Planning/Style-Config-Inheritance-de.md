@@ -134,7 +134,7 @@ Der Bericht ist schon für sich nützlich, vor jeder Umstellung: Er beantwortet 
 
 ## Zu klärende Entscheidungen (vor Beginn von Phase 1)
 
-1. **Erbt ein Child-Skin nur Styles aus dem gleichnamigen Parent-Skin, oder kann ein Skin als Ganzes geerbt werden?** Empfehlung: Zuordnung nur über den Skin-Namen; definiert das Child keinen Skin dieses Namens, fällt es vollständig auf den Skin des Parents zurück.
+1. ~~**Erbt ein Child-Skin nur Styles aus dem gleichnamigen Parent-Skin?**~~ **Beantwortet von den Projekten, nicht von diesem Plan.** Zuordnung über den Namen allein genügt nicht: die Client-Config hat die Skins Default und BOTW, die Package-Config Default und Light — BOTW hätte also kein Gegenstück gefunden und nichts geerbt, die Hälfte der Config wäre Vollkopie geblieben. Ein Skin trägt deshalb ein optionales `m_inheritFromSkinName` (leer = gleicher Name), im Editor als Popup über die Skins des Parents. Jede Ebene einer Kette ordnet eigenständig zu — darum läuft die Auflösung Skin für Skin und nicht Config für Config.
 2. **Kettentiefe.** Eine Ebene (Projekt → Package) deckt jeden bekannten Fall ab. Längere Ketten kosten in der Auflösung nichts, vergrößern aber die Fehlerfläche.
 3. **Umstellungspolitik für den bestehenden Klon**: alles Identische auf geerbt umstellen, oder ausgewählte Bereiche anheften? Das ist eine Gestaltungs-, keine technische Entscheidung.
 4. ~~**Die ungeklärte Skin-Identität.**~~ **Geklärt — siehe „Skin-Identität" unten.** Blockiert Phase 1 nicht mehr.
