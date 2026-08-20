@@ -77,7 +77,12 @@ The benefit over Level A is real but narrow: it would allow a project to overrid
 
 ## Phases
 
-### Phase 1 — Resolution
+### Phase 1 — Resolution  ✅ done
+
+Implemented with 17 tests. `m_parent` plus a name-matched fallback in `UiSkin.StyleByKey`, cycle and
+depth guard (`MaxInheritanceDepth`, self included), `EffectiveStyles` per skin, the vocabulary renamed
+to `EffectiveStyleNames`/`EffectiveStyleAliases` and routed through it, and the skin tween paired by
+key via the pure `UiStyleManager.PairStylesByKey`. Resolution cost is unchanged (`FindStyle` 0.9 us).
 
 - Add `[SerializeField] UiStyleConfig m_parent` to `UiStyleConfig`.
 - Resolve a lookup miss through the parent, matching skins **by name**.
@@ -85,7 +90,7 @@ The benefit over Level A is real but narrow: it would allow a project to overrid
 - Applies to `UiAspectRatioDependentStyleConfig` as well, since it derives from the same base.
 - Expose an **effective style set** per skin (own plus inherited, own wins) and route the vocabulary lookups and `UiStyleManager` skin tweening through it; pair skins by key, not by index.
 
-### Phase 2 — Copy-on-write
+### Phase 2 — Copy-on-write  ← next
 
 Writing to an inherited style must materialise it in the child config first, then write. Without this the write silently disappears — see Risk Summary.
 

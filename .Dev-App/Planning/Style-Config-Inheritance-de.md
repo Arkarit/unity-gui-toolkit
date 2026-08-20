@@ -77,7 +77,13 @@ Der Zusatznutzen gegenüber Stufe A ist real, aber schmal: Ein Projekt könnte e
 
 ## Phasen
 
-### Phase 1 — Auflösung
+### Phase 1 — Auflösung  ✅ erledigt
+
+Umgesetzt mit 17 Tests. `m_parent` plus namensbasiertes Fallback in `UiSkin.StyleByKey`, Zyklus- und
+Tiefenschutz (`MaxInheritanceDepth`, sich selbst mitgezählt), `EffectiveStyles` je Skin, das Vokabular
+umbenannt zu `EffectiveStyleNames`/`EffectiveStyleAliases` und darüber geführt, und das Skin-Tweening
+über den Key gepaart via die reine Funktion `UiStyleManager.PairStylesByKey`. Die Auflösung kostet
+unverändert 0,9 us (`FindStyle`).
 
 - `[SerializeField] UiStyleConfig m_parent` in `UiStyleConfig` ergänzen.
 - Fehlschlag der Auflösung über den Parent bedienen, Skins **über den Namen** zuordnen.
@@ -85,7 +91,7 @@ Der Zusatznutzen gegenüber Stufe A ist real, aber schmal: Ein Projekt könnte e
 - Gilt ebenso für `UiAspectRatioDependentStyleConfig`, da von derselben Basis abgeleitet.
 - Einen **effektiven Style-Satz** je Skin bereitstellen (eigene plus geerbte, eigene gewinnen) und die Vokabular-Abfragen sowie das Skin-Tweening in `UiStyleManager` darüber führen; Skins über den Key paaren, nicht über den Index.
 
-### Phase 2 — Copy-on-Write
+### Phase 2 — Copy-on-Write  ← als nächstes
 
 Ein Schreibzugriff auf einen geerbten Style muss diesen zuerst in der Child-Konfiguration materialisieren und dann schreiben. Ohne das verschwindet der Schreibvorgang stillschweigend — siehe Risiken.
 
