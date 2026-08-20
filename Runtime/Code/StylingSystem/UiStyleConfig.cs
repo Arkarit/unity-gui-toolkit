@@ -63,13 +63,34 @@ namespace GuiToolkit.Style
 
 		public int NumSkins => m_skins != null ? m_skins.Count : 0;
 
+		/// <summary>
+		/// Deferred through the AssetReadyGate, because a ScriptableObject's OnEnable runs exactly when
+		/// the gate is closed: on asset load and after every domain reload, i.e. while the editor is
+		/// still importing or compiling. Two things in here must not happen at that moment:
+		///
+		/// EvSkinChanged reaches every applier in every loaded scene, and an applier resolving its style
+		/// asks for its style config - which the gate refuses by throwing (a NotInitializedException out
+		/// of OnEnable, seen when switching back to the editor after a recompile). And UiSkin.Init ->
+		/// Validate touches the AssetDatabase and can call SaveAssets() when it has to fix up a skin's
+		/// back-reference; a project-wide save triggered from an import is how save avalanches start.
+		///
+		/// In play mode and in a build WhenReady invokes straight away, so nothing is deferred there.
+		/// The derived UiAspectRatioDependentStyleConfig already wraps its whole OnEnable the same way.
+		/// </summary>
 		protected virtual void OnEnable()
 		{
-			foreach (var skin in m_skins)
-				skin.Init(this);
+			AssetReadyGate.WhenReady(() =>
+			{
+				// The gate can open frames later, by which time this asset may be gone.
+				if (this == null)
+					return;
 
-			AddListeners();
-			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+				foreach (var skin in m_skins)
+					skin.Init(this);
+
+				AddListeners();
+				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+			});
 		}
 
 		protected virtual void OnDisable() => RemoveListeners();
