@@ -100,6 +100,61 @@ namespace GuiToolkit.Style
 		}
 
 		/// <summary>
+		/// Whether this skin holds the style behind this key itself, as opposed to inheriting it. The
+		/// question to ask before writing: an inherited style belongs to another asset.
+		/// </summary>
+		public bool OwnsStyle(int _key) => OwnStyleByKey(_key) != null;
+
+		/// <summary>
+		/// Copy-on-write: makes an inherited style this skin's own, so it can be written to.
+		///
+		/// A resolved inherited style IS the parent's instance - styles are [SerializeReference] objects
+		/// living inside their config asset, and resolution hands out the real one. Writing to it therefore
+		/// edits the parent, and if the parent is the config that ships with the package, the save is
+		/// silently dropped (see SkipSavingInPackageFolder): the change appears to work and is gone after
+		/// the next reload. Every write path has to come through here first.
+		///
+		/// Returns the style to write to: the existing own one, the fresh copy, or - if there is nothing to
+		/// materialise or nowhere to put it - the inherited one unchanged, so a caller never gets null
+		/// where it previously had a style.
+		/// </summary>
+		public UiAbstractStyleBase MaterializeStyle(int _key)
+		{
+			var own = OwnStyleByKey(_key);
+			if (own != null)
+				return own;
+
+			if (m_config == null)
+				return null;
+
+			var inherited = m_config.InheritedStyleByKey(m_name, _key);
+			if (inherited == null)
+				return null;
+
+#if UNITY_EDITOR
+			if (m_config.IsPackageOwned)
+			{
+				UiLog.LogError($"Cannot override style '{inherited.Name}' in '{m_config.name}': that config " +
+				               "ships inside the package and is read-only, so the override would be lost on " +
+				               "save. Clone it into the project first and inherit from the package copy.");
+				return inherited;
+			}
+#endif
+
+			var clone = UiStyleUtility.CloneStyle(inherited, m_config);
+			if (clone == null)
+				return inherited;
+
+			m_styles.Add(clone);
+			InvalidateStyleLookup();
+
+#if UNITY_EDITOR
+			EditorGeneralUtility.SetDirty(m_config);
+#endif
+			return clone;
+		}
+
+		/// <summary>
 		/// The style behind this key in THIS skin, ignoring any parent config.
 		/// </summary>
 		internal UiAbstractStyleBase OwnStyleByKey(int _key)

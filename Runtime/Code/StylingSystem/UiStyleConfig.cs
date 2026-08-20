@@ -399,6 +399,41 @@ namespace GuiToolkit.Style
 			}
 		}
 
+#if UNITY_EDITOR
+		/// <summary>
+		/// Whether this config is the read-only copy that ships inside the package. Saving it does nothing:
+		/// SkipSavingInPackageFolder drops the write without an error, which makes it the worst possible
+		/// target for an override - it looks like it worked until the next reload.
+		///
+		/// Two tests, because the toolkit's own dev app has the package symlinked into Assets/, where asking
+		/// about the Packages/ folder says nothing.
+		/// </summary>
+		public bool IsPackageOwned
+		{
+			get
+			{
+				var path = AssetDatabase.GetAssetPath(this);
+				if (string.IsNullOrEmpty(path))
+					return false;   // in memory only (a test fixture, say) - nobody's package
+
+				if (path.StartsWith("Packages/", StringComparison.Ordinal))
+					return true;
+
+				try
+				{
+					var root = UiToolkitConfiguration.Instance.GetUiToolkitRootProjectDir();
+					return !string.IsNullOrEmpty(root) && path.StartsWith(root, StringComparison.Ordinal);
+				}
+				catch (Exception)
+				{
+					// The configuration is not reachable from here (too early, or the caller is not editor
+					// aware). The Packages/ test above still holds, so answer with that rather than throw.
+					return false;
+				}
+			}
+		}
+#endif
+
 		public void Validate()
 		{
 			foreach (var skin in m_skins)

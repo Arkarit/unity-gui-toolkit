@@ -164,6 +164,7 @@ MonoBehaviour:
     - rid: 7311505549952025145
     m_aspectRatioGreaterEqual: 0
   m_currentSkinIdx: 0
+  m_parent: {fileID: 0}
   references:
     version: 2
     RefIds:
