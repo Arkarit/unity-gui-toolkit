@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using GuiToolkit.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,6 +22,7 @@ namespace GuiToolkit.Style.Editor
 
 		private SerializedProperty m_skinsProp;
 		private SerializedProperty m_currentSkinIdxProp;
+		private SerializedProperty m_parentProp;
 		private UiStyleConfig m_thisUiStyleConfig;
 
 		private static string s_filterString = string.Empty;
@@ -37,6 +39,7 @@ namespace GuiToolkit.Style.Editor
 		{
 			m_skinsProp = serializedObject.FindProperty("m_skins");
 			m_currentSkinIdxProp = serializedObject.FindProperty("m_currentSkinIdx");
+			m_parentProp = serializedObject.FindProperty("m_parent");
 			m_thisUiStyleConfig = target as UiStyleConfig;
 			Undo.undoRedoPerformed += OnUndoOrRedo;
 		}
@@ -51,10 +54,62 @@ namespace GuiToolkit.Style.Editor
 			EditorApplication.delayCall += () => UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 		}
 
+		/// <summary>
+		/// The config this one builds on. Written through the SerializedProperty rather than through
+		/// UiStyleConfig.Parent, so the invalidation that property does has to happen here as well: every
+		/// applier has to resolve again, and the drawers have to forget the row heights they remembered.
+		/// </summary>
+		private void DrawParentField()
+		{
+			EditorGUI.BeginChangeCheck();
+			EditorGUILayout.PropertyField
+			(
+				m_parentProp,
+				new GUIContent
+				(
+					"Inherits from",
+					"Another style config this one builds on. Only what is overridden here has to be stored;\n"
+					+ "everything else is resolved through that config, matched by skin name and style name.\n"
+					+ "Leave empty for a config that stands alone."
+				)
+			);
+
+			if (EditorGUI.EndChangeCheck())
+			{
+				if (m_parentProp.objectReferenceValue == m_thisUiStyleConfig)
+				{
+					UiLog.LogError($"A style config cannot inherit from itself ('{m_thisUiStyleConfig.name}').");
+					m_parentProp.objectReferenceValue = null;
+				}
+
+				serializedObject.ApplyModifiedProperties();
+				PropertyDrawerView.ClearHeightCache();
+				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+			}
+
+			var parent = m_parentProp.objectReferenceValue as UiStyleConfig;
+			if (parent == null || m_thisUiStyleConfig.NumSkins == 0)
+				return;
+
+			var skin = m_thisUiStyleConfig.Skins[0];
+			int own = skin.Styles.Count;
+			int effective = skin.EffectiveStyles.Count;
+
+			EditorGUILayout.HelpBox
+			(
+				$"Skin '{skin.Name}' resolves {effective} styles: {own} of its own, "
+				+ $"{effective - own} inherited from '{parent.name}'.\n"
+				+ "The list below shows this config's own styles only. Inherited ones resolve at runtime "
+				+ "and are offered in the style dropdown of an applier.",
+				MessageType.Info
+			);
+		}
+
 		public override void OnInspectorGUI()
 		{
 			UiStyleEditorUtility.SelectSkinByPopup(m_thisUiStyleConfig);
 			serializedObject.Update();
+			DrawParentField();
 			string lastFilterString = s_filterString;
 			s_filterString = EditorGUILayout.TextField
 			(
