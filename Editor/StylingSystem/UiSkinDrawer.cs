@@ -407,7 +407,15 @@ namespace GuiToolkit.Style.Editor
 		private List<SerializedProperty> GetFlatSortedStylesList()
 		{
 			var path = m_stylesProp.propertyPath;
-			var key = $"{skinName}|{UiStyleConfigEditor.SortType}|{UiStyleConfigEditor.DisplayFilter}|{m_stylesProp.arraySize}";
+			// The effective count and the parent are part of the key, because the list now holds inherited
+			// rows too: assigning a parent, or a style appearing in one, changes what is shown here without
+			// changing anything in this config.
+			var parentId = m_thisUiSkin?.StyleConfig?.Parent != null
+				? m_thisUiSkin.StyleConfig.Parent.GetInstanceID()
+				: 0;
+			var effectiveCount = m_thisUiSkin?.EffectiveStyles.Count ?? 0;
+			var key = $"{skinName}|{UiStyleConfigEditor.SortType}|{UiStyleConfigEditor.DisplayFilter}"
+			        + $"|{m_stylesProp.arraySize}|{effectiveCount}|{parentId}";
 
 			if (s_sortedStylesByPath.TryGetValue(path, out var cached)
 			    && cached.Key == key
@@ -438,6 +446,8 @@ namespace GuiToolkit.Style.Editor
 
 			for (int i = 0; i < m_stylesProp.arraySize; i++)
 				result.Add(m_stylesProp.GetArrayElementAtIndex(i));
+
+			result.AddRange(UiStyleEditorUtility.InheritedStyleProperties(m_thisUiSkin));
 
 			result.Sort((a, b) =>
 			{

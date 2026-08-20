@@ -88,6 +88,99 @@ namespace GuiToolkit.Style.Editor
 		}
 
 		// both _name and _copyFromName have to be the actual names and not aliases
+		/// <summary>
+		/// A SerializedProperty for every style the skin inherits rather than owns, so the inspector can
+		/// draw them with the same drawers as the own ones instead of with a second, poorer implementation.
+		///
+		/// An inherited style lives in another asset, so its property comes from that asset's
+		/// SerializedObject - which is why those are cached here and refreshed on use. Drawing a property of
+		/// a foreign object is fine; writing to it is what must not happen, and that is what the style
+		/// drawer disables.
+		/// </summary>
+		public static List<SerializedProperty> InheritedStyleProperties( UiSkin _skin )
+		{
+			var result = new List<SerializedProperty>();
+			if (_skin?.StyleConfig?.Parent == null)
+				return result;
+
+			// One map per owning config, built once per call: the alternative is a linear search through the
+			// owner's style list for every inherited style, which is quadratic for no reason.
+			var mapsByOwner = new Dictionary<UiStyleConfig, Dictionary<int, SerializedProperty>>();
+
+			foreach (var style in _skin.EffectiveStyles)
+			{
+				if (style == null || _skin.OwnsStyle(style.Key))
+					continue;
+
+				var owner = _skin.ConfigOwning(style.Key);
+				if (owner == null)
+					continue;
+
+				if (!mapsByOwner.TryGetValue(owner, out var map))
+				{
+					map = StylePropertiesByKey(owner, _skin.Name);
+					mapsByOwner[owner] = map;
+				}
+
+				if (map.TryGetValue(style.Key, out var styleProp))
+					result.Add(styleProp);
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// key -> SerializedProperty for every style of the same-named skin in that config.
+		/// </summary>
+		public static Dictionary<int, SerializedProperty> StylePropertiesByKey( UiStyleConfig _config, string _skinName )
+		{
+			var result = new Dictionary<int, SerializedProperty>();
+			if (_config == null)
+				return result;
+
+			var skinsProp = SerializedConfig(_config).FindProperty("m_skins");
+			if (skinsProp == null)
+				return result;
+
+			for (int i = 0; i < skinsProp.arraySize; i++)
+			{
+				var skinProp = skinsProp.GetArrayElementAtIndex(i);
+				if (skinProp.FindPropertyRelative("m_name")?.stringValue != _skinName)
+					continue;
+
+				var stylesProp = skinProp.FindPropertyRelative("m_styles");
+				for (int j = 0; j < stylesProp.arraySize; j++)
+				{
+					var styleProp = stylesProp.GetArrayElementAtIndex(j);
+					if (styleProp.boxedValue is UiAbstractStyleBase style)
+						result[style.Key] = styleProp;
+				}
+
+				break;
+			}
+
+			return result;
+		}
+
+		private static readonly Dictionary<UiStyleConfig, SerializedObject> s_serializedConfigs = new();
+
+		/// <summary>
+		/// A SerializedObject per config, kept across repaints and refreshed on use - building one per repaint
+		/// for every ancestor would be wasteful, and they are only ever read here.
+		/// </summary>
+		private static SerializedObject SerializedConfig( UiStyleConfig _config )
+		{
+			if (s_serializedConfigs.TryGetValue(_config, out var existing) && existing?.targetObject != null)
+			{
+				existing.Update();
+				return existing;
+			}
+
+			var created = new SerializedObject(_config);
+			s_serializedConfigs[_config] = created;
+			return created;
+		}
+
 		public static string AddSkin( UiStyleConfig _config, string _name, string _copyFromName = null )
 		{
 			if (_config.SkinNames.Contains(_name))

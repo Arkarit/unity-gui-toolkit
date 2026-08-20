@@ -155,6 +155,12 @@ namespace GuiToolkit.Style
 		}
 
 		/// <summary>
+		/// What this skin would inherit for this key, ignoring whatever it owns itself. Null when no
+		/// ancestor offers it - which is what tells an override apart from a style of one's own.
+		/// </summary>
+		public UiAbstractStyleBase InheritedStyleByKey(int _key) => m_config?.InheritedStyleByKey(m_name, _key);
+
+		/// <summary>
 		/// The opposite of MaterializeStyle: drops this skin's own copy so the style is inherited again.
 		///
 		/// Refuses when there is nothing to fall back to. Removing the only copy of a style is a deletion,
