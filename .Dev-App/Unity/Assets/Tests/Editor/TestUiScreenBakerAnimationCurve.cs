@@ -31,13 +31,24 @@ namespace GuiToolkit.Test
 		{
 			// alphaCurve: bare preset string. scaleXCurve: explicit keyframe list. scaleYCurve: preset with
 			// an explicit from/to range (2s → value 2).
+			//
+			// A minimally complete animation, because an incomplete one puts its own gaps in the way of the
+			// assertions: "support" has to name every channel a curve is authored for (an unsupported curve
+			// is baked but never runs), the animation needs a "target" to drive, and an Alpha channel needs
+			// a graphic to fade. All three are things the baker warns about, and all three are fixture
+			// concerns rather than curve-conversion concerns - hence the single Image child that serves as
+			// target and alpha carrier at once.
 			string json =
 				"{\"name\":\"AnimationCurveTestNUnit\",\"outputPath\":" + Quote(BakedPath) + "," +
 				"\"root\":{\"type\":\"UiSimpleAnimation\",\"id\":\"anim\",\"props\":{" +
+				"\"support\":\"ScaleX, ScaleY, Alpha\"," +
+				"\"target\":\"#animated\"," +
+				"\"alphaGraphic\":\"#animated\"," +
 				"\"alphaCurve\":\"easeInOut\"," +
 				"\"scaleXCurve\":[{\"time\":0,\"value\":0},{\"time\":1,\"value\":1}]," +
 				"\"scaleYCurve\":{\"preset\":\"linear\",\"from\":[0,0],\"to\":[2,2]}" +
-				"}}}";
+				"}," +
+				"\"children\":[{\"type\":\"Image\",\"id\":\"animated\"}]}}";
 
 			var result = UiScreenBaker.Bake(json);
 			Assert.AreEqual(0, result.warnings.Count, "Unexpected warnings: " + string.Join(" | ", result.warnings));

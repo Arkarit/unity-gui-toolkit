@@ -29,10 +29,18 @@ namespace GuiToolkit.Test
 		[Test]
 		public void BareScrollRectDefaultsToVerticalListThatSizesItsContent()
 		{
+			// The two items carry a LayoutElement, because the scaffolded Content drives its children's
+			// height: an item that declares no preferred height is collapsed to 0 and all items end up on
+			// the same spot. The baker warns about exactly that, so a fixture without it would be testing
+			// its own mistake. Plain Images stand in for content items here - the point of this test is the
+			// Content that gets scaffolded around them.
 			string json =
 				"{\"name\":\"ScrollTestNUnit\",\"outputPath\":" + Quote(BakedPath) + "," +
 				"\"root\":{\"type\":\"UiScrollRect\",\"id\":\"scroll\"," +
-				"\"children\":[{\"type\":\"UiScrollRect\",\"id\":\"dummy1\"},{\"type\":\"UiScrollRect\",\"id\":\"dummy2\"}]}}";
+				"\"children\":[" +
+				"{\"type\":\"Image\",\"id\":\"item1\",\"components\":[{\"type\":\"LayoutElement\",\"props\":{\"PreferredHeight\":40}}]}," +
+				"{\"type\":\"Image\",\"id\":\"item2\",\"components\":[{\"type\":\"LayoutElement\",\"props\":{\"PreferredHeight\":40}}]}" +
+				"]}}";
 
 			var result = UiScreenBaker.Bake(json);
 			Assert.AreEqual(0, result.warnings.Count, "Unexpected warnings: " + string.Join(" | ", result.warnings));
@@ -49,6 +57,10 @@ namespace GuiToolkit.Test
 			Assert.IsNotNull(fitter, "Content should size itself so it can scroll.");
 			Assert.AreEqual(ContentSizeFitter.FitMode.PreferredSize, fitter.verticalFit, "Vertical scroll grows Content height.");
 			Assert.AreEqual(ContentSizeFitter.FitMode.Unconstrained, fitter.horizontalFit, "Width follows the viewport.");
+
+			// The authored children belong under the scaffolded Content, not under the ScrollRect itself.
+			Assert.IsNotNull(scrollRect.content.Find("item1"), "Authored items are re-parented into Content.");
+			Assert.IsNotNull(scrollRect.content.Find("item2"), "Authored items are re-parented into Content.");
 		}
 
 		[Test]
