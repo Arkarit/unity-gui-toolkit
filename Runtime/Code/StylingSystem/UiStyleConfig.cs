@@ -17,6 +17,20 @@ namespace GuiToolkit.Style
 
 		[SerializeField] private int m_currentSkinIdx = 0;
 
+		/// <summary>
+		/// The config this one builds on. A child stores only what it overrides; everything else resolves
+		/// through the parent, matched by skin name and style key. Null means "stands alone", which is
+		/// exactly how every config behaved before inheritance existed.
+		/// </summary>
+		[SerializeField][Optional] private UiStyleConfig m_parent;
+
+		/// <summary>
+		/// Depth limit for the parent chain. One level (project onto package) covers every known case;
+		/// longer chains cost nothing to resolve but widen the failure surface, so they are allowed and
+		/// capped. The cap also keeps a cycle from recursing forever.
+		/// </summary>
+		public const int MaxInheritanceDepth = 8;
+
 		public static UiStyleConfig Instance
 		{
 			get
@@ -62,6 +76,88 @@ namespace GuiToolkit.Style
 		}
 
 		public int NumSkins => m_skins != null ? m_skins.Count : 0;
+
+		public UiStyleConfig Parent
+		{
+			get => m_parent;
+			set
+			{
+				if (m_parent == value)
+					return;
+
+				m_parent = value;
+#if UNITY_EDITOR
+				SetDirty(this);
+#endif
+				// Everything resolved so far may resolve differently now.
+				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+			}
+		}
+
+		/// <summary>
+		/// The style behind this key in the skin of this name, looked up in the ancestors only - the caller
+		/// has already failed to find it in its own skin. Walks the chain by skin NAME, because two configs
+		/// are not required to list their skins in the same order.
+		/// </summary>
+		internal UiAbstractStyleBase InheritedStyleByKey( string _skinName, int _key )
+		{
+			var config = m_parent;
+			for (int depth = 1; config != null; depth++)
+			{
+				var skin = config.GetOwnSkinByNameOrAlias(_skinName, false);
+				var style = skin?.OwnStyleByKey(_key);
+				if (style != null)
+					return style;
+
+				config = config.StepToParent(this, depth);
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// One step up the chain, or null at the end of it. Reports a cycle and a runaway chain rather than
+		/// recursing into either.
+		/// </summary>
+		private UiStyleConfig StepToParent( UiStyleConfig _start, int _depth )
+		{
+			if (m_parent == null)
+				return null;
+
+			if (m_parent == _start)
+			{
+				UiLog.LogErrorOnce($"Style config '{_start.name}' is its own ancestor - the parent chain " +
+				                   "forms a cycle and is not followed. Clear one of the parent fields.");
+				return null;
+			}
+
+			if (_depth + 1 >= MaxInheritanceDepth)
+			{
+				UiLog.LogErrorOnce($"Style config '{_start.name}' has a parent chain longer than " +
+				                   $"{MaxInheritanceDepth}; anything beyond that is ignored.");
+				return null;
+			}
+
+			return m_parent;
+		}
+
+		/// <summary>
+		/// This config and its ancestors, nearest first. Allocates, so it belongs on the editor-side paths
+		/// (vocabulary, effective sets) rather than in the resolution of a single style.
+		/// </summary>
+		internal List<UiStyleConfig> SelfAndAncestors()
+		{
+			var result = new List<UiStyleConfig> { this };
+			var config = this;
+			for (int depth = 0; ; depth++)
+			{
+				config = config.StepToParent(this, depth);
+				if (config == null)
+					return result;
+
+				result.Add(config);
+			}
+		}
 
 		/// <summary>
 		/// Deferred through the AssetReadyGate, because a ScriptableObject's OnEnable runs exactly when
@@ -129,20 +225,31 @@ namespace GuiToolkit.Style
 			CurrentSkinIdx = 0;
 		}
 
-		public List<string> StyleNames => GetStyleNamesByMonoBehaviourType(null, false);
-		public List<string> StyleAliases => GetStyleNamesByMonoBehaviourType(null, true);
+		/// <summary>
+		/// The style vocabulary: which style names exist, inherited ones included. Called "effective"
+		/// because that is the distinction that starts to matter once a config has a parent - a child
+		/// stores only its overrides, so its own style list is no longer the answer to "which styles are
+		/// there". Whoever offers style names to choose from (the dropdown on an applier, the AI catalog)
+		/// has to ask this, or inherited styles go missing in the editor while working fine at runtime.
+		///
+		/// Read from the FIRST skin, as before. Every skin carries the same styles by convention, and the
+		/// alternative - the union across all skins - would answer a question nobody asks. A style that
+		/// exists only in a later skin therefore stays invisible here; that predates inheritance and is
+		/// pinned by a test of its own.
+		/// </summary>
+		public List<string> EffectiveStyleNames => GetEffectiveStyleNamesByMonoBehaviourType(null, false);
+		public List<string> EffectiveStyleAliases => GetEffectiveStyleNamesByMonoBehaviourType(null, true);
 
-		public List<string> GetStyleNamesByMonoBehaviourType( Type _monoBehaviourType ) => GetStyleNamesByMonoBehaviourType(_monoBehaviourType, false);
-		public List<string> GetStyleAliasesByMonoBehaviourType( Type _monoBehaviourType ) => GetStyleNamesByMonoBehaviourType(_monoBehaviourType, true);
+		public List<string> GetEffectiveStyleNamesByMonoBehaviourType( Type _monoBehaviourType ) => GetEffectiveStyleNamesByMonoBehaviourType(_monoBehaviourType, false);
+		public List<string> GetEffectiveStyleAliasesByMonoBehaviourType( Type _monoBehaviourType ) => GetEffectiveStyleNamesByMonoBehaviourType(_monoBehaviourType, true);
 
-		private List<string> GetStyleNamesByMonoBehaviourType( Type _monoBehaviourType, bool _alias )
+		private List<string> GetEffectiveStyleNamesByMonoBehaviourType( Type _monoBehaviourType, bool _alias )
 		{
 			List<string> result = new();
 			if (m_skins.Count <= 0)
 				return result;
 
-			var skin = m_skins[0];
-			foreach (var style in skin.Styles)
+			foreach (var style in m_skins[0].EffectiveStyles)
 			{
 				if (_monoBehaviourType != null && style.SupportedComponentType != _monoBehaviourType)
 					continue;
@@ -191,7 +298,34 @@ namespace GuiToolkit.Style
 
 		public UiSkin GetSkinByName( string _name ) => GetSkinByNameOrAlias(_name, false);
 		public UiSkin GetSkinByAlias( string _alias ) => GetSkinByNameOrAlias(_alias, true);
+
+		/// <summary>
+		/// The skin of this name, from this config or, failing that, from an ancestor - so an applier
+		/// pinned to a fixed skin keeps working in a project that overrides only some of the skins.
+		///
+		/// Caution: the skin returned may belong to the PARENT asset. Reading is what this is for; writing
+		/// to it writes into the parent, and for a package config that save is silently discarded. Until
+		/// copy-on-write exists, use GetOwnSkinByNameOrAlias where the intent is to modify.
+		/// </summary>
 		public UiSkin GetSkinByNameOrAlias( string _skinNameOrAlias, bool _isAlias )
+		{
+			var config = this;
+			for (int depth = 0; config != null; depth++)
+			{
+				var skin = config.GetOwnSkinByNameOrAlias(_skinNameOrAlias, _isAlias);
+				if (skin != null)
+					return skin;
+
+				config = config.StepToParent(this, depth);
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// The skin of this name declared by THIS config, ignoring any parent.
+		/// </summary>
+		public UiSkin GetOwnSkinByNameOrAlias( string _skinNameOrAlias, bool _isAlias )
 		{
 			for (int i = 0; i < m_skins.Count; i++)
 			{
@@ -377,13 +511,16 @@ namespace GuiToolkit.Style
 				EditorGeneralUtility.SetDirty(_instance);
 		}
 #endif
+		/// <summary>
+		/// Whether a style of this class and name exists, inherited ones included. Same first-skin
+		/// convention as the vocabulary above.
+		/// </summary>
 		public bool StyleExists( Type type, string name )
 		{
 			if (m_skins.Count == 0)
 				return false;
 
-			var skin = m_skins[0];
-			foreach (var style in skin.Styles)
+			foreach (var style in m_skins[0].EffectiveStyles)
 			{
 				if (style.Name == name && style.GetType() == type)
 					return true;

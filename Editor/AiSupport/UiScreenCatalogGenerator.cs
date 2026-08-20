@@ -1295,7 +1295,7 @@ namespace GuiToolkit.Editor.AiSupport
 			var names = new List<string>();
 			foreach (var config in s_styleConfigCache)
 			{
-				foreach (var n in config.GetStyleNamesByMonoBehaviourType(_type))
+				foreach (var n in config.GetEffectiveStyleNamesByMonoBehaviourType(_type))
 					if (!names.Contains(n))
 						names.Add(n);
 			}

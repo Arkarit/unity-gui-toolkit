@@ -85,8 +85,8 @@ namespace GuiToolkit.Style.Editor
 				return;
 			}
 			
-			var styleAliases = styleConfig.GetStyleAliasesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedComponentType);
-			var styleNames = styleConfig.GetStyleNamesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedComponentType);
+			var styleAliases = styleConfig.GetEffectiveStyleAliasesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedComponentType);
+			var styleNames = styleConfig.GetEffectiveStyleNamesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedComponentType);
 			
 			int styleCountBefore = styleAliases.Count;
 			string currentDisplayName = string.Empty;

@@ -81,7 +81,28 @@ namespace GuiToolkit.Style
 			return (CT) StyleByName<T>(_name);
 		}
 
+		/// <summary>
+		/// The style behind this key: this skin's own, or, failing that, the one inherited from the
+		/// same-named skin of an ancestor config. This is the single place where a style is resolved at
+		/// runtime, which is what makes inheritance cheap - appliers store a name and a key, never a
+		/// reference, so nothing serialized has to change for a lookup to reach further.
+		/// </summary>
 		public UiAbstractStyleBase StyleByKey(int _key)
+		{
+			var own = OwnStyleByKey(_key);
+			if (own != null)
+				return own;
+
+			if (m_config == null)
+				return null;
+
+			return m_config.InheritedStyleByKey(m_name, _key);
+		}
+
+		/// <summary>
+		/// The style behind this key in THIS skin, ignoring any parent config.
+		/// </summary>
+		internal UiAbstractStyleBase OwnStyleByKey(int _key)
 		{
 			BuildDictionaryIfNecessary();
 
@@ -91,6 +112,42 @@ namespace GuiToolkit.Style
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Everything this skin resolves to: its own styles plus those inherited from same-named skins up
+		/// the chain, with the nearest one winning. Built on demand rather than cached, because it has to
+		/// follow changes in every config it draws from, and it is asked for by the editor and by a skin
+		/// change - not per frame. Do not put it on a hot path without measuring first.
+		/// </summary>
+		public List<UiAbstractStyleBase> EffectiveStyles
+		{
+			get
+			{
+				var result = new List<UiAbstractStyleBase>(m_styles);
+				if (m_config == null)
+					return result;
+
+				var seen = new HashSet<int>();
+				foreach (var style in result)
+					seen.Add(style.Key);
+
+				var chain = m_config.SelfAndAncestors();
+				for (int i = 1; i < chain.Count; i++)
+				{
+					var inheritedSkin = chain[i].GetOwnSkinByNameOrAlias(m_name, false);
+					if (inheritedSkin == null)
+						continue;
+
+					foreach (var style in inheritedSkin.Styles)
+					{
+						if (seen.Add(style.Key))
+							result.Add(style);
+					}
+				}
+
+				return result;
+			}
 		}
 
 		public void DeleteStyle(UiAbstractStyleBase _style)
