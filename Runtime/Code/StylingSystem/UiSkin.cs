@@ -23,6 +23,10 @@ namespace GuiToolkit.Style
 
 
 		private Dictionary<int, UiAbstractStyleBase> m_styleByKey;
+		// Shape of the style list the lookup was built from - see BuildDictionaryIfNecessary.
+		private int m_builtStyleCount = -1;
+		private UiAbstractStyleBase m_builtFirstStyle;
+		private UiAbstractStyleBase m_builtLastStyle;
 		private static readonly List<int> m_stylesToRemove = new();
 
 		public UiSkin(UiStyleConfig _config, string _name, float _aspectRatioGreaterEqual = -1 ) 
@@ -117,19 +121,48 @@ namespace GuiToolkit.Style
 			BuildDictionary();
 		}
 
+		/// <summary>
+		/// Rebuilds the key lookup only when the style list actually changed shape.
+		///
+		/// This used to rebuild unconditionally while not playing, because Styles is a public list that
+		/// anything in the editor may add to or remove from, and a stale lookup would hide a style that is
+		/// plainly there. The price was steep: every single lookup recomputed one key per style, measured
+		/// at ~61 us for a skin with 70 styles - and with one lookup per applier per skin change, that was
+		/// the bulk of what made the editor feel slow.
+		///
+		/// Instead of trusting nobody, the cheap observable facts about the list are remembered: how many
+		/// styles it had, and which instances sat at its ends. Adding, removing or replacing a style
+		/// changes at least one of them, and a reload replaces the instances wholesale, so all of those
+		/// rebuild. The one case this does not see is an in-place replacement in the MIDDLE of the list
+		/// that keeps the count - no code path does that today (deletions go through DeleteStyle,
+		/// additions append), and code that wants to be explicit can call InvalidateStyleLookup().
+		/// </summary>
 		private void BuildDictionaryIfNecessary()
 		{
-#if UNITY_EDITOR
-			if (!Application.isPlaying)
-			{
-				BuildDictionary();
+			if (m_styleByKey != null && !StyleListChangedShape())
 				return;
-			}
-#endif
 
-			if (m_styleByKey == null)
-				BuildDictionary();
+			BuildDictionary();
 		}
+
+		private bool StyleListChangedShape()
+		{
+			int count = m_styles.Count;
+			if (count != m_builtStyleCount)
+				return true;
+
+			if (count == 0)
+				return false;
+
+			return !ReferenceEquals(m_styles[0], m_builtFirstStyle)
+			    || !ReferenceEquals(m_styles[count - 1], m_builtLastStyle);
+		}
+
+		/// <summary>
+		/// Forces the key lookup to be rebuilt on next access. Only needed for a change the shape check
+		/// cannot see, i.e. swapping a style in the middle of the list for another one.
+		/// </summary>
+		public void InvalidateStyleLookup() => m_builtStyleCount = -1;
 
 		private void BuildDictionary()
 		{
@@ -142,6 +175,10 @@ namespace GuiToolkit.Style
 			{
 				m_styleByKey.Add(style.Key, style);
 			}
+
+			m_builtStyleCount = m_styles.Count;
+			m_builtFirstStyle = m_builtStyleCount > 0 ? m_styles[0] : null;
+			m_builtLastStyle = m_builtStyleCount > 0 ? m_styles[m_builtStyleCount - 1] : null;
 		}
 
 		public void Validate(UiStyleConfig _config)

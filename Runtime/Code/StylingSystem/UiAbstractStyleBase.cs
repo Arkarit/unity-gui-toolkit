@@ -28,7 +28,11 @@ namespace GuiToolkit.Style
 		public string Name
 		{
 			get => m_name;
-			protected set => m_name = value;
+			protected set
+			{
+				m_name = value;
+				m_key = 0; // the key is derived from the name, so it has to be recomputed
+			}
 		}
 
 		public string Alias
@@ -60,11 +64,17 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		/// <summary>
+		/// Hash of component type plus name, cached. It used to be recomputed on every access while not
+		/// playing, which cost ~1 us a time and was paid once per style per key-lookup rebuild. The name
+		/// is the style's identifier and only ever set in the constructor (the setter above invalidates
+		/// the cache should that ever change), and m_key is not serialized, so a reload recomputes it.
+		/// </summary>
 		public int Key
 		{
 			get
 			{
-				if (m_key == 0 || !Application.isPlaying)
+				if (m_key == 0)
 					m_key = UiStyleUtility.GetKey(SupportedComponentType, Name);
 
 				return m_key;
