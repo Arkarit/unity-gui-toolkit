@@ -32,7 +32,7 @@ namespace GuiToolkit.Editor
 		/// IMGUI hands out control IDs in creation order - so focus and hot control would move under the
 		/// user's hands. A generous margin keeps the set stable across small scroll deltas.
 		/// </summary>
-		public const float CullMargin = 250;
+		public const float CullMargin = 500;
 
 		private static Func<Rect> s_visibleRectGetter;
 		private static bool s_visibleRectResolved;
