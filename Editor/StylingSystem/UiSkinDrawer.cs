@@ -24,9 +24,33 @@ namespace GuiToolkit.Style.Editor
 
 		protected override void OnEnable()
 		{
-			m_thisUiSkin = Property.boxedValue as UiSkin;
+			m_thisUiSkin = FindRealSkin();
 			m_stylesProp = Property.FindPropertyRelative("m_styles");
 			m_aspectRatioGreaterEqualProp = Property.FindPropertyRelative("m_aspectRatioGreaterEqual");
+		}
+
+		/// <summary>
+		/// The skin instance that actually lives in the config, NOT Property.boxedValue.
+		///
+		/// UiSkin is a plain [Serializable] class in List&lt;UiSkin&gt;, so its property type is
+		/// Generic, and for Generic properties boxedValue builds a fresh managed copy on every
+		/// single access. Only SerializeReference (ManagedReference) properties hand back the
+		/// real object - which is why everything this drawer does to *styles* works (m_styles is
+		/// [SerializeReference], so those are the real instances) while anything written to a
+		/// skin-level field of the boxed copy is dropped without a trace.
+		///
+		/// Resolving the skin by array index keeps identity intact, and saves a deep copy per
+		/// repaint on top (OnEnable runs from both OnGUI and GetPropertyHeight).
+		/// </summary>
+		private UiSkin FindRealSkin()
+		{
+			var config = Property.serializedObject.targetObject as UiStyleConfig;
+			var idx = Property.GetArrayIndex();
+			if (config != null && idx >= 0 && idx < config.NumSkins)
+				return config.Skins[idx];
+
+			// Not an element of a config's skin list (nested/standalone use) - the copy is all there is.
+			return Property.boxedValue as UiSkin;
 		}
 
 		protected override void OnInspectorGUI()
@@ -131,7 +155,7 @@ namespace GuiToolkit.Style.Editor
 				{
 					// Create copies due to shitty c# not able to define capture copy in lambda
 					var skinAliasCopy = skinAlias;
-					var thisUiSkinCopy = m_thisUiSkin;
+					var thisUiSkinCaptured = m_thisUiSkin;
 					
 					EditorApplication.delayCall += () =>
 					{
@@ -139,7 +163,7 @@ namespace GuiToolkit.Style.Editor
 						{
 							if (GUILayout.Button("Reset Name"))
 							{
-								UiEventDefinitions.EvSetSkinAlias.InvokeAlways(thisUiSkinCopy.StyleConfig, thisUiSkinCopy, null);
+								UiEventDefinitions.EvSetSkinAlias.InvokeAlways(thisUiSkinCaptured.StyleConfig, thisUiSkinCaptured, null);
 								dialog.Cancel();
 							}
 							
@@ -149,7 +173,7 @@ namespace GuiToolkit.Style.Editor
 						var newName = EditorInputDialog.Show("Rename", "Please enter new name", skinAliasCopy, additionalContent);
 						if (!string.IsNullOrEmpty(newName))
 						{
-							UiEventDefinitions.EvSetSkinAlias.InvokeAlways(thisUiSkinCopy.StyleConfig, thisUiSkinCopy, newName);
+							UiEventDefinitions.EvSetSkinAlias.InvokeAlways(thisUiSkinCaptured.StyleConfig, thisUiSkinCaptured, newName);
 						}
 					};
 				}
@@ -182,7 +206,7 @@ namespace GuiToolkit.Style.Editor
 				{
 					Space(-17);
 					
-					var foldoutOpen = Foldout(EditedClassInstance.Name, $"", () =>
+					var foldoutOpen = Foldout(m_thisUiSkin.Name, $"", () =>
 					{
 						var styles = GetFlatSortedStylesList();
 						var snp = new StyleTree();
@@ -205,7 +229,7 @@ namespace GuiToolkit.Style.Editor
 			{
 				Space(-17);
 					
-				var foldoutOpen = Foldout(EditedClassInstance.Name, $"", () =>
+				var foldoutOpen = Foldout(m_thisUiSkin.Name, $"", () =>
 				{
 					Space(10);
 					Line(5);

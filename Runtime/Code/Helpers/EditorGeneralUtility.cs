@@ -465,6 +465,23 @@ namespace GuiToolkit
 			return parentSerializedProperty;
 		}
 
+		/// <summary>
+		/// Array index of a property that is an array/list element, or -1 if it is not one.
+		/// Needed whenever a drawer has to get from the property back to the *actual* managed
+		/// object in the target: SerializedProperty.boxedValue returns the real instance only
+		/// for SerializeReference (ManagedReference) properties. For a plain [Serializable]
+		/// class (property type Generic) it hands out a freshly built copy on every access, so
+		/// writing to it is silently lost. See UiSkinDrawer for the case that taught us this.
+		/// </summary>
+		public static int GetArrayIndex( this SerializedProperty _property )
+		{
+			var match = Regex.Match(_property.propertyPath, @"\.Array\.data\[(\d+)\]$");
+			if (!match.Success)
+				return -1;
+
+			return int.Parse(match.Groups[1].Value);
+		}
+
 		public static bool TryGetCustomAttribute<TA>( this SerializedProperty _property, out TA _value, bool _checkArray = false ) where TA : Attribute
 		{
 			if (_checkArray)

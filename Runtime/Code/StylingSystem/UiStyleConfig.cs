@@ -274,7 +274,10 @@ namespace GuiToolkit.Style
 			if (_styleConfig != this)
 				return;
 
-			//FIXME: The _skin instance is different than the skins in style config - why??!
+			// Matched by name, not by instance: m_name is the skin's identifier and unique within a
+			// config, and a caller may legitimately hand in a detached copy of a skin rather than the
+			// instance held here - a property drawer editing List<UiSkin> gets exactly that from
+			// SerializedProperty.boxedValue, since UiSkin is a plain [Serializable] class.
 			ForeachSkin(skin =>
 			{
 				if (skin.Name == _skin.Name)

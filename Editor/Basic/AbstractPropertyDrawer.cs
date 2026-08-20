@@ -35,6 +35,13 @@ namespace GuiToolkit.Editor
 
 		protected SerializedProperty Property => m_property;
 		protected float SingleLineHeight => EditorGUIUtility.singleLineHeight;
+		/// <summary>
+		/// Caution: for a plain [Serializable] class (property type Generic) this is a FRESH COPY
+		/// on every access, not the object in the target - writing to it is silently lost. Only
+		/// SerializeReference (ManagedReference) properties return the real instance. Use it to
+		/// read/display; write through SerializedProperty, or resolve the real object yourself
+		/// (see UiSkinDrawer.FindRealSkin).
+		/// </summary>
 		protected T EditedClassInstance => Property.boxedValue as T;
 		protected bool IsHorizontal => m_horizontalMode > 0;
 		protected Rect CurrentRect => m_currentRect;

@@ -53,6 +53,7 @@ Two constraints that shape the design:
 
 - **Styles are `[SerializeReference]` objects inline in the ScriptableObject**, not sub-assets. A child config therefore cannot "reference" individual parent styles; it can only ask the parent to resolve a key.
 - **`UiSkin` carries a back-reference `m_config`** and `CurrentSkin` is index-based. The fallback must match skins **by name**, not by index — two configs are not guaranteed to list their skins in the same order.
+- **Every skin holds the full style set today, and two places rely on it.** `UiStyleConfig` reads the style *vocabulary* off `m_skins[0]` alone (`GetStyleNamesByMonoBehaviourType`, `StyleExists`), and `UiStyleManager.SetSkin` pairs the outgoing and incoming skin **by index** with `Debug.Assert(previousStylesCount == stylesCount)` before tweening. Once a child config stores only overrides, that invariant is gone: a skin switch with a tween duration would bail out on mismatched counts, and inherited styles — the majority — would never be tweened at all, because `UpdateTween` iterates `CurrentSkin.Styles`. Both need to run against the **effective** style set (own plus inherited), and the tween pairing has to become key-based instead of index-based. This is the only runtime path outside the choke point that inheritance actually breaks.
 
 ---
 
@@ -82,6 +83,7 @@ The benefit over Level A is real but narrow: it would allow a project to overrid
 - Resolve a lookup miss through the parent, matching skins **by name**.
 - Guard against cycles and limit chain depth.
 - Applies to `UiAspectRatioDependentStyleConfig` as well, since it derives from the same base.
+- Expose an **effective style set** per skin (own plus inherited, own wins) and route the vocabulary lookups and `UiStyleManager` skin tweening through it; pair skins by key, not by index.
 
 ### Phase 2 — Copy-on-write
 
@@ -125,7 +127,26 @@ The report is useful on its own, before any conversion: it answers a question no
 1. **Does a child skin inherit styles from a parent skin of the same name only, or may a skin itself be inherited whole?** Recommendation: skin-name match only; a child that defines no skin of that name falls back to the parent's skin entirely.
 2. **Chain depth.** One level (project → package) covers every known case. Allowing longer chains costs nothing in the lookup but widens the failure surface.
 3. **Conversion policy for the existing clone**: convert everything identical to inherited, or pin selected areas? This is a look-and-feel decision, not a technical one.
-4. **The unexplained skin identity issue.** `UiStyleConfig.OnSetSkinAlias` carries the comment `//FIXME: The _skin instance is different than the skins in style config - why??!`. This should be understood **before** a second config participates in resolution, otherwise two unknowns are debugged at once.
+4. ~~**The unexplained skin identity issue.**~~ **Resolved — see "Skin identity" below.** No longer blocks Phase 1.
+
+---
+
+## Skin Identity (former FIXME, resolved)
+
+`UiStyleConfig.OnSetSkinAlias` used to carry `//FIXME: The _skin instance is different than the skins in style config - why??!`. The cause is `SerializedProperty.boxedValue`:
+
+- `UiSkin` is a plain `[Serializable]` class inside `List<UiSkin> m_skins`, so the element's property type is **Generic** — and for Generic properties `boxedValue` builds a **fresh managed copy on every single access**. `UiSkinDrawer.OnEnable` read exactly that, and `OnEnable` runs from both `OnGUI` and `GetPropertyHeight`, so the drawer never once held the skin that lives in the config.
+- Styles behave differently because `m_styles` is `[SerializeReference]`: those elements are **ManagedReference** properties, and `boxedValue` returns the **real** instance. That is why `OnSetStyleAlias`, `DeleteStyle`, HSV and Paste all work on the actual objects and never needed a workaround, while the skin path did.
+- The copy's `m_config` is a UnityEngine.Object reference and survives the copy, which is why `skin.StyleConfig` still points at the real asset and the `_styleConfig != this` guard passes.
+
+Verified empirically in both editors (2022.3.62f2 and 6000.0.64f1) across five configs: the boxed skin is never reference-equal to `Skins[i]`, a second access yields yet another instance, the style list is a new `List` holding the **same** style instances — and writing `Alias` on the copy leaves the asset untouched and not even dirty.
+
+Fixed by having `UiSkinDrawer` resolve the real skin by array index (`SerializedProperty.GetArrayIndex()`) instead of taking the copy. The by-name matching in `OnSetSkinAlias` stays: skin names are unique per config, and a caller may still legitimately pass a detached copy.
+
+**Two consequences for this plan**, both good to know before Phase 2:
+
+- Inherited styles resolve to instances **owned by the parent asset**, and being `[SerializeReference]` they come back as real, writable objects. An editor that let the user type into an inherited style would silently mutate the *package* config in memory — and `SkipSavingInPackageFolder` would then discard the save without a word. Phase 3's read-only display of inherited entries is therefore a **guard against data loss**, not cosmetics.
+- The trap is generic to `AbstractPropertyDrawer<T>` whenever `T` is a plain serializable class. `UiSkinDrawer` was the only site that wrote through it (`UiSoundDefDrawer` only reads for preview, `UiAbstractStyleBaseDrawer`'s `T` is a SerializeReference type); the base class now documents it.
 
 ---
 
@@ -134,11 +155,12 @@ The report is useful on its own, before any conversion: it answers a question no
 | Item | PD |
 |---|---|
 | Phase 1 — resolution, name-based skin matching, cycle guard | 0.5 |
+| Phase 1b — effective style set: vocabulary lookups and key-based skin tweening | 0.4 |
 | Phase 2 — copy-on-write on all write paths | 0.5 |
 | Phase 3 — editor: inherited vs. own, override / revert | 1.0 |
 | Phase 4 — conversion tool with report and dry run | 0.8 |
 | Phase 5 — tests, Dev-App verification, documentation | 0.7 |
-| **Total (Level A)** | **~3.5** |
+| **Total (Level A)** | **~3.9** |
 
 Level B would add an estimated **3 to 5 PD** on top, and is not part of this plan.
 
@@ -149,7 +171,5 @@ Level B would add an estimated **3 to 5 PD** on top, and is not part of this pla
 **Library updates can change a project's look.** Today a clone is frozen; a restyle in the library cannot reach the project. With inheritance it can — which is the point, but it must be a deliberate decision rather than a surprise after a package bump. Mitigation: overrides stay pinned, only unset styles follow the parent, and the conversion tool shows exactly which styles would become inherited.
 
 **Silent write loss.** `SkipSavingInPackageFolder` drops any save whose path starts with `Packages`, without an error. A write to an inherited style that is not materialised first therefore *appears* to succeed and is gone on the next reload. This footgun exists today but is rare; inheritance would make it the normal case. Phase 2 exists solely to remove it.
-
-**Two unknowns at once.** See Key Decision 4.
 
 **Low risks.** Lookup cost is one additional dictionary miss, and appliers cache their resolved style. Merge conflicts become *less* likely, because a converted child config is a fraction of its current size.

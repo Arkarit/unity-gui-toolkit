@@ -53,6 +53,7 @@ Zwei Randbedingungen prägen den Entwurf:
 
 - **Styles sind `[SerializeReference]`-Objekte inline im ScriptableObject**, keine Sub-Assets. Eine Child-Konfiguration kann einzelne Parent-Styles deshalb nicht „referenzieren", sondern den Parent nur bitten, einen Key aufzulösen.
 - **`UiSkin` trägt eine Rück-Referenz `m_config`**, und `CurrentSkin` arbeitet über den Index. Das Fallback muss Skins deshalb **über den Namen** zuordnen, nicht über den Index — zwei Konfigurationen führen ihre Skins nicht garantiert in derselben Reihenfolge.
+- **Heute trägt jeder Skin den vollständigen Style-Satz, und zwei Stellen verlassen sich darauf.** `UiStyleConfig` liest das Style-*Vokabular* allein aus `m_skins[0]` (`GetStyleNamesByMonoBehaviourType`, `StyleExists`), und `UiStyleManager.SetSkin` paart alten und neuen Skin **über den Index**, mit `Debug.Assert(previousStylesCount == stylesCount)` vor dem Tween. Sobald eine Child-Konfiguration nur noch Overrides speichert, gilt diese Invariante nicht mehr: Ein Skin-Wechsel mit Tween-Dauer bricht bei ungleicher Anzahl ab, und geerbte Styles — die Mehrheit — würden überhaupt nicht getweent, weil `UpdateTween` über `CurrentSkin.Styles` läuft. Beides muss über den **effektiven** Style-Satz laufen (eigene plus geerbte), und die Tween-Zuordnung über den Key statt über den Index. Das ist der einzige Laufzeitpfad außerhalb der Engstelle, den die Vererbung tatsächlich bricht.
 
 ---
 
@@ -82,6 +83,7 @@ Der Zusatznutzen gegenüber Stufe A ist real, aber schmal: Ein Projekt könnte e
 - Fehlschlag der Auflösung über den Parent bedienen, Skins **über den Namen** zuordnen.
 - Zyklen ausschließen, Kettentiefe begrenzen.
 - Gilt ebenso für `UiAspectRatioDependentStyleConfig`, da von derselben Basis abgeleitet.
+- Einen **effektiven Style-Satz** je Skin bereitstellen (eigene plus geerbte, eigene gewinnen) und die Vokabular-Abfragen sowie das Skin-Tweening in `UiStyleManager` darüber führen; Skins über den Key paaren, nicht über den Index.
 
 ### Phase 2 — Copy-on-Write
 
@@ -125,7 +127,26 @@ Der Bericht ist schon für sich nützlich, vor jeder Umstellung: Er beantwortet 
 1. **Erbt ein Child-Skin nur Styles aus dem gleichnamigen Parent-Skin, oder kann ein Skin als Ganzes geerbt werden?** Empfehlung: Zuordnung nur über den Skin-Namen; definiert das Child keinen Skin dieses Namens, fällt es vollständig auf den Skin des Parents zurück.
 2. **Kettentiefe.** Eine Ebene (Projekt → Package) deckt jeden bekannten Fall ab. Längere Ketten kosten in der Auflösung nichts, vergrößern aber die Fehlerfläche.
 3. **Umstellungspolitik für den bestehenden Klon**: alles Identische auf geerbt umstellen, oder ausgewählte Bereiche anheften? Das ist eine Gestaltungs-, keine technische Entscheidung.
-4. **Die ungeklärte Skin-Identität.** In `UiStyleConfig.OnSetSkinAlias` steht der Kommentar `//FIXME: The _skin instance is different than the skins in style config - why??!`. Das sollte verstanden sein, **bevor** eine zweite Konfiguration an der Auflösung teilnimmt — sonst debuggt man zwei Unbekannte gleichzeitig.
+4. ~~**Die ungeklärte Skin-Identität.**~~ **Geklärt — siehe „Skin-Identität" unten.** Blockiert Phase 1 nicht mehr.
+
+---
+
+## Skin-Identität (früheres FIXME, geklärt)
+
+In `UiStyleConfig.OnSetSkinAlias` stand `//FIXME: The _skin instance is different than the skins in style config - why??!`. Die Ursache ist `SerializedProperty.boxedValue`:
+
+- `UiSkin` ist eine gewöhnliche `[Serializable]`-Klasse in `List<UiSkin> m_skins`, der Property-Typ des Elements ist also **Generic** — und für Generic-Properties baut `boxedValue` bei **jedem einzelnen Zugriff eine frische Kopie**. Genau die hat `UiSkinDrawer.OnEnable` gelesen, und `OnEnable` läuft sowohl aus `OnGUI` als auch aus `GetPropertyHeight`: Der Drawer hielt nie den Skin, der in der Konfiguration liegt.
+- Bei Styles ist es anders, weil `m_styles` `[SerializeReference]` ist: Diese Elemente sind **ManagedReference**-Properties, `boxedValue` liefert dort die **echte** Instanz. Deshalb arbeiten `OnSetStyleAlias`, `DeleteStyle`, HSV und Paste auf den tatsächlichen Objekten und brauchten nie einen Workaround — der Skin-Pfad schon.
+- Das `m_config` der Kopie ist eine UnityEngine.Object-Referenz und übersteht das Kopieren. Darum zeigt `skin.StyleConfig` weiterhin auf das echte Asset und die Prüfung `_styleConfig != this` greift.
+
+Empirisch bestätigt in beiden Editoren (2022.3.62f2 und 6000.0.64f1) über fünf Konfigurationen: Der geboxte Skin ist nie referenzgleich mit `Skins[i]`, ein zweiter Zugriff liefert wieder eine andere Instanz, die Style-Liste ist eine neue `List` mit den **gleichen** Style-Instanzen — und ein `Alias`-Schreibzugriff auf die Kopie lässt das Asset unberührt und nicht einmal dirty.
+
+Behoben, indem `UiSkinDrawer` den echten Skin über den Array-Index auflöst (`SerializedProperty.GetArrayIndex()`) statt die Kopie zu nehmen. Die Zuordnung über den Namen in `OnSetSkinAlias` bleibt: Skin-Namen sind je Konfiguration eindeutig, und ein Aufrufer darf weiterhin legitim eine abgelöste Kopie übergeben.
+
+**Zwei Folgerungen für diesen Plan**, beide wichtig vor Phase 2:
+
+- Geerbte Styles lösen zu Instanzen auf, die dem **Parent-Asset gehören** — und weil sie `[SerializeReference]` sind, kommen sie als echte, schreibbare Objekte zurück. Ein Editor, der Eingaben auf einem geerbten Style zuließe, würde also still die **Package**-Konfiguration im Speicher verändern, und `SkipSavingInPackageFolder` würde den Speichervorgang danach kommentarlos verwerfen. Die schreibgeschützte Anzeige geerbter Einträge in Phase 3 ist damit ein **Schutz gegen Datenverlust**, keine Kosmetik.
+- Die Falle ist generisch für `AbstractPropertyDrawer<T>`, sobald `T` eine gewöhnliche serialisierbare Klasse ist. `UiSkinDrawer` war die einzige Stelle, die darüber geschrieben hat (`UiSoundDefDrawer` liest nur für die Vorschau, das `T` von `UiAbstractStyleBaseDrawer` ist ein SerializeReference-Typ); die Basisklasse dokumentiert es jetzt.
 
 ---
 
@@ -134,11 +155,12 @@ Der Bericht ist schon für sich nützlich, vor jeder Umstellung: Er beantwortet 
 | Posten | PD |
 |---|---|
 | Phase 1 — Auflösung, namensbasierte Skin-Zuordnung, Zyklusschutz | 0,5 |
+| Phase 1b — effektiver Style-Satz: Vokabular-Abfragen und key-basiertes Skin-Tweening | 0,4 |
 | Phase 2 — Copy-on-Write auf allen Schreibpfaden | 0,5 |
 | Phase 3 — Editor: geerbt vs. eigen, Override / Zurücksetzen | 1,0 |
 | Phase 4 — Conversion-Tool mit Bericht und Dry-Run | 0,8 |
 | Phase 5 — Tests, Verifikation in der Dev-App, Dokumentation | 0,7 |
-| **Summe (Stufe A)** | **~3,5** |
+| **Summe (Stufe A)** | **~3,9** |
 
 Stufe B käme mit geschätzt **3 bis 5 PD** obendrauf und ist nicht Teil dieses Plans.
 
@@ -149,7 +171,5 @@ Stufe B käme mit geschätzt **3 bis 5 PD** obendrauf und ist nicht Teil dieses 
 **Library-Updates können das Aussehen eines Projekts verändern.** Heute ist ein Klon eingefroren; ein Restyling in der Library kann das Projekt nicht erreichen. Mit Vererbung kann es das — genau das ist der Sinn, aber es muss eine bewusste Entscheidung sein und keine Überraschung nach einem Paket-Update. Milderung: Overrides bleiben angeheftet, nur nicht gesetzte Styles folgen dem Parent, und das Conversion-Tool zeigt vorher genau, welche Styles geerbt würden.
 
 **Stiller Verlust von Schreibvorgängen.** `SkipSavingInPackageFolder` verwirft jeden Speichervorgang, dessen Pfad mit `Packages` beginnt — ohne Fehlermeldung. Ein Schreibzugriff auf einen geerbten Style, der nicht vorher materialisiert wurde, *scheint* deshalb zu funktionieren und ist beim nächsten Laden verschwunden. Diese Falle existiert schon heute, ist aber selten; mit Vererbung würde sie zum Normalfall. Phase 2 dient allein dazu, sie zu beseitigen.
-
-**Zwei Unbekannte gleichzeitig.** Siehe zu klärende Entscheidung 4.
 
 **Geringe Risiken.** Die Auflösung kostet einen zusätzlichen Dictionary-Fehlschlag, und die Applier cachen ihren aufgelösten Style. Merge-Konflikte werden *unwahrscheinlicher*, weil eine umgestellte Child-Konfiguration nur noch einen Bruchteil ihrer heutigen Größe hat.
