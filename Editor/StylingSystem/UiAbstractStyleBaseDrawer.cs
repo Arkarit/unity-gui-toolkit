@@ -200,6 +200,13 @@ namespace GuiToolkit.Style.Editor
 			UiLog.LogInternal(s);
 		}
 
+		/// <summary>
+		/// This drawer measures the same value rows twice with different outcomes - once for the applicable
+		/// ones and once for the unused ones - by flipping ApplicableValueBaseDrawer.DrawCondition. So the
+		/// condition has to be part of the cache key, or the second pass reads the first one's heights.
+		/// </summary>
+		protected override string HeightCacheKeySuffix => ApplicableValueBaseDrawer.DrawCondition.ToString();
+
 		protected override float GetPropertyHeight(SerializedProperty _property)
 		{
 			var val = _property.boxedValue as ApplicableValueBase;

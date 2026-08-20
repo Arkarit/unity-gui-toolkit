@@ -71,6 +71,8 @@ namespace GuiToolkit.Style.Editor
 			if (s_filterString != lastFilterString)
 			{
 				s_filter.Update(s_filterString);
+				// The filter decides which rows are shown at all, so remembered row heights are void.
+				GuiToolkit.Editor.PropertyDrawerView.ClearHeightCache();
 			}
 			s_sortType = (ESortType) EditorGUILayout.EnumPopup("Sort by", s_sortType);
 			s_synchronizeFoldouts = EditorGUILayout.Toggle("Synchronize Foldouts", s_synchronizeFoldouts);
