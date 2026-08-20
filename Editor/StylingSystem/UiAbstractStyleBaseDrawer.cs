@@ -22,12 +22,19 @@ namespace GuiToolkit.Style.Editor
 			if (thisStyle == null)
 				return;
 			
-			UiStyleConfig styleConfig = thisStyle.StyleConfig;
+			// The config this row belongs to, taken from the property rather than from the style.
+			//
+			// UiAbstractStyleBase.m_styleConfig looks like the obvious source and is not: it is set in the
+			// constructor and never maintained, and in the config shipped with the package 64 of 70 styles
+			// have it null (which is why UiAbstractStyleBase.EffectiveStyleConfig exists at all). Anything
+			// that trusts it does nothing at all for those styles - silently, because the config's event
+			// handlers filter on it. The SerializedProperty, by contrast, physically comes from the asset the
+			// style lives in and cannot be stale.
+			var owningConfig = Property.serializedObject.targetObject as UiStyleConfig ?? thisStyle.StyleConfig;
 
-			// An entry either belongs to the config being edited or is inherited from another one. The style
-			// knows which config it lives in, so comparing that against the edited config is the whole test.
+			// So a row is inherited exactly when it belongs to another config than the one being edited.
 			var editedConfig = UiStyleConfigEditor.EditedConfig;
-			bool isInherited = editedConfig != null && styleConfig != null && styleConfig != editedConfig;
+			bool isInherited = owningConfig != null && editedConfig != null && owningConfig != editedConfig;
 
 			if (isInherited)
 				Background(InheritedTint, InheritedTint, -3, 0, 0, -10);
@@ -41,7 +48,7 @@ namespace GuiToolkit.Style.Editor
 				LabelField
 				(
 					isInherited
-						? $"Type: {thisStyle.SupportedComponentType.Name}   -  inherited from '{styleConfig.name}'"
+						? $"Type: {thisStyle.SupportedComponentType.Name}   -  inherited from '{owningConfig.name}'"
 						: $"Type: {thisStyle.SupportedComponentType.Name}",
 					0,
 					EditorStyles.boldLabel
@@ -81,7 +88,7 @@ namespace GuiToolkit.Style.Editor
 						{
 							if (GUILayout.Button("Reset Name"))
 							{
-								UiEventDefinitions.EvSetStyleAlias.InvokeAlways(thisStyle.StyleConfig, thisStyle, null);
+								UiEventDefinitions.EvSetStyleAlias.InvokeAlways(owningConfig, thisStyle, null);
 								dialog.Cancel();
 							}
 							
@@ -91,7 +98,7 @@ namespace GuiToolkit.Style.Editor
 						var newName = EditorInputDialog.Show("Rename", "Please enter new name/path", thisStyle.Alias, additionalContent);
 						if (!string.IsNullOrEmpty(newName))
 						{
-							UiEventDefinitions.EvSetStyleAlias.InvokeAlways(thisStyle.StyleConfig, thisStyle, newName);
+							UiEventDefinitions.EvSetStyleAlias.InvokeAlways(owningConfig, thisStyle, newName);
 						}
 					};
 				}
@@ -109,7 +116,7 @@ namespace GuiToolkit.Style.Editor
 							"Cancel"
 					))
 					{
-						UiEventDefinitions.EvDeleteStyle.InvokeAlways(thisStyle.StyleConfig, thisStyle);
+						UiEventDefinitions.EvDeleteStyle.InvokeAlways(owningConfig, thisStyle);
 						return;
 					}
 				}
@@ -153,9 +160,9 @@ namespace GuiToolkit.Style.Editor
 					if (m_applicableChanged)
 					{
 						InvalidateHeightCache();
-						UiEventDefinitions.EvStyleApplicableChanged.InvokeAlways(thisStyle.StyleConfig, thisStyle);
+						UiEventDefinitions.EvStyleApplicableChanged.InvokeAlways(owningConfig, thisStyle);
 #if UNITY_EDITOR
-						UiStyleConfig.SetDirty(styleConfig);
+						UiStyleConfig.SetDirty(owningConfig);
 #endif
 					}
 				}
