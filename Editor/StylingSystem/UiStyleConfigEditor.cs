@@ -91,22 +91,27 @@ namespace GuiToolkit.Style.Editor
 			if (parent == null || m_thisUiStyleConfig.NumSkins == 0)
 				return;
 
-			var skin = m_thisUiStyleConfig.Skins[0];
+			// The skin the popup above selects, not the first one. Reporting Skins[0] told a reassuring
+			// story about a skin the reader was not looking at, and hid that the SELECTED one inherited
+			// nothing at all - which is where the styles then went missing.
+			var skin = m_thisUiStyleConfig.CurrentSkin ?? m_thisUiStyleConfig.Skins[0];
 			int own = skin.Styles.Count;
 			int effective = skin.EffectiveStyles.Count;
 
 			var source = skin.ParentSkin;
-			var sourceText = source != null
-				? $"'{parent.name}' (skin '{source.Name}')"
-				: $"'{parent.name}' - which has no skin '{skin.EffectiveInheritFromSkinName}', so nothing is inherited";
+			var headline = source != null
+				? $"Skin '{skin.Name}' resolves {effective} styles: {own} of its own, "
+					+ $"{effective - own} inherited from '{parent.name}' (skin '{source.Name}')."
+				: $"Skin '{skin.Name}' resolves {effective} styles, all of its own: '{parent.name}' has no "
+					+ $"skin '{skin.EffectiveInheritFromSkinName}', so this skin inherits nothing. Set "
+					+ $"'Inherits skin from' on it to the skin it should build on.";
 
 			EditorGUILayout.HelpBox
 			(
-				$"Skin '{skin.Name}' resolves {effective} styles: {own} of its own, "
-				+ $"{effective - own} inherited from {sourceText}.\n"
+				headline + "\n"
 				+ "Inherited styles are listed read-only below and can be overridden per skin. "
 				+ "Grey: this config's own. Blue: inherited. Yellow: inherited and overridden here.",
-				MessageType.Info
+				source != null ? MessageType.Info : MessageType.Warning
 			);
 		}
 

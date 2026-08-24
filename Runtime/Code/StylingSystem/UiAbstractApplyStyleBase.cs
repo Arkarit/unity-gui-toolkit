@@ -280,6 +280,25 @@ namespace GuiToolkit.Style
 		}
 
 		/// <summary>
+		/// The skin the lookup actually goes through, which may be an ancestor's: a fixed skin this config
+		/// does not declare resolves through the parent AS A WHOLE. Mirrors FindStyle(), and differs from
+		/// OwnSkin in exactly that case - which is the case where nothing here can be edited.
+		/// </summary>
+		public UiSkin ResolvingSkin
+		{
+			get
+			{
+				var styleConfig = StyleConfig;
+				if (styleConfig == null)
+					return null;
+
+				return SkinIsFixed
+					? styleConfig.GetSkinByName(FixedSkinName)
+					: styleConfig.CurrentSkin;
+			}
+		}
+
+		/// <summary>
 		/// Makes sure the style this applier resolves belongs to its own config, copying it out of the
 		/// parent if it does not, and re-resolves so Style points at that copy. Returns the style to write
 		/// to, or null if there is none at all.

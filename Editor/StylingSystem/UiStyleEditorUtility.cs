@@ -93,38 +93,105 @@ namespace GuiToolkit.Style.Editor
 			_applier.SetSkinListeners(true);
 
 			var config = _applier.StyleConfig;
-			var skin = _applier.OwnSkin;
+			var ownSkin = _applier.OwnSkin;
+			var resolvingSkin = _applier.ResolvingSkin;
+			string requestedSkinName = _applier.SkinIsFixed ? _applier.FixedSkinName : resolvingSkin?.Name;
 
-			// The rows inside cannot tell whose style this is from their own property: the inline display
-			// wraps it in a throwaway helper object, so the property names that instead of a config.
-			using (UiStyleRowContext.Use(config, skin))
+			// A skin the config does not declare itself resolves through an ancestor as a whole, so there is
+			// no own skin to copy into and no override to offer - only something to say.
+			bool skinIsForeign = ownSkin == null && resolvingSkin != null;
+
+			// The row inside cannot tell whose style this is from its own property: the inline display wraps
+			// it in a throwaway helper object, so the property names that instead of a config.
+			using (UiStyleRowContext.Use(config, ownSkin))
 			{
 				bool isInherited = UiStyleRowContext.IsInherited(_style);
 				var owner = UiStyleRowContext.OwnerOf(_style);
 
-				EditorGUILayout.LabelField(isInherited
-					? $"Currently used Style (inherited from '{owner.name}', read-only):"
-					: "Currently used Style:");
+				EditorGUILayout.LabelField
+				(
+					isInherited ? $"Currently used Style (inherited from '{owner.name}', read-only):"
+					: skinIsForeign && _style != null ? $"Currently used Style (from '{resolvingSkin.StyleConfig.name}', read-only):"
+					: "Currently used Style:"
+				);
 
-				using (new EditorGUI.DisabledScope(isInherited))
+				if (_style == null)
 				{
-					EditorDisplayHelper.Draw(_style, "No Style assigned yet");
+					// A style that does not resolve is not the same as none being assigned, and the generic
+					// "nothing here" text made the two look alike - the state that cost the most time to
+					// understand of all of them.
+					var explanation = UiStyleDiagnostics.ExplainMissingStyle
+					(
+						config,
+						resolvingSkin,
+						requestedSkinName,
+						_applier.Name,
+						_applier.SupportedComponentType?.Name
+					);
+
+					if (string.IsNullOrEmpty(explanation))
+						EditorDisplayHelper.Draw(null, "No Style assigned yet");
+					else
+						EditorGUILayout.HelpBox(explanation, MessageType.Warning);
 				}
-
-				if (isInherited && config != null)
+				else
 				{
-					if (GUILayout.Button(new GUIContent($"Override in '{config.name}'",
-						    "Copy this inherited style into this applier's own config, so its values can be "
-						    + "changed here. It stops following the config it came from.")))
+					// Not disabled from out here when the style is merely inherited: the row greys out its
+					// own VALUES and keeps its buttons live, and an outer scope would grey out the override
+					// button along with them. A foreign skin is the one case with nothing live to keep.
+					using (new EditorGUI.DisabledScope(skinIsForeign))
 					{
-						var materialized = _applier.MaterializeStyleForOverride();
-						if (materialized != null)
-							UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+						EditorDisplayHelper.Draw(_style, "No Style assigned yet");
+					}
+
+					if (skinIsForeign)
+					{
+						EditorGUILayout.HelpBox
+						(
+							UiStyleDiagnostics.ExplainForeignSkin(config, requestedSkinName, resolvingSkin),
+							MessageType.Warning
+						);
 					}
 				}
 			}
 
 			_applier.SetSkinListeners(!_applier.SkinIsFixed);
+		}
+
+		/// <summary>
+		/// What the Style popup shows as its current value.
+		///
+		/// The resolved style's alias when there is one. Otherwise the alias belonging to the STORED name,
+		/// because a style the current skin cannot resolve is not unassigned - the name is untouched and
+		/// comes back the moment the skin can resolve it again. Reading the display value off the resolved
+		/// style left the popup blank in exactly that situation, which reads as "nothing assigned".
+		///
+		/// A name the list does not have is added as its own entry, to both lists at the same index so that
+		/// index i keeps meaning the same style in both. Picking it is a no-op: it IS the current value, so
+		/// the popup reports no change. It is marked as missing only when nothing resolved - the list is
+		/// built from the FIRST skin, so a style that exists only in another skin is present, not missing,
+		/// and would otherwise be slandered for being unusual.
+		/// </summary>
+		public static string ResolveDisplayAlias
+		(
+			string _storedName,
+			UiAbstractStyleBase _resolvedStyle,
+			List<string> _styleNames,
+			List<string> _styleAliases
+		)
+		{
+			string name = _resolvedStyle != null ? _resolvedStyle.Name : _storedName;
+			if (string.IsNullOrEmpty(name))
+				return string.Empty;
+
+			int index = _styleNames.IndexOf(name);
+			if (index >= 0)
+				return _styleAliases[index];
+
+			string entry = _resolvedStyle != null ? _resolvedStyle.Alias : $"{name}   (missing)";
+			_styleNames.Insert(0, name);
+			_styleAliases.Insert(0, entry);
+			return entry;
 		}
 
 		// both _name and _copyFromName have to be the actual names and not aliases
