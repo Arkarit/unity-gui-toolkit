@@ -17,6 +17,66 @@ namespace GuiToolkit.Style
 			return Animator.StringToHash(GetName(_supportedMonoBehaviourType, _name));
 		}
 
+		/// <summary>
+		/// An independent copy of a style, belonging to another config. Used to materialise an inherited
+		/// style before writing to it: without the copy the write would land in the parent asset, and for
+		/// the config shipped inside the package that save is discarded without a word.
+		///
+		/// Values are copied raw, so an asset reference stays a reference to the same asset - a sprite is
+		/// shared, not duplicated. The generated style classes all take (config, name) in their
+		/// constructor, which is what makes one implementation enough for all of them.
+		/// </summary>
+		public static UiAbstractStyleBase CloneStyle( UiAbstractStyleBase _source, UiStyleConfig _targetConfig )
+		{
+			if (_source == null)
+				return null;
+
+			UiAbstractStyleBase clone;
+			try
+			{
+				clone = (UiAbstractStyleBase) Activator.CreateInstance(_source.GetType(), _targetConfig, _source.Name);
+			}
+			catch (Exception ex)
+			{
+				UiLog.LogError($"Cannot copy style '{_source.Name}' of type '{_source.GetType().Name}': its " +
+				               $"constructor does not take (UiStyleConfig, string). {ex.Message}");
+				return null;
+			}
+
+			// Alias falls back to Name when unset, so copying it unconditionally would turn the name into an
+			// explicit alias. Only a real alias is worth carrying over.
+			if (_source.Alias != _source.Name)
+				clone.Alias = _source.Alias;
+
+			// The values come from a deep copy of the source, not straight across. A value that is a plain
+			// class - RectOffset, in practice - would otherwise be SHARED with the style it was copied from,
+			// so editing the override's padding would edit the original's; and if the original lives in the
+			// package, that write is discarded on save after having already changed what is on screen.
+			//
+			// The whole style is what gets deep-copied, deliberately: a bare RectOffset cannot survive that
+			// round trip on its own (it comes back zeroed), a style holding one can.
+			var from = _source.DeepClone().Values;
+			var to = clone.Values;
+			if (from.Length != to.Length)
+			{
+				UiLog.LogError($"Cannot copy style '{_source.Name}': the copy has {to.Length} values, the " +
+				               $"original {from.Length}.");
+				return null;
+			}
+
+
+			for (int i = 0; i < from.Length; i++)
+			{
+				if (from[i] == null || to[i] == null)
+					continue;
+
+				to[i].RawValueObj = from[i].RawValueObj;
+				to[i].IsApplicable = from[i].IsApplicable;
+			}
+
+			return clone;
+		}
+
 		public static void SynchronizeApplicableness( UiAbstractStyleBase _from, UiAbstractStyleBase _to )
 		{
 			if (_from == null

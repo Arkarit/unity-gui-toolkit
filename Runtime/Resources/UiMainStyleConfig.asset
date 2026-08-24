@@ -88,6 +88,8 @@ MonoBehaviour:
     - rid: 8192552905601974753
     - rid: 7311505549952025144
     m_aspectRatioGreaterEqual: 0
+    m_inheritFromSkinName: 
+    m_inheritFromSameConfig: 0
   - m_config: {fileID: 11400000}
     m_name: Light
     m_alias: 
@@ -163,7 +165,10 @@ MonoBehaviour:
     - rid: 8192552905601974754
     - rid: 7311505549952025145
     m_aspectRatioGreaterEqual: 0
+    m_inheritFromSkinName: 
+    m_inheritFromSameConfig: 0
   m_currentSkinIdx: 0
+  m_parent: {fileID: 0}
   references:
     version: 2
     RefIds:
@@ -1330,7 +1335,7 @@ MonoBehaviour:
     - rid: 107647864378229378
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: {fileID: 0}
     - rid: 107647864378229379
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
@@ -7172,7 +7177,7 @@ MonoBehaviour:
     - rid: 107648080256959278
       type: {class: UiStyleImage/ApplicableValueSprite, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: {fileID: 0}
     - rid: 107648080256959279
       type: {class: UiStyleImage/ApplicableValueColor, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}

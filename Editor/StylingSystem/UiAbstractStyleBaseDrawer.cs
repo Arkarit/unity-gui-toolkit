@@ -21,16 +21,79 @@ namespace GuiToolkit.Style.Editor
 			if (thisStyle == null)
 				return;
 			
-			UiStyleConfig styleConfig = thisStyle.StyleConfig;
+			// Which config holds this style, and is it the one being edited?
+			//
+			// Both come from the context the surrounding editor set, not from this property and not from
+			// UiAbstractStyleBase.m_styleConfig. That back-reference looks like the obvious source and is
+			// not: it is set in the constructor and never maintained, and in the config shipped with the
+			// package 64 of 70 styles have it null - which is why UiAbstractStyleBase.EffectiveStyleConfig
+			// exists at all, and why anything that trusts it silently does nothing for those styles.
+			var owningConfig = UiStyleRowContext.OwnerOf(thisStyle)
+			                ?? Property.serializedObject.targetObject as UiStyleConfig
+			                ?? thisStyle.StyleConfig;
 
-			Background(-3, 0, 0, -10);
+			bool isInherited = UiStyleRowContext.IsInherited(thisStyle);
+
+			// Where it comes from, phrased so the two cases cannot be confused: another config is named by
+			// its asset, a sibling skin of this config by its skin name.
+			string inheritedFrom = SourceName(UiStyleRowContext.SkinOwnerOf(thisStyle));
+
+			// Three states worth telling apart at a glance: plain grey for a style this config simply has,
+			// blue for one it inherits, yellow for one it inherits AND overrides - the last being the only
+			// one that carries a decision, and the only one that can drift from what it came from.
+			bool isOverride = UiStyleRowContext.IsOverride(thisStyle);
+
+			if (isInherited)
+				Background(InheritedTint, InheritedTint, -3, 0, 0, -10);
+			else if (isOverride)
+				Background(OverrideTint, OverrideTint, -3, 0, 0, -10);
+			else
+				Background(-3, 0, 0, -10);
 			Space(3);
 			Horizontal(SingleLineHeight, () =>
 			{
 				LabelField("   " + thisStyle.Alias, 0, EditorStyles.boldLabel);
 				IncreaseX(EditorGUIUtility.labelWidth + 18);
-				LabelField($"Type: {thisStyle.SupportedComponentType.Name}", 0, EditorStyles.boldLabel);
-				IncreaseX(-170);
+				LabelField
+				(
+					isInherited
+						? $"T: {thisStyle.SupportedComponentType.Name}  inh. from {inheritedFrom}"
+						: isOverride
+							? $"T: {thisStyle.SupportedComponentType.Name}  overr. {OverriddenSourceName(thisStyle)}"
+							: $"T: {thisStyle.SupportedComponentType.Name}",
+					0,
+					EditorStyles.boldLabel
+				);
+				// The header text runs underneath these buttons, so they are kept as narrow as they can be
+				// read: an abbreviated label with the sentence in its tooltip beats a wide button that
+				// covers the name of the config a row comes from.
+				bool showRevert = isOverride;
+				IncreaseX(showRevert ? -215 : -160);
+
+				if (isInherited)
+				{
+					// Right-aligned in the same column as Del, so the rows line up - which also gives
+					// this button the same 20 px to the right edge that every other one has.
+					IncreaseX(-75);
+					if (Button(new GUIContent("Overr.", "Copy this inherited style into this config, so its "
+						+ "values can be changed here. It stops following the config it came from."), 55))
+					{
+						OverrideInherited(thisStyle);
+					}
+
+					return;
+				}
+
+				if (showRevert)
+				{
+					if (Button(new GUIContent("Revert", "Drop this config's own copy and inherit the style "
+						+ "again. The values set here are lost."), 50))
+					{
+						RevertToInherited(thisStyle);
+					}
+
+					IncreaseX(55);
+				}
 
 				if (Button("Find", 35))
 				{
@@ -47,7 +110,7 @@ namespace GuiToolkit.Style.Editor
 						{
 							if (GUILayout.Button("Reset Name"))
 							{
-								UiEventDefinitions.EvSetStyleAlias.InvokeAlways(thisStyle.StyleConfig, thisStyle, null);
+								UiEventDefinitions.EvSetStyleAlias.InvokeAlways(owningConfig, thisStyle, null);
 								dialog.Cancel();
 							}
 							
@@ -57,14 +120,15 @@ namespace GuiToolkit.Style.Editor
 						var newName = EditorInputDialog.Show("Rename", "Please enter new name/path", thisStyle.Alias, additionalContent);
 						if (!string.IsNullOrEmpty(newName))
 						{
-							UiEventDefinitions.EvSetStyleAlias.InvokeAlways(thisStyle.StyleConfig, thisStyle, newName);
+							UiEventDefinitions.EvSetStyleAlias.InvokeAlways(owningConfig, thisStyle, newName);
 						}
 					};
 				}
 				
 				IncreaseX(60);
 				
-				if (Button("Delete", 50))
+				if (Button(new GUIContent("Del", "Delete this style from the config, from every skin and "
+					+ "from every applier that uses it."), 40))
 				{
 					if (EditorUtility.DisplayDialog
 					(
@@ -75,7 +139,7 @@ namespace GuiToolkit.Style.Editor
 							"Cancel"
 					))
 					{
-						UiEventDefinitions.EvDeleteStyle.InvokeAlways(thisStyle.StyleConfig, thisStyle);
+						UiEventDefinitions.EvDeleteStyle.InvokeAlways(owningConfig, thisStyle);
 						return;
 					}
 				}
@@ -90,6 +154,11 @@ namespace GuiToolkit.Style.Editor
 
 				EditorGUI.BeginChangeCheck();
 				
+				// Values of an inherited entry are shown, not edited: the instance behind them belongs to
+				// another asset, so a change would edit that config - and for the one inside the package it
+				// would be dropped on save without a word. "Override here" is the way in.
+				using var readOnly = new EditorGUI.DisabledScope(isInherited);
+
 				var oldVal = ApplicableValueBaseDrawer.DrawCondition;
 				ApplicableValueBaseDrawer.DrawCondition = ApplicableValueBaseDrawer.EDrawCondition.OnlyEnabled;
 				DrawProperties();
@@ -114,15 +183,103 @@ namespace GuiToolkit.Style.Editor
 					if (m_applicableChanged)
 					{
 						InvalidateHeightCache();
-						UiEventDefinitions.EvStyleApplicableChanged.InvokeAlways(thisStyle.StyleConfig, thisStyle);
+						UiEventDefinitions.EvStyleApplicableChanged.InvokeAlways(owningConfig, thisStyle);
 #if UNITY_EDITOR
-						UiStyleConfig.SetDirty(styleConfig);
+						UiStyleConfig.SetDirty(owningConfig);
 #endif
 					}
 				}
 			});
 
 			Space(EndGap);
+		}
+
+		/// <summary>Subtle tint that sets an inherited entry apart without shouting.</summary>
+		private static readonly Color InheritedTint = new Color(0.35f, 0.55f, 0.75f, 0.10f);
+
+		/// <summary>And one for an entry that overrides what it inherits. Slightly stronger, because yellow
+		/// reads weaker than blue against the grey behind it.</summary>
+		private static readonly Color OverrideTint = new Color(0.85f, 0.70f, 0.20f, 0.13f);
+
+		/// <summary>
+		/// The skin of the edited config this row is shown under, from the context the surrounding editor
+		/// set. Own by definition: materialising into a skin that is itself inherited would write into the
+		/// parent asset, the thing all of this prevents.
+		/// </summary>
+		private static UiSkin EditedSkinOfThisRow() => UiStyleRowContext.Skin;
+
+		/// <summary>
+		/// Where an overriding entry diverges from - not necessarily the immediate parent.
+		/// </summary>
+		private static string OverriddenSourceName( UiAbstractStyleBase _style )
+			=> SourceName(UiStyleRowContext.Skin?.ParentSkin?.SkinOwning(_style.Key));
+
+		/// <summary>
+		/// How to refer to the skin a style comes from. A different config is named by the asset, because
+		/// that is what has to be opened to change it; a sibling skin of the same config by its own name,
+		/// because naming the config would say nothing there.
+		/// </summary>
+		private static string SourceName( UiSkin _skin )
+		{
+			if (_skin == null)
+				return "?";
+
+			return _skin.StyleConfig != UiStyleRowContext.Config
+				? $"'{_skin.StyleConfig.name}'"
+				: $"skin '{_skin.Name}'";
+		}
+
+		/// <summary>
+		/// Copies an inherited style into the edited config so it can be changed there. Deferred, because it
+		/// adds to the very list that is being drawn at that moment.
+		/// </summary>
+		private void OverrideInherited( UiAbstractStyleBase _style )
+		{
+			var skin = EditedSkinOfThisRow();
+			int key = _style.Key;
+			if (skin == null)
+			{
+				UiLog.LogError($"Cannot override '{_style.Name}': the edited config does not declare the skin " +
+				               "this style is shown under. Add that skin to it first.");
+				return;
+			}
+
+			EditorApplication.delayCall += () =>
+			{
+				skin.MaterializeStyle(key);
+				PropertyDrawerView.ClearHeightCache();
+				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+			};
+		}
+
+		/// <summary>
+		/// Drops the edited config's own copy so the style is inherited again. Deferred for the same reason.
+		/// </summary>
+		private void RevertToInherited( UiAbstractStyleBase _style )
+		{
+			var skin = EditedSkinOfThisRow();
+			int key = _style.Key;
+			string alias = _style.Alias;
+			if (skin == null)
+				return;
+
+			if (!EditorUtility.DisplayDialog
+			(
+				"Revert to inherited?",
+				$"'{alias}' loses the values set here and follows the config it is inherited from again.",
+				"Revert",
+				"Cancel"
+			))
+			{
+				return;
+			}
+
+			EditorApplication.delayCall += () =>
+			{
+				skin.RevertStyleToInherited(key);
+				PropertyDrawerView.ClearHeightCache();
+				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+			};
 		}
 
 		private static void FindAppliers(UiAbstractStyleBase style)

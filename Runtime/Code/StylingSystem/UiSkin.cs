@@ -21,6 +21,18 @@ namespace GuiToolkit.Style
 		[NonReorderable][SerializeReference] private List<UiAbstractStyleBase> m_styles = new();
 		[FormerlySerializedAs("m_aspectRatioGE")] [SerializeField] private float m_aspectRatioGreaterEqual = 0;
 
+		/// <summary>
+		/// Which skin of the parent config this one builds on. Empty means "the one with the same name",
+		/// which is what matches most of the time and needs saying nowhere.
+		///
+		/// It needs saying when the names differ, and that is the normal case for a project's own skin: a
+		/// client config with skins Default and BOTW inherits from a package config with Default and Light,
+		/// so BOTW would find no counterpart and inherit nothing at all. Naming Default here lets it build on
+		/// the package's Default like any other skin.
+		/// </summary>
+		[SerializeField] private string m_inheritFromSkinName;
+		[SerializeField] private bool m_inheritFromSameConfig;
+
 
 		private Dictionary<int, UiAbstractStyleBase> m_styleByKey;
 		// Shape of the style list the lookup was built from - see BuildDictionaryIfNecessary.
@@ -54,6 +66,111 @@ namespace GuiToolkit.Style
 
 		public List<UiAbstractStyleBase> Styles => m_styles;
 		public UiStyleConfig StyleConfig => m_config;
+
+		/// <summary>
+		/// Which skin of the parent this one inherits from. Empty (the default) means the same name.
+		/// </summary>
+		public string InheritFromSkinName
+		{
+			get => m_inheritFromSkinName;
+			set
+			{
+				var wanted = string.IsNullOrWhiteSpace(value) ? null : value;
+				if (m_inheritFromSkinName == wanted)
+					return;
+
+				m_inheritFromSkinName = wanted;
+				InvalidateStyleLookup();
+#if UNITY_EDITOR
+				if (m_config != null)
+					EditorGeneralUtility.SetDirty(m_config);
+#endif
+			}
+		}
+
+		/// <summary>
+		/// Whether the skin named above is one of THIS config's, rather than one of the parent's.
+		///
+		/// A skin is often a variant of another skin next to it, not of anything in the parent: measured on
+		/// the client, its BOTW skin shares 50 of 80 styles with its own Default and only 44 with the
+		/// package's - and the two own skins hold exactly the same set of styles, which the package's do not.
+		/// Overrides against the sibling then also mean what they say: "differs from our own look".
+		///
+		/// Stored as its own flag rather than guessed from the name, because a name can exist on both sides
+		/// and guessing would take the choice away.
+		/// </summary>
+		public bool InheritFromSameConfig
+		{
+			get => m_inheritFromSameConfig;
+			set
+			{
+				if (m_inheritFromSameConfig == value)
+					return;
+
+				m_inheritFromSameConfig = value;
+				InvalidateStyleLookup();
+#if UNITY_EDITOR
+				if (m_config != null)
+					EditorGeneralUtility.SetDirty(m_config);
+#endif
+			}
+		}
+
+		/// <summary>
+		/// The name this skin looks for in the parent - its own unless told otherwise.
+		/// </summary>
+		public string EffectiveInheritFromSkinName =>
+			string.IsNullOrEmpty(m_inheritFromSkinName) ? m_name : m_inheritFromSkinName;
+
+		/// <summary>
+		/// The skin this one builds on: one of this config's own when told so, one of the parent's otherwise.
+		/// Null when there is nothing of that name.
+		///
+		/// Resolving one hop at a time is what lets every level of a chain map to a different name - and now
+		/// also to a different config, since a hop may stay inside this one.
+		/// </summary>
+		public UiSkin ParentSkin
+		{
+			get
+			{
+				if (m_config == null)
+					return null;
+
+				if (m_inheritFromSameConfig)
+				{
+					// No implicit same-name fallback here: within one config that would mean the skin builds
+					// on itself, which is the one thing it cannot do.
+					if (string.IsNullOrEmpty(m_inheritFromSkinName) || m_inheritFromSkinName == m_name)
+						return null;
+
+					return m_config.GetOwnSkinByNameOrAlias(m_inheritFromSkinName, false);
+				}
+
+				return m_config.Parent?.GetOwnSkinByNameOrAlias(EffectiveInheritFromSkinName, false);
+			}
+		}
+
+		/// <summary>
+		/// Whether building on that skin would close a circle - which the resolution survives (every walk is
+		/// depth-capped) but which makes a style resolve from somewhere nobody intended. Asked by the editor
+		/// so the choice is not offered in the first place.
+		/// </summary>
+		public bool WouldInheritingFromCreateACycle( UiSkin _candidate )
+		{
+			if (_candidate == null)
+				return false;
+
+			if (_candidate == this)
+				return true;
+
+			foreach (var skin in _candidate.SelfAndInheritedSkins())
+			{
+				if (skin == this)
+					return true;
+			}
+
+			return false;
+		}
 		public bool IsAspectRatioDependent => m_config is UiAspectRatioDependentStyleConfig;
 		public float AspectRatioGreaterEqual => m_aspectRatioGreaterEqual;
 
@@ -81,7 +198,183 @@ namespace GuiToolkit.Style
 			return (CT) StyleByName<T>(_name);
 		}
 
-		public UiAbstractStyleBase StyleByKey(int _key)
+		/// <summary>
+		/// The style behind this key: this skin's own, or, failing that, the one inherited from the
+		/// same-named skin of an ancestor config. This is the single place where a style is resolved at
+		/// runtime, which is what makes inheritance cheap - appliers store a name and a key, never a
+		/// reference, so nothing serialized has to change for a lookup to reach further.
+		/// </summary>
+		public UiAbstractStyleBase StyleByKey(int _key) => StyleByKey(_key, 0);
+
+		private UiAbstractStyleBase StyleByKey(int _key, int _depth)
+		{
+			var own = OwnStyleByKey(_key);
+			if (own != null)
+				return own;
+
+			if (_depth + 1 >= UiStyleConfig.MaxInheritanceDepth)
+			{
+				UiLog.LogErrorOnce($"Skin '{m_name}' inherits more than {UiStyleConfig.MaxInheritanceDepth} " +
+				                   "levels deep, or the chain forms a cycle; anything beyond that is ignored.");
+				return null;
+			}
+
+			return ParentSkin?.StyleByKey(_key, _depth + 1);
+		}
+
+		/// <summary>
+		/// Whether this skin holds the style behind this key itself, as opposed to inheriting it. The
+		/// question to ask before writing: an inherited style belongs to another asset.
+		/// </summary>
+		public bool OwnsStyle(int _key) => OwnStyleByKey(_key) != null;
+
+		/// <summary>
+		/// Copy-on-write: makes an inherited style this skin's own, so it can be written to.
+		///
+		/// A resolved inherited style IS the parent's instance - styles are [SerializeReference] objects
+		/// living inside their config asset, and resolution hands out the real one. Writing to it therefore
+		/// edits the parent, and if the parent is the config that ships with the package, the save is
+		/// silently dropped (see SkipSavingInPackageFolder): the change appears to work and is gone after
+		/// the next reload. Every write path has to come through here first.
+		///
+		/// Returns the style to write to: the existing own one, the fresh copy, or - if there is nothing to
+		/// materialise or nowhere to put it - the inherited one unchanged, so a caller never gets null
+		/// where it previously had a style.
+		/// </summary>
+		public UiAbstractStyleBase MaterializeStyle(int _key)
+		{
+			var own = OwnStyleByKey(_key);
+			if (own != null)
+				return own;
+
+			if (m_config == null)
+				return null;
+
+			var inherited = InheritedStyleByKey(_key);
+			if (inherited == null)
+				return null;
+
+#if UNITY_EDITOR
+			if (m_config.IsPackageOwned)
+			{
+				UiLog.LogError($"Cannot override style '{inherited.Name}' in '{m_config.name}': that config " +
+				               "ships inside the package and is read-only, so the override would be lost on " +
+				               "save. Clone it into the project first and inherit from the package copy.");
+				return inherited;
+			}
+#endif
+
+			var clone = UiStyleUtility.CloneStyle(inherited, m_config);
+			if (clone == null)
+				return inherited;
+
+			m_styles.Add(clone);
+			InvalidateStyleLookup();
+
+#if UNITY_EDITOR
+			EditorGeneralUtility.SetDirty(m_config);
+#endif
+			return clone;
+		}
+
+		/// <summary>
+		/// What this skin would inherit for this key, ignoring whatever it owns itself. Null when no
+		/// ancestor offers it - which is what tells an override apart from a style of one's own.
+		/// </summary>
+		public UiAbstractStyleBase InheritedStyleByKey(int _key) => ParentSkin?.StyleByKey(_key);
+
+		/// <summary>
+		/// The opposite of MaterializeStyle: drops this skin's own copy so the style is inherited again.
+		///
+		/// Refuses when there is nothing to fall back to. Removing the only copy of a style is a deletion,
+		/// not a revert, and it would silently take the style out of the config - DeleteStyle is the way to
+		/// say that on purpose.
+		///
+		/// Returns the style the skin resolves afterwards: the inherited one on success, the own one when
+		/// the revert was refused.
+		/// </summary>
+		public UiAbstractStyleBase RevertStyleToInherited(int _key)
+		{
+			var inherited = InheritedStyleByKey(_key);
+			var own = OwnStyleByKey(_key);
+
+			if (own == null)
+				return inherited;   // already inherited (or unknown), nothing to drop
+
+			if (inherited == null)
+			{
+				UiLog.LogError($"Style '{own.Name}' is not inherited from anywhere, so it cannot be reverted - " +
+				               "dropping it would remove it from the config altogether. Delete it if that is " +
+				               "what you mean.");
+				return own;
+			}
+
+#if UNITY_EDITOR
+			if (m_config.IsPackageOwned)
+			{
+				UiLog.LogError($"Cannot change '{m_config.name}': that config ships inside the package and is " +
+				               "read-only, so the change would be lost on save.");
+				return own;
+			}
+#endif
+
+			m_styles.Remove(own);
+			InvalidateStyleLookup();
+
+#if UNITY_EDITOR
+			EditorGeneralUtility.SetDirty(m_config);
+#endif
+			return inherited;
+		}
+
+		/// <summary>
+		/// The config that actually holds the style behind this key - this skin's own config, or the
+		/// ancestor it is inherited from. Null if nothing resolves. What the editor needs in order to say
+		/// where a style comes from.
+		/// </summary>
+		public UiStyleConfig ConfigOwning(int _key) => SkinOwning(_key)?.StyleConfig;
+
+		/// <summary>
+		/// The skin that actually holds the style behind this key - this one or the nearest it inherits from.
+		///
+		/// The skin, not just its config: since a skin may build on a sibling, naming the config no longer
+		/// says where a style comes from, and "inherited" can no longer be decided by comparing configs.
+		/// </summary>
+		public UiSkin SkinOwning(int _key)
+		{
+			var skin = this;
+			for (int depth = 0; skin != null && depth < UiStyleConfig.MaxInheritanceDepth; depth++)
+			{
+				if (skin.OwnStyleByKey(_key) != null)
+					return skin;
+
+				skin = skin.ParentSkin;
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// This skin and the ones it inherits from, nearest first. Walking skins rather than configs is what
+		/// makes a per-level name mapping work at all.
+		/// </summary>
+		public List<UiSkin> SelfAndInheritedSkins()
+		{
+			var result = new List<UiSkin>();
+			var skin = this;
+			for (int depth = 0; skin != null && depth < UiStyleConfig.MaxInheritanceDepth; depth++)
+			{
+				result.Add(skin);
+				skin = skin.ParentSkin;
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// The style behind this key in THIS skin, ignoring any parent config.
+		/// </summary>
+		internal UiAbstractStyleBase OwnStyleByKey(int _key)
 		{
 			BuildDictionaryIfNecessary();
 
@@ -91,6 +384,38 @@ namespace GuiToolkit.Style
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Everything this skin resolves to: its own styles plus those inherited from same-named skins up
+		/// the chain, with the nearest one winning. Built on demand rather than cached, because it has to
+		/// follow changes in every config it draws from, and it is asked for by the editor and by a skin
+		/// change - not per frame. Do not put it on a hot path without measuring first.
+		/// </summary>
+		public List<UiAbstractStyleBase> EffectiveStyles
+		{
+			get
+			{
+				var result = new List<UiAbstractStyleBase>(m_styles);
+				if (m_config == null)
+					return result;
+
+				var seen = new HashSet<int>();
+				foreach (var style in result)
+					seen.Add(style.Key);
+
+				var chain = SelfAndInheritedSkins();
+				for (int i = 1; i < chain.Count; i++)
+				{
+					foreach (var style in chain[i].Styles)
+					{
+						if (seen.Add(style.Key))
+							result.Add(style);
+					}
+				}
+
+				return result;
+			}
 		}
 
 		public void DeleteStyle(UiAbstractStyleBase _style)

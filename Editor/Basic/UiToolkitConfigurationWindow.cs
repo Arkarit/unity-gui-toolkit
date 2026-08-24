@@ -210,13 +210,92 @@ namespace GuiToolkit.Editor
 			{
 				EditorGUILayout.BeginHorizontal();
 				EditorGUILayout.PropertyField(styleConfigProp);
-				if (GUILayout.Button("Clone", GUILayout.Width(100)))
+
+				// Two ways to get a config of your own, and they are not equally good - which is why the
+				// recommended one is offered first and the other one keeps its old place.
+				if (GUILayout.Button(new GUIContent("Inherit", "Creates a project config that BUILDS ON this "
+					    + "one: same skins, no styles of its own yet. Only what you override is stored here, "
+					    + "everything else keeps following the library as it changes.\n\nThe better default."),
+					    GUILayout.Width(100)))
+				{
+					InheritStyleConfig(ref currentStyleConfig, _memberName, _name);
+				}
+
+				if (GUILayout.Button(new GUIContent("Clone", "Creates a project config that is a FULL COPY of "
+					    + "this one. It stops following the library the moment it is made, and nothing says "
+					    + "later which of its values were ever decided on purpose.\n\nUse 'Inherit' unless "
+					    + "you need the copy."), GUILayout.Width(100)))
+				{
 					CloneStyleConfig(ref currentStyleConfig, _memberName, _name);
+				}
+
 				EditorGUILayout.EndHorizontal();
 				return;
 			}
 
 			EditorGUILayout.PropertyField(styleConfigProp);
+			DrawStyleConfigParent(currentStyleConfig);
+		}
+
+		/// <summary>
+		/// Which config the project's own style config builds on.
+		///
+		/// It belongs in this window because this is where a project's styling is set up, and where "Clone"
+		/// used to be the only answer to "I need my own". A clone carries a full copy of everything and stops
+		/// following the package the moment it is made; naming a parent stores only what actually differs.
+		///
+		/// Not offered for the config that ships inside the package: that one is the root of every chain, and
+		/// writing to it is dropped on save anyway.
+		/// </summary>
+		private void DrawStyleConfigParent( UiStyleConfig _config )
+		{
+			if (_config == null)
+				return;
+
+			// Per repaint, like the SerializedObject for this window itself - the window is not a hot path,
+			// and a cached one would have to be invalidated whenever the config field above changes.
+			var serializedConfig = new SerializedObject(_config);
+			var parentProp = serializedConfig.FindProperty("m_parent");
+			if (parentProp == null)
+				return;
+
+			EditorGUI.indentLevel++;
+
+			EditorGUI.BeginChangeCheck();
+			EditorGUILayout.PropertyField
+			(
+				parentProp,
+				new GUIContent
+				(
+					"Inherits from",
+					"Another style config this one builds on. Only what is overridden here has to be stored;\n"
+					+ "everything else is resolved through that config, matched by skin name and style name.\n"
+					+ "Leave empty for a config that stands alone."
+				)
+			);
+
+			if (EditorGUI.EndChangeCheck())
+			{
+				if (parentProp.objectReferenceValue == _config)
+				{
+					UiLog.LogError($"A style config cannot inherit from itself ('{_config.name}').");
+					parentProp.objectReferenceValue = null;
+				}
+
+				serializedConfig.ApplyModifiedProperties();
+				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+			}
+
+			var parent = parentProp.objectReferenceValue as UiStyleConfig;
+			EditorGUILayout.LabelField
+			(
+				parent == null
+					? "Stands alone - every style it uses has to exist in it."
+					: $"Only what differs from '{parent.name}' is stored here; the rest follows that config.",
+				EditorStyles.miniLabel
+			);
+
+			EditorGUI.indentLevel--;
 		}
 
 		private void CloneStyleConfig<T>(ref T currentStyleConfig, string _memberName, string _name) where T : UiStyleConfig
@@ -240,6 +319,33 @@ namespace GuiToolkit.Editor
 			styleConfigProp.objectReferenceValue = currentStyleConfig;
 			m_serializedSettingsObject.ApplyModifiedProperties();
 			AssetDatabase.SaveAssets();
+		}
+
+		/// <summary>
+		/// Creates a project config that builds on the package's instead of copying it.
+		///
+		/// Done by cloning and then throwing every style away, which sounds roundabout and is the point: the
+		/// clone gets the skins with their names and settings, and the repaired back-references, all of which
+		/// have to be right. What is left is a config with the same skins and nothing of its own - so it
+		/// resolves exactly like the package config until something is overridden.
+		/// </summary>
+		private void InheritStyleConfig<T>(ref T currentStyleConfig, string _memberName, string _name) where T : UiStyleConfig
+		{
+			var parent = currentStyleConfig;
+
+			CloneStyleConfig(ref currentStyleConfig, _memberName, _name);
+
+			// The clone was refused or cancelled - then there is nothing to turn into a child.
+			if (currentStyleConfig == null || currentStyleConfig == parent)
+				return;
+
+			foreach (var skin in currentStyleConfig.Skins)
+				skin.Styles.Clear();
+
+			currentStyleConfig.Parent = parent;
+
+			EditorGeneralUtility.SetDirty(currentStyleConfig);
+			AssetDatabase.SaveAssetIfDirty(currentStyleConfig);
 		}
 
 		private bool IsDefaultConfig<T>(T currentStyleConfig) where T : UiStyleConfig

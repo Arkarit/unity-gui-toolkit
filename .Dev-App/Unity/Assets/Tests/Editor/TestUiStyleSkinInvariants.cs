@@ -8,13 +8,16 @@ using UnityEngine.UI;
 namespace GuiToolkit.Test
 {
 	/// <summary>
-	/// Pins the unwritten invariant of the style config: every skin carries the same set of styles.
-	/// Nothing enforces it, but two places rely on it — the config reads the whole style vocabulary off
-	/// skins[0] alone, and UiStyleManager pairs the outgoing and incoming skin by index when tweening.
+	/// Pins two conventions of the style config that survived the move to inheritance.
 	///
-	/// These tests exist because inheritance breaks the invariant on purpose: a child config that stores
-	/// only its overrides no longer has every style in every skin. They are the failing-first tests for
-	/// that work, and until then they describe what the code currently assumes.
+	/// The style vocabulary is read off the FIRST skin alone - deliberately kept that way, since the
+	/// alternative (the union across all skins) answers a question nobody asks. A style that exists only
+	/// in a later skin is therefore invisible to it, and that is a documented limitation rather than a bug.
+	///
+	/// And every skin of every config in this project still carries the same set of styles. That is no
+	/// longer a law - an inheriting child stores only its overrides, so its skins may hold different
+	/// subsets - which is why the skin tween pairs styles by key instead of by position. The check stays
+	/// because no config here has a parent yet: the day one does, this test is the one that says so.
 	/// </summary>
 	[EditorAware]
 	public class TestUiStyleSkinInvariants
@@ -44,14 +47,14 @@ namespace GuiToolkit.Test
 		/// dropdowns among them.
 		/// </summary>
 		[Test]
-		public void StyleNames_ComeFromTheFirstSkinOnly()
+		public void EffectiveStyleNames_ComeFromTheFirstSkinOnly()
 		{
 			var config = CreateConfig(SkinA, SkinB);
 			AddStyle(config, SkinA, SharedStyle);
 			AddStyle(config, SkinB, SharedStyle);
 			AddStyle(config, SkinB, OnlyInSecondSkin);
 
-			var names = config.StyleNames;
+			var names = config.EffectiveStyleNames;
 
 			Assert.Contains(SharedStyle, names);
 			Assert.IsFalse(names.Contains(OnlyInSecondSkin), "documented limitation, not a wish");

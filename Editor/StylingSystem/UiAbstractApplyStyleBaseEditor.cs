@@ -85,13 +85,20 @@ namespace GuiToolkit.Style.Editor
 				return;
 			}
 			
-			var styleAliases = styleConfig.GetStyleAliasesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedComponentType);
-			var styleNames = styleConfig.GetStyleNamesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedComponentType);
+			var styleAliases = styleConfig.GetEffectiveStyleAliasesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedComponentType);
+			var styleNames = styleConfig.GetEffectiveStyleNamesByMonoBehaviourType(m_thisAbstractApplyStyleBase.SupportedComponentType);
 			
+			string currentDisplayName = UiStyleEditorUtility.ResolveDisplayAlias
+			(
+				m_thisAbstractApplyStyleBase.Name,
+				m_thisAbstractApplyStyleBase.Style,
+				styleNames,
+				styleAliases
+			);
+
+			// After the call above, because it may add the stored name as an entry - and that entry is not
+			// the user adding a style.
 			int styleCountBefore = styleAliases.Count;
-			string currentDisplayName = string.Empty;
-			if (m_thisAbstractApplyStyleBase.Style != null)
-				currentDisplayName = m_thisAbstractApplyStyleBase.Style.Alias;
 
 			string styleNameSuggestion = FindStyleNameSuggestion();
 			int styleIdx = EditorUiUtility.StringPopup("Style", styleAliases, currentDisplayName, out selectedName,

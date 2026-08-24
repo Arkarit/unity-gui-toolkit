@@ -283,6 +283,7 @@ public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
 		public const string CREATE_GUI_SCREENSHOT_OVERLAY = MISC_TOOLS_MENU_HEADER + "Create GUI Screenshot overlay";
 		public const string CONVERT_MAIN_STYLE_CONFIG = MISC_TOOLS_MENU_HEADER + "Convert selected UiMainStyleConfig to UiStyleConfig";
 		public const string RESOLUTION_RESCALER = MISC_TOOLS_MENU_HEADER + "Resolution Rescaler (PREVIEW!)";
+		public const string STYLE_DRIFT_REPORT = STYLES_HEADER + "Style Config Drift Report...";
 		
 		public const string CLONE_FOLDER = "Assets/Clone Folder (rewire references)";
 		public const string RENAME_FOLDER = "Assets/Rename Folder (rename contents)";

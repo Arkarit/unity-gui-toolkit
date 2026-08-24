@@ -77,7 +77,12 @@ The benefit over Level A is real but narrow: it would allow a project to overrid
 
 ## Phases
 
-### Phase 1 — Resolution
+### Phase 1 — Resolution  ✅ done
+
+Implemented with 17 tests. `m_parent` plus a name-matched fallback in `UiSkin.StyleByKey`, cycle and
+depth guard (`MaxInheritanceDepth`, self included), `EffectiveStyles` per skin, the vocabulary renamed
+to `EffectiveStyleNames`/`EffectiveStyleAliases` and routed through it, and the skin tween paired by
+key via the pure `UiStyleManager.PairStylesByKey`. Resolution cost is unchanged (`FindStyle` 0.9 us).
 
 - Add `[SerializeField] UiStyleConfig m_parent` to `UiStyleConfig`.
 - Resolve a lookup miss through the parent, matching skins **by name**.
@@ -85,27 +90,54 @@ The benefit over Level A is real but narrow: it would allow a project to overrid
 - Applies to `UiAspectRatioDependentStyleConfig` as well, since it derives from the same base.
 - Expose an **effective style set** per skin (own plus inherited, own wins) and route the vocabulary lookups and `UiStyleManager` skin tweening through it; pair skins by key, not by index.
 
-### Phase 2 — Copy-on-write
+### Phase 2 — Copy-on-write  ✅ done (except the drawer, which phase 3 creates)
 
 Writing to an inherited style must materialise it in the child config first, then write. Without this the write silently disappears — see Risk Summary.
 
-Affected paths: `UiAbstractApplyStyleBase.Record()`, the skin drawer's value edits, and `UiStyleWriter` (which already refuses package-owned configs and only needs to learn the new path).
+Implemented with 8 tests: `UiStyleUtility.CloneStyle` (an independent copy carrying values and applicableness, asset references shared rather than duplicated), `UiSkin.MaterializeStyle` / `OwnsStyle` as the single copy-on-write entry point, `UiStyleConfig.IsPackageOwned` as the refusal (verified against the dev app's symlinked package copy, where the `Packages/` test alone says nothing), and `UiAbstractApplyStyleBase.MaterializeStyleForOverride` — public, because phase 3's override action wants exactly that. `Record()` goes through it. An override is per skin: materialising in one skin leaves the others inheriting.
 
-### Phase 3 — Editor
+`UiStyleWriter` now reads the effective set (reporting `inherited` per style) and materialises before writing, unless it is a dry run.
+
+Still open: the skin drawer's value edits. An inherited style is not part of the child's serialized data, so the drawer cannot show or edit one yet — that path comes into existence with phase 3 and is wired there.
+
+### Phase 3 — Editor  ✅ done
+
+Implemented with 13 tests. Inherited rows are drawn by the same drawers as own ones (blue), an override is
+its own state (yellow), and both actions sit in the row: **Overr.** on an inherited entry, **Revert** on an
+override. A row cannot tell whose style it is from its own property, so the surrounding editor states it
+through `UiStyleRowContext` — which is also what makes the applier's inline style behave, where the style is
+drawn through a throwaway helper object. The parent field is in `UiStyleConfigEditor` and in the
+configuration window, next to the "Clone" button whose advice this feature replaces.
+
+A style that does not resolve used to look exactly like none being assigned. `UiStyleDiagnostics` now names
+the one thing to change per case, and the popup shows the stored name instead of going blank.
 
 - Inherited styles listed read-only, visually distinct from own ones.
 - **Override** on an inherited entry (materialise into the child), **Revert to inherited** on an own entry (delete from the child).
 - The parent field surfaced in `UiStyleConfigEditor` and in the configuration window.
 
-### Phase 4 — Conversion tool
+### Phase 4 — Conversion tool  ✅ done
 
-See below.
+Implemented with 17 tests, in two halves that can be used separately — see below. The report answers the
+question before anything is touched; the conversion drops the copies that carry no difference, keeps the
+ones that were pinned, and goes through `UiSkin.RevertStyleToInherited` for every single drop, so a style
+is never removed unless something else still provides it.
 
-### Phase 5 — Verification and documentation
+### Phase 5 — Verification and documentation  ✅ done (except one demo case)
 
-- Dev-App scene exercising: inherited style, overridden style, project-only style, skin present in parent but not in child, and the reverse.
-- `BEST-PRACTICES.md` §2 rewritten: cloning is no longer the recommended path, inheriting is.
-- `CHANGELOG.md`, and a note in the AI documentation that a style may now live in the parent.
+- `BEST-PRACTICES.md` §2 rewritten: **inherit, do not clone**, with the two buttons, the drift report, the
+  skin mapping, and the measured 61-of-80 as the argument. ✅
+- `CHANGELOG.md` under Added, plus the `Backgrounds/PanelHeadline` fix under Fixed. ✅
+- `AGENTS.md`: a style may now live in another config than the one being looked at, with the four
+  consequences that matter for anything touching the styling system (materialise before writing, effective
+  set vs. declared set, skins matched by name and possibly to a sibling, and the row context). ✅
+- `Gui Toolkit → Configuration` offers **Inherit** next to **Clone**: clone, then drop every style, so the
+  new config has the same skins with their settings and back-references repaired, and nothing of its own. ✅
+- Demo: the Dev-App's own `UiExampleStyleConfig` is the live test bed and already exercises four of the five
+  cases - inherited style (70 per skin), project-only style (3 per skin), a parent skin nothing maps to
+  (`Light`), and a child skin whose name the parent does not have, mapped explicitly (`Example`). The fifth,
+  an **overridden** style, is one click (**Overr.** on any inherited row) and was left to the owner of that
+  asset rather than mixed into his uncommitted working file.
 
 ---
 
@@ -120,14 +152,52 @@ The tool that makes the switch safe for an existing clone.
 
 The report is useful on its own, before any conversion: it answers a question nobody can answer today — **how far has this clone actually drifted?**
 
+It also compares **two single skins**, which answers a different question: *which* skin should this one build
+on? Run it against each candidate and compare the counts.
+
+### What it measured on the client (2026-08-24)
+
+The first real answer, taken from the running client editor against the package config:
+
+| | identical | differing | only in client | only in package |
+|---|---|---|---|---|
+| skin `Default` (80 styles) vs package `Default` | **61** | 3 | 16 | 6 |
+| skin `BOTW` (80) vs package `Default` | 44 | 20 | 16 | 6 |
+| skin `BOTW` vs package `Light` | 13 | 51 | 16 | 6 |
+| skin `BOTW` vs the client's own `Default` | **50** | 30 | 0 | 0 |
+
+Three findings, none of which were guessable:
+
+1. **61 of 80 styles in `Default` are copies that carry nothing.** The three differences are not design
+   decisions at all — they are `IsApplicable` flags on TMP text (line spacing, character spacing, auto
+   sizing). Together with the 6 styles the client does not have, that reads as the package having moved on
+   without the clone.
+2. **`BOTW` belongs on the client's own `Default`, not on anything in the package** — more shared styles, and
+   the two client skins hold *exactly* the same set, which no package skin does. This is what the skin-level
+   inheritance below exists for.
+3. The package config itself carries a **broken sprite reference** in `Backgrounds/PanelHeadline`
+   (`UiStyleImage.Sprite`, applicable, in both `Default` and `Light`), so every clone inherits a dangling
+   reference. Unrelated to inheritance, found by looking.
+
 ---
 
 ## Key Decisions (resolve before starting Phase 1)
 
-1. **Does a child skin inherit styles from a parent skin of the same name only, or may a skin itself be inherited whole?** Recommendation: skin-name match only; a child that defines no skin of that name falls back to the parent's skin entirely.
-2. **Chain depth.** One level (project → package) covers every known case. Allowing longer chains costs nothing in the lookup but widens the failure surface.
-3. **Conversion policy for the existing clone**: convert everything identical to inherited, or pin selected areas? This is a look-and-feel decision, not a technical one.
-4. ~~**The unexplained skin identity issue.**~~ **Resolved — see "Skin identity" below.** No longer blocks Phase 1.
+1. ~~**Does a child skin inherit styles from a parent skin of the same name only?**~~ **Answered by the projects rather than by this plan.** Name matching alone is not enough: the client config has the skins Default and BOTW, the package config Default and Light - so BOTW would have found no counterpart and inherited nothing, leaving half the config a full copy. A skin therefore carries an optional `m_inheritFromSkinName` (empty = same name), offered in the editor as a popup over the parent's skins. Each level of a chain maps on its own, which is why resolution walks skin by skin rather than config by config.
+2. **A skin may build on a skin of the SAME config.** Not in the original plan, added because the client made
+   the case: its `BOTW` skin shares 50 of 80 styles with its own `Default` and only 44 with the package's,
+   and the two own skins hold exactly the same set of styles - which no package skin does. A skin is usually
+   a variant of the skin next to it, not of anything in the parent, and its overrides should say "differs
+   from our own look". `UiSkin.m_inheritFromSameConfig` carries that intent explicitly rather than guessing
+   it from the name, since the same name can exist on both sides; empty keeps meaning what it meant.
+   Self-reference is refused, circles are not offered by the popup and are survived where made anyway.
+
+   The consequence worth knowing: an inherited style then belongs to the **very config being edited**, so
+   anything deciding "own or inherited" by comparing *configs* calls it own and writes into the skin next
+   door. `UiSkin.SkinOwning` plus a skin-based `UiStyleRowContext` are the fix.
+3. **Chain depth.** One level (project → package) covers every known case. Allowing longer chains costs nothing in the lookup but widens the failure surface.
+4. ~~**Conversion policy for the existing clone**: convert everything identical to inherited, or pin selected areas?~~ **Both, per style.** The conversion lists every droppable copy by name and each can be kept as a pinned override; dropping is the default, since that is the point of converting.
+5. ~~**The unexplained skin identity issue.**~~ **Resolved — see "Skin identity" below.** No longer blocks Phase 1.
 
 ---
 

@@ -77,7 +77,13 @@ Der Zusatznutzen gegenüber Stufe A ist real, aber schmal: Ein Projekt könnte e
 
 ## Phasen
 
-### Phase 1 — Auflösung
+### Phase 1 — Auflösung  ✅ erledigt
+
+Umgesetzt mit 17 Tests. `m_parent` plus namensbasiertes Fallback in `UiSkin.StyleByKey`, Zyklus- und
+Tiefenschutz (`MaxInheritanceDepth`, sich selbst mitgezählt), `EffectiveStyles` je Skin, das Vokabular
+umbenannt zu `EffectiveStyleNames`/`EffectiveStyleAliases` und darüber geführt, und das Skin-Tweening
+über den Key gepaart via die reine Funktion `UiStyleManager.PairStylesByKey`. Die Auflösung kostet
+unverändert 0,9 us (`FindStyle`).
 
 - `[SerializeField] UiStyleConfig m_parent` in `UiStyleConfig` ergänzen.
 - Fehlschlag der Auflösung über den Parent bedienen, Skins **über den Namen** zuordnen.
@@ -85,23 +91,55 @@ Der Zusatznutzen gegenüber Stufe A ist real, aber schmal: Ein Projekt könnte e
 - Gilt ebenso für `UiAspectRatioDependentStyleConfig`, da von derselben Basis abgeleitet.
 - Einen **effektiven Style-Satz** je Skin bereitstellen (eigene plus geerbte, eigene gewinnen) und die Vokabular-Abfragen sowie das Skin-Tweening in `UiStyleManager` darüber führen; Skins über den Key paaren, nicht über den Index.
 
-### Phase 2 — Copy-on-Write
+### Phase 2 — Copy-on-Write  ✅ erledigt (außer dem Drawer, den erst Phase 3 schafft)
 
 Ein Schreibzugriff auf einen geerbten Style muss diesen zuerst in der Child-Konfiguration materialisieren und dann schreiben. Ohne das verschwindet der Schreibvorgang stillschweigend — siehe Risiken.
 
-Betroffene Pfade: `UiAbstractApplyStyleBase.Record()`, die Wertänderungen im Skin-Drawer und `UiStyleWriter` (der Package-eigene Konfigurationen bereits ablehnt und nur den neuen Pfad lernen muss).
+Umgesetzt mit 8 Tests: `UiStyleUtility.CloneStyle` (eigenständige Kopie mit Werten und Applicableness, Asset-Referenzen geteilt statt dupliziert), `UiSkin.MaterializeStyle` / `OwnsStyle` als einzige Copy-on-Write-Stelle, `UiStyleConfig.IsPackageOwned` als Verweigerung (geprüft am symlinkten Package-Klon der Dev-App, wo der `Packages/`-Test allein nichts sagt), und `UiAbstractApplyStyleBase.MaterializeStyleForOverride` — public, weil die Override-Aktion aus Phase 3 genau das braucht. `Record()` läuft darüber. Ein Override gilt **je Skin**: Materialisieren in einem Skin lässt die anderen erben.
 
-### Phase 3 — Editor
+`UiStyleWriter` liest jetzt den effektiven Satz (mit `inherited` je Style) und materialisiert vor dem Schreiben, außer im Dry-Run.
+
+Offen bleibt: die Wertänderungen im Skin-Drawer. Ein geerbter Style ist nicht Teil der serialisierten Daten des Childs, der Drawer kann ihn also noch gar nicht anzeigen oder editieren — dieser Pfad entsteht erst mit Phase 3 und wird dort verdrahtet.
+
+### Phase 3 — Editor  ✅ fertig
+
+Umgesetzt mit 13 Tests. Geerbte Zeilen zeichnen dieselben Drawer wie eigene (blau), ein Override ist ein
+eigener Zustand (gelb), und beide Aktionen sitzen in der Zeile: **Overr.** an einer geerbten, **Revert** an
+einem Override. Eine Zeile kann aus ihrer eigenen Property nicht sagen, wem der Style gehört — der
+umgebende Editor sagt es über `UiStyleRowContext`, was auch den Inline-Style im Applier korrekt macht (dort
+wird der Style über ein Wegwerf-Hilfsobjekt gezeichnet). Das Parent-Feld steht im `UiStyleConfigEditor` und
+im Konfigurationsfenster, neben dem „Clone"-Button, dessen Empfehlung dieses Feature ersetzt.
+
+Ein Style, der sich nicht auflöst, sah bisher genau so aus wie „keiner zugewiesen". `UiStyleDiagnostics`
+benennt jetzt pro Fall die eine Sache, die man ändern muss, und das Popup zeigt den gespeicherten Namen
+statt leer zu bleiben.
 
 - Geerbte Styles schreibgeschützt und optisch unterscheidbar von eigenen.
 - **Override** auf einem geerbten Eintrag (in die Child-Konfiguration materialisieren), **Zurück auf geerbt** auf einem eigenen (aus der Child-Konfiguration entfernen).
 - Parent-Feld im `UiStyleConfigEditor` und im Konfigurationsfenster sichtbar machen.
 
-### Phase 4 — Conversion-Tool
+### Phase 4 — Conversion-Tool  ✅ fertig
+
+Umgesetzt mit 17 Tests, in zwei getrennt nutzbaren Hälften (siehe unten). Der Bericht beantwortet die Frage,
+bevor irgendetwas angefasst wird; die Konversion entfernt die Kopien, die keinen Unterschied tragen, behält
+die angepinnten und läuft für **jede** Entfernung durch `UiSkin.RevertStyleToInherited` — ein Style wird
+also nie entfernt, solange ihn nicht etwas anderes weiterhin liefert.
+
+Gemessene Zahlen am Client stehen in der englischen Fassung unter „What it measured on the client“.
 
 Siehe unten.
 
-### Phase 5 — Verifikation und Dokumentation
+### Phase 5 — Verifikation und Dokumentation  ✅ fertig (bis auf einen Demo-Fall)
+
+`BEST-PRACTICES.md` §2 umgeschrieben (**erben statt klonen**), `CHANGELOG.md` unter Added plus der
+`Backgrounds/PanelHeadline`-Fix unter Fixed, `AGENTS.md` um die vier Konsequenzen ergänzt, die für alles
+gelten, was das Styling-System anfasst. Im Konfigurationsfenster steht **Inherit** neben **Clone**.
+
+Als Demo dient die `UiExampleStyleConfig` der Dev-App selbst: sie deckt vier der fünf Fälle ab — geerbter
+Style, projekteigener Style, ein Parent-Skin, auf den nichts zeigt (`Light`), und ein Child-Skin, dessen
+Namen der Parent nicht hat, explizit zugeordnet (`Example`). Der fünfte Fall — ein **überschriebener** Style
+— ist ein Klick (**Overr.** an einer geerbten Zeile) und bleibt dem Besitzer dieses Assets überlassen,
+statt sich in dessen uncommittete Arbeitsdatei zu mischen.
 
 - Dev-App-Szene, die alles durchspielt: geerbter Style, überschriebener Style, projekteigener Style, Skin nur im Parent, Skin nur im Child.
 - `BEST-PRACTICES.md` §2 neu fassen: Klonen ist nicht mehr der empfohlene Weg, Erben ist es.
@@ -124,7 +162,7 @@ Der Bericht ist schon für sich nützlich, vor jeder Umstellung: Er beantwortet 
 
 ## Zu klärende Entscheidungen (vor Beginn von Phase 1)
 
-1. **Erbt ein Child-Skin nur Styles aus dem gleichnamigen Parent-Skin, oder kann ein Skin als Ganzes geerbt werden?** Empfehlung: Zuordnung nur über den Skin-Namen; definiert das Child keinen Skin dieses Namens, fällt es vollständig auf den Skin des Parents zurück.
+1. ~~**Erbt ein Child-Skin nur Styles aus dem gleichnamigen Parent-Skin?**~~ **Beantwortet von den Projekten, nicht von diesem Plan.** Zuordnung über den Namen allein genügt nicht: die Client-Config hat die Skins Default und BOTW, die Package-Config Default und Light — BOTW hätte also kein Gegenstück gefunden und nichts geerbt, die Hälfte der Config wäre Vollkopie geblieben. Ein Skin trägt deshalb ein optionales `m_inheritFromSkinName` (leer = gleicher Name), im Editor als Popup über die Skins des Parents. Jede Ebene einer Kette ordnet eigenständig zu — darum läuft die Auflösung Skin für Skin und nicht Config für Config.
 2. **Kettentiefe.** Eine Ebene (Projekt → Package) deckt jeden bekannten Fall ab. Längere Ketten kosten in der Auflösung nichts, vergrößern aber die Fehlerfläche.
 3. **Umstellungspolitik für den bestehenden Klon**: alles Identische auf geerbt umstellen, oder ausgewählte Bereiche anheften? Das ist eine Gestaltungs-, keine technische Entscheidung.
 4. ~~**Die ungeklärte Skin-Identität.**~~ **Geklärt — siehe „Skin-Identität" unten.** Blockiert Phase 1 nicht mehr.

@@ -237,17 +237,100 @@ namespace GuiToolkit.Style
 			}
 		}
 
+		/// <summary>
+		/// Writes the component's current values into its style. Materialises the style first if it is
+		/// inherited - otherwise the write would land in the parent config, and for the copy that ships
+		/// inside the package it would be dropped on save without a word.
+		/// </summary>
 		public void Record()
 		{
+#if UNITY_EDITOR
+			MaterializeStyleForOverride();
+#endif
 			if (CheckCondition())
 				RecordImpl();
-			
+
 #if UNITY_EDITOR
 			EditorGeneralUtility.SetDirty(StyleConfig);
 			AssetDatabase.SaveAssets();
 			UiEventDefinitions.EvSkinValuesChanged.Invoke(1);
 #endif
 		}
+
+#if UNITY_EDITOR
+		/// <summary>
+		/// The skin this applier resolves through, as DECLARED by its own config.
+		///
+		/// Own, because it is the skin an override would be written into: materialising into a skin that
+		/// itself comes from the parent would write into the parent asset, the thing all of this prevents.
+		/// Null when the config does not declare that skin at all, which can only happen for a fixed skin.
+		/// </summary>
+		public UiSkin OwnSkin
+		{
+			get
+			{
+				var styleConfig = StyleConfig;
+				if (styleConfig == null)
+					return null;
+
+				return SkinIsFixed
+					? styleConfig.GetOwnSkinByNameOrAlias(FixedSkinName, false)
+					: styleConfig.CurrentSkin;
+			}
+		}
+
+		/// <summary>
+		/// The skin the lookup actually goes through, which may be an ancestor's: a fixed skin this config
+		/// does not declare resolves through the parent AS A WHOLE. Mirrors FindStyle(), and differs from
+		/// OwnSkin in exactly that case - which is the case where nothing here can be edited.
+		/// </summary>
+		public UiSkin ResolvingSkin
+		{
+			get
+			{
+				var styleConfig = StyleConfig;
+				if (styleConfig == null)
+					return null;
+
+				return SkinIsFixed
+					? styleConfig.GetSkinByName(FixedSkinName)
+					: styleConfig.CurrentSkin;
+			}
+		}
+
+		/// <summary>
+		/// Makes sure the style this applier resolves belongs to its own config, copying it out of the
+		/// parent if it does not, and re-resolves so Style points at that copy. Returns the style to write
+		/// to, or null if there is none at all.
+		///
+		/// Public because this is exactly what an "override this inherited style" action needs - the value
+		/// editing in the inspector will come through the same entry point.
+		/// </summary>
+		public UiAbstractStyleBase MaterializeStyleForOverride()
+		{
+			var styleConfig = StyleConfig;
+			if (styleConfig == null)
+				return null;
+
+			var skin = OwnSkin;
+			if (skin == null)
+			{
+				UiLog.LogError($"'{styleConfig.name}' does not declare skin '{FixedSkinName}' itself, so style " +
+				               $"'{m_name}' cannot be overridden in it. Add that skin to the config first.", this);
+				return null;
+			}
+
+			// Returns the own style when there already is one, so this covers both cases.
+			var materialized = skin.MaterializeStyle(Key);
+			if (materialized == null)
+				return null;
+
+			if (!ReferenceEquals(materialized, m_style))
+				SetStyle();   // Style caches the resolved instance, and it is the old one now
+
+			return materialized;
+		}
+#endif
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private bool CheckCondition() => Style != null;

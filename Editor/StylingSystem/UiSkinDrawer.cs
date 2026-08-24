@@ -53,6 +53,164 @@ namespace GuiToolkit.Style.Editor
 		}
 
 		/// <summary>
+		/// Lets a skin say which skin of the parent config it builds on.
+		///
+		/// Only shown when there is a parent, and only offering skins that parent actually has. The default
+		/// entry is "same name", which is right whenever the two configs agree on their skin names - and
+		/// wrong for a project's own skin, which is exactly the case this popup exists for: a client config
+		/// with Default and BOTW inheriting from a package config with Default and Light would leave BOTW
+		/// with nothing to inherit.
+		/// </summary>
+		/// <summary>What one entry of the "inherits skin from" popup stands for.</summary>
+		private readonly struct InheritCandidate
+		{
+			public readonly string Label;
+			public readonly string SkinName;
+			public readonly bool SameConfig;
+
+			public InheritCandidate( string _label, string _skinName, bool _sameConfig )
+			{
+				Label = _label;
+				SkinName = _skinName;
+				SameConfig = _sameConfig;
+			}
+		}
+
+		private void DrawInheritFromSkinPopup()
+		{
+			if (m_thisUiSkin == null)
+				return;
+
+			var config = m_thisUiSkin.StyleConfig;
+			if (config == null)
+				return;
+
+			var parentConfig = config.Parent;
+			var candidates = BuildInheritCandidates(config, parentConfig);
+
+			// Nothing to build on and nothing that could be: no field, rather than an empty one.
+			if (candidates.Count <= 1)
+				return;
+
+			var labels = new List<string>();
+			foreach (var candidate in candidates)
+				labels.Add(candidate.Label);
+
+			string current = CurrentInheritLabel(candidates, parentConfig);
+			if (!labels.Contains(current))
+				labels.Add(current);
+
+			// The popup draws its own label and shifts the field by labelWidth itself, so a label of ours in
+			// front of it would push the field a second time - which left it narrow and hugging the right
+			// edge. Handing the label over instead gives it the whole remaining width, and there is no
+			// reason to save space here.
+			Space(10);
+			Horizontal(SingleLineHeight, () =>
+			{
+				IncreaseX(14);
+
+				if (!StringPopupField("Inherits skin from", labels, current, out string chosen))
+					return;
+
+				int index = labels.IndexOf(chosen);
+				if (index < 0 || index >= candidates.Count)
+					return;                       // the "still stored" entry - nothing chosen
+
+				var candidate = candidates[index];
+				m_thisUiSkin.InheritFromSameConfig = candidate.SameConfig;
+				m_thisUiSkin.InheritFromSkinName = candidate.SkinName;
+				PropertyDrawerView.ClearHeightCache();
+				EditorApplication.delayCall += () => UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+			});
+
+			if (m_thisUiSkin.ParentSkin == null)
+			{
+				Space(4);
+				Horizontal(SingleLineHeight, () =>
+				{
+					IncreaseX(14);
+					LabelField(NothingInheritedText(parentConfig), 0, EditorStyles.miniLabel);
+				});
+			}
+
+			Space(8);
+		}
+
+		/// <summary>
+		/// Everything this skin could build on: the parent's skins, and the other skins of this config.
+		///
+		/// Siblings are offered because that is often what a skin actually is - a variant of the skin next to
+		/// it rather than of anything in the parent. Excluded are this skin itself and any sibling that
+		/// already builds on it, since choosing one of those closes a circle.
+		/// </summary>
+		private List<InheritCandidate> BuildInheritCandidates( UiStyleConfig _config, UiStyleConfig _parentConfig )
+		{
+			var result = new List<InheritCandidate>
+			{
+				new InheritCandidate
+				(
+					_parentConfig != null ? $"<same name ('{m_thisUiSkin.Name}')>" : "<nothing>",
+					null,
+					false
+				)
+			};
+
+			foreach (var skin in _config.Skins)
+			{
+				if (skin == m_thisUiSkin || m_thisUiSkin.WouldInheritingFromCreateACycle(skin))
+					continue;
+
+				result.Add(new InheritCandidate($"{skin.Name}   (this config)", skin.Name, true));
+			}
+
+			if (_parentConfig != null)
+			{
+				foreach (var skinName in _parentConfig.SkinNames)
+					result.Add(new InheritCandidate($"{skinName}   ('{_parentConfig.name}')", skinName, false));
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// The entry that stands for what is stored right now - or a label of its own when what is stored
+		/// exists nowhere any more, because a stored name that the popup cannot show would silently read as
+		/// something else.
+		/// </summary>
+		private string CurrentInheritLabel( List<InheritCandidate> _candidates, UiStyleConfig _parentConfig )
+		{
+			string storedName = m_thisUiSkin.InheritFromSkinName;
+			bool sameConfig = m_thisUiSkin.InheritFromSameConfig;
+
+			if (string.IsNullOrEmpty(storedName))
+				return _candidates[0].Label;
+
+			foreach (var candidate in _candidates)
+			{
+				if (candidate.SkinName == storedName && candidate.SameConfig == sameConfig)
+					return candidate.Label;
+			}
+
+			return sameConfig
+				? $"{storedName}  (missing in this config)"
+				: $"{storedName}  (missing in '{(_parentConfig != null ? _parentConfig.name : "<no parent>")}')";
+		}
+
+		private string NothingInheritedText( UiStyleConfig _parentConfig )
+		{
+			if (m_thisUiSkin.InheritFromSameConfig)
+			{
+				return $"inherits nothing - this config has no skin '{m_thisUiSkin.InheritFromSkinName}'";
+			}
+
+			if (_parentConfig == null)
+				return "inherits nothing - this config has no parent, and no skin of this one is chosen";
+
+			return $"inherits nothing - '{_parentConfig.name}' has no skin "
+				+ $"'{m_thisUiSkin.EffectiveInheritFromSkinName}'";
+		}
+
+		/// <summary>
 		/// The skin instance that actually lives in the config, NOT Property.boxedValue.
 		///
 		/// UiSkin is a plain [Serializable] class in List&lt;UiSkin&gt;, so its property type is
@@ -86,6 +244,11 @@ namespace GuiToolkit.Style.Editor
 			
 			var styleConfig = m_thisUiSkin.StyleConfig;
 			var currentSkin = styleConfig.CurrentSkin;
+
+			// Everything drawn from here on belongs to this skin of this config, and the style rows inside
+			// need to know that - they cannot tell from their own property. Scoped, so it cannot leak into
+			// whatever is drawn after this drawer is done.
+			using var rowContext = UiStyleRowContext.Use(styleConfig, m_thisUiSkin);
 			bool isCurrentSkin = skinName == currentSkin.Name;
 			
 			BackgroundBox
@@ -219,6 +382,8 @@ namespace GuiToolkit.Style.Editor
 				}
 			});
 			
+			DrawInheritFromSkinPopup();
+
 			var foldoutTitleRect = CurrentRect;
 			foldoutTitleRect.height = SingleLineHeight;
 			var displayFilter = UiStyleConfigEditor.DisplayFilter;
@@ -407,7 +572,15 @@ namespace GuiToolkit.Style.Editor
 		private List<SerializedProperty> GetFlatSortedStylesList()
 		{
 			var path = m_stylesProp.propertyPath;
-			var key = $"{skinName}|{UiStyleConfigEditor.SortType}|{UiStyleConfigEditor.DisplayFilter}|{m_stylesProp.arraySize}";
+			// The effective count and the parent are part of the key, because the list now holds inherited
+			// rows too: assigning a parent, or a style appearing in one, changes what is shown here without
+			// changing anything in this config.
+			var parentId = m_thisUiSkin?.StyleConfig?.Parent != null
+				? m_thisUiSkin.StyleConfig.Parent.GetInstanceID()
+				: 0;
+			var effectiveCount = m_thisUiSkin?.EffectiveStyles.Count ?? 0;
+			var key = $"{skinName}|{UiStyleConfigEditor.SortType}|{UiStyleConfigEditor.DisplayFilter}"
+			        + $"|{m_stylesProp.arraySize}|{effectiveCount}|{parentId}";
 
 			if (s_sortedStylesByPath.TryGetValue(path, out var cached)
 			    && cached.Key == key
@@ -438,6 +611,8 @@ namespace GuiToolkit.Style.Editor
 
 			for (int i = 0; i < m_stylesProp.arraySize; i++)
 				result.Add(m_stylesProp.GetArrayElementAtIndex(i));
+
+			result.AddRange(UiStyleEditorUtility.InheritedStyleProperties(m_thisUiSkin));
 
 			result.Sort((a, b) =>
 			{
