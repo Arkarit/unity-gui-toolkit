@@ -24,26 +24,36 @@ namespace GuiToolkit.Style.Editor
 		public static Scope Use( UiStyleConfig _config, UiSkin _skin ) => new Scope(_config, _skin);
 
 		/// <summary>
-		/// The config that actually holds this style, seen from the current context: the edited config for
-		/// a style of its own, or the ancestor it is inherited from. Null when there is no context, or when
+		/// The skin that actually holds this style, seen from the current context: the edited skin for a
+		/// style of its own, or the nearest one it is inherited from. Null when there is no context, or when
 		/// the style resolves from nowhere.
 		/// </summary>
-		public static UiStyleConfig OwnerOf( UiAbstractStyleBase _style )
+		public static UiSkin SkinOwnerOf( UiAbstractStyleBase _style )
 		{
 			if (_style == null || Skin == null)
 				return null;
 
-			return Skin.ConfigOwning(_style.Key);
+			return Skin.SkinOwning(_style.Key);
 		}
 
 		/// <summary>
-		/// Whether this style comes from somewhere else than the config being edited - the one question the
+		/// The config that holds this style - the edited one for a style of its own or of a sibling skin, the
+		/// ancestor otherwise.
+		/// </summary>
+		public static UiStyleConfig OwnerOf( UiAbstractStyleBase _style ) => SkinOwnerOf(_style)?.StyleConfig;
+
+		/// <summary>
+		/// Whether this style comes from somewhere else than the skin being edited - the one question the
 		/// three row states, the read-only display and the override action all hang off.
+		///
+		/// The SKIN, not the config: a skin may build on a sibling, and then an inherited style belongs to
+		/// the very config being edited. Comparing configs would call it own, and the row would write into
+		/// the sibling skin - changing the look everybody sees instead of the one being edited.
 		/// </summary>
 		public static bool IsInherited( UiAbstractStyleBase _style )
 		{
-			var owner = OwnerOf(_style);
-			return owner != null && Config != null && owner != Config;
+			var owner = SkinOwnerOf(_style);
+			return owner != null && owner != Skin;
 		}
 
 		/// <summary>

@@ -13,6 +13,9 @@ namespace GuiToolkit.Style.Editor
 	{
 		private UiStyleConfig m_config;
 		private UiStyleConfig m_other;
+		private bool m_compareSingleSkins;
+		private int m_skinIndex;
+		private int m_otherSkinIndex;
 		private string m_report;
 		private Vector2 m_scrollPosition;
 
@@ -48,14 +51,28 @@ namespace GuiToolkit.Style.Editor
 			m_config = (UiStyleConfig) EditorGUILayout.ObjectField("Config", m_config, typeof(UiStyleConfig), false);
 			m_other = (UiStyleConfig) EditorGUILayout.ObjectField("Compare against", m_other, typeof(UiStyleConfig), false);
 
-			using (new EditorGUI.DisabledScope(m_config == null || m_other == null || m_config == m_other))
+			// The other question this answers: not "how far apart are these two configs" but "which of these
+			// skins should that skin build on?". Answered by running one skin against each candidate and
+			// comparing the counts - including candidates in the same config, since a skin may build on a
+			// sibling.
+			m_compareSingleSkins = EditorGUILayout.Toggle("Compare single skins", m_compareSingleSkins);
+
+			if (m_compareSingleSkins)
 			{
-				if (GUILayout.Button("Analyze"))
-					m_report = UiStyleDriftAnalyzer.Analyze(m_config, m_other).ToText();
+				m_skinIndex = SkinPopup("Skin", m_config, m_skinIndex);
+				m_otherSkinIndex = SkinPopup("against skin", m_other, m_otherSkinIndex);
 			}
 
-			if (m_config != null && m_config == m_other)
-				EditorGUILayout.HelpBox("Pick two different configs.", MessageType.Warning);
+			bool sameConfigWholeCompare = !m_compareSingleSkins && m_config != null && m_config == m_other;
+
+			using (new EditorGUI.DisabledScope(m_config == null || m_other == null || sameConfigWholeCompare))
+			{
+				if (GUILayout.Button("Analyze"))
+					m_report = Analyze().ToText();
+			}
+
+			if (sameConfigWholeCompare)
+				EditorGUILayout.HelpBox("Pick two different configs, or compare single skins.", MessageType.Warning);
 
 			if (string.IsNullOrEmpty(m_report))
 				return;
@@ -77,6 +94,45 @@ namespace GuiToolkit.Style.Editor
 			);
 
 			EditorGUILayout.EndScrollView();
+		}
+
+		private UiStyleConfigDrift Analyze()
+		{
+			if (!m_compareSingleSkins)
+				return UiStyleDriftAnalyzer.Analyze(m_config, m_other);
+
+			var skin = SkinAt(m_config, m_skinIndex);
+			var otherSkin = SkinAt(m_other, m_otherSkinIndex);
+
+			var result = new UiStyleConfigDrift
+			{
+				Name = m_config.name,
+				OtherName = m_other.name,
+				AlreadyInherits = skin != null && skin.ParentSkin == otherSkin,
+			};
+
+			result.Skins.Add(UiStyleDriftAnalyzer.Analyze(skin, otherSkin));
+			return result;
+		}
+
+		private static int SkinPopup( string _label, UiStyleConfig _config, int _index )
+		{
+			if (_config == null || _config.NumSkins == 0)
+			{
+				EditorGUILayout.LabelField(_label, "<no skins>");
+				return 0;
+			}
+
+			var names = _config.SkinNames;
+			return EditorGUILayout.Popup(_label, Mathf.Clamp(_index, 0, names.Count - 1), names.ToArray());
+		}
+
+		private static UiSkin SkinAt( UiStyleConfig _config, int _index )
+		{
+			if (_config == null || _config.NumSkins == 0)
+				return null;
+
+			return _config.Skins[Mathf.Clamp(_index, 0, _config.NumSkins - 1)];
 		}
 
 		/// <summary>

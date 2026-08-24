@@ -61,29 +61,44 @@ namespace GuiToolkit.Style.Editor
 		/// with Default and BOTW inheriting from a package config with Default and Light would leave BOTW
 		/// with nothing to inherit.
 		/// </summary>
+		/// <summary>What one entry of the "inherits skin from" popup stands for.</summary>
+		private readonly struct InheritCandidate
+		{
+			public readonly string Label;
+			public readonly string SkinName;
+			public readonly bool SameConfig;
+
+			public InheritCandidate( string _label, string _skinName, bool _sameConfig )
+			{
+				Label = _label;
+				SkinName = _skinName;
+				SameConfig = _sameConfig;
+			}
+		}
+
 		private void DrawInheritFromSkinPopup()
 		{
 			if (m_thisUiSkin == null)
 				return;
 
-			var parentConfig = m_thisUiSkin.StyleConfig?.Parent;
-			if (parentConfig == null)
+			var config = m_thisUiSkin.StyleConfig;
+			if (config == null)
 				return;
 
-			var sameNameEntry = $"<same name ('{m_thisUiSkin.Name}')>";
-			var parentSkinNames = parentConfig.SkinNames;
+			var parentConfig = config.Parent;
+			var candidates = BuildInheritCandidates(config, parentConfig);
 
-			var entries = new List<string> { sameNameEntry };
-			entries.AddRange(parentSkinNames);
+			// Nothing to build on and nothing that could be: no field, rather than an empty one.
+			if (candidates.Count <= 1)
+				return;
 
-			var current = string.IsNullOrEmpty(m_thisUiSkin.InheritFromSkinName)
-				? sameNameEntry
-				: m_thisUiSkin.InheritFromSkinName;
+			var labels = new List<string>();
+			foreach (var candidate in candidates)
+				labels.Add(candidate.Label);
 
-			// A name that the parent no longer has must stay visible, or the popup would silently show
-			// something else than what is stored.
-			if (!entries.Contains(current))
-				entries.Add($"{current}  (missing in '{parentConfig.name}')");
+			string current = CurrentInheritLabel(candidates, parentConfig);
+			if (!labels.Contains(current))
+				labels.Add(current);
 
 			// The popup draws its own label and shifts the field by labelWidth itself, so a label of ours in
 			// front of it would push the field a second time - which left it narrow and hugging the right
@@ -94,27 +109,105 @@ namespace GuiToolkit.Style.Editor
 			{
 				IncreaseX(14);
 
-				if (!StringPopupField("Inherits skin from", entries, current, out string chosen))
+				if (!StringPopupField("Inherits skin from", labels, current, out string chosen))
 					return;
 
-				m_thisUiSkin.InheritFromSkinName = chosen == sameNameEntry ? null : chosen;
+				int index = labels.IndexOf(chosen);
+				if (index < 0 || index >= candidates.Count)
+					return;                       // the "still stored" entry - nothing chosen
+
+				var candidate = candidates[index];
+				m_thisUiSkin.InheritFromSameConfig = candidate.SameConfig;
+				m_thisUiSkin.InheritFromSkinName = candidate.SkinName;
 				PropertyDrawerView.ClearHeightCache();
 				EditorApplication.delayCall += () => UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 			});
 
-			var inheritedFrom = m_thisUiSkin.ParentSkin;
-			if (inheritedFrom == null)
+			if (m_thisUiSkin.ParentSkin == null)
 			{
 				Space(4);
 				Horizontal(SingleLineHeight, () =>
 				{
 					IncreaseX(14);
-					LabelField($"inherits nothing - '{parentConfig.name}' has no skin " +
-					           $"'{m_thisUiSkin.EffectiveInheritFromSkinName}'", 0, EditorStyles.miniLabel);
+					LabelField(NothingInheritedText(parentConfig), 0, EditorStyles.miniLabel);
 				});
 			}
 
 			Space(8);
+		}
+
+		/// <summary>
+		/// Everything this skin could build on: the parent's skins, and the other skins of this config.
+		///
+		/// Siblings are offered because that is often what a skin actually is - a variant of the skin next to
+		/// it rather than of anything in the parent. Excluded are this skin itself and any sibling that
+		/// already builds on it, since choosing one of those closes a circle.
+		/// </summary>
+		private List<InheritCandidate> BuildInheritCandidates( UiStyleConfig _config, UiStyleConfig _parentConfig )
+		{
+			var result = new List<InheritCandidate>
+			{
+				new InheritCandidate
+				(
+					_parentConfig != null ? $"<same name ('{m_thisUiSkin.Name}')>" : "<nothing>",
+					null,
+					false
+				)
+			};
+
+			foreach (var skin in _config.Skins)
+			{
+				if (skin == m_thisUiSkin || m_thisUiSkin.WouldInheritingFromCreateACycle(skin))
+					continue;
+
+				result.Add(new InheritCandidate($"{skin.Name}   (this config)", skin.Name, true));
+			}
+
+			if (_parentConfig != null)
+			{
+				foreach (var skinName in _parentConfig.SkinNames)
+					result.Add(new InheritCandidate($"{skinName}   ('{_parentConfig.name}')", skinName, false));
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// The entry that stands for what is stored right now - or a label of its own when what is stored
+		/// exists nowhere any more, because a stored name that the popup cannot show would silently read as
+		/// something else.
+		/// </summary>
+		private string CurrentInheritLabel( List<InheritCandidate> _candidates, UiStyleConfig _parentConfig )
+		{
+			string storedName = m_thisUiSkin.InheritFromSkinName;
+			bool sameConfig = m_thisUiSkin.InheritFromSameConfig;
+
+			if (string.IsNullOrEmpty(storedName))
+				return _candidates[0].Label;
+
+			foreach (var candidate in _candidates)
+			{
+				if (candidate.SkinName == storedName && candidate.SameConfig == sameConfig)
+					return candidate.Label;
+			}
+
+			return sameConfig
+				? $"{storedName}  (missing in this config)"
+				: $"{storedName}  (missing in '{(_parentConfig != null ? _parentConfig.name : "<no parent>")}')";
+		}
+
+		private string NothingInheritedText( UiStyleConfig _parentConfig )
+		{
+			if (m_thisUiSkin.InheritFromSameConfig)
+			{
+				return $"inherits nothing - this config has no skin '{m_thisUiSkin.InheritFromSkinName}'";
+			}
+
+			if (_parentConfig == null)
+				return "inherits nothing - this config has no parent, and no skin of this one is chosen";
+
+			return $"inherits nothing - '{_parentConfig.name}' has no skin "
+				+ $"'{m_thisUiSkin.EffectiveInheritFromSkinName}'";
 		}
 
 		/// <summary>

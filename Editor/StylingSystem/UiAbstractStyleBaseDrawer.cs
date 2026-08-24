@@ -34,6 +34,10 @@ namespace GuiToolkit.Style.Editor
 
 			bool isInherited = UiStyleRowContext.IsInherited(thisStyle);
 
+			// Where it comes from, phrased so the two cases cannot be confused: another config is named by
+			// its asset, a sibling skin of this config by its skin name.
+			string inheritedFrom = SourceName(UiStyleRowContext.SkinOwnerOf(thisStyle));
+
 			// Three states worth telling apart at a glance: plain grey for a style this config simply has,
 			// blue for one it inherits, yellow for one it inherits AND overrides - the last being the only
 			// one that carries a decision, and the only one that can drift from what it came from.
@@ -53,9 +57,9 @@ namespace GuiToolkit.Style.Editor
 				LabelField
 				(
 					isInherited
-						? $"Type: {thisStyle.SupportedComponentType.Name}   -  inherited from '{owningConfig.name}'"
+						? $"Type: {thisStyle.SupportedComponentType.Name}   -  inherited from {inheritedFrom}"
 						: isOverride
-							? $"Type: {thisStyle.SupportedComponentType.Name}   -  overrides '{OverriddenConfigName(thisStyle)}'"
+							? $"Type: {thisStyle.SupportedComponentType.Name}   -  overrides {OverriddenSourceName(thisStyle)}"
 							: $"Type: {thisStyle.SupportedComponentType.Name}",
 					0,
 					EditorStyles.boldLabel
@@ -203,12 +207,24 @@ namespace GuiToolkit.Style.Editor
 		private static UiSkin EditedSkinOfThisRow() => UiStyleRowContext.Skin;
 
 		/// <summary>
-		/// The config an overriding entry diverges from - not necessarily the immediate parent.
+		/// Where an overriding entry diverges from - not necessarily the immediate parent.
 		/// </summary>
-		private static string OverriddenConfigName( UiAbstractStyleBase _style )
+		private static string OverriddenSourceName( UiAbstractStyleBase _style )
+			=> SourceName(UiStyleRowContext.Skin?.ParentSkin?.SkinOwning(_style.Key));
+
+		/// <summary>
+		/// How to refer to the skin a style comes from. A different config is named by the asset, because
+		/// that is what has to be opened to change it; a sibling skin of the same config by its own name,
+		/// because naming the config would say nothing there.
+		/// </summary>
+		private static string SourceName( UiSkin _skin )
 		{
-			var origin = UiStyleRowContext.Skin?.ParentSkin?.ConfigOwning(_style.Key);
-			return origin != null ? origin.name : "?";
+			if (_skin == null)
+				return "?";
+
+			return _skin.StyleConfig != UiStyleRowContext.Config
+				? $"'{_skin.StyleConfig.name}'"
+				: $"skin '{_skin.Name}'";
 		}
 
 		/// <summary>

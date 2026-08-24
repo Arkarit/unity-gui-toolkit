@@ -31,6 +31,7 @@ namespace GuiToolkit.Style
 		/// the package's Default like any other skin.
 		/// </summary>
 		[SerializeField] private string m_inheritFromSkinName;
+		[SerializeField] private bool m_inheritFromSameConfig;
 
 
 		private Dictionary<int, UiAbstractStyleBase> m_styleByKey;
@@ -88,22 +89,87 @@ namespace GuiToolkit.Style
 		}
 
 		/// <summary>
+		/// Whether the skin named above is one of THIS config's, rather than one of the parent's.
+		///
+		/// A skin is often a variant of another skin next to it, not of anything in the parent: measured on
+		/// the client, its BOTW skin shares 50 of 80 styles with its own Default and only 44 with the
+		/// package's - and the two own skins hold exactly the same set of styles, which the package's do not.
+		/// Overrides against the sibling then also mean what they say: "differs from our own look".
+		///
+		/// Stored as its own flag rather than guessed from the name, because a name can exist on both sides
+		/// and guessing would take the choice away.
+		/// </summary>
+		public bool InheritFromSameConfig
+		{
+			get => m_inheritFromSameConfig;
+			set
+			{
+				if (m_inheritFromSameConfig == value)
+					return;
+
+				m_inheritFromSameConfig = value;
+				InvalidateStyleLookup();
+#if UNITY_EDITOR
+				if (m_config != null)
+					EditorGeneralUtility.SetDirty(m_config);
+#endif
+			}
+		}
+
+		/// <summary>
 		/// The name this skin looks for in the parent - its own unless told otherwise.
 		/// </summary>
 		public string EffectiveInheritFromSkinName =>
 			string.IsNullOrEmpty(m_inheritFromSkinName) ? m_name : m_inheritFromSkinName;
 
 		/// <summary>
-		/// The skin this one inherits from, or null if there is no parent config or it has no such skin.
-		/// Resolving one hop at a time is what lets every level of a chain map to a different name.
+		/// The skin this one builds on: one of this config's own when told so, one of the parent's otherwise.
+		/// Null when there is nothing of that name.
+		///
+		/// Resolving one hop at a time is what lets every level of a chain map to a different name - and now
+		/// also to a different config, since a hop may stay inside this one.
 		/// </summary>
 		public UiSkin ParentSkin
 		{
 			get
 			{
-				var parentConfig = m_config?.Parent;
-				return parentConfig?.GetOwnSkinByNameOrAlias(EffectiveInheritFromSkinName, false);
+				if (m_config == null)
+					return null;
+
+				if (m_inheritFromSameConfig)
+				{
+					// No implicit same-name fallback here: within one config that would mean the skin builds
+					// on itself, which is the one thing it cannot do.
+					if (string.IsNullOrEmpty(m_inheritFromSkinName) || m_inheritFromSkinName == m_name)
+						return null;
+
+					return m_config.GetOwnSkinByNameOrAlias(m_inheritFromSkinName, false);
+				}
+
+				return m_config.Parent?.GetOwnSkinByNameOrAlias(EffectiveInheritFromSkinName, false);
 			}
+		}
+
+		/// <summary>
+		/// Whether building on that skin would close a circle - which the resolution survives (every walk is
+		/// depth-capped) but which makes a style resolve from somewhere nobody intended. Asked by the editor
+		/// so the choice is not offered in the first place.
+		/// </summary>
+		public bool WouldInheritingFromCreateACycle( UiSkin _candidate )
+		{
+			if (_candidate == null)
+				return false;
+
+			if (_candidate == this)
+				return true;
+
+			foreach (var skin in _candidate.SelfAndInheritedSkins())
+			{
+				if (skin == this)
+					return true;
+			}
+
+			return false;
 		}
 		public bool IsAspectRatioDependent => m_config is UiAspectRatioDependentStyleConfig;
 		public float AspectRatioGreaterEqual => m_aspectRatioGreaterEqual;
@@ -266,13 +332,21 @@ namespace GuiToolkit.Style
 		/// ancestor it is inherited from. Null if nothing resolves. What the editor needs in order to say
 		/// where a style comes from.
 		/// </summary>
-		public UiStyleConfig ConfigOwning(int _key)
+		public UiStyleConfig ConfigOwning(int _key) => SkinOwning(_key)?.StyleConfig;
+
+		/// <summary>
+		/// The skin that actually holds the style behind this key - this one or the nearest it inherits from.
+		///
+		/// The skin, not just its config: since a skin may build on a sibling, naming the config no longer
+		/// says where a style comes from, and "inherited" can no longer be decided by comparing configs.
+		/// </summary>
+		public UiSkin SkinOwning(int _key)
 		{
 			var skin = this;
 			for (int depth = 0; skin != null && depth < UiStyleConfig.MaxInheritanceDepth; depth++)
 			{
 				if (skin.OwnStyleByKey(_key) != null)
-					return skin.StyleConfig;
+					return skin;
 
 				skin = skin.ParentSkin;
 			}

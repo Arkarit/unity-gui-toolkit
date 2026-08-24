@@ -49,8 +49,24 @@ namespace GuiToolkit.Style.Editor
 	{
 		public string SkinName;
 
-		/// <summary>The skin it was compared against, or null when the other config has no counterpart.</summary>
+		/// <summary>The skin it was compared against, or null when there is no counterpart.</summary>
 		public string OtherSkinName;
+
+		/// <summary>
+		/// Which config that skin belongs to. Needed since a skin may build on a sibling: then the name alone
+		/// does not say which of the two configs is meant.
+		/// </summary>
+		public string OtherConfigName;
+
+		/// <summary>Whether the counterpart is a skin of the same config - a sibling, not an ancestor.</summary>
+		public bool OtherIsSibling;
+
+		/// <summary>How to refer to the counterpart in a sentence.</summary>
+		public string OtherDescription => OtherSkinName == null
+			? null
+			: OtherIsSibling
+				? $"'{OtherSkinName}' (this config)"
+				: $"'{OtherSkinName}' of '{OtherConfigName}'";
 
 		public readonly List<UiStyleDrift> Styles = new();
 
@@ -129,7 +145,7 @@ namespace GuiToolkit.Style.Editor
 			{
 				sb.AppendLine();
 				sb.AppendLine(skin.OtherSkinName != null
-					? $"Skin '{skin.SkinName}'  ->  '{skin.OtherSkinName}'"
+					? $"Skin '{skin.SkinName}'  ->  {skin.OtherDescription}"
 					: $"Skin '{skin.SkinName}'  ->  nothing: '{OtherName}' has no skin of that name, so this "
 						+ "skin can inherit nothing until it is mapped to one.");
 
@@ -201,53 +217,88 @@ namespace GuiToolkit.Style.Editor
 
 			foreach (var skin in _config.Skins)
 			{
-				var skinDrift = new UiSkinDrift { SkinName = skin.Name };
+				var otherSkin = Counterpart(skin, _other);
+				var skinDrift = Analyze(skin, otherSkin);
 				result.Skins.Add(skinDrift);
 
-				var otherSkin = _other.GetOwnSkinByNameOrAlias(skin.EffectiveInheritFromSkinName, false);
-				if (otherSkin == null)
-				{
-					// Nothing to compare against, so everything here is its own - which is exactly the
-					// finding: this skin would inherit nothing at all.
-					foreach (var style in skin.Styles)
-						skinDrift.Styles.Add(Describe(style, EStyleDriftState.OnlyHere));
-
-					continue;
-				}
-
-				skinDrift.OtherSkinName = otherSkin.Name;
-				matchedOtherSkins.Add(otherSkin.Name);
-
-				var otherByKey = new Dictionary<int, UiAbstractStyleBase>();
-				foreach (var style in otherSkin.Styles)
-					otherByKey[style.Key] = style;
-
-				foreach (var style in skin.Styles)
-				{
-					if (!otherByKey.TryGetValue(style.Key, out var otherStyle))
-					{
-						skinDrift.Styles.Add(Describe(style, EStyleDriftState.OnlyHere));
-						continue;
-					}
-
-					skinDrift.Styles.Add(Compare(style, otherStyle));
-				}
-
-				var ownKeys = new HashSet<int>();
-				foreach (var style in skin.Styles)
-					ownKeys.Add(style.Key);
-
-				foreach (var otherStyle in otherSkin.Styles)
-				{
-					if (!ownKeys.Contains(otherStyle.Key))
-						skinDrift.Styles.Add(Describe(otherStyle, EStyleDriftState.OnlyThere));
-				}
+				if (otherSkin != null && otherSkin.StyleConfig == _other)
+					matchedOtherSkins.Add(otherSkin.Name);
 			}
 
 			foreach (var otherSkin in _other.Skins)
 			{
 				if (!matchedOtherSkins.Contains(otherSkin.Name))
 					result.UnusedOtherSkins.Add(otherSkin.Name);
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Which skin a skin would be compared against.
+		///
+		/// A mapping that is already set wins - including one that points at a sibling - because the report
+		/// is meant to show what a conversion would really do, and a conversion follows the mapping. Only
+		/// when there is none does the name decide, which is what a conversion without a mapping would do.
+		/// </summary>
+		private static UiSkin Counterpart( UiSkin _skin, UiStyleConfig _other )
+		{
+			var mapped = _skin.ParentSkin;
+			if (mapped != null)
+				return mapped;
+
+			return _other.GetOwnSkinByNameOrAlias(_skin.EffectiveInheritFromSkinName, false);
+		}
+
+		/// <summary>
+		/// One skin against one skin - which is a question of its own: "which of these should this skin build
+		/// on?" is answered by running this for each candidate and comparing the counts.
+		/// </summary>
+		public static UiSkinDrift Analyze( UiSkin _skin, UiSkin _other )
+		{
+			var result = new UiSkinDrift();
+			if (_skin == null)
+				return result;
+
+			result.SkinName = _skin.Name;
+
+			if (_other == null)
+			{
+				// Nothing to compare against, so everything here is its own - which is exactly the finding:
+				// this skin would inherit nothing at all.
+				foreach (var style in _skin.Styles)
+					result.Styles.Add(Describe(style, EStyleDriftState.OnlyHere));
+
+				return result;
+			}
+
+			result.OtherSkinName = _other.Name;
+			result.OtherConfigName = _other.StyleConfig != null ? _other.StyleConfig.name : null;
+			result.OtherIsSibling = _other.StyleConfig == _skin.StyleConfig;
+
+			var otherByKey = new Dictionary<int, UiAbstractStyleBase>();
+			foreach (var style in _other.Styles)
+				otherByKey[style.Key] = style;
+
+			foreach (var style in _skin.Styles)
+			{
+				if (!otherByKey.TryGetValue(style.Key, out var otherStyle))
+				{
+					result.Styles.Add(Describe(style, EStyleDriftState.OnlyHere));
+					continue;
+				}
+
+				result.Styles.Add(Compare(style, otherStyle));
+			}
+
+			var ownKeys = new HashSet<int>();
+			foreach (var style in _skin.Styles)
+				ownKeys.Add(style.Key);
+
+			foreach (var otherStyle in _other.Styles)
+			{
+				if (!ownKeys.Contains(otherStyle.Key))
+					result.Styles.Add(Describe(otherStyle, EStyleDriftState.OnlyThere));
 			}
 
 			return result;
