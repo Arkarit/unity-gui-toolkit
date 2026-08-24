@@ -57,10 +57,10 @@ namespace GuiToolkit.Style.Editor
 				LabelField
 				(
 					isInherited
-						? $"Type: {thisStyle.SupportedComponentType.Name}   -  inherited from {inheritedFrom}"
+						? $"T: {thisStyle.SupportedComponentType.Name}  inh. from {inheritedFrom}"
 						: isOverride
-							? $"Type: {thisStyle.SupportedComponentType.Name}   -  overrides {OverriddenSourceName(thisStyle)}"
-							: $"Type: {thisStyle.SupportedComponentType.Name}",
+							? $"T: {thisStyle.SupportedComponentType.Name}  overr. {OverriddenSourceName(thisStyle)}"
+							: $"T: {thisStyle.SupportedComponentType.Name}",
 					0,
 					EditorStyles.boldLabel
 				);
@@ -68,12 +68,13 @@ namespace GuiToolkit.Style.Editor
 				// read: an abbreviated label with the sentence in its tooltip beats a wide button that
 				// covers the name of the config a row comes from.
 				bool showRevert = isOverride;
-				IncreaseX(showRevert ? -235 : -170);
+				IncreaseX(showRevert ? -215 : -160);
 
 				if (isInherited)
 				{
-					// Right-aligned in the same column as Delete, so the rows line up.
-					IncreaseX(-55);
+					// Right-aligned in the same column as Del, so the rows line up - which also gives
+					// this button the same 20 px to the right edge that every other one has.
+					IncreaseX(-75);
 					if (Button(new GUIContent("Overr.", "Copy this inherited style into this config, so its "
 						+ "values can be changed here. It stops following the config it came from."), 55))
 					{
@@ -86,12 +87,12 @@ namespace GuiToolkit.Style.Editor
 				if (showRevert)
 				{
 					if (Button(new GUIContent("Revert", "Drop this config's own copy and inherit the style "
-						+ "again. The values set here are lost."), 60))
+						+ "again. The values set here are lost."), 50))
 					{
 						RevertToInherited(thisStyle);
 					}
 
-					IncreaseX(65);
+					IncreaseX(55);
 				}
 
 				if (Button("Find", 35))
@@ -126,7 +127,8 @@ namespace GuiToolkit.Style.Editor
 				
 				IncreaseX(60);
 				
-				if (Button("Delete", 50))
+				if (Button(new GUIContent("Del", "Delete this style from the config, from every skin and "
+					+ "from every applier that uses it."), 40))
 				{
 					if (EditorUtility.DisplayDialog
 					(
