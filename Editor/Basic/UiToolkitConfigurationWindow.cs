@@ -217,6 +217,68 @@ namespace GuiToolkit.Editor
 			}
 
 			EditorGUILayout.PropertyField(styleConfigProp);
+			DrawStyleConfigParent(currentStyleConfig);
+		}
+
+		/// <summary>
+		/// Which config the project's own style config builds on.
+		///
+		/// It belongs in this window because this is where a project's styling is set up, and where "Clone"
+		/// used to be the only answer to "I need my own". A clone carries a full copy of everything and stops
+		/// following the package the moment it is made; naming a parent stores only what actually differs.
+		///
+		/// Not offered for the config that ships inside the package: that one is the root of every chain, and
+		/// writing to it is dropped on save anyway.
+		/// </summary>
+		private void DrawStyleConfigParent( UiStyleConfig _config )
+		{
+			if (_config == null)
+				return;
+
+			// Per repaint, like the SerializedObject for this window itself - the window is not a hot path,
+			// and a cached one would have to be invalidated whenever the config field above changes.
+			var serializedConfig = new SerializedObject(_config);
+			var parentProp = serializedConfig.FindProperty("m_parent");
+			if (parentProp == null)
+				return;
+
+			EditorGUI.indentLevel++;
+
+			EditorGUI.BeginChangeCheck();
+			EditorGUILayout.PropertyField
+			(
+				parentProp,
+				new GUIContent
+				(
+					"Inherits from",
+					"Another style config this one builds on. Only what is overridden here has to be stored;\n"
+					+ "everything else is resolved through that config, matched by skin name and style name.\n"
+					+ "Leave empty for a config that stands alone."
+				)
+			);
+
+			if (EditorGUI.EndChangeCheck())
+			{
+				if (parentProp.objectReferenceValue == _config)
+				{
+					UiLog.LogError($"A style config cannot inherit from itself ('{_config.name}').");
+					parentProp.objectReferenceValue = null;
+				}
+
+				serializedConfig.ApplyModifiedProperties();
+				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+			}
+
+			var parent = parentProp.objectReferenceValue as UiStyleConfig;
+			EditorGUILayout.LabelField
+			(
+				parent == null
+					? "Stands alone - every style it uses has to exist in it."
+					: $"Only what differs from '{parent.name}' is stored here; the rest follows that config.",
+				EditorStyles.miniLabel
+			);
+
+			EditorGUI.indentLevel--;
 		}
 
 		private void CloneStyleConfig<T>(ref T currentStyleConfig, string _memberName, string _name) where T : UiStyleConfig
