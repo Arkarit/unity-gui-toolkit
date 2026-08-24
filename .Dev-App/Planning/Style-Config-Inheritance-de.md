@@ -101,13 +101,31 @@ Umgesetzt mit 8 Tests: `UiStyleUtility.CloneStyle` (eigenständige Kopie mit Wer
 
 Offen bleibt: die Wertänderungen im Skin-Drawer. Ein geerbter Style ist nicht Teil der serialisierten Daten des Childs, der Drawer kann ihn also noch gar nicht anzeigen oder editieren — dieser Pfad entsteht erst mit Phase 3 und wird dort verdrahtet.
 
-### Phase 3 — Editor
+### Phase 3 — Editor  ✅ fertig
+
+Umgesetzt mit 13 Tests. Geerbte Zeilen zeichnen dieselben Drawer wie eigene (blau), ein Override ist ein
+eigener Zustand (gelb), und beide Aktionen sitzen in der Zeile: **Overr.** an einer geerbten, **Revert** an
+einem Override. Eine Zeile kann aus ihrer eigenen Property nicht sagen, wem der Style gehört — der
+umgebende Editor sagt es über `UiStyleRowContext`, was auch den Inline-Style im Applier korrekt macht (dort
+wird der Style über ein Wegwerf-Hilfsobjekt gezeichnet). Das Parent-Feld steht im `UiStyleConfigEditor` und
+im Konfigurationsfenster, neben dem „Clone"-Button, dessen Empfehlung dieses Feature ersetzt.
+
+Ein Style, der sich nicht auflöst, sah bisher genau so aus wie „keiner zugewiesen". `UiStyleDiagnostics`
+benennt jetzt pro Fall die eine Sache, die man ändern muss, und das Popup zeigt den gespeicherten Namen
+statt leer zu bleiben.
 
 - Geerbte Styles schreibgeschützt und optisch unterscheidbar von eigenen.
 - **Override** auf einem geerbten Eintrag (in die Child-Konfiguration materialisieren), **Zurück auf geerbt** auf einem eigenen (aus der Child-Konfiguration entfernen).
 - Parent-Feld im `UiStyleConfigEditor` und im Konfigurationsfenster sichtbar machen.
 
-### Phase 4 — Conversion-Tool
+### Phase 4 — Conversion-Tool  ✅ fertig
+
+Umgesetzt mit 17 Tests, in zwei getrennt nutzbaren Hälften (siehe unten). Der Bericht beantwortet die Frage,
+bevor irgendetwas angefasst wird; die Konversion entfernt die Kopien, die keinen Unterschied tragen, behält
+die angepinnten und läuft für **jede** Entfernung durch `UiSkin.RevertStyleToInherited` — ein Style wird
+also nie entfernt, solange ihn nicht etwas anderes weiterhin liefert.
+
+Gemessene Zahlen am Client stehen in der englischen Fassung unter „What it measured on the client“.
 
 Siehe unten.
 

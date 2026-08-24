@@ -41,12 +41,22 @@ namespace GuiToolkit.Style.Editor
 	{
 		public string Alias;
 		public string TypeName;
+
+		/// <summary>
+		/// Type and name in one number, which is how a style is identified everywhere else. Carried so a
+		/// conversion can act on a finding without matching it up by name again.
+		/// </summary>
+		public int Key;
+
 		public EStyleDriftState State;
 		public readonly List<UiStyleValueDrift> Values = new();
 	}
 
 	public class UiSkinDrift
 	{
+		/// <summary>The skin these findings are about - what a conversion has to write to.</summary>
+		public UiSkin Skin;
+
 		public string SkinName;
 
 		/// <summary>The skin it was compared against, or null when there is no counterpart.</summary>
@@ -260,6 +270,7 @@ namespace GuiToolkit.Style.Editor
 			if (_skin == null)
 				return result;
 
+			result.Skin = _skin;
 			result.SkinName = _skin.Name;
 
 			if (_other == null)
@@ -310,6 +321,7 @@ namespace GuiToolkit.Style.Editor
 			{
 				Alias = _style.Alias,
 				TypeName = _style.GetType().Name,
+				Key = _style.Key,
 				State = _state,
 			};
 		}

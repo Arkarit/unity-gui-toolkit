@@ -4,10 +4,12 @@ using UnityEngine;
 namespace GuiToolkit.Style.Editor
 {
 	/// <summary>
-	/// Shows how far one style config has drifted from another, and what inheriting would change.
+	/// Shows how far one style config has drifted from another, what inheriting would change - and carries
+	/// the change out once someone has looked at it.
 	///
-	/// Read-only, on purpose: the question "should this clone inherit?" has to be answerable before anything
-	/// is touched, and the answer is a number - how much of the clone is a copy that carries no information.
+	/// Looking comes first, and separately: the question "should this clone inherit?" has to be answerable
+	/// before anything is touched, and the answer is a number, namely how much of the clone is a copy that
+	/// carries no information.
 	/// </summary>
 	public class UiStyleDriftReportWindow : EditorWindow, IEditorAware
 	{
@@ -17,6 +19,9 @@ namespace GuiToolkit.Style.Editor
 		private int m_skinIndex;
 		private int m_otherSkinIndex;
 		private string m_report;
+		private UiStyleConversionPlan m_plan;
+		private bool m_planOpen;
+		private string m_applyResult;
 		private Vector2 m_scrollPosition;
 
 		[MenuItem(StringConstants.STYLE_DRIFT_REPORT)]
@@ -42,7 +47,7 @@ namespace GuiToolkit.Style.Editor
 
 			EditorGUILayout.HelpBox
 			(
-				"Compares what each config declares itself, skin by skin. Nothing is written.\n"
+				"Compares what each config declares itself, skin by skin. Analyzing writes nothing.\n"
 				+ "Skins are matched the way inheritance matches them: by 'Inherits skin from' where one is "
 				+ "set, by name otherwise.",
 				MessageType.Info
@@ -68,20 +73,25 @@ namespace GuiToolkit.Style.Editor
 			using (new EditorGUI.DisabledScope(m_config == null || m_other == null || sameConfigWholeCompare))
 			{
 				if (GUILayout.Button("Analyze"))
-					m_report = Analyze().ToText();
+					Analyze();
 			}
 
 			if (sameConfigWholeCompare)
 				EditorGUILayout.HelpBox("Pick two different configs, or compare single skins.", MessageType.Warning);
 
+			if (!string.IsNullOrEmpty(m_applyResult))
+				EditorGUILayout.HelpBox(m_applyResult, MessageType.Info);
+
 			if (string.IsNullOrEmpty(m_report))
 				return;
 
 			EditorGUILayout.Space(5);
-			if (GUILayout.Button("Copy to Clipboard"))
+			if (GUILayout.Button("Copy report to Clipboard"))
 				EditorGUIUtility.systemCopyBuffer = m_report;
 
 			m_scrollPosition = EditorGUILayout.BeginScrollView(m_scrollPosition);
+
+			DrawConversion();
 
 			// A selectable label rather than a text area: the report is long, and this way a single line of
 			// it can be picked out and pasted somewhere without the whole thing coming along.
@@ -96,7 +106,93 @@ namespace GuiToolkit.Style.Editor
 			EditorGUILayout.EndScrollView();
 		}
 
-		private UiStyleConfigDrift Analyze()
+		/// <summary>
+		/// The part that writes. Everything droppable is listed by name, so what is about to be removed can
+		/// be read before it is - and any single one of them can be kept.
+		/// </summary>
+		private void DrawConversion()
+		{
+			if (m_plan == null || m_plan.Entries.Count == 0)
+				return;
+
+			EditorGUILayout.Space(5);
+			EditorGUILayout.LabelField("Convert", EditorStyles.boldLabel);
+			EditorGUILayout.HelpBox(m_plan.Describe(), MessageType.None);
+
+			m_planOpen = EditorGUILayout.Foldout(m_planOpen, $"Copies to drop ({m_plan.DropCount} of {m_plan.Entries.Count})");
+			if (m_planOpen)
+			{
+				EditorGUILayout.BeginHorizontal();
+				if (GUILayout.Button("Drop all"))
+					SetDropAll(true);
+
+				if (GUILayout.Button("Keep all"))
+					SetDropAll(false);
+
+				EditorGUILayout.EndHorizontal();
+
+				EditorGUI.indentLevel++;
+				foreach (var entry in m_plan.Entries)
+				{
+					entry.Drop = EditorGUILayout.ToggleLeft
+					(
+						new GUIContent
+						(
+							$"{entry.Alias}   ({entry.TypeName})   -   skin '{entry.Skin.Name}'",
+							"On: the copy is dropped and the style is inherited.\n"
+							+ "Off: the copy is kept as an override - identical today, and free to differ "
+							+ "tomorrow because it no longer follows the other config."
+						),
+						entry.Drop
+					);
+				}
+
+				EditorGUI.indentLevel--;
+			}
+
+			using (new EditorGUI.DisabledScope(m_plan.DropCount == 0 && m_plan.ParentToSet == null))
+			{
+				if (GUILayout.Button("Apply - changes the asset"))
+					ApplyPlan();
+			}
+
+			EditorGUILayout.Space(5);
+		}
+
+		private void SetDropAll( bool _drop )
+		{
+			foreach (var entry in m_plan.Entries)
+				entry.Drop = _drop;
+		}
+
+		private void ApplyPlan()
+		{
+			if (!EditorUtility.DisplayDialog
+			(
+				"Convert to inheritance?",
+				m_plan.Describe() + "\nThis changes the asset. It is one step in the undo history, and no "
+					+ "style is removed unless there is something to inherit it from.",
+				"Convert",
+				"Cancel"
+			))
+			{
+				return;
+			}
+
+			m_applyResult = UiStyleConversion.Apply(m_plan);
+
+			// Re-analyzed right away, so what is on screen afterwards is the new state and not the one the
+			// decision was made on.
+			Analyze();
+		}
+
+		private void Analyze()
+		{
+			m_report = BuildDrift().ToText();
+			m_plan = m_compareSingleSkins ? null : UiStyleConversion.Plan(m_config, m_other);
+		}
+
+		private UiStyleConfigDrift BuildDrift()
 		{
 			if (!m_compareSingleSkins)
 				return UiStyleDriftAnalyzer.Analyze(m_config, m_other);
@@ -141,14 +237,12 @@ namespace GuiToolkit.Style.Editor
 		/// </summary>
 		private static UiStyleConfig FindPackageConfig()
 		{
-			var candidate = GuiToolkit.Editor.EditorAssetUtility.FindScriptableObject<UiStyleConfig>(
+			return GuiToolkit.Editor.EditorAssetUtility.FindScriptableObject<UiStyleConfig>(
 				new GuiToolkit.Editor.EditorAssetUtility.AssetSearchOptions
 				{
 					Folders = new[] { "Assets", "Packages" },
 					SearchString = "UiMainStyleConfig",
 				});
-
-			return candidate;
 		}
 	}
 }
