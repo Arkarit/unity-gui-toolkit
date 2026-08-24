@@ -226,6 +226,79 @@ namespace GuiToolkit.Test
 			Assert.AreNotEqual(drift.Name, drift.OtherName, "both sides have to be identifiable");
 		}
 
+		// --------------------------------------------------- values that are neither numbers nor assets
+
+		/// <summary>
+		/// RectOffset is a plain class without value equality, so two copies of the same padding compare as
+		/// different by reference. Found in the client's orientation config, where both skins showed a
+		/// padding "difference" that was the same padding - and a conversion would have kept both as
+		/// overrides forever.
+		/// </summary>
+		[Test]
+		public void TwoEqualRectOffsets_AreNotADifference()
+		{
+			var (child, parent) = CreatePair();
+			AddLayout(child, "Test/Padding", new RectOffset(0, 0, 0, 180));
+			AddLayout(parent, "Test/Padding", new RectOffset(0, 0, 0, 180));
+
+			var drift = UiStyleDriftAnalyzer.Analyze(child, parent);
+
+			Assert.AreEqual(EStyleDriftState.Identical, drift.Skins[0].Styles[0].State,
+				"same padding, written twice");
+		}
+
+		[Test]
+		public void TwoDifferentRectOffsets_StillAre()
+		{
+			var (child, parent) = CreatePair();
+			AddLayout(child, "Test/Padding", new RectOffset(0, 0, 0, 180));
+			AddLayout(parent, "Test/Padding", new RectOffset(0, 0, 0, 0));
+
+			var drift = UiStyleDriftAnalyzer.Analyze(child, parent);
+			var style = drift.Skins[0].Styles[0];
+
+			Assert.AreEqual(EStyleDriftState.Differs, style.State);
+			StringAssert.Contains("180", style.Values[0].Here);
+		}
+
+		/// <summary>
+		/// A type that does not override ToString() answers with its own name, so both sides printed
+		/// "TMPro.VertexGradient" and the report called two different gradients copy noise. What it holds is
+		/// the only thing that can be shown there.
+		/// </summary>
+		[Test]
+		public void AValueThatCannotDescribeItself_IsDescribedByWhatItHolds()
+		{
+			var description = UiStyleDriftAnalyzer.DescribeValue(new TMPro.VertexGradient(
+				Color.red, Color.green, Color.blue, Color.white));
+
+			StringAssert.Contains("VertexGradient", description);
+			StringAssert.Contains("FF0000", description.ToUpperInvariant());
+			Assert.AreNotEqual("TMPro.VertexGradient", description, "that says nothing about the value");
+		}
+
+		/// <summary>
+		/// And the copy-on-write path: an override must not SHARE a mutable value with what it was copied
+		/// from, or editing the copy's padding edits the original's - silently, and into the package asset
+		/// where the save is then discarded.
+		/// </summary>
+		[Test]
+		public void AnOverrideDoesNotShareItsPaddingWithTheOriginal()
+		{
+			var (child, parent) = CreatePair();
+			var original = AddLayout(parent, "Test/Padding", new RectOffset(0, 0, 0, 180));
+			child.Parent = parent;
+
+			var materialized = Skin(child, SkinDefault).MaterializeStyle(original.Key);
+			var copiedPadding = ((UiStyleUiHorizontalOrVerticalLayoutGroup) materialized).Padding.RawValue;
+
+			Assert.AreNotSame(original.Padding.RawValue, copiedPadding, "a copy, not the same object");
+			Assert.AreEqual(180, copiedPadding.bottom, "and it carries the value");
+
+			copiedPadding.bottom = 42;
+			Assert.AreEqual(180, original.Padding.RawValue.bottom, "the original did not move");
+		}
+
 		// ------------------------------------------------------- telling the two Unity nulls apart
 
 		/// <summary>
@@ -273,6 +346,19 @@ namespace GuiToolkit.Test
 			config.Skins = skins;
 			return config;
 		}
+
+		private static UiStyleUiHorizontalOrVerticalLayoutGroup AddLayout
+			( UiStyleConfig _config, string _styleName, RectOffset _padding )
+		{
+			var style = new UiStyleUiHorizontalOrVerticalLayoutGroup(_config, _styleName);
+			style.Padding.IsApplicable = true;
+			style.Padding.RawValue = _padding;
+			Skin(_config, SkinDefault).Styles.Add(style);
+			return style;
+		}
+
+		private static UiSkin Skin( UiStyleConfig _config, string _skinName )
+			=> _config.GetOwnSkinByNameOrAlias(_skinName, false);
 
 		private static UiStyleImage AddImage( UiStyleConfig _config, string _skinName, string _styleName, Color _color )
 		{

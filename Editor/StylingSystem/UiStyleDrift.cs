@@ -417,7 +417,7 @@ namespace GuiToolkit.Style.Editor
 
 				object rawHere = valueHere.RawValueObj;
 				object rawThere = valueThere.RawValueObj;
-				if (Equals(rawHere, rawThere))
+				if (ValuesEqual(rawHere, rawThere))
 					continue;
 
 				string describedHere = DescribeValue(rawHere);
@@ -463,10 +463,39 @@ namespace GuiToolkit.Style.Editor
 		}
 
 		/// <summary>
+		/// Whether two values say the same thing.
+		///
+		/// Equals() is not enough: a plain class that does not implement value equality compares by
+		/// REFERENCE, so two copies of the same RectOffset read as a difference and a conversion would keep
+		/// them as overrides forever. Structs are left to Equals, which compares them field by field - a
+		/// difference reported there is real.
+		/// </summary>
+		private static bool ValuesEqual( object _here, object _there )
+		{
+			if (Equals(_here, _there))
+				return true;
+
+			if (_here == null || _there == null)
+				return false;
+
+			// An asset reference means the asset, and two different assets are two different values.
+			if (_here is UnityEngine.Object || _there is UnityEngine.Object)
+				return false;
+
+			var type = _here.GetType();
+			if (type != _there.GetType() || type.IsValueType)
+				return false;
+
+			return DescribeValue(_here) == DescribeValue(_there);
+		}
+
+		/// <summary>
 		/// A value as a person reads it. Public because the two kinds of Unity null below are the sort of
 		/// distinction that only stays right if something checks it.
 		/// </summary>
-		public static string DescribeValue( object _raw )
+		public static string DescribeValue( object _raw ) => DescribeValue(_raw, 0);
+
+		private static string DescribeValue( object _raw, int _depth )
 		{
 			switch (_raw)
 			{
@@ -497,8 +526,45 @@ namespace GuiToolkit.Style.Editor
 					return formattable.ToString(null, CultureInfo.InvariantCulture);
 
 				default:
-					return _raw.ToString();
+					return DescribeByToStringOrFields(_raw, _depth);
 			}
+		}
+
+		/// <summary>
+		/// Whatever the type says about itself - and if it says nothing, what it holds.
+		///
+		/// A type that does not override ToString() answers with its own name, so both sides of a comparison
+		/// print "TMPro.VertexGradient" and the report claims two different gradients are the same value. The
+		/// fields are the only thing that can be shown there.
+		/// </summary>
+		private static string DescribeByToStringOrFields( object _raw, int _depth )
+		{
+			var type = _raw.GetType();
+			var text = _raw.ToString();
+
+			// Object.ToString() and ValueType.ToString() both answer with the type name.
+			if (text != type.ToString())
+				return text;
+
+			if (_depth >= 2)
+				return type.Name;
+
+			var parts = new List<string>();
+			foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
+				parts.Add($"{field.Name}={DescribeValue(field.GetValue(_raw), _depth + 1)}");
+
+			if (parts.Count == 0)
+			{
+				foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+				{
+					if (!property.CanRead || property.GetIndexParameters().Length > 0)
+						continue;
+
+					parts.Add($"{property.Name}={DescribeValue(property.GetValue(_raw), _depth + 1)}");
+				}
+			}
+
+			return parts.Count == 0 ? type.Name : $"{type.Name}({string.Join(", ", parts)})";
 		}
 	}
 }

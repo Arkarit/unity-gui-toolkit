@@ -48,7 +48,14 @@ namespace GuiToolkit.Style
 			if (_source.Alias != _source.Name)
 				clone.Alias = _source.Alias;
 
-			var from = _source.Values;
+			// The values come from a deep copy of the source, not straight across. A value that is a plain
+			// class - RectOffset, in practice - would otherwise be SHARED with the style it was copied from,
+			// so editing the override's padding would edit the original's; and if the original lives in the
+			// package, that write is discarded on save after having already changed what is on screen.
+			//
+			// The whole style is what gets deep-copied, deliberately: a bare RectOffset cannot survive that
+			// round trip on its own (it comes back zeroed), a style holding one can.
+			var from = _source.DeepClone().Values;
 			var to = clone.Values;
 			if (from.Length != to.Length)
 			{
@@ -56,6 +63,7 @@ namespace GuiToolkit.Style
 				               $"original {from.Length}.");
 				return null;
 			}
+
 
 			for (int i = 0; i < from.Length; i++)
 			{
