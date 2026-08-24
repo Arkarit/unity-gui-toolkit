@@ -210,6 +210,22 @@ namespace GuiToolkit.Test
 			StringAssert.Contains("1 identical", text, "counted, though");
 		}
 
+		/// <summary>
+		/// The case this whole feature exists for has both sides called the same, because a clone keeps the
+		/// name it was cloned from - and "'UiMainStyleConfig' against 'UiMainStyleConfig'" tells the reader
+		/// nothing at all about which side is which.
+		/// </summary>
+		[Test]
+		public void TwoConfigsOfTheSameName_AreToldApart()
+		{
+			var child = CreateConfig("UiMainStyleConfig", SkinDefault);
+			var parent = CreateConfig("UiMainStyleConfig", SkinDefault);
+
+			var drift = UiStyleDriftAnalyzer.Analyze(child, parent);
+
+			Assert.AreNotEqual(drift.Name, drift.OtherName, "both sides have to be identifiable");
+		}
+
 		// ------------------------------------------------------- telling the two Unity nulls apart
 
 		/// <summary>

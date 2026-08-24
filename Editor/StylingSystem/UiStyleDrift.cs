@@ -219,8 +219,11 @@ namespace GuiToolkit.Style.Editor
 			if (_config == null || _other == null)
 				return result;
 
-			result.Name = _config.name;
-			result.OtherName = _other.name;
+			// Both sides are called UiMainStyleConfig in the case this exists for - a project's clone keeps
+			// the name it was cloned from - and a report saying "'X' against 'X'" tells the reader nothing.
+			bool sameName = _config.name == _other.name;
+			result.Name = Identify(_config, sameName);
+			result.OtherName = Identify(_other, sameName);
 			result.AlreadyInherits = _config.Parent == _other;
 
 			var matchedOtherSkins = new HashSet<string>();
@@ -242,6 +245,21 @@ namespace GuiToolkit.Style.Editor
 			}
 
 			return result;
+		}
+
+		/// <summary>
+		/// How a config is named in the report: by its asset name, and only when both sides share that name
+		/// by its path as well - which is long, and says nothing as long as the names already differ.
+		/// </summary>
+		private static string Identify( UiStyleConfig _config, bool _sameName )
+		{
+			if (!_sameName)
+				return _config.name;
+
+			var path = AssetDatabase.GetAssetPath(_config);
+			return string.IsNullOrEmpty(path)
+				? $"{_config.name} (#{_config.GetInstanceID()})"
+				: $"{_config.name} ({path})";
 		}
 
 		/// <summary>
