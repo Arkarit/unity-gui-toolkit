@@ -210,8 +210,25 @@ namespace GuiToolkit.Editor
 			{
 				EditorGUILayout.BeginHorizontal();
 				EditorGUILayout.PropertyField(styleConfigProp);
-				if (GUILayout.Button("Clone", GUILayout.Width(100)))
+
+				// Two ways to get a config of your own, and they are not equally good - which is why the
+				// recommended one is offered first and the other one keeps its old place.
+				if (GUILayout.Button(new GUIContent("Inherit", "Creates a project config that BUILDS ON this "
+					    + "one: same skins, no styles of its own yet. Only what you override is stored here, "
+					    + "everything else keeps following the library as it changes.\n\nThe better default."),
+					    GUILayout.Width(100)))
+				{
+					InheritStyleConfig(ref currentStyleConfig, _memberName, _name);
+				}
+
+				if (GUILayout.Button(new GUIContent("Clone", "Creates a project config that is a FULL COPY of "
+					    + "this one. It stops following the library the moment it is made, and nothing says "
+					    + "later which of its values were ever decided on purpose.\n\nUse 'Inherit' unless "
+					    + "you need the copy."), GUILayout.Width(100)))
+				{
 					CloneStyleConfig(ref currentStyleConfig, _memberName, _name);
+				}
+
 				EditorGUILayout.EndHorizontal();
 				return;
 			}
@@ -302,6 +319,33 @@ namespace GuiToolkit.Editor
 			styleConfigProp.objectReferenceValue = currentStyleConfig;
 			m_serializedSettingsObject.ApplyModifiedProperties();
 			AssetDatabase.SaveAssets();
+		}
+
+		/// <summary>
+		/// Creates a project config that builds on the package's instead of copying it.
+		///
+		/// Done by cloning and then throwing every style away, which sounds roundabout and is the point: the
+		/// clone gets the skins with their names and settings, and the repaired back-references, all of which
+		/// have to be right. What is left is a config with the same skins and nothing of its own - so it
+		/// resolves exactly like the package config until something is overridden.
+		/// </summary>
+		private void InheritStyleConfig<T>(ref T currentStyleConfig, string _memberName, string _name) where T : UiStyleConfig
+		{
+			var parent = currentStyleConfig;
+
+			CloneStyleConfig(ref currentStyleConfig, _memberName, _name);
+
+			// The clone was refused or cancelled - then there is nothing to turn into a child.
+			if (currentStyleConfig == null || currentStyleConfig == parent)
+				return;
+
+			foreach (var skin in currentStyleConfig.Skins)
+				skin.Styles.Clear();
+
+			currentStyleConfig.Parent = parent;
+
+			EditorGeneralUtility.SetDirty(currentStyleConfig);
+			AssetDatabase.SaveAssetIfDirty(currentStyleConfig);
 		}
 
 		private bool IsDefaultConfig<T>(T currentStyleConfig) where T : UiStyleConfig

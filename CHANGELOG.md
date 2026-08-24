@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Style config inheritance** — a `UiStyleConfig` can name a **parent** it builds on, so a project stores
+  only what it actually overrides instead of a full copy of everything. Until now the only way to theme a
+  project was to clone the config that ships with the package, which stops following the library at the
+  moment it is made; worse, nothing says afterwards which of its 140 values were ever decided on purpose.
+
+  A lookup resolves through the chain, skin by skin, own winning. Skins are matched by name, or by
+  `Inherits skin from` where one is set - and that may point at a skin of the **same** config, because a
+  variant skin is usually a variant of the skin next to it rather than of anything in the library. The
+  editor offers the candidates and refuses the ones that would close a circle.
+
+  In a config inspector an inherited style is listed read-only and tinted blue, **Overr.** copies it into
+  the config so it can be changed (yellow), **Revert** drops the copy again; an override is per skin. The
+  same three states appear on a style applier. Read-only is not cosmetics: a resolved inherited style IS
+  the parent's instance, so writing to it would edit the parent - and for the package copy that save is
+  discarded without a word. Every write path materialises first.
+
+  `Gui Toolkit → Style Config Drift Report...` compares two configs, or two single skins, style by style
+  and value by value, and writes nothing. It answers the question an existing clone cannot answer about
+  itself: how much of it carries no information. The same window converts a clone into a child, listing
+  every droppable copy by name so any one of them can be kept as a pinned override - and no style is ever
+  removed unless something else still provides it.
+
+  `Gui Toolkit → Configuration` now offers **Inherit** next to **Clone**, and the parent can be set there
+  as well as in the config inspector.
+
 - **Gaps on `UiRoundedImage`** — a shape can be interrupted, and what an interruption *is* depends on what
   the shape is:
   - **With a frame** there is an outline, and a gap interrupts one of its four **sides**. Four at once give
@@ -98,6 +123,11 @@ All notable changes to this project will be documented in this file.
 
 
 ### Fixed
+- **`Backgrounds/PanelHeadline` cleared the sprite of every Image it styled.** Its `Sprite` value was
+  switched on with nothing assigned, so the style applied null. Switched off instead, in both skins, which
+  is the truthful statement: this style does not decide the sprite. Verified to change nothing visually -
+  every prefab using it has no sprite of its own either.
+
 - **`UiRoundedImage` folded through its own corners once the frame or fade exceeded the radius.** The
   corner piece was drawn between an outer arc of `radius` and an inner arc of `radius - frameSize`, and
   past the radius that inner radius goes NEGATIVE: the inner arc flips to the far side of the corner's

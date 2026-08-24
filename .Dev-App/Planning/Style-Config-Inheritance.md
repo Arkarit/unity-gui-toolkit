@@ -123,11 +123,21 @@ question before anything is touched; the conversion drops the copies that carry 
 ones that were pinned, and goes through `UiSkin.RevertStyleToInherited` for every single drop, so a style
 is never removed unless something else still provides it.
 
-### Phase 5 — Verification and documentation
+### Phase 5 — Verification and documentation  ✅ done (except one demo case)
 
-- Dev-App scene exercising: inherited style, overridden style, project-only style, skin present in parent but not in child, and the reverse.
-- `BEST-PRACTICES.md` §2 rewritten: cloning is no longer the recommended path, inheriting is.
-- `CHANGELOG.md`, and a note in the AI documentation that a style may now live in the parent.
+- `BEST-PRACTICES.md` §2 rewritten: **inherit, do not clone**, with the two buttons, the drift report, the
+  skin mapping, and the measured 61-of-80 as the argument. ✅
+- `CHANGELOG.md` under Added, plus the `Backgrounds/PanelHeadline` fix under Fixed. ✅
+- `AGENTS.md`: a style may now live in another config than the one being looked at, with the four
+  consequences that matter for anything touching the styling system (materialise before writing, effective
+  set vs. declared set, skins matched by name and possibly to a sibling, and the row context). ✅
+- `Gui Toolkit → Configuration` offers **Inherit** next to **Clone**: clone, then drop every style, so the
+  new config has the same skins with their settings and back-references repaired, and nothing of its own. ✅
+- Demo: the Dev-App's own `UiExampleStyleConfig` is the live test bed and already exercises four of the five
+  cases - inherited style (70 per skin), project-only style (3 per skin), a parent skin nothing maps to
+  (`Light`), and a child skin whose name the parent does not have, mapped explicitly (`Example`). The fifth,
+  an **overridden** style, is one click (**Overr.** on any inherited row) and was left to the owner of that
+  asset rather than mixed into his uncommitted working file.
 
 ---
 

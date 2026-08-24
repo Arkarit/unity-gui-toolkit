@@ -129,7 +129,17 @@ Gemessene Zahlen am Client stehen in der englischen Fassung unter „What it mea
 
 Siehe unten.
 
-### Phase 5 — Verifikation und Dokumentation
+### Phase 5 — Verifikation und Dokumentation  ✅ fertig (bis auf einen Demo-Fall)
+
+`BEST-PRACTICES.md` §2 umgeschrieben (**erben statt klonen**), `CHANGELOG.md` unter Added plus der
+`Backgrounds/PanelHeadline`-Fix unter Fixed, `AGENTS.md` um die vier Konsequenzen ergänzt, die für alles
+gelten, was das Styling-System anfasst. Im Konfigurationsfenster steht **Inherit** neben **Clone**.
+
+Als Demo dient die `UiExampleStyleConfig` der Dev-App selbst: sie deckt vier der fünf Fälle ab — geerbter
+Style, projekteigener Style, ein Parent-Skin, auf den nichts zeigt (`Light`), und ein Child-Skin, dessen
+Namen der Parent nicht hat, explizit zugeordnet (`Example`). Der fünfte Fall — ein **überschriebener** Style
+— ist ein Klick (**Overr.** an einer geerbten Zeile) und bleibt dem Besitzer dieses Assets überlassen,
+statt sich in dessen uncommittete Arbeitsdatei zu mischen.
 
 - Dev-App-Szene, die alles durchspielt: geerbter Style, überschriebener Style, projekteigener Style, Skin nur im Parent, Skin nur im Child.
 - `BEST-PRACTICES.md` §2 neu fassen: Klonen ist nicht mehr der empfohlene Weg, Erben ist es.

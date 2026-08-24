@@ -74,10 +74,29 @@ decides whether the style has an opinion at all; a value that is written but not
 nothing on screen, which is the most confusing possible outcome and therefore never the default.
 
 **A project must not theme the config that ships in the package.** It lives in the immutable package
-copy, so the edit is refused or silently lost at the next version bump. Clone it into the project first
-— `Gui Toolkit → Configuration → Clone`, or `clone_style_config` over the MCP bridge. Both repair the
-skins' and styles' back-references to their config, which `Instantiate` copies verbatim from the
-original and which nothing else fixes afterwards.
+copy, so the edit is refused or silently lost at the next version bump. Give the project its own config
+first — `Gui Toolkit → Configuration`, where **Inherit** creates one that builds on the package's and
+**Clone** creates a full copy (`clone_style_config` over the MCP bridge does the cloning variant). Both
+repair the skins' and styles' back-references to their config, which `Instantiate` copies verbatim from
+the original and which nothing else fixes afterwards.
+
+**A style may live in another config than the one you are looking at.** `UiStyleConfig.Parent` makes a
+config build on another, and the consequences are worth knowing before touching any of this:
+
+- A lookup resolves through the chain, so `UiSkin.StyleByKey` may hand you an instance that belongs to
+  the **parent asset**. Styles are `[SerializeReference]` objects, so it is the real one, and writing to
+  it edits the parent — for the package copy, `SkipSavingInPackageFolder` then drops the save without a
+  word. Every write path must call `UiSkin.MaterializeStyle` (or
+  `UiAbstractApplyStyleBase.MaterializeStyleForOverride`) first. `OwnsStyle` is the question to ask.
+- The **effective set** of a skin is own plus inherited, own winning: `UiSkin.EffectiveStyles`,
+  `UiStyleConfig.EffectiveStyleNames` / `EffectiveStyleAliases`. Reading `Skins[i].Styles` gives you what
+  the config declares itself, which for a converted project is only its overrides.
+- Skins are matched **by name**, or by `UiSkin.InheritFromSkinName` where one is set — and that name may
+  point at a skin of the **same** config (`InheritFromSameConfig`). So "inherited" cannot be decided by
+  comparing configs; ask `UiSkin.SkinOwning`, and in editor code `UiStyleRowContext`, which the
+  surrounding editor sets because a row cannot tell from its own `SerializedProperty` whose style it is.
+- `Gui Toolkit → Style Config Drift Report...` compares two configs (or two single skins) and converts a
+  clone into a child. Read-only until asked otherwise.
 
 ### State System (`GuiToolkit.UiStateSystem`)
 

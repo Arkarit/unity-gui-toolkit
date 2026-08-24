@@ -210,6 +210,35 @@ namespace GuiToolkit.Test
 			StringAssert.Contains("1 identical", text, "counted, though");
 		}
 
+		// ------------------------------------------------------- telling the two Unity nulls apart
+
+		/// <summary>
+		/// There are two kinds of Unity null in a style value, and they mean opposite things: nothing was
+		/// ever assigned, or something was and is gone. The instance id is what tells them apart, and getting
+		/// it wrong sent me hunting for a broken asset that never existed - a value serialized as
+		/// {fileID: 0} inside a [SerializeReference] block comes back as a wrapper, not as plain null.
+		/// </summary>
+		[Test]
+		public void AnEmptyValue_IsNotCalledMissing()
+		{
+			Assert.AreEqual("<none>", UiStyleDriftAnalyzer.DescribeValue(null));
+		}
+
+		[Test]
+		public void AReferenceWhoseTargetIsGone_IsCalledMissing()
+		{
+			var doomed = ScriptableObject.CreateInstance<UiStyleConfig>();
+			doomed.name = "Doomed";
+			object reference = doomed;
+
+			Assert.AreEqual("Doomed (UiStyleConfig)", UiStyleDriftAnalyzer.DescribeValue(reference));
+
+			Object.DestroyImmediate(doomed);
+
+			Assert.AreEqual("<missing>", UiStyleDriftAnalyzer.DescribeValue(reference),
+				"it kept its instance id, so something WAS there");
+		}
+
 		// ------------------------------------------------------------------------------- fixtures
 
 		private (UiStyleConfig child, UiStyleConfig parent) CreatePair()

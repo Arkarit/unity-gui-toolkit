@@ -382,8 +382,8 @@ namespace GuiToolkit.Style.Editor
 				if (Equals(rawHere, rawThere))
 					continue;
 
-				string describedHere = Describe(rawHere);
-				string describedThere = Describe(rawThere);
+				string describedHere = DescribeValue(rawHere);
+				string describedThere = DescribeValue(rawThere);
 
 				result.State = EStyleDriftState.Differs;
 				result.Values.Add(new UiStyleValueDrift
@@ -424,16 +424,27 @@ namespace GuiToolkit.Style.Editor
 			return result;
 		}
 
-		private static string Describe( object _raw )
+		/// <summary>
+		/// A value as a person reads it. Public because the two kinds of Unity null below are the sort of
+		/// distinction that only stays right if something checks it.
+		/// </summary>
+		public static string DescribeValue( object _raw )
 		{
 			switch (_raw)
 			{
 				case null:
 					return "<none>";
 
-				// Unity's null is not null, so this has to be asked before anything else is read off it.
+				// Unity's null is not null, and there are TWO kinds of it here - told apart by the instance
+				// id, because they mean opposite things.
+				//
+				// An object field serialized as {fileID: 0} inside a [SerializeReference] block does not come
+				// back as plain null but as a wrapper with instance id 0: nothing was ever assigned. A
+				// reference whose asset is gone keeps its id. Calling the first one missing was wrong and
+				// sent me looking for a broken asset that never existed - there are 16 unassigned values in
+				// the config shipped with the package, and none of them is broken.
 				case UnityEngine.Object unityObject when unityObject == null:
-					return "<missing>";
+					return unityObject.GetInstanceID() == 0 ? "<none>" : "<missing>";
 
 				case UnityEngine.Object unityObject:
 					return $"{unityObject.name} ({unityObject.GetType().Name})";

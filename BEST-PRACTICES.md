@@ -75,16 +75,42 @@ resolved to something else.
 
 ---
 
-## 2. Clone the style config before theming
+## 2. Inherit the style config, do not clone it
 
 A fresh project's `UiToolkitConfiguration` points at the style config **inside the package** — which
 is why a fresh project looks like the library's default skin rather than like nothing. Editing it has
-the same problem as editing a package prefab.
+the same problem as editing a package prefab: the write is refused, or silently lost at the next
+version bump.
 
-`Gui Toolkit → Configuration`, next to the style config field: **Clone**. Or `clone_style_config` over
-the MCP bridge. Both copy it into the project, repoint the configuration, and repair the copy's
-internal back-references (every skin and every style holds a reference to its config, and a plain
-duplicate leaves all of them naming the original — 128 of them in the default config).
+`Gui Toolkit → Configuration`, next to the style config field, offers two ways out. They are not
+equally good.
+
+**Inherit** creates a project config that *builds on* the package's: the same skins, no styles of its
+own. Only what you override is stored in your project; everything else keeps following the library as
+it changes. In the config inspector an inherited style is listed read-only and tinted blue, **Overr.**
+copies it into your config so it can be changed (yellow), **Revert** drops the copy again. An override
+is per skin.
+
+**Clone** creates a full copy. It stops following the library the moment it is made — and that is not
+the real cost. The real cost is that nothing says afterwards which of its 140 values were ever decided
+on purpose, so nobody dares touch any of them.
+
+Both repoint the configuration and repair the copy's internal back-references (every skin and every
+style holds a reference to its config, and a plain duplicate leaves all of them naming the original —
+128 of them in the default config). `clone_style_config` over the MCP bridge does the cloning variant.
+
+**Already cloned?** `Gui Toolkit → Style Config Drift Report...` compares two configs style by style
+and value by value, and writes nothing. It answers what nobody can answer by looking: how much of the
+clone carries no information. Measured on one real client, **61 of 80** styles in its main skin were
+copies of the package's, and its three "differences" turned out to be `IsApplicable` flags rather than
+decisions — the package had moved on without it. The same window converts, listing every droppable
+copy by name; any single one can be kept as a **pinned** override, and no style is ever removed unless
+something else still provides it.
+
+**Skins are matched by name**, so a project skin named something the parent does not have inherits
+nothing until it is mapped. The skin's `Inherits skin from` says so and offers the candidates —
+including the **other skins of the same config**, because a variant skin is usually a variant of the
+skin next to it rather than of anything in the library.
 
 The write path refuses a package-owned config, so this cannot be got wrong by accident.
 
