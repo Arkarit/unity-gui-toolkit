@@ -222,8 +222,17 @@ namespace GuiToolkit.Style.Editor
 			// Both sides are called UiMainStyleConfig in the case this exists for - a project's clone keeps
 			// the name it was cloned from - and a report saying "'X' against 'X'" tells the reader nothing.
 			bool sameName = _config.name == _other.name;
-			result.Name = Identify(_config, sameName);
-			result.OtherName = Identify(_other, sameName);
+			result.Name = Identify(_config, sameName, false);
+			result.OtherName = Identify(_other, sameName, false);
+
+			// The short form is the folder, which is enough to tell a project config from the package's and
+			// short enough to repeat in every line. Only if even that collides does the full path come out.
+			if (result.Name == result.OtherName)
+			{
+				result.Name = Identify(_config, sameName, true);
+				result.OtherName = Identify(_other, sameName, true);
+			}
+
 			result.AlreadyInherits = _config.Parent == _other;
 
 			var matchedOtherSkins = new HashSet<string>();
@@ -251,15 +260,26 @@ namespace GuiToolkit.Style.Editor
 		/// How a config is named in the report: by its asset name, and only when both sides share that name
 		/// by its path as well - which is long, and says nothing as long as the names already differ.
 		/// </summary>
-		private static string Identify( UiStyleConfig _config, bool _sameName )
+		private static string Identify( UiStyleConfig _config, bool _sameName, bool _fullPath )
 		{
 			if (!_sameName)
 				return _config.name;
 
 			var path = AssetDatabase.GetAssetPath(_config);
-			return string.IsNullOrEmpty(path)
-				? $"{_config.name} (#{_config.GetInstanceID()})"
-				: $"{_config.name} ({path})";
+			if (string.IsNullOrEmpty(path))
+				return $"{_config.name} (#{_config.GetInstanceID()})";
+
+			return $"{_config.name} ({(_fullPath ? path : ShortFolder(path))})";
+		}
+
+		/// <summary>The last two folders of a path - '__Funatics/Resources' rather than all of it.</summary>
+		private static string ShortFolder( string _path )
+		{
+			var parts = _path.Split('/');
+			if (parts.Length < 3)
+				return _path;
+
+			return $"{parts[parts.Length - 3]}/{parts[parts.Length - 2]}";
 		}
 
 		/// <summary>
