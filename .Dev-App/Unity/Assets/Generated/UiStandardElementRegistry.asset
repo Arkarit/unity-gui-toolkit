@@ -247,6 +247,12 @@ MonoBehaviour:
       type: 3}
     fromLibrary: 1
     isInternal: 1
+  - element: 68
+    customId: 
+    prefab: {fileID: 4249549355371210752, guid: 964179fb4ff7acc48b1bbdf21dc5eb34,
+      type: 3}
+    fromLibrary: 1
+    isInternal: 0
   - element: 22
     customId: 
     prefab: {fileID: 6269061962827281554, guid: 445786f719e154d4db109676021f00a3,
@@ -256,6 +262,12 @@ MonoBehaviour:
   - element: 20
     customId: 
     prefab: {fileID: 435245045239792778, guid: 19c0d783fc245d54b8eed1a995780a3a, type: 3}
+    fromLibrary: 1
+    isInternal: 0
+  - element: 69
+    customId: 
+    prefab: {fileID: 8812185466026294891, guid: aa21ccdbd3de21043a581f75233df61a,
+      type: 3}
     fromLibrary: 1
     isInternal: 0
   - element: 37
