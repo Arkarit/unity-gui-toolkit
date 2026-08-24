@@ -123,6 +123,12 @@ All notable changes to this project will be documented in this file.
 
 
 ### Fixed
+- **A style applier in `FullScreenTabDialog` never applied anything.** It asked for
+  `FullScreenTabDialog/TabBackground` as a `UiGradientSimple`, and that style exists only as an `Image` -
+  which the applier next to it on the same object already resolves. Removed, which changes nothing on
+  screen: the gradient keeps the colors it has in the prefab. `FullScreenSettingsDialog` is a variant of
+  that prefab and loses it along with it.
+
 - **`Backgrounds/PanelHeadline` cleared the sprite of every Image it styled.** Its `Sprite` value was
   switched on with nothing assigned, so the style applied null. Switched off instead, in both skins, which
   is the truthful statement: this style does not decide the sprite. Verified to change nothing visually -
