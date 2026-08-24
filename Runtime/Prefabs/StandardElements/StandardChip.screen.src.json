@@ -1,0 +1,113 @@
+{
+  "name": "StandardChip",
+  "root": {
+    "id": "root",
+    "type": "UiChip",
+    "components": [
+      "UiRoundedImage",
+      "UiHorizontalOrVerticalLayoutGroup",
+      "ContentSizeFitter",
+      "UiComment",
+      "UiStandardElement"
+    ],
+    "rect": {
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "size": [
+        220,
+        52
+      ]
+    },
+    "style": "Chip/Default",
+    "props": {
+      "vertical": false,
+      "childControlWidth": true,
+      "childControlHeight": true,
+      "childForceExpandWidth": false,
+      "childForceExpandHeight": false,
+      "HorizontalFit": "PreferredSize",
+      "VerticalFit": "PreferredSize",
+      "radius": 16,
+      "frameSize": 0,
+      "comment": "A compact, colour-coded label with an optional leading icon. Size and colour role come from the style it carries - 'Chip/Default' for a list row, 'Chip/Small' inline. Display only until Clickable is switched on.",
+      "element": "StandardChip",
+      "background": "#root",
+      "icon": "#Icon",
+      "clickable": false,
+      "truncateOverlongText": true
+    },
+    "children": [
+      {
+        "id": "Icon",
+        "type": "Image",
+        "components": [
+          "LayoutElement"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            32,
+            32
+          ]
+        },
+        "props": {
+          "RaycastTarget": false,
+          "PreferredWidth": 32,
+          "PreferredHeight": 32,
+          "MinWidth": 32,
+          "MinHeight": 32
+        },
+        "active": false
+      },
+      {
+        "id": "Label",
+        "type": "UiLocalizedTextMeshProUGUI",
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            140,
+            40
+          ]
+        },
+        "style": "Chip/Default",
+        "text": "@loca:Chip",
+        "props": {
+          "raycastTarget": false
+        }
+      }
+    ]
+  },
+  "outputPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardChip.prefab"
+}

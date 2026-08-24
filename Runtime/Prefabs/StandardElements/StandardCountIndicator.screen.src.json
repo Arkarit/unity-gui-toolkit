@@ -1,0 +1,258 @@
+{
+  "name": "StandardCountIndicator",
+  "root": {
+    "id": "root",
+    "type": "UiCountIndicator",
+    "components": [
+      "UiHorizontalOrVerticalLayoutGroup",
+      "ContentSizeFitter",
+      "UiComment",
+      "UiStandardElement"
+    ],
+    "rect": {
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "size": [
+        260,
+        96
+      ]
+    },
+    "props": {
+      "vertical": true,
+      "childControlWidth": true,
+      "childControlHeight": true,
+      "childForceExpandWidth": false,
+      "childForceExpandHeight": false,
+      "spacing": 4,
+      "childAlignment": "MiddleCenter",
+      "HorizontalFit": "PreferredSize",
+      "VerticalFit": "PreferredSize",
+      "comment": "A 'x / y' counter with a verdict - too few, right, too many - and an optional second counter for a side condition. Holds no rule: the caller sets the numbers and may set the verdict. The three verdicts wear the styles CountIndicator/Below, /Ok and /Above.",
+      "element": "StandardCountIndicator",
+      "valueText": "#Value",
+      "stateIcon": "#Icon",
+      "secondaryRow": "#Secondary",
+      "secondaryValueText": "#SecondaryValue",
+      "secondaryCaptionText": "#SecondaryCaption",
+      "secondaryCaptionLocaKey": "Side condition",
+      "stateStyleAppliers": [
+        "#Value",
+        "#Icon"
+      ],
+      "stylePrefix": "CountIndicator",
+      "current": 3,
+      "max": 5,
+      "secondaryCurrent": 1,
+      "secondaryMax": 2,
+      "showSecondary": false,
+      "highlightOnChange": true
+    },
+    "children": [
+      {
+        "id": "Main",
+        "name": "Main",
+        "type": "UiHorizontalOrVerticalLayoutGroup",
+        "components": [
+          "ContentSizeFitter"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            260,
+            44
+          ]
+        },
+        "props": {
+          "vertical": false,
+          "childControlWidth": true,
+          "childControlHeight": true,
+          "childForceExpandWidth": false,
+          "childForceExpandHeight": false,
+          "spacing": 8,
+          "childAlignment": "MiddleCenter",
+          "HorizontalFit": "PreferredSize",
+          "VerticalFit": "PreferredSize"
+        },
+        "children": [
+          {
+            "id": "Icon",
+            "type": "Image",
+            "active": false,
+            "components": [
+              "LayoutElement"
+            ],
+            "rect": {
+              "anchorMin": [
+                0.5,
+                0.5
+              ],
+              "anchorMax": [
+                0.5,
+                0.5
+              ],
+              "pivot": [
+                0.5,
+                0.5
+              ],
+              "size": [
+                32,
+                32
+              ]
+            },
+            "style": "CountIndicator/Below",
+            "props": {
+              "RaycastTarget": false,
+              "PreferredWidth": 32,
+              "PreferredHeight": 32,
+              "MinWidth": 32,
+              "MinHeight": 32
+            }
+          },
+          {
+            "id": "Value",
+            "type": "TextMeshProUGUI",
+            "rect": {
+              "anchorMin": [
+                0.5,
+                0.5
+              ],
+              "anchorMax": [
+                0.5,
+                0.5
+              ],
+              "pivot": [
+                0.5,
+                0.5
+              ],
+              "size": [
+                150,
+                40
+              ]
+            },
+            "style": "CountIndicator/Below",
+            "text": "@text:3 / 5",
+            "props": {
+              "raycastTarget": false
+            }
+          }
+        ]
+      },
+      {
+        "id": "Secondary",
+        "name": "Secondary",
+        "type": "UiHorizontalOrVerticalLayoutGroup",
+        "active": false,
+        "components": [
+          "ContentSizeFitter"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            260,
+            32
+          ]
+        },
+        "props": {
+          "vertical": false,
+          "childControlWidth": true,
+          "childControlHeight": true,
+          "childForceExpandWidth": false,
+          "childForceExpandHeight": false,
+          "spacing": 8,
+          "childAlignment": "MiddleCenter",
+          "HorizontalFit": "PreferredSize",
+          "VerticalFit": "PreferredSize"
+        },
+        "children": [
+          {
+            "id": "SecondaryCaption",
+            "type": "UiLocalizedTextMeshProUGUI",
+            "rect": {
+              "anchorMin": [
+                0.5,
+                0.5
+              ],
+              "anchorMax": [
+                0.5,
+                0.5
+              ],
+              "pivot": [
+                0.5,
+                0.5
+              ],
+              "size": [
+                150,
+                28
+              ]
+            },
+            "style": "Text/Flowing/Small",
+            "text": "@loca:Side condition",
+            "props": {
+              "raycastTarget": false
+            }
+          },
+          {
+            "id": "SecondaryValue",
+            "type": "TextMeshProUGUI",
+            "rect": {
+              "anchorMin": [
+                0.5,
+                0.5
+              ],
+              "anchorMax": [
+                0.5,
+                0.5
+              ],
+              "pivot": [
+                0.5,
+                0.5
+              ],
+              "size": [
+                90,
+                28
+              ]
+            },
+            "style": "CountIndicator/Below",
+            "text": "@text:1 / 2",
+            "props": {
+              "raycastTarget": false
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "outputPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardCountIndicator.prefab"
+}

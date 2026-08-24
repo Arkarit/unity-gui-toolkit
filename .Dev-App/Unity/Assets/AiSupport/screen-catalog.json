@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "generatedAtUtc": "2026-08-20T08:24:46.4783912Z",
+    "generatedAtUtc": "2026-08-24T11:41:25.6554828Z",
     "toolkitAssembly": "de.phoenixgrafik.ui-toolkit",
     "skins": [
         "Landscape",
@@ -45,6 +45,9 @@
                 "ScrollBar/Background",
                 "ScrollBar/Handle",
                 "Backgrounds/PopupEntry",
+                "CountIndicator/Below",
+                "CountIndicator/Ok",
+                "CountIndicator/Above",
                 "Examples/Images/Image Color",
                 "Examples/Images/Sprite",
                 "Examples/Images/Sprite and Color"
@@ -107,7 +110,12 @@
                 "PlayerSetting/EntryText",
                 "PlayerSetting/KeyText",
                 "Text/Headline/VerySmall",
-                "Buttons/Dropdown/Text"
+                "Buttons/Dropdown/Text",
+                "Chip/Default",
+                "Chip/Small",
+                "CountIndicator/Below",
+                "CountIndicator/Ok",
+                "CountIndicator/Above"
             ]
         },
         {
@@ -149,7 +157,16 @@
             "componentType": "UiHorizontalOrVerticalLayoutGroup",
             "styleNames": [
                 "Layout/HorizontalInLandscape",
-                "FullScreenTabDialog/TabContent"
+                "FullScreenTabDialog/TabContent",
+                "Chip/Default",
+                "Chip/Small"
+            ]
+        },
+        {
+            "componentType": "UiRoundedImage",
+            "styleNames": [
+                "Chip/Default",
+                "Chip/Small"
             ]
         },
         {
@@ -3225,6 +3242,9 @@
                 "ScrollBar/Background",
                 "ScrollBar/Handle",
                 "Backgrounds/PopupEntry",
+                "CountIndicator/Below",
+                "CountIndicator/Ok",
+                "CountIndicator/Above",
                 "Examples/Images/Image Color",
                 "Examples/Images/Sprite",
                 "Examples/Images/Sprite and Color"
@@ -4111,7 +4131,10 @@
                 "CanvasRenderer",
                 "RectTransform"
             ],
-            "styles": [],
+            "styles": [
+                "Chip/Default",
+                "Chip/Small"
+            ],
             "props": [
                 {
                     "name": "cornerSegments",
@@ -12703,7 +12726,9 @@
             ],
             "styles": [
                 "Layout/HorizontalInLandscape",
-                "FullScreenTabDialog/TabContent"
+                "FullScreenTabDialog/TabContent",
+                "Chip/Default",
+                "Chip/Small"
             ],
             "props": [
                 {
@@ -19916,6 +19941,98 @@
             "events": []
         },
         {
+            "type": "UiChip",
+            "fullName": "GuiToolkit.UiChip",
+            "assembly": "de.phoenixgrafik.ui-toolkit",
+            "unityType": "",
+            "prefer": "",
+            "category": "Widget",
+            "description": "A compact, colour-coded label with an optional leading icon - a division name, a tag, a state word. The chip owns no look of its own: size and colour role come from the style, so the same prefab is a list-row chip or an inline one depending on which style it carries (\"Chip/Default\", \"Chip/Small\"). Display only unless it is made clickable, and then it says so: a chip that takes no clicks does not raycast either, so the tap reaches the card or row underneath instead of dying on the chip.",
+            "isRoot": false,
+            "contentField": "",
+            "requiresComponents": [
+                "RectTransform"
+            ],
+            "styles": [],
+            "props": [
+                {
+                    "name": "background",
+                    "field": "m_background",
+                    "member": "field",
+                    "kind": "componentRef",
+                    "valueType": "GuiToolkit.UiRoundedImage",
+                    "elementKind": "",
+                    "refType": "UiRoundedImage",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": true,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Rounded background. Carries the chip's colour role through its style, and is the click target when the chip is clickable."
+                },
+                {
+                    "name": "icon",
+                    "field": "m_icon",
+                    "member": "field",
+                    "kind": "componentRef",
+                    "valueType": "UnityEngine.UI.Image",
+                    "elementKind": "",
+                    "refType": "Image",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Optional icon in front of the label. Without a sprite its GameObject is switched off, so a layout group does not reserve the space for it."
+                },
+                {
+                    "name": "clickable",
+                    "field": "m_clickable",
+                    "member": "field",
+                    "kind": "bool",
+                    "valueType": "System.Boolean",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Whether a tap on the chip is taken. Off means the chip does not raycast at all, so the tap reaches whatever lies behind it. AddClickListener() switches this on by itself, and so does wiring OnClick in the inspector."
+                },
+                {
+                    "name": "truncateOverlongText",
+                    "field": "m_truncateOverlongText",
+                    "member": "field",
+                    "kind": "bool",
+                    "valueType": "System.Boolean",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Cut an overlong label with an ellipsis instead of letting it push the row apart. Switch off only if the style already sets an overflow mode of its own."
+                }
+            ],
+            "events": [
+                {
+                    "name": "OnClick",
+                    "field": "OnClick",
+                    "type": "CEvent"
+                }
+            ]
+        },
+        {
             "type": "UiColorPatch",
             "fullName": "GuiToolkit.UiColorPatch",
             "assembly": "de.phoenixgrafik.ui-toolkit",
@@ -20034,6 +20151,408 @@
                 }
             ],
             "events": []
+        },
+        {
+            "type": "UiCountIndicator",
+            "fullName": "GuiToolkit.UiCountIndicator",
+            "assembly": "de.phoenixgrafik.ui-toolkit",
+            "unityType": "",
+            "prefer": "",
+            "category": "Widget",
+            "description": "A \"x / y\" counter that also says whether the number is acceptable - too few, right, too many - with an optional second counter for a side condition. Display only: it holds no rule. Whether five athletes are enough is a question about a division, not about a label, so the caller sets the numbers and may set the verdict; deriving it from the two numbers is only the default. The three verdicts wear styles (\"CountIndicator/Below\", \"/Ok\", \"/Above\"), so the colours belong to the skin and this component has no state machine of its own.",
+            "isRoot": false,
+            "contentField": "",
+            "requiresComponents": [
+                "RectTransform"
+            ],
+            "styles": [],
+            "props": [
+                {
+                    "name": "valueText",
+                    "field": "m_valueText",
+                    "member": "field",
+                    "kind": "componentRef",
+                    "valueType": "TMPro.TMP_Text",
+                    "elementKind": "",
+                    "refType": "TMP_Text",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": true,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "The counter line. Mandatory - without it there is nothing to show."
+                },
+                {
+                    "name": "formatLocaKey",
+                    "field": "m_formatLocaKey",
+                    "member": "field",
+                    "kind": "string",
+                    "valueType": "System.String",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Localization key of the format string, with {0} for the current value and {1} for the maximum. A key rather than a literal so a language may swap the order of the two."
+                },
+                {
+                    "name": "locaGroup",
+                    "field": "m_locaGroup",
+                    "member": "field",
+                    "kind": "string",
+                    "valueType": "System.String",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Optional localization group for the keys of this component."
+                },
+                {
+                    "name": "current",
+                    "field": "m_current",
+                    "member": "field",
+                    "kind": "int",
+                    "valueType": "System.Int32",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": ""
+                },
+                {
+                    "name": "max",
+                    "field": "m_max",
+                    "member": "field",
+                    "kind": "int",
+                    "valueType": "System.Int32",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": ""
+                },
+                {
+                    "name": "showSecondary",
+                    "field": "m_showSecondary",
+                    "member": "field",
+                    "kind": "bool",
+                    "valueType": "System.Boolean",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Show the side condition at all. A prefab ships with the row wired but switched off, so the plain case needs no setup and the second counter is one flag away."
+                },
+                {
+                    "name": "secondaryRow",
+                    "field": "m_secondaryRow",
+                    "member": "field",
+                    "kind": "objectRef",
+                    "valueType": "UnityEngine.GameObject",
+                    "elementKind": "",
+                    "refType": "GameObject",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "The object holding the side condition's row. Switched on and off with the flag above, so a layout group does not keep a gap for a line nobody asked for."
+                },
+                {
+                    "name": "secondaryValueText",
+                    "field": "m_secondaryValueText",
+                    "member": "field",
+                    "kind": "componentRef",
+                    "valueType": "TMPro.TMP_Text",
+                    "elementKind": "",
+                    "refType": "TMP_Text",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Counter line of the side condition. Leave empty for a single counter."
+                },
+                {
+                    "name": "secondaryCaptionText",
+                    "field": "m_secondaryCaptionText",
+                    "member": "field",
+                    "kind": "componentRef",
+                    "valueType": "TMPro.TMP_Text",
+                    "elementKind": "",
+                    "refType": "TMP_Text",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Caption of the side condition, e.g. male athletes."
+                },
+                {
+                    "name": "secondaryCaptionLocaKey",
+                    "field": "m_secondaryCaptionLocaKey",
+                    "member": "field",
+                    "kind": "string",
+                    "valueType": "System.String",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Localization key of the side condition caption."
+                },
+                {
+                    "name": "secondaryCurrent",
+                    "field": "m_secondaryCurrent",
+                    "member": "field",
+                    "kind": "int",
+                    "valueType": "System.Int32",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": ""
+                },
+                {
+                    "name": "secondaryMax",
+                    "field": "m_secondaryMax",
+                    "member": "field",
+                    "kind": "int",
+                    "valueType": "System.Int32",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": ""
+                },
+                {
+                    "name": "overrideState",
+                    "field": "m_overrideState",
+                    "member": "field",
+                    "kind": "bool",
+                    "valueType": "System.Boolean",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Take the verdict from the field below instead of deriving it from the two numbers. What counts as enough is a rule, and rules live outside this component."
+                },
+                {
+                    "name": "state",
+                    "field": "m_state",
+                    "member": "field",
+                    "kind": "enum",
+                    "valueType": "GuiToolkit.UiCountIndicator+EState",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [
+                        "Below",
+                        "Ok",
+                        "Above"
+                    ],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "The verdict to show while the override above is on."
+                },
+                {
+                    "name": "stateStyleAppliers",
+                    "field": "m_stateStyleAppliers",
+                    "member": "field",
+                    "kind": "list",
+                    "valueType": "System.Collections.Generic.List`1[[GuiToolkit.Style.UiAbstractApplyStyleBase, de.phoenixgrafik.ui-toolkit, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+                    "elementKind": "componentRef",
+                    "refType": "UiAbstractApplyStyleBase",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Style appliers that carry the look of the verdict - background, text, icon. Each one is retargeted to prefix/Below, prefix/Ok or prefix/Above when the verdict changes, so the colours are the skin's business and not this component's."
+                },
+                {
+                    "name": "stylePrefix",
+                    "field": "m_stylePrefix",
+                    "member": "field",
+                    "kind": "string",
+                    "valueType": "System.String",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Style path in front of the verdict name."
+                },
+                {
+                    "name": "stateIcon",
+                    "field": "m_stateIcon",
+                    "member": "field",
+                    "kind": "componentRef",
+                    "valueType": "UnityEngine.UI.Image",
+                    "elementKind": "",
+                    "refType": "Image",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Optional icon that changes with the verdict. Without a sprite for the current verdict its object is switched off."
+                },
+                {
+                    "name": "iconBelow",
+                    "field": "m_iconBelow",
+                    "member": "field",
+                    "kind": "sprite",
+                    "valueType": "UnityEngine.Sprite",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": ""
+                },
+                {
+                    "name": "iconOk",
+                    "field": "m_iconOk",
+                    "member": "field",
+                    "kind": "sprite",
+                    "valueType": "UnityEngine.Sprite",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": ""
+                },
+                {
+                    "name": "iconAbove",
+                    "field": "m_iconAbove",
+                    "member": "field",
+                    "kind": "sprite",
+                    "valueType": "UnityEngine.Sprite",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": ""
+                },
+                {
+                    "name": "highlightOnChange",
+                    "field": "m_highlightOnChange",
+                    "member": "field",
+                    "kind": "bool",
+                    "valueType": "System.Boolean",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Play the highlight below when a value changes."
+                },
+                {
+                    "name": "changeHighlight",
+                    "field": "m_changeHighlight",
+                    "member": "field",
+                    "kind": "componentRef",
+                    "valueType": "GuiToolkit.UiSimpleAnimationBase",
+                    "elementKind": "",
+                    "refType": "UiSimpleAnimationBase",
+                    "enumValues": [],
+                    "optional": true,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Optional short animation played on a value change."
+                }
+            ],
+            "events": [
+                {
+                    "name": "OnStateChanged",
+                    "field": "OnStateChanged",
+                    "type": "CEvent`1"
+                }
+            ]
         },
         {
             "type": "UiDateTimeDisplay",
@@ -21992,7 +22511,9 @@
                         "DateDisplay",
                         "DateTimePartPanel",
                         "IncDecPickPicker",
-                        "WiggleAnimation"
+                        "WiggleAnimation",
+                        "StandardChip",
+                        "StandardCountIndicator"
                     ],
                     "optional": false,
                     "mandatory": false,
@@ -23545,6 +24066,23 @@
             ]
         },
         {
+            "name": "StandardChip",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardChip.prefab",
+            "prefabGuid": "964179fb4ff7acc48b1bbdf21dc5eb34",
+            "kind": "UiChip",
+            "category": "Widget",
+            "description": "A compact, colour-coded label with an optional leading icon. Size and colour role come from the style it carries - 'Chip/Default' for a list row, 'Chip/Small' inline. Display only until Clickable is switched on.",
+            "standardElement": "StandardChip",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
+        },
+        {
             "name": "StandardColorPatch",
             "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardColorPatch.prefab",
             "prefabGuid": "19c0d783fc245d54b8eed1a995780a3a",
@@ -23554,6 +24092,23 @@
             "standardElement": "StandardColorPatch",
             "isInternal": false,
             "slots": []
+        },
+        {
+            "name": "StandardCountIndicator",
+            "prefabPath": "Assets/External/unity-gui-toolkit/Prefabs/StandardElements/StandardCountIndicator.prefab",
+            "prefabGuid": "aa21ccdbd3de21043a581f75233df61a",
+            "kind": "UiCountIndicator",
+            "category": "Widget",
+            "description": "A 'x / y' counter with a verdict - too few, right, too many - and an optional second counter for a side condition. Holds no rule: the caller sets the numbers and may set the verdict. The three verdicts wear the styles CountIndicator/Below, /Ok and /Above.",
+            "standardElement": "StandardCountIndicator",
+            "isInternal": false,
+            "slots": [
+                {
+                    "name": "text",
+                    "kind": "loca",
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                }
+            ]
         }
     ],
     "standardElementAmbiguities": []

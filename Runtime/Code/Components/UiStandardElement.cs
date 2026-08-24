@@ -109,6 +109,11 @@ namespace GuiToolkit
 		DateTimePartPanel,
 		IncDecPickPicker,
 		WiggleAnimation,
+
+		// Display widgets. Appended here rather than next to the other inputs above because this enum
+		// is append-only - the position in the list carries the serialized index, not the meaning.
+		StandardChip,
+		StandardCountIndicator,
 	}
 
 	/// <summary>
