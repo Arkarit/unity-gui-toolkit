@@ -1025,6 +1025,13 @@ namespace GuiToolkit.Editor.AiSupport
 			if (_node["scroll"] is JObject || scaffoldedScroll)
 				WarnOnCollapsingScrollChildren(go);
 
+			// A node that ships switched off - an icon slot with no icon yet, an empty-state line, a part
+			// only one of several states shows. Deliberately the LAST thing done to the node: style
+			// appliers are [ExecuteAlways] and resolve when they are enabled, so deactivating any earlier
+			// would bake an unstyled object.
+			if (_node["active"] != null && (bool?)_node["active"] == false)
+				go.SetActive(false);
+
 			return go;
 		}
 

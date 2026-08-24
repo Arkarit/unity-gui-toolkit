@@ -214,6 +214,12 @@ namespace GuiToolkit.Editor.AiSupport
 			if (!string.IsNullOrEmpty(_go.name) && _go.name != id && _go.name != identityName)
 				node["name"] = _go.name;
 
+			// Only when it is off: "active": true is the default and saying so on every node would be
+			// noise. Emitted at all because the writer can express it, and a value the writer can set but
+			// the reader cannot see is a value that a read-and-re-bake silently throws away.
+			if (!_go.activeSelf)
+				node["active"] = false;
+
 			var rect = ReadRect(_go);
 			if (rect != null)
 				node["rect"] = rect;
