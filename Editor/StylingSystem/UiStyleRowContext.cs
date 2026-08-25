@@ -97,6 +97,31 @@ namespace GuiToolkit.Style.Editor
 		public static string OverriddenSourceName( UiAbstractStyleBase _style )
 			=> SourceName(Skin?.ParentSkin?.SkinOwning(_style.Key));
 
+		/// <summary>
+		/// The same, said in full: the asset AND the skin inside it.
+		///
+		/// For a line that has room, because the short form hides a real trap. Two skins of one config may
+		/// both inherit from the SAME skin of the parent - which is a perfectly reasonable setup, and it
+		/// means switching between those two skins changes nothing at all. Naming only the config leaves
+		/// that looking like a broken skin switch; naming the skin says what actually happened.
+		///
+		/// A sibling skin of this very config still names only the skin - repeating the config there would
+		/// say nothing.
+		/// </summary>
+		public static string SourceNameLong( UiSkin _skin )
+		{
+			if (_skin == null)
+				return "?";
+
+			return _skin.StyleConfig != Config
+				? $"'{_skin.StyleConfig.name}', skin '{_skin.Name}'"
+				: $"skin '{_skin.Name}'";
+		}
+
+		/// <summary>Where an override diverges from, asset and skin.</summary>
+		public static string OverriddenSourceNameLong( UiAbstractStyleBase _style )
+			=> SourceNameLong(Skin?.ParentSkin?.SkinOwning(_style.Key));
+
 		public readonly struct Scope : IDisposable
 		{
 			private readonly UiStyleConfig m_previousConfig;

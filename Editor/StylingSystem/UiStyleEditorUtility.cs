@@ -110,14 +110,18 @@ namespace GuiToolkit.Style.Editor
 				bool isInherited = UiStyleRowContext.IsInherited(_style);
 				bool isOverride = UiStyleRowContext.IsOverride(_style);
 
-				// Named the way the row would have named it: a sibling skin of this very config by its skin
-				// name, another config by its asset. "Inherited from 'Config'" is wrong for the first case
-				// and was the reason to share the phrasing rather than build a second one here.
+				// The asset AND the skin inside it. Naming only the config hides the case where two skins of
+				// this config inherit from the same parent skin - a reasonable setup in which switching
+				// between them changes nothing, and which without the skin name reads as a broken switch.
+				//
+				// A sibling skin of this very config is named by its skin alone; repeating the config there
+				// would say nothing. That distinction lives in UiStyleRowContext, so this line and the row
+				// header cannot drift apart.
 				EditorGUILayout.LabelField
 				(
-					isInherited ? $"Currently used Style (inherited from {UiStyleRowContext.SourceName(UiStyleRowContext.SkinOwnerOf(_style))}, read-only):"
-					: isOverride ? $"Currently used Style (overrides {UiStyleRowContext.OverriddenSourceName(_style)}):"
-					: skinIsForeign && _style != null ? $"Currently used Style (from '{resolvingSkin.StyleConfig.name}', read-only):"
+					isInherited ? $"Currently used Style (inherited from {UiStyleRowContext.SourceNameLong(UiStyleRowContext.SkinOwnerOf(_style))}, read-only):"
+					: isOverride ? $"Currently used Style (overrides {UiStyleRowContext.OverriddenSourceNameLong(_style)}):"
+					: skinIsForeign && _style != null ? $"Currently used Style (from {UiStyleRowContext.SourceNameLong(resolvingSkin)}, read-only):"
 					: "Currently used Style:"
 				);
 
