@@ -121,6 +121,12 @@ All notable changes to this project will be documented in this file.
 - **CSV export** (`LocaCsvExporter`) — export all PO translations to CSV for offline review
 - **UiLocalizedTextMeshProUGUI** — `LocaManager` bootstrap race-condition fix via coroutine retry
 
+- **Screen authoring: a node can ship switched off.** `"active": false` on a node, and now also inside a
+  template's `"overrides"`, for an icon slot with no icon yet, an empty-state line, a part only one of
+  several states shows. Applied last of everything done to the node, because style appliers resolve when
+  they are enabled and deactivating any earlier would bake an unstyled object. `read_screen` emits it
+  again when a node is off - a value the writer can set but the reader cannot see is a value that a
+  read-and-re-bake silently throws away.
 
 ### Fixed
 - **A style applier in `FullScreenTabDialog` never applied anything.** It asked for

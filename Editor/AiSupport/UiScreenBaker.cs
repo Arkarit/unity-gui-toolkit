@@ -1037,7 +1037,7 @@ namespace GuiToolkit.Editor.AiSupport
 
 		/// <summary>
 		/// Applies per-part overrides to an instantiated node's internals: <c>{ "Header/Title": { props, style,
-		/// text, rect, id } }</c>, keyed by a child transform path relative to this node. On a template node
+		/// text, rect, active, id } }</c>, keyed by a child transform path relative to this node. On a template node
 		/// these become prefab-instance overrides, so the instance keeps its link to the source prefab —
 		/// the difference between referencing one prefab N times and copying a subtree N times.
 		/// An <c>id</c> registers the internal part for <c>"#id"</c> wiring, which is otherwise impossible
@@ -1085,6 +1085,13 @@ namespace GuiToolkit.Editor.AiSupport
 
 				if (spec["rect"] is JObject rect)
 					ApplyRect(go, rect);
+
+				// A part the template ships switched off - an icon slot, a second line - turned on for this
+				// one instance, or the other way round. Last, for the same reason as on a node: style
+				// appliers resolve when they are enabled, so switching off any earlier leaves the part
+				// unstyled the moment somebody switches it back on.
+				if (spec["active"] != null)
+					go.SetActive((bool)spec["active"]);
 
 				string id = (string)spec["id"];
 				if (string.IsNullOrEmpty(id))

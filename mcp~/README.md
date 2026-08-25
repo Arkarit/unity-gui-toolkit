@@ -573,8 +573,11 @@ baked before the screen itself, and their paths come back in `companions` — th
 }
 ```
 
-An `id` inside `overrides` also registers that internal part for `"#id"` wiring — the only way to
-reference something inside a template. The baker **warns** when it finds identical sibling subtrees.
+An override entry takes `props`, `style`, `text`, `rect`, `active` and `id`. `active` turns a part the
+template ships switched off on for this one instance, or the other way round — an icon slot, a second
+line, a badge. An `id` inside `overrides` also registers that internal part for `"#id"` wiring — the only
+way to reference something inside a template. The baker **warns** when it finds identical sibling
+subtrees.
 
 For a list whose rows come from data at runtime, author **one** instance or none: the container plus a
 prefab reference (give a prefab-typed prop the prefab's project path) is what shipped screens do.
