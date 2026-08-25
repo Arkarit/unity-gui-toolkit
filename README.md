@@ -1,13 +1,15 @@
 # unity-gui-toolkit
 Generic Unity GUI toolkit
 
-Please note that this gui toolkit for Unity is heavy work in progress.
-Especially, there is no documentation yet, except doxygen (but thats also very incomplete)
-It is however usable at least partially.
+Please note that this gui toolkit for Unity is heavy work in progress. The API reference (doxygen)
+is still incomplete, but the parts you need to get going are written up:
 
-**Setting the toolkit up in a project? Read [BEST-PRACTICES.md](BEST-PRACTICES.md) first.** It covers
-the three things a project should take ownership of on day one — prefab variants, the style config,
-and what `IsApplicable` decides — all of them cheap at setup and expensive to retrofit.
+| Read this | For |
+| --- | --- |
+| [BEST-PRACTICES.md](BEST-PRACTICES.md) | **Start here when setting the toolkit up in a project.** The three things a project should take ownership of on day one — prefab variants, the style config, and what `IsApplicable` decides — all cheap at setup and expensive to retrofit. |
+| [mcp~/README.md](mcp~/README.md) | AI screen authoring: the MCP server, its setup, the full screen-description vocabulary, and the tool reference. |
+| [CHANGELOG.md](CHANGELOG.md) | What changed, and why — the reasoning, not just the list. |
+| [CLAUDE.md](CLAUDE.md) / [AGENTS.md](AGENTS.md) | Architecture overview for agents working in this repo. Useful to humans too, and kept in sync with each other. |
 
 ## Installation
 
