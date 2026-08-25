@@ -138,6 +138,9 @@ namespace GuiToolkit.Editor
 		private float m_savedWidth;
 		private float m_height;
 		private SerializedProperty m_property;
+		// One dictionary per type argument, not one for all drawers: a static of a generic class is
+		// per closed type. That keeps two drawers' ids from colliding - and it means anything reaching
+		// in from outside has to reach in through the RIGHT drawer type. See SetFoldoutOpen below.
 		private static readonly Dictionary<object, bool> s_foldouts = new ();
 		private bool m_heightCacheEnabled;
 		private static readonly List<SerializedProperty> s_tempProperties = new();
@@ -350,6 +353,20 @@ namespace GuiToolkit.Editor
 
 		protected void Line(float _gap = 0, float _width = 0, float _height = 1) =>
 			Line(Color.gray, _gap, _width, _height);
+
+		/// <summary>
+		/// Opens or closes a foldout from outside the drawer that owns it - for "take me to that entry",
+		/// where the thing to reveal sits several groups deep and nobody is going to click their way down.
+		/// The id has to be the same one the Foldout() call uses, so whoever draws nested groups is
+		/// responsible for deriving those ids from something the caller can reproduce.
+		/// </summary>
+		public static void SetFoldoutOpen( object _id, bool _open )
+		{
+			if (_id == null)
+				return;
+
+			s_foldouts[_id] = _open;
+		}
 
 		protected bool Foldout(object _id, string _title, Action _onFoldout) => Foldout(_id, _title, true, _onFoldout);
 

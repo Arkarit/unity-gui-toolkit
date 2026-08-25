@@ -21,7 +21,17 @@ namespace GuiToolkit.Style.Editor
 		public static UiStyleConfig Config { get; private set; }
 		public static UiSkin Skin { get; private set; }
 
-		public static Scope Use( UiStyleConfig _config, UiSkin _skin ) => new Scope(_config, _skin);
+		/// <summary>
+		/// Whether whoever draws these rows already says above them where the style comes from.
+		///
+		/// An applier shows exactly one style and heads it with a line of its own, so a row repeating the
+		/// origin says the same thing twice in the same breath. A config inspector has no such line - there
+		/// the row IS the only place it can be said, and dropping it would lose it.
+		/// </summary>
+		public static bool OriginShownAbove { get; private set; }
+
+		public static Scope Use( UiStyleConfig _config, UiSkin _skin, bool _originShownAbove = false )
+			=> new Scope(_config, _skin, _originShownAbove);
 
 		/// <summary>
 		/// The skin that actually holds this style, seen from the current context: the edited skin for a
@@ -68,23 +78,46 @@ namespace GuiToolkit.Style.Editor
 			return Skin.OwnsStyle(_style.Key) && Skin.InheritedStyleByKey(_style.Key) != null;
 		}
 
+		/// <summary>
+		/// How to refer to the skin a style comes from. A different config is named by the asset, because
+		/// that is what has to be opened to change it; a sibling skin of the same config by its own name,
+		/// because naming the config would say nothing there.
+		/// </summary>
+		public static string SourceName( UiSkin _skin )
+		{
+			if (_skin == null)
+				return "?";
+
+			return _skin.StyleConfig != Config
+				? $"'{_skin.StyleConfig.name}'"
+				: $"skin '{_skin.Name}'";
+		}
+
+		/// <summary>Where an OVERRIDE came from - the skin that still provides it further up the chain.</summary>
+		public static string OverriddenSourceName( UiAbstractStyleBase _style )
+			=> SourceName(Skin?.ParentSkin?.SkinOwning(_style.Key));
+
 		public readonly struct Scope : IDisposable
 		{
 			private readonly UiStyleConfig m_previousConfig;
 			private readonly UiSkin m_previousSkin;
+			private readonly bool m_previousOriginShownAbove;
 
-			public Scope( UiStyleConfig _config, UiSkin _skin )
+			public Scope( UiStyleConfig _config, UiSkin _skin, bool _originShownAbove )
 			{
 				m_previousConfig = Config;
 				m_previousSkin = Skin;
+				m_previousOriginShownAbove = OriginShownAbove;
 				Config = _config;
 				Skin = _skin;
+				OriginShownAbove = _originShownAbove;
 			}
 
 			public void Dispose()
 			{
 				Config = m_previousConfig;
 				Skin = m_previousSkin;
+				OriginShownAbove = m_previousOriginShownAbove;
 			}
 		}
 	}

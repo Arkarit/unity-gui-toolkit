@@ -443,16 +443,31 @@ namespace GuiToolkit.Style.Editor
 			}
 		}
 
+		/// <summary>
+		/// The foldout id of one style group, e.g. "Chip" or "Chip/Default", inside a skin.
+		///
+		/// Public because revealing a style means opening every group above it, and whoever wants that has
+		/// to be able to name the same foldouts this drawer names. With "Synchronize Foldouts" on, the skin
+		/// drops out of the identity - that is what makes all skins open and close together.
+		/// </summary>
+		public static int StyleGroupFoldoutId( string _skinName, string _path )
+		{
+			string prefix = UiStyleConfigEditor.SynchronizeFoldouts ? string.Empty : _skinName;
+			return Animator.StringToHash("uitk.stylegroup|" + prefix + "|" + _path);
+		}
+
 		private class StyleTree
 		{
 			public string Name = string.Empty;
+			public string Path = string.Empty;
 			public readonly Dictionary<string, StyleTree> Children = new();
 			public readonly List<SerializedProperty> Properties = new ();
 			public int Id;
 
 			public void Build(UiSkinDrawer drawer, List<SerializedProperty> flatList)
 			{
-				Id = 0xddfa0 + (UiStyleConfigEditor.SynchronizeFoldouts ? 0 : Animator.StringToHash(drawer.skinName));
+				Path = string.Empty;
+				Id = StyleGroupFoldoutId(drawer.skinName, Path);
 
 				var displayFilter = UiStyleConfigEditor.DisplayFilter;
 				
@@ -476,7 +491,7 @@ namespace GuiToolkit.Style.Editor
 						{
 							if (!current.Children.ContainsKey(b))
 							{
-								current.Children.Add(b, GetNew());
+								current.Children.Add(b, current.NewChild(drawer.skinName, b));
 							}
 							current = current.Children[b];
 							current.Name = b;
@@ -486,7 +501,7 @@ namespace GuiToolkit.Style.Editor
 
 						if (!current.Children.ContainsKey(a))
 						{
-							current.Children.Add(a, GetNew());
+							current.Children.Add(a, current.NewChild(drawer.skinName, a));
 						}
 						current = current.Children[a];
 						current.Name = a;
@@ -495,11 +510,22 @@ namespace GuiToolkit.Style.Editor
 				}
 			}
 
-			private StyleTree GetNew()
+			/// <summary>
+			/// A child group, identified by WHERE it sits rather than by when it was created.
+			///
+			/// The ids used to be a running counter, which made a group's identity depend on the order the
+			/// styles happened to be walked in - so changing the filter silently handed one group's open
+			/// state to a completely different group. Deriving it from the path also makes the id
+			/// reproducible from outside, which is what lets something else open a row it wants to show.
+			/// </summary>
+			private StyleTree NewChild( string _skinName, string _name )
 			{
-				var result = new StyleTree();
-				result.Id = Id++;
-				return result;
+				var path = string.IsNullOrEmpty(Path) ? _name : Path + "/" + _name;
+				return new StyleTree
+				{
+					Path = path,
+					Id = StyleGroupFoldoutId(_skinName, path),
+				};
 			}
 
 			public void Dump() => Dump(string.Empty);

@@ -35,6 +35,53 @@ namespace GuiToolkit.Style.Editor
 		public static bool SynchronizeFoldouts => s_synchronizeFoldouts;		
 		public static ESortType SortType => s_sortType;
 
+		/// <summary>
+		/// Selects the config that holds a style and opens the inspector on that very row - the skin
+		/// foldout, every group along its path, and the filter narrowed to it.
+		///
+		/// The point of the whole exercise: an inherited style is shown read-only where it is USED, and the
+		/// place it can be changed is another asset with seventy styles in it. Finding the row by hand is
+		/// the friction that makes people want the read-only lifted instead - so the answer is to remove
+		/// the friction, not the protection.
+		///
+		/// The filter is set, not merely the foldouts opened: in a config of that size an opened row still
+		/// has to be scrolled to. What was set stays visible in the Filter field, so clearing it is one
+		/// click and nobody is left wondering why half their styles are gone.
+		/// </summary>
+		public static void Reveal( UiStyleConfig _config, UiSkin _skin, UiAbstractStyleBase _style )
+		{
+			if (_config == null || _style == null)
+				return;
+
+			s_filterString = _style.Alias;
+			s_filter.Update(s_filterString);
+
+			if (_skin != null)
+			{
+				// Through UiSkinDrawer, not through the base class by name: the foldout store is a static of
+				// the GENERIC drawer, so there is one per type argument, and only the skin drawer's own is
+				// the one these ids mean anything in.
+				//
+				// The skin group is keyed by the skin's name; the groups below it by their path.
+				UiSkinDrawer.SetFoldoutOpen(_skin.Name, true);
+
+				// Every group above the row: "Chip", then "Chip/Default". The last segment is the row's own
+				// group, and opening it is what actually puts the values on screen.
+				string path = string.Empty;
+				foreach (var segment in _style.Alias.Split('/'))
+				{
+					path = string.IsNullOrEmpty(path) ? segment : path + "/" + segment;
+					UiSkinDrawer.SetFoldoutOpen(UiSkinDrawer.StyleGroupFoldoutId(_skin.Name, path), true);
+				}
+			}
+
+			// Heights were remembered for a differently filtered, differently folded list.
+			PropertyDrawerView.ClearHeightCache();
+
+			Selection.activeObject = _config;
+			EditorGUIUtility.PingObject(_config);
+		}
+
 		protected virtual void OnEnable()
 		{
 			m_skinsProp = serializedObject.FindProperty("m_skins");

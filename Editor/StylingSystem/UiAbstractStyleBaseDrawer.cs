@@ -54,13 +54,18 @@ namespace GuiToolkit.Style.Editor
 			{
 				LabelField("   " + thisStyle.Alias, 0, EditorStyles.boldLabel);
 				IncreaseX(EditorGUIUtility.labelWidth + 18);
+				// Where the style comes from belongs in this line only when nobody else says it. An applier
+				// heads its single style with a line naming the origin, so repeating it here says the same
+				// thing twice and costs the room the buttons need; a config inspector has no such line.
 				LabelField
 				(
-					isInherited
-						? $"T: {thisStyle.SupportedComponentType.Name}  inh. from {inheritedFrom}"
-						: isOverride
-							? $"T: {thisStyle.SupportedComponentType.Name}  overr. {OverriddenSourceName(thisStyle)}"
-							: $"T: {thisStyle.SupportedComponentType.Name}",
+					UiStyleRowContext.OriginShownAbove
+						? $"T: {thisStyle.SupportedComponentType.Name}"
+						: isInherited
+							? $"T: {thisStyle.SupportedComponentType.Name}  inh. from {inheritedFrom}"
+							: isOverride
+								? $"T: {thisStyle.SupportedComponentType.Name}  overr. {OverriddenSourceName(thisStyle)}"
+								: $"T: {thisStyle.SupportedComponentType.Name}",
 					0,
 					EditorStyles.boldLabel
 				);
@@ -74,7 +79,15 @@ namespace GuiToolkit.Style.Editor
 				{
 					// Right-aligned in the same column as Del, so the rows line up - which also gives
 					// this button the same 20 px to the right edge that every other one has.
-					IncreaseX(-75);
+					IncreaseX(-135);
+					if (Button(new GUIContent("Parent", "Open the config this style comes from, on this very "
+						+ "row. That is where its values can be changed - for everything that inherits it."), 55))
+					{
+						RevealInParent(thisStyle);
+					}
+
+					IncreaseX(60);
+
 					if (Button(new GUIContent("Overr.", "Copy this inherited style into this config, so its "
 						+ "values can be changed here. It stops following the config it came from."), 55))
 					{
@@ -212,21 +225,30 @@ namespace GuiToolkit.Style.Editor
 		/// Where an overriding entry diverges from - not necessarily the immediate parent.
 		/// </summary>
 		private static string OverriddenSourceName( UiAbstractStyleBase _style )
-			=> SourceName(UiStyleRowContext.Skin?.ParentSkin?.SkinOwning(_style.Key));
+			=> UiStyleRowContext.OverriddenSourceName(_style);
+
+		private static string SourceName( UiSkin _skin ) => UiStyleRowContext.SourceName(_skin);
 
 		/// <summary>
-		/// How to refer to the skin a style comes from. A different config is named by the asset, because
-		/// that is what has to be opened to change it; a sibling skin of the same config by its own name,
-		/// because naming the config would say nothing there.
+		/// Takes the reader to where an inherited style actually lives: selects that config and opens the
+		/// inspector on this row.
+		///
+		/// Deferred like the other row actions - it changes the filter and the foldouts of the very list
+		/// being drawn, and selecting another object mid-layout ends the frame in an ugly way.
 		/// </summary>
-		private static string SourceName( UiSkin _skin )
+		private void RevealInParent( UiAbstractStyleBase _style )
 		{
-			if (_skin == null)
-				return "?";
+			var skin = UiStyleRowContext.SkinOwnerOf(_style);
+			var config = skin?.StyleConfig;
 
-			return _skin.StyleConfig != UiStyleRowContext.Config
-				? $"'{_skin.StyleConfig.name}'"
-				: $"skin '{_skin.Name}'";
+			if (config == null)
+			{
+				UiLog.LogError($"Cannot open the source of '{_style.Alias}': it does not resolve to any skin. "
+					+ "Check 'Inherits from' and 'Inherits skin from'.");
+				return;
+			}
+
+			EditorApplication.delayCall += () => UiStyleConfigEditor.Reveal(config, skin, _style);
 		}
 
 		/// <summary>

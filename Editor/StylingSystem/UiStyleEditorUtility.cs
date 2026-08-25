@@ -103,14 +103,20 @@ namespace GuiToolkit.Style.Editor
 
 			// The row inside cannot tell whose style this is from its own property: the inline display wraps
 			// it in a throwaway helper object, so the property names that instead of a config.
-			using (UiStyleRowContext.Use(config, ownSkin))
+			// originShownAbove: the header below names where the style comes from, so the row itself must
+			// not repeat it - in an applier there is exactly one style, and one statement is enough.
+			using (UiStyleRowContext.Use(config, ownSkin, true))
 			{
 				bool isInherited = UiStyleRowContext.IsInherited(_style);
-				var owner = UiStyleRowContext.OwnerOf(_style);
+				bool isOverride = UiStyleRowContext.IsOverride(_style);
 
+				// Named the way the row would have named it: a sibling skin of this very config by its skin
+				// name, another config by its asset. "Inherited from 'Config'" is wrong for the first case
+				// and was the reason to share the phrasing rather than build a second one here.
 				EditorGUILayout.LabelField
 				(
-					isInherited ? $"Currently used Style (inherited from '{owner.name}', read-only):"
+					isInherited ? $"Currently used Style (inherited from {UiStyleRowContext.SourceName(UiStyleRowContext.SkinOwnerOf(_style))}, read-only):"
+					: isOverride ? $"Currently used Style (overrides {UiStyleRowContext.OverriddenSourceName(_style)}):"
 					: skinIsForeign && _style != null ? $"Currently used Style (from '{resolvingSkin.StyleConfig.name}', read-only):"
 					: "Currently used Style:"
 				);
