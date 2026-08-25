@@ -1,0 +1,681 @@
+{
+  "name": "StandardWidgetsBench",
+  "outputPath": "Assets/Prefabs/Benches/StandardWidgetsBench.prefab",
+  "prefabs": [
+    {
+      "name": "BenchCounterColumn",
+      "outputPath": "Assets/Prefabs/Benches/BenchCounterColumn.prefab",
+      "root": {
+        "id": "BenchCounterColumn",
+        "name": "BenchCounterColumn",
+        "type": "UiHorizontalOrVerticalLayoutGroup",
+        "components": [
+          "ContentSizeFitter"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            300,
+            170
+          ]
+        },
+        "props": {
+          "vertical": true,
+          "childControlWidth": true,
+          "childControlHeight": true,
+          "childForceExpandWidth": false,
+          "childForceExpandHeight": false,
+          "spacing": 10,
+          "childAlignment": "MiddleCenter",
+          "HorizontalFit": "PreferredSize",
+          "VerticalFit": "PreferredSize"
+        },
+        "children": [
+          {
+            "id": "Counter",
+            "name": "Counter",
+            "template": "StandardCountIndicator",
+            "props": {
+              "current": 3,
+              "max": 5,
+              "overrideState": false,
+              "iconBelow": "Assets/External/unity-gui-toolkit/Resources/Icons/UITK_Minus.png",
+              "iconOk": "Assets/External/unity-gui-toolkit/Resources/Icons/UITK_Checkmark.png",
+              "iconAbove": "Assets/External/unity-gui-toolkit/Resources/Icons/UITK_Plus.png"
+            },
+            "overrides": {
+              "Main/Icon": {
+                "active": true
+              }
+            }
+          },
+          {
+            "id": "Caption",
+            "name": "Caption",
+            "type": "TextMeshProUGUI",
+            "components": [
+              "LayoutElement"
+            ],
+            "rect": {
+              "anchorMin": [
+                0.5,
+                0.5
+              ],
+              "anchorMax": [
+                0.5,
+                0.5
+              ],
+              "pivot": [
+                0.5,
+                0.5
+              ],
+              "size": [
+                300,
+                30
+              ]
+            },
+            "style": "Text/Flowing/Small",
+            "text": "@text:caption",
+            "props": {
+              "raycastTarget": false,
+              "PreferredWidth": 300,
+              "PreferredHeight": 30,
+              "alignment": "Midline"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "root": {
+    "id": "root",
+    "type": "Image",
+    "components": [
+      "UiHorizontalOrVerticalLayoutGroup"
+    ],
+    "rect": {
+      "anchorMin": [
+        0,
+        0
+      ],
+      "anchorMax": [
+        1,
+        1
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "size": [
+        0,
+        0
+      ]
+    },
+    "props": {
+      "vertical": true,
+      "childControlWidth": true,
+      "childControlHeight": true,
+      "childForceExpandWidth": false,
+      "childForceExpandHeight": false,
+      "spacing": 22,
+      "childAlignment": "UpperCenter",
+      "raycastTarget": false,
+      "color": "#23272Eff"
+    },
+    "children": [
+      {
+        "id": "Spacer",
+        "name": "Spacer",
+        "type": "TextMeshProUGUI",
+        "components": [
+          "LayoutElement"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            100,
+            20
+          ]
+        },
+        "style": "Text/Flowing/Small",
+        "text": "@text: ",
+        "props": {
+          "raycastTarget": false,
+          "PreferredWidth": 100,
+          "PreferredHeight": 20,
+          "alignment": "Midline"
+        }
+      },
+      {
+        "id": "Title",
+        "name": "Title",
+        "type": "TextMeshProUGUI",
+        "components": [
+          "LayoutElement"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            900,
+            56
+          ]
+        },
+        "style": "Text/Headline/Medium",
+        "text": "@text:Standard widgets",
+        "props": {
+          "raycastTarget": false,
+          "PreferredWidth": 900,
+          "PreferredHeight": 56,
+          "alignment": "Midline"
+        }
+      },
+      {
+        "id": "ChipsHeadline",
+        "name": "ChipsHeadline",
+        "type": "TextMeshProUGUI",
+        "components": [
+          "LayoutElement"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            700,
+            42
+          ]
+        },
+        "style": "Text/Headline/Small",
+        "text": "@text:UiChip",
+        "props": {
+          "raycastTarget": false,
+          "PreferredWidth": 700,
+          "PreferredHeight": 42,
+          "alignment": "Midline"
+        }
+      },
+      {
+        "id": "ChipsNote1",
+        "name": "ChipsNote1",
+        "type": "TextMeshProUGUI",
+        "components": [
+          "LayoutElement"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            1100,
+            30
+          ]
+        },
+        "style": "Text/Flowing/Small",
+        "text": "@text:Size and colour role come from the style it carries.",
+        "props": {
+          "raycastTarget": false,
+          "PreferredWidth": 1100,
+          "PreferredHeight": 30,
+          "alignment": "Midline"
+        }
+      },
+      {
+        "id": "ChipsNote2",
+        "name": "ChipsNote2",
+        "type": "TextMeshProUGUI",
+        "components": [
+          "LayoutElement"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            1100,
+            30
+          ]
+        },
+        "style": "Text/Flowing/Small",
+        "text": "@text:A chip only raycasts while it is clickable.",
+        "props": {
+          "raycastTarget": false,
+          "PreferredWidth": 1100,
+          "PreferredHeight": 30,
+          "alignment": "Midline"
+        }
+      },
+      {
+        "id": "ChipsRow",
+        "name": "ChipsRow",
+        "type": "UiHorizontalOrVerticalLayoutGroup",
+        "components": [
+          "ContentSizeFitter"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            1500,
+            120
+          ]
+        },
+        "props": {
+          "vertical": false,
+          "childControlWidth": true,
+          "childControlHeight": true,
+          "childForceExpandWidth": false,
+          "childForceExpandHeight": false,
+          "spacing": 20,
+          "childAlignment": "MiddleCenter",
+          "HorizontalFit": "PreferredSize",
+          "VerticalFit": "PreferredSize"
+        },
+        "children": [
+          {
+            "id": "ChipDefault",
+            "template": "StandardChip",
+            "style": "Chip/Default",
+            "props": {
+              "clickable": false
+            },
+            "overrides": {
+              "Label": {
+                "style": "Chip/Default",
+                "text": "@text:Division A"
+              }
+            }
+          },
+          {
+            "id": "ChipSmall",
+            "template": "StandardChip",
+            "style": "Chip/Small",
+            "props": {
+              "clickable": false
+            },
+            "overrides": {
+              "Label": {
+                "style": "Chip/Small",
+                "text": "@text:Small"
+              }
+            }
+          },
+          {
+            "id": "ChipIcon",
+            "template": "StandardChip",
+            "style": "Chip/Default",
+            "props": {
+              "clickable": false
+            },
+            "overrides": {
+              "Label": {
+                "style": "Chip/Default",
+                "text": "@text:Qualified"
+              },
+              "Icon": {
+                "active": true,
+                "props": {
+                  "sprite": "Assets/External/unity-gui-toolkit/Resources/Icons/UITK_Checkmark.png"
+                }
+              }
+            }
+          },
+          {
+            "id": "ChipClickable",
+            "template": "StandardChip",
+            "style": "Chip/Default",
+            "props": {
+              "clickable": true
+            },
+            "overrides": {
+              "Label": {
+                "style": "Chip/Default",
+                "text": "@text:Tap me"
+              }
+            }
+          },
+          {
+            "id": "ChipSmallIcon",
+            "template": "StandardChip",
+            "style": "Chip/Small",
+            "props": {
+              "clickable": false
+            },
+            "overrides": {
+              "Label": {
+                "style": "Chip/Small",
+                "text": "@text:Filter"
+              },
+              "Icon": {
+                "active": true,
+                "props": {
+                  "sprite": "Assets/External/unity-gui-toolkit/Resources/Icons/UITK_Filter.png"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "CountHeadline",
+        "name": "CountHeadline",
+        "type": "TextMeshProUGUI",
+        "components": [
+          "LayoutElement"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            700,
+            42
+          ]
+        },
+        "style": "Text/Headline/Small",
+        "text": "@text:UiCountIndicator",
+        "props": {
+          "raycastTarget": false,
+          "PreferredWidth": 700,
+          "PreferredHeight": 42,
+          "alignment": "Midline"
+        }
+      },
+      {
+        "id": "CountNote1",
+        "name": "CountNote1",
+        "type": "TextMeshProUGUI",
+        "components": [
+          "LayoutElement"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            1100,
+            30
+          ]
+        },
+        "style": "Text/Flowing/Small",
+        "text": "@text:The three verdicts wear CountIndicator/Below, /Ok and /Above.",
+        "props": {
+          "raycastTarget": false,
+          "PreferredWidth": 1100,
+          "PreferredHeight": 30,
+          "alignment": "Midline"
+        }
+      },
+      {
+        "id": "CountNote2",
+        "name": "CountNote2",
+        "type": "TextMeshProUGUI",
+        "components": [
+          "LayoutElement"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            1100,
+            30
+          ]
+        },
+        "style": "Text/Flowing/Small",
+        "text": "@text:Derived from the two numbers unless a caller overrides it.",
+        "props": {
+          "raycastTarget": false,
+          "PreferredWidth": 1100,
+          "PreferredHeight": 30,
+          "alignment": "Midline"
+        }
+      },
+      {
+        "id": "CountRow",
+        "name": "CountRow",
+        "type": "UiHorizontalOrVerticalLayoutGroup",
+        "components": [
+          "ContentSizeFitter"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            1500,
+            210
+          ]
+        },
+        "props": {
+          "vertical": false,
+          "childControlWidth": true,
+          "childControlHeight": true,
+          "childForceExpandWidth": false,
+          "childForceExpandHeight": false,
+          "spacing": 30,
+          "childAlignment": "UpperCenter",
+          "HorizontalFit": "PreferredSize",
+          "VerticalFit": "PreferredSize"
+        },
+        "children": [
+          {
+            "id": "CountBelow",
+            "template": "BenchCounterColumn",
+            "overrides": {
+              "Counter": {
+                "props": {
+                  "current": 3,
+                  "max": 5
+                }
+              },
+              "Counter/Main/Value": {
+                "style": "CountIndicator/Below",
+                "text": "@text:3 / 5"
+              },
+              "Counter/Main/Icon": {
+                "style": "CountIndicator/Below",
+                "props": {
+                  "sprite": "Assets/External/unity-gui-toolkit/Resources/Icons/UITK_Minus.png"
+                }
+              },
+              "Caption": {
+                "text": "@text:3 of 5 - too few"
+              }
+            }
+          },
+          {
+            "id": "CountOk",
+            "template": "BenchCounterColumn",
+            "overrides": {
+              "Counter": {
+                "props": {
+                  "current": 5,
+                  "max": 5
+                }
+              },
+              "Counter/Main/Value": {
+                "style": "CountIndicator/Ok",
+                "text": "@text:5 / 5"
+              },
+              "Counter/Main/Icon": {
+                "style": "CountIndicator/Ok",
+                "props": {
+                  "sprite": "Assets/External/unity-gui-toolkit/Resources/Icons/UITK_Checkmark.png"
+                }
+              },
+              "Caption": {
+                "text": "@text:5 of 5 - right"
+              }
+            }
+          },
+          {
+            "id": "CountAbove",
+            "template": "BenchCounterColumn",
+            "overrides": {
+              "Counter": {
+                "props": {
+                  "current": 7,
+                  "max": 5
+                }
+              },
+              "Counter/Main/Value": {
+                "style": "CountIndicator/Above",
+                "text": "@text:7 / 5"
+              },
+              "Counter/Main/Icon": {
+                "style": "CountIndicator/Above",
+                "props": {
+                  "sprite": "Assets/External/unity-gui-toolkit/Resources/Icons/UITK_Plus.png"
+                }
+              },
+              "Caption": {
+                "text": "@text:7 of 5 - too many"
+              }
+            }
+          },
+          {
+            "id": "CountSecondary",
+            "template": "BenchCounterColumn",
+            "overrides": {
+              "Counter": {
+                "props": {
+                  "current": 5,
+                  "max": 5,
+                  "showSecondary": true,
+                  "secondaryCurrent": 1,
+                  "secondaryMax": 2
+                }
+              },
+              "Counter/Main/Value": {
+                "style": "CountIndicator/Ok",
+                "text": "@text:5 / 5"
+              },
+              "Counter/Main/Icon": {
+                "style": "CountIndicator/Ok",
+                "props": {
+                  "sprite": "Assets/External/unity-gui-toolkit/Resources/Icons/UITK_Checkmark.png"
+                }
+              },
+              "Caption": {
+                "text": "@text:with a side condition"
+              },
+              "Counter/Secondary": {
+                "active": true
+              },
+              "Counter/Secondary/SecondaryValue": {
+                "style": "CountIndicator/Ok",
+                "text": "@text:1 / 2"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

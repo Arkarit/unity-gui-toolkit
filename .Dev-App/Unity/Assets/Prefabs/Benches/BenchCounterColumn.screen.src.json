@@ -1,0 +1,95 @@
+{
+  "name": "BenchCounterColumn",
+  "outputPath": "Assets/Prefabs/Benches/BenchCounterColumn.prefab",
+  "root": {
+    "id": "BenchCounterColumn",
+    "name": "BenchCounterColumn",
+    "type": "UiHorizontalOrVerticalLayoutGroup",
+    "components": [
+      "ContentSizeFitter"
+    ],
+    "rect": {
+      "anchorMin": [
+        0.5,
+        0.5
+      ],
+      "anchorMax": [
+        0.5,
+        0.5
+      ],
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "size": [
+        300,
+        170
+      ]
+    },
+    "props": {
+      "vertical": true,
+      "childControlWidth": true,
+      "childControlHeight": true,
+      "childForceExpandWidth": false,
+      "childForceExpandHeight": false,
+      "spacing": 10,
+      "childAlignment": "MiddleCenter",
+      "HorizontalFit": "PreferredSize",
+      "VerticalFit": "PreferredSize"
+    },
+    "children": [
+      {
+        "id": "Counter",
+        "name": "Counter",
+        "template": "StandardCountIndicator",
+        "props": {
+          "current": 3,
+          "max": 5,
+          "overrideState": false,
+          "iconBelow": "Assets/External/unity-gui-toolkit/Resources/Icons/UITK_Minus.png",
+          "iconOk": "Assets/External/unity-gui-toolkit/Resources/Icons/UITK_Checkmark.png",
+          "iconAbove": "Assets/External/unity-gui-toolkit/Resources/Icons/UITK_Plus.png"
+        },
+        "overrides": {
+          "Main/Icon": {
+            "active": true
+          }
+        }
+      },
+      {
+        "id": "Caption",
+        "name": "Caption",
+        "type": "TextMeshProUGUI",
+        "components": [
+          "LayoutElement"
+        ],
+        "rect": {
+          "anchorMin": [
+            0.5,
+            0.5
+          ],
+          "anchorMax": [
+            0.5,
+            0.5
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "size": [
+            300,
+            30
+          ]
+        },
+        "style": "Text/Flowing/Small",
+        "text": "@text:caption",
+        "props": {
+          "raycastTarget": false,
+          "PreferredWidth": 300,
+          "PreferredHeight": 30,
+          "alignment": "Midline"
+        }
+      }
+    ]
+  }
+}

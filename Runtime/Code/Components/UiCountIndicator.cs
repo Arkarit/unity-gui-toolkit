@@ -3,9 +3,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using GuiToolkit.Style;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace GuiToolkit
 {
@@ -356,10 +353,16 @@ namespace GuiToolkit
 
 			// Deferred on purpose: Refresh() reads the style config and the localization tables, and doing
 			// that from inside OnValidate means doing it while the asset it belongs to may still be
-			// importing. delayCall lands after the import instead.
+			// importing. AssetReadyGate waits for the editor to go quiet AND for those assets to exist -
+			// a plain delayCall only waits one frame and can still land mid-import.
+			//
+			// This is also the only moment an author gets a live update, which is deliberate: the
+			// component is NOT [ExecuteAlways]. Running it on every prefab open would let it write text
+			// and style names into an asset nobody edited, and the styling system already carries the
+			// look. Here somebody did edit something, so writing is what they asked for.
 			if (!Application.isPlaying)
 			{
-				EditorApplication.delayCall += RefreshInEditor;
+				AssetReadyGate.WhenReady(RefreshInEditor);
 			}
 		}
 

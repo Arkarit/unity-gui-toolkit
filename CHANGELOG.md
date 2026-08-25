@@ -121,12 +121,35 @@ All notable changes to this project will be documented in this file.
 - **CSV export** (`LocaCsvExporter`) — export all PO translations to CSV for offline review
 - **UiLocalizedTextMeshProUGUI** — `LocaManager` bootstrap race-condition fix via coroutine retry
 
+- **`UiChip`** — a compact, colour-coded label with an optional leading icon: a division name, a tag, a
+  state word. It owns no look of its own, so the same prefab is a list-row chip or an inline one depending
+  on which style it carries (`Chip/Default`, `Chip/Small`). Display only unless it is made clickable, and
+  then it says so: a chip that takes no clicks does not raycast either, so the tap reaches the card or row
+  underneath instead of dying on the chip. `AddClickListener()` switches that on by itself, because a
+  listener on a chip that cannot be clicked would never fire and the cause would be invisible.
+  Ships as the standard element `StandardChip`.
+
+- **`UiCountIndicator`** — an "x / y" counter that also says whether the number is acceptable: too few,
+  right, too many. It holds no rule. Whether five athletes are enough is a question about a division, not
+  about a label, so the caller sets the numbers and may set the verdict; deriving it from the two numbers
+  is only the default, and setting `State` turns the derivation off until `ClearStateOverride()` hands it
+  back. The three verdicts wear the styles `CountIndicator/Below`, `/Ok` and `/Above`, so the colours
+  belong to the skin and the component has no state machine of its own. An optional second counter covers
+  a side condition ("of which male: 1 / 2") and ships wired but switched off, so the plain case needs no
+  setup. Ships as the standard element `StandardCountIndicator`.
+
+  Deliberately **not** `[ExecuteAlways]`: the verdict is applied by writing a style name and a text into
+  the object, and running that on every prefab open would edit assets nobody touched. An author still gets
+  a live update, because `OnValidate` refreshes - through `AssetReadyGate`, so it lands after the import
+  rather than during it.
+
 - **Screen authoring: a node can ship switched off.** `"active": false` on a node, and now also inside a
   template's `"overrides"`, for an icon slot with no icon yet, an empty-state line, a part only one of
   several states shows. Applied last of everything done to the node, because style appliers resolve when
   they are enabled and deactivating any earlier would bake an unstyled object. `read_screen` emits it
   again when a node is off - a value the writer can set but the reader cannot see is a value that a
   read-and-re-bake silently throws away.
+
 
 ### Fixed
 - **A style applier in `FullScreenTabDialog` never applied anything.** It asked for
