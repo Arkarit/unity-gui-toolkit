@@ -61,6 +61,17 @@ namespace GuiToolkit.Editor
 				return;
 			}
 
+			// The scan opens every scene in the project additively. Scripts marked [ExecuteAlways] in those
+			// scenes run while the user's scene is the active one, and some of them build - or delete -
+			// objects across the scene boundary. Rather than chase each of those, hand the open scenes back
+			// exactly as they were. See EditorOpenSceneGuard.
+			using var sceneGuard = new EditorOpenSceneGuard();
+
+			if (!sceneGuard.IsArmed && !ConfirmScanWithoutSceneGuard(sceneGuard.NotArmedReason))
+			{
+				return;
+			}
+
 			LocaManager.Instance.EdClear();
 
 			try
@@ -99,6 +110,34 @@ namespace GuiToolkit.Editor
 
 			if (UiToolkitConfiguration.Instance.AutoSyncAfterMerge)
 				AutoSyncBridges();
+		}
+
+		/// <summary>
+		/// Asks whether to scan anyway when the open scenes cannot be restored afterwards - which is the case
+		/// when one of them already has unsaved changes. Those changes are exactly what the guard must not
+		/// throw away, so the decision belongs to the user and not to this code.
+		/// </summary>
+		private static bool ConfirmScanWithoutSceneGuard( string _reason )
+		{
+			UiLog.LogWarning($"[Loca] The open scenes cannot be restored after the scan: {_reason}");
+
+			if (Application.isBatchMode)
+			{
+				// No one to ask; a build must not stall on a dialog.
+				return true;
+			}
+
+			return EditorUtility.DisplayDialog
+			(
+				"Unsaved scene changes",
+				$"{_reason}\n\n"
+				+ "Processing localization opens every scene in the project. Scripts in those scenes can change "
+				+ "the scene you have open, and with unsaved changes present those changes cannot be undone "
+				+ "afterwards without losing your own.\n\n"
+				+ "Save or revert your scene first, or continue at your own risk.",
+				"Continue anyway",
+				"Cancel"
+			);
 		}
 
 		private static void AutoSyncBridges()

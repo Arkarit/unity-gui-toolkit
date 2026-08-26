@@ -394,6 +394,12 @@ namespace GuiToolkit.Editor
 
 			int objectsFound = 0;
 
+			// Opening scenes additively lets [ExecuteAlways] scripts in them run against whatever scene the
+			// user has open. Hand the open scenes back as they were - unless one of them already has unsaved
+			// changes, in which case the guard keeps its hands off. Nested scopes collapse into the
+			// outermost one, so a caller running several searches in a row reloads at most once.
+			using var sceneGuard = new EditorOpenSceneGuard();
+
 			try
 			{
 				string[] allAssetPathGuids = AssetDatabase.FindAssets($"t:Scene {searchString}", _options.Folders);
