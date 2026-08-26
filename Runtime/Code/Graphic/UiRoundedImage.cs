@@ -150,7 +150,11 @@ namespace GuiToolkit
 			get => m_cornerSegments;
 			set
 			{
-				CheckSetterRange(nameof(CornerSegments), value, MinCornerSegments, MaxCornerSegments);
+				value = ClampSetterRange(nameof(CornerSegments), value, MinCornerSegments, MaxCornerSegments);
+
+				if (m_cornerSegments == value)
+					return;
+
 				m_cornerSegments = value;
 				SetVerticesDirty();
 			}
@@ -161,7 +165,11 @@ namespace GuiToolkit
 			get => m_radius;
 			set
 			{
-				CheckSetterRange(nameof(Radius), value, MinRadius, MaxRadius);
+				value = ClampSetterRange(nameof(Radius), value, MinRadius, MaxRadius);
+
+				if (m_radius == value)
+					return;
+
 				m_radius = value;
 				SetVerticesDirty();
 			}
@@ -170,25 +178,53 @@ namespace GuiToolkit
 		public EdgeGap GapLeft
 		{
 			get => m_gapLeft;
-			set { m_gapLeft = value; SetVerticesDirty(); }
+			set
+			{
+				if (SameGap(m_gapLeft, value))
+					return;
+
+				m_gapLeft = value;
+				SetVerticesDirty();
+			}
 		}
 
 		public EdgeGap GapRight
 		{
 			get => m_gapRight;
-			set { m_gapRight = value; SetVerticesDirty(); }
+			set
+			{
+				if (SameGap(m_gapRight, value))
+					return;
+
+				m_gapRight = value;
+				SetVerticesDirty();
+			}
 		}
 
 		public EdgeGap GapTop
 		{
 			get => m_gapTop;
-			set { m_gapTop = value; SetVerticesDirty(); }
+			set
+			{
+				if (SameGap(m_gapTop, value))
+					return;
+
+				m_gapTop = value;
+				SetVerticesDirty();
+			}
 		}
 
 		public EdgeGap GapBottom
 		{
 			get => m_gapBottom;
-			set { m_gapBottom = value; SetVerticesDirty(); }
+			set
+			{
+				if (SameGap(m_gapBottom, value))
+					return;
+
+				m_gapBottom = value;
+				SetVerticesDirty();
+			}
 		}
 
 		public EdgeGap GetGap( ESide2D _side ) => _side switch
@@ -202,6 +238,9 @@ namespace GuiToolkit
 
 		public void SetGap( ESide2D _side, EdgeGap _gap )
 		{
+			if (SameGap(GetGap(_side), _gap))
+				return;
+
 			switch (_side)
 			{
 				case ESide2D.Left: m_gapLeft = _gap; break;
@@ -214,16 +253,35 @@ namespace GuiToolkit
 			SetVerticesDirty();
 		}
 
+		// EdgeGap is a plain struct, so the default Equals boxes and reflects. Spelled out because these
+		// setters are on the hot path: a style applier writes every value it owns on every Apply().
+		private static bool SameGap( EdgeGap _a, EdgeGap _b )
+			=> _a.Active == _b.Active && _a.Size == _b.Size && _a.Offset == _b.Offset;
+
 		public EdgeGap GapHorizontal
 		{
 			get => m_gapHorizontal;
-			set { m_gapHorizontal = value; SetVerticesDirty(); }
+			set
+			{
+				if (SameGap(m_gapHorizontal, value))
+					return;
+
+				m_gapHorizontal = value;
+				SetVerticesDirty();
+			}
 		}
 
 		public EdgeGap GapVertical
 		{
 			get => m_gapVertical;
-			set { m_gapVertical = value; SetVerticesDirty(); }
+			set
+			{
+				if (SameGap(m_gapVertical, value))
+					return;
+
+				m_gapVertical = value;
+				SetVerticesDirty();
+			}
 		}
 
 		public EGapUnit GapUnit

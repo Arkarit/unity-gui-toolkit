@@ -23,7 +23,19 @@
         },
         {
             "Used": true,
+            "Name": "DisabledMaterial",
+            "QualifiedTypeName": "UnityEngine.Material",
+            "TypeName": "Material"
+        },
+        {
+            "Used": true,
             "Name": "enabled",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "EnabledInHierarchy",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
@@ -35,45 +47,99 @@
         },
         {
             "Used": true,
+            "Name": "FadeColor",
+            "QualifiedTypeName": "UnityEngine.Color",
+            "TypeName": "Color"
+        },
+        {
+            "Used": true,
             "Name": "FadeSize",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "fillAmount",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "fillCenter",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "fillClockwise",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "fillMethod",
             "QualifiedTypeName": "UnityEngine.UI.Image.FillMethod",
             "TypeName": "FillMethod"
         },
         {
-            "Used": false,
+            "Used": true,
             "Name": "fillOrigin",
             "QualifiedTypeName": "System.Int32",
             "TypeName": "Int32"
         },
         {
             "Used": true,
+            "Name": "FixedSize",
+            "QualifiedTypeName": "UnityEngine.Rect",
+            "TypeName": "Rect"
+        },
+        {
+            "Used": true,
             "Name": "FrameSize",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
+        },
+        {
+            "Used": true,
+            "Name": "GapBottom",
+            "QualifiedTypeName": "GuiToolkit.UiRoundedImage.EdgeGap",
+            "TypeName": "EdgeGap"
+        },
+        {
+            "Used": true,
+            "Name": "GapHorizontal",
+            "QualifiedTypeName": "GuiToolkit.UiRoundedImage.EdgeGap",
+            "TypeName": "EdgeGap"
+        },
+        {
+            "Used": true,
+            "Name": "GapLeft",
+            "QualifiedTypeName": "GuiToolkit.UiRoundedImage.EdgeGap",
+            "TypeName": "EdgeGap"
+        },
+        {
+            "Used": true,
+            "Name": "GapRight",
+            "QualifiedTypeName": "GuiToolkit.UiRoundedImage.EdgeGap",
+            "TypeName": "EdgeGap"
+        },
+        {
+            "Used": true,
+            "Name": "GapTop",
+            "QualifiedTypeName": "GuiToolkit.UiRoundedImage.EdgeGap",
+            "TypeName": "EdgeGap"
+        },
+        {
+            "Used": true,
+            "Name": "GapUnit",
+            "QualifiedTypeName": "GuiToolkit.UiRoundedImage.EGapUnit",
+            "TypeName": "EGapUnit"
+        },
+        {
+            "Used": true,
+            "Name": "GapVertical",
+            "QualifiedTypeName": "GuiToolkit.UiRoundedImage.EdgeGap",
+            "TypeName": "EdgeGap"
         },
         {
             "Used": false,
@@ -136,6 +202,12 @@
             "TypeName": "Single"
         },
         {
+            "Used": true,
+            "Name": "PositionOffset",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
             "Used": false,
             "Name": "preserveAspect",
             "QualifiedTypeName": "System.Boolean",
@@ -167,6 +239,12 @@
         },
         {
             "Used": true,
+            "Name": "SizeOffset",
+            "QualifiedTypeName": "UnityEngine.Vector2",
+            "TypeName": "Vector2"
+        },
+        {
+            "Used": true,
             "Name": "sprite",
             "QualifiedTypeName": "UnityEngine.Sprite",
             "TypeName": "Sprite"
@@ -184,8 +262,26 @@
             "TypeName": "Type"
         },
         {
+            "Used": true,
+            "Name": "UniformSizeOffset",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "UseFixedSize",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
             "Used": false,
             "Name": "useGUILayout",
+            "QualifiedTypeName": "System.Boolean",
+            "TypeName": "Boolean"
+        },
+        {
+            "Used": true,
+            "Name": "UsePadding",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
         },

@@ -32,7 +32,11 @@ namespace GuiToolkit
 			get => m_segments;
 			set
 			{
-				CheckSetterRange(nameof(Segments), value, MinSegments, MaxSegments);
+				value = ClampSetterRange(nameof(Segments), value, MinSegments, MaxSegments);
+
+				if (m_segments == value)
+					return;
+
 				m_segments = value;
 				SetVerticesDirty();
 			}

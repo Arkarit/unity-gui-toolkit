@@ -562,11 +562,7 @@ namespace GuiToolkit.Style.Editor
 				m_prefix = propertyRecordsJson.Prefix;
 				m_PropertyRecords = propertyRecordsJson.Records.ToList();
 
-				if (!JsonPropertiesMatching())
-				{
-					m_PropertyRecords.Clear();
-					return false;
-				}
+				MergeJsonRecordsWithComponent();
 
 				m_PropertyRecords.Sort((a,b) => a.Name.CompareTo(b.Name));
 				return true;
@@ -577,44 +573,59 @@ namespace GuiToolkit.Style.Editor
 			}
 		}
 
-		// Examine if component has changed in the meantime;
-		// Remove unused properties and add newly created properties
-		private bool JsonPropertiesMatching()
+		/// <summary>
+		/// Reconciles the stored selection with the component as it is NOW: keeps the Used flag of every
+		/// property that still exists, drops records for properties that are gone, and adds records for
+		/// properties that appeared since the file was written.
+		/// </summary>
+		/// <remarks>
+		/// This used to be an all-or-nothing check: one property missing from the file and the ENTIRE file
+		/// was discarded, so every curated "no" fell back to the default "yes". That is invisible from the
+		/// outside - the window simply shows everything ticked - and it is easy to walk into, because adding
+		/// a single property to a component is enough. Observed on UiRoundedImage, where sixteen properties
+		/// had accumulated that the file did not know about.
+		///
+		/// A property whose TYPE changed is treated as a new one: its old Used flag was a decision about a
+		/// different value and should not be carried over silently.
+		/// </remarks>
+		private void MergeJsonRecordsWithComponent()
 		{
-			Dictionary<string, PropertyRecord> existingPropertyRecords = new();
+			var stored = new Dictionary<string, PropertyRecord>();
 			foreach (var propertyRecord in m_PropertyRecords)
-				existingPropertyRecords.Add(propertyRecord.Name, propertyRecord);
+				stored[propertyRecord.Name] = propertyRecord;
 
-			Dictionary<string, PropertyInfo> existingComponentProperties = new();
+			var merged = new List<PropertyRecord>();
 			var propertyInfos = m_componentType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
 			foreach (var propertyInfo in propertyInfos)
 			{
 				if (!propertyInfo.CanRead || !propertyInfo.CanWrite || !AllAccessorsPublic(propertyInfo))
-				{
-					if (existingPropertyRecords.ContainsKey(propertyInfo.Name))
-						return false;
+					continue;
 
+				string qualifiedTypeName = propertyInfo.PropertyType.FullName.Replace("+", ".");
+				string typeName = propertyInfo.PropertyType.Name;
+
+				if (stored.TryGetValue(propertyInfo.Name, out var record) && record.TypeName == typeName)
+				{
+					// Refreshed rather than trusted: the qualified name can change without the short one
+					// doing so, for instance when a nested type moves.
+					record.QualifiedTypeName = qualifiedTypeName;
+					merged.Add(record);
 					continue;
 				}
 
-				if (!existingPropertyRecords.TryGetValue(propertyInfo.Name, out PropertyRecord record))
-					return false;
-
-				if (record.TypeName != propertyInfo.PropertyType.Name)
-					return false;
-
-				existingComponentProperties.Add(propertyInfo.Name, propertyInfo);
+				merged.Add(new PropertyRecord
+				{
+					Used = !s_filteredNames.Contains(propertyInfo.Name),
+					Name = propertyInfo.Name,
+					QualifiedTypeName = qualifiedTypeName,
+					TypeName = typeName,
+				});
 			}
 
-			foreach (var kv in existingPropertyRecords)
-			{
-				if (!existingComponentProperties.TryGetValue(kv.Key, out PropertyInfo propertyInfo))
-					return false;
-				if (propertyInfo.PropertyType.Name != kv.Value.TypeName)
-					return false;
-			}
-
-			return true;
+			// Records the loop did not pick up belong to properties that no longer exist, and are dropped
+			// by not being in 'merged'.
+			m_PropertyRecords = merged;
 		}
 
 		#endregion

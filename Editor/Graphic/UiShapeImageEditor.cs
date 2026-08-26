@@ -34,6 +34,7 @@ namespace GuiToolkit.Editor
 		protected SerializedProperty m_fadeColorProp;
 		protected SerializedProperty m_uniformSizeOffsetProp;
 		protected SerializedProperty m_sizeOffsetProp;
+		protected SerializedProperty m_positionOffsetProp;
 
 		protected virtual void OnEnable()
 		{
@@ -57,6 +58,7 @@ namespace GuiToolkit.Editor
 			m_fadeColorProp = serializedObject.FindProperty("m_fadeColor");
 			m_uniformSizeOffsetProp = serializedObject.FindProperty("m_uniformSizeOffset");
 			m_sizeOffsetProp = serializedObject.FindProperty("m_sizeOffset");
+			m_positionOffsetProp = serializedObject.FindProperty("m_positionOffset");
 		}
 
 		protected void DrawImageProperties()
@@ -104,6 +106,10 @@ namespace GuiToolkit.Editor
 			{
 				EditorGUILayout.PropertyField(m_sizeOffsetProp, new GUIContent("Size Offset"));
 			}
+
+			// Right below Size Offset, because the two are read as a pair: one grows the shape around its
+			// centre, the other moves it.
+			EditorGUILayout.PropertyField(m_positionOffsetProp, new GUIContent("Position Offset"));
 
 			GUILayout.Space(10);
 

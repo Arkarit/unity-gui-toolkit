@@ -80,7 +80,11 @@ namespace GuiToolkit
 			get => m_spikeCount;
 			set
 			{
-				CheckSetterRange(nameof(SpikeCount), value, MinSpikeCount, MaxSpikeCount);
+				value = ClampSetterRange(nameof(SpikeCount), value, MinSpikeCount, MaxSpikeCount);
+
+				if (m_spikeCount == value)
+					return;
+
 				m_spikeCount = value;
 				SetVerticesDirty();
 			}
@@ -91,7 +95,11 @@ namespace GuiToolkit
 			get => m_innerRadiusRatio;
 			set
 			{
-				CheckSetterRange(nameof(InnerRadiusRatio), value, MinInnerRadiusRatio, MaxInnerRadiusRatio);
+				value = ClampSetterRange(nameof(InnerRadiusRatio), value, MinInnerRadiusRatio, MaxInnerRadiusRatio);
+
+				if (m_innerRadiusRatio == value)
+					return;
+
 				m_innerRadiusRatio = value;
 				SetVerticesDirty();
 			}
@@ -102,7 +110,11 @@ namespace GuiToolkit
 			get => m_rotation;
 			set
 			{
-				CheckSetterRange(nameof(Rotation), value, MinRotation, MaxRotation);
+				value = ClampSetterRange(nameof(Rotation), value, MinRotation, MaxRotation);
+
+				if (m_rotation == value)
+					return;
+
 				m_rotation = value;
 				SetVerticesDirty();
 			}
@@ -126,7 +138,11 @@ namespace GuiToolkit
 			get => m_miterLimit;
 			set
 			{
-				CheckSetterRange(nameof(MiterLimit), value, MinMiterLimit, MaxMiterLimit);
+				value = ClampSetterRange(nameof(MiterLimit), value, MinMiterLimit, MaxMiterLimit);
+
+				if (m_miterLimit == value)
+					return;
+
 				m_miterLimit = value;
 				SetVerticesDirty();
 			}

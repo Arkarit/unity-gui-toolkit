@@ -99,6 +99,12 @@ namespace GuiToolkit
 		         + "When m_uniformSizeOffset is true, only the X component is used for both axes.")]
 		[SerializeField] protected Vector2 m_sizeOffset;
 
+		[Tooltip("Offset added to the rect's position, moving the whole shape without resizing it. "
+		         + "The counterpart to Size Offset: that one grows the shape around its centre, this one "
+		         + "shifts it. Applied last, so it moves the result of padding, fixed size and size offset "
+		         + "alike.")]
+		[SerializeField] protected Vector2 m_positionOffset;
+
 		protected static readonly List<Vertex> s_vertices = new();
 		protected static readonly List<int[]> s_triangles = new();
 
@@ -116,7 +122,11 @@ namespace GuiToolkit
 			get => m_frameSize;
 			set
 			{
-				CheckSetterRange(nameof(FrameSize), value, MinFrameSize, MaxFrameSize);
+				value = ClampSetterRange(nameof(FrameSize), value, MinFrameSize, MaxFrameSize);
+
+				if (m_frameSize == value)
+					return;
+
 				m_frameSize = value;
 				SetVerticesDirty();
 			}
@@ -127,7 +137,11 @@ namespace GuiToolkit
 			get => m_fadeSize;
 			set
 			{
-				CheckSetterRange(nameof(FadeSize), value, MinFadeSize, MaxFadeSize);
+				value = ClampSetterRange(nameof(FadeSize), value, MinFadeSize, MaxFadeSize);
+
+				if (m_fadeSize == value)
+					return;
+
 				m_fadeSize = value;
 				SetVerticesDirty();
 			}
@@ -159,10 +173,100 @@ namespace GuiToolkit
 			}
 		}
 
+		/// <summary>
+		/// Inset of the drawn shape inside its RectTransform. Only in effect while <see cref="UsePadding"/>
+		/// is on.
+		/// </summary>
+		/// <remarks>
+		/// The getter hands out the stored RectOffset itself, not a copy - RectOffset is a class. Mutating
+		/// it in place (<c>image.Padding.left = 8</c>) therefore changes the value but cannot tell the shape
+		/// to rebuild, and nothing visible happens until something else dirties it. Assign a RectOffset to
+		/// this property instead.
+		/// </remarks>
 		public RectOffset Padding
 		{
 			get => m_padding;
-			set => m_padding = value;
+			set
+			{
+				if (value == null || SamePadding(m_padding, value))
+					return;
+
+				m_padding = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>Whether <see cref="Padding"/> is applied at all.</summary>
+		public bool UsePadding
+		{
+			get => m_usePadding;
+			set
+			{
+				if (m_usePadding == value)
+					return;
+
+				m_usePadding = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>
+		/// Whether the shape draws at <see cref="FixedSize"/> instead of filling its RectTransform.
+		/// </summary>
+		public bool UseFixedSize
+		{
+			get => m_useFixedSize;
+			set
+			{
+				if (m_useFixedSize == value)
+					return;
+
+				m_useFixedSize = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>The size the shape draws at while <see cref="UseFixedSize"/> is on.</summary>
+		public Rect FixedSize
+		{
+			get => m_fixedSize;
+			set
+			{
+				if (m_fixedSize == value)
+					return;
+
+				m_fixedSize = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>
+		/// Material used while the shape is disabled in the hierarchy. Assigning one is also what makes the
+		/// shape disableable at all - see <see cref="IsEnableableInHierarchy"/>.
+		/// </summary>
+		public Material DisabledMaterial
+		{
+			get => m_disabledMaterial;
+			set
+			{
+				if (m_disabledMaterial == value)
+					return;
+
+				m_disabledMaterial = value;
+				SetMaterialDirty();
+			}
+		}
+
+		// RectOffset is a class and does not compare by value, so this has to be spelled out.
+		private static bool SamePadding( RectOffset _a, RectOffset _b )
+		{
+			if (_a == null || _b == null)
+				return ReferenceEquals(_a, _b);
+
+			return _a.left == _b.left
+				&& _a.right == _b.right
+				&& _a.top == _b.top
+				&& _a.bottom == _b.bottom;
 		}
 
 		public bool UniformSizeOffset
@@ -191,6 +295,24 @@ namespace GuiToolkit
 					return;
 
 				m_sizeOffset = value;
+				SetVerticesDirty();
+			}
+		}
+
+		/// <summary>
+		/// Moves the whole shape without changing its size. Use it to place a shape off-centre inside its
+		/// RectTransform - a frame that sits slightly low, a shadow shape offset from what it shadows -
+		/// without needing a second GameObject to hold the displacement.
+		/// </summary>
+		public Vector2 PositionOffset
+		{
+			get => m_positionOffset;
+			set
+			{
+				if (m_positionOffset == value)
+					return;
+
+				m_positionOffset = value;
 				SetVerticesDirty();
 			}
 		}
@@ -224,6 +346,11 @@ namespace GuiToolkit
 				result.y -= offY * 0.5f;
 				result.width += offX;
 				result.height += offY;
+
+				// Last, so it displaces whatever the steps above arrived at rather than being scaled or
+				// padded itself.
+				result.x += m_positionOffset.x;
+				result.y += m_positionOffset.y;
 
 				return result;
 			}
@@ -417,11 +544,39 @@ namespace GuiToolkit
 			return new Vector2(u, v);
 		}
 
-		protected static void CheckSetterRange( string _name, float _value, float _min, float _max )
+		// Reported once per property name, not per assignment: a style applier writes every value it owns
+		// on every Apply(), so a single out-of-range entry in a style would otherwise log on each skin
+		// change, for each element carrying it.
+		private static readonly HashSet<string> s_reportedRangeViolations = new();
+
+		/// <summary>
+		/// Brings a setter's value into its allowed range, reporting the first time it has to.
+		/// </summary>
+		/// <remarks>
+		/// Clamps rather than throws. These properties are settable from a style, and a style value carries
+		/// no knowledge of the range - one number typed too large in a config would otherwise throw in the
+		/// middle of an Apply pass and leave the rest of the UI unstyled. A shape drawn at the nearest legal
+		/// value, plus a warning naming the property, is the better failure.
+		/// </remarks>
+		protected static float ClampSetterRange( string _name, float _value, float _min, float _max )
 		{
-			if (_value < _min || _value > _max)
-				throw new ArgumentOutOfRangeException($"{_name} is out of range; should be in the range of {_min}..{_max}, but is {_value}");
+			if (_value >= _min && _value <= _max)
+				return _value;
+
+			float clamped = Mathf.Clamp(_value, _min, _max);
+
+			if (s_reportedRangeViolations.Add(_name))
+			{
+				UiLog.LogWarning($"{_name} was set to {_value}, which is outside its range {_min}..{_max}; "
+					+ $"using {clamped} instead. Further occurrences of this property are not reported.");
+			}
+
+			return clamped;
 		}
+
+		/// <inheritdoc cref="ClampSetterRange(string,float,float,float)"/>
+		protected static int ClampSetterRange( string _name, int _value, int _min, int _max )
+			=> Mathf.RoundToInt(ClampSetterRange(_name, (float) _value, _min, _max));
 
 		/// <summary>
 		/// Fan-triangulate a perimeter ring from a center vertex. Triangle winding matches
