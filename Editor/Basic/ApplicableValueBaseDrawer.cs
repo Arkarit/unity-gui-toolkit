@@ -25,9 +25,14 @@ namespace GuiToolkit.Editor
 		
 		public override void OnGUI( Rect _rect, SerializedProperty _property, GUIContent _label )
 		{
-			var screenPos = GUIUtility.GUIToScreenPoint(_rect.position);
-			if (screenPos.y > Screen.height || screenPos.y + _rect.height < 0)
+			// Culled against the inspector's viewport, NOT against Screen.height: the latter is the display,
+			// so the comparison was off by however far the window sits from the top of the screen. Rows
+			// below that wrong threshold were skipped while their height stayed reserved - they left a gap
+			// that swallowed clicks, and a foldout inside one simply stopped responding. It only became
+			// visible once styles grew long enough to reach past it.
+			if (PropertyDrawerView.IsFarOutsideView(_rect))
 				return;
+
 			
 			EditorGUI.BeginProperty(_rect, _label, _property);
 
