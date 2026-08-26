@@ -21,8 +21,10 @@ namespace GuiToolkit.Editor
 	/// is told so via <see cref="IsArmed"/> — ask the user what to do before starting the scan, do not
 	/// decide it here.
 	///
-	/// Restoring means re-opening the same scenes, which discards changes WITHOUT saving. Selection, the
-	/// hierarchy's expanded state and other editor-side niceties do not survive.
+	/// Restoring means re-opening the same scenes, which discards changes WITHOUT saving. It happens every
+	/// time the scope ends armed, not only when a scene looks changed: objects created by a script in edit
+	/// mode do not reliably set the dirty flag, so "looks unchanged" is not evidence of anything. Selection,
+	/// the hierarchy's expanded state and other editor-side niceties do not survive.
 	/// </summary>
 	/// <example>
 	/// <code>
@@ -117,31 +119,23 @@ namespace GuiToolkit.Editor
 			m_disposed = true;
 			s_depth--;
 
-			if (!IsArmed || !AnyOpenSceneIsDirty())
+			if (!IsArmed)
 			{
 				return;
 			}
 
+			// Unconditionally, and deliberately not "only if something looks changed": objects a script
+			// creates in edit mode do NOT reliably mark the scene dirty, so a scene can carry a scan's
+			// leftovers while claiming to be clean - and the leftovers then accumulate with every run,
+			// invisibly. Any test for "was something left behind" is another thing that can be wrong in
+			// the same way, so the scan simply always hands the scenes back as they are on disk.
 			Restore();
-		}
-
-		private static bool AnyOpenSceneIsDirty()
-		{
-			for (int i = 0; i < EditorSceneManager.sceneCount; i++)
-			{
-				if (EditorSceneManager.GetSceneAt(i).isDirty)
-				{
-					return true;
-				}
-			}
-
-			return false;
 		}
 
 		private void Restore()
 		{
-			UiLog.Log("[SceneGuard] The scan left the open scenes changed; reverting them to their saved "
-				+ "state. Nothing is saved, so no work on disk is affected.");
+			UiLog.Log("[SceneGuard] Reloading the open scenes so the scan leaves nothing behind. Nothing is "
+				+ "saved, so no work on disk is affected.");
 
 			string activePath = null;
 
