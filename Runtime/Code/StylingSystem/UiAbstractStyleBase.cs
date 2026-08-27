@@ -64,6 +64,23 @@ namespace GuiToolkit.Style
 			}
 		}
 
+#if UNITY_EDITOR
+		/// <summary>
+		/// Throws the cached value list away and builds it again, which runs every generated value getter -
+		/// and those create a value whose field is null.
+		///
+		/// That is not a theoretical state: a [SerializeReference] field ADDED to a style type stays null in
+		/// every config already on disk, because Unity does not run field initialisers for data it loads.
+		/// Merely reading <see cref="Values"/> is not enough to repair it, since the first read of the run
+		/// may have happened before the caller cared. Editor only - at runtime an asset is what it is.
+		/// </summary>
+		public void RebuildValues()
+		{
+			m_values = null;
+			_ = Values;
+		}
+#endif
+
 		/// <summary>
 		/// Hash of component type plus name, cached. It used to be recomputed on every access while not
 		/// playing, which cost ~1 us a time and was paid once per style per key-lookup rebuild. The name

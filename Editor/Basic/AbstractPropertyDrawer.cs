@@ -95,6 +95,60 @@ namespace GuiToolkit.Editor
 		}
 
 		/// <summary>
+		/// Where each foldout was last drawn, so a click can be aimed at one from outside the GUI.
+		///
+		/// For debugging the case where a foldout stops responding: a human clicking it proves only that
+		/// nothing happened, while a recorded rect plus a synthesised mouse event turns "does it react" into
+		/// something that can be asked a hundred times without a human in the loop. Off by default and free
+		/// while off - one bool test per foldout.
+		/// </summary>
+		public static class FoldoutProbe
+		{
+			public struct Record
+			{
+				public string Title;
+				public Rect GuiRect;
+				/// <summary>Centre of the foldout box in SCREEN space - what EditorWindow.SendEvent needs,
+				/// once the window's own position is subtracted.</summary>
+				public Vector2 ScreenPoint;
+				public string EventType;
+				public Vector2 MousePosition;
+			}
+
+			public static bool Enabled;
+
+			/// <summary>Keyed by the foldout id, as string - ids are ints for style groups and objects
+			/// elsewhere, and neither survives a round trip through JSON.</summary>
+			public static readonly Dictionary<string, Record> Records = new();
+
+			/// <summary>Every note in drawing order, which is what a dictionary keyed by id throws away -
+			/// and the order is the whole point when asking who saw an event before whom.</summary>
+			public static readonly List<Record> Trace = new();
+
+			public static void Reset()
+			{
+				Records.Clear();
+				Trace.Clear();
+			}
+
+			internal static void Note( object _id, string _title, Rect _rect )
+			{
+				var ev = Event.current;
+				var record = Records[_id?.ToString() ?? "<null>"] = new Record
+				{
+					Title = _title,
+					GuiRect = _rect,
+					// Converted here and not later: outside OnGUI there is no clip stack to convert with.
+					ScreenPoint = GUIUtility.GUIToScreenPoint(new Vector2(_rect.x + 8, _rect.y + 8)),
+					EventType = ev != null ? ev.type.ToString() : "<none>",
+					MousePosition = ev != null ? ev.mousePosition : Vector2.zero,
+				};
+
+				Trace.Add(record);
+			}
+		}
+
+		/// <summary>
 		/// What the drawers spent, for measuring. Off by default and free while off.
 		/// </summary>
 		public static class Stats
@@ -370,6 +424,16 @@ namespace GuiToolkit.Editor
 
 		protected bool Foldout(object _id, string _title, Action _onFoldout) => Foldout(_id, _title, true, _onFoldout);
 
+		/// <summary>
+		/// Reads back what <see cref="SetFoldoutOpen"/> writes. Same caveat: the dictionary is per closed
+		/// generic type, so it has to be asked through the drawer type that owns the foldout.
+		/// </summary>
+		public static bool TryGetFoldoutOpen( object _id, out bool _open )
+		{
+			_open = false;
+			return _id != null && s_foldouts.TryGetValue(_id, out _open);
+		}
+
 		protected bool Foldout(object _id, string _title, bool _default, Action _onFoldout)
 		{
 			var foldoutRect = new Rect(m_currentRect.x, m_currentRect.y, m_currentRect.width *.5f, FoldoutHeight);
@@ -380,6 +444,9 @@ namespace GuiToolkit.Editor
 
 			if (!m_collectHeightMode)
 			{
+				if (PropertyDrawerView.FoldoutProbe.Enabled)
+					PropertyDrawerView.FoldoutProbe.Note(_id, _title, foldoutRect);
+
 				bool wasActive = active;
 				active = EditorGUI.Foldout(foldoutRect, active, _title, true);
 
@@ -392,10 +459,16 @@ namespace GuiToolkit.Editor
 			m_currentRect.y += FoldoutHeight;
 			IncreaseHeight(FoldoutHeight);
 
+			// Stored BEFORE the content is drawn, not after. A foldout's own state is none of its content's
+			// business, and it used to be: anything that threw inside _onFoldout skipped this line, so the
+			// click that opened the foldout was silently undone and it never opened again. That is not a
+			// hypothetical - it is what a null style value did, and it read as a dead foldout rather than
+			// as an error.
+			s_foldouts[_id] = active;
+
 			if (active)
 				Indent(() => _onFoldout());
 
-			s_foldouts[_id] = active;
 			return active;
 		}
 

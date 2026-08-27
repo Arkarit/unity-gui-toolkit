@@ -86,6 +86,7 @@ namespace GuiToolkit.Style.Editor
 				return;
 
 			var parentConfig = config.Parent;
+
 			var candidates = BuildInheritCandidates(config, parentConfig);
 
 			// Nothing to build on and nothing that could be: no field, rather than an empty one.
@@ -409,8 +410,13 @@ namespace GuiToolkit.Style.Editor
 					if (!foldoutOpen)
 						Space(13);
 				}
-				catch
+				catch (Exception e)
 				{
+					// Never silently. This used to be an empty catch, and what it hid was a
+					// NullReferenceException from a style value that had never been created - which the
+					// user saw as style definitions that would not open, because the throw skipped the
+					// line where Foldout() stores its new state. A day to find, one line to have seen.
+					UiLog.LogError($"Drawing the styles of skin '{skinName}' failed: {e}", null);
 				}
 			}
 			else
@@ -433,8 +439,13 @@ namespace GuiToolkit.Style.Editor
 							PropertyField(styleProp);
 						}
 					}
-					catch
+					catch (Exception e)
 					{
+						// Never silently. This used to be an empty catch, and what it hid was a
+						// NullReferenceException from a style value that had never been created - which the
+						// user saw as style definitions that would not open, because the throw skipped the
+						// line where Foldout() stores its new state. A day to find, one line to have seen.
+						UiLog.LogError($"Drawing the styles of skin '{skinName}' failed: {e}", null);
 					}
 				});
 				

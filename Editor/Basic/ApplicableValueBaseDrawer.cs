@@ -23,6 +23,24 @@ namespace GuiToolkit.Editor
 			set => s_drawCondition = value;
 		}
 		
+		/// <summary>
+		/// Whether this property is a value that was never created.
+		///
+		/// Values are [SerializeReference] fields, and Unity leaves a NEWLY ADDED one null in every asset
+		/// that was serialized before the field existed - it does not run the field initialiser for data
+		/// already on disk. So the moment a style type gains a value, every config out there has a null
+		/// where that value belongs, and this drawer is handed a managed reference pointing at nothing.
+		///
+		/// It has to be survivable rather than merely unlikely: this ran as a NullReferenceException from
+		/// GetPropertyHeight, which the skin drawer used to swallow whole - and the visible symptom was not
+		/// an error but style definitions that stopped opening, because the throw skipped the line that
+		/// stores a foldout's new state. <see cref="UiStyleEditorUtility.RepairMissingStyleValues"/> fills
+		/// them in; until it has, a row says so instead of taking the inspector down with it.
+		/// </summary>
+		private static bool IsMissingValue( SerializedProperty _property )
+			=> _property.propertyType == SerializedPropertyType.ManagedReference
+			&& _property.managedReferenceValue == null;
+
 		public override void OnGUI( Rect _rect, SerializedProperty _property, GUIContent _label )
 		{
 			// Culled against the inspector's viewport, NOT against Screen.height: the latter is the display,
@@ -33,7 +51,17 @@ namespace GuiToolkit.Editor
 			if (PropertyDrawerView.IsFarOutsideView(_rect))
 				return;
 
-			
+			if (IsMissingValue(_property))
+			{
+				using (new EditorGUI.DisabledScope(true))
+				{
+					EditorGUI.LabelField(_rect, _label,
+						new GUIContent("not created yet - reopen this config to fill it in"));
+				}
+
+				return;
+			}
+
 			EditorGUI.BeginProperty(_rect, _label, _property);
 
 			var isApplicableProp = _property.FindPropertyRelative("IsApplicable");
@@ -113,6 +141,11 @@ namespace GuiToolkit.Editor
 		
 		public override float GetPropertyHeight(SerializedProperty _property, GUIContent _label)
 		{
+			// Before anything reads a relative of it - a value that does not exist has no relatives, and
+			// asking for one here is what used to throw.
+			if (IsMissingValue(_property))
+				return EditorGUIUtility.singleLineHeight;
+
 			var isApplicableProp = _property.FindPropertyRelative("IsApplicable");
 			bool isApplicable = isApplicableProp.boolValue;	
 			if (isApplicable && s_drawCondition == EDrawCondition.OnlyDisabled ||

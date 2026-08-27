@@ -10633,12 +10633,44 @@ MonoBehaviour:
           rid: 4224637585093558627
         m_CornerSegments:
           rid: 4224637585093558628
+        m_DisabledMaterial:
+          rid: 4224637634270986677
         m_enabled:
           rid: 4224637585093558629
+        m_EnabledInHierarchy:
+          rid: 4224637634270986678
+        m_FadeColor:
+          rid: 4224637634270986679
         m_FadeSize:
           rid: 4224637585093558630
+        m_fillAmount:
+          rid: 4224637634270986680
+        m_fillCenter:
+          rid: 4224637634270986681
+        m_fillClockwise:
+          rid: 4224637634270986682
+        m_fillMethod:
+          rid: 4224637634270986683
+        m_fillOrigin:
+          rid: 4224637634270986684
+        m_FixedSize:
+          rid: 4224637634270986685
         m_FrameSize:
           rid: 4224637585093558631
+        m_GapBottom:
+          rid: 4224637634270986686
+        m_GapHorizontal:
+          rid: 4224637634270986687
+        m_GapLeft:
+          rid: 4224637634270986688
+        m_GapRight:
+          rid: 4224637634270986689
+        m_GapTop:
+          rid: 4224637634270986690
+        m_GapUnit:
+          rid: 4224637634270986691
+        m_GapVertical:
+          rid: 4224637634270986692
         m_InvertMask:
           rid: 4224637585093558632
         m_isMaskingGraphic:
@@ -10651,10 +10683,20 @@ MonoBehaviour:
           rid: 4224637585093558636
         m_pixelsPerUnitMultiplier:
           rid: 4224637585093558637
+        m_PositionOffset:
+          rid: 4224637634270986693
         m_Radius:
           rid: 4224637585093558638
+        m_SizeOffset:
+          rid: 4224637634270986694
         m_sprite:
           rid: 4224637585093558639
+        m_UniformSizeOffset:
+          rid: 4224637634270986695
+        m_UseFixedSize:
+          rid: 4224637634270986696
+        m_UsePadding:
+          rid: 4224637634270986697
     - rid: 4224637585093558604
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -10770,12 +10812,44 @@ MonoBehaviour:
           rid: 4224637585093558686
         m_CornerSegments:
           rid: 4224637585093558687
+        m_DisabledMaterial:
+          rid: 4224637634270986698
         m_enabled:
           rid: 4224637585093558688
+        m_EnabledInHierarchy:
+          rid: 4224637634270986699
+        m_FadeColor:
+          rid: 4224637634270986700
         m_FadeSize:
           rid: 4224637585093558689
+        m_fillAmount:
+          rid: 4224637634270986701
+        m_fillCenter:
+          rid: 4224637634270986702
+        m_fillClockwise:
+          rid: 4224637634270986703
+        m_fillMethod:
+          rid: 4224637634270986704
+        m_fillOrigin:
+          rid: 4224637634270986705
+        m_FixedSize:
+          rid: 4224637634270986706
         m_FrameSize:
           rid: 4224637585093558690
+        m_GapBottom:
+          rid: 4224637634270986707
+        m_GapHorizontal:
+          rid: 4224637634270986708
+        m_GapLeft:
+          rid: 4224637634270986709
+        m_GapRight:
+          rid: 4224637634270986710
+        m_GapTop:
+          rid: 4224637634270986711
+        m_GapUnit:
+          rid: 4224637634270986712
+        m_GapVertical:
+          rid: 4224637634270986713
         m_InvertMask:
           rid: 4224637585093558691
         m_isMaskingGraphic:
@@ -10788,10 +10862,20 @@ MonoBehaviour:
           rid: 4224637585093558695
         m_pixelsPerUnitMultiplier:
           rid: 4224637585093558696
+        m_PositionOffset:
+          rid: 4224637634270986714
         m_Radius:
           rid: 4224637585093558697
+        m_SizeOffset:
+          rid: 4224637634270986715
         m_sprite:
           rid: 4224637585093558698
+        m_UniformSizeOffset:
+          rid: 4224637634270986716
+        m_UseFixedSize:
+          rid: 4224637634270986717
+        m_UsePadding:
+          rid: 4224637634270986718
     - rid: 4224637585093558607
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -11159,12 +11243,44 @@ MonoBehaviour:
           rid: 4224637585093558853
         m_CornerSegments:
           rid: 4224637585093558854
+        m_DisabledMaterial:
+          rid: 4224637634270986719
         m_enabled:
           rid: 4224637585093558855
+        m_EnabledInHierarchy:
+          rid: 4224637634270986720
+        m_FadeColor:
+          rid: 4224637634270986721
         m_FadeSize:
           rid: 4224637585093558856
+        m_fillAmount:
+          rid: 4224637634270986722
+        m_fillCenter:
+          rid: 4224637634270986723
+        m_fillClockwise:
+          rid: 4224637634270986724
+        m_fillMethod:
+          rid: 4224637634270986725
+        m_fillOrigin:
+          rid: 4224637634270986726
+        m_FixedSize:
+          rid: 4224637634270986727
         m_FrameSize:
           rid: 4224637585093558857
+        m_GapBottom:
+          rid: 4224637634270986728
+        m_GapHorizontal:
+          rid: 4224637634270986729
+        m_GapLeft:
+          rid: 4224637634270986730
+        m_GapRight:
+          rid: 4224637634270986731
+        m_GapTop:
+          rid: 4224637634270986732
+        m_GapUnit:
+          rid: 4224637634270986733
+        m_GapVertical:
+          rid: 4224637634270986734
         m_InvertMask:
           rid: 4224637585093558858
         m_isMaskingGraphic:
@@ -11177,10 +11293,20 @@ MonoBehaviour:
           rid: 4224637585093558862
         m_pixelsPerUnitMultiplier:
           rid: 4224637585093558863
+        m_PositionOffset:
+          rid: 4224637634270986735
         m_Radius:
           rid: 4224637585093558864
+        m_SizeOffset:
+          rid: 4224637634270986736
         m_sprite:
           rid: 4224637585093558865
+        m_UniformSizeOffset:
+          rid: 4224637634270986737
+        m_UseFixedSize:
+          rid: 4224637634270986738
+        m_UsePadding:
+          rid: 4224637634270986739
     - rid: 4224637585093558616
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -11296,12 +11422,44 @@ MonoBehaviour:
           rid: 4224637585093558912
         m_CornerSegments:
           rid: 4224637585093558913
+        m_DisabledMaterial:
+          rid: 4224637634270986740
         m_enabled:
           rid: 4224637585093558914
+        m_EnabledInHierarchy:
+          rid: 4224637634270986741
+        m_FadeColor:
+          rid: 4224637634270986742
         m_FadeSize:
           rid: 4224637585093558915
+        m_fillAmount:
+          rid: 4224637634270986743
+        m_fillCenter:
+          rid: 4224637634270986744
+        m_fillClockwise:
+          rid: 4224637634270986745
+        m_fillMethod:
+          rid: 4224637634270986746
+        m_fillOrigin:
+          rid: 4224637634270986747
+        m_FixedSize:
+          rid: 4224637634270986748
         m_FrameSize:
           rid: 4224637585093558916
+        m_GapBottom:
+          rid: 4224637634270986749
+        m_GapHorizontal:
+          rid: 4224637634270986750
+        m_GapLeft:
+          rid: 4224637634270986751
+        m_GapRight:
+          rid: 4224637634270986752
+        m_GapTop:
+          rid: 4224637634270986753
+        m_GapUnit:
+          rid: 4224637634270986754
+        m_GapVertical:
+          rid: 4224637634270986755
         m_InvertMask:
           rid: 4224637585093558917
         m_isMaskingGraphic:
@@ -11314,10 +11472,20 @@ MonoBehaviour:
           rid: 4224637585093558921
         m_pixelsPerUnitMultiplier:
           rid: 4224637585093558922
+        m_PositionOffset:
+          rid: 4224637634270986756
         m_Radius:
           rid: 4224637585093558923
+        m_SizeOffset:
+          rid: 4224637634270986757
         m_sprite:
           rid: 4224637585093558924
+        m_UniformSizeOffset:
+          rid: 4224637634270986758
+        m_UseFixedSize:
+          rid: 4224637634270986759
+        m_UsePadding:
+          rid: 4224637634270986760
     - rid: 4224637585093558619
       type: {class: UiStyleTMP_Text, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
@@ -14398,6 +14566,602 @@ MonoBehaviour:
         m_value: {r: 0.72156864, g: 0.45490196, b: 0, a: 1}
     - rid: 4224637585093559078
       type: {class: UiStyleImage/ApplicableValueBoolean, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986677
+      type: {class: UiStyleUiRoundedImage/ApplicableValueMaterial, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 4224637634270986678
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986679
+      type: {class: UiStyleUiRoundedImage/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {r: 0, g: 0, b: 0, a: 0}
+    - rid: 4224637634270986680
+      type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986681
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986682
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986683
+      type: {class: UiStyleUiRoundedImage/ApplicableValueFillMethod, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986684
+      type: {class: UiStyleUiRoundedImage/ApplicableValueInt32, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986685
+      type: {class: UiStyleUiRoundedImage/ApplicableValueRect, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+    - rid: 4224637634270986686
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986687
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986688
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986689
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986690
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986691
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEGapUnit, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986692
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986693
+      type: {class: UiStyleUiRoundedImage/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 4224637634270986694
+      type: {class: UiStyleUiRoundedImage/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 4224637634270986695
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986696
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986697
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986698
+      type: {class: UiStyleUiRoundedImage/ApplicableValueMaterial, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 4224637634270986699
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986700
+      type: {class: UiStyleUiRoundedImage/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {r: 0, g: 0, b: 0, a: 0}
+    - rid: 4224637634270986701
+      type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986702
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986703
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986704
+      type: {class: UiStyleUiRoundedImage/ApplicableValueFillMethod, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986705
+      type: {class: UiStyleUiRoundedImage/ApplicableValueInt32, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986706
+      type: {class: UiStyleUiRoundedImage/ApplicableValueRect, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+    - rid: 4224637634270986707
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986708
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986709
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986710
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986711
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986712
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEGapUnit, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986713
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986714
+      type: {class: UiStyleUiRoundedImage/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 4224637634270986715
+      type: {class: UiStyleUiRoundedImage/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 4224637634270986716
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986717
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986718
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986719
+      type: {class: UiStyleUiRoundedImage/ApplicableValueMaterial, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 4224637634270986720
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986721
+      type: {class: UiStyleUiRoundedImage/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {r: 0, g: 0, b: 0, a: 0}
+    - rid: 4224637634270986722
+      type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986723
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986724
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986725
+      type: {class: UiStyleUiRoundedImage/ApplicableValueFillMethod, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986726
+      type: {class: UiStyleUiRoundedImage/ApplicableValueInt32, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986727
+      type: {class: UiStyleUiRoundedImage/ApplicableValueRect, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+    - rid: 4224637634270986728
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986729
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986730
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986731
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986732
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986733
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEGapUnit, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986734
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986735
+      type: {class: UiStyleUiRoundedImage/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 4224637634270986736
+      type: {class: UiStyleUiRoundedImage/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 4224637634270986737
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986738
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986739
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986740
+      type: {class: UiStyleUiRoundedImage/ApplicableValueMaterial, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {fileID: 0}
+    - rid: 4224637634270986741
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986742
+      type: {class: UiStyleUiRoundedImage/ApplicableValueColor, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {r: 0, g: 0, b: 0, a: 0}
+    - rid: 4224637634270986743
+      type: {class: UiStyleUiRoundedImage/ApplicableValueSingle, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986744
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986745
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986746
+      type: {class: UiStyleUiRoundedImage/ApplicableValueFillMethod, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986747
+      type: {class: UiStyleUiRoundedImage/ApplicableValueInt32, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986748
+      type: {class: UiStyleUiRoundedImage/ApplicableValueRect, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+    - rid: 4224637634270986749
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986750
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986751
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986752
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986753
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986754
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEGapUnit, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986755
+      type: {class: UiStyleUiRoundedImage/ApplicableValueEdgeGap, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value:
+          Active: 0
+          Size: 0
+          Offset: 0
+    - rid: 4224637634270986756
+      type: {class: UiStyleUiRoundedImage/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 4224637634270986757
+      type: {class: UiStyleUiRoundedImage/ApplicableValueVector2, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: {x: 0, y: 0}
+    - rid: 4224637634270986758
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986759
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
+      data:
+        IsApplicable: 0
+        m_value: 0
+    - rid: 4224637634270986760
+      type: {class: UiStyleUiRoundedImage/ApplicableValueBoolean, ns: GuiToolkit.Style,
+        asm: de.phoenixgrafik.ui-toolkit}
       data:
         IsApplicable: 0
         m_value: 0

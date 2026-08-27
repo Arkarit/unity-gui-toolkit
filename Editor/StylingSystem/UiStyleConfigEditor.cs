@@ -88,6 +88,17 @@ namespace GuiToolkit.Style.Editor
 			m_currentSkinIdxProp = serializedObject.FindProperty("m_currentSkinIdx");
 			m_parentProp = serializedObject.FindProperty("m_parent");
 			m_thisUiStyleConfig = target as UiStyleConfig;
+
+			// A style type that gained a value leaves every config on disk with a null where that value
+			// belongs, and the inspector is the only place that sees it. Repaired here, once per opening,
+			// rather than on every repaint - and the serialised view has to be re-read afterwards, or it
+			// keeps showing the nulls it was built from.
+			if (UiStyleEditorUtility.RepairMissingStyleValues(m_thisUiStyleConfig))
+			{
+				serializedObject.Update();
+				PropertyDrawerView.ClearHeightCache();
+			}
+
 			Undo.undoRedoPerformed += OnUndoOrRedo;
 		}
 

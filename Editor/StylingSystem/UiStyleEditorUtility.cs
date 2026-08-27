@@ -331,5 +331,88 @@ namespace GuiToolkit.Style.Editor
 			UiStyleConfig.SetDirty(_config);
 			return _name;
 		}
+
+		/// <summary>
+		/// Creates the style values that a config on disk does not have yet, and says whether it had to.
+		///
+		/// Values are [SerializeReference] fields. When a style type gains one, Unity does NOT run the new
+		/// field's initialiser for assets it loads - every config serialised before that moment keeps a null
+		/// there. Nothing else notices: the runtime getters quietly create what they need, so only the
+		/// inspector, which walks the serialised data rather than the object, is left looking at a managed
+		/// reference that points nowhere.
+		///
+		/// The cost of leaving it: a null value cannot be switched on, cannot be styled, and used to take
+		/// the whole skin inspector with it (see ApplicableValueBaseDrawer.IsMissingValue). So this runs once
+		/// when a config is opened, and marks it dirty only when it actually filled something in - the
+		/// alternative, dirtying every config anybody looks at, is worse than the bug.
+		/// </summary>
+		public static bool RepairMissingStyleValues( UiStyleConfig _config )
+		{
+			if (_config == null)
+				return false;
+
+			var serializedObject = new SerializedObject(_config);
+			if (!HasMissingValue(serializedObject))
+				return false;
+
+			foreach (var skin in _config.Skins)
+			{
+				foreach (var style in skin.Styles)
+				{
+					if (style != null)
+						style.RebuildValues();
+				}
+			}
+
+			UiStyleConfig.SetDirty(_config);
+			UiLog.Log($"'{_config.name}': filled in style values that did not exist yet. This happens once "
+				+ "after a style type gained a value; save the config to keep it.");
+
+			return true;
+		}
+
+		/// <summary>
+		/// Whether any style holds a value that was never created. Asked through the serialised data, not
+		/// through the object: the object's getters repair themselves on access, so it would always answer no.
+		/// </summary>
+		private static bool HasMissingValue( SerializedObject _serializedObject )
+		{
+			var skinsProp = _serializedObject.FindProperty("m_skins");
+			if (skinsProp == null)
+				return false;
+
+			for (int i = 0; i < skinsProp.arraySize; i++)
+			{
+				var stylesProp = skinsProp.GetArrayElementAtIndex(i).FindPropertyRelative("m_styles");
+				if (stylesProp == null)
+					continue;
+
+				for (int j = 0; j < stylesProp.arraySize; j++)
+				{
+					var styleProp = stylesProp.GetArrayElementAtIndex(j);
+					if (styleProp.managedReferenceValue == null)
+						continue;
+
+					var iterator = styleProp.Copy();
+					var end = styleProp.GetEndProperty();
+					int depth = styleProp.depth;
+
+					while (iterator.NextVisible(true) && !SerializedProperty.EqualContents(iterator, end))
+					{
+						// Only the style's own fields; a value's insides are none of this check's business.
+						if (iterator.depth != depth + 1)
+							continue;
+
+						if (iterator.propertyType == SerializedPropertyType.ManagedReference
+						 && iterator.managedReferenceValue == null)
+						{
+							return true;
+						}
+					}
+				}
+			}
+
+			return false;
+		}
 	}
 }
