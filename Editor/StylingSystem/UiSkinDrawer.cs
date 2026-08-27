@@ -87,6 +87,19 @@ namespace GuiToolkit.Style.Editor
 
 			var parentConfig = config.Parent;
 
+			// A config without a parent, on a skin that builds on nothing: the popup would offer "<nothing>"
+			// and the line under it would explain that nothing is nothing. Two rows per skin saying so.
+			//
+			// Only while it is EMPTY, though. A skin that does build on a sibling keeps its row whatever the
+			// config's parent situation is - hiding something that is actually set is the worse failure, and
+			// it is also how one gets undone again.
+			if (parentConfig == null
+			 && m_thisUiSkin.ParentSkin == null
+			 && string.IsNullOrEmpty(m_thisUiSkin.InheritFromSkinName))
+			{
+				return;
+			}
+
 			var candidates = BuildInheritCandidates(config, parentConfig);
 
 			// Nothing to build on and nothing that could be: no field, rather than an empty one.
