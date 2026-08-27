@@ -757,6 +757,36 @@ namespace GuiToolkit
 			}
 			return false;
 		}
+
+		private static GUIContent s_menuIcon;
+
+		/// <summary>
+		/// The "three dots" icon the editor uses for a component header's own menu.
+		///
+		/// Looked up by name and cached, with a text fallback: built-in icon names are not part of Unity's
+		/// public contract and have been renamed between versions, and this library runs in 2022.3 as well
+		/// as in 6. A row whose menu button reads "..." is worse-looking than one with the icon and still
+		/// works, which a NullReferenceException in OnGUI would not.
+		/// </summary>
+		public static GUIContent MenuIcon( string _tooltip )
+		{
+			if (s_menuIcon == null)
+			{
+				foreach (var name in new[] { "_Menu", "pane options", "_Popup" })
+				{
+					var candidate = EditorGUIUtility.IconContent(name);
+					if (candidate?.image != null)
+					{
+						s_menuIcon = new GUIContent(candidate.image);
+						break;
+					}
+				}
+
+				s_menuIcon ??= new GUIContent("...");
+			}
+
+			return new GUIContent(s_menuIcon) { tooltip = _tooltip };
+		}
 	}
 }
 #endif

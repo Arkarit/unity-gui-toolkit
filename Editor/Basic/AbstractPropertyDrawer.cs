@@ -531,6 +531,26 @@ namespace GuiToolkit.Editor
 
 		protected bool Button(string _s, float _width = -1) => Button(new GUIContent(_s), _width);
 
+		/// <summary>
+		/// A button that is only an icon - the editor's own "pane options" look.
+		///
+		/// Drawn with EditorStyles.iconButton rather than the default button style, whose border and padding
+		/// eat a 16 px icon down to a clipped smudge inside a single line's height.
+		/// </summary>
+		protected bool IconButton(GUIContent _content, float _width = 20)
+		{
+			if (m_collectHeightMode)
+			{
+				IncreaseHeight(SingleLineHeight);
+				return false;
+			}
+
+			var buttonRect = new Rect(m_currentRect.x, m_currentRect.y, _width, SingleLineHeight);
+			bool result = GUI.Button(buttonRect, _content, EditorStyles.iconButton);
+			NextRect(SingleLineHeight);
+			return result;
+		}
+
 		protected void IncreaseX(float _width)
 		{
 			if (_width < 0)

@@ -69,92 +69,27 @@ namespace GuiToolkit.Style.Editor
 					0,
 					EditorStyles.boldLabel
 				);
-				// The header text runs underneath these buttons, so they are kept as narrow as they can be
-				// read: an abbreviated label with the sentence in its tooltip beats a wide button that
-				// covers the name of the config a row comes from.
-				bool showRevert = isOverride;
-				IncreaseX(showRevert ? -215 : -160);
+				// One menu instead of up to five buttons. The header text used to run underneath them and
+				// the row's actions cost 160 to 215 px of it; none of them is used often enough to be worth
+				// that. The menu also has somewhere to put a REASON, which a greyed-out button does not -
+				// see BuildRowMenu, where every unavailable entry says why in its own label.
+				IncreaseX(-40);
 
-				if (isInherited)
+				if (IconButton(EditorUiUtility.MenuIcon("What can be done with this style"), 20))
 				{
-					// Right-aligned in the same column as Del, so the rows line up - which also gives
-					// this button the same 20 px to the right edge that every other one has.
-					IncreaseX(-135);
-					if (Button(new GUIContent("Parent", "Open the config this style comes from, on this very "
-						+ "row. That is where its values can be changed - for everything that inherits it."), 55))
-					{
-						RevealInParent(thisStyle);
-					}
-
-					IncreaseX(60);
-
-					if (Button(new GUIContent("Overr.", "Copy this inherited style into this config, so its "
-						+ "values can be changed here. It stops following the config it came from."), 55))
-					{
-						OverrideInherited(thisStyle);
-					}
-
-					return;
-				}
-
-				if (showRevert)
-				{
-					if (Button(new GUIContent("Revert", "Drop this config's own copy and inherit the style "
-						+ "again. The values set here are lost."), 50))
-					{
-						RevertToInherited(thisStyle);
-					}
-
-					IncreaseX(55);
-				}
-
-				if (Button("Find", 35))
-				{
-					FindAppliers(thisStyle);
-				}
-				
-				IncreaseX(40);
-
-				if (Button("Rename", 55))
-				{
-					EditorApplication.delayCall += () =>
-					{
-						Action<AbstractEditorInputDialog> additionalContent = dialog =>
-						{
-							if (GUILayout.Button("Reset Name"))
-							{
-								UiEventDefinitions.EvSetStyleAlias.InvokeAlways(owningConfig, thisStyle, null);
-								dialog.Cancel();
-							}
-							
-							EditorGUILayout.Space(20);
-						};
-					
-						var newName = EditorInputDialog.Show("Rename", "Please enter new name/path", thisStyle.Alias, additionalContent);
-						if (!string.IsNullOrEmpty(newName))
-						{
-							UiEventDefinitions.EvSetStyleAlias.InvokeAlways(owningConfig, thisStyle, newName);
-						}
-					};
-				}
-				
-				IncreaseX(60);
-				
-				if (Button(new GUIContent("Del", "Delete this style from the config, from every skin and "
-					+ "from every applier that uses it."), 40))
-				{
-					if (EditorUtility.DisplayDialog
+					// Everything the entries need is captured HERE, while this drawer still points at this
+					// row. Unity keeps one drawer instance for a whole array, and a menu callback runs a tick
+					// later - by then Property and the fields around it belong to whatever was drawn last,
+					// and Delete would take the wrong style with it.
+					BuildRowMenu
 					(
-						    "Are you sure?",
-							$"The style '{thisStyle.Alias}' will be removed from UiStyleConfig" 
-							+ " and all skins and UI Apply Style instances which use it. This can not be undone.",
-							"OK",
-							"Cancel"
-					))
-					{
-						UiEventDefinitions.EvDeleteStyle.InvokeAlways(owningConfig, thisStyle);
-						return;
-					}
+						thisStyle,
+						owningConfig,
+						Property.serializedObject.targetObject,
+						Property.propertyPath,
+						isInherited,
+						isOverride
+					).ShowAsContext();
 				}
 			});
 
@@ -215,13 +150,6 @@ namespace GuiToolkit.Style.Editor
 		private static readonly Color OverrideTint = new Color(0.85f, 0.70f, 0.20f, 0.13f);
 
 		/// <summary>
-		/// The skin of the edited config this row is shown under, from the context the surrounding editor
-		/// set. Own by definition: materialising into a skin that is itself inherited would write into the
-		/// parent asset, the thing all of this prevents.
-		/// </summary>
-		private static UiSkin EditedSkinOfThisRow() => UiStyleRowContext.Skin;
-
-		/// <summary>
 		/// Where an overriding entry diverges from - not necessarily the immediate parent.
 		/// </summary>
 		private static string OverriddenSourceName( UiAbstractStyleBase _style )
@@ -229,17 +157,197 @@ namespace GuiToolkit.Style.Editor
 
 		private static string SourceName( UiSkin _skin ) => UiStyleRowContext.SourceName(_skin);
 
+		#region The row menu
+
+		/// <summary>
+		/// Everything this row can do.
+		///
+		/// Built when the button is clicked, and handed only VALUES - never the drawer's own fields. One
+		/// drawer instance serves a whole array (see UiSkinDrawer), and a GenericMenu callback runs a tick
+		/// after the pass that built it, by which time those fields point at whatever was drawn last;
+		/// Delete would take the wrong style with it. The same goes for UiStyleRowContext, which is scoped
+		/// to the drawing pass - so the two skins it would have been asked for are resolved here.
+		///
+		/// What an entry cannot do it still shows, greyed out, with the reason in its own label. That is the
+		/// one thing a menu has over a strip of buttons: a disabled button can only say "no".
+		/// </summary>
+		private static GenericMenu BuildRowMenu
+		(
+			UiAbstractStyleBase _style,
+			UiStyleConfig _owningConfig,
+			UnityEngine.Object _serializedTarget,
+			string _propertyPath,
+			bool _isInherited,
+			bool _isOverride
+		)
+		{
+			var menu = new GenericMenu();
+			var editedSkin = UiStyleRowContext.Skin;
+			var sourceSkin = UiStyleRowContext.SkinOwnerOf(_style);
+
+			menu.AddItem(new GUIContent("Copy Values"), false,
+				() => CopyValues(_serializedTarget, _propertyPath, _style));
+
+			if (CanPaste(_style, _owningConfig, _isInherited, out string pasteReason))
+			{
+				menu.AddItem(new GUIContent("Paste Values"), false,
+					() => PasteValues(_serializedTarget, _propertyPath, _style));
+			}
+			else
+			{
+				menu.AddDisabledItem(new GUIContent(MenuText("Paste Values  -  " + pasteReason)));
+			}
+
+			menu.AddSeparator(string.Empty);
+
+			if (_isInherited)
+			{
+				menu.AddItem(new GUIContent("Open Source Config"), false,
+					() => RevealInParent(_style, sourceSkin));
+				menu.AddItem(new GUIContent("Override Here"), false,
+					() => OverrideInherited(_style, editedSkin));
+
+				return menu;
+			}
+
+			if (_isOverride)
+			{
+				menu.AddItem(new GUIContent("Revert to Inherited"), false,
+					() => RevertToInherited(_style, editedSkin));
+			}
+
+			menu.AddItem(new GUIContent("Find Appliers"), false, () => FindAppliers(_style));
+			menu.AddItem(new GUIContent("Rename..."), false, () => Rename(_style, _owningConfig));
+			menu.AddSeparator(string.Empty);
+			menu.AddItem(new GUIContent("Delete"), false, () => Delete(_style, _owningConfig));
+
+			return menu;
+		}
+
+		/// <summary>
+		/// A slash in a GenericMenu label does not read as a slash - it opens a submenu. Reasons carry style
+		/// aliases and config names, and both of those have slashes in them.
+		/// </summary>
+		private static string MenuText( string _text ) => _text?.Replace('/', DivisionSlash);
+
+		/// <summary>Looks like a slash, is not one as far as GenericMenu is concerned.</summary>
+		private const char DivisionSlash = (char)0x2215;
+
+		private static bool CanPaste
+		(
+			UiAbstractStyleBase _style,
+			UiStyleConfig _config,
+			bool _isInherited,
+			out string _reason
+		)
+		{
+			// Asked before the clipboard, because it is the answer whatever the clipboard holds - and
+			// "override it first" is the actual next step, which a "wrong type" would hide.
+			if (_isInherited)
+			{
+				_reason = "inherited, override it here first";
+				return false;
+			}
+
+			if (!UiStyleEditorUtility.IsWritable(_config, out _reason))
+				return false;
+
+			return UiStyleClipboard.CanPasteInto(_style, out _reason);
+		}
+
+		/// <summary>
+		/// The row's property, resolved again from the object and the path rather than kept as a
+		/// SerializedProperty across the pass. A property outlives its pass badly - the SerializedObject
+		/// behind it may have been rebuilt since - while an asset and a path stay true as long as the row
+		/// exists at all.
+		/// </summary>
+		private static SerializedProperty ResolveRow( UnityEngine.Object _serializedTarget, string _propertyPath )
+		{
+			if (_serializedTarget == null || string.IsNullOrEmpty(_propertyPath))
+				return null;
+
+			return new SerializedObject(_serializedTarget).FindProperty(_propertyPath);
+		}
+
+		private static void CopyValues( UnityEngine.Object _serializedTarget, string _propertyPath, UiAbstractStyleBase _style )
+		{
+			var rowProp = ResolveRow(_serializedTarget, _propertyPath);
+			if (rowProp == null)
+			{
+				UiLog.LogError($"Cannot copy '{_style?.Alias}': its row no longer resolves.");
+				return;
+			}
+
+			UiStyleClipboard.Copy(rowProp, _style);
+		}
+
+		private static void PasteValues( UnityEngine.Object _serializedTarget, string _propertyPath, UiAbstractStyleBase _style )
+		{
+			var rowProp = ResolveRow(_serializedTarget, _propertyPath);
+			if (rowProp == null)
+			{
+				UiLog.LogError($"Cannot paste into '{_style?.Alias}': its row no longer resolves.");
+				return;
+			}
+
+			if (UiStyleClipboard.Paste(rowProp, _style) == 0)
+				return;
+
+			// A paste flips applicable flags, and an applicable value draws taller than an unused one, so
+			// every remembered row height from here down is now wrong.
+			PropertyDrawerView.ClearHeightCache();
+			UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+		}
+
+		private static void Rename( UiAbstractStyleBase _style, UiStyleConfig _owningConfig )
+		{
+			Action<AbstractEditorInputDialog> additionalContent = dialog =>
+			{
+				if (GUILayout.Button("Reset Name"))
+				{
+					UiEventDefinitions.EvSetStyleAlias.InvokeAlways(_owningConfig, _style, null);
+					dialog.Cancel();
+				}
+
+				EditorGUILayout.Space(20);
+			};
+
+			var newName = EditorInputDialog.Show("Rename", "Please enter new name/path", _style.Alias,
+				additionalContent);
+
+			if (!string.IsNullOrEmpty(newName))
+				UiEventDefinitions.EvSetStyleAlias.InvokeAlways(_owningConfig, _style, newName);
+		}
+
+		private static void Delete( UiAbstractStyleBase _style, UiStyleConfig _owningConfig )
+		{
+			if (!EditorUtility.DisplayDialog
+			(
+				"Are you sure?",
+				$"The style '{_style.Alias}' will be removed from UiStyleConfig and all skins and UI Apply "
+				+ "Style instances which use it. This can not be undone.",
+				"OK",
+				"Cancel"
+			))
+			{
+				return;
+			}
+
+			UiEventDefinitions.EvDeleteStyle.InvokeAlways(_owningConfig, _style);
+		}
+
+		#endregion
+
 		/// <summary>
 		/// Takes the reader to where an inherited style actually lives: selects that config and opens the
 		/// inspector on this row.
 		///
-		/// Deferred like the other row actions - it changes the filter and the foldouts of the very list
-		/// being drawn, and selecting another object mid-layout ends the frame in an ugly way.
+		/// The skin is handed in rather than looked up, because by the time a menu entry runs the row
+		/// context that knew it is already gone.
 		/// </summary>
-		private void RevealInParent( UiAbstractStyleBase _style )
+		private static void RevealInParent( UiAbstractStyleBase _style, UiSkin _sourceSkin )
 		{
-			var skin = UiStyleRowContext.SkinOwnerOf(_style);
-			var config = skin?.StyleConfig;
+			var config = _sourceSkin?.StyleConfig;
 
 			if (config == null)
 			{
@@ -248,27 +356,27 @@ namespace GuiToolkit.Style.Editor
 				return;
 			}
 
-			EditorApplication.delayCall += () => UiStyleConfigEditor.Reveal(config, skin, _style);
+			UiStyleConfigEditor.Reveal(config, _sourceSkin, _style);
 		}
 
 		/// <summary>
 		/// Copies an inherited style into the edited config so it can be changed there. Deferred, because it
 		/// adds to the very list that is being drawn at that moment.
 		/// </summary>
-		private void OverrideInherited( UiAbstractStyleBase _style )
+		private static void OverrideInherited( UiAbstractStyleBase _style, UiSkin _editedSkin )
 		{
-			var skin = EditedSkinOfThisRow();
-			int key = _style.Key;
-			if (skin == null)
+			if (_editedSkin == null)
 			{
 				UiLog.LogError($"Cannot override '{_style.Name}': the edited config does not declare the skin " +
 				               "this style is shown under. Add that skin to it first.");
 				return;
 			}
 
+			int key = _style.Key;
+
 			EditorApplication.delayCall += () =>
 			{
-				skin.MaterializeStyle(key);
+				_editedSkin.MaterializeStyle(key);
 				PropertyDrawerView.ClearHeightCache();
 				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 			};
@@ -277,13 +385,13 @@ namespace GuiToolkit.Style.Editor
 		/// <summary>
 		/// Drops the edited config's own copy so the style is inherited again. Deferred for the same reason.
 		/// </summary>
-		private void RevertToInherited( UiAbstractStyleBase _style )
+		private static void RevertToInherited( UiAbstractStyleBase _style, UiSkin _editedSkin )
 		{
-			var skin = EditedSkinOfThisRow();
+			if (_editedSkin == null)
+				return;
+
 			int key = _style.Key;
 			string alias = _style.Alias;
-			if (skin == null)
-				return;
 
 			if (!EditorUtility.DisplayDialog
 			(
@@ -298,7 +406,7 @@ namespace GuiToolkit.Style.Editor
 
 			EditorApplication.delayCall += () =>
 			{
-				skin.RevertStyleToInherited(key);
+				_editedSkin.RevertStyleToInherited(key);
 				PropertyDrawerView.ClearHeightCache();
 				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 			};

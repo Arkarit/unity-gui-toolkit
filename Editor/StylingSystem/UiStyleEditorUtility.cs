@@ -333,6 +333,32 @@ namespace GuiToolkit.Style.Editor
 		}
 
 		/// <summary>
+		/// Whether this config can be written to at all, with a reason fit for a disabled menu entry.
+		///
+		/// Only real package installs are refused. The path test is deliberately just "Packages/": the
+		/// toolkit's own dev app has the package symlinked into Assets/, and there it IS the thing being
+		/// edited - a check that went by the toolkit root would lock the library out of its own config.
+		/// </summary>
+		public static bool IsWritable( UiStyleConfig _config, out string _reason )
+		{
+			if (_config == null)
+			{
+				_reason = "there is no config behind this row";
+				return false;
+			}
+
+			string path = AssetDatabase.GetAssetPath(_config);
+			if (!string.IsNullOrEmpty(path) && path.StartsWith("Packages/", StringComparison.Ordinal))
+			{
+				_reason = $"'{_config.name}' belongs to a read-only package";
+				return false;
+			}
+
+			_reason = null;
+			return true;
+		}
+
+		/// <summary>
 		/// Creates the style values that a config on disk does not have yet, and says whether it had to.
 		///
 		/// Values are [SerializeReference] fields. When a style type gains one, Unity does NOT run the new

@@ -293,7 +293,9 @@ namespace GuiToolkit.Style.Editor
 
 				if (m_thisUiSkin.IsAspectRatioDependent)
 				{
-					IncreaseX(-490);
+					// 180 px for the aspect ratio field plus 40 for the menu button. It used to be 490,
+					// which was the same field behind five buttons.
+					IncreaseX(-220);
 					LabelField("Aspect Ratio >= ");
 					IncreaseX(100);
 
@@ -309,90 +311,15 @@ namespace GuiToolkit.Style.Editor
 				}
 				else
 				{
-					IncreaseX(-310);
+					IncreaseX(-40);
 				}
 
-				if (Button("HSV", 55))
+				if (IconButton(EditorUiUtility.MenuIcon("What can be done with this skin"), 20))
 				{
-					var hsv = UiSkinHSVDialog.GetWindow();
-					hsv.Skin = m_thisUiSkin;
-					hsv.StyleConfig = styleConfig;
-				}
-				IncreaseX(60);
-				
-				if (Button("Copy", 55))
-				{
-					var jsonHelper = new JsonHelper()
-					{
-						Skin = m_thisUiSkin
-					};
-					
-					var jsonStr = UnityEngine.JsonUtility.ToJson(jsonHelper, true);
-					GUIUtility.systemCopyBuffer = jsonStr;
-				}
-				IncreaseX(60);
-				
-				if (Button("Paste", 55))
-				{
-					var jsonStr = GUIUtility.systemCopyBuffer;
-					var jsonHelper = UnityEngine.JsonUtility.FromJson<JsonHelper>(jsonStr);
-					for (int i=0; i < jsonHelper.Skin.Styles.Count && i < m_thisUiSkin.Styles.Count; i++)
-					{
-						var fromStyle = jsonHelper.Skin.Styles[i];
-						var toStyle = m_thisUiSkin.Styles[i];
-						
-						for (int j=0; j < fromStyle.Values.Length && j < toStyle.Values.Length; j++)
-						{
-							toStyle.Values[j].RawValueObj = fromStyle.Values[j].RawValueObj;
-						}
-					}
-					EditorGeneralUtility.SetDirty(styleConfig);
-					EditorApplication.delayCall += () => UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
-				}
-				IncreaseX(60);
-				
-				if (Button("Rename", 55))
-				{
-					// Create copies due to shitty c# not able to define capture copy in lambda
-					var skinAliasCopy = skinAlias;
-					var thisUiSkinCaptured = m_thisUiSkin;
-					
-					EditorApplication.delayCall += () =>
-					{
-						Action<AbstractEditorInputDialog> additionalContent = dialog =>
-						{
-							if (GUILayout.Button("Reset Name"))
-							{
-								UiEventDefinitions.EvSetSkinAlias.InvokeAlways(thisUiSkinCaptured.StyleConfig, thisUiSkinCaptured, null);
-								dialog.Cancel();
-							}
-							
-							EditorGUILayout.Space(20);
-						};
-					
-						var newName = EditorInputDialog.Show("Rename", "Please enter new name", skinAliasCopy, additionalContent);
-						if (!string.IsNullOrEmpty(newName))
-						{
-							UiEventDefinitions.EvSetSkinAlias.InvokeAlways(thisUiSkinCaptured.StyleConfig, thisUiSkinCaptured, newName);
-						}
-					};
-				}
-					
-				IncreaseX(60);
-				
-				if (Button("Delete", 50))
-				{
-					if (EditorUtility.DisplayDialog
-				    (
-					    "Are you sure?",
-					    $"The skin '{skinAlias}' (identifier '{skinName}') will be removed from UiStyleConfig" 
-					    + " and all UI Apply Style instances which use it. This can not be undone.",
-					    "OK",
-					    "Cancel"
-				    ))
-					{
-						UiEventDefinitions.EvDeleteSkin.InvokeAlways(m_thisUiSkin.StyleConfig, skinName);
-					}
+					// Same rule as in the style rows: only values cross into the callbacks, never a field
+					// of this drawer. One instance serves every skin in the list, and a menu entry runs a
+					// tick after the pass that built it.
+					BuildSkinMenu(m_thisUiSkin, styleConfig, skinName, skinAlias).ShowAsContext();
 				}
 			});
 			
@@ -466,6 +393,98 @@ namespace GuiToolkit.Style.Editor
 					Space(13);
 			}
 		}
+
+
+		#region The skin menu
+
+		/// <summary>
+		/// What can be done with a whole skin.
+		///
+		/// Built on click and handed only values, for the same reason the style rows are: one drawer
+		/// instance serves the whole skin list, and a menu entry runs a tick after the pass that built it.
+		/// </summary>
+		private static GenericMenu BuildSkinMenu
+		(
+			UiSkin _skin,
+			UiStyleConfig _config,
+			string _skinName,
+			string _skinAlias
+		)
+		{
+			var menu = new GenericMenu();
+
+			menu.AddItem(new GUIContent("Adjust HSV..."), false, () =>
+			{
+				var hsv = UiSkinHSVDialog.GetWindow();
+				hsv.Skin = _skin;
+				hsv.StyleConfig = _config;
+			});
+
+			menu.AddSeparator(string.Empty);
+
+			menu.AddItem(new GUIContent("Copy Skin (JSON to clipboard)"), false, () => CopySkin(_skin));
+
+			// Off rather than removed, so it is visible that this exists and why it cannot be used.
+			//
+			// It matched styles - and the values inside them - BY POSITION. That was true enough when every
+			// skin of a config held the same styles in the same order; since inheritance it is not, because
+			// a skin that builds on another stores only its overrides. Pasting then writes a Color into a
+			// float slot without a word. Fixing it means matching on the style key and the value name, the
+			// way UiStyleClipboard does for a single style - until then it stays out of reach.
+			menu.AddDisabledItem(new GUIContent(
+				"Paste Skin  -  off: it matched by position, which inheritance broke"));
+
+			menu.AddSeparator(string.Empty);
+			menu.AddItem(new GUIContent("Rename..."), false, () => RenameSkin(_skin, _skinAlias));
+			menu.AddSeparator(string.Empty);
+			menu.AddItem(new GUIContent("Delete"), false, () => DeleteSkin(_skin, _skinName, _skinAlias));
+
+			return menu;
+		}
+
+		private static void CopySkin( UiSkin _skin )
+		{
+			var jsonHelper = new JsonHelper { Skin = _skin };
+			GUIUtility.systemCopyBuffer = JsonUtility.ToJson(jsonHelper, true);
+			UiLog.Log($"Copied skin '{_skin.Alias}' as JSON ({_skin.Styles.Count} styles).");
+		}
+
+		private static void RenameSkin( UiSkin _skin, string _skinAlias )
+		{
+			Action<AbstractEditorInputDialog> additionalContent = dialog =>
+			{
+				if (GUILayout.Button("Reset Name"))
+				{
+					UiEventDefinitions.EvSetSkinAlias.InvokeAlways(_skin.StyleConfig, _skin, null);
+					dialog.Cancel();
+				}
+
+				EditorGUILayout.Space(20);
+			};
+
+			var newName = EditorInputDialog.Show("Rename", "Please enter new name", _skinAlias, additionalContent);
+			if (!string.IsNullOrEmpty(newName))
+				UiEventDefinitions.EvSetSkinAlias.InvokeAlways(_skin.StyleConfig, _skin, newName);
+		}
+
+		private static void DeleteSkin( UiSkin _skin, string _skinName, string _skinAlias )
+		{
+			if (!EditorUtility.DisplayDialog
+			(
+				"Are you sure?",
+				$"The skin '{_skinAlias}' (identifier '{_skinName}') will be removed from UiStyleConfig"
+				+ " and all UI Apply Style instances which use it. This can not be undone.",
+				"OK",
+				"Cancel"
+			))
+			{
+				return;
+			}
+
+			UiEventDefinitions.EvDeleteSkin.InvokeAlways(_skin.StyleConfig, _skinName);
+		}
+
+		#endregion
 
 		/// <summary>
 		/// The foldout id of one style group, e.g. "Chip" or "Chip/Default", inside a skin.
