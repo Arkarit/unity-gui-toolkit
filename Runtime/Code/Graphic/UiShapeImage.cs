@@ -49,7 +49,11 @@ namespace GuiToolkit
 			Outer,
 		}
 
-		protected class Vertex
+		/// <summary>
+		/// One mesh vertex of a shape. Public because the fill clipper works on the finished mesh from
+		/// outside - see <see cref="UiShapeFill"/>.
+		/// </summary>
+		public class Vertex
 		{
 			public Vector2 Position;
 			public Vector2 Uv;
@@ -446,20 +450,32 @@ namespace GuiToolkit
 
 		protected override void OnPopulateMesh( Mesh _mesh )
 		{
-			if (m_frameSize > 0)
-				GenerateFrame();
-			else
-				GenerateFilled();
+			GenerateShape();
 			ApplyToMesh(_mesh);
 		}
 
 		protected override void OnPopulateMesh( VertexHelper _vh )
 		{
+			GenerateShape();
+			ApplyToVertexHelper(_vh);
+		}
+
+		/// <summary>
+		/// Builds the shape and then cuts it down to the fill amount.
+		///
+		/// The cut happens here rather than in each shape, so a shape only ever has to know how to draw
+		/// itself whole. It is also the only reason Image Type does anything on a shape at all: Image's own
+		/// filled geometry lives in the OnPopulateMesh that this class replaces.
+		/// </summary>
+		private void GenerateShape()
+		{
 			if (m_frameSize > 0)
 				GenerateFrame();
 			else
 				GenerateFilled();
-			ApplyToVertexHelper(_vh);
+
+			if (type == Type.Filled)
+				UiShapeFill.Apply(s_vertices, s_triangles, Rect, fillMethod, fillAmount, fillOrigin, fillClockwise);
 		}
 
 		protected override void UpdateGeometry()

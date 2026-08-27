@@ -64,7 +64,7 @@
             "TypeName": "Single"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "fillCenter",
             "QualifiedTypeName": "System.Boolean",
             "TypeName": "Boolean"
@@ -196,7 +196,7 @@
             "TypeName": "RectOffset"
         },
         {
-            "Used": true,
+            "Used": false,
             "Name": "pixelsPerUnitMultiplier",
             "QualifiedTypeName": "System.Single",
             "TypeName": "Single"
