@@ -232,6 +232,7 @@ public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
 		public const int SCENE_CHANGE_TRACKER_MENU_PRIORITY = 1010;
 		public const int MAIN_SCENE_ON_PLAY_MENU_NAME_PRIORITY = 1020;
 		public const int EDITOR_AUDIO_RECOVERY_MENU_PRIORITY = 1030;
+		public const int FORCE_RECOMPILE_MENU_PRIORITY = 520;
 	}
 
 	/// \brief General string constants
@@ -283,6 +284,7 @@ public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
 		public const string CREATE_GUI_SCREENSHOT_OVERLAY = MISC_TOOLS_MENU_HEADER + "Create GUI Screenshot overlay";
 		public const string CONVERT_MAIN_STYLE_CONFIG = MISC_TOOLS_MENU_HEADER + "Convert selected UiMainStyleConfig to UiStyleConfig";
 		public const string RESOLUTION_RESCALER = MISC_TOOLS_MENU_HEADER + "Resolution Rescaler (PREVIEW!)";
+		public const string FORCE_RECOMPILE = MISC_TOOLS_MENU_HEADER + "Force Recompile";
 		public const string STYLE_DRIFT_REPORT = STYLES_HEADER + "Style Config Drift Report...";
 		
 		public const string CLONE_FOLDER = "Assets/Clone Folder (rewire references)";
