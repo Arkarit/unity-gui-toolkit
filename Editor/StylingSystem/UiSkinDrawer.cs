@@ -445,7 +445,9 @@ namespace GuiToolkit.Style.Editor
 		private static void CopySkin( UiSkin _skin )
 		{
 			var jsonHelper = new JsonHelper { Skin = _skin };
-			GUIUtility.systemCopyBuffer = JsonUtility.ToJson(jsonHelper, true);
+			// Through UiStyleClipboard, which knows that a write from inside a menu callback can be
+			// refused without a word - see PutText.
+			UiStyleClipboard.PutText(JsonUtility.ToJson(jsonHelper, true));
 			UiLog.Log($"Copied skin '{_skin.Alias}' as JSON ({_skin.Styles.Count} styles).");
 		}
 

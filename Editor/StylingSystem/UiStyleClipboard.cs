@@ -152,7 +152,7 @@ namespace GuiToolkit.Style.Editor
 				["values"] = values,
 			};
 
-			GUIUtility.systemCopyBuffer = root.ToString(Newtonsoft.Json.Formatting.Indented);
+			PutText(root.ToString(Newtonsoft.Json.Formatting.Indented));
 			UiLog.Log($"Copied {values.Count} values of style '{_style.Alias}' "
 				+ $"({ShortName(_style.SupportedComponentType?.FullName)}).");
 		}
@@ -219,6 +219,39 @@ namespace GuiToolkit.Style.Editor
 			}
 
 			return written;
+		}
+
+		/// <summary>
+		/// Writes to the system clipboard, and makes sure it arrived.
+		///
+		/// A plain assignment is not enough when it happens inside a GenericMenu callback. On Windows the
+		/// clipboard is opened with the focused window as its owner, and at that moment the owner is a
+		/// native popup that is being torn down - the write fails, and Unity's setter says nothing about
+		/// it. Measured, not guessed: "Copied 34 values" in the console and an empty clipboard after it.
+		///
+		/// So: write, read back, and if it did not stick, write again on the next editor tick, when the
+		/// menu is gone. Immediate first rather than deferred always, because everything that is not a
+		/// menu - and every test - expects the clipboard to hold it when the call returns. And if even the
+		/// retry fails, that is said out loud; a copy that silently does nothing is what this whole comment
+		/// is about.
+		/// </summary>
+		public static void PutText( string _text )
+		{
+			GUIUtility.systemCopyBuffer = _text;
+
+			// Checked again on the next tick rather than right here. Reading back immediately asks the same
+			// clipboard that just refused the write, so a "yes it is there" from it proves nothing; a tick
+			// later the popup is gone and the answer means something.
+			EditorApplication.delayCall += () =>
+			{
+				if (GUIUtility.systemCopyBuffer == _text)
+					return;
+
+				GUIUtility.systemCopyBuffer = _text;
+
+				if (GUIUtility.systemCopyBuffer != _text)
+					UiLog.LogError("The system clipboard refused what was copied. Nothing was put there.");
+			};
 		}
 
 		#region Reading the document
