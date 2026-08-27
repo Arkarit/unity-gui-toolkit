@@ -11,6 +11,7 @@ namespace GuiToolkit
 	///
 	/// The chip owns no look of its own: size and colour role come from the style, so the same prefab is a
 	/// list-row chip or an inline one depending on which style it carries ("Chip/Default", "Chip/Small").
+	/// Nor does it care what its background IS - any Graphic will do, rounded or nine-sliced or plain.
 	/// Display only unless it is made clickable, and then it says so: a chip that takes no clicks does not
 	/// raycast either, so the tap reaches the card or row underneath instead of dying on the chip.
 	/// </summary>
@@ -18,9 +19,12 @@ namespace GuiToolkit
 	{
 		[Header("Chip")]
 
-		[Tooltip("Rounded background. Carries the chip's colour role through its style, and is the click "
-			+ "target when the chip is clickable.")]
-		[SerializeField][Mandatory] protected UiRoundedImage m_background;
+		[Tooltip("The chip's background graphic. Carries its colour role through its style, and is the "
+			+ "click target when the chip is clickable.")]
+		// Graphic, not Image and not UiRoundedImage: raycastTarget is all this class ever touches, and that
+		// is declared on Graphic. Asking for more would rule out backgrounds that would do perfectly well -
+		// a plain Image for a nine-sliced chip, or anything else that draws.
+		[SerializeField][Mandatory] protected Graphic m_background;
 
 		[Tooltip("Optional icon in front of the label. Without a sprite its GameObject is switched off, so "
 			+ "a layout group does not reserve the space for it.")]
@@ -86,7 +90,7 @@ namespace GuiToolkit
 			}
 		}
 
-		public UiRoundedImage Background => m_background;
+		public Graphic Background => m_background;
 
 		/// <summary>
 		/// Adds a click listener and makes the chip clickable in the same breath.
