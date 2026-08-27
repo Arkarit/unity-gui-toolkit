@@ -85,8 +85,14 @@ namespace GuiToolkit.Style.Editor
 					(
 						thisStyle,
 						owningConfig,
-						Property.serializedObject.targetObject,
-						Property.propertyPath,
+						new RowTarget
+						(
+							owningConfig,
+							UiStyleRowContext.SkinOwnerOf(thisStyle)?.Name,
+							thisStyle.Key,
+							Property.serializedObject.targetObject,
+							Property.propertyPath
+						),
 						isInherited,
 						isOverride
 					).ShowAsContext();
@@ -175,8 +181,7 @@ namespace GuiToolkit.Style.Editor
 		(
 			UiAbstractStyleBase _style,
 			UiStyleConfig _owningConfig,
-			UnityEngine.Object _serializedTarget,
-			string _propertyPath,
+			RowTarget _row,
 			bool _isInherited,
 			bool _isOverride
 		)
@@ -186,12 +191,12 @@ namespace GuiToolkit.Style.Editor
 			var sourceSkin = UiStyleRowContext.SkinOwnerOf(_style);
 
 			menu.AddItem(new GUIContent("Copy Values"), false,
-				() => CopyValues(_serializedTarget, _propertyPath, _style));
+				() => CopyValues(_row, _style));
 
 			if (CanPaste(_style, _owningConfig, _isInherited, out string pasteReason))
 			{
 				menu.AddItem(new GUIContent("Paste Values"), false,
-					() => PasteValues(_serializedTarget, _propertyPath, _style));
+					() => PasteValues(_row, _style));
 			}
 			else
 			{
@@ -256,22 +261,61 @@ namespace GuiToolkit.Style.Editor
 		}
 
 		/// <summary>
-		/// The row's property, resolved again from the object and the path rather than kept as a
-		/// SerializedProperty across the pass. A property outlives its pass badly - the SerializedObject
-		/// behind it may have been rebuilt since - while an asset and a path stay true as long as the row
-		/// exists at all.
+		/// Where a row's style actually LIVES, as opposed to the property it happens to be drawn through.
+		///
+		/// The two are not the same, and the difference is not cosmetic. An applier inspector shows its
+		/// style through a shared throwaway ScriptableObject (see EditorDisplayHelper), so the property
+		/// handed to this drawer belongs to that helper - reading it back yields a fraction of the values,
+		/// and writing to it reaches the helper instead of the config, which is a paste that reports
+		/// success and changes nothing. Measured: "Pasted 5 values" three times, config untouched.
+		///
+		/// So the row is named by config, skin and style key, and resolved from the asset when it is
+		/// actually needed. The property path is kept only as a fallback, for a style that belongs to no
+		/// config at all.
 		/// </summary>
-		private static SerializedProperty ResolveRow( UnityEngine.Object _serializedTarget, string _propertyPath )
+		private readonly struct RowTarget
 		{
-			if (_serializedTarget == null || string.IsNullOrEmpty(_propertyPath))
-				return null;
+			public RowTarget
+			(
+				UiStyleConfig _config,
+				string _skinName,
+				int _key,
+				UnityEngine.Object _fallbackObject,
+				string _fallbackPath
+			)
+			{
+				Config = _config;
+				SkinName = _skinName;
+				Key = _key;
+				FallbackObject = _fallbackObject;
+				FallbackPath = _fallbackPath;
+			}
 
-			return new SerializedObject(_serializedTarget).FindProperty(_propertyPath);
+			public UiStyleConfig Config { get; }
+			public string SkinName { get; }
+			public int Key { get; }
+			public UnityEngine.Object FallbackObject { get; }
+			public string FallbackPath { get; }
+
+			public SerializedProperty Resolve()
+			{
+				if (Config != null && !string.IsNullOrEmpty(SkinName))
+				{
+					var byKey = UiStyleEditorUtility.StylePropertiesByKey(Config, SkinName);
+					if (byKey.TryGetValue(Key, out var fromConfig))
+						return fromConfig;
+				}
+
+				if (FallbackObject == null || string.IsNullOrEmpty(FallbackPath))
+					return null;
+
+				return new SerializedObject(FallbackObject).FindProperty(FallbackPath);
+			}
 		}
 
-		private static void CopyValues( UnityEngine.Object _serializedTarget, string _propertyPath, UiAbstractStyleBase _style )
+		private static void CopyValues( RowTarget _row, UiAbstractStyleBase _style )
 		{
-			var rowProp = ResolveRow(_serializedTarget, _propertyPath);
+			var rowProp = _row.Resolve();
 			if (rowProp == null)
 			{
 				UiLog.LogError($"Cannot copy '{_style?.Alias}': its row no longer resolves.");
@@ -281,9 +325,9 @@ namespace GuiToolkit.Style.Editor
 			UiStyleClipboard.Copy(rowProp, _style);
 		}
 
-		private static void PasteValues( UnityEngine.Object _serializedTarget, string _propertyPath, UiAbstractStyleBase _style )
+		private static void PasteValues( RowTarget _row, UiAbstractStyleBase _style )
 		{
-			var rowProp = ResolveRow(_serializedTarget, _propertyPath);
+			var rowProp = _row.Resolve();
 			if (rowProp == null)
 			{
 				UiLog.LogError($"Cannot paste into '{_style?.Alias}': its row no longer resolves.");

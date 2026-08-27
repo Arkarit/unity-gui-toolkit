@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using GuiToolkit.Style;
 using GuiToolkit.Style.Editor;
@@ -147,6 +149,68 @@ namespace GuiToolkit.Test
 			Assert.That(UiStyleEditorUtility.IsWritable(config, out _), Is.True);
 			Assert.That(UiStyleEditorUtility.IsWritable(null, out string reason), Is.False);
 			Assert.That(reason, Is.Not.Null.And.Not.Empty);
+		}
+
+
+		/// <summary>
+		/// The row a menu entry works on must be the one in the CONFIG, not the property it happened to be
+		/// drawn through.
+		///
+		/// An applier inspector draws its style through a shared throwaway ScriptableObject, and going by
+		/// the drawn property there reads back a fraction of the values and writes them somewhere the config
+		/// never sees - a paste that logs success and changes nothing. This reaches into a private type on
+		/// purpose: the resolution order is exactly where the bug lived, and testing it anywhere else would
+		/// test something that never broke.
+		/// </summary>
+		[Test]
+		public void ARowResolvesThroughItsConfigNotThroughTheDrawnProperty()
+		{
+			var config = CreateConfig(out var source, out var target);
+			source.Color.IsApplicable = true;
+			source.Color.Value = Color.red;
+			Flush(config);
+
+			UiStyleClipboard.Copy(
+				UiStyleEditorUtility.StylePropertiesByKey(config, SkinDefault)[source.Key], source);
+
+			// No fallback at all, so only the config route can work.
+			var rowTargetType = typeof(UiAbstractStyleBaseDrawer).GetNestedType("RowTarget",
+				BindingFlags.NonPublic);
+			Assert.That(rowTargetType, Is.Not.Null, "RowTarget was renamed - update this test.");
+
+			var rowTarget = System.Activator.CreateInstance(rowTargetType,
+				new object[] { config, SkinDefault, target.Key, null, null });
+
+			var menu = (GenericMenu)typeof(UiAbstractStyleBaseDrawer)
+				.GetMethod("BuildRowMenu", BindingFlags.Static | BindingFlags.NonPublic)
+				.Invoke(null, new object[] { target, config, rowTarget, false, false });
+
+			Assert.That(Invoke(menu, "Paste Values"), Is.True, "Paste was not offered or was disabled.");
+			Assert.That(target.Color.Value, Is.EqualTo(Color.red));
+		}
+
+		/// <summary>Fires the named entry of a menu. False when it is absent or greyed out.</summary>
+		private static bool Invoke( GenericMenu _menu, string _label )
+		{
+			var items = (IEnumerable)typeof(GenericMenu)
+				.GetField("m_MenuItems", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_menu);
+
+			foreach (var item in items)
+			{
+				var type = item.GetType();
+				const BindingFlags any = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+				var content = (GUIContent)type.GetField("content", any).GetValue(item);
+				if (content.text != _label)
+					continue;
+
+				if (type.GetField("func", any).GetValue(item) is not GenericMenu.MenuFunction func)
+					return false;
+
+				func.Invoke();
+				return true;
+			}
+
+			return false;
 		}
 
 		#region Helpers

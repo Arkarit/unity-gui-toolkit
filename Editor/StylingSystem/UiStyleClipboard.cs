@@ -153,7 +153,9 @@ namespace GuiToolkit.Style.Editor
 			};
 
 			PutText(root.ToString(Newtonsoft.Json.Formatting.Indented));
-			UiLog.Log($"Copied {values.Count} values of style '{_style.Alias}' "
+			// "of N" rather than a bare count: a copy that silently took a fraction of the style looks
+			// exactly like a complete one, and that is how a paste that changed nothing went unnoticed.
+			UiLog.Log($"Copied {values.Count} of {_style.Values.Length} values of style '{_style.Alias}' "
 				+ $"({ShortName(_style.SupportedComponentType?.FullName)}).");
 		}
 
