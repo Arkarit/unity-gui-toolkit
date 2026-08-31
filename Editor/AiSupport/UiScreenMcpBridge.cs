@@ -806,6 +806,17 @@ namespace GuiToolkit.Editor.AiSupport
 				["hint"] = "This is a summary, not the catalog itself. Read the file at 'absolutePath' " +
 					"with your own file tools (offset/limit/search or a JSON query) — the full catalog is large.",
 			};
+
+			// The scan is bounded, so a palette count that refuses to move after tagging is usually a prefab
+			// sitting outside these folders. Naming them here turns that from a mystery into a comparison.
+			var scanFolders = new JArray();
+			foreach (var folder in UiScreenCatalogGenerator.StandardElementScanFolders(
+				UiAuthorablePaletteConfig.FindFirst()))
+			{
+				scanFolders.Add(folder);
+			}
+			summary["standardElementScanFolders"] = scanFolders;
+
 			return summary.ToString(Newtonsoft.Json.Formatting.None);
 		}
 

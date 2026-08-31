@@ -424,6 +424,32 @@ namespace GuiToolkit
 		/// Called after the scanning pass completes.
 		/// </summary>
 		public abstract void EdWriteKeyData();
+
+		/// <summary>
+		/// (Editor-only) Whether <paramref name="_key"/> is a key the loca pipeline knows about, i.e. one
+		/// present in the POT templates.
+		/// </summary>
+		/// <remarks>
+		/// Deliberately not <see cref="HasKey"/>: that answers "is there a TRANSLATION loaded right now",
+		/// and in the editor no language is active, so it says no to everything. The POT templates are the
+		/// harvested key catalog and exist without loading a language — which makes them the only source an
+		/// edit-time tool can ask.
+		///
+		/// Virtual rather than abstract, unlike its neighbours, so an existing custom <see cref="LocaManager"/>
+		/// keeps compiling. The default answers false, and callers must pair it with
+		/// <see cref="EdHasAnyKeys"/> to tell "key is missing" from "nobody can tell me".
+		/// </remarks>
+		public virtual bool EdHasKey( string _key, string _group ) => false;
+
+		/// <summary>
+		/// (Editor-only) Whether <paramref name="_group"/>'s POT template carries any keys at all — the guard
+		/// that turns a negative <see cref="EdHasKey"/> into evidence instead of a guess.
+		/// </summary>
+		/// <remarks>
+		/// A project without POT files, or one whose templates have not been generated yet, must not produce
+		/// a warning per authored text. False therefore means "stay quiet".
+		/// </remarks>
+		public virtual bool EdHasAnyKeys( string _group ) => false;
 #endif
 
 		private bool m_debugLoca = false;

@@ -489,7 +489,7 @@ namespace GuiToolkit
 			
 			if (!m_translationDict.TryGetValue(_group, out var entry))
 				return false;
-			
+
 			return entry.ContainsKey(_key);
 		}
 		
@@ -870,14 +870,23 @@ namespace GuiToolkit
 				Log("Reading POT files");
 
 			m_keys.Clear();
-
-			var groups = AssetUtility.ReadLines(GROUPS_RESOURCE_NAME);
-			EdReadKeyData(DEFAULT_LOCA_GROUP);
-			foreach (var group in groups)
-				EdReadKeyData(group);
+			EdReadAllGroups(_createDirIfMissing: true);
 		}
 
-		private string EdGetPotSystemPath( string _group )
+		private void EdReadAllGroups( bool _createDirIfMissing )
+		{
+			var groups = AssetUtility.ReadLines(GROUPS_RESOURCE_NAME);
+			EdReadKeyData(DEFAULT_LOCA_GROUP, _createDirIfMissing);
+			foreach (var group in groups)
+				EdReadKeyData(group, _createDirIfMissing);
+		}
+
+		/// <param name="_createDirIfMissing">
+		/// Whether a missing .pot directory should be created. True for the loca processing pass, which is
+		/// about to write there anyway; false for callers that only want to READ the key catalog — asking
+		/// whether a key exists must not leave a folder behind in a project that has no loca set up at all.
+		/// </param>
+		private string EdGetPotSystemPath( string _group, bool _createDirIfMissing = true )
 		{
 			var result = EditorFileUtility.GetApplicationDataDir() + UiToolkitConfiguration.Instance.m_potPath;
 
@@ -886,6 +895,9 @@ namespace GuiToolkit
 			
 			if (!Directory.Exists(result))
 			{
+				if (!_createDirIfMissing)
+					return null;
+
 				try
 				{
 					EditorFileUtility.EnsureFolderExists(result, true);
@@ -906,9 +918,9 @@ namespace GuiToolkit
 			return result;
 		}
 
-		private void EdReadKeyData( string _group )
+		private void EdReadKeyData( string _group, bool _createDirIfMissing = true )
 		{
-			var path = EdGetPotSystemPath(_group);
+			var path = EdGetPotSystemPath(_group, _createDirIfMissing);
 			if (string.IsNullOrEmpty(path))
 				return;
 
@@ -938,8 +950,13 @@ namespace GuiToolkit
 						string line2 = lines[i + 1];
 						if (line2.StartsWith("msgid_plural"))
 						{
-							line2 = line2.Substring(14, line.Length - 15);
-							line2 = Unescape(line);
+							// Measured and unescaped from line2, not from line: `line` has already been
+							// reassigned to the unescaped msgid above, so the old `line.Length - 15` threw
+							// "Length cannot be less than zero" on any short msgid and aborted the read of
+							// the whole POT file — leaving every key after the first plural entry invisible.
+							// Anything asking "does this key exist" then got a false negative.
+							line2 = line2.Substring(14, line2.Length - 15);
+							line2 = Unescape(line2);
 							if (DebugLoca)
 								Log($"Adding POT plural key '{line}', '{line2}'");
 
@@ -985,6 +1002,49 @@ namespace GuiToolkit
 
 			EdWriteGroupsFile(string.Join("\n", nonDefaultGroups));
 			EdWriteAvailableLanguagesFile(nonDefaultGroups);
+		}
+
+		/// <inheritdoc/>
+		public override bool EdHasKey( string _key, string _group )
+		{
+			if (string.IsNullOrEmpty(_key))
+				return false;
+
+			SetEffectiveGroup(ref _group);
+			EdEnsureKeyData();
+			return m_keys.TryGetValue(_group, out var keys) && keys.Contains(_key);
+		}
+
+		/// <inheritdoc/>
+		public override bool EdHasAnyKeys( string _group )
+		{
+			SetEffectiveGroup(ref _group);
+			EdEnsureKeyData();
+			return m_keys.TryGetValue(_group, out var keys) && keys.Count > 0;
+		}
+
+		private bool m_edKeyDataQueried;
+
+		/// <summary>
+		/// Loads the POT key catalog once per domain, for callers that only want to ASK about keys.
+		/// </summary>
+		/// <remarks>
+		/// Never clears: the loca processing pass builds <c>m_keys</c> up with <see cref="EdAddKey"/> between
+		/// an <see cref="EdClear"/> and an <see cref="EdWriteKeyData"/>, and a query firing in the middle of
+		/// that must not throw the harvest away. A populated registry is therefore left alone, and the flag
+		/// keeps a project WITHOUT POT files from re-reading on every single question.
+		///
+		/// Consequence worth knowing: if POT files appear after the first query in this domain, queries stay
+		/// silent until the next domain reload. Fine for a diagnostic, and the alternative is a Resources
+		/// load per authored text.
+		/// </remarks>
+		private void EdEnsureKeyData()
+		{
+			if (m_keys.Count > 0 || m_edKeyDataQueried)
+				return;
+
+			m_edKeyDataQueried = true;
+			EdReadAllGroups(_createDirIfMissing: false);
 		}
 
 		private void EdWriteGroupsFile( string _groups )

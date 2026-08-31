@@ -49,6 +49,11 @@ namespace GuiToolkit.Editor.AiSupport
 
 		private static List<DeferredRef> s_deferredRefs;
 		private static Dictionary<GameObject, string> s_idByAuthoredGo;
+
+		// Prefab paths of the templates this read did not descend into, so one aggregated hint at the end can
+		// point at the tool that does show their internals. A set: a screen usually instantiates the same
+		// template several times, and the hint is about the SOURCE prefab, not about each instance.
+		private static SortedSet<string> s_unexpandedTemplates;
 		private static readonly Dictionary<Type, Component> s_defaultComponents = new();
 		private static GameObject s_defaultsHost;
 
@@ -100,6 +105,7 @@ namespace GuiToolkit.Editor.AiSupport
 			s_warnings = new List<string>();
 			s_deferredRefs = new List<DeferredRef>();
 			s_idByAuthoredGo = new Dictionary<GameObject, string>();
+			s_unexpandedTemplates = new SortedSet<string>(StringComparer.Ordinal);
 			var usedIds = new HashSet<string>(StringComparer.Ordinal);
 
 			GameObject root = PrefabUtility.LoadPrefabContents(_prefabPath);
@@ -107,6 +113,7 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				var rootNode = BuildNode(root, usedIds);
 				ResolveDeferredRefs();
+				WarnAboutUnexpandedTemplates();
 
 				var screen = new JObject
 				{
@@ -176,6 +183,7 @@ namespace GuiToolkit.Editor.AiSupport
 			if (isTemplate)
 			{
 				node["template"] = TemplateName(templateSource);
+				RecordUnexpandedTemplate(templateSource);
 			}
 			else
 			{
@@ -291,6 +299,44 @@ namespace GuiToolkit.Editor.AiSupport
 		// The authored children to recurse into. For a plain element every transform child is authored. For
 		// a template only the ADDED GameObjects are authored (its internal hierarchy belongs to the source);
 		// we return the top-most added roots, in hierarchy order.
+		// Remembers a template whose internals stay out of the read-back — but only when it actually HAS
+		// internals, since a hint about a childless template would be pure noise.
+		private static void RecordUnexpandedTemplate( GameObject _templateSource )
+		{
+			if (s_unexpandedTemplates == null
+				|| _templateSource == null
+				|| _templateSource.transform.childCount == 0)
+			{
+				return;
+			}
+
+			string path = AssetDatabase.GetAssetPath(_templateSource);
+			if (!string.IsNullOrEmpty(path))
+				s_unexpandedTemplates.Add(path);
+		}
+
+		/// <summary>
+		/// One hint per read: a template's internals are not part of the read-back, and the tool that does
+		/// show them is a different one.
+		/// </summary>
+		/// <remarks>
+		/// Worth spelling out, because the gap is silent and reads like "this element contains nothing".
+		/// A template node comes back as its standard-element key plus overridden props, so the child paths
+		/// that an "overrides" block is keyed by never appear anywhere in the output — and an author who
+		/// cannot find them rebuilds the standard element by hand instead of varianting it, which costs the
+		/// skin. capture_prefab_values walks the whole hierarchy, keyed by node path, and says so itself.
+		/// </remarks>
+		private static void WarnAboutUnexpandedTemplates()
+		{
+			if (s_unexpandedTemplates == null || s_unexpandedTemplates.Count == 0)
+				return;
+
+			Warn("Template internals are not part of this read-back — a template node carries only its key "
+				+ "and its overridden props. For the child paths that \"overrides\" is keyed by, run "
+				+ "capture_prefab_values on the template's own prefab: "
+				+ string.Join(", ", s_unexpandedTemplates));
+		}
+
 		private static List<GameObject> ReadChildren( GameObject _go, bool _isTemplate )
 		{
 			if (!_isTemplate)

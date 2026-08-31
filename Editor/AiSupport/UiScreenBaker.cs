@@ -1063,8 +1063,12 @@ namespace GuiToolkit.Editor.AiSupport
 				var target = _root.transform.Find(childPath);
 				if (target == null)
 				{
+					// NOT read_screen: it stops at a template's boundary by design and returns the key plus
+					// the overridden props, so it cannot answer "which child paths exist here" — the very
+					// question this warning raises. capture_prefab_values walks the whole hierarchy and is
+					// keyed by node path, which is the same path this block expects.
 					Warn($"Override path '{childPath}' does not exist under '{_root.name}'; skipped. " +
-					     "Use read_screen on the template prefab to see its internal node names.");
+					     "Run capture_prefab_values on the template's own prefab for its child paths.");
 					continue;
 				}
 
@@ -1209,13 +1213,57 @@ namespace GuiToolkit.Editor.AiSupport
 			rt.anchorMax = max;
 			rt.pivot = pivot;
 
-			// sizeDelta / anchoredPosition first, then explicit stretch offsets win if given.
+			// A stretched axis means "follow the parent", so the offsets on that axis have to go. Without
+			// this the RectTransform keeps the sizeDelta it happened to have — 100 on a freshly created
+			// Image — and the node renders as a fixed-size box inside a parent it claims to fill. In a
+			// 0-sized parent that is a 100x100 square in a corner, which is indistinguishable from "did not
+			// render at all". Both the "stretch"/"fill" preset name and the README promise fill.
+			ZeroStretchedOffsets(rt);
+
+			// sizeDelta / anchoredPosition first, then explicit stretch offsets win if given. Deliberately
+			// AFTER the zeroing above, so "anchor": "bottom-stretch" next to "size": [0, 140] still means
+			// "full width, 140 high".
 			if (_rect["size"] is JArray size) rt.sizeDelta = Vec2(size, rt.sizeDelta);
 			if (_rect["position"] is JArray pos) rt.anchoredPosition = Vec2(pos, rt.anchoredPosition);
 			if (_rect["offsetMin"] is JArray oMin) rt.offsetMin = Vec2(oMin, rt.offsetMin);
 			if (_rect["offsetMax"] is JArray oMax) rt.offsetMax = Vec2(oMax, rt.offsetMax);
 
 			EditorGeneralUtility.SetDirty(rt);
+		}
+
+		/// <summary>
+		/// Clears offsetMin/offsetMax on every axis whose anchors sit apart, i.e. on every stretched axis.
+		/// </summary>
+		/// <remarks>
+		/// Per axis, not wholesale: a preset like "bottom-stretch" stretches x only, and on y the offsets
+		/// encode anchoredPosition and sizeDelta — zeroing those would collapse the node to zero height,
+		/// which is a worse failure than the one this fixes.
+		/// </remarks>
+		private static void ZeroStretchedOffsets( RectTransform _rt )
+		{
+			bool stretchX = !Mathf.Approximately(_rt.anchorMin.x, _rt.anchorMax.x);
+			bool stretchY = !Mathf.Approximately(_rt.anchorMin.y, _rt.anchorMax.y);
+			if (!stretchX && !stretchY)
+				return;
+
+			Vector2 offsetMin = _rt.offsetMin;
+			Vector2 offsetMax = _rt.offsetMax;
+
+			if (stretchX)
+			{
+				offsetMin.x = 0;
+				offsetMax.x = 0;
+			}
+			if (stretchY)
+			{
+				offsetMin.y = 0;
+				offsetMax.y = 0;
+			}
+
+			// Both setters rewrite sizeDelta and anchoredPosition, so they have to be applied in this order
+			// and not read back in between — same idiom as ApplyFullStretch.
+			_rt.offsetMin = offsetMin;
+			_rt.offsetMax = offsetMax;
 		}
 
 		// Unity's anchor-preset grid, plus "stretch"/"fill". Returns anchorMin/Max and a matching pivot.
@@ -2388,6 +2436,36 @@ namespace GuiToolkit.Editor.AiSupport
 
 		#region Text
 
+		/// <summary>
+		/// Warns when a "@loca:" key is not one the loca pipeline knows about.
+		/// </summary>
+		/// <remarks>
+		/// The damage from an unresolved key is not that it fails — it is that it renders AS the key. A tab
+		/// reading "ALL" next to a correctly translated "BUILDINGS" looks perfectly fine in the authoring
+		/// language, and the bug first shows up in a foreign build, in a screen nobody is looking at any more.
+		/// The baker can see the key catalog, so it may as well say so at bake time.
+		///
+		/// Checked against the POT templates rather than the loaded translations: in the editor no language is
+		/// active, so <see cref="LocaManager.HasKey"/> would answer no to every key and warn on all of them.
+		/// Silent unless the group's catalog demonstrably holds keys, so a project without POT files gets no
+		/// warnings instead of one per text.
+		/// </remarks>
+		private static void WarnIfLocaKeyUnresolved( GameObject _go, string _key, string _group )
+		{
+			if (string.IsNullOrEmpty(_key))
+				return;
+
+			var manager = LocaManager.Instance;
+			if (manager == null || !manager.EdHasAnyKeys(_group) || manager.EdHasKey(_key, _group))
+				return;
+
+			Warn($"Loca key '{_key}' on '{_go.name}' is not in the loca catalog"
+				+ (string.IsNullOrEmpty(_group) ? "" : $" (group '{_group}')")
+				+ " — it will render as the raw key, which looks correct in the authoring language and wrong "
+				+ "in every other one. Add the key to the catalog, or use \"@text:\" for a literal that is "
+				+ "not meant to be translated.");
+		}
+
 		private static void ApplyText( GameObject _go, string _text )
 		{
 			var localized = _go.GetComponentInChildren<UiLocalizedTextMeshProUGUI>(true);
@@ -2406,6 +2484,7 @@ namespace GuiToolkit.Editor.AiSupport
 						: _text;
 					SetPrivateField(localized, "m_isTranslated", true);
 					SetPrivateField(localized, "m_locaKey", key);
+					WarnIfLocaKeyUnresolved(_go, key, localized.Group);
 
 					// Also seed the visible TMP text with the key so the bake/preview shows something
 					// meaningful instead of the template's leftover placeholder (LocaManager overwrites it

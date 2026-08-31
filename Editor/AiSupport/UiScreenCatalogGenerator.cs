@@ -837,10 +837,43 @@ namespace GuiToolkit.Editor.AiSupport
 					guids.Add(_guid);
 			}
 
+			foreach (var folder in StandardElementScanFolders(_config, _warnOnMissingVariantsPath: true))
+				foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { folder }))
+					AddGuid(guid);
+
+			if (_config != null)
+			{
+				foreach (var prefab in _config.ExtraPrefabs)
+				{
+					if (prefab == null)
+						continue;
+					AddGuid(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(prefab)));
+				}
+			}
+
+			return guids;
+		}
+
+		/// <summary>
+		/// The folders scanned for standard-element markers, in scan order. Existing folders only.
+		/// </summary>
+		/// <param name="_warnOnMissingVariantsPath">
+		/// Whether a configured but non-existent <c>PrefabVariantsPath</c> is worth a warning. True for the
+		/// catalog run, false for callers that merely ASK about the scope and would repeat the warning.
+		/// </param>
+		public static List<string> StandardElementScanFolders(
+			UiAuthorablePaletteConfig _config, bool _warnOnMissingVariantsPath = false )
+		{
+			var folders = new List<string>();
+			void AddFolder( string _folder )
+			{
+				if (!string.IsNullOrEmpty(_folder) && !folders.Contains(_folder))
+					folders.Add(_folder);
+			}
+
 			string toolkitRoot = UiToolkitConfiguration.Instance.GetUiToolkitRootProjectDir()?.TrimEnd('/');
 			if (!string.IsNullOrEmpty(toolkitRoot) && AssetDatabase.IsValidFolder(toolkitRoot))
-				foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { toolkitRoot }))
-					AddGuid(guid);
+				AddFolder(toolkitRoot);
 
 			// The canonical client prefab-variants folder: client variants of tagged standard elements live
 			// here (the variant-creation tool writes here), so they are discovered and out-rank the library
@@ -850,10 +883,9 @@ namespace GuiToolkit.Editor.AiSupport
 			{
 				if (AssetDatabase.IsValidFolder(variantsPath))
 				{
-					foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { variantsPath }))
-						AddGuid(guid);
+					AddFolder(variantsPath);
 				}
-				else
+				else if (_warnOnMissingVariantsPath)
 				{
 					UiLog.LogWarning($"AI catalog: prefabVariantsPath '{variantsPath}' does not exist — client " +
 						"prefab variants placed there won't be discovered, so standard elements (and thus UiMain " +
@@ -865,18 +897,54 @@ namespace GuiToolkit.Editor.AiSupport
 			if (_config != null)
 			{
 				foreach (var folder in _config.ExtraFolderPaths())
-					foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { folder }))
-						AddGuid(guid);
+					AddFolder(folder?.TrimEnd('/'));
+			}
 
-				foreach (var prefab in _config.ExtraPrefabs)
+			return folders;
+		}
+
+		/// <summary>
+		/// Whether a standard-element marker on this prefab would ever be SEEN by the catalog scan.
+		/// </summary>
+		/// <remarks>
+		/// The scan is deliberately bounded — toolkit root, <c>PrefabVariantsPath</c>, the palette config's
+		/// extra folders and prefabs — so that it stays cheap in a large host project and never loads every
+		/// prefab. The cost of that bound is that a marker outside it is written and then never read: the
+		/// prefab carries a perfectly valid identity, the palette count does not move, and nothing says why.
+		/// Callers that CREATE markers use this to say so at the moment the marker is placed.
+		/// </remarks>
+		/// <param name="_prefabPath">Project-relative prefab path.</param>
+		/// <param name="_scanFolders">The folders that were checked, for the caller's message.</param>
+		public static bool IsInStandardElementScanScope( string _prefabPath, out List<string> _scanFolders )
+		{
+			var config = UiAuthorablePaletteConfig.FindFirst();
+			_scanFolders = StandardElementScanFolders(config);
+
+			string path = _prefabPath?.Replace("\\", "/");
+			if (string.IsNullOrEmpty(path))
+				return false;
+
+			foreach (var folder in _scanFolders)
+			{
+				if (path.StartsWith(folder + "/", StringComparison.OrdinalIgnoreCase))
+					return true;
+			}
+
+			if (config != null)
+			{
+				// Individually listed prefabs are in scope wherever they live.
+				foreach (var prefab in config.ExtraPrefabs)
 				{
 					if (prefab == null)
 						continue;
-					AddGuid(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(prefab)));
+
+					string extraPath = AssetDatabase.GetAssetPath(prefab)?.Replace("\\", "/");
+					if (string.Equals(extraPath, path, StringComparison.OrdinalIgnoreCase))
+						return true;
 				}
 			}
 
-			return guids;
+			return false;
 		}
 
 		/// <summary>

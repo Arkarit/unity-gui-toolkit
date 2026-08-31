@@ -150,6 +150,7 @@ namespace GuiToolkit.Editor.AiSupport
 				cam.transform.position = new Vector3(0, 0, -100);
 				cam.transform.rotation = Quaternion.identity;
 				DetachFromSceneVolumes(camGo);
+				ForceSolidColorClear(camGo, cam.backgroundColor);
 
 				canvas.renderMode = RenderMode.ScreenSpaceCamera;
 				canvas.worldCamera = cam;
@@ -199,6 +200,49 @@ namespace GuiToolkit.Editor.AiSupport
 				var anchor = type.GetField("volumeAnchorOverride");
 				if (anchor != null)
 					anchor.SetValue(data, null);
+			}
+
+			/// <summary>
+			/// Makes the preview actually clear to <paramref name="_backgroundColor"/> under HDRP.
+			/// </summary>
+			/// <remarks>
+			/// HDRP does not read <see cref="Camera.clearFlags"/> or <see cref="Camera.backgroundColor"/>; the
+			/// clear mode lives on HDAdditionalCameraData and a freshly added component defaults it to
+			/// <c>Sky</c>. Since <see cref="DetachFromSceneVolumes"/> adds exactly that component, asking for a
+			/// solid grey background silently produced a rendered SKY instead — measured in an HDRP client:
+			/// the horizon line runs straight through the preview, and a translucent dialog over a bright sky
+			/// reads as a black silhouette, which looks precisely like "my colours are wrong".
+			///
+			/// Reflection for the same reason as its neighbour: the toolkit does not depend on HDRP, and on any
+			/// other pipeline Camera.clearFlags is honoured and there is nothing here to do.
+			/// </remarks>
+			private static void ForceSolidColorClear( GameObject _cameraGo, Color _backgroundColor )
+			{
+				var type = Type.GetType("UnityEngine.Rendering.HighDefinition.HDAdditionalCameraData, " +
+					"Unity.RenderPipelines.HighDefinition.Runtime");
+				if (type == null)
+					return;
+
+				var data = _cameraGo.GetComponent(type);
+				if (data == null)
+					return;
+
+				var modeType = type.GetNestedType("ClearColorMode");
+				if (modeType == null || !Enum.IsDefined(modeType, "Color"))
+					return;
+
+				object colorMode = Enum.Parse(modeType, "Color");
+				var modeField = type.GetField("clearColorMode");
+				if (modeField != null)
+					modeField.SetValue(data, colorMode);
+				else
+					type.GetProperty("clearColorMode")?.SetValue(data, colorMode);
+
+				var colorField = type.GetField("backgroundColorHDR");
+				if (colorField != null)
+					colorField.SetValue(data, _backgroundColor);
+				else
+					type.GetProperty("backgroundColorHDR")?.SetValue(data, _backgroundColor);
 			}
 
 			/// <summary>

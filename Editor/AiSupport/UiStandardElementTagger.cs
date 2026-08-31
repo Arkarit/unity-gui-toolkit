@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GuiToolkit.Editor.AiSupport;
 using UnityEditor;
 using UnityEngine;
 
@@ -131,6 +132,7 @@ namespace GuiToolkit.Editor
 					result.ResolvedKey = element == EStandardElement.Custom ? customId : element.ToString();
 					result.Ok = true;
 					result.Message = $"Tagged as {result.ResolvedKey}{(_request.Internal ? " (internal)" : "")}.";
+					AppendScanScopeHint(ref result, _request.PrefabPath);
 				}
 
 				PrefabUtility.SaveAsPrefabAsset(root, _request.PrefabPath, out bool success);
@@ -153,6 +155,41 @@ namespace GuiToolkit.Editor
 			}
 
 			return result;
+		}
+
+		/// <summary>
+		/// Appends a warning when the tagged prefab sits outside the folders the catalog scans, so that a
+		/// successful tag cannot be mistaken for a successful registration.
+		/// </summary>
+		/// <remarks>
+		/// The marker itself is fine either way — identity lives on the prefab. What fails is DISCOVERY: the
+		/// scan is bounded (toolkit root, PrefabVariantsPath, the palette config's extras) and a marker
+		/// anywhere else is written and then never read. The observed failure is quiet in exactly the
+		/// direction that looks like success: every tag reports ok, and the catalog keeps reporting the same
+		/// palette count with no error anywhere. The tag call is the moment the mistake is made, so it is
+		/// where it has to be said.
+		/// </remarks>
+		private static void AppendScanScopeHint( ref TagResult _result, string _prefabPath )
+		{
+			if (UiScreenCatalogGenerator.IsInStandardElementScanScope(_prefabPath, out var scanFolders))
+				return;
+
+			// The recommended destination is named separately from the scanned list on purpose: a
+			// PrefabVariantsPath that does not exist yet is not a scanned folder, so it would be missing from
+			// that list precisely when the author most needs to be told about it.
+			string variantsPath = UiToolkitConfiguration.Instance.PrefabVariantsPath?.TrimEnd('/');
+
+			string hint = $"NOT DISCOVERABLE: '{_prefabPath}' is outside the folders the catalog scans, so "
+				+ "this element will not enter the palette or the registry — every later screen that names it "
+				+ "will resolve to the library default instead. "
+				+ (string.IsNullOrEmpty(variantsPath)
+					? "Set PrefabVariantsPath in Ui Toolkit Configuration and put the prefab there, "
+					: $"Move the prefab under '{variantsPath}', ")
+				+ "or add its folder (or the prefab itself) to a UiAuthorablePaletteConfig. Currently scanned: "
+				+ (scanFolders.Count > 0 ? string.Join(", ", scanFolders) : "(nothing)");
+
+			_result.Message += " " + hint;
+			UiLog.LogWarning($"[Tagger] {hint}");
 		}
 
 		/// <summary>
