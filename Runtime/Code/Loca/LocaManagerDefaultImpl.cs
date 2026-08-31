@@ -113,6 +113,14 @@ namespace GuiToolkit
 					continue;
 				}
 
+				// The interface says Load is "invoked ... whenever the language changes", and this is that
+				// moment. Skipping it worked only for a provider that serialises its data INTO the asset
+				// (LocaExcelBridge does; its Load is the interface's own no-op). One that computes its
+				// entries for the requested language — a bridge to another catalog — handed back an empty
+				// ProcessedLoca and contributed nothing, silently. ApplySingleProvider, the registration
+				// path, has always called it; only this one did not.
+				locaProvider.Load(Language);
+
 				var data = locaProvider.Localization;
 				if (data == null || data.Entries == null)
 					continue;
