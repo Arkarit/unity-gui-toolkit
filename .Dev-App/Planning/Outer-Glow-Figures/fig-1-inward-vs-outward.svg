@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 310" width="720" height="310" role="img" aria-label="Inward fade versus outward glow rings">
+<style>
+  .plate { fill: #f1f5f9; stroke: #cbd5e1; }
+  .core  { fill: #2563eb; }
+  .edge  { stroke: #1e3a8a; stroke-width: .6; fill: none; }
+  .rt    { stroke: #64748b; stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+  .lead  { stroke: #64748b; stroke-width: 1; fill: none; }
+  text   { font-family: "Segoe UI", system-ui, sans-serif; fill: #0f172a; }
+  .t     { font-size: 14px; font-weight: 600; }
+  .l     { font-size: 11.5px; }
+  .m     { font-size: 11.5px; fill: #475569; }
+  @media (prefers-color-scheme: dark) {
+    .plate { fill: #101827; stroke: #334155; }
+    .core  { fill: #3b82f6; }
+    .edge  { stroke: #93c5fd; }
+    .rt    { stroke: #94a3b8; }
+    .lead  { stroke: #94a3b8; }
+    text   { fill: #e2e8f0; }
+    .m     { fill: #94a3b8; }
+  }
+</style>
+
+<text class="t" x="12" y="22">Today: the fade ramps inward</text>
+<text class="m" x="12" y="38">Outer edge sits on the rect edge. Nothing leaves the RectTransform.</text>
+<rect class="plate" x="12" y="52" width="336" height="246" rx="8"/>
+
+<!-- inward ramp, drawn as stepped bands (the real thing is one band with a linear vertex ramp) -->
+<rect x="94"  y="104" width="172" height="102" rx="16" fill="#2563eb" fill-opacity="0" stroke="#2563eb" stroke-opacity=".28" stroke-width="8"/>
+<rect x="102" y="112" width="156" height="86"  rx="8"  fill="none" stroke="#2563eb" stroke-opacity=".60" stroke-width="8"/>
+<rect x="110" y="120" width="140" height="70"  rx="2"  fill="none" stroke="#2563eb" stroke-opacity=".85" stroke-width="8"/>
+<rect class="core" x="114" y="124" width="132" height="62" rx="1"/>
+<rect class="rt" x="90" y="100" width="180" height="110" rx="20"/>
+
+<path class="lead" d="M 60 100 L 86 100"/>
+<text class="l" x="18" y="96">RectTransform</text>
+<path class="lead" d="M 288 155 L 262 143"/>
+<text class="l" x="272" y="176">fade runs</text>
+<text class="l" x="272" y="190">inward</text>
+<text class="m" x="24" y="272">m_fadeSize, m_fadeColor — inward only today</text>
+
+<text class="t" x="372" y="22">Proposal: glow rings outward</text>
+<text class="m" x="372" y="38">Shape unchanged. Rings grow beyond the rect.</text>
+<rect class="plate" x="372" y="52" width="336" height="246" rx="8"/>
+
+<rect x="409.5" y="59.5"  width="261" height="191" rx="60.5" fill="none" stroke="#f59e0b" stroke-opacity=".07" stroke-width="9"/>
+<rect x="418.5" y="68.5"  width="243" height="173" rx="51.5" fill="none" stroke="#f59e0b" stroke-opacity=".14" stroke-width="9"/>
+<rect x="427.5" y="77.5"  width="225" height="155" rx="42.5" fill="none" stroke="#f59e0b" stroke-opacity=".24" stroke-width="9"/>
+<rect x="436.5" y="86.5"  width="207" height="137" rx="33.5" fill="none" stroke="#f59e0b" stroke-opacity=".38" stroke-width="9"/>
+<rect x="445.5" y="95.5"  width="189" height="119" rx="24.5" fill="none" stroke="#f59e0b" stroke-opacity=".55" stroke-width="9"/>
+<g class="edge" stroke="#f59e0b" stroke-opacity=".5">
+  <rect x="405" y="55"   width="270" height="200" rx="65" fill="none"/>
+  <rect x="450" y="100"  width="180" height="110" rx="20" fill="none"/>
+</g>
+<rect class="core" x="450" y="100" width="180" height="110" rx="20"/>
+<rect class="rt" x="450" y="100" width="180" height="110" rx="20"/>
+
+<text class="l" x="616" y="278">outermost ring</text>
+<path class="lead" d="M 664 268 L 676 258"/>
+<text class="m" x="384" y="272">Ring i: rect.Inflate(d·i), radius + d·i</text>
+</svg>

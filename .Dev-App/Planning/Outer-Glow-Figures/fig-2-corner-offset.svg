@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" width="720" height="340" role="img" aria-label="Corner offset: analytic radius plus d versus miter">
+<style>
+  .plate { fill: #f1f5f9; stroke: #cbd5e1; }
+  .core  { fill: #2563eb; }
+  .band  { fill: #f59e0b; fill-opacity: .28; stroke: #b45309; stroke-width: .8; }
+  .bad   { fill: #ef4444; fill-opacity: .26; stroke: #b91c1c; stroke-width: .8; }
+  .aux   { stroke: #64748b; stroke-width: 1; stroke-dasharray: 4 3; fill: none; }
+  .dot   { fill: #64748b; }
+  text   { font-family: "Segoe UI", system-ui, sans-serif; fill: #0f172a; }
+  .t     { font-size: 13.5px; font-weight: 600; }
+  .l     { font-size: 11px; }
+  .m     { font-size: 11px; fill: #475569; }
+  .warn  { font-size: 11px; fill: #b91c1c; font-weight: 600; }
+  @media (prefers-color-scheme: dark) {
+    .plate { fill: #101827; stroke: #334155; }
+    .core  { fill: #3b82f6; }
+    .band  { fill-opacity: .34; stroke: #fbbf24; }
+    .bad   { fill-opacity: .32; stroke: #fca5a5; }
+    .aux   { stroke: #94a3b8; }
+    .dot   { fill: #94a3b8; }
+    text   { fill: #e2e8f0; }
+    .m     { fill: #94a3b8; }
+    .warn  { fill: #fca5a5; }
+  }
+</style>
+<text class="t" x="12" y="20">a) Rounded Rect, radius r</text>
+<text class="m" x="12" y="36">Offset by d = rect.Inflate(d), radius r + d. Exact.</text>
+<clipPath id="c1"><rect x="12" y="52" width="224" height="240" rx="8"/></clipPath>
+<rect class="plate" x="12" y="52" width="224" height="240" rx="8"/>
+<g clip-path="url(#c1)">
+  <path class="band" d="M 236 104 L 134 104 A 60 60 0 0 0 74 164 L 74 292 L 100 292 L 100 164 A 34 34 0 0 1 134 130 L 236 130 Z"/>
+  <path class="core" d="M 236 130 L 134 130 A 34 34 0 0 0 100 164 L 100 292 L 236 292 Z"/>
+  <path class="aux" d="M 134 164 L 158.05 139.95 M 134 164 L 176.4 121.6"/>
+</g>
+<circle class="dot" cx="134" cy="164" r="2.6"/>
+<text class="l" x="140" y="150">r</text>
+<text class="l" x="178" y="118">r + d</text>
+<text class="m" x="24" y="312">one arc centre, two radii</text>
+
+<text class="t" x="248" y="20">b) Sharp corner, radius 0</text>
+<text class="m" x="248" y="36">The ring gets radius d — round by itself.</text>
+<clipPath id="c2"><rect x="248" y="52" width="224" height="240" rx="8"/></clipPath>
+<rect class="plate" x="248" y="52" width="224" height="240" rx="8"/>
+<g clip-path="url(#c2)">
+  <path class="band" d="M 472 104 L 336 104 A 26 26 0 0 0 310 130 L 310 292 L 336 292 L 336 130 L 472 130 Z"/>
+  <path class="core" d="M 472 130 L 336 130 L 336 292 L 472 292 Z"/>
+  <path class="aux" d="M 336 130 L 354.4 111.6"/>
+</g>
+<circle class="dot" cx="336" cy="130" r="2.6"/>
+<text class="l" x="356" y="108">d</text>
+<text class="m" x="260" y="312">this is what a glow corner should look like</text>
+
+<text class="t" x="484" y="20">c) Miter along the normals</text>
+<text class="m" x="484" y="36">A square corner. |v| = d·√2 into the diagonal.</text>
+<clipPath id="c3"><rect x="484" y="52" width="224" height="240" rx="8"/></clipPath>
+<rect class="plate" x="484" y="52" width="224" height="240" rx="8"/>
+<g clip-path="url(#c3)">
+  <path class="bad" d="M 708 104 L 546 104 L 546 292 L 572 292 L 572 130 L 708 130 Z"/>
+  <path class="core" d="M 708 130 L 572 130 L 572 292 L 708 292 Z"/>
+  <path class="aux" d="M 572 130 L 546 104"/>
+</g>
+<circle class="dot" cx="572" cy="130" r="2.6"/>
+<text class="warn" x="552" y="98">41 % too far</text>
+<text class="m" x="496" y="312">right for star/perimeter, wrong here</text>
+</svg>

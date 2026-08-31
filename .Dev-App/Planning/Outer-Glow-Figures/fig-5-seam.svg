@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 384" width="720" height="384" role="img" aria-label="Alpha cross-section: seam between inward AA fade and glow">
+<style>
+  .plate  { fill: #f1f5f9; stroke: #cbd5e1; }
+  .zshape { fill: #2563eb; fill-opacity: .10; }
+  .zglow  { fill: #f59e0b; fill-opacity: .12; }
+  .axis   { stroke: #94a3b8; stroke-width: 1; fill: none; }
+  .bound  { stroke: #64748b; stroke-width: 1.2; stroke-dasharray: 4 3; fill: none; }
+  .prof   { stroke: #2563eb; stroke-width: 2.2; fill: none; }
+  .profg  { stroke: #d97706; stroke-width: 2.2; fill: none; }
+  .bad    { stroke: #dc2626; stroke-width: 2.4; fill: none; }
+  text    { font-family: "Segoe UI", system-ui, sans-serif; fill: #0f172a; }
+  .t      { font-size: 13.5px; font-weight: 600; }
+  .l      { font-size: 11px; }
+  .m      { font-size: 11px; fill: #475569; }
+  .warn   { font-size: 11px; fill: #b91c1c; font-weight: 600; }
+  .good   { font-size: 11px; fill: #047857; font-weight: 600; }
+  @media (prefers-color-scheme: dark) {
+    .plate  { fill: #101827; stroke: #334155; }
+    .zshape { fill-opacity: .16; }
+    .zglow  { fill-opacity: .16; }
+    .bound  { stroke: #94a3b8; }
+    .prof   { stroke: #60a5fa; }
+    .profg  { stroke: #fbbf24; }
+    .bad    { stroke: #f87171; }
+    text    { fill: #e2e8f0; }
+    .m      { fill: #94a3b8; }
+    .warn   { fill: #fca5a5; }
+    .good   { fill: #6ee7b7; }
+  }
+</style>
+<text class="t" x="12" y="20">a) AA fade and glow at the same time</text>
+<text class="m" x="12" y="36">The fade band runs inward towards m_fadeColor (clear).</text>
+<rect class="plate" x="12" y="48" width="336" height="324" rx="8"/>
+<rect class="zshape" x="50" y="90" width="150" height="200"/>
+<rect class="zglow"  x="200" y="90" width="130" height="200"/>
+<path class="axis" d="M 50 82 L 50 300 M 42 290 L 340 290"/>
+<path class="bound" d="M 200 82 L 200 306"/>
+<path class="prof" d="M 50 100 L 150 100 L 200 290"/>
+<polyline class="profg" points="200,176 216.25,197.9 232.5,218.1 248.75,236.2 265,252.4 281.25,266.2 297.5,277.6 313.75,285.9 330,290"/>
+<path class="bad" d="M 200 290 L 200 176"/>
+<circle cx="200" cy="290" r="3.4" fill="#dc2626"/>
+<text class="l" x="30" y="86">α=1</text>
+<text class="l" x="30" y="294">0</text>
+<text class="l" x="60" y="316">inside</text>
+<text class="l" x="176" y="322">rect edge</text>
+<text class="l" x="300" y="316">outside</text>
+<text class="warn" x="206" y="150">seam: α drops</text>
+<text class="warn" x="206" y="164">to 0, then jumps</text>
+
+<text class="t" x="372" y="20">b) Recommended: the glow provides the AA</text>
+<text class="m" x="372" y="36">Ring 0 starts at α=1 in the shape colour, fade off.</text>
+<rect class="plate" x="372" y="48" width="336" height="324" rx="8"/>
+<rect class="zshape" x="410" y="90" width="150" height="200"/>
+<rect class="zglow"  x="560" y="90" width="130" height="200"/>
+<path class="axis" d="M 410 82 L 410 300 M 402 290 L 700 290"/>
+<path class="bound" d="M 560 82 L 560 306"/>
+<path class="prof" d="M 410 100 L 560 100"/>
+<polyline class="profg" points="560,100 576.25,136.5 592.5,170.1 608.75,200.4 625,227.3 641.25,250.4 657.5,269.3 673.75,283.2 690,290"/>
+<circle cx="560" cy="100" r="3.4" fill="#047857"/>
+<text class="l" x="390" y="86">α=1</text>
+<text class="l" x="390" y="294">0</text>
+<text class="l" x="420" y="316">inside</text>
+<text class="l" x="536" y="322">rect edge</text>
+<text class="l" x="660" y="316">outside</text>
+<text class="good" x="566" y="122">monotone, no seam</text>
+<text class="m" x="384" y="356">ring 0 also bridges shape colour → glow colour across its width</text>
+</svg>

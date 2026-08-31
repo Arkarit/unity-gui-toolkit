@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 360" width="680" height="360" role="img" aria-label="Triangulation of one glow ring">
+<style>
+  .plate { fill: #f1f5f9; stroke: #cbd5e1; }
+  .core  { fill: #2563eb; }
+  .ring  { fill: #f59e0b; fill-opacity: .22; }
+  .wire  { stroke: #b45309; stroke-width: .8; fill: none; }
+  .hull  { stroke: #b45309; stroke-width: 1.3; fill: none; }
+  .vin   { fill: #b45309; }
+  .vout  { fill: #f1f5f9; stroke: #b45309; stroke-width: 1; }
+  text   { font-family: "Segoe UI", system-ui, sans-serif; fill: #0f172a; }
+  .t     { font-size: 13.5px; font-weight: 600; }
+  .l     { font-size: 11px; }
+  .m     { font-size: 11px; fill: #475569; }
+  @media (prefers-color-scheme: dark) {
+    .plate { fill: #101827; stroke: #334155; }
+    .core  { fill: #3b82f6; }
+    .ring  { fill-opacity: .28; }
+    .wire  { stroke: #fbbf24; stroke-opacity: .75; }
+    .hull  { stroke: #fbbf24; }
+    .vin   { fill: #fbbf24; }
+    .vout  { fill: #101827; stroke: #fbbf24; }
+    text   { fill: #e2e8f0; }
+    .m     { fill: #94a3b8; }
+  }
+</style>
+<defs>
+  <g id="fan">
+    <g class="wire">
+      <path d="M 200 130 L 160 130"/>
+      <path d="M 203.04 114.69 L 166.09 99.39"/>
+      <path d="M 211.72 101.72 L 183.43 73.43"/>
+      <path d="M 224.69 93.04 L 209.39 56.09"/>
+      <path d="M 240 90 L 240 50"/>
+      <path d="M 200 130 L 166.09 99.39"/>
+      <path d="M 203.04 114.69 L 183.43 73.43"/>
+      <path d="M 211.72 101.72 L 209.39 56.09"/>
+      <path d="M 224.69 93.04 L 240 50"/>
+    </g>
+    <polyline class="hull" points="200,130 203.04,114.69 211.72,101.72 224.69,93.04 240,90"/>
+    <polyline class="hull" points="160,130 166.09,99.39 183.43,73.43 209.39,56.09 240,50"/>
+    <g class="vin">
+      <circle cx="200" cy="130" r="2.6"/><circle cx="203.04" cy="114.69" r="2.6"/>
+      <circle cx="211.72" cy="101.72" r="2.6"/><circle cx="224.69" cy="93.04" r="2.6"/>
+      <circle cx="240" cy="90" r="2.6"/>
+    </g>
+    <g class="vout">
+      <circle cx="160" cy="130" r="2.6"/><circle cx="166.09" cy="99.39" r="2.6"/>
+      <circle cx="183.43" cy="73.43" r="2.6"/><circle cx="209.39" cy="56.09" r="2.6"/>
+      <circle cx="240" cy="50" r="2.6"/>
+    </g>
+  </g>
+</defs>
+
+<text class="t" x="12" y="20">One glow ring as a mesh</text>
+<text class="m" x="12" y="36">4 side quads + 4 corner fans. Shown with cornerSegments = 4.</text>
+<rect class="plate" x="12" y="52" width="500" height="290" rx="8"/>
+
+<rect class="ring" x="160" y="50" width="360" height="230" rx="80"/>
+<rect class="core" x="200" y="90" width="280" height="150" rx="40"/>
+
+<g class="wire">
+  <path d="M 240 90 L 240 50 M 440 90 L 440 50 M 240 90 L 440 50"/>
+  <path d="M 480 130 L 520 130 M 480 200 L 520 200 M 480 130 L 520 200"/>
+  <path d="M 240 240 L 240 280 M 440 240 L 440 280 M 440 240 L 240 280"/>
+  <path d="M 200 130 L 160 130 M 200 200 L 160 200 M 200 200 L 160 130"/>
+</g>
+<g class="hull">
+  <path d="M 240 90 L 440 90 M 240 50 L 440 50"/>
+  <path d="M 480 130 L 480 200 M 520 130 L 520 200"/>
+  <path d="M 240 240 L 440 240 M 240 280 L 440 280"/>
+  <path d="M 200 130 L 200 200 M 160 130 L 160 200"/>
+</g>
+<use href="#fan"/>
+<use href="#fan" transform="translate(680,0) scale(-1,1)"/>
+<use href="#fan" transform="translate(0,330) scale(1,-1)"/>
+<use href="#fan" transform="translate(680,330) scale(-1,-1)"/>
+<g class="vin"><circle cx="440" cy="90" r="2.6"/><circle cx="480" cy="200" r="2.6"/></g>
+
+<text class="t" x="528" y="72">Per ring</text>
+<circle class="vin" cx="536" cy="96" r="3.2"/>
+<text class="l" x="548" y="100">inner edge, higher alpha</text>
+<circle class="vout" cx="536" cy="118" r="3.2"/>
+<text class="l" x="548" y="122">outer edge, lower alpha</text>
+<text class="m" x="528" y="152">Vertices</text>
+<text class="l" x="528" y="168">2 · (4·seg + 4)</text>
+<text class="m" x="528" y="192">Triangles</text>
+<text class="l" x="528" y="208">4 · (4·seg + 4)</text>
+<text class="m" x="528" y="240">seg = 5, 6 rings</text>
+<text class="l" x="528" y="256">≈ 290 triangles</text>
+<text class="m" x="528" y="286">Emitter already exists:</text>
+<text class="l" x="528" y="302">EmitFrameStrip-</text>
+<text class="l" x="528" y="316">FromPerimeters()</text>
+</svg>

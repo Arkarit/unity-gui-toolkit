@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" role="img" aria-label="UiGradientBase mesh bounds regression caused by glow rings">
+<style>
+  .plate { fill: #f1f5f9; stroke: #cbd5e1; }
+  .bnd   { stroke: #dc2626; stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+  .bnd0  { stroke: #64748b; stroke-width: 1.4; stroke-dasharray: 5 4; fill: none; }
+  .brk   { stroke: #475569; stroke-width: 1.1; fill: none; }
+  text   { font-family: "Segoe UI", system-ui, sans-serif; fill: #0f172a; }
+  .t     { font-size: 13.5px; font-weight: 600; }
+  .l     { font-size: 11px; }
+  .m     { font-size: 11px; fill: #475569; }
+  .warn  { font-size: 11px; fill: #b91c1c; font-weight: 600; }
+  @media (prefers-color-scheme: dark) {
+    .plate { fill: #101827; stroke: #334155; }
+    .bnd   { stroke: #f87171; }
+    .bnd0  { stroke: #94a3b8; }
+    .brk   { stroke: #94a3b8; }
+    text   { fill: #e2e8f0; }
+    .m     { fill: #94a3b8; }
+    .warn  { fill: #fca5a5; }
+  }
+</style>
+<defs>
+  <linearGradient id="gA" gradientUnits="userSpaceOnUse" x1="0" y1="140" x2="0" y2="240">
+    <stop offset="0" stop-color="#f43f5e"/><stop offset="1" stop-color="#22d3ee"/>
+  </linearGradient>
+  <linearGradient id="gB" gradientUnits="userSpaceOnUse" x1="0" y1="95" x2="0" y2="285">
+    <stop offset="0" stop-color="#f43f5e"/><stop offset="1" stop-color="#22d3ee"/>
+  </linearGradient>
+</defs>
+
+<text class="t" x="12" y="20">a) Today</text>
+<text class="m" x="12" y="36">Mesh bounds = shape. The gradient uses the full height.</text>
+<rect class="plate" x="12" y="48" width="336" height="340" rx="8"/>
+<rect x="100" y="140" width="160" height="100" rx="20" fill="url(#gA)"/>
+<rect class="bnd0" x="100" y="140" width="160" height="100" rx="20"/>
+<rect x="296" y="140" width="14" height="100" fill="url(#gA)"/>
+<path class="brk" d="M 316 140 L 322 140 L 322 240 L 316 240"/>
+<text class="l" x="286" y="132">Bounds</text>
+<text class="m" x="24" y="344">GetBounds() walks every vertex of the mesh</text>
+<text class="m" x="24" y="360">— and here those are the shape’s only.</text>
+
+<text class="t" x="372" y="20">b) With glow rings</text>
+<text class="m" x="372" y="36">Bounds grow with them. Two defects at once.</text>
+<rect class="plate" x="372" y="48" width="336" height="340" rx="8"/>
+<rect x="419.5" y="99.5"  width="241" height="181" rx="60.5" fill="none" stroke="url(#gB)" stroke-opacity=".08" stroke-width="9"/>
+<rect x="428.5" y="108.5" width="223" height="163" rx="51.5" fill="none" stroke="url(#gB)" stroke-opacity=".16" stroke-width="9"/>
+<rect x="437.5" y="117.5" width="205" height="145" rx="42.5" fill="none" stroke="url(#gB)" stroke-opacity=".26" stroke-width="9"/>
+<rect x="446.5" y="126.5" width="187" height="127" rx="33.5" fill="none" stroke="url(#gB)" stroke-opacity=".40" stroke-width="9"/>
+<rect x="455.5" y="135.5" width="169" height="109" rx="24.5" fill="none" stroke="url(#gB)" stroke-opacity=".58" stroke-width="9"/>
+<rect x="460" y="140" width="160" height="100" rx="20" fill="url(#gB)"/>
+<rect class="bnd" x="415" y="95" width="250" height="190" rx="65"/>
+<rect x="662" y="95" width="14" height="190" fill="url(#gB)"/>
+<path class="brk" d="M 682 140 L 688 140 L 688 240 L 682 240"/>
+<text class="l" x="694" y="196" transform="rotate(-90 694 196)">shape</text>
+<text class="warn" x="384" y="344">1. Gradient squeezed — the shape only gets the middle.</text>
+<text class="warn" x="384" y="360">2. The glow rings get tinted as well.</text>
+<text class="m" x="384" y="380">Affects every UiRoundedImage + UiGradientSimple prefab.</text>
+</svg>
