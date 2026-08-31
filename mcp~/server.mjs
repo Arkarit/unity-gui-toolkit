@@ -797,7 +797,13 @@ tool(
 	"leaving TMP/Image at their defaults, and compose from the catalog's 'palette' templates rather than " +
 	"stacking raw Image + text nodes — a project ships ready-made headline/panel/button-bar/price-tag pieces, " +
 	"and hand-building past them is what makes an authored screen look unfinished. Read a comparable shipped " +
-	"screen with read_screen first to see which templates and styles it actually uses.",
+	"screen with read_screen first to see which templates and styles it actually uses. " +
+	"The cost of rebuilding one by hand is not cosmetic: your copy holds literal colours and sizes where the " +
+	"original holds styles, so it stops following the skin, and it never inherits the original's later fixes. " +
+	"Before deciding an element does not fit, look at its palette entry's 'parts': that lists every child path " +
+	"you may address through \"overrides\", so \"I cannot see inside it\" is not a reason to start over. A " +
+	"variant may also ADD children the original lacks — \"variantOf\" plus extra nodes usually beats a rebuild. " +
+	"The baker warns when a whole screen is built from raw types without a single palette element.",
 	{
 		screen: z.union([z.string(), z.record(z.any())]).optional().describe("The screen description (JSON object or JSON string). Omit when using screenPath."),
 		screenPath: z.string().optional().describe("Path to a file holding the screen description instead of passing it inline — most usefully a baked screen's own '.screen.src.json' sidecar, to re-bake it unchanged or with outputPath/preserveEdits applied. Exactly one of 'screen' or 'screenPath'."),

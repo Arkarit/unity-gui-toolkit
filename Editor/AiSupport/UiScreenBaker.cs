@@ -60,6 +60,14 @@ namespace GuiToolkit.Editor.AiSupport
 		// this screen's responsibility, and therefore the scope of the mandatory-field check.
 		private static List<GameObject> s_authoredNodes;
 
+		// How many nodes this bake instantiated from the palette. Zero across a screen of any size is the
+		// signature of an element rebuilt by hand instead of varianted — see WarnOnAllRawTypes.
+		private static int s_templateNodeCount;
+
+		// Raw type -> the toolkit wrapper an author should usually reach for instead. Rebuilt per bake so an
+		// edit to the config takes effect without a domain reload; six entries, so the cost is nothing.
+		private static Dictionary<string, string> s_preferByType;
+
 		private struct DeferredRef
 		{
 			public Component component;
@@ -170,6 +178,8 @@ namespace GuiToolkit.Editor.AiSupport
 			s_nodesById = new Dictionary<string, GameObject>(StringComparer.Ordinal);
 			s_deferredRefs = new List<DeferredRef>();
 			s_authoredNodes = new List<GameObject>();
+			s_templateNodeCount = 0;
+			s_preferByType = BuildPreferMap();
 
 			string path = ResolveOutputPath(screen, name);
 
@@ -188,6 +198,7 @@ namespace GuiToolkit.Editor.AiSupport
 				rootGo = BuildNode(rootNode, null);
 				ResolveDeferredRefs();
 				WarnOnUnwiredMandatoryFields();
+				WarnOnAllRawTypes();
 				WarnOnMotionDefects(rootGo);
 				WarnOnDroppedExistingContent(rootGo, path);
 
@@ -339,6 +350,83 @@ namespace GuiToolkit.Editor.AiSupport
 		/// their source prefab's own wiring, and <see cref="MandatoryExternalAttribute"/> fields are assigned by
 		/// whoever instantiates the screen, so neither belongs to the author of this bake.
 		/// </summary>
+		/// <summary>
+		/// The minimum size at which a screen built entirely from raw types is worth remarking on. Below it,
+		/// composing from the palette genuinely may not apply.
+		/// </summary>
+		private const int RawOnlyNodeThreshold = 5;
+
+		/// <summary>
+		/// Warns when a screen of any size was assembled without instantiating a single palette element.
+		/// </summary>
+		/// <remarks>
+		/// This is the expensive mistake, and it is invisible in the result: a hand-built copy of an element
+		/// that already exists looks right in a screenshot and is wrong in every other way. It carries literal
+		/// values where the original carries styles, so it does not follow a skin change; it does not inherit
+		/// the original's future fixes; and it cannot be recognised as that element anywhere else.
+		///
+		/// Advisory, and only above a size threshold — plenty of legitimate screens are genuinely atomic. The
+		/// wording asks rather than accuses for the same reason.
+		/// </remarks>
+		private static void WarnOnAllRawTypes()
+		{
+			if (s_templateNodeCount > 0 || s_authoredNodes.Count < RawOnlyNodeThreshold)
+				return;
+
+			var registry = UiToolkitConfiguration.Instance != null
+				? UiToolkitConfiguration.Instance.StandardElementRegistry
+				: null;
+			int available = registry?.Entries?.Count ?? 0;
+			if (available == 0)
+				return;
+
+			Warn($"This screen builds {s_authoredNodes.Count} nodes from raw types and instantiates no palette "
+				+ $"element at all, though {available} are registered. If any part of it is a panel, header, "
+				+ "button, tab or text that already exists, reference it via \"template\" (or \"variantOf\" for "
+				+ "the root) instead of rebuilding it: a rebuilt copy carries literal values instead of styles, "
+				+ "so it stops following the skin. See the catalog's \"palette\", and each entry's \"parts\" for "
+				+ "what you can adjust from outside.");
+		}
+
+		/// <summary>Raw-type to preferred-wrapper map from the authorable-types config.</summary>
+		private static Dictionary<string, string> BuildPreferMap()
+		{
+			var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+			foreach (var entry in UiAuthorableUnityTypesConfig.EffectiveEntries())
+			{
+				if (entry == null || string.IsNullOrEmpty(entry.unityType) || string.IsNullOrEmpty(entry.prefer))
+					continue;
+
+				// Both spellings, because a node's "type" may be written either way.
+				map[entry.unityType] = entry.prefer;
+				int dot = entry.unityType.LastIndexOf('.');
+				if (dot >= 0 && dot < entry.unityType.Length - 1)
+					map[entry.unityType.Substring(dot + 1)] = entry.prefer;
+			}
+			return map;
+		}
+
+		/// <summary>
+		/// Warns when a node uses a raw Unity type the toolkit has a wrapper for.
+		/// </summary>
+		/// <remarks>
+		/// The hint already existed as catalog metadata (<c>prefer</c>) and was therefore only seen by someone
+		/// who went looking. Said at bake time it reaches the author who did not.
+		/// </remarks>
+		private static void WarnOnPreferredWrapper( JObject _node, string _type )
+		{
+			if (s_preferByType == null || string.IsNullOrEmpty(_type))
+				return;
+			if (!s_preferByType.TryGetValue(_type, out var preferred))
+				return;
+
+			string id = (string)_node["id"] ?? _type;
+			// No claim about WHAT the wrapper adds: it differs per type (localization on a text, style hooks on
+			// a layout group), and a message that names the wrong benefit is worse than one that names none.
+			Warn($"Node '{id}' uses the raw type '{_type}'; the toolkit's '{preferred}' is usually the better "
+				+ "choice — it is the one the toolkit's styling and tooling recognise.");
+		}
+
 		private static void WarnOnUnwiredMandatoryFields()
 		{
 			foreach (var go in s_authoredNodes)
@@ -644,6 +732,9 @@ namespace GuiToolkit.Editor.AiSupport
 			var outerNodesById = s_nodesById;
 			var outerDeferredRefs = s_deferredRefs;
 			var outerAuthoredNodes = s_authoredNodes;
+			// Restored for the same reason as the rest: the baseline's templates are not this screen's, and
+			// counting them would silently answer the "no palette element at all" check on its behalf.
+			var outerTemplateNodeCount = s_templateNodeCount;
 			try
 			{
 				Bake(baseline.ToString());
@@ -661,6 +752,7 @@ namespace GuiToolkit.Editor.AiSupport
 				s_nodesById = outerNodesById;
 				s_deferredRefs = outerDeferredRefs;
 				s_authoredNodes = outerAuthoredNodes;
+				s_templateNodeCount = outerTemplateNodeCount;
 
 				AssetDatabase.DeleteAsset(tempPath);
 				AssetDatabase.DeleteAsset(SidecarPathFor(tempPath));
@@ -932,6 +1024,12 @@ namespace GuiToolkit.Editor.AiSupport
 				Warn($"Root node uses \"template\": \"{template}\", so this bake produces a prefab VARIANT of "
 					+ $"'{template}' — it will follow that prefab's future changes. Say \"variantOf\" instead to "
 					+ "make that intentional and visible in the result.");
+
+			if (isTemplateNode)
+				s_templateNodeCount++;
+			else
+				WarnOnPreferredWrapper(_node, type);
+
 			GameObject go = isTemplateNode
 				? CreateTemplateNode(template)
 				: CreateElementNode(type);

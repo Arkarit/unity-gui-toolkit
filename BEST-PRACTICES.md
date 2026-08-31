@@ -170,3 +170,51 @@ tick), or `AssemblyReloadEvents.afterAssemblyReload` when the trigger really is 
 
 The same applies to any wait loop: keep checking while unfocused, and if you have a frame budget,
 spend it only while focused.
+
+---
+
+## 5. Authoring a screen: reference the elements, do not rebuild them
+
+A project ships a palette — headlines, panel backgrounds, buttons, tabs, close buttons, button bars —
+and every one of them is already wired, already styled, and already following the skin. An authored
+screen either references those or it does not, and the difference does not show up in a screenshot.
+
+Measured in a consuming project: of five dialog parts authored through the MCP, exactly one referenced
+an existing element (`variantOf: StandardPanelBackground`, **26** lines of description). The other four
+were rebuilt from raw `Image` / `TextMeshProUGUI` / `UiTab` nodes — 129, 180, 207 and 337 lines — and
+between them they carried **14 literal hex colours and not one `style`**. The one that inherited
+carried neither, because it had nothing to carry. That dialog now sits outside the skin: change the
+palette and it keeps its own colours.
+
+So:
+
+- **Reference first.** `"template": "<element>"` for a child, `"variantOf": "<element>"` for the root.
+- **A variant may add what the original lacks.** If an element is close but missing a part, that is not
+  a reason to start over — a variant inherits everything and adds children on top.
+- **Before concluding an element does not fit,** read its palette entry's `parts`. It lists every child
+  path an `"overrides"` entry may be keyed by, so the parts you want to adjust are addressable.
+  `capture_prefab_values` on the element's own prefab gives the same paths with all their values.
+- `read_screen` deliberately stops at a template's boundary. It answering "one node" does **not** mean
+  the element is a single node.
+
+### Styles, not literal values
+
+A `style` is the whole reason a skin change reaches a screen. A literal colour on an `Image`, or a font
+size on a TMP node, is a value nobody can find again and nothing will ever update — and it is invisible
+in review, because it looks exactly like a styled one. Give text and panel nodes a style from the
+project's vocabulary (`list_styles`); if the right style does not exist, add it to the style config
+rather than typing the value into the screen. The same applies to a hand-built element: it is not
+"a copy that looks the same", it is a copy that has left the styling system.
+
+### Static labels: the key belongs in the prefab
+
+Text that never changes at runtime is authored, not assigned. Give the node a
+`UiLocalizedTextMeshProUGUI` and a `@loca:` key (`@text:` for a literal that is deliberately not
+translated), and the prefab carries the key where the loca tooling can see it. A key handed in from
+code — `SetText(label, "All")` — is invisible to every harvester and every review; it looks correct in
+the authoring language and shows the raw key in the first foreign build. The baker warns about a
+`@loca:` key that is not in the catalog, which is the other half of the same guarantee.
+
+If the project also runs a second localization system next to the toolkit's, decide which one owns UI
+strings before authoring against either. Two catalogs with an undrawn border is how a string ends up
+declared in one and looked up in the other.
