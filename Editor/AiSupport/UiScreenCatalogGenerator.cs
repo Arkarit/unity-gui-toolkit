@@ -1054,7 +1054,9 @@ namespace GuiToolkit.Editor.AiSupport
 				description = RootCommentText(_prefab),
 				standardElement = StandardElementKey(_prefab),
 				slots = DerivePaletteSlots(_prefab, primary),
+				parts = DerivePaletteParts(_prefab, out bool partsTruncated),
 			};
+			entry.partsTruncated = partsTruncated;
 
 			var over = _config?.FindOverride(name);
 			if (over != null)
@@ -1092,20 +1094,183 @@ namespace GuiToolkit.Editor.AiSupport
 			return best;
 		}
 
+		/// <summary>Cap on <see cref="UiPaletteEntry.parts"/> per element, so a large dialog cannot swamp the catalog.</summary>
+		private const int MaxPaletteParts = 20;
+
+		/// <summary>
+		/// The text component a node-level <c>"text"</c> actually writes to, and how many candidates there are.
+		/// </summary>
+		/// <remarks>
+		/// Mirrors <c>UiScreenBaker.ApplyText</c> deliberately — localized component first, plain TMP as the
+		/// fallback, first in hierarchy order either way. If the two ever disagree the catalog would document
+		/// a target the baker does not use, which is worse than documenting nothing.
+		/// </remarks>
+		private static TMPro.TMP_Text NodeTextTarget( GameObject _root, out int _candidates )
+		{
+			var localized = _root.GetComponentsInChildren<UiLocalizedTextMeshProUGUI>(true);
+			if (localized.Length > 0)
+			{
+				_candidates = localized.Length;
+				return localized[0];
+			}
+
+			var plain = _root.GetComponentsInChildren<TMPro.TMP_Text>(true);
+			_candidates = plain.Length;
+			return plain.Length > 0 ? plain[0] : null;
+		}
+
+		/// <summary>Slash-separated path of <paramref name="_child"/> below <paramref name="_root"/>, "" if it IS the root.</summary>
+		private static string PathRelativeTo( Transform _root, Transform _child )
+		{
+			var names = new List<string>();
+			for (var t = _child; t != null && t != _root; t = t.parent)
+				names.Insert(0, t.name);
+			return string.Join("/", names);
+		}
+
+		/// <summary>
+		/// The child paths an <c>"overrides"</c> entry on this element may be keyed by, in hierarchy order.
+		/// </summary>
+		/// <remarks>
+		/// Every emitted path is verified against <c>Transform.Find</c> before it goes in — the list is a
+		/// promise the baker has to be able to keep, not a rendering of the hierarchy. Three cases are
+		/// therefore dropped rather than described:
+		/// <list type="bullet">
+		/// <item>a name containing '/', which Find would read as a separator (subtree skipped too);</item>
+		/// <item>a second sibling with the same name, because Find returns the first and the later one is
+		/// unreachable no matter what we write here (subtree skipped as well);</item>
+		/// <item>anything Find does not return, as a belt-and-braces check.</item>
+		/// </list>
+		/// Parts without an addressable component are not listed but ARE descended into, so a pure layout
+		/// container costs nothing and its children still show up — with the container's name inside their
+		/// path, which is all an author needs to reach it.
+		/// </remarks>
+		private static List<UiPalettePart> DerivePaletteParts( GameObject _root, out bool _truncated )
+		{
+			var parts = new List<UiPalettePart>();
+			var emittedPaths = new HashSet<string>(StringComparer.Ordinal);
+
+			// A local, not the out parameter: a local function cannot touch one.
+			bool truncated = false;
+
+			void Walk( Transform _t, string _prefix )
+			{
+				foreach (Transform child in _t)
+				{
+					if (parts.Count >= MaxPaletteParts)
+					{
+						truncated = true;
+						return;
+					}
+
+					string name = child.name;
+					if (string.IsNullOrEmpty(name) || name.Contains("/"))
+						continue;
+
+					string path = string.IsNullOrEmpty(_prefix) ? name : _prefix + "/" + name;
+
+					// A duplicate path is unreachable for every sibling after the first, so neither it nor
+					// its children can be addressed.
+					if (!emittedPaths.Add(path))
+						continue;
+
+					var type = PartComponentType(child.gameObject);
+					string element = StandardElementKey(child.gameObject);
+					if (type != null && _root.transform.Find(path) == child)
+					{
+						parts.Add(new UiPalettePart
+						{
+							path = path,
+							type = type.Name,
+							element = element,
+							text = child.GetComponent<TMPro.TMP_Text>() != null,
+							shipsInactive = !child.gameObject.activeSelf,
+						});
+					}
+
+					// A part that is itself a palette element documents its own internals under its own
+					// entry. Descending anyway would repeat them here at paths long enough to bury the
+					// structure the author is composing with.
+					//
+					// Except an animation wrapper: it is tagged so it can be instantiated, but compositionally
+					// it only passes through, and stopping there hid the one thing worth reaching — the glyph
+					// inside a CloseButton sat behind a WiggleAnimation and vanished from the list entirely.
+					bool stopsHere = !string.IsNullOrEmpty(element)
+						&& !typeof(UiSimpleAnimationBase).IsAssignableFrom(type);
+
+					if (!stopsHere)
+						Walk(child, path);
+				}
+			}
+
+			Walk(_root.transform, "");
+			_truncated = truncated;
+			return parts;
+		}
+
+		/// <summary>
+		/// The component that best identifies a part, or null when the part carries nothing worth addressing.
+		/// </summary>
+		/// <remarks>
+		/// Broader than <see cref="PrimaryComponentType"/>, which only looks at <see cref="UiThing"/> and
+		/// would therefore call most internals of a composed element uninteresting — a plain Image doing the
+		/// work of a tab underline is exactly what an author wants to reach.
+		///
+		/// Animations are ranked last on purpose. They are the most-derived UiThing on many nodes, so taking
+		/// the toolkit component first labelled an image "UiSimpleAnimation": true, and useless. The name has
+		/// to say what the part IS, not what happens to it.
+		/// </remarks>
+		private static Type PartComponentType( GameObject _go )
+		{
+			var toolkit = PrimaryComponentType(_go);
+			if (toolkit != null && !typeof(UiSimpleAnimationBase).IsAssignableFrom(toolkit))
+				return toolkit;
+
+			// Order by how much it tells the author, not by class hierarchy: an interactive part first, then
+			// text, then a plain graphic, then the fade handle. Layout-only components are deliberately absent
+			// — naming them would list every container in the tree without helping anyone.
+			if (_go.GetComponent<UGUI.Selectable>() is { } selectable)
+				return selectable.GetType();
+			if (_go.GetComponent<TMPro.TMP_Text>() is { } text)
+				return text.GetType();
+			if (_go.GetComponent<UGUI.Graphic>() is { } graphic)
+				return graphic.GetType();
+			if (_go.GetComponent<CanvasGroup>() != null)
+				return typeof(CanvasGroup);
+
+			// Nothing visual, but an animation host is still worth an "active" or "rect" override, and
+			// dropping it would leave a hole in the middle of the paths below it.
+			return toolkit;
+		}
+
 		private static List<UiPaletteSlot> DerivePaletteSlots( GameObject _root, Type _primary )
 		{
 			var slots = new List<UiPaletteSlot>();
 
-			if (_root.GetComponentInChildren<TMPro.TMP_Text>(true) != null)
+			var textTarget = NodeTextTarget(_root, out int textCandidates);
+			if (textTarget != null)
 			{
-				bool localized = _root.GetComponentInChildren<UiLocalizedTextMeshProUGUI>(true) != null;
+				bool localized = textTarget is UiLocalizedTextMeshProUGUI;
+				string note = localized
+					? "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+					: "Set the display text.";
+
+				// With several texts in the tree, "text" on the node is NOT the obvious one — it is whichever
+				// comes first in the hierarchy. On a composed dialog that is easily a close button's glyph
+				// while the headline sits further down, and the slot list said none of it. Naming the target
+				// is the difference between a vocabulary and a trap.
+				if (textCandidates > 1)
+				{
+					note += $" This element has {textCandidates} texts; the node-level slot writes to "
+						+ $"'{PathRelativeTo(_root.transform, textTarget.transform)}'. Address the others "
+						+ "through \"overrides\" — see \"parts\".";
+				}
+
 				slots.Add(new UiPaletteSlot
 				{
 					name = "text",
 					kind = localized ? "loca" : "text",
-					note = localized
-						? "Set a loca key (prefix a literal with '@text:' to bypass localization)."
-						: "Set the display text.",
+					note = note,
 				});
 			}
 

@@ -102,6 +102,65 @@ namespace GuiToolkit.Editor.AiSupport
 
 		/// <summary>Authorable slots this template exposes (text, style, onClick, icon, ...).</summary>
 		public List<UiPaletteSlot> slots = new();
+
+		/// <summary>
+		/// The addressable internals of this element: every child path an <c>"overrides"</c> entry may be
+		/// keyed by, in hierarchy order.
+		/// </summary>
+		/// <remarks>
+		/// Without this, "what is this element made of, and which parts can I adjust?" has no answer in the
+		/// vocabulary an author already reads — <c>slots</c> describes only the node itself, and read_screen
+		/// stops at a template's boundary by design. An author who cannot see the parts rebuilds the element
+		/// by hand instead of varianting it, and a hand-built copy carries literal values instead of styles,
+		/// so it drops out of the skin. Listing the parts is what makes overriding the cheaper option.
+		/// </remarks>
+		public List<UiPalettePart> parts = new();
+
+		/// <summary>
+		/// True when <see cref="parts"/> was cut at the cap, so an author knows the list is not exhaustive
+		/// and can fall back to capture_prefab_values on the prefab.
+		/// </summary>
+		public bool partsTruncated;
+	}
+
+	/// <summary>
+	/// One addressable internal part of a palette element.
+	/// </summary>
+	/// <remarks>
+	/// <see cref="path"/> is not a description of the hierarchy — it is the literal key an <c>"overrides"</c>
+	/// entry uses, and the generator only emits paths it has verified resolve. That is the whole value of the
+	/// list: an author can copy a path straight into a screen instead of guessing at one.
+	/// </remarks>
+	[Serializable]
+	public class UiPalettePart
+	{
+		/// <summary>Child transform path relative to the element root, e.g. "Header/Title".</summary>
+		public string path = "";
+
+		/// <summary>Short name of the most telling component on that part (e.g. "Image", "UiButton").</summary>
+		public string type = "";
+
+		/// <summary>
+		/// Set when this part is itself a tagged standard element — its palette entry, where its own parts
+		/// are listed. Empty otherwise.
+		/// </summary>
+		/// <remarks>
+		/// The reason the list stops here rather than descending: a composed dialog would otherwise repeat
+		/// every internal of every element it contains, at paths so long they obscure the structure the
+		/// author is actually composing with. Naming the element instead is both shorter and more useful —
+		/// it says "look this one up" and the entry is right there in the same palette.
+		/// </remarks>
+		public string element = "";
+
+		/// <summary>True when the part carries a text component, so an override here may set "text".</summary>
+		public bool text;
+
+		/// <summary>
+		/// True when the element ships this part switched OFF — an override with <c>"active": true</c> turns
+		/// it on for one instance. Worth naming: a part that is invisible by default is invisible in a
+		/// screenshot too, so nothing else would reveal that it is there at all.
+		/// </summary>
+		public bool shipsInactive;
 	}
 
 	[Serializable]

@@ -2466,8 +2466,42 @@ namespace GuiToolkit.Editor.AiSupport
 				+ "not meant to be translated.");
 		}
 
+		/// <summary>
+		/// Warns when a node-level "text" had more than one text component to choose from.
+		/// </summary>
+		/// <remarks>
+		/// It picks the first in hierarchy order, which on a composed element is not the one anybody means:
+		/// measured on a full-screen tab dialog, the node's "text" landed in the close button's X glyph while
+		/// the headline kept its placeholder — and nothing said so. The right target is reachable, just not
+		/// this way: an "overrides" entry on the part's own path.
+		/// </remarks>
+		private static void WarnOnAmbiguousText( GameObject _go, TMPro.TMP_Text _target, int _candidates )
+		{
+			if (_candidates < 2 || _target == null)
+				return;
+
+			var names = new List<string>();
+			for (var t = _target.transform; t != null && t != _go.transform; t = t.parent)
+				names.Insert(0, t.name);
+
+			Warn($"'text' on '{_go.name}' had {_candidates} text components to choose from and went to "
+				+ $"'{string.Join("/", names)}' — the first in hierarchy order, which on a composed element is "
+				+ "rarely the intended one. Set it through \"overrides\" on the part's own path instead (the "
+				+ "catalog's \"parts\" lists them).");
+		}
+
 		private static void ApplyText( GameObject _go, string _text )
 		{
+			var localizedAll = _go.GetComponentsInChildren<UiLocalizedTextMeshProUGUI>(true);
+			if (localizedAll.Length > 0)
+				WarnOnAmbiguousText(_go, localizedAll[0], localizedAll.Length);
+			else
+			{
+				var plainAll = _go.GetComponentsInChildren<TMPro.TMP_Text>(true);
+				if (plainAll.Length > 0)
+					WarnOnAmbiguousText(_go, plainAll[0], plainAll.Length);
+			}
+
 			var localized = _go.GetComponentInChildren<UiLocalizedTextMeshProUGUI>(true);
 			if (localized != null)
 			{

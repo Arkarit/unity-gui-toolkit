@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "generatedAtUtc": "2026-08-24T11:41:25.6554828Z",
+    "generatedAtUtc": "2026-08-31T07:33:39.4826280Z",
     "toolkitAssembly": "de.phoenixgrafik.ui-toolkit",
     "skins": [
         "Landscape",
@@ -3922,6 +3922,23 @@
                     "rangeMin": 0.0,
                     "rangeMax": 0.0,
                     "tooltip": "Offset added to the rect's width / height, applied symmetrically around the rect center. Positive values grow the shape, negative values shrink it. When m_uniformSizeOffset is true, only the X component is used for both axes."
+                },
+                {
+                    "name": "positionOffset",
+                    "field": "m_positionOffset",
+                    "member": "field",
+                    "kind": "vector2",
+                    "valueType": "UnityEngine.Vector2",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Offset added to the rect's position, moving the whole shape without resizing it. The counterpart to Size Offset: that one grows the shape around its centre, this one shifts it. Applied last, so it moves the result of padding, fixed size and size offset alike."
                 }
             ],
             "events": []
@@ -4512,6 +4529,23 @@
                     "rangeMin": 0.0,
                     "rangeMax": 0.0,
                     "tooltip": "Offset added to the rect's width / height, applied symmetrically around the rect center. Positive values grow the shape, negative values shrink it. When m_uniformSizeOffset is true, only the X component is used for both axes."
+                },
+                {
+                    "name": "positionOffset",
+                    "field": "m_positionOffset",
+                    "member": "field",
+                    "kind": "vector2",
+                    "valueType": "UnityEngine.Vector2",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Offset added to the rect's position, moving the whole shape without resizing it. The counterpart to Size Offset: that one grows the shape around its centre, this one shifts it. Applied last, so it moves the result of padding, fixed size and size offset alike."
                 }
             ],
             "events": []
@@ -4855,6 +4889,23 @@
                     "rangeMin": 0.0,
                     "rangeMax": 0.0,
                     "tooltip": "Offset added to the rect's width / height, applied symmetrically around the rect center. Positive values grow the shape, negative values shrink it. When m_uniformSizeOffset is true, only the X component is used for both axes."
+                },
+                {
+                    "name": "positionOffset",
+                    "field": "m_positionOffset",
+                    "member": "field",
+                    "kind": "vector2",
+                    "valueType": "UnityEngine.Vector2",
+                    "elementKind": "",
+                    "refType": "",
+                    "enumValues": [],
+                    "optional": false,
+                    "mandatory": false,
+                    "mandatoryExternal": false,
+                    "hasRange": false,
+                    "rangeMin": 0.0,
+                    "rangeMax": 0.0,
+                    "tooltip": "Offset added to the rect's position, moving the whole shape without resizing it. The counterpart to Size Offset: that one grows the shape around its centre, this one shifts it. Applied last, so it moves the result of padding, fixed size and size offset alike."
                 }
             ],
             "events": []
@@ -19947,7 +19998,7 @@
             "unityType": "",
             "prefer": "",
             "category": "Widget",
-            "description": "A compact, colour-coded label with an optional leading icon - a division name, a tag, a state word. The chip owns no look of its own: size and colour role come from the style, so the same prefab is a list-row chip or an inline one depending on which style it carries (\"Chip/Default\", \"Chip/Small\"). Display only unless it is made clickable, and then it says so: a chip that takes no clicks does not raycast either, so the tap reaches the card or row underneath instead of dying on the chip.",
+            "description": "A compact, colour-coded label with an optional leading icon - a division name, a tag, a state word. The chip owns no look of its own: size and colour role come from the style, so the same prefab is a list-row chip or an inline one depending on which style it carries (\"Chip/Default\", \"Chip/Small\"). Nor does it care what its background IS - any Graphic will do, rounded or nine-sliced or plain. Display only unless it is made clickable, and then it says so: a chip that takes no clicks does not raycast either, so the tap reaches the card or row underneath instead of dying on the chip.",
             "isRoot": false,
             "contentField": "",
             "requiresComponents": [
@@ -19960,9 +20011,9 @@
                     "field": "m_background",
                     "member": "field",
                     "kind": "componentRef",
-                    "valueType": "GuiToolkit.UiRoundedImage",
+                    "valueType": "UnityEngine.UI.Graphic",
                     "elementKind": "",
-                    "refType": "UiRoundedImage",
+                    "refType": "Graphic",
                     "enumValues": [],
                     "optional": false,
                     "mandatory": true,
@@ -19970,7 +20021,7 @@
                     "hasRange": false,
                     "rangeMin": 0.0,
                     "rangeMax": 0.0,
-                    "tooltip": "Rounded background. Carries the chip's colour role through its style, and is the click target when the chip is clickable."
+                    "tooltip": "The chip's background graphic. Carries its colour role through its style, and is the click target when the chip is clickable."
                 },
                 {
                     "name": "icon",
@@ -22916,7 +22967,9 @@
             "description": "Base template for settings-dialog rows: a gradient/animated background that concrete PlayerSetting rows derive from; not used directly.",
             "standardElement": "BackgroundPlayerSetting",
             "isInternal": false,
-            "slots": []
+            "slots": [],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "DialogStub",
@@ -22931,9 +22984,40 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 2 texts; the node-level slot writes to 'Animated/Headline'. Address the others through \"overrides\" — see \"parts\"."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Animated",
+                    "type": "CanvasGroup",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Animated/StandardPanelBackgroundWithHeadline",
+                    "type": "Image",
+                    "element": "StandardPanelBackgroundWithHeadline",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Animated/Headline",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Animated/CloseButton",
+                    "type": "UiButton",
+                    "element": "CloseButton",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "FullScreenTabDialog",
@@ -22948,9 +23032,89 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 2 texts; the node-level slot writes to 'Content/TopBar/CloseButton/WiggleAnimation/Image/Text (TMP)'. Address the others through \"overrides\" — see \"parts\"."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "ClickCatcher",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/MiddleContent/TabContainer",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/MiddleContent/TabContainer/Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/MiddleContent/TabContainer/TabList",
+                    "type": "UiScrollRect",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/MiddleContent/PageContainer",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/MiddleContent/PageContainer/VisualTermination",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": true
+                },
+                {
+                    "path": "Content/TopBar",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/TopBar/Image",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/TopBar/CloseButton",
+                    "type": "UiButton",
+                    "element": "CloseButton",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/TopBar/Headline",
+                    "type": "UiTextContainerDisableable",
+                    "element": "StandardHeadline",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/ButtonBar",
+                    "type": "Image",
+                    "element": "StandardButtonBar",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "GridPicker",
@@ -22965,9 +23129,26 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 2 texts; the node-level slot writes to 'StandardPanelBackground/GameObject/StandardHeadline3rdOrder'. Address the others through \"overrides\" — see \"parts\"."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "ClickCatcher",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "StandardPanelBackground",
+                    "type": "Image",
+                    "element": "StandardPanelBackground",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "SettingsDialog",
@@ -22982,9 +23163,89 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 5 texts; the node-level slot writes to 'Content/TopBar/CloseButton/WiggleAnimation/Image/Text (TMP)'. Address the others through \"overrides\" — see \"parts\"."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "ClickCatcher",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/MiddleContent/TabContainer",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/MiddleContent/TabContainer/Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/MiddleContent/TabContainer/TabList",
+                    "type": "UiScrollRect",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/MiddleContent/PageContainer",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/MiddleContent/PageContainer/VisualTermination",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": true
+                },
+                {
+                    "path": "Content/TopBar",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/TopBar/Image",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/TopBar/CloseButton",
+                    "type": "UiButton",
+                    "element": "CloseButton",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/TopBar/Headline",
+                    "type": "UiTextContainerDisableable",
+                    "element": "StandardHeadline",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Content/ButtonBar",
+                    "type": "Image",
+                    "element": "StandardButtonBar",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardClickCatcher",
@@ -23001,7 +23262,9 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "WiggleAnimation",
@@ -23012,7 +23275,9 @@
             "description": "",
             "standardElement": "WiggleAnimation",
             "isInternal": true,
-            "slots": []
+            "slots": [],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "DateTimePanel",
@@ -23027,9 +23292,40 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 10 texts; the node-level slot writes to 'DateTimeNowVLayout/TimePicker/Text (TMP)'. Address the others through \"overrides\" — see \"parts\"."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "DateTimeNowVLayout/TimePicker",
+                    "type": "UiTimePicker",
+                    "element": "TimePicker",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "DateTimeNowVLayout/DatePicker",
+                    "type": "DatePickerDeprecated",
+                    "element": "DatePicker",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "DateTimeNowVLayout/NowButton",
+                    "type": "UiButton",
+                    "element": "StandardButtonSmall",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "DateDisplay",
+                    "type": "UiDateTimeDisplay",
+                    "element": "DateDisplay",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "DateTimePartPanel",
@@ -23051,7 +23347,24 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Image (1)",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Text (TMP)",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "HorizontalDecoLine",
@@ -23062,7 +23375,17 @@
             "description": "A purely decorative horizontal divider line (a styled Image); no interactive behaviour.",
             "standardElement": "HorizontalDecoLine",
             "isInternal": false,
-            "slots": []
+            "slots": [],
+            "parts": [
+                {
+                    "path": "HorizontalDecoLine",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "HoverPlayerSettings",
@@ -23073,7 +23396,9 @@
             "description": "Base template for settings-dialog rows with a hover background that concrete PlayerSetting rows derive from.",
             "standardElement": "HoverPlayerSettings",
             "isInternal": false,
-            "slots": []
+            "slots": [],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "StandardButtonBar",
@@ -23084,7 +23409,9 @@
             "description": "Horizontal bar that lays out a dialog's action buttons (e.g. OK/Cancel) along the bottom.",
             "standardElement": "StandardButtonBar",
             "isInternal": false,
-            "slots": []
+            "slots": [],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "StandardCheckboxCheckmark",
@@ -23095,7 +23422,31 @@
             "description": "The checkmark graphic shown inside a checkbox while it is on.",
             "standardElement": "StandardCheckboxCheckmark",
             "isInternal": true,
-            "slots": []
+            "slots": [],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Background/Checkmark",
+                    "type": "UiImage",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Background/Hover",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardHeadlineBackground",
@@ -23106,7 +23457,9 @@
             "description": "Decorative background strip that sits behind a panel's headline text.",
             "standardElement": "StandardHeadlineBackground",
             "isInternal": false,
-            "slots": []
+            "slots": [],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "StandardInputField",
@@ -23121,9 +23474,26 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 2 texts; the node-level slot writes to 'Text Area/Placeholder'. Address the others through \"overrides\" — see \"parts\"."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Text Area/Placeholder",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Text Area/Text",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardPanelBackground",
@@ -23134,7 +23504,17 @@
             "description": "The default framed panel surface - the standard rounded background for dialog and panel content.",
             "standardElement": "StandardPanelBackground",
             "isInternal": false,
-            "slots": []
+            "slots": [],
+            "parts": [
+                {
+                    "path": "StandardPanelFrame",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardPanelBackgroundWithHeadline",
@@ -23145,7 +23525,24 @@
             "description": "The default framed panel surface - the standard rounded background for dialog and panel content.",
             "standardElement": "StandardPanelBackgroundWithHeadline",
             "isInternal": false,
-            "slots": []
+            "slots": [],
+            "parts": [
+                {
+                    "path": "StandardPanelFrame",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "StandardHeadlineBackground",
+                    "type": "Image",
+                    "element": "StandardHeadlineBackground",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardTabPage",
@@ -23156,7 +23553,9 @@
             "description": "One page of a tabbed dialog: the content container shown while its tab is selected.",
             "standardElement": "StandardTabPage",
             "isInternal": false,
-            "slots": []
+            "slots": [],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "StandardTabPageWithScrollRect",
@@ -23167,7 +23566,24 @@
             "description": "A tab page whose content scrolls, for pages longer than the available height.",
             "standardElement": "StandardTabPageWithScrollRect",
             "isInternal": false,
-            "slots": []
+            "slots": [],
+            "parts": [
+                {
+                    "path": "Container",
+                    "type": "UiScrollRect",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Container/Viewport/Content/ClickCatcher",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "CalenderUI",
@@ -23178,7 +23594,150 @@
             "description": "",
             "standardElement": "CalenderUI",
             "isInternal": true,
-            "slots": []
+            "slots": [],
+            "parts": [
+                {
+                    "path": "animated",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/YearMonth/Year",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/YearMonth/Year/Text",
+                    "type": "Text",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/YearMonth/Year/YearDec",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/YearMonth/Year/YearDec/Text",
+                    "type": "Text",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/YearMonth/Year/YearInc",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/YearMonth/Year/YearInc/Text",
+                    "type": "Text",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/YearMonth/Month",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/YearMonth/Month/Text",
+                    "type": "Text",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/YearMonth/Month/MonthDec",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/YearMonth/Month/MonthDec/Text",
+                    "type": "Text",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/YearMonth/Month/MonthInc",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/YearMonth/Month/MonthInc/Text",
+                    "type": "Text",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/SelectedDate",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/GotoToday",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/GotoToday/Text",
+                    "type": "Text",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/Days",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/Days/Template/Day Name Label",
+                    "type": "Text",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/Days/Template/Day Toggle",
+                    "type": "DayToggle",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "animated/Days/Template/Day Toggle/Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": true
         },
         {
             "name": "CancelButton",
@@ -23200,7 +23759,31 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "WiggleAnimation",
+                    "type": "UiSimpleAnimation",
+                    "element": "WiggleAnimation",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "WiggleAnimation/Image",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "WiggleAnimation/Image/Text (TMP)",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "CloseButton",
@@ -23222,7 +23805,31 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "WiggleAnimation",
+                    "type": "UiSimpleAnimation",
+                    "element": "WiggleAnimation",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "WiggleAnimation/Image",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "WiggleAnimation/Image/Text (TMP)",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "DatePicker",
@@ -23237,9 +23844,40 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 4 texts; the node-level slot writes to 'Text (TMP) (1)'. Address the others through \"overrides\" — see \"parts\"."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Text (TMP) (1)",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "VerticalLayout/YearPicker",
+                    "type": "UiYearPicker",
+                    "element": "IncDecPickPicker",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "VerticalLayout/MonthPicker",
+                    "type": "UiMonthPicker",
+                    "element": "IncDecPickPicker",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "VerticalLayout/DayPicker",
+                    "type": "UiDayPicker",
+                    "element": "IncDecPickPicker",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "DownButton",
@@ -23256,7 +23894,24 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Icon",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "GridPickerCell",
@@ -23273,7 +23928,17 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Hover",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "GridPickerCellText",
@@ -23295,7 +23960,24 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Hover",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Text (TMP)",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "IncDecPickPicker",
@@ -23312,7 +23994,38 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Text (TMP)",
+                    "type": "UiButton",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "LeftButton",
+                    "type": "UiButton",
+                    "element": "LeftButton",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "RightButton",
+                    "type": "UiButton",
+                    "element": "RightButton",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "LanguageToggle",
@@ -23334,7 +24047,24 @@
                     "kind": "event",
                     "note": "Toggle change handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Selection",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Icon",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "LeftButton",
@@ -23351,7 +24081,24 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Icon",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "OkButton",
@@ -23373,7 +24120,31 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "WiggleAnimation",
+                    "type": "UiSimpleAnimation",
+                    "element": "WiggleAnimation",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "WiggleAnimation/Image",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "WiggleAnimation/Image/Text (TMP)",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "PlayerSettingButton",
@@ -23388,14 +24159,24 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 2 texts; the node-level slot writes to 'Background/Name'. Address the others through \"overrides\" — see \"parts\"."
                 },
                 {
                     "name": "onClick",
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "BackgroundPlayerSetting",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "PlayerSettingCheckbox",
@@ -23422,7 +24203,17 @@
                     "kind": "event",
                     "note": "Toggle change handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "BackgroundPlayerSetting",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "PlayerSettingDropdown",
@@ -23444,7 +24235,17 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "BackgroundPlayerSetting",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "PlayerSettingFPS",
@@ -23459,9 +24260,19 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 3 texts; the node-level slot writes to 'Background/Name'. Address the others through \"overrides\" — see \"parts\"."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "BackgroundPlayerSetting",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "PlayerSettingKeyBinding",
@@ -23476,14 +24287,24 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 2 texts; the node-level slot writes to 'Background/KeyName'. Address the others through \"overrides\" — see \"parts\"."
                 },
                 {
                     "name": "onClick",
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "BackgroundPlayerSetting",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "PlayerSettingLanguage",
@@ -23510,7 +24331,17 @@
                     "kind": "event",
                     "note": "Toggle change handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "BackgroundPlayerSetting",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "PlayerSettingLanguageDropdown",
@@ -23532,7 +24363,17 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "BackgroundPlayerSetting",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "PlayerSettingRadiobutton",
@@ -23559,7 +24400,17 @@
                     "kind": "event",
                     "note": "Toggle change handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "BackgroundPlayerSetting",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "PlayerSettingSlider",
@@ -23574,9 +24425,19 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 2 texts; the node-level slot writes to 'Background/Name'. Address the others through \"overrides\" — see \"parts\"."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "BackgroundPlayerSetting",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "RightButton",
@@ -23593,7 +24454,24 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Icon",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardButton",
@@ -23615,7 +24493,31 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "WiggleAnimation",
+                    "type": "UiSimpleAnimation",
+                    "element": "WiggleAnimation",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "WiggleAnimation/Image",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "WiggleAnimation/Image/Text (TMP)",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardButtonSmall",
@@ -23637,7 +24539,31 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "WiggleAnimation",
+                    "type": "UiSimpleAnimation",
+                    "element": "WiggleAnimation",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "WiggleAnimation/Image",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "WiggleAnimation/Image/Text (TMP)",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardCheckbox",
@@ -23664,7 +24590,17 @@
                     "kind": "event",
                     "note": "Toggle change handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Label",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardIconButton",
@@ -23681,7 +24617,24 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Icon",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardRadio",
@@ -23708,7 +24661,17 @@
                     "kind": "event",
                     "note": "Toggle change handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Label",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardSliderHor",
@@ -23725,7 +24688,80 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "NoVolumeButton",
+                    "type": "UiButton",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Slider",
+                    "type": "UiImage",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Slider/ClickCatcher",
+                    "type": "UiClickCatcher",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Slider/Thumb",
+                    "type": "UiImage",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Slider/Thumb/ClickCatcher",
+                    "type": "UiClickCatcher",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Slider/Thumb/ValueTextContainer",
+                    "type": "CanvasGroup",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Slider/Thumb/ValueTextContainer/Background/BaclgroundImage",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Slider/Thumb/ValueTextContainer/Background/ValueText",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Slider/HorizontalVerticalSplitter",
+                    "type": "UiClickCatcher",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "FullVolumeButton",
+                    "type": "UiButton",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardTab",
@@ -23752,7 +24788,24 @@
                     "kind": "event",
                     "note": "Toggle change handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Image",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "StandardHeadline2ndOrder",
+                    "type": "UiTextContainerDisableable",
+                    "element": "StandardHeadline3rdOrder",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardTabChapter",
@@ -23769,7 +24822,17 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "StandardHeadline2ndOrder",
+                    "type": "UiTextContainerDisableable",
+                    "element": "StandardHeadline2ndOrder",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "TimePicker",
@@ -23784,9 +24847,40 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 4 texts; the node-level slot writes to 'Text (TMP)'. Address the others through \"overrides\" — see \"parts\"."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Text (TMP)",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Hour",
+                    "type": "UiDateTimePartPanel",
+                    "element": "DateTimePartPanel",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Minute",
+                    "type": "UiDateTimePartPanel",
+                    "element": "DateTimePartPanel",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Second",
+                    "type": "UiDateTimePartPanel",
+                    "element": "DateTimePartPanel",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "UiDropdown",
@@ -23803,7 +24897,45 @@
                     "kind": "text",
                     "note": "Set the display text."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "VisualButton",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "VisualButton/Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "VisualButton/BackgroundHighlight",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "VisualButton/Label",
+                    "type": "TextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "VisualButton/Arrow",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "UiLanguageSelectDropdown",
@@ -23820,7 +24952,45 @@
                     "kind": "text",
                     "note": "Set the display text."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "VisualButton",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "VisualButton/Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "VisualButton/BackgroundHighlight",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "VisualButton/Label",
+                    "type": "TextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "VisualButton/Arrow",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "UpButton",
@@ -23837,7 +25007,24 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Icon",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "UpDownLeftRightButton",
@@ -23854,7 +25041,24 @@
                     "kind": "event",
                     "note": "Click handler (wired later)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Icon",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "KeyPressRequester",
@@ -23869,9 +25073,61 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 6 texts; the node-level slot writes to 'Warning'. Address the others through \"overrides\" — see \"parts\"."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Warning",
+                    "type": "UiTextContainerDisableable",
+                    "element": "StandardHeadline",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "WiggleAnimation",
+                    "type": "UiSimpleAnimation",
+                    "element": "WiggleAnimation",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "WiggleAnimation/Headline",
+                    "type": "UiTextContainerDisableable",
+                    "element": "StandardHeadline",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Modifiers/Shift",
+                    "type": "UiTextContainerDisableable",
+                    "element": "StandardHeadline",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Modifiers/Ctrl",
+                    "type": "UiTextContainerDisableable",
+                    "element": "StandardHeadline",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Modifiers/Alt",
+                    "type": "UiTextContainerDisableable",
+                    "element": "StandardHeadline",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "PopupMenu",
@@ -23882,7 +25138,52 @@
             "description": "A popup / context menu anchored near a triggering element; scrollable, closes on tap outside.",
             "standardElement": "PopupMenu",
             "isInternal": false,
-            "slots": []
+            "slots": [],
+            "parts": [
+                {
+                    "path": "ClickCatcher",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Root",
+                    "type": "UiSimpleAnimation",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Root/Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Root/ScrollView/Scrollbar Vertical",
+                    "type": "Scrollbar",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Root/ScrollView/Scrollbar Vertical/Sliding Area/Handle",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Root/ScrollView/Scrollbar Vertical/Sliding Area/Handle/HandleOverlay",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "Requester",
@@ -23897,9 +25198,26 @@
                 {
                     "name": "text",
                     "kind": "loca",
-                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
+                    "note": "Set a loca key (prefix a literal with '@text:' to bypass localization). This element has 15 texts; the node-level slot writes to 'StandardPanelBackground/Container/HeadlineContainer/Headline'. Address the others through \"overrides\" — see \"parts\"."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "ClickCatcher",
+                    "type": "Button",
+                    "element": "StandardClickCatcher",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "StandardPanelBackground",
+                    "type": "Image",
+                    "element": "StandardPanelBackground",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardToastMessageView",
@@ -23916,7 +25234,45 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "ScaleAnimation",
+                    "type": "UiSimpleAnimation",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "CloseAnimation",
+                    "type": "UiSimpleAnimation",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Container",
+                    "type": "CanvasGroup",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Container/Image",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": true
+                },
+                {
+                    "path": "Container/Headline",
+                    "type": "UiTextContainerDisableable",
+                    "element": "StandardHeadline",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "ToastMessageView",
@@ -23933,7 +25289,45 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "ScaleAnimation",
+                    "type": "UiSimpleAnimation",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "CloseAnimation",
+                    "type": "UiSimpleAnimation",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Container",
+                    "type": "CanvasGroup",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Container/Image",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": true
+                },
+                {
+                    "path": "Container/Headline",
+                    "type": "UiTextContainerDisableable",
+                    "element": "StandardHeadline",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "UiPopup",
@@ -23944,7 +25338,52 @@
             "description": "A popup / context menu anchored near a triggering element; scrollable, closes on tap outside.",
             "standardElement": "PopupMenu",
             "isInternal": false,
-            "slots": []
+            "slots": [],
+            "parts": [
+                {
+                    "path": "ClickCatcher",
+                    "type": "Button",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Root",
+                    "type": "UiSimpleAnimation",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Root/Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Root/ScrollView/Scrollbar Vertical",
+                    "type": "Scrollbar",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Root/ScrollView/Scrollbar Vertical/Sliding Area/Handle",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Root/ScrollView/Scrollbar Vertical/Sliding Area/Handle/HandleOverlay",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "PlayerSettingText",
@@ -23961,7 +25400,9 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "StandardHeadline",
@@ -23978,7 +25419,9 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "StandardHeadline2ndOrder",
@@ -23995,7 +25438,9 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "StandardHeadline3rdOrder",
@@ -24012,7 +25457,9 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "StandardText",
@@ -24029,7 +25476,9 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "StandardTextSmall",
@@ -24046,7 +25495,9 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [],
+            "partsTruncated": false
         },
         {
             "name": "DateDisplay",
@@ -24063,7 +25514,24 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Background",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Text",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardChip",
@@ -24080,7 +25548,24 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Icon",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": true
+                },
+                {
+                    "path": "Label",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardColorPatch",
@@ -24091,7 +25576,17 @@
             "description": "A selectable color swatch that displays a single color and can be picked within a group.",
             "standardElement": "StandardColorPatch",
             "isInternal": false,
-            "slots": []
+            "slots": [],
+            "parts": [
+                {
+                    "path": "SelectionFrame",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": true
+                }
+            ],
+            "partsTruncated": false
         },
         {
             "name": "StandardCountIndicator",
@@ -24108,7 +25603,38 @@
                     "kind": "loca",
                     "note": "Set a loca key (prefix a literal with '@text:' to bypass localization)."
                 }
-            ]
+            ],
+            "parts": [
+                {
+                    "path": "Main/Icon",
+                    "type": "Image",
+                    "element": "",
+                    "text": false,
+                    "shipsInactive": true
+                },
+                {
+                    "path": "Main/Value",
+                    "type": "TextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Secondary/SecondaryCaption",
+                    "type": "UiLocalizedTextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                },
+                {
+                    "path": "Secondary/SecondaryValue",
+                    "type": "TextMeshProUGUI",
+                    "element": "",
+                    "text": true,
+                    "shipsInactive": false
+                }
+            ],
+            "partsTruncated": false
         }
     ],
     "standardElementAmbiguities": []
