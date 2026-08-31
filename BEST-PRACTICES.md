@@ -218,3 +218,22 @@ the authoring language and shows the raw key in the first foreign build. The bak
 If the project also runs a second localization system next to the toolkit's, decide which one owns UI
 strings before authoring against either. Two catalogs with an undrawn border is how a string ends up
 declared in one and looked up in the other.
+
+### Two component facts that are easy to get wrong
+
+**Disabling a `UiButton` is `EnabledInHierarchy`, not `Button.interactable`.** The toolkit has its own
+notion of "disabled" and it does more than block clicks: `EnableableInHierarchyUtility` passes the
+state down to every child that opts in — `UiImage` with a disabled material, the `UiShapeImage`
+family, `UiTextContainerDisableable` — so the whole element greys out. Reaching past it to
+`button.Button.interactable` gives you a button that does not react and looks completely normal, and
+the value does not even hold: `UiButton.OnEnabledInHierarchyChanged` writes `interactable` itself, so
+the next hierarchy change overwrites it.
+
+```csharp
+uiButton.EnabledInHierarchy = false;   // not: uiButton.Button.interactable = false
+```
+
+**`UiView.autoDestroyOnHide` defaults to `true`.** Correct for a screen entered once, wrong for a
+dialog: `Hide()` then destroys or pools the view, and it takes the view's own subscriptions with it —
+so whatever was supposed to reopen it has nothing left to talk to. A dialog you open repeatedly turns
+this off on its prefab.
