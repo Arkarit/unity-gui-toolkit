@@ -3,7 +3,8 @@
     "rootNamespace": "GuiToolkit",
     "references": [
         "de.phoenixgrafik.ui-toolkit",
-        "Unity.Localization"
+        "Unity.Localization",
+        "Unity.ResourceManager"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

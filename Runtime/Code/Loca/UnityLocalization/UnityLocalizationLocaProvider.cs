@@ -70,6 +70,8 @@ namespace GuiToolkit
 			if (string.IsNullOrEmpty(_language) || !LocalizationSettings.HasSettings)
 				return;
 
+			EnsureInitialised();
+
 			var locale = FindLocale(_language);
 			if (locale == null)
 			{
@@ -116,6 +118,38 @@ namespace GuiToolkit
 
 		/// <inheritdoc/>
 		public void Unload() => m_localization = new ProcessedLoca(m_group, new List<ProcessedLocaEntry>());
+
+		/// <summary>
+		/// Makes sure Unity's localization system has actually loaded, because asking too early answers
+		/// "nothing is here" rather than waiting.
+		/// </summary>
+		/// <remarks>
+		/// Measured after a domain reload: <c>HasSettings</c> was true, <c>InitializationOperation.IsDone</c>
+		/// was true, and <c>AvailableLocales.Locales</c> was still EMPTY — so neither flag can be trusted as
+		/// the go-ahead. Reading the handle and waiting on it is what populates the list; before that, every
+		/// lookup here returns nothing and looks like a project with no localization.
+		///
+		/// Wrapped because <c>WaitForCompletion</c> is not supported on every platform (WebGL being the
+		/// known one): a bridge that cannot pre-warm should degrade to "whatever is loaded already", not
+		/// throw out of a language change.
+		/// </remarks>
+		private static void EnsureInitialised()
+		{
+			try
+			{
+				var op = LocalizationSettings.InitializationOperation;
+				if (!op.IsValid())
+					return;
+				op.WaitForCompletion();
+			}
+			catch (System.Exception e)
+			{
+				UiLog.LogWarning($"[{nameof(UnityLocalizationLocaProvider)}] Could not force Unity's " +
+					$"localization to initialise ({e.GetType().Name}: {e.Message}); continuing with whatever " +
+					"is already loaded. On a platform without synchronous Addressables, await " +
+					"LocalizationSettings.InitializationOperation before the first language change instead.");
+			}
+		}
 
 		/// <summary>
 		/// The locale for a toolkit language id: an exact code match, else one whose base language matches.
@@ -172,12 +206,32 @@ namespace GuiToolkit
 		/// </remarks>
 		public void CollectData()
 		{
-			if (!m_contributeKeysToPot || !LocalizationSettings.HasSettings)
+			if (!m_contributeKeysToPot)
 				return;
+
+			// Every early exit below is an ERROR, not a quiet skip. The processor clears the key set before
+			// harvesting and writes the .pot afterwards, so a run where this contributes nothing does not
+			// merely fail to add — it SHRINKS the template by however many keys only this bridge can see.
+			// Measured once: 500 keys down to 62, silently, because the locale list had not loaded yet.
+			if (!LocalizationSettings.HasSettings)
+			{
+				UiLog.LogError($"[{nameof(UnityLocalizationLocaProvider)}] No Unity localization settings in " +
+					"this project, so no keys were contributed and the .pot will lose any that only this " +
+					"provider knows. Remove this provider asset, or set up Unity Localization.", this);
+				return;
+			}
+
+			EnsureInitialised();
 
 			var locales = LocalizationSettings.AvailableLocales?.Locales;
 			if (locales == null || locales.Count == 0)
+			{
+				UiLog.LogError($"[{nameof(UnityLocalizationLocaProvider)}] Unity's locale list is empty, so no " +
+					"keys were contributed and the .pot will lose any that only this provider knows. This is " +
+					"usually a timing problem: run the loca processor again once the editor has finished " +
+					"initialising localization.", this);
 				return;
+			}
 
 			int added = 0;
 			foreach (var tableName in m_tableNames)
@@ -197,7 +251,12 @@ namespace GuiToolkit
 
 				var shared = table?.SharedData;
 				if (shared?.Entries == null)
+				{
+					UiLog.LogError($"[{nameof(UnityLocalizationLocaProvider)}] String table '{tableName}' " +
+						"could not be read for any locale, so none of its keys were contributed. Check the " +
+						"table name against the project's String Table Collections.", this);
 					continue;
+				}
 
 				string sourceRef = $"{nameof(UnityLocalizationLocaProvider)}:{tableName}";
 				foreach (var sharedEntry in shared.Entries)
@@ -214,6 +273,12 @@ namespace GuiToolkit
 			{
 				UiLog.Log($"[{nameof(UnityLocalizationLocaProvider)}] contributed {added} key(s) from " +
 					$"{m_tableNames.Count} String Table(s) to the loca key set.", this);
+			}
+			else
+			{
+				UiLog.LogError($"[{nameof(UnityLocalizationLocaProvider)}] contributed NO keys, so this " +
+					"processor run will write a .pot without them. Check the table names " +
+					$"({string.Join(", ", m_tableNames)}) and re-run before committing the .pot.", this);
 			}
 		}
 #endif
