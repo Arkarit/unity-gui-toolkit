@@ -172,14 +172,57 @@ namespace GuiToolkit.Editor
 			EditorAssetUtility.FindAllScriptableObjects<ILocaProvider>(locaProvider =>
 			{
 				var so = (ScriptableObject) locaProvider;
-				UiLog.Log($"Processing Loca Provider {AssetDatabase.GetAssetPath(so)}");
+				string assetPath = AssetDatabase.GetAssetPath(so);
+				UiLog.Log($"Processing Loca Provider {assetPath}");
+
+				string resourcePath = ResourcesRelativePath(assetPath);
+				if (resourcePath == null)
+				{
+					// Adding it anyway would write an entry that fails on every single language change,
+					// which is how this surfaced: an error from Resources.Load, far from its cause.
+					UiLog.LogError($"Loca Provider '{assetPath}' is not inside a Resources folder, so it can " +
+						"never be loaded at runtime and is skipped. Move it under Assets/Resources/" +
+						$"{LocaProviderList.RESOURCES_SUB_PATH} (or any Resources folder).");
+					return;
+				}
+
 				var providerType = locaProvider.GetType();
 				var typeName = providerType.AssemblyQualifiedName ?? providerType.FullName;
-				locaProviderList.Providers.Add(new LocaProviderEntry { Path = so.name, TypeName = typeName });
+				locaProviderList.Providers.Add(new LocaProviderEntry { Path = resourcePath, TypeName = typeName });
 				locaProvider.CollectData();
 			}, s_options);
 			locaProviderList.Save();
 #endif
+		}
+
+		/// <summary>
+		/// The path <see cref="Resources.Load"/> expects for an asset: everything after the last
+		/// <c>/Resources/</c> segment, without the file extension. Null when the asset is not under a
+		/// Resources folder at all.
+		/// </summary>
+		/// <remarks>
+		/// Previously the asset's plain NAME was written here, which happens to work only for a provider
+		/// sitting directly in <c>Assets/Resources/</c>. One in a subfolder — including
+		/// <see cref="LocaProviderList.RESOURCES_SUB_PATH"/>, which is where the toolkit itself says to put
+		/// them — produced an entry that <c>Resources.Load</c> could not resolve, and the failure showed up
+		/// as "Could not load Loca Provider" on the next language change, nowhere near the cause.
+		/// </remarks>
+		private static string ResourcesRelativePath( string _assetPath )
+		{
+			if (string.IsNullOrEmpty(_assetPath))
+				return null;
+
+			string path = _assetPath.Replace('\\', '/');
+
+			// The LAST occurrence: a project may well have Assets/Resources/Something/Resources/.
+			const string marker = "/Resources/";
+			int idx = path.LastIndexOf(marker, StringComparison.Ordinal);
+			if (idx < 0)
+				return null;
+
+			string relative = path.Substring(idx + marker.Length);
+			int dot = relative.LastIndexOf('.');
+			return dot > 0 ? relative.Substring(0, dot) : relative;
 		}
 
 		private static void FoundComponent( ILocaKeyProvider _component, string _sourcePath = null )
