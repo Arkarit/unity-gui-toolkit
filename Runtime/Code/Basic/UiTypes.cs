@@ -298,6 +298,7 @@ public const int LOCA_MISC_FIX_AUTO_LOCALIZE_MENU_PRIORITY           = 60;
 		public const string SCENE_MENU_GENERATOR_HEADER = MENU_HEADER + "Scenes/";
 		public const string SCENE_MENU_GENERATOR = SCENE_MENU_GENERATOR_HEADER + "(Re)Generate List";
 		public const string LOCA_EXCEL_BRIDGE = LOCA_HEADER + "Loca Excel Bridge";
+		public const string LOCA_UNITY_LOCALIZATION_PROVIDER = LOCA_HEADER + "Unity Localization Loca Provider";
 		public const string LOCA_MERGE_POT_MENU_NAME = LOCA_HEADER + "Merge POT into PO files";
 		public const string LOCA_BACKUP_MENU_NAME = LOCA_HEADER + "Manage PO Backups";
 		public const string LOCA_REMOVE_OBSOLETE_MENU_NAME = LOCA_HEADER + "Remove Obsolete PO Keys";

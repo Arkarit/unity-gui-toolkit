@@ -217,7 +217,22 @@ the authoring language and shows the raw key in the first foreign build. The bak
 
 If the project also runs a second localization system next to the toolkit's, decide which one owns UI
 strings before authoring against either. Two catalogs with an undrawn border is how a string ends up
-declared in one and looked up in the other.
+declared in one and looked up in the other — and both sides fail the same quiet way, because each
+returns the key when it cannot resolve it. In the authoring language that looks entirely correct.
+
+**Bridge rather than migrate.** `LocaManager.RegisterProvider` takes an `ILocaProvider`: a
+ScriptableObject that hands the manager a `ProcessedLoca` and is reloaded on every language change.
+That makes the toolkit the API in front of an existing catalog without moving a single string. For
+Unity's Localization package the toolkit ships one — `UnityLocalizationLocaProvider`, in its own
+assembly behind a version define, so a project without that package compiles as if the file did not
+exist. Create the asset under `Assets/Resources/LocaJson/` and run the loca processor once; the asset
+does not register itself, and one outside `Resources` cannot be loaded at all.
+
+Its `Contribute Keys To Pot` option is worth understanding rather than accepting: with it on, the
+foreign catalog's KEYS (not its translations) are registered with the loca processor, which is what
+lets the toolkit's own edit-time checks — the screen baker's warning about unresolved `@loca:` keys,
+above all — know that those keys exist. With it off, every one of them is reported as missing, and an
+author quickly learns to ignore a warning that is worth reading.
 
 ### Two component facts that are easy to get wrong
 

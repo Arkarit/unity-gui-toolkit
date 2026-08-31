@@ -1,0 +1,25 @@
+{
+    "name": "de.phoenixgrafik.ui-toolkit.UnityLocalization",
+    "rootNamespace": "GuiToolkit",
+    "references": [
+        "de.phoenixgrafik.ui-toolkit",
+        "Unity.Localization"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "GUITOOLKIT_HAS_UNITY_LOCALIZATION"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.localization",
+            "expression": "1.0.0",
+            "define": "GUITOOLKIT_HAS_UNITY_LOCALIZATION"
+        }
+    ],
+    "noEngineReferences": false
+}
