@@ -1020,7 +1020,17 @@ namespace GuiToolkit
 
 			SetEffectiveGroup(ref _group);
 			EdEnsureKeyData();
-			return m_keys.TryGetValue(_group, out var keys) && keys.Contains(_key);
+
+			if (m_keys.TryGetValue(_group, out var keys) && keys.Contains(_key))
+				return true;
+
+			// A plural entry keeps its singular as the DICTIONARY KEY of m_pluralKeys and deliberately never
+			// reaches m_keys (see EdAddKey, which returns early, and WriteKeyData, which writes the two sets
+			// as separate blocks). Asking m_keys alone therefore reports every plural msgid as missing.
+			if (m_pluralKeys.TryGetValue(_group, out var pluralKeys) && pluralKeys.ContainsKey(_key))
+				return true;
+
+			return EdPoKeys(_group).Contains(_key);
 		}
 
 		/// <inheritdoc/>
@@ -1028,7 +1038,14 @@ namespace GuiToolkit
 		{
 			SetEffectiveGroup(ref _group);
 			EdEnsureKeyData();
-			return m_keys.TryGetValue(_group, out var keys) && keys.Count > 0;
+
+			if (m_keys.TryGetValue(_group, out var keys) && keys.Count > 0)
+				return true;
+
+			if (m_pluralKeys.TryGetValue(_group, out var pluralKeys) && pluralKeys.Count > 0)
+				return true;
+
+			return EdPoKeys(_group).Count > 0;
 		}
 
 		private bool m_edKeyDataQueried;
@@ -1053,6 +1070,152 @@ namespace GuiToolkit
 
 			m_edKeyDataQueried = true;
 			EdReadAllGroups(_createDirIfMissing: false);
+		}
+
+		private static readonly HashSet<string> s_edNoPoKeys = new();
+		private readonly Dictionary<string, HashSet<string>> m_edPoKeys = new();
+		private bool m_edPoKeysRead;
+
+		/// <summary>
+		/// The msgids of every PO catalog in the project, by loca group — the second source behind
+		/// <see cref="EdHasKey"/>, consulted when the POT templates do not know a key.
+		/// </summary>
+		/// <remarks>
+		/// The POT is a HARVEST, and a harvest can be stale: it is only as current as the last loca processing
+		/// pass, while the PO files are what translators and the runtime actually work with. A project whose
+		/// pass has not run since the last translation round therefore has keys that resolve perfectly at
+		/// runtime and are absent from the template — measured in a live project, whose POT held 69 of 500
+		/// keys. Trusting the POT alone turns that into a warning per authored text, which is the fastest way
+		/// to teach somebody to ignore the warnings.
+		///
+		/// Both <c>.po</c> and <c>.po.txt</c> are read and their union is the answer. The pair is kept in step
+		/// by an asset postprocessor, so which of the two is momentarily ahead is not something a diagnostic
+		/// should have an opinion about.
+		///
+		/// Kept strictly apart from <c>m_keys</c>: that one is the harvest the processing pass builds up and
+		/// writes back out, and a key that was only ever READ from a PO file must never end up in a POT as if
+		/// it had been found in the sources.
+		/// </remarks>
+		private HashSet<string> EdPoKeys( string _group )
+		{
+			EdEnsurePoKeys();
+			return m_edPoKeys.TryGetValue(_group, out var keys) ? keys : s_edNoPoKeys;
+		}
+
+		/// <summary>
+		/// Reads the msgids of all PO catalogs once per domain.
+		/// </summary>
+		/// <remarks>
+		/// Same once-per-domain contract as <see cref="EdEnsureKeyData"/>, and for the same reason: the
+		/// alternative is a project-wide asset scan per authored text. PO files that appear afterwards are
+		/// seen after the next domain reload.
+		/// </remarks>
+		private void EdEnsurePoKeys()
+		{
+			if (m_edPoKeysRead)
+				return;
+
+			m_edPoKeysRead = true;
+
+			var groups = AssetUtility.ReadLines(GROUPS_RESOURCE_NAME, _removeEmpty: true);
+			foreach (string guid in AssetDatabase.FindAssets("t:textasset"))
+			{
+				string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+				if (!EdTryGetPoGroup(assetPath, groups, out var group))
+					continue;
+
+				var asset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
+				if (asset == null)
+					continue;
+
+				if (DebugLoca)
+					Log($"Reading PO keys from '{assetPath}' (group '{group}')");
+
+				EdCollectPoKeys(asset.text, group);
+			}
+		}
+
+		/// <summary>
+		/// Maps a PO asset path to its loca group, mirroring how <see cref="EdAvailableLanguages"/> splits a
+		/// file name: "de.po" and "de.po.txt" are the default group, "de_Json.po" is group "Json".
+		/// </summary>
+		private static bool EdTryGetPoGroup( string _assetPath, List<string> _groups, out string _group )
+		{
+			_group = DEFAULT_LOCA_GROUP;
+
+			string filename;
+			if (_assetPath.EndsWith(".po"))
+				filename = Path.GetFileNameWithoutExtension(_assetPath);
+			else if (_assetPath.EndsWith(".po.txt"))
+				filename = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(_assetPath));
+			else
+				return false;
+
+			if (_groups != null)
+			{
+				foreach (string group in _groups)
+				{
+					if (filename.EndsWith("_" + group))
+					{
+						_group = group;
+						break;
+					}
+				}
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		/// Adds every singular msgid in <paramref name="_content"/> to the PO key set of <paramref name="_group"/>.
+		/// </summary>
+		/// <remarks>
+		/// Keys only — no translations, no plural forms, no msgctxt composition. The question being answered
+		/// is "does the pipeline know this key", and the empty msgid of the PO header is not one.
+		///
+		/// A msgid spread over continuation lines (gettext's <c>msgid ""</c> followed by string fragments) is
+		/// not recognised, exactly as in <see cref="ParsePoLines"/> and the POT reader. The toolkit never
+		/// writes that form; a hand-written one costs a false warning, not a wrong translation.
+		/// </remarks>
+		private void EdCollectPoKeys( string _content, string _group )
+		{
+			if (string.IsNullOrEmpty(_content))
+				return;
+
+			if (!m_edPoKeys.TryGetValue(_group, out var keys))
+			{
+				keys = new HashSet<string>();
+				m_edPoKeys.Add(_group, keys);
+			}
+
+			foreach (string rawLine in _content.Split(new[] { '\r', '\n' }))
+			{
+				// "msgid " with the space also excludes "msgid_plural", whose singular is on the line above.
+				string line = rawLine.Trim();
+				if (!line.StartsWith("msgid "))
+					continue;
+
+				int first = line.IndexOf('"');
+				int last = line.LastIndexOf('"');
+				if (first < 0 || last <= first)
+					continue;
+
+				string key = Unescape(line.Substring(first + 1, last - first - 1));
+				if (!string.IsNullOrEmpty(key))
+					keys.Add(key);
+			}
+		}
+
+		/// <summary>
+		/// (Editor-only) Test helper: feeds PO content into the edit-time KEY catalog — not into the
+		/// translation dictionaries, which is what <see cref="ParsePoContentForTest"/> does — so
+		/// <see cref="EdHasKey"/> can be tested without PO files in the project.
+		/// </summary>
+		internal void EdCollectPoKeysForTest( string _content, string _group = null )
+		{
+			SetEffectiveGroup(ref _group);
+			m_edPoKeysRead = true;
+			EdCollectPoKeys(_content, _group);
 		}
 
 		private void EdWriteGroupsFile( string _groups )

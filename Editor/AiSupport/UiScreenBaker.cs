@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -2543,10 +2543,12 @@ namespace GuiToolkit.Editor.AiSupport
 		/// language, and the bug first shows up in a foreign build, in a screen nobody is looking at any more.
 		/// The baker can see the key catalog, so it may as well say so at bake time.
 		///
-		/// Checked against the POT templates rather than the loaded translations: in the editor no language is
-		/// active, so <see cref="LocaManager.HasKey"/> would answer no to every key and warn on all of them.
-		/// Silent unless the group's catalog demonstrably holds keys, so a project without POT files gets no
-		/// warnings instead of one per text.
+		/// Checked against the key catalogs on disk — the POT templates and the PO files — rather than the
+		/// loaded translations: in the editor no language is active, so <see cref="LocaManager.HasKey"/> would
+		/// answer no to every key and warn on all of them. Both catalogs are asked because a POT is only as
+		/// current as the last loca processing pass, and a stale one would condemn keys that work. Silent
+		/// unless the group demonstrably holds keys, so a project with no loca set up gets no warnings
+		/// instead of one per text.
 		/// </remarks>
 		private static void WarnIfLocaKeyUnresolved( GameObject _go, string _key, string _group )
 		{

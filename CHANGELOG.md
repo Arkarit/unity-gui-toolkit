@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -152,6 +152,21 @@ All notable changes to this project will be documented in this file.
 
 
 ### Fixed
+- **The bake-time check for `@loca:` keys trusted the POT alone, and a POT is a harvest.** It is only as
+  current as the last loca processing pass, while the PO files are what translators and the runtime work
+  with — so a project that has not re-run the pass since its last translation round got a warning for every
+  key that resolves perfectly well. Measured in a live project, whose POT held 69 of 500 keys: the warning
+  would have fired on more texts than it spared. `LocaManager.EdHasKey` now falls back to the PO catalogs
+  (`.po` and `.po.txt`, their union, read once per domain and kept strictly apart from the harvest so a key
+  merely READ from a PO can never be written back into a POT), and `EdHasAnyKeys` counts them as evidence
+  that a group has a catalog worth checking against. A misspelled key is still reported, which is the case
+  the check exists for.
+
+  Found alongside it: a key that appears only as a **plural** entry was reported missing. `EdAddKey` puts
+  the singular of a plural into a separate dictionary and returns, deliberately — the POT writer emits the
+  two sets as separate blocks and would otherwise duplicate the entry — but the lookup only ever asked the
+  plain keys. It asks both now
+
 - **A style applier in `FullScreenTabDialog` never applied anything.** It asked for
   `FullScreenTabDialog/TabBackground` as a `UiGradientSimple`, and that style exists only as an `Image` -
   which the applier next to it on the same object already resolves. Removed, which changes nothing on

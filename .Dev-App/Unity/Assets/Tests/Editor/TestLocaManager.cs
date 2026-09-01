@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
 using GuiToolkit;
 
@@ -285,6 +285,87 @@ namespace GuiToolkit.Test
 
 			Assert.DoesNotThrow(() => impl.UnregisterProvider(mock),
 				"UnregisterProvider must not throw for a previously registered provider");
+		}
+
+		// -------------------------------------------------------------------------
+		// Edit-time key catalog — EdHasKey / EdHasAnyKeys
+		// -------------------------------------------------------------------------
+
+		/// <summary>
+		/// A group no POT template in this project carries, so the tests below measure the PO catalog and
+		/// not whatever the Dev-App happens to have harvested.
+		/// </summary>
+		private const string PO_ONLY_GROUP = "TestPoOnlyGroup";
+
+		private const string PO_HEADER_AND_PLURAL =
+			"msgid \"\"\n"
+			+ "msgstr \"Content-Type: text/plain; charset=UTF-8\"\n"
+			+ "\n"
+			+ "msgid \"{0} Scene\"\n"
+			+ "msgid_plural \"{0} Scenes\"\n"
+			+ "msgstr[0] \"{0} Szene\"\n"
+			+ "msgstr[1] \"{0} Szenen\"\n";
+
+		[Test]
+		public void EdHasKey_FindsAKeyThatOnlyThePoCatalogHas()
+		{
+			var impl = new LocaManagerDefaultImpl();
+			impl.EdCollectPoKeysForTest("msgid \"All\"\nmsgstr \"Alle\"\n", PO_ONLY_GROUP);
+
+			Assert.IsTrue(impl.EdHasKey("All", PO_ONLY_GROUP),
+				"A key that exists in a PO catalog must count as known even when no POT template has it — "
+				+ "a POT is only as current as the last processing pass");
+		}
+
+		[Test]
+		public void EdHasKey_StillSaysNoForAKeyNobodyHas()
+		{
+			var impl = new LocaManagerDefaultImpl();
+			impl.EdCollectPoKeysForTest("msgid \"All\"\nmsgstr \"Alle\"\n", PO_ONLY_GROUP);
+
+			Assert.IsFalse(impl.EdHasKey("Buldings", PO_ONLY_GROUP),
+				"The typo is the case the check exists for and must survive the PO fallback");
+		}
+
+		[Test]
+		public void EdHasAnyKeys_TrueFromThePoCatalogAlone()
+		{
+			var impl = new LocaManagerDefaultImpl();
+
+			Assert.IsFalse(impl.EdHasAnyKeys(PO_ONLY_GROUP),
+				"A group with neither template nor catalog must stay quiet, not warn per text");
+
+			impl.EdCollectPoKeysForTest("msgid \"All\"\nmsgstr \"Alle\"\n", PO_ONLY_GROUP);
+
+			Assert.IsTrue(impl.EdHasAnyKeys(PO_ONLY_GROUP),
+				"A PO catalog alone is enough evidence to let EdHasKey speak");
+		}
+
+		[Test]
+		public void EdHasKey_IgnoresThePoHeaderAndThePluralForm()
+		{
+			var impl = new LocaManagerDefaultImpl();
+			impl.EdCollectPoKeysForTest(PO_HEADER_AND_PLURAL, PO_ONLY_GROUP);
+
+			Assert.IsTrue(impl.EdHasKey("{0} Scene", PO_ONLY_GROUP),
+				"The singular msgid is the lookup key, plural entry or not");
+			Assert.IsFalse(impl.EdHasKey("{0} Scenes", PO_ONLY_GROUP),
+				"msgid_plural is a FORM of the entry above it, never a key in its own right");
+			Assert.IsFalse(impl.EdHasKey("", PO_ONLY_GROUP),
+				"The empty msgid carries the PO header and is not a key");
+		}
+
+		[Test]
+		public void EdHasKey_FindsThePluralSingularInTheHarvest()
+		{
+			var impl = new LocaManagerDefaultImpl();
+			impl.EdAddKey("Cancel", null, PO_ONLY_GROUP);
+			impl.EdAddKey("{0} Scene", "{0} Scenes", PO_ONLY_GROUP);
+
+			Assert.IsTrue(impl.EdHasKey("Cancel", PO_ONLY_GROUP),
+				"A plain harvested key must be found");
+			Assert.IsTrue(impl.EdHasKey("{0} Scene", PO_ONLY_GROUP),
+				"A plural entry stores its singular apart from the plain keys, and that is still a key");
 		}
 	}
 }

@@ -426,14 +426,18 @@ namespace GuiToolkit
 		public abstract void EdWriteKeyData();
 
 		/// <summary>
-		/// (Editor-only) Whether <paramref name="_key"/> is a key the loca pipeline knows about, i.e. one
-		/// present in the POT templates.
+		/// (Editor-only) Whether <paramref name="_key"/> is a key the loca pipeline knows about — present in
+		/// the POT templates, or in one of the project's PO catalogs.
 		/// </summary>
 		/// <remarks>
 		/// Deliberately not <see cref="HasKey"/>: that answers "is there a TRANSLATION loaded right now",
-		/// and in the editor no language is active, so it says no to everything. The POT templates are the
-		/// harvested key catalog and exist without loading a language — which makes them the only source an
-		/// edit-time tool can ask.
+		/// and in the editor no language is active, so it says no to everything. The key catalogs on disk
+		/// exist without loading a language, which makes them the only source an edit-time tool can ask.
+		///
+		/// Both are asked, because the POT is a harvest and a harvest can be stale: it is only as current as
+		/// the last loca processing pass, while the PO files are what translators and the runtime work with.
+		/// A project that has not run the pass since its last translation round would otherwise get a warning
+		/// for every key that works perfectly well.
 		///
 		/// Virtual rather than abstract, unlike its neighbours, so an existing custom <see cref="LocaManager"/>
 		/// keeps compiling. The default answers false, and callers must pair it with
@@ -442,12 +446,12 @@ namespace GuiToolkit
 		public virtual bool EdHasKey( string _key, string _group ) => false;
 
 		/// <summary>
-		/// (Editor-only) Whether <paramref name="_group"/>'s POT template carries any keys at all — the guard
+		/// (Editor-only) Whether <paramref name="_group"/> has any keys at all, in either catalog — the guard
 		/// that turns a negative <see cref="EdHasKey"/> into evidence instead of a guess.
 		/// </summary>
 		/// <remarks>
-		/// A project without POT files, or one whose templates have not been generated yet, must not produce
-		/// a warning per authored text. False therefore means "stay quiet".
+		/// A project with neither POT templates nor PO files, or one whose templates have not been generated
+		/// yet, must not produce a warning per authored text. False therefore means "stay quiet".
 		/// </remarks>
 		public virtual bool EdHasAnyKeys( string _group ) => false;
 #endif
