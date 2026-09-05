@@ -1,3 +1,4 @@
+#if UITK_USE_ROSLYN || UNITY_6000_0_OR_NEWER
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -316,3 +317,4 @@ namespace GuiToolkit.Editor.AiSupport
 		}
 	}
 }
+#endif

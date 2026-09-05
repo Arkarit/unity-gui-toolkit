@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
+using GuiToolkit.Exceptions;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEditor.Compilation;
@@ -742,10 +743,14 @@ namespace GuiToolkit.Editor.AiSupport
 				// that the toolkit is fully reachable in a project that has no separate code-execution bridge
 				// installed, instead of being reachable only as far as someone has already built a tool for.
 				case "executeCode":
+#if UITK_USE_ROSLYN || UNITY_6000_0_OR_NEWER
 					if (string.IsNullOrWhiteSpace(_payload))
 						throw new Exception("executeCode requires a 'payload' holding { code: \"...\" }.");
 					return UiCodeRunner.Execute(JObject.Parse(_payload))
 						.ToString(Newtonsoft.Json.Formatting.None);
+#else
+					throw new RoslynUnavailableException();
+#endif
 
 				case "cloneStyleConfig":
 					return UiStyleWriter.CloneConfig(Payload(_payload))

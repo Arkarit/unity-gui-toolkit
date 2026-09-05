@@ -152,6 +152,21 @@ All notable changes to this project will be documented in this file.
 
 
 ### Fixed
+- **The package did not compile at all on Unity 2022.3 — the version its own `package.json` names.** Two
+  places reach for Roslyn, and both are only compiled BELOW Unity 6, which is why nothing in the
+  development app ever saw them. `LocaExcelBridge` throws `RoslynUnavailableException` in the `#else`
+  branch of its `UITK_USE_ROSLYN` switch without a `using GuiToolkit.Exceptions;`, and `UiCodeRunner`
+  uses `Microsoft.CodeAnalysis.*` with no guard where its neighbour `RoslynComponentReplacer` carries
+  `#if UITK_USE_ROSLYN || UNITY_6000_0_OR_NEWER`. The second one closes a trap around the first: the
+  menu item that installs the Roslyn DLLs on older Unity versions lives in the editor assembly that
+  fails to compile, so the documented way out was unreachable from inside the Editor. Guarded now, with
+  the `executeCode` bridge case answering `RoslynUnavailableException` rather than vanishing silently.
+
+  Installing the DLL hack is not an alternative fix, which is worth writing down: the global
+  `UITK_USE_ROSLYN` define also switches `LocaExcelBridge` — a RUNTIME file — onto `ExcelDataReader`,
+  and a runtime assembly cannot reference the editor-only asmdef the hack creates. Below Unity 6 that
+  file has to keep taking its `#else` branch
+
 - **The bake-time check for `@loca:` keys trusted the POT alone, and a POT is a harvest.** It is only as
   current as the last loca processing pass, while the PO files are what translators and the runtime work
   with — so a project that has not re-run the pass since its last translation round got a warning for every

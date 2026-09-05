@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using GuiToolkit.Exceptions;
 
 #if UNITY_EDITOR
 using System.Data;
