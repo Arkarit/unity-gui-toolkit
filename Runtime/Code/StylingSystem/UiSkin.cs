@@ -33,10 +33,30 @@ namespace GuiToolkit.Style
 		[SerializeField] private string m_inheritFromSkinName;
 		[SerializeField] private bool m_inheritFromSameConfig;
 
+		/// <summary>
+		/// The styles this skin deliberately does NOT have, although it would inherit them - the pendant to
+		/// a prefab instance's removed component, and the one thing a child could not say before: "the
+		/// config we build on has this, we do not".
+		///
+		/// Not the same as turning every property off, which is what one reaches for otherwise. A style
+		/// resolves as a whole from the nearest skin that OWNS it, so an override with nothing applicable
+		/// keeps the parent's values from ever being asked for, and it stays in the vocabulary that fills
+		/// every style popup. Worse, IsApplicable is a property of the style DEFINITION rather than of one
+		/// skin: EvStyleApplicableChanged synchronises it across every same-named style of the config, so
+		/// switching a property off in one skin switches it off in its siblings too. A removal is stored
+		/// per skin and costs one line.
+		/// </summary>
+		[SerializeField] private List<UiSuppressedStyle> m_suppressedStyles = new();
+
 
 		private Dictionary<int, UiAbstractStyleBase> m_styleByKey;
+		// Not initialised here, and not readonly, for the same reason m_styleByKey is not: Unity brings a
+		// [Serializable] class back without running a constructor, so a field initialiser would leave this
+		// null after every reload. It is built in BuildDictionary, which every reader goes through.
+		private HashSet<int> m_suppressedKeys;
 		// Shape of the style list the lookup was built from - see BuildDictionaryIfNecessary.
 		private int m_builtStyleCount = -1;
+		private int m_builtSuppressedCount = -1;
 		private UiAbstractStyleBase m_builtFirstStyle;
 		private UiAbstractStyleBase m_builtLastStyle;
 		private static readonly List<int> m_stylesToRemove = new();
@@ -66,6 +86,19 @@ namespace GuiToolkit.Style
 
 		public List<UiAbstractStyleBase> Styles => m_styles;
 		public UiStyleConfig StyleConfig => m_config;
+
+		/// <summary>
+		/// What this skin has removed from what it inherits. Read-only: the two operations below are the
+		/// way in, because both of them have cases they have to refuse.
+		/// </summary>
+		public IReadOnlyList<UiSuppressedStyle> SuppressedStyles
+			=> m_suppressedStyles ?? (IReadOnlyList<UiSuppressedStyle>) Array.Empty<UiSuppressedStyle>();
+
+		/// <summary>
+		/// How many removals this skin holds. Part of what the editor keys its row cache on: removing a
+		/// style changes which rows are shown without changing the style list at all.
+		/// </summary>
+		public int SuppressedCount => m_suppressedStyles != null ? m_suppressedStyles.Count : 0;
 
 		/// <summary>
 		/// Which skin of the parent this one inherits from. Empty (the default) means the same name.
@@ -181,6 +214,42 @@ namespace GuiToolkit.Style
 				style.Init();
 
 			BuildDictionary();
+			PruneStaleSuppressions();
+		}
+
+		/// <summary>
+		/// Drops removals of styles that are no longer offered from anywhere - the parent deleted the style,
+		/// or the skin now builds on something else. Such an entry hides nothing and only accumulates.
+		///
+		/// In memory only, deliberately: this runs from UiStyleConfig.OnEnable, and setting the asset dirty
+		/// from there is how a project-wide save avalanche starts (see the note on that OnEnable). The next
+		/// save the asset gets for any other reason writes the pruned list.
+		///
+		/// Guarded on there BEING a parent skin, and that guard is the whole safety of it: while assets are
+		/// still loading the parent may not be reachable yet, and "nothing is inherited" would then look
+		/// like every removal is stale.
+		/// </summary>
+		private void PruneStaleSuppressions()
+		{
+			if (m_suppressedStyles == null || m_suppressedStyles.Count == 0)
+				return;
+
+			var parentSkin = ParentSkin;
+			if (parentSkin == null)
+				return;
+
+			bool removedAny = false;
+			for (int i = m_suppressedStyles.Count - 1; i >= 0; i--)
+			{
+				if (parentSkin.StyleByKey(m_suppressedStyles[i].Key) != null)
+					continue;
+
+				m_suppressedStyles.RemoveAt(i);
+				removedAny = true;
+			}
+
+			if (removedAny)
+				InvalidateStyleLookup();
 		}
 
 		public UiAbstractStyleBase StyleByName<T>(string _name) where T:Component
@@ -212,6 +281,12 @@ namespace GuiToolkit.Style
 			if (own != null)
 				return own;
 
+			// A style removed here stops the walk - that is the entire point of removing it. Asked after
+			// the own lookup, so a skin that somehow holds both keeps resolving its own copy rather than
+			// nothing; SuppressStyle drops an own copy when it takes one on, so that cannot arise from here.
+			if (SuppressesStyle(_key))
+				return null;
+
 			if (_depth + 1 >= UiStyleConfig.MaxInheritanceDepth)
 			{
 				UiLog.LogErrorOnce($"Skin '{m_name}' inherits more than {UiStyleConfig.MaxInheritanceDepth} " +
@@ -227,6 +302,117 @@ namespace GuiToolkit.Style
 		/// question to ask before writing: an inherited style belongs to another asset.
 		/// </summary>
 		public bool OwnsStyle(int _key) => OwnStyleByKey(_key) != null;
+
+		/// <summary>
+		/// Whether this skin has removed the style behind this key from what it inherits. The editor still
+		/// draws such a row - a removal that cannot be seen cannot be taken back - so anything that draws
+		/// or resolves has to ask this rather than conclude from a row's presence that there is a style.
+		/// </summary>
+		public bool SuppressesStyle(int _key)
+		{
+			BuildDictionaryIfNecessary();
+			return m_suppressedKeys.Contains(_key);
+		}
+
+		/// <summary>
+		/// Removes an inherited style from THIS skin: it stops resolving here, while the config it comes
+		/// from keeps it untouched. <see cref="RestoreSuppressedStyle"/> takes it back.
+		///
+		/// Refuses what it cannot mean. Nothing inherited behind the key is either a style nobody has, or
+		/// the only copy of one - and dropping the only copy is a deletion, which is EvDeleteStyle's job
+		/// and says so. A config inside the package is refused for the usual reason: its saves are
+		/// discarded without a word, so the removal would be gone after the next reload.
+		///
+		/// An own copy is dropped along the way. A skin that both overrode a style and removed it would be
+		/// saying two opposite things, and the values in that copy are exactly what the caller just asked
+		/// to be rid of - the dialog in the editor says so before it gets here.
+		/// </summary>
+		public bool SuppressStyle(int _key)
+		{
+			if (SuppressesStyle(_key))
+				return true;
+
+			var inherited = InheritedStyleByKey(_key);
+			if (inherited == null)
+			{
+				var own = OwnStyleByKey(_key);
+				UiLog.LogError(own != null
+					? $"Style '{own.Name}' is not inherited from anywhere, so it cannot be removed in skin " +
+					  $"'{m_name}' - it only exists here. Delete it if that is what you mean."
+					: $"Skin '{m_name}' inherits no style behind key {_key}, so there is nothing to remove.");
+				return false;
+			}
+
+#if UNITY_EDITOR
+			if (m_config != null && m_config.IsPackageOwned)
+			{
+				UiLog.LogError($"Cannot remove '{inherited.Name}' in '{m_config.name}': that config ships " +
+				               "inside the package and is read-only, so the removal would be lost on save.");
+				return false;
+			}
+#endif
+
+			var ownCopy = OwnStyleByKey(_key);
+			if (ownCopy != null)
+				m_styles.Remove(ownCopy);
+
+			// A skin can arrive without the list: the config's JSON import builds its skins through
+			// JsonUtility, which leaves a list that was empty when it was written as null.
+			m_suppressedStyles ??= new List<UiSuppressedStyle>();
+			m_suppressedStyles.Add(new UiSuppressedStyle(ownCopy ?? inherited));
+			InvalidateStyleLookup();
+
+#if UNITY_EDITOR
+			if (m_config != null)
+				EditorGeneralUtility.SetDirty(m_config);
+#endif
+			return true;
+		}
+
+		/// <summary>
+		/// Takes a removal back, so the style is inherited again. The pendant to Revert on a prefab
+		/// instance's removed component, and the reason a removed row stays visible at all.
+		/// </summary>
+		public bool RestoreSuppressedStyle(int _key)
+		{
+			if (!SuppressesStyle(_key))
+				return false;
+
+#if UNITY_EDITOR
+			if (m_config != null && m_config.IsPackageOwned)
+			{
+				UiLog.LogError($"Cannot change '{m_config.name}': that config ships inside the package and " +
+				               "is read-only, so the change would be lost on save.");
+				return false;
+			}
+#endif
+
+			DropSuppression(_key);
+
+#if UNITY_EDITOR
+			if (m_config != null)
+				EditorGeneralUtility.SetDirty(m_config);
+#endif
+			return true;
+		}
+
+		private bool DropSuppression(int _key)
+		{
+			if (m_suppressedStyles == null)
+				return false;
+
+			for (int i = 0; i < m_suppressedStyles.Count; i++)
+			{
+				if (m_suppressedStyles[i].Key != _key)
+					continue;
+
+				m_suppressedStyles.RemoveAt(i);
+				InvalidateStyleLookup();
+				return true;
+			}
+
+			return false;
+		}
 
 		/// <summary>
 		/// Copy-on-write: makes an inherited style this skin's own, so it can be written to.
@@ -267,6 +453,11 @@ namespace GuiToolkit.Style
 			var clone = UiStyleUtility.CloneStyle(inherited, m_config);
 			if (clone == null)
 				return inherited;
+
+			// Wanting an own value here supersedes having removed the style: the two cannot both hold, and
+			// this is the more recent of the two statements. Matters for the callers that materialise
+			// without having drawn a row first - the AI style writer does exactly that.
+			DropSuppression(_key);
 
 			m_styles.Add(clone);
 			InvalidateStyleLookup();
@@ -405,8 +596,17 @@ namespace GuiToolkit.Style
 					seen.Add(style.Key);
 
 				var chain = SelfAndInheritedSkins();
-				for (int i = 1; i < chain.Count; i++)
+				for (int i = 0; i < chain.Count; i++)
 				{
+					// A skin's removals hide the key from everything ABOVE it in the chain, this level
+					// included - counted as seen rather than filtered at the end, because a removal halfway
+					// up has to stop the walk there and not merely drop the nearest hit.
+					foreach (var suppressed in chain[i].SuppressedStyles)
+						seen.Add(suppressed.Key);
+
+					if (i == 0)
+						continue;
+
 					foreach (var style in chain[i].Styles)
 					{
 						if (seen.Add(style.Key))
@@ -472,6 +672,12 @@ namespace GuiToolkit.Style
 
 		private bool StyleListChangedShape()
 		{
+			// The removals ride along in this lookup, so a change to them counts as a change of shape.
+			// Their count is enough: nothing swaps one removal for another, they are only ever added or
+			// dropped, and both move the count.
+			if (SuppressedCount != m_builtSuppressedCount)
+				return true;
+
 			int count = m_styles.Count;
 			if (count != m_builtStyleCount)
 				return true;
@@ -501,6 +707,17 @@ namespace GuiToolkit.Style
 				m_styleByKey.Add(style.Key, style);
 			}
 
+			if (m_suppressedKeys == null)
+				m_suppressedKeys = new HashSet<int>();
+
+			m_suppressedKeys.Clear();
+			if (m_suppressedStyles != null)
+			{
+				foreach (var suppressed in m_suppressedStyles)
+					m_suppressedKeys.Add(suppressed.Key);
+			}
+
+			m_builtSuppressedCount = SuppressedCount;
 			m_builtStyleCount = m_styles.Count;
 			m_builtFirstStyle = m_builtStyleCount > 0 ? m_styles[0] : null;
 			m_builtLastStyle = m_builtStyleCount > 0 ? m_styles[m_builtStyleCount - 1] : null;

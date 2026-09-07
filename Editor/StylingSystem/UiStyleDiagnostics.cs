@@ -1,3 +1,5 @@
+using System;
+
 namespace GuiToolkit.Style.Editor
 {
 	/// <summary>
@@ -20,9 +22,13 @@ namespace GuiToolkit.Style.Editor
 		/// <param name="_skin">The skin it went through, null if that skin could not be found either.</param>
 		/// <param name="_requestedSkinName">The skin that was asked for. Only used when _skin is null.</param>
 		/// <param name="_styleName">The style name stored on the applier.</param>
-		/// <param name="_componentTypeName">
+		/// <param name="_componentType">
 		/// The component the applier styles, if known. Worth naming: a style is identified by name AND type,
 		/// so the same name can exist for a different component and the bare name would then read as a lie.
+		///
+		/// The type itself rather than its name, because name and type together are the style's key - and
+		/// without the key the one case that is a decision rather than a gap, a style REMOVED in this skin,
+		/// cannot be told from a style nobody ever had.
 		/// </param>
 		public static string ExplainMissingStyle
 		(
@@ -30,15 +36,15 @@ namespace GuiToolkit.Style.Editor
 			UiSkin _skin,
 			string _requestedSkinName,
 			string _styleName,
-			string _componentTypeName = null
+			Type _componentType = null
 		)
 		{
 			if (string.IsNullOrEmpty(_styleName))
 				return null;
 
-			string style = string.IsNullOrEmpty(_componentTypeName)
+			string style = _componentType == null
 				? $"'{_styleName}'"
-				: $"'{_styleName}' ({_componentTypeName})";
+				: $"'{_styleName}' ({_componentType.Name})";
 
 			if (_config == null)
 				return $"No style config, so style {style} cannot be resolved.";
@@ -49,6 +55,16 @@ namespace GuiToolkit.Style.Editor
 					? $"'{_config.name}' has no skin selected, so style {style} cannot be resolved."
 					: $"'{_config.name}' has no skin '{_requestedSkinName}', so style {style} cannot be "
 						+ "resolved. Add that skin to the config.";
+			}
+
+			// Removed on purpose, which is not the same as never having been there - and the only one of
+			// these cases where nothing is wrong with the config at all. Named before the rest, because
+			// every message below it would be true and misleading.
+			if (_componentType != null && _skin.SuppressesStyle(UiStyleUtility.GetKey(_componentType, _styleName)))
+			{
+				return $"Style {style} is removed in skin '{_skin.Name}' of '{_config.name}': the skin "
+					+ "inherits it but deliberately does not have it. Pick another style, or restore the "
+					+ "row marked '(Removed)' in that config.";
 			}
 
 			string head = $"Style {style} does not exist in skin '{_skin.Name}' of '{_config.name}'";

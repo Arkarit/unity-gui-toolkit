@@ -150,6 +150,24 @@ All notable changes to this project will be documented in this file.
   again when a node is off - a value the writer can set but the reader cannot see is a value that a
   read-and-re-bake silently throws away.
 
+- **A skin can remove an inherited style** — the pendant to a prefab instance's removed component, and the
+  one thing a child config could not say: the config we build on has this, we do not. **Remove Here** on an
+  inherited or overridden row, the row then stays as a single greyed line marked **(Removed)**, and
+  **Restore** takes it back. Removals are per skin and cost one line in the asset; the config the style
+  comes from is untouched, and **Delete in '...' (all skins)** on such a row pushes the removal up instead,
+  the way *Apply to Prefab* does.
+
+  Not the same as an override with every property switched off, which is what one reaches for otherwise. A
+  style resolves as a *whole* from the nearest skin that owns it, so such an override keeps the inherited
+  values from ever being asked for while still filling every style popup - and `IsApplicable` describes the
+  style *definition* rather than one skin: it is synchronised across the skins of a config, so switching a
+  property off in one skin switches it off in its siblings too. That last part makes the workaround
+  actively wrong for a skin that builds on a sibling, which is the normal case for a project's own skin.
+
+  A removal halfway up a chain hides the style from everything below it. A removal of something nothing
+  offers any more is dropped on the next load - but only ever while the parent skin is reachable, so a
+  parent that has not finished loading is never read as "nothing is inherited any more". An applier
+  pointing at a removed style is told it was removed, and where, instead of that it does not exist.
 
 ### Fixed
 - **The package did not compile at all on Unity 2022.3 — the version its own `package.json` names.** Two
@@ -166,6 +184,16 @@ All notable changes to this project will be documented in this file.
   `UITK_USE_ROSLYN` define also switches `LocaExcelBridge` — a RUNTIME file — onto `ExcelDataReader`,
   and a runtime assembly cannot reference the editor-only asmdef the hack creates. Below Unity 6 that
   file has to keep taking its `#else` branch
+
+- **A style row's actions were not undoable.** Delete said so in its dialog; Override and Revert said
+  nothing and were not either. All of them - and the two new ones - now take one complete snapshot of the
+  config before they change it, the same way the inheritance conversion always has, so each is a single
+  step in the undo history. Nothing short of the complete object survives: a style is a `[SerializeReference]`
+  object inside a list inside a plain class inside the config.
+
+  Delete's dialog also promised more than it did. It claimed to clean up "all UI Apply Style instances which
+  use it", which it never touched; it now says what actually happens to them, which is that they find no
+  style from then on.
 
 - **The bake-time check for `@loca:` keys trusted the POT alone, and a POT is a harvest.** It is only as
   current as the last loca processing pass, while the PO files are what translators and the runtime work

@@ -43,6 +43,16 @@ namespace GuiToolkit.Style.Editor
 			// one that carries a decision, and the only one that can drift from what it came from.
 			bool isOverride = UiStyleRowContext.IsOverride(thisStyle);
 
+			// Removed here: one line, no tint, no values. Deliberately NOT a colour of its own - a red row
+			// would read as something being broken, and nothing is: the removal is a decision, and the row
+			// exists so it can be seen and taken back. Nothing is drawn below the header either, because
+			// there is nothing of this style in this skin to draw.
+			if (UiStyleRowContext.IsSuppressed(thisStyle))
+			{
+				DrawRemovedRow(thisStyle, owningConfig, inheritedFrom);
+				return;
+			}
+
 			if (isInherited)
 				Background(InheritedTint, InheritedTint, -3, 0, 0, -10);
 			else if (isOverride)
@@ -148,6 +158,74 @@ namespace GuiToolkit.Style.Editor
 			Space(EndGap);
 		}
 
+		/// <summary>
+		/// The row of a style this skin has removed from what it inherits.
+		///
+		/// The plain background every ordinary row gets, a dimmed header, and the word Unity uses for the
+		/// same thing on a prefab instance. The menu button stays live - it is the only way back.
+		/// </summary>
+		private void DrawRemovedRow
+		(
+			UiAbstractStyleBase _style,
+			UiStyleConfig _owningConfig,
+			string _inheritedFrom
+		)
+		{
+			Background(-3, 0, 0, -10);
+			Space(3);
+			Horizontal(SingleLineHeight, () =>
+			{
+				LabelField("   " + _style.Alias + "   (Removed)", 0, RemovedLabelStyle);
+				IncreaseX(EditorGUIUtility.labelWidth + 18);
+				LabelField
+				(
+					UiStyleRowContext.OriginShownAbove
+						? $"T: {_style.SupportedComponentType.Name}"
+						: $"T: {_style.SupportedComponentType.Name}  was inh. from {_inheritedFrom}",
+					0,
+					RemovedLabelStyle
+				);
+				IncreaseX(-40);
+
+				// Same rule as for the full row: only values cross into the callbacks. One drawer instance
+				// serves the whole array, and a menu entry runs a tick after the pass that built it.
+				if (IconButton(EditorUiUtility.MenuIcon("What can be done with this style"), 20))
+				{
+					BuildRemovedRowMenu
+					(
+						_style,
+						_owningConfig,
+						UiStyleRowContext.Skin,
+						UiStyleRowContext.SkinOwnerOf(_style)
+					).ShowAsContext();
+				}
+			});
+
+			Space(10);
+		}
+
+		/// <summary>
+		/// Greyed-out version of the row header style. Built lazily, because EditorStyles is only there
+		/// once there is a GUI, and thrown away with every domain reload like any other static.
+		/// </summary>
+		private static GUIStyle RemovedLabelStyle
+		{
+			get
+			{
+				if (s_removedLabelStyle == null)
+				{
+					s_removedLabelStyle = new GUIStyle(EditorStyles.boldLabel);
+					var color = s_removedLabelStyle.normal.textColor;
+					color.a *= 0.5f;
+					s_removedLabelStyle.normal.textColor = color;
+				}
+
+				return s_removedLabelStyle;
+			}
+		}
+
+		private static GUIStyle s_removedLabelStyle;
+
 		/// <summary>Subtle tint that sets an inherited entry apart without shouting.</summary>
 		private static readonly Color InheritedTint = new Color(0.35f, 0.55f, 0.75f, 0.10f);
 
@@ -211,6 +289,8 @@ namespace GuiToolkit.Style.Editor
 					() => RevealInParent(_style, sourceSkin));
 				menu.AddItem(new GUIContent("Override Here"), false,
 					() => OverrideInherited(_style, editedSkin));
+				menu.AddItem(new GUIContent("Remove Here"), false,
+					() => RemoveHere(_style, editedSkin));
 
 				return menu;
 			}
@@ -219,12 +299,60 @@ namespace GuiToolkit.Style.Editor
 			{
 				menu.AddItem(new GUIContent("Revert to Inherited"), false,
 					() => RevertToInherited(_style, editedSkin));
+
+				// Offered on an override too, rather than making it a revert followed by a removal: it is
+				// one decision ("we do not have this"), so it should cost one step and one undo entry. The
+				// dialog says that the values here go with it.
+				menu.AddItem(new GUIContent("Remove Here"), false,
+					() => RemoveHere(_style, editedSkin));
 			}
 
 			menu.AddItem(new GUIContent("Find Appliers"), false, () => FindAppliers(_style));
 			menu.AddItem(new GUIContent("Rename..."), false, () => Rename(_style, _owningConfig));
 			menu.AddSeparator(string.Empty);
 			menu.AddItem(new GUIContent("Delete"), false, () => Delete(_style, _owningConfig));
+
+			return menu;
+		}
+
+		/// <summary>
+		/// Everything a REMOVED row can do, which is deliberately little: take the removal back, go and
+		/// look at where the style still lives, or push the removal up and delete it there for everybody -
+		/// the pendant to "Apply to Prefab" on a removed component.
+		///
+		/// No Copy/Paste here. There is nothing of this style in this skin to copy, and pasting values into
+		/// something that has been removed would have to un-remove it behind the reader's back.
+		/// </summary>
+		private static GenericMenu BuildRemovedRowMenu
+		(
+			UiAbstractStyleBase _style,
+			UiStyleConfig _owningConfig,
+			UiSkin _editedSkin,
+			UiSkin _sourceSkin
+		)
+		{
+			var menu = new GenericMenu();
+
+			menu.AddItem(new GUIContent("Restore"), false,
+				() => RestoreRemoved(_style, _editedSkin));
+			menu.AddItem(new GUIContent("Open Source Config"), false,
+				() => RevealInParent(_style, _sourceSkin));
+			menu.AddSeparator(string.Empty);
+
+			// Named by the CONFIG and said in full, not by the skin the row says it comes from: a deletion
+			// takes the style out of every skin of that config, so "Delete in skin 'Default'" would promise
+			// something narrower than what happens - and for a skin building on a sibling, the config it
+			// would delete from is this very one.
+			string where = MenuText($"'{_owningConfig?.name}' (all skins)");
+			if (UiStyleEditorUtility.IsWritable(_owningConfig, out string reason))
+			{
+				menu.AddItem(new GUIContent($"Delete in {where}"), false,
+					() => Delete(_style, _owningConfig));
+			}
+			else
+			{
+				menu.AddDisabledItem(new GUIContent(MenuText($"Delete in {where}  -  " + reason)));
+			}
 
 			return menu;
 		}
@@ -368,8 +496,8 @@ namespace GuiToolkit.Style.Editor
 			if (!EditorUtility.DisplayDialog
 			(
 				"Are you sure?",
-				$"The style '{_style.Alias}' will be removed from UiStyleConfig and all skins and UI Apply "
-				+ "Style instances which use it. This can not be undone.",
+				$"The style '{_style.Alias}' will be removed from '{_owningConfig?.name}' and all of its "
+				+ "skins. Appliers using it will then find no style.",
 				"OK",
 				"Cancel"
 			))
@@ -377,7 +505,24 @@ namespace GuiToolkit.Style.Editor
 				return;
 			}
 
+			RegisterUndo(_owningConfig, "Delete style");
 			UiEventDefinitions.EvDeleteStyle.InvokeAlways(_owningConfig, _style);
+		}
+
+		/// <summary>
+		/// One snapshot of the whole config, so a row action is a single step in the undo history.
+		///
+		/// A style is a [SerializeReference] object inside a list inside a plain class inside the config, and
+		/// nothing short of the complete object survives that: this is the same call the inheritance
+		/// conversion makes for the same reason. Undo also has to be registered BEFORE the change, which is
+		/// why every caller does it inside its deferred closure rather than next to its dialog.
+		/// </summary>
+		private static void RegisterUndo( UiStyleConfig _config, string _what )
+		{
+			if (_config == null)
+				return;
+
+			Undo.RegisterCompleteObjectUndo(_config, _what);
 		}
 
 		#endregion
@@ -420,6 +565,7 @@ namespace GuiToolkit.Style.Editor
 
 			EditorApplication.delayCall += () =>
 			{
+				RegisterUndo(_editedSkin.StyleConfig, "Override style");
 				_editedSkin.MaterializeStyle(key);
 				PropertyDrawerView.ClearHeightCache();
 				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
@@ -450,7 +596,72 @@ namespace GuiToolkit.Style.Editor
 
 			EditorApplication.delayCall += () =>
 			{
+				RegisterUndo(_editedSkin.StyleConfig, "Revert style to inherited");
 				_editedSkin.RevertStyleToInherited(key);
+				PropertyDrawerView.ClearHeightCache();
+				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+			};
+		}
+
+		/// <summary>
+		/// Removes an inherited style from the edited skin: it stops resolving there, the config it comes
+		/// from keeps it. Deferred like the two above, because it changes the very list being drawn.
+		///
+		/// The dialog names the one consequence that is not obvious - appliers pointing at the style find
+		/// nothing from now on - and, for an override, that the values set here go with it.
+		/// </summary>
+		private static void RemoveHere( UiAbstractStyleBase _style, UiSkin _editedSkin )
+		{
+			if (_editedSkin == null)
+			{
+				UiLog.LogError($"Cannot remove '{_style.Name}': the edited config does not declare the skin " +
+				               "this style is shown under. Add that skin to it first.");
+				return;
+			}
+
+			int key = _style.Key;
+			string alias = _style.Alias;
+			string valuesGo = _editedSkin.OwnsStyle(key)
+				? "The values overridden here are dropped, and "
+				: string.Empty;
+
+			if (!EditorUtility.DisplayDialog
+			(
+				"Remove here?",
+				$"{valuesGo}'{alias}' stops resolving in skin '{_editedSkin.Name}': appliers using it will "
+				+ "find no style. It stays untouched where it is inherited from, and 'Restore' on the row "
+				+ "brings it back.",
+				"Remove",
+				"Cancel"
+			))
+			{
+				return;
+			}
+
+			EditorApplication.delayCall += () =>
+			{
+				RegisterUndo(_editedSkin.StyleConfig, "Remove style in skin");
+				_editedSkin.SuppressStyle(key);
+				PropertyDrawerView.ClearHeightCache();
+				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
+			};
+		}
+
+		/// <summary>
+		/// Takes a removal back. No dialog: nothing is lost by it, and it is the way out of a removal one
+		/// did not mean.
+		/// </summary>
+		private static void RestoreRemoved( UiAbstractStyleBase _style, UiSkin _editedSkin )
+		{
+			if (_editedSkin == null)
+				return;
+
+			int key = _style.Key;
+
+			EditorApplication.delayCall += () =>
+			{
+				RegisterUndo(_editedSkin.StyleConfig, "Restore removed style");
+				_editedSkin.RestoreSuppressedStyle(key);
 				PropertyDrawerView.ClearHeightCache();
 				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 			};

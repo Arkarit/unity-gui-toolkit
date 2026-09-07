@@ -168,7 +168,8 @@ namespace GuiToolkit.Style.Editor
 			(
 				headline + "\n"
 				+ "Inherited styles are listed read-only below and can be overridden per skin. "
-				+ "Grey: this config's own. Blue: inherited. Yellow: inherited and overridden here.",
+				+ "Grey: this config's own. Blue: inherited. Yellow: inherited and overridden here. "
+				+ "Greyed out and marked '(Removed)': inherited, but removed in this skin.",
 				source != null ? MessageType.Info : MessageType.Warning
 			);
 		}

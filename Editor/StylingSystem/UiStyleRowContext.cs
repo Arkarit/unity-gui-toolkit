@@ -79,6 +79,22 @@ namespace GuiToolkit.Style.Editor
 		}
 
 		/// <summary>
+		/// Whether the edited skin has REMOVED this style from what it inherits - the pendant to a prefab
+		/// instance's removed component.
+		///
+		/// Such a row is still listed, because a removal that cannot be seen cannot be taken back; it is
+		/// the row that has nothing left to show, not the list. Note that a removed row is inherited as
+		/// well by every other question here: it still comes from somewhere, which is what the row says.
+		/// </summary>
+		public static bool IsSuppressed( UiAbstractStyleBase _style )
+		{
+			if (_style == null || Skin == null)
+				return false;
+
+			return Skin.SuppressesStyle(_style.Key);
+		}
+
+		/// <summary>
 		/// How to refer to the skin a style comes from. A different config is named by the asset, because
 		/// that is what has to be opened to change it; a sibling skin of the same config by its own name,
 		/// because naming the config would say nothing there.

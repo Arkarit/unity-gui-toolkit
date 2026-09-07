@@ -136,7 +136,7 @@ namespace GuiToolkit.Style.Editor
 						resolvingSkin,
 						requestedSkinName,
 						_applier.Name,
-						_applier.SupportedComponentType?.Name
+						_applier.SupportedComponentType
 					);
 
 					if (string.IsNullOrEmpty(explanation))
@@ -231,6 +231,13 @@ namespace GuiToolkit.Style.Editor
 			{
 				var inheritedSkin = chain[i];
 				var map = StylePropertiesByKey(inheritedSkin.StyleConfig, inheritedSkin.Name);
+
+				// A removal made further UP the chain hides the style from here as well, and its row belongs
+				// in the skin that removed it, not in this one. This skin's OWN removals are not counted
+				// here on purpose: those rows have to stay listed, because a removal that cannot be seen
+				// cannot be taken back.
+				foreach (var suppressed in inheritedSkin.SuppressedStyles)
+					seen.Add(suppressed.Key);
 
 				foreach (var style in inheritedSkin.Styles)
 				{

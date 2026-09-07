@@ -650,8 +650,12 @@ namespace GuiToolkit.Style.Editor
 				? m_thisUiSkin.StyleConfig.Parent.GetInstanceID()
 				: 0;
 			var effectiveCount = m_thisUiSkin?.EffectiveStyles.Count ?? 0;
+			// Removals are their own number: removing a style takes one out of the effective count and
+			// leaves the style list untouched, so on its own each of those two could stay put while the
+			// other moves - and a removed row looks nothing like the row it replaces.
+			var suppressedCount = m_thisUiSkin?.SuppressedCount ?? 0;
 			var key = $"{skinName}|{UiStyleConfigEditor.SortType}|{UiStyleConfigEditor.DisplayFilter}"
-			        + $"|{m_stylesProp.arraySize}|{effectiveCount}|{parentId}";
+			        + $"|{m_stylesProp.arraySize}|{effectiveCount}|{suppressedCount}|{parentId}";
 
 			if (s_sortedStylesByPath.TryGetValue(path, out var cached)
 			    && cached.Key == key

@@ -56,10 +56,27 @@ namespace GuiToolkit.Test
 			}
 		}
 
+		private static TestRunnerApi s_api;
+
 		static TestRunReporter()
 		{
-			var api = ScriptableObject.CreateInstance<TestRunnerApi>();
-			api.RegisterCallbacks(new Sink());
+			s_api = ScriptableObject.CreateInstance<TestRunnerApi>();
+			s_api.RegisterCallbacks(new Sink());
+		}
+
+		/// <summary>
+		/// Starts an edit mode run without the Test Runner window, so a run can be triggered from outside
+		/// the editor - the result lands in the same file as always.
+		///
+		/// The window is not needed to run tests, only to watch them, and clicking it is the one step in
+		/// "change code, compile, test" that could not be automated. Menu items can be executed from
+		/// outside; the API instance behind this cannot be built there, which is why the trigger lives
+		/// next to the listener that already owns one.
+		/// </summary>
+		[MenuItem("Gui Toolkit/Tests/Run Edit Mode Tests")]
+		public static void RunEditModeTests()
+		{
+			s_api.Execute(new ExecutionSettings(new Filter { testMode = TestMode.EditMode }));
 		}
 	}
 }

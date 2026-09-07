@@ -3,6 +3,7 @@ using GuiToolkit.Style;
 using GuiToolkit.Style.Editor;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GuiToolkit.Test
 {
@@ -70,7 +71,7 @@ namespace GuiToolkit.Test
 			var config = CreateConfig("Child", SkinDefault);
 
 			var message = UiStyleDiagnostics.ExplainMissingStyle
-				(config, Skin(config, SkinDefault), SkinDefault, StyleName, "Image");
+				(config, Skin(config, SkinDefault), SkinDefault, StyleName, typeof(Image));
 
 			StringAssert.Contains("Image", message);
 			StringAssert.Contains(StyleName, message);
