@@ -14,10 +14,11 @@ namespace GuiToolkit.Test
 	/// alternative (the union across all skins) answers a question nobody asks. A style that exists only
 	/// in a later skin is therefore invisible to it, and that is a documented limitation rather than a bug.
 	///
-	/// And every skin of every config in this project still carries the same set of styles. That is no
-	/// longer a law - an inheriting child stores only its overrides, so its skins may hold different
-	/// subsets - which is why the skin tween pairs styles by key instead of by position. The check stays
-	/// because no config here has a parent yet: the day one does, this test is the one that says so.
+	/// And every skin of every STAND-ALONE config in this project carries the same set of styles. It used to
+	/// say "every config", with the note that the day one of them inherited, this test would be the one to
+	/// say so. That day came, so the check now skips a config with a parent: such a child stores only its
+	/// overrides, and an override is per skin, so differing subsets are the feature there. The skin tween
+	/// pairs styles by key rather than by position, which is what makes that safe.
 	/// </summary>
 	[EditorAware]
 	public class TestUiStyleSkinInvariants
@@ -104,6 +105,14 @@ namespace GuiToolkit.Test
 				var path = AssetDatabase.GUIDToAssetPath(guid);
 				var config = AssetDatabase.LoadAssetAtPath<UiStyleConfig>(path);
 				if (config == null || config.NumSkins < 2)
+					continue;
+
+				// The day this test was written to announce has come: a config that INHERITS stores only
+				// what it overrides, and an override is per skin - so its skins holding different subsets
+				// is the feature rather than a violation. It is safe as well, since the skin tween pairs
+				// styles by key and skips a pair it cannot match. The invariant still holds where it still
+				// matters: a config that stands alone is the whole vocabulary for every skin in it.
+				if (config.Parent != null)
 					continue;
 
 				checkedConfigs++;

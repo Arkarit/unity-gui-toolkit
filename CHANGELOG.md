@@ -169,6 +169,21 @@ All notable changes to this project will be documented in this file.
   parent that has not finished loading is never read as "nothing is inherited any more". An applier
   pointing at a removed style is told it was removed, and where, instead of that it does not exist.
 
+- **The skin list follows the parent field.** A config created by hand and then given a parent in
+  `Inherits from` had no skins, and that is not the harmless empty state it looks like: styles are matched
+  skin by skin, so a child that declares no skin has nothing to override into and resolves *whole* skins
+  from the parent instead - read-only, with no way in. It now gets one empty skin per skin of its new
+  parent, and loses again the skins nothing was ever put into when the parent is taken away. The **Inherit**
+  button in the configuration window never had the problem, because it clones the parent and empties the
+  styles, so the skins come along.
+
+  Only for a config with **no** skins at all, and that limit is the point rather than caution: a project's
+  own skin is routinely the only one it has, mapped to a differently named skin of the parent, and topping
+  that up to the parent's set would add skins nobody asked for - two of them, measured on the client. A
+  skin survives the way back out if anybody decided anything in it: a style of its own, a style removed
+  from what it inherits, a display name, or a skin it was told to build on. The aspect ratio threshold does
+  not count, because that is how such a skin is *selected* rather than something put into it.
+
 ### Fixed
 - **The package did not compile at all on Unity 2022.3 — the version its own `package.json` names.** Two
   places reach for Roslyn, and both are only compiled BELOW Unity 6, which is why nothing in the
@@ -184,6 +199,12 @@ All notable changes to this project will be documented in this file.
   `UITK_USE_ROSLYN` define also switches `LocaExcelBridge` — a RUNTIME file — onto `ExcelDataReader`,
   and a runtime assembly cannot reference the editor-only asmdef the hack creates. Below Unity 6 that
   file has to keep taking its `#else` branch
+
+- **A new `UiAspectRatioDependentStyleConfig` threw instead of giving itself its two skins.** The branch
+  meant to add Landscape and Portrait went through a static field that is declared and never assigned, so
+  it raised a `NullReferenceException` - out of `OnEnable`, where Unity logs it and carries on, which is
+  how it stayed unnoticed. The config was then left empty, and an empty aspect-ratio config resolves
+  nothing at all. It uses the config it is running on now.
 
 - **A style row's actions were not undoable.** Delete said so in its dialog; Override and Revert said
   nothing and were not either. All of them - and the two new ones - now take one complete snapshot of the

@@ -101,6 +101,25 @@ namespace GuiToolkit.Style
 		public int SuppressedCount => m_suppressedStyles != null ? m_suppressedStyles.Count : 0;
 
 		/// <summary>
+		/// Whether anything was ever decided in this skin: a style of its own, a style removed from what it
+		/// inherits, a display name, or a skin it was told to build on.
+		///
+		/// Asked before throwing a skin away - a child config's skins may exist for no other reason than to
+		/// have something to override into, and those are worth exactly nothing once there is nothing to
+		/// override. Everything above is a decision somebody made and would not expect to lose.
+		///
+		/// The aspect ratio threshold is deliberately not in here: in an aspect-ratio-dependent config every
+		/// skin carries one, it is how the skin is SELECTED rather than something put into it, and counting
+		/// it would make such a skin impossible to clean up again.
+		/// </summary>
+		public bool HasOwnContent =>
+			   m_styles.Count > 0
+			|| SuppressedCount > 0
+			|| !string.IsNullOrEmpty(m_alias)
+			|| !string.IsNullOrEmpty(m_inheritFromSkinName)
+			|| m_inheritFromSameConfig;
+
+		/// <summary>
 		/// Which skin of the parent this one inherits from. Empty (the default) means the same name.
 		/// </summary>
 		public string InheritFromSkinName

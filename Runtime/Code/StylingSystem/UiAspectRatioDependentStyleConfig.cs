@@ -16,12 +16,16 @@ namespace GuiToolkit.Style
 		{
 			AssetReadyGate.WhenReady(() =>
 			{
+				// THIS config, not s_instance: that field is declared and never assigned, so the branch
+				// meant to give a new config its two skins threw a NullReferenceException instead - out of
+				// OnEnable, where Unity logs it and carries on, which is why it went unnoticed. The config
+				// then stayed empty, and an empty aspect-ratio config resolves nothing at all.
 				if (NumSkins == 0)
 				{
-					var skins = s_instance.Skins;
-					skins.Add(new UiSkin(s_instance, Landscape, 1));
-					skins.Add(new UiSkin(s_instance, Portrait, 0));
-					s_instance.Skins = skins;
+					var skins = Skins;
+					skins.Add(new UiSkin(this, Landscape, 1));
+					skins.Add(new UiSkin(this, Portrait, 0));
+					Skins = skins;
 				}
 
 				Skins.Sort((a, b) =>

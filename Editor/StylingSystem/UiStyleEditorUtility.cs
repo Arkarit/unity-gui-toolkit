@@ -346,6 +346,90 @@ namespace GuiToolkit.Style.Editor
 		/// toolkit's own dev app has the package symlinked into Assets/, and there it IS the thing being
 		/// edited - a check that went by the toolkit root would lock the library out of its own config.
 		/// </summary>
+		/// <summary>
+		/// Gives a config that has no skins of its own one empty skin per skin of its new parent, and says
+		/// which ones it added.
+		///
+		/// Without them the config is a dead end that looks like it works: styles resolve, because a skin
+		/// nobody declares is looked up in the parent and the WHOLE skin comes from there - read-only, with
+		/// nothing to override into (that is the case ExplainForeignSkin exists to explain). The Inherit
+		/// button in the configuration window never had the problem, because it clones and then empties the
+		/// styles, so the skins come along; a config created by hand and given a parent in the inspector
+		/// starts with none.
+		///
+		/// Only for a config with NO skins at all, and that limit is the point rather than caution: a
+		/// project's own skin is routinely the only one it has, mapped to a differently named skin of the
+		/// parent, and topping that up to the parent's set would add skins nobody asked for. Measured on the
+		/// client, that would be two.
+		/// </summary>
+		public static List<string> MirrorParentSkins( UiStyleConfig _config )
+		{
+			var added = new List<string>();
+			if (_config == null || _config.NumSkins > 0)
+				return added;
+
+			var parent = _config.Parent;
+			if (parent == null)
+				return added;
+
+			var skins = new List<UiSkin>();
+			foreach (var parentSkin in parent.Skins)
+			{
+				// A plain config's skin must be built with -1, an aspect-ratio-dependent one with the
+				// threshold it is selected by - the constructor refuses the other combination outright.
+				float aspectRatio = _config is UiAspectRatioDependentStyleConfig
+					? parentSkin.AspectRatioGreaterEqual
+					: -1;
+
+				skins.Add(new UiSkin(_config, parentSkin.Name, aspectRatio));
+				added.Add(parentSkin.Name);
+			}
+
+			if (added.Count == 0)
+				return added;
+
+			// Registered here rather than by the caller, so a call that turns out to have nothing to do
+			// leaves no undo entry that undoes nothing. Nothing short of the complete object survives:
+			// skins are plain classes in a list, holding [SerializeReference] styles.
+			Undo.RegisterCompleteObjectUndo(_config, "Mirror parent skins");
+
+			// Through the property, so the default skin is selected and the asset is marked dirty.
+			_config.Skins = skins;
+			return added;
+		}
+
+		/// <summary>
+		/// Throws away the skins of a config that nothing was ever put into, and says which ones it dropped.
+		///
+		/// The counterpart to the above, for a config whose parent is taken away again: skins that only ever
+		/// existed to mirror the parent's are then empty shells around nothing, and a config full of empty
+		/// skins resolves nothing at all - which reads as broken rather than as empty. A skin that anybody
+		/// decided anything in survives; see UiSkin.HasOwnContent for what counts as that.
+		/// </summary>
+		public static List<string> DropSkinsWithoutOwnContent( UiStyleConfig _config )
+		{
+			var dropped = new List<string>();
+			if (_config == null || _config.NumSkins == 0)
+				return dropped;
+
+			var kept = new List<UiSkin>();
+			foreach (var skin in _config.Skins)
+			{
+				if (skin.HasOwnContent)
+					kept.Add(skin);
+				else
+					dropped.Add(skin.Name);
+			}
+
+			if (dropped.Count == 0)
+				return dropped;
+
+			Undo.RegisterCompleteObjectUndo(_config, "Drop empty skins");
+
+			_config.Skins = kept;
+			return dropped;
+		}
+
 		public static bool IsWritable( UiStyleConfig _config, out string _reason )
 		{
 			if (_config == null)

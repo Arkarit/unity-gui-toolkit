@@ -141,6 +141,7 @@ namespace GuiToolkit.Style.Editor
 				}
 
 				serializedObject.ApplyModifiedProperties();
+				FollowParentWithSkins();
 				PropertyDrawerView.ClearHeightCache();
 				UiEventDefinitions.EvSkinChanged.InvokeAlways(0);
 			}
@@ -172,6 +173,46 @@ namespace GuiToolkit.Style.Editor
 				+ "Greyed out and marked '(Removed)': inherited, but removed in this skin.",
 				source != null ? MessageType.Info : MessageType.Warning
 			);
+		}
+
+		/// <summary>
+		/// Makes the skin list follow the parent field that was just changed: a config with no skins gets
+		/// one per skin of its new parent, and a config that loses its parent loses the skins nothing was
+		/// ever put into.
+		///
+		/// Both exist because the skin list is what makes a parent usable at all. Styles are matched skin by
+		/// skin, so a child with no skins declares nothing to override into and resolves whole skins from
+		/// the parent instead - read-only, with no way in. That was the state of every config created by
+		/// hand and given a parent here; the Inherit button in the configuration window avoided it by
+		/// cloning the parent and emptying the styles.
+		///
+		/// Written straight to the object rather than through the serialized view, because whole skins are
+		/// added and removed - so the view has to be re-read afterwards, or the rest of this pass draws the
+		/// list that was there before and writes it back over the change. Both operations record their own
+		/// complete-object undo, which lands in the same undo group as the parent field's own record, so one
+		/// Ctrl+Z takes back both halves.
+		/// </summary>
+		private void FollowParentWithSkins()
+		{
+			var parent = m_parentProp.objectReferenceValue as UiStyleConfig;
+
+			var changed = parent != null
+				? UiStyleEditorUtility.MirrorParentSkins(m_thisUiStyleConfig)
+				: UiStyleEditorUtility.DropSkinsWithoutOwnContent(m_thisUiStyleConfig);
+
+			if (changed.Count == 0)
+				return;
+
+			// Skins appearing or disappearing on their own needs saying, or the next question is whether
+			// something was lost.
+			UiLog.Log(parent != null
+				? $"'{m_thisUiStyleConfig.name}' had no skins of its own and now has one per skin of "
+					+ $"'{parent.name}': {string.Join(", ", changed)}. They are empty - everything still "
+					+ "resolves through the parent until something is overridden here."
+				: $"'{m_thisUiStyleConfig.name}' no longer inherits, so the skins nothing was put into "
+					+ $"were dropped: {string.Join(", ", changed)}.");
+
+			serializedObject.Update();
 		}
 
 		public override void OnInspectorGUI()
