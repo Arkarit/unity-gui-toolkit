@@ -289,7 +289,7 @@ namespace GuiToolkit.Style.Editor
 					() => RevealInParent(_style, sourceSkin));
 				menu.AddItem(new GUIContent("Override Here"), false,
 					() => OverrideInherited(_style, editedSkin));
-				menu.AddItem(new GUIContent("Remove Here"), false,
+				menu.AddItem(new GUIContent(RemoveLabel), false,
 					() => RemoveHere(_style, editedSkin));
 
 				return menu;
@@ -303,17 +303,36 @@ namespace GuiToolkit.Style.Editor
 				// Offered on an override too, rather than making it a revert followed by a removal: it is
 				// one decision ("we do not have this"), so it should cost one step and one undo entry. The
 				// dialog says that the values here go with it.
-				menu.AddItem(new GUIContent("Remove Here"), false,
+				menu.AddItem(new GUIContent(RemoveLabel), false,
 					() => RemoveHere(_style, editedSkin));
 			}
 
 			menu.AddItem(new GUIContent("Find Appliers"), false, () => FindAppliers(_style));
 			menu.AddItem(new GUIContent("Rename..."), false, () => Rename(_style, _owningConfig));
 			menu.AddSeparator(string.Empty);
-			menu.AddItem(new GUIContent("Delete"), false, () => Delete(_style, _owningConfig));
+			menu.AddItem(new GUIContent(DeleteLabel(_isOverride)), false,
+				() => Delete(_style, _owningConfig, _isOverride));
 
 			return menu;
 		}
+
+		/// <summary>
+		/// Two entries that live next to each other and do very different things, so each says its SCOPE
+		/// rather than relying on the reader to know that "remove" is local and "delete" is not. One skin
+		/// against every skin is the whole difference, and it is what the two labels are built around.
+		/// </summary>
+		private const string RemoveLabel = "Remove from This Skin";
+
+		/// <summary>
+		/// What Delete takes with it, which is not the same thing on an override row.
+		///
+		/// EvDeleteStyle removes the style from every skin of the config that HOLDS it - and on an override
+		/// row that config is the one being edited, which holds copies, not the style. So the style keeps
+		/// resolving from where it is inherited afterwards, and calling that "Delete" promised a deletion
+		/// that does not happen. It deletes the override, in every skin; the label says so now.
+		/// </summary>
+		private static string DeleteLabel( bool _isOverride )
+			=> _isOverride ? "Delete Override in All Skins" : "Delete Style in All Skins";
 
 		/// <summary>
 		/// Everything a REMOVED row can do, which is deliberately little: take the removal back, go and
@@ -343,15 +362,17 @@ namespace GuiToolkit.Style.Editor
 			// takes the style out of every skin of that config, so "Delete in skin 'Default'" would promise
 			// something narrower than what happens - and for a skin building on a sibling, the config it
 			// would delete from is this very one.
-			string where = MenuText($"'{_owningConfig?.name}' (all skins)");
+			// The config is named here and nowhere else in these menus: on every other row Delete acts on
+			// the config being looked at, on this one it acts on another asset entirely.
+			string label = MenuText($"Delete Style in All Skins of '{_owningConfig?.name}'");
 			if (UiStyleEditorUtility.IsWritable(_owningConfig, out string reason))
 			{
-				menu.AddItem(new GUIContent($"Delete in {where}"), false,
-					() => Delete(_style, _owningConfig));
+				menu.AddItem(new GUIContent(label), false,
+					() => Delete(_style, _owningConfig, false));
 			}
 			else
 			{
-				menu.AddDisabledItem(new GUIContent(MenuText($"Delete in {where}  -  " + reason)));
+				menu.AddDisabledItem(new GUIContent(MenuText(label + "  -  " + reason)));
 			}
 
 			return menu;
@@ -491,16 +512,21 @@ namespace GuiToolkit.Style.Editor
 				UiEventDefinitions.EvSetStyleAlias.InvokeAlways(_owningConfig, _style, newName);
 		}
 
-		private static void Delete( UiAbstractStyleBase _style, UiStyleConfig _owningConfig )
+		/// <summary>
+		/// Deletes the style from every skin of the config that holds it - which on an override row means
+		/// the copies, not the style, so the two cases cannot share a sentence. See <see cref="DeleteLabel"/>.
+		/// </summary>
+		private static void Delete( UiAbstractStyleBase _style, UiStyleConfig _owningConfig, bool _isOverride )
 		{
-			if (!EditorUtility.DisplayDialog
-			(
-				"Are you sure?",
-				$"The style '{_style.Alias}' will be removed from '{_owningConfig?.name}' and all of its "
-				+ "skins. Appliers using it will then find no style.",
-				"OK",
-				"Cancel"
-			))
+			string message = _isOverride
+				? $"'{_style.Alias}' loses the values overridden here, in EVERY skin of "
+					+ $"'{_owningConfig?.name}'. The style itself is not touched - it stays where it is "
+					+ "inherited from, and appliers keep resolving it from there. To be rid of it in this "
+					+ $"skin alone, use '{RemoveLabel}'."
+				: $"The style '{_style.Alias}' will be removed from '{_owningConfig?.name}' and all of its "
+					+ "skins. Appliers using it will then find no style.";
+
+			if (!EditorUtility.DisplayDialog("Are you sure?", message, "OK", "Cancel"))
 			{
 				return;
 			}
@@ -627,7 +653,7 @@ namespace GuiToolkit.Style.Editor
 
 			if (!EditorUtility.DisplayDialog
 			(
-				"Remove here?",
+				$"Remove from skin '{_editedSkin.Name}'?",
 				$"{valuesGo}'{alias}' stops resolving in skin '{_editedSkin.Name}': appliers using it will "
 				+ "find no style. It stays untouched where it is inherited from, and 'Restore' on the row "
 				+ "brings it back.",

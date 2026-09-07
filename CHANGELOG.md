@@ -151,11 +151,15 @@ All notable changes to this project will be documented in this file.
   read-and-re-bake silently throws away.
 
 - **A skin can remove an inherited style** — the pendant to a prefab instance's removed component, and the
-  one thing a child config could not say: the config we build on has this, we do not. **Remove Here** on an
-  inherited or overridden row, the row then stays as a single greyed line marked **(Removed)**, and
-  **Restore** takes it back. Removals are per skin and cost one line in the asset; the config the style
-  comes from is untouched, and **Delete in '...' (all skins)** on such a row pushes the removal up instead,
-  the way *Apply to Prefab* does.
+  one thing a child config could not say: the config we build on has this, we do not. **Remove from This
+  Skin** on an inherited or overridden row, the row then stays as a single greyed line marked
+  **(Removed)**, and **Restore** takes it back. Removals are per skin and cost one line in the asset; the
+  config the style comes from is untouched, and **Delete Style in All Skins of '...'** on such a row pushes
+  the removal up instead, the way *Apply to Prefab* does.
+
+  Every entry that deletes says its scope now. A local *Remove* and a config-wide *Delete* sat next to each
+  other as two words for two things, with nothing saying which was which - one skin against every skin is
+  the whole difference, so that is what the labels are built around.
 
   Not the same as an override with every property switched off, which is what one reaches for otherwise. A
   style resolves as a *whole* from the nearest skin that owns it, so such an override keeps the inherited
@@ -212,9 +216,12 @@ All notable changes to this project will be documented in this file.
   step in the undo history. Nothing short of the complete object survives: a style is a `[SerializeReference]`
   object inside a list inside a plain class inside the config.
 
-  Delete's dialog also promised more than it did. It claimed to clean up "all UI Apply Style instances which
-  use it", which it never touched; it now says what actually happens to them, which is that they find no
-  style from then on.
+  Delete's dialog also promised more than it did, twice over. It claimed to clean up "all UI Apply Style
+  instances which use it", which it never touched - it now says what actually happens to them, which is that
+  they find no style from then on. And on an **overridden** row it promised a deletion that does not happen:
+  `EvDeleteStyle` removes the style from every skin of the config that HOLDS it, and there that config holds
+  copies rather than the style, so the style keeps resolving from where it is inherited. What it deletes is
+  the override, in every skin - which is what the entry and the dialog say now.
 
 - **The bake-time check for `@loca:` keys trusted the POT alone, and a POT is a harvest.** It is only as
   current as the last loca processing pass, while the PO files are what translators and the runtime work
