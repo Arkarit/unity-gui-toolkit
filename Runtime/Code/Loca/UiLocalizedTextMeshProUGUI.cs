@@ -197,6 +197,16 @@ namespace GuiToolkit
 		protected override void Awake()
 		{
 			base.Awake();
+
+			// TMP assigns m_canvasRenderer only here, in TextMeshProUGUI.Awake(), and that method
+			// returns early while TMP_Settings.instance is still null -- an editor-only guard that
+			// fires when TMP Essentials are mid-import or on a very early domain reload. Every normal
+			// access goes through the self-healing canvasRenderer property, but Cull() reads the field
+			// raw, so a null survives exactly until the next RectMask2D clipping pass and throws there.
+			// Reading the property once fills the field; [RequireComponent(typeof(CanvasRenderer))]
+			// on TextMeshProUGUI guarantees GetComponent cannot come back empty.
+			_ = canvasRenderer;
+
 			if (!m_isTranslated)
 			{
 				// Clear any stored key so the component is fully inert.
