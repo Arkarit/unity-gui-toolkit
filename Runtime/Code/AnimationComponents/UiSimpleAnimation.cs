@@ -592,22 +592,33 @@ namespace GuiToolkit
 			if (!m_flagsSet)
 				InitFlags();
 
-			if( m_animatePosition )
+			// Writing to a target Unity has already destroyed is not the harmless no-op it looks like.
+			// The write reaches SetLocalRotation with a transform hierarchy whose job fence is gone, and
+			// that synchronisation faults inside the engine - a hard crash, not an exception one could
+			// catch. Seen on Nintendo Switch in the two-player character selection, where a panel is torn
+			// down while its animation is still running.
+			//
+			// Only the three animators that touch the target are skipped. Alpha and skew hold their own
+			// references and are the whole point of a component that animates a fade with no target set,
+			// so they keep running.
+			bool hasTarget = m_target != null;
+
+			if( m_animatePosition && hasTarget )
 				AnimatePosition(_normalizedTime);
 
-			if ( m_animateRotationZ )
+			if ( m_animateRotationZ && hasTarget )
 				AnimateRotation(_normalizedTime);
 
-			if ( m_animateScale )
+			if ( m_animateScale && hasTarget )
 				AnimateScale(_normalizedTime);
 
 			if ( m_animateAlpha )
 				AnimateAlpha(_normalizedTime);
-			
+
 			if (m_animateSkew)
 				AnimateSkew(_normalizedTime);
 
-			if (m_markTargetForLayoutRebuild)
+			if (m_markTargetForLayoutRebuild && hasTarget)
 				LayoutRebuilder.MarkLayoutForRebuild(m_target);
 		}
 
