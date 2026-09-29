@@ -102,6 +102,7 @@ MonoBehaviour:
     m_aspectRatioGreaterEqual: 0
     m_inheritFromSkinName: 
     m_inheritFromSameConfig: 0
+    m_suppressedStyles: []
   - m_config: {fileID: 11400000}
     m_name: Light
     m_alias: 
@@ -191,6 +192,7 @@ MonoBehaviour:
     m_aspectRatioGreaterEqual: 0
     m_inheritFromSkinName: 
     m_inheritFromSameConfig: 0
+    m_suppressedStyles: []
   m_currentSkinIdx: 0
   m_parent: {fileID: 0}
   references:
@@ -1680,7 +1682,7 @@ MonoBehaviour:
     - rid: 107647876395958308
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: -61
     - rid: 107647876395958309
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
@@ -7055,7 +7057,7 @@ MonoBehaviour:
     - rid: 107648080256959253
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}
       data:
-        IsApplicable: 1
+        IsApplicable: 0
         m_value: -10
     - rid: 107648080256959254
       type: {class: UiStyleTMP_Text/ApplicableValueSingle, ns: GuiToolkit.Style, asm: de.phoenixgrafik.ui-toolkit}

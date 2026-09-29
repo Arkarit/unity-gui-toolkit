@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **A style applier shows an error when another applier sets the same property of the same component.**
+  The error is a box at the top of its inspector, naming the other applier, its style and the shared
+  properties. Only the applier that applies last wins, and nothing showed this before:
+  `StandardPanelBackgroundWithHeadline` carried two identical `Backgrounds/Panel` Image appliers
+  unnoticed. Several appliers on one component stay quiet as long as they set different properties,
+  e.g. one the font and one the size. The check compares what each resolved style has switched on,
+  not the appliers or style names. Disabled appliers do not count, because they apply nothing.
+  The logic is `UiStyleApplierOverlap.Find`.
+
 - **Style config inheritance** — a `UiStyleConfig` can name a **parent** it builds on, so a project stores
   only what it actually overrides instead of a full copy of everything. Until now the only way to theme a
   project was to clone the config that ships with the package, which stops following the library at the
@@ -189,6 +198,14 @@ All notable changes to this project will be documented in this file.
   not count, because that is how such a skin is *selected* rather than something put into it.
 
 ### Fixed
+- **Headlines got their line spacing from whichever style applied last.** A headline carries
+  `Text/Headline` for the font and `Text/Headline/Large|Medium|Small|VerySmall` for the size, and
+  both had Line Spacing switched on. In the Default skin all of them say -61, so nothing showed. In
+  Light, `Text/Headline` says -10, and the component order decided: the size style won on
+  the regular headlines, `Text/Headline` won on the ten date picker texts. Line Spacing now belongs
+  to the size styles and is off in `Text/Headline`, in both skins. The new applier error found it.
+  The sixteen texts that carry `Text/Headline` alone are single-line, so they do not change.
+
 - **`MissingReferenceException: m_button of UiButton` after every domain reload**, thrown from
   `UiButtonBase.OnValidate`. `UiButton` fetched its `Button` once and afterwards trusted its init
   flag. The flag can outlive the object behind the cached reference, and then every access found a

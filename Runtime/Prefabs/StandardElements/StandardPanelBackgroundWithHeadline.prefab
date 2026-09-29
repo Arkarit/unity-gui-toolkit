@@ -8,11 +8,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3275512599774014285}
     m_Modifications:
-    - target: {fileID: 6115423764121676767, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      propertyPath: m_comment
-      value: Panel background with a built-in headline bar across the top.
-      objectReference: {fileID: 0}
     - target: {fileID: 543856192576488051, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
       propertyPath: m_Pivot.x
@@ -46,7 +41,7 @@ PrefabInstance:
     - target: {fileID: 543856192576488051, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: -42
+      value: -41.99999
       objectReference: {fileID: 0}
     - target: {fileID: 543856192576488051, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
@@ -91,7 +86,7 @@ PrefabInstance:
     - target: {fileID: 543856192576488051, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 0.0000009536743
       objectReference: {fileID: 0}
     - target: {fileID: 543856192576488051, guid: 6420af34ac7a50e44bfdbc8c17fb384a,
         type: 3}
@@ -137,6 +132,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Color.r
       value: 0.003921569
+      objectReference: {fileID: 0}
+    - target: {fileID: 6115423764121676767, guid: 600b043a1570d17488917991ef0e5ba0,
+        type: 3}
+      propertyPath: m_comment
+      value: Panel background with a built-in headline bar across the top.
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -329,43 +329,8 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 6816656305326703514}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6382622830037067654, guid: 600b043a1570d17488917991ef0e5ba0,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 6841879168758142719}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 600b043a1570d17488917991ef0e5ba0, type: 3}
---- !u!1 &2428980959037489662 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6382622830037067654, guid: 600b043a1570d17488917991ef0e5ba0,
-    type: 3}
-  m_PrefabInstance: {fileID: 8729903477338564216}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &6841879168758142719
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2428980959037489662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ecbccfba2d6ae7541adcb68a0b3ddac5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_isAspectRatioDependent: 0
-  m_optionalStyleConfig: {fileID: 0}
-  m_name: Backgrounds/Panel
-  m_fixedSkinName: 
-  m_tweenable: 1
-  m_rebuildLayoutOnApply: 0
-  m_frameDelay: 0
-  OnBeforeApplyStyle:
-    m_PersistentCalls:
-      m_Calls: []
-  OnAfterApplyStyle:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!224 &3275512599774014285 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6075969078209465653, guid: 600b043a1570d17488917991ef0e5ba0,
