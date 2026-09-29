@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **`UiCountIndicator` has a neutral verdict.** `EState.Neutral` is for a plain count with nothing to
+  judge, such as "3 / 10 slots used". It wears `CountIndicator/Neutral`, which is new in both skins:
+  white in Default and dark grey in Light, otherwise the same as `CountIndicator/Ok`. The derivation
+  never yields it. A caller sets it through `State` like any verdict it knows better than the
+  numbers do. The optional `m_iconNeutral` is usually left empty, and then the icon is switched
+  off. The value comes last in the enum because the enum is serialized, and a value in between would
+  shift every stored state.
+
 - **A style applier shows an error when another applier sets the same property of the same component.**
   The error is a box at the top of its inspector, naming the other applier, its style and the shared
   properties. Only the applier that applies last wins, and nothing showed this before:

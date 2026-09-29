@@ -12,8 +12,12 @@ namespace GuiToolkit
 	///
 	/// Display only: it holds no rule. Whether five athletes are enough is a question about a division, not
 	/// about a label, so the caller sets the numbers and may set the verdict; deriving it from the two
-	/// numbers is only the default. The three verdicts wear styles ("CountIndicator/Below", "/Ok",
-	/// "/Above"), so the colours belong to the skin and this component has no state machine of its own.
+	/// numbers is only the default. The verdicts wear styles ("CountIndicator/Below", "/Ok", "/Above"),
+	/// so the colours belong to the skin and this component has no state machine of its own.
+	///
+	/// A counter that has nothing to judge - "3 / 10 slots used" - shows <see cref="EState.Neutral"/>
+	/// ("CountIndicator/Neutral"). The derivation never yields it; a caller sets it like any other
+	/// verdict it knows better than the numbers do.
 	/// </summary>
 	public class UiCountIndicator : UiTextContainer, ILocaKeyProvider
 	{
@@ -25,6 +29,11 @@ namespace GuiToolkit
 			Ok,
 			/// <summary>More than allowed.</summary>
 			Above,
+			/// <summary>
+			/// No verdict: a plain count that is neither short nor over. Never derived, only set. Last in the
+			/// list because the enum is serialized - a value in between would shift every stored state.
+			/// </summary>
+			Neutral,
 		}
 
 		[Header("Count Indicator")]
@@ -74,8 +83,8 @@ namespace GuiToolkit
 		[SerializeField] protected EState m_state;
 
 		[Tooltip("Style appliers that carry the look of the verdict - background, text, icon. Each one is "
-			+ "retargeted to prefix/Below, prefix/Ok or prefix/Above when the verdict changes, so the "
-			+ "colours are the skin's business and not this component's.")]
+			+ "retargeted to prefix/Below, prefix/Ok, prefix/Above or prefix/Neutral when the verdict changes, "
+			+ "so the colours are the skin's business and not this component's.")]
 		[SerializeField][Optional] protected List<UiAbstractApplyStyleBase> m_stateStyleAppliers = new();
 
 		[Tooltip("Style path in front of the verdict name.")]
@@ -88,6 +97,9 @@ namespace GuiToolkit
 		[SerializeField][Optional] protected Sprite m_iconBelow;
 		[SerializeField][Optional] protected Sprite m_iconOk;
 		[SerializeField][Optional] protected Sprite m_iconAbove;
+		[Tooltip("Icon for the neutral verdict. Usually left empty: a count without a verdict has nothing "
+			+ "to signal, and without a sprite the icon is switched off.")]
+		[SerializeField][Optional] protected Sprite m_iconNeutral;
 
 		[Header("Change highlight")]
 
@@ -316,7 +328,8 @@ namespace GuiToolkit
 			{
 				EState.Below => m_iconBelow,
 				EState.Ok => m_iconOk,
-				_ => m_iconAbove,
+				EState.Above => m_iconAbove,
+				_ => m_iconNeutral,
 			};
 
 			m_stateIcon.sprite = sprite;

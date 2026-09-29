@@ -133,6 +133,68 @@ namespace GuiToolkit.Test
 			Assert.IsFalse(indicator.HasSecondary);
 		}
 
+		[Test]
+		public void TheDerivation_NeverYieldsNeutral()
+		{
+			// Neutral means "nothing to judge", and only the caller knows that.
+			for (int max = 0; max <= 3; max++)
+			{
+				for (int current = 0; current <= 5; current++)
+				{
+					Assert.AreNotEqual(UiCountIndicator.EState.Neutral, UiCountIndicator.Derive(current, max));
+				}
+			}
+		}
+
+		[Test]
+		public void ANeutralVerdict_SurvivesLaterValueChanges()
+		{
+			var indicator = Create();
+			indicator.State = UiCountIndicator.EState.Neutral;
+
+			indicator.SetValues(0, 5);
+			Assert.AreEqual(UiCountIndicator.EState.Neutral, indicator.State, "short of the mark");
+
+			indicator.SetValues(9, 5);
+			Assert.AreEqual(UiCountIndicator.EState.Neutral, indicator.State, "past it");
+		}
+
+		[Test]
+		public void ANeutralVerdict_WearsTheNeutralStyle_AndHidesAnIconWithoutSprite()
+		{
+			var indicator = Create();
+
+			var applierGo = new GameObject("Value", typeof(RectTransform));
+			applierGo.transform.SetParent(indicator.transform, false);
+			applierGo.AddComponent<TMPro.TextMeshProUGUI>();
+			var applier = applierGo.AddComponent<GuiToolkit.Style.UiApplyStyleTMP_Text>();
+
+			var iconGo = new GameObject("Icon", typeof(RectTransform));
+			iconGo.transform.SetParent(indicator.transform, false);
+			var icon = iconGo.AddComponent<UnityEngine.UI.Image>();
+
+			var texture = new Texture2D(2, 2);
+			m_created.Add(texture);
+			var okSprite = Sprite.Create(texture, new Rect(0, 0, 2, 2), Vector2.zero);
+			m_created.Add(okSprite);
+
+			var serialized = new UnityEditor.SerializedObject(indicator);
+			var appliers = serialized.FindProperty("m_stateStyleAppliers");
+			appliers.arraySize = 1;
+			appliers.GetArrayElementAtIndex(0).objectReferenceValue = applier;
+			serialized.FindProperty("m_stateIcon").objectReferenceValue = icon;
+			serialized.FindProperty("m_iconOk").objectReferenceValue = okSprite;
+			serialized.ApplyModifiedPropertiesWithoutUndo();
+
+			indicator.State = UiCountIndicator.EState.Ok;
+			Assert.AreEqual("CountIndicator/Ok", applier.Name);
+			Assert.IsTrue(iconGo.activeSelf, "the Ok verdict has a sprite");
+
+			indicator.State = UiCountIndicator.EState.Neutral;
+			Assert.AreEqual("CountIndicator/Neutral", applier.Name);
+			Assert.IsFalse(iconGo.activeSelf, "no neutral sprite, so no icon");
+		}
+
 		private UiCountIndicator Create()
 		{
 			var go = new GameObject("CountIndicatorUnderTest");
