@@ -26,6 +26,13 @@ namespace GuiToolkit
 			get
 			{
 				InitIfNecessary();
+
+				// The cached reference can outlive the Button it points to: the init flag survives a domain
+				// reload, the object behind the reference does not have to. Unity then reports the field as
+				// missing instead of null, so resolve it again rather than trusting the flag.
+				if (!m_button)
+					BindButton();
+
 				return m_button;
 			}
 		}
@@ -53,13 +60,17 @@ namespace GuiToolkit
 		public override void OnEnabledInHierarchyChanged(bool _enabled)
 		{
 			base.OnEnabledInHierarchyChanged(_enabled);
-			InitIfNecessary();
-			m_button.interactable = _enabled;
+
+			// Also reached from OnValidate, i.e. on objects that are half torn down or not set up yet
+			var button = Button;
+			if (button)
+				button.interactable = _enabled;
 		}
 
 		protected override bool EvaluateButton(bool _playBackwardsAnimation)
 		{
-			if (!m_button.enabled || !m_button.gameObject.activeInHierarchy || !m_button.interactable)
+			var button = Button;
+			if (!button || !button.enabled || !button.gameObject.activeInHierarchy || !button.interactable)
 				return false;
 			
 			return base.EvaluateButton(_playBackwardsAnimation);
@@ -68,8 +79,15 @@ namespace GuiToolkit
 		protected override void Init()
 		{
 			base.Init();
+			BindButton();
+		}
 
+		private void BindButton()
+		{
 			m_button = GetComponent<Button>();
+			if (!m_button)
+				return;
+
 			m_button.onClick.RemoveListener(WiggleLinkedButtons);
 			m_button.onClick.AddListener(WiggleLinkedButtons);
 		}
@@ -79,7 +97,7 @@ namespace GuiToolkit
 			if (!EvaluateButton(true))
 				return false;
 			
-			m_button.onClick.Invoke();
+			Button.onClick.Invoke();
 			return true;
 		}
 	}

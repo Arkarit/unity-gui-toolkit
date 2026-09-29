@@ -189,6 +189,12 @@ All notable changes to this project will be documented in this file.
   not count, because that is how such a skin is *selected* rather than something put into it.
 
 ### Fixed
+- **`MissingReferenceException: m_button of UiButton` after every domain reload**, thrown from
+  `UiButtonBase.OnValidate`. `UiButton` fetched its `Button` once and afterwards trusted its init
+  flag. The flag can outlive the object behind the cached reference, and then every access found a
+  destroyed Button. The reference is now fetched again, including the wiggle listener, whenever it
+  has gone missing, and the `OnValidate` path no longer touches a Button that is not there.
+
 - **The package did not compile at all on Unity 2022.3 — the version its own `package.json` names.** Two
   places reach for Roslyn, and both are only compiled BELOW Unity 6, which is why nothing in the
   development app ever saw them. `LocaExcelBridge` throws `RoslynUnavailableException` in the `#else`
