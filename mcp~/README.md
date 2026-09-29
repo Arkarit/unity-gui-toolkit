@@ -471,6 +471,38 @@ The last one only applies when `backwardsPlayable` is off. An animation that can
 animation and is *meant* to hold its end — a hover grows to 1.15 and stays there until it is played
 back. Checking those too made the first run five false alarms out of five.
 
+### Who plays an animation
+
+A `UiSimpleAnimation` does not necessarily play itself. Three flags decide what it does on `Start`:
+`autoStart` plays it once, `autoOnEnable` plays it on every enable, and `setOnStart` — the default —
+only **jumps to its start values and waits**. A slave ignores all three and waits for its master.
+
+So an animation with `setOnStart` and nothing driving it sits at its start value forever. For a fade
+that start value is alpha 0. `StandardClickCatcher` ships exactly like this: until something plays
+it, it neither dims nor blocks clicks. That is by design, because a click catcher belongs to the
+dialog's open/close motion and not to its own clock.
+
+Three things can drive it, and all three are legitimate:
+
+- **The panel's root animation, with the element as a slave.** `UiPanel` plays its show/hide
+  animation on show and backwards on hide, and slaves follow. That animation is `m_simpleShowHideAnimation`
+  if assigned, otherwise the first one on the panel's own GameObject, and it only runs with
+  **`m_supportViewAnimations` on**. Without that flag the panel skips it, and the slaves with it. This
+  is how the shipped dialogs do it: the `Requester` root has `m_supportViewAnimations: 1` and drives
+  its click catcher through `m_slaveAnimations`. In a bake, stack the animation on the root via
+  `"components"`, set `"m_supportViewAnimations": true` and wire
+  `"m_slaveAnimations": ["#clickCatcher"]`. For a view that should not move itself, the root
+  animation can be a pure timing master with `support` empty and `duration` set.
+- **Code.** A view that opens itself differently can call `Play()` on the element's animation.
+  Nothing in the prefab shows this, which is why the baker does not warn about undriven animations:
+  it cannot see a `Play()` call, and a warning that is wrong whenever code does the job teaches
+  people to ignore it.
+- **The animation's own flags**, `autoStart` or `autoOnEnable`, when it really is independent of
+  any open/close.
+
+To check one, `screenshot_motion` on the root lists in `drivenAnimations` what actually moved. An
+element missing there is not a slave. That is fine if code plays it, and a bug if nothing does.
+
 ### The running app: `play_mode`, `screenshot_game`, `probe_ui`
 
 The Edit-Mode tools cover what a screen *is* and how it *moves*. What they cannot show is a screen the

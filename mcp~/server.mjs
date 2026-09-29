@@ -781,6 +781,10 @@ tool(
 	"the Content (a bare ScrollRect defaults to a vertical list even without it). " +
 	"To stack several components on one node (e.g. a UiView that is also a UiSimpleAnimation) add a " +
 	"\"components\" array of type names (or { type, props } objects) — no wrapper node needed. " +
+	"An animation with setOnStart (the default) only jumps to its START value and waits to be played, so a " +
+	"StandardClickCatcher stays at alpha 0 (no dim, no click blocking) until something drives it: usually " +
+	"the panel root's UiSimpleAnimation with m_supportViewAnimations:true and m_slaveAnimations:[\"#clickCatcher\"], " +
+	"or a Play() in code (README: 'Who plays an animation'). " +
 	"Set preserveEdits:true on a re-bake to keep hand edits made to the existing prefab since the last bake " +
 	"(props/text that differ from the baseline and that this JSON does not itself specify are folded back in; " +
 	"warnings list what was kept). Call setup_status first if screens come out looking wrong. " +
