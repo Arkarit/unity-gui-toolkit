@@ -53,6 +53,8 @@ namespace GuiToolkit.Style.Editor
 			UiStyleConfig styleConfig = m_thisAbstractApplyStyleBase.StyleConfig;
 			string selectedName;
 
+			DrawOverlapError();
+
 			EditorGUILayout.LabelField("Local Settings", EditorStyles.boldLabel);
 			var effectiveStyleConfig = m_thisAbstractApplyStyleBase.StyleConfig;
 			if (effectiveStyleConfig == null)
@@ -162,6 +164,33 @@ namespace GuiToolkit.Style.Editor
 				m_thisAbstractApplyStyleBase.Record();
 
 			serializedObject.ApplyModifiedProperties();
+		}
+
+		private void DrawOverlapError()
+		{
+			var overlaps = UiStyleApplierOverlap.Find(m_thisAbstractApplyStyleBase);
+			if (overlaps.Count == 0)
+				return;
+
+			var component = m_thisAbstractApplyStyleBase.Component;
+			var appliers = m_thisAbstractApplyStyleBase.GetComponents<UiAbstractApplyStyleBase>();
+			var lines = new System.Text.StringBuilder();
+			lines.Append($"Another style applier on this GameObject sets the same properties of " +
+			             $"'{component.GetType().Name}'. Only the one applied last wins:");
+
+			foreach (var overlap in overlaps)
+			{
+				int index = System.Array.IndexOf(appliers, overlap.Other) + 1;
+				string styleName = overlap.Other.Style != null ? overlap.Other.Style.Name : overlap.Other.Name;
+				lines.Append($"\n- {overlap.Other.GetType().Name} (applier {index} of {appliers.Length}), " +
+				             $"style '{styleName}': {string.Join(", ", overlap.PropertyNames)}");
+			}
+
+			lines.Append("\nRemove the duplicate applier, or give one of them a style that does not set these " +
+			             "properties. Other prefabs may share the style, so change the style itself only if " +
+			             "they should change too.");
+			EditorGUILayout.HelpBox(lines.ToString(), MessageType.Error);
+			EditorGUILayout.Space(5);
 		}
 
 		private string FindStyleNameSuggestion()
