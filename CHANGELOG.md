@@ -206,6 +206,19 @@ All notable changes to this project will be documented in this file.
   not count, because that is how such a skin is *selected* rather than something put into it.
 
 ### Fixed
+- **Closing the settings dialog re-applied every setting.** Cancel and the close button restore the
+  values from when the dialog opened, and they fired the change events for every setting, edited or
+  not. A listener that is not idempotent then undid state: a cheat that switched the running season
+  event took the event away on each Cancel. Now only settings whose value actually differs fire.
+  `PlayerSetting.TempRestoreValue()` returns whether it changed anything.
+  Related: the `Value` setter no longer fires when it is handed the value the setting already has.
+  Enum settings compare by value, although they are stored as an int until they are first set.
+  Firing once when settings are registered or loaded is unchanged, because that applies the values
+  and is not a change.
+
+- **The style drawer's "Override Here" is now "Override".** The old name suggested an override for this
+  one instance, but the style is always copied into the config's own skin.
+
 - **Headlines got their line spacing from whichever style applied last.** A headline carries
   `Text/Headline` for the font and `Text/Headline/Large|Medium|Small|VerySmall` for the size, and
   both had Line Spacing switched on. In the Default skin all of them say -61, so nothing showed. In

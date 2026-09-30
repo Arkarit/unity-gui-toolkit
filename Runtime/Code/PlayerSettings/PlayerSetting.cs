@@ -61,8 +61,13 @@ namespace GuiToolkit
 			set
 			{
 				CheckType(value?.GetType());
+				bool changed = !IsSameValue(m_value, value);
 				m_value = value;
-				InvokeEvents();
+
+				// Setting the value a setting already has is not a change. Firing for it would re-run every
+				// listener - a language reload, a cheat that switches game state - for nothing.
+				if (changed)
+					InvokeEvents();
 			}
 		}
 
@@ -165,11 +170,18 @@ namespace GuiToolkit
 
 		public void TempSaveValue() => m_savedValue = m_value;
 
-		public void TempRestoreValue()
+		/// <summary>
+		/// Puts back the value saved by <see cref="TempSaveValue"/>. Returns whether that actually changed
+		/// anything, so the caller only fires events for settings that were edited in the meantime.
+		/// </summary>
+		public bool TempRestoreValue()
 		{
+			bool changed = !IsSameValue(m_value, m_savedValue);
 			m_value = m_savedValue;
-			if (m_isLanguage)
+			if (changed && m_isLanguage)
 				LocaManager.Instance.ChangeLanguage((string)m_value);
+
+			return changed;
 		}
 
 		public void InvokeEvents()
@@ -203,6 +215,19 @@ namespace GuiToolkit
 			if (m_type.IsEnum)
 				return System.Enum.ToObject(m_type, _v);
 			return _v;
+		}
+
+		/// <summary>
+		/// Compares two raw values the way the getter would hand them out. The raw storage is not uniform:
+		/// an int or enum setting starts out as an int and holds an enum once it has been set.
+		/// </summary>
+		protected bool IsSameValue( object _a, object _b )
+		{
+			// Normalizing null would throw for an enum setting, and null is only ever the same as null
+			if (_a == null || _b == null)
+				return _a == null && _b == null;
+
+			return Equals(GetValue(ref _a), GetValue(ref _b));
 		}
 
 		protected void CheckType( Type _type )

@@ -151,9 +151,10 @@ namespace GuiToolkit
 			foreach (var kv in m_playerSettings)
 			{
 				var playerSetting = kv.Value;
-				playerSetting.TempRestoreValue();
 
-				if (!playerSetting.IsButton)
+				// Only what was edited while the dialog was open. Firing for every setting made each Cancel
+				// re-apply all of them - and a listener that is not idempotent then undid game state.
+				if (playerSetting.TempRestoreValue() && !playerSetting.IsButton)
 					playerSetting.InvokeEvents();
 
 				Log(playerSetting, "Restored");

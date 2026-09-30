@@ -120,7 +120,7 @@ namespace GuiToolkit.Style.Editor
 				
 				// Values of an inherited entry are shown, not edited: the instance behind them belongs to
 				// another asset, so a change would edit that config - and for the one inside the package it
-				// would be dropped on save without a word. "Override here" is the way in.
+				// would be dropped on save without a word. "Override" is the way in.
 				using var readOnly = new EditorGUI.DisabledScope(isInherited);
 
 				var oldVal = ApplicableValueBaseDrawer.DrawCondition;
@@ -287,7 +287,7 @@ namespace GuiToolkit.Style.Editor
 			{
 				menu.AddItem(new GUIContent("Open Source Config"), false,
 					() => RevealInParent(_style, sourceSkin));
-				menu.AddItem(new GUIContent("Override Here"), false,
+				menu.AddItem(new GUIContent("Override"), false,
 					() => OverrideInherited(_style, editedSkin));
 				menu.AddItem(new GUIContent(RemoveLabel), false,
 					() => RemoveHere(_style, editedSkin));
@@ -399,7 +399,7 @@ namespace GuiToolkit.Style.Editor
 			// "override it first" is the actual next step, which a "wrong type" would hide.
 			if (_isInherited)
 			{
-				_reason = "inherited, override it here first";
+				_reason = "inherited, override it first";
 				return false;
 			}
 
