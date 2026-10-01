@@ -349,6 +349,10 @@ Test auf Bewegung darf nicht von der Zeit abhängen – Frames im Test Runner li
 2. Debug-Ansicht: alle Keywords des `RenderTextureManager`, Größen, Speicher, Nutzer; Render-Aufrufe pro Frame.
 3. Dokumentationsseite + Eintrag in BEST-PRACTICES (Layer-Reservierung, Preset-Varianten, Pipeline-Varianten).
 
+**Stand:** Punkt 3 erledigt – Leitfaden `Documentation~/3D-Icons.md` (in der README verlinkt), BEST-PRACTICES §6,
+Architektur-Abschnitt in CLAUDE.md / AGENTS.md. Punkte 1 (Preset-Studio) und 2 (Debug-Ansicht) sind offen; lohnen
+sich, sobald echte Assets zeigen, wo das Erstellen hakt.
+
 ### Phase 6 – Optional
 
 - **Atlas** für statische Icons: Speicherseiten statt einer Textur pro Icon; `RawImage.uvRect`; weniger Draw Calls.

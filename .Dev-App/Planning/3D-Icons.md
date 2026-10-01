@@ -338,6 +338,10 @@ frames are milliseconds apart.
 2. Debug view: all keywords of `RenderTextureManager`, sizes, memory, users; render count per frame.
 3. Documentation page + BEST-PRACTICES entry (layer reservation, preset variants, pipeline variants).
 
+**Status:** item 3 done - guide `Documentation~/3D-Icons.md` (linked from the README), BEST-PRACTICES §6, architecture
+section in CLAUDE.md / AGENTS.md. Items 1 (preset studio) and 2 (debug view) are open; worth building once real
+assets show where authoring hurts.
+
 ### Phase 6 - Optional
 
 - **Atlas** for static icons: storage pages instead of one texture per icon; `RawImage.uvRect`; fewer draw calls.

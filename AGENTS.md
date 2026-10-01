@@ -112,6 +112,23 @@ config build on another, and the consequences are worth knowing before touching 
 
 `UiPool` (accessed via `UiPool.Instance` or `UiMain.Instance.UiPool`) manages reusable prefab instances. Use the `PoolInstantiate()` extension method on a component reference. Views created through `UiMain.CreateView<T>()` automatically use the pool. Implement `IPoolable` (`OnPoolCreated` / `OnPoolReleased`) to reset state on lease/return.
 
+### 3D Icons
+
+`UiIcon3D` (on a `RawImage`) shows a 3D object rendered by `UiIcon3DRenderer` into a texture. The renderer is
+static. It has one hidden stage with one camera on a reserved layer (`Icon3D`, set in the configuration), and
+renders icons **one after another**: during one render exactly one object instance and one preset
+(`UiIcon3DPreset` prefab: lights plus `UiCameraRenderSettings`) are active. The environment is overridden for
+that render only, on top of a neutral baseline, and scene lights are masked out of the layer. Static icons are
+instantiated, rendered and destroyed; animated ones keep an instance that is invisible outside its own render.
+Results live in `RenderTextureManager` textures keyed by content, so identical icons share one render. Objects can
+be loaded by canonical id through `AssetManager` (`Icon3DAssetCache`, polled, never callbacks).
+
+Isolation is verified by pixel tests against an "oracle": the same render with a clean scene made active, which
+swaps Unity's complete environment (`TestIcon3DRenderer`, `TestIcon3DEnvironmentFindings`). If you touch
+the environment handling, run those first. Guide: `Documentation~/3D-Icons.md`; plan and findings:
+`.Dev-App/Planning/3D-Icons.md`. `Ui3DObject` is the deliberate opposite (a mesh in the UI, lit by the scene),
+not a predecessor to remove.
+
 ### Bootstrap
 
 `Bootstrap` is a static class initialized via `[RuntimeInitializeOnLoadMethod(BeforeSceneLoad)]`. It initializes `UiToolkitConfiguration`, storage routing, and `PlayerSettings`. In the editor it also re-initializes on entering Edit Mode.
