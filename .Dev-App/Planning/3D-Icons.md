@@ -322,6 +322,16 @@ the demo loads through Resources - Addressables use the same abstraction but wer
 **Done when** one animated icon runs among 99 static ones, neither affects the other, and switching the
 animated one to static freezes it on its current frame without a flash.
 
+**Status:** implemented (`UiIcon3D.EMode.Animated`, `UiIcon3DRenderer.RenderAnimated`, `Icon3DHandle.IsPlaying`).
+The persistent instance gets `forceRenderingOff` and its lights off outside its own render, Animators `AlwaysAnimate`
+without root motion, skinned meshes `updateWhenOffscreen`, particles `AlwaysSimulate`; physics off through
+`versionDefines` (`UITK_PHYSICS`, `UITK_PHYSICS2D`). Framing once from the entry pose. Invisible animated icons keep
+animating but are not rendered. Static -> animated keeps the static image until the first frame; animated -> static
+freezes the current frame and frees the instance; resuming starts the animation anew. Edit mode advances Animators and
+particles manually at 30 fps (scripts do not run there). Tests in `Tests/PlayMode/TestIcon3DAnimated.cs`; demo scene
+shows an always animated and a hover-to-animate icon. Lesson: a test of motion must not depend on time - test runner
+frames are milliseconds apart.
+
 ### Phase 5 - Tooling and documentation
 
 1. Preset studio: editor window rendering a grid of sample objects x presets, for authoring presets.

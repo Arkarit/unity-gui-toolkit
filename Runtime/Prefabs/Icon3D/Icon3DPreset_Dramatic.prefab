@@ -167,7 +167,7 @@ MonoBehaviour:
     Value: 3
   m_ambientLight:
     Enabled: 1
-    Value: {r: 0.49056602, g: 0.08544095, b: 0.071733706, a: 1}
+    Value: {r: 0.04, g: 0.04, b: 0.06, a: 1}
   m_ambientEquatorColor:
     Enabled: 0
     Value: {r: 0.4, g: 0.4, b: 0.4, a: 1}
@@ -268,7 +268,7 @@ Light:
   serializedVersion: 11
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1
+  m_Intensity: 1.6
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208

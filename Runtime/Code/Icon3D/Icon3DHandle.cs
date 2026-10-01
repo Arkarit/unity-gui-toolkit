@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GuiToolkit
@@ -48,6 +49,42 @@ namespace GuiToolkit
 		/// <summary>Request a new render, e.g. after the object changed in a way the icon can not detect.</summary>
 		public void SetDirty() => m_request?.SetDirty();
 
+		/// <summary>True for icons from <see cref="UiIcon3DRenderer.RenderAnimated"/>.</summary>
+		public bool IsAnimated => m_request != null && m_request.IsAnimated;
+
+		/// <summary>
+		/// Animated icons only: false freezes the icon on its current frame and frees the object instance;
+		/// true creates a new instance and plays again (from the start of its animation).
+		/// </summary>
+		public bool IsPlaying
+		{
+			get => m_request != null && m_request.IsAnimated && m_request.IsPlaying;
+			set
+			{
+				if (m_request == null || !m_request.IsAnimated || m_request.IsPlaying == value)
+					return;
+
+				m_request.IsPlaying = value;
+				if (value)
+					m_request.SetDirty();
+				else
+					UiIcon3DRenderer.Freeze(m_request);
+			}
+		}
+
+		/// <summary>Animated icons only: render every n-th frame (1 = every frame).</summary>
+		public int FrameDivider
+		{
+			get => m_request?.FrameDivider ?? 1;
+			set
+			{
+				if (m_request != null)
+					m_request.FrameDivider = Mathf.Max(1, value);
+			}
+		}
+
+		internal Icon3DRequest Request => m_request;
+
 		public void Release()
 		{
 			if (m_request == null)
@@ -80,11 +117,25 @@ namespace GuiToolkit
 		public bool IsRendered;
 		public bool HasFailed;
 
+		// Animated icons: a persistent instance on the stage, invisible outside its own render
+		public readonly bool IsAnimated;
+		public bool IsPlaying;
+		public int FrameDivider = 1;
+		public int FrameCounter;
+		public GameObject Instance;
+		public Bounds FitBounds;
+		public Quaternion FitRotation;
+		public double LastAnimationTime;
+		public readonly List<Renderer> Renderers = new();
+		public readonly List<Light> Lights = new();
+
 		private readonly RenderTextureSpec m_spec;
 		private static long s_sequence;
 
-		public Icon3DRequest( string _key, GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size, Quaternion? _viewRotation )
+		public Icon3DRequest( string _key, GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size, Quaternion? _viewRotation, bool _animated = false )
 		{
+			IsAnimated = _animated;
+			IsPlaying = _animated;
 			Key = _key;
 			Prefab = _prefab;
 			Preset = _preset;

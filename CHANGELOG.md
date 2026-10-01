@@ -18,6 +18,15 @@ All notable changes to this project will be documented in this file.
   `UiIcon3DBoundsHint` corrects the framing where the automatic one fails. The icon layer (`Icon3D`)
   is created from the configuration window. Plan and findings: `.Dev-App/Planning/3D-Icons.md`.
 
+  The object can also be loaded by canonical id through the `AssetManager` (Resources, Addressables, ...).
+  Each id is loaded once and shared, and a late load never reaches an icon that was reused in the
+  meantime. Visible icons render first.
+
+  Mode `Animated` plays the object's own animation (Animator, particles, scripts) and renders every frame
+  or every n-th frame. Outside its own render the instance is invisible, its lights are off, and its
+  physics are switched off (via `versionDefines` on the physics modules). Switching to `Static` freezes
+  the current frame. In edit mode Animators and particles are advanced at 30 fps.
+
 - **`RenderTextureManager` links cameras and displays by keyword** and creates the render textures on
   demand, so a camera rendering into the UI needs no `.renderTexture` asset. `UiRenderTextureProducer`
   goes on the camera, `UiRawImageRenderTextureConsumer` / `UiRendererRenderTextureConsumer` on the display.

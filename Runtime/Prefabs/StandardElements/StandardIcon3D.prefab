@@ -89,11 +89,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_enabledInHierarchy: 1
   m_prefab: {fileID: 0}
+  m_prefabRef:
+    Type: 
+    Id: 
+  m_loadingTexture: {fileID: 0}
   m_preset: {fileID: 0}
   m_overrideViewRotation: 0
   m_viewRotation: {x: 15, y: 150, z: 0}
   m_mode: 0
   m_refreshInterval: 1
+  m_frameDivider: 1
   m_resolutionScale: 1
   m_worldSpacePixelsPerUnit: 1
 --- !u!114 &6724796094480485150

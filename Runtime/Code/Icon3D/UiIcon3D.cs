@@ -35,6 +35,11 @@ namespace GuiToolkit
 			Static,
 			/// <summary>Re-rendered every <see cref="RefreshInterval"/> seconds, e.g. for time dependent presets.</summary>
 			Periodic,
+			/// <summary>
+			/// The object's own animation plays (Animator, particles, scripts) and is rendered every
+			/// <see cref="FrameDivider"/>-th frame. Switching to <see cref="Static"/> freezes the current frame.
+			/// </summary>
+			Animated,
 		}
 
 		[Tooltip("Object to show; a prefab or any GameObject. It is copied for every render, never modified.")]
@@ -50,6 +55,8 @@ namespace GuiToolkit
 		[SerializeField] private Vector3 m_viewRotation = new(15, 150, 0);
 		[SerializeField] private EMode m_mode = EMode.Static;
 		[SerializeField][Min(0.05f)] private float m_refreshInterval = 1;
+		[Tooltip("Animated mode: render every n-th frame (1 = every frame)")]
+		[SerializeField][Min(1)] private int m_frameDivider = 1;
 		[Tooltip("Multiplier for the texture size, e.g. 2 for supersampling or 0.5 to save memory")]
 		[SerializeField][Min(0.05f)] private float m_resolutionScale = 1;
 		[Tooltip("Pixels per canvas unit for world space canvases, where the canvas scale factor is meaningless")]
@@ -64,6 +71,8 @@ namespace GuiToolkit
 		private bool m_isDirty = true;
 		private bool m_isSubscribed;
 		private float m_nextRefreshTime;
+		private string m_shownSignature;
+		private string m_pendingSignature;
 
 		public GameObject Prefab
 		{
@@ -145,10 +154,35 @@ namespace GuiToolkit
 			}
 		}
 
+		/// <summary>
+		/// Static, periodic or animated. Animated to static freezes the current frame (no new render, which would show
+		/// the entry pose); static to animated starts the animation, the static image stays until the first frame.
+		/// </summary>
 		public EMode Mode
 		{
 			get => m_mode;
-			set => m_mode = value;
+			set
+			{
+				if (m_mode == value)
+					return;
+
+				m_mode = value;
+				SetDirty();
+			}
+		}
+
+		/// <summary>Animated mode: render every n-th frame (1 = every frame).</summary>
+		public int FrameDivider
+		{
+			get => m_frameDivider;
+			set
+			{
+				m_frameDivider = Mathf.Max(1, value);
+				if (m_shown != null)
+					m_shown.FrameDivider = m_frameDivider;
+				if (m_pending != null)
+					m_pending.FrameDivider = m_frameDivider;
+			}
 		}
 
 		public float RefreshInterval
@@ -290,6 +324,7 @@ namespace GuiToolkit
 
 			var previous = m_shown;
 			m_shown = m_pending;
+			m_shownSignature = m_pendingSignature;
 			m_pending = null;
 			ShowTexture(m_shown.Texture);
 			previous?.Release();
@@ -331,6 +366,18 @@ namespace GuiToolkit
 			m_requestedSize = _size;
 			m_requestedPrefab = _prefab;
 
+			// Same content, only the mode changed (or something irrelevant): an animated image freezes / plays on,
+			// instead of being replaced by a new render
+			string signature = BuildSignature(_prefab, _size);
+			if (m_shown != null && m_shown.IsAnimated && signature == m_shownSignature)
+			{
+				m_pending?.Release();
+				m_pending = null;
+				m_shown.FrameDivider = m_frameDivider;
+				m_shown.IsPlaying = m_mode == EMode.Animated;
+				return;
+			}
+
 			m_pending?.Release();
 			m_pending = null;
 
@@ -349,9 +396,12 @@ namespace GuiToolkit
 				return;
 			}
 
-			var handle = UiIcon3DRenderer.RenderStatic(_prefab, m_preset, _size, m_overrideViewRotation ? ViewRotation : (Quaternion?)null);
+			var rotation = m_overrideViewRotation ? ViewRotation : (Quaternion?)null;
+			var handle = m_mode == EMode.Animated
+				? UiIcon3DRenderer.RenderAnimated(_prefab, m_preset, _size, rotation, m_frameDivider)
+				: UiIcon3DRenderer.RenderStatic(_prefab, m_preset, _size, rotation);
 
-			// Nothing that matters changed
+			// Nothing that matters changed (static icons share by key; animated ones are never equal)
 			if (m_shown != null && handle.Key == m_shown.Key)
 			{
 				handle.Release();
@@ -359,8 +409,20 @@ namespace GuiToolkit
 			}
 
 			m_pending = handle;
+			m_pendingSignature = signature;
 			if (m_shown == null)
 				ShowTexture(LoadingTextureOrPlaceholder);
+		}
+
+		/// <summary>What the image shows - everything but the mode and the frame divider.</summary>
+		private string BuildSignature( GameObject _prefab, Vector2Int _size )
+		{
+			if (_prefab == null)
+				return string.Empty;
+
+			string rotation = m_overrideViewRotation ? m_viewRotation.ToString("F3") : "preset";
+			int presetId = m_preset != null ? m_preset.GetInstanceID() : 0;
+			return $"{_prefab.GetInstanceID()}/{presetId}/{_size.x}x{_size.y}/{rotation}";
 		}
 
 		private Texture LoadingTextureOrPlaceholder => m_loadingTexture != null ? m_loadingTexture : RenderTextureManager.Placeholder;
@@ -437,6 +499,8 @@ namespace GuiToolkit
 			m_pending = null;
 			m_shown?.Release();
 			m_shown = null;
+			m_shownSignature = null;
+			m_pendingSignature = null;
 		}
 	}
 }

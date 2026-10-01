@@ -18,6 +18,11 @@ namespace GuiToolkit
 	/// <b>Static icons</b> are instantiated, rendered once and destroyed; the result stays in a lean render texture
 	/// (no depth, no MSAA) from <see cref="RenderTextureManager"/>. Identical requests share one render.
 	///
+	/// <b>Animated icons</b> keep a persistent instance on the stage, so its Animator, particles and scripts run; it is
+	/// rendered every frame (or every n-th) after the static icons and is invisible outside its own render
+	/// (<c>forceRenderingOff</c>, own lights off). Framing is computed once, so the image does not pump with the
+	/// animation. In edit mode Animators and particles are advanced manually (30 fps); scripts do not run there.
+	///
 	/// Rendering happens once per frame after the canvas layout and before the cameras render, limited to
 	/// <see cref="RendersPerFrame"/>. <see cref="Flush"/> renders everything pending immediately.
 	/// </summary>
@@ -37,6 +42,13 @@ namespace GuiToolkit
 		private static readonly Dictionary<UiIcon3DPreset, UiIcon3DPreset> s_presetInstances = new();
 		private static readonly List<(Light light, int cullingMask)> s_maskedLights = new();
 		private static readonly List<Animator> s_animators = new();
+		private static readonly List<ParticleSystem> s_particleSystems = new();
+		private static readonly List<Icon3DRequest> s_animated = new();
+		private static readonly List<Icon3DRequest> s_animatedDue = new();
+		private static int s_animatedCounter;
+
+		/// <summary>In edit mode animated icons advance and render at most this often (the editor ticks far more often).</summary>
+		private const double EditModeAnimationInterval = 1.0 / 30.0;
 
 		private static GameObject s_stage;
 		private static Transform s_parking;
@@ -189,8 +201,43 @@ namespace GuiToolkit
 			return new Icon3DHandle(request);
 		}
 
+		/// <summary>
+		/// Request an animated icon of _prefab: a persistent instance whose own animation (Animator, particles,
+		/// scripts) plays, rendered every <paramref name="_frameDivider"/>-th frame. Animated icons are never shared.
+		/// Release the handle when the icon is no longer needed; <see cref="Icon3DHandle.IsPlaying"/> = false freezes it.
+		/// </summary>
+		public static Icon3DHandle RenderAnimated( GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size,
+			Quaternion? _viewRotation = null, int _frameDivider = 1 )
+		{
+			if (_prefab == null)
+				throw new ArgumentNullException(nameof(_prefab));
+
+			_size = Vector2Int.Max(_size, Vector2Int.one);
+			string key = $"icon3d-animated/{++s_animatedCounter}/{_prefab.GetInstanceID()}";
+			var request = new Icon3DRequest(key, _prefab, _preset, _size, _viewRotation, true)
+			{
+				FrameDivider = Mathf.Max(1, _frameDivider)
+			};
+
+			s_requests.Add(key, request);
+			s_animated.Add(request);
+			RenderTextureManager.RegisterProducer(key, request);
+			EnsureUpdateHook();
+
+			request.RefCount++;
+			// Rendered unless the caller says it is not visible (UiIcon3D does, every frame)
+			return new Icon3DHandle(request) { IsVisible = true };
+		}
+
 		/// <summary>Render all pending icons now, regardless of the per-frame budget.</summary>
 		public static void Flush() => Process(int.MaxValue);
+
+		/// <summary>Stop an animated icon on its current frame: the texture stays, the instance goes.</summary>
+		internal static void Freeze( Icon3DRequest _request )
+		{
+			_request.IsPlaying = false;
+			DestroyAnimatedInstance(_request);
+		}
 
 		/// <summary>Release all icons and tear down the stage. Handles still held become empty.</summary>
 		public static void Shutdown()
@@ -200,6 +247,7 @@ namespace GuiToolkit
 
 			s_requests.Clear();
 			TearDownStage();
+			s_animated.Clear();
 		}
 
 		internal static void Release( Icon3DRequest _request )
@@ -211,6 +259,12 @@ namespace GuiToolkit
 			{
 				s_requests.Remove(_request.Key);
 				RenderTextureManager.UnregisterProducer(_request.Key, _request);
+			}
+
+			if (_request.IsAnimated)
+			{
+				s_animated.Remove(_request);
+				DestroyAnimatedInstance(_request);
 			}
 		}
 
@@ -270,6 +324,9 @@ namespace GuiToolkit
 			s_pending.Clear();
 			foreach (var request in s_requests.Values)
 			{
+				if (request.IsAnimated)
+					continue;
+
 				// Render textures lose their content e.g. on a graphics device reset
 				if (request.IsRendered && request.Texture != null && !request.Texture.IsCreated())
 					request.SetDirty();
@@ -278,14 +335,13 @@ namespace GuiToolkit
 					s_pending.Add(request);
 			}
 
-			if (s_pending.Count == 0)
-				return 0;
-
 			// Visible first, then oldest first - a list that just opened fills in from what the user looks at
 			s_pending.Sort(s_renderOrder);
+			int staticCount = Mathf.Clamp(_budget, 0, s_pending.Count);
 
-			int count = Mathf.Min(_budget, s_pending.Count);
-			if (count <= 0)
+			CollectDueAnimated();
+
+			if (staticCount == 0 && s_animatedDue.Count == 0)
 			{
 				s_pending.Clear();
 				return 0;
@@ -295,8 +351,12 @@ namespace GuiToolkit
 			MaskForeignLights();
 			try
 			{
-				for (int i = 0; i < count; i++)
-					RenderRequest(s_pending[i]);
+				for (int i = 0; i < staticCount; i++)
+					RenderStaticRequest(s_pending[i]);
+
+				// After the static ones: they must not wait for animation, which renders every frame anyway
+				foreach (var request in s_animatedDue)
+					RenderAnimatedRequest(request);
 			}
 			finally
 			{
@@ -304,7 +364,292 @@ namespace GuiToolkit
 				s_pending.Clear();
 			}
 
+			int count = staticCount + s_animatedDue.Count;
+			s_animatedDue.Clear();
 			return count;
+		}
+
+		/// <summary>Animated icons that render in this tick: playing, visible, and their frame has come.</summary>
+		private static void CollectDueAnimated()
+		{
+			s_animatedDue.Clear();
+			if (s_animated.Count == 0)
+				return;
+
+			double now = Time.realtimeSinceStartupAsDouble;
+			foreach (var request in s_animated)
+			{
+				if (!request.IsPlaying || request.HasFailed || request.Texture == null)
+					continue;
+
+				// Not visible: keep animating, but do not spend a render on it - unless it has no image at all yet
+				if (request.VisibleHandles == 0 && request.IsRendered && !request.IsDirty)
+					continue;
+
+				if (!Application.isPlaying && request.IsRendered && !request.IsDirty
+				    && now - request.LastAnimationTime < EditModeAnimationInterval)
+					continue;
+
+				if (Application.isPlaying && request.IsRendered && !request.IsDirty
+				    && ++request.FrameCounter % request.FrameDivider != 0)
+					continue;
+
+				s_animatedDue.Add(request);
+			}
+		}
+
+		private static void RenderStaticRequest( Icon3DRequest _request )
+		{
+			_request.IsDirty = false;
+			GameObject instance = null;
+
+			try
+			{
+				var preset = GetPresetInstance(_request.Preset);
+				instance = CreateInstance(_request.Prefab);
+				instance.transform.SetParent(s_stage.transform, false);
+				if (!instance.activeSelf)
+					instance.SetActive(true);
+
+				// Bring animated characters into their entry pose instead of the stored bind pose
+				UpdateAnimators(instance, 0);
+
+				GetFraming(instance, _request, preset, out var bounds, out var rotation);
+				RenderInstance(_request, preset, bounds, rotation);
+			}
+			catch (Exception e)
+			{
+				OnRenderFailed(_request, e);
+			}
+			finally
+			{
+				if (instance != null)
+				{
+					// Destroy() is deferred to the end of the frame - the instance must vanish now
+					instance.SetActive(false);
+					DestroyObject(instance);
+				}
+			}
+		}
+
+		private static void RenderAnimatedRequest( Icon3DRequest _request )
+		{
+			try
+			{
+				var preset = GetPresetInstance(_request.Preset);
+				if (_request.IsDirty || _request.Instance == null)
+				{
+					DestroyAnimatedInstance(_request);
+					CreateAnimatedInstance(_request, preset);
+					_request.IsDirty = false;
+				}
+
+				double now = Time.realtimeSinceStartupAsDouble;
+				if (!Application.isPlaying)
+				{
+					// Nothing animates in edit mode on its own
+					float deltaTime = Mathf.Clamp((float)(now - _request.LastAnimationTime), 0, 0.1f);
+					UpdateAnimators(_request.Instance, deltaTime);
+					SimulateParticles(_request.Instance, deltaTime);
+				}
+
+				_request.LastAnimationTime = now;
+
+				SetAnimatedVisible(_request, true);
+				try
+				{
+					RenderInstance(_request, preset, _request.FitBounds, _request.FitRotation);
+				}
+				finally
+				{
+					SetAnimatedVisible(_request, false);
+				}
+			}
+			catch (Exception e)
+			{
+				OnRenderFailed(_request, e);
+				DestroyAnimatedInstance(_request);
+			}
+		}
+
+		/// <summary>The render itself, shared by static and animated icons: frame, light, render, resolve.</summary>
+		private static void RenderInstance( Icon3DRequest _request, UiIcon3DPreset _preset, Bounds _bounds, Quaternion _rotation )
+		{
+			var target = _request.Texture;
+			RenderTexture scratch = null;
+			var previousActive = RenderTexture.active;
+
+			try
+			{
+				// Lights are camera relative: the preset turns with the view
+				_preset.transform.SetParent(s_stage.transform, false);
+				_preset.transform.SetPositionAndRotation(_bounds.center, _rotation);
+
+				Icon3DFitter.Fit(s_camera, _bounds, _rotation, _preset.Projection, _preset.FieldOfView, _preset.FitMode,
+					_preset.Padding, (float)target.width / target.height);
+				s_camera.backgroundColor = _preset.BackgroundColor;
+				s_camera.cullingMask = 1 << Layer;
+
+				scratch = RenderTexture.GetTemporary(target.width, target.height, 24, RenderTextureFormat.ARGB32,
+					RenderTextureReadWrite.Default, MsaaSamples);
+				s_camera.targetTexture = scratch;
+
+				Backend.BeginEnvironment(_preset);
+				try
+				{
+					Backend.Render(s_camera);
+				}
+				finally
+				{
+					Backend.EndEnvironment();
+				}
+
+				s_camera.targetTexture = null;
+
+				// Resolves MSAA and drops the depth buffer
+				Graphics.Blit(scratch, target);
+				_request.IsRendered = true;
+				RenderCount++;
+			}
+			finally
+			{
+				RenderTexture.active = previousActive;
+
+				if (s_camera != null)
+					s_camera.targetTexture = null;
+
+				if (scratch != null)
+					RenderTexture.ReleaseTemporary(scratch);
+
+				if (_preset != null && s_parking != null)
+					_preset.transform.SetParent(s_parking, false);
+			}
+		}
+
+		/// <summary>Instantiate below the inactive parking slot (no Awake yet) and make it safe for the stage.</summary>
+		private static GameObject CreateInstance( GameObject _prefab )
+		{
+			var instance = Object.Instantiate(_prefab, s_parking, false);
+			instance.name = _prefab.name;
+			PrepareForStage(instance, Layer);
+			return instance;
+		}
+
+		/// <summary>Priority of the view: the icon's override, the object's own hint, the preset.</summary>
+		private static void GetFraming( GameObject _instance, Icon3DRequest _request, UiIcon3DPreset _preset, out Bounds _bounds, out Quaternion _rotation )
+		{
+			var hint = _instance.GetComponentInChildren<UiIcon3DBoundsHint>();
+			bool useHint = hint != null && hint.enabled;
+
+			if (useHint)
+				_bounds = hint.WorldBounds;
+			else if (!Icon3DFitter.TryGetBounds(_instance, out _bounds))
+				_bounds = new Bounds(_instance.transform.position, Vector3.one);
+
+			_rotation = _request.ViewRotation
+				?? (useHint && hint.OverrideViewRotation ? hint.WorldViewRotation : _preset.ViewRotation);
+		}
+
+		private static void CreateAnimatedInstance( Icon3DRequest _request, UiIcon3DPreset _preset )
+		{
+			var instance = CreateInstance(_request.Prefab);
+
+			// Nothing may stop animating because no real camera looks at it, and nothing may walk out of the frame
+			instance.GetComponentsInChildren(true, s_animators);
+			foreach (var animator in s_animators)
+			{
+				animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+				animator.applyRootMotion = false;
+			}
+			s_animators.Clear();
+
+			foreach (var skinned in instance.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+				skinned.updateWhenOffscreen = true;
+
+			instance.GetComponentsInChildren(true, s_particleSystems);
+			foreach (var particles in s_particleSystems)
+			{
+				var main = particles.main;
+				main.cullingMode = ParticleSystemCullingMode.AlwaysSimulate;
+			}
+			s_particleSystems.Clear();
+
+			// Invisible and dark until its own render
+			instance.GetComponentsInChildren(true, _request.Renderers);
+			foreach (var light in instance.GetComponentsInChildren<Light>(true))
+				if (light.enabled)
+					_request.Lights.Add(light);
+
+			_request.Instance = instance;
+			SetAnimatedVisible(_request, false);
+
+			instance.transform.SetParent(s_stage.transform, false);
+			if (!instance.activeSelf)
+				instance.SetActive(true);
+
+			UpdateAnimators(instance, 0);
+
+			// Framing once, from the entry pose - per frame it would pump with the animation
+			GetFraming(instance, _request, _preset, out _request.FitBounds, out _request.FitRotation);
+			_request.LastAnimationTime = Time.realtimeSinceStartupAsDouble;
+			_request.FrameCounter = 0;
+		}
+
+		private static void DestroyAnimatedInstance( Icon3DRequest _request )
+		{
+			if (_request.Instance != null)
+			{
+				_request.Instance.SetActive(false);
+				DestroyObject(_request.Instance);
+			}
+
+			_request.Instance = null;
+			_request.Renderers.Clear();
+			_request.Lights.Clear();
+		}
+
+		private static void SetAnimatedVisible( Icon3DRequest _request, bool _visible )
+		{
+			foreach (var rend in _request.Renderers)
+				if (rend != null)
+					rend.forceRenderingOff = !_visible;
+
+			foreach (var light in _request.Lights)
+				if (light != null)
+					light.enabled = _visible;
+		}
+
+		private static void UpdateAnimators( GameObject _root, float _deltaTime )
+		{
+			_root.GetComponentsInChildren(false, s_animators);
+			foreach (var animator in s_animators)
+				if (animator.isActiveAndEnabled && animator.runtimeAnimatorController != null)
+					animator.Update(_deltaTime);
+			s_animators.Clear();
+		}
+
+		private static void SimulateParticles( GameObject _root, float _deltaTime )
+		{
+			if (_deltaTime <= 0)
+				return;
+
+			_root.GetComponentsInChildren(false, s_particleSystems);
+			foreach (var particles in s_particleSystems)
+			{
+				// Only roots: Simulate() handles the children
+				if (particles.transform.parent != null && particles.transform.parent.GetComponentInParent<ParticleSystem>() != null)
+					continue;
+
+				particles.Simulate(_deltaTime, true, false, false);
+			}
+			s_particleSystems.Clear();
+		}
+
+		private static void OnRenderFailed( Icon3DRequest _request, Exception _e )
+		{
+			_request.HasFailed = true;
+			UiLog.LogError($"3D icon '{_request.Key}' failed to render, it will not be retried until SetDirty(): {_e.Message}", _request.Prefab);
+			Debug.LogException(_e, _request.Prefab);
 		}
 
 		private static readonly Comparison<Icon3DRequest> s_renderOrder = ( _a, _b ) =>
@@ -329,105 +674,6 @@ namespace GuiToolkit
 			catch (Exception e)
 			{
 				Debug.LogException(e);
-			}
-		}
-
-		private static void RenderRequest( Icon3DRequest _request )
-		{
-			_request.IsDirty = false;
-
-			var target = _request.Texture;
-			UiIcon3DPreset preset = null;
-			GameObject instance = null;
-			RenderTexture scratch = null;
-			var previousActive = RenderTexture.active;
-
-			try
-			{
-				preset = GetPresetInstance(_request.Preset);
-				int layer = Layer;
-
-				// Instantiate below the inactive parking slot: no Awake before it is prepared
-				instance = Object.Instantiate(_request.Prefab, s_parking, false);
-				instance.name = _request.Prefab.name;
-				PrepareForStage(instance, layer);
-				instance.transform.SetParent(s_stage.transform, false);
-				if (!instance.activeSelf)
-					instance.SetActive(true);
-
-				// Bring animated characters into their entry pose instead of the stored bind pose
-				instance.GetComponentsInChildren(false, s_animators);
-				foreach (var animator in s_animators)
-					if (animator.isActiveAndEnabled && animator.runtimeAnimatorController != null)
-						animator.Update(0);
-				s_animators.Clear();
-
-				// Priority of the view: the icon's override, the object's own hint, the preset
-				var hint = instance.GetComponentInChildren<UiIcon3DBoundsHint>();
-				Bounds bounds;
-				if (hint != null && hint.enabled)
-					bounds = hint.WorldBounds;
-				else if (!Icon3DFitter.TryGetBounds(instance, out bounds))
-					bounds = new Bounds(instance.transform.position, Vector3.one);
-
-				var rotation = _request.ViewRotation
-					?? (hint != null && hint.enabled && hint.OverrideViewRotation ? hint.WorldViewRotation : preset.ViewRotation);
-
-				// Lights are camera relative: the preset turns with the view
-				preset.transform.SetParent(s_stage.transform, false);
-				preset.transform.SetPositionAndRotation(bounds.center, rotation);
-
-				Icon3DFitter.Fit(s_camera, bounds, rotation, preset.Projection, preset.FieldOfView, preset.FitMode,
-					preset.Padding, (float)target.width / target.height);
-				s_camera.backgroundColor = preset.BackgroundColor;
-				s_camera.cullingMask = 1 << layer;
-
-				scratch = RenderTexture.GetTemporary(target.width, target.height, 24, RenderTextureFormat.ARGB32,
-					RenderTextureReadWrite.Default, MsaaSamples);
-				s_camera.targetTexture = scratch;
-
-				Backend.BeginEnvironment(preset);
-				try
-				{
-					Backend.Render(s_camera);
-				}
-				finally
-				{
-					Backend.EndEnvironment();
-				}
-
-				s_camera.targetTexture = null;
-
-				// Resolves MSAA and drops the depth buffer
-				Graphics.Blit(scratch, target);
-				_request.IsRendered = true;
-				RenderCount++;
-			}
-			catch (Exception e)
-			{
-				_request.HasFailed = true;
-				UiLog.LogError($"3D icon '{_request.Key}' failed to render, it will not be retried until SetDirty(): {e.Message}", _request.Prefab);
-				Debug.LogException(e, _request.Prefab);
-			}
-			finally
-			{
-				RenderTexture.active = previousActive;
-
-				if (s_camera != null)
-					s_camera.targetTexture = null;
-
-				if (scratch != null)
-					RenderTexture.ReleaseTemporary(scratch);
-
-				if (preset != null && s_parking != null)
-					preset.transform.SetParent(s_parking, false);
-
-				if (instance != null)
-				{
-					// Destroy() is deferred to the end of the frame - the instance must vanish now
-					instance.SetActive(false);
-					DestroyObject(instance);
-				}
 			}
 		}
 
@@ -461,6 +707,25 @@ namespace GuiToolkit
 
 			foreach (var cam in _root.GetComponentsInChildren<Camera>(true))
 				cam.enabled = false;
+
+			// An animated instance stays active: it must not collide with anything, nor fall
+#if UITK_PHYSICS
+			foreach (var col in _root.GetComponentsInChildren<Collider>(true))
+				col.enabled = false;
+
+			foreach (var body in _root.GetComponentsInChildren<Rigidbody>(true))
+			{
+				body.isKinematic = true;
+				body.detectCollisions = false;
+			}
+#endif
+#if UITK_PHYSICS2D
+			foreach (var col in _root.GetComponentsInChildren<Collider2D>(true))
+				col.enabled = false;
+
+			foreach (var body in _root.GetComponentsInChildren<Rigidbody2D>(true))
+				body.simulated = false;
+#endif
 		}
 
 		private static UiIcon3DPreset GetPresetInstance( UiIcon3DPreset _prefab )
@@ -600,6 +865,14 @@ namespace GuiToolkit
 		{
 			s_backend?.Dispose();
 
+			// Animated instances live on the stage; they are recreated on their next render
+			foreach (var request in s_animated)
+			{
+				DestroyAnimatedInstance(request);
+				if (request.IsPlaying)
+					request.IsDirty = true;
+			}
+
 			foreach (var preset in s_presetInstances.Values)
 				if (preset != null)
 					DestroyObject(preset.gameObject);
@@ -686,6 +959,8 @@ namespace GuiToolkit
 			// Domain reload may be disabled: nothing from a previous session must survive
 			TearDownStage();
 			s_requests.Clear();
+			s_animated.Clear();
+			s_animatedCounter = 0;
 			s_playerLoopInstalled = false;
 			s_resolvedLayer = -1;
 			s_warnedMissingLayer = false;

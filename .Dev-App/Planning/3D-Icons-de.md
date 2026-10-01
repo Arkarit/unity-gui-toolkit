@@ -333,6 +333,16 @@ Abstraktion, wurden aber nicht eigens geprüft.
 **Fertig, wenn** ein animiertes Icon zwischen 99 statischen läuft, keines das andere beeinflusst und das Umschalten
 des animierten auf statisch es ohne Aufblitzen im aktuellen Frame einfriert.
 
+**Stand:** umgesetzt (`UiIcon3D.EMode.Animated`, `UiIcon3DRenderer.RenderAnimated`, `Icon3DHandle.IsPlaying`). Die
+dauerhafte Instanz bekommt außerhalb ihres Renderings `forceRenderingOff` und abgeschaltete Lichter, Animatoren
+`AlwaysAnimate` ohne Root Motion, Skinned Meshes `updateWhenOffscreen`, Partikel `AlwaysSimulate`; Physik aus über
+`versionDefines` (`UITK_PHYSICS`, `UITK_PHYSICS2D`). Bildausschnitt einmal aus der Einstiegspose. Unsichtbare animierte
+Icons animieren weiter, werden aber nicht gerendert. Statisch -> animiert behält das statische Bild bis zum ersten
+Frame; animiert -> statisch friert den aktuellen Frame ein und gibt die Instanz frei; Fortsetzen startet die Animation
+neu. Im Edit Mode werden Animatoren und Partikel von Hand mit 30 fps weitergedreht (Skripte laufen dort nicht). Tests in
+`Tests/PlayMode/TestIcon3DAnimated.cs`; die Demo-Szene zeigt ein dauerhaft animiertes und ein Hover-Icon. Lehre: Ein
+Test auf Bewegung darf nicht von der Zeit abhängen – Frames im Test Runner liegen Millisekunden auseinander.
+
 ### Phase 5 – Werkzeuge und Dokumentation
 
 1. Preset-Studio: Editor-Fenster, das ein Raster aus Beispielobjekten x Presets rendert, zum Erstellen von Presets.
