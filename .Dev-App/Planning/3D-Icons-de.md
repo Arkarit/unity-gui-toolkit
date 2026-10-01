@@ -288,6 +288,13 @@ einer Szene mit starkem farbigem Directional Light und Fog zeigt – ohne sichtb
 **Fertig, wenn** ein Icon platziert, konfiguriert und im Edit Mode betrachtet werden kann, ohne in den Play Mode zu
 gehen, und Domain Reload sowie Szenen-Speichern übersteht, ohne Objekte zu verlieren oder die Szene dirty zu machen.
 
+**Stand:** umgesetzt (`UiIcon3D`, `UiIcon3DBoundsHint`, `StandardIcon3D.prefab`, Presets Neutral/Warm/Dramatic mit
+festen Reflection-Cubemaps, erzeugt über das Dev-Menü *3D Icons / Dev: Rebuild Library Assets*). Tests in
+`Tests/PlayMode/TestUiIcon3D.cs`. Editor: Icons rendern neu, sobald Prefabs, Materialien, Meshes oder Texturen
+reimportiert werden (`Icon3DAssetWatcher`). Lehre: Eine Textur, die freigegeben sein könnte, nie mit Unitys `==`
+vergleichen – ein zerstörtes Objekt ist gleich null, die tote Referenz bleibt im RawImage (`ReferenceEquals`, erst
+umhängen, dann freigeben).
+
 ### Phase 3 – Dynamisches Laden und Skalierung
 
 1. Objektquelle `CanonicalAssetKey` über `AssetManager`; ein Ladevorgang pro Key, referenzgezählt über alle Icons.

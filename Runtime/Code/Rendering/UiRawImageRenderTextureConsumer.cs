@@ -61,7 +61,8 @@ namespace GuiToolkit
 				return;
 
 			// Same texture object after a resize still needs a material refresh
-			if (rawImage.texture == _texture)
+			// Reference comparison: Unity's == calls a destroyed texture equal to null
+			if (ReferenceEquals(rawImage.texture, _texture))
 				rawImage.SetMaterialDirty();
 			else
 				rawImage.texture = _texture;

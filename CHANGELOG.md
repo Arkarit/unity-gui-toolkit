@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **3D icons: `UiIcon3D` shows a 3D object as a UI icon**, rendered with its own lighting preset and
+  isolated from the scene and from every other icon. A scene light on all layers, the scene's ambient,
+  fog and environment reflection do not reach an icon; a pixel test compares each icon with the same
+  render made with a clean scene active (`TestIcon3DRenderer`). The texture follows the rect size.
+  Identical icons share one render and one texture. While a new image is rendered, the old one stays
+  visible. Rendering works in edit mode and in the Prefab Stage, too.
+
+  Ships as the standard element `StandardIcon3D` with the presets *Neutral* (the default, in
+  `Resources/Icon3D`), *Warm* and *Dramatic*. A preset is a prefab with real lights (camera relative),
+  a `UiCameraRenderSettings` and its own reflection cubemap. Without a reflection, metal renders black.
+  `UiIcon3DBoundsHint` corrects the framing where the automatic one fails. The icon layer (`Icon3D`)
+  is created from the configuration window. Plan and findings: `.Dev-App/Planning/3D-Icons.md`.
+
+- **`RenderTextureManager` links cameras and displays by keyword** and creates the render textures on
+  demand, so a camera rendering into the UI needs no `.renderTexture` asset. `UiRenderTextureProducer`
+  goes on the camera, `UiRawImageRenderTextureConsumer` / `UiRendererRenderTextureConsumer` on the display.
+
+- **`UiCameraRenderSettings` overrides global render settings for one camera only** (ambient, fog,
+  skybox, reflection, shadow and quality settings) and restores them after that camera has rendered.
+  It uses typed delegates, so there is no reflection and no boxing. `UiAbstractPerCameraSettings`
+  is the base for further groups.
+
 - **`UiCountIndicator` has a neutral verdict.** `EState.Neutral` is for a plain count with nothing to
   judge, such as "3 / 10 slots used". It wears `CountIndicator/Neutral`, which is new in both skins:
   white in Default and dark grey in Light, otherwise the same as `CountIndicator/Ok`. The derivation

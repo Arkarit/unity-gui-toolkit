@@ -29,6 +29,9 @@ namespace GuiToolkit
 
 		private const int FallbackLayer = 31;
 
+		/// <summary>Resources path of the library's neutral preset, used when neither icon nor configuration names one.</summary>
+		public const string DefaultPresetResourcePath = "Icon3D/Icon3DPreset_Neutral";
+
 		private static readonly Dictionary<string, Icon3DRequest> s_requests = new();
 		private static readonly List<Icon3DRequest> s_pending = new();
 		private static readonly Dictionary<UiIcon3DPreset, UiIcon3DPreset> s_presetInstances = new();
@@ -48,6 +51,24 @@ namespace GuiToolkit
 		private static int s_rendersPerFrameOverride;
 		private static bool s_playerLoopInstalled;
 		private static bool s_warnedMissingLayer;
+		private static bool s_triedResourcesPreset;
+		private static UiIcon3DPreset s_resourcesPreset;
+		private static Action s_beforeRender;
+
+		/// <summary>
+		/// Raised on every renderer tick, right before pending icons are rendered: once per frame in play mode
+		/// (after the canvas layout), on every editor update in edit mode. Icons use it to follow size changes,
+		/// so a request made here is rendered in the same tick.
+		/// </summary>
+		public static event Action EvBeforeRender
+		{
+			add
+			{
+				s_beforeRender += value;
+				EnsureUpdateHook();
+			}
+			remove => s_beforeRender -= value;
+		}
 
 		/// <summary>Number of renders since start; for tests and diagnostics.</summary>
 		public static int RenderCount { get; private set; }
@@ -179,6 +200,17 @@ namespace GuiToolkit
 			return $"icon3d/{_prefab.GetInstanceID()}/{presetId}/{_size.x}x{_size.y}/{rotation}";
 		}
 
+		/// <summary>
+		/// Forget cached preset instances and render every icon again, e.g. after a preset or object prefab
+		/// was edited. Called by the editor whenever prefabs, materials or textures are reimported.
+		/// </summary>
+		public static void Invalidate()
+		{
+			s_triedResourcesPreset = false;
+			TearDownStage();
+			SetAllDirty();
+		}
+
 		private static void SetAllDirty()
 		{
 			foreach (var request in s_requests.Values)
@@ -189,6 +221,18 @@ namespace GuiToolkit
 
 		private static void Process( int _budget )
 		{
+			if (s_beforeRender != null)
+			{
+				try
+				{
+					s_beforeRender.Invoke();
+				}
+				catch (Exception e)
+				{
+					Debug.LogException(e);
+				}
+			}
+
 			if (s_requests.Count == 0)
 				return;
 
@@ -259,10 +303,16 @@ namespace GuiToolkit
 						animator.Update(0);
 				s_animators.Clear();
 
-				if (!Icon3DFitter.TryGetBounds(instance, out var bounds))
+				// Priority of the view: the icon's override, the object's own hint, the preset
+				var hint = instance.GetComponentInChildren<UiIcon3DBoundsHint>();
+				Bounds bounds;
+				if (hint != null && hint.enabled)
+					bounds = hint.WorldBounds;
+				else if (!Icon3DFitter.TryGetBounds(instance, out bounds))
 					bounds = new Bounds(instance.transform.position, Vector3.one);
 
-				var rotation = _request.ViewRotation ?? preset.ViewRotation;
+				var rotation = _request.ViewRotation
+					?? (hint != null && hint.enabled && hint.OverrideViewRotation ? hint.WorldViewRotation : preset.ViewRotation);
 
 				// Lights are camera relative: the preset turns with the view
 				preset.transform.SetParent(s_stage.transform, false);
@@ -360,6 +410,9 @@ namespace GuiToolkit
 				_prefab = Config?.Icon3DDefaultPreset;
 
 			if (_prefab == null)
+				_prefab = GetResourcesPreset();
+
+			if (_prefab == null)
 				return GetFallbackPreset();
 
 			if (s_presetInstances.TryGetValue(_prefab, out var instance) && instance != null)
@@ -376,6 +429,19 @@ namespace GuiToolkit
 			return instance;
 		}
 
+		private static UiIcon3DPreset GetResourcesPreset()
+		{
+			if (!s_triedResourcesPreset)
+			{
+				s_triedResourcesPreset = true;
+				var go = Resources.Load<GameObject>(DefaultPresetResourcePath);
+				s_resourcesPreset = go != null ? go.GetComponent<UiIcon3DPreset>() : null;
+			}
+
+			return s_resourcesPreset;
+		}
+
+		/// <summary>Last resort when even the library preset is missing: a neutral preset built in code.</summary>
 		private static UiIcon3DPreset GetFallbackPreset()
 		{
 			if (s_fallbackPreset != null)
@@ -564,6 +630,8 @@ namespace GuiToolkit
 			s_playerLoopInstalled = false;
 			s_resolvedLayer = -1;
 			s_warnedMissingLayer = false;
+			s_triedResourcesPreset = false;
+			s_resourcesPreset = null;
 			RenderCount = 0;
 		}
 
