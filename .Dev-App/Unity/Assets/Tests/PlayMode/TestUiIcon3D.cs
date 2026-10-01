@@ -11,8 +11,8 @@ namespace GuiToolkit.Test
 	/// Tests for the <see cref="UiIcon3D"/> component: size from the rect, no flicker while re-rendering,
 	/// sharing, release, bounds hint, periodic mode.
 	///
-	/// The component requests on the renderer tick and swaps to the new image on the following tick, so
-	/// "render and show" takes two <see cref="UiIcon3DRenderer.Flush"/> calls.
+	/// The component requests before the renderer renders and swaps to the finished image right after, so one
+	/// <see cref="UiIcon3DRenderer.Flush"/> renders and shows. A tick with budget 0 requests without rendering.
 	/// </summary>
 	public class TestUiIcon3D
 	{
@@ -87,11 +87,12 @@ namespace GuiToolkit.Test
 			var before = icon.RawImage.texture;
 
 			icon.RectTransform.sizeDelta = new Vector2(80, 80);
-			UiIcon3DRenderer.Flush();   // requests and renders the new size, still shows the old one
+			UiIcon3DRenderer.Process(0);   // requests the new size, renders nothing: the old image must stay
 
 			Assert.AreSame(before, icon.RawImage.texture, "new image shown before it was rendered / old one dropped");
+			Assert.IsTrue(before != null, "old image was released before the new one exists");
 
-			UiIcon3DRenderer.Flush();   // swap
+			UiIcon3DRenderer.Flush();      // renders and swaps in the same tick
 			Assert.AreNotSame(before, icon.RawImage.texture);
 			Assert.IsTrue(icon.RawImage.texture != null, "RawImage shows a destroyed texture");
 			Assert.AreEqual(80, icon.RawImage.texture.width);
@@ -198,6 +199,22 @@ namespace GuiToolkit.Test
 			Assert.Greater(UiIcon3DRenderer.RenderCount, renders, "periodic icon not rendered again");
 		}
 
+		/// Regression: the image used to be shown one tick after it was rendered. In the editor nothing repaints
+		/// in between, so a re-enabled icon stayed empty until the user clicked somewhere.
+		[Test]
+		public void Rendered_Image_Is_Shown_In_The_Same_Tick()
+		{
+			var icon = CreateIcon(new Vector2(32, 32));
+			UiIcon3DRenderer.Flush();
+			Assert.IsTrue(icon.IsRendered);
+			Assert.IsInstanceOf<RenderTexture>(icon.RawImage.texture);
+
+			icon.gameObject.SetActive(false);
+			icon.gameObject.SetActive(true);
+			UiIcon3DRenderer.Flush();
+			Assert.IsTrue(icon.IsRendered, "re-enabled icon not shown after one tick");
+		}
+
 		[Test]
 		public void Static_Mode_Does_Not_Render_Again()
 		{
@@ -214,11 +231,7 @@ namespace GuiToolkit.Test
 
 		#region Helpers
 
-		private static void RenderAndShow()
-		{
-			UiIcon3DRenderer.Flush();
-			UiIcon3DRenderer.Flush();
-		}
+		private static void RenderAndShow() => UiIcon3DRenderer.Flush();
 
 		private T Track<T>( T _obj ) where T : Object
 		{

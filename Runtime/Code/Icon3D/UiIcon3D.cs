@@ -13,7 +13,8 @@ namespace GuiToolkit
 	/// distinct objects renders 20 times.
 	///
 	/// While a new image is being rendered (first show, resize, property change) the previous one stays visible,
-	/// so there is no flicker; before the very first image a transparent placeholder is shown.
+	/// so there is no flicker; before the very first image a transparent placeholder is shown. The switch to the new
+	/// image happens in the same renderer tick that rendered it.
 	///
 	/// The RawImage needs the UI_Icon3D material (premultiplied alpha) - the library prefab has it.
 	/// </summary>
@@ -161,7 +162,8 @@ namespace GuiToolkit
 
 			if (!m_isSubscribed)
 			{
-				UiIcon3DRenderer.EvBeforeRender += OnRendererTick;
+				UiIcon3DRenderer.EvBeforeRender += OnBeforeRender;
+				UiIcon3DRenderer.EvAfterRender += OnAfterRender;
 				m_isSubscribed = true;
 			}
 		}
@@ -170,7 +172,8 @@ namespace GuiToolkit
 		{
 			if (m_isSubscribed)
 			{
-				UiIcon3DRenderer.EvBeforeRender -= OnRendererTick;
+				UiIcon3DRenderer.EvBeforeRender -= OnBeforeRender;
+				UiIcon3DRenderer.EvAfterRender -= OnAfterRender;
 				m_isSubscribed = false;
 			}
 
@@ -209,7 +212,8 @@ namespace GuiToolkit
 			ReleaseHandles();
 		}
 
-		private void OnRendererTick()
+		// Before the renderer renders: follow size and property changes, so the request renders in this tick
+		private void OnBeforeRender()
 		{
 			if (this == null)
 				return;
@@ -218,21 +222,28 @@ namespace GuiToolkit
 			if (m_isDirty || size != m_requestedSize)
 				Request(size);
 
-			if (m_pending != null && m_pending.IsRendered)
-			{
-				var previous = m_shown;
-				m_shown = m_pending;
-				m_pending = null;
-				ShowTexture(m_shown.Texture);
-				previous?.Release();
-				m_nextRefreshTime = Time.realtimeSinceStartup + m_refreshInterval;
-			}
-
 			if (m_mode == EMode.Periodic && m_shown != null && Time.realtimeSinceStartup >= m_nextRefreshTime)
 			{
 				m_nextRefreshTime = Time.realtimeSinceStartup + m_refreshInterval;
 				m_shown.SetDirty();
 			}
+		}
+
+		// After the renderer rendered: show a finished image in the same tick
+		private void OnAfterRender()
+		{
+			if (this == null || m_pending == null || !m_pending.IsRendered)
+				return;
+
+			var previous = m_shown;
+			m_shown = m_pending;
+			m_pending = null;
+			ShowTexture(m_shown.Texture);
+			previous?.Release();
+			m_nextRefreshTime = Time.realtimeSinceStartup + m_refreshInterval;
+
+			// The image may have needed no render (shared with another icon), so nothing else repaints the editor
+			UiIcon3DRenderer.RequestEditorRepaint();
 		}
 
 		private void Request( Vector2Int _size )

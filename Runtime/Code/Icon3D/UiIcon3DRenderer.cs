@@ -54,6 +54,8 @@ namespace GuiToolkit
 		private static bool s_triedResourcesPreset;
 		private static UiIcon3DPreset s_resourcesPreset;
 		private static Action s_beforeRender;
+		private static Action s_afterRender;
+		private static bool s_repaintRequested;
 
 		/// <summary>
 		/// Raised on every renderer tick, right before pending icons are rendered: once per frame in play mode
@@ -69,6 +71,27 @@ namespace GuiToolkit
 			}
 			remove => s_beforeRender -= value;
 		}
+
+		/// <summary>
+		/// Raised on every renderer tick right after pending icons were rendered. Icons swap to a finished image
+		/// here, so the image is shown in the same tick it was rendered in.
+		/// </summary>
+		public static event Action EvAfterRender
+		{
+			add
+			{
+				s_afterRender += value;
+				EnsureUpdateHook();
+			}
+			remove => s_afterRender -= value;
+		}
+
+		/// <summary>
+		/// Ask for a repaint of all editor views at the end of this tick, e.g. after an icon switched to an image
+		/// that needed no render (shared with another icon). Only has an effect in edit mode, where nothing else
+		/// would repaint the views until the user interacts.
+		/// </summary>
+		public static void RequestEditorRepaint() => s_repaintRequested = true;
 
 		/// <summary>Number of renders since start; for tests and diagnostics.</summary>
 		public static int RenderCount { get; private set; }
@@ -219,22 +242,26 @@ namespace GuiToolkit
 
 		#region Rendering
 
-		private static void Process( int _budget )
+		/// <summary>One renderer tick: icons update their requests, pending icons render (within _budget), icons swap.</summary>
+		internal static void Process( int _budget )
 		{
-			if (s_beforeRender != null)
-			{
-				try
-				{
-					s_beforeRender.Invoke();
-				}
-				catch (Exception e)
-				{
-					Debug.LogException(e);
-				}
-			}
+			Raise(s_beforeRender);
+			int rendered = RenderPending(_budget);
+			Raise(s_afterRender);
 
+#if UNITY_EDITOR
+			// In edit mode nothing repaints the views on its own; a changed RawImage would stay invisible until
+			// the user clicks somewhere
+			if (!Application.isPlaying && (rendered > 0 || s_repaintRequested))
+				UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+#endif
+			s_repaintRequested = false;
+		}
+
+		private static int RenderPending( int _budget )
+		{
 			if (s_requests.Count == 0)
-				return;
+				return 0;
 
 			// Lets new requests get their textures and resized ones re-render in this pass
 			RenderTextureManager.FlushAll();
@@ -251,13 +278,19 @@ namespace GuiToolkit
 			}
 
 			if (s_pending.Count == 0)
-				return;
+				return 0;
+
+			int count = Mathf.Min(_budget, s_pending.Count);
+			if (count <= 0)
+			{
+				s_pending.Clear();
+				return 0;
+			}
 
 			EnsureStage();
 			MaskForeignLights();
 			try
 			{
-				int count = Mathf.Min(_budget, s_pending.Count);
 				for (int i = 0; i < count; i++)
 					RenderRequest(s_pending[i]);
 			}
@@ -267,10 +300,22 @@ namespace GuiToolkit
 				s_pending.Clear();
 			}
 
-#if UNITY_EDITOR
-			if (!Application.isPlaying)
-				UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
-#endif
+			return count;
+		}
+
+		private static void Raise( Action _event )
+		{
+			if (_event == null)
+				return;
+
+			try
+			{
+				_event.Invoke();
+			}
+			catch (Exception e)
+			{
+				Debug.LogException(e);
+			}
 		}
 
 		private static void RenderRequest( Icon3DRequest _request )
