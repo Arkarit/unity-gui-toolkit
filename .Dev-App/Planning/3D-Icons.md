@@ -304,6 +304,13 @@ a destroyed object equals null, the dead reference stays in the RawImage (`Refer
 **Done when** a scroll list with 100 pooled items, 30 distinct objects loaded via Addressables, scrolls without
 hitches, shows each distinct icon rendered once, and survives rapid scrolling (reassignment during loads).
 
+**Status:** implemented and verified (`Icon3DAssetCache`, `UiIcon3D.PrefabId` / `CanonicalAssetRef`, loading texture,
+visible-first render order). Tests in `Tests/PlayMode/TestIcon3DLoading.cs` with a fake provider that completes loads
+on demand - the reassignment race is covered there. The scroll stress demo (100 icons, 30 objects, shuffle while
+loading) runs stable. Results are polled, never delivered by callback: an icon only looks at its current lease, so a
+late load can not reach the wrong icon by construction. Open: the frame budget counts renders, not milliseconds;
+the demo loads through Resources - Addressables use the same abstraction but were not exercised separately.
+
 ### Phase 4 - Animated mode
 
 1. Persistent instance, rendered every frame after the static batch; optional frame divider.
