@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.LowLevel;
 using Object = UnityEngine.Object;
 
 namespace GuiToolkit
@@ -415,52 +414,15 @@ namespace GuiToolkit
 			s_playerLoopInstalled = false;
 		}
 
+		// Runs after the canvas layout and before the cameras render, so size changes from layout
+		// are picked up within the same frame.
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void InstallPlayerLoopSystem()
 		{
 			if (s_playerLoopInstalled)
 				return;
 
-			var loop = PlayerLoop.GetCurrentPlayerLoop();
-			if (InsertBeforeFrameRendering(ref loop))
-			{
-				PlayerLoop.SetPlayerLoop(loop);
-				s_playerLoopInstalled = true;
-			}
-		}
-
-		// Runs after the canvas layout (PostLateUpdate.PlayerUpdateCanvases) and before the cameras render
-		// (PostLateUpdate.FinishFrameRendering), so size changes from layout are picked up within the same frame.
-		private static bool InsertBeforeFrameRendering( ref PlayerLoopSystem _loop )
-		{
-			if (_loop.subSystemList == null)
-				return false;
-
-			for (int i = 0; i < _loop.subSystemList.Length; i++)
-			{
-				ref var system = ref _loop.subSystemList[i];
-				if (system.type != typeof(UnityEngine.PlayerLoop.PostLateUpdate) || system.subSystemList == null)
-					continue;
-
-				var subSystems = new List<PlayerLoopSystem>(system.subSystemList);
-				if (subSystems.Exists(s => s.type == typeof(RenderTextureManagerFlush)))
-					return true;
-
-				int index = subSystems.FindIndex(s => s.type == typeof(UnityEngine.PlayerLoop.PostLateUpdate.FinishFrameRendering));
-				if (index < 0)
-					index = subSystems.Count;
-
-				subSystems.Insert(index, new PlayerLoopSystem
-				{
-					type = typeof(RenderTextureManagerFlush),
-					updateDelegate = FlushAll
-				});
-
-				system.subSystemList = subSystems.ToArray();
-				return true;
-			}
-
-			return false;
+			s_playerLoopInstalled = PlayerLoopUtility.InsertBeforeFrameRendering(typeof(RenderTextureManagerFlush), FlushAll);
 		}
 
 #if UNITY_EDITOR

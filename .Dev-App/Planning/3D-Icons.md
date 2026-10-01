@@ -253,12 +253,28 @@ Each phase ends with something visible and tested. Effort estimates assume the p
 **Done when** the isolation tests below pass and a dev scene shows two icons with opposite presets next to a
 scene with a strong coloured directional light and fog, with no visible influence in either direction.
 
+**Status:** implemented (`Runtime/Code/Icon3D`, `Runtime/Shaders/UI_Icon3D.shader`, `Editor/Icon3D`), tests in
+`Tests/PlayMode/TestIcon3DRenderer.cs`. Deviations from the plan above, found while building it:
+
+- **No validator for scene cameras.** Static instances and preset lights only exist (are active) during their own
+  render call, so a scene camera can never see them, whatever its culling mask. The reserved layer only keeps scene
+  objects out of the stage camera. The animated instance (phase 4) will be kept invisible with `forceRenderingOff`
+  outside its own render. What remains is a check for scene objects on the icon layer (menu + configuration window).
+- **Baseline environment.** Before the preset's settings, the backend applies a complete neutral environment (black
+  flat ambient, no fog, no skybox, black custom reflection) - what an empty scene gives. Whatever a preset leaves
+  open is neutral, never the scene's. The oracle test checks exactly that.
+- **Physics on icon objects is left alone** for now: the runtime assembly does not reference the physics modules,
+  and a static instance is never active across a physics step. The animated mode needs it (colliders of a
+  permanently active instance); planned via `versionDefines` on the physics module packages.
+
 ### Phase 2 - Component, presets, prefabs
 
 1. `UiIcon3D`: object source (direct prefab reference for now), preset, view rotation, fit mode, resolution
    scale, mode (static / periodic + interval / animated); re-render on size change / texture loss / property change; content-hash keyword.
 2. `UiIcon3DPreset` + `UiIcon3DBoundsHint`.
-3. Library prefabs: `UiIcon3D.prefab`, presets *Neutral*, *Warm*, *Dramatic*. Following BEST-PRACTICES, clients
+3. Library prefabs: `UiIcon3D.prefab`, presets *Neutral*, *Warm*, *Dramatic* - **each with its own reflection
+   cubemap**: the baseline reflection is black, and metal reflects almost nothing but its environment, so a preset
+   without reflection renders metal black (seen in the phase 1 demo scene; `Icon3DEnvironmentUtility.CreateGradientCubemap`). Following BEST-PRACTICES, clients
    create variants in bulk.
 4. Edit-mode preview (renderer works in edit mode, ticking via `EditorApplication.update`), also in the Prefab Stage.
 

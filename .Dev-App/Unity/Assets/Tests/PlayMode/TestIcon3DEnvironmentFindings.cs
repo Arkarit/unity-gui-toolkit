@@ -20,7 +20,7 @@ namespace GuiToolkit.Test
 	/// Setup: a white Standard-shader sphere in a runtime-created "icon scene", rendered by a camera with
 	/// <c>Camera.scene</c> set to that scene, against lights, objects and ambient in the test runner's (active) scene.
 	/// </summary>
-	public class SpikeIcon3DSceneIsolation
+	public class TestIcon3DEnvironmentFindings
 	{
 		private const int Size = 32;
 		private const float Threshold = 0.05f;

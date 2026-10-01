@@ -161,6 +161,9 @@ namespace GuiToolkit.Editor
 					new GUIContent("Standard Element Registry", UiToolkitConfiguration.HELP_STANDARD_ELEMENT_REGISTRY));
 
 			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
+			Icon3DSetup.DrawConfiguration(m_serializedSettingsObject);
+
+			GUILayout.Space(EditorUiUtility.LARGE_SPACE_HEIGHT);
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_assetProviderFactories"));
 			EditorGUILayout.PropertyField(m_serializedSettingsObject.FindProperty("m_storageFactory"));
 			

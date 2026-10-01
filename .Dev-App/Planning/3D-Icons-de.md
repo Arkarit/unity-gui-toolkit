@@ -259,12 +259,29 @@ Jede Phase endet mit etwas Sichtbarem und Getestetem. Aufwände orientieren sich
 **Fertig, wenn** die Isolationstests unten grün sind und eine Dev-Szene zwei Icons mit gegensätzlichen Presets neben
 einer Szene mit starkem farbigem Directional Light und Fog zeigt – ohne sichtbaren Einfluss in irgendeine Richtung.
 
+**Stand:** umgesetzt (`Runtime/Code/Icon3D`, `Runtime/Shaders/UI_Icon3D.shader`, `Editor/Icon3D`), Tests in
+`Tests/PlayMode/TestIcon3DRenderer.cs`. Abweichungen vom Plan oben, beim Bauen gefunden:
+
+- **Kein Validator für Szenenkameras.** Statische Instanzen und Preset-Lichter existieren (sind aktiv) nur während
+  ihres eigenen Render-Aufrufs; eine Szenenkamera kann sie also nie sehen, egal wie ihre Culling Mask aussieht. Der
+  reservierte Layer hält nur Szenenobjekte von der Bühnenkamera fern. Die animierte Instanz (Phase 4) wird außerhalb
+  ihres Renderings per `forceRenderingOff` unsichtbar gehalten. Übrig bleibt eine Prüfung auf Szenenobjekte im
+  Icon-Layer (Menü + Konfigurationsfenster).
+- **Neutraler Ausgangszustand.** Vor den Settings des Presets setzt das Backend ein vollständiges neutrales
+  Environment (schwarzes Flat-Ambient, kein Fog, keine Skybox, schwarze Custom-Reflection) – das, was eine leere
+  Szene liefert. Was ein Preset offen lässt, ist neutral, nie das der Szene. Der Orakel-Test prüft genau das.
+- **Physik an Icon-Objekten bleibt vorerst unangetastet:** Die Runtime-Assembly referenziert die Physik-Module nicht,
+  und eine statische Instanz ist nie über einen Physik-Schritt hinweg aktiv. Der animierte Modus braucht es
+  (Collider einer dauerhaft aktiven Instanz); geplant über `versionDefines` auf die Physik-Modul-Pakete.
+
 ### Phase 2 – Komponente, Presets, Prefabs
 
 1. `UiIcon3D`: Objektquelle (vorerst direkte Prefab-Referenz), Preset, Blickrichtung, Fit-Modus,
    Auflösungsfaktor, Modus (statisch / periodisch + Intervall / animiert); erneutes Rendern bei Größenänderung / Texturverlust / Property-Änderung; Inhalts-Hash als Keyword.
 2. `UiIcon3DPreset` + `UiIcon3DBoundsHint`.
-3. Library-Prefabs: `UiIcon3D.prefab`, Presets *Neutral*, *Warm*, *Dramatic*. Gemäß BEST-PRACTICES legen Clients
+3. Library-Prefabs: `UiIcon3D.prefab`, Presets *Neutral*, *Warm*, *Dramatic* – **jedes mit eigener
+   Reflection-Cubemap**: Die Basis-Reflection ist schwarz, und Metall reflektiert fast nur seine Umgebung; ein Preset
+   ohne Reflection rendert Metall schwarz (gesehen in der Demo-Szene von Phase 1; `Icon3DEnvironmentUtility.CreateGradientCubemap`). Gemäß BEST-PRACTICES legen Clients
    Varianten in einem Rutsch an.
 4. Vorschau im Edit Mode (Renderer arbeitet im Edit Mode, Takt über `EditorApplication.update`), auch in der Prefab Stage.
 

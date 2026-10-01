@@ -127,6 +127,13 @@ namespace GuiToolkit
 		public const string HELP_UI_SOUND_CONFIG =
 			"Optional set of UI sound effects (button click, and later hover etc.). Supply your own UiSoundConfig asset here; leave empty to disable UI sounds. The host app can additionally scale/mute at runtime via UiSound.VolumeProvider / UiSound.MutedProvider.";
 
+		public const string HELP_ICON3D_LAYER =
+			"Layer reserved for 3D icons. The icon stage camera renders only this layer, so no scene object may use it. " +
+			"Scene cameras do not need to exclude it: icon objects are only visible during their own render call.";
+		public const string HELP_ICON3D_MSAA = "MSAA samples for rendering 3D icons (1, 2, 4 or 8). Only the shared scratch target uses it; stored icons have no MSAA.";
+		public const string HELP_ICON3D_RENDERS_PER_FRAME = "Maximum number of static 3D icons rendered per frame. Further requests wait for the next frame.";
+		public const string HELP_ICON3D_DEFAULT_PRESET = "Lighting preset (prefab with UiIcon3DPreset) used when an icon has none. Empty: a built-in neutral preset.";
+
 		public const string HELP_STANDARD_ELEMENT_REGISTRY =
 			"Generated registry mapping standard-element identities (see UiStandardElement) to the winning prefab, " +
 			"with client prefabs/variants out-ranking the toolkit defaults. Rebuilt by 'Gui Toolkit -> AI -> " +
@@ -201,6 +208,18 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_STANDARD_ELEMENT_REGISTRY)]
 		[SerializeField, Optional] private UiStandardElementRegistry m_standardElementRegistry = null;
+
+		[Tooltip(HELP_ICON3D_LAYER)]
+		[SerializeField] private string m_icon3DLayerName = "Icon3D";
+
+		[Tooltip(HELP_ICON3D_MSAA)]
+		[SerializeField] private int m_icon3DMsaaSamples = 4;
+
+		[Tooltip(HELP_ICON3D_RENDERS_PER_FRAME)]
+		[SerializeField][Min(1)] private int m_icon3DRendersPerFrame = 8;
+
+		[Tooltip(HELP_ICON3D_DEFAULT_PRESET)]
+		[SerializeField, Optional] private UiIcon3DPreset m_icon3DDefaultPreset = null;
 
 		private readonly Dictionary<string, SceneReference> m_scenesByName = new Dictionary<string, SceneReference>();
 		private string m_rootDir;
@@ -285,6 +304,10 @@ namespace GuiToolkit
 		public UiAbstractTransitionOverlay TransitionOverlay => m_transitionOverlay;
 		public UiSoundConfig UiSoundConfig => m_uiSoundConfig;
 		public UiStandardElementRegistry StandardElementRegistry => m_standardElementRegistry;
+		public string Icon3DLayerName => m_icon3DLayerName;
+		public int Icon3DMsaaSamples => m_icon3DMsaaSamples;
+		public int Icon3DRendersPerFrame => m_icon3DRendersPerFrame;
+		public UiIcon3DPreset Icon3DDefaultPreset => m_icon3DDefaultPreset;
 
 		/// <summary>Canonical project folder for client prefab VARIANTS of toolkit standard elements —
 		/// the catalog generator scans it for standard-element markers, and the variant-creation tool

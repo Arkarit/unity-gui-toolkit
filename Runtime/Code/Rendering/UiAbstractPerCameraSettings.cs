@@ -15,9 +15,12 @@ namespace GuiToolkit
 	/// Works with the built-in pipeline (Camera.onPreCull / onPostRender) and with any SRP
 	/// (RenderPipelineManager.begin/endCameraRendering). Whether an SRP actually reads a given global
 	/// at camera time is up to the pipeline; URP and HDRP take many of these from their own assets/volumes.
+	///
+	/// Without a Camera on the same GameObject the component is a plain container: nothing applies it
+	/// automatically, the owner calls <see cref="Apply"/> / <see cref="Restore"/> around its own render call.
+	/// 3D icon presets use it that way (a camera inside a preset prefab would render by itself).
 	/// </summary>
 	[ExecuteAlways]
-	[RequireComponent(typeof(Camera))]
 	public abstract class UiAbstractPerCameraSettings : MonoBehaviour
 	{
 		private readonly List<PerCameraSettingBase> m_settings = new();
