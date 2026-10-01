@@ -1,3 +1,4 @@
+using GuiToolkit.AssetHandling;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +17,12 @@ namespace GuiToolkit
 	/// so there is no flicker; before the very first image a transparent placeholder is shown. The switch to the new
 	/// image happens in the same renderer tick that rendered it.
 	///
+	/// The object is either referenced directly or loaded through <see cref="AssetManager"/> by canonical id
+	/// (Resources, Addressables, ...); loads are shared between icons. When the object changes - e.g. a pooled list
+	/// item is reused for another entry - the old image is dropped at once, it would show the wrong thing.
+	///
+	/// Visible icons are rendered first: off screen, or culled by a RectMask2D (scroll views), they wait.
+	///
 	/// The RawImage needs the UI_Icon3D material (premultiplied alpha) - the library prefab has it.
 	/// </summary>
 	[ExecuteAlways]
@@ -32,6 +39,10 @@ namespace GuiToolkit
 
 		[Tooltip("Object to show; a prefab or any GameObject. It is copied for every render, never modified.")]
 		[SerializeField] private GameObject m_prefab;
+		[Tooltip("Object to load through the AssetManager (Resources, Addressables, ...) - used when no prefab is set directly")]
+		[SerializeField][CanonicalAssetRef(new[] { typeof(GameObject) })] private CanonicalAssetRef m_prefabRef = new();
+		[Tooltip("Shown while the object loads and before its first image; empty = transparent. Should be premultiplied or opaque (UI_Icon3D material).")]
+		[SerializeField] private Texture m_loadingTexture;
 		[Tooltip("Lighting preset prefab; empty = the configured default preset")]
 		[SerializeField] private UiIcon3DPreset m_preset;
 		[SerializeField] private bool m_overrideViewRotation;
@@ -48,6 +59,8 @@ namespace GuiToolkit
 		private Icon3DHandle m_shown;
 		private Icon3DHandle m_pending;
 		private Vector2Int m_requestedSize;
+		private GameObject m_requestedPrefab;
+		private Icon3DAssetLease m_lease;
 		private bool m_isDirty = true;
 		private bool m_isSubscribed;
 		private float m_nextRefreshTime;
@@ -64,6 +77,36 @@ namespace GuiToolkit
 				SetDirty();
 			}
 		}
+
+		/// <summary>
+		/// Canonical id of the object to load (e.g. "res:Items/Sword" or an Addressables key with the provider's prefix).
+		/// Only used while <see cref="Prefab"/> is not set.
+		/// </summary>
+		public string PrefabId
+		{
+			get => m_prefabRef?.Id ?? string.Empty;
+			set
+			{
+				m_prefabRef ??= new CanonicalAssetRef();
+				if (m_prefabRef.Id == value)
+					return;
+
+				m_prefabRef.Id = value;
+				SetDirty();
+			}
+		}
+
+		public Texture LoadingTexture
+		{
+			get => m_loadingTexture;
+			set => m_loadingTexture = value;
+		}
+
+		/// <summary>True while the object is being loaded.</summary>
+		public bool IsLoading => m_prefab == null && m_lease != null && !m_lease.IsLoaded && !m_lease.HasFailed;
+
+		/// <summary>True if loading the object failed; the icon stays empty until the id changes.</summary>
+		public bool HasLoadFailed => m_prefab == null && m_lease != null && m_lease.HasFailed;
 
 		public UiIcon3DPreset Preset
 		{
@@ -158,7 +201,7 @@ namespace GuiToolkit
 		{
 			base.OnEnable();
 			m_isDirty = true;
-			ShowTexture(RenderTextureManager.Placeholder);
+			ShowTexture(LoadingTextureOrPlaceholder);
 
 			if (!m_isSubscribed)
 			{
@@ -180,6 +223,7 @@ namespace GuiToolkit
 			// Detach before releasing: the released texture is destroyed immediately in edit mode
 			ShowTexture(null);
 			ReleaseHandles();
+			ReleaseLease();
 			base.OnDisable();
 		}
 
@@ -208,8 +252,9 @@ namespace GuiToolkit
 
 		public void OnPoolReleased()
 		{
-			ShowTexture(RenderTextureManager.Placeholder);
+			ShowTexture(LoadingTextureOrPlaceholder);
 			ReleaseHandles();
+			ReleaseLease();
 		}
 
 		// Before the renderer renders: follow size and property changes, so the request renders in this tick
@@ -218,9 +263,17 @@ namespace GuiToolkit
 			if (this == null)
 				return;
 
+			var prefab = ResolvePrefab();
 			var size = GetPixelSize();
-			if (m_isDirty || size != m_requestedSize)
-				Request(size);
+			if (m_isDirty || size != m_requestedSize || !ReferenceEquals(prefab, m_requestedPrefab))
+				Request(size, prefab);
+
+			// Visible icons are rendered first
+			bool visible = IsOnScreen();
+			if (m_pending != null)
+				m_pending.IsVisible = visible;
+			if (m_shown != null)
+				m_shown.IsVisible = visible;
 
 			if (m_mode == EMode.Periodic && m_shown != null && Time.realtimeSinceStartup >= m_nextRefreshTime)
 			{
@@ -246,22 +299,57 @@ namespace GuiToolkit
 			UiIcon3DRenderer.RequestEditorRepaint();
 		}
 
-		private void Request( Vector2Int _size )
+		/// <summary>The object to render: the direct reference, else the loaded asset; null while loading or without object.</summary>
+		private GameObject ResolvePrefab()
+		{
+			if (m_prefab != null)
+			{
+				ReleaseLease();
+				return m_prefab;
+			}
+
+			string id = PrefabId;
+			if (string.IsNullOrEmpty(id))
+			{
+				ReleaseLease();
+				return null;
+			}
+
+			if (m_lease == null || m_lease.Id != id)
+			{
+				ReleaseLease();
+				m_lease = Icon3DAssetCache.Acquire(id);
+			}
+
+			return m_lease.Asset;
+		}
+
+		private void Request( Vector2Int _size, GameObject _prefab )
 		{
 			m_isDirty = false;
+			bool objectChanged = !ReferenceEquals(_prefab, m_requestedPrefab);
 			m_requestedSize = _size;
+			m_requestedPrefab = _prefab;
 
 			m_pending?.Release();
 			m_pending = null;
 
-			if (m_prefab == null || _size.x <= 0 || _size.y <= 0)
+			// Another object: the old image would show the wrong thing (think of a reused list item)
+			if (objectChanged && m_shown != null)
 			{
-				ShowTexture(RenderTextureManager.Placeholder);
+				ShowTexture(LoadingTextureOrPlaceholder);
+				m_shown.Release();
+				m_shown = null;
+			}
+
+			if (_prefab == null || _size.x <= 0 || _size.y <= 0)
+			{
+				ShowTexture(LoadingTextureOrPlaceholder);
 				ReleaseHandles();
 				return;
 			}
 
-			var handle = UiIcon3DRenderer.RenderStatic(m_prefab, m_preset, _size, m_overrideViewRotation ? ViewRotation : (Quaternion?)null);
+			var handle = UiIcon3DRenderer.RenderStatic(_prefab, m_preset, _size, m_overrideViewRotation ? ViewRotation : (Quaternion?)null);
 
 			// Nothing that matters changed
 			if (m_shown != null && handle.Key == m_shown.Key)
@@ -272,7 +360,48 @@ namespace GuiToolkit
 
 			m_pending = handle;
 			if (m_shown == null)
-				ShowTexture(RenderTextureManager.Placeholder);
+				ShowTexture(LoadingTextureOrPlaceholder);
+		}
+
+		private Texture LoadingTextureOrPlaceholder => m_loadingTexture != null ? m_loadingTexture : RenderTextureManager.Placeholder;
+
+		private static readonly Vector3[] s_corners = new Vector3[4];
+
+		/// <summary>
+		/// On screen and not culled by a RectMask2D (which is what a scroll view uses). Stencil masks are not
+		/// considered; such icons count as visible.
+		/// </summary>
+		private bool IsOnScreen()
+		{
+			var rawImage = RawImage;
+			if (rawImage == null || !rawImage.isActiveAndEnabled || rawImage.canvasRenderer.cull)
+				return false;
+
+			var canvas = rawImage.canvas;
+			if (canvas == null)
+				return false;
+
+			var rootCanvas = canvas.rootCanvas;
+			var cam = rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : rootCanvas.worldCamera;
+			RectTransform.GetWorldCorners(s_corners);
+
+			float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
+			foreach (var corner in s_corners)
+			{
+				var p = RectTransformUtility.WorldToScreenPoint(cam, corner);
+				minX = Mathf.Min(minX, p.x);
+				minY = Mathf.Min(minY, p.y);
+				maxX = Mathf.Max(maxX, p.x);
+				maxY = Mathf.Max(maxY, p.y);
+			}
+
+			return maxX >= 0 && maxY >= 0 && minX <= Screen.width && minY <= Screen.height;
+		}
+
+		private void ReleaseLease()
+		{
+			m_lease?.Release();
+			m_lease = null;
 		}
 
 		private Vector2Int GetPixelSize()
@@ -308,7 +437,6 @@ namespace GuiToolkit
 			m_pending = null;
 			m_shown?.Release();
 			m_shown = null;
-			m_requestedSize = Vector2Int.zero;
 		}
 	}
 }

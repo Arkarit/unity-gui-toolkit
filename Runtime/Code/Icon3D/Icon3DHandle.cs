@@ -13,8 +13,26 @@ namespace GuiToolkit
 	public sealed class Icon3DHandle : IDisposable
 	{
 		private Icon3DRequest m_request;
+		private bool m_isVisible;
 
 		internal Icon3DHandle( Icon3DRequest _request ) => m_request = _request;
+
+		/// <summary>
+		/// Whether the caller currently shows this icon on screen. Pending icons of visible handles are rendered
+		/// before all others; set it every frame the visibility may change (UiIcon3D does).
+		/// </summary>
+		public bool IsVisible
+		{
+			get => m_isVisible;
+			set
+			{
+				if (m_isVisible == value || m_request == null)
+					return;
+
+				m_isVisible = value;
+				m_request.VisibleHandles += value ? 1 : -1;
+			}
+		}
 
 		public bool IsReleased => m_request == null;
 
@@ -35,6 +53,7 @@ namespace GuiToolkit
 			if (m_request == null)
 				return;
 
+			IsVisible = false;
 			UiIcon3DRenderer.Release(m_request);
 			m_request = null;
 		}
@@ -54,12 +73,15 @@ namespace GuiToolkit
 		public readonly Vector2Int Size;
 		public readonly Quaternion? ViewRotation;
 		public int RefCount;
+		public int VisibleHandles;
+		public readonly long Sequence;
 		public RenderTexture Texture;
 		public bool IsDirty;
 		public bool IsRendered;
 		public bool HasFailed;
 
 		private readonly RenderTextureSpec m_spec;
+		private static long s_sequence;
 
 		public Icon3DRequest( string _key, GameObject _prefab, UiIcon3DPreset _preset, Vector2Int _size, Quaternion? _viewRotation )
 		{
@@ -68,6 +90,7 @@ namespace GuiToolkit
 			Preset = _preset;
 			Size = _size;
 			ViewRotation = _viewRotation;
+			Sequence = ++s_sequence;
 
 			// Storage only: the actual render goes into a shared scratch target with depth and MSAA
 			m_spec = RenderTextureSpec.Default;

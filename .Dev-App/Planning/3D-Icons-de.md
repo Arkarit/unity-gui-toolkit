@@ -36,6 +36,12 @@ herauszufinden, wie nah `Camera.scene` genau daran herankommt (siehe *Spike: Sze
 **Was das nicht ist:** ein allgemeines „3D in die UI rendern“-System für Zwischensequenzen oder
 Charakterbildschirme mit Post-Processing. Eine Bühne, ein Objekt, ein Preset pro Render-Aufruf.
 
+**Und auch kein Ersatz für `Ui3DObject`.** Diese Komponente hängt ein 3D-Objekt direkt in die UI-Hierarchie,
+per Vertex-Shader in sein RectTransform eingepasst – es *ist* also Teil der Welt und wird vom Szenenlicht
+beleuchtet. Das ist ein Feature, kein Makel: Eine Waffe im HUD eines Shooters, beleuchtet vom Licht des Levels,
+wirkt großartig, und ein bestehendes Projekt nutzt genau das. `Ui3DObject` = bewusst Teil der Welt, `UiIcon3D` =
+bewusst nicht. Beide bleiben.
+
 ---
 
 ## Was schon existiert

@@ -18,7 +18,11 @@ namespace GuiToolkit.Editor
 			EditorGUILayout.Space();
 			using (new EditorGUI.DisabledScope(true))
 			{
-				EditorGUILayout.LabelField("Rendered", icon.IsRendered ? "yes" : "pending");
+				string state = icon.HasLoadFailed ? "load failed (see console)"
+					: icon.IsLoading ? "loading"
+					: icon.IsRendered ? "rendered"
+					: "pending";
+				EditorGUILayout.LabelField("State", state);
 				var texture = icon.RawImage != null ? icon.RawImage.texture : null;
 				// 'is' alone also matches a destroyed texture
 				if (texture is RenderTexture rt && rt != null)

@@ -35,6 +35,11 @@ environment, all of it would have been trivial." Phase 1 therefore starts by fin
 **What this is not:** a general "render 3D into UI" system for cutscenes or character screens with
 post-processing. One stage, one object, one preset per render.
 
+**Nor a replacement for `Ui3DObject`.** That component puts a 3D object directly into the UI hierarchy, fitted to
+its RectTransform by a vertex shader - so it *is* part of the world and lit by the scene. That is a feature, not a
+flaw: a weapon in a shooter's HUD lit by the level's light looks great, and an existing project uses it exactly
+that way. `Ui3DObject` = deliberately part of the world, `UiIcon3D` = deliberately not. Both stay.
+
 ---
 
 ## What already exists

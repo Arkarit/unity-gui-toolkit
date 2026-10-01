@@ -245,6 +245,7 @@ namespace GuiToolkit
 		/// <summary>One renderer tick: icons update their requests, pending icons render (within _budget), icons swap.</summary>
 		internal static void Process( int _budget )
 		{
+			Icon3DAssetCache.Update();
 			Raise(s_beforeRender);
 			int rendered = RenderPending(_budget);
 			Raise(s_afterRender);
@@ -280,6 +281,9 @@ namespace GuiToolkit
 			if (s_pending.Count == 0)
 				return 0;
 
+			// Visible first, then oldest first - a list that just opened fills in from what the user looks at
+			s_pending.Sort(s_renderOrder);
+
 			int count = Mathf.Min(_budget, s_pending.Count);
 			if (count <= 0)
 			{
@@ -302,6 +306,16 @@ namespace GuiToolkit
 
 			return count;
 		}
+
+		private static readonly Comparison<Icon3DRequest> s_renderOrder = ( _a, _b ) =>
+		{
+			bool aVisible = _a.VisibleHandles > 0;
+			bool bVisible = _b.VisibleHandles > 0;
+			if (aVisible != bVisible)
+				return aVisible ? -1 : 1;
+
+			return _a.Sequence.CompareTo(_b.Sequence);
+		};
 
 		private static void Raise( Action _event )
 		{
