@@ -42,6 +42,8 @@ namespace GuiToolkit.Editor
 
 			EditorGUILayout.PropertyField(_config.FindProperty("m_icon3DRendersPerFrame"),
 				new GUIContent("Renders per Frame", UiToolkitConfiguration.HELP_ICON3D_RENDERS_PER_FRAME));
+			EditorGUILayout.PropertyField(_config.FindProperty("m_icon3DRenderMilliseconds"),
+				new GUIContent("Render Milliseconds per Frame", UiToolkitConfiguration.HELP_ICON3D_RENDER_MILLISECONDS));
 			EditorGUILayout.PropertyField(_config.FindProperty("m_icon3DDefaultPreset"),
 				new GUIContent("Default Preset", UiToolkitConfiguration.HELP_ICON3D_DEFAULT_PRESET));
 		}

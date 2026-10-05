@@ -132,6 +132,7 @@ namespace GuiToolkit
 			"Scene cameras do not need to exclude it: icon objects are only visible during their own render call.";
 		public const string HELP_ICON3D_MSAA = "MSAA samples for rendering 3D icons (1, 2, 4 or 8). Only the shared scratch target uses it; stored icons have no MSAA.";
 		public const string HELP_ICON3D_RENDERS_PER_FRAME = "Maximum number of static 3D icons rendered per frame. Further requests wait for the next frame.";
+		public const string HELP_ICON3D_RENDER_MILLISECONDS = "CPU time budget per frame for rendering static 3D icons, in milliseconds (0 = no limit). Together with 'Renders per Frame': whichever is reached first ends the frame's batch; at least one icon is always rendered. The GPU is not measured.";
 		public const string HELP_ICON3D_DEFAULT_PRESET = "Lighting preset (prefab with UiIcon3DPreset) used when an icon has none. Empty: a built-in neutral preset.";
 
 		public const string HELP_STANDARD_ELEMENT_REGISTRY =
@@ -217,6 +218,9 @@ namespace GuiToolkit
 
 		[Tooltip(HELP_ICON3D_RENDERS_PER_FRAME)]
 		[SerializeField][Min(1)] private int m_icon3DRendersPerFrame = 8;
+
+		[Tooltip(HELP_ICON3D_RENDER_MILLISECONDS)]
+		[SerializeField][Min(0)] private float m_icon3DRenderMilliseconds = 4f;
 
 		[Tooltip(HELP_ICON3D_DEFAULT_PRESET)]
 		[SerializeField, Optional] private UiIcon3DPreset m_icon3DDefaultPreset = null;
@@ -307,6 +311,7 @@ namespace GuiToolkit
 		public string Icon3DLayerName => m_icon3DLayerName;
 		public int Icon3DMsaaSamples => m_icon3DMsaaSamples;
 		public int Icon3DRendersPerFrame => m_icon3DRendersPerFrame;
+		public float Icon3DRenderMilliseconds => m_icon3DRenderMilliseconds;
 		public UiIcon3DPreset Icon3DDefaultPreset => m_icon3DDefaultPreset;
 
 		/// <summary>Canonical project folder for client prefab VARIANTS of toolkit standard elements —

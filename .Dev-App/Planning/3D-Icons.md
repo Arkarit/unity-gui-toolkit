@@ -308,8 +308,9 @@ hitches, shows each distinct icon rendered once, and survives rapid scrolling (r
 visible-first render order). Tests in `Tests/PlayMode/TestIcon3DLoading.cs` with a fake provider that completes loads
 on demand - the reassignment race is covered there. The scroll stress demo (100 icons, 30 objects, shuffle while
 loading) runs stable. Results are polled, never delivered by callback: an icon only looks at its current lease, so a
-late load can not reach the wrong icon by construction. Open: the frame budget counts renders, not milliseconds;
-the demo loads through Resources - Addressables use the same abstraction but were not exercised separately.
+late load can not reach the wrong icon by construction. The frame budget counts renders AND CPU milliseconds
+(`RenderMilliseconds`, default 4, at least one render per tick; done 2026-10-05, `TestIcon3DBudget`). Open: the demo
+loads through Resources - Addressables use the same abstraction but were not exercised separately.
 
 ### Phase 4 - Animated mode
 

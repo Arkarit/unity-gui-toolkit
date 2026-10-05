@@ -318,8 +318,9 @@ während des Ladens) übersteht.
 sichtbare Icons zuerst). Tests in `Tests/PlayMode/TestIcon3DLoading.cs` mit einem Fake-Provider, der Ladevorgänge auf
 Kommando abschließt – der Race bei Neubelegung ist dort abgedeckt. Die Scroll-Stress-Demo (100 Icons, 30 Objekte,
 Shuffle während des Ladens) läuft stabil. Ergebnisse werden abgefragt, nie per Callback geliefert: Ein Icon schaut
-nur auf seine aktuelle Anfrage, ein verspäteter Ladevorgang kann es also strukturell nicht erreichen. Offen: Das
-Frame-Budget zählt Render-Aufrufe, keine Millisekunden; die Demo lädt über Resources – Addressables nutzen dieselbe
+nur auf seine aktuelle Anfrage, ein verspäteter Ladevorgang kann es also strukturell nicht erreichen. Das
+Frame-Budget zählt Render-Aufrufe UND CPU-Millisekunden (`RenderMilliseconds`, Standard 4, mindestens ein Render pro
+Tick; erledigt 05.10.2026, `TestIcon3DBudget`). Offen: Die Demo lädt über Resources – Addressables nutzen dieselbe
 Abstraktion, wurden aber nicht eigens geprüft.
 
 ### Phase 4 – Animierter Modus

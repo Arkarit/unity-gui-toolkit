@@ -63,6 +63,7 @@ namespace GuiToolkit
 		private static int s_resolvedLayer = -1;
 		private static int s_msaaOverride;
 		private static int s_rendersPerFrameOverride;
+		private static float s_renderMillisecondsOverride = -1;
 		private static bool s_playerLoopInstalled;
 		private static bool s_warnedMissingLayer;
 		private static bool s_triedResourcesPreset;
@@ -158,6 +159,25 @@ namespace GuiToolkit
 			get => s_rendersPerFrameOverride > 0 ? s_rendersPerFrameOverride : Mathf.Max(1, Config?.Icon3DRendersPerFrame ?? 8);
 			set => s_rendersPerFrameOverride = Mathf.Max(0, value);
 		}
+
+		/// <summary>
+		/// Time budget for the static renders of one frame, in milliseconds of CPU time (0 = none). Works together
+		/// with <see cref="RendersPerFrame"/>: whichever is reached first ends the frame's batch. At least one icon
+		/// is always rendered per tick, so a single expensive object can not starve itself. It measures what the CPU
+		/// spends on instantiating, culling and submitting - the GPU works asynchronously and is not included.
+		/// From UiToolkitConfiguration unless set explicitly (negative = config).
+		/// </summary>
+		public static float RenderMilliseconds
+		{
+			get => s_renderMillisecondsOverride >= 0 ? s_renderMillisecondsOverride : Mathf.Max(0, Config?.Icon3DRenderMilliseconds ?? 4f);
+			set => s_renderMillisecondsOverride = value < 0 ? -1 : value;
+		}
+
+		/// <summary>Static icons that were still pending after the last tick because the time budget ran out.</summary>
+		public static int DeferredByTimeBudget { get; private set; }
+
+		/// <summary>CPU milliseconds the static renders of the last tick took.</summary>
+		public static float LastStaticRenderMilliseconds { get; private set; }
 
 		/// <summary>Render pipeline specific part. Built-in by default.</summary>
 		public static IIcon3DRenderBackend Backend
@@ -298,12 +318,15 @@ namespace GuiToolkit
 
 		#region Rendering
 
-		/// <summary>One renderer tick: icons update their requests, pending icons render (within _budget), icons swap.</summary>
-		internal static void Process( int _budget )
+		/// <summary>
+		/// One renderer tick: icons update their requests, pending icons render (within _budget renders and
+		/// _milliseconds of CPU time, 0 = no time limit), icons swap.
+		/// </summary>
+		internal static void Process( int _budget, float _milliseconds = 0 )
 		{
 			Icon3DAssetCache.Update();
 			Raise(s_beforeRender);
-			int rendered = RenderPending(_budget);
+			int rendered = RenderPending(_budget, _milliseconds);
 			Raise(s_afterRender);
 
 #if UNITY_EDITOR
@@ -315,8 +338,11 @@ namespace GuiToolkit
 			s_repaintRequested = false;
 		}
 
-		private static int RenderPending( int _budget )
+		private static int RenderPending( int _budget, float _milliseconds )
 		{
+			DeferredByTimeBudget = 0;
+			LastStaticRenderMilliseconds = 0;
+
 			if (s_requests.Count == 0)
 				return 0;
 
@@ -351,10 +377,22 @@ namespace GuiToolkit
 
 			EnsureStage();
 			MaskForeignLights();
+			int renderedStatic = 0;
 			try
 			{
+				var clock = System.Diagnostics.Stopwatch.StartNew();
 				for (int i = 0; i < staticCount; i++)
+				{
+					// Always at least one: whatever the budget, the queue must make progress
+					if (i > 0 && _milliseconds > 0 && clock.Elapsed.TotalMilliseconds >= _milliseconds)
+						break;
+
 					RenderStaticRequest(s_pending[i]);
+					renderedStatic++;
+				}
+
+				LastStaticRenderMilliseconds = (float)clock.Elapsed.TotalMilliseconds;
+				DeferredByTimeBudget = staticCount - renderedStatic;
 
 				// After the static ones: they must not wait for animation, which renders every frame anyway
 				foreach (var request in s_animatedDue)
@@ -366,7 +404,7 @@ namespace GuiToolkit
 				s_pending.Clear();
 			}
 
-			int count = staticCount + s_animatedDue.Count;
+			int count = renderedStatic + s_animatedDue.Count;
 			s_animatedDue.Clear();
 			return count;
 		}
@@ -1032,7 +1070,7 @@ namespace GuiToolkit
 			s_playerLoopInstalled = PlayerLoopUtility.InsertBeforeFrameRendering(typeof(UiIcon3DRendererUpdate), OnFrame);
 		}
 
-		private static void OnFrame() => Process(RendersPerFrame);
+		private static void OnFrame() => Process(RendersPerFrame, RenderMilliseconds);
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 		private static void ResetStatics()
@@ -1058,7 +1096,7 @@ namespace GuiToolkit
 			UnityEditor.EditorApplication.update += () =>
 			{
 				if (!Application.isPlaying)
-					Process(RendersPerFrame);
+					Process(RendersPerFrame, RenderMilliseconds);
 			};
 
 			UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += TearDownStage;

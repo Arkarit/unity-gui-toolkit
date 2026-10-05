@@ -39,6 +39,7 @@ Neither replaces the other.
 3. Optional settings in the same section:
    - *MSAA*: anti-aliasing of the render. Stored icons never carry MSAA.
    - *Renders per Frame*: how many static icons may render in one frame.
+   - *Render Milliseconds per Frame*: CPU time the static renders of one frame may take (default 4, 0 = no limit).
 
 Without the layer, icons fall back to layer 31 and log a warning once.
 
@@ -183,8 +184,12 @@ Instead of a direct reference, set **Prefab Id**, a canonical asset id that `Ass
   texture, so a list of 100 items with 20 distinct objects renders 20 times.
 - **Stored icons are lean:** colour only, no depth buffer, no MSAA. The render itself goes into one shared
   temporary target with depth and MSAA, which is then resolved.
-- **Static renders are budgeted per frame** (*Renders per Frame*, default 8). **Visible icons go first**: on
-  screen and not culled by a `RectMask2D`. A list that just opened fills in from what the user is looking at.
+- **Static renders are budgeted per frame** by count (*Renders per Frame*, default 8) **and** by CPU time (*Render
+  Milliseconds per Frame*, default 4): whichever is reached first ends the frame's batch, but at least one icon
+  renders every frame, so an expensive object can not starve itself. The time is what the CPU spends on
+  instantiating, culling and submitting; the GPU works asynchronously and is not measured. `DeferredByTimeBudget`
+  and `LastStaticRenderMilliseconds` on `UiIcon3DRenderer` show what the last tick did. **Visible icons go first**:
+  on screen and not culled by a `RectMask2D`. A list that just opened fills in from what the user is looking at.
   Animated icons are not budgeted.
 - **The old image stays until the new one is ready.** A resize or preset change never flickers. Only a different
   object drops the old image immediately (see above).
@@ -216,7 +221,7 @@ animated.IsVisible = isOnScreen;      // invisible animated icons are not render
 - `UiIcon3DRenderer.Invalidate()` re-renders everything. The editor calls it on asset reimport.
 - `EvBeforeRender` / `EvAfterRender` mark one renderer tick. It runs once per frame after the canvas layout, and
   on every editor update in edit mode.
-- `Layer`, `MsaaSamples`, `RendersPerFrame` and `Backend` can be overridden for tests.
+- `Layer`, `MsaaSamples`, `RendersPerFrame`, `RenderMilliseconds` and `Backend` can be overridden for tests.
 
 ---
 
