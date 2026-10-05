@@ -336,6 +336,9 @@ frames are milliseconds apart.
 ### Phase 5 - Tooling and documentation
 
 1. Preset studio: editor window rendering a grid of sample objects x presets, for authoring presets.
+   **Done** (2026-10-05): `Icon3DPresetStudio` (menu *3D Icons > Preset Studio...*), tests in `TestIcon3DPresetStudio`
+   (EditMode: one request per cell, all released on close). The drawing was not looked at in the window itself, only
+   the renders it shows.
 2. Debug view: all keywords of `RenderTextureManager`, sizes, memory, users; render count per frame.
 3. Documentation page + BEST-PRACTICES entry (layer reservation, preset variants, pipeline variants).
 

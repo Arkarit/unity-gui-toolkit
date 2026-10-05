@@ -231,6 +231,26 @@ animated.IsVisible = isOnScreen;      // invisible animated icons are not render
 
 ---
 
+## Preset Studio
+
+*Gui Toolkit → 3D Icons → Preset Studio...* shows a grid: sample objects as rows, presets as columns. A preset is
+judged on several objects at once and next to its siblings, instead of on the one object that happens to be open.
+It renders through the same renderer as every icon, so what you see is what the game shows.
+
+- **Fill it** by dropping prefabs or models into the window, or by selecting them in the Project window and pressing
+  *Add Selected*: presets (anything with a `UiIcon3DPreset`) become columns, everything else a row. *Find Presets*
+  adds the presets named `Icon3DPreset...`; with Shift held it opens every prefab in the project to look for the
+  component, which takes a while in a large project. The lists are saved with the window.
+- **Pick objects that show what a preset has to handle**: something shiny, something transparent, something dark,
+  something tall and something flat. A preset that looks good on one chrome ball is not finished.
+- **Edit a preset** by double clicking its column header (opens the prefab). The grid renders again as soon as the
+  prefab is saved. A click on a header pings the asset; the tooltip shows what the preset does (view, projection,
+  fit, alpha mode, shadow).
+- **Same view** renders every preset from one view rotation, to compare lighting alone. *Size* and the background
+  (checker, light, mid, dark) are for judging edges, alpha and shadows.
+
+---
+
 ## Shadow catcher
 
 A preset can put a soft shadow under the object without any visible ground: the icon stays transparent everywhere

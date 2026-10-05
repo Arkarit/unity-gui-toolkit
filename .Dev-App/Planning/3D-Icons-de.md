@@ -347,6 +347,9 @@ Test auf Bewegung darf nicht von der Zeit abhängen – Frames im Test Runner li
 ### Phase 5 – Werkzeuge und Dokumentation
 
 1. Preset-Studio: Editor-Fenster, das ein Raster aus Beispielobjekten x Presets rendert, zum Erstellen von Presets.
+   **Erledigt** (05.10.2026): `Icon3DPresetStudio` (Menü *3D Icons > Preset Studio...*), Tests in
+   `TestIcon3DPresetStudio` (EditMode: eine Anfrage pro Zelle, alle beim Schließen freigegeben). Die Darstellung im
+   Fenster selbst wurde nicht angesehen, nur die Renders, die es zeigt.
 2. Debug-Ansicht: alle Keywords des `RenderTextureManager`, Größen, Speicher, Nutzer; Render-Aufrufe pro Frame.
 3. Dokumentationsseite + Eintrag in BEST-PRACTICES (Layer-Reservierung, Preset-Varianten, Pipeline-Varianten).
 
