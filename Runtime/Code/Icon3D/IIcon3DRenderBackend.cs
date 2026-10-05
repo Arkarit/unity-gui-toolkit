@@ -9,6 +9,12 @@ namespace GuiToolkit
 	/// </summary>
 	public interface IIcon3DRenderBackend
 	{
+		/// <summary>
+		/// Whether <c>Light.cullingMask</c> keeps scene lights off the icons. Built-in does; URP and HDRP ignore it, so the
+		/// renderer switches the scene's lights off for the duration of the batch instead.
+		/// </summary>
+		bool LightsHonourCullingMask { get; }
+
 		/// <summary>One-time setup of the stage camera.</summary>
 		void SetupCamera( Camera _camera );
 

@@ -61,7 +61,7 @@ namespace GuiToolkit.Test
 			m_iconScene = SceneManager.CreateScene("Icon3DSpikeScene");
 			m_target = new RenderTexture(Size, Size, 24, RenderTextureFormat.ARGB32);
 			m_readback = new Texture2D(Size, Size, TextureFormat.RGBA32, false);
-			m_whiteLit = new Material(Shader.Find("Standard")) { color = Color.white };
+			m_whiteLit = Icon3DTestModels.CreateOpaque("White", Color.white, 0, 0.5f);
 			m_whiteLit.SetFloat("_Glossiness", 0);
 			m_whiteLit.SetFloat("_Metallic", 0);
 			m_blackCube = CreateCube(Color.black);
@@ -107,7 +107,7 @@ namespace GuiToolkit.Test
 			var blocker = GameObject.CreatePrimitive(PrimitiveType.Cube);
 			blocker.name = "SpikeBlocker";
 			blocker.transform.position = new Vector3(0, 0, -1.5f);
-			blocker.GetComponent<Renderer>().sharedMaterial = new Material(Shader.Find("Unlit/Color")) { color = Color.red };
+			blocker.GetComponent<Renderer>().sharedMaterial = Icon3DTestModels.CreateUnlit(Color.red);
 			yield return null;
 
 			var c = RenderCenter(camera);
@@ -220,6 +220,10 @@ namespace GuiToolkit.Test
 		[UnityTest]
 		public IEnumerator Q8a_Without_Reflection_Override_Reflection_Leaks()
 		{
+			// A finding about Built-in's global environment; URP reads its reflection from elsewhere
+			if (Icon3DTestModels.Pipeline != Icon3DTestModels.EPipeline.BuiltIn)
+				Assert.Ignore("Built-in specific finding");
+
 			CreateSphere(m_iconScene, Vector3.zero);
 			var camera = CreateCamera(m_iconScene, m_iconScene);
 			PrepareOracleScenes(m_blackCube);

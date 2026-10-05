@@ -43,7 +43,7 @@ namespace GuiToolkit.Test
 			m_canvas = canvasGo.GetComponent<Canvas>();
 			m_canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
-			m_whiteLit = Track(new Material(Shader.Find("Standard")) { color = Color.white });
+			m_whiteLit = Track(Icon3DTestModels.CreateOpaque("White", Color.white, 0, 0.5f));
 			m_readback = Track(new Texture2D(Size, Size, TextureFormat.RGBA32, false));
 
 			var presetGo = Track(new GameObject("Preset"));

@@ -33,7 +33,7 @@ namespace GuiToolkit.Test
 			m_canvas = canvasGo.GetComponent<Canvas>();
 			m_canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
-			m_whiteLit = Track(new Material(Shader.Find("Standard")) { color = Color.white });
+			m_whiteLit = Track(Icon3DTestModels.CreateOpaque("White", Color.white, 0, 0.5f));
 		}
 
 		[TearDown]

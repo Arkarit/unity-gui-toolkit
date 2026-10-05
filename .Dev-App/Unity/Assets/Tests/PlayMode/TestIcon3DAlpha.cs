@@ -61,14 +61,22 @@ namespace GuiToolkit.Test
 		}
 
 		[Test]
-		public void Fast_Mode_Leaves_The_Known_Wrong_Alpha()
+		public void Fast_Mode_Leaves_The_Known_Wrong_Alpha_In_BuiltIn()
 		{
 			m_preset.AlphaMode = UiIcon3DPreset.EAlphaMode.Fast;
 			var center = Center(Render(CreateSphere(m_glass)));
-			Debug.Log($"ICON3D fast, 50% glass: {center}");
+			Debug.Log($"ICON3D fast, 50% glass ({Icon3DTestModels.Pipeline}): {center}");
 
-			// SrcAlpha / OneMinusSrcAlpha also applies to alpha: 0.5 * 0.5
-			Assert.AreEqual(LayerAlpha * LayerAlpha, center.a, 0.08f);
+			if (Icon3DTestModels.Pipeline == Icon3DTestModels.EPipeline.BuiltIn)
+			{
+				// SrcAlpha / OneMinusSrcAlpha also applies to alpha: 0.5 * 0.5
+				Assert.AreEqual(LayerAlpha * LayerAlpha, center.a, 0.08f);
+			}
+			else
+			{
+				// URP's transparent shaders blend alpha with One / OneMinusSrcAlpha: the alpha is already right
+				Assert.AreEqual(LayerAlpha, center.a, 0.08f);
+			}
 		}
 
 		[Test]

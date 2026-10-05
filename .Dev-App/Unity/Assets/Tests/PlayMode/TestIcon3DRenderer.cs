@@ -49,7 +49,7 @@ namespace GuiToolkit.Test
 			UiIcon3DRenderer.Layer = TestLayer;
 			UiIcon3DRenderer.MsaaSamples = 4;
 
-			m_whiteLit = Track(new Material(Shader.Find("Standard")) { color = Color.white });
+			m_whiteLit = Track(Icon3DTestModels.CreateOpaque("White", Color.white, 0, 0.5f));
 			m_whiteLit.SetFloat("_Glossiness", 0);
 			m_whiteLit.SetFloat("_Metallic", 0);
 			m_readback = Track(new Texture2D(Size, Size, TextureFormat.RGBA32, false));
@@ -152,7 +152,7 @@ namespace GuiToolkit.Test
 			var blocker = Track(GameObject.CreatePrimitive(PrimitiveType.Cube));
 			blocker.transform.position = UiIcon3DRenderer.StagePosition + new Vector3(0, 0, -0.6f);
 			blocker.transform.localScale = Vector3.one * 0.2f;
-			blocker.GetComponent<Renderer>().sharedMaterial = Track(new Material(Shader.Find("Unlit/Color")) { color = Color.red });
+			blocker.GetComponent<Renderer>().sharedMaterial = Track(Icon3DTestModels.CreateUnlit(Color.red));
 
 			var pixels = RenderAndRead(sphere, preset, Quaternion.identity);
 			Log("scene object at stage", Center(pixels));
@@ -350,6 +350,7 @@ namespace GuiToolkit.Test
 		private class NoEnvironmentBackend : IIcon3DRenderBackend
 		{
 			private readonly BuiltinIcon3DBackend m_builtin = new();
+			public bool LightsHonourCullingMask => m_builtin.LightsHonourCullingMask;
 			public void SetupCamera( Camera _camera ) => m_builtin.SetupCamera(_camera);
 			public void BeginEnvironment( UiIcon3DPreset _preset ) { }
 			public void Render( Camera _camera ) => m_builtin.Render(_camera);

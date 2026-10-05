@@ -61,6 +61,9 @@ namespace GuiToolkit
 		private static Mesh s_shadowCatcherMesh;
 		private static bool s_alphaCombineWarned;
 		private static IIcon3DRenderBackend s_backend;
+		private static bool s_backendExplicit;
+		private static UnityEngine.Rendering.RenderPipelineAsset s_backendPipeline;
+		private static readonly List<(Light light, bool wasEnabled)> s_disabledLights = new();
 
 		private static int s_layerOverride = -1;
 		private static int s_resolvedLayer = -1;
@@ -190,17 +193,38 @@ namespace GuiToolkit
 		/// <summary>CPU milliseconds the static renders of the last tick took.</summary>
 		public static float LastStaticRenderMilliseconds { get; private set; }
 
-		/// <summary>Render pipeline specific part. Built-in by default.</summary>
+		/// <summary>
+		/// Render pipeline specific part. Chosen by the project's render pipeline (see <see cref="Icon3DBackends"/>) and
+		/// switched when that changes, unless one is set explicitly (tests).
+		/// </summary>
 		public static IIcon3DRenderBackend Backend
 		{
-			get => s_backend ??= new BuiltinIcon3DBackend();
+			get
+			{
+				var pipeline = UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline;
+				if (s_backend == null || (!s_backendExplicit && s_backendPipeline != pipeline))
+				{
+					bool switching = s_backend != null;
+					if (switching)
+						TearDownStage();
+
+					s_backend = Icon3DBackends.CreateFor(pipeline);
+					s_backendPipeline = pipeline;
+					if (switching)
+						SetAllDirty();
+				}
+
+				return s_backend;
+			}
 			set
 			{
+				s_backendExplicit = value != null;
 				if (s_backend == value)
 					return;
 
 				TearDownStage();
 				s_backend = value;
+				s_backendPipeline = UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline;
 				SetAllDirty();
 			}
 		}
@@ -1033,17 +1057,34 @@ namespace GuiToolkit
 				light.renderMode = LightRenderMode.ForcePixel;
 		}
 
+		/// <summary>
+		/// Keeps the scene's lights off the icons. Where lights honour their culling mask (Built-in) it is enough to take the
+		/// icon layer out of it; in URP and HDRP the mask is ignored, so the scene's lights are switched off for the batch
+		/// (a single tick: nothing is rendered in between) and on again afterwards.
+		/// </summary>
 		private static void MaskForeignLights()
 		{
 			int bit = 1 << Layer;
+			bool byMask = Backend.LightsHonourCullingMask;
 			var lights = Object.FindObjectsByType<Light>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
 			foreach (var light in lights)
 			{
-				if ((light.cullingMask & bit) == 0 || light.transform.IsChildOf(s_stage.transform))
+				if (light.transform.IsChildOf(s_stage.transform))
 					continue;
 
-				s_maskedLights.Add((light, light.cullingMask));
-				light.cullingMask &= ~bit;
+				if (byMask)
+				{
+					if ((light.cullingMask & bit) == 0)
+						continue;
+
+					s_maskedLights.Add((light, light.cullingMask));
+					light.cullingMask &= ~bit;
+				}
+				else if (light.enabled)
+				{
+					s_disabledLights.Add((light, true));
+					light.enabled = false;
+				}
 			}
 		}
 
@@ -1054,6 +1095,12 @@ namespace GuiToolkit
 					light.cullingMask = cullingMask;
 
 			s_maskedLights.Clear();
+
+			foreach (var (light, wasEnabled) in s_disabledLights)
+				if (light != null)
+					light.enabled = wasEnabled;
+
+			s_disabledLights.Clear();
 		}
 
 		#endregion

@@ -195,18 +195,98 @@ namespace GuiToolkit.Test
 
 		#region Materials
 
+		/// <summary>The render pipeline the project runs, as far as the test materials care.</summary>
+		public enum EPipeline
+		{
+			BuiltIn,
+			Urp,
+			Hdrp,
+		}
+
+		public static EPipeline Pipeline
+		{
+			get
+			{
+				var pipeline = UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline;
+				if (pipeline == null)
+					return EPipeline.BuiltIn;
+				return pipeline.GetType().Name.Contains("HDRender") ? EPipeline.Hdrp : EPipeline.Urp;
+			}
+		}
+
+		/// <summary>A lit opaque material in whatever pipeline the project runs (Standard, URP/Lit, HDRP/Lit).</summary>
 		public static Material CreateOpaque( string _name, Color _color, float _metallic = 0, float _smoothness = 0.4f )
 		{
-			var material = new Material(Shader.Find("Standard")) { name = _name, color = _color };
-			material.SetFloat("_Metallic", _metallic);
-			material.SetFloat("_Glossiness", _smoothness);
+			string shaderName;
+			switch (Pipeline)
+			{
+				case EPipeline.Urp: shaderName = "Universal Render Pipeline/Lit"; break;
+				case EPipeline.Hdrp: shaderName = "HDRP/Lit"; break;
+				default: shaderName = "Standard"; break;
+			}
+
+			var shader = Shader.Find(shaderName);
+			if (shader == null)
+				throw new System.InvalidOperationException($"shader '{shaderName}' not found");
+
+			var material = new Material(shader) { name = _name };
+			SetColor(material, _color);
+			SetFloat(material, "_Metallic", _metallic);
+			SetFloat(material, "_Glossiness", _smoothness);   // Standard
+			SetFloat(material, "_Smoothness", _smoothness);   // URP, HDRP
 			return material;
 		}
 
-		/// Standard shader in Fade mode, the way the inspector's Rendering Mode dropdown sets it.
+		/// <summary>A flat colour that ignores lights, in whatever pipeline the project runs.</summary>
+		public static Material CreateUnlit( Color _color )
+		{
+			string shaderName;
+			switch (Pipeline)
+			{
+				case EPipeline.Urp: shaderName = "Universal Render Pipeline/Unlit"; break;
+				case EPipeline.Hdrp: shaderName = "HDRP/Unlit"; break;
+				default: shaderName = "Unlit/Color"; break;
+			}
+
+			var material = new Material(Shader.Find(shaderName)) { name = "Unlit" };
+			SetColor(material, _color);
+			return material;
+		}
+
+		private static void SetColor( Material _material, Color _color )
+		{
+			// Standard calls it _Color, URP and HDRP _BaseColor, unlit HDRP _UnlitColor
+			if (_material.HasProperty("_Color"))
+				_material.SetColor("_Color", _color);
+			if (_material.HasProperty("_BaseColor"))
+				_material.SetColor("_BaseColor", _color);
+			if (_material.HasProperty("_UnlitColor"))
+				_material.SetColor("_UnlitColor", _color);
+		}
+
+		private static void SetFloat( Material _material, string _property, float _value )
+		{
+			if (_material.HasProperty(_property))
+				_material.SetFloat(_property, _value);
+		}
+
+		/// Alpha blended, the way each pipeline's material inspector sets it (Standard: Fade mode).
 		public static Material CreateTransparent( string _name, Color _color )
 		{
 			var material = CreateOpaque(_name, _color, 0, 0.9f);
+			if (Pipeline == EPipeline.Urp)
+			{
+				material.SetFloat("_Surface", 1);
+				material.SetFloat("_Blend", 0);
+				material.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+				material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+				material.SetFloat("_ZWrite", 0);
+				material.SetOverrideTag("RenderType", "Transparent");
+				material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+				material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+				return material;
+			}
+
 			material.SetFloat("_Mode", 2);
 			material.SetOverrideTag("RenderType", "Transparent");
 			material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
