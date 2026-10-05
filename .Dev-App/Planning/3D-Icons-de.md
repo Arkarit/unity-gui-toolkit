@@ -351,11 +351,14 @@ Test auf Bewegung darf nicht von der Zeit abhängen – Frames im Test Runner li
    `TestIcon3DPresetStudio` (EditMode: eine Anfrage pro Zelle, alle beim Schließen freigegeben). Die Darstellung im
    Fenster selbst wurde nicht angesehen, nur die Renders, die es zeigt.
 2. Debug-Ansicht: alle Keywords des `RenderTextureManager`, Größen, Speicher, Nutzer; Render-Aufrufe pro Frame.
+   **Erledigt** (05.10.2026): `Icon3DDiagnostics` (Runtime: `Collect`, `Icon3DInfo`, `RenderTextureInfo`, Zusammenfassung
+   mit Renders des letzten Ticks und Spitzenwert) und das Editor-Fenster `Icon3DDebugWindow` (Menü *3D Icons > Debug
+   View...*). Tests: `TestIcon3DDiagnostics`, `TestIcon3DDebugWindow`. Die Darstellung im Fenster wurde nicht angesehen.
 3. Dokumentationsseite + Eintrag in BEST-PRACTICES (Layer-Reservierung, Preset-Varianten, Pipeline-Varianten).
 
 **Stand:** Punkt 3 erledigt – Leitfaden `Documentation~/3D-Icons.md` (in der README verlinkt), BEST-PRACTICES §6,
-Architektur-Abschnitt in CLAUDE.md / AGENTS.md. Punkte 1 (Preset-Studio) und 2 (Debug-Ansicht) sind offen; lohnen
-sich, sobald echte Assets zeigen, wo das Erstellen hakt.
+Architektur-Abschnitt in CLAUDE.md / AGENTS.md. Punkte 1 (Preset-Studio) und 2 (Debug-Ansicht) sind ebenfalls erledigt (siehe oben);
+Phase 5 ist abgeschlossen.
 
 ### Phase 6 – Optional
 

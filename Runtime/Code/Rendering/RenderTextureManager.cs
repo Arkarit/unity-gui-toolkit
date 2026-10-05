@@ -70,6 +70,31 @@ namespace GuiToolkit
 		/// <summary>Number of keywords currently known (with or without texture).</summary>
 		public static int Count => s_entries.Count;
 
+		/// <summary>One line per keyword for diagnostics: size, format, memory, who uses it. Replaces the contents of _result.</summary>
+		public static void CollectInfo( List<RenderTextureInfo> _result )
+		{
+			_result.Clear();
+			foreach (var entry in s_entries.Values)
+			{
+				var texture = entry.Texture;
+				_result.Add(new RenderTextureInfo
+				{
+					Key = entry.Key,
+					HasTexture = texture != null,
+					IsCreated = texture != null && texture.IsCreated(),
+					Width = texture != null ? texture.width : 0,
+					Height = texture != null ? texture.height : 0,
+					Format = texture != null ? texture.format : RenderTextureFormat.Default,
+					DepthBits = entry.AppliedSpec.SanitizedDepthBits,
+					MsaaSamples = entry.AppliedSpec.SanitizedMsaaSamples,
+					MipMaps = entry.AppliedSpec.UseMipMaps,
+					Producers = entry.Producers.Count,
+					Consumers = entry.Consumers.Count,
+					Bytes = texture != null ? UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(texture) : 0,
+				});
+			}
+		}
+
 		/// <summary>Creates a keyword nobody else uses, e.g. for one 3D icon among many.</summary>
 		public static string CreateUniqueKey( string _prefix = "rt" ) => $"{_prefix}#{++s_uniqueKeyCounter}";
 

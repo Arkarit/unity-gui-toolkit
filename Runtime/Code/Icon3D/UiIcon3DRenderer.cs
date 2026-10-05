@@ -176,6 +176,14 @@ namespace GuiToolkit
 			set => s_renderMillisecondsOverride = value < 0 ? -1 : value;
 		}
 
+		/// <summary>Renders (static and animated) of the last tick. A tick is one frame in play mode.</summary>
+		public static int LastTickRenders { get; private set; }
+
+		/// <summary>The most renders any tick has done since the last <see cref="ResetPeakTickRenders"/>.</summary>
+		public static int PeakTickRenders { get; private set; }
+
+		public static void ResetPeakTickRenders() => PeakTickRenders = 0;
+
 		/// <summary>Static icons that were still pending after the last tick because the time budget ran out.</summary>
 		public static int DeferredByTimeBudget { get; private set; }
 
@@ -254,6 +262,32 @@ namespace GuiToolkit
 			return new Icon3DHandle(request) { IsVisible = true };
 		}
 
+		/// <summary>One line per distinct icon, for <see cref="Icon3DDiagnostics"/>. Replaces the contents of _result.</summary>
+		internal static void CollectRequests( List<Icon3DInfo> _result )
+		{
+			_result.Clear();
+			foreach (var request in s_requests.Values)
+			{
+				var texture = request.Texture;
+				_result.Add(new Icon3DInfo
+				{
+					Key = request.Key,
+					Prefab = request.Prefab,
+					Preset = request.Preset,
+					Size = request.Size,
+					References = request.RefCount,
+					VisibleReferences = request.VisibleHandles,
+					IsAnimated = request.IsAnimated,
+					IsPlaying = request.IsPlaying,
+					IsRendered = request.IsRendered,
+					IsDirty = request.IsDirty,
+					HasFailed = request.HasFailed,
+					ExactAlpha = request.ExactAlpha,
+					Bytes = texture != null ? UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(texture) : 0,
+				});
+			}
+		}
+
 		/// <summary>Render all pending icons now, regardless of the per-frame budget.</summary>
 		public static void Flush() => Process(int.MaxValue);
 
@@ -330,6 +364,8 @@ namespace GuiToolkit
 			Icon3DAssetCache.Update();
 			Raise(s_beforeRender);
 			int rendered = RenderPending(_budget, _milliseconds);
+			LastTickRenders = rendered;
+			PeakTickRenders = Mathf.Max(PeakTickRenders, rendered);
 			Raise(s_afterRender);
 
 #if UNITY_EDITOR
@@ -1166,6 +1202,8 @@ namespace GuiToolkit
 			s_triedResourcesPreset = false;
 			s_resourcesPreset = null;
 			RenderCount = 0;
+			LastTickRenders = 0;
+			PeakTickRenders = 0;
 		}
 
 #if UNITY_EDITOR

@@ -340,11 +340,14 @@ frames are milliseconds apart.
    (EditMode: one request per cell, all released on close). The drawing was not looked at in the window itself, only
    the renders it shows.
 2. Debug view: all keywords of `RenderTextureManager`, sizes, memory, users; render count per frame.
+   **Done** (2026-10-05): `Icon3DDiagnostics` (runtime: `Collect`, `Icon3DInfo`, `RenderTextureInfo`, summary with last-tick
+   and peak renders) and the editor window `Icon3DDebugWindow` (menu *3D Icons > Debug View...*). Tests:
+   `TestIcon3DDiagnostics`, `TestIcon3DDebugWindow`. The window's drawing was not looked at.
 3. Documentation page + BEST-PRACTICES entry (layer reservation, preset variants, pipeline variants).
 
 **Status:** item 3 done - guide `Documentation~/3D-Icons.md` (linked from the README), BEST-PRACTICES §6, architecture
-section in CLAUDE.md / AGENTS.md. Items 1 (preset studio) and 2 (debug view) are open; worth building once real
-assets show where authoring hurts.
+section in CLAUDE.md / AGENTS.md. Items 1 (preset studio) and 2 (debug view) are done as well (see above); phase 5 is
+complete.
 
 ### Phase 6 - Optional
 

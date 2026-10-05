@@ -231,6 +231,27 @@ animated.IsVisible = isOnScreen;      // invisible animated icons are not render
 
 ---
 
+## Debug view
+
+*Gui Toolkit → 3D Icons → Debug View...* shows what the renderer holds right now, refreshed four times a second:
+
+- **Summary:** icons alive (pending, animated, failed), textures and their memory, renders of the last tick, the peak
+  since *Reset Peak*, the static render time of the last tick and how many icons the time budget deferred, the budget
+  itself, MSAA and the reserved layer.
+- **One line per distinct icon:** object, preset, size, memory, references (of which shown) and state: *pending*
+  (yellow), *rendered*, *FAILED* (red; it is not retried until it is marked dirty, the console says why), *animated*
+  or *frozen*, *2 renders* (the exact alpha path of a transparent material). Identical icons share one line with
+  several references: that is the sharing working. Click a name to ping the asset, double click to open it.
+- **Other managed render textures:** keywords of the `RenderTextureManager` that are not 3D icons.
+- *Render Again* marks every icon dirty, *Copy* puts the list on the clipboard as text.
+
+"Why is this icon blank" is answered by its state; "why was this rendered twice" by *2 renders*; "where does the
+memory go" by sorting by memory. The same data is available in code: `Icon3DDiagnostics.Collect(icons, others)` works
+at runtime, e.g. for a development overlay. Memory counts the result textures; the temporary render targets Unity
+pools for the scratch renders are not included.
+
+---
+
 ## Preset Studio
 
 *Gui Toolkit → 3D Icons → Preset Studio...* shows a grid: sample objects as rows, presets as columns. A preset is
