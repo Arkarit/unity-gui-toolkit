@@ -320,14 +320,14 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Like callBridge but never throws — returns the parsed JSON, or null when the bridge is
 // unreachable (e.g. the HTTP listener is briefly down during a domain reload).
-async function tryBridge(method) {
+async function tryBridge(method, payload) {
 	let bridge = null;
 	try {
 		bridge = await resolveBridge();
 		const res = await fetch(bridge.url, {
 			method: "POST",
 			headers: { "content-type": "application/json" },
-			body: JSON.stringify({ method }),
+			body: JSON.stringify(payload === undefined ? { method } : { method, payload }),
 		});
 		if (!res.ok) return null;
 		return JSON.parse(await res.text());
@@ -663,6 +663,88 @@ tool(
 				await sleep(2000);
 			}
 			return ok(JSON.stringify({ resolved: false, reloaded, note: "timed out waiting for the editor to go idle", ms: Date.now() - t0 }));
+		} catch (e) {
+			return fail(e);
+		}
+	}
+);
+
+tool(
+	"run_tests",
+	"Run Unity Test Runner tests (EditMode or PlayMode) in the open editor and WAIT for the result - so a change " +
+	"can be written, compiled and tested without a human clicking through the Test Runner window. Needs " +
+	"com.unity.test-framework in the project. Refuses to start without a filter (an unfiltered run would execute " +
+	"every test in the project): give 'groupNames' (regex over full test names, e.g. 'TestIcon3D' or " +
+	"'TestIcon3DSkinned'), 'testNames' (exact full names), 'categoryNames' or 'assemblyNames'.\n\n" +
+	"Returns { runId, mode, state:'finished'|'error'|'running', passed, failed, skipped, inconclusive, failures:[{ " +
+	"name, message, stackTrace, output }], logs:[...], tests?:[...] }. 'logs' are the lines of test output (Debug.Log " +
+	"inside the tests) containing 'outputContains' - pass a prefix such as 'ICON3D' to get just the diagnostics the " +
+	"tests print, instead of everything. A PlayMode run reloads the domain and the bridge is unreachable for a " +
+	"while; that is waited out here, and the result is read from a file the editor writes, so it survives the " +
+	"reload. If 'timeoutSeconds' passes first, state is 'running': call this tool again with attach:true " +
+	"(no filter needed) to keep waiting for that run. Refused while the editor is compiling or " +
+	"importing, and for PlayMode while a scene or prefab has unsaved changes (the run enters Play Mode and " +
+	"would open a save dialog nobody can click) - save or discard in the editor first.",
+	{
+		mode: z.enum(["EditMode", "PlayMode"]).optional().describe("Default EditMode."),
+		groupNames: z.array(z.string()).optional().describe("Regexes matched against full test names (Namespace.Class.Method)."),
+		testNames: z.array(z.string()).optional().describe("Exact full test names."),
+		categoryNames: z.array(z.string()).optional(),
+		assemblyNames: z.array(z.string()).optional(),
+		outputContains: z.string().optional().describe("Return only test output lines containing this text (case-insensitive), e.g. 'ICON3D'."),
+		includePassed: z.boolean().optional().describe("Also list passing tests (name, duration). Default false."),
+		timeoutSeconds: z.number().optional().describe("Give up waiting after this long (default 300). The run itself continues."),
+		attach: z.boolean().optional().describe("Do not start a run; wait for / report the one already in progress or the last one."),
+		force: z.boolean().optional().describe("Start even if a previous run is recorded as still in progress (it died)."),
+	},
+	async (args) => {
+		try {
+			const { mode, groupNames, testNames, categoryNames, assemblyNames, outputContains, includePassed, force } = args;
+			const timeoutMs = Math.max(10, args.timeoutSeconds ?? 300) * 1000;
+
+			if (!args.attach) {
+				const started = JSON.parse(await callBridge("runTests",
+					JSON.stringify({ mode, groupNames, testNames, categoryNames, assemblyNames, force })));
+				if (!started.started)
+					throw new Error("Bridge did not start a run: " + JSON.stringify(started));
+			}
+
+			const t0 = Date.now();
+			let state = null;
+			let sawReload = false;
+			while (Date.now() - t0 < timeoutMs) {
+				await sleep(1500);
+				const st = await tryBridge("testStatus");
+				if (st === null) { sawReload = true; continue; }   // domain reload: bridge is down
+				state = st;
+				if (st.state === "finished" || st.state === "error" || st.state === "none")
+					break;
+			}
+
+			if (state === null)
+				throw new Error("Editor bridge never came back within the timeout (is it compiling or showing a dialog?).");
+
+			const needle = outputContains?.toLowerCase();
+			const tests = state.tests ?? [];
+			const logs = [];
+			for (const t of tests)
+				for (const line of (t.output ?? "").split(/\r?\n/))
+					if (line.trim() && (!needle || line.toLowerCase().includes(needle)))
+						logs.push(line.trim());
+
+			const failures = tests.filter((t) => t.status === "Failed").map((t) => ({
+				name: t.name, message: t.message, stackTrace: t.stackTrace, output: t.output ?? undefined,
+			}));
+
+			const result = {
+				runId: state.runId, mode: state.mode, state: state.state, error: state.error,
+				passed: state.passed, failed: state.failed, skipped: state.skipped, inconclusive: state.inconclusive,
+				domainReloaded: sawReload, seconds: Math.round((Date.now() - t0) / 100) / 10,
+				failures, logs,
+			};
+			if (includePassed)
+				result.tests = tests.map((t) => ({ name: t.name, status: t.status, durationMs: t.durationMs }));
+			return ok(JSON.stringify(result));
 		} catch (e) {
 			return fail(e);
 		}

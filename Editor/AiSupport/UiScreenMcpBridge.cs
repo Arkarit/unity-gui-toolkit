@@ -771,9 +771,33 @@ namespace GuiToolkit.Editor.AiSupport
 						.ToString(Newtonsoft.Json.Formatting.None);
 
 				default:
+					if (s_externalMethods.TryGetValue(_method, out var external))
+					{
+						if (external.heavy)
+							ThrowIfBusy(_method);
+						return external.handler(_payload);
+					}
+
 					throw new Exception($"Unknown method '{_method}'.");
 			}
 		}
+
+		private static readonly Dictionary<string, (Func<string, string> handler, bool heavy)> s_externalMethods =
+			new(StringComparer.Ordinal);
+
+		/// <summary>
+		/// Lets an optional assembly add a bridge method without this one having to reference it - the test runner
+		/// integration lives in its own assembly because the test framework is not a hard dependency of the package.
+		/// Call it from an [InitializeOnLoad] constructor: registrations do not survive a domain reload. The handler
+		/// runs on the main thread, like every other method.
+		/// </summary>
+		public static void RegisterMethod( string _method, Func<string, string> _handler, bool _heavy = false )
+		{
+			s_externalMethods[_method] = (_handler, _heavy);
+		}
+
+		/// <summary>The same guard the built-in methods use for anything that reloads the domain or enters Play Mode.</summary>
+		public static void EnsureReloadSafe( string _method ) => ThrowIfReloadUnsafe(_method);
 
 		/// <summary>
 		/// Returns a small JSON envelope describing the catalog file (path + cheap metadata) rather

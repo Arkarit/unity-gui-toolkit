@@ -172,6 +172,7 @@ Steps Claude follows:
 | `read_skin` | Read the VALUES behind the style names — colours, fonts, sizes, sprites. Applicable values only unless asked otherwise. See below. |
 | `write_skin` | Write those values. One edit reaches every prefab using the style. `dryRun` reports before/after without writing. See below. |
 | `execute_code` | Run a C# snippet inside the editor and get its return value. The escape hatch for everything with no tool of its own. See below. |
+| `run_tests` | Run Unity Test Runner tests (EditMode/PlayMode) in the open editor and wait for the result, failures and chosen log lines included. Needs a filter. See below. |
 
 ### Before you write or wait: `status` and `asset_state`
 
@@ -536,6 +537,25 @@ Note what this does **not** buy you: Play Mode starts the app at its first scene
 that means splash, login and network, and driving from there to a particular screen is usually not
 feasible. The productive pattern is the other way round — ask the human to bring the app to the state in
 question, then capture and probe it.
+
+### Running tests: `run_tests`
+
+Starts Unity Test Runner tests in the open editor and waits for the result, so a change can be written, compiled
+and tested without anyone clicking through the Test Runner window. It needs `com.unity.test-framework`; without it
+the integration (`Editor/AiSupport/TestRunner`, its own assembly) is simply not compiled and the tool answers
+"Unknown method".
+
+- **A filter is mandatory.** `groupNames` (regexes over full test names, e.g. `TestIcon3D`), `testNames`,
+  `categoryNames` or `assemblyNames`. A bare call would run every test in the project, so it is refused.
+- **`outputContains`** narrows the returned `logs` to the test output lines containing that text. Tests that print
+  diagnostics with a fixed prefix (`ICON3D ...`) hand them straight back this way.
+- **PlayMode reloads the domain**, and the bridge is unreachable for a while. That is waited out; the result is
+  read from `Library/UiToolkit/test-run.json`, which the editor writes as the tests finish and which therefore
+  survives the reload.
+- **Refused** while the editor compiles or imports, and for PlayMode while a scene or prefab has unsaved changes
+  (entering Play Mode would open a save dialog nobody can click). A run recorded as still in progress also blocks a
+  new one, unless `force` says it died.
+- If `timeoutSeconds` passes first the answer is `state: running`; call again with `attach: true` to keep waiting.
 
 ### Screen JSON shape (for `bake_screen`)
 
